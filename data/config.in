@@ -1,0 +1,79 @@
+Files {
+	Keys = "~/.pekwm/keys"
+	Mouse = "~/.pekwm/mouse"
+	Menu = "~/.pekwm/menu"
+	Start = "~/.pekwm/start"
+	AutoProps = "~/.pekwm/autoproperties"
+	Theme = "<PREFIX>/themes/default"
+}
+
+MoveResize {
+	EdgeAttract = "10"
+	EdgeResist = "10"
+	WindowAttract = "5"
+	WindowResist = "5"
+	OpaqueMove = "True"
+	OpaqueResize = "False"
+}
+
+Screen {
+	Workspaces = "4"
+	ShowFrameList = "True"
+	ShowStatusWindow = "True"
+	PlaceNew = "True"
+	FocusNew = "True"
+
+	TrimTitle = "..."
+	EdgeSize = "1"
+	PixmapCacheSize = "20"
+	DoubleClickTime = "250"
+
+	Placement {
+		Model = "CenteredOnParent Smart MouseNotUnder"
+		Smart {
+			Row = "True"
+			TopToBottom = "True"
+			LeftToRight = "True"
+		}
+	}
+
+	UniqueNames  {
+		SetUnique = "False";
+		Pre = " #";
+		Post = "";
+	}
+
+	Viewports {
+		# Viewports are disabled by default.
+		Columns = "1"
+		Rows = "1"
+		# This would give you a 3x3 virtual workspace.
+		# Columns = "3"
+		# Rows = "3"
+	}
+}
+
+Menu {
+	# Defines how menus act on mouse input.
+	# Possible values are: "ButtonPress ButtonRelease DoubleClick Motion"
+	# To make submenus open on mouse over, comment the default Enter,
+	# uncomment the alternative, and reload pekwm.
+	
+	Select = "Motion"
+	Enter = "ButtonPress"
+	# Enter = "Motion"
+	Exec = "ButtonRelease"
+}
+
+Harbour {
+	OnTop = "True"
+	MaximizeOver = "False"
+	Placement = "Right"
+	Orientation = "TopToBottom"
+	Head = "0"
+
+	DockApp {
+		SideMin = "64"
+		SideMax = "0"
+	}
+}

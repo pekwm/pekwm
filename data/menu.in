@@ -1,0 +1,137 @@
+# Menu config for pekwm
+
+# Variables
+INCLUDE = "vars"
+
+RootMenu = "Pekwm" {
+	Entry = "Terminal" { Actions = "Exec $TERM &" }
+	Entry = "Run.." { Actions = "ShowCmdDialog" }
+
+	Separator {}
+
+	Submenu = "Editors" {
+		Entry = "vi" { Actions = "Exec $TERM -title vi -e vi &" }
+		Entry = "vim" { Actions = "Exec $TERM -title vim -e vim &" }
+		Entry = "gvim" { Actions = "Exec gvim &" }
+		Entry = "Emacs" { Actions = "Exec $TERM -title emacs -e emacs -nw &" }
+	}
+	Submenu = "Graphics" {
+		Entry = "Gimp" { Actions = "Exec gimp &" }
+		Entry = "Gv" { Actions = "Exec gv &" }
+		Entry = "Xpdf" { Actions = "Exec xpdf &" }
+		Entry = "gqview" { Actions = "Exec gqview &" }
+	}
+	Submenu = "Multimedia" {
+		Entry = "Xmms" { Actions = "Exec xmms &" }
+		Entry = "MPlayer" { Actions = "Exec gmplayer &" }
+		Entry = "Xine" { Actions = "Exec xine &" }
+		Entry = "xawtv" { Actions = "Exec xawtv &" }
+		Entry = "ogle" { actions = "exec ogle &" }
+		Entry = "alsamixer" { Actions = "Exec $TERM -title alsamixer -e alsamixer &" }
+	}
+	Submenu = "Utils" {
+		Entry = "XCalc" { Actions = "Exec xcalc &" }
+		Entry = "XMan" { Actions = "Exec xman &" }
+		Entry = "Xpdf" { Actions = "Exec xpdf &" }
+		Entry = "gucharmap" { Actions = "Exec gucharmap &" }
+		Entry = "Gkrellm2" { Actions = "Exec gkrellm &; Exec gkrellm2 &" }
+		Entry = "ROX Filer" { Actions = "Exec rox &" }
+	}
+	Submenu = "WWW" {
+		Entry = "Dillo" { Actions = "Exec dillo &" }
+		Entry = "Konqueror" { Actions = "Exec konqueror www.google.com &" }
+		Entry = "Mozilla" { Actions = "Exec mozilla &" }
+		Entry = "Mozilla Firefox" { Actions = "Exec firefox &; Exec mozilla-firefox &" }
+	}
+	Submenu = "FTP" {
+		Entry = "gftp" { Actions = "Exec gftp &" }
+		Entry = "lftp" { Actions = "Exec $TERM -title lftp -e lftp &" }
+	}
+	Submenu = "Communication" {
+		Entry = "Mutt" { Actions = "Exec $TERM -title mutt -e mutt &" }
+		Entry = "Pine" { Actions = "Exec $TERM -title pine -e pine &" }
+		Entry = "Thunderbird" { Actions = "Exec thunderbird &; Exec mozilla-thunderbird &" }
+		Entry = "Evolution" { Actions = "Exec evolution &" }
+		Entry = "Gaim" { Actions = "Exec gaim &" }
+		Entry = "Irssi" { Actions = "Exec $TERM -title irssi -e irssi &" }
+	}
+
+	Separator {}
+
+	Submenu = "Go to" {
+		SubMenu = "Workspace" {
+			# Create goto menu once per pekwm config reload. The fast way that
+			# will work for most if not all users.
+			COMMAND = "<PREFIX>/scripts/pekwm_ws_menu.pl -n goto"
+			# Create goto menu every time the menu is opened. The slow way.
+			# This is what you want if you are using external tools to make
+			# the amount of workspaces something else than what you define in
+			# ~/.pekwm/config. You will know if you want this.
+			# Entry = "" { Actions = "Dynamic <PREFIX>/scripts/pekwm_ws_menu.pl goto" }
+		}
+		Entry = "Window.." { Actions = "ShowMenu GotoClient True" }
+	}
+	Submenu = "Pekwm" {
+		Submenu = "Themes" {
+			Entry { Actions = "Dynamic <PREFIX>/scripts/pekwm_themeset.pl <PREFIX>/themes" }
+			Entry { Actions = "Dynamic <PREFIX>/scripts/pekwm_themeset.pl ~/.pekwm/themes" }
+		}
+		Entry = "Reload" { Actions = "Reload" }
+		Entry = "Restart" { Actions = "Restart" }
+		Entry = "Exit" { Actions = "Exit" }
+		Submenu = "Exit to" {
+			Entry = "Xterm" { Actions = "RestartOther xterm" }
+			Entry = "TWM" { Actions = "RestartOther twm" }
+		}
+	}
+}
+
+WindowMenu = "Window Menu" {
+	Entry = "(Un)Stick" { Actions = "Toggle Sticky" }
+	Entry = "(Un)Shade" { Actions = "Toggle Shaded" }
+	Entry = "Iconify " { Actions = "Set Iconified" }
+	Entry = "Command.." { Actions = "ShowCmdDialog" }
+
+	Submenu = "Maximize" {
+		Entry = "Full" { Actions = "Toggle Maximized True True" }
+		Entry = "Horizontal" { Actions = "Toggle Maximized True False" }
+		Entry = "Vertical" { Actions = "Toggle Maximized False True" }
+	}
+	Submenu = "Fill" {
+		Entry = "Full" { Actions = "MaxFill True True" }
+		Entry = "Horizontal" { Actions = "MaxFill True False" }
+		Entry = "Vertical" { Actions = "MaxFill False True" }
+	}
+	Submenu = "Stacking" {
+		Entry = "Raise " { Actions = "Raise" }
+		Entry = "Lower" { Actions = "Lower" }
+		Entry = "Always On Top " { Actions = "Toggle AlwaysOnTop" }
+		Entry = "Always Below" { Actions = "Toggle AlwaysBelow" }
+	}
+	Submenu = "Decor" {
+		Entry = "Decor" { Actions = "Toggle DecorBorder; Toggle DecorTitlebar" }
+		Entry = "Border" { Actions = "Toggle DecorBorder" }
+		Entry = "Titlebar" { Actions = "Toggle DecorTitlebar" }
+	}
+	Submenu = "Skip" {
+		Entry = "Menus" { Actions = "Toggle Skip Menus" }
+		Entry = "Focus Toggle" { Actions = "Toggle Skip FocusToggle" }
+		Entry = "Snap" { Actions = "Toggle Skip Snap" }
+	}
+	SubMenu = "Send To" {
+		# Create sendto menu once per pekwm config reload. The fast way that
+		# will work for most if not all users.
+		COMMAND = "<PREFIX>/scripts/pekwm_ws_menu.pl -n send"
+		# Create sendto menu every time the menu is opened. The slow way.
+		# This is what you want if you are using external tools to make
+		# the amount of workspaces something else than what you define in
+		# ~/.pekwm/config. You will know if you want this.
+		# Entry = "" { Actions = "Dynamic <PREFIX>/scripts/pekwm_ws_menu.pl send" }
+	}
+	Submenu = "Window Info" {
+		Entry = "" { Actions = "Dynamic <PREFIX>/scripts/pekwm_window_info.sh" }
+	}
+	Separator {}
+	Entry = "Close" { Actions = "Close" }
+	Entry = "Kill " { Actions = "Kill " }
+}
