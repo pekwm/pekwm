@@ -133,5 +133,5 @@ WindowMenu = "Window Menu" {
 	}
 	Separator {}
 	Entry = "Close" { Actions = "Close" }
-	Entry = "Kill " { Actions = "Kill " }
+	Submenu = "Kill" { Entry = "Kill" { Actions = "Kill" } }
 }
