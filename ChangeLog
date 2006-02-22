@@ -1,3 +1,10 @@
+pekwm-0.1.4 released
+
+2006-02-22  Claes Nästén  <me{@}pekdon{.}net>
+
+	* data/themes/default/theme: 
+	Fixed typo COLOR_TAB_FS_HIGH instead of COLOR_TAB_FS_LIGHT.
+
 2006-02-16  Claes Nästén  <me{@}pekdon{.}net>
 
 	* src/CfgParserSource.cc (close): 

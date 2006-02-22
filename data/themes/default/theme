@@ -270,7 +270,7 @@ Decor = "STATUSWINDOW" {
 }
 
 Harbour {
-	Texture = "SolidRaised $COLOR_TAB_FS $COLOR_TAB_FS_HIGH $COLOR_TAB_FS_DARK 1 0"
+	Texture = "SolidRaised $COLOR_TAB_FS $COLOR_TAB_FS_LIGHT $COLOR_TAB_FS_DARK 1 0"
 }
 
 Menu {
