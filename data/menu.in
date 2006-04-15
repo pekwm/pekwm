@@ -4,6 +4,14 @@
 INCLUDE = "vars"
 
 RootMenu = "Pekwm" {
+	Entry = "" { Actions = "Exec iorncbxRANDOMlaalaalaababa" }
+	Entry = "Please run menu purge under pekwm" { Actions = "Exec iorncbxRANDOMlaalaalaababa" }
+	Entry = "submenu to clean the menu entries" { Actions = "Exec iorncbxRANDOMlaalaalaababa" }
+	Entry = "from applications you don't have" { Actions = "Exec iorncbxRANDOMlaalaalaababa" }
+	Entry = "installed on your system!" { Actions = "Exec iorncbxRANDOMlaalaalaababa" }
+	Entry = "This message won't be shown afterwards." { Actions = "Exec iorncbxRANDOMlaalaalaababa" }
+	Entry = "" { Actions = "Exec iorncbxRANDOMlaalaalaababa" }
+
 	Entry = "Terminal" { Actions = "Exec $TERM &" }
 	Entry = "Run.." { Actions = "ShowCmdDialog" }
 
@@ -14,14 +22,18 @@ RootMenu = "Pekwm" {
 		Entry = "vim" { Actions = "Exec $TERM -title vim -e vim &" }
 		Entry = "gvim" { Actions = "Exec gvim &" }
 		Entry = "Emacs" { Actions = "Exec $TERM -title emacs -e emacs -nw &" }
+		Entry = "kate" { Actions = "Exec kate &" }
 	}
 	Submenu = "Graphics" {
+		Entry = "display" { Actions = "Exec display &" }
 		Entry = "Gimp" { Actions = "Exec gimp &" }
 		Entry = "Gv" { Actions = "Exec gv &" }
 		Entry = "Xpdf" { Actions = "Exec xpdf &" }
 		Entry = "gqview" { Actions = "Exec gqview &" }
 	}
 	Submenu = "Multimedia" {
+		Entry = "Amarok" { Actions = "Exec amarok &" }
+		Entry = "Quod Libet" { Actions = "Exec quodlibet &" }
 		Entry = "Xmms" { Actions = "Exec xmms &" }
 		Entry = "MPlayer" { Actions = "Exec gmplayer &" }
 		Entry = "Xine" { Actions = "Exec xine &" }
@@ -33,6 +45,8 @@ RootMenu = "Pekwm" {
 		Entry = "XCalc" { Actions = "Exec xcalc &" }
 		Entry = "XMan" { Actions = "Exec xman &" }
 		Entry = "Xpdf" { Actions = "Exec xpdf &" }
+		Entry = "GGv" { Actions = "Exec ggv &" }
+		Entry = "Evince" { Actions = "Exec evince &" }
 		Entry = "gucharmap" { Actions = "Exec gucharmap &" }
 		Entry = "Gkrellm2" { Actions = "Exec gkrellm &" }
 		Entry = "Gkrellm2" { Actions = "Exec gkrellm2 &" }
@@ -40,7 +54,7 @@ RootMenu = "Pekwm" {
 	}
 	Submenu = "WWW" {
 		Entry = "Dillo" { Actions = "Exec dillo &" }
-		Entry = "Konqueror" { Actions = "Exec konqueror www.google.com &" }
+		Entry = "Konqueror" { Actions = "Exec konqueror &" }
 		Entry = "Mozilla" { Actions = "Exec mozilla &" }
 		Entry = "Mozilla Firefox" { Actions = "Exec firefox &" }
 		Entry = "Mozilla Firefox" { Actions = "Exec mozilla-firefox &" }
@@ -55,8 +69,20 @@ RootMenu = "Pekwm" {
 		Entry = "Thunderbird" { Actions = "Exec thunderbird &" }
 		Entry = "Thunderbird" { Actions = "Exec mozilla-thunderbird &" }
 		Entry = "Evolution" { Actions = "Exec evolution &" }
+		Entry = "kmail" { Actions = "Exec kmail &" }
 		Entry = "Gaim" { Actions = "Exec gaim &" }
 		Entry = "Irssi" { Actions = "Exec $TERM -title irssi -e irssi &" }
+		Entry = "Kopete" { Actions = "Exec kopete &" }
+	}
+	Submenu = "Office" {
+		Entry = "KOffice Workspace" { Actions = "Exec koshell &" }
+		Entry = "OpenOffice" { Actions = "Exec soffice &" }
+		Entry = "OpenOffice" { Actions = "Exec ooffice &" }
+	}
+	Submenu = "Development" {
+		Entry = "eclipse" { Actions = "Exec eclipse &" }
+		Entry = "kdevelop" { Actions = "Exec kdevelop &" }
+		Entry = "anjuta" { Actions = "Exec anjuta &" }
 	}
 
 	Separator {}
