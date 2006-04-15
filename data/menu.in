@@ -110,7 +110,7 @@ RootMenu = "Pekwm" {
 		# prettier menu. Run it without parameters in a terminal for more
 		# info. A backup of your current menu will be created as
 		# ~/.pekwm/menu.backup in case something goes horribly wrong.
-		Entry = "Purge menu entries" { Actions = "Exec <PREFIX>/scripts/pekwm_filter.sh ~/.pekwm/menu" }
+		Entry = "Purge menu entries" { Actions = "Exec <PREFIX>/scripts/pekwm-filter.sh ~/.pekwm/menu" }
 		Entry = "Reload" { Actions = "Reload" }
 		Entry = "Restart" { Actions = "Restart" }
 		Entry = "Exit" { Actions = "Exit" }
