@@ -43,6 +43,7 @@ private:
 												 Client *client, Frame *frame);
 
 	void actionFindClient(const std::string &title);
+	void actionSendToWorkspace(PDecor *decor, int direction);
 	void actionWarpToWorkspace(PDecor *decor, uint direction);
 	void actionWarpToViewport(PDecor *decor, uint direction);
 	void actionFocusToggle(uint button, uint raise, int off, bool mru);

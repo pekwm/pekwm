@@ -208,28 +208,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
 				frame->activateChildNum(it->getParamI(0));
 				break;
 			case ACTION_SEND_TO_WORKSPACE:
-				switch (it->getParamI(0)) {
-				case WORKSPACE_LEFT:
-				case WORKSPACE_PREV:
-					if (Workspaces::instance()->getActive() > 0) {
-						frame->setWorkspace(Workspaces::instance()->getActive() - 1);
-					} else if (static_cast<uint>(it->getParamI(0)) == WORKSPACE_PREV) {
-						frame->setWorkspace(Workspaces::instance()->size() - 1);
-					}
-			break;
-				case WORKSPACE_NEXT:
-				case WORKSPACE_RIGHT:
-					if ((Workspaces::instance()->getActive() + 1) <
-							Workspaces::instance()->size()) {
-						frame->setWorkspace(Workspaces::instance()->getActive() + 1);
-					} else if (static_cast<uint>(it->getParamI(0)) == WORKSPACE_NEXT) {
-						frame->setWorkspace(0);
-					}
-					break;
-				default:
-					frame->setWorkspace(it->getParamI(0));
-					break;
-				}
+				actionSendToWorkspace(decor, it->getParamI(0));
 				break;
 			case ACTION_DETACH:
 				frame->detachClient(client);
@@ -580,6 +559,38 @@ ActionHandler::actionFindClient(const std::string &title)
 	frame->activateChild(client);
 	frame->raise();
 	frame->giveInputFocus();
+}
+
+//! @brief Sends client to specified workspace
+//! @param direction Workspace to send to, or special meaning relative space.
+void
+ActionHandler::actionSendToWorkspace(PDecor *decor, int direction)
+{
+  switch (direction) {
+  case WORKSPACE_LEFT:
+  case WORKSPACE_PREV:
+    if (Workspaces::instance()->getActive() > 0) {
+      decor->setWorkspace(Workspaces::instance()->getActive() - 1);
+    } else if (static_cast<uint>(direction) == WORKSPACE_PREV) {
+      decor->setWorkspace(Workspaces::instance()->size() - 1);
+    }
+    break;
+  case WORKSPACE_NEXT:
+  case WORKSPACE_RIGHT:
+    if ((Workspaces::instance()->getActive() + 1) <
+        Workspaces::instance()->size()) {
+      decor->setWorkspace(Workspaces::instance()->getActive() + 1);
+    } else if (static_cast<uint>(direction) == WORKSPACE_NEXT) {
+      decor->setWorkspace(0);
+    }
+    break;
+  case WORKSPACE_LAST:
+    decor->setWorkspace(Workspaces::instance()->getPrevious());
+    break;
+  default:
+    decor->setWorkspace(direction);
+    break;
+  }  
 }
 
 //! @brief

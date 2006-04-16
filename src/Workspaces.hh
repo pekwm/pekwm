@@ -60,6 +60,8 @@ public:
 	inline std::list<PWinObj*>::reverse_iterator rend(void) { return _wo_list.rend(); }
 
 	inline uint getActive(void) const { return _active; }
+	inline uint getPrevious(void) const { return _previous; }
+  
 	void setSize(uint number);
 
 	void setWorkspace(uint num, bool focus);
@@ -126,7 +128,8 @@ private:
 private:
 	static Workspaces *_instance;
 
-	uint _active;
+  uint _active; /**< Current active workspace. */
+  uint _previous; /**< Previous workspace. */
 
 	std::list<PWinObj*> _wo_list;
 	std::vector<Workspace*> _workspace_list;

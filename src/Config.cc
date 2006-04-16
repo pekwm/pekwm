@@ -203,6 +203,7 @@ _viewport_cols(1), _viewport_rows(1)
 	_workspace_change_map["PREV"] = WORKSPACE_PREV;
 	_workspace_change_map["RIGHT"] = WORKSPACE_RIGHT;
 	_workspace_change_map["NEXT"] = WORKSPACE_NEXT;
+	_workspace_change_map["LAST"] = WORKSPACE_LAST;
 
 	_borderpos_map[""] = BORDER_NO_POS;
 	_borderpos_map["TOPLEFT"] = BORDER_TOP_LEFT;

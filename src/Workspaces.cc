@@ -60,7 +60,7 @@ Workspaces *Workspaces::_instance = NULL;
 
 //! @brief Workpsaces constructor
 Workspaces::Workspaces(uint number) :
-_active(0)
+_active(0), _previous(0)
 {
 #ifdef DEBUG
 	if (_instance != NULL) {
@@ -113,6 +113,9 @@ Workspaces::setSize(uint number)
 	if (_active >= number) {
 		_active = number - 1;
 	}
+        if (_previous >= number) {
+          _previous = number - 1;
+        }
 
 	// We have more workspaces than we want, lets remove the last ones
 	if (before > number) {
@@ -179,6 +182,8 @@ Workspaces::gotoWorkspace(uint direction, bool warp)
 {
 	uint workspace;
 	int dir = 0;
+        // Using a bool flag to detect changes due to special workspaces such
+        // as PREV
 	bool switched = true;
 
 	switch (direction) {
@@ -206,6 +211,12 @@ Workspaces::gotoWorkspace(uint direction, bool warp)
 			switched = false;
 		}
 		break;
+        case WORKSPACE_LAST:
+          workspace = _previous;
+          if (_active == workspace) {
+            switched = false;
+          }
+          break;
 	default:
 		if (direction == _active) {
 			switched = false;
@@ -320,7 +331,9 @@ Workspaces::unhideAll(uint workspace, bool focus)
 {
 	if (workspace >= _workspace_list.size())
 		return;
+        _previous = _active;
 	_active = workspace;
+        
 
 	list<PWinObj*>::iterator it(_wo_list.begin());
 	for (; it != _wo_list.end(); ++it) {

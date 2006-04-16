@@ -1,3 +1,15 @@
+2006-04-17  Claes Nästén  <me{@}pekdon{.}net>
+
+	* src/ActionHandler.cc (actionSendToWorkspace): 
+	Added Last parameter to GotoWorkspace and SendToWorkspace actions
+	activating/sending to last active workspace. Closing #79
+	( Thanks Tomas Dvorak <dvorakt1{@}fel{.}cvut{.}cz> for request. )
+
+	* src/CfgParser.cc (parse_comment_line): 
+	Fixed bug in parsing of # and // comments not parsing the content
+	of the line.
+	( Thanks shared fore reporting. )
+
 2006-04-16  Claes Nästén  <me{@}pekdon{.}net>
 
 	* src/Workspaces.cc (placeSmart): 

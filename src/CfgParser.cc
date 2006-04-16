@@ -468,6 +468,11 @@ CfgParser::parse_comment_line (CfgParserSource *op_source)
   int i_c;
   while (((i_c = op_source->getc ()) != EOF) && (i_c != '\n'))
     ;
+
+  // Give back the newline, needed for flushing value before comment
+  if (i_c == '\n') {
+    op_source->ungetc (i_c);
+  }
 }
 
 //! @brief Parses Source until */ is found.
