@@ -52,6 +52,7 @@ _screen_doubleclicktime(250), _screen_showframelist(true),
 _screen_place_new(true), _screen_focus_new(false),
 _screen_focus_new_child (true),
 _screen_placement_row(false),
+_screen_placement_offset_x(0), _screen_placement_offset_y(0),
 _screen_placement_ltr(true), _screen_placement_ttb(true),
 _screen_client_unique_name(true),
 _screen_client_unique_name_pre(" #"), _screen_client_unique_name_post(""),
@@ -516,7 +517,12 @@ Config::load(const std::string &config_file)
                                                           _screen_placement_ltr));
               o_key_list.push_back (new CfgParserKeyBool ("TOPTOBOTTOM",
                                                           _screen_placement_ttb));
+              o_key_list.push_back (new CfgParserKeyInt ("OFFSETX",
+                                                          _screen_placement_offset_x, 0, 0));
+              o_key_list.push_back (new CfgParserKeyInt ("OFFSETY",
+                                                          _screen_placement_offset_y, 0, 0));
 
+              // Do the parsing
               op_sub_2->parse_key_values (o_key_list.begin (),
                                           o_key_list.end ());
 

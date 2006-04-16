@@ -1,5 +1,15 @@
 2006-04-16  Claes Nästén  <me{@}pekdon{.}net>
 
+	* src/Workspaces.cc (placeSmart): 
+	Switch position of row/col placement. Closing #60
+	( Thanks koniu{@}sheket{.}org for reporting. )
+
+	* src/Config.cc (load): 
+	Updated and applied patch from koniu{@}sheket{.}org to add OffsetX
+	and OffsetY options to smart placement to pad with x/y pixels.
+	Closing #61
+	( Thanks koniu{@}sheket{.}org for patch. )
+
 	* src/Theme.cc:
 	Remove max allowed WidthMin value check.
 

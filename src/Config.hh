@@ -67,6 +67,8 @@ public:
 	inline bool getPlacementRow(void) const { return _screen_placement_row; }
 	inline bool getPlacementLtR(void) const { return _screen_placement_ltr; }
 	inline bool getPlacementTtB(void) const { return _screen_placement_ttb; }
+	inline int getPlacementOffsetX(void) const { return _screen_placement_offset_x; }
+	inline int getPlacementOffsetY(void) const { return _screen_placement_offset_y; }
 
 	inline bool getClientUniqueName(void) const { return _screen_client_unique_name; }
 	inline const std::string &getClientUniqueNamePre(void) const {
@@ -164,6 +166,7 @@ private:
 	bool _screen_show_status_window;
 	bool _screen_place_new, _screen_focus_new, _screen_focus_new_child;
 	bool _screen_placement_row, _screen_placement_ltr, _screen_placement_ttb;
+	int _screen_placement_offset_x, _screen_placement_offset_y;
 	std::list<uint> _screen_placementmodels;
 	bool _screen_client_unique_name;
 	std::string _screen_client_unique_name_pre, _screen_client_unique_name_post;

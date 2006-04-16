@@ -565,7 +565,17 @@ Workspaces::placeSmart(PWinObj* wo)
 
 	int step_x = (Config::instance()->getPlacementLtR()) ? 1 : -1;
 	int step_y = (Config::instance()->getPlacementTtB()) ? 1 : -1;
+	int offset_x = (Config::instance()->getPlacementLtR()) 
+		     ? Config::instance()->getPlacementOffsetX()
+		     : -Config::instance()->getPlacementOffsetX();
+	int offset_y = (Config::instance()->getPlacementTtB()) 
+		     ? Config::instance()->getPlacementOffsetY()
+		     : -Config::instance()->getPlacementOffsetY();
 	int start_x, start_y, test_x = 0, test_y = 0;
+
+  // Wrap these up, to get proper checking of space.
+  uint wo_width = wo->getWidth() + Config::instance()->getPlacementOffsetX();
+  uint wo_height = wo->getHeight() + Config::instance()->getPlacementOffsetY();
 
 	Geometry head;
 	PScreen::instance()->getHeadInfoWithEdge(PScreen::instance()->getCurrHead(),
@@ -573,52 +583,52 @@ Workspaces::placeSmart(PWinObj* wo)
 
 	start_x = (Config::instance()->getPlacementLtR())
 		? (head.x)
-		: (head.x + head.width - wo->getWidth());
+		: (head.x + head.width - wo_width);
 	start_y = (Config::instance()->getPlacementTtB())
 		? (head.y)
-		: (head.y + head.height - wo->getHeight());
+		: (head.y + head.height - wo_height);
 
 	if (Config::instance()->getPlacementRow()) { // row placement
-		test_x = start_x;
-		while (!placed && (Config::instance()->getPlacementLtR()
-										 ? ((test_x + wo->getWidth()) <= (head.x + head.width))
-										 : (test_x >= head.x))) {
-			test_y = start_y;
-			while (!placed && (Config::instance()->getPlacementTtB()
-												 ? ((test_y + wo->getHeight()) <= (head.y + head.height))
-												 : (test_y >= head.y))) {
-				// see if we can place the window here
-				if ((wo_e = isEmptySpace(test_x, test_y, wo))) {
-					placed = false;
-					test_y = Config::instance()->getPlacementTtB()
-						? (wo_e->getY() + wo_e->getHeight()) : (wo_e->getY() - wo->getHeight());
-				} else {
-					placed = true;
-					wo->move(test_x, test_y);
-				}
-			}
-			test_x += step_x;
-		}
-	} else { // column placement
 		test_y = start_y;
 		while (!placed && (Config::instance()->getPlacementTtB()
-											 ? ((test_y + wo->getHeight()) <= (head.y + head.height))
+											 ? ((test_y + wo_height) <= (head.y + head.height))
 											 : (test_y >= head.y))) {
 			test_x = start_x;
 			while (!placed && (Config::instance()->getPlacementLtR()
-												 ? ((test_x + wo->getWidth()) <= (head.x + head.width))
+												 ? ((test_x + wo_width) <= (head.x + head.width))
 												 : (test_x >= head.x))) {
 				// see if we can place the window here
 				if ((wo_e = isEmptySpace(test_x, test_y, wo))) {
 					placed = false;
 					test_x = Config::instance()->getPlacementLtR()
-						? (wo_e->getX() + wo_e->getWidth()) : (wo_e->getX() - wo->getWidth());
+						? (wo_e->getX() + wo_e->getWidth()) : (wo_e->getX() - wo_width);
 				} else {
 					placed = true;
-					wo->move(test_x, test_y);
+					wo->move(test_x + offset_x, test_y + offset_y);
 				}
 			}
 			test_y += step_y;
+		}
+	} else { // column placement
+		test_x = start_x;
+		while (!placed && (Config::instance()->getPlacementLtR()
+										 ? ((test_x + wo_width) <= (head.x + head.width))
+										 : (test_x >= head.x))) {
+			test_y = start_y;
+			while (!placed && (Config::instance()->getPlacementTtB()
+												 ? ((test_y + wo_height) <= (head.y + head.height))
+												 : (test_y >= head.y))) {
+				// see if we can place the window here
+				if ((wo_e = isEmptySpace(test_x, test_y, wo))) {
+					placed = false;
+					test_y = Config::instance()->getPlacementTtB()
+						? (wo_e->getY() + wo_e->getHeight()) : (wo_e->getY() - wo_height);
+				} else {
+					placed = true;
+					wo->move(test_x + offset_x, test_y + offset_y);
+				}
+			}
+			test_x += step_x;
 		}
 	}
 
