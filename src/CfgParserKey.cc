@@ -42,12 +42,12 @@ CfgParserKeyInt::parse_value (const std::string &or_value)
   } else {
     if (value < m_i_value_min) {
       m_ir_set = m_i_value_min;
-      throw string("value to low, min value "
-                   + Util::to_string<int> (m_i_value_min));
+      throw string ("value to low, min value "
+                    + Util::to_string<int> (m_i_value_min));
     } if (value > m_i_value_max)  {
       m_ir_set = m_i_value_max;
-      throw string("value to high, max value "
-                   + Util::to_string<int> (m_i_value_max));
+      throw string ("value to high, max value "
+                    + Util::to_string<int> (m_i_value_max));
     }
   }
 
@@ -108,6 +108,6 @@ CfgParserKeyPath::parse_value (const std::string &or_value)
     Util::expandFileName (m_or_set);
   } else {
     m_or_set = m_o_default;
-    throw ("path too short");
+    throw string ("path too short");
   }
 }

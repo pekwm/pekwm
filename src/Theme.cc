@@ -219,8 +219,7 @@ Theme::PDecorData::load (CfgParser::Entry *op_section)
   string o_value_pad, o_value_focused, o_value_unfocused;
 
   o_key_list.push_back (new CfgParserKeyInt ("HEIGHT", _title_height, 10, 0));
-  o_key_list.push_back (new CfgParserKeyInt ("WIDTHMIN", _title_width_min,
-                                             0, 0, 100));
+  o_key_list.push_back (new CfgParserKeyInt ("WIDTHMIN", _title_width_min, 0));
   o_key_list.push_back (new CfgParserKeyInt ("WIDTHMAX", _title_width_max,
                                              100, 0, 100));
   o_key_list.push_back (new CfgParserKeyBool ("WIDTHSYMETRIC",

@@ -1084,11 +1084,6 @@ Frame::recalcResizeDrag(int nx, int ny, bool left, bool top)
 	uint width = left ? (_click_x - nx) : (nx - _click_x);
 	uint height = top ? (_click_y - ny) : (ny - _click_y);
 
-	if (width > _scr->getWidth())
-		width = _scr->getWidth();
-	if (height > _scr->getHeight())
-		height = _scr->getHeight();
-
 	width -= brdr_lr;
 	height -= brdr_tb + getTitleHeight();
 	_client->getIncSize(&width, &height, width, height);

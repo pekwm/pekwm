@@ -20,6 +20,7 @@ using std::cerr;
 using std::endl;
 using std::list;
 using std::map;
+using std::set;
 using std::string;
 using std::auto_ptr;
 
@@ -261,6 +262,7 @@ CfgParser::parse (const std::string &or_src, CfgParserSource::Type i_type)
 
     try {
       m_op_source->close ();
+
     } catch (string &ex) {
       cerr << ex << endl;
     }
@@ -296,7 +298,9 @@ CfgParser::parse_source_new (const std::string &or_name,
 
     } catch (string &ex) {
       delete op_source;
+      // Previously added in source_new
       m_o_source_name_list.pop_back ();
+
 
       // Display error message on second try
       if (i_done) {
@@ -504,12 +508,13 @@ CfgParser::source_new (const std::string &or_name,
 
   // Create CfgParserSource.
   m_o_source_name_list.push_back (or_name);
+  m_o_source_name_set.insert (or_name);
   switch (i_type) {
   case CfgParserSource::SOURCE_FILE:
-    op_source = new CfgParserSourceFile (m_o_source_name_list.back ());
+    op_source = new CfgParserSourceFile (*m_o_source_name_set.find (or_name));
     break;
   case CfgParserSource::SOURCE_COMMAND:
-    op_source = new CfgParserSourceCommand (m_o_source_name_list.back ());
+    op_source = new CfgParserSourceCommand (*m_o_source_name_set.find (or_name));
     break;
   default:
     break;

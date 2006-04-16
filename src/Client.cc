@@ -242,15 +242,26 @@ _extended_net_name(false)
 	// be correct and we don't know wheter or not to place the window
 	PWinObj::mapWindow();
 
-	// let us heare what autoproperties has to say about focusing
+	// Let us hear what autoproperties has to say about focusing
 	if (is_new && (ap != NULL) && ap->isMask(AP_FOCUS_NEW)) {
 		do_focus = ap->focus_new;
 	}
 
-	// give input focus if we want/need to
-	if ((do_focus == true) && (_parent->isMapped() == true)) {
-		_parent->giveInputFocus();
-	}
+	// Only can give input focus to mapped windows
+	if (_parent->isMapped()) {
+          // Ordinary focus
+          if (do_focus) {
+            _parent->giveInputFocus();
+
+          // Check if we are transient, and if we want to focus
+          } else if ((_transient != None)
+                     && Config::instance()->isFocusNewChild()) {
+            Client *trans_for = _wm->findClientFromWindow(_transient);
+            if (trans_for && trans_for->isFocused()) {
+              _parent->giveInputFocus();
+            }
+          }
+        }
 
 	// finished creating the client, so now adding it to the client list
 	_wm->addToClientList(this);

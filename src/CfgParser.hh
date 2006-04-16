@@ -28,6 +28,7 @@
 
 #include <list>
 #include <map>
+#include <set>
 #include <string>
 #include <iostream>
 #include <cstdlib>
@@ -120,7 +121,8 @@ private:
   CfgParserSource *m_op_source;
 
   std::list<CfgParserSource*> m_o_source_list; //!< List of sources, for recursive parsing.
-  std::list<std::string> m_o_source_name_list; //!< List of source names, to reduce resource usage.
+  std::list<std::string> m_o_source_name_list; //!< List of source names, to keep track of current source.
+	std::set<std::string> m_o_source_name_set; //!< Set of source names, source of memory usage on long-going CfgParser objects.
   std::list<Entry*> m_o_entry_list; //!< List of Entries with sections, for recursive parsing.
 
   std::map<std::string, std::string> m_o_var_map; //!< Map of $VARS

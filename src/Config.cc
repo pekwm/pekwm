@@ -49,7 +49,8 @@ _moveresize_woattract(0), _moveresize_woresist(0),
 _moveresize_opaquemove(0), _moveresize_opaqueresize(0),
 _screen_workspaces(4), _screen_pixmap_cache_size(20),_screen_edge_size(0),
 _screen_doubleclicktime(250), _screen_showframelist(true),
-_screen_place_new(true), _screen_focus_new(true),
+_screen_place_new(true), _screen_focus_new(false),
+_screen_focus_new_child (true),
 _screen_placement_row(false),
 _screen_placement_ltr(true), _screen_placement_ttb(true),
 _screen_client_unique_name(true),
@@ -460,6 +461,7 @@ Config::load(const std::string &config_file)
 
       o_key_list.push_back (new CfgParserKeyBool ("PLACENEW", _screen_place_new));
       o_key_list.push_back (new CfgParserKeyBool ("FOCUSNEW", _screen_focus_new));
+      o_key_list.push_back (new CfgParserKeyBool ("FOCUSNEWCHILD", _screen_focus_new_child, true));
 
       op_section->parse_key_values (o_key_list.begin (), o_key_list.end ());
 

@@ -59,6 +59,7 @@ public:
 	inline bool isShowStatusWindow(void) const { return _screen_show_status_window; }
 	inline bool isPlaceNew(void) const { return _screen_place_new; }
 	inline bool isFocusNew(void) const { return _screen_focus_new; }
+	inline bool isFocusNewChild(void) const { return _screen_focus_new_child; }
 
 	inline std::list<uint>::iterator getPlacementModelBegin(void) { return _screen_placementmodels.begin(); }
 	inline std::list<uint>::iterator getPlacementModelEnd(void) { return _screen_placementmodels.end(); }
@@ -161,7 +162,7 @@ private:
 	std::string _screen_trim_title;
 	bool _screen_showframelist;
 	bool _screen_show_status_window;
-	bool _screen_place_new, _screen_focus_new;
+	bool _screen_place_new, _screen_focus_new, _screen_focus_new_child;
 	bool _screen_placement_row, _screen_placement_ltr, _screen_placement_ttb;
 	std::list<uint> _screen_placementmodels;
 	bool _screen_client_unique_name;

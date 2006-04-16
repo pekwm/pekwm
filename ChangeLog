@@ -1,3 +1,18 @@
+2006-04-16  Claes Nästén  <me{@}pekdon{.}net>
+
+	* src/Theme.cc:
+	Remove max allowed WidthMin value check.
+
+	* src/CfgParser.cc:
+	Fixed dangling reference crash in configuration parser, triggered by the
+	parse_key_value feature of the CfgParser. Closing #84
+	( Thanks shared for reporting )
+
+	* src/Frame.cc: 
+	Removed size limiting in resize. Closing #73
+	( Thanks shared for reporting and dvorakt1{@}fel{.}cvut{.}cz for proposed
+	  solution )
+
 pekwm-0.1.4 released
 
 2006-02-22  Claes Nästén  <me{@}pekdon{.}net>
