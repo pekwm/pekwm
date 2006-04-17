@@ -4,14 +4,6 @@
 INCLUDE = "vars"
 
 RootMenu = "Pekwm" {
-	Entry = "" { Actions = "Exec iorncbxRANDOMlaalaalaababa" }
-	Entry = "Please run menu purge under pekwm" { Actions = "Exec iorncbxRANDOMlaalaalaababa" }
-	Entry = "submenu to clean the menu entries" { Actions = "Exec iorncbxRANDOMlaalaalaababa" }
-	Entry = "from applications you don't have" { Actions = "Exec iorncbxRANDOMlaalaalaababa" }
-	Entry = "installed on your system!" { Actions = "Exec iorncbxRANDOMlaalaalaababa" }
-	Entry = "This message won't be shown afterwards." { Actions = "Exec iorncbxRANDOMlaalaalaababa" }
-	Entry = "" { Actions = "Exec iorncbxRANDOMlaalaalaababa" }
-
 	Entry = "Terminal" { Actions = "Exec $TERM &" }
 	Entry = "Run.." { Actions = "ShowCmdDialog" }
 
@@ -21,8 +13,9 @@ RootMenu = "Pekwm" {
 		Entry = "vi" { Actions = "Exec $TERM -title vi -e vi &" }
 		Entry = "vim" { Actions = "Exec $TERM -title vim -e vim &" }
 		Entry = "gvim" { Actions = "Exec gvim &" }
-		Entry = "Emacs" { Actions = "Exec $TERM -title emacs -e emacs -nw &" }
-		Entry = "kate" { Actions = "Exec kate &" }
+		Entry = "Emacs" { Actions = "Exec emacs &" }
+		Entry = "Emacs Terminal" { Actions = "Exec $TERM -title emacs -e emacs -nw &" }
+		Entry = "Kate" { Actions = "Exec kate &" }
 	}
 	Submenu = "Graphics" {
 		Entry = "display" { Actions = "Exec display &" }
@@ -38,7 +31,7 @@ RootMenu = "Pekwm" {
 		Entry = "MPlayer" { Actions = "Exec gmplayer &" }
 		Entry = "Xine" { Actions = "Exec xine &" }
 		Entry = "xawtv" { Actions = "Exec xawtv &" }
-		Entry = "ogle" { actions = "exec ogle &" }
+		Entry = "Ogle" { actions = "exec ogle &" }
 		Entry = "alsamixer" { Actions = "Exec $TERM -title alsamixer -e alsamixer &" }
 	}
 	Submenu = "Utils" {
@@ -48,7 +41,7 @@ RootMenu = "Pekwm" {
 		Entry = "GGv" { Actions = "Exec ggv &" }
 		Entry = "Evince" { Actions = "Exec evince &" }
 		Entry = "gucharmap" { Actions = "Exec gucharmap &" }
-		Entry = "Gkrellm2" { Actions = "Exec gkrellm &" }
+		Entry = "Gkrellm" { Actions = "Exec gkrellm &" }
 		Entry = "Gkrellm2" { Actions = "Exec gkrellm2 &" }
 		Entry = "ROX Filer" { Actions = "Exec rox &" }
 	}
@@ -56,7 +49,7 @@ RootMenu = "Pekwm" {
 		Entry = "Dillo" { Actions = "Exec dillo &" }
 		Entry = "Konqueror" { Actions = "Exec konqueror &" }
 		Entry = "Mozilla" { Actions = "Exec mozilla &" }
-		Entry = "Mozilla Firefox" { Actions = "Exec firefox &" }
+		Entry = "Firefox" { Actions = "Exec firefox &" }
 		Entry = "Mozilla Firefox" { Actions = "Exec mozilla-firefox &" }
 	}
 	Submenu = "FTP" {
@@ -67,22 +60,22 @@ RootMenu = "Pekwm" {
 		Entry = "Mutt" { Actions = "Exec $TERM -title mutt -e mutt &" }
 		Entry = "Pine" { Actions = "Exec $TERM -title pine -e pine &" }
 		Entry = "Thunderbird" { Actions = "Exec thunderbird &" }
-		Entry = "Thunderbird" { Actions = "Exec mozilla-thunderbird &" }
+		Entry = "Mozilla Thunderbird" { Actions = "Exec mozilla-thunderbird &" }
 		Entry = "Evolution" { Actions = "Exec evolution &" }
-		Entry = "kmail" { Actions = "Exec kmail &" }
+		Entry = "KMail" { Actions = "Exec kmail &" }
 		Entry = "Gaim" { Actions = "Exec gaim &" }
 		Entry = "Irssi" { Actions = "Exec $TERM -title irssi -e irssi &" }
 		Entry = "Kopete" { Actions = "Exec kopete &" }
 	}
 	Submenu = "Office" {
 		Entry = "KOffice Workspace" { Actions = "Exec koshell &" }
-		Entry = "OpenOffice" { Actions = "Exec soffice &" }
 		Entry = "OpenOffice" { Actions = "Exec ooffice &" }
+		Entry = "StarOffice" { Actions = "Exec soffice &" }
 	}
 	Submenu = "Development" {
-		Entry = "eclipse" { Actions = "Exec eclipse &" }
-		Entry = "kdevelop" { Actions = "Exec kdevelop &" }
-		Entry = "anjuta" { Actions = "Exec anjuta &" }
+		Entry = "Anjuta" { Actions = "Exec anjuta &" }
+		Entry = "Eclipse" { Actions = "Exec eclipse &" }
+		Entry = "KDevelop" { Actions = "Exec kdevelop &" }
 	}
 
 	Separator {}
@@ -105,12 +98,6 @@ RootMenu = "Pekwm" {
 			Entry { Actions = "Dynamic <PREFIX>/scripts/pekwm_themeset.pl <PREFIX>/themes" }
 			Entry { Actions = "Dynamic <PREFIX>/scripts/pekwm_themeset.pl ~/.pekwm/themes" }
 		}
-		# This script will check this menu file for applications and
-		# purge out those you do not have installed, making a shorted and
-		# prettier menu. Run it without parameters in a terminal for more
-		# info. A backup of your current menu will be created as
-		# ~/.pekwm/menu.backup in case something goes horribly wrong.
-		Entry = "Purge menu entries" { Actions = "Exec <PREFIX>/scripts/pekwm-filter.sh ~/.pekwm/menu" }
 		Entry = "Reload" { Actions = "Reload" }
 		Entry = "Restart" { Actions = "Restart" }
 		Entry = "Exit" { Actions = "Exit" }
