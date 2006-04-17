@@ -547,11 +547,10 @@ AutoProperties::findAutoProperty(const ClassHint* class_hint,
 
 //! @brief Searches the _title_prop_list for a property
 TitleProperty*
-AutoProperties::findTitleProperty(const ClassHint* class_hint,
-																	uint type)
+AutoProperties::findTitleProperty(const ClassHint* class_hint)
 {
 	TitleProperty *property =
-		(TitleProperty*) findProperty(class_hint, &_title_prop_list, -1, type);
+		(TitleProperty*) findProperty(class_hint, &_title_prop_list, -1, 0);
 
 	return property;
 }

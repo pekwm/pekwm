@@ -204,8 +204,8 @@ _old_decor_state(0)
 	client->setConfigureRequestLock(false);
 	client->configureRequestSend();
 
-	// figure out if we should be hidden or not, do not read autoprops
-	setWorkspace(_client->getWorkspace());
+	// Figure out if we should be hidden or not, do not read autoprops
+	PDecor::setWorkspace(_client->getWorkspace());
 
 	_wo_list.push_back(this);
 }
@@ -248,7 +248,20 @@ Frame::stick(void)
 	_sticky = !_sticky;
 
 	// make sure it's visible/hidden
-	setWorkspace(Workspaces::instance()->getActive());
+	PDecor::setWorkspace(Workspaces::instance()->getActive());
+}
+
+//! @brief Sets workspace on frame, wrapper to allow autoproperty loading
+void
+Frame::setWorkspace(uint workspace)
+{
+  // First we set the workspace, then load autoproperties for possible
+  // overrun of workspace and then set the workspace.
+  _workspace = workspace;
+
+  readAutoprops(APPLY_ON_WORKSPACE);
+
+  PDecor::setWorkspace(_workspace);
 }
 
 // event handlers
@@ -602,7 +615,7 @@ Frame::getState(Client *cl)
   if (_layer != cl->getLayer())
     setLayer(cl->getLayer());
   if (_workspace != cl->getWorkspace())
-    setWorkspace(cl->getWorkspace());
+    PDecor::setWorkspace(cl->getWorkspace());
 
   // We need to set border and titlebar before setting fullscreen, as
   // fullscreen will unset border and titlebar if needed.
@@ -1584,7 +1597,7 @@ Frame::readAutoprops(uint type)
 
 	_class_hint->title = _client->getTitle()->getReal();
 	AutoProperty *data =
-		_wm->getAutoProperties()->findAutoProperty(_class_hint, _workspace, type);
+		AutoProperties::instance()->findAutoProperty(_class_hint, _workspace, type);
 	_class_hint->title = "";
 
 	if (data == NULL)
@@ -1620,11 +1633,14 @@ Frame::readAutoprops(uint type)
 		else iconify();
 	}
 	if (data->isMask(AP_WORKSPACE)) {
-		// I do this to avoid coming in an eternal loop.
-		if (type == APPLY_ON_WORKSPACE)
+    // In order to avoid eternal recursion, the workspace is only set here
+    // and then actually called PDecor::setWorkspace from Frame::setWorkspace
+		if (type == APPLY_ON_WORKSPACE) {
 			_workspace = data->workspace;
-		else if (_workspace != data->workspace)
-			setWorkspace(data->workspace); // FIXME: FIX, false); // do not read autoprops again
+    }	else if (_workspace != data->workspace) {
+      // Call PDecor directly to avoid recursion.
+			PDecor::setWorkspace(data->workspace);
+    }
 	}
 
 	if (data->isMask(AP_SHADED) && (isShaded() != data->shaded))

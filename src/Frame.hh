@@ -41,6 +41,8 @@ public:
 	virtual void iconify(void);
 	virtual void stick(void);
 
+	virtual void setWorkspace(uint workspace);
+
 	virtual ActionEvent *handleMotionEvent(XMotionEvent *ev);
 	virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev);
 	virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev);

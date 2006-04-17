@@ -1,5 +1,10 @@
 2006-04-17  Claes Nästén  <me{@}pekdon{.}net>
 
+	* src/Frame.cc (setWorkspace): 
+	Re-enabled the use of ApplyOn = "Workspace" for autoproperties.
+	Closing #55
+	( Thanks nospaulatu{@}gmail{.}com for reporting )
+
 	* src/PDecor.cc (calcTabsWidthSymetric): 
 	Fixed ops distributing uneven pixels in tab calculation that caused
 	pixels missing from the title.

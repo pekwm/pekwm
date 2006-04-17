@@ -194,9 +194,8 @@ public:
 
 	AutoProperty* findAutoProperty(const ClassHint* class_hintbb,
 																 int ws = -1, uint type = 0);
-	TitleProperty* findTitleProperty(const ClassHint* class_hint,
-																	 uint type = 0);
-	DecorProperty* findDecorProperty(const ClassHint* class_hint);
+	TitleProperty* findTitleProperty(const ClassHint* class_hint);
+  DecorProperty* findDecorProperty(const ClassHint* class_hint);
 #ifdef HARBOUR
 	DockAppProperty* findDockAppProperty(const ClassHint *class_hint);
 	inline bool isHarbourSort(void) const { return _harbour_sort; }
