@@ -153,11 +153,13 @@ private:
 	Pixmap _menu_bg_fo, _menu_bg_un, _menu_bg_se;
 
 	// menu disp data
-	uint _item_height, _item_width_max, _separator_height;
+	uint _item_height, _item_width_max, _item_width_max_avail;
+  uint _separator_height;
 
 	uint _size; // size, hidden items excluded
 	uint _rows, _cols;
 	bool _scroll;
+  bool _has_submenu;
 };
 
 #endif // _PMENU_HH_

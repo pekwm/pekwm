@@ -1,6 +1,6 @@
 //
 // PDecor.cc for pekwm
-// Copyright (C) 2004-2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright (C) 2004-2006 Claes Nasten <pekdon{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -1305,8 +1305,10 @@ PDecor::renderTitle(void)
 																												_title_wo.getWidth(),
 																												_title_wo.getHeight());
 
-	bool sel;
-	uint x = _titles_left;
+	bool sel; // Current tab selected flag
+	uint x = _titles_left; // Position
+  uint pad_horiz = // Amount of horizontal padding
+    _data->getPad(DIRECTION_LEFT) + _data->getPad(DIRECTION_RIGHT);
 
 	list<PDecor::TitleItem*>::iterator it(_title_list.begin());
 	for (uint i = 0; it != _title_list.end(); ++i, ++it) {
@@ -1324,10 +1326,12 @@ PDecor::renderTitle(void)
 		// and wheter or not the title has a TitleRule applied
 		if ((*it) != NULL) {
 			font->draw(_title_bg,
-								 x + ((font->getJustify() == FONT_JUSTIFY_CENTER) ? 0 : _data->getPad(DIRECTION_LEFT)),
-								 _data->getPad(DIRECTION_UP),
-								 (*it)->getVisible().c_str(), 0, (*it)->getWidth(),
-								 (*it)->isRuleApplied() ? PFont::FONT_TRIM_END : PFont::FONT_TRIM_MIDDLE);
+								 x + _data->getPad(DIRECTION_LEFT), // X position
+								 _data->getPad(DIRECTION_UP), // Y position
+								 (*it)->getVisible().c_str(), 0, // Text and max chars
+                 (*it)->getWidth() - pad_horiz, // Available width
+								 (*it)->isRuleApplied() // Type of trimming
+                   ? PFont::FONT_TRIM_END : PFont::FONT_TRIM_MIDDLE);
 		}
 
 		// move to next tab (or separator if any)
@@ -1923,7 +1927,7 @@ PDecor::calcTitleWidth(void)
 		// FIXME: what about selected tabs?
 		PFont *font = getFont(getFocusedState(false));
 
-		// symetric mode, get max tab width, mutliply with num
+		// Symetric mode, get max tab width, multiply with num
 		if (_data->isTitleWidthSymetric()) {
 			list<PDecor::TitleItem*>::iterator it(_title_list.begin());
 			for (; it != _title_list.end(); ++it) {
@@ -1936,7 +1940,7 @@ PDecor::calcTitleWidth(void)
 				+ _data->getPad(DIRECTION_LEFT)	+ _data->getPad(DIRECTION_RIGHT);
 			width *= _title_list.size();
 
-		// asymetric mode, get individual widths
+		// Asymetric mode, get individual widths
 		} else {
 			list<PDecor::TitleItem*>::iterator it(_title_list.begin());
 			for (; it != _title_list.end(); ++it) {
@@ -1962,7 +1966,7 @@ PDecor::calcTitleWidth(void)
 	return width;
 }
 
-//! @brief
+//! @brief Calculate tab width, wrapper to choose correct algorithm.
 void
 PDecor::calcTabsWidth(void)
 {
@@ -1976,7 +1980,7 @@ PDecor::calcTabsWidth(void)
  	}
 }
 
-//! @brief
+//! @brief Calculate tab width symetric, sets up _title_list widths.
 void
 PDecor::calcTabsWidthSymetric(void)
 {
@@ -1984,20 +1988,29 @@ PDecor::calcTabsWidthSymetric(void)
 	uint sep_width = (_title_list.size() - 1)
 		* _data->getTextureSeparator(getFocusedState(false))->getWidth();
 
-	// calculate width
-	uint width, width_avail, off;
-	if (_title_wo.getWidth() > (_titles_left + _titles_right))
-		width_avail = _title_wo.getWidth() - _titles_left - _titles_right;
-	else
-		width_avail = _title_wo.getWidth();
+	// Calculate width
+  uint width_avail = _title_wo.getWidth();
 
-	width = (width_avail - sep_width) / _title_list.size();
-	off = (width_avail - sep_width) % _title_list.size();
+  // Remove spacing if enough space available
+  if (width_avail > (_titles_left + _titles_right)) {
+    width_avail -= _titles_left + _titles_right;
+  }
+  if (width_avail > sep_width) {
+    width_avail -= sep_width;
+  }
 
-	// assign width to elements
+	uint width = width_avail / _title_list.size();
+	uint off = width_avail % _title_list.size();
+
+	// Assign width to elements
 	list<PDecor::TitleItem*>::iterator it(_title_list.begin());
 	for (; it != _title_list.end(); ++it) {
-		(*it)->setWidth(width + ((off > 0) ? off-- : 0));
+    if (off > 0) {
+      (*it)->setWidth(width + 1);
+      off--;
+    } else {
+      (*it)->setWidth(width);
+    }
 	}
 }
 

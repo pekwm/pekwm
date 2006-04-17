@@ -1,5 +1,14 @@
 2006-04-17  Claes Nästén  <me{@}pekdon{.}net>
 
+	* src/PDecor.cc (calcTabsWidthSymetric): 
+	Fixed ops distributing uneven pixels in tab calculation that caused
+	pixels missing from the title.
+
+	* src/PMenu.cc (buildMenuRenderItem): 
+	Updated menu rendering to properly honour padding and justification.
+	Closing #46 and #74.
+	( Thanks shared and buk for reporting. )
+
 	* src/ActionHandler.cc (actionSendToWorkspace): 
 	Added Last parameter to GotoWorkspace and SendToWorkspace actions
 	activating/sending to last active workspace. Closing #79

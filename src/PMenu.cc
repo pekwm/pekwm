@@ -1,6 +1,6 @@
 //
 // PMenu.cc for pekwm
-// Copyright (C) 2004 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright (C) 2004-2006 Claes Nasten <pekdon{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -43,8 +43,9 @@ PMenu::PMenu(Display *dpy, Theme *theme, const std::string &title, const std::st
 PDecor(dpy, theme, decor_name),
 _menu_wo(NULL), _menu_parent(NULL),
 _menu_bg_fo(None), _menu_bg_un(None), _menu_bg_se(None),
-_item_height(0), _item_width_max(0), _separator_height(0),
-_rows(0), _cols(0), _scroll(false)
+_item_height(0), _item_width_max(0), _item_width_max_avail(0),
+_separator_height(0),
+_rows(0), _cols(0), _scroll(false), _has_submenu(false)
 {
 	// initiate items
 	_item_curr = _item_list.end();
@@ -295,7 +296,7 @@ PMenu::buildMenuCalculate(void)
 {
 	uint width = 1, height = 1, sep = 0;
 	list<PMenu::Item*>::iterator it;
-	bool has_subs = false;
+  _has_submenu = false;
 
 	// get how many visible objects we have
 	_size = 0;
@@ -323,9 +324,9 @@ PMenu::buildMenuCalculate(void)
 		// don't include dynamic etc
 		if ((*it)->getType() == PMenu::Item::MENU_ITEM_NORMAL) {
 			// check if we have a submenu item
-			if ((has_subs == false) && ((*it)->getWORef() != NULL) &&
+			if (!_has_submenu && ((*it)->getWORef() != NULL) &&
 					((*it)->getWORef()->getType() == PWinObj::WO_MENU)) {
-				has_subs = true;
+				_has_submenu = true;
 			}
 
 			width = _theme->getMenuData()->getFont(OBJECT_STATE_FOCUSED)->getWidth((*it)->getName().c_str());
@@ -335,12 +336,17 @@ PMenu::buildMenuCalculate(void)
 		}
 	}
 
+  // This is the available width for drawing text on, the rest is reserved
+  // for submenu indicator, padding etc.
+  _item_width_max_avail = _item_width_max;
+
+  // Continue add padding etc.
 	_item_width_max += _theme->getMenuData()->getPad(DIRECTION_LEFT)
 		+ _theme->getMenuData()->getPad(DIRECTION_RIGHT);
 
 	// If we have any submenus, increase the maximum width with arrow width +
 	// right pad as we are going to pad the arrow from the text too.
-	if (has_subs) {
+	if (_has_submenu) {
 		_item_width_max += _theme->getMenuData()->getPad(DIRECTION_RIGHT)
 			+ _theme->getMenuData()->getTextureArrow(OBJECT_STATE_FOCUSED)->getWidth();
 	}
@@ -481,11 +487,12 @@ PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
 		tex->render(pix,
 								item->getX(), item->getY(), _item_width_max, _item_height);
 
-		// if we have a submenu, lets draw our submenu "arrow"
+    // If we have a submenu, lets draw our submenu "arrow"
+
 		if (item->getWORef() 
 				&& (item->getWORef()->getType() == PWinObj::WO_MENU)) {
 			tex = _theme->getMenuData()->getTextureArrow(state);
-			uint a_w = tex->getWidth();
+      uint a_w = tex->getWidth();
 			uint a_h = tex->getHeight();
 			uint a_y = static_cast<uint>((_item_height / 2) - (a_h / 2));
 
@@ -500,7 +507,8 @@ PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
 		font->draw(pix,
 							 item->getX() + _theme->getMenuData()->getPad(DIRECTION_LEFT),
 							 item->getY() + _theme->getMenuData()->getPad(DIRECTION_UP),
-							 item->getName().c_str(), 0, _item_width_max);
+							 item->getName().c_str(), 0, // Text and max chars
+               _item_width_max_avail);
 
 	} else if ((item->getType() == PMenu::Item::MENU_ITEM_SEPARATOR) &&
 						 (state < OBJECT_STATE_SELECTED)) {
