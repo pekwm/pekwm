@@ -162,9 +162,20 @@ Workspaces::setWorkspace(uint num, bool focus)
 
 	PScreen::instance()->grabServer();
 
-	// save the focused window object
-	setLastFocused(_active, PWinObj::getFocusedPWinObj());
-	PWinObj::setFocusedPWinObj(NULL);
+  PWinObj *wo = PWinObj::getFocusedPWinObj();
+  // Make sure that sticky windows gets unfocused on workspace change,
+  // it will be set back after switch is done.
+  if (wo) {
+    if (wo->getType() == PWinObj::WO_CLIENT) {
+      wo->getParent()->setFocused(false);
+    } else {
+      wo->setFocused(false);
+    }
+  }
+
+	// Save the focused window object
+  setLastFocused(_active, wo);
+  PWinObj::setFocusedPWinObj(NULL);
 
 	// switch workspace
 	hideAll(_active);
@@ -331,7 +342,7 @@ Workspaces::unhideAll(uint workspace, bool focus)
 {
 	if (workspace >= _workspace_list.size())
 		return;
-        _previous = _active;
+  _previous = _active;
 	_active = workspace;
         
 
@@ -347,17 +358,27 @@ Workspaces::unhideAll(uint workspace, bool focus)
 	// Frame if any and give it focus.
 	if (focus) {
 		PWinObj *wo = _workspace_list[workspace]->getLastFocused();
-		if (!wo || !PWinObj::windowObjectExists(wo))
+		if (!wo || !PWinObj::windowObjectExists(wo)) {
 			wo = getTopWO(PWinObj::WO_FRAME);
+    }
 
-		if (wo) {
+		if (wo && wo->isMapped() && wo->isFocusable()) {
+      // Render as focused
+      if (wo->getType() == PWinObj::WO_CLIENT) {
+        wo->getParent()->setFocused(true);
+      } else {
+        wo->setFocused(true);
+      }
+
+      // Get the active child if a frame, to get correct focus behavior
 			if (wo->getType() == PWinObj::WO_FRAME) {
 				wo = static_cast<Frame*>(wo)->getActiveChild();
-			}
+      }
 
-			wo->giveInputFocus();
-			PWinObj::setFocusedPWinObj(wo);
-		}
+      // Focus
+      wo->giveInputFocus();
+      PWinObj::setFocusedPWinObj(wo);
+    }
 		
 		// If focusing fails, focus the root window.
 		if (!PWinObj::getFocusedPWinObj()

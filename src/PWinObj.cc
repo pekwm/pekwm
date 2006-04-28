@@ -74,6 +74,9 @@ PWinObj::unmapWindow(void)
 		return;
 	_mapped = false;
 
+  // Make sure unmapped windows drops focus
+  setFocused(false);
+
 	XUnmapWindow(_dpy, _window);
 }
 

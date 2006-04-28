@@ -255,13 +255,17 @@ Frame::stick(void)
 void
 Frame::setWorkspace(uint workspace)
 {
-  // First we set the workspace, then load autoproperties for possible
-  // overrun of workspace and then set the workspace.
-  _workspace = workspace;
+  // Duplicate the behavior done in PDecor::setWorkspace to have a sane
+  // value on _workspace and not NET_WM_STICKY_WINDOW.
+  if (workspace != NET_WM_STICKY_WINDOW) {
+    // First we set the workspace, then load autoproperties for possible
+    // overrun of workspace and then set the workspace.
+    _workspace = workspace;
+    readAutoprops(APPLY_ON_WORKSPACE);
+    workspace = _workspace;
+  }
 
-  readAutoprops(APPLY_ON_WORKSPACE);
-
-  PDecor::setWorkspace(_workspace);
+  PDecor::setWorkspace(workspace);
 }
 
 // event handlers

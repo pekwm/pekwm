@@ -1,3 +1,13 @@
+2006-04-28  Claes Nästén  <me{@}pekdon{.}net>
+	
+	* src/Workspaces.cc (setWorkspace): 
+	Updated workspace switching and unmapping of window objects to avoid
+	windows being rendered as focused when they are not. Closing #87
+
+	* src/Frame.cc (setWorkspace): 
+	Fixed ops not handling sticky window value. Closing #86
+	( Thanks Skot for reporting )
+
 2006-04-18  Claes Nästén  <me{@}pekdon{.}net>
 
 	* doc/Makefile.am:
