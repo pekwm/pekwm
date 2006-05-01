@@ -243,8 +243,8 @@ CmdDialog::loadTheme(void)
 	// setup size
 	resizeChild(PScreen::instance()->getWidth() / 4,
 							_cmd_data->getFont()->getHeight() +
-							_cmd_data->getPad(DIRECTION_UP) +
-							_cmd_data->getPad(DIRECTION_DOWN));
+							_cmd_data->getPad(PAD_UP) +
+							_cmd_data->getPad(PAD_DOWN));
 
 	// get pixmap
 	PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
@@ -275,19 +275,19 @@ CmdDialog::render(void)
 	// draw buf content
 	_cmd_data->getFont()->setColor(_cmd_data->getColor());
 	_cmd_data->getFont()->draw(_cmd_wo->getWindow(),
-														 _cmd_data->getPad(DIRECTION_LEFT),
-														 _cmd_data->getPad(DIRECTION_UP),
+														 _cmd_data->getPad(PAD_LEFT),
+														 _cmd_data->getPad(PAD_UP),
 														 _buf.c_str() + _buf_off, _buf_chars);
 
 	// draw cursor
-	uint pos = _cmd_data->getPad(DIRECTION_LEFT);
+	uint pos = _cmd_data->getPad(PAD_LEFT);
 	if (_pos > 0) {
 		pos = _cmd_data->getFont()->getWidth(_buf.c_str() + _buf_off,
 																				 _pos - _buf_off) + 1;
 	}
 
 	_cmd_data->getFont()->draw(_cmd_wo->getWindow(),
-														 pos, _cmd_data->getPad(DIRECTION_UP),
+														 pos, _cmd_data->getPad(PAD_UP),
 														 "|");
 }
 

@@ -160,7 +160,7 @@ _title_width_symetric(true)
 	}
 
 	// init arrays
-	for (uint i = 0; i < DIRECTION_NO; ++i) {
+	for (uint i = 0; i < PAD_NO; ++i) {
 		_pad[i] = 0;
 	}
 	for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
@@ -241,7 +241,7 @@ Theme::PDecorData::load (CfgParser::Entry *op_section)
   _texture_main[FOCUSED_STATE_UNFOCUSED] = th->getTexture(o_value_unfocused);
   if (Util::splitString(o_value_pad, tok, " \t", 4) == 4)
     {
-      for (uint i = 0; i < DIRECTION_NO; ++i)
+      for (uint i = 0; i < PAD_NO; ++i)
         _pad[i] = strtol (tok[i].c_str (), NULL, 10);
     }
 
@@ -511,7 +511,7 @@ Theme::PMenuData::PMenuData(void)
   for (uint i = 0; i < OBJECT_STATE_NO; ++i) {
     _tex_sep[i] = NULL;
   }
-  for (uint i = 0; i < DIRECTION_NO; ++i) {
+  for (uint i = 0; i < PAD_NO; ++i) {
     _pad[i] = 0;
   }
 }
@@ -536,7 +536,7 @@ Theme::PMenuData::load(CfgParser::Entry *op_section)
       vector<string> tok;
       if (Util::splitString (op_value->get_value (), tok, " \t", 4) == 4)
         {
-          for (int i = 0; i < DIRECTION_NO; ++i)
+          for (int i = 0; i < PAD_NO; ++i)
             _pad[i] = strtol (tok[i].c_str(), NULL, 10);
         }
     }
@@ -656,7 +656,7 @@ Theme::PMenuData::loadState (CfgParser::Entry *op_section, ObjectState state)
 Theme::TextDialogData::TextDialogData(void) :
 _font(NULL), _color(NULL), _tex(NULL)
 {
-  for (uint i = 0; i < DIRECTION_NO; ++i) {
+  for (uint i = 0; i < PAD_NO; ++i) {
     _pad[i] = 0;
   }
 }
@@ -698,7 +698,7 @@ Theme::TextDialogData::load (CfgParser::Entry *op_section)
   vector<string> tok;
   if (Util::splitString (o_value_pad, tok, " \t", 4) == 4)
     {
-      for (uint i = 0; i < DIRECTION_NO; ++i)
+      for (uint i = 0; i < PAD_NO; ++i)
         _pad[i] = strtol(tok[i].c_str(), NULL, 10);
     }
 

@@ -343,20 +343,20 @@ PMenu::buildMenuCalculate(void)
   _item_width_max_avail = _item_width_max;
 
   // Continue add padding etc.
-	_item_width_max += _theme->getMenuData()->getPad(DIRECTION_LEFT)
-		+ _theme->getMenuData()->getPad(DIRECTION_RIGHT);
+	_item_width_max += _theme->getMenuData()->getPad(PAD_LEFT)
+		+ _theme->getMenuData()->getPad(PAD_RIGHT);
 
 	// If we have any submenus, increase the maximum width with arrow width +
 	// right pad as we are going to pad the arrow from the text too.
 	if (_has_submenu) {
-		_item_width_max += _theme->getMenuData()->getPad(DIRECTION_RIGHT)
+		_item_width_max += _theme->getMenuData()->getPad(PAD_RIGHT)
 			+ _theme->getMenuData()->getTextureArrow(OBJECT_STATE_FOCUSED)->getWidth();
 	}
 
 	// calculate item height
 	_item_height = _theme->getMenuData()->getFont(OBJECT_STATE_FOCUSED)->getHeight()  +
-		_theme->getMenuData()->getPad(DIRECTION_UP) +
-		_theme->getMenuData()->getPad(DIRECTION_DOWN);
+		_theme->getMenuData()->getPad(PAD_UP) +
+		_theme->getMenuData()->getPad(PAD_DOWN);
 	_separator_height = _theme->getMenuData()->getTextureSeparator(OBJECT_STATE_FOCUSED)->getHeight();
 
 	height = (_item_height * _size) + (_separator_height * sep);
@@ -500,15 +500,15 @@ PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
 
 			tex->render(pix,
 									item->getX() + _item_width_max - a_w -
-									_theme->getMenuData()->getPad(DIRECTION_RIGHT),
+									_theme->getMenuData()->getPad(PAD_RIGHT),
 									item->getY() + a_y,
 									a_w, a_h);
 		}
 
 		PFont *font = _theme->getMenuData()->getFont(state);
 		font->draw(pix,
-							 item->getX() + _theme->getMenuData()->getPad(DIRECTION_LEFT),
-							 item->getY() + _theme->getMenuData()->getPad(DIRECTION_UP),
+							 item->getX() + _theme->getMenuData()->getPad(PAD_LEFT),
+							 item->getY() + _theme->getMenuData()->getPad(PAD_UP),
 							 item->getName().c_str(), 0, // Text and max chars
                _item_width_max_avail);
 

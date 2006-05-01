@@ -111,6 +111,7 @@ _viewport_cols(1), _viewport_rows(1)
 	_action_map["VIEWPORTMOVEDIRECTION"] = pair<ActionType, uint>(ACTION_VIEWPORT_MOVE_DIRECTION, ANY_MASK);
 	_action_map["VIEWPORTSCROLL"] = pair<ActionType, uint>(ACTION_VIEWPORT_SCROLL, ANY_MASK);
 	_action_map["VIEWPORTGOTO"] = pair<ActionType, uint>(ACTION_VIEWPORT_GOTO, ANY_MASK);
+	_action_map["SENDTOVIEWPORT"] = pair<ActionType, uint>(ACTION_SEND_TO_VIEWPORT, ANY_MASK);
 	_action_map["FINDCLIENT"] = pair<ActionType, uint>(ACTION_FIND_CLIENT, ANY_MASK);
 	_action_map["DETACH"] = pair<ActionType, uint>(ACTION_DETACH, FRAME_MASK);
 	_action_map["SENDTOWORKSPACE"] = pair<ActionType, uint>(ACTION_SEND_TO_WORKSPACE, ANY_MASK);
@@ -786,7 +787,15 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
 				case ACTION_NEXT_FRAME_MRU:
 				case ACTION_PREV_FRAME:
 				case ACTION_PREV_FRAME_MRU:
-					action.setParamI(0, ParseUtil::getValue<Raise>(tok[1], _raise_map));
+					if ((Util::splitString(tok[1], tok, " \t", 2)) == 2) {
+						action.setParamI(0, ParseUtil::getValue<Raise>(tok[tok.size() - 2],
+																													 _raise_map));
+						action.setParamI(1, Util::isTrue(tok[tok.size() - 1]));
+					} else {
+						action.setParamI(0, ParseUtil::getValue<Raise>(tok[1],
+																													 _raise_map));
+						action.setParamI(1, false);
+					}
 					break;
 				case ACTION_FOCUS_DIRECTIONAL:
 					if ((Util::splitString(tok[1], tok, " \t", 2)) == 2) {
@@ -812,6 +821,12 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
 					}
 					break;
 				case ACTION_VIEWPORT_GOTO:
+					if ((Util::splitString(tok[1], tok, " \t", 2)) == 2) {
+						action.setParamI(0, strtol(tok[tok.size() - 2].c_str(), NULL, 10) - 1);
+						action.setParamI(1, strtol(tok[tok.size() - 1].c_str(), NULL, 10) - 1);
+					}
+					break;
+				case ACTION_SEND_TO_VIEWPORT:
 					if ((Util::splitString(tok[1], tok, " \t", 2)) == 2) {
 						action.setParamI(0, strtol(tok[tok.size() - 2].c_str(), NULL, 10) - 1);
 						action.setParamI(1, strtol(tok[tok.size() - 1].c_str(), NULL, 10) - 1);

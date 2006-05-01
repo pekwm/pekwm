@@ -1,5 +1,14 @@
 2006-05-01  Claes Nästén  <me{@}pekdon{.}net>
 
+	* src/ActionHandler.cc (actionFocusToggle): 
+	Added boolean option to {Next,Prev}Frame set of actions to allow
+	inclusion of iconified windows. Closing #59
+	
+	* src/ActionHandler.cc (actionSendToViewport): 
+	Added SendToViewport Col Row action. It does not implement relative
+	viewport sending. Closing #70
+	(Thanks Largon for request)
+
 	* src/WindowManager.cc (createMenus): 
 	Extended the ShowMenu functionality to include custom menus.
 	Example, by adding the following to the menu configuration file:

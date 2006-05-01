@@ -307,16 +307,20 @@ ActionHandler::handleAction(const ActionPerformed &ap)
 				handleStateAction(*it, ap.wo, client, frame);
 				break;
 			case ACTION_NEXT_FRAME:
-				actionFocusToggle(ap.ae.sym, it->getParamI(0), 1, false);
+				actionFocusToggle(ap.ae.sym, it->getParamI(0), 1 /* Direction */,
+													it->getParamI(1), false);
 				break;
 			case ACTION_NEXT_FRAME_MRU:
-				actionFocusToggle(ap.ae.sym, it->getParamI(0), 1, true);
+				actionFocusToggle(ap.ae.sym, it->getParamI(0), 1 /* Direction */,
+													 it->getParamI(1), true);
 				break;
 			case ACTION_PREV_FRAME:
-				actionFocusToggle(ap.ae.sym, it->getParamI(0), -1, false);
+				actionFocusToggle(ap.ae.sym, it->getParamI(0), -1 /* Direction */,
+													 it->getParamI(1), false);
 				break;
 			case ACTION_PREV_FRAME_MRU:
-				actionFocusToggle(ap.ae.sym, it->getParamI(0), -1, true);
+				actionFocusToggle(ap.ae.sym, it->getParamI(0), -1 /* Direction */,
+													it->getParamI(1), true);
 				break;
 			case ACTION_GOTO_WORKSPACE:
 				// if the event was caused by a motion event ( dragging frame to the
@@ -346,6 +350,10 @@ ActionHandler::handleAction(const ActionPerformed &ap)
 				break;
 			case ACTION_VIEWPORT_GOTO:
 				Workspaces::instance()->getActiveViewport()->gotoColRow((unsigned) it->getParamI(0), (unsigned) it->getParamI(1));
+				break;
+			case ACTION_SEND_TO_VIEWPORT:
+				actionSendToViewport(decor ? decor : ap.wo,
+														 it->getParamI(0), it->getParamI(1));
 				break;
 
 			case ACTION_FIND_CLIENT:
@@ -624,16 +632,55 @@ ActionHandler::actionWarpToViewport(PDecor *decor, uint direction)
 	}
 }
 
+//! @brief Sends PWinObj to viewport col/row
+//! @param wo Pointer to PWinObj to move.
+//! @param col_off Column to send PWinObj to.
+//! @param row_off Row to send PWinObj to.
+void
+ActionHandler::actionSendToViewport(PWinObj *wo, int col_off, int row_off)
+{
+    Viewport *vp = Workspaces::instance()->getActiveViewport();
+
+    // Get current position
+    int col = vp->getCol(wo);
+    int row = vp->getRow(wo);
+
+    // Get new column
+    int col_new = col_off;
+    int row_new = row_off;
+
+    // Validate posotion
+    if ((col_new < 0) || (col_new >= vp->getCols())) {
+      col_new = col;
+    }
+    if ((row_new < 0) || (row_new >= vp->getRows())) {
+      row_new = row;
+    }
+
+    // Get offset from current viewport to position.
+    int x = wo->getX() + vp->getX() - (col * PScreen::instance()->getWidth());
+    int y = wo->getY() + vp->getY() - (row * PScreen::instance()->getHeight());
+
+    // Add offset to new column and row
+    x += (col_new * PScreen::instance()->getWidth()) - vp->getX();
+    y += (row_new * PScreen::instance()->getHeight()) - vp->getY();
+
+    // Move the window and make sure it is visible.
+    wo->move(x, y);
+    vp->makeWOInsideVirtual(wo);
+}
+
 //! @brief Tries to find the next/prev frame relative to the focused client
 void
-ActionHandler::actionFocusToggle(uint button, uint raise, int off, bool mru)
+ActionHandler::actionFocusToggle(uint button, uint raise, int off,
+																 bool show_iconified, bool mru)
 {
 	PMenu *p_menu;
 
 	if (mru) {
-		p_menu = createMRUMenu();
+		p_menu = createMRUMenu(show_iconified);
 	} else {
-		p_menu = createNextPrevMenu();
+		p_menu = createNextPrevMenu(show_iconified);
 	}
 
 	auto_ptr<PMenu> menu(p_menu);
@@ -689,10 +736,17 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off, bool mru)
 
 	XEvent ev;
 	bool cycling = true;
+	bool was_iconified = false;
+
 	while (cycling) {
 		if (fo_wo != NULL) {
 			fo_wo->setFocused(true);
 			if (Raise(raise) == ALWAYS_RAISE)	{
+				// Make sure it's not iconified if raise is on.
+				if (fo_wo->isIconified()) {
+					was_iconified = true;
+					fo_wo->mapWindow();
+				}
 				fo_wo->raise();
 			}
 		}
@@ -701,6 +755,11 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off, bool mru)
 		if (ev.type == KeyPress) {
 			if (ev.xkey.keycode == button) {
 				if (fo_wo != NULL) {
+					// Restore iconified state
+					if (was_iconified) {
+						was_iconified = false;
+						fo_wo->iconify();
+					}
 					fo_wo->setFocused(false);
 				}
 
@@ -722,11 +781,20 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off, bool mru)
 
 	PScreen::instance()->ungrabKeyboard();
 
-	if (fo_wo != NULL) {
+	// Got something to focus
+	if (fo_wo) {
+		// De-iconify if iconified, user probably wants this
+		if (fo_wo->isIconified()) {
+			// If the window was iconfied, and sticky
+			fo_wo->setWorkspace(Workspaces::instance()->getActive());
+			fo_wo->mapWindow();
+			fo_wo->raise();
+		} else if (Raise(raise) == END_RAISE) {
+			fo_wo->raise();
+		}
+
+		// Give focus
 		fo_wo->giveInputFocus();
-	}
-	if (Raise(raise) == END_RAISE) {
-		fo_wo->raise();
 	}
 }
 
@@ -768,7 +836,10 @@ ActionHandler::actionShowMenu(const std::string &name, bool stick,
 	} else {
 		// if it's a WORefMenu, set referencing client
 		WORefMenu *wo_ref_menu = dynamic_cast<WORefMenu*>(menu);
-		if (wo_ref_menu) {
+		if (wo_ref_menu
+				// Don't set reference on these, we don't want a funky title
+				&& (wo_ref_menu->getType() != ROOTMENU_TYPE)
+				&& (wo_ref_menu->getType() != ROOTMENU_STANDALONE_TYPE)) {
 			wo_ref_menu->setWORef(wo_ref);
 		}
 
@@ -790,21 +861,22 @@ ActionHandler::actionShowMenu(const std::string &name, bool stick,
 #endif // MENUS
 
 //! @brief Creates a menu containing a list of Frames currently visible
+//! @param show_iconified Flag to show/hide iconified windows
 PMenu*
-ActionHandler::createNextPrevMenu(void)
+ActionHandler::createNextPrevMenu(bool show_iconified)
 {
 	ActionEvent ae; // empty ae, used when inserting
-	Viewport *vp = Workspaces::instance()->getActiveViewport();
 	PMenu *menu =
 		new PMenu(PScreen::instance()->getDpy(), _wm->getTheme(), "Windows",
 							"" /* Empty name*/);
 
+	Frame *fr;
 	list<Frame*>::iterator f_it(_wm->frame_begin());
 	for (; f_it != _wm->frame_end(); ++f_it) {
-		// if it's not hidden it's either sticky or on this workspace
-		if ((*f_it)->isMapped() && vp->isInside(*f_it) && (*f_it)->isFocusable() &&
-				((*f_it)->isSkip(SKIP_FOCUS_TOGGLE) == false)) {
-			menu->insert(static_cast<Client*>((*f_it)->getActiveChild())->getTitle()->getVisible(), ae, *f_it);
+		fr = static_cast<Frame*>(*f_it);
+		if (createMenuInclude(fr, show_iconified)) {
+			menu->insert(static_cast<Client*>(fr->getActiveChild())->getTitle()->getVisible(),
+									 ae, fr);
 		}
 	}
 
@@ -812,11 +884,11 @@ ActionHandler::createNextPrevMenu(void)
 }
 
 //! @brief Creates a menu containing a list of Frames currently visible ( MRU order )
+//! @param show_iconified Flag to show/hide iconified windows
 PMenu*
-ActionHandler::createMRUMenu(void)
+ActionHandler::createMRUMenu(bool show_iconified)
 {
 	ActionEvent ae; // empty ae, used when inserting
-	Viewport *vp = Workspaces::instance()->getActiveViewport();
 	PMenu *menu =
 		new PMenu(PScreen::instance()->getDpy(), _wm->getTheme(), "MRU Windows",
 							"" /* Empty name */);
@@ -825,14 +897,36 @@ ActionHandler::createMRUMenu(void)
 	list<PWinObj*>::reverse_iterator f_it = _wm->mru_rbegin();
 	for (; f_it != _wm->mru_rend(); ++f_it) {
 		fr = static_cast<Frame*>(*f_it);
-		// if it's not hidden it's either sticky or on this workspace
-		if (fr->isMapped() && vp->isInside(fr) && fr->isFocusable() &&
-				(fr->isSkip(SKIP_FOCUS_TOGGLE) == false)) {
-			menu->insert(static_cast<Client*>(fr->getActiveChild())->getTitle()->getVisible(), ae, fr);
+		if (createMenuInclude(fr, show_iconified)) {
+			menu->insert(static_cast<Client*>(fr->getActiveChild())->getTitle()->getVisible(),
+									 ae, fr);
 		}
 	}
 
 	return menu;
+}
+
+//! @brief Helper to decide wheter or not to include Frame in menu
+//! @param frame Frame to check
+//! @param show_iconified Wheter or not to include iconified windows
+//! @return true if it should be included, else false
+bool
+ActionHandler::createMenuInclude(Frame *frame, bool show_iconified)
+{
+	// Make sure the frame is mapped, or on the correct workspace if
+	// it's iconified. Also make sure it's possible to give it focus
+	// and should not be skipped
+	if ((frame->isMapped()
+			 || (show_iconified && frame->isIconified()
+					 && (frame->isSticky()
+							 || frame->getWorkspace() == Workspaces::instance()->getActive())))
+			&& frame->isFocusable()
+			&& Workspaces::instance()->getActiveViewport()->isInside(frame)
+			&& !frame->isSkip(SKIP_FOCUS_TOGGLE)) {
+		return true;
+	}
+
+	return false;
 }
 
 //! @brief Searches the client list for a client with a title matching title

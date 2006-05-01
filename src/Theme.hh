@@ -88,8 +88,8 @@ public:
 		//! @brief Returns title maximum width in procent.
 		inline int getTitleWidthMax(void) const { return _title_width_max; }
 		//! @brief Returns title text pad for dir.
-		inline int getPad(DirectionType dir) const {
-			return _pad[(dir != DIRECTION_NO) ? dir : 0];
+		inline int getPad(PadType pad) const {
+			return _pad[(pad != PAD_NO) ? pad : 0];
 		}
 
 		//! @brief Returns wheter all items in the title have same width.
@@ -166,7 +166,7 @@ public:
 		// size, padding etc
 		int _title_height;
 		int _title_width_min, _title_width_max;
-		int _pad[DIRECTION_NO];
+		int _pad[PAD_NO];
 		bool _title_width_symetric;
 
 		// title
@@ -215,9 +215,9 @@ public:
 			return _tex_sep[(state < OBJECT_STATE_SELECTED)
 											? state : OBJECT_STATE_FOCUSED];
 		}
-		//! @brief Returns text pad in DirectionType dir.
-		inline uint getPad(DirectionType dir) const {
-			return _pad[(dir != DIRECTION_NO) ? dir : 0];
+		//! @brief Returns text pad in PadType dir.
+		inline uint getPad(PadType dir) const {
+			return _pad[(dir != PAD_NO) ? dir : 0];
 		}
 
 		void load(CfgParser::Entry *cs);
@@ -237,7 +237,7 @@ public:
 		PTexture *_tex_arrow[OBJECT_STATE_NO + 1];
 		PTexture *_tex_sep[OBJECT_STATE_NO];
 
-		uint _pad[DIRECTION_NO];
+		uint _pad[PAD_NO];
 	};
 
 	//! @brief CmdDialog/StatusWindow theme data container and parser.
@@ -252,9 +252,9 @@ public:
 		inline PFont::Color *getColor(void) { return _color; }
 		//! @brief Returns background texture.
 		inline PTexture *getTexture(void) { return _tex; }
-		//! @brief Returns text pad in DirectionType dir.
-		inline uint getPad(DirectionType dir) const {
-			return _pad[(dir != DIRECTION_NO) ? dir : 0];
+		//! @brief Returns text pad in PadType dir.
+		inline uint getPad(PadType dir) const {
+			return _pad[(dir != PAD_NO) ? dir : 0];
 		}
 
 		void load(CfgParser::Entry *cs);
@@ -268,7 +268,7 @@ public:
 		PFont::Color *_color;
 		PTexture *_tex;
 
-		uint _pad[DIRECTION_NO];
+		uint _pad[PAD_NO];
 	};
 
 	Theme(PScreen *scr);

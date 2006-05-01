@@ -46,7 +46,9 @@ private:
 	void actionSendToWorkspace(PDecor *decor, int direction);
 	void actionWarpToWorkspace(PDecor *decor, uint direction);
 	void actionWarpToViewport(PDecor *decor, uint direction);
-	void actionFocusToggle(uint button, uint raise, int off, bool mru);
+	void actionSendToViewport(PWinObj *wo, int col_off, int row_off);
+	void actionFocusToggle(uint button, uint raise, int off,
+												 bool show_iconified, bool mru);
 	void actionFocusDirectional(PWinObj *wo, DirectionType dir, bool raise);
 #ifdef MENUS
 	void actionShowMenu(const std::string &name, bool stick,
@@ -56,8 +58,9 @@ private:
 	// action helpers
 	Client *findClientFromTitle(const std::string &title);
 
-	PMenu *createNextPrevMenu(void);
-	PMenu *createMRUMenu(void);
+	PMenu *createNextPrevMenu(bool show_iconified);
+	PMenu *createMRUMenu(bool show_iconified);
+	bool createMenuInclude(Frame *frame, bool show_iconified);
 
 private:
 	static ActionHandler *_instance;

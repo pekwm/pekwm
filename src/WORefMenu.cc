@@ -29,7 +29,7 @@ WORefMenu::WORefMenu(PScreen *scr, Theme *theme,
 										 const std::string &title, const std::string &name,
 										 const std::string &decor_name) :
 PMenu(scr->getDpy(), theme, title, name, decor_name),
-_wo_ref(NULL), _title_base(name),
+_wo_ref(NULL), _title_base(title),
 _title_pre(" ["), _title_post("]")
 {
 }

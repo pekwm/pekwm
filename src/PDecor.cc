@@ -1308,7 +1308,7 @@ PDecor::renderTitle(void)
 	bool sel; // Current tab selected flag
 	uint x = _titles_left; // Position
   uint pad_horiz = // Amount of horizontal padding
-    _data->getPad(DIRECTION_LEFT) + _data->getPad(DIRECTION_RIGHT);
+    _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT);
 
 	list<PDecor::TitleItem*>::iterator it(_title_list.begin());
 	for (uint i = 0; it != _title_list.end(); ++i, ++it) {
@@ -1326,8 +1326,8 @@ PDecor::renderTitle(void)
 		// and wheter or not the title has a TitleRule applied
 		if ((*it) != NULL) {
 			font->draw(_title_bg,
-								 x + _data->getPad(DIRECTION_LEFT), // X position
-								 _data->getPad(DIRECTION_UP), // Y position
+								 x + _data->getPad(PAD_LEFT), // X position
+								 _data->getPad(PAD_UP), // Y position
 								 (*it)->getVisible().c_str(), 0, // Text and max chars
                  (*it)->getWidth() - pad_horiz, // Available width
 								 (*it)->isRuleApplied() // Type of trimming
@@ -1937,7 +1937,7 @@ PDecor::calcTitleWidth(void)
 			}
 
 			width = width_max
-				+ _data->getPad(DIRECTION_LEFT)	+ _data->getPad(DIRECTION_RIGHT);
+				+ _data->getPad(PAD_LEFT)	+ _data->getPad(PAD_RIGHT);
 			width *= _title_list.size();
 
 		// Asymetric mode, get individual widths
@@ -1945,7 +1945,7 @@ PDecor::calcTitleWidth(void)
 			list<PDecor::TitleItem*>::iterator it(_title_list.begin());
 			for (; it != _title_list.end(); ++it) {
 				width += font->getWidth((*it)->getVisible().c_str())
-					+ _data->getPad(DIRECTION_LEFT)	+ _data->getPad(DIRECTION_RIGHT);
+					+ _data->getPad(PAD_LEFT)	+ _data->getPad(PAD_RIGHT);
 			}
 		}
 

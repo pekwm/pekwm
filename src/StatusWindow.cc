@@ -94,8 +94,8 @@ StatusWindow::draw(const std::string &text, bool do_center)
 	width = font->getWidth(text.c_str()) + 10;
 	width = width - (width % 10);
 	height = font->getHeight()
-		+ _theme->getStatusData()->getPad(DIRECTION_UP)
-		+ _theme->getStatusData()->getPad(DIRECTION_DOWN);
+		+ _theme->getStatusData()->getPad(PAD_UP)
+		+ _theme->getStatusData()->getPad(PAD_DOWN);
 
 	if ((width != getChildWidth()) || (height != getChildHeight())) {
 		resizeChild(width, height);
@@ -110,7 +110,7 @@ StatusWindow::draw(const std::string &text, bool do_center)
 	_status_wo->clear();
 	font->draw(_status_wo->getWindow(),
 						 (width - font->getWidth(text.c_str())) / 2,
-						 _theme->getStatusData()->getPad(DIRECTION_UP),
+						 _theme->getStatusData()->getPad(PAD_UP),
 						 text.c_str());
 }
 
