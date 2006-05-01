@@ -49,7 +49,8 @@ private:
 	void actionFocusToggle(uint button, uint raise, int off, bool mru);
 	void actionFocusDirectional(PWinObj *wo, DirectionType dir, bool raise);
 #ifdef MENUS
-	void actionShowMenu(MenuType m_type, bool stick, uint e_type, PWinObj *wo_ref);
+	void actionShowMenu(const std::string &name, bool stick,
+											uint e_type, PWinObj *wo_ref);
 #endif // MENUS
 
 	// action helpers

@@ -135,9 +135,9 @@ public:
 
 	// menus
 #ifdef MENUS
-	inline PMenu* getMenu(MenuType type) {
-		std::map<MenuType, PMenu*>::iterator it = _menus.find(type);
-		if (it != _menus.end())
+	inline PMenu* getMenu(const std::string &name) {
+		std::map<std::string, PMenu*>::iterator it = _menu_map.find(name);
+		if (it != _menu_map.end())
 			return it->second;
 		return NULL;
 	}
@@ -254,6 +254,13 @@ private:
 	void handleXRandrEvent(XRRScreenChangeNotifyEvent *ev);
 #endif // HAVE_XRANDR
 
+#ifdef MENUS
+  void createMenus(void);
+  void updateMenus(void);
+  void updateMenusStandalone(CfgParser::Entry *cfg_root);
+  void deleteMenus(void);
+#endif // MENUS
+
 	// private methods for the hints
 	void initHints(void);
 
@@ -276,7 +283,10 @@ private:
 	StatusWindow *_status_window;
 
 #ifdef MENUS
-	std::map<MenuType, PMenu*> _menus;
+	std::map<std::string, PMenu*> _menu_map;
+
+	static const char *MENU_NAMES_RESERVED[];
+	static const unsigned int MENU_NAMES_RESERVED_COUNT;
 #endif // MENUS
 
 	static const std::string _wm_name;

@@ -22,8 +22,13 @@ using std::string;
 //! @brief WORefMenu constructor
 //! @param scr Pointer to PScreen
 //! @param theme Pointer to Theme
-//! @param name Title of menu, defaults to beeing empty
-WORefMenu::WORefMenu(PScreen *scr, Theme *theme, const std::string &name) : PMenu(scr->getDpy(), theme, name),
+//! @param title Title of menu
+//! @param name Name of menu
+//! @param decor_name Name of decor, defaults to MENU
+WORefMenu::WORefMenu(PScreen *scr, Theme *theme,
+										 const std::string &title, const std::string &name,
+										 const std::string &decor_name) :
+PMenu(scr->getDpy(), theme, title, name, decor_name),
 _wo_ref(NULL), _title_base(name),
 _title_pre(" ["), _title_post("]")
 {

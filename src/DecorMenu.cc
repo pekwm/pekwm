@@ -30,8 +30,9 @@ using std::string;
 using std::map;
 
 //! @brief Constructor for DecorMenu.
-DecorMenu::DecorMenu(PScreen *scr, Theme *theme, ActionHandler *act) :
-WORefMenu(scr, theme, "Decor Menu"),
+DecorMenu::DecorMenu(PScreen *scr, Theme *theme, ActionHandler *act,
+										 const std::string &name) :
+WORefMenu(scr, theme, "Decor Menu", name),
 _act(act)
 {
 	_menu_type = DECORMENU_TYPE;
@@ -56,7 +57,7 @@ DecorMenu::handleItemExec(PMenu::Item *item)
 
 //! @brief Rebuilds the menu.
 void
-DecorMenu::reload(void)
+DecorMenu::reload(CfgParser::Entry *section)
 {
 	// clear the menu before loading
 	removeAll();

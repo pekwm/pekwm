@@ -12,6 +12,8 @@
 
 #include "../config.h"
 #include "Util.hh"
+
+#include <algorithm>
 #include <iostream>
 #include <sstream>
 
@@ -30,6 +32,7 @@ using std::endl;
 using std::string;
 using std::vector;
 using std::ostringstream;
+using std::transform;
 
 namespace Util {
 
@@ -179,6 +182,22 @@ splitString(const std::string &str, std::vector<std::string> &toks,
 	}
 
 	return (toks.size() - n);
+}
+
+//! @brief Converts string to uppercase
+//! @param str Reference to string to convert
+void
+to_upper(std::string &str)
+{
+	transform(str.begin(), str.end(), str.begin(), (int(*)(int)) std::toupper);
+}
+
+//! @brief Converts string to lowercase
+//! @param str Reference to string to convert
+void
+to_lower(std::string &str)
+{
+	transform(str.begin(), str.end(), str.begin(), (int(*)(int)) std::tolower);
 }
 
 } // end namespace Util.

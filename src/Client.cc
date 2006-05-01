@@ -283,13 +283,13 @@ Client::~Client(void)
 #ifdef MENUS
 	WORefMenu *wo_ref_menu;
 
-	wo_ref_menu = static_cast<WORefMenu*>(_wm->getMenu(WINDOWMENU_TYPE));
+	wo_ref_menu = static_cast<WORefMenu*>(_wm->getMenu("WINDOW"));
 	if (this == wo_ref_menu->getWORef()) {
 		wo_ref_menu->setWORef(NULL);
 		wo_ref_menu->unmapAll();
 	}
 
-	wo_ref_menu = static_cast<WORefMenu*>(_wm->getMenu(DECORMENU_TYPE));
+	wo_ref_menu = static_cast<WORefMenu*>(_wm->getMenu("DECORMENU"));
 	if (this == wo_ref_menu->getWORef()) {
 		wo_ref_menu->setWORef(NULL);
 		wo_ref_menu->unmapAll();

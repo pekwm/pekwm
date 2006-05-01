@@ -39,8 +39,10 @@ using std::find;
 map<Window,PMenu*> PMenu::_menu_map = map<Window,PMenu*>();
 
 //! @brief Constructor for PMenu class
-PMenu::PMenu(Display *dpy, Theme *theme, const std::string &title, const std::string decor_name) :
+PMenu::PMenu(Display *dpy, Theme *theme, const std::string &title,
+						 const std::string &name, const std::string decor_name) :
 PDecor(dpy, theme, decor_name),
+_name(name),
 _menu_wo(NULL), _menu_parent(NULL),
 _menu_bg_fo(None), _menu_bg_un(None), _menu_bg_se(None),
 _item_height(0), _item_width_max(0), _item_width_max_avail(0),

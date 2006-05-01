@@ -13,6 +13,8 @@
 
 #include "pekwm.hh"
 
+#include "CfgParser.hh"
+
 #include <list>
 #include <map>
 #include <string>
@@ -59,7 +61,8 @@ public:
 		PMenu::Item::Type _type; // normal, separator or hidden item
 	};
 
-	PMenu(Display *dpy, Theme *theme, const std::string &title, const std::string decor_name = "MENU");
+	PMenu(Display *dpy, Theme *theme, const std::string &title,
+				const std::string &name, const std::string decor_name = "MENU");
 	virtual ~PMenu(void);
 
 	// START - PWinObj interface.
@@ -81,6 +84,7 @@ public:
 		return NULL;
 	}
 
+	inline const std::string &getName(void) { return _name; }
 	inline PMenu::Item *getItemCurr(void) { return *_item_curr; }
 	void selectNextItem(void);
 	void selectPrevItem(void);
@@ -95,7 +99,7 @@ public:
 	virtual void remove(PMenu::Item *item);
 	virtual void removeAll(void);
 
-	virtual void reload(void) { }
+	virtual void reload(CfgParser::Entry *section) { }
 	void buildMenu(void);
 
 	inline uint size(void) const { return _item_list.size(); }
@@ -136,7 +140,8 @@ private:
 	void makeInsideScreen(int x, int y);
 
 protected:
-	MenuType _menu_type;
+	std::string _name; //!< Name of menu, must be unique
+	MenuType _menu_type; //!< Type of menu
 
 	// menu content data
 	std::list<PMenu::Item*> _item_list;

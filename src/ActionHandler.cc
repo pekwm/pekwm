@@ -358,7 +358,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
 				break;
 #ifdef MENUS
 			case ACTION_SHOW_MENU:
-				actionShowMenu(MenuType(it->getParamI(0)), it->getParamI(1),
+				actionShowMenu(it->getParamS(), it->getParamI(0),
 											 ap.type, client ? client : ap.wo);
 				break;
 			case ACTION_HIDE_ALL_MENUS:
@@ -748,12 +748,16 @@ ActionHandler::actionFocusDirectional(PWinObj *wo, DirectionType dir, bool raise
 
 
 #ifdef MENUS
-//! @brief Toggles visibility of menu of type m_type
+//! @brief Toggles visibility of menu.
+//! @param name Name of menu to toggle visibilty of
+//! @param stick Stick menu when showing
+//! @param e_type Event type triggered this action
+//! @param wo_ref Reference to active window object
 void
-ActionHandler::actionShowMenu(MenuType m_type, bool stick,
+ActionHandler::actionShowMenu(const std::string &name, bool stick,
 															uint e_type, PWinObj *wo_ref)
 {
-	PMenu *menu = _wm->getMenu(m_type);
+	PMenu *menu = _wm->getMenu(name);
 	if (menu == NULL) {
 		return;
 	}
@@ -762,11 +766,9 @@ ActionHandler::actionShowMenu(MenuType m_type, bool stick,
 		menu->unmapAll();
 
 	} else {
-
 		// if it's a WORefMenu, set referencing client
 		WORefMenu *wo_ref_menu = dynamic_cast<WORefMenu*>(menu);
-		if ((wo_ref_menu != NULL) &&
-		    (wo_ref_menu->getMenuType() != ROOTMENU_TYPE)) {
+		if (wo_ref_menu) {
 			wo_ref_menu->setWORef(wo_ref);
 		}
 
@@ -794,7 +796,8 @@ ActionHandler::createNextPrevMenu(void)
 	ActionEvent ae; // empty ae, used when inserting
 	Viewport *vp = Workspaces::instance()->getActiveViewport();
 	PMenu *menu =
-		new PMenu(PScreen::instance()->getDpy(), _wm->getTheme(), "Windows");
+		new PMenu(PScreen::instance()->getDpy(), _wm->getTheme(), "Windows",
+							"" /* Empty name*/);
 
 	list<Frame*>::iterator f_it(_wm->frame_begin());
 	for (; f_it != _wm->frame_end(); ++f_it) {
@@ -815,7 +818,8 @@ ActionHandler::createMRUMenu(void)
 	ActionEvent ae; // empty ae, used when inserting
 	Viewport *vp = Workspaces::instance()->getActiveViewport();
 	PMenu *menu =
-		new PMenu(PScreen::instance()->getDpy(), _wm->getTheme(), "MRU Windows");
+		new PMenu(PScreen::instance()->getDpy(), _wm->getTheme(), "MRU Windows",
+							"" /* Empty name */);
 
 	Frame *fr;
 	list<PWinObj*>::reverse_iterator f_it = _wm->mru_rbegin();

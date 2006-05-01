@@ -264,18 +264,6 @@ _viewport_cols(1), _viewport_rows(1)
 	_cfg_deny_map["BELOW"] = CFG_DENY_STATE_BELOW;
 
 #ifdef MENUS
-	_menu_type_map[""] = NO_MENU_TYPE;
-	_menu_type_map["WINDOW"] = WINDOWMENU_TYPE;
-	_menu_type_map["ROOT"] = ROOTMENU_TYPE;
-	_menu_type_map["GOTO"] = GOTOMENU_TYPE;
-	_menu_type_map["GOTOCLIENT"] = GOTOCLIENTMENU_TYPE;
-	_menu_type_map["ICON"] = ICONMENU_TYPE;
-	_menu_type_map["ATTACHCLIENT"] = ATTACH_CLIENT_TYPE;
-	_menu_type_map["ATTACHFRAME"] = ATTACH_FRAME_TYPE;
-	_menu_type_map["ATTACHCLIENTINFRAME"] = ATTACH_CLIENT_IN_FRAME_TYPE;
-	_menu_type_map["ATTACHFRAMEINFRAME"] = ATTACH_FRAME_IN_FRAME_TYPE;
-	_menu_type_map["DECOR"] = DECORMENU_TYPE;
-
 	_menu_action_map[""] = ACTION_MENU_NEXT;
 	_menu_action_map["NEXTITEM"] = ACTION_MENU_NEXT;
 	_menu_action_map["PREVITEM"] = ACTION_MENU_PREV;
@@ -840,11 +828,13 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
 #ifdef MENUS
 				case ACTION_SHOW_MENU:
 					if ((Util::splitString(tok[1], tok, " \t", 2)) == 2) {
-						action.setParamI(0, ParseUtil::getValue<MenuType>(tok[tok.size() - 2], _menu_type_map));
-						action.setParamI(1, Util::isTrue(tok[tok.size() - 1]));
+						Util::to_upper(tok[tok.size() - 2]);
+						action.setParamS(tok[tok.size() - 2]);
+						action.setParamI(0, Util::isTrue(tok[tok.size() - 1]));
 					} else {
-						action.setParamI(0, ParseUtil::getValue<MenuType>(tok[1], _menu_type_map));
-						action.setParamI(1, false); // Default to non-sticky
+						Util::to_upper(tok[1]);
+						action.setParamS(tok[1]);
+						action.setParamI(0, false); // Default to non-sticky
 					}
 					break;
 #endif // MENUS

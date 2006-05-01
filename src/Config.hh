@@ -209,7 +209,6 @@ private:
 	std::map<ParseUtil::Entry, ActionStateType> _action_state_map;
 	std::map<ParseUtil::Entry, CfgDeny> _cfg_deny_map;
 #ifdef MENUS
-	std::map<ParseUtil::Entry, MenuType> _menu_type_map;
 	std::map<ParseUtil::Entry, ActionType> _menu_action_map;
 #endif // MENUS
 #ifdef HARBOUR

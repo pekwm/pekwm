@@ -59,6 +59,7 @@
 #include <algorithm>
 #include <functional>
 #include <memory>
+#include <cassert>
 
 extern "C" {
 #include <signal.h>
@@ -83,7 +84,29 @@ using std::map;
 using std::mem_fun;
 using std::find;
 
+// Static initializers
 const string WindowManager::_wm_name = string("pekwm");
+
+#ifdef MENUS
+const char *WindowManager::MENU_NAMES_RESERVED[] = {
+  "ATTACHCLIENTINFRAME",
+  "ATTACHCLIENT",
+  "ATTACHFRAMEINFRAME",
+  "ATTACHFRAME",
+  "DECORMENU",
+  "GOTOCLIENT",
+  "GOTO",
+  "ICON",
+  "ROOTMENU",
+  "ROOT", // To avoid name conflict, ROOTMENU -> ROOT
+  "WINDOWMENU",
+  "WINDOW" // To avoid name conflict, WINDOWMENU -> WINDOW
+};
+
+const unsigned int WindowManager::MENU_NAMES_RESERVED_COUNT = 
+  sizeof(WindowManager::MENU_NAMES_RESERVED)
+  / sizeof(WindowManager::MENU_NAMES_RESERVED[0]);
+#endif // MENUS
 
 WindowManager *wm;
 
@@ -379,10 +402,7 @@ WindowManager::~WindowManager(void)
 		delete _autoproperties;
 
 #ifdef MENUS
-	map<MenuType, PMenu*>::iterator it(_menus.begin());
-	for (; it != _menus.end(); ++it)
-		delete it->second;
-	_menus.clear();
+  deleteMenus();
 #endif // MENUS
 
 	if (_pekwm_atoms != NULL)
@@ -571,27 +591,7 @@ WindowManager::setupDisplay(void)
 	_keygrabber->grabKeys(_screen->getRoot());
 
 #ifdef MENUS
-	_menus[WINDOWMENU_TYPE] = new ActionMenu(this, WINDOWMENU_TYPE, "");
-	_menus[ROOTMENU_TYPE] = new ActionMenu(this, ROOTMENU_TYPE, "");
-	_menus[GOTOMENU_TYPE] =
-		new FrameListMenu(_screen, _theme, _frame_list, GOTOMENU_TYPE);
-	_menus[GOTOCLIENTMENU_TYPE] =
-		new FrameListMenu(_screen, _theme, _frame_list, GOTOCLIENTMENU_TYPE);
-	_menus[ICONMENU_TYPE] =
-		new FrameListMenu(_screen, _theme, _frame_list, ICONMENU_TYPE);
-	_menus[ATTACH_CLIENT_TYPE] =
-		new FrameListMenu(_screen, _theme, _frame_list, ATTACH_CLIENT_TYPE);
-	_menus[ATTACH_FRAME_TYPE] =
-		new FrameListMenu(_screen, _theme, _frame_list, ATTACH_FRAME_TYPE);
-	_menus[ATTACH_CLIENT_IN_FRAME_TYPE] =
-		new FrameListMenu(_screen, _theme, _frame_list, ATTACH_CLIENT_IN_FRAME_TYPE);
-	_menus[ATTACH_FRAME_IN_FRAME_TYPE] =
-		new FrameListMenu(_screen, _theme, _frame_list, ATTACH_FRAME_IN_FRAME_TYPE);
-	_menus[DECORMENU_TYPE] = new DecorMenu(_screen, _theme, _action_handler);
-
-	_menus[WINDOWMENU_TYPE]->reload();
-	_menus[ROOTMENU_TYPE]->reload();
-	_menus[DECORMENU_TYPE]->reload();
+  createMenus();
 #endif // MENUS
 
 	// Create screen edge windows
@@ -874,15 +874,7 @@ WindowManager::doReload(void)
 #endif // HARBOUR
 
 #ifdef MENUS
-	map<MenuType, PMenu*>::iterator pm_it(_menus.begin());
-	for (; pm_it != _menus.end(); ++pm_it) {
-		pm_it->second->loadDecor();
-		pm_it->second->reload();
-	}
-#ifdef HARBOUR
-	_harbour->getHarbourMenu()->loadDecor();
-	_harbour->getHarbourMenu()->reload();
-#endif // HARBOUR
+  updateMenus();
 #endif // MENUS
 
 	_screen->updateStrut();
@@ -1553,6 +1545,138 @@ WindowManager::handleXRandrEvent(XRRScreenChangeNotifyEvent *ev)
 
 // Event handling routines stop ============================================
 
+#ifdef MENUS
+//! @brief Creates reserved menus and populates _menu_map
+void
+WindowManager::createMenus(void)
+{
+  // Make sure this is not called twice without an delete in between
+  assert(! _menu_map.size());
+
+  _menu_map["ATTACHCLIENTINFRAME"] =
+    new FrameListMenu(_screen, _theme, _frame_list, ATTACH_CLIENT_IN_FRAME_TYPE,
+		      "Attach Client In Frame", "ATTACHCLIENTINFRAME");
+  _menu_map["ATTACHCLIENT"] =
+    new FrameListMenu(_screen, _theme, _frame_list, ATTACH_CLIENT_TYPE,
+		      "Attach Client", "ATTACHCLIENT");
+  _menu_map["ATTACHFRAMEINFRAME"] =
+    new FrameListMenu(_screen, _theme, _frame_list, ATTACH_FRAME_IN_FRAME_TYPE,
+		      "Attach Frame In Frame", "ATTACHFRAMEINFRAME");
+  _menu_map["ATTACHFRAME"] =
+    new FrameListMenu(_screen, _theme, _frame_list, ATTACH_FRAME_TYPE,
+		      "Attach Frame", "ATTACHFRAME");
+  _menu_map["DECORMENU"] =
+    new DecorMenu(_screen, _theme, _action_handler, "DECORMENU");
+  _menu_map["GOTOCLIENT"] =
+    new FrameListMenu(_screen, _theme, _frame_list, GOTOCLIENTMENU_TYPE,
+		      "Focus Client", "GOTOCLIENT");
+  _menu_map["GOTO"] =
+    new FrameListMenu(_screen, _theme, _frame_list, GOTOMENU_TYPE,
+		      "Focus Frame", "GOTO");
+  _menu_map["ICON"] =
+    new FrameListMenu(_screen, _theme, _frame_list, ICONMENU_TYPE,
+		      "Focus Iconified Frame", "ICON");
+  _menu_map["ROOT"] = // It's named ROOT to be backwards compatible
+    new ActionMenu(this, ROOTMENU_TYPE, "", "ROOTMENU");
+  _menu_map["WINDOW"] = // It's named WINDOW to be backwards compatible
+    new ActionMenu(this, WINDOWMENU_TYPE, "", "WINDOWMENU");
+
+  // As the previous step is done manually, make sure it's done correct.
+  assert(_menu_map.size() == (MENU_NAMES_RESERVED_COUNT - 2));
+
+  // Load configuration, pass specific section to loading
+  CfgParser menu_cfg;
+  if (menu_cfg.parse(_config->getMenuFile())
+      || menu_cfg.parse (string(SYSCONFDIR "/menu"))) {
+
+    // Load standard menus
+    map<string, PMenu*>::iterator it = _menu_map.begin();
+    for (; it != _menu_map.end(); ++it) {
+      it->second->reload(menu_cfg.get_entry_root()->find_section(it->second->getName()));
+    }
+
+    // Load standalone menus
+    updateMenusStandalone(menu_cfg.get_entry_root()->get_entry_next());
+  }
+}
+
+//! @brief (re)loads the menus in the menu configuration
+void
+WindowManager::updateMenus(void)
+{
+  // Load configuration, pass specific section to loading
+  bool cfg_ok = true;
+  CfgParser menu_cfg;
+  if (! menu_cfg.parse(_config->getMenuFile())) {
+    if (! menu_cfg.parse (string(SYSCONFDIR "/menu"))) {
+      cfg_ok = false;
+    }
+  }
+
+  // Update, delete standalone root menus, load decors on others
+  map<string, PMenu*>::iterator it = _menu_map.begin();
+  for (; it != _menu_map.end(); ++it) {
+    if (it->second->getMenuType() == ROOTMENU_STANDALONE_TYPE) {
+      delete it->second;
+    } else {
+      it->second->loadDecor();
+      // Only reload the menu if we got a ok configuration
+      if (cfg_ok) {
+	it->second->reload(menu_cfg.get_entry_root()->find_section(it->second->getName()));
+      }
+    }
+  }
+
+  // Update standalone root menus (name != ROOTMENU)
+  updateMenusStandalone(menu_cfg.get_entry_root()->get_entry_next());
+
+  // Special case for HARBOUR menu which is not included in the menu map
+#ifdef HARBOUR
+  _harbour->getHarbourMenu()->loadDecor();
+  _harbour->getHarbourMenu()->reload(static_cast<CfgParser::Entry*>(0));
+#endif // HARBOUR
+}
+
+//! @brief Updates standalone root menus
+void
+WindowManager::updateMenusStandalone(CfgParser::Entry *cfg_root)
+{
+  // Temporary name, as names are stored uppercase
+  string menu_name;
+
+  // Go through all but reserved section names and create menus
+  for (CfgParser::Entry *it = cfg_root; it; it = it->get_section_next ()) {
+    // Uppercase name
+    menu_name = it->get_name();
+    Util::to_upper(menu_name);
+
+    // Create new menus, if the name is not reserved and not used
+    if (! binary_search(MENU_NAMES_RESERVED,
+			MENU_NAMES_RESERVED + MENU_NAMES_RESERVED_COUNT,
+			menu_name)
+	&& ! getMenu(menu_name)) {
+      // Create, parse and add to map
+      PMenu *menu = new ActionMenu(this, ROOTMENU_STANDALONE_TYPE,
+				   "", menu_name);
+      menu->reload(it);
+      _menu_map[menu->getName()] = menu;
+    }
+  }
+
+}
+
+//! @brief Clears the menu map and frees up resources used by menus
+void
+WindowManager::deleteMenus(void)
+{
+  map<std::string, PMenu*>::iterator it(_menu_map.begin());
+  for (; it != _menu_map.end(); ++it) {
+    delete it->second;
+  }
+  _menu_map.clear();
+}
+#endif // MENUS
+
 //! @brief Searches for a PWinObj to focus, and then gives it input focus
 void
 WindowManager::findWOAndFocus(PWinObj *search)
@@ -1972,13 +2096,14 @@ WindowManager::getPrevFrame(Frame* frame, bool mapped, uint mask)
 }
 
 #ifdef MENUS
-//! @brief
+//! @brief Hides all menus
 void
 WindowManager::hideAllMenus(void)
 {
-	map<MenuType, PMenu*>::iterator it(_menus.begin());
-	for (; it != _menus.end(); ++it)
-		it->second->unmapAll();
+  map<std::string, PMenu*>::iterator it(_menu_map.begin());
+  for (; it != _menu_map.end(); ++it) {
+    it->second->unmapAll();
+  }
 }
 #endif // MENUS
 // here follows methods for hints and atoms

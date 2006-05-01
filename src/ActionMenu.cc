@@ -35,9 +35,13 @@ using std::find;
 //! @brief ActionMenu constructor
 //! @param wm Pointer to WindowManager
 //! @param type Type of menu
-//! @param name Title of menu, defaults to beeing empty
-ActionMenu::ActionMenu(WindowManager *wm, MenuType type, const std::string &name) :
-WORefMenu(wm->getScreen(), wm->getTheme(), name),
+//! @param title Title of menu
+//! @param name Name of the menu, empty for dynamic else should be unique
+//! @param decor_name Name of decor to use, defaults to MENU.
+ActionMenu::ActionMenu(WindowManager *wm, MenuType type,
+											 const std::string &title, const std::string &name,
+											 const std::string &decor_name) :
+WORefMenu(wm->getScreen(), wm->getTheme(),title, name, decor_name),
 _wm(wm), _act(wm->getActionHandler()),
 _has_dynamic(false)
 {
@@ -111,25 +115,15 @@ ActionMenu::handleItemExec(PMenu::Item *item)
 
 //! @brief Re-reads the configuration
 void
-ActionMenu::reload(void)
+ActionMenu::reload(CfgParser::Entry *section)
 {
-	// clear the menu before loading
+	// Clear menu
 	removeAll();
 
-	string name;
-	if (_menu_type == WINDOWMENU_TYPE) {
-		name = "WINDOWMENU";
-	} else if (_menu_type == ROOTMENU_TYPE) {
-		name = "ROOTMENU";
-	}
+	// Parse section (if any)
+	parse(section);
 
-	CfgParser menu_cfg;
-	if (menu_cfg.parse (Config::instance()->getMenuFile())) {
-		parse (menu_cfg.get_entry_root ()->find_section (name));
-	} else if (menu_cfg.parse (string(SYSCONFDIR "/menu"))) {
-		parse (menu_cfg.get_entry_root ()->find_section (name));
-	}
-
+	// Build menu from parsed content
 	buildMenu();
 }
 
@@ -197,8 +191,14 @@ ActionMenu::removeAll(void)
 void
 ActionMenu::parse(CfgParser::Entry *op_section, bool dynamic)
 {
-  if (!op_section)
+  if (!op_section) {
       return;
+	} else if (!op_section->get_section()) {
+#ifdef DEBUG
+		cerr << " *** ERROR: Unable to get subsection in menu parsing" << endl;
+#endif // DEBUG
+		return;
+	}
 
   _has_dynamic = dynamic; // reset this
 
@@ -222,7 +222,8 @@ ActionMenu::parse(CfgParser::Entry *op_section, bool dynamic)
 
       if (*op_section == "SUBMENU")
         {
-          submenu = new ActionMenu (_wm, _menu_type, op_section->get_value ());
+          submenu = new ActionMenu (_wm, _menu_type, op_section->get_value (),
+																		"" /* Empty name for submenus */);
           submenu->parse (op_section, dynamic);
           submenu->buildMenu ();
 

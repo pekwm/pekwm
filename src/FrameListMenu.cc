@@ -35,38 +35,21 @@ using std::list;
 using std::vector;
 
 //! @brief FrameListMenu constructor.
-FrameListMenu::FrameListMenu(PScreen *scr, Theme *theme, const std::list<Frame*> &frame_list, MenuType type) :
-WORefMenu(scr, theme),
+//! @param scr Pointer to PScreen.
+//! @param theme Pointer to Theme
+//! @param frame_list List of Frames available.
+//! @param type Type of menu.
+//! @param title Title of menu.
+//! @param name Name of menu
+//! @param decor_name Decor name, defaults to MENU
+FrameListMenu::FrameListMenu(PScreen *scr, Theme *theme,
+														 const std::list<Frame*> &frame_list, MenuType type,
+														 const std::string &title, const std::string &name,
+														 const std::string &decor_name) :
+WORefMenu(scr, theme, title, name, decor_name),
 _frame_list(frame_list)
 {
 	_menu_type = type;
-
-	switch(_menu_type) {
-	case GOTOMENU_TYPE:
-		_title_base = "GoTo";
-		break;
-	case ICONMENU_TYPE:
-		_title_base = "IconMenu";
-		break;
-	case ATTACH_CLIENT_TYPE:
-		_title_base = "Attach Client";
-		break;
-	case ATTACH_FRAME_TYPE:
-		_title_base = "Attach Frame";
-		break;
-	case ATTACH_CLIENT_IN_FRAME_TYPE:
-		_title_base = "Attach Client In Frame";
-		break;
-	case ATTACH_FRAME_IN_FRAME_TYPE:
-		_title_base = "Attach Frame In Frame";
-		break;
-	case GOTOCLIENTMENU_TYPE:
-		_title_base = "GoTo Client";
-		break;
-	default:
-		// do nothing
-		break;
-	}
 }
 
 //! @brief FrameListMenu destructor

@@ -22,7 +22,9 @@ class Theme;
 class WORefMenu : public PMenu
 {
 public:
-	WORefMenu(PScreen *scr, Theme *theme, const std::string &name = "");
+	WORefMenu(PScreen *scr, Theme *theme,
+						const std::string &title, const std::string &name,
+						const std::string &decor_name = "MENU");
 	virtual ~WORefMenu(void);
 
 	inline PWinObj *getWORef(void) const { return _wo_ref; }

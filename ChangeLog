@@ -1,3 +1,25 @@
+2006-05-01  Claes Nästén  <me{@}pekdon{.}net>
+
+	* src/WindowManager.cc (createMenus): 
+	Extended the ShowMenu functionality to include custom menus.
+	Example, by adding the following to the menu configuration file:
+
+	ExampleMenu = "Example Menu" {
+	  Entry = "Example Entry" { Actions = "Exec xmessage Example" }
+	}
+
+	And then issuing the action ShowMenu ExampleMenu it would pop up
+	the menu defined. Closing #68
+
+	NOTE: The menus names are case insensitive, meaning it is NOT possible
+	to have TestMenu and TESTMENU. This only applies for root level
+	menus, and not submenus of a menu.
+
+	(Thanks buk{@}nurfuerspam{.}de for request)
+
+	* src/Util.cc (to_upper): 
+	Added to_upper and to_lower string utility methods.
+
 2006-04-28  Claes Nästén  <me{@}pekdon{.}net>
 	
 	* src/Workspaces.cc (setWorkspace): 

@@ -43,7 +43,9 @@ public:
 		bool _dynamic;
 	};
 
-	ActionMenu(WindowManager *wm, MenuType type, const std::string &name = "");
+	ActionMenu(WindowManager *wm, MenuType type,
+						 const std::string &title, const std::string &name,
+						 const std::string &decor_name = "MENU");
 	virtual ~ActionMenu(void);
 
 	// START - PWinObj interface.
@@ -58,7 +60,7 @@ public:
   virtual void insert(const std::string &or_name, const ActionEvent &or_ae,
                       PWinObj *op_wo_ref = NULL);
 
-	virtual void reload(void);
+	virtual void reload(CfgParser::Entry *section);
 
 	virtual void remove(PMenu::Item *item);
 	virtual void removeAll(void);

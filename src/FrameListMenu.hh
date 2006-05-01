@@ -29,7 +29,10 @@ class PMenu::Item;
 class FrameListMenu : public WORefMenu
 {
 public:
-	FrameListMenu(PScreen *scr, Theme *theme, const std::list<Frame*> &frame_list, MenuType type);
+	FrameListMenu(PScreen *scr, Theme *theme,
+								const std::list<Frame*> &frame_list, MenuType type,
+								const std::string &title, const std::string &name,
+								const std::string &decor_name = "MENU");
 	virtual ~FrameListMenu(void);
 
 	// START - PWinObj interface.
