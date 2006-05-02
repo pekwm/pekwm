@@ -89,16 +89,16 @@ public:
 	uint justify(const char *text, uint max_width, uint padding, uint chars);
 
 	// virtual interface
-	virtual bool load(const std::string &font_name) { (&font_name); return true; }
+	virtual bool load(const std::string &font_name) { return true; }
 	virtual void unload(void) { }
 
-	virtual uint getWidth(const char *text, uint max_chars = 0)  { (*text); (&max_chars) ; return 0; }
+	virtual uint getWidth(const char *text, uint max_chars = 0)  { return 0; }
 	virtual uint getHeight(void)  { return _height; }
 
-	virtual void setColor(PFont::Color *color)  { (*color); }
+	virtual void setColor(PFont::Color *color)  { }
 
 private:
-	virtual void drawText(Drawable dest, int x, int y, const char *text, uint chars, bool fg) { (&dest); (&x); (&y); (*text); (&chars); (&fg); }
+	virtual void drawText(Drawable dest, int x, int y, const char *text, uint chars, bool fg) { }
 
 protected:
 	PScreen *_scr;

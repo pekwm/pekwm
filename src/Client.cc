@@ -403,8 +403,6 @@ Client::stick(void)
 void
 Client::move(int x, int y, bool do_virtual)
 {
-	(&do_virtual);
-
 	bool request = ((_gm.x != x) || (_gm.y != y));
 
 	_gm.x = x;
@@ -1163,8 +1161,6 @@ Client::getMwmHints(Window win)
 void
 Client::handleDestroyEvent(XDestroyWindowEvent *e)
 {
-	(*e);
-
 	_alive = false;
 	delete this;
 }

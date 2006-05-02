@@ -39,7 +39,7 @@ public:
   const CfgParserKeyType get_type (void) const { return m_type; }
 
   //! @brief Parses or_value and sets Key value.
-  virtual void parse_value (const std::string &or_value) throw (std::string&) {(&or_value); }
+  virtual void parse_value (const std::string &or_value) throw (std::string&) { }
 
 protected:
   CfgParserKeyType m_type; //!< Key type.

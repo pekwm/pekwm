@@ -645,11 +645,11 @@ ActionHandler::actionSendToViewport(PWinObj *wo, int col_off, int row_off)
     int col_new = col_off;
     int row_new = row_off;
 
-    // Validate posotion
-    if ((col_new < 0) || (col_new >= vp->getCols())) {
+    // Validate position
+    if ((col_new < 0) || (col_new >= static_cast<int>(vp->getCols()))) {
       col_new = col;
     }
-    if ((row_new < 0) || (row_new >= vp->getRows())) {
+    if ((row_new < 0) || (row_new >= static_cast<int>(vp->getRows()))) {
       row_new = row;
     }
 

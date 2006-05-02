@@ -180,9 +180,9 @@ ActionMenu::remove(PMenu::Item *item)
 void
 ActionMenu::removeAll(void)
 {
-  while (_item_list.size() > 0) {
-    remove(_item_list.back());
-  }
+	while (_item_list.size() > 0) {
+		remove(_item_list.back());
+	}
 }
 
 //! @brief Parse config and push items into menu

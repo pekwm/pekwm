@@ -59,8 +59,6 @@ DecorMenu::handleItemExec(PMenu::Item *item)
 void
 DecorMenu::reload(CfgParser::Entry *section)
 {
-	(*section);
-
 	// clear the menu before loading
 	removeAll();
 

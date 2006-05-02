@@ -230,12 +230,11 @@ Theme::PDecorData::load (CfgParser::Entry *op_section)
                                                 "Empty", th->getLengthMin ()));
   o_key_list.push_back (new CfgParserKeyString ("UNFOCUSED", o_value_unfocused,
                                                 "Empty", th->getLengthMin ()));
-
+	// Free up resources
   op_sub->parse_key_values (o_key_list.begin (), o_key_list.end ());
 
-	// Free up resources
   for_each (o_key_list.begin (), o_key_list.end (),
-						Util::Free<CfgParserKey*>());
+            Util::Free<CfgParserKey*>());
 	o_key_list.clear();
 
   // Handle parsed data.
@@ -269,6 +268,7 @@ Theme::PDecorData::load (CfgParser::Entry *op_section)
       o_key_list.push_back (new CfgParserKeyString ("UNFOCUSED", o_value_unfocused,
                                                     "Empty", th->getLengthMin ()));
 
+			// Parse data
       op_sub_2->parse_key_values (o_key_list.begin (), o_key_list.end ());
 
 			// Free up resources

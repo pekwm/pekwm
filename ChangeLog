@@ -3,7 +3,7 @@
 	* src/ActionHandler.cc (actionFocusToggle): 
 	Added boolean option to {Next,Prev}Frame set of actions to allow
 	inclusion of iconified windows. Closing #59
-	( Thanks shared for request)
+	( Thanks shared for request )
 	
 	* src/ActionHandler.cc (actionSendToViewport): 
 	Added SendToViewport Col Row action. It does not implement relative

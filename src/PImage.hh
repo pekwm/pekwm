@@ -36,28 +36,24 @@ public:
 	inline uint getHeight(void) const { return _height; }
 
 	//! @brief Loads image. (empty method, interface)
-	virtual bool load(const std::string &file) { (&file); return false; }
+	virtual bool load(const std::string &file) { return false; }
 	//! @brief Unloads image. (empty method, interface)
 	virtual void unload(void) { }
 	//! @brief Draw image on Drawable dest. (empty method, interface)
 	virtual void draw(Drawable dest, int x, int y,
-										uint width = 0, uint height = 0) {
-		(&dest); (&x); (&y); (&width); (&height);
-	}
+										uint width = 0, uint height = 0) { }
 	//! @brief Returns pixmap at size. (empty method, interace)
 	virtual Pixmap getPixmap(bool &need_free, uint width = 0, uint height = 0) {
-		(&width); (&height);
 		need_free = false;
 		return None;
 	}
 	//! @brief Returns shape mask at size, if any. (empty method, interface)
 	virtual Pixmap getMask(bool &need_free, uint width = 0, uint height = 0) {
-		(&width); (&height);
 		need_free = false;
 		return None;
 	}
 	//! @brief Scales image to size. (empty method, interface)
-	virtual void scale(uint width, uint height) { (&width); (&height); }
+	virtual void scale(uint width, uint height) { }
 
 protected:
 	Display *_dpy; //!< Display image is on.

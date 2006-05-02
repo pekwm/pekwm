@@ -48,8 +48,7 @@ PFont::~PFont(void)
 //! @param max_width max nr of pixels, defaults to 0 == infinity
 //! @param trim_type how to trim title if not enough space, defaults to FONT_TRIM_END
 void
-PFont::draw(Drawable dest, int x, int y, const char *text,
-						uint max_chars, uint max_width, PFont::TrimType trim_type)
+PFont::draw(Drawable dest, int x, int y, const char *text, uint max_chars, uint max_width, PFont::TrimType trim_type)
 {
 	if (text == NULL) {
 		return;

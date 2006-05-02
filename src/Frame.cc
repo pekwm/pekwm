@@ -436,7 +436,7 @@ Frame::activateChild (PWinObj *child)
   // before setting shape
 #ifdef HAVE_SHAPE
   if (PScreen::instance ()->hasExtensionShape ())
-    _client->setShaped (setShape ());
+    _client->setShaped (setShape());
 #endif // HAVE_SHAPE
 
   if (_focused)

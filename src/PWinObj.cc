@@ -103,8 +103,6 @@ PWinObj::stick(void)
 void
 PWinObj::move(int x, int y, bool do_virtual)
 {
-	(&do_virtual);
-
 	_gm.x = x;
 	_gm.y = y;
 
