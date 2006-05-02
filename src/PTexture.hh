@@ -23,8 +23,8 @@ public:
 	PTexture(Display *dpy) : _dpy(dpy), _ok(false), _width(0), _height(0), _type(PTexture::TYPE_NO) { }
 	virtual ~PTexture(void) { }
 
-	virtual void render(Drawable draw, int x, int y, uint width, uint height) { }
-	virtual Pixmap getMask(uint width, uint height, bool &do_free) { return None; }
+	virtual void render(Drawable draw, int x, int y, uint width, uint height) { (&draw); (&x); (&y); (&width); (&height); }
+	virtual Pixmap getMask(uint width, uint height, bool &do_free) { (&width); (&height); (&do_free); return None; }
 
 	inline bool isOk(void) const { return _ok; }
 	inline uint getWidth(void) const { return _width; }

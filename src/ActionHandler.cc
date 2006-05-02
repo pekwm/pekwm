@@ -253,8 +253,6 @@ ActionHandler::handleAction(const ActionPerformed &ap)
 				// the case it causes the list (ae) to change and therefore
 				// it can't be used anymore
 				return;
-
-				break;
 			case ACTION_MENU_ENTER_SUBMENU:
 				if ((menu->getItemCurr() != NULL) &&
 						(menu->getItemCurr()->getWORef() != NULL) &&
@@ -380,8 +378,6 @@ ActionHandler::handleAction(const ActionPerformed &ap)
 				// special case: reload causes the list (ae) to change and therefore
 				// it can't be used anymore
 				return;
-
-				break;
 			case ACTION_RESTART:
 				_wm->restart();
 				break;
@@ -838,8 +834,8 @@ ActionHandler::actionShowMenu(const std::string &name, bool stick,
 		WORefMenu *wo_ref_menu = dynamic_cast<WORefMenu*>(menu);
 		if (wo_ref_menu
 				// Don't set reference on these, we don't want a funky title
-				&& (wo_ref_menu->getType() != ROOTMENU_TYPE)
-				&& (wo_ref_menu->getType() != ROOTMENU_STANDALONE_TYPE)) {
+				&& (wo_ref_menu->getMenuType() != ROOTMENU_TYPE)
+				&& (wo_ref_menu->getMenuType() != ROOTMENU_STANDALONE_TYPE)) {
 			wo_ref_menu->setWORef(wo_ref);
 		}
 

@@ -27,6 +27,7 @@ public:
 	//! @brief Loads file into data. (empty method, interface)
 	virtual uchar *load(const std::string &file, uint &width, uint &height,
 											bool &alpha) {
+		(&file); (&width); (&height); (&alpha);
 		return NULL;
 	}
 

@@ -140,6 +140,14 @@ private:
 	void copyConfigFiles(void);
 	void copyTextFile(const std::string &from, const std::string &to);
 
+	void loadFiles(CfgParser::Entry *section);
+	void loadMoveReszie(CfgParser::Entry *section);
+	void loadScreen(CfgParser::Entry *section);
+	void loadMenu(CfgParser::Entry *section);
+#ifdef HARBOUR
+	void loadHarbour(CfgParser::Entry *section);
+#endif // HARBOUR
+
 	void loadMouseConfig(const std::string &file);
 	void parseButtons(CfgParser::Entry *op_section,
                           std::list<ActionEvent>* mouse_list, ActionOk action_ok);

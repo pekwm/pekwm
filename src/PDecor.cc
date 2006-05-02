@@ -1560,12 +1560,14 @@ PDecor::checkEdgeSnap(void)
 }
 
 #ifdef HAVE_SHAPE
-//! @brief
+//! @brief Set shapes of decor
+//! @return true if shape is on, else false.
 bool
-PDecor::setShape(bool remove)
+PDecor::setShape(void)
 {
-	if (!_child)
+	if (!_child) {
 		return false;
+	}
 
 	int num, t;
 	XRectangle *rect;

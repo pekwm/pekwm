@@ -3,6 +3,7 @@
 	* src/ActionHandler.cc (actionFocusToggle): 
 	Added boolean option to {Next,Prev}Frame set of actions to allow
 	inclusion of iconified windows. Closing #59
+	( Thanks shared for request)
 	
 	* src/ActionHandler.cc (actionSendToViewport): 
 	Added SendToViewport Col Row action. It does not implement relative
@@ -18,7 +19,7 @@
 	}
 
 	And then issuing the action ShowMenu ExampleMenu it would pop up
-	the menu defined. Closing #68
+	the menu defined. Closing #69
 
 	NOTE: The menus names are case insensitive, meaning it is NOT possible
 	to have TestMenu and TESTMENU. This only applies for root level

@@ -357,21 +357,21 @@ KeyGrabber::findAction(XKeyEvent *ev, KeyGrabber::Chain *chain)
 	ActionEvent *action = NULL;
 	KeyGrabber::Chain *sub_chain = _global_chain.findChain(ev);
 	if (sub_chain && _scr->grabKeyboard(_scr->getRoot())) {
-		XEvent ev;
+		XEvent c_ev;
 		KeyGrabber::Chain *last_chain;
 		bool exit = false;
 
 		while (!exit) {
-			XMaskEvent(_scr->getDpy(), KeyPressMask, &ev);
-			ev.xkey.state &= ~_num_lock & ~_scroll_lock & ~LockMask;
+			XMaskEvent(_scr->getDpy(), KeyPressMask, &c_ev);
+			c_ev.xkey.state &= ~_num_lock & ~_scroll_lock & ~LockMask;
 
 			if (IsModifierKey(XKeycodeToKeysym(_scr->getDpy(),
-																				 ev.xkey.keycode, 0))) {
+																				 c_ev.xkey.keycode, 0))) {
 				// do nothing
-			} else  if ((last_chain = sub_chain->findChain(&ev.xkey))) {
+			} else  if ((last_chain = sub_chain->findChain(&c_ev.xkey))) {
 				sub_chain = last_chain;
 			} else {
-				action = sub_chain->findAction(&ev.xkey);
+				action = sub_chain->findAction(&c_ev.xkey);
 				exit = true;
 			}
 		}

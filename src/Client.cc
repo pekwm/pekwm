@@ -403,13 +403,16 @@ Client::stick(void)
 void
 Client::move(int x, int y, bool do_virtual)
 {
+	(&do_virtual);
+
 	bool request = ((_gm.x != x) || (_gm.y != y));
 
 	_gm.x = x;
 	_gm.y = y;
 
-	if (request)
+	if (request) {
 		configureRequestSend();
+	}
 }
 
 //! @brief
@@ -877,15 +880,15 @@ Client::titleFindID(void)
 	if (ids_used.size() > 0) {
 		ids_used.sort();
 
-		list<uint>::iterator it( ids_used.begin());
-		for (uint i = 0; it != ids_used.end(); ++i, ++it) {
-			if (i < *it) {
+		list<uint>::iterator ui_it( ids_used.begin());
+		for (uint i = 0; ui_it != ids_used.end(); ++i, ++ui_it) {
+			if (i < *ui_it) {
 				_title.setCount(i);
 				break;
 			}
 		}
 
-		if (it == ids_used.end()) {
+		if (ui_it == ids_used.end()) {
 			_title.setCount(ids_used.size());
 		}
 	}
@@ -1160,6 +1163,8 @@ Client::getMwmHints(Window win)
 void
 Client::handleDestroyEvent(XDestroyWindowEvent *e)
 {
+	(*e);
+
 	_alive = false;
 	delete this;
 }

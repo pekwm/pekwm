@@ -374,260 +374,326 @@ Config::load(const std::string &config_file)
 
   string o_file_mouse; // temporary filepath for mouseconfig
 
-  CfgParser::Entry *op_section, *op_value, *op_sub, *op_sub_2;
+  CfgParser::Entry *op_section;
 
   // Get other config files dests.
   op_section = cfg.get_entry_root ()->find_section ("FILES");
-  if (op_section)
-    {
-      op_section = op_section->get_section ();
-
-      list<CfgParserKey*> o_key_list;
-
-      o_key_list.push_back (new CfgParserKeyPath ("KEYS", _files_keys,
-                                                  SYSCONFDIR "/keys"));
-      o_key_list.push_back (new CfgParserKeyPath ("MOUSE", o_file_mouse,
-                                                  SYSCONFDIR "/mouse"));
-      o_key_list.push_back (new CfgParserKeyPath ("MENU", _files_menu,
-                                                  SYSCONFDIR "/menu"));
-      o_key_list.push_back (new CfgParserKeyPath ("START", _files_start,
-                                                  SYSCONFDIR "/start"));
-      o_key_list.push_back (new CfgParserKeyPath ("AUTOPROPS", _files_autoprops,
-                                                  SYSCONFDIR "/autoproperties"));
-      o_key_list.push_back (new CfgParserKeyPath ("THEME", _files_theme,
-                                                  DATADIR "/pekwm/themes/default/theme"));
-
-      op_section->parse_key_values (o_key_list.begin (), o_key_list.end ());
-
-      for_each (o_key_list.begin (), o_key_list.end (),
-                Util::Free<CfgParserKey*>());
-    }
+  if (op_section) {
+		loadFiles(op_section->get_section());
+	}
 
   // Parse moving / resizing options.
   op_section = cfg.get_entry_root ()->find_section ("MOVERESIZE");
-  if (op_section)
-    {
-      op_section = op_section->get_section ();
-
-      list<CfgParserKey*> o_key_list;
-      o_key_list.push_back (new CfgParserKeyInt ("EDGEATTRACT",
-                                                 _moveresize_edgeattract, 0, 0));
-      o_key_list.push_back (new CfgParserKeyInt ("EDGERESIST",
-                                                 _moveresize_edgeresist, 0, 0));
-      o_key_list.push_back (new CfgParserKeyInt ("WINDOWATTRACT",
-                                                 _moveresize_woattract, 0, 0));
-      o_key_list.push_back (new CfgParserKeyInt ("WINDOWRESIST",
-                                                 _moveresize_woresist, 0, 0));
-      o_key_list.push_back (new CfgParserKeyBool ("OPAQUEMOVE",
-                                                  _moveresize_opaquemove));
-      o_key_list.push_back (new CfgParserKeyBool ("OPAQUERESIZE",
-                                                  _moveresize_opaqueresize));
-
-      op_section->parse_key_values (o_key_list.begin (), o_key_list.end ());
-
-      for_each (o_key_list.begin (), o_key_list.end (),
-                Util::Free<CfgParserKey*>());
-    }
+  if (op_section) {
+		loadMoveReszie(op_section->get_section());
+	}
 
   // Screen, important stuff such as number of workspaces
   op_section = cfg.get_entry_root ()->find_section ("SCREEN");
-  if (op_section)
-    {
-      op_section = op_section->get_section ();
-
-      list<CfgParserKey*> o_key_list;
-      o_key_list.push_back (new CfgParserKeyInt ("WORKSPACES",
-                                                 _screen_workspaces, 4, 1));
-      o_key_list.push_back (new CfgParserKeyInt ("PIXMAPCACHESIZE",
-                                                 _screen_pixmap_cache_size));
-      o_key_list.push_back (new CfgParserKeyInt ("EDGESIZE", _screen_edge_size, 0, 0));
-      o_key_list.push_back (new CfgParserKeyInt ("DOUBLECLICKTIME",
-                                                 _screen_doubleclicktime, 250, 0));
-      o_key_list.push_back (new CfgParserKeyString ("TRIMTITLE",
-                                                    _screen_trim_title));
-      o_key_list.push_back (new CfgParserKeyBool ("SHOWFRAMELIST",
-                                                  _screen_showframelist));
-      o_key_list.push_back (new CfgParserKeyBool ("SHOWSTATUSWINDOW",
-                                                  _screen_show_status_window));
-
-      o_key_list.push_back (new CfgParserKeyBool ("PLACENEW", _screen_place_new));
-      o_key_list.push_back (new CfgParserKeyBool ("FOCUSNEW", _screen_focus_new));
-      o_key_list.push_back (new CfgParserKeyBool ("FOCUSNEWCHILD", _screen_focus_new_child, true));
-
-      op_section->parse_key_values (o_key_list.begin (), o_key_list.end ());
-
-      for_each (o_key_list.begin (), o_key_list.end (),
-                Util::Free<CfgParserKey*>());
-
-      op_sub = op_section->find_section ("VIEWPORTS");
-      if (op_sub)
-        {
-          op_sub = op_sub->get_section ();
-
-          list<CfgParserKey*> o_key_list;
-          o_key_list.push_back (new CfgParserKeyInt ("COLUMNS", _viewport_cols,
-                                                     1, 1));
-          o_key_list.push_back (new CfgParserKeyInt ("ROWS", _viewport_rows,
-                                                     1, 1));
-
-          op_sub->parse_key_values (o_key_list.begin (), o_key_list.end ());
-
-          for_each (o_key_list.begin (), o_key_list.end (),
-                    Util::Free<CfgParserKey*>());
-        }
-
-      op_sub = op_section->find_section ("PLACEMENT");
-      if (op_sub)
-        {
-          op_sub = op_sub->get_section ();
-
-          op_value = op_sub->find_entry ("MODEL");
-          if (op_value)
-            {
-              _screen_placementmodels.clear ();
-
-              vector<string> models;
-              if (Util::splitString (op_value->get_value (), models, " \t"))
-                {
-                   vector<string>::iterator it( models.begin());
-                   for (; it != models.end(); ++it)
-                     _screen_placementmodels.push_back(ParseUtil::getValue<PlacementModel> (*it, _placement_map));
-                }
-            }
-
-          op_sub_2 = op_sub->find_section ("SMART");
-          if (op_sub_2)
-            {
-              op_sub_2 = op_sub_2->get_section ();
-
-              list<CfgParserKey*> o_key_list;
-              o_key_list.push_back (new CfgParserKeyBool ("ROW",
-                                                          _screen_placement_row));
-              o_key_list.push_back (new CfgParserKeyBool ("LEFTTORIGHT",
-                                                          _screen_placement_ltr));
-              o_key_list.push_back (new CfgParserKeyBool ("TOPTOBOTTOM",
-                                                          _screen_placement_ttb));
-              o_key_list.push_back (new CfgParserKeyInt ("OFFSETX",
-                                                          _screen_placement_offset_x, 0, 0));
-              o_key_list.push_back (new CfgParserKeyInt ("OFFSETY",
-                                                          _screen_placement_offset_y, 0, 0));
-
-              // Do the parsing
-              op_sub_2->parse_key_values (o_key_list.begin (),
-                                          o_key_list.end ());
-
-              for_each (o_key_list.begin (), o_key_list.end (),
-                        Util::Free<CfgParserKey*>());
-            }
-        }
-
-      if (!_screen_placementmodels.size())
-        _screen_placementmodels.push_back(PLACE_MOUSE_CENTERED);
-
-      op_sub = op_section->find_section ("UNIQUENAMES");
-      if (op_sub)
-        {
-          op_sub = op_sub->get_section ();
-
-          list<CfgParserKey*> o_key_list;
-          o_key_list.push_back (new CfgParserKeyBool ("SETUNIQUE",
-                                                  _screen_client_unique_name));
-          o_key_list.push_back (new CfgParserKeyString ("PRE",
-                                              _screen_client_unique_name_pre));
-          o_key_list.push_back (new CfgParserKeyString ("POST",
-                                             _screen_client_unique_name_post));
-
-          op_sub->parse_key_values (o_key_list.begin (), o_key_list.end ());
-
-          for_each (o_key_list.begin (), o_key_list.end (),
-                    Util::Free<CfgParserKey*>());
-        }
-    }
+  if (op_section) {
+		loadScreen(op_section->get_section());
+	}
 
   op_section = cfg.get_entry_root ()->find_section ("MENU");
-  if (op_section)
-    {
-      op_section = op_section->get_section ();
-
-      list<CfgParserKey*> o_key_list;
-      string o_value_select, o_value_enter, o_value_exec;
-
-      o_key_list.push_back (new CfgParserKeyString ("SELECT", o_value_select,
-                                                    "MOTION", 0));
-      o_key_list.push_back (new CfgParserKeyString ("ENTER", o_value_enter,
-                                                    "BUTTONPRESS", 0));
-      o_key_list.push_back (new CfgParserKeyString ("EXEC", o_value_exec,
-                                                    "BUTTONRELEASE", 0));
-
-      op_section->parse_key_values (o_key_list.begin (), o_key_list. end());
-
-      _menu_select_mask = getMenuMask (o_value_select);
-      _menu_enter_mask = getMenuMask (o_value_enter);
-      _menu_exec_mask = getMenuMask (o_value_exec);
-
-     for_each (o_key_list.begin (), o_key_list.end (),
-               Util::Free<CfgParserKey*>());
-    }
+  if (op_section) {
+		loadMenu(op_section->get_section());
+	}
 
 #ifdef HARBOUR
   op_section = cfg.get_entry_root ()->find_section ("HARBOUR");
-  if (op_section)
-    {
-      op_section = op_section->get_section ();
+  if (op_section) {
+		loadHarbour(op_section->get_section());
+	}
 
-      list<CfgParserKey*> o_key_list;
-      string o_value_placement, o_value_orientation;
-
-      o_key_list.push_back (new CfgParserKeyBool ("ONTOP", _harbour_ontop));
-      o_key_list.push_back (new CfgParserKeyBool ("MAXIMIZEOVER",
-                                                  _harbour_maximize_over));
-#ifdef HAVE_XINERAMA
-      o_key_list.push_back (new CfgParserKeyInt ("HEAD", _harbour_head_nr,
-                                                 0, 0));
-#endif // HAVE_XINERAMA
-      o_key_list.push_back (new CfgParserKeyString ("PLACEMENT", o_value_placement,
-                                                    "RIGHT", 0));
-      o_key_list.push_back (new CfgParserKeyString ("ORIENTATION",
-                                                    o_value_orientation,
-                                                    "TOPTOBOTTOM", 0));
-
-      op_section->parse_key_values (o_key_list.begin (), o_key_list.end ());
-
-      for_each (o_key_list.begin (), o_key_list.end (),
-                Util::Free<CfgParserKey*>());
-
-     _harbour_placement =
-       ParseUtil::getValue<HarbourPlacement>(o_value_placement,
-                                             _harbour_placement_map);
-     _harbour_orientation =
-       ParseUtil::getValue<Orientation>(o_value_orientation,
-                                        _harbour_orientation_map);
-     if (_harbour_placement == NO_HARBOUR_PLACEMENT)
-       _harbour_placement = TOP;
-     if (_harbour_orientation == NO_ORIENTATION)
-       _harbour_orientation = TOP_TO_BOTTOM;
-
-     op_sub = op_section->find_section ("DOCKAPP");
-     if (op_sub)
-       {
-         op_sub = op_sub->get_section ();
-
-         list<CfgParserKey*> o_key_list;
-         o_key_list.push_back (new CfgParserKeyInt ("SIDEMIN",
-                                                    _harbour_da_min_s, 64, 0));
-         o_key_list.push_back (new CfgParserKeyInt ("SIDEMAX",
-                                                     _harbour_da_max_s, 64, 0));
-
-         op_sub->parse_key_values (o_key_list.begin (), o_key_list.end ());
-
-         for_each (o_key_list.begin (), o_key_list.end (),
-                   Util::Free<CfgParserKey*>());
-       }
-    }
 #endif // HARBOUR
+}
+
+//! @brief Loads file section of configuration
+//! @param op_section Pointer to FILES section.
+void
+Config::loadFiles(CfgParser::Entry *op_section)
+{
+	if (!op_section) {
+		return;
+	}
+
+	// Mouse file loading in here as well
+	string file_mouse;
+
+	list<CfgParserKey*> o_key_list;
+	o_key_list.push_back (new CfgParserKeyPath ("KEYS", _files_keys,
+																							SYSCONFDIR "/keys"));
+	o_key_list.push_back (new CfgParserKeyPath ("MOUSE", file_mouse,
+																							SYSCONFDIR "/mouse"));
+	o_key_list.push_back (new CfgParserKeyPath ("MENU", _files_menu,
+																							SYSCONFDIR "/menu"));
+	o_key_list.push_back (new CfgParserKeyPath ("START", _files_start,
+																							SYSCONFDIR "/start"));
+	o_key_list.push_back (new CfgParserKeyPath ("AUTOPROPS", _files_autoprops,
+																							SYSCONFDIR "/autoproperties"));
+	o_key_list.push_back (new CfgParserKeyPath ("THEME", _files_theme,
+																							DATADIR "/pekwm/themes/default/theme"));
+
+	// Parse
+	op_section->parse_key_values (o_key_list.begin (), o_key_list.end ());
+
+	// Free up resources
+	for_each (o_key_list.begin (), o_key_list.end (),
+						Util::Free<CfgParserKey*>());
+
 
   // Load the mouse configuration
-  loadMouseConfig(o_file_mouse);
+  loadMouseConfig(file_mouse);
+}
+
+//! @brief Loads MOVERESIZE section of main configuration
+//! @param op_section Pointer to MOVERESIZE section.
+void
+Config::loadMoveReszie(CfgParser::Entry *op_section)
+{
+	if (!op_section) {
+		return;
+	}
+
+	list<CfgParserKey*> o_key_list;
+	o_key_list.push_back (new CfgParserKeyInt ("EDGEATTRACT",
+																						 _moveresize_edgeattract, 0, 0));
+	o_key_list.push_back (new CfgParserKeyInt ("EDGERESIST",
+																						 _moveresize_edgeresist, 0, 0));
+	o_key_list.push_back (new CfgParserKeyInt ("WINDOWATTRACT",
+																						 _moveresize_woattract, 0, 0));
+	o_key_list.push_back (new CfgParserKeyInt ("WINDOWRESIST",
+																						 _moveresize_woresist, 0, 0));
+	o_key_list.push_back (new CfgParserKeyBool ("OPAQUEMOVE",
+																							_moveresize_opaquemove));
+	o_key_list.push_back (new CfgParserKeyBool ("OPAQUERESIZE",
+																							_moveresize_opaqueresize));
+
+	// Parse data
+	op_section->parse_key_values (o_key_list.begin (), o_key_list.end ());
+
+	// Free up resources
+	for_each (o_key_list.begin (), o_key_list.end (),
+						Util::Free<CfgParserKey*>());
+}
+
+//! @brief Loads SCREEN section of main configuration
+//! @param op_section Pointer to SCREEN section.
+void
+Config::loadScreen(CfgParser::Entry *op_section)
+{
+	if (! op_section) {
+		return;
+	}
+
+	// Parse data
+	CfgParser::Entry *value;
+
+	list<CfgParserKey*> o_key_list;
+	o_key_list.push_back (new CfgParserKeyInt ("WORKSPACES",
+																						 _screen_workspaces, 4, 1));
+	o_key_list.push_back (new CfgParserKeyInt ("PIXMAPCACHESIZE",
+																						 _screen_pixmap_cache_size));
+	o_key_list.push_back (new CfgParserKeyInt ("EDGESIZE", _screen_edge_size, 0, 0));
+	o_key_list.push_back (new CfgParserKeyInt ("DOUBLECLICKTIME",
+																						 _screen_doubleclicktime, 250, 0));
+	o_key_list.push_back (new CfgParserKeyString ("TRIMTITLE",
+																								_screen_trim_title));
+	o_key_list.push_back (new CfgParserKeyBool ("SHOWFRAMELIST",
+																							_screen_showframelist));
+	o_key_list.push_back (new CfgParserKeyBool ("SHOWSTATUSWINDOW",
+																							_screen_show_status_window));
+
+	o_key_list.push_back (new CfgParserKeyBool ("PLACENEW", _screen_place_new));
+	o_key_list.push_back (new CfgParserKeyBool ("FOCUSNEW", _screen_focus_new));
+	o_key_list.push_back (new CfgParserKeyBool ("FOCUSNEWCHILD", _screen_focus_new_child, true));
+
+	// Parse data
+	op_section->parse_key_values (o_key_list.begin (), o_key_list.end ());
+
+	// Free up resources
+	for_each (o_key_list.begin (), o_key_list.end (),
+						Util::Free<CfgParserKey*>());
+	o_key_list.clear();
+
+	CfgParser::Entry *op_sub = op_section->find_section("VIEWPORTS");
+	if (op_sub) {
+		op_sub = op_sub->get_section ();
+
+		o_key_list.push_back (new CfgParserKeyInt ("COLUMNS", _viewport_cols,
+																							 1, 1));
+		o_key_list.push_back (new CfgParserKeyInt ("ROWS", _viewport_rows,
+																							 1, 1));
+
+		// Parse data
+		op_sub->parse_key_values (o_key_list.begin (), o_key_list.end ());
+
+		// Free up resources
+		for_each (o_key_list.begin (), o_key_list.end (),
+							Util::Free<CfgParserKey*>());
+		o_key_list.clear();
+	}
+
+	op_sub = op_section->find_section ("PLACEMENT");
+	if (op_sub) {
+		op_sub = op_sub->get_section ();
+
+		value = op_sub->find_entry ("MODEL");
+		if (value) {
+			_screen_placementmodels.clear ();
+
+			vector<string> models;
+			if (Util::splitString (value->get_value (), models, " \t")) {
+				vector<string>::iterator it( models.begin());
+				for (; it != models.end(); ++it)
+					_screen_placementmodels.push_back(ParseUtil::getValue<PlacementModel> (*it, _placement_map));
+			}
+		}
+
+		CfgParser::Entry *op_sub_2 = op_sub->find_section ("SMART");
+		if (op_sub_2) {
+			op_sub_2 = op_sub_2->get_section ();
+
+			o_key_list.push_back (new CfgParserKeyBool ("ROW",
+																									_screen_placement_row));
+			o_key_list.push_back (new CfgParserKeyBool ("LEFTTORIGHT",
+																									_screen_placement_ltr));
+			o_key_list.push_back (new CfgParserKeyBool ("TOPTOBOTTOM",
+																									_screen_placement_ttb));
+			o_key_list.push_back (new CfgParserKeyInt ("OFFSETX",
+																								 _screen_placement_offset_x, 0, 0));
+			o_key_list.push_back (new CfgParserKeyInt ("OFFSETY",
+																								 _screen_placement_offset_y, 0, 0));
+
+			// Do the parsing
+			op_sub_2->parse_key_values (o_key_list.begin (), o_key_list.end ());
+
+			// Freeup resources
+			for_each (o_key_list.begin (), o_key_list.end (),
+								Util::Free<CfgParserKey*>());
+			o_key_list.clear();
+		}
+	}
+
+	// Fallback value
+	if (!_screen_placementmodels.size()) {
+		_screen_placementmodels.push_back(PLACE_MOUSE_CENTERED);
+	}
+
+	op_sub = op_section->find_section ("UNIQUENAMES");
+	if (op_sub) {
+		op_sub = op_sub->get_section ();
+
+		o_key_list.push_back (new CfgParserKeyBool ("SETUNIQUE",
+																								_screen_client_unique_name));
+		o_key_list.push_back (new CfgParserKeyString ("PRE",
+																									_screen_client_unique_name_pre));
+		o_key_list.push_back (new CfgParserKeyString ("POST",
+																									_screen_client_unique_name_post));
+
+		// Parse data
+		op_sub->parse_key_values (o_key_list.begin (), o_key_list.end ());
+
+		// Free up resources
+		for_each (o_key_list.begin (), o_key_list.end (),
+							Util::Free<CfgParserKey*>());
+		o_key_list.clear();
+	}
+}
+
+//! @brief Loads the MENU section of the main configuration
+//! @param op_section Pointer to MENU section
+void
+Config::loadMenu(CfgParser::Entry *op_section)
+{
+	if (!op_section) {
+		return;
+	}
+
+	list<CfgParserKey*> o_key_list;
+	string o_value_select, o_value_enter, o_value_exec;
+
+	o_key_list.push_back (new CfgParserKeyString ("SELECT", o_value_select,
+																								"MOTION", 0));
+	o_key_list.push_back (new CfgParserKeyString ("ENTER", o_value_enter,
+																								"BUTTONPRESS", 0));
+	o_key_list.push_back (new CfgParserKeyString ("EXEC", o_value_exec,
+																								"BUTTONRELEASE", 0));
+
+	// Parse data
+	op_section->parse_key_values (o_key_list.begin (), o_key_list. end());
+
+	_menu_select_mask = getMenuMask(o_value_select);
+	_menu_enter_mask = getMenuMask(o_value_enter);
+	_menu_exec_mask = getMenuMask(o_value_exec);
+
+	// Free up resources
+	for_each (o_key_list.begin (), o_key_list.end (),
+						Util::Free<CfgParserKey*>());
+	o_key_list.clear();
+}
+
+//! @brief Loads the HARBOUR section of the main configuration
+void
+Config::loadHarbour(CfgParser::Entry *op_section)
+{
+	if (!op_section) {
+		return;
+	}
+
+
+	list<CfgParserKey*> o_key_list;
+	string value_placement, value_orientation;
+
+	o_key_list.push_back (new CfgParserKeyBool ("ONTOP", _harbour_ontop));
+	o_key_list.push_back (new CfgParserKeyBool ("MAXIMIZEOVER",
+																							_harbour_maximize_over));
+#ifdef HAVE_XINERAMA
+	o_key_list.push_back (new CfgParserKeyInt ("HEAD", _harbour_head_nr,
+																						 0, 0));
+#endif // HAVE_XINERAMA
+	o_key_list.push_back (new CfgParserKeyString ("PLACEMENT", value_placement,
+																								"RIGHT", 0));
+	o_key_list.push_back (new CfgParserKeyString ("ORIENTATION",
+																								value_orientation,
+																								"TOPTOBOTTOM", 0));
+
+	// Parse data
+	op_section->parse_key_values (o_key_list.begin (), o_key_list.end ());
+
+	// Free up resources
+	for_each (o_key_list.begin (), o_key_list.end (),
+						Util::Free<CfgParserKey*>());
+	o_key_list.clear();
+
+	_harbour_placement =
+		ParseUtil::getValue<HarbourPlacement>(value_placement,
+																					_harbour_placement_map);
+	_harbour_orientation =
+		ParseUtil::getValue<Orientation>(value_orientation,
+																		 _harbour_orientation_map);
+	if (_harbour_placement == NO_HARBOUR_PLACEMENT)
+		_harbour_placement = TOP;
+	if (_harbour_orientation == NO_ORIENTATION)
+		_harbour_orientation = TOP_TO_BOTTOM;
+
+	CfgParser::Entry *op_sub = op_section->find_section ("DOCKAPP");
+	if (op_sub) {
+		op_sub = op_sub->get_section ();
+
+		o_key_list.push_back (new CfgParserKeyInt ("SIDEMIN",
+																							 _harbour_da_min_s, 64, 0));
+		o_key_list.push_back (new CfgParserKeyInt ("SIDEMAX",
+																							 _harbour_da_max_s, 64, 0));
+
+		// Parse data
+		op_sub->parse_key_values (o_key_list.begin (), o_key_list.end ());
+	 
+		// Free up resources
+		for_each (o_key_list.begin (), o_key_list.end (),
+							Util::Free<CfgParserKey*>());
+		o_key_list.clear();
+	}
 }
 
 //! @brief

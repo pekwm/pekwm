@@ -140,26 +140,26 @@ public:
 	// event interface
 
 	//! @brief Handles button press events, always return NULL.
-	virtual ActionEvent *handleButtonPress(XButtonEvent *ev) { return NULL; }
+	virtual ActionEvent *handleButtonPress(XButtonEvent *ev) { (*ev); return NULL; }
 	//! @brief Handles button release events, always return NULL.
-	virtual ActionEvent *handleButtonRelease(XButtonEvent *ev) { return NULL; }
+	virtual ActionEvent *handleButtonRelease(XButtonEvent *ev) { (*ev); return NULL; }
 	//! @brief Handles key press events, always return NULL.
-	virtual ActionEvent *handleKeyPress(XKeyEvent *ev) { return NULL; }
+	virtual ActionEvent *handleKeyPress(XKeyEvent *ev) { (*ev); return NULL; }
 	//! @brief Handles key release vents, always return NULL.
-	virtual ActionEvent *handleKeyRelease(XKeyEvent *ev) { return NULL; }
+	virtual ActionEvent *handleKeyRelease(XKeyEvent *ev) { (*ev); return NULL; }
 	//! @brief Handles motion events, always return NULL.
-	virtual ActionEvent *handleMotionEvent(XMotionEvent *ev) { return NULL; } 
+	virtual ActionEvent *handleMotionEvent(XMotionEvent *ev) { (*ev); return NULL; } 
 	//! @brief Handles enter events, always return NULL.
-	virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev) { return NULL; }
+	virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev) { (*ev); return NULL; }
 	//! @brief Handles leave events, always return NULL.
-	virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev) { return NULL; }
+	virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev) { (*ev); return NULL; }
 	//! @brief Handles expose events, always return NULL.
-	virtual ActionEvent *handleExposeEvent(XExposeEvent *ev) { return NULL; }
+	virtual ActionEvent *handleExposeEvent(XExposeEvent *ev) { (*ev); return NULL; }
 
 	//! @brief Handles handle map request events, always return NULL.
-	virtual ActionEvent *handleMapRequest(XMapRequestEvent *ev) { return NULL; }
+	virtual ActionEvent *handleMapRequest(XMapRequestEvent *ev) { (*ev); return NULL; }
 	//! @brief Handles handle unmap events, always return NULL.
-	virtual ActionEvent *handleUnmapEvent(XUnmapEvent *ev) { return NULL; }
+	virtual ActionEvent *handleUnmapEvent(XUnmapEvent *ev) { (*ev); return NULL; }
 
 	// operators
 

@@ -392,6 +392,9 @@ PScreen::getHeadInfo(uint head, Geometry &head_info)
 uint
 PScreen::getNearestHead(int x, int y)
 {
+	(&x);
+	(&y);
+
 	return 0;
 }
 
@@ -406,6 +409,8 @@ PScreen::getCurrHead(void)
 bool
 PScreen::getHeadInfo(uint head, Geometry &head_info)
 {
+	(&head);
+
 	head_info.x = 0;
 	head_info.y = 0;
 	head_info.width = _width;
@@ -449,6 +454,8 @@ PScreen::getHeadInfoWithEdge(uint num, Geometry &head)
 		head.height -= strut_val;
 	}
 #else //! HAVE_XINERAMA
+	(&num);
+
 	head.x = _strut.left;
 	head.y = _strut.top;
 	head.width = _width - head.x - _strut.right;

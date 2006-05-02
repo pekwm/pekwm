@@ -233,8 +233,10 @@ Theme::PDecorData::load (CfgParser::Entry *op_section)
 
   op_sub->parse_key_values (o_key_list.begin (), o_key_list.end ());
 
+	// Free up resources
   for_each (o_key_list.begin (), o_key_list.end (),
-            Util::Free<CfgParserKey*>());
+						Util::Free<CfgParserKey*>());
+	o_key_list.clear();
 
   // Handle parsed data.
   _texture_main[FOCUSED_STATE_FOCUSED] = th->getTexture(o_value_focused);
@@ -261,8 +263,6 @@ Theme::PDecorData::load (CfgParser::Entry *op_section)
   if (op_sub_2)
     {
       op_sub_2 = op_sub_2->get_section ();
-      list<CfgParserKey*> o_key_list;
-      string o_value_focused, o_value_unfocused;
 
       o_key_list.push_back (new CfgParserKeyString ("FOCUSED", o_value_focused,
                                                     "Empty", th->getLengthMin ()));
@@ -271,8 +271,10 @@ Theme::PDecorData::load (CfgParser::Entry *op_section)
 
       op_sub_2->parse_key_values (o_key_list.begin (), o_key_list.end ());
 
+			// Free up resources
       for_each (o_key_list.begin (), o_key_list.end (),
                 Util::Free<CfgParserKey*>());
+			o_key_list.clear();
 
       // Handle parsed data.
       _texture_separator[FOCUSED_STATE_FOCUSED] =

@@ -398,7 +398,7 @@ Frame::handleShapeEvent(XAnyEvent *ev)
 	if ((_client == NULL) || (ev->window != _client->getWindow())) {
 		return;
 	}
-	_client->setShaped(setShape(_client->isShaped()));
+	_client->setShaped(setShape());
 }
 #endif // HAVE_SHAPE
 
@@ -436,7 +436,7 @@ Frame::activateChild (PWinObj *child)
   // before setting shape
 #ifdef HAVE_SHAPE
   if (PScreen::instance ()->hasExtensionShape ())
-    _client->setShaped (setShape (_client->isShaped ()));
+    _client->setShaped (setShape ());
 #endif // HAVE_SHAPE
 
   if (_focused)
@@ -1792,7 +1792,7 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
 		if ((ev->value_mask&CWWidth) || (ev->value_mask&CWHeight)) {
 			resizeChild(ev->width, ev->height);
 #ifdef HAVE_SHAPE
-			_client->setShaped(setShape(_client->isShaped()));
+			_client->setShaped(setShape());
 #endif // HAVE_SHAPE
 		}
 	}

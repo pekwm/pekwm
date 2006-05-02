@@ -118,16 +118,16 @@ FontHandler::getFont(const std::string &font)
 		tok.erase(tok.begin());
 
 		// fields left for justify and offset
-		vector<string>::iterator it(tok.begin());
-		for (; it != tok.end(); ++it) {
-			if (isdigit((*it)[0])) { // number
+		vector<string>::iterator s_it(tok.begin());
+		for (; s_it != tok.end(); ++s_it) {
+			if (isdigit((*s_it)[0])) { // number
 				vector<string> tok_2;
-				if (Util::splitString(*it, tok_2, " \t", 2) == 2) {
+				if (Util::splitString(*s_it, tok_2, " \t", 2) == 2) {
 					pfont->setOffset(strtol(tok_2[0].c_str(), NULL, 10),
 													 strtol(tok_2[1].c_str(), NULL, 10));
 				}
 			} else { // justify
-				uint justify = ParseUtil::getValue<FontJustify>(*it, _map_justify);
+				uint justify = ParseUtil::getValue<FontJustify>(*s_it, _map_justify);
 				if (justify == FONT_JUSTIFY_NO) {
 					justify = FONT_JUSTIFY_LEFT;
 				}
