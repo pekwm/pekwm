@@ -15,6 +15,7 @@ FrameTitle {
 	DoubleClick = "2" { Actions = "Toggle Shaded" }
 	DoubleClick = "Mod1 2" { Actions = "Toggle Shaded" }
 	DoubleClick = "1" { Actions = "MaxFill True True" }
+	DoubleClick = "Mod1 1" { Actions = "Toggle Maximized True True" }
 	Motion = "1" { Threshold = "4"; Actions = "Raise; Move" }
 	Motion = "Mod1 1" { Threshold = "4"; Actions = "Raise; Move" }
 	Motion = "Mod4 1" { Threshold = "4"; Actions = "Raise; Move" }
