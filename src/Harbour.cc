@@ -41,7 +41,7 @@ _scr(s), _theme(t), _workspaces(w),
 #ifdef MENUS
 _harbour_menu(NULL),
 #endif // MENUS
-_size(0), _strut(NULL),
+_hidden(false), _size(0), _strut(NULL),
 _last_button_x(0), _last_button_y(0)
 {
 	_strut = new Strut();
@@ -255,6 +255,28 @@ Harbour::updateHarbourSize(void)
   }
 
   updateStrutSize();
+}
+
+//! @brief Sets the Hidden state of the harbour
+//! @param sa StateAction specifying state to set.
+void
+Harbour::setStateHidden(StateAction sa)
+{
+  // Check if there is anything to do
+  if (! ActionUtil::needToggle(sa, _hidden)) {
+    return;
+  }
+
+  if (_hidden) {
+    // Show if currently hidden.
+    for_each(_da_list.begin(), _da_list.end(), mem_fun(&DockApp::mapWindow));
+
+  } else {
+    // Hide if currently visible.
+    for_each(_da_list.begin(), _da_list.end(), mem_fun(&DockApp::unmapWindow));
+  }
+
+  _hidden = !_hidden;
 }
 
 //! @brief Updates Harbour strut size.

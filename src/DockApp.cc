@@ -154,12 +154,11 @@ DockApp::mapWindow(void)
 		return;
 	_mapped = true;
 
-	XMapWindow(_dpy, _window);
-
 	XSelectInput(_dpy, _dockapp_window, NoEventMask);
+	XMapWindow(_dpy, _window);
 	XMapWindow(_dpy, _dockapp_window);
 	XSelectInput(_dpy, _dockapp_window,
-							 StructureNotifyMask|SubstructureNotifyMask);
+                     StructureNotifyMask|SubstructureNotifyMask);
 }
 
 //! @brief Unmaps the DockApp
@@ -168,14 +167,13 @@ DockApp::unmapWindow(void)
 {
 	if (!_mapped)
 		return;
-	_mapped = true;
+	_mapped = false;
 
 	XSelectInput(_dpy, _dockapp_window, NoEventMask);
 	XUnmapWindow(_dpy, _dockapp_window);
-	XSelectInput(_dpy, _dockapp_window,
-							 StructureNotifyMask|SubstructureNotifyMask);
-
 	XUnmapWindow(_dpy, _window);
+	XSelectInput(_dpy, _dockapp_window,
+                     StructureNotifyMask|SubstructureNotifyMask);
 }
 
 // END - PWinObj interface.

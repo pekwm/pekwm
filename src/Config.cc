@@ -251,7 +251,11 @@ _viewport_cols(1), _viewport_rows(1)
 	_action_state_map["SKIP"] = ACTION_STATE_SKIP;
 	_action_state_map["CFGDENY"] = ACTION_STATE_CFG_DENY;
 	_action_state_map["TITLE"] = ACTION_STATE_TITLE;
+#ifdef HARBOUR
+    _action_state_map["HARBOURHIDDEN"] = ACTION_STATE_HARBOUR_HIDDEN;
+#endif // HARBOUR
 	_action_state_map["GLOBALGROUPING"] = ACTION_STATE_GLOBAL_GROUPING;
+
 
 	_cfg_deny_map["POSITION"] = CFG_DENY_POSITION;
 	_cfg_deny_map["SIZE"] = CFG_DENY_SIZE;

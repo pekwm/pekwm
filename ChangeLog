@@ -1,3 +1,12 @@
+2006-05-29  Claes Nästén  <me{@}pekdon{.}net>
+
+	* src/Harbour.cc (setStateHidden): 
+	Created new state action HarbourHidden. Closing #89
+
+	* src/Theme.cc (load): 
+	Removed ROOT command support. Closing #93
+	( Thanks shared for reporting )
+	
 2006-05-01  Claes Nästén  <me{@}pekdon{.}net>
 
 	* src/ActionHandler.cc (actionFocusToggle): 

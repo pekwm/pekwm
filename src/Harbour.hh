@@ -25,6 +25,8 @@ class BaseMenu;
 class HarbourMenu;
 #endif // MENUS
 
+#include "Action.hh"
+
 #include <list>
 
 class Harbour
@@ -55,6 +57,8 @@ public:
 	void loadTheme(void);
 	void updateHarbourSize(void);
 
+  void setStateHidden(StateAction sa);
+
 	void handleButtonEvent(XButtonEvent* ev, DockApp* da);
 	void handleMotionNotifyEvent(XMotionEvent* ev, DockApp* da);
 	void handleConfigureRequestEvent(XConfigureRequestEvent* ev, DockApp* da);
@@ -79,6 +83,7 @@ private:
 	HarbourMenu *_harbour_menu;
 #endif // MENUS
 
+  bool _hidden;
 	uint _size;
 	Strut *_strut;
 	int _last_button_x, _last_button_y;

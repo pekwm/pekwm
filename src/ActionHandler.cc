@@ -487,6 +487,11 @@ ActionHandler::handleStateAction(const Action &action, PWinObj *wo,
 	if (matched == false) {
 		matched = true;
 		switch (action.getParamI(0)) {
+#ifdef HARBOUR
+            case ACTION_STATE_HARBOUR_HIDDEN:
+                _wm->getHarbour()->setStateHidden(sa);
+                break;
+#endif // HARBOUR
 		case ACTION_STATE_GLOBAL_GROUPING:
 			_wm->setStateGlobalGrouping(sa);
 			break;
