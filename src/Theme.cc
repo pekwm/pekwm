@@ -890,15 +890,6 @@ Theme::load(const std::string &dir)
     }
 #endif // HARBOUR
 
-  // Exec root command.
-  op_section = theme.get_entry_root ()->find_section ("ROOT");
-  if (op_section)
-    {
-      op_value = op_section->find_entry ("COMMAND");
-      if (op_value)
-        Util::forkExec (op_value->get_value ());
-    }
-
   _is_loaded = true;
 }
 

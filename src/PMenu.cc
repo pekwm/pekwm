@@ -746,26 +746,38 @@ PMenu::mapSubmenu(PMenu *menu, bool focus)
 void
 PMenu::unmapSubmenus(void)
 {
-	list<PMenu::Item*>::iterator it(_item_list.begin());
-	for (; it != _item_list.end(); ++it) {
-		if (((*it)->getWORef() != NULL) &&
-				((*it)->getWORef()->getType() == PWinObj::WO_MENU)) {
-			static_cast<PMenu*>((*it)->getWORef())->unmapSubmenus();
-			(*it)->getWORef()->unmapWindow();
-		}
-	}
+  PWinObj *ref;
+  PMenu *menu;
+
+  list<PMenu::Item*>::iterator it(_item_list.begin());
+  for (; it != _item_list.end(); ++it) {
+    ref = (*it)->getWORef();
+    if (ref && ref->getType() == PWinObj::WO_MENU) {
+      menu = dynamic_cast<PMenu*>(ref);
+      if (menu) {
+        menu->unmapSubmenus();
+        menu->unmapWindow();
+#ifdef DEBUG
+      } else {
+        cerr << __FILE__ << "@" << __LINE__ << ": "
+             << "PMenu(" << this << ")::unmapSubmenus() failed dynamic_cast"
+             << endl;
+#endif // DEBUG
+      }
+    }
+  }
 }
 
 //! @brief Unmaps all menus belonging to this menu
 void
 PMenu::unmapAll(void)
 {
-	if (_menu_parent != NULL) {
-		_menu_parent->unmapAll();
-	} else {
-		unmapSubmenus();
-		unmapWindow();
-	}
+  if (_menu_parent != NULL) {
+    _menu_parent->unmapAll();
+  } else {
+    unmapSubmenus();
+    unmapWindow();
+  }
 }
 
 //! @brief Gives input focus to parent and unmaps submenus
