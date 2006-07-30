@@ -111,13 +111,13 @@ RootMenu = "Pekwm" {
 WindowMenu = "Window Menu" {
 	Entry = "(Un)Stick" { Actions = "Toggle Sticky" }
 	Entry = "(Un)Shade" { Actions = "Toggle Shaded" }
-	Entry = "Iconify " { Actions = "Set Iconified" }
+	Entry = "Iconify" { Actions = "Set Iconified" }
 	Entry = "Command.." { Actions = "ShowCmdDialog" }
 
 	Submenu = "Maximize" {
-		Entry = "Full" { Actions = "Toggle Maximized True True" }
-		Entry = "Horizontal" { Actions = "Toggle Maximized True False" }
-		Entry = "Vertical" { Actions = "Toggle Maximized False True" }
+		Entry = "Toggle Full" { Actions = "Toggle Maximized True True" }
+		Entry = "Toggle Horizontal" { Actions = "Toggle Maximized True False" }
+		Entry = "Toggle Vertical" { Actions = "Toggle Maximized False True" }
 	}
 	Submenu = "Fill" {
 		Entry = "Full" { Actions = "MaxFill True True" }
@@ -125,20 +125,20 @@ WindowMenu = "Window Menu" {
 		Entry = "Vertical" { Actions = "MaxFill False True" }
 	}
 	Submenu = "Stacking" {
-		Entry = "Raise " { Actions = "Raise" }
+		Entry = "Raise" { Actions = "Raise" }
 		Entry = "Lower" { Actions = "Lower" }
-		Entry = "Always On Top " { Actions = "Toggle AlwaysOnTop" }
-		Entry = "Always Below" { Actions = "Toggle AlwaysBelow" }
+		Entry = "Toggle Always On Top" { Actions = "Toggle AlwaysOnTop" }
+		Entry = "Toggle Always Below" { Actions = "Toggle AlwaysBelow" }
 	}
-	Submenu = "Decor" {
-		Entry = "Decor" { Actions = "Toggle DecorBorder; Toggle DecorTitlebar" }
-		Entry = "Border" { Actions = "Toggle DecorBorder" }
-		Entry = "Titlebar" { Actions = "Toggle DecorTitlebar" }
+	Submenu = "Decorations" {
+		Entry = "Toggle Decorations" { Actions = "Toggle DecorBorder; Toggle DecorTitlebar" }
+		Entry = "Toggle Borders" { Actions = "Toggle DecorBorder" }
+		Entry = "Toggle Titlebar" { Actions = "Toggle DecorTitlebar" }
 	}
 	Submenu = "Skip" {
-		Entry = "Menus" { Actions = "Toggle Skip Menus" }
-		Entry = "Focus Toggle" { Actions = "Toggle Skip FocusToggle" }
-		Entry = "Snap" { Actions = "Toggle Skip Snap" }
+		Entry = "Toggle showing this frame in menus" { Actions = "Toggle Skip Menus" }
+		Entry = "Toggle including this frame in focus toggle" { Actions = "Toggle Skip FocusToggle" }
+		Entry = "Toggle if this frame snaps to other windows" { Actions = "Toggle Skip Snap" }
 	}
 	SubMenu = "Send To" {
 		# Create sendto menu once per pekwm config reload. The fast way that
