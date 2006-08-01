@@ -117,7 +117,8 @@ const string PDecor::DEFAULT_DECOR_NAME_TITLEBARLESS = string("TITLEBARLESS");
 //! @param dpy Display
 //! @param theme Theme
 //! @param decor_name String, if not DEFAULT_DECOR_NAME sets _decor_name_override
-PDecor::PDecor(Display *dpy, Theme *theme, const std::string decor_name) : PWinObj(dpy),
+PDecor::PDecor(Display *dpy, Theme *theme, const std::string decor_name)
+  : PWinObj(dpy),
 _theme(theme), _child(NULL), _button(NULL),
 _pointer_x(0), _pointer_y(0),
 _click_x(0), _click_y(0),
@@ -125,6 +126,8 @@ _decor_cfg_keep_empty(false), _decor_cfg_child_move_overloaded(false),
 _decor_cfg_bpr_replay_pointer(false),
 _decor_cfg_bpr_al_child(MOUSE_ACTION_LIST_CHILD_OTHER),
 _decor_cfg_bpr_al_title(MOUSE_ACTION_LIST_TITLE_OTHER),
+_maximized_vert(false), _maximized_horz(false),
+_fullscreen(false), _skip(0),
 _data(NULL), _decor_name(decor_name),
 _border(true), _titlebar(true), _shaded(false),
 _need_shape(false), _need_client_shape(false), _real_height(1),
@@ -1276,6 +1279,13 @@ PDecor::setShaded(StateAction sa)
 	restackBorder();
 }
 
+//! @brief Sets skip state.
+void
+PDecor::setSkip(uint skip)
+{
+  _skip = skip;
+}
+
 //! @brief Renders and sets title background
 void
 PDecor::renderTitle(void)
@@ -1484,6 +1494,7 @@ isBetween(int x1, int x2, int t1, int t2)
 void
 PDecor::checkWOSnap(void)
 {
+  PDecor *decor;
 	Geometry gm = _gm;
 
 	int x = getRX();
@@ -1496,10 +1507,16 @@ PDecor::checkWOSnap(void)
 
 	list<PWinObj*>::reverse_iterator it = _wo_list.rbegin();
 	for (; it != _wo_list.rend(); ++it) {
-		if (((*it) == this) || ((*it)->isMapped() == false) ||
-				((*it)->getType() != PWinObj::WO_FRAME)) {
-			continue;
-		}
+          if (((*it) == this) || ! (*it)->isMapped()
+              || ((*it)->getType() != PWinObj::WO_FRAME)) {
+            continue;
+          }
+
+          // Skip snapping, only valid on PDecor and up.
+          decor = dynamic_cast<PDecor*>(*it);
+          if (decor && decor->isSkip(SKIP_SNAP)) {
+            continue;
+          }
 
 		snapped = false;
 

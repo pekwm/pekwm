@@ -957,15 +957,17 @@ Client::getWmState(void)
 	int real_format;
 	long *data, state = WithdrawnState;
 	ulong items_read, items_left;
+        uchar *udata;
 
 	int status =
-		XGetWindowProperty(_dpy, _window, IcccmAtoms::instance()->getAtom(WM_STATE),
-											 0L, 2L, False, IcccmAtoms::instance()->getAtom(WM_STATE),
-											 &real_type, &real_format, &items_read, &items_left,
-											 (uchar **) &data);
+          XGetWindowProperty(_dpy, _window, IcccmAtoms::instance()->getAtom(WM_STATE),
+                             0L, 2L, False, IcccmAtoms::instance()->getAtom(WM_STATE),
+                             &real_type, &real_format, &items_read, &items_left,
+                             &udata);
 	if ((status  == Success) && items_read) {
+          data = reinterpret_cast<long*>(udata);
 		state = *data;
-		XFree(data);
+		XFree(udata);
 	}
 
 	return state;
@@ -1134,23 +1136,28 @@ Client::getMwmHints(Window win)
 {
 	Atom real_type; int real_format;
 	ulong items_read, items_left;
-	MwmHints *data;
+	MwmHints *data = NULL;
+        uchar *udata;
 
 	int status =
 		XGetWindowProperty(_dpy, win, _wm->getMwmHintsAtom(),
-											 0L, 20L, False, _wm->getMwmHintsAtom(),
-											 &real_type, &real_format,
-											 &items_read, &items_left,
-											 (uchar **) &data);
+                                   0L, 20L, False, _wm->getMwmHintsAtom(),
+                                   &real_type, &real_format,
+                                   &items_read, &items_left,
+                                   &udata);
 
 	if (status == Success) {
 		if (items_read < MWM_HINTS_NUM) {
-			XFree(data);
-			data = NULL;
+			XFree(udata);
+			udata = NULL;
 		}
 	} else {
-		data = NULL;
+          udata = NULL;
 	}
+
+        if (udata) {
+          data = reinterpret_cast<MwmHints*>(udata);
+        }
 
 	return data;
 }

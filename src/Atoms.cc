@@ -221,10 +221,12 @@ bool
 getLong(Window win, Atom atom, long &value)
 {
 	long *data = NULL;
+        uchar *udata = NULL;
 
-	if (getProperty(win, atom, XA_CARDINAL, 1L, (uchar**) &data) == true) {
+	if (getProperty(win, atom, XA_CARDINAL, 1L, &udata) == true) {
+          data = reinterpret_cast<long*>(udata);
 		value = *data;
-		XFree(data);
+		XFree(udata);
 
 		return true;
 	}
@@ -269,13 +271,16 @@ bool
 getPosition(Window win, Atom atom, int &x, int &y)
 {
 	CARD32 *data = NULL;
+        uchar *udata = NULL;
 
-	getProperty(win, atom, XA_CARDINAL, 2L, (uchar**) &data);
+	getProperty(win, atom, XA_CARDINAL, 2L, &udata);
 
-	if (data != NULL) {
+	if (udata != NULL) {
+          data = reinterpret_cast<CARD32*>(udata);
+
 		x = data[0];
 		y = data[1];
-		XFree(data);
+		XFree(udata);
 
 		return true;
 	}

@@ -124,7 +124,10 @@ public:
 	virtual void getDecorInfo(char *buf, uint size); 
 
 	virtual void setShaded(StateAction sa);
+  virtual void setSkip(uint skip);
 	// END - PDecor interface.
+
+  inline bool isSkip(uint skip) const { return (_skip&skip); }
 
 	void addDecor(PDecor *decor);
 
@@ -354,6 +357,12 @@ protected:
 	static const std::string DEFAULT_DECOR_NAME; //!< Default decor name in normal state.
 	static const std::string DEFAULT_DECOR_NAME_BORDERLESS; //!< Default decor name in borderless state.
 	static const std::string DEFAULT_DECOR_NAME_TITLEBARLESS; //!< Default decor name in titlebarless state.
+
+  // state switches, commonly not used by all decors
+  bool _maximized_vert;
+  bool _maximized_horz;
+  bool _fullscreen;
+  uint _skip;
 
 private:
 	Theme::PDecorData *_data;

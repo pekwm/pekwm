@@ -66,6 +66,7 @@ public:
 	virtual void getDecorInfo(char *buf, uint size);
 
 	virtual void setShaded(StateAction sa);
+  virtual void setSkip(uint skip);
 	// END - PDecor interface.
 
 	inline uint getId(void) const { return _id; }
@@ -74,8 +75,6 @@ public:
 	void detachClient(Client *client);
 
 	inline const ClassHint* getClassHint(void) const { return _class_hint; }
-
-	inline bool isSkip(uint skip) const { return (_state.skip&skip); }
 
 	void growDirection(uint direction);
 	void moveToEdge(OrientationType ori);
@@ -127,8 +126,6 @@ private:
 	void getState(Client *cl);
 	void applyState(Client *cl);
 
-	void setSkip(uint skip);
-
 	void setupAPGeometry(Client *client, AutoProperty *ap);
 	void applyAPGeometry(Geometry &gm, const Geometry &ap_gm, int mask);
 
@@ -146,15 +143,6 @@ private:
 	// frame information used when maximizing / going fullscreen
 	Geometry _old_gm; // FIXME: move to PDecor?
 	uint _old_decor_state; // FIXME: move to PDecor?
-
-	// state switches specific for the frame
-	class State { // FIXME: move to PDecor?
-	public:
-		State(void) : maximized_vert(false), maximized_horz(false),
-									fullscreen(false), skip(0) { }
-		bool maximized_vert, maximized_horz, fullscreen;
-		uint skip;
-	} _state;
 
 	// EWMH
 	static const int NET_WM_STATE_REMOVE = 0; // remove/unset property

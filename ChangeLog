@@ -1,3 +1,13 @@
+2006-08-01  Claes Nästén  <me{@}pekdon{.}net>
+
+	* src/Atoms.cc (getLong): 
+	Fix compile warnings.
+
+	* src/PDecor.cc (PDecor::doMove): 
+	Moved skip attribute to PDecor from Frame, adding check to skip those
+	PDecor's when checking snap. Closing #95
+	( Thanks shared for reporting )
+
 2006-05-29  Claes Nästén  <me{@}pekdon{.}net>
 
 	* src/Harbour.cc (setStateHidden): 
