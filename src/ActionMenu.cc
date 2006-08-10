@@ -138,8 +138,7 @@ ActionMenu::insert(PMenu::Item *item)
 
 	checkItemWORef(item);
 
-	ActionMenu::DItem *d_item = static_cast<ActionMenu::DItem*>(item);
-	if (d_item->isDynamic()) {
+	if (item->isDynamic()) {
 		_insert_at = _item_list.insert(++_insert_at, item);
 	} else {
 		_item_list.push_back(item);
@@ -207,7 +206,7 @@ ActionMenu::parse(CfgParser::Entry *op_section, bool dynamic)
   ActionEvent ae;
 
   ActionMenu *submenu = NULL;
-  ActionMenu::DItem *item = NULL;
+  PMenu::Item *item = NULL;
 
   if (op_section->get_value ().size ())
     {
@@ -228,11 +227,13 @@ ActionMenu::parse(CfgParser::Entry *op_section, bool dynamic)
           submenu->parse (op_section, dynamic);
           submenu->buildMenu ();
 
-          item = new ActionMenu::DItem (dynamic, op_sub->get_value (), submenu);
+          item = new PMenu::Item (op_sub->get_value (), submenu);
+          item->setDynamic(dynamic);
         }
       else if (*op_section == "SEPARATOR")
         {
-          item = new ActionMenu::DItem (dynamic, "");
+          item = new PMenu::Item ("");
+          item->setDynamic (dynamic);
           item->setType (PMenu::Item::MENU_ITEM_SEPARATOR);
         }
       else
@@ -242,7 +243,8 @@ ActionMenu::parse(CfgParser::Entry *op_section, bool dynamic)
               && Config::instance ()->parseActions (op_value->get_value (),
                                                     ae, _action_ok))
             {
-              item = new ActionMenu::DItem (dynamic, op_sub->get_value ());
+              item = new PMenu::Item (op_sub->get_value ());
+              item->setDynamic (dynamic);
               item->setAE (ae);
 
               if (ae.isOnlyAction (ACTION_MENU_DYN))
@@ -289,11 +291,9 @@ ActionMenu::rebuildDynamic(void)
 void
 ActionMenu::removeDynamic(void)
 {
-	ActionMenu::DItem* item;
 	list<PMenu::Item*>::iterator it(_item_list.begin());
 	for (; it != _item_list.end(); ++it) {
-		item = static_cast<ActionMenu::DItem*>(*it);
-		if (item->isDynamic()) {
+          if ((*it)->isDynamic()) {
 			if (((*it)->getWORef() != NULL) &&
 			    ((*it)->getWORef()->getType() == WO_MENU)) {
 				delete (*it)->getWORef();

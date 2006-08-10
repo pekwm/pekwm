@@ -33,7 +33,7 @@ public:
 			MENU_ITEM_NORMAL, MENU_ITEM_SEPARATOR, MENU_ITEM_HIDDEN
 		};
 		Item(const std::string &name, PWinObj *wo_ref = NULL) :
-			_x(0), _y(0), _name(name), _wo_ref(wo_ref), _type(MENU_ITEM_NORMAL) { }
+                  _x(0), _y(0), _name(name), _wo_ref(wo_ref), _type(MENU_ITEM_NORMAL), _dynamic(false) { }
 
 		virtual ~Item(void) { }
 
@@ -51,6 +51,9 @@ public:
 		inline void setWORef(PWinObj *wo_ref) { _wo_ref = wo_ref; }
 		inline void setType(PMenu::Item::Type type) { _type = type; }
 
+		inline bool isDynamic(void) const { return _dynamic; }
+		inline void setDynamic(bool dynamic) { _dynamic = dynamic; }
+		
 	private:
 		int _x, _y;
 		std::string _name;
@@ -59,6 +62,8 @@ public:
 		PWinObj *_wo_ref; // used for client, frame, parent etc
 
 		PMenu::Item::Type _type; // normal, separator or hidden item
+
+		bool _dynamic;
 	};
 
 	PMenu(Display *dpy, Theme *theme, const std::string &title,

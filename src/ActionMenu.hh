@@ -31,18 +31,6 @@ class PMenu::Item;
 class ActionMenu : public WORefMenu
 {
 public:
-	class DItem : public PMenu::Item {
-	public:
-		DItem(bool dynamic, const std::string &name, PWinObj *wo_ref = NULL) : PMenu::Item(name, wo_ref), _dynamic(dynamic) { }
-		virtual ~DItem(void) { }
-
-		inline bool isDynamic(void) const { return _dynamic; }
-		inline void setDynamic(bool dynamic) { _dynamic = dynamic; }
-		
-	private:
-		bool _dynamic;
-	};
-
 	ActionMenu(WindowManager *wm, MenuType type,
 						 const std::string &title, const std::string &name,
 						 const std::string &decor_name = "MENU");

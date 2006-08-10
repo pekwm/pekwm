@@ -746,24 +746,15 @@ PMenu::mapSubmenu(PMenu *menu, bool focus)
 void
 PMenu::unmapSubmenus(void)
 {
-  PWinObj *ref;
-  PMenu *menu;
-
   list<PMenu::Item*>::iterator it(_item_list.begin());
   for (; it != _item_list.end(); ++it) {
-    ref = (*it)->getWORef();
-    if (ref && ref->getType() == PWinObj::WO_MENU) {
-      menu = dynamic_cast<PMenu*>(ref);
-      if (menu) {
-        menu->unmapSubmenus();
-        menu->unmapWindow();
-#ifdef DEBUG
-      } else {
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "PMenu(" << this << ")::unmapSubmenus() failed dynamic_cast"
-             << endl;
-#endif // DEBUG
+    if ((*it)->getWORef() && (*it)->getWORef()->getType() == PWinObj::WO_MENU) {
+      if (! (*it)->isDynamic()) {
+        // Sub-menus will be deleted when unmapping this, so no need
+        // to continue.
+        static_cast<PMenu*>((*it)->getWORef())->unmapSubmenus();
       }
+      (*it)->getWORef()->unmapWindow();
     }
   }
 }
