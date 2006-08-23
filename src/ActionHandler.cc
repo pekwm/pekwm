@@ -450,7 +450,7 @@ ActionHandler::handleStateAction(const Action &action, PWinObj *wo,
 			frame->setStateTagged(sa, action.getParamI(1));
 			break;
 		case ACTION_STATE_MARKED:
-			client->setStateMarked(sa);
+			frame->setStateMarked(sa, client);
 			break;
 		case ACTION_STATE_SKIP:
 			frame->setStateSkip(sa, action.getParamI(1));

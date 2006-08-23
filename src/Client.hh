@@ -149,11 +149,15 @@ public: // Public Member Functions
 
 	void setStateCfgDeny(StateAction sa, uint deny);
 	inline void setStateMarked(StateAction sa) {
-		if (((_marked == true) && (sa == STATE_SET)) ||
-				((_marked == false) && (sa == STATE_UNSET))) {
-			return;
-		}
-		_marked = !_marked;
+        if (ActionUtil::needToggle(sa, _marked)) {
+            _marked = !_marked;
+            if (_marked) {
+                _title.infoAdd(PDecor::TitleItem::INFO_MARKED);
+            } else {
+                _title.infoRemove(PDecor::TitleItem::INFO_MARKED);
+            }
+            _title.updateVisible();
+        }
 	}
 
 	// toggles
@@ -209,8 +213,8 @@ public: // Public Member Functions
 	void removeStrutHint(void);
 
 private:
-	void titleApplyRule(void);
-	void titleFindID(void);
+	bool titleApplyRule(std::string &title);
+	uint titleFindID(std::string &title);
 
 	void setWmState(ulong state);
 	long getWmState(void);

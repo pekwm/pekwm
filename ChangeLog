@@ -1,10 +1,17 @@
-2006-08-10  Claes N‰stÈn  <me{@}pekdon{.}net>
+2006-08-23  Claes N√§st√©n  <me{@}pekdon{.}net>
+
+	* src/PDecor.cc (PDecor::TitleItem::updateVisible):
+	Added info flag to title to store extra information in title such
+	as marked state. Closing #47
+	( Thanks shared for request )
+
+2006-08-10  Claes N√§st√©n  <me{@}pekdon{.}net>
 
 	* src/PMenu.cc (PMenu::unmapSubmenus): 
 	Moved dynamic flag to menu items in PMenu. Update unmap code to skip
 	traversing down dynamic menus.
 
-2006-08-01  Claes N‰stÈn  <me{@}pekdon{.}net>
+2006-08-01  Claes N√§st√©n  <me{@}pekdon{.}net>
 
 	* src/Atoms.cc (getLong): 
 	Fix compile warnings.
@@ -14,7 +21,7 @@
 	PDecor's when checking snap. Closing #95
 	( Thanks shared for reporting )
 
-2006-05-29  Claes N‰stÈn  <me{@}pekdon{.}net>
+2006-05-29  Claes N√§st√©n  <me{@}pekdon{.}net>
 
 	* src/Harbour.cc (setStateHidden): 
 	Created new state action HarbourHidden. Closing #89
@@ -23,7 +30,7 @@
 	Removed ROOT command support. Closing #93
 	( Thanks shared for reporting )
 	
-2006-05-01  Claes N‰stÈn  <me{@}pekdon{.}net>
+2006-05-01  Claes N√§st√©n  <me{@}pekdon{.}net>
 
 	* src/ActionHandler.cc (actionFocusToggle): 
 	Added boolean option to {Next,Prev}Frame set of actions to allow
@@ -55,7 +62,7 @@
 	* src/Util.cc (to_upper): 
 	Added to_upper and to_lower string utility methods.
 
-2006-04-28  Claes N‰stÈn  <me{@}pekdon{.}net>
+2006-04-28  Claes N√§st√©n  <me{@}pekdon{.}net>
 	
 	* src/Workspaces.cc (setWorkspace): 
 	Updated workspace switching and unmapping of window objects to avoid
@@ -65,7 +72,7 @@
 	Fixed ops not handling sticky window value. Closing #86
 	( Thanks Skot for reporting )
 
-2006-04-18  Claes N‰stÈn  <me{@}pekdon{.}net>
+2006-04-18  Claes N√§st√©n  <me{@}pekdon{.}net>
 
 	* doc/Makefile.am:
 	Added missing man page target in Makefile.am.
@@ -73,7 +80,7 @@
 
 pekwm-0.1.5 released
 
-2006-04-17  Claes N‰stÈn  <me{@}pekdon{.}net>
+2006-04-17  Claes N√§st√©n  <me{@}pekdon{.}net>
 
 	* src/Frame.cc (setWorkspace): 
 	Re-enabled the use of ApplyOn = "Workspace" for autoproperties.
@@ -99,7 +106,7 @@ pekwm-0.1.5 released
 	of the line.
 	( Thanks shared fore reporting. )
 
-2006-04-16  Claes N‰stÈn  <me{@}pekdon{.}net>
+2006-04-16  Claes N√§st√©n  <me{@}pekdon{.}net>
 
 	* src/Workspaces.cc (placeSmart): 
 	Switch position of row/col placement. Closing #60
@@ -126,17 +133,17 @@ pekwm-0.1.5 released
 
 pekwm-0.1.4 released
 
-2006-02-22  Claes N‰stÈn  <me{@}pekdon{.}net>
+2006-02-22  Claes N√§st√©n  <me{@}pekdon{.}net>
 
 	* data/themes/default/theme: 
 	Fixed typo COLOR_TAB_FS_HIGH instead of COLOR_TAB_FS_LIGHT.
 
-2006-02-16  Claes N‰stÈn  <me{@}pekdon{.}net>
+2006-02-16  Claes N√§st√©n  <me{@}pekdon{.}net>
 
 	* src/CfgParserSource.cc (close): 
 	Fix error causing signal handlers not beeing restored.
 
-2006-02-15  Claes N‰stÈn  <me{@}pekdon{.}net>
+2006-02-15  Claes N√§st√©n  <me{@}pekdon{.}net>
 
 	* data/scripts/pekwm_ws_menu.pl: 
 	Using updated pekwm_ws_menu.pl script from  Aristotle Pagaltzis
@@ -1572,7 +1579,7 @@ pekwm-0.1.4 released
 
 	* data/Makefile.in: 
 	Fixed broken --mandir option.
-	( Thanks Per Å√Éyvind Karlsen <peroyvind@linux-mandrake.com> for patch )
+	( Thanks Per √òyvind Karlsen <peroyvind@linux-mandrake.com> for patch )
 
 2003-08-17  Claes Nasten  <pekdon{@}pekdon{.}net>
 

@@ -628,7 +628,6 @@ void
 PMenu::setTitle(const std::string &title)
 {
 	_title.setReal(title);
-	_title.setVisible(title);
 }
 
 //! @brief Inserts item into the menu ( without rebuilding )

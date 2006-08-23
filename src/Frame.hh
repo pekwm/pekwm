@@ -93,6 +93,7 @@ public:
 	void setStateTagged(StateAction sa, bool behind);
 	void setStateSkip(StateAction sa, uint skip);
 	void setStateTitle(StateAction sa, Client *client, const std::string &title);
+    void setStateMarked(StateAction sa, Client *client);
 
 	void close(void);
 

@@ -48,6 +48,7 @@ using std::endl;
 using std::vector;
 using std::list;
 using std::find;
+using std::string;
 
 Client::Client(WindowManager *w, Window new_client, bool is_new) :
 PWinObj(w->getScreen()->getDpy()),
@@ -800,12 +801,7 @@ Client::applyAutoprops(AutoProperty *ap)
 void
 Client::getXClientName(void)
 {
-	// reset title data
-	_title.setReal("");
-	if (_title.isUserSet() == false) {
-		_title.setVisible("");
-	}
-	_title.setCount(0);
+    string title;
 
 	// read X11 property
 	XTextProperty text_property;
@@ -815,7 +811,7 @@ Client::getXClientName(void)
 	}
 
 	if (text_property.encoding == XA_STRING) {
-		_title.setReal((const char*) text_property.value);
+		title = (const char*) text_property.value;
 
 	} else {
 		char **list;
@@ -823,52 +819,61 @@ Client::getXClientName(void)
 
 		XmbTextPropertyToTextList(_dpy, &text_property, &list, &num);
 		if ((num > 0) && (*list != NULL)) {
-			_title.setReal(*list);
+            title = *list;
 			XFreeStringList(list);
 		}
 	}
 
 	XFree(text_property.value);
 
-	// mirror it on the visible
-	if (_title.isUserSet() == false) {
-		_title.setVisible(_title.getReal());
+    // Mirror it on the visible
+    _title.setCustom("");
+    _title.setCount(titleFindID(title));
+    _title.setReal(title);
 
-		// apply title rules and find unique name, doesn't apply on user-set titles
-		titleApplyRule();
-		titleFindID();
-	}
+    // Apply title rules and find unique name, doesn't apply on
+    // user-set titles
+    if (titleApplyRule(title)) {
+        _title.setCustom(title);
+    }
 }
 
 //! @brief Searches for an TitleRule and if found, applies it
-void
-Client::titleApplyRule(void)
+//! @param title Title to apply rule on.
+//! @return true if rule was applied, else false.
+bool
+Client::titleApplyRule(std::string &title)
 {
-  _class_hint->title = _title.getReal ();
+  _class_hint->title = title;
   TitleProperty *data =
     AutoProperties::instance()->findTitleProperty (_class_hint);
   _class_hint->title = "";
 
-  if (data)
-    _title.setRuleApplied (data->getTitleRule ().ed_s (_title.getWVisible ()));
-  else
-    _title.setRuleApplied (false);
+  if (data) {
+    return data->getTitleRule ().ed_s (title);
+  } else {
+    return false;
+  }
 }
 
 //! @brief Searches for a unique ID within Clients having the same title
-void
-Client::titleFindID(void)
+//! @param title Title of client to find ID for.
+//! @return Number of clients with that id.
+uint
+Client::titleFindID(std::string &title)
 {
+    // Do not search for unique IDs if it is not enabled.
 	if (Config::instance()->getClientUniqueName() == false) {
-		return;
+		return 0;
 	}
 
+    uint id_found = 0;
 	list<uint> ids_used;
 
 	list<Client*>::iterator it = _wm->client_begin();
 	for (; it != _wm->client_end(); ++it) {
 		if (*it != this) {
-			if ((*it)->getTitle()->getReal() == _title.getReal()) {
+			if ((*it)->getTitle()->getReal() == title) {
 				ids_used.push_back((*it)->getTitle()->getCount());
 			}
 		}
@@ -881,25 +886,17 @@ Client::titleFindID(void)
 		list<uint>::iterator ui_it( ids_used.begin());
 		for (uint i = 0; ui_it != ids_used.end(); ++i, ++ui_it) {
 			if (i < *ui_it) {
-				_title.setCount(i);
+				id_found = i;
 				break;
 			}
 		}
 
 		if (ui_it == ids_used.end()) {
-			_title.setCount(ids_used.size());
+            id_found = ids_used.size();
 		}
 	}
 
-	// more than one client, add identifier
-	if (_title.getCount() > 0) {
-		char buf[8];
-		snprintf(buf, 8, "%i", _title.getCount());
-
-		_title.getWVisible().append(Config::instance()->getClientUniqueNamePre());
-		_title.getWVisible().append(buf);
-		_title.getWVisible().append(Config::instance()->getClientUniqueNamePost());
-	}
+    return id_found;
 }
 
 //! @brief Tries to get Client's icon name, and puts it in _icon_name.

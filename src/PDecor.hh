@@ -11,8 +11,10 @@
 #ifndef _PDECOR_HH_
 #define _PDECOR_HH_
 
+#include "Config.hh"
 #include "Theme.hh" // for Theme::FrameData inlines
 #include "PTexture.hh" // for border/image inlines
+#include "Util.hh"
 
 #include <list>
 
@@ -47,29 +49,57 @@ public:
 	//! @brief Decor title item class.
 	class TitleItem {
 	public:
-		TitleItem(void) : _count(0), _user_set(false), _rule_applied(false) { }
-		~TitleItem(void) { }
+        //! Info bitmask enum.
+        enum Info {
+            INFO_MARKED = (1 << 1)
+        };
 
-		inline const std::string &getReal(void) const { return _real; }
-		inline std::string &getWReal(void) { return _real; }
+		TitleItem(void) : _count(0), _info(0), _width(0) { }
+
 		inline const std::string &getVisible(void) const { return _visible; }
-		inline std::string &getWVisible(void) { return _visible; }
+		inline const std::string &getReal(void) const { return _real; }
+        inline const std::string &getCustom(void) const { return _custom; }
+        inline const std::string &getUser(void) const { return _user; }
+
 		inline uint getCount(void) const { return _count; }
-		inline bool isUserSet(void) const { return _user_set; }
-		inline bool isRuleApplied(void) const { return _rule_applied; }
+		inline bool isUserSet(void) const { return (_user.size() > 0); }
+		inline bool isCustom(void) const { return (_custom.size() > 0); }
 		inline uint getWidth(void) const { return _width; }
 
-		inline void setReal(const std::string &real) { _real = real; }
-		inline void setVisible(const std::string &visible) { _visible = visible; }
-		inline void setCount(uint count) { _count = count; }
-		inline void setUserSet(bool user_set) { _user_set = user_set; }
-		inline void setRuleApplied(bool applied) { _rule_applied = applied; }
+        inline void infoAdd(enum Info info) { _info |= info; }
+        inline void infoRemove(enum Info info) { _info &= ~info; }
+        inline bool infoIs(enum Info info) { return (_info&info); }
+
+		void setReal(const std::string &real) {
+            _real = real;
+            if (!isUserSet() && !isCustom()) {
+                updateVisible();
+            }
+        }
+        void setCustom(const std::string &custom) {
+            _custom = custom;
+            if (_custom.size() > 0 && !isUserSet()) {
+                updateVisible();
+            }
+        }
+        void setUser(const std::string &user) {
+            _user = user;
+            updateVisible();
+        }
+		void setCount(uint count) { _count = count; }
 		inline void setWidth(uint width) { _width = width; }
 
+        void updateVisible(void);
+
 	private:
-		std::string _real, _visible;
-		uint _count;
-		bool _user_set, _rule_applied;
+        std::string _visible; //*< Visible version of title
+
+        std::string _real; //*< Title from client
+        std::string _custom; //*< Custom (title rule) set version of title
+        std::string _user; //*< User set version of title
+
+        uint _count; //*< Number of title
+        uint _info; //*< Info bitmask for extra title info
 
 		uint _width;
 	};

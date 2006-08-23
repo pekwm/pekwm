@@ -107,6 +107,40 @@ PDecor::Button::setState(ButtonState state)
 	clear();
 }
 
+//! @brief Update visible version of title
+void
+PDecor::TitleItem::updateVisible(void) {
+    // Start with empty string
+    _visible = "";
+
+    // Add client info to title
+    if (_info != 0) {
+        _visible.append("[");
+
+        if (infoIs(INFO_MARKED)) {
+            _visible.append("M");
+        }
+
+        _visible.append("] ");
+    }
+
+    // Add title
+    if (_user.size() > 0) {
+        _visible.append(_user);
+    } else if (_custom.size() > 0) {
+        _visible.append(_custom);
+    } else {
+        _visible.append(_real);
+    }
+
+    // Add client number to title
+    if (_count > 0) {
+        _visible.append(Config::instance()->getClientUniqueNamePre());
+        _visible.append(Util::to_string(_count));
+        _visible.append(Config::instance()->getClientUniqueNamePost());
+    }
+}
+
 // PDecor
 
 const string PDecor::DEFAULT_DECOR_NAME = string("DEFAULT");
@@ -1340,7 +1374,7 @@ PDecor::renderTitle(void)
 								 _data->getPad(PAD_UP), // Y position
 								 (*it)->getVisible().c_str(), 0, // Text and max chars
                  (*it)->getWidth() - pad_horiz, // Available width
-								 (*it)->isRuleApplied() // Type of trimming
+								 ((*it)->isCustom() || (*it)->isUserSet()) // Type of trimming
                    ? PFont::FONT_TRIM_END : PFont::FONT_TRIM_MIDDLE);
 		}
 

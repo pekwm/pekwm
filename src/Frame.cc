@@ -1493,19 +1493,34 @@ void
 Frame::setStateTitle(StateAction sa, Client *client, const std::string &title)
 {
 	if (sa == STATE_SET) {
-		client->getTitle()->setUserSet(true);
-		client->getTitle()->setVisible(title);
+		client->getTitle()->setUser(title);
 	} else if (sa == STATE_UNSET) {
-		client->getTitle()->setUserSet(false);
+		client->getTitle()->setUser("");
 		client->getXClientName();
 	} else {
-		client->getTitle()->setUserSet(!client->getTitle()->isUserSet());
-		if (client->getTitle()->isUserSet() == false) {
-			client->getXClientName();
-		}
+        if (client->getTitle()->isUserSet()) {
+            client->getTitle()->setUser("");
+        } else {
+            client->getTitle()->setUser(title);
+        }
 	}
 
 	renderTitle();
+}
+
+//! @brief Sets clients marked state.
+//! @param sa
+//! @param client
+void
+Frame::setStateMarked(StateAction sa, Client *client)
+{
+    if (!client || !ActionUtil::needToggle(sa, client->isMarked())) {
+        return;
+    }
+
+    // Set marked state and re-render title to update visual marker.
+    client->setStateMarked(sa);
+    renderTitle();
 }
 
 // STATE actions end

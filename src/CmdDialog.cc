@@ -230,7 +230,6 @@ void
 CmdDialog::setTitle(const std::string &title)
 {
 	_title.setReal(title);
-	_title.setVisible(title);
 }
 
 //! @brief Sets background and size
