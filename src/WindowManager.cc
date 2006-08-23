@@ -1992,7 +1992,7 @@ WindowManager::attachMarked(Frame *frame)
 				(*it)->setWorkspace(frame->getWorkspace());
 				frame->addChild(*it);
 			}
-			(*it)->mark();
+			(*it)->setStateMarked(STATE_UNSET);
 		}
 	}
 }

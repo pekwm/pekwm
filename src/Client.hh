@@ -163,7 +163,6 @@ public: // Public Member Functions
 	// toggles
 	void alwaysOnTop(bool top);
 	void alwaysBelow(bool bottom);
-	inline void mark(void) { _marked = !_marked; }
 
 	void setSkip(uint skip);
 	inline void setTitlebar(bool titlebar) {
