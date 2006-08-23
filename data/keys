@@ -43,6 +43,8 @@ Global {
 	# Marking
 	KeyPress = "Mod4 Z" { Actions = "Toggle Marked" }
 	KeyPress = "Mod4 A" { Actions = "AttachMarked" }
+	# Tagging
+	KeyPress = "Mod4 T" { Actions = "Toggle Tagged False" }
 	# Menus
 	KeyPress = "Mod4 R" { Actions = "ShowMenu Root" }
 	KeyPress = "Mod4 W" { Actions = "ShowMenu Window" }
