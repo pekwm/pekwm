@@ -1,3 +1,10 @@
+2006-08-28  Claes Nästén  <me{@}pekdon{.}net>
+
+	* src/WindowManager.cc (WindowManager::updateMenus): 
+	Fix issue in reload causing dangling pointer to custom menus hang
+	around in the list of menus. Should improve on reload crash situation
+	#92 and #96.
+
 2006-08-23  Claes Nästén  <me{@}pekdon{.}net>
 
 	* src/PDecor.cc (PDecor::TitleItem::updateVisible):

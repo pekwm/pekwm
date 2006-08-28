@@ -24,6 +24,7 @@
 #include "Viewport.hh"
 
 #include <functional>
+#include <cassert>
 #include <cstdio>
 #include <cstdlib>
 
@@ -695,6 +696,7 @@ PDecor::loadDecor(void)
 	if (_data == NULL) {
 		_data = _theme->getPDecorData(DEFAULT_DECOR_NAME);
 	}
+        assert(_data);
 
 	// Load decor.
 	list<Theme::PDecorButtonData*>::iterator b_it(_data->buttonBegin());
@@ -731,15 +733,19 @@ PDecor::loadDecor(void)
 	loadTheme();
 }
 
-//! @brief
+//! @brief Frees resources used by PDecor.
 void
 PDecor::unloadDecor(void)
 {
-	list<PDecor::Button*>::iterator it(_button_list.begin());
-	for (; it != _button_list.end(); ++it) {
-		delete *it;
-	}
-	_button_list.clear();
+  // Set active button to NULL as it can not be valid after deleting
+  // the current buttons.
+  _button = NULL;
+
+  list<PDecor::Button*>::iterator it(_button_list.begin());
+  for (; it != _button_list.end(); ++it) {
+    delete *it;
+  }
+  _button_list.clear();
 }
 
 //! @brief

@@ -1618,6 +1618,7 @@ WindowManager::updateMenus(void)
   for (; it != _menu_map.end(); ++it) {
     if (it->second->getMenuType() == ROOTMENU_STANDALONE_TYPE) {
       delete it->second;
+      _menu_map.erase(it);
     } else {
       it->second->loadDecor();
       // Only reload the menu if we got a ok configuration
