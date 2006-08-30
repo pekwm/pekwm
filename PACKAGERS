@@ -1,0 +1,64 @@
+Welcome, distribution packagers! This quick guide exists to help you create a 
+pekwm package for your distribution. First of all, thank you. We happily 
+support any packages made for pekwm, as long as they follow the rules below.
+If you make a pekwm package, let us know. We will host a copy on the pekwm
+downloads area, and we will help your users with any problems.
+
+1) DO NOT PATCH PEKWM FOR YOUR PACKAGE.
+
+  If you _need_ to patch pekwm, because there is some vital bug that needs
+  to be fixed, you MUST contact me, Claes Nasten <pekdon@gmx.net>, first and
+  wait for my approval.
+  
+  Unofficial patches can create bugs, in code which the developers have
+  not seen or approved, thus creating alot of extra work.
+  So they are _strictly_ prohibited.
+
+  If there's something you need to support in the build process, you can hop
+  on irc.babblica.net/#pekwm and talk to me (eyez), or email me. My email
+  address is rando@babblica.net, and I handle the entire build process. I 
+  will be happy to work with you in a way that we can help.
+  
+2) Configure options
+
+  We've had some problems with this before, so we've set up official rules 
+  for distribution packagers. Specifically, there are some features we support 
+  in pekwm, and some which are known not to work particularly well, and some 
+  which we do not want in packages.
+  
+  If you'd like to make a pekwm package, please build with these options:
+  
+  ./configure --enable-shape --disable-xft --disable-xinerama \
+              --disable-debug --enable-menus --enable-keygrabber \
+              --enable-harbour --disable-pcre
+  
+  Distribution packages containing other features will not be supported, nor 
+  will they be considered official.
+
+3) Prefix and paths
+
+  Our build system will honor your prefix/path requests. Many distributions
+  expect something like this:
+
+  ./configure --prefix=/usr --sysconfdir=/etc
+
+  Be aware, though, that whatever you specify in sysconfdir will have /pekwm
+  appended to it, so the above example would make config file defaults be in
+  the directory /etc/pekwm/... --datadir defaults to $prefix/share, and also
+  appends /pekwm. This conforms to numerous standards and proposals and such.
+
+  When creating a package, if you do this:
+  
+  ./configure --prefix=/path/to/some/work/dir
+  make
+  make PREFIX=/usr install
+  
+  you can mess things up, because we hardcode a few paths into pekwm. The 
+  proper way to do this is this:
+
+  ./configure --prefix=/usr --sysconfdir=/etc
+  make
+  make DESTDIR=/path/to/your/build/dir install
+  
+Please follow these rules when making any pekwm packages.
+

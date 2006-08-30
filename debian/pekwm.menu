@@ -1,0 +1,1 @@
+?package(pekwm):needs=wm section="WindowManagers" title="Pekwm" command="/usr/bin/pekwm"

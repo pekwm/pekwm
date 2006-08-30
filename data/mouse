@@ -1,0 +1,28 @@
+Frame {
+	ButtonRelease = "1" { Actions = "Raise" }
+	ButtonRelease = "2" { Actions = "ActivateClient" }
+	ButtonRelease = "3" { Actions = "ShowMenu Window" }
+	ButtonRelease = "4" { Actions = "NextInFrame" }
+	ButtonRelease = "5" { Actions = "PrevInFrame" }
+	DoubleClick = "1" { Actions = "Shade" }
+	Motion = "1" { Actions = "Move" }
+	Motion = "Mod1 1" { Actions = "Move" }
+	Motion = "2" { Threshold = "4"; Actions = "GroupingDrag True" }
+	Motion = "Mod1 3" { Actions = "Resize" }
+}
+
+Client {
+	ButtonPress = "1" { Actions = "Raise" }
+	Motion = "Mod1 1" { Actions = "Move";}
+	Motion = "Mod1 2" { Threshold = "4"; Actions = "GroupingDrag True" }
+	Motion = "Mod1 3" { Actions = "Resize" }
+}
+
+Root {
+	ButtonPress = "1" { Actions = "ShowMenu Root" }
+	ButtonPress = "2" { Actions = "ShowMenu Icon" }
+	ButtonPress = "3" { Actions = "ShowMenu Goto" }
+	ButtonPress = "4" { Actions = "RightWorkspace" }
+	ButtonPress = "5" { Actions = "LeftWorkspace" }
+}
+

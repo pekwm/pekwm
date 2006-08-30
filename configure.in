@@ -1,0 +1,215 @@
+AC_INIT
+AC_CONFIG_HEADERS(config.h)
+AM_INIT_AUTOMAKE(pekwm, 0.1.3)
+AC_PROG_CXX
+AC_PROG_INSTALL
+
+
+AC_PATH_X
+AC_PATH_XTRA
+
+CFLAGS="$CFLAGS $X_CFLAGS"
+CXXFLAGS="$CXXFLAGS $X_CFLAGS"
+LIBS="$LIBS $X_LIBS"
+LDFLAGS="$LDFLAGS $LIBS $X_PRE_LIBS"
+
+NSENV=
+AC_CHECK_FUNCS(setenv,,AC_DEFINE(NEED_SETENV))
+
+
+dnl we may want this later
+dnl AC_CHECK_PROGS(regex_cmd, sed)
+dnl if test x$regex_cmd = "x"; then
+dnl  AC_MSG_ERROR([error. sed is required to build the default style file.])
+dnl fi
+
+AC_CHECK_LIB(X11, XOpenDisplay,
+			 LIBS="$LIBS -lX11",
+			 AC_MSG_ERROR([Could not find XOpenDisplay in -lX11.])
+)
+
+AC_LANG_SAVE
+AC_LANG_CPLUSPLUS
+
+
+dnl FIXME: Should we be checking for xpm dynamically?
+AC_CHECK_LIB(Xpm, XpmReadFileToPixmap,
+			 LIBS="$LIBS -lXpm",
+			 AC_MSG_ERROR([Could not find XpmReadFileToPixmap in -lXpm.])
+)
+
+CONFIGOPTS="./configure"
+
+dnl Check for XShape extension support and proper library files
+enableval="yes"
+AC_MSG_CHECKING([whether to build support for the XShape extension])
+AC_ARG_ENABLE(
+  shape, [  --enable-shape          enable support of the XShape extension [default=yes]])
+
+: ${enableval="yes"}
+if test x$enableval = "xyes"; then
+  AC_MSG_RESULT([yes])
+  AC_CHECK_LIB(Xext, XShapeCombineShape,
+    AC_MSG_CHECKING([for X11/extensions/shape.h])
+    AC_TRY_COMPILE(
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/extensions/shape.h>
+      , long foo = ShapeSet,
+      AC_MSG_RESULT([yes])
+	  AC_DEFINE(SHAPE)
+      LIBS="$LIBS -lXext"
+	  CONFIGOPTS="$CONFIGOPTS --enable-shape",
+      AC_MSG_RESULT([no])
+	  CONFIGOPTS="$CONFIGOPTS --disable-shape"
+    )
+  )
+else
+  AC_MSG_RESULT([no])
+  CONFIGOPTS="$CONFIGOPTS --disable-shape"
+fi
+
+dnl Checks for Xft library support
+dnl enableval="no"
+dnl AC_MSG_CHECKING([whether to build support for the Xft library])
+dnl AC_ARG_ENABLE(
+dnl   xft, [  --enable-xft            enable support of the Xft library if available [default=no]])
+dnl : ${enableval="no"}
+dnl if test x$enableval = "xyes"; then
+dnl   AC_CHECK_LIB(Xft, XftFontOpen,
+dnl     LIBS="$LIBS -lXft"
+dnl 	AC_DEFINE(XFT)
+dnl 	CONFIGOPTS="$CONFIGOPTS --enable-xft",
+dnl     AC_MSG_ERROR([Could not find XftFontOpen in -lXft.])
+dnl   )
+dnl else
+dnl   AC_MSG_RESULT([no])
+dnl   CONFIGOPTS="$CONFIGOPTS --disable-xft"
+dnl fi
+
+dnl Check for Xinerama support
+AC_MSG_CHECKING([whether to build support for the Xinerama extension])
+AC_ARG_ENABLE(xinerama,
+[  --enable-xinerama       enable xinerama extension [default=no]], , [enable_xinerama=no])
+
+if test "x$enable_xinerama" = "xyes"; then
+	AC_MSG_RESULT([yes])
+	AC_CHECK_LIB(Xinerama, XineramaQueryScreens,
+			AC_DEFINE(XINERAMA)
+			LIBS="$LIBS -lXinerama"
+			CONFIGOPTS="$CONFIGOPTS --enable-xinerama", )
+else
+	AC_MSG_RESULT([no])
+	CONFIGOPTS="$CONFIGOPTS --disable-xinerama"
+fi
+
+dnl Check whether to include debugging code
+AC_MSG_CHECKING([whether to include verbose debugging code])
+AC_ARG_ENABLE(debug,
+  [  --enable-debug          include verbose debugging code [default=no]],
+  if test x$enableval = "xyes"; then
+    AC_MSG_RESULT([yes])
+    AC_DEFINE(DEBUG)
+	CONFIGOPTS="$CONFIGOPTS --enable-debug"
+  else
+    AC_MSG_RESULT([no])
+	CONFIGOPTS="$CONFIGOPTS --disable-debug"
+  fi,
+  AC_MSG_RESULT([no])
+  CONFIGOPTS="$CONFIGOPTS --disable-debug"
+)
+
+dnl Check whether to use menus
+enableval="yes"
+AC_MSG_CHECKING([whether to include menu support])
+AC_ARG_ENABLE(menus,
+  [  --enable-menus          include menu support [default=yes]])
+: ${enableval="yes"}
+if test x$enableval = "xyes"; then
+    AC_MSG_RESULT([yes])
+    AC_DEFINE(MENUS)
+	CONFIGOPTS="$CONFIGOPTS --enable-menus"
+else
+    AC_MSG_RESULT([no])
+	CONFIGOPTS="$CONFIGOPTS --disable-menus"
+fi
+
+dnl Check whether to include keygrabber
+enableval="yes"
+AC_MSG_CHECKING([whether to include keygrabber support])
+AC_ARG_ENABLE(keygrabber,
+  [  --enable-keygrabber     include keygrabber support [default=yes]])
+: ${enableval="yes"}
+if test x$enableval = "xyes"; then
+    AC_MSG_RESULT([yes])
+    AC_DEFINE(KEYS)
+	CONFIGOPTS="$CONFIGOPTS --enable-keygrabber"
+else
+    AC_MSG_RESULT([no])	
+	CONFIGOPTS="$CONFIGOPTS --disable-keygrabber"
+fi
+
+dnl Check whether to include harbour
+enableval="no"
+AC_MSG_CHECKING([whether to include harbour])
+AC_ARG_ENABLE(harbour,
+  [  --enable-harbour        include harbour [default=no]])
+: ${enableval="no"}
+if test x$enableval = "xyes"; then
+    AC_MSG_RESULT([yes])
+	AC_DEFINE(HARBOUR)
+	CONFIGOPTS="$CONFIGOPTS --enable-harbour"
+else
+    AC_MSG_RESULT([no])
+	CONFIGOPTS="$CONFIGOPTS --disable-harbour"
+fi
+
+dnl Check for pcre support
+AC_MSG_CHECKING([whether to use pcre for autoprops])
+AC_ARG_ENABLE(pcre,
+[  --enable-pcre           enable pcre regex [default=no]], , [enable_pcre=no])
+
+if test "x$enable_pcre" = "xyes"; then
+	AC_MSG_RESULT([yes])
+	AC_CHECK_LIB(pcre, pcre_compile,
+			AC_DEFINE(PCRE)
+			PCRELIB=`pcre-config --libs-posix`
+			PCRECFL=`pcre-config --cflags-posix`
+			LIBS="$LIBS $PCRELIB"
+			CXXFLAGS="$CXXFLAGS $PCRECFL"
+			CFLAGS="$CFLAGS $PCRECFL"
+			CONFIGOPTS="$CONFIGOPTS --enable-pcre", )
+else
+	AC_MSG_RESULT([no])
+	CONFIGOPTS="$CONFIGOPTS --disable-pcre"
+fi
+AC_DEFINE_UNQUOTED(CONFIG_OPTS, "$CONFIGOPTS")
+
+EVO=`date`
+AC_DEFINE_UNQUOTED(EXTRA_VERSION_INFO, " Built on $EVO")
+
+dnl AC_OUTPUT([testme])
+AC_OUTPUT([
+		   Makefile 
+		   src/Makefile 
+		   data/Makefile 
+		   data/themes/Makefile 
+		   data/scripts/Makefile 
+		   docs/Makefile
+		   ])
+
+dnl Print results
+AC_MSG_RESULT([*])
+AC_MSG_RESULT([* $PACKAGE version $VERSION configured successfully.])
+AC_MSG_RESULT([*])
+AC_MSG_RESULT([* Using '$prefix' for installation.])
+AC_MSG_RESULT([* Using '$CXX' for C++ compiler.])
+AC_MSG_RESULT([* Building with '$CXXFLAGS' for C++ compiler flags.])
+AC_MSG_RESULT([* Building with '$LIBS' for linker flags.])
+AC_MSG_RESULT([* To Rebuild, use: ])
+AC_MSG_RESULT([* $CONFIGOPTS ])
+AC_MSG_RESULT([*])
+AC_MSG_RESULT([* Now you may build with 'make'  ])
+AC_MSG_RESULT([*])
+
+

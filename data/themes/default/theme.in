@@ -1,0 +1,75 @@
+# default theme for pekwm
+# by Christoph Strake <me@chr1z.de>
+# http://www.chr1z.de
+
+Window {
+	TitleHeight = "14"
+	TitlePadding = "2"
+
+	Font {
+		Name = "-*-lucida-medium-r-*-*-10-*-*-*-*-*-*-*"
+		Justify = "Center"
+	}
+	
+	Focused {
+		Text = "#9d91a3"
+		Pixmap = "win-fo.xpm"
+		Separator = "sep-fo.xpm"
+		Border {
+			Top = "b-top-l.xpm b-top-c.xpm b-top-r.xpm"
+			Side = "b-side-l.xpm b-side-r.xpm"
+			Bottom = "b-bottom-l.xpm b-bottom-c.xpm b-bottom-r.xpm"
+		}
+	}
+	Selected {
+		Text = "#d2c9d8"
+		Pixmap = "win-fo-sel.xpm"
+	}
+
+	Unfocused {
+		Text = "#a0a0a0"
+		Pixmap = "win-un.xpm"
+		Separator = "sep-un.xpm"
+		Border {
+			Top = "b-top-l.xpm b-top-c.xpm b-top-r.xpm"
+			Side = "b-side-l.xpm b-side-r.xpm"
+			Bottom = "b-bottom-l.xpm b-bottom-c.xpm b-bottom-r.xpm"
+		}
+	}
+	UnfocusedSelected {
+		Text = "#d1d1d1"
+		Pixmap = "win-un-sel.xpm"
+	}
+
+	Buttons {
+		Left {
+			Pixmaps = "btn-b-left-fo.xpm btn-b-left-un.xpm btn-b-left-pr.xpm"
+			Button = "1" { Actions = "Maximize" }
+			Button = "2" { Actions = "MaximizeHorizontal" }
+			Button = "3" { Actions = "MaximizeVertical" }
+		}
+		Right {
+			Pixmaps = "btn-b-right-fo.xpm btn-b-right-un.xpm btn-b-right-pr.xpm"
+			Button = "1" { Actions = "Close" }
+			Button = "3" { Actions = "Kill" }
+		}
+	}
+}
+
+Menu {
+	Font = "-*-lucida-medium-r-*-*-10-*-*-*-*-*-*-*"
+	Padding = "3"
+	BorderWidth = "2"
+	BorderColor = "#362b3a"	
+	TextJustify = "Left"
+	TextColor = "#ffffff"
+	TextColorSelected = "#00000"
+	TextColorTitle = "#d1c5d8" 
+	Background = "#62456d"
+	BackgroundSelected = "#9d91a3"
+	BackgroundTitle = "#362b3a"
+}
+
+Root {
+	Command = "xsetroot -solid rgb:68/68/68"
+}

@@ -1,0 +1,81 @@
+# Menu config for pekwm
+
+# Variables
+$TERM = "xterm -fn fixed +sb -bg black -fg white "
+
+
+# Variables
+$TERM = "xterm -fn fixed +sb -bg black -fg white "
+
+RootMenu = "Pekwm" {
+	Entry = "Term" { Actions = "Exec $TERM &" }
+	Entry = "Emacs" { Actions = "Exec $TERM -title emacs -e emacs -nw &" }
+	Entry = "Vi" { Actions = "Exec $TERM -title vi -e vi &" }
+
+	Entry = "----------" { Actions = "NoAction" }
+
+	Submenu = "Graphics" {
+		Entry = "Gimp" { Actions = "Exec gimp &" }
+		Entry = "Gv" { Actions = "Exec gv &" }
+		Entry = "Xpdf" { Actions = "Exec xpdf &" }
+	}
+	Submenu = "Mm" {
+		Entry = "Xmms" { Actions = "Exec xmms &" }
+		Entry = "MPlayer" { Actions = "Exec mplayer &" }
+	}
+	Submenu = "Utils" {
+		Entry = "XCalc" { Actions = "Exec xcalc &" }
+		Entry = "XMan" { Actions = "Exec xman &" }
+	}
+	Submenu = "WwW" {
+		Entry = "Dillo" { Actions = "Exec dillo &" }
+		Entry = "Konqueror" { Actions = "Exec konqueror www.google.com &" }
+		Entry = "Mozilla" { Actions = "Exec mozilla &" }
+		Entry = "Mutt" { Actions = "Exec $TERM -title mutt -e mutt &" }
+	}
+
+	Entry = "----------" { Actions = "NoAction" }
+
+	Submenu = "Pekwm" {
+		Entry = "Reload" { Actions = "Reload" }
+		Entry = "Restart" { Actions = "Restart" }
+		Entry = "Exit" { Actions = "Exit" }
+		Submenu = "Others" {
+			Entry = "Xterm" { Actions = "RestartOther xterm" }
+		}
+		Submenu = "Themes" {
+			Entry { Actions = "Dynamic <PREFIX>/scripts/pekwm_themeset.pl <PREFIX>/themes" }
+		}
+	}
+}
+
+WindowMenu = "Window Menu" {
+	Entry = "(Un)Stick" { Actions = "Stick" }
+	Entry = "(Un)Shade" { Actions = "Shade" }
+
+	Submenu = "Maximize" {
+		Entry = "Full" { Actions = "Maximize " }
+		Entry = "Horizontal" { Actions = "MaximizeHorizontal " }
+		Entry = "Vertical" { Actions = "MaximizeVertical " }
+	}
+	Submenu = "Stacking" {
+		Entry = "Raise " { Actions = "Raise " }
+		Entry = "Lower" { Actions = "Lower" }
+		Entry = "Always On Top " { Actions = "AlwaysOnTop " }
+		Entry = "Always Below" { Actions = "AlwaysBelow " }
+	}
+	Submenu = "Decor" {
+		Entry = "Decor" { Actions = "ToggleDecor " }
+		Entry = "Border" { Actions = "ToggleBorder " }
+		Entry = "Titlebar" { Actions = "ToggleTitlebar " }
+	}
+	SubMenu = "Send To" {
+		Entry = "Workspace 1" { Actions = "SendToWorkspace 1" }
+		Entry = "Workspace 2" { Actions = "SendToWorkspace 2" }
+		Entry = "Workspace 3" { Actions = "SendToWorkspace 3" }
+		Entry = "Workspace 4" { Actions = "SendToWorkspace 4" }
+	}
+	Entry = "Iconify " { Actions = "Iconify " }
+	Entry = "Close" { Actions = "Close" }
+	Entry = "Kill " { Actions = "Kill " }
+}

@@ -1,0 +1,13 @@
+
+ pekwm, http://pekwm.org/
+ -------------------------------
+ 
+ pekwm is written by me, Claes Nasten <pekdon at pekdon dot net> and the code
+ is based on the aewm++ window manager, but it has evolved enough that it
+ no longer resembles aewm++ at all. It also has an expanded feature-set,
+ including window grouping (similar to ion, pwm, or fluxbox),
+ auto properties, xinerama and a keygrabber with keychains support.
+
+ Full documentation for this project can be found in the docs/ dir or at
+ the pekwm homepage and they are maintaned by
+ Rando Christensen <rando@babblica.net> and Jyri Jokinen <shared@surffi.net>

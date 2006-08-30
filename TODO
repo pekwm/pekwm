@@ -1,0 +1,11 @@
+
+ pekwm BUGSs and TODOs
+ ---------------------
+
+ * Regroup and ApplyOn != Start breaks the Frame class property.
+ * Rxvt crashes when resizing and text is selected under solaris.
+
+ * Xft Font support needs improvement, placement of text and non Xft
+   font if the extension isn't availible.
+ * Complete Extened NET WM Hints support.
+ * Xinerama code uppdates. (harbour, struts)

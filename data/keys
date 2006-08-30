@@ -1,0 +1,129 @@
+# Variable
+$TERM = "xterm +sb -bg black -fg white "
+
+Global {
+	# Move to Corner
+	Chain = "Ctrl Mod1 C" {
+		KeyPress = "A" { Actions = "MoveToEdge TopLeft" }
+		KeyPress = "Y" { Actions = "MoveToEdge TopEdge" }
+		KeyPress = "P" { Actions = "MoveToEdge TopRight" }
+		KeyPress = "Z" { Actions = "MoveToEdge BottomLeft" }
+		KeyPress = "B" { Actions = "MoveToEdge BottomEdge" }
+		KeyPress = "M" { Actions = "MoveToEdge BottomRight" }
+	}
+
+	# Menus
+	Chain = "Mod1 M" {
+		KeyPress = "R" { Actions = "ShowMenu Root" }
+		KeyPress = "W" { Actions = "ShowMenu Window" }
+		KeyPress = "I" { Actions = "ShowMenu Icon" }
+		KeyPress = "G" { Actions = "ShowMenu Goto" }
+		KeyPress = "A" { Actions = "ShowMenu AttachClientInFrame" }
+		KeyPress = "F" { Actions = "ShowMenu AttachFrameInFrame" }
+		KeyPress = "H" { Actions = "HideAllMenus" }
+	}
+
+	# Tagging
+	Chain = "Mod4 T" {
+		KeyPress = "T" { Actions = "ToggleTag" }
+		KeyPress = "B" { Actions = "ToggleTabBehind" }
+		KeyPress = "U" { Actions = "Untag" }
+		KeyPress = "D" { Actions = "Detach" }
+	}
+
+	# Decor Toggles
+	Chain = "Mod4 D" {
+		KeyPress = "B" { Actions = "ToggleBorder" }
+		KeyPress = "T" { Actions = "ToggleTitlebar" }
+		KeyPress = "D" { Actions = "ToggleDecor" }
+	}
+
+	# Window Actions
+	KeyPress = "Mod4 M" { Actions = "Maximize" }
+	KeyPress = "Mod4 Shift M" { Actions = "MaximizeVertical" }
+	KeyPress = "Mod4 Ctrl M" { Actions = "MaximizeHorizontal" }
+
+	KeyPress = "Mod4 S" { Actions = "Shade" }
+	KeyPress = "Mod4 A" { Actions = "Stick" }
+	KeyPress = "Mod4 O" { Actions = "AlwaysOnTop" }
+	KeyPress = "Mod4 L" { Actions = "AlwaysBelow" }
+	KeyPress = "Mod4 I" { Actions = "Iconify" }
+	KeyPress = "Mod4 Q" { Actions = "Close" }
+
+	# Movement
+	KeyPress = "Mod1 Return" { Actions = "MoveResize" }
+
+	# Groups
+	KeyPress = "Mod1 Tab" { Actions = "NextFrame AlwaysRaise" }
+	KeyPress = "Mod1 Shift Tab" { Actions = "PrevFrame AlwaysRaise" }
+
+	KeyPress = "Ctrl Shift W" { Actions = "NextInFrame" }
+	KeyPress = "Ctrl Shift Q" { Actions = "PrevInFrame" }
+	KeyPress = "Mod4 Shift W" { Actions = "MoveClientNext" }
+	KeyPress = "Mod4 Shift Q" { Actions = "MoveClientPrev" }
+
+	# Workspaces 
+	KeyPress = "Mod1 Right" { Actions = "RightWorkspace" }
+	KeyPress = "Mod1 Left" { Actions = "LeftWorkspace" }
+
+	KeyPress = "Mod4 1" { Actions = "GoToWorkspace 1" }
+	KeyPress = "Mod4 2" { Actions = "GoToWorkspace 2" }
+	KeyPress = "Mod4 3" { Actions = "GoToWorkspace 3" }
+	KeyPress = "Mod4 4" { Actions = "GoToWorkspace 4" }
+
+	KeyPress = "Mod4 F1" { Actions = "SendToWorkspace 1" }
+	KeyPress = "Mod4 F2" { Actions = "SendToWorkspace 2" }
+	KeyPress = "Mod4 F3" { Actions = "SendToWorkspace 3" }
+	KeyPress = "Mod4 F4" { Actions = "SendToWorkspace 4" }
+
+	# External commands
+	KeyPress = "Mod1 E" { Actions = "Exec $TERM &" }
+	KeyPress = "Ctrl Mod1 L" { Actions = "Exec xlock -mode blank &" }
+	KeyPress = "Ctrl Mod1 S" { Actions = "Exec scrot &" }
+
+	# This requires you to have your xkb set up properly
+	# (These are the 'extra buttons' used on many keyboards)
+	# KeyPress = "XF86AudioPrev" { Actions = "Exec xmms -r" }
+	# KeyPress = "XF86AudioNext" { Actions = "Exec xmms -f" }
+	# KeyPress = "XF86AudioPlay" { Actions = "Exec xmms -t" }
+	# KeyPress = "XF86AudioStop" { Actions = "Exec xmms -s" }
+	# KeyPress = "XF86AudioLowerVolume" { Actions = "Exec aumix -w-5" }
+	# KeyPress = "XF86AudioRaiseVolume" { Actions = "Exec aumix -w+5" }
+	# KeyPress = "XF86AudioMute" { Actions = "Exec aumix -w0" }
+
+	# Wm actions
+	KeyPress = "Ctrl Shift Mod1 Delete" { Actions = "Reload" }
+	KeyPress = "Ctrl Mod1 Delete" { Actions = "Restart" }
+	KeyPress = "Ctrl Mod1 End" { Actions = "Exit" }
+}
+
+MoveResize {
+	KeyPress = "Left" { Actions = "MoveHorizontal -10" }
+	KeyPress = "Right" { Actions = "MoveHorizontal 10" }
+	KeyPress = "Up" { Actions = "MoveVertical -10" }
+	KeyPress = "Down" { Actions = "MoveVertical 10" }
+	KeyPress = "Shift Left" { Actions = "MoveHorizontal -1" }
+	KeyPress = "Shift Right" { Actions = "MoveHorizontal 1" }
+	KeyPress = "Shift Up" { Actions = "MoveVertical -1" }
+	KeyPress = "Shift Down" { Actions = "MoveVertical 1" }
+	KeyPress = "Mod1 Left" { Actions = "ResizeHorizontal -10" }
+	KeyPress = "Mod1 Right" { Actions = "ResizeHorizontal 10" }
+	KeyPress = "Mod1 Up" { Actions = "ResizeVertical -10" }
+	KeyPress = "Mod1 Down" { Actions = "ResizeVertical 10" }
+	KeyPress = "Mod1 Shift Left" { Actions = "ResizeHorizontal -1" }
+	KeyPress = "Mod1 Shift Right" { Actions = "ResizeHorizontal 1" }
+	KeyPress = "Mod1 Shift Up" { Actions = "ResizeVertical -1" }
+	KeyPress = "Mod1 Shift Down" { Actions = "ResizeVertical 1" }
+	KeyPress = "S" { Actions = "MoveSnap" }
+	KeyPress = "Escape" { Actions = "Cancel" }
+	Keypress = "Return" { Actions = "End" }
+}
+
+Menu {
+	KeyPress = "Down" { Actions = "NextItem" }
+	KeyPress = "Up" { Actions = "PrevItem" }
+	KeyPress = "Left" { Actions = "LeaveSubmenu" }
+	KeyPress = "Right" { Actions = "EnterSubmenu" }
+	KeyPress = "Return" { Actions = "Select" }
+	KeyPress = "Escape" { Actions = "Close" }
+}

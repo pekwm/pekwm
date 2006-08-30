@@ -1,0 +1,75 @@
+# Makefile for pekwm
+# Copyright (C) 2002 Claes Nasten <pekdon@gmx.net>
+SHELL = @SHELL@
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+datadir = @datadir@
+mandir = @mandir@
+
+SYSCONFDIR = @sysconfdir@/@PACKAGE@
+
+pkgdatadir = $(datadir)/@PACKAGE@
+DATADIR = $(pkgdatadir)
+INSTALL = @INSTALL@
+CC = @CXX@
+
+BIN_MODE = 755
+DEFINES = -DDATADIR=\"$(DATADIR)\" -DSYSCONFDIR=\"$(SYSCONFDIR)\"
+CXXFLAGS = -Wall @CXXFLAGS@ $(DEFINES)
+LDFLAGS = @LDFLAGS@ @LIBS@
+
+
+# Source Files
+OBJS = \
+	ActionHandler.o ActionMenu.o \
+	Atoms.o AutoProperties.o \
+	BaseConfig.o BaseMenu.o \
+	Button.o Client.o \
+	Config.o DockApp.o \
+	Frame.o \
+	FrameListMenu.o FrameWidget.o \
+	Harbour.o HarbourMenu.o \
+	Image.o KeyGrabber.o \
+	main.o \
+	PekwmFont.o \
+	RegexString.o ScreenInfo.o \
+	Theme.o Util.o \
+	WindowManager.o WindowObject.o \
+	Workspaces.o
+
+HEADERS = pekwm.hh \
+	Action.hh ActionHandler.hh ActionMenu.hh \
+	Atoms.hh AutoProperties.hh \
+	BaseConfig.hh BaseMenu.hh \
+	Button.hh Client.hh \
+	Config.hh DockApp.hh \
+	Frame.hh \
+	FrameListMenu.hh FrameWidget.hh \
+	Harbour.hh HarbourMenu.hh \
+	Image.hh KeyGrabber.hh \
+	PekwmFont.hh \
+	RegexString.hh ScreenInfo.hh \
+	Theme.hh Util.hh \
+	WindowManager.hh WindowObject.hh \
+	Workspaces.hh
+
+all: pekwm
+
+pekwm: $(OBJS)
+	$(CC) $(OBJS) $(LDFLAGS) -o $@
+
+$(OBJS): %.o: %.cc $(HEADERS)
+	$(CC) $(CXXFLAGS) -c  $< -o $@
+
+install: all
+	mkdir -p $(DESTDIR)$(bindir)
+	$(INSTALL) -m $(BIN_MODE) pekwm $(DESTDIR)$(bindir)
+
+clean:
+	rm -f $(OBJS)

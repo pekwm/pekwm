@@ -1,0 +1,43 @@
+
+ pekwm ROADMAP
+ -------------
+
+0.1.2 - The coming release	
+	 ***** Released November 18th, 2002 *****
+     This is the next version of pekwm to be released. some changes include:
+       - Basic Harbour (dockapp) support
+       - New config file syntax
+       - Workspace warping
+       - Opaque Resize
+       - New Keybindings to toggle border/titlebar/decorations
+       - Move to corner keybinds
+       
+0.1.3 - The Harbour
+     This release will be all about the harbour- After this point, it should 
+     be "complete". Includes:
+       - Adding harbour resize support
+       - docking any application in the harbour
+       - Fixing Harbour bugs
+       
+0.1.4 - Theming
+     This release is focused on fixing themes- If you download a 0.1.4 theme,
+     it should work for as long as we can possibly get it to work. The plan is
+     to stabilize the theme spec at this release, and not change it unless we
+     have a REALLY good reason to. (Of course, we can still add features, but
+     we won't break anything.) Changes include:
+       - New theme format
+       - pekwm-specific background setting program
+       - Themes will work without changes no matter where they're installed
+
+0.2.0 - Complete Syntax file Freeze
+     The syntax for all files should not be changed between 0.2.0 and 1.0. 
+
+0.99.* - The road to 1.0
+     In these releases, we're just getting ready for a 1.0 release. Some
+     changes scheduled include:
+       - More placement models
+       - Improving image handling
+       - Improving Extended WM Hints spec compliance
+       - Better autoprops handling
+       - Stabilize and Optimize
+

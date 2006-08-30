@@ -1,0 +1,22 @@
+
+ pekwm INSTALL instructions
+ --------------------------
+
+ pekwm depends on a C++ compiler, X11 with support for the Shape
+ extension and libXpm. A "normal" linux/bsd system has them all, under
+ solaris/openwindows you need to install libXpm.
+
+ Assuming that you allready have the sources and have them unpacked as
+ you are reading this you just need to do:
+
+  $ ./configure
+  $ make
+  $ su
+  # make install
+ 
+ If something breaks while configuring, most likely you are missing libXpm
+ or don't have your compiler or X11 set up ok.
+
+ Now when you've installed pekwm, you need to make it start when you
+ start X11, the most common way to do this is adding pekwm to your
+ ~/.xinitrc file.

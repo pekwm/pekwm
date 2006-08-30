@@ -1,0 +1,49 @@
+Files {
+	Keys = "~/.pekwm/keys"
+	Mouse = "~/.pekwm/mouse"
+	Menu = "~/.pekwm/menu"
+	Start = "~/.pekwm/start"
+	AutoProps = "~/.pekwm/autoproperties"	
+	Theme = "<PREFIX>/themes/default"
+}
+
+MoveResize {
+	EdgeSnap = "10"
+	FrameSnap = "0"
+	OpaqueMove = "False"
+	OpaqueResize = "False"
+	GrabWhenResize = "True"
+
+	WWFrame = "0"
+	WWFrameWrap = "False"
+	WWMouse = "0"
+	WWMouseWrap = "False"
+}
+
+Screen {
+	Workspaces = "4"
+	DoubleClickTime = "250"
+
+	ShowFrameList = "True"
+	Placement {
+		Model = "Smart MouseCentered"
+		Smart {
+			Row = "False"
+			TopToBottom = "True"
+			LeftToRight = "True"
+		}
+	}
+	Focus {
+		Enter = "True"
+		Leave = "False"
+		Click = "True"
+		New = "True"
+	}
+}
+
+Harbour {
+	OnTop = "True"
+	MaximizeOver = "False"
+	Placement = "Right"
+	Orientation = "TopToBottom"
+}

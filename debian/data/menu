@@ -1,0 +1,43 @@
+RootMenu {
+	Name = "Debian"
+	INCLUDE = "/etc/X11/pekwm/deb-menu"
+	Reload {
+		Name = "Reload"
+	}
+	Restart {
+		Name = "Restart"
+	}
+	Exit {
+		Name = "Exit"
+	}
+}
+
+WindowMenu = "Window Menu" {
+	Stick { Name = "(Un)Stick" }
+	Shade { Name = "(Un)Shade" }
+	Submenu = "Maximize" {
+		Maximize { Name = "Full" }
+		MaximizeHorizontal { Name = "Horizontal" }
+		MaximizeVertical { Name = "Vertical" }
+	}
+	Submenu = "Stacking" {
+		Raise { Name = "Raise" }
+		Lower { Name = "Lower" }
+		AlwaysOnTop { Name = "Always On Top" }
+		AlwaysBelow { Name = "Always Below" }
+	}
+	Submenu = "Decor" {
+		ToggleDecor { Name = "Decor" }
+		ToggleBorder { Name = "Border" }
+		ToggleTitlebar { Name = "Titlebar" }
+	}
+	SubMenu = "Send To" {
+		SendToWorkspace { Name = "Workspace 1"; Param = "1" }
+		SendToWorkspace { Name = "Workspace 2"; Param = "2" }
+		SendToWorkspace { Name = "Workspace 3"; Param = "3" }
+		SendToWorkspace { Name = "Workspace 4"; Param = "4" }
+	}
+	Iconify { Name = "Iconify" }
+	Close { Name = "Close" }
+	Kill { Name = "Kill" }
+}

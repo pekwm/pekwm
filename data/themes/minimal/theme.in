@@ -1,0 +1,81 @@
+# default theme for pekwm-0.1.2 by Claes Nästén <pekdon@gmx.net>
+
+Window {
+	TitleHeight = "10"
+	TitlePadding = "0"
+
+	Font = "-*-lucida-medium-r-*-*-10-*-*-*-*-*-*-*" {
+		Justify = "Center"
+	}
+	Focused {
+		Text = "rgb:20/20/20"
+		Pixmap = "fo-win.xpm"
+		Separator = "bd-vrt.xpm"
+		Border {
+			Top = "fo-bd-c.xpm bd-hrz.xpm fo-bd-c.xpm"
+			Side = "bd-vrt.xpm bd-vrt.xpm"
+			Bottom = "fo-bd-c.xpm bd-hrz.xpm fo-bd-c.xpm"
+		}
+	}
+	Unfocused {
+		Text = "rgb:d0/d0/d0"
+		Pixmap = "un-win.xpm"
+		Separator = "bd-vrt.xpm"
+		Border {
+			Top = "un-bd-c.xpm bd-hrz.xpm un-bd-c.xpm"
+			Side = "bd-vrt.xpm bd-vrt.xpm"
+			Bottom = "un-bd-c.xpm bd-hrz.xpm un-bd-c.xpm"
+		}
+	}
+	Selected {
+		Text = "rgb:00/00/00"
+		Pixmap = "se-win.xpm"
+	}
+	UnfocusedSelected {
+		Text = "rgb:e0/e0/e0"
+		Pixmap = "unse-win.xpm"
+	}
+	
+	Buttons {
+		Right {
+			Pixmaps = "fo-btn-cl.xpm unse-win.xpm un-win.xpm"
+			Button = "1" { Actions = "Close" }
+			Button = "3" { Actions = "Kill" }
+		}
+		Right {
+			Pixmaps = "fo-btn-ma.xpm unse-win.xpm un-win.xpm"
+			Button = "1" { Actions = "Maximize" }
+			Button = "2" { Actions = "MaximizeHorizontal" }
+			Button = "3" { Actions = "MaximizeVertical" }
+		}
+		Right {
+			Pixmaps = "fo-btn-ic.xpm unse-win.xpm un-win.xpm"
+			Button = "1" { Actions = "Iconify" }
+			Button = "3" { Actions = "ShowMenu Window" }
+		}
+	}
+}
+
+Harbour {
+	Pixmap = "harbour.xpm:Scaled"
+}
+
+Menu {
+	Font = "-*-lucida-medium-r-*-*-10-*-*-*-*-*-*-*"
+	Padding = "2"
+
+	TextJustify = "Center"
+	TextColor = "rgb:00/00/00"
+	TextColorSelected = "rgb:ff/ff/ff"
+	TextColorTitle = "rgb:00/00/00"
+	Background = "rgb:ff/ff/ff"
+	BackgroundSelected = "rgb:00/00/00"
+	BackgroundTitle = "rgb:b5/b5/b5"
+	BorderColor = "rgb:00/00/00"
+
+	BorderWidth = "1"
+}
+
+Root {
+	Command = "xsetroot -solid grey50"
+}

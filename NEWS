@@ -1,0 +1,17 @@
+
+ pekwm-0.1.3 NEWS
+ ----------------
+
+ * Keygrabber now support keychains.
+
+ * Dynamic menus, lets you execute a script and generate menus on the fly
+   when they're viewed.
+
+ * Basic titlerules that make you rewrite titles.
+
+ * Unified config format for all actions.
+
+ * Multiple actions per event/entry.
+
+ * Workspace change by moving the mouse.
+

@@ -1,0 +1,3797 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+
+<html>
+<head>
+  <meta name="generator" content=
+  "HTML Tidy for Linux/x86 (vers 1st May 2003), see www.w3.org">
+
+  <title>Pekwm Window Manager Documentation</title>
+  <meta name="GENERATOR" content=
+  "Modular DocBook HTML Stylesheet Version 1.64">
+  <style type="text/css">
+  body {
+  background-color: #BAB5AB;
+  color: #000000;
+  }
+  :link { color: #900 }
+  :visited { color: #900 }
+  :active { color: #900 }
+  p.c4 {font-weight: bold}
+  div.c3 {text-align: center}
+  dt.c2 {font-weight: bold}
+  p.c1 {text-indent:15}
+  </style>
+</head>
+
+<body class="book">
+  <div class="BOOK">
+    <a name="AEN1"></a>
+
+    <div class="TITLEPAGE">
+      <h1 class="title"><a name="AEN2">Pekwm Window Manager
+      Documentation</a></h1>
+
+      <h2 class="subtitle">Version 0.1.3-20030605, Last updated
+      June 05, 2003 and corresponding to pekwm-0.1.3.</h2>
+
+      <h3 class="author"><a name="AEN6">Rando Christensen</a></h3>
+
+      <h3 class="author"><a name="AEN9">Jyri Jokinen</a></h3>
+
+      <p class="copyright">Copyright &copy; 2002-2003 by the pekwm
+      development team</p>
+
+      <div class="abstract">
+        <a name="AEN18"></a>
+
+        <p class="c1">This document aims to be a complete
+        documentation of the pekwm window manager.</p>
+      </div>
+
+      <div class="legalnotice">
+        <a name="AEN15"></a>
+
+        <p class="c1">Copyright (c) 2002-2003 the pekwm development
+        team</p>
+
+        <p class="c1">All rights reserved.</p>
+      </div>
+      <hr>
+    </div>
+
+    <div class="TOC">
+      <dl>
+        <dt class="c2">Table of Contents</dt>
+
+        <dt>I. <a href="#overview">An overview of pekwm</a></dt>
+
+        <dd>
+          <dl>
+            <dt>1. <a href="#overview-intro">An Introduction to
+            Pekwm</a></dt>
+
+            <dd>
+              <dl>
+                <dt>1.1. <a href="#overview-intro-why">Why
+                Pekwm?</a></dt>
+
+                <dt>1.2. <a href="#overview-intro-features">Pekwm
+                Features</a></dt>
+              </dl>
+            </dd>
+
+            <dt>2. <a href="#overview-getting">Getting
+            Pekwm</a></dt>
+
+            <dd>
+              <dl>
+                <dt>2.1. <a href="#overview-getting-src">Getting
+                the Pekwm source</a></dt>
+
+                <dt>2.2. <a href="#overview-getting-pkg">Getting
+                prebuilt Pekwm packages</a></dt>
+              </dl>
+            </dd>
+
+            <dt>3. <a href="#overview-compiling">Compiling
+            Pekwm</a></dt>
+
+            <dd>
+              <dl>
+                <dt>3.1. <a href=
+                "#overview-compiling-unpack">Unpacking the
+                Archive</a></dt>
+
+                <dt>3.2. <a href=
+                "#overview-compiling-configure">Configuration
+                Options</a></dt>
+
+                <dt>3.3. <a href=
+                "#overview-compiling-build">Building and
+                installing</a></dt>
+              </dl>
+            </dd>
+          </dl>
+        </dd>
+
+        <dt>II. <a href="#usage">Basic Usage</a></dt>
+
+        <dd>
+          <dl>
+            <dt>4. <a href="#usage-gettingstarted">Getting
+            Started</a></dt>
+
+            <dd>
+              <dl>
+                <dt>4.1. <a href=
+                "#usage-gettingstarted-firstrun">First Run</a></dt>
+
+                <dt>4.2. <a href=
+                "#usage-gettingstarted-icons">Iconification and The
+                Icon and Goto menus</a></dt>
+              </dl>
+            </dd>
+
+            <dt>5. <a href="#usage-grouping">Window
+            Grouping</a></dt>
+
+            <dd>
+              <dl>
+                <dt>5.1. <a href="#usage-grouping-what">What is
+                window grouping?</a></dt>
+
+                <dt>5.2. <a href="#usage-grouping-basics">How
+                window grouping works</a></dt>
+
+                <dt>5.3. <a href=
+                "#usage-grouping-advanced">Advanced Grouping
+                Topics</a></dt>
+              </dl>
+            </dd>
+
+            <dt>6. <a href="#usage-workspaces">Workspaces</a></dt>
+
+            <dd>
+              <dl>
+                <dt>6.1. <a href="#usage-workspaces-nav">Workspace
+                Navigation</a></dt>
+              </dl>
+            </dd>
+          </dl>
+        </dd>
+
+        <dt>III. <a href="#config">Configuration</a></dt>
+
+        <dd>
+          <dl>
+            <dt>7. <a href="#config-syntax">The Pekwm Common Syntax
+            for Config Files</a></dt>
+
+            <dt>8. <a href="#config-configfile">The main config
+            file</a></dt>
+
+            <dd>
+              <dl>
+                <dt>8.1. <a href="#config-configfile-basic">Basic
+                Menu Syntax</a></dt>
+
+                <dt>8.2. <a href=
+                "#config-configfile-keywords">Config File
+                Keywords</a></dt>
+
+                <dt>8.3. <a href=
+                "#config-configfile-placementfocus">The Placement
+                and Focus Subsections</a></dt>
+              </dl>
+            </dd>
+
+            <dt>9. <a href="#config-menu">Configuring the
+            menus</a></dt>
+
+            <dd>
+              <dl>
+                <dt>9.1. <a href="#config-menu-basic">Basic Menu
+                Syntax</a></dt>
+
+                <dt>9.2. <a href="#config-menu-keywords">Menu
+                Keywords</a></dt>
+
+                <dt>9.3. <a href="#config-menu-dynamic">Dynamic
+                Menus</a></dt>
+              </dl>
+            </dd>
+
+            <dt>10. <a href=
+            "#config-autoprops">Autoproperties</a></dt>
+
+            <dd>
+              <dl>
+                <dt>10.1. <a href="#config-autoprops-what">What are
+                Autoproperties?</a></dt>
+
+                <dt>10.2. <a href="#config-autoprops-basic">Basic
+                Autoproperties Syntax</a></dt>
+
+                <dt>10.3. <a href="#config-autoprops-adv">Advanced
+                Autoproperties</a></dt>
+
+                <dt>10.4. <a href=
+                "#config-autoprops-groups">AutoGrouping</a></dt>
+
+                <dt>10.5. <a href="#config-autoprops-help">Getting
+                more help</a></dt>
+              </dl>
+            </dd>
+
+            <dt>11. <a href="#config-keys_mouse">Keyboard and Mouse
+            Configuration</a></dt>
+
+            <dd>
+              <dl>
+                <dt>11.1. <a href="#config-keys_mouse-mouse">Mouse
+                Bindings</a></dt>
+
+                <dt>11.2. <a href="#config-keys_mouse-keys">Key
+                Bindings</a></dt>
+
+                <dt>11.3. <a href=
+                "#config-keys_mouse-keychains">Keychains</a></dt>
+
+                <dt>11.4. <a href=
+                "#config-keys_mouse-actions">Keys/Mouse
+                actions</a></dt>
+              </dl>
+            </dd>
+
+            <dt>12. <a href="#config-start">The pekwm start
+            file</a></dt>
+          </dl>
+        </dd>
+
+        <dt>IV. <a href="#development">Development</a></dt>
+
+        <dd>
+          <dl>
+            <dt>13. <a href="#devel-ml">Mailing Lists</a></dt>
+
+            <dd>
+              <dl>
+                <dt>13.1. <a href="#devel-ml-lists">The
+                Lists</a></dt>
+
+                <dt>13.2. <a href="#devel-ml-archives">Mailing list
+                Archives</a></dt>
+
+                <dt>13.3. <a href="#devel-ml-subfil">Subscribing
+                and Filtering</a></dt>
+              </dl>
+            </dd>
+
+            <dt>14. <a href="#devel-irc">IRC</a></dt>
+
+            <dt>15. <a href="#devel-who">The developers</a></dt>
+          </dl>
+        </dd>
+
+        <dt>V. <a href="#faq">The pekwm FAQ</a></dt>
+
+        <dd>
+          <dl>
+            <dt>16. <a href="#answers">Questions and
+            answers</a></dt>
+
+            <dd>
+              <dl>
+                <dt>16.1. <a href="#FAQ-q1">How is this
+                ~/.pekwm/start thing used?</a></dt>
+
+                <dt>16.2. <a href="#FAQ-q2">What is the
+                harbour?</a></dt>
+
+                <dt>16.3. <a href="#FAQ-q3">Why doesn't the harbour
+                work for my dockapp?</a></dt>
+
+                <dt>16.4. <a href="#FAQ-q4">Can I have dynamic
+                menus in pekwm?</a></dt>
+
+                <dt>16.5. <a href="#FAQ-q5">How do I install
+                themes?</a></dt>
+
+                <dt>16.6. <a href="#FAQ-q6">I upgraded pekwm and
+                now ......... won't work!</a></dt>
+
+                <dt>16.7. <a href="#FAQ-q7">How do I make
+                XMMS/MPlayer continue playing while moving/resizing
+                a window?</a></dt>
+
+                <dt>16.8. <a href="#FAQ-q8">Can i turn off this
+                sloppy focus crap?</a></dt>
+
+                <dt>16.9. <a href="#FAQ-q9">What is Mod1? How about
+                Mod4?</a></dt>
+
+                <dt>16.10. <a href="#FAQ-q10">Why do my terminals
+                start the wrong size when grouped?</a></dt>
+
+                <dt>16.11. <a href="#FAQ-q11">Where can I find the
+                current size/position of a window?</a></dt>
+              </dl>
+            </dd>
+          </dl>
+        </dd>
+      </dl>
+    </div>
+
+    <div class="LOT">
+      <dl class="LOT">
+        <dt class="c2">List of Tables</dt>
+
+        <dt>3-1. <a href="#AEN90">Important ./configure
+        options</a></dt>
+
+        <dt>8-1. <a href="#AEN239">Config File Elements</a></dt>
+
+        <dt>9-1. <a href="#AEN435">Root Menu Elements</a></dt>
+
+        <dt>9-2. <a href="#AEN459">Menu Actions</a></dt>
+
+        <dt>11-1. <a href="#AEN602">'Where' fields</a></dt>
+
+        <dt>11-2. <a href="#AEN621">'Event' fields</a></dt>
+
+        <dt>15-1. <a href="#AEN874">Developers</a></dt>
+      </dl>
+    </div>
+
+    <div class="PART">
+      <a name="overview"></a>
+
+      <div class="TITLEPAGE">
+        <h1 class="title">I. An overview of pekwm</h1>
+
+        <div class="PARTINTRO">
+          <a name="AEN22"></a>
+
+          <p class="c1">Pekwm is a small, fast, functional, and
+          flexible window manager which aims to look nice while
+          remaining small.</p>
+        </div>
+
+        <div class="TOC">
+          <dl>
+            <dt class="c2">Table of Contents</dt>
+
+            <dt>1. <a href="#overview-intro">An Introduction to
+            Pekwm</a></dt>
+
+            <dt>2. <a href="#overview-getting">Getting
+            Pekwm</a></dt>
+
+            <dt>3. <a href="#overview-compiling">Compiling
+            Pekwm</a></dt>
+          </dl>
+        </div>
+      </div>
+
+      <div class="chapter">
+        <hr>
+
+        <h1><a name="overview-intro">Chapter 1. An Introduction to
+        Pekwm</a></h1>
+
+        <p class="c1">The Pekwm Window Manager is written by Claes
+        N&auml;sten. The code is based on the aewm++ window
+        manager, but it has evolved enough that it no longer
+        resembles aewm++ at all. It also has an expanded
+        feature-set, including window grouping (similar to ion,
+        pwm, or fluxbox), auto properties, xinerama and keygrabber
+        that supports keychains, and much more.</p>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name="overview-intro-why">1.1.
+          Why Pekwm?</a></h4>
+
+          <p class="c1">"Why make another window manager?", some
+          ask. This may confuse some people, but the best answer is
+          "Why not?". There are arguments out there that it's
+          better to have a single standard desktop environment, so
+          that our mothers can find their way around, but in all
+          honestly, if most of us wanted the same environment as
+          our mothers, we probably wouldn't be reading this anyway.
+          The same can also be applied to Your sister, your
+          roommate, your wife, even your cat.</p>
+
+          <p class="c1">"Why should I use pekwm?", others ask.
+          Nobody ever said you should. However, we use it. And
+          you're welcome to as well. You should use the environment
+          most suited to you. For a better answer to this question,
+          Check out the <a href="#overview-intro-features">Pekwm
+          Features</a> section below.</p>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name=
+          "overview-intro-features">1.2. Pekwm Features</a></h4>
+
+          <p class="c1">Here's a short list of some of the features
+          included in pekwm:</p>
+
+          <ul>
+            <li>
+              <p class="c1">Possibility to group windows in a
+              single frame</p>
+            </li>
+
+            <li>
+              <p class="c1">Configurable keygrabber that supports
+              keychains</p>
+            </li>
+
+            <li>
+              <p class="c1">Configurable mouse actions</p>
+            </li>
+
+            <li>
+              <p class="c1">Configurable rootmenu and
+              windowmenu</p>
+            </li>
+
+            <li>
+              <p class="c1">Xinerama support</p>
+            </li>
+
+            <li>
+              <p class="c1">Configurable window placement</p>
+            </li>
+
+            <li>
+              <p class="c1">Basic pixmap theming, with configurable
+              buttons</p>
+            </li>
+
+            <li>
+              <p class="c1">Autoprops (Automatic properties such as
+              a window's sticky state, etc.)</p>
+            </li>
+
+            <li>
+              <p class="c1">Dynamical menus (menus that regenerate
+              on every view)</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="chapter">
+        <hr>
+
+        <h1><a name="overview-getting">Chapter 2. Getting
+        Pekwm</a></h1>
+
+        <p class="c1">Now that you've decided to try it out, you
+        need to get it. You're left with two options. The first is
+        to download and compile the source, and the second is
+        finding a pre-compiled package.</p>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name=
+          "overview-getting-src">2.1. Getting the Pekwm
+          source</a></h4>
+
+          <p class="c1">The source code is available from both the
+          pekwm website, <a href="http://pekwm.org" target=
+          "_top">http://pekwm.org</a>, and the ftp site, <a href=
+          "ftp://ftp.pekwm.org/pub/users/pekdon" target=
+          "_top">ftp://ftp.pekwm.org/pub/users/pekdon</a>.</p>
+
+          <p class="c1">Files are named pekwm-0.1.3.tar.gz and
+          pekwm-0.1.3.tar.bz2. Although it doesn't matter which you
+          get, keep in mind that the .bz2 is smaller.</p>
+
+          <p class="c1">While you're there, you can also look for
+          themes on the site, but that's definitely not necessary
+          yet.</p>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name=
+          "overview-getting-pkg">2.2. Getting prebuilt Pekwm
+          packages</a></h4>
+
+          <p class="c1">Pre-built pekwm packages are available for
+          many distributions at the pekwm website, <a href=
+          "http://pekwm.org" target="_top">http://pekwm.org</a>,
+          and the ftp site, <a href=
+          "ftp://ftp.pekwm.org/pub/users/pekdon" target=
+          "_top">ftp://ftp.pekwm.org/pub/users/pekdon</a>.</p>
+
+          <p class="c1">The current version of pekwm is 0.1.3. A
+          complete list of the packages is available at the
+          website.</p>
+
+          <p class="c1">If there's no package for your
+          distribution, and you'd like to build one, Let us know!
+          We'll gladly host new binary packages up on the site.</p>
+        </div>
+      </div>
+
+      <div class="chapter">
+        <hr>
+
+        <h1><a name="overview-compiling">Chapter 3. Compiling
+        Pekwm</a></h1>
+
+        <p class="c1">This chapter will help you get pekwm
+        compiled.</p>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name=
+          "overview-compiling-unpack">3.1. Unpacking the
+          Archive</a></h4>
+
+          <p class="c1">The first step to compiling pekwm is to
+          unpack the archive. Unpacking it depends on which version
+          you downloaded:</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+tar -zxvf pekwm-0.1.3.tar.gz
+tar -jxvf pekwm-0.1.3.tar.bz2
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="note">
+            <blockquote class="note">
+              <p class="c1">The '-j' option works normally on most
+              linux systems, and as of the current GNU tar
+              development version, is part of GNU tar. If your
+              system does not support the -j option, you can use
+              two things: <b class="command">bzip2 -dc
+              pekwm-0.1.3.tar.bz2 | tar -xvf -</b> or <b class=
+              "command">bzip2 -d pekwm-0.1.3.tar.bz2</b> followed
+              by <b class="command">tar -xvf pekwm-0.1.3.tar</b>.
+              This also works for the .tar.gz version using
+              <b class="command">gzip -dc</b> or <b class=
+              "command">gzip -d</b>.</p>
+            </blockquote>
+          </div>
+
+          <p class="c1">The 'v' options are optional, they show you
+          the filenames as they're being extracted. at this point,
+          you should have a pekwm-0.1.3 directory. Use <b class=
+          "command">cd pekwm-0.1.3</b> to get there.</p>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name=
+          "overview-compiling-configure">3.2. Configuration
+          Options</a></h4>
+
+          <p class="c1">The first thing to do is to run the
+          configure script. This configures compile options for
+          pekwm. Here are some of the more used options:</p>
+
+          <div class="table">
+            <a name="AEN90"></a>
+
+            <p class="c4">Table 3-1. Important ./configure
+            options</p>
+
+            <table border="1" class="CALSTABLE">
+              <thead>
+                <tr>
+                  <th align="left" valign="middle">Option</th>
+
+                  <th align="left" valign="middle">Description</th>
+
+                  <th align="left" valign="middle">Default
+                  Value</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <td align="left" valign="middle">
+                  --enable-shape</td>
+
+                  <td align="left" valign="middle">Enables the use
+                  of the Xshape extension</td>
+
+                  <td align="left" valign="middle">Yes</td>
+                </tr>
+
+                <tr>
+                  <td align="left" valign="middle">
+                  --enable-xinerama</td>
+
+                  <td align="left" valign="middle">Enables xinerama
+                  (Multi-Monitor in X11) support</td>
+
+                  <td align="left" valign="middle">No</td>
+                </tr>
+
+                <tr>
+                  <td align="left" valign="middle">
+                  --enable-menus</td>
+
+                  <td align="left" valign="middle">Enables menu
+                  support (It's useful to turn this off if you rely
+                  completely on a desktop environment using the
+                  root window)</td>
+
+                  <td align="left" valign="middle">Yes</td>
+                </tr>
+
+                <tr>
+                  <td align="left" valign="middle">
+                  --enable-harbour</td>
+
+                  <td align="left" valign="middle">Enables the use
+                  of the harbour wich is used to swallow Window
+                  Maker dockapps.</td>
+
+                  <td align="left" valign="middle">No</td>
+                </tr>
+
+                <tr>
+                  <td align="left" valign="middle">
+                  --enable-pcre</td>
+
+                  <td align="left" valign="middle">Enables the use
+                  of libpcre for autoprops regular expressions.
+                  Note that regular expressions are used no matter
+                  what; this option only makes pcre be used instead
+                  of libc for them.</td>
+
+                  <td align="left" valign="middle">No</td>
+                </tr>
+
+                <tr>
+                  <td align="left" valign="middle">
+                  --enable-debug</td>
+
+                  <td align="left" valign="middle">Enables
+                  debugging output</td>
+
+                  <td align="left" valign="middle">No</td>
+                </tr>
+
+                <tr>
+                  <td align="left" valign="middle">
+                  --prefix=PREFIX</td>
+
+                  <td align="left" valign="middle">It may be useful
+                  to use a custom prefix when testing a devel
+                  version.</td>
+
+                  <td align="left" valign="middle">/usr/local</td>
+                </tr>
+              </tbody>
+            </table>
+          </div><br>
+          <br>
+
+          <div class="note">
+            <blockquote class="note">
+              <div class="formalpara">
+                <p class="c4">Default Configuration Options.</p>
+
+                <p class="c1">The default pekwm config is this.
+                Distribution packages should all use these options
+                when configured. If you run 'pekwm --info', you can
+                see the options you compiled with. (note: if you
+                have a distribution package that doesn't produce
+                this outfit, let us know, and tell the distribution
+                packagers to fix their package): ./configure
+                --enable-shape --disable-xinerama --disable-debug
+                --enable-menus --enable-keygrabber --enable-harbour
+                --disable-pcre</p>
+              </div>
+            </blockquote>
+          </div>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name=
+          "overview-compiling-build">3.3. Building and
+          installing</a></h4>
+
+          <p class="c1">After running ./configure with any options
+          you need, run <b class="command">make</b>. This should
+          only take a few minutes. After that, become root (unless
+          you used a prefix in your home directory, such as
+          --prefix=/home/you/pkg) and type <b class="command">make
+          install</b></p>
+
+          <div class="note">
+            <blockquote class="note">
+              <div class="formalpara">
+                <p class="c4">For distribution packagers.</p>
+
+                <p class="c1">We provide a distribution packagers
+                guide called <tt class="filename">PACKAGERS</tt> in
+                the pekwm source distribution, which gives you all
+                the details you should need to create a package for
+                your distribution.</p>
+              </div>
+            </blockquote>
+          </div>
+
+          <p class="c1">That's it! pekwm is installed on your
+          computer now. Next you should read the <a href=
+          "#usage-gettingstarted">Getting Started</a> chapter.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="PART">
+      <a name="usage"></a>
+
+      <div class="TITLEPAGE">
+        <h1 class="title">II. Basic Usage</h1>
+
+        <div class="PARTINTRO">
+          <a name="AEN145"></a>
+
+          <p class="c1">Pekwm is a small, fast, functional, and
+          flexible window manager which aims to look nice while
+          remaining small.</p>
+        </div>
+
+        <div class="TOC">
+          <dl>
+            <dt class="c2">Table of Contents</dt>
+
+            <dt>4. <a href="#usage-gettingstarted">Getting
+            Started</a></dt>
+
+            <dt>5. <a href="#usage-grouping">Window
+            Grouping</a></dt>
+
+            <dt>6. <a href="#usage-workspaces">Workspaces</a></dt>
+          </dl>
+        </div>
+      </div>
+
+      <div class="chapter">
+        <hr>
+
+        <h1><a name="usage-gettingstarted">Chapter 4. Getting
+        Started</a></h1>
+
+        <p class="c1">Now that you have pekwm installed, You should
+        get your configuration going.</p>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name=
+          "usage-gettingstarted-firstrun">4.1. First Run</a></h4>
+
+          <p class="c1">The first time you run pekwm, the following
+          files should be copied into your <tt class=
+          "filename">~/.pekwm</tt> directory: <tt class=
+          "filename">config</tt>, <tt class="filename">menu</tt>,
+          <tt class="filename">keys</tt>, <tt class=
+          "filename">autoproperties</tt>, <tt class=
+          "filename">start</tt>. You will learn more about these
+          files in the <a href="#config">Configuration</a>
+          section.</p>
+
+          <p class="c1">All this happens behind-the-scenes, so by
+          default, you'll be placed into a nice working
+          environment.</p>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name=
+          "usage-gettingstarted-icons">4.2. Iconification and The
+          Icon and Goto menus</a></h4>
+
+          <p class="c1">When you Iconify (This is the traditional
+          name in unix. Windows calls this minimize.) a window in
+          pekwm, it doesn't really go anywhere like you might
+          expect. You can de-iconify using one of two menus: The
+          Icon menu, which shows you a list of all iconified
+          windows, or the Goto menu, which shows you a list of all
+          windows currently open, whether minimized or not, and
+          their states. When you click on an item in the goto menu,
+          it takes you to that window and deiconifies it if
+          necessary.</p>
+
+          <p class="c1">An Item in the goto menu, icon menu and
+          attach menus has the following syntax:</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+&lt;number&gt; [symbols] Window title
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>The number represents what workspace the window is
+          on. Symbols is a list of symbols that represent window
+          states. They are:
+
+          <p class="c4">Symbols in the pekwm menus</p>
+
+          <ul>
+            <li>
+              <p class="c1">* (sticky)</p>
+            </li>
+
+            <li>
+              <p class="c1">. (iconified)</p>
+            </li>
+
+            <li>
+              <p class="c1">^ (shaded)</p>
+            </li>
+
+            <li>
+              <p class="c1">+ (above normal window layer)</p>
+            </li>
+
+            <li>
+              <p class="c1">- (below normal window layer)</p>
+            </li>
+
+            <li>
+              <p class="c1">A (active in group)</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="chapter">
+        <hr>
+
+        <h1><a name="usage-grouping">Chapter 5. Window
+        Grouping</a></h1>
+
+        <p class="c1">The main feature of pekwm is window grouping,
+        similar to that of ion, or the tabs in pwm or fluxbox.</p>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name="usage-grouping-what">5.1.
+          What is window grouping?</a></h4>
+
+          <p class="c1">Window grouping is a very simple concept,
+          but it's very hard to understand at first. It's a simple
+          way of making multiple applications share the exact same
+          space.</p>
+
+          <p class="c1">The simplest way to explain this is with an
+          analogy. Imagine you have 20 sheets of paper. To save
+          space, you stack them on top of eachother. then, you have
+          little tabs sticking out of one edge so you can quickly
+          flip to that sheet of paper.</p>
+
+          <p class="c1">In pekwm, Window grouping is visually done
+          by dividing up the physical space on the titlebar, while
+          most other window managers that implement this
+          functionality prefer to use a "Tabs that Stick Out of the
+          window border" look and feel. The pekwm team feels that
+          this is a waste of screen real estate, as non-rectangular
+          window frames are harder to fit against eachother.</p>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name=
+          "usage-grouping-basics">5.2. How window grouping
+          works</a></h4>
+
+          <p class="c1">The first thing to know is how to group one
+          window to another. Middle-Click (On a normal X setup, the
+          2nd mouse button is the middle button) the titlebar of
+          the first window and begin to drag the window. You should
+          now see a rectangle with the window's title in it. Drag
+          that rectangle to above the target window, and release
+          your mouse button.</p>
+
+          <div class="note">
+            <blockquote class="note">
+              <p class="c1">Any time this document mentions a key
+              or mouse button, there's a strong likelyhood that you
+              can change which key or mouse button is used for that
+              function. Please see the <a href=
+              "#config-keys_mouse">Keyboard and Mouse config</a>
+              section.</p>
+            </blockquote>
+          </div>
+
+          <p class="c1">Now that you have windows in a group, you
+          need to learn to choose between windows in that group.
+          The first way is by clicking the third mouse button on
+          the window's part of the titlebar. That window should now
+          be the currently-active window of the group. You can also
+          use a keybinding for this. The default keybindings are
+          Ctrl+Alt+q and Ctrl+Alt+w to go forward and back between
+          active window in the frame.</p>
+
+          <div class="note">
+            <blockquote class="note">
+              <p class="c1">By default, alt-tab is set to NextFrame
+              action. This means that pressing Alt-tab cycles
+              between open window groups (also called frames), and
+              you must use the NextInFrame/PrevInFrame keybindings
+              to switch between them. See the <a href=
+              "#config-keys_mouse-keys">Key Bindings</a> section
+              for more info.</p>
+            </blockquote>
+          </div>
+
+          <p class="c1">To de-group, simply middle click and drag
+          the window off the frame, and release anywhere. If you
+          release over another window group, you'll move the window
+          to the new group.</p>
+
+          <p class="c1">You can also set windows up to
+          automatically be grouped to one another. See the <a href=
+          "#config-autoprops">Autoproperties</a> section for more
+          details.</p>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name=
+          "usage-grouping-advanced">5.3. Advanced Grouping
+          Topics</a></h4>
+
+          <p class="c1">Another thing you can do with window
+          grouping is Tagging. There are three actions (can be used
+          in the window menu, or keybinds, etc..) that relate to
+          tagging. ToggleTag, ToggleTagBehind, and UnTag. With
+          these options, you can 'Tag' a frame. A tag is like a
+          miniature autogroup. It says "All new windows launched
+          should be automatically grouped to this Frame". With
+          ToggleTag, The newly launched window will be the
+          currently-selected window in the frame. With
+          ToggleTagBehind, it will be just attached to the window's
+          group, but the currently-focused client will stay so.
+          Untag can be used anywhere, and removes the tag from
+          wherever it's currently at.</p>
+        </div>
+      </div>
+
+      <div class="chapter">
+        <hr>
+
+        <h1><a name="usage-workspaces">Chapter 6.
+        Workspaces</a></h1>
+
+        <p class="c1">Workspaces in pekwm are a very common
+        feature, found in almost every UNIX window manager in
+        existence. They're also called desktops in some window
+        managers. In Pekwm-Speak, "workspace", "desktop", and
+        "desk" are interchangeable. Use whichever one you feel like
+        using.</p>
+
+        <div class="note">
+          <blockquote class="note">
+            <p class="c1">By default, pekwm enables four
+            workspaces. You can change this by editing your
+            <tt class="filename">~/.pekwm/config</tt> file. See the
+            <a href="#config-configfile">The main config file</a>
+            section for more details.</p>
+          </blockquote>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name=
+          "usage-workspaces-nav">6.1. Workspace Navigation</a></h4>
+
+          <p class="c1">You can send windows to another workspace
+          by Right-Clicking the titlebar, going to 'send to' and
+          picking the desktop you'd like. Another option is using
+          the SendToWorkspace keybindings (by default, Windows key
+          + F1-F4). Switch desktops by using the GoToWorkspace
+          keybings, (by default Windows key + 1-4), or the
+          NextWorkspace and PrevWorkspace (by default Alt+Right and
+          Alt+Left).</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="PART">
+      <a name="config"></a>
+
+      <div class="TITLEPAGE">
+        <h1 class="title">III. Configuration</h1>
+
+        <div class="PARTINTRO">
+          <a name="AEN216"></a>
+
+          <p class="c1">The configuration part of this
+          documentation is focused on providing complete
+          documentation for all config files located in your
+          <tt class="filename">~/.pekwm</tt> directory.</p>
+        </div>
+
+        <div class="TOC">
+          <dl>
+            <dt class="c2">Table of Contents</dt>
+
+            <dt>7. <a href="#config-syntax">The Pekwm Common Syntax
+            for Config Files</a></dt>
+
+            <dt>8. <a href="#config-configfile">The main config
+            file</a></dt>
+
+            <dt>9. <a href="#config-menu">Configuring the
+            menus</a></dt>
+
+            <dt>10. <a href=
+            "#config-autoprops">Autoproperties</a></dt>
+
+            <dt>11. <a href="#config-keys_mouse">Keyboard and Mouse
+            Configuration</a></dt>
+
+            <dt>12. <a href="#config-start">The pekwm start
+            file</a></dt>
+          </dl>
+        </div>
+      </div>
+
+      <div class="chapter">
+        <hr>
+
+        <h1><a name="config-syntax">Chapter 7. The Pekwm Common
+        Syntax for Config Files</a></h1>
+
+        <p class="c1">All pekwm config files (with the exception of
+        the start file- see <a href="#config-start">start file</a>
+        ) Follow a common syntax for options.</p>
+
+        <div class="c3">
+          <table cellspacing="1" cellpadding="1" width="85%"
+          bgcolor="#000000">
+            <tr>
+              <td bgcolor="#E5E5E5">
+                <pre>
+&#13;# comment
+$VAR = "Value"
+INCLUDE = "~/.pekwm/some_file"
+COMMAND = "program to execute and add the valid config syntax it outputs here"
+
+# Normal format
+Section = "Name" {
+        Event = "Param" {
+                Actions = "action parameter; action parameter; $VAR"
+        }
+}
+
+# Compressed format
+Section = "Name" { Event = "Param" { Actions = "action parameter; action parameter; $VAR" } }
+</pre>
+              </td>
+            </tr>
+          </table>
+        </div>
+
+        <p class="c1">You can modify the spacing a little bit, but
+        this is the "Correct" format, so the documentation will
+        stick strictly to it. Events can be combined into the same
+        line by issuing a semicolon between them. Variables can
+        probably be defined almost anywhere, but it's probably a
+        better idea to place them at the top of the file, outside
+        of any sections. You can use an INCLUDE anywhere in the
+        file. Any variables you define before the INCLUDE can be
+        used in the INCLUDED file. This doesn't, however, work the
+        other way around.</p>
+
+        <p class="c1">In addition, comments are allowed in all
+        config files, by starting a line with the # character.</p>
+      </div>
+
+      <div class="chapter">
+        <hr>
+
+        <h1><a name="config-configfile">Chapter 8. The main config
+        file</a></h1>
+
+        <p class="c1">The main config file is where all the base
+        config stuff goes.</p>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name=
+          "config-configfile-basic">8.1. Basic Menu Syntax</a></h4>
+
+          <p class="c1">As previously indicated, the config file
+          follows the rules defined in <a href=
+          "#config-syntax">Common Syntax</a>.</p>
+
+          <p class="c1">Here's an example <tt class=
+          "filename">~/.pekwm/config</tt> file (actually a hybrid
+          between pekwm default and my own personal one):</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+&#13;Files {
+        Keys = "~/.pekwm/keys"
+        Mouse = "~/.pekwm/mouse"
+        Menu = "~/.pekwm/menu"
+        Start = "~/.pekwm/start"
+        AutoProps = "~/.pekwm/autoprops"
+        Theme = "~/.pekwm/themes/gray10k"
+}
+
+MoveResize {
+        EdgeSnap = "10"
+        FrameSnap = "6"
+        OpaqueMove = "False"
+        OpaqueResize = "False"
+        GrabWhenResize = "True"
+
+        WWFrame = "1"
+        WWFrameWrap = "False"
+        WWMouse = "1"
+        WWMouseWrap = "False"
+}
+
+Screen {
+        Workspaces = "6"
+        DoubleClickTime = "250"
+
+        ShowFrameList = "True"
+        Placement {
+                Model = "Smart MouseCentered"
+                Smart {
+                        TopToBottom = "True"
+                        LeftToRight = "True"
+                }
+        }
+        Focus {
+                Enter = "True"
+                Leave = "False"
+                Click = "True"
+                New = "True"
+        }
+}
+
+Harbour {
+        OnTop = "True"
+        MaximizeOver = "False"
+        Placement = "Right"
+        Orientation = "TopToBottom"
+}
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name=
+          "config-configfile-keywords">8.2. Config File
+          Keywords</a></h4>
+
+          <p class="c1">Here's a table showing the different
+          elements that can be used in your config file. Remember
+          that 'boolean' meanst 'true' or 'false' and that all
+          values should be placed inside quotes.</p>
+
+          <div class="table">
+            <a name="AEN239"></a>
+
+            <p class="c4">Table 8-1. Config File Elements</p>
+
+            <table border="1" class="CALSTABLE">
+              <thead>
+                <tr>
+                  <th width="17%" align="left" valign="middle">
+                  Section</th>
+
+                  <th width="17%" align="left" valign="middle">
+                  Paramater Name</th>
+
+                  <th width="17%" align="left" valign="middle">
+                  Value Type</th>
+
+                  <th width="50%" align="left" valign="middle">
+                  Description</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <td width="17%" align="left" valign="middle">
+                  Files</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  Keys</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  String</td>
+
+                  <td width="50%" align="left" valign="middle">The
+                  location of the keys file, such as <tt class=
+                  "filename">~/.pekwm/keys</tt></td>
+                </tr>
+
+                <tr>
+                  <td width="17%" align="left" valign="middle">
+                  Files</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  Menu</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  String</td>
+
+                  <td width="50%" align="left" valign="middle">The
+                  location of the menu file, such as <tt class=
+                  "filename">~/.pekwm/menu</tt></td>
+                </tr>
+
+                <tr>
+                  <td width="17%" align="left" valign="middle">
+                  Files</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  Start</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  String</td>
+
+                  <td width="50%" align="left" valign="middle">The
+                  location of the start file, such as <tt class=
+                  "filename">~/.pekwm/start</tt></td>
+                </tr>
+
+                <tr>
+                  <td width="17%" align="left" valign="middle">
+                  Files</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  AutoProps</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  String</td>
+
+                  <td width="50%" align="left" valign="middle">The
+                  location of the autoprops file, such as
+                  <tt class="filename">~/.pekwm/autoproperties</tt></td>
+                </tr>
+
+                <tr>
+                  <td width="17%" align="left" valign="middle">
+                  Files</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  Theme</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  String</td>
+
+                  <td width="50%" align="left" valign="middle">The
+                  location of the Theme directory, such as
+                  <tt class=
+                  "filename">~/.pekwm/themes/themename</tt></td>
+                </tr>
+
+                <tr>
+                  <td width="17%" align="left" valign="middle">
+                  MoveResize</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  EdgeSnap</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  Number</td>
+
+                  <td width="50%" align="left" valign="middle">The
+                  distance from screen edge required for the window
+                  to snap against it.</td>
+                </tr>
+
+                <tr>
+                  <td width="17%" align="left" valign="middle">
+                  MoveResize</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  FrameSnap</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  Number</td>
+
+                  <td width="50%" align="left" valign="middle">The
+                  distance from other clients that a window will
+                  snap against it to.</td>
+                </tr>
+
+                <tr>
+                  <td width="17%" align="left" valign="middle">
+                  MoveResize</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  OpaqueMove</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  Boolean</td>
+
+                  <td width="50%" align="left" valign="middle">
+                  Turns on opaque Moving</td>
+                </tr>
+
+                <tr>
+                  <td width="17%" align="left" valign="middle">
+                  MoveResize</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  OpaqueResize</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  Boolean</td>
+
+                  <td width="50%" align="left" valign="middle">
+                  Turns on opaque Resizing</td>
+                </tr>
+
+                <tr>
+                  <td width="17%" align="left" valign="middle">
+                  MoveResize</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  GrabWhenResize</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  Boolean</td>
+
+                  <td width="50%" align="left" valign="middle">
+                  Whether or not to grab the X server while
+                  resizing-- You'll want it on when in wire move
+                  and when you have a slow computer and still want
+                  opaque resize.</td>
+                </tr>
+
+                <tr>
+                  <td width="17%" align="left" valign="middle">
+                  MoveResize</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  WWFrame</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  Number</td>
+
+                  <td width="50%" align="left" valign="middle">The
+                  number of pixels away from the edge to trigger a
+                  workspace change when you drag a frame to the
+                  screen edge. A value of zero disables the
+                  feature.</td>
+                </tr>
+
+                <tr>
+                  <td width="17%" align="left" valign="middle">
+                  MoveResize</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  WWMouse</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  Number</td>
+
+                  <td width="50%" align="left" valign="middle">The
+                  number of pixels away from the edge to trigger a
+                  workspace change when you move your mouse on the
+                  screen edge. A value of zero disables the
+                  feature.</td>
+                </tr>
+
+                <tr>
+                  <td width="17%" align="left" valign="middle">
+                  MoveResize</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  WWFrameWrap</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  Boolean</td>
+
+                  <td width="50%" align="left" valign="middle">
+                  Whether or not workspace changing works between
+                  the first and last workspace when dragging a
+                  frame.</td>
+                </tr>
+
+                <tr>
+                  <td width="17%" align="left" valign="middle">
+                  MoveResize</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  WWMouseWrap</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  Boolean</td>
+
+                  <td width="50%" align="left" valign="middle">
+                  Whether or not workspace changing works between
+                  the first and last workspace when moving the
+                  mouse pointer on a screen edge.</td>
+                </tr>
+
+                <tr>
+                  <td width="17%" align="left" valign="middle">
+                  Screen</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  Workspaces</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  Number</td>
+
+                  <td width="50%" align="left" valign="middle">
+                  Number of workspaces.</td>
+                </tr>
+
+                <tr>
+                  <td width="17%" align="left" valign="middle">
+                  Screen</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  DoubleClicktime</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  Number</td>
+
+                  <td width="50%" align="left" valign="middle">
+                  Time, in milliseconds, between clicks to be
+                  counted as a doubleclick.</td>
+                </tr>
+
+                <tr>
+                  <td width="17%" align="left" valign="middle">
+                  Screen</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  ShowFrameList</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  Boolean</td>
+
+                  <td width="50%" align="left" valign="middle">
+                  Controls whether a list of all available frames
+                  on the workspace is displayed during the
+                  FocusNextFrame/FocusPrevFrame actions.</td>
+                </tr>
+
+                <tr>
+                  <td width="17%" align="left" valign="middle">
+                  Screen</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  Focus</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  subsection</td>
+
+                  <td width="50%" align="left" valign="middle">See
+                  <a href="#config-configfile-placementfocus">The
+                  Placement and Focus Subsections</a>!</td>
+                </tr>
+
+                <tr>
+                  <td width="17%" align="left" valign="middle">
+                  Screen</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  Placement</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  Subsection</td>
+
+                  <td width="50%" align="left" valign="middle">See
+                  <a href="#config-configfile-placementfocus">The
+                  Placement and Focus Subsections</a>!</td>
+                </tr>
+
+                <tr>
+                  <td width="17%" align="left" valign="middle">
+                  Harbour</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  Placement</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  String</td>
+
+                  <td width="50%" align="left" valign="middle">
+                  Which edge to place the harbour on. One of Right,
+                  Left, Top, or Bottom.</td>
+                </tr>
+
+                <tr>
+                  <td width="17%" align="left" valign="middle">
+                  Harbour</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  OnTop</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  Boolean</td>
+
+                  <td width="50%" align="left" valign="middle">
+                  Whether or not the harbour is "always on
+                  top"</td>
+                </tr>
+
+                <tr>
+                  <td width="17%" align="left" valign="middle">
+                  Harbour</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  MaximizeOver</td>
+
+                  <td width="17%" align="left" valign="middle">
+                  Boolean</td>
+
+                  <td width="50%" align="left" valign="middle">
+                  Controls whether maximized clients will cover the
+                  harbour (true), or if they will stop at the edge
+                  of the harbour (false).</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name=
+          "config-configfile-placementfocus">8.3. The Placement and
+          Focus Subsections</a></h4>
+
+          <p class="c1">There are two specialty subsections in the
+          screen section- Focus and Placement. Placement can
+          optionally have it's own subsection. Sound hard? It's
+          not! It's really quite simple.</p>
+
+          <p class="c1">We'll start off with Placement. Placement
+          has two options: Model, and a 'Smart' subsection. Model
+          is very simple, it's simply a list of keywords that
+          describes how to place new windows, such as "Smart
+          MouseCentered". Options are:</p>
+
+          <div class="variablelist">
+            <p class="c4">Placement Models</p>
+
+            <dl>
+              <dt>Smart</dt>
+
+              <dd>
+                <p class="c1">Tries to place windows where no other
+                window is present</p>
+              </dd>
+
+              <dt>MouseCentered</dt>
+
+              <dd>
+                <p class="c1">Places the center of the window
+                underneath the current mouse pointer position</p>
+              </dd>
+
+              <dt>MouseTopLeft</dt>
+
+              <dd>
+                <p class="c1">Places the top-left corner of the
+                window under the pointer</p>
+              </dd>
+            </dl>
+          </div>Secondly, there's a Smart section, which describes
+          how pekwm computes where to place a new window in smart
+          mode. There's three boolean options: TopToBottom,
+          LeftToRight, and Row. if TopToBottom is false, the window
+          is placed starting from the bottom. If it's true, it's
+          placed from top to bottom. LeftToRight works the same
+          way. Row is similar- it decides whether to use row or
+          column placement.<br>
+          <br>
+
+          <p class="c1">The next is the pekwm focus section, which
+          is really very robust. With this, you can emulate any
+          focus model any other wm has. There are four boolean
+          values. These four values specify events relative to the
+          mouse and a window, meaning if the event has occured and
+          it's value is true, pekwm will change the focusing.</p>
+
+          <div class="variablelist">
+            <p class="c4">Focus Model Events</p>
+
+            <dl>
+              <dt>Enter</dt>
+
+              <dd>
+                <p class="c1">The mouse has been moved over the
+                window</p>
+              </dd>
+
+              <dt>Leave</dt>
+
+              <dd>
+                <p class="c1">The mouse has been moved off the
+                window</p>
+              </dd>
+
+              <dt>Click</dt>
+
+              <dd>
+                <p class="c1">The mouse has been clicked on the
+                window</p>
+              </dd>
+
+              <dt>New</dt>
+
+              <dd>
+                <p class="c1">The window has just been
+                launched.</p>
+              </dd>
+            </dl>
+          </div>This seems complicated, but it's powerful. Here's
+          some helpful shortcuts to get the more 'traditional' unix
+          focus models in pekwm:
+
+          <div class="variablelist">
+            <p class="c4">Emulating traditional unix focus
+            models</p>
+
+            <dl>
+              <dt>Click to Focus</dt>
+
+              <dd>
+                <p class="c1">True: Click, New. False: Enter,
+                Leave.</p>
+              </dd>
+
+              <dt>Focus Follows Mouse</dt>
+
+              <dd>
+                <p class="c1">True: Click, New, Enter, Leave.</p>
+              </dd>
+
+              <dt>Sloppy Focus</dt>
+
+              <dd>
+                <p class="c1">True: Click, New, Enter. False:
+                Leave.</p>
+              </dd>
+            </dl>
+          </div>You can, of course, create your own focus models.
+        </div>
+      </div>
+
+      <div class="chapter">
+        <hr>
+
+        <h1><a name="config-menu">Chapter 9. Configuring the
+        menus</a></h1>
+
+        <p class="c1">The root menu is what you get when you (by
+        default- See the <a href="#config-keys_mouse-mouse">Mouse
+        Bindings</a> section) left-click on the root window (also
+        called the desktop). You can also configure the window
+        menu, which you get when you right-click on a window
+        title.</p>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name="config-menu-basic">9.1.
+          Basic Menu Syntax</a></h4>
+
+          <p class="c1">As previously indicated, the root menu
+          follows the rules defined in <a href=
+          "#config-syntax">Common Syntax</a>. There aren't many
+          possible options, and they're all either within the main
+          menu, or within a submenu. This is all handled by a
+          single file.</p>
+
+          <p class="c1">Here's an example <tt class=
+          "filename">~/.pekwm/menu</tt> file:</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+&#13;# Menu config for pekwm
+
+# Variables
+$TERM = "xterm -fn fixed +sb -bg black -fg white "
+
+RootMenu = "Pekwm" {
+        Entry = "Term" { Actions = "Exec $TERM &amp;" }
+        Entry = "Emacs" { Actions = "Exec $TERM -title emacs -e emacs -nw &amp;" }
+        Entry = "Vim" { Actions = "Exec $TERM -title vim -e vi &amp;" }
+        Entry = "----------" { Actions = "NoAction" }
+        Submenu = "Graphics" {
+                Entry = "Gimp" { Actions = "Exec gimp &amp;" }
+                Entry = "Gv" { Actions = "Exec gv &amp;" }
+                Entry = "Xpdf" { Actions = "Exec xpdf &amp;" }
+        }
+        Submenu = "Mm" {
+                Entry = "Xmms" { Actions = "Exec xmms &amp;" }
+                Entry = "MPlayer" { Actions = "Exec mplayer &amp;" }
+        }
+        Submenu = "Utils" {
+                Entry = "XCalc" { Actions = "Exec xcalc &amp;" }
+                Entry = "XMan" { Actions = "Exec xman &amp;" }
+        }
+        Submenu = "WwW" {
+                Entry = "Dillo" { Actions = "Exec dillo &amp;" }
+                Entry = "Konqueror" { Actions = "Exec konqueror www.google.com &amp;" }
+                Entry = "Mozilla" { Actions = "Exec mozilla &amp;" }
+                Entry = "Mutt" { Actions = "Exec $TERM -title mutt -e mutt &amp;" }
+        }
+        Entry = "----------" { Actions = "NoAction" }
+        Submenu = "Pekwm" {
+        Entry = "Reload" { Actions = "Reload" }
+        Entry = "Restart" { Actions = "Restart" }
+        Entry = "Exit" { Actions = "Exit" }
+                Submenu = "Others" {
+                        Entry = "Xterm" { Actions = "RestartOther xterm" }
+                        Entry = "Twm" { Actions = "RestartOther twm" }
+                }
+                Submenu = "Themes" {
+                        Entry { Actions = "Dynamic ~/pkg/bin/pekwm_themeset" }
+                }
+        }
+}
+
+
+WindowMenu = "Window Menu" {
+        Entry = "(Un)Stick" { Actions = "Stick" }
+        Entry = "(Un)Shade" { Actions = "Shade" }
+
+        Submenu = "Maximize" {
+                Entry = "Full" { Actions = "Maximize " }
+                Entry = "Horizontal" { Actions = "MaximizeHorizontal " }
+                Entry = "Vertical" { Actions = "MaximizeVertical " }
+        }
+        Submenu = "Stacking" {
+                Entry = "Raise " { Actions = "Raise " }
+                Entry = "Lower" { Actions = "Lower" }
+                Entry = "Always On Top " { Actions = "AlwaysOnTop " }
+                Entry = "Always Below" { Actions = "AlwaysBelow " }
+        }
+        Submenu = "Decor" {
+                Entry = "Decor" { Actions = "ToggleDecor " }
+                Entry = "Border" { Actions = "ToggleBorder " }
+                Entry = "Titlebar" { Actions = "ToggleTitlebar " }
+        }
+        SubMenu = "Send To" {
+                Entry = "Workspace 1" { Actions = "SendToWorkspace 1" }
+                Entry = "Workspace 2" { Actions = "SendToWorkspace 2" }
+                Entry = "Workspace 3" { Actions = "SendToWorkspace 3" }
+                Entry = "Workspace 4" { Actions = "SendToWorkspace 4; GoToWorkspace 4" }
+        }
+        Entry = "Iconify " { Actions = "Iconify " }
+        Entry = "Close" { Actions = "Close" }
+        Entry = "Kill " { Actions = "Kill " }
+}
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name=
+          "config-menu-keywords">9.2. Menu Keywords</a></h4>
+
+          <p class="c1">Here's a table showing the different
+          elements that can be used in your root menu file.</p>
+
+          <div class="table">
+            <a name="AEN435"></a>
+
+            <p class="c4">Table 9-1. Root Menu Elements</p>
+
+            <table border="1" class="CALSTABLE">
+              <thead>
+                <tr>
+                  <th width="25%" align="left" valign="middle">
+                  Element</th>
+
+                  <th width="25%" align="left" valign="middle">
+                  Params</th>
+
+                  <th width="50%" align="left" valign="middle">
+                  Description</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <td width="25%" align="left" valign="middle">
+                  Submenu</td>
+
+                  <td width="25%" align="left" valign="middle">
+                  Name</td>
+
+                  <td width="50%" align="left" valign="middle">
+                  Begins a submenu. 'name' is what will appear in
+                  the root menu for the entry.</td>
+                </tr>
+
+                <tr>
+                  <td width="25%" align="left" valign="middle">
+                  Entry</td>
+
+                  <td width="25%" align="left" valign="middle">
+                  Name</td>
+
+                  <td width="50%" align="left" valign="middle">
+                  Begins a menu entry. 'Name' is the text shown in
+                  the menu for this entry.</td>
+                </tr>
+
+                <tr>
+                  <td width="25%" align="left" valign="middle">
+                  Actions</td>
+
+                  <td width="25%" align="left" valign="middle">
+                  Action</td>
+
+                  <td width="50%" align="left" valign="middle">Run
+                  an action. 'Action' is the action(s) to to
+                  run.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table">
+            <a name="AEN459"></a>
+
+            <p class="c4">Table 9-2. Menu Actions</p>
+
+            <table border="1" class="CALSTABLE">
+              <thead>
+                <tr>
+                  <th width="33%" align="left" valign="middle">
+                  Action</th>
+
+                  <th width="67%" align="left" valign="middle">
+                  Description</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <td width="33%" align="left" valign="middle">
+                  Exec</td>
+
+                  <td width="67%" align="left" valign="middle">Exec
+                  makes pekwm to execute the command that follows
+                  it.</td>
+                </tr>
+
+                <tr>
+                  <td width="33%" align="left" valign="middle">
+                  Reload</td>
+
+                  <td width="67%" align="left" valign="middle">When
+                  this is called, pekwm will Re-read all
+                  configuration files without exiting.</td>
+                </tr>
+
+                <tr>
+                  <td width="33%" align="left" valign="middle">
+                  Restart</td>
+
+                  <td width="67%" align="left" valign="middle">This
+                  will cause pekwm to exit and re-start
+                  completely.</td>
+                </tr>
+
+                <tr>
+                  <td width="33%" align="left" valign="middle">
+                  RestartOther</td>
+
+                  <td width="67%" align="left" valign="middle">
+                  Quits pekwm and starts another application. The
+                  application to run is given as a parameter.</td>
+                </tr>
+
+                <tr>
+                  <td width="33%" align="left" valign="middle">
+                  Exit</td>
+
+                  <td width="67%" align="left" valign="middle">
+                  Exits pekwm. Under a normal X setup, This will
+                  end your X session.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="note">
+            <blockquote class="note">
+              <p class="c1">When using the Exec action, you must
+              make sure the program gets backgrounded. Put a
+              '&amp;' at the end if it doesn't do this on it's
+              own.</p>
+            </blockquote>
+          </div>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name="config-menu-dynamic">9.3.
+          Dynamic Menus</a></h4>
+
+          <p class="c1">It is possible to use dynamic menus in
+          pekwm, that is menus that regenerate themself whenever
+          the menu is viewed. This is done with the Dynamic
+          keyword.</p>
+
+          <p class="c1">To use this feature, you need to put a
+          dynamic entry in the <tt class=
+          "filename">~/.pekwm/menu</tt> file with a parameter that
+          tells pekwm what file to execute to get the menu. This
+          file can be of any language you prefer, the main thing is
+          that it outputs valid pekwm menu syntax inside a Dynamic
+          {} section. The syntax of dynamic entry looks like
+          this:</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+Entry = "" { Actions = "Dynamic /path/to/filename" }
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <p class="c1">The input from a program that creates the
+          dynamic content should follow the general menu syntax
+          encapsulated inside a Dynamic {} section. A simple script
+          to give pekwm dynamic menu content would look like
+          this:</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+&#13;#!/bin/bash
+output=$RANDOM
+echo "Dynamic {"
+echo " Entry = \"$output\" { Actions = \"xmessage $output\" }"
+echo "}"
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="chapter">
+        <hr>
+
+        <h1><a name="config-autoprops">Chapter 10.
+        Autoproperties</a></h1>
+
+        <p class="c1"> </p>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name=
+          "config-autoprops-what">10.1. What are
+          Autoproperties?</a></h4>
+
+          <p class="c1">"Autoproperties" (often referred as
+          autoprops) is short for "Automatic Properties". This is
+          pekwm's way of setting certain things up for applications
+          based on the window's internal id. You can set up a lot
+          of things, such as Size, iconified state, start location,
+          grouped state (automatically having one window group to
+          another), workspace to start on, whether it has a border
+          or titlebar, and more.</p>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name=
+          "config-autoprops-basic">10.2. Basic Autoproperties
+          Syntax</a></h4>
+
+          <p class="c1">The <tt class=
+          "filename">~/.pekwm/autoproperties</tt> file follows the
+          rules in <a href="#config-syntax">Common Syntax</a>. This
+          file can become rather complicated, but it's also the
+          most powerful of any of pekwm's config files.</p>
+
+          <p class="c1">The one important thing to remember is the
+          Property tag. This identifier tells us where to apply
+          properties. It means which windows to apply it on. To
+          find out the two terms, use xprop WM_CLASS and click on
+          your window. Below you'll find a bash/zsh function which
+          will give you the correct string for this file. You can
+          also specify a regexp wildcard, such as .*,opera;, which
+          means anything for the first word, opera for the
+          second.</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+&#13;propstring () {
+  echo -n 'Property '
+  xprop WM_CLASS | sed 's/.*"\(.*\)", "\(.*\)".*/= "\1,\2" {/g'
+  echo '}'
+}
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <p class="c1">Pekwm can rewrite window titles. This is
+          done in a separate TitleRules section, where one defines
+          properties on wich clients to use the rewriting and then
+          a regexp rule of what to do to that clients title. A
+          simple rule that would change "Title: this is the title"
+          to "this is the title" looks like this:</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+Rule = "/Title: (.*)/\$1/"
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <p class="c1">Here's an example <tt class=
+          "filename">~/.pekwm/autoproperties</tt> file:</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+&#13;Property = ".*,^xmms" {
+        ApplyOn = "Start New"
+        Layer = "0"
+        Sticky = "True"
+}
+
+Property = "^xclock,^XClock" {
+        ApplyOn = "Start New"
+        Geometry = "100x100+0-0"
+        Border = "False"; Titlebar = "False"
+        Sticky = "True"
+        Layer = "Desktop"
+}
+
+Property = "^dillo,^Dillo" {
+        ApplyOn = "Start New"
+        Group = "browsers" {
+                Size = "30"
+                Behind = "True"
+                Global = "False"
+        }
+}
+
+TitleRules {
+        Property = "^dillo,^Dillo" {
+                Rule = "/Dillo: (.*)/\$1 [dillo]/"
+        }
+        Property = "^opera,^opera" {
+                Rule = "/...:... - (.*) - Opera .*/\$1 [opera]/"
+        }
+}
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="note">
+            <blockquote class="note">
+              <div class="formalpara">
+                <p class="c4">Regular Expressions!</p>
+
+                <p class="c1">The pekwm autoproperrties file uses
+                Regular Expression syntax for wildcards. Regular
+                expressions can be really confusing to people with
+                no experience with them. A good rule of thumb is:
+                "Anywhere you'd think to use '*', use '.*'". Also,
+                '^' matches the beginning of a string, '$' matches
+                the end, and '.' is any single character. Regular
+                Expression syntax is a little bit beyond the scope
+                of this documentation. There's a really basic
+                tutorial at <a href=
+                "http://www.living-source.com/user/adi/regexp/regexp_tutorial.html"
+                   target=
+                   "_top">http://www.living-source.com/user/adi/regexp/regexp_tutorial.html</a>,
+                   And a slightly more advanced one at <a href=
+                   "http://www.zytrax.com/tech/web/regex.htm"
+                   target=
+                   "_top">http://www.zytrax.com/tech/web/regex.htm</a>.
+                   I found these on google, using the search phrase
+                   "regular.expression.tutorial". You can probably
+                   use that search term or modify it to find some
+                   others.</p>
+              </div>
+            </blockquote>
+          </div>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name=
+          "config-autoprops-adv">10.3. Advanced
+          Autoproperties</a></h4>
+
+          <p class="c1">Below is a list of the different actions
+          available to you in your autoproperties file; These are
+          the actual Auto Properties. They can take four types of
+          arguments: bool, integer, string, or geom. A bool is
+          either True or False. An Integer is a number, 0 or more.
+          A string is any string, It's used as an identifier.
+          Finally, geom is an X Geometry String; Examples are
+          200x300+0+0, 0x500+200+300, 20x10+0+50, et cetera.</p>
+
+          <p class="c1"> </p>
+
+          <div class="variablelist">
+            <p class="c4">Exhaustive Autoprops List</p>
+
+            <dl>
+              <dt>Sticky (bool)</dt>
+
+              <dd>
+                <p class="c1">Window Starts Sticky (present on all
+                workspaces)</p>
+              </dd>
+
+              <dt>Shaded (bool)</dt>
+
+              <dd>
+                <p class="c1">Window Starts Shaded</p>
+              </dd>
+
+              <dt>MaximizedVertical (bool)</dt>
+
+              <dd>
+                <p class="c1">Window Starts Maximized
+                Vertically</p>
+              </dd>
+
+              <dt>MaximizedHorizonal (bool)</dt>
+
+              <dd>
+                <p class="c1">Window Starts Maximized
+                Horizontally</p>
+              </dd>
+
+              <dt>Iconified (bool)</dt>
+
+              <dd>
+                <p class="c1">Window Starts Iconified</p>
+              </dd>
+
+              <dt>Border (bool)</dt>
+
+              <dd>
+                <p class="c1">Window Starts with a border</p>
+              </dd>
+
+              <dt>Titlebar (bool)</dt>
+
+              <dd>
+                <p class="c1">Window Starts with a TitleBar</p>
+              </dd>
+
+              <dt>Geometry (geom)</dt>
+
+              <dd>
+                <p class="c1">X Geometry String showing the initial
+                size and position of the string.</p>
+              </dd>
+
+              <dt>Workspace (integer)</dt>
+
+              <dd>
+                <p class="c1">Which workspace to start program
+                on.</p>
+              </dd>
+
+              <dt>ApplyOn (string)</dt>
+
+              <dd>
+                <p class="c1">A list of conditions of when to apply
+                this autoprop, consisting of "Start" (Apply if
+                window already exists before pekwm
+                starts/restarts), "Reload" (Apply when pekwm's
+                config files are reloaded), "New" (Applies when the
+                application first starts), "WorkspaceChange" (Apply
+                when the window is sent to another workspace),
+                "Transient" (Apply to Transient windows as well as
+                normal windows. Dialog boxes are commonly transient
+                windows), "TransientOnly" (Apply to Transient
+                windows only. Dialog boxes are commonly transient
+                windows)</p>
+              </dd>
+
+              <dt>Skip (string)</dt>
+
+              <dd>
+                <p class="c1">A list of situations when to ignore
+                the defined application and let the user action
+                skip over it, consisting of "FrameSnap" (Do not
+                snap to this window while moving windows), "Menus"
+                (Do not show this window in pekwm menus other than
+                the icon menu), "FocusToggle" (Do not focus to this
+                window when doing Next/PrevFrame)</p>
+              </dd>
+
+              <dt>Layer (string)</dt>
+
+              <dd>
+                <p class="c1">Windows layer. Makes the window stay
+                under or above other windows. Default layer is
+                "Normal". Possible parameters are (listed from the
+                bottommost to the uppermost): "Desktop", "Below",
+                "Normal", "OnTop", "Harbour", "AboveHarbour", and
+                "Menu".</p>
+              </dd>
+
+              <dt>Title (string)</dt>
+
+              <dd>
+                <p class="c1">Apply this autoproperty on clients
+                that have a title that matches this string. String
+                is a regexp like: "^Saving".</p>
+              </dd>
+
+              <dt>Group (string)</dt>
+
+              <dd>
+                <p class="c1">Defines the name of the group. Also
+                the section that contains all the grouping options.
+                They are:</p>
+
+                <p class="c1">Size (integer) - How many clients
+                should be grouped in one group. Behind (bool) - If
+                true makes new clients of a group not to become the
+                active one in the group. Global (bool) - If true
+                makes new clients start in a group even if the
+                group is on another workspace or iconified.</p>
+              </dd>
+            </dl>
+          </div>
+        </div><br>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name=
+          "config-autoprops-groups">10.4. AutoGrouping</a></h4>
+
+          <p class="c1">The last thing to know is autogrouping.
+          Autogrouping is actually very simple, although a bit
+          confusing at first. Group is an identifier, it&acute;s
+          just a string, (in my example, we'll call it netwin).
+          Size tells how many clients to group together in one
+          frame.</p>
+
+          <p class="c1">The example: We want to autogroup Sylpheed
+          and Opera together, but only up to two opera windows.
+          Here's the Autoprops section for that:</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+&#13;Property = ".*,^opera" {
+        Group = "netwin" {
+                Size = "2"
+        }
+        ApplyOn = "New Start Reload"
+}
+Property = ".*,^Sylpheed" {
+        Group = "netwin" {
+                Size = "30"
+        }
+        ApplyOn = "New Start Reload"
+}
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <p class="c1">This creates two rules: "For any window
+          matching '.*,^opera', group up to two of these in the
+          'netwin' group. Apply this on pekwm start/reload, but do
+          not include dialog windows", and "For any window matching
+          '.*,^Sylpheed', group up to thrity in the 'netwin' group.
+          Apply on pekwm start/reload, but do not include dialog
+          windows".</p>
+
+          <p class="c1">We lied a little here; Unfortunately,
+          there's no way to say "group unlimited windows together",
+          but if you have more than 30 or so, you're nutty anyway,
+          so just put something high like 30. ;)</p>
+
+          <p class="c1">Also note that you can have as many Group*
+          identifiers as you want. Autogrouping is a very flexible
+          system. Try playing around with it.</p>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name=
+          "config-autoprops-help">10.5. Getting more help</a></h4>
+
+          <p class="c1">Autoprops can be a daunting topic. If
+          you've read everything here in the docs here and are
+          still having problems, feel free to hit the IRC channel
+          (irc.babblica.net, #pekwm) and ask.</p>
+        </div>
+      </div>
+
+      <div class="chapter">
+        <hr>
+
+        <h1><a name="config-keys_mouse">Chapter 11. Keyboard and
+        Mouse Configuration</a></h1>
+
+        <p class="c1">Pekwm allows you to remap All keyboard and
+        mouse events.</p>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name=
+          "config-keys_mouse-mouse">11.1. Mouse Bindings</a></h4>
+
+          <p class="c1">The pekwm Mousebindings go in <tt class=
+          "filename">~/.pekwm/mouse</tt>, and are very simple.
+          They're divided up into two groups: The 'where' and
+          'event'. Below is an example file:</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+&#13;Frame {
+        ButtonRelease = "1" { Actions = "Raise" }
+        ButtonPress = "2"   { Actions = "ActivateClient" }
+        ButtonPress = "3"   { Actions = "ShowWindowMenu" }
+        ButtonPress = "4"   { Actions = "NextInFrame" }
+        ButtonPress = "5"   { Actions = "PrevInFrame" }
+        DoubleClick = "1"   { Actions = "Shade" }
+        Motion = "1"        { Actions = "Move" }
+        Motion = "Mod1 1"   { Actions = "Move" }
+        Motion = "2"        { Actions = "GroupingDrag"; Threshold = "4" }
+        Motion = "Mod1 3"   { Actions = "Resize" }
+}
+
+Client {
+        ButtonPress = "1"      { Actions = "Raise" }
+        ButtonPress = "Mod1 1" { Actions = "Raise" }
+        Motion = "Mod1 1"      { Action = "Move" }
+        Motion = "Mod1 2"      { Action = "GroupingDrag"; Threshold = "4" }
+        Motion = "Mod1 3"      { Action = "Resize" }
+}
+
+Root {
+        ButtonPress = "1" { Actions = "ShowMenu Root" }
+        ButtonPress = "2" { Actions = "ShowMenu Icon" }
+        ButtonPress = "3" { Actions = "ShowMenu Goto" }
+        ButtonPress = "4" { Actions = "RightWorkspace" }
+        ButtonPress = "5" { Actions = "LeftWorkspace" }
+}
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <p class="c1">Below are tables defining the different
+          actions. The actions themselves can be found in the
+          <a href="#config-keys_mouse-actions">Keys/mouse
+          actions</a> section.</p>
+
+          <div class="table">
+            <a name="AEN602"></a>
+
+            <p class="c4">Table 11-1. 'Where' fields</p>
+
+            <table border="1" class="CALSTABLE">
+              <thead>
+                <tr>
+                  <th width="50%" align="left" valign="middle">
+                  Name</th>
+
+                  <th width="50%" align="left" valign="middle">
+                  Description</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <td width="50%" align="left" valign="middle">
+                  Frame</td>
+
+                  <td width="50%" align="left" valign="middle">On
+                  the window's Titlebar/Border</td>
+                </tr>
+
+                <tr>
+                  <td width="50%" align="left" valign="middle">
+                  Client</td>
+
+                  <td width="50%" align="left" valign="middle">
+                  Anywhere on the window's interiour- it's best to
+                  use a keyboard modifier with these.</td>
+                </tr>
+
+                <tr>
+                  <td width="50%" align="left" valign="middle">
+                  Root</td>
+
+                  <td width="50%" align="left" valign="middle">On
+                  the Root window (also called the 'desktop'.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="table">
+            <a name="AEN621"></a>
+
+            <p class="c4">Table 11-2. 'Event' fields</p>
+
+            <table border="1" class="CALSTABLE">
+              <thead>
+                <tr>
+                  <th width="50%" align="left" valign="middle">
+                  Name</th>
+
+                  <th width="50%" align="left" valign="middle">
+                  Description</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <tr>
+                  <td width="50%" align="left" valign="middle">
+                  ButtonPress</td>
+
+                  <td width="50%" align="left" valign="middle">A
+                  single click</td>
+                </tr>
+
+                <tr>
+                  <td width="50%" align="left" valign="middle">
+                  ButtonRelease</td>
+
+                  <td width="50%" align="left" valign="middle">A
+                  single click that activates once the button is
+                  released</td>
+                </tr>
+
+                <tr>
+                  <td width="50%" align="left" valign="middle">
+                  DoubleClick</td>
+
+                  <td width="50%" align="left" valign="middle">A
+                  double click</td>
+                </tr>
+
+                <tr>
+                  <td width="50%" align="left" valign="middle">
+                  Motion</td>
+
+                  <td width="50%" align="left" valign="middle">
+                  Clicking, holding, and Dragging.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p class="c1">Definitions work like this:</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+&#13;'Where' {
+        'Event' = "optional modifiers, like mod1, ctrl, etc and a mouse button" {
+                Actions = "actions and their parameters"
+        }
+        'Event' = "optional modifiers, like mod1, ctrl, etc and a mouse button" {
+                Actions = "actions and their parameters"
+        }
+}
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <div class="note">
+            <blockquote class="note">
+              <div class="formalpara">
+                <p class="c4">Additional notes.</p>
+
+                <p class="c1">Motion events have a threshold
+                argument. This is the number of pixels you must
+                drag your mouse before they begin to work. Multiple
+                actions can be defined for a single user action.
+                Example:</p>
+              </div>
+            </blockquote>
+          </div>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+&#13;Motion = "1" { Actions = "Move"; Treshold = "3" }
+ButtonPress = "1" { Actions = "Raise; ActivateClient" }
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name=
+          "config-keys_mouse-keys">11.2. Key Bindings</a></h4>
+
+          <p class="c1">The pekwm keybindings go in <tt class=
+          "filename">~/.pekwm/keys</tt>, and are even more simple
+          than the mouse bindings. Here's the format:</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+&#13;KeyPress = "optional modifiers like mod1, ctrl, etc and the key" {
+        Actions = "action and the parameters for the action, if they are needed"
+}
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <p class="c1">Multiple actions can be given for one
+          keypress. The actions are separated from eachother with a
+          semicolon:</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+Keypress = "Ctrl t" { Actions = "Exec xterm; Maximize; Close" }
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <p class="c1">Here's a small fragment of an example keys
+          file; you can see a full version in <tt class=
+          "filename">~/.pekwm/keys</tt>. As with the mouse, you can
+          see the full list of actions in the <a href=
+          "#config-keys_mouse-actions">Keys/mouse actions</a>
+          section.</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+&#13;Global {
+        KeyPress = "Mod4 m"       { Actions = "Maximize" }
+        KeyPress = "Mod4 Ctrl m"  { Actions = "MaximizeVertical" }
+        KeyPress = "Mod4 Shift m" { Actions = "MaximizeHorizontal" }
+        KeyPress = "Mod4 s"       { Actions = "Shade" }
+        KeyPress = "Mod4 t"       { Actions = "Stick" }
+        KeyPress = "Mod4 o"       { Actions = "AlwaysOnTop" }
+        KeyPress = "Mod4 l"       { Actions = "AlwaysBelow" }
+        KeyPress = "Mod4 i"       { Actions = "Iconify" }
+        KeyPress = "Mod4 c"       { Actions = "Close" }
+        KeyPress = "Mod1 Return"  { Actions = "MoveResize" }
+        KeyPress = "Mod1 Shift r" { Actions = "ShowMenu Root" }
+}
+
+MoveResize {
+  KeyPress = "Left"   { Actions = "MoveHorizontal -10" }
+        KeyPress = "Right"  { Actions = "MoveHorizontal 10" }
+        KeyPress = "Up"     { Actions = "MoveVertical -10" }
+        KeyPress = "Down"   { Actions = "MoveVertical 10" }
+        KeyPress = "Left"   { Actions = "ResizeHorizontal -10" }
+        KeyPress = "Right"  { Actions = "ResizeHorizontal 10" }
+        KeyPress = "Up"     { Actions = "ResizeVertical -10" }
+        KeyPress = "Down"   { Actions = "ResizeVertical 10" }
+        KeyPress = "s"      { Actions = "MoveSnap" }
+        KeyPress = "Escape" { Actions = "Cancel" }
+        KeyPress = "Return" { Actions = "End" }
+}
+
+Menu {
+        KeyPress = "Down"   { Actions = "NextItem" }
+        KeyPress = "Up"     { Actions = "PrevItem" }
+        KeyPress = "Return" { Actions = "Select" }
+        KeyPress = "Right"  { Actions = "EnterSubmenu" }
+        KeyPress = "Left"   { Actions = "LeaveSubmenu" }
+        KeyPress = "Escape" { Actions = "Close" }
+}
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <p class="c1">As you might have noticed, the file consist
+          of three sections. These sections are Global, MoveResize,
+          and Menu. The first section, Global, contains all the
+          generic actions.</p>
+
+          <p class="c1">The MoveResize section has the keybindings
+          that will get used when the MoveResize action is called.
+          While MoveResize is active, the keybindings in Global are
+          not listened to.</p>
+
+          <p class="c1">Finally, the Menu section contains the keys
+          that are used when the ShowMenu action is called. E.g.
+          these are the keys you use to browse thru the menus of
+          pekwm. As with the MoveResize, while ShowMenu is active,
+          the Global keybindigs are left unheard.</p>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name=
+          "config-keys_mouse-keychains">11.3. Keychains</a></h4>
+
+          <p class="c1">Pekwm also supports keychains. Keychain
+          syntax follows the general config syntax and looks like
+          this:</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+&#13;Chain = "modifiers and key" {
+        Chain = "modifiers and key" {
+                KeyPress = "modifiers and key" { Actions = "actions and their parameters" }
+        }
+        Keypress = "modifiers and key" { Actions = "actions and their parameters" }
+}
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <p class="c1">It might seem complicated at start but once
+          you look into it, it is fairly nice and logical. This
+          syntax supports as many nested Chains as you might
+          want.</p>
+
+          <p class="c1">Now for some examples. This lets you press
+          Alt+M, then M,V or H to maximize Full/Vertical or
+          Horizontal:</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+&#13;Chain = "Mod1 m" {
+        Keypress = "m" { Actions = "Maximize" }
+        Keypress = "v" { Actions = "MaximizeVertical" }
+        Keypress = "h" { Actions = "MaximizeHorizontal" }
+}
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <p class="c1">This next rule is a pure show-off, it lets
+          you type in 'test' and then executes xterm. Note that
+          this will make you unable to type the character 't' to
+          any programs.</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+&#13;Chain = "t" { Chain = "e" { Chain = "s" {
+        Keypress = "t" { Actions = "Exec xterm" }
+} } }
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name=
+          "config-keys_mouse-actions">11.4. Keys/Mouse
+          actions</a></h4>
+
+          <p class="c1">Here are the lists of possible actions.
+          First, the list of possible actions that are available
+          anywhere:</p>
+
+          <ul>
+            <li>
+              <p class="c1">maximize</p>
+            </li>
+
+            <li>
+              <p class="c1">maximizevertical</p>
+            </li>
+
+            <li>
+              <p class="c1">maximizehorizontal</p>
+            </li>
+
+            <li>
+              <p class="c1">shade</p>
+            </li>
+
+            <li>
+              <p class="c1">iconify</p>
+            </li>
+
+            <li>
+              <p class="c1">stick</p>
+            </li>
+
+            <li>
+              <p class="c1">close</p>
+            </li>
+
+            <li>
+              <p class="c1">kill - kills the client, use if close
+              doesn't work</p>
+            </li>
+
+            <li>
+              <p class="c1">raise</p>
+            </li>
+
+            <li>
+              <p class="c1">activateorraise - activates a client if
+              the frame is active, otherwise raises the frame</p>
+            </li>
+
+            <li>
+              <p class="c1">lower</p>
+            </li>
+
+            <li>
+              <p class="c1">alwaysontop</p>
+            </li>
+
+            <li>
+              <p class="c1">alwaysbelow</p>
+            </li>
+
+            <li>
+              <p class="c1">toggleborder</p>
+            </li>
+
+            <li>
+              <p class="c1">toggletitlebar</p>
+            </li>
+
+            <li>
+              <p class="c1">toggledecor</p>
+            </li>
+
+            <li>
+              <p class="c1">nextinframe</p>
+            </li>
+
+            <li>
+              <p class="c1">previnframe</p>
+            </li>
+
+            <li>
+              <p class="c1">moveclientnext</p>
+            </li>
+
+            <li>
+              <p class="c1">moveclientprev</p>
+            </li>
+
+            <li>
+              <p class="c1">showmenu - shows a menu, takes
+              parameters root, icon, goto, window, attachclient,
+              attachframe, attachclientinframe,
+              attachframeinframe</p>
+            </li>
+
+            <li>
+              <p class="c1">hideallmenus</p>
+            </li>
+
+            <li>
+              <p class="c1">markclient</p>
+            </li>
+
+            <li>
+              <p class="c1">attachmarked</p>
+            </li>
+
+            <li>
+              <p class="c1">attachclientinnextframe</p>
+            </li>
+
+            <li>
+              <p class="c1">attachclientinprevframe</p>
+            </li>
+
+            <li>
+              <p class="c1">attachframeinnextframe</p>
+            </li>
+
+            <li>
+              <p class="c1">attachframeinprevframe</p>
+            </li>
+
+            <li>
+              <p class="c1">detach</p>
+            </li>
+
+            <li>
+              <p class="c1">toggletag - makes a window swallow all
+              new clients until toggled of or untag is applied</p>
+            </li>
+
+            <li>
+              <p class="c1">toggletagbehind - makes a window
+              swallow all new clients behind until toggled of or
+              untag is applied</p>
+            </li>
+
+            <li>
+              <p class="c1">untag - removes all tags</p>
+            </li>
+
+            <li>
+              <p class="c1">exec - executes a program</p>
+            </li>
+          </ul>Here is a list of keygrabber-specific actions:
+
+          <ul>
+            <li>
+              <p class="c1">activateclientnum</p>
+            </li>
+
+            <li>
+              <p class="c1">moveresize</p>
+            </li>
+
+            <li>
+              <p class="c1">movetoedge</p>
+            </li>
+
+            <li>
+              <p class="c1">nextframe</p>
+            </li>
+
+            <li>
+              <p class="c1">prevframe</p>
+            </li>
+
+            <li>
+              <p class="c1">nextworkspace</p>
+            </li>
+
+            <li>
+              <p class="c1">rightworkspace</p>
+            </li>
+
+            <li>
+              <p class="c1">prevworkspace</p>
+            </li>
+
+            <li>
+              <p class="c1">leftworkspace</p>
+            </li>
+
+            <li>
+              <p class="c1">sendtoworkspace</p>
+            </li>
+
+            <li>
+              <p class="c1">gotoworkspace</p>
+            </li>
+
+            <li>
+              <p class="c1">reload</p>
+            </li>
+
+            <li>
+              <p class="c1">restart</p>
+            </li>
+
+            <li>
+              <p class="c1">restartother</p>
+            </li>
+
+            <li>
+              <p class="c1">exit</p>
+            </li>
+          </ul>Here is a list of buttonclick-specific actions:
+
+          <ul>
+            <li>
+              <p class="c1">resize</p>
+            </li>
+          </ul>Here is a list of Frame-specific actions:
+
+          <ul>
+            <li>
+              <p class="c1">activateclient</p>
+            </li>
+
+            <li>
+              <p class="c1">resize</p>
+            </li>
+
+            <li>
+              <p class="c1">move</p>
+            </li>
+
+            <li>
+              <p class="c1">groupingdrag - takes a parameter false
+              or true, if true dragged windows go in the
+              background</p>
+            </li>
+          </ul>Here is a list of Client-specific actions:
+
+          <ul>
+            <li>
+              <p class="c1">resize</p>
+            </li>
+
+            <li>
+              <p class="c1">move</p>
+            </li>
+
+            <li>
+              <p class="c1">groupingdrag - takes a parameter false
+              or true, if true dragged windows go in the
+              background</p>
+            </li>
+          </ul>Here is a list of actions for MoveResize
+          keybindings:
+
+          <ul>
+            <li>
+              <p class="c1">movehorizontal - takes an amount of
+              pixels as a parameter, amount can be negative</p>
+            </li>
+
+            <li>
+              <p class="c1">movevertical - takes an amount of
+              pixels as a parameter, amount can be negative</p>
+            </li>
+
+            <li>
+              <p class="c1">resizehorizontal - takes an amount of
+              pixels as a parameter, amount can be negative</p>
+            </li>
+
+            <li>
+              <p class="c1">resizevertical - takes an amount of
+              pixels as a parameter, amount can be negative</p>
+            </li>
+
+            <li>
+              <p class="c1">movesnap</p>
+            </li>
+
+            <li>
+              <p class="c1">cancel</p>
+            </li>
+
+            <li>
+              <p class="c1">end</p>
+            </li>
+          </ul>Here is a list of actions for Menu keybindings:
+
+          <ul>
+            <li>
+              <p class="c1">nextitem</p>
+            </li>
+
+            <li>
+              <p class="c1">previtem</p>
+            </li>
+
+            <li>
+              <p class="c1">select</p>
+            </li>
+
+            <li>
+              <p class="c1">entersubmenu</p>
+            </li>
+
+            <li>
+              <p class="c1">leavesubmenu</p>
+            </li>
+
+            <li>
+              <p class="c1">close</p>
+            </li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="chapter">
+        <hr>
+
+        <h1><a name="config-start">Chapter 12. The pekwm start
+        file</a></h1>
+
+        <p class="c1">The <tt class="filename">~/.pekwm/start</tt>
+        file is the simplest of all of pekwm's config files. It's a
+        simple shell script that's run on pekwm startup.</p>
+
+        <p class="c1">Why anyone would use <tt class=
+        "filename">start</tt> rather than just use their <tt class=
+        "filename">~/.xinitrc</tt> file? Well, the answer is, the
+        start file is executed during the pekwm initialization
+        phase- Therefore, it gets re-executed when you issue a
+        pekwm 'restart'.</p>
+
+        <p class="c1">Here's an example pekwm <tt class=
+        "filename">start</tt> file.</p>
+
+        <div class="c3">
+          <table cellspacing="1" cellpadding="1" width="85%"
+          bgcolor="#000000">
+            <tr>
+              <td bgcolor="#E5E5E5">
+                <pre>
+&#13;#!/bin/sh
+
+xmessage 'hi. pekwm started.' &amp;
+some_command &amp;
+</pre>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="PART">
+      <a name="development"></a>
+
+      <div class="TITLEPAGE">
+        <h1 class="title">IV. Development</h1>
+
+        <div class="PARTINTRO">
+          <a name="AEN833"></a>
+
+          <p class="c1">Interested in pekwm? Want to keep up with
+          the development? Good, we can tell you how.</p>
+        </div>
+
+        <div class="TOC">
+          <dl>
+            <dt class="c2">Table of Contents</dt>
+
+            <dt>13. <a href="#devel-ml">Mailing Lists</a></dt>
+
+            <dt>14. <a href="#devel-irc">IRC</a></dt>
+
+            <dt>15. <a href="#devel-who">The developers</a></dt>
+          </dl>
+        </div>
+      </div>
+
+      <div class="chapter">
+        <hr>
+
+        <h1><a name="devel-ml">Chapter 13. Mailing Lists</a></h1>
+
+        <p class="c1">The pekwm Mailing lists are where the more
+        advanced pekwm discussion goes on.</p>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name="devel-ml-lists">13.1. The
+          Lists</a></h4>
+
+          <p class="c1">There are four pekwm mailing lists-
+          pekwm-devel, pekwm-users, pekwm-announce, and pekwm-cvs.
+          Which should you subscribe to? Well, that's for you to
+          decide. Many people subscribe to all of them.</p>
+
+          <p class="c1"><a href="http://pekwm.org/ml/users" target=
+          "_top">pekwm-users</a> is a very basic questions mailing
+          list- "How do I..." et cetera. Low-traffic.</p>
+
+          <p class="c1"><a href="http://pekwm.org/ml/devel" target=
+          "_top">pekwm-devel</a> is a more discussion-based mailing
+          list- We discuss where we're going with development, new
+          features being implemented, et cetera. Fairly
+          low-traffic.</p>
+
+          <p class="c1"><a href="http://pekwm.org/ml/announce"
+          target="_top">pekwm-announce</a> is used to announce new
+          pekwm releases. Low-traffic.</p>
+
+          <p class="c1"><a href="http://pekwm.org/ml/cvs" target=
+          "_top">pekwm-cvs</a> is a list that logs pekwm and pekwm
+          documentation cvs commits. Use this list if you want to
+          stay on the edge of development.</p>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name="devel-ml-archives">13.2.
+          Mailing list Archives</a></h4>
+
+          <p class="c1">Mailing list archives for the pekwm lists
+          are available at:</p>
+
+          <p class="c1"><a href="http://pekwm.org/ml/users" target=
+          "_top">http://pekwm.org/ml/users</a></p>
+
+          <p class="c1"><a href="http://pekwm.org/ml/devel" target=
+          "_top">http://pekwm.org/ml/devel</a></p>
+
+          <p class="c1"><a href="http://pekwm.org/ml/announce"
+          target="_top">http://pekwm.org/ml/announce</a></p>
+
+          <p class="c1"><a href="http://pekwm.org/ml/cvs" target=
+          "_top">http://pekwm.org/ml/cvs</a></p>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name="devel-ml-subfil">13.3.
+          Subscribing and Filtering</a></h4>
+
+          <p class="c1">To subscribe, send an email to <tt class=
+          "email">&lt;<a href=
+          "mailto:listname-subscribe@pekwm.org">listname-subscribe@pekwm.org</a>&gt;</tt>,
+          where listname is the name of the list: 'pekwm-users',
+          'pekwm-devel', 'pekwm-announce', or 'pekwm-cvs', and
+          follow the instructions in the email you receive.</p>
+
+          <p class="c1">If you'd like to use Filters with your mail
+          program, you can check for mail-headers. Both lists
+          produce a Mailing-List: header which will contain the
+          name of the mailing list (note that there's other
+          information in that header, though the string
+          'pekwm-listname' will be in there).</p>
+        </div>
+      </div>
+
+      <div class="chapter">
+        <hr>
+
+        <h1><a name="devel-irc">Chapter 14. IRC</a></h1>
+
+        <p class="c1">Our IRC channel is located on
+        irc.babblica.net, in #pekwm. A lot of devel discussion also
+        goes on there, and we do repost some important irc
+        conversations to the devel ml. However, you can also get
+        simple help there pretty easily.</p>
+
+        <p class="c1">You can check the <a href=
+        "#devel-who">developers</a> section to see the list of
+        developers mapped to their IRC nicks.</p>
+      </div>
+
+      <div class="chapter">
+        <hr>
+
+        <h1><a name="devel-who">Chapter 15. The developers</a></h1>
+
+        <p class="c1">Below is a list of pekwm developers and what
+        they do. The email address is more of an informational
+        thing than anything else; the developers all subscribe to
+        <tt class="email">&lt;<a href=
+        "mailto:pekwm-devel@pekwm.org">pekwm-devel@pekwm.org</a>&gt;</tt>,
+        so you should email that instead.</p>
+
+        <div class="table">
+          <a name="AEN874"></a>
+
+          <p class="c4">Table 15-1. Developers</p>
+
+          <table border="1" class="CALSTABLE">
+            <thead>
+              <tr>
+                <th width="17%" align="left" valign="middle">
+                Name</th>
+
+                <th width="17%" align="left" valign="middle">Email
+                Address</th>
+
+                <th width="17%" align="left" valign="middle">IRC
+                Nick</th>
+
+                <th width="50%" align="left" valign="middle">
+                Jobs</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td width="17%" align="left" valign="middle">Claes
+                N&auml;sten</td>
+
+                <td width="17%" align="left" valign="middle">
+                  <p class="c1"><tt class="email">&lt;<a href=
+                  "mailto:pekdon%20at%20pekdon%20dot%20net">pekdon
+                  at pekdon dot net</a>&gt;</tt></p>
+                </td>
+
+                <td width="17%" align="left" valign="middle">
+                pekdon</td>
+
+                <td width="50%" align="left" valign="middle">Main
+                developer- Writes code. Complains about docs not
+                being done ;).</td>
+              </tr>
+
+              <tr>
+                <td width="17%" align="left" valign="middle">Rando
+                Christensen</td>
+
+                <td width="17%" align="left" valign="middle">
+                  <p class="c1"><tt class="email">&lt;<a href=
+                  "mailto:rando@babblica.net">rando@babblica.net</a>&gt;</tt></p>
+                </td>
+
+                <td width="17%" align="left" valign="middle">
+                eyez</td>
+
+                <td width="50%" align="left" valign="middle">
+                Documentation manager; In charge of all
+                documentation, Also takes care of cvs/web/irc
+                issues. In charge of the build process and takes
+                all Makefile complaints.</td>
+              </tr>
+
+              <tr>
+                <td width="17%" align="left" valign="middle">Justin
+                Rebelo</td>
+
+                <td width="17%" align="left" valign="middle">
+                  <p class="c1"><tt class="email">&lt;<a href=
+                  "mailto:justin@demerol.org">justin@demerol.org</a>&gt;</tt></p>
+                </td>
+
+                <td width="17%" align="left" valign="middle">
+                demerol</td>
+
+                <td width="50%" align="left" valign="middle">Web
+                development. Care and feeding of the pekwm
+                Bee.</td>
+              </tr>
+
+              <tr>
+                <td width="17%" align="left" valign="middle">Jyri
+                Jokinen</td>
+
+                <td width="17%" align="left" valign="middle">
+                  <p class="c1"><tt class="email">&lt;<a href=
+                  "mailto:shared@surffi.net">shared@surffi.net</a>&gt;</tt></p>
+                </td>
+
+                <td width="17%" align="left" valign="middle">
+                shared</td>
+
+                <td width="50%" align="left" valign="middle">Writes
+                documentation. Acts ill-tempered.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="PART">
+      <a name="faq"></a>
+
+      <div class="TITLEPAGE">
+        <h1 class="title">V. The pekwm FAQ</h1>
+
+        <div class="PARTINTRO">
+          <a name="AEN918"></a>
+
+          <p class="c1">This is the official pekwm FAQ. Here you
+          can find answers to the questions most frequently asked
+          in the pekwm IRC channel and mailing lists.</p>
+        </div>
+
+        <div class="TOC">
+          <dl>
+            <dt class="c2">Table of Contents</dt>
+
+            <dt>16. <a href="#answers">Questions and
+            answers</a></dt>
+          </dl>
+        </div>
+      </div>
+
+      <div class="chapter">
+        <hr>
+
+        <h1><a name="answers">Chapter 16. Questions and
+        answers</a></h1>
+
+        <div class="simplesect">
+          <h4 class="simplesect"><a name="FAQ-q1">16.1. How is this
+          ~/.pekwm/start thing used?</a></h4>
+
+          <p class="c1">The file <tt class=
+          "filename">~/.pekwm/start</tt> is a regular shell script
+          that is executed when pekwm starts. The file needs to be
+          chmodded as executable (<b class="command">chmod +x</b>)
+          for it to get used. A simple example start file could
+          look like this:</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+#!/bin/sh
+gkrellm &amp;
+Esetroot -s mybackground.png &amp;
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name="FAQ-q2">16.2. What is the
+          harbour?</a></h4>
+
+          <p class="c1">Harbour is pekwm's way of supporting
+          dockapps. It's the same as a dock or a wharf. The harbour
+          is considered a "non supported" feature right now. It is
+          incomplete in features. Do not let this scare you,
+          generally the harbour works like a charm.</p>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name="FAQ-q3">16.3. Why doesn't
+          the harbour work for my dockapp?</a></h4>
+
+          <p class="c1">The harbour needs to be enabled at compile
+          time. When you are doing the <b class=
+          "command">./configure</b> -phase of the pekwm compile,
+          you can use the <b class="command">--enable-harbour</b>
+          option to enable it.</p>
+
+          <p class="c1">If the dockapp still doesn't go into the
+          harbour, even you have it enabled at compile time, you
+          should see if the application has an option to start it
+          "withdrawn".</p>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name="FAQ-q4">16.4. Can I have
+          dynamic menus in pekwm?</a></h4>
+
+          <p class="c1">Yes. The Dynamic keyword is a way to use
+          dynamic menus in pekwm. That is, menus that automatically
+          update every time you view them.</p>
+
+          <p class="c1">To use this feature, you need to put a
+          dynamic entry in the <tt class=
+          "filename">~/.pekwm/menu</tt> file with a parameter that
+          tells pekwm what file to execute to get the menu. This
+          file can be of any language you prefer, the main thing is
+          that it outputs valid pekwm menu syntax inside a Dynamic
+          {} section. A simple script to give pekwm dynamic menu
+          content would look like this:</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+#!/bin/bash
+output=$RANDOM
+echo "Dynamic {"
+echo " Entry = \"$output\" { Actions = \"Exec xmessage $output\" }"
+echo "}"
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <p class="c1">You can save this file to, lets say,
+          <tt class="filename">~/.pekwm/test.sh</tt>, make it
+          executable and then in the menu you would put:</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+Entry = "" { Actions = "Dynamic ~/.pekwm/test.sh" }
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <p class="c1">This should give you a random number every
+          time you review the menu.</p>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name="FAQ-q5">16.5. How do I
+          install themes?</a></h4>
+
+          <p class="c1">The idea is to unpack/uncompress the theme
+          file you downloaded into some directory. In this case, we
+          will unpack it to <tt class=
+          "filename">~/.pekwm/themes</tt>.</p>
+
+          <p class="c1">In simple, first make the themes directory
+          by issuing the command</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+mkdir ~/.pekwm/themes
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <p class="c1">Then copy the theme package, lets call it
+          theme.tar.gz, into <tt class=
+          "filename">~/.pekwm/themes</tt>. Then uncompress the
+          theme pack with the appropriate tool. Unpack the theme
+          with: <b class="command">gzip -dc theme.tar.gz | tar xvf
+          -</b></p>
+
+          <p class="c1">You will then end up with a new
+          subdirectory - this is the theme.</p>
+
+          <p class="c1">After this, edit <tt class=
+          "filename">~/.pekwm/config</tt>. In the top of this file
+          there is a section named "Files {}". In this section,
+          there is a line that says something like:</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+Theme = "/usr/local/share/pekwm/themes/minimal"
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <p class="c1">Edit this line to point to the right
+          directory (<tt class=
+          "filename">~/.pekwm/themes/thethemename</tt>). Restart
+          pekwm and you're set.</p>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name="FAQ-q6">16.6. I upgraded
+          pekwm and now ......... won't work!</a></h4>
+
+          <p class="c1">Pekwm has not yet achieved a freeze on it's
+          configuration file syntax. And as pekwm is an actively
+          developed application, there probably have been some
+          changes on some part of the configuration.</p>
+
+          <p class="c1">If you encounter a situation that when you
+          upgrade your pekwm, and some thing just stops to work,
+          you should either:</p>
+
+          <p class="c1"><em>Check the ChangeLog</em> - If something
+          configurable wise has been changed, it has also been
+          documented in the <tt class="filename">ChangeLog</tt>.
+          This is the first place to look at.</p>
+
+          <p class="c1"><em>Move your old configuration out of the
+          way</em> - If you can't find help from ChangeLog, move
+          your pekwm configuration files out of <tt class=
+          "filename">~/.pekwm</tt> ( <b class="command">mv ~/.pekwm
+          ~/old.pekwm</b>), which will result in new fresh
+          configuration files being copied in. If this helps, it is
+          a fault in your configuration files.</p>
+
+          <p class="c1"><em>Look under the source trees <tt class=
+          "filename">data/</tt> directory for reference</em> - If
+          you can't find info about a new feature or for some
+          reason you don't understand the brief explanation in the
+          <tt class="filename">ChangeLog</tt>, there is a
+          <tt class="filename">data/</tt> directory in the source
+          package of pekwm that has example configuration files
+          (that act as the default configs on a new install).
+          Chances are you'll find help from there.</p>
+
+          <p class="c1"><em>Make sure the right executable is being
+          executed.</em> - Locate all instances of pekwm (<b class=
+          "command">find / -name 'pekwm'</b>). If you see many
+          pekwm executables laying around, maybe one in <tt class=
+          "filename">/usr/bin</tt> and one in <tt class=
+          "filename">/usr/loal/bin</tt>, you might be starting a
+          wrong version pekwm. This might happen when you for
+          example, install a premade pekwm package for your
+          distribution and later install pekwm from source
+          yourself. The safe way is to remove all these pekwm
+          instances and either re-apply the package or do <b class=
+          "command">make install</b> again in the source. You can
+          also, of course, go thru every pekwm binary with the
+          --version parameter to find the right executable to keep.
+          Note to give the full path to the executable when
+          querying for the version (<b class=
+          "command">/usr/local/bin/pekwm --version</b>).</p>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name="FAQ-q7">16.7. How do I
+          make XMMS/MPlayer continue playing while moving/resizing
+          a window?</a></h4>
+
+          <p class="c1">There are some settings in <tt class=
+          "filename">~/.pekwm/config</tt> that can be used to get
+          rid of XMMS and MPlayer stopping their play while moving
+          or resizing some window. All of these options are located
+          in the MoveResize {} section.</p>
+
+          <p class="c1">There actually are a couple of unstopping
+          configurations possible. First one is to use opaque move
+          and resize. Opaque means that the window contents are
+          actively updated while the window is moved/resized, in
+          english, it shows the window content while
+          moving/resizing. The options to do this would be:</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+OpaqueMove = "True"
+OpaqueResize = "True"
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <p class="c1">The second option is to use opaque moving
+          and wireframe resize. As some of the readers might know,
+          opaque resizing and moving is slower than wireframe
+          moving and resizing thus it needs more CPU time.
+          Unfortunately wireframe moving freezes MPlayer, so we'll
+          need to compromise in using opaque moving and wireframe
+          for resizing only. The options in using this hybrid
+          are:</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+OpaqueMove = "True"
+OpaqueResize = "False"
+GrabWhenResize = "False"
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name="FAQ-q8">16.8. Can i turn
+          off this sloppy focus crap?</a></h4>
+
+          <p class="c1">Yes. You can. In <tt class=
+          "filename">~/.pekwm/config</tt> there is a section named
+          Screen {} which in turn has a section called Focus {}
+          inside it. In this Focus {} section we have four options
+          that take the parameters of either True or False. To
+          create the effect of click to focus, set them to:</p>
+
+          <div class="c3">
+            <table cellspacing="1" cellpadding="1" width="85%"
+            bgcolor="#000000">
+              <tr>
+                <td bgcolor="#E5E5E5">
+                  <pre>
+Enter = "False"
+Leave = "False"
+Click = "True"
+</pre>
+                </td>
+              </tr>
+            </table>
+          </div>
+
+          <p class="c1">The fourth option is New. With it you can
+          decide if you want new windows focused or not when they
+          pop up.</p>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name="FAQ-q9">16.9. What is
+          Mod1? How about Mod4?</a></h4>
+
+          <p class="c1">In the <tt class=
+          "filename">~/.pekwm/keys</tt> and <tt class=
+          "filename">~/.pekwm/mouse</tt> there are all these odd
+          Mod1 and Mod4 things used as modifier keys. It's simple -
+          Mod1 is more widely known as the Alt key, and Mod4 as the
+          "windows key" found on recent keyboards.</p>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name="FAQ-q10">16.10. Why do my
+          terminals start the wrong size when grouped?</a></h4>
+
+          <p class="c1">This is a very complicated issue in fact,
+          and has to do with the way terminals handle their resize
+          actions. The best way to bring at least some help to this
+          situation is to put <b class="command">resize &gt;
+          /dev/null</b> in your .bashrc or equal.</p>
+        </div>
+
+        <div class="simplesect">
+          <hr>
+
+          <h4 class="simplesect"><a name="FAQ-q11">16.11. Where can
+          I find the current size/position of a window?</a></h4>
+
+          <p class="c1">Use the command <b class="command">xwininfo
+          | grep geometry</b>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

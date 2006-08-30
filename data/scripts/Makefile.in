@@ -1,0 +1,14 @@
+# Makefile for pekwm
+# Copyright (C) 2003 Claes Nästen <pekdon at pekdon dot net>
+
+prefix = @prefix@
+SCRIPTDIR = @datadir@/@PACKAGE@/scripts
+DATA_MODE = 755
+INSTALL = @INSTALL@
+SCRIPTS = pekwm_themeset.pl pekwm_ws_menu.pl
+
+install:
+	mkdir -p $(DESTDIR)$(SCRIPTDIR)
+	for i in $(SCRIPTS); do \
+		$(INSTALL) -m $(DATA_MODE) $$i $(DESTDIR)$(SCRIPTDIR); \
+	done

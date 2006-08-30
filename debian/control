@@ -1,0 +1,15 @@
+Source: pekwm
+Section: x11
+Priority: optional
+Maintainer: David Frey <dpfrey@shaw.ca>
+Build-Depends: debhelper (>> 3.0.0)
+Standards-Version: 3.5.8
+
+Package: pekwm
+Architecture: any
+Depends: ${shlibs:Depends}
+Description: A lightweight, yet featureful X11 window manager
+ pekwm is a windowmanager based on aewm++ but it no longer resembles it.  It is
+ highly configurable and rather fast.  One can group windows in a sense much
+ liike pwm.  Keybindings, Rootmenu, Mouse button actions and Automatic
+ properties are  all configurable using well formatted configuration files.

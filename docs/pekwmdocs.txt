@@ -1,0 +1,1996 @@
+Pekwm Window Manager Documentation
+
+
+Pekwm Window Manager Documentation
+
+Version 0.1.3-20030605, Last updated June 05, 2003 and corresponding to
+pekwm-0.1.3.
+
+Rando Christensen
+
+Jyri Jokinen
+
+Copyright © 2002-2003 by the pekwm development team
+
+This document aims to be a complete documentation of the pekwm window
+manager.
+
+Copyright (c) 2002-2003 the pekwm development team
+
+All rights reserved.
+
+  ------------------------------------------------------------------------
+
+Table of Contents
+I. An overview of pekwm
+
+1. An Introduction to Pekwm
+
+1.1. Why Pekwm?
+1.2. Pekwm Features
+
+2. Getting Pekwm
+
+2.1. Getting the Pekwm source
+2.2. Getting prebuilt Pekwm packages
+
+3. Compiling Pekwm
+
+3.1. Unpacking the Archive
+3.2. Configuration Options
+3.3. Building and installing
+
+II. Basic Usage
+
+4. Getting Started
+
+4.1. First Run
+4.2. Iconification and The Icon and Goto menus
+
+5. Window Grouping
+
+5.1. What is window grouping?
+5.2. How window grouping works
+5.3. Advanced Grouping Topics
+
+6. Workspaces
+
+6.1. Workspace Navigation
+
+III. Configuration
+
+7. The Pekwm Common Syntax for Config Files
+8. The main config file
+
+8.1. Basic Menu Syntax
+8.2. Config File Keywords
+8.3. The Placement and Focus Subsections
+
+9. Configuring the menus
+
+9.1. Basic Menu Syntax
+9.2. Menu Keywords
+9.3. Dynamic Menus
+
+10. Autoproperties
+
+10.1. What are Autoproperties?
+10.2. Basic Autoproperties Syntax
+10.3. Advanced Autoproperties
+10.4. AutoGrouping
+10.5. Getting more help
+
+11. Keyboard and Mouse Configuration
+
+11.1. Mouse Bindings
+11.2. Key Bindings
+11.3. Keychains
+11.4. Keys/Mouse actions
+
+12. The pekwm start file
+IV. Development
+
+13. Mailing Lists
+
+13.1. The Lists
+13.2. Mailing list Archives
+13.3. Subscribing and Filtering
+
+14. IRC
+15. The developers
+V. The pekwm FAQ
+
+16. Questions and answers
+
+16.1. How is this ~/.pekwm/start thing used?
+16.2. What is the harbour?
+16.3. Why doesn't the harbour work for my dockapp?
+16.4. Can I have dynamic menus in pekwm?
+16.5. How do I install themes?
+16.6. I upgraded pekwm and now ......... won't work!
+16.7. How do I make XMMS/MPlayer continue playing while moving/resizing a
+window?
+16.8. Can i turn off this sloppy focus crap?
+16.9. What is Mod1? How about Mod4?
+16.10. Why do my terminals start the wrong size when grouped?
+16.11. Where can I find the current size/position of a window?
+
+List of Tables
+3-1. Important ./configure options
+8-1. Config File Elements
+9-1. Root Menu Elements
+9-2. Menu Actions
+11-1. 'Where' fields
+11-2. 'Event' fields
+15-1. Developers
+
+I. An overview of pekwm
+
+Pekwm is a small, fast, functional, and flexible window manager which aims
+to look nice while remaining small.
+
+Table of Contents
+1. An Introduction to Pekwm
+2. Getting Pekwm
+3. Compiling Pekwm
+
+  ------------------------------------------------------------------------
+
+Chapter 1. An Introduction to Pekwm
+
+The Pekwm Window Manager is written by Claes Nästen. The code is based on
+the aewm++ window manager, but it has evolved enough that it no longer
+resembles aewm++ at all. It also has an expanded feature-set, including
+window grouping (similar to ion, pwm, or fluxbox), auto properties, xinerama
+and keygrabber that supports keychains, and much more.
+
+  ------------------------------------------------------------------------
+
+1.1. Why Pekwm?
+
+"Why make another window manager?", some ask. This may confuse some people,
+but the best answer is "Why not?". There are arguments out there that it's
+better to have a single standard desktop environment, so that our mothers
+can find their way around, but in all honestly, if most of us wanted the
+same environment as our mothers, we probably wouldn't be reading this
+anyway. The same can also be applied to Your sister, your roommate, your
+wife, even your cat.
+
+"Why should I use pekwm?", others ask. Nobody ever said you should. However,
+we use it. And you're welcome to as well. You should use the environment
+most suited to you. For a better answer to this question, Check out the
+Pekwm Features section below.
+
+  ------------------------------------------------------------------------
+
+1.2. Pekwm Features
+
+Here's a short list of some of the features included in pekwm:
+
+  *
+
+    Possibility to group windows in a single frame
+
+  *
+
+    Configurable keygrabber that supports keychains
+
+  *
+
+    Configurable mouse actions
+
+  *
+
+    Configurable rootmenu and windowmenu
+
+  *
+
+    Xinerama support
+
+  *
+
+    Configurable window placement
+
+  *
+
+    Basic pixmap theming, with configurable buttons
+
+  *
+
+    Autoprops (Automatic properties such as a window's sticky state, etc.)
+
+  *
+
+    Dynamical menus (menus that regenerate on every view)
+
+  ------------------------------------------------------------------------
+
+Chapter 2. Getting Pekwm
+
+Now that you've decided to try it out, you need to get it. You're left with
+two options. The first is to download and compile the source, and the second
+is finding a pre-compiled package.
+
+  ------------------------------------------------------------------------
+
+2.1. Getting the Pekwm source
+
+The source code is available from both the pekwm website, http://pekwm.org,
+and the ftp site, ftp://ftp.pekwm.org/pub/users/pekdon.
+
+Files are named pekwm-0.1.3.tar.gz and pekwm-0.1.3.tar.bz2. Although it
+doesn't matter which you get, keep in mind that the .bz2 is smaller.
+
+While you're there, you can also look for themes on the site, but that's
+definitely not necessary yet.
+
+  ------------------------------------------------------------------------
+
+2.2. Getting prebuilt Pekwm packages
+
+Pre-built pekwm packages are available for many distributions at the pekwm
+website, http://pekwm.org, and the ftp site,
+ftp://ftp.pekwm.org/pub/users/pekdon.
+
+The current version of pekwm is 0.1.3. A complete list of the packages is
+available at the website.
+
+If there's no package for your distribution, and you'd like to build one,
+Let us know! We'll gladly host new binary packages up on the site.
+
+  ------------------------------------------------------------------------
+
+Chapter 3. Compiling Pekwm
+
+This chapter will help you get pekwm compiled.
+
+  ------------------------------------------------------------------------
+
+3.1. Unpacking the Archive
+
+The first step to compiling pekwm is to unpack the archive. Unpacking it
+depends on which version you downloaded:
+
+ 
+
+tar -zxvf pekwm-0.1.3.tar.gz
+tar -jxvf pekwm-0.1.3.tar.bz2
+
+The '-j' option works normally on most linux systems, and as of the current
+GNU tar development version, is part of GNU tar. If your system does not
+support the -j option, you can use two things: bzip2 -dc pekwm-0.1.3.tar.bz2
+| tar -xvf - or bzip2 -d pekwm-0.1.3.tar.bz2 followed by tar -xvf
+pekwm-0.1.3.tar. This also works for the .tar.gz version using gzip -dc or
+gzip -d.
+
+The 'v' options are optional, they show you the filenames as they're being
+extracted. at this point, you should have a pekwm-0.1.3 directory. Use cd
+pekwm-0.1.3 to get there.
+
+  ------------------------------------------------------------------------
+
+3.2. Configuration Options
+
+The first thing to do is to run the configure script. This configures
+compile options for pekwm. Here are some of the more used options:
+
+Table 3-1. Important ./configure options
+
+Option Description Default Value
+  --enable-shape  Enables the use of the Xshape extension  Yes
+  --enable-xinerama  Enables xinerama (Multi-Monitor in X11) support  No
+  --enable-menus  Enables menu support (It's useful to turn this off if you
+rely completely on a desktop environment using the root window)  Yes
+  --enable-harbour  Enables the use of the harbour wich is used to swallow
+Window Maker dockapps.  No
+  --enable-pcre  Enables the use of libpcre for autoprops regular
+expressions. Note that regular expressions are used no matter what; this
+option only makes pcre be used instead of libc for them.  No
+  --enable-debug  Enables debugging output  No
+  --prefix=PREFIX  It may be useful to use a custom prefix when testing a
+devel version.  /usr/local
+
+Default Configuration Options.
+
+The default pekwm config is this. Distribution packages should all use these
+options when configured. If you run 'pekwm --info', you can see the options
+you compiled with. (note: if you have a distribution package that doesn't
+produce this outfit, let us know, and tell the distribution packagers to fix
+their package): ./configure --enable-shape --disable-xinerama
+--disable-debug --enable-menus --enable-keygrabber --enable-harbour
+--disable-pcre
+
+  ------------------------------------------------------------------------
+
+3.3. Building and installing
+
+After running ./configure with any options you need, run make. This should
+only take a few minutes. After that, become root (unless you used a prefix
+in your home directory, such as --prefix=/home/you/pkg) and type make
+install
+
+For distribution packagers.
+
+We provide a distribution packagers guide called PACKAGERS in the pekwm
+source distribution, which gives you all the details you should need to
+create a package for your distribution.
+
+That's it! pekwm is installed on your computer now. Next you should read the
+Getting Started chapter.
+
+II. Basic Usage
+
+Pekwm is a small, fast, functional, and flexible window manager which aims
+to look nice while remaining small.
+
+Table of Contents
+4. Getting Started
+5. Window Grouping
+6. Workspaces
+
+  ------------------------------------------------------------------------
+
+Chapter 4. Getting Started
+
+Now that you have pekwm installed, You should get your configuration going.
+
+  ------------------------------------------------------------------------
+
+4.1. First Run
+
+The first time you run pekwm, the following files should be copied into your
+~/.pekwm directory: config, menu, keys, autoproperties, start. You will
+learn more about these files in the Configuration section.
+
+All this happens behind-the-scenes, so by default, you'll be placed into a
+nice working environment.
+
+  ------------------------------------------------------------------------
+
+4.2. Iconification and The Icon and Goto menus
+
+When you Iconify (This is the traditional name in unix. Windows calls this
+minimize.) a window in pekwm, it doesn't really go anywhere like you might
+expect. You can de-iconify using one of two menus: The Icon menu, which
+shows you a list of all iconified windows, or the Goto menu, which shows you
+a list of all windows currently open, whether minimized or not, and their
+states. When you click on an item in the goto menu, it takes you to that
+window and deiconifies it if necessary.
+
+An Item in the goto menu, icon menu and attach menus has the following
+syntax:
+
+ 
+
+<number> [symbols] Window title
+
+The number represents what workspace the window is on. Symbols is a list of
+symbols that represent window states. They are:
+
+Symbols in the pekwm menus
+
+  *
+
+    * (sticky)
+
+  *
+
+    . (iconified)
+
+  *
+
+    ^ (shaded)
+
+  *
+
+    + (above normal window layer)
+
+  *
+
+    - (below normal window layer)
+
+  *
+
+    A (active in group)
+
+  ------------------------------------------------------------------------
+
+Chapter 5. Window Grouping
+
+The main feature of pekwm is window grouping, similar to that of ion, or the
+tabs in pwm or fluxbox.
+
+  ------------------------------------------------------------------------
+
+5.1. What is window grouping?
+
+Window grouping is a very simple concept, but it's very hard to understand
+at first. It's a simple way of making multiple applications share the exact
+same space.
+
+The simplest way to explain this is with an analogy. Imagine you have 20
+sheets of paper. To save space, you stack them on top of eachother. then,
+you have little tabs sticking out of one edge so you can quickly flip to
+that sheet of paper.
+
+In pekwm, Window grouping is visually done by dividing up the physical space
+on the titlebar, while most other window managers that implement this
+functionality prefer to use a "Tabs that Stick Out of the window border"
+look and feel. The pekwm team feels that this is a waste of screen real
+estate, as non-rectangular window frames are harder to fit against
+eachother.
+
+  ------------------------------------------------------------------------
+
+5.2. How window grouping works
+
+The first thing to know is how to group one window to another. Middle-Click
+(On a normal X setup, the 2nd mouse button is the middle button) the
+titlebar of the first window and begin to drag the window. You should now
+see a rectangle with the window's title in it. Drag that rectangle to above
+the target window, and release your mouse button.
+
+Any time this document mentions a key or mouse button, there's a strong
+likelyhood that you can change which key or mouse button is used for that
+function. Please see the Keyboard and Mouse config section.
+
+Now that you have windows in a group, you need to learn to choose between
+windows in that group. The first way is by clicking the third mouse button
+on the window's part of the titlebar. That window should now be the
+currently-active window of the group. You can also use a keybinding for
+this. The default keybindings are Ctrl+Alt+q and Ctrl+Alt+w to go forward
+and back between active window in the frame.
+
+By default, alt-tab is set to NextFrame action. This means that pressing
+Alt-tab cycles between open window groups (also called frames), and you must
+use the NextInFrame/PrevInFrame keybindings to switch between them. See the
+Key Bindings section for more info.
+
+To de-group, simply middle click and drag the window off the frame, and
+release anywhere. If you release over another window group, you'll move the
+window to the new group.
+
+You can also set windows up to automatically be grouped to one another. See
+the Autoproperties section for more details.
+
+  ------------------------------------------------------------------------
+
+5.3. Advanced Grouping Topics
+
+Another thing you can do with window grouping is Tagging. There are three
+actions (can be used in the window menu, or keybinds, etc..) that relate to
+tagging. ToggleTag, ToggleTagBehind, and UnTag. With these options, you can
+'Tag' a frame. A tag is like a miniature autogroup. It says "All new windows
+launched should be automatically grouped to this Frame". With ToggleTag, The
+newly launched window will be the currently-selected window in the frame.
+With ToggleTagBehind, it will be just attached to the window's group, but
+the currently-focused client will stay so. Untag can be used anywhere, and
+removes the tag from wherever it's currently at.
+
+  ------------------------------------------------------------------------
+
+Chapter 6. Workspaces
+
+Workspaces in pekwm are a very common feature, found in almost every UNIX
+window manager in existence. They're also called desktops in some window
+managers. In Pekwm-Speak, "workspace", "desktop", and "desk" are
+interchangeable. Use whichever one you feel like using.
+
+By default, pekwm enables four workspaces. You can change this by editing
+your ~/.pekwm/config file. See the The main config file section for more
+details.
+
+  ------------------------------------------------------------------------
+
+6.1. Workspace Navigation
+
+You can send windows to another workspace by Right-Clicking the titlebar,
+going to 'send to' and picking the desktop you'd like. Another option is
+using the SendToWorkspace keybindings (by default, Windows key + F1-F4).
+Switch desktops by using the GoToWorkspace keybings, (by default Windows key
++ 1-4), or the NextWorkspace and PrevWorkspace (by default Alt+Right and
+Alt+Left).
+
+III. Configuration
+
+The configuration part of this documentation is focused on providing
+complete documentation for all config files located in your ~/.pekwm
+directory.
+
+Table of Contents
+7. The Pekwm Common Syntax for Config Files
+8. The main config file
+9. Configuring the menus
+10. Autoproperties
+11. Keyboard and Mouse Configuration
+12. The pekwm start file
+
+  ------------------------------------------------------------------------
+
+Chapter 7. The Pekwm Common Syntax for Config Files
+
+All pekwm config files (with the exception of the start file- see start file
+) Follow a common syntax for options.
+
+ 
+
+# comment
+$VAR = "Value"
+INCLUDE = "~/.pekwm/some_file"
+
+COMMAND = "program to execute and add the valid config syntax it outputs here"
+
+# Normal format
+Section = "Name" {
+        Event = "Param" {
+                Actions = "action parameter; action parameter; $VAR"
+        }
+}
+
+# Compressed format
+
+Section = "Name" { Event = "Param" { Actions = "action parameter; action parameter; $VAR" } }
+
+You can modify the spacing a little bit, but this is the "Correct" format,
+so the documentation will stick strictly to it. Events can be combined into
+the same line by issuing a semicolon between them. Variables can probably be
+defined almost anywhere, but it's probably a better idea to place them at
+the top of the file, outside of any sections. You can use an INCLUDE
+anywhere in the file. Any variables you define before the INCLUDE can be
+used in the INCLUDED file. This doesn't, however, work the other way around.
+
+In addition, comments are allowed in all config files, by starting a line
+with the # character.
+
+  ------------------------------------------------------------------------
+
+Chapter 8. The main config file
+
+The main config file is where all the base config stuff goes.
+
+  ------------------------------------------------------------------------
+
+8.1. Basic Menu Syntax
+
+As previously indicated, the config file follows the rules defined in Common
+Syntax.
+
+Here's an example ~/.pekwm/config file (actually a hybrid between pekwm
+default and my own personal one):
+
+ 
+
+Files {
+        Keys = "~/.pekwm/keys"
+        Mouse = "~/.pekwm/mouse"
+        Menu = "~/.pekwm/menu"
+        Start = "~/.pekwm/start"
+        AutoProps = "~/.pekwm/autoprops"
+        Theme = "~/.pekwm/themes/gray10k"
+}
+
+MoveResize {
+        EdgeSnap = "10"
+        FrameSnap = "6"
+        OpaqueMove = "False"
+        OpaqueResize = "False"
+        GrabWhenResize = "True"
+
+        WWFrame = "1"
+        WWFrameWrap = "False"
+        WWMouse = "1"
+        WWMouseWrap = "False"
+}
+
+Screen {
+        Workspaces = "6"
+        DoubleClickTime = "250"
+
+        ShowFrameList = "True"
+        Placement {
+                Model = "Smart MouseCentered"
+                Smart {
+                        TopToBottom = "True"
+                        LeftToRight = "True"
+                }
+        }
+        Focus {
+                Enter = "True"
+                Leave = "False"
+                Click = "True"
+                New = "True"
+        }
+}
+
+Harbour {
+        OnTop = "True"
+        MaximizeOver = "False"
+        Placement = "Right"
+        Orientation = "TopToBottom"
+}
+
+  ------------------------------------------------------------------------
+
+8.2. Config File Keywords
+
+Here's a table showing the different elements that can be used in your
+config file. Remember that 'boolean' meanst 'true' or 'false' and that all
+values should be placed inside quotes.
+
+Table 8-1. Config File Elements
+
+Section Paramater Name Value Type Description
+  Files   Keys   String  The location of the keys file, such as
+~/.pekwm/keys
+  Files   Menu   String  The location of the menu file, such as
+~/.pekwm/menu
+  Files   Start   String  The location of the start file, such as
+~/.pekwm/start
+  Files   AutoProps   String  The location of the autoprops file, such as
+~/.pekwm/autoproperties
+  Files   Theme   String  The location of the Theme directory, such as
+~/.pekwm/themes/themename
+  MoveResize   EdgeSnap   Number  The distance from screen edge required for
+the window to snap against it.
+  MoveResize   FrameSnap   Number  The distance from other clients that a
+window will snap against it to.
+  MoveResize   OpaqueMove   Boolean   Turns on opaque Moving
+  MoveResize   OpaqueResize   Boolean   Turns on opaque Resizing
+  MoveResize   GrabWhenResize   Boolean   Whether or not to grab the X
+server while resizing-- You'll want it on when in wire move and when you
+have a slow computer and still want opaque resize.
+  MoveResize   WWFrame   Number  The number of pixels away from the edge to
+trigger a workspace change when you drag a frame to the screen edge. A value
+of zero disables the feature.
+  MoveResize   WWMouse   Number  The number of pixels away from the edge to
+trigger a workspace change when you move your mouse on the screen edge. A
+value of zero disables the feature.
+  MoveResize   WWFrameWrap   Boolean   Whether or not workspace changing
+works between the first and last workspace when dragging a frame.
+  MoveResize   WWMouseWrap   Boolean   Whether or not workspace changing
+works between the first and last workspace when moving the mouse pointer on
+a screen edge.
+  Screen   Workspaces   Number   Number of workspaces.
+  Screen   DoubleClicktime   Number   Time, in milliseconds, between clicks
+to be counted as a doubleclick.
+  Screen   ShowFrameList   Boolean   Controls whether a list of all
+available frames on the workspace is displayed during the
+FocusNextFrame/FocusPrevFrame actions.
+  Screen   Focus   subsection  See The Placement and Focus Subsections!
+  Screen   Placement   Subsection  See The Placement and Focus Subsections!
+  Harbour   Placement   String   Which edge to place the harbour on. One of
+Right, Left, Top, or Bottom.
+  Harbour   OnTop   Boolean   Whether or not the harbour is "always on top"
+  Harbour   MaximizeOver   Boolean   Controls whether maximized clients will
+cover the harbour (true), or if they will stop at the edge of the harbour
+(false).
+
+  ------------------------------------------------------------------------
+
+8.3. The Placement and Focus Subsections
+
+There are two specialty subsections in the screen section- Focus and
+Placement. Placement can optionally have it's own subsection. Sound hard?
+It's not! It's really quite simple.
+
+We'll start off with Placement. Placement has two options: Model, and a
+'Smart' subsection. Model is very simple, it's simply a list of keywords
+that describes how to place new windows, such as "Smart MouseCentered".
+Options are:
+
+Placement Models
+
+Smart
+
+    Tries to place windows where no other window is present
+
+MouseCentered
+
+    Places the center of the window underneath the current mouse pointer
+    position
+
+MouseTopLeft
+
+    Places the top-left corner of the window under the pointer
+
+Secondly, there's a Smart section, which describes how pekwm computes where
+to place a new window in smart mode. There's three boolean options:
+TopToBottom, LeftToRight, and Row. if TopToBottom is false, the window is
+placed starting from the bottom. If it's true, it's placed from top to
+bottom. LeftToRight works the same way. Row is similar- it decides whether
+to use row or column placement.
+
+The next is the pekwm focus section, which is really very robust. With this,
+you can emulate any focus model any other wm has. There are four boolean
+values. These four values specify events relative to the mouse and a window,
+meaning if the event has occured and it's value is true, pekwm will change
+the focusing.
+
+Focus Model Events
+
+Enter
+
+    The mouse has been moved over the window
+
+Leave
+
+    The mouse has been moved off the window
+
+Click
+
+    The mouse has been clicked on the window
+
+New
+
+    The window has just been launched.
+
+This seems complicated, but it's powerful. Here's some helpful shortcuts to
+get the more 'traditional' unix focus models in pekwm:
+
+Emulating traditional unix focus models
+
+Click to Focus
+
+    True: Click, New. False: Enter, Leave.
+
+Focus Follows Mouse
+
+    True: Click, New, Enter, Leave.
+
+Sloppy Focus
+
+    True: Click, New, Enter. False: Leave.
+
+You can, of course, create your own focus models.
+
+  ------------------------------------------------------------------------
+
+Chapter 9. Configuring the menus
+
+The root menu is what you get when you (by default- See the Mouse Bindings
+section) left-click on the root window (also called the desktop). You can
+also configure the window menu, which you get when you right-click on a
+window title.
+
+  ------------------------------------------------------------------------
+
+9.1. Basic Menu Syntax
+
+As previously indicated, the root menu follows the rules defined in Common
+Syntax. There aren't many possible options, and they're all either within
+the main menu, or within a submenu. This is all handled by a single file.
+
+Here's an example ~/.pekwm/menu file:
+
+ 
+
+# Menu config for pekwm
+
+# Variables
+$TERM = "xterm -fn fixed +sb -bg black -fg white "
+
+RootMenu = "Pekwm" {
+        Entry = "Term" { Actions = "Exec $TERM &" }
+
+        Entry = "Emacs" { Actions = "Exec $TERM -title emacs -e emacs -nw &" }
+        Entry = "Vim" { Actions = "Exec $TERM -title vim -e vi &" }
+        Entry = "----------" { Actions = "NoAction" }
+        Submenu = "Graphics" {
+                Entry = "Gimp" { Actions = "Exec gimp &" }
+                Entry = "Gv" { Actions = "Exec gv &" }
+                Entry = "Xpdf" { Actions = "Exec xpdf &" }
+        }
+        Submenu = "Mm" {
+                Entry = "Xmms" { Actions = "Exec xmms &" }
+                Entry = "MPlayer" { Actions = "Exec mplayer &" }
+        }
+        Submenu = "Utils" {
+                Entry = "XCalc" { Actions = "Exec xcalc &" }
+                Entry = "XMan" { Actions = "Exec xman &" }
+        }
+        Submenu = "WwW" {
+                Entry = "Dillo" { Actions = "Exec dillo &" }
+
+                Entry = "Konqueror" { Actions = "Exec konqueror www.google.com &" }
+                Entry = "Mozilla" { Actions = "Exec mozilla &" }
+
+                Entry = "Mutt" { Actions = "Exec $TERM -title mutt -e mutt &" }
+        }
+        Entry = "----------" { Actions = "NoAction" }
+        Submenu = "Pekwm" {
+        Entry = "Reload" { Actions = "Reload" }
+        Entry = "Restart" { Actions = "Restart" }
+        Entry = "Exit" { Actions = "Exit" }
+                Submenu = "Others" {
+                        Entry = "Xterm" { Actions = "RestartOther xterm" }
+                        Entry = "Twm" { Actions = "RestartOther twm" }
+                }
+                Submenu = "Themes" {
+
+                        Entry { Actions = "Dynamic ~/pkg/bin/pekwm_themeset" }
+                }
+        }
+}
+
+WindowMenu = "Window Menu" {
+        Entry = "(Un)Stick" { Actions = "Stick" }
+        Entry = "(Un)Shade" { Actions = "Shade" }
+
+        Submenu = "Maximize" {
+                Entry = "Full" { Actions = "Maximize " }
+                Entry = "Horizontal" { Actions = "MaximizeHorizontal " }
+                Entry = "Vertical" { Actions = "MaximizeVertical " }
+        }
+        Submenu = "Stacking" {
+                Entry = "Raise " { Actions = "Raise " }
+                Entry = "Lower" { Actions = "Lower" }
+                Entry = "Always On Top " { Actions = "AlwaysOnTop " }
+                Entry = "Always Below" { Actions = "AlwaysBelow " }
+        }
+        Submenu = "Decor" {
+                Entry = "Decor" { Actions = "ToggleDecor " }
+                Entry = "Border" { Actions = "ToggleBorder " }
+                Entry = "Titlebar" { Actions = "ToggleTitlebar " }
+        }
+        SubMenu = "Send To" {
+                Entry = "Workspace 1" { Actions = "SendToWorkspace 1" }
+                Entry = "Workspace 2" { Actions = "SendToWorkspace 2" }
+                Entry = "Workspace 3" { Actions = "SendToWorkspace 3" }
+
+                Entry = "Workspace 4" { Actions = "SendToWorkspace 4; GoToWorkspace 4" }
+        }
+        Entry = "Iconify " { Actions = "Iconify " }
+        Entry = "Close" { Actions = "Close" }
+        Entry = "Kill " { Actions = "Kill " }
+}
+
+  ------------------------------------------------------------------------
+
+9.2. Menu Keywords
+
+Here's a table showing the different elements that can be used in your root
+menu file.
+
+Table 9-1. Root Menu Elements
+
+Element Params Description
+  Submenu   Name   Begins a submenu. 'name' is what will appear in the root
+menu for the entry.
+  Entry   Name   Begins a menu entry. 'Name' is the text shown in the menu
+for this entry.
+  Actions   Action  Run an action. 'Action' is the action(s) to to run.
+
+Table 9-2. Menu Actions
+
+Action Description
+  Exec  Exec makes pekwm to execute the command that follows it.
+  Reload  When this is called, pekwm will Re-read all configuration files
+without exiting.
+  Restart  This will cause pekwm to exit and re-start completely.
+  RestartOther   Quits pekwm and starts another application. The application
+to run is given as a parameter.
+  Exit   Exits pekwm. Under a normal X setup, This will end your X session.
+
+When using the Exec action, you must make sure the program gets
+backgrounded. Put a '&' at the end if it doesn't do this on it's own.
+
+  ------------------------------------------------------------------------
+
+9.3. Dynamic Menus
+
+It is possible to use dynamic menus in pekwm, that is menus that regenerate
+themself whenever the menu is viewed. This is done with the Dynamic keyword.
+
+To use this feature, you need to put a dynamic entry in the ~/.pekwm/menu
+file with a parameter that tells pekwm what file to execute to get the menu.
+This file can be of any language you prefer, the main thing is that it
+outputs valid pekwm menu syntax inside a Dynamic {} section. The syntax of
+dynamic entry looks like this:
+
+ 
+
+Entry = "" { Actions = "Dynamic /path/to/filename" }
+
+The input from a program that creates the dynamic content should follow the
+general menu syntax encapsulated inside a Dynamic {} section. A simple
+script to give pekwm dynamic menu content would look like this:
+
+ 
+
+#!/bin/bash
+output=$RANDOM
+echo "Dynamic {"
+echo " Entry = \"$output\" { Actions = \"xmessage $output\" }"
+echo "}"
+
+  ------------------------------------------------------------------------
+
+Chapter 10. Autoproperties
+
+  ------------------------------------------------------------------------
+
+10.1. What are Autoproperties?
+
+"Autoproperties" (often referred as autoprops) is short for "Automatic
+Properties". This is pekwm's way of setting certain things up for
+applications based on the window's internal id. You can set up a lot of
+things, such as Size, iconified state, start location, grouped state
+(automatically having one window group to another), workspace to start on,
+whether it has a border or titlebar, and more.
+
+  ------------------------------------------------------------------------
+
+10.2. Basic Autoproperties Syntax
+
+The ~/.pekwm/autoproperties file follows the rules in Common Syntax. This
+file can become rather complicated, but it's also the most powerful of any
+of pekwm's config files.
+
+The one important thing to remember is the Property tag. This identifier
+tells us where to apply properties. It means which windows to apply it on.
+To find out the two terms, use xprop WM_CLASS and click on your window.
+Below you'll find a bash/zsh function which will give you the correct string
+for this file. You can also specify a regexp wildcard, such as .*,opera;,
+which means anything for the first word, opera for the second.
+
+ 
+
+propstring () {
+  echo -n 'Property '
+  xprop WM_CLASS | sed 's/.*"\(.*\)", "\(.*\)".*/= "\1,\2" {/g'
+  echo '}'
+}
+
+Pekwm can rewrite window titles. This is done in a separate TitleRules
+section, where one defines properties on wich clients to use the rewriting
+and then a regexp rule of what to do to that clients title. A simple rule
+that would change "Title: this is the title" to "this is the title" looks
+like this:
+
+ 
+
+Rule = "/Title: (.*)/\$1/"
+
+Here's an example ~/.pekwm/autoproperties file:
+
+ 
+
+Property = ".*,^xmms" {
+        ApplyOn = "Start New"
+        Layer = "0"
+        Sticky = "True"
+}
+
+Property = "^xclock,^XClock" {
+        ApplyOn = "Start New"
+        Geometry = "100x100+0-0"
+        Border = "False"; Titlebar = "False"
+        Sticky = "True"
+        Layer = "Desktop"
+}
+
+Property = "^dillo,^Dillo" {
+        ApplyOn = "Start New"
+        Group = "browsers" {
+                Size = "30"
+                Behind = "True"
+                Global = "False"
+        }
+}
+
+TitleRules {
+        Property = "^dillo,^Dillo" {
+                Rule = "/Dillo: (.*)/\$1 [dillo]/"
+        }
+        Property = "^opera,^opera" {
+                Rule = "/...:... - (.*) - Opera .*/\$1 [opera]/"
+        }
+}
+
+Regular Expressions!
+
+The pekwm autoproperrties file uses Regular Expression syntax for wildcards.
+Regular expressions can be really confusing to people with no experience
+with them. A good rule of thumb is: "Anywhere you'd think to use '*', use
+'.*'". Also, '^' matches the beginning of a string, '$' matches the end, and
+'.' is any single character. Regular Expression syntax is a little bit
+beyond the scope of this documentation. There's a really basic tutorial at
+http://www.living-source.com/user/adi/regexp/regexp_tutorial.html, And a
+slightly more advanced one at http://www.zytrax.com/tech/web/regex.htm. I
+found these on google, using the search phrase
+"regular.expression.tutorial". You can probably use that search term or
+modify it to find some others.
+
+  ------------------------------------------------------------------------
+
+10.3. Advanced Autoproperties
+
+Below is a list of the different actions available to you in your
+autoproperties file; These are the actual Auto Properties. They can take
+four types of arguments: bool, integer, string, or geom. A bool is either
+True or False. An Integer is a number, 0 or more. A string is any string,
+It's used as an identifier. Finally, geom is an X Geometry String; Examples
+are 200x300+0+0, 0x500+200+300, 20x10+0+50, et cetera.
+
+Exhaustive Autoprops List
+
+Sticky (bool)
+
+    Window Starts Sticky (present on all workspaces)
+
+Shaded (bool)
+
+    Window Starts Shaded
+
+MaximizedVertical (bool)
+
+    Window Starts Maximized Vertically
+
+MaximizedHorizonal (bool)
+
+    Window Starts Maximized Horizontally
+
+Iconified (bool)
+
+    Window Starts Iconified
+
+Border (bool)
+
+    Window Starts with a border
+
+Titlebar (bool)
+
+    Window Starts with a TitleBar
+
+Geometry (geom)
+
+    X Geometry String showing the initial size and position of the string.
+
+Workspace (integer)
+
+    Which workspace to start program on.
+
+ApplyOn (string)
+
+    A list of conditions of when to apply this autoprop, consisting of
+    "Start" (Apply if window already exists before pekwm starts/restarts),
+    "Reload" (Apply when pekwm's config files are reloaded), "New" (Applies
+    when the application first starts), "WorkspaceChange" (Apply when the
+    window is sent to another workspace), "Transient" (Apply to Transient
+    windows as well as normal windows. Dialog boxes are commonly transient
+    windows), "TransientOnly" (Apply to Transient windows only. Dialog boxes
+    are commonly transient windows)
+
+Skip (string)
+
+    A list of situations when to ignore the defined application and let the
+    user action skip over it, consisting of "FrameSnap" (Do not snap to this
+    window while moving windows), "Menus" (Do not show this window in pekwm
+    menus other than the icon menu), "FocusToggle" (Do not focus to this
+    window when doing Next/PrevFrame)
+
+Layer (string)
+
+    Windows layer. Makes the window stay under or above other windows.
+    Default layer is "Normal". Possible parameters are (listed from the
+    bottommost to the uppermost): "Desktop", "Below", "Normal", "OnTop",
+    "Harbour", "AboveHarbour", and "Menu".
+
+Title (string)
+
+    Apply this autoproperty on clients that have a title that matches this
+    string. String is a regexp like: "^Saving".
+
+Group (string)
+
+    Defines the name of the group. Also the section that contains all the
+    grouping options. They are:
+
+    Size (integer) - How many clients should be grouped in one group. Behind
+    (bool) - If true makes new clients of a group not to become the active
+    one in the group. Global (bool) - If true makes new clients start in a
+    group even if the group is on another workspace or iconified.
+
+  ------------------------------------------------------------------------
+
+10.4. AutoGrouping
+
+The last thing to know is autogrouping. Autogrouping is actually very
+simple, although a bit confusing at first. Group is an identifier, it´s just
+a string, (in my example, we'll call it netwin). Size tells how many clients
+to group together in one frame.
+
+The example: We want to autogroup Sylpheed and Opera together, but only up
+to two opera windows. Here's the Autoprops section for that:
+
+ 
+
+Property = ".*,^opera" {
+        Group = "netwin" {
+                Size = "2"
+        }
+        ApplyOn = "New Start Reload"
+}
+Property = ".*,^Sylpheed" {
+        Group = "netwin" {
+                Size = "30"
+        }
+        ApplyOn = "New Start Reload"
+}
+
+This creates two rules: "For any window matching '.*,^opera', group up to
+two of these in the 'netwin' group. Apply this on pekwm start/reload, but do
+not include dialog windows", and "For any window matching '.*,^Sylpheed',
+group up to thrity in the 'netwin' group. Apply on pekwm start/reload, but
+do not include dialog windows".
+
+We lied a little here; Unfortunately, there's no way to say "group unlimited
+windows together", but if you have more than 30 or so, you're nutty anyway,
+so just put something high like 30. ;)
+
+Also note that you can have as many Group* identifiers as you want.
+Autogrouping is a very flexible system. Try playing around with it.
+
+  ------------------------------------------------------------------------
+
+10.5. Getting more help
+
+Autoprops can be a daunting topic. If you've read everything here in the
+docs here and are still having problems, feel free to hit the IRC channel
+(irc.babblica.net, #pekwm) and ask.
+
+  ------------------------------------------------------------------------
+
+Chapter 11. Keyboard and Mouse Configuration
+
+Pekwm allows you to remap All keyboard and mouse events.
+
+  ------------------------------------------------------------------------
+
+11.1. Mouse Bindings
+
+The pekwm Mousebindings go in ~/.pekwm/mouse, and are very simple. They're
+divided up into two groups: The 'where' and 'event'. Below is an example
+file:
+
+ 
+
+Frame {
+        ButtonRelease = "1" { Actions = "Raise" }
+        ButtonPress = "2"   { Actions = "ActivateClient" }
+        ButtonPress = "3"   { Actions = "ShowWindowMenu" }
+        ButtonPress = "4"   { Actions = "NextInFrame" }
+        ButtonPress = "5"   { Actions = "PrevInFrame" }
+        DoubleClick = "1"   { Actions = "Shade" }
+        Motion = "1"        { Actions = "Move" }
+        Motion = "Mod1 1"   { Actions = "Move" }
+        Motion = "2"        { Actions = "GroupingDrag"; Threshold = "4" }
+        Motion = "Mod1 3"   { Actions = "Resize" }
+}
+
+Client {
+        ButtonPress = "1"      { Actions = "Raise" }
+        ButtonPress = "Mod1 1" { Actions = "Raise" }
+        Motion = "Mod1 1"      { Action = "Move" }
+        Motion = "Mod1 2"      { Action = "GroupingDrag"; Threshold = "4" }
+        Motion = "Mod1 3"      { Action = "Resize" }
+}
+
+Root {
+        ButtonPress = "1" { Actions = "ShowMenu Root" }
+        ButtonPress = "2" { Actions = "ShowMenu Icon" }
+        ButtonPress = "3" { Actions = "ShowMenu Goto" }
+        ButtonPress = "4" { Actions = "RightWorkspace" }
+        ButtonPress = "5" { Actions = "LeftWorkspace" }
+}
+
+Below are tables defining the different actions. The actions themselves can
+be found in the Keys/mouse actions section.
+
+Table 11-1. 'Where' fields
+
+Name Description
+  Frame  On the window's Titlebar/Border
+  Client   Anywhere on the window's interiour- it's best to use a keyboard
+modifier with these.
+  Root  On the Root window (also called the 'desktop'.
+
+Table 11-2. 'Event' fields
+
+Name Description
+  ButtonPress  A single click
+  ButtonRelease  A single click that activates once the button is released
+  DoubleClick  A double click
+  Motion   Clicking, holding, and Dragging.
+
+Definitions work like this:
+
+ 
+
+'Where' {
+
+        'Event' = "optional modifiers, like mod1, ctrl, etc and a mouse button" {
+                Actions = "actions and their parameters"
+        }
+
+        'Event' = "optional modifiers, like mod1, ctrl, etc and a mouse button" {
+                Actions = "actions and their parameters"
+        }
+}
+
+Additional notes.
+
+Motion events have a threshold argument. This is the number of pixels you
+must drag your mouse before they begin to work. Multiple actions can be
+defined for a single user action. Example:
+
+ 
+
+Motion = "1" { Actions = "Move"; Treshold = "3" }
+ButtonPress = "1" { Actions = "Raise; ActivateClient" }
+
+  ------------------------------------------------------------------------
+
+11.2. Key Bindings
+
+The pekwm keybindings go in ~/.pekwm/keys, and are even more simple than the
+mouse bindings. Here's the format:
+
+ 
+
+KeyPress = "optional modifiers like mod1, ctrl, etc and the key" {
+
+        Actions = "action and the parameters for the action, if they are needed"
+}
+
+Multiple actions can be given for one keypress. The actions are separated
+from eachother with a semicolon:
+
+ 
+
+Keypress = "Ctrl t" { Actions = "Exec xterm; Maximize; Close" }
+
+Here's a small fragment of an example keys file; you can see a full version
+in ~/.pekwm/keys. As with the mouse, you can see the full list of actions in
+the Keys/mouse actions section.
+
+ 
+
+Global {
+        KeyPress = "Mod4 m"       { Actions = "Maximize" }
+        KeyPress = "Mod4 Ctrl m"  { Actions = "MaximizeVertical" }
+        KeyPress = "Mod4 Shift m" { Actions = "MaximizeHorizontal" }
+        KeyPress = "Mod4 s"       { Actions = "Shade" }
+        KeyPress = "Mod4 t"       { Actions = "Stick" }
+        KeyPress = "Mod4 o"       { Actions = "AlwaysOnTop" }
+        KeyPress = "Mod4 l"       { Actions = "AlwaysBelow" }
+        KeyPress = "Mod4 i"       { Actions = "Iconify" }
+        KeyPress = "Mod4 c"       { Actions = "Close" }
+        KeyPress = "Mod1 Return"  { Actions = "MoveResize" }
+        KeyPress = "Mod1 Shift r" { Actions = "ShowMenu Root" }
+}
+
+MoveResize {
+  KeyPress = "Left"   { Actions = "MoveHorizontal -10" }
+        KeyPress = "Right"  { Actions = "MoveHorizontal 10" }
+        KeyPress = "Up"     { Actions = "MoveVertical -10" }
+        KeyPress = "Down"   { Actions = "MoveVertical 10" }
+        KeyPress = "Left"   { Actions = "ResizeHorizontal -10" }
+        KeyPress = "Right"  { Actions = "ResizeHorizontal 10" }
+        KeyPress = "Up"     { Actions = "ResizeVertical -10" }
+        KeyPress = "Down"   { Actions = "ResizeVertical 10" }
+        KeyPress = "s"      { Actions = "MoveSnap" }
+        KeyPress = "Escape" { Actions = "Cancel" }
+        KeyPress = "Return" { Actions = "End" }
+}
+
+Menu {
+        KeyPress = "Down"   { Actions = "NextItem" }
+        KeyPress = "Up"     { Actions = "PrevItem" }
+        KeyPress = "Return" { Actions = "Select" }
+        KeyPress = "Right"  { Actions = "EnterSubmenu" }
+        KeyPress = "Left"   { Actions = "LeaveSubmenu" }
+        KeyPress = "Escape" { Actions = "Close" }
+}
+
+As you might have noticed, the file consist of three sections. These
+sections are Global, MoveResize, and Menu. The first section, Global,
+contains all the generic actions.
+
+The MoveResize section has the keybindings that will get used when the
+MoveResize action is called. While MoveResize is active, the keybindings in
+Global are not listened to.
+
+Finally, the Menu section contains the keys that are used when the ShowMenu
+action is called. E.g. these are the keys you use to browse thru the menus
+of pekwm. As with the MoveResize, while ShowMenu is active, the Global
+keybindigs are left unheard.
+
+  ------------------------------------------------------------------------
+
+11.3. Keychains
+
+Pekwm also supports keychains. Keychain syntax follows the general config
+syntax and looks like this:
+
+ 
+
+Chain = "modifiers and key" {
+        Chain = "modifiers and key" {
+
+                KeyPress = "modifiers and key" { Actions = "actions and their parameters" }
+        }
+
+        Keypress = "modifiers and key" { Actions = "actions and their parameters" }
+}
+
+It might seem complicated at start but once you look into it, it is fairly
+nice and logical. This syntax supports as many nested Chains as you might
+want.
+
+Now for some examples. This lets you press Alt+M, then M,V or H to maximize
+Full/Vertical or Horizontal:
+
+ 
+
+Chain = "Mod1 m" {
+        Keypress = "m" { Actions = "Maximize" }
+        Keypress = "v" { Actions = "MaximizeVertical" }
+        Keypress = "h" { Actions = "MaximizeHorizontal" }
+}
+
+This next rule is a pure show-off, it lets you type in 'test' and then
+executes xterm. Note that this will make you unable to type the character
+'t' to any programs.
+
+ 
+
+Chain = "t" { Chain = "e" { Chain = "s" {
+        Keypress = "t" { Actions = "Exec xterm" }
+} } }
+
+  ------------------------------------------------------------------------
+
+11.4. Keys/Mouse actions
+
+Here are the lists of possible actions. First, the list of possible actions
+that are available anywhere:
+
+  *
+
+    maximize
+
+  *
+
+    maximizevertical
+
+  *
+
+    maximizehorizontal
+
+  *
+
+    shade
+
+  *
+
+    iconify
+
+  *
+
+    stick
+
+  *
+
+    close
+
+  *
+
+    kill - kills the client, use if close doesn't work
+
+  *
+
+    raise
+
+  *
+
+    activateorraise - activates a client if the frame is active, otherwise
+    raises the frame
+
+  *
+
+    lower
+
+  *
+
+    alwaysontop
+
+  *
+
+    alwaysbelow
+
+  *
+
+    toggleborder
+
+  *
+
+    toggletitlebar
+
+  *
+
+    toggledecor
+
+  *
+
+    nextinframe
+
+  *
+
+    previnframe
+
+  *
+
+    moveclientnext
+
+  *
+
+    moveclientprev
+
+  *
+
+    showmenu - shows a menu, takes parameters root, icon, goto, window,
+    attachclient, attachframe, attachclientinframe, attachframeinframe
+
+  *
+
+    hideallmenus
+
+  *
+
+    markclient
+
+  *
+
+    attachmarked
+
+  *
+
+    attachclientinnextframe
+
+  *
+
+    attachclientinprevframe
+
+  *
+
+    attachframeinnextframe
+
+  *
+
+    attachframeinprevframe
+
+  *
+
+    detach
+
+  *
+
+    toggletag - makes a window swallow all new clients until toggled of or
+    untag is applied
+
+  *
+
+    toggletagbehind - makes a window swallow all new clients behind until
+    toggled of or untag is applied
+
+  *
+
+    untag - removes all tags
+
+  *
+
+    exec - executes a program
+
+Here is a list of keygrabber-specific actions:
+  *
+
+    activateclientnum
+
+  *
+
+    moveresize
+
+  *
+
+    movetoedge
+
+  *
+
+    nextframe
+
+  *
+
+    prevframe
+
+  *
+
+    nextworkspace
+
+  *
+
+    rightworkspace
+
+  *
+
+    prevworkspace
+
+  *
+
+    leftworkspace
+
+  *
+
+    sendtoworkspace
+
+  *
+
+    gotoworkspace
+
+  *
+
+    reload
+
+  *
+
+    restart
+
+  *
+
+    restartother
+
+  *
+
+    exit
+
+Here is a list of buttonclick-specific actions:
+  *
+
+    resize
+
+Here is a list of Frame-specific actions:
+  *
+
+    activateclient
+
+  *
+
+    resize
+
+  *
+
+    move
+
+  *
+
+    groupingdrag - takes a parameter false or true, if true dragged windows
+    go in the background
+
+Here is a list of Client-specific actions:
+  *
+
+    resize
+
+  *
+
+    move
+
+  *
+
+    groupingdrag - takes a parameter false or true, if true dragged windows
+    go in the background
+
+Here is a list of actions for MoveResize keybindings:
+  *
+
+    movehorizontal - takes an amount of pixels as a parameter, amount can be
+    negative
+
+  *
+
+    movevertical - takes an amount of pixels as a parameter, amount can be
+    negative
+
+  *
+
+    resizehorizontal - takes an amount of pixels as a parameter, amount can
+    be negative
+
+  *
+
+    resizevertical - takes an amount of pixels as a parameter, amount can be
+    negative
+
+  *
+
+    movesnap
+
+  *
+
+    cancel
+
+  *
+
+    end
+
+Here is a list of actions for Menu keybindings:
+  *
+
+    nextitem
+
+  *
+
+    previtem
+
+  *
+
+    select
+
+  *
+
+    entersubmenu
+
+  *
+
+    leavesubmenu
+
+  *
+
+    close
+
+  ------------------------------------------------------------------------
+
+Chapter 12. The pekwm start file
+
+The ~/.pekwm/start file is the simplest of all of pekwm's config files. It's
+a simple shell script that's run on pekwm startup.
+
+Why anyone would use start rather than just use their ~/.xinitrc file? Well,
+the answer is, the start file is executed during the pekwm initialization
+phase- Therefore, it gets re-executed when you issue a pekwm 'restart'.
+
+Here's an example pekwm start file.
+
+ 
+
+#!/bin/sh
+
+xmessage 'hi. pekwm started.' &
+some_command &
+
+IV. Development
+
+Interested in pekwm? Want to keep up with the development? Good, we can tell
+you how.
+
+Table of Contents
+13. Mailing Lists
+14. IRC
+15. The developers
+
+  ------------------------------------------------------------------------
+
+Chapter 13. Mailing Lists
+
+The pekwm Mailing lists are where the more advanced pekwm discussion goes
+on.
+
+  ------------------------------------------------------------------------
+
+13.1. The Lists
+
+There are four pekwm mailing lists- pekwm-devel, pekwm-users,
+pekwm-announce, and pekwm-cvs. Which should you subscribe to? Well, that's
+for you to decide. Many people subscribe to all of them.
+
+pekwm-users is a very basic questions mailing list- "How do I..." et cetera.
+Low-traffic.
+
+pekwm-devel is a more discussion-based mailing list- We discuss where we're
+going with development, new features being implemented, et cetera. Fairly
+low-traffic.
+
+pekwm-announce is used to announce new pekwm releases. Low-traffic.
+
+pekwm-cvs is a list that logs pekwm and pekwm documentation cvs commits. Use
+this list if you want to stay on the edge of development.
+
+  ------------------------------------------------------------------------
+
+13.2. Mailing list Archives
+
+Mailing list archives for the pekwm lists are available at:
+
+http://pekwm.org/ml/users
+
+http://pekwm.org/ml/devel
+
+http://pekwm.org/ml/announce
+
+http://pekwm.org/ml/cvs
+
+  ------------------------------------------------------------------------
+
+13.3. Subscribing and Filtering
+
+To subscribe, send an email to <listname-subscribe@pekwm.org>, where
+listname is the name of the list: 'pekwm-users', 'pekwm-devel',
+'pekwm-announce', or 'pekwm-cvs', and follow the instructions in the email
+you receive.
+
+If you'd like to use Filters with your mail program, you can check for
+mail-headers. Both lists produce a Mailing-List: header which will contain
+the name of the mailing list (note that there's other information in that
+header, though the string 'pekwm-listname' will be in there).
+
+  ------------------------------------------------------------------------
+
+Chapter 14. IRC
+
+Our IRC channel is located on irc.babblica.net, in #pekwm. A lot of devel
+discussion also goes on there, and we do repost some important irc
+conversations to the devel ml. However, you can also get simple help there
+pretty easily.
+
+You can check the developers section to see the list of developers mapped to
+their IRC nicks.
+
+  ------------------------------------------------------------------------
+
+Chapter 15. The developers
+
+Below is a list of pekwm developers and what they do. The email address is
+more of an informational thing than anything else; the developers all
+subscribe to <pekwm-devel@pekwm.org>, so you should email that instead.
+
+Table 15-1. Developers
+
+Name Email Address IRC Nick Jobs
+ Claes Nästen  
+
+<pekdon at pekdon dot net>
+
+  pekdon  Main developer- Writes code. Complains about docs not being done
+;).
+ Rando Christensen  
+
+<rando@babblica.net>
+
+  eyez   Documentation manager; In charge of all documentation, Also takes
+care of cvs/web/irc issues. In charge of the build process and takes all
+Makefile complaints.
+ Justin Rebelo  
+
+<justin@demerol.org>
+
+  demerol  Web development. Care and feeding of the pekwm Bee.
+ Jyri Jokinen  
+
+<shared@surffi.net>
+
+  shared  Writes documentation. Acts ill-tempered.
+
+V. The pekwm FAQ
+
+This is the official pekwm FAQ. Here you can find answers to the questions
+most frequently asked in the pekwm IRC channel and mailing lists.
+
+Table of Contents
+16. Questions and answers
+
+  ------------------------------------------------------------------------
+
+Chapter 16. Questions and answers
+
+16.1. How is this ~/.pekwm/start thing used?
+
+The file ~/.pekwm/start is a regular shell script that is executed when
+pekwm starts. The file needs to be chmodded as executable (chmod +x) for it
+to get used. A simple example start file could look like this:
+
+ 
+
+#!/bin/sh
+gkrellm &
+Esetroot -s mybackground.png &
+
+  ------------------------------------------------------------------------
+
+16.2. What is the harbour?
+
+Harbour is pekwm's way of supporting dockapps. It's the same as a dock or a
+wharf. The harbour is considered a "non supported" feature right now. It is
+incomplete in features. Do not let this scare you, generally the harbour
+works like a charm.
+
+  ------------------------------------------------------------------------
+
+16.3. Why doesn't the harbour work for my dockapp?
+
+The harbour needs to be enabled at compile time. When you are doing the
+./configure -phase of the pekwm compile, you can use the --enable-harbour
+option to enable it.
+
+If the dockapp still doesn't go into the harbour, even you have it enabled
+at compile time, you should see if the application has an option to start it
+"withdrawn".
+
+  ------------------------------------------------------------------------
+
+16.4. Can I have dynamic menus in pekwm?
+
+Yes. The Dynamic keyword is a way to use dynamic menus in pekwm. That is,
+menus that automatically update every time you view them.
+
+To use this feature, you need to put a dynamic entry in the ~/.pekwm/menu
+file with a parameter that tells pekwm what file to execute to get the menu.
+This file can be of any language you prefer, the main thing is that it
+outputs valid pekwm menu syntax inside a Dynamic {} section. A simple script
+to give pekwm dynamic menu content would look like this:
+
+ 
+
+#!/bin/bash
+output=$RANDOM
+echo "Dynamic {"
+echo " Entry = \"$output\" { Actions = \"Exec xmessage $output\" }"
+echo "}"
+
+You can save this file to, lets say, ~/.pekwm/test.sh, make it executable
+and then in the menu you would put:
+
+ 
+
+Entry = "" { Actions = "Dynamic ~/.pekwm/test.sh" }
+
+This should give you a random number every time you review the menu.
+
+  ------------------------------------------------------------------------
+
+16.5. How do I install themes?
+
+The idea is to unpack/uncompress the theme file you downloaded into some
+directory. In this case, we will unpack it to ~/.pekwm/themes.
+
+In simple, first make the themes directory by issuing the command
+
+ 
+
+mkdir ~/.pekwm/themes
+
+Then copy the theme package, lets call it theme.tar.gz, into
+~/.pekwm/themes. Then uncompress the theme pack with the appropriate tool.
+Unpack the theme with: gzip -dc theme.tar.gz | tar xvf -
+
+You will then end up with a new subdirectory - this is the theme.
+
+After this, edit ~/.pekwm/config. In the top of this file there is a section
+named "Files {}". In this section, there is a line that says something like:
+
+ 
+
+Theme = "/usr/local/share/pekwm/themes/minimal"
+
+Edit this line to point to the right directory
+(~/.pekwm/themes/thethemename). Restart pekwm and you're set.
+
+  ------------------------------------------------------------------------
+
+16.6. I upgraded pekwm and now ......... won't work!
+
+Pekwm has not yet achieved a freeze on it's configuration file syntax. And
+as pekwm is an actively developed application, there probably have been some
+changes on some part of the configuration.
+
+If you encounter a situation that when you upgrade your pekwm, and some
+thing just stops to work, you should either:
+
+Check the ChangeLog - If something configurable wise has been changed, it
+has also been documented in the ChangeLog. This is the first place to look
+at.
+
+Move your old configuration out of the way - If you can't find help from
+ChangeLog, move your pekwm configuration files out of ~/.pekwm ( mv ~/.pekwm
+~/old.pekwm), which will result in new fresh configuration files being
+copied in. If this helps, it is a fault in your configuration files.
+
+Look under the source trees data/ directory for reference - If you can't
+find info about a new feature or for some reason you don't understand the
+brief explanation in the ChangeLog, there is a data/ directory in the source
+package of pekwm that has example configuration files (that act as the
+default configs on a new install). Chances are you'll find help from there.
+
+Make sure the right executable is being executed. - Locate all instances of
+pekwm (find / -name 'pekwm'). If you see many pekwm executables laying
+around, maybe one in /usr/bin and one in /usr/loal/bin, you might be
+starting a wrong version pekwm. This might happen when you for example,
+install a premade pekwm package for your distribution and later install
+pekwm from source yourself. The safe way is to remove all these pekwm
+instances and either re-apply the package or do make install again in the
+source. You can also, of course, go thru every pekwm binary with the
+--version parameter to find the right executable to keep. Note to give the
+full path to the executable when querying for the version
+(/usr/local/bin/pekwm --version).
+
+  ------------------------------------------------------------------------
+
+16.7. How do I make XMMS/MPlayer continue playing while moving/resizing a
+window?
+
+There are some settings in ~/.pekwm/config that can be used to get rid of
+XMMS and MPlayer stopping their play while moving or resizing some window.
+All of these options are located in the MoveResize {} section.
+
+There actually are a couple of unstopping configurations possible. First one
+is to use opaque move and resize. Opaque means that the window contents are
+actively updated while the window is moved/resized, in english, it shows the
+window content while moving/resizing. The options to do this would be:
+
+ 
+
+OpaqueMove = "True"
+OpaqueResize = "True"
+
+The second option is to use opaque moving and wireframe resize. As some of
+the readers might know, opaque resizing and moving is slower than wireframe
+moving and resizing thus it needs more CPU time. Unfortunately wireframe
+moving freezes MPlayer, so we'll need to compromise in using opaque moving
+and wireframe for resizing only. The options in using this hybrid are:
+
+ 
+
+OpaqueMove = "True"
+OpaqueResize = "False"
+GrabWhenResize = "False"
+
+  ------------------------------------------------------------------------
+
+16.8. Can i turn off this sloppy focus crap?
+
+Yes. You can. In ~/.pekwm/config there is a section named Screen {} which in
+turn has a section called Focus {} inside it. In this Focus {} section we
+have four options that take the parameters of either True or False. To
+create the effect of click to focus, set them to:
+
+ 
+
+Enter = "False"
+Leave = "False"
+Click = "True"
+
+The fourth option is New. With it you can decide if you want new windows
+focused or not when they pop up.
+
+  ------------------------------------------------------------------------
+
+16.9. What is Mod1? How about Mod4?
+
+In the ~/.pekwm/keys and ~/.pekwm/mouse there are all these odd Mod1 and
+Mod4 things used as modifier keys. It's simple - Mod1 is more widely known
+as the Alt key, and Mod4 as the "windows key" found on recent keyboards.
+
+  ------------------------------------------------------------------------
+
+16.10. Why do my terminals start the wrong size when grouped?
+
+This is a very complicated issue in fact, and has to do with the way
+terminals handle their resize actions. The best way to bring at least some
+help to this situation is to put resize > /dev/null in your .bashrc or
+equal.
+
+  ------------------------------------------------------------------------
+
+16.11. Where can I find the current size/position of a window?
+
+Use the command xwininfo | grep geometry.
+

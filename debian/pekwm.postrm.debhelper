@@ -1,0 +1,5 @@
+# Automatically added by dh_installmenu
+inst=/etc/menu-methods/pekwm
+if [ "$1" = "remove" ] && [ -f "$inst" ]; then chmod a-x $inst ; fi
+if [ -x "`which update-menus 2>/dev/null`" ]; then update-menus ; fi
+# End automatically added section

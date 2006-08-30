@@ -1,0 +1,80 @@
+# auto-group mozilla download windows and move them to the top-right corner
+#Property = "^mozilla-bin,^Mozilla-bin" {
+#	ApplyOn = "New Transient"
+#	Title = "^Saving"
+#	Group = "moz-dl" { Size = "10" }
+#	Geometry = "+0+0"
+#	Layer = "Below"
+#}
+#
+#Property = "^Mozilla,^navigator:browser" {
+#	ApplyOn = "Start New Workspace"
+#	Workspace = "2"
+#}
+#
+# Dillo
+#Property = "^dillo,^Dillo" {
+#	ApplyOn = "Start New"
+#	Group = "dillo" { Size = "10"; Behind = "True" }
+#}
+#
+# I apply this one on Transients to make it apply on playlist and eq
+#Property = ".*,^xmms" {
+#	ApplyOn = "Start New Transient"
+#	Layer = "Desktop"
+#	Sticky = "True"
+#	Skip = "Menus FocusToggle FrameSnap"
+#}
+#
+# Remove Gimp windows from the menus, only want the main gimp window.
+#Property = "^toolbox,^Gimp" {
+#	ApplyOn = "Start New"
+#}
+#
+# The Crop dialog always get in the way, put it up in the corner.
+#Property = "^info_dialog,^Gimp" {
+#	ApplyOn = "Start New"
+#	Layer = "OnTop"
+#	Geometry = "+0+0"
+#	Skip = "Menus"
+#}
+#
+# The rest of the gimp windows. ;)
+#Property = ".*,^Gimp" {
+#	ApplyOn = "Start New"
+#	Skip = "Menus";
+#}
+#
+# Gkrellm
+#Property = "^gkrellm,^Gkrellm" {
+#	ApplyOn = "Start New"
+#	Sticky = "True"
+#	Skip = "Menus FocusToggle"
+#	Layer = "Desktop"
+#}
+#
+# Standard enviorment stuff, xclock xload and xbiff
+#Property = "^xclock,^XClock" {
+#	ApplyOn = "Start New"
+#	Geometry = "120x137+0-137"
+#	Border = "False"; Titlebar = "False"
+#	Sticky = "True"
+#	Layer = "Desktop"
+#	Skip = "Menus FocusToggle FrameSnap"
+#}
+#Property = "^xload,^XLoad" {
+#	ApplyOn = "Start New"
+#	Geometry = "560x137+120-137"
+#	Border = "False"; Titlebar = "False"
+#	Sticky = "True"
+#	Layer = "Desktop"
+#	Skip = "Menus FocusToggle FrameSnap"
+#}
+#Property = "^xbiff,^XBiff" {
+#	ApplyOn = "Start New"
+#	Geometry = "120x137-120-137"
+#	Border = "False"; Titlebar = "False"
+#	Sticky = "True"
+#	Layer = "Desktop"
+#	Skip = "Menus FocusToggle FrameSnap"
+#}

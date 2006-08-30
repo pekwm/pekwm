@@ -1,0 +1,44 @@
+# Makefile for pekwm
+# Copyright (C) 2002 Claes Nästen <pekdon@gmx.net>
+
+VER=cvs
+COMPRESS=bzip2
+
+all:
+	( cd src  && ${MAKE} )
+	( cd data && ${MAKE} )
+	( cd docs && ${MAKE} )
+
+install:
+	( cd src  && ${MAKE} install )
+	( cd data && ${MAKE} install )
+	( cd docs && ${MAKE} install )
+
+clean:
+	( cd src  && ${MAKE} clean )
+	( cd data && ${MAKE} clean )
+	( cd docs && ${MAKE} clean )
+
+distclean: clean
+	rm -f config.{log,status,cache,h}
+	rm -f {src,data,data/themes,docs,.}/Makefile
+	rm -rf autom4te.cache
+
+
+release:
+# Dirty hack because bsd can't handle ifeq
+	@(if [[ ${VER} = cvs ]]; then  echo "Please specify a version: make VER=X.Y.Z release"; exit 1; fi)
+	${MAKE} distclean 2>&1 > /dev/null
+	cp -r . ../pekwm-${VER}
+	( cd ../pekwm-${VER} && \
+	sed 's/AM_INIT_AUTOMAKE(pekwm,.*/AM_INIT_AUTOMAKE(pekwm, ${VER})/' configure.in > tmp~ && \
+	mv tmp~ configure.in && autoconf && ./configure && \
+	${MAKE} distclean ) 2>&1 > /dev/null
+	( cd .. && \
+	(find pekwm-${VER} -type d -name CVS | xargs rm -rf) && \
+	tar -cf pekwm-${VER}.tar pekwm-${VER} && \
+	${COMPRESS} -9 pekwm-${VER}.tar && \
+	rm -rf pekwm-${VER} )
+	@echo "***********************************************"
+	@echo "pekwm-${VER} tarball created in parent directory"
+	@echo "***********************************************"

@@ -1,0 +1,1863 @@
+
+pekwm-0.1.3 released
+
+2003-06-05  Claes Nasten  <pekdon at pekdon dot net>
+
+	* configure.in, data/Makefile.in, data/scripts/Makfile.in:
+	Patch adding scripts dir and fixes a typo in the makefiles.
+	( Thanks Jaster for patch )
+
+2003-06-02  Claes Nasten  <pekdon at pekdon dot net>
+
+	* src/WindowManager.cc (screenEdgeCreate): 
+	Added support for workspace warping by only using the mouse.
+	To enable this set WWMouse to > 0 and if you want it to wrap set
+	WWMouseWrap to True in the MoveResize section.
+	The old WorkspaceWrap and WrapWorkspaceWrap options have been renamed
+	to WWFrame and WWFrameWrap.
+	( Thanks mh for request )
+
+	* src/Frame.cc (doMove): 
+	Fixed redraw issues when warping workspaces while moving and using
+	wireframe move mode.
+
+	* src/Workspaces.cc (isEmptySpace): 
+	Now menus are ignored when searching for empty space.	
+
+	* src/Frame.cc (removeClient): 
+	Fixed issue with Frames having incorrect geometry after restart when
+	grouping.
+	( Thanks shared for reporting )
+
+2003-06-01  Claes Nasten  <pekdon at pekdon dot net>
+
+	* src/Frame.cc (doGroupingDrag): 
+	Changed the GroupingDrag behaviour so that it groups the client beeing
+	clicked on in the titlebar instead of the currently active one.
+	( Thanks shared for the request )
+
+
+2003-05-31  Claes Nasten  <pekdon at pekdon dot net>
+
+	* src/Client.cc (Client, mapWindow, unmapWindow): 
+	Fixed issue with map and unmap window causing the
+	_NET_WM_STATE_HIDDEN state not beeing updated as it should.
+	( Thanks shared for reporting )
+
+2003-05-30  Claes Nasten  <pekdon at pekdon dot net>
+
+	* src/Atoms.cc (EwmhAtoms): 
+	Added support for _NET_WM_STATE_ABOVE and _NET_WM_STATE_BELOW
+
+	* src/Client.cc (readAutoprops): 
+	Autoproperties Geometry directive now handles negative position in
+	such a way that -0-0 will make the window appear in the bottom right
+	corner but having the whole window visible.
+	
+	* src/Config.cc (parseActionEvent): 
+	Fixed ops causing keyless actions be reported as ok causing X11
+	weirdness.
+
+	* src/WindowManager.cc (setEwmhSupported): 
+	Fixed mismatched new [] delete thanks to valgrind
+
+	* src/ActionMenu.cc (unload): 
+	Fixed bug causing pekwm to crash when using dynamic menus and
+	submenus by doing BaseMenu::remove and BaseMenu::removeAll virtual
+	and replaced unload with that
+
+2003-05-29  Claes Nasten  <pekdon at pekdon dot net>
+
+	* src/BaseConfig.cc (pipeFillBuffer): 
+	Yet another try making the pipeFillBuffer working and this time it
+	seems as it's successfull. :)
+
+	* src/Client.cc (readAutoprops): 
+	Fixed focus issue when having focus on new set to false and
+	autogrouping windows.
+	( Thanks shared for reporting )
+
+2003-05-25  Claes Nasten  <pekdon at pekdon dot net>
+
+	* src/Client.cc (move, resize): 
+	Reworked code so that invalid geometry when autogrouping / applying
+	geometry with autoproperties should happen less frequently.
+
+2003-05-24  Claes Nasten  <pekdon at pekdon dot net>
+
+	* src/Frame.cc (doKeyboardMoveResize): 
+	Showing geometry while in moveresize mode.
+
+	* src/WindowManager.cc (handleButton*Event):
+	Now supporting separate configuration of button press and releases,
+	keywords are ButtonPress and ButtonRelease.
+
+	* src/*: 
+	Reworked the action system to support multiple actions per event and
+	to make actions look the same in all cfg files.
+	
+	Some examples:
+
+	Chain = "Mod1 X" { // keys
+	  KeyPress = "Mod1 X" { Actions = "ActivateClientNum 3; Exec xterm" }
+	}
+
+	ButtonPress = "1" { Actions = "Raise; Activate" } // mouse
+
+	Left { // theme
+	  Pixmaps = "btn-close-fo.xpm btn-close-un.xpm btn-close-pr.xpm"
+	  ButtonPress = "1" { Actions = "Raise; Activate" }
+	  ButtonPress = "2" { Actions = "Maximize; Shade" }
+	}
+
+	Entry = "Xmms" { Actions = "Exec xmms &" } // menu
+
+	* src/Config.cc (getMod): 
+	Renamed Alt to Mod1
+
+2003-05-23  Claes Nasten  <pekdon at pekdon dot net>
+
+	* src/Util.cc (splitString): 
+	Fixed a bug when having sero size tokens making pekwm crash. Did
+	some optimizations while at it.
+
+2003-05-09  Claes Nasten  <pekdon@gmx.net>
+
+	* src/AutoProperties.cc (parseAutoGroup):
+	Changed autogrouping syntax and introduced a new option, global,
+	which makes grouping ignore the mapped state of the Frame so that
+	grouping happens over all workspaces.
+	
+	Example of a new grouping rule:
+
+	Property = "^xterm,^XTerm" {
+	  ApplyOn = "New"
+	  Group = "terminals" {
+	    Size = "3"
+	    Behind = "True"
+	    Global = "False"
+	  }
+	}
+	
+	* src/AutoProperties.cc (parseTitleProperty, parseAutoProperty): 
+	Added support for title rewriting, rules for defining title
+	rewriting are specified in the autoproperties file under a new
+	section, TitleRules, here follows a sample TitleRules section:
+
+	TitleRules {
+	  Property {
+	    Title = "pekwm"
+	    Rule = "/.*/pekwm, kickass window manager/"
+	  }
+	  Property = "^Mozilla,^navigator:browser" {
+	    Rule = "/(.*) - Mozilla/M: \$1/"
+	  }
+	  Property = "^dillo,^Dillo" {
+	    Rule = "/Dillo: (.*)/D: \$1/"
+	  }
+	}
+	
+	Made a common base class for the Auto and Title properties so that
+	matching and parsing code can be shared.
+
+	* src/Client.cc: 
+	Went back to using strings for title and icon name, as a step to
+	supporting title rules.
+	
+	* src/RegexString.cc (parse, replace): 
+	Rewrote RegexString to add more functionality, now it has a replace
+	method to be used in title shortening. Example: /Title (.*)/$1/
+
+2003-05-03  Claes Nasten  <pekdon@gmx.net>
+
+	* src/Client.cc (readMwmHints): 
+	Fixed (?) incorrect reading of _MOTIF_WM_HINTS that made certain
+	apps not beeing resizeable etc.
+	( Thanks Thomas Fletcher <shadyfletch@yahoo.co.uk> for reporting )
+
+	* src/Frame.cc (Frame): 
+	Fixed incorrect reparent position when the Client lacked either
+	titlebar or border.
+	( Thanks Thomas Fletcher <shadyfletch@yahoo.co.uk> for reporting )
+	
+	* src/WindowManager.cc (attachInNextPrevFrame): 
+	Now attach*In*Frame skips windows with Skip FocusToggle set.
+
+2003-05-01  Claes Nasten  <pekdon@gmx.net>
+
+	* src/Frame.cc (insertFrame): 
+	Added insertFrame method replacing duplicate code in FrameListMenu
+	and WindowManager
+
+	* src/KeyGrabber.cc, src/KeyGrabber.hh: 
+	Added support for keychains. Config file syntax is.
+
+	Chain {
+	  Mod = "Ctrl"; Key = "E"
+
+	  Action { Mod = "Mod"; Key = "Key"; Param = "Param" }
+	  Action { Mod = "Mod"; Key = "Key"; Param = "Param" }
+	}
+
+	* src/WindowManager.cc (attachInNextPrevFrame): 
+	Added four new actions:
+	  AttachClientInNextFrame, AttachClientInPrevFrame,
+	  AttachFrameInNexFrame and AttachFrameInPrevFrame
+	And they do what it sounds like, attaches the current Client/Frame
+	in the Next/Prev frame. ( Same order as FocusNextFrame )
+
+	( Thanks yartz for request )
+	
+2003-04-06  Claes Nasten  <pekdon@gmx.net>
+
+	* src/Atoms.cc, src/WindowManager.cc, src/Client.cc, src/Frame.cc:
+	Moved the atoms into maps and made them private.
+	
+	* src/Atoms.cc (IcccmAtoms): 
+	Applied patch from Etan Reisner <deryni@eden.rutgers.edu> making
+	Icccm atom creation use XInternAtoms instead of multiple XInterAtom's.
+
+2003-03-21  Claes Nasten  <pekdon@gmx.net>
+
+	* src/Config.cc (copyConfigFiles): 
+	Renamed the autoprops to autoproperties trying to make the name
+	a bit more self-explaining.
+
+	* src/WindowObject.cc, WindowObject.hh (move,resize): 
+	Added move and resize to the WindowObject class.
+
+	* src/FrameWidget.cc (resize): 
+	Fixed possible bug that would happen if resizing a shaded window
+	making it beeing drawn unshaded.
+
+2003-03-19  Claes Nasten  <pekdon@gmx.net>
+
+	* src/FrameWidget.cc, src/Button.cc (constructor): 
+	Changed window creation attributes of the border, titlebar and button
+	windows.
+
+	* src/WindowManager.cc (findFrameAndFocus): 
+	Rewrote findFrameAndFocus to be more WindowObject centric and actually
+	work without crashing.
+
+	* src/AutoProperties.cc (parseProperty):
+	Changed the Layer parameter to be a string instead of a number:
+	  0 - Desktop,  8 - Harbour,
+	  2 - Below,    10 - AboveHarbour,
+	  4 - Normal,   12 - Menu
+	  6 - OnTop,
+
+	* src/Config.cc (parseButtons): 
+	ShowMenu command defaults to WindowMenu if the parameter is invalid.
+
+2003-03-17  Claes Nasten  <pekdon@gmx.net>
+
+	* src/Workspaces.cc, scr/config.cc, src/pekwm.hh: 
+	Added FrameSnap to the Skip list for the autoprops.
+
+2003-03-13  Claes Nasten  <pekdon@gmx.net>
+
+	* src/frame.cc, src/frame.hh:
+	Fixed issues with stacking and client list not beeing updated.
+	Added layer to the state and optimized constructor a bit.
+
+2003-03-12  Claes Nasten  <pekdon@gmx.net>
+	
+	* src/workspaces.cc, workspaces.hh, frame.cc, frame.hh:
+	Reworked Workspaces and Workspace classes. Now only using one list
+	for keeping track of the stacking, this should resolv some stacking
+	issues related to sticky windows.
+
+	* src/actionmenu.cc:
+	Workaround for broken DynamicMenus behaviour.
+
+2003-03-07  Claes Nasten  <pekdon@gmx.net>
+	
+	* *:
+	Fixed issues related to harbour + strut together with
+	snapping / maximization.
+	( Thanks shared for reporting )
+
+pekwm-0.1.3pre2 released
+
+2003-03-02
+(*)
+  * Added new keyword to the Rootmenu, Dynamic wich lets you specify a script
+    that should output menu entries inside a Dynamic { } section which will
+    be regenerated everytime the menu is shown.
+
+(client.cc, client.hh)
+  * Added extra checks to see if the clients die before they are constructed.
+    Should fix lockups under Solaris.
+
+(frame.cc, frame.hh)
+  * Applied patch to report sizes in terms of cells for applications such as
+    xterm that resize in increments greater than 1 pixel.
+    ( Thanks Alexandra Walford <chroma@delusion.de> )
+
+(client.cc)
+  * Applied patch that checks for position, size changes before sending
+    configure request which should minimize aterm blankings.
+    ( Thanks Alexandra Walford <chroma@delusion.de> )
+
+2003-03-01
+(frame.cc, frame.hh, config.cc, actionhandler.cc)
+  * Added a parameter to the GroupingDrag action making it possible to make
+    grouped windows not beeing activated by default. Parameter is bool,
+    if it's true windows get grouped behind.
+
+2003-02-19
+(*)
+  * Added two new Actions, MarkClient and AttachMarked.
+    ( Thanks Etan Reisner <deryni@eden.rutgers.edu> for patch. )
+
+  * Added a option to the Focus{Next,Prev} actions that lets you decide
+    wheter or not the windows should be raised during or after the cycle.
+    Valid parameters are, AlwaysRaise, EndRaise and NeverRaise.
+    ( Thanks Etan Reisner <deryni@eden.rutgers.edu> for patch. )
+
+2003-02-18
+(*)
+  * Fixed compile issues when keygrabber and menus were disabled.
+
+  * Removed Xft font support.
+
+  * Started working on Xmb support.
+
+  * Moved the client name and icon name into char*'s instead of strings
+    removing data duplication between Client and FrameWidget.
+
+2003-02-14
+(actionhandler.cc, config.cc, pekwm.hh, frame.cc, frame.hh)
+  * Added new Detach action.
+
+(*)
+  * Replaced all Show*Menu actions with ShowMenu which takes one parameter
+    that can have the following values:
+      Window, Root, Goto, Icon, AttachClient, AttachFrame
+      AttachClientInFrame, AttachFrameInFrame
+
+(screeninfo.cc, screeninfo.hh, windowmanager.cc, client.cc, frame.cc)
+  * Created (un)grab{Server,Keyboard,Pointer} methods to screeninfo.
+
+(frame.cc, frame.hh, keys.cc, keys.hh, config.cc, config.hh, pekwm.hh)
+  * Replaced the Nudge/Resize keybindings with one new action, MoveResize.
+    For configuration details consult data/keys.
+
+2003-02-12
+(frame.cc)
+  * Fixed iconification bug.
+    ( Thanks zipth <zipth@den.virtualave.net> for reporting )
+
+(actionhandler.cc, config.cc, config.hh, frame.cc, frame.hh, pekwm.hh)
+  * Changed the MoveToCorner action to MoveToEdge making it possible to
+    place the frames in the center of each corner and in the center of the
+    screen.
+    ( Thanks Etan Reisner <deryni@eden.rutgers.edu> for patch. )
+
+2003-02-08
+(framewidget.cc)
+  * We now only use the UnfocusedSelected and FocusedSelected pixmaps
+    if they exist, else we use the Unfocused and Focused ones.
+    ( Thanks Tomas Green < tgr0217@student.skelleftea.se > for idea )
+
+2003-02-05
+(baseconfig.cc baseconfig.hh)
+  * Added COMMAND keyword to the parser. Which lets you execute an external
+    command and the output gets parsed. ( Alaa )
+
+2003-02-04
+(data/keys)
+  * Updated default keybindings for keyboard menu navigation support.
+
+(*)
+  * Added keyboard navigation support to the menus. The menu related keybinds
+    go in the Menu { section of the keys file and the other, "old" are moved
+    into a Global section.
+
+(data/themes/minimal)
+  * Updated the minimal theme for the new UnfocsedSelected theme changes.
+
+2003-02-03
+(workspaces.cc)
+  * Removed extra unnecessary padding that SmartPlacement shouldn't add.
+
+(gotomenu.cc)
+  * Moved the * into the [] in the GotoMenu.
+
+(theme.cc, theme.hh, framewidget.cc)
+  * Using the Selected pixmap if there's only one client in the frame.
+  * Added UnfocusedSelected section to themes.
+    ( Thanks Tobias Hintze <th-pekwm@hbsn.de> for request )
+	
+(windowmanager.cc, windowmanager.hh, client.cc)
+  * Fixed AutoGrouping + Workspace change bug.
+    ( Thanks David Frey <dpfrey@shaw.ca for reporting )
+
+2003-02-01
+(windowmanager.cc)
+  * Moved the status window and Alt+Tab menu to the center of the screen.
+
+(gotomenu.cc, gotomenu.hh)
+  * Now showing wheter the frames are shaded ^, iconified ., above + and
+    below - inside []
+    ( Thanks Rando Christensen <rando@babblica.net> for request )
+
+pekwm-0.1.3-pre1 released
+
+2003-01-31
+(data/config.in data/themes/minimal)
+  * New default theme for pekwm named minimal. 
+
+(frame.cc, frame.hh)
+  * Readded autoprops reading when changing workspace.
+
+2003-01-28
+(image.cc)
+  * Added GCTileStipXOrigin to the image drawing so that tiles start at the
+    correct position. Resolv separator weirdness.
+
+(basemenu.cc, theme.cc, theme.hh)
+  * Added three new colors to colorize the menu with, TextColorSelected,
+    TextColorTitle and BackgroundTitle.
+
+2003-01-22
+(autoprops.cc, autoprops.hh, config.cc, pekwm.hh, client.cc)
+  * Renamed the Tag and TagBehind to ToggleTag and ToggleTagBehind and made
+    them toggle the tag to make it easier to use with the mouse.
+    ( Thanks shared for request )
+
+  * Added new ApplyOn mask, TransientOnly, which makes properties match only
+    on transient windows.
+	
+  * Added FocusedFirst property to the autprops. If set to true when searching
+    for a group to autogroup with the focused frame is searched first.
+
+2003-01-21
+(client.cc, windowmanager.cc, windowmanager.hh, config.cc, actionhandler.cc)
+  * Added three new actions, Tag, TagBehind and UnTag. If you Tag a Frame all
+    new Clients will become grouped into it as long as it's not hidden.
+    ( Thanks shared for request )
+	
+(actionmenu.cc, actionmenu.hh, windowmanager.cc, windowmanager.hh, data/menu)
+  * Removed the RootMenu and WindowMenu and replaced them both with
+    ActionMenu, making the WindowMenu configurable.
+
+(frame.cc)
+  * Altered (de)maximization behaviour.
+
+(baseconfig.cc)
+  * Moved help methods for the parser into the namespace Parser.
+
+2003-01-19
+(config.cc, frame.cc, data/mouse)
+  * Added new keyword for motion events, THRESHOLD, that lets you specify how
+    many pixels one needs to move the mouse before the action executes.
+
+2003-01-16
+(baseconfig.cc, baseconfig.hh)
+  * Cleaned and updated BaseConfig parser. ( Alaa )
+
+(frame.cc, client.cc, client.hh)
+  * Fixed autoprops position not beeing applied on windows with layer != 0.
+    ( Thanks Daniel Johansson <donnex@home.se> for reporting )
+
+2003-01-15
+(autoprops.cc, autoprops.hh, client.cc, frame.cc)
+  * Merged the two autoprop keywords Size and Position into the keyword
+    Geometry that takes a standard XGeometryString as argument.
+
+(frame.cc, frame.hh, windowmanager.hh)
+  * Moved double click time info from the frame to the windowmanager.
+
+(windowmanager.cc, windowmanager.hh)
+  * Added support for double clicks on the root window.
+    ( Thanks Chris Doyle <cdoyle@umaro.net> for request )
+
+2003-01-10
+(*)
+  * Now the focusing code is more Frame centric, moved Client::giveInputFocus
+	  to Frame::giveFocus.
+
+(iconmenu.cc, iconmenu.hh, windowmanager.cc, client.cc)
+  * Removed some uneccessary calls to add/remove client to the iconmenu from
+	  the windowmanager.
+
+(frame.cc)
+  * Slimmed the Frame constructor a bit while make sure iconified applications
+    become iconified when we restart pekwm.
+
+2003-01-08
+(baseconfig.cc)
+  * Fixed bug causing pekwm to crash if there was a unmatched pair of "" in
+    the section name. Like Section = "Name {
+
+2003-01-07
+(frame.cc)
+  * Now EdgeSnap also snaps to applications in the harbour.
+
+2003-01-06
+(config.cc, config.hh, data/mouse)
+  * Instead of using Button = "ButtonX" in the mouse config we now use
+    Button = "X" instead.
+
+(config.cc, config.hh, button.cc, button.hh, frame.cc, framewidget.cc)
+  * Made it possible to use up to 7 mouse buttons for click actions, XFree86
+    won't let me use it for motion events. Also made it easy to change the
+    number of supported button, only need to edit config.hh.
+    ( Thanks Daniel Johansson <donnex@home.se> for request )
+
+2003-01-05
+(*)
+  * We now support the --sysconfdir configure option. Default is
+    PREFIX/etc/pekwm
+    ( Rando Christensen updated Makefile related files )
+
+(windowmanager.cc, windowmanager.hh, atoms.cc, atoms.hh, frame.cc, frame.hh)
+  * Added a new hint, _PEKWM_FRAME_ID which now is used for remembering groups
+    when restarting pekwm.
+
+2003-01-04
+(windowmanager.cc, windowmanager.hh, frame.cc, frame.hh)
+  * Changed AutoProperties behaviour, now autogrouping is based on the initial
+    clients class and reloading autoprops is also based on the original
+    client. ( Thanks shared for request )
+
+(workspaces.cc, config.cc, config.hh, data/config.in)
+  * Made it possible to decide which direction smart placement is placing
+    windows. LeftToRight and TopToBottom. This required a config file syntax
+    change so go look in data/config.in for info on howto configure it.
+
+2003-01-03
+(frame.cc, framewidget.cc, framewidget.hh)
+  * Fixed bug in Frame::getClientFromPos and FrameWidget::draw causing the
+    title clicks activated wrong client when alot of clients were grouped.
+    ( Thanks shared for reporting ) 
+
+2003-01-01
+(workspaces.cc, workspaces.hh)
+  * Cleaned Workspaces::checkEdgeSnap which now snaps to sticky and shaded
+    frames too.
+
+2002-12-31
+(windowmanager.cc)
+  * Fixed bug causing the ~/.pekwm/start file not to execute under FreeBSD.
+    ( Thanks Daniel Johansson <donnex@home.se> for reporting )
+
+2002-12-30
+(basemenu.cc, basemenu.hh)
+  * Cleaned up unused or unneeded variables.
+
+(config.cc, config.hh, workspaces.cc)
+  * Removed the config option ReportOnlyFrames and made it the default
+    behaviour.
+
+2002-12-29
+(data/keys, data/menu, data/autoprops)
+  * Uppdated the default config files to use the new more compact syntax.
+
+(*)
+  * Big code restructuring, splitting Frame into Frame and Framewidget also
+    slimming down the Client class. Not yet 100% done but it changes the
+    behaviour of things and tries to be alot more Frame centric than Client
+    centric.
+
+(autoprops.cc)
+  * Changed the Class keyword to Name in the autoprops config file, which
+    makes it possible to use the new syntax Property = "xterm,XTerm" {
+
+2002-12-25
+(screeninfo.cc, screeninfo.hh, windowmanager.cc, windowmanager.hh)
+  * Moved the Strut methods and getMousePosition class to ScreenInfo
+
+(baseconfig.cc)
+  * Added support for variables inside config files
+      $VAR = "value"
+      Param = "Foo $VAR"
+  * Added support for new section name syntax
+      Section = "Name" { }
+    ( Thanks Alaa Abd El Fatah <alaa@linux-egypt.org> for the work )
+
+2002-12-21
+(screeninfo.cc)
+  * Fixed missing include to Xutil.h making it not compile under Solaris.
+    ( Thanks Jeremy Naylor <jnaylor@cisco.com> for reporting )
+
+2002-12-12
+(baseconfig.cc)
+  * Fixed bug in parsing comments, added support for \" inside values and
+    added conditional compiles for gcc 2.95 and 2.96.
+    ( Thanks Alaa Abd El Fatah <alaa@linux-egypt.org> for the work )
+
+2002-12-11
+(actionhandler.cc, gotomenu.*, windowmanager.cc, windowmanager.hh)
+  * Added a new action, ShowGotoMenu which pops up a menu with a list of
+    all active clients on all workspaces. Lets you click one and then it
+    goes to that workspace, raises the client and gives it focus.
+
+(frame.cc)
+  * Changed grouping behavior, it's now possible to group a allready grouped
+    client withouth having to ungroup it first.
+
+(baseconfig.cc, baseconfig.hh)
+  * New parsing code, handles multiple sections per line and supports the
+    INCLUDE keyword that makes it possible to include external files to
+    be included.
+    ( Thanks Alaa Abd El Fatah <alaa@linux-egypt.org> for the work )
+
+2002-12-07
+(basemenu.cc, basemenu.hh)
+  * Various cleaning.
+
+(windowmanager.cc, windowmanager.hh, config.cc, config.hh)
+  * Reworked FocusNextFrame action and added FocusPrevFrame while working
+    on it. Also, added a new config option to the Screen section.
+
+      ShowFrameList = "Bool"
+
+    Which decides wheter or not to show a list of clients when doing
+    Focus{Next/Prev}Frame.
+
+2002-12-06
+(windowmanager.cc, windowmanager.hh, config.cc, config.hh)
+  * Reworked focus code a bit and removed the old config models and replaced
+    them with a new config section.
+
+	Focus { Enter = "Bool"; Leave = "Bool"; Click = "Bool; New = "Bool" }
+
+2002-12-04
+(baseconfig.cc)
+  * Extended the parsing code so it now supports a more condensed format:
+
+      Section { Param = "Value"; Param = "Value" }
+
+(*)
+  * Cleaning
+
+2002-12-01
+(client.cc, frame.cc)
+  * Optimized Mapping/Unmapping of windows.
+    ( Thanks Alaa and shared for info )
+
+(frame.cc)
+  * Cleaned the Maximize method and added support for ResizeIncremeter.
+
+(harbour.cc, harbour.hh, config.cc, config.hh, frame.cc, windowmanager.cc)
+  * Added MaximizeOver option in the Harbour section of the config file.
+    ( Thanks Alaa Abd El Fatah <alaa@linux-egypt.org> for patch )
+
+2002-11-30
+(frame.cc)
+  * Reworked inserting and removing of Clients. Clients becomes inserted after
+    the current one and when a client becomes removed the client left of it
+    becomes focused.
+
+(windowmanager.cc)
+  * Rewrote focusNextFrame so that it hopefully fixes the gcc-2.96 crash.
+
+2002-11-29
+(windowmanager.cc, util.cc)
+  * Fixed compile warnings associated with execlp().
+    ( Thanks Ted Unangst <tedu@stanford.edu> for info )
+
+(frame.cc, frame.hh)
+  * Fixed bug with unmapping of windows when using AutoGroup and GroupBehind.
+    ( Thanks shared for reporting )
+
+2002-11-28
+(windowmanager.cc, actionhandler.cc, pekwm.hh, config.cc)
+  * Added new mousebutton action, ActivateOrRaise which if the client
+    isn't allready focused, gives it focus, and if it's focused raises it.
+
+(frame.cc, frame.hh, actionhandler.cc)
+  * Resizing no longer Warps the pointer and lets the user resize in all
+    directions when using ClientMotion resizing.
+
+(*)
+  * Added new action, RaiseAndActivate which is Raise and ActivateClient
+    combined into one action.
+    ( Thanks shared for reporting )
+  * Cleaned up and reworked the Action system.
+  * Now we are listening on the MWM Functions hint.
+
+2002-11-23
+(windowmanager.cc, windowmanager.hh)
+  * Fixed issue with root actions not caring about modifiers.
+    ( Thanks shared for reporting )
+
+2002-11-21
+(client.cc, client.hh, windowmanager.cc)
+  * Now Client button actions are reloaded when reloading.
+
+(frame.hh, client.cc, windowmanager.cc, workspaces.cc)
+  * Added Frame::isActiveClient and cleaned up with it.
+	
+(client.cc, frame.cc)
+  * Fixed a redraw and stacking issue with GroupBehind.
+    ( Thanks shared for reporting )
+
+2002-11-20
+(autoprops.cc, autoprops.hh, client.cc, config.cc, config.hh)
+  * Added support for autogrouping into the background and the ApplyOn*
+    are now replaced with:
+    
+    ApplyOn = "Start Transient"
+
+    Also, WorkspaceChange has been renamed to Worksapce and a New keywoard
+    has been introduced. Start now means the start of pekwm and new means the
+    mapping of a new client.
+
+(client.cc)
+  * Remove m_has_strut and added operator=(const CARD32*) for class Strut.
+
+(client.cc, client.hh, config.cc, config.hh)
+  * Removed Client::construcClient and moved it to the constuctor and while
+    I were at it made it possible to have 3 placement models.
+
+pekwm-0.1.2 released
+
+(*)
+  * A _basic_ manual page and docs now reside in the docs dir.
+    ( Thanks Rando Christensen <rando@babblica.net> for this work )
+
+2002-11-18
+(config.cc, config.hh)
+  * Moved the mouseconfig out from config to a separate file called mouse.
+
+(theme.cc, basemenu.cc)
+  * Fixed issue with text in the status window not beeing visible if
+    pekwm was compiled withouth menu support.
+
+2002-11-15
+(font.cc)
+  * Fixed a typo making colors on Xft fonts behave weird.
+    ( Thanks Rando Christensen <rando@babblica.net> for reporting )
+
+2002-11-14
+(harbour.cc, harbour.hh, config.cc, config.hh, pekwm.hh)
+  * Added Placement and Orientation support for the harbour.
+    Options:     
+      Placement = "Top | Bottom | Left | Right"
+      Orientation = "TopToBottom | BottomToTop | LeftToRight | RightToLeft"
+    This relods when reloading the config, also the stacking is uppdated.
+	
+(frame.cc)
+  * Fixed a bug causing Client actions with modifiers be executed twice.
+    ( Thanks shared for reporting. )
+
+2002-11-13
+(frame.cc)
+  * Reverted the look of the WireFrame to only a rectangle to fix issues
+    when moving/resizing borderless windows.
+    ( Thanks Jeremy Naylor <jnaylor@cisco.com> for reporting )
+
+2002-11-12
+(harbour.cc, harbuor.hh, workspaces.cc)
+  * Reworked the stacking of the harbour so that it shouldn't flicker anymore.
+    Still, changed harbour stacking from Above to Below requries a restart for
+    changes to take full effect.
+
+(frame.cc)
+  * Tuned the warping of the pointer when using WorkspaceWarp to make
+    a bug not possible or atleast harder to reproduce.
+
+(frame.cc)
+  * Fixed a redraw issue when resizing windows.
+    ( Thanks shared for reporting. )
+
+2002-11-08
+(*)
+  * Focus code rewritten, still not there yet, do expect glitches.
+
+  * Cleanups.
+
+2002-11-02
+(client.cc, client.hh, actionhandler.cc, config.cc, pekwm.hh)
+  * We now have both a Close and a Kill action, the close one sends an
+    WM_DELETE message if the client supports it, and the kill one kills
+    it with XKillClient.
+
+(config.cc, keys.cc)
+  * Changed the behaviour of mods on keygrabs and button actions, if you don't
+    use the Mod keywoard it'll grab withouth any modifier making the None
+    modifier keyword obsolete.
+
+(*)
+  Config file parsing is rewritten, this included the most of Config and Theme
+  to be rewritten too. The new base syntax is:
+
+    Section {
+      Name = "Value"
+    }
+
+  Which hopefully is alot easier to read.
+  This also causes all configuration files _and_ themes not to work as they
+  need to be rewritten to the new format.
+
+2002-10-30
+(frame.cc, config.cc, config.hh)
+  * Added two new options:
+	WorkspaceWarpResistance* unsigned int;
+	WrapWorkspaceWarp* bool;
+
+2002-10-29
+(frame.cc)
+  * Reworked moving of windows so that you'll now get the status window
+    even if you move in Opaque mode.
+
+(config.cc, config.hh, frame.cc)
+  * Added new option, OpaqueResize which will if it's set to true resize
+    while showing it's content. Also, WireMove was removed and replaced
+    with OpaqueMove, which is the same option but inverted.
+
+(keys.cc, config.cc, pekwm.hh, actionhandler.cc, frame.cc, frame.hh)
+  * Added new keybinding, MoveToCorner which takes one parameter, which can
+    be one of the following:
+	TopLeft, TopRight, BottomLeft or BottomRight
+    which moves the active window to that corner of the screen.
+	
+(util.cc)
+  * Added function trimLeadingBlanks for use in parsing code.
+
+2002-10-27
+(baseconfig.cc, baseconfig.hh, config.cc, rootmenu.cc, keys.cc, autoprops.cc)
+  * Cleaned up in BaseConfig and altered default constructor and load
+    behaviour while adding support for loading configs from a FILE object.
+
+2002-10-24
+(workspaces.cc, workspaces.hh, frame.cc, config.cc, config.hh)
+  * Implemented Frame-to-Frame snapping and therefore added a new configuration
+    option, FrameSnap which is amount of pixels between two frames before it
+    snaps. If it's 0 no snapping occurs.
+
+    NOTE: EdgeSnapWidth config option is replaced with the EdgeSnap config
+    option which no longer is a bool, it's now a unsigned int.
+
+(client.cc, client.hh, config.cc, actionhandler.cc, pekwm.hh)
+  * Added three new key grabber commands:
+      ToggleBorder, ToggleTitlebar and ToggleDecor
+
+2002-10-23
+(image.cc)
+  * Fixed crash bug in getScaled.
+
+2002-10-22
+(harbour.cc)
+  * Fixed missing #include <algorithm> in harbour.cc.
+    ( Thanks Rando Christensen <rando@babblica.net> for reporting )
+
+2002-10-20
+(*)
+  * Basic DockApp support via the harbour, still it is in early stage
+    of development. Enable via compile time option --enable-harbour
+
+(basemenu.cc, basemenu.hh, windowmanager.cc)
+  * Altered the behaviour of menus, items are now selected if you enter a
+    submenu. Also, the selected item has two lines on it, and it's possible
+    to give the menus name with the MenuName keyword.
+
+2002-10-19
+(genericmenu.hh)
+  * Fixed missing include guard in genericmenu.hh
+
+(client.cc)
+  * If a transient window unmaps, we only give the parent focus if the
+    transient window was focused.
+
+(client.cc)
+  * Fixed small issue in handleMapRequest, we didn't look wheter or not we
+    were on the active workspace, causing mozilla to map where it
+    shouldn't.
+
+2002-10-17
+(client.cc, client.hh, frame.cc, frame.hh, workspaces.cc, windowmanager.cc)
+  * Reworked hiding and unhiding of clients/frame as
+    Rando Christensen <rando@babblica.net> reported that the
+    switch-workspace-to-fast still existed but were really hard to replicate.
+
+(windowmanager.cc, windowmanager.hh, workspaces.hh)
+  * Added method findClientToFocus in WindowManager which tries to find a
+    client that can be focused. Also, using this the last focused client
+    is remembered when you kill a client or whatever.
+
+(button.cc, button.hh, frame.cc, theme.cc)
+  * Fixed a bug causing pekwm to segfault if you used button 4 or 5 ( usually
+    the scroll wheel ) on the titlebar buttons. Also, while I were at it
+    I added support for configuring all 5 buttons for each button.
+    ( Thanks Holger Schibalsky <schibalsky@web.de> )
+
+2002-10-16
+(frame.cc)
+  * Fixed issue with the right border becoming covered with the non active
+    clients in a frame.
+    ( Jonas Lundqvist <jonaslundqvist@gmx.net> for reporting )
+
+(client.cc, frame.cc, workspaces.cc)
+  * Fixed some Xinerama compile issues.
+    ( Thanks Matt Keadle <mkeadle@gentoo.org> for reporting )
+
+2002-10-14
+(frame.cc)
+  * Cleaned checkEdgeSnap and updated the Xinerama part.
+
+(atoms.cc, atoms.hh, windowmanager.cc, windowmanager.hh, client.cc)
+  * Dropped all support for the IMHO obsolete gnome atoms used by gnome-1.4.
+
+pekwm-0.1.1 released
+
+2002-10-14
+(data/keys)
+  * New default keys file for pekwm by Rando Christensen <rando@babblica.net>,
+    flame or praise him for the changes.
+
+2002-10-13
+(windowmanager.cc, windowmanager.hh, frame.cc)
+  * Altered behaviour of resize, first we now have different cursors
+    indicating what direction is going to be resized also resize will start
+    as soon as Button1 is pressed. ( Thanks agnitio for request )
+
+2002-10-12
+(screeninfo.cc, screeninfo.hh, keys.cc, keys.hh, client.cc, frame.cc)
+  * Started to use XGetModifierMapping ( after a peak in WindowMaker's
+    source ) to figure out wich modifier Num and Scroll lock has.
+
+(image.cc)
+  * Fixed issue in unload, as I weren't resetting the size of the image holders
+    loading from a theme with border at the top one without caused troubles.
+
+2002-10-11
+(client.cc, client.hh, frame.cc)
+  * Reworked unmap handling, now we "filter" the unmap events we cause
+    and then we can listen on the "real" events, wich hopefully resolvs
+    the unmap issues of pekwm. Also, this rework seemed to resolv the
+    to fast Workspace switching bug.
+
+(workspaces.cc)
+  * Added check to make sure that the last focused client aren't hidden
+    before activating it.
+
+2002-10-10
+(basemenu.cc)
+  * Fixed XErrors related to trying to set menu height to 0.
+
+(keys.cc, theme.cc, client.cc, frame.cc)
+  * Fixed some compile warnings uncovered with -Wall.
+
+(theme.cc)
+  * Fixed unmatched pair of XGrabServer / XUngrabServer causing pekwm not to
+    start if there weren't any clients on the screen and menu support weren't
+    compiled in.
+
+(*)
+  * Renamed the USE_XFT and USE_MENUS defines to XFT and MENUS.
+
+2002-10-09
+(windowmanager.cc)
+  * Ignoring XCrossingEvents (EnterEvents) when they have a ButtonMask
+    set.
+
+2002-10-08
+(frame.cc, frame.hh)
+  * Now I keep track of the current title pixmaps dimension and reuse the
+    Pixmap if it has good dimensions.
+
+(*)
+  * Uppdated the default theme, removed the what-took-so-long theme.
+
+(windowmanager.cc, windowmanager.hh, frame.cc, client.cc, client.hh)
+  * Not using XSetInputFocus all over the place anymore, using
+    WindowManager::focusClient which now takes care of that part.
+    Also removed WindowManager::unfocusAllClients as it wasn't used
+    anymore.
+
+(frame.cc)
+  * When resizing with the keygrabber, we now make sure that the window isn't
+    shaded.
+
+2002-10-07
+(windowmanager.cc, client.cc)
+  * Reordered the removeFromClientList in the Client destructor, also
+    making sure that the m_focused_client get set to NULL in
+    WindowManger::removeClient if it's beeing removed.
+
+(client.cc, client.hh, frame.cc)
+  * Renamed sendConfig to sendConfigureRequest and removed all the calls
+    from Frame and moved them into the appropiate places in Client.
+
+2002-10-06
+(windowmanager.cc)
+  * Reworked handleEnterNotify a bit, wich now is a bit smarter.
+
+(frame.cc, client.cc)
+  * Fixed WIN_LAYER < WIN_LAYER_NORMAL stacking issue.
+
+(client.cc, workspaces.cc)
+  * Now we also report transient windows to the client list.
+
+(windowmanager.cc)
+  * Activating the active workspace no longer unfocus all clients.
+    (Thanks digiwano for reporting)
+
+2002-10-04
+(workspaces.cc, workspaces.hh, config.cc, config.hh, windowmanager.cc)
+  * Added new configure option, ReportOnlyFrames wich will make pekwm
+    only report the active clients in the frames.
+
+2002-10-03
+(client.cc)
+  * Not caring about struts in handleConfigureRequest anymore, resolves the
+    issue with mplayer not beeing able to set itself to fullscreen mode
+    because of it beeing resized because of struts.
+
+2002-10-02
+(windowmanager.cc, windowmanager.hh, client.cc, keys.cc, keys.hh)
+  * Added new compile time option, --enable/disable-keygrabber wich
+    decides wheter or not keygrabber should be enabled. It defaults
+    to true. ( Thanks ? for request )
+    This speeded things up alot, what's up with keygrabbing taking so
+    much time? Needs investigation.
+
+(client.cc, windowmanager.cc)
+  * Started to listen on _NET_WM_DESKTOP so that you can move clients
+    between workspaces with gnome-panel etc. Also cleaned a little.
+
+(config.cc, config.hh, client.cc, client.hh)
+  * Made window placement configurable. Syntax is:
+
+      PlacementModel* Placement FallBackPlacement;
+
+    The possible placement modes are: Smart, MouseCentered and MouseTopLeft.
+    ( Thanks Dirk Busse <a0104237@addcom.de> for request )
+
+2002-10-01
+(windowmanager.cc, windowmanager.hh, client.cc)
+  * Removed the grabbing and ungrabbing of keys when windows changed focus
+    as this were causing _big_ slowdown. ( Thanks weird for reporting )
+
+2002-09-29
+(frame.cc, client.hh)
+  * Fixed issue causing gnome-panels to move themselfs when restarting pekwm.
+
+(windowamanger.cc, workspaces.cc, workspaces.hh)
+  * Now we are treating the _NET_CLIENT_LIST_STACKING hint with respect,
+    while this were added _WIN_CLIENT_LIST ( old gnome ) support were dropped.
+
+(client.cc)
+  * Fixed bug in handleConfigureRequest causing gnome-terminal get crazy
+    shrinking itself very much.
+
+(frame.cc, client.cc, workspaces.cc, workspaces.hh)
+  * Removed restackOnTopWindow and restackBelowWindows from the Workspace
+    class as it now is handled correctly by raise/lower.
+
+2002-09-26
+(autoprops.cc)
+  * Changed the Workspace entry in the autoprops file, now workspace
+    counting starts from 1 and not 0. 
+
+(windowmanager.cc)
+  * Trimmed off LeaveWindowMask and ButtonMotionMask from the rootwindow
+    listening, as we shouldn't need them.
+
+2002-09-25
+(windowmanager.cc, workspaces.cc, workspaces.hh)
+  * When changing between workspaces the focused client is remembered.
+    If it has been destroyed, the ontop window will become focused.
+
+(windowmanager.cc, client.cc)
+  * Cleaned up focusing a bit more, no flickering when changing workspace
+    and less work by pekwm required. 
+
+2002-09-24
+(frame.cc)
+  * Fixed the separator / title justification issue when drawing the titlebar,
+    thanks Steve Jacobs <steve@trinidadusa.net> for reminding.
+
+(image.cc, image.hh, theme.cc, theme.hh, frame.cc)
+  * Removed the Xpm class and replaced it with the Image class, they're
+    pretty much the same class but Image is supposedly a bit speedier.
+
+2002-09-20
+(frame.cc, client.cc, keys.cc, pekwm.hh)
+  * Fixed grabbing of keys and handling of modifiers, so that now it should
+    work under Sun OpenWindows by default when NumLock is pressed.
+
+2002-09-18
+(button.cc)
+  * Fixed ops, not setting values in the constructor of FrameButton.
+
+(windowmanager.cc, workspace.cc, workspace.hh)
+  * When closing/grouping/ungrouping windows pekwm tries to focus a window.
+
+2002-09-17
+(client.cc, client.hh, frame.cc)
+  * Fixed some BadWindow errors associated to constructing/destrucing Clients.
+
+(windowmanager.cc)
+  * Now handleXError outputs information about X errors when debugging is
+    turned on.
+
+2002-09-16
+(client.cc, frame.cc, workspace.cc, workspace.hh)
+  * Raising and lowering of clients have been reworked and now shouldn't
+    flicker when having always below/ontop windows.
+
+(client.cc, workspaces.cc, workspaces.hh)
+  * Cleaned up Client::handleConfigureRequest while fixing bug reported by
+    Ashwin <ashwinds@yahoo.com> causing sylpheed to move itself instead of
+    becoming raised when execing it twice.
+
+(config.cc, config.hh, frame.cc)
+  * Added new option, GrabWhenResize which defaults to true. Lets you decide
+    wheter or not the server should get grabbed when resizing a window.
+    ( Grabbing is the safe choise, but it can make xmms chop etc )
+
+2002-09-06
+(keys.cc, actionhandler.cc, frame.cc)
+  * Added ResizeHorizontal and ResizeVertical keygrabs that resizes the
+    active frame with X pixels, if the active client has the ResizeInc set
+    it changes the size with one incremeter instead.
+    ( Thanks weird <weird@tg.eyeque.org> for request)
+
+(keys.cc, actionhandler.cc, config.cc, frame.cc)
+  * Added ActivateClientNum keygrab which lets you activate client number
+    X in the activate frame. ( Thanks weird <weird@tg.eyeque.org> for request )
+
+(frame.cc)
+  * Fixed MaximizeVertical swapped MaximizHorizontal to actually maximize
+    the right direction. ( Thanks weird,Xanix,digiwano for report )
+
+2002-09-03
+(frame.cc)
+  * Fixed bug in moveClientNext and moveClientPrev causing a crash.
+
+2002-08-31
+(atoms.cc, atoms.hh)
+  * Moved atom structs out from the WindowManager and made classes wich
+    initialises the atoms themselfs.
+
+2002-08-30
+(windowmanager.cc, windowmanager.hh, keys.cc, keys.hh, frame.cc, frame.hh)
+  * Cleanups in EventHandling/ActionHandling.
+
+2002-08-29
+(client.cc)
+  * Fixed small compile bug when compiling without menus.
+    (Thanks Jonas Lundqvist for reporting)
+
+pekwm-0.1.1pre4 released.
+
+2002-08-27
+(data/themes/what-took-so-long)
+  * New default theme.
+
+(keys.cc)
+  * The name for the Mod4 modifier has been changed back to Mod4.
+
+(keys.cc, autoprops.cc, config.cc, config.hh)
+  * SendToWorkspace/GoToWorkspace (keybindings) and Workspace autoprop now
+    start counting at 1 instead of 0 when defining workspace number.
+    Also, MaxDesktop is renamed to NumWorkspaces.
+
+(actionhandler.cc, actionhandler.hh)
+  * Now all actions wich include Desktop have Workspace instead.
+
+2002-08-26
+(client.cc, windowmanager.cc)
+  * Fixed Autogroup and Autoworkspace - AKA the Phantom Icon bug and
+    De-Iconification on double click iconified under ROX bug.
+    (Thanks Ashwin for bug report(s))
+
+
+2002-08-21
+(workspaces.cc, workpsaces.hh)
+  * Now the number of workspaces will be correctly modified during runtime
+
+2002-08-20:
+(frame.cc)
+  * Fixed _BIG_ ops in handleButtonEvent and handleMotionEvent, I had
+    forgotten to remove Caps,Scroll and NumLock states so these event
+    weren't matched when one of them were on.
+
+2002-08-17:
+(client.cc, frame.cc)
+  * Now ClientClick actions without modifier will let the client get the
+    event too.
+
+2002-08-16:
+(windowmanager.cc, config.cc, config.hh, util.cc, util.hh)
+  * Added support for having a start script specified in the config file by
+    the param StartFile which points to a regular sh script.
+    (Thanks digiwano for request)
+
+2002-08-15:
+(windowmanager.cc)
+  * Altered behaviour of focusNextFrame, it won't raise or warp pointer
+    anymore.
+
+(config.cc, config.hh, theme.cc, theme.hh)
+  * Changed the FocusModel config parameters to Follow, Sloppy and Click.
+    Changed the {Menu,Win}.Text.Justfiy parameters to Left, Center and Right.
+    (Thanks digiwano for request)
+
+  * Added support for _NET_WM_STATE_HIDDEN atom, this let you restart pekwm
+    and iconified windows will stay iconified after a restart.
+
+2002-08-13:
+(theme.cc, theme.hh)
+  * Fixed a compile error when compiling error when having menus disabled.
+    (Thanks digiwano for report)
+
+(font.cc)
+  * When compiled with Xft support it is now possible to select fonts based
+    on the Xft naming scheme by appending #xft to font name.
+    times-12:bold becomes times-12:bold#xft
+
+2002-08-12:
+(client.cc)
+  * Uppdated initPositionSmart to use the new Workspaces code.
+
+2002-08-12:
+(workspaces.cc, workspaces.hh, windowmanager.cc, client.cc, frame.cc)
+  * Added Workspaces and Workspace classes to handle workspaces in a saner
+    way. ( One step closer to client-to-client snapping )
+
+(basemenu.cc, basemenu.hh, rootmenu.cc, iconmenu.cc, windowmenu.cc)
+  * Removed basemenuitem.hh, moved it into basemenu.hh. Added accessors for
+    BaseMenuItem and fixed a memory leak in basemenu.cc
+
+(configure.in's, Makefile.in's)
+  * Applied autoconf patch from Rando Christensen <rando@babblica.net>
+    wich adds a nice configure script
+
+2002-08-11:
+(frame.cc)
+  * Changed a little ops in frame redrawing making separators misplaced.
+
+2002-08-07:
+(main.cc, windowmanager.cc, windowmanager.hh)
+  * Moved command line parsing to main and renamed the -display and -version
+    arguments to --display and --version, also --help was added.
+
+2002-08-07:
+(windowmanager.cc, windowmanager.hh, theme.cc, theme.hh, frame.cc)
+  * Instead of using an invert gc and drawing size/position info on the screen
+    there's an small "status" window instead to make it work together with Xft.
+
+2002-08-06:
+(util/showclasshint.cc, util/Makefile)
+  * Added an util section which now holds the utility showclasshint which
+    is usefull when configuring autoprops.
+
+2002-07-30:
+(actionhandler.cc, actionhandler.hh, config.cc, config.hh, client.cc, frame.cc)
+  * Now it's possible to configure mousebutton actions with modifiers.
+    NOTE: The old client.* are now representing the client window and are
+    replaced with frame.* wich is titlebar.
+
+(font.cc, font.hh, frame.cc, basemenu.cc, basemenu.hh, theme.cc, theme.hh)
+  * Added a new class for handling font stuff, this means xft support.
+
+2002-07-27:
+(actionhandler.cc, actionhandler.hh, frame.cc, frame.hh)
+  * Added MoveClientNext and MoveClientPrev to the valid list of keygrabs and
+    clientclick actions. ( Thanks Victor Sahlstedt for request )  
+
+2002-07-19:
+(actionhandler.cc, actionhandler.hh)
+  * Added RightDesktop and LeftDesktop wich replaces NextDesktop and
+    PrevDesktop as Prev,Next now wraps. ( Thanks mojumbo for request )
+
+(autoprops.cc, autoprops.hh, frame.cc, client.cc, client.hh)
+  * Instead of NoDecorations there are now NoBorder and NoTitlebar in the
+    autoprops.
+
+pekwm-0.1.1-pre3 released
+
+2002-07-17:
+(config.cc)
+  * Rewrote the copying of config files wich hopefully resolves some
+    weird issues.
+
+(basemenu.cc)
+  * Changed the booring empty square of the submenu indicator to a
+    filled triangle. (Thanks Victor Sahlstedt for request)
+
+(actionhandler.cc, actionhandler.hh, frame.cc, frame.hh, client.cc, client.hh)
+  * Added IconifyGroup action to actionhandler, it'll iconify all the windows
+    in a group. Also, fixed so that when iconifying clients one by one the
+    frame will be iconified when all the clients in the frame are iconified.
+    (Thanks Victor Sahlstedt for request)
+
+2002-07-12:
+(autoprops.cc, autoprops.hh, windowmanager.cc, windowmanager.hh,
+ client.cc, client.hh, frame.cc, frame.hh)
+  * Added support for auto properties such as sticky, position and
+    auto-grouping, read the documentation for more info.
+
+2002-07-08:
+(windowmanager.cc, windowmanager.hh)
+  * More hint cleanups, now deskmenu works and also setting of desktop count.
+
+(keys.cc, keys.hh)
+  * Added support for keygrabbing without modifier, modifier named None.
+    (Thanks _name_ for request)
+
+pekwm-0.1.1-pre2 released
+
+2002-07-06:
+()
+  * NOTE! This is just a panic cleanup release of 0.1.1-pre1
+
+2002-07-06:
+(windowmanager.cc)
+  * Sloppy focus won't focus WIN_LAYER_DESKTOP windows when entering them now.
+
+2002-07-05:
+(windowmanager.cc)
+  * Now setExtendedNetActiveWindow does reporting of the current active
+    window correctly, so now gnome-deskguide shows the correct active window.
+
+2002-07-05:
+(Makefiles, keys.cc)
+  * Applied patches from Lurene Grenier <lurene@daemonkitty.net> making the
+    Makefiles saner and it also fixes an ops in keys.cc
+
+2002-07-05:
+()
+  * Added USE_MENUS toggle to the config.mk file so that you can compile pekwm
+    without any menu support, usefull when using pekwm together with an
+    desktop enviorment.
+
+(client.cc)
+  * More hint cleanups.
+
+2002-07-04:
+(client.cc)
+  * The extended_net_wm_state toggles weren't working correclty, now
+    close, iconfiy, maximize and shade works.
+
+(xpm.cc)
+  * Fixed ops in memory management.
+
+pekwm-0.1.1-pre1 released
+
+2002-07-03
+()
+  * NOTE! This is a development release, _alot_ of what's in it haven't been
+    finished or tested much, use it at your own risk!
+    Themes and Config files are _not_ compitable with those from pekwm-0.1.0,
+    so the best thing to do is "rm -rf ~/.pekwm" and then restart pekwm.
+    All themes I have created are uppdated and exist on
+    http://pekdon.babblica.net/ for downloading
+
+2002-07-03:
+()
+  * Added scaling support for themes, also themes can have separators (pixmaps)
+    between them and the active client can have it's part of the titlebar
+    with another pixmap.
+
+2002-07-02:
+(frame.cc)
+  * Changed behaviour of edge snap, now it snaps to the strut edges and not
+    the real edges and snaps from the outside of the screen now too.
+
+(client.cc, client.hh, hints.cc, pekwm.hh)
+  * Added support for net_wm_type_desktop and net_wm_type_dock(more are
+    coming soon) to make pekwm usable with gnome2.
+
+2002-07-01:
+(hints.cc, hints.hh, windowmanager.cc, windowmanager.hh, client.cc)
+  * Moved the hints back to WindowManager class.
+
+(actionhandler.cc, actionhandler.hh, windowmanager.cc, windowmanager.hh,
+ frame.cc, frame.hh)
+  * Now titlebar motion events are configurable, tough only 2 actions are
+    valid: Move & GroupingDrag.
+    configuration syntax is: client.motion* Button:Action;
+	 
+(theme.cc, theme.hh, button.cc, button.hh)
+  * Now titlebar buttons support shaping.
+
+2002-06-30:
+(hints.cc)
+  * Now honouring the skip taskbar hint in updateClientList.
+
+2002-06-29:
+(actionhandler.cc, actionhandler.hh, rootmenu.cc)
+  * Rewrote parsing of menus to use the getAction from actionhandler, replaced
+    sub keyword with Submenu, end with SubmenuEnd, other with RestartOther and
+    end with Exit.
+
+2002-06-28:
+()
+  * Added commmon actionhandler for keygrabber, rootmenu, windowmenu,
+    rootclicks, clientclicks and buttonclicks. Check in README for
+    valid actions.
+
+2002-06-27:
+(windowmanager.cc, windowmanager.hh, frame.cc, frame.hh, config.cc, config.hh)
+  * Now it's possible to configure mouse button actions, the configuration is
+    put into the main config file (~/.pekwm/config) and the syntax follows
+
+      root.click* Button:Action:Param; ( root window clicks )
+      client.click* Button:Action; ( client clicks )
+      client.click.double* Button:Action; ( double clicks on clients )
+
+    Valid root click actions are:
+      ShowRootMenu ( toggles root menu visibility, and hides all other menus )
+      ShowIconMenu ( toggles icon menu visibility, and hides all other menus )
+      HideAllMenus ( hides all menus )
+      NextDesktop ( goes to the next(right) desktop )
+      PrevDesktop ( goes to the previous(left) desktop )
+      Exec ( executes a command )
+
+    Valid client click actions are:
+      Raise ( raises the frame )
+      Lower ( lowers the frame )
+      Shade ( shades the frame )
+      Maximize ( maximizes the frame )
+      ShowWindowMenu ( toggles window menu visibility )
+      NextInFrame ( activates the next(right) client in the frame )
+      PrevInFrame ( activates the previous(left) client in the frame )
+      ActivateClient ( activates the client that is under the pointer )
+
+(client.cc)
+  * Now changed the layer (OnTop, Below) the property will stick on the 
+    windows.
+
+(keys.cc)
+  * Added Raise and Lower to the keygrabber.
+
+()
+  * Removed individual action enums for keys, buttons and basemenu and merged
+    them all into one.
+
+2002-06-26:
+(frame.cc)
+  * Changed look of wire frame draw.
+
+(frame.cc, frame.hh, theme.cc, theme.hh)
+  * Borders are now pixmap themable.
+
+2002-06-25:
+(theme.cc)
+  * Fixed ops in theme unloading not unloading title pixmaps.
+
+2002-06-24:
+(basemenu.cc)
+  * Borders are now pixmap themable.
+
+2002-06-25:
+(theme.cc)
+  * Fixed ops in theme unloading not unloading title pixmaps.
+
+2002-06-24:
+(basemenu.cc)
+  * Fixed menu hide behaviour causing segfault when reloading config.
+
+(windowmananger.cc, client.cc)
+  * Fixed focus issues, keygrabber or transients windoes doesn't steel focus
+    neither does keygrabber.
+
+(frame.cc)
+  * Fixed bug causing some transient windows showing buttons.
+
+(windowmanager.cc, windowmanager.hh, frame.cc)
+  * Added a frame list, beeing used when reloading themes.
+    (more places to use on left I guess)
+
+2002-06-21:
+(windowmanager.cc, windowmanager.hh, keys.cc, keys.hh, rootmenu.cc, rootmenu.hh
+ basemenu.cc, basemenu.hh, frame.cc, frame.hh)
+  * Added support for configuration file reloading, wich loads themes, config
+    keygrabber and rootmenu.
+    SIG_HUP, now reloads instead of restarts pekwm.
+    Keygrabber action, Reload added.
+    Rootmemu config option reload added.
+    (Thanks digiwano for request)
+
+pekwm-0.1.0 released
+
+2002-06-19
+()
+  * NOTE! the changelog from aewm++-1.0.16 to pekwm-0.1.0 isn't very detailed,
+    alot more minor and major things have changed in the source that isn't
+    documented here, and therefore you should _not_ blame the author of
+    aewm++ for any bugs in the source.
+
+2002-06-19:
+(hints.cc, hints.hh)
+  * Merged gnome_protocols bugfix from aewm++-1.0.17.
+
+(basemenu.cc, windowmanager.cc)
+  * Changed the behaviour of basemenu, clicking a submenu will just toggle it's
+    visible state, not hiding the whole menu.
+
+2002-06-18:
+(hints.cc, hints.hh, client.cc, frame.cc)
+  * Mimimal support for GNOME_WIN_LAYER so now i.ex. nautilus will start on
+    the desktop.
+
+(windowmanager.cc, client.cc, client.hh, keys.cc, keys.hh, windowmenu.cc)
+  * Added always below toggle to clients, it's in the window menu and
+    keygrabber(AlwaysBelow).
+
+(frame.cc, windowmenu.cc, basemenu.hh)
+  * If you Alt+Mouse3 click windows they'll get lowered. Also, raise and lower
+    is added to the windowmenu.
+
+(client.cc)
+  * Fixed gnome (win_state_sticky) state togglling bug.
+    (Thanks Frank Hale for info)
+
+2002-06-14:
+(frame.cc)
+  * Fixed bug in fixGeometryBasedOnStrut making it impossible to get larger
+    windows than the screen size. (Thanks Z3l3zT for bugreport)
+
+2002-06-13:
+(basemenu.cc, basemenu.hh)
+  * Readded widgets for submenus, now the size are relateive to the font size.
+
+2002-06-12:
+(button.cc, button.hh, theme.cc, theme.hh, frame.cc)
+  * Now buttons can han variable button width, tough the different states will
+    will still have the same width tough.
+
+(baseconfig.cc, baseconfig.hh, keys.cc, theme.cc, rootmenu.cc)
+  * Made it possible to have more than one char as separator when using
+    BaseConfig::splitString
+
+(basemenu.cc, basemenu.hh)
+  * Basemenu cleanups, better xinerama support and less code.
+
+2002-06-11:
+(windowmanager.cc, windowmanager.hh, keys.cc, keys.hh)
+  * Added basic AltTabbing support (NextFrame)
+
+(client.cc, basemenu.cc)
+  * Fixed some ops about position.
+
+2002-06-10:
+(client.cc, client.hh, frame.cc, frame.hh)
+  * Added support for Alt dragging windows, so if you hold alt and press the
+    clients window and drag the window should follow.
+
+2002-06-07:
+(windowmanager.cc, keys.cc)
+  * m_focused_client = client; isn't used for setting the focused client
+    anymore, now setFocusedClient is used instead pretty much eliminating
+    the use of unfocusAllClients. Also, this resulted in less buggy focus
+    code making the keygrabber use the focused client instead of the client
+    wich were beneath the pointer.
+
+2002-06-06:
+(windowmanager.cc, windowmanager.hh)
+  * Well, doEventLoop got split up in _smaller_ parts, all events except the
+    shaping events got their own function, to get more overhead.
+
+2002-06-05:
+(frame.cc, frame.hh, client.cc, client.hh)
+  * Reworked the constructors of the two classes, and changed back the
+	  initPositions to the Client(maybe should be in WindowManager)
+
+(client.cc)
+  * Now handling the vertical and horizontal maximized hints separate.
+
+2002-06-03:
+(frame.cc)
+  * Fixed bug when inserting a client with shade state != the frames shade
+    state that made it necessary to double-click twice to unshade the frame.
+
+(windowmanager.cc)
+  * Fixed bug in findTransientToMapOrUnmap causing the transient windows not
+    unhiding if they were hidden on another desktop. (Thanks Z3l3zT for bugreport)
+
+2002-06-02:
+(windowmanager.cc)
+  * Switching desktop will now focus the client that is ontop(focus click) or
+    the client that the is under the mouse (focus {sloppy, follow})
+
+(iconmenu.cc, windowmanager.cc)
+  * Now it's possible to uniconify clients independt of where they were
+    iconified, an item will have an <DeskNumber> appended after its name.
+(windowmanager.cc)
+  * Fixed some focusing issues making it impossible to use keygrabber when
+    iconifying windows and not having anyone left (Thanks Z3l3zT for bugreport)
+
+()
+  * Not using LinkedList anymore, using std::vector now instead.
+
+2002-06-01:
+(config.cc, rootmenu.cc, keys.cc, theme.cc)
+  * They now use DATADIR instead of PREFIX/share/pekwm for default data dir
+
+(*Makefile*, config.mk)
+  * Rewrote the Makefiles and added makefiles for the config files and themes.
+	  Also added config.mk for easier configuration.
+
+(basemenu.cc, basemenu.hh, windowmenu.cc, rootmenu.cc, rootmenu.hh, windowmanager.cc)
+  * Now it's possible to actually make use of the submenu functionality in the
+    BaseMenu class. Therefore uppdated the windowmenu(Send To is now separate)
+    and made it possible to have submenus in the rootmenu:
+      sub* SubMenuTitle; will start a submenu with title SubMenuTitle
+      end* ; Will end the current menu
+
+()
+  * Cleaning headers and added some small functions to make life cleaner
+
+(windowmanager.cc)
+  * Changed beahviour of windowmenu, now it'll hide showing another menu or
+    clicking somewhere on the root window with mouse{1, 2, 3}
+
+2002-05-31:
+()
+  * Now compiles nicely with Intel C++ 6.0. My bad it didn't! :/
+
+2002-05-30:
+(frame.cc, frame.hh)
+  * Window buttons behave more normal now, resize works when pressing it
+    directly, and you won't be able to move windows by holding the button and
+		draging anymore.
+
+(windowmanager.cc, basemenu.hh, windowmenu.hh)
+  * Added "Always On Top" to the windowmenu, also if there are an ontop
+    window in a frame-group the frame will only get raised if the active client
+    is the one having AlwaysOnTop set.
+
+2002-05-29:
+(frame.cc, frame.hh, button.cc, button.hh)
+  * Made frames think more of transient clients when there are more than one
+    client per frame.
+
+(theme.cc, theme.hh, config.cc, config.hh)
+  * Now we are using themedir instead of themefile in the config file, also
+    the themes have all pixmaps relative to that dir in the theme files.
+
+2002-05-27:
+(frame.cc, frame.hh)
+  * Now it's possible to resize windows by draging it's borders.
+
+2002-05-26:
+(button.cc, button.hh, theme.cc, frame.cc)
+  * Added ShowMenu to the list of actions buttons can have.
+
+(button.cc, button.hh, theme.cc, frame.cc, frame.hh)
+  * Changed button syntax, now it's possible to have buttons aligned either
+    left or right, new syntax is.
+
+    win.button.left* and win.button.right*
+
+(config.cc, config.hh)
+  * Now config files are copied to the users home dir if the config file
+    doesn't exist in the dir ~/.pekwm/
+
+2002-05-23:
+(button.cc, button.hh, frame.cc, frame.hh, theme.cc, theme.hh)
+  * Added basic pixmap themeing of titlebars (tiled pixmaps, focused, unfocused
+    and selected(not yet done)) , also the button box isn't there anymore. It's
+    been obsoleted by configurable buttons who also are pixmap themeable.
+    Button config syntax goes like this:
+
+    win.button* ActionB1 ActionB2 ActionB3 :FocusedXPM UnfocusedXPM PressedXPM;
+
+    And possible actions are (Maximize, MaximizeVertical, MaximizeHorizontal,
+    Resize, Shade, Iconify, Stick, AlwaysOnTop, Close,
+    NextInGroup, PrevInGroup and NoAction)
+
+(frame.cc,frame.hh,keys.cc)
+  * Now MaximizeVertical and MaximizeHorizontal actually works.
+
+2002-05-17:
+(keys.cc, keys.hh)
+  * Parsing seems to work fine now, cfg file syntax is:
+    Action* Mods Mods Key : Parameter;	
+  * Added more keybindings: NudgeHorizontal(int inc), NudgeVertical(int inc),
+    NextInGroup, PrevInGroup and Stick.
+  * As I added Stick I fixed so that clients in a sticky group(groups becomes
+    if any client in it is sticky) are ungrouped they ungroup on the current
+    desktop.
+
+2002-05-16:
+(keys.cc, keys.hh, baseconfig.cc, baseconfig.hh)
+  * Partially working config file parser, also added function splitString to
+    BaseConfig.
+
+2002-05-16:
+(keys.cc, keys.hh)
+  * Added more keybindings: Maximize, Shade, Iconify, Close, SendToDesk
+    GoToDesk and Exec.
+
+2002-05-15:
+(keys.cc, keys.hh)
+  * Added Keys class wich handles keyaction, also rewrote the keygrabbing
+    mechanism. What's still to do is add alot of action, only new so far
+    is Exec. Also key config file parsing needs to be done.
+
+2002-05-14:
+(basemenu.cc)
+  * Fixed ops in updateMenu causing the menus not acting to events as supposed
+    after more than 1 updateMenu().
+
+2002-05-13:
+(fram.cc, client.cc)
+  * Well, now iconification works rather good, but expect some glitches here
+    and there.
+
+2002-05-09:
+(windowmanager.cc, windowmanager.hh, misc.cc, misc.hh)
+  * Moved the signal handler and X error handler to windowmanger.cc, also made
+    SIGHUP restart the wm and not killing it.
+
+2002-05-09:
+(windowmanager.cc)
+  * Keybindings work with modifiers(scroll-,num-,caps-lock) now.
+
+2002-05-09:
+(frame.cc, client.cc, client.hh)
+  * Added m_is_hidden to Client and I'm now using m_ignore_unmap as a counter,
+    that gets decreased everytime handleUnmapEvent is called. Seemed to resolv
+    the ignore_unmap bug. :)
+
+2002-05-07:
+(frame.cc, frame.hh, client.cc, client.hh, windowmanager.cc)
+  * Multiple clients per frame is working, probably are tons of bugs lurking
+    tough.
+
+2002-04-29:
+(iconmenu.cc)
+  * Fixed potential memory leak, creating unused BaseMenuItems
+
+2002-04-26:
+(*.cc, *.hh)
+  * Removed all "Last Updtaded" as they didn't get updated! Also added changed
+    for pekwm notices in the source files.
+
+2002-04-25:
+(frame.cc, client.cc, client.hh)
+  * Fixed shape bug created when I split client into frame and client.
+
+2002-04-23:
+(*menu.cc, *menu.hh)
+  * Changed names of handle_* to non _ names and renamed member variables
+    to m_*
+
+(frame.cc, frame.hh, client.cc, client.hh)
+  * Removed Client::fixupPositionBasedOnStrut and "replaced" it with
+    Frame::fixGeometryBasedOnStrut wich also, as the name says handles
+    strut geometry issues.
+
+2002-04-21:
+(linkedlist.hh)
+  * set and get one line functions are now inline.
+
+2002-04-20:
+(all _except_ linkedlist)
+  * The WindowManager wm isn't extern any more.
+
+2002-04-20:
+(basemenu.cc)
+  * Fixed text justify of menus -> fixed BaseMenu::findMenuItem.
+
+2002-04-20:
+(windowmenu.cc, windowmenu.hh, client.cc, client.hh)
+  * Renamed Client::sendWmDelete() to Client:kill and made it public, added
+    {Maximize, Iconify, Shade & Close} to the windowmenu.
+
+2002-04-18:
+(frame.cc, frame.hh, client.cc, client.hh)
+  * All member variables has m_ before themself, and theight has been moved to
+    Frame and renamed to getTitleHeight.
+
+2002-04-11:
+(client.cc, client.hh, windowmanager.cc, windowmanager.hh, basemenu.hh)
+  * Edited headers and function names, removed non existing functions
+    and added inline to appropriate functions. Also changed width and height
+    to unsigneds, also desktop functions are using unsigned now.
+
+2002-04-06:
+(windowmanager.cc, windowmanager.hh, client.cc, client.hh)
+  * Changed the desktop variables to unsigned, except for belongsToDesktop
+
+(baseconfig.cc, baseconfig.hh, config.cc, theme.cc)
+  * Added class BaseConfig to handle basic config parsing.
+
+2002-04-06:
+(client.cc)
+  * Fixed bug not causing window frames  not to unmap. Added check for
+    valid desktop in set_desktop.
+
+2002-04-04:
+(windowmanager.cc)
+  * Fixed text justification, removed old static values
+
+(windowmanager.cc, windowmanager.hh, rootmenu.cc, basemenu.hh)
+  * Added restart-other functionality to the rootmenu
+
+(iconmenu.cc, windowmenu.cc, rootmenu.cc)
+  * Moved the addToMenuList to the constructor, why were it in the updateMenus?
+
+2002-04-03:
+(basemenu.cc, basemenu.hh, theme.cc, theme.hh, rootmenu.cc)
+  * Cleanup in Basemenu, text get's aligned correctly, it's themable and
+    separator function is removed. Also added Restart and Exit functionality
+    to the rootmenu.
+
+2002-04-01:
+(basemenu.cc, basemenu.hh, windowmanager.cc, rootmenu.cc, rootmenu.hh)
+  * Added a rootmenu instead of NEW1 & NEW2, also the menus now use
+    the menu font
+
+(config.cc, config.hh, windowanager.cc, windowmanager.hh, hints.cc, client.cc)
+  * Added class Config wich should handle config options such as focus mode
+    and max desktops
+
+(theme.cc, theme.hh, windowmanager.cc, windowmanager.hh, client.cc)
+  * Added class Theme wich handles fonts and such, removed that part
+    from Windowmanager and adapted client to the changes
+
+2002-03-31:
+(client.cc)
+  * Removed member variables root, xres, yres. Added function checkEdgeSnap
+    removing duplicate edgesnap checking
+
+(basemenu.cc, misc.cc, misc.hh)
+  * Removed BaseMenu::execute, using forkExec instead also created misc.hh
+    instead of having that part in aewm.hh
+
+2002-03-29:
+(client.cc)
+  * New placement routines, first using PPosition||UPosition, then using smart
+    placement and if that doesn't work fall back to place under the mouse.
+
+2002-03-28:
+(misc.cc)
+  * Now using setsid() before execing commands in forkExec, exiting the
+    windowmanager will now longer "kill" all clients started from it
+
+2002-03-26:
+(screeninfo.cc, screeinfo.hh, windowmanager.cc)
+  * getColormap used from ScreenInfo class. Sane??
+
+(basemenu.cc)
+  * Now is Xinerama aware
+
+(hints.cc, hints.hh, client.cc, windowmanager.cc windowmanager.hh)
+  * Moved atoms actions out from windowmanager and created class Hints
+    wich takes care of them instead
+
+2002-03-25:
+(client.cc)
+  * Now Maximize and EdgeSnap is Xinerama aware, also EdgeSnap snaps to the
+    edge and _not_ 2 pixels outside.
+
+(screeninfo.cc, screeninfo.hh)
+  * Added ScreenInfo class wich handles info about the screen and handles
+    Xinerama functions
+
+(client.cc, windowmanager.cc, misc.cc)
+  * Changed to usage of new class ScreenInfo instead of direct calls
+  * Fixed intentation, using 1 tab width 2 now
+  * Changed logic in do event loop
+  * Changed the init of variables in windowmanager
