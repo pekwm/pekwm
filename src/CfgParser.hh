@@ -1,24 +1,26 @@
-//! @file
-//! @author Claes Nasten <pekdon{@}pekdon{.}net
-//! @date 2005-05-21
-//! @brief Configuration file parser.
-//! Configuration file parser with file inclusion support and command
-//! output parsing support.
-//! The format beeing parsed:
-//! $var = "value"
-//! !include = "file to include"
-//! section = "name" {
-//!   key = "name" {
-//!     value = "$var"
-//!   }
-//! }
-
 //
-// Copyright (C) 2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright (C) 2005-2006 Claes Nasten <pekdon{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
+// $Id$
+//
+
+//
+// Configuration file parser with file inclusion support and command
+// output parsing support. The format being parsed:
+//
+// $var = "value"
+// INCLUDE = "file to include"
+//
+// section = "name" {
+//   key = "name" {
+//     value = "$var"
+//   }
+// }
+//
+
 
 #ifndef _CFG_PARSER_HH_
 #define _CFG_PARSER_HH_

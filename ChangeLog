@@ -1,5 +1,8 @@
 2006-08-30  Claes Nästén  <me{@}pekdon{.}net>
 
+	* src/CfgParser.cc (CfgParser::Entry::free_tree): 
+	Plug major memory leak in CfgParser.
+
 	* src/PDecor.cc (PDecor::doMove): 
 	Update moving to only use the root position of the pointer to support
 	more ways of initiating moving and then also keep correct position.

@@ -1,8 +1,10 @@
 //
-// Copyright (C) 2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright (C) 2005-2006 Claes Nasten <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
+//
+// $Id$
 //
 
 #include "CfgParser.hh"
@@ -11,6 +13,13 @@
 #include <iostream>
 #include <memory>
 #include <cassert>
+
+#ifdef HAVE_GETTEXT
+#include <libintl.h>
+#define _(S) gettext(S)
+#else // !HAVE_GETTEXT
+#define _(S) S
+#endif // HAVE_GETTEXT
 
 enum {
     PARSE_BUF_SIZE = 1024
@@ -154,18 +163,25 @@ CfgParser::Entry::print_tree(int level)
 
 //! @brief Frees Entry tree.
 void
-CfgParser::Entry::free_tree (void)
+CfgParser::Entry::free_tree(void)
 {
     Entry *op_entry, *op_entry_free;
 
-    for (op_entry = m_op_entry_next; op_entry; ) {
+    for (op_entry = this; op_entry; ) {
+        // Delete subsection if any
         if (op_entry->m_op_section) {
             op_entry->m_op_section->free_tree();
+            delete op_entry->m_op_section;
+            op_entry->m_op_section = NULL;
         }
 
         op_entry_free = op_entry;
         op_entry = op_entry->m_op_entry_next;
-        delete op_entry_free;
+
+        // Delete node if it is not ourselves
+        if (op_entry_free != this) {
+            delete op_entry_free;
+        }
     }
 }
 
@@ -228,7 +244,7 @@ CfgParser::parse(const std::string &or_src, CfgParserSource::Type i_type)
                 if (parse_name(o_buf)) {
                     parse_section_finish (o_buf, o_value);
                 } else {
-                    cerr << "EMPTY SECTION NAME!" << endl;
+                    cerr << _("Ignoring section as name is empty.\n");
                 }
                 o_buf.clear();
                 o_value.clear();
@@ -243,7 +259,7 @@ CfgParser::parse(const std::string &or_src, CfgParserSource::Type i_type)
                     m_op_entry = m_o_entry_list.back();
                     m_o_entry_list.pop_back();
                 } else {
-                    cerr << "EXTRA } found!";
+                    cerr << _("Extra } character found, ignoring.\n");
                 }
                 break;
             case '=':
@@ -334,7 +350,7 @@ bool
 CfgParser::parse_name(std::string &or_buf)
 {
     if (!or_buf.size()) {
-        cerr << "EMPTY NAME!" << endl;
+        cerr << _("Unable to parse empty name.\n");
         return false;
     }
 
@@ -385,7 +401,7 @@ CfgParser::parse_value(CfgParserSource *op_source, std::string &or_value)
 
     // Check if we got to a " or found EOF first.
     if (i_c == EOF) {
-        cerr << "EOF before \"!" << endl;
+        cerr << _("Reached EOF before opening \" in value.\n");
         return false;
     }
 
@@ -410,7 +426,7 @@ CfgParser::parse_value(CfgParserSource *op_source, std::string &or_value)
     }
 
     if (i_c == EOF) {
-        cerr << "EOF reached before closing \"" << endl;
+        cerr << _("Reached EOF before closing \" in value.\n");
     }
 
     or_value = o_buf;
@@ -445,7 +461,7 @@ CfgParser::parse_entry_finish(std::string &or_buf, std::string &or_value)
             }
         }
     } else {
-        cerr << "DROPPING " << or_value << " AS IT HAS NO NAME!" << endl;
+        cerr << _("Dropping entry with empty name.\n");
     }
 
     or_value.clear();
@@ -497,7 +513,7 @@ CfgParser::parse_comment_c (CfgParserSource *op_source)
     }
 
     if (i_c == EOF)  {
-        cerr << "EOF reached before closing */" << endl;
+        cerr << _("Reached EOF before closing */ in comment.\n");
     }
 }
 
@@ -578,7 +594,7 @@ CfgParser::variable_expand(std::string &or_string)
             o_end = o_begin + o_it->second.size();
 
         } else  {
-            cerr << "TRYING TO USE UNDEFINED VARIABLE: " << o_var_name << endl;
+            cerr << _("Trying to use undefined variable.\n");
         }
     }
 }
