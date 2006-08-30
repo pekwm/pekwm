@@ -719,23 +719,28 @@ void
 Client::readPekwmHints(void)
 {
     long value;
+    string str;
 
-    // virtual position overides real position
-    AtomUtil::getPosition(_window,
-                          PekwmAtoms::instance()->getAtom(PEKWM_FRAME_VPOS),
+    PekwmAtoms *atoms = PekwmAtoms::instance();
+
+    // Virtual position overides real position
+    AtomUtil::getPosition(_window, atoms->getAtom(PEKWM_FRAME_VPOS),
                           _gm.x, _gm.y);
 
-    // get decor state
-    if (AtomUtil::getLong(_window,
-                          PekwmAtoms::instance()->getAtom(PEKWM_FRAME_DECOR),
-                          value) == true) {
+    // Get decor state
+    if (AtomUtil::getLong(_window, atoms->getAtom(PEKWM_FRAME_DECOR),
+                          value)) {
         _state.decor = value;
     }
-    // get skip state
-    if (AtomUtil::getLong(_window,
-                          PekwmAtoms::instance()->getAtom(PEKWM_FRAME_SKIP),
-                          value) == true) {
+    // Get skip state
+    if (AtomUtil::getLong(_window, atoms->getAtom(PEKWM_FRAME_SKIP),
+                          value)) {
         _state.skip = value;
+    }
+
+    // Get custom title
+    if (AtomUtil::getString(_window, atoms->getAtom(PEKWM_TITLE), str)) {
+        _title.setUser(str);
     }
 }
 

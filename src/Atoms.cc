@@ -35,7 +35,8 @@ PekwmAtoms::PekwmAtoms(void)
                         "_PEKWM_FRAME_ID",
                         "_PEKWM_FRAME_DECOR",
                         "_PEKWM_FRAME_SKIP",
-                        "_PEKWM_FRAME_VPOS"
+                        "_PEKWM_FRAME_VPOS",
+                        "_PEKWM_TITLE"
                     };
     const uint num = sizeof(names) / sizeof(char*);
     Atom atoms[num];

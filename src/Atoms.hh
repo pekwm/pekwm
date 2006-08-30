@@ -26,7 +26,8 @@ enum PekwmAtomName {
     PEKWM_FRAME_ID,
     PEKWM_FRAME_DECOR,
     PEKWM_FRAME_SKIP,
-    PEKWM_FRAME_VPOS
+    PEKWM_FRAME_VPOS,
+    PEKWM_TITLE
 };
 
 // ICCCM Atom Names

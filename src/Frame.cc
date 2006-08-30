@@ -1493,6 +1493,7 @@ Frame::setStateTitle(StateAction sa, Client *client, const std::string &title)
 {
     if (sa == STATE_SET) {
         client->getTitle()->setUser(title);
+
     } else if (sa == STATE_UNSET) {
         client->getTitle()->setUser("");
         client->getXClientName();
@@ -1503,6 +1504,12 @@ Frame::setStateTitle(StateAction sa, Client *client, const std::string &title)
             client->getTitle()->setUser(title);
         }
     }
+
+    // Set PEKWM_TITLE atom to preserve title on client between sessions.
+    AtomUtil::setString(client->getWindow(),
+                        PekwmAtoms::instance()->getAtom(PEKWM_TITLE),
+                        client->getTitle()->getUser());
+    
 
     renderTitle();
 }
