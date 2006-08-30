@@ -78,49 +78,49 @@ public:
 
 	// border inlines
 	inline unsigned int
-	FrameWidget::borderTop(void) const {
+	borderTop(void) const {
 		return (_border ? (_focused
 					 ? _theme->getWinFocusedBorder()[BORDER_TOP]->getHeight()
 					 : _theme->getWinUnfocusedBorder()[BORDER_TOP]->getHeight()) : 0);
 	}
 	inline unsigned int
-	FrameWidget::borderTopLeft(void) const {
+	borderTopLeft(void) const {
 		return (_border ? (_focused
 					 ? _theme->getWinFocusedBorder()[BORDER_TOP_LEFT]->getWidth()
 					 : _theme->getWinUnfocusedBorder()[BORDER_TOP_LEFT]->getWidth()) : 0);
 	}
 	inline unsigned int
-	FrameWidget::borderTopRight(void) const {
+	borderTopRight(void) const {
 		return (_border ? (_focused
 					 ? _theme->getWinFocusedBorder()[BORDER_TOP_RIGHT]->getWidth()
 					 : _theme->getWinUnfocusedBorder()[BORDER_TOP_RIGHT]->getWidth()) : 0);
 	}
 	inline unsigned int
-	FrameWidget::borderBottom(void) const {
+	borderBottom(void) const {
 		return (_border ? (_focused
 					 ? _theme->getWinFocusedBorder()[BORDER_BOTTOM]->getHeight()
 					 : _theme->getWinUnfocusedBorder()[BORDER_BOTTOM]->getHeight()) : 0);
 	}
 	inline unsigned int
-	FrameWidget::borderBottomLeft(void) const {
+	borderBottomLeft(void) const {
 		return (_border ? (_focused
 					 ? _theme->getWinFocusedBorder()[BORDER_BOTTOM_LEFT]->getWidth()
 					 : _theme->getWinUnfocusedBorder()[BORDER_BOTTOM_LEFT]->getWidth()) : 0);
 	}
 	inline unsigned int
-	FrameWidget::borderBottomRight(void) const {
+	borderBottomRight(void) const {
 		return (_border ? (_focused
 					 ? _theme->getWinFocusedBorder()[BORDER_BOTTOM_RIGHT]->getWidth()
 					 : _theme->getWinUnfocusedBorder()[BORDER_BOTTOM_RIGHT]->getWidth()) : 0);
 	}
 	inline unsigned int
-	FrameWidget::borderLeft(void) const {
+	borderLeft(void) const {
 		return (_border ? (_focused
 					 ? _theme->getWinFocusedBorder()[BORDER_LEFT]->getWidth()
 					 : _theme->getWinUnfocusedBorder()[BORDER_LEFT]->getWidth()) : 0);
 	}
 	inline unsigned int
-	FrameWidget::borderRight(void) const {
+	borderRight(void) const {
 		return (_border ? (_focused
 					 ? _theme->getWinFocusedBorder()[BORDER_RIGHT]->getWidth()
 					 : _theme->getWinUnfocusedBorder()[BORDER_RIGHT]->getWidth()) : 0);
