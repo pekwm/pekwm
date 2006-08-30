@@ -31,42 +31,42 @@ class PMenu::Item;
 class ActionMenu : public WORefMenu
 {
 public:
-	ActionMenu(WindowManager *wm, MenuType type,
-						 const std::string &title, const std::string &name,
-						 const std::string &decor_name = "MENU");
-	virtual ~ActionMenu(void);
+    ActionMenu(WindowManager *wm, MenuType type,
+               const std::string &title, const std::string &name,
+               const std::string &decor_name = "MENU");
+    virtual ~ActionMenu(void);
 
-	// START - PWinObj interface.
-	virtual void mapWindow(void);
-	virtual void unmapWindow(void);
-	// END - PWinObj interface.
+    // START - PWinObj interface.
+    virtual void mapWindow(void);
+    virtual void unmapWindow(void);
+    // END - PWinObj interface.
 
-	virtual void handleItemExec(PMenu::Item *item);
+    virtual void handleItemExec(PMenu::Item *item);
 
-  virtual void insert(PMenu::Item *item);
-  virtual void insert(const std::string &or_name, PWinObj *op_wo_ref = NULL);
-  virtual void insert(const std::string &or_name, const ActionEvent &or_ae,
-                      PWinObj *op_wo_ref = NULL);
+    virtual void insert(PMenu::Item *item);
+    virtual void insert(const std::string &or_name, PWinObj *op_wo_ref = NULL);
+    virtual void insert(const std::string &or_name, const ActionEvent &or_ae,
+                        PWinObj *op_wo_ref = NULL);
 
-	virtual void reload(CfgParser::Entry *section);
+    virtual void reload(CfgParser::Entry *section);
 
-	virtual void remove(PMenu::Item *item);
-	virtual void removeAll(void);
-
-private:
-	void parse(CfgParser::Entry *op_section, bool dynamic = false);
-
-	void rebuildDynamic(void);
-	void removeDynamic(void);
+    virtual void remove(PMenu::Item *item);
+    virtual void removeAll(void);
 
 private:
-	WindowManager *_wm;
-	ActionHandler *_act;
+    void parse(CfgParser::Entry *op_section, bool dynamic = false);
 
-	ActionOk _action_ok;
-	std::list<PMenu::Item*>::iterator _insert_at;
+    void rebuildDynamic(void);
+    void removeDynamic(void);
 
-	bool _has_dynamic;
+private:
+    WindowManager *_wm;
+    ActionHandler *_act;
+
+    ActionOk _action_ok;
+    std::list<PMenu::Item*>::iterator _insert_at;
+
+    bool _has_dynamic;
 };
 
 #endif // _ACTIONMENU_HH_

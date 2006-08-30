@@ -24,64 +24,64 @@ class Theme::TextDialogData;
 class CmdDialog : public PDecor
 {
 public:
-	CmdDialog(Display *dpy, Theme *theme, const std::string &title);
-	virtual ~CmdDialog(void);
+    CmdDialog(Display *dpy, Theme *theme, const std::string &title);
+    virtual ~CmdDialog(void);
 
-	// wo event interface
-	ActionEvent *handleButtonPress(XButtonEvent *ev);
-	ActionEvent *handleKeyPress(XKeyEvent *ev);
-	ActionEvent *handleExposeEvent(XExposeEvent *ev);
+    // wo event interface
+    ActionEvent *handleButtonPress(XButtonEvent *ev);
+    ActionEvent *handleKeyPress(XKeyEvent *ev);
+    ActionEvent *handleExposeEvent(XExposeEvent *ev);
 
-	void setTitle(const std::string &title);
+    void setTitle(const std::string &title);
 
-	//! @brief Returns the PWinObj the CmdDialog executes actions on.
-	inline PWinObj *getWORef(void) { return _wo_ref; }
-	//! @brief Sets the PWinObj the CmdDialog executes actions on.
-	inline void setWORef(PWinObj *wo) { _wo_ref = wo; }
+    //! @brief Returns the PWinObj the CmdDialog executes actions on.
+    inline PWinObj *getWORef(void) { return _wo_ref; }
+    //! @brief Sets the PWinObj the CmdDialog executes actions on.
+    inline void setWORef(PWinObj *wo) { _wo_ref = wo; }
 
-	void mapCenteredOnWORef(void);
-
-private:
-	// BEGIN - PDecor interface
-	virtual void loadTheme(void);
-	// END - PDecor interface
-	void unloadTheme(void);
-
-	void render(void);
-
-	ActionEvent *exec(void);
-	void complete(void);
-
-	void bufAdd(XKeyEvent *ev);
-	void bufRemove(void);
-	void bufClear(void);
-	void bufChangePos(int off);
-
-	void bufChanged(void); // recalculates buf position
-
-	void histNext(void);
-	void histPrev(void);
+    void mapCenteredOnWORef(void);
 
 private:
-	Theme::TextDialogData *_cmd_data;
+    // BEGIN - PDecor interface
+    virtual void loadTheme(void);
+    // END - PDecor interface
+    void unloadTheme(void);
 
-	PWinObj *_cmd_wo;
-	PDecor::TitleItem _title;
+    void render(void);
 
-	Pixmap _bg;
+    ActionEvent *exec(void);
+    void complete(void);
 
-	// action event, for event handling
-	ActionEvent _ae;
-	PWinObj *_wo_ref;
+    void bufAdd(XKeyEvent *ev);
+    void bufRemove(void);
+    void bufClear(void);
+    void bufChangePos(int off);
 
-	// content related
-	std::string _buf;
-	uint _pos, _buf_off, _buf_chars; // position, start and num display
+    void bufChanged(void); // recalculates buf position
 
-	// history
-	std::string _hist_new; // the one we started editing on
-	std::list<std::string> _hist_list;
-	std::list<std::string>::iterator _hist_it;
+    void histNext(void);
+    void histPrev(void);
+
+private:
+    Theme::TextDialogData *_cmd_data;
+
+    PWinObj *_cmd_wo;
+    PDecor::TitleItem _title;
+
+    Pixmap _bg;
+
+    // action event, for event handling
+    ActionEvent _ae;
+    PWinObj *_wo_ref;
+
+    // content related
+    std::string _buf;
+    uint _pos, _buf_off, _buf_chars; // position, start and num display
+
+    // history
+    std::string _hist_new; // the one we started editing on
+    std::list<std::string> _hist_list;
+    std::list<std::string>::iterator _hist_it;
 };
 
 #endif // _CMD_DIALOG_HH_

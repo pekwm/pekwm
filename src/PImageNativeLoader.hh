@@ -16,22 +16,22 @@
 //! @brief Image loader base class.
 class PImageNativeLoader {
 public:
-	//! @brief PImageNativeLoader constructor.
-	PImageNativeLoader(const char *ext) : _ext(ext) { }
-	//! @brief PImageNativeLoader destructor.
-	virtual ~PImageNativeLoader(void) { }
+    //! @brief PImageNativeLoader constructor.
+    PImageNativeLoader(const char *ext) : _ext(ext) { }
+    //! @brief PImageNativeLoader destructor.
+    virtual ~PImageNativeLoader(void) { }
 
-	//! @brief Return file extension matching loader.
-	inline const char *getExt(void) const { return _ext; }
+    //! @brief Return file extension matching loader.
+    inline const char *getExt(void) const { return _ext; }
 
-	//! @brief Loads file into data. (empty method, interface)
-	virtual uchar *load(const std::string &file, uint &width, uint &height,
-											bool &alpha) {
-		return NULL;
-	}
+    //! @brief Loads file into data. (empty method, interface)
+    virtual uchar *load(const std::string &file, uint &width, uint &height,
+                        bool &alpha) {
+        return NULL;
+    }
 
 private:
-	const char *_ext;
+    const char *_ext;
 };
 
 #endif // _PIMAGE_NATIVE_LOADER_HH_

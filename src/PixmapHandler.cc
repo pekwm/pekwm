@@ -24,21 +24,21 @@ using std::list;
 
 //! @brief Constructor for Entry class
 PixmapHandler::Entry::Entry(uint width, uint height, uint depth, Pixmap pixmap) :
-_width(width), _height(height), _depth(depth), _pixmap(pixmap)
+        _width(width), _height(height), _depth(depth), _pixmap(pixmap)
 {
 }
 
 //! @brief Destructor for Entry class
 PixmapHandler::Entry::~Entry(void)
 {
-	XFreePixmap(PScreen::instance()->getDpy(), _pixmap);
+    XFreePixmap(PScreen::instance()->getDpy(), _pixmap);
 }
 
 // PixmapHandler
 
 //! @brief Constructor for PixmapHandler class
 PixmapHandler::PixmapHandler(uint cache_size, uint threshold) :
-_cache_size(cache_size), _size_threshold(threshold)
+        _cache_size(cache_size), _size_threshold(threshold)
 {
 }
 
@@ -46,39 +46,40 @@ _cache_size(cache_size), _size_threshold(threshold)
 PixmapHandler::~PixmapHandler(void)
 {
 #ifdef DEBUG
-	if (_used_list.size() > 0) {
-		cerr << __FILE__ << "@" << __LINE__ << ": "
-				 << "Used pixmap list size > 0, size: " << _used_list.size() << endl;
-	}
+    if (_used_list.size() > 0) {
+        cerr << __FILE__ << "@" << __LINE__ << ": "
+             << "Used pixmap list size > 0, size: "
+             << _used_list.size() << endl;
+    }
 #endif // DEBUG
 
-	list<Entry*>::iterator it;
+    list<Entry*>::iterator it;
 
-	for (it = _free_list.begin(); it != _free_list.end(); ++it) {
-		delete *it;
-	}
-	for (it = _used_list.begin(); it != _used_list.end(); ++it) {
-		delete *it;
-	}
+    for (it = _free_list.begin(); it != _free_list.end(); ++it) {
+        delete *it;
+    }
+    for (it = _used_list.begin(); it != _used_list.end(); ++it) {
+        delete *it;
+    }
 }
 
 //! @brief Sets the cache size and trims the cache if needed
 void
 PixmapHandler::setCacheSize(uint cache)
 {
-	_cache_size = cache;
+    _cache_size = cache;
 
-	while (_free_list.size() > _cache_size) {
-		delete _free_list.front();
-		_free_list.pop_front();
-	}
+    while (_free_list.size() > _cache_size) {
+        delete _free_list.front();
+        _free_list.pop_front();
+    }
 }
 
 //! @brief Sets size threshold
 void
 PixmapHandler::setThreshold(uint threshold)
 {
-	_size_threshold = threshold;
+    _size_threshold = threshold;
 }
 
 //! @brief Searches the Pixmap cache for a sutiable Pixmap or creates a new
@@ -89,53 +90,53 @@ PixmapHandler::setThreshold(uint threshold)
 Pixmap
 PixmapHandler::getPixmap(uint width, uint height, uint depth, bool exact)
 {
-	Pixmap pixmap = None;
+    Pixmap pixmap = None;
 
-	// search allready created pixmaps
-	list<Entry*>::iterator it(_free_list.begin());
-	for (; it != _free_list.end(); ++it) {
-		if ((*it)->isMatch(width, height, depth, exact ? 0 : _size_threshold)) {
-			pixmap = (*it)->getPixmap();
+    // search allready created pixmaps
+    list<Entry*>::iterator it(_free_list.begin());
+    for (; it != _free_list.end(); ++it) {
+        if ((*it)->isMatch(width, height, depth, exact ? 0 : _size_threshold)) {
+            pixmap = (*it)->getPixmap();
 
-			// move the entry to the used list
-			_used_list.push_back(*it);
-			_free_list.erase(it);
-			break;
-		}
-	}
+            // move the entry to the used list
+            _used_list.push_back(*it);
+            _free_list.erase(it);
+            break;
+        }
+    }
 
-	// no entry, create one
-	if (pixmap == None) {
-		pixmap = XCreatePixmap(PScreen::instance()->getDpy(),
-													 PScreen::instance()->getRoot(),
-													 width, height, depth);
+    // no entry, create one
+    if (pixmap == None) {
+        pixmap = XCreatePixmap(PScreen::instance()->getDpy(),
+                               PScreen::instance()->getRoot(),
+                               width, height, depth);
 
-		_used_list.push_back(new Entry(width, height, depth, pixmap));
-	}
+        _used_list.push_back(new Entry(width, height, depth, pixmap));
+    }
 
-	return pixmap;
+    return pixmap;
 }
 
 //! @brief Returns the pixmap to the Pixmap cache
 void
 PixmapHandler::returnPixmap(Pixmap pixmap)
-{
-	list<Entry*>::iterator it(_used_list.begin());
-	for (; it != _used_list.end(); ++it) {
-		if ((*it)->getPixmap() == pixmap) {
-			Entry *entry = *it;
+                     {
+                         list<Entry*>::iterator it(_used_list.begin());
+                         for (; it != _used_list.end(); ++it) {
+                             if ((*it)->getPixmap() == pixmap) {
+                                 Entry *entry = *it;
 
-			// move the pixmap to the back ( front ) of the cache
-			_used_list.erase(it);
-			_free_list.push_back(entry);
-			break;
-		}
-	}
+                                 // move the pixmap to the back ( front ) of the cache
+                                 _used_list.erase(it);
+                                 _free_list.push_back(entry);
+                                 break;
+                             }
+                         }
 
 
-	// trim the cache
-	while (_free_list.size() > _cache_size) {
-		delete _free_list.front();
-		_free_list.pop_front();
-	}
-}
+                         // trim the cache
+                         while (_free_list.size() > _cache_size) {
+                             delete _free_list.front();
+                             _free_list.pop_front();
+                         }
+                     }

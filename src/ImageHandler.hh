@@ -22,30 +22,30 @@ class PImage;
 //! @brief ImageHandler, a caching and image type transparent image handler.
 class ImageHandler {
 public:
-	ImageHandler(void);
-	~ImageHandler(void);
+    ImageHandler(void);
+    ~ImageHandler(void);
 
-	//! @brief Returns the ImageHandler instance pointer.
-	static inline ImageHandler *instance(void) { return _instance; }
+    //! @brief Returns the ImageHandler instance pointer.
+    static inline ImageHandler *instance(void) { return _instance; }
 
-	//! @brief Sets loading base path.
-	inline void setDir(const std::string &dir) { _dir = dir; }
+    //! @brief Sets loading base path.
+    inline void setDir(const std::string &dir) { _dir = dir; }
 
-	PImage *getImage(const std::string &file);
-	void returnImage(PImage *image);
+    PImage *getImage(const std::string &file);
+    void returnImage(PImage *image);
 
-	void freeUnref(void);
+    void freeUnref(void);
 
 private:
-	std::string _dir;
+    std::string _dir;
 
-	std::list<HandlerEntry<PImage*> > _image_list;
+    std::list<HandlerEntry<PImage*> > _image_list;
 
-	bool _free_on_return;
+    bool _free_on_return;
 
-	std::map<ParseUtil::Entry, ImageType> _image_type_map;
+    std::map<ParseUtil::Entry, ImageType> _image_type_map;
 
-	static ImageHandler *_instance;
+    static ImageHandler *_instance;
 };
 
 #endif // _IMAGE_HANDLER_HH_

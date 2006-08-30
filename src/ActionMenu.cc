@@ -39,29 +39,29 @@ using std::find;
 //! @param name Name of the menu, empty for dynamic else should be unique
 //! @param decor_name Name of decor to use, defaults to MENU.
 ActionMenu::ActionMenu(WindowManager *wm, MenuType type,
-											 const std::string &title, const std::string &name,
-											 const std::string &decor_name) :
-WORefMenu(wm->getScreen(), wm->getTheme(),title, name, decor_name),
-_wm(wm), _act(wm->getActionHandler()),
-_has_dynamic(false)
+                       const std::string &title, const std::string &name,
+                       const std::string &decor_name) :
+        WORefMenu(wm->getScreen(), wm->getTheme(),title, name, decor_name),
+        _wm(wm), _act(wm->getActionHandler()),
+        _has_dynamic(false)
 {
-	// when creating dynamic submenus, this needs to be initialized as
-	// dynamic inserting will be done
-	_insert_at = _item_list.begin();
-	_menu_type = type;
+    // when creating dynamic submenus, this needs to be initialized as
+    // dynamic inserting will be done
+    _insert_at = _item_list.begin();
+    _menu_type = type;
 
-	if (_menu_type == WINDOWMENU_TYPE) {
-		_action_ok = WINDOWMENU_OK;
-	} else if ((_menu_type == ROOTMENU_TYPE)
-						 || (_menu_type == ROOTMENU_STANDALONE_TYPE)) {
-		_action_ok = ROOTMENU_OK;
-	}
+    if (_menu_type == WINDOWMENU_TYPE) {
+        _action_ok = WINDOWMENU_OK;
+    } else if ((_menu_type == ROOTMENU_TYPE)
+               || (_menu_type == ROOTMENU_STANDALONE_TYPE)) {
+        _action_ok = ROOTMENU_OK;
+    }
 }
 
 //! @brief ActionMenu destructor
 ActionMenu::~ActionMenu(void)
 {
-	removeAll();
+    removeAll();
 }
 
 // START - PWinObj interface.
@@ -70,33 +70,33 @@ ActionMenu::~ActionMenu(void)
 void
 ActionMenu::mapWindow(void)
 {
-	// find and rebuild the dynamic entries
-	if ((isMapped() == false) && (_has_dynamic == true)) {
-		uint size_before = _item_list.size();
-		rebuildDynamic();
-		if (size_before != _item_list.size()) {
-			buildMenu();
-		}
-	}
+    // find and rebuild the dynamic entries
+    if ((isMapped() == false) && (_has_dynamic == true)) {
+        uint size_before = _item_list.size();
+        rebuildDynamic();
+        if (size_before != _item_list.size()) {
+            buildMenu();
+        }
+    }
 
-	PMenu::mapWindow();
+    PMenu::mapWindow();
 }
 
 //! @brief Hides and removes all items created by dynamic entries.
 void
 ActionMenu::unmapWindow(void)
 {
-	if (isMapped() == false) {
-		return;
-	}
+    if (isMapped() == false) {
+        return;
+    }
 
-	// causes segfault as the entries get removed before they are executed
-	// it seems, is my brain b0rked?
-	if (_has_dynamic == true) {
-		removeDynamic();
-	}
+    // causes segfault as the entries get removed before they are executed
+    // it seems, is my brain b0rked?
+    if (_has_dynamic == true) {
+        removeDynamic();
+    }
 
-	PMenu::unmapWindow();
+    PMenu::unmapWindow();
 }
 
 // END - PWinObj interface.
@@ -105,12 +105,12 @@ ActionMenu::unmapWindow(void)
 void
 ActionMenu::handleItemExec(PMenu::Item *item)
 {
-	if (item == NULL) {
-		return;
-	}
+    if (item == NULL) {
+        return;
+    }
 
-	ActionPerformed ap(_wo_ref, item->getAE());
-	_act->handleAction(ap);
+    ActionPerformed ap(_wo_ref, item->getAE());
+    _act->handleAction(ap);
 }
 
 
@@ -118,38 +118,38 @@ ActionMenu::handleItemExec(PMenu::Item *item)
 void
 ActionMenu::reload(CfgParser::Entry *section)
 {
-	// Clear menu
-	removeAll();
+    // Clear menu
+    removeAll();
 
-	// Parse section (if any)
-	parse(section);
+    // Parse section (if any)
+    parse(section);
 
-	// Build menu from parsed content
-	buildMenu();
+    // Build menu from parsed content
+    buildMenu();
 }
 
 //! @brief Checks if we have a position set for where to insert.
 void
 ActionMenu::insert(PMenu::Item *item)
 {
-	if (item == NULL) {
-		return;
-	}
+    if (item == NULL) {
+        return;
+    }
 
-	checkItemWORef(item);
+    checkItemWORef(item);
 
-	if (item->isDynamic()) {
-		_insert_at = _item_list.insert(++_insert_at, item);
-	} else {
-		_item_list.push_back(item);
-	}
+    if (item->isDynamic()) {
+        _insert_at = _item_list.insert(++_insert_at, item);
+    } else {
+        _item_list.push_back(item);
+    }
 }
 
 //! @brief Non-shadowing PMenu::insert
 void
 ActionMenu::insert(const std::string &or_name, PWinObj *op_wo_ref)
 {
-  PMenu::insert (or_name, op_wo_ref);
+    PMenu::insert (or_name, op_wo_ref);
 }
 
 //! @brief Non-shadowing PMenu::insert
@@ -157,31 +157,31 @@ void
 ActionMenu::insert(const std::string &or_name, const ActionEvent &or_ae,
                    PWinObj *op_wo_ref)
 {
-  PMenu::insert (or_name, or_ae, op_wo_ref);
+    PMenu::insert (or_name, or_ae, op_wo_ref);
 }
 
 //! @brief Removes a BaseMenuItem from the menu
 void
 ActionMenu::remove(PMenu::Item *item)
 {
-	if (item == NULL) {
-		return;
-	}
+    if (item == NULL) {
+        return;
+    }
 
-	if ((item->getWORef() != NULL) && (item->getWORef()->getType() == WO_MENU)) {
-		delete item->getWORef();
-	}
+    if ((item->getWORef() != NULL) && (item->getWORef()->getType() == WO_MENU)) {
+        delete item->getWORef();
+    }
 
-	PMenu::remove(item);
+    PMenu::remove(item);
 }
 
 //! @brief Removes all items from the menu
 void
 ActionMenu::removeAll(void)
 {
-	while (_item_list.size() > 0) {
-		remove(_item_list.back());
-	}
+    while (_item_list.size() > 0) {
+        remove(_item_list.back());
+    }
 }
 
 //! @brief Parse config and push items into menu
@@ -191,74 +191,74 @@ ActionMenu::removeAll(void)
 void
 ActionMenu::parse(CfgParser::Entry *op_section, bool dynamic)
 {
-  if (!op_section) {
-      return;
-	} else if (!op_section->get_section()) {
+    if (!op_section) {
+        return;
+    } else if (!op_section->get_section()) {
 #ifdef DEBUG
-		cerr << " *** ERROR: Unable to get subsection in menu parsing" << endl;
+        cerr << " *** ERROR: Unable to get subsection in menu parsing" << endl;
 #endif // DEBUG
-		return;
-	}
-
-  _has_dynamic = dynamic; // reset this
-
-  CfgParser::Entry *op_sub, *op_value;
-  ActionEvent ae;
-
-  ActionMenu *submenu = NULL;
-  PMenu::Item *item = NULL;
-
-  if (op_section->get_value ().size ())
-    {
-      setTitle (op_section->get_value ());
-      _title_base = op_section->get_value ();
+        return;
     }
-  op_section = op_section->get_section ();
 
-  while ((op_section = op_section->get_section_next ()) != NULL)
+    _has_dynamic = dynamic; // reset this
+
+    CfgParser::Entry *op_sub, *op_value;
+    ActionEvent ae;
+
+    ActionMenu *submenu = NULL;
+    PMenu::Item *item = NULL;
+
+    if (op_section->get_value ().size ())
     {
-      item = NULL;
-      op_sub = op_section->get_section ();
+        setTitle (op_section->get_value ());
+        _title_base = op_section->get_value ();
+    }
+    op_section = op_section->get_section ();
 
-      if (*op_section == "SUBMENU")
-        {
-          submenu = new ActionMenu (_wm, _menu_type, op_section->get_value (),
-																		"" /* Empty name for submenus */);
-          submenu->parse (op_section, dynamic);
-          submenu->buildMenu ();
+    while ((op_section = op_section->get_section_next ()) != NULL)
+    {
+        item = NULL;
+        op_sub = op_section->get_section ();
 
-          item = new PMenu::Item (op_sub->get_value (), submenu);
-          item->setDynamic(dynamic);
-        }
-      else if (*op_section == "SEPARATOR")
+        if (*op_section == "SUBMENU")
         {
-          item = new PMenu::Item ("");
-          item->setDynamic (dynamic);
-          item->setType (PMenu::Item::MENU_ITEM_SEPARATOR);
+            submenu = new ActionMenu (_wm, _menu_type, op_section->get_value (),
+                                      "" /* Empty name for submenus */);
+            submenu->parse (op_section, dynamic);
+            submenu->buildMenu ();
+
+            item = new PMenu::Item (op_sub->get_value (), submenu);
+            item->setDynamic(dynamic);
         }
-      else
+        else if (*op_section == "SEPARATOR")
         {
-          op_value = op_section->get_section ()->find_entry ("ACTIONS");
-          if (op_value
-              && Config::instance ()->parseActions (op_value->get_value (),
-                                                    ae, _action_ok))
+            item = new PMenu::Item ("");
+            item->setDynamic (dynamic);
+            item->setType (PMenu::Item::MENU_ITEM_SEPARATOR);
+        }
+        else
+        {
+            op_value = op_section->get_section ()->find_entry ("ACTIONS");
+            if (op_value
+                    && Config::instance ()->parseActions (op_value->get_value (),
+                                                          ae, _action_ok))
             {
-              item = new PMenu::Item (op_sub->get_value ());
-              item->setDynamic (dynamic);
-              item->setAE (ae);
+                item = new PMenu::Item (op_sub->get_value ());
+                item->setDynamic (dynamic);
+                item->setAE (ae);
 
-              if (ae.isOnlyAction (ACTION_MENU_DYN))
+                if (ae.isOnlyAction (ACTION_MENU_DYN))
                 {
-                  _has_dynamic = true;
-                  item->setType (PMenu::Item::MENU_ITEM_HIDDEN);
+                    _has_dynamic = true;
+                    item->setType (PMenu::Item::MENU_ITEM_HIDDEN);
                 }
             }
         }
 
-      // If an item was successfully created, insert it to the menu.
-      if (item != NULL)
+        // If an item was successfully created, insert it to the menu.
+        if (item != NULL)
         {
-          ActionMenu::insert (item);
+            ActionMenu::insert (item);
         }
     }
 }
@@ -267,43 +267,43 @@ ActionMenu::parse(CfgParser::Entry *op_section, bool dynamic)
 void
 ActionMenu::rebuildDynamic(void)
 {
-	PMenu::Item* item = NULL;
-	list<PMenu::Item*>::iterator it;
-	for (it = _item_list.begin(); it != _item_list.end(); ++it) {
-		if ((*it)->getAE().isOnlyAction(ACTION_MENU_DYN)) {
-			_insert_at = it;
+    PMenu::Item* item = NULL;
+    list<PMenu::Item*>::iterator it;
+    for (it = _item_list.begin(); it != _item_list.end(); ++it) {
+        if ((*it)->getAE().isOnlyAction(ACTION_MENU_DYN)) {
+            _insert_at = it;
 
-			item = *it;
+            item = *it;
 
-			CfgParser dynamic;
-			if (dynamic.parse ((*it)->getAE().action_list.front().getParamS(),
-                         CfgParserSource::SOURCE_COMMAND))
-        {
-          parse (dynamic.get_entry_root ()->find_section ("DYNAMIC"), true);
+            CfgParser dynamic;
+            if (dynamic.parse ((*it)->getAE().action_list.front().getParamS(),
+                               CfgParserSource::SOURCE_COMMAND))
+            {
+                parse (dynamic.get_entry_root ()->find_section ("DYNAMIC"), true);
+            }
+
+            it = find(_item_list.begin(), _item_list.end(), item);
         }
-
-			it = find(_item_list.begin(), _item_list.end(), item);
-		}
-	}
+    }
 }
 
 //! @brief Remove all entries from the menu created by dynamic entries.
 void
 ActionMenu::removeDynamic(void)
 {
-	list<PMenu::Item*>::iterator it(_item_list.begin());
-	for (; it != _item_list.end(); ++it) {
-          if ((*it)->isDynamic()) {
-			if (((*it)->getWORef() != NULL) &&
-			    ((*it)->getWORef()->getType() == WO_MENU)) {
-				delete (*it)->getWORef();
-			}
-			delete (*it);
+    list<PMenu::Item*>::iterator it(_item_list.begin());
+    for (; it != _item_list.end(); ++it) {
+        if ((*it)->isDynamic()) {
+            if (((*it)->getWORef() != NULL) &&
+                    ((*it)->getWORef()->getType() == WO_MENU)) {
+                delete (*it)->getWORef();
+            }
+            delete (*it);
 
-			it = _item_list.erase(it);
-			--it; // compensate for the ++ in the loop
-		}
-	}
+            it = _item_list.erase(it);
+            --it; // compensate for the ++ in the loop
+        }
+    }
 }
 
 #endif // MENUS

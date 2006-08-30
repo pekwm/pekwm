@@ -27,16 +27,16 @@ class PMenu::Item;
 class HarbourMenu : public PMenu
 {
 public:
-	HarbourMenu(PScreen *scr, Theme *theme, Harbour *harbour);
-	virtual ~HarbourMenu(void);
+    HarbourMenu(PScreen *scr, Theme *theme, Harbour *harbour);
+    virtual ~HarbourMenu(void);
 
-	virtual void handleItemExec(PMenu::Item *item);
+    virtual void handleItemExec(PMenu::Item *item);
 
-	inline void setDockApp(DockApp *da) { _dockapp = da; }
+    inline void setDockApp(DockApp *da) { _dockapp = da; }
 
 private:
-	Harbour *_harbour;
-	DockApp *_dockapp;
+    Harbour *_harbour;
+    DockApp *_dockapp;
 };
 
 #endif // _HARBOURMENU_HH_

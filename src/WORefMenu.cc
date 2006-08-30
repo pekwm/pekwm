@@ -26,11 +26,11 @@ using std::string;
 //! @param name Name of menu
 //! @param decor_name Name of decor, defaults to MENU
 WORefMenu::WORefMenu(PScreen *scr, Theme *theme,
-										 const std::string &title, const std::string &name,
-										 const std::string &decor_name) :
-PMenu(scr->getDpy(), theme, title, name, decor_name),
-_wo_ref(NULL), _title_base(title),
-_title_pre(" ["), _title_post("]")
+                     const std::string &title, const std::string &name,
+                     const std::string &decor_name) :
+        PMenu(scr->getDpy(), theme, title, name, decor_name),
+        _wo_ref(NULL), _title_base(title),
+        _title_pre(" ["), _title_post("]")
 {
 }
 
@@ -43,17 +43,17 @@ WORefMenu::~WORefMenu(void)
 void
 WORefMenu::setWORef(PWinObj *wo)
 {
-	_wo_ref = wo;
+    _wo_ref = wo;
 
-	string title = _title_base;
+    string title = _title_base;
 
-	// if of client type, add the clients named to the title
-	if ((_wo_ref != NULL) && (_wo_ref->getType() == PWinObj::WO_CLIENT)) {
-		Client *client = static_cast<Client*>(wo);
-		title += _title_pre + client->getTitle()->getVisible() + _title_post;
-	}
+    // if of client type, add the clients named to the title
+    if ((_wo_ref != NULL) && (_wo_ref->getType() == PWinObj::WO_CLIENT)) {
+        Client *client = static_cast<Client*>(wo);
+        title += _title_pre + client->getTitle()->getVisible() + _title_post;
+    }
 
-	setTitle(title);
+    setTitle(title);
 }
 
 #endif // MENUS

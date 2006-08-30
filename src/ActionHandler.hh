@@ -27,45 +27,45 @@ class WindowManager;
 class ActionHandler
 {
 public:
-	ActionHandler(WindowManager *wm);
-	~ActionHandler(void);
+    ActionHandler(WindowManager *wm);
+    ~ActionHandler(void);
 
-	static inline ActionHandler *instance(void) { return _instance; }
+    static inline ActionHandler *instance(void) { return _instance; }
 
-	void handleAction(const ActionPerformed &ap);
+    void handleAction(const ActionPerformed &ap);
 
-	static bool checkAEThreshold(int x, int y, int x_t, int y_t, uint t);
-	static ActionEvent *findMouseAction(uint button, uint mod,
-																			MouseEventType type,
-																			std::list<ActionEvent> *actions);
+    static bool checkAEThreshold(int x, int y, int x_t, int y_t, uint t);
+    static ActionEvent *findMouseAction(uint button, uint mod,
+                                        MouseEventType type,
+                                        std::list<ActionEvent> *actions);
 private:
-	void handleStateAction(const Action &action, PWinObj *wo,
-												 Client *client, Frame *frame);
+    void handleStateAction(const Action &action, PWinObj *wo,
+                           Client *client, Frame *frame);
 
-	void actionFindClient(const std::string &title);
-	void actionSendToWorkspace(PDecor *decor, int direction);
-	void actionWarpToWorkspace(PDecor *decor, uint direction);
-	void actionWarpToViewport(PDecor *decor, uint direction);
-	void actionSendToViewport(PWinObj *wo, int col_off, int row_off);
-	void actionFocusToggle(uint button, uint raise, int off,
-												 bool show_iconified, bool mru);
-	void actionFocusDirectional(PWinObj *wo, DirectionType dir, bool raise);
+    void actionFindClient(const std::string &title);
+    void actionSendToWorkspace(PDecor *decor, int direction);
+    void actionWarpToWorkspace(PDecor *decor, uint direction);
+    void actionWarpToViewport(PDecor *decor, uint direction);
+    void actionSendToViewport(PWinObj *wo, int col_off, int row_off);
+    void actionFocusToggle(uint button, uint raise, int off,
+                           bool show_iconified, bool mru);
+    void actionFocusDirectional(PWinObj *wo, DirectionType dir, bool raise);
 #ifdef MENUS
-	void actionShowMenu(const std::string &name, bool stick,
-											uint e_type, PWinObj *wo_ref);
+    void actionShowMenu(const std::string &name, bool stick,
+                        uint e_type, PWinObj *wo_ref);
 #endif // MENUS
 
-	// action helpers
-	Client *findClientFromTitle(const std::string &title);
+    // action helpers
+    Client *findClientFromTitle(const std::string &title);
 
-	PMenu *createNextPrevMenu(bool show_iconified);
-	PMenu *createMRUMenu(bool show_iconified);
-	bool createMenuInclude(Frame *frame, bool show_iconified);
+    PMenu *createNextPrevMenu(bool show_iconified);
+    PMenu *createMRUMenu(bool show_iconified);
+    bool createMenuInclude(Frame *frame, bool show_iconified);
 
 private:
-	static ActionHandler *_instance;
+    static ActionHandler *_instance;
 
-	WindowManager *_wm;
+    WindowManager *_wm;
 };
 
 #endif // _ACTIONHANDLER_HH_

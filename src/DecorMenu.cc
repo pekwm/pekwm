@@ -31,11 +31,11 @@ using std::map;
 
 //! @brief Constructor for DecorMenu.
 DecorMenu::DecorMenu(PScreen *scr, Theme *theme, ActionHandler *act,
-										 const std::string &name) :
-WORefMenu(scr, theme, "Decor Menu", name),
-_act(act)
+                     const std::string &name) :
+        WORefMenu(scr, theme, "Decor Menu", name),
+        _act(act)
 {
-	_menu_type = DECORMENU_TYPE;
+    _menu_type = DECORMENU_TYPE;
 }
 
 //! @brief Destructor for DecorMenu
@@ -47,36 +47,36 @@ DecorMenu::~DecorMenu(void)
 void
 DecorMenu::handleItemExec(PMenu::Item *item)
 {
-	if (item == NULL) {
-		return;
-	}
+    if (item == NULL) {
+        return;
+    }
 
-	ActionPerformed ap(_wo_ref, item->getAE());
-	_act->handleAction(ap);
+    ActionPerformed ap(_wo_ref, item->getAE());
+    _act->handleAction(ap);
 }
 
 //! @brief Rebuilds the menu.
 void
 DecorMenu::reload(CfgParser::Entry *section)
 {
-	// clear the menu before loading
-	removeAll();
+    // clear the menu before loading
+    removeAll();
 
-	// setup dummy action
-	Action action;
-	ActionEvent ae;
+    // setup dummy action
+    Action action;
+    ActionEvent ae;
 
-	action.setAction(ACTION_SET);
-	action.setParamI(0, ACTION_STATE_DECOR);
-	ae.action_list.push_back(action);
+    action.setAction(ACTION_SET);
+    action.setParamI(0, ACTION_STATE_DECOR);
+    ae.action_list.push_back(action);
 
-	map<string, Theme::PDecorData*>::const_iterator it(_theme->decor_begin());
-	for (; it != _theme->decor_end(); ++it) {
-		ae.action_list.back().setParamS(it->first);
-		insert(it->first, ae, NULL);
-	}
+    map<string, Theme::PDecorData*>::const_iterator it(_theme->decor_begin());
+    for (; it != _theme->decor_end(); ++it) {
+        ae.action_list.back().setParamS(it->first);
+        insert(it->first, ae, NULL);
+    }
 
-	buildMenu(); // rebuild the menu
+    buildMenu(); // rebuild the menu
 }
 
 #endif // MENUS

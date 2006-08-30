@@ -22,16 +22,16 @@
 class PImageNativeLoaderPng : public PImageNativeLoader
 {
 public:
-	PImageNativeLoaderPng(void);
-	virtual ~PImageNativeLoaderPng(void);
+    PImageNativeLoaderPng(void);
+    virtual ~PImageNativeLoaderPng(void);
 
-	virtual uchar *load(const std::string &file, uint &width, uint &height,
-											bool &alpha);
+    virtual uchar *load(const std::string &file, uint &width, uint &height,
+                        bool &alpha);
 
 private:
-	bool checkSignature(FILE *fp);
+    bool checkSignature(FILE *fp);
 
-	static const int PNG_SIG_BYTES;
+    static const int PNG_SIG_BYTES;
 };
 
 #endif // _PIMAGE_NATIVE_LOADER_PNG_HH_

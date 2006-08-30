@@ -18,49 +18,50 @@
 
 class ColorHandler {
 public:
-	class Entry {
-	public:
-		Entry(const std::string &name) : _name(name), _ref(0) { }
-		~Entry(void) { }
+    class Entry {
+    public:
+        Entry(const std::string &name) : _name(name), _ref(0) { }
+        ~Entry(void) { }
 
-		inline XColor *getColor(void) { return &_xc; }
+        inline XColor *getColor(void) { return &_xc; }
 
-		inline uint getRef(void) const { return _ref; }
-		inline void incRef(void) { _ref++; }
-		inline void decRef(void) { if (_ref > 0) {_ref--; } }
+        inline uint getRef(void) const { return _ref; }
+        inline void incRef(void) { _ref++; }
+        inline void decRef(void) { if (_ref > 0) {_ref--; }
+        }
 
-		inline bool operator==(const std::string &name) {
-			return (strcasecmp(_name.c_str(), name.c_str()) == 0);
-		}
+        inline bool operator==(const std::string &name) {
+            return (strcasecmp(_name.c_str(), name.c_str()) == 0);
+        }
 
-	private:
-		std::string _name;
-		XColor _xc;
+    private:
+        std::string _name;
+        XColor _xc;
 
-		uint _ref;
-	};
+        uint _ref;
+    };
 
-	ColorHandler(Display *dpy);
-	~ColorHandler(void);
+    ColorHandler(Display *dpy);
+    ~ColorHandler(void);
 
-	static ColorHandler *instance(void) { return _instance; }
+    static ColorHandler *instance(void) { return _instance; }
 
-	inline bool isFreeOnReturn(void) const { return _free_on_return; }
-	inline void setFreeOnReturn(bool free) { _free_on_return = free; }
+    inline bool isFreeOnReturn(void) const { return _free_on_return; }
+    inline void setFreeOnReturn(bool free) { _free_on_return = free; }
 
-	XColor *getColor(const std::string &color);
-	void returnColor(XColor *xc);
+    XColor *getColor(const std::string &color);
+    void returnColor(XColor *xc);
 
-	void freeColors(bool all);
+    void freeColors(bool all);
 
 private:
-	Display *_dpy;
+    Display *_dpy;
 
-	XColor _xc_default; // when allocating fails
-	std::list<ColorHandler::Entry*> _color_list;
-	bool _free_on_return; // used when returning many colours
+    XColor _xc_default; // when allocating fails
+    std::list<ColorHandler::Entry*> _color_list;
+    bool _free_on_return; // used when returning many colours
 
-	static ColorHandler *_instance;
+    static ColorHandler *_instance;
 };
 
 #endif // _COLOR_HANDLER_HH_

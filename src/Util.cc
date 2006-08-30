@@ -40,106 +40,109 @@ namespace Util {
 void
 forkExec(std::string command)
 {
-	if (command.length() == 0) {
+    if (command.length() == 0) {
 #ifdef DEBUG
-		cerr << __FILE__ << "@" << __LINE__ << ": "
-				 << "Util::forkExec() *** command length == 0" << endl;
+        cerr << __FILE__ << "@" << __LINE__ << ": "
+             << "Util::forkExec() *** command length == 0" << endl;
 #endif // DEBUG
-		return;
-	}
+        return;
+    }
 
-	pid_t pid = fork();
-	switch (pid) {
-	case 0:
-		setsid();
-		execlp("/bin/sh", "sh", "-c", command.c_str(), (char *) NULL);
-		cerr << __FILE__ << "@" << __LINE__ << ": "
-				 << "Util::forkExec(" << command << ") execlp failed." << endl;
-		exit(1);
-	case -1:
-		cerr << __FILE__ << "@" << __LINE__ << ": "
-				 << "Util::forkExec(" << command << ") fork failed." << endl;
-	}
+    pid_t pid = fork();
+    switch (pid) {
+    case 0:
+        setsid();
+        execlp("/bin/sh", "sh", "-c", command.c_str(), (char *) NULL);
+        cerr << __FILE__ << "@" << __LINE__ << ": "
+             << "Util::forkExec(" << command << ") execlp failed." << endl;
+        exit(1);
+    case -1:
+        cerr << __FILE__ << "@" << __LINE__ << ": "
+             << "Util::forkExec(" << command << ") fork failed." << endl;
+    }
 }
 
 //! @brief Determines if the file exists
 bool
 isFile(const std::string &file)
 {
-	if (file.size() == 0) {
-		return false;
-	}
+    if (file.size() == 0) {
+        return false;
+    }
 
-	struct stat stat_buf;
-	if (stat(file.c_str(), &stat_buf) == 0) {
-		return (S_ISREG(stat_buf.st_mode));
-	}
+    struct stat stat_buf;
+    if (stat(file.c_str(), &stat_buf) == 0) {
+        return (S_ISREG(stat_buf.st_mode));
+    }
 
-	return false;
+    return false;
 }
 
 //! @brief Determines if the file is executable for the current user.
 bool
 isExecutable(const std::string &file)
 {
-	if (file.size() == 0) {
+    if (file.size() == 0) {
 #ifdef DEBUG
-		cerr << __FILE__ << "@" << __LINE__ << ": "
-				 << "Util::isExecutable() *** file length == 0" << endl;
+        cerr << __FILE__ << "@" << __LINE__ << ": "
+             << "Util::isExecutable() *** file length == 0" << endl;
 #endif // DEBUG
-		return false;
-}
+        return false;
+    }
 
-	struct stat stat_buf;
-	if (!stat(file.c_str(), &stat_buf)) {
-		if (stat_buf.st_uid == getuid()) { // user readable and executable
-			if ((stat_buf.st_mode&S_IRUSR) && (stat_buf.st_mode&S_IXUSR))
-				return true;
-		}
-		if (getgid() == stat_buf.st_gid) { // group readable and executable
-			if ((stat_buf.st_mode&S_IRGRP) && (stat_buf.st_mode&S_IXGRP))
-				return true;
-		}
-		if ((stat_buf.st_mode&S_IROTH) && (stat_buf.st_mode&S_IXOTH)) {
-			return true; // other readable and executable
-		}
-	}
+    struct stat stat_buf;
+    if (!stat(file.c_str(), &stat_buf)) {
+        if (stat_buf.st_uid == getuid()) { // user readable and executable
+            if ((stat_buf.st_mode&S_IRUSR) && (stat_buf.st_mode&S_IXUSR)) {
+                return true;
+            }
+        }
+        if (getgid() == stat_buf.st_gid) { // group readable and executable
+            if ((stat_buf.st_mode&S_IRGRP) && (stat_buf.st_mode&S_IXGRP)) {
+                return true;
+            }
+        }
+        if ((stat_buf.st_mode&S_IROTH) && (stat_buf.st_mode&S_IXOTH)) {
+            return true; // other readable and executable
+        }
+    }
 
-	return false;
+    return false;
 }
 
 //! @brief Returns .extension of file
 std::string
 getFileExt(const std::string &file)
 {
-	string::size_type pos = file.find_last_of('.');
-	if ((pos != string::npos) && (pos < file.size())) {
-		return file.substr(pos + 1, file.size() - pos - 1);
-	} else {
-		return string("");
-	}
+    string::size_type pos = file.find_last_of('.');
+    if ((pos != string::npos) && (pos < file.size())) {
+        return file.substr(pos + 1, file.size() - pos - 1);
+    } else {
+        return string("");
+    }
 }
 
 //! @brief Returns dir part of file
 std::string
 getDir(const std::string &file)
 {
-	string::size_type pos = file.find_last_of('/');
-	if ((pos != string::npos) && (pos < file.size()))
-		return file.substr(0, pos);
-	else
-		return string("");
+    string::size_type pos = file.find_last_of('/');
+    if ((pos != string::npos) && (pos < file.size())) {
+        return file.substr(0, pos);
+    } else {
+        return string("");
+    }
 }
 
 //! @brief Replaces the ~ with the complete homedir path.
 void
 expandFileName(std::string &file)
 {
-	if (file.size() > 0) {
-		if (file[0] == '~') {
-			file.replace(0, 1, getenv("HOME"));
-		}
-	}
+    if (file.size() > 0) {
+        if (file[0] == '~') {
+            file.replace(0, 1, getenv("HOME"));
+        }
+    }
 }
 
 //! @brief Split the string str based on separator sep and put into vals
@@ -156,32 +159,32 @@ expandFileName(std::string &file)
 //! @return Number of tokens inserted into vals
 uint
 splitString(const std::string &str, std::vector<std::string> &toks,
-						const char *sep, uint max)
+            const char *sep, uint max)
 {
-	if (str.size() < 1) {
-		return 0;
-	}
+    if (str.size() < 1) {
+        return 0;
+    }
 
-	uint n = toks.size();
-	string::size_type s, e;
+    uint n = toks.size();
+    string::size_type s, e;
 
-	s = str.find_first_not_of(" \t\n");
-	for (uint i = 0; ((i < max) || (max == 0)) && (s != string::npos); ++i) {
-		e = str.find_first_of(sep, s);
+    s = str.find_first_not_of(" \t\n");
+    for (uint i = 0; ((i < max) || (max == 0)) && (s != string::npos); ++i) {
+        e = str.find_first_of(sep, s);
 
-		if ((e != string::npos) && (i < (max - 1))) {
-			toks.push_back(str.substr(s, e - s));
-		} else if (s < str.size()) {
-			toks.push_back(str.substr(s, str.size() - s));
-			break;
-		} else {
-			break;
-		}
+        if ((e != string::npos) && (i < (max - 1))) {
+            toks.push_back(str.substr(s, e - s));
+        } else if (s < str.size()) {
+            toks.push_back(str.substr(s, str.size() - s));
+            break;
+        } else {
+            break;
+        }
 
-		s = str.find_first_not_of(sep, e);
-	}
+        s = str.find_first_not_of(sep, e);
+    }
 
-	return (toks.size() - n);
+    return (toks.size() - n);
 }
 
 //! @brief Converts string to uppercase
@@ -189,7 +192,7 @@ splitString(const std::string &str, std::vector<std::string> &toks,
 void
 to_upper(std::string &str)
 {
-	transform(str.begin(), str.end(), str.begin(), (int(*)(int)) std::toupper);
+    transform(str.begin(), str.end(), str.begin(), (int(*)(int)) std::toupper);
 }
 
 //! @brief Converts string to lowercase
@@ -197,7 +200,7 @@ to_upper(std::string &str)
 void
 to_lower(std::string &str)
 {
-	transform(str.begin(), str.end(), str.begin(), (int(*)(int)) std::tolower);
+    transform(str.begin(), str.end(), str.begin(), (int(*)(int)) std::tolower);
 }
 
 } // end namespace Util.
@@ -207,24 +210,24 @@ to_lower(std::string &str)
 int
 setenv(const char *name, const char *value, int overwrite)
 {
-	// invalid parameters
-	if ((name == NULL) || (value == NULL)) {
-		return -1;
-	}
+    // invalid parameters
+    if ((name == NULL) || (value == NULL)) {
+        return -1;
+    }
 
-	// don't owerwrite
-	if ((overwrite == 0) && (getenv(name) != NULL)) {
-		return 0;
-	}
+    // don't owerwrite
+    if ((overwrite == 0) && (getenv(name) != NULL)) {
+        return 0;
+    }
 
-	char *str = new char[strlen(name) + strlen(value) + 2];
-	if (str == NULL) {
-		errno = ENOMEM;
-		return -1;
-	}
+    char *str = new char[strlen(name) + strlen(value) + 2];
+    if (str == NULL) {
+        errno = ENOMEM;
+        return -1;
+    }
 
-	snprintf(str, strlen(str), "%s=%s", name, value);
+    snprintf(str, strlen(str), "%s=%s", name, value);
 
-	return (putenv(str));
+    return (putenv(str));
 }
 #endif // HAVE_SETENV

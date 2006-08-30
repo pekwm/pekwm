@@ -34,121 +34,121 @@ class PDecor::Button;
 class Frame : public PDecor
 {
 public:
-	Frame(WindowManager *wm, Client *client, AutoProperty *ap);
-	virtual ~Frame(void);
+    Frame(WindowManager *wm, Client *client, AutoProperty *ap);
+    virtual ~Frame(void);
 
-	// START - PWinObj interface.
-	virtual void iconify(void);
-	virtual void stick(void);
+    // START - PWinObj interface.
+    virtual void iconify(void);
+    virtual void stick(void);
 
-	virtual void setWorkspace(uint workspace);
+    virtual void setWorkspace(uint workspace);
 
-	virtual ActionEvent *handleMotionEvent(XMotionEvent *ev);
-	virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev);
-	virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev);
+    virtual ActionEvent *handleMotionEvent(XMotionEvent *ev);
+    virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev);
+    virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev);
 
-	virtual ActionEvent *handleMapRequest(XMapRequestEvent *ev);
-	virtual ActionEvent *handleUnmapEvent(XUnmapEvent *ev);
-	// END - PWinObj interface.
+    virtual ActionEvent *handleMapRequest(XMapRequestEvent *ev);
+    virtual ActionEvent *handleUnmapEvent(XUnmapEvent *ev);
+    // END - PWinObj interface.
 
 #ifdef HAVE_SHAPE
-	virtual void handleShapeEvent(XAnyEvent *ev);
+    virtual void handleShapeEvent(XAnyEvent *ev);
 #endif // HAVE_SHAPE
 
-	// START - PDecor interface.
-	virtual void addChild(PWinObj *child);
-	virtual void removeChild(PWinObj *child, bool do_delete = true);
-	virtual void activateChild(PWinObj *child);
+    // START - PDecor interface.
+    virtual void addChild(PWinObj *child);
+    virtual void removeChild(PWinObj *child, bool do_delete = true);
+    virtual void activateChild(PWinObj *child);
 
-	virtual void updatedChildOrder(void);
-	virtual void updatedActiveChild(void);
+    virtual void updatedChildOrder(void);
+    virtual void updatedActiveChild(void);
 
-	virtual void getDecorInfo(char *buf, uint size);
+    virtual void getDecorInfo(char *buf, uint size);
 
-	virtual void setShaded(StateAction sa);
-  virtual void setSkip(uint skip);
-	// END - PDecor interface.
+    virtual void setShaded(StateAction sa);
+    virtual void setSkip(uint skip);
+    // END - PDecor interface.
 
-	inline uint getId(void) const { return _id; }
-	void setId(uint id);
+    inline uint getId(void) const { return _id; }
+    void setId(uint id);
 
-	void detachClient(Client *client);
+    void detachClient(Client *client);
 
-	inline const ClassHint* getClassHint(void) const { return _class_hint; }
+    inline const ClassHint* getClassHint(void) const { return _class_hint; }
 
-	void growDirection(uint direction);
-	void moveToEdge(OrientationType ori);
+    void growDirection(uint direction);
+    void moveToEdge(OrientationType ori);
 
-	void updateInactiveChildInfo(void);
+    void updateInactiveChildInfo(void);
 
-	// state actions
-	void setStateMaximized(StateAction sa, bool horz, bool vert, bool fill);
-	void setStateFullscreen(StateAction sa);
-	void setStateSticky(StateAction sa);
-	void setStateAlwaysOnTop(StateAction sa);
-	void setStateAlwaysBelow(StateAction sa);
-	void setStateDecorBorder(StateAction sa);
-	void setStateDecorTitlebar(StateAction sa);
-	void setStateIconified(StateAction sa);
-	void setStateTagged(StateAction sa, bool behind);
-	void setStateSkip(StateAction sa, uint skip);
-	void setStateTitle(StateAction sa, Client *client, const std::string &title);
+    // state actions
+    void setStateMaximized(StateAction sa, bool horz, bool vert, bool fill);
+    void setStateFullscreen(StateAction sa);
+    void setStateSticky(StateAction sa);
+    void setStateAlwaysOnTop(StateAction sa);
+    void setStateAlwaysBelow(StateAction sa);
+    void setStateDecorBorder(StateAction sa);
+    void setStateDecorTitlebar(StateAction sa);
+    void setStateIconified(StateAction sa);
+    void setStateTagged(StateAction sa, bool behind);
+    void setStateSkip(StateAction sa, uint skip);
+    void setStateTitle(StateAction sa, Client *client, const std::string &title);
     void setStateMarked(StateAction sa, Client *client);
 
-	void close(void);
+    void close(void);
 
-	void readAutoprops(uint type = APPLY_ON_RELOAD);
+    void readAutoprops(uint type = APPLY_ON_RELOAD);
 
-	void doResize(XMotionEvent *ev); // redirects to doResize(bool...
-	void doResize(BorderPosition pos); // redirect to doResize(bool...
-	void doResize(bool left, bool x, bool top, bool y);
-	void doGroupingDrag(XMotionEvent *ev, Client *client, bool behind);
+    void doResize(XMotionEvent *ev); // redirects to doResize(bool...
+    void doResize(BorderPosition pos); // redirect to doResize(bool...
+    void doResize(bool left, bool x, bool top, bool y);
+    void doGroupingDrag(XMotionEvent *ev, Client *client, bool behind);
 
-	bool fixGeometry(void);
+    bool fixGeometry(void);
 
-	// client message handling
-	void handleConfigureRequest(XConfigureRequestEvent *ev, Client *client);
-	void handleClientMessage(XClientMessageEvent *ev, Client *client);
-	void handlePropertyChange(XPropertyEvent *ev, Client *client);
+    // client message handling
+    void handleConfigureRequest(XConfigureRequestEvent *ev, Client *client);
+    void handleClientMessage(XClientMessageEvent *ev, Client *client);
+    void handlePropertyChange(XPropertyEvent *ev, Client *client);
 
 protected:
-	// BEGIN - PDecor interface
-	virtual int resizeHorzStep(int diff) const;
-	virtual int resizeVertStep(int diff) const;
-	// END - PDecor interface
+    // BEGIN - PDecor interface
+    virtual int resizeHorzStep(int diff) const;
+    virtual int resizeVertStep(int diff) const;
+    // END - PDecor interface
 
 private:
-	void recalcResizeDrag(int nx, int ny, bool left, bool top);
-	void getMaxBounds(int &max_x,int &max_r, int &max_y, int &max_b);
-	void calcSizeInCells(uint &width, uint &height);
-	void calcGravityPosition(int gravity, int x, int y, int &g_x, int &g_y);
-	void downSize(bool keep_x, bool keep_y);
+    void recalcResizeDrag(int nx, int ny, bool left, bool top);
+    void getMaxBounds(int &max_x,int &max_r, int &max_y, int &max_b);
+    void calcSizeInCells(uint &width, uint &height);
+    void calcGravityPosition(int gravity, int x, int y, int &g_x, int &g_y);
+    void downSize(bool keep_x, bool keep_y);
 
-	void getState(Client *cl);
-	void applyState(Client *cl);
+    void getState(Client *cl);
+    void applyState(Client *cl);
 
-	void setupAPGeometry(Client *client, AutoProperty *ap);
-	void applyAPGeometry(Geometry &gm, const Geometry &ap_gm, int mask);
+    void setupAPGeometry(Client *client, AutoProperty *ap);
+    void applyAPGeometry(Geometry &gm, const Geometry &ap_gm, int mask);
 
-	void setActiveTitle(void);
+    void setActiveTitle(void);
 
 private:
-	WindowManager *_wm;
-	PScreen *_scr;
+    WindowManager *_wm;
+    PScreen *_scr;
 
-	uint _id; // unique id of the frame
+    uint _id; // unique id of the frame
 
-	Client *_client; // to skip all the casts from PWinObj
-	ClassHint *_class_hint;
+    Client *_client; // to skip all the casts from PWinObj
+    ClassHint *_class_hint;
 
-	// frame information used when maximizing / going fullscreen
-	Geometry _old_gm; // FIXME: move to PDecor?
-	uint _old_decor_state; // FIXME: move to PDecor?
+    // frame information used when maximizing / going fullscreen
+    Geometry _old_gm; // FIXME: move to PDecor?
+    uint _old_decor_state; // FIXME: move to PDecor?
 
-	// EWMH
-	static const int NET_WM_STATE_REMOVE = 0; // remove/unset property
-	static const int NET_WM_STATE_ADD = 1; // add/set property
-	static const int NET_WM_STATE_TOGGLE = 2; // toggle property
+    // EWMH
+    static const int NET_WM_STATE_REMOVE = 0; // remove/unset property
+    static const int NET_WM_STATE_ADD = 1; // add/set property
+    static const int NET_WM_STATE_TOGGLE = 2; // toggle property
 };
 
 #endif // _FRAME_HH_

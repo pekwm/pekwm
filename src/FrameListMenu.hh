@@ -29,31 +29,31 @@ class PMenu::Item;
 class FrameListMenu : public WORefMenu
 {
 public:
-	FrameListMenu(PScreen *scr, Theme *theme,
-								const std::list<Frame*> &frame_list, MenuType type,
-								const std::string &title, const std::string &name,
-								const std::string &decor_name = "MENU");
-	virtual ~FrameListMenu(void);
+    FrameListMenu(PScreen *scr, Theme *theme,
+                  const std::list<Frame*> &frame_list, MenuType type,
+                  const std::string &title, const std::string &name,
+                  const std::string &decor_name = "MENU");
+    virtual ~FrameListMenu(void);
 
-	// START - PWinObj interface.
-	virtual void mapWindow(void);
-	// END - PWinObj interface.
+    // START - PWinObj interface.
+    virtual void mapWindow(void);
+    // END - PWinObj interface.
 
-	virtual void handleItemExec(PMenu::Item *item);
-
-private:
-	void updateFrameListMenu(void);
+    virtual void handleItemExec(PMenu::Item *item);
 
 private:
-	void buildName(Frame *frame, std::string &name);
-	void buildFrameNames(Frame *frame, std::string &pre_name);
-
-	void handleGotomenu(Client *client);
-	void handleIconmenu(Client *client);
-	void handleAttach(Client *client_to, Client *client_from, bool frame);
+    void updateFrameListMenu(void);
 
 private:
-	const std::list<Frame*> &_frame_list;
+    void buildName(Frame *frame, std::string &name);
+    void buildFrameNames(Frame *frame, std::string &pre_name);
+
+    void handleGotomenu(Client *client);
+    void handleIconmenu(Client *client);
+    void handleAttach(Client *client_to, Client *client_from, bool frame);
+
+private:
+    const std::list<Frame*> &_frame_list;
 };
 
 #endif //  _FRAMELISTMENU_HH_

@@ -22,11 +22,11 @@
 class PImageNativeLoaderJpeg : public PImageNativeLoader
 {
 public:
-	PImageNativeLoaderJpeg(void);
-	virtual ~PImageNativeLoaderJpeg(void);
+    PImageNativeLoaderJpeg(void);
+    virtual ~PImageNativeLoaderJpeg(void);
 
-	virtual uchar *load(const std::string &file, uint &width, uint &height,
-											bool &alpha);
+    virtual uchar *load(const std::string &file, uint &width, uint &height,
+                        bool &alpha);
 };
 
 #endif // _PIMAGE_NATIVE_LOADER_JPEG_HH_

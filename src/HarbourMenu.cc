@@ -20,23 +20,23 @@
 
 //! @brief HarbourMenu constructor
 HarbourMenu::HarbourMenu(PScreen *scr, Theme *theme, Harbour *harbour) :
-PMenu(scr->getDpy(), theme, "Harbour", "HARBOUR"),
-_harbour(harbour),
-_dockapp(NULL)
+        PMenu(scr->getDpy(), theme, "Harbour", "HARBOUR"),
+        _harbour(harbour),
+        _dockapp(NULL)
 {
-	ActionEvent ae;
-	Action action;
+    ActionEvent ae;
+    Action action;
 
-	action.setAction(ACTION_SET);
-	action.setParamI(0, ACTION_STATE_ICONIFIED);
-	ae.action_list.clear();
-	ae.action_list.push_back(action);
+    action.setAction(ACTION_SET);
+    action.setParamI(0, ACTION_STATE_ICONIFIED);
+    ae.action_list.clear();
+    ae.action_list.push_back(action);
 
-	action.setAction(ACTION_CLOSE);
-	ae.action_list.clear();
-	ae.action_list.push_back(action);
+    action.setAction(ACTION_CLOSE);
+    ae.action_list.clear();
+    ae.action_list.push_back(action);
 
-	buildMenu();
+    buildMenu();
 }
 
 //! @brief HarbourMenu destructor
@@ -48,17 +48,17 @@ HarbourMenu::~HarbourMenu(void)
 void
 HarbourMenu::handleItemExec(PMenu::Item *item)
 {
-	if ((item == NULL) || (_dockapp == NULL)) {
-		return;
-	}
+    if ((item == NULL) || (_dockapp == NULL)) {
+        return;
+    }
 
-	if (item->getAE().isOnlyAction(ACTION_SET)) {
-		_dockapp->iconify();
+    if (item->getAE().isOnlyAction(ACTION_SET)) {
+        _dockapp->iconify();
 
-	} else if (item->getAE().isOnlyAction(ACTION_CLOSE)) {
-		_dockapp->kill();
-		_dockapp = NULL;
-	}
+    } else if (item->getAE().isOnlyAction(ACTION_CLOSE)) {
+        _dockapp->kill();
+        _dockapp = NULL;
+    }
 }
 
 #endif // MENUS

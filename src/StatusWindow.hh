@@ -18,28 +18,28 @@ class PDecor;
 //! @brief Status display window.
 class StatusWindow : public PDecor {
 public:
-	StatusWindow(Display *dpy, Theme *theme);
-	virtual ~StatusWindow(void);
+    StatusWindow(Display *dpy, Theme *theme);
+    virtual ~StatusWindow(void);
 
-	//! @brief Returns the StatusWindow instance pointer.
-	static StatusWindow *instance(void) { return _instance; }
+    //! @brief Returns the StatusWindow instance pointer.
+    static StatusWindow *instance(void) { return _instance; }
 
-	void draw(const std::string &text, bool do_center = false);
-
-private:
-	// BEGIN - PDecor interface
-	virtual void loadTheme(void);
-	// END - PDecor interface
-	void unloadTheme(void);
-
-	void render(void);
-	void center(void);
+    void draw(const std::string &text, bool do_center = false);
 
 private:
-	PWinObj *_status_wo;
-	Pixmap _bg;
+    // BEGIN - PDecor interface
+    virtual void loadTheme(void);
+    // END - PDecor interface
+    void unloadTheme(void);
 
-	static StatusWindow *_instance;
+    void render(void);
+    void center(void);
+
+private:
+    PWinObj *_status_wo;
+    Pixmap _bg;
+
+    static StatusWindow *_instance;
 };
 
 #endif // _STATUS_WINDOW_HH_

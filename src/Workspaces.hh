@@ -26,113 +26,114 @@ class Viewport;
 
 class Workspaces {
 public:
-	class Workspace {
-	public:
-		Workspace(const std::string &name, uint number,
-							const std::list<PWinObj*> &wo_list);
-		~Workspace(void);
+    class Workspace {
+    public:
+        Workspace(const std::string &name, uint number,
+                  const std::list<PWinObj*> &wo_list);
+        ~Workspace(void);
 
-		inline std::string& getName(void) { return _name; }
-		inline uint getNumber(void) { return _number; }
-		inline Viewport *getViewport(void) { return _viewport; }
-		inline PWinObj* getLastFocused(void) { return _last_focused; }
+        inline std::string& getName(void) { return _name; }
+        inline uint getNumber(void) { return _number; }
+        inline Viewport *getViewport(void) { return _viewport; }
+        inline PWinObj* getLastFocused(void) { return _last_focused; }
 
-		inline void setLastFocused(PWinObj* wo) { _last_focused = wo; }
+        inline void setLastFocused(PWinObj* wo) { _last_focused = wo; }
 
-	private:
-		std::string _name;
-		uint _number;
-		Viewport *_viewport;
+    private:
+        std::string _name;
+        uint _number;
+        Viewport *_viewport;
 
-		const std::list<PWinObj*> &_wo_list;
-		PWinObj *_last_focused;
-	};
+        const std::list<PWinObj*> &_wo_list;
+        PWinObj *_last_focused;
+    };
 
-	Workspaces(uint number);
-	~Workspaces(void);
+    Workspaces(uint number);
+    ~Workspaces(void);
 
-	static inline Workspaces *instance(void) { return _instance; }
+    static inline Workspaces *instance(void) { return _instance; }
 
-	inline uint size(void) const { return _workspace_list.size(); }
-	inline std::list<PWinObj*>::iterator begin(void) { return _wo_list.begin(); }
-	inline std::list<PWinObj*>::iterator end(void) { return _wo_list.end(); }
-	inline std::list<PWinObj*>::reverse_iterator rbegin(void) { return _wo_list.rbegin(); }
-	inline std::list<PWinObj*>::reverse_iterator rend(void) { return _wo_list.rend(); }
+    inline uint size(void) const { return _workspace_list.size(); }
+    inline std::list<PWinObj*>::iterator begin(void) { return _wo_list.begin(); }
+    inline std::list<PWinObj*>::iterator end(void) { return _wo_list.end(); }
+    inline std::list<PWinObj*>::reverse_iterator rbegin(void) { return _wo_list.rbegin(); }
+    inline std::list<PWinObj*>::reverse_iterator rend(void) { return _wo_list.rend(); }
 
-	inline uint getActive(void) const { return _active; }
-	inline uint getPrevious(void) const { return _previous; }
-  
-	void setSize(uint number);
+    inline uint getActive(void) const { return _active; }
+    inline uint getPrevious(void) const { return _previous; }
 
-	void setWorkspace(uint num, bool focus);
-	bool gotoWorkspace(uint direction, bool warp);
+    void setSize(uint number);
 
-	inline const std::list<PWinObj*> &getWOList(void) const {
-		return _wo_list; }
+    void setWorkspace(uint num, bool focus);
+    bool gotoWorkspace(uint direction, bool warp);
 
-	inline Viewport *getActiveViewport(void) {
-		return _workspace_list[_active]->getViewport();
-	}
-	inline Viewport *getViewport(uint workspace) {
-		if (workspace >= _workspace_list.size())
-			return NULL;
-		return _workspace_list[workspace]->getViewport();
-	}
+    inline const std::list<PWinObj*> &getWOList(void) const {
+        return _wo_list;
+    }
 
-	void insert(PWinObj* wo, bool raise = true);
-	void remove(PWinObj* wo);
+    inline Viewport *getActiveViewport(void) {
+        return _workspace_list[_active]->getViewport();
+    }
+    inline Viewport *getViewport(uint workspace) {
+        if (workspace >= _workspace_list.size())
+            return NULL;
+        return _workspace_list[workspace]->getViewport();
+    }
 
-	void hideAll(uint workspace);
-	void unhideAll(uint workspace, bool focus);
+    void insert(PWinObj* wo, bool raise = true);
+    void remove(PWinObj* wo);
 
-	PWinObj* getLastFocused(uint workspace);
-	void setLastFocused(uint workspace, PWinObj* wo);
+    void hideAll(uint workspace);
+    void unhideAll(uint workspace, bool focus);
 
-	void raise(PWinObj* wo);
-	void lower(PWinObj* wo);
-	void stackAbove(PWinObj* wo, Window win, bool restack = true);
-	void stackBelow(PWinObj *wo, Window win, bool restack = true);
+    PWinObj* getLastFocused(uint workspace);
+    void setLastFocused(uint workspace, PWinObj* wo);
 
-	PWinObj* getTopWO(uint type_mask);
-	void updateClientStackingList(bool client, bool stacking);
-	void placeWo(PWinObj* wo, Window parent);
+    void raise(PWinObj* wo);
+    void lower(PWinObj* wo);
+    void stackAbove(PWinObj* wo, Window win, bool restack = true);
+    void stackBelow(PWinObj *wo, Window win, bool restack = true);
 
-	PWinObj *findDirectional(PWinObj *wo, DirectionType dir, uint skip = 0);
+    PWinObj* getTopWO(uint type_mask);
+    void updateClientStackingList(bool client, bool stacking);
+    void placeWo(PWinObj* wo, Window parent);
 
-private:
-	bool warpToWorkspace(uint num, int dir);
-
-	void stackWinUnderWin(Window over, Window under);
-
-	// placement
-	bool placeSmart(PWinObj* wo);
-	bool placeMouseNotUnder(PWinObj *wo);
-	bool placeMouseCentered(PWinObj *wo);
-	bool placeMouseTopLeft(PWinObj *wo);
-	bool placeCenteredOnParent(PWinObj *wo, Window parent);
-	void placeInsideScreen(Geometry &gm);
-
-	// placement helpers
-	PWinObj* isEmptySpace(int x, int y, const PWinObj *wo);
-	inline bool isBetween(const int &x1, const int &x2,
-												const int &t1, const int &t2) {
-		if (x1 > t1) {
-			if (x1 < t2)
-				return true;
-		} else if (x2 > t1) {
-			return true;
-		}
-		return false;
-	}
+    PWinObj *findDirectional(PWinObj *wo, DirectionType dir, uint skip = 0);
 
 private:
-	static Workspaces *_instance;
+    bool warpToWorkspace(uint num, int dir);
 
-  uint _active; /**< Current active workspace. */
-  uint _previous; /**< Previous workspace. */
+    void stackWinUnderWin(Window over, Window under);
 
-	std::list<PWinObj*> _wo_list;
-	std::vector<Workspace*> _workspace_list;
+    // placement
+    bool placeSmart(PWinObj* wo);
+    bool placeMouseNotUnder(PWinObj *wo);
+    bool placeMouseCentered(PWinObj *wo);
+    bool placeMouseTopLeft(PWinObj *wo);
+    bool placeCenteredOnParent(PWinObj *wo, Window parent);
+    void placeInsideScreen(Geometry &gm);
+
+    // placement helpers
+    PWinObj* isEmptySpace(int x, int y, const PWinObj *wo);
+    inline bool isBetween(const int &x1, const int &x2,
+                          const int &t1, const int &t2) {
+        if (x1 > t1) {
+            if (x1 < t2)
+                return true;
+        } else if (x2 > t1) {
+            return true;
+        }
+        return false;
+    }
+
+private:
+    static Workspaces *_instance;
+
+    uint _active; /**< Current active workspace. */
+    uint _previous; /**< Previous workspace. */
+
+    std::list<PWinObj*> _wo_list;
+    std::vector<Workspace*> _workspace_list;
 };
 
 #endif // _WORKSPACES_HH_

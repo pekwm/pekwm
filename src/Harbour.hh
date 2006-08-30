@@ -32,61 +32,61 @@ class HarbourMenu;
 class Harbour
 {
 public:
-	Harbour(PScreen *s, Theme *t, Workspaces *w);
-	~Harbour(void);
+    Harbour(PScreen *s, Theme *t, Workspaces *w);
+    ~Harbour(void);
 
-	void addDockApp(DockApp* da);
-	void removeDockApp(DockApp* da);
-	void removeAllDockApps(void);
+    void addDockApp(DockApp* da);
+    void removeDockApp(DockApp* da);
+    void removeAllDockApps(void);
 
-	DockApp* findDockApp(Window win);
-	DockApp* findDockAppFromFrame(Window win);
+    DockApp* findDockApp(Window win);
+    DockApp* findDockAppFromFrame(Window win);
 
 #ifdef MENUS
-	HarbourMenu* getHarbourMenu(void) { return _harbour_menu; }
+    HarbourMenu* getHarbourMenu(void) { return _harbour_menu; }
 #endif // MENUS
 
-	inline uint getSize(void) const { return _size; }
+    inline uint getSize(void) const { return _size; }
 
 #ifdef HAVE_XRANDR
-	void updateGeometry(void);
+    void updateGeometry(void);
 #endif // HAVE_XRANDR
 
-	void restack(void);
-	void rearrange(void);
-	void loadTheme(void);
-	void updateHarbourSize(void);
+    void restack(void);
+    void rearrange(void);
+    void loadTheme(void);
+    void updateHarbourSize(void);
 
-  void setStateHidden(StateAction sa);
+    void setStateHidden(StateAction sa);
 
-	void handleButtonEvent(XButtonEvent* ev, DockApp* da);
-	void handleMotionNotifyEvent(XMotionEvent* ev, DockApp* da);
-	void handleConfigureRequestEvent(XConfigureRequestEvent* ev, DockApp* da);
-
-private:
-	void placeDockApp(DockApp *da);
-	void placeDockAppsSorted(void);
-	void placeDockAppInsideScreen(DockApp *da);
-
-	void getPlaceStartPosition(DockApp *da, int &x, int &y, bool &inc_x);
-	void insertDockAppSorted(DockApp *da);
-
-	void updateStrutSize(void);
+    void handleButtonEvent(XButtonEvent* ev, DockApp* da);
+    void handleMotionNotifyEvent(XMotionEvent* ev, DockApp* da);
+    void handleConfigureRequestEvent(XConfigureRequestEvent* ev, DockApp* da);
 
 private:
-	PScreen *_scr;
-	Theme *_theme;
-	Workspaces *_workspaces;
+    void placeDockApp(DockApp *da);
+    void placeDockAppsSorted(void);
+    void placeDockAppInsideScreen(DockApp *da);
 
-	std::list<DockApp*> _da_list;
+    void getPlaceStartPosition(DockApp *da, int &x, int &y, bool &inc_x);
+    void insertDockAppSorted(DockApp *da);
+
+    void updateStrutSize(void);
+
+private:
+    PScreen *_scr;
+    Theme *_theme;
+    Workspaces *_workspaces;
+
+    std::list<DockApp*> _da_list;
 #ifdef MENUS
-	HarbourMenu *_harbour_menu;
+    HarbourMenu *_harbour_menu;
 #endif // MENUS
 
-  bool _hidden;
-	uint _size;
-	Strut *_strut;
-	int _last_button_x, _last_button_y;
+    bool _hidden;
+    uint _size;
+    Strut *_strut;
+    int _last_button_x, _last_button_y;
 };
 
 #endif // _HARBOUR_HH_

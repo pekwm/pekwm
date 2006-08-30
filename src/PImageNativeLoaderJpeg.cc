@@ -24,7 +24,7 @@ using std::endl;
 
 //! @brief PImageNativeLoaderJpeg constructor.
 PImageNativeLoaderJpeg::PImageNativeLoaderJpeg(void)
-	: PImageNativeLoader("JPG")
+        : PImageNativeLoader("JPG")
 {
 }
 
@@ -41,60 +41,60 @@ PImageNativeLoaderJpeg::~PImageNativeLoaderJpeg(void)
 //! @return Pointer to data on success, else NULL.
 uchar*
 PImageNativeLoaderJpeg::load(const std::string &file, uint &width,
-														 uint &height, bool &alpha)
+                             uint &height, bool &alpha)
 {
-	FILE *fp;
+    FILE *fp;
 
-	fp= fopen(file.c_str(), "rb");
-	if (!fp) {
-		cerr << " *** WARNING: unable to open " << file << " for reading!" << endl;
-		return NULL;
-	}
+    fp= fopen(file.c_str(), "rb");
+    if (!fp) {
+        cerr << " *** WARNING: unable to open " << file << " for reading!" << endl;
+        return NULL;
+    }
 
-	struct jpeg_decompress_struct cinfo;
-	struct jpeg_error_mgr jerr;
+    struct jpeg_decompress_struct cinfo;
+    struct jpeg_error_mgr jerr;
 
-	cinfo.err = jpeg_std_error(&jerr);
-	jpeg_create_decompress(&cinfo);
+    cinfo.err = jpeg_std_error(&jerr);
+    jpeg_create_decompress(&cinfo);
 
-	jpeg_stdio_src(&cinfo, fp);
+    jpeg_stdio_src(&cinfo, fp);
 
-	// Read jpeg header.
-	jpeg_read_header(&cinfo, TRUE);
+    // Read jpeg header.
+    jpeg_read_header(&cinfo, TRUE);
 
-	// Make sure we get data in 24bit RGB.
-	if (cinfo.out_color_space != JCS_RGB)
-		cinfo.out_color_space = JCS_RGB;
+    // Make sure we get data in 24bit RGB.
+    if (cinfo.out_color_space != JCS_RGB)
+        cinfo.out_color_space = JCS_RGB;
 
-	jpeg_start_decompress(&cinfo);
+    jpeg_start_decompress(&cinfo);
 
-	uint channels;
-	uint rowbytes;
+    uint channels;
+    uint rowbytes;
 
-	width = cinfo.output_width;
-	height = cinfo.output_height;
-	channels = cinfo.output_components;
-	rowbytes = width * channels;
+    width = cinfo.output_width;
+    height = cinfo.output_height;
+    channels = cinfo.output_components;
+    rowbytes = width * channels;
 
-	// Allocate image data.
-	uchar *data = new uchar[width * height * channels];
+    // Allocate image data.
+    uchar *data = new uchar[width * height * channels];
 
-	// Read image.
-	JSAMPROW row;
-	for (uint i = 0; i < height; ++i) {
-		row = data + i * rowbytes;
-		jpeg_read_scanlines(&cinfo, &row, 1);
-	}
+    // Read image.
+    JSAMPROW row;
+    for (uint i = 0; i < height; ++i) {
+        row = data + i * rowbytes;
+        jpeg_read_scanlines(&cinfo, &row, 1);
+    }
 
-	// Clean up.
-	jpeg_finish_decompress(&cinfo);
-	jpeg_destroy_decompress(&cinfo);
+    // Clean up.
+    jpeg_finish_decompress(&cinfo);
+    jpeg_destroy_decompress(&cinfo);
 
-	fclose(fp);
+    fclose(fp);
 
-	alpha = false; // Jpeg doesn't support alpha.
+    alpha = false; // Jpeg doesn't support alpha.
 
-	return data;
+    return data;
 }
 
 #endif // HAVE_IMAGE_JPEG

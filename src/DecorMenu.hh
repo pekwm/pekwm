@@ -27,15 +27,15 @@ class PMenu::Item;
 class DecorMenu : public WORefMenu
 {
 public:
-	DecorMenu(PScreen *scr, Theme *theme, ActionHandler *act,
-						const std::string &name);
-	virtual ~DecorMenu(void);
+    DecorMenu(PScreen *scr, Theme *theme, ActionHandler *act,
+              const std::string &name);
+    virtual ~DecorMenu(void);
 
-	virtual void handleItemExec(PMenu::Item *item);
-	virtual void reload(CfgParser::Entry *section);
+    virtual void handleItemExec(PMenu::Item *item);
+    virtual void reload(CfgParser::Entry *section);
 
 private:
-	ActionHandler *_act;
+    ActionHandler *_act;
 };
 
 #endif //  _DECORMENU_HH_

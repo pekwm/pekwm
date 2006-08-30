@@ -24,20 +24,20 @@ extern "C" {
 class PImageNativeLoaderXpm : public PImageNativeLoader
 {
 public:
-	PImageNativeLoaderXpm(void);
-	virtual ~PImageNativeLoaderXpm(void);
+    PImageNativeLoaderXpm(void);
+    virtual ~PImageNativeLoaderXpm(void);
 
-	virtual uchar *load(const std::string &file, uint &width, uint &height,
-											bool &alpha);
-
-private:
-	uchar *createXpmToRgbaTable(XpmImage *xpm_image);
+    virtual uchar *load(const std::string &file, uint &width, uint &height,
+                        bool &alpha);
 
 private:
-	static const uint CHANNELS; //!< Number of channels for Image data.
-	static const uint ALPHA_SOLID; //!< Alpha value for no transperency.
-	static const uint ALPHA_TRANSPARENT; //!< Alpha value for fully transperency.
-  static const char *COLOR_DEFAULT; //!< Default Color if translation fails.
+    uchar *createXpmToRgbaTable(XpmImage *xpm_image);
+
+private:
+    static const uint CHANNELS; //!< Number of channels for Image data.
+    static const uint ALPHA_SOLID; //!< Alpha value for no transperency.
+    static const uint ALPHA_TRANSPARENT; //!< Alpha value for fully transperency.
+    static const char *COLOR_DEFAULT; //!< Default Color if translation fails.
 };
 
 #endif // _PIMAGE_NATIVE_LOADER_XPM_HH_

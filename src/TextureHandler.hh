@@ -21,50 +21,51 @@ class PTexture;
 
 class TextureHandler {
 public:
-	class Entry {
-	public:
-		Entry(const std::string &name, PTexture *texture) : _name(name), _texture(texture), _ref(0) { }
-		~Entry(void) { delete _texture; }
+    class Entry {
+    public:
+        Entry(const std::string &name, PTexture *texture) : _name(name), _texture(texture), _ref(0) { }
+        ~Entry(void) { delete _texture; }
 
-		PTexture *getTexture(void) { return _texture; }
+        PTexture *getTexture(void) { return _texture; }
 
-		inline uint getRef(void) const { return _ref; }
-		inline void incRef(void) { ++_ref; }
-		inline void decRef(void) { if (_ref > 0) { --_ref; } }
+        inline uint getRef(void) const { return _ref; }
+        inline void incRef(void) { ++_ref; }
+        inline void decRef(void) { if (_ref > 0) { --_ref; }
+        }
 
-		inline bool operator==(const std::string &name) {
-			return (strcasecmp(_name.c_str(), name.c_str()) == 0);
-		}
+        inline bool operator==(const std::string &name) {
+            return (strcasecmp(_name.c_str(), name.c_str()) == 0);
+        }
 
-	private:
-		std::string _name;
-		PTexture *_texture;
+    private:
+        std::string _name;
+        PTexture *_texture;
 
-		uint _ref;
-	};
+        uint _ref;
+    };
 
-	TextureHandler(void);
-	~TextureHandler(void);
+    TextureHandler(void);
+    ~TextureHandler(void);
 
-	static TextureHandler *instance(void) { return _instance; }
-  static int getLengthMin(void) { return LENGTH_MIN; }
+    static TextureHandler *instance(void) { return _instance; }
+    static int getLengthMin(void) { return LENGTH_MIN; }
 
-	PTexture *getTexture(const std::string &texture);
-	void returnTexture(PTexture *texture);
-
-private:
-	PTexture *parse(const std::string &texture);
-	PTexture *parseSolid(std::vector<std::string> &tok);
-	PTexture *parseSolidRaised(std::vector<std::string> &tok);
-
-	void parseSize(PTexture *tex, const std::string &size);
+    PTexture *getTexture(const std::string &texture);
+    void returnTexture(PTexture *texture);
 
 private:
-	static TextureHandler *_instance;
-  static std::map<ParseUtil::Entry, PTexture::Type> _parse_map;
-  static const int LENGTH_MIN; //!< Minimum texture name length.
+    PTexture *parse(const std::string &texture);
+    PTexture *parseSolid(std::vector<std::string> &tok);
+    PTexture *parseSolidRaised(std::vector<std::string> &tok);
 
-	std::list<TextureHandler::Entry*> _texture_list;
+    void parseSize(PTexture *tex, const std::string &size);
+
+private:
+    static TextureHandler *_instance;
+    static std::map<ParseUtil::Entry, PTexture::Type> _parse_map;
+    static const int LENGTH_MIN; //!< Minimum texture name length.
+
+    std::list<TextureHandler::Entry*> _texture_list;
 };
 
 #endif // _TEXTURE_HANDLER_HH_

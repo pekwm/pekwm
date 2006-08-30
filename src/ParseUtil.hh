@@ -19,24 +19,28 @@ namespace ParseUtil {
 
 class Entry {
 public:
-	Entry(const char *text) : _text(text) { }
-	// hacky, but we don't want to loose speed do we?
-	Entry(const std::string &text) : _text(text.c_str()) { }
-	~Entry(void) { }
+    Entry(const char *text) : _text(text) { }
+    // hacky, but we don't want to loose speed do we?
+    Entry(const std::string &text) : _text(text.c_str()) { }
+    ~Entry(void) { }
 
-	// operators
-	inline bool operator==(const std::string &rhs) const {
-		return (strcasecmp(rhs.c_str(), _text) == 0); }
-	inline bool operator!=(const std::string &rhs) const {
-		return (strcasecmp(rhs.c_str(), _text) != 0); }
-	// < > needed for map searching
-	inline bool operator<(const ParseUtil::Entry &rhs) const {
-		return (strcasecmp(_text, rhs._text) < 0); }
-	inline bool operator>(const ParseUtil::Entry &rhs) const {
-		return (strcasecmp(_text, rhs._text) > 0); }
+    // operators
+    inline bool operator==(const std::string &rhs) const {
+        return (strcasecmp(rhs.c_str(), _text) == 0);
+    }
+    inline bool operator!=(const std::string &rhs) const {
+        return (strcasecmp(rhs.c_str(), _text) != 0);
+    }
+    // < > needed for map searching
+    inline bool operator<(const ParseUtil::Entry &rhs) const {
+        return (strcasecmp(_text, rhs._text) < 0);
+    }
+    inline bool operator>(const ParseUtil::Entry &rhs) const {
+        return (strcasecmp(_text, rhs._text) > 0);
+    }
 
 private:
-	const char *_text;
+    const char *_text;
 };
 
 //! @brief Finds item in map, returns "" in map if not found
@@ -45,8 +49,8 @@ inline T
 getValue(const std::string &text,
          typename std::map<ParseUtil::Entry, T> &val)
 {
-  typename std::map<ParseUtil::Entry, T>::iterator it = val.find(text);
-  return (it != val.end()) ? it->second : val[""];
+    typename std::map<ParseUtil::Entry, T>::iterator it = val.find(text);
+    return (it != val.end()) ? it->second : val[""];
 }
 
 }
