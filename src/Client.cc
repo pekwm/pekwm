@@ -431,8 +431,9 @@ Client::resize(uint width, uint height)
 
     PWinObj::resize(width, height);
 
-    if (request)
+    if (request) {
         configureRequestSend();
+    }
 }
 
 //! @brief Sets the workspce and updates the _NET_WM_DESKTOP hint.
@@ -974,8 +975,9 @@ Client::getWmState(void)
 void
 Client::configureRequestSend(void)
 {
-    if (_cfg_request_lock)
+    if (_cfg_request_lock) {
         return;
+    }
 
     XConfigureEvent e;
 
@@ -989,13 +991,6 @@ Client::configureRequestSend(void)
     e.border_width = 0;
     e.above = None;
     e.override_redirect = False;
-
-#ifdef DEBUG
-    cerr << __FILE__ << "@" << __LINE__ << ": "
-         << "Client(" << this << ")::sendConfigureRequest()" << endl
-         << " *** x: " << e.x << " y: " << e.y
-         << " width: " << e.width << " height: " << e.height << endl;
-#endif // DEBUG
 
     XSendEvent(_dpy, _window, false, StructureNotifyMask, (XEvent *) &e);
 }

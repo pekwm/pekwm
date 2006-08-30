@@ -251,7 +251,7 @@ class Button : public PWinObj {
     }
 
     // common actions like doMove
-    void doMove(XMotionEvent *ev);
+    void doMove(int x_root, int y_root);
     void doKeyboardMoveResize(void);
 
     //! @brief Returns border position Window win is at.

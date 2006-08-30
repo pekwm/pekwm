@@ -1034,9 +1034,11 @@ PDecor::getChildRel(int off)
     return *it;
 }
 
-//! @brief Pointer enabled moving
+//! @brief Do move of Decor with the mouse.
+//! @param x_root X position of the pointer when event was triggered.
+//! @param y_root Y position of the pointer when event was triggered.
 void
-PDecor::doMove(XMotionEvent *ev)
+PDecor::doMove(int x_root, int y_root)
 {
     PScreen *scr = PScreen::instance(); // convenience
     StatusWindow *sw = StatusWindow::instance(); // convenience
@@ -1046,14 +1048,9 @@ PDecor::doMove(XMotionEvent *ev)
         return;
     }
 
-    uint x = 0, y = 0;
-    if (ev != NULL) {
-        x = ev->x + borderLeft();
-        y = ev->y + borderTop();
-        if ((_child != NULL) && (*_child == ev->window)) {
-            y += getTitleHeight();
-        }
-    }
+    // Get relative position to root
+    int x = x_root - _gm.x;
+    int y = y_root - _gm.y;
 
     bool outline = (Config::instance()->getOpaqueMove() == false);
     EdgeType edge;

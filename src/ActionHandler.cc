@@ -275,10 +275,24 @@ ActionHandler::handleAction(const ActionPerformed &ap)
 #endif // MENUS
         // actions valid for pdecor
         if ((matched == false) && (decor != NULL)) {
+            int x_root, y_root;
+
             matched = true;
             switch (it->getAction()) {
             case ACTION_MOVE:
-                decor->doMove((ap.type == MotionNotify) ? ap.event.motion : NULL);
+                // Get root position, first try event then query the pointer
+                if (ap.type == MotionNotify) {
+                    x_root = ap.event.motion->x_root;
+                    y_root = ap.event.motion->y_root;
+                } else if ((ap.type == ButtonPress)
+                           || (ap.type == ButtonRelease)) {
+                    x_root = ap.event.button->x_root;
+                    y_root = ap.event.button->y_root;
+                } else {
+                    PScreen::instance()->getMousePosition(x_root, y_root);
+                }
+
+                decor->doMove(x_root, y_root);
                 break;
             case ACTION_CLOSE:
                 decor->unmapWindow();

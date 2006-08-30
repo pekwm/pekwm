@@ -1,3 +1,11 @@
+2006-08-30  Claes Nästén  <me{@}pekdon{.}net>
+
+	* src/PDecor.cc (PDecor::doMove): 
+	Update moving to only use the root position of the pointer to support
+	more ways of initiating moving and then also keep correct position.
+	Close #94
+	( Thanks Jowi and shared for reporting )
+
 2006-08-28  Claes Nästén  <me{@}pekdon{.}net>
 
 	* src/WindowManager.cc (WindowManager::updateMenus): 
