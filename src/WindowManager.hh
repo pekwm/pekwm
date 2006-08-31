@@ -172,21 +172,16 @@ inline void addToClientList(Client *c) { if (c) _client_list.push_back(c); }
 
     Client* findClient(const ClassHint* class_hint);
     Frame* findGroup(AutoProperty *property);
-    Frame* findTaggedFrame(bool &activate);
     Frame* findFrameFromId(uint id);
 
     uint findUniqueFrameId(void);
     void setupFrameIds(void);
 
-    inline Frame* getTaggedFrame(void) { return _tagged_frame; }
-    void setTaggedFrame(Frame *frame, bool activate);
     inline bool isAllowGrouping(void) const { return _allow_grouping; }
     inline void setStateGlobalGrouping(StateAction sa) {
-        if (((_allow_grouping == true) && (sa == STATE_SET)) ||
-                ((_allow_grouping == false) && (sa == STATE_UNSET))) {
-            return;
+        if (ActionUtil::needToggle(sa, _allow_grouping)) {
+            _allow_grouping = !_allow_grouping;
         }
-        _allow_grouping = !_allow_grouping;
     }
 
     void attachMarked(Frame *frame);
@@ -302,8 +297,7 @@ private:
     std::list<PWinObj*> _mru_list;
     std::list<uint> _frameid_list; // stores removed frame id's
 
-    Frame *_tagged_frame;
-    bool _tag_activate, _allow_grouping;
+    bool _allow_grouping; //<! Flag turning grouping on/off.
 
     std::list<EdgeWO*> _screen_edge_list;
     PWinObj *_root_wo;

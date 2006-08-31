@@ -336,8 +336,7 @@ WindowManager::WindowManager(const std::string &command_line, const std::string 
         _cmd_dialog(NULL), _status_window(NULL),
         _command_line(command_line),
         _startup(false), _shutdown(false),
-        _tagged_frame(NULL), _tag_activate(true), _allow_grouping(true),
-        _root_wo(NULL),
+        _allow_grouping(true), _root_wo(NULL),
         _pekwm_atoms(NULL), _icccm_atoms(NULL), _ewmh_atoms(NULL)
 {
     ::wm = this;
@@ -1851,10 +1850,6 @@ WindowManager::removeFromClientList(Client *client)
 void
 WindowManager::removeFromFrameList(Frame *frame)
 {
-    if (_tagged_frame == frame) {
-        _tagged_frame = NULL;
-    }
-
     _frame_list.remove(frame);
     _mru_list.remove(frame);
     _frameid_list.push_back(frame->getId());
@@ -1921,17 +1916,6 @@ WindowManager::findGroup(AutoProperty *property)
     return frame;
 }
 
-//! @brief Sees if there is a tagged frame and if it's visible
-Frame*
-WindowManager::findTaggedFrame(bool &activate)
-{
-    if (_tagged_frame && _tagged_frame->isMapped()) {
-        activate = _tag_activate;
-        return _tagged_frame;
-    }
-    return NULL;
-}
-
 //! @brief
 Frame*
 WindowManager::findFrameFromId(uint id)
@@ -1971,14 +1955,6 @@ WindowManager::setupFrameIds(void)
     list<Frame*>::iterator it(_frame_list.begin());
     for (uint i = 1; it != _frame_list.end(); ++i, ++it)
         (*it)->setId(i);
-}
-
-//! @brief
-void
-WindowManager::setTaggedFrame(Frame *frame, bool activate)
-{
-    _tagged_frame = frame;
-    _tag_activate = activate;
 }
 
 //! @brief Attaches all marked clients to frame

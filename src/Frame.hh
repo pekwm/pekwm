@@ -111,6 +111,9 @@ public:
     void handleClientMessage(XClientMessageEvent *ev, Client *client);
     void handlePropertyChange(XPropertyEvent *ev, Client *client);
 
+    static Frame *getTagFrame(void) { return _tag_frame; }
+    static bool getTagBehind(void) { return _tag_behind; }
+
 protected:
     // BEGIN - PDecor interface
     virtual int resizeHorzStep(int diff) const;
@@ -144,6 +147,10 @@ private:
     // frame information used when maximizing / going fullscreen
     Geometry _old_gm; // FIXME: move to PDecor?
     uint _old_decor_state; // FIXME: move to PDecor?
+
+    // Tagging, static as only one Frame can be tagged
+    static Frame *_tag_frame; //!< Pointer to tagged frame.
+    static bool _tag_behind; //!< Tagging actions will set behind.
 
     // EWMH
     static const int NET_WM_STATE_REMOVE = 0; // remove/unset property

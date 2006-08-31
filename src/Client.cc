@@ -177,13 +177,13 @@ Client::Client(WindowManager *w, Window new_client, bool is_new) :
     // tagged frame. If starting up, check if it has a FRAME_ID and if not
     // use autoproperties.
     if (_wm->isStartup()) {
-        // Check against tagged frame.
-        bool activate;
-        _parent = _wm->findTaggedFrame(activate);
-        if (_parent) {
-            Frame *frame = static_cast<Frame*>(_parent);
+        // Check for tagged frame
+        Frame *frame = Frame::getTagFrame();
+        if (frame && frame->isMapped()) {
+            _parent = frame;
             frame->addChild(this);
-            if (activate) {
+
+            if (! Frame::getTagBehind()) {
                 frame->activateChild(this);
                 do_focus = frame->isFocused();
             }

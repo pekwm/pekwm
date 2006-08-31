@@ -1,3 +1,8 @@
+2006-08-31  Claes Nästén  <me{@}pekdon{.}net>
+
+	* src/Frame.cc (Frame): 
+	Moved tagged frame information to Frame.
+
 2006-08-30  Claes Nästén  <me{@}pekdon{.}net>
 
 	* src/Frame.cc (Frame::setStateTitle): 

@@ -51,6 +51,9 @@ using std::vector;
 using std::mem_fun;
 using std::find;
 
+Frame* Frame::_tag_frame = NULL;
+bool Frame::_tag_behind = false;
+
 //! @brief Frame constructor
 Frame::Frame(WindowManager *wm, Client *client, AutoProperty *ap)
     : PDecor(wm->getScreen()->getDpy(), wm->getTheme(),
@@ -216,6 +219,9 @@ Frame::~Frame(void)
     _wo_list.remove(this);
     Workspaces::instance()->remove(this);
     _wm->removeFromFrameList(this);
+    if (_tag_frame == this) {
+        _tag_frame = NULL;
+    }
 
     if (_class_hint) {
         delete _class_hint;
@@ -1459,15 +1465,17 @@ Frame::setStateIconified(StateAction sa)
     }
 }
 
-//! @brief
+//! (Un)Sets the tagged Frame.
+//!
+//! @param sa Set/Unset or Toggle the state.
+//! @param behind Should tagged actions be behind (non-focused).
 void
 Frame::setStateTagged(StateAction sa, bool behind)
 {
-    if (ActionUtil::needToggle(sa, (this != _wm->getTaggedFrame())) == false) {
-        return;
+    if (ActionUtil::needToggle(sa, (_tag_frame != NULL))) {
+        _tag_frame = (this == _tag_frame) ? NULL : this;
+        _tag_behind = behind;
     }
-
-    _wm->setTaggedFrame((this == _wm->getTaggedFrame()) ? NULL : this, !behind);
 }
 
 //! @brief
