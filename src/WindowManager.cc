@@ -1,6 +1,6 @@
 //
 // WindowManager.cc for pekwm
-// Copyright (C) 2002-2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright (C) 2002-2006 Claes Nästén <me{@}pekdon{.}net>
 //
 // windowmanager.cc for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
@@ -8,6 +8,8 @@
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
+//
+// $Id$
 //
 
 #include "../config.h"
@@ -808,8 +810,8 @@ WindowManager::doReload(void)
 
     // update the ClientUniqueNames if needed
     if ((old_client_unique_name != _config->getClientUniqueName()) ||
-            (old_client_unique_name_pre != _config->getClientUniqueNamePre()) ||
-            (old_client_unique_name_post != _config->getClientUniqueNamePost())) {
+        (old_client_unique_name_pre != _config->getClientUniqueNamePre()) ||
+        (old_client_unique_name_post != _config->getClientUniqueNamePost())) {
         for_each(_client_list.begin(), _client_list.end(),
                  mem_fun(&Client::getXClientName));
     }

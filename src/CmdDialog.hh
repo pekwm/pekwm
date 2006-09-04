@@ -1,9 +1,11 @@
 //
 // CmdDialog.hh for pekwm
-// Copyright (C) 2004 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright (C) 2004-2006 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
+//
+// $Id$
 //
 
 #include "../config.h"
@@ -55,6 +57,7 @@ private:
     void bufAdd(XKeyEvent *ev);
     void bufRemove(void);
     void bufClear(void);
+    void bufKill(void);
     void bufChangePos(int off);
 
     void bufChanged(void); // recalculates buf position

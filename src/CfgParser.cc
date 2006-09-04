@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2006 Claes Nasten <me{@}pekdon{.}net>
+// Copyright (C) 2005-2006 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -133,30 +133,6 @@ CfgParser::Entry::parse_key_values (std::list<CfgParserKey*>::iterator o_begin,
                 cerr << " *** WARNING " << ex << endl << "  "
                      << *op_value << endl;
             }
-        }
-    }
-}
-
-
-//! @brief Prints Entry tree.
-void
-CfgParser::Entry::print_tree(int level)
-{
-    Entry *op_entry;
-
-    cerr << level << ": " << m_or_source_name << "@" << m_i_line << " |"
-         << m_o_name << "| = |" << m_o_value << "| SECTION" << endl;
-
-    for (op_entry = m_op_entry_next; op_entry;
-         op_entry = op_entry->m_op_entry_next) {
-        if (op_entry->m_op_section) {
-            op_entry->m_op_section->print_tree(level + 1);
-
-        } else {
-            cerr << level << ": " << op_entry->m_or_source_name << "@"
-                 << op_entry->m_i_line << "\t |"
-                 << op_entry->m_o_name << "| = |"
-                 << op_entry->m_o_value << "|" << endl;
         }
     }
 }

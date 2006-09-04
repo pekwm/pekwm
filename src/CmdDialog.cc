@@ -1,9 +1,11 @@
 //
 // CmdDialog.cc for pekwm
-// Copyright (C) 2004-2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright (C) 2004-2006 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
+//
+// $Id$
 //
 
 #include "../config.h"
@@ -37,11 +39,12 @@ using std::string;
 
 //! @brief CmdDialog constructor
 //! @todo Initial size, configurable?
-CmdDialog::CmdDialog(Display *dpy, Theme *theme, const std::string &title) : PDecor(dpy, theme, "CMDDIALOG"),
-        _cmd_data(theme->getCmdDialogData()),
-        _cmd_wo(NULL), _bg(None),
-        _wo_ref(NULL),
-        _pos(0), _buf_off(0), _buf_chars(0)
+CmdDialog::CmdDialog(Display *dpy, Theme *theme, const std::string &title)
+    : PDecor(dpy, theme, "CMDDIALOG"),
+      _cmd_data(theme->getCmdDialogData()),
+      _cmd_wo(NULL), _bg(None),
+      _wo_ref(NULL),
+      _pos(0), _buf_off(0), _buf_chars(0)
 {
     // PWinObj attributes
     _type = PWinObj::WO_CMD_DIALOG;
@@ -124,6 +127,9 @@ CmdDialog::handleKeyPress(XKeyEvent *ev)
                 break;
             case CMD_D_CLEAR:
                 bufClear();
+                break;
+            case CMD_D_KILL:
+                bufKill();
                 break;
             case CMD_D_EXEC:
                 ae = exec();
@@ -354,6 +360,13 @@ CmdDialog::bufClear(void)
     _pos = _buf_off = _buf_chars = 0;
 }
 
+//! @brief Removes buffer content after cursor position
+void
+CmdDialog::bufKill(void)
+{
+    _buf.resize(_pos);
+}
+
 //! @brief Moves the marker
 void
 CmdDialog::bufChangePos(int off)
@@ -393,7 +406,7 @@ CmdDialog::bufChanged(void)
     }
 }
 
-//! @brief
+//! @brief Sets the buffer to the next item in the history.
 void
 CmdDialog::histNext(void)
 {
@@ -413,7 +426,7 @@ CmdDialog::histNext(void)
     _pos = _buf.size();
 }
 
-//! @brief
+//! @brief Sets the buffer to the previous item in the history.
 void
 CmdDialog::histPrev(void)
 {

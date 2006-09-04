@@ -1,9 +1,11 @@
 //
 // Action.hh for pekwm
-// Copyright (C)  2003-2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright (C) 2003-2006 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
+//
+// $Id$
 //
 
 #include "../config.h"
@@ -111,7 +113,7 @@ enum MoveResizeActionType {
 
 enum CmdDialogAction {
     CMD_D_INSERT, CMD_D_REMOVE,
-    CMD_D_CLEAR, CMD_D_EXEC, CMD_D_CLOSE,
+    CMD_D_CLEAR, CMD_D_KILL, CMD_D_EXEC, CMD_D_CLOSE,
     CMD_D_COMPLETE,
     CMD_D_CURS_NEXT, CMD_D_CURS_PREV,
     CMD_D_CURS_END, CMD_D_CURS_BEGIN,

@@ -1,9 +1,11 @@
 //
 // Config.cc for pekwm
-// Copyright (C) 2002-2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright (C) 2002-2006 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
+//
+// $Id$
 //
 
 #include "../config.h"
@@ -183,6 +185,7 @@ Config::Config(void) :
     _cmddialog_map["INSERT"] = CMD_D_INSERT;
     _cmddialog_map["ERASE"] = CMD_D_REMOVE;
     _cmddialog_map["CLEAR"] = CMD_D_CLEAR;
+    _cmddialog_map["KILL"] = CMD_D_KILL;
     _cmddialog_map["EXEC"] = CMD_D_EXEC;
     _cmddialog_map["CLOSE"] = CMD_D_CLOSE;
     _cmddialog_map["COMPLETE"] = CMD_D_COMPLETE;
