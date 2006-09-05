@@ -23,15 +23,17 @@
 //
 
 #ifdef MENUS
- 
+
 #include "windowmanager.hh"
+#include "frame.hh"
 
 #include <cstdio>
 
 using std::string;
 using std::vector;
 
-IconMenu::IconMenu(WindowManager *w, ScreenInfo *s, Theme *t) : GenericMenu(s, t),
+IconMenu::IconMenu(WindowManager *w, ScreenInfo *s, Theme *t) :
+GenericMenu(s, t, "IconMenu"),
 wm(w)
 {
 	addToMenuList(this);
@@ -54,7 +56,7 @@ IconMenu::handleButton1Release(BaseMenuItem *curr)
 		if (curr->getClient()->onWorkspace() != (signed) wm->getActiveWorkspace())
 			curr->getClient()->setWorkspace(wm->getActiveWorkspace());
 
-		curr->getClient()->unhide();
+		curr->getClient()->getFrame()->unhideClient(curr->getClient());
 	}
 	hideAll();
 }

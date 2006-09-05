@@ -134,7 +134,6 @@ ScreenInfo::getHead(int x, int y) {
 unsigned int
 ScreenInfo::getCurrHead(void)
 {
-
 	// is Xinerama extensions enabled?
 	if (m_has_xinerama) {
 		Window d_root, d_win;

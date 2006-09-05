@@ -21,7 +21,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
- 
+
 #include "pekwm.hh"
 #include "windowmanager.hh"
 #include "config.hh"
@@ -63,7 +63,6 @@ sigHandler(int signal)
 	case SIGHUP:
 		wm->reload();
 		break;
-	case SIGKILL:
 	case SIGINT:
 	case SIGTERM:
 		wm->quitNicely();
@@ -102,6 +101,9 @@ m_keys(NULL),
 m_config(NULL),
 m_theme(NULL), m_action_handler(NULL),
 m_autoprops(NULL), m_workspaces(NULL),
+#ifdef HARBOUR
+m_harbour(NULL),
+#endif // HARBOUR
 dpy(NULL), root(None),
 #ifdef MENUS
 m_windowmenu(NULL), m_iconmenu(NULL), m_rootmenu(NULL),
@@ -110,7 +112,7 @@ m_focused_client(NULL), m_wm_name("pekwm"),
 m_active_workspace(0), m_command_line(command_line),
 m_status_window(None),
 m_master_strut(NULL),
-m_icccm_atoms(NULL), m_gnome_atoms(NULL), m_ewmh_atoms(NULL)
+m_icccm_atoms(NULL), m_ewmh_atoms(NULL)
 {
 	::wm = this;
 
@@ -119,9 +121,8 @@ m_icccm_atoms(NULL), m_gnome_atoms(NULL), m_ewmh_atoms(NULL)
 	// Set up the signal handlers.
 	act.sa_handler = sigHandler;
 	act.sa_mask = sigset_t();
-	act.sa_flags = SA_NOCLDSTOP | SA_NODEFER; 
+	act.sa_flags = SA_NOCLDSTOP | SA_NODEFER;
 
-	sigaction(SIGKILL, &act, NULL);
 	sigaction(SIGTERM, &act, NULL);
 	sigaction(SIGINT, &act, NULL);
 	sigaction(SIGHUP, &act, NULL);
@@ -168,170 +169,8 @@ WindowManager::execStartScript(void)
 	}
 }
 
-// The destructor cleans up allocated memory and exits cleanly. Hopefully! =)
-WindowManager::~WindowManager()
-{
-	cleanup(); // this _should_ be here
-
-	if (m_screen)
-		delete m_screen;
-#ifdef KEYS
-	if (m_keys)
-		delete m_keys;
-#endif // KEYS
-	if (m_config)
-		delete m_config;
-	if (m_theme)
-		delete m_theme;
-	if (m_action_handler)
-		delete m_action_handler;
-	if (m_autoprops)
-		delete m_autoprops;
-	if (m_workspaces)
-		delete m_workspaces;
-
-#ifdef MENUS
-	if (m_windowmenu)
-		delete m_windowmenu;
-	if (m_iconmenu)
-		delete m_iconmenu;
-	if (m_rootmenu)
-		delete m_rootmenu;
-#endif // MENUS
-	if (m_master_strut)
-		delete m_master_strut;
-
-	if (m_icccm_atoms)
-		delete m_icccm_atoms;
-	if (m_gnome_atoms)
-		delete m_gnome_atoms;
-	if (m_ewmh_atoms) 
-		delete m_ewmh_atoms;
-}
-
-void
-WindowManager::setupDisplay(void)
-{
-	dpy = XOpenDisplay(NULL);
-	if (!dpy) {
-		cerr << "Can not open display!" << endl
-				 << "Your DISPLAY variable currently is set to: "
-				 << getenv("DISPLAY") << endl;
-		exit(1);
-	}
-
-	XSetErrorHandler(handleXError);
-
-	m_screen = new ScreenInfo(dpy);
-	root = m_screen->getRoot();
-
-	m_action_handler = new ActionHandler(this);
-
-	// get config, needs to be done _BEFORE_ hints
-	m_config = new Config;
-
-	m_autoprops = new AutoProps(m_config);
-	m_autoprops->loadConfig();
-
-	m_master_strut = new Strut;
-
-	m_icccm_atoms = new IcccmAtoms(m_screen->getDisplay());
-	m_gnome_atoms = new GnomeAtoms(m_screen->getDisplay());
-	m_ewmh_atoms = new EwmhAtoms(m_screen->getDisplay());
-	initHints();
-
-	m_workspaces = new Workspaces(m_screen->getDisplay(), m_ewmh_atoms,
-																m_config->getNumWorkspaces());
-	m_workspaces->setReportOnlyFrames(m_config->getReportOnlyFrames());
-
-	// load colors, fonts
-	m_theme = new Theme(m_config, m_screen);
-
-#ifdef SHAPE
-	int dummy_error;
-	m_has_shape = XShapeQueryExtension(dpy, &m_shape_event, &dummy_error);
-#endif
-
-	// Create cursors
-	m_cursors[ARROW_CURSOR] = XCreateFontCursor(dpy, XC_left_ptr);
-	m_cursors[MOVE_CURSOR] =  XCreateFontCursor(dpy, XC_fleur);
-	m_cursors[RESIZE_CURSOR] = XCreateFontCursor(dpy, XC_plus);
-	m_cursors[TOP_CURSOR] = XCreateFontCursor(dpy, XC_top_side);
-	m_cursors[TOP_LEFT_CURSOR] = XCreateFontCursor(dpy, XC_top_left_corner);
-	m_cursors[TOP_RIGHT_CURSOR] = XCreateFontCursor(dpy, XC_top_right_corner);
-	m_cursors[LEFT_CURSOR] = XCreateFontCursor(dpy, XC_left_side);
-	m_cursors[RIGHT_CURSOR] = XCreateFontCursor(dpy, XC_right_side);
-	m_cursors[BOTTOM_CURSOR] = XCreateFontCursor(dpy, XC_bottom_side);
-	m_cursors[BOTTOM_LEFT_CURSOR] =
-		XCreateFontCursor(dpy, XC_bottom_left_corner);
-	m_cursors[BOTTOM_RIGHT_CURSOR] =
-		XCreateFontCursor(dpy, XC_bottom_right_corner);
-
-	XDefineCursor(dpy, root, m_cursors[ARROW_CURSOR]);
-
-	XSetWindowAttributes sattr;
-	sattr.event_mask =
- 		SubstructureRedirectMask|SubstructureNotifyMask|
-		ColormapChangeMask|FocusChangeMask|
-		EnterWindowMask|
-		PropertyChangeMask|
-		ButtonPressMask|ButtonReleaseMask;
-
-	XChangeWindowAttributes(dpy, root, CWEventMask, &sattr);
-
-#ifdef KEYS
-	m_keys = new Keys(m_config, m_screen);
-	m_keys->grabKeys(root);
-#endif // KEYS
-
-#ifdef MENUS
-	m_iconmenu = new IconMenu(this, m_screen, m_theme);
-	m_windowmenu = new WindowMenu(this);
-	m_rootmenu = new RootMenu(this);
-#endif // MENUS
-
- 	m_status_window =
-		XCreateSimpleWindow(dpy, root, 0, 0, 1, 1,
-												m_theme->getMenuBW(),
-												m_theme->getMenuBorderC().pixel,
-												m_theme->getMenuBackgroundC().pixel);
-}
-
-void
-WindowManager::scanWindows(void)
-{
-	unsigned int num_wins;
-	Window dummy_win1, dummy_win2, *wins;
-	XWindowAttributes attr;
-
-	XQueryTree(dpy, root, &dummy_win1, &dummy_win2, &wins, &num_wins);
-	for(unsigned int i = 0; i < num_wins; ++i)  {
-		XGetWindowAttributes(dpy, wins[i], &attr);
-		if (!attr.override_redirect && (attr.map_state == IsViewable)) {
-			// The client will put itself in the client list
-			new Client(this, wins[i]);
-		}
-	}
-	XFree(wins);
-
-	XMapWindow(dpy, m_gnome_hint_win);
-#ifdef KEYS
-	m_keys->grabKeys(m_gnome_hint_win);
-#endif // KEYS
-
-	// Try to focus the ontop window, if there aren't any window we'll give
-	// the gnomeHintWindow focus
-	focusClient(m_workspaces->getTopClient(m_active_workspace));
-}
-
-
-void
-WindowManager::quitNicely(void)
-{
-	cleanup();
-	exit(0);
-}
-
+//! @fn    void cleanup(void);
+//! @brief Cleans up, Maps windows etc.
 void
 WindowManager::cleanup(void)
 {
@@ -358,7 +197,6 @@ WindowManager::cleanup(void)
 	XDestroyWindow(dpy, m_status_window);
 
 	// destroy atom windows
-	XDestroyWindow(dpy, m_gnome_hint_win);
 	XDestroyWindow(dpy, m_extended_hints_win);
 
 	for (unsigned int i = 0; i < NUM_CURSORS; ++i)
@@ -367,31 +205,258 @@ WindowManager::cleanup(void)
 	XInstallColormap(dpy, m_screen->getColormap());
 	XSetInputFocus(dpy, PointerRoot, RevertToNone, CurrentTime);
 
+#ifdef HARBOUR
+	m_harbour->removeAllDockApps();
+#endif // HARBOUR
+
 	XCloseDisplay(dpy);
+}
+
+// The destructor cleans up allocated memory and exits cleanly. Hopefully! =)
+WindowManager::~WindowManager()
+{
+#ifdef HARBOUR
+	if (m_harbour) {
+		delete m_harbour;
+	}
+#endif // HARBOUR
+
+	if (m_action_handler)
+		delete m_action_handler;
+	if (m_autoprops)
+		delete m_autoprops;
+
+#ifdef MENUS
+	if (m_windowmenu)
+		delete m_windowmenu;
+	if (m_iconmenu)
+		delete m_iconmenu;
+	if (m_rootmenu)
+		delete m_rootmenu;
+#endif // MENUS
+
+	if (m_master_strut)
+		delete m_master_strut;
+
+	if (m_icccm_atoms)
+		delete m_icccm_atoms;
+	if (m_ewmh_atoms)
+		delete m_ewmh_atoms;
+
+#ifdef KEYS
+	if (m_keys)
+		delete m_keys;
+#endif // KEYS
+
+	if (m_workspaces)
+		delete m_workspaces;
+	if (m_config)
+		delete m_config;
+	if (m_theme)
+		delete m_theme;
+	if (m_screen)
+		delete m_screen;
+}
+
+//! @fn    void setupDisplay(void)
+//! @brief
+void
+WindowManager::setupDisplay(void)
+{
+	dpy = XOpenDisplay(NULL);
+	if (!dpy) {
+		cerr << "Can not open display!" << endl
+				 << "Your DISPLAY variable currently is set to: "
+				 << getenv("DISPLAY") << endl;
+		exit(1);
+	}
+
+	XSetErrorHandler(handleXError);
+
+	m_screen = new ScreenInfo(dpy);
+	root = m_screen->getRoot();
+
+	m_action_handler = new ActionHandler(this);
+
+	// get config, needs to be done _BEFORE_ hints
+	m_config = new Config;
+
+	// load colors, fonts
+	m_theme = new Theme(m_config, m_screen);
+
+	m_autoprops = new AutoProps(m_config);
+	m_autoprops->loadConfig();
+
+	m_master_strut = new Strut;
+
+	m_icccm_atoms = new IcccmAtoms(m_screen->getDisplay());
+	m_ewmh_atoms = new EwmhAtoms(m_screen->getDisplay());
+	initHints();
+
+#ifdef HARBOUR
+	m_harbour = new Harbour(m_screen, m_config, m_theme);
+	m_workspaces = new Workspaces(m_screen, m_config, m_ewmh_atoms,
+																m_config->getWorkspaces(), m_harbour);
+#else // !HARBOUR
+	m_workspaces = new Workspaces(m_screen, m_config, m_ewmh_atoms,
+																m_config->getWorkspaces());
+#endif // HARBOUR
+
+#ifdef SHAPE
+	int dummy_error;
+	m_has_shape = XShapeQueryExtension(dpy, &m_shape_event, &dummy_error);
+#endif
+
+	// Create resize cursors
+	m_cursors[TOP_LEFT_CURSOR] = XCreateFontCursor(dpy, XC_top_left_corner);
+	m_cursors[TOP_CURSOR] = XCreateFontCursor(dpy, XC_top_side);
+	m_cursors[TOP_RIGHT_CURSOR] = XCreateFontCursor(dpy, XC_top_right_corner);
+	m_cursors[LEFT_CURSOR] = XCreateFontCursor(dpy, XC_left_side);
+	m_cursors[RIGHT_CURSOR] = XCreateFontCursor(dpy, XC_right_side);
+	m_cursors[BOTTOM_LEFT_CURSOR] =
+		XCreateFontCursor(dpy, XC_bottom_left_corner);
+	m_cursors[BOTTOM_CURSOR] = XCreateFontCursor(dpy, XC_bottom_side);
+	m_cursors[BOTTOM_RIGHT_CURSOR] =
+		XCreateFontCursor(dpy, XC_bottom_right_corner);
+	// Create other cursors
+	m_cursors[ARROW_CURSOR] = XCreateFontCursor(dpy, XC_left_ptr);
+	m_cursors[MOVE_CURSOR] =  XCreateFontCursor(dpy, XC_fleur);
+	m_cursors[RESIZE_CURSOR] = XCreateFontCursor(dpy, XC_plus);
+
+	XDefineCursor(dpy, root, m_cursors[ARROW_CURSOR]);
+
+	XSetWindowAttributes sattr;
+	sattr.event_mask =
+		SubstructureRedirectMask|SubstructureNotifyMask|
+		ColormapChangeMask|FocusChangeMask|
+		EnterWindowMask|
+		PropertyChangeMask|
+		ButtonPressMask|ButtonReleaseMask;
+
+	XChangeWindowAttributes(dpy, root, CWEventMask, &sattr);
+
+#ifdef KEYS
+	m_keys = new Keys(m_config, m_screen);
+	m_keys->grabKeys(root);
+#endif // KEYS
+
+#ifdef MENUS
+	m_iconmenu = new IconMenu(this, m_screen, m_theme);
+	m_windowmenu = new WindowMenu(this);
+	m_rootmenu = new RootMenu(this);
+#endif // MENUS
+
+	m_status_window =
+		XCreateSimpleWindow(dpy, root, 0, 0, 1, 1,
+												m_theme->getMenuBorderWidth(),
+												m_theme->getMenuBorderColor().pixel,
+												m_theme->getMenuBackground().pixel);
+}
+
+//! @fn    void scanWindows(void)
+//! @brief Goes through the window and creates Clients/DockApps.
+void
+WindowManager::scanWindows(void)
+{
+	unsigned int num_wins;
+	Window dummy_win1, dummy_win2, *wins;
+	XWindowAttributes attr;
+
+	// Lets create a list of windows on the display
+	XQueryTree(dpy, root, &dummy_win1, &dummy_win2, &wins, &num_wins);
+	list<Window> win_list(wins, wins + num_wins);
+	XFree(wins);
+
+	list<Window>::iterator it = win_list.begin();
+
+#ifdef HARBOUR
+	// If we have the Harbour on, we filter out all windows with the
+	// the IconWindowHint set not pointing to themself, making DockApps
+	// work as they are supposed to.
+	for (; it != win_list.end(); ++it) {
+		if (*it == None)
+			continue;
+
+		XWMHints *wm_hints = XGetWMHints(dpy, *it);
+		if (wm_hints) {
+			if ((wm_hints->flags&IconWindowHint) &&
+					(wm_hints->icon_window != *it)) {
+				list<Window>::iterator i_it =
+					find(win_list.begin(), win_list.end(), wm_hints->icon_window);
+				if (i_it != win_list.end())
+					*i_it = None;
+			}
+			XFree(wm_hints);
+		}
+	}
+#endif // HARBOUR
+
+	for (it = win_list.begin(); it != win_list.end(); ++it) {
+		if (*it == None)
+			continue;
+
+		XGetWindowAttributes(dpy, *it, &attr);
+		if (!attr.override_redirect && (attr.map_state != IsUnmapped)) {
+#ifdef HARBOUR
+			XWMHints *wm_hints = XGetWMHints(dpy, *it);
+			if (wm_hints) {
+				if ((wm_hints->flags&StateHint) &&
+						(wm_hints->initial_state == WithdrawnState)) {
+					m_harbour->addDockApp(new DockApp(m_screen, m_theme, *it));
+				} else {
+					new Client(this, *it);
+				}
+				XFree(wm_hints);
+			} else
+#endif // HARBOUR
+				{
+					// The client will put itself in the client list
+					new Client(this, *it);
+				}
+		}
+	}
+
+	// Try to focus the ontop window, if no window we give root focus
+	Client *client = m_workspaces->getTopClient(m_active_workspace);
+	if (client && !client->isIconified())
+		client->giveInputFocus();
+	else
+		XSetInputFocus(dpy, m_screen->getRoot(), RevertToNone, CurrentTime);
+}
+
+
+void
+WindowManager::quitNicely(void)
+{
+	cleanup();
+	exit(0);
 }
 
 void
 WindowManager::reload(void)
 {
-	m_config->loadConfig(); // reload the config
+#ifdef HARBOUR
+	// I do not want to restack or rearrange if nothing has changed.
+	unsigned int old_harbour_placement = m_config->getHarbourPlacement();
+	bool old_harbour_stacking = m_config->getHarbourOntop();
+#endif // HARBOUR
+
+	m_config->load(); // reload the config
 	m_autoprops->loadConfig(); // reload autoprops config
 
 	// update what might have changed in the cfg toouching the hints
- 	setGnomeHint(m_screen->getRoot(), m_gnome_atoms->win_workspace_count,
- 							 m_config->getNumWorkspaces());
-	setNumWorkspaces(m_config->getNumWorkspaces());
-	m_workspaces->setReportOnlyFrames(m_config->getReportOnlyFrames());
-	m_workspaces->updateClientList(); // reflect the ^ changes
+	setNumWorkspaces(m_config->getWorkspaces());
+	m_workspaces->updateClientList(); // Reflect reportOnlyFrames
 
 	// reload the theme
-	m_theme->setThemeDir(m_config->getThemeDir());
-	m_theme->loadTheme();
+	m_theme->setThemeDir(m_config->getThemeFile());
+	m_theme->load();
 
 	// update the status window theme
 	XSetWindowBackground(dpy, m_status_window,
-											 m_theme->getMenuBackgroundC().pixel);
-	XSetWindowBorder(dpy, m_status_window, m_theme->getMenuBorderC().pixel);
-	XSetWindowBorderWidth(dpy, m_status_window, m_theme->getMenuBW());
+											 m_theme->getMenuBackground().pixel);
+	XSetWindowBorder(dpy, m_status_window, m_theme->getMenuBorderColor().pixel);
+	XSetWindowBorderWidth(dpy, m_status_window, m_theme->getMenuBorderWidth());
 
 	// reload the themes on the frames
 	for_each(m_frame_list.begin(), m_frame_list.end(),
@@ -401,8 +466,8 @@ WindowManager::reload(void)
  // reload the keygrabber
 	m_keys->loadKeys();
 
-	m_keys->ungrabKeys(m_gnome_hint_win);
-	m_keys->grabKeys(m_gnome_hint_win);
+	m_keys->ungrabKeys(m_screen->getRoot());
+	m_keys->grabKeys(m_screen->getRoot());
 #endif // KEYS
 
 	//regrab keys AND load autoprops
@@ -412,45 +477,46 @@ WindowManager::reload(void)
 		m_keys->ungrabKeys((*c_it)->getWindow());
 		m_keys->grabKeys((*c_it)->getWindow());
 #endif // KEYS
-
 		(*c_it)->loadAutoProps(AutoProps::APPLY_ON_RELOAD);
 	}
 
-	// fix the menus
+#ifdef HARBOUR
+	m_harbour->loadTheme();
+	if (old_harbour_placement != m_config->getHarbourPlacement())
+		m_harbour->rearrange();
+	if (old_harbour_stacking != m_config->getHarbourOntop())
+		m_harbour->restack();
+#endif // HARBOUR
+
 #ifdef MENUS
+	// fix the menus
 	m_windowmenu->loadTheme();
 	m_iconmenu->loadTheme();
 	m_rootmenu->loadTheme();
 
-	// reload rootmenu
+	// reload menus
 	m_windowmenu->updateMenu();
 	m_iconmenu->updateMenu();
 	m_rootmenu->updateRootMenu();
+#ifdef HARBOUR
+	m_harbour->getHarbourMenu()->loadTheme();
+	m_harbour->getHarbourMenu()->updateMenu();
+#endif // HARBOUR
+
 #endif // MENUS
-}
-
-//! @fn    void restart(void)
-//! @brief Restart with the command line as argument
-void
-WindowManager::restart(void)
-{
-	cleanup();
-
-	execlp("/bin/sh", "sh", "-c", m_command_line.c_str(), 0);
 }
 
 //! @fn    void restart(const string &command)
 //! @breif Exit pekwm and restart with the command command
 void
-WindowManager::restart(const string &command)
+WindowManager::restart(string command)
 {
-	if (!command.length())
-		return;
+	if (!command.size())
+		command = m_command_line;
 
 	cleanup();
-	execlp("/bin/sh", "sh", "-c", command.c_str(), 0);
+	execlp("/bin/sh", "sh" , "-c", command.c_str(), 0);
 }
-
 
 // Event handling routins beneath this =====================================
 
@@ -481,7 +547,7 @@ WindowManager::doEventLoop(void)
 		case ClientMessage:
 			handleClientMessageEvent(&ev.xclient);
 			break;
-      
+
 		case ColormapNotify:
 			handleColormapEvent(&ev.xcolormap);
 			break;
@@ -517,13 +583,10 @@ WindowManager::doEventLoop(void)
 		case FocusIn:
 			handleFocusInEvent(&ev.xfocus);
 			break;
-		case FocusOut:
-			handleFocusOutEvent(&ev.xfocus);
-			break;
 
 #ifdef SHAPE
 		default:
-			if ((client = findClient(ev.xany.window))) {	
+			if ((client = findClient(ev.xany.window))) {
 				if (m_has_shape && (ev.type == m_shape_event)) {
 					client->handleShapeChange((XShapeEvent *) &ev);
 				}
@@ -561,8 +624,6 @@ WindowManager::handleButtonPressEvent(XButtonEvent *ev)
 	if (ev->window == m_screen->getRoot()) {
 		if ((action = findMouseButtonAction(ev->button))) {
 			m_action_handler->handleAction(action, NULL);
-		} else {
-			sendGnomeHintWinEvent((XEvent*) ev);
 		}
 	} else {
 		Client *client = findClient(ev->window);
@@ -574,7 +635,7 @@ WindowManager::handleButtonPressEvent(XButtonEvent *ev)
 			// window with Button1.
 			// TO-DO: Make this configurable?
 			if ((client != m_focused_client) && (ev->button == Button1))
-				focusClient(client);
+				client->giveInputFocus();
 
 			action = client->getFrame()->handleButtonEvent(ev);
 			if (action)
@@ -584,13 +645,24 @@ WindowManager::handleButtonPressEvent(XButtonEvent *ev)
 		// handle menu clicks
 		else if ((mu = m_windowmenu->findMenu(ev->window)) ||
 						 (mu = m_iconmenu->findMenu(ev->window)) ||
-						 (mu = m_rootmenu->findMenu(ev->window))) {
+						 (mu = m_rootmenu->findMenu(ev->window))
+#ifdef HARBOUR
+						 || (mu = m_harbour->getHarbourMenu()->findMenu(ev->window))
+#endif // HARBOUR
+						 ) {
+
 			mu->handleButtonPressEvent(ev);
 		}
 #endif // MENUS
+
+#ifdef HARBOUR
 		else {
-			sendGnomeHintWinEvent((XEvent*) ev);
+			DockApp *da = m_harbour->findDockAppFromFrame(ev->window);
+			if (da) {
+				m_harbour->handleButtonEvent(ev, da);
+			}
 		}
+#endif // HARBOUR
 	}
 }
 
@@ -602,21 +674,31 @@ WindowManager::handleButtonReleaseEvent(XButtonEvent *ev)
 #endif // MENUS
 
 	Client *client = findClient(ev->window);
-	if(client) {
-		Action* action = client->getFrame()->handleButtonEvent(ev); 
+	if (client) {
+		Action* action = client->getFrame()->handleButtonEvent(ev);
 		if (action)
 			m_action_handler->handleAction(action, client);
 	}
 #ifdef MENUS
 	else if ((mu = m_windowmenu->findMenu(ev->window)) ||
 					 (mu = m_iconmenu->findMenu(ev->window)) ||
-					 (mu = m_rootmenu->findMenu(ev->window)) ) {
+					 (mu = m_rootmenu->findMenu(ev->window))
+#ifdef HARBOUR
+					 || (mu = m_harbour->getHarbourMenu()->findMenu(ev->window))
+#endif // HARBOUR
+					 ) {
 		mu->handleButtonReleaseEvent(ev);
 	}
 #endif // MENUS
+
+#ifdef HARBOUR
 	else {
-		sendGnomeHintWinEvent((XEvent*) ev);
+		DockApp *da = m_harbour->findDockAppFromFrame(ev->window);
+		if (da) {
+			m_harbour->handleButtonEvent(ev, da);
+		}
 	}
+#endif // HARBOUR
 }
 
 void
@@ -625,22 +707,31 @@ WindowManager::handleConfigureRequestEvent(XConfigureRequestEvent *ev)
 	Client *client = findClientFromWindow(ev->window);
 
 	if (client) {
-		client->handleConfigureRequest(ev); 
+		client->handleConfigureRequest(ev);
 
 	} else {
-		// Since this window isn't yet a client lets delegate
-		// the configure request back to the window so it can use it.
-		
-		XWindowChanges wc;	
-					
-		wc.x = ev->x;
-		wc.y = ev->y;
-		wc.width = ev->width;
-		wc.height = ev->height;
-		wc.sibling = ev->above;
-		wc.stack_mode = ev->detail;
+#ifdef HARBOUR
+		DockApp *da = m_harbour->findDockApp(ev->window);
+		if (da) {
+			m_harbour->handleConfigureRequestEvent(ev, da);
+		} else
+#endif // HARBOUR
+			{
+				// Since this window isn't yet a client lets delegate
+				// the configure request back to the window so it can use it.
 
-		XConfigureWindow(m_screen->getDisplay(), ev->window, ev->value_mask, &wc);
+				XWindowChanges wc;
+
+				wc.x = ev->x;
+				wc.y = ev->y;
+				wc.width = ev->width;
+				wc.height = ev->height;
+				wc.sibling = ev->above;
+				wc.stack_mode = ev->detail;
+
+				XConfigureWindow(m_screen->getDisplay(), ev->window,
+												 ev->value_mask, &wc);
+			}
 	}
 }
 
@@ -648,35 +739,74 @@ void
 WindowManager::handleMotionEvent(XMotionEvent *ev)
 {
 	Client *client = findClient(ev->window);
+#ifdef MENUS
+	BaseMenu *mu = NULL;
+#endif // MENUS
 
 	// First try to operate on a client
 	if (client) {
-		Action *action = client->getFrame()->handleMotionNotifyEvent(ev); 
+		Action *action = client->getFrame()->handleMotionNotifyEvent(ev);
 		if (action)
 			m_action_handler->handleAction(action, client);
 	}
 	// Else we try to find a menu
 #ifdef MENUS
-	else {
-		BaseMenu *mu = NULL;
-		if ((mu = m_windowmenu->findMenu(ev->window)) ||
-				(mu = m_iconmenu->findMenu(ev->window)) ||
-				(mu = m_rootmenu->findMenu(ev->window))) {
-			mu->handleMotionNotifyEvent(ev);
-		}
+	else if ((mu = m_windowmenu->findMenu(ev->window)) ||
+					 (mu = m_iconmenu->findMenu(ev->window)) ||
+					 (mu = m_rootmenu->findMenu(ev->window))
+#ifdef HARBOUR
+					 || (mu = m_harbour->getHarbourMenu()->findMenu(ev->window))
+#endif // HARBOUR
+					 ) {
+		mu->handleMotionNotifyEvent(ev);
 	}
 #endif // MENUS
+
+#ifdef HARBOUR
+	else {
+		DockApp *da = m_harbour->findDockAppFromFrame(ev->window);
+		if (da) {
+			m_harbour->handleMotionNotifyEvent(ev, da);
+		}
+	}
+#endif // HARBOUR
 }
 
 void
 WindowManager::handleMapRequestEvent(XMapRequestEvent *ev)
 {
-	Client *client = findClient(ev->window);
+	Client *client = findClientFromWindow(ev->window);
 
 	if (client) {
 		client->handleMapRequest(ev);
 	} else {
-		focusClient(new Client(this, ev->window));
+		XWindowAttributes attr;
+		XGetWindowAttributes(dpy, ev->window, &attr);
+		if (!attr.override_redirect) {
+			// if we have the harbour enabled, we need to figure out wheter or
+			// not this is a dockapp.
+#ifdef HARBOUR
+			XWMHints *wm_hints = XGetWMHints(dpy, ev->window);
+			if (wm_hints) {
+				if ((wm_hints->flags&StateHint) &&
+						(wm_hints->initial_state == WithdrawnState)) {
+#ifdef DEBUG
+					cerr << __FILE__ << "@" << __LINE__ << ": "
+							 << "DockApp Mapping: " << ev->window << endl;
+#endif // DEBUG
+					m_harbour->addDockApp(new DockApp(m_screen, m_theme, ev->window));
+				} else {
+					client = new Client(this, ev->window);
+					client->giveInputFocus();
+				}
+				XFree(wm_hints);
+			} else
+#endif // HARBOUR
+				{
+					client = new Client(this, ev->window);
+					client->giveInputFocus();
+				}
+		}
 	}
 }
 
@@ -689,27 +819,23 @@ WindowManager::handleUnmapEvent(XUnmapEvent *ev)
 		Window frame_win = client->getFrame()->getFrameWindow();
 		client->handleUnmapEvent(ev);
 
-		// We might not have a focused client now, try to find a new one.
-		if (!m_focused_client) {
-			// TO-DO: We need to do something smarter here, look for non iconified
-			// clients only
-
- 			Client *client_to_focus = findClient(frame_win);
- 			if (client_to_focus && !client_to_focus->isHidden()) {
+		if (!m_focused_client)
+			findClientAndFocus(frame_win);
+	}
+#ifdef HARBOUR
+	else {
+		DockApp *da = m_harbour->findDockApp(ev->window);
+		if (da) {
+			if (ev->window == ev->event) {
 #ifdef DEBUG
 				cerr << __FILE__ << "@" << __LINE__ << ": "
-						 << "Client unmapped, need to focus new client, found: "
-						 << client_to_focus << endl;
+						 << "Unmapping DockaApp: " << da << endl;
 #endif // DEBUG
- 				focusClient(client_to_focus->getFrame()->getActiveClient());
- 			} else if (m_workspaces->getTopClient(m_active_workspace) &&
-								 !m_workspaces->getTopClient(m_active_workspace)->isHidden()) {
-				focusClient(m_workspaces->getTopClient(m_active_workspace));
-			} else {
-				focusClient(NULL);
+				m_harbour->removeDockApp(da);
 			}
 		}
 	}
+#endif // HARBOUR
 }
 
 void
@@ -721,132 +847,83 @@ WindowManager::handleDestroyWindowEvent(XDestroyWindowEvent *ev)
 		Window frame_win = client->getFrame()->getFrameWindow();
 		client->handleDestroyEvent(ev);
 
-		// We might not have a focused client now, try to find a new one.
-		if (!m_focused_client) {
-			// TO-DO: We need to do something smarter here, look for non iconified
-			// clients only
-
- 			Client *client_to_focus = findClient(frame_win);
- 			if (client_to_focus && !client_to_focus->isHidden()) {
+		if (!m_focused_client)
+			findClientAndFocus(frame_win);
+	}
+#ifdef HARBOUR
+	else {
+		DockApp *da = m_harbour->findDockApp(ev->window);
+		if (da) {
 #ifdef DEBUG
-				cerr << __FILE__ << "@" << __LINE__ << ": "
-						 << "Client destroyed, need to focus new client, found: "
-						 << client_to_focus << endl;
+			cerr << __FILE__ << "@" << __LINE__ << ": "
+					 << "Destroying DockApp: " << da << endl;
 #endif // DEBUG
- 				focusClient(client_to_focus->getFrame()->getActiveClient());
- 			} else if (m_workspaces->getTopClient(m_active_workspace) &&
-								 !m_workspaces->getTopClient(m_active_workspace)->isHidden()) {
-				focusClient(m_workspaces->getTopClient(m_active_workspace));
-			} else {
-				focusClient(NULL);
-			}
+			da->setAlive(false);
+			m_harbour->removeDockApp(da);
 		}
 	}
+#endif // HARBOUR
 }
 
 void
 WindowManager::handleEnterNotify(XCrossingEvent *ev)
 {
- 	if (ev->state&(Button1Mask|Button2Mask|Button3Mask|Button4Mask|Button5Mask))
- 		return;
+	if (m_config->getFocusModel() == FOCUS_CLICK)
+		return;
 
-#ifdef MENUS
-	BaseMenu *mu = NULL; // used when searching for clients
-#endif // MENUS
+	// We ignore the NotifyUngrab, it's caused be the keygrabber.
+	// The NotifyInferior is caused when clicking on the window.
+	if ((ev->mode == NotifyUngrab) || (ev->detail == NotifyInferior))
+		return;
 
-	// I find it a waste of energy searching for a window
-	// if I know I won't find a client
-	if (ev->window == m_screen->getRoot()) {
-		// unfocus the active client and give the focus to the root window
-		if (m_config->getFocusModel() == FOCUS_FOLLOW) {
-			focusClient(NULL);
-		}		
-	} else 
-#ifdef MENUS
-		if ((mu = m_windowmenu->findMenu(ev->window)) ||
-				(mu = m_iconmenu->findMenu(ev->window)) ||
-				(mu = m_rootmenu->findMenu(ev->window))) {
-			mu->handleEnterNotify(ev);	
-		} else
-#endif // MENUS
-
-			// we don't care about enter events in clicky focus mode
-			// also, if the detail is NotifyVirtual or NotifyNonlinearVirtual
-			// it's a window wich I didn't have the pointer in
-			if ((m_config->getFocusModel() != FOCUS_CLICK) &&
-					(ev->detail == NotifyVirtual) ||
-					(ev->detail == NotifyNonlinearVirtual)) {
-
-				Client *client = findClient(ev->window);
-
-				// We found a client, if it's the same as the focused one we just
-				// discard it else we focus the client
-				if (client && !client->isHidden()) {
-					// We do this to make the action go to the correct client
-					client = client->getFrame()->getActiveClient();
-	
-					if (!client->hasFocus()) {
-							switch(m_config->getFocusModel()) {
-						case FOCUS_SLOPPY:
-							if (client->getLayer() != WIN_LAYER_DESKTOP)
-								client->handleEnterEvent(ev);
-							break;
-						case FOCUS_FOLLOW:
-							client->handleEnterEvent(ev);
-							break;
-						default:
-							// Do Nothing
-							break;
-						}
-					}
-				}
-			}
+	Client *client = findClient(ev->window);
+	if (client) {
+		client = client->getFrame()->getActiveClient();
+		if (client != m_focused_client) {
+			client->giveInputFocus();
+		}
+	} else if (m_config->getFocusModel() == FOCUS_FOLLOW)
+		XSetInputFocus(dpy, m_screen->getRoot(), RevertToPointerRoot, CurrentTime);
 }
-
 
 void
 WindowManager::handleLeaveNotify(XCrossingEvent *ev)
 {
 #ifdef MENUS
-	BaseMenu *mu = NULL;
+	BaseMenu *mu;
+
 	if ((mu = m_windowmenu->findMenu(ev->window)) ||
 			(mu = m_iconmenu->findMenu(ev->window)) ||
-			(mu = m_rootmenu->findMenu(ev->window)) ) {
-		mu->handleLeaveNotify(ev);
+			(mu = m_rootmenu->findMenu(ev->window))
+#ifdef HARBOUR
+			|| (mu = m_harbour->getHarbourMenu()->findMenu(ev->window))
+#endif // HARBOUR
+			) {
+		mu->handleLeaveEvent(ev);
 	}
 #endif // MENUS
 }
 
+//! @fn    void handleFocusInEvent(XFocusChangeEvent *ev)
+//! @brief Handles focusing of windows.
 void
 WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
 {
-	// Don't ignore focus events while grabbed as focus changes
-	// when changing active client in a frame, depend on those
- 	if ((ev->mode == NotifyGrab) || (ev->mode == NotifyUngrab))
- 		return;
-
- 	if (ev->window == m_screen->getRoot()) {
- 		if (m_config->getFocusModel() == FOCUS_FOLLOW) {
- 			focusClient(NULL);
- 		}
- 	} else {
- 		Client *client = findClientFromWindow(ev->window);
- 		if (client)
- 			client->handleFocusInEvent(ev);
- 	}
-}
-
-void
-WindowManager::handleFocusOutEvent(XFocusChangeEvent *ev)
-{
- 	// Don't ignore focus events while grabbed as focus changes
-	// when changing active client in a frame, depend on those
-	if ((ev->mode == NotifyGrab) || (ev->mode == NotifyUngrab))
+	// We ignore the NotifyUngrab, it's caused be the keygrabber.
+	// The NotifyPointer happens when hiding/unhiding clients.
+	if ((ev->mode == NotifyUngrab) || (ev->detail == NotifyPointer))
 		return;
 
 	Client *client = findClientFromWindow(ev->window);
-	if (client)
-		client->handleFocusOutEvent(ev);
+	if (client && (client != m_focused_client)) {
+		if (m_focused_client) {
+			m_focused_client->setFocus(false);
+			m_workspaces->setLastFocusedClient(m_focused_client, m_active_workspace);
+		}
+
+		m_focused_client = client;
+		m_focused_client->setFocus(true);
+	}
 }
 
 void
@@ -855,18 +932,12 @@ WindowManager::handleClientMessageEvent(XClientMessageEvent *ev)
 	// Handle root window messages
 	if (ev->window == m_screen->getRoot()) {
 		if (ev->format == 32) { // format 32 events
-			if (ev->message_type == m_gnome_atoms->win_workspace) {
-				setWorkspace(ev->data.l[0]);
-
-			} else if (ev->message_type == m_ewmh_atoms->net_current_desktop) {
-				setWorkspace(ev->data.l[0]);
+			if (ev->message_type == m_ewmh_atoms->net_current_desktop) {
+				setWorkspace(ev->data.l[0], true);
 
 			} else if (ev->message_type == m_ewmh_atoms->net_number_of_desktops) {
 				if (ev->data.l[0] > 0) {
 					setNumWorkspaces(ev->data.l[0]);
-					setGnomeHint(m_screen->getRoot(),
-											 m_gnome_atoms->win_workspace_count,
-											 m_workspaces->getNumWorkspaces());
 				}
 			}
 		}
@@ -884,31 +955,20 @@ WindowManager::handleColormapEvent(XColormapEvent *ev)
 	Client *client = findClient(ev->window);
 	if (client) {
 		client = client->getFrame()->getActiveClient();
-		client->handleColormapChange(ev); 
+		client->handleColormapChange(ev);
 	}
 }
 
 void
 WindowManager::handlePropertyEvent(XPropertyEvent *ev)
 {
-	if (ev->window == m_screen->getRoot()) {
-		if (ev->atom == m_gnome_atoms->win_workspace_count) {
-			int workspaces = 0;
-			workspaces = getHint(m_screen->getRoot(),
-													 m_gnome_atoms->win_workspace_count);
-			if (workspaces > 0) {
-				setNumWorkspaces(workspaces);
-				setExtendedWMHint(m_screen->getRoot(),
-													m_ewmh_atoms->net_number_of_desktops, workspaces);
-			}
-		}
-	} else {
-		Client *client = findClient(ev->window);
+	if (ev->window == m_screen->getRoot())
+		return;
 
-		if (client) {
-			client = client->getFrame()->getActiveClient();
-			client->handlePropertyChange(ev); 
-		}
+	Client *client = findClientFromWindow(ev->window);
+
+	if (client) {
+		client->handlePropertyChange(ev);
 	}
 }
 
@@ -919,9 +979,13 @@ WindowManager::handleExposeEvent(XExposeEvent *ev)
 	BaseMenu *mu = NULL;
 	if ((mu = m_windowmenu->findMenu(ev->window)) ||
 			(mu = m_iconmenu->findMenu(ev->window)) ||
-			(mu = m_rootmenu->findMenu(ev->window))) {
+			(mu = m_rootmenu->findMenu(ev->window))
+#ifdef HARBOUR
+			|| (mu = m_harbour->getHarbourMenu()->findMenu(ev->window))
+#endif // HARBOUR
+			) {
+
 		mu->handleExposeEvent(ev);
- 
 	}
 #endif // MENUS
 }
@@ -929,11 +993,10 @@ WindowManager::handleExposeEvent(XExposeEvent *ev)
 Action*
 WindowManager::findMouseButtonAction(unsigned int button)
 {
-	vector<MouseButtonAction> *actions = m_config->getRootClickList();
-	vector<MouseButtonAction>::iterator it = actions->begin();
+	list<MouseButtonAction> *actions = m_config->getMouseRootList();
+	list<MouseButtonAction>::iterator it = actions->begin();
 	for (; it != actions->end(); ++it) {
-		if ((it->button == button) &&
-				(it->type == BUTTON_ROOT_SINGLE)) {
+		if ((it->button == button) && (it->type == BUTTON_SINGLE)) {
 			return &*it;
 		}
 	}
@@ -943,53 +1006,46 @@ WindowManager::findMouseButtonAction(unsigned int button)
 
 // Event handling routines stop ============================================
 
-//! @fn    void focusClient(Client *client)
-//! @brief Sets the Client c to the focused
-//! @param client Client to set as focused
-//! @param overide Defaults to false, let us set NULL as focused client if true
+
+//! @fn    void findClientAndFocus(Window win)
+//! @brief Searches for a Client to focus, and then gives it input focus.
 void
-WindowManager::focusClient(Client *client)
+WindowManager::findClientAndFocus(Window win)
 {
-#ifdef DEBUG
- 	cerr << __FILE__ << "@" << __LINE__ << ": "
- 			 << "focusClient(" << client << ")" << endl;
-#endif // DEBUG
+	Client *client = NULL;
 
-	if (client) {
-		if (client == m_focused_client) {
-#ifdef DEBUG
- 			cerr << __FILE__ << "@" << __LINE__ << ": "
- 					 << client << " allready has focus!" << endl;
-#endif // DEBUG
-			return;
-		}
-
-		// unfocus the focused client if it isn't the same as c
-		if (m_focused_client && (m_focused_client != client)) {
-			m_focused_client->setFocus();
-		}
-
-		m_focused_client = client;
-
-		if (m_focused_client->isIconified())
-			m_focused_client->unhide();
-
- 		XSetInputFocus(m_screen->getDisplay(), client->getWindow(),
- 									 RevertToPointerRoot, CurrentTime);
-		setExtendedNetActiveWindow(client->getWindow());
-
-	} else { // no client, lets focus the root
-		vector<Client*>::iterator it =
-			find(m_client_list.begin(), m_client_list.end(), m_focused_client);
-
-		m_focused_client = NULL;
-
-		if (it != m_client_list.end())
-			(*it)->setFocus();
-
-		focusGnomeHintWin();
-		setExtendedNetActiveWindow(None);
+	if (win != None) {
+		client = findClient(win);
+		if (client && !client->isHidden())
+			client = client->getFrame()->getActiveClient();
+		else
+			client = NULL;
 	}
+
+	if (!client) {
+		client = m_workspaces->getLastFocusedClient(m_active_workspace);
+
+		if (client) {
+			vector<Client*>::iterator it =
+				find(m_client_list.begin(), m_client_list.end(), client);
+
+			if (it == m_client_list.end() || client->isHidden() ||
+					!client->isSticky() &&
+					(client->onWorkspace() != signed(m_active_workspace))) {
+				client = NULL;
+			}
+		}
+
+		if (!client) {
+			client = m_workspaces->getTopClient(m_active_workspace);
+			if (client && client->isHidden()) {
+				client = NULL;
+			}
+		}
+	}
+
+	if (client)
+		client->giveInputFocus();
 }
 
 //! @fn    void getMousePosition(int *x, int *y)
@@ -1018,7 +1074,7 @@ WindowManager::focusNextFrame(void)
 
 	Client *client_to_focus = NULL;
 
-	if (m_focused_client) {
+	if (!client_to_focus && m_focused_client) {
 		list<Client*>::iterator it =
 			find(clients->begin(), clients->end(), m_focused_client);
 
@@ -1050,7 +1106,7 @@ WindowManager::focusNextFrame(void)
 
 	if (client_to_focus) {
 		client_to_focus->getFrame()->raise();
-		focusClient(client_to_focus);
+		client_to_focus->giveInputFocus();
 	}
 }
 
@@ -1077,25 +1133,27 @@ WindowManager::findClientFromWindow(Window w)
 //! @brief Activates Workspace workspace and sets the right hints
 //! @param workspace Workspace to activate
 void
-WindowManager::setWorkspace(unsigned int workspace)
+WindowManager::setWorkspace(unsigned int workspace, bool focus)
 {
 	if ((workspace == m_active_workspace) ||
 			(workspace >= m_workspaces->getNumWorkspaces()))
 		return;
 
-	// tell the workspace about it so that it can keep track when changing
-	// workspace
+	XGrabServer(dpy);
+
 	m_workspaces->setLastFocusedClient(m_focused_client, m_active_workspace);
+	if (m_focused_client) {
+		m_focused_client->setFocus(false);
+		m_focused_client = NULL;
+	}
+
+	setExtendedWMHint(root, m_ewmh_atoms->net_current_desktop, workspace);
+	m_workspaces->activate(workspace, focus);
 
 	m_active_workspace = workspace;
 
-	setGnomeHint(root, m_gnome_atoms->win_workspace, workspace);
-	setExtendedWMHint(root, m_ewmh_atoms->net_current_desktop, workspace);
-
-	if (m_focused_client)
-		focusClient(NULL); // make sure no client is focused
-
-	m_workspaces->activate(m_active_workspace);
+	XSync(dpy, false);
+	XUngrabServer(dpy);
 }
 
 void
@@ -1108,7 +1166,7 @@ WindowManager::setNumWorkspaces(unsigned int num)
 
 	// We don't want to be on a non existing workspace
 	if (num <= m_active_workspace)
-		setWorkspace(num - 1);
+		setWorkspace(num - 1, true);
 
 	// TO-DO: activate the new active workspace once again, to make sure
 	// all clients are visible
@@ -1157,20 +1215,18 @@ WindowManager::findTransientsToMapOrUnmap(Window win, bool hide)
 		return;
 
 	vector<Client*>::iterator it = m_client_list.begin();
-	for(; it != m_client_list.end(); ++it) {
-		if((*it)->getTransientWindow() == win) {
-			if(hide) {
-				if(!(*it)->isIconified()) {
+	for (; it != m_client_list.end(); ++it) {
+		if ((*it)->getTransientWindow() == win) {
+			if (hide) {
+				if (!(*it)->isIconified()) {
 					(*it)->iconify();
 				}
-			} else {
-				if((*it)->isIconified()) {
-					if ((*it)->onWorkspace() != (signed) m_active_workspace) {
-						(*it)->setWorkspace(m_active_workspace);
-					}
-
-					(*it)->unhide();
+			} else if((*it)->isIconified()) {
+				if ((*it)->onWorkspace() != (signed) m_active_workspace) {
+					(*it)->setWorkspace(m_active_workspace);
 				}
+
+				(*it)->getFrame()->unhideClient((*it));
 			}
 		}
 	}
@@ -1183,26 +1239,13 @@ WindowManager::removeFromClientList(Client *client)
 		return;
 
 	if (client == m_focused_client)
-		focusClient(NULL);
+		m_focused_client = NULL;
 
 	vector<Client*>::iterator it =
 		find(m_client_list.begin(), m_client_list.end(), client);
 
 	if (it != m_client_list.end())
 		m_client_list.erase(it);
-}
-
-void
-WindowManager::removeFromFrameList(Frame *f)
-{
-	if (!m_frame_list.size())
-		return;
-
-	vector<Frame*>::iterator it =
-		find(m_frame_list.begin(), m_frame_list.end(), f);
-
-	if (it != m_frame_list.end())
-		m_frame_list.erase(it);
 }
 
 void
@@ -1220,13 +1263,13 @@ WindowManager::addStrut(Strut *strut)
 
 		if(m_master_strut->west < (*it)->west)
 			m_master_strut->west = (*it)->west;
-			
+
 		if(m_master_strut->north < (*it)->north)
 			m_master_strut->north = (*it)->north;
 
 		if(m_master_strut->south < (*it)->south)
 			m_master_strut->south = (*it)->south;
-	} 
+	}
 
 	setExtendedNetWorkArea();
 }
@@ -1247,7 +1290,7 @@ WindowManager::removeStrut(Strut *strut)
 
 	m_master_strut->east = 0;
 	m_master_strut->west = 0;
-	m_master_strut->north = 0;	
+	m_master_strut->north = 0;
 	m_master_strut->south = 0;
 
 	if(m_strut_list.size()) {
@@ -1319,7 +1362,7 @@ WindowManager::findGroup(const AutoProps::ClassHint &class_hint,
 
 	Client *client;
 
-	vector<Frame*>::iterator it = m_frame_list.begin();
+	list<Frame*>::iterator it = m_frame_list.begin();
 	for (; it != m_frame_list.end(); ++it) {
 		client = (*it)->getActiveClient(); // convinience
 
@@ -1371,7 +1414,7 @@ WindowManager::drawInStatusWindow(const std::string &text, int x, int y)
 	if ((x == -1) && (y == -1)) {
 #ifdef XINERAMA
 		ScreenInfo::HeadInfo head;
-		unsigned int head_nr = 0; 
+		unsigned int head_nr = 0;
 
 		if (m_screen->hasXinerama())
 			head_nr = m_screen->getCurrHead();
@@ -1399,33 +1442,8 @@ WindowManager::drawInStatusWindow(const std::string &text, int x, int y)
 void
 WindowManager::initHints(void)
 {
- 	// Motif hints
+	// Motif hints
 	m_atom_mwm_hints = XInternAtom(dpy, "_MOTIF_WM_HINTS", False);
-
-	// Set up GNOME properties
-	m_gnome_hint_win = XCreateSimpleWindow(dpy, m_screen->getRoot(),
-																					-200, -200, 5, 5, 0, 0, 0);
-
-	XChangeProperty(dpy, m_gnome_hint_win,
-									m_gnome_atoms->win_desktop_button_proxy, XA_CARDINAL, 32,
-									PropModeReplace,
-									(unsigned char *) &m_gnome_hint_win, 1);
-
-	setGnomeHint(m_screen->getRoot(), m_gnome_atoms->win_supporting_wm_check,
-							 m_gnome_hint_win);
-	setGnomeHint(m_gnome_hint_win, m_gnome_atoms->win_supporting_wm_check,
-							 m_gnome_hint_win);
-
-	setGnomeProtocols();
-
-	setGnomeHint(m_gnome_hint_win, m_gnome_atoms->win_desktop_button_proxy,
-							 m_gnome_hint_win);
-	setGnomeHint(m_screen->getRoot(), m_gnome_atoms->win_desktop_button_proxy,
-							 m_gnome_hint_win); 
-	setGnomeHint(m_screen->getRoot(), m_gnome_atoms->win_workspace_count,
-							 m_config->getNumWorkspaces());
-	setGnomeHint(m_screen->getRoot(), m_gnome_atoms->win_workspace, 0); 
-
 
 	// Setup Extended Net WM hints
 	m_extended_hints_win = XCreateSimpleWindow(dpy, m_screen->getRoot(),
@@ -1436,7 +1454,6 @@ WindowManager::initHints(void)
 
 	XChangeWindowAttributes(dpy, m_extended_hints_win,
 													CWOverrideRedirect, &pattr);
-	XChangeWindowAttributes(dpy, m_gnome_hint_win, CWOverrideRedirect, &pattr);
 
 	setExtendedWMHintString(m_extended_hints_win, m_ewmh_atoms->net_wm_name,
 													m_wm_name);
@@ -1445,84 +1462,34 @@ WindowManager::initHints(void)
 										m_extended_hints_win);
 	setExtendedWMHint(m_screen->getRoot(),
 										m_ewmh_atoms->net_supporting_wm_check,
-										m_extended_hints_win); 
+										m_extended_hints_win);
 
 	setExtendedNetSupported();
 	setExtendedWMHint(m_screen->getRoot(), m_ewmh_atoms->net_number_of_desktops,
-										m_config->getNumWorkspaces());
+										m_config->getWorkspaces());
 	setExtendedNetDesktopGeometry();
 	setExtendedNetDesktopViewport();
 	setExtendedWMHint(m_screen->getRoot(), m_ewmh_atoms->net_current_desktop, 0);
 }
 
-void
-WindowManager::setGnomeProtocols(void)
-{
-	Atom gnome_protocols[4];
-
-	gnome_protocols[0] = m_gnome_atoms->win_state;
-	gnome_protocols[1] = m_gnome_atoms->win_hints;
-	gnome_protocols[2] = m_gnome_atoms->win_workspace;
-	gnome_protocols[3] = m_gnome_atoms->win_workspace_count;
-  
-	XChangeProperty(dpy, m_screen->getRoot(), m_gnome_atoms->win_protocols,
-									XA_ATOM, 32, PropModeReplace,
-									(unsigned char *) gnome_protocols, 4);
-}
-
-void
-WindowManager::focusGnomeHintWin(void)
-{
-	XSetInputFocus(dpy, m_gnome_hint_win, RevertToNone, CurrentTime);
-}
-
-void
-WindowManager::setGnomeHint(Window w, int a, long value) 
-{ 
-	XChangeProperty(dpy, w, a, XA_CARDINAL, 32,
-									PropModeReplace, (unsigned char *)&value, 1); 
-} 
- 
 long
-WindowManager::getHint(Window w, int a) 
-{ 
-	Atom real_type; 
-	int real_format; 
-	unsigned long items_read, items_left; 
-	long *data=NULL, value=0; 
- 
-	if(XGetWindowProperty(dpy, w, a, 0L, 1L, False, 
-												XA_CARDINAL, &real_type, 
-												&real_format, &items_read, 
-												&items_left, 
-												(unsigned char **)&data)==Success && items_read) { 
+WindowManager::getHint(Window w, int a)
+{
+	Atom real_type;
+	int real_format;
+	unsigned long items_read, items_left;
+	long *data=NULL, value=0;
+
+	if(XGetWindowProperty(dpy, w, a, 0L, 1L, False,
+												XA_CARDINAL, &real_type,
+												&real_format, &items_read,
+												&items_left,
+												(unsigned char **)&data)==Success && items_read) {
 		value = *data;
-		XFree(data); 
-	}
-	
-	return value; 
-}
-
-bool
-WindowManager::getGnomeLayer(Window w, unsigned int &layer) 
-{ 
-	Atom real_type; 
-	int real_format; 
-	unsigned long items_read, items_left; 
-	long *data = NULL; 
- 
-	if(XGetWindowProperty(dpy, w, m_gnome_atoms->win_layer, 0L, 1L, False, 
-												XA_CARDINAL, &real_type, 
-												&real_format, &items_read, 
-												&items_left, 
-												(unsigned char **)&data)==Success && items_read) { 
-		layer = *data; 
 		XFree(data);
-
-		return true;
 	}
-	
-	return false;
+
+	return value;
 }
 
 int
@@ -1543,16 +1510,16 @@ WindowManager::sendExtendedHintMessage(Window w, Atom a,
 	//e.xclient.data.l[3] = data[3];
 	//e.xclient.data.l[4] = data[4];
 
-	return XSendEvent(dpy, w, False, 
+	return XSendEvent(dpy, w, False,
 										SubstructureNotifyMask|SubstructureRedirectMask, &e);
 }
 
 void
 WindowManager::setExtendedWMHint(Window w, int a, long value)
-{ 
+{
 	XChangeProperty(dpy, w, a, XA_CARDINAL, 32,
-									PropModeReplace, (unsigned char *)&value, 1); 
-} 
+									PropModeReplace, (unsigned char *)&value, 1);
+}
 
 void
 WindowManager::setExtendedWMHintString(Window w, int a, char* value)
@@ -1561,39 +1528,29 @@ WindowManager::setExtendedWMHintString(Window w, int a, char* value)
 									PropModeReplace, (unsigned char*) value, strlen (value));
 }
 
-// Borrowed from:
-// http://capderec.udg.es:81/ebt-bin/nph-dweb/dynaweb/SGI_Developer/XLib_PG/%40Generic__BookTextView/45827
-Status
-WindowManager::getExtendedWMHintString(Window w, int a, char** name)
+bool
+WindowManager::getExtendedWMHintString(Window w, int a, string &name)
 {
 	Atom actual_type;
 	int actual_format;
-	unsigned long nitems;
-	unsigned long leftover;
+	unsigned long nitems, leftover;
 	unsigned char *data = NULL;
-    
-	if (XGetWindowProperty(dpy, w, a, 0L, (long)BUFSIZ,
-												 False, XA_STRING, &actual_type, &actual_format,
-												 &nitems, &leftover, &data) != Success) {
-		*name = NULL;
-		return (0);
+
+	int status =
+		XGetWindowProperty(dpy, w, a, 0L, (long)BUFSIZ,
+											 False, XA_STRING, &actual_type, &actual_format,
+											 &nitems, &leftover, &data);
+
+	if (status != Success)
+		return false;
+
+	if ((actual_type == XA_STRING) && (actual_format == 8)) {
+		name = (char*) data;
+		XFree((char*) data);
 	}
 
-	if ( (actual_type == XA_STRING) && (actual_format == 8) ) {
-		// The data returned by XGetWindowProperty is guaranteed
-		// to contain one extra byte that is null terminated to
-		// make retrieving string properties easy
-		*name = (char *)data;
-	
-		return(1);
-	}
-
-	if (data) {
-		XFree ((char *)data);
-	}
-
-	*name = NULL;
-	return(0);
+	XFree((char*) data);
+	return false;
 }
 
 void*
@@ -1623,11 +1580,11 @@ bool
 WindowManager::getExtendedNetWMStates(Window win, NetWMStates &win_state)
 {
 	int num = 0;
- 	Atom* states;
- 	states = (Atom*)
+	Atom* states;
+	states = (Atom*)
 		getExtendedNetPropertyData(win, m_ewmh_atoms->net_wm_state, XA_ATOM, &num);
 
- 	if (states) {
+	if (states) {
 		if (states[0] == m_ewmh_atoms->net_wm_state_modal)
 			win_state.modal=true;
 		if (states[1] == m_ewmh_atoms->net_wm_state_sticky)
@@ -1667,25 +1624,25 @@ WindowManager::setExtendedNetWMState(Window win,
 	for (unsigned int i = 0; i < NET_WM_MAX_STATES; ++i)
 		m_net_wm_states[i] = 0;
 
-	if (modal) 	
+	if (modal)
 		m_net_wm_states[0] = m_ewmh_atoms->net_wm_state_modal;
-	if (sticky) 	
+	if (sticky)
 		m_net_wm_states[1] = m_ewmh_atoms->net_wm_state_sticky;
-	if (max_vert)	
+	if (max_vert)
 		m_net_wm_states[2] = m_ewmh_atoms->net_wm_state_maximized_vert;
-	if (max_horz)	
+	if (max_horz)
 		m_net_wm_states[3] = m_ewmh_atoms->net_wm_state_maximized_horz;
-	if (shaded)	
+	if (shaded)
 		m_net_wm_states[4] = m_ewmh_atoms->net_wm_state_shaded;
-	if (skip_taskbar) 
+	if (skip_taskbar)
 		m_net_wm_states[5] = m_ewmh_atoms->net_wm_state_skip_taskbar;
-	if (skip_pager)	
+	if (skip_pager)
 		m_net_wm_states[6] = m_ewmh_atoms->net_wm_state_skip_pager;
 	if (hidden)
 		m_net_wm_states[7] = m_ewmh_atoms->net_wm_state_hidden;
 	if (fullscreen)
 		m_net_wm_states[8] = m_ewmh_atoms->net_wm_state_fullscreen;
-	
+
 	XChangeProperty(dpy, win, m_ewmh_atoms->net_wm_state, XA_ATOM,
 									32, PropModeReplace, (unsigned char *) m_net_wm_states,
 									NET_WM_MAX_STATES);
@@ -1741,7 +1698,7 @@ WindowManager::setExtendedNetSupported(void)
 		//atom_extended_net_wm_handled_icons,
 		//atom_extended_net_wm_ping
 	};
-	
+
 	XChangeProperty(dpy, m_screen->getRoot(), m_ewmh_atoms->net_supported,
 									XA_CARDINAL, 32, PropModeReplace,
 									(unsigned char *)net_supported_list, total_net_supported);
@@ -1752,7 +1709,7 @@ WindowManager::setExtendedNetDesktopGeometry(void)
 
 {
 	CARD32 geometry[] = { m_screen->getWidth(), m_screen->getHeight() };
-	
+
 	XChangeProperty(dpy, m_screen->getRoot(),
 									m_ewmh_atoms->net_desktop_geometry, XA_CARDINAL, 32,
 									PropModeReplace, (unsigned char *)geometry, 2);
@@ -1762,7 +1719,7 @@ void
 WindowManager::setExtendedNetDesktopViewport(void)
 {
 	CARD32 viewport[] = { 0, 0 };
-	
+
 	XChangeProperty(dpy, m_screen->getRoot(),
 									m_ewmh_atoms->net_desktop_viewport, XA_CARDINAL, 32,
 									PropModeReplace, (unsigned char *)viewport, 2);
@@ -1772,7 +1729,7 @@ void
 WindowManager::setExtendedNetActiveWindow(Window w)
 {
 	XChangeProperty(dpy, m_screen->getRoot(), m_ewmh_atoms->net_active_window,
-									XA_WINDOW, 32, PropModeReplace, (unsigned char *) &w, 1); 
+									XA_WINDOW, 32, PropModeReplace, (unsigned char *) &w, 1);
 }
 
 void
@@ -1786,7 +1743,7 @@ WindowManager::setExtendedNetWorkArea(void)
 	work_height = m_screen->getHeight() - m_master_strut->south - work_y;
 
 	CARD32 workarea[] = { work_x, work_y, work_width, work_height };
-		
+
 	XChangeProperty(dpy, m_screen->getRoot(), m_ewmh_atoms->net_workarea,
 									XA_CARDINAL, 32, PropModeReplace,
 									(unsigned char *)workarea, 4);
@@ -1801,27 +1758,6 @@ int
 WindowManager::findDesktopHint(Window win)
 {
 	int desktop = -1;
-
-	desktop = getDesktopHint(win, m_ewmh_atoms->net_wm_desktop);
-	if (desktop == -1) {
-		desktop = getDesktopHint(win, m_gnome_atoms->win_workspace);
-	}
-
-	return desktop;
-}
-
-int
-WindowManager::findGnomeDesktopHint(Window win)
-{
-	int desktop = -1;
-	desktop = getDesktopHint(win, m_gnome_atoms->win_workspace);
-	return desktop;
-}
-
-int
-WindowManager::findExtendedDesktopHint(Window win)
-{
-	int desktop = -1;
 	desktop = getDesktopHint(win, m_ewmh_atoms->net_wm_desktop);
 	return desktop;
 }
@@ -1829,25 +1765,17 @@ WindowManager::findExtendedDesktopHint(Window win)
 long
 WindowManager::getDesktopHint(Window win, int a)
 {
-	Atom real_type; 
-	int real_format; 
-	unsigned long items_read, items_left; 
-	long *data=NULL, value=-1; 
- 
-	if(XGetWindowProperty(dpy, win, a, 0L, 1L, False, XA_CARDINAL, &real_type, 
-												&real_format, &items_read, &items_left, 
-												(unsigned char **)&data)==Success && items_read) { 
+	Atom real_type;
+	int real_format;
+	unsigned long items_read, items_left;
+	long *data=NULL, value=-1;
+
+	if(XGetWindowProperty(dpy, win, a, 0L, 1L, False, XA_CARDINAL, &real_type,
+												&real_format, &items_read, &items_left,
+												(unsigned char **)&data)==Success && items_read) {
 		value=*data;
-		XFree(data); 
+		XFree(data);
 	}
 
 	return value;
-}
-
-void
-WindowManager::sendGnomeHintWinEvent(XEvent* ev)
-{
-	XUngrabPointer(dpy, CurrentTime);
-	XSendEvent(dpy, m_gnome_hint_win,
-						 False, SubstructureNotifyMask, ev);
 }

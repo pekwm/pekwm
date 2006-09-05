@@ -21,12 +21,11 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
- 
+
 #include "client.hh"
 #include "frame.hh"
 #include "windowmanager.hh"
 
-#include <iterator>
 #include <X11/Xatom.h>
 
 #ifdef DEBUG
@@ -37,7 +36,6 @@ using std::endl;
 
 using std::vector;
 using std::list;
-using std::back_insert_iterator;
 
 const int NET_WM_STATE_REMOVE = 0; // remove/unset property
 const int NET_WM_STATE_ADD = 1; // add/set property
@@ -50,7 +48,6 @@ Client::Client(WindowManager *w, Window new_client) :
 wm(w),
 m_window(new_client), m_trans(None),
 m_frame(NULL),
-m_name(NULL), m_icon_name(NULL),
 m_x(0), m_y(0), m_width(1), m_height(1),
 m_has_focus(false), m_has_titlebar(true), m_has_border(true),
 m_is_shaded(false), m_is_iconified(false), m_is_maximized(false),
@@ -72,7 +69,7 @@ m_is_alive(true)
 	// if this is set, then we found a group to auto-insert this client in
 	if (m_frame) {
 		m_frame->insertClient(this, true);
-	} else { 	// we now have a client, let's give it a frame
+	} else {	// we now have a client, let's give it a frame
 		m_frame = new Frame(wm, this);
 	}
 
@@ -84,7 +81,7 @@ m_is_alive(true)
 	// to get the correct stacking
 	if (m_win_layer < WIN_LAYER_NORMAL)
 		m_frame->lower();
-	else 
+	else
 		m_frame->raise();
 
 	// finished creating the client, so now adding it to the client list
@@ -110,9 +107,12 @@ Client::~Client()
 	wm->removeFromClientList(this);
 	m_frame->removeClient(this);
 
-	// Focus the parent
-	if(m_trans)
-		wm->focusClient(wm->findClientFromWindow(m_trans));
+	// Focus the parent if we had focus before
+	if(m_has_focus && m_trans) {
+		Client *parent = wm->findClientFromWindow(m_trans);
+		if (parent)
+			parent->giveInputFocus();
+	}
 
 	// Clean up if the client still is alive, it'll be dead all times
 	// except when we exit pekwm
@@ -130,10 +130,6 @@ Client::~Client()
 	}
 
 	// free names and size hint
-	if (m_name)
-		XFree(m_name);
-	if (m_icon_name)
-		XFree(m_icon_name);
 	if (m_size)
 		XFree(m_size);
 
@@ -156,7 +152,7 @@ Client::~Client()
 // client was already mapped but has Iconic State set (for instance,
 // when we are the second window manager in a session).  That's
 // because there's one for the re-parent (which happens on all viewable
-// windows) and then another for the unmapping itself. 
+// windows) and then another for the unmapping itself.
 void
 Client::constructClient(void)
 {
@@ -251,13 +247,22 @@ Client::constructClient(void)
 		}
 	}
 
+	// Load the Class hint before loading the autoprops
+	XClassHint class_hint;
+	if (XGetClassHint(dpy, m_window, &class_hint)) {
+		m_class_hint.setName(class_hint.res_name);
+		m_class_hint.setClass(class_hint.res_class);
+		XFree(class_hint.res_name);
+		XFree(class_hint.res_class);
+	}
+
 	if (attr.map_state == IsViewable) {
 		//TO-DO: Hmm, I don't have a frame...
 		m_x -= m_has_border
-			? wm->getTheme()->getBorderUnfocusData()[BORDER_LEFT]->getWidth()
+			? wm->getTheme()->getWinUnfocusedBorder()[BORDER_LEFT]->getWidth()
 			: 0;
 		m_y -= m_has_border
-			? wm->getTheme()->getBorderUnfocusData()[BORDER_TOP]->getHeight()
+			? wm->getTheme()->getWinUnfocusedBorder()[BORDER_TOP]->getHeight()
 			: 0;
 
 		loadAutoProps(AutoProps::APPLY_ON_START);
@@ -295,11 +300,11 @@ Client::constructClient(void)
 	wm->getKeys()->grabKeys(m_window);
 #endif // KEYS
 
-	vector<MouseButtonAction> *actions =
-		wm->getConfig()->getClientClickList();
-	vector<MouseButtonAction>::iterator it = actions->begin();
+	list<MouseButtonAction> *actions =
+		wm->getConfig()->getMouseClientList();
+	list<MouseButtonAction>::iterator it = actions->begin();
 	for (; it != actions->end(); ++it) {
-		if (it->type == BUTTON_CLIENT_SINGLE) {
+		if (it->type == BUTTON_SINGLE) {
 			// No need to grab mod less events, replied with the frame
 			if (!it->mod)
 				continue;
@@ -307,7 +312,7 @@ Client::constructClient(void)
 			grabButton(it->button, it->mod,
 								 ButtonPressMask|ButtonReleaseMask,
 								 m_window, None);
-		} else if (it->type == BUTTON_CLIENT_MOTION) {
+		} else if (it->type == BUTTON_MOTION) {
 			grabButton(it->button, it->mod,
 								 ButtonPressMask|ButtonReleaseMask|ButtonMotionMask,
 								 m_window, None);
@@ -326,10 +331,8 @@ Client::initHintProperties(void)
 	// which workspace do we belong to?
 	if ((m_on_workspace = wm->findDesktopHint(m_window)) == -1) {
 		m_on_workspace = wm->getActiveWorkspace();
+		wm->setExtendedWMHint(m_window, ewmh->net_wm_desktop, m_on_workspace);
 	}
-	wm->setGnomeHint(m_window, wm->getGnomeAtoms()->win_workspace,
-									 m_on_workspace); 
-	wm->setExtendedWMHint(m_window, ewmh->net_wm_desktop, m_on_workspace);
 
 	NetWMStates win_states;
 	wm->getExtendedNetWMStates(m_window, win_states);
@@ -345,19 +348,6 @@ Client::initHintProperties(void)
 	if (win_states.skip_pager) m_skip_pager = true;
 	if (win_states.hidden) m_is_iconified = true;
 	// TO-DO: Add support for net_wm_state_fullscreen
-
-	if (!m_is_sticky &&
-			wm->getHint(m_window, wm->getGnomeAtoms()->win_state)&WIN_STATE_STICKY) {
-
- 		m_is_sticky = true;
-		wm->getWorkspaces()->stickClient(this);
- 	}
-	if (wm->getHint(m_window,
-									wm->getGnomeAtoms()->win_hints)&WIN_HINTS_DO_NOT_COVER) {
-		m_win_layer = WIN_LAYER_ONTOP;
-	}
-
-	wm->getGnomeLayer(m_window, m_win_layer);
 
 	// Do we want a strut?
 	int num = 0;
@@ -441,7 +431,7 @@ Client::initHintProperties(void)
 		if (!found_window_type) {
 			Atom type = ewmh->net_wm_window_type_normal;
 			XChangeProperty(dpy, m_window, ewmh->net_wm_window_type, XA_ATOM, 32,
-											PropModeReplace, (unsigned char *) &type, 1); 
+											PropModeReplace, (unsigned char *) &type, 1);
 		}
 
 
@@ -449,132 +439,107 @@ Client::initHintProperties(void)
 	} else {
 		Atom type = ewmh->net_wm_window_type_normal;
 		XChangeProperty(dpy, m_window, ewmh->net_wm_window_type, XA_ATOM, 32,
-										PropModeReplace, (unsigned char *) &type, 1); 
+										PropModeReplace, (unsigned char *) &type, 1);
 	}
 }
 
+//! @fn    void loadAutoProps(int type)
+//! @brief Tries to find a AutoProp for the current client.
 void
 Client::loadAutoProps(int type)
 {
-	XClassHint class_hint;
-	if (XGetClassHint(dpy, m_window, &class_hint)) {
-		m_class_hint.setName(class_hint.res_name);
-		m_class_hint.setClass(class_hint.res_class);
-		XFree(class_hint.res_name);
-		XFree(class_hint.res_class);
+	if (!m_class_hint.getName().size())
+		return; // we don't have  a property name to match against
 
-		AutoProps::AutoPropData *data = NULL;
+	AutoProps::AutoPropData *data =
+		wm->getAutoProps()->getAutoProp(m_class_hint, m_on_workspace, type);
 
-		if ((data = wm->getAutoProps()->getAutoProp(m_class_hint,
-																								m_on_workspace, type))) {
-			if (m_trans && data->applyOnTransient() && !data->apply_on_transient)
-				return;
+	if (!data)
+		return; // no property matching
 
-			// Set the correct group of the window
-			m_class_hint.setGroup(data->class_hint.getGroup());
+	if (m_trans && data->applyOnTransient() && !data->apply_on_transient)
+		return; // don't apply on transient
 
-			// We only apply grouping if it's a new client or if we are restarting
-			// and have APPLY_ON_START set
-			if ((type == -1) || (type == AutoProps::APPLY_ON_START)) {
-				if (data->setSticky()) {
-					if (m_is_sticky && !data->sticky) {
-						m_is_sticky = false;
-						wm->getWorkspaces()->unstickClient(this);
-					} else if (!m_is_sticky && data->sticky) {
-						m_is_sticky = true;
-						wm->getWorkspaces()->stickClient(this);
-					}
-				}
-				if (data->setShaded()) m_is_shaded = data->shaded;
-				if (data->setMaximizedVertical())
-					m_is_maximized_vertical = data->maximized_vertical;
-				if (data->setMaximizedHorizontal())
-					m_is_maximized_horizontal = data->maximized_horizontal;
-				if (data->setIconified()) m_is_iconified = data->iconified;
-				if (data->setBorder()) m_has_border = data->border;
-				if (data->setTitlebar()) m_has_titlebar = data->titlebar;
-				if (data->setPosition()) {
-					m_x = data->x;
-					m_y = data->y;
-				}
-				if (data->setSize()) {
-					m_width = data->width;
-					m_height = data->height;
-				}
-				if (data->setLayer() && (data->layer <= WIN_LAYER_MENU)) {
-					m_win_layer = data->layer;
-				}
-				if (data->setDesktop()) {
-					if (data->desktop < wm->getWorkspaces()->getNumWorkspaces()) {
-						// no need to do anything about this here, it'll be set later
-						// in constructClient
-						m_on_workspace = data->desktop;
-					}
-				}
+	// Set the correct group of the window
+	m_class_hint.setGroup(data->class_hint.getGroup());
 
-				if (data->autoGroup() && (data->auto_group> 1)) {
-					m_frame = wm->findGroup(m_class_hint,
-																	m_on_workspace, data->auto_group);
-				}
-
-				// if we are reloading or switching workspace we handle the properties
-				// in another way. some properties such as size will only be applied
-				// if the client are the active one in the frame.
-			} else if ((type == AutoProps::APPLY_ON_RELOAD) ||
-								 (type == AutoProps::APPLY_ON_WORKSPACE_CHANGE)) {
-
-				if (data->setSticky()) {
-					if (m_is_sticky != data->sticky)
-						stick();
-				}
-				if (data->setIconified()) {
-					if (m_is_iconified && !data->iconified) {
-						unhide();
-					} else if (!m_is_iconified && data->iconified) {
-						iconify();
-					}
-				}
-
-				if (data->setDesktop()) {
-					if (m_on_workspace != (signed) data->desktop) {
-						setWorkspace(data->desktop);
-					}
-				}
-
-				if (this == m_frame->getActiveClient()) {
-					if (data->setShaded()) {
-						if (m_is_shaded != data->shaded) {
-							m_frame->shade();
-						}
-					}
-
-					// TO-DO: Do some restacking!
-					if (data->setLayer() && (data->layer <= WIN_LAYER_MENU)) {
-						m_win_layer = data->layer;
-					}
-					
-					if (data->setPosition()) {
-						m_frame->updateFramePosition(data->x, data->y);
-						m_frame->updateClientPosition();
-					}
-					if (data->setSize()) {
-						m_frame->updateFrameSize(data->width, data->height);
-						m_frame->updateClientGeometry();
-					}
-					if (data->setBorder()) {
-						if (m_has_border != data->border) {
-							m_has_border = data->border;
-							m_frame->setBorder();
-						}
-					}
-					if (data->setTitlebar()) {
-						if (m_has_titlebar != data->titlebar) {
-							m_has_titlebar = data->titlebar;
-							m_frame->setTitlebar();
-						}
-					}
-				}
+	// We only apply grouping if it's a new client or if we are restarting
+	// and have APPLY_ON_START set
+	if ((type == -1) || (type == AutoProps::APPLY_ON_START)) {
+		if (data->setSticky() && (m_is_sticky != data->sticky)) {
+			m_is_sticky = m_is_sticky ? false : true;
+			if (m_is_sticky)
+				wm->getWorkspaces()->stickClient(this);
+			else
+				wm->getWorkspaces()->unstickClient(this);
+		}
+		if (data->setShaded()) m_is_shaded = data->shaded;
+		if (data->setMaximizedVertical())
+			m_is_maximized_vertical = data->maximized_vertical;
+		if (data->setMaximizedHorizontal())
+			m_is_maximized_horizontal = data->maximized_horizontal;
+		if (data->setIconified()) m_is_iconified = data->iconified;
+		if (data->setBorder()) m_has_border = data->border;
+		if (data->setTitlebar()) m_has_titlebar = data->titlebar;
+		if (data->setPosition()) {
+			m_x = data->x;
+			m_y = data->y;
+		}
+		if (data->setSize()) {
+			m_width = data->width;
+			m_height = data->height;
+		}
+		if (data->setLayer() && (data->layer <= WIN_LAYER_MENU)) {
+			m_win_layer = data->layer;
+		}
+		if (data->setWorkspace()) {
+			if (data->workspace < wm->getWorkspaces()->getNumWorkspaces()) {
+				// no need to do anything about this here, it'll be set later
+				// in constructClient
+				m_on_workspace = data->workspace;
 			}
+		}
+		if (data->autoGroup() && (data->auto_group> 1)) {
+			m_frame = wm->findGroup(m_class_hint, m_on_workspace, data->auto_group);
+		}
+
+		// if we are reloading or switching workspace we handle the properties
+		// in another way. some properties such as size will only be applied
+		// if the client are the active one in the frame.
+	} else if ((type == AutoProps::APPLY_ON_RELOAD) ||
+						 (type == AutoProps::APPLY_ON_WORKSPACE_CHANGE)) {
+
+		if (data->setSticky() && (m_is_sticky != data->sticky))
+			stick();
+		if (data->setIconified() && (m_is_iconified != data->iconified)) {
+			if (m_is_iconified)
+				m_frame->unhideClient(this);
+			else
+				iconify();
+		}
+		if (data->setWorkspace() && (m_on_workspace != signed(data->workspace)))
+			setWorkspace(data->workspace);
+
+		// Some stuff we only care about if we are the active client
+		if (this == m_frame->getActiveClient()) {
+			if (data->setShaded() && (m_is_shaded != data->shaded))
+				m_frame->shade();
+			if (data->setLayer() && (data->layer <= WIN_LAYER_MENU)) {
+				m_win_layer = data->layer;
+				m_frame->raise(); // to do some restacking
+			}
+			if (data->setPosition()) {
+				m_frame->updateFramePosition(data->x, data->y);
+				m_frame->updateClientPosition();
+			}
+			if (data->setSize()) {
+				m_frame->updateFrameSize(data->width, data->height);
+				m_frame->updateClientGeometry();
+			}
+			if (data->setBorder() && (m_has_border != data->border))
+				toggleBorder();
+			if (data->setTitlebar() && (m_has_titlebar != data->titlebar))
+				toggleTitlebar();
 		}
 	}
 }
@@ -611,41 +576,33 @@ Client::placeSmart(void)
 	// settings
 	bool placed = false, increase = false;
 	int	step_x = 1, step_y = 1;
-	unsigned int brdr_lr =
-		wm->getTheme()->getBorderFocusData()[BORDER_LEFT]->getWidth() +
-		wm->getTheme()->getBorderFocusData()[BORDER_RIGHT]->getWidth();
-	unsigned int brdr_tb =
-		wm->getTheme()->getBorderFocusData()[BORDER_TOP]->getHeight()+
-		wm->getTheme()->getBorderFocusData()[BORDER_BOTTOM]->getHeight();
 
-	unsigned int win_w = m_width + brdr_lr;
-	unsigned int win_h = m_height + brdr_tb + calcTitleHeight();
+	unsigned int brdr_tb =
+		wm->getTheme()->getWinUnfocusedBorder()[BORDER_TOP]->getHeight()+
+		wm->getTheme()->getWinUnfocusedBorder()[BORDER_BOTTOM]->getHeight();
+
+	unsigned int win_w, win_h;
+	getFrameSize(win_w, win_h);
 
 	// we create a list of all clients on the workspace, including the sticky
 	// ones. so that the testing code hopefully will becom a bit cleaner
-	list<Client*> client_list;
-	copy(wm->getWorkspaces()->getClientList(m_on_workspace)->begin(),
-			 wm->getWorkspaces()->getClientList(m_on_workspace)->end(),
-			 back_insert_iterator<list<Client*> > (client_list));
-	copy(wm->getWorkspaces()->getStickyClientList()->begin(),
-			 wm->getWorkspaces()->getStickyClientList()->end(),
-			 back_insert_iterator<list<Client*> > (client_list));
-
-	list<Client*>::iterator it;
+	list<Client*>
+		client_list(wm->getWorkspaces()->getClientList(m_on_workspace)->begin(),
+								wm->getWorkspaces()->getClientList(m_on_workspace)->end());
+	client_list.insert(client_list.end(),
+										 wm->getWorkspaces()->getStickyClientList()->begin(),
+										 wm->getWorkspaces()->getStickyClientList()->end());
 
 #ifdef XINERAMA
 	ScreenInfo::HeadInfo head;
 	unsigned int head_nr = 0;
 
-	if (scr->hasXinerama()) {
-		// get mouse position so that we get to know which head is active
-		int mouse_x = 0, mouse_y = 0;
-		wm->getMousePosition(&mouse_x, &mouse_y);
-		head_nr = scr->getHead(mouse_x, mouse_y);
-	}
+	if (scr->hasXinerama())
+		head_nr = scr->getCurrHead();
 	scr->getHeadInfo(head_nr, head);
 #endif // XINERAMA
 
+	list<Client*>::iterator it;
 	register int test_x, test_y, curr_x, curr_y, curr_w, curr_h;
 
 #ifdef XINERAMA
@@ -752,11 +709,7 @@ Client::placeInsideScreen(void)
 
 #ifdef XINERAMA
 	ScreenInfo::HeadInfo head;
-	unsigned int head_nr = 0;
-	if (scr->hasXinerama()) {
-		head_nr = scr->getHead(mouse_x, mouse_y);
-	}
-	scr->getHeadInfo(head_nr, head);
+	wm->getScreen()->getHeadInfo(wm->getScreen()->getCurrHead(), head);
 
 	if (m_x < head.x)
 		m_x = head.x;
@@ -798,11 +751,11 @@ Client::getFrameSize(unsigned int &width, unsigned int &height)
 
 		if (m_has_border) {
 			width +=
-				wm->getTheme()->getBorderFocusData()[BORDER_LEFT]->getWidth() +
-				wm->getTheme()->getBorderFocusData()[BORDER_RIGHT]->getWidth();		
+				wm->getTheme()->getWinFocusedBorder()[BORDER_LEFT]->getWidth() +
+				wm->getTheme()->getWinFocusedBorder()[BORDER_RIGHT]->getWidth();
 			height +=
-				wm->getTheme()->getBorderFocusData()[BORDER_TOP]->getHeight()+
-				wm->getTheme()->getBorderFocusData()[BORDER_BOTTOM]->getHeight();
+				wm->getTheme()->getWinFocusedBorder()[BORDER_TOP]->getHeight()+
+				wm->getTheme()->getWinFocusedBorder()[BORDER_BOTTOM]->getHeight();
 		}
 	}
 }
@@ -812,42 +765,34 @@ Client::getFrameSize(unsigned int &width, unsigned int &height)
 void
 Client::getXClientName(void)
 {
-	if (m_name)
-		XFree(m_name);
+	if (!wm->getExtendedWMHintString(m_window,
+																	wm->getEwmhAtoms()->net_wm_name, m_name)) {
 
-	m_name = new char[256];
-
-	wm->getExtendedWMHintString(m_window,
-															wm->getEwmhAtoms()->net_wm_name, &m_name);
-
-	// if _NET_WM_NAME isn't set fallback to XA_WM_NAME
-	if(m_name==NULL) {
-		XFetchName(dpy, m_window, &m_name);
-
-		if(m_name==NULL) {
+		char *name = NULL;
+		if (XFetchName(dpy, m_window, &name)) {
+			m_name = name;
+			XFree(name);
+		} else {
+			m_name = "no name";
 			XStoreName(dpy, m_window, "no name");
-			XFetchName(dpy, m_window, &m_name);
 		}
 	} else {
 		m_has_extended_net_name = true;
 	}
 }
 
-//------------------------------- getXIconName ------------------------------
-// If we allready have a name, lets free that, then try to get a new. If we
-// don't' succeed we set the new icon name to "no name"
-//---------------------------------------------------------------------------
+//! @fn    void getXIconName(void)
+//! @brief Tries to get Client's icon name, and puts it in m_icon_name.
 void
 Client::getXIconName(void)
 {
-	if(m_icon_name)
-		XFree(m_icon_name);
-	
-	XGetIconName(dpy, m_window, &m_icon_name);
-	
-	if(m_icon_name == NULL) {
+	char *name = NULL;
+	if (XGetIconName(dpy, m_window, &name)) {
+		m_icon_name = name;
+		XFree(name);
+	} else {
+		m_icon_name = "no name";
 		XSetIconName(dpy, m_window, "no name");
-		XGetIconName(dpy, m_window, &m_icon_name);
 	}
 }
 
@@ -872,7 +817,8 @@ Client::setWmState(unsigned long state)
 // distinguish between the case where no WM has run yet and when the
 // state was explicitly removed (Clients are allowed to either set the
 // atom to Withdrawn or just remove it... yuck.)
-long Client::getWmState(void)
+long
+Client::getWmState(void)
 {
 	Atom real_type;
 	int real_format;
@@ -920,8 +866,8 @@ Client::gravitate(int multiplier)
 
 		switch (gravity) {
 		case NorthWestGravity:
-  	case NorthEastGravity:
-  	case NorthGravity:
+	case NorthEastGravity:
+	case NorthGravity:
 			// do nothing, it's ok this way
 			break;
 		case CenterGravity:
@@ -956,7 +902,7 @@ Client::sendConfigureRequest(void)
 	XSendEvent(dpy, m_window, false, StructureNotifyMask, (XEvent *) &e);
 }
 
-//! @fn
+//! @fn void grabButton(int button, int mod, int mask, Window win, Cursor curs)
 //! @brief Grabs a button on the window win
 //! Grabs the button button, with the mod mod and mask mask on the window win
 //! and cursor curs with "all" possible extra modifiers
@@ -1058,114 +1004,168 @@ Client::alwaysBelow(void)
 	updateWmStates();
 }
 
+//! @fn    void toggleBorder(void)
+//! @brief Toggles the clients border.
+void
+Client::toggleBorder(void)
+{
+	if (this != m_frame->getActiveClient())
+		return;
+
+	if (m_has_border)
+		m_has_border = false;
+	else
+		m_has_border = true;
+
+	m_frame->setBorder();
+}
+
+//! @fn    void toggleTitlebar(void)
+//! @brief Toggles the clients titlebar.
+void
+Client::toggleTitlebar(void)
+{
+	if (this != m_frame->getActiveClient())
+		return;
+
+	if (m_has_titlebar)
+		m_has_titlebar = false;
+	else
+		m_has_titlebar = true;
+
+	m_frame->setTitlebar();
+}
+
+//! @fn    void toggleDecor(void)
+//! @brief Toggles both the clients border and titlebar.
+void
+Client::toggleDecor(void)
+{
+	if (this != m_frame->getActiveClient())
+		return;
+
+	// As we are toggeling the decor, which is both the border and titlebar
+	// this could cause trouble if I looked at both before deciding which
+	// to toggle, I check control the titlebar.
+	if (m_has_titlebar) {
+		m_has_titlebar = false;
+		m_has_border = false;
+	} else {
+		m_has_titlebar = true;
+		m_has_border = true;
+	}
+
+	m_frame->setTitlebar();
+	m_frame->setBorder();
+}
+
 //! @fn    void iconify(bool notify_frame)
 //! @brief Iconifies the client and adds it to the iconmenu
 //! @param notify_frame Defaults to true
 void
-Client::iconify(bool notify_frame)
+Client::iconify(void)
 {
-	if(m_has_focus) {
-		m_has_focus = false;
-		wm->focusClient(NULL);
-	}
-
 	m_is_iconified = true;
-	m_is_hidden = true;
-
-	if (notify_frame) {
-		m_frame->hideClient(this);
-	} else {
-		filteredUnmap();
-	}
-
-	setWmState(IconicState);
-
 	if(!m_trans) {
 #ifdef MENUS
 		wm->addClientToIconMenu(this);
 #endif // MENUS
 		wm->findTransientsToMapOrUnmap(m_window, true);
 	}
-
-	updateWmStates();
+	hide();
+	m_frame->hideClient(this);
 }
 
 //! @fn    void hide(bool notify_frame)
 //! @brief Sets the client to WithdrawnState and hides it.
-//! @param notify_frame Wheter or not to tell the Frame (optional)
 void
-Client::hide(bool notify_frame)
+Client::hide(void)
 {
+	if (m_is_hidden)
+		return;
 	m_is_hidden = true;
 
-	if (m_has_focus) {
+	if (m_has_focus)	{ // we cant have focus if we're hidden
 		m_has_focus = false;
-		wm->focusClient(NULL);
+		wm->findClientAndFocus(None);
 	}
 
-	if (notify_frame)
-		m_frame->hideClient(this);
-
-	setWmState(WithdrawnState);
+	filteredUnmap(); // unmap the window
+	if (m_is_iconified) // set the state of the window
+		setWmState(IconicState);
+	else
+		setWmState(WithdrawnState);
+	updateWmStates();
 }
 
 //! @fn    void unhide(bool notify_frame)
 //! @brief Unhides the client.
-//! @param notify_frame Defaults to true.
 void
-Client::unhide(bool notify_frame)
+Client::unhide(void)
 {
-	if (!m_is_sticky && (m_on_workspace != (signed) wm->getActiveWorkspace()))
+	if (!m_is_hidden)
 		return;
-
 	m_is_hidden = false;
 
-	if (notify_frame) {
-		m_frame->unhideClient(this);
-		if (this == m_frame->getActiveClient()) {
-			m_frame->setFocus();
-		}
-	}
-
-	if(m_is_iconified) {
+	if(m_is_iconified) { // remove ourself from the iconmenu
 		m_is_iconified = false;
 #ifdef MENUS
 		wm->removeClientFromIconMenu(this);
 #endif // MENUS
 	}
 
-	setWmState(NormalState);
-
-	if(!m_trans)
-		wm->findTransientsToMapOrUnmap(m_window, false);
-
+	XMapWindow(dpy, m_window); // unhide the window
+	setWmState(NormalState); // update the state and wm hints
 	updateWmStates();
+
+	if(!m_trans) // unmap our transient windows if we have any
+		wm->findTransientsToMapOrUnmap(m_window, false);
 }
 
-//! @fn    void kill(void)
-//! @breif See if the client listens to WM_DELETE, if not use XKillClient
+//! @fn    void close(void)
+//! @brief Sends an WM_DELETE message to the client, else kills it.
 void
-Client::kill(void)
+Client::close(void)
 {
-	int i, n, found = 0;
+	int count;
+	bool found = false;
 	Atom *protocols;
 
-	if (XGetWMProtocols(dpy, m_window, &protocols, &n)) {
-		for (i = 0 ; i < n; ++i) {
+	if (XGetWMProtocols(dpy, m_window, &protocols, &count)) {
+		for (int i = 0; i < count; ++i) {
 			if (protocols[i] == wm->getIcccmAtoms()->wm_delete) {
-				++found;
+				found = true;
+				break;
 			}
 		}
 
 		XFree(protocols);
 	}
 
-	if (found) {
+	if (found)
 		sendXMessage(m_window, wm->getIcccmAtoms()->wm_protos,
 								 NoEventMask, wm->getIcccmAtoms()->wm_delete);
-	} else {
-		XKillClient(dpy, m_window);
-	}
+	else
+		kill();
+}
+
+//! @fn    void kill(void)
+//! @breif Kills the client using XKillClient
+void
+Client::kill(void)
+{
+	XKillClient(dpy, m_window);
+}
+
+//! @fn    void setFocus(bool focus)
+//! @brief Redraws the clients titlebar, if we are active.
+void
+Client::setFocus(bool focus)
+{
+	m_has_focus = focus;
+
+	if (this == m_frame->getActiveClient())
+		m_frame->setFocus(focus);
 }
 
 //! @fn    bool setPUPosition(void)
@@ -1207,7 +1207,7 @@ Client::getIncSize(unsigned int *r_w, unsigned int *r_h,
 		basey = (m_size->flags&PBaseSize)
 			? m_size->base_height
 			: (m_size->flags&PMinSize) ? m_size->min_height : 0;
-        
+
 		*r_w = w - ((w - basex) % m_size->width_inc);
 		*r_h = h - ((h - basey) % m_size->height_inc);
 
@@ -1217,40 +1217,30 @@ Client::getIncSize(unsigned int *r_w, unsigned int *r_h,
 	return false;
 }
 
-// This one does -not- free the data coming back from Xlib; it just
-// sends back the pointer to what was allocated.
+//! @fn    MwmHints* getMwmHints(Window win)
+//! @brief Gets a MwmHint structure from a window. Doesn't free memory.
 MwmHints*
-Client::getMwmHints(Window w)
+Client::getMwmHints(Window win)
 {
 	Atom real_type; int real_format;
 	unsigned long items_read, items_left;
 	MwmHints *data;
 
-	if (XGetWindowProperty(dpy, w, wm->getMwmHintsAtom(),
-												 0L, 20L, False,
-												 wm->getMwmHintsAtom(),
-												 &real_type, &real_format,
-												 &items_read, &items_left,
-												 (unsigned char **) &data) == Success &&
-			items_read >= MWM_HINT_ELEMENTS) {
+	int status =
+		XGetWindowProperty(dpy, win, wm->getMwmHintsAtom(),
+											 0L, 20L, False, wm->getMwmHintsAtom(),
+											 &real_type, &real_format,
+											 &items_read, &items_left,
+											 (unsigned char **) &data);
 
+	if ((status == Success) && (items_read >= MWM_HINT_ELEMENTS))
 		return data;
-	} else {
+	else
 		return NULL;
-	}
 }
 
-// Because we are redirecting the root window, we get ConfigureRequest
-// events from both clients we're handling and ones that we aren't.
-// For clients we manage, we need to fiddle with the frame and the
-// client window, and for unmanaged windows we have to pass along
-// everything unchanged. Thankfully, we can reuse (a) the
-// XWindowChanges struct and () the code to configure the client
-// window in both cases.
-
-// Most of the assignments here are going to be garbage, but only the
-// ones that are masked in by e->value_mask will be looked at by the X
-// server.
+//! @fn    void handleConfigureRequest(XConfigureRequestEvent *e)
+//! @brief Handle XConfgiureRequestEvents
 void
 Client::handleConfigureRequest(XConfigureRequestEvent *e)
 {
@@ -1283,9 +1273,9 @@ Client::handleConfigureRequest(XConfigureRequestEvent *e)
 			x = e->x - m_frame->borderLeft();
 		if (e->value_mask&CWY)
 			y = e->y - m_frame->borderTop() - m_frame->getTitleHeight();
- 		if (e->value_mask&CWWidth)
+		if (e->value_mask&CWWidth)
 			width = e->width + m_frame->borderLeft() + m_frame->borderRight();
- 		if (e->value_mask&CWHeight)
+		if (e->value_mask&CWHeight)
 			height = e->height + m_frame->borderTop() + m_frame->borderBottom() +
 				m_frame->getTitleHeight();
 
@@ -1334,19 +1324,32 @@ Client::handleConfigureRequest(XConfigureRequestEvent *e)
 	}
 }
 
-// Two possiblilies if a client is asking to be mapped. One is that
-// it's a new window, so we handle that if it isn't in our clients
-// list anywhere. The other is that it already exists and wants to
-// de-iconify, which is simple to take care of. 
+//! @fn    void handleMapRequest(XMapRequestEvent *e)
+//! @brief Handles map request
 void
 Client::handleMapRequest(XMapRequestEvent *e)
 {
-	unhide();
+#ifdef DEBUG
+	cerr << __FILE__ << "@" << __LINE__ << ": "
+			 << "handleMapRequest(" << this << ")" << endl;
+#endif // DEBUG
+
+	if (!m_is_sticky && (m_on_workspace != signed(wm->getActiveWorkspace()))) {
+#ifdef DEBUG
+		cerr << __FILE__ << "@" << __LINE__ << ": "
+				 << "Ignoring MapRequest, not on current workspace!" << endl;
+#endif // DEBUG
+		return;
+	}
+
+	if (m_frame)
+		m_frame->unhideClient(this);
+	else
+		unhide();
 }
 
-
 //! @fn    void handleUnmapEvent(XUnmapEvent *e)
-//! @brief 
+//! @brief
 //! @param e XUnmapEvent to handle, this isn't used though
 //! @bug When the client (only transients it seems) won't unmap if they aren't on the same workspace as the active one.
 void
@@ -1366,37 +1369,17 @@ Client::handleUnmapEvent(XUnmapEvent *e)
 
 // This happens when a window is iconified and destroys itself. An
 // Unmap event wouldn't happen in that case because the window is
-// already unmapped. 
+// already unmapped.
 void
 Client::handleDestroyEvent(XDestroyWindowEvent *e)
 {
-	// m_is_alive = false; // TO-DO: How to make this certain?
+	m_is_alive = false;
 	delete this;
-}
-
-void
-Client::handleEnterEvent(XCrossingEvent *e)
-{
-	wm->focusClient(this);
-}
-
-void Client::handleFocusInEvent(XFocusChangeEvent *e)
-{
-	setFocus();
-
-	sendXMessage(m_window, wm->getIcccmAtoms()->wm_protos,
-							 SubstructureRedirectMask, wm->getIcccmAtoms()->wm_takefocus);
-	XInstallColormap(wm->getScreen()->getDisplay(), m_cmap);
-}
-
-void Client::handleFocusOutEvent(XFocusChangeEvent *e)
-{
-	setFocus();
 }
 
 // If a client wants to iconify itself (boo! hiss!) it must send a
 // special kind of ClientMessage. We might set up other handlers here
-// but there's nothing else required by the ICCCM. 
+// but there's nothing else required by the ICCCM.
 void
 Client::handleClientMessage(XClientMessageEvent *e)
 {
@@ -1406,35 +1389,17 @@ Client::handleClientMessage(XClientMessageEvent *e)
 	bool state_add = false;
 	bool state_toggle = false;
 
-	if(e->message_type == wm->getGnomeAtoms()->win_state) {
-		long state = wm->getHint(m_window, wm->getGnomeAtoms()->win_state);
-		if (state&WIN_STATE_STICKY) {
-			// Well, I'm setting the desktop because it updates the desktop state
-			// because if we are sticky we appear on all. Also, if we unstick
-			// we should be on the current desktop
-			if (m_is_sticky)
-				wm->getWorkspaces()->unstickClient(this);
-			else
-				wm->getWorkspaces()->stickClient(this);
-
-			m_is_sticky = m_is_sticky ? false : true;
-			setWorkspace(wm->getActiveWorkspace());
-
-		} else if (state&WIN_HINTS_DO_NOT_COVER) {
-			m_win_layer = WIN_LAYER_ONTOP;
-		}
-
-	} else if (e->message_type == ewmh->net_wm_state) {
+	if (e->message_type == ewmh->net_wm_state) {
 		if(e->data.l[0]== NET_WM_STATE_REMOVE) state_remove = true;
 		else if(e->data.l[0]== NET_WM_STATE_ADD) state_add = true;
 		else if(e->data.l[0]== NET_WM_STATE_TOGGLE)	state_toggle = true;
 
 		// There is no modal support in pekwm yet
-// 		if ((e->data.l[1] == (long) ewmh->net_wm_state_modal) ||
-// 		   	(e->data.l[2] == (long) ewmh->net_wm_state_modal)) {
-// 			is_modal=true;
-// 		}
-	
+//		if ((e->data.l[1] == (long) ewmh->net_wm_state_modal) ||
+//			(e->data.l[2] == (long) ewmh->net_wm_state_modal)) {
+//			is_modal=true;
+//		}
+
 		if ((e->data.l[1] == (long) ewmh->net_wm_state_sticky) ||
 				(e->data.l[2] == (long) ewmh->net_wm_state_sticky)) {
 			// Well, I'm setting the desktop because it updates the desktop state
@@ -1450,7 +1415,7 @@ Client::handleClientMessage(XClientMessageEvent *e)
 		if ((e->data.l[1] == (long) ewmh->net_wm_state_maximized_vert) ||
 				(e->data.l[2] == (long) ewmh->net_wm_state_maximized_vert)) {
 
-			if (state_add) m_is_maximized_vertical = false;	
+			if (state_add) m_is_maximized_vertical = false;
 			else if (state_remove) m_is_maximized_vertical = true;
 
 			m_frame->maximizeVertical();
@@ -1458,10 +1423,10 @@ Client::handleClientMessage(XClientMessageEvent *e)
 
 		if ((e->data.l[1] == (long) ewmh->net_wm_state_maximized_horz) ||
 				(e->data.l[2] == (long) ewmh->net_wm_state_maximized_horz)) {
-			if (state_add) m_is_maximized_horizontal = false;	
+			if (state_add) m_is_maximized_horizontal = false;
 			else if (state_remove) m_is_maximized_horizontal = true;
 
- 			m_frame->maximizeHorizontal();
+			m_frame->maximizeHorizontal();
 		}
 
 		if ((e->data.l[1] == (long) ewmh->net_wm_state_shaded) ||
@@ -1474,7 +1439,7 @@ Client::handleClientMessage(XClientMessageEvent *e)
 
 		if ((e->data.l[1] == (long) ewmh->net_wm_state_skip_taskbar) ||
 				(e->data.l[2] == (long) ewmh->net_wm_state_skip_taskbar)) {
-			if (state_add) m_skip_taskbar = true;	
+		if (state_add) m_skip_taskbar = true;
 			else if (state_remove) m_skip_taskbar = false;
 			else if (state_toggle) m_skip_taskbar = (m_skip_taskbar) ? true : false;
 		}
@@ -1489,10 +1454,10 @@ Client::handleClientMessage(XClientMessageEvent *e)
 		if ((e->data.l[1] == (long) ewmh->net_wm_state_hidden) ||
 				(e->data.l[2] == (long) ewmh->net_wm_state_hidden)) {
 			if (state_add && !m_is_iconified) iconify();
-			else if (state_remove && m_is_iconified) unhide();
+			else if (state_remove && m_is_iconified) m_frame->unhideClient(this);
 			else if (state_toggle) {
 				if (m_is_iconified) {
-					unhide();
+					m_frame->unhideClient(this);
 				} else {
 					iconify();
 				}
@@ -1509,9 +1474,9 @@ Client::handleClientMessage(XClientMessageEvent *e)
 		if (this != m_frame->getActiveClient()) {
 			m_frame->activateClient(this);
 		} else if (m_is_hidden) {
-			unhide();
+			m_frame->unhideClient(this);
 		} else {
-			wm->focusClient(this);
+			giveInputFocus();
 		}
 	} else if (e->message_type == ewmh->net_close_window) {
 		kill();
@@ -1530,10 +1495,10 @@ Client::handlePropertyChange(XPropertyEvent *e)
 
 	if (e->atom == ewmh->net_wm_desktop) {
 		// not calling set desktop because that will end up in an infinite loop
-		unsigned int workspace = wm->findExtendedDesktopHint(m_window);
+		unsigned int workspace = wm->findDesktopHint(m_window);
 		if (workspace < wm->getWorkspaces()->getNumWorkspaces()) {
 			if(m_on_workspace != (signed) wm->getActiveWorkspace()) {
-				hide();
+				m_frame->hideClient(this);
 			}
 		}
 	} else if (e->atom == ewmh->net_wm_strut) {
@@ -1559,39 +1524,38 @@ Client::handlePropertyChange(XPropertyEvent *e)
 			m_client_strut->east = temp_strut[1];
 			m_client_strut->north = temp_strut[2];
 			m_client_strut->south = temp_strut[3];
-		
+
 			wm->addStrut(m_client_strut);
-			
+
 			m_has_strut = true;
 
 			XFree(temp_strut);
 		}
 	}
-	
+
 	if(m_has_extended_net_name) {
 		if(e->atom == ewmh->net_wm_name) {
 			getXClientName();
 
 			// TO-DO: UTF8 support so we can handle the hint
-
-			m_frame->repaint();
+			m_frame->repaint(m_has_focus);
 		}
 	}
 
-	long dummy;	
+	long dummy;
 	switch (e->atom)  {
 		case XA_WM_NAME:
 			if(!m_has_extended_net_name) {
 				getXClientName();
 
-				m_frame->repaint();
+				m_frame->repaint(m_has_focus);
 			}
 			break;
-		
+
 		case XA_WM_NORMAL_HINTS:
 			XGetWMNormalHints(dpy, m_window, m_size, &dummy);
 			break;
-	    
+
 		case XA_WM_TRANSIENT_FOR:
 			if(! m_trans) {
 				XGetTransientForHint(dpy, m_window, &m_trans);
@@ -1601,22 +1565,6 @@ Client::handlePropertyChange(XPropertyEvent *e)
 				m_frame->hideAllButtons();
 			}
 		break;
-	}
-}
-
-void
-Client::setFocus(void)
-{
-	bool focus = (wm->getFocusedClient() == this);
-
-	// there's no need to update to current focus state
-	if (m_has_focus == focus)
-		return;
-
-	m_has_focus = focus;
-
-	if (m_frame && (this == m_frame->getActiveClient())) {
-		m_frame->setFocus();
 	}
 }
 
@@ -1633,24 +1581,26 @@ Client::handleColormapChange(XColormapEvent *e)
 void
 Client::handleShapeChange(XShapeEvent *e)
 {
- 	if (m_frame->getActiveClient())
+	if (m_frame->getActiveClient())
 		m_frame->setShape();
 }
 #endif
 
 int
-Client::sendXMessage(Window w, Atom a, long mask, long x)
+Client::sendXMessage(Window window, Atom atom, long mask, long value)
 {
 	XEvent e;
 
-	e.type = ClientMessage;
-	e.xclient.window = w;
-	e.xclient.message_type = a;
+	e.type = e.xclient.type = ClientMessage;
+	e.xclient.display = dpy;
+	e.xclient.message_type = atom;
+	e.xclient.window = window;
 	e.xclient.format = 32;
-	e.xclient.data.l[0] = x;
+	e.xclient.data.l[0] = value;
 	e.xclient.data.l[1] = CurrentTime;
+	e.xclient.data.l[2] = e.xclient.data.l[3] = e.xclient.data.l[4] = 0l;
 
-	return XSendEvent(dpy, w, False, mask, &e);
+	return XSendEvent(dpy, window, false, mask, &e);
 }
 
 void
@@ -1659,27 +1609,25 @@ Client::setWorkspace(unsigned int workspace)
 	if (workspace >= wm->getWorkspaces()->getNumWorkspaces())
 		return;
 
-	if (m_on_workspace != (signed) workspace) {
+	if (m_on_workspace != signed(workspace)) {
 		if (this == wm->getFocusedClient())
-			wm->focusClient(NULL);
+			wm->findClientAndFocus(None);
 
 		wm->getWorkspaces()->removeClient(this, m_on_workspace);
 		m_on_workspace = workspace;
 		wm->getWorkspaces()->addClient(this, m_on_workspace);
 
-		unhide();
+		m_frame->unhideClient(this);
 	}
 
 	// set the desktop we're on, if we are sticky we are on _all_ desktops
- 	if (m_is_sticky) {
- 		wm->setExtendedWMHint(m_window, wm->getEwmhAtoms()->net_wm_desktop,
- 													NET_WM_STICKY_WINDOW);
- 	} else {
+	if (m_is_sticky) {
+		wm->setExtendedWMHint(m_window, wm->getEwmhAtoms()->net_wm_desktop,
+													NET_WM_STICKY_WINDOW);
+	} else {
 		wm->setExtendedWMHint(m_window, wm->getEwmhAtoms()->net_wm_desktop,
 													m_on_workspace);
 	}
-	wm->setGnomeHint(m_window,
-									 wm->getGnomeAtoms()->win_workspace, m_on_workspace);
 
 	loadAutoProps(AutoProps::APPLY_ON_WORKSPACE_CHANGE);
 }
@@ -1689,7 +1637,7 @@ Client::updateWmStates(void)
 {
 	// Clients will always have a false modal property set
 	// since there is no support for modal windows in pekwm.
-	
+
 	wm->setExtendedNetWMState(m_window,
 														false, // modal
 														m_is_sticky,
@@ -1700,8 +1648,6 @@ Client::updateWmStates(void)
 														m_skip_pager,
 														m_is_iconified,
 														false); // TO-DO: Add support for net_wm_fullscreen
-
-	wm->setGnomeHint(m_window, wm->getGnomeAtoms()->win_layer, m_win_layer);
 }
 
 //! @fn    void filteredUnmap(void)
@@ -1710,7 +1656,7 @@ void
 Client::filteredUnmap(void)
 {
 	XSelectInput(dpy, m_window, NoEventMask);
-	XUnmapWindow(dpy, m_window);	
+	XUnmapWindow(dpy, m_window);
 	XSelectInput(dpy, m_window,
 							 PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
 }
@@ -1724,7 +1670,7 @@ void
 Client::filteredReparent(Window parent, int x, int y)
 {
 	XSelectInput(dpy, m_window, NoEventMask);
-	XReparentWindow(dpy, m_window, parent, x, y); 
+	XReparentWindow(dpy, m_window, parent, x, y);
 	XSelectInput(dpy, m_window,
 							 PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
 }

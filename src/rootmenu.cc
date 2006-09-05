@@ -15,10 +15,10 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-///
+//
 
 #ifdef MENUS
- 
+
 #include "pekwm.hh"
 #include "windowmanager.hh"
 #include "util.hh"
@@ -28,7 +28,7 @@
 using std::cerr;
 using std::endl;
 using std::string;
-using std::vector;
+using std::list;
 
 RootMenu::RootMenu(WindowManager *w) :
 GenericMenu(w->getScreen(), w->getTheme()),
@@ -42,7 +42,7 @@ wm(w)
 
 RootMenu::~RootMenu()
 {
-	vector<BaseMenu*>::iterator it = m_submenu_list.begin();
+	list<BaseMenu*>::iterator it = m_submenu_list.begin();
 	for (; it != m_submenu_list.end(); ++it) {
 		removeFromMenuList(*it);
 		delete *it;
@@ -50,6 +50,8 @@ RootMenu::~RootMenu()
 	m_submenu_list.clear();
 }
 
+//! @fn    void handleButton1Release(BaseMenuItem *curr)
+//! @brief Executes the action of the current item.
 void
 RootMenu::handleButton1Release(BaseMenuItem *curr)
 {
@@ -59,13 +61,15 @@ RootMenu::handleButton1Release(BaseMenuItem *curr)
 	wm->getActionHandler()->handleAction(curr->getAction(), NULL);
 }
 
+//! @fn    void updateRootMenu(void)
+//! @brief Rebuilds the RootMenu.
 void
 RootMenu::updateRootMenu(void)
 {
 	// clear the menu before loading
 	if (m_submenu_list.size()) {
-		vector<BaseMenu*>::iterator it = m_submenu_list.begin();
-		for (; it < m_submenu_list.end(); it++) {
+		list<BaseMenu*>::iterator it = m_submenu_list.begin();
+		for (; it != m_submenu_list.end(); ++it) {
 			removeFromMenuList(*it);
 			delete *it;
 		}
@@ -74,64 +78,69 @@ RootMenu::updateRootMenu(void)
 
 	removeAll();
 
-	BaseConfig cfg(wm->getConfig()->getMenuFile(), "*", ";\n");
+	BaseConfig cfg;
 
-	if (! cfg.loadConfig()) {
-		string cfg_file = DATADIR "/menu";
-		cfg.setFile(cfg_file);
-		cfg.loadConfig();
-	}
+	if (!cfg.load(wm->getConfig()->getMenuFile())) {
+		if (!cfg.load(string(DATADIR "/menu"))) {
+			cerr << "Couldn't open rootmenu config file: " <<
+				wm->getConfig()->getMenuFile() << endl;
 
-	if (cfg.isLoaded()) {
-		parse(&cfg, this);
-	} else { // couldn't open any menu config file
-		cerr << "Couldn't open rootmenu config file: " <<
-			wm->getConfig()->getMenuFile() << endl;
-
-		insert("XTerm", "xterm", EXEC);
-		insert("Restart", "", RESTART);
-		insert("Exit", "", EXIT);
+			setupEmergencyMenu();
+		} else {
+			parse(cfg.getSection("ROOTMENU"), this);
+		}
+	} else {
+		parse(cfg.getSection("ROOTMENU"), this);
 	}
 
 	updateMenu();
 }
 
-//! @fn    void parse(BaseConfig *cfg, BaseMenu *menu)
+//! @fn    void parse(BaseConfig::CfgSection *cs, BaseMenu *menu)
 //! @brief Parse config and push items into menu
-//! @param cfg BaseConfig object to read config from
+//! @param cs CfgSection object to read config from
 //! @param menu BaseMenu object to push object in
 void
-RootMenu::parse(BaseConfig *cfg, BaseMenu *menu)
+RootMenu::parse(BaseConfig::CfgSection *cs, BaseMenu *menu)
 {
-	BaseMenu *sub = NULL;
+	if (!cs || !menu)
+		return;
 
+	Config *cfg = wm->getConfig(); // convinience
+	BaseConfig::CfgSection *sect;
+
+	BaseMenu *sub = NULL; // temporary stuff used in parsing
 	Actions action;
+	string name, param;
 
-	string name, value;
-	vector<string> values;
+	if (cs->getValue("NAME", name))
+		menu->setName(name);
 
-	while (cfg->getNextValue(name,value)) {
-		action = wm->getConfig()->getAction(name, ROOTMENU_OK);
+	while ((sect = cs->getNextSection())) {
+		action = cfg->getAction(sect->getName(), ROOTMENU_OK);
+		if (action == NO_ACTION)
+			continue; // invalid action
+
+		if (!sect->getValue("NAME", name))
+			continue; // we need a name
 
 		switch (action) {
 		case EXEC:
 		case RESTART_OTHER:
-			values.clear();
-			if ((Util::splitString(value, values, ":", 2)) == 2) {
-				menu->insert(values[0], values[1], action);
-			}
+			if (sect->getValue("PARAM", param))
+				menu->insert(name, param, action);
 			break;
 		case RESTART:
 		case RELOAD:
 		case EXIT:
-			menu->insert(value, "", action);
+			menu->insert(name, "", action);
 			break;
 		case SUBMENU:
 			// create a new submenu
-			sub = new BaseMenu(wm->getScreen(), wm->getTheme());
+			sub = new BaseMenu(wm->getScreen(), wm->getTheme(), name);
 
 			// add until we don't have anymore tokens or we find an end
-			parse(cfg, sub);
+			parse(sect, sub);
 
 			// add to menu search
 			m_submenu_list.push_back(sub);
@@ -141,19 +150,27 @@ RootMenu::parse(BaseConfig *cfg, BaseMenu *menu)
 			sub->updateMenu();
 
 			// insert it
-			menu->insert(value, sub);
+			menu->insert(name, sub);
 
 			// make sure we don't do anything funny :)
 			sub = NULL;
 			break;
-		case SUBMENU_END:
-			return;
-			break;
 		default:
-			// do nothing, invalid action
+			// do nothing, we shouldn't be able to get here
 			break;
 		}
 	}
+}
+
+//! @fn    void setupEmergencyMenu(void)
+//! @brief Builds a basic menu if we can't load the rootmenu config.
+void
+RootMenu::setupEmergencyMenu(void)
+{
+	setName("RootMenu");
+	insert("XTerm", "xterm", EXEC);
+	insert("Restart", "", RESTART);
+	insert("Exit", "", EXIT);
 }
 
 #endif // MENUS

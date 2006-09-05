@@ -23,9 +23,9 @@
 #include <X11/Xlib.h>
 
 #ifdef XINERAMA
-	extern "C" {
-		#include <X11/extensions/Xinerama.h>
-	}
+extern "C" {
+#include <X11/extensions/Xinerama.h>
+}
 #endif
 
 class ScreenInfo

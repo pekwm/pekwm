@@ -23,7 +23,7 @@
 //
 
 #ifdef MENUS
- 
+
 #ifndef _BASEMENU_HH_
 #define _BASEMENU_HH_
 
@@ -40,9 +40,9 @@ class Client;
 class BaseMenu
 {
 public:
-	class BaseMenuItem 
+	class BaseMenuItem
 	{
-	public:	
+	public:
 		BaseMenuItem() : m_name(""),
 										 m_x(0), m_y(0),
 										 m_is_selected(false),
@@ -77,7 +77,7 @@ public:
 	};
 
 
-	BaseMenu(ScreenInfo *s, Theme *t);
+	BaseMenu(ScreenInfo *s, Theme *t, std::string n = "");
 	virtual ~BaseMenu();
 	void loadTheme(void);
 
@@ -86,20 +86,23 @@ public:
 	inline unsigned int getWidth(void) const { return m_width; }
 	inline unsigned int getHeight(void) const { return m_height; }
 
+	inline const std::string &getName(void) const { return m_name; }
+	inline void setName(const std::string n) { m_name = n; }
+
 	inline std::vector<BaseMenuItem*> *getMenuItemList(void) {
 		return &m_item_list; }
 	inline int getItemCount(void) const { return m_item_list.size(); }
 	inline const Window &getMenuWindow(void) const { return m_item_window; }
-	
+
 	inline bool isVisible(void) const { return m_is_visible; }
-					
-	void setMenuPos(int x, int y);
+
 	void show(void);
-	void show(int x, int y);
-	void showSub(BaseMenu *sub, int x, int y);
+	void showUnderMouse(void);
+	void showSub(BaseMenu *sub);
 	void hide(BaseMenu *sub);
 	void hideAll(void);
-	
+	void move(int x, int y);
+
 	void updateMenu(void);
 
 	virtual void insert(const std::string &n, BaseMenu *sub);
@@ -118,9 +121,8 @@ public:
 	virtual void handleButtonReleaseEvent(XButtonEvent *e);
 	virtual void handleButtonReleaseEvent(XButtonEvent *e, BaseMenuItem *item);
 
-	void handleEnterNotify(XCrossingEvent *e);
-	void handleLeaveNotify(XCrossingEvent *e);
 	void handleExposeEvent(XExposeEvent *e);
+	void handleLeaveEvent(XCrossingEvent *e);
 	void handleMotionNotifyEvent(XMotionEvent *e);
 
 	// The menu item behavoir is defined with these
@@ -139,13 +141,12 @@ public:
 
 private:
 	virtual void redraw(BaseMenuItem *item);
-		
-	void selectMenuItem(bool select);
+
 	bool getMousePosition(int *x, int *y);
 	void makeMenuInsideScreen(void);
 
 	// Not meant to be called directly by subclasses! Used internally.
-	void hideSubmenus(); 
+	void hideSubmenus();
 
 protected:
 	ScreenInfo *scr;
@@ -157,25 +158,23 @@ protected:
 	std::vector<BaseMenuItem*> m_item_list;
 	BaseMenu *m_parent;
 
+	std::string m_name;
+
 	Window m_item_window;
 	int m_x, m_y;
-	int x_move, y_move;
 	unsigned int m_width, m_height, m_total_item_height;
+	unsigned int m_title_x;
+
 	bool m_is_visible, m_theme_is_loaded;
 
 	Cursor m_curs;
 	GC m_gc;
-	
+
 	unsigned int m_item_width, m_item_height;
 	unsigned int m_widget_side;
-	
+
 	// Used to know which item to paint.
 	BaseMenuItem *m_curr;
-
-	// This is for our synthetic enter event and we only want this to happen once
-	// This is set to true once we detect the mouse has entered the item window
-	bool m_enter_once;	
-	bool m_bottom_edge, m_right_edge;
 };
 
 #endif // _BASEMENU_HH_

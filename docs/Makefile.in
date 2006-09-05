@@ -1,0 +1,19 @@
+# Makefile for pekwm
+# Copyright (C) 2002 Claes Nästen <pekdon@gmx.net>
+
+prefix = @prefix@
+DATADIR = @datadir@/@PACKAGE@
+DATA_MODE = 644
+INSTALL = @INSTALL@
+
+all: pekwm.1 
+
+pekwm.1:
+	sed 's:<PREFIX>:$(DATADIR):' pekwm.1.in > pekwm.1
+
+install: all
+	mkdir -p $(prefix)/man/man1
+	$(INSTALL) -m $(DATA_MODE) pekwm.1 $(prefix)/man/man1
+
+clean:
+	rm -f pekwm.1

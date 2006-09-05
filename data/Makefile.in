@@ -12,23 +12,18 @@ config:
 	sed 's:<PREFIX>:$(DATADIR):' config.in > config
 
 theme:
-	for i in themes/*; do \
-          sed 's:<PREFIX>:${DATADIR}:' $$i/theme.in > $$i/theme; \
-	done
+	${MAKE} -C themes
 
 install: all
 	mkdir -p $(DESTDIR)$(DATADIR)
 	$(INSTALL) -m $(DATA_MODE) config $(DESTDIR)$(DATADIR)
 	$(INSTALL) -m $(DATA_MODE) menu $(DESTDIR)$(DATADIR)
 	$(INSTALL) -m $(DATA_MODE) keys $(DESTDIR)$(DATADIR)
+	$(INSTALL) -m $(DATA_MODE) mouse $(DESTDIR)$(DATADIR)
 	$(INSTALL) -m $(DATA_MODE) autoprops $(DESTDIR)$(DATADIR)
 	$(INSTALL) -m $(DATA_MODE) start $(DESTDIR)$(DATADIR)
-	for i in themes/*; do \
-	  mkdir -p $(DESTDIR)$(DATADIR)/$$i; \
-	  $(INSTALL) -m $(DATA_MODE) $$i/* $(DESTDIR)$(DATADIR)/$$i; \
-	done 
-
+	${MAKE} -C themes install
 
 clean:
 	rm -f config
-	rm -f themes/*/theme
+	${MAKE} -C themes clean

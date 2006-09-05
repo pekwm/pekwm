@@ -1,0 +1,84 @@
+Frame {
+	Click {
+		Button = "Button1"
+		Action = "Raise"
+	}
+	Click {
+		Button = "Button2"
+		Action = "ActivateClient"
+	}
+	Click {
+		Button = "Button3"
+		Action = "ShowWindowMenu"
+	}
+	Click {
+		Button = "Button4"
+		Action = "NextInFrame"
+	}
+	Click {
+		Button = "Button5"
+		Action = "PrevInFrame"
+	}
+	DoubleClick {
+		Button = "Button1"
+		Action = "Shade"
+	}
+	Motion {
+		Button = "Button1"
+		Action = "Move"
+	}
+	Motion {
+		Button = "Button1"
+		Mod = "Alt"
+		Action = "Move"
+	}
+	Motion {
+		Button = "Button2"
+		Action = "GroupingDrag"
+	}
+	Motion {
+		Button = "Button3"
+		Mod = "Alt"
+		Action = "Resize"
+	}
+}
+
+Client {
+	Click {
+		Button = "Button1"
+		Action = "Raise"
+	}
+	Motion {
+		Button = "Button1"
+		Mod = "Alt"
+		Action = "Move"
+	}
+	Motion {
+		Button = "Button3"
+		Mod = "Alt"
+		Action = "Resize"
+	}
+}
+
+Root {
+	Click {
+		Button = "Button1"
+		Action = "HideAllMenus"
+	}
+	Click {
+		Button = "Button2"
+		Action = "ShowIconMenu"
+	}
+	Click {
+		Button = "Button3"
+		Action = "ShowRootMenu"
+	}
+	Click {
+		Button = "Button4"
+		Action = "RightWorkspace"
+	}
+	Click {
+		Button = "Button5"
+		Action = "LeftWorkspace"
+	}
+}

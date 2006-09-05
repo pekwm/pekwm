@@ -25,12 +25,15 @@
 
 #ifdef MENUS
 
+#ifndef _GENERICMENU_HH_
+#define _GENERICMENU_HH_
+
 #include "basemenu.hh"
 
 class GenericMenu : public BaseMenu
 {
 public:
-	GenericMenu(ScreenInfo *s, Theme *t);
+	GenericMenu(ScreenInfo *s, Theme *t, std::string n = "");
 	virtual ~GenericMenu();
 
 	BaseMenu* findMenu(Window w);
@@ -38,7 +41,8 @@ public:
 	inline void addToMenuList(BaseMenu *m) { m_menu_list.push_back(m); }
 	void removeFromMenuList(BaseMenu *m);
 public:
-	std::vector<BaseMenu*> m_menu_list;	
+	std::vector<BaseMenu*> m_menu_list;
 };
 
+#endif // _GENERICMENU_HH_
 #endif // MENUS

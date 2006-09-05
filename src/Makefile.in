@@ -33,11 +33,12 @@ OBJS = \
 	keys.o windowmanager.o \
 	workspaces.o \
 	client.o frame.o \
+	harbour.o dockapp.o \
 	button.o \
 	util.o main.o image.o \
-	basemenu.o \
+	basemenu.o genericmenu.o \
 	rootmenu.o windowmenu.o \
-	genericmenu.o iconmenu.o \
+	iconmenu.o harbourmenu.o \
 	font.o
 
 HEADERS = pekwm.hh \
@@ -49,11 +50,12 @@ HEADERS = pekwm.hh \
 	keys.hh windowmanager.hh \
 	workspaces.hh \
 	client.hh frame.hh \
+	harbour.hh dockapp.hh \
 	button.hh \
 	util.hh image.hh \
 	basemenu.hh genericmenu.hh \
-	iconmenu.hh rootmenu.hh \
-	windowmenu.hh \
+	rootmenu.hh windowmenu.hh \
+	iconmenu.hh harbourmenu.hh \
 	font.hh
 
 all: pekwm
@@ -62,7 +64,7 @@ pekwm: $(OBJS)
 	$(CC) $(OBJS) $(LDFLAGS) -o $@
 
 $(OBJS): %.o: %.cc $(HEADERS)
-	$(CC) $(CXXFLAGS) -c $< -o $@
+	$(CC) $(CXXFLAGS) -Wall -c  $< -o $@
 
 install: all
 	mkdir -p $(DESTDIR)$(bindir)

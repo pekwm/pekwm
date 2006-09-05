@@ -20,8 +20,10 @@
 #ifndef _AUTOPROPS_HH_
 #define _AUTOPROPS_HH_
 
+#include "baseconfig.hh"
+
 #include <string>
-#include <vector>
+#include <list>
 
 class Config; // forward
 
@@ -30,7 +32,7 @@ public:
 	class ClassHint {
 	public:
 		ClassHint() : m_name("") , m_class(""), m_group("") { }
-		ClassHint(const std::string &n, const std::string &c) : 
+		ClassHint(const std::string &n, const std::string &c) :
 			m_name(n) , m_class(c) , m_group(""){ }
 		~ClassHint() { }
 
@@ -63,8 +65,8 @@ public:
 
 			} else if (((m_name == "*") || (c.m_name == "*") ||
 									(m_name == c.m_name)) &&
-								 ((m_class == "*") || (c.m_class == "*") ||
-									(m_class == c.m_class)))
+								 (m_class == "*") || (c.m_class == "*") ||
+								 (m_name == c.m_name) || (m_class == c.m_class))
 				return false;
 			return true;
 		}
@@ -84,20 +86,17 @@ public:
 		BORDER = (1<<6),
 		TITLEBAR = (1<<7),
 		POSITION = (1<<8),
-		SIZE = (1<<9), 
+		SIZE = (1<<9),
 		LAYER = (1<<10),
 		AUTO_GROUP = (1<<11),
-		DESKTOP = (1<<12),
+		WORKSPACE = (1<<12),
 		APPLY_ON_START = (1<<13),
 		APPLY_ON_RELOAD = (1<<14),
 		APPLY_ON_WORKSPACE_CHANGE = (1<<15),
 		APPLY_ON_TRANSIENT = (1<<16),
 
 		GROUP,
-		WORKSPACE_START,
-		WORKSPACE_END,
-		PROPERTY_START,
-		PROPERTY_END,
+		PROPERTY,
 		NO_PROPERTY
 	};
 
@@ -119,7 +118,7 @@ public:
 		inline bool setSize(void) const { return (prop_mask&SIZE); }
 		inline bool setLayer(void) const { return (prop_mask&LAYER); }
 		inline bool autoGroup(void) const { return (prop_mask&AUTO_GROUP); }
-		inline bool setDesktop(void) const { return (prop_mask&DESKTOP); }
+		inline bool setWorkspace(void) const { return (prop_mask&WORKSPACE); }
 
 		inline bool applyOnTransient(void) const {
 			return (prop_mask&APPLY_ON_TRANSIENT);
@@ -135,7 +134,7 @@ public:
 		ClassHint class_hint;
 
 		int prop_mask;
-		std::vector<unsigned int> workspaces;
+		std::list<unsigned int> workspaces;
 
 		bool sticky;
 		bool shaded;
@@ -148,7 +147,7 @@ public:
 		unsigned int width, height;
 		unsigned int layer;
 		unsigned int auto_group;
-		unsigned int desktop;
+		unsigned int workspace;
 
 		bool apply_on_transient;
 		bool apply_on_start, apply_on_reload, apply_on_workspace_change;
@@ -164,8 +163,10 @@ public:
 
 private:
 	Property getProperty(const std::string &property_name);
+	void parseProperty(BaseConfig::CfgSection *cs, std::list<unsigned int> *ws);
 private:
 	Config *cfg;
+	std::list<AutoPropData> m_prop_list;
 
 	struct autoproplist_item {
 		const char *name;
@@ -176,8 +177,6 @@ private:
 		}
 	};
 	static autoproplist_item m_autoproplist[];
-
-	std::vector<AutoPropData> m_prop_list;
 };
 
 #endif // _AUTOPROPS_HH_

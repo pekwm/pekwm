@@ -32,7 +32,7 @@ public:
 		BUTTON_FOCUSED = 0, BUTTON_UNFOCUSED,
 		BUTTON_PRESSED, BUTTON_NO_STATE
 	};
-	enum ButtonNum { BUTTON1 = 0, BUTTON2 = 1, BUTTON3 = 2, NUM_BUTTONS = 3 };
+	enum ButtonNum { BUTTON1, BUTTON2, BUTTON3, BUTTON4, BUTTON5, NUM_BUTTONS };
 
 	class ButtonData {
 	public:

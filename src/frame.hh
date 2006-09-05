@@ -24,6 +24,9 @@
 #include "theme.hh"
 #include "windowmanager.hh"
 
+#include <list>
+#include <vector>
+
 class Client;
 
 class Frame
@@ -61,7 +64,7 @@ public:
 	inline int getX(void) const { return m_x; }
 	inline int getY(void) const { return m_y; }
 	inline unsigned int getWidth(void) const { return m_width; }
-	inline unsigned int getHeight(void) const { return m_height; } 
+	inline unsigned int getHeight(void) const { return m_height; }
 
 	inline unsigned int getTitleHeight(void) const { return m_title_height; }
 
@@ -69,20 +72,18 @@ public:
 	Action* handleButtonEvent(XButtonEvent *e);
 	Action* handleMotionNotifyEvent(XMotionEvent *ev);
 
-	void setFocus(void); // makes sure the frame has the right focus
+	void setFocus(bool focus);
 	void setButtonFocus(bool f);
 	void setBorder(void); // these makes sure the frame matches the clients
 	void setTitlebar(void); // border / titlebar state
 	inline void setHiddenState(bool h) { m_is_hidden = h; }
 
-	void repaint(void);
+	void repaint(bool focus);
 
 	void hide(void);
 	void hideClient(Client *c);
-	void hideAll(void);
 
 	void unhide(bool restack = true);
-	void unhideAllClients(void);
 	void unhideClient(Client *c);
 	void iconifyAll(void);
 
@@ -92,17 +93,17 @@ public:
 	void setWorkspace(unsigned int workspace);
 
 	void move(int x, int y);
+	void moveToCorner(Corner corner);
 	void resizeHorizontal(int size_diff);
 	void resizeVertical(int size_diff);
 	void raise(bool restack = true);
 	void lower(bool restack = true);
-	void resizeDrag(bool left, bool x, bool top, bool y);
 	void shade(void);
 	void maximize(void);
 	void maximizeVertical(void);
 	void maximizeHorizontal(void);
 
-	void warpPointerToCenter(void);
+	void doResize(bool left, bool x, bool top, bool y);
 
 #ifdef SHAPE
 	void setShape(void);
@@ -132,49 +133,49 @@ public:
 
 	inline unsigned int borderTop(void) const {
 		return (m_client->hasBorder() ? (m_client->hasFocus()
-			? theme->getBorderFocusData()[BORDER_TOP]->getHeight()
-			: theme->getBorderUnfocusData()[BORDER_TOP]->getHeight()) : 0);
+			? theme->getWinFocusedBorder()[BORDER_TOP]->getHeight()
+			: theme->getWinUnfocusedBorder()[BORDER_TOP]->getHeight()) : 0);
 	}
 
 	inline unsigned int borderTopLeft(void) const {
 		return (m_client->hasBorder() ? (m_client->hasFocus()
-			? theme->getBorderFocusData()[BORDER_TOP_LEFT]->getWidth()
-			: theme->getBorderUnfocusData()[BORDER_TOP_LEFT]->getWidth()) : 0);
+			? theme->getWinFocusedBorder()[BORDER_TOP_LEFT]->getWidth()
+			: theme->getWinUnfocusedBorder()[BORDER_TOP_LEFT]->getWidth()) : 0);
 	}
 
 	inline unsigned int borderTopRight(void) const {
 		return (m_client->hasBorder() ? (m_client->hasFocus()
-			? theme->getBorderFocusData()[BORDER_TOP_RIGHT]->getWidth()
-			: theme->getBorderUnfocusData()[BORDER_TOP_RIGHT]->getWidth()) : 0);
+			? theme->getWinFocusedBorder()[BORDER_TOP_RIGHT]->getWidth()
+			: theme->getWinUnfocusedBorder()[BORDER_TOP_RIGHT]->getWidth()) : 0);
 	}
 
 	inline unsigned int borderBottom(void) const {
 		return (m_client->hasBorder() ? (m_client->hasFocus()
-			? theme->getBorderFocusData()[BORDER_BOTTOM]->getHeight()
-			: theme->getBorderUnfocusData()[BORDER_BOTTOM]->getHeight()) : 0);
+			? theme->getWinFocusedBorder()[BORDER_BOTTOM]->getHeight()
+			: theme->getWinUnfocusedBorder()[BORDER_BOTTOM]->getHeight()) : 0);
 	}
 
 	inline unsigned int borderBottomLeft(void) const {
 		return (m_client->hasBorder() ? (m_client->hasFocus()
-			? theme->getBorderFocusData()[BORDER_BOTTOM_LEFT]->getWidth()
-			: theme->getBorderUnfocusData()[BORDER_BOTTOM_LEFT]->getWidth()) : 0);
+			? theme->getWinFocusedBorder()[BORDER_BOTTOM_LEFT]->getWidth()
+			: theme->getWinUnfocusedBorder()[BORDER_BOTTOM_LEFT]->getWidth()) : 0);
 	}
 
 	inline unsigned int borderBottomRight(void) const {
 		return (m_client->hasBorder() ? (m_client->hasFocus()
-			? theme->getBorderFocusData()[BORDER_BOTTOM_RIGHT]->getWidth()
-			: theme->getBorderUnfocusData()[BORDER_BOTTOM_RIGHT]->getWidth()) : 0);
+			? theme->getWinFocusedBorder()[BORDER_BOTTOM_RIGHT]->getWidth()
+			: theme->getWinUnfocusedBorder()[BORDER_BOTTOM_RIGHT]->getWidth()) : 0);
 	}
 
 	inline unsigned int borderLeft(void) const {
 		return (m_client->hasBorder() ? (m_client->hasFocus()
-			? theme->getBorderFocusData()[BORDER_LEFT]->getWidth()
-			: theme->getBorderUnfocusData()[BORDER_LEFT]->getWidth()) : 0);
+			? theme->getWinFocusedBorder()[BORDER_LEFT]->getWidth()
+			: theme->getWinUnfocusedBorder()[BORDER_LEFT]->getWidth()) : 0);
 	}
 	inline unsigned int borderRight(void) const {
 		return (m_client->hasBorder() ? (m_client->hasFocus()
-			? theme->getBorderFocusData()[BORDER_RIGHT]->getWidth()
-			: theme->getBorderUnfocusData()[BORDER_RIGHT]->getWidth()) : 0);
+			? theme->getWinFocusedBorder()[BORDER_RIGHT]->getWidth()
+			: theme->getWinUnfocusedBorder()[BORDER_RIGHT]->getWidth()) : 0);
 	}
 private:
 	void constructFrame(Client *cl);
@@ -193,14 +194,13 @@ private:
 
 	// frame actions
 	void doMove(XMotionEvent *ev);
-	void moveWireframe(void);
-	void drawWireframe(void); // used when moving wireframed
+	void drawWireframe(void);
 
 	void clientGroupingDrag(XMotionEvent *ev);
 
 	Action* findMouseButtonAction(unsigned int button, unsigned int mod,
-															 MouseButtonType type);													 
-
+																MouseButtonType type,
+																std::list<MouseButtonAction> *actions);
 	void initFrameState(void);
 private:
 	WindowManager *wm;
@@ -208,7 +208,7 @@ private:
 	Theme *theme;
 
 	std::vector<Client*> m_client_list;
-	std::vector<FrameButton*> m_button_list;
+	std::list<FrameButton*> m_button_list;
 
 	Client *m_client;
 	FrameButton *m_button;
@@ -231,7 +231,7 @@ private:
 	// total width of all buttons
 	unsigned int m_button_width_left, m_button_width_right;
 
-	// The old position and dimensions of the frame, used 
+	// The old position and dimensions of the frame, used
 	// in the maximize function.
 	int m_old_x, m_old_y;
 	unsigned int m_old_width, m_old_height;

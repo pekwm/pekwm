@@ -21,6 +21,7 @@
 #include "config.hh"
 
 #include <algorithm>
+#include <functional>
 #include <cstdio> // for snprintf
 
 #ifdef DEBUG
@@ -30,19 +31,32 @@ using std::endl;
 #endif // DEBUG
 using std::string;
 using std::vector;
+using std::list;
+using std::mem_fun;
 
 Frame::Frame(WindowManager *w, Client *cl) :
 wm(w),
 m_client(NULL), m_button(NULL),
+m_frame(None), m_title(None),
 m_title_pixmap(None),
 m_x(0), m_y(0), m_width(1), m_height(1),
+m_title_height(0),
 m_pixmap_width(0), m_pixmap_height(0),
 m_button_width_left(0), m_button_width_right(0),
+m_old_x(0), m_old_y(0), m_old_width(1), m_old_height(1),
+m_pointer_x(0), m_pointer_y(0),
+m_old_cx(0), m_old_cy(0),
 m_is_hidden(false)
 {
 	// setup basic pointers
 	scr = wm->getScreen();
 	theme = wm->getTheme();
+
+	// initialize array values
+	for (unsigned int i = 0; i < BORDER_NO_POS; ++i)
+		m_border[i] = None;
+	for (unsigned int i = 0; i < 5; ++i)
+		m_last_button_time[i] = 0;
 
 	// this will construct the frame hosting the clients, based on m_client
 	// geometry and props
@@ -112,10 +126,10 @@ Frame::constructFrame(Client *client)
 	m_width = client->getWidth();
 	m_height = client->getHeight();
 	if (client->hasBorder()) {
-		m_width += theme->getBorderUnfocusData()[BORDER_LEFT]->getWidth() +
-			 theme->getBorderUnfocusData()[BORDER_RIGHT]->getWidth();
-		m_height += theme->getBorderUnfocusData()[BORDER_TOP]->getHeight() +
-			theme->getBorderUnfocusData()[BORDER_BOTTOM]->getHeight();
+		m_width += theme->getWinUnfocusedBorder()[BORDER_LEFT]->getWidth() +
+			theme->getWinUnfocusedBorder()[BORDER_RIGHT]->getWidth();
+		m_height += theme->getWinUnfocusedBorder()[BORDER_TOP]->getHeight() +
+			theme->getWinUnfocusedBorder()[BORDER_BOTTOM]->getHeight();
 	}
 	m_height += client->hasTitlebar() ? m_title_height : 0;
 
@@ -123,10 +137,10 @@ Frame::constructFrame(Client *client)
 	pattr.do_not_propagate_mask =
 		ButtonPressMask|ButtonReleaseMask|ButtonMotionMask;
 	pattr.override_redirect = false;
- 	pattr.event_mask =
- 		ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
- 		EnterWindowMask|
- 		SubstructureRedirectMask|SubstructureNotifyMask;
+	pattr.event_mask =
+		ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
+		EnterWindowMask|
+		SubstructureRedirectMask|SubstructureNotifyMask;
 
 	// Create frame window
 	m_frame =
@@ -210,18 +224,23 @@ Frame::createBorderWindows(void)
 void
 Frame::loadTheme(void)
 {
+	// First we uppdate the title and make sure it's (in)visible.
+	m_title_height = m_client->calcTitleHeight();
+	if (m_title_height)
+		XRaiseWindow(scr->getDisplay(), m_title);
+	else
+		XLowerWindow(scr->getDisplay(), m_title);
+
+	// Then we uppdate the dimensions of the frame
 	m_width = m_client->getWidth() + borderLeft() + borderRight();
 	m_height = m_client->getHeight() + m_title_height +
 		borderTop() + borderBottom();
-
 	// move all the clients so that they don't sit on top or, under the titlebar
 	vector<Client*>::iterator it = m_client_list.begin();
 	for (; it != m_client_list.end(); ++it) {
 		XMoveWindow(scr->getDisplay(), (*it)->getWindow(),
 								borderLeft(), (*it)->calcTitleHeight() + borderTop());
 	}
-	m_height = m_height - m_title_height + m_client->calcTitleHeight();
-	m_title_height = m_client->calcTitleHeight();
 
 	// make sure the top border is (in)visible
 	if (!borderTop()) {
@@ -239,7 +258,7 @@ Frame::loadTheme(void)
 
 	loadButtons(); // unloads if allready have any buttons loaded
 	updateButtonPosition();
-	setFocus(); 
+	setFocus(m_client->hasFocus());
 }
 
 
@@ -373,7 +392,7 @@ Frame::removeClient(Client *client)
 				hide();
 			} else {
 				activateClient(m_client_list.front(), false);
-				setFocus();
+				setFocus(m_client->hasFocus());
 			}
 		}
 	}
@@ -484,17 +503,13 @@ Frame::activateClient(Client *client, bool focus)
 
 	// Make sure that the bottom border are ontop of the client
 	if (client->hasBorder()) {
-		XRaiseWindow(scr->getDisplay(), m_border[BORDER_BOTTOM]);
-		XRaiseWindow(scr->getDisplay(), m_border[BORDER_BOTTOM_LEFT]);
-		XRaiseWindow(scr->getDisplay(), m_border[BORDER_BOTTOM_RIGHT]);
+		for (unsigned int i = 0; i < BORDER_NO_POS; ++i) {
+			XRaiseWindow(scr->getDisplay(), m_border[i]);
+		}
 	}
 
-	// give the new client input focus
-	if (focus) {
-		if (client == wm->getFocusedClient())
-			wm->focusClient(NULL);
-		wm->focusClient(client);
-	}
+	if (focus)
+		m_client->giveInputFocus();
 
 	// One might think I should do a repaint here, _but_ I don't need to,
 	// I'll get the repaint done when the new client gets focused
@@ -542,7 +557,7 @@ Frame::moveClientNext(void)
 			*n_it = m_client; // move the active client to the next client
 
 			// changed the order of the client, lets redraw the titlebar
-			repaint();
+			repaint(m_client->hasFocus());
 		}
 	}
 }
@@ -564,7 +579,7 @@ Frame::moveClientPrev(void)
 			*n_it = m_client; // move active client back
 
 			// changed the order of the client, lets redraw the titlebar
-			repaint();
+			repaint(m_client->hasFocus());
 		}
 	}
 }
@@ -576,11 +591,11 @@ Frame::moveClientPrev(void)
 FrameButton*
 Frame::findButton(Window win)
 {
-	if (! win)
+	if (!win)
 		return NULL;
 
-	vector<FrameButton *>::iterator it = m_button_list.begin();
-	for (; it < m_button_list.end(); ++it) {
+	list<FrameButton *>::iterator it = m_button_list.begin();
+	for (; it != m_button_list.end(); ++it) {
 		if ((*it)->getWindow() == win) {
 			return *it;
 		}
@@ -671,19 +686,18 @@ Frame::getClientFromPos(unsigned int x)
 //! @fn    void repaint(void)
 //! @brief Redraws the Frame's title.
 void
-Frame::repaint(void)
+Frame::repaint(bool focus)
 {
-	if (!m_client || !m_client->hasTitlebar() || !m_client_list.size())
+	if (!m_client || !m_client->hasTitlebar() || !m_client_list.size() ||
+			!theme->getWinTitleHeight())
 		return;
 
 #ifdef DEBUG
- 	cerr << __FILE__ << "@" << __LINE__ << ": "<< "repaint: " << this
- 			 << " with active client: " << m_client << endl;
+	//	cerr << __FILE__ << "@" << __LINE__ << ": "<< "repaint: " << this
+	//			 << " with active client: " << m_client << endl;
 #endif // DEBUG
 
 	Display *dpy = scr->getDisplay(); //convinience
-	//	bool focus = m_client->hasFocus(); //convinience
-	bool focus = m_client->hasFocus();
 	unsigned int num = m_client_list.size(); // convinience
 
 	// TO-DO: Set the max values to something sensible
@@ -692,7 +706,7 @@ Frame::repaint(void)
 	// see if we can reuse the old pixmap.
 	// TO-DO: Should we more memory conservative here? Only reusing if
 	// the size is the same == shrinking the pixmaps?
- 	if (m_title_pixmap != None) {
+	if (m_title_pixmap != None) {
 		if ((width > m_pixmap_width) || (m_title_height > m_pixmap_height)) {
 			XFreePixmap(dpy, m_title_pixmap);
 			m_title_pixmap = None;
@@ -709,27 +723,27 @@ Frame::repaint(void)
 
 	// draw the base pixmap on the titlebar
 	if (focus) {
-		theme->getWinFocusImage()->
+		theme->getWinFocusedPixmap()->
 			draw(m_title_pixmap, 0, 0, width, m_title_height);
 	}	else {
-		theme->getWinUnfocusImage()->
+		theme->getWinUnfocusedPixmap()->
 			draw(m_title_pixmap, 0, 0, width, m_title_height);
 	}
 
 	PekFont *font = theme->getWinFont();
 	// set the correct color of the title font
 	if (!focus) {
-		font->setColor(theme->getWinTextUn());
+		font->setColor(theme->getWinUnfocusedText());
 	} else if (num > 1) {
-		font->setColor(theme->getWinTextFo());
+		font->setColor(theme->getWinFocusedText());
 	} else {
-		font->setColor(theme->getWinTextSe());
+		font->setColor(theme->getWinSelectedText());
 	}
 
 	// convinience
 	Image *img_separator = focus
-		? theme->getWinFocusSeparator()
-		: theme->getWinUnfocusSeparator();
+		? theme->getWinFocusedSeparator()
+		: theme->getWinUnfocusedSeparator();
 
 	unsigned int x = 0;
 	unsigned int ew = m_width - borderLeft() - borderRight();
@@ -750,27 +764,27 @@ Frame::repaint(void)
 
 			// The active client has another color
 			if (focus && (*it == m_client)) {
-				theme->getWinSelectImage()->draw(m_title_pixmap,
-																				 x, 0, ew, m_title_height);
-				font->setColor(theme->getWinTextSe());
+				theme->getWinSelectedPixmap()->draw(m_title_pixmap,
+																						x, 0, ew, m_title_height);
+				font->setColor(theme->getWinSelectedText());
 			}
 		}
 
 		// if the active client is a transient one, the title will be too small
 		// to show any names, therefore we don't draw any
 		if (!m_client->getTransientWindow()) {
-			if (!(*it)->getTransientWindow() && (*it)->getClientName()) {
+			if (!(*it)->getTransientWindow() && (*it)->getClientName().size()) {
 				font->draw(m_title_pixmap,
 									 x, (m_title_height -
 											 font->getHeight((*it)->getClientName())) / 2,
 									 (*it)->getClientName(), ew,
-									 (TextJustify) theme->getWinTextJustify());
+									 (TextJustify) theme->getWinFontJustify());
 			}
 		}
 
 		// Restore the text color
 		if (focus && (*it == m_client)) {
-			font->setColor(theme->getWinTextFo());
+			font->setColor(theme->getWinFocusedText());
 		}
 	}
 
@@ -778,32 +792,31 @@ Frame::repaint(void)
 	XClearWindow(dpy, m_title);
 }
 
-//! @fn    void setFocus(void)
+//! @fn    void setFocus(bool focus)
 //! @brief Redraws the titlebar and borders.
 void
-Frame::setFocus(void)
+Frame::setFocus(bool focus)
 {
-	repaint();
+	repaint(focus);
 
 	if (m_client->hasTitlebar())
-		setButtonFocus(m_client->hasFocus());
+		setButtonFocus(focus);
 	if (m_client->hasBorder())
-		setBorderFocus(m_client->hasFocus());
+		setBorderFocus(focus);
 }
 
-//! @fn    void setBorderFocus(bool f)
+//! @fn    void setBorderFocus(bool focus)
 //! @brief Redraws the border.
-//! @param f If f is true, the border gets focused color else it get unfocused
+//! @param focus Focus or on unfocus.
 void
-Frame::setBorderFocus(bool f)
+Frame::setBorderFocus(bool focus)
 {
 	Image **data = NULL;
 
-	if (f) {
-		data = theme->getBorderFocusData();
-	} else {
-		data = theme->getBorderUnfocusData();
-	}
+	if (focus)
+		data = theme->getWinFocusedBorder();
+	else
+		data = theme->getWinUnfocusedBorder();
 
 	for (unsigned int i = 0; i < BORDER_NO_POS; ++i) {
 		XSetWindowBackgroundPixmap(scr->getDisplay(),
@@ -821,7 +834,7 @@ Frame::setButtonFocus(bool f)
 	FrameButton::ButtonState state =
 		f ? FrameButton::BUTTON_FOCUSED : FrameButton::BUTTON_UNFOCUSED;
 
-	vector<FrameButton*>::iterator it = m_button_list.begin();
+	list<FrameButton*>::iterator it = m_button_list.begin();
 	for (; it != m_button_list.end(); ++it) {
 		(*it)->setState(state);
 	}
@@ -832,23 +845,30 @@ Frame::setButtonFocus(bool f)
 void
 Frame::setBorder(void)
 {
-	updateFrameSize();
+	unsigned int width = m_client->getWidth();
+	unsigned int height = m_client->getHeight() + m_title_height;
+	if (m_client->hasBorder()) {
+		width += borderLeft() + borderRight();
+		height += borderTop() + borderBottom();
+	}
+
+	updateFrameSize(width, height);
 	updateClientSize();
 
 	XRaiseWindow(scr->getDisplay(), m_client->getWindow());
 	if (m_client->hasBorder()) {
 		XMoveWindow(scr->getDisplay(), m_client->getWindow(),
 								borderLeft(), borderTop() + m_title_height);
+
+		for (unsigned int i = 0; i < BORDER_NO_POS; ++i) {
+			XRaiseWindow(scr->getDisplay(), m_border[i]);
+		}
 	} else {
 		XMoveWindow(scr->getDisplay(), m_client->getWindow(),
 								0, m_title_height);
-	}
-
-	// Make sure that the bottom border are ontop of the client							 
-	if (m_client->hasBorder()) {
-		XRaiseWindow(scr->getDisplay(), m_border[BORDER_BOTTOM]);
-		XRaiseWindow(scr->getDisplay(), m_border[BORDER_BOTTOM_LEFT]);
-		XRaiseWindow(scr->getDisplay(), m_border[BORDER_BOTTOM_RIGHT]);
+		for (unsigned int i = 0; i < BORDER_NO_POS; ++i) {
+			XLowerWindow(scr->getDisplay(), m_border[i]);
+		}
 	}
 }
 
@@ -878,7 +898,7 @@ Frame::updateFrameSize(void)
 											m_width - borderLeft() - borderRight(), m_title_height);
 		}
 	}
-	
+
 	if (m_client->isShaded()) {
 		XResizeWindow(scr->getDisplay(), m_frame,
 									m_width, m_title_height + borderTop() + borderBottom());
@@ -887,7 +907,7 @@ Frame::updateFrameSize(void)
 	}
 
 	if (m_client->hasTitlebar()) {
-		repaint();
+		repaint(m_client->hasFocus());
 		updateButtonPosition();
 	}
 	if (m_client->hasBorder())
@@ -916,7 +936,7 @@ Frame::updateFramePosition(void)
 }
 
 //! @fn    void updateFramePosition(int x, int y)
-//! @brief Moves the frame window to the specified position. 
+//! @brief Moves the frame window to the specified position.
 //! @param x New x position
 //! @param y New y position
 void
@@ -1063,8 +1083,8 @@ Frame::loadButtons(void)
 	m_button_width_left = m_button_width_right = 0;
 
 	// add buttons to the frame
-	vector<FrameButton::ButtonData> *b_list = theme->getButtonList();
-	vector<FrameButton::ButtonData>::iterator it = b_list->begin();
+	list<FrameButton::ButtonData> *b_list = theme->getButtonList();
+	list<FrameButton::ButtonData>::iterator it = b_list->begin();
 	for (; it != b_list->end(); ++it) {
 		m_button_list.push_back(new FrameButton(wm->getScreen(), this, &*it));
 
@@ -1083,8 +1103,8 @@ Frame::unloadButtons(void)
 	if (!m_button_list.size())
 		return;
 
-	vector<FrameButton*>::iterator it = m_button_list.begin();
-	for (; it < m_button_list.end(); ++it) {
+	list<FrameButton*>::iterator it = m_button_list.begin();
+	for (; it != m_button_list.end(); ++it) {
 		delete *it;
 	}
 	m_button_list.clear();
@@ -1104,7 +1124,7 @@ Frame::updateButtonPosition(void)
 	if (borderTop())
 		right -= borderLeft() + borderRight();
 
-	vector<FrameButton*>::iterator it = m_button_list.begin();
+	list<FrameButton*>::iterator it = m_button_list.begin();
 	for (; it != m_button_list.end(); ++it) {
 		if ((*it)->isLeft()) {
 			(*it)->setPosition(left, 0);
@@ -1120,20 +1140,18 @@ Frame::updateButtonPosition(void)
 void
 Frame::showAllButtons(void)
 {
-	vector<FrameButton*>::iterator it = m_button_list.begin();
-	for (; it != m_button_list.end(); ++it) {
-		(*it)->show();
-	}
+	if (m_button_list.size())
+		for_each(m_button_list.begin(), m_button_list.end(),
+						 mem_fun(&FrameButton::show));
 }
 
 //! @fn    void hideAllButtons(void)
 void
 Frame::hideAllButtons(void)
 {
-	vector<FrameButton*>::iterator it = m_button_list.begin();
-	for (; it != m_button_list.end(); ++it) {
-		(*it)->hide();
-	}
+	if (m_button_list.size())
+		for_each(m_button_list.begin(), m_button_list.end(),
+						 mem_fun(&FrameButton::hide));
 }
 
 //! @fn    void updateTitleHeight(void)
@@ -1230,7 +1248,7 @@ Frame::handleButtonEvent(XButtonEvent *e)
 			if (m_button == findButton(e->subwindow)) {
 				action = m_button->getActionFromButton(e->button);
 				// We don't want to execute this both on press and release!
-				if (action->action == RESIZE) {
+				if (action && (action->action == RESIZE)) {
 					action = NULL;
 				}
 			}
@@ -1248,7 +1266,7 @@ Frame::handleButtonEvent(XButtonEvent *e)
 			button->setState(FrameButton::BUTTON_PRESSED);
 
 			// If the button is used for resizing the window we want to be able
-			// to resize it directly when pressing the button and not have to 
+			// to resize it directly when pressing the button and not have to
 			// wait until we release it, therefor this execption
 			if (button->getAction(e->button) == RESIZE) {
 				action = button->getActionFromButton(e->button);
@@ -1265,6 +1283,9 @@ Frame::handleButtonEvent(XButtonEvent *e)
 
 		// Also remove NumLock, ScrollLock and CapsLock
 		e->state &= ~scr->getNumLock() & ~scr->getScrollLock() & ~LockMask;
+		// Remove the button from the state
+		e->state &= ~Button1Mask & ~Button2Mask & ~Button3Mask
+			& ~Button4Mask & ~Button5Mask;
 
 		// Used to compute the pointer position on click
 		// used in the motion handler when doing a window move.
@@ -1276,34 +1297,41 @@ Frame::handleButtonEvent(XButtonEvent *e)
 		// Allow us to get clicks from anywhere on the window.
 		XAllowEvents(scr->getDisplay(), ReplayPointer, CurrentTime);
 
+
+		// Handle clicks on the Frames title
 		if (e->window == m_title) {
-			// Remove the button from the state so that I can match it with == on
-			// the mousebutton mod
-			e->state &= ~Button1Mask & ~Button2Mask & ~Button3Mask
-				& ~Button4Mask & ~Button5Mask;
 
 			if (e->type == ButtonPress) {
-				action = findMouseButtonAction(e->button, e->state,
-																				BUTTON_FRAME_SINGLE);
-			} else if (e->type == ButtonRelease) {
+				action =
+					findMouseButtonAction(e->button, e->state, BUTTON_SINGLE,
+																wm->getConfig()->getMouseFrameList());
+			} else if (e->type == ButtonRelease && (e->button < 5)) {
+				// Lets see if it's a DoubleClick
+				if ((e->time - m_last_button_time[e->button - 1]) <
+						wm->getConfig()->getDoubleClickTime()) {
 
-				if ((e->button > 0) && (e->button < 5)) {
-					if((e->time - m_last_button_time[e->button - 1]) <
-						 wm->getConfig()->getDoubleClickTime()) {
-
-						action = findMouseButtonAction(e->button, e->state,
-																					 BUTTON_FRAME_DOUBLE);
-						m_last_button_time[e->button - 1] = 0;
-					} else  {
-						m_last_button_time[e->button - 1] = e->time; // update click timer
-					}
+					action =
+						findMouseButtonAction(e->button, e->state, BUTTON_DOUBLE,
+																	wm->getConfig()->getMouseFrameList());
+					m_last_button_time[e->button - 1] = 0;
+				} else {
+					m_last_button_time[e->button - 1] = e->time;
 				}
 			}
-		}	else if (e->window == m_client->getWindow() ||
-							 e->subwindow == m_client->getWindow()) {
 
-			action = findMouseButtonAction(e->button, e->state,
-																		 BUTTON_CLIENT_SINGLE);
+			// Clicks on the Clients window
+			// NOTE: If the we're matching against the subwindow we need to make
+			// sure that the state is 0, meaning we didn't have any modifier
+			// because if we don't care about the modifier we'll get two actions
+			// performed when using modifiers.
+		}	else if ((e->window == m_client->getWindow()) ||
+							 (!e->state && (e->subwindow == m_client->getWindow()))) {
+			if (e->type == ButtonPress) {
+				action =
+					findMouseButtonAction(e->button, e->state, BUTTON_SINGLE,
+																wm->getConfig()->getMouseClientList());
+			}
+			// Border clicks that migh initiate resizing
 		} else if ((e->window == m_frame) && e->subwindow &&
 							 (e->subwindow != m_title)) {
 			if (e->type == ButtonPress) {
@@ -1311,7 +1339,7 @@ Frame::handleButtonEvent(XButtonEvent *e)
 				bool x = false, y = false;
 				bool left = false, top = false;
 				bool resize = true;
-	
+
 				if (e->subwindow == m_border[BORDER_TOP_LEFT])
 					x = y = left = top = true;
 				else if (e->subwindow == m_border[BORDER_TOP])
@@ -1331,12 +1359,8 @@ Frame::handleButtonEvent(XButtonEvent *e)
 				else
 					resize = false;
 
-				// TO-DO: Fix.
-				// Well, I'm not sure about this but this will have to do for now.
-				// Maybe I should do something smart detecting if i'm really moving
-				// the cursor after the press?
 				if (resize && !m_client->isShaded()) {
-					resizeDrag(left, x, top, y);
+					doResize(left, x, top, y);
 				}
 			}
 		}
@@ -1350,7 +1374,7 @@ Frame::handleButtonEvent(XButtonEvent *e)
 		if (action->action == ACTIVATE_CLIENT) {
 			activateClientFromPos(e->x);
 		} else if (action->action == RESIZE) {
-			resizeDrag(false, true, false, true);
+			doResize(false, true, false, true);
 		} else {
 			return action;
 		}
@@ -1362,30 +1386,16 @@ Frame::handleButtonEvent(XButtonEvent *e)
 
 Action*
 Frame::findMouseButtonAction(unsigned int button, unsigned int mod,
-														 MouseButtonType type)
+														 MouseButtonType type,
+														 list<MouseButtonAction> *actions)
 {
-	vector<MouseButtonAction> *actions = NULL;
-	switch (type) {
-	case BUTTON_FRAME_SINGLE:
-	case BUTTON_FRAME_DOUBLE:
-	case BUTTON_FRAME_MOTION:
-		actions = wm->getConfig()->getFrameClickList();
-		break;
-	case BUTTON_CLIENT_SINGLE:
-	case BUTTON_CLIENT_MOTION:
-		actions = wm->getConfig()->getClientClickList();
-		break;
-	default:
-		// do nothing
-		break;
-	}
+	if (!actions)
+		return NULL;
 
-	if (actions) {
-		vector<MouseButtonAction>::iterator it = actions->begin();
-		for (; it != actions->end(); ++it) {
-			if ((it->button == button) && (it->mod == mod) && (it->type == type)) {
-				return &*it;
-			}
+	list<MouseButtonAction>::iterator it = actions->begin();
+	for (; it != actions->end(); ++it) {
+		if ((it->button == button) && (it->mod == mod) && (it->type == type)) {
+			return &*it;
 		}
 	}
 
@@ -1424,12 +1434,12 @@ Frame::handleMotionNotifyEvent(XMotionEvent *ev)
 	ev->state &= ~scr->getNumLock() & ~scr->getScrollLock() & ~LockMask;
 
 	Action *action = NULL;
-	if ((ev->window == m_title) || (ev->window == m_client->getWindow())) {
-		if (ev->window == m_title)
-			action = findMouseButtonAction(button, ev->state, BUTTON_FRAME_MOTION);
-		else
-			action = findMouseButtonAction(button, ev->state, BUTTON_CLIENT_MOTION);
-
+	if (ev->window == m_title) {
+		action = findMouseButtonAction(button, ev->state, BUTTON_MOTION,
+																	 wm->getConfig()->getMouseFrameList());
+	} else if (ev->window == m_client->getWindow()) {
+		action = findMouseButtonAction(button, ev->state, BUTTON_MOTION,
+																	 wm->getConfig()->getMouseClientList());
 	}
 
 	if (action) {
@@ -1445,87 +1455,149 @@ Frame::handleMotionNotifyEvent(XMotionEvent *ev)
 	return NULL;
 }
 
+//! @fn    void doMove(XMotionEvent *ev)
+//! @brief Starts moving the window based on the XMotionEvent
 void
 Frame::doMove(XMotionEvent *ev)
 {
-	Display *dpy = scr->getDisplay();
+	if (!ev)
+		return;
 
-	if (wm->getConfig()->isWireMove()) {
-		XEvent ev;
+	int status =
+		XGrabPointer(scr->getDisplay(), scr->getRoot(), false,
+								 ButtonPressMask|ButtonReleaseMask|PointerMotionMask,
+								 GrabModeAsync, GrabModeAsync, None,
+								 wm->getCursors()[WindowManager::MOVE_CURSOR], CurrentTime);
 
-		// Only call the drag function if we are actually dragging the window.
-		while (true) {
-			XNextEvent(dpy, &ev);
- 
-			if (ev.type == MotionNotify) {
-				moveWireframe();
-				break;
-			} else {
-				// Put all events we don't want to handle back so 
-				// that the main window manager event loop can handle them.
-				XPutBackEvent(dpy, &ev);	
-				return;
-			}
-		}
-	} else { // solid move
-		m_x = m_old_cx + (ev->x_root - m_pointer_x);
-		m_y = m_old_cy + (ev->y_root - m_pointer_y);
+	if (status != GrabSuccess)
+		return;
 
-		if(wm->getConfig()->isEdgeSnap()) {
-			checkEdgeSnap();
-		}
-
-		XMoveWindow(dpy, m_frame, m_x, m_y);
-	}
-
-	updateFramePosition();
-	updateClientPosition();
-}
-
-//! @fn    void moveWireframe(void)
-//! @brief Handles moving of the frame when moving it in wireframe mode
-void
-Frame::moveWireframe(void)
-{
-	Display *dpy = scr->getDisplay();
-
-	XEvent ev;
- 
-	XGrabServer(dpy);
+	Config *cfg = wm->getConfig(); // convinience
+	int resistance = signed(cfg->getWorkspaceWarp()); // convinience
 
 	char buf[32];
 	snprintf(buf, sizeof(buf), "%dx%d @ %dx%d", m_width, m_height, m_x, m_y);
 	wm->drawInStatusWindow(buf); // to make things less flickery
 	wm->showStatusWindow();
 
-	drawWireframe();
-	while(true) { // this breaks when we get an button release
-		XMaskEvent(dpy, PointerMotionMask|ButtonReleaseMask, &ev);
+	if (!cfg->getOpaqueMove()) {
+		XGrabServer(scr->getDisplay());
+		drawWireframe(); // so that first clear will work
+	}
 
-		switch(ev.type) {
+	XEvent e;
+	while (true) { // breaks when we get an ButtonRelease event
+		XMaskEvent(scr->getDisplay(), ButtonReleaseMask|PointerMotionMask, &e);
+
+		switch (e.type) {
 		case MotionNotify:
-			drawWireframe(); // clear last place
+			if (!cfg->getOpaqueMove())
+				drawWireframe(); // clear
 
-			m_x = m_old_cx + (ev.xmotion.x_root - m_pointer_x);
-			m_y = m_old_cy + (ev.xmotion.y_root - m_pointer_y);
-	
-			if(wm->getConfig()->isEdgeSnap()) {
+			m_x = m_old_cx + (e.xmotion.x_root - m_pointer_x);
+			m_y = m_old_cy + (e.xmotion.y_root - m_pointer_y);
+
+			// I prefer having the EdgeSnap after the FrameSnap, feels better IMHO
+			if (wm->getConfig()->getFrameSnap())
+				wm->getWorkspaces()->checkFrameSnap(m_x, m_y,
+																						this, wm->getActiveWorkspace());
+			if(wm->getConfig()->getEdgeSnap())
 				checkEdgeSnap();
-			}
 
 			snprintf(buf, sizeof(buf), "%dx%d @ %dx%d", m_width, m_height, m_x, m_y);
 			wm->drawInStatusWindow(buf);
 
-			drawWireframe(); // draw new
-		break;
-		
+			if (cfg->getOpaqueMove()) {
+				updateFramePosition();
+				updateClientPosition();
+			} else {
+				drawWireframe();
+			}
+
+			if (resistance) {
+				bool left = false;
+				bool right = false;
+				unsigned int ws = wm->getActiveWorkspace(); // convinience
+
+				int num_ws = wm->getWorkspaces()->getNumWorkspaces() - 1;
+				int new_ws = ws;
+
+				left = (e.xmotion.x_root <= resistance);
+				if (!left)
+					right = (e.xmotion.x_root >= signed(scr->getWidth() - resistance));
+
+				new_ws = (left ? (ws - 1) : (ws + 1));
+				if (cfg->getWrapWorkspaceWarp()) {
+					if (new_ws < 0)
+						new_ws = num_ws;
+					else if (new_ws > num_ws)
+						new_ws = 0;
+				} else if ((new_ws < 0) || (new_ws > num_ws)) {
+					break;
+				}
+
+				// found a workspace to warp to
+				if (left || right) {
+					// If we draw wireframe, we need to ungrab when changing workspace
+					if (!cfg->getOpaqueMove()) {
+						drawWireframe(); // clear
+					}
+
+					unsigned int warp = resistance * 2;
+
+					// warp the pointer
+					XWarpPointer(scr->getDisplay(), None, scr->getRoot(),
+											 0, 0, 0, 0,
+											 left ? scr->getWidth() - warp : warp,
+											 e.xmotion.y_root);
+
+					// warp workspace
+					wm->setWorkspace(new_ws, false); // do not focus
+
+					// set new position of the frame
+					m_x = left
+						? (m_old_cx + scr->getWidth() - warp - m_pointer_x)
+						: (m_old_cx + warp - m_pointer_x);
+					m_y = m_old_cy + e.xmotion.y_root - m_pointer_y;
+
+					updateFramePosition();
+					updateClientPosition();
+
+					// warp client to the new workspace
+					setWorkspace(wm->getActiveWorkspace());
+
+					// make sure the client has focus
+					m_client->getFrame()->setFocus(true);
+					m_client->giveInputFocus();
+
+					// make sure the status window is ontop of the frame
+					wm->showStatusWindow();
+
+					if (!cfg->getOpaqueMove()) {
+						drawWireframe();
+					}
+				}
+			}
+
+			break;
+
 		case ButtonRelease:
-			drawWireframe(); // clear last place
+			if (!cfg->getOpaqueMove()) {
+				drawWireframe(); // clear
+
+				XSync(scr->getDisplay(), false);
+				XUngrabServer(scr->getDisplay());
+
+				updateFramePosition();
+				updateClientPosition();
+			}
+
 			wm->hideStatusWindow();
 
-			XUngrabServer(dpy);
-			XSync(dpy, False);
+			XUngrabPointer(scr->getDisplay(), CurrentTime);
 			return;
+
+			break;
 		}
 	}
 }
@@ -1538,19 +1610,19 @@ Frame::clientGroupingDrag(XMotionEvent *ev)
 	o_x = ev ? ev->x_root : 0;
 	o_y = ev ? ev->y_root : 0;
 
-	string name = "Grouping ";
-	if (m_client->getClientName()) {
+	string name("Grouping ");
+	if (m_client->getClientName().size()) {
 		name += m_client->getClientName();
 	} else {
 		name += "No Name";
 	}
 
-	if ((XGrabPointer(scr->getDisplay(), scr->getRoot(),
-									 False, ButtonReleaseMask|PointerMotionMask,
-									 GrabModeAsync, GrabModeAsync, None,
-									 None, CurrentTime)) != GrabSuccess) {
+	int status =
+		XGrabPointer(scr->getDisplay(), scr->getRoot(), false,
+								 ButtonReleaseMask|PointerMotionMask,
+								 GrabModeAsync, GrabModeAsync, None, None, CurrentTime);
+	if (status != GrabSuccess)
 		return;
-	}
 
 	wm->drawInStatusWindow(name, o_x, o_y); // to make things less flickery
 	wm->showStatusWindow();
@@ -1570,9 +1642,7 @@ Frame::clientGroupingDrag(XMotionEvent *ev)
 
 		case ButtonRelease:
 			wm->hideStatusWindow();
-
 			XUngrabPointer(scr->getDisplay(), CurrentTime);
-			XSync(scr->getDisplay(), False); // TO-DO: ??
 
 			Window win;
 			int x, y;
@@ -1594,23 +1664,19 @@ Frame::clientGroupingDrag(XMotionEvent *ev)
 				// make sure the client ends up on the current workspace
 				client->setWorkspace(wm->getActiveWorkspace());
 
-				// finally give the new window focus
-				if (client == wm->getFocusedClient())
-					wm->focusClient(NULL);
+				// make sure it get's focus
+				client->giveInputFocus();
 
-				wm->focusClient(client);
-
-			} else if ((client = wm->findClient(win)) &&
-								 !clientIsInFrame(client) &&
-								 // This should do the trick as windows with higher layer
-								 // than this usually is a dock or whatever and lower is
-								 // most likely to be a desktop or other special
+			} else if ((client = wm->findClient(win)) && !clientIsInFrame(client) &&
 								 (client->getLayer() <= WIN_LAYER_ONTOP) &&
-								 (client->getLayer() >= WIN_LAYER_BELOW)) {
-				if (client->getFrame()) {
-					removeClient(m_client);
-					client->getFrame()->insertClient(m_client);
-				}
+								 (client->getLayer() >= WIN_LAYER_BELOW) &&
+								 (client->getFrame())) {
+				Client *ins_client = m_client;
+				removeClient(m_client);
+				client->getFrame()->insertClient(ins_client);
+
+				// make sure it get's repainted
+				ins_client->getFrame()->repaint(true);
 			}
 
 			return;
@@ -1625,7 +1691,7 @@ Frame::drawWireframe(void)
 {
 	Display *dpy = scr->getDisplay();
 
- 	if (m_client->isShaded()) {
+	if (m_client->isShaded()) {
 		XDrawRectangle(dpy, scr->getRoot(), theme->getInvertGC(),
 									 m_x, m_y,
 									 m_width, m_title_height + borderTop() + borderBottom());
@@ -1633,33 +1699,27 @@ Frame::drawWireframe(void)
 		XDrawRectangle(dpy, scr->getRoot(), theme->getInvertGC(),
 									 m_x, m_y,
 									 m_width, m_height);
-		XDrawRectangle(dpy, scr->getRoot(), theme->getInvertGC(),
-									 m_x + borderLeft(), m_y + borderTop() + m_title_height,
-									 m_width - borderLeft() - borderRight(),
-									 m_height - borderTop() - borderBottom() - m_title_height);
 	}
 }
 
-//! @fn    void resizeDrag(bool left, bool x, bool top, bool y)
+//! @fn    void doResize(bool left, bool x, bool top, bool y)
 //! @brief Resizes the frame by handling MotionNotify events.
-//! @param left
-//! @param x
-//! @param top
-//! @param y
 void
-Frame::resizeDrag(bool left, bool x, bool top, bool y)
+Frame::doResize(bool left, bool x, bool top, bool y)
 {
-	XEvent ev;
+	int status =
+		XGrabPointer(scr->getDisplay(), scr->getRoot(),
+								 False, ButtonPressMask|ButtonReleaseMask|PointerMotionMask,
+								 GrabModeAsync, GrabModeAsync, None,
+								 wm->getCursors()[WindowManager::RESIZE_CURSOR], CurrentTime);
 
-	if ((XGrabPointer(scr->getDisplay(), scr->getRoot(),
-									 False, ButtonPressMask|ButtonReleaseMask|PointerMotionMask,
-									 GrabModeAsync, GrabModeAsync, None,
-									 wm->getCursors()[WindowManager::RESIZE_CURSOR], CurrentTime)) != GrabSuccess) {
+	if (status != GrabSuccess)
 		return;
-	}
 
-	// Only grab if we wan to
-	if (wm->getConfig()->grabWhenResize())
+	Config *cfg = wm->getConfig(); // convinience
+
+	// Only grab if we want to
+	if (wm->getConfig()->getGrabWhenResize())
 		XGrabServer(scr->getDisplay());
 
 	if (m_client->isShaded())
@@ -1696,14 +1756,21 @@ Frame::resizeDrag(bool left, bool x, bool top, bool y)
 	wm->showStatusWindow();
 
 	// draw the wire frame of the window, so that the first clear works.
-	drawWireframe();
+	if (!cfg->getOpaqueResize())
+		drawWireframe();
+
+	unsigned int old_width = m_width;
+	unsigned int old_height = m_height;
+
+	XEvent ev;
 	while (true) { // breaks when we get an ButtonRelease event
 		XMaskEvent(scr->getDisplay(),
 							 ButtonPressMask|ButtonReleaseMask|PointerMotionMask, &ev);
 
 		switch (ev.type) {
 		case MotionNotify:
-			drawWireframe(); // clear
+			if (!cfg->getOpaqueResize())
+				drawWireframe(); // clear
 
 			new_x = x ? ev.xmotion.x : start_x;
 			new_y = y ? ev.xmotion.y : start_y;
@@ -1713,11 +1780,27 @@ Frame::resizeDrag(bool left, bool x, bool top, bool y)
 			snprintf(buf, sizeof(buf), "%dx%d @ %dx%d", m_width, m_height, m_x, m_y);
 			wm->drawInStatusWindow(buf);
 
-			drawWireframe();
+			// we need to do this everytime, not as in opaque when we update
+			// when something has changed
+			if (!cfg->getOpaqueResize())
+				drawWireframe();
+
+			// Here's the deal, we try to be a bit conservative with redraws
+			// when resizing, especially as drawing scaled pixmaps is _slow_
+			if ((old_width != m_width) || (old_height != m_height)) {
+				if (cfg->getOpaqueResize()) {
+					updateFrameGeometry();
+					updateClientGeometry();
+				}
+				old_width = m_width;
+				old_height = m_height;
+			}
 		break;
 
 		case ButtonRelease:
-			drawWireframe(); // clear
+			if (!cfg->getOpaqueResize())
+				drawWireframe(); // clear
+
 			wm->hideStatusWindow();
 
 			XUngrabPointer(scr->getDisplay(), CurrentTime);
@@ -1726,7 +1809,7 @@ Frame::resizeDrag(bool left, bool x, bool top, bool y)
 			updateFrameGeometry();
 			updateClientGeometry();
 
-			if (wm->getConfig()->grabWhenResize()) {
+			if (wm->getConfig()->getGrabWhenResize()) {
 				XSync(scr->getDisplay(), false);
 				XUngrabServer(scr->getDisplay());
 			}
@@ -1762,12 +1845,10 @@ Frame::recalcResizeDrag(int nx, int ny, bool left, bool top)
 	unsigned int width = left ? (m_old_cx - nx) : (nx - m_old_cx);
 	unsigned int height = top ? (m_old_cy - ny) : (ny - m_old_cy);
 
-	if(width > scr->getWidth()) {
+	if(width > scr->getWidth())
 		width = scr->getWidth();
-	}
-	if(height > scr->getHeight()) {
+	if(height > scr->getHeight())
 		height = scr->getHeight();
-	}
 
 	width -= brdr_lr;
 	height -= brdr_tb;
@@ -1802,50 +1883,49 @@ Frame::recalcResizeDrag(int nx, int ny, bool left, bool top)
 void
 Frame::hide(void)
 {
+	if (m_is_hidden)
+		return;
 	m_is_hidden = true;
+
+	vector<Client*>::iterator it = m_client_list.begin();
+	for (; it != m_client_list.end(); ++it) {
+		if (!(*it)->isHidden())
+			(*it)->hide();
+	}
+
 	XUnmapWindow(scr->getDisplay(), m_frame);
 }
 
-//! @fn    void hideAll(void)
-//! @brief Hides both clients AND the frame, used when changing workspaces
+//! @fn    void hideClient(Client *client)
+//! @brief Hides the client client
+//! Hides the Client client, if all clients are hidden we also
+//! hide the frame else we activate a non hidden client in the frame.
+//! @param client Client in the frame to hide.
 void
-Frame::hideAll(void)
+Frame::hideClient(Client *client)
 {
-	vector<Client*>::iterator it = m_client_list.begin();
-	for (; it < m_client_list.end(); ++it) {
-		(*it)->hide(false);
-		(*it)->filteredUnmap();
-	}
-	hide(); // all clients are now hidden, let's hide the frame
-}
-
-//! @fn    void hideClient(Client *c)
-//! @brief Hides the client c
-//! Hides the Client c, if all clients are hidden we also hide the frame else
-//! we activate a non hidden client in the frame.
-//! @param c Client in the frame to hide.
-void
-Frame::hideClient(Client *c)
-{
-	if (!c || !clientIsInFrame(c))
+	if (!client || !m_client_list.size())
 		return;
 
-	c->filteredUnmap();
+	if (!client->isHidden())
+		client->hide();
 
+	// if we have more than one clients in the frame, we'll try to find
+	// another client to activate if this was the active one
 	if (m_client_list.size() > 1) {
-		if (c == m_client) {
-			Client *client = NULL;
+		if (client == m_client) {
+			Client *new_client = NULL;
 
 			vector<Client*>::iterator it = m_client_list.begin();
 			for (it = m_client_list.begin(); it != m_client_list.end(); ++it) {
 				if ((*it != m_client) && !(*it)->isHidden()) {
-					client = *it;
+					new_client = *it;
 					break;
 				}
 			}
 
-			if (client) {
-				activateClient(client);
+			if (new_client) {
+				activateClient(new_client);
 			} else {
 				hide(); // all the clients are iconified, let's hide the window
 			}
@@ -1863,26 +1943,18 @@ Frame::unhide(bool restack)
 {
 	if (!m_is_hidden)
 		return;
-	
+
 	m_is_hidden = false;
 	XMapWindow(scr->getDisplay(), m_frame);
 
-	if (restack)
-		raise(); // to handle stacking
-}
-
-//! @fn    void unhideAllClients(void)
-//! @brief Unhides all the clients.
-void
-Frame::unhideAllClients(void)
-{
 	vector<Client*>::iterator it = m_client_list.begin();
 	for (; it != m_client_list.end(); ++it) {
-		if (!(*it)->isIconified()) {
-			(*it)->unhide(false);
-			XMapWindow(scr->getDisplay(), (*it)->getWindow());
-		}
+		if ((*it)->isHidden() && !(*it)->isIconified())
+			(*it)->unhide();
 	}
+
+	if (restack)
+		raise(); // to handle stacking
 }
 
 //! @fn    void unhideClient(Client *client)
@@ -1891,24 +1963,24 @@ Frame::unhideAllClients(void)
 void
 Frame::unhideClient(Client *client)
 {
-	if (!client || !clientIsInFrame(client))
+	if (!client || !m_client_list.size())
 		return;
 
 	if (m_is_hidden)
 		unhide();
 
-	XMapWindow(scr->getDisplay(), client->getWindow());
+	client->unhide();
 	if (client != m_client)
 		activateClient(client);
 }
 
 void Frame::iconifyAll(void)
 {
-	hide(); 
+	hide();
 
 	vector<Client*>::iterator it = m_client_list.begin();
-	for (; it < m_client_list.end(); ++it) {
-		(*it)->iconify(false); // do not send hideClient to this frame
+	for (; it != m_client_list.end(); ++it) {
+		(*it)->iconify(); // do not send hideClient to this frame
 	}
 }
 
@@ -1920,10 +1992,14 @@ Frame::setWorkspace(unsigned int workspace)
 	if (workspace >= wm->getWorkspaces()->getNumWorkspaces())
 		return;
 
+	Client *focus_client = m_client;
+
 	vector<Client*>::iterator it = m_client_list.begin();
 	for (; it != m_client_list.end(); ++it) {
 		(*it)->setWorkspace(workspace);
 	}
+
+	activateClient(focus_client, false); // do not focus
 }
 
 //! @fn    void move(int x, int y)
@@ -1942,6 +2018,69 @@ Frame::move(int x, int y)
 
 	m_x = x;
 	m_y = y;
+
+	updateFramePosition();
+	updateClientPosition();
+}
+
+//! @fn    moveToCorner(Corner corner)
+//! @brief Moves the frame to one of the corners of the screen.
+void
+Frame::moveToCorner(Corner corner)
+{
+#ifdef XINERAMA
+		ScreenInfo::HeadInfo head;
+		unsigned int head_nr = 0;
+
+		if (scr->hasXinerama()) {
+			head_nr = scr->getHead(m_x + (m_width / 2), m_y + (m_height / 2));
+		}
+		scr->getHeadInfo(head_nr, head);
+
+	switch (corner) {
+	case TOP_LEFT:
+		m_x = head.x;
+		m_y = head.y;
+		break;
+	case TOP_RIGHT:
+		m_x = head.x + head.width - m_width;
+		m_y = head.y;
+		break;
+	case BOTTOM_LEFT:
+		m_x = head.x;
+		m_y = head.y + head.height - m_height;
+		break;
+	case BOTTOM_RIGHT:
+		m_x = head.x + head.width - m_width;
+		m_y = head.y + head.height - m_height;
+		break;
+	default:
+		// DO NOTHING
+		break;
+	}
+#else // !XINERAMA
+	switch (corner) {
+	case TOP_LEFT:
+		m_x = 0;
+		m_y = 0;
+		break;
+	case TOP_RIGHT:
+		m_x = scr->getWidth() - m_width;
+		m_y = 0;
+		break;
+	case BOTTOM_LEFT:
+		m_x = 0;
+		m_y = scr->getHeight() - m_height;
+		break;
+	case BOTTOM_RIGHT:
+		m_x = scr->getWidth() - m_width;
+		m_y = scr->getHeight() - m_height;
+		break;
+	default:
+		// DO NOTHING
+		break;
+	}
+#endif // XINERAMA
 
 	updateFramePosition();
 	updateClientPosition();
@@ -2077,7 +2216,7 @@ void
 Frame::shade(void)
 {
 	// we won't shade windows like gkrellm and xmms
-	if (! m_client->hasTitlebar())
+	if (!m_client->hasTitlebar())
 		return;
 
 	if (m_client->isShaded()) {
@@ -2110,11 +2249,8 @@ Frame::maximize(void)
 		ScreenInfo::HeadInfo head;
 		unsigned int head_nr = 0;
 
-		// We take the middle of the window, makes it feel more
-		// natural, atleast according to me! :)
 		if (scr->hasXinerama()) {
-			head_nr =
-				scr->getHead(m_x + (m_width / 2), m_y + (m_height / 2));
+			head_nr = scr->getHead(m_x + (m_width / 2), m_y + (m_height / 2));
 		}
 		scr->getHeadInfo(head_nr, head);
 #endif // XINERAMA
@@ -2215,7 +2351,7 @@ Frame::maximizeHorizontal(void)
 			if (scr->hasXinerama()) {
 				head_nr =
 					scr->getHead(m_x + (m_width / 2), m_y + (m_height / 2));
-			}nn
+			}
 			scr->getHeadInfo(head_nr, head);
 
 			m_x = head.x;
@@ -2273,7 +2409,7 @@ Frame::maximizeVertical(void)
 			updateFrameSize();
 		} else {
 #ifdef XINERAMA
-			Screeninfo::HeadInfo head;
+			ScreenInfo::HeadInfo head;
 			unsigned int head_nr = 0;
 
 			// We take the middle of the window, makes it feel more
@@ -2316,18 +2452,6 @@ Frame::maximizeVertical(void)
 	m_client->updateWmStates();
 }
 
-void
-Frame::warpPointerToCenter(void)
-{
-	if (m_client->hasTitlebar()) {
-		XWarpPointer(scr->getDisplay(), None, m_title,
-								 0, 0, 0, 0, m_width / 2, m_title_height / 2);
-	} else {
-		XWarpPointer(scr->getDisplay(), None, m_client->getWindow(),
-								 0, 0, 0, 0, m_width / 2, m_client->getHeight() / 2);
-	}
-}
-
 #ifdef MENUS
 void
 Frame::showWindowMenu(void)
@@ -2336,68 +2460,52 @@ Frame::showWindowMenu(void)
 		wm->getWindowMenu()->hideAll();
 	} else {
 		wm->getWindowMenu()->setThisClient(m_client);
-		wm->getWindowMenu()->show();
+		wm->getWindowMenu()->showUnderMouse();
 	}
 }
 #endif // MENUS
 
-//! @fn    void checkEdgeSnap(void)
-//! @brief Check if we should snap or move "out" from screen
-//! @todo Uppdate the Xinerama part
 void
 Frame::checkEdgeSnap(void)
 {
-	int snap = wm->getConfig()->getEdgeSnap();
+	int snap = wm->getConfig()->getEdgeSnap(); // convinience
+	unsigned int height = m_client->isShaded()
+		? (m_title_height + borderTop() + borderBottom())
+		: m_height;
 
 #ifdef XINERAMA
 	ScreenInfo::HeadInfo head;
-	unsigned int head_nr = 0;
-
-	if (scr->hasXinerama()) {
-		head_nr = scr->getHead(m_x, m_y);
-	}
-	scr->getHeadInfo(head_nr, head);
+	scr->getHeadInfo(scr->getHead(m_x, m_y), head);
 
 	// Move beyond edges of screen
-	if(m_x == (signed) (head.x + head.width - m_width)) {
-		m_x = head.x + head.width - m_width + 1;		
-	} else if(m_x == head.x) {
+	if (m_x == (signed) (head.x + head.width - m_width)) {
+		m_x = head.x + head.width - m_width + 1;
+	} else if (m_x == head.x) {
 		m_x = head.x - 1;
 	}
 
-	if(m_y == (signed) (head.y + head.height - snap)) {
+	if (m_y == (signed) (head.y + head.height - snap)) {
 		m_y = head.y + head.height - snap - 1;
-	} else if(m_y == head.y) {
+	} else if (m_y == head.y) {
 		m_y = head.y - 1;
 	}
-	
+
 	// Snap to edges of screen
-	if((m_x <= (head.x + snap)) && (m_x >= head.x) ) {
+	if ((m_x >= (head.x - snap)) && (m_x <= (head.x + snap))) {
 		m_x = head.x;
-	} else if((m_x + m_width >= (head.x + head.width) - snap) &&
-			(m_x + m_width <= (head.x + head.width)) ) {
+	} else if ((m_x + m_width) >= (head.x + head.width - snap) &&
+						 ((m_x + m_width) <= (head.x + head.width + snap))) {
 		m_x = head.x + head.width - m_width;
 	}
 
-	if(m_client->isShaded()) {
-		if((m_y <= head.y + snap) && (m_y >= head.y)) {
-			m_y = head.y;
-		} else if(
-				((m_y + m_title_height + borderTop() + borderBottom()) >=
-				 (head.y + head.height) - snap) &&
-				((m_y + m_title_height + borderTop() + borderBottom()) <=
-				 (head.y + head.height))) {
-			m_y = head.y + head.height - m_title_height - borderTop() - borderBottom();
-		}
-	} else { // not shade
-		if((m_y <= (head.y + snap)) && (m_y >= head.y)) {
-			m_y = head.y;
-		} else if( ((m_y + m_height) >= (head.y + head.height) - snap) &&
-				(m_y + m_height <= (head.y + head.height))) {
-			m_y = head.y + head.height - m_height;
-		}
+	if ((m_y >= (head.y - snap)) && (m_y <= (head.y + snap))) {
+		m_y = head.y;
+	} else if (((m_y + height) >= (head.y + head.height - snap)) &&
+						 ((m_y + height) <= (head.y + head.height + snap))) {
+		m_y = head.y + head.height - height;
 	}
 #else //!XINERAMA
+
 	int west = wm->getMasterStrut()->west;
 	int east = wm->getMasterStrut()->east;
 	int north = wm->getMasterStrut()->north;
@@ -2407,31 +2515,18 @@ Frame::checkEdgeSnap(void)
 	int yres = scr->getHeight() - south;
 
 	// Snap to edges of screen
-	if((m_x <= (west + snap)) && (m_x >= (west - snap))) {
+	if((m_x >= (west - snap)) && (m_x <= (west + snap))) {
 		m_x = west;
 	} else if(((signed) (m_x + m_width) >= (xres - snap)) &&
-		 ((signed) (m_x + m_width) <= (xres + snap))) {
+						((signed) (m_x + m_width) <= (xres + snap))) {
 		m_x = xres - m_width;
 	}
 
-	if(m_client->isShaded()) {
-		if((m_y <= (north + snap)) && (m_y >= (north - snap))) {
-			m_y = north;
-		} else if(((signed)
-							 (m_y + m_title_height + borderTop() + borderBottom())) >=
-							(yres - snap) &&
-							((signed)
-							 (m_y + m_title_height + borderTop() + borderBottom()) <=
-							 (yres + snap))) {
-			m_y = yres - m_title_height - borderTop() - borderBottom();
-		}
-	} else { // not shaded
-		if((m_y <= (north + snap)) && (m_y >= (north - snap))) {
-			m_y = north;
-		} else if(((signed) (m_y + m_height) >= (yres - snap)) &&
-				((signed) (m_y + m_height) <= (yres + snap))) {
-			m_y = yres - m_height;
-		}
+	if((m_y >= (north - snap)) && (m_y <= (north + snap))) {
+		m_y = north;
+	} else if(((signed) (m_y + height) >= (yres - snap)) &&
+						((signed) (m_y + height) <= (yres + snap))) {
+		m_y = yres - height;
 	}
 #endif // XINERAMA
 }

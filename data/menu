@@ -1,34 +1,87 @@
-# RootMenu config for pekwm-0.1.1-pre4
-Exec* Xterm:xterm -bg black -fg white &;
-Exec* Emacs:xterm -bg black -fg white -title emacs -e emacs -nw &;
-
-Submenu* Graphics;
-	Exec* Gimp:gimp &;
-SubmenuEnd* ;
-
-Submenu* WwW;
-	Exec* Galeon:galeon &;
-	Exec* Irssi:xterm -bg black -fg white --title irssi -e irssi;
-	Exec* Mozilla:mozilla &;
-	Exec* Sylpheed:sylpheed &;
-SubmenuEnd* ;
-
-Submenu* Mm;
-	Exec* Xmms:xmms &;
-	Exec* MPlayer:mplayer &;
-SubmenuEnd* ;
-
-Submenu* Utils;
-	Exec* xcalc:xcalc;
-	Exec* xman:xman;
-SubmenuEnd* ;
-
-Submenu* PekWM;
-	Reload* Reload;
-	Restart* Restart;
-	Exit* Exit;
-	Submenu* Others;
-		RestartOther* XTerm:xterm;
-		RestartOther* Twm:twm;
-	SubmenuEnd* ;
-SubmenuEnd* ;
+# RootMenu config for pekwm-0.1.2
+RootMenu {
+	Name = "Pekwm"
+	Exec {
+		Name = "XTerm"
+		Param = "xterm -bg black -fg white"
+	}
+	Exec {
+		Name = "Emacs"
+		Param = "xterm -bg black -fg white -title emacs -e emacs -nw"
+	}
+	Submenu {
+		Name = "Graphics"
+		Exec {
+			Name = "Gimp"
+			Param = "gimp"
+		}
+		Exec {
+			Name = "Xpdf"
+			Param = "xpdf"
+		}
+	}
+	Submenu {
+		Name = "WwW"
+		Exec {
+			Name = "BitchX"
+			Param = "xterm -bg black -fg white -title bitchx -e BitchX -N"
+		}
+		Exec {
+			Name = "Mozilla"
+			Param = "mozilla"
+		}
+		Exec {
+			Name = "Mutt"
+			Param = "xterm -bg black -fg white -title mutt -e mutt"
+		}
+	}
+	Submenu {
+		Name = "Mm"
+		Exec {
+			Name = "Xmms"
+			Param = "xmms"
+		}
+		Exec {
+			Name = "MPlayer"
+			Param = "mplayer"
+		}
+	}
+	Submenu {
+		Name = "Utils"
+		Exec {
+			Name = "XCalc"
+			Param = "xcalc"
+		}
+		Exec {
+			Name = "XMan"
+			Param = "xman"
+		}
+	}
+	Submenu {
+		Name = "Pekwm"
+		Reload {
+			Name = "Reload"
+		}
+		Restart {
+			Name = "Restart"
+		}
+		Exit {
+			Name = "Exit"
+		}
+		Submenu {
+			Name = "Others"
+			RestartOther {
+				Name = "Evilwm"
+				Param = "evilwm"
+			}
+			RestartOther {
+				Name = "Twm"
+				Param = "twm"
+			}
+			RestartOther {
+				Name = "XTerm"
+				Param = "xterm"
+			}
+		}
+	}
+}

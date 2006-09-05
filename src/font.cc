@@ -123,13 +123,13 @@ PekFont::unload(void)
 //!
 //! @param color XColor object
 //! @todo  Add support for specifying alpha when using Xft
-void 
+void
 PekFont::setColor(const XColor &color)
 {
 #ifdef XFT
 	if (m_xft_font) {
 		m_xrender_color.red = color.red;
-		m_xrender_color.green = color.red;
+		m_xrender_color.green = color.green;
 		m_xrender_color.blue = color.blue;
 		m_xrender_color.alpha = 65535;
 
@@ -276,8 +276,8 @@ PekFont::draw(Drawable dest, int x, int y,
 	}
 #else // !XFT
 	if (m_font && (m_gc != None)) {
- 		XDrawString(scr->getDisplay(), dest, m_gc,
- 								offset, y + m_font->ascent, text.c_str(), chars);
+		XDrawString(scr->getDisplay(), dest, m_gc,
+								offset, y + m_font->ascent, text.c_str(), chars);
 	}
 #endif // XFT
 }

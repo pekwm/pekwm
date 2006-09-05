@@ -1,0 +1,41 @@
+.TH "pekwm" "1" "0.1.2" "Claes Nasten" "Window Manager"
+.SH "NAME"
+.LP 
+pekwm \- A Small, Fast window manager
+.SH "FULL DOCUMENTATION"
+.LP 
+The full documentation for pekwm is distributed in html format: You can find it at http://pekwm.pekdon.net/index.php?page=docs. We also distribute a copy in the docs/ subdirectory of the source distribution.
+.SH "SYNTAX"
+.LP 
+pekwm [\fIoption\fP]
+.SH "DESCRIPTION"
+.LP 
+The Pekwm Window Manager is a small windowmanager that still aims to be functional, and includes support for pixmap themes, dockapps, redefinable key / mouse bindings, and more.
+.SH "OPTIONS"
+.LP 
+.TP 
+\fB\-\-display\fR display.
+Specifies which X display to use
+.TP 
+\fB\-\-help\fR
+Output help information and exit.
+.TP 
+\fB\-\-version\fR
+Output version information and exit.
+.SH "FILES"
+.LP 
+\fI${HOME}/.pekwm\fP 
+Directory of per\-user config files and themes.
+.br 
+\fI<PREFIX>/share\fP 
+Contains the default files for everything above.
+.SH "ENVIRONMENT VARIABLES"
+.LP 
+.TP 
+\fBHOME\fP
+pekwm looks here for config files
+.SH "AUTHORS"
+.LP 
+Main developer \- Claes Nasten <pekdon@gmx.net> 
+.br 
+Documentation and other small things\- Rando Christensen <rando@babblica.net>

@@ -28,7 +28,16 @@
 namespace Util {
 	void forkExec(const std::string &command);
 	bool isExecutable(const std::string &file);
+
 	void expandFileName(std::string &file);
+	unsigned int splitString(std::string str, std::vector<std::string> &vals,
+													 const char *sep, int max_tokens = -1);
+	inline void trimLeadingBlanks(std::string &trim) {
+		std::string::size_type first = trim.find_first_not_of(" \n\t");
+		if ((first != std::string::npos) &&
+				(first != (std::string::size_type) trim[0]))
+			trim = trim.substr(first, trim.size() - first);
+	}
 
 	inline bool isTrue(const std::string &value) {
 		if (! strncasecmp(value.c_str(), "true", strlen("true")))
@@ -36,8 +45,7 @@ namespace Util {
 		return false;
 	}
 
-	unsigned int splitString(std::string str, std::vector<std::string> &vals,
-													 const char *sep, int max_tokens = -1);
+
 };
 
 #ifdef NEED_SETENV

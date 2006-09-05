@@ -35,6 +35,9 @@
 #ifdef KEYS
 #include "keys.hh"
 #endif // KEYS
+#ifdef HARBOUR
+#include "harbour.hh"
+#endif // HARBOUR
 
 #include "workspaces.hh"
 #include "client.hh"
@@ -56,11 +59,9 @@ public:
 	// If adding, make sure it "syncs" with the theme border enum
 	// BAD HABIT
 	enum {
-		TOP_CURSOR,
+		TOP_LEFT_CURSOR, TOP_CURSOR, TOP_RIGHT_CURSOR,
 		LEFT_CURSOR, RIGHT_CURSOR,
-		BOTTOM_CURSOR,
-		TOP_LEFT_CURSOR, TOP_RIGHT_CURSOR,
-		BOTTOM_LEFT_CURSOR, BOTTOM_RIGHT_CURSOR,
+		BOTTOM_LEFT_CURSOR, BOTTOM_CURSOR, BOTTOM_RIGHT_CURSOR,
 		ARROW_CURSOR, MOVE_CURSOR, RESIZE_CURSOR,
 		NUM_CURSORS
 	};
@@ -69,8 +70,7 @@ public:
 	~WindowManager();
 
 	void reload(void);
-	void restart(void);
-	void restart(const std::string &command);
+	void restart(std::string command = "");
 
 	void quitNicely(void); // Cleans up and exits the window manager.
 
@@ -85,13 +85,16 @@ public:
 #ifdef KEYS
 	inline Keys *getKeys(void) const { return m_keys; }
 #endif // KEYS
+#ifdef HARBOUR
+	inline Harbour *getHarbour(void) const { return m_harbour; }
+#endif //HARBOUR
 
 	inline Client *getFocusedClient(void) const { return m_focused_client; }
 	inline std::vector<Client*> *getClientList(void) { return &m_client_list; }
 	inline unsigned int getActiveWorkspace(void) const {
 		return m_active_workspace; }
 
-	inline std::vector<Frame*> *getFrameList(void) { return &m_frame_list; }
+	inline std::list<Frame*> *getFrameList(void) { return &m_frame_list; }
 
 	// Cursors
 	inline Cursor* getCursors(void) { return m_cursors; }
@@ -106,7 +109,7 @@ public:
 #ifdef SHAPE
 	inline bool hasShape(void) const { return m_has_shape; }
 	inline int getShapeEvent(void) const { return m_shape_event; }
-#endif 
+#endif
 
 	inline Strut *getMasterStrut(void) const { return m_master_strut; }
 
@@ -123,7 +126,9 @@ public:
 
 	// Removes
 	void removeFromClientList(Client *c);
-	void removeFromFrameList(Frame *f);
+	inline void removeFromFrameList(Frame *f) {
+		if (m_frame_list.size()) m_frame_list.remove(f);
+	}
 	void removeStrut(Strut *rem_strut);
 
 	Client *findClient(Window w);
@@ -139,18 +144,18 @@ public:
 	// focus / stacking
 	void focusNextFrame(void);
 
-	// If a window unmaps and has transients lets unmap them too! 
+	// If a window unmaps and has transients lets unmap them too!
 	// true = hide | false = unhide
-	void findTransientsToMapOrUnmap(Window win, bool hide); 
+	void findTransientsToMapOrUnmap(Window win, bool hide);
 
-	void setWorkspace(unsigned int workspace);
+	void setWorkspace(unsigned int workspace, bool focus);
 	void setNumWorkspaces(unsigned int num);
-
-	void focusClient(Client *c);
 
 	Client *findClient(const AutoProps::ClassHint &class_hint);
 	Frame *findGroup(const AutoProps::ClassHint &class_hint,
 									 unsigned int desktop, unsigned int max);
+
+	void findClientAndFocus(Window win);
 
 	// this is for showing status on the screen while moving / resizing
 	inline void showStatusWindow(void) { XMapRaised(dpy, m_status_window); }
@@ -159,26 +164,18 @@ public:
 
 	// Methods for the various hints
 
-	// Gnome hint functions
-	void setGnomeHint(Window w, int a, long value);
-
 	inline IcccmAtoms *getIcccmAtoms(void) { return m_icccm_atoms; }
-	inline GnomeAtoms *getGnomeAtoms(void) { return m_gnome_atoms; }
 	inline EwmhAtoms *getEwmhAtoms(void) { return m_ewmh_atoms; }
 
 	inline Atom getMwmHintsAtom(void) { return m_atom_mwm_hints; }
 
-	inline Window getGnomeHintWin(void) const {
-		return m_gnome_hint_win; }
-
 	long getHint(Window w, int a);
-	bool getGnomeLayer(Window w, unsigned int &layer);
 
 	// Extended Window Manager hints function prototypes
 	int sendExtendedHintMessage(Window w, Atom a, long mask, long int data[]);
 	void setExtendedWMHint(Window w, int a, long value);
 	void setExtendedWMHintString(Window w, int a, char* value);
-	Status getExtendedWMHintString(Window w, int a, char** name);
+	bool getExtendedWMHintString(Window w, int a, std::string &name);
 	void* getExtendedNetPropertyData(Window win, Atom prop,
 																	 Atom type, int *items);
 	bool getExtendedNetWMStates(Window win, NetWMStates &win_state);
@@ -194,14 +191,10 @@ public:
 	void setExtendedNetWorkArea(void);
 
 	int findDesktopHint(Window win);
-	int findGnomeDesktopHint(Window win);
-	int findExtendedDesktopHint(Window win);
 	long getDesktopHint(Window win, int a);
-
-	void sendGnomeHintWinEvent(XEvent *ev);
 private:
-	void scanWindows(void);
 	void setupDisplay(void);
+	void scanWindows(void);
 	void execStartScript(void);
 
 	void cleanup(void);
@@ -230,15 +223,12 @@ private:
 	void handleEnterNotify(XCrossingEvent *ev);
 	void handleLeaveNotify(XCrossingEvent *ev);
 	void handleFocusInEvent(XFocusChangeEvent *ev);
-	void handleFocusOutEvent(XFocusChangeEvent *ev);
 
 	// helpers for the event handlers
 	Action* findMouseButtonAction(unsigned int button);
-	
+
 	// private methods for the hints
 	void initHints(void);
-	void setGnomeProtocols(void);
-	void focusGnomeHintWin(void);
 
 private:
 	ScreenInfo *m_screen;
@@ -250,10 +240,12 @@ private:
 	ActionHandler *m_action_handler;
 	AutoProps *m_autoprops;
 	Workspaces *m_workspaces;
+#ifdef HARBOUR
+	Harbour *m_harbour;
+#endif // HARBOUR
 
 	Display *dpy;
 	Window root;
-	//	Cursor m_move_curs, m_resize_curs, m_arrow_curs;
 	Cursor m_cursors[NUM_CURSORS];
 
 #ifdef MENUS
@@ -263,7 +255,7 @@ private:
 #endif // MENUS
 
 	std::vector<Client*> m_client_list;
-	std::vector<Frame*> m_frame_list;
+	std::list<Frame*> m_frame_list;
 	Client *m_focused_client;
 
 	char *m_wm_name;
@@ -285,7 +277,6 @@ private:
 
 	// Atoms and hints follow under here
 	IcccmAtoms *m_icccm_atoms;
-	GnomeAtoms *m_gnome_atoms;
 	EwmhAtoms *m_ewmh_atoms;
 
 	// Atom for motif hints
@@ -294,8 +285,6 @@ private:
 	Atom m_net_wm_states[NET_WM_MAX_STATES];
 
 	// Windows for the different hints
-	Window m_gnome_hint_win;
-
 	Window m_extended_hints_win;
 };
 

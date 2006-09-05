@@ -23,6 +23,8 @@
 
 #include <X11/Xatom.h> // for XA_WINDOW
 
+#include <algorithm>
+
 #ifdef DEBUG
 #include <iostream>
 using std::cerr;
@@ -34,7 +36,7 @@ using std::list;
 //! @fn    void activate(void)
 //! @brief Activates the desktop by unhiding all clients on it
 void
-Workspaces::Workspace::activate(void)
+Workspaces::Workspace::activate(bool focus)
 {
 	if (!m_client_list.size())
 		return;
@@ -45,28 +47,27 @@ Workspaces::Workspace::activate(void)
 		if (*it == (*it)->getFrame()->getActiveClient()) {
 			if (!(*it)->isIconified()) {
 				(*it)->getFrame()->unhide(false); // don't restack ontop windows
- 				(*it)->getFrame()->unhideAllClients();
 			}
 		}
 	}
 
-	Client *client = NULL;
-	// Try to focus the last focused client
-	if (m_last_focused_client) {
-		list<Client*>::iterator it =
-			find(m_client_list.begin(), m_client_list.end(), m_last_focused_client);
-		if (it != m_client_list.end()) {
-			client = *it;
-		} else {
+	if (focus) {
+		Client *client = NULL;
+		// Try to focus the last focused client
+		if (m_last_focused_client) {
+			list<Client*>::iterator it =
+			 find(m_client_list.begin(), m_client_list.end(), m_last_focused_client);
+			if (it != m_client_list.end())
+				client = *it;
+			else
+				client = m_client_list.back()->getFrame()->getActiveClient();
+		} else
 			client = m_client_list.back()->getFrame()->getActiveClient();
-		}
-	} else {
-		client = m_client_list.back()->getFrame()->getActiveClient();
-	}
 
-	// Activate the client
-	if (!client->isHidden())
-		client->handleEnterEvent(NULL);
+		// Activate the client
+		if (!client->isHidden())
+			client->giveInputFocus();
+	}
 }
 
 //! @fn    void deactivate(void)
@@ -82,7 +83,7 @@ Workspaces::Workspace::deactivate(void)
 		// We only care about the active client
 		if (*it == (*it)->getFrame()->getActiveClient()) {
 			if (!(*it)->isSticky()) {
-				(*it)->getFrame()->hideAll();
+				(*it)->getFrame()->hide();
 			}
 		}
 	}
@@ -121,7 +122,11 @@ Workspaces::Workspace::raiseClient(Client *c)
 		// well, this layer were too high
 		if (!raised) {
 			m_client_list.push_back(c);
+#ifdef HARBOUR
+			harbour->stackWindowOverOrUnder(c->getFrame()->getFrameWindow(), true);
+#else // !HARBOUR
 			XRaiseWindow(dpy, c->getFrame()->getFrameWindow());
+#endif // HARBOUR
 		}
 	}
 }
@@ -154,12 +159,16 @@ Workspaces::Workspace::lowerClient(Client *c)
 				}
 				break;
 			}
-		} 
+		}
 
 		// well, this layer were too high
 		if (!lowered) {
 			m_client_list.push_back(c);
+#ifdef HARBOUR
+			harbour->stackWindowOverOrUnder(c->getFrame()->getFrameWindow(), false);
+#else // !HARBOUR
 			XRaiseWindow(dpy, c->getFrame()->getFrameWindow());
+#endif // HARBOUR
 		}
 	}
 }
@@ -245,19 +254,31 @@ Workspaces::Workspace::stackWinUnderWin(Window win_over, Window win_under)
 //! @fn    Workspaces(unsigned int num)
 //! @brief Constructor for Workspaces class
 //! @param num Numbers of workspaces to begin whith
-Workspaces::Workspaces(Display *d, EwmhAtoms *ewmh, unsigned int num) :
-dpy(d),
+
+Workspaces::Workspaces(ScreenInfo *s, Config *c,
+											 EwmhAtoms *ewmh, unsigned int num
+#ifdef HARBOUR
+											 , Harbour *h
+#endif // !HARBOUR
+											 ) :
+scr(s), cfg(c),
 ewmh_atoms(ewmh),
+#ifdef HARBOUR
+harbour(h),
+#endif // HARBOUR
 m_num_workspaces(num),
-m_active_workspace(0),
-m_report_only_frames(false)
+m_active_workspace(0)
 {
 	if (m_num_workspaces < 1)
 		m_num_workspaces = 1;
 
 	// Create new set of workspaces
 	for (unsigned int i = 0; i < m_num_workspaces; ++i)
-		m_workspace_list.push_back(new Workspace(dpy, i, ""));
+#ifdef HARBOUR
+		m_workspace_list.push_back(new Workspace(scr->getDisplay(), harbour, i, ""));
+#else // !HARBOUR
+		m_workspace_list.push_back(new Workspace(scr->getDisplay(), i, ""));
+#endif // HARBOUR
 }
 
 Workspaces::~Workspaces()
@@ -277,17 +298,17 @@ Workspaces::~Workspaces()
 void
 Workspaces::setNumWorkspaces(unsigned int num_workspaces)
 {
-#ifdef DEBUG
-	cerr << __FILE__ << "@" << __LINE__ << ": "
-			 << "Changing num_workspaces from " << m_num_workspaces << " to "
-			 << num_workspaces << endl;
-#endif // DEBUG
-
 	if (num_workspaces < 1)
 		num_workspaces = 1;
 
 	if (num_workspaces == m_num_workspaces)
 		return; // no need to change number of workspaces to the current number
+
+#ifdef DEBUG
+	cerr << __FILE__ << "@" << __LINE__ << ": "
+			 << "Changing num_workspaces from " << m_num_workspaces << " to "
+			 << num_workspaces << endl;
+#endif // DEBUG
 
 	unsigned int workspaces = m_num_workspaces;
 	m_num_workspaces = num_workspaces;
@@ -310,15 +331,19 @@ Workspaces::setNumWorkspaces(unsigned int num_workspaces)
 
 	} else { // We need more workspaces, lets create some
 		for (unsigned int i =  workspaces; i < num_workspaces; ++i) {
-			m_workspace_list.push_back(new Workspace(dpy, i, ""));
+#ifdef HARBOUR
+			m_workspace_list.push_back(new Workspace(scr->getDisplay(), harbour, i, ""));
+#else // !HARBOUR
+			m_workspace_list.push_back(new Workspace(scr->getDisplay(), i, ""));
+#endif // HARBOUR
 		}
 	}
 
 	// Tell the rest of the world how many workspaces we have.
-	XChangeProperty(dpy, DefaultRootWindow(dpy),
+	XChangeProperty(scr->getDisplay(), scr->getRoot(),
 									ewmh_atoms->net_number_of_desktops,
 									XA_CARDINAL, 32, PropModeReplace,
-									(unsigned char *) &m_num_workspaces, 1); 
+									(unsigned char *) &m_num_workspaces, 1);
 
 #ifdef DEBUG
 	if (m_num_workspaces != m_workspace_list.size()) {
@@ -334,7 +359,7 @@ Workspaces::setNumWorkspaces(unsigned int num_workspaces)
 //! @brief Activates new workspace and deactivates old
 //! @param workspace Workspace to activate
 void
-Workspaces::activate(unsigned int workspace)
+Workspaces::activate(unsigned int workspace, bool focus)
 {
 	// I _don't_ check if it's allready active as I re-active workspaces when
 	// I shrink the number of workspaces.
@@ -343,7 +368,7 @@ Workspaces::activate(unsigned int workspace)
 
 	if (workspace != m_active_workspace)
 		m_workspace_list[m_active_workspace]->deactivate();
-	m_workspace_list[workspace]->activate();
+	m_workspace_list[workspace]->activate(focus);
 
 	m_active_workspace = workspace;
 }
@@ -372,11 +397,11 @@ Workspaces::updateClientList(void)
 	list<Window> win_list;
 
 	// Find clients we are going to include in the list
- 	for (unsigned int i = 0; i < m_num_workspaces; ++i) {
- 		list<Client*> *c_list = m_workspace_list[i]->getClientList();
- 		list<Client*>::iterator it = c_list->begin();
+	for (unsigned int i = 0; i < m_num_workspaces; ++i) {
+		list<Client*> *c_list = m_workspace_list[i]->getClientList();
+		list<Client*>::iterator it = c_list->begin();
 
-		if (m_report_only_frames) {
+		if (cfg->getReportOnlyFrames()) {
 			for (; it != c_list->end(); ++it) {
 				if (!(*it)->skipTaskbar() &&
 						((*it)->getFrame()
@@ -392,7 +417,7 @@ Workspaces::updateClientList(void)
 				}
 			}
 		}
- 	}
+	}
 
 	if (!win_list.size())
 		return;
@@ -401,15 +426,89 @@ Workspaces::updateClientList(void)
 	copy(win_list.begin(), win_list.end(), windows);
 
 	// Uppdate the properties
-	XChangeProperty(dpy, DefaultRootWindow(dpy),
+	XChangeProperty(scr->getDisplay(), scr->getRoot(),
 									ewmh_atoms->net_client_list,
 									XA_WINDOW, 32, PropModeReplace,
 									(unsigned char*) windows, win_list.size());
 
-	XChangeProperty(dpy, DefaultRootWindow(dpy),
+	XChangeProperty(scr->getDisplay(), scr->getRoot(),
 									ewmh_atoms->net_client_list_stacking,
 									XA_WINDOW, 32, PropModeReplace,
 									(unsigned char*) windows, win_list.size());
 
 	delete [] windows;
+}
+
+//! @fn    void checkFrameSnap(int &x, int &y, Frame *frame, unsigned int workspace)
+//! @brief Tries to snap the frame against a nearby frame.
+void
+Workspaces::checkFrameSnap(int &x, int &y,
+													 Frame *frame, unsigned int workspace)
+{
+	// TO-DO: CLEAN THIS!
+	if (workspace >= m_num_workspaces)
+		return;
+
+	unsigned int height = frame->getActiveClient()->isShaded()
+		? (frame->getTitleHeight() + frame->borderTop() + frame->borderBottom())
+		: frame->getHeight();
+
+	int x1 = x;
+	int x2 = x1 + frame->getWidth();
+	int y1 = y;
+	int y2 = y1 + height;
+
+	list<Client*> *c_list = m_workspace_list[workspace]->getClientList();
+	list<Client*>::reverse_iterator it = c_list->rbegin();
+
+	Frame *f = NULL;
+	int snap = cfg->getFrameSnap();
+
+	for (; it != c_list->rend(); ++it) {
+		if (((*it) != (*it)->getFrame()->getActiveClient()) ||
+				(*it)->isHidden() || (*it)->isShaded() ||
+				((*it)->getLayer() != WIN_LAYER_NORMAL)) {
+			continue;
+		}
+
+		f = (*it)->getFrame();
+
+		bool x_snapped = false;
+		bool y_snapped = false;
+
+		// check snap
+		if (x2 >= (f->getX() - snap) && (x2 <= f->getX() + snap)) {
+			if (isBetween(y1, y2, f->getY(), f->getY() + f->getHeight())) {
+					x = f->getX() - frame->getWidth();
+					if (y_snapped)
+						break;
+					x_snapped = true;
+			}
+		} else if ((x1 >= (signed)  (f->getX() + f->getWidth() - snap)) &&
+							 (x1 <= (signed) (f->getX() + f->getWidth() + snap))) {
+			if (isBetween(y1, y2, f->getY(), f->getY() + f->getHeight())) {
+					x = f->getX() + f->getWidth();
+					if (y_snapped)
+						break;
+					x_snapped = true;
+			}
+		}
+
+		if (y2 >= (f->getY() - snap) && (y2 <= f->getY() + snap)) {
+			if (isBetween(x1, x2, f->getX(), f->getX() + f->getWidth())) {
+				y = f->getY() - height;
+				if (x_snapped)
+					break;
+				y_snapped = true;
+			}
+		} else if ((y1 >= (signed) (f->getY() + f->getHeight() - snap)) &&
+							 (y1 <= (signed) (f->getY() + f->getHeight() + snap))) {
+			if (isBetween(x1, x2, f->getX(), f->getX() + f->getWidth())) {
+				y = f->getY() + f->getHeight();
+				if (x_snapped)
+					break;
+				y_snapped = true;
+			}
+		}
+	}
 }

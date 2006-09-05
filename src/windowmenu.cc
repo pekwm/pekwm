@@ -24,17 +24,17 @@
 
 #ifdef MENUS
 
-#include "windowmanager.hh" 
+#include "windowmanager.hh"
 
 #include <stdio.h>
 
 WindowMenu::WindowMenu(WindowManager *w) :
-GenericMenu(w->getScreen(), w->getTheme()),
+GenericMenu(w->getScreen(), w->getTheme(), "WindowMenu"),
 wm(w)
 {
 	addToMenuList(this);
 
-	m_send_to_menu = new BaseMenu(wm->getScreen(), wm->getTheme());
+	m_send_to_menu = new BaseMenu(wm->getScreen(), wm->getTheme(), "Send To");
 	addToMenuList(m_send_to_menu);
 
 	// should do an initial update
@@ -62,6 +62,7 @@ WindowMenu::updateWindowMenu(void)
 	insert("Always On Top", "", ALWAYS_ON_TOP);
 	insert("Always Below", "", ALWAYS_BELOW);
 	insert("Close", "", CLOSE);
+	insert("Kill", "", KILL);
 
 	char send_to[16]; // this should fit Desk and numbers up to 99999
 	for(unsigned int i = 0; i < wm->getWorkspaces()->getNumWorkspaces(); ++i) {
@@ -81,7 +82,7 @@ WindowMenu::handleButton1Release(BaseMenuItem *curr)
 	if (!curr || !m_client)
 		return;
 
-	wm->getActionHandler()->handleAction(curr->getAction(), m_client);	
+	wm->getActionHandler()->handleAction(curr->getAction(), m_client);
 }
 
 #endif // MENUS

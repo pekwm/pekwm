@@ -41,16 +41,17 @@ using std::endl;
 using std::string;
 using std::vector;
 
-BaseMenu::BaseMenu(ScreenInfo *s, Theme *t) :
+//! param n Menus name, defaults to ""
+BaseMenu::BaseMenu(ScreenInfo *s, Theme *t, string n) :
 scr(s), theme(t),
 m_parent(NULL),
+m_name(n),
 m_item_window(None),
 m_x(0), m_y(0), m_width(1), m_height(1),
-m_total_item_height(0), m_is_visible(false),
-m_theme_is_loaded(false),
+m_total_item_height(0), m_title_x(0),
+m_is_visible(false), m_theme_is_loaded(false),
 m_item_width(0), m_item_height(0), m_widget_side(0),
-m_curr(None), m_enter_once(true),
-m_bottom_edge(false), m_right_edge(false)
+m_curr(NULL)
 {
 	dpy = scr->getDisplay();
 	root = scr->getRoot();
@@ -59,16 +60,15 @@ m_bottom_edge(false), m_right_edge(false)
 
 	// Setup the menu
 	XSetWindowAttributes attrib;
-	attrib.background_pixel = theme->getMenuBackgroundC().pixel;
-	attrib.border_pixel = theme->getMenuBorderC().pixel;
+	attrib.background_pixel = theme->getMenuBackground().pixel;
+	attrib.border_pixel = theme->getMenuBorderColor().pixel;
 	attrib.override_redirect = true;
 	attrib.event_mask =
-		ButtonPressMask|ButtonReleaseMask| 
-		PointerMotionMask|ExposureMask|
-		EnterWindowMask|LeaveWindowMask;
+		ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
+		PointerMotionMask|ExposureMask|LeaveWindowMask;
 
 	m_item_window =
-		XCreateWindow(dpy, root, m_x, m_y, m_width, m_height, 
+		XCreateWindow(dpy, root, m_x, m_y, m_width, m_height,
 									0, CopyFromParent,
 									InputOutput, CopyFromParent,
 									CWBackPixel|CWBorderPixel|CWOverrideRedirect|CWEventMask,
@@ -84,7 +84,7 @@ m_bottom_edge(false), m_right_edge(false)
 	XUngrabServer(dpy);
 }
 
-BaseMenu::~BaseMenu() 
+BaseMenu::~BaseMenu()
 {
 	vector<BaseMenuItem*>::iterator it = m_item_list.begin();
 	for (; it != m_item_list.end(); ++it) {
@@ -103,17 +103,15 @@ BaseMenu::loadTheme(void)
 	if (m_theme_is_loaded)
 		XFreeGC(scr->getDisplay(), m_gc);
 
-	XSetWindowBackground(dpy, m_item_window, theme->getMenuBackgroundC().pixel);
-	XSetWindowBorder(dpy, m_item_window, theme->getMenuBorderC().pixel);
-	XSetWindowBorderWidth(dpy, m_item_window, theme->getMenuBW());
+	XSetWindowBackground(dpy, m_item_window, theme->getMenuBackground().pixel);
+	XSetWindowBorder(dpy, m_item_window, theme->getMenuBorderColor().pixel);
+	XSetWindowBorderWidth(dpy, m_item_window, theme->getMenuBorderWidth());
 
 	XGCValues gv;
 	gv.function = GXcopy;
-	gv.foreground = theme->getMenuBackgroundC().pixel;
+	gv.foreground = theme->getMenuBackground().pixel;
 
 	m_gc = XCreateGC(dpy, m_item_window, GCFunction|GCForeground, &gv);
-
-	theme->getMenuFont()->setColor(theme->getMenuTextC());
 
 	// initialize item sizes
 	m_item_width = m_width + theme->getMenuPadding();
@@ -141,19 +139,24 @@ BaseMenu::updateMenu(void)
 		int tmp_width = 0;
 		int padding = theme->getMenuPadding();
 
-		m_width = 0;
+		PekFont *font = theme->getMenuFont(); // convinience
+
+		if (m_name.size())
+			m_width = font->getWidth(m_name);
+		else
+			m_width = 0;
 
 		// check for longest name in the menu
 		vector<BaseMenuItem*>::iterator it = m_item_list.begin();
 		for (; it != m_item_list.end(); ++it) {
-			tmp_width = theme->getMenuFont()->getWidth((*it)->getName());
+			tmp_width = font->getWidth((*it)->getName());
 
 			if (tmp_width > (signed) m_width) {
 				m_width = tmp_width;
 			}
 		}
 
-		// setup item geometry 
+		// setup item geometry
 		m_width += padding * 2;
 		unsigned int width = m_width;
 
@@ -161,12 +164,33 @@ BaseMenu::updateMenu(void)
 		m_item_width = m_width;
 		m_height = m_item_height * m_item_list.size();
 
-		m_total_item_height = 0;
+		// for the menu title
+		if (m_name.size()) {
+			m_height += m_item_height;
+			m_total_item_height = m_item_height;
+
+			switch (theme->getMenuFontJustify()) {
+			case LEFT_JUSTIFY:
+				m_title_x = padding;
+				break;
+			case CENTER_JUSTIFY:
+				m_title_x = (m_width - font->getWidth(m_name)) / 2;
+				break;
+			case RIGHT_JUSTIFY:
+				m_title_x = m_width - font->getWidth(m_name) - padding;
+				break;
+			default:
+				// do nothing
+				break;
+			}
+		} else
+			m_total_item_height = 0;
+
 		// setup item cordinates
 		for (it = m_item_list.begin(); it != m_item_list.end(); ++it) {
 			tmp_width = theme->getMenuFont()->getWidth((*it)->getName());
 
-			switch (theme->getMenuTextJustify()) {
+			switch (theme->getMenuFontJustify()) {
 			case LEFT_JUSTIFY:
 				(*it)->setX(padding);
 				break;
@@ -178,7 +202,7 @@ BaseMenu::updateMenu(void)
 				break;
 			default:
 				(*it)->setX(padding);
-				break;	
+				break;
 			}
 			m_total_item_height += m_item_height;
 			(*it)->setY(m_total_item_height);
@@ -208,7 +232,7 @@ void
 BaseMenu::hide(void)
 {
 	XUnmapWindow(dpy, m_item_window);
-	
+
 	m_is_visible = false;
 }
 
@@ -220,32 +244,63 @@ BaseMenu::redraw(void)
 	if (!m_item_list.size())
 		return;
 
-	vector<BaseMenuItem*>::iterator it = m_item_list.begin();
-	for(; it < m_item_list.end(); it++) {
-		theme->getMenuFont()->draw(m_item_window,
-															 (*it)->getX(), (*it)->getY() - m_item_height +
-															 (theme->getMenuPadding() / 2),
-															 (*it)->getName());
+	XClearWindow(dpy, m_item_window);
 
-		if((*it)->getSubmenu()) {
+	PekFont *font = theme->getMenuFont(); // convinience
+
+	// draw the title
+	if (m_name.size()) {
+		XSetForeground(dpy, m_gc, theme->getMenuBackgroundSelected().pixel);
+		XFillRectangle(dpy, m_item_window, m_gc,
+									 0, 0, m_item_width, m_item_height);
+		XSetForeground(dpy, m_gc, theme->getMenuBorderColor().pixel);
+		XDrawLine(dpy, m_item_window, m_gc,
+							0, m_item_height - 1, m_item_width, m_item_height - 1);
+		font->draw(m_item_window, m_title_x, theme->getMenuPadding() / 2, m_name);
+	}
+
+
+
+	vector<BaseMenuItem*>::iterator it = m_item_list.begin();
+	for(; it != m_item_list.end(); ++it) {
+		if ((*it) == m_curr) { // selected item
+			XSetForeground(dpy, m_gc, theme->getMenuBackgroundSelected().pixel);
+			XFillRectangle(dpy, m_item_window, m_gc,
+										 0, m_curr->getY() - m_item_height,
+										 m_item_width, m_item_height);
+
+			XSetForeground(dpy, m_gc, theme->getMenuBorderColor().pixel);
+			XDrawLine(dpy, m_item_window, m_gc,
+								0, m_curr->getY() - 1, m_item_width, m_curr->getY() - 1);
+			XDrawLine(dpy, m_item_window, m_gc,
+								0, m_curr->getY() - m_item_height,
+								m_item_width, m_curr->getY() - m_item_height);
+		}
+
+		font->draw(m_item_window,
+							 (*it)->getX(),
+							 (*it)->getY() - m_item_height + (theme->getMenuPadding() / 2),
+							 (*it)->getName());
+
+		if ((*it)->getSubmenu()) {
 			XPoint triangle[3];
 			triangle[0].x = m_width - m_widget_side - theme->getMenuPadding();
- 			triangle[0].y = (*it)->getY() -  m_item_height +
+			triangle[0].y = (*it)->getY() -  m_item_height +
 				(theme->getMenuPadding() / 2);
 			triangle[1].x = 0;
 			triangle[1].y = (m_widget_side * 2);
 			triangle[2].x = m_widget_side;
 			triangle[2].y = -m_widget_side;
 
-			XSetForeground(dpy, m_gc, theme->getMenuTextC().pixel);
+			XSetForeground(dpy, m_gc, theme->getMenuTextColor().pixel);
 			XFillPolygon(dpy, m_item_window, m_gc, triangle, 3,
 									 Convex, CoordModePrevious);
-			XSetForeground(dpy, m_gc, theme->getMenuBackgroundC().pixel);
-		} 
+			XSetForeground(dpy, m_gc, theme->getMenuBackground().pixel);
+		}
 	}
 }
 
-//! @fn    void redraw(BaseMenuItem *item) 
+//! @fn    void redraw(BaseMenuItem *item)
 //! @brief Redraws a single menu item on the menu.
 void
 BaseMenu::redraw(BaseMenuItem *item)
@@ -253,11 +308,31 @@ BaseMenu::redraw(BaseMenuItem *item)
 	if (!item)
 		return;
 
+	if (item == m_curr) { // selected item
+		XSetForeground(dpy, m_gc, theme->getMenuBackgroundSelected().pixel);
+		XFillRectangle(dpy, m_item_window, m_gc,
+									 0, m_curr->getY() - m_item_height,
+									 m_item_width, m_item_height);
+
+		XSetForeground(dpy, m_gc, theme->getMenuBorderColor().pixel);
+		XDrawLine(dpy, m_item_window, m_gc,
+							0, item->getY() - 1, m_item_width, item->getY() - 1);
+		XDrawLine(dpy, m_item_window, m_gc,
+							0, item->getY() - m_item_height,
+							m_item_width, item->getY() - m_item_height);
+	} else {
+		XSetForeground(dpy, m_gc, theme->getMenuBackground().pixel);
+		XFillRectangle(dpy, m_item_window, m_gc,
+									 0, item->getY() - m_item_height,
+									 m_item_width, m_item_height);
+	}
+
+
 	theme->getMenuFont()->draw(m_item_window,
 														 item->getX(), item->getY() - m_item_height +
 														 (theme->getMenuPadding() / 2),
 														 item->getName());
-		
+
 	if(item->getSubmenu()) {
 		XPoint triangle[3];
 		triangle[0].x = m_width - m_widget_side - theme->getMenuPadding();
@@ -268,11 +343,11 @@ BaseMenu::redraw(BaseMenuItem *item)
 		triangle[2].x = m_widget_side;
 		triangle[2].y = -m_widget_side;
 
-		XSetForeground(dpy, m_gc, theme->getMenuTextC().pixel);
+		XSetForeground(dpy, m_gc, theme->getMenuTextColor().pixel);
 		XFillPolygon(dpy, m_item_window, m_gc, triangle, 3,
 								 Convex, CoordModePrevious);
-		XSetForeground(dpy, m_gc, theme->getMenuBackgroundC().pixel);
-	} 
+		XSetForeground(dpy, m_gc, theme->getMenuBackground().pixel);
+	}
 }
 
 //! @fn    void insert(const string &n, BaseMenu *sub)
@@ -293,7 +368,7 @@ BaseMenu::insert(const string &n, BaseMenu *sub)
 	item->setSelected(false);
 
 	item->getAction()->action = NO_ACTION;
-	item->getAction()->s_param = ""; 
+	item->getAction()->s_param = "";
 	item->setX(0);
 	item->setY(0);
 
@@ -311,7 +386,7 @@ BaseMenu::insert(const string &n, const string &exec, Actions action)
 	BaseMenuItem *item = new BaseMenuItem();
 
 	item->setName(n);
-	
+
 	item->getAction()->action = action;
 	item->getAction()->s_param = exec;
 	Util::expandFileName(item->getAction()->s_param); // make sure we expand ~
@@ -322,7 +397,7 @@ BaseMenu::insert(const string &n, const string &exec, Actions action)
 	item->setX(0);
 	item->setY(0);
 
-	m_item_list.push_back(item);	
+	m_item_list.push_back(item);
 }
 
 //! @fn    void insert(const string &n, int param, Actions action)
@@ -345,7 +420,7 @@ BaseMenu::insert(const string &n, int param, Actions action)
 	item->setX(0);
 	item->setY(0);
 
-	m_item_list.push_back(item);	
+	m_item_list.push_back(item);
 }
 
 //! @fn    void insert(BaseMenuItem *item)
@@ -390,63 +465,53 @@ BaseMenu::removeAll(void)
 	m_item_list.clear();
 
 	m_curr = NULL; // make sure we don't point anywhere dangerous
-	
+
 	updateMenu();
 }
 
+//! @fn    void show(void)
+//! @brief Shows the window at it's current position.
 void
 BaseMenu::show(void)
-{	
+{
+	XMapRaised(dpy, m_item_window);
+	m_is_visible = true;
+}
+
+//! @fn    void showUnderMouse(void)
+//! @brief Shows the window under the mouse.
+void
+BaseMenu::showUnderMouse(void)
+{
 	if (!getMousePosition(&m_x, &m_y))
 		m_x = m_y = 0;
-
 	makeMenuInsideScreen();
 
-	// Move the menu to the position of the mouse pointer
 	XMoveWindow(dpy, m_item_window, m_x, m_y);
-
-	// Show the menu windows
 	XMapRaised(dpy, m_item_window);
 
 	m_is_visible = true;
 }
 
+//! @fn    void showSub(BaseMenu *sub)
+//! @brief Shows the BaseMenu sub aligned to this menu.
 void
-BaseMenu::show(int nx, int ny)
-{	
-	m_x = nx;
-	m_y = ny;
-
-	XMoveWindow(dpy, m_item_window, m_x, m_y);
-	
-	// Show the menu window
-	XMapRaised(dpy, m_item_window);
-
-	XClearWindow(dpy, m_item_window);
-
-	m_is_visible = true;
-}
-
-bool
-BaseMenu::getMousePosition(int *x, int *y)
+BaseMenu::showSub(BaseMenu *sub)
 {
-	Window dummy_w1, dummy_w2;
-	int t1, t2;
-	unsigned int t3;
+	if (!sub || (sub == this))
+		return;
 
-	return XQueryPointer(dpy, root, &dummy_w1, &dummy_w2, x, y, &t1, &t2, &t3);
-}
-
-
-void
-BaseMenu::showSub(BaseMenu *sub, int nx, int ny)
-{
-	sub->m_x = nx;
-	sub->m_y = ny;
+	// Setup the menu's position
+	sub->m_x = m_x + m_width + (theme->getMenuBorderWidth() * 2);
+	if (m_curr) {
+		sub->m_y = m_y + m_curr->getY() - m_item_height -
+			(sub->getName().size() ? m_item_height : 0);
+	} else {
+		sub->m_y = m_y;
+	}
+	sub->makeMenuInsideScreen();
 
 	XMoveWindow(dpy, sub->getMenuWindow(), sub->getX(), sub->getY());
-
-	// Show the menu window
 	XMapRaised(dpy, sub->getMenuWindow());
 
 	sub->m_is_visible = true;
@@ -455,6 +520,9 @@ BaseMenu::showSub(BaseMenu *sub, int nx, int ny)
 void
 BaseMenu::hide(BaseMenu *sub)
 {
+	if (sub->m_curr)
+		sub->m_curr = NULL;
+
 	if (sub->m_is_visible) {
 		// hide the menu windows
 		XUnmapWindow(dpy, sub->getMenuWindow());
@@ -500,15 +568,12 @@ BaseMenu::handleButtonPressEvent(XButtonEvent *e)
 		if (m_curr->getSubmenu()->isVisible()) {
 			m_curr->getSubmenu()->hide();
 		} else {
-			// this will select the menu and show the submenu
-			handleEnterNotify(NULL); 
+			m_curr->getSubmenu()->show();
 		}
-
 	}	else if (m_parent) {
 		m_parent->handleButtonPressEvent(e, m_curr);
 
 	} else {
-
 		switch (e->button) {
 		case Button1:
 			handleButton1Press(m_curr);
@@ -517,7 +582,7 @@ BaseMenu::handleButtonPressEvent(XButtonEvent *e)
 		case Button2:
 			handleButton2Press(m_curr);
 			break;
-			
+
 		case Button3:
 			handleButton3Press(m_curr);
 			break;
@@ -549,7 +614,7 @@ BaseMenu::handleButtonPressEvent(XButtonEvent *e, BaseMenuItem *item)
 		case Button2:
 			handleButton2Press(item);
 			break;
-			
+
 		case Button3:
 			handleButton3Press(item);
 			break;
@@ -560,7 +625,7 @@ BaseMenu::handleButtonPressEvent(XButtonEvent *e, BaseMenuItem *item)
 void
 BaseMenu::handleButtonReleaseEvent(XButtonEvent *e)
 {
-	if (! e || ! m_curr)
+	if (!e || !m_curr)
 		return;
 
 	// if it's a submenu we hide it when we got the button press event
@@ -572,19 +637,23 @@ BaseMenu::handleButtonReleaseEvent(XButtonEvent *e)
 		m_parent->handleButtonReleaseEvent(e, m_curr);
 
 	} else {
+		// hide() unsets the select item, therefore I need to store
+		// the select one before hiding
+		BaseMenuItem *item = m_curr;
+
 		hideAll();
 
 		switch (e->button) {
 		case Button1:
-			handleButton1Release(m_curr);
+			handleButton1Release(item);
 			break;
 
 		case Button2:
-			handleButton2Release(m_curr);
+			handleButton2Release(item);
 			break;
 
 		case Button3:
-			handleButton3Release(m_curr);
+			handleButton3Release(item);
 			break;
 		}
 	}
@@ -615,34 +684,22 @@ BaseMenu::handleButtonReleaseEvent(XButtonEvent *e, BaseMenuItem *item)
 			handleButton3Release(item);
 			break;
 		}
-	} 
-}
-
-void
-BaseMenu::setMenuPos(int nx, int ny)
-{
-	m_x = nx; 
-	m_y = ny;
-	
-	XMoveWindow(dpy, m_item_window, m_x, m_y);
-}
-
-void
-BaseMenu::selectMenuItem(bool select)
-{
-	if (select) { // select
-		XSetForeground(dpy, m_gc, theme->getMenuSelectC().pixel);
-		XFillRectangle(dpy, m_item_window, m_gc, 
-									 0, m_curr->getY() - m_item_height,
-									 m_item_width, m_item_height);
-		XSetForeground(dpy, m_gc, theme->getMenuBackgroundC().pixel);
-	} else { // deselect
-		XFillRectangle(dpy, m_item_window, m_gc, 
-									 0, m_curr->getY() - m_item_height,
-									 m_item_width, m_item_height);
 	}
 }
 
+//! @fn    void move(int x, int y)
+//! @brief Moves the menu to x and y
+void
+BaseMenu::move(int x, int y)
+{
+	m_x = x;
+	m_y = y;
+
+	XMoveWindow(dpy, m_item_window, m_x, m_y);
+}
+
+//! @fn
+//! @brief
 void
 BaseMenu::hideAll(void)
 {
@@ -650,88 +707,101 @@ BaseMenu::hideAll(void)
 	hideSubmenus();
 }
 
+//! @fn
+//! @brief
 void
 BaseMenu::hideSubmenus(void)
 {
 	vector<BaseMenuItem*>::iterator it = m_item_list.begin();
-	for (; it != m_item_list.end(); it++) {
+	for (; it != m_item_list.end(); ++it) {
 		if ((*it)->getSubmenu()) {
 			(*it)->getSubmenu()->hideAll();
 		}
 	}
 }
 
-void
-BaseMenu::handleEnterNotify(XCrossingEvent *e)
-{
-	if (!m_curr)
-		return;
-
-	// Hide the submenu's which are visible but not needed anymore.
-	hideSubmenus();
-
-	selectMenuItem(true); // draw item selected
-
-	if(m_curr->getSubmenu()) {
-		m_curr->getSubmenu()->m_x = m_x + m_width + (theme->getMenuBW() * 2);
-		m_curr->getSubmenu()->m_y = m_y + m_curr->getY() - m_item_height;
-
-		m_curr->getSubmenu()->makeMenuInsideScreen();
-		showSub(m_curr->getSubmenu(),
-						m_curr->getSubmenu()->m_x, m_curr->getSubmenu()->m_y);
-	}
-	redraw(m_curr);
-}
-
-void
-BaseMenu::handleLeaveNotify(XCrossingEvent *e)
-{
-	if(m_curr) {
-		selectMenuItem(false);
-
-		redraw(m_curr);
-		m_curr = NULL;			
-	}
-}
-
-
+//! @fn
+//! @brief
 void
 BaseMenu::handleExposeEvent(XExposeEvent *e)
 {
-	if(e->count == 0) {
+	if (e->count == 0)
 		redraw();
+}
+
+//! @fn    void handleLeaveEvent(XCrossingEvent *e)
+//! @brief Handles XLeaveWindowEvents
+void
+BaseMenu::handleLeaveEvent(XCrossingEvent *e)
+{
+	if (!e || !m_curr)
+		return;
+
+	// If the active item doesn't have a submenu, let's deselect the item.
+	if (!m_curr->getSubmenu()) {
+		BaseMenuItem *item = m_curr;
+		m_curr = NULL;
+		redraw(item);
 	}
 }
 
+//! @fn
+//! @brief
 void
 BaseMenu::handleMotionNotifyEvent(XMotionEvent *e)
 {
 	if (!e || (e->window != m_item_window))
 		return;
 
-	XCrossingEvent temp;
-	
-	BaseMenuItem *i = findMenuItem(e->x, e->y);
+	// first, lets see if we have the pointer on the menu's title if we have one
+	// if that would be the case make sure no item is selected.
+	if (m_name.size()) {
+		if (e->y < (signed) m_item_height) {
+			if (m_curr) {
+				BaseMenuItem *old_item = m_curr;
+				m_curr = NULL;
 
-	if (i && m_enter_once) {
-		m_curr = i;
-
-		handleEnterNotify(&temp);
-
-		m_enter_once = false;
-	} else {
-		BaseMenuItem *i = findMenuItem(e->x, e->y);
-			
-		if (i != m_curr) {
-			handleLeaveNotify(&temp);
-
-			m_curr = i;
-
-			m_enter_once = true;
-		} 
+				// Deselect and hide the old item
+				if (old_item) {
+					if (old_item->getSubmenu() && old_item->getSubmenu()->isVisible())
+						old_item->getSubmenu()->hideAll();
+					redraw(old_item);
+				}
+			}
+		}
 	}
 
+	BaseMenuItem *item = findMenuItem(e->x, e->y);
+	if (item) {
+		if (item != m_curr) {
+			BaseMenuItem *old_item = m_curr;
+			m_curr = item;
+
+			// Deselect and hide the old item
+			if (old_item) {
+				if (old_item->getSubmenu() && old_item->getSubmenu()->isVisible())
+					old_item->getSubmenu()->hideAll();
+				redraw(old_item);
+			}
+			redraw(m_curr);
+
+			if (m_curr->getSubmenu()) {
+				showSub(m_curr->getSubmenu());
+			}
+		}
+	}
 }
+
+bool
+BaseMenu::getMousePosition(int *x, int *y)
+{
+	Window dummy_w1, dummy_w2;
+	int t1, t2;
+	unsigned int t3;
+
+	return XQueryPointer(dpy, root, &dummy_w1, &dummy_w2, x, y, &t1, &t2, &t3);
+}
+
 
 //! @fn    void makeMenuInsideScreen(void)
 //! @brief Makes sure the menu is insede the screen/(current head).
@@ -740,8 +810,8 @@ BaseMenu::handleMotionNotifyEvent(XMotionEvent *e)
 void
 BaseMenu::makeMenuInsideScreen(void)
 {
-	unsigned int width = m_width + (theme->getMenuBW() * 2);
-	unsigned int height = m_height + (theme->getMenuBW() * 2);
+	unsigned int width = m_width + (theme->getMenuBorderWidth() * 2);
+	unsigned int height = m_height + (theme->getMenuBorderWidth() * 2);
 
 	bool right_edge, bottom_edge;
 

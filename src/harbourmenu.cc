@@ -1,5 +1,5 @@
 //
-// keys.hh for pekwm
+// harbourmenu.cc for pekwm
 // Copyright (C) 2002 Claes Nasten <pekdon@gmx.net>
 //
 // This program is free software; you can redistribute it and/or
@@ -17,52 +17,49 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
-#ifdef KEYS
+#ifdef HARBOUR
+#ifdef MENUS
 
-#ifndef _KEYS_HH_
-#define _KEYS_HH_
+#include "harbourmenu.hh"
+#include "pekwm.hh"
 
-#include "config.hh"
-#include "screeninfo.hh"
-
-#include <string>
-#include <list>
-
-#include <X11/Xlib.h>
-
-class Keys
+HarbourMenu::HarbourMenu(ScreenInfo *s, Theme *t, Harbour *h) :
+GenericMenu(s, t, "Harbour"),
+scr(s), theme(t),
+harbour(h),
+m_dockapp(NULL)
 {
-	class KeyAction : public Action {
-	public:
-		KeyAction() : key(0), mod(0) { }
-		~KeyAction() { }
+	addToMenuList(this);
 
-	public:
-		KeyCode key;
-		unsigned int mod;
-	};
+	insert("Hide", "", ICONIFY);
+	insert("Kill", "", CLOSE);
 
-public:
-	Keys(Config *c, ScreenInfo *s);
-	~Keys();
+	updateMenu();
+}
 
-	void loadKeys(void);
-	void grabKeys(Window w);
-	void ungrabKeys(Window w);
+HarbourMenu::~HarbourMenu()
+{
+}
 
-	Action* getActionFromKeyEvent(XKeyEvent *ev);
+void
+HarbourMenu::handleButton1Release(BaseMenuItem *curr)
+{
+	if (!curr || !m_dockapp)
+		return;
 
-private:
-	Config *cfg;
-	ScreenInfo *scr;
+	switch(curr->getAction()->action) {
+	case ICONIFY:
+		//		m_dockapp->hide();
+		break;
+	case CLOSE:
+		m_dockapp->kill();
+		m_dockapp = NULL;
+		break;
+	default:
+		// do nothing
+		break;
+	}
+}
 
-	std::list<KeyAction> m_keygrabs;
-	std::list<KeyAction>::iterator m_it;
-
-	unsigned int num_lock;
-	unsigned int scroll_lock;
-};
-
-#endif // _KEYS_HH_
-
-#endif // KEYS
+#endif // MENUS
+#endif // HARBOUR

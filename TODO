@@ -2,17 +2,12 @@
 TODO / BUGS
 ===========
 
-  * Changing a Frame's desktop, with more than one Client in it will change
-    the active client of the Frame.
-  * BaseConfig can't have '\n' as separator
   * Restarting pekwm will change position of fspanel.
-  * Changing active client when having aterm in a group will most likely
-    make aterm blank.
+  * Closing a window in a group containing aterms, will most likely blank the atrm. 
   * Maximizations doesn't care about incrementer of the windows, noticable with
     terminals and such.
   * Uppdate Xinerama support.
   * Xft Font support needs improvement, placement of text.
   * Make Strut actions Xinerama aware 
-  * Look trough theme class.
   * Complete alt+tab ...
   * More Extended Net WM Hints 

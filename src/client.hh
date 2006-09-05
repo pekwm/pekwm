@@ -21,7 +21,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
- 
+
 #ifndef _CLIENT_HH_
 #define _CLIENT_HH_
 
@@ -43,19 +43,19 @@ class Client
 	// TO-DO: This relationship should end as soon as possible, but I need to
 	// figure out a good way of sharing. :)
 	friend class Frame;
-	
+
 public: // Public Member Functions
 	Client(WindowManager *w, Window new_client);
 	~Client();
 
-	inline char *getClientName(void) const { return m_name; }
-	inline char *getClientIconName(void) const { return m_icon_name; }
+	inline const std::string &getClientName(void) const { return m_name; }
+	inline const std::string &getClientIconName(void) const { return m_icon_name; }
 
 	inline const AutoProps::ClassHint &getClassHint(void) const {
 		return m_class_hint; }
-	
+
 	inline Window getWindow(void) const { return m_window; }
-	inline Window getTransientWindow(void) const { return m_trans; } 
+	inline Window getTransientWindow(void) const { return m_trans; }
 	inline Frame *getFrame(void) const { return m_frame; }
 	inline XSizeHints *getXSizeHints(void) const { return m_size; }
 
@@ -74,7 +74,7 @@ public: // Public Member Functions
 	inline bool hasBeenShaped(void) const { return m_has_been_shaped; }
 #endif // SHAPE
 	inline bool hasStrut(void) const { return m_has_strut; }
-	
+
 	inline bool isSticky(void) const { return m_is_sticky; }
 	inline bool isShaded(void) const { return m_is_shaded; }
 	inline bool isIconified(void) const { return m_is_iconified; }
@@ -89,16 +89,25 @@ public: // Public Member Functions
 
 	inline bool skipTaskbar(void) const { return m_skip_taskbar; }
 
-	void hide(bool notify_frame = true);
-	void unhide(bool notify_frame = true);
+	void hide(void);
+	void unhide(void);
 
 	// toggles
 	void stick(void);
 	void alwaysOnTop(void);
 	void alwaysBelow(void);
+	void toggleBorder(void);
+	void toggleTitlebar(void);
+	void toggleDecor(void);
 
-	void iconify(bool notify_frame = true);
+	void iconify(void);
+	void close(void);
 	void kill(void);
+
+	void setFocus(bool focus);
+	inline void giveInputFocus(void) {
+		XSetInputFocus(dpy, m_window, RevertToPointerRoot, CurrentTime);
+	}
 
 	void setWorkspace(unsigned int workspace);
 
@@ -110,15 +119,9 @@ public: // Public Member Functions
 	void handleClientMessage(XClientMessageEvent *);
 	void handlePropertyChange(XPropertyEvent *);
 	void handleColormapChange(XColormapEvent *);
-	void handleEnterEvent(XCrossingEvent *);
-//	void handle_leave_event(XCrossingEvent *e);
-	void handleFocusInEvent(XFocusChangeEvent *);
-	void handleFocusOutEvent(XFocusChangeEvent *);
 #ifdef SHAPE
 	void handleShapeChange(XShapeEvent *);
 #endif
-
-	void setFocus(void); 
 
 	void resize(unsigned int w, unsigned int h);
 	void move(int x, int y); // just uppdates the client variables
@@ -171,7 +174,7 @@ private: // Private Member Functions
 	void initHintProperties(void);
 
 
-private: // Private Member Variables 
+private: // Private Member Variables
 	WindowManager *wm;
 	Display *dpy;
 
@@ -183,8 +186,8 @@ private: // Private Member Variables
 
 	Frame *m_frame;
 
-	char *m_name; // Name used to display in titlebar
-	char *m_icon_name;
+	std::string m_name; // Name used to display in titlebar
+	std::string m_icon_name;
 
 	AutoProps::ClassHint m_class_hint;
 

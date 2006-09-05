@@ -56,8 +56,6 @@ private:
 
 	inline XpmImage* getXpmImage(void) { return &m_xpm_image; }
 
-	inline void setPixmap(Pixmap p) { m_pixmap = p; }
-
 private:
 	Display *dpy;
 

@@ -1,23 +1,38 @@
 
-NEWS in pekwm-0.1.1
+NEWS in pekwm-0.1.2
 ===================
 
 NOTE.
 
-This release mainly fixes bugs, but alot of them caused alot of code changes
-so this might not be as stable as it should be.
+This release of pekwm introduces a new config file format which looks
+like this:
 
-WHATS NEW.
+Section {
+	Name = "Value"
+}
 
-  * Keygrabber cleanups, three new grabs ActivateClientNum,
-    ResizeHorizontal and ResizeVertical also it's now possible to disable
-    keygrabber with the --enable/disable-keygrabber configure option.
-  * Transient windows not unmapping should be fixed, this also led to the
-    Workspace swtiching to fast bug to not appearing anymore.
-  * Resize Behaviour altered and we now also have different pointers
-    showing which way you're about to resize.
-  * Window focusing reworked, still not 100% perfect but much is fixed.
-  * Most ( All? ) XErrors fixed.
-  * Small Extended Window Manager Hints fixes.
-  * Window stacking fixes.
-  * Configurable window placement.
+This means that you will have to replace all your old config files.
+
+NEWS.
+
+	* All support for various GNOME hints are dropped as they are
+	  obsoleted by the EWMH.
+	* Menus behave differently and can have titles.
+	* Basic DockApp support, enable at compile time with the
+	  conigure flag --enable-harbour
+	* New keybindings:
+	  -> ToggleBorder, ToggleTitlebar,ToggleDecor
+	  -> MoveToCorner
+	* OpaqueResize option.
+	* WorkspaceWarp, lets you drag a Client to the edge of the
+	  screen and it warps to the next workspace.
+
+BUGS FIXED.
+
+	* Border visibilty fix.
+	* Fixed crash when trying using scrollwheel on titlebar
+	  buttons.
+	* Fixed crash in Image::getScaled
+	* Client actions with modifiers are no longer executed twice
+	  when clicked.
+	* Xft font color fix.

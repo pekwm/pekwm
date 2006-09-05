@@ -21,7 +21,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
- 
+
 #include "util.hh"
 #include <iostream>
 
@@ -86,22 +86,21 @@ isExecutable(const string &file)
 	return false;
 }
 
+//! @fn void expandFileName(string &file)
+//! @brief Replaces the ~ with the complete homedir path.
 void
 expandFileName(string &file)
 {
 	if (!file.size())
 		return;
 
-	if (file[0] == '~') {
-		file.erase(0, 1);
-
-		file.insert(0, getenv("HOME"));
-	}
+	if (file[0] == '~')
+		file.replace(0, 1, getenv("HOME"));
 }
 
 //! @fn    unsigned int splitString(string str, vector<string> &vals, const char *sep, int max_tokens)
 //! @brief Split the string str based on separator sep and put into vals
-//! 
+//!
 //! This splits the string str into to max_tokens parts and puts in the vector
 //! vals. If max_tokens is less than 0 then it'll split it into as many tokens
 //! as possible, max_tokens defaults to -1.
@@ -161,7 +160,6 @@ splitString(string str, vector<string> &vals, const char *sep, int max_tokens)
 
 	return contains;
 }
-
 
 }; // end namespace Misc
 

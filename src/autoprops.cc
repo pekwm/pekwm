@@ -23,124 +23,124 @@
 #include "util.hh"
 
 #include <algorithm>
-#include <iterator>
+#include <vector>
 
+#ifdef DEBUG
+#include <iostream>
+using std::cerr;
+using std::endl;
+#endif // DEBUG
 using std::string;
+using std::list;
 using std::vector;
-using std::back_insert_iterator;
 
 AutoProps::autoproplist_item AutoProps::m_autoproplist[] = {
-	{"Workspace", WORKSPACE_START},
-	{"WorkspaceEnd", WORKSPACE_END},
-	{"Property", PROPERTY_START},
-	{"PropertyEnd", PROPERTY_END},
-	{"Sticky", STICKY},
-	{"Shaded", SHADED},
-	{"MaximizedVertical", MAXIMIZED_VERTICAL},
-	{"MaximizedHorizonal", MAXIMIZED_HORIZONTAL},
-	{"Iconified", ICONIFIED},
-	{"Border", BORDER},
-	{"Titlebar", TITLEBAR},
-	{"Position", POSITION},
-	{"Size", SIZE},
-	{"Layer", LAYER},
-	{"AutoGroup", AUTO_GROUP},
-	{"Group", GROUP},
-	{"Desktop", DESKTOP},
-	{"ApplyOnStart", APPLY_ON_START},
-	{"ApplyOnReload", APPLY_ON_RELOAD},
-	{"ApplyOnWorkspaceChange", APPLY_ON_WORKSPACE_CHANGE},
-	{"ApplyOnTransient", APPLY_ON_TRANSIENT},
+	{"WORKSPACE", WORKSPACE},
+	{"PROPERTY", PROPERTY},
+	{"STICKY", STICKY},
+	{"SHADED", SHADED},
+	{"MAXIMIZEDVERTICAL", MAXIMIZED_VERTICAL},
+	{"MAXIMIZEDHORIZONTAL", MAXIMIZED_HORIZONTAL},
+	{"ICONIFIED", ICONIFIED},
+	{"BORDER", BORDER},
+	{"TITLEBAR", TITLEBAR},
+	{"POSITION", POSITION},
+	{"SIZE", SIZE},
+	{"LAYER", LAYER},
+	{"AUTOGROUP", AUTO_GROUP},
+	{"GROUP", GROUP},
+	{"APPLYONSTART", APPLY_ON_START},
+	{"APPLYONRELOAD", APPLY_ON_RELOAD},
+	{"APPLYONWORKSPACECHANGE", APPLY_ON_WORKSPACE_CHANGE},
+	{"APPLYONTRANSIENT", APPLY_ON_TRANSIENT},
 	{"", NO_PROPERTY}
 };
 
 AutoProps::AutoProps(Config *c) :
 cfg(c)
 {
-
 }
 
 AutoProps::~AutoProps()
 {
-
 }
 
-void AutoProps::loadConfig(void)
+//! @fn    void loadConfig(void)
+//! @brief Loads the autoprop config file.
+void
+AutoProps::loadConfig(void)
 {
-	BaseConfig cfg(cfg->getAutoPropsFile(), "*", ";");
+	if (m_prop_list.size())
+		m_prop_list.clear();
 
-	if (! cfg.loadConfig()) {
+	BaseConfig a_cfg;
+	if (!a_cfg.load(cfg->getAutoPropsFile())) {
 		string cfg_file = DATADIR "/autoprops";
-		cfg.setFile(cfg_file);
-		if (! cfg.loadConfig()) {
+		if (!a_cfg.load(cfg_file)) {
 			return;
 		}
 	}
 
-	if (m_prop_list.size())
-		m_prop_list.clear();
+	string value;
+	vector<string> tokens;
+	vector<string>::iterator it;
+	list<unsigned int> workspaces;
 
-	Property property;
+	BaseConfig::CfgSection *base, *sub;
+	while ((base = a_cfg.getNextSection())) {
+		// Is this a workspace section?
+		if (*base == "WORKSPACE") {
+			if (!base->getValue("WORKSPACE", value))
+				continue; // we need workspace numbers
 
-	string name, value;
-	vector<unsigned int> workspaces;
-	vector<string> values;
+			tokens.clear();
+			if (Util::splitString(value, tokens, " \t")) {
+				workspaces.clear();
+				for (it = tokens.begin(); it != tokens.end(); ++it) {
+					workspaces.push_back(atoi(it->c_str()) - 1);
+				}
+			} else
+				continue; // we still need workspacw numbers
+
+			// get all properties on for these workspaces
+			while ((sub = base->getNextSection()))
+				parseProperty(sub, &workspaces);
+
+		} else {
+			parseProperty(base, NULL);
+		}
+	}
+}
+
+//! @fn    void parseProperty(BaseConfig::CfgSection *cs, list<unsigned int> *ws)
+//! @brief
+void
+AutoProps::parseProperty(BaseConfig::CfgSection *cs, list<unsigned int> *ws)
+{
+	if (!cs)
+		return;
 
 	AutoPropData data;
+	string name, value;
+	vector<string> tokens;
 
-	bool parsing_property = false;
+	if (!cs->getValue("CLASS", value))
+		return; // we need a class
 
-	while (cfg.getNextValue(name, value)) {
+	if ((Util::splitString(value, tokens, ",", 2)) == 2) {
+		data.class_hint.setName(tokens[0]);
+		data.class_hint.setClass(tokens[1]);
+	} else
+		return; // we still need a class
+
+	if (ws) // Workspace?
+		data.workspaces.assign(ws->begin(), ws->end());
+
+	Property property;
+	while (cs->getNextValue(name, value)) {
 		property = getProperty(name);
 
 		switch (property) {
-		case WORKSPACE_START:
-			values.clear();
-			workspaces.clear();
-
-			if (Util::splitString(value, values, ",")) {
-				vector<string>::iterator it = values.begin();
-				for (; it != values.end(); ++it) {
-					workspaces.push_back(atoi(it->c_str()) - 1);
-				}
-			}
-
-			break;
-		case WORKSPACE_END:
-			workspaces.clear();
-			break;
-
-		case PROPERTY_START:
-			if (parsing_property) {
-				m_prop_list.push_back(data);
-				parsing_property = false;
-			}
-
-			if (values.size())
-				values.clear();
-
-			if ((Util::splitString(value, values, ",", 2)) == 2) {
-				data.class_hint.setName(values[0]);
-				data.class_hint.setClass(values[1]);
-				data.class_hint.setGroup("");
-				data.prop_mask = 0; // reset the data to set
-				data.workspaces.clear();
-
-				// set the workspace(s) this property should be valid for
-				if (workspaces.size()) {
-					copy(workspaces.begin(), workspaces.end(),
-							 back_insert_iterator<vector<unsigned int> > (data.workspaces));
-				}
-
-				parsing_property = true;
-			}
-			break;
-		case PROPERTY_END:
-			if (parsing_property)
-				m_prop_list.push_back(data);
-
-			parsing_property = false;
-			break;
 		case STICKY:
 			data.prop_mask |= STICKY;
 			data.sticky = Util::isTrue(value);
@@ -186,39 +186,39 @@ void AutoProps::loadConfig(void)
 			data.apply_on_workspace_change = Util::isTrue(value);
 			break;
 		case POSITION:
-			if (values.size())
-				values.clear();
+			if (tokens.size())
+				tokens.clear();
 
-			if ((Util::splitString(value, values, "x", 2)) == 2) {
+			if ((Util::splitString(value, tokens, "x", 2)) == 2) {
 				data.prop_mask |= POSITION;
-				data.x = atoi(values[0].c_str());
-				data.y = atoi(values[1].c_str());
+				data.x = atoi(tokens[0].c_str());
+				data.y = atoi(tokens[1].c_str());
 			}
 			break;
 		case SIZE:
-			if (values.size())
-				values.clear();
+			if (tokens.size())
+				tokens.clear();
 
-			if ((Util::splitString(value, values, "x", 2)) == 2) {
+			if ((Util::splitString(value, tokens, "x", 2)) == 2) {
 				data.prop_mask |= SIZE;
-				data.width = (unsigned) atoi(values[0].c_str());
-				data.height = (unsigned) atoi(values[1].c_str());
+				data.width = unsigned(atoi(tokens[0].c_str()));
+				data.height = unsigned(atoi(tokens[1].c_str()));
 			}
 			break;
 		case LAYER:
 			data.prop_mask |= LAYER;
-			data.layer = (unsigned) atoi(value.c_str());
+			data.layer = unsigned(atoi(value.c_str()));
 			break;
 		case AUTO_GROUP:
 			data.prop_mask |= AUTO_GROUP;
-			data.auto_group = (unsigned) atoi(value.c_str());
+			data.auto_group = unsigned(atoi(value.c_str()));
 			break;
 		case GROUP:
 			data.class_hint.setGroup(value);
 			break;
-		case DESKTOP:
-			data.prop_mask |= DESKTOP;
-			data.desktop = (unsigned) atoi(value.c_str()) - 1;
+		case WORKSPACE:
+			data.prop_mask |= WORKSPACE;
+			data.workspace = unsigned(atoi(value.c_str()) - 1);
 			break;
 
 		default:
@@ -227,16 +227,18 @@ void AutoProps::loadConfig(void)
 		}
 	}
 
-	// if we forgot about PropertyEnd we might still have an property open,
-	// then lets push it back to the others
-	if (parsing_property) {
-		m_prop_list.push_back(data);
-	}
+	m_prop_list.push_back(data);
 }
 
-AutoProps::Property AutoProps::getProperty(const string &property_name)
+//! @fn    AutoProps::Property getProperty(const string &property_name)
+//! @brief Tries to match a property against the property_name.
+AutoProps::Property
+AutoProps::getProperty(const string &property_name)
 {
-	for (int i = 0; m_autoproplist[i].property != NO_PROPERTY; ++i) {
+	if (!property_name.size())
+		return NO_PROPERTY;
+
+	for (unsigned int i = 0; m_autoproplist[i].property != NO_PROPERTY; ++i) {
 		if (m_autoproplist[i] == property_name) {
 			return m_autoproplist[i].property;
 		}
@@ -246,11 +248,14 @@ AutoProps::Property AutoProps::getProperty(const string &property_name)
 }
 
 //NOTE: type and workspace defaults to -1
-AutoProps::AutoPropData *AutoProps::getAutoProp(const ClassHint &class_hint,
-																								int workspace,
-																								int type)
+//! @fn    AutoProps::AutoPropsData* getAutoProp(const ClassHint &class_hint, int workspace, int type)
+//! @brief Tries matching a ClassHint against a autoprop.
+//! @param workspace On what workspace is the client, defaults to -1
+//! @param type When do we reqeuest this, defaults to -1.
+AutoProps::AutoPropData*
+AutoProps::getAutoProp(const ClassHint &class_hint, int workspace, int type)
 {
-	vector<AutoPropData>::iterator it = m_prop_list.begin();
+	list<AutoPropData>::iterator it = m_prop_list.begin();
 	for (; it != m_prop_list.end(); ++it) {
 		// see if we set type of event
 		if (type != -1) {
@@ -282,9 +287,9 @@ AutoProps::AutoPropData *AutoProps::getAutoProp(const ClassHint &class_hint,
 
 			// see if this property applies for the workspace we're on
 			if (it->workspaces.size()) {
-				vector<unsigned int>::iterator w_it =
+				list<unsigned int>::iterator w_it =
 					find(it->workspaces.begin(), it->workspaces.end(),
-							 (unsigned) workspace);
+							 unsigned(workspace));
 
 				if (w_it != it->workspaces.end()) {
 					return &*it;

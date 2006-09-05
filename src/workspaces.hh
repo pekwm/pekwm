@@ -21,23 +21,30 @@
 #define _WORKSPACES_HH_
 
 #include "atoms.hh"
+#include "screeninfo.hh"
+#include "config.hh"
+#include "harbour.hh"
 
 #include <string>
 #include <vector>
 #include <list>
-#include <algorithm>
-
-#include <X11/Xlib.h>
 
 class Client;
+class Frame;
 
 class Workspaces
 {
 public:
 	class Workspace {
 	public:
+#ifdef HARBOUR
+		Workspace(Display *d, Harbour *h, unsigned int n, const std::string &na) :
+			dpy(d), harbour(h), m_num(n), m_name(na), m_last_focused_client(NULL) { }
+#else // !HARBOUR
 		Workspace(Display *d, unsigned int n, const std::string &name)
 			: dpy(d), m_num(n), m_name(name), m_last_focused_client(NULL) { }
+#endif // HARBOUR
+
 		~Workspace() { }
 
 		inline std::list<Client*> *getClientList(void) {
@@ -46,11 +53,12 @@ public:
 		inline void setNum(unsigned int n) { m_num = n; }
 		inline void setName(const std::string &name) { m_name = name; }
 
-		void activate(void);
+		void activate(bool focus);
 		void deactivate(void);
 
 		inline void addClient(Client *c) { if (c) m_client_list.push_back(c); }
 		inline void removeClient(Client *c) { if (c) m_client_list.remove(c); }
+		inline Client* getLastFocusedClient(void) { return m_last_focused_client; }
 		inline void setLastFocusedClient(Client *c) { m_last_focused_client = c; }
 
 		void raiseClient(Client *c);
@@ -61,18 +69,25 @@ public:
 	private:
 		void stackWinUnderWin(Window win_over, Window win_under);
 
-
 	private:
 		Display *dpy;
+#ifdef HARBOUR
+		Harbour *harbour;
+#endif // HARBOUR
 
 		unsigned int m_num;
 		std::string m_name; // if we are going to support workspace names
-		
+
 		std::list<Client*> m_client_list;
 		Client *m_last_focused_client;
 	};
 
-	Workspaces(Display *d, EwmhAtoms *ewmh, unsigned int num);
+#ifdef HARBOUR
+	Workspaces(ScreenInfo *s, Config *c, EwmhAtoms *ewmh,
+						 unsigned int num, Harbour *h);
+#else // !HARBOUR
+	Workspaces(ScreenInfo *s, Config *c, EwmhAtoms *ewmh, unsigned int num);
+#endif // HARBOUR
 	~Workspaces();
 
 	inline std::list<Client*> *getClientList(unsigned int workspace) {
@@ -87,9 +102,8 @@ public:
 
 	inline unsigned int getNumWorkspaces(void) const { return m_num_workspaces; }
 	void setNumWorkspaces(unsigned int num_workspaces);
-	inline void setReportOnlyFrames(bool r) { m_report_only_frames = r; }
 
-	void activate(unsigned int workspace);
+	void activate(unsigned int workspace, bool focus);
 
 	Client* getTopClient(unsigned int workspace);
 
@@ -102,6 +116,11 @@ public:
 			m_workspace_list[workspace]->removeClient(c);
 	}
 
+	inline Client* getLastFocusedClient(unsigned int workspace) {
+		if (workspace < m_num_workspaces)
+			return m_workspace_list[workspace]->getLastFocusedClient();
+		return NULL;
+	}
 	inline void setLastFocusedClient(Client *c, unsigned int workspace) {
 		if (workspace < m_num_workspaces)
 			m_workspace_list[workspace]->setLastFocusedClient(c);
@@ -138,18 +157,34 @@ public:
 	}
 
 	void updateClientList(void);
+	void checkFrameSnap(int &x, int &y, Frame *frame, unsigned int workspace);
 
 private:
-	Display *dpy;
+	inline bool isBetween(const int &x1, const int &x2,
+												const int &t1, const int &t2) {
+		if (x1 > t1) {
+			if (x1 < t2)
+				return true;
+		} else if (x2 > t1) {
+			return true;
+		}
+		return false;
+	}
+
+private:
+	ScreenInfo *scr;
+	Config *cfg;
 	EwmhAtoms *ewmh_atoms;
+#ifdef HARBOUR
+	Harbour *harbour;
+#endif // HARBOUR
+
+	std::vector<Workspace*> m_workspace_list;
+	std::list<Client*> m_sticky_client_list;
 
 	unsigned int m_num_workspaces;
 	unsigned int m_active_workspace;
 
-	bool m_report_only_frames;
-
-	std::vector<Workspace*> m_workspace_list;
-	std::list<Client*> m_sticky_client_list;
 };
 
 #endif // _WORKSPACES_HH_

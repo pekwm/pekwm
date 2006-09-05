@@ -21,7 +21,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
- 
+
 #include "windowmanager.hh"
 #include "util.hh"
 
@@ -60,7 +60,7 @@ main(int argc, char *argv[])
 {
 	string command_line;
 
-	for (int i = 0; i < argc; ++i) 
+	for (int i = 0; i < argc; ++i)
 		command_line = command_line + argv[i] + " ";
 
 	// Get the args and test for different options

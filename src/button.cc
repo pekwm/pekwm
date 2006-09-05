@@ -67,6 +67,12 @@ FrameButton::getAction(unsigned int button) const
 	case Button3:
 		return m_data->action[BUTTON3].action;
 		break;
+	case Button4:
+		return m_data->action[BUTTON4].action;
+		break;
+	case Button5:
+		return m_data->action[BUTTON5].action;
+		break;
 	default:
 		return NO_ACTION;
 		break;
@@ -120,7 +126,7 @@ FrameButton::setPosition(int x, int y)
 }
 
 //! @fn    Action* getActionFromButton(unsigned int button)
-//! @brief Returns the correct action for button button 
+//! @brief Returns the correct action for button button
 Action*
 FrameButton::getActionFromButton(unsigned int button)
 {
@@ -135,6 +141,12 @@ FrameButton::getActionFromButton(unsigned int button)
 		break;
 	case Button3:
 		action = &m_data->action[BUTTON3];
+		break;
+	case Button4:
+		action = &m_data->action[BUTTON4];
+		break;
+	case Button5:
+		action = &m_data->action[BUTTON5];
 		break;
 	}
 

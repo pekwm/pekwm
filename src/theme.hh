@@ -34,11 +34,9 @@
 // If adding, make sure it "syncs" with the windowmanager cursor enum
 // BAD HABIT
 enum BorderPosition {
-	BORDER_TOP,
+	BORDER_TOP_LEFT, BORDER_TOP, BORDER_TOP_RIGHT,
 	BORDER_LEFT, BORDER_RIGHT,
-	BORDER_BOTTOM,
-	BORDER_TOP_LEFT, BORDER_TOP_RIGHT,
-	BORDER_BOTTOM_LEFT, BORDER_BOTTOM_RIGHT,
+	BORDER_BOTTOM_LEFT, BORDER_BOTTOM, BORDER_BOTTOM_RIGHT,
 	BORDER_NO_POS
 };
 
@@ -48,76 +46,132 @@ public:
 	Theme(Config *c, ScreenInfo *s);
 	~Theme();
 
-	void loadTheme(void); // sets the actual theme up
+	void load(void); // sets the actual theme up
 	void setThemeDir(const std::string &dir);
-
-	inline std::vector<FrameButton::ButtonData> *getButtonList(void) {
-		return &m_button_list; }
 
 	inline const GC &getInvertGC(void) const { return m_invert_gc; }
 
-	inline const XColor &getWinTextFo(void) const { return m_win_text_fo; }
-	inline const XColor &getWinTextUn(void) const { return m_win_text_un; }
-	inline const XColor &getWinTextSe(void) const { return m_win_text_se; }
+	// Window
+	inline int getWinTitleHeight(void) const { return m_win_titleheight; }
+	inline int getWinTitlePadding(void) const { return m_win_titlepadding; }
 
 	inline PekFont *getWinFont(void) { return m_win_font; }
-	// used for status window too
+	inline unsigned int getWinFontJustify(void) const {
+		return m_win_fontjustify; }
+
+	// focused
+	inline const XColor &getWinFocusedText(void) const {
+		return m_win_focused_text; }
+	inline Image* getWinFocusedPixmap(void) { return m_win_focused_pixmap; }
+	inline Image* getWinFocusedSeparator(void) const {
+		return m_win_focused_separator; }
+
+	// unfocused
+	inline const XColor &getWinUnfocusedText(void) const {
+		return m_win_unfocused_text; }
+	inline Image* getWinUnfocusedPixmap(void) { return m_win_unfocused_pixmap; }
+	inline Image* getWinUnfocusedSeparator(void) const {
+		return m_win_unfocused_separator; }
+
+	// selected
+	inline const XColor &getWinSelectedText(void) const {
+		return m_win_selected_text; }
+	inline Image* getWinSelectedPixmap(void) { return m_win_selected_pixmap; }
+
+	inline std::list<FrameButton::ButtonData> *getButtonList(void) {
+		return &m_button_list; }
+
+
+	// Menu
 	inline PekFont *getMenuFont(void) { return m_menu_font; }
+	inline unsigned int getMenuPadding(void) const { return m_menu_padding; }
+	inline unsigned int getMenuFontJustify(void) const {
+		return m_menu_fontjustify; }
 
-	inline int getWinBW(void) const { return m_win_bw; }
-	inline int getWinPadding(void) const { return m_win_padding; }
-	inline int getWinTitleHeight(void) const { return m_win_title_height; }
-	inline int getWinTextJustify(void) const { return m_win_tj; }
+	inline const XColor &getMenuTextColor(void) const {
+		return m_menu_textcolor; }
+	inline const XColor &getMenuBackground(void) const {
+		return m_menu_background; }
+	inline const XColor &getMenuBackgroundSelected(void) const {
+		return m_menu_backgroundselected; }
+	inline const XColor &getMenuBorderColor(void) const {
+		return m_menu_bordercolor; }
 
-	inline Image* getWinFocusImage(void) const {
-		return m_win_image_fo; }
-	inline Image* getWinUnfocusImage(void) const {
-		return m_win_image_un; }
-	inline Image* getWinSelectImage(void) const {
-		return m_win_image_se; }
+	inline unsigned int getMenuBorderWidth(void) const {
+		return m_menu_borderwidth; }
 
-	inline Image* getWinFocusSeparator(void) const {
-		return m_win_separator_fo; }
-	inline Image* getWinUnfocusSeparator(void) const {
-		return m_win_separator_un;
-	}
+#ifdef HARBOUR
+	inline Image* getHarbourImage(void) const { return m_harbour_image; }
+#endif // HARBOUR
 
-	inline Image **getBorderFocusData(void) {
-		return m_win_border_focus; }
-	inline Image **getBorderUnfocusData(void) {
-		return m_win_border_unfocus; }
-
-	inline int getMenuBW(void) const { return m_menu_bw; }
-	inline int getMenuPadding(void) const { return m_menu_padding; }
-	inline const int &getMenuTextJustify(void) const { return m_menu_tj; }
-
-	inline const XColor &getMenuTextC(void) const { return m_menu_text_c; }
-	inline const XColor &getMenuSelectC(void) const { return m_menu_select_c; }
-	inline const XColor &getMenuBackgroundC(void) const { return m_menu_bg_c; }
-	inline const XColor &getMenuBorderC(void) const { return m_menu_border_c; }
+	inline Image **getWinFocusedBorder(void) { return m_win_focused_border; }
+	inline Image **getWinUnfocusedBorder(void) { return m_win_unfocused_border; }
 
 private:
+	void unload(void);
 	void setupEmergencyTheme(void); // if we can't open a theme
 
-	void unloadTheme(void);
-	bool loadPixmap(const std::string &file, Pixmap &pix, Pixmap &shape,
-									unsigned int &w, unsigned int &h);
-	void loadImage(Image *image,
-								 const std::string &file, const std::string &type = "");
+	bool loadXpm(const std::string &file, Pixmap &pix, Pixmap &shape,
+							 unsigned int &width, unsigned int &height);
+	void loadImage(Image *image, const std::string &file);
+	bool allocColor(const std::string &color, XColor *xcolor);
 
-	void loadBorderPixmaps(BaseConfig *theme);
-	void loadButtons(BaseConfig *theme);
-	void loadTitlebarPixmaps(BaseConfig *theme);
+	void loadBorder(BaseConfig::CfgSection *cs, Image **data);
+	void loadButtons(BaseConfig::CfgSection *cs);
 
-	TextJustify getTextJustify(const std::string &type);
+	TextJustify getFontJustify(const std::string &type);
 	Image::ImageType getImageType(const std::string &type);
-
 
 private:
 	Config *cfg;
 	ScreenInfo *scr;
 	std::string m_theme_dir;
 
+	bool m_is_loaded;
+
+	GC m_invert_gc;
+
+	// Window
+	unsigned int m_win_titleheight;
+	unsigned int m_win_titlepadding;
+
+	PekFont *m_win_font;
+	unsigned int m_win_fontjustify;
+
+	// focused
+	XColor m_win_focused_text;
+	Image *m_win_focused_pixmap;
+	Image *m_win_focused_separator;
+	Image *m_win_focused_border[BORDER_NO_POS];
+
+	// unfocused
+	XColor m_win_unfocused_text;
+	Image *m_win_unfocused_pixmap;
+	Image *m_win_unfocused_separator;
+	Image *m_win_unfocused_border[BORDER_NO_POS];
+
+	// selected
+	XColor m_win_selected_text;
+	Image *m_win_selected_pixmap;
+
+	std::list<FrameButton::ButtonData> m_button_list;
+
+	// Harbour
+#ifdef HARBOUR
+	Image *m_harbour_image;
+#endif // HARBOUR
+
+	// Menu
+	PekFont *m_menu_font;
+	unsigned int m_menu_padding;
+	unsigned int m_menu_fontjustify;
+
+	XColor m_menu_textcolor, m_menu_background;
+	XColor m_menu_backgroundselected, m_menu_bordercolor;
+
+	unsigned int m_menu_borderwidth;
+
+	// Lists
 	struct justifylist_item {
 		const char *name;
 		TextJustify justify;
@@ -126,13 +180,6 @@ private:
 		}
 	};
 	static justifylist_item m_justifylist[];
-
-	struct borderlist_item {
-		std::string name;
-		BorderPosition position;
-	};
-	static borderlist_item m_focused_borderlist[];
-	static borderlist_item m_unfocused_borderlist[];
 
 	struct pixmaptypelist_item {
 		const char *name;
@@ -144,30 +191,6 @@ private:
 	};
 	static pixmaptypelist_item m_pixmaptype_list[];
 
-	// window stuff
-	PekFont *m_win_font;
-	GC m_invert_gc;
-
-	XColor m_win_text_fo, m_win_text_un, m_win_text_se;
-
-	std::vector<FrameButton::ButtonData> m_button_list;
-
-	Image *m_win_image_fo, *m_win_image_un, *m_win_image_se;
-	Image *m_win_separator_fo, *m_win_separator_un;
-
-	Image *m_win_border_focus[BORDER_NO_POS];
-	Image *m_win_border_unfocus[BORDER_NO_POS];
-
-	int m_win_tj;
-	unsigned int m_win_bw, m_win_padding, m_win_title_height;
-
-	PekFont *m_menu_font;
-	XColor m_menu_text_c, m_menu_bg_c, m_menu_border_c, m_menu_select_c;
-
-	int m_menu_tj;
-	unsigned int m_menu_bw, m_menu_padding;
-
-	bool m_is_loaded;
 };
 
 #endif // _THEME_HH_

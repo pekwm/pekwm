@@ -48,7 +48,7 @@ void ActionHandler::handleAction(Action *action, Client *client)
 			client->getFrame()->maximizeHorizontal();
 			break;
 		case RESIZE:
-			client->getFrame()->resizeDrag(false, true, false, true);
+			client->getFrame()->doResize(false, true, false, true);
 			break;
 		case SHADE:
 			client->getFrame()->shade();
@@ -62,6 +62,12 @@ void ActionHandler::handleAction(Action *action, Client *client)
 		case STICK:
 			client->getFrame()->getActiveClient()->stick();
 			break;
+		case CLOSE:
+			client->getFrame()->getActiveClient()->close();
+			break;
+		case KILL:
+			client->getFrame()->getActiveClient()->kill();
+			break;
 		case RAISE:
 			client->getFrame()->raise();
 			break;
@@ -74,9 +80,16 @@ void ActionHandler::handleAction(Action *action, Client *client)
 		case ALWAYS_BELOW:
 			client->getFrame()->getActiveClient()->alwaysBelow();
 			break;
-		case CLOSE:
-			client->getFrame()->getActiveClient()->kill();
+		case TOGGLE_BORDER:
+			client->toggleBorder();
 			break;
+		case TOGGLE_TITLEBAR:
+			client->toggleTitlebar();
+			break;
+		case TOGGLE_DECOR:
+			client->toggleDecor();
+			break;
+
 		case NUDGE_HORIZONTAL:
 			client->getFrame()->move(client->getFrame()->getX() + action->i_param,
 															 client->getFrame()->getY());
@@ -90,6 +103,9 @@ void ActionHandler::handleAction(Action *action, Client *client)
 			break;
 		case RESIZE_VERTICAL:
 			client->getFrame()->resizeVertical(action->i_param);
+			break;
+		case MOVE_TO_CORNER:
+			client->getFrame()->moveToCorner((Corner) action->i_param);
 			break;
 		case NEXT_IN_FRAME:
 			client->getFrame()->activateNextClient();
@@ -128,22 +144,22 @@ void ActionHandler::handleAction(Action *action, Client *client)
 	case RIGHT_WORKSPACE:
 		if ((wm->getActiveWorkspace() + 1) <
 				wm->getWorkspaces()->getNumWorkspaces()) {
-			wm->setWorkspace(wm->getActiveWorkspace() + 1);
+			wm->setWorkspace(wm->getActiveWorkspace() + 1, true);
 		} else if (action->action == NEXT_WORKSPACE) {
-			wm->setWorkspace(0);
+			wm->setWorkspace(0, true);
 		}
 		break;
 
 	case PREV_WORKSPACE:
 	case LEFT_WORKSPACE:
 		if (wm->getActiveWorkspace() > 0) {
-			wm->setWorkspace(wm->getActiveWorkspace() - 1);
+			wm->setWorkspace(wm->getActiveWorkspace() - 1, true);
 		} else if (action->action == PREV_WORKSPACE) {
-			wm->setWorkspace(wm->getWorkspaces()->getNumWorkspaces() - 1);
+			wm->setWorkspace(wm->getWorkspaces()->getNumWorkspaces() - 1, true);
 		}
 		break;
 	case GO_TO_WORKSPACE:
-		wm->setWorkspace(action->i_param);
+		wm->setWorkspace(action->i_param, true);
 		break;
 	case EXEC:
 		if (action->s_param.size())
@@ -154,8 +170,8 @@ void ActionHandler::handleAction(Action *action, Client *client)
 		if(wm->getRootMenu()->isVisible())
 			wm->getRootMenu()->hideAll();
 		else if (wm->getRootMenu()->getItemCount())
-			wm->getRootMenu()->show();
-					
+			wm->getRootMenu()->showUnderMouse();
+
 		wm->getIconMenu()->hideAll();
 		wm->getWindowMenu()->hideAll();
 		break;
@@ -163,7 +179,7 @@ void ActionHandler::handleAction(Action *action, Client *client)
 		if(wm->getIconMenu()->isVisible())
 			wm->getIconMenu()->hideAll();
 		else if (wm->getIconMenu()->getItemCount())
-			wm->getIconMenu()->show();
+			wm->getIconMenu()->showUnderMouse();
 
 		wm->getRootMenu()->hideAll();
 		wm->getWindowMenu()->hideAll();
@@ -172,6 +188,9 @@ void ActionHandler::handleAction(Action *action, Client *client)
 		wm->getRootMenu()->hideAll();
 		wm->getWindowMenu()->hideAll();
 		wm->getIconMenu()->hideAll();
+#ifdef HARBOUR
+		wm->getHarbour()->getHarbourMenu()->hideAll();
+#endif // HARBOUR
 		break;
 #endif //MENUS
 	case RELOAD:

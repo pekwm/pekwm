@@ -1,3 +1,192 @@
+pekwm-0.1.2 released
+
+(*)
+  * A _basic_ manual page and docs now reside in the docs dir.
+    ( Thanks Rando Christensen <rando@babblica.net> for this work )
+
+2002-10-18
+(config.cc, config.hh)
+  * Moved the mouseconfig out from config to a separate file called mouse.
+
+(theme.cc, basemenu.cc)
+  * Fixed issue with text in the status window not beeing visible if
+    pekwm was compiled withouth menu support.
+
+2002-10-15
+(font.cc)
+  * Fixed a typo making colors on Xft fonts behave weird.
+    ( Thanks Rando Christensen <rando@babblica.net> for reporting )
+
+2002-10-14
+(harbour.cc, harbour.hh, config.cc, config.hh, pekwm.hh)
+  * Added Placement and Orientation support for the harbour.
+    Options:     
+      Placement = "Top | Bottom | Left | Right"
+      Orientation = "TopToBottom | BottomToTop | LeftToRight | RightToLeft"
+    This relods when reloading the config, also the stacking is uppdated.
+	
+(frame.cc)
+  * Fixed a bug causing Client actions with modifiers be executed twice.
+    ( Thanks shared for reporting. )
+
+2002-10-13
+(frame.cc)
+  * Reverted the look of the WireFrame to only a rectangle to fix issues
+    when moving/resizing borderless windows.
+    ( Thanks Jeremy Naylor <jnaylor@cisco.com> for reporting )
+
+2002-10-12
+(harbour.cc, harbuor.hh, workspaces.cc)
+  * Reworked the stacking of the harbour so that it shouldn't flicker anymore.
+    Still, changed harbour stacking from Above to Below requries a restart for
+    changes to take full effect.
+
+(frame.cc)
+  * Tuned the warping of the pointer when using WorkspaceWarp to make
+    a bug not possible or atleast harder to reproduce.
+
+(frame.cc)
+  * Fixed a redraw issue when resizing windows.
+    ( Thanks shared for reporting. )
+
+2002-10-08
+(*)
+  * Focus code rewritten, still not there yet, do expect glitches.
+
+  * Cleanups.
+
+2002-10-02
+(client.cc, client.hh, actionhandler.cc, config.cc, pekwm.hh)
+  * We now have both a Close and a Kill action, the close one sends an
+    WM_DELETE message if the client supports it, and the kill one kills
+    it with XKillClient.
+
+(config.cc, keys.cc)
+  * Changed the behaviour of mods on keygrabs and button actions, if you don't
+    use the Mod keywoard it'll grab withouth any modifier making the None
+    modifier keyword obsolete.
+
+(*)
+  Config file parsing is rewritten, this included the most of Config and Theme
+  to be rewritten too. The new base syntax is:
+
+    Section {
+      Name = "Value"
+    }
+
+  Which hopefully is alot easier to read.
+  This also causes all configuration files _and_ themes not to work as they
+  need to be rewritten to the new format.
+
+2002-10-30
+(frame.cc, config.cc, config.hh)
+  * Added two new options:
+	WorkspaceWarpResistance* unsigned int;
+	WrapWorkspaceWarp* bool;
+
+2002-10-29
+(frame.cc)
+  * Reworked moving of windows so that you'll now get the status window
+    even if you move in Opaque mode.
+
+(config.cc, config.hh, frame.cc)
+  * Added new option, OpaqueResize which will if it's set to true resize
+    while showing it's content. Also, WireMove was removed and replaced
+    with OpaqueMove, which is the same option but inverted.
+
+(keys.cc, config.cc, pekwm.hh, actionhandler.cc, frame.cc, frame.hh)
+  * Added new keybinding, MoveToCorner which takes one parameter, which can
+    be one of the following:
+	TopLeft, TopRight, BottomLeft or BottomRight
+    which moves the active window to that corner of the screen.
+	
+(util.cc)
+  * Added function trimLeadingBlanks for use in parsing code.
+
+2002-10-27
+(baseconfig.cc, baseconfig.hh, config.cc, rootmenu.cc, keys.cc, autoprops.cc)
+  * Cleaned up in BaseConfig and altered default constructor and load
+    behaviour while adding support for loading configs from a FILE object.
+
+2002-10-24
+(workspaces.cc, workspaces.hh, frame.cc, config.cc, config.hh)
+  * Implemented Frame-to-Frame snapping and therefore added a new configuration
+    option, FrameSnap which is amount of pixels between two frames before it
+    snaps. If it's 0 no snapping occurs.
+
+    NOTE: EdgeSnapWidth config option is replaced with the EdgeSnap config
+    option which no longer is a bool, it's now a unsigned int.
+
+(client.cc, client.hh, config.cc, actionhandler.cc, pekwm.hh)
+  * Added three new key grabber commands:
+  	ToggleBorder, ToggleTitlebar and ToggleDecor
+
+2002-10-23
+(image.cc)
+  * Fixed crash bug in getScaled.
+
+2002-10-22
+(harbour.cc)
+  * Fixed missing #include <algorithm> in harbour.cc.
+    ( Thanks Rando Christensen <rando@babblica.net> for reporting )
+
+2002-10-20
+(*)
+  * Basic DockApp support via the harbour, still it is in early stage
+    of development. Enable via compile time option --enable-harbour
+
+(basemenu.cc, basemenu.hh, windowmanager.cc)
+  * Altered the behaviour of menus, items are now selected if you enter a
+    submenu. Also, the selected item has two lines on it, and it's possible
+    to give the menus name with the MenuName keyword.
+
+2002-10-19
+(genericmenu.hh)
+  * Fixed missing include guard in genericmenu.hh
+
+(client.cc)
+  * If a transient window unmaps, we only give the parent focus if the
+    transient window was focused.
+
+(client.cc)
+  * Fixed small issue in handleMapRequest, we didn't look wheter or not we
+    were on the active workspace, causing mozilla to map where it
+    shouldn't.
+
+2002-10-17
+(client.cc, client.hh, frame.cc, frame.hh, workspaces.cc, windowmanager.cc)
+  * Reworked hiding and unhiding of clients/frame as
+    Rando Christensen <rando@babblica.net> reported that the
+    switch-workspace-to-fast still existed but were really hard to replicate.
+
+(windowmanager.cc, windowmanager.hh, workspaces.hh)
+  * Added method findClientToFocus in WindowManager which tries to find a
+    client that can be focused. Also, using this the last focused client
+    is remembered when you kill a client or whatever.
+
+(button.cc, button.hh, frame.cc, theme.cc)
+  * Fixed a bug causing pekwm to segfault if you used button 4 or 5 ( usually
+    the scroll wheel ) on the titlebar buttons. Also, while I were at it
+    I added support for configuring all 5 buttons for each button.
+    ( Thanks Holger Schibalsky <schibalsky@web.de> )
+
+2002-10-16
+(frame.cc)
+  * Fixed issue with the right border becoming covered with the non active
+    clients in a frame.
+    ( Jonas Lundqvist <jonaslundqvist@gmx.net> for reporting )
+
+(client.cc, frame.cc, workspaces.cc)
+  * Fixed some Xinerama compile issues.
+    ( Thanks Matt Keadle <mkeadle@gentoo.org> for reporting )
+
+2002-10-14
+(frame.cc)
+  * Cleaned checkEdgeSnap and updated the Xinerama part.
+
+(atoms.cc, atoms.hh, windowmanager.cc, windowmanager.hh, client.cc)
+  * Dropped all support for the IMHO obsolete gnome atoms used by gnome-1.4.
+
 pekwm-0.1.1 released
 
 2002-10-14

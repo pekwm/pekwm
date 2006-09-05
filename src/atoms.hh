@@ -36,22 +36,6 @@ public:
 		wm_takefocus;
 };
 
-// Gnome stuff
-class GnomeAtoms {
-public:
-	GnomeAtoms(Display *dpy);
-	~GnomeAtoms();
-public:
-	Atom win_state,
-		win_hints,
-		win_layer,
-		win_supporting_wm_check,
-		win_desktop_button_proxy,
-		win_workspace,
-		win_workspace_count,
-		win_protocols;
-};
-
 // Extended WM Hints
 class EwmhAtoms {
 public:
@@ -67,7 +51,7 @@ public:
 		net_current_desktop,
 		//net_desktop_names,
 		net_active_window,
-		net_workarea,  
+		net_workarea,
 		net_supporting_wm_check,
 		//net_virtual_roots,
 		net_close_window,

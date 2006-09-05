@@ -1,0 +1,31 @@
+# makefile to install themes
+# (c) 2002 pekwm devel team
+
+
+prefix = @prefix@
+DATADIR = @datadir@/@PACKAGE@
+DATA_MODE = 644
+INSTALL = @INSTALL@
+THEMES = default
+
+all: theme.in
+
+theme.in: 
+	for i in ${THEMES}; do \
+	  sed 's:<PREFIX>:${DATADIR}:' $$i/theme.in > $$i/theme; \
+	done
+
+### Here we use a pipe through tar; this is evil, but it's the only portable
+### way i've found; solaris's 'install' binary doesn't support wildcards. :/
+### also, copies the CVS/ directories. i don't know how to avoid this, so we
+### use a quick kludge- a better way would be appreciated- email it to 
+### rando@babblica.net
+install: all
+	for i in ${THEMES}; do \
+	  mkdir -p $(DESTDIR)$(DATADIR)/themes/$$i; \
+	  ( cd $$i; tar -cf - . | ( cd $(DESTDIR)$(DATADIR)/themes/$$i; tar -xf - )); \
+	  rm -rf $(DESTDIR)$(DATADIR)/themes/$$i/CVS; \
+	done 
+
+clean:
+	for i in ${THEMES}; do rm -f $$i/theme; done

@@ -39,7 +39,7 @@ public:
 	virtual void handleButton1Release(BaseMenuItem *curr);
 
 	void updateWindowMenu(void);
-	
+
 	inline void setThisClient(Client *c) { m_client = c; }
 private:
 	WindowManager *wm;

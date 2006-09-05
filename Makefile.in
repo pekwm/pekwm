@@ -1,18 +1,43 @@
 # Makefile for pekwm
 # Copyright (C) 2002 Claes Nästen <pekdon@gmx.net>
 
+VER=cvs
+COMPRESS=bzip2
+
 all:
-	cd src && ${MAKE}
-	cd data && ${MAKE} 
+	${MAKE} -C src
+	${MAKE} -C data
+	${MAKE} -C docs
 
 install:
-	cd src && ${MAKE} install
-	cd data && ${MAKE} install
+	${MAKE} -C src install
+	${MAKE} -C data install
+	${MAKE} -C docs install
 
 clean:
-	cd src && ${MAKE} clean
-	cd data && ${MAKE} clean
+	${MAKE} -C src clean
+	${MAKE} -C data clean
+	${MAKE} -C docs clean
 
 distclean: clean
 	rm -f config.{log,status,cache}
-	rm -f {src,data,.}/Makefile
+	rm -f {src,data,data/themes,docs,.}/Makefile
+	rm -rf autom4te.cache
+
+release:
+ifeq (${VER},cvs)
+	@echo "************************************************"
+	@echo "Please specify a version: make VER=X.Y.Z release"
+	@echo "************************************************"
+else
+	${MAKE} distclean
+	cp -r . ../pekwm-${VER}
+	( cd .. && \
+	(find pekwm-${VER} -type d -name CVS | xargs rm -rf) && \
+	tar -cf pekwm-${VER}.tar pekwm-${VER} && \
+	${COMPRESS} -9 pekwm-${VER}.tar && \
+	rm -rf pekwm-${VER} )
+	@echo "***********************************************"
+	@echo "pekwm-${VER} tarball created in parent directory"
+	@echo "***********************************************"
+endif

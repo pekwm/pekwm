@@ -1,7 +1,25 @@
-#Property* *,XTerm;
-#	AutoGroup* 3;
-#PropertyEnd*;
+#Property {
+#	Class = "xterm,XTerm"
+#	ApplyOnStart = "True"
+#	Titlebar = "False"
+#}
 
-#Property* gkrellm,Gkrellm;
-#	Sticky* True;
-#PropertyEnd*;
+#Property {
+#	Class = "xload,XLoad"
+#	ApplyOnStart = "True"
+#	Layer = "2"
+#	Position = "0x886"
+#	Titlebar = "False"
+#	Border = "False"
+#	Sticky = "True"
+#}
+
+#Property {
+#	Class = "xclock,XClock"
+#	ApplyOnStart = "True"
+#	Layer = "2"
+#	Position = "123x886"
+#	Titlebar = "False"
+#	Border = "False"
+#	Sticky = "True"
+#}

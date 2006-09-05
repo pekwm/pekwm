@@ -19,12 +19,18 @@
 
 #include "image.hh"
 
+#ifdef DEBUG
+#include <iostream>
+using std::cerr;
+using std::endl;
+#endif // DEBUG
 using std::string;
 
 Image::Image(Display *d) :
 dpy(d),
 m_pixmap(None), m_shape_pixmap(None),
-m_width(0), m_height(0)
+m_width(0), m_height(0),
+m_image_type(TILED)
 {
 	m_xpm_image.data = NULL; // so that we can track if it's loaded or not
 }
@@ -58,7 +64,7 @@ Image::load(string file)
 	// Image loaded okay, now let's convert it into a XImage and setup the sizes
 	if (status == XpmSuccess) {
 		m_width = attr.width;
-		m_height = attr.height; 
+		m_height = attr.height;
 
 		// move the pixmap into a xpmimage
 		XpmCreateXpmImageFromPixmap(dpy, m_pixmap, m_shape_pixmap,
@@ -112,35 +118,27 @@ Image::draw(Drawable dest, int x, int y,
 	if (height > 4096)
 		height = 4096;
 
-	// Setup a GC
-	XGCValues gv;
-	GC gc;
-
-	gv.fill_style = FillTiled;
-
-	Image *image = NULL;
 	if (m_image_type == SCALED) {
-		image = getScaled(width, height);
-		if (image)
-			gv.tile = image->getPixmap();
-		else 
-		 gv.tile = m_pixmap;
-
+		Image *image = getScaled(width, height);
+		if (image) {
+			XCopyArea(dpy, image->m_pixmap, dest, DefaultGC(dpy, DefaultScreen(dpy)),
+								0, 0, width, height, x, y);
+			delete image;
+		}
 	} else {
+		XGCValues gv;
+		gv.fill_style = FillTiled;
 		gv.tile = m_pixmap;
+
+		GC gc = XCreateGC(dpy, dest, GCTile|GCFillStyle, &gv);
+		XFillRectangle(dpy, dest, gc, x, y, width, height);
+
+		XFreeGC(dpy, gc);
 	}
-
-	gc = XCreateGC(dpy, dest, GCTile|GCFillStyle, &gv);
-	XFillRectangle(dpy, dest, gc, x, y, width, height);
-
-	// Free memory
-	XFreeGC(dpy, gc);
-	if (image)
-		delete image;
 }
 
-//! @fn
-//! @brief
+//! @fn    void scale(unsigned int width, unsigned int height)
+//! @brief Scales the image permanent.
 void
 Image::scale(unsigned int width, unsigned int height)
 {
@@ -167,18 +165,20 @@ Image::getScaled(unsigned int width, unsigned int height)
 
 	// scale ratios
 	float rx = (float) m_width / (float) width;
+	float ry = (float) m_height / (float) height;
 
 	// counters
-	float sx;
+	float sx, sy;
 	unsigned int x, y, loff = 0;
 
 	unsigned int *data = dest.data;
 	// scale the image
- 	for (y = 0; y < height; ++y, loff += m_width) {
- 		for (x = 0, sx = loff; x < width; ++x, sx += rx) {
- 			*data++ = m_xpm_image.data[(int) sx];
- 		}
- 	}
+	for (y = 0, sy = 0; y < height; ++y, sy += ry) {
+		loff = ((int) sy) * m_width;
+		for (x = 0, sx = loff; x < width; ++x, sx += rx) {
+			*data++ = m_xpm_image.data[(int) sx];
+		}
+	}
 
 	// now create the new scaled pixmap
 	Image *image = new Image(dpy);
@@ -187,8 +187,7 @@ Image::getScaled(unsigned int width, unsigned int height)
 	image->setWidth(width);
 	image->setHeight(height);
 
-	// free the memory allocated
+	// free memory
 	delete [] dest.data;
-
 	return image;
 }

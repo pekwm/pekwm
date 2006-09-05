@@ -1,5 +1,5 @@
 //
-// keys.hh for pekwm
+// harbourmenu.hh for pekwm
 // Copyright (C) 2002 Claes Nasten <pekdon@gmx.net>
 //
 // This program is free software; you can redistribute it and/or
@@ -17,52 +17,38 @@
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
 
-#ifdef KEYS
+#ifdef HARBOUR
+#ifdef MENUS
 
-#ifndef _KEYS_HH_
-#define _KEYS_HH_
+#ifndef _HARBOURMENU_HH_
+#define _HARBOURMENU_HH_
 
-#include "config.hh"
 #include "screeninfo.hh"
+#include "theme.hh"
+#include "genericmenu.hh"
+#include "dockapp.hh"
 
-#include <string>
-#include <list>
+class Harbour;
 
-#include <X11/Xlib.h>
-
-class Keys
+class HarbourMenu : public GenericMenu
 {
-	class KeyAction : public Action {
-	public:
-		KeyAction() : key(0), mod(0) { }
-		~KeyAction() { }
-
-	public:
-		KeyCode key;
-		unsigned int mod;
-	};
-
 public:
-	Keys(Config *c, ScreenInfo *s);
-	~Keys();
+	HarbourMenu(ScreenInfo *s, Theme *t, Harbour *h);
+	virtual ~HarbourMenu();
 
-	void loadKeys(void);
-	void grabKeys(Window w);
-	void ungrabKeys(Window w);
+	virtual void handleButton1Release(BaseMenuItem *curr);
 
-	Action* getActionFromKeyEvent(XKeyEvent *ev);
+	inline void setDockApp(DockApp *da) { m_dockapp = da; }
 
 private:
-	Config *cfg;
 	ScreenInfo *scr;
+	Theme *theme;
+	Harbour *harbour;
 
-	std::list<KeyAction> m_keygrabs;
-	std::list<KeyAction>::iterator m_it;
-
-	unsigned int num_lock;
-	unsigned int scroll_lock;
+	DockApp *m_dockapp;
 };
 
-#endif // _KEYS_HH_
+#endif // _HARBOURMENU_HH_
 
-#endif // KEYS
+#endif // MENUS
+#endif // HARBOUR

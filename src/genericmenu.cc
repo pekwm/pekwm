@@ -23,15 +23,16 @@
 //
 
 #ifdef MENUS
- 
+
 #include "genericmenu.hh"
 
 class ScreenInfo;
 class Theme;
 
+using std::string;
 using std::vector;
 
-GenericMenu::GenericMenu(ScreenInfo *s, Theme *t) : BaseMenu(s, t)
+GenericMenu::GenericMenu(ScreenInfo *s, Theme *t, string n) : BaseMenu(s, t, n)
 {
 }
 
@@ -56,7 +57,7 @@ GenericMenu::findMenu(Window w)
 		}
 	}
 
-	return NULL;	
+	return NULL;
 }
 
 void

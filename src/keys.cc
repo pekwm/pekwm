@@ -31,18 +31,6 @@ using std::endl;
 using std::string;
 using std::vector;
 
-Keys::modlist_item Keys::m_modlist[] = {
-	{"Shift", ShiftMask},
-	{"Ctrl", ControlMask},
-	{"Alt", Mod1Mask},
-	//	{"Mod2", Mod2Mask}, // Num Lock
-	//	{"Mod3", Mod3Mask}, // Num Lock on Solaris
-	{"Mod4", Mod4Mask}, // Meta / Win
-	//	{"Mod5", Mod5Mask}, // Scroll Lock
-	{"None", 0},
-	{"", -1}
-};
-
 Keys::Keys(Config *c, ScreenInfo *s) :
 cfg(c), scr(s),
 num_lock(0), scroll_lock(0)
@@ -66,13 +54,11 @@ Keys::~Keys()
 void
 Keys::loadKeys(void)
 {
-	BaseConfig key_cfg(cfg->getKeyFile(), "*", ";");
+	BaseConfig key_cfg;
 
-	if (!key_cfg.loadConfig()) {
+	if (!key_cfg.load(cfg->getKeyFile())) {
 		string key_file = DATADIR "/keys";
-		key_cfg.setFile(key_file);
-
-		if (!key_cfg.loadConfig()) {
+		if (!key_cfg.load(key_file)) {
 			cerr << "Can't load the keyfile: " << key_file << endl;
 			return;
 		}
@@ -81,102 +67,68 @@ Keys::loadKeys(void)
 	if (m_keygrabs.size())
 		m_keygrabs.clear();
 
-	vector<string> keys, tmp;
+	BaseConfig::CfgSection *cs;
+	string s_value;
+	vector<string> keys;
 	vector<string>::iterator it;
 
-	string action, value;
-	while (key_cfg.getNextValue(action, value)) {
-		KeyAction key;
+	KeyAction key; // move out from the loop
 
-		if ((key.action = cfg->getAction(action, KEYGRABBER_OK)) == NO_ACTION) {
-			continue; // not a valid action
-		}
+	while ((cs = key_cfg.getNextSection())) {
+		key.action = cfg->getAction(cs->getName(), KEYGRABBER_OK);
+		if (key.action == NO_ACTION)
+			continue; // invalid action
 
-		if (tmp.size())
-			tmp.clear();
-	 	if (keys.size())
+		if (!cs->getValue("KEY", s_value))
+			continue; // we need a key
+		key.key =
+			XKeysymToKeycode(scr->getDisplay(), XStringToKeysym(s_value.c_str()));
+		if (key.key == NoSymbol)
+			continue; // we need key
+
+		key.mod = 0;
+		if (cs->getValue("MOD", s_value)) { // we want a modifier?
 			keys.clear();
-
-		bool has_param = false;
-		string key_string;
-		if ((Util::splitString(value, tmp, ":", 2)) == 2) {
-			key_string = tmp.front();
-			has_param = true;
-		} else {
-			key_string = value;
+			if (Util::splitString(s_value, keys, " \t")) {
+				for (it = keys.begin(); it != keys.end(); ++it) {
+					key.mod |= cfg->getMod(*it);
+				}
+			}
 		}
 
-		if (Util::splitString(key_string, keys, " \t")) {
-			bool got_mod = false, got_key = false;
-
-			key.mod = 0;
-			for (it = keys.begin(); it != keys.end(); ++it) {
-				int mod;
-				if ((mod = getMod(*it)) != -1) {
-					key.mod |= mod;
-					got_mod = true;
-				} else if (got_mod) {
-					key.key =
-						XKeysymToKeycode(scr->getDisplay(), XStringToKeysym(it->c_str()));
-					if (key.key != NoSymbol) {
-						got_key = true;
-					}
+		// check if we need a param
+		if (cs->getValue("PARAM", s_value)) {
+			switch (key.action) {
+			case EXEC:
+			case RESTART_OTHER:
+				key.s_param = s_value;
 					break;
-				}
-			}
-
-			if (got_mod && got_key) {
-
-				// If we have any parameter, check if we use a action that has params
-				if (has_param) {
-					switch (key.action) {
-					case EXEC:
-					case RESTART_OTHER:
-						key.s_param = tmp[1];
-						break;
-					case SEND_TO_WORKSPACE:
-					case GO_TO_WORKSPACE:
-						key.i_param = atoi(tmp[1].c_str()) - 1;
-						if (key.i_param < 0)
-							key.i_param = 0;
-						break;
-					case NUDGE_HORIZONTAL:
-					case NUDGE_VERTICAL:
-					case RESIZE_HORIZONTAL:
-					case RESIZE_VERTICAL:
-						key.i_param = atoi(tmp[1].c_str());
-						break;
-					case ACTIVATE_CLIENT_NUM:
-						key.i_param = atoi(tmp[1].c_str()) - 1;
-						break;
-					default:
-						// do nothing
-						break;
-					}
-				}
-
-				m_keygrabs.push_back(key);
+			case SEND_TO_WORKSPACE:
+			case GO_TO_WORKSPACE:
+				key.i_param = atoi(s_value.c_str()) - 1;
+				if (key.i_param < 0)
+					key.i_param = 0;
+				break;
+			case NUDGE_HORIZONTAL:
+			case NUDGE_VERTICAL:
+			case RESIZE_HORIZONTAL:
+			case RESIZE_VERTICAL:
+				key.i_param = atoi(s_value.c_str());
+				break;
+			case MOVE_TO_CORNER:
+				key.i_param = cfg->getCorner(s_value);
+				break;
+			case ACTIVATE_CLIENT_NUM:
+				key.i_param = atoi(s_value.c_str()) - 1;
+				break;
+			default:
+				// do nothing
+				break;
 			}
 		}
-	}
-}
 
-//! @fn    int getMod(const string &mod)
-//! @brief Converts the string mod into a usefull X Modifier Mask
-//! @param mod String to convert into an X Modifier Mask
-//! @return X Modifier Mask if found, else 0
-int
-Keys::getMod(const string &mod) {
-	if (! mod.size())
-		return 0;
-		
-	for (unsigned int i = 0; m_modlist[i].mask != -1; ++i) {
-		if (m_modlist[i] ==  mod) {
-			return m_modlist[i].mask;
-		}
+		m_keygrabs.push_back(key);
 	}
-	
-	return -1;
 }
 
 //! @fn    void grabKeys(Window window)
@@ -187,15 +139,14 @@ Keys::grabKeys(Window window)
 {
 	Display *dpy = scr->getDisplay(); // convinience
 
-	unsigned int i = 0;
-	for (m_it = m_keygrabs.begin(); m_it != m_keygrabs.end(); ++m_it, i = 0) {
+	for (m_it = m_keygrabs.begin(); m_it != m_keygrabs.end(); ++m_it) {
 		XGrabKey(dpy, m_it->key, m_it->mod,
 						 window, true, GrabModeAsync, GrabModeAsync);
 		XGrabKey(dpy, m_it->key, m_it->mod|LockMask,
 						 window, true, GrabModeAsync, GrabModeAsync);
 
 		if (num_lock) {
-			XGrabKey(dpy, m_it->key, m_it->mod|num_lock, 
+			XGrabKey(dpy, m_it->key, m_it->mod|num_lock,
 							 window, true, GrabModeAsync, GrabModeAsync);
 			XGrabKey(dpy, m_it->key, m_it->mod|num_lock|LockMask,
 							 window, true, GrabModeAsync, GrabModeAsync);

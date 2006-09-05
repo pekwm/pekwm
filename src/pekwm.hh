@@ -21,7 +21,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 //
- 
+
 #ifndef _PEKWM_HH_
 #define _PEKWM_HH_
 
@@ -37,12 +37,12 @@ const long MWM_HINTS_DECORATIONS = (1l << 1);
 // These aren't used, should we classify them as obsolotet
 // or maybe implement support for them someday?
 // enum MwmwFunc {
-// 	MWM_FUNC_ALL = (1l << 0),
-// 	MWM_FUNC_RESIZE = (1l << 1),
-// 	MWM_FUNC_MOVE = (1l << 2),
-// 	MWM_FUNC_ICONIFY = (1l << 3),
-// 	MWM_FUNC_MAXIMIZE = (1l << 4),
-// 	MWM_FUNC_CLOSE = (1l << 5)
+//	MWM_FUNC_ALL = (1l << 0),
+//	MWM_FUNC_RESIZE = (1l << 1),
+//	MWM_FUNC_MOVE = (1l << 2),
+//	MWM_FUNC_ICONIFY = (1l << 3),
+//	MWM_FUNC_MAXIMIZE = (1l << 4),
+//	MWM_FUNC_CLOSE = (1l << 5)
 // };
 
 enum MwmDecor {
@@ -62,34 +62,7 @@ struct MwmHints {
 	unsigned long decorations;
 };
 
-// pekwm doesn't provide full GNOME support, enough support has been added
-// to make fspanel work properly. More support will be added in the future
-// perhaps.
-
-// GNOME hints
-enum GnomeState {
-	WIN_STATE_STICKY = (1<<0),
-	//	WIN_STATE_MINIMIZED = (1<<1),
-	//	WIN_STATE_MAXIMIZED_VERT = (1<<2),
-	//	WIN_STATE_MAXIMIZED_HORIZ = (1<<3),
-	//	WIN_STATE_HIDDEN = (1<<4),
-	//	WIN_STATE_SHADED = (1<<5),
-	//	WIN_STATE_HID_WORKSPACE = (1<<6),
-	//	WIN_STATE_HID_TRANSIENT = (1<<7),
-	//	WIN_STATE_FIXED_POSITION = (1<<8),
-	//	WIN_STATE_ARRANGE_IGNORE = (1<<9)
-};
-
-enum GnomeHints {
-// 	WIN_HINTS_SKIP_FOCUS = (1<<0),
-// 	WIN_HINTS_SKIP_WINLIST = (1<<1),
-// 	WIN_HINTS_SKIP_TASKBAR = (1<<2),
-// 	WIN_HINTS_GROUP_TRANSIENT = (1<<3),
-// 	WIN_HINTS_FOCUS_ON_CLICK = (1<<4),
-	WIN_HINTS_DO_NOT_COVER = (1<<5)
-};
-
-enum GnomeLayer {
+enum WindowLayer {
 	WIN_LAYER_DESKTOP =	0,
 	WIN_LAYER_BELOW = 2,
 	WIN_LAYER_NORMAL = 4,
@@ -99,7 +72,7 @@ enum GnomeLayer {
 	WIN_LAYER_MENU = 12
 };
 
-// Extended Net Hints stuff 
+// Extended Net Hints stuff
 class NetWMStates {
 public:
 	NetWMStates() : modal(false), sticky(false), max_vertical(false),
@@ -120,15 +93,15 @@ public:
 
 // Someday maybe we will have support for this net spec hint. =)
 // enum NetWmMoveResize {
-// 	_NET_WM_MOVERESIZE_SIZE_TOPLEFT = 0,
-// 	_NET_WM_MOVERESIZE_SIZE_TOP = 1,
-// 	_NET_WM_MOVERESIZE_SIZE_TOPRIGHT = 2,
-// 	_NET_WM_MOVERESIZE_SIZE_RIGHT = 3,
-// 	_NET_WM_MOVERESIZE_SIZE_BOTTOMRIGHT = 4,
-// 	_NET_WM_MOVERESIZE_SIZE_BOTTOM = 5,
-// 	_NET_WM_MOVERESIZE_SIZE_BOTTOMLEFT = 6,
-// 	_NET_WM_MOVERESIZE_SIZE_LEFT = 7,
-// 	_NET_WM_MOVERESIZE_MOVE = 8   // Movement only
+//	_NET_WM_MOVERESIZE_SIZE_TOPLEFT = 0,
+//	_NET_WM_MOVERESIZE_SIZE_TOP = 1,
+//	_NET_WM_MOVERESIZE_SIZE_TOPRIGHT = 2,
+//	_NET_WM_MOVERESIZE_SIZE_RIGHT = 3,
+//	_NET_WM_MOVERESIZE_SIZE_BOTTOMRIGHT = 4,
+//	_NET_WM_MOVERESIZE_SIZE_BOTTOM = 5,
+//	_NET_WM_MOVERESIZE_SIZE_BOTTOMLEFT = 6,
+//	_NET_WM_MOVERESIZE_SIZE_LEFT = 7,
+//	_NET_WM_MOVERESIZE_MOVE = 8   // Movement only
 // };
 
 class Strut {
@@ -149,10 +122,12 @@ public: // member variables
 enum TextJustify { LEFT_JUSTIFY, CENTER_JUSTIFY, RIGHT_JUSTIFY, NO_JUSTIFY };
 enum FocusModel { FOCUS_FOLLOW, FOCUS_SLOPPY, FOCUS_CLICK, NO_FOCUS };
 enum PlacementModel { SMART, MOUSE_CENTERED, MOUSE_TOP_LEFT, NO_PLACEMENT };
-
+enum HarbourPlacement { TOP, LEFT, RIGHT, BOTTOM, NO_HARBOUR_PLACEMENT };
+enum Corner { TOP_LEFT, TOP_RIGHT, BOTTOM_LEFT, BOTTOM_RIGHT, NO_CORNER };
+enum Orientation { TOP_TO_BOTTOM = 1, LEFT_TO_RIGHT = 1,
+									 BOTTOM_TO_TOP = 2, RIGHT_TO_LEFT = 2, NO_ORIENTATION = 0 };
 
 // Action related stuff
-
 enum Actions {
 	MAXIMIZE = 1,
 	MAXIMIZE_VERTICAL,
@@ -160,15 +135,20 @@ enum Actions {
 	RESIZE,
 	SHADE,
 	STICK,
-	CLOSE,
 	RAISE,
 	LOWER,
+	CLOSE,
+	KILL,
 	ALWAYS_ON_TOP,
 	ALWAYS_BELOW,
+	TOGGLE_BORDER,
+	TOGGLE_TITLEBAR,
+	TOGGLE_DECOR,
 	NUDGE_HORIZONTAL,
 	NUDGE_VERTICAL,
 	RESIZE_HORIZONTAL,
 	RESIZE_VERTICAL,
+	MOVE_TO_CORNER,
 	NEXT_FRAME,
 	NEXT_IN_FRAME,
 	PREV_IN_FRAME,
@@ -194,8 +174,9 @@ enum Actions {
 	RESTART,
 	RESTART_OTHER,
 	EXIT,
+#ifdef MENUS
 	SUBMENU,
-	SUBMENU_END,
+#endif // MENUS
 	MOVE,
 	GROUPING_DRAG,
 	NO_ACTION = 0
@@ -214,12 +195,9 @@ public:
 };
 
 enum MouseButtonType {
-	BUTTON_FRAME_SINGLE,
-	BUTTON_FRAME_DOUBLE,
-	BUTTON_FRAME_MOTION,
-	BUTTON_CLIENT_SINGLE,
-	BUTTON_CLIENT_MOTION,
-	BUTTON_ROOT_SINGLE,
+	BUTTON_SINGLE,
+	BUTTON_DOUBLE,
+	BUTTON_MOTION
 };
 
 class MouseButtonAction : public Action {
@@ -231,4 +209,4 @@ public:
 	MouseButtonType type; // single, double click or motion?
 };
 
-#endif // _PEKWM_HH_ 
+#endif // _PEKWM_HH_

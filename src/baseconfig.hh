@@ -1,8 +1,6 @@
 //
 // baseconfig.hh
-// Copyright (C) 2002 Claes Nasten
-// pekdon@gmx.net 
-// http://pekdon.babblica.net/
+// Copyright (C) 2002 Claes Nasten <pekdon@gmx.net>
 //
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,43 +21,103 @@
 #define _BASECONFIG_HH_
 
 #include <string>
-#include <vector>
-#include <fstream>
+#include <algorithm>
+#include <list>
+#include <cstdio>
+#include <cstring>
 
 class BaseConfig
 {
-	struct BaseConfigItem {
+public:
+	struct CfgItem {
+	public:
 		std::string name;
 		std::string value;
-		inline bool operator == (std::string s) {
+		// Well, it seems as if gcc-2.95.X uses != in find and
+		// gcc-3.x uses == . So I have to have both
+		inline bool operator == (const std::string &s) {
 			return (strcasecmp(name.c_str(), s.c_str()) ? false : true);
+		}
+		inline bool operator != (const std::string &s) {
+			return (strcasecmp(name.c_str(), s.c_str()));
 		}
 	};
 
-public:
-	BaseConfig(const std::string &file, const char *sep1, const char *sep2);
+	class CfgSection {
+	public:
+		CfgSection(const std::string &n) : m_name(n) { };
+
+		inline const std::string &getName(void) { return m_name; }
+
+		inline CfgSection* getSection(const std::string &name) {
+			std::list<CfgSection>::iterator it =
+				find(m_sect_list.begin(), m_sect_list.end(), name);
+			if (it != m_sect_list.end())
+				return &*it;
+			return NULL;
+		}
+
+		inline CfgSection* getNextSection(void) {
+			if (m_sect_it != m_sect_list.end())
+				return &*m_sect_it++;
+			return NULL;
+		}
+
+		bool getValue(const std::string &name, int &value);
+		bool getValue(const std::string &name, unsigned int &value);
+		bool getValue(const std::string &name, bool &value);
+		bool getValue(const std::string &name, std::string &value);
+		bool getNextValue(std::string &name, std::string &value);
+
+		inline void addCfgItem(const CfgItem &ci) { m_values.push_back(ci); }
+		inline CfgSection* addCfgSection(const CfgSection &cs) {
+			m_sect_list.push_back(cs);
+			return &m_sect_list.back();
+		}
+		void resetSection(void) { m_sect_it = m_sect_list.begin(); }
+
+		// Well, it seems as if gcc-2.95.X uses != in find and
+		// gcc-3.x uses == . So I have to have both
+		inline bool operator == (const std::string &s) {
+			return (strcasecmp(m_name.c_str(), s.c_str()) ? false : true);
+		}
+		inline bool operator != (const std::string &s) {
+			return (strcasecmp(m_name.c_str(), s.c_str()));
+		}
+
+	private:
+		std::string m_name;
+		std::list<CfgItem> m_values;
+		std::list<CfgItem>::iterator m_it;
+		std::list<CfgSection> m_sect_list;
+		std::list<CfgSection>::iterator m_sect_it;
+	};
+
+	BaseConfig();
 	~BaseConfig();
 
-	bool loadConfig(void);
-	inline void setFile(const std::string &f) { m_filename = f; }
-	inline bool isLoaded(void) const { return m_is_loaded; }
+	bool load(const std::string &file);
+	bool load(FILE *file);
 
-	bool getValue(const std::string &name, int &value);
-	bool getValue(const std::string &name, unsigned int &value);
-	bool getValue(const std::string &name, bool &value);
-	bool getValue(const std::string &name, std::string &value);
+	inline CfgSection* getSection(const std::string &name) {
+		m_it = find(m_cfg_list.begin(), m_cfg_list.end(), name);
+		if (m_it != m_cfg_list.end())
+			return &*m_it;
+		return NULL;
+	}
 
-	bool getNextValue(std::string &name, std::string &value);
-
+	inline CfgSection* getNextSection(void) {
+		if (m_sect_it != m_cfg_list.end())
+			return &*m_sect_it++;
+		return NULL;
+	}
 
 private:
-	std::string m_filename;
-	const char *m_sep1, *m_sep2;
+	void unload(void);
 
-	std::vector<BaseConfigItem> m_config_list;
-	std::vector<BaseConfigItem>::iterator m_it;
-
-	bool m_is_loaded;
+private:
+	std::list<CfgSection> m_cfg_list;
+	std::list<CfgSection>::iterator m_it, m_sect_it;
 };
 
-#endif // _BASECONFIG_HH_
+#endif // _BASEMENU_HH_

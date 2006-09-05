@@ -35,12 +35,13 @@ public:
 
 	void updateRootMenu(void);
 private:
-	void handleAction(BaseMenuItem *item);
-	void parse(BaseConfig *cfg, BaseMenu *menu);
+	void parse(BaseConfig::CfgSection *cs, BaseMenu *menu);
+	void setupEmergencyMenu(void);
 
+private:
 	WindowManager *wm;
 
-	std::vector<BaseMenu*> m_submenu_list;
+	std::list<BaseMenu*> m_submenu_list;
 };
 
 #endif // _ROOTMENU_HH_

@@ -1,5 +1,5 @@
 //
-// baseconfig.cc for pekwm
+// baseconfig.hh
 // Copyright (C) 2002 Claes Nasten <pekdon@gmx.net>
 //
 // This program is free software; you can redistribute it and/or
@@ -19,102 +19,31 @@
 
 #include "baseconfig.hh"
 
+#include <cstdio>
+#include <functional>
+
+#ifdef DEBUG
+#include <iostream>
+using std::cerr;
+using std::endl;
+#endif // DEBUG
+
 using std::string;
-using std::vector;
-using std::ifstream;
+using std::list;
+using std::mem_fun;
 
-BaseConfig::BaseConfig(const string &file,
-											 const char *sep1, const char *sep2) :
-m_filename(file),
-m_sep1(sep1), m_sep2(sep2),
-m_is_loaded(false)
-{
-}
-
-BaseConfig::~BaseConfig()
-{
-	if (m_config_list.size())
-		m_config_list.clear();
-}
-
-//! @fn    bool loadConfig(void)
-//! @brief Parses the config file
-//! @return Returns true on success, else false
+//! @fn    bool getValue(const string &name, int &value)
+//! @brief Gets the value name from the config_list
+//! @return True on success else false.
 bool
-BaseConfig::loadConfig(void)
+BaseConfig::CfgSection::getValue(const string &name, int &value)
 {
-	m_is_loaded = false;
-
-	if (!m_filename.size())
-		return false;
-
-	ifstream config_file(m_filename.c_str());
-	if (!config_file.good())
-		return false;
-
-	if (m_config_list.size()) // if we are reloading this may still be around
-		m_config_list.clear();
-
-	BaseConfigItem ins;
-	const char *blanks = " \t";
-	
-	string line;
-	string::size_type s1, t1, s2, t2;
-
-	char buf[1024];
-	while(config_file.getline(buf, 1024)) {
-		line = buf;
-
-		if (!line.length())
-			continue; // empty line
-
-		s1 = line.find_first_not_of(blanks);
-		if (line[s1] == '#')
-			continue; // commented line
-
-		t2 = 0;	// TO-DO: I don't want to test the t2 stuff, speed paranoia
-		do {
-			s1 = line.find_first_not_of(blanks, t2 ? (t2 + 1) : 0);
-			t1 = line.find_first_of(m_sep1, s1);
-
-			s2 = line.find_first_not_of(blanks, t1 + 1);
-			t2 = line.find_first_of(m_sep2, s2);
-
-			if (s1 != string::npos && t1 != string::npos &&
-					s2 != string::npos && t2 != string::npos) {
-
-				ins.name = line.substr(s1, t1 - s1);
-				ins.value = line.substr(s2, t2 - s2);
-
-				m_config_list.push_back(ins);
-			}
-		} while (s1 != string::npos && t1 != string::npos &&
-						 s2 != string::npos && t2 != string::npos);
-	}
-
-	config_file.close();
-
-	m_is_loaded = true;
-
-	return true;
-}
-
-//! @fn    bool getNextValue(string &name, string &value)
-//! @brief Gets the next value from the config file.
-//! @return True if any objects left in the config_list
-bool
-BaseConfig::getNextValue(string &name, string &value)
-{
-	if (m_config_list.size()) {
-		m_it = m_config_list.begin();
-		name = m_it->name;
-		value = m_it->value;
-
-		m_config_list.erase(m_it);
-
+	m_it = find(m_values.begin(), m_values.end(), name);
+	if (m_it != m_values.end()) {
+		value = atoi(m_it->value.c_str());
+		m_values.erase(m_it);
 		return true;
 	}
-
 	return false;
 }
 
@@ -122,30 +51,13 @@ BaseConfig::getNextValue(string &name, string &value)
 //! @brief Gets the value name from the config_list
 //! @return True on success else false.
 bool
-BaseConfig::getValue(const string &name, int &value)
+BaseConfig::CfgSection::getValue(const string &name, unsigned int &value)
 {
-	for (m_it = m_config_list.begin(); m_it < m_config_list.end(); ++m_it) {
-		if (*m_it == name) {
-			value = atoi(m_it->value.c_str());
-			m_config_list.erase(m_it);
-			return true;
-		} 
-	}
-	return false;
-}
-
-//! @fn    bool getValue(const string &name, int &value)
-//! @brief Gets the value name from the config_list
-//! @return True on success else false.
-bool
-BaseConfig::getValue(const string &name, unsigned int &value)
-{
-	for (m_it = m_config_list.begin(); m_it < m_config_list.end(); ++m_it) {
-		if (*m_it == name) {
-			value = (unsigned) atoi(m_it->value.c_str());
-			m_config_list.erase(m_it);
-			return true;
-		}
+	m_it = find(m_values.begin(), m_values.end(), name);
+	if (m_it != m_values.end()) {
+		value = (unsigned) atoi(m_it->value.c_str());
+		m_values.erase(m_it);
+		return true;
 	}
 	return false;
 }
@@ -154,19 +66,16 @@ BaseConfig::getValue(const string &name, unsigned int &value)
 //! @brief Gets the value name from the config_list
 //! @return True on success else false.
 bool
-BaseConfig::getValue(const string &name, bool &value)
+BaseConfig::CfgSection::getValue(const string &name, bool &value)
 {
-	for (m_it = m_config_list.begin(); m_it < m_config_list.end(); ++m_it) {
-		if (*m_it == name) {
-			if (! strncasecmp(m_it->value.c_str(), "true", strlen("true"))) {
-				value = true;
-			} else {
-				value = false;
-			}
-
-			m_config_list.erase(m_it);
-			return true;
-		}
+	m_it = find(m_values.begin(), m_values.end(), name);
+	if (m_it != m_values.end()) {
+		if (! strncasecmp(m_it->value.c_str(), "true", strlen("true")))
+			value = true;
+		else
+			value = false;
+		m_values.erase(m_it);
+		return true;
 	}
 	return false;
 }
@@ -175,15 +84,148 @@ BaseConfig::getValue(const string &name, bool &value)
 //! @brief Gets the value name from the config_list
 //! @return True on success else false.
 bool
-BaseConfig::getValue(const string &name, string &value)
+BaseConfig::CfgSection::getValue(const string &name, string &value)
 {
-	for (m_it = m_config_list.begin(); m_it < m_config_list.end(); ++m_it) {
-		if (*m_it == name) {
-			value = m_it->value;
-			m_config_list.erase(m_it);
-
-			return true;
-		}
+	m_it = find(m_values.begin(), m_values.end(), name);
+	if (m_it != m_values.end()) {
+		value = m_it->value;
+		m_values.erase(m_it);
+		return true;
 	}
 	return false;
+}
+
+//! @fn    bool getNextValue(string &name, string &value)
+//! @brief Gets the next value from the config file.
+//! @return True if any objects left in the config_list
+bool
+BaseConfig::CfgSection::getNextValue(string &name, string &value)
+{
+	if (m_values.size()) {
+		name = m_values.front().name;
+		value = m_values.front().value;
+		m_values.pop_front();
+		return true;
+	}
+	return false;
+}
+
+BaseConfig::BaseConfig()
+{
+
+}
+
+BaseConfig::~BaseConfig()
+{
+	if (m_cfg_list.size())
+		m_cfg_list.clear();
+}
+
+//! @fn    bool load(const string &filename)
+//! @brief Parses the file, unloads allready parsed info.
+//! @param filename Name of file to parse.
+bool
+BaseConfig::load(const string &filename)
+{
+	if (!filename.size())
+		return false;
+
+	FILE *file = fopen(filename.c_str(), "r");
+	if (file) {
+		bool success = load(file);
+		fclose(file);
+
+		return success;
+	}
+	return false;
+}
+
+//! @fn    bool load(FILE *file)
+//! @brief Parses the FILE object, unloads allready parsed info.
+//! @param file FILE* to parse.
+bool
+BaseConfig::load(FILE *file)
+{
+	if (!file)
+		return false;
+
+	if (m_cfg_list.size()) // make sure nothing old is here
+		m_cfg_list.clear();
+
+	CfgItem ci; // tmp item
+	list<CfgSection*> curr_section; // to keep track of current section
+
+	string line; // string used for parsing
+	string name, value; // used before pushing into the list
+
+	string::size_type pos, start;
+	string::size_type pos_1, pos_2, pos_3;
+
+	char buf[1024];
+	while (!feof(file) && !ferror(file) && fgets(buf, 1024, file)) {
+		if (!strlen(buf))
+			continue; // empty line
+		line = buf;
+
+		start = line.find_first_not_of(" \t");
+
+		if ((start == string::npos) || line[start] == '#')
+			continue; // commented line
+
+		// okie, lets see if this is a start of a property
+		pos = line.find_first_of('{', start);
+		if (pos != string::npos) {
+			pos = line.find_first_of(" \t{", start); // fix leading blanks
+			name = line.substr(start, pos - start);
+
+			CfgSection section(name);
+
+			if (curr_section.size()) {
+				curr_section.push_back(curr_section.back()->addCfgSection(section));
+			} else {
+				m_cfg_list.push_back(section);
+				curr_section.push_back(&m_cfg_list.back());
+			}
+
+			continue; // continue to next line
+		} else if (curr_section.size()) {
+			// or if it's an end
+			pos = line.find_first_of('}');
+			if (pos != string::npos) {
+				curr_section.back()->resetSection();
+				curr_section.pop_back();
+				continue; // continue to next line
+			}
+
+			pos_1 = line.find_first_of('=', start);
+			if (pos_1 != string::npos) {
+				pos_2 = line.find_first_of('"', pos_1 + 1);
+				pos_3 = line.find_first_of('"', pos_2 + 1);
+				if ((pos_2 != string::npos) && (pos_3 != string::npos)) {
+					pos_1 = line.find_first_of(" \t=", start); // fix the blanks
+					++pos_2; // fix leading "
+
+					ci.name = line.substr(start, pos_1 - start);
+					ci.value = line.substr(pos_2, pos_3 - pos_2);
+
+					curr_section.back()->addCfgItem(ci);
+				}
+			}
+		}
+	}
+
+	if (curr_section.size()) {
+#ifdef DEBUG
+		cerr << __FILE__ << "@" << __LINE__ << ": "
+				 << "Resetting " << curr_section.size() << " section(s)." << endl;
+#endif // DEBUG
+		for_each(curr_section.begin(), curr_section.end(),
+						 mem_fun(&BaseConfig::CfgSection::resetSection));
+	}
+
+	// This iterator is used in getNextSection so that you can go through
+	// the sections withouth knowing their names.
+	m_sect_it = m_cfg_list.begin();
+
+	return true;
 }

@@ -1,57 +1,195 @@
 # Window Actions
-Maximize* Mod4 m;
-MaximizeVertical* Mod4 Ctrl m;
-MaximizeHorizontal* Mod4 Shift m;
-Shade* Mod4 s;
-Stick* Mod4 t;
-AlwaysOnTop* Mod4 o;
-AlwaysBelow* Mod4 l;
-Iconify* Mod4 i;
-Close* Mod4 c;
+Maximize {
+	Key = "m"
+	Mod = "Mod4"
+}
+MaximizeVertical {
+	Key = "m"
+	Mod = "Mod4 Ctrl"
+}
+MaximizeHorizontal {
+	Key = "m"
+	Mod = "Mod4 Shift"
+}
+Shade {
+	Key = "s"
+	Mod = "Mod4"
+}
+Stick {
+	Key = "t"
+	Mod = "Mod4"
+}
+AlwaysOnTop {
+	Key = "o"
+	Mod = "Mod4"
+}
+AlwaysBelow {
+	Key = "l"
+	Mod = "Mod4"
+}
+Iconify {
+	Key = "i"
+	Mod = "Mod4"
+}
+Close {
+	Key = "c"
+	Mod = "Mod4"
+}
+#ToggleTitlebar {
+#	Key = "w"
+#	Mod = "Mod4"
+#}
 
 # Movement
-NudgeHorizontal* Mod4 b : -10;
-NudgeHorizontal* Mod4 f : 10;
-NudgeVertical* Mod4 p : -10;
-NudgeVertical* Mod4 n : 10;
+NudgeHorizontal {
+	Key = "b"
+	Mod = "Mod4"
+	Param = "-10"
+}
+NudgeHorizontal {
+	Key = "f"
+	Mod = "Mod4"
+	Param = "10"
+}
+NudgeVertical {
+	Key = "p"
+	Mod = "Mod4"
+	Param = "-10"
+}
+NudgeVertical {
+	Key = "n"
+	Mod = "Mod4"
+	Param = "10"
+}
 
-NextFrame* Alt Tab;
+#MoveToCorner {
+#	key = "y"
+#	mod = "Ctrl Alt"
+#	param = "TopLeft"
+#}
+#MoveToCorner {
+#	key = "u"
+#	mod = "Ctrl Alt"
+#	param = "TopRight"
+#}
+#MoveToCorner {
+#	key = "b"
+#	mod = "Ctrl Alt"
+#	param = "BottomLeft"
+#}
+#MoveToCorner {
+#	key = "n"
+#	mod = "Ctrl Alt"
+#	param = "BottomRight"
+#}
+
+NextFrame {
+	Key = "Tab"
+	Mod = "Alt"
+}
 
 # Groups
-NextInFrame* Ctrl Alt Right;
-PrevInFrame* Ctrl Alt Left;
+NextInFrame {
+	Key = "Right"
+	Mod = "Ctrl Alt"
+}
+PrevInFrame {
+	Key = "Left"
+	Mod = "Ctrl Alt"
+}
 
-# Desktops
-NextWorkspace* Alt Right;
-PrevWorkspace* Alt Left;
+# Workspaces 
+NextWorkspace {
+	Key = "Right"
+	Mod = "Alt"
+}
+PrevWorkspace {
+	Key = "Left"
+	Mod = "Alt"
+}
 
-GoToWorkspace* Alt F1 : 1;
-GoToWorkspace* Alt F2 : 2;
-GoToWorkspace* Alt F3 : 3;
-GoToWorkspace* Alt F4 : 4;
-GoToWorkspace* Alt F5 : 5;
-GoToWorkspace* Alt F6 : 6;
-SendToWorkspace* Mod4 F1 : 1;
-SendToWorkspace* Mod4 F2 : 2;
-SendToWorkspace* Mod4 F3 : 3;
-SendToWorkspace* Mod4 F4 : 4;
-SendToWorkspace* Mod4 F5 : 5;
-SendToWorkspace* Mod4 F6 : 6;
+GoToWorkspace {
+	Key = "F1"
+	Mod = "Alt"
+	Param = "1"
+}
+GoToWorkspace {
+	Key = "F2"
+	Mod = "Alt"
+	Param = "2"
+}
+GoToWorkspace {
+	Key = "F3"
+	Mod = "Alt"
+	Param = "3"
+}
+GoToWorkspace {
+	Key = "F4"
+	Mod = "Alt"
+	Param = "4"
+}
+SendToWorkspace {
+	Key = "F1"
+	Mod = "Mod4"
+	Param = "1"
+}
+SendToWorkspace {
+	Key = "F2"
+	Mod = "Mod4"
+	Param = "2"
+}
+SendToWorkspace {
+	Key = "F3"
+	Mod = "Mod4"
+	Param = "3"
+}
+SendToWorkspace {
+	Key = "F4"
+	Mod = "Mod4"
+	Param = "4"
+}
 
 # External commands
-Exec* Mod4 x : xterm ;
-
+Exec {
+	Key = "x"
+	Mod = "Mod4"
+	Param = "xterm -bg black -fg white &"
+}
+#Exec {
+#	Key = "l"
+#	Mod = "Ctrl Alt"
+#	Param = "xlock -mode blank &"
+#}
 
 # This requires you to have your xkb set up properly
 # (These are the 'extra buttons' used on many keyboards)
-Exec* None XF86AudioPrev : xmms -r;
-Exec* None XF86AudioNext : xmms -f;
-Exec* None XF86AudioPlay : xmms -t;
-Exec* None XF86AudioStop : xmms -s;
-
+Exec {
+	Key = "XF86AudioPrev"
+	Param = "xmms -r"
+}
+Exec {
+	Key = "XF86AudioNext"
+	Param = "xmms -f"
+}
+Exec {
+	Key = "XF86AudioPlay"
+	Param = "xmms -t"
+}
+Exec {
+	Key = "XF86AudioStop"
+	Param = "xmms -s"
+}
 
 # Wm actions
-Reload* Ctrl Alt Shift Delete;
-Restart* Ctrl Alt Delete;
-RestartOther* Ctrl Alt g : gnome-session;
-Exit* Ctrl Alt End;
+Reload {
+	Key = "Delete"
+	Mod = "Ctrl Alt Shift"
+}
+Restart {
+	Key = "Delete"
+	Mod = "Ctrl Alt"
+}
+Exit {
+	Key = "End"
+	Mod = "Ctrl Alt"
+}
