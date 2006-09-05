@@ -1,0 +1,23 @@
+
+NEWS in pekwm-0.1.1
+===================
+
+NOTE.
+
+This release mainly fixes bugs, but alot of them caused alot of code changes
+so this might not be as stable as it should be.
+
+WHATS NEW.
+
+  * Keygrabber cleanups, three new grabs ActivateClientNum,
+    ResizeHorizontal and ResizeVertical also it's now possible to disable
+    keygrabber with the --enable/disable-keygrabber configure option.
+  * Transient windows not unmapping should be fixed, this also led to the
+    Workspace swtiching to fast bug to not appearing anymore.
+  * Resize Behaviour altered and we now also have different pointers
+    showing which way you're about to resize.
+  * Window focusing reworked, still not 100% perfect but much is fixed.
+  * Most ( All? ) XErrors fixed.
+  * Small Extended Window Manager Hints fixes.
+  * Window stacking fixes.
+  * Configurable window placement.

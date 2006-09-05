@@ -1,0 +1,57 @@
+# Window Actions
+Maximize* Mod4 m;
+MaximizeVertical* Mod4 Ctrl m;
+MaximizeHorizontal* Mod4 Shift m;
+Shade* Mod4 s;
+Stick* Mod4 t;
+AlwaysOnTop* Mod4 o;
+AlwaysBelow* Mod4 l;
+Iconify* Mod4 i;
+Close* Mod4 c;
+
+# Movement
+NudgeHorizontal* Mod4 b : -10;
+NudgeHorizontal* Mod4 f : 10;
+NudgeVertical* Mod4 p : -10;
+NudgeVertical* Mod4 n : 10;
+
+NextFrame* Alt Tab;
+
+# Groups
+NextInFrame* Ctrl Alt Right;
+PrevInFrame* Ctrl Alt Left;
+
+# Desktops
+NextWorkspace* Alt Right;
+PrevWorkspace* Alt Left;
+
+GoToWorkspace* Alt F1 : 1;
+GoToWorkspace* Alt F2 : 2;
+GoToWorkspace* Alt F3 : 3;
+GoToWorkspace* Alt F4 : 4;
+GoToWorkspace* Alt F5 : 5;
+GoToWorkspace* Alt F6 : 6;
+SendToWorkspace* Mod4 F1 : 1;
+SendToWorkspace* Mod4 F2 : 2;
+SendToWorkspace* Mod4 F3 : 3;
+SendToWorkspace* Mod4 F4 : 4;
+SendToWorkspace* Mod4 F5 : 5;
+SendToWorkspace* Mod4 F6 : 6;
+
+# External commands
+Exec* Mod4 x : xterm ;
+
+
+# This requires you to have your xkb set up properly
+# (These are the 'extra buttons' used on many keyboards)
+Exec* None XF86AudioPrev : xmms -r;
+Exec* None XF86AudioNext : xmms -f;
+Exec* None XF86AudioPlay : xmms -t;
+Exec* None XF86AudioStop : xmms -s;
+
+
+# Wm actions
+Reload* Ctrl Alt Shift Delete;
+Restart* Ctrl Alt Delete;
+RestartOther* Ctrl Alt g : gnome-session;
+Exit* Ctrl Alt End;

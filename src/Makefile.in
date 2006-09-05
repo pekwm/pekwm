@@ -1,0 +1,72 @@
+# Makefile for pekwm
+# Copyright (C) 2002 Claes Nasten <pekdon@gmx.net>
+SHELL = @SHELL@
+
+srcdir = @srcdir@
+top_srcdir = @top_srcdir@
+VPATH = @srcdir@
+prefix = @prefix@
+exec_prefix = @exec_prefix@
+
+bindir = @bindir@
+datadir = @datadir@
+mandir = @mandir@
+
+pkgdatadir = $(datadir)/@PACKAGE@
+DATADIR = $(pkgdatadir)
+INSTALL = @INSTALL@
+CC = @CXX@
+
+BIN_MODE = 755
+DEFINES = -DPREFIX=\"$(prefix)\" -DDATADIR=\"$(DATADIR)\"
+CXXFLAGS = @CXXFLAGS@ $(DEFINES)
+LDFLAGS = @LIBS@
+
+
+# Source Files
+OBJS = \
+	baseconfig.o \
+	config.o \
+	theme.o screeninfo.o \
+	atoms.o actionhandler.o \
+	autoprops.o \
+	keys.o windowmanager.o \
+	workspaces.o \
+	client.o frame.o \
+	button.o \
+	util.o main.o image.o \
+	basemenu.o \
+	rootmenu.o windowmenu.o \
+	genericmenu.o iconmenu.o \
+	font.o
+
+HEADERS = pekwm.hh \
+	baseconfig.hh \
+	config.hh \
+	theme.hh screeninfo.hh \
+	atoms.hh actionhandler.hh \
+	autoprops.hh \
+	keys.hh windowmanager.hh \
+	workspaces.hh \
+	client.hh frame.hh \
+	button.hh \
+	util.hh image.hh \
+	basemenu.hh genericmenu.hh \
+	iconmenu.hh rootmenu.hh \
+	windowmenu.hh \
+	font.hh
+
+all: pekwm
+
+pekwm: $(OBJS)
+	$(CC) $(OBJS) $(LDFLAGS) -o $@
+
+$(OBJS): %.o: %.cc $(HEADERS)
+	$(CC) $(CXXFLAGS) -c $< -o $@
+
+install: all
+	mkdir -p $(DESTDIR)$(bindir)
+	$(INSTALL) -m $(BIN_MODE) pekwm $(DESTDIR)$(bindir)
+
+clean:
+	rm -f $(OBJS) pekwm

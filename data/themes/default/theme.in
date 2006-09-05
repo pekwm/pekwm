@@ -1,0 +1,52 @@
+# Default theme for pekwm-0.1.1 by Claes Nästén <pekdon@gmx.net>
+
+win.text.font* -*-helvetica-bold-r-*-*-12-*-*-*-*-*-*-*;
+win.text.focus* rgb:c0/c4/c8;
+win.text.select* rgb:e0/e4/e8;
+win.text.unfocus* rgb:46/46/46;
+win.text.justify* Center;
+
+win.title.height* 14;
+win.padding* 2;
+
+win.focus.pixmap* win-focus.xpm:Tiled;
+win.unfocus.pixmap* win-unfocus.xpm:Tiled;
+win.select.pixmap* win-select.xpm:Tiled;
+
+win.focused.separator* separator-fo.xpm:Fixed;
+win.unfocused.separator* separator-un.xpm:Fixed;
+
+border.top.left.focus* side.xpm;
+border.top.left.unfocus* side-un.xpm;
+border.top.right.focus* side.xpm;
+border.top.right.unfocus* side-un.xpm;
+border.top.focus* top.xpm;
+border.top.unfocus* top.xpm;
+
+border.left.focus* left.xpm;
+border.left.unfocus* left.xpm;
+border.right.focus* right.xpm;
+border.right.unfocus* right.xpm;
+
+border.bottom.left.focus* side.xpm;
+border.bottom.left.unfocus* side-un.xpm;
+border.bottom.right.focus* side.xpm;
+border.bottom.right.unfocus* side-un.xpm;
+border.bottom.focus* bottom.xpm;
+border.bottom.unfocus* bottom.xpm;
+
+win.button.right* Close: btn-close-fo.xpm btn-close-un.xpm btn-close-pr.xpm;
+win.button.right* Maximize MaximizeVertical MaximizeHorizontal: btn-max-fo.xpm btn-max-un.xpm btn-max-pr.xpm;
+win.button.right* Iconify ShowMenu: btn-min-fo.xpm btn-min-un.xpm btn-min-pr.xpm;
+
+menu.text.font* -*-helvetica-bold-r-*-*-12-*-*-*-*-*-*-*;
+menu.text.color* rgb:e0/e4/e8;
+menu.text.justify* Center;
+
+menu.background* rgb:60/64/80;
+menu.select* rgb:70/74/90;
+menu.border.color* rgb:4f/4f/64;
+menu.border.width* 2;
+menu.padding* 2;
+
+root.command* xsetroot -solid rgb:60/60/75;

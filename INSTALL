@@ -1,0 +1,22 @@
+
+INSTALL for pekwm-0.1.1-pre4.
+=============================
+
+HOWTO.
+	Just unpack the tarball by issuing either
+
+gzip compressed$ gzip -dc pekwm-0.1.1.tar.gz | tar -xvf -
+bzip2 compresse$ bzip2 -dc pekwm-0.1.1.tar.bz2 | tar -xvf -
+
+Then cd into the newly created dir, pekwm-0.1.1-pre4, and issue 
+
+./configure --help
+
+to get an idea of what compile time options there are, then
+
+$./configure && make
+
+then if you did the prefix outside where you have write permission
+
+$su
+#make install

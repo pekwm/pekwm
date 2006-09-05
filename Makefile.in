@@ -1,0 +1,18 @@
+# Makefile for pekwm
+# Copyright (C) 2002 Claes Nästen <pekdon@gmx.net>
+
+all:
+	cd src && ${MAKE}
+	cd data && ${MAKE} 
+
+install:
+	cd src && ${MAKE} install
+	cd data && ${MAKE} install
+
+clean:
+	cd src && ${MAKE} clean
+	cd data && ${MAKE} clean
+
+distclean: clean
+	rm -f config.{log,status,cache}
+	rm -f {src,data,.}/Makefile

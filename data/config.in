@@ -1,0 +1,42 @@
+NumWorkspaces* 4;
+EdgeSnapWidth* 10;
+KeyFile* ~/.pekwm/keys;
+MenuFile* ~/.pekwm/menu;
+AutoPropsFile* ~/.pekwm/autoprops;
+StartFile* ~/.pekwm/start;
+ThemeDir* <PREFIX>/themes/default;
+EdgeSnap* True;
+WireMove* False;
+GrabWhenResize* True;
+ReportOnlyFrames* False;
+FocusModel* Sloppy;
+PlacementModel* Smart MouseCentered;
+DoubleClickTime* 250;
+
+# Clicks on the titlebar
+Frame.Click* Button1:Raise;
+Frame.Click* Button2:ActivateClient;
+Frame.Click* Button3:ShowWindowMenu;
+Frame.Click* Button4:NextInFrame;
+Frame.Click* Button5:PrevInFrame;
+
+Frame.Click.Double* Button1:Shade;
+
+Frame.Motion* Button1:Move;
+Frame.Motion* Button2:GroupingDrag;
+
+# Clicks on the client window
+Client.Click* Button1:Raise;
+#Client.Click* Alt Button2:ShowWindowMenu;
+
+Client.Motion* Alt Button1:Move;
+#Client.Motion* Alt Button2:GroupingDrag;
+Client.Motion* Alt Button3:Resize;
+
+# Clicks on the background
+Root.Click* Button1:HideAllMenus;
+Root.Click* Button2:ShowIconMenu;
+Root.Click* Button3:ShowRootMenu;
+Root.Click* Button4:RightWorkspace;
+Root.Click* Button5:LeftWorkspace;
+

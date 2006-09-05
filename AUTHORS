@@ -1,0 +1,29 @@
+-- AUTHORS for pekwm 
+Author:
+	Claes Nasten <pekdon@gmx.net>
+
+Patchers:
+	Rando Christensen <rando@babblica.net>
+		- Autoconf scripts
+		- Documentation since 0.1.1
+		- Ideas, bug reports and moral support.
+
+	Lurene Frenier <lurene@daemonkitty.net>
+		- Make file patches
+
+Testers and Requsters:
+	Ashwin <ashwind@cyberwaveindia.com>
+		- Beta testing, many good bug reports.
+
+	Michael ? <themadmind@optushome.com.au>
+		- GCC-3.1.0 compile verification
+
+-- AUTHORS for aewm++ 1.0.16
+
+Author:
+	Frank Hale <frankhale@yahoo.com>
+
+-- AUTHORS for aewm
+
+Author:
+	Decklin Foster <decklin@red-bean.com>

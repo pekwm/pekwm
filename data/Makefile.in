@@ -1,0 +1,34 @@
+# Makefile for pekwm
+# Copyright (C) 2002 Claes Nästen <pekdon@gmx.net>
+
+prefix = @prefix@
+DATADIR = @datadir@/@PACKAGE@
+DATA_MODE = 644
+INSTALL = @INSTALL@
+
+all: config theme
+
+config:
+	sed 's:<PREFIX>:$(DATADIR):' config.in > config
+
+theme:
+	for i in themes/*; do \
+          sed 's:<PREFIX>:${DATADIR}:' $$i/theme.in > $$i/theme; \
+	done
+
+install: all
+	mkdir -p $(DESTDIR)$(DATADIR)
+	$(INSTALL) -m $(DATA_MODE) config $(DESTDIR)$(DATADIR)
+	$(INSTALL) -m $(DATA_MODE) menu $(DESTDIR)$(DATADIR)
+	$(INSTALL) -m $(DATA_MODE) keys $(DESTDIR)$(DATADIR)
+	$(INSTALL) -m $(DATA_MODE) autoprops $(DESTDIR)$(DATADIR)
+	$(INSTALL) -m $(DATA_MODE) start $(DESTDIR)$(DATADIR)
+	for i in themes/*; do \
+	  mkdir -p $(DESTDIR)$(DATADIR)/$$i; \
+	  $(INSTALL) -m $(DATA_MODE) $$i/* $(DESTDIR)$(DATADIR)/$$i; \
+	done 
+
+
+clean:
+	rm -f config
+	rm -f themes/*/theme

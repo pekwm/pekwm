@@ -1,0 +1,7 @@
+#Property* *,XTerm;
+#	AutoGroup* 3;
+#PropertyEnd*;
+
+#Property* gkrellm,Gkrellm;
+#	Sticky* True;
+#PropertyEnd*;

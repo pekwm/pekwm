@@ -1,0 +1,213 @@
+aewm++ - The C++ version of aewm
+======================================================================
+
+Why was this done?
+
+This was done for the simple fact that the C version of aewm spawned
+many new window managers. In other words it is a great peice of code
+in which to hack. Hopefully by having a C++ version of it, it will 
+inspire even more C++ programmers to hack it into yet more window managers.
+
+What does it do?
+
+The C++ version does everything the C version does and more. The programs in 
+the goodies directory were discarded. The reason for this is they are obsolete
+if you use fspanel and appbar. If you want these programs then download
+the aewm source code. In the future I plan on starting my own goodies directory
+where I will distribute appbar, and other little goodies to complement aewm++.
+
+aewm++ provides window maximization, iconification, shading and virtual desktops 
+in addition to the regular aewm features.
+
+By default aewm++ starts with 4 virtual desktops (or workspaces if you like). 
+Switching is done via the page up and page down keys while mouse pointer is over
+the root window. You can specify more virtual desktops by passing the 
+-md <number of workspaces> to aewm++ at runtime.
+
+aewm++ is designed for a 3 button mouse or a 2 button mouse with 3 button emulation
+on.
+
+Window maximization is done by double clicking with the first mouse button on
+the titlebar, double clicking on a maximized window restores it to its original
+position and size.
+
+Shading a window is done by middle clicking on the titlebar. Do this again and 
+the window will become unshaded.
+
+To iconify a window simply press the first mouse button on the little box at the 
+right edge of the titlebar. aewm++ doesn't provide any native way to uniconify windows.
+If used in conjunction with fspanel it works nicely.
+
+As of version 1.0.13 there is now an icon menu. If you middle click on the root
+window you will see the icon menu if you have clients that are iconified. If no
+clients are iconified you will see nothing. If you middle click on the root window
+again while the menu is open it will hide. Icons for the current desktop are the
+only ones that show. Once you switch desktops whatever icons on that desktop will
+show.
+
+More features will be added to aewm++ as needed. I want to get it to where all 
+the standard things you'd expect in a window manager are supported. The focus
+is also to keep aewm++ as lite as possible. It also picks up development where aewm
+left off, it hasn't undergone any new development in quite a long time.
+
+Partial GNOME support was added, enough to get aewm++ working fully with fspanel.
+I highly recommend using fspanel with aewm++ as it fits together nicely!
+
+C++ version - Frank Hale <frankhale@yahoo.com>
+
+*************************
+**ORIGINAL README BELOW**
+*************************
+
+aewm - An X11 Window Manager
+======================================================================
+
+aewm is a minimalistic window manager for X11. I wrote it mostly to
+learn about X and the ICCCM, but also to fight software bloat. Instead
+of expanding to fill your entire "desktop environment", aewm's main
+purpose is to get out of your way and allow you to use other programs
+to control things like menus, icons, backgrounds, cursors, root
+backgrounds, and so on.
+
+It doesn't do "themes", or have much in the way of configuration.
+This is a philosophical statement; it's better to do your work than
+distract yourself with pretty little borders around it. I myself
+haven't changed the default background color in, well, ever.
+
+Another goal I had in writing aewm was to create an easily readable
+and hackable implementation of the ICCCM. While I'm not 100% there
+yet, I think I've at least made the dense jungle of Xlib a bit more
+understandable. You are encouraged to take the code and do your own
+thing with it. For this reason I chose a liberal license that should
+allow you to add your favorite GPL or BSD flavour if you see fit.
+
+I was planning on using the name "swim" (Simple WIndow Manager), but
+someone snapped that up while I was getting the code ready for general
+consumption. "ae" doesn't really stand for anything, but I am a big
+fan of Autechre. ;-)
+
+The latest release is at http://www.red-bean.com/~decklin/aewm/.
+
+Installation
+======================================================================
+
+Before compiling, check the default (DEF_foo) options in aewm.h, and
+the defines in the Makefile. DEF_FONT is of particular interest; make
+sure that it is defined to something that exists on your system. You
+can turn -DSHAPE off if you don't have the Shape extension, and
+-DMWM_HINTS on if you have the Lesstif or Motif headers installed.
+
+"make" will compile everything, and "make install" will install it.
+The goodies/ directory must be compiled separately.
+
+I've decided not to use imake or autoconf because the Makefiles they
+generate are nearly impossible to read, and I wanted to learn how to
+do it myself. If you need to hack the Makefile in order to get it to
+work, please email me so I can take your configuration into account.
+
+Using It
+======================================================================
+
+aewm adds a titlebar with a small box on the right to each window.
+The availible commands are as follows:
+
+    Button  Titlebar  Box
+    ------  --------  --------
+    1       Raise     Hide
+    2       Move      Resize
+    3       Lower     Delete
+
+Each button will also start a different program when you click on the
+root window. These programs can be defined with the -new1, -new2, and
+-new3 options.
+
+aewm places new windows based on the position of the mouse. If your
+mouse is in the center of the the screen, a new window will be
+centered; as you move the mouse to a side or corner, the position of
+the window will move there.
+
+Please note that there is no `unhide' operation to undo the `hide'
+operation. You'll need one of the goodies for that.
+
+Goodies
+======================================================================
+
+The goodies directory has been deleted. All of the default aewm goodies
+have been deleted. If you want them download aewm source code. The
+reason for this is because I don't plan on changing any of them so its 
+redundant to include them here.
+
+In the future a new goodies directory will be created with my own programs
+to complement aewm++.
+
+Caveats
+======================================================================
+
+aewm is really not meant for 2-button mice. If you are stuck with one,
+make sure you can emulate a third button by chording, and try running
+xmodmap -e 'pointer = 1 3 2'. This will make your right button be #2,
+and a chord #3. I have a few 3 button mice lying around so you can
+always ask me to mail you one. ;-)
+
+The Makefiles may cause problems with non-GNU or out-of-date versions
+of make. If you have problems, try upgrading first, or just
+substituting `gmake' for `make'.
+
+Acknowledgements
+======================================================================
+
+In case this sounds familiar, it is. This project would have been
+nearly impossible without the greatly appreciated work of David Hogan
+on 9wm, which I based my design on. I can't thank him enough.
+
+> The latest version of 9wm is held at ftp://ftp.cs.su.oz.au/dhog/9wm.
+> 9wm was written by David Hogan (dhog@cs.su.oz.au), a postgraduate
+> student at the Basser Department of Computer Science, University of
+> Sydney (http://www.cs.su.oz.au/basser_home.html).
+
+Thanks to Christophe Tronche for HTML-ifying the ICCCM and other
+essential X documentation (http://www.tronche.com/gui/x/).
+
+Adam Sampson <azz@gnu.org> wrote the initial code for MWM hints and
+menu-ified goodies.
+
+License - Below is the license aewm is under.
+I have gotten permission from Decklin to release my changes under 
+the GNU GPL.
+======================================================================
+
+Copyright (c) 1998-2001 Decklin Foster.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS", WITHOUT ANY EXPRESS
+OR IMPLIED WARRANTIES OF ANY KIND. IN NO EVENT SHALL THE AUTHOR BE
+HELD LIABLE FOR ANY DAMAGES CONNECTED WITH THE USE OF THIS PROGRAM.
+
+You are granted permission to copy, publish, distribute, and/or sell
+copies of this program and any modified versions or derived works,
+provided that this copyright and notice are not removed or altered.
+
+Portions of the code were based on 9wm, which contains this license:
+
+> 9wm is free software, and is Copyright (c) 1994 by David Hogan.
+> Permission is granted to all sentient beings to use this software,
+> to make copies of it, and to distribute those copies, provided
+> that:
+>
+>     (1) the copyright and licence notices are left intact
+>     (2) the recipients are aware that it is free software
+>     (3) any unapproved changes in functionality are either
+>           (i) only distributed as patches
+>       or (ii) distributed as a new program which is not called 9wm
+>               and whose documentation gives credit where it is due
+>     (4) the author is not held responsible for any defects
+>         or shortcomings in the software, or damages caused by it.
+>
+> There is no warranty for this software.  Have a nice day.
+
+Author
+======================================================================
+
+aewm is maintained by Decklin Foster <decklin@red-bean.com>. If you
+have bug reports, comments, flames, want permission to change the
+license, or are just bored, send me email. Your messages are
+appreciated (but do read the thing above about virtual desktops ;-).

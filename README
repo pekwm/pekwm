@@ -1,0 +1,20 @@
+README for pekwm-0.1.1
+======================
+
+ABOUT.
+	Well, the old docs that were valid for pekwm-0.1.0 were a bit
+too outdated because of too many changes in config file formats etc for
+me to think it was sane to include them.
+	Why? Why was this piece of software made? Well, I need to have
+something to spend my time with ( not as if I allready hadn't enough
+things to do ) and then I found out about
+aewm++ ( http://sapphire.sourceforge.net ) which I started to hack
+on, first adding support for xinerama and a config file, plain basic
+"needed" stuff IMHO. I kept on hacking _but_ I got to far away from
+the aewm++'s author ideas about what he wanted to do with aewm++ so
+he didn't want to include my changes.
+
+DOCS.
+	Anyway, a nice fellow named Rando Christensen
+<rando@babblica.net> is working on the docs for pekwm and they aren't
+100% complete yet but be patient, this is just a pre release.
