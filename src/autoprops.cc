@@ -67,7 +67,7 @@ AutoProps::~AutoProps()
 
 void AutoProps::loadConfig(void)
 {
-	BaseConfig cfg(cfg->getAutoPropsFile(), "*", ";");
+	BaseConfig cfg(this->cfg->getAutoPropsFile(), "*", ";");
 
 	if (! cfg.loadConfig()) {
 		string cfg_file = DATADIR "/autoprops";
