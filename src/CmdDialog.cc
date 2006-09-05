@@ -128,7 +128,7 @@ CmdDialog::handleKeyPress(XKeyEvent *ev)
             case CMD_D_CLEAR:
                 bufClear();
                 break;
-            case CMD_D_KILL:
+            case CMD_D_CLEARFROMCURSOR:
                 bufKill();
                 break;
             case CMD_D_EXEC:

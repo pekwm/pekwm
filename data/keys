@@ -282,7 +282,8 @@ CmdDialog {
 	KeyPress = "Ctrl A" { Actions = "CursBegin" }
 	KeyPress = "Ctrl E" { Actions = "CursEnd" }
 	KeyPress = "BackSpace" { Actions = "Erase" }
-	KeyPress = "Ctrl K" { Actions = "Clear" }
+	KeyPress = "Ctrl K" { Actions = "ClearFromCursor" }
+	KeyPress = "Ctrl C" { Actions = "Clear" }
 	KeyPress = "Return" { Actions = "Exec" }
 	KeyPress = "Escape" { Actions = "Close" }
 	KeyPress = "Up" { Actions = "HistPrev" }

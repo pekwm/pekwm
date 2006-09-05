@@ -1,7 +1,8 @@
 2006-09-03  Claes Nästén  <me{@}pekdon{.}net>
 
 	* src/CmdDialog.cc (CmdDialog::bufKill): 
-	Added kill to end of line to action CmdDialog named KILL.
+	Added action ClearFromCursor for CmdDialog to erase characters from
+	current cursor position to the end of line.
 
 2006-08-31  Claes Nästén  <me{@}pekdon{.}net>
 

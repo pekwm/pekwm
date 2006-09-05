@@ -185,7 +185,7 @@ Config::Config(void) :
     _cmddialog_map["INSERT"] = CMD_D_INSERT;
     _cmddialog_map["ERASE"] = CMD_D_REMOVE;
     _cmddialog_map["CLEAR"] = CMD_D_CLEAR;
-    _cmddialog_map["KILL"] = CMD_D_KILL;
+    _cmddialog_map["CLEARFROMCURSOR"] = CMD_D_CLEARFROMCURSOR;
     _cmddialog_map["EXEC"] = CMD_D_EXEC;
     _cmddialog_map["CLOSE"] = CMD_D_CLOSE;
     _cmddialog_map["COMPLETE"] = CMD_D_COMPLETE;
