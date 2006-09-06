@@ -362,11 +362,10 @@ WindowManager::WindowManager(const std::string &command_line, const std::string 
     setupDisplay();
 
     scanWindows();
-    setupFrameIds();
 
     // add all frames to the MRU list
-    _mru_list.resize (_frame_list.size ());
-    copy (_frame_list.begin (), _frame_list.end (), _mru_list.begin ());
+    _mru_list.resize(Frame::frame_size());
+    copy(Frame::frame_begin(), Frame::frame_end (), _mru_list.begin());
 
     // make sure windows are inside the virtual viewports
     for (uint i = 0; i < _workspaces->size(); ++i) {
@@ -459,8 +458,8 @@ void
 WindowManager::cleanup(void)
 {
     // update all nonactive clients properties
-    list<Frame*>::iterator it_f(_frame_list.begin());
-    for (; it_f != _frame_list.end(); ++it_f) {
+    list<Frame*>::iterator it_f(Frame::frame_begin());
+    for (; it_f != Frame::frame_end(); ++it_f) {
         (*it_f)->updateInactiveChildInfo();
     }
 
@@ -490,21 +489,9 @@ WindowManager::cleanup(void)
     // Delete all Clients.
     list<Client*> client_list(_client_list);
     list<Client*>::iterator it_c(client_list.begin());
-    for (; it_c != client_list.end(); ++it_c)
+    for (; it_c != client_list.end(); ++it_c) {
         delete *it_c;
-
-#ifdef DEBUG
-    if (_frame_list.size()) {
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "WindowManager::cleanup()" << endl
-             << " *** _frame_list.size() > 0: " << _frame_list.size() << endl;
     }
-    if (_client_list.size()) {
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "WindowManager::cleanup()" << endl
-             << " *** _client_list.size() > 0: " << _client_list.size() << endl;
-    }
-#endif // DEBUG
 
     _keygrabber->ungrabKeys(_screen->getRoot());
 
@@ -850,16 +837,15 @@ WindowManager::doReload(void)
     _status_window->loadDecor();
 
     // reload the themes on the frames
-    for_each(_frame_list.begin(), _frame_list.end(),
+    for_each(Frame::frame_begin(), Frame::frame_end(),
              mem_fun(&PDecor::loadDecor));
 
     // NOTE: we need to load autoproperties after decor have been updated
     // as otherwise old theme data pointer will be used and sig 11 pekwm.
-    list<Frame*>::iterator f_it(_frame_list.begin());
-    for (; f_it != _frame_list.end(); ++f_it) {
+    list<Frame*>::iterator f_it(Frame::frame_begin());
+    for (; f_it != Frame::frame_end(); ++f_it) {
         (*f_it)->readAutoprops();
     }
-
 
 #ifdef HARBOUR
     _harbour->loadTheme();
@@ -1555,28 +1541,29 @@ WindowManager::createMenus(void)
     assert(! _menu_map.size());
 
     _menu_map["ATTACHCLIENTINFRAME"] =
-        new FrameListMenu(_screen, _theme, _frame_list, ATTACH_CLIENT_IN_FRAME_TYPE,
+        new FrameListMenu(_screen, _theme, ATTACH_CLIENT_IN_FRAME_TYPE,
                           "Attach Client In Frame", "ATTACHCLIENTINFRAME");
     _menu_map["ATTACHCLIENT"] =
-        new FrameListMenu(_screen, _theme, _frame_list, ATTACH_CLIENT_TYPE,
+        new FrameListMenu(_screen, _theme, ATTACH_CLIENT_TYPE,
                           "Attach Client", "ATTACHCLIENT");
     _menu_map["ATTACHFRAMEINFRAME"] =
-        new FrameListMenu(_screen, _theme, _frame_list, ATTACH_FRAME_IN_FRAME_TYPE,
+        new FrameListMenu(_screen, _theme, ATTACH_FRAME_IN_FRAME_TYPE,
                           "Attach Frame In Frame", "ATTACHFRAMEINFRAME");
     _menu_map["ATTACHFRAME"] =
-        new FrameListMenu(_screen, _theme, _frame_list, ATTACH_FRAME_TYPE,
+        new FrameListMenu(_screen, _theme, ATTACH_FRAME_TYPE,
                           "Attach Frame", "ATTACHFRAME");
     _menu_map["DECORMENU"] =
         new DecorMenu(_screen, _theme, _action_handler, "DECORMENU");
     _menu_map["GOTOCLIENT"] =
-        new FrameListMenu(_screen, _theme, _frame_list, GOTOCLIENTMENU_TYPE,
+        new FrameListMenu(_screen, _theme, GOTOCLIENTMENU_TYPE,
                           "Focus Client", "GOTOCLIENT");
     _menu_map["GOTO"] =
-        new FrameListMenu(_screen, _theme, _frame_list, GOTOMENU_TYPE,
+        new FrameListMenu(_screen, _theme, GOTOMENU_TYPE,
                           "Focus Frame", "GOTO");
     _menu_map["ICON"] =
-        new FrameListMenu(_screen, _theme, _frame_list, ICONMENU_TYPE,
+        new FrameListMenu(_screen, _theme, ICONMENU_TYPE,
                           "Focus Iconified Frame", "ICON");
+
     _menu_map["ROOT"] = // It's named ROOT to be backwards compatible
         new ActionMenu(this, ROOTMENU_TYPE, "", "ROOTMENU");
     _menu_map["WINDOW"] = // It's named WINDOW to be backwards compatible
@@ -1726,14 +1713,16 @@ WindowManager::findClientFromWindow(Window win)
     return NULL;
 }
 
-//! @brief
+//! @brief Find Frame with Window
 Frame*
 WindowManager::findFrameFromWindow(Window win)
 {
-    if (win == _screen->getRoot())
+    if (win == _screen->getRoot()) {
         return NULL;
-    list<Frame*>::iterator it(_frame_list.begin());
-    for(; it != _frame_list.end(); ++it) {
+    }
+
+    list<Frame*>::iterator it(Frame::frame_begin());
+    for(; it != Frame::frame_end(); ++it) {
         if (win == (*it)->getWindow()) { // operator == does more than that
             return (*it);
         }
@@ -1848,13 +1837,11 @@ WindowManager::removeFromClientList(Client *client)
     _client_list.remove(client);
 }
 
-//! @brief
+//! @brief Remove from MRU list.
 void
 WindowManager::removeFromFrameList(Frame *frame)
 {
-    _frame_list.remove(frame);
     _mru_list.remove(frame);
-    _frameid_list.push_back(frame->getId());
 }
 
 //! @brief
@@ -1904,8 +1891,8 @@ WindowManager::findGroup(AutoProperty *property)
 
     // search the list of frames
     if (frame == NULL) {
-        list<Frame*>::iterator it(_frame_list.begin());
-        for (; it != _frame_list.end(); ++it) {
+        list<Frame*>::iterator it(Frame::frame_begin());
+        for (; it != Frame::frame_end(); ++it) {
             if (MATCH_GROUP(*it, property)) {
                 frame = *it;
                 break;
@@ -1918,45 +1905,18 @@ WindowManager::findGroup(AutoProperty *property)
     return frame;
 }
 
-//! @brief
+//! @brief Find Frame from it's ID
 Frame*
 WindowManager::findFrameFromId(uint id)
 {
-    list<Frame*>::iterator it(_frame_list.begin());
-    for (; it != _frame_list.end(); ++it) {
-        if ((*it)->getId() == id)
+    list<Frame*>::iterator it(Frame::frame_begin());
+    for (; it != Frame::frame_end(); ++it) {
+        if ((*it)->getId() == id) {
             return (*it);
+        }
     }
 
     return NULL;
-}
-
-//! @brief
-uint
-WindowManager::findUniqueFrameId(void)
-{
-    if (!_startup) // always return 0 while scanning windows
-        return 0;
-
-    uint id = 0;
-
-    if (_frameid_list.size()) {
-        id = _frameid_list.back();
-        _frameid_list.pop_back();
-    } else {
-        id = (_frame_list.size() + 1); // this is called before the frame is pushed
-    }
-
-    return id;
-}
-
-//! @brief
-void
-WindowManager::setupFrameIds(void)
-{
-    list<Frame*>::iterator it(_frame_list.begin());
-    for (uint i = 1; it != _frame_list.end(); ++i, ++it)
-        (*it)->setId(i);
 }
 
 //! @brief Attaches all marked clients to frame
@@ -2014,24 +1974,28 @@ WindowManager::attachInNextPrevFrame(Client *client, bool frame, bool next)
 Frame*
 WindowManager::getNextFrame(Frame* frame, bool mapped, uint mask)
 {
-    if (!frame || (_frame_list.size() < 2))
+    if (!frame || (Frame::frame_size() < 2)) {
         return NULL;
+    }
 
     Frame *next_frame = NULL;
-    list<Frame*>::iterator f_it(find(_frame_list.begin(), _frame_list.end(), frame));
+    list<Frame*>::iterator f_it(find(Frame::frame_begin(), Frame::frame_end(),
+                                     frame));
 
-    if (f_it != _frame_list.end()) {
+    if (f_it != Frame::frame_end()) {
         list<Frame*>::iterator n_it(f_it);
 
-        if (++n_it == _frame_list.end())
-            n_it = _frame_list.begin();
+        if (++n_it == Frame::frame_end()) {
+            n_it = Frame::frame_begin();
+        }
 
         while (!next_frame && (n_it != f_it)) {
             if (!(*n_it)->isSkip(mask) && (!mapped || (*n_it)->isMapped()))
                 next_frame =  (*n_it);
 
-            if (++n_it == _frame_list.end())
-                n_it = _frame_list.begin();
+            if (++n_it == Frame::frame_end()) {
+                n_it = Frame::frame_begin();
+            }
         }
     }
 
@@ -2046,28 +2010,33 @@ WindowManager::getNextFrame(Frame* frame, bool mapped, uint mask)
 Frame*
 WindowManager::getPrevFrame(Frame* frame, bool mapped, uint mask)
 {
-    if (!frame || (_frame_list.size() < 2))
+    if (!frame || (Frame::frame_size() < 2)) {
         return NULL;
+    }
 
     Frame *next_frame = NULL;
-    list<Frame*>::iterator f_it(find(_frame_list.begin(), _frame_list.end(), frame));
+    list<Frame*>::iterator f_it(find(Frame::frame_begin(), Frame::frame_end(),
+                                     frame));
 
-    if (f_it != _frame_list.end()) {
+    if (f_it != Frame::frame_end()) {
         list<Frame*>::iterator n_it(f_it);
 
-        if (n_it == _frame_list.begin())
-            n_it = --_frame_list.end();
-        else
+        if (n_it == Frame::frame_begin()) {
+            n_it = --Frame::frame_end();
+        } else {
             --n_it;
+        }
 
         while (!next_frame && (n_it != f_it)) {
-            if (!(*n_it)->isSkip(mask) && (!mapped || (*n_it)->isMapped()))
+            if (!(*n_it)->isSkip(mask) && (!mapped || (*n_it)->isMapped())) {
                 next_frame =  (*n_it);
+            }
 
-            if (n_it == _frame_list.begin())
-                n_it = --_frame_list.end();
-            else
+            if (n_it == Frame::frame_begin()) {
+                n_it = --Frame::frame_end();
+            } else {
                 --n_it;
+            }
         }
     }
 

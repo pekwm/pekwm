@@ -1,6 +1,6 @@
 //
 // WindowManager.hh for pekwm
-// Copyright (C) 2003-2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright (C) 2003-2006 Claes Nästén <me{@}pekdon{.}net>
 //
 // windowmanager.hh for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
@@ -8,6 +8,8 @@
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
+//
+// $Id$
 //
 
 #include "../config.h"
@@ -126,10 +128,7 @@ class RootWO : public PWinObj {
     inline std::list<Client*>::reverse_iterator client_rbegin(void) { return _client_list.rbegin(); }
     inline std::list<Client*>::iterator client_end(void) { return _client_list.end(); }
     inline std::list<Client*>::reverse_iterator client_rend(void) { return _client_list.rend(); }
-    inline std::list<Frame*>::iterator frame_begin(void) { return _frame_list.begin(); }
-    inline std::list<Frame*>::reverse_iterator frame_rbegin(void) { return _frame_list.rbegin(); }
-    inline std::list<Frame*>::iterator frame_end(void) { return _frame_list.end(); }
-    inline std::list<Frame*>::reverse_iterator frame_rend(void) { return _frame_list.rend(); }
+
     inline std::list<PWinObj*>::iterator mru_begin(void) { return _mru_list.begin(); }
     inline std::list<PWinObj*>::reverse_iterator mru_rbegin(void) { return _mru_list.rbegin(); }
     inline std::list<PWinObj*>::iterator mru_end(void) { return _mru_list.end(); }
@@ -149,7 +148,6 @@ class RootWO : public PWinObj {
 inline void addToClientList(Client *c) { if (c) _client_list.push_back(c); }
     inline void addToFrameList(Frame *frame) {
         if (frame) {
-            _frame_list.push_back(frame);
             _mru_list.remove(frame);
             _mru_list.push_front(frame);
         }
@@ -173,9 +171,6 @@ inline void addToClientList(Client *c) { if (c) _client_list.push_back(c); }
     Client* findClient(const ClassHint* class_hint);
     Frame* findGroup(AutoProperty *property);
     Frame* findFrameFromId(uint id);
-
-    uint findUniqueFrameId(void);
-    void setupFrameIds(void);
 
     inline bool isAllowGrouping(void) const { return _allow_grouping; }
     inline void setStateGlobalGrouping(StateAction sa) {
@@ -292,10 +287,8 @@ private:
     bool _shutdown; //!< Set to wheter we want to shutdown.
     bool _reload; //!< Set to wheter we want to reload.
 
-    std::list<Frame*> _frame_list;
     std::list<Client*> _client_list;
     std::list<PWinObj*> _mru_list;
-    std::list<uint> _frameid_list; // stores removed frame id's
 
     bool _allow_grouping; //<! Flag turning grouping on/off.
 

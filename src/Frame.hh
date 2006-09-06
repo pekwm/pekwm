@@ -1,9 +1,11 @@
 //
 // Frame.hh for pekwm
-// Copyright (C) 2003-2004 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright (C) 2003-2006 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
+//
+// $Id$
 //
 
 #include "../config.h"
@@ -68,6 +70,22 @@ public:
     virtual void setShaded(StateAction sa);
     virtual void setSkip(uint skip);
     // END - PDecor interface.
+
+    // START - Iterators
+    static uint frame_size(void) { return _frame_list.size(); }
+    static std::list<Frame*>::iterator frame_begin(void) {
+        return _frame_list.begin();
+    }
+    static std::list<Frame*>::iterator frame_end(void) {
+        return _frame_list.end();
+    }
+    static std::list<Frame*>::reverse_iterator frame_rbegin(void) {
+        return _frame_list.rbegin();
+    }
+    static std::list<Frame*>::reverse_iterator frame_rend(void) {
+        return _frame_list.rend();
+    }
+    // END - Iterator
 
     inline uint getId(void) const { return _id; }
     void setId(uint id);
@@ -135,6 +153,9 @@ private:
 
     void setActiveTitle(void);
 
+    static uint findFrameID(void);
+    static void resetFrameIDs(void);
+
 private:
     WindowManager *_wm;
     PScreen *_scr;
@@ -147,6 +168,10 @@ private:
     // frame information used when maximizing / going fullscreen
     Geometry _old_gm; // FIXME: move to PDecor?
     uint _old_decor_state; // FIXME: move to PDecor?
+
+    // ID list, list of free Frame ids.
+    static std::list<Frame*> _frame_list; //!< List of all Frames.
+    static std::list<uint> _frameid_list; //!< List of free Frame IDs.
 
     // Tagging, static as only one Frame can be tagged
     static Frame *_tag_frame; //!< Pointer to tagged frame.

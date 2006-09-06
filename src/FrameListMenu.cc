@@ -1,9 +1,11 @@
 //
 // FrameListMenu.cc for pekwm
-// Copyright (C) 2002-2004 Claes Nasten <pekdon at pekdon net>
+// Copyright (C) 2002-2006 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
+//
+// $Id$
 //
 
 #include "../config.h"
@@ -37,17 +39,15 @@ using std::vector;
 //! @brief FrameListMenu constructor.
 //! @param scr Pointer to PScreen.
 //! @param theme Pointer to Theme
-//! @param frame_list List of Frames available.
 //! @param type Type of menu.
 //! @param title Title of menu.
 //! @param name Name of menu
 //! @param decor_name Decor name, defaults to MENU
 FrameListMenu::FrameListMenu(PScreen *scr, Theme *theme,
-                             const std::list<Frame*> &frame_list, MenuType type,
+                             MenuType type,
                              const std::string &title, const std::string &name,
-                             const std::string &decor_name) :
-        WORefMenu(scr, theme, title, name, decor_name),
-        _frame_list(frame_list)
+                             const std::string &decor_name)
+    : WORefMenu(scr, theme, title, name, decor_name)
 {
     _menu_type = type;
 }
@@ -143,7 +143,7 @@ FrameListMenu::updateFrameListMenu(void)
             snprintf(buf, sizeof(buf), "<%d> ", i + 1);
         }
 
-        for (it = _frame_list.begin(); it != _frame_list.end(); ++it) {
+        for (it = Frame::frame_begin(); it != Frame::frame_end(); ++it) {
             if (((*it)->getWorkspace() == i) && // sort by workspace
                     // don't include ourselves if we're not doing a gotoclient menu
                     ((_menu_type != GOTOCLIENTMENU_TYPE)

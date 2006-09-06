@@ -1,9 +1,11 @@
 //
 // PDecor.hh for pekwm
-// Copyright (C) 2004-2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright (C) 2004-2006 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
+//
+// $Id$
 //
 
 #include "../config.h"
@@ -51,7 +53,8 @@ class Button : public PWinObj {
     public:
         //! Info bitmask enum.
         enum Info {
-            INFO_MARKED = (1 << 1)
+            INFO_MARKED = (1 << 1),
+            INFO_ID = (1 << 2)
         };
 
         TitleItem(void) : _count(0), _info(0), _width(0) { }
@@ -60,8 +63,9 @@ class Button : public PWinObj {
         inline const std::string &getReal(void) const { return _real; }
         inline const std::string &getCustom(void) const { return _custom; }
         inline const std::string &getUser(void) const { return _user; }
-
+ 
         inline uint getCount(void) const { return _count; }
+        inline uint getId(void) const { return _id; }
         inline bool isUserSet(void) const { return (_user.size() > 0); }
         inline bool isCustom(void) const { return (_custom.size() > 0); }
         inline uint getWidth(void) const { return _width; }
@@ -87,19 +91,21 @@ class Button : public PWinObj {
             updateVisible();
         }
         void setCount(uint count) { _count = count; }
+        void setId(uint id) { _id = id; }
         inline void setWidth(uint width) { _width = width; }
 
         void updateVisible(void);
 
     private:
-        std::string _visible; //*< Visible version of title
+        std::string _visible; //!< Visible version of title
 
-        std::string _real; //*< Title from client
-        std::string _custom; //*< Custom (title rule) set version of title
-        std::string _user; //*< User set version of title
+        std::string _real; //!< Title from client
+        std::string _custom; //!< Custom (title rule) set version of title
+        std::string _user; //!< User set version of title
 
-        uint _count; //*< Number of title
-        uint _info; //*< Info bitmask for extra title info
+        uint _count; //!< Number of title
+        uint _id; //!< ID of title
+        uint _info; //!< Info bitmask for extra title info
 
         uint _width;
     };

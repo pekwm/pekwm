@@ -1,3 +1,11 @@
+2006-09-06  Claes Nästén  <me{@}pekdon{.}net>
+
+	* src/PDecor.hh (PDecor::TitleItem): 
+	Extend PDecor::TitleItem with information to include client id.
+
+	* src/Frame.cc (Frame::Frame): 
+	Moved the Frame list to Frame.
+
 2006-09-03  Claes Nästén  <me{@}pekdon{.}net>
 
 	* src/CmdDialog.cc (CmdDialog::bufKill): 

@@ -1,9 +1,11 @@
 //
 // ActionHandler.cc for pekwm
-// Copyright (C) 2002-2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright (C) 2002-2006 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
+//
+// $Id$
 //
 
 #include "../config.h"
@@ -886,8 +888,8 @@ ActionHandler::createNextPrevMenu(bool show_iconified)
                   "" /* Empty name*/);
 
     Frame *fr;
-    list<Frame*>::iterator f_it(_wm->frame_begin());
-    for (; f_it != _wm->frame_end(); ++f_it) {
+    list<Frame*>::iterator f_it(Frame::frame_begin());
+    for (; f_it != Frame::frame_end(); ++f_it) {
         fr = static_cast<Frame*>(*f_it);
         if (createMenuInclude(fr, show_iconified)) {
             menu->insert(static_cast<Client*>(fr->getActiveChild())->getTitle()->getVisible(),

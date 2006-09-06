@@ -1,9 +1,11 @@
 //
 // FrameListMenu.hh for pekwm
-// Copyright (C) 2003-2004 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright (C) 2003-2006 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
+//
+// $Id$
 //
 
 #include "../config.h"
@@ -30,7 +32,7 @@ class FrameListMenu : public WORefMenu
 {
 public:
     FrameListMenu(PScreen *scr, Theme *theme,
-                  const std::list<Frame*> &frame_list, MenuType type,
+                  MenuType type,
                   const std::string &title, const std::string &name,
                   const std::string &decor_name = "MENU");
     virtual ~FrameListMenu(void);
@@ -51,9 +53,6 @@ private:
     void handleGotomenu(Client *client);
     void handleIconmenu(Client *client);
     void handleAttach(Client *client_to, Client *client_from, bool frame);
-
-private:
-    const std::list<Frame*> &_frame_list;
 };
 
 #endif //  _FRAMELISTMENU_HH_

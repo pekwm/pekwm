@@ -1,9 +1,11 @@
 //
 // Frame.cc for pekwm
-// Copyright (C) 2002-2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright (C) 2002-2006 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
+//
+// $Id$
 //
 
 #include "../config.h"
@@ -51,6 +53,9 @@ using std::vector;
 using std::mem_fun;
 using std::find;
 
+list<Frame*> Frame::_frame_list = list<Frame*>();
+list<uint> Frame::_frameid_list = list<uint>();
+
 Frame* Frame::_tag_frame = NULL;
 bool Frame::_tag_behind = false;
 
@@ -92,7 +97,7 @@ Frame::Frame(WindowManager *wm, Client *client, AutoProperty *ap)
         }
 
     } else {
-        _id = _wm->findUniqueFrameId();
+        _id = findFrameID();
     }
 
     // get the clients class_hint
@@ -177,6 +182,7 @@ Frame::Frame(WindowManager *wm, Client *client, AutoProperty *ap)
 
     // I add these to the list before I insert the client into the frame to
     // be able to skip an extra updateClientList
+    _frame_list.push_back(this);
     _wm->addToFrameList(this);
     Workspaces::instance()->insert(this);
 
@@ -217,11 +223,14 @@ Frame::~Frame(void)
 {
     // remove from lists
     _wo_list.remove(this);
+    _frame_list.remove(this);
     Workspaces::instance()->remove(this);
     _wm->removeFromFrameList(this);
     if (_tag_frame == this) {
         _tag_frame = NULL;
     }
+
+    _frameid_list.push_back(_id);
 
     if (_class_hint) {
         delete _class_hint;
@@ -743,6 +752,36 @@ Frame::applyAPGeometry(Geometry &gm, const Geometry &ap_gm, int mask)
         }
     }
 }
+
+//! @brief Finds free Frame ID.
+//! @return First free Frame ID.
+uint
+Frame::findFrameID(void)
+{
+    uint id = 0;
+
+    if (_frameid_list.size()) {
+        // Check for used Frame IDs
+        id = _frameid_list.back();
+        _frameid_list.pop_back();
+    } else {
+        // No free, get next number (Frame is not in list when this is called.)
+        id = _frameid_list.size() + 1;
+    }
+
+    return id;
+}
+
+//! @brief Resets Frame IDs.
+void
+Frame::resetFrameIDs(void)
+{
+    list<Frame*>::iterator it(_frame_list.begin());
+    for (uint id = 1; it != _frame_list.end(); ++id, ++it) {
+        (*it)->setId(id);
+    }
+}
+
 
 //! @brief Removes the client from the Frame and creates a new Frame for it
 void
@@ -1549,8 +1588,8 @@ Frame::getMaxBounds(int &max_x,int &max_r, int &max_y, int &max_b)
     f_r = getRX();
     f_b = getBY();
 
-    list<Frame*>::iterator it = _wm->frame_begin();
-    for (; it != _wm->frame_end(); ++it) {
+    list<Frame*>::iterator it = _frame_list.begin();
+    for (; it != _frame_list.end(); ++it) {
         if ((*it)->isMapped() == false) {
             continue;
         }
