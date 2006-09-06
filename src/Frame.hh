@@ -132,6 +132,8 @@ public:
     static Frame *getTagFrame(void) { return _tag_frame; }
     static bool getTagBehind(void) { return _tag_behind; }
 
+    static void resetFrameIDs(void);
+
 protected:
     // BEGIN - PDecor interface
     virtual int resizeHorzStep(int diff) const;
@@ -154,7 +156,6 @@ private:
     void setActiveTitle(void);
 
     static uint findFrameID(void);
-    static void resetFrameIDs(void);
 
 private:
     WindowManager *_wm;

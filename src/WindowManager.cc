@@ -362,6 +362,7 @@ WindowManager::WindowManager(const std::string &command_line, const std::string 
     setupDisplay();
 
     scanWindows();
+    Frame::resetFrameIDs();
 
     // add all frames to the MRU list
     _mru_list.resize(Frame::frame_size());
@@ -487,7 +488,7 @@ WindowManager::cleanup(void)
         delete *it_f;
 
     // Delete all Clients.
-    list<Client*> client_list(_client_list);
+    list<Client*> client_list(Client::client_begin(), Client::client_end());
     list<Client*>::iterator it_c(client_list.begin());
     for (; it_c != client_list.end(); ++it_c) {
         delete *it_c;
@@ -799,7 +800,7 @@ WindowManager::doReload(void)
     if ((old_client_unique_name != _config->getClientUniqueName()) ||
         (old_client_unique_name_pre != _config->getClientUniqueNamePre()) ||
         (old_client_unique_name_post != _config->getClientUniqueNamePost())) {
-        for_each(_client_list.begin(), _client_list.end(),
+        for_each(Client::client_begin(), Client::client_end(),
                  mem_fun(&Client::getXClientName));
     }
 
@@ -816,7 +817,7 @@ WindowManager::doReload(void)
     screenEdgeMapUnmap();
 
     // regrab the buttons on the client windows
-    for_each(_client_list.begin(), _client_list.end(),
+    for_each(Client::client_begin(), Client::client_end(),
              mem_fun(&Client::grabButtons));
 
     // reload the keygrabber
@@ -826,8 +827,8 @@ WindowManager::doReload(void)
     _keygrabber->grabKeys(_screen->getRoot());
 
     // regrab keys
-    list<Client*>::iterator c_it(_client_list.begin());
-    for (; c_it != _client_list.end(); ++c_it) {
+    list<Client*>::iterator c_it(Client::client_begin());
+    for (; c_it != Client::client_end(); ++c_it) {
         _keygrabber->ungrabKeys((*c_it)->getWindow());
         _keygrabber->grabKeys((*c_it)->getWindow());
     }
@@ -1705,8 +1706,8 @@ WindowManager::findClientFromWindow(Window win)
 {
     if (win == _screen->getRoot())
         return NULL;
-    list<Client*>::iterator it(_client_list.begin());
-    for(; it != _client_list.end(); ++it) {
+    list<Client*>::iterator it(Client::client_begin());
+    for(; it != Client::client_end(); ++it) {
         if (win == (*it)->getWindow())
             return (*it);
     }
@@ -1741,9 +1742,9 @@ WindowManager::findClient(Window win)
 
     Frame *frame;
 
-    if (_client_list.size()) {
-        list<Client*>::iterator it(_client_list.begin());
-        for (; it != _client_list.end(); ++it) {
+    if (Client::client_size()) {
+        list<Client*>::iterator it(Client::client_begin());
+        for (; it != Client::client_end(); ++it) {
             if (win == (*it)->getWindow()) {
                 return (*it);
             } else {
@@ -1762,8 +1763,8 @@ void
 WindowManager::findFamily(std::list<Client*> &client_list, Window win)
 {
     // search for windows having transient for set to this window
-    list<Client*>::iterator it(_client_list.begin());
-    for (; it != _client_list.end(); ++it) {
+    list<Client*>::iterator it(Client::client_begin());
+    for (; it != Client::client_end(); ++it) {
         if ((*it)->getTransientWindow() == win) {
             client_list.push_back(*it);
         }
@@ -1830,13 +1831,6 @@ WindowManager::familyRaiseLower(Client *client, bool raise)
     }
 }
 
-//! @brief
-void
-WindowManager::removeFromClientList(Client *client)
-{
-    _client_list.remove(client);
-}
-
 //! @brief Remove from MRU list.
 void
 WindowManager::removeFromFrameList(Frame *frame)
@@ -1844,14 +1838,12 @@ WindowManager::removeFromFrameList(Frame *frame)
     _mru_list.remove(frame);
 }
 
-//! @brief
+//! @brief Finds client based on class_hint.
 Client*
 WindowManager::findClient(const ClassHint *class_hint)
 {
-    if (! _client_list.size())
-        return NULL;
-    list<Client*>::iterator it(_client_list.begin());
-    for (; it != _client_list.end(); ++it) {
+    list<Client*>::iterator it(Client::client_begin());
+    for (; it != Client::client_end(); ++it) {
         if (*class_hint == *(*it)->getClassHint())
             return *it;
     }
@@ -1923,8 +1915,8 @@ WindowManager::findFrameFromId(uint id)
 void
 WindowManager::attachMarked(Frame *frame)
 {
-    list<Client*>::iterator it(_client_list.begin());
-    for (; it != _client_list.end(); ++it) {
+    list<Client*>::iterator it(Client::client_begin());
+    for (; it != Client::client_end(); ++it) {
         if ((*it)->isMarked()) {
             if ((*it)->getParent() != frame) {
                 ((Frame*) (*it)->getParent())->removeChild(*it);

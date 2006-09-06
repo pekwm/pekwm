@@ -1,6 +1,6 @@
 //
 // Client.cc for pekwm
-// Copyright (C) 2002-2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright (C) 2002-2006 Claes Nästén <me{@}pekdon{.}net>
 //
 // client.cc for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
@@ -8,6 +8,8 @@
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
+//
+// $Id$
 //
 
 #include "../config.h"
@@ -50,19 +52,21 @@ using std::list;
 using std::find;
 using std::string;
 
-Client::Client(WindowManager *w, Window new_client, bool is_new) :
-        PWinObj(w->getScreen()->getDpy()),
-        _wm(w),
-        _size(NULL),
-        _transient(None), _strut(NULL),
-        _class_hint(NULL),
-        _alive(false), _marked(false),
-        _send_focus_message(false), _send_close_message(false),
-        _cfg_request_lock(false),
+list<Client*> Client::_client_list = list<Client*>();
+list<uint> Client::_clientid_list = list<uint>();
+
+Client::Client(WindowManager *w, Window new_client, bool is_new)
+    : PWinObj(w->getScreen()->getDpy()),
+      _wm(w), _id(0), _size(NULL),
+      _transient(None), _strut(NULL),
+      _class_hint(NULL),
+      _alive(false), _marked(false),
+      _send_focus_message(false), _send_close_message(false),
+      _cfg_request_lock(false),
 #ifdef HAVE_SHAPE
-        _shaped(false),
+      _shaped(false),
 #endif // HAVE_SHAPE
-        _extended_net_name(false)
+      _extended_net_name(false)
 {
     // Construct the client
     PScreen::instance()->grabServer();
@@ -70,6 +74,11 @@ Client::Client(WindowManager *w, Window new_client, bool is_new) :
     // PWinObj attributes
     _window = new_client;
     _type = WO_CLIENT;
+
+    // Get unique Client id
+    _id = findClientID();
+    _title.setId(_id);
+    _title.infoAdd(PDecor::TitleItem::INFO_ID);
 
     if (!validate()) {
 #ifdef DEBUG
@@ -264,20 +273,21 @@ Client::Client(WindowManager *w, Window new_client, bool is_new) :
         }
     }
 
-    // finished creating the client, so now adding it to the client list
-    _wm->addToClientList(this);
-
     _alive = true;
 
+    // Finished creating the client, so now adding it to the client list.
     _wo_list.push_back(this);
+    _client_list.push_back(this);
 }
 
 //! @brief Client destructor
 Client::~Client(void)
 {
-    // remove from lists
+    // Remove from lists
     _wo_list.remove(this);
-    _wm->removeFromClientList(this);
+    _client_list.remove(this);
+
+    _clientid_list.push_back(_id);
 
     PScreen::instance()->grabServer();
 
@@ -803,6 +813,25 @@ Client::applyAutoprops(AutoProperty *ap)
     }
 }
 
+//! @brief Finds free Client ID.
+//! @return First free Client ID.
+uint
+Client::findClientID(void)
+{
+    uint id = 0;
+
+    if (_clientid_list.size()) {
+        // Check for used Frame IDs
+        id = _clientid_list.back();
+        _clientid_list.pop_back();
+    } else {
+        // No free, get next number (Client is not in list when this is called.)
+        id = _client_list.size() + 1;
+    }
+
+    return id;
+}
+
 //! @brief Tries to get the NET_WM name, else fall back to XA_WM_NAME
 void
 Client::getXClientName(void)
@@ -876,8 +905,8 @@ Client::titleFindID(std::string &title)
     uint id_found = 0;
     list<uint> ids_used;
 
-    list<Client*>::iterator it = _wm->client_begin();
-    for (; it != _wm->client_end(); ++it) {
+    list<Client*>::iterator it = _client_list.begin();
+    for (; it != _client_list.end(); ++it) {
         if (*it != this) {
             if ((*it)->getTitle()->getReal() == title) {
                 ids_used.push_back((*it)->getTitle()->getCount());

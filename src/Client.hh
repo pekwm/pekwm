@@ -1,6 +1,6 @@
 //
 // Client.hh for pekwm
-// Copyright (C) 2003-2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright (C) 2003-2006 Claes Nästén <me{@}pekdon{.}net>
 //
 // client.hh for aewm++
 // Copyright (C) 2002 Frank Hale <frankhale@yahoo.com>
@@ -8,6 +8,8 @@
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
+//
+// $Id$
 //
 
 #include "../config.h"
@@ -96,6 +98,22 @@ public: // Public Member Functions
 
     virtual ActionEvent *handleUnmapEvent(XUnmapEvent *ev);
     // END - PWinObj interface.
+
+    // START - Iterators
+    static uint client_size(void) { return _client_list.size(); }
+    static std::list<Client*>::iterator client_begin(void) {
+        return _client_list.begin();
+    }
+    static std::list<Client*>::iterator client_end(void) {
+        return _client_list.end();
+    }
+    static std::list<Client*>::reverse_iterator client_rbegin(void) {
+        return _client_list.rbegin();
+    }
+    static std::list<Client*>::reverse_iterator client_rend(void) {
+        return _client_list.rend();
+    }
+    // END - Iterators
 
     bool validate(void);
 
@@ -255,8 +273,12 @@ inline void setMaximizedVert(bool m) { _state.maximized_vert = m; }
     AutoProperty* readAutoprops(uint type = 0);
     void applyAutoprops(AutoProperty *ap);
 
+    static uint findClientID(void);
+
 private: // Private Member Variables
     WindowManager *_wm;
+
+    uint _id; //<! Unique ID of the Client.
 
     XSizeHints *_size;
     Colormap _cmap;
@@ -316,6 +338,9 @@ private: // Private Member Variables
         bool change_desktop; // workspace
         bool close;
     } _actions;
+
+    static std::list<Client*> _client_list; //!< List of all Clients.
+    static std::list<uint> _clientid_list; //!< List of free Client IDs.
 };
 
 #endif // _CLIENT_HH_

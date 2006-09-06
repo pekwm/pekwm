@@ -1,5 +1,10 @@
 2006-09-06  Claes Nästén  <me{@}pekdon{.}net>
 
+	* src/Client.cc (Client::Client):
+	Moved the Client list to Client. Added clientid list to Client so that
+	it is possible to keep track of Client ids, preparation of number
+	based navigation.
+
 	* src/PDecor.hh (PDecor::TitleItem): 
 	Extend PDecor::TitleItem with information to include client id.
 

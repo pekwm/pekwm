@@ -124,11 +124,6 @@ class RootWO : public PWinObj {
     inline bool isStartup(void) const { return _startup; }
 
     // list iterators
-    inline std::list<Client*>::iterator client_begin(void) { return _client_list.begin(); }
-    inline std::list<Client*>::reverse_iterator client_rbegin(void) { return _client_list.rbegin(); }
-    inline std::list<Client*>::iterator client_end(void) { return _client_list.end(); }
-    inline std::list<Client*>::reverse_iterator client_rend(void) { return _client_list.rend(); }
-
     inline std::list<PWinObj*>::iterator mru_begin(void) { return _mru_list.begin(); }
     inline std::list<PWinObj*>::reverse_iterator mru_rbegin(void) { return _mru_list.rbegin(); }
     inline std::list<PWinObj*>::iterator mru_end(void) { return _mru_list.end(); }
@@ -145,7 +140,6 @@ class RootWO : public PWinObj {
 #endif // MENUS
 
     // adds
-inline void addToClientList(Client *c) { if (c) _client_list.push_back(c); }
     inline void addToFrameList(Frame *frame) {
         if (frame) {
             _mru_list.remove(frame);
@@ -154,7 +148,6 @@ inline void addToClientList(Client *c) { if (c) _client_list.push_back(c); }
     }
 
     // removes
-    void removeFromClientList(Client *client);
     void removeFromFrameList(Frame *frame);
 
     PWinObj *findPWinObj(Window win);
@@ -287,7 +280,6 @@ private:
     bool _shutdown; //!< Set to wheter we want to shutdown.
     bool _reload; //!< Set to wheter we want to reload.
 
-    std::list<Client*> _client_list;
     std::list<PWinObj*> _mru_list;
 
     bool _allow_grouping; //<! Flag turning grouping on/off.

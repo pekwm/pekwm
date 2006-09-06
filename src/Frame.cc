@@ -766,7 +766,7 @@ Frame::findFrameID(void)
         _frameid_list.pop_back();
     } else {
         // No free, get next number (Frame is not in list when this is called.)
-        id = _frameid_list.size() + 1;
+        id = _frame_list.size() + 1;
     }
 
     return id;

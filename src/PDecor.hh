@@ -57,7 +57,7 @@ class Button : public PWinObj {
             INFO_ID = (1 << 2)
         };
 
-        TitleItem(void) : _count(0), _info(0), _width(0) { }
+        TitleItem(void) : _count(0), _id(0), _info(0), _width(0) { }
 
         inline const std::string &getVisible(void) const { return _visible; }
         inline const std::string &getReal(void) const { return _real; }

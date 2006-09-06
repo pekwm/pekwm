@@ -118,6 +118,9 @@ PDecor::TitleItem::updateVisible(void) {
     if (_info != 0) {
         _visible.append("[");
 
+        if (infoIs(INFO_ID)) {
+            _visible.append(Util::to_string<uint>(_id));
+        }
         if (infoIs(INFO_MARKED)) {
             _visible.append("M");
         }
