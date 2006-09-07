@@ -1,9 +1,11 @@
 //
 // ActionHandler.hh for pekwm
-// Copyright (C) 2003-2004 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright (C) 2003-2006 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
+//
+// $Id$
 //
 
 #include "../config.h"
@@ -43,6 +45,7 @@ private:
                            Client *client, Frame *frame);
 
     void actionFindClient(const std::string &title);
+    void actionGotoClientID(uint id);
     void actionSendToWorkspace(PDecor *decor, int direction);
     void actionWarpToWorkspace(PDecor *decor, uint direction);
     void actionWarpToViewport(PDecor *decor, uint direction);
@@ -57,6 +60,7 @@ private:
 
     // action helpers
     Client *findClientFromTitle(const std::string &title);
+    void gotoClient(Client *client);
 
     PMenu *createNextPrevMenu(bool show_iconified);
     PMenu *createMRUMenu(bool show_iconified);

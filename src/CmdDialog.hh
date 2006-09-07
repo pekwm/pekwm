@@ -29,6 +29,11 @@ public:
     CmdDialog(Display *dpy, Theme *theme, const std::string &title);
     virtual ~CmdDialog(void);
 
+    // BEGIN - PWinObj interface
+    virtual void mapWindow(void);
+    virtual void unmapWindow(void);
+    // END - PWinObj interface
+
     // wo event interface
     ActionEvent *handleButtonPress(XButtonEvent *ev);
     ActionEvent *handleKeyPress(XKeyEvent *ev);
@@ -41,7 +46,9 @@ public:
     //! @brief Sets the PWinObj the CmdDialog executes actions on.
     inline void setWORef(PWinObj *wo) { _wo_ref = wo; }
 
-    void mapCenteredOnWORef(void);
+    void mapCentered(const std::string &buf, bool focus,
+                     PWinObj *wo_ref = NULL);
+    void moveCentered(PWinObj *wo);
 
 private:
     // BEGIN - PDecor interface
@@ -51,6 +58,7 @@ private:
 
     void render(void);
 
+    ActionEvent *close(void);
     ActionEvent *exec(void);
     void complete(void);
 

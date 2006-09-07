@@ -51,7 +51,7 @@ CmdDialog::CmdDialog(Display *dpy, Theme *theme, const std::string &title)
     _layer = LAYER_NONE; // hack, goes over LAYER_MENU
     _hidden = true; // don't care about it when changing worskpace etc
 
-    // add action to list, going to be used from exec
+    // Add action to list, going to be used from close and exec
     ::Action action;
     _ae.action_list.push_back(action);
 
@@ -133,13 +133,9 @@ CmdDialog::handleKeyPress(XKeyEvent *ev)
                 break;
             case CMD_D_EXEC:
                 ae = exec();
-
-                unmapWindow();
-                bufClear();
                 break;
             case CMD_D_CLOSE:
-                unmapWindow();
-                bufClear();
+                ae = close();
                 break;
             case CMD_D_COMPLETE:
                 break;
@@ -190,45 +186,71 @@ CmdDialog::handleExposeEvent(XExposeEvent *ev)
 }
 
 //! @brief Maps the CmdDialog center on the PWinObj it executes actions on.
+//! @param buf Buffer content.
+//! @param focus Give input focus if true.
+//! @param wo_ref PWinObj reference, defaults to NULL which does not update.
 void
-CmdDialog::mapCenteredOnWORef(void)
+CmdDialog::mapCentered(const std::string &buf, bool focus, PWinObj *wo_ref)
 {
-    if (!_wo_ref) {
-        _wo_ref = PWinObj::getRootPWinObj();
-    }
-
-    if (_wo_ref->getType() == PWinObj::WO_CLIENT) {
-        _wo_ref = _wo_ref->getParent();
-    }
-
     // Setup data
+    _wo_ref = wo_ref ? wo_ref : _wo_ref;
     _hist_it = _hist_list.end();
+
+    _buf = buf;
+    _pos = _buf.size();
+    bufChanged();
+
+    // Update position
+    moveCentered(_wo_ref);
+
+    // Map and render
+    PDecor::mapWindowRaised();
+    render();
+
+    // Give input focus if requested
+    if (focus) {
+        giveInputFocus();
+    }
+}
+
+//! @brief Moves to center of wo.
+//! @param wo PWinObj to center on.
+void
+CmdDialog::moveCentered(PWinObj *wo)
+{
+    // Fallback wo on root.
+    if (!wo) {
+        wo = PWinObj::getRootPWinObj();
+    }
 
     // Make sure position is inside head.
     Geometry head;
-    uint head_nr = PScreen::instance()->getNearestHead(_wo_ref->getX() + (_wo_ref->getWidth() / 2),
-                   _wo_ref->getY() + (_wo_ref->getHeight() / 2));
+    uint head_nr = PScreen::instance()->getNearestHead(wo->getX()
+                                                       + (wo->getWidth() / 2),
+                                                       wo->getY()
+                                                       + (wo->getHeight() / 2));
     PScreen::instance()->getHeadInfo(head_nr, head);
 
     // Make sure X is inside head.
-    int new_x = _wo_ref->getX() + (static_cast<int>(_wo_ref->getWidth())
-                                   - static_cast<int>(_gm.width)) / 2;
-    if (new_x < head.x)
+    int new_x = wo->getX() + (static_cast<int>(wo->getWidth())
+                              - static_cast<int>(_gm.width)) / 2;
+    if (new_x < head.x) {
         new_x = head.x;
-    else if ((new_x + _gm.width) > (head.x + head.width))
+    } else if ((new_x + _gm.width) > (head.x + head.width)) {
         new_x = head.x + head.width - _gm.width;
+    }
 
     // Make sure Y is inside head.
-    int new_y = _wo_ref->getY() + (static_cast<int>(_wo_ref->getHeight())
-                                   - static_cast<int>(_gm.height)) / 2;
-    if (new_y < head.y)
+    int new_y = wo->getY() + (static_cast<int>(wo->getHeight())
+                              - static_cast<int>(_gm.height)) / 2;
+    if (new_y < head.y) {
         new_y = head.y;
-    else if ((new_y + _gm.height) > (head.y + head.height))
+    } else if ((new_y + _gm.height) > (head.y + head.height)) {
         new_y = head.y + head.height - _gm.height;
+    }
 
-    move(new_x, new_y);
-
-    PDecor::mapWindowRaised();
+    // Update position.
+    move(new_x, new_y);    
 }
 
 //! @brief Sets title of decor
@@ -236,6 +258,28 @@ void
 CmdDialog::setTitle(const std::string &title)
 {
     _title.setReal(title);
+}
+
+//! @brief Maps window, overloaded to refresh content of window after mapping.
+void
+CmdDialog::mapWindow(void)
+{
+    if (! _mapped) {
+        PDecor::mapWindow();
+        render();
+    }
+}
+
+//! @brief Unmaps window, overloaded to clear buffer.
+void
+CmdDialog::unmapWindow(void)
+{
+    if (_mapped) {
+        PDecor::unmapWindow();
+
+        _wo_ref = NULL;
+        bufClear();
+    }
 }
 
 //! @brief Sets background and size
@@ -296,7 +340,18 @@ CmdDialog::render(void)
                                "|");
 }
 
+//! @brief Generates ACTION_CLOSE.
+//! @return Pointer to ActionEvent.
+ActionEvent*
+CmdDialog::close(void)
+{
+    _ae.action_list.back().setAction(ACTION_NO);
+
+    return &_ae;
+}
+
 //! @brief Parses _buf and tries to generate an ActionEvent
+//! @return Pointer to ActionEvent.
 ActionEvent*
 CmdDialog::exec(void)
 {
@@ -306,16 +361,16 @@ CmdDialog::exec(void)
 
     // Check if it's a valid Action, if not we assume it's a command and try
     // to execute it.
-    if (!Config::instance()->parseAction(_buf,	_ae.action_list.front(),
+    if (!Config::instance()->parseAction(_buf,	_ae.action_list.back(),
                                          KEYGRABBER_OK)) {
-        _ae.action_list.front().setAction(ACTION_EXEC);
-        _ae.action_list.front().setParamS(_buf);
+        _ae.action_list.back().setAction(ACTION_EXEC);
+        _ae.action_list.back().setParamS(_buf);
     }
 
     return &_ae;
 }
 
-//! @brief
+//! @brief Tab completion, complete word at cursor position.
 void
 CmdDialog::complete(void)
 {
@@ -340,12 +395,6 @@ void
 CmdDialog::bufRemove(void)
 {
     if ((_pos > _buf.size()) || (_pos == 0) || (_buf.size() == 0)) {
-#ifdef DEBUG
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "CmdDialog(" << this << ")::bufRemove()" << endl
-             << " *** _pos: " << _pos << " ,  _buf.size(): "
-             << _buf.size() << endl;
-#endif // DEBUG
         return;
     }
 

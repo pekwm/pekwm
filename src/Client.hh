@@ -99,6 +99,11 @@ public: // Public Member Functions
     virtual ActionEvent *handleUnmapEvent(XUnmapEvent *ev);
     // END - PWinObj interface.
 
+    static Client *findClient(Window win);
+    static Client *findClientFromWindow(Window win);
+    static Client *findClientFromHint(const ClassHint *class_hint);
+    static Client *findClientFromID(uint id);
+
     // START - Iterators
     static uint client_size(void) { return _client_list.size(); }
     static std::list<Client*>::iterator client_begin(void) {
@@ -117,6 +122,7 @@ public: // Public Member Functions
 
     bool validate(void);
 
+    inline uint getClientID(void) { return _id; }
     inline std::string* getIconName(void) { return &_icon_name; }
     inline PDecor::TitleItem *getTitle(void) { return &_title; }
 

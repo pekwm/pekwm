@@ -51,6 +51,7 @@ Config::Config(void) :
         _moveresize_opaquemove(0), _moveresize_opaqueresize(0),
         _screen_workspaces(4), _screen_pixmap_cache_size(20),_screen_edge_size(0),
         _screen_doubleclicktime(250), _screen_showframelist(true),
+        _screen_show_status_window(true), _screen_show_client_id(false),
         _screen_place_new(true), _screen_focus_new(false),
         _screen_focus_new_child (true),
         _screen_placement_row(false),
@@ -115,6 +116,7 @@ Config::Config(void) :
     _action_map["VIEWPORTGOTO"] = pair<ActionType, uint>(ACTION_VIEWPORT_GOTO, ANY_MASK);
     _action_map["SENDTOVIEWPORT"] = pair<ActionType, uint>(ACTION_SEND_TO_VIEWPORT, ANY_MASK);
     _action_map["FINDCLIENT"] = pair<ActionType, uint>(ACTION_FIND_CLIENT, ANY_MASK);
+    _action_map["GOTOCLIENTID"] = pair<ActionType, uint>(ACTION_GOTO_CLIENT_ID, ANY_MASK);
     _action_map["DETACH"] = pair<ActionType, uint>(ACTION_DETACH, FRAME_MASK);
     _action_map["SENDTOWORKSPACE"] = pair<ActionType, uint>(ACTION_SEND_TO_WORKSPACE, ANY_MASK);
     _action_map["GOTOWORKSPACE"] = pair<ActionType, uint>(ACTION_GOTO_WORKSPACE, ANY_MASK );
@@ -510,6 +512,8 @@ Config::loadScreen(CfgParser::Entry *op_section)
                           _screen_showframelist));
     o_key_list.push_back (new CfgParserKeyBool ("SHOWSTATUSWINDOW",
                           _screen_show_status_window));
+    o_key_list.push_back (new CfgParserKeyBool ("SHOWCLIENTID",
+                                                _screen_show_client_id));
 
     o_key_list.push_back (new CfgParserKeyBool ("PLACENEW", _screen_place_new));
     o_key_list.push_back (new CfgParserKeyBool ("FOCUSNEW", _screen_focus_new));
@@ -792,6 +796,11 @@ Config::parseButton(const std::string &button_string, uint &mod, uint &button)
     return false;
 }
 
+//! @brief Parse a single action and fills action.
+//! @param action_string String representation of action.
+//! @param action Action structure to fill in.
+//! @param mask Mask action is valid for.
+//! @return true on success, else false
 bool
 Config::parseAction(const std::string &action_string, Action &action, uint mask)
 {
@@ -807,6 +816,7 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
                 case ACTION_EXEC:
                 case ACTION_RESTART_OTHER:
                 case ACTION_FIND_CLIENT:
+                case ACTION_SHOW_CMD_DIALOG:
 #ifdef MENUS
                 case ACTION_MENU_DYN:
 #endif // MENUS
@@ -814,6 +824,7 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
                     break;
                 case ACTION_ACTIVATE_CLIENT_REL:
                 case ACTION_MOVE_CLIENT_REL:
+                case ACTION_GOTO_CLIENT_ID:
                     action.setParamI(0, strtol(tok[1].c_str(), NULL, 10));
                     break;
                 case ACTION_SET:

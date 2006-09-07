@@ -71,6 +71,9 @@ public:
     virtual void setSkip(uint skip);
     // END - PDecor interface.
 
+    static Frame *findFrameFromWindow(Window win);
+    static Frame *findFrameFromID(uint id);
+
     // START - Iterators
     static uint frame_size(void) { return _frame_list.size(); }
     static std::list<Frame*>::iterator frame_begin(void) {

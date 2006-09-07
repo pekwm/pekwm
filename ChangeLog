@@ -1,3 +1,19 @@
+2006-09-07  Claes Nästén  <me{@}pekdon{.}net>
+
+	* src/Config.cc (Config::parseAction): 
+	Updated ShowCmdDialog action to support parameter setting initial
+	value. Useful together with action such as GotoClientID binding
+	a keybinding to ShowCmdDialog GotoClientID for quick navigation.
+
+	* src/ActionHandler.cc (ActionHandler::actionGotoClientID): 	
+	Added GotoClientID action which goes to and focuses client with
+	ID.
+
+	* src/PDecor.cc: 
+	Added boolean option ShowClientID under the Screen section of the
+	main config file. This enable/disable display of Client ID in
+	titles. 
+
 2006-09-06  Claes Nästén  <me{@}pekdon{.}net>
 
 	* src/Client.cc (Client::Client):

@@ -48,7 +48,7 @@ if test x$enableval = "xyes"; then
 #include <X11/extensions/shape.h>
       , long foo = ShapeSet,
 			AC_MSG_RESULT([yes])
-			AC_DEFINE(HAVE_SHAPE, [], [Define to 1 if you have an XShape capable server])
+			AC_DEFINE(HAVE_SHAPE, [1], [Define to 1 if you have an XShape capable server])
 			LIBS="$LIBS -lXext"
 			FEATURES="$FEATURES XShape",
 		AC_MSG_RESULT([no])))
@@ -66,7 +66,7 @@ AC_ARG_ENABLE(xinerama,
 if test "x$enable_xinerama" = "xyes"; then
 	AC_MSG_RESULT([yes])
 	AC_CHECK_LIB(Xinerama, XineramaQueryScreens,
-			AC_DEFINE(HAVE_XINERAMA, [], [Define to 1 if you want Xinerama support to be])
+			AC_DEFINE(HAVE_XINERAMA, [1], [Define to 1 if you want Xinerama support to be])
 			LIBS="$LIBS -lXinerama"
 			FEATURES="$FEATURES Xinerama")
 else
@@ -82,7 +82,7 @@ AC_ARG_ENABLE(xrandr,
 if test "x$enable_xrandr" = "xyes"; then
 	AC_MSG_RESULT([yes])
 	AC_CHECK_LIB(Xrandr, XRRQueryExtension,
-		AC_DEFINE(HAVE_XRANDR, [], [Define to 1 if you have an XRANDR capable server])
+		AC_DEFINE(HAVE_XRANDR, [1], [Define to 1 if you have an XRANDR capable server])
 		LIBS="$LIBS -lXrandr"
 		FEATURES="$FEATURES Xrandr")
 else
@@ -99,7 +99,7 @@ if test "x$enable_xft" = "xyes"; then
 	AC_MSG_RESULT([yes])
 	AC_PATH_GENERIC(xft, 2.0.0,
 		[
-			AC_DEFINE(HAVE_XFT, [], [Define to 1 if you want Xft2 font support])
+			AC_DEFINE(HAVE_XFT, [1], [Define to 1 if you want Xft2 font support])
 			XFT_LIBS=`xft-config --libs`
 			XFT_CFLAGS=`xft-config --cflags`
 			LIBS="$LIBS $XFT_LIBS"
@@ -122,7 +122,7 @@ AC_ARG_ENABLE(pcre,
 if test "x$enable_pcre" = "xyes"; then
 	AC_MSG_RESULT([yes])
 	AC_CHECK_LIB(pcre, pcre_compile,
-			AC_DEFINE(HAVE_PCRE, [], [Define to 1 if you want PCRE style regexps])
+			AC_DEFINE(HAVE_PCRE, [1], [Define to 1 if you want PCRE style regexps])
 			PCRE_LIBS=`pcre-config --libs-posix`
 			PCRE_CFLAGS=`pcre-config --cflags-posix`
 			LIBS="$LIBS $PCRE_LIBS"
@@ -146,7 +146,7 @@ if test "x$enableval" = "xyes"; then
 #include <X11/xpm.h>
 			, int foo = XpmSuccess,
 			AC_MSG_RESULT([yes])
-			AC_DEFINE(HAVE_IMAGE_XPM, [], [Define to 1 if you libXpm])
+			AC_DEFINE(HAVE_IMAGE_XPM, [1], [Define to 1 if you libXpm])
 			LIBS="$LIBS -lXpm"
 			FEATURES="$FEATURES image-xpm",
 		AC_MSG_RESULT([no])))
@@ -169,7 +169,7 @@ if test "x$enableval" = "xyes"; then
  			jpeg_ok=no)
  		AC_MSG_RESULT($jpeg_ok)
  		if test "$jpeg_ok" = yes; then
-			AC_DEFINE(HAVE_IMAGE_JPEG, [], [Define to 1 if you have jpeg6b])
+			AC_DEFINE(HAVE_IMAGE_JPEG, [1], [Define to 1 if you have jpeg6b])
  			LIBS="$LIBS -ljpeg"
  			FEATURES="$FEATURES image-jpeg"
  		fi,
@@ -193,7 +193,7 @@ if test "x$enableval" = "xyes"; then
  			png_ok=no)
  		AC_MSG_RESULT($png_ok)
  		if test "$png_ok" = yes; then
-			AC_DEFINE(HAVE_IMAGE_PNG, [], [Define to 1 if you have libpng])
+			AC_DEFINE(HAVE_IMAGE_PNG, [1], [Define to 1 if you have libpng])
  			LIBS="$LIBS -lpng"
  			FEATURES="$FEATURES image-png"
  		fi,
@@ -207,7 +207,7 @@ AC_STDC_HEADERS
 AC_CHECK_HEADERS([limits])
 
 dnl Check for library functions
-AC_CHECK_FUNC(setenv, [AC_DEFINE(HAVE_SETENV, [], [Define to 1 if you the setenv systam call])], )
+AC_CHECK_FUNC(setenv, [AC_DEFINE(HAVE_SETENV, [1], [Define to 1 if you the setenv systam call])], )
 
 dnl Check simple toggles ( no outer dependecies )
 
@@ -219,7 +219,7 @@ AC_ARG_ENABLE(debug,
 							[enable_debug=no])
 if test "x$enable_debug" = "xyes"; then
 	AC_MSG_RESULT([yes])
-	AC_DEFINE(DEBUG, [], [Define to 1 to compile in debug information])
+	AC_DEFINE(DEBUG, [1], [Define to 1 to compile in debug information])
 	FEATURES="$FEATURES debug"
 else
 	AC_MSG_RESULT([no])
@@ -249,7 +249,7 @@ AC_ARG_ENABLE(menus,
 							[menus_enable=yes])
 if test x$enableval = "xyes"; then
 	AC_MSG_RESULT([yes])
-	AC_DEFINE(MENUS, [], [Define to 1 to compile in menu support])
+	AC_DEFINE(MENUS, [1], [Define to 1 to compile in menu support])
 	FEATURES="$FEATURES menus"
 else
 	AC_MSG_RESULT([no])
@@ -263,7 +263,7 @@ AC_ARG_ENABLE(harbour,
 							[harbour_enable=yes])
 if test x$enableval = "xyes"; then
 	AC_MSG_RESULT([yes])
-	AC_DEFINE(HARBOUR, [], [Define to 1 to compile in support for dockapps])
+	AC_DEFINE(HARBOUR, [1], [Define to 1 to compile in support for dockapps])
 	FEATURES="$FEATURES harbour"
 else
 	AC_MSG_RESULT([no])

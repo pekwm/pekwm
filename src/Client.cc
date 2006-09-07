@@ -205,7 +205,7 @@ Client::Client(WindowManager *w, Window new_client, bool is_new)
                               PekwmAtoms::instance()->getAtom(PEKWM_FRAME_ID),
                               id)) {
             do_autogroup = false;
-            _parent = _wm->findFrameFromId(id);
+            _parent = Frame::findFrameFromID(id);
             if (_parent) {
                 Frame *frame = static_cast<Frame*>(_parent);
                 frame->addChild(this);
@@ -266,7 +266,7 @@ Client::Client(WindowManager *w, Window new_client, bool is_new)
             // Check if we are transient, and if we want to focus
         } else if ((_transient != None)
                    && Config::instance()->isFocusNewChild()) {
-            Client *trans_for = _wm->findClientFromWindow(_transient);
+            Client *trans_for = findClientFromWindow(_transient);
             if (trans_for && trans_for->isFocused()) {
                 _parent->giveInputFocus();
             }
@@ -316,7 +316,7 @@ Client::~Client(void)
 
     // Focus the parent if we had focus before
     if (focus && (_transient != None)) {
-        Client *trans_cli = _wm->findClientFromWindow(_transient);
+        Client *trans_cli = findClientFromWindow(_transient);
         if ((trans_cli != NULL) &&
                 (((Frame*) trans_cli->getParent())->getActiveChild() == trans_cli)) {
             trans_cli->getParent()->giveInputFocus();
@@ -504,6 +504,80 @@ Client::handleUnmapEvent(XUnmapEvent *ev)
 }
 
 // END - PWinObj interface.
+
+//! @brief Finds the Client which holds the Window w.
+//! @param win Window to search for.
+//! @return Pointer to the client if found, else NULL
+Client*
+Client::findClient(Window win)
+{
+    // Validate input window.
+    if ((win == None) || (win == PScreen::instance()->getRoot())) {
+        return NULL;
+    }
+
+    list<Client*>::iterator it(_client_list.begin());
+    for (; it != _client_list.end(); ++it) {
+        if (win == (*it)->getWindow()
+            || (((*it)->getType() == PWinObj::WO_FRAME) && *(*it) == win)) {
+            return (*it);
+        }
+    }
+
+    return NULL;
+}
+
+//! @brief Finds the Client of Window win.
+//! @param win Window to search for.
+Client*
+Client::findClientFromWindow(Window win)
+{
+    // Validate input window.
+    if ((win == None) || (win == PScreen::instance()->getRoot())) {
+        return NULL;
+    }
+
+    list<Client*>::iterator it(_client_list.begin());
+    for(; it != _client_list.end(); ++it) {
+        if (win == (*it)->getWindow()) {
+            return (*it);
+        }
+    }
+
+    return NULL;
+}
+
+//! @brief Finds Client with equal ClassHint.
+//! @param class_hint ClassHint to search for.
+//! @return Client if found, else NULL.
+Client*
+Client::findClientFromHint(const ClassHint *class_hint)
+{
+    list<Client*>::iterator it(_client_list.begin());
+    for (; it != _client_list.end(); ++it) {
+        if (*class_hint == *(*it)->getClassHint()) {
+            return *it;
+        }
+    }
+
+    return NULL;
+}
+
+//! @brief Finds Client with id.
+//! @param id ID to search for.
+//! @return Client if found, else NULL.
+Client*
+Client::findClientFromID(uint id)
+{
+    list<Client*>::iterator it(_client_list.begin());
+    for (; it != _client_list.end(); ++it) {
+        if ((*it)->getClientID() == id) {
+            return *it;
+        }
+    }
+
+    return NULL;
+}
 
 //! @brief Checks if the window has any Destroy or Unmap notifys.
 bool

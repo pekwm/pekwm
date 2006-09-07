@@ -697,6 +697,43 @@ Frame::setSkip(uint skip)
     }
 }
 
+//! @brief Find Frame with Window
+//! @param win Window to search for.
+//! @return Frame if found, else NULL.
+Frame*
+Frame::findFrameFromWindow(Window win)
+{
+    // Validate input window.
+    if ((win == None) || (win == PScreen::instance()->getRoot())) {
+        return NULL;
+    }
+
+    list<Frame*>::iterator it(_frame_list.begin());
+    for(; it !=_frame_list.end(); ++it) {
+        if (win == (*it)->getWindow()) { // operator == does more than that
+            return (*it);
+        }
+    }
+
+    return NULL;
+}
+
+//! @brief Find Frame with id.
+//! @param id ID to search for.
+//! @return Frame if found, else NULL.
+Frame*
+Frame::findFrameFromID(uint id)
+{
+    list<Frame*>::iterator it(Frame::frame_begin());
+    for (; it != Frame::frame_end(); ++it) {
+        if ((*it)->getId() == id) {
+            return (*it);
+        }
+    }
+
+    return NULL;
+}
+
 //! @brief
 void
 Frame::setupAPGeometry(Client *client, AutoProperty *ap)
@@ -895,7 +932,7 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: r
                                       e.xmotion.x_root, e.xmotion.y_root,
                                       &x, &y, &win);
 
-                search = _wm->findClient(win);
+                search = Client::findClient(win);
             }
 
             // if we found a client, and it's not in the current frame and

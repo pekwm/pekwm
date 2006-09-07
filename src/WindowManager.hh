@@ -151,9 +151,6 @@ class RootWO : public PWinObj {
     void removeFromFrameList(Frame *frame);
 
     PWinObj *findPWinObj(Window win);
-    Client *findClient(Window win);
-    Client *findClientFromWindow(Window win);
-    Frame *findFrameFromWindow(Window win);
 
     // If a window unmaps and has transients lets unmap them too!
     // true = hide | false = unhide
@@ -161,9 +158,7 @@ class RootWO : public PWinObj {
     void findTransientsToMapOrUnmap(Window win, bool hide);
     void familyRaiseLower(Client *client, bool raise);
 
-    Client* findClient(const ClassHint* class_hint);
     Frame* findGroup(AutoProperty *property);
-    Frame* findFrameFromId(uint id);
 
     inline bool isAllowGrouping(void) const { return _allow_grouping; }
     inline void setStateGlobalGrouping(StateAction sa) {

@@ -960,7 +960,7 @@ WindowManager::doEventLoop(void)
 #ifdef HAVE_SHAPE
             if (_screen->hasExtensionShape() &&
                     (ev.type == _screen->getEventShape())) {
-                client = findClient(ev.xany.window);
+                client = Client::findClient(ev.xany.window);
                 if ((client != NULL) && (client->getParent() != NULL)) {
                     static_cast<Frame*>(client->getParent())->handleShapeEvent(&ev.xany);
                 }
@@ -982,7 +982,8 @@ void
 WindowManager::handleKeyEvent(XKeyEvent *ev)
 {
     ActionEvent *ae =	NULL;
-    PWinObj *wo = PWinObj::getFocusedPWinObj();
+    PWinObj *wo, *wo_orig;
+    wo = wo_orig = PWinObj::getFocusedPWinObj();
     PWinObj::Type type = (wo == NULL) ? PWinObj::WO_SCREEN_ROOT : wo->getType();
 
     switch (type) {
@@ -1014,10 +1015,21 @@ WindowManager::handleKeyEvent(XKeyEvent *ev)
     }
 
     if (ae != NULL) {
+        // HACK: Always close CmdDialog before actions
+        if (wo_orig->getType() == PWinObj::WO_CMD_DIALOG) {
+            ::Action close_action;
+            ActionEvent close_ae;
+            
+            close_ae.action_list.push_back(close_action);
+            close_ae.action_list.back().setAction(ACTION_CLOSE);
+
+            ActionPerformed close_ap(wo_orig, close_ae);
+            _action_handler->handleAction(close_ap);
+        }
+
         ActionPerformed ap(wo, *ae);
         ap.type = ev->type;
         ap.event.key = ev;
-
         _action_handler->handleAction(ap);
     }
 
@@ -1116,7 +1128,7 @@ WindowManager::handleButtonReleaseEvent(XButtonEvent *ev)
 void
 WindowManager::handleConfigureRequestEvent(XConfigureRequestEvent *ev)
 {
-    Client *client = findClientFromWindow(ev->window);
+    Client *client = Client::findClientFromWindow(ev->window);
 
     if (client) {
         ((Frame*) client->getParent())->handleConfigureRequest(ev, client);
@@ -1264,8 +1276,8 @@ WindowManager::handleUnmapEvent(XUnmapEvent *ev)
     }
 #endif // HARBOUR
 
-    if ((wo_type != PWinObj::WO_MENU) &&
-            (PWinObj::getFocusedPWinObj() == NULL)) {
+    if ((wo_type != PWinObj::WO_MENU) && (wo_type != PWinObj::WO_CMD_DIALOG)
+        && (PWinObj::getFocusedPWinObj() == NULL)) {
         findWOAndFocus(wo_search);
     }
 }
@@ -1273,7 +1285,7 @@ WindowManager::handleUnmapEvent(XUnmapEvent *ev)
 void
 WindowManager::handleDestroyWindowEvent(XDestroyWindowEvent *ev)
 {
-    Client *client = findClientFromWindow(ev->window);
+    Client *client = Client::findClientFromWindow(ev->window);
 
     if (client) {
         PWinObj *wo_search = client->getParent();
@@ -1363,8 +1375,9 @@ WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
     if (wo) {
         // To simplify logic, changing client in frame wouldn't update the
         // focused window because wo != focused_wo woule be true.
-        if (wo->getType() == PWinObj::WO_FRAME)
+        if (wo->getType() == PWinObj::WO_FRAME) {
             wo = static_cast<Frame*>(wo)->getActiveChild();
+        }
 
         if (!wo->isFocusable() || !wo->isMapped()) {
             findWOAndFocus(NULL);
@@ -1459,7 +1472,7 @@ WindowManager::handleClientMessageEvent(XClientMessageEvent *ev)
     } else {
         // client messages
 
-        Client *client = findClientFromWindow(ev->window);
+        Client *client = Client::findClientFromWindow(ev->window);
         if (client) {
             static_cast<Frame*>(client->getParent())->handleClientMessage(ev, client);
         }
@@ -1469,7 +1482,7 @@ WindowManager::handleClientMessageEvent(XClientMessageEvent *ev)
 void
 WindowManager::handleColormapEvent(XColormapEvent *ev)
 {
-    Client *client = findClient(ev->window);
+    Client *client = Client::findClient(ev->window);
     if (client) {
         client =
             static_cast<Client*>(((Frame*) client->getParent())->getActiveChild());
@@ -1477,13 +1490,15 @@ WindowManager::handleColormapEvent(XColormapEvent *ev)
     }
 }
 
+//! @brief Handles XPropertyEvents
 void
 WindowManager::handlePropertyEvent(XPropertyEvent *ev)
 {
-    if (ev->window == _screen->getRoot())
+    if (ev->window == _screen->getRoot()) {
         return;
+    }
 
-    Client *client = findClientFromWindow(ev->window);
+    Client *client = Client::findClientFromWindow(ev->window);
 
     if (client != NULL) {
         ((Frame*) client->getParent())->handlePropertyChange(ev, client);
@@ -1699,65 +1714,6 @@ WindowManager::findWOAndFocus(PWinObj *search)
     }
 }
 
-//! @brief Finds the Client wich holds the window w, only matching the window.
-//! @param win Window to use as criteria when searching
-Client*
-WindowManager::findClientFromWindow(Window win)
-{
-    if (win == _screen->getRoot())
-        return NULL;
-    list<Client*>::iterator it(Client::client_begin());
-    for(; it != Client::client_end(); ++it) {
-        if (win == (*it)->getWindow())
-            return (*it);
-    }
-    return NULL;
-}
-
-//! @brief Find Frame with Window
-Frame*
-WindowManager::findFrameFromWindow(Window win)
-{
-    if (win == _screen->getRoot()) {
-        return NULL;
-    }
-
-    list<Frame*>::iterator it(Frame::frame_begin());
-    for(; it != Frame::frame_end(); ++it) {
-        if (win == (*it)->getWindow()) { // operator == does more than that
-            return (*it);
-        }
-    }
-    return NULL;
-}
-
-//! @brief Finds the Client wich holds the Window w.
-//! @param win Window to use as criteria when searching.
-//! @return Pointer to the client if found, else NULL
-Client*
-WindowManager::findClient(Window win)
-{
-    if ((win == None) || (win == _screen->getRoot()))
-        return NULL;
-
-    Frame *frame;
-
-    if (Client::client_size()) {
-        list<Client*>::iterator it(Client::client_begin());
-        for (; it != Client::client_end(); ++it) {
-            if (win == (*it)->getWindow()) {
-                return (*it);
-            } else {
-                frame = dynamic_cast<Frame*>((*it)->getParent());
-                if ((frame != NULL) && (*frame == win)) {
-                    return (*it);
-                }
-            }
-        }
-    }
-    return NULL;
-}
-
 //! @brief Insert all clients with the transient for set to win
 void
 WindowManager::findFamily(std::list<Client*> &client_list, Window win)
@@ -1802,7 +1758,7 @@ WindowManager::familyRaiseLower(Client *client, bool raise)
         parent = client;
         win_search = client->getWindow();
     } else {
-        parent = findClientFromWindow(client->getTransientWindow());
+        parent = Client::findClientFromWindow(client->getTransientWindow());
         win_search = client->getTransientWindow();
     }
 
@@ -1836,18 +1792,6 @@ void
 WindowManager::removeFromFrameList(Frame *frame)
 {
     _mru_list.remove(frame);
-}
-
-//! @brief Finds client based on class_hint.
-Client*
-WindowManager::findClient(const ClassHint *class_hint)
-{
-    list<Client*>::iterator it(Client::client_begin());
-    for (; it != Client::client_end(); ++it) {
-        if (*class_hint == *(*it)->getClassHint())
-            return *it;
-    }
-    return NULL;
 }
 
 //! @brief Tries to find a Frame to autogroup with
@@ -1895,20 +1839,6 @@ WindowManager::findGroup(AutoProperty *property)
 #undef MATCH_GROUP
 
     return frame;
-}
-
-//! @brief Find Frame from it's ID
-Frame*
-WindowManager::findFrameFromId(uint id)
-{
-    list<Frame*>::iterator it(Frame::frame_begin());
-    for (; it != Frame::frame_end(); ++it) {
-        if ((*it)->getId() == id) {
-            return (*it);
-        }
-    }
-
-    return NULL;
 }
 
 //! @brief Attaches all marked clients to frame

@@ -1,9 +1,11 @@
 //
 // PDecor.cc for pekwm
-// Copyright (C) 2004-2006 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright (C) 2004-2006 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
+//
+// $Id$
 //
 
 #include "../config.h"
@@ -115,10 +117,11 @@ PDecor::TitleItem::updateVisible(void) {
     _visible = "";
 
     // Add client info to title
-    if (_info != 0) {
+    if ((_info != 0)
+        && ((_info != INFO_ID) || Config::instance()->isShowClientID())) {
         _visible.append("[");
 
-        if (infoIs(INFO_ID)) {
+        if (infoIs(INFO_ID) && Config::instance()->isShowClientID()) {
             _visible.append(Util::to_string<uint>(_id));
         }
         if (infoIs(INFO_MARKED)) {

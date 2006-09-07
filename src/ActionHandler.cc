@@ -298,6 +298,9 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 break;
             case ACTION_CLOSE:
                 decor->unmapWindow();
+                if (decor->getType() == PWinObj::WO_CMD_DIALOG) {
+                    _wm->findWOAndFocus(NULL);
+                }
                 break;
             case ACTION_WARP_TO_WORKSPACE:
                 actionWarpToWorkspace(decor, it->getParamI(0));
@@ -373,7 +376,9 @@ ActionHandler::handleAction(const ActionPerformed &ap)
             case ACTION_FIND_CLIENT:
                 actionFindClient(it->getParamS());
                 break;
-
+            case ACTION_GOTO_CLIENT_ID:
+                actionGotoClientID(it->getParamI(0));
+                break;
             case ACTION_EXEC:
                 if (it->getParamS().size())
                     Util::forkExec(it->getParamS());
@@ -408,9 +413,8 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 if (_wm->getCmdDialog()->isMapped()) {
                     _wm->getCmdDialog()->unmapWindow();
                 } else {
-                    _wm->getCmdDialog()->setWORef(client ? client : ap.wo);
-                    _wm->getCmdDialog()->mapCenteredOnWORef();
-                    _wm->getCmdDialog()->giveInputFocus();
+                    _wm->getCmdDialog()->mapCentered(it->getParamS(), true,
+                                                     frame ? frame : ap.wo);
                 }
                 break;
             default:
@@ -558,32 +562,21 @@ ActionHandler::findMouseAction(uint button, uint state, MouseEventType type,
 void
 ActionHandler::actionFindClient(const std::string &title)
 {
-    if (title.size() == 0) {
-        return;
-    }
-
     Client *client = findClientFromTitle(title);
-    if (client == NULL) {
-        return;
+    if (client) {
+        gotoClient(client);
     }
-    Frame *frame = static_cast<Frame*>(client->getParent());
+}
 
-    // make sure it's visible
-    if (frame->isMapped() == false) {
-        if ((frame->isSticky() == false) &&
-                (frame->getWorkspace() != Workspaces::instance()->getActive())) {
-            Workspaces::instance()->setWorkspace(frame->getWorkspace(), false);
-        }
-
-        frame->mapWindow();
+//! @brief Focus client with id.
+//! @param id Client id.
+void
+ActionHandler::actionGotoClientID(uint id)
+{
+    Client *client = Client::findClientFromID(id);
+    if (client) {
+        gotoClient(client);
     }
-    if (Workspaces::instance()->getActiveViewport()->isInside(frame) == false) {
-        Workspaces::instance()->getActiveViewport()->moveToWO(frame);
-    }
-
-    frame->activateChild(client);
-    frame->raise();
-    frame->giveInputFocus();
 }
 
 //! @brief Sends client to specified workspace
@@ -962,4 +955,40 @@ ActionHandler::findClientFromTitle(const std::string &or_title)
     }
 
     return NULL;
+}
+
+//! @brief Makes sure Client gets visible and focus it.
+//! @param client Client to activate.
+void
+ActionHandler::gotoClient(Client *client)
+{
+    Frame *frame = dynamic_cast<Frame*>(client->getParent());
+    if (! frame) {
+#ifdef DEBUG
+        cerr << __FILE__ << "@" << __LINE__ << ": "
+             << "ActionHandler(" << this << ")::gotoClient(" << client << ")"
+             << endl << " *** parent is not a Frame!" << endl;
+#endif // DEBUG
+        return;
+    }
+
+    // Make sure it's visible
+    if (!frame->isSticky()
+        && (frame->getWorkspace() != Workspaces::instance()->getActive())) {
+        Workspaces::instance()->setWorkspace(frame->getWorkspace(), false);
+    }
+
+    if (! frame->isMapped()) {
+        frame->mapWindow();
+    }
+
+    // Make sure it inside Viewport
+    if (! Workspaces::instance()->getActiveViewport()->isInside(frame)) {
+        Workspaces::instance()->getActiveViewport()->moveToWO(frame);
+    }
+
+    // Activate it within the Frame.
+    frame->activateChild(client);
+    frame->raise();
+    frame->giveInputFocus();
 }
