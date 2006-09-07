@@ -519,7 +519,7 @@ Client::findClient(Window win)
     list<Client*>::iterator it(_client_list.begin());
     for (; it != _client_list.end(); ++it) {
         if (win == (*it)->getWindow()
-            || (((*it)->getType() == PWinObj::WO_FRAME) && *(*it) == win)) {
+            || ((*it)->getParent() && (*((*it)->getParent()) == win))) {
             return (*it);
         }
     }
