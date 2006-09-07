@@ -188,6 +188,7 @@ Global {
 		KeyPress = "8" { Actions = "ActivateClientNum 8" }
 		KeyPress = "9" { Actions = "ActivateClientNum 9" }
 		KeyPress = "0" { Actions = "ActivateClientNum 10" }
+		KeyPress = "C" { Actions = "ShowCmdDialog GotoClientID " }
 	}
 	# Workspaces and viewports
 	Chain = "Ctrl Mod1 W" {
