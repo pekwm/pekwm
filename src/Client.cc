@@ -287,7 +287,7 @@ Client::~Client(void)
     _wo_list.remove(this);
     _client_list.remove(this);
 
-    _clientid_list.push_back(_id);
+    returnClientID(_id);
 
     PScreen::instance()->grabServer();
 
@@ -892,7 +892,7 @@ Client::applyAutoprops(AutoProperty *ap)
 uint
 Client::findClientID(void)
 {
-    uint id = 0;
+    uint id = 0;    
 
     if (_clientid_list.size()) {
         // Check for used Frame IDs
@@ -904,6 +904,17 @@ Client::findClientID(void)
     }
 
     return id;
+}
+
+//! @brief Returns Client ID to used client id list.
+//! @param id ID to return.
+void
+Client::returnClientID(uint id)
+{
+    list<uint>::iterator it(_clientid_list.begin());
+    for (; it != _clientid_list.end() && id < *it; ++it)
+        ;
+    _clientid_list.insert(it, id);
 }
 
 //! @brief Tries to get the NET_WM name, else fall back to XA_WM_NAME

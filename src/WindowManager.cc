@@ -1016,7 +1016,7 @@ WindowManager::handleKeyEvent(XKeyEvent *ev)
 
     if (ae != NULL) {
         // HACK: Always close CmdDialog before actions
-        if (wo_orig->getType() == PWinObj::WO_CMD_DIALOG) {
+        if (wo_orig && (wo_orig->getType() == PWinObj::WO_CMD_DIALOG)) {
             ::Action close_action;
             ActionEvent close_ae;
             

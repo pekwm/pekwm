@@ -280,6 +280,7 @@ inline void setMaximizedVert(bool m) { _state.maximized_vert = m; }
     void applyAutoprops(AutoProperty *ap);
 
     static uint findClientID(void);
+    static void returnClientID(uint id);
 
 private: // Private Member Variables
     WindowManager *_wm;

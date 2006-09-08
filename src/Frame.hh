@@ -159,6 +159,7 @@ private:
     void setActiveTitle(void);
 
     static uint findFrameID(void);
+    static void returnFrameID(uint id);
 
 private:
     WindowManager *_wm;

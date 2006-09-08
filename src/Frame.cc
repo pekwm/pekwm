@@ -230,7 +230,7 @@ Frame::~Frame(void)
         _tag_frame = NULL;
     }
 
-    _frameid_list.push_back(_id);
+    returnFrameID(_id);
 
     if (_class_hint) {
         delete _class_hint;
@@ -807,6 +807,17 @@ Frame::findFrameID(void)
     }
 
     return id;
+}
+
+//! @brief Returns Frame ID to used frame id list.
+//! @param id ID to return.
+void
+Frame::returnFrameID(uint id)
+{
+    list<uint>::iterator it(_frameid_list.begin());
+    for (; it != _frameid_list.end() && id < *it; ++it)
+        ;
+    _frameid_list.insert(it, id);
 }
 
 //! @brief Resets Frame IDs.

@@ -121,16 +121,17 @@ enum CmdDialogAction {
     CMD_D_NO_ACTION
 };
 
-// Action utils
-
+// Action Utils
 namespace ActionUtil {
-inline bool needToggle(StateAction sa, bool state) {
-    if (((state == true) && (sa == STATE_SET)) ||
-            ((state == false) && (sa == STATE_UNSET))) {
-        return false;
+    //! @brief Determines if state needs toggling.
+    //! @return true if state needs toggling, else false.
+    inline bool needToggle(StateAction sa, bool state) {
+        if (((state == true) && (sa == STATE_SET))
+            || ((state == false) && (sa == STATE_UNSET))) {
+            return false;
+        }
+        return true;
     }
-    return true;
-}
 }
 
 // Structs and Classes
