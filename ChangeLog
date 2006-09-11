@@ -1,3 +1,15 @@
+2006-09-11  Claes Nästén  <me{@}pekdon{.}net>
+
+	* src/ActionHandler.cc (ActionHandler::findClientFromTitle): 
+	Updated FindClient action to match against the visible title and not
+	the Client set one.
+
+	* src/RegexString.cc (RegexString::parse_match): 
+	Updated parse match to support parsing of // style regular expressions
+	having flags set. Currently only i flag supported. This type of
+	expressions is currently only possible on the FindClient action.
+	
+	
 2006-09-07  Claes Nästén  <me{@}pekdon{.}net>
 
 	* src/Config.cc (Config::parseAction): 

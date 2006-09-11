@@ -1,9 +1,11 @@
 //
 // RegexString.hh for pekwm
-// Copyright (C)  2003-2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright (C)  2003-2006 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
+//
+// $Id$
 //
 
 #include "../config.h"
@@ -57,7 +59,7 @@ public:
 
     bool ed_s (std::string &or_string);
 
-    bool parse_match (const std::string &or_match);
+    bool parse_match(const std::string &or_match, bool full = false);
     bool parse_replace (const std::string &or_replace);
     bool parse_ed_s (const std::string &or_ed_s);
 
