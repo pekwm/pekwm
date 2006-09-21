@@ -68,7 +68,7 @@ PDecor::Button::Button(Display *dpy, PWinObj *parent, Theme::PDecorButtonData *d
                       CopyFromParent, InputOutput, CopyFromParent,
                       CWOverrideRedirect, &attr);
 
-    _bg = ScreenResources::instance()->getPixmapHandler()->getPixmap(_gm.width, _gm.height, PScreen::instance()->getDepth(), true);
+    _bg = ScreenResources::instance()->getPixmapHandler()->getPixmap(_gm.width, _gm.height, PScreen::instance()->getDepth());
 
     setBackgroundPixmap(_bg);
     setState(_state);
@@ -1350,7 +1350,7 @@ PDecor::renderTitle(void)
     PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
     pm->returnPixmap(_title_bg);
     _title_bg = pm->getPixmap(_title_wo.getWidth(), _title_wo.getHeight(),
-                              PScreen::instance()->getDepth(), false);
+                              PScreen::instance()->getDepth());
 
     // render main background on pixmap
     _data->getTextureMain(getFocusedState(false))->render(_title_bg, 0, 0,
@@ -1444,7 +1444,7 @@ PDecor::renderBorder(void)
             getBorderSize(BorderPosition(i), width, height);
 
             if ((width > 0) && (height > 0)) {
-                pix = pm->getPixmap(width, height, PScreen::instance()->getDepth(), false);
+                pix = pm->getPixmap(width, height, PScreen::instance()->getDepth());
                 tex->render(pix, 0, 0, width, height);
                 _border_pix_list.push_back(pix);
 

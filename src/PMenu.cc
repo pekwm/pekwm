@@ -459,7 +459,7 @@ PMenu::buildMenuRenderState(Pixmap &pix, ObjectState state)
     // get a fresh pixmap for the menu
     pm->returnPixmap(pix);
     pix = pm->getPixmap(getChildWidth(), getChildHeight(),
-                        PScreen::instance()->getDepth(), false);
+                        PScreen::instance()->getDepth());
 
     PTexture *tex;
     PFont *font;

@@ -271,8 +271,7 @@ PImageNative::createPixmap(uchar *data, uint width, uint height)
     if (ximage) {
         pix = ScreenResources::instance()->getPixmapHandler()->getPixmap(width,
                 height,
-                PScreen::instance()->getDepth(),
-                false);
+                PScreen::instance()->getDepth());
 
         XPutImage(_dpy, pix, PScreen::instance()->getGC(), ximage,
                   0, 0, 0, 0, width, height);
@@ -325,9 +324,9 @@ PImageNative::createMask(uchar *data, uint width, uint height)
     // Create Pixmap
     Pixmap pix;
     pix = ScreenResources::instance()->getPixmapHandler()->getPixmap(width,
-            height,
-            1,
-            true);
+                                                                     height,
+                                                                     1);
+            
     GC gc = XCreateGC(_dpy, pix, 0, NULL);
     XPutImage(_dpy, pix, gc, ximage,
               0, 0, 0, 0, width, height);

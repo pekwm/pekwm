@@ -1,9 +1,11 @@
 //
 // PixmapHandler.hh for pekwm
-// Copyright (C)  2003-2004 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright (C)  2003-2006 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
+//
+// $Id$
 //
 
 #include "../config.h"
@@ -13,7 +15,7 @@
 
 #include "pekwm.hh"
 
-#include <list>
+#include <map>
 
 class PixmapHandler {
 public:
@@ -22,35 +24,30 @@ public:
         Entry(uint width, uint height, uint depth, Pixmap pixmap);
         ~Entry(void);
 
-        inline Pixmap getPixmap(void) { return _pixmap; }
-
-        inline bool isMatch(uint width, uint height, uint depth, uint thresh) {
-            if ((depth == _depth) &&
-                    (_width >= width) && (_width <= (width + thresh)) &&
-                    (_height >= height) && (_height <= (height + thresh))) {
-                return true;
-            }
-            return false;
+        inline bool isMatch(uint width, uint height, uint depth) {
+            return ((depth == _depth) && (_width == width) && (_height == height));
         }
 
     private:
-        uint _width, _height, _depth;
-        Pixmap _pixmap;
+        uint _width; //!< Width of entry.
+        uint _height; //!< Height of entry.
+        uint _depth; //!< Depth of entry.
+        Pixmap _pixmap; //!< Pixmap associated with entry.
     };
 
-    PixmapHandler(uint cache_size, uint threshold);
+    PixmapHandler(uint cache_size);
     ~PixmapHandler(void);
 
-    Pixmap getPixmap(uint width, uint height, uint depth, bool exact);
+    Pixmap getPixmap(uint width, uint height, uint depth);
     void returnPixmap(Pixmap pixmap);
 
     void setCacheSize(uint cache);
-    void setThreshold(uint threshold);
 
 private:
-    uint _cache_size, _size_threshold;
+    uint _cache_size;
 
-    std::list<PixmapHandler::Entry*> _free_list, _used_list;
+    std::map<Pixmap, Entry*> _free_pix; //!< Set of free pixmaps.
+    std::map<Pixmap, Entry*> _used_pix; //!< Set of used pixmaps.
 };
 
 #endif // _PIXMAP_HANDLER_HH_

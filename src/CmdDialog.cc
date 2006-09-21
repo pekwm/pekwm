@@ -299,7 +299,7 @@ CmdDialog::loadTheme(void)
     PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
     pm->returnPixmap(_bg);
     _bg = pm->getPixmap(_cmd_wo->getWidth(), _cmd_wo->getHeight(),
-                        PScreen::instance()->getDepth(), false);
+                        PScreen::instance()->getDepth());
 
     // render texture
     _cmd_data->getTexture()->render(_bg, 0, 0,

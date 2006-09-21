@@ -16,15 +16,19 @@
 using std::cerr;
 using std::endl;
 #endif // DEBUG
-#include <list>
+#include <map>
 
-using std::list;
+using std::map;
 
 // PixmapHandler::Entry
 
 //! @brief Constructor for Entry class
-PixmapHandler::Entry::Entry(uint width, uint height, uint depth, Pixmap pixmap) :
-        _width(width), _height(height), _depth(depth), _pixmap(pixmap)
+//! @param width Width of entry.
+//! @param height Height of entry.
+//! @param depth Depth of entry.
+//! @param pixmap Pixmap associated with entry.
+PixmapHandler::Entry::Entry(uint width, uint height, uint depth, Pixmap pixmap)
+    : _width(width), _height(height), _depth(depth), _pixmap(pixmap)
 {
 }
 
@@ -37,8 +41,8 @@ PixmapHandler::Entry::~Entry(void)
 // PixmapHandler
 
 //! @brief Constructor for PixmapHandler class
-PixmapHandler::PixmapHandler(uint cache_size, uint threshold) :
-        _cache_size(cache_size), _size_threshold(threshold)
+PixmapHandler::PixmapHandler(uint cache_size)
+    : _cache_size(cache_size)
 {
 }
 
@@ -46,20 +50,20 @@ PixmapHandler::PixmapHandler(uint cache_size, uint threshold) :
 PixmapHandler::~PixmapHandler(void)
 {
 #ifdef DEBUG
-    if (_used_list.size() > 0) {
+    if (_used_pix.size() > 0) {
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "Used pixmap list size > 0, size: "
-             << _used_list.size() << endl;
+             << _used_pix.size() << endl;
     }
 #endif // DEBUG
 
-    list<Entry*>::iterator it;
-
-    for (it = _free_list.begin(); it != _free_list.end(); ++it) {
-        delete *it;
+    // Free resources
+    map<Pixmap, Entry*>::iterator it;
+    for (it = _free_pix.begin(); it != _free_pix.end(); ++it) {
+        delete it->second;
     }
-    for (it = _used_list.begin(); it != _used_list.end(); ++it) {
-        delete *it;
+    for (it = _used_pix.begin(); it != _used_pix.end(); ++it) {
+        delete it->second;
     }
 }
 
@@ -67,51 +71,39 @@ PixmapHandler::~PixmapHandler(void)
 void
 PixmapHandler::setCacheSize(uint cache)
 {
+    // Cache size will be trimmed on next return pixmap call.
     _cache_size = cache;
-
-    while (_free_list.size() > _cache_size) {
-        delete _free_list.front();
-        _free_list.pop_front();
-    }
-}
-
-//! @brief Sets size threshold
-void
-PixmapHandler::setThreshold(uint threshold)
-{
-    _size_threshold = threshold;
 }
 
 //! @brief Searches the Pixmap cache for a sutiable Pixmap or creates a new
 //! @param width Width of the pixmap
 //! @param height Height of the pixmap
 //! @param depth Depth of the pixmap
-//! @param exact Wheter or not to match the exact size ignoring threshold
 Pixmap
-PixmapHandler::getPixmap(uint width, uint height, uint depth, bool exact)
+PixmapHandler::getPixmap(uint width, uint height, uint depth)
 {
     Pixmap pixmap = None;
 
     // search allready created pixmaps
-    list<Entry*>::iterator it(_free_list.begin());
-    for (; it != _free_list.end(); ++it) {
-        if ((*it)->isMatch(width, height, depth, exact ? 0 : _size_threshold)) {
-            pixmap = (*it)->getPixmap();
+    map<Pixmap, Entry*>::iterator it(_free_pix.begin());
+    for (; it != _free_pix.end(); ++it) {
+        if (it->second->isMatch(width, height, depth)) {
+            pixmap = it->first;
 
-            // move the entry to the used list
-            _used_list.push_back(*it);
-            _free_list.erase(it);
+            // Move the entry to the used list
+            _used_pix[it->first] = it->second;
+            _free_pix.erase(it);
             break;
         }
     }
 
-    // no entry, create one
+    // No entry, create one
     if (pixmap == None) {
         pixmap = XCreatePixmap(PScreen::instance()->getDpy(),
                                PScreen::instance()->getRoot(),
                                width, height, depth);
 
-        _used_list.push_back(new Entry(width, height, depth, pixmap));
+        _used_pix[pixmap] = new Entry(width, height, depth, pixmap);
     }
 
     return pixmap;
@@ -120,23 +112,19 @@ PixmapHandler::getPixmap(uint width, uint height, uint depth, bool exact)
 //! @brief Returns the pixmap to the Pixmap cache
 void
 PixmapHandler::returnPixmap(Pixmap pixmap)
-                     {
-                         list<Entry*>::iterator it(_used_list.begin());
-                         for (; it != _used_list.end(); ++it) {
-                             if ((*it)->getPixmap() == pixmap) {
-                                 Entry *entry = *it;
+{
+    // Remove from used list
+    std::map<Pixmap, Entry*>::iterator it = _used_pix.find(pixmap);
+    if (it != _used_pix.end()) {
+        _free_pix[it->first] = it->second;
+        _used_pix.erase(it);
+    }
 
-                                 // move the pixmap to the back ( front ) of the cache
-                                 _used_list.erase(it);
-                                 _free_list.push_back(entry);
-                                 break;
-                             }
-                         }
+    // Trim the cache
+    while (_free_pix.size() > _cache_size) {
+        it = _free_pix.begin();
 
-
-                         // trim the cache
-                         while (_free_list.size() > _cache_size) {
-                             delete _free_list.front();
-                             _free_list.pop_front();
-                         }
-                     }
+        delete it->second;
+        _free_pix.erase(it);
+    }
+}

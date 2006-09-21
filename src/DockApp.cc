@@ -223,7 +223,7 @@ DockApp::repaint(void)
     PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
 
     pm->returnPixmap(_background);
-    _background = pm->getPixmap(_gm.width, _gm.height, _scr->getDepth(), false);
+    _background = pm->getPixmap(_gm.width, _gm.height, _scr->getDepth());
 
     _theme->getHarbourTexture()->render(_background, 0, 0, _gm.width, _gm.height);
 

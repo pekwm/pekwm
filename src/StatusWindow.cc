@@ -135,7 +135,7 @@ StatusWindow::render(void)
     PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
     pm->returnPixmap(_bg);
     _bg = pm->getPixmap(_status_wo->getWidth(), _status_wo->getHeight(),
-                        PScreen::instance()->getDepth(), false);
+                        PScreen::instance()->getDepth());
 
     _theme->getStatusData()->getTexture()->render(_bg, 0, 0, _status_wo->getWidth(), _status_wo->getHeight());
 

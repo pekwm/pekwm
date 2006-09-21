@@ -60,7 +60,7 @@ ScreenResources::ScreenResources(void) :
     _cursor_map[CURSOR_RESIZE] = XCreateFontCursor(dpy, XC_plus);
 
     _pixmap_handler =
-        new PixmapHandler(Config::instance()->getScreenPixmapCacheSize(), 10);
+        new PixmapHandler(Config::instance()->getScreenPixmapCacheSize());
 }
 
 //! @brief ScreenResources destructor
