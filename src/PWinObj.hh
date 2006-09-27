@@ -16,6 +16,7 @@
 
 #include <list>
 #include <algorithm>
+#include <map>
 
 //! @brief X11 Window wrapper class.
 class PWinObj
@@ -50,14 +51,13 @@ public:
     //! @param win Window to match PWinObjs against.
     //! @return PWinObj pointer on match, else NULL.
     static inline PWinObj *findPWinObj(Window win) {
-        std::list<PWinObj*>::iterator it = _wo_list.begin();
-        for (; it != _wo_list.end(); ++it) {
-            if (*(*it) == win) {
-                return *it;
-            }
+        std::map<Window, PWinObj*>::iterator it(_wo_map.find(win));
+        if (it != _wo_map.end()) {
+            return it->second;
         }
         return NULL;
     }
+
     //! @brief Searches in PWinObj list if PWinObj wo exists.
     //! @param wo PWinObj to search for.
     //! @return true if found, else false.
@@ -70,7 +70,7 @@ public:
     }
 
     //! @brief Return Window this PWinObj represents.
-inline Window getWindow(void) const { return _window; }
+    inline Window getWindow(void) const { return _window; }
     //! @brief Sets Window this PWinObj represents.
     inline void setWindow(Window window) { _window = window; }
     //! @brief Returns parent PWinObj.
@@ -79,6 +79,9 @@ inline Window getWindow(void) const { return _window; }
     inline void setParent(PWinObj *wo) { _parent = wo; }
     //! @brief Returns type of PWinObj.
     inline Type getType(void) const { return _type; }
+
+    void addChildWindow(Window win);
+    void removeChildWindow(Window win);
 
     //! @brief Returns x coordinate of PWinObj.
     inline int getX(void) const { return _gm.x; }
@@ -207,6 +210,7 @@ protected:
     static PWinObj *_root_wo; //!< Static root PWinObj pointer.
     static PWinObj *_focused_wo; //!< Static focused PWinObj pointer.
     static std::list<PWinObj*> _wo_list; //!< List of PWinObjs.
+    static std::map<Window, PWinObj*> _wo_map; //!< Mapping of Window to PWinObj
 };
 
 #endif // _WINDOW_OBJECT_HH_

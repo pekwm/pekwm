@@ -40,14 +40,14 @@ map<Window,PMenu*> PMenu::_menu_map = map<Window,PMenu*>();
 
 //! @brief Constructor for PMenu class
 PMenu::PMenu(Display *dpy, Theme *theme, const std::string &title,
-             const std::string &name, const std::string decor_name) :
-        PDecor(dpy, theme, decor_name),
-        _name(name),
-        _menu_wo(NULL), _menu_parent(NULL),
-        _menu_bg_fo(None), _menu_bg_un(None), _menu_bg_se(None),
-        _item_height(0), _item_width_max(0), _item_width_max_avail(0),
-        _separator_height(0),
-        _rows(0), _cols(0), _scroll(false), _has_submenu(false)
+             const std::string &name, const std::string decor_name)
+    : PDecor(dpy, theme, decor_name),
+      _name(name),
+      _menu_wo(NULL), _menu_parent(NULL),
+      _menu_bg_fo(None), _menu_bg_un(None), _menu_bg_se(None),
+      _item_height(0), _item_width_max(0), _item_width_max_avail(0),
+      _separator_height(0),
+      _rows(0), _cols(0), _scroll(false), _has_submenu(false)
 {
     // initiate items
     _item_curr = _item_list.end();
@@ -71,28 +71,29 @@ PMenu::PMenu(Display *dpy, Theme *theme, const std::string &title,
                                       0, 0, 1, 1, 0,
                                       CopyFromParent, InputOutput, CopyFromParent,
                                       CWOverrideRedirect|CWEventMask, &attr));
-
     addChild(_menu_wo);
+    addChildWindow(_menu_wo->getWindow());
     activateChild(_menu_wo);
     _menu_wo->mapWindow();
 
     Workspaces::instance()->insert(this);
     _menu_map[_window] = this; // add to menu map
     _wo_list.push_back(this);
+    _wo_map[_window] = this;
 }
 
 //! @brief Destructor for PMenu class
 PMenu::~PMenu(void)
 {
+    _wo_map.erase(_window);
     _wo_list.remove(this);
     _menu_map.erase(_window); // remove from menu map
     Workspaces::instance()->remove(this);
 
-    // remove ourself from the decor manually, no need to reparent and stuff
-    _child_list.remove(_menu_wo);
-
-    // free resources
+    // Free resources
     if (_menu_wo != NULL) {
+        _child_list.remove(_menu_wo);
+        removeChildWindow(_menu_wo->getWindow());
         XDestroyWindow(_dpy, _menu_wo->getWindow());
         delete _menu_wo;
     }

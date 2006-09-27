@@ -159,21 +159,21 @@ const string PDecor::DEFAULT_DECOR_NAME_TITLEBARLESS = string("TITLEBARLESS");
 //! @param theme Theme
 //! @param decor_name String, if not DEFAULT_DECOR_NAME sets _decor_name_override
 PDecor::PDecor(Display *dpy, Theme *theme, const std::string decor_name)
-        : PWinObj(dpy),
-        _theme(theme), _child(NULL), _button(NULL),
-        _pointer_x(0), _pointer_y(0),
-        _click_x(0), _click_y(0),
-        _decor_cfg_keep_empty(false), _decor_cfg_child_move_overloaded(false),
-        _decor_cfg_bpr_replay_pointer(false),
-        _decor_cfg_bpr_al_child(MOUSE_ACTION_LIST_CHILD_OTHER),
-        _decor_cfg_bpr_al_title(MOUSE_ACTION_LIST_TITLE_OTHER),
-        _maximized_vert(false), _maximized_horz(false),
-        _fullscreen(false), _skip(0),
-        _data(NULL), _decor_name(decor_name),
-        _border(true), _titlebar(true), _shaded(false),
-        _need_shape(false), _need_client_shape(false), _real_height(1),
-        _title_wo(dpy), _title_bg(None),
-        _title_active(0), _titles_left(0), _titles_right(1)
+    : PWinObj(dpy),
+      _theme(theme), _child(NULL), _button(NULL),
+      _pointer_x(0), _pointer_y(0),
+      _click_x(0), _click_y(0),
+      _decor_cfg_keep_empty(false), _decor_cfg_child_move_overloaded(false),
+      _decor_cfg_bpr_replay_pointer(false),
+      _decor_cfg_bpr_al_child(MOUSE_ACTION_LIST_CHILD_OTHER),
+      _decor_cfg_bpr_al_title(MOUSE_ACTION_LIST_TITLE_OTHER),
+      _maximized_vert(false), _maximized_horz(false),
+      _fullscreen(false), _skip(0),
+      _data(NULL), _decor_name(decor_name),
+      _border(true), _titlebar(true), _shaded(false),
+      _need_shape(false), _need_client_shape(false), _real_height(1),
+      _title_wo(dpy), _title_bg(None),
+      _title_active(0), _titles_left(0), _titles_right(1)
 {
     if (_decor_name != PDecor::DEFAULT_DECOR_NAME) {
         _decor_name_override = _decor_name;
@@ -203,6 +203,7 @@ PDecor::PDecor(Display *dpy, Theme *theme, const std::string decor_name)
                                       borderLeft(), borderTop(), 1, 1, 0, // don't know our size yet
                                       CopyFromParent, InputOutput, CopyFromParent,
                                       CWOverrideRedirect|CWEventMask, &attr));
+    addChildWindow(_title_wo.getWindow());
 
     // create border windows
     for (uint i = 0; i < BORDER_NO_POS; ++i) {
@@ -214,6 +215,7 @@ PDecor::PDecor(Display *dpy, Theme *theme, const std::string decor_name)
                           -1, -1, 1, 1, 0,
                           CopyFromParent, InputOutput, CopyFromParent,
                           CWEventMask|CWCursor, &attr);
+        addChildWindow(_border_win[i]);
     }
 
     // sets buttons etc up
@@ -245,8 +247,10 @@ PDecor::~PDecor(void)
     }
     ScreenResources::instance()->getPixmapHandler()->returnPixmap(_title_bg);
 
+    removeChildWindow(_title_wo.getWindow());
     XDestroyWindow(_dpy, _title_wo.getWindow());
     for (uint i = 0; i < BORDER_NO_POS; ++i) {
+        removeChildWindow(_border_win[i]);
         XDestroyWindow(_dpy, _border_win[i]);
     }
     XDestroyWindow(_dpy, _window);
@@ -708,6 +712,7 @@ PDecor::loadDecor(void)
     for (; b_it != _data->buttonEnd(); ++b_it) {
         _button_list.push_back(new PDecor::Button(_dpy, &_title_wo, *b_it));
         _button_list.back()->mapWindow();
+        addChildWindow(_button_list.back()->getWindow());
     }
 
     // Update title position.
@@ -748,6 +753,7 @@ PDecor::unloadDecor(void)
 
     list<PDecor::Button*>::iterator it(_button_list.begin());
     for (; it != _button_list.end(); ++it) {
+        removeChildWindow((*it)->getWindow());
         delete *it;
     }
     _button_list.clear();

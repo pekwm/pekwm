@@ -519,36 +519,36 @@ Workspaces::getTopWO(uint type_mask)
 void
 Workspaces::updateClientStackingList(bool client, bool stacking)
 {
-    Frame *it_frame;
-    list<Window> win_list;
-
-    // Find clients we are going to include in the list
-    list<PWinObj*>::iterator it(_wo_list.begin());
-    for (; it != _wo_list.end(); ++it) {
-        if ((*it)->getType() != PWinObj::WO_FRAME)
-            continue;
-
-        it_frame = (Frame*) (*it);
-        if (!static_cast<Client*>(it_frame->getActiveChild())->skipTaskbar()) {
-            win_list.push_back(it_frame->getActiveChild()->getWindow());
-        }
+    if (! Frame::frame_size()) {
+        return;
     }
 
-    if (!win_list.size())
-        return;
+    Client *cl;
 
-    Window *windows = new Window[win_list.size()];
-    copy(win_list.begin(), win_list.end(), windows);
+    // Create array for holding windows, can not be more than this.
+    Window *windows = new Window[Frame::frame_size()];
+
+    // Copy Frame windows in order
+    uint pos = 0;
+    list<PWinObj*>::iterator it(_wo_list.begin());
+    for (; it != _wo_list.end(); ++it) {
+        if ((*it)->getType() == PWinObj::WO_FRAME) {
+            cl = static_cast<Client*>(static_cast<Frame*>((*it))->getActiveChild());
+            if (cl && !cl->skipTaskbar()) {
+                windows[pos++] = cl->getWindow();
+            }
+        }
+    }
 
     if (client) {
         AtomUtil::setWindows(PScreen::instance()->getRoot(),
                              EwmhAtoms::instance()->getAtom(NET_CLIENT_LIST),
-                             windows, win_list.size());
+                             windows, pos);
     }
     if (stacking) {
         AtomUtil::setWindows(PScreen::instance()->getRoot(),
                              EwmhAtoms::instance()->getAtom(NET_CLIENT_LIST_STACKING),
-                             windows, win_list.size());
+                             windows, pos);
     }
 
     delete [] windows;
@@ -792,20 +792,19 @@ Workspaces::isEmptySpace(int x, int y, const PWinObj* wo)
     // say that it's placed, now check if we are wrong!
     list<PWinObj*>::iterator it(_wo_list.begin());
     for (; it != _wo_list.end(); ++it) {
-        if (wo == (*it))
-            continue; // we don't wanna take ourself into account
+        // Skip ourselves, non-mapped and desktop objects. Iconified means
+        // skip placement.
+        if (wo == (*it) || !(*it)->isMapped() || (*it)->isIconified()
+            || ((*it)->getLayer() == LAYER_DESKTOP)) {
+            continue;
+        }
 
-        // Make sure clients are visible and _not_ iconified. This maybe doesn't
-        // make sense but to "hide" wo's from placement I set _iconified to true
-        if ((*it)->isMapped() && !(*it)->isIconified() &&
-                ((*it)->getLayer() != LAYER_DESKTOP)) {
-            // check if we are "intruding" on some other window's place
-            if (((*it)->getX() < signed(x + wo->getWidth())) &&
-                    (signed((*it)->getX() + (*it)->getWidth()) > x) &&
-                    ((*it)->getY() < signed(y + wo->getHeight())) &&
-                    (signed((*it)->getY() + (*it)->getHeight()) > y)) {
-                return (*it);
-            }
+        // Check if we are "intruding" on some other window's place
+        if (((*it)->getX() < signed(x + wo->getWidth())) &&
+            (signed((*it)->getX() + (*it)->getWidth()) > x) &&
+            ((*it)->getY() < signed(y + wo->getHeight())) &&
+            (signed((*it)->getY() + (*it)->getHeight()) > y)) {
+            return (*it);
         }
     }
 

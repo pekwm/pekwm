@@ -176,7 +176,7 @@ private:
 
     // ID list, list of free Frame ids.
     static std::list<Frame*> _frame_list; //!< List of all Frames.
-    static std::list<uint> _frameid_list; //!< List of free Frame IDs.
+    static std::vector<uint> _frameid_list; //!< List of free Frame IDs.
 
     // Tagging, static as only one Frame can be tagged
     static Frame *_tag_frame; //!< Pointer to tagged frame.

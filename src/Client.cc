@@ -53,7 +53,7 @@ using std::find;
 using std::string;
 
 list<Client*> Client::_client_list = list<Client*>();
-list<uint> Client::_clientid_list = list<uint>();
+vector<uint> Client::_clientid_list = vector<uint>();
 
 Client::Client(WindowManager *w, Window new_client, bool is_new)
     : PWinObj(w->getScreen()->getDpy()),
@@ -277,6 +277,7 @@ Client::Client(WindowManager *w, Window new_client, bool is_new)
 
     // Finished creating the client, so now adding it to the client list.
     _wo_list.push_back(this);
+    _wo_map[_window] = this;
     _client_list.push_back(this);
 }
 
@@ -284,6 +285,7 @@ Client::Client(WindowManager *w, Window new_client, bool is_new)
 Client::~Client(void)
 {
     // Remove from lists
+    _wo_map.erase(_window);
     _wo_list.remove(this);
     _client_list.remove(this);
 
@@ -712,6 +714,7 @@ Client::readEwmhHints(void)
                 setTitlebar(false);
                 setBorder(false);
                 _sticky = true;
+                _state.skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE;
                 _layer = LAYER_DOCK;
                 break;
             } else if (atoms[i] == ewmh->getAtom(WINDOW_TYPE_TOOLBAR)) {
@@ -911,7 +914,7 @@ Client::findClientID(void)
 void
 Client::returnClientID(uint id)
 {
-    list<uint>::iterator it(_clientid_list.begin());
+    vector<uint>::iterator it(_clientid_list.begin());
     for (; it != _clientid_list.end() && id < *it; ++it)
         ;
     _clientid_list.insert(it, id);

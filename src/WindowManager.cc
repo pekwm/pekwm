@@ -176,11 +176,13 @@ WindowManager::EdgeWO::EdgeWO(Display *dpy, Window root, EdgeType edge) :
                       CWOverrideRedirect|CWEventMask, &sattr);
 
     _wo_list.push_back(this);
+    _wo_map[_window] = this;
 }
 
 //! @brief EdgeWO destructor
 WindowManager::EdgeWO::~EdgeWO(void)
 {
+    _wo_map.erase(_window);
     _wo_list.remove(this);
 
     XDestroyWindow(_dpy, _window);
@@ -253,11 +255,13 @@ WindowManager::RootWO::RootWO(Display *dpy, Window root) :
     _gm.height = PScreen::instance()->getHeight();
 
     _wo_list.push_back(this);
+    _wo_map[_window] = this;
 }
 
 //! @brief RootWO destructor
 WindowManager::RootWO::~RootWO(void)
 {
+    _wo_map.erase(_window);
     _wo_list.remove(this);
 }
 

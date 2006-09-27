@@ -1,6 +1,6 @@
 //
 // PWinObj.cc for pekwm
-// Copyright (C)  2003-2004 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright (C)  2003-2006 Claes Nästen <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -16,19 +16,21 @@ using std::endl;
 #endif // DEBUG
 
 using std::list;
+using std::map;
 
 PWinObj* PWinObj::_focused_wo = (PWinObj*) NULL;
 PWinObj* PWinObj::_root_wo = (PWinObj*) NULL;
 list<PWinObj*> PWinObj::_wo_list = list<PWinObj*>();
+map<Window, PWinObj*> PWinObj::_wo_map = map<Window, PWinObj*>();
 
 //! @brief PWinObj constructor.
-PWinObj::PWinObj(Display *dpy) :
-        _dpy(dpy), _window(None),
-        _parent(NULL), _type(WO_NO_TYPE),
-        _workspace(0), _layer(LAYER_NORMAL),
-        _mapped(false), _iconified(false), _hidden(false),
-        _focused(false), _sticky(false),
-        _focusable(true)
+PWinObj::PWinObj(Display *dpy)
+    : _dpy(dpy), _window(None),
+      _parent(NULL), _type(WO_NO_TYPE),
+      _workspace(0), _layer(LAYER_NORMAL),
+      _mapped(false), _iconified(false), _hidden(false),
+      _focused(false), _sticky(false),
+      _focusable(true)
 {
 }
 
@@ -37,6 +39,23 @@ PWinObj::~PWinObj(void)
 {
     if (_focused_wo == this) {
         _focused_wo = NULL;
+    }
+}
+
+//! @brief Associates Window with PWinObj
+void
+PWinObj::addChildWindow(Window win)
+{
+    _wo_map[win] = this;
+}
+
+//! @brief Removes association of Window with PWinObj
+void
+PWinObj::removeChildWindow(Window win)
+{
+    map<Window, PWinObj*>::iterator it(_wo_map.find(win));
+    if (it != _wo_map.end()) {
+        _wo_map.erase(it);
     }
 }
 

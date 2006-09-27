@@ -70,6 +70,7 @@ CmdDialog::CmdDialog(Display *dpy, Theme *theme, const std::string &title)
                                      CWOverrideRedirect|CWEventMask, &attr));
 
     addChild(_cmd_wo);
+    addChildWindow(_cmd_wo->getWindow());
     activateChild(_cmd_wo);
     _cmd_wo->mapWindow();
 
@@ -78,18 +79,20 @@ CmdDialog::CmdDialog(Display *dpy, Theme *theme, const std::string &title)
 
     Workspaces::instance()->insert(this);
     _wo_list.push_back(this);
+    _wo_map[_window] = this;
 }
 
 //! @brief CmdDialog destructor
 CmdDialog::~CmdDialog(void)
 {
     Workspaces::instance()->remove(this);
+    _wo_map.erase(_window);
     _wo_list.remove(this);
 
-    // remove ourself from the decor manually, no need to reparent and stuff
-    _child_list.remove(_cmd_wo);
-
+    // Free resources
     if (_cmd_wo != NULL) {
+        _child_list.remove(_cmd_wo);
+        removeChildWindow(_cmd_wo->getWindow());
         XDestroyWindow(_dpy, _cmd_wo->getWindow());
         delete _cmd_wo;
     }

@@ -54,7 +54,7 @@ using std::mem_fun;
 using std::find;
 
 list<Frame*> Frame::_frame_list = list<Frame*>();
-list<uint> Frame::_frameid_list = list<uint>();
+vector<uint> Frame::_frameid_list = vector<uint>();
 
 Frame* Frame::_tag_frame = NULL;
 bool Frame::_tag_behind = false;
@@ -216,12 +216,14 @@ Frame::Frame(WindowManager *wm, Client *client, AutoProperty *ap)
     PDecor::setWorkspace(_client->getWorkspace());
 
     _wo_list.push_back(this);
+    _wo_map[_window] = this;
 }
 
 //! @brief Frame destructor
 Frame::~Frame(void)
 {
     // remove from lists
+    _wo_map.erase(_window);
     _wo_list.remove(this);
     _frame_list.remove(this);
     Workspaces::instance()->remove(this);
@@ -814,7 +816,7 @@ Frame::findFrameID(void)
 void
 Frame::returnFrameID(uint id)
 {
-    list<uint>::iterator it(_frameid_list.begin());
+    vector<uint>::iterator it(_frameid_list.begin());
     for (; it != _frameid_list.end() && id < *it; ++it)
         ;
     _frameid_list.insert(it, id);

@@ -1,4 +1,15 @@
-2006-09-21  Claes NÃ¤stÃ©n  <me{@}pekdon{.}net>
+2006-09-27  Claes Nästén  <me{@}pekdon{.}net>
+
+	* src/PWinObj.hh (class PWinObj): 
+	Added a map of Window to PWinObj for faster lookup.
+
+	* src/Workspaces.cc (Workspaces::updateClientStackingList): 
+	Updated to not create the list twice (one list and one array).
+
+	* src/Client.cc (Client::readEwmhHints): 
+	Added skipping of menus and focus toggling for docks.
+
+2006-09-21  Claes Nästén  <me{@}pekdon{.}net>
 
 	* src/PixmapHandler.cc (PixmapHandler::returnPixmap): 
 	Use map for pixmap handler instead of list.

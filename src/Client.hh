@@ -347,7 +347,7 @@ private: // Private Member Variables
     } _actions;
 
     static std::list<Client*> _client_list; //!< List of all Clients.
-    static std::list<uint> _clientid_list; //!< List of free Client IDs.
+    static std::vector<uint> _clientid_list; //!< List of free Client IDs.
 };
 
 #endif // _CLIENT_HH_
