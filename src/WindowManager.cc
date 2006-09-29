@@ -175,7 +175,7 @@ WindowManager::EdgeWO::EdgeWO(Display *dpy, Window root, EdgeType edge) :
                       CopyFromParent, InputOnly, CopyFromParent,
                       CWOverrideRedirect|CWEventMask, &sattr);
 
-    _wo_list.push_back(this);
+    woListAdd(this);
     _wo_map[_window] = this;
 }
 
@@ -183,7 +183,7 @@ WindowManager::EdgeWO::EdgeWO(Display *dpy, Window root, EdgeType edge) :
 WindowManager::EdgeWO::~EdgeWO(void)
 {
     _wo_map.erase(_window);
-    _wo_list.remove(this);
+    woListRemove(this);
 
     XDestroyWindow(_dpy, _window);
 }
@@ -254,7 +254,7 @@ WindowManager::RootWO::RootWO(Display *dpy, Window root) :
     _gm.width = PScreen::instance()->getWidth();
     _gm.height = PScreen::instance()->getHeight();
 
-    _wo_list.push_back(this);
+    woListAdd(this);
     _wo_map[_window] = this;
 }
 
@@ -262,7 +262,7 @@ WindowManager::RootWO::RootWO(Display *dpy, Window root) :
 WindowManager::RootWO::~RootWO(void)
 {
     _wo_map.erase(_window);
-    _wo_list.remove(this);
+    woListRemove(this);
 }
 
 //! @brief

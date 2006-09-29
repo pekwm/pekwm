@@ -408,13 +408,14 @@ private:
     bool _border, _titlebar, _shaded;
     bool _need_shape;
     bool _need_client_shape;
+    bool _dirty_resized; //!< Flag set when decor has been resized.
     uint _real_height;
 
     PWinObj _title_wo;
     std::list<PDecor::Button*> _button_list;
 
     Window _border_win[BORDER_NO_POS];
-    std::list<Pixmap> _border_pix_list;
+    std::map<BorderPosition, Pixmap> _border_pos_map;
 
     Pixmap _title_bg;
 

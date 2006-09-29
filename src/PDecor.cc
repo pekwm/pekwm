@@ -45,7 +45,9 @@ using std::endl;
 
 using std::find;
 using std::list;
+using std::vector;
 using std::string;
+using std::map;
 using std::mem_fun;
 
 // PDecor::Button
@@ -171,7 +173,8 @@ PDecor::PDecor(Display *dpy, Theme *theme, const std::string decor_name)
       _fullscreen(false), _skip(0),
       _data(NULL), _decor_name(decor_name),
       _border(true), _titlebar(true), _shaded(false),
-      _need_shape(false), _need_client_shape(false), _real_height(1),
+      _need_shape(false), _need_client_shape(false),
+      _dirty_resized(true), _real_height(1),
       _title_wo(dpy), _title_bg(None),
       _title_active(0), _titles_left(0), _titles_right(1)
 {
@@ -215,6 +218,7 @@ PDecor::PDecor(Display *dpy, Theme *theme, const std::string decor_name)
                           -1, -1, 1, 1, 0,
                           CopyFromParent, InputOutput, CopyFromParent,
                           CWEventMask|CWCursor, &attr);
+        _border_pos_map[BorderPosition(i)] = None;
         addChildWindow(_border_win[i]);
     }
 
@@ -241,9 +245,11 @@ PDecor::~PDecor(void)
     unloadDecor();
 
     // free border pixmaps
-    list<Pixmap>::iterator it(_border_pix_list.begin());
-    for (; it != _border_pix_list.end(); ++it) {
-        ScreenResources::instance()->getPixmapHandler()->returnPixmap(*it);
+    map<BorderPosition, Pixmap>::iterator it(_border_pos_map.begin());
+    for (; it != _border_pos_map.end(); ++it) {
+        if (it->second != None) {
+            ScreenResources::instance()->getPixmapHandler()->returnPixmap(it->second);
+        }
     }
     ScreenResources::instance()->getPixmapHandler()->returnPixmap(_title_bg);
 
@@ -353,8 +359,12 @@ PDecor::resize(uint width, uint height)
     placeBorder();
 
     // render title and border
+    _dirty_resized = true;
+
     renderTitle();
     renderBorder();
+
+    _dirty_resized = false;
 }
 
 //! @brief
@@ -731,8 +741,10 @@ PDecor::loadDecor(void)
     }
 
     // Make sure it gets rendered correctly.
+    _dirty_resized = true;
     _focused = !_focused;
     setFocused(!_focused);
+    _dirty_resized = false;
 
     // Update the dimension of the frame.
     if (_child != NULL) {
@@ -1338,7 +1350,7 @@ PDecor::setSkip(uint skip)
 void
 PDecor::renderTitle(void)
 {
-    if (getTitleHeight() == 0) {
+    if (!getTitleHeight()) {
         return;
     }
 
@@ -1351,12 +1363,14 @@ PDecor::renderTitle(void)
 
     PFont *font = getFont(getFocusedState(false));
     PTexture *t_sep = _data->getTextureSeparator(getFocusedState(false));
-
-    // get new title pixmap
     PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
-    pm->returnPixmap(_title_bg);
-    _title_bg = pm->getPixmap(_title_wo.getWidth(), _title_wo.getHeight(),
-                              PScreen::instance()->getDepth());
+
+    // Get new title pixmap
+    if (_dirty_resized) {
+        pm->returnPixmap(_title_bg);
+        _title_bg = pm->getPixmap(_title_wo.getWidth(), _title_wo.getHeight(),
+                                  PScreen::instance()->getDepth());
+    }
 
     // render main background on pixmap
     _data->getTextureMain(getFocusedState(false))->render(_title_bg, 0, 0,
@@ -1416,52 +1430,54 @@ PDecor::renderButtons(void)
     }
 }
 
-//! @brief
+//! @brief Renders the border of the decor.
 void
 PDecor::renderBorder(void)
 {
-    if (!_border)
+    if (!_border) {
         return;
+    }
 
+    map<BorderPosition, Pixmap>::iterator it;
     PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
 
-    // return pixmaps used for the border
-    list<Pixmap>::iterator it(_border_pix_list.begin());
-    for (; it != _border_pix_list.end(); ++it) {
-        pm->returnPixmap(*it);
+    // Return pixmaps used for the border
+    if (_dirty_resized) {
+        for (it = _border_pos_map.begin(); it != _border_pos_map.end(); ++it) {
+            pm->returnPixmap(it->second);
+            it->second = None;
+        }
     }
-    _border_pix_list.clear();
 
-    Pixmap pix;
     PTexture *tex;
     FocusedState state = getFocusedState(false);
     uint width, height;
 
-    for (uint i = 0; i < BORDER_NO_POS; ++i) {
-        tex = _data->getBorderTexture(state, BorderPosition(i));
+    for (it = _border_pos_map.begin(); it != _border_pos_map.end(); ++it) {
+        tex = _data->getBorderTexture(state, it->first);
 
-        // solid texture, get the color and set as bg, no need to render pixmap
+        // Solid texture, get the color and set as bg, no need to render pixmap
         if (tex->getType() == PTexture::TYPE_SOLID) {
-            XSetWindowBackground(_dpy, _border_win[i],
+            XSetWindowBackground(_dpy, _border_win[it->first],
                                  static_cast<PTextureSolid*>(tex)->getColor()->pixel);
 
         } else {
             // not a solid texture, get pixmap, render, set as bg
-            getBorderSize(BorderPosition(i), width, height);
+            getBorderSize(it->first, width, height);
 
             if ((width > 0) && (height > 0)) {
-                pix = pm->getPixmap(width, height, PScreen::instance()->getDepth());
-                tex->render(pix, 0, 0, width, height);
-                _border_pix_list.push_back(pix);
+                if (_dirty_resized) {
+                    it->second = pm->getPixmap(width, height,
+                                               PScreen::instance()->getDepth());
+                }
+                tex->render(it->second, 0, 0, width, height);
 
-                XSetWindowBackgroundPixmap(_dpy, _border_win[i], pix);
+                XSetWindowBackgroundPixmap(_dpy, _border_win[it->first],
+                                           it->second);
             }
         }
-    }
 
-    // refresh painted data
-    for (uint i = 0; i < BORDER_NO_POS; ++i) {
-        XClearWindow(_dpy, _border_win[i]);
+        XClearWindow(_dpy, _border_win[it->first]);
     }
 }
 
@@ -1553,7 +1569,7 @@ PDecor::checkWOSnap(void)
 
     bool snapped;
 
-    list<PWinObj*>::reverse_iterator it = _wo_list.rbegin();
+    vector<PWinObj*>::reverse_iterator it = _wo_list.rbegin();
     for (; it != _wo_list.rend(); ++it) {
         if (((*it) == this) || ! (*it)->isMapped()
                 || ((*it)->getType() != PWinObj::WO_FRAME)) {
@@ -1880,26 +1896,28 @@ PDecor::applyBorderShape(void)
 void
 PDecor::restackBorder(void)
 {
-    list<Window> window_list(_border_win, _border_win + BORDER_NO_POS);
+    // List of windows, adding two possible for title and child window
+    int extra = 0;
+    Window windows[BORDER_NO_POS + 2];
 
-    // Add title if any
-    if (_titlebar) {
-        window_list.push_front(_title_wo.getWindow());
-    }
 
     // Only put the Child over if not shaded.
     if (_child && !_shaded) {
-        window_list.push_front(_child->getWindow());
+        windows[extra++] = _child->getWindow();
+    }
+    // Add title if any
+    if (_titlebar) {
+        windows[extra++] = _title_wo.getWindow();
     }
 
-    Window *windows = new Window[window_list.size()];
-    copy(window_list.begin(), window_list.end(), windows);
+    // Add border windows
+    for (int i = 0; i < BORDER_NO_POS; ++i) {
+         windows[i + extra] = _border_win[i];
+    }
 
     // Raise the top window so actual restacking is done.
     XRaiseWindow(_dpy, windows[0]);
-    XRestackWindows(_dpy, windows, window_list.size());
-
-    delete [] windows;
+    XRestackWindows(_dpy, windows, BORDER_NO_POS + extra);
 }
 
 //! @brief  Updates _decor_name to represent decor state

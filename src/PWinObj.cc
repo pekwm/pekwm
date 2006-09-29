@@ -9,18 +9,20 @@
 #include "../config.h"
 #include "PWinObj.hh"
 
+#include <algorithm>
 #ifdef DEBUG
 #include <iostream>
 using std::cerr;
 using std::endl;
 #endif // DEBUG
 
-using std::list;
+using std::find;
+using std::vector;
 using std::map;
 
 PWinObj* PWinObj::_focused_wo = (PWinObj*) NULL;
 PWinObj* PWinObj::_root_wo = (PWinObj*) NULL;
-list<PWinObj*> PWinObj::_wo_list = list<PWinObj*>();
+vector<PWinObj*> PWinObj::_wo_list = vector<PWinObj*>();
 map<Window, PWinObj*> PWinObj::_wo_map = map<Window, PWinObj*>();
 
 //! @brief PWinObj constructor.
@@ -216,4 +218,21 @@ PWinObj::reparent(PWinObj *wo, int x, int y)
 {
     _parent = wo;
     XReparentWindow(_dpy, _window, wo->getWindow(), x, y);
+}
+
+//! @brief Adds PWinObj to _wo_list.
+void
+PWinObj::woListAdd(PWinObj *wo)
+{
+    _wo_list.push_back(wo);
+}
+
+//! @brief Remove PWinObj from _wo_list.
+void
+PWinObj::woListRemove(PWinObj *wo)
+{
+    vector<PWinObj*>::iterator it(find(_wo_list.begin(), _wo_list.end(), wo));
+    if (it != _wo_list.end()) {
+        _wo_list.erase(it);
+    }
 }

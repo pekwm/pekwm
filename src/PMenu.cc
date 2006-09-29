@@ -78,7 +78,7 @@ PMenu::PMenu(Display *dpy, Theme *theme, const std::string &title,
 
     Workspaces::instance()->insert(this);
     _menu_map[_window] = this; // add to menu map
-    _wo_list.push_back(this);
+    woListAdd(this);
     _wo_map[_window] = this;
 }
 
@@ -86,7 +86,7 @@ PMenu::PMenu(Display *dpy, Theme *theme, const std::string &title,
 PMenu::~PMenu(void)
 {
     _wo_map.erase(_window);
-    _wo_list.remove(this);
+    woListRemove(this);
     _menu_map.erase(_window); // remove from menu map
     Workspaces::instance()->remove(this);
 

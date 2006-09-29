@@ -215,7 +215,7 @@ Frame::Frame(WindowManager *wm, Client *client, AutoProperty *ap)
     // Figure out if we should be hidden or not, do not read autoprops
     PDecor::setWorkspace(_client->getWorkspace());
 
-    _wo_list.push_back(this);
+    woListAdd(this);
     _wo_map[_window] = this;
 }
 
@@ -224,7 +224,7 @@ Frame::~Frame(void)
 {
     // remove from lists
     _wo_map.erase(_window);
-    _wo_list.remove(this);
+    woListRemove(this);
     _frame_list.remove(this);
     Workspaces::instance()->remove(this);
     _wm->removeFromFrameList(this);

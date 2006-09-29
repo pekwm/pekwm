@@ -276,7 +276,7 @@ Client::Client(WindowManager *w, Window new_client, bool is_new)
     _alive = true;
 
     // Finished creating the client, so now adding it to the client list.
-    _wo_list.push_back(this);
+    woListAdd(this);
     _wo_map[_window] = this;
     _client_list.push_back(this);
 }
@@ -286,7 +286,7 @@ Client::~Client(void)
 {
     // Remove from lists
     _wo_map.erase(_window);
-    _wo_list.remove(this);
+    woListRemove(this);
     _client_list.remove(this);
 
     returnClientID(_id);

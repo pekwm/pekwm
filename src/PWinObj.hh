@@ -14,7 +14,7 @@
 #include "pekwm.hh"
 #include "Action.hh"
 
-#include <list>
+#include <vector>
 #include <algorithm>
 #include <map>
 
@@ -62,7 +62,7 @@ public:
     //! @param wo PWinObj to search for.
     //! @return true if found, else false.
     static inline bool windowObjectExists(PWinObj *wo) {
-        std::list<PWinObj*>::iterator it =
+        std::vector<PWinObj*>::iterator it =
             find(_wo_list.begin(), _wo_list.end(), wo);
         if (it != _wo_list.end())
             return true;
@@ -189,6 +189,10 @@ public:
     }
 
 protected:
+    static void woListAdd(PWinObj *wo);
+    static void woListRemove(PWinObj *wo);
+
+protected:
     Display *_dpy; //!< Display PWinObj is on.
     Window _window; //!< Window PWinObj represents.
     PWinObj *_parent; //!< Parent PWinObj.
@@ -209,7 +213,7 @@ protected:
 
     static PWinObj *_root_wo; //!< Static root PWinObj pointer.
     static PWinObj *_focused_wo; //!< Static focused PWinObj pointer.
-    static std::list<PWinObj*> _wo_list; //!< List of PWinObjs.
+    static std::vector<PWinObj*> _wo_list; //!< List of PWinObjs.
     static std::map<Window, PWinObj*> _wo_map; //!< Mapping of Window to PWinObj
 };
 

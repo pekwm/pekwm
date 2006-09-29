@@ -78,7 +78,7 @@ CmdDialog::CmdDialog(Display *dpy, Theme *theme, const std::string &title)
     loadTheme();
 
     Workspaces::instance()->insert(this);
-    _wo_list.push_back(this);
+    woListAdd(this);
     _wo_map[_window] = this;
 }
 
@@ -87,7 +87,7 @@ CmdDialog::~CmdDialog(void)
 {
     Workspaces::instance()->remove(this);
     _wo_map.erase(_window);
-    _wo_list.remove(this);
+    woListRemove(this);
 
     // Free resources
     if (_cmd_wo != NULL) {
