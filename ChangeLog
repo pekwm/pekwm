@@ -1,3 +1,9 @@
+2006-11-10  Claes Nästén  <me{@}pekdon{.}net>
+
+	* src/DockApp.cc (DockApp::validateSize): 
+	Do not validate on the clients size, but validate on the padded
+	total size to get dockapps properly centered.
+
 2006-09-27  Claes Nästén  <me{@}pekdon{.}net>
 
 	* src/PWinObj.hh (class PWinObj): 

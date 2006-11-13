@@ -530,7 +530,7 @@ PFontXft::drawText(Drawable dest, int x, int y, const char *text, uint chars, bo
 
     if ((_font != NULL) && (cl != NULL)) {
         XftDrawChange(_draw, dest);
-        XftDrawString8(_draw, cl, _font, x, y, (XftChar8 *) text, chars);
+        XftDrawStringUtf8(_draw, cl, _font, x, y, (XftChar8 *) text, chars);
     }
 }
 

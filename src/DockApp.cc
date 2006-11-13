@@ -235,12 +235,12 @@ DockApp::repaint(void)
 void
 DockApp::updateSize(void)
 {
-    // resize
-    validateSize();
-
     // resize the window holding the dockapp
     _gm.width = _c_gm.width + DOCKAPP_BORDER_WIDTH * 2;
     _gm.height = _c_gm.height + DOCKAPP_BORDER_WIDTH * 2;
+
+    // resize
+    validateSize();
 
     // position the dockapp
     _c_gm.x = (_gm.width - _c_gm.width) / 2;
@@ -254,20 +254,20 @@ DockApp::validateSize(void)
     Config *cfg = Config::instance(); // convenience
 
     if (cfg->getHarbourDAMinSide() > 0) {
-        if (_c_gm.width < static_cast<uint>(cfg->getHarbourDAMinSide())) {
-            _c_gm.width = cfg->getHarbourDAMinSide();
+        if (_gm.width < static_cast<uint>(cfg->getHarbourDAMinSide())) {
+            _gm.width = cfg->getHarbourDAMinSide();
         }
-        if (_c_gm.height < static_cast<uint>(cfg->getHarbourDAMinSide())) {
-            _c_gm.height = cfg->getHarbourDAMinSide();
+        if (_gm.height < static_cast<uint>(cfg->getHarbourDAMinSide())) {
+            _gm.height = cfg->getHarbourDAMinSide();
         }
     }
 
     if (cfg->getHarbourDAMaxSide() > 0) {
-        if (_c_gm.width > static_cast<uint>(cfg->getHarbourDAMaxSide())) {
-            _c_gm.width = cfg->getHarbourDAMaxSide();
+        if (_gm.width > static_cast<uint>(cfg->getHarbourDAMaxSide())) {
+            _gm.width = cfg->getHarbourDAMaxSide();
         }
-        if (_c_gm.height > static_cast<uint>(cfg->getHarbourDAMaxSide())) {
-            _c_gm.height = cfg->getHarbourDAMaxSide();
+        if (_gm.height > static_cast<uint>(cfg->getHarbourDAMaxSide())) {
+            _gm.height = cfg->getHarbourDAMaxSide();
         }
     }
 }
