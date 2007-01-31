@@ -109,6 +109,21 @@ PDecor::Button::setState(ButtonState state)
     }
 
     _data->getTexture(state)->render(_bg, 0, 0, _gm.width, _gm.height);
+
+    // Get shape mask
+    bool need_free;
+    Pixmap shape = _data->getTexture(state)->getMask(0, 0, need_free);
+    if (shape != None) {
+        XShapeCombineMask(_dpy, _window, ShapeBounding, 0, 0, shape, ShapeSet);
+        if (need_free) {
+            ScreenResources::instance()->getPixmapHandler()->returnPixmap(shape);
+        }
+    } else {
+        XRectangle rect = {0 /* x */, 0 /* y */, _gm.width, _gm.height };
+        XShapeCombineRectangles(_dpy, _window, ShapeBounding,
+                                0, 0, &rect, 1, ShapeSet, YXBanded);
+    }
+
     clear();
 }
 
@@ -1354,9 +1369,16 @@ PDecor::renderTitle(void)
         return;
     }
 
+    bool force_update = false;
     if (_data->getTitleWidthMin()) {
+        uint width_before = _title_wo.getWidth();
+
         resizeTitle();
         applyBorderShape(); // update title shape
+
+        if (width_before != _title_wo.getWidth()) {
+            force_update = true;
+        }
     } else {
         calcTabsWidth();
     }
@@ -1366,10 +1388,11 @@ PDecor::renderTitle(void)
     PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
 
     // Get new title pixmap
-    if (_dirty_resized) {
+    if (_dirty_resized || force_update) {
         pm->returnPixmap(_title_bg);
         _title_bg = pm->getPixmap(_title_wo.getWidth(), _title_wo.getHeight(),
                                   PScreen::instance()->getDepth());
+        _title_wo.setBackgroundPixmap(_title_bg);
     }
 
     // render main background on pixmap
@@ -1416,7 +1439,6 @@ PDecor::renderTitle(void)
         }
     }
 
-    _title_wo.setBackgroundPixmap(_title_bg);
     _title_wo.clear();
 }
 
@@ -1469,11 +1491,11 @@ PDecor::renderBorder(void)
                 if (_dirty_resized) {
                     it->second = pm->getPixmap(width, height,
                                                PScreen::instance()->getDepth());
+                    XSetWindowBackgroundPixmap(_dpy, _border_win[it->first],
+                                               it->second);
                 }
-                tex->render(it->second, 0, 0, width, height);
 
-                XSetWindowBackgroundPixmap(_dpy, _border_win[it->first],
-                                           it->second);
+                tex->render(it->second, 0, 0, width, height);
             }
         }
 
