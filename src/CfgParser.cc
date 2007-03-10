@@ -556,21 +556,36 @@ CfgParser::variable_expand(std::string &or_string)
             continue;
         }
 
+	// Find end of variable
         for (; o_end != or_string.size(); ++o_end) {
-            if ((isalnum(or_string[o_end]) == 0) && (or_string[o_end] != '_'))  {
+            if ((isalnum(or_string[o_end]) == 0)
+		&& (or_string[o_end] != '_'))  {
                 break;
             }
         }
 
         string o_var_name(or_string.substr(o_begin, o_end - o_begin));
-
-        map<string, string>::iterator o_it(m_o_var_map.find(o_var_name));
-        if (o_it != m_o_var_map.end()) {
+	// If the variable starts with _ it is considered an environment
+	// variable, use getenv to see if it is available
+	if (o_var_name.size() > 2 && o_var_name[1] == '_') {
+	  char *p_value = getenv(o_var_name.c_str() + 2);
+	  if (p_value) {
+	    or_string.replace(o_begin, o_end - o_begin, p_value);
+            o_end = o_begin + strlen(p_value);
+	  } else {
+	    cerr << _("Trying to use undefined environment variable:")
+		 << o_var_name << endl;;
+	  }
+	} else {
+	  map<string, string>::iterator o_it(m_o_var_map.find(o_var_name));
+	  if (o_it != m_o_var_map.end()) {
             or_string.replace(o_begin, o_end - o_begin, o_it->second);
             o_end = o_begin + o_it->second.size();
 
-        } else  {
-            cerr << _("Trying to use undefined variable.\n");
-        }
+	  } else  {
+            cerr << _("Trying to use undefined variable:")
+		 << o_var_name << endl;
+	  }
+	}
     }
 }

@@ -1,3 +1,8 @@
+2007-03-10  Claes Nästén  <me{@}pekdon{.}net>
+
+	* src/CfgParser.cc (CfgParser::variable_expand): 
+	Fix missing expansion if environment variables.
+
 2007-01-31  Claes Nästén  <me{@}pekdon{.}net>
 
 	* src/PDecor.cc (Button::setState): 

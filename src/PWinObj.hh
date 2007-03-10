@@ -63,7 +63,7 @@ public:
     //! @return true if found, else false.
     static inline bool windowObjectExists(PWinObj *wo) {
         std::vector<PWinObj*>::iterator it =
-            find(_wo_list.begin(), _wo_list.end(), wo);
+            std::find(_wo_list.begin(), _wo_list.end(), wo);
         if (it != _wo_list.end())
             return true;
         return false;
