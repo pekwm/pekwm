@@ -68,6 +68,7 @@ extern "C" {
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
 #include <X11/Xatom.h>
 #include <X11/keysym.h>
@@ -254,6 +255,21 @@ WindowManager::RootWO::RootWO(Display *dpy, Window root) :
     _gm.width = PScreen::instance()->getWidth();
     _gm.height = PScreen::instance()->getHeight();
 
+    // Set _NET_WM_PID 
+    AtomUtil::setLong(_window, EwmhAtoms::instance()->getAtom(NET_WM_PID),
+                      static_cast<long>(getpid()));
+
+    // Set WM_CLIENT_MACHINE
+    char hostname[HOST_NAME_MAX + 1];
+    if (! gethostname (hostname, HOST_NAME_MAX)) {
+      // Make sure it is null terminated
+      hostname[HOST_NAME_MAX] = '\0';
+
+      AtomUtil::setString (_window,
+                           IcccmAtoms::instance()->getAtom(WM_CLIENT_MACHINE),
+                           hostname);
+    }
+    
     woListAdd(this);
     _wo_map[_window] = this;
 }
@@ -261,6 +277,10 @@ WindowManager::RootWO::RootWO(Display *dpy, Window root) :
 //! @brief RootWO destructor
 WindowManager::RootWO::~RootWO(void)
 {
+    // Remove atoms, PID will not be valid on shutdown.
+    AtomUtil::unsetProperty(_window, EwmhAtoms::instance()->getAtom(NET_WM_PID));
+    AtomUtil::unsetProperty(_window, IcccmAtoms::instance()->getAtom(WM_CLIENT_MACHINE));
+
     _wo_map.erase(_window);
     woListRemove(this);
 }

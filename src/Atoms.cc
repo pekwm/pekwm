@@ -70,7 +70,8 @@ IcccmAtoms::IcccmAtoms(void)
                         "WM_DELETE_WINDOW",
                         "WM_COLORMAP_WINDOWS",
                         "WM_TAKE_FOCUS",
-                        "WM_WINDOW_ROLE"
+                        "WM_WINDOW_ROLE",
+                        "WM_CLIENT_MACHINE"
                     };
     const uint num = sizeof(names) / sizeof(char*);
     Atom atoms[num];
@@ -106,7 +107,7 @@ EwmhAtoms::EwmhAtoms(void)
                         "_NET_SUPPORTING_WM_CHECK",
                         "_NET_CLOSE_WINDOW",
                         "_NET_WM_NAME", "_NET_WM_DESKTOP",
-                        "_NET_WM_STRUT",
+                        "_NET_WM_STRUT", "_NET_WM_PID",
 
                         "_NET_WM_WINDOW_TYPE",
                         "_NET_WM_WINDOW_TYPE_DESKTOP", "_NET_WM_WINDOW_TYPE_DOCK",

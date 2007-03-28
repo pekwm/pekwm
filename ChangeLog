@@ -1,3 +1,8 @@
+2007-03-28  Claes Nästén  <me{@}pekdon{.}net>
+
+	* src/WindowManager.cc (WindowManager::RootWO::RootWO):
+	Added setting of _NET_WM_PID and WM_CLIENT_MACHINE to the root window.
+
 2007-03-10  Claes Nästén  <me{@}pekdon{.}net>
 
 	* src/CfgParser.cc (CfgParser::variable_expand): 
