@@ -77,6 +77,10 @@ extern "C" {
 #endif // HAVE_XRANDR
 }
 
+#ifndef HOST_NAME_MAX
+#define HOST_NAME_MAX 255
+#endif // HOST_NAME_MAX
+
 using std::cout;
 using std::cerr;
 using std::endl;
