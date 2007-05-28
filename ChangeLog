@@ -2,7 +2,13 @@
 
 	* src/Client.cc (Client::giveInputFocus): 
 	Minor tweaks on focusing looking at WM_TAKE_FOCUS hint for handling
-	Java Swing applications and OpenOffice.org better.
+	Java Swing applications and OpenOffice.org better. Closing #98
+	(Thanks noizze for reporting.)
+	
+	* src/Client.cc (Client::Client): 
+	Add setWmState call to NormalState if no WM_HINTS was set on the
+	application to fix issues with xprop on netwmpager. Closing #33.
+	(Thanks tuncer{.}ayaz{@}gmail{.}com for reporting.)
 
 2007-03-28  Claes Nästén  <me{@}pekdon{.}net>
 

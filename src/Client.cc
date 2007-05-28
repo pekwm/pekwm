@@ -148,6 +148,7 @@ Client::Client(WindowManager *w, Window new_client, bool is_new)
     readPekwmHints();
     getWMProtocols();
 
+    ulong initial_state = NormalState;
     XWMHints* hints = XGetWMHints(_dpy, _window);
     if (hints != NULL) {
         // get the input focus mode
@@ -155,15 +156,16 @@ Client::Client(WindowManager *w, Window new_client, bool is_new)
           _wm_hints_input = hints->input;
         }
 
-        // get initial state of the window
+        // Get initial state of the window
         if (hints->flags&StateHint) {
-            setWmState(hints->initial_state);
-        } else {
-            setWmState(NormalState);
+            initial_state = hints->initial_state;
         }
 
         XFree(hints);
     }
+
+    // Set state either specified in hint
+    setWmState(initial_state);
 
     // are we iconified
     if (getWmState() == IconicState) {
@@ -473,7 +475,8 @@ Client::giveInputFocus(void)
 
   } else if (_send_focus_message) {
     sendXMessage(_window,
-                 IcccmAtoms::instance()->getAtom(WM_TAKE_FOCUS), NoEventMask,
+                 IcccmAtoms::instance()->getAtom(WM_PROTOCOLS), NoEventMask,
+                 IcccmAtoms::instance()->getAtom(WM_TAKE_FOCUS),
                  PScreen::instance()->getLastEventTime());
     return true;
   } else {
