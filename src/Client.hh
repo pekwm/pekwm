@@ -242,8 +242,9 @@ private:
     void setWmState(ulong state);
     long getWmState(void);
 
-    int sendXMessage(Window, Atom, long mask,
-                     long v1 = 0l, long v2 = 0l, long v3 = 0l, long v4 = 0l, long v5 = 0l);
+    int sendXMessage(Window window, Atom atom, long mask,
+                     long v1 = 0l, long v2 = 0l, long v3 = 0l,
+                     long v4 = 0l, long v5 = 0l);
 
     MwmHints* getMwmHints(Window w);
 
@@ -300,7 +301,7 @@ private: // Private Member Variables
     ClassHint *_class_hint;
 
     bool _alive, _marked;
-    bool _send_focus_message, _send_close_message;
+    bool _send_focus_message, _send_close_message, _wm_hints_input;
     bool _cfg_request_lock;
 #ifdef HAVE_SHAPE
     bool _shaped;

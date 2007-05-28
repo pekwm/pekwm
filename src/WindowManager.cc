@@ -949,6 +949,7 @@ WindowManager::doEventLoop(void)
             handleColormapEvent(&ev.xcolormap);
             break;
         case PropertyNotify:
+            _screen->setLastEventTime(ev.xproperty.time);
             handlePropertyEvent(&ev.xproperty);
             break;
         case Expose:
@@ -957,24 +958,30 @@ WindowManager::doEventLoop(void)
 
         case KeyPress:
         case KeyRelease:
+            _screen->setLastEventTime(ev.xkey.time);
             handleKeyEvent(&ev.xkey);
             break;
 
         case ButtonPress:
+            _screen->setLastEventTime(ev.xbutton.time);
             handleButtonPressEvent(&ev.xbutton);
             break;
         case ButtonRelease:
+            _screen->setLastEventTime(ev.xbutton.time);
             handleButtonReleaseEvent(&ev.xbutton);
             break;
 
         case MotionNotify:
+            _screen->setLastEventTime(ev.xmotion.time);
             handleMotionEvent(&ev.xmotion);
             break;
 
         case EnterNotify:
+            _screen->setLastEventTime(ev.xcrossing.time);
             handleEnterNotify(&ev.xcrossing);
             break;
         case LeaveNotify:
+            _screen->setLastEventTime(ev.xcrossing.time);
             handleLeaveNotify(&ev.xcrossing);
             break;
         case FocusIn:

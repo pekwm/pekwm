@@ -1,3 +1,9 @@
+2007-05-28  Claes Nästén  <me{@}pekdon{.}net>
+
+	* src/Client.cc (Client::giveInputFocus): 
+	Minor tweaks on focusing looking at WM_TAKE_FOCUS hint for handling
+	Java Swing applications and OpenOffice.org better.
+
 2007-03-28  Claes Nästén  <me{@}pekdon{.}net>
 
 	* src/WindowManager.cc (WindowManager::RootWO::RootWO):

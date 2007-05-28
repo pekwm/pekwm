@@ -83,7 +83,7 @@ PScreen::PScreen(Display *dpy) :
         _has_xinerama(false), _xinerama_last_head(0), _xinerama_num_heads(0),
         _xinerama_struts(NULL), _xinerama_infos(NULL),
 #endif // HAVE_XINERAMA
-        _server_grabs(0), _last_click_id(None)
+        _server_grabs(0), _last_event_time(0), _last_click_id(None)
 {
     if (_instance != NULL)
         throw string("PScreen, trying to create multiple instances");

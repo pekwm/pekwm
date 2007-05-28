@@ -62,7 +62,7 @@ Client::Client(WindowManager *w, Window new_client, bool is_new)
       _class_hint(NULL),
       _alive(false), _marked(false),
       _send_focus_message(false), _send_close_message(false),
-      _cfg_request_lock(false),
+      _wm_hints_input(true), _cfg_request_lock(false),
 #ifdef HAVE_SHAPE
       _shaped(false),
 #endif // HAVE_SHAPE
@@ -152,11 +152,7 @@ Client::Client(WindowManager *w, Window new_client, bool is_new)
     if (hints != NULL) {
         // get the input focus mode
         if (hints->flags&InputHint) { // FIXME: More logic needed
-// 			if (hints->input) {
-// 				_focusable = true;
-// 			} else {
-// 				_focusable = false;
-// 			}
+          _wm_hints_input = hints->input;
         }
 
         // get initial state of the window
@@ -472,7 +468,17 @@ Client::setWorkspace(uint workspace)
 bool
 Client::giveInputFocus(void)
 {
+  if (_wm_hints_input) {
     return PWinObj::giveInputFocus();
+
+  } else if (_send_focus_message) {
+    sendXMessage(_window,
+                 IcccmAtoms::instance()->getAtom(WM_TAKE_FOCUS), NoEventMask,
+                 PScreen::instance()->getLastEventTime());
+    return true;
+  } else {
+    return true;
+  }
 }
 
 //! @brief Reparents and sets _parent member, filtering unmap events

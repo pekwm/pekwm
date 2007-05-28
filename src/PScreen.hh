@@ -130,6 +130,9 @@ public:
     inline int getNumHeads(void) const { return _xinerama_num_heads; }
 #endif // HAVE_XINERAMA
 
+    inline long getLastEventTime(void) const { return _last_event_time; }
+    inline void setLastEventTime(long t) { _last_event_time = t; }
+
     inline Window getLastClickID(void) { return _last_click_id; }
     inline void setLastClickID(Window id) { _last_click_id = id; }
 
@@ -206,6 +209,7 @@ private:
 
     uint _server_grabs;
 
+    long _last_event_time;
     // information for dobule clicks
     Window _last_click_id;
     Time _last_click_time[BUTTON_NO - 1];
