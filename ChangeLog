@@ -1,3 +1,5 @@
+pekwm-0.1.6 released
+
 2007-05-28  Claes Nästén  <me{@}pekdon{.}net>
 
 	* src/Client.cc (Client::giveInputFocus): 
