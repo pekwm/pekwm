@@ -1,3 +1,9 @@
+2007-05-29  Claes Nästén  <me{@}pekdon{.}net>
+
+	* src/PDecor.cc (PDecor::setBorderShape): 
+	Add shaping of non-corner border windows. Closing #97
+	(Thanks julien for reporting.)
+
 pekwm-0.1.6 released
 
 2007-05-28  Claes Nästén  <me{@}pekdon{.}net>

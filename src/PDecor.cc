@@ -376,6 +376,11 @@ PDecor::resize(uint width, uint height)
     // render title and border
     _dirty_resized = true;
 
+    // Set and apply shape on window, all parts of the border can now
+    // be shaped.
+    setBorderShape();
+    applyBorderShape();
+
     renderTitle();
     renderBorder();
 
@@ -1503,40 +1508,42 @@ PDecor::renderBorder(void)
     }
 }
 
-//! @brief
+//! @brief Sets shape on the border windows.
 void
 PDecor::setBorderShape(void)
 {
 #ifdef HAVE_SHAPE
-    uint pos[] = { BORDER_TOP_LEFT, BORDER_TOP_RIGHT,
-                   BORDER_BOTTOM_LEFT, BORDER_BOTTOM_RIGHT };
-    bool f;
-    Pixmap pix;
-    FocusedState state = getFocusedState(false);
+  PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
 
-    XRectangle rect;
-    rect.x = 0;
-    rect.y = 0;
+  Pixmap pix;
+  bool do_free;
+  unsigned int width, height;
+  FocusedState state = getFocusedState(false);
 
-    for (uint i = pos[0]; i < (sizeof(pos)/sizeof(pos[0])); ++i) {
-        pix =
-            _data->getBorderTexture(state, BorderPosition(pos[i]))->getMask(0, 0, f);
-        if (pix != None) {
-            _need_shape = true;
-            XShapeCombineMask(_dpy, _border_win[pos[i]],
-                              ShapeBounding, 0, 0, pix, ShapeSet);
-            if (f) {
-                ScreenResources::instance()->getPixmapHandler()->returnPixmap(pix);
-            }
-        } else {
-            rect.width =
-                _data->getBorderTexture(state, BorderPosition(pos[i]))->getWidth();
-            rect.height =
-                _data->getBorderTexture(state, BorderPosition(pos[i]))->getHeight();
-            XShapeCombineRectangles(_dpy, _border_win[pos[i]], ShapeBounding,
-                                    0, 0, &rect, 1, ShapeSet, YXBanded);
-        }
+  XRectangle rect = {0, 0, 0, 0};
+
+  map<BorderPosition, Pixmap>::iterator it(_border_pos_map.begin());
+  for (; it != _border_pos_map.end(); ++it) {
+    // Get the size of the border at position
+    getBorderSize(it->first, width, height);
+
+    // Get shape pixmap
+    pix =  _data->getBorderTexture(state, it->first)->getMask(width, height,
+                                                              do_free);
+    if (pix != None) {
+      _need_shape = true;
+      XShapeCombineMask(_dpy, _border_win[it->first],
+                        ShapeBounding, 0, 0, pix, ShapeSet);
+      if (do_free) {
+        ScreenResources::instance()->getPixmapHandler()->returnPixmap(pix);
+      }
+    } else {
+      rect.width = width;
+      rect.height = height;
+      XShapeCombineRectangles(_dpy, _border_win[it->first], ShapeBounding,
+                              0, 0, &rect, 1, ShapeSet, YXBanded);
     }
+  }
 #endif // HAVE_SHAPE
 }
 
