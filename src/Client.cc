@@ -698,61 +698,43 @@ Client::readEwmhHints(void)
     int items;
     Atom *atoms = NULL;
 
-    bool found_window_type = false;
-    atoms = (Atom*)
-            AtomUtil::getEwmhPropData(_window, ewmh->getAtom(WINDOW_TYPE),
-                                      XA_ATOM, items);
+    EwmhAtomName window_type = WINDOW_TYPE;
+    atoms = (Atom*) AtomUtil::getEwmhPropData(_window,
+                                              ewmh->getAtom(WINDOW_TYPE),
+                                              XA_ATOM, items);
     if (atoms) {
-        for (int i = 0; i < items; ++i) {
-            found_window_type = true;
-
-            if (atoms[i] == ewmh->getAtom(WINDOW_TYPE_DESKTOP)) {
-                // desktop windows, make it the same size as the screen and place
-                // it below all windows withouth any decorations, also make it sticky
-                _gm.x = _gm.y = 0;
-                _gm.width = PScreen::instance()->getWidth();
-                _gm.height = PScreen::instance()->getHeight();
-                setTitlebar(false);
-                setBorder(false);
-                _sticky = true;
-                _state.placed = true;
-                _state.skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE|SKIP_SNAP;
-                _layer = LAYER_DESKTOP;
-                break;
-            } else if (atoms[i] == ewmh->getAtom(WINDOW_TYPE_DOCK)) {
-                setTitlebar(false);
-                setBorder(false);
-                _sticky = true;
-                _state.skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE;
-                _layer = LAYER_DOCK;
-                break;
-            } else if (atoms[i] == ewmh->getAtom(WINDOW_TYPE_TOOLBAR)) {
-                setTitlebar(false);
-                setBorder(false);
-                _state.skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE;
-                break;
-            } else if (atoms[i] == ewmh->getAtom(WINDOW_TYPE_MENU)) {
-                _layer = LAYER_MENU;
-                _state.skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE|SKIP_SNAP;
-                break;
-// 			} else if (atoms[i] == ewmh->getAtom(WINDOW_TYPE_UTILITY)) {
-// 			}
-// 			} else if (atoms[i] == ewmh->getAtom(WINDOW_TYPE_DIALOG)) {
-// 			}
-            } else if (atoms[i] == ewmh->getAtom(WINDOW_TYPE_SPLASH)) {
-                setTitlebar(false);
-                setBorder(false);
-            } else {
-                found_window_type = false;
-            }
+      for (int i = 0; window_type == WINDOW_TYPE && i < items; ++i) {
+        if (atoms[i] == ewmh->getAtom(WINDOW_TYPE_DESKTOP)) {
+          window_type = WINDOW_TYPE_DESKTOP;
+        } else if (atoms[i] == ewmh->getAtom(WINDOW_TYPE_DOCK)) {
+          window_type = WINDOW_TYPE_DOCK;
+        } else if (atoms[i] == ewmh->getAtom(WINDOW_TYPE_TOOLBAR)) {
+          window_type = WINDOW_TYPE_TOOLBAR;
+        } else if (atoms[i] == ewmh->getAtom(WINDOW_TYPE_MENU)) {
+          window_type = WINDOW_TYPE_MENU;
+        } else if (atoms[i] == ewmh->getAtom(WINDOW_TYPE_UTILITY)) {
+          window_type = WINDOW_TYPE_UTILITY;
+        } else if (atoms[i] == ewmh->getAtom(WINDOW_TYPE_DIALOG)) {
+          window_type = WINDOW_TYPE_DIALOG;
+        } else if (atoms[i] == ewmh->getAtom(WINDOW_TYPE_SPLASH)) {
+          window_type = WINDOW_TYPE_SPLASH;
         }
+      }
 
-        XFree(atoms);
+      XFree(atoms);
     }
 
-    if (!found_window_type) {
-        Atom type = ewmh->getAtom(WINDOW_TYPE_NORMAL);
-        AtomUtil::setAtom(_window, ewmh->getAtom(WINDOW_TYPE), type);
+    // Set window type to WINDOW_TYPE_NORMAL if it did not match
+    if (window_type == WINDOW_TYPE) {
+      window_type = WINDOW_TYPE_NORMAL;
+      AtomUtil::setAtom(_window, ewmh->getAtom(WINDOW_TYPE),
+                        ewmh->getAtom(WINDOW_TYPE_NORMAL));
+    }
+     
+    // Apply autoproperties for window type
+    AutoProperty *auto_property = AutoProperties::instance()->findWindowTypeProperty(window_type);
+    if (auto_property) {
+      applyAutoprops(auto_property);
     }
 
     // The _NET_WM_STATE overides the _NET_WM_TYPE
@@ -799,11 +781,19 @@ Client::readMwmHints(void)
             }
         }
 
-        if (mwm_hints->flags&MWM_HINTS_DECORATIONS) {
-            if (!mwm_hints->decorations&MWM_DECOR_ALL) {
-                setTitlebar(mwm_hints->decorations&MWM_DECOR_TITLE);
-                setBorder(mwm_hints->decorations&MWM_DECOR_BORDER);
-            }
+        // Check decoration flags
+        if (mwm_hints->flags & MWM_HINTS_DECORATIONS
+            && ! (mwm_hints->decorations & MWM_DECOR_ALL)) {
+          if (! (mwm_hints->decorations & MWM_DECOR_TITLE)) {
+            setTitlebar(false);
+          }
+          if (! (mwm_hints->decorations & MWM_DECOR_BORDER)) {
+            setBorder(false);
+          }
+
+          // Do not handle HANDLE, MENU, ICONFIY or MAXIMIZE. Maybe
+          // one should set the allowed actions for the client based
+          // on this but that might be annoying so ignoring these.
         }
 
         XFree(mwm_hints);

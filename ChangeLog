@@ -1,3 +1,23 @@
+2007-05-31  Claes Nästén  <me{@}pekdon{.}net>
+
+	* src/AutoProperties.cc (AutoProperties::parseTypeProperty): 
+	Made _NET_WM_WINDOW_TYPE handling configurable by creating a new
+	set of auto properties called TypeRules. If nothing is changed the old
+	default behaviour is still there apart from geometry of desktop class
+	is not yet working.
+
+	* src/CfgParser.cc (CfgParser::parse_source_new): 
+	Fix bug in configuration parses causing it to parse files 2 times
+	when the first open was ok. Increased memory usage with 30% after
+	startup on my setup.
+
+2007-05-30  Claes Nästén  <me{@}pekdon{.}net>
+
+	* src/Client.cc (Client::readMwmHints): 
+	Fixed handling of _MOTIF_WM_HINTS to detect border/title only decors
+	correctly. Still ignoring the handle, menu, iconify and maximize
+	states as altering allowed actions probably is a bad idea.
+	
 2007-05-29  Claes Nästén  <me{@}pekdon{.}net>
 
 	* src/PDecor.cc (PDecor::setBorderShape): 

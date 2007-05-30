@@ -1,29 +1,30 @@
 //
 // AutoProperties.cc for pekwm
-// Copyright (C) 2003-2004 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2003-2007 Claes Nasten <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
+#ifdef HAVE_CONFIG_H
 #include "../config.h"
-#include "AutoProperties.hh"
-
-#include "Config.hh"
-#include "Util.hh"
+#endif // HAVE_CONFIG_H
 
 #include <algorithm>
 #include <vector>
-
-#ifdef DEBUG
 #include <iostream>
+
+#include "AutoProperties.hh"
+#include "Config.hh"
+#include "Util.hh"
+
 using std::cerr;
 using std::endl;
-#endif // DEBUG
-using std::string;
-using std::list;
-using std::vector;
 using std::find;
+using std::list;
+using std::map;
+using std::string;
+using std::vector;
 
 AutoProperties *AutoProperties::_instance = NULL;
 
@@ -82,6 +83,17 @@ AutoProperties::AutoProperties(void) :
     _group_property_map["FOCUSEDFIRST"] = AP_GROUP_FOCUSED_FIRST;
     _group_property_map["GLOBAL"] = AP_GROUP_GLOBAL;
     _group_property_map["RAISE"] = AP_GROUP_RAISE;
+
+    // window type map
+    _window_type_map[""] = WINDOW_TYPE;
+    _window_type_map["DESKTOP"] = WINDOW_TYPE_DESKTOP;
+    _window_type_map["DOCK"] = WINDOW_TYPE_DOCK;
+    _window_type_map["TOOLBAR"] = WINDOW_TYPE_TOOLBAR;
+    _window_type_map["MENU"] = WINDOW_TYPE_MENU;
+    _window_type_map["UTILITY"] = WINDOW_TYPE_UTILITY;
+    _window_type_map["SPLASH"] = WINDOW_TYPE_SPLASH;
+    _window_type_map["DIALOG"] = WINDOW_TYPE_DIALOG;
+    _window_type_map["NORMAL"] = WINDOW_TYPE_NORMAL;
 }
 
 //! @brief Destructor for AutoProperties class
@@ -102,8 +114,10 @@ AutoProperties::load(void)
     if (!a_cfg.parse (Config::instance()->getAutoPropsFile()))
     {
         string cfg_file = SYSCONFDIR "/autoproperties";
-        if (!a_cfg.parse (cfg_file))
-            return;
+        if (!a_cfg.parse (cfg_file)) {
+          setDefaultTypeProperties();
+          return;
+        }
     }
 
     // reset values
@@ -116,18 +130,19 @@ AutoProperties::load(void)
     CfgParser::Entry *op_it (a_cfg.get_entry_root ());
     while ((op_it = op_it->get_section_next ()) != NULL)
     {
-        if (*op_it == "PROPERTY")
+        if (*op_it == "PROPERTY") {
             parseAutoProperty (op_it, NULL);
-        else if (*op_it == "TITLERULES")
+        } else if (*op_it == "TITLERULES") {
             parseTitleProperty (op_it);
-        else if (*op_it == "DECORRULES")
+        } else if (*op_it == "DECORRULES") {
             parseDecorProperty (op_it);
+        } else if (*op_it == "TYPERULES") {
+            parseTypeProperty (op_it);
 #ifdef HARBOUR
-        else if (*op_it == "HARBOUR")
+        } else if (*op_it == "HARBOUR") {
             parseDockAppProperty (op_it);
 #endif // HARBOUR
-        else if (*op_it == "WORKSPACE") // Workspace section
-        {
+        } else if (*op_it == "WORKSPACE") { // Workspace section
             op_it = op_it->get_section ();
 
             CfgParser::Entry *op_value = op_it->find_entry ("WORKSPACE");
@@ -148,6 +163,9 @@ AutoProperties::load(void)
             }
         }
     }
+
+    // Validate date
+    setDefaultTypeProperties();
 }
 
 //! @brief Frees allocated memory
@@ -173,6 +191,21 @@ AutoProperties::unload(void)
         delete *it;
     }
     _decor_prop_list.clear();
+
+    // remove dock app properties
+#ifdef HARBOUR
+    for (it = _dock_app_prop_list.begin(); it != _dock_app_prop_list.end(); ++it) {
+        delete *it;
+    }
+    _dock_app_prop_list.clear();
+#endif // HARBOUR
+
+    // remove type properties
+    map<EwmhAtomName, AutoProperty*>::iterator m_it(_window_type_prop_map.begin());
+    for (; m_it != _window_type_prop_map.end(); ++m_it) {
+      delete m_it->second;
+    }
+    _window_type_prop_map.clear();
 }
 
 //! @brief Finds a property from the prop_list
@@ -199,10 +232,11 @@ AutoProperties::findProperty(const ClassHint* class_hint,
             if ((*it)->getWsList().size()) {
                 w_it = find((*it)->getWsList().begin(), (*it)->getWsList().end(),
                             unsigned(ws));
-                if (w_it != (*it)->getWsList().end())
-                    return *it;
+                if (w_it != (*it)->getWsList().end()) {
+                  return *it;
+                }
             } else {
-                return *it;
+              return *it;
             }
         }
     }
@@ -210,21 +244,60 @@ AutoProperties::findProperty(const ClassHint* class_hint,
     return NULL;
 }
 
+//! @brief Parses a property match rule for window types.
+//! @param str String to parse.
+//! @param prop Property to place result in.
+//! @return true on success, else false.
+EwmhAtomName
+AutoProperties::parsePropertyMatchWindowType(const std::string &str,
+                                             Property *prop)
+{
+  EwmhAtomName atom = ParseUtil::getValue<EwmhAtomName>(str, _window_type_map);
+  if (atom == WINDOW_TYPE) {
+    cerr << " *** WARNING: unknown type " << str << " for autoproperty" << endl;
+  }
+
+  return atom;
+}
+
+//! @brief Parses a property match rule
+//! @param str String to parse.
+//! @param prop Property to place result in.
+//! @return true on success, else false.
+bool
+AutoProperties::parsePropertyMatch(const std::string &str, Property *prop)
+{
+  bool status = false;
+
+  // Format of property matches are regexp,regexp . Split up in class
+  // and role regexps.
+  vector<string> tokens;
+  if ((Util::splitString (str, tokens, ",", 2)) == 2) {
+    // Make sure one of the two regexps compiles
+    if (prop->getHintName().parse_match (tokens[0])) {
+      status = true;
+    } else {
+      cerr << " *** WARNING: failed to compile name regexp for autoproperty, "
+           << tokens[0] << endl;
+    }
+
+    if (prop->getHintClass().parse_match (tokens[1])) {
+      status = true;
+    } else {
+      cerr << " *** WARNING: failed to compile class regexp for autoproperty, "
+           << tokens[1] << endl;
+    }
+  }
+
+  return status;
+}
+
 //! @brief Parses a cs and sets up a basic property
 bool
 AutoProperties::parseProperty(CfgParser::Entry *op_section, Property *prop)
 {
     vector<string> tokens;
-    if ((Util::splitString (op_section->get_value (), tokens, ",", 2)) != 2)
-        return false;
-
     CfgParser::Entry *op_value;
-
-    if (!prop->getHintName().parse_match (tokens[0])
-            || !prop->getHintClass().parse_match (tokens[1]))
-    {
-        return false;
-    }
 
     // Get extra matching info.
     op_value = op_section->find_entry ("TITLE");
@@ -255,135 +328,19 @@ void
 AutoProperties::parseAutoProperty(CfgParser::Entry *op_section,
                                   std::list<uint>* ws)
 {
-    op_section = op_section->get_section ();
+  // Get sub section
+  op_section = op_section->get_section ();
 
-    AutoProperty* property = new AutoProperty();
-    if (!parseProperty(op_section, property))
-    {
-        delete property;
-        return; // Not a valid property.
-    }
+  AutoProperty* property = new AutoProperty();
+  parsePropertyMatch(op_section->get_value (), property);
 
-    // copy workspaces, if any
-    if (ws)
-        property->getWsList().assign(ws->begin(), ws->end());
-
-    // see if we have a group section
-    CfgParser::Entry *op_it(op_section->find_section ("GROUP"));
-    if (op_it)
-        parseAutoGroup(op_it, property);
-
-    // start parsing of values
-    string name, value;
-    vector<string> tokens;
-    vector<string>::iterator it;
-
-    PropertyType property_type;
-    for (op_it = op_section->get_entry_next (); op_it; op_it = op_it->get_entry_next ())
-    {
-        property_type = ParseUtil::getValue<PropertyType>(op_it->get_name (),
-                        _property_map);
-
-        switch (property_type) {
-        case AP_STICKY:
-            property->maskAdd(AP_STICKY);
-            property->sticky = Util::isTrue(op_it->get_value ());
-            break;
-        case AP_SHADED:
-            property->maskAdd(AP_SHADED);
-            property->shaded = Util::isTrue(op_it->get_value ());
-            break;
-        case AP_MAXIMIZED_VERTICAL:
-            property->maskAdd(AP_MAXIMIZED_VERTICAL);
-            property->maximized_vertical = Util::isTrue(op_it->get_value ());
-            break;
-        case AP_MAXIMIZED_HORIZONTAL:
-            property->maskAdd(AP_MAXIMIZED_HORIZONTAL);
-            property->maximized_horizontal = Util::isTrue(op_it->get_value ());
-            break;
-        case AP_ICONIFIED:
-            property->maskAdd(AP_ICONIFIED);
-            property->iconified = Util::isTrue(op_it->get_value ());
-            break;
-        case AP_BORDER:
-            property->maskAdd(AP_BORDER);
-            property->border = Util::isTrue(op_it->get_value ());
-            break;
-        case AP_TITLEBAR:
-            property->maskAdd(AP_TITLEBAR);
-            property->titlebar = Util::isTrue(op_it->get_value ());
-            break;
-        case AP_FRAME_GEOMETRY:
-            property->maskAdd(AP_FRAME_GEOMETRY);
-            property->frame_gm_mask =
-                XParseGeometry((char*) op_it->get_value ().c_str(),
-                               &property->frame_gm.x, &property->frame_gm.y,
-                               &property->frame_gm.width, &property->frame_gm.height);
-            break;
-        case AP_CLIENT_GEOMETRY:
-            property->maskAdd(AP_CLIENT_GEOMETRY);
-            property->client_gm_mask =
-                XParseGeometry((char*) op_it->get_value ().c_str(),
-                               &property->client_gm.x, &property->client_gm.y,
-                               &property->client_gm.width, &property->client_gm.height);
-            break;
-        case AP_LAYER:
-            property->maskAdd(AP_LAYER);
-            property->layer = Config::instance()->getLayer(op_it->get_value ());
-            break;
-        case AP_WORKSPACE:
-            property->maskAdd(AP_WORKSPACE);
-            property->workspace = unsigned(strtol(op_it->get_value ().c_str(), NULL, 10) - 1);
-            break;
-        case AP_SKIP:
-            property->maskAdd(AP_SKIP);
-            tokens.clear();
-            if ((Util::splitString(op_it->get_value (), tokens, " \t"))) {
-                for (it = tokens.begin(); it != tokens.end(); ++it)
-                    property->skip |= Config::instance()->getSkip(*it);
-            }
-            break;
-        case AP_FULLSCREEN:
-            property->maskAdd(AP_FULLSCREEN);
-            property->fullscreen = Util::isTrue(op_it->get_value ());
-            break;
-        case AP_PLACE_NEW:
-            property->maskAdd(AP_PLACE_NEW);
-            property->place_new = Util::isTrue(op_it->get_value ());
-            break;
-        case AP_FOCUS_NEW:
-            property->maskAdd(AP_FOCUS_NEW);
-            property->focus_new = Util::isTrue(op_it->get_value ());
-            break;
-        case AP_FOCUSABLE:
-            property->maskAdd(AP_FOCUSABLE);
-            property->focusable = Util::isTrue(op_it->get_value ());
-            break;
-        case AP_CFG_DENY:
-            property->maskAdd(AP_CFG_DENY);
-            tokens.clear();
-            if ((Util::splitString(op_it->get_value (), tokens, " \t"))) {
-                for (it = tokens.begin(); it != tokens.end(); ++it) {
-                    property->cfg_deny |= Config::instance()->getCfgDeny(*it);
-                }
-            }
-            break;
-        case AP_VIEWPORT:
-            tokens.clear();
-            if (Util::splitString(op_it->get_value (), tokens, " \t", 2) == 2) {
-                property->maskAdd(AP_VIEWPORT);
-                property->viewport_col = strtol(tokens[0].c_str(), NULL, 10) - 1;
-                property->viewport_row = strtol(tokens[1].c_str(), NULL, 10) - 1;
-            }
-            break;
-
-        default:
-            // do nothing
-            break;
-        }
-    }
-
+  if (parseProperty(op_section, property)) {
+    parseAutoPropertyValue(op_section, property, ws);
     _prop_list.push_back(property);
+
+  } else {
+    delete property;
+  }
 }
 
 //! @brief Parses a Group section of the AutoProps
@@ -443,6 +400,7 @@ AutoProperties::parseTitleProperty(CfgParser::Entry *op_section)
         ok = false;
         property = new TitleProperty();
 
+        parsePropertyMatch(op_sub->get_value (), property);
         if (parseProperty (op_sub, property))
         {
             CfgParser::Entry *op_value = op_sub->find_entry ("RULE");
@@ -474,6 +432,7 @@ AutoProperties::parseDecorProperty(CfgParser::Entry *op_section)
         ok = false;
         property = new DecorProperty ();
 
+        parsePropertyMatch(op_sub->get_value (), property);
         if (parseProperty (op_sub, property))
         {
             CfgParser::Entry *op_value = op_sub->find_entry ("DECOR");
@@ -512,6 +471,7 @@ AutoProperties::parseDockAppProperty(CfgParser::Entry *op_section)
         ok = false;
         property = new DockAppProperty ();
 
+        parsePropertyMatch(op_sub->get_value (), property);
         if (parseProperty (op_sub, property))
         {
             CfgParser::Entry *op_value = op_sub->find_entry ("POSITION");
@@ -532,6 +492,258 @@ AutoProperties::parseDockAppProperty(CfgParser::Entry *op_section)
     }
 }
 #endif // HARBOUR
+
+
+//! @brief Parse type auto properties.
+//! @param op_section Section containing properties.
+void
+AutoProperties::parseTypeProperty(CfgParser::Entry *op_section)
+{
+  // Get sub section
+  op_section = op_section->get_section ();
+
+  EwmhAtomName atom;
+  AutoProperty *property;
+  CfgParser::Entry *op_sub;
+  map<EwmhAtomName, AutoProperty*>::iterator it;
+
+  // Look for all type properties
+  while ((op_section = op_section->get_section_next ()) != NULL) {
+    // Get sub section
+    op_sub = op_section->get_section ();
+
+    // Create new property and try to parse
+    property = new AutoProperty ();
+    atom = parsePropertyMatchWindowType (op_sub->get_value (), property);
+    if (atom != WINDOW_TYPE && parseProperty (op_sub, property)) {
+      // Parse of match ok, parse values
+      parseAutoPropertyValue (op_sub, property, NULL);
+      
+      // Add to list, make sure it does not exist already
+      it = _window_type_prop_map.find(atom);
+      if (it != _window_type_prop_map.end()) {
+        cerr << " *** WARNING: multiple type autoproperties for type "
+             << op_sub->get_value () << endl;
+        delete it->second;
+      }
+      _window_type_prop_map[atom] = property;
+      
+    } else {
+      delete property;
+    }
+  }
+}
+
+//! @brief Set default values for type auto properties not in configuration.
+void
+AutoProperties::setDefaultTypeProperties(void)
+{
+  // DESKTOP
+  if (! findWindowTypeProperty(WINDOW_TYPE_DESKTOP)) {
+    AutoProperty *prop = new AutoProperty();
+    prop->maskAdd(AP_CLIENT_GEOMETRY);
+    prop->client_gm_mask =
+      XParseGeometry("-1x-1+0+0",
+                     &prop->client_gm.x, &prop->client_gm.y,
+                     &prop->client_gm.width, &prop->client_gm.height);
+    prop->maskAdd(AP_STICKY);
+    prop->sticky = true;
+    prop->maskAdd(AP_TITLEBAR);
+    prop->border = false;
+    prop->maskAdd(AP_BORDER);
+    prop->border = false;
+    prop->maskAdd(AP_SKIP);
+    prop->skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE|SKIP_SNAP;
+    prop->maskAdd(AP_LAYER);
+    prop->layer = LAYER_DESKTOP;
+
+    _window_type_prop_map[WINDOW_TYPE_DESKTOP] = prop;
+  }
+
+  // DOCK  
+  if (! findWindowTypeProperty(WINDOW_TYPE_DOCK)) {
+    AutoProperty *prop = new AutoProperty();
+    prop->maskAdd(AP_STICKY);
+    prop->sticky = true;
+    prop->maskAdd(AP_TITLEBAR);
+    prop->border = false;
+    prop->maskAdd(AP_BORDER);
+    prop->border = false;
+    prop->maskAdd(AP_SKIP);
+    prop->skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE;
+    prop->maskAdd(AP_LAYER);
+    prop->layer = LAYER_DOCK;
+
+    _window_type_prop_map[WINDOW_TYPE_DOCK] = prop;
+  }
+
+  // TOOLBAR
+  if (! findWindowTypeProperty(WINDOW_TYPE_TOOLBAR)) {
+    AutoProperty *prop = new AutoProperty();
+    prop->maskAdd(AP_TITLEBAR);
+    prop->border = false;
+    prop->maskAdd(AP_BORDER);
+    prop->border = false;
+    prop->maskAdd(AP_SKIP);
+    prop->skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE;
+
+    _window_type_prop_map[WINDOW_TYPE_TOOLBAR] = prop;
+  }
+
+  // MENU
+  if (! findWindowTypeProperty(WINDOW_TYPE_MENU)) {
+    AutoProperty *prop = new AutoProperty();
+    prop->maskAdd(AP_TITLEBAR);
+    prop->border = false;
+    prop->maskAdd(AP_BORDER);
+    prop->border = false;
+    prop->maskAdd(AP_SKIP);
+    prop->skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE|SKIP_SNAP;
+
+    _window_type_prop_map[WINDOW_TYPE_MENU] = prop;
+  }
+
+  // SPLASH
+  if (! findWindowTypeProperty(WINDOW_TYPE_SPLASH)) {
+    AutoProperty *prop = new AutoProperty();
+    prop->maskAdd(AP_TITLEBAR);
+    prop->border = false;
+    prop->maskAdd(AP_BORDER);
+    prop->border = false;
+
+    _window_type_prop_map[WINDOW_TYPE_SPLASH] = prop;
+  }
+}
+
+//! @brief Parse AutoProperty value attributes.
+//! @param op_section Config section to parse.
+//! @param prop Property to store result in.
+//! @param ws List of workspaces to apply property on.
+void
+AutoProperties::parseAutoPropertyValue(CfgParser::Entry *op_section,
+                                       AutoProperty *prop, std::list<uint> *ws)
+{
+  // Copy workspaces, if any
+  if (ws) {
+    prop->getWsList().assign(ws->begin(), ws->end());
+  }
+
+  // See if we have a group section
+  CfgParser::Entry *op_it(op_section->find_section ("GROUP"));
+  if (op_it) {
+    parseAutoGroup(op_it, prop);
+  }
+
+  // start parsing of values
+  string name, value;
+  vector<string> tokens;
+  vector<string>::iterator it;
+
+  PropertyType property_type;
+  for (op_it = op_section->get_entry_next (); op_it;
+       op_it = op_it->get_entry_next ()) {
+    property_type = ParseUtil::getValue<PropertyType>(op_it->get_name (),
+                                                      _property_map);
+
+    switch (property_type) {
+    case AP_STICKY:
+      prop->maskAdd(AP_STICKY);
+      prop->sticky = Util::isTrue(op_it->get_value ());
+      break;
+    case AP_SHADED:
+      prop->maskAdd(AP_SHADED);
+      prop->shaded = Util::isTrue(op_it->get_value ());
+      break;
+    case AP_MAXIMIZED_VERTICAL:
+      prop->maskAdd(AP_MAXIMIZED_VERTICAL);
+      prop->maximized_vertical = Util::isTrue(op_it->get_value ());
+      break;
+    case AP_MAXIMIZED_HORIZONTAL:
+      prop->maskAdd(AP_MAXIMIZED_HORIZONTAL);
+      prop->maximized_horizontal = Util::isTrue(op_it->get_value ());
+      break;
+    case AP_ICONIFIED:
+      prop->maskAdd(AP_ICONIFIED);
+      prop->iconified = Util::isTrue(op_it->get_value ());
+      break;
+    case AP_BORDER:
+      prop->maskAdd(AP_BORDER);
+      prop->border = Util::isTrue(op_it->get_value ());
+      break;
+    case AP_TITLEBAR:
+      prop->maskAdd(AP_TITLEBAR);
+      prop->titlebar = Util::isTrue(op_it->get_value ());
+      break;
+    case AP_FRAME_GEOMETRY:
+      prop->maskAdd(AP_FRAME_GEOMETRY);
+      prop->frame_gm_mask =
+        XParseGeometry((char*) op_it->get_value ().c_str(),
+                       &prop->frame_gm.x, &prop->frame_gm.y,
+                       &prop->frame_gm.width, &prop->frame_gm.height);
+      break;
+    case AP_CLIENT_GEOMETRY:
+      prop->maskAdd(AP_CLIENT_GEOMETRY);
+      prop->client_gm_mask =
+        XParseGeometry((char*) op_it->get_value ().c_str(),
+                       &prop->client_gm.x, &prop->client_gm.y,
+                       &prop->client_gm.width, &prop->client_gm.height);
+      break;
+    case AP_LAYER:
+      prop->maskAdd(AP_LAYER);
+      prop->layer = Config::instance()->getLayer(op_it->get_value ());
+      break;
+    case AP_WORKSPACE:
+      prop->maskAdd(AP_WORKSPACE);
+      prop->workspace = unsigned(strtol(op_it->get_value ().c_str(), NULL, 10) - 1);
+      break;
+    case AP_SKIP:
+      prop->maskAdd(AP_SKIP);
+      tokens.clear();
+      if ((Util::splitString(op_it->get_value (), tokens, " \t"))) {
+        for (it = tokens.begin(); it != tokens.end(); ++it)
+          prop->skip |= Config::instance()->getSkip(*it);
+      }
+      break;
+    case AP_FULLSCREEN:
+      prop->maskAdd(AP_FULLSCREEN);
+      prop->fullscreen = Util::isTrue(op_it->get_value ());
+      break;
+    case AP_PLACE_NEW:
+      prop->maskAdd(AP_PLACE_NEW);
+      prop->place_new = Util::isTrue(op_it->get_value ());
+      break;
+    case AP_FOCUS_NEW:
+      prop->maskAdd(AP_FOCUS_NEW);
+      prop->focus_new = Util::isTrue(op_it->get_value ());
+      break;
+    case AP_FOCUSABLE:
+      prop->maskAdd(AP_FOCUSABLE);
+      prop->focusable = Util::isTrue(op_it->get_value ());
+      break;
+    case AP_CFG_DENY:
+      prop->maskAdd(AP_CFG_DENY);
+      tokens.clear();
+      if ((Util::splitString(op_it->get_value (), tokens, " \t"))) {
+        for (it = tokens.begin(); it != tokens.end(); ++it) {
+          prop->cfg_deny |= Config::instance()->getCfgDeny(*it);
+        }
+      }
+      break;
+    case AP_VIEWPORT:
+      tokens.clear();
+      if (Util::splitString(op_it->get_value (), tokens, " \t", 2) == 2) {
+        prop->maskAdd(AP_VIEWPORT);
+        prop->viewport_col = strtol(tokens[0].c_str(), NULL, 10) - 1;
+        prop->viewport_row = strtol(tokens[1].c_str(), NULL, 10) - 1;
+      }
+      break;
+
+    default:
+      // do nothing
+      break;
+    }
+  }
+}
 
 //! @brief Searches the _prop_list for a property
 AutoProperty*
@@ -576,6 +788,21 @@ AutoProperties::findDockAppProperty(const ClassHint *class_hint)
 }
 #endif // HARBOUR
 
+//! @brief Get AutoProperty for window of type type
+//! @param atom Atom to get property for.
+//! @return AutoProperty on success, else NULL.
+AutoProperty*
+AutoProperties::findWindowTypeProperty(EwmhAtomName atom)
+{
+  AutoProperty *prop = NULL;
+  map<EwmhAtomName, AutoProperty*>::iterator it(_window_type_prop_map.find(atom));
+  if (it != _window_type_prop_map.end()) {
+    prop = it->second;
+  }
+
+  return prop;
+}
+
 //! @brief Removes all ApplyOnStart actions as they consume memory
 void
 AutoProperties::removeApplyOnStart(void)
@@ -605,10 +832,12 @@ AutoProperties::matchAutoClass(const ClassHint &hint, Property *prop)
             && (prop->getHintClass() == hint.h_class))
     {
         ok = true;
-        if (prop->getTitle ().is_match_ok ())
+        if (prop->getTitle ().is_match_ok ())  {
             ok = (prop->getTitle () == hint.title);
-        if (ok && prop->getRole ().is_match_ok ())
+        }
+        if (ok && prop->getRole ().is_match_ok ()) {
             ok = (prop->getRole () == hint.h_role);
+        }
     }
 
     return ok;

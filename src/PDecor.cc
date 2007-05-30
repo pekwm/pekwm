@@ -1513,8 +1513,6 @@ void
 PDecor::setBorderShape(void)
 {
 #ifdef HAVE_SHAPE
-  PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
-
   Pixmap pix;
   bool do_free;
   unsigned int width, height;

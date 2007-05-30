@@ -297,6 +297,7 @@ CfgParser::parse_source_new(const std::string &or_name,
             op_source->open();
             m_op_source = op_source;
             m_o_source_list.push_back(m_op_source);
+            i_done = 1;
 
         } catch (string &ex) {
             delete op_source;
@@ -573,7 +574,7 @@ CfgParser::variable_expand(std::string &or_string)
 	    or_string.replace(o_begin, o_end - o_begin, p_value);
             o_end = o_begin + strlen(p_value);
 	  } else {
-	    cerr << _("Trying to use undefined environment variable:")
+	    cerr << _("Trying to use undefined environment variable: ")
 		 << o_var_name << endl;;
 	  }
 	} else {
@@ -583,7 +584,7 @@ CfgParser::variable_expand(std::string &or_string)
             o_end = o_begin + o_it->second.size();
 
 	  } else  {
-            cerr << _("Trying to use undefined variable:")
+            cerr << _("Trying to use undefined variable: ")
 		 << o_var_name << endl;
 	  }
 	}
