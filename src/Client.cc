@@ -164,11 +164,14 @@ Client::Client(WindowManager *w, Window new_client, bool is_new)
     }
 
     // Set state either specified in hint
-    setWmState(initial_state);
-
-    // are we iconified
     if (getWmState() == IconicState) {
-        _iconified = true;
+      _iconified = true;
+      _mapped = false;
+    } else if (_iconified) {
+      _mapped = true;
+      unmapWindow();
+    } else {
+      setWmState(initial_state);
     }
 
     // grab keybindings and mousebutton actions
@@ -244,10 +247,12 @@ Client::Client(WindowManager *w, Window new_client, bool is_new)
         _parent = new Frame(_wm, this, ap);
     }
 
-    // make sure the window is mapped, this is done after it has been
+    // Make sure the window is mapped, this is done after it has been
     // added to the decor/frame as otherwise IsViewable state won't
     // be correct and we don't know wheter or not to place the window
-    PWinObj::mapWindow();
+    if (! _iconified) {
+      PWinObj::mapWindow();
+    }
 
     // Let us hear what autoproperties has to say about focusing
     if (is_new && (ap != NULL) && ap->isMask(AP_FOCUS_NEW)) {
@@ -349,22 +354,25 @@ Client::~Client(void)
 void
 Client::mapWindow(void)
 {
-    if (_mapped)
-        return;
+  if (_mapped) {
+    return;
+  }
 
-    if (_iconified) {
-        _iconified = false;
-        setWmState(NormalState);
-        updateEwmhStates();
-    }
+  if (_iconified) {
+    _iconified = false;
+    setWmState(NormalState);
+    updateEwmhStates();
+  }
 
-    if(!_transient) // unmap our transient windows if we have any
-        _wm->findTransientsToMapOrUnmap(_window, false);
+  if(! _transient) {
+    // Unmap our transient windows if we have any
+    _wm->findTransientsToMapOrUnmap(_window, false);
+  }
 
-    XSelectInput(_dpy, _window, NoEventMask);
-    PWinObj::mapWindow();
-    XSelectInput(_dpy, _window,
-                 PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
+  XSelectInput(_dpy, _window, NoEventMask);
+  PWinObj::mapWindow();
+  XSelectInput(_dpy, _window,
+               PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
 }
 
 
@@ -372,32 +380,36 @@ Client::mapWindow(void)
 void
 Client::unmapWindow(void)
 {
-    if (!_mapped)
-        return;
+  if (!_mapped) {
+    return;
+  }
 
-    if (_iconified) { // set the state of the window
-        setWmState(IconicState);
-        updateEwmhStates();
-    }
+  if (_iconified) {
+    // Set the state of the window
+    setWmState(IconicState);
+    updateEwmhStates();
+  }
 
-    XSelectInput(_dpy, _window, NoEventMask);
-    PWinObj::unmapWindow();
-    XSelectInput(_dpy, _window,
-                 PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
+  XSelectInput(_dpy, _window, NoEventMask);
+  PWinObj::unmapWindow();
+  XSelectInput(_dpy, _window,
+               PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
 }
 
 //! @brief Iconifies the client and adds it to the iconmenu
 void
 Client::iconify(void)
 {
-    if (_iconified)
-        return;
-    _iconified = true;
+  if (_iconified) {
+    return;
+  }
 
-    if (!_transient)
-        _wm->findTransientsToMapOrUnmap(_window, true);
+  _iconified = true;
+  if (!_transient) {
+    _wm->findTransientsToMapOrUnmap(_window, true);
+  }
 
-    unmapWindow();
+  unmapWindow();
 }
 
 //! @brief Toggle client sticky state

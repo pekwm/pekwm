@@ -1,6 +1,6 @@
 //
 // PDecor.cc for pekwm
-// Copyright (C) 2004-2006 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2004-2007 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -8,7 +8,9 @@
 // $Id$
 //
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #include "Config.hh"
 #include "PWinObj.hh"
@@ -25,10 +27,11 @@
 #include "Workspaces.hh"
 #include "Viewport.hh"
 
-#include <functional>
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
+#include <functional>
+#include <iostream>
 
 extern "C" {
 #ifdef HAVE_SHAPE
@@ -37,18 +40,14 @@ extern "C" {
 #endif // HAVE_SHAPE
 }
 
-#ifdef DEBUG
-#include <iostream>
 using std::cerr;
 using std::endl;
-#endif // DEBUG
-
 using std::find;
 using std::list;
-using std::vector;
-using std::string;
 using std::map;
 using std::mem_fun;
+using std::string;
+using std::vector;
 
 // PDecor::Button
 
@@ -283,11 +282,11 @@ PDecor::~PDecor(void)
 void
 PDecor::mapWindow(void)
 {
-    if (_mapped != true) {
-        PWinObj::mapWindow();
-        for_each(_child_list.begin(), _child_list.end(),
-                 mem_fun(&PWinObj::mapWindow));
-    }
+  if (_mapped != true) {
+    PWinObj::mapWindow();
+    for_each(_child_list.begin(), _child_list.end(),
+             mem_fun(&PWinObj::mapWindow));
+  }
 }
 
 //! @brief Maps the window raised

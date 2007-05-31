@@ -8,7 +8,19 @@
 // $Id$
 //
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
+
+#include <algorithm>
+#include <cstdio>
+#include <functional>
+#include <iostream>
+
+extern "C" {
+#include <X11/Xatom.h>
+}
+
 #include "PWinObj.hh"
 #include "PDecor.hh"
 #include "Frame.hh"
@@ -34,24 +46,13 @@
 
 #include "Theme.hh"
 
-#include <algorithm>
-#include <functional>
-#include <cstdio> // for snprintf
-
-extern "C" {
-#include <X11/Xatom.h>
-}
-
-#ifdef DEBUG
-#include <iostream>
 using std::cerr;
 using std::endl;
-#endif // DEBUG
-using std::string;
-using std::list;
-using std::vector;
-using std::mem_fun;
 using std::find;
+using std::list;
+using std::mem_fun;
+using std::string;
+using std::vector;
 
 list<Frame*> Frame::_frame_list = list<Frame*>();
 vector<uint> Frame::_frameid_list = vector<uint>();
@@ -247,11 +248,12 @@ Frame::~Frame(void)
 void
 Frame::iconify(void)
 {
-    if (_iconified)
-        return;
-    _iconified = true;
+  if (_iconified) {
+    return;
+  }
+  _iconified = true;
 
-    unmapWindow();
+  unmapWindow();
 }
 
 //! @brief Toggles the Frame's sticky state
@@ -646,12 +648,12 @@ Frame::getState(Client *cl)
     if (_fullscreen != cl->isFullscreen())
         setStateFullscreen(STATE_TOGGLE);
 
-    if (_iconified != b_client_iconified)
-    {
-        if (_iconified)
-            mapWindow();
-        else
-            iconify();
+    if (_iconified != b_client_iconified) {
+      if (_iconified) {
+        mapWindow();
+      } else {
+        iconify();
+      }
     }
 
     if (_skip != cl->getSkip())

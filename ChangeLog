@@ -1,5 +1,9 @@
 2007-05-31  Claes Nästén  <me{@}pekdon{.}net>
 
+	* src/Client.cc (Client::Client): 
+	Add fix for broken iconified state after restart. Closing #38
+	(Thanks giuliani{.}blackfenix{@}gmail{.}com for reporting)
+
 	* data/autoproperties: 
 	Added type rules to autoproperties file.
 	Added removal of border and titlebar for customize toolbar dialog
