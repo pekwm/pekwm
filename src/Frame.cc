@@ -767,29 +767,42 @@ Frame::setupAPGeometry(Client *client, AutoProperty *ap)
     }
 }
 
-//! @brief
+//! @brief Apply autoproperties geometry.
+//! @param gm Geometry to modify.
+//! @param ap_gm Geometry to get values from.
+//! @param mask Geometry mask.
 void
 Frame::applyAPGeometry(Geometry &gm, const Geometry &ap_gm, int mask)
 {
-    // read size before position so negative position works
-    if (mask&WidthValue)
-        gm.width = ap_gm.width;
-    if (mask&HeightValue)
-        gm.height = ap_gm.height;
-
-    // read position
-    if (mask&(XValue|YValue)) {
-        if (mask&XValue) {
-            gm.x = ap_gm.x;
-            if (mask&XNegative)
-                gm.x += _wm->getScreen()->getWidth() - gm.width;
-        }
-        if (mask&YValue) {
-            gm.y = ap_gm.y;
-            if (mask&YNegative)
-                gm.y += _wm->getScreen()->getHeight() - gm.height;
-        }
+  // Read size before position so negative position works, if size is
+  // < 1 consider it to be full screen size.
+  if (mask&WidthValue) {
+    if (ap_gm.width < 1) {
+      gm.width = _scr->getWidth();
+    } else {
+      gm.width = ap_gm.width;
     }
+  }
+  if (mask&HeightValue) {
+    if (ap_gm.height < 1) {
+    } else {
+      gm.height = ap_gm.height;
+    }
+  }
+
+  // Read position
+  if (mask&XValue) {
+    gm.x = ap_gm.x;
+    if (mask&XNegative) {
+      gm.x += _scr->getWidth() - gm.width;
+    }
+  }
+  if (mask&YValue) {
+    gm.y = ap_gm.y;
+    if (mask&YNegative) {
+      gm.y += _scr->getHeight() - gm.height;
+    }
+  }
 }
 
 //! @brief Finds free Frame ID.

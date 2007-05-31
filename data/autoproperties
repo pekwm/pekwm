@@ -19,6 +19,15 @@
  own autoproperties. :)
 */
 
+/*
+ Remove decor of customize toolbar window of mozilla firefox.
+ */
+Property = "^(gecko|Gecko|firefox-bin),^Firefox-bin" {
+	ApplyOn = "Start New TransientOnly"
+	Title = "^Customize Toolbar\$"
+	Border = "False"
+	Titlebar = "False"
+}
 
 /*
  Auto-group up to 10 mozilla download windows to group you call "moz-dl",
@@ -155,6 +164,48 @@
 
 // End of autoproperties. -------------------------
 
+TypeRules {
+	/*
+	 Desktop windows such as nautilus window in gnome. These should
+	 cover the root window and be below all other windows. Also they
+	 should not be included in the menu and in snapping.
+	 */
+ 	Property = "DESKTOP" {
+                FrameGeometry = "0x0+0+0"
+		Titlebar = "False"
+		Border = "False"
+		Sticky = "True"
+		Skip = "FocusToggle Menus Snap"
+		Layer = "Desktop"
+	}
+	Property = "DOCK" {
+		Titlebar = "True"
+		Border = "False"
+		Sticky = "True"
+		Layer = "Dock"
+		Skip = "FocusToggle Menus"
+	}
+	Property = "TOOLBAR"  {
+		Titlebar = "False"
+		Border = "False"
+		Skip = "FocusToggle Menus Snap"
+	}
+	Property = "MENU"  {
+		Titlebar = "False"
+		Border = "False"
+		Skip = "FocusToggle Menus Snap"
+	}
+	Property = "UTILITY"  {
+	}
+	Property = "SPLASH"  {
+		Titlebar = "False"
+		Border = "False"
+	}
+	Property = "DIALOG"  {
+	}
+	Property = "NORMAL"  {
+	}
+}
 
 /*
  Next, we do some siple window title rewriting.

@@ -1,6 +1,6 @@
 //
 // Client.cc for pekwm
-// Copyright (C) 2002-2006 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2002-2007 Claes Nästén <me{@}pekdon{.}net>
 //
 // client.cc for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
@@ -12,11 +12,23 @@
 // $Id$
 //
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
+
+#include <cstdio>
+#include <iostream>
+
+extern "C" {
+#include <X11/Xatom.h>
+#ifdef HAVE_SHAPE
+#include <X11/extensions/shape.h>
+#endif // HAVE_SHAPE
+}
+
 #include "PWinObj.hh"
 #include "PDecor.hh" // PDecor::TitleItem
 #include "Client.hh"
-
 #include "PScreen.hh"
 #include "Config.hh"
 #include "KeyGrabber.hh"
@@ -32,25 +44,12 @@
 #include "WORefMenu.hh"
 #endif // MENUS
 
-#include <cstdio>
-
-extern "C" {
-#include <X11/Xatom.h>
-#ifdef HAVE_SHAPE
-#include <X11/extensions/shape.h>
-#endif // HAVE_SHAPE
-}
-
-#ifdef DEBUG
-#include <iostream>
 using std::cerr;
 using std::endl;
-#endif // DEBUG
-
-using std::vector;
-using std::list;
 using std::find;
+using std::list;
 using std::string;
+using std::vector;
 
 list<Client*> Client::_client_list = list<Client*>();
 vector<uint> Client::_clientid_list = vector<uint>();
@@ -832,22 +831,25 @@ Client::readPekwmHints(void)
 
 //! @brief Tries to find a AutoProp for the current client.
 //! @param type Defaults to 0
+//! @return AutoProperty if any is found, else NULL.
 AutoProperty*
 Client::readAutoprops(uint type)
 {
-    AutoProperty *data =
-        AutoProperties::instance()->findAutoProperty(_class_hint, _workspace, type);
+  AutoProperty *data =
+    AutoProperties::instance()->findAutoProperty(_class_hint, _workspace, type);
 
-    if ((data == NULL) ||
-            (_transient
-             ? !data->isApplyOn(APPLY_ON_TRANSIENT|APPLY_ON_TRANSIENT_ONLY)
-             : data->isApplyOn(APPLY_ON_TRANSIENT_ONLY))) {
-        return NULL;
+  if (data) {
+    // Make sure transient state matches
+    if (_transient
+        ? data->isApplyOn(APPLY_ON_TRANSIENT|APPLY_ON_TRANSIENT_ONLY)
+        : ! data->isApplyOn(APPLY_ON_TRANSIENT_ONLY)) {
+      applyAutoprops(data);
+    } else {
+      data = NULL;
     }
+  }
 
-    applyAutoprops(data);
-
-    return data;
+  return data;
 }
 
 //! @brief Applies AutoPropery to this Client.

@@ -543,7 +543,7 @@ AutoProperties::setDefaultTypeProperties(void)
     AutoProperty *prop = new AutoProperty();
     prop->maskAdd(AP_CLIENT_GEOMETRY);
     prop->client_gm_mask =
-      XParseGeometry("-1x-1+0+0",
+      XParseGeometry("0x0+0+0",
                      &prop->client_gm.x, &prop->client_gm.y,
                      &prop->client_gm.width, &prop->client_gm.height);
     prop->maskAdd(AP_STICKY);
