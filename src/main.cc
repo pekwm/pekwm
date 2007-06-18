@@ -70,6 +70,7 @@ main(int argc, char **argv)
     string command_line;
 
     setlocale(LC_CTYPE, "");
+    Util::iconv_init();
 
     // build commandline
     for (int i = 0; i < argc; ++i) {
@@ -113,10 +114,13 @@ main(int argc, char **argv)
         // cleanup before restarting
         delete pekwm;
 
+        Util::iconv_deinit();
+
         execlp("/bin/sh", "sh" , "-c", restart_command.c_str(), (char*) NULL);
     }
 
     delete pekwm;
+    Util::iconv_deinit();
 
     return 0;
 }

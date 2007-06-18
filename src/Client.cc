@@ -967,7 +967,7 @@ Client::getXClientName(void)
 
     XFree(text_property.value);
 
-    wstring wtitle(Util::to_wide_str(title));
+    wstring wtitle(Util::from_utf8_str(title));
 
     // Mirror it on the visible
     _title.setCustom(L"");

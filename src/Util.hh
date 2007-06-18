@@ -1,15 +1,17 @@
 //
 // Util.hh for pekwm
-// Copyright (C) 2002-2006 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2002-2007 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
-
 #ifndef _UTIL_HH_
 #define _UTIL_HH_
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #include "Types.hh"
 
@@ -41,6 +43,9 @@ namespace Util {
 
   std::string to_mb_str(const std::wstring &str);
   std::wstring to_wide_str(const std::string &str);
+
+  void iconv_init(void);
+  void iconv_deinit(void);
 
   std::string to_utf8_str(const std::wstring &str);
   std::wstring from_utf8_str(const std::string &str);

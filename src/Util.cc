@@ -15,9 +15,11 @@
 #endif // HAVE_CONFIG_H
 
 #include <algorithm>
+#include <cerrno>
 #include <iostream>
 #include <sstream>
 
+#include <iconv.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -39,6 +41,24 @@ using std::vector;
 using std::wstring;
 
 namespace Util {
+
+static iconv_t do_iconv_open(const char **from_names, const char **to_names);
+static size_t do_iconv (iconv_t ic, const char **inp, size_t *in_bytes,
+                        char **outp, size_t *out_bytes);
+
+// Initializers, members used for shared buffer
+unsigned int WIDE_STRING_COUNT = 0;
+iconv_t IC_TO_WC = reinterpret_cast<iconv_t>(-1);
+iconv_t IC_TO_UTF8 = reinterpret_cast<iconv_t>(-1);
+char *ICONV_BUF = 0;
+size_t ICONV_BUF_LEN = 0;
+
+// Constants, name of iconv internal names
+const char *ICONV_WC_NAMES[] = {"WCHAR_T", "UCS-4", 0};
+const char *ICONV_UTF8_NAMES[] = {"UTF-8", "UTF8", 0};
+
+// Constants, maximum number of bytes a single UTF-8 character can use.
+const size_t UTF8_MAX_BYTES = 6;
 
 //! @brief Fork and execute command with /bin/sh and execlp
 void
@@ -240,7 +260,7 @@ to_wide_str(const std::string &str)
 
   ret = mbstowcs(buf, str.c_str(), num);
   if (ret == static_cast<size_t>(-1)) {
-    cerr << " *** WARNING: failed to multibyte string to wide string" << endl;
+    cerr << " *** WARNING: failed to convert multibyte string to wide string" << endl;
   }
   wstring ret_str(buf);
 
@@ -250,14 +270,140 @@ to_wide_str(const std::string &str)
 
 }
 
+//! @brief Open iconv handle with to/from names.
+//! @param from_names null terminated list of from name alternatives.
+//! @param to_names null terminated list of to name alternatives.
+//! @return iconv_t handle on success, else -1.
+iconv_t
+do_iconv_open(const char **from_names, const char **to_names)
+{
+  iconv_t ic = reinterpret_cast<iconv_t>(-1);
+
+  // Try all combinations of from/to name's to get a working
+  // conversion handle.
+  for (unsigned int i = 0; from_names[i]; ++i) {
+    for (unsigned int j = 0; to_names[j]; ++j) {
+      ic = iconv_open (to_names[j], from_names[i]);
+      if (ic != reinterpret_cast<iconv_t>(-1)) {
+        return ic;
+      }
+    }
+  }
+
+  return ic;
+}
+
+//! @brief Iconv wrapper to hide different definitions of iconv.
+//! @param ic iconv handle.
+//! @param inp Input pointer.
+//! @param in_bytes Input bytes.
+//! @param outp Output pointer.
+//! @param out_bytes Output bytes.
+//! @return number of bytes converted irreversible or -1 on error.
+size_t 
+do_iconv (iconv_t ic, const char **inp, size_t *in_bytes,
+          char **outp, size_t *out_bytes)
+{
+#define ICONV_CONST 1 // FIXME: Remove
+
+#ifdef ICONV_CONST
+  return iconv (ic, inp, in_bytes, outp, out_bytes);
+#else // !ICONV_CONST
+  return iconv (ic, const_cast<char**>(inp), in_bytes, outp, out_bytes);
+#endif // HAVE_CONST_ICONV
+}
+
+//! @brief Init iconv conversion.
+void
+iconv_init (void)
+{
+  // Cleanup previous init if any, being paranoid.
+  iconv_deinit ();
+
+  // Raise exception if this fails
+  IC_TO_WC = do_iconv_open (ICONV_UTF8_NAMES, ICONV_WC_NAMES);
+  IC_TO_UTF8 = do_iconv_open (ICONV_WC_NAMES, ICONV_UTF8_NAMES);
+
+  // Equal mean
+  if (IC_TO_WC != reinterpret_cast<iconv_t>(-1)
+      && IC_TO_UTF8 != reinterpret_cast<iconv_t>(-1)) {
+    // Create shared buffer.
+    ICONV_BUF_LEN = 1024;
+    ICONV_BUF = new char[ICONV_BUF_LEN];
+  }
+}
+
+//! @brief Deinit iconv conversion.
+void
+iconv_deinit (void)
+{
+  // Cleanup resources
+  if (IC_TO_WC != reinterpret_cast<iconv_t>(-1)) {
+    iconv_close (IC_TO_WC);
+  }
+  if (IC_TO_UTF8 != reinterpret_cast<iconv_t>(-1)) {
+    iconv_close (IC_TO_UTF8);
+  }
+  if (ICONV_BUF) {
+    delete [] ICONV_BUF;
+  }
+
+  // Set members to safe values
+  IC_TO_WC = reinterpret_cast<iconv_t>(-1);
+  IC_TO_UTF8 = reinterpret_cast<iconv_t>(-1);
+  ICONV_BUF = 0;
+  ICONV_BUF_LEN = 0;
+}
+
+//! @brief Validate buffer size, grow if required.
+//! @param size Required size.
+void
+iconv_buf_grow (size_t size)
+{
+  if (ICONV_BUF_LEN < size) {
+    // Free resources, if any.
+    if (ICONV_BUF) {
+      delete [] ICONV_BUF;
+    }
+
+    // Calculate new buffer length and allocate new buffer
+    for (; ICONV_BUF_LEN < size; ICONV_BUF_LEN *= 2)
+      ;
+    ICONV_BUF = new char[ICONV_BUF_LEN];
+  }
+}
+
 //! @brief Converts string to UTF-8
 //! @param str String to convert.
 //! @return Returns UTF-8 representation of string.
 std::string
 to_utf8_str(const std::wstring &str)
 {
-  // FIXME: Use iconv in to_mb_str
-  return to_mb_str(str);
+  string utf8_str;
+
+  // Calculate length
+  size_t in_bytes = str.size() * sizeof (wchar_t);
+  size_t out_bytes = str.size() * UTF8_MAX_BYTES + 1;
+
+  iconv_buf_grow(out_bytes);
+
+  // Convert
+  const char *inp = reinterpret_cast<const char*>(str.c_str());
+  char *outp = ICONV_BUF;
+  size_t len = do_iconv (IC_TO_UTF8, &inp, &in_bytes, &outp, &out_bytes);
+  if (len != static_cast<size_t>(-1)) {
+    // Terminate string and cache result
+    *outp = '\0';
+
+    utf8_str = ICONV_BUF;
+
+  } else {
+    cerr << " *** WARNING: to_utf8_str, failed with error "
+         << strerror (errno) << endl;;
+    utf8_str = "<INVALID>";
+  }
+    
+  return utf8_str;
 }
 
 //! @brief Converts to wide string from UTF-8
@@ -266,8 +412,30 @@ to_utf8_str(const std::wstring &str)
 std::wstring
 from_utf8_str(const std::string &str)
 {
-  // FIXME: Use iconv in from_utf8_str
-  return to_wide_str(str);
+  wstring wide_str;
+
+  // Calculate length
+  size_t in_bytes = str.size();
+  size_t out_bytes = (in_bytes + 1) * sizeof(wchar_t);
+
+  iconv_buf_grow(out_bytes);
+
+  // Convert
+  const char *inp = str.c_str();
+  char *outp = ICONV_BUF;
+  size_t len = do_iconv(IC_TO_WC, &inp, &in_bytes, &outp, &out_bytes);
+  if (len != static_cast<size_t>(-1)) {
+    // Terminate string and cache result
+    *reinterpret_cast<wchar_t*>(outp) = L'\0';
+
+    wide_str = reinterpret_cast<wchar_t*>(ICONV_BUF);
+  } else {
+    cerr << " *** WARNING: from_utf8_str, failed on string \""
+         << str << "\"." << endl;
+    wide_str = L"<INVALID>";
+  }
+    
+  return wide_str;
 }
 
 } // end namespace Util.
