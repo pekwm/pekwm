@@ -39,6 +39,12 @@ namespace Util {
     void to_upper(std::string &str);
     void to_lower(std::string &str);
 
+  std::string to_mb_str(const std::wstring &str);
+  std::wstring to_wide_str(const std::string &str);
+
+  std::string to_utf8_str(const std::wstring &str);
+  std::wstring from_utf8_str(const std::string &str);
+
     //! @brief Removes leading blanks( \n\t) from string.
     inline void trimLeadingBlanks(std::string &trim) {
         std::string::size_type first = trim.find_first_not_of(" \n\t");

@@ -6,8 +6,15 @@
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
+
 #ifdef MENUS
+
+
+#include <cstdio>
+#include <iostream>
 
 #include "PWinObj.hh"
 #include "PDecor.hh"
@@ -20,17 +27,14 @@
 #include "Client.hh"
 #include "Frame.hh"
 #include "WindowManager.hh"
+#include "Util.hh"
 
-#include <cstdio>
-
-#ifdef DEBUG
-#include <iostream>
 using std::cerr;
 using std::endl;
-#endif // DEBUG
-using std::string;
-using std::list;
 using std::find;
+using std::list;
+using std::string;
+using std::wstring;
 
 //! @brief ActionMenu constructor
 //! @param wm Pointer to WindowManager
@@ -39,7 +43,7 @@ using std::find;
 //! @param name Name of the menu, empty for dynamic else should be unique
 //! @param decor_name Name of decor to use, defaults to MENU.
 ActionMenu::ActionMenu(WindowManager *wm, MenuType type,
-                       const std::string &title, const std::string &name,
+                       const std::wstring &title, const std::string &name,
                        const std::string &decor_name) :
         WORefMenu(wm->getScreen(), wm->getTheme(),title, name, decor_name),
         _wm(wm), _act(wm->getActionHandler()),
@@ -147,14 +151,14 @@ ActionMenu::insert(PMenu::Item *item)
 
 //! @brief Non-shadowing PMenu::insert
 void
-ActionMenu::insert(const std::string &or_name, PWinObj *op_wo_ref)
+ActionMenu::insert(const std::wstring &or_name, PWinObj *op_wo_ref)
 {
     PMenu::insert (or_name, op_wo_ref);
 }
 
 //! @brief Non-shadowing PMenu::insert
 void
-ActionMenu::insert(const std::string &or_name, const ActionEvent &or_ae,
+ActionMenu::insert(const std::wstring &or_name, const ActionEvent &or_ae,
                    PWinObj *op_wo_ref)
 {
     PMenu::insert (or_name, or_ae, op_wo_ref);
@@ -209,9 +213,10 @@ ActionMenu::parse(CfgParser::Entry *op_section, bool dynamic)
     PMenu::Item *item = NULL;
 
     if (op_section->get_value ().size ())
-    {
-        setTitle (op_section->get_value ());
-        _title_base = op_section->get_value ();
+    {      
+        wstring title(Util::to_wide_str(op_section->get_value ()));
+        setTitle (title);
+        _title_base = title;
     }
     op_section = op_section->get_section ();
 
@@ -222,17 +227,19 @@ ActionMenu::parse(CfgParser::Entry *op_section, bool dynamic)
 
         if (*op_section == "SUBMENU")
         {
-            submenu = new ActionMenu (_wm, _menu_type, op_section->get_value (),
+            submenu = new ActionMenu (_wm, _menu_type,
+                                      Util::to_wide_str(op_section->get_value()),
                                       "" /* Empty name for submenus */);
             submenu->parse (op_section, dynamic);
             submenu->buildMenu ();
 
-            item = new PMenu::Item (op_sub->get_value (), submenu);
+            item = new PMenu::Item (Util::to_wide_str(op_sub->get_value()),
+                                    submenu);
             item->setDynamic(dynamic);
         }
         else if (*op_section == "SEPARATOR")
         {
-            item = new PMenu::Item ("");
+            item = new PMenu::Item (L"");
             item->setDynamic (dynamic);
             item->setType (PMenu::Item::MENU_ITEM_SEPARATOR);
         }
@@ -243,7 +250,7 @@ ActionMenu::parse(CfgParser::Entry *op_section, bool dynamic)
                     && Config::instance ()->parseActions (op_value->get_value (),
                                                           ae, _action_ok))
             {
-                item = new PMenu::Item (op_sub->get_value ());
+                item = new PMenu::Item (Util::to_wide_str(op_sub->get_value()));
                 item->setDynamic (dynamic);
                 item->setAE (ae);
 

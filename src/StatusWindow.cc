@@ -86,7 +86,7 @@ StatusWindow::~StatusWindow(void)
 //! @param text Text to draw in StatusWindow
 //! @param do_center Center the StatusWindow on screen. Defaults to false.
 void
-StatusWindow::draw(const std::string &text, bool do_center)
+StatusWindow::draw(const std::wstring &text, bool do_center)
 {
     uint width, height;
     PFont *font = _theme->getStatusData()->getFont(); // convenience

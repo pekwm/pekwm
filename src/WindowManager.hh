@@ -221,6 +221,7 @@ private:
 
     void handleColormapEvent(XColormapEvent *ev);
     void handlePropertyEvent(XPropertyEvent *ev);
+    void handleMappingEvent(XMappingEvent *ev);
     void handleExposeEvent(XExposeEvent *ev);
 
     void handleMotionEvent(XMotionEvent *ev);

@@ -1,12 +1,14 @@
 //
 // ActionMenu.hh for pekwm
-// Copyright (C) 2002-2004 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2002-2007 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #ifdef MENUS
 
@@ -32,7 +34,7 @@ class ActionMenu : public WORefMenu
 {
 public:
     ActionMenu(WindowManager *wm, MenuType type,
-               const std::string &title, const std::string &name,
+               const std::wstring &title, const std::string &name,
                const std::string &decor_name = "MENU");
     virtual ~ActionMenu(void);
 
@@ -44,8 +46,8 @@ public:
     virtual void handleItemExec(PMenu::Item *item);
 
     virtual void insert(PMenu::Item *item);
-    virtual void insert(const std::string &or_name, PWinObj *op_wo_ref = NULL);
-    virtual void insert(const std::string &or_name, const ActionEvent &or_ae,
+    virtual void insert(const std::wstring &or_name, PWinObj *op_wo_ref = NULL);
+    virtual void insert(const std::wstring &or_name, const ActionEvent &or_ae,
                         PWinObj *op_wo_ref = NULL);
 
     virtual void reload(CfgParser::Entry *section);

@@ -32,7 +32,7 @@ using std::map;
 //! @brief Constructor for DecorMenu.
 DecorMenu::DecorMenu(PScreen *scr, Theme *theme, ActionHandler *act,
                      const std::string &name) :
-        WORefMenu(scr, theme, "Decor Menu", name),
+        WORefMenu(scr, theme, L"Decor Menu", name),
         _act(act)
 {
     _menu_type = DECORMENU_TYPE;
@@ -73,7 +73,7 @@ DecorMenu::reload(CfgParser::Entry *section)
     map<string, Theme::PDecorData*>::const_iterator it(_theme->decor_begin());
     for (; it != _theme->decor_end(); ++it) {
         ae.action_list.back().setParamS(it->first);
-        insert(it->first, ae, NULL);
+        insert(Util::to_wide_str(it->first), ae, NULL);
     }
 
     buildMenu(); // rebuild the menu

@@ -274,14 +274,14 @@ AutoProperties::parsePropertyMatch(const std::string &str, Property *prop)
   vector<string> tokens;
   if ((Util::splitString (str, tokens, ",", 2)) == 2) {
     // Make sure one of the two regexps compiles
-    if (prop->getHintName().parse_match (tokens[0])) {
+    if (prop->getHintName().parse_match (Util::to_wide_str(tokens[0]))) {
       status = true;
     } else {
       cerr << " *** WARNING: failed to compile name regexp for autoproperty, "
            << tokens[0] << endl;
     }
 
-    if (prop->getHintClass().parse_match (tokens[1])) {
+    if (prop->getHintClass().parse_match (Util::to_wide_str(tokens[1]))) {
       status = true;
     } else {
       cerr << " *** WARNING: failed to compile class regexp for autoproperty, "
@@ -301,11 +301,13 @@ AutoProperties::parseProperty(CfgParser::Entry *op_section, Property *prop)
 
     // Get extra matching info.
     op_value = op_section->find_entry ("TITLE");
-    if (op_value)
-        prop->getTitle().parse_match (op_value->get_value ());
+    if (op_value) {
+      prop->getTitle().parse_match (Util::to_wide_str(op_value->get_value ()));
+    }
     op_value = op_section->find_entry ("ROLE");
-    if (op_value)
-        prop->getRole().parse_match (op_value->get_value ());
+    if (op_value) {
+      prop->getRole().parse_match (Util::to_wide_str(op_value->get_value ()));
+    }
 
     // Parse apply on mask.
     op_value = op_section->find_entry ("APPLYON");
@@ -351,7 +353,7 @@ AutoProperties::parseAutoGroup(CfgParser::Entry *op_section,
     op_section = op_section->get_section ();
 
     if (op_section->get_value ().size ())
-        property->group_name = op_section->get_value ();
+      property->group_name = Util::to_wide_str(op_section->get_value ());
 
     PropertyType property_type;
     while ((op_section = op_section->get_entry_next ()) != NULL)
@@ -405,7 +407,7 @@ AutoProperties::parseTitleProperty(CfgParser::Entry *op_section)
         {
             CfgParser::Entry *op_value = op_sub->find_entry ("RULE");
             if (op_value)
-                ok = property->getTitleRule ().parse_ed_s (op_value->get_value ());
+              ok = property->getTitleRule ().parse_ed_s (Util::to_wide_str(op_value->get_value ()));
         }
 
         if (ok)

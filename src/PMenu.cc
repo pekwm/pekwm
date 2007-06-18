@@ -39,7 +39,7 @@ using std::find;
 map<Window,PMenu*> PMenu::_menu_map = map<Window,PMenu*>();
 
 //! @brief Constructor for PMenu class
-PMenu::PMenu(Display *dpy, Theme *theme, const std::string &title,
+PMenu::PMenu(Display *dpy, Theme *theme, const std::wstring &title,
              const std::string &name, const std::string decor_name)
     : PDecor(dpy, theme, decor_name),
       _name(name),
@@ -626,7 +626,7 @@ PMenu::selectPrevItem(void)
 
 //! @brief Sets title of the menu/decor
 void
-PMenu::setTitle(const std::string &title)
+PMenu::setTitle(const std::wstring &title)
 {
     _title.setReal(title);
 }
@@ -643,7 +643,7 @@ PMenu::insert(PMenu::Item *item)
 //! @param name Name of objet to create and insert
 //! @param wo_ref PWinObj to refer to, defaults to NULL
 void
-PMenu::insert(const std::string &name, PWinObj *wo_ref)
+PMenu::insert(const std::wstring &name, PWinObj *wo_ref)
 {
     PMenu::Item *item;
 
@@ -657,7 +657,7 @@ PMenu::insert(const std::string &name, PWinObj *wo_ref)
 //! @param ae ActionEvent for the object
 //! @param wo_ref PWinObj to refer to, defaults to NULL
 void
-PMenu::insert(const std::string &name, const ActionEvent &ae, PWinObj *wo_ref)
+PMenu::insert(const std::wstring &name, const ActionEvent &ae, PWinObj *wo_ref)
 {
     PMenu::Item *item;
 

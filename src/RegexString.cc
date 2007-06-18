@@ -1,6 +1,6 @@
 //
 // RegexString.cc for pekwm
-// Copyright (C)  2003-2006 Claes Nästén <me{@}pekdon{.}net>
+// Copyright ©  2003-2007 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -8,11 +8,14 @@
 // $Id$
 //
 
-#include "../config.h"
-
-#include "RegexString.hh"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #include <iostream>
+
+#include "RegexString.hh"
+#include "Util.hh"
 
 #ifdef HAVE_GETTEXT
 #include <libintl.h>
@@ -23,8 +26,9 @@
 
 using std::cerr;
 using std::endl;
-using std::string;
 using std::list;
+using std::string;
+using std::wstring;
 
 //! @brief RegexString constructor.
 RegexString::RegexString (void)
@@ -40,17 +44,19 @@ RegexString::~RegexString (void)
 
 //! @brief Simple ed s command lookalike.
 bool
-RegexString::ed_s (std::string &or_string)
+RegexString::ed_s (std::wstring &or_string)
 {
     if (!m_reg_ok) {
         return false;
     }
 
-    const char *op_str = or_string.c_str();
+    string str(Util::to_mb_str(or_string));
+
+    const char *op_str = str.c_str();
     regmatch_t *op_matches = new regmatch_t[m_i_ref_max];
 
     // Match
-    if (regexec(&m_o_regex, or_string.c_str(), m_i_ref_max, op_matches, 0)) {
+    if (regexec(&m_o_regex, str.c_str(), m_i_ref_max, op_matches, 0)) {
         delete [] op_matches;
         return false;
     }
@@ -69,13 +75,15 @@ RegexString::ed_s (std::string &or_string)
                                        i_size));
             }
         } else {
-            o_result.append(it->get_string());
+            o_result.append(Util::to_mb_str(it->get_string()));
         }
     }
 
     // Replace area regexp matched.
     i_size = op_matches[0].rm_eo - op_matches[0].rm_so;
-    or_string.replace(op_matches[0].rm_so, i_size, o_result);
+    str.replace(op_matches[0].rm_so, i_size, o_result);
+
+    or_string = Util::to_wide_str(str);
 
     return true;
 }
@@ -84,7 +92,7 @@ RegexString::ed_s (std::string &or_string)
 //! @param or_match Expression.
 //! @param full Full expression if true (including flags). Defaults to false.
 bool
-RegexString::parse_match(const std::string &or_match, bool full)
+RegexString::parse_match(const std::wstring &or_match, bool full)
 {
     // Free resources
     if (m_reg_ok) {
@@ -93,8 +101,8 @@ RegexString::parse_match(const std::string &or_match, bool full)
 
     if (or_match.size()) {
         int flags = REG_EXTENDED;
-        string expression_str;
-        const char *expression;
+        string expression;
+        wstring expression_str;
 
         if (full) {
             // Full regular expression syntax, parse out flags etc
@@ -120,13 +128,13 @@ RegexString::parse_match(const std::string &or_match, bool full)
                 cerr << _("Invalid format of regular expression.\n");
             }
 
-            expression = expression_str.c_str();
+            expression = Util::to_mb_str(expression_str);
 
         } else {
-            expression = or_match.c_str();
+            expression = Util::to_mb_str(or_match);
         }
 
-        m_reg_ok = !regcomp(&m_o_regex, expression, flags);
+        m_reg_ok = !regcomp(&m_o_regex, expression.c_str(), flags);
     } else {
         m_reg_ok = false;
     }
@@ -139,12 +147,12 @@ RegexString::parse_match(const std::string &or_match, bool full)
 //! except \. References to sub expressions are made with \num. \0 Represents
 //! the part of the string that matched.
 bool
-RegexString::parse_replace(const std::string &or_replace)
+RegexString::parse_replace(const std::wstring &or_replace)
 {
     m_i_ref_max = 0;
 
-    string o_part;
-    string::size_type o_begin = 0, o_end = 0, o_last = 0;
+    wstring o_part;
+    wstring::size_type o_begin = 0, o_end = 0, o_last = 0;
 
     // Go through the string and split at \num points
     while ((o_end = or_replace.find_first_of('\\', o_begin)) != string::npos) {
@@ -161,9 +169,9 @@ RegexString::parse_replace(const std::string &or_replace)
         if (o_end > o_begin) {
             // Convert number and add item.
             o_part = or_replace.substr(o_begin, o_end - o_last);
-            int i_ref = strtol(o_part.c_str(), NULL, 10);
+            int i_ref = strtol(Util::to_mb_str(o_part).c_str(), NULL, 10);
             if (i_ref >= 0) {
-                m_o_ref_list.push_back(RegexString::Part("", i_ref));
+                m_o_ref_list.push_back(RegexString::Part(L"", i_ref));
                 if (i_ref > m_i_ref_max) {
                     m_i_ref_max = i_ref;
                 }
@@ -186,13 +194,13 @@ RegexString::parse_replace(const std::string &or_replace)
 
 //! @brief Parses ed s style command. /from/to/
 bool
-RegexString::parse_ed_s(const std::string &or_ed_s)
+RegexString::parse_ed_s(const std::wstring &or_ed_s)
 {
     if (or_ed_s.size() < 3) {
         return false;
     }
 
-    char c_delimeter = or_ed_s[0];
+    wchar_t c_delimeter = or_ed_s[0];
     string::size_type o_middle, o_end;
 
     // Middle.
@@ -210,7 +218,7 @@ RegexString::parse_ed_s(const std::string &or_ed_s)
         }
     }
 
-    string o_match, o_replace;
+    wstring o_match, o_replace;
     o_match = or_ed_s.substr(1, o_middle - 1);
     o_replace = or_ed_s.substr(o_middle + 1, o_end - o_middle - 1);
 
@@ -222,13 +230,15 @@ RegexString::parse_ed_s(const std::string &or_ed_s)
 
 //! @brief Matches RegexString against or_rhs, needs successfull parse_match.
 bool
-RegexString::operator==(const std::string &or_rhs)
+RegexString::operator==(const std::wstring &or_rhs)
 {
     if (!m_reg_ok) {
         return false;
     }
 
-    return !regexec(&m_o_regex, or_rhs.c_str(), 0, 0, 0);
+    string rhs(Util::to_mb_str(or_rhs));
+
+    return !regexec(&m_o_regex, rhs.c_str(), 0, 0, 0);
 }
 
 //! @brief Free resources used by RegexString.

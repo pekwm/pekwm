@@ -1,6 +1,6 @@
 //
 // Util.cc for pekwm
-// Copyright (C) 2002-2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright (C) 2002-2007 Claes Nästén <me{@}pekdon{.}net>
 //
 // misc.cc for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
@@ -10,8 +10,9 @@
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
-#include "Util.hh"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #include <algorithm>
 #include <iostream>
@@ -27,12 +28,15 @@
 #include <errno.h>
 #endif // HAVE_SETENV
 
+#include "Util.hh"
+
 using std::cerr;
 using std::endl;
-using std::string;
-using std::vector;
 using std::ostringstream;
+using std::string;
 using std::transform;
+using std::vector;
+using std::wstring;
 
 namespace Util {
 
@@ -201,6 +205,69 @@ void
 to_lower(std::string &str)
 {
     transform(str.begin(), str.end(), str.begin(), (int(*)(int)) std::tolower);
+}
+
+//! @brief Converts string to multi byte version
+//! @param str String to convert.
+//! @return Returns multibyte version of string.
+std::string
+to_mb_str(const std::wstring &str)
+{
+  size_t ret, num = str.size() * 6 + 1;
+  char *buf = new char[num];
+  memset(buf, '\0', num);
+
+  ret = wcstombs(buf, str.c_str(), num);
+  if (ret == static_cast<size_t>(-1)) {
+    cerr << " *** WARNING: failed to convert wide string to multibyte string" << endl;
+  }
+  string ret_str(buf);
+
+  delete [] buf;
+
+  return ret_str;
+}
+
+//! @brief Converts string to multi byte version
+//! @param str String to convert.
+//! @return Returns multibyte version of string.
+std::wstring
+to_wide_str(const std::string &str)
+{
+  size_t ret, num = str.size() + 1;
+  wchar_t *buf = new wchar_t[num];
+  wmemset(buf, L'\0', num);
+
+  ret = mbstowcs(buf, str.c_str(), num);
+  if (ret == static_cast<size_t>(-1)) {
+    cerr << " *** WARNING: failed to multibyte string to wide string" << endl;
+  }
+  wstring ret_str(buf);
+
+  delete [] buf;
+
+  return ret_str;
+
+}
+
+//! @brief Converts string to UTF-8
+//! @param str String to convert.
+//! @return Returns UTF-8 representation of string.
+std::string
+to_utf8_str(const std::wstring &str)
+{
+  // FIXME: Use iconv in to_mb_str
+  return to_mb_str(str);
+}
+
+//! @brief Converts to wide string from UTF-8
+//! @param str String to convert.
+//! @return Returns wide representation of string.
+std::wstring
+from_utf8_str(const std::string &str)
+{
+  // FIXME: Use iconv in from_utf8_str
+  return to_wide_str(str);
 }
 
 } // end namespace Util.

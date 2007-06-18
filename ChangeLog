@@ -1,3 +1,15 @@
+2007-06-18  Claes Nästén  <me{@}pekdon{.}net>
+
+	* src/PDecor.hh (TitleItem::TitleItem): 
+	Start using wstring instead of string for client titles and other
+	printable data. Still need to add iconv support and reading/setting
+	of UTF-8 string properties to read client titles properly.
+
+	* src/CmdDialog.cc (CmdDialog::bufAdd): 
+	Use wstring in the CmdDialog and iswprint to check for printability
+	in order to resolve non ASCII input issues. Closing #104
+	(Thanks lukas for reporting)
+
 2007-05-31  Claes Nästén  <me{@}pekdon{.}net>
 
 	* src/Client.cc (Client::Client): 

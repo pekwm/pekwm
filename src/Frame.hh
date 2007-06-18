@@ -1,6 +1,6 @@
 //
 // Frame.hh for pekwm
-// Copyright (C) 2003-2006 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2003-2007 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -8,7 +8,9 @@
 // $Id$
 //
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #ifndef _FRAME_HH_
 #define _FRAME_HH_
@@ -65,7 +67,7 @@ public:
     virtual void updatedChildOrder(void);
     virtual void updatedActiveChild(void);
 
-    virtual void getDecorInfo(char *buf, uint size);
+    virtual void getDecorInfo(wchar_t *buf, uint size);
 
     virtual void setShaded(StateAction sa);
     virtual void setSkip(uint skip);
@@ -113,7 +115,7 @@ public:
     void setStateIconified(StateAction sa);
     void setStateTagged(StateAction sa, bool behind);
     void setStateSkip(StateAction sa, uint skip);
-    void setStateTitle(StateAction sa, Client *client, const std::string &title);
+    void setStateTitle(StateAction sa, Client *client, const std::wstring &title);
     void setStateMarked(StateAction sa, Client *client);
 
     void close(void);

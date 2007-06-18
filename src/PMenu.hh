@@ -32,21 +32,21 @@ public:
         enum Type {
             MENU_ITEM_NORMAL, MENU_ITEM_SEPARATOR, MENU_ITEM_HIDDEN
         };
-        Item(const std::string &name, PWinObj *wo_ref = NULL) :
+        Item(const std::wstring &name, PWinObj *wo_ref = NULL) :
         _x(0), _y(0), _name(name), _wo_ref(wo_ref), _type(MENU_ITEM_NORMAL), _dynamic(false) { }
 
         virtual ~Item(void) { }
 
         inline int getX(void) const { return _x; }
         inline int getY(void) const { return _y; }
-        inline const std::string &getName(void) const { return _name; }
+        inline const std::wstring &getName(void) const { return _name; }
         inline const ActionEvent &getAE(void) const { return _ae; }
         inline PWinObj *getWORef(void) const { return _wo_ref; }
         inline PMenu::Item::Type getType(void) const { return _type; }
 
         inline void setX(int x) { _x = x; }
         inline void setY(int y) { _y = y; }
-        inline void setName(const std::string &name) { _name = name; }
+        inline void setName(const std::wstring &name) { _name = name; }
         inline void setAE(const ActionEvent &ae) { _ae = ae; }
         inline void setWORef(PWinObj *wo_ref) { _wo_ref = wo_ref; }
         inline void setType(PMenu::Item::Type type) { _type = type; }
@@ -56,7 +56,7 @@ public:
 
     private:
         int _x, _y;
-        std::string _name;
+        std::wstring _name;
 
         ActionEvent _ae; // used for specifying action of the entry
         PWinObj *_wo_ref; // used for client, frame, parent etc
@@ -66,7 +66,7 @@ public:
         bool _dynamic;
     };
 
-    PMenu(Display *dpy, Theme *theme, const std::string &title,
+    PMenu(Display *dpy, Theme *theme, const std::wstring &title,
           const std::string &name, const std::string decor_name = "MENU");
     virtual ~PMenu(void);
 
@@ -89,17 +89,17 @@ public:
         return NULL;
     }
 
-inline const std::string &getName(void) { return _name; }
+    inline const std::string &getName(void) { return _name; }
     inline PMenu::Item *getItemCurr(void) { return *_item_curr; }
     void selectNextItem(void);
     void selectPrevItem(void);
 
     // modifying menu content
-    void setTitle(const std::string &title);
+    void setTitle(const std::wstring &title);
 
     virtual void insert(PMenu::Item *item);
-    virtual void insert(const std::string &name, PWinObj *wo_ref = NULL);
-    virtual void insert(const std::string &name, const ActionEvent &ae,
+    virtual void insert(const std::wstring &name, PWinObj *wo_ref = NULL);
+    virtual void insert(const std::wstring &name, const ActionEvent &ae,
                         PWinObj *wo_ref = NULL);
     virtual void remove(PMenu::Item *item);
     virtual void removeAll(void);

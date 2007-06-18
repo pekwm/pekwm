@@ -1,6 +1,6 @@
 //
 // RegexString.hh for pekwm
-// Copyright (C)  2003-2006 Claes Nästén <me{@}pekdon{.}net>
+// Copyright ©  2003-2007 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -8,12 +8,12 @@
 // $Id$
 //
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #ifndef _REGEX_STRING_HH_
 #define _REGEX_STRING_HH_
-
-#include "Types.hh"
 
 #include <string>
 #include <list>
@@ -27,6 +27,8 @@ extern "C" {
 #endif // HAVE_PCRE
 }
 
+#include "Types.hh"
+
 //! @brief POSIX regular expression wrapper.
 class RegexString
 {
@@ -36,18 +38,18 @@ public:
     {
     public:
         //! @brief RegexString::Part constructor.
-        Part (const std::string &or_string, int i_ref = -1) :
+        Part (const std::wstring &or_string, int i_ref = -1) :
         m_o_string (or_string), m_i_ref (i_ref) { }
         //! @brief RegexString::Part destructor.
         ~Part (void) { }
 
         //! @brief Returns string data.
-        const std::string &get_string (void) { return m_o_string; }
+        const std::wstring &get_string (void) { return m_o_string; }
         //! @brief Returns reference number.
         int get_reference (void) { return m_i_ref; }
 
     private:
-        std::string m_o_string; //!< String data at item.
+        std::wstring m_o_string; //!< String data at item.
         int m_i_ref; //!< Reference string should be replaced with.
     };
 
@@ -57,13 +59,13 @@ public:
     //! @brief Returns parse_match data status.
     bool is_match_ok (void) { return m_reg_ok; }
 
-    bool ed_s (std::string &or_string);
+    bool ed_s (std::wstring &or_string);
 
-    bool parse_match(const std::string &or_match, bool full = false);
-    bool parse_replace (const std::string &or_replace);
-    bool parse_ed_s (const std::string &or_ed_s);
+    bool parse_match(const std::wstring &or_match, bool full = false);
+    bool parse_replace (const std::wstring &or_replace);
+    bool parse_ed_s (const std::wstring &or_ed_s);
 
-    bool operator== (const std::string &or_rhs);
+    bool operator== (const std::wstring &or_rhs);
 
 private:
     void free_regex (void);

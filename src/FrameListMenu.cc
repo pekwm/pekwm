@@ -1,6 +1,6 @@
 //
 // FrameListMenu.cc for pekwm
-// Copyright (C) 2002-2006 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2002-2007 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -8,8 +8,15 @@
 // $Id$
 //
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
+
 #ifdef MENUS
+
+#include <algorithm>
+#include <cstdio>
+#include <iostream>
 
 #include "PWinObj.hh"
 #include "PDecor.hh"
@@ -24,17 +31,12 @@
 #include "Viewport.hh"
 #include "WindowManager.hh"
 
-#include <algorithm>
-#include <cstdio>
-
-#ifdef DEBUG
-#include <iostream>
 using std::cerr;
 using std::endl;
-#endif // DEBUG
-using std::string;
 using std::list;
+using std::string;
 using std::vector;
+using std::wstring;
 
 //! @brief FrameListMenu constructor.
 //! @param scr Pointer to PScreen.
@@ -45,7 +47,7 @@ using std::vector;
 //! @param decor_name Decor name, defaults to MENU
 FrameListMenu::FrameListMenu(PScreen *scr, Theme *theme,
                              MenuType type,
-                             const std::string &title, const std::string &name,
+                             const std::wstring &title, const std::string &name,
                              const std::string &decor_name)
     : WORefMenu(scr, theme, title, name, decor_name)
 {
@@ -116,8 +118,8 @@ FrameListMenu::updateFrameListMenu(void)
 {
     removeAll();
 
-    char buf[16];
-    string name;
+    wchar_t buf[16];
+    wstring name;
 
     // need to add an action, otherwise it looks as if we don't have anything
     // to exec and thus it doesn't get handled.
@@ -140,7 +142,7 @@ FrameListMenu::updateFrameListMenu(void)
 
     for (uint i = 0; i < Workspaces::instance()->size(); ++i) {
         if (Workspaces::instance()->size() > 1) {
-            snprintf(buf, sizeof(buf), "<%d> ", i + 1);
+            swprintf(buf, 16, L"<%d> ", i + 1);
         }
 
         for (it = Frame::frame_begin(); it != Frame::frame_end(); ++it) {
@@ -159,7 +161,7 @@ FrameListMenu::updateFrameListMenu(void)
 
                 } else {
                     buildName(*it, name);
-                    name.append("] ");
+                    name.append(L"] ");
                     name.append(static_cast<Client*>((*it)->getActiveChild())->getTitle()->getVisible());
 
                     insert(name, ae, (*it)->getActiveChild());
@@ -178,36 +180,40 @@ FrameListMenu::updateFrameListMenu(void)
 
 //! @brief Builds the name for the frame.
 void
-FrameListMenu::buildName(Frame* frame, std::string &name)
+FrameListMenu::buildName(Frame* frame, std::wstring &name)
 {
     // only show viewport information if having more than one
     if ((Config::instance()->getViewportCols() > 1) ||
             (Config::instance()->getViewportRows() > 1)) {
-        char buf[64];
-        snprintf(buf, 64, "(%ix%i) ",
+        wchar_t buf[64];
+        swprintf(buf, 64, L"(%ix%i) ",
                  Workspaces::instance()->getActiveViewport()->getCol(frame) + 1,
                  Workspaces::instance()->getActiveViewport()->getRow(frame) + 1);
         name.append(buf);
     }
 
-    name.append("[");
-    if (frame->isSticky())
-        name.append("*");
-    if (frame->isIconified())
-        name.append(".");
-    if (frame->isShaded())
-        name.append("^");
-    if (frame->getActiveChild()->getLayer() > LAYER_NORMAL)
-        name.append("+");
-    else if (frame->getActiveChild()->getLayer() < LAYER_NORMAL)
-        name.append("-");
+    name.append(L"[");
+    if (frame->isSticky()) {
+        name.append(L"*");
+    }
+    if (frame->isIconified()) {
+        name.append(L".");
+    }
+    if (frame->isShaded()) {
+        name.append(L"^");
+    }
+    if (frame->getActiveChild()->getLayer() > LAYER_NORMAL) {
+        name.append(L"+");
+    } else if (frame->getActiveChild()->getLayer() < LAYER_NORMAL) {
+        name.append(L"-");
+    }
 }
 
 //! @brief Builds names for all the clients in a frame.
 void
-FrameListMenu::buildFrameNames(Frame *frame, std::string &pre_name)
+FrameListMenu::buildFrameNames(Frame *frame, std::wstring &pre_name)
 {
-    string name, status_name;
+    wstring name, status_name;
 
     // need to add an action, otherwise it looks as if we don't have anything
     // to exec and thus it doesn't get handled.
@@ -222,16 +228,16 @@ FrameListMenu::buildFrameNames(Frame *frame, std::string &pre_name)
         name = pre_name;
         name.append(status_name);
         if (frame->getActiveChild() == *it) {
-            name.append("A");
+            name.append(L"A");
         }
-        name.append("] ");
+        name.append(L"] ");
         name.append(static_cast<Client*>(*it)->getTitle()->getVisible());
 
         insert(name, ae, *it);
     }
 
     // add separator
-    PMenu::Item *item = new PMenu::Item("");
+    PMenu::Item *item = new PMenu::Item(L"");
     item->setType(PMenu::Item::MENU_ITEM_SEPARATOR);
     insert(item);
 }

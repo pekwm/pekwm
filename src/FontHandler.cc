@@ -95,11 +95,13 @@ FontHandler::FontHandler(void) :
                    if ((Util::splitString(font, tok, "#")) > 1) {
                        uint type = ParseUtil::getValue<PFont::Type>(tok.back(), _map_type);
                        switch (type) {
+#if 0
                        case PFont::FONT_TYPE_XMB:
                            pfont = new PFontXmb(PScreen::instance());
                            tok_it = tok.end();
                            tok.erase(--tok_it);
                            break;
+#endif // 0
 #ifdef HAVE_XFT
                        case PFont::FONT_TYPE_XFT:
                            pfont = new PFontXft(PScreen::instance());

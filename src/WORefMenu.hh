@@ -23,7 +23,7 @@ class WORefMenu : public PMenu
 {
 public:
     WORefMenu(PScreen *scr, Theme *theme,
-              const std::string &title, const std::string &name,
+              const std::wstring &title, const std::string &name,
               const std::string &decor_name = "MENU");
     virtual ~WORefMenu(void);
 
@@ -33,8 +33,8 @@ public:
 protected:
     PWinObj *_wo_ref;
 
-    std::string _title_base;
-    std::string _title_pre, _title_post;
+    std::wstring _title_base;
+    std::wstring _title_pre, _title_post;
 };
 
 #endif // _WOREFMENU_HH_

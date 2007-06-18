@@ -1,6 +1,6 @@
 //
 // CmdDialog.cc for pekwm
-// Copyright (C) 2004-2006 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2004-2007 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -8,7 +8,18 @@
 // $Id$
 //
 
+#ifdef HAVE_CONFIG_H
 #include "../config.h"
+#endif // HAVE_CONFIG_H
+
+#include <iostream>
+#include <list>
+#include <cwctype>
+
+extern "C" {
+#include <X11/Xutil.h> // XLookupString
+#include <X11/keysym.h>
+}
 
 #include "PWinObj.hh"
 #include "PDecor.hh"
@@ -20,26 +31,15 @@
 #include "ScreenResources.hh"
 #include "Workspaces.hh"
 
-#include <list>
-
-#ifdef DEBUG
-#include <iostream>
 using std::cerr;
 using std::endl;
-#endif // DEBUG
-
 using std::list;
-
-extern "C" {
-#include <X11/Xutil.h> // XLookupString
-#include <X11/keysym.h>
-}
-
 using std::string;
+using std::wstring;
 
 //! @brief CmdDialog constructor
 //! @todo Initial size, configurable?
-CmdDialog::CmdDialog(Display *dpy, Theme *theme, const std::string &title)
+CmdDialog::CmdDialog(Display *dpy, Theme *theme, const std::wstring &title)
     : PDecor(dpy, theme, "CMDDIALOG"),
       _cmd_data(theme->getCmdDialogData()),
       _cmd_wo(NULL), _bg(None),
@@ -199,7 +199,7 @@ CmdDialog::mapCentered(const std::string &buf, bool focus, PWinObj *wo_ref)
     _wo_ref = wo_ref ? wo_ref : _wo_ref;
     _hist_it = _hist_list.end();
 
-    _buf = buf;
+    _buf = Util::to_wide_str(buf);
     _pos = _buf.size();
     bufChanged();
 
@@ -258,7 +258,7 @@ CmdDialog::moveCentered(PWinObj *wo)
 
 //! @brief Sets title of decor
 void
-CmdDialog::setTitle(const std::string &title)
+CmdDialog::setTitle(const std::wstring &title)
 {
     _title.setReal(title);
 }
@@ -326,6 +326,7 @@ CmdDialog::render(void)
 
     // draw buf content
     _cmd_data->getFont()->setColor(_cmd_data->getColor());
+
     _cmd_data->getFont()->draw(_cmd_wo->getWindow(),
                                _cmd_data->getPad(PAD_LEFT),
                                _cmd_data->getPad(PAD_UP),
@@ -340,7 +341,7 @@ CmdDialog::render(void)
 
     _cmd_data->getFont()->draw(_cmd_wo->getWindow(),
                                pos, _cmd_data->getPad(PAD_UP),
-                               "|");
+                               L"|");
 }
 
 //! @brief Generates ACTION_CLOSE.
@@ -364,10 +365,11 @@ CmdDialog::exec(void)
 
     // Check if it's a valid Action, if not we assume it's a command and try
     // to execute it.
-    if (!Config::instance()->parseAction(_buf,	_ae.action_list.back(),
+    string buf_mb(Util::to_mb_str(_buf));
+    if (!Config::instance()->parseAction(buf_mb, _ae.action_list.back(),
                                          KEYGRABBER_OK)) {
         _ae.action_list.back().setAction(ACTION_EXEC);
-        _ae.action_list.back().setParamS(_buf);
+        _ae.action_list.back().setParamS(buf_mb);
     }
 
     return &_ae;
@@ -383,13 +385,17 @@ CmdDialog::complete(void)
 void
 CmdDialog::bufAdd(XKeyEvent *ev)
 {
-    KeySym ks;
-    char c_return;
+    char c_return[64];
+    memset(c_return, '\0', 64);
 
-    XLookupString(ev, &c_return, 1, &ks, NULL);
+    XLookupString(ev, c_return, 64, NULL, NULL);
 
-    if (isprint(c_return) != 0) {
-        _buf.insert(_buf.begin() + _pos++, c_return);
+    // Add wide string to buffer counting position
+    wstring buf_ret(Util::to_wide_str(c_return));
+    for (unsigned int i = 0; i < buf_ret.size(); ++i) {
+      if (iswprint(buf_ret[i])) {
+        _buf.insert(_buf.begin() + _pos++, buf_ret[i]);
+      }
     }
 }
 
@@ -408,7 +414,7 @@ CmdDialog::bufRemove(void)
 void
 CmdDialog::bufClear(void)
 {
-    _buf = ""; // old gcc doesn't know about .clear()
+    _buf = L""; // old gcc doesn't know about .clear()
     _pos = _buf_off = _buf_chars = 0;
 }
 
@@ -441,8 +447,8 @@ CmdDialog::bufChanged(void)
     // complete string doesn't fit in the window OR
     // we don't fit in the first set
     if ((_pos > 0)
-            && (font->getWidth(_buf.c_str()) > _cmd_wo->getWidth())
-            && (font->getWidth(_buf.c_str(), _pos) > _cmd_wo->getWidth())) {
+        && (font->getWidth(_buf.c_str()) > _cmd_wo->getWidth())
+        && (font->getWidth(_buf.c_str(), _pos) > _cmd_wo->getWidth())) {
 
         // increase position until it all fits
         for (_buf_off = 0; _buf_off < _pos; ++_buf_off) {

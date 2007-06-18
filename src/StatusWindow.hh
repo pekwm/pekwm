@@ -24,7 +24,7 @@ public:
     //! @brief Returns the StatusWindow instance pointer.
     static StatusWindow *instance(void) { return _instance; }
 
-    void draw(const std::string &text, bool do_center = false);
+    void draw(const std::wstring &text, bool do_center = false);
 
 private:
     // BEGIN - PDecor interface

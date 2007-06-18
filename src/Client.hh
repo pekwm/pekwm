@@ -1,6 +1,6 @@
 //
 // Client.hh for pekwm
-// Copyright (C) 2003-2006 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2003-2007 Claes Nästén <me{@}pekdon{.}net>
 //
 // client.hh for aewm++
 // Copyright (C) 2002 Frank Hale <frankhale@yahoo.com>
@@ -12,7 +12,9 @@
 // $Id$
 //
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #ifndef _CLIENT_HH_
 #define _CLIENT_HH_
@@ -236,8 +238,8 @@ void configureRequestSend(void);
     void removeStrutHint(void);
 
 private:
-    bool titleApplyRule(std::string &title);
-    uint titleFindID(std::string &title);
+    bool titleApplyRule(std::wstring &wtitle);
+    uint titleFindID(std::wstring &wtitle);
 
     void setWmState(ulong state);
     long getWmState(void);

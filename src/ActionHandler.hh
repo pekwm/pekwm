@@ -44,7 +44,7 @@ private:
     void handleStateAction(const Action &action, PWinObj *wo,
                            Client *client, Frame *frame);
 
-    void actionFindClient(const std::string &title);
+    void actionFindClient(const std::wstring &title);
     void actionGotoClientID(uint id);
     void actionSendToWorkspace(PDecor *decor, int direction);
     void actionWarpToWorkspace(PDecor *decor, uint direction);
@@ -59,7 +59,7 @@ private:
 #endif // MENUS
 
     // action helpers
-    Client *findClientFromTitle(const std::string &title);
+    Client *findClientFromTitle(const std::wstring &title);
     void gotoClient(Client *client);
 
     PMenu *createNextPrevMenu(bool show_iconified);

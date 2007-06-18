@@ -32,6 +32,7 @@
 #include <cstdlib>
 #include <functional>
 #include <iostream>
+#include <cwchar>
 
 extern "C" {
 #ifdef HAVE_SHAPE
@@ -130,21 +131,21 @@ PDecor::Button::setState(ButtonState state)
 void
 PDecor::TitleItem::updateVisible(void) {
     // Start with empty string
-    _visible = "";
+    _visible = L"";
 
     // Add client info to title
     if ((_info != 0)
         && ((_info != INFO_ID) || Config::instance()->isShowClientID())) {
-        _visible.append("[");
+        _visible.append(L"[");
 
         if (infoIs(INFO_ID) && Config::instance()->isShowClientID()) {
-            _visible.append(Util::to_string<uint>(_id));
+            _visible.append(Util::to_wide_str(Util::to_string<uint>(_id)));
         }
         if (infoIs(INFO_MARKED)) {
-            _visible.append("M");
+            _visible.append(L"M");
         }
 
-        _visible.append("] ");
+        _visible.append(L"] ");
     }
 
     // Add title
@@ -158,9 +159,9 @@ PDecor::TitleItem::updateVisible(void) {
 
     // Add client number to title
     if (_count > 0) {
-        _visible.append(Config::instance()->getClientUniqueNamePre());
-        _visible.append(Util::to_string(_count));
-        _visible.append(Config::instance()->getClientUniqueNamePost());
+      _visible.append(Util::to_wide_str(Config::instance()->getClientUniqueNamePre()));
+      _visible.append(Util::to_wide_str(Util::to_string(_count)));
+      _visible.append(Util::to_wide_str(Config::instance()->getClientUniqueNamePost()));
     }
 }
 
@@ -970,9 +971,9 @@ PDecor::activateChild(PWinObj *child)
 
 //! @brief
 void
-PDecor::getDecorInfo(char *buf, uint size)
+PDecor::getDecorInfo(wchar_t *buf, uint size)
 {
-    snprintf(buf, size, "%dx%d+%d+%d", _gm.width, _gm.height, _gm.x, _gm.y);
+  swprintf(buf, size, L"%dx%d+%d+%d", _gm.width, _gm.height, _gm.x, _gm.y);
 }
 
 //! @brief
@@ -1103,8 +1104,8 @@ PDecor::doMove(int x_root, int y_root)
         scr->grabServer();
     }
 
-    char buf[128];
-    getDecorInfo(buf, sizeof(buf)/sizeof(char));
+    wchar_t buf[128];
+    getDecorInfo(buf, 128);
 
     if (Config::instance()->isShowStatusWindow()) {
         sw->draw(buf, true);
@@ -1138,7 +1139,7 @@ PDecor::doMove(int x_root, int y_root)
                 doMoveEdgeAction(&e.xmotion, edge);
             }
 
-            getDecorInfo(buf, sizeof(buf)/sizeof(char));
+            getDecorInfo(buf, 128);
             if (Config::instance()->isShowStatusWindow()) {
                 sw->draw(buf, true);
             }
@@ -1229,8 +1230,8 @@ PDecor::doKeyboardMoveResize(void)
     ActionEvent *ae;
     list<Action>::iterator it;
 
-    char buf[128];
-    getDecorInfo(buf, sizeof(buf)/sizeof(char));
+    wchar_t buf[128];
+    getDecorInfo(buf, 128);
 
     if (Config::instance()->isShowStatusWindow()) {
         sw->draw(buf, true);
@@ -1310,7 +1311,7 @@ PDecor::doKeyboardMoveResize(void)
                     break;
                 }
 
-                getDecorInfo(buf, sizeof(buf)/sizeof(char));
+                getDecorInfo(buf, 128);
                 if (Config::instance()->isShowStatusWindow()) {
                     sw->draw(buf, true);
                 }
@@ -1427,7 +1428,7 @@ PDecor::renderTitle(void)
             font->draw(_title_bg,
                        x + _data->getPad(PAD_LEFT), // X position
                        _data->getPad(PAD_UP), // Y position
-                       (*it)->getVisible().c_str(), 0, // Text and max chars
+                       (*it)->getVisible(), 0, // Text and max chars
                        (*it)->getWidth() - pad_horiz, // Available width
                        ((*it)->isCustom() || (*it)->isUserSet()) // Type of trimming
                        ? PFont::FONT_TRIM_END : PFont::FONT_TRIM_MIDDLE);
@@ -2042,7 +2043,7 @@ PDecor::calcTitleWidth(void)
         if (_data->isTitleWidthSymetric()) {
             list<PDecor::TitleItem*>::iterator it(_title_list.begin());
             for (; it != _title_list.end(); ++it) {
-                width = font->getWidth((*it)->getVisible().c_str());
+                width = font->getWidth((*it)->getVisible());
                 if (width > width_max)
                     width_max = width;
             }
@@ -2055,8 +2056,8 @@ PDecor::calcTitleWidth(void)
         } else {
             list<PDecor::TitleItem*>::iterator it(_title_list.begin());
             for (; it != _title_list.end(); ++it) {
-                width += font->getWidth((*it)->getVisible().c_str())
-                         + _data->getPad(PAD_LEFT)	+ _data->getPad(PAD_RIGHT);
+                width += font->getWidth((*it)->getVisible())
+                         + _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT);
             }
         }
 

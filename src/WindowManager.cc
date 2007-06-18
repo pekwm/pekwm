@@ -84,12 +84,13 @@ extern "C" {
 using std::cout;
 using std::cerr;
 using std::endl;
-using std::string;
+using std::find;
 using std::list;
-using std::vector;
 using std::map;
 using std::mem_fun;
-using std::find;
+using std::string;
+using std::vector;
+using std::wstring;
 
 // Static initializers
 const string WindowManager::_wm_name = string("pekwm");
@@ -556,7 +557,8 @@ WindowManager::setupDisplay(void)
     _action_handler = new ActionHandler(this);
 
     // setup the font trimming
-    PFont::setTrimString(_config->getTrimTitle());
+    wstring trim_title(Util::to_wide_str(_config->getTrimTitle()));
+    PFont::setTrimString(trim_title);
 
     // load colors, fonts
     _screen_resources = new ScreenResources();
@@ -578,22 +580,18 @@ WindowManager::setupDisplay(void)
     _harbour = new Harbour(_screen, _theme, _workspaces);
 #endif // HARBOUR
 
-    _cmd_dialog = new CmdDialog(_screen->getDpy(), _theme, "CmdDialog");
+    _cmd_dialog = new CmdDialog(_screen->getDpy(), _theme, L"CmdDialog");
     _status_window = new StatusWindow(_screen->getDpy(), _theme);
 
     XDefineCursor(dpy, _screen->getRoot(),
                   _screen_resources->getCursor(ScreenResources::CURSOR_ARROW));
 
     // select root window events
-    XSetWindowAttributes sattr;
-    sattr.event_mask =
-        SubstructureRedirectMask|SubstructureNotifyMask|
-        ColormapChangeMask|FocusChangeMask|
-        EnterWindowMask|
-        PropertyChangeMask|
-        ButtonPressMask|ButtonReleaseMask|ButtonMotionMask;
-
-    XChangeWindowAttributes(dpy, _screen->getRoot(), CWEventMask, &sattr);
+    XSelectInput(dpy, _screen->getRoot(),
+                 SubstructureNotifyMask|SubstructureRedirectMask|
+                 ColormapChangeMask|FocusChangeMask|EnterWindowMask|
+                 PropertyChangeMask|
+                 ButtonPressMask|ButtonReleaseMask|ButtonMotionMask);
 
 #ifdef HAVE_XRANDR
 #ifdef X_RRScreenChangeSelectInput
@@ -822,7 +820,8 @@ WindowManager::doReload(void)
     _screen_resources->getPixmapHandler()->setCacheSize(_config->getScreenPixmapCacheSize());
 
     // set the font title trim before reloading the themes
-    PFont::setTrimString(_config->getTrimTitle());
+    wstring trim_title(Util::to_wide_str(_config->getTrimTitle()));
+    PFont::setTrimString(trim_title);
 
     // update the ClientUniqueNames if needed
     if ((old_client_unique_name != _config->getClientUniqueName()) ||
@@ -952,6 +951,10 @@ WindowManager::doEventLoop(void)
             _screen->setLastEventTime(ev.xproperty.time);
             handlePropertyEvent(&ev.xproperty);
             break;
+        case MappingNotify:
+            handleMappingEvent(&ev.xmapping);
+            break;
+
         case Expose:
             handleExposeEvent(&ev.xexpose);
             break;
@@ -1540,6 +1543,16 @@ WindowManager::handlePropertyEvent(XPropertyEvent *ev)
     }
 }
 
+//! @brief Handles XMappingEvent
+void
+WindowManager::handleMappingEvent(XMappingEvent *ev)
+{
+    if (ev->request == MappingKeyboard || ev->request == MappingModifier) {
+        XRefreshKeyboardMapping(ev);
+
+    }
+}
+
 void
 WindowManager::handleExposeEvent(XExposeEvent *ev)
 {
@@ -1593,32 +1606,32 @@ WindowManager::createMenus(void)
 
     _menu_map["ATTACHCLIENTINFRAME"] =
         new FrameListMenu(_screen, _theme, ATTACH_CLIENT_IN_FRAME_TYPE,
-                          "Attach Client In Frame", "ATTACHCLIENTINFRAME");
+                          L"Attach Client In Frame", "ATTACHCLIENTINFRAME");
     _menu_map["ATTACHCLIENT"] =
         new FrameListMenu(_screen, _theme, ATTACH_CLIENT_TYPE,
-                          "Attach Client", "ATTACHCLIENT");
+                          L"Attach Client", "ATTACHCLIENT");
     _menu_map["ATTACHFRAMEINFRAME"] =
         new FrameListMenu(_screen, _theme, ATTACH_FRAME_IN_FRAME_TYPE,
-                          "Attach Frame In Frame", "ATTACHFRAMEINFRAME");
+                          L"Attach Frame In Frame", "ATTACHFRAMEINFRAME");
     _menu_map["ATTACHFRAME"] =
         new FrameListMenu(_screen, _theme, ATTACH_FRAME_TYPE,
-                          "Attach Frame", "ATTACHFRAME");
+                          L"Attach Frame", "ATTACHFRAME");
     _menu_map["DECORMENU"] =
         new DecorMenu(_screen, _theme, _action_handler, "DECORMENU");
     _menu_map["GOTOCLIENT"] =
         new FrameListMenu(_screen, _theme, GOTOCLIENTMENU_TYPE,
-                          "Focus Client", "GOTOCLIENT");
+                          L"Focus Client", "GOTOCLIENT");
     _menu_map["GOTO"] =
         new FrameListMenu(_screen, _theme, GOTOMENU_TYPE,
-                          "Focus Frame", "GOTO");
+                          L"Focus Frame", "GOTO");
     _menu_map["ICON"] =
         new FrameListMenu(_screen, _theme, ICONMENU_TYPE,
-                          "Focus Iconified Frame", "ICON");
+                          L"Focus Iconified Frame", "ICON");
 
     _menu_map["ROOT"] = // It's named ROOT to be backwards compatible
-        new ActionMenu(this, ROOTMENU_TYPE, "", "ROOTMENU");
+        new ActionMenu(this, ROOTMENU_TYPE, L"", "ROOTMENU");
     _menu_map["WINDOW"] = // It's named WINDOW to be backwards compatible
-        new ActionMenu(this, WINDOWMENU_TYPE, "", "WINDOWMENU");
+        new ActionMenu(this, WINDOWMENU_TYPE, L"", "WINDOWMENU");
 
     // As the previous step is done manually, make sure it's done correct.
     assert(_menu_map.size() == (MENU_NAMES_RESERVED_COUNT - 2));
@@ -1697,7 +1710,7 @@ WindowManager::updateMenusStandalone(CfgParser::Entry *cfg_root)
                 && ! getMenu(menu_name)) {
             // Create, parse and add to map
             PMenu *menu = new ActionMenu(this, ROOTMENU_STANDALONE_TYPE,
-                                         "", menu_name);
+                                         L"", menu_name);
             menu->reload(it);
             _menu_map[menu->getName()] = menu;
         }

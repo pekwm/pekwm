@@ -1,6 +1,6 @@
 //
 // Frame.cc for pekwm
-// Copyright (C) 2002-2006 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2002-2007 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -53,6 +53,7 @@ using std::list;
 using std::mem_fun;
 using std::string;
 using std::vector;
+using std::wstring;
 
 list<Frame*> Frame::_frame_list = list<Frame*>();
 vector<uint> Frame::_frameid_list = vector<uint>();
@@ -496,7 +497,7 @@ Frame::updatedActiveChild(void)
 
 //! @brief
 void
-Frame::getDecorInfo(char *buf, uint size)
+Frame::getDecorInfo(wchar_t *buf, uint size)
 {
     uint width, height;
     if (_client != NULL) {
@@ -505,7 +506,7 @@ Frame::getDecorInfo(char *buf, uint size)
         width = _gm.width;
         height = _gm.height;
     }
-    snprintf(buf, size, "%d+%d+%d+%d", width, height,
+    swprintf(buf, size, L"%d+%d+%d+%d", width, height,
              _gm.x + Workspaces::instance()->getActiveViewport()->getX(),
              _gm.y + Workspaces::instance()->getActiveViewport()->getY());
 }
@@ -904,24 +905,26 @@ Frame::fixGeometry(void)
 void
 Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: rewrite
 {
-    if (client == NULL)
+    if (! client) {
         return;
+    }
 
     int o_x, o_y;
     o_x = ev ? ev->x_root : 0;
     o_y = ev ? ev->y_root : 0;
 
-    string name("Grouping ");
+    wstring name(L"Grouping ");
     if (client->getTitle()->getVisible().size() > 0) {
         name += client->getTitle()->getVisible();
     } else {
-        name += "No Name";
+        name += L"No Name";
     }
 
     bool status = _scr->grabPointer(_scr->getRoot(),
                                     ButtonReleaseMask|PointerMotionMask, None);
-    if (status != true)
+    if (status != true) {
         return;
+    }
 
     StatusWindow *sw = StatusWindow::instance();
 
@@ -1100,8 +1103,8 @@ Frame::doResize(bool left, bool x, bool top, bool y)
     int pointer_x = _gm.x, pointer_y = _gm.y;
     _scr->getMousePosition(pointer_x, pointer_y);
 
-    char buf[128];
-    getDecorInfo(buf, sizeof(buf)/sizeof(char));
+    wchar_t buf[128];
+    getDecorInfo(buf, 128);
 
     StatusWindow *sw = StatusWindow::instance();
     if (Config::instance()->isShowStatusWindow()) {
@@ -1139,7 +1142,7 @@ Frame::doResize(bool left, bool x, bool top, bool y)
 
             recalcResizeDrag(new_x, new_y, left, top);
 
-            getDecorInfo(buf, sizeof(buf)/sizeof(char));
+            getDecorInfo(buf, 128);
             if (Config::instance()->isShowStatusWindow()) {
                 sw->draw(buf, true);
             }
@@ -1601,17 +1604,17 @@ Frame::setStateSkip(StateAction sa, uint skip)
 
 //! @brief Sets client title
 void
-Frame::setStateTitle(StateAction sa, Client *client, const std::string &title)
+Frame::setStateTitle(StateAction sa, Client *client, const std::wstring &title)
 {
     if (sa == STATE_SET) {
         client->getTitle()->setUser(title);
 
     } else if (sa == STATE_UNSET) {
-        client->getTitle()->setUser("");
+        client->getTitle()->setUser(L"");
         client->getXClientName();
     } else {
         if (client->getTitle()->isUserSet()) {
-            client->getTitle()->setUser("");
+            client->getTitle()->setUser(L"");
         } else {
             client->getTitle()->setUser(title);
         }
@@ -1620,7 +1623,7 @@ Frame::setStateTitle(StateAction sa, Client *client, const std::string &title)
     // Set PEKWM_TITLE atom to preserve title on client between sessions.
     AtomUtil::setString(client->getWindow(),
                         PekwmAtoms::instance()->getAtom(PEKWM_TITLE),
-                        client->getTitle()->getUser());
+                        Util::to_mb_str(client->getTitle()->getUser()));
     
 
     renderTitle();
@@ -1736,7 +1739,7 @@ Frame::readAutoprops(uint type)
     _class_hint->title = _client->getTitle()->getReal();
     AutoProperty *data =
         AutoProperties::instance()->findAutoProperty(_class_hint, _workspace, type);
-    _class_hint->title = "";
+    _class_hint->title = L"";
 
     if (data == NULL)
         return;

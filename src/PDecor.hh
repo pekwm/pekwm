@@ -59,10 +59,10 @@ class Button : public PWinObj {
 
         TitleItem(void) : _count(0), _id(0), _info(0), _width(0) { }
 
-        inline const std::string &getVisible(void) const { return _visible; }
-        inline const std::string &getReal(void) const { return _real; }
-        inline const std::string &getCustom(void) const { return _custom; }
-        inline const std::string &getUser(void) const { return _user; }
+        inline const std::wstring &getVisible(void) const { return _visible; }
+        inline const std::wstring &getReal(void) const { return _real; }
+        inline const std::wstring &getCustom(void) const { return _custom; }
+        inline const std::wstring &getUser(void) const { return _user; }
  
         inline uint getCount(void) const { return _count; }
         inline uint getId(void) const { return _id; }
@@ -74,19 +74,19 @@ class Button : public PWinObj {
         inline void infoRemove(enum Info info) { _info &= ~info; }
         inline bool infoIs(enum Info info) { return (_info&info); }
 
-        void setReal(const std::string &real) {
+        void setReal(const std::wstring &real) {
             _real = real;
             if (!isUserSet() && !isCustom()) {
                 updateVisible();
             }
         }
-        void setCustom(const std::string &custom) {
+        void setCustom(const std::wstring &custom) {
             _custom = custom;
             if (_custom.size() > 0 && !isUserSet()) {
                 updateVisible();
             }
         }
-        void setUser(const std::string &user) {
+        void setUser(const std::wstring &user) {
             _user = user;
             updateVisible();
         }
@@ -97,11 +97,11 @@ class Button : public PWinObj {
         void updateVisible(void);
 
     private:
-        std::string _visible; //!< Visible version of title
-
-        std::string _real; //!< Title from client
-        std::string _custom; //!< Custom (title rule) set version of title
-        std::string _user; //!< User set version of title
+        std::wstring _visible; //!< Visible version of title
+      
+        std::wstring _real; //!< Title from client
+        std::wstring _custom; //!< Custom (title rule) set version of title
+        std::wstring _user; //!< User set version of title
 
         uint _count; //!< Number of title
         uint _id; //!< ID of title
@@ -157,7 +157,7 @@ class Button : public PWinObj {
     virtual void updatedChildOrder(void) { }
     virtual void updatedActiveChild(void) { }
 
-    virtual void getDecorInfo(char *buf, uint size);
+    virtual void getDecorInfo(wchar_t *buf, uint size);
 
     virtual void setShaded(StateAction sa);
     virtual void setSkip(uint skip);

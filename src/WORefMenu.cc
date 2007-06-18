@@ -1,12 +1,15 @@
 //
 // WORefMenu.hh for pekwm
-// Copyright (C) 2004 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2004-2007 Claes Nästen <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
+#ifdef HAVE_CONFIG_H
 #include "../config.h"
+#endif // HAVE_CONFIG_H
+
 #ifdef MENUS
 
 #include "PWinObj.hh"
@@ -18,6 +21,7 @@
 #include "Client.hh"
 
 using std::string;
+using std::wstring;
 
 //! @brief WORefMenu constructor
 //! @param scr Pointer to PScreen
@@ -26,11 +30,11 @@ using std::string;
 //! @param name Name of menu
 //! @param decor_name Name of decor, defaults to MENU
 WORefMenu::WORefMenu(PScreen *scr, Theme *theme,
-                     const std::string &title, const std::string &name,
+                     const std::wstring &title, const std::string &name,
                      const std::string &decor_name) :
         PMenu(scr->getDpy(), theme, title, name, decor_name),
         _wo_ref(NULL), _title_base(title),
-        _title_pre(" ["), _title_post("]")
+        _title_pre(L" ["), _title_post(L"]")
 {
 }
 
@@ -45,7 +49,7 @@ WORefMenu::setWORef(PWinObj *wo)
 {
     _wo_ref = wo;
 
-    string title = _title_base;
+    wstring title(_title_base);
 
     // if of client type, add the clients named to the title
     if ((_wo_ref != NULL) && (_wo_ref->getType() == PWinObj::WO_CLIENT)) {

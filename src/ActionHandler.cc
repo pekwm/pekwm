@@ -374,7 +374,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 break;
 
             case ACTION_FIND_CLIENT:
-                actionFindClient(it->getParamS());
+                actionFindClient(Util::to_wide_str(it->getParamS()));
                 break;
             case ACTION_GOTO_CLIENT_ID:
                 actionGotoClientID(it->getParamI(0));
@@ -482,7 +482,7 @@ ActionHandler::handleStateAction(const Action &action, PWinObj *wo,
             frame->setDecorOverride(sa, action.getParamS());
             break;
         case ACTION_STATE_TITLE:
-            frame->setStateTitle(sa, client, action.getParamS());
+            frame->setStateTitle(sa, client, Util::to_wide_str(action.getParamS()));
             break;
         default:
             matched = false;
@@ -560,7 +560,7 @@ ActionHandler::findMouseAction(uint button, uint state, MouseEventType type,
 
 //! @brief Searches for a client matching titles and makes it visible
 void
-ActionHandler::actionFindClient(const std::string &title)
+ActionHandler::actionFindClient(const std::wstring &title)
 {
     Client *client = findClientFromTitle(title);
     if (client) {
@@ -877,7 +877,7 @@ ActionHandler::createNextPrevMenu(bool show_iconified)
 {
     ActionEvent ae; // empty ae, used when inserting
     PMenu *menu =
-        new PMenu(PScreen::instance()->getDpy(), _wm->getTheme(), "Windows",
+        new PMenu(PScreen::instance()->getDpy(), _wm->getTheme(), L"Windows",
                   "" /* Empty name*/);
 
     Frame *fr;
@@ -900,7 +900,7 @@ ActionHandler::createMRUMenu(bool show_iconified)
 {
     ActionEvent ae; // empty ae, used when inserting
     PMenu *menu =
-        new PMenu(PScreen::instance()->getDpy(), _wm->getTheme(), "MRU Windows",
+        new PMenu(PScreen::instance()->getDpy(), _wm->getTheme(), L"MRU Windows",
                   "" /* Empty name */);
 
     Frame *fr;
@@ -941,7 +941,7 @@ ActionHandler::createMenuInclude(Frame *frame, bool show_iconified)
 
 //! @brief Searches the client list for a client with a title matching title
 Client*
-ActionHandler::findClientFromTitle(const std::string &or_title)
+ActionHandler::findClientFromTitle(const std::wstring &or_title)
 {
     RegexString o_rs;
 

@@ -1,12 +1,14 @@
 //
 // AutoProperties.hh for pekwm
-// Copyright (C) 2003-2004 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2003-2007 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #ifndef _AUTOPROPERTIES_HH_
 #define _AUTOPROPERTIES_HH_
@@ -79,8 +81,8 @@ public:
     }
 
 public:
-    std::string h_name, h_class, h_role;
-    std::string title, group;
+    std::wstring h_name, h_class, h_role;
+    std::wstring title, group;
 };
 
 class Property {
@@ -136,7 +138,7 @@ public:
 
     // grouping variables
     int group_size;
-    std::string group_name;
+    std::wstring group_name;
     bool group_behind, group_focused_first, group_global, group_raise;
 
 private:

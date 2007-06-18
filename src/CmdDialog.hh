@@ -1,6 +1,6 @@
 //
 // CmdDialog.hh for pekwm
-// Copyright (C) 2004-2006 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2004-2007 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -8,7 +8,9 @@
 // $Id$
 //
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #ifndef _CMD_DIALOG_HH_
 #define _CMD_DIALOG_HH_
@@ -26,7 +28,7 @@ class Theme::TextDialogData;
 class CmdDialog : public PDecor
 {
 public:
-    CmdDialog(Display *dpy, Theme *theme, const std::string &title);
+    CmdDialog(Display *dpy, Theme *theme, const std::wstring &title);
     virtual ~CmdDialog(void);
 
     // BEGIN - PWinObj interface
@@ -39,7 +41,7 @@ public:
     ActionEvent *handleKeyPress(XKeyEvent *ev);
     ActionEvent *handleExposeEvent(XExposeEvent *ev);
 
-    void setTitle(const std::string &title);
+    void setTitle(const std::wstring &title);
 
     //! @brief Returns the PWinObj the CmdDialog executes actions on.
     inline PWinObj *getWORef(void) { return _wo_ref; }
@@ -86,13 +88,13 @@ private:
     PWinObj *_wo_ref;
 
     // content related
-    std::string _buf;
+    std::wstring _buf;
     uint _pos, _buf_off, _buf_chars; // position, start and num display
 
     // history
-    std::string _hist_new; // the one we started editing on
-    std::list<std::string> _hist_list;
-    std::list<std::string>::iterator _hist_it;
+    std::wstring _hist_new; // the one we started editing on
+    std::list<std::wstring> _hist_list;
+    std::list<std::wstring>::iterator _hist_it;
 };
 
 #endif // _CMD_DIALOG_HH_

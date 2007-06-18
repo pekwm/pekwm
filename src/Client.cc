@@ -50,6 +50,7 @@ using std::find;
 using std::list;
 using std::string;
 using std::vector;
+using std::wstring;
 
 list<Client*> Client::_client_list = list<Client*>();
 vector<uint> Client::_clientid_list = vector<uint>();
@@ -166,8 +167,10 @@ Client::Client(WindowManager *w, Window new_client, bool is_new)
     // Set state either specified in hint
     if (getWmState() == IconicState) {
       _iconified = true;
-      _mapped = false;
-    } else if (_iconified) {
+    }
+
+    if (_iconified || initial_state == IconicState) {
+      _iconified = true;
       _mapped = true;
       unmapWindow();
     } else {
@@ -677,16 +680,18 @@ Client::readClassRoleHints(void)
     // class hint
     XClassHint class_hint;
     if (XGetClassHint(_dpy, _window, &class_hint)) {
-        _class_hint->h_name = class_hint.res_name;
-        _class_hint->h_class = class_hint.res_class;
+        _class_hint->h_name = Util::to_wide_str(class_hint.res_name);
+        _class_hint->h_class = Util::to_wide_str(class_hint.res_class);
         XFree(class_hint.res_name);
         XFree(class_hint.res_class);
     }
 
     // wm window role
-    _class_hint->h_role = "";
-    AtomUtil::getString(_window, IcccmAtoms::instance()->getAtom(WM_WINDOW_ROLE),
-                        _class_hint->h_role);
+    string role;
+    AtomUtil::getString(_window,
+                        IcccmAtoms::instance()->getAtom(WM_WINDOW_ROLE),  role);
+
+    _class_hint->h_role = Util::to_wide_str(role);
 }
 
 //! @brief Loads the Clients state from EWMH atoms.
@@ -837,7 +842,7 @@ Client::readPekwmHints(void)
 
     // Get custom title
     if (AtomUtil::getString(_window, atoms->getAtom(PEKWM_TITLE), str)) {
-        _title.setUser(str);
+        _title.setUser(Util::to_wide_str(str));
     }
 }
 
@@ -962,15 +967,17 @@ Client::getXClientName(void)
 
     XFree(text_property.value);
 
+    wstring wtitle(Util::to_wide_str(title));
+
     // Mirror it on the visible
-    _title.setCustom("");
-    _title.setCount(titleFindID(title));
-    _title.setReal(title);
+    _title.setCustom(L"");
+    _title.setCount(titleFindID(wtitle));
+    _title.setReal(wtitle);
 
     // Apply title rules and find unique name, doesn't apply on
     // user-set titles
-    if (titleApplyRule(title)) {
-        _title.setCustom(title);
+    if (titleApplyRule(wtitle)) {
+        _title.setCustom(wtitle);
     }
 }
 
@@ -978,12 +985,12 @@ Client::getXClientName(void)
 //! @param title Title to apply rule on.
 //! @return true if rule was applied, else false.
 bool
-Client::titleApplyRule(std::string &title)
+Client::titleApplyRule(std::wstring &title)
 {
     _class_hint->title = title;
     TitleProperty *data =
         AutoProperties::instance()->findTitleProperty (_class_hint);
-    _class_hint->title = "";
+    _class_hint->title = L"";
 
     if (data) {
         return data->getTitleRule ().ed_s (title);
@@ -996,7 +1003,7 @@ Client::titleApplyRule(std::string &title)
 //! @param title Title of client to find ID for.
 //! @return Number of clients with that id.
 uint
-Client::titleFindID(std::string &title)
+Client::titleFindID(std::wstring &title)
 {
     // Do not search for unique IDs if it is not enabled.
     if (Config::instance()->getClientUniqueName() == false) {
