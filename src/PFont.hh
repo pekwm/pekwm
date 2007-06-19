@@ -1,17 +1,24 @@
 //
 // PFont.hh for pekwm
-// Copyright (C) 2003-2004 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2003-2007 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
-
-#include "../config.h"
+// $Id$
+//
 
 #ifndef _PFONT_HH_
 #define _PFONT_HH_
 
-#include "pekwm.hh"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
+
+#include <string>
+#ifdef HAVE_LIMITS
+#include <limits>
+#endif // HAVE_LIMITS
 
 extern "C" {
 #ifdef HAVE_XFT
@@ -19,12 +26,9 @@ extern "C" {
 #endif // HAVE_XFT
 }
 
-class PScreen;
+#include "pekwm.hh"
 
-#include <string>
-#ifdef HAVE_LIMITS
-#include <limits>
-#endif // HAVE_LIMITS
+class PScreen;
 
 class PFont
 {

@@ -1,25 +1,27 @@
 //
 // FontHandler.cc for pekwm
-// Copyright (C) 2004 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2004-2007 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
+// $Id$
+//
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
+
+#include <cctype>
+#include <iostream>
 
 #include "PScreen.hh"
 #include "ColorHandler.hh"
 #include "FontHandler.hh"
 #include "Util.hh"
 
-#include <cctype>
-#ifdef DEBUG
-#include <iostream>
 using std::cerr;
 using std::endl;
-#endif // DEBUG
-
 using std::map;
 using std::list;
 using std::vector;
@@ -95,13 +97,11 @@ FontHandler::FontHandler(void) :
                    if ((Util::splitString(font, tok, "#")) > 1) {
                        uint type = ParseUtil::getValue<PFont::Type>(tok.back(), _map_type);
                        switch (type) {
-#if 0
                        case PFont::FONT_TYPE_XMB:
                            pfont = new PFontXmb(PScreen::instance());
                            tok_it = tok.end();
                            tok.erase(--tok_it);
                            break;
-#endif // 0
 #ifdef HAVE_XFT
                        case PFont::FONT_TYPE_XFT:
                            pfont = new PFontXft(PScreen::instance());

@@ -287,6 +287,19 @@ getUtf8String(Window win, Atom atom, std::wstring &value)
   return status;
 }
 
+//! @brief Set UTF-8 string.
+void
+setUtf8String(Window win, Atom atom, const std::wstring &value)
+{
+  string utf8_string(Util::to_utf8_str(value));
+
+  XChangeProperty(PScreen::instance()->getDpy(), win, atom,
+                  EwmhAtoms::instance()->getAtom(UTF8_STRING), 8,
+                  PropModeReplace,
+                  reinterpret_cast<const uchar*>(utf8_string.c_str()),
+                  utf8_string.size());
+}
+
 //! @brief Set XA_STRING property
 void
 setString(Window win, Atom atom, const string &value)

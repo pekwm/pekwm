@@ -12,21 +12,6 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#include "Config.hh"
-#include "PWinObj.hh"
-#include "PDecor.hh"
-#include "PScreen.hh"
-#include "PTexture.hh"
-#include "PTexturePlain.hh" // PTextureSolid
-#include "ActionHandler.hh"
-#include "ScreenResources.hh"
-#include "StatusWindow.hh"
-#include "KeyGrabber.hh"
-#include "Theme.hh"
-#include "PixmapHandler.hh"
-#include "Workspaces.hh"
-#include "Viewport.hh"
-
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
@@ -40,6 +25,22 @@ extern "C" {
 #include <X11/extensions/shape.h>
 #endif // HAVE_SHAPE
 }
+
+#include "Config.hh"
+#include "PWinObj.hh"
+#include "PFont.hh"
+#include "PDecor.hh"
+#include "PScreen.hh"
+#include "PTexture.hh"
+#include "PTexturePlain.hh" // PTextureSolid
+#include "ActionHandler.hh"
+#include "ScreenResources.hh"
+#include "StatusWindow.hh"
+#include "KeyGrabber.hh"
+#include "Theme.hh"
+#include "PixmapHandler.hh"
+#include "Workspaces.hh"
+#include "Viewport.hh"
 
 using std::cerr;
 using std::endl;
@@ -1423,9 +1424,9 @@ PDecor::renderTitle(void)
         font->setColor(_data->getFontColor(getFocusedState(sel)));
 
         if ((*it)) {
-          PFont::TrimType trim = TRIM_MIDDLE;
+          PFont::TrimType trim = PFont::FONT_TRIM_MIDDLE;
           if ((*it)->isCustom() || (*it)->isUserSet()) {
-            trim = TRIM_END;
+            trim = PFont::FONT_TRIM_END;
           }
 
           font->draw(_title_bg,

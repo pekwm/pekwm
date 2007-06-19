@@ -327,7 +327,6 @@ PFontX11::setColor(PFont::Color *color)
 
 // PFontXmb
 
-#if 0
 //! @brief PFontXmb constructor
 PFontXmb::PFontXmb(PScreen *scr) : PFont(scr),
         _fontset(NULL),
@@ -402,24 +401,26 @@ PFontXmb::unload(void)
 
 //! @brief Gets the width the text would take using this font
 uint
-PFontXmb::getWidth(const char *text, uint max_chars)
+PFontXmb::getWidth(const std::wstring &text, uint max_chars)
 {
-    if (text == NULL)
-        return 0;
+  if (! text.size()) {
+    return 0;
+  }
 
-    // make sure the max_chars has a decent value, if it's less than 1 wich it
-    // defaults to set it to the numbers of chars in the string text
-    if ((max_chars == 0) || (max_chars > strlen(text)))
-        max_chars = strlen(text);
+  // Make sure the max_chars has a decent value, if it's less than 1 wich it
+  // defaults to set it to the numbers of chars in the string text
+  if (! max_chars || (max_chars > text.size())) {
+    max_chars = text.size();
+  }
 
-    uint width = 0;
-    if (_fontset != NULL) {
-        XRectangle ink, logical;
-        XmbTextExtents(_fontset, text, max_chars, &ink, &logical);
-        width = logical.width;
-    }
+  uint width = 0;
+  if (_fontset) {
+    XRectangle ink, logical;
+    XwcTextExtents(_fontset, text.c_str(), max_chars, &ink, &logical);
+    width = logical.width;
+  }
 
-    return (width + _offset_x);
+  return (width + _offset_x);
 }
 
 //! @brief Draws the text on dest
@@ -427,13 +428,15 @@ PFontXmb::getWidth(const char *text, uint max_chars)
 //! @param chars Max numbers of characthers to print
 //! @param fg Bool, to use foreground or background colors
 void
-PFontXmb::drawText(Drawable dest, int x, int y, const char *text, uint chars, bool fg)
+PFontXmb::drawText(Drawable dest, int x, int y,
+                   const std::wstring &text, uint chars, bool fg)
 {
-    GC gc = fg ? _gc_fg : _gc_bg;
+  GC gc = fg ? _gc_fg : _gc_bg;
 
-    if ((_fontset != NULL) && (gc != None)) {
-        XmbDrawString(_scr->getDpy(), dest, _fontset, gc, x, y, text, chars);
-    }
+  if (_fontset && (gc != None)) {
+    XwcDrawString(_scr->getDpy(), dest, _fontset, gc,
+                  x, y, text.c_str(), chars);
+  }
 }
 
 //! @brief Sets the color that should be used when drawing
@@ -448,8 +451,6 @@ PFontXmb::setColor(PFont::Color *color)
         XSetForeground(_scr->getDpy(), _gc_bg, color->getBg()->pixel);
     }
 }
-
-#endif // 0
 
 // PFontXft
 
