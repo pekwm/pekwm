@@ -1,21 +1,25 @@
 //
 // Atoms.cc for pekwm
-// Copyright (C) 2003-2004 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2003-2007 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
+// $Id$
+//
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
+
+#include <iostream>
 
 #include "Atoms.hh"
 #include "PScreen.hh"
+#include "Util.hh"
 
-#ifdef DEBUG
-#include <iostream>
 using std::cerr;
 using std::endl;
-#endif // DEBUG
 using std::string;
 using std::map;
 
@@ -31,7 +35,7 @@ PekwmAtoms::PekwmAtoms(void)
     _instance = this;
 
     // pekwm atoms
-    char *names[] = {
+    const char *names[] = {
                         "_PEKWM_FRAME_ID",
                         "_PEKWM_FRAME_DECOR",
                         "_PEKWM_FRAME_SKIP",
@@ -41,7 +45,8 @@ PekwmAtoms::PekwmAtoms(void)
     const uint num = sizeof(names) / sizeof(char*);
     Atom atoms[num];
 
-    XInternAtoms(PScreen::instance()->getDpy(), names, num, 0, atoms);
+    XInternAtoms(PScreen::instance()->getDpy(),
+                 const_cast<char**>(names), num, 0, atoms);
 
     // Insert all atoms into the _atoms map
     for (uint i = 0; i < num; ++i) {
@@ -63,7 +68,7 @@ IcccmAtoms::IcccmAtoms(void)
     _instance = this;
 
     // ICCCM atoms
-    char *names[] = {
+    const char *names[] = {
                         "WM_STATE",
                         "WM_CHANGE_STATE",
                         "WM_PROTOCOLS",
@@ -76,7 +81,8 @@ IcccmAtoms::IcccmAtoms(void)
     const uint num = sizeof(names) / sizeof(char*);
     Atom atoms[num];
 
-    XInternAtoms(PScreen::instance()->getDpy(), names, num, 0, atoms);
+    XInternAtoms(PScreen::instance()->getDpy(),
+                 const_cast<char**>(names), num, 0, atoms);
 
     // Insert all atoms into the _atoms map
     for (uint i = 0; i < num; ++i) {
@@ -97,7 +103,7 @@ EwmhAtoms::EwmhAtoms(void)
         throw string("EwmhAtoms, trying to create multiple instances");
     _instance = this;
 
-    char *names[] = {
+    const char *names[] = {
                         "_NET_SUPPORTED",
                         "_NET_CLIENT_LIST", "_NET_CLIENT_LIST_STACKING",
                         "_NET_NUMBER_OF_DESKTOPS",
@@ -129,12 +135,14 @@ EwmhAtoms::EwmhAtoms(void)
                         "_NET_WM_ACTION_STICK",
                         "_NET_WM_ACTION_MAXIMIZE_VERT", "_NET_WM_ACTION_MAXIMIZE_HORZ",
                         "_NET_WM_ACTION_FULLSCREEN", "_NET_WM_ACTION_CHANGE_DESKTOP",
-                        "_NET_WM_ACTION_CLOSE"
+                        "_NET_WM_ACTION_CLOSE",
+                        "UTF8_STRING"
                     };
     const uint num = sizeof(names) / sizeof(char*);
     Atom atoms[num];
 
-    XInternAtoms(PScreen::instance()->getDpy(), names, num, 0, atoms);
+    XInternAtoms(PScreen::instance()->getDpy(),
+                 const_cast<char**>(names), num, 0, atoms);
 
     // Insert all items into the _atoms map
     for (uint i = 0; i < num; ++i) {
@@ -258,6 +266,25 @@ getString(Window win, Atom atom, string &value)
     }
 
     return false;
+}
+
+//! @brief Get UTF-8 string.
+bool
+getUtf8String(Window win, Atom atom, std::wstring &value)
+{
+  bool status = false;
+  unsigned char *data = NULL;
+
+  if (getProperty(win, atom, EwmhAtoms::instance()->getAtom(UTF8_STRING),
+                  32, &data)) {
+    status = true;
+
+    string utf8_str(reinterpret_cast<char*>(data));
+    value = Util::from_utf8_str(utf8_str);
+    XFree(data);
+  }
+
+  return status;
 }
 
 //! @brief Set XA_STRING property

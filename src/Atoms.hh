@@ -71,7 +71,9 @@ enum EwmhAtomName {
     EWMH_ACTION_STICK,
     EWHM_ACTION_MAXIMIZE_VERT, EWMH_ACTION_MAXIMIZE_HORZ,
     EWMH_ACTION_FULLSCREEN, ACTION_CHANGE_DESKTOP,
-    EWMH_ACTION_CLOSE
+    EWMH_ACTION_CLOSE,
+
+    UTF8_STRING
 };
 
 // pekwm stuff
@@ -157,6 +159,9 @@ void setLong(Window win, Atom atom, long value);
 
 bool getString(Window win, Atom atom, std::string &value);
 void setString(Window win, Atom atom, const std::string &value);
+
+bool getUtf8String(Window win, Atom atom, std::wstring &value);
+void setUtf8String(Window win, Atom atom, const std::wstring &value);
 
 bool getPosition(Window win, Atom atom, int &x, int &y);
 void setPosition(Window win, Atom atom, int x, int y);

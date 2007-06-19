@@ -1422,16 +1422,18 @@ PDecor::renderTitle(void)
         font = getFont(getFocusedState(sel));
         font->setColor(_data->getFontColor(getFocusedState(sel)));
 
-        // this is a icky one, draws the text in the tab depending on justify
-        // and wheter or not the title has a TitleRule applied
-        if ((*it) != NULL) {
-            font->draw(_title_bg,
-                       x + _data->getPad(PAD_LEFT), // X position
-                       _data->getPad(PAD_UP), // Y position
-                       (*it)->getVisible(), 0, // Text and max chars
-                       (*it)->getWidth() - pad_horiz, // Available width
-                       ((*it)->isCustom() || (*it)->isUserSet()) // Type of trimming
-                       ? PFont::FONT_TRIM_END : PFont::FONT_TRIM_MIDDLE);
+        if ((*it)) {
+          PFont::TrimType trim = TRIM_MIDDLE;
+          if ((*it)->isCustom() || (*it)->isUserSet()) {
+            trim = TRIM_END;
+          }
+
+          font->draw(_title_bg,
+                     x + _data->getPad(PAD_LEFT), // X position
+                     _data->getPad(PAD_UP), // Y position
+                     (*it)->getVisible(), 0, // Text and max chars
+                     (*it)->getWidth() - pad_horiz, // Available width
+                     trim); // Type of trim
         }
 
         // move to next tab (or separator if any)

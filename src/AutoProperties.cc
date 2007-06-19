@@ -605,6 +605,19 @@ AutoProperties::setDefaultTypeProperties(void)
     _window_type_prop_map[WINDOW_TYPE_MENU] = prop;
   }
 
+  // UTILITY
+  if (! findWindowTypeProperty(WINDOW_TYPE_UTILITY)) {
+    AutoProperty *prop = new AutoProperty();
+    prop->maskAdd(AP_TITLEBAR);
+    prop->border = false;
+    prop->maskAdd(AP_BORDER);
+    prop->border = false;
+    prop->maskAdd(AP_SKIP);
+    prop->skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE|SKIP_SNAP;
+
+    _window_type_prop_map[WINDOW_TYPE_UTILITY] = prop;
+  }
+
   // SPLASH
   if (! findWindowTypeProperty(WINDOW_TYPE_SPLASH)) {
     AutoProperty *prop = new AutoProperty();

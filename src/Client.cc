@@ -942,43 +942,48 @@ Client::returnClientID(uint id)
 void
 Client::getXClientName(void)
 {
-    string title;
+  wstring title;
 
+  if (AtomUtil::getUtf8String(_window,
+                              EwmhAtoms::instance()->getAtom(NET_WM_NAME),
+                              title)) {
+  } else {
     // read X11 property
     XTextProperty text_property;
     if ((XGetWMName(_dpy, _window, &text_property) == False) ||
-            (text_property.value == NULL) || (text_property.nitems == 0)){
+        (text_property.value == NULL) || (text_property.nitems == 0)){
         return;
     }
 
     if (text_property.encoding == XA_STRING) {
-        title = (const char*) text_property.value;
+      string value(reinterpret_cast<const  char*>(text_property.value));
+      title = Util::to_wide_str(value);
 
     } else {
-        char **list;
-        int num;
+      char **list;
+      int num;
 
-        XmbTextPropertyToTextList(_dpy, &text_property, &list, &num);
-        if ((num > 0) && (*list != NULL)) {
-            title = *list;
-            XFreeStringList(list);
-        }
+      XmbTextPropertyToTextList(_dpy, &text_property, &list, &num);
+      if (list && (num > 0)) {
+        string value(*list);
+        title = Util::to_wide_str(value);
+        XFreeStringList(list);
+      }
     }
 
     XFree(text_property.value);
+  }
 
-    wstring wtitle(Util::from_utf8_str(title));
+  // Mirror it on the visible
+  _title.setCustom(L"");
+  _title.setCount(titleFindID(title));
+  _title.setReal(title);
 
-    // Mirror it on the visible
-    _title.setCustom(L"");
-    _title.setCount(titleFindID(wtitle));
-    _title.setReal(wtitle);
-
-    // Apply title rules and find unique name, doesn't apply on
-    // user-set titles
-    if (titleApplyRule(wtitle)) {
-        _title.setCustom(wtitle);
-    }
+  // Apply title rules and find unique name, doesn't apply on
+  // user-set titles
+  if (titleApplyRule(title)) {
+    _title.setCustom(title);
+  }
 }
 
 //! @brief Searches for an TitleRule and if found, applies it

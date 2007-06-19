@@ -304,8 +304,6 @@ size_t
 do_iconv (iconv_t ic, const char **inp, size_t *in_bytes,
           char **outp, size_t *out_bytes)
 {
-#define ICONV_CONST 1 // FIXME: Remove
-
 #ifdef ICONV_CONST
   return iconv (ic, inp, in_bytes, outp, out_bytes);
 #else // !ICONV_CONST
