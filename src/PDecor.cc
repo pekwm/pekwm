@@ -254,8 +254,10 @@ PDecor::~PDecor(void)
         }
     }
 
-    // make things look smoother, buttons will be noticed as deleted otherwise
-    unmapWindow();
+    // Make things look smoother, buttons will be noticed as deleted
+    // otherwise. Using X call directly to avoid re-drawing and other
+    // special features not required when removing the window.
+    XUnmapWindow(_dpy, _window);
 
     // free buttons
     unloadDecor();
