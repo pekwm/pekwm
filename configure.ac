@@ -17,6 +17,9 @@ if test x$regex_cmd = "x"; then
 	AC_MSG_ERROR([Could not find sed. It is required to build the configuration files.])
 fi
 
+dnl Check for iconv
+AM_ICONV
+
 dnl add x11 to the env
 AC_PATH_X
 AC_PATH_XTRA

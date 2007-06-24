@@ -1,14 +1,16 @@
 //
 // PScreen.cc for pekwm
-// Copyright (C) 2003-2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2003-2007 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
+// $Id$
+//
 
-#include "../config.h"
-#include "PScreen.hh"
-#include "Config.hh"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #include <string>
 #include <iostream>
@@ -30,11 +32,14 @@ extern "C" {
 #include <X11/keysym.h> // For XK_ entries
 }
 
+#include "PScreen.hh"
+#include "Config.hh"
+
 using std::cerr;
 using std::endl;
-using std::string;
 using std::list;
 using std::map;
+using std::string;
 
 PScreen* PScreen::_instance = NULL;
 
@@ -417,38 +422,35 @@ PScreen::getHeadInfo(uint head, Geometry &head_info)
 
 #endif // HAVE_XINERAMA
 
-//! @brief
+//! @brief Fill information about head and the strut.
 void
 PScreen::getHeadInfoWithEdge(uint num, Geometry &head)
 {
 #ifdef HAVE_XINERAMA
-    getHeadInfo(num, head);
+  getHeadInfo(num, head);
 
-    int strut_val;
+  if (num >= _xinerama_num_heads) {
+    return;
+  }
 
-    // remove the strut area from the head info
-    if (head.x == 0) {
-        strut_val = (_strut.left > _xinerama_struts[num].left)
-                    ? _strut.left : _xinerama_struts[num].left;
-        head.x += strut_val;
-        head.width -= strut_val;
-    }
-    if ((head.x + head.width) == _width) {
-        strut_val = (_strut.right > _xinerama_struts[num].right)
-                    ? _strut.right : _xinerama_struts[num].right;
-        head.width -= strut_val;
-    }
-    if (head.y == 0) {
-        strut_val = (_strut.top > _xinerama_struts[num].top)
-                    ? _strut.top : _xinerama_struts[num].top;
-        head.y += strut_val;
-        head.height -= strut_val;
-    }
-    if ((head.y + head.height) == _height) {
-        strut_val = (_strut.bottom > _xinerama_struts[num].bottom)
-                    ? _strut.bottom : _xinerama_struts[num].bottom;
-        head.height -= strut_val;
-    }
+  Strut strut(_xinerama_struts[num]);
+  int strut_val;
+
+  // Remove the strut area from the head info
+  strut_val = (head.x == 0) ? std::max(_strut.left, strut.left) : strut.left;
+  head.x += strut_val;
+  head.width -= strut_val;  
+
+  strut_val = ((head.x + head.width) == _width) ? std::max(_strut.right, strut.right) : strut.right;
+  head.width -= strut_val;
+
+  strut_val = (head.y == 0) ? std::max(_strut.top, strut.top) : strut.top;
+  head.y += strut_val;
+  head.height -= strut_val;
+
+  strut_val = (head.y + head.height == _height) ? std::max(_strut.bottom, strut.bottom) : strut.bottom;
+  head.height -= strut_val;
+
 #else //! HAVE_XINERAMA
     head.x = _strut.left;
     head.y = _strut.top;
