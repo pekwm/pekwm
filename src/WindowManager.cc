@@ -1,6 +1,6 @@
 //
 // WindowManager.cc for pekwm
-// Copyright (C) 2002-2006 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2002-2007 Claes Nästén <me{@}pekdon{.}net>
 //
 // windowmanager.cc for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
@@ -12,7 +12,10 @@
 // $Id$
 //
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
+
 #include "PWinObj.hh"
 #include "PDecor.hh"
 #include "Frame.hh"
@@ -752,24 +755,22 @@ WindowManager::screenEdgeResize(void)
 
     list<EdgeWO*>::iterator it(_screen_edge_list.begin());
 
-    // left edge
-    (*it)->move(0, 0);
-    (*it)->resize(size, _screen->getHeight());
+    // Left edge
+    (*it)->moveResize(0, 0, size, _screen->getHeight());
     ++it;
 
-    // right edge
-    (*it)->move(_screen->getWidth() - size, 0);
-    (*it)->resize(size, _screen->getHeight());
+    // Right edge
+    (*it)->moveResize(_screen->getWidth() - size, 0,
+                      size, _screen->getHeight());
     ++it;
 
-    // top edge
-    (*it)->move(size, 0);
-    (*it)->resize(_screen->getWidth() - (size * 2), size);
+    // Top edge
+    (*it)->moveResize(size, 0, _screen->getWidth() - (size * 2), size);
     ++it;
 
     // bottom edge
-    (*it)->move(size, _screen->getHeight() - size);
-    (*it)->resize(_screen->getWidth() - (size * 2), size);
+    (*it)->moveResize(size, _screen->getHeight() - size,
+                      _screen->getWidth() - (size * 2), size);
 }
 
 void
@@ -1403,11 +1404,12 @@ WindowManager::handleLeaveNotify(XCrossingEvent *ev)
 void
 WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
 {
+    if ((ev->mode == NotifyGrab) || (ev->mode == NotifyUngrab)) {
+        return;
+    }
+
     // Get the last focus in event, no need to go through them all.
     while (XCheckTypedEvent(_screen->getDpy(), FocusIn, (XEvent *) ev));
-
-    if ((ev->mode == NotifyGrab) || (ev->mode == NotifyUngrab))
-        return;
 
     PWinObj *wo = PWinObj::findPWinObj(ev->window);
     if (wo) {
@@ -1464,11 +1466,12 @@ WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
 void
 WindowManager::handleFocusOutEvent(XFocusChangeEvent *ev)
 {
+    if ((ev->mode == NotifyGrab) || (ev->mode == NotifyUngrab)) {
+        return;
+    }
+
     // Get the last focus in event, no need to go through them all.
     while (XCheckTypedEvent(_screen->getDpy(), FocusOut, (XEvent *) ev));
-
-    if ((ev->mode == NotifyGrab) || (ev->mode == NotifyUngrab))
-        return;
 
     // Match against focusd PWinObj if any, if matches we see if
     // there are any FocusIn events in the queue, if not we give focus to

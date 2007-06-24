@@ -460,6 +460,20 @@ Client::resize(uint width, uint height)
     }
 }
 
+//! @brief Move and resizes the client window to specified size.
+void
+Client::moveResize(int x, int y, uint width, uint height, bool do_virtual)
+{
+  bool request = ((_gm.x != x) || (_gm.y != y)
+                  || (_gm.width != width) || (_gm.height != height));
+
+  PWinObj::resize(width, height);
+
+  if (request) {
+    configureRequestSend();
+  }
+}
+
 //! @brief Sets the workspce and updates the _NET_WM_DESKTOP hint.
 void
 Client::setWorkspace(uint workspace)
@@ -1123,7 +1137,7 @@ void
 Client::configureRequestSend(void)
 {
     if (_cfg_request_lock) {
-        return;
+      return;
     }
 
     XConfigureEvent e;

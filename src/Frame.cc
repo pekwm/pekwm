@@ -200,8 +200,7 @@ Frame::Frame(WindowManager *wm, Client *client, AutoProperty *ap)
             (Config::instance()->getViewportRows() < 2)) {
         if (_client->hasStrut() == false) {
             if (fixGeometry()) {
-                move(_gm.x, _gm.y);
-                resize(_gm.width, _gm.height);
+                moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
             }
         }
     } else {
@@ -1150,8 +1149,7 @@ Frame::doResize(bool left, bool x, bool top, bool y)
             // only updated when needed when in opaque mode
             if (outline == false) {
                 if ((old_width != _gm.width) || (old_height != _gm.height)) {
-                    resize(_gm.width, _gm.height);
-                    move(_gm.x, _gm.y);
+                    moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
                 }
                 old_width = _gm.width;
                 old_height = _gm.height;
@@ -1179,11 +1177,7 @@ Frame::doResize(bool left, bool x, bool top, bool y)
     }
 
     if (outline) {
-        resize(_gm.width, _gm.height);
-        move(_gm.x, _gm.y);
-    }
-
-    if (outline) {
+        moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
         _scr->ungrabServer(true);
     }
 }
@@ -1430,13 +1424,12 @@ Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
     fixGeometry(); // harbour already considered
     downSize(true, true); // keep x and keep y ( make conform to inc size )
 
-    resize(_gm.width, _gm.height);
-    move(_gm.x, _gm.y);
+    moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
 
     _client->updateEwmhStates();
 }
 
-//! @brief
+//! @brief Set fullscreen state
 void
 Frame::setStateFullscreen(StateAction sa)
 {
@@ -1472,8 +1465,7 @@ Frame::setStateFullscreen(StateAction sa)
     _fullscreen = !_fullscreen;
     _client->setFullscreen(_fullscreen);
 
-    move(_gm.x, _gm.y);
-    resize(_gm.width, _gm.height);
+    moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
 
     _client->setConfigureRequestLock(lock);
     _client->configureRequestSend();
@@ -1714,8 +1706,7 @@ Frame::growDirection(uint direction)
 
     downSize((direction != DIRECTION_LEFT), (direction != DIRECTION_UP));
 
-    move(_gm.x, _gm.y);
-    resize(_gm.width, _gm.height);
+    moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
 }
 
 //! @brief Closes the frame and all clients in it
@@ -1794,9 +1785,8 @@ Frame::readAutoprops(uint type)
     if (data->isMask(AP_FRAME_GEOMETRY|AP_CLIENT_GEOMETRY)) {
         setupAPGeometry(_client, data);
 
-        // apply changes
-        move(_gm.x, _gm.y);
-        resize(_gm.width, _gm.height);
+        // Apply changes
+        moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
     }
 
     if (data->isMask(AP_BORDER) && (hasBorder() != data->border))

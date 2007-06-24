@@ -353,7 +353,7 @@ PDecor::moveVirtual(int x, int y)
 void
 PDecor::resize(uint width, uint height)
 {
-    // if shaded, don't resize to the size specified just update width
+    // If shaded, don't resize to the size specified just update width
     // and set _real_height to height
     if (_shaded) {
         _real_height = height;
@@ -366,8 +366,8 @@ PDecor::resize(uint width, uint height)
 
     PWinObj::resize(width, height);
 
-    // do before placing and shaping the rest as shaping depends on the
-    // child window
+    // Update size before moving and shaping the rest as shaping
+    // depends on the child window
     if (_child != NULL) {
         _child->resize(getChildWidth(), getChildHeight());
     }
@@ -388,6 +388,54 @@ PDecor::resize(uint width, uint height)
     renderBorder();
 
     _dirty_resized = false;
+}
+
+//! @brief Move and resize window.
+void
+PDecor::moveResize(int x, int y, uint width, uint height, bool do_virtual)
+{
+  // If shaded, don't resize to the size specified just update width
+  // and set _real_height to height
+  if (_shaded) {
+    _real_height = height;
+
+    height = getTitleHeight();
+    // shading in non full width title mode will make border go away
+    if (! _data->getTitleWidthMin()) {
+      height += borderTop() + borderBottom();
+    }
+  }
+
+  PWinObj::moveResize(x, y, width, height);
+
+  // Update virtual position
+  if ( do_virtual) {
+    moveVirtual(x + Workspaces::instance()->getActiveViewport()->getX(),
+                y + Workspaces::instance()->getActiveViewport()->getY());
+  }
+
+  // Update size before moving and shaping the rest as shaping
+  // depends on the child window
+  if (_child != NULL) {
+    _child->moveResize(x + borderLeft(), y + borderTop() + getTitleHeight(),
+                       getChildWidth(), getChildHeight());
+  }
+
+  // Place and resize title and border
+  resizeTitle();
+  placeBorder();
+
+  // render title and border
+  _dirty_resized = true;
+
+  // Apply shape on window, all parts of the border can now be shaped.
+  setBorderShape();
+  applyBorderShape();
+
+  renderTitle();
+  renderBorder();
+
+  _dirty_resized = false;
 }
 
 //! @brief

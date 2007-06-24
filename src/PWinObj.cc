@@ -1,21 +1,24 @@
 //
 // PWinObj.cc for pekwm
-// Copyright (C)  2003-2006 Claes Nästen <me{@}pekdon{.}net>
+// Copyright © 2003-2007 Claes Nästen <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
+// $Id$
+//
 
+#ifdef HAVE_CONFIG_H
 #include "../config.h"
-#include "PWinObj.hh"
+#endif // HAVE_CONFIG_H
 
 #include <algorithm>
-#ifdef DEBUG
 #include <iostream>
+
+#include "PWinObj.hh"
+
 using std::cerr;
 using std::endl;
-#endif // DEBUG
-
 using std::find;
 using std::vector;
 using std::map;
@@ -142,20 +145,47 @@ PWinObj::moveVirtual(int x, int y)
 void
 PWinObj::resize(uint width, uint height)
 {
+    if (! width || ! height) {
 #ifdef DEBUG
-    if ((width == 0) || (height == 0)) {
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "PWinObj(" << this << ")::resize(" << width << "," << height
              << ")" << endl << " *** invalid geometry, _window = "
              << _window << endl;
+#endif // DEBUG
         return;
     }
-#endif // DEBUG
 
     _gm.width = width;
     _gm.height = height;
 
     XResizeWindow(_dpy, _window, _gm.width, _gm.height);
+}
+
+//! @brief Move and resize window in one call.
+//! @param x X position.
+//! @param y Y Position.
+//! @param width Width.
+//! @param height Height.
+//! @param do_virtual Flag to do virtual move.
+void
+PWinObj::moveResize(int x, int y, uint width, uint height, bool do_virtual)
+{
+    if (! width || ! height) {
+#ifdef DEBUG
+        cerr << __FILE__ << "@" << __LINE__ << ": "
+             << "PWinObj(" << this << ")::moveResize(" << width << "," << height
+             << ")" << endl << " *** invalid geometry, _window = "
+             << _window << endl;
+#endif // DEBUG
+        return;
+    }
+
+    _gm.x = x;
+    _gm.y = y;
+    _gm.width = width;
+    _gm.height = height;
+
+    XMoveResizeWindow(_dpy, _window, _gm.x, _gm.y, _gm.width, _gm.height);
 }
 
 //! @brief Only sets _workspace to workspace.

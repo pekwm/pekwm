@@ -1,22 +1,27 @@
 //
 // PWinObj.hh for pekwm
-// Copyright (C)  2003-2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2003-2007 Claes Nästen <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
-
-#include "../config.h"
+// $Id$
+//
 
 #ifndef _WINDOW_OBJECT_HH_
 #define _WINDOW_OBJECT_HH_
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
+
+#include <algorithm>
+#include <map>
+#include <vector>
+
 #include "pekwm.hh"
 #include "Action.hh"
 
-#include <vector>
-#include <algorithm>
-#include <map>
 
 //! @brief X11 Window wrapper class.
 class PWinObj
@@ -126,6 +131,7 @@ public:
     virtual void move(int x, int y, bool do_virtual = true);
     virtual void moveVirtual(int x, int y);
     virtual void resize(uint width, uint height);
+    virtual void moveResize(int x, int y, uint width, uint height, bool do_virtual = true);
     //! @brief Raises PWinObj without respect of layer.
     virtual void raise(void) { XRaiseWindow(_dpy, _window); }
     //! @brief Lowers PWinObj without respect of layer.

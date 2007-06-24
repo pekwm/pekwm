@@ -1,3 +1,9 @@
+2007-06-24  Claes Nästén  <me{@}pekdon{.}net>
+
+	* src/PWinObj.cc (PWinObj::moveResize): 
+	Add PWinObj::moveResize and use it to do more efficient updates when
+	doing both move and resize after each other.
+
 2007-06-18  Claes Nästén  <me{@}pekdon{.}net>
 
 	* src/PDecor.hh (TitleItem::TitleItem): 
