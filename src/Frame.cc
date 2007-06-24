@@ -2088,7 +2088,6 @@ Frame::handlePropertyChange(XPropertyEvent *ev, Client *client)
     } else if (ev->atom == ewmh->getAtom(NET_WM_STRUT)) {
         client->getStrutHint();
     } else if (ev->atom == ewmh->getAtom(NET_WM_NAME)) {
-        // FIXME: UTF8 support so we can handle the hint
         client->getXClientName();
         renderTitle();
     } else if (ev->atom == XA_WM_NAME) {

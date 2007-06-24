@@ -1,5 +1,10 @@
 2007-06-24  Claes Nästén  <me{@}pekdon{.}net>
 
+	* src/FontHandler.cc (FontHandler::getFont): 
+	Use XMB fonts as default instead of X11 fonts to support drawing
+	of multi byte strings. Closing #15
+	(Thanks pagaltzis{@}gmx{.}de for reporting.)
+
 	* src/PWinObj.cc (PWinObj::moveResize): 
 	Add PWinObj::moveResize and use it to do more efficient updates when
 	doing both move and resize after each other.

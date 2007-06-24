@@ -1620,7 +1620,7 @@ PDecor::checkSnap(void)
     }
 }
 
-inline bool // FIXME: hmm
+inline bool
 isBetween(int x1, int x2, int t1, int t2)
 {
     if (x1 > t1) {

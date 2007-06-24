@@ -269,21 +269,9 @@ PFontX11::getWidth(const wstring &text, uint max_chars)
   
   uint width = 0;
   if (_font != NULL) {
-#ifdef HAVE_XUTF8TEXTENTS
-    // If UTF8 support is available convert to UTF-8 charset and not
-    // locale encoding.
-    string utf8_text(Util::to_utf8_str(text.substr(0, max_chars)));
-
-    XRectangle logical_ret;
-    Xutf8TextExtents(_font, utf8_text.c_str(), utf8_text.size(),
-                     NULL, &logical_ret);
-    width = logical_ret.width;
-
-#else //! HAVE_XUTF8TEXTENTS
     // No UTF8 support, convert to locale encoding.
     string mb_text(Util::to_mb_str(text.substr(0, max_chars)));
     width = XTextWidth(_font, mb_text.c_str(), mb_text.size());
-#endif // HAVE_XUTF8TEXTENTS
   }
 
   return (width + _offset_x);
@@ -353,18 +341,22 @@ PFontXmb::load(const std::string &font_name)
     XFontStruct **fonts;
 
     string basename(font_name);
-    basename.append(",*");
+    if (font_name.rfind(",*") != (font_name.size() - 2)) {
+      basename.append(",*");
+    }
 
     _fontset =
         XCreateFontSet(_scr->getDpy(), basename.c_str(),
                        &missing_list, &missing_count, &def_string);
 
     if (_fontset == NULL) {
+        cerr << "PFontXmb::load(): Failed to create fontset for font_name" << endl;
         return false;
     }
 
-    for (int i = 0; i < missing_count; ++i)
+    for (int i = 0; i < missing_count; ++i) {
         cerr <<  "PFontXmb::load(): Missing charset" <<  missing_list[i] << endl;
+    }
 
     _ascent = _descent = 0;
 
@@ -435,7 +427,7 @@ PFontXmb::drawText(Drawable dest, int x, int y,
 
   if (_fontset && (gc != None)) {
     XwcDrawString(_scr->getDpy(), dest, _fontset, gc,
-                  x, y, text.c_str(), chars);
+                  x, y, text.c_str(), chars ? chars : text.size());
   }
 }
 
