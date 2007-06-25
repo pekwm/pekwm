@@ -1,21 +1,25 @@
 //
 // PImageNative.hh for pekwm
-// Copyright (C) 2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2005-2007 Claes  Nästén <me{@}pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
-
-#include "../config.h"
+// $Id$
+//
 
 #ifndef _PIMAGE_NATIVE_HH_
 #define _PIMAGE_NATIVE_HH_
 
+#include <list>
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
+
 #include "pekwm.hh"
 #include "PImage.hh"
 #include "PImageNativeLoader.hh"
-
-#include <list>
 
 //! @brief Image class with pekwm native backend.
 class PImageNative : public PImage {
@@ -43,18 +47,19 @@ public:
     virtual Pixmap getMask(bool &need_free, uint width = 0, uint height = 0);
     virtual void scale(uint width, uint height);
 
-private:
+protected:
     Pixmap createPixmap(uchar *data, uint width, uint height);
     Pixmap createMask(uchar *data, uint width, uint height);
-    XImage *createXImage(uchar *data, uint width, uint height);
-
-    uchar *getScaledData(uint width, uint height);
 
 private:
-    uchar *_data; //!< Data describing image.
+    XImage *createXImage(uchar *data, uint width, uint height);
+    uchar *getScaledData(uint width, uint height);
 
+protected:
+    uchar *_data; //!< Data describing image.
     bool _has_alpha; //!< Wheter image has alpha channel.
 
+private:
     static std::list<PImageNativeLoader*> _loader_list; //!< List of loaders.
 };
 

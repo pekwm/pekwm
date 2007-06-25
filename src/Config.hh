@@ -128,6 +128,8 @@ public:
     bool parseCmdDialogEvent(CfgParser::Entry *op_section, ActionEvent &ae);
 
     uint getMenuMask(const std::string &mask);
+    uint getMenuIconWidth(void) const { return _menu_icon_width; }
+    uint getMenuIconHeight(void) const { return _menu_icon_height; }
 
 #ifdef MENUS
     bool parseMenuAction(const std::string& action_string, Action& action);
@@ -183,6 +185,7 @@ private:
     std::string _screen_client_unique_name_pre, _screen_client_unique_name_post;
 
     uint _menu_select_mask, _menu_enter_mask, _menu_exec_mask;
+    uint _menu_icon_width, _menu_icon_height;
 
     // harbour
 #ifdef HARBOUR

@@ -1,12 +1,16 @@
 //
 // PTexturePlain.cc for pekwm
-// Copyright (C) 2004-2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2004-2007 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
+// $Id$
+//
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #include "PTexture.hh"
 #include "PTexturePlain.hh"
@@ -207,6 +211,16 @@ PTextureSolidRaised::unsetColor(void)
 // PTextureImage
 
 //! @brief PTextureImage constructor
+PTextureImage::PTextureImage(Display *dpy)
+  : PTexture(dpy),
+    _image(NULL)
+{
+  // PTexture attributes
+  _type = PTexture::TYPE_IMAGE;
+}
+                                             
+
+//! @brief PTextureImage constructor
 PTextureImage::PTextureImage(Display *dpy, const std::string &image) : PTexture(dpy),
         _image(NULL)
 {
@@ -235,6 +249,17 @@ Pixmap
 PTextureImage::getMask(uint width, uint height, bool &do_free)
 {
     return _image->getMask(do_free, width, height);
+}
+
+//! @brief Loads image resources
+void
+PTextureImage::setImage(PImage *image)
+{
+    unsetImage();
+    _image = image;
+    _width = _image->getWidth();
+    _height = _image->getHeight();
+    _ok = true;
 }
 
 //! @brief Loads image resources

@@ -1,3 +1,12 @@
+2007-06-25  Claes Nästén  <me{@}pekdon{.}net>
+
+	* src/PMenu.cc (PMenu::buildMenuRenderItem): 
+	Add rendering of icons in the menu, add Icon = "/path/to/icon" in the
+	configuration for setting icons on menu entries.
+
+	* src/PImageNativeIcon.cc (PImageNativeIcon::load): 
+	Add loading of _NET_WM_ICON property of icons for display in menus.
+
 2007-06-24  Claes Nästén  <me{@}pekdon{.}net>
 
 	* src/FontHandler.cc (FontHandler::getFont): 

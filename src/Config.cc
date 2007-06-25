@@ -60,6 +60,7 @@ Config::Config(void) :
         _screen_client_unique_name(true),
         _screen_client_unique_name_pre(" #"), _screen_client_unique_name_post(""),
         _menu_select_mask(0), _menu_enter_mask(0), _menu_exec_mask(0),
+        _menu_icon_width(16), _menu_icon_height(16),
 #ifdef HARBOUR
         _harbour_da_min_s(0), _harbour_da_max_s(0),
 #ifdef HAVE_XINERAMA

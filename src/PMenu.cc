@@ -1,12 +1,16 @@
 //
 // PMenu.cc for pekwm
-// Copyright (C) 2004-2006 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2004-2007 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
+// $Id$
+//
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #include "PWinObj.hh"
 #include "PDecor.hh"
@@ -46,6 +50,7 @@ PMenu::PMenu(Display *dpy, Theme *theme, const std::wstring &title,
       _menu_wo(NULL), _menu_parent(NULL),
       _menu_bg_fo(None), _menu_bg_un(None), _menu_bg_se(None),
       _item_height(0), _item_width_max(0), _item_width_max_avail(0),
+      _icon_width(0), _icon_height(0),
       _separator_height(0),
       _rows(0), _cols(0), _scroll(false), _has_submenu(false)
 {
@@ -301,7 +306,7 @@ PMenu::buildMenuCalculate(void)
     list<PMenu::Item*>::iterator it;
     _has_submenu = false;
 
-    // get how many visible objects we have
+    // Get how many visible objects we have
     _size = 0;
     for (it = _item_list.begin(); it != _item_list.end(); ++it) {
         if ((*it)->getType() == PMenu::Item::MENU_ITEM_NORMAL) {
@@ -320,23 +325,44 @@ PMenu::buildMenuCalculate(void)
         return;
     }
 
-    // calculate max item width, to be used if/when splitting a menu up
-    // in rows because of limited vertical space.
+    // Calculate max item width, to be used if/when splitting a menu
+    // up in rows because of limited vertical space.
     _item_width_max = 1;
+    _icon_width = _icon_height = 0;
     for (it = _item_list.begin(); it != _item_list.end(); ++it) {
-        // don't include dynamic etc
-        if ((*it)->getType() == PMenu::Item::MENU_ITEM_NORMAL) {
-            // check if we have a submenu item
-            if (!_has_submenu && ((*it)->getWORef() != NULL) &&
-                    ((*it)->getWORef()->getType() == PWinObj::WO_MENU)) {
-                _has_submenu = true;
-            }
-
-            width = _theme->getMenuData()->getFont(OBJECT_STATE_FOCUSED)->getWidth((*it)->getName().c_str());
-            if (width > _item_width_max) {
-                _item_width_max = width;
-            }
+        // Only include standard items
+        if ((*it)->getType() != PMenu::Item::MENU_ITEM_NORMAL) {
+            continue;
         }
+
+        // Check if we have a submenu item
+        if (!_has_submenu && ((*it)->getWORef() != NULL) &&
+            ((*it)->getWORef()->getType() == PWinObj::WO_MENU)) {
+          _has_submenu = true;
+        }
+
+        // Get icon height if any
+        if ((*it)->getIcon()) {
+          if ((*it)->getIcon()->getWidth() > _icon_width) {
+            _icon_width = (*it)->getIcon()->getWidth();
+          }
+          if ((*it)->getIcon()->getHeight() > _icon_height) {
+            _icon_height = (*it)->getIcon()->getHeight();
+          }
+        }
+
+        width = _theme->getMenuData()->getFont(OBJECT_STATE_FOCUSED)->getWidth((*it)->getName().c_str());
+        if (width > _item_width_max) {
+            _item_width_max = width;
+        }
+    }
+
+    // Make sure icon width and height are not larger than configured.
+    if (Config::instance()->getMenuIconWidth()) {
+      _icon_width = std::min(Config::instance()->getMenuIconWidth(), _icon_width);
+    }
+    if (Config::instance()->getMenuIconHeight()) {
+      _icon_height = std::min(Config::instance()->getMenuIconHeight(), _icon_height);
     }
 
     // This is the available width for drawing text on, the rest is reserved
@@ -345,7 +371,7 @@ PMenu::buildMenuCalculate(void)
 
     // Continue add padding etc.
     _item_width_max += _theme->getMenuData()->getPad(PAD_LEFT)
-                       + _theme->getMenuData()->getPad(PAD_RIGHT);
+      + _theme->getMenuData()->getPad(PAD_RIGHT) + _icon_width;
 
     // If we have any submenus, increase the maximum width with arrow width +
     // right pad as we are going to pad the arrow from the text too.
@@ -355,9 +381,9 @@ PMenu::buildMenuCalculate(void)
     }
 
     // calculate item height
-    _item_height = _theme->getMenuData()->getFont(OBJECT_STATE_FOCUSED)->getHeight()  +
-                   _theme->getMenuData()->getPad(PAD_UP) +
-                   _theme->getMenuData()->getPad(PAD_DOWN);
+    _item_height = std::max(_theme->getMenuData()->getFont(OBJECT_STATE_FOCUSED)->getHeight(), _icon_height)
+      + _theme->getMenuData()->getPad(PAD_UP)
+      + _theme->getMenuData()->getPad(PAD_DOWN);
     _separator_height = _theme->getMenuData()->getTextureSeparator(OBJECT_STATE_FOCUSED)->getHeight();
 
     height = (_item_height * _size) + (_separator_height * sep);
@@ -484,38 +510,51 @@ void
 PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
 {
     PTexture *tex;
+    Theme::PMenuData *md = _theme->getMenuData();
 
     if (item->getType() == PMenu::Item::MENU_ITEM_NORMAL) {
-        tex = _theme->getMenuData()->getTextureItem(state);
+        tex = md->getTextureItem(state);
         tex->render(pix,
                     item->getX(), item->getY(), _item_width_max, _item_height);
 
-        // If we have a submenu, lets draw our submenu "arrow"
+        // If entry has an icon, draw it
+        if (item->getIcon()) {
+          uint i_w = std::min(Config::instance()->getMenuIconWidth(),
+                              item->getIcon()->getWidth());
+          uint i_h = std::min(Config::instance()->getMenuIconHeight(),
+                              item->getIcon()->getHeight());
 
+          item->getIcon()->render(pix,
+                                  item->getX() + md->getPad(PAD_LEFT) + (_icon_width - i_w) / 2,
+                                  item->getY() + (_item_height - i_h) / 2,
+                                  i_w, i_h);
+        }
+
+        // If entry has a submenu, lets draw our submenu "arrow"
         if (item->getWORef()
                 && (item->getWORef()->getType() == PWinObj::WO_MENU)) {
-            tex = _theme->getMenuData()->getTextureArrow(state);
+            tex = md->getTextureArrow(state);
             uint a_w = tex->getWidth();
             uint a_h = tex->getHeight();
             uint a_y = static_cast<uint>((_item_height / 2) - (a_h / 2));
 
             tex->render(pix,
                         item->getX() + _item_width_max - a_w -
-                        _theme->getMenuData()->getPad(PAD_RIGHT),
+                        md->getPad(PAD_RIGHT),
                         item->getY() + a_y,
                         a_w, a_h);
         }
 
-        PFont *font = _theme->getMenuData()->getFont(state);
+        PFont *font = md->getFont(state);
         font->draw(pix,
-                   item->getX() + _theme->getMenuData()->getPad(PAD_LEFT),
-                   item->getY() + _theme->getMenuData()->getPad(PAD_UP),
+                   item->getX() + md->getPad(PAD_LEFT) + _icon_width,
+                   item->getY() + md->getPad(PAD_UP),
                    item->getName().c_str(), 0, // Text and max chars
                    _item_width_max_avail);
 
     } else if ((item->getType() == PMenu::Item::MENU_ITEM_SEPARATOR) &&
                (state < OBJECT_STATE_SELECTED)) {
-        tex = _theme->getMenuData()->getTextureSeparator(state);
+        tex = md->getTextureSeparator(state);
         tex->render(pix,
                     item->getX(), item->getY(),
                     _item_width_max, _separator_height);
@@ -643,11 +682,11 @@ PMenu::insert(PMenu::Item *item)
 //! @param name Name of objet to create and insert
 //! @param wo_ref PWinObj to refer to, defaults to NULL
 void
-PMenu::insert(const std::wstring &name, PWinObj *wo_ref)
+PMenu::insert(const std::wstring &name, PWinObj *wo_ref, PTexture *icon)
 {
     PMenu::Item *item;
 
-    item = new PMenu::Item(name, wo_ref);
+    item = new PMenu::Item(name, wo_ref, icon);
 
     insert(item);
 }
@@ -657,11 +696,11 @@ PMenu::insert(const std::wstring &name, PWinObj *wo_ref)
 //! @param ae ActionEvent for the object
 //! @param wo_ref PWinObj to refer to, defaults to NULL
 void
-PMenu::insert(const std::wstring &name, const ActionEvent &ae, PWinObj *wo_ref)
+PMenu::insert(const std::wstring &name, const ActionEvent &ae, PWinObj *wo_ref, PTexture *icon)
 {
     PMenu::Item *item;
 
-    item = new PMenu::Item(name, wo_ref);
+    item = new PMenu::Item(name, wo_ref, icon);
     item->setAE(ae);
 
     insert(item);

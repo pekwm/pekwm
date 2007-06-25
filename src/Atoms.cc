@@ -112,7 +112,8 @@ EwmhAtoms::EwmhAtoms(void)
                         "_NET_WORKAREA", "_NET_DESKTOP_LAYOUT",
                         "_NET_SUPPORTING_WM_CHECK",
                         "_NET_CLOSE_WINDOW",
-                        "_NET_WM_NAME", "_NET_WM_DESKTOP",
+                        "_NET_WM_NAME", "_NET_WM_VISIBLE_NAME",
+                        "_NET_WM_ICON", "_NET_WM_DESKTOP",
                         "_NET_WM_STRUT", "_NET_WM_PID",
 
                         "_NET_WM_WINDOW_TYPE",

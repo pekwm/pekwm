@@ -1,23 +1,26 @@
 //
 // PMenu.hh for pekwm
-// Copyright (C) 2004 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2004-2007 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
-
-#include "../config.h"
+// $Id$
+//
 
 #ifndef _PMENU_HH_
 #define _PMENU_HH_
 
-#include "pekwm.hh"
-
-#include "CfgParser.hh"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #include <list>
 #include <map>
 #include <string>
+
+#include "pekwm.hh"
+#include "CfgParser.hh"
 
 class PDecor;
 class PDecor::TitleItem;
@@ -32,9 +35,10 @@ public:
         enum Type {
             MENU_ITEM_NORMAL, MENU_ITEM_SEPARATOR, MENU_ITEM_HIDDEN
         };
-        Item(const std::wstring &name, PWinObj *wo_ref = NULL) :
-        _x(0), _y(0), _name(name), _wo_ref(wo_ref), _type(MENU_ITEM_NORMAL), _dynamic(false) { }
-
+        Item(const std::wstring &name,
+             PWinObj *wo_ref = NULL, PTexture *icon = NULL)
+          : _x(0), _y(0), _name(name), _wo_ref(wo_ref), _icon(icon),
+            _type(MENU_ITEM_NORMAL), _dynamic(false) { }
         virtual ~Item(void) { }
 
         inline int getX(void) const { return _x; }
@@ -42,6 +46,7 @@ public:
         inline const std::wstring &getName(void) const { return _name; }
         inline const ActionEvent &getAE(void) const { return _ae; }
         inline PWinObj *getWORef(void) const { return _wo_ref; }
+        inline PTexture *getIcon(void) { return _icon; }
         inline PMenu::Item::Type getType(void) const { return _type; }
 
         inline void setX(int x) { _x = x; }
@@ -62,6 +67,7 @@ public:
         PWinObj *_wo_ref; // used for client, frame, parent etc
 
         PMenu::Item::Type _type; // normal, separator or hidden item
+        PTexture *_icon; // icon texture.
 
         bool _dynamic;
     };
@@ -98,9 +104,9 @@ public:
     void setTitle(const std::wstring &title);
 
     virtual void insert(PMenu::Item *item);
-    virtual void insert(const std::wstring &name, PWinObj *wo_ref = NULL);
+    virtual void insert(const std::wstring &name, PWinObj *wo_ref = NULL, PTexture *icon = NULL);
     virtual void insert(const std::wstring &name, const ActionEvent &ae,
-                        PWinObj *wo_ref = NULL);
+                        PWinObj *wo_ref = NULL, PTexture *icon = NULL);
     virtual void remove(PMenu::Item *item);
     virtual void removeAll(void);
 
@@ -164,6 +170,8 @@ private:
 
     // menu disp data
     uint _item_height, _item_width_max, _item_width_max_avail;
+    uint _icon_width;
+    uint _icon_height;
     uint _separator_height;
 
     uint _size; // size, hidden items excluded

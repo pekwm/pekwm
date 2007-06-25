@@ -1,9 +1,11 @@
 //
 // ActionMenu.cc for pekwm
-// Copyright (C) 2002-2004 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2002-2007 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
+//
+// $Id$
 //
 
 #ifdef HAVE_CONFIG_H
@@ -11,7 +13,6 @@
 #endif // HAVE_CONFIG_H
 
 #ifdef MENUS
-
 
 #include <cstdio>
 #include <iostream>
@@ -21,6 +22,7 @@
 #include "PMenu.hh"
 #include "WORefMenu.hh"
 #include "ActionMenu.hh"
+#include "TextureHandler.hh"
 
 #include "Config.hh"
 #include "ActionHandler.hh"
@@ -172,6 +174,10 @@ ActionMenu::remove(PMenu::Item *item)
         return;
     }
 
+    if (item->getIcon()) {
+        TextureHandler::instance()->returnTexture(item->getIcon());
+    }
+
     if ((item->getWORef() != NULL) && (item->getWORef()->getType() == WO_MENU)) {
         delete item->getWORef();
     }
@@ -211,6 +217,7 @@ ActionMenu::parse(CfgParser::Entry *op_section, bool dynamic)
 
     ActionMenu *submenu = NULL;
     PMenu::Item *item = NULL;
+    PTexture *icon = NULL;
 
     if (op_section->get_value ().size ())
     {      
@@ -225,6 +232,13 @@ ActionMenu::parse(CfgParser::Entry *op_section, bool dynamic)
         item = NULL;
         op_sub = op_section->get_section ();
 
+        op_value = op_section->get_section ()->find_entry("ICON");
+        if (op_value) {
+            icon = TextureHandler::instance()->getTexture("IMAGE " + op_value->get_value());
+        } else {
+            icon = NULL;
+        }
+
         if (*op_section == "SUBMENU")
         {
             submenu = new ActionMenu (_wm, _menu_type,
@@ -234,12 +248,12 @@ ActionMenu::parse(CfgParser::Entry *op_section, bool dynamic)
             submenu->buildMenu ();
 
             item = new PMenu::Item (Util::to_wide_str(op_sub->get_value()),
-                                    submenu);
+                                    submenu, icon);
             item->setDynamic(dynamic);
         }
         else if (*op_section == "SEPARATOR")
         {
-            item = new PMenu::Item (L"");
+            item = new PMenu::Item (L"", NULL, icon);
             item->setDynamic (dynamic);
             item->setType (PMenu::Item::MENU_ITEM_SEPARATOR);
         }
@@ -250,7 +264,8 @@ ActionMenu::parse(CfgParser::Entry *op_section, bool dynamic)
                     && Config::instance ()->parseActions (op_value->get_value (),
                                                           ae, _action_ok))
             {
-                item = new PMenu::Item (Util::to_wide_str(op_sub->get_value()));
+              item = new PMenu::Item (Util::to_wide_str(op_sub->get_value()),
+                                      NULL, icon);
                 item->setDynamic (dynamic);
                 item->setAE (ae);
 

@@ -1,21 +1,24 @@
 //
 // PTexturePlain.hh for pekwm
-// Copyright (C) 2004-2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2004-2007 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
-
-#include "../config.h"
+// $Id$
+//
 
 #ifndef _PTEXTURE_PLAIN_HH_
 #define _PTEXTURE_PLAIN_HH_
 
-#include "pekwm.hh"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #include <string>
 
-class PImage;
+#include "pekwm.hh"
+#include "PImage.hh"
 
 // PTextureSolid
 
@@ -77,6 +80,7 @@ private:
 
 class PTextureImage : public PTexture {
 public:
+    PTextureImage(Display *dpy);
     PTextureImage(Display *dpy, const std::string &image);
     virtual ~PTextureImage(void);
 
@@ -86,6 +90,7 @@ public:
     // END - PTexture interface.
 
     bool setImage(const std::string &image);
+    void setImage(PImage *image);
     void unsetImage(void);
 
 private:

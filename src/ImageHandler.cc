@@ -1,12 +1,18 @@
 //
 // ImageHandler.cc for pekwm
-// Copyright (C)  2003-2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2003-2007 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
+// $Id$
+//
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
+
+#include <iostream>
 
 #include "Config.hh"
 #include "PImage.hh"
@@ -18,11 +24,8 @@
 #include "PScreen.hh"
 #include "Util.hh"
 
-#ifdef DEBUG
-#include <iostream>
 using std::cerr;
 using std::endl;
-#endif // DEBUG
 using std::list;
 using std::vector;
 using std::string;
@@ -70,7 +73,16 @@ ImageHandler::~ImageHandler(void)
 PImage*
 ImageHandler::getImage(const std::string &file)
 {
-    string real_file(_dir + file);
+    if (! file.size()) {
+        return NULL;
+    }
+
+    string real_file;
+    if (file[0] == '/') {
+        real_file = file;
+    } else {
+        real_file = _dir + file;
+    }
 
     // check cache
     list<HandlerEntry<PImage*> >::iterator it(_image_list.begin());
@@ -108,9 +120,13 @@ ImageHandler::getImage(const std::string &file)
 void
 ImageHandler::returnImage(PImage *image)
 {
+    bool found = false;
+
     list<HandlerEntry<PImage*> >::iterator it(_image_list.begin());
     for (; it != _image_list.begin(); ++it) {
         if (it->getData() == image) {
+            found = true;
+
             it->decRef();
             if ((it->getRef() == 0) && (_free_on_return == true)) {
                 delete it->getData();
@@ -118,6 +134,10 @@ ImageHandler::returnImage(PImage *image)
             }
             break;
         }
+    }
+
+    if (! found) {
+        delete image;
     }
 }
 

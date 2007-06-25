@@ -164,7 +164,8 @@ FrameListMenu::updateFrameListMenu(void)
                     name.append(L"] ");
                     name.append(static_cast<Client*>((*it)->getActiveChild())->getTitle()->getVisible());
 
-                    insert(name, ae, (*it)->getActiveChild());
+                    insert(name, ae, (*it)->getActiveChild(),
+                           static_cast<Client*>((*it)->getActiveChild())->getIcon());
                 }
             }
         }
@@ -233,7 +234,7 @@ FrameListMenu::buildFrameNames(Frame *frame, std::wstring &pre_name)
         name.append(L"] ");
         name.append(static_cast<Client*>(*it)->getTitle()->getVisible());
 
-        insert(name, ae, *it);
+        insert(name, ae, *it, static_cast<Client*>(*it)->getIcon());
     }
 
     // add separator

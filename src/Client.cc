@@ -38,6 +38,8 @@ extern "C" {
 #include "Workspaces.hh"
 #include "Viewport.hh"
 #include "WindowManager.hh"
+#include "PTexturePlain.hh"
+#include "PImageNativeIcon.hh"
 
 #ifdef MENUS
 #include "PMenu.hh"
@@ -58,7 +60,7 @@ vector<uint> Client::_clientid_list = vector<uint>();
 Client::Client(WindowManager *w, Window new_client, bool is_new)
     : PWinObj(w->getScreen()->getDpy()),
       _wm(w), _id(0), _size(NULL),
-      _transient(None), _strut(NULL),
+      _transient(None), _strut(NULL), _icon(NULL),
       _class_hint(NULL),
       _alive(false), _marked(false),
       _send_focus_message(false), _send_close_message(false),
@@ -146,6 +148,7 @@ Client::Client(WindowManager *w, Window new_client, bool is_new)
     readMwmHints(); // read atoms
     readEwmhHints();
     readPekwmHints();
+    readIcon();
     getWMProtocols();
 
     ulong initial_state = NormalState;
@@ -345,8 +348,13 @@ Client::~Client(void)
 
     removeStrutHint();
 
-    if (_class_hint)
+    if (_class_hint) {
         delete _class_hint;
+    }
+
+    if (_icon) {
+      delete _icon;
+    }
 
     PScreen::instance()->ungrabServer(true);
 }
@@ -858,6 +866,25 @@ Client::readPekwmHints(void)
     if (AtomUtil::getString(_window, atoms->getAtom(PEKWM_TITLE), str)) {
         _title.setUser(Util::to_wide_str(str));
     }
+}
+
+//! @brief Read _NET_WM_ICON from client window.
+void
+Client::readIcon(void)
+{
+  PImageNativeIcon *image = new PImageNativeIcon(_dpy);
+  if (image->load(_window)) {
+    if (! _icon) {
+      _icon = new PTextureImage(_dpy);
+    }
+
+    _icon->setImage(image);
+
+  } else if (_icon) {
+    delete image;
+    delete _icon;
+    _icon = NULL;
+  }
 }
 
 //! @brief Tries to find a AutoProp for the current client.

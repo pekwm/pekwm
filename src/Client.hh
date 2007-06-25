@@ -20,6 +20,7 @@
 #define _CLIENT_HH_
 
 #include "pekwm.hh"
+#include "PTexturePlain.hh"
 
 class PScreen;
 class Strut;
@@ -144,6 +145,8 @@ public: // Public Member Functions
     inline bool isShaped(void) const { return _shaped; }
 #endif // HAVE_SHAPE
     inline bool hasStrut(void) const { return (_strut); }
+
+    PTexture *getIcon(void) const { return _icon; }
 
     // State accessors
     inline bool isMaximizedVert(void) const { return _state.maximized_vert; }
@@ -280,6 +283,7 @@ inline void setMaximizedVert(bool m) { _state.maximized_vert = m; }
     void readEwmhHints(void);
     void readMwmHints(void);
     void readPekwmHints(void);
+    void readIcon(void);
     AutoProperty* readAutoprops(uint type = 0);
     void applyAutoprops(AutoProperty *ap);
 
@@ -300,6 +304,7 @@ private: // Private Member Variables
 
     std::string _icon_name;
     PDecor::TitleItem _title;
+    PTextureImage *_icon;
 
     ClassHint *_class_hint;
 
