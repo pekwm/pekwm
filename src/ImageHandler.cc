@@ -66,6 +66,16 @@ ImageHandler::ImageHandler(void)
 //! @brief ImageHandler destructor
 ImageHandler::~ImageHandler(void)
 {
+    if (_image_list.size()) {
+      cerr << " *** WARNING: ImageHandler list not empty, "
+           << _image_list.size() << " entries left." << endl;
+
+        while (_image_list.size()) {
+            delete _image_list.back().getData();
+            _image_list.pop_back();
+        }
+    }
+
     PImageNative::loaderClear();
 }
 

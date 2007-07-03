@@ -369,7 +369,7 @@ WindowManager::WindowManager(const std::string &command_line, const std::string 
 #endif // HARBOUR
         _cmd_dialog(NULL), _status_window(NULL),
         _command_line(command_line),
-        _startup(false), _shutdown(false),
+        _startup(false), _shutdown(false), _reload(false),
         _allow_grouping(true), _root_wo(NULL),
         _pekwm_atoms(NULL), _icccm_atoms(NULL), _ewmh_atoms(NULL)
 {
@@ -922,8 +922,9 @@ WindowManager::doEventLoop(void)
 
     XEvent ev;
     while (!_shutdown) {
-        if (_reload)
+        if (_reload) {
             doReload();
+        }
 
         XNextEvent(dpy, &ev);
 

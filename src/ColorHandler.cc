@@ -122,6 +122,7 @@ ColorHandler::freeColors(bool all)
     for (; it != _color_list.end(); ++it) {
         if ((all == true) || ((*it)->getRef() == 0)) {
             pixel_list.push_back((*it)->getColor()->pixel);
+            delete *it;
         }
     }
 

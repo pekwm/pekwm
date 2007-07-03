@@ -880,10 +880,14 @@ Client::readIcon(void)
 
     _icon->setImage(image);
 
-  } else if (_icon) {
-    delete image;
-    delete _icon;
-    _icon = NULL;
+  } else {
+    if (image) {
+      delete image;
+    }
+    if (_icon) {
+      delete _icon;
+      _icon = NULL;
+    }
   }
 }
 

@@ -973,9 +973,14 @@ Config::parseActionState(Action &action, const std::string &as_action)
         action.setParamI(0, ParseUtil::getValue<ActionStateType>(tok[0], _action_state_map));
         if (action.getParamI(0) != ACTION_STATE_NO) {
             if (tok.size() == 2) { // we got enough tok for a parameter
+                string directions;
+
                 switch (action.getParamI(0)) {
                 case ACTION_STATE_MAXIMIZED:
-                    Util::splitString(tok[1], tok, " \t", 2);
+                    // Using copy of token here to silence valgrind checks.
+                    directions = tok[1];
+
+                    Util::splitString(directions, tok, " \t", 2);
                     if (tok.size() == 4) {
                         action.setParamI(1, Util::isTrue(tok[2]));
                         action.setParamI(2, Util::isTrue(tok[3]));

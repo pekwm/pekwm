@@ -36,6 +36,7 @@ PImageNative::PImageNative(Display *dpy) : PImage(dpy),
 //! @brief PImageNative destructor.
 PImageNative::~PImageNative(void)
 {
+    unload();
 }
 
 //! @brief Loads image from file.
@@ -71,6 +72,7 @@ PImageNative::unload(void)
 {
     if (_data) {
         delete [] _data;
+        _data = NULL;
     }
     if (_pixmap) {
         ScreenResources::instance()->getPixmapHandler()->returnPixmap(_pixmap);

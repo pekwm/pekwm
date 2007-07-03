@@ -42,6 +42,7 @@ PFont::PFont(PScreen *scr) :
 //! @brief PFont destructor
 PFont::~PFont(void)
 {
+  unload();
 }
 
 //! @brief Draws the text on the drawable.
@@ -461,15 +462,19 @@ PFontXft::PFontXft(PScreen *scr) : PFont(scr),
 //! @brief PFontXft destructor
 PFontXft::~PFontXft(void)
 {
+    unload();
+
     XftDrawDestroy(_draw);
 
     if (_cl_fg != NULL) {
         XftColorFree(_scr->getDpy(), _scr->getVisual()->getXVisual(),
                      _scr->getColormap(), _cl_fg);
+        delete _cl_fg;
     }
     if (_cl_bg != NULL) {
         XftColorFree(_scr->getDpy(), _scr->getVisual()->getXVisual(),
                      _scr->getColormap(), _cl_bg);
+        delete _cl_bg;
     }
 }
 
@@ -567,11 +572,13 @@ PFontXft::setColor(PFont::Color *color)
     if (_cl_fg != NULL) {
         XftColorFree(_scr->getDpy(), _scr->getVisual()->getXVisual(),
                      _scr->getColormap(), _cl_fg);
+        delete _cl_fg;
         _cl_fg = NULL;
     }
     if (_cl_bg != NULL) {
         XftColorFree(_scr->getDpy(), _scr->getVisual()->getXVisual(),
                      _scr->getColormap(), _cl_bg);
+        delete _cl_bg;
         _cl_bg = NULL;
     }
 
