@@ -37,8 +37,8 @@ public:
         };
         Item(const std::wstring &name,
              PWinObj *wo_ref = NULL, PTexture *icon = NULL)
-          : _x(0), _y(0), _name(name), _wo_ref(wo_ref), _icon(icon),
-            _type(MENU_ITEM_NORMAL), _dynamic(false) { }
+          : _x(0), _y(0), _name(name), _wo_ref(wo_ref),
+            _type(MENU_ITEM_NORMAL), _icon(icon), _dynamic(false) { }
         virtual ~Item(void) { }
 
         inline int getX(void) const { return _x; }

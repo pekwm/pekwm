@@ -19,6 +19,7 @@ fi
 
 dnl Check for iconv
 AM_ICONV
+LIBS="$LIBS $LIBICONV"
 
 dnl add x11 to the env
 AC_PATH_X

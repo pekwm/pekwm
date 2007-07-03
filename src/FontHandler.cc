@@ -264,7 +264,14 @@ FontHandler::loadColor(const std::string &color, PFont::Color *font_color, bool 
 
   vector<string> tok;
   if (Util::splitString(color, tok, ",", 2) == 2) {
-    uint alpha = (uint) strtol(tok[1].c_str(), NULL, 10);
+    uint alpha = static_cast<uint>(strtol(tok[1].c_str(), NULL, 10));
+    if (alpha > 100) {
+      cerr << " *** WARNING: Alpha for font color greater than 100%" << endl;
+      alpha = 100;
+    }
+
+    alpha = static_cast<uint>(65535 * (static_cast<float>(alpha) / 100));
+
     if (fg) {
       font_color->setFgAlpha(alpha);
     } else {

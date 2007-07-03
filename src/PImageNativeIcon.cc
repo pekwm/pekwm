@@ -38,6 +38,8 @@ PImageNativeIcon::~PImageNativeIcon(void)
 bool
 PImageNativeIcon::load(Window win)
 {
+  bool status = false;
+
   Atom icon = EwmhAtoms::instance()->getAtom(NET_WM_ICON);
   uchar *udata = NULL;
   long expected = 2;
@@ -54,6 +56,8 @@ PImageNativeIcon::load(Window win)
     // Read the actual icon
     expected += width * height;
     if (AtomUtil::getProperty(win, icon, XA_CARDINAL, expected, &udata)) {
+        status = true;
+
         data = reinterpret_cast<CARD32*>(udata);
 
         _data = new uchar[width * height * 4];
@@ -76,4 +80,6 @@ PImageNativeIcon::load(Window win)
         XFree(udata);
     }
   }
+
+  return status;
 }

@@ -1,3 +1,9 @@
+2007-07-02  Claes Nästén  <me{@}pekdon{.}net>
+
+	* src/FontHandler.cc (FontHandler::loadColor): 
+	Change alpha specification for Xft fonts to percent 0-100 instead
+	of absolute unsigned int value. 
+
 2007-06-25  Claes Nästén  <me{@}pekdon{.}net>
 
 	* src/PMenu.cc (PMenu::buildMenuRenderItem): 

@@ -43,13 +43,7 @@ public:
     class Color {
     public:
       Color(void) : _has_fg(false), _has_bg(false),
-#ifdef HAVE_LIMITS
-                    _fg_alpha(std::numeric_limits<uint>::max()),
-                    _bg_alpha(std::numeric_limits<uint>::max())
-#else // !HAVE_LIMITS
-                    _fg_alpha(65535),
-                    _bg_alpha(65535)
-#endif // HAVE_LIMITS
+                    _fg_alpha(65535), _bg_alpha(65535)
                    { }
       ~Color(void) { }
 

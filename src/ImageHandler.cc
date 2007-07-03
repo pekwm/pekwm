@@ -123,7 +123,7 @@ ImageHandler::returnImage(PImage *image)
     bool found = false;
 
     list<HandlerEntry<PImage*> >::iterator it(_image_list.begin());
-    for (; it != _image_list.begin(); ++it) {
+    for (; it != _image_list.end(); ++it) {
         if (it->getData() == image) {
             found = true;
 
