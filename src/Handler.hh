@@ -19,6 +19,8 @@ public:
     HandlerEntry(const std::string &name) : _name(name), _ref(0) { }
     virtual ~HandlerEntry(void) { }
 
+    const std::string &getName(void) { return _name; }
+
     inline T getData(void) { return _data; }
     inline void setData(T data) { _data = data; }
 

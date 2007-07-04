@@ -68,9 +68,10 @@ ImageHandler::~ImageHandler(void)
 {
     if (_image_list.size()) {
       cerr << " *** WARNING: ImageHandler list not empty, "
-           << _image_list.size() << " entries left." << endl;
+           << _image_list.size() << " entries left:" << endl;
 
         while (_image_list.size()) {
+            cerr << "              * " << _image_list.back().getName() << endl;
             delete _image_list.back().getData();
             _image_list.pop_back();
         }
@@ -138,7 +139,7 @@ ImageHandler::returnImage(PImage *image)
             found = true;
 
             it->decRef();
-            if ((it->getRef() == 0) && (_free_on_return == true)) {
+            if (_free_on_return || ! it->getRef()) {
                 delete it->getData();
                 _image_list.erase(it);
             }

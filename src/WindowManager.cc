@@ -1670,7 +1670,7 @@ WindowManager::updateMenus(void)
     }
 
     // Update, delete standalone root menus, load decors on others
-    map<string, PMenu*>::iterator it = _menu_map.begin();
+    map<string, PMenu*>::iterator it(_menu_map.begin());
     for (; it != _menu_map.end(); ++it) {
         if (it->second->getMenuType() == ROOTMENU_STANDALONE_TYPE) {
             delete it->second;
@@ -1719,7 +1719,6 @@ WindowManager::updateMenusStandalone(CfgParser::Entry *cfg_root)
             _menu_map[menu->getName()] = menu;
         }
     }
-
 }
 
 //! @brief Clears the menu map and frees up resources used by menus
