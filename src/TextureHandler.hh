@@ -51,6 +51,7 @@ public:
     static int getLengthMin(void) { return LENGTH_MIN; }
 
     PTexture *getTexture(const std::string &texture);
+    PTexture *referenceTexture(PTexture *texture);
     void returnTexture(PTexture *texture);
 
 private:

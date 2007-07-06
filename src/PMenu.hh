@@ -36,10 +36,8 @@ public:
             MENU_ITEM_NORMAL, MENU_ITEM_SEPARATOR, MENU_ITEM_HIDDEN
         };
         Item(const std::wstring &name,
-             PWinObj *wo_ref = NULL, PTexture *icon = NULL)
-          : _x(0), _y(0), _name(name), _wo_ref(wo_ref),
-            _type(MENU_ITEM_NORMAL), _icon(icon), _dynamic(false) { }
-        virtual ~Item(void) { }
+             PWinObj *wo_ref = NULL, PTexture *icon = NULL);
+        virtual ~Item(void);
 
         inline int getX(void) const { return _x; }
         inline int getY(void) const { return _y; }

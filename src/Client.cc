@@ -40,6 +40,7 @@ extern "C" {
 #include "WindowManager.hh"
 #include "PTexturePlain.hh"
 #include "PImageNativeIcon.hh"
+#include "TextureHandler.hh"
 
 #ifdef MENUS
 #include "PMenu.hh"
@@ -353,7 +354,8 @@ Client::~Client(void)
     }
 
     if (_icon) {
-      delete _icon;
+      TextureHandler::instance()->returnTexture(_icon);
+      _icon = NULL;
     }
 
     PScreen::instance()->ungrabServer(true);
@@ -876,6 +878,7 @@ Client::readIcon(void)
   if (image->load(_window)) {
     if (! _icon) {
       _icon = new PTextureImage(_dpy);
+      TextureHandler::instance()->referenceTexture(_icon);
     }
 
     _icon->setImage(image);
@@ -885,7 +888,7 @@ Client::readIcon(void)
       delete image;
     }
     if (_icon) {
-      delete _icon;
+      TextureHandler::instance()->returnTexture(_icon);
       _icon = NULL;
     }
   }

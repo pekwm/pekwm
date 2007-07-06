@@ -22,6 +22,7 @@
 #include "ActionHandler.hh"
 #include "Config.hh"
 #include "ScreenResources.hh"
+#include "TextureHandler.hh"
 #include "Theme.hh"
 #include "PixmapHandler.hh"
 #include "Workspaces.hh"
@@ -39,6 +40,22 @@ using std::list;
 using std::map;
 using std::string;
 using std::find;
+
+PMenu::Item::Item(const std::wstring &name, PWinObj *wo_ref, PTexture *icon)
+  : _x(0), _y(0), _name(name), _wo_ref(wo_ref),
+    _type(MENU_ITEM_NORMAL), _icon(icon), _dynamic(false)
+{
+  if (_icon) {
+    TextureHandler::instance()->referenceTexture(_icon);
+  }
+}
+
+PMenu::Item::~Item(void)
+{
+  if (_icon) {
+    TextureHandler::instance()->returnTexture(_icon);
+  }
+}
 
 map<Window,PMenu*> PMenu::_menu_map = map<Window,PMenu*>();
 

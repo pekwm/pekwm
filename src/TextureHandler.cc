@@ -87,6 +87,30 @@ TextureHandler::getTexture(const std::string &texture)
     return ptexture;
 }
 
+//! @brief Add/Increment reference cont for texture.
+//! @return Pointer to texture referenced.
+PTexture*
+TextureHandler::referenceTexture(PTexture *texture)
+{
+  // Check for allready existing entry
+  list<TextureHandler::Entry*>::iterator it(_texture_list.begin());
+
+  for (; it != _texture_list.end(); ++it) {
+    if ((*it)->getTexture() == texture) {
+      (*it)->incRef();
+      return texture;
+    }
+  }
+
+  // Create new entry
+  TextureHandler::Entry *entry = new TextureHandler::Entry("", texture);
+  entry->incRef();
+
+  _texture_list.push_back(entry);
+
+  return texture;
+}
+
 //! @brief Returns a texture
 void
 TextureHandler::returnTexture(PTexture *texture)
