@@ -48,6 +48,13 @@ public:
     virtual void scale(uint width, uint height);
 
 protected:
+    void drawFixed(Drawable dest, int x, int y, uint width, uint height);
+    void drawScaled(Drawable dest, int x, int y, uint widht, uint height);
+    void drawTiled(Drawable dest, int x, int y, uint widht, uint height);
+    void drawAlphaFixed(Drawable dest, int x, int y, uint widht, uint height);
+    void drawAlphaScaled(Drawable dest, int x, int y, uint widht, uint height);
+    void drawAlphaTiled(Drawable dest, int x, int y, uint widht, uint height);
+
     Pixmap createPixmap(uchar *data, uint width, uint height);
     Pixmap createMask(uchar *data, uint width, uint height);
 

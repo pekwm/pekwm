@@ -96,69 +96,40 @@ PImageNative::unload(void)
 void
 PImageNative::draw(Drawable draw, int x, int y, uint width, uint height)
 {
-    if (!_data)
+    if (!_data) {
         return;
+    }
 
     // Expand variables.
-    if (!width)
+    if (!width) {
         width = _width;
-    if (!height)
+    } if (!height) {
         height = _height;
+    }
 
-    // Draw image.
-
-    // Fixed and Scaled to original size is the same thing.
+    // Draw image, select correct drawing method depending on image type,
+    // size and if alpha exists.
     if ((_type == IMAGE_TYPE_FIXED)
-            || ((_type == IMAGE_TYPE_SCALED)
-                && (_width == width) && (_height == height))) {
-        // Plain copy of the pixmap onto Drawable.
-        XCopyArea(_dpy, _pixmap, draw, PScreen::instance()->getGC(),
-                  0, 0, width, height, x, y);
-
-    } else if (_type == IMAGE_TYPE_SCALED) {
-        uchar *scaled_data;
-        // Create scaled representation of image.
-        scaled_data = getScaledData(width, height);
-        if (scaled_data) {
-            Pixmap pix;
-            // Create pixmap.
-            pix = createPixmap(scaled_data, width, height);
-            if (pix) {
-                XCopyArea(_dpy, pix, draw, PScreen::instance()->getGC(),
-                          0, 0, width, height, x, y);
-                ScreenResources::instance()->getPixmapHandler()->returnPixmap(pix);
-            }
-
-            delete [] scaled_data;
+        || ((_type == IMAGE_TYPE_SCALED)
+            && (_width == width) && (_height == height))) {
+        if (_has_alpha) {
+            drawFixed(draw, x, y, width, height);
+        } else {
+            drawAlphaFixed(draw, x, y, width, height);
         }
-
+    } else if (_type == IMAGE_TYPE_SCALED) {
+      if (_has_alpha) {
+        drawAlphaScaled(draw, x, y, width, height);
+      } else {
+        drawScaled(draw, x, y, width, height);
+      }
     } else if (_type == IMAGE_TYPE_TILED) {
-        // Create a GC with _pixmap as tile and tiled fill style.
-        GC gc;
-        XGCValues gv;
-
-        gv.fill_style = FillTiled;
-        gv.tile = _pixmap;
-        gv.ts_x_origin = x;
-        gv.ts_y_origin = y;
-
-        gc = XCreateGC(_dpy , draw,
-                       GCFillStyle|GCTile|GCTileStipXOrigin|GCTileStipYOrigin,
-                       &gv);
-
-        // Tile the image onto drawable.
-        XFillRectangle(_dpy, draw, gc, x, y, width, height);
-
-        XFreeGC(_dpy, gc);
+      if (_has_alpha) {
+        drawAlphaTiled(draw, x, y, width, height);
+      } else {
+        drawTiled(draw, x, y, width, height);
+      }
     }
-#ifdef DEBUG
-    else {
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "PImageNative(" << this << ")::draw(" << draw << ", "
-             << x << " ," << y << ", " << width << ", " << height << ")" << endl
-             << " *** no image type set, not drawing!" << endl;
-    }
-#endif // DEBUG
 }
 
 //! @brief Returns pixmap at sizen.
@@ -258,6 +229,83 @@ PImageNative::scale(uint width, uint height)
     }
 }
 
+//! @brief Draw image at position, not scaling.
+void
+PImageNative::drawFixed(Drawable dest, int x, int y, uint width, uint height)
+{
+  // Plain copy of the pixmap onto Drawable.
+  XCopyArea(_dpy, _pixmap, dest, PScreen::instance()->getGC(),
+            0, 0, width, height, x, y);
+
+}
+
+//! @brief Draw image scaled to fit width and height.
+void
+PImageNative::drawScaled(Drawable dest, int x, int y, uint width, uint height)
+{
+  uchar *scaled_data;
+  // Create scaled representation of image.
+  scaled_data = getScaledData(width, height);
+  if (scaled_data) {
+    Pixmap pix;
+    // Create pixmap.
+    pix = createPixmap(scaled_data, width, height);
+    if (pix) {
+      XCopyArea(_dpy, pix, dest, PScreen::instance()->getGC(),
+                0, 0, width, height, x, y);
+      ScreenResources::instance()->getPixmapHandler()->returnPixmap(pix);
+    }
+
+    delete [] scaled_data;
+  }
+}
+
+//! @brief Draw image tiled to fit width and height.
+void
+PImageNative::drawTiled(Drawable dest, int x, int y, uint width, uint height)
+{
+  // Create a GC with _pixmap as tile and tiled fill style.
+  GC gc;
+  XGCValues gv;
+
+  gv.fill_style = FillTiled;
+  gv.tile = _pixmap;
+  gv.ts_x_origin = x;
+  gv.ts_y_origin = y;
+
+  gc = XCreateGC(_dpy , dest,
+                 GCFillStyle|GCTile|GCTileStipXOrigin|GCTileStipYOrigin, &gv);
+
+  // Tile the image onto drawable.
+  XFillRectangle(_dpy, dest, gc, x, y, width, height);
+
+  XFreeGC(_dpy, gc);
+}
+
+//! @brief Draw image at position, not scaling.
+void
+PImageNative::drawFixed(Drawable dest,
+                        int x, int y, uint width, uint height)
+{
+  drawFixed(dest, x, y, width, height);
+}
+
+//! @brief Draw image scaled to fit width and height.
+void
+PImageNative::drawAlphaScaled(Drawable dest,
+                              int x, int y, uint width, uint height)
+{
+  drawScaled(dest, x, y, width, height);
+}
+
+//! @brief Draw image tiled to fit width and height.
+void
+PImageNative::drawAlphaTiled(Drawable dest,
+                             int x, int y, uint width, uint height)
+{
+  drawTiled(dest, x, y, width, height);
+}
+
 //! @brief Creates Pixmap from data.
 //! @param data Pointer to data to create pixmap from.
 //! @param width Width of image data is representing.
@@ -328,7 +376,7 @@ PImageNative::createMask(uchar *data, uint width, uint height)
     pix = ScreenResources::instance()->getPixmapHandler()->getPixmap(width,
                                                                      height,
                                                                      1);
-            
+
     GC gc = XCreateGC(_dpy, pix, 0, NULL);
     XPutImage(_dpy, pix, gc, ximage,
               0, 0, 0, 0, width, height);
