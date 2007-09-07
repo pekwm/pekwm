@@ -3,7 +3,7 @@
 # http://www.chr1z.de
 
 # set up the font
-$FONT = "fixed"
+$FONT = "-*-fixed-*-*-*-*-*-*-*-*-*-*-*-*"
 
 ####################################
 #     THEME COLOR DEFINITION       #
@@ -95,7 +95,9 @@ PDecor {
 Decor = "DEFAULT" {
 	Title {
 		Height = "17"
-		Pad = "2 0 2 0"
+
+		# increase first number to bring title text downwards
+		Pad = "0 0 2 0"
 
 		Focused = "Empty"
 		Unfocused = "Empty"
@@ -166,7 +168,9 @@ Decor = "DEFAULT" {
 Decor = "MENU" {
 	Title {
 		Height = "17"
-		Pad = "2 0 2 0"
+
+		# increase first number to bring title text downwards
+		Pad = "0 0 2 0"
 
 		Focused = "Empty"
 		Unfocused = "Empty"
@@ -275,7 +279,7 @@ Harbour {
 
 Menu {
 	Focused {
-		Font = "$FONT"
+		Font = "$FONT#left"
 		Background = "Solid $COLOR_MENU_F_BG"
 		Item = "Solid $COLOR_MENU_F_ITEM 1 0"
 		Separator = "Solid $COLOR_MENU_F_SEP 0x2"
@@ -283,7 +287,7 @@ Menu {
 		Text = "$COLOR_MENU_F_TEXT"
 	}
 	Unfocused {
-		Font = "$FONT"
+		Font = "$FONT#left"
 		Background = "Solid $COLOR_MENU_U_BG"
 		Item = "Solid $COLOR_MENU_U_ITEM 1 0"
 		Separator = "Solid $COLOR_MENU_U_SEP 0x2"
@@ -291,7 +295,7 @@ Menu {
 		Text = "$COLOR_MENU_U_TEXT"
 	}
 	Selected {
-		Font = "$FONT"
+		Font = "$FONT#left"
 		Background = "$COLOR_MENU_S_BG"
 		Item = "SolidRaised $COLOR_MENU_S_ITEM $COLOR_MENU_S_ITEM_LIGHT $COLOR_MENU_S_ITEM_DARK 1 0"
     Arrow = "Solid $COLOR_MENU_ARROW_S 4x4"
@@ -302,13 +306,13 @@ Menu {
 }
 
 CmdDialog {
-	Font = "$FONT"
+	Font = "$FONT#center"
 	Texture = "Solid $COLOR_CMD_BG"
 	Text = "$COLOR_CMD_TEXT"
 }
 
 Status {
-	Font = "$FONT"
+	Font = "$FONT#center"
 	Texture = "Solid $COLOR_STATUS_BG"
 	Text = "$COLOR_STATUS_TEXT"
 }
