@@ -49,7 +49,8 @@ Config::Config(void) :
         _moveresize_edgeattract(0), _moveresize_edgeresist(0),
         _moveresize_woattract(0), _moveresize_woresist(0),
         _moveresize_opaquemove(0), _moveresize_opaqueresize(0),
-        _screen_workspaces(4), _screen_pixmap_cache_size(20),_screen_edge_size(0),
+        _screen_workspaces(4), _screen_pixmap_cache_size(20),
+        _screen_workspaces_per_row(0), _screen_edge_size(0),
         _screen_doubleclicktime(250), _screen_showframelist(true),
         _screen_show_status_window(true), _screen_show_client_id(false),
         _screen_place_new(true), _screen_focus_new(false),
@@ -210,6 +211,10 @@ Config::Config(void) :
     _workspace_change_map["PREV"] = WORKSPACE_PREV;
     _workspace_change_map["RIGHT"] = WORKSPACE_RIGHT;
     _workspace_change_map["NEXT"] = WORKSPACE_NEXT;
+    _workspace_change_map["PREVV"] = WORKSPACE_PREV_V;
+    _workspace_change_map["UP"] = WORKSPACE_UP;
+    _workspace_change_map["NEXTV"] = WORKSPACE_NEXT_V;
+    _workspace_change_map["DOWN"] = WORKSPACE_DOWN;
     _workspace_change_map["LAST"] = WORKSPACE_LAST;
 
     _borderpos_map[""] = BORDER_NO_POS;
@@ -504,6 +509,8 @@ Config::loadScreen(CfgParser::Entry *op_section)
                           _screen_workspaces, 4, 1));
     o_key_list.push_back (new CfgParserKeyInt ("PIXMAPCACHESIZE",
                           _screen_pixmap_cache_size));
+    o_key_list.push_back (new CfgParserKeyInt ("WORKSPACESPERROW",
+                                               _screen_workspaces_per_row, 0, 0));
     o_key_list.push_back (new CfgParserKeyInt ("EDGESIZE", _screen_edge_size, 0, 0));
     o_key_list.push_back (new CfgParserKeyInt ("DOUBLECLICKTIME",
                           _screen_doubleclicktime, 250, 0));
@@ -854,13 +861,8 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
                 case ACTION_WARP_TO_WORKSPACE:
                 case ACTION_SEND_TO_WORKSPACE:
                 case ACTION_GOTO_WORKSPACE:
-                    action.setParamI(0, ParseUtil::getValue<WorkspaceChangeType>(tok[1], _workspace_change_map));
-                    if (static_cast<uint>(action.getParamI(0)) == WORKSPACE_NO) {
-                        action.setParamI(0, strtol(tok[1].c_str(), NULL, 10) - 1);
-                        if (action.getParamI(0) < 0) {
-                            action.setParamI(0, 0);
-                        }
-                    }
+                  action.setParamI(0, parseWorkspaceNumber(tok[1]));
+
                     break;
                 case ACTION_GROUPING_DRAG:
                     action.setParamI(0, Util::isTrue(tok[1]));
@@ -1622,4 +1624,34 @@ Config::getEdgeListFromPosition(uint pos)
     };
 
     return ret;
+}
+
+
+//! @brief Parses workspace number
+int
+Config::parseWorkspaceNumber(const std::string &workspace)
+{
+  // Get workspace looking for relative numbers
+  uint num = ParseUtil::getValue<WorkspaceChangeType>(workspace, _workspace_change_map);
+
+  if (num == WORKSPACE_NO) {
+    // Workspace isn't relative, check for 2x2 and ordinary specification
+    vector<string> tok;
+    if (Util::splitString(workspace, tok, "x", 2) == 2) {
+      uint row = strtol(tok[0].c_str(), NULL, 10) - 1;
+      uint col = strtol(tok[1].c_str(), NULL, 10) - 1;
+
+      num = _screen_workspaces_per_row * row + col;
+
+    } else {
+      num = strtol(workspace.c_str(), NULL, 10) - 1;
+    }
+  }
+
+  // Fallback to 0 if something went wrong
+  if (num < 0) {
+    num = 0;
+  }
+
+  return num;
 }

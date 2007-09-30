@@ -196,32 +196,68 @@ Workspaces::gotoWorkspace(uint direction, bool warp)
     // Using a bool flag to detect changes due to special workspaces such
     // as PREV
     bool switched = true;
+    uint per_row = Config::instance()->getWorkspacesPerRow();
+
+    uint cur_row, row_min, row_max;
+    if (per_row > 0) {
+      cur_row = _active / per_row;
+      row_min = cur_row * per_row;
+      row_max = row_min + per_row;
+    } else {
+      cur_row = 0;
+      row_min = 0;
+      row_max = _workspace_list.size() - 1;
+    }
 
     switch (direction) {
     case WORKSPACE_LEFT:
     case WORKSPACE_PREV:
         dir = 1;
 
-        if (_active > 0) {
-            workspace = _active - 1;
+        if (_active > row_min) {
+          workspace = _active - 1;
         } else if (direction == WORKSPACE_PREV) {
-            workspace = _workspace_list.size() - 1;
+          workspace = row_max;
         } else {
-            switched = false;
+          switched = false;
         }
         break;
     case WORKSPACE_NEXT:
     case WORKSPACE_RIGHT:
-        dir = -1;
+        dir = 2;
 
-        if ((_active + 1) < _workspace_list.size()) {
+        if ((_active + 1) < row_max) {
             workspace = _active + 1;
         } else if (direction == WORKSPACE_NEXT) {
-            workspace = 0;
+            workspace = row_min;
         } else {
             switched = false;
         }
         break;
+    case WORKSPACE_PREV_V:
+    case WORKSPACE_UP:
+      dir = -1;
+
+      if (_active >= per_row) {
+        workspace -= per_row;
+      } else if (direction == WORKSPACE_PREV_V) {
+        workspace = _workspace_list.size() - per_row + _active - 1;
+      } else {
+        switched = false;
+      }
+      break;
+    case WORKSPACE_NEXT_V:
+    case WORKSPACE_DOWN:
+      dir = -2;
+
+      if ((_active + per_row) < _workspace_list.size()) {
+        workspace += per_row;
+      } else if (direction == WORKSPACE_PREV_V) {
+        workspace = _workspace_list.size() - per_row + _active - 1;
+      } else {
+        switched = false;
+      }
+      break;
     case WORKSPACE_LAST:
         workspace = _previous;
         if (_active == workspace) {
@@ -262,11 +298,20 @@ Workspaces::warpToWorkspace(uint num, int dir)
     warp = (warp > 0) ? (warp * 2) : 2;
 
     if (dir != 0) {
-        if (dir > 0) {
-            x = PScreen::instance()->getWidth() - warp;
-        } else {
-            x = warp;
-        }
+      switch(dir) {
+      case 1:
+        x = PScreen::instance()->getWidth() - warp;
+        break;
+      case 2:
+        x = warp;
+        break;
+      case -1:
+        y = PScreen::instance()->getHeight() - warp;
+        break;
+      case -2:
+        y = warp;
+        break;
+      }
 
         // warp pointer
         XWarpPointer(PScreen::instance()->getDpy(), None,

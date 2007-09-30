@@ -52,6 +52,7 @@ public:
     // Screen
     inline int getWorkspaces(void) const { return _screen_workspaces; }
     inline int getScreenPixmapCacheSize(void) const { return _screen_pixmap_cache_size; }
+    inline int getWorkspacesPerRow(void) const { return _screen_workspaces_per_row; }
     inline int getScreenEdgeSize(void) const { return _screen_edge_size; }
     inline int getDoubleClickTime(void) const { return _screen_doubleclicktime; }
     inline const std::string &getTrimTitle(void) const { return _screen_trim_title; }
@@ -156,6 +157,8 @@ private:
     void parseButtons(CfgParser::Entry *op_section,
                       std::list<ActionEvent>* mouse_list, ActionOk action_ok);
 
+  int parseWorkspaceNumber(const std::string &workspace);
+
 private:
     std::string _config_file;
 
@@ -171,6 +174,7 @@ private:
 
     // screen
     int _screen_workspaces, _screen_pixmap_cache_size;
+    int _screen_workspaces_per_row;
     int _screen_edge_size;
     int _screen_doubleclicktime;
     std::string _screen_trim_title;
