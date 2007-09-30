@@ -284,8 +284,8 @@ PImageNative::drawTiled(Drawable dest, int x, int y, uint width, uint height)
 
 //! @brief Draw image at position, not scaling.
 void
-PImageNative::drawFixed(Drawable dest,
-                        int x, int y, uint width, uint height)
+PImageNative::drawAlphaFixed(Drawable dest,
+                             int x, int y, uint width, uint height)
 {
   drawFixed(dest, x, y, width, height);
 }

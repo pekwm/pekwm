@@ -202,7 +202,7 @@ Workspaces::gotoWorkspace(uint direction, bool warp)
     if (per_row > 0) {
       cur_row = _active / per_row;
       row_min = cur_row * per_row;
-      row_max = row_min + per_row;
+      row_max = row_min + per_row - 1;
     } else {
       cur_row = 0;
       row_min = 0;
@@ -226,7 +226,7 @@ Workspaces::gotoWorkspace(uint direction, bool warp)
     case WORKSPACE_RIGHT:
         dir = 2;
 
-        if ((_active + 1) < row_max) {
+        if (_active < row_max) {
             workspace = _active + 1;
         } else if (direction == WORKSPACE_NEXT) {
             workspace = row_min;
@@ -239,9 +239,12 @@ Workspaces::gotoWorkspace(uint direction, bool warp)
       dir = -1;
 
       if (_active >= per_row) {
-        workspace -= per_row;
+        workspace = _active - per_row;
       } else if (direction == WORKSPACE_PREV_V) {
-        workspace = _workspace_list.size() - per_row + _active - 1;
+        // Bottom left
+        workspace = _workspace_list.size() - per_row;
+        // Add column
+        workspace += _active - cur_row * per_row;
       } else {
         switched = false;
       }
@@ -251,9 +254,9 @@ Workspaces::gotoWorkspace(uint direction, bool warp)
       dir = -2;
 
       if ((_active + per_row) < _workspace_list.size()) {
-        workspace += per_row;
-      } else if (direction == WORKSPACE_PREV_V) {
-        workspace = _workspace_list.size() - per_row + _active - 1;
+        workspace = _active + per_row;
+      } else if (direction == WORKSPACE_NEXT_V) {
+        workspace = _active - cur_row * per_row;
       } else {
         switched = false;
       }
