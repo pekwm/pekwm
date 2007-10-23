@@ -751,7 +751,7 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off,
     while (cycling) {
         if (fo_wo != NULL) {
             fo_wo->setFocused(true);
-            if (Raise(raise) == ALWAYS_RAISE)	{
+            if (Raise(raise) == ALWAYS_RAISE) {
                 // Make sure it's not iconified if raise is on.
                 if (fo_wo->isIconified()) {
                     was_iconified = true;
@@ -886,7 +886,7 @@ ActionHandler::createNextPrevMenu(bool show_iconified)
         fr = static_cast<Frame*>(*f_it);
         if (createMenuInclude(fr, show_iconified)) {
             menu->insert(static_cast<Client*>(fr->getActiveChild())->getTitle()->getVisible(),
-                         ae, fr);
+                         ae, fr, static_cast<Client*>(fr->getActiveChild())->getIcon());
         }
     }
 
@@ -909,7 +909,7 @@ ActionHandler::createMRUMenu(bool show_iconified)
         fr = static_cast<Frame*>(*f_it);
         if (createMenuInclude(fr, show_iconified)) {
             menu->insert(static_cast<Client*>(fr->getActiveChild())->getTitle()->getVisible(),
-                         ae, fr);
+                         ae, fr, static_cast<Client*>(fr->getActiveChild())->getIcon());
         }
     }
 
