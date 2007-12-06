@@ -17,6 +17,7 @@
 #include <cwctype>
 
 extern "C" {
+#include <X11/Xlib.h>
 #include <X11/Xutil.h> // XLookupString
 #include <X11/keysym.h>
 }

@@ -22,6 +22,7 @@ using std::numeric_limits;
 #endif // HAVE_LIMITS
 
 extern "C" {
+#include <X11/Xlib.h>
 #ifdef HAVE_SHAPE
 #include <X11/Xutil.h>
 #include <X11/extensions/shape.h>
