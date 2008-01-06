@@ -101,18 +101,17 @@ AC_ARG_ENABLE(xft,
 							[enable_xft=yes])
 if test "x$enable_xft" = "xyes"; then
 	AC_MSG_RESULT([yes])
-	AC_PATH_GENERIC(xft, 2.0.0,
-		[
+
+    PKG_CHECK_MODULES([xft], [xft >= 2.0.0], HAVE_XFT=yes, HAVE_XFT=no)
+    if test "x$HAVE_XFT" = "xyes"
+    then
 			AC_DEFINE(HAVE_XFT, [1], [Define to 1 if you want Xft2 font support])
-			XFT_LIBS=`xft-config --libs`
-			XFT_CFLAGS=`xft-config --cflags`
-			LIBS="$LIBS $XFT_LIBS"
-			CXXFLAGS="$CXXFLAGS $XFT_CFLAGS"
+			LIBS="$LIBS $xft_LIBS"
+			CXXFLAGS="$CXXFLAGS $xft_CFLAGS"
 			FEATURES="$FEATURES Xft";
-		],
-		[
+    else
 			AC_MSG_WARN([Couldn't fint Xft.])
-		])
+    fi
 else
 	AC_MSG_RESULT([no])
 fi
