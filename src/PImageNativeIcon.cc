@@ -46,8 +46,8 @@ PImageNativeIcon::load(Window win)
 
   // Start reading icon size
   if (AtomUtil::getProperty(win, icon, XA_CARDINAL, expected, &udata)) {
-    CARD32 *data = reinterpret_cast<CARD32*>(udata);
-    
+    long *data = reinterpret_cast<long*>(udata);
+
     uint width = data[0];
     uint height = data[1];
 
@@ -58,7 +58,7 @@ PImageNativeIcon::load(Window win)
     if (AtomUtil::getProperty(win, icon, XA_CARDINAL, expected, &udata)) {
         status = true;
 
-        data = reinterpret_cast<CARD32*>(udata);
+        data = reinterpret_cast<long*>(udata);
 
         _data = new uchar[width * height * 4];
         _width = width;
@@ -67,11 +67,13 @@ PImageNativeIcon::load(Window win)
         // Assign data, source data is ARGB one pixel per 32bit and
         // destination is RGBA in 4x8bit.
         uchar *p = _data;
+        int pixel;
         for (int i = 2; i < expected; i += 1) {
-          *p++ = data[i] >> 16 & 0xff;
-          *p++ = data[i] >> 8 & 0xff;
-          *p++ = data[i] & 0xff;
-          *p++ = data[i] >> 24 & 0xff;
+          pixel = data[i]; // in case 64bit system drop the unneeded bits
+          *p++ = pixel >> 16 & 0xff;
+          *p++ = pixel >> 8 & 0xff;
+          *p++ = pixel & 0xff;
+          *p++ = pixel >> 24 & 0xff;
         }
 
         _pixmap = createPixmap(_data, _width, _height);
