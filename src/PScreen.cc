@@ -1,11 +1,9 @@
 //
 // PScreen.cc for pekwm
-// Copyright © 2003-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2003-2008 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
-//
-// $Id$
 //
 
 #ifdef HAVE_CONFIG_H
@@ -38,6 +36,7 @@ extern "C" {
 
 using std::cerr;
 using std::endl;
+using std::vector;
 using std::list;
 using std::map;
 using std::string;
@@ -79,16 +78,9 @@ PScreen::PVisual::getShiftPrecFromMask(ulong mask, int &shift, int &prec)
 PScreen::PScreen(Display *dpy) :
         _dpy(dpy),
         _num_lock(0), _scroll_lock(0),
-#ifdef HAVE_SHAPE
         _has_extension_shape(false), _event_shape(-1),
-#endif // HAVE_XRANDR
-#ifdef HAVE_XRANDR
+        _has_extension_xinerama(false),
         _has_extension_xrandr(false), _event_xrandr(-1),
-#endif // HAVE_XRANDR
-#ifdef HAVE_XINERAMA
-        _has_xinerama(false), _xinerama_last_head(0), _xinerama_num_heads(0),
-        _xinerama_struts(NULL), _xinerama_infos(NULL),
-#endif // HAVE_XINERAMA
         _server_grabs(0), _last_event_time(0), _last_click_id(None)
 {
     if (_instance != NULL)
@@ -110,33 +102,20 @@ PScreen::PScreen(Display *dpy) :
 #ifdef HAVE_SHAPE
     {
         int dummy_error;
-        _has_extension_shape =
-            XShapeQueryExtension(_dpy, &_event_shape, &dummy_error);
+        _has_extension_shape = XShapeQueryExtension(_dpy, &_event_shape, &dummy_error);
     }
 #endif // HAVE_SHAPE
 
 #ifdef HAVE_XRANDR
     {
         int dummy_error;
-        _has_extension_xrandr =
-            XRRQueryExtension(_dpy, &_event_xrandr, &dummy_error);
+        _has_extension_xrandr = XRRQueryExtension(_dpy, &_event_xrandr, &dummy_error);
     }
 #endif // HAVE_XRANDR
 
-#ifdef HAVE_XINERAMA
-    // check if we have Xinerama extension enabled
-    if (XineramaIsActive(_dpy)) {
-        _has_xinerama = true;
-        _xinerama_last_head = 0;
-        _xinerama_infos = XineramaQueryScreens(_dpy, &_xinerama_num_heads);
-    } else {
-        _has_xinerama = false;
-        _xinerama_num_heads = 1;
-        _xinerama_infos = 0; // make sure we don't point anywhere we shouldn't
-    }
-
-    _xinerama_struts = new Strut[_xinerama_num_heads];
-#endif // HAVE_XINERAMA
+    // Now screen geometry has been read and extensions have been
+    // looked for, read head information.
+    initHeads();
 
     // initialize array values
     for (uint i = 0; i < (BUTTON_NO - 1); ++i) {
@@ -176,14 +155,6 @@ PScreen::PScreen(Display *dpy) :
 
 //! @brief PScreen destructor
 PScreen::~PScreen(void) {
-#ifdef HAVE_XINERAMA
-    if (_has_xinerama) { // only free if we first had it
-        XFree(_xinerama_infos);
-        _xinerama_infos = 0;
-    }
-    delete [] _xinerama_struts;
-#endif // HAVE_XINERAMA
-
     delete _visual;
 
     _instance = NULL;
@@ -267,26 +238,34 @@ PScreen::ungrabPointer(void)
     return true;
 }
 
-#ifdef HAVE_XRANDR
 //! @brief Refetches the root-window size.
 void
 PScreen::updateGeometry(uint width, uint height)
 {
-    _width = width;
-    _height = height;
+#ifdef HAVE_XRANDR
+  if (! _has_extension_xrandr) {
+    return;
+  }
 
-    PWinObj::getRootPWinObj()->resize(width, height);
-}
+  // The screen has changed geometry in some way. To handle this the
+  // head information is read once again, the root window is re sized
+  // and strut information is updated.
+  initHeads();
+
+  _width = width;
+  _height = height;
+  PWinObj::getRootPWinObj()->resize(width, height);
+
+  updateStrut();
 #endif // HAVE_XRANDR
-
-#ifdef HAVE_XINERAMA
+}
 
 //! @brief Searches for the head closest to the coordinates x,y.
 //! @return The nearest head.  Head numbers are indexed from 0.
 uint
 PScreen::getNearestHead(int x, int y)
 {
-    if(_has_xinerama) {
+  if(_heads.size() > 1) {
         // set distance to the highest uint value
 #ifdef HAVE_LIMITS
         uint min_distance = numeric_limits<uint>::max();
@@ -297,17 +276,17 @@ PScreen::getNearestHead(int x, int y)
 
         uint distance;
         int head_t, head_b, head_l, head_r;
-        for(int head = 0; head < _xinerama_num_heads; head++) {
-            head_t = _xinerama_infos[head].y_org;
-            head_b = _xinerama_infos[head].y_org + _xinerama_infos[head].height;
-            head_l = _xinerama_infos[head].x_org;
-            head_r = _xinerama_infos[head].x_org + _xinerama_infos[head].width;
+        for(uint head = 0; head < _heads.size(); ++head) {
+            head_t = _heads[head].y;
+            head_b = _heads[head].y + _heads[head].height;
+            head_l = _heads[head].x;
+            head_r = _heads[head].x + _heads[head].width;
 
             if(x > head_r) {
                 if(y < head_t) {
                     // above and right of the head
                     distance = calcDistance(x, y, head_r, head_t);
-                }	else if(y > head_b) {
+                } else if(y > head_b) {
                     // below and right of the head
                     distance = calcDistance(x, y, head_r, head_b);
                 } else {
@@ -337,6 +316,13 @@ PScreen::getNearestHead(int x, int y)
                     return head;
                 }
             }
+
+#ifdef DEBUG
+            cerr << __FILE__ << "@" << __LINE__ << ": PScreen::getNearestHead( " << x << "," << y << ") "
+                 << "head boundaries " << head_t << "," << head_b << "," << head_l << "," << head_r << " "
+                 << "distance " << distance << " min_distance " << min_distance << endl;
+#endif // DEBUG
+
             if(distance < min_distance) {
                 min_distance = distance;
                 nearest_head = head;
@@ -353,14 +339,19 @@ PScreen::getNearestHead(int x, int y)
 uint
 PScreen::getCurrHead(void)
 {
-    // is Xinerama extensions enabled?
-    if (_has_xinerama) {
-        int x = 0, y = 0;
-        getMousePosition(x, y);
-        return getNearestHead(x, y);
-    }
+  uint head = 0;
 
-    return 0;
+  if (_heads.size() > 1) {
+    int x = 0, y = 0;
+    getMousePosition(x, y);
+    head = getNearestHead(x, y);
+#ifdef DEBUG
+    cerr << __FILE__ << "@" << __LINE__ << ": PScreen::getCurrHead() got head "
+         << head << " from mouse position " << x << "," << y << endl;
+#endif // DEBUG
+  }
+
+  return head;
 }
 
 //! @brief Fills head_info with info about head nr head
@@ -370,72 +361,30 @@ PScreen::getCurrHead(void)
 bool
 PScreen::getHeadInfo(uint head, Geometry &head_info)
 {
-    if (_has_xinerama) {
-        if ((signed) head  < _xinerama_num_heads) {
-            head_info.x = _xinerama_infos[head].x_org;
-            head_info.y = _xinerama_infos[head].y_org;
-            head_info.width = _xinerama_infos[head].width;
-            head_info.height = _xinerama_infos[head].height;
-        } else {
+  if (head  < _heads.size()) {
+    head_info.x = _heads[head].x;
+    head_info.y = _heads[head].y;
+    head_info.width = _heads[head].width;
+    head_info.height = _heads[head].height;
+    return true;
+  } else {
 #ifdef DEBUG
-            cerr << __FILE__ << "@" << __LINE__ << ": "
-                 << "Head: " << head << " doesn't exist!" << endl;
+    cerr << __FILE__ << "@" << __LINE__ << ": Head: " << head << " doesn't exist!" << endl;
 #endif // DEBUG
-            return false;
-        }
-    } else { // fill it up with "ordinary info"
-        head_info.x = 0;
-        head_info.y = 0;
-        head_info.width = _width;
-        head_info.height = _height;
-    }
-
-    return true;
+    return false;
+  }
 }
-
-#else //! HAVE_XINERAMA
-
-//! @brief
-uint
-PScreen::getNearestHead(int x, int y)
-{
-    return 0;
-}
-
-//! @brief
-uint
-PScreen::getCurrHead(void)
-{
-    return 0;
-}
-
-//! @brief
-bool
-PScreen::getHeadInfo(uint head, Geometry &head_info)
-{
-    head_info.x = 0;
-    head_info.y = 0;
-    head_info.width = _width;
-    head_info.height = _height;
-
-    return true;
-}
-
-#endif // HAVE_XINERAMA
 
 //! @brief Fill information about head and the strut.
 void
 PScreen::getHeadInfoWithEdge(uint num, Geometry &head)
 {
-#ifdef HAVE_XINERAMA
-  getHeadInfo(num, head);
-
-  if (num >= _xinerama_num_heads) {
+  if (! getHeadInfo(num, head)) {
     return;
   }
 
-  Strut strut(_xinerama_struts[num]);
   int strut_val;
+  Strut strut(_heads[num].strut); // Convenience
 
   // Remove the strut area from the head info
   strut_val = (head.x == 0) ? std::max(_strut.left, strut.left) : strut.left;
@@ -451,13 +400,6 @@ PScreen::getHeadInfoWithEdge(uint num, Geometry &head)
 
   strut_val = (head.y + head.height == _height) ? std::max(_strut.bottom, strut.bottom) : strut.bottom;
   head.height -= strut_val;
-
-#else //! HAVE_XINERAMA
-    head.x = _strut.left;
-    head.y = _strut.top;
-    head.width = _width - head.x - _strut.right;
-    head.height = _height - head.y - _strut.bottom;
-#endif // HAVE_XINERAMA
 }
 
 void
@@ -513,56 +455,116 @@ PScreen::removeStrut(Strut *strut)
 void
 PScreen::updateStrut(void)
 {
-#ifdef HAVE_XINERAMA
     // Reset strut data.
     _strut.left = 0;
     _strut.right = 0;
     _strut.top = 0;
     _strut.bottom = 0;
 
-    for (int i = 0; i < _xinerama_num_heads; ++i) {
-        _xinerama_struts[i].left = 0;
-        _xinerama_struts[i].right = 0;
-        _xinerama_struts[i].top = 0;
-        _xinerama_struts[i].bottom = 0;
+    for (vector<Head>::iterator it(_heads.begin()); it != _heads.end(); ++it) {
+      it->strut.left = 0;
+      it->strut.right = 0;
+      it->strut.top = 0;
+      it->strut.bottom = 0;
     }
 
     Strut *strut;
-    list<Strut*>::iterator it(_strut_list.begin());
-    for(; it != _strut_list.end(); ++it) {
-        if ((*it)->head == -1) {
+    for(list<Strut*>::iterator it(_strut_list.begin()); it != _strut_list.end(); ++it) {
+        if ((*it)->head < 0) {
             strut = &_strut;
-        } else if ((*it)->head < _xinerama_num_heads) {
-            strut = &_xinerama_struts[(*it)->head];
+        } else if (static_cast<uint>((*it)->head) < _heads.size()) {
+            strut = &(_heads[(*it)->head].strut);
         } else {
             continue;
         }
 
-        if (strut->left < (*it)->left)
+        if (strut->left < (*it)->left) {
             strut->left = (*it)->left;
-        if (strut->right < (*it)->right)
+        }
+        if (strut->right < (*it)->right) {
             strut->right = (*it)->right;
-        if (strut->top < (*it)->top)
+        }
+        if (strut->top < (*it)->top) {
             strut->top = (*it)->top;
-        if (strut->bottom < (*it)->bottom)
-            strut->bottom = (*it)->bottom;
+        }
+        if (strut->bottom < (*it)->bottom) {
+          strut->bottom = (*it)->bottom;
+        }
     }
-#else // !HAVE_XINERAMA
-    _strut.left = 0;
-    _strut.right = 0;
-    _strut.top = 0;
-    _strut.bottom = 0;
+}
 
-    list<Strut*>::iterator it(_strut_list.begin());
-    for(; it != _strut_list.end(); ++it) {
-        if (_strut.left < (*it)->left)
-            _strut.left = (*it)->left;
-        if (_strut.right < (*it)->right)
-            _strut.right = (*it)->right;
-        if (_strut.top < (*it)->top)
-            _strut.top = (*it)->top;
-        if (_strut.bottom < (*it)->bottom)
-            _strut.bottom = (*it)->bottom;
+//! @brief Initialize head information
+void
+PScreen::initHeads(void)
+{
+  _heads.clear();
+
+  // Read head information, randr has priority over xinerama then
+  // comes ordinary X11 information.
+
+  initHeadsRandr();
+  if (! _heads.size()) {
+    initHeadsXinerama();
+
+    if (! _heads.size()) {
+      _heads.push_back(Head(0, 0, _width, _height));
     }
+  }
+}
+
+//! @brief Initialize head information from Xinerama
+void
+PScreen::initHeadsXinerama(void)
+{
+#ifdef HAVE_XINERAMA
+  // Check if there are heads already initialized from example Randr
+  if (! XineramaIsActive(_dpy)) {
+    return;
+  }
+
+  int num_heads = 0;
+  XineramaScreenInfo *infos = XineramaQueryScreens(_dpy, &num_heads);
+
+  for (int i = 0; i < num_heads; ++i) {
+    _heads.push_back(Head(infos[i].x_org, infos[i].y_org, infos[i].width, infos[i].height));
+  }
+
+  XFree(infos);
 #endif // HAVE_XINERAMA
+}
+
+//! @brief Initialize head information from RandR
+void
+PScreen::initHeadsRandr(void)
+{
+#ifdef HAVE_XRANDR
+  if (! _has_extension_xrandr) {
+    return;
+  }
+
+  XRRScreenResources *resources = XRRGetScreenResources(_dpy, _root);
+  if (! resources) {
+    return;
+  }
+
+  for (int i = 0; i < resources->noutput; ++i) {
+    XRROutputInfo *output = XRRGetOutputInfo(_dpy, resources, resources->outputs[i]);
+
+    if (output->crtc) {
+      XRRCrtcInfo *crtc = XRRGetCrtcInfo(_dpy, resources, output->crtc);
+
+      _heads.push_back(Head(crtc->x, crtc->y, crtc->width, crtc->height));
+#ifdef DEBUG
+      cerr << __FILE__ << "@" << __LINE__ << ": PScreen::initHeadsRandr() added head "
+           << crtc->x << "," << crtc->y << "," << crtc->width << "," << crtc->height << endl;
+#endif // DEBUG
+
+      XRRFreeCrtcInfo (crtc);
+    }
+
+    XRRFreeOutputInfo (output);
+  }
+
+  XRRFreeScreenResources (resources);
+#endif // HAVE_XRANDR
 }

@@ -91,9 +91,7 @@ public:
 #ifdef HARBOUR
     inline int getHarbourDAMinSide(void) const { return _harbour_da_min_s; }
     inline int getHarbourDAMaxSide(void) const { return _harbour_da_max_s; }
-#ifdef HAVE_XINERAMA
     inline int getHarbourHead(void) const { return _harbour_head_nr; }
-#endif // HAVE_XINERAMA
     inline bool isHarbourOntop(void) const { return _harbour_ontop; }
     inline bool isHarbourMaximizeOver(void) const { return _harbour_maximize_over; }
     inline uint getHarbourPlacement(void) const { return _harbour_placement; }
@@ -198,9 +196,7 @@ private:
     bool _harbour_maximize_over;
     uint _harbour_placement;
     uint _harbour_orientation;
-#ifdef HAVE_XINERAMA
     int _harbour_head_nr;
-#endif // HAVE_XINERAMA
 #endif // HARBOUR
 
     // viewport

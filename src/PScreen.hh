@@ -1,12 +1,14 @@
 //
 // Screen.hh for pekwm
-// Copyright (C) 2003-2004 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2003-2008 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #ifndef _SCREENINFO_HH_
 #define _SCREENINFO_HH_
@@ -21,6 +23,7 @@ extern "C" {
 #endif // HAVE_XINERAMA
 }
 
+#include <vector>
 #include <list>
 #include <map>
 
@@ -41,6 +44,20 @@ public: // member variables
             bottom = s[3];
         }
     }
+};
+
+//! Output head, used to share same code with Xinerama and RandR
+class Head {
+public:
+  Head(int nx, int ny, uint nwidth, uint nheight) : x(nx), y(ny), width(nwidth), height(nheight) { };
+
+public:
+  int x;
+  int y;
+  uint width;
+  uint height;
+
+  Strut strut;
 };
 
 //! @brief Display information class.
@@ -106,11 +123,10 @@ public:
     inline int getEventShape(void) const { return _event_shape; }
 #endif // HAVE_SHAPE
 
+    void updateGeometry(uint width, uint height);
 #ifdef HAVE_XRANDR
     inline bool hasExtensionXRandr(void) const { return _has_extension_xrandr; }
     inline int getEventXRandr(void) const { return _event_xrandr; }
-
-    void updateGeometry(uint width, uint height);
 #endif // HAVE_XRANDR
 
     bool grabServer(void);
@@ -124,11 +140,7 @@ public:
     uint getCurrHead(void);
     bool getHeadInfo(uint head, Geometry &head_info);
     void getHeadInfoWithEdge(uint head, Geometry &head_info);
-
-#ifdef HAVE_XINERAMA
-    inline bool hasXinerama(void) const { return _has_xinerama; }
-    inline int getNumHeads(void) const { return _xinerama_num_heads; }
-#endif // HAVE_XINERAMA
+    inline int getNumHeads(void) const { return _heads.size(); }
 
     inline long getLastEventTime(void) const { return _last_event_time; }
     inline void setLastEventTime(long t) { _last_event_time = t; }
@@ -165,7 +177,6 @@ public:
     inline Strut *getStrut(void) { return &_strut; }
 
 private:
-#ifdef HAVE_XINERAMA
     // squared distance because computing with sqrt is expensive
 
     // gets the squared distance between 2 points
@@ -174,7 +185,10 @@ private:
     }
     // gets the squared distance between 2 points with either x or y the same
     inline uint calcDistance(int p1, int p2) { return (p1 - p2) * (p1 - p2); }
-#endif // HAVE_XINERAMA
+
+  void initHeads(void);
+  void initHeadsRandr(void);
+  void initHeadsXinerama(void);
 
 private:
     Display *_dpy;
@@ -189,23 +203,16 @@ private:
     uint _num_lock;
     uint _scroll_lock;
 
-#ifdef HAVE_SHAPE
     bool _has_extension_shape;
     int _event_shape;
-#endif // HAVE_SHAPE
 
-#ifdef HAVE_XRANDR
+    bool _has_extension_xinerama;
+
     bool _has_extension_xrandr;
     int _event_xrandr;
-#endif // HAVE_XRANDR
 
-#ifdef HAVE_XINERAMA
-    bool _has_xinerama;
-    uint _xinerama_last_head;
-    int _xinerama_num_heads;
-    Strut *_xinerama_struts;
-    XineramaScreenInfo *_xinerama_infos;
-#endif // HAVE_XINERAMA
+  std::vector<Head> _heads; //! Array of head information
+  uint _last_head; //! Last accessed head
 
     uint _server_grabs;
 

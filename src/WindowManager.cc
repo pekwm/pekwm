@@ -1,6 +1,6 @@
 //
 // WindowManager.cc for pekwm
-// Copyright © 2002-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2002-2008 Claes Nästén <me{@}pekdon{.}net>
 //
 // windowmanager.cc for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
@@ -8,8 +8,6 @@
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
-//
-// $Id$
 //
 
 #ifdef HAVE_CONFIG_H
@@ -597,11 +595,7 @@ WindowManager::setupDisplay(void)
                  ButtonPressMask|ButtonReleaseMask|ButtonMotionMask);
 
 #ifdef HAVE_XRANDR
-#ifdef X_RRScreenChangeSelectInput
-    XRRScreenChangeSelectInput(dpy, _screen->getRoot(), True);
-#else //! X_RRScreenChangeSelectInput
-    XRRSelectInput(dpy, _screen->getRoot(), RRScreenChangeNotifyMask);
-#endif // X_RRScreenChangeSelectInput
+    XRRSelectInput(dpy, _screen->getRoot(), RRScreenChangeNotifyMask|RRCrtcChangeNotifyMask);
 #endif // HAVE_XRANDR
 
     _keygrabber = new KeyGrabber(_screen);
@@ -806,9 +800,7 @@ WindowManager::doReload(void)
     // I do not want to restack or rearrange if nothing has changed.
     uint old_harbour_placement = _config->getHarbourPlacement();
     bool old_harbour_stacking = _config->isHarbourOntop();
-#ifdef HAVE_XINERAMA
     int old_harbour_head_nr = _config->getHarbourHead();
-#endif // HAVE_XINERAMA
 #endif // HARBOUR
 
     _config->load(_config->getConfigFile()); // reload the config
@@ -878,14 +870,15 @@ WindowManager::doReload(void)
 
 #ifdef HARBOUR
     _harbour->loadTheme();
-    if (old_harbour_placement != _config->getHarbourPlacement())
+    if (old_harbour_placement != _config->getHarbourPlacement()) {
         _harbour->rearrange();
-    if (old_harbour_stacking != _config->isHarbourOntop())
+    }
+    if (old_harbour_stacking != _config->isHarbourOntop()) {
         _harbour->restack();
-#ifdef HAVE_XINERAMA
-    if (old_harbour_head_nr != _config->getHarbourHead())
+    }
+    if (old_harbour_head_nr != _config->getHarbourHead()) {
         _harbour->rearrange();
-#endif // HAVE_XINERAMA
+    }
     _harbour->updateHarbourSize();
 #endif // HARBOUR
 
@@ -998,8 +991,7 @@ WindowManager::doEventLoop(void)
 
         default:
 #ifdef HAVE_SHAPE
-            if (_screen->hasExtensionShape() &&
-                    (ev.type == _screen->getEventShape())) {
+            if (_screen->hasExtensionShape() && (ev.type == _screen->getEventShape())) {
                 client = Client::findClient(ev.xany.window);
                 if ((client != NULL) && (client->getParent() != NULL)) {
                     static_cast<Frame*>(client->getParent())->handleShapeEvent(&ev.xany);
@@ -1007,9 +999,8 @@ WindowManager::doEventLoop(void)
             }
 #endif // HAVE_SHAPE
 #ifdef HAVE_XRANDR
-            if (_screen->hasExtensionXRandr() &&
-                    (ev.type == _screen->getEventXRandr())) {
-                handleXRandrEvent((XRRScreenChangeNotifyEvent*) &ev);
+            if (_screen->hasExtensionXRandr() && (ev.type == _screen->getEventXRandr())) {
+              handleXRandrEvent(reinterpret_cast<XRRNotifyEvent*>(&ev));
             }
 #endif // HAVE_XRANDR
             break;
@@ -1577,25 +1568,56 @@ WindowManager::handleExposeEvent(XExposeEvent *ev)
 }
 
 #ifdef HAVE_XRANDR
-//! @brief Handles XRandr event.
+//! @brief Handles XRandr events
+//! @param ev XRRNotifyEvent to handle.
 void
-WindowManager::handleXRandrEvent(XRRScreenChangeNotifyEvent *ev)
+WindowManager::handleXRandrEvent(XRRNotifyEvent *ev)
 {
-    // don't care about what it is, only update screen size
-    _screen->updateGeometry(ev->width, ev->height);
+  if (ev->subtype == RRNotify_CrtcChange) {
+    handleXRandrCrtcChangeEvent(reinterpret_cast<XRRCrtcChangeNotifyEvent*>(ev));
+  } else {
+    handleXRandrScreenChangeEvent(reinterpret_cast<XRRScreenChangeNotifyEvent*>(ev));
+  }
+}
+
+//! @brief Handle screen change event.
+//!
+//! Reads the screen geometry and head information all over, updates
+//! the screen edge and harbour.
+//!
+//! @param ev XRRScreenChangeNotifyEvent event to handle.
+void
+WindowManager::handleXRandrScreenChangeEvent(XRRScreenChangeNotifyEvent *ev)
+{
+#ifdef DEBUG
+  cerr << __FILE__ << "@" << __LINE__ << ": WindowManager::handleXRandrScreenChangeEvent()" << endl;
+#endif // DEBUG
+
+  _screen->updateGeometry(ev->width, ev->height);
 #ifdef HARBOUR
-    _harbour->updateGeometry();
+  _harbour->updateGeometry();
 #endif // HARBOUR
 
-    Viewport *vp;
-    for (uint i = 0; i < _workspaces->size(); ++i) {
-        if ((vp = _workspaces->getViewport(i)) != NULL) {
-            vp->updateGeometry();
-        }
+  Viewport *vp;
+  for (uint i = 0; i < _workspaces->size(); ++i) {
+    if ((vp = _workspaces->getViewport(i)) != NULL) {
+      vp->updateGeometry();
     }
+  }
 
-    screenEdgeResize();
+  screenEdgeResize();
 }
+
+//! @brief Handle crtc change event, does nothing.
+//! @param ev XRRCrtcChangeNotifyEvent event to handle.
+void
+WindowManager::handleXRandrCrtcChangeEvent(XRRCrtcChangeNotifyEvent *ev)
+{
+#ifdef DEBUG
+  cerr << __FILE__ << "@" << __LINE__ << ": WindowManager::handleXRandrCrtcChangeEvent()" << endl;
+#endif // DEBUG
+}
+
 #endif // HAVE_XRANDR
 
 // Event handling routines stop ============================================

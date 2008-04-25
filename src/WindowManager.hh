@@ -1,6 +1,6 @@
 //
 // WindowManager.hh for pekwm
-// Copyright (C) 2003-2006 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2003-2008 Claes Nästén <me{@}pekdon{.}net>
 //
 // windowmanager.hh for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
@@ -9,10 +9,10 @@
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
-// $Id$
-//
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #ifndef _WINDOWMANAGER_HH_
 #define _WINDOWMANAGER_HH_
@@ -232,7 +232,9 @@ private:
     void handleFocusOutEvent(XFocusChangeEvent *ev);
 
 #ifdef HAVE_XRANDR
-    void handleXRandrEvent(XRRScreenChangeNotifyEvent *ev);
+    void handleXRandrEvent(XRRNotifyEvent *ev);
+    void handleXRandrScreenChangeEvent(XRRScreenChangeNotifyEvent *ev);
+    void handleXRandrCrtcChangeEvent(XRRCrtcChangeNotifyEvent *ev);
 #endif // HAVE_XRANDR
 
 #ifdef MENUS

@@ -85,10 +85,17 @@ AC_ARG_ENABLE(xrandr,
 							[enable_xrandr=yes])
 if test "x$enable_xrandr" = "xyes"; then
 	AC_MSG_RESULT([yes])
-	AC_CHECK_LIB(Xrandr, XRRQueryExtension,
-		AC_DEFINE(HAVE_XRANDR, [1], [Define to 1 if you have an XRANDR capable server])
-		LIBS="$LIBS -lXrandr"
-		FEATURES="$FEATURES Xrandr")
+
+        PKG_CHECK_MODULES([xrandr], [xrandr >= 1.2.0], HAVE_XRANDR=yes, HAVE_XRANDR=no)
+        if test "x$HAVE_XRANDR" = "xyes"
+        then
+                AC_DEFINE(HAVE_XRANDR, [1], [Define to 1 if you have an XRANDR capable server])
+		LIBS="$LIBS $xrandr_LIBS"
+                CXXFLAGS="$CXXFLAGS $xrandr_CFLAGS"
+                FEATURES="$FEATURES Xrandr"
+        else
+                AC_MSG_WARN([Couldn't find Xrandr >= 1.2.0])
+        fi
 else
  	AC_MSG_RESULT([no])
 fi
@@ -217,7 +224,7 @@ AC_ARG_ENABLE(pedantic,
 							[enable_pedantic=no])
 if test "$enable_pedantic" = "yes"; then
 	AC_MSG_RESULT([yes])
-	if test "$CXX" = "g++"; then
+        if test "x$GXX" = "xyes"; then
 		CXXFLAGS="-Wall -Werror -pedantic $CXXFLAGS"
 	fi
 	FEATURES="$FEATURES pedantic"

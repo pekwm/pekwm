@@ -46,9 +46,7 @@ Harbour::Harbour(PScreen *s, Theme *t, Workspaces *w) :
 {
     _strut = new Strut();
     _scr->addStrut(_strut);
-#ifdef HAVE_XINERAMA
     _strut->head = Config::instance()->getHarbourHead();
-#endif // HAVE_XINERAMA
 
 #ifdef MENUS
     _harbour_menu = new HarbourMenu(_scr, _theme, this);
@@ -182,12 +180,10 @@ Harbour::updateGeometry(void)
 void
 Harbour::restack(void)
 {
-#ifdef HAVE_XINERAMA
     PScreen::instance()->removeStrut(_strut);
     if (Config::instance()->isHarbourOntop()) {
         PScreen::instance()->addStrut(_strut);
     }
-#endif // HAVE_XINERAMA
     uint l = Config::instance()->isHarbourOntop() ? LAYER_DOCK : LAYER_DESKTOP;
 
     list<DockApp*>::iterator it(_da_list.begin());
@@ -206,9 +202,7 @@ Harbour::restack(void)
 void
 Harbour::rearrange(void)
 {
-#ifdef HAVE_XINERAMA
     _strut->head = Config::instance()->getHarbourHead();
-#endif // HAVE_XINERAMA
 
     if (AutoProperties::instance()->isHarbourSort ())
         placeDockAppsSorted();
@@ -342,11 +336,7 @@ Harbour::handleMotionNotifyEvent(XMotionEvent* ev, DockApp* da)
     Geometry head;
     int x = 0, y = 0;
 
-#ifdef HAVE_XINERAMA
     _scr->getHeadInfo(Config::instance()->getHarbourHead(), head);
-#else // !HAVE_XINERAMA
-    _scr->getHeadInfo(0, head);
-#endif // HAVE_XINERAMA
 
     switch(Config::instance()->getHarbourPlacement()) {
     case TOP:
@@ -413,11 +403,7 @@ Harbour::placeDockApp(DockApp *da)
     bool placed = false, increase = false, x_place = false;
 
     Geometry head;
-#ifdef HAVE_XINERAMA
     PScreen::instance()->getHeadInfo(Config::instance()->getHarbourHead(), head);
-#else // !HAVE_XINERAMA
-    PScreen::instance()->getHeadInfo(0, head);
-#endif // HAVE_XINERAMA
 
     getPlaceStartPosition (da, x, y, x_place);
     if (right)
@@ -550,12 +536,7 @@ void
 Harbour::placeDockAppInsideScreen(DockApp *da)
 {
     Geometry head;
-#ifdef HAVE_XINERAMA
     PScreen::instance()->getHeadInfo(Config::instance()->getHarbourHead(), head);
-#else // !HAVE_XINEAMA
-    PScreen::instance()->getHeadInfo(0, head);
-#endif // HAVE_XINERAMA
-
     uint pos = Config::instance()->getHarbourPlacement();
 
     // top or bottom placement
@@ -600,12 +581,7 @@ Harbour::getPlaceStartPosition(DockApp *da, int &x, int &y, bool &inc_x)
         return;
 
     Geometry head;
-#ifdef HAVE_XINERAMA
     PScreen::instance()->getHeadInfo(Config::instance()->getHarbourHead(), head);
-#else // !HAVE_XINEAMA
-    PScreen::instance()->getHeadInfo(0, head);
-#endif // HAVE_XINERAMA
-
     bool right = (Config::instance()->getHarbourOrientation() == BOTTOM_TO_TOP);
 
     switch (Config::instance()->getHarbourPlacement()) {

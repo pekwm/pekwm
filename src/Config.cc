@@ -64,9 +64,7 @@ Config::Config(void) :
         _menu_icon_width(16), _menu_icon_height(16),
 #ifdef HARBOUR
         _harbour_da_min_s(0), _harbour_da_max_s(0),
-#ifdef HAVE_XINERAMA
         _harbour_head_nr(0),
-#endif // HAVE_XINERAMA
 #endif // HARBOUR
         _viewport_cols(1), _viewport_rows(1)
 {
@@ -660,17 +658,14 @@ Config::loadHarbour(CfgParser::Entry *op_section)
         return;
     }
 
-
     list<CfgParserKey*> o_key_list;
     string value_placement, value_orientation;
 
     o_key_list.push_back (new CfgParserKeyBool ("ONTOP", _harbour_ontop));
     o_key_list.push_back (new CfgParserKeyBool ("MAXIMIZEOVER",
                           _harbour_maximize_over));
-#ifdef HAVE_XINERAMA
     o_key_list.push_back (new CfgParserKeyInt ("HEAD", _harbour_head_nr,
                           0, 0));
-#endif // HAVE_XINERAMA
     o_key_list.push_back (new CfgParserKeyString ("PLACEMENT", value_placement,
                           "RIGHT", 0));
     o_key_list.push_back (new CfgParserKeyString ("ORIENTATION",
