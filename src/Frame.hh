@@ -1,26 +1,24 @@
 //
 // Frame.hh for pekwm
-// Copyright © 2003-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2003-2008 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
-// $Id$
-//
+
+#ifndef _FRAME_HH_
+#define _FRAME_HH_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#ifndef _FRAME_HH_
-#define _FRAME_HH_
-
 #include "pekwm.hh"
 #include "Action.hh"
+#include "PDecor.hh"
 
 class PScreen;
 class PWinObj;
-class PDecor;
 class Strut;
 class Theme;
 class WindowManager;
@@ -28,8 +26,6 @@ class ClassHint;
 class AutoProperty;
 
 class Client;
-
-class PDecor::Button;
 
 #include <string>
 #include <list>

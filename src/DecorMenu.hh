@@ -1,19 +1,22 @@
 //
 // DecorMenu.hh for pekwm
-// Copyright (C) 2003-2004 Claes Nasten <pekdon at pekdon dot>
+// Copyright © 2003-2008 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
-
-#ifdef MENUS
-
 #ifndef _DECORMENU_HH_
 #define _DECORMENU_HH_
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
+
+#ifdef MENUS
+
 #include "pekwm.hh"
+#include "PMenu.hh"
 
 #include <string>
 
@@ -21,8 +24,6 @@ class WORefMenu;
 class PScreen;
 class Theme;
 class ActionHandler;
-
-class PMenu::Item;
 
 class DecorMenu : public WORefMenu
 {

@@ -1,6 +1,6 @@
 //
 // Client.cc for pekwm
-// Copyright © 2002-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2002-2008 Claes Nästén <me{@}pekdon{.}net>
 //
 // client.cc for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
@@ -8,8 +8,6 @@
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
-//
-// $Id$
 //
 
 #ifdef HAVE_CONFIG_H
@@ -806,16 +804,16 @@ Client::readMwmHints(void)
     if (mwm_hints != NULL) {
 
         if (mwm_hints->flags&MWM_HINTS_FUNCTIONS) {
-            if (mwm_hints->functions&MWM_FUNC_ALL != 0) {
-                if (mwm_hints->functions&MWM_FUNC_RESIZE == 0)
+          if ((mwm_hints->functions&MWM_FUNC_ALL) != 0) {
+            if ((mwm_hints->functions&MWM_FUNC_RESIZE) == 0)
                     _actions.resize = false;
-                if (mwm_hints->functions&MWM_FUNC_MOVE == 0)
+            if ((mwm_hints->functions&MWM_FUNC_MOVE) == 0)
                     _actions.move = false;
-                if (mwm_hints->functions&MWM_FUNC_ICONIFY == 0)
+            if ((mwm_hints->functions&MWM_FUNC_ICONIFY) == 0)
                     _actions.minimize = false;
-                if (mwm_hints->functions&MWM_FUNC_CLOSE == 0)
+            if ((mwm_hints->functions&MWM_FUNC_CLOSE) == 0)
                     _actions.close = false;
-                if (mwm_hints->functions&MWM_FUNC_MAXIMIZE == 0) {
+            if ((mwm_hints->functions&MWM_FUNC_MAXIMIZE) == 0) {
                     _actions.maximize_vert = true;
                     _actions.maximize_horz = true;
                 }

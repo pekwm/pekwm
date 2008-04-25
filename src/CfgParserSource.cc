@@ -1,19 +1,19 @@
-//! @file
-//! @author Claes Nasten <pekdon{@}pekdon{.}net
-//! @date 2005-06-15
-//! @brief Configuration parser source handler.
-
 //
-// Copyright (C) 2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2005-2008 Claes Nasten <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
+
 #include "CfgParserSource.hh"
 #include "Util.hh"
 
 #include <iostream>
+#include <cstdlib>
 
 extern "C" {
 #include <unistd.h>

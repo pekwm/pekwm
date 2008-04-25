@@ -1,28 +1,24 @@
 //
 // CmdDialog.hh for pekwm
-// Copyright © 2004-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2004-2008 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
-// $Id$
-//
+
+#ifndef _CMD_DIALOG_HH_
+#define _CMD_DIALOG_HH_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#ifndef _CMD_DIALOG_HH_
-#define _CMD_DIALOG_HH_
-
 #include "Action.hh"
+#include "PDecor.hh"
+#include "Theme.hh"
 
 #include <list>
 #include <string>
-
-class PDecor;
-class PDecor::TitleItem;
-class Theme::TextDialogData;
 
 //! @brief CmdDialog presenting the user with an pekwm action command line.
 class CmdDialog : public PDecor

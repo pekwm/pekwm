@@ -13,6 +13,7 @@
 #include <iostream>
 #include <memory>
 #include <cassert>
+#include <cstring>
 
 #ifdef HAVE_GETTEXT
 #include <libintl.h>

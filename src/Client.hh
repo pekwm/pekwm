@@ -1,6 +1,6 @@
 //
 // Client.hh for pekwm
-// Copyright © 2003-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2003-2008 Claes Nästén <me{@}pekdon{.}net>
 //
 // client.hh for aewm++
 // Copyright (C) 2002 Frank Hale <frankhale@yahoo.com>
@@ -9,18 +9,17 @@
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
-// $Id$
-//
+
+#ifndef _CLIENT_HH_
+#define _CLIENT_HH_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#ifndef _CLIENT_HH_
-#define _CLIENT_HH_
-
 #include "pekwm.hh"
 #include "PTexturePlain.hh"
+#include "PDecor.hh"
 
 class PScreen;
 class Strut;
@@ -29,7 +28,6 @@ class ClassHint;
 class AutoProperty;
 class Frame;
 class WindowManager;
-class PDecor::TitleItem;
 
 #include <string>
 

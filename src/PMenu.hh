@@ -1,11 +1,9 @@
 //
 // PMenu.hh for pekwm
-// Copyright © 2004-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2004-2008 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
-//
-// $Id$
 //
 
 #ifndef _PMENU_HH_
@@ -21,9 +19,8 @@
 
 #include "pekwm.hh"
 #include "CfgParser.hh"
+#include "PDecor.hh"
 
-class PDecor;
-class PDecor::TitleItem;
 class PTexture;
 class ActionEvent;
 class Theme;

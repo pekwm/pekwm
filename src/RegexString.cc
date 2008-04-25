@@ -1,11 +1,9 @@
 //
 // RegexString.cc for pekwm
-// Copyright ©  2003-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright ©  2003-2008 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
-//
-// $Id$
 //
 
 #ifdef HAVE_CONFIG_H
@@ -13,6 +11,7 @@
 #endif // HAVE_CONFIG_H
 
 #include <iostream>
+#include <cstdlib>
 
 #include "RegexString.hh"
 #include "Util.hh"

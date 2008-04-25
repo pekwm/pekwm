@@ -1,10 +1,13 @@
 //
 // ActionMenu.hh for pekwm
-// Copyright © 2002-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2002-2008 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
+
+#ifndef _ACTIONMENU_HH_
+#define _ACTIONMENU_HH_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -12,12 +15,10 @@
 
 #ifdef MENUS
 
-#ifndef _ACTIONMENU_HH_
-#define _ACTIONMENU_HH_
-
 #include "pekwm.hh"
 #include "Action.hh" // For ActionOk
 #include "CfgParser.hh"
+#include "PMenu.hh"
 
 #include <string>
 #include <list>
@@ -27,8 +28,6 @@ class PScreen;
 class Theme;
 class ActionHandler;
 class WindowManager;
-
-class PMenu::Item;
 
 class ActionMenu : public WORefMenu
 {

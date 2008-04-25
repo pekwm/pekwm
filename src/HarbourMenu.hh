@@ -1,28 +1,29 @@
 //
 // HarbourMenu.hh for pekwm
-// Copyright (C) 2003-2004 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2003-2008 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
+#ifndef _HARBOURMENU_HH_
+#define _HARBOURMENU_HH_
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #ifdef HARBOUR
 #ifdef MENUS
 
-#ifndef _HARBOURMENU_HH_
-#define _HARBOURMENU_HH_
-
 #include "pekwm.hh"
+#include "PMenu.hh"
 
 class WORefMenu;
 class PScreen;
 class Theme;
 class Harbour;
 class DockApp;
-
-class PMenu::Item;
 
 class HarbourMenu : public PMenu
 {

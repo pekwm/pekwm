@@ -1,12 +1,13 @@
 //
 // FrameListMenu.hh for pekwm
-// Copyright © 2003-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2003-2008 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
-// $Id$
-//
+
+#ifndef _FRAMELISTMENU_HH_
+#define _FRAMELISTMENU_HH_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -14,10 +15,8 @@
 
 #ifdef MENUS
 
-#ifndef _FRAMELISTMENU_HH_
-#define _FRAMELISTMENU_HH_
-
 #include "pekwm.hh"
+#include "PMenu.hh"
 
 #include <string>
 #include <list>
@@ -27,8 +26,6 @@ class PScreen;
 class Theme;
 class Frame;
 class Client;
-
-class PMenu::Item;
 
 class FrameListMenu : public WORefMenu
 {
