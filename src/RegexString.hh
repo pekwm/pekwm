@@ -1,30 +1,24 @@
 //
 // RegexString.hh for pekwm
-// Copyright ©  2003-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright ©  2003-2008 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
-// $Id$
-//
+
+#ifndef _REGEX_STRING_HH_
+#define _REGEX_STRING_HH_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif // HAVE_CONFIG_H
-
-#ifndef _REGEX_STRING_HH_
-#define _REGEX_STRING_HH_
 
 #include <string>
 #include <list>
 
 extern "C" {
 #include <sys/types.h>
-#ifdef HAVE_PCRE
-#include <pcreposix.h>
-#else // !HAVE_PCRE
 #include <regex.h>
-#endif // HAVE_PCRE
 }
 
 #include "Types.hh"

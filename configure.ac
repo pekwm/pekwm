@@ -110,27 +110,8 @@ if test "x$enable_xft" = "xyes"; then
 			CXXFLAGS="$CXXFLAGS $xft_CFLAGS"
 			FEATURES="$FEATURES Xft";
     else
-			AC_MSG_WARN([Couldn't fint Xft.])
+			AC_MSG_WARN([Couldn't find Xft >= 2.0.0])
     fi
-else
-	AC_MSG_RESULT([no])
-fi
-
-dnl Check for pcre support
-AC_MSG_CHECKING([whether to use pcre for autoprops])
-AC_ARG_ENABLE(pcre,
-	AC_HELP_STRING([--enable-pcre],
-								 [enable pcre regex [default=no]]), ,
-							[enable_pcre=no])
-if test "x$enable_pcre" = "xyes"; then
-	AC_MSG_RESULT([yes])
-	AC_CHECK_LIB(pcre, pcre_compile,
-			AC_DEFINE(HAVE_PCRE, [1], [Define to 1 if you want PCRE style regexps])
-			PCRE_LIBS=`pcre-config --libs-posix`
-			PCRE_CFLAGS=`pcre-config --cflags-posix`
-			LIBS="$LIBS $PCRE_LIBS"
-			CXXFLAGS="$CXXFLAGS $PCRE_CFLAGS"
-			FEATURES="$FEATURES pcre")
 else
 	AC_MSG_RESULT([no])
 fi
