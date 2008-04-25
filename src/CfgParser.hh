@@ -1,10 +1,8 @@
 //
-// Copyright (C) 2005-2006 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2005-2008 Claes Nasten <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
-//
-// $Id$
 //
 
 //
@@ -21,9 +19,12 @@
 // }
 //
 
-
 #ifndef _CFG_PARSER_HH_
 #define _CFG_PARSER_HH_
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #include "CfgParserKey.hh"
 #include "CfgParserSource.hh"
@@ -32,6 +33,7 @@
 #include <map>
 #include <set>
 #include <string>
+#include <cstring>
 #include <iostream>
 #include <cstdlib>
 

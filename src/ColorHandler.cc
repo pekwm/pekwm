@@ -1,12 +1,17 @@
-// ColorHandler.cc for pekwm
-// Copyright (C) 2004 Claes Nasten <pekdon{@}pekdon{.}net>
+//
+// Copyright © 2004-2008 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
+
 #include "ColorHandler.hh"
 #include "PScreen.hh"
+#include <cstring>
 
 #ifdef DEBUG
 #include <iostream>
