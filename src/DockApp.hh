@@ -1,17 +1,19 @@
 //
 // DockApp.hh for pekwm
-// Copyright (C) 2003-2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2003-2008 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
-
-#ifdef HARBOUR
-
 #ifndef _DOCKAPP_HH_
 #define _DOCKAPP_HH_
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
+
+#ifdef HARBOUR
 
 #include "pekwm.hh"
 #include "AutoProperties.hh"
@@ -43,9 +45,10 @@ public:
 
     //! @brief Matches win against DockApp client window(s).
     inline bool findDockApp(Window win) {
-        if ((win != None) && (win == _client_window) || (win == _icon_window))
-            return true;
-        return false;
+      if ((win != None) && ((win == _client_window) || (win == _icon_window))) {
+        return true;
+      }
+      return false;
     }
     //! @brief Matches win against DockApp window.
     inline bool findDockAppFromFrame(Window win) {
