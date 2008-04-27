@@ -51,7 +51,7 @@ Config::Config(void) :
         _moveresize_woattract(0), _moveresize_woresist(0),
         _moveresize_opaquemove(0), _moveresize_opaqueresize(0),
         _screen_workspaces(4), _screen_pixmap_cache_size(20),
-        _screen_workspaces_per_row(0), _screen_edge_size(0), _screen_edge_indent(false),
+        _screen_workspaces_per_row(0), _screen_edge_indent(false),
         _screen_doubleclicktime(250), _screen_showframelist(true),
         _screen_show_status_window(true), _screen_show_client_id(false),
         _screen_place_new(true), _screen_focus_new(false),
@@ -501,6 +501,7 @@ Config::loadScreen(CfgParser::Entry *op_section)
     }
 
     // Parse data
+    string edge_size;
     CfgParser::Entry *value;
 
     list<CfgParserKey*> o_key_list;
@@ -510,7 +511,7 @@ Config::loadScreen(CfgParser::Entry *op_section)
                           _screen_pixmap_cache_size));
     o_key_list.push_back (new CfgParserKeyInt ("WORKSPACESPERROW",
                                                _screen_workspaces_per_row, 0, 0));
-    o_key_list.push_back (new CfgParserKeyInt ("EDGESIZE", _screen_edge_size, 0, 0));
+    o_key_list.push_back (new CfgParserKeyString ("EDGESIZE", edge_size));
     o_key_list.push_back (new CfgParserKeyBool ("EDGEINDENT", _screen_edge_indent));
     o_key_list.push_back (new CfgParserKeyInt ("DOUBLECLICKTIME",
                           _screen_doubleclicktime, 250, 0));
@@ -531,9 +532,30 @@ Config::loadScreen(CfgParser::Entry *op_section)
     op_section->parse_key_values (o_key_list.begin (), o_key_list.end ());
 
     // Free up resources
-    for_each (o_key_list.begin (), o_key_list.end (),
-              Util::Free<CfgParserKey*>());
+    for_each (o_key_list.begin (), o_key_list.end (), Util::Free<CfgParserKey*>());
     o_key_list.clear();
+
+    // Convert input data
+    int edge_size_all = 0;
+    _screen_edge_sizes.clear();
+    if (edge_size.size()) {
+      vector<string> sizes;
+      if (Util::splitString(edge_size, sizes, " \t", 4) == 4) {
+        for (vector<string>::iterator it(sizes.begin()); it != sizes.end(); ++it) {
+          _screen_edge_sizes.push_back(strtol(it->c_str(), NULL, 10));
+        }
+      } else {
+        edge_size_all = strtol(edge_size.c_str(), NULL, 10);
+      }
+    }
+
+    if (! _screen_edge_sizes.size()) {
+      for (uint i = 0; i < SCREEN_EDGE_NO; ++i) {
+        _screen_edge_sizes.push_back(edge_size_all);
+      }
+    }
+    // Add SCREEN_EDGE_NO to the list for safety
+    _screen_edge_sizes.push_back(0);
 
     CfgParser::Entry *op_sub = op_section->find_section("VIEWPORTS");
     if (op_sub) {

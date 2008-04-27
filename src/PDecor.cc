@@ -1220,20 +1220,16 @@ PDecor::doMove(int x_root, int y_root)
 EdgeType
 PDecor::doMoveEdgeFind(int x, int y)
 {
-    if (Config::instance()->getScreenEdgeSize() == 0) {
-        return SCREEN_EDGE_NO;
-    }
-
     EdgeType edge = SCREEN_EDGE_NO;
-    if (x <= signed(Config::instance()->getScreenEdgeSize())) {
+    if (x <= signed(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_LEFT))) {
         edge = SCREEN_EDGE_LEFT;
     } else if (x >= signed(PScreen::instance()->getWidth() -
-                           Config::instance()->getScreenEdgeSize())) {
+                           Config::instance()->getScreenEdgeSize(SCREEN_EDGE_RIGHT))) {
         edge = SCREEN_EDGE_RIGHT;
-    } else if (y <= signed(Config::instance()->getScreenEdgeSize())) {
+    } else if (y <= signed(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_TOP))) {
         edge = SCREEN_EDGE_TOP;
     } else if (y >= signed(PScreen::instance()->getHeight() -
-                           Config::instance()->getScreenEdgeSize())) {
+                           Config::instance()->getScreenEdgeSize(SCREEN_EDGE_BOTTOM))) {
         edge = SCREEN_EDGE_BOTTOM;
     }
 

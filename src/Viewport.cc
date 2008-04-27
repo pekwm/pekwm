@@ -97,9 +97,6 @@ Viewport::moveDirection(DirectionType dir, bool warp)
 {
     int n_x = _x, n_y = _y;
     int warp_x, warp_y;
-    uint warp_d = Config::instance()->getScreenEdgeSize() * 2;
-    if (warp_d == 0)
-        warp_d = 2;
 
     _scr->getMousePosition(warp_x, warp_y);
 
@@ -110,7 +107,7 @@ Viewport::moveDirection(DirectionType dir, bool warp)
         if (n_y < 0) {
             warp_y = _v_height + n_y;
         } else {
-            warp_y = _v_height - warp_d;
+            warp_y = _v_height - std::max(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_BOTTOM) * 2, 2);
         }
         break;
     case DIRECTION_DOWN:
@@ -119,7 +116,7 @@ Viewport::moveDirection(DirectionType dir, bool warp)
         if (n_y > _y_max) {
             warp_y = _v_height + _y - _y_max;
         } else {
-            warp_y = warp_d;
+            warp_y = std::max(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_TOP) * 2, 2);
         }
         break;
     case DIRECTION_LEFT:
@@ -128,7 +125,7 @@ Viewport::moveDirection(DirectionType dir, bool warp)
         if (n_x < 0) {
             warp_x = _v_width + n_x;
         } else {
-            warp_x = _v_width - warp_d;
+            warp_x = _v_width - std::max(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_RIGHT) * 2, 2);
         }
         break;
     case DIRECTION_RIGHT:
@@ -137,7 +134,7 @@ Viewport::moveDirection(DirectionType dir, bool warp)
         if (n_x > _x_max) {
             warp_x = _v_width + _x - _x_max;
         } else {
-            warp_x = warp_d;
+            warp_x = std::max(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_LEFT) * 2, 2);
         }
         break;
     default:

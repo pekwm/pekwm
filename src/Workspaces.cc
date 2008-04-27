@@ -294,31 +294,27 @@ Workspaces::warpToWorkspace(uint num, int dir)
         return false;
     }
 
-    int x, y, warp;
+    int x, y;
     PScreen::instance()->getMousePosition(x, y);
-
-    warp = Config::instance()->getScreenEdgeSize();
-    warp = (warp > 0) ? (warp * 2) : 2;
 
     if (dir != 0) {
       switch(dir) {
       case 1:
-        x = PScreen::instance()->getWidth() - warp;
+        x = PScreen::instance()->getWidth() - std::max(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_RIGHT) * 2, 2);
         break;
       case 2:
-        x = warp;
+        x = std::max(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_RIGHT) * 2, 2);
         break;
       case -1:
-        y = PScreen::instance()->getHeight() - warp;
+        y = PScreen::instance()->getHeight() - std::max(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_BOTTOM) * 2, 2);;
         break;
       case -2:
-        y = warp;
+        y = std::max(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_TOP) * 2, 2);
         break;
       }
 
         // warp pointer
-        XWarpPointer(PScreen::instance()->getDpy(), None,
-                     PScreen::instance()->getRoot(),
+        XWarpPointer(PScreen::instance()->getDpy(), None, PScreen::instance()->getRoot(),
                      0, 0, 0, 0, x, y);
     }
 

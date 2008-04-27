@@ -742,10 +742,14 @@ WindowManager::screenEdgeCreate(void)
 
     bool indent = Config::instance()->getScreenEdgeIndent();
 
-    _screen_edge_list.push_back(new EdgeWO(_screen->getDpy(), _screen->getRoot(), SCREEN_EDGE_LEFT, indent));
-    _screen_edge_list.push_back(new EdgeWO(_screen->getDpy(), _screen->getRoot(), SCREEN_EDGE_RIGHT, indent));
-    _screen_edge_list.push_back(new EdgeWO(_screen->getDpy(), _screen->getRoot(), SCREEN_EDGE_TOP, indent));
-    _screen_edge_list.push_back(new EdgeWO(_screen->getDpy(), _screen->getRoot(), SCREEN_EDGE_BOTTOM, indent));
+    _screen_edge_list.push_back(new EdgeWO(_screen->getDpy(), _screen->getRoot(), SCREEN_EDGE_LEFT,
+                                           indent && (_config->getScreenEdgeSize(SCREEN_EDGE_LEFT) > 0)));
+    _screen_edge_list.push_back(new EdgeWO(_screen->getDpy(), _screen->getRoot(), SCREEN_EDGE_RIGHT,
+                                           indent && (_config->getScreenEdgeSize(SCREEN_EDGE_RIGHT) > 0)));
+    _screen_edge_list.push_back(new EdgeWO(_screen->getDpy(), _screen->getRoot(), SCREEN_EDGE_TOP,
+                                           indent && (_config->getScreenEdgeSize(SCREEN_EDGE_TOP) > 0)));
+    _screen_edge_list.push_back(new EdgeWO(_screen->getDpy(), _screen->getRoot(), SCREEN_EDGE_BOTTOM,
+                                           indent && (_config->getScreenEdgeSize(SCREEN_EDGE_BOTTOM) > 0)));
 
     // make sure the edge stays ontop
     list<EdgeWO*>::iterator it(_screen_edge_list.begin());
@@ -777,30 +781,31 @@ WindowManager::screenEdgeResize(void)
 {
     assert(_screen_edge_list.size() == 4);
 
-    uint size = _config->getScreenEdgeSize(); // convenience
-    if (size == 0) {
-        size = 1;
-    }
+    uint l_size = std::max(_config->getScreenEdgeSize(SCREEN_EDGE_LEFT), 1);
+    uint r_size = std::max(_config->getScreenEdgeSize(SCREEN_EDGE_RIGHT), 1);
+    uint t_size = std::max(_config->getScreenEdgeSize(SCREEN_EDGE_TOP), 1);
+    uint b_size = std::max(_config->getScreenEdgeSize(SCREEN_EDGE_BOTTOM), 1);
 
     list<EdgeWO*>::iterator it(_screen_edge_list.begin());
 
     // Left edge
-    (*it)->moveResize(0, 0, size, _screen->getHeight());
+    (*it)->moveResize(0, 0, l_size, _screen->getHeight());
     ++it;
 
     // Right edge
-    (*it)->moveResize(_screen->getWidth() - size, 0, size, _screen->getHeight());
+    (*it)->moveResize(_screen->getWidth() - r_size, 0, r_size, _screen->getHeight());
     ++it;
 
     // Top edge
-    (*it)->moveResize(size, 0, _screen->getWidth() - (size * 2), size);
+    (*it)->moveResize(l_size, 0, _screen->getWidth() - l_size - r_size, t_size);
     ++it;
 
-    // bottom edge
-    (*it)->moveResize(size, _screen->getHeight() - size, _screen->getWidth() - (size * 2), size);
+    // Bottom edge
+    (*it)->moveResize(l_size, _screen->getHeight() - b_size, _screen->getWidth() - l_size - r_size, b_size);
 
     for (it = _screen_edge_list.begin(); it != _screen_edge_list.end(); ++it) {
-      (*it)->configureStrut(_config->getScreenEdgeIndent());
+      (*it)->configureStrut(_config->getScreenEdgeIndent()
+                            && (_config->getScreenEdgeSize((*it)->getEdge()) > 0));
     }
 
     _screen->updateStrut();
@@ -809,14 +814,12 @@ WindowManager::screenEdgeResize(void)
 void
 WindowManager::screenEdgeMapUnmap(void)
 {
-    if (_screen_edge_list.size() != 4) {
-        return;
-    }
+    assert (_screen_edge_list.size() == 4);
 
     list<EdgeWO*>::iterator it(_screen_edge_list.begin());
     for (; it != _screen_edge_list.end(); ++it) {
-        if ((_config->getScreenEdgeSize() > 0) &&
-                (_config->getEdgeListFromPosition((*it)->getEdge())->size() > 0)) {
+        if ((_config->getScreenEdgeSize((*it)->getEdge()) > 0) &&
+            (_config->getEdgeListFromPosition((*it)->getEdge())->size() > 0)) {
             (*it)->mapWindow();
         } else {
             (*it)->unmapWindow();
