@@ -1,11 +1,9 @@
 //
 // PDecor.cc for pekwm
-// Copyright © 2004-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2004-2008 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
-//
-// $Id$
 //
 
 #ifdef HAVE_CONFIG_H
@@ -1599,8 +1597,7 @@ PDecor::setBorderShape(void)
 uint
 PDecor::getNearestHead(void)
 {
-    return PScreen::instance()->getNearestHead(_gm.x + (_gm.width / 2),
-            _gm.y + (_gm.height / 2));
+    return PScreen::instance()->getNearestHead(_gm.x + (_gm.width / 2), _gm.y + (_gm.height / 2));
 }
 
 //! @brief
@@ -1648,8 +1645,7 @@ PDecor::checkWOSnap(void)
 
     vector<PWinObj*>::reverse_iterator it = _wo_list.rbegin();
     for (; it != _wo_list.rend(); ++it) {
-        if (((*it) == this) || ! (*it)->isMapped()
-                || ((*it)->getType() != PWinObj::WO_FRAME)) {
+        if (((*it) == this) || ! (*it)->isMapped() || ((*it)->getType() != PWinObj::WO_FRAME)) {
             continue;
         }
 
@@ -1701,7 +1697,7 @@ PDecor::checkEdgeSnap(void)
     int resist = Config::instance()->getEdgeResist();
 
     Geometry head;
-    PScreen::instance()->getHeadInfo(PScreen::instance()->getNearestHead(_gm.x, _gm.y), head);
+    PScreen::instance()->getHeadInfoWithEdge(PScreen::instance()->getNearestHead(_gm.x, _gm.y), head);
 
     if ((_gm.x >= (head.x - resist)) && (_gm.x <= (head.x + attract))) {
         _gm.x = head.x;
