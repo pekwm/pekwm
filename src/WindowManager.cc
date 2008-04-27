@@ -161,9 +161,8 @@ handleXError(Display *dpy, XErrorEvent *e)
 // WindowManager::EdgeWO
 
 //! @brief EdgeWO constructor
-WindowManager::EdgeWO::EdgeWO(Display *dpy, Window root, EdgeType edge) :
-        PWinObj(dpy),
-        _edge(edge)
+WindowManager::EdgeWO::EdgeWO(Display *dpy, Window root, EdgeType edge, bool set_strut) :
+  PWinObj(dpy), _edge(edge)
 {
     _type = WO_SCREEN_EDGE;
     _layer = LAYER_NONE; // hack, goes over LAYER_MENU
@@ -182,6 +181,9 @@ WindowManager::EdgeWO::EdgeWO(Display *dpy, Window root, EdgeType edge) :
                       CopyFromParent, InputOnly, CopyFromParent,
                       CWOverrideRedirect|CWEventMask, &sattr);
 
+    configureStrut(set_strut);
+    PScreen::instance()->addStrut(&_strut);
+
     woListAdd(this);
     _wo_map[_window] = this;
 }
@@ -189,18 +191,48 @@ WindowManager::EdgeWO::EdgeWO(Display *dpy, Window root, EdgeType edge) :
 //! @brief EdgeWO destructor
 WindowManager::EdgeWO::~EdgeWO(void)
 {
+    PScreen::instance()->removeStrut(&_strut);
     _wo_map.erase(_window);
     woListRemove(this);
 
     XDestroyWindow(_dpy, _window);
 }
 
-//! @brief
+//! @brief Initialize strut
+void
+WindowManager::EdgeWO::configureStrut(bool set_strut)
+{
+  _strut.left = _strut.right = _strut.top = _strut.bottom = 0;
+
+  if (set_strut) {
+    switch (_edge) {
+    case SCREEN_EDGE_TOP:
+      _strut.top = _gm.height;
+      break;
+    case SCREEN_EDGE_BOTTOM:
+      _strut.bottom = _gm.height;
+      break;
+    case SCREEN_EDGE_LEFT:
+      _strut.left = _gm.width;
+      break;
+    case SCREEN_EDGE_RIGHT:
+      _strut.right = _gm.width;
+      break;
+    case SCREEN_EDGE_NO:
+    default:
+      // do nothing
+      break;
+    }
+  }
+}
+
+//! @brief Map window also setting iconified state
 void
 WindowManager::EdgeWO::mapWindow(void)
 {
-    if (_mapped)
+    if (_mapped) {
         return;
+    }
 
     PWinObj::mapWindow();
     _iconified = true;
@@ -246,6 +278,7 @@ WindowManager::EdgeWO::handleButtonRelease(XButtonEvent *ev)
     return ActionHandler::findMouseAction(ev->button, ev->state, mb,
                                           Config::instance()->getEdgeListFromPosition(_edge));
 }
+
 
 // WindowManager::RootWO
 
@@ -707,10 +740,12 @@ WindowManager::screenEdgeCreate(void)
         return;
     }
 
-    _screen_edge_list.push_back(new EdgeWO(_screen->getDpy(), _screen->getRoot(), SCREEN_EDGE_LEFT));
-    _screen_edge_list.push_back(new EdgeWO(_screen->getDpy(), _screen->getRoot(), SCREEN_EDGE_RIGHT));
-    _screen_edge_list.push_back(new EdgeWO(_screen->getDpy(), _screen->getRoot(), SCREEN_EDGE_TOP));
-    _screen_edge_list.push_back(new EdgeWO(_screen->getDpy(), _screen->getRoot(), SCREEN_EDGE_BOTTOM));
+    bool indent = Config::instance()->getScreenEdgeIndent();
+
+    _screen_edge_list.push_back(new EdgeWO(_screen->getDpy(), _screen->getRoot(), SCREEN_EDGE_LEFT, indent));
+    _screen_edge_list.push_back(new EdgeWO(_screen->getDpy(), _screen->getRoot(), SCREEN_EDGE_RIGHT, indent));
+    _screen_edge_list.push_back(new EdgeWO(_screen->getDpy(), _screen->getRoot(), SCREEN_EDGE_TOP, indent));
+    _screen_edge_list.push_back(new EdgeWO(_screen->getDpy(), _screen->getRoot(), SCREEN_EDGE_BOTTOM, indent));
 
     // make sure the edge stays ontop
     list<EdgeWO*>::iterator it(_screen_edge_list.begin());
@@ -740,12 +775,12 @@ WindowManager::screenEdgeDestroy(void)
 void
 WindowManager::screenEdgeResize(void)
 {
-    if (_screen_edge_list.size() != 4)
-        return;
+    assert(_screen_edge_list.size() == 4);
 
     uint size = _config->getScreenEdgeSize(); // convenience
-    if (size == 0)
+    if (size == 0) {
         size = 1;
+    }
 
     list<EdgeWO*>::iterator it(_screen_edge_list.begin());
 
@@ -754,8 +789,7 @@ WindowManager::screenEdgeResize(void)
     ++it;
 
     // Right edge
-    (*it)->moveResize(_screen->getWidth() - size, 0,
-                      size, _screen->getHeight());
+    (*it)->moveResize(_screen->getWidth() - size, 0, size, _screen->getHeight());
     ++it;
 
     // Top edge
@@ -763,8 +797,13 @@ WindowManager::screenEdgeResize(void)
     ++it;
 
     // bottom edge
-    (*it)->moveResize(size, _screen->getHeight() - size,
-                      _screen->getWidth() - (size * 2), size);
+    (*it)->moveResize(size, _screen->getHeight() - size, _screen->getWidth() - (size * 2), size);
+
+    for (it = _screen_edge_list.begin(); it != _screen_edge_list.end(); ++it) {
+      (*it)->configureStrut(_config->getScreenEdgeIndent());
+    }
+
+    _screen->updateStrut();
 }
 
 void

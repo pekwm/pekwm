@@ -20,6 +20,7 @@
 #include "pekwm.hh"
 #include "Action.hh"
 #include "Atoms.hh"
+#include "PScreen.hh"
 
 #include <list>
 #include <map>
@@ -65,8 +66,10 @@ class WindowManager
 public:
 class EdgeWO : public PWinObj {
     public:
-        EdgeWO(Display *dpy, Window root, EdgeType edge);
+        EdgeWO(Display *dpy, Window root, EdgeType edge, bool set_strut);
         virtual ~EdgeWO(void);
+
+        void configureStrut(bool set_strut);
 
         virtual void mapWindow(void);
 
@@ -78,6 +81,7 @@ class EdgeWO : public PWinObj {
 
     private:
         EdgeType _edge;
+        Strut _strut; //!< Strut for reserving screen edge space
     };
 
 class RootWO : public PWinObj {

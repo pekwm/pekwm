@@ -1,14 +1,15 @@
 //
 // Config.cc for pekwm
-// Copyright (C) 2002-2006 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2002-2008 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
-// $Id$
-//
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
+
 #include "Config.hh"
 
 #include "Util.hh"
@@ -50,7 +51,7 @@ Config::Config(void) :
         _moveresize_woattract(0), _moveresize_woresist(0),
         _moveresize_opaquemove(0), _moveresize_opaqueresize(0),
         _screen_workspaces(4), _screen_pixmap_cache_size(20),
-        _screen_workspaces_per_row(0), _screen_edge_size(0),
+        _screen_workspaces_per_row(0), _screen_edge_size(0), _screen_edge_indent(false),
         _screen_doubleclicktime(250), _screen_showframelist(true),
         _screen_show_status_window(true), _screen_show_client_id(false),
         _screen_place_new(true), _screen_focus_new(false),
@@ -510,6 +511,7 @@ Config::loadScreen(CfgParser::Entry *op_section)
     o_key_list.push_back (new CfgParserKeyInt ("WORKSPACESPERROW",
                                                _screen_workspaces_per_row, 0, 0));
     o_key_list.push_back (new CfgParserKeyInt ("EDGESIZE", _screen_edge_size, 0, 0));
+    o_key_list.push_back (new CfgParserKeyBool ("EDGEINDENT", _screen_edge_indent));
     o_key_list.push_back (new CfgParserKeyInt ("DOUBLECLICKTIME",
                           _screen_doubleclicktime, 250, 0));
     o_key_list.push_back (new CfgParserKeyString ("TRIMTITLE",

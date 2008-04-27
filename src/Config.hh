@@ -54,6 +54,7 @@ public:
     inline int getScreenPixmapCacheSize(void) const { return _screen_pixmap_cache_size; }
     inline int getWorkspacesPerRow(void) const { return _screen_workspaces_per_row; }
     inline int getScreenEdgeSize(void) const { return _screen_edge_size; }
+    inline bool getScreenEdgeIndent(void) const { return _screen_edge_indent; }
     inline int getDoubleClickTime(void) const { return _screen_doubleclicktime; }
     inline const std::string &getTrimTitle(void) const { return _screen_trim_title; }
 
@@ -174,6 +175,7 @@ private:
     int _screen_workspaces, _screen_pixmap_cache_size;
     int _screen_workspaces_per_row;
     int _screen_edge_size;
+    bool _screen_edge_indent;
     int _screen_doubleclicktime;
     std::string _screen_trim_title;
     bool _screen_showframelist;
