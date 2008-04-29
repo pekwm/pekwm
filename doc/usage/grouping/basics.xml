@@ -1,0 +1,25 @@
+<simplesect id="usage-grouping-basics" xreflabel="How window grouping works"> 
+<title>How window grouping works</title>
+<para>The first thing to know is how to group one window to another. 
+Middle-Click (On a normal X setup, the 2nd mouse button is the middle button)
+the titlebar of the first window and begin to drag the window. You should now 
+see a rectangle with the window's title in it. Drag that rectangle to above the
+target window, and release your mouse button.</para>
+
+<note><para>Any time this document mentions a key or mouse button, there's a strong 
+likelyhood that you can change which key or mouse button is used for that 
+function. Please see the <xref linkend="config-keys_mouse"/> section.</para></note>
+<para>Now that you have windows in a group, you need to learn to choose 
+between windows in that group. The first way is by clicking the middle
+mouse button on the window's part of the titlebar. That window should 
+now be the currently-active window of the group. You can also use a 
+keybinding for this. The default keybindings are Mod4+Tab and Mod4+Shift+Tab
+to go forward and back between active window in the frame.</para>
+<para>To de-group, simply middle click and drag the window off the frame,
+	and release anywhere. If you release over another window group, you'll 
+	move the window to the new group. Default keybinding for detaching
+	clients from a group is first Ctrl+Mod1+T then D.</para>
+<para>You can also set windows up to automatically be grouped to one another.
+	See the <xref linkend="config-autoprops"/> section for more details.</para>
+</simplesect>
+

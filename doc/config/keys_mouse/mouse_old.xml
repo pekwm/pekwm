@@ -1,0 +1,251 @@
+<simplesect id="config-keys_mouse-mouse" xreflabel="Mouse Bindings">
+<title>Mouse Bindings</title>
+<para>
+	The pekwm Mousebindings go in <filename>~/.pekwm/mouse</filename>, and
+	are very simple. They're divided up into two groups: The 'where' and
+	'event'. Below is an example file:
+</para>
+<screen>
+FrameTitle {
+	ButtonRelease = "1" { Actions = "Raise; Focus; ActivateClient" }
+	ButtonRelease = "2" { Actions = "ActivateClient" }
+	ButtonRelease = "Mod4 3" { Actions = "Close" }
+	ButtonRelease = "3" { Actions = "ShowMenu Window" }
+	ButtonRelease = "4" { Actions = "ActivateClientRel 1" }
+	ButtonRelease = "5" { Actions = "ActivateClientRel -1" }
+	DoubleClick = "2" { Actions = "Toggle Shaded" }
+	DoubleClick = "1" { Actions = "MaxFill True True" }
+	Motion = "1" { Threshold = "4"; Actions = "Move" }
+	Motion = "Mod1 1" { Threshold = "4"; Actions = "Move" }
+	Motion = "Mod4 1" { Threshold = "4"; Actions = "Move" }
+	Motion = "2" { Threshold = "4"; Actions = "GroupingDrag True" }
+	Motion = "Mod1 3" { Actions = "Resize" }
+	Enter = "Any Any" { Actions = "Focus" }
+}
+
+OtherTitle {
+	ButtonRelease = "1" { Actions = "Raise; Focus; ActivateClient" }
+	ButtonRelease = "Mod4 3" { Actions = "Close" }
+	DoubleClick = "2" { Actions = "Toggle Shaded" }
+	DoubleClick = "1" { Actions = "MaxFill True True" }
+	Motion = "1" { Threshold = "4"; Actions = "Move" }
+	Motion = "Mod1 1" { Threshold = "4"; Actions = "Move" }
+	Motion = "Mod4 1" { Threshold = "4"; Actions = "Move" }
+	Motion = "Mod1 3" { Actions = "Resize" }
+	Enter = "Any Any" { Actions = "Focus" }
+}
+
+Border {
+	TopLeft     { Enter = "Any Any" { Actions = "Focus" }; ButtonPress = "1" { Actions = "Resize TopLeft" } }
+	Top         { Enter = "Any Any" { Actions = "Focus" }; ButtonPress = "1" { Actions = "Move" } }
+	TopRight    { Enter = "Any Any" { Actions = "Focus" }; ButtonPress = "1" { Actions = "Resize TopRight" } }
+	Left        { Enter = "Any Any" { Actions = "Focus" }; ButtonPress = "1" { Actions = "Resize Left" } }
+	Right       { Enter = "Any Any" { Actions = "Focus" }; ButtonPress = "1" { Actions = "Resize Right" } }
+	BottomLeft  { Enter = "Any Any" { Actions = "Focus" }; ButtonPress = "1" { Actions = "Resize BottomLeft" } }
+	Bottom      { Enter = "Any Any" { Actions = "Focus" }; ButtonPress = "1" { Actions = "Resize Bottom" } }
+	BottomRight { Enter = "Any Any" { Actions = "Focus" }; ButtonPress = "1" { Actions = "Resize BottomRight" } }
+}
+
+ScreenEdge {
+	Down {
+		Enter = "Mod4 Any" { Actions = "ViewportMoveDirection Down" }
+		ButtonRelease = "3" { Actions = "ShowMenu Root" }
+		ButtonRelease = "Mod4 1" { Actions = "ViewportMoveDirection Down" }
+		ButtonRelease = "2" { Actions = "ShowMenu Goto" }
+		EnterMoving = "Mod4 Any" { Actions = "WarpToViewport Down" }
+	}
+	Up {
+		Enter = "Mod4 Any" { Actions = "ViewportMoveDirection Up" }
+		ButtonRelease = "3" { Actions = "ShowMenu Root" }
+		ButtonRelease = "Mod4 1" { Actions = "ViewportMoveDirection Up" }
+		ButtonRelease = "2" { Actions = "ShowMenu Goto" }
+		ButtonRelease = "Mod1 4" { Actions = "GoToWorkspace Right" }
+		ButtonRelease = "Mod1 5" { Actions = "GoToWorkspace Left" }
+		EnterMoving = "Mod4 Any" { Actions = "WarpToViewport Up" }
+	}
+	Left {
+		Enter = "Mod1 Any" { Actions = "GoToWorkspace Left" }
+		Enter = "Mod4 Any" { Actions = "ViewportMoveDirection Left" }
+		ButtonRelease = "3" { Actions = "ShowMenu Root" }
+		ButtonRelease = "Mod4 1" { Actions = "ViewportMoveDirection Left" }
+		ButtonRelease = "1" { Actions = "GoToWorkspace Left" }
+		DoubleClick = "1" { Actions = "GoToWorkspace Left" }
+		ButtonRelease = "2" { Actions = "ShowMenu Goto" }
+		ButtonRelease = "4" { Actions = "GoToWorkspace Right" }
+		ButtonRelease = "5" { Actions = "GoToWorkspace Left" }
+		EnterMoving = "Mod4 Any" { Actions = "WarpToViewport Left" }
+		EnterMoving = "Any Any" { Actions = "WarpToWorkspace Left" }
+	}
+	Right {
+		Enter = "Mod1 Any" { Actions = "GoToWorkspace Right" }
+		Enter = "Mod4 Any" { Actions = "ViewportMoveDirection Right" }
+		ButtonRelease = "3" { Actions = "ShowMenu Root" }
+		ButtonRelease = "Mod4 1" { Actions = "ViewportMoveDirection Right" }
+		ButtonRelease = "1" { Actions = "GoToWorkspace Right" }
+		DoubleClick = "1" { Actions = "GoToWorkspace Right" }
+		ButtonRelease = "2" { Actions = "ShowMenu Goto" }
+		ButtonRelease = "4" { Actions = "GoToWorkspace Right" }
+		ButtonRelease = "5" { Actions = "GoToWorkspace Left" }
+		EnterMoving = "Mod4 Any" { Actions = "WarpToViewport Right" }
+		EnterMoving = "Any Any" { Actions = "WarpToWorkspace Right" }
+	}
+}
+
+Client {
+	ButtonPress = "1" { Actions = "Focus" }
+	ButtonRelease = "Mod1 1" { Actions = "Focus; Raise" }
+	ButtonRelease = "Mod4 1" { Actions = "Lower" }
+	Motion = "Mod1 1" { Actions = "Focus; Raise; Move" }
+	Motion = "Mod4 1" { Actions = "Focus; Raise; Move" }
+	Motion = "Mod1 2" { Threshold = "4"; Actions = "GroupingDrag True" }
+	Motion = "Mod1 3" { Actions = "Resize" }
+	Enter = "Any Any" { Actions = "Focus" }
+}
+
+Root {
+	ButtonRelease = "3" { Actions = "ShowMenu Root" }
+	ButtonRelease = "2" { Actions = "ShowMenu Goto" }
+	ButtonRelease = "4" { Actions = "GoToWorkspace Right" }
+	ButtonRelease = "5" { Actions = "GoToWorkspace Left" }
+	ButtonRelease = "1" { Actions = "HideAllMenus" }
+	Motion = "1" { Threshold = "10"; Actions = "ViewportMoveDrag" }
+}
+
+Menu {
+	Enter = "Any Any" { Actions = "Focus" }
+	ButtonRelease = "2" { Actions = "Toggle Sticky" }
+	Motion = "1" { Threshold = "10"; Actions = "Move" }
+	ButtonRelease = "3" { Actions = "Close" }
+}
+
+Other {
+	Enter = "Any Any" { Actions = "Focus" }
+	ButtonRelease = "Mod4 3" { Actions = "Close" }
+	Motion = "1" { Actions = "Focus; Raise; Move" }
+	Motion = "Mod1 1" { Actions = "Focus; Raise; Move" }
+}
+</screen>
+<para>
+	Below are tables defining the different actions. The actions themselves 
+	can be found in the <xref linkend="config-keys_mouse-actions"/> section.
+</para>
+<table frame="all"><title>'Where' fields</title>
+<tgroup cols="2" align="left" colsep="1" rowsep="1">
+<colspec colname="name"/>
+<colspec colname="desc"/>
+<thead>
+<row>
+  <entry>Name</entry>
+  <entry>Description</entry>
+</row>
+</thead>
+<tbody>
+<row>
+	<entry>FrameTitle</entry>
+	<entry>On a regular window's Titlebar.</entry>
+</row>
+<row>
+	<entry>OtherTitle</entry>
+	<entry>On menu/cmdDialog/etc pekwm's own window's Titlebar.</entry>
+</row>
+<row>
+	<entry>Border</entry>
+	<entry>On the window's borders. See <xref linkend="config-keys_mouse-border"/>  for more information.</entry>
+</row>
+<row>
+	<entry>ScreenEdge</entry>
+	<entry>On the screen edges. See <xref linkend="config-keys_mouse-screenedge"/> for more information.</entry>
+</row>
+<row>
+	<entry>Client</entry>
+	<entry>Anywhere on the window's interiour- it's best to use a keyboard
+		modifier with these.</entry>
+</row>
+<row>
+	<entry>Root</entry>
+	<entry>On the Root window (also called the 'desktop').</entry>
+</row>
+<row>
+	<entry>Menu</entry>
+	<entry>On the various menus excluding their titlebars.</entry>
+</row>
+<row>
+	<entry>Other</entry>
+	<entry>On everything else that doesn't have it's own section.</entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+<table frame="all"><title>'Event' fields</title>
+<tgroup cols="2" align="left" colsep="1" rowsep="1">
+<colspec colname="name"/>
+<colspec colname="desc"/>
+<thead>
+<row>
+  <entry>Name</entry>
+  <entry>Description</entry>
+</row>
+</thead>
+<tbody>
+<row>
+	<entry>ButtonPress</entry>
+	<entry>A single click</entry>
+</row>
+<row>
+	<entry>ButtonRelease</entry>
+	<entry>A single click that activates once the button is released</entry>
+</row>
+<row>
+	<entry>DoubleClick</entry>
+	<entry>A double click</entry>
+</row>
+<row>
+	<entry>Motion</entry>
+	<entry>Clicking, holding, and Dragging.</entry>
+</row>
+<row>
+	<entry>Enter</entry>
+	<entry>Defines how to act when mouse pointer enters a place defined
+	by the 'where' field.</entry>
+</row>
+<row>
+	<entry>Leave</entry>
+	<entry>Defines how to act when mouse pointer leaves a place defined
+	by the 'where' field.</entry>
+</row>
+<row>
+	<entry>EnterMoving</entry>
+	<entry>Defines how to act when a dragged window enters a ScreenEdge.
+	Only works with screen edges.</entry>
+</row>
+</tbody>
+</tgroup>
+</table>
+<para>
+	Definitions work like this:
+</para>
+<screen>
+'Where' {
+	'Event' = "optional modifiers, like mod1, ctrl, etc and a mouse button" {
+		Actions = "actions and their parameters"
+	}
+	'Event' = "optional modifiers, like mod1, ctrl, etc and a mouse button" {
+		Actions = "actions and their parameters"
+	}
+}
+</screen>
+
+<note><formalpara><title>Additional notes</title>
+	<para>Modifiers and mouse buttons can be defined as "Any" which is
+	useful for Enter and Leave events. Any also applies as none.
+	Motion events have a threshold argument. This is the number of pixels
+	you must drag your mouse before they begin to work. Multiple actions can
+	be defined for a single user action. Example:</para>
+</formalpara>
+</note>
+<screen>
+Motion = "1" { Actions = "Move"; Treshold = "3" }
+ButtonPress = "1" { Actions = "Raise; ActivateClient" }
+</screen>
+
+</simplesect>

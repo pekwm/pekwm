@@ -1,0 +1,76 @@
+<simplesect id="overview-compiling-configure" xreflabel="Configuration Options">
+	<title>Configuration Options</title>
+	<para>The first thing to do is to run the configure script. This configures
+		compile options for pekwm. Here are some of the more used options
+		and what their default values are.
+	</para>
+	<para>
+		<variablelist><title>Important ./configure options:</title>
+			<varlistentry>
+				<term>--enable-shape</term>
+				<listitem><para>Enables the use of the Xshape extension</para>
+				<para>By default, Enabled</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--enable-xinerama</term>
+				<listitem><para>Enables xinerama (Multi-Monitor in X11) support</para>
+				<para>By default, Disabled</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--enable-menus</term>
+				<listitem><para>Enables menu support (It's useful to turn this off if 
+					you rely completely on a desktop environment using 
+					the root window)</para>
+				<para>By default, Enabled</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--enable-harbour</term>
+				<listitem><para>Enables the use of the harbour wich is used to
+					swallow Window Maker dockapps.</para>
+				<para>By default, Enabled</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--enable-pcre</term>
+				<listitem><para>Enables the use of libpcre for autoprops regular expressions.
+					Note that regular expressions are used no matter what; this option
+					only makes pcre be used instead of libc for them.</para>
+				<para>By default, Disabled</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--enable-debug</term>
+				<listitem><para>Enables debugging output</para>
+				<para>By default, Disabled</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--enable-xft</term>
+				<listitem><para>Enables Xft font support in pekwm (themes).</para>
+				<para>By default, Enabled</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--enable-image-xpm</term>
+				<listitem><para>XPM image support using libXpm.</para>
+				<para>By default, Enabled</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--enable-image-jpeg</term>
+				<listitem><para>JPEG image support using libjpeg.</para>
+				<para>By default, Enabled</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--enable-image-png</term>
+				<listitem><para>PNG image support using libpng.</para>
+				<para>By default, Enabled</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--enable-xrandr</term>
+				<listitem><para>Enable the XRANDR extension support.</para>
+				<para>By default, Enabled</para></listitem>
+			</varlistentry>
+			<varlistentry>
+				<term>--prefix=PREFIX</term>
+				<listitem><para>It may be useful to use a custom prefix to install the files.</para>
+				<para>By default, /usr/local</para></listitem>
+			</varlistentry>
+		</variablelist>
+	</para>
+</simplesect>

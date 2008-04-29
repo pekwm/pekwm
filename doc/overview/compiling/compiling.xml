@@ -1,0 +1,10 @@
+<chapter id="overview-compiling" xreflabel="Compiling Pekwm">
+<?dbhtml filename="compiling.html" dir="overview"?>
+<title>Compiling Pekwm</title>
+<para>This chapter will help you get pekwm compiled.</para>
+
+&overview-compiling-unpack;
+&overview-compiling-configure;
+&overview-compiling-build;
+
+</chapter>

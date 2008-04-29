@@ -1,0 +1,86 @@
+<simplesect id="config-configfile-basic" xreflabel="Basic Config"> 
+<title>Basic Config</title>
+<para>
+	As previously indicated, the config file follows the rules defined in 
+	<xref linkend="config-syntax"/>.
+</para>
+<para>
+	Here's an example <filename>~/.pekwm/config</filename> file:
+</para>
+<screen>
+Files {
+	Keys = "~/.pekwm/keys"
+	Mouse = "~/.pekwm/mouse"
+	Menu = "~/.pekwm/menu"
+	Start = "~/.pekwm/start"
+	AutoProps = "~/.pekwm/autoproperties"
+	Theme = "~/.pekwm/themes/default"
+}
+
+MoveResize {
+	EdgeAttract = "10"
+	EdgeResist = "10"
+	WindowAttract = "5"
+	WindowResist = "5"
+	OpaqueMove = "True"
+	OpaqueResize = "False"
+}
+
+Screen {
+	Workspaces = "4"
+	ShowFrameList = "True"
+	PlaceNew = "True"
+	FocusNew = "True"
+	ShowStatusWindow = "True"
+
+	TrimTitle = "..."
+	EdgeSize = "1"
+	PixmapCacheSize = "20"
+	ImlibAntiAlias = "True"
+	DoubleClickTime = "250"
+
+Placement {
+		Model = "CenteredOnParent Smart MouseCentered"
+		Smart {
+			Row = "False"
+			TopToBottom = "True"
+			LeftToRight = "True"
+		}
+	}
+
+	UniqueNames {
+		SetUnique = "True"
+		Pre = " #";
+		Post = "";
+	}
+
+	Viewports {
+		Columns = "1"
+		Rows = "1"
+		# Viewports are disabled by default to avoid strange behaviour from buggy pagers
+		#Columns = "3"
+		#Rows = "3"
+	}
+}
+
+Menu {
+	Select = "Motion"
+	Enter = "Motion ButtonPress"
+	Exec = "ButtonRelease"
+}
+
+Harbour {
+	OnTop = "True"
+	MaximizeOver = "False"
+	Placement = "Right"
+	Orientation = "TopToBottom"
+	Head = "0"
+
+	DockApp {
+		SideMin = "64"
+		SideMax = "64"
+	}
+}
+</screen>
+</simplesect>
+

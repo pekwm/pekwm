@@ -1,0 +1,10 @@
+<chapter id="config-syntax" xreflabel="Common Syntax">
+<?dbhtml filename="syntax.html" dir="config"?>
+<title>The Pekwm Common Syntax for Config Files</title>
+<para>
+</para>
+
+&config-syntax-basic;
+&config-syntax-variables;
+
+</chapter>

@@ -1,0 +1,46 @@
+<simplesect id="usage-gettingstarted-icons" xreflabel="About Menus and Iconification">
+	<title>About Menus and Iconification</title>
+
+	<para>When you Iconify (This is the traditional name in unix. Windows
+	calls this minimizing.) a window in pekwm, it doesn't really go
+	anywhere like you might expect. You can de-iconify using one of three
+	menus: The Icon menu, the Goto menu, or the GotoClient menu.  When you
+	click on an item in one of these menus, it takes you to that window
+	deiconifying when necessary.</para>
+
+	<para>Icon menu shows you a list of all currently iconified windows.
+	Use Mod4+Shift+I to bring it up.</para>
+
+	<para>Goto menu shows you a list of windows currently active. This
+	menu will only show the currently active window of possible window groups.
+	Use Mod4+L, or middle click of the mouse on the root window or screen
+	edges to bring this menu up.</para>
+
+	<para>GotoClient menu shows you a list of every window currently open.
+	Window groups are separated from eachother with a menu separator wich
+	is defined by the currently used theme, usually a line of some sort.
+	You need to be using window grouping to really see any difference
+	between the GotoClient and Goto menus.  Use Mod4+C, or middle click of
+	the mouse on the root window or screen edges while holding down Mod4
+	to bring up the GotoClient menu.</para>
+
+	<para>An Item in the goto and gotoclient menu and icon menu (and attach menus) has the following syntax:
+		<screen>&lt;number> (NxN) [symbols] Window title</screen>
+		The number represents what workspace the window is on. The two N's show on what part of the viewport the window is.
+		Symbols is a list of symbols that represent window states. They are:
+		<itemizedlist><title>Symbols in the pekwm menus</title>
+			<listitem><para>* (sticky)</para></listitem>
+			<listitem><para>. (iconified)</para></listitem>
+			<listitem><para>^ (shaded)</para></listitem>
+			<listitem><para>+ (above normal window layer)</para></listitem>
+			<listitem><para>- (below normal window layer)</para></listitem>
+			<listitem><para>A (active in group)</para></listitem>
+		</itemizedlist>
+	</para>
+
+	<note><para>If you are using window grouping, the whole group will
+	iconify instead of one window. Please ungroup before minimizing if you
+	wish to iconify a single client window from a group frame.</para></note>
+
+</simplesect>
+

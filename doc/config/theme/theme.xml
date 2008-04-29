@@ -1,0 +1,15 @@
+<chapter id="config-theme" xreflabel="themes">
+<?dbhtml filename="theme.html" dir="config"?>
+<title>Pekwm themes</title>
+<para>
+	This section aims to documenting the pekwm theme structure. It's rather cryptic at first look, sorry.
+</para>
+<para>
+	Please use existing themes as real life examples and base when it comes to making your own.
+</para>
+
+&config-theme-guidelines;
+&config-theme-explanation;
+&config-theme-structure;
+
+</chapter>

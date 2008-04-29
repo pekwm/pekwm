@@ -1,0 +1,16 @@
+<part id="development" xreflabel="Development">
+<?dbhtml filename="development.html" dir="development"?>
+<title>Development</title>
+<partintro>
+<para>
+	Interested in pekwm? Want to keep up with the development? Good, we can 
+	tell you how.
+</para>
+</partintro>
+
+&devel-ml;
+&devel-irc;
+&devel-bugtracker;
+&devel-who;
+
+</part>

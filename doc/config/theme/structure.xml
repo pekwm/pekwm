@@ -1,0 +1,258 @@
+<simplesect id="config-theme-structure" xreflabel="theme structure">
+<?dbhtml filename="structure.html" dir="config"?>
+<title>Structure</title>
+
+<screen>
+PDecor{}: the block for decoration sets, any amount of Decor sections can exist inside this block.
+
+	Decor, decorname{}: name of the decoration set.
+
+
+		Title{}: theming of the frame.
+
+			Height, pixels
+
+				Amount of pixels the titlebar should height.
+
+			Pad, padding
+
+				How many pixels are left around a title text.
+
+			Focused, texture
+
+				Background texture for a focused titlebar.
+
+			UnFocused, texture
+
+				Background texture for an unfocused titlebar.
+
+			WidthMin, pixels
+
+				Minimum width of title in pixels, will also place the titlebar outside of the window borders.
+				Use 0 to place titlebar inside borders.
+
+			WidthMax, percent
+
+				Maximum width of titles relative to window width, when this value ends up being smaller than
+				the value in WidthMin, WidthMin is overridden.
+
+			WidthSymetric, toggle
+
+				Set true to constant width titles or false to use titles that only are as big as the clients
+				title text string requires (note, asymmetric width is not fully implemented yet, allways set
+				this true for now to avoid problems).
+
+
+			Tab{}: theming of a titlebar tab.
+
+				Focused, texture
+
+					Background texture for a tab of a focused window.
+
+				Unfocused, texture
+
+					Background texture for a tab of an unfocused window.
+
+				FocusedSelected, texture
+
+					Background texture for the currently selected tab of a focused window.
+
+				UnFocusedSelected, texture
+
+					Background texture for the currently selected tab of an unfocused window.
+
+
+			FontColor{}: theming of font colours
+
+				Focused, colour colour
+
+					Text colour for a tab of a focused window. second value is the shadow colour.
+
+				Unfocused, colour colour
+
+					Text colour for a tab of an unfocused window. second value for shadow.
+
+				FocusedSelected, colour colour
+
+					Text colour for the currently selected tab of a focused window. second value for shadow.
+
+				UnFocusedSelected, colour colour
+
+					Text colour for the currently selected tab of an unfocused window. second value for shadow.
+
+
+			Font{}: theming of the titlebar fonts.
+
+				Focused, fontstring
+
+					Font of the text of a tab of a focused window.
+
+				Unfocused, fontstring
+
+					Font of the text of a tab of an unfocused window.
+
+				FocusedSelected, fontstring
+
+					Font of the text of the currently selected tab of a focused window.
+
+				UnFocusedSelected, fontstring
+
+					Font of the text of the currently selected tab of an unfocused window.
+
+
+			Separator{}: theming of the tab separator.
+
+				Focused, texture
+
+					Separator texture for a focused window.
+
+				Unfocused, texture
+
+					Separator texture for an unfocused window.
+
+
+			Buttons{}: theming of titlebar buttons.
+
+				Right{}: places the button on the right end of the titlebar.
+				Left{}:  places the button on the left end of the titlebar.
+
+					Focused, texture
+
+						Texture for button of a focused window.
+
+					Unfocused, texture
+
+						Texture for button of an unfocused window.
+
+					Pressed, texture
+
+						Texture for button that is pressed.
+
+					Button, buttonactions
+
+						Configures what to do when a button is pressed.
+
+
+			Border{}: theming of the borders.
+
+				Focused{}:   borders for focused windows.
+				UnFocused{}: borders for unfocused windows.
+
+					TopLeft, texture
+
+						Texture for the top left corner.
+
+					Top, texture
+
+						Texture for the top border.
+
+					TopRight, texture
+
+						Texture for the top right corner.
+
+					Left, texture
+
+						Texture for the left border.
+
+					Right, texture
+
+						Texture for the right birder.
+
+					BottomLeft, texture
+
+						Texture for the bottom left corner.
+
+					Bottom, texture
+
+						Texture for the bottom border.
+
+					BottomRight, texture
+
+						Texture for the bottom right border.
+
+
+
+Harbour{}: enables theming of the harbour.
+
+	Texture, texture
+
+		Texture to use as the harbour background.
+
+
+
+Menu{}: themes the insides of a menu window.
+
+	Pad, padding
+
+		How many pixels of space around an entry is reserved.
+
+	Focused{}:    apply these when the menu/submenu is focused.
+	Unfocused{}:  apply these when the menu/submenu is not focused.
+	Selected{}:   apply these on the menu entry currently selected.
+
+		Font, fontstring
+
+			What font to use.
+
+		Background, texture
+
+			A texture that starts from the top of the menu and ends on the bottom.
+
+		Item, texture
+
+			A texture that starts from the top of a menu entry and ends on the bottom of the entry.
+
+		Text, colour
+
+			Colour of text to use.
+
+		Separator, texture
+
+			Texture to use as separator (required, client menu will break if none is defined).
+
+		Arrow, texture
+
+			Texture to use for indicating submenus (you want this to be defined too).
+
+
+
+CmdDialog{}: themes the insides of a command dialog window.
+
+	Font, fontstring
+
+		What font to use.
+
+	Texture, texture
+
+		Texture to use as the background.
+
+	Text, colour
+
+		Colour of text.
+
+	Pad, padding
+
+		Amount of pixels of space around font to reserve.
+
+
+
+Status{}: themes the insides of the status window that shows up when moving windows and so on.
+
+	Font, fontstring
+
+		What font to use.
+
+	Texture, texture
+
+		Texture to use as the background.
+
+	Text, colour
+
+		Colour of text.
+
+	Pad, padding
+
+		Amount of pixels of space around font to reserve.
+</screen>
+
+</simplesect>

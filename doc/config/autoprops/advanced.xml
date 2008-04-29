@@ -1,0 +1,133 @@
+<simplesect id="config-autoprops-adv" xreflabel="Advanced Autoproperrties"> 
+<title>Advanced Autoproperties</title>
+<para>Below is a list of the different actions available to you in your autoproperties file; 
+These are the actual Auto Properties. They can take four types of arguments: bool, integer, string, or geom.
+A bool is either True (1) or False (0). An Integer is a number, negative or positive. A string is any string, it's used as an identifier.
+Finally, geom is an X Geometry String by the form:
+"[=][&lt;width>{xX}&lt;height>][{+-}&lt;xoffset>{+-}&lt;yoffset>]" (see: man 3 XParseGeometry).
+Examples are 200x300+0+0, 0x500+200+300, 20x10+0+50, et cetera.
+</para>
+<para>
+<variablelist><title>Exhaustive Autoprops List</title><varlistentry><term>Sticky (bool)</term><listitem><para>Window Starts Sticky (present on all workspaces)</para></listitem></varlistentry>
+<varlistentry><term>Shaded (bool)</term><listitem><para>Window Starts Shaded</para></listitem></varlistentry>
+<varlistentry><term>MaximizedVertical (bool)</term><listitem><para>Window Starts Maximized Vertically</para></listitem></varlistentry>
+<varlistentry><term>MaximizedHorizontal (bool)</term><listitem><para>Window Starts Maximized Horizontally</para></listitem></varlistentry>
+<varlistentry><term>Iconified (bool)</term><listitem><para>Window Starts Iconified</para></listitem></varlistentry>
+<varlistentry><term>Border (bool)</term><listitem><para>Window Starts with a border</para></listitem></varlistentry>
+<varlistentry><term>Titlebar (bool)</term><listitem><para>Window Starts with a TitleBar</para></listitem></varlistentry>
+<varlistentry><term>ClientGeometry (geom)</term><listitem><para>X Geometry String showing the initial size and position of the client, excluding the possible pekwm titlebar and window borders.</para></listitem></varlistentry>
+<varlistentry><term>FrameGeometry (geom)</term><listitem><para>X Geometry String showing the initial size and position of the window frame. Window frame includes the client window and the possible pekwm titlebar and window borders. If both ClientGeometry and FrameGeometry are present, FrameGeometry overrides the ClientGeometry.</para></listitem></varlistentry>
+<varlistentry><term>Workspace (integer)</term><listitem><para>Which workspace to start program on.</para></listitem></varlistentry>
+<varlistentry><term>Viewport (integer) (integer)</term><listitem><para>Which viewport to start program on. First integer is the column, second the row of the viewport to open the window in.</para></listitem></varlistentry>
+<varlistentry><term>PlaceNew (bool)</term><listitem><para>Toggles the use of placing rules for this client.</para></listitem></varlistentry>
+<varlistentry><term>FocusNew (bool)</term><listitem><para>Toggles if this client gets focused when it initially pops up a window.</para></listitem></varlistentry>
+<varlistentry><term>Focusable (bool)</term><listitem><para>Toggles if this client can be focused while it's running.</para></listitem></varlistentry>
+<varlistentry>
+	<term>CfgDeny (string)</term>
+	<listitem>
+		<para>
+			A list of conditions of when to deny things requested by the client program, consisting of
+			<itemizedlist>
+				<listitem><para>"Position" (Ignore client requested changes to window position)</para></listitem>
+				<listitem><para>"Size" (Ignore client requested changes to window size)</para></listitem>
+				<listitem><para>"Stacking" (Ignore client requested changes to window stacking)</para></listitem>
+				<listitem><para>"ActiveWindow" (Ignore client requests for showing and giving input focus)</para></listitem>
+				<listitem><para>"MaximizedVert" (Ignore client request to maximize window vertically)</para></listitem>
+				<listitem><para>"MaximizedHorz" (Ignore client request to maximize window horizontally)</para></listitem>
+				<listitem><para>"Hidden" (Ignore client request to show/hide window)</para></listitem>
+				<listitem><para>"Fullscreen" (Ignore client request to set window to fullscreen mode)</para></listitem>
+				<listitem><para>"Above" (Ignore client request to always place window above other windows)</para></listitem>
+				<listitem><para>"Below" (Ignore client request to always place window below other windows)</para></listitem>
+			</itemizedlist>
+		</para>
+	</listitem>
+</varlistentry>
+<varlistentry>
+	<term>ApplyOn (string)</term>
+	<listitem>
+		<para>
+			A list of conditions of when to apply this autoprop (so be sure to include this in your property), consisting of
+			<itemizedlist>
+				<listitem><para>"Start" (Apply if window already exists before pekwm starts/restarts. Note when using grouping Start will not take workspaces in account)</para></listitem>
+				<listitem><para>"Reload" (Apply when pekwm's config files are reloaded)</para></listitem>
+				<listitem><para>"New" (Applies when the application first starts)</para></listitem>
+				<listitem><para>"Workspace" (Apply when the window is sent to another workspace)</para></listitem>
+				<listitem><para>"Transient" (Apply to Transient windows as well as normal windows. Dialog boxes are commonly transient windows)</para></listitem>
+				<listitem><para>"TransientOnly" (Apply to Transient windows only. Dialog boxes are commonly transient windows)</para></listitem>
+			</itemizedlist>
+		</para>
+	</listitem>
+</varlistentry>
+<varlistentry>
+	<term>Skip (string)</term>
+	<listitem>
+		<para>
+			A list of situations when to ignore the defined application and
+			let the user action skip over it, consisting of
+			<itemizedlist>
+				<listitem><para>"Snap" (Do not snap to this window while moving windows)</para></listitem>
+				<listitem><para>"Menus" (Do not show this window in pekwm menus other than the icon menu)</para></listitem>
+				<listitem><para>"FocusToggle" (Do not focus to this window when doing Next/PrevFrame)</para></listitem>
+			</itemizedlist>
+		</para>
+	</listitem>
+</varlistentry>
+<varlistentry>
+	<term>Layer (string)</term>
+	<listitem>
+		<para>
+			Windows layer. Makes the window stay under or above other windows. Default layer is "Normal".
+			Possible parameters are (listed from the bottommost to the uppermost):
+			<itemizedlist>
+				<listitem><para>Desktop</para></listitem>
+				<listitem><para>Below</para></listitem>
+				<listitem><para>Normal</para></listitem>
+				<listitem><para>OnTop</para></listitem>
+				<listitem><para>Harbour</para></listitem>
+				<listitem><para>AboveHarbour</para></listitem>
+				<listitem><para>Menu</para></listitem>
+			</itemizedlist>
+		</para>
+	</listitem>
+</varlistentry>
+<varlistentry>
+	<term>Title (string)</term>
+	<listitem>
+		<para>
+			Apply this autoproperty on clients that have a title that matches
+			this string. String is a regexp like: "^Saving".
+		</para>
+	</listitem>
+</varlistentry>
+<varlistentry>
+	<term>Role (string)</term>
+	<listitem>
+		<para>
+			Apply this autoproperty on clients that have a WM_WINDOW_ROLE hint that matches
+			this string. String is a regexp like: "^Main".
+		</para>
+	</listitem>
+</varlistentry>
+<varlistentry>
+	<term>Group (string)</term>
+	<listitem>
+		<para>
+			Defines the name of the group.
+			Also the section that contains all the grouping options. They
+			are:</para>
+		<para>
+		<itemizedlist>
+			<listitem><para>Size (integer) - How many clients should be grouped in one group.</para></listitem>
+			<listitem><para>Behind (bool) - If true makes new clients of a group not to become the active one in the group.</para></listitem>
+			<listitem><para>Global (bool) - If true makes new clients start in a group even if the group is on another workspace or iconified.</para></listitem>
+			<listitem><para>Raise (bool) - If true makes new clients raise the frame they open in.</para></listitem>
+			<listitem><para>FocusedFirst (bool) - If true and there are more than one frame where the window could be autogrouped into, the currently focused frame is considered the first option.</para></listitem>
+		</itemizedlist>
+		</para>
+	</listitem>
+</varlistentry>
+
+</variablelist>
+</para>
+</simplesect>
+

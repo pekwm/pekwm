@@ -1,0 +1,39 @@
+<!ENTITY config SYSTEM "config.xml">
+
+<!ENTITY config-syntax SYSTEM "syntax/syntax.xml">
+<!ENTITY config-syntax-basic SYSTEM "syntax/basic.xml">
+<!ENTITY config-syntax-variables SYSTEM "syntax/variables.xml">
+
+<!ENTITY config-configfile SYSTEM "configfile/configfile.xml">
+<!ENTITY config-configfile-basic SYSTEM "configfile/basic.xml">
+<!ENTITY config-configfile-keywords SYSTEM "configfile/keywords.xml">
+<!ENTITY config-configfile-screensubsections SYSTEM "configfile/screen-subsections.xml">
+
+<!ENTITY config-menu SYSTEM "menu/menu.xml">
+<!ENTITY config-menu-basic SYSTEM "menu/basic.xml">
+<!ENTITY config-menu-keywords SYSTEM "menu/keywords.xml">
+<!ENTITY config-menu-dynamic SYSTEM "menu/dynamic.xml">
+<!ENTITY config-menu-custommenus SYSTEM "menu/custommenus.xml">
+
+<!ENTITY config-autoprops SYSTEM "autoprops/autoprops.xml">
+<!ENTITY config-autoprops-what SYSTEM "autoprops/what.xml">
+<!ENTITY config-autoprops-basic SYSTEM "autoprops/basic.xml">
+<!ENTITY config-autoprops-adv SYSTEM "autoprops/advanced.xml">
+<!ENTITY config-autoprops-groups SYSTEM "autoprops/grouping.xml">
+<!ENTITY config-autoprops-help SYSTEM "autoprops/morehelp.xml">
+
+<!ENTITY config-keys_mouse SYSTEM "keys_mouse/keys_mouse.xml">
+<!ENTITY config-keys_mouse-mouse SYSTEM "keys_mouse/mouse.xml">
+<!ENTITY config-keys_mouse-border SYSTEM "keys_mouse/border.xml">
+<!ENTITY config-keys_mouse-screenedge SYSTEM "keys_mouse/screenedge.xml">
+<!ENTITY config-keys_mouse-keys SYSTEM "keys_mouse/keys.xml">
+<!ENTITY config-keys_mouse-keychains SYSTEM "keys_mouse/keychains.xml">
+<!ENTITY config-keys_mouse-actions SYSTEM "keys_mouse/actions.xml">
+
+<!ENTITY config-start SYSTEM "start/start.xml">
+
+<!ENTITY config-theme SYSTEM "theme/theme.xml">
+<!ENTITY config-theme-guidelines SYSTEM "theme/guidelines.xml">
+<!ENTITY config-theme-explanation SYSTEM "theme/explanation.xml">
+<!ENTITY config-theme-structure SYSTEM "theme/structure.xml">
+

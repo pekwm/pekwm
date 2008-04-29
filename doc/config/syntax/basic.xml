@@ -1,0 +1,48 @@
+<simplesect id="config-syntax-basic" xreflabel="Basic Syntax">
+<?dbhtml filename="basic.html" dir="config"?>
+<title>Basic Syntax</title>
+<para>
+	All pekwm config files (with the exception of the start file- see 
+	<xref linkend="config-start"/> ) Follow a common syntax for options. 
+</para>
+<screen>
+# comment
+// another comment
+/*
+	yet another comment
+*/
+
+$VAR = "Value"
+$_VARIABLE = "Value"
+INCLUDE = "vars"
+COMMAND = "program to execute and add the valid config syntax it outputs here"
+
+# Normal format
+Section = "Name" {
+	Event = "Param" {
+		Actions = "action parameter; action parameter; $VAR $_VARIABLE"
+	}
+}
+
+// Compressed format
+Section = "Name" { Event = "Param" { Actions = "action parameters; action parameters; $VAR $_VARIABLE" } }
+</screen>
+<para>
+You can usually modify the spacing and line breaks, but this is the "Correct" format, so
+the documentation will try to stick to it.
+</para>
+<para>
+Events can be combined into the same line by issuing a semicolon between them.
+Actions can be combined into the same user action by issuing a semicolon between them.
+You can use an INCLUDE anywhere in the file. 
+</para>
+<para>
+Pekwm has a <filename>vars</filename> file to set common variables between config files.
+Variables are defined in <filename>vars</filename> and the file is INCLUDEd from the configuration files.
+</para>
+<para>
+Comments are allowed in all config files, by starting a comment line with # or //,
+or enclosing the comments inside /* and */.
+</para>
+
+</simplesect>

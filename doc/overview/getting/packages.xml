@@ -1,0 +1,22 @@
+<simplesect id="overview-getting-pkg" xreflabel="Getting prebuilt Pekwm packages"> 
+<!-- <?dbhtml filename="packages.html" dir="overview"?> -->
+<title>Getting prebuilt Pekwm packages</title>
+<para>Links to pre-built pekwm packages are available at
+the pekwm website, <ulink url="&http-site;">&http-site;</ulink>.</para>
+
+<!--
+, and the ftp site,
+<ulink url="&ftp-site;">&ftp-site;</ulink>.</para>
+-->
+
+<para>The current version of pekwm is &current-version;.</para>
+
+<!--
+A complete list 
+of the packages is available at the website.</para>
+-->
+
+<para>If there's no package for your distribution, and you'd like to build
+one, Let us know! We'll gladly host or link to binary packages.</para>
+</simplesect>
+

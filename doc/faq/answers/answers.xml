@@ -1,0 +1,458 @@
+<chapter id="faq-answers" xreflabel="Common questions and answers">
+<?dbhtml filename="answers.html" dir="faq"?>
+<title>Common questions and answers</title>
+
+<simplesect id="FAQ-4121" xreflabel="How is this ~/.pekwm/start thing used?"> 
+<title>How is this ~/.pekwm/start thing used?</title>
+
+<para>
+The file <filename>~/.pekwm/start</filename> is a regular shell script that is
+executed when pekwm starts. The file needs to be chmodded as
+executable (<command>chmod +x</command>) for it to get used.
+A simple example start file could look like this:
+</para>
+
+<screen>#!/bin/sh
+gkrellm &
+Esetroot -s mybackground.png &
+</screen>
+
+<para>Remember the &'s.</para>
+</simplesect>
+
+<simplesect id="FAQ-2312" xreflabel="What is the harbour?">
+<title>What is the harbour?</title>
+
+<para>
+Harbour is pekwm's way of supporting dockapps. It's the same
+as a dock or a wharf. The harbour is not a KDE/GNOME systray for
+notification icons. If you want notification icons in the harbour, you
+need to find a dockapp that does this for you.
+</para>
+
+<para>
+The harbour is incomplete in features. It has simple functionality and if
+it works for you, good. If it doesn't, you are free to share your code
+on it.
+</para>
+
+</simplesect>
+<simplesect id="FAQ-1233" xreflabel="Why doesn't the harbour work for my dockapp?">
+<title>Why doesn't the harbour work for my dockapp?</title>
+
+<para>
+The harbour needs to be enabled at compile time. When you are doing
+the <command>./configure</command> -phase of the pekwm compile, you
+can use the <command>--enable-harbour</command> option to enable it.
+</para>
+
+<para>
+If the dockapp still doesn't go into the harbour, even
+you have it enabled at compile time, you should see if the
+application has an option to start it "withdrawn".
+</para>
+</simplesect>
+
+<simplesect id="FAQ-2415" xreflabel="Can I have automatically changing menus in pekwm?">
+<title>Can I have automatically changing menus in pekwm?</title>
+
+<para>
+Yes. The Dynamic keyword is a way to use automatically generated menus in pekwm.
+That is, menus that regenerate every time you view
+them. As an example, by default the themes menu is dynamic.
+</para>
+
+<para>
+See <xref linkend="config-menu-dynamic"/> for more information.
+</para>
+</simplesect>
+
+<simplesect id="FAQ-5701" xreflabel="How do I install themes?">
+<title>How do I install themes?</title>
+
+<para>
+The idea is to unpack/uncompress the theme file you downloaded into some
+directory. In this case, we will unpack it to <filename>~/.pekwm/themes</filename>,
+which is the standard location for user installed themes.
+</para>
+
+<para>
+In simple, first make sure the themes directory exist, and if not, make
+it by issuing the command <command>mkdir ~/.pekwm/themes</command>.
+</para>
+
+<para>
+Then copy the theme package, lets call it theme.tar.gz, into
+<filename>~/.pekwm/themes</filename>. Then uncompress the theme pack
+with the appropriate tool.  Unpack the theme with:
+<command>gzip -dc theme.tar.gz | tar xvf -</command>
+</para>
+
+<para>
+You will then end up with a new subdirectory - this is the theme.
+</para>
+
+<para>
+Since we uncompressed the theme in a standard location, after this
+you can select the new theme from the themes menu. If you installed in
+a non-standard location, you'll have to manually edit
+<filename>~/.pekwm/config</filename>. In the top of this file there is a
+section named "Files {}". In this section, there is a line that says
+something like:
+</para>
+<screen>Theme = "/usr/local/share/pekwm/themes/minimal"</screen>
+<para>
+Edit this line to point to the directory you installed the theme.
+Restart pekwm and you're set.
+</para>
+
+</simplesect>
+
+<simplesect id="FAQ-8476" xreflabel="I upgraded pekwm and now ......... won't work!">
+<title>I upgraded pekwm and now ......... won't work!</title>
+
+<para>
+Pekwm has not yet achieved a freeze on it's configuration file
+syntax. And as pekwm is an actively developed application, there
+probably have been some changes on some part of the
+configuration.
+</para>
+
+<para>
+If you encounter a situation that when you upgrade your pekwm,
+and some thing just stops to work, you should either:
+</para>
+<para>
+<emphasis>Move your old configuration out of the way</emphasis> -
+Move your pekwm configuration files out of <filename>~/.pekwm</filename> (
+<command>mv ~/.pekwm ~/old.pekwm</command>), which will result in new
+fresh configuration files being copied in. If this helps, your
+configuration files werent compatible with the new version of pekwm.
+</para>
+<para>
+<emphasis>Check the ChangeLog</emphasis> - If something configurable wise has been
+changed, it has also been documented in the <filename>ChangeLog</filename>.
+This is a helpfull resource when you want to convert your old
+configuration files to a newer configuration format.
+</para>
+<para>
+<emphasis>Look under the source trees <filename>data/</filename>
+directory for reference</emphasis> -
+If you can't find info about a new feature or for some reason you don't
+understand the brief explanation in the <filename>ChangeLog</filename>,
+there is a <filename>data/</filename> directory in the source package
+of pekwm that has example configuration files (that act as the default
+configs on a new install). Chances are you'll find help from there.
+</para>
+<para>
+<emphasis>Read the documentation.</emphasis> - You can find links to
+up to date documentation for your pekwm version at the pekwm homepage.
+</para>
+<para>
+<emphasis>Make sure the right executable is being executed.</emphasis> -
+Locate all instances of pekwm (<command>find / -name 'pekwm'</command>).
+If you see many pekwm executables laying around, maybe one in
+<filename>/usr/bin</filename> and one in <filename>/usr/local/bin</filename>,
+you might be starting a wrong version pekwm.
+This might happen when you for example, install a premade pekwm package for
+your distribution and later install pekwm from source yourself.
+The safe way is to remove all these pekwm instances and either re-apply
+the package or do <command>make install</command> again in the source.
+You can also, of course, go thru every pekwm binary with the --version
+parameter to find the right executable to keep. Note to give the full
+path to the executable when querying for the version 
+(<command>/usr/local/bin/pekwm --version</command>).
+</para>
+</simplesect>
+
+
+<!--
+<simplesect id="FAQ-q7" xreflabel="How do I make XMMS/MPlayer continue playing while moving/resizing a window?">
+<title>How do I make XMMS/MPlayer continue playing while moving/resizing a window?</title>
+
+<para>
+There are some settings in <filename>~/.pekwm/config</filename> that can be used
+to get rid of XMMS and MPlayer stopping their play while moving or resizing some
+window. All of these options are located in the MoveResize {} section.
+</para>
+
+<para>
+There actually are a couple of unstopping configurations possible.
+First one is to use opaque move and resize. Opaque means that the
+window contents are actively updated while the window is moved/resized,
+in English, it shows the window content while moving/resizing.
+The options to do this would be:
+</para>
+
+<screen>OpaqueMove = "True"
+OpaqueResize = "True"
+</screen>
+
+<para>
+The second option is to use opaque moving and wireframe resize.
+As some of the readers might know, opaque resizing and moving is slower
+than wireframe moving and resizing thus it needs more CPU time.
+Unfortunately wireframe moving freezes MPlayer, so we'll need to
+compromise in using opaque moving and wireframe for resizing only.
+The options in using this hybrid are:
+</para>
+
+<screen>OpaqueMove = "True"
+OpaqueResize = "False"
+GrabWhenResize = "False"
+</screen>
+</simplesect>
+ -->
+
+<simplesect id="FAQ-8265" xreflabel="Can I turn off this sloppy focus crap?">
+<title>Can I turn off this sloppy focus crap?</title>
+
+<para>
+Yes. You can. You need to make all enter and leave events not affect the
+focus of frames, borders, clients. Simply, just comment out all the
+Enter lines that use the action Focus in <filename>~/.pekwm/mouse</filename>.
+</para>
+<para>
+The default <filename>~/.pekwm/mouse</filename> configuration file has
+helpfull "# Remove the following line if you want to use click to focus."
+notes in it to make this easier. Just search for such lines and remove
+or comment out the line (using a # in front of the line) next to the
+message.
+</para>
+<para>
+See <xref linkend="config-keys_mouse-mouse"/> for more info on the mouse
+configuration file.
+</para>
+</simplesect>
+
+<simplesect id="FAQ-7315" xreflabel="What is Mod1? How about Mod4?">
+<title>What is Mod1? How about Mod4?</title>
+
+<para>
+In the <filename>~/.pekwm/keys</filename> and <filename>~/.pekwm/mouse</filename>
+there are all these odd Mod1 and Mod4 things used as modifier keys. It's
+simple - Mod1 is more widely known as the Alt key, and Mod4 as the
+"windows key" found on recent keyboards. Use <command>xev</command> to
+find out what names keys carry.
+</para>
+</simplesect>
+
+<simplesect id="FAQ-1630" xreflabel="Why do my terminals start the wrong size when grouped?">
+<title>Why do my terminals start the wrong size when grouped?</title>
+
+<para>
+This is a very complicated issue in fact, and has to do with the way
+terminals handle their resize actions. One way to bring at least
+some help to this situation is to put <command>resize > /dev/null</command>
+in your .bashrc or equal.
+</para>
+</simplesect>
+
+<simplesect id="FAQ-1416" xreflabel="Where can I find the current size/position of a window?">
+<title>Where can I find the current size/position of a window?</title>
+
+<para>
+Use the command <command>xwininfo | grep geometry</command>.
+</para>
+</simplesect>
+
+<simplesect id="FAQ-1532" xreflabel="How do I bring up the window menu when the window has no decorations?">
+<title>How do I bring up the window menu when the window has no decorations?</title>
+
+<para>
+You press keys. The default keybinding for window menu is at the moment first Ctrl+Mod1+M, then W
+(or Mod4+W for short).
+You can specify your own keybinding for window menu at the <filename>~/.pekwm/keys</filename>
+configuration file. See <xref linkend="config-keys_mouse-keys"/> for information on how to
+edit keybindings.
+</para>
+</simplesect>
+
+<simplesect id="FAQ-1154" xreflabel="When I xprop a grouped window, it gives the results of wrong window!">
+<title>When I xprop a grouped window, it gives the results of wrong window!</title>
+
+<para>
+Yep. We know. Actually, there already exist a patch that makes it work
+at <ulink url="http://bugs.xfree86.org/show_bug.cgi?id=384">bugs.xfree86.org</ulink>.
+In short, it's a X-issue - go whine at your favourite X developers.
+</para>
+</simplesect>
+
+<simplesect id="FAQ-7599" xreflabel="The start file doesn't work!">
+<title>The start file doesn't work!</title>
+
+<para>
+<command>chmod +x ~/.pekwm/start</command>. Yes, this is a duplicate of
+the first FAQ entry. Just making sure we never have to see this question
+in IRC anymore. So if you asked this question and was directed here, remorse.
+</para>
+</simplesect>
+
+<simplesect id="FAQ-7416" xreflabel="How do I set a background/root/desktop image?">
+<title>How do I set a background/root/desktop image?</title>
+
+<para>
+In simple terms, you use any program that is capaple of setting background images.
+What? Want links too? Because you asked nice,
+<ulink url="http://www.linuxbrit.co.uk/feh/">here's feh</ulink> and
+<ulink url="http://thegraveyard.org/hsetroot.php">hsetroot</ulink>.
+If you have Eterm installed you have a program named Esetroot, that
+will set you backgrounds. There's a million of similar apps, and
+this is no place for a comprehensive list of them.
+</para>
+<para>
+You want that the background gets set automatically when you start pekwm?
+You have three options. Eather, add the command that you use to set your
+background into <filename>~/.xinitrc</filename> (or similar) before the command
+that starts pekwm. Or, add the command to set a background in to your pekwm
+<filename>start</filename> file located at <filename>~/.pekwm/start</filename>.
+Or, edit the right place in your pekwm theme file to include the command to set
+a background with.
+</para>
+</simplesect>
+
+<simplesect id="FAQ-2417" xreflabel="A theme I tested doesn't work!">
+<title>A theme I tested doesn't work!</title>
+
+<para>
+Pekwm is an ongoing process. This means the theme
+file format has gone thru considerable amounts of changes. Some of these
+changes are backwards compatible, some are not. You have hit a theme
+with too old or too new theme syntax for your copy of pekwm.
+Nothing can be done unless someone who knows the differences between
+theme formats owns you a favor and agrees to edit it out for you.
+</para>
+<para>
+Pekwm shouldn't refuse to start again after a faulting theme test,
+but you will usually see everything scrambled up. In this case you can
+eather try to select a new working theme from the menu or change the
+theme used manually.
+This is done in <filename>~/.pekwm/config</filename>.
+Under the Files-section, there is an entry named Theme, that points to
+your current theme. It might look something like this:
+</para>
+<screen>
+Files {
+	Theme = "/home/shared/.pekwm/themes/blopsus9-blaah"
+}
+</screen>
+<para>
+Now, all you need to do is make the path point to any theme you know is
+working. The default theme is usually a safe bet. After edited and
+saved, (re)start pekwm.
+</para>
+</simplesect>
+
+
+<!-- reported by Stefan 'Steve' Tell
+<simplesect id="FAQ-5887" xreflabel="PekWM just dumps core, FreeBSD.">
+<title>PekWM just dumps core, FreeBSD.</title>
+<para>
+On newer FreeBSD versions (newer than 5.3, especially 6.0-Current-series) pekwm cannot be started:
+</para>
+<screen>
+Nov 20 17:59:07 **** kernel: pid 8423 (pekwm), uid 1010: exited on signal 10 (core dumped)
+</screen>
+<para>
+There is a workaround for this problem. Type <command>ln -s aj /etc/malloc.conf</command>
+as root to disable memory debugging.
+</para>
+</simplesect>
+ -->
+
+
+<simplesect id="FAQ-8428" xreflabel="What desktop pagers work with pekwm?">
+<title>What desktop pagers work with pekwm?</title>
+<para>
+For general use any NETWM compliant pager should do.
+<ulink url="http://www.useperl.ru/ipager/index.en.html">IPager</ulink>,
+<ulink url="http://zelea.com/project/screenpager/introduction.html">screenpager</ulink>,
+rox-pager, fbpanel's pager, obpager, gai-pager, gnome's pager, kde's pager,
+perlpanel's pager, netwmpager, and so on. Gai-pager is one of the few that actually
+work with viewports. Do report your success stories with pagers not
+already mentioned here.
+</para>
+</simplesect>
+
+<simplesect id="FAQ-8274" xreflabel="How do I make submenus open on mouse over rather than when clicked?">
+<title>How do I make submenus open on mouse over rather than when clicked?</title>
+<para>
+You need to edit <filename>~/.pekwm/config</filename>. Open it in an
+editor and search for the Menu section towards the end of the file. It
+should look somewhat like this:
+</para>
+<screen>Menu {
+	# Defines how menus act on mouse input.
+	# Possible values are: "ButtonPress ButtonRelease DoubleClick Motion"
+	# To make submenus open on mouse over, comment the default Enter,
+	# uncomment the alternative, and reload pekwm.
+ 
+	Select = "Motion"
+	Enter = "ButtonPress"
+	# Enter = "Motion"
+	Exec = "ButtonRelease"
+}</screen>
+<para>
+To make submenus open on mouse over, remove or comment out the line
+</para>
+<screen>	Enter = "ButtonPress"</screen>
+<para>
+and remove the # character from this line:
+</para>
+<screen>	# Enter = "Motion"</screen>
+<para>
+so that it looks like this:
+</para>
+<screen>	Enter = "Motion"</screen>
+<para>
+and you should be fine. Reload pekwm configuration from the menu or
+press ctrl+mod1+delete to do it with a keybinding. Test your
+semiautomatic pekwm menus!
+</para>
+<para>
+The default requires you to click because of dynamic menus. While
+reasonably fast, they can sometimes take a second or two to be
+generated depending on the script behind it. Browsing the menu tree can
+at such times become more annoying, specially on a slower machine, than
+having to do that extra click. There you have it, our reasoning and the
+solution for if you don't like it.
+</para>
+</simplesect>
+
+<simplesect id="FAQ-4522" xreflabel="My keyboard doesn't have the window keys, the default key bindings suck!">
+<title>My keyboard doesn't have the window keys, the default key bindings suck!</title>
+<para>
+Probably the easiest way to use the default keybindings on a keyboard
+that has no window keys is to assign some other key the Mod4 status.
+Since Caps Lock is one of the most unused and annoying keys around,
+we'll make it the Mod4 modifier by adding the following lines to
+<filename>~/.pekwm/start</filename>:
+</para>
+<screen>	# Make Caps Lock act as Mod4
+	xmodmap -e "remove lock = Caps_Lock"
+	xmodmap -e "add mod4 = Caps_Lock"</screen>
+<para>
+Remember to <command>chmod +x ~/.pekwm/start</command>, then restart
+pekwm. Your caps lock key should now act as Mod4. Oh joy.
+</para>
+</simplesect>
+
+
+<simplesect id="FAQ-1546" xreflabel="Where's my Unicode support, bitch?">
+<title>Where's my Unicode support, bitch?</title>
+<para>
+Edit your favorite theme to use your preferred Unicode font, and enjoy all kinds of characters on the titlebars and menus.</para>
+</simplesect>
+
+
+<!-- COMMENT
+	<simplesect id="FAQ-6246" xreflabel="How do I become a pekpimp?">
+	<title>How do I become a pekpimp?</title>
+	<screen>	&lt;Keizer> pekdon: I'm reading the pekwm docs
+		&lt;Keizer> So I can become a pekpimp
+	</screen>
+	</simplesect>
+/COMMENT -->
+
+
+</chapter>

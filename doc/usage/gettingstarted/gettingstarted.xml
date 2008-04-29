@@ -1,0 +1,22 @@
+<chapter id="usage-gettingstarted" xreflabel="Getting Started">
+<?dbhtml filename="gettingstarted.html" dir="usage"?>
+<title>Getting Started</title>
+<para>Now that you have pekwm installed, you should take a few moments
+to test how the basics work.</para>
+
+<para>The documentation generally tries to explain the terms it uses,
+but usefull terms to know beforehand include "Mod1" wich usually means
+your Alt key, and "Mod4" wich refers to the "windows key" found on recen
+t keyboards.</para>
+<para>It's also good to know that a "frame" basically means the same as a
+window, but this window can contain one or more real windows. The same
+concept is also referred as a "window group". In relation to this,
+window inside such a frame can be referred as a "grouped window" or a
+"client window", or simply just as a "client".</para>
+
+&usage-gettingstarted-firstrun;
+&usage-gettingstarted-icons;
+&usage-gettingstarted-mouse;
+&usage-gettingstarted-keyboard;
+
+</chapter>

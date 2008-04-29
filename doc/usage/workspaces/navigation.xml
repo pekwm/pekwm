@@ -1,0 +1,20 @@
+<simplesect id="usage-workspaces-nav" xreflabel="Workspace Navigation">
+<title>Workspace Navigation</title>
+<para>
+You can send windows to another workspace by right-clicking the titlebar, going to
+'send to' and picking the desktop you'd like. Another option is using the SendToWorkspace
+keybindings (by default, Mod4 and one of F1, F2, F3, or F4). Using the mouse to drag a
+window over the right or left screen edge makes it move to the next or previous workspace.
+Also try placing the mouse pointer on a client window and rotatign the mouse wheel while
+holding Mod1 down to send a window to the next or previous workspace and follow it there yourself.
+</para>
+<para>
+Switch desktops by using the GoToWorkspace keybindings (by default Mod4 and one of 1,2,3, or 4),
+or the "GotoWorkspace Next" and "GotoWorkspace Prev" actions (by default Ctrl+Mod1+Right and Ctrl+Mod1+Left).
+Holding Mod1 key while moving the mouse pointer over the right or left screen edge will make you move to the
+next or previous workspace. Also pressing the left mouse button on the right or left screen edge
+will make you move to the next or previous workspace. Using the mouse wheel on the background or
+the screen edges also changes your workspace.
+</para>
+</simplesect>
+

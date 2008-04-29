@@ -1,0 +1,29 @@
+<simplesect id="config-syntax-variables" xreflabel="Variables">
+<?dbhtml filename="variables.html" dir="config"?>
+<title>Variables In Pekwm Config Files</title>
+<para>
+Pekwm config enables you to use both internal to pekwm variables, as
+well as global system variables. Internal variables are prefixed with
+a <command>$</command>, global variables with <command>$_</command>.
+</para>
+<screen># examples of how to set both type of variables
+$INTERNAL = "this is an internal variable"
+$_GLOBAL = "this is a global variable"
+
+# examples of how to read both type of variables
+RootMenu = "Menu" {
+	Entry = "$_GLOBAL" { Actions = "xmessage $INTERNAL" }
+}
+</screen>
+<para>
+There is one special global variable pekwm handles. It is called
+$_PEKWM_CONFIG_FILE. This global variable is read when pekwm starts, and
+it's contents will be used as the default config file. It will also be
+updated to point to the currently active config file if needed.
+</para>
+<para>
+Variables can probably be defined almost anywhere, but it's probably a better
+idea to place them at the top of the file, outside of any sections.
+</para>
+
+</simplesect>

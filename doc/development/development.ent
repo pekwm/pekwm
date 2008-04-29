@@ -1,0 +1,6 @@
+<!ENTITY development SYSTEM "development.xml">
+
+<!ENTITY devel-ml SYSTEM "devel/ml.xml">
+<!ENTITY devel-irc SYSTEM "devel/irc.xml">
+<!ENTITY devel-bugtracker SYSTEM "devel/bugtracker.xml">
+<!ENTITY devel-who SYSTEM "devel/who.xml">

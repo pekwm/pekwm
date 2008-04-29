@@ -1,0 +1,15 @@
+<part id="overview" xreflabel="An Overview">
+<?dbhtml filename="overview.html" dir="overview"?>
+<title>An overview of pekwm</title>
+<partintro>
+<para>
+Pekwm is a fast, functional, and flexible window manager which aims
+to be useable, even without a mouse.
+</para>
+</partintro>
+
+&overview-intro;
+&overview-getting;
+&overview-compiling;
+
+</part>

@@ -1,0 +1,15 @@
+<part id="usage" xreflabel="Basic Usage">
+<?dbhtml filename="usage.html" dir="usage"?>
+<title>Basic Usage</title>
+<partintro>
+<para>
+Pekwm is a fast, functional, and flexible window manager.
+Here's some notes on how to operate it on it's default settings.
+</para>
+</partintro>
+
+&usage-gettingstarted;
+&usage-grouping;
+&usage-workspaces;
+
+</part>

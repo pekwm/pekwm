@@ -1,0 +1,27 @@
+<chapter id="config-start" xreflabel="start file">
+<?dbhtml filename="start.html" dir="config"?>
+<title>The pekwm start file</title>
+<para>
+	The <filename>~/.pekwm/start</filename> file is the simplest of all of 
+	pekwm's config files. It's a simple shell script that's run on pekwm 
+	startup. Therefore, to run, it needs to be set executable with
+	<command>chmod +x ~/.pekwm/start</command>.
+</para>
+<para>
+	Why anyone would use <filename>start</filename> rather than just use their 
+	<filename>~/.xinitrc</filename> file? Well, the answer is, the start file
+	is executed during the pekwm initialization phase- Therefore, it gets 
+	re-executed when you issue a pekwm 'restart'.
+</para>
+<para>
+	Here's an example pekwm <filename>start</filename> file. Be careful to
+	place long running applications to the background, or you will seem
+	stuck when trying to start pekwm.
+<screen>
+#!/bin/sh
+
+xmessage 'hi. pekwm started.' &
+some_command &
+</screen>
+</para>
+</chapter>

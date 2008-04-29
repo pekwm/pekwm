@@ -1,0 +1,4 @@
+/usr/bin/openjade:E: cannot open "/usr/share/sgml/docbook/stylesheet/dsssl/modular/html/custom.dsl" (No such file or directory)
+/usr/bin/openjade:E: specification document does not have the DSSSL architecture as a base architecture
+/usr/bin/openjade:E: cannot find "doc/tools/index.xml"; tried "doc/tools/index.xml", "/usr/local/share/sgml/doc/tools/index.xml", "/usr/share/sgml/doc/tools/index.xml"
+/usr/bin/openjade:/usr/share/sgml/declaration/xml.dcl:190:1:E: end of document in prolog

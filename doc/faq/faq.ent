@@ -1,0 +1,3 @@
+<!ENTITY faq SYSTEM "faq.xml">
+
+<!ENTITY faq-answers SYSTEM "answers/answers.xml">

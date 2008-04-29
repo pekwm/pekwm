@@ -1,0 +1,102 @@
+<simplesect id="config-menu-basic" xreflabel="Basic Menu Syntax"> 
+<title>Basic Menu Syntax</title>
+<para>As previously indicated, the root and window menus follow the rules defined in 
+<xref linkend="config-syntax"/>. There aren't many possible options,
+and they're all either within the main menu, or within a submenu. This 
+is all handled by a single file.</para>
+<para>As addition to the default menu types, RootMenu and WindowMenu,
+user can define any number of new menus following the same syntax.</para>
+<para>Here's an example <filename>~/.pekwm/menu</filename> file, where
+we have the usual RootMenu and WindowMenu and our own most used
+applications menu called MyOwnMenuName:
+</para>
+<screen>
+# Menu config for pekwm
+
+# Variables
+$TERM = "xterm -fn fixed +sb -bg black -fg white"
+
+RootMenu = "Pekwm" {
+	Entry = "Term" { Actions = "Exec $TERM &" }
+	Entry = "Emacs" { Actions = "Exec $TERM -title emacs -e emacs -nw &" }
+	Entry = "Vim" { Actions = "Exec $TERM -title vim -e vi &" }
+	Separator {}
+	Submenu = "Graphics" {
+		Entry = "Gimp" { Actions = "Exec gimp &" }
+		Entry = "Gv" { Actions = "Exec gv &" }
+		Entry = "Xpdf" { Actions = "Exec xpdf &" }
+	}
+	Submenu = "Mm" {
+		Entry = "Xmms" { Actions = "Exec xmms &" }
+		Entry = "MPlayer" { Actions = "Exec mplayer &" }
+	}
+	Submenu = "Utils" {
+		Entry = "XCalc" { Actions = "Exec xcalc &" }
+		Entry = "XMan" { Actions = "Exec xman &" }
+	}
+	Submenu = "WwW" {
+		Entry = "Dillo" { Actions = "Exec dillo &" }
+		Entry = "Konqueror" { Actions = "Exec konqueror www.google.com &" }
+		Entry = "Mozilla" { Actions = "Exec mozilla &" }
+		Entry = "Mutt" { Actions = "Exec $TERM -title mutt -e mutt &" }
+	}
+	Separator {}
+	Submenu = "Pekwm" {
+	Entry = "Reload" { Actions = "Reload" }
+	Entry = "Restart" { Actions = "Restart" }
+	Entry = "Exit" { Actions = "Exit" }
+		Submenu = "Others" {
+			Entry = "Xterm" { Actions = "RestartOther xterm" }
+			Entry = "Twm" { Actions = "RestartOther twm" }
+		}
+		Submenu = "Themes" {
+			Entry { Actions = "Dynamic ~/.pekwm/scripts/pekwm_themeset.pl" }
+		}
+	}
+}
+
+WindowMenu = "Window Menu" {
+	Entry = "(Un)Stick" { Actions = "Toggle Sticky" }
+	Entry = "(Un)Shade" { Actions = "Toggle Shaded" }
+
+	Submenu = "Maximize" {
+		Entry = "Full" { Actions = "Toggle Maximized True True" }
+		Entry = "Horizontal" { Actions = "Toggle Maximized True False" }
+		Entry = "Vertical" { Actions = "Toggle Maximized False True" }
+	}
+	Submenu = "Stacking" {
+		Entry = "Raise " { Actions = "Raise" }
+		Entry = "Lower" { Actions = "Lower" }
+		Entry = "Always On Top " { Actions = "Toggle AlwaysOnTop" }
+		Entry = "Always Below" { Actions = "Toggle AlwaysBelow" }
+	}
+	Submenu = "Decor" {
+		Entry = "Decor" { Actions = "Toggle DecorBorder; Toggle DecorTitlebar" }
+		Entry = "Border" { Actions = "Toggle DecorBorder" }
+		Entry = "Titlebar" { Actions = "Toggle DecorTitlebar" }
+	}
+	SubMenu = "Send To" {
+		Entry = "Workspace 1" { Actions = "SendToWorkspace 1" }
+		Entry = "Workspace 2" { Actions = "SendToWorkspace 2" }
+		Entry = "Workspace 3" { Actions = "SendToWorkspace 3" }
+		Entry = "Workspace 4" { Actions = "SendToWorkspace 4; GoToWorkspace 4" }
+	}
+	SubMenu = "Toggle Skip" {
+		Entry = "Menus" { Actions = "Toggle Skip Menus" }
+		Entry = "Focus Toggle" { Actions = "Toggle Skip FocusToggle" }
+		Entry = "Snap" { Actions = "Toggle Skip Snap" }
+	}
+	Entry = "Iconify " { Actions = "Toggle Iconified" }
+	Entry = "Close" { Actions = "Close" }
+	Entry = "Kill " { Actions = "Kill" }
+}
+
+MyOwnMenuName = "Most used apps" {
+	Entry = "Term" { Actions = "Exec $TERM &" }
+	Entry = "XCalc" { Actions = "Exec xcalc &" }
+	Entry = "Dillo" { Actions = "Exec dillo &" }
+}
+</screen>
+
+</simplesect>
+

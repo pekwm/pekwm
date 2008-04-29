@@ -1,0 +1,56 @@
+<simplesect id="config-menu-keywords" xreflabel="Menu Keywords"> 
+<title>Menu Keywords</title>
+<para>Here are the different elements that can be used in your root menu file.</para>
+<para>
+<variablelist><title>Root Menu Elements:</title>
+<varlistentry>
+  <term>Submenu (Name)</term>
+  <listitem><para>Begins a submenu. 'name' is what will appear in the root menu for 
+  the entry.</para></listitem>
+</varlistentry>
+
+<!--
+<varlistentry>
+	<term>Name (Name)</term>
+	<listitem><para>Alternative way of saying <command>Submenu = "name" {</command>.
+		Start the submenu with <command>Submenu { Name = "name"</command> to
+		use this feature.</para></listitem>
+</varlistentry>
+ -->
+
+<varlistentry>
+	<term>Entry (Name)</term>
+	<listitem><para>Begins a menu entry. 'Name' is the text shown in the menu for
+	this entry.</para></listitem>
+</varlistentry>
+<varlistentry>
+  <term>Actions (Action)</term>
+  <listitem><para>Run an action. 'Action' is the action(s) to run. Most actions listed in
+  <xref linkend="config-keys_mouse-actions"/> will also work from the root and window menus.
+  </para></listitem>
+</varlistentry>
+<varlistentry>
+	<term>Separator</term>
+	<listitem><para>Adds a separator to the menu.</para></listitem>
+</varlistentry>
+</variablelist>
+</para>
+
+<para>
+<variablelist><title>Menu Actions:</title>
+  <varlistentry><term>Exec</term><listitem><para>
+    Exec makes pekwm to execute the command that follows it.
+    Make sure the program gets backgrounded. Put an '&' at the end of the action if it doesn't do this on it's own.
+    </para></listitem></varlistentry>
+  <varlistentry><term>Reload</term><listitem><para>When this is called, pekwm will Re-read all configuration files without exiting.</para></listitem></varlistentry>
+  <varlistentry><term>Restart</term><listitem><para>This will cause pekwm to exit and re-start completely.</para></listitem></varlistentry>
+  <varlistentry><term>RestartOther</term><listitem><para>Quits pekwm and starts another application. The application to run is given as a parameter.</para></listitem></varlistentry>
+  <varlistentry><term>Exit</term><listitem><para>Exits pekwm. Under a normal X setup, This will end your X session.</para></listitem></varlistentry>
+</variablelist>
+</para>
+
+<para>
+Of course, in addition to these, many actions found from <xref linkend="config-keys_mouse-actions"/> also work.
+</para>
+
+</simplesect>

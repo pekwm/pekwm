@@ -1,0 +1,15 @@
+<chapter id="usage-workspaces" xreflabel="Workspaces">
+<?dbhtml filename="workspaces.html" dir="usage"?>
+<title>Workspaces</title>
+<para>Workspaces in pekwm are a very common feature, found in almost every 
+	UNIX window manager in existence. They're also called desktops in some
+	window managers. In Pekwm-Speak, "workspace", "desktop", and "desk" are 
+	interchangeable. Use whichever one you feel like using.</para>
+<note><para>By default, pekwm enables four workspaces. You can change this by 
+editing your <filename>~/.pekwm/config</filename> file. See
+<xref linkend="config-configfile"/> section for more details.
+</para></note>
+&usage-workspaces-nav;
+&usage-workspaces-viewports;
+</chapter>
+

@@ -1,0 +1,17 @@
+<chapter id="devel-bugtracker" xreflabel="Bug Tracker">
+<?dbhtml filename="bugtracker.html" dir="development"?>
+<title>Bug Tracker</title>
+
+<para>
+	Pekwm bug tracker can be reached at <ulink url="http://pekwm.org/cgi-bin/trac.cgi/report">pekwm.org</ulink>.
+	It's based on
+	<ulink url="http://trac.edgewall.com/">trac</ulink>, so bugs are inside tickets. Tickets can be 
+	<ulink url="http://pekwm.org/cgi-bin/trac.cgi/newticket">reported</ulink> and
+	<ulink url="http://pekwm.org/cgi-bin/trac.cgi/report">viewed</ulink>.
+	One can even include a patch to resolve one.
+</para>
+<para>
+	Aside from bugs, tickets also eat feature requests.
+</para>
+
+</chapter>

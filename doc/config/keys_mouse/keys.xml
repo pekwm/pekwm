@@ -1,0 +1,107 @@
+<simplesect id="config-keys_mouse-keys" xreflabel="Key Bindings">
+<title>Key Bindings</title>
+<para>
+	The pekwm keybindings go in <filename>~/.pekwm/keys</filename>, and
+	are even more simple than the mouse bindings. Here's the format:
+</para>
+<screen>
+KeyPress = "optional modifiers like mod1, ctrl, etc and the key" {
+	Actions = "action and the parameters for the action, if they are needed"
+}
+</screen>
+<para>
+  Multiple actions can be given for one keypress. The actions are separated
+	from eachother with a semicolon:
+</para>
+<screen>Keypress = "Ctrl t" { Actions = "Exec xterm; Set Maximized True True; Close" }</screen>
+<para>
+	Here's a small fragment of an example keys file; you can see a full
+	version in <filename>~/.pekwm/keys</filename>. As with the mouse, you
+	can see the full list of actions in the 
+	<xref linkend="config-keys_mouse-actions"/> section.
+</para>
+<screen>
+Global {
+	# Moving in frames
+	KeyPress = "Mod1 Tab" { Actions = "NextFrame EndRaise" }
+	KeyPress = "Mod1 Shift Tab" { Actions = "PrevFrame EndRaise" }
+	KeyPress = "Mod1 Ctrl Tab" { Actions = "NextFrameMRU EndRaise" }
+	KeyPress = "Mod1 Ctrl Shift Tab" { Actions = "PrevFrameMRU EndRaise" }
+	# Simple window management
+	KeyPress = "Mod4 M" { Actions = "Toggle Maximized True True" }
+	KeyPress = "Mod4 G" { Actions = "Maxfill True True" }
+	KeyPress = "Mod4 F" { Actions = "Toggle FullScreen" }
+	KeyPress = "Mod4 Return" { Actions = "MoveResize" }
+	# Wm actions
+	Chain = "Ctrl Mod1 P" {
+		KeyPress = "Delete" { Actions = "Reload" }
+		KeyPress = "Next" { Actions = "Restart" }
+		KeyPress = "End" { Actions = "Exit" }
+		KeyPress = "Prev" { Actions = "RestartOther twm" }
+	}
+}
+
+MoveResize {
+	KeyPress = "Left" { Actions = "MoveHorizontal -10" }
+	KeyPress = "Right" { Actions = "MoveHorizontal 10" }
+	KeyPress = "Up" { Actions = "MoveVertical -10" }
+	KeyPress = "Down" { Actions = "MoveVertical 10" }
+	Keypress = "Mod4 Left" { Actions = "ResizeHorizontal -10" }
+	Keypress = "Mod4 Right" { Actions = "ResizeHorizontal 10" }
+	Keypress = "Mod4 Up" { Actions = "ResizeVertical -10" }
+	Keypress = "Mod4 Down" { Actions = "ResizeVertical 10" }
+	Keypress = "s" { Actions = "MoveSnap" }
+	Keypress = "Escape" { Actions = "Cancel" }
+	Keypress = "Return" { Actions = "End" }
+}
+
+Menu {
+	KeyPress = "Down" { Actions = "NextItem" }
+	KeyPress = "Up" { Actions = "PrevItem" }
+	KeyPress = "Left" { Actions = "LeaveSubmenu" }
+	KeyPress = "Right" { Actions = "EnterSubmenu" }
+	KeyPress = "Return" { Actions = "Select" }
+	KeyPress = "Escape" { Actions = "Close" }
+}
+
+CmdDialog {
+	KeyPress = "BackSpace" { Actions = "Erase" }
+	KeyPress = "Right" { Actions = "CursNext" }
+	KeyPress = "Left" { Actions = "CursPrev" }
+	KeyPress = "Up" { Actions = "HistPrev" }
+	KeyPress = "Down" { Actions = "HistNext" }
+	KeyPress = "Delete" { Actions = "Clear" }
+	KeyPress = "Return" { Actions = "Exec" }
+	KeyPress = "Escape" { Actions = "Close" }
+	KeyPress = "Any Any" { Actions = "Insert" }
+}
+</screen>
+<para>
+	As you might have noticed, the file consist of four sections.
+	These sections are Global, MoveResize, Menu and CmdDialog.
+	The first section, Global, contains all the generic actions.
+</para>
+<para>
+	The MoveResize section has the keybindings that will get used when
+	the MoveResize action is called.
+</para>
+<para>
+	Menu section contains the keys that are used when the
+	ShowMenu action is called. E.g. these are the keys you use to browse
+	thru the menus of pekwm. Note that while ShowMenu is active, the Global
+	keybindings are also listened. If a keybinding is same in both Menu
+	and Global sections, keybindings in Menu section override the global
+	keybinding as long as a menu is active.
+</para>
+<para>
+	Finally, the CmdDialog section allow for tuning of what keys are
+	available for line editing when the CmdDialog window that enables
+	the user to enter pekwm actions for running windows is active.
+</para>
+<para>
+	Keys can be identified with their XString name or with their keycode.
+	Both can be found out using the X application <command>xev</command>.
+	If you want to use a keycode, prefix it with <command>#</command>.
+</para>
+
+</simplesect>

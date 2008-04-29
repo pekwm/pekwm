@@ -1,0 +1,19 @@
+<simplesect id="usage-grouping-what" xreflabel="What is window grouping?"> 
+<title>What is window grouping?</title>
+<para>Window grouping is a very simple concept, but it could be hard to 
+understand at first. It's a simple way of making multiple applications
+share the exact same space.</para>
+<para>The simplest way to explain this is with an analogy. Imagine you have
+20 sheets of paper. To save space, you stack them on top of eachother. then, 
+you have little tabs sticking out of one edge so you can quickly flip to 
+any sheet of paper.</para>
+<para>You have likely stumbled upon a WWW-browser that calls this
+tabbing. In pekwm, Window grouping is visually done by dividing up the physical
+space of the titlebar. We don't call them tabs for historical reasons,
+but refer to them as "clients". Windows that can contain any number of clients
+are more than often referred as "frames".</para>
+<para>Also note that a frame can contain any type of clients. If you
+want to group one of your WWW-browser windows with your text editor for
+future reference, you're free to do so.</para>
+</simplesect>
+

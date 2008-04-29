@@ -1,0 +1,67 @@
+<simplesect id="usage-gettingstarted-keyboard" xreflabel="Using the keyboard">
+<title>Using the keyboard</title>
+<para>
+Pekwm allows excellent keyboard control of your window management. Lets
+try it out a bit. If you don't have the windows key on your keyboard,
+please see <filename>~/.pekwm/keys</filename> for the keychains you can
+use to do the same and a lot more.
+</para>
+<para>
+Moving and Resizing windows. To be able to move and resize windows you
+have to activate the special MoveResize state. This happens by pressing
+Mod4+Enter. The window should after this be movable by using the arrow
+keys. To resize, press Mod4 and use the arrows. Using the Shift-key with
+these actions makes them be careful. To accept the new size and position,
+press Enter. To fail back to the old position and size press Escape.
+</para>
+<para>
+Minimizing. Press Mod4+I. Mod4+Shift+I pops up the icon menu you can
+use to bring it back.
+</para>
+<para>
+Shading. This is to hide most of the window, leaving only the titlebar
+visible. Press Mod4+S to toggle the shaded state.
+</para>
+<para>
+Maximizing. Mod4+M toggles the maximized state.
+</para>
+<para>
+Filling (making a window grow as big as it can in the space it has around it).
+Press Mod4+G to make windows grow to fit.
+</para>
+<para>
+Fullscreen. Press Mod4+F to toggle the fullscreen state.
+</para>
+<para>
+Moving between frames. Press Mod1+Tab and Mod1+Shift+Tab to move between
+frames. Or use Mod1+Ctrl+Tab and Mod1+Ctrl+Shift+Tab to move between most
+recently used frames. You can also use directional fucusing. Press Mod4
+and one of the arrow keys. The focus should change to the frame that is
+in the direction you pointed to. Try it out.
+</para>
+<para>
+Moving inside frames. Press Mod4+Tab and Mod4+Shift+Tab to move between
+the clients in a frame.
+</para>
+<para>
+Closing. Press Mod4+Q to close windows.
+</para>
+<para>
+Grouping. The easiest way to group is to use marking. You select clients you want
+to group to another frame by toggling them marked with Mod4+Z. You can
+have as many marked clients as you wish. Then go to the frame you want
+those now marked clients to be attached and press Mod4+A. That's it.
+</para>
+<para>
+Menus. There are some simple menu bindings. Mod4+R shows your main menu
+(the Root menu). Mod4+L shows a list of your active windows (the Goto menu).
+Mod4+C shows a list of all your open windows (the Goto menu).
+Mod4+W brings up the Window menu. And Mod4+Shift+I the Icon menu.
+</para>
+<para>
+Those were the basics. There's a ton more. See the rest of the documentation 
+for rest of the simple bindings and <filename>~/.pekwm/keys</filename> for
+a list of the keychains. And again, if you hated something, go ahead and edit it.
+</para>
+</simplesect>
+

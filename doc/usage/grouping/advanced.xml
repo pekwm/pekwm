@@ -1,0 +1,35 @@
+<simplesect id="usage-grouping-advanced" xreflabel="Advanced Grouping Topics"> 
+	<title>Advanced Grouping Topics</title>
+	<para>Another thing you can do with window grouping is Tagging. This
+		is done by setting the toggleable attribute "tagged" on a frame with the action "Set Tagged".
+		A tag is like a miniature autogroup. It says "All new windows launched should be
+		automatically grouped to this Frame" and all other autogrouping defined
+		in the autoproperties will be ignored while it is set.
+		"UnSet Tagged" removes the tag. Default keybinding to toggle tagging
+		on a frame is Ctrl+Mod1+T then T. Unsetting tagging works even if
+		the window you have set tagged isn't active. It's default keybinding is
+		Ctrl+Mod1+T then C.
+	</para>
+	<para>
+		You can toggle all autogrouping on and off with the toggleable attribute GlobalGrouping.
+		To disable you need to use the action "Unset GlobalGrouping" and to enable autogrouping
+		use "Set GlobalGrouping". The default keybinding that toggless between set and unset is
+		Ctrl+Mod1+T then G.
+	</para>
+	<para>
+		You can set a marked state on clients with "set marked" and then attach those marked
+		clients to another frame by focusing the frame you want the marked clients attached to
+		and then using the AttachMarked action. By default marking can be reached with two
+		simple keybindings. Mod4+Z toggles a clients Marked state and Mod4+A attachs clients
+		with marked state set into the current frame. Marked clients will have "[M]" appended
+		to their titlebars.
+	</para>
+	<para>
+		Pekwm also includes some menus that have to do with grouping.
+		AttachClientInFrame (Ctrl+Mod1+M, A) sends the current client to the selected frame.
+		AttachFrameInFrame (Ctrl+Mod1+M, F) sends the contents of the current frame to the selected frame.
+		AttachClient (Ctrl+Mod1+M, Shift+A) brings the selected client into the current frame.
+		AttachFrame (Ctrl+Mod1+M, Shift+F) brings the contents of the selected frame into the current frame.
+	</para>
+</simplesect>
+

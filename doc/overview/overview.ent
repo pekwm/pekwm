@@ -1,0 +1,15 @@
+<!ENTITY overview SYSTEM "overview.xml">
+
+<!ENTITY overview-intro SYSTEM "intro/intro.xml">
+<!ENTITY overview-intro-why SYSTEM "intro/why.xml">
+<!ENTITY overview-intro-features SYSTEM "intro/features.xml">
+
+<!ENTITY overview-getting SYSTEM "getting/getting.xml">
+<!ENTITY overview-getting-src SYSTEM "getting/source.xml">
+<!ENTITY overview-getting-pkg SYSTEM "getting/packages.xml">
+
+<!ENTITY overview-compiling SYSTEM "compiling/compiling.xml">
+<!ENTITY overview-compiling-unpack SYSTEM "compiling/unpack.xml">
+<!ENTITY overview-compiling-configure SYSTEM "compiling/configure.xml">
+<!ENTITY overview-compiling-build SYSTEM "compiling/build.xml">
+

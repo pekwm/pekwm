@@ -1,0 +1,36 @@
+<simplesect id="overview-intro-why" xreflabel="Why Pekwm?"> 
+<?dbhtml filename="why.html" dir="overview"?>
+<title>Why Pekwm?</title>
+<para>"Why make another window manager?", some ask. This may confuse some
+people, but the best answer is "Why not?". There are arguments out there
+that it's better to have a single standard desktop environment, so that
+our mothers can find their way around, but in all honestly, if most of us
+wanted the same environment as our mothers, we probably wouldn't be reading
+this anyway. The same can also be applied to Your sister, your roommate,
+your wife, even your cat.</para>
+
+<!-- If that's not reason enough for you, Here's the 
+official reason given by the Pekwm author, &program-author;:</para>
+
+
+<para><quote>Well, there are tons of window managers out there. Maybe just becase 
+there aren't any good ones or because of the more likely fact that a 
+windowmanager is a very personal thing.  Anyway, why pekwm came around 
+isn't really because I were lacking a good window manager, no it was 
+because I were lacking an internet connection making it hard to 
+follow the <ulink url="http://fluxbox.sourceforge.net">fluxbox</ulink>
+development.  Therefore I started to play around with 
+<ulink url="http://saphire.sourceforge.net">aewm++</ulink>, 
+just for fun at home. You might wonder why I don't help contributing 
+to it instead of making my own window manager, well, I've talked with the 
+developer and we had different ideas and he thinks just as me, window 
+managers are personal and therefore he wants to do what he wants with 
+aewm++ and not what we want. (hopefully I've gotten this right :/)</quote></para>
+-->
+<para>"Why should I use pekwm?", others ask. Nobody ever said you should.
+However, we use it. And you're welcome to as well. You should use the 
+environment most suited to you. For a better answer to this question,
+Check out the <xref linkend="overview-intro-features"/> section below.</para>
+
+</simplesect>
+

@@ -1,0 +1,31 @@
+<!ENTITY book SYSTEM "book.xml">
+
+<!ENTITY book-info SYSTEM "bookinfo.xml">
+<!ENTITY book-info-authorgroup SYSTEM "authorgroup.xml">
+<!ENTITY book-info-copyright SYSTEM "copyright.xml">
+<!ENTITY book-info-legalnotice SYSTEM "legalnotice.xml">
+<!ENTITY book-info-abstract SYSTEM "abstract.xml">
+
+<!-- Generally used entities go here -->
+
+<!ENTITY program-author "Claes N&auml;sten">
+<!ENTITY program-author-email "pekdon at pekdon dot net">
+<!ENTITY program-author-nick "pekdon">
+
+<!ENTITY docs-manager "Rando Christensen">
+<!ENTITY docs-manager-email "rando@babblica.net">
+<!ENTITY docs-manager-nick "eyez">
+
+<!ENTITY maintainer-fullname "&docs-manager;">
+<!ENTITY maintainer-firstname "Rando">
+<!ENTITY maintainer-address "&docs-manager-email;">
+
+<!-- <!ENTITY copyright-holder "&docs-manager;"> -->
+<!ENTITY copyright-holder "the pekwm development team">
+
+<!ENTITY http-site "http://pekwm.org">
+<!ENTITY ftp-site "ftp://ftp.pekwm.org/pub/users/pekdon">
+
+<!ENTITY irc-channel "irc.babblica.net/#pekwm">
+<!-- I now use this in index.xml -->
+<!-- <!ENTITY current-version "0.1.1"> -->

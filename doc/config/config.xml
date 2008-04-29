@@ -1,0 +1,20 @@
+<part id="config" xreflabel="Configuration">
+<?dbhtml filename="config.html" dir="config"?>
+<title>Configuration</title>
+<partintro>
+<para>
+The configuration part of this documentation is focused on providing 
+complete documentation for all config files located in your
+<filename>~/.pekwm</filename> directory.
+</para>
+</partintro>
+
+&config-syntax;
+&config-configfile;
+&config-menu;
+&config-autoprops;
+&config-keys_mouse;
+&config-start;
+&config-theme;
+
+</part>

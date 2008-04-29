@@ -1,0 +1,17 @@
+<simplesect id="usage-gettingstarted-firstrun" xreflabel="First Run">
+<title>First Run</title>
+<para>The first time you run pekwm, the following files should be copied
+into your <filename>~/.pekwm</filename> directory:
+<filename>config</filename>,
+<filename>menu</filename>,
+<filename>keys</filename>,
+<filename>autoproperties</filename>,
+<filename>start</filename>,
+<filename>vars</filename>.
+
+You will learn more about these files in the <xref linkend="config"/> section.
+</para>
+<para>All this happens behind-the-scenes, so by default, you'll be placed into
+a nice working environment.</para>
+</simplesect>
+
