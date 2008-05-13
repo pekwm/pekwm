@@ -47,7 +47,7 @@ pekwm_SOURCES = \
 	StatusWindow.cc StatusWindow.hh \
 	Theme.cc Theme.hh \
 	TextureHandler.cc TextureHandler.hh \
-	Types.hh \
+	Timer.hh Types.hh \
 	Util.cc Util.hh \
 	Viewport.cc Viewport.hh \
 	WORefMenu.cc WORefMenu.hh \
