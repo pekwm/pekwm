@@ -134,6 +134,9 @@ sigHandler(int signal)
     case SIGCHLD:
         wait(NULL);
         break;
+    case SIGALRM:
+      // Do nothing
+      break;
     }
 }
 
@@ -417,6 +420,7 @@ WindowManager::WindowManager(const std::string &command_line, const std::string 
     sigaction(SIGINT, &act, NULL);
     sigaction(SIGHUP, &act, NULL);
     sigaction(SIGCHLD, &act, NULL);
+    sigaction(SIGALRM, &act, NULL);
 
     // construct
     _config = new Config();
@@ -953,6 +957,14 @@ WindowManager::doEventLoop(void)
   Timer<ActionPerformed>::timed_event_list events;
 
   while (!_shutdown) {
+    // Handle timeouts
+    if (_timer_action.getTimedOut(events)) {
+      Timer<ActionPerformed>::timed_event_list_it it(events.begin());
+      for (; it != events.end(); ++it) {
+        _action_handler->handleAction((*it)->data);
+      }
+    }
+
     // Reload if requested
     if (_reload) {
       doReload();

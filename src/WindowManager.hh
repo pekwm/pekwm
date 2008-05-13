@@ -21,6 +21,7 @@
 #include "Action.hh"
 #include "Atoms.hh"
 #include "PScreen.hh"
+#include "Timer.hh"
 
 #include <list>
 #include <map>
@@ -272,6 +273,8 @@ private:
 #endif // HARBOUR
     CmdDialog *_cmd_dialog;
     StatusWindow *_status_window;
+
+  Timer<ActionPerformed> _timer_action;
 
 #ifdef MENUS
     std::map<std::string, PMenu*> _menu_map;
