@@ -235,6 +235,10 @@ private:
     void handleFocusInEvent(XFocusChangeEvent *ev);
     void handleFocusOutEvent(XFocusChangeEvent *ev);
 
+#ifdef HAVE_SHAPE
+  void handleShapeEvent(XAnyEvent *ev);
+#endif // HAVE_SHAPE
+
 #ifdef HAVE_XRANDR
     void handleXRandrEvent(XRRNotifyEvent *ev);
     void handleXRandrScreenChangeEvent(XRRScreenChangeNotifyEvent *ev);

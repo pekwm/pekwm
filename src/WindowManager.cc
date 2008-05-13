@@ -949,105 +949,100 @@ WindowManager::restart(std::string command)
 void
 WindowManager::doEventLoop(void)
 {
-    Display *dpy = _screen->getDpy();
+  XEvent ev;
+  Timer<ActionPerformed>::timed_event_list events;
 
+  while (!_shutdown) {
+    // Reload if requested
+    if (_reload) {
+      doReload();
+    }
+
+    // Get next event, drop event handling if none was given
+    if (_screen->getNextEvent(ev)) {
+      switch (ev.type) {
+      case MapRequest:
+        handleMapRequestEvent(&ev.xmaprequest);
+        break;
+      case UnmapNotify:
+        handleUnmapEvent(&ev.xunmap);
+        break;
+      case DestroyNotify:
+        handleDestroyWindowEvent(&ev.xdestroywindow);
+        break;
+
+      case ConfigureRequest:
+        handleConfigureRequestEvent(&ev.xconfigurerequest);
+        break;
+      case ClientMessage:
+        handleClientMessageEvent(&ev.xclient);
+        break;
+
+      case ColormapNotify:
+        handleColormapEvent(&ev.xcolormap);
+        break;
+      case PropertyNotify:
+        _screen->setLastEventTime(ev.xproperty.time);
+        handlePropertyEvent(&ev.xproperty);
+        break;
+      case MappingNotify:
+        handleMappingEvent(&ev.xmapping);
+        break;
+
+      case Expose:
+        handleExposeEvent(&ev.xexpose);
+        break;
+
+      case KeyPress:
+      case KeyRelease:
+        _screen->setLastEventTime(ev.xkey.time);
+        handleKeyEvent(&ev.xkey);
+        break;
+
+      case ButtonPress:
+        _screen->setLastEventTime(ev.xbutton.time);
+        handleButtonPressEvent(&ev.xbutton);
+        break;
+      case ButtonRelease:
+        _screen->setLastEventTime(ev.xbutton.time);
+        handleButtonReleaseEvent(&ev.xbutton);
+        break;
+
+      case MotionNotify:
+        _screen->setLastEventTime(ev.xmotion.time);
+        handleMotionEvent(&ev.xmotion);
+        break;
+
+      case EnterNotify:
+        _screen->setLastEventTime(ev.xcrossing.time);
+        handleEnterNotify(&ev.xcrossing);
+        break;
+      case LeaveNotify:
+        _screen->setLastEventTime(ev.xcrossing.time);
+        handleLeaveNotify(&ev.xcrossing);
+        break;
+      case FocusIn:
+        handleFocusInEvent(&ev.xfocus);
+        break;
+      case FocusOut:
+        handleFocusOutEvent(&ev.xfocus);
+        break;
+
+      default:
 #ifdef HAVE_SHAPE
-    Client *client = NULL; // used for shape events
-#endif // HAVE_SHAPE
-
-    XEvent ev;
-    while (!_shutdown) {
-        if (_reload) {
-            doReload();
+        if (_screen->hasExtensionShape() && (ev.type == _screen->getEventShape())) {
+          handleShapeEvent(&ev.xany);
         }
-
-        XNextEvent(dpy, &ev);
-
-        switch (ev.type) {
-        case MapRequest:
-            handleMapRequestEvent(&ev.xmaprequest);
-            break;
-        case UnmapNotify:
-            handleUnmapEvent(&ev.xunmap);
-            break;
-        case DestroyNotify:
-            handleDestroyWindowEvent(&ev.xdestroywindow);
-            break;
-
-        case ConfigureRequest:
-            handleConfigureRequestEvent(&ev.xconfigurerequest);
-            break;
-        case ClientMessage:
-            handleClientMessageEvent(&ev.xclient);
-            break;
-
-        case ColormapNotify:
-            handleColormapEvent(&ev.xcolormap);
-            break;
-        case PropertyNotify:
-            _screen->setLastEventTime(ev.xproperty.time);
-            handlePropertyEvent(&ev.xproperty);
-            break;
-        case MappingNotify:
-            handleMappingEvent(&ev.xmapping);
-            break;
-
-        case Expose:
-            handleExposeEvent(&ev.xexpose);
-            break;
-
-        case KeyPress:
-        case KeyRelease:
-            _screen->setLastEventTime(ev.xkey.time);
-            handleKeyEvent(&ev.xkey);
-            break;
-
-        case ButtonPress:
-            _screen->setLastEventTime(ev.xbutton.time);
-            handleButtonPressEvent(&ev.xbutton);
-            break;
-        case ButtonRelease:
-            _screen->setLastEventTime(ev.xbutton.time);
-            handleButtonReleaseEvent(&ev.xbutton);
-            break;
-
-        case MotionNotify:
-            _screen->setLastEventTime(ev.xmotion.time);
-            handleMotionEvent(&ev.xmotion);
-            break;
-
-        case EnterNotify:
-            _screen->setLastEventTime(ev.xcrossing.time);
-            handleEnterNotify(&ev.xcrossing);
-            break;
-        case LeaveNotify:
-            _screen->setLastEventTime(ev.xcrossing.time);
-            handleLeaveNotify(&ev.xcrossing);
-            break;
-        case FocusIn:
-            handleFocusInEvent(&ev.xfocus);
-            break;
-        case FocusOut:
-            handleFocusOutEvent(&ev.xfocus);
-            break;
-
-        default:
-#ifdef HAVE_SHAPE
-            if (_screen->hasExtensionShape() && (ev.type == _screen->getEventShape())) {
-                client = Client::findClient(ev.xany.window);
-                if ((client != NULL) && (client->getParent() != NULL)) {
-                    static_cast<Frame*>(client->getParent())->handleShapeEvent(&ev.xany);
-                }
-            }
 #endif // HAVE_SHAPE
 #ifdef HAVE_XRANDR
-            if (_screen->hasExtensionXRandr() && (ev.type == _screen->getEventXRandr())) {
-              handleXRandrEvent(reinterpret_cast<XRRNotifyEvent*>(&ev));
-            }
-#endif // HAVE_XRANDR
-            break;
+        if (_screen->hasExtensionXRandr() && (ev.type == _screen->getEventXRandr())) {
+          handleXRandrEvent(reinterpret_cast<XRRNotifyEvent*>(&ev));
         }
+#endif // HAVE_XRANDR
+        break;
+      }
     }
+  }
 }
 
 //! @brief Handle XKeyEvents
@@ -1608,6 +1603,18 @@ WindowManager::handleExposeEvent(XExposeEvent *ev)
         _action_handler->handleAction(ap);
     }
 }
+
+#ifdef HAVE_SHAPE
+//! @brief Handle shape events applying shape to clients
+void
+WindowManager::handleShapeEvent(XAnyEvent *ev)
+{
+  Client *client = Client::findClient(ev->window);
+  if ((client != NULL) && (client->getParent() != NULL)) {
+    static_cast<Frame*>(client->getParent())->handleShapeEvent(ev);
+  }
+}
+#endif // HAVE_SHAPE
 
 #ifdef HAVE_XRANDR
 //! @brief Handles XRandr events

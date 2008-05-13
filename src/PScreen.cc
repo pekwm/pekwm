@@ -29,6 +29,7 @@ extern "C" {
 #include <X11/extensions/Xrandr.h>
 #endif // HAVE_XRANDR
 #include <X11/keysym.h> // For XK_ entries
+#include <sys/select.h>
 }
 
 #include "PScreen.hh"
@@ -76,7 +77,7 @@ PScreen::PVisual::getShiftPrecFromMask(ulong mask, int &shift, int &prec)
 
 //! @brief PScreen constructor
 PScreen::PScreen(Display *dpy) :
-        _dpy(dpy),
+        _dpy(dpy), _fd(-1),
         _num_lock(0), _scroll_lock(0),
         _has_extension_shape(false), _event_shape(-1),
         _has_extension_xinerama(false),
@@ -89,6 +90,7 @@ PScreen::PScreen(Display *dpy) :
 
     XGrabServer(_dpy);
 
+    _fd = ConnectionNumber(dpy);
     _screen = DefaultScreen(_dpy);
     _root = RootWindow(_dpy, _screen);
 
@@ -158,6 +160,33 @@ PScreen::~PScreen(void) {
     delete _visual;
 
     _instance = NULL;
+}
+
+//! @brief Get next event using select to avoid signal blocking
+//! @param ev Event to fill in.
+//! @return true if event was fetched, else false.
+bool
+PScreen::getNextEvent(XEvent &ev)
+{
+  if (QLength(_dpy) > 0) {
+    XNextEvent(_dpy, &ev);
+    return true;
+  }
+
+  int ret;
+  fd_set rfds;
+
+  XFlush(_dpy);
+
+  FD_ZERO(&rfds);
+  FD_SET(_fd, &rfds);
+
+  ret = select(_fd + 1, &rfds, NULL, NULL, NULL);
+  if (ret > 0) {
+    XNextEvent(_dpy, &ev);
+  }
+
+  return ret > 0;
 }
 
 //! @brief Grabs the server, counting number of grabs

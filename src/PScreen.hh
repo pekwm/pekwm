@@ -29,7 +29,7 @@ extern "C" {
 
 class Strut {
 public:
-    Strut(void) : left(0), right(0), top(0), bottom(0), head(-1) { };
+  Strut(CARD32 l=0, CARD32 r=0, CARD32 t=0, CARD32 b=0, int nhead=-1) : left(l), right(r), top(t), bottom(b), head(nhead) { };
     ~Strut(void) { };
 public: // member variables
     CARD32 left, right;
@@ -129,6 +129,7 @@ public:
     inline int getEventXRandr(void) const { return _event_xrandr; }
 #endif // HAVE_XRANDR
 
+    bool getNextEvent(XEvent &ev);
     bool grabServer(void);
     bool ungrabServer(bool sync);
     bool grabKeyboard(Window win);
@@ -192,6 +193,7 @@ private:
 
 private:
     Display *_dpy;
+    int _fd;
 
     int _screen, _depth;
     uint _width, _height;
