@@ -121,14 +121,6 @@ Theme::PDecorButtonData::check(void)
 
     _width = _texture[BUTTON_STATE_FOCUSED]->getWidth();
     _height = _texture[BUTTON_STATE_FOCUSED]->getHeight();
-    if (_width == 0) {
-        cerr << " *** WARNING: button texture width == 0" << endl;
-        _width = 1;
-    }
-    if (_height == 0) {
-        cerr << " *** WARNING: button texture height == 0" << endl;
-        _height = 1;
-    }
 }
 
 // Theme::PDecorData
@@ -139,7 +131,7 @@ map<BorderPosition, string> Theme::PDecorData::_border_map = map<BorderPosition,
 //! @brief Theme::PDecorData constructor.
 Theme::PDecorData::PDecorData(void) :
         _title_height(0), _title_width_min(0), _title_width_max(100),
-        _title_width_symetric(true)
+        _title_width_symetric(true), _title_height_adapt(false)
 {
     // init static data
     if (!_fs_map.size()) {
@@ -222,10 +214,9 @@ Theme::PDecorData::load (CfgParser::Entry *op_section)
     o_key_list.push_back (new CfgParserKeyInt ("WIDTHMIN", _title_width_min, 0));
     o_key_list.push_back (new CfgParserKeyInt ("WIDTHMAX", _title_width_max,
                           100, 0, 100));
-    o_key_list.push_back (new CfgParserKeyBool ("WIDTHSYMETRIC",
-                          _title_width_symetric));
-    o_key_list.push_back (new CfgParserKeyString ("PAD", o_value_pad,
-                          "0 0 0 0", 7));
+    o_key_list.push_back (new CfgParserKeyBool ("WIDTHSYMETRIC", _title_width_symetric));
+    o_key_list.push_back (new CfgParserKeyBool ("HEIGHTADAPT", _title_height_adapt));
+    o_key_list.push_back (new CfgParserKeyString ("PAD", o_value_pad, "0 0 0 0", 7));
     o_key_list.push_back (new CfgParserKeyString ("FOCUSED", o_value_focused,
                           "Empty", th->getLengthMin ()));
     o_key_list.push_back (new CfgParserKeyString ("UNFOCUSED", o_value_unfocused,

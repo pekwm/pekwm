@@ -53,14 +53,15 @@ using std::vector;
 // PDecor::Button
 
 //! @brief PDecor::Button constructor
-PDecor::Button::Button(Display *dpy, PWinObj *parent, Theme::PDecorButtonData *data) : PWinObj(dpy),
-        _data(data), _state(BUTTON_STATE_UNFOCUSED),
-        _left(_data->isLeft())
+PDecor::Button::Button(Display *dpy, PWinObj *parent, Theme::PDecorButtonData *data, uint width, uint height)
+  : PWinObj(dpy),
+    _data(data), _state(BUTTON_STATE_UNFOCUSED),
+    _left(_data->isLeft())
 {
     _parent = parent;
 
-    _gm.width = _data->getWidth();
-    _gm.height = _data->getHeight();
+    _gm.width = width;
+    _gm.height = height;
 
     XSetWindowAttributes attr;
     attr.override_redirect = True;
@@ -790,9 +791,12 @@ PDecor::loadDecor(void)
     // Load decor.
     list<Theme::PDecorButtonData*>::iterator b_it(_data->buttonBegin());
     for (; b_it != _data->buttonEnd(); ++b_it) {
-        _button_list.push_back(new PDecor::Button(_dpy, &_title_wo, *b_it));
-        _button_list.back()->mapWindow();
-        addChildWindow(_button_list.back()->getWindow());
+      uint width = std::max(static_cast<uint>(1), (*b_it)->getWidth() ? (*b_it)->getWidth() : getTitleHeight());
+      uint height = std::max(static_cast<uint>(1), (*b_it)->getHeight() ? (*b_it)->getHeight() : getTitleHeight());
+
+      _button_list.push_back(new PDecor::Button(_dpy, &_title_wo, *b_it, width, height));
+      _button_list.back()->mapWindow();
+      addChildWindow(_button_list.back()->getWindow());
     }
 
     // Update title position.
@@ -942,6 +946,22 @@ PDecor::setTitlebar(StateAction sa)
         alignChild(_child);
         resizeChild(_child->getWidth(), _child->getHeight());
     }
+}
+
+//! @brief Calculate title height, 0 if titlebar is disabled.
+uint
+PDecor::getTitleHeight(void) const
+{
+  if (! _titlebar) {
+    return 0;
+  }
+
+  if (_data->isTitleHeightAdapt()) {
+    return getFont(getFocusedState(false))->getHeight()
+      + _data->getPad(PAD_UP) + _data->getPad(PAD_DOWN);
+  } else {
+    return _data->getTitleHeight();
+  }
 }
 
 //! @brief Adds a child to the decor, reparenting the window

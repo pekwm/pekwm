@@ -1,17 +1,17 @@
 //
 // PDecor.hh for pekwm
-// Copyright (C) 2004-2006 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2004-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
-// $Id$
-//
-
-#include "../config.h"
 
 #ifndef _PDECOR_HH_
 #define _PDECOR_HH_
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #include "Config.hh"
 #include "Theme.hh" // for Theme::FrameData inlines
@@ -31,7 +31,7 @@ public:
     //! @brief Decor title button class.
 class Button : public PWinObj {
     public:
-        Button(Display *dpy, PWinObj *parent, Theme::PDecorButtonData *data);
+         Button(Display *dpy, PWinObj *parent, Theme::PDecorButtonData *data, uint width, uint height);
         ~Button(void);
 
         ActionEvent *findAction(XButtonEvent *ev);
@@ -251,11 +251,7 @@ class Button : public PWinObj {
     void setTitlebar(StateAction sa);
 
     // decor element sizes
-
-    //! @brief Returns title height, 0 if titlebar disabled.
-    inline uint getTitleHeight(void) const {
-        return (_titlebar ? _data->getTitleHeight() : 0);
-    }
+    uint getTitleHeight(void) const;
 
     // common actions like doMove
     void doMove(int x_root, int y_root);
@@ -325,7 +321,7 @@ protected:
     void resizeTitle(void);
 
     //! @brief Returns font used at FocusedState state.
-    inline PFont *getFont(FocusedState state) { return _data->getFont(state); }
+    inline PFont *getFont(FocusedState state) const { return _data->getFont(state); }
 
     uint getNearestHead(void);
 
