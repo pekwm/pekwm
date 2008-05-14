@@ -1,14 +1,15 @@
 //
 // ActionHandler.cc for pekwm
-// Copyright (C) 2002-2006 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2002-2008 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
-// $Id$
-//
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
+
 #include "ActionHandler.hh"
 
 #include "PWinObj.hh"
@@ -282,17 +283,10 @@ ActionHandler::handleAction(const ActionPerformed &ap)
             matched = true;
             switch (it->getAction()) {
             case ACTION_MOVE:
-                // Get root position, first try event then query the pointer
-                if (ap.type == MotionNotify) {
-                    x_root = ap.event.motion->x_root;
-                    y_root = ap.event.motion->y_root;
-                } else if ((ap.type == ButtonPress)
-                           || (ap.type == ButtonRelease)) {
-                    x_root = ap.event.button->x_root;
-                    y_root = ap.event.button->y_root;
-                } else {
-                    PScreen::instance()->getMousePosition(x_root, y_root);
-                }
+                // Get root position, previously event positions was
+                // used however this seems to be error prone on
+                // Xinerama setups
+                PScreen::instance()->getMousePosition(x_root, y_root);
 
                 decor->doMove(x_root, y_root);
                 break;

@@ -150,5 +150,6 @@ StatusWindow::center(void)
     Geometry head;
     PScreen::instance()->getHeadInfo(PScreen::instance()->getCurrHead(), head);
 
-    move((head.width - _gm.width) / 2, (head.height - _gm.height) / 2);
+    move(head.x + (head.width - _gm.width) / 2,
+         head.y + (head.height - _gm.height) / 2);
 }
