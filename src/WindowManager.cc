@@ -93,6 +93,9 @@ using std::string;
 using std::vector;
 using std::wstring;
 
+static void sigHandler(int signal);
+static int handleXError(Display *dpy, XErrorEvent *e);
+
 // Static initializers
 const string WindowManager::_wm_name = string("pekwm");
 
@@ -135,7 +138,7 @@ sigHandler(int signal)
         wait(NULL);
         break;
     case SIGALRM:
-      // Do nothing
+      // Do nothing, just used to break out of waiting
       break;
     }
 }
@@ -963,6 +966,7 @@ WindowManager::doEventLoop(void)
       for (; it != events.end(); ++it) {
         _action_handler->handleAction((*it)->data);
       }
+      events.clear();
     }
 
     // Reload if requested

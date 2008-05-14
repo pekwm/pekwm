@@ -59,9 +59,6 @@ class KeyGrabber;
 class Harbour;
 #endif // HARBOUR
 
-void sigHandler(int signal);
-int handleXError(Display *dpy, XErrorEvent *e);
-
 class WindowManager
 {
 public:

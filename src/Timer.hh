@@ -98,11 +98,11 @@ public:
     it = _events.insert(it, event);
 
     // Update timeout if first in the list
-    if (it == _events.begin()) {
+    //if (it == _events.begin()) {
       updateTimer();
-    }
+      //}
 
-    return NULL;
+    return event;
   }
 
   /**
@@ -135,6 +135,7 @@ public:
     for (; it != _events.end(); ++it) {
       if (*(*it) < now) {
         events.push_back(*it);
+        it = --_events.erase(it);
       }
     }
 
@@ -158,9 +159,10 @@ private:
     struct itimerval value;
 
     timerclear(&value.it_interval);
-    timerclear(&value.it_value);
-
-    timeradd(&event->timeval, &value.it_value, &value.it_interval);
+    if (gettimeofday(&value.it_value, NULL) == -1) {
+      // FIXME: raise exception?
+    }
+    timersub(&event->timeval, &value.it_value, &value.it_value);
 
     setitimer(ITIMER_REAL, &value, NULL);
   }
