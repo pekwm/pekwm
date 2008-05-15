@@ -25,6 +25,7 @@ pekwm_SOURCES = \
 	Handler.hh \
 	HarbourMenu.cc HarbourMenu.hh \
 	ImageHandler.cc ImageHandler.hh \
+	InputDialog.cc InputDialog.hh \
 	KeyGrabber.cc KeyGrabber.hh \
 	PDecor.cc PDecor.hh \
 	PFont.cc PFont.hh \
