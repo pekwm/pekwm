@@ -1,15 +1,17 @@
 //
 // Config.hh for pekwm
-// Copyright (C) 2002-2004 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2002-2008 Claes Nasten <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
-
 #ifndef _CONFIG_HH_
 #define _CONFIG_HH_
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #include "pekwm.hh"
 #include "Action.hh"
@@ -54,6 +56,13 @@ public:
     inline int getWorkspaces(void) const { return _screen_workspaces; }
     inline int getScreenPixmapCacheSize(void) const { return _screen_pixmap_cache_size; }
     inline int getWorkspacesPerRow(void) const { return _screen_workspaces_per_row; }
+  const std::wstring &getWorkspaceName(uint num) const {
+    if (num >= _screen_workspace_names.size()) {
+      return _screen_workspace_name_default;
+    } else {
+      return _screen_workspace_names[num];
+    }
+  }
     inline int getScreenEdgeSize(EdgeType edge) const { return _screen_edge_sizes[edge]; }
     inline bool getScreenEdgeIndent(void) const { return _screen_edge_indent; }
     inline int getDoubleClickTime(void) const { return _screen_doubleclicktime; }
@@ -62,6 +71,7 @@ public:
     inline bool getShowFrameList(void) const { return _screen_showframelist; }
     inline bool isShowStatusWindow(void) const { return _screen_show_status_window; }
     inline bool isShowClientID(void) const { return _screen_show_client_id; }
+    int getShowWorkspaceIndicator(void) const { return _screen_show_workspace_indicator; }
     inline bool isPlaceNew(void) const { return _screen_place_new; }
     inline bool isFocusNew(void) const { return _screen_focus_new; }
     inline bool isFocusNewChild(void) const { return _screen_focus_new_child; }
@@ -175,6 +185,8 @@ private:
     // screen
     int _screen_workspaces, _screen_pixmap_cache_size;
     int _screen_workspaces_per_row;
+    std::vector<std::wstring> _screen_workspace_names;
+    std::wstring _screen_workspace_name_default;
     std::vector<int> _screen_edge_sizes;
     bool _screen_edge_indent;
     int _screen_doubleclicktime;
@@ -182,6 +194,7 @@ private:
     bool _screen_showframelist;
     bool _screen_show_status_window;
     bool _screen_show_client_id; //!< Flag to display client ID in title.
+    int _screen_show_workspace_indicator; //! Display workspace indicator for N seconds.
     bool _screen_place_new, _screen_focus_new, _screen_focus_new_child;
     bool _screen_placement_row, _screen_placement_ltr, _screen_placement_ttb;
     int _screen_placement_offset_x, _screen_placement_offset_y;

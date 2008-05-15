@@ -1,15 +1,17 @@
 //
 // Workspaces.hh for pekwm
-// Copyright (C) 2002-2004 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2002-2008 Claes Nasten <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
-
 #ifndef _WORKSPACES_HH_
 #define _WORKSPACES_HH_
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #include "pekwm.hh"
 
@@ -28,11 +30,10 @@ class Workspaces {
 public:
     class Workspace {
     public:
-        Workspace(const std::string &name, uint number,
-                  const std::list<PWinObj*> &wo_list);
+        Workspace(const std::wstring &name, uint number, const std::list<PWinObj*> &wo_list);
         ~Workspace(void);
 
-        inline std::string& getName(void) { return _name; }
+        inline std::wstring &getName(void) { return _name; }
         inline uint getNumber(void) { return _number; }
         inline Viewport *getViewport(void) { return _viewport; }
         inline PWinObj* getLastFocused(void) { return _last_focused; }
@@ -40,7 +41,7 @@ public:
         inline void setLastFocused(PWinObj* wo) { _last_focused = wo; }
 
     private:
-        std::string _name;
+        std::wstring _name;
         uint _number;
         Viewport *_viewport;
 
@@ -59,6 +60,9 @@ public:
     inline std::list<PWinObj*>::reverse_iterator rbegin(void) { return _wo_list.rbegin(); }
     inline std::list<PWinObj*>::reverse_iterator rend(void) { return _wo_list.rend(); }
 
+  std::vector<Workspace*>::iterator ws_begin(void) { return _workspace_list.begin(); }
+  std::vector<Workspace*>::iterator ws_end(void) { return _workspace_list.end(); }
+
     inline uint getActive(void) const { return _active; }
     inline uint getPrevious(void) const { return _previous; }
 
@@ -70,6 +74,15 @@ public:
     inline const std::list<PWinObj*> &getWOList(void) const {
         return _wo_list;
     }
+
+    Workspace *getActiveWorkspace(void) {
+      return _workspace_list[_active];
+    }
+    Workspace *getWorkspace(uint workspace) {
+      if (workspace >= _workspace_list.size())
+        return 0;
+      return _workspace_list[workspace];
+    };
 
     inline Viewport *getActiveViewport(void) {
         return _workspace_list[_active]->getViewport();
@@ -104,6 +117,8 @@ private:
     bool warpToWorkspace(uint num, int dir);
 
     void stackWinUnderWin(Window over, Window under);
+
+  std::wstring getWorkspaceName(uint num);
 
     // placement
     bool placeSmart(PWinObj* wo);

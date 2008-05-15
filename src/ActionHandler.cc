@@ -25,6 +25,7 @@
 #include "WindowManager.hh"
 #include "Util.hh"
 #include "RegexString.hh"
+#include "WorkspaceIndicator.hh"
 
 #ifdef HARBOUR
 #include "Harbour.hh"
@@ -334,12 +335,10 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                                   it->getParamI(1), true);
                 break;
             case ACTION_GOTO_WORKSPACE:
-                // if the event was caused by a motion event ( dragging frame to the
-                // edge ) or enter event ( moving the pointer to the edge ) we'll want
-                // to warp the pointer
-                Workspaces::instance()->gotoWorkspace(it->getParamI(0),
-                                                      ((ap.type == MotionNotify) ||
-                                                       (ap.type == EnterNotify)));
+                // Events caused by a motion event ( dragging frame to
+                // the edge ) or enter event ( moving the pointer to
+                // the edge ) should warp the pointer.
+                actionGotoWorkspace(it->getParamI(0), (ap.type == MotionNotify) || (ap.type == EnterNotify));
                 break;
             case ACTION_VIEWPORT_MOVE_XY:
                 Workspaces::instance()->getActiveViewport()->move(it->getParamI(0), it->getParamI(1));
@@ -411,6 +410,9 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                                                      frame ? frame : ap.wo);
                 }
                 break;
+            case ACTION_HIDE_WORKSPACE_INDICATOR:
+              _wm->getWorkspaceIndicator()->unmapWindow();
+              break;
             default:
                 matched = false;
                 break;
@@ -560,6 +562,22 @@ ActionHandler::actionFindClient(const std::wstring &title)
     if (client) {
         gotoClient(client);
     }
+}
+
+//! @brief Goto workspace
+//! @param workspace Workspace to got to
+//! @param warp If true, warp pointer as well
+void
+ActionHandler::actionGotoWorkspace(uint workspace, bool warp)
+{
+  Workspaces::instance()->gotoWorkspace(workspace, warp);
+
+  if (Config::instance()->getShowWorkspaceIndicator() > 0) {
+    // Show workspace indicator if requested
+    _wm->getWorkspaceIndicator()->render();
+    _wm->getWorkspaceIndicator()->mapWindowRaised();
+    _wm->getWorkspaceIndicator()->updateHideTimer(Config::instance()->getShowWorkspaceIndicator());
+  }
 }
 
 //! @brief Focus client with id.

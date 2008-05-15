@@ -5,18 +5,19 @@
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
-// $Id$
-//
-
-#include "../config.h"
 
 #ifndef _ACTION_HH_
 #define _ACTION_HH_
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #include "Types.hh"
 
 #include <list>
 #include <string>
+#include <cstring>
 
 class PWinObj;
 
@@ -74,6 +75,8 @@ enum ActionType {
 #endif // MENUS
     ACTION_MOVE, ACTION_GROUPING_DRAG,
     ACTION_SHOW_CMD_DIALOG,
+
+    ACTION_HIDE_WORKSPACE_INDICATOR,
 
     ACTION_NO
 };
@@ -139,6 +142,15 @@ namespace ActionUtil {
 class Action {
 public:
     Action(void) { }
+  Action(uint action)
+    : _action(action) { }
+  Action(uint action, int param_i[3])
+    : _action(action)
+  {
+    ::memcpy(_param_i, param_i, sizeof(param_i));
+  }
+  Action(uint action, const std::string &param_s)
+    : _action(action), _param_s(param_s) { }
     ~Action(void) { }
 
     inline uint getAction(void) const { return _action; }

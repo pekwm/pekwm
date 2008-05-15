@@ -6,12 +6,15 @@
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
-
 #ifndef _THEME_HH_
 #define _THEME_HH_
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
+
 #include "pekwm.hh"
+
 #include "CfgParser.hh"
 #include "Action.hh" // ActionEvent
 #include "PFont.hh" // PFont::Color
@@ -274,6 +277,30 @@ public:
         uint _pad[PAD_NO];
     };
 
+  /**
+   * Class holding WorkspaceIndicator theme data.
+   */
+  class WorkspaceIndicatorData {
+  public:
+    WorkspaceIndicatorData(void);
+    ~WorkspaceIndicatorData(void);
+
+    void load(CfgParser::Entry *cs);
+    void unload(void);
+
+    void check(void);
+
+  public:
+    PFont *font;
+    PFont::Color *font_color;
+    PTexture *texture_background;
+    PTexture *texture_workspace;
+    PTexture *texture_workspace_act;
+
+    int edge_padding;
+    int workspace_padding;
+  };
+
     Theme(PScreen *scr);
     ~Theme(void);
 
@@ -294,6 +321,8 @@ public:
         }
         return NULL;
     }
+
+  Theme::WorkspaceIndicatorData &getWorkspaceIndicatorData(void) { return _workspace_indicator_data; }
 
     // menu
     inline Theme::PMenuData *getMenuData(void) { return &_menu_data; }
@@ -329,6 +358,8 @@ private:
 
     // status window
     TextDialogData _status_data, _cmd_d_data;
+
+  WorkspaceIndicatorData _workspace_indicator_data;
 };
 
 #endif // _THEME_HH_

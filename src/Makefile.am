@@ -53,6 +53,7 @@ pekwm_SOURCES = \
 	WORefMenu.cc WORefMenu.hh \
 	WindowManager.cc WindowManager.hh \
 	Workspaces.cc Workspaces.hh \
+	WorkspaceIndicator.cc WorkspaceIndicator.hh \
 	main.cc \
 	pekwm.hh
 

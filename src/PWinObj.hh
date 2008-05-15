@@ -1,11 +1,9 @@
 //
 // PWinObj.hh for pekwm
-// Copyright © 2003-2007 Claes Nästen <me{@}pekdon{.}net>
+// Copyright © 2003-2008 Claes Nästen <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
-//
-// $Id$
 //
 
 #ifndef _WINDOW_OBJECT_HH_
@@ -37,6 +35,7 @@ public:
         WO_SCREEN_ROOT = (1<<6), //!< PWinObj type for root Window.
         WO_CMD_DIALOG = (1<<7), //!< CmdDialog type.
         WO_STATUS = (1<<8), //!< StatusWindow type.
+        WO_WORKSPACE_INDICATOR = (1<<9), //!< WorkspaceIndicator type.
         WO_NO_TYPE = 0 //!< No type.
     };
 

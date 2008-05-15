@@ -51,9 +51,11 @@ Config::Config(void) :
         _moveresize_woattract(0), _moveresize_woresist(0),
         _moveresize_opaquemove(0), _moveresize_opaqueresize(0),
         _screen_workspaces(4), _screen_pixmap_cache_size(20),
-        _screen_workspaces_per_row(0), _screen_edge_indent(false),
+        _screen_workspaces_per_row(0), _screen_workspace_name_default(L"Workspace"),
+        _screen_edge_indent(false),
         _screen_doubleclicktime(250), _screen_showframelist(true),
         _screen_show_status_window(true), _screen_show_client_id(false),
+        _screen_show_workspace_indicator(1),
         _screen_place_new(true), _screen_focus_new(false),
         _screen_focus_new_child (true),
         _screen_placement_row(false),
@@ -501,7 +503,7 @@ Config::loadScreen(CfgParser::Entry *op_section)
     }
 
     // Parse data
-    string edge_size;
+    string edge_size, workspace_names;
     CfgParser::Entry *value;
 
     list<CfgParserKey*> o_key_list;
@@ -511,6 +513,7 @@ Config::loadScreen(CfgParser::Entry *op_section)
                           _screen_pixmap_cache_size));
     o_key_list.push_back (new CfgParserKeyInt ("WORKSPACESPERROW",
                                                _screen_workspaces_per_row, 0, 0));
+    o_key_list.push_back (new CfgParserKeyString ("WORKSPACENAMES", workspace_names));
     o_key_list.push_back (new CfgParserKeyString ("EDGESIZE", edge_size));
     o_key_list.push_back (new CfgParserKeyBool ("EDGEINDENT", _screen_edge_indent));
     o_key_list.push_back (new CfgParserKeyInt ("DOUBLECLICKTIME",
@@ -523,6 +526,8 @@ Config::loadScreen(CfgParser::Entry *op_section)
                           _screen_show_status_window));
     o_key_list.push_back (new CfgParserKeyBool ("SHOWCLIENTID",
                                                 _screen_show_client_id));
+    o_key_list.push_back (new CfgParserKeyInt ("SHOWWORKSPACEINDICATOR",
+                                               _screen_show_workspace_indicator));
 
     o_key_list.push_back (new CfgParserKeyBool ("PLACENEW", _screen_place_new));
     o_key_list.push_back (new CfgParserKeyBool ("FOCUSNEW", _screen_focus_new));
@@ -556,6 +561,17 @@ Config::loadScreen(CfgParser::Entry *op_section)
     }
     // Add SCREEN_EDGE_NO to the list for safety
     _screen_edge_sizes.push_back(0);
+
+    // Workspace names
+    _screen_workspace_names.clear();
+
+    vector<string> vs;
+    if (Util::splitString(workspace_names, vs, ";")) {
+      vector<string>::iterator vs_it(vs.begin());
+      for (; vs_it != vs.end(); ++vs_it) {
+        _screen_workspace_names.push_back(Util::to_wide_str(*vs_it));
+      }
+    }
 
     CfgParser::Entry *op_sub = op_section->find_section("VIEWPORTS");
     if (op_sub) {

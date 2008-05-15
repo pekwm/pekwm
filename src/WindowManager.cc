@@ -45,6 +45,7 @@
 #endif // HARBOUR
 #include "CmdDialog.hh"
 #include "StatusWindow.hh"
+#include "WorkspaceIndicator.hh"
 
 #include "PMenu.hh" // we need this for the "Alt+Tabbing"
 #ifdef MENUS
@@ -404,7 +405,7 @@ WindowManager::WindowManager(const std::string &command_line, const std::string 
 #ifdef HARBOUR
         _harbour(NULL),
 #endif // HARBOUR
-        _cmd_dialog(NULL), _status_window(NULL),
+        _cmd_dialog(NULL), _status_window(NULL), _workspace_indicator(NULL),
         _command_line(command_line),
         _startup(false), _shutdown(false), _reload(false),
         _allow_grouping(true), _root_wo(NULL),
@@ -466,6 +467,8 @@ WindowManager::~WindowManager(void)
         delete _cmd_dialog;
     if (_status_window)
         delete _status_window;
+    if (_workspace_indicator)
+        delete _workspace_indicator;
 
     if (_action_handler)
         delete _action_handler;
@@ -623,6 +626,7 @@ WindowManager::setupDisplay(void)
 
     _cmd_dialog = new CmdDialog(_screen->getDpy(), _theme, L"CmdDialog");
     _status_window = new StatusWindow(_screen->getDpy(), _theme);
+    _workspace_indicator = new WorkspaceIndicator(_screen->getDpy(), _theme, _timer_action);
 
     XDefineCursor(dpy, _screen->getRoot(),
                   _screen_resources->getCursor(ScreenResources::CURSOR_ARROW));
@@ -905,6 +909,7 @@ WindowManager::doReload(void)
     // update the status window and cmd dialog theme
     _cmd_dialog->loadDecor();
     _status_window->loadDecor();
+    _workspace_indicator->loadDecor();
 
     // reload the themes on the frames
     for_each(Frame::frame_begin(), Frame::frame_end(),

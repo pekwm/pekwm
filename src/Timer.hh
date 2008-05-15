@@ -98,9 +98,9 @@ public:
     it = _events.insert(it, event);
 
     // Update timeout if first in the list
-    //if (it == _events.begin()) {
+    if (it == _events.begin()) {
       updateTimer();
-      //}
+    }
 
     return event;
   }

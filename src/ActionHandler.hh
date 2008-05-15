@@ -5,13 +5,13 @@
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
-// $Id$
-//
-
-#include "../config.h"
 
 #ifndef _ACTIONHANDLER_HH_
 #define _ACTIONHANDLER_HH_
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #include "pekwm.hh"
 #include "Action.hh"
@@ -46,6 +46,7 @@ private:
 
     void actionFindClient(const std::wstring &title);
     void actionGotoClientID(uint id);
+    void actionGotoWorkspace(uint workspace, bool warp);
     void actionSendToWorkspace(PDecor *decor, int direction);
     void actionWarpToWorkspace(PDecor *decor, uint direction);
     void actionWarpToViewport(PDecor *decor, uint direction);

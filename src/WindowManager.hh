@@ -53,6 +53,7 @@ class PMenu; // used together with Focus actions
 class AutoProperty; // for findGroup
 class CmdDialog;
 class StatusWindow;
+class WorkspaceIndicator;
 
 class KeyGrabber;
 #ifdef HARBOUR
@@ -183,6 +184,7 @@ class RootWO : public PWinObj {
 
     inline CmdDialog *getCmdDialog(void) { return _cmd_dialog; }
     inline StatusWindow *getStatusWindow(void) { return _status_window; }
+    WorkspaceIndicator *getWorkspaceIndicator(void) { return _workspace_indicator; }
 
     // Methods for the various hints
     inline Atom getMwmHintsAtom(void) { return _atom_mwm_hints; }
@@ -270,6 +272,8 @@ private:
 #endif // HARBOUR
     CmdDialog *_cmd_dialog;
     StatusWindow *_status_window;
+
+  WorkspaceIndicator *_workspace_indicator; //!< Window popping up when switching workspace
 
   Timer<ActionPerformed> _timer_action;
 

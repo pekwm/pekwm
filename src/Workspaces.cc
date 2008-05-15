@@ -1,14 +1,16 @@
 //
 // Workspaces.cc for pekwm
-// Copyright (C) 2002-2004 Claes Nasten <pekdo at pekdon dot net>
+// Copyright © 2002-2008 Claes Nasten <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
-#include "Workspaces.hh"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
+#include "Workspaces.hh"
 #include "PScreen.hh"
 #include "Atoms.hh"
 #include "ParseUtil.hh"
@@ -19,6 +21,8 @@
 #include "Client.hh" // For isSkip()
 #include "Viewport.hh"
 
+#include <iostream>
+#include <sstream>
 #ifdef HAVE_LIMITS
 #include <limits>
 using std::numeric_limits;
@@ -32,18 +36,16 @@ using std::list;
 using std::vector;
 using std::string;
 using std::find;
-#ifdef DEBUG
-#include <iostream>
+using std::wostringstream;
+using std::wstring;
 using std::cerr;
 using std::endl;
-#endif // DEBUG
 
 // Workspaces::Workspace
 
-Workspaces::Workspace::Workspace(const std::string &name, uint number,
-                                 const std::list<PWinObj*> &wo_list) :
-        _name(name), _number(number),
-        _viewport(NULL), _wo_list(wo_list), _last_focused(NULL)
+Workspaces::Workspace::Workspace(const std::wstring &name, uint number, const std::list<PWinObj*> &wo_list)
+  : _name(name), _number(number),
+    _viewport(NULL), _wo_list(wo_list), _last_focused(NULL)
 {
     _viewport = new Viewport(number, _wo_list);
 }
@@ -82,7 +84,7 @@ Workspaces::Workspaces(uint number) :
 
     // create new workspaces
     for (uint i = 0; i < number; ++i) {
-        _workspace_list.push_back(new Workspace("", i, _wo_list));
+      _workspace_list.push_back(new Workspace(getWorkspaceName(i), i, _wo_list));
     }
 }
 
@@ -133,7 +135,7 @@ Workspaces::setSize(uint number)
 
     } else { // We need more workspaces, lets create some
         for (uint i = before; i < number; ++i) {
-            _workspace_list.push_back(new Workspace("", i, _wo_list));
+          _workspace_list.push_back(new Workspace(getWorkspaceName(i), i, _wo_list));
         }
     }
 
@@ -540,6 +542,18 @@ Workspaces::stackWinUnderWin(Window over, Window under)
 
     Window windows[2] = { over, under };
     XRestackWindows(PScreen::instance()->getDpy(), windows, 2);
+}
+
+//! @brief Create name for workspace num
+wstring
+Workspaces::getWorkspaceName(uint num)
+{
+  wostringstream buf;
+  buf << num + 1;
+  buf << L": ";
+  buf << Config::instance()->getWorkspaceName(num);
+
+  return buf.str();
 }
 
 // MISC METHODS

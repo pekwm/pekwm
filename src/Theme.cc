@@ -1,12 +1,15 @@
 //
 // Theme.cc for pekwm
-// Copyright (C) 2003-2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2003-2008 Claes Nasten <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
+
 #include "ParseUtil.hh"
 #include "Theme.hh"
 
@@ -727,6 +730,103 @@ Theme::TextDialogData::check(void)
     }
 }
 
+// WorkspaceIndicatorData
+
+/**
+ * WorkspaceIndicatorData constructor
+ */
+Theme::WorkspaceIndicatorData::WorkspaceIndicatorData(void)
+  : font(0), font_color(0), texture_background(0), 
+    texture_workspace(0), texture_workspace_act(0),
+    edge_padding(0), workspace_padding(0)
+{
+}
+
+/**
+ * WorkspaceIndicatorData destructor
+ */
+Theme::WorkspaceIndicatorData::~WorkspaceIndicatorData(void)
+{
+  unload();
+}
+
+/**
+ * Load theme data and check.
+ */
+void
+Theme::WorkspaceIndicatorData::load(CfgParser::Entry *cs)
+{
+  cs = cs->get_section();
+
+  list<CfgParserKey*> key_list;
+
+  string value_font, value_color, value_tex_bg;
+  string value_tex_ws, value_tex_ws_act;
+
+  key_list.push_back(new CfgParserKeyString("FONT", value_font));
+  key_list.push_back(new CfgParserKeyString("COLOR", value_color));
+  key_list.push_back(new CfgParserKeyString("BACKGROUND", value_tex_bg));
+  key_list.push_back(new CfgParserKeyString("WORKSPACE", value_tex_ws));
+  key_list.push_back(new CfgParserKeyString("WORKSPACEACTIVE", value_tex_ws_act));
+  key_list.push_back(new CfgParserKeyInt("EDGEPADDING", edge_padding, 5, 0));
+  key_list.push_back(new CfgParserKeyInt("WORKSPACEPADDING", workspace_padding, 2, 0));
+
+  cs->parse_key_values(key_list.begin(), key_list.end());
+  for_each (key_list.begin (), key_list.end (), Util::Free<CfgParserKey*>());  
+
+  font = FontHandler::instance()->getFont(value_font);
+  font_color = FontHandler::instance()->getColor(value_color);
+  texture_background = TextureHandler::instance()->getTexture(value_tex_bg);
+  texture_workspace = TextureHandler::instance()->getTexture(value_tex_ws);
+  texture_workspace_act = TextureHandler::instance()->getTexture(value_tex_ws_act);
+
+  check();
+}
+
+/**
+ * Unload loaded theme data.
+ */
+void
+Theme::WorkspaceIndicatorData::unload(void)
+{
+  FontHandler::instance()->returnFont(font);
+  FontHandler::instance()->returnColor(font_color);
+  TextureHandler::instance()->returnTexture(texture_background);
+  TextureHandler::instance()->returnTexture(texture_workspace);
+  TextureHandler::instance()->returnTexture(texture_workspace_act);
+
+  font = 0;
+  color = 0;
+  texture_background = 0;
+  texture_workspace = 0;
+  texture_workspace_act = 0;
+  edge_padding = 0;
+  workspace_padding = 0;
+}
+
+/**
+ * Validate theme data loading 
+ */
+void
+Theme::WorkspaceIndicatorData::check(void)
+{
+  if (! font) {
+    font = FontHandler::instance()->getFont("Sans#Center#XFT");
+  }
+  if (! font_color) {
+    font_color = FontHandler::instance()->getColor("#000000");
+  }
+  if (! texture_background) {
+    texture_background = TextureHandler::instance()->getTexture("Solid #ffffff");
+  }
+  if (! texture_workspace) {
+    texture_workspace = TextureHandler::instance()->getTexture("Solid #cccccc");
+  }
+  if (! texture_workspace_act) {
+    texture_workspace_act = TextureHandler::instance()->getTexture("Solid #aaaaaa");
+  }
+}
+
 // Theme
 
 //! @brief Theme constructor
@@ -858,6 +958,15 @@ Theme::load(const std::string &dir)
     {
         cerr << " *** WARNING: missing cmddialog section" << endl;
         _cmd_d_data.check ();
+    }
+
+    // Load WorkspaceIndicator data.
+    op_section = theme.get_entry_root()->find_section("WORKSPACEINDICATOR");
+    if (op_section) {
+      _workspace_indicator_data.load(op_section);
+    } else {
+      cerr << " *** WARNING: missing workspaceindicator section" << endl;
+      _workspace_indicator_data.check();
     }
 
 #ifdef HARBOUR
