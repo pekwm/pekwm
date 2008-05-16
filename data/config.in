@@ -18,9 +18,12 @@ MoveResize {
 
 Screen {
     Workspaces = "4"
+    WorkspacesPerRow = "2"
+    WorkspaceNames = "Main;Web;E-mail;Music"
     ShowFrameList = "True"
     ShowStatusWindow = "True"
     ShowClientID = "False"
+    ShowWorkspaceIndicator = "1"
     PlaceNew = "True"
     FocusNew = "True"
 
