@@ -796,7 +796,7 @@ Theme::WorkspaceIndicatorData::unload(void)
   TextureHandler::instance()->returnTexture(texture_workspace_act);
 
   font = 0;
-  color = 0;
+  font_color = 0;
   texture_background = 0;
   texture_workspace = 0;
   texture_workspace_act = 0;

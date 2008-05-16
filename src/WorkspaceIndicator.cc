@@ -47,6 +47,7 @@ WorkspaceIndicator::Display::Display(::Display *dpy, PWinObj *parent, Theme *the
  */
 WorkspaceIndicator::Display::~Display(void)
 {
+  XDestroyWindow(_dpy, _window);
   ScreenResources::instance()->getPixmapHandler()->returnPixmap(_pixmap);
 }
 
