@@ -36,7 +36,7 @@ PDecor {
                     Button = "1" { Actions = "Close" }
                     Button = "2" { Actions = "Kill" }
 
-                    Focused = "Solid #6ebe46 0x0"
+                    Focused = "Solid #ff790c 0x0"
                     Unfocused = "Solid #999999 0x0"
                     Pressed = "Solid #000000 0x0"
                 }
@@ -45,7 +45,7 @@ PDecor {
                     Button = "2" { Actions = "Toggle Maximized 0 1" }
                     Button = "3" { Actions = "Toggle Maximized 1 0" }
 
-                    Focused = "Solid #6ebe46 0x0"
+                    Focused = "Solid #ff790c 0x0"
                     Unfocused = "Solid #999999 0x0"
                     Pressed = "Solid #000000 0x0"
                 }
@@ -142,7 +142,7 @@ Menu {
         Background = "Empty"
         Item = "Solid #ffffff 1 0"
         Separator = "Solid #aaaaaa 0x1"
-        Arrow = "Solid #6ebe46 4x4"
+        Arrow = "Solid #ff790c 4x4"
         Text = "#000000"
     }
     Unfocused {
@@ -157,7 +157,7 @@ Menu {
         Font = "Sans:size=12#XFT"
         Background = "Empty"
         Item = "Solid #bbbbbb"
-        Arrow = "Solid #6ebe46 4x4"
+        Arrow = "Solid #ff790c 4x4"
         Text = "#000000"
     }
 }
