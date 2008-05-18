@@ -19,6 +19,10 @@
 #include "ScreenResources.hh"
 #include "Workspaces.hh"
 
+extern "C" {
+#include <X11/Xutil.h>
+}
+
 using std::list;
 using std::wstring;
 
