@@ -200,6 +200,16 @@ AC_CHECK_HEADERS([limits])
 dnl Check for library functions
 AC_CHECK_FUNC(setenv, [AC_DEFINE(HAVE_SETENV, [1], [Define to 1 if you the setenv systam call])], )
 
+dnl Check whether time.h has timersub
+AC_MSG_CHECKING(for timersub in time.h)
+AC_LINK_IFELSE(
+  AC_LANG_PROGRAM([#include <sys/time.h>],
+    [struct timeval *a; timersub(a, a, a);]),
+  AC_MSG_RESULT(yes)
+    AC_DEFINE([HAVE_TIMERSUB], 1, [Define to 1 if your system defines timersub.]),
+  AC_MSG_RESULT(no)
+)
+
 dnl Check simple toggles ( no outer dependecies )
 
 dnl Check whether to include debugging code
