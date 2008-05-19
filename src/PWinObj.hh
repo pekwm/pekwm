@@ -36,6 +36,7 @@ public:
         WO_CMD_DIALOG = (1<<7), //!< CmdDialog type.
         WO_STATUS = (1<<8), //!< StatusWindow type.
         WO_WORKSPACE_INDICATOR = (1<<9), //!< WorkspaceIndicator type.
+        WO_SEARCH_DIALOG = (1<<10), //!< SearchDialog type
         WO_NO_TYPE = 0 //!< No type.
     };
 

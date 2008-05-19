@@ -44,6 +44,7 @@
 #include "DockApp.hh"
 #endif // HARBOUR
 #include "CmdDialog.hh"
+#include "SearchDialog.hh"
 #include "StatusWindow.hh"
 #include "WorkspaceIndicator.hh"
 
@@ -408,7 +409,8 @@ WindowManager::WindowManager(const std::string &command_line, const std::string 
 #ifdef HARBOUR
         _harbour(NULL),
 #endif // HARBOUR
-        _cmd_dialog(NULL), _status_window(NULL), _workspace_indicator(NULL),
+        _cmd_dialog(NULL), _search_dialog(NULL),
+        _status_window(NULL), _workspace_indicator(NULL),
         _command_line(command_line),
         _startup(false), _shutdown(false), _reload(false),
         _allow_grouping(true), _root_wo(NULL),
@@ -468,6 +470,8 @@ WindowManager::~WindowManager(void)
 
     if (_cmd_dialog)
         delete _cmd_dialog;
+    if (_search_dialog)
+        delete _search_dialog;
     if (_status_window)
         delete _status_window;
     if (_workspace_indicator)
@@ -628,6 +632,7 @@ WindowManager::setupDisplay(void)
 #endif // HARBOUR
 
     _cmd_dialog = new CmdDialog(_screen->getDpy(), _theme);
+    _search_dialog = new SearchDialog(_screen->getDpy(), _theme);
     _status_window = new StatusWindow(_screen->getDpy(), _theme);
     _workspace_indicator = new WorkspaceIndicator(_screen->getDpy(), _theme, _timer_action);
 
@@ -911,6 +916,7 @@ WindowManager::doReload(void)
 
     // update the status window and cmd dialog theme
     _cmd_dialog->loadDecor();
+    _search_dialog->loadDecor();
     _status_window->loadDecor();
     _workspace_indicator->loadDecor();
 

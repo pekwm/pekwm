@@ -48,6 +48,7 @@ public:
     };
 
     RegexString (void);
+    RegexString (const std::wstring &or_string, bool full = false);
     ~RegexString (void);
 
     //! @brief Returns parse_match data status.

@@ -35,6 +35,13 @@ RegexString::RegexString (void)
 {
 }
 
+//! @brief RegexString constructor with default search
+RegexString::RegexString (const std::wstring &or_string, bool full)
+  : m_reg_ok(false), m_i_ref_max(1)
+{
+  parse_match(or_string, full);
+}
+
 //! @brief RegexString destructor.
 RegexString::~RegexString (void)
 {
