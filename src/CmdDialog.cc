@@ -1,15 +1,13 @@
 //
 // CmdDialog.cc for pekwm
-// Copyright © 2004-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2004-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
-// $Id$
-//
 
 #ifdef HAVE_CONFIG_H
-#include "../config.h"
+#include "config.h"
 #endif // HAVE_CONFIG_H
 
 #include <iostream>
@@ -40,21 +38,11 @@ using std::wstring;
 
 //! @brief CmdDialog constructor
 //! @todo Initial size, configurable?
-CmdDialog::CmdDialog(Display *dpy, Theme *theme, const std::wstring &title)
-  : InputDialog(dpy, theme, title),
+CmdDialog::CmdDialog(Display *dpy, Theme *theme)
+  : InputDialog(dpy, theme, L"Enter command"),
     _wo_ref(0)
 {
     _type = PWinObj::WO_CMD_DIALOG;
-}
-
-//! @brief Generates ACTION_CLOSE.
-//! @return Pointer to ActionEvent.
-ActionEvent*
-CmdDialog::close(void)
-{
-    _ae.action_list.back().setAction(ACTION_NO);
-
-    return &_ae;
 }
 
 //! @brief Parses _buf and tries to generate an ActionEvent

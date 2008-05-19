@@ -39,8 +39,11 @@ public:
   void unloadTheme(void);
   void render(void);
 
+  virtual void mapCentered(const std::string &buf, bool focus, PWinObj *wo_ref = NULL);
+  virtual void moveCentered(PWinObj *wo);
+
 protected:
-  virtual ActionEvent *close(void) { return 0; }
+  virtual ActionEvent *close(void);
   virtual ActionEvent *exec(void) { return 0; }
 
   void bufAdd(XKeyEvent *ev);
@@ -49,14 +52,10 @@ protected:
   void bufKill(void);
   void bufChangePos(int off);
 
-  void bufChanged(void); // recalculates buf position
+  virtual void bufChanged(void); // recalculates buf position
 
   void histNext(void);
   void histPrev(void);
-
-protected:
-  void mapCentered(const std::string &buf, bool focus, PWinObj *wo_ref = NULL);
-  void moveCentered(PWinObj *wo);
 
 protected:
   Theme::TextDialogData *_data;

@@ -115,45 +115,45 @@ InputDialog::handleKeyPress(XKeyEvent *ev)
     list<Action>::iterator it(c_ae->action_list.begin());
     for (; it != c_ae->action_list.end(); ++it) {
       switch (it->getAction()) {
-      case CMD_D_INSERT:
+      case INPUT_INSERT:
         bufAdd(ev);
         break;
-      case CMD_D_REMOVE:
+      case INPUT_REMOVE:
         bufRemove();
         break;
-      case CMD_D_CLEAR:
+      case INPUT_CLEAR:
         bufClear();
         break;
-      case CMD_D_CLEARFROMCURSOR:
+      case INPUT_CLEARFROMCURSOR:
         bufKill();
         break;
-      case CMD_D_EXEC:
+      case INPUT_EXEC:
         ae = exec();
         break;
-      case CMD_D_CLOSE:
+      case INPUT_CLOSE:
         ae = close();
         break;
-      case CMD_D_COMPLETE:
+      case INPUT_COMPLETE:
         break;
-      case CMD_D_CURS_NEXT:
+      case INPUT_CURS_NEXT:
         bufChangePos(1);
         break;
-      case CMD_D_CURS_PREV:
+      case INPUT_CURS_PREV:
         bufChangePos(-1);
         break;
-      case CMD_D_CURS_BEGIN:
+      case INPUT_CURS_BEGIN:
         _pos = 0;
         break;
-      case CMD_D_CURS_END:
+      case INPUT_CURS_END:
         _pos = _buf.size();
         break;
-      case CMD_D_HIST_NEXT:
+      case INPUT_HIST_NEXT:
         histNext();
         break;
-      case CMD_D_HIST_PREV:
+      case INPUT_HIST_PREV:
         histPrev();
         break;
-      case CMD_D_NO_ACTION:
+      case INPUT_NO_ACTION:
       default:
         // do nothing, shouldn't happen
         break;
@@ -327,6 +327,18 @@ InputDialog::render(void)
   }
 
   _data->getFont()->draw(_text_wo->getWindow(), pos, _data->getPad(PAD_UP), L"|");
+}
+
+/**
+ * Generates ACTION_CLOSE closing dialog.
+ *
+ * @return Pointer to ActionEvent.
+ */
+ActionEvent*
+InputDialog::close(void)
+{
+  _ae.action_list.back().setAction(ACTION_NO);
+  return &_ae;
 }
 
 /**

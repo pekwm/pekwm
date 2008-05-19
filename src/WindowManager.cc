@@ -624,7 +624,7 @@ WindowManager::setupDisplay(void)
     _harbour = new Harbour(_screen, _theme, _workspaces);
 #endif // HARBOUR
 
-    _cmd_dialog = new CmdDialog(_screen->getDpy(), _theme, L"CmdDialog");
+    _cmd_dialog = new CmdDialog(_screen->getDpy(), _theme);
     _status_window = new StatusWindow(_screen->getDpy(), _theme);
     _workspace_indicator = new WorkspaceIndicator(_screen->getDpy(), _theme, _timer_action);
 

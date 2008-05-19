@@ -24,7 +24,7 @@
 class CmdDialog : public InputDialog
 {
 public:
-    CmdDialog(Display *dpy, Theme *theme, const std::wstring &title);
+    CmdDialog(Display *dpy, Theme *theme);
 
     void unmapWindow(void);
 
@@ -33,14 +33,13 @@ public:
     //! @brief Sets the PWinObj the CmdDialog executes actions on.
     inline void setWORef(PWinObj *wo) { _wo_ref = wo; }
 
-  void mapCentered(const std::string &buf, bool focus, PWinObj *wo_ref);
+    virtual void mapCentered(const std::string &buf, bool focus, PWinObj *wo_ref);
 
 private:
     void render(void);
 
-    ActionEvent *close(void);
-    ActionEvent *exec(void);
-    void complete(void);
+    virtual ActionEvent *exec(void);
+    virtual void complete(void);
 
 private:
     PWinObj *_wo_ref;

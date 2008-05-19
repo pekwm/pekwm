@@ -1,17 +1,20 @@
 //
 // KeyGrabber.hh for pekwm
-// Copyright (C) 2003-2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2003-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
-
 #ifndef _KEYGRABBER_HH_
 #define _KEYGRABBER_HH_
 
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
+
 #include "pekwm.hh"
+
 #include "Action.hh"
 #include "CfgParser.hh"
 #include "PWinObj.hh"
@@ -83,8 +86,7 @@ private:
                           KeyGrabber::Chain *chain);
     void parseMoveResizeChain(CfgParser::Entry *op_section,
                               KeyGrabber::Chain *chain);
-    void parseCmdDialogChain(CfgParser::Entry *op_section,
-                             KeyGrabber::Chain *chain);
+    void parseInputDialogChain(CfgParser::Entry *op_section, KeyGrabber::Chain *chain);
 #ifdef MENUS
     void parseMenuChain(CfgParser::Entry *op_section,
                         KeyGrabber::Chain *chain);
@@ -100,7 +102,7 @@ private:
 #endif // MENUS
     KeyGrabber::Chain _global_chain;
     KeyGrabber::Chain _moveresize_chain;
-    KeyGrabber::Chain _cmd_d_chain;
+    KeyGrabber::Chain _input_dialog_chain;
 
     uint _num_lock;
     uint _scroll_lock;

@@ -186,20 +186,20 @@ Config::Config(void) :
     _moveresize_map["CANCEL"] = MOVE_CANCEL;
     _moveresize_map["END"] = MOVE_END;
 
-    _cmddialog_map[""] = CMD_D_NO_ACTION;
-    _cmddialog_map["INSERT"] = CMD_D_INSERT;
-    _cmddialog_map["ERASE"] = CMD_D_REMOVE;
-    _cmddialog_map["CLEAR"] = CMD_D_CLEAR;
-    _cmddialog_map["CLEARFROMCURSOR"] = CMD_D_CLEARFROMCURSOR;
-    _cmddialog_map["EXEC"] = CMD_D_EXEC;
-    _cmddialog_map["CLOSE"] = CMD_D_CLOSE;
-    _cmddialog_map["COMPLETE"] = CMD_D_COMPLETE;
-    _cmddialog_map["CURSNEXT"] = CMD_D_CURS_NEXT;
-    _cmddialog_map["CURSPREV"] = CMD_D_CURS_PREV;
-    _cmddialog_map["CURSEND"] = CMD_D_CURS_END;
-    _cmddialog_map["CURSBEGIN"] = CMD_D_CURS_BEGIN;
-    _cmddialog_map["HISTNEXT"] = CMD_D_HIST_NEXT;
-    _cmddialog_map["HISTPREV"] = CMD_D_HIST_PREV;
+    _inputdialog_map[""] = INPUT_NO_ACTION;
+    _inputdialog_map["INSERT"] = INPUT_INSERT;
+    _inputdialog_map["ERASE"] = INPUT_REMOVE;
+    _inputdialog_map["CLEAR"] = INPUT_CLEAR;
+    _inputdialog_map["CLEARFROMCURSOR"] = INPUT_CLEARFROMCURSOR;
+    _inputdialog_map["EXEC"] = INPUT_EXEC;
+    _inputdialog_map["CLOSE"] = INPUT_CLOSE;
+    _inputdialog_map["COMPLETE"] = INPUT_COMPLETE;
+    _inputdialog_map["CURSNEXT"] = INPUT_CURS_NEXT;
+    _inputdialog_map["CURSPREV"] = INPUT_CURS_PREV;
+    _inputdialog_map["CURSEND"] = INPUT_CURS_END;
+    _inputdialog_map["CURSBEGIN"] = INPUT_CURS_BEGIN;
+    _inputdialog_map["HISTNEXT"] = INPUT_HIST_NEXT;
+    _inputdialog_map["HISTPREV"] = INPUT_HIST_PREV;
 
     _direction_map[""] = DIRECTION_NO;
     _direction_map["UP"] = DIRECTION_UP;
@@ -1198,15 +1198,15 @@ Config::parseMoveResizeEvent(CfgParser::Entry *op_section, ActionEvent& ae)
 
 //! @brief
 bool
-Config::parseCmdDialogAction(const std::string &val, Action &action)
+Config::parseInputDialogAction(const std::string &val, Action &action)
 {
-    action.setAction(ParseUtil::getValue<CmdDialogAction>(val, _cmddialog_map));
-    return (action.getAction() != CMD_D_NO_ACTION);
+    action.setAction(ParseUtil::getValue<InputDialogAction>(val, _inputdialog_map));
+    return (action.getAction() != INPUT_NO_ACTION);
 }
 
 //! @brief
 bool
-Config::parseCmdDialogActions(const std::string &actions, ActionEvent &ae)
+Config::parseInputDialogActions(const std::string &actions, ActionEvent &ae)
 {
     static vector<string> tok;
     static vector<string>::iterator it;
@@ -1219,7 +1219,7 @@ Config::parseCmdDialogActions(const std::string &actions, ActionEvent &ae)
     tok.clear();
     if (Util::splitString(actions, tok, ";")) {
         for (it = tok.begin(); it != tok.end(); ++it) {
-            if (parseCmdDialogAction(*it, action)) {
+            if (parseInputDialogAction(*it, action)) {
                 ae.action_list.push_back(action);
             }
         }
@@ -1231,9 +1231,9 @@ Config::parseCmdDialogActions(const std::string &actions, ActionEvent &ae)
 
 }
 
-//! @brief Parses CmdDialog Event.
+//! @brief Parses InputDialog Event.
 bool
-Config::parseCmdDialogEvent (CfgParser::Entry *op_section, ActionEvent &ae)
+Config::parseInputDialogEvent (CfgParser::Entry *op_section, ActionEvent &ae)
 {
     CfgParser::Entry *op_value;
 
@@ -1244,7 +1244,7 @@ Config::parseCmdDialogEvent (CfgParser::Entry *op_section, ActionEvent &ae)
     {
         op_value = op_section->get_section ()->find_entry ("ACTIONS");
         if (op_value)
-            return parseCmdDialogActions(op_value->get_value (), ae);
+            return parseInputDialogActions(op_value->get_value (), ae);
     }
 
     return false;

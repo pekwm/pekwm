@@ -1,12 +1,14 @@
 //
 // KeyGrabber.cc for pekwm
-// Copyright (C) 2003-2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2003-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #include "KeyGrabber.hh"
 
@@ -94,7 +96,7 @@ KeyGrabber::KeyGrabber(PScreen *scr) :
         _menu_chain(0, 0),
 #endif // MENUS
         _global_chain(0, 0), _moveresize_chain(0, 0),
-        _cmd_d_chain(0, 0)
+        _input_dialog_chain(0, 0)
 {
 #ifdef DEBUG
     if (_instance != NULL) {
@@ -150,11 +152,17 @@ KeyGrabber::load(const std::string &file)
         parseMoveResizeChain (op_section, &_moveresize_chain);
     }
 
-    op_section = key_cfg.get_entry_root ()->find_section ("CMDDIALOG");
-    if (op_section)
-    {
-        _cmd_d_chain.unload ();
-        parseCmdDialogChain (op_section, &_cmd_d_chain);
+    // Previously there was only a CmdDialog section, however the text
+    // handling parts have been moved into InputDialog but to keep
+    // compatibility this check exists.
+    op_section = key_cfg.get_entry_root()->find_section("INPUTDIALOG");
+    if (! op_section) {
+      op_section = key_cfg.get_entry_root ()->find_section ("CMDDIALOG");
+    }
+
+    if (op_section) {
+      _input_dialog_chain.unload ();
+      parseInputDialogChain (op_section, &_input_dialog_chain);
     }
 
 #ifdef MENUS
@@ -227,9 +235,9 @@ KeyGrabber::parseMoveResizeChain(CfgParser::Entry *op_section,
     }
 }
 
-//! @brief Parses chain, getting actions as CmdDialog Events
+//! @brief Parses chain, getting actions as InputDialog Events
 void
-KeyGrabber::parseCmdDialogChain(CfgParser::Entry *op_section,
+KeyGrabber::parseInputDialogChain(CfgParser::Entry *op_section,
                                 KeyGrabber::Chain *chain)
 {
     op_section = op_section->get_section ();
@@ -246,11 +254,11 @@ KeyGrabber::parseCmdDialogChain(CfgParser::Entry *op_section,
                                                mod, key))
             {
                 KeyGrabber::Chain *sub_chain = new KeyGrabber::Chain(mod, key);
-                parseCmdDialogChain (op_section, sub_chain);
+                parseInputDialogChain (op_section, sub_chain);
                 chain->addChain (sub_chain);
             }
         }
-        else if (Config::instance()->parseCmdDialogEvent (op_section, ae))
+        else if (Config::instance()->parseInputDialogEvent (op_section, ae))
         {
             chain->addAction (ae);
         }
@@ -395,8 +403,9 @@ KeyGrabber::findAction(XKeyEvent *ev, PWinObj::Type type)
         ae = findAction(ev, &_menu_chain);
     }
 #endif // MENUS
-    if (type == PWinObj::WO_CMD_DIALOG) {
-        ae = findAction(ev, &_cmd_d_chain);
+    if ((type == PWinObj::WO_CMD_DIALOG)
+        || (type == PWinObj::WO_SEARCH_DIALOG)) {
+        ae = findAction(ev, &_input_dialog_chain);
     }
 
     // no action the menu list, try the global list

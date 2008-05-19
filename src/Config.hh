@@ -134,9 +134,9 @@ public:
     bool parseMoveResizeActions(const std::string &actions, ActionEvent &ae);
     bool parseMoveResizeEvent(CfgParser::Entry *op_section, ActionEvent &ae);
 
-    bool parseCmdDialogAction(const std::string &val, Action &action);
-    bool parseCmdDialogActions(const std::string &actions, ActionEvent &ae);
-    bool parseCmdDialogEvent(CfgParser::Entry *op_section, ActionEvent &ae);
+    bool parseInputDialogAction(const std::string &val, Action &action);
+    bool parseInputDialogActions(const std::string &actions, ActionEvent &ae);
+    bool parseInputDialogEvent(CfgParser::Entry *op_section, ActionEvent &ae);
 
     uint getMenuMask(const std::string &mask);
     uint getMenuIconWidth(void) const { return _menu_icon_width; }
@@ -230,7 +230,7 @@ private:
     std::map<ParseUtil::Entry, Skip> _skip_map;
     std::map<ParseUtil::Entry, Layer> _layer_map;
     std::map<ParseUtil::Entry, MoveResizeActionType> _moveresize_map;
-    std::map<ParseUtil::Entry, CmdDialogAction> _cmddialog_map;
+    std::map<ParseUtil::Entry, InputDialogAction> _inputdialog_map;
     std::map<ParseUtil::Entry, DirectionType> _direction_map;
     std::map<ParseUtil::Entry, WorkspaceChangeType> _workspace_change_map;
     std::map<ParseUtil::Entry, BorderPosition> _borderpos_map;
