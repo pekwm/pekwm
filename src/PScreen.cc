@@ -168,7 +168,7 @@ PScreen::~PScreen(void) {
 bool
 PScreen::getNextEvent(XEvent &ev)
 {
-  if (QLength(_dpy) > 0) {
+  if (XPending(_dpy) > 0) {
     XNextEvent(_dpy, &ev);
     return true;
   }
