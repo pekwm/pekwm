@@ -100,6 +100,8 @@ static int handleXError(Display *dpy, XErrorEvent *e);
 // Static initializers
 const string WindowManager::_wm_name = string("pekwm");
 
+static bool is_signal_alrm = false;
+
 #ifdef MENUS
 const char *WindowManager::MENU_NAMES_RESERVED[] = {
             "ATTACHCLIENTINFRAME",
@@ -140,6 +142,7 @@ sigHandler(int signal)
         break;
     case SIGALRM:
       // Do nothing, just used to break out of waiting
+      is_signal_alrm = true;
       break;
     }
 }
@@ -966,12 +969,16 @@ WindowManager::doEventLoop(void)
 
   while (!_shutdown) {
     // Handle timeouts
-    if (_timer_action.getTimedOut(events)) {
-      Timer<ActionPerformed>::timed_event_list_it it(events.begin());
-      for (; it != events.end(); ++it) {
-        _action_handler->handleAction((*it)->data);
+    if (is_signal_alrm) {
+      is_signal_alrm = false;
+
+      if (_timer_action.getTimedOut(events)) {
+        Timer<ActionPerformed>::timed_event_list_it it(events.begin());
+        for (; it != events.end(); ++it) {
+          _action_handler->handleAction((*it)->data);
+        }
+        events.clear();
       }
-      events.clear();
     }
 
     // Reload if requested
