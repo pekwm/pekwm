@@ -126,7 +126,7 @@ EwmhAtoms::EwmhAtoms(void)
                         "_NET_WM_STATE_MODAL", "_NET_WM_STATE_STICKY",
                         "_NET_WM_STATE_MAXIMIZED_VERT", "_NET_WM_STATE_MAXIMIZED_HORZ",
                         "_NET_WM_STATE_SHADED",
-                        "_NET_WM_STATE_SKIP_TOOLBAR", "_NET_WM_STATE_PAGER",
+                        "_NET_WM_STATE_SKIP_TASKBAR", "_NET_WM_STATE_SKIP_PAGER",
                         "_NET_WM_STATE_HIDDEN", "_NET_WM_STATE_FULLSCREEN",
                         "_NET_WM_STATE_ABOVE", "_NET_WM_STATE_BELOW",
 
