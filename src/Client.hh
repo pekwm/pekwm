@@ -151,10 +151,9 @@ public: // Public Member Functions
     inline bool isMaximizedHorz(void) const { return _state.maximized_horz; }
     inline bool isShaded(void) const { return _state.shaded; }
     inline bool isFullscreen(void) const { return _state.fullscreen; }
-    inline bool skipTaskbar(void) const { return _state.skip_taskbar; }
-    inline bool skipPager(void) const { return _state.skip_pager; }
     inline bool isPlaced(void) const { return _state.placed; }
     inline uint getSkip(void) const { return _state.skip; }
+    inline bool isSkip(Skip skip) const { return (_state.skip&skip); }
     inline uint getDecorState(void) const { return _state.decor; }
     inline bool isCfgDeny(uint deny) { return (_state.cfg_deny&deny); }
 
@@ -193,6 +192,14 @@ public: // Public Member Functions
     void alwaysBelow(bool bottom);
 
     void setSkip(uint skip);
+
+    inline void setStateSkip(StateAction sa, Skip skip) {
+      if ((isSkip(skip) && (sa == STATE_SET)) || (! isSkip(skip) && (sa == STATE_UNSET))) {
+        return;
+      }
+      _state.skip ^= skip;
+    }
+
     inline void setTitlebar(bool titlebar) {
         if (titlebar) {
             _state.decor |= DECOR_TITLEBAR;
@@ -253,26 +260,11 @@ private:
     MwmHints* getMwmHints(Window w);
 
     // these are used by frame
-inline void setMaximizedVert(bool m) { _state.maximized_vert = m; }
+    inline void setMaximizedVert(bool m) { _state.maximized_vert = m; }
     inline void setMaximizedHorz(bool m) { _state.maximized_horz = m; }
     inline void setShade(bool s) { _state.shaded = s; }
     inline void setFullscreen(bool f) { _state.fullscreen = f; }
     inline void setFocusable(bool f) { _focusable = f; }
-
-    inline void setStateSkipTaskbar(StateAction sa) {
-        if (((_state.skip_taskbar == true) && (sa == STATE_SET)) ||
-                ((_state.skip_taskbar == false) && (sa == STATE_UNSET))) {
-            return;
-        }
-        _state.skip_taskbar = !_state.skip_taskbar;
-    }
-    inline void setStateSkipPager(StateAction sa) {
-        if (((_state.skip_pager == true) && (sa == STATE_SET)) ||
-                ((_state.skip_pager == false) && (sa == STATE_UNSET))) {
-            return;
-        }
-        _state.skip_pager = !_state.skip_pager;
-    }
 
     // Grabs button with Caps,Num and so on
     void grabButton(int button, int mod, int mask, Window win, Cursor curs);
@@ -318,7 +310,6 @@ private: // Private Member Variables
     public:
         State(void) : maximized_vert(false), maximized_horz(false),
                 shaded(false), fullscreen(false),
-                skip_taskbar(false), skip_pager(false),
                 placed(false), skip(0), decor(DECOR_TITLEBAR|DECOR_BORDER),
         cfg_deny(CFG_DENY_NO) { }
         ~State(void) { }
@@ -326,7 +317,6 @@ private: // Private Member Variables
         bool maximized_vert, maximized_horz;
         bool shaded;
         bool fullscreen;
-        bool skip_taskbar, skip_pager;
 
         // pekwm states
         bool placed;

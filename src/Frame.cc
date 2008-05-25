@@ -2031,10 +2031,10 @@ Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
         }
 
         if (IS_STATE(STATE_SKIP_TASKBAR)) {
-            client->setStateSkipTaskbar(sa);
+            client->setStateSkip(sa, SKIP_TASKBAR);
         }
         if (IS_STATE(STATE_SKIP_PAGER)) {
-            client->setStateSkipPager(sa);
+            client->setStateSkip(sa, SKIP_PAGER);
         }
 
         client->updateEwmhStates();

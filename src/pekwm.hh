@@ -104,6 +104,8 @@ enum Skip {
     SKIP_MENUS = (1<<1),
     SKIP_FOCUS_TOGGLE = (1<<2),
     SKIP_SNAP = (1<<3),
+    SKIP_PAGER = (1<<4),
+    SKIP_TASKBAR = (1<<5),
     SKIP_NONE = 0
 };
 

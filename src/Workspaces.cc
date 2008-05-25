@@ -592,7 +592,7 @@ Workspaces::updateClientStackingList(bool client, bool stacking)
     for (; it != _wo_list.end(); ++it) {
         if ((*it)->getType() == PWinObj::WO_FRAME) {
             cl = static_cast<Client*>(static_cast<Frame*>((*it))->getActiveChild());
-            if (cl && !cl->skipTaskbar()) {
+            if (cl && !cl->isSkip(SKIP_TASKBAR)) {
                 windows[pos++] = cl->getWindow();
             }
         }

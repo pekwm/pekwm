@@ -555,7 +555,7 @@ AutoProperties::setDefaultTypeProperties(void)
     prop->maskAdd(AP_BORDER);
     prop->border = false;
     prop->maskAdd(AP_SKIP);
-    prop->skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE|SKIP_SNAP;
+    prop->skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE|SKIP_SNAP|SKIP_PAGER|SKIP_TASKBAR;
     prop->maskAdd(AP_LAYER);
     prop->layer = LAYER_DESKTOP;
 
@@ -572,7 +572,7 @@ AutoProperties::setDefaultTypeProperties(void)
     prop->maskAdd(AP_BORDER);
     prop->border = false;
     prop->maskAdd(AP_SKIP);
-    prop->skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE;
+    prop->skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE|SKIP_PAGER|SKIP_TASKBAR;
     prop->maskAdd(AP_LAYER);
     prop->layer = LAYER_DOCK;
 
@@ -587,7 +587,7 @@ AutoProperties::setDefaultTypeProperties(void)
     prop->maskAdd(AP_BORDER);
     prop->border = false;
     prop->maskAdd(AP_SKIP);
-    prop->skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE;
+    prop->skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE|SKIP_PAGER|SKIP_TASKBAR;
 
     _window_type_prop_map[WINDOW_TYPE_TOOLBAR] = prop;
   }
@@ -600,7 +600,7 @@ AutoProperties::setDefaultTypeProperties(void)
     prop->maskAdd(AP_BORDER);
     prop->border = false;
     prop->maskAdd(AP_SKIP);
-    prop->skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE|SKIP_SNAP;
+    prop->skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE|SKIP_SNAP|SKIP_PAGER|SKIP_TASKBAR;
 
     _window_type_prop_map[WINDOW_TYPE_MENU] = prop;
   }

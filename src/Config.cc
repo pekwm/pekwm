@@ -168,6 +168,8 @@ Config::Config(void) :
     _skip_map["MENUS"] = SKIP_MENUS;
     _skip_map["FOCUSTOGGLE"] = SKIP_FOCUS_TOGGLE;
     _skip_map["SNAP"] = SKIP_SNAP;
+    _skip_map["PAGER"] = SKIP_PAGER;
+    _skip_map["TASKBAR"] = SKIP_TASKBAR;
 
     _layer_map[""] = LAYER_NONE;
     _layer_map["DESKTOP"] = LAYER_DESKTOP;

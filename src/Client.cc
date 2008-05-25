@@ -784,8 +784,8 @@ Client::readEwmhHints(void)
         if (win_states.shaded) _state.shaded = true;
         if (win_states.max_vert) _state.maximized_vert = true;
         if (win_states.max_horz) _state.maximized_horz = true;
-        if (win_states.skip_taskbar) _state.skip_taskbar = true;
-        if (win_states.skip_pager) _state.skip_pager = true;
+        if (win_states.skip_taskbar) _state.skip |= SKIP_TASKBAR;
+        if (win_states.skip_pager) _state.skip |= SKIP_PAGER;
         if (win_states.sticky) _sticky = true;
         if (win_states.above) _layer = LAYER_BELOW;
         if (win_states.below) _layer = LAYER_ABOVE_DOCK;
@@ -1460,9 +1460,9 @@ Client::updateEwmhStates(void)
         states.push_back(ewmh->getAtom(STATE_MAXIMIZED_HORZ));
     if (_state.shaded)
         states.push_back(ewmh->getAtom(STATE_SHADED));
-    if (_state.skip_taskbar)
+    if (isSkip(SKIP_TASKBAR))
         states.push_back(ewmh->getAtom(STATE_SKIP_TASKBAR));
-    if (_state.skip_pager)
+    if (isSkip(SKIP_PAGER))
         states.push_back(ewmh->getAtom(STATE_SKIP_PAGER));
     if (_iconified)
         states.push_back(ewmh->getAtom(STATE_HIDDEN));
