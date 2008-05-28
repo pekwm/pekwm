@@ -268,6 +268,9 @@ void
 InputDialog::mapWindow(void)
 {
   if (! _mapped) {
+    // Correct size for current head before mapping
+    updateSize();
+    
     PDecor::mapWindow();
     render();
   }
@@ -279,22 +282,8 @@ InputDialog::mapWindow(void)
 void
 InputDialog::loadTheme(void)
 {
-  // setup variables
   _data = _theme->getCmdDialogData();
-
-  // setup size
-  resizeChild(PScreen::instance()->getWidth() / 4,
-              _data->getFont()->getHeight() + _data->getPad(PAD_UP) + _data->getPad(PAD_DOWN));
-
-  // get pixmap
-  PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
-  pm->returnPixmap(_pixmap_bg);
-  _pixmap_bg = pm->getPixmap(_text_wo->getWidth(), _text_wo->getHeight(), PScreen::instance()->getDepth());
-
-  // render texture
-  _data->getTexture()->render(_pixmap_bg, 0, 0, _text_wo->getWidth(), _text_wo->getHeight());
-  _text_wo->setBackgroundPixmap(_pixmap_bg);
-  _text_wo->clear();
+  updateSize();
 }
 
 /**
@@ -478,4 +467,41 @@ InputDialog::histPrev(void)
 
   // move cursor to the end of line
   _pos = _buf.size();
+}
+
+/**
+ * Update command dialog size for view on current head.
+ */
+void
+InputDialog::updateSize(void)
+{
+  Geometry head;
+  PScreen::instance()->getHeadInfo(PScreen::instance()->getNearestHead(_gm.x, _gm.y), head);
+
+  // Resize the child window and update the size depending.
+  uint old_width = _gm.width;
+  resizeChild(head.width / 3, _data->getFont()->getHeight() + _data->getPad(PAD_UP) + _data->getPad(PAD_DOWN));
+
+  // If size was updated, replace the texture and recalculate display
+  // buffer.
+  if (old_width != _gm.width) {
+    updatePixmapSize();
+    bufChanged();
+  }
+}
+
+/**
+ * Update background pixmap size and redraw.
+ */
+void
+InputDialog::updatePixmapSize(void)
+{
+  // Get new pixmap and render texture
+  PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
+  pm->returnPixmap(_pixmap_bg);
+  _pixmap_bg = pm->getPixmap(_text_wo->getWidth(), _text_wo->getHeight(), PScreen::instance()->getDepth());
+
+  _data->getTexture()->render(_pixmap_bg, 0, 0, _text_wo->getWidth(), _text_wo->getHeight());
+  _text_wo->setBackgroundPixmap(_pixmap_bg);
+  _text_wo->clear();
 }

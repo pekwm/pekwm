@@ -57,6 +57,9 @@ protected:
   void histNext(void);
   void histPrev(void);
 
+  void updateSize(void);
+  void updatePixmapSize(void);
+
 protected:
   Theme::TextDialogData *_data;
 
