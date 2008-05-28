@@ -203,8 +203,10 @@ TypeRules {
 	Property = "SPLASH"  {
 		Titlebar = "False"
 		Border = "False"
+		Layer = "OnTop"
 	}
 	Property = "DIALOG"  {
+		Layer = "OnTop"
 	}
 	Property = "NORMAL"  {
 	}

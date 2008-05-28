@@ -129,6 +129,60 @@ PDecor {
             }
         }
     }
+
+    Decor = "WORKSPACEINDICATOR" {
+        Title {
+            Height = "0"
+
+            # increase first number to bring title text downwards
+            Pad = "2 0 2 0"
+
+            Focused = "Empty"
+            Unfocused = "Empty"
+
+            Tab {
+                Focused = "Solid #dddddd"
+                FocusedSelected = "Solid #ffffff"
+                Unfocused = "Solid #aaaaaa"
+                UnfocusedSelected = "Solid #aaaaaa"
+            }
+            Separator {
+                Focused = "Empty"
+                Unfocused = "Empty"
+            }
+            Font {
+                Focused = "Sans:size=12#CENTER#XFT"
+            }
+            FontColor {
+                Focused = "#000000"
+                FocusedSelected = "#000000"
+                Unfocused = "#333333"
+                UnfocusedSelected = "#333333"
+            }
+            Border {
+                Focused {
+                    TopLeft = "Solid #000000 1x1"
+                    Top = "Solid #000000 1x1"
+                    TopRight = "Solid #000000 1x1"
+                    Left = "Solid #000000 1x1"
+                    Right = "Solid #000000 1x1"
+                    BottomLeft = "Solid #000000 1x1"
+                    Bottom = "Solid #000000 1x1"
+                    BottomRight = "Solid #000000 1x1"
+                }
+                Unfocused {
+                    TopLeft = "Solid #666666 1x1"
+                    Top = "Solid #666666 1x1"
+                    TopRight = "Solid #666666 1x1"
+                    Left = "Solid #666666 1x1"
+                    Right = "Solid #666666 1x1"
+                    BottomLeft = "Solid #666666 1x1"
+                    Bottom = "Solid #666666 1x1"
+                    BottomRight = "Solid #666666 1x1"
+                }
+            }
+        }
+    }
 }
 
 Harbour {
@@ -180,4 +234,6 @@ WorkspaceIndicator {
     Workspace = "Solid #cccccc"
     WorkspaceActive = "Solid #aaaaaa"
     Text = "#000000"
+    EdgePadding = "5"
+    WorkspacePadding = "2"
 }
