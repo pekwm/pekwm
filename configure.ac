@@ -65,8 +65,8 @@ dnl Check for Xinerama support
 AC_MSG_CHECKING([whether to build support for the Xinerama extension])
 AC_ARG_ENABLE(xinerama,
 	AC_HELP_STRING([--enable-xinerama],	
-								 [enable xinerama extension [default=no]]), ,
-							[enable_xinerama=no])
+								 [enable xinerama extension [default=yes]]), ,
+							[enable_xinerama=yes])
 if test "x$enable_xinerama" = "xyes"; then
 	AC_MSG_RESULT([yes])
 	AC_CHECK_LIB(Xinerama, XineramaQueryScreens,
