@@ -1,11 +1,9 @@
 //
 // FontHandler.cc for pekwm
-// Copyright © 2004-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2004-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
-//
-// $Id$
 //
 
 #ifdef HAVE_CONFIG_H
@@ -95,24 +93,30 @@ FontHandler::getFont(const std::string &font)
   vector<string> tok;
   vector<string>::iterator tok_it; // old gcc doesn't like --tok.end()
   if ((Util::splitString(font, tok, "#")) > 1) {
-    uint type = ParseUtil::getValue<PFont::Type>(tok.back(), _map_type);
+    // Try getting the font type from the first paramter, if that
+    // doesn't work fall back to the last. This is to backwards
+    // compatible.
+    tok_it = tok.begin();
+    uint type = ParseUtil::getValue<PFont::Type>(*tok_it, _map_type);
+    if (type == PFont::FONT_TYPE_NO) {
+      tok_it = tok.end() - 1;
+      type = ParseUtil::getValue<PFont::Type>(*tok_it, _map_type);
+    }
+
     switch (type) {
     case PFont::FONT_TYPE_XMB:
       pfont = new PFontXmb(PScreen::instance());
-      tok_it = tok.end();
-      tok.erase(--tok_it);
+      tok.erase(tok_it);
       break;
 #ifdef HAVE_XFT
     case PFont::FONT_TYPE_XFT:
       pfont = new PFontXft(PScreen::instance());
-      tok_it = tok.end();
-      tok.erase(--tok_it);
+      tok.erase(tok_it);
       break;
 #endif // HAVE_XFT
     case PFont::FONT_TYPE_X11:
       pfont = new PFontX11(PScreen::instance());
-      tok_it = tok.end();
-      tok.erase(--tok_it);
+      tok.erase(tok_it);
       break;
     default:
       pfont = new PFontXmb(PScreen::instance());
@@ -142,7 +146,7 @@ FontHandler::getFont(const std::string &font)
     }
 
   } else {
-    pfont = new PFontX11(PScreen::instance());
+    pfont = new PFontXmb(PScreen::instance());
     pfont->load(font);
   }
 
