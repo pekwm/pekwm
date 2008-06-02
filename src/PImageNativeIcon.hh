@@ -1,11 +1,9 @@
 //
 // PImageNative.hh for pekwm
-// Copyright © 2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2007-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
-//
-// $Id$
 //
 
 #ifndef _PIMAGE_NATIVE_ICON_HH_
@@ -23,7 +21,7 @@ public:
     PImageNativeIcon(Display *dpy);
     virtual ~PImageNativeIcon(void);
 
-    bool load(Window win);
+    bool loadFromWindow(Window win);
 };
 
 #endif // _PIMAGE_NATIVE_ICON_HH_

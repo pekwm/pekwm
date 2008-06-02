@@ -1,11 +1,9 @@
 //
 // PImageNative.hh for pekwm
-// Copyright © 2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2007-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
-//
-// $Id$
 //
 
 #ifdef HAVE_CONFIG_H
@@ -36,7 +34,7 @@ PImageNativeIcon::~PImageNativeIcon(void)
 
 //! @brief Load icon from window (if atom is set)
 bool
-PImageNativeIcon::load(Window win)
+PImageNativeIcon::loadFromWindow(Window win)
 {
   bool status = false;
 

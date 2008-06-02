@@ -1,11 +1,9 @@
 //
 // ActionMenu.cc for pekwm
-// Copyright © 2002-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2002-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
-//
-// $Id$
 //
 
 #ifdef HAVE_CONFIG_H
@@ -153,9 +151,9 @@ ActionMenu::insert(PMenu::Item *item)
 
 //! @brief Non-shadowing PMenu::insert
 void
-ActionMenu::insert(const std::wstring &or_name, PWinObj *op_wo_ref)
+ActionMenu::insert(const std::wstring &or_name, PWinObj *op_wo_ref, PTexture *icon)
 {
-    PMenu::insert (or_name, op_wo_ref);
+    PMenu::insert (or_name, op_wo_ref, icon);
 }
 
 //! @brief Non-shadowing PMenu::insert

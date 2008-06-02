@@ -45,9 +45,8 @@ public:
     virtual void handleItemExec(PMenu::Item *item);
 
     virtual void insert(PMenu::Item *item);
-    virtual void insert(const std::wstring &or_name, PWinObj *op_wo_ref = NULL);
-    virtual void insert(const std::wstring &or_name, const ActionEvent &or_ae,
-                        PWinObj *op_wo_ref = NULL);
+    virtual void insert(const std::wstring &or_name, PWinObj *op_wo_ref = NULL, PTexture *icon = NULL);
+    virtual void insert(const std::wstring &or_name, const ActionEvent &or_ae, PWinObj *op_wo_ref = NULL);
 
     virtual void reload(CfgParser::Entry *section);
 

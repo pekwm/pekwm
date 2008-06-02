@@ -95,13 +95,8 @@ using std::string;
 using std::vector;
 using std::wstring;
 
-static void sigHandler(int signal);
-static int handleXError(Display *dpy, XErrorEvent *e);
-
 // Static initializers
 const string WindowManager::_wm_name = string("pekwm");
-
-static bool is_signal_alrm = false;
 
 #ifdef MENUS
 const char *WindowManager::MENU_NAMES_RESERVED[] = {
@@ -124,19 +119,25 @@ const unsigned int WindowManager::MENU_NAMES_RESERVED_COUNT =
     / sizeof(WindowManager::MENU_NAMES_RESERVED[0]);
 #endif // MENUS
 
-WindowManager *wm;
+extern "C" {
 
-//! @brief
-void
-sigHandler(int signal)
-{
+  static bool is_signal_hup = false;
+  static bool is_signal_int_term = false;
+  static bool is_signal_alrm = false;
+
+  /**
+   * Signal handler setting signal flags.
+   */
+  static void
+  sigHandler(int signal)
+  {
     switch (signal) {
     case SIGHUP:
-        wm->reload();
+        is_signal_hup = true;
         break;
     case SIGINT:
     case SIGTERM:
-        wm->shutdown();
+        is_signal_int_term = true;
         break;
     case SIGCHLD:
         wait(NULL);
@@ -146,27 +147,30 @@ sigHandler(int signal)
       is_signal_alrm = true;
       break;
     }
-}
+  }
 
-//! @brief
-int
-handleXError(Display *dpy, XErrorEvent *e)
-{
+  /**
+   * XError handler, prints error.
+   */
+  static int
+  handleXError(Display *dpy, XErrorEvent *e)
+  {
     if ((e->error_code == BadAccess) &&
-            (e->resourceid == (RootWindow(dpy, DefaultScreen(dpy))))) {
-        cerr << "pekwm: root window unavailable, can't start!" << endl;
-        exit(1);
+        (e->resourceid == (RootWindow(dpy, DefaultScreen(dpy))))) {
+      cerr << "pekwm: root window unavailable, can't start!" << endl;
+      exit(1);
     }
 #ifdef DEBUG
     else {
-        char error_buf[256];
-        XGetErrorText(dpy, e->error_code, error_buf, 256);
+      char error_buf[256];
+      XGetErrorText(dpy, e->error_code, error_buf, 256);
 
-        cerr << "XError: " << error_buf << " id: " << e->resourceid << endl;
+      cerr << "XError: " << error_buf << " id: " << e->resourceid << endl;
     }
 #endif // DEBUG
 
     return 0;
+  }
 }
 
 // WindowManager::EdgeWO
@@ -416,8 +420,6 @@ WindowManager::WindowManager(const std::string &command_line, const std::string 
         _allow_grouping(true), _root_wo(NULL),
         _pekwm_atoms(NULL), _icccm_atoms(NULL), _ewmh_atoms(NULL)
 {
-    ::wm = this;
-
     struct sigaction act;
 
     // Set up the signal handlers.
@@ -973,7 +975,7 @@ WindowManager::doEventLoop(void)
   XEvent ev;
   Timer<ActionPerformed>::timed_event_list events;
 
-  while (!_shutdown) {
+  while (!_shutdown && ! is_signal_int_term) {
     // Handle timeouts
     if (is_signal_alrm) {
       is_signal_alrm = false;
@@ -988,8 +990,9 @@ WindowManager::doEventLoop(void)
     }
 
     // Reload if requested
-    if (_reload) {
-      doReload();
+    if (is_signal_hup || _reload) {
+      is_signal_hup = false;
+      reload();
     }
 
     // Get next event, drop event handling if none was given

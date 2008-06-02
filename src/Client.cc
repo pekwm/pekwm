@@ -875,7 +875,7 @@ void
 Client::readIcon(void)
 {
   PImageNativeIcon *image = new PImageNativeIcon(_dpy);
-  if (image->load(_window)) {
+  if (image->loadFromWindow(_window)) {
     if (! _icon) {
       _icon = new PTextureImage(_dpy);
       TextureHandler::instance()->referenceTexture(_icon);
