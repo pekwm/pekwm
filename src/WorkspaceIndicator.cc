@@ -31,6 +31,8 @@ WorkspaceIndicator::Display::Display(::Display *dpy, PWinObj *parent, Theme *the
     _theme(theme), _pixmap(None)
 {
   _parent = parent;
+  // Do not give the indicator focus, it doesn't handle input
+  _focusable = false;
 
   XSetWindowAttributes attr;
   attr.override_redirect = false;
@@ -49,6 +51,26 @@ WorkspaceIndicator::Display::~Display(void)
 {
   XDestroyWindow(_dpy, _window);
   ScreenResources::instance()->getPixmapHandler()->returnPixmap(_pixmap);
+}
+
+/**
+ * Get required size to render workspaces.
+ */
+bool
+WorkspaceIndicator::Display::getSizeRequest(Geometry &gm)
+{
+  Geometry head;
+  uint head_nr = PScreen::instance()->getNearestHead(_parent->getX(), _parent->getY());
+  PScreen::instance()->getHeadInfo(head_nr, head);
+
+  Theme::WorkspaceIndicatorData &data(_theme->getWorkspaceIndicatorData());
+
+  uint head_size = std::min(head.width, head.height) / Config::instance()->getWorkspaceIndicatorScale();
+  gm.x = gm.y = 0;
+  gm.width = head_size * Workspaces::instance()->getPerRow() + data.edge_padding * 2;
+  gm.height = head_size * Workspaces::instance()->getRows() + data.edge_padding * 3 + data.font->getHeight();
+
+  return true;
 }
 
 /**
@@ -96,27 +118,19 @@ WorkspaceIndicator::Display::renderWorkspaces(int x, int y, uint width, uint hei
 {
   Theme::WorkspaceIndicatorData &data(_theme->getWorkspaceIndicatorData());
 
-  uint num = Workspaces::instance()->size();
-  uint per_row = Config::instance()->getWorkspacesPerRow();
-  uint rows = 1;
-  if (per_row > 0) {
-    rows = num / per_row + (num % per_row ? 1 : 0);
-  } else {
-    per_row = num;
-  }
+  uint per_row = Workspaces::instance()->getPerRow();
+  uint rows = Workspaces::instance()->getRows();
 
   uint ws_width = (width - data.workspace_padding * (per_row - 1)) / per_row;
   uint ws_height = (height - data.workspace_padding * (rows - 1)) / rows;
 
   uint x_pos = x + data.workspace_padding;
   uint y_pos = y + data.workspace_padding;
-  uint col = 0, row = 0;
   vector<Workspaces::Workspace*>::iterator it(Workspaces::instance()->ws_begin());
-  for (; it != Workspaces::instance()->ws_end(); ++col, ++it) {
+  for (uint row = 0; it != Workspaces::instance()->ws_end(); ++it) {
     // Check for next row
-    if (col >= per_row) {
-      row += 1;
-      col = 0;
+    if (Workspaces::instance()->getRow((*it)->getNumber()) > row) {
+      row = Workspaces::instance()->getRow((*it)->getNumber());
 
       x_pos = x + data.workspace_padding;
       y_pos += ws_height + data.workspace_padding;
@@ -178,16 +192,17 @@ WorkspaceIndicator::~WorkspaceIndicator(void)
 }
 
 /**
- *
+ * Resize indicator and render
  */
 void
 WorkspaceIndicator::render(void)
 {
   // Center on head
-  Geometry head;
+  Geometry head, request;
   PScreen::instance()->getHeadInfo(PScreen::instance()->getCurrHead(), head);
 
-  resizeChild(250, 250);
+  _display_wo.getSizeRequest(request);
+  resizeChild(request.width, request.height);
 
   move(head.x + (head.width - _gm.width) / 2,
        head.y + (head.height - _gm.height) / 2);

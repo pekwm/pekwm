@@ -35,6 +35,8 @@ public:
     Display(::Display *dpy, PWinObj *parent, Theme *theme);
     virtual ~Display(void);
 
+    virtual bool getSizeRequest(Geometry &request);
+
     void render(void);
 
   private:

@@ -72,6 +72,7 @@ public:
     inline bool isShowStatusWindow(void) const { return _screen_show_status_window; }
     inline bool isShowClientID(void) const { return _screen_show_client_id; }
     int getShowWorkspaceIndicator(void) const { return _screen_show_workspace_indicator; }
+    int getWorkspaceIndicatorScale(void) const { return _screen_workspace_indicator_scale; }
     inline bool isPlaceNew(void) const { return _screen_place_new; }
     inline bool isFocusNew(void) const { return _screen_focus_new; }
     inline bool isFocusNewChild(void) const { return _screen_focus_new_child; }
@@ -194,7 +195,8 @@ private:
     bool _screen_showframelist;
     bool _screen_show_status_window;
     bool _screen_show_client_id; //!< Flag to display client ID in title.
-    int _screen_show_workspace_indicator; //! Display workspace indicator for N seconds.
+    int _screen_show_workspace_indicator; //!< Display workspace indicator for N seconds.
+    int _screen_workspace_indicator_scale; //!< Scale of the workspace indicator head
     bool _screen_place_new, _screen_focus_new, _screen_focus_new_child;
     bool _screen_placement_row, _screen_placement_ltr, _screen_placement_ttb;
     int _screen_placement_offset_x, _screen_placement_offset_y;

@@ -250,6 +250,15 @@ PWinObj::reparent(PWinObj *wo, int x, int y)
     XReparentWindow(_dpy, _window, wo->getWindow(), x, y);
 }
 
+//! @brief Get required size to hold content for window
+//! @param request Geometry filled with size request.
+//! @return true if geometry is filled in, else false
+bool
+PWinObj::getSizeRequest(Geometry &request)
+{
+  return false;
+}
+
 //! @brief Adds PWinObj to _wo_list.
 void
 PWinObj::woListAdd(PWinObj *wo)

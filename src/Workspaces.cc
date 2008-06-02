@@ -61,8 +61,8 @@ Workspaces *Workspaces::_instance = NULL;
 
 
 //! @brief Workpsaces constructor
-Workspaces::Workspaces(uint number) :
-        _active(0), _previous(0)
+Workspaces::Workspaces(uint number, uint per_row)
+  : _active(0), _previous(0), _per_row(per_row)
 {
 #ifdef DEBUG
     if (_instance != NULL) {
@@ -200,17 +200,7 @@ Workspaces::gotoWorkspace(uint direction, bool warp)
     bool switched = true;
     uint per_row = Config::instance()->getWorkspacesPerRow();
 
-    uint cur_row, row_min, row_max;
-    if (per_row > 0) {
-      cur_row = _active / per_row;
-      row_min = cur_row * per_row;
-      row_max = row_min + per_row - 1;
-    } else {
-      cur_row = 0;
-      row_min = 0;
-      row_max = _workspace_list.size() - 1;
-    }
-
+    uint cur_row = getRow(), row_min = getRowMin(), row_max = getRowMax();
     switch (direction) {
     case WORKSPACE_LEFT:
     case WORKSPACE_PREV:

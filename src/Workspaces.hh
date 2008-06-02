@@ -49,7 +49,7 @@ public:
         PWinObj *_last_focused;
     };
 
-    Workspaces(uint number);
+    Workspaces(uint number, uint per_row);
     ~Workspaces(void);
 
     static inline Workspaces *instance(void) { return _instance; }
@@ -65,8 +65,19 @@ public:
 
     inline uint getActive(void) const { return _active; }
     inline uint getPrevious(void) const { return _previous; }
+  uint getRow(int active = -1) {
+    if (active < 0) {
+      active = _active;
+    }
+    return _per_row ? (active / _per_row) : 0; 
+  }
+  uint getRowMin(void) { return _per_row ? (getRow() * _per_row) : 0; }
+  uint getRowMax(void) { return _per_row ? (getRowMin() + _per_row - 1) : size() - 1; }
+  uint getRows(void) { return _per_row ? (size() / _per_row + (size() % _per_row ? 1 : 0)) : 1; }
+  uint getPerRow(void) { return _per_row ? _per_row : size(); }
 
-    void setSize(uint number);
+  void setSize(uint number);
+  void setPerRow(uint per_row) { _per_row = per_row; }
 
     void setWorkspace(uint num, bool focus);
     bool gotoWorkspace(uint direction, bool warp);
@@ -146,6 +157,7 @@ private:
 
     uint _active; /**< Current active workspace. */
     uint _previous; /**< Previous workspace. */
+  uint _per_row; /**< Workspaces per row in layout. */
 
     std::list<PWinObj*> _wo_list;
     std::vector<Workspace*> _workspace_list;

@@ -55,7 +55,7 @@ Config::Config(void) :
         _screen_edge_indent(false),
         _screen_doubleclicktime(250), _screen_showframelist(true),
         _screen_show_status_window(true), _screen_show_client_id(false),
-        _screen_show_workspace_indicator(1),
+        _screen_show_workspace_indicator(1), _screen_workspace_indicator_scale(16),
         _screen_place_new(true), _screen_focus_new(false),
         _screen_focus_new_child (true),
         _screen_placement_row(false),
@@ -531,6 +531,8 @@ Config::loadScreen(CfgParser::Entry *op_section)
                                                 _screen_show_client_id));
     o_key_list.push_back (new CfgParserKeyInt ("SHOWWORKSPACEINDICATOR",
                                                _screen_show_workspace_indicator));
+    o_key_list.push_back (new CfgParserKeyInt ("WORKSPACEINDICATORSCALE",
+					       _screen_workspace_indicator_scale, 16, 2)); 
 
     o_key_list.push_back (new CfgParserKeyBool ("PLACENEW", _screen_place_new));
     o_key_list.push_back (new CfgParserKeyBool ("FOCUSNEW", _screen_focus_new));

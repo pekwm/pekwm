@@ -146,6 +146,8 @@ public:
     virtual bool giveInputFocus(void);
     virtual void reparent(PWinObj *parent, int x, int y);
 
+    virtual bool getSizeRequest(Geometry &request);
+
     // event interface
 
     //! @brief Handles button press events, always return NULL.

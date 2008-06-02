@@ -624,7 +624,7 @@ WindowManager::setupDisplay(void)
     _icccm_atoms = new IcccmAtoms();
     _ewmh_atoms = new EwmhAtoms();
 
-    _workspaces = new Workspaces(_config->getWorkspaces());
+    _workspaces = new Workspaces(_config->getWorkspaces(), _config->getWorkspacesPerRow());
 
     // set initial values of hints
     initHints();
@@ -871,6 +871,7 @@ WindowManager::doReload(void)
 
     // update what might have changed in the cfg toouching the hints
     _workspaces->setSize(_config->getWorkspaces());
+    _workspaces->setPerRow(_config->getWorkspacesPerRow());
 
     // flush pixmap cache and set size
     _screen_resources->getPixmapHandler()->setCacheSize(_config->getScreenPixmapCacheSize());
