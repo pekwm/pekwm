@@ -1,11 +1,9 @@
 //
 // PFont.hh for pekwm
-// Copyright © 2003-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2003-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
-//
-// $Id$
 //
 
 #ifndef _PFONT_HH_
@@ -158,6 +156,8 @@ private:
 private:
   XFontSet _fontset;
   GC _gc_fg, _gc_bg;
+
+  static const char *DEFAULT_FONTSET; /**< Default fallback fontset. */
 };
 
 #ifdef HAVE_XFT

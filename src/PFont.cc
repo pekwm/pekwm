@@ -1,11 +1,9 @@
 //
 // PFont.cc for pekwm
-// Copyright © 2003-2007 Nästén <me{@}pekdon{.}net>
+// Copyright © 2003-2008 Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
-//
-// $Id$
 //
 
 #ifdef HAVE_CONFIG_H
@@ -316,10 +314,12 @@ PFontX11::setColor(PFont::Color *color)
 
 // PFontXmb
 
+const char* PFontXmb::DEFAULT_FONTSET = "fixed*";
+
 //! @brief PFontXmb constructor
-PFontXmb::PFontXmb(PScreen *scr) : PFont(scr),
-        _fontset(NULL),
-        _gc_fg(None), _gc_bg(None)
+PFontXmb::PFontXmb(PScreen *scr)
+  : PFont(scr),
+    _fontset(NULL), _gc_fg(None), _gc_bg(None)
 {
     _type = FONT_TYPE_XMB;
 }
@@ -336,48 +336,51 @@ PFontXmb::load(const std::string &font_name)
 {
     unload();
 
-    char *def_string;
-    char **missing_list, **font_names;
-    int missing_count, fnum;
-    XFontStruct **fonts;
-
     string basename(font_name);
     if (font_name.rfind(",*") != (font_name.size() - 2)) {
       basename.append(",*");
     }
 
-    _fontset =
-        XCreateFontSet(_scr->getDpy(), basename.c_str(),
-                       &missing_list, &missing_count, &def_string);
-
-    if (_fontset == NULL) {
-        cerr << "PFontXmb::load(): Failed to create fontset for font_name" << endl;
-        return false;
-    }
-
-    for (int i = 0; i < missing_count; ++i) {
-        cerr <<  "PFontXmb::load(): Missing charset" <<  missing_list[i] << endl;
-    }
-
-    _ascent = _descent = 0;
-
-    fnum = XFontsOfFontSet (_fontset, &fonts, &font_names);
-    for (int i = 0; i < fnum; ++i) {
-        if (signed(_ascent) < fonts[i]->ascent)
-            _ascent = fonts[i]->ascent;
-        if (signed(_descent) < fonts[i]->descent)
-            _descent = fonts[i]->descent;
-    }
-
-    _height = _ascent + _descent;
-
-    // create GC's
+    // Create GC
     XGCValues gv;
 
     uint mask = GCFunction;
     gv.function = GXcopy;
     _gc_fg = XCreateGC(_scr->getDpy(), _scr->getRoot(), mask, &gv);
     _gc_bg = XCreateGC(_scr->getDpy(), _scr->getRoot(), mask, &gv);
+
+    // Try to load font
+    char *def_string;
+    char **missing_list, **font_names;
+    int missing_count;
+
+    _fontset = XCreateFontSet(_scr->getDpy(), basename.c_str(), &missing_list, &missing_count, &def_string);
+    if (! _fontset) {
+      cerr << "PFontXmb::load(): Failed to create fontset for " << font_name << endl;
+      _fontset = XCreateFontSet(_scr->getDpy(), DEFAULT_FONTSET, &missing_list, &missing_count, &def_string);
+    }
+
+    if (_fontset) {
+      for (int i = 0; i < missing_count; ++i) {
+        cerr <<  "PFontXmb::load(): Missing charset" <<  missing_list[i] << endl;
+      }
+
+      _ascent = _descent = 0;
+
+      XFontStruct **fonts;
+      int fnum = XFontsOfFontSet (_fontset, &fonts, &font_names);
+      for (int i = 0; i < fnum; ++i) {
+        if (signed(_ascent) < fonts[i]->ascent)
+          _ascent = fonts[i]->ascent;
+        if (signed(_descent) < fonts[i]->descent)
+          _descent = fonts[i]->descent;
+      }
+
+      _height = _ascent + _descent;
+
+    } else {
+        return false;
+    }
 
     return true;
 }
