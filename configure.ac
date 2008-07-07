@@ -177,18 +177,16 @@ AC_ARG_ENABLE(image-png,
 							[enableval=yes])
 if test "x$enableval" = "xyes"; then
  	AC_MSG_RESULT([yes])
- 	AC_CHECK_LIB(png, png_read_info,
- 		AC_MSG_CHECKING([for png.h])
- 		AC_TRY_CPP([#include <png.h>],
-			png_ok=yes,
- 			png_ok=no)
- 		AC_MSG_RESULT($png_ok)
- 		if test "$png_ok" = yes; then
-			AC_DEFINE(HAVE_IMAGE_PNG, [1], [Define to 1 if you have libpng])
- 			LIBS="$LIBS -lpng"
- 			FEATURES="$FEATURES image-png"
- 		fi,
- 		AC_MSG_RESULT([no]))
+
+        PKG_CHECK_MODULES([libpng], [libpng >= 1.2.0], HAVE_LIBPNG=yes, HAVE_LIBPNG=no)
+        if test "x$HAVE_LIBPNG" = "xyes"; then
+		AC_DEFINE(HAVE_IMAGE_PNG, [1], [Define to 1 if you have libpng])
+ 		LIBS="$LIBS $libpng_LIBS"
+                CXXFLAGS="$CXXFLAGS $libpng_CFLAGS"
+ 		FEATURES="$FEATURES image-png"
+ 	else
+ 		AC_MSG_RESULT([no])
+        fi
 else
 	AC_MSG_RESULT([no])
 fi
