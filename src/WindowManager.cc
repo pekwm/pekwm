@@ -993,7 +993,7 @@ WindowManager::doEventLoop(void)
     // Reload if requested
     if (is_signal_hup || _reload) {
       is_signal_hup = false;
-      reload();
+      doReload();
     }
 
     // Get next event, drop event handling if none was given

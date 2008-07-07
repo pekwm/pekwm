@@ -389,10 +389,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
 #endif // MENUS
             case ACTION_RELOAD:
                 _wm->reload();
-
-                // special case: reload causes the list (ae) to change and therefore
-                // it can't be used anymore
-                return;
+                break;
             case ACTION_RESTART:
                 _wm->restart();
                 break;
