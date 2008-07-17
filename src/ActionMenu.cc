@@ -158,8 +158,7 @@ ActionMenu::insert(const std::wstring &or_name, PWinObj *op_wo_ref, PTexture *ic
 
 //! @brief Non-shadowing PMenu::insert
 void
-ActionMenu::insert(const std::wstring &or_name, const ActionEvent &or_ae,
-                   PWinObj *op_wo_ref)
+ActionMenu::insert(const std::wstring &or_name, const ActionEvent &or_ae, PWinObj *op_wo_ref, PTexture *icon)
 {
     PMenu::insert (or_name, or_ae, op_wo_ref);
 }
