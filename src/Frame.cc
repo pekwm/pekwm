@@ -1,11 +1,9 @@
 //
 // Frame.cc for pekwm
-// Copyright © 2002-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2002-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
-//
-// $Id$
 //
 
 #ifdef HAVE_CONFIG_H
@@ -2042,8 +2040,9 @@ Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
     } else if (ev->message_type == ewmh->getAtom(NET_ACTIVE_WINDOW)) {
         if (!client->isCfgDeny(CFG_DENY_ACTIVE_WINDOW)) {
             // Active child if it's not the active child
-            if (client != _client)
+            if (client != _client) {
                 activateChild(client);
+	    }
             // If we aren't mapped we check if we make sure we're on the right
             // workspace and then map the window.
             if (!_mapped) {
@@ -2052,6 +2051,8 @@ Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
                 }
                 mapWindow();
             }
+	    // Seems as if raising the window is implied in activating it
+	    raise();
             giveInputFocus();
         }
     } else if (ev->message_type == ewmh->getAtom(NET_CLOSE_WINDOW)) {
