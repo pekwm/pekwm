@@ -27,9 +27,21 @@ using std::wcerr;
  * SearchDialog constructor.
  */
 SearchDialog::SearchDialog(Display *dpy, Theme *theme)
-  : InputDialog(dpy, theme, L"Search")
+  : InputDialog(dpy, theme, L"Search"),
+    _result_menu(0)
 {
   _type = PWinObj::WO_SEARCH_DIALOG;
+
+  // Setup ActionEvent
+  _ae.action_list.back().setAction(ACTION_FOCUS);
+
+  // Setup menu for displaying results
+  _result_menu = new PMenu(_dpy, _theme, L"", "");
+  _result_menu->reparent(this, borderLeft(), borderTop() + getTitleHeight() + _text_wo->getHeight());
+  _result_menu->setSticky(STATE_SET);
+  _result_menu->setBorder(STATE_UNSET);
+  _result_menu->setTitlebar(STATE_UNSET);
+  _result_menu->mapWindow();
 }
 
 /**
@@ -51,9 +63,45 @@ SearchDialog::bufChanged(void)
 ActionEvent*
 SearchDialog::exec(void)
 {
-  // FIXME: Implement exec
+  if (_result_menu->getItemCurr()) {
+    _wo_ref = _result_menu->getItemCurr()->getWORef();
+  } else {
+    _wo_ref = 0;
+  }
 
-  return 0;
+  return &_ae;
+}
+
+/**
+ * Focus next item in result menu.
+ */
+void
+SearchDialog::histNext(void)
+{
+  _result_menu->selectItemRel(1);
+}
+
+/**
+ * Focus previous item in result menu.
+ */
+void
+SearchDialog::histPrev(void)
+{
+  _result_menu->selectItemRel(-1);
+}
+
+/**
+ * Update size making sure result menu fits.
+ */
+void
+SearchDialog::updateSize(void)
+{
+  InputDialog::updateSize();
+
+  if (_result_menu->size()) {
+    _result_menu->setMenuWidth(_text_wo->getWidth());
+    resize(_gm.width, _gm.height + _result_menu->getHeight());
+  }
 }
 
 /**
@@ -65,7 +113,7 @@ SearchDialog::exec(void)
 uint
 SearchDialog::findClients(const std::wstring &search)
 {
-  // FIXME: Clear previous matches
+  _result_menu->removeAll();
 
   if (search.size() > 0) {
     RegexString search_re(search);
@@ -80,7 +128,14 @@ SearchDialog::findClients(const std::wstring &search)
         matches.push_back(*it);
       }
     }
+
+    for (it = matches.begin(); it != matches.end(); ++it) {
+      _result_menu->insert((*it)->getTitle()->getVisible(), *it, (*it)->getIcon());
+    }
   }
+
+  _result_menu->buildMenu();
+  updateSize();
 
   return 0;
 }
