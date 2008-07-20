@@ -289,6 +289,8 @@ CmdDialog {
 	KeyPress = "Escape" { Actions = "Close" }
 	KeyPress = "Up" { Actions = "HistPrev" }
 	KeyPress = "Down" { Actions = "HistNext" }
+	KeyPress = "Ctrl P" { Actions = "HistPrev" }
+	KeyPress = "Ctrl N" { Actions = "HistNext" }
 	KeyPress = "Any Any" { Actions = "Insert" }
 }
 
@@ -296,11 +298,13 @@ CmdDialog {
 Menu {
 	KeyPress = "Down" { Actions = "NextItem" }
 	KeyPress = "Up" { Actions = "PrevItem" }
+	KeyPress = "Ctrl N" { Actions = "NextItem" }
+	KeyPress = "Ctrl P" { Actions = "PrevItem" }
 	KeyPress = "Left" { Actions = "LeaveSubmenu" }
 	KeyPress = "Right" { Actions = "EnterSubmenu" }
 	KeyPress = "Return" { Actions = "Select" }
-	KeyPress = "space" { Actions = "Select" }
+	KeyPress = "Space" { Actions = "Select" }
 	KeyPress = "Escape" { Actions = "Close" }
-	KeyPress = "q" { Actions = "Close" }
+	KeyPress = "Q" { Actions = "Close" }
 }
 
