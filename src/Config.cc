@@ -695,6 +695,7 @@ Config::loadMenu(CfgParser::Entry *op_section)
     o_key_list.clear();
 }
 
+#ifdef HARBOUR
 //! @brief Loads the HARBOUR section of the main configuration
 void
 Config::loadHarbour(CfgParser::Entry *op_section)
@@ -754,6 +755,7 @@ Config::loadHarbour(CfgParser::Entry *op_section)
         o_key_list.clear();
     }
 }
+#endif
 
 //! @brief
 ActionType
