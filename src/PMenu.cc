@@ -1,11 +1,9 @@
 //
 // PMenu.cc for pekwm
-// Copyright © 2004-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright Â© 2004-2008 Claes NÃ¤stÃ©n <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
-//
-// $Id$
 //
 
 #ifdef HAVE_CONFIG_H
@@ -66,6 +64,7 @@ PMenu::PMenu(Display *dpy, Theme *theme, const std::wstring &title,
       _name(name),
       _menu_wo(NULL), _menu_parent(NULL),
       _menu_bg_fo(None), _menu_bg_un(None), _menu_bg_se(None),
+      _menu_width(0),
       _item_height(0), _item_width_max(0), _item_width_max_avail(0),
       _icon_width(0), _icon_height(0),
       _separator_height(0),
@@ -374,6 +373,11 @@ PMenu::buildMenuCalculate(void)
         }
     }
 
+    // FIXME: Remove extra padding from calculation
+    if (_menu_width) {
+      _item_width_max = _menu_width;
+    }
+
     // Make sure icon width and height are not larger than configured.
     if (Config::instance()->getMenuIconWidth()) {
       _icon_width = std::min(Config::instance()->getMenuIconWidth(), _icon_width);
@@ -405,8 +409,9 @@ PMenu::buildMenuCalculate(void)
 
     height = (_item_height * _size) + (_separator_height * sep);
 
-    // check if menu should have more than one row
-    if ((height + getTitleHeight()) > PScreen::instance()->getHeight()) {
+    // Check if menu should have more than one row, this does not apply on
+    // static width menus.
+    if (! _menu_width && (height + getTitleHeight()) > PScreen::instance()->getHeight()) {
         _cols = height / (PScreen::instance()->getHeight() - getTitleHeight());
         if ((height % (PScreen::instance()->getHeight() - getTitleHeight())) != 0) {
             ++_cols;
@@ -601,7 +606,7 @@ PMenu::selectItem(std::list<PMenu::Item*>::iterator item, bool unmap_submenu)
 }
 
 //! @brief Deselects selected item
-//! @þaram unmap_submenu Defaults to true
+//! @param unmap_submenu Defaults to true
 void
 PMenu::deselectItem(bool unmap_submenu)
 {
@@ -841,7 +846,7 @@ PMenu::gotoParentMenu(void)
 
 //! @brief Selects item, if NULL/not in list current item is deselected
 //! @param item Item to select
-//! @þaram unmap_submenu Defaults to true
+//! @param unmap_submenu Defaults to true
 void
 PMenu::select(PMenu::Item *item, bool unmap_submenu)
 {

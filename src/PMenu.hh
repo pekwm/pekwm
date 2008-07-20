@@ -97,6 +97,7 @@ public:
 
     // modifying menu content
     void setTitle(const std::wstring &title);
+    void setMenuWidth(uint width) { _menu_width = width; }
 
     virtual void insert(PMenu::Item *item);
     virtual void insert(const std::wstring &name, PWinObj *wo_ref = NULL, PTexture *icon = NULL);
@@ -105,7 +106,7 @@ public:
     virtual void remove(PMenu::Item *item);
     virtual void removeAll(void);
 
-virtual void reload(CfgParser::Entry *section) { }
+    virtual void reload(CfgParser::Entry *section) { }
     void buildMenu(void);
 
     inline uint size(void) const { return _item_list.size(); }
@@ -164,6 +165,7 @@ private:
     Pixmap _menu_bg_fo, _menu_bg_un, _menu_bg_se;
 
     // menu disp data
+    uint _menu_width; /**< Static set menu width. */
     uint _item_height, _item_width_max, _item_width_max_avail;
     uint _icon_width;
     uint _icon_height;
