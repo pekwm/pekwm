@@ -32,7 +32,8 @@ using std::wstring;
 InputDialog::InputDialog(Display *dpy, Theme *theme, const std::wstring &title)
   : PDecor(dpy, theme, "INPUTDIALOG"),
     _data(theme->getCmdDialogData()),
-    _pixmap_bg(None), _pos(0), _buf_off(0), _buf_chars(0)
+    _pixmap_bg(None), _pos(0), _buf_off(0), _buf_chars(0),
+    _wo_ref(0)
 {
     // PWinObj attributes
     _layer = LAYER_NONE; // hack, goes over LAYER_MENU
