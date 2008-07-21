@@ -539,6 +539,11 @@ Client::handleUnmapEvent(XUnmapEvent *ev)
     if ((ev->window != ev->event) && (ev->send_event != true)) {
         return NULL;
     }
+
+    // ICCCM 4.1.4 advices the window manager to trigger the transition to
+    // Withdrawn state on real and synthetic UnmapNotify events.
+    setWmState(WithdrawnState);
+
 #ifdef DEBUG
     cerr << __FILE__ << "@" << __LINE__ << ": "
          << "Client(" << this << ")::handleUnmapEvent(" << ev << ")" << endl
