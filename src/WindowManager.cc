@@ -619,7 +619,7 @@ WindowManager::setupDisplay(void)
     _color_handler = new ColorHandler(dpy);
     _font_handler = new FontHandler();
     _texture_handler = new TextureHandler();
-    _action_handler = new ActionHandler(this);
+    _action_handler = new ActionHandler();
 
     // setup the font trimming
     wstring trim_title(Util::to_wide_str(_config->getTrimTitle()));

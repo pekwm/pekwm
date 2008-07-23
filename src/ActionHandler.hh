@@ -24,12 +24,11 @@ class Frame;
 class PWinObj;
 class PDecor;
 class PMenu;
-class WindowManager;
 
 class ActionHandler
 {
 public:
-    ActionHandler(WindowManager *wm);
+    ActionHandler();
     ~ActionHandler(void);
 
     static inline ActionHandler *instance(void) { return _instance; }
@@ -69,8 +68,6 @@ private:
 
 private:
     static ActionHandler *_instance;
-
-    WindowManager *_wm;
 };
 
 #endif // _ACTIONHANDLER_HH_
