@@ -60,16 +60,15 @@ Frame* Frame::_tag_frame = NULL;
 bool Frame::_tag_behind = false;
 
 //! @brief Frame constructor
-Frame::Frame(WindowManager *wm, Client *client, AutoProperty *ap)
-    : PDecor(wm->getScreen()->getDpy(), wm->getTheme(),
-             (wm->getAutoProperties()->findDecorProperty(client->getClassHint()) == NULL)
+Frame::Frame(Client *client, AutoProperty *ap)
+    : PDecor(WindowManager::inst()->getScreen()->getDpy(), WindowManager::inst()->getTheme(),
+             (WindowManager::inst()->getAutoProperties()->findDecorProperty(client->getClassHint()) == NULL)
              ? PDecor::DEFAULT_DECOR_NAME
-             : wm->getAutoProperties()->findDecorProperty(client->getClassHint())->getName()),
-      _wm(wm),
+             : WindowManager::inst()->getAutoProperties()->findDecorProperty(client->getClassHint())->getName()),
       _id(0), _client(NULL), _class_hint(NULL), _old_decor_state(0)
 {
     // setup basic pointers
-    _scr = _wm->getScreen();
+    _scr = WindowManager::inst()->getScreen();
 
     // PWinObj attributes
     _type = WO_FRAME;
@@ -88,7 +87,7 @@ Frame::Frame(WindowManager *wm, Client *client, AutoProperty *ap)
     }
 
     // get unique id of the frame, if the client didn't have an id
-    if (_wm->isStartup() == false) {
+    if (WindowManager::inst()->isStartup() == false) {
         long id;
 
         if (AtomUtil::getLong(client->getWindow(),
@@ -183,7 +182,7 @@ Frame::Frame(WindowManager *wm, Client *client, AutoProperty *ap)
     // I add these to the list before I insert the client into the frame to
     // be able to skip an extra updateClientList
     _frame_list.push_back(this);
-    _wm->addToFrameList(this);
+    WindowManager::inst()->addToFrameList(this);
     Workspaces::instance()->insert(this);
 
     // now insert the client in the frame we created, do not give it focus.
@@ -226,7 +225,7 @@ Frame::~Frame(void)
     woListRemove(this);
     _frame_list.remove(this);
     Workspaces::instance()->remove(this);
-    _wm->removeFromFrameList(this);
+    WindowManager::inst()->removeFromFrameList(this);
     if (_tag_frame == this) {
         _tag_frame = NULL;
     }
@@ -858,7 +857,7 @@ Frame::detachClient(Client *client)
         removeChild(client);
 
         client->move(_gm.x, _gm.y + borderTop());
-        Frame *frame = new Frame(_wm, client, NULL);
+        Frame *frame = new Frame(client, NULL);
 
         client->setParent(frame);
         client->setWorkspace(Workspaces::instance()->getActive());
@@ -951,7 +950,7 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: r
             Client *search = NULL;
 
             // only group if we have grouping turned on
-            if (_wm->isAllowGrouping()) {
+            if (WindowManager::inst()->isAllowGrouping()) {
                 int x, y;
                 Window win;
 
@@ -993,7 +992,7 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: r
 
                 client->move(e.xmotion.x_root, e.xmotion.y_root);
 
-                Frame *frame = new Frame(_wm, client, NULL);
+                Frame *frame = new Frame(client, NULL);
                 client->setParent(frame);
 
                 // make sure the client ends up on the current workspace

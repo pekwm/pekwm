@@ -21,7 +21,6 @@ class PScreen;
 class PWinObj;
 class Strut;
 class Theme;
-class WindowManager;
 class ClassHint;
 class AutoProperty;
 
@@ -34,7 +33,7 @@ class Client;
 class Frame : public PDecor
 {
 public:
-    Frame(WindowManager *wm, Client *client, AutoProperty *ap);
+    Frame(Client *client, AutoProperty *ap);
     virtual ~Frame(void);
 
     // START - PWinObj interface.
@@ -160,7 +159,6 @@ private:
     static void returnFrameID(uint id);
 
 private:
-    WindowManager *_wm;
     PScreen *_scr;
 
     uint _id; // unique id of the frame

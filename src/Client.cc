@@ -251,7 +251,7 @@ Client::Client(Window new_client, bool is_new)
 
     // if we don't have a frame allready, create a new one
     if (_parent == NULL) {
-        _parent = new Frame(WindowManager::inst(), this, ap);
+        _parent = new Frame(this, ap);
     }
 
     // Make sure the window is mapped, this is done after it has been
