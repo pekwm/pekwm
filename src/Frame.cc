@@ -62,9 +62,7 @@ bool Frame::_tag_behind = false;
 //! @brief Frame constructor
 Frame::Frame(Client *client, AutoProperty *ap)
     : PDecor(WindowManager::inst()->getScreen()->getDpy(), WindowManager::inst()->getTheme(),
-             (WindowManager::inst()->getAutoProperties()->findDecorProperty(client->getClassHint()) == NULL)
-             ? PDecor::DEFAULT_DECOR_NAME
-             : WindowManager::inst()->getAutoProperties()->findDecorProperty(client->getClassHint())->getName()),
+             Frame::getClientDecorName(client)),
       _id(0), _client(NULL), _class_hint(NULL), _old_decor_state(0)
 {
     // setup basic pointers
@@ -832,6 +830,18 @@ Frame::returnFrameID(uint id)
     for (; it != _frameid_list.end() && id < *it; ++it)
         ;
     _frameid_list.insert(it, id);
+}
+
+/**
+ * Return decor name matching clients property, defaults to
+ * PDecor::DEFAULT_DECOR_NAME
+ */
+std::string
+Frame::getClientDecorName(Client *client)
+{
+  DecorProperty *prop = WindowManager::inst()->getAutoProperties()->findDecorProperty(client->getClassHint());
+
+  return prop ? prop->getName() : PDecor::DEFAULT_DECOR_NAME;
 }
 
 //! @brief Resets Frame IDs.

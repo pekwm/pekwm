@@ -158,6 +158,8 @@ private:
     static uint findFrameID(void);
     static void returnFrameID(uint id);
 
+    static std::string getClientDecorName(Client *client);
+
 private:
     PScreen *_scr;
 
