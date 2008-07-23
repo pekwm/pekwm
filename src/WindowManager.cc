@@ -1754,9 +1754,9 @@ WindowManager::createMenus(void)
                           L"Focus Iconified Frame", "ICON");
 
     _menu_map["ROOT"] = // It's named ROOT to be backwards compatible
-        new ActionMenu(this, ROOTMENU_TYPE, L"", "ROOTMENU");
+        new ActionMenu(ROOTMENU_TYPE, L"", "ROOTMENU");
     _menu_map["WINDOW"] = // It's named WINDOW to be backwards compatible
-        new ActionMenu(this, WINDOWMENU_TYPE, L"", "WINDOWMENU");
+        new ActionMenu(WINDOWMENU_TYPE, L"", "WINDOWMENU");
 
     // As the previous step is done manually, make sure it's done correct.
     assert(_menu_map.size() == (MENU_NAMES_RESERVED_COUNT - 2));
@@ -1834,7 +1834,7 @@ WindowManager::updateMenusStandalone(CfgParser::Entry *cfg_root)
                             menu_name)
                 && ! getMenu(menu_name)) {
             // Create, parse and add to map
-            PMenu *menu = new ActionMenu(this, ROOTMENU_STANDALONE_TYPE,
+            PMenu *menu = new ActionMenu(ROOTMENU_STANDALONE_TYPE,
                                          L"", menu_name);
             menu->reload(it);
             _menu_map[menu->getName()] = menu;

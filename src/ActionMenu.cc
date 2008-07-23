@@ -37,17 +37,16 @@ using std::string;
 using std::wstring;
 
 //! @brief ActionMenu constructor
-//! @param wm Pointer to WindowManager
 //! @param type Type of menu
 //! @param title Title of menu
 //! @param name Name of the menu, empty for dynamic else should be unique
 //! @param decor_name Name of decor to use, defaults to MENU.
-ActionMenu::ActionMenu(WindowManager *wm, MenuType type,
+ActionMenu::ActionMenu(MenuType type,
                        const std::wstring &title, const std::string &name,
                        const std::string &decor_name) :
-        WORefMenu(wm->getScreen(), wm->getTheme(),title, name, decor_name),
-        _wm(wm), _act(wm->getActionHandler()),
-        _has_dynamic(false)
+        WORefMenu(WindowManager::inst()->getScreen(),
+        WindowManager::inst()->getTheme(), title, name, decor_name),
+        _act(WindowManager::inst()->getActionHandler()), _has_dynamic(false)
 {
     // when creating dynamic submenus, this needs to be initialized as
     // dynamic inserting will be done
@@ -238,7 +237,7 @@ ActionMenu::parse(CfgParser::Entry *op_section, bool dynamic)
 
         if (*op_section == "SUBMENU")
         {
-            submenu = new ActionMenu (_wm, _menu_type,
+            submenu = new ActionMenu (_menu_type,
                                       Util::to_wide_str(op_section->get_value()),
                                       "" /* Empty name for submenus */);
             submenu->parse (op_section, dynamic);

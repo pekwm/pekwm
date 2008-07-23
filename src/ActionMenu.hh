@@ -27,12 +27,11 @@ class WORefMenu;
 class PScreen;
 class Theme;
 class ActionHandler;
-class WindowManager;
 
 class ActionMenu : public WORefMenu
 {
 public:
-    ActionMenu(WindowManager *wm, MenuType type,
+    ActionMenu(MenuType type,
                const std::wstring &title, const std::string &name,
                const std::string &decor_name = "MENU");
     virtual ~ActionMenu(void);
@@ -61,7 +60,6 @@ private:
     void removeDynamic(void);
 
 private:
-    WindowManager *_wm;
     ActionHandler *_act;
 
     ActionOk _action_ok;
