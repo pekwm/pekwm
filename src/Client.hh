@@ -27,7 +27,6 @@ class PWinObj;
 class ClassHint;
 class AutoProperty;
 class Frame;
-class WindowManager;
 
 #include <string>
 
@@ -70,7 +69,7 @@ public: // Public Member Functions
         MWM_DECOR_MAXIMIZE = (1L << 6)
     };
 
-    Client(WindowManager *w, Window new_client, bool is_new = false);
+    Client(Window new_client, bool is_new = false);
     virtual ~Client(void);
 
     // START - PWinObj interface.
@@ -281,8 +280,6 @@ private:
     static void returnClientID(uint id);
 
 private: // Private Member Variables
-    WindowManager *_wm;
-
     uint _id; //<! Unique ID of the Client.
 
     XSizeHints *_size;

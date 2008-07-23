@@ -58,9 +58,9 @@ using std::wstring;
 list<Client*> Client::_client_list = list<Client*>();
 vector<uint> Client::_clientid_list = vector<uint>();
 
-Client::Client(WindowManager *w, Window new_client, bool is_new)
-    : PWinObj(w->getScreen()->getDpy()),
-      _wm(w), _id(0), _size(NULL),
+Client::Client(Window new_client, bool is_new)
+    : PWinObj(WindowManager::inst()->getScreen()->getDpy()),
+      _id(0), _size(NULL),
       _transient(None), _strut(NULL), _icon(NULL),
       _class_hint(NULL),
       _alive(false), _marked(false),
@@ -143,7 +143,7 @@ Client::Client(WindowManager *w, Window new_client, bool is_new)
     _class_hint->title = _title.getReal();
 
     // Get Autoproperties before EWMH as we need the cfg_deny property.
-    AutoProperty *ap = readAutoprops(_wm->isStartup()
+    AutoProperty *ap = readAutoprops(WindowManager::inst()->isStartup()
                                      ? APPLY_ON_NEW : APPLY_ON_START);
 
     readMwmHints(); // read atoms
@@ -192,7 +192,7 @@ Client::Client(WindowManager *w, Window new_client, bool is_new)
     // If pekwm allready is running, check against autoproperty then
     // tagged frame. If starting up, check if it has a FRAME_ID and if not
     // use autoproperties.
-    if (_wm->isStartup()) {
+    if (WindowManager::inst()->isStartup()) {
         // Check for tagged frame
         Frame *frame = Frame::getTagFrame();
         if (frame && frame->isMapped()) {
@@ -229,7 +229,7 @@ Client::Client(WindowManager *w, Window new_client, bool is_new)
         applyAutoprops(ap);
 
         if (do_autogroup && !_parent && (ap->group_size >= 0)) {
-            Frame* frame = _wm->findGroup(ap);
+            Frame* frame = WindowManager::inst()->findGroup(ap);
             if (frame) {
                 frame->addChild(this);
 
@@ -251,7 +251,7 @@ Client::Client(WindowManager *w, Window new_client, bool is_new)
 
     // if we don't have a frame allready, create a new one
     if (_parent == NULL) {
-        _parent = new Frame(_wm, this, ap);
+        _parent = new Frame(WindowManager::inst(), this, ap);
     }
 
     // Make sure the window is mapped, this is done after it has been
@@ -305,13 +305,13 @@ Client::~Client(void)
 #ifdef MENUS
     WORefMenu *wo_ref_menu;
 
-    wo_ref_menu = static_cast<WORefMenu*>(_wm->getMenu("WINDOW"));
+    wo_ref_menu = static_cast<WORefMenu*>(WindowManager::inst()->getMenu("WINDOW"));
     if (this == wo_ref_menu->getWORef()) {
         wo_ref_menu->setWORef(NULL);
         wo_ref_menu->unmapAll();
     }
 
-    wo_ref_menu = static_cast<WORefMenu*>(_wm->getMenu("DECORMENU"));
+    wo_ref_menu = static_cast<WORefMenu*>(WindowManager::inst()->getMenu("DECORMENU"));
     if (this == wo_ref_menu->getWORef()) {
         wo_ref_menu->setWORef(NULL);
         wo_ref_menu->unmapAll();
@@ -379,7 +379,7 @@ Client::mapWindow(void)
 
   if(! _transient) {
     // Unmap our transient windows if we have any
-    _wm->findTransientsToMapOrUnmap(_window, false);
+    WindowManager::inst()->findTransientsToMapOrUnmap(_window, false);
   }
 
   XSelectInput(_dpy, _window, NoEventMask);
@@ -419,7 +419,7 @@ Client::iconify(void)
 
   _iconified = true;
   if (!_transient) {
-    _wm->findTransientsToMapOrUnmap(_window, true);
+    WindowManager::inst()->findTransientsToMapOrUnmap(_window, true);
   }
 
   unmapWindow();
@@ -1143,7 +1143,7 @@ Client::setWmState(ulong state)
                     32, PropModeReplace, (uchar*) data, 2);
 }
 
-// If we can't find a _wm->wm_state we're going to have to assume
+// If we can't find a wm_state we're going to have to assume
 // Withdrawn. This is not exactly optimal, since we can't really
 // distinguish between the case where no WM has run yet and when the
 // state was explicitly removed (Clients are allowed to either set the
@@ -1332,8 +1332,8 @@ Client::getMwmHints(Window win)
     uchar *udata;
 
     int status =
-        XGetWindowProperty(_dpy, win, _wm->getMwmHintsAtom(),
-                           0L, 20L, False, _wm->getMwmHintsAtom(),
+        XGetWindowProperty(_dpy, win, WindowManager::inst()->getMwmHintsAtom(),
+                           0L, 20L, False, WindowManager::inst()->getMwmHintsAtom(),
                            &real_type, &real_format,
                            &items_read, &items_left,
                            &udata);

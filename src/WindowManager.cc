@@ -735,7 +735,7 @@ WindowManager::scanWindows(void)
                         (wm_hints->initial_state == WithdrawnState)) {
                     _harbour->addDockApp(new DockApp(_screen, _theme, *it));
                 } else {
-                    client = new Client(this, *it);
+                    client = new Client(*it);
                     if (!client->isAlive())
                         delete client;
 
@@ -744,7 +744,7 @@ WindowManager::scanWindows(void)
             } else
 #endif // HARBOUR
             {
-                client = new Client(this, *it);
+                client = new Client(*it);
                 if (!client->isAlive())
                     delete client;
             }
@@ -1343,7 +1343,7 @@ WindowManager::handleMapRequestEvent(XMapRequestEvent *ev)
                         (wm_hints->initial_state == WithdrawnState)) {
                     _harbour->addDockApp(new DockApp(_screen, _theme, ev->window));
                 } else {
-                    Client *client = new Client(this, ev->window, true);
+                    Client *client = new Client(ev->window, true);
                     if (client->isAlive() == false) {
                         delete client;
                     }
@@ -1352,7 +1352,7 @@ WindowManager::handleMapRequestEvent(XMapRequestEvent *ev)
             } else
 #endif // HARBOUR
             {
-                Client *client = new Client(this, ev->window, true);
+                Client *client = new Client(ev->window, true);
                 if (client->isAlive() == false) {
                     delete client;
                 }
