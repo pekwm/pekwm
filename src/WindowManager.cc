@@ -97,6 +97,7 @@ using std::wstring;
 
 // Static initializers
 const string WindowManager::_wm_name = string("pekwm");
+WindowManager *WindowManager::_inst = 0;
 
 #ifdef MENUS
 const char *WindowManager::MENU_NAMES_RESERVED[] = {
@@ -402,6 +403,35 @@ WindowManager::RootWO::handleLeaveEvent(XCrossingEvent *ev)
 
 // WindowManager
 
+void WindowManager::start(const std::string &command_line, const std::string &config_file) {
+    if (_inst)
+        delete _inst;
+    
+    _inst = new WindowManager(command_line, config_file);
+
+    _inst->setupDisplay();
+
+    _inst->scanWindows();
+    Frame::resetFrameIDs();
+
+    // add all frames to the MRU list
+    _inst->_mru_list.resize(Frame::frame_size());
+    copy(Frame::frame_begin(), Frame::frame_end (), _inst->_mru_list.begin());
+
+    // make sure windows are inside the virtual viewports
+    for (uint i = 0; i < _inst->_workspaces->size(); ++i) {
+        _inst->_workspaces->getViewport(i)->makeAllInsideVirtual();
+    }
+
+    _inst->execStartFile();
+    _inst->doEventLoop();
+}
+
+void WindowManager::destroy() {
+    delete _inst;
+    _inst = 0;
+}
+
 //! @brief Constructor for WindowManager class
 WindowManager::WindowManager(const std::string &command_line, const std::string &config_file) :
         _screen(NULL), _screen_resources(NULL),
@@ -436,24 +466,6 @@ WindowManager::WindowManager(const std::string &command_line, const std::string 
     // construct
     _config = new Config();
     _config->load(config_file);
-
-    setupDisplay();
-
-    scanWindows();
-    Frame::resetFrameIDs();
-
-    // add all frames to the MRU list
-    _mru_list.resize(Frame::frame_size());
-    copy(Frame::frame_begin(), Frame::frame_end (), _mru_list.begin());
-
-    // make sure windows are inside the virtual viewports
-    for (uint i = 0; i < _workspaces->size(); ++i) {
-        _workspaces->getViewport(i)->makeAllInsideVirtual();
-    }
-
-    execStartFile();
-
-    doEventLoop();
 }
 
 //! @brief WindowManager destructor

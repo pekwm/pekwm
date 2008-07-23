@@ -105,21 +105,21 @@ main(int argc, char **argv)
     Info::printInfo();
 #endif // DEBUG
 
-    WindowManager *pekwm = new WindowManager(command_line, config_file);
+    WindowManager::start(command_line, config_file);
 
     // see if we wanted to restart
-    if (pekwm->getRestartCommand().size() > 0) {
-        string restart_command = pekwm->getRestartCommand();
+    if (WindowManager::inst()->getRestartCommand().size() > 0) {
+        string restart_command = WindowManager::inst()->getRestartCommand();
 
         // cleanup before restarting
-        delete pekwm;
+        WindowManager::destroy();
 
         Util::iconv_deinit();
 
         execlp("/bin/sh", "sh" , "-c", restart_command.c_str(), (char*) NULL);
     }
 
-    delete pekwm;
+    WindowManager::destroy();
     Util::iconv_deinit();
 
     return 0;

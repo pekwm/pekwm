@@ -100,8 +100,9 @@ class RootWO : public PWinObj {
         virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev);
     };
 
-    WindowManager(const std::string &command_line, const std::string &config_file);
-    ~WindowManager(void);
+    static void start(const std::string &command_line, const std::string &config_file);
+    static void destroy();
+    inline static WindowManager *inst() { return _inst; }
 
     //! @brief Sets reload status, will reload from main loop.
     void reload(void) { _reload = true; }
@@ -201,6 +202,10 @@ class RootWO : public PWinObj {
     void handleButtonReleaseEvent(XButtonEvent *ev);
 
 private:
+    WindowManager(const std::string &command_line, const std::string &config_file);
+    WindowManager(const WindowManager &); // not implemented to ensure singleton
+    ~WindowManager();
+    
     void setupDisplay(void);
     void scanWindows(void);
     void execStartFile(void);
@@ -310,6 +315,9 @@ private:
 
     // Windows for the different hints
     Window _extended_hints_win;
+    
+    // pointer for singleton pattern
+    static WindowManager *_inst;
 };
 
 #endif // _WINDOWMANAGER_HH_
