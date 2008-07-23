@@ -551,7 +551,7 @@ Client::handleUnmapEvent(XUnmapEvent *ev)
 #endif // DEBUG
 
     // FIXME: Listen mask should change as this doesn't work?
-    //_alive = false;
+    _alive = false;
     delete this;
 
     return NULL;
