@@ -544,6 +544,10 @@ Client::handleUnmapEvent(XUnmapEvent *ev)
     // Withdrawn state on real and synthetic UnmapNotify events.
     setWmState(WithdrawnState);
 
+    // Extended Window Manager Hints 1.3 specifies that a window manager
+    // should remove the _NET_WM_STATE property when a window is withdrawn.
+    AtomUtil::unsetProperty(_window, EwmhAtoms::instance()->getAtom(STATE));
+
 #ifdef DEBUG
     cerr << __FILE__ << "@" << __LINE__ << ": "
          << "Client(" << this << ")::handleUnmapEvent(" << ev << ")" << endl
