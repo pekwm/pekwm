@@ -28,7 +28,6 @@
 #include "Client.hh"
 #include "Frame.hh"
 #include "Workspaces.hh"
-#include "Viewport.hh"
 #include "WindowManager.hh"
 
 using std::cerr;
@@ -183,16 +182,6 @@ FrameListMenu::updateFrameListMenu(void)
 void
 FrameListMenu::buildName(Frame* frame, std::wstring &name)
 {
-    // only show viewport information if having more than one
-    if ((Config::instance()->getViewportCols() > 1) ||
-            (Config::instance()->getViewportRows() > 1)) {
-        wchar_t buf[64];
-        swprintf(buf, 64, L"(%ix%i) ",
-                 Workspaces::instance()->getActiveViewport()->getCol(frame) + 1,
-                 Workspaces::instance()->getActiveViewport()->getRow(frame) + 1);
-        name.append(buf);
-    }
-
     name.append(L"[");
     if (frame->isSticky()) {
         name.append(L"*");
@@ -260,10 +249,6 @@ FrameListMenu::handleGotomenu(Client *client)
     // make sure it isn't hidden
     if (frame->isMapped() == false) {
         frame->mapWindow();
-    }
-    // make sure the viewport is correct
-    if (Workspaces::instance()->getActiveViewport()->isInside(frame) == false) {
-        Workspaces::instance()->getActiveViewport()->moveToWO(frame);
     }
 
     frame->activateChild(client);
