@@ -49,15 +49,6 @@ Screen {
         Pre = " #";
         Post = "";
     }
-
-    Viewports {
-        # Viewports are disabled by default.
-        Columns = "1"
-        Rows = "1"
-        # This would give you a 3x3 virtual workspace.
-        # Columns = "3"
-        # Rows = "3"
-    }
 }
 
 Menu {

@@ -52,16 +52,6 @@ Global {
 	KeyPress = "Mod4 C" { Actions = "ShowMenu GotoClient" }
 	KeyPress = "Mod4 Shift I" { Actions = "ShowMenu Icon" }
 	KeyPress = "Mod4 X" { Actions = "HideAllMenus" }
-	# Moving in viewports (disabled from ~/.pekwm/config by default)
-	Keypress = "Mod4 KP_1" { Actions = "ViewportGoto 1 3" } # KP_
-	Keypress = "Mod4 KP_2" { Actions = "ViewportGoto 2 3" } # stands
-	Keypress = "Mod4 KP_3" { Actions = "ViewportGoto 3 3" } # for
-	Keypress = "Mod4 KP_4" { Actions = "ViewportGoto 1 2" } # keypad
-	Keypress = "Mod4 KP_5" { Actions = "ViewportGoto 2 2" }
-	Keypress = "Mod4 KP_6" { Actions = "ViewportGoto 3 2" }
-	Keypress = "Mod4 KP_7" { Actions = "ViewportGoto 1 1" }
-	Keypress = "Mod4 KP_8" { Actions = "ViewportGoto 2 1" }
-	Keypress = "Mod4 KP_9" { Actions = "ViewportGoto 3 1" }
 	# External Commands
 	KeyPress = "Mod4 E" { Actions = "Exec $TERM" }
 	# Pekwm control
@@ -190,7 +180,7 @@ Global {
 		KeyPress = "0" { Actions = "ActivateClientNum 10" }
 		KeyPress = "C" { Actions = "ShowCmdDialog GotoClientID " }
 	}
-	# Workspaces and viewports
+	# Workspaces
 	Chain = "Ctrl Mod1 W" {
 		KeyPress = "Right" { Actions = "GoToWorkspace Right" }
 		KeyPress = "Left" { Actions = "GoToWorkspace Left" }
@@ -206,19 +196,6 @@ Global {
 		KeyPress = "F2" { Actions = "SendToWorkspace 2" }
 		KeyPress = "F3" { Actions = "SendToWorkspace 3" }
 		KeyPress = "F4" { Actions = "SendToWorkspace 4" }
-		Keypress = "Shift Up" { Actions = "ViewportMoveDirection Up" }
-		Keypress = "Shift Down" { Actions = "ViewportMoveDirection Down" }
-		Keypress = "Shift Left" { Actions = "ViewportMoveDirection Left" }
-		Keypress = "Shift Right" { Actions = "ViewportMoveDirection Right" }
-		Keypress = "KP_1" { Actions = "ViewportGoto 1 3" } # KP_
-		Keypress = "KP_2" { Actions = "ViewportGoto 2 3" } # stands
-		Keypress = "KP_3" { Actions = "ViewportGoto 3 3" } # for
-		Keypress = "KP_4" { Actions = "ViewportGoto 1 2" } # keypad
-		Keypress = "KP_5" { Actions = "ViewportGoto 2 2" }
-		Keypress = "KP_6" { Actions = "ViewportGoto 3 2" }
-		Keypress = "KP_7" { Actions = "ViewportGoto 1 1" }
-		Keypress = "KP_8" { Actions = "ViewportGoto 2 1" }
-		Keypress = "KP_9" { Actions = "ViewportGoto 3 1" }
 	}
 	# External commands
 	Chain = "Ctrl Mod1 E" {

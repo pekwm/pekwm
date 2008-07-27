@@ -76,32 +76,24 @@ Border {
 
 ScreenEdge {
 	Down {
-		Enter = "Mod4 Any" { Actions = "ViewportMoveDirection Down" }
 		ButtonRelease = "3" { Actions = "ShowMenu Root" }
-		ButtonRelease = "Mod4 1" { Actions = "ViewportMoveDirection Down" }
 		ButtonRelease = "2" { Actions = "ShowMenu Goto" }
 		ButtonRelease = "Mod4 2" { Actions = "ShowMenu GotoClient" }
 		ButtonRelease = "4" { Actions = "GoToWorkspace Right" }
 		ButtonRelease = "5" { Actions = "GoToWorkspace Left" }
 		ButtonRelease = "Mod1 4" { Actions = "GoToWorkspace Next" }
 		ButtonRelease = "Mod1 5" { Actions = "GoToWorkspace Prev" }
-		EnterMoving = "Mod4 Any" { Actions = "WarpToViewport Down" }
 	}
 	Up {
-		Enter = "Mod4 Any" { Actions = "ViewportMoveDirection Up" }
 		ButtonRelease = "3" { Actions = "ShowMenu Root" }
-		ButtonRelease = "Mod4 1" { Actions = "ViewportMoveDirection Up" }
 		ButtonRelease = "2" { Actions = "ShowMenu Goto" }
 		ButtonRelease = "Mod4 2" { Actions = "ShowMenu GotoClient" }
 		ButtonRelease = "Mod1 4" { Actions = "GoToWorkspace Next" }
 		ButtonRelease = "Mod1 5" { Actions = "GoToWorkspace Prev" }
-		EnterMoving = "Mod4 Any" { Actions = "WarpToViewport Up" }
 	}
 	Left {
 		Enter = "Mod1 Any" { Actions = "GoToWorkspace Left" }
-		Enter = "Mod4 Any" { Actions = "ViewportMoveDirection Left" }
 		ButtonRelease = "3" { Actions = "ShowMenu Root" }
-		ButtonRelease = "Mod4 1" { Actions = "ViewportMoveDirection Left" }
 		ButtonRelease = "1" { Actions = "GoToWorkspace Left" }
 		DoubleClick = "1" { Actions = "GoToWorkspace Left" }
 		ButtonRelease = "2" { Actions = "ShowMenu Goto" }
@@ -110,14 +102,11 @@ ScreenEdge {
 		ButtonRelease = "5" { Actions = "GoToWorkspace Left" }
 		ButtonRelease = "Mod1 4" { Actions = "GoToWorkspace Next" }
 		ButtonRelease = "Mod1 5" { Actions = "GoToWorkspace Prev" }
-		EnterMoving = "Mod4 Any" { Actions = "WarpToViewport Left" }
 		EnterMoving = "Any Any" { Actions = "WarpToWorkspace Left" }
 	}
 	Right {
 		Enter = "Mod1 Any" { Actions = "GoToWorkspace Right" }
-		Enter = "Mod4 Any" { Actions = "ViewportMoveDirection Right" }
 		ButtonRelease = "3" { Actions = "ShowMenu Root" }
-		ButtonRelease = "Mod4 1" { Actions = "ViewportMoveDirection Right" }
 		ButtonRelease = "1" { Actions = "GoToWorkspace Right" }
 		DoubleClick = "1" { Actions = "GoToWorkspace Right" }
 		ButtonRelease = "2" { Actions = "ShowMenu Goto" }
@@ -126,7 +115,6 @@ ScreenEdge {
 		ButtonRelease = "5" { Actions = "GoToWorkspace Left" }
 		ButtonRelease = "Mod1 4" { Actions = "GoToWorkspace Next" }
 		ButtonRelease = "Mod1 5" { Actions = "GoToWorkspace Prev" }
-		EnterMoving = "Mod4 Any" { Actions = "WarpToViewport Right" }
 		EnterMoving = "Any Any" { Actions = "WarpToWorkspace Right" }
 	}
 }
@@ -159,7 +147,6 @@ Root {
 	ButtonRelease = "Mod1 4" { Actions = "GoToWorkspace Next" }
 	ButtonRelease = "Mod1 5" { Actions = "GoToWorkspace Prev" }
 	ButtonRelease = "1" { Actions = "HideAllMenus" }
-	Motion = "1" { Threshold = "10"; Actions = "ViewportMoveDrag" }
 }
 
 Menu {
