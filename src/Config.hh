@@ -94,9 +94,6 @@ public:
         return _screen_client_unique_name_post;
     }
 
-    inline int getViewportCols(void) const { return _viewport_cols; }
-    inline int getViewportRows(void) const { return _viewport_rows; }
-
     inline bool isMenuSelectOn(uint val) const { return (_menu_select_mask&val); }
     inline bool isMenuEnterOn(uint val) const { return (_menu_enter_mask&val); }
     inline bool isMenuExecOn(uint val) const { return (_menu_exec_mask&val); }
@@ -216,10 +213,6 @@ private:
     uint _harbour_orientation;
     int _harbour_head_nr;
 #endif // HARBOUR
-
-    // viewport
-    int _viewport_cols;
-    int _viewport_rows;
 
     std::map<MouseActionListName, std::list<ActionEvent>* > _mouse_action_map;
 

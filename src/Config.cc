@@ -64,12 +64,11 @@ Config::Config(void) :
         _screen_client_unique_name(true),
         _screen_client_unique_name_pre(" #"), _screen_client_unique_name_post(""),
         _menu_select_mask(0), _menu_enter_mask(0), _menu_exec_mask(0),
-        _menu_icon_width(16), _menu_icon_height(16),
+        _menu_icon_width(16), _menu_icon_height(16)
 #ifdef HARBOUR
-        _harbour_da_min_s(0), _harbour_da_max_s(0),
-        _harbour_head_nr(0),
+       ,_harbour_da_min_s(0), _harbour_da_max_s(0),
+        _harbour_head_nr(0)
 #endif // HARBOUR
-        _viewport_cols(1), _viewport_rows(1)
 {
     if (_instance != NULL) {
         throw string("Config, trying to create multiple instances");
@@ -571,25 +570,7 @@ Config::loadScreen(CfgParser::Entry *op_section)
       }
     }
 
-    CfgParser::Entry *op_sub = op_section->find_section("VIEWPORTS");
-    if (op_sub) {
-        op_sub = op_sub->get_section ();
-
-        o_key_list.push_back (new CfgParserKeyInt ("COLUMNS", _viewport_cols,
-                              1, 1));
-        o_key_list.push_back (new CfgParserKeyInt ("ROWS", _viewport_rows,
-                              1, 1));
-
-        // Parse data
-        op_sub->parse_key_values (o_key_list.begin (), o_key_list.end ());
-
-        // Free up resources
-        for_each (o_key_list.begin (), o_key_list.end (),
-                  Util::Free<CfgParserKey*>());
-        o_key_list.clear();
-    }
-
-    op_sub = op_section->find_section ("PLACEMENT");
+    CfgParser::Entry *op_sub = op_section->find_section ("PLACEMENT");
     if (op_sub) {
         op_sub = op_sub->get_section ();
 
