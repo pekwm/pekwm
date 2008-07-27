@@ -267,15 +267,12 @@ Viewport::updateGeometry(void)
 void
 Viewport::reload(void)
 {
-    _cols = Config::instance()->getViewportCols();
-    _rows = Config::instance()->getViewportRows();
-
     // setup boundaries
     _v_width = _scr->getWidth();
     _v_height = _scr->getHeight();
 
-    _width = _cols * _v_width;
-    _height = _rows * _v_height;
+    _width = _v_width;
+    _height = _v_height;
 
     _x_max = _width - _v_width;
     _y_max = _height - _v_height;
