@@ -24,7 +24,6 @@ class EwmhAtoms;
 class PWinObj;
 class Frame;
 class FrameWidget;
-class Viewport;
 
 class Workspaces {
 public:
@@ -35,7 +34,6 @@ public:
 
         inline std::wstring &getName(void) { return _name; }
         inline uint getNumber(void) { return _number; }
-        inline Viewport *getViewport(void) { return _viewport; }
         inline PWinObj* getLastFocused(void) { return _last_focused; }
 
         inline void setLastFocused(PWinObj* wo) { _last_focused = wo; }
@@ -43,7 +41,6 @@ public:
     private:
         std::wstring _name;
         uint _number;
-        Viewport *_viewport;
 
         const std::list<PWinObj*> &_wo_list;
         PWinObj *_last_focused;
@@ -94,15 +91,6 @@ public:
         return 0;
       return _workspace_list[workspace];
     };
-
-    inline Viewport *getActiveViewport(void) {
-        return _workspace_list[_active]->getViewport();
-    }
-    inline Viewport *getViewport(uint workspace) {
-        if (workspace >= _workspace_list.size())
-            return NULL;
-        return _workspace_list[workspace]->getViewport();
-    }
 
     void insert(PWinObj* wo, bool raise = true);
     void remove(PWinObj* wo);

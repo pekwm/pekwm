@@ -19,7 +19,6 @@
 #include "PDecor.hh"
 #include "Frame.hh"
 #include "Client.hh" // For isSkip()
-#include "Viewport.hh"
 
 #include <iostream>
 #include <sstream>
@@ -44,15 +43,12 @@ using std::endl;
 // Workspaces::Workspace
 
 Workspaces::Workspace::Workspace(const std::wstring &name, uint number, const std::list<PWinObj*> &wo_list)
-  : _name(name), _number(number),
-    _viewport(NULL), _wo_list(wo_list), _last_focused(NULL)
+  : _name(name), _number(number), _wo_list(wo_list), _last_focused(NULL)
 {
-    _viewport = new Viewport(number, _wo_list);
 }
 
 Workspaces::Workspace::~Workspace(void)
 {
-    delete _viewport;
 }
 
 // Workspaces
@@ -422,8 +418,6 @@ Workspaces::unhideAll(uint workspace, bool focus)
             PWinObj::getRootPWinObj()->giveInputFocus();
         }
     }
-
-    _workspace_list[_active]->getViewport()->hintsUpdate();
 }
 
 //! @brief Raises a PWinObj and restacks windows.
