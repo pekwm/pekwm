@@ -32,7 +32,6 @@
 #include "FontHandler.hh"
 #include "PixmapHandler.hh"
 #include "TextureHandler.hh"
-#include "Viewport.hh"
 #include "Workspaces.hh"
 #include "Util.hh"
 
@@ -418,11 +417,6 @@ void WindowManager::start(const std::string &command_line, const std::string &co
     _inst->_mru_list.resize(Frame::frame_size());
     copy(Frame::frame_begin(), Frame::frame_end (), _inst->_mru_list.begin());
 
-    // make sure windows are inside the virtual viewports
-    for (uint i = 0; i < _inst->_workspaces->size(); ++i) {
-        _inst->_workspaces->getViewport(i)->makeAllInsideVirtual();
-    }
-
     _inst->execStartFile();
     _inst->doEventLoop();
 }
@@ -556,11 +550,6 @@ WindowManager::cleanup(void)
     list<Frame*>::iterator it_f(Frame::frame_begin());
     for (; it_f != Frame::frame_end(); ++it_f) {
         (*it_f)->updateInactiveChildInfo();
-    }
-
-    // make sure windows are inside the real screen
-    for (uint i = 0; i < _workspaces->size(); ++i) {
-        _workspaces->getViewport(i)->makeAllInsideReal();
     }
 
     // remove all dockapps
@@ -902,11 +891,6 @@ WindowManager::doReload(void)
 
     // reload the theme
     _theme->load(_config->getThemeFile());
-
-    // resize the viewports
-    for (uint i = 0; i < _workspaces->size(); ++i) {
-        _workspaces->getViewport(i)->reload();
-    }
 
     // resize the screen edge
     screenEdgeResize();
@@ -1583,9 +1567,6 @@ WindowManager::handleClientMessageEvent(XClientMessageEvent *ev)
                 if (ev->data.l[0] > 0) {
                     _workspaces->setSize(ev->data.l[0]);
                 }
-            } else if (ev->message_type ==
-                       _ewmh_atoms->getAtom(NET_DESKTOP_VIEWPORT)) {
-                _workspaces->getActiveViewport()->move(ev->data.l[0], ev->data.l[1]);
             }
         }
 
@@ -1696,13 +1677,6 @@ WindowManager::handleXRandrScreenChangeEvent(XRRScreenChangeNotifyEvent *ev)
 #ifdef HARBOUR
   _harbour->updateGeometry();
 #endif // HARBOUR
-
-  Viewport *vp;
-  for (uint i = 0; i < _workspaces->size(); ++i) {
-    if ((vp = _workspaces->getViewport(i)) != NULL) {
-      vp->updateGeometry();
-    }
-  }
 
   screenEdgeResize();
 }
@@ -1861,8 +1835,7 @@ WindowManager::findWOAndFocus(PWinObj *search)
     PWinObj *focus = NULL;
 
     if ((PWinObj::windowObjectExists(search) == true) &&
-            (search->isMapped()) && (search->isFocusable()) &&
-            _workspaces->getActiveViewport()->isInside(search))  {
+            (search->isMapped()) && (search->isFocusable()))  {
         focus = search;
     }
 
@@ -1870,8 +1843,7 @@ WindowManager::findWOAndFocus(PWinObj *search)
     if (focus == NULL) {
         list<PWinObj*>::reverse_iterator f_it = _mru_list.rbegin();
         for (; (focus == NULL) && (f_it != _mru_list.rend()); ++f_it) {
-            if ((*f_it)->isMapped() && (*f_it)->isFocusable() &&
-                    _workspaces->getActiveViewport()->isInside(*f_it)) {
+            if ((*f_it)->isMapped() && (*f_it)->isFocusable()) {
                 focus = *f_it;
             }
         }
@@ -1975,10 +1947,9 @@ WindowManager::findGroup(AutoProperty *property)
     }
 
     Frame *frame = NULL;
-    Viewport *vp = _workspaces->getActiveViewport();
 
 #define MATCH_GROUP(F,P) \
-((P->group_global || ((F)->isMapped() && vp->isInside(F))) && \
+((P->group_global || ((F)->isMapped())) && \
 ((P->group_size == 0) || (signed((F)->size()) < P->group_size)) && \
 ((((F)->getClassHint()->group.size() > 0) \
 	? ((F)->getClassHint()->group == P->group_name) : false) || \
@@ -2181,8 +2152,6 @@ WindowManager::initHints(void)
     AtomUtil::setLong(_screen->getRoot(),
                       _ewmh_atoms->getAtom(NET_NUMBER_OF_DESKTOPS),
                       _config->getWorkspaces());
-
-    _workspaces->getActiveViewport()->hintsUpdate();
 
     AtomUtil::setLong(_screen->getRoot(),
                       _ewmh_atoms->getAtom(NET_CURRENT_DESKTOP), 0);
