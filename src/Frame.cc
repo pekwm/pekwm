@@ -28,7 +28,6 @@ extern "C" {
 #include "ActionHandler.hh"
 #include "AutoProperties.hh"
 #include "Client.hh"
-#include "Viewport.hh"
 #include "ScreenResources.hh"
 #include "StatusWindow.hh"
 #include "Workspaces.hh"
@@ -141,24 +140,6 @@ Frame::Frame(Client *client, AutoProperty *ap)
             }
         }
 
-        if (ap->isMask(AP_VIEWPORT)) {
-            Viewport *vp = Workspaces::instance()->getViewport(client->getWorkspace());
-            if (vp != NULL) {
-                // get position on that viewport then add viewport base position
-                if (ap->viewport_col < vp->getCols()) {
-                    _gm.x -= vp->getCol(this) * PScreen::instance()->getWidth();
-                    _gm.x += ap->viewport_col * PScreen::instance()->getWidth();
-                }
-                if (ap->viewport_row < vp->getRows()) {
-                    _gm.y -= vp->getRow(this) * PScreen::instance()->getHeight();
-                    _gm.y += ap->viewport_row * PScreen::instance()->getHeight();
-                }
-                move(_gm.x, _gm.y);
-
-                place = false;
-            }
-        }
-
         if (ap->isMask(AP_PLACE_NEW)) {
             place = ap->place_new;
         }
@@ -190,18 +171,9 @@ Frame::Frame(Client *client, AutoProperty *ap)
     // set the window states, shaded, maximized...
     getState(client);
 
-    // FIXME: This should be checked even if viewports are enabled.
-    if ((Config::instance()->getViewportCols() < 2) &&
-            (Config::instance()->getViewportRows() < 2)) {
-        if (_client->hasStrut() == false) {
-            if (fixGeometry()) {
-                moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
-            }
-        }
-    } else {
-        Viewport *vp = Workspaces::instance()->getViewport(_client->getWorkspace());
-        if (vp != NULL) {
-            vp->makeWOInsideVirtual(this);
+    if (!_client->hasStrut()) {
+        if (fixGeometry()) {
+            moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
         }
     }
 
@@ -500,9 +472,7 @@ Frame::getDecorInfo(wchar_t *buf, uint size)
         width = _gm.width;
         height = _gm.height;
     }
-    swprintf(buf, size, L"%d+%d+%d+%d", width, height,
-             _gm.x + Workspaces::instance()->getActiveViewport()->getX(),
-             _gm.y + Workspaces::instance()->getActiveViewport()->getY());
+    swprintf(buf, size, L"%d+%d+%d+%d", width, height, _gm.x, _gm.y);
 }
 
 //! @brief
