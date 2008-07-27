@@ -38,11 +38,10 @@ enum PropertyType {
     AP_WORKSPACE = (1L << 11),
     AP_SKIP = (1L << 12),
     AP_FULLSCREEN = (1L << 13),
-    AP_VIEWPORT = (1L << 14),
-    AP_PLACE_NEW = (1L << 15),
-    AP_FOCUS_NEW = (1L << 16),
-    AP_FOCUSABLE = (1L << 17),
-    AP_CFG_DENY = (1L << 18),
+    AP_PLACE_NEW = (1L << 14),
+    AP_FOCUS_NEW = (1L << 15),
+    AP_FOCUSABLE = (1L << 16),
+    AP_CFG_DENY = (1L << 17),
 
     AP_GROUP_SIZE,
     AP_GROUP_BEHIND,
@@ -132,7 +131,7 @@ public:
     bool maximized_vertical, maximized_horizontal, fullscreen;
     bool border, titlebar;
     bool focusable, place_new, focus_new;
-    uint workspace, layer, skip, viewport_col, viewport_row, cfg_deny;
+    uint workspace, layer, skip, cfg_deny;
 
     std::string frame_decor;
 

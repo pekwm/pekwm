@@ -73,7 +73,6 @@ AutoProperties::AutoProperties(void) :
     _property_map["PLACENEW"] = AP_PLACE_NEW;
     _property_map["FOCUSNEW"] = AP_FOCUS_NEW;
     _property_map["FOCUSABLE"] = AP_FOCUSABLE;
-    _property_map["VIEWPORT"] = AP_VIEWPORT;
     _property_map["CFGDENY"] = AP_CFG_DENY;
 
     // group properties
@@ -742,14 +741,6 @@ AutoProperties::parseAutoPropertyValue(CfgParser::Entry *op_section,
         for (it = tokens.begin(); it != tokens.end(); ++it) {
           prop->cfg_deny |= Config::instance()->getCfgDeny(*it);
         }
-      }
-      break;
-    case AP_VIEWPORT:
-      tokens.clear();
-      if (Util::splitString(op_it->get_value (), tokens, " \t", 2) == 2) {
-        prop->maskAdd(AP_VIEWPORT);
-        prop->viewport_col = strtol(tokens[0].c_str(), NULL, 10) - 1;
-        prop->viewport_row = strtol(tokens[1].c_str(), NULL, 10) - 1;
       }
       break;
 
