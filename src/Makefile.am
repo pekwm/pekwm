@@ -51,7 +51,6 @@ pekwm_SOURCES = \
 	TextureHandler.cc TextureHandler.hh \
 	Timer.hh Types.hh \
 	Util.cc Util.hh \
-	Viewport.cc Viewport.hh \
 	WORefMenu.cc WORefMenu.hh \
 	WindowManager.cc WindowManager.hh \
 	Workspaces.cc Workspaces.hh \
