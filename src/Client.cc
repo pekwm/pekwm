@@ -36,7 +36,6 @@ extern "C" {
 #include "AutoProperties.hh"
 #include "Frame.hh"
 #include "Workspaces.hh"
-#include "Viewport.hh"
 #include "WindowManager.hh"
 #include "PTexturePlain.hh"
 #include "PImageNativeIcon.hh"
@@ -1557,8 +1556,6 @@ Client::getStrutHint(void)
         delete _strut;
         _strut = NULL;
     }
-
-    Workspaces::instance()->getActiveViewport()->hintSetWorkarea();
 }
 
 //! @brief
@@ -1571,7 +1568,5 @@ Client::removeStrutHint(void)
     PScreen::instance()->removeStrut(_strut);
     delete _strut;
     _strut = NULL;
-
-    Workspaces::instance()->getActiveViewport()->hintSetWorkarea();
 }
 
