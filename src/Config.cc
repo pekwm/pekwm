@@ -101,7 +101,6 @@ Config::Config(void) :
     _action_map["MOVE"] = pair<ActionType, uint>(ACTION_MOVE, FRAME_OK|FRAME_BORDER_OK|CLIENT_OK);
     _action_map["MOVERESIZE"] = pair<ActionType, uint>(ACTION_MOVE_RESIZE, KEYGRABBER_OK);
     _action_map["GROUPINGDRAG"] = pair<ActionType, uint>(ACTION_GROUPING_DRAG, FRAME_OK|CLIENT_OK);
-    _action_map["WARPTOVIEWPORT"] = pair<ActionType, uint>(ACTION_WARP_TO_VIEWPORT, SCREEN_EDGE_OK);
     _action_map["WARPTOWORKSPACE"] = pair<ActionType, uint>(ACTION_WARP_TO_WORKSPACE, SCREEN_EDGE_OK);
     _action_map["MOVETOEDGE"] = pair<ActionType, uint>(ACTION_MOVE_TO_EDGE, KEYGRABBER_OK);
     _action_map["NEXTFRAME"] = pair<ActionType, uint>(ACTION_NEXT_FRAME, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
@@ -112,12 +111,6 @@ Config::Config(void) :
     _action_map["ATTACHMARKED"] = pair<ActionType, uint>(ACTION_ATTACH_MARKED, FRAME_MASK);
     _action_map["ATTACHCLIENTINNEXTFRAME"] = pair<ActionType, uint>(ACTION_ATTACH_CLIENT_IN_NEXT_FRAME, FRAME_MASK);
     _action_map["ATTACHCLIENTINPREVFRAME"] = pair<ActionType, uint>(ACTION_ATTACH_CLIENT_IN_PREV_FRAME, FRAME_MASK);
-    _action_map["VIEWPORTMOVEXY"] = pair<ActionType, uint>(ACTION_VIEWPORT_MOVE_XY, ANY_MASK);
-    _action_map["VIEWPORTMOVEDRAG"] = pair<ActionType, uint>(ACTION_VIEWPORT_MOVE_DRAG, ANY_MASK);
-    _action_map["VIEWPORTMOVEDIRECTION"] = pair<ActionType, uint>(ACTION_VIEWPORT_MOVE_DIRECTION, ANY_MASK);
-    _action_map["VIEWPORTSCROLL"] = pair<ActionType, uint>(ACTION_VIEWPORT_SCROLL, ANY_MASK);
-    _action_map["VIEWPORTGOTO"] = pair<ActionType, uint>(ACTION_VIEWPORT_GOTO, ANY_MASK);
-    _action_map["SENDTOVIEWPORT"] = pair<ActionType, uint>(ACTION_SEND_TO_VIEWPORT, ANY_MASK);
     _action_map["FINDCLIENT"] = pair<ActionType, uint>(ACTION_FIND_CLIENT, ANY_MASK);
     _action_map["GOTOCLIENTID"] = pair<ActionType, uint>(ACTION_GOTO_CLIENT_ID, ANY_MASK);
     _action_map["DETACH"] = pair<ActionType, uint>(ACTION_DETACH, FRAME_MASK);
@@ -938,29 +931,6 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
                     break;
                 case ACTION_RESIZE:
                     action.setParamI(0, ParseUtil::getValue<BorderPosition>(tok[1], _borderpos_map));
-                    break;
-                case ACTION_WARP_TO_VIEWPORT:
-                case ACTION_VIEWPORT_MOVE_DIRECTION:
-                    action.setParamI(0, ParseUtil::getValue<DirectionType>(tok[1], _direction_map));
-                    break;
-                case ACTION_VIEWPORT_SCROLL:
-                case ACTION_VIEWPORT_MOVE_XY:
-                    if ((Util::splitString(tok[1], tok, " \t", 2)) == 2) {
-                        action.setParamI(0, strtol(tok[tok.size() - 2].c_str(), NULL, 10));
-                        action.setParamI(1, strtol(tok[tok.size() - 1].c_str(), NULL, 10));
-                    }
-                    break;
-                case ACTION_VIEWPORT_GOTO:
-                    if ((Util::splitString(tok[1], tok, " \t", 2)) == 2) {
-                        action.setParamI(0, strtol(tok[tok.size() - 2].c_str(), NULL, 10) - 1);
-                        action.setParamI(1, strtol(tok[tok.size() - 1].c_str(), NULL, 10) - 1);
-                    }
-                    break;
-                case ACTION_SEND_TO_VIEWPORT:
-                    if ((Util::splitString(tok[1], tok, " \t", 2)) == 2) {
-                        action.setParamI(0, strtol(tok[tok.size() - 2].c_str(), NULL, 10) - 1);
-                        action.setParamI(1, strtol(tok[tok.size() - 1].c_str(), NULL, 10) - 1);
-                    }
                     break;
                 case ACTION_RAISE:
                 case ACTION_LOWER:

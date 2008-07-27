@@ -22,7 +22,6 @@
 #include "CmdDialog.hh"
 #include "SearchDialog.hh"
 #include "Workspaces.hh"
-#include "Viewport.hh"
 #include "WindowManager.hh"
 #include "Util.hh"
 #include "RegexString.hh"
@@ -300,9 +299,6 @@ ActionHandler::handleAction(const ActionPerformed &ap)
             case ACTION_WARP_TO_WORKSPACE:
                 actionWarpToWorkspace(decor, it->getParamI(0));
                 break;
-            case ACTION_WARP_TO_VIEWPORT:
-                actionWarpToViewport(decor, it->getParamI(0));
-                break;
             default:
                 matched = false;
                 break;
@@ -340,32 +336,6 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 // the edge ) should warp the pointer.
                 actionGotoWorkspace(it->getParamI(0), (ap.type == MotionNotify) || (ap.type == EnterNotify));
                 break;
-            case ACTION_VIEWPORT_MOVE_XY:
-                Workspaces::instance()->getActiveViewport()->move(it->getParamI(0), it->getParamI(1));
-                break;
-            case ACTION_VIEWPORT_MOVE_DRAG:
-                if (ap.type == MotionNotify) {
-                    Workspaces::instance()->getActiveViewport()->moveDrag(ap.event.motion->x_root, ap.event.motion->y_root);
-                }
-                break;
-            case ACTION_VIEWPORT_MOVE_DIRECTION:
-                if (ap.type == KeyPress) {
-                    Workspaces::instance()->getActiveViewport()->moveDirection(DirectionType(it->getParamI(0)), false);
-                } else {
-                    Workspaces::instance()->getActiveViewport()->moveDirection(DirectionType(it->getParamI(0)), true);
-                }
-                break;
-            case ACTION_VIEWPORT_SCROLL:
-                Workspaces::instance()->getActiveViewport()->scroll(it->getParamI(0), it->getParamI(1));
-                break;
-            case ACTION_VIEWPORT_GOTO:
-                Workspaces::instance()->getActiveViewport()->gotoColRow((unsigned) it->getParamI(0), (unsigned) it->getParamI(1));
-                break;
-            case ACTION_SEND_TO_VIEWPORT:
-                actionSendToViewport(decor ? decor : ap.wo,
-                                     it->getParamI(0), it->getParamI(1));
-                break;
-
             case ACTION_FIND_CLIENT:
                 actionFindClient(Util::to_wide_str(it->getParamS()));
                 break;
@@ -641,60 +611,6 @@ ActionHandler::actionWarpToWorkspace(PDecor *decor, uint direction)
     }
 }
 
-//! @brief
-void
-ActionHandler::actionWarpToViewport(PDecor *decor, uint direction)
-{
-    Viewport *vp = Workspaces::instance()->getActiveViewport();
-
-    // actually did move
-    if (vp->moveDirection(DirectionType(direction)) == true) {
-        int x, y;
-        PScreen::instance()->getMousePosition(x, y);
-
-        decor->move(decor->getClickX() + x - decor->getPointerX(),
-                    decor->getClickY() + y - decor->getPointerY());
-    }
-}
-
-//! @brief Sends PWinObj to viewport col/row
-//! @param wo Pointer to PWinObj to move.
-//! @param col_off Column to send PWinObj to.
-//! @param row_off Row to send PWinObj to.
-void
-ActionHandler::actionSendToViewport(PWinObj *wo, int col_off, int row_off)
-{
-    Viewport *vp = Workspaces::instance()->getActiveViewport();
-
-    // Get current position
-    int col = vp->getCol(wo);
-    int row = vp->getRow(wo);
-
-    // Get new column
-    int col_new = col_off;
-    int row_new = row_off;
-
-    // Validate position
-    if ((col_new < 0) || (col_new >= static_cast<int>(vp->getCols()))) {
-        col_new = col;
-    }
-    if ((row_new < 0) || (row_new >= static_cast<int>(vp->getRows()))) {
-        row_new = row;
-    }
-
-    // Get offset from current viewport to position.
-    int x = wo->getX() + vp->getX() - (col * PScreen::instance()->getWidth());
-    int y = wo->getY() + vp->getY() - (row * PScreen::instance()->getHeight());
-
-    // Add offset to new column and row
-    x += (col_new * PScreen::instance()->getWidth()) - vp->getX();
-    y += (row_new * PScreen::instance()->getHeight()) - vp->getY();
-
-    // Move the window and make sure it is visible.
-    wo->move(x, y);
-    vp->makeWOInsideVirtual(wo);
-}
-
 //! @brief Tries to find the next/prev frame relative to the focused client
 void
 ActionHandler::actionFocusToggle(uint button, uint raise, int off,
@@ -946,7 +862,6 @@ ActionHandler::createMenuInclude(Frame *frame, bool show_iconified)
                 && (frame->isSticky()
                     || frame->getWorkspace() == Workspaces::instance()->getActive())))
             && frame->isFocusable()
-            && Workspaces::instance()->getActiveViewport()->isInside(frame)
             && !frame->isSkip(SKIP_FOCUS_TOGGLE)) {
         return true;
     }
@@ -995,11 +910,6 @@ ActionHandler::gotoClient(Client *client)
 
     if (! frame->isMapped()) {
         frame->mapWindow();
-    }
-
-    // Make sure it inside Viewport
-    if (! Workspaces::instance()->getActiveViewport()->isInside(frame)) {
-        Workspaces::instance()->getActiveViewport()->moveToWO(frame);
     }
 
     // Activate it within the Frame.

@@ -48,8 +48,6 @@ private:
     void actionGotoWorkspace(uint workspace, bool warp);
     void actionSendToWorkspace(PDecor *decor, int direction);
     void actionWarpToWorkspace(PDecor *decor, uint direction);
-    void actionWarpToViewport(PDecor *decor, uint direction);
-    void actionSendToViewport(PWinObj *wo, int col_off, int row_off);
     void actionFocusToggle(uint button, uint raise, int off,
                            bool show_iconified, bool mru);
     void actionFocusDirectional(PWinObj *wo, DirectionType dir, bool raise);
