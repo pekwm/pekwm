@@ -13,5 +13,4 @@
 
 <!ENTITY usage-workspaces SYSTEM "workspaces/workspaces.xml">
 <!ENTITY usage-workspaces-nav SYSTEM "workspaces/navigation.xml">
-<!ENTITY usage-workspaces-viewports SYSTEM "workspaces/viewports.xml">
 

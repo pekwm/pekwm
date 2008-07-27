@@ -223,8 +223,6 @@ All rights reserved.
 .RS 4
 .IP "6.1. Workspace Navigation" 4
 .IX Item "6.1. Workspace Navigation"
-.IP "6.2. Viewports" 4
-.IX Item "6.2. Viewports"
 .RE
 .RS 4
 .RE
@@ -676,12 +674,11 @@ An Item in the goto and gotoclient menu and icon menu (and attach
 menus) has the following syntax:
 .PP
 .Vb 1
-\& <number> (NxN) [symbols] Window title
+\& <number> [symbols] Window title
 .Ve
 .PP
-The number represents what workspace the window is on. The two N's show
-on what part of the viewport the window is. Symbols is a list of
-symbols that represent window states. They are:
+The number represents what workspace the window is on. Symbols is a 
+list of symbols that represent window states. They are:
 .PP
 Symbols in the pekwm menus
 .IP "\(bu" 4
@@ -961,39 +958,6 @@ make you move to the next or previous workspace. Using the mouse wheel
 on the background or the screen edges also changes your workspace.
 .PP
 \&\-\-\-\-
-.Sh "6.2. Viewports"
-.IX Subsection "6.2. Viewports"
-Viewports are workspaces that are larger than the visible screensize.
-This means you can have a big workspace in wich you scroll around
-freely. By default pekwm uses a viewport that is 1x1 in size. This
-effectively means that viewports are disabled. If you increase these
-numbers from \f(CW\*(C`~/.pekwm/config\*(C'\fR to 3x3 (a three times three square),
-you should be able to browse thru your now 9 times bigger workspaces
-viewports with Mod4 and the keypad number keys. Also try dragging the
-root window (background) with your left mouse button. More ways are
-holding Mod4 and moving the mouse pointer over a screen edge or moving
-the mouse to a screen edge and then pressing Mod4 and the left mouse
-button.
-.PP
-Usually when you drag windows over your left or right screen edge, it
-will be moved to another workspace. However, when you press Mod4 while
-dragging the windows, they will move around in your viewport. Usually
-viewports are defined as squares, so also try dragging over the upper
-and lower screen edges.
-.PP
-Viewports are sometimes considered hard to visualize. To help this the
-default keybindings to move around your viewport are arranged to your
-keypad numbers. If you enable a 3x3 viewport, you can move around it
-with Mod4 and the keypad numbers. Mod4+1 takes you to the lower left
-segment of your viewport, Mod4+9 to the upper right, Mod4+5 to the
-center and so on. Instead of thinking under what number your window is,
-imagine it being \*(L"up on the left\*(R" or \*(L"down in the center\*(R". Also
-consider using a pager application that handles viewports.
-.PP
-People usually disable multiple workspaces when they start using
-viewports to avoid getting lost. However if you feel you aren't getting
-lost, nothing stops you from using for example, ten workspaces with a
-10x10 viewport.
 .SH "III. Configuration"
 .IX Header "III. Configuration"
 The configuration part of this documentation is focused on providing
@@ -1169,16 +1133,6 @@ Here's an example \f(CW\*(C`~/.pekwm/config\*(C'\fR file:
 \&                 Pre = " #";
 \&                 Post = "";
 \&         }
-.Ve
-.PP
-.Vb 8
-\&         Viewports {
-\&                 Columns = "1"
-\&                 Rows = "1"
-\&                 # Viewports are disabled by default to avoid strange behaviour from buggy pagers
-\&                 #Columns = "3"
-\&                 #Rows = "3"
-\&         }
 \& }
 .Ve
 .PP
@@ -1333,17 +1287,6 @@ If false, the window is placed starting from the bottom.
 .IX Item "LeftToRight (boolean)"
 If false, the window is placed starting from the right.
 .PP
-Config File Elements under the Viewports-subsection of the
-Screen\-section:
-.IP "Columns (int)" 4
-.IX Item "Columns (int)"
-Specifies the size of the viewport horizontally. Value is an integer as
-n is in viewport_width=n*screenwidth.
-.IP "Rows (int)" 4
-.IX Item "Rows (int)"
-Specifies the size of the viewport vertically. Value is an integer as n
-is in viewport_height=n*screenheight.
-.PP
 Config File Elements under the UniqueNames-subsection of the
 Screen\-section:
 .IP "SetUnique (boolean)" 4
@@ -1406,8 +1349,8 @@ Integer is a number of pixels.
 \&\-\-\-\-
 .Sh "8.3. Screen Subsections"
 .IX Subsection "8.3. Screen Subsections"
-There are three subsections in the screen section \- Placement,
-Viewports and ClientUniqueNames. Placement can optionally have it's own
+There are two subsections in the screen section \- Placement
+and ClientUniqueNames. Placement can optionally have it's own
 subsection. Sound hard? It's not! It's really quite simple.
 .PP
 We'll start off with Placement. Placement has two options: Model, and a
@@ -1416,11 +1359,7 @@ keywords that describes how to place new windows, such as \*(L"Smart
 MouseCentered\*(R". Secondly, there's a Smart section, which describes how
 pekwm computes where to place a new window in smart mode.
 .PP
-The second subsection is for viewports configuration. With it you can
-manage the layout of your viewports. See Viewports for more info on
-viewports.
-.PP
-Third subsection, UniqueNames, lets you configure how pekwm should
+The second subsection, UniqueNames, lets you configure how pekwm should
 handle similar client names. Pekwm can add unique number identifiers to
 clients that have the same title so that instead of \*(L"terminal\*(R" and
 \&\*(L"terminal\*(R", you would end up with something like \*(L"terminal\*(R" and
@@ -1866,10 +1805,6 @@ are present, FrameGeometry overrides the ClientGeometry.
 .IP "Workspace (integer)" 4
 .IX Item "Workspace (integer)"
 Which workspace to start program on.
-.IP "Viewport (integer) (integer)" 4
-.IX Item "Viewport (integer) (integer)"
-Which viewport to start program on. First integer is the column, second
-the row of the viewport to open the window in.
 .IP "PlaceNew (bool)" 4
 .IX Item "PlaceNew (bool)"
 Toggles the use of placing rules for this client.
@@ -2113,45 +2048,33 @@ an example file:
 .Vb 44
 \& ScreenEdge {
 \&         Down {
-\&                 Enter = "Mod4 Any" { Actions = "ViewportMoveDirection Down" }
 \&                 ButtonRelease = "3" { Actions = "ShowMenu Root" }
-\&                 ButtonRelease = "Mod4 1" { Actions = "ViewportMoveDirection Down" }
 \&                 ButtonRelease = "2" { Actions = "ShowMenu Goto" }
-\&                 EnterMoving = "Mod4 Any" { Actions = "WarpToViewport Down" }
 \&         }
 \&         Up {
-\&                 Enter = "Mod4 Any" { Actions = "ViewportMoveDirection Up" }
 \&                 ButtonRelease = "3" { Actions = "ShowMenu Root" }
-\&                 ButtonRelease = "Mod4 1" { Actions = "ViewportMoveDirection Up" }
 \&                 ButtonRelease = "2" { Actions = "ShowMenu Goto" }
 \&                 ButtonRelease = "Mod1 4" { Actions = "GoToWorkspace Right" }
 \&                 ButtonRelease = "Mod1 5" { Actions = "GoToWorkspace Left" }
-\&                 EnterMoving = "Mod4 Any" { Actions = "WarpToViewport Up" }
 \&         }
 \&         Left {
 \&                 Enter = "Mod1 Any" { Actions = "GoToWorkspace Left" }
-\&                 Enter = "Mod4 Any" { Actions = "ViewportMoveDirection Left" }
 \&                 ButtonRelease = "3" { Actions = "ShowMenu Root" }
-\&                 ButtonRelease = "Mod4 1" { Actions = "ViewportMoveDirection Left" }
 \&                 ButtonRelease = "1" { Actions = "GoToWorkspace Left" }
 \&                 DoubleClick = "1" { Actions = "GoToWorkspace Left" }
 \&                 ButtonRelease = "2" { Actions = "ShowMenu Goto" }
 \&                 ButtonRelease = "4" { Actions = "GoToWorkspace Right" }
 \&                 ButtonRelease = "5" { Actions = "GoToWorkspace Left" }
-\&                 EnterMoving = "Mod4 Any" { Actions = "WarpToViewport Left" }
 \&                 EnterMoving = "Any Any" { Actions = "WarpToWorkspace Left" }
 \&         }
 \&         Right {
 \&                 Enter = "Mod1 Any" { Actions = "GoToWorkspace Right" }
-\&                 Enter = "Mod4 Any" { Actions = "ViewportMoveDirection Right" }
 \&                 ButtonRelease = "3" { Actions = "ShowMenu Root" }
-\&                 ButtonRelease = "Mod4 1" { Actions = "ViewportMoveDirection Right" }
 \&                 ButtonRelease = "1" { Actions = "GoToWorkspace Right" }
 \&                 DoubleClick = "1" { Actions = "GoToWorkspace Right" }
 \&                 ButtonRelease = "2" { Actions = "ShowMenu Goto" }
 \&                 ButtonRelease = "4" { Actions = "GoToWorkspace Right" }
 \&                 ButtonRelease = "5" { Actions = "GoToWorkspace Left" }
-\&                 EnterMoving = "Mod4 Any" { Actions = "WarpToViewport Right" }
 \&                 EnterMoving = "Any Any" { Actions = "WarpToWorkspace Right" }
 \&         }
 \& }
@@ -2177,7 +2100,6 @@ an example file:
 \&         ButtonRelease = "4" { Actions = "GoToWorkspace Right" }
 \&         ButtonRelease = "5" { Actions = "GoToWorkspace Left" }
 \&         ButtonRelease = "1" { Actions = "HideAllMenus" }
-\&         Motion = "1" { Threshold = "10"; Actions = "ViewportMoveDrag" }
 \& }
 .Ve
 .PP
@@ -2313,14 +2235,11 @@ take when an event happens on the specified screenedge.
 \& ScreenEdge {
 \&         Left {
 \&                 Enter = "Mod1 Any" { Actions = "GoToWorkspace Left" }
-\&                 Enter = "Mod4 Any" { Actions = "ViewportMoveDirection Left" }
 \&                 ButtonPress = "3" { Actions = "ShowMenu Root" }
-\&                 ButtonPress = "Mod4 1" { Actions = "ViewportMoveDirection Left" }
 \&                 ButtonPress = "1" { Actions = "GoToWorkspace Left" }
 \&                 ButtonPress = "2" { Actions = "ShowMenu Goto" }
 \&                 ButtonPress = "4" { Actions = "GoToWorkspace Right" }
 \&                 ButtonPress = "5" { Actions = "GoToWorkspace Left" }
-\&                 EnterMoving = "Mod4 Any" { Actions = "WarpToViewport Left" }
 \&                 EnterMoving = "Any Any" { Actions = "WarpToWorkspace Left" }
 \&         }
 \& }
@@ -2843,25 +2762,6 @@ Keygrabber-specific
 Exits pekwm.
 .Sp
 Keygrabber-specific
-.IP "ViewportMoveXY (int int)" 4
-.IX Item "ViewportMoveXY (int int)"
-Move viewport view to wanted coordinates. Takes two parameters, first
-is x, the second y.
-.IP "ViewportScroll (int int)" 4
-.IX Item "ViewportScroll (int int)"
-Move viewport this many pixels. Parameters can be negative or positive
-integers. First integer is x, second y.
-.IP "ViewportGoto (int int)" 4
-.IX Item "ViewportGoto (int int)"
-Change viewport. Two parameters, first integer is the column, second
-the varlistentry.
-.IP "ViewportMoveDirection (string)" 4
-.IX Item "ViewportMoveDirection (string)"
-Changes the current viewport position. String is one of up, down, left,
-right
-.IP "ViewportMoveDrag" 4
-.IX Item "ViewportMoveDrag"
-Changes the current viewport position.
 .Sp
 Root window-specific mouse binding
 .IP "Resize (string)" 4
@@ -2918,10 +2818,6 @@ int \- integer is a workspace number to send to to
 .Sp
 ScreenEdge specific mouse binding
 .RE
-.IP "WarpToViewport (string)" 4
-.IX Item "WarpToViewport (string)"
-Makes a dragged window warp to specified viewport when a it's moved
-over a screen edge. String is one of up, down, left, right
 .Sp
 ScreenEdge specific mouse binding
 .IP "MoveHorizontal (int)" 4
@@ -3843,8 +3739,7 @@ There is a workaround for this problem. Type \fBln \-s aj
 .IX Subsection "18.17. What desktop pagers work with pekwm?"
 For general use any \s-1NETWM\s0 compliant pager should do. IPager, rox\-pager,
 fbpanel's pager, obpager, gai\-pager, gnome's pager, kde's pager,
-perlpanel's pager, netwmpager, and so on. Gai-pager is one of the few
-that actually work with viewports. Do report your success stories with
+perlpanel's pager, netwmpager, and so on. Do report your success stories with
 pagers not already mentioned here.
 .PP
 \&\-\-\-\-
