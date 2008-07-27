@@ -39,7 +39,6 @@ extern "C" {
 #include "Theme.hh"
 #include "PixmapHandler.hh"
 #include "Workspaces.hh"
-#include "Viewport.hh"
 
 using std::cerr;
 using std::endl;
@@ -332,9 +331,8 @@ PDecor::move(int x, int y, bool do_virtual)
     }
 
     // update virtual position
-    if (do_virtual == true) {
-        moveVirtual(x + Workspaces::instance()->getActiveViewport()->getX(),
-                    y + Workspaces::instance()->getActiveViewport()->getY());
+    if (do_virtual) {
+        moveVirtual(x, y);
     }
 }
 
@@ -409,9 +407,8 @@ PDecor::moveResize(int x, int y, uint width, uint height, bool do_virtual)
   PWinObj::moveResize(x, y, width, height);
 
   // Update virtual position
-  if ( do_virtual) {
-    moveVirtual(x + Workspaces::instance()->getActiveViewport()->getX(),
-                y + Workspaces::instance()->getActiveViewport()->getY());
+  if (do_virtual) {
+    moveVirtual(x, y);
   }
 
   // Update size before moving and shaping the rest as shaping
@@ -518,8 +515,7 @@ PDecor::setWorkspace(uint workspace)
 bool
 PDecor::giveInputFocus(void)
 {
-    if ((_mapped == true) && (_child != NULL) &&
-            (Workspaces::instance()->getActiveViewport()->isInside(this))) {
+    if (_mapped && _child) {
         return _child->giveInputFocus();
 
     } else {
