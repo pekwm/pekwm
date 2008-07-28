@@ -33,41 +33,41 @@ public:
     };
 
     CfgParserSource (const std::string &or_source) :
-            m_op_file (NULL), m_or_name(or_source),
-            m_type(SOURCE_VIRTUAL), m_i_line (0)
+            _op_file (NULL), _or_name(or_source),
+            _type(SOURCE_VIRTUAL), _i_line (0)
     {
     }
     virtual ~CfgParserSource (void) { }
 
-    //! @brief Gets a character from m_op_file, increments line count if \n.
+    //! @brief Gets a character from _op_file, increments line count if \n.
     inline int getc (void) {
-        int i_c = fgetc (m_op_file);
+        int i_c = fgetc (_op_file);
         if (i_c == '\n') {
-            ++m_i_line;
+            ++_i_line;
         }
         return i_c;
     }
 
-    //! @brief Returns a character to m_op_file, decrements line count if \n.
+    //! @brief Returns a character to _op_file, decrements line count if \n.
     inline void ungetc (int i_c)  {
-        ::ungetc (i_c, m_op_file);
+        ::ungetc (i_c, _op_file);
         if (i_c == '\n') {
-            --m_i_line;
+            --_i_line;
         }
     }
 
-    const std::string &get_name(void) { return m_or_name; }
-    CfgParserSource::Type get_type(void) { return m_type; }
-    int get_line (void) { return m_i_line; }
+    const std::string &get_name(void) { return _or_name; }
+    CfgParserSource::Type get_type(void) { return _type; }
+    int get_line (void) { return _i_line; }
 
     virtual bool open (void) throw (std::string&) { return false; }
     virtual void close (void) throw (std::string&) { }
 
 protected:
-    FILE *m_op_file;
-    const std::string &m_or_name;
-    CfgParserSource::Type m_type;
-    int m_i_line;
+    FILE *_op_file;
+    const std::string &_or_name;
+    CfgParserSource::Type _type;
+    int _i_line;
 };
 
 class CfgParserSourceFile : public CfgParserSource
@@ -76,7 +76,7 @@ public:
     CfgParserSourceFile (const std::string &or_source)
             : CfgParserSource (or_source)
     {
-        m_type = SOURCE_FILE;
+        _type = SOURCE_FILE;
     }
     virtual ~CfgParserSourceFile (void) { }
 
@@ -90,7 +90,7 @@ public:
     CfgParserSourceCommand (const std::string &or_source)
             : CfgParserSource (or_source)
     {
-        m_type = SOURCE_COMMAND;
+        _type = SOURCE_COMMAND;
     }
     virtual ~CfgParserSourceCommand (void) { }
 
@@ -98,10 +98,10 @@ public:
     virtual void close (void) throw (std::string&);
 
 private:
-    pid_t m_o_pid;
+    pid_t _o_pid;
 
-    struct sigaction m_sigaction; //!< sigaction for restore.
-    static unsigned int m_sigaction_counter; //!< Counts open.
+    struct sigaction _sigaction; //!< sigaction for restore.
+    static unsigned int _sigaction_counter; //!< Counts open.
 };
 
 #endif // _CFG_PARSER_SOURCE_HH_
