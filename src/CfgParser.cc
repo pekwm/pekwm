@@ -34,15 +34,15 @@ using std::set;
 using std::string;
 using std::auto_ptr;
 
-const string CfgParser::m_o_root_source_name = string("");
+const string CfgParser::_o_root_source_name = string("");
 const char *CP_PARSE_BLANKS = " \t\n";
 
 //! @brief CfgParser::Entry constructor.
 CfgParser::Entry::Entry(const std::string &or_source_name, int i_line,
                         const std::string &or_name, const std::string &or_value)
-    : m_op_entry_next(NULL), m_op_section(NULL),
-      m_o_name(or_name), m_o_value(or_value),
-      m_i_line(i_line), m_or_source_name(or_source_name)
+    : _op_entry_next(NULL), _op_section(NULL),
+      _o_name(or_name), _o_value(or_value),
+      _i_line(i_line), _or_source_name(or_source_name)
 {
 }
 
@@ -57,13 +57,13 @@ CfgParser::Entry::add_entry(const std::string &or_source_name, int i_line,
                             const std::string &or_name,
                             const std::string &or_value)
 {
-    if (m_op_entry_next) {
-        return m_op_entry_next->add_entry(or_source_name, i_line,
+    if (_op_entry_next) {
+        return _op_entry_next->add_entry(or_source_name, i_line,
                                           or_name, or_value);
     } else {
-        m_op_entry_next = new Entry(or_source_name, i_line,
+        _op_entry_next = new Entry(or_source_name, i_line,
                                     or_name, or_value);
-        return m_op_entry_next;
+        return _op_entry_next;
     }
 }
 
@@ -73,9 +73,9 @@ CfgParser::Entry::get_section_next (void)
 {
     Entry *op_entry;
 
-    for (op_entry = m_op_entry_next; op_entry;
-         op_entry = op_entry->m_op_entry_next) {
-        if (op_entry->m_op_section) {
+    for (op_entry = _op_entry_next; op_entry;
+         op_entry = op_entry->_op_entry_next) {
+        if (op_entry->_op_section) {
             return op_entry;
         }
     }
@@ -90,8 +90,8 @@ CfgParser::Entry::find_entry (const std::string &or_name)
 {
     CfgParser::Entry *op_it;
 
-    for (op_it = m_op_entry_next; op_it; op_it = op_it->m_op_entry_next) {
-        if (!op_it->m_op_section && (*op_it == or_name.c_str ())) {
+    for (op_it = _op_entry_next; op_it; op_it = op_it->_op_entry_next) {
+        if (!op_it->_op_section && (*op_it == or_name.c_str ())) {
             return op_it;
         }
     }
@@ -106,8 +106,8 @@ CfgParser::Entry::find_section (const std::string &or_name)
 {
     CfgParser::Entry *op_it;
 
-    for (op_it = m_op_entry_next; op_it; op_it = op_it->m_op_entry_next) {
-        if (op_it->m_op_section && (*op_it == or_name.c_str ())) {
+    for (op_it = _op_entry_next; op_it; op_it = op_it->_op_entry_next) {
+        if (op_it->_op_section && (*op_it == or_name.c_str ())) {
             return op_it;
         }
     }
@@ -146,14 +146,14 @@ CfgParser::Entry::free_tree(void)
 
     for (op_entry = this; op_entry; ) {
         // Delete subsection if any
-        if (op_entry->m_op_section) {
-            op_entry->m_op_section->free_tree();
-            delete op_entry->m_op_section;
-            op_entry->m_op_section = NULL;
+        if (op_entry->_op_section) {
+            op_entry->_op_section->free_tree();
+            delete op_entry->_op_section;
+            op_entry->_op_section = NULL;
         }
 
         op_entry_free = op_entry;
-        op_entry = op_entry->m_op_entry_next;
+        op_entry = op_entry->_op_entry_next;
 
         // Delete node if it is not ourselves
         if (op_entry_free != this) {
@@ -173,16 +173,16 @@ operator<<(std::ostream &or_stream, const CfgParser::Entry &or_entry)
 
 //! @brief CfgParser constructor.
 CfgParser::CfgParser (void)
-    : m_op_source(NULL),
-      m_o_root_entry(m_o_root_source_name, 0, "ROOT", ""),
-      m_op_entry(&m_o_root_entry)
+    : _op_source(0),
+      _o_root_entry(_o_root_source_name, 0, "ROOT", ""),
+      _op_entry(&_o_root_entry)
 {
 }
 
 //! @brief CfgParser destructor.
 CfgParser::~CfgParser(void)
 {
-    m_o_root_entry.free_tree();
+    _o_root_entry.free_tree();
 }
 
 //! @brief Parses source and fills root section with data.
@@ -195,21 +195,21 @@ CfgParser::parse(const std::string &or_src, CfgParserSource::Type i_type)
 
     // Open initial source.
     parse_source_new(or_src, i_type);
-    if (m_o_source_list.size() == 0) {
+    if (_o_source_list.size() == 0) {
         return false;
     }
 
     int i_c, i_next;
-    while (m_o_source_list.size()) {
-        m_op_source = m_o_source_list.back();
+    while (_o_source_list.size()) {
+        _op_source = _o_source_list.back();
 
-        while ((i_c = m_op_source->getc()) != EOF) {
+        while ((i_c = _op_source->getc()) != EOF) {
             switch (i_c) {
             case '\n':
                 // To be able to handle entry ends AND { after \n a check
                 // to see what comes after the newline is done. If { appears
                 // we continue as nothing happened else we finish the entry.
-                i_next = parse_skip_blank(m_op_source);
+                i_next = parse_skip_blank(_op_source);
                 if (i_next != '{') {
                     parse_entry_finish(o_buf, o_value);
                 }
@@ -227,34 +227,34 @@ CfgParser::parse(const std::string &or_src, CfgParserSource::Type i_type)
                 o_value.clear();
                 break;
             case '}':
-                if (m_o_entry_list.size() > 0) {
+                if (_o_entry_list.size() > 0) {
                     if (o_buf.size() && parse_name(o_buf)) {
                         parse_entry_finish(o_buf, o_value);
                         o_buf.clear();
                         o_value.clear();
                     }
-                    m_op_entry = m_o_entry_list.back();
-                    m_o_entry_list.pop_back();
+                    _op_entry = _o_entry_list.back();
+                    _o_entry_list.pop_back();
                 } else {
                     cerr << _("Extra } character found, ignoring.\n");
                 }
                 break;
             case '=':
                 o_value.clear();
-                parse_value(m_op_source, o_value);
+                parse_value(_op_source, o_value);
                 break;
             case '#':
-                parse_comment_line(m_op_source);
+                parse_comment_line(_op_source);
                 break;
             case '/':
-                i_next = m_op_source->getc();
+                i_next = _op_source->getc();
                 if (i_next == '/') {
-                    parse_comment_line(m_op_source);
+                    parse_comment_line(_op_source);
                 } else if (i_next == '*') {
-                    parse_comment_c(m_op_source);
+                    parse_comment_c(_op_source);
                 } else {
                     o_buf += i_c;
-                    m_op_source->ungetc(i_next);
+                    _op_source->ungetc(i_next);
                 }
                 break;
             default:
@@ -264,14 +264,14 @@ CfgParser::parse(const std::string &or_src, CfgParserSource::Type i_type)
         }
 
         try {
-            m_op_source->close();
+            _op_source->close();
 
         } catch (string &ex) {
             cerr << ex << endl;
         }
-        delete m_op_source;
-        m_o_source_list.pop_back();
-        m_o_source_name_list.pop_back();
+        delete _op_source;
+        _o_source_list.pop_back();
+        _o_source_name_list.pop_back();
     }
 
     if (o_buf.size()) {
@@ -296,14 +296,14 @@ CfgParser::parse_source_new(const std::string &or_name,
         // Open and set as active, delete if fails.
         try {
             op_source->open();
-            m_op_source = op_source;
-            m_o_source_list.push_back(m_op_source);
+            _op_source = op_source;
+            _o_source_list.push_back(_op_source);
             i_done = 1;
 
         } catch (string &ex) {
             delete op_source;
             // Previously added in source_new
-            m_o_source_name_list.pop_back();
+            _o_source_name_list.pop_back();
 
 
             // Display error message on second try
@@ -314,8 +314,8 @@ CfgParser::parse_source_new(const std::string &or_name,
             // If the open fails and we are trying to open a file, try
             // to open the file from the current files directory.
             if (!i_done && (i_type == CfgParserSource::SOURCE_FILE)) {
-                if (m_o_source_name_list.size() && (or_name[0] != '/')) {
-                    o_name = Util::getDir(m_o_source_name_list.back());
+                if (_o_source_name_list.size() && (or_name[0] != '/')) {
+                    o_name = Util::getDir(_o_source_name_list.back());
                     o_name += "/" + or_name;
                 }
             }
@@ -433,8 +433,8 @@ CfgParser::parse_entry_finish(std::string &or_buf, std::string &or_value)
             } else if (or_buf == "COMMAND") {
                 parse_source_new(or_value, CfgParserSource::SOURCE_COMMAND);
             } else {
-                m_op_entry = m_op_entry->add_entry(m_op_source->get_name(),
-                                                   m_op_source->get_line(),
+                _op_entry = _op_entry->add_entry(_op_source->get_name(),
+                                                   _op_source->get_line(),
                                                    or_buf, or_value);
             }
         }
@@ -446,23 +446,23 @@ CfgParser::parse_entry_finish(std::string &or_buf, std::string &or_value)
     or_buf.clear();
 }
 
-//! @brief Creates new Section on {.
+//! @brief Creates new Section on {
 void
 CfgParser::parse_section_finish(std::string &or_buf, std::string &or_value)
 {
-    m_op_entry = m_op_entry->add_entry(m_op_source->get_name(),
-                                       m_op_source->get_line(),
+    _op_entry = _op_entry->add_entry(_op_source->get_name(),
+                                       _op_source->get_line(),
                                        or_buf, or_value);
-    m_o_entry_list.push_back(m_op_entry);
+    _o_entry_list.push_back(_op_entry);
 
     // Create Entry representing Section and point to it.
-    Entry *op_section = new Entry(m_op_source->get_name(),
-                                  m_op_source->get_line(),
+    Entry *op_section = new Entry(_op_source->get_name(),
+                                  _op_source->get_line(),
                                   or_buf, or_value);
-    m_op_entry->set_section(op_section);
+    _op_entry->set_section(op_section);
 
     // Set current Entry to newly created Section.
-    m_op_entry = op_section;
+    _op_entry = op_section;
 }
 
 //! @brief Parses Source until end of line discarding input.
@@ -515,14 +515,14 @@ CfgParser::source_new(const std::string &or_name, CfgParserSource::Type i_type)
     CfgParserSource *op_source = NULL;
 
     // Create CfgParserSource.
-    m_o_source_name_list.push_back(or_name);
-    m_o_source_name_set.insert(or_name);
+    _o_source_name_list.push_back(or_name);
+    _o_source_name_set.insert(or_name);
     switch (i_type) {
     case CfgParserSource::SOURCE_FILE:
-        op_source = new CfgParserSourceFile(*m_o_source_name_set.find(or_name));
+        op_source = new CfgParserSourceFile(*_o_source_name_set.find(or_name));
         break;
     case CfgParserSource::SOURCE_COMMAND:
-        op_source = new CfgParserSourceCommand(*m_o_source_name_set.find(or_name));
+        op_source = new CfgParserSourceCommand(*_o_source_name_set.find(or_name));
         break;
     default:
         break;
@@ -531,12 +531,12 @@ CfgParser::source_new(const std::string &or_name, CfgParserSource::Type i_type)
     return op_source;
 }
 
-//! @brief Defines a variable in the m_o_var_map/setenv.
+//! @brief Defines a variable in the _o_var_map/setenv.
 void
 CfgParser::variable_define(const std::string &or_name,
                            const std::string &or_value)
 {
-    m_o_var_map[or_name] = or_value;
+    _o_var_map[or_name] = or_value;
 
     // If the variable begins with $_ it should update the environment aswell.
     if ((or_name.size() > 2) && (or_name[1] == '_')) {
@@ -579,8 +579,8 @@ CfgParser::variable_expand(std::string &or_string)
 		 << o_var_name << endl;;
 	  }
 	} else {
-	  map<string, string>::iterator o_it(m_o_var_map.find(o_var_name));
-	  if (o_it != m_o_var_map.end()) {
+	  map<string, string>::iterator o_it(_o_var_map.find(o_var_name));
+	  if (o_it != _o_var_map.end()) {
             or_string.replace(o_begin, o_end - o_begin, o_it->second);
             o_end = o_begin + o_it->second.size();
 
