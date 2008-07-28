@@ -157,9 +157,8 @@ PWinObj::resize(uint width, uint height)
 //! @param y Y Position.
 //! @param width Width.
 //! @param height Height.
-//! @param do_virtual Flag to do virtual move.
 void
-PWinObj::moveResize(int x, int y, uint width, uint height, bool do_virtual)
+PWinObj::moveResize(int x, int y, uint width, uint height)
 {
     if (! width || ! height) {
 #ifdef DEBUG

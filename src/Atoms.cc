@@ -1,11 +1,9 @@
 //
 // Atoms.cc for pekwm
-// Copyright © 2003-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2003-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
-//
-// $Id$
 //
 
 #ifdef HAVE_CONFIG_H
@@ -39,7 +37,6 @@ PekwmAtoms::PekwmAtoms(void)
                         "_PEKWM_FRAME_ID",
                         "_PEKWM_FRAME_DECOR",
                         "_PEKWM_FRAME_SKIP",
-                        "_PEKWM_FRAME_VPOS",
                         "_PEKWM_TITLE"
                     };
     const uint num = sizeof(names) / sizeof(char*);
@@ -307,41 +304,6 @@ setString(Window win, Atom atom, const string &value)
 {
     XChangeProperty(PScreen::instance()->getDpy(), win, atom, XA_STRING, 8,
                     PropModeReplace, (uchar*) value.c_str(), value.size());
-}
-
-//! @brief Used to get two CARD32(int) values, used for _PEKWM_VPOS
-bool
-getPosition(Window win, Atom atom, int &x, int &y)
-{
-    CARD32 *data = NULL;
-    uchar *udata = NULL;
-
-    getProperty(win, atom, XA_CARDINAL, 2L, &udata);
-
-    if (udata != NULL) {
-        data = reinterpret_cast<CARD32*>(udata);
-
-        x = data[0];
-        y = data[1];
-        XFree(udata);
-
-        return true;
-    }
-
-    return false;
-}
-
-//! @brief Used to set two CARD32(int) values, used for _PEKWM_VPOS
-void
-setPosition(Window win, Atom atom, int x, int y)
-{
-    CARD32 data[2];
-
-    data[0] = x;
-    data[1] = y;
-
-    XChangeProperty(PScreen::instance()->getDpy(), win, atom, XA_CARDINAL, 32,
-                    PropModeReplace, (uchar *) data, 2);
 }
 
 //! @brief

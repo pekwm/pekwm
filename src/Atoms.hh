@@ -1,15 +1,17 @@
 //
 // Atoms.hh for pekwm
-// Copyright (C) 2003-2004 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2003-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
-
 #ifndef _ATOMS_HH_
 #define _ATOMS_HH_
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #include "Types.hh"
 
@@ -26,7 +28,6 @@ enum PekwmAtomName {
     PEKWM_FRAME_ID,
     PEKWM_FRAME_DECOR,
     PEKWM_FRAME_SKIP,
-    PEKWM_FRAME_VPOS,
     PEKWM_TITLE
 };
 
@@ -163,9 +164,6 @@ void setString(Window win, Atom atom, const std::string &value);
 
 bool getUtf8String(Window win, Atom atom, std::wstring &value);
 void setUtf8String(Window win, Atom atom, const std::wstring &value);
-
-bool getPosition(Window win, Atom atom, int &x, int &y);
-void setPosition(Window win, Atom atom, int x, int y);
 
 void *getEwmhPropData(Window win, Atom prop, Atom type, int &num);
 

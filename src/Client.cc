@@ -435,7 +435,7 @@ Client::stick(void)
 
 //! @brief Update the position variables.
 void
-Client::move(int x, int y, bool do_virtual)
+Client::move(int x, int y)
 {
     bool request = ((_gm.x != x) || (_gm.y != y));
 
@@ -445,15 +445,6 @@ Client::move(int x, int y, bool do_virtual)
     if (request) {
         configureRequestSend();
     }
-}
-
-//! @brief
-void
-Client::moveVirtual(int x, int y)
-{
-    AtomUtil::setPosition(_window,
-                          PekwmAtoms::instance()->getAtom(PEKWM_FRAME_VPOS),
-                          x, y);
 }
 
 //! @brief Resizes the client window to specified size.
@@ -471,7 +462,7 @@ Client::resize(uint width, uint height)
 
 //! @brief Move and resizes the client window to specified size.
 void
-Client::moveResize(int x, int y, uint width, uint height, bool do_virtual)
+Client::moveResize(int x, int y, uint width, uint height)
 {
   bool request = ((_gm.x != x) || (_gm.y != y)
                   || (_gm.width != width) || (_gm.height != height));
@@ -856,10 +847,6 @@ Client::readPekwmHints(void)
     string str;
 
     PekwmAtoms *atoms = PekwmAtoms::instance();
-
-    // Virtual position overides real position
-    AtomUtil::getPosition(_window, atoms->getAtom(PEKWM_FRAME_VPOS),
-                          _gm.x, _gm.y);
 
     // Get decor state
     if (AtomUtil::getLong(_window, atoms->getAtom(PEKWM_FRAME_DECOR),

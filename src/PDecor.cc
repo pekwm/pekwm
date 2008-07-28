@@ -374,7 +374,7 @@ PDecor::resize(uint width, uint height)
 
 //! @brief Move and resize window.
 void
-PDecor::moveResize(int x, int y, uint width, uint height, bool do_virtual)
+PDecor::moveResize(int x, int y, uint width, uint height)
 {
   // If shaded, don't resize to the size specified just update width
   // and set _real_height to height

@@ -130,7 +130,7 @@ public:
 
     virtual void move(int x, int y);
     virtual void resize(uint width, uint height);
-    virtual void moveResize(int x, int y, uint width, uint height, bool do_virtual = true);
+    virtual void moveResize(int x, int y, uint width, uint height);
     //! @brief Raises PWinObj without respect of layer.
     virtual void raise(void) { XRaiseWindow(_dpy, _window); }
     //! @brief Lowers PWinObj without respect of layer.
