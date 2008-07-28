@@ -123,22 +123,13 @@ PWinObj::stick(void)
 //! @brief Moves the window and updates _gm.
 //! @param x X position
 //! @param y Y position
-//! @param do_virtual Update virtual postion, defaults to true
 void
-PWinObj::move(int x, int y, bool do_virtual)
+PWinObj::move(int x, int y)
 {
     _gm.x = x;
     _gm.y = y;
 
     XMoveWindow(_dpy, _window, _gm.x, _gm.y);
-}
-
-//! @brief Interface method for virtual desktop placing
-void
-PWinObj::moveVirtual(int x, int y)
-{
-    _v_x = x;
-    _v_y = y;
 }
 
 //! @brief Resizes the window and updates _gm.

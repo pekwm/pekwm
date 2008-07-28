@@ -118,8 +118,7 @@ class Button : public PWinObj {
     virtual void mapWindowRaised(void);
     virtual void unmapWindow(void);
 
-    virtual void move(int x, int y, bool do_virtual = true);
-    virtual void moveVirtual(int x, int y);
+    virtual void move(int x, int y);
     virtual void resize(uint width, uint height);
     virtual void moveResize(int x, int y, uint width, uint height, bool do_virtual = true);
     virtual void raise(void);

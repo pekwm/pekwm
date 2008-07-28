@@ -322,28 +322,12 @@ PDecor::unmapWindow(void)
 
 //! @brief Moves the decor
 void
-PDecor::move(int x, int y, bool do_virtual)
+PDecor::move(int x, int y)
 {
     // update real position
     PWinObj::move(x, y);
     if ((_child != NULL) && (_decor_cfg_child_move_overloaded)) {
         _child->move(x + borderLeft(), y + borderTop() + getTitleHeight());
-    }
-
-    // update virtual position
-    if (do_virtual) {
-        moveVirtual(x, y);
-    }
-}
-
-//! @brief Virtually moves the decor, and all children if any
-void
-PDecor::moveVirtual(int x, int y)
-{
-    PWinObj::moveVirtual(x, y);
-    list<PWinObj*>::iterator it(_child_list.begin());
-    for (; it != _child_list.end(); ++it) {
-        (*it)->moveVirtual(x + borderLeft(), y + borderTop() + getTitleHeight());
     }
 }
 
@@ -405,11 +389,6 @@ PDecor::moveResize(int x, int y, uint width, uint height, bool do_virtual)
   }
 
   PWinObj::moveResize(x, y, width, height);
-
-  // Update virtual position
-  if (do_virtual) {
-    moveVirtual(x, y);
-  }
 
   // Update size before moving and shaping the rest as shaping
   // depends on the child window
