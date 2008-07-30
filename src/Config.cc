@@ -128,6 +128,7 @@ Config::Config(void) :
     _action_map["SUBMENU"] = pair<ActionType, uint>(ACTION_MENU_SUB, ROOTMENU_OK|WINDOWMENU_OK);
     _action_map["DYNAMIC"] = pair<ActionType, uint>(ACTION_MENU_DYN, ROOTMENU_OK|WINDOWMENU_OK);
 #endif // MENUS
+    _action_map["SENDKEY"] = pair<ActionType, uint>(ACTION_SEND_KEY, ANY_MASK);
 
     _placement_map[""] = PLACE_NO;
     _placement_map["SMART"] = PLACE_SMART;
@@ -842,6 +843,7 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
                 case ACTION_FIND_CLIENT:
                 case ACTION_SHOW_CMD_DIALOG:
                 case ACTION_SHOW_SEARCH_DIALOG:
+                case ACTION_SEND_KEY:
 #ifdef MENUS
                 case ACTION_MENU_DYN:
 #endif // MENUS

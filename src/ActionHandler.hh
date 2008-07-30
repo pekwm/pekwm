@@ -18,6 +18,7 @@
 
 #include <string>
 #include <list>
+#include <map>
 
 class Client;
 class Frame;
@@ -28,7 +29,7 @@ class PMenu;
 class ActionHandler
 {
 public:
-    ActionHandler();
+    ActionHandler(void);
     ~ActionHandler(void);
 
     static inline ActionHandler *instance(void) { return _instance; }
@@ -51,9 +52,9 @@ private:
     void actionFocusToggle(uint button, uint raise, int off,
                            bool show_iconified, bool mru);
     void actionFocusDirectional(PWinObj *wo, DirectionType dir, bool raise);
+  bool actionSendKey(PWinObj *wo, const std::string &key_str);
 #ifdef MENUS
-    void actionShowMenu(const std::string &name, bool stick,
-                        uint e_type, PWinObj *wo_ref);
+  void actionShowMenu(const std::string &name, bool stick, uint e_type, PWinObj *wo_ref);
 #endif // MENUS
 
     // action helpers
@@ -64,8 +65,12 @@ private:
     PMenu *createMRUMenu(bool show_iconified);
     bool createMenuInclude(Frame *frame, bool show_iconified);
 
+  void initSendKeyEvent(XEvent &ev, PWinObj *wo);
+
 private:
-    static ActionHandler *_instance;
+  std::map<uint, uint> _state_to_keycode; /**< Map translating state modifiers to keycode. */
+
+  static ActionHandler *_instance; /**< Instance pointer for ActionHandler. */
 };
 
 #endif // _ACTIONHANDLER_HH_

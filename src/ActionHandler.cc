@@ -58,20 +58,20 @@ using std::auto_ptr;
 using std::string;
 using std::list;
 using std::find;
+using std::map;
 
 ActionHandler *ActionHandler::_instance = NULL;
 
 //! @brief ActionHandler constructor
-ActionHandler::ActionHandler()
+ActionHandler::ActionHandler(void)
 {
-#ifdef DEBUG
-    if (_instance != NULL) {
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "ActionHandler(" << this << ")::ActionHandler()"
-             << endl << " *** _instance allready set: " << _instance << endl;
-    }
-#endif // DEBUG
-    _instance = this;
+  _instance = this;
+
+  // Initialize state_to_keycode map
+  for (uint i = 0; i < PScreen::MODIFIER_TO_MASK_NUM; ++i) {
+    uint modifier = PScreen::MODIFIER_TO_MASK[i];
+    _state_to_keycode[modifier] = PScreen::instance()->getKeycodeFromMask(modifier);
+  }
 }
 
 //! @brief ActionHandler destructor
@@ -127,6 +127,9 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 break;
             case ACTION_FOCUS_DIRECTIONAL:
                 actionFocusDirectional(ap.wo, DirectionType(it->getParamI(0)), it->getParamI(1));
+                break;
+            case ACTION_SEND_KEY:
+                actionSendKey(ap.wo, it->getParamS());
                 break;
             default:
                 matched = false;
@@ -755,6 +758,55 @@ ActionHandler::actionFocusDirectional(PWinObj *wo, DirectionType dir, bool raise
     }
 }
 
+/**
+ * Parse key information and send to wo.
+ *
+ * To handle this smoothly first all state modifiers are pressed one
+ * by one adding to the state, then the real key is pressed and
+ * released, then the state modifiers are released.
+ *
+ * @param win Window to send key to.
+ * @param key_str String definition of key to send.
+ * @return true if key was parsed ok, no validation of sending is done.
+ */
+bool
+ActionHandler::actionSendKey(PWinObj *wo, const std::string &key_str)
+{
+  uint mod, key;
+  if (! Config::instance()->parseKey(key_str, mod, key)) {
+    return false;
+  }
+
+  XEvent ev;
+  initSendKeyEvent(ev, wo);
+
+  // Press state modifiers
+  map<uint, uint>::iterator it;
+  for (it = _state_to_keycode.begin(); it != _state_to_keycode.end(); ++it) {
+    if (mod & it->first) {
+      ev.xkey.keycode = it->second;
+      XSendEvent(PScreen::instance()->getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
+      ev.xkey.state |= it->first;
+    }
+  }
+
+  // Send press and release of main key
+  ev.xkey.keycode = key;
+  XSendEvent(PScreen::instance()->getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
+  ev.type = KeyRelease;
+  XSendEvent(PScreen::instance()->getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
+
+  // Release state modifiers
+  for (it = _state_to_keycode.begin(); it != _state_to_keycode.end(); ++it) {
+    if (mod & it->first) {
+      ev.xkey.keycode = it->second;
+      XSendEvent(PScreen::instance()->getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
+      ev.xkey.state &= ~it->first;
+    }
+  }
+
+  return true;
+}
 
 #ifdef MENUS
 //! @brief Toggles visibility of menu.
@@ -916,4 +968,26 @@ ActionHandler::gotoClient(Client *client)
     frame->activateChild(client);
     frame->raise();
     frame->giveInputFocus();
+}
+
+/**
+ * Initilalize XEvent for sending KeyPress/KeyRelease events.
+ *
+ * @param ev Reference to event.
+ * @param wo PWinObj key event is aimed for.
+ */
+void
+ActionHandler::initSendKeyEvent(XEvent &ev, PWinObj *wo)
+{
+  ev.type = KeyPress;
+  ev.xkey.display = PScreen::instance()->getDpy();
+  ev.xkey.root = PScreen::instance()->getRoot();
+  ev.xkey.window = wo->getWindow();
+  ev.xkey.time = CurrentTime;
+  ev.xkey.x = 1;
+  ev.xkey.y = 1;
+  PScreen::instance()->getMousePosition(ev.xkey.x_root, ev.xkey.y_root);
+  ev.xkey.same_screen = True;
+  ev.xkey.type = KeyPress;
+  ev.xkey.state = 0;
 }
