@@ -943,7 +943,7 @@ PDecor::getTitleHeight(void) const
 void
 PDecor::addChild(PWinObj *child)
 {
-    child->reparent(this, borderLeft(), borderRight() + getTitleHeight());
+    child->reparent(this, borderLeft(), borderTop() + getTitleHeight());
     _child_list.push_back(child);
 
     updatedChildOrder();
