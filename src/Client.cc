@@ -518,6 +518,8 @@ Client::reparent(PWinObj *parent, int x, int y)
 {
     XSelectInput(_dpy, _window, NoEventMask);
     PWinObj::reparent(parent, x, y);
+    _gm.x = parent->getX() + x;
+    _gm.y = parent->getY() + y;
     XSelectInput(_dpy, _window,
                  PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
 }
