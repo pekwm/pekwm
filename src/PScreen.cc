@@ -42,6 +42,12 @@ using std::list;
 using std::map;
 using std::string;
 
+const uint PScreen::MODIFIER_TO_MASK[] = {
+  ShiftMask, LockMask, ControlMask,
+  Mod1Mask, Mod2Mask, Mod3Mask, Mod4Mask, Mod5Mask
+};
+const uint PScreen::MODIFIER_TO_MASK_NUM = sizeof(PScreen::MODIFIER_TO_MASK[0]) / sizeof(PScreen::MODIFIER_TO_MASK);
+
 PScreen* PScreen::_instance = NULL;
 
 //! @brief PScreen::Visual constructor.
@@ -78,6 +84,9 @@ PScreen::PVisual::getShiftPrecFromMask(ulong mask, int &shift, int &prec)
 //! @brief PScreen constructor
 PScreen::PScreen(Display *dpy) :
         _dpy(dpy), _fd(-1),
+        _screen(-1), _depth(-1), _width(0), _height(0),
+        _root(None), _visual(0), _colormap(None),
+        _modifier_map(0),
         _num_lock(0), _scroll_lock(0),
         _has_extension_shape(false), _event_shape(-1),
         _has_extension_xinerama(false),
@@ -97,6 +106,7 @@ PScreen::PScreen(Display *dpy) :
     _depth = DefaultDepth(_dpy, _screen);
     _visual = new PScreen::PVisual(DefaultVisual(_dpy, _screen));
     _colormap = DefaultColormap(_dpy, _screen);
+    _modifier_map = XGetModifierMapping(_dpy);
 
     _width = WidthOfScreen(ScreenOfDisplay(_dpy, _screen));
     _height = HeightOfScreen(ScreenOfDisplay(_dpy, _screen));
@@ -125,31 +135,8 @@ PScreen::PScreen(Display *dpy) :
     }
 
     // Figure out what keys the Num and Scroll Locks are
-
-    // This code is strongly based on code from WindowMaker
-    int mask_table[8] = {
-                            ShiftMask,LockMask,ControlMask,Mod1Mask,
-                            Mod2Mask, Mod3Mask, Mod4Mask, Mod5Mask
-                        };
-
-    KeyCode num_lock = XKeysymToKeycode(_dpy, XK_Num_Lock);
-    KeyCode scroll_lock = XKeysymToKeycode(_dpy, XK_Scroll_Lock);
-
-    XModifierKeymap *modmap = XGetModifierMapping(_dpy);
-    if (modmap && (modmap->max_keypermod > 0)) {
-
-        for (int i = 0; i < (8*modmap->max_keypermod); ++i) {
-            if (num_lock && (modmap->modifiermap[i] == num_lock)) {
-                _num_lock = mask_table[i/modmap->max_keypermod];
-            } else if (scroll_lock && (modmap->modifiermap[i] == scroll_lock)) {
-                _scroll_lock = mask_table[i/modmap->max_keypermod];
-            }
-        }
-    }
-
-    if (modmap)
-        XFreeModifiermap(modmap);
-    // Stop WindowMaker like code
+    _num_lock = getMaskFromKeycode(XKeysymToKeycode(_dpy, XK_Num_Lock));
+    _scroll_lock = getMaskFromKeycode(XKeysymToKeycode(_dpy, XK_Scroll_Lock));
 
     XSync(_dpy, false);
     XUngrabServer(_dpy);
@@ -158,6 +145,10 @@ PScreen::PScreen(Display *dpy) :
 //! @brief PScreen destructor
 PScreen::~PScreen(void) {
     delete _visual;
+
+    if (_modifier_map) {
+        XFreeModifiermap(_modifier_map);
+    }
 
     _instance = NULL;
 }
@@ -596,4 +587,53 @@ PScreen::initHeadsRandr(void)
 
   XRRFreeScreenResources (resources);
 #endif // HAVE_XRANDR
+}
+
+/**
+ * Lookup mask from keycode.
+ *
+ * @param keycode KeyCode to lookup.
+ * @return Mask for keycode, 0 if something fails.
+ */
+uint
+PScreen::getMaskFromKeycode(KeyCode keycode)
+{
+  // Make sure modifier mappings were looked up ok
+  if (! _modifier_map || _modifier_map->max_keypermod < 1) {
+    return 0;
+  }
+
+  // .h files states that modifiermap is an 8 * max_keypermod array.
+  int max_info = _modifier_map->max_keypermod * 8;
+  for (int i = 0; i < max_info; ++i) {
+    if (_modifier_map->modifiermap[i] == keycode) {
+      return MODIFIER_TO_MASK[i / _modifier_map->max_keypermod];
+    }
+  }
+
+  return 0;
+}
+
+/**
+ * Figure out what key you can press to generate mask
+ *
+ * @param mask Modifier mask to get keycode for.
+ * @return KeyCode for mask, 0 if failing.
+ */
+KeyCode
+PScreen::getKeycodeFromMask(uint mask)
+{
+  // Make sure modifier mappings were looked up ok
+  if (! _modifier_map || _modifier_map->max_keypermod < 1) {
+    return 0;
+  }
+
+  for (int i = 0; i < 8; ++i) {
+    if (MODIFIER_TO_MASK[i] == mask) {
+      // FIXME: Is iteration over the range required?
+      return _modifier_map->modifiermap[i * _modifier_map->max_keypermod];
+    }
+  }
+
+  return 0;
 }
