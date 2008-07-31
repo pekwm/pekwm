@@ -82,7 +82,7 @@ Client::Client(Window new_client, bool is_new)
     _title.setId(_id);
     _title.infoAdd(PDecor::TitleItem::INFO_ID);
 
-    if (!validate()) {
+    if (! validate()) {
 #ifdef DEBUG
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "Couldn't validate client." << endl;
@@ -92,7 +92,7 @@ Client::Client(Window new_client, bool is_new)
     }
 
     XWindowAttributes attr;
-    if (!XGetWindowAttributes(_dpy, _window, &attr)) {
+    if (! XGetWindowAttributes(_dpy, _window, &attr)) {
 #ifdef DEBUG
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "Client died." << endl;
@@ -227,12 +227,12 @@ Client::Client(Window new_client, bool is_new)
     if (ap) {
         applyAutoprops(ap);
 
-        if (do_autogroup && !_parent && (ap->group_size >= 0)) {
+        if (do_autogroup && ! _parent && (ap->group_size >= 0)) {
             Frame* frame = WindowManager::inst()->findGroup(ap);
             if (frame) {
                 frame->addChild(this);
 
-                if (!ap->group_behind) {
+                if (! ap->group_behind) {
                     frame->activateChild(this);
                     do_focus = frame->isFocused();
                 }
@@ -249,7 +249,7 @@ Client::Client(Window new_client, bool is_new)
     PScreen::instance()->ungrabServer(true);
 
     // if we don't have a frame allready, create a new one
-    if (!_parent) {
+    if (! _parent) {
         _parent = new Frame(this, ap);
     }
 
@@ -392,7 +392,7 @@ Client::mapWindow(void)
 void
 Client::unmapWindow(void)
 {
-    if (!_mapped) {
+    if (! _mapped) {
         return;
     }
 
@@ -417,7 +417,7 @@ Client::iconify(void)
     }
 
     _iconified = true;
-    if (!_transient) {
+    if (! _transient) {
         WindowManager::inst()->findTransientsToMapOrUnmap(_window, true);
     }
 
@@ -582,7 +582,7 @@ Client*
 Client::findClientFromWindow(Window win)
 {
     // Validate input window.
-    if (!win || (win == PScreen::instance()->getRoot())) {
+    if (! win || win == PScreen::instance()->getRoot()) {
         return NULL;
     }
 
@@ -687,7 +687,7 @@ Client::grabButtons(void)
 void
 Client::setStateCfgDeny(StateAction sa, uint deny)
 {
-    if (!ActionUtil::needToggle(sa, _state.cfg_deny&deny)) {
+    if (! ActionUtil::needToggle(sa, _state.cfg_deny&deny)) {
         return;
     }
 
@@ -995,7 +995,7 @@ Client::getXClientName(void)
         // read X11 property
         XTextProperty text_property;
         if ((XGetWMName(_dpy, _window, &text_property) == False) ||
-                !text_property.value || (text_property.nitems == 0)){
+                ! text_property.value || (text_property.nitems == 0)){
             return;
         }
 
@@ -1054,7 +1054,7 @@ uint
 Client::titleFindID(std::wstring &title)
 {
     // Do not search for unique IDs if it is not enabled.
-    if (!Config::instance()->getClientUniqueName()) {
+    if (! Config::instance()->getClientUniqueName()) {
         return 0;
     }
 
@@ -1097,8 +1097,8 @@ Client::getXIconName(void)
     _icon_name = "";
 
     XTextProperty text_property;
-    if (!XGetWMIconName(_dpy, _window, &text_property) ||
-            !text_property.value || !text_property.nitems)
+    if (! XGetWMIconName(_dpy, _window, &text_property) ||
+            ! text_property.value || ! text_property.nitems)
         return;
 
     if (text_property.encoding == XA_STRING) {
@@ -1403,10 +1403,10 @@ Client::getEwmhStates(NetWMStates &win_states)
             } else if (states[i] == ewmh->getAtom(STATE_STICKY)) {
                 win_states.sticky = true;
             } else if (states[i] == ewmh->getAtom(STATE_MAXIMIZED_VERT)
-                       && !isCfgDeny(CFG_DENY_STATE_MAXIMIZED_VERT)) {
+                       && ! isCfgDeny(CFG_DENY_STATE_MAXIMIZED_VERT)) {
                 win_states.max_vert = true;
             } else if (states[i] == ewmh->getAtom(STATE_MAXIMIZED_HORZ)
-                       && !isCfgDeny(CFG_DENY_STATE_MAXIMIZED_HORZ)) {
+                       && ! isCfgDeny(CFG_DENY_STATE_MAXIMIZED_HORZ)) {
                 win_states.max_horz = true;
             } else if (states[i] == ewmh->getAtom(STATE_SHADED)) {
                 win_states.shaded = true;
@@ -1415,16 +1415,16 @@ Client::getEwmhStates(NetWMStates &win_states)
             } else if (states[i] == ewmh->getAtom(STATE_SKIP_PAGER)) {
                 win_states.skip_pager = true;
             } else if (states[i] == ewmh->getAtom(STATE_HIDDEN)
-                       && !isCfgDeny(CFG_DENY_STATE_HIDDEN)) {
+                       && ! isCfgDeny(CFG_DENY_STATE_HIDDEN)) {
                 win_states.hidden = true;
             } else if (states[i] == ewmh->getAtom(STATE_FULLSCREEN)
-                       && !isCfgDeny(CFG_DENY_STATE_FULLSCREEN)) {
+                       && ! isCfgDeny(CFG_DENY_STATE_FULLSCREEN)) {
                 win_states.fullscreen = true;
             } else if (states[i] == ewmh->getAtom(STATE_ABOVE)
-                       && !isCfgDeny(CFG_DENY_STATE_ABOVE)) {
+                       && ! isCfgDeny(CFG_DENY_STATE_ABOVE)) {
                 win_states.above = true;
             } else if (states[i] == ewmh->getAtom(STATE_BELOW)
-                       && !isCfgDeny(CFG_DENY_STATE_BELOW)) {
+                       && ! isCfgDeny(CFG_DENY_STATE_BELOW)) {
                 win_states.below = true;
             }
         }
@@ -1510,7 +1510,7 @@ Client::getWMProtocols(void)
 void
 Client::getTransientForHint(void)
 {
-    if (!_transient)
+    if (! _transient)
         XGetTransientForHint(_dpy, _window, &_transient);
 }
 
@@ -1549,7 +1549,7 @@ Client::getStrutHint(void)
 void
 Client::removeStrutHint(void)
 {
-    if (!_strut)
+    if (! _strut)
         return;
 
     PScreen::instance()->removeStrut(_strut);
