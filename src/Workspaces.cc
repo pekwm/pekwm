@@ -321,7 +321,7 @@ Workspaces::insert(PWinObj* wo, bool raise)
     bool inserted = false;
 
     list<PWinObj*>::iterator it(_wo_list.begin());
-    for (; it != _wo_list.end() && !inserted; ++it) {
+    for (; it != _wo_list.end() && ! inserted; ++it) {
         if (raise
                 ? (wo->getLayer() < (*it)->getLayer())
                 : (wo->getLayer() <= (*it)->getLayer())) {
@@ -333,7 +333,7 @@ Workspaces::insert(PWinObj* wo, bool raise)
         }
     }
 
-    if (!inserted) {
+    if (! inserted) {
         _wo_list.push_back(wo);
         // we can't do raise here as it'll end up in an recursive loop
         // if we use Workspaces::raise to restack the PWinObj.
@@ -361,7 +361,7 @@ Workspaces::hideAll(uint workspace)
 {
     list<PWinObj*>::iterator it(_wo_list.begin());
     for (; it != _wo_list.end(); ++it) {
-        if (!((*it)->isSticky()) && !((*it)->isHidden()) &&
+        if (! ((*it)->isSticky()) && ! ((*it)->isHidden()) &&
                 ((*it)->getWorkspace() == workspace)) {
             (*it)->unmapWindow();
         }
@@ -380,7 +380,7 @@ Workspaces::unhideAll(uint workspace, bool focus)
 
     list<PWinObj*>::iterator it(_wo_list.begin());
     for (; it != _wo_list.end(); ++it) {
-        if (!(*it)->isMapped() && !(*it)->isIconified() && !(*it)->isHidden()
+        if (! (*it)->isMapped() && ! (*it)->isIconified() && ! (*it)->isHidden()
                 && ((*it)->getWorkspace() == workspace)) {
             (*it)->mapWindow(); // don't restack ontop windows
         }
@@ -390,7 +390,7 @@ Workspaces::unhideAll(uint workspace, bool focus)
     // Frame if any and give it focus.
     if (focus) {
         PWinObj *wo = _workspace_list[workspace]->getLastFocused();
-        if (!wo || !PWinObj::windowObjectExists(wo)) {
+        if (! wo || ! PWinObj::windowObjectExists(wo)) {
             wo = getTopWO(PWinObj::WO_FRAME);
         }
 
@@ -413,8 +413,8 @@ Workspaces::unhideAll(uint workspace, bool focus)
         }
 
         // If focusing fails, focus the root window.
-        if (!PWinObj::getFocusedPWinObj()
-                || !PWinObj::getFocusedPWinObj()->isMapped()) {
+        if (! PWinObj::getFocusedPWinObj()
+                || ! PWinObj::getFocusedPWinObj()->isMapped()) {
             PWinObj::getRootPWinObj()->giveInputFocus();
         }
     }
@@ -579,7 +579,7 @@ Workspaces::updateClientStackingList(bool client, bool stacking)
     for (; it != _wo_list.end(); ++it) {
         if ((*it)->getType() == PWinObj::WO_FRAME) {
             cl = static_cast<Client*>(static_cast<Frame*>((*it))->getActiveChild());
-            if (cl && !cl->isSkip(SKIP_TASKBAR)) {
+            if (cl && ! cl->isSkip(SKIP_TASKBAR)) {
                 windows[pos++] = cl->getWindow();
             }
         }
@@ -669,11 +669,11 @@ Workspaces::placeSmart(PWinObj* wo)
 
     if (Config::instance()->getPlacementRow()) { // row placement
         test_y = start_y;
-        while (!placed && (Config::instance()->getPlacementTtB()
+        while (! placed && (Config::instance()->getPlacementTtB()
                            ? ((test_y + wo_height) <= (head.y + head.height))
                            : (test_y >= head.y))) {
             test_x = start_x;
-            while (!placed && (Config::instance()->getPlacementLtR()
+            while (! placed && (Config::instance()->getPlacementLtR()
                                ? ((test_x + wo_width) <= (head.x + head.width))
                                : (test_x >= head.x))) {
                 // see if we can place the window here
@@ -690,11 +690,11 @@ Workspaces::placeSmart(PWinObj* wo)
         }
     } else { // column placement
         test_x = start_x;
-        while (!placed && (Config::instance()->getPlacementLtR()
+        while (! placed && (Config::instance()->getPlacementLtR()
                            ? ((test_x + wo_width) <= (head.x + head.width))
                            : (test_x >= head.x))) {
             test_y = start_y;
-            while (!placed && (Config::instance()->getPlacementTtB()
+            while (! placed && (Config::instance()->getPlacementTtB()
                                ? ((test_y + wo_height) <= (head.y + head.height))
                                : (test_y >= head.y))) {
                 // see if we can place the window here
@@ -830,7 +830,7 @@ Workspaces::placeInsideScreen(Geometry &gm)
 PWinObj*
 Workspaces::isEmptySpace(int x, int y, const PWinObj* wo)
 {
-    if (!wo) {
+    if (! wo) {
         return NULL;
     }
 
@@ -839,7 +839,7 @@ Workspaces::isEmptySpace(int x, int y, const PWinObj* wo)
     for (; it != _wo_list.end(); ++it) {
         // Skip ourselves, non-mapped and desktop objects. Iconified means
         // skip placement.
-        if (wo == (*it) || !(*it)->isMapped() || (*it)->isIconified()
+        if (wo == (*it) || ! (*it)->isMapped() || (*it)->isIconified()
             || ((*it)->getLayer() == LAYER_DESKTOP)) {
             continue;
         }
@@ -891,7 +891,7 @@ Workspaces::findDirectional(PWinObj *wo, DirectionType dir, uint skip)
 
     list<PWinObj*>::iterator it(_wo_list.begin());
     for (; it != _wo_list.end(); ++it) {
-        if ((wo == (*it)) || !((*it)->isMapped())) {
+        if ((wo == (*it)) || ! ((*it)->isMapped())) {
             continue; // skip ourselves and unmapped wo's
         }
         if (((*it)->getType() != PWinObj::WO_FRAME) ||
