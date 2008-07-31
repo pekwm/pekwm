@@ -222,7 +222,7 @@ PMenu::handleMotionEvent(XMotionEvent *ev)
 
         // check motion threshold
         if (ae && (ae->threshold > 0)) {
-            if (!ActionHandler::checkAEThreshold(ev->x_root, ev->y_root,
+            if (! ActionHandler::checkAEThreshold(ev->x_root, ev->y_root,
                                                  _pointer_x, _pointer_y, ae->threshold)) {
                 ae = NULL;
             }
@@ -266,7 +266,7 @@ void
 PMenu::handleItemEvent(MouseEventType type, int x, int y)
 {
     PMenu::Item *item = findItem(x, y);
-    if (!item)
+    if (! item)
         return;
 
     // Unmap submenu if we enter them on the same event as selecting.
@@ -283,7 +283,7 @@ PMenu::handleItemEvent(MouseEventType type, int x, int y)
                 static_cast<PMenu*>(item->getWORef())->unmapSubmenus();
                 item->getWORef()->unmapWindow();
 
-            } else if (!item->getWORef()->isMapped()) {
+            } else if (! item->getWORef()->isMapped()) {
                 // unmap previous opened submenu if any
                 unmapSubmenus();
                 mapSubmenu(static_cast<PMenu*>(item->getWORef()));
@@ -353,7 +353,7 @@ PMenu::buildMenuCalculate(void)
         }
 
         // Check if we have a submenu item
-        if (!_has_submenu && (*it)->getWORef() &&
+        if (! _has_submenu && (*it)->getWORef() &&
             ((*it)->getWORef()->getType() == PWinObj::WO_MENU)) {
           _has_submenu = true;
         }
@@ -727,7 +727,7 @@ PMenu::insert(const std::wstring &name, const ActionEvent &ae, PWinObj *wo_ref, 
 void
 PMenu::remove(PMenu::Item *item)
 {
-    if (!item) {
+    if (! item) {
 #ifdef DEBUG
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "PMenu(" << this << ")::remove(" << item << ")" << endl
@@ -831,7 +831,7 @@ PMenu::unmapAll(void)
 void
 PMenu::gotoParentMenu(void)
 {
-    if (!_menu_parent) {
+    if (! _menu_parent) {
         return;
     }
 
@@ -913,7 +913,7 @@ PMenu::exec(PMenu::Item *item)
         _menu_parent->exec(item);
     } else {
         handleItemExec(item);
-        if (!_sticky) {
+        if (! _sticky) {
             unmapAll();
         }
     }

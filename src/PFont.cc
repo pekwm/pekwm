@@ -210,9 +210,9 @@ PFontX11::load(const std::string &font_name)
     unload();
 
     _font = XLoadQueryFont(_scr->getDpy(), font_name.c_str());
-    if (!_font) {
+    if (! _font) {
         _font = XLoadQueryFont(_scr->getDpy(), FALLBACK_FONT);
-        if (!_font) {
+        if (! _font) {
             return false;
         }
     }
@@ -491,7 +491,7 @@ PFontXft::load(const std::string &font_name)
 
     _font = XftFontOpenName(_scr->getDpy(), _scr->getScreenNum(),
                             font_name.c_str());
-    if (!_font) {
+    if (! _font) {
         _font = XftFontOpenXlfd(_scr->getDpy(), _scr->getScreenNum(),
                                 font_name.c_str());
     }

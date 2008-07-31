@@ -74,7 +74,7 @@ PScreen::PVisual::~PVisual(void)
 void
 PScreen::PVisual::getShiftPrecFromMask(ulong mask, int &shift, int &prec)
 {
-    for (shift = 0; !(mask&0x1); ++shift) {
+    for (shift = 0; ! (mask&0x1); ++shift) {
         mask >>= 1;
     }
     
@@ -402,7 +402,7 @@ PScreen::getHeadInfo(uint head, Geometry &head_info)
 void
 PScreen::getHeadInfoWithEdge(uint num, Geometry &head)
 {
-    if (!getHeadInfo(num, head)) {
+    if (! getHeadInfo(num, head)) {
         return;
     }
 

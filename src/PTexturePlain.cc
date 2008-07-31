@@ -171,7 +171,7 @@ PTextureSolidRaised::setLineWidth(uint lw)
 {
     _lw = lw;
     // This is a hack to be able to rid the spacing lw == 1 does.
-    if (!lw) {
+    if (! lw) {
         lw = 1;
     }
 
