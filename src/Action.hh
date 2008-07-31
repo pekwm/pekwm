@@ -128,7 +128,7 @@ namespace ActionUtil {
     //! @return true if state needs toggling, else false.
     inline bool needToggle(StateAction sa, bool state) {
         if ((state && (sa == STATE_SET))
-            || (!state && (sa == STATE_UNSET))) {
+            || (! state && (sa == STATE_UNSET))) {
             return false;
         }
         return true;

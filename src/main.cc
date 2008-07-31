@@ -89,7 +89,7 @@ main(int argc, char **argv)
         } else if (strcmp("--info", argv[i]) == 0) {
             Info::printInfo();
             exit(0);
-        } else if (strcmp("--help", argv[i]) || !strcmp("-h", argv[i]) == 0) {
+        } else if (strcmp("--help", argv[i]) || ! strcmp("-h", argv[i]) == 0) {
             Info::printUsage();
             exit(0);
         }
