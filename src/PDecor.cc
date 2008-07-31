@@ -885,8 +885,9 @@ PDecor::resizeChild(uint width, uint height)
 void
 PDecor::setBorder(StateAction sa)
 {
-    if (!ActionUtil::needToggle(sa, _border))
+    if (!ActionUtil::needToggle(sa, _border)) {
         return;
+    }
 
     // If we are going to remove the border, we need to check carefully
     // that we don't try to make the window disappear.
@@ -1301,7 +1302,7 @@ PDecor::doKeyboardMoveResize(void)
             drawOutline(_gm); // clear
         }
 
-        if (ae = KeyGrabber::instance()->findMoveResizeAction(&e.xkey)) {
+        if ((ae = KeyGrabber::instance()->findMoveResizeAction(&e.xkey)) != 0) {
             for (it = ae->action_list.begin(); it != ae->action_list.end(); ++it) {
                 switch (it->getAction()) {
                 case MOVE_HORIZONTAL:

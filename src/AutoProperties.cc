@@ -127,8 +127,7 @@ AutoProperties::load(void)
     list<uint> workspaces;
 
     CfgParser::Entry *op_it (a_cfg.get_entry_root ());
-    while (op_it = op_it->get_section_next ())
-    {
+    while ((op_it = op_it->get_section_next ()) != 0) {
         if (*op_it == "PROPERTY") {
             parseAutoProperty (op_it, NULL);
         } else if (*op_it == "TITLERULES") {
@@ -157,8 +156,9 @@ AutoProperties::load(void)
 
                 // Get all properties on for these workspaces.
                 CfgParser::Entry *op_it_sub (op_it->get_section());
-                while (op_it_sub = op_it_sub->get_section_next())
+                while ((op_it_sub = op_it_sub->get_section_next()) != 0) {
                     parseAutoProperty(op_it_sub, &workspaces);
+                }
             }
         }
     }
@@ -354,7 +354,7 @@ AutoProperties::parseAutoGroup(CfgParser::Entry *op_section,
     }
     
     PropertyType property_type;
-    while (op_section = op_section->get_entry_next()) {
+    while ((op_section = op_section->get_entry_next()) != 0) {
         property_type = ParseUtil::getValue<PropertyType> (op_section->get_name (), _group_property_map);
 
         switch (property_type) {
@@ -391,7 +391,7 @@ AutoProperties::parseTitleProperty(CfgParser::Entry *op_section)
     TitleProperty *property;
     CfgParser::Entry *op_sub;
 
-    while (op_section = op_section->get_section_next()) {
+    while ((op_section = op_section->get_section_next()) != 0) {
         op_sub = op_section->get_section ();
 
         ok = false;
@@ -423,7 +423,7 @@ AutoProperties::parseDecorProperty(CfgParser::Entry *op_section)
     DecorProperty *property;
     CfgParser::Entry *op_sub;
 
-    while (op_section = op_section->get_section_next ()) {
+    while ((op_section = op_section->get_section_next ()) != 0) {
         op_sub = op_section->get_section ();
 
         ok = false;
@@ -460,7 +460,7 @@ AutoProperties::parseDockAppProperty(CfgParser::Entry *op_section)
     DockAppProperty *property;
     CfgParser::Entry *op_sub;
 
-    while (op_section = op_section->get_section_next ()) {
+    while ((op_section = op_section->get_section_next ()) != 0) {
         op_sub = op_section->get_section();
 
         ok = false;
@@ -502,7 +502,7 @@ AutoProperties::parseTypeProperty(CfgParser::Entry *op_section)
     map<EwmhAtomName, AutoProperty*>::iterator it;
 
     // Look for all type properties
-    while (op_section = op_section->get_section_next()) {
+    while ((op_section = op_section->get_section_next()) != 0) {
         // Get sub section
         op_sub = op_section->get_section ();
 

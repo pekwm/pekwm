@@ -410,7 +410,7 @@ Theme::PDecorData::loadButtons (CfgParser::Entry *op_section)
     }
     op_section = op_section->get_section ();
 
-    while (op_section = op_section->get_section_next()) {
+    while ((op_section = op_section->get_section_next()) != 0) {
         Theme::PDecorButtonData *btn = new Theme::PDecorButtonData ();
         if (btn->load (op_section)) {
             _button_list.push_back(btn);
@@ -910,7 +910,7 @@ Theme::load(const std::string &dir)
         op_section = op_section->get_section ();
 
         //op_section = op_section->get_section ();
-        while (op_section = op_section->get_section_next ()) {
+        while ((op_section = op_section->get_section_next ()) != 0) {
             Theme::PDecorData *data = new Theme::PDecorData();
             if (data->load (op_section)) {
                 _pdecordata_map[data->getName()] = data;

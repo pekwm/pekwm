@@ -180,7 +180,7 @@ KeyGrabber::parseGlobalChain(CfgParser::Entry *op_section,
     ActionEvent ae;
     uint key, mod;
 
-    while (op_section = op_section->get_section_next()) {
+    while ((op_section = op_section->get_section_next()) != 0) {
         if (*op_section == "CHAIN") {
             // Figure out mod and key, create a new chain.
             if (Config::instance ()->parseKey(op_section->get_value (),
@@ -206,7 +206,7 @@ KeyGrabber::parseMoveResizeChain(CfgParser::Entry *op_section,
     ActionEvent ae;
     uint key, mod;
 
-    while (op_section = op_section->get_section_next ()) {
+    while ((op_section = op_section->get_section_next ()) != 0) {
         if (*op_section == "CHAIN") {
             // Figure out mod and key, create a new chain.
             if (Config::instance ()->parseKey(op_section->get_value (), mod, key)) {
@@ -230,7 +230,7 @@ KeyGrabber::parseInputDialogChain(CfgParser::Entry *op_section,
     ActionEvent ae;
     uint key, mod;
 
-    while (op_section = op_section->get_section_next ()) {
+    while ((op_section = op_section->get_section_next ()) != 0) {
         if (*op_section == "CHAIN") {
             // Figure out mod and key, create a new chain.
             if (Config::instance ()->parseKey(op_section->get_value(),
@@ -256,7 +256,7 @@ KeyGrabber::parseMenuChain(CfgParser::Entry *op_section,
     ActionEvent ae;
     uint key, mod;
 
-    while (op_section = op_section->get_section_next ()) {
+    while ((op_section = op_section->get_section_next ()) != 0) {
         if (*op_section == "CHAIN") {
             // Figure out mod and key, create a new chain.
             if (Config::instance()->parseKey(op_section->get_value(), mod, key)) {

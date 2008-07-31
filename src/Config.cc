@@ -1544,7 +1544,7 @@ Config::parseButtons(CfgParser::Entry *op_section,
     ActionEvent ae;
     CfgParser::Entry *op_value;
 
-    while (op_section = op_section->get_section_next()) {
+    while ((op_section = op_section->get_section_next()) != 0) {
         ae.type = ParseUtil::getValue<MouseEventType>(op_section->get_name (),
                   _mouse_event_map);
 

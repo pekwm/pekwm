@@ -222,7 +222,7 @@ ActionMenu::parse(CfgParser::Entry *op_section, bool dynamic)
     }
     op_section = op_section->get_section ();
 
-    while (op_section = op_section->get_section_next ()) {
+    while ((op_section = op_section->get_section_next ()) != 0) {
         item = NULL;
         op_sub = op_section->get_section ();
 
