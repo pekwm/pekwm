@@ -47,15 +47,15 @@ PImageNativeLoaderPng::load(const std::string &file, uint &width, uint &height,
 {
     FILE *fp;
 
-    fp = fopen (file.c_str (), "rb");
-    if (!fp) {
+    fp = fopen(file.c_str(), "rb");
+    if (! fp) {
         cerr << " *** WARNING: unable to open " << file << " for reading!" << endl;
         return NULL;
     }
 
-    if (!checkSignature (fp)) {
+    if (! checkSignature(fp)) {
         cerr << " *** WARNING: " << file << " not a PNG file!" << endl;
-        fclose (fp);
+        fclose(fp);
         return NULL;
     }
 
@@ -63,31 +63,31 @@ PImageNativeLoaderPng::load(const std::string &file, uint &width, uint &height,
     png_structp png_ptr;
     png_infop info_ptr;
 
-    png_ptr = png_create_read_struct (PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    if (!png_ptr) {
+    png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+    if (! png_ptr) {
         cerr << " *** ERROR: out of memory, png_create_read_struct failed!" << endl;
         fclose (fp);
         return NULL;
     }
     
-    info_ptr = png_create_info_struct (png_ptr);
-    if (!info_ptr) {
+    info_ptr = png_create_info_struct(png_ptr);
+    if (! info_ptr) {
         cerr << " *** ERROR: out of memory, png_create_info_struct failed!" << endl;
-        png_destroy_read_struct (&png_ptr, NULL, NULL);
-        fclose (fp);
+        png_destroy_read_struct(&png_ptr, NULL, NULL);
+        fclose(fp);
         return NULL;
     }
 
     // Setup error handling.
-    if (setjmp (png_jmpbuf (png_ptr))) {
-        png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
-        fclose (fp);
+    if (setjmp(png_jmpbuf(png_ptr))) {
+        png_destroy_read_struct(&png_ptr, &info_ptr, NULL);
+        fclose(fp);
         return NULL;
     }
 
-    png_init_io (png_ptr, fp);
-    png_set_sig_bytes (png_ptr, PImageNativeLoaderPng::PNG_SIG_BYTES);
-    png_read_info (png_ptr, info_ptr);
+    png_init_io(png_ptr, fp);
+    png_set_sig_bytes(png_ptr, PImageNativeLoaderPng::PNG_SIG_BYTES);
+    png_read_info(png_ptr, info_ptr);
 
     int color_type, bpp;
     png_uint_32 png_width = 1, png_height = 1;

@@ -56,8 +56,8 @@ PImageNativeLoaderXpm::load(const std::string &file, uint &width, uint &height,
         return NULL;
     }
 
-    if (!xpm_image.ncolors || !xpm_image.data
-            || !xpm_image.width || !xpm_image.height) {
+    if (! xpm_image.ncolors || ! xpm_image.data
+            || ! xpm_image.width || ! xpm_image.height) {
         cerr << " *** WARNING: " << file << " invalid file information!" << endl;
         return NULL;
     }

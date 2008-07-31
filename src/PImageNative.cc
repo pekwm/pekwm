@@ -46,14 +46,14 @@ bool
 PImageNative::load(const std::string &file)
 {
     string ext(Util::getFileExt(file));
-    if (!ext.size()) {
+    if (! ext.size()) {
         cerr << " *** WARNING: no file extension on " << file << "!" << endl;
         return false;
     }
 
     list<PImageNativeLoader*>::iterator it(_loader_list.begin());
     for (; it != _loader_list.end(); ++it) {
-        if (!strcasecmp((*it)->getExt(), ext.c_str())) {
+        if (! strcasecmp((*it)->getExt(), ext.c_str())) {
             _data = (*it)->load(file, _width, _height, _has_alpha);
             if (_data) {
                 _pixmap = createPixmap(_data, _width, _height);
@@ -96,14 +96,14 @@ PImageNative::unload(void)
 void
 PImageNative::draw(Drawable draw, int x, int y, uint width, uint height)
 {
-    if (!_data) {
+    if (! _data) {
         return;
     }
 
     // Expand variables.
-    if (!width) {
+    if (! width) {
         width = _width;
-    } if (!height) {
+    } if (! height) {
         height = _height;
     }
 
@@ -145,11 +145,11 @@ PImageNative::getPixmap(bool &need_free, uint width, uint height)
     need_free = false;
 
     // Expand parameters.
-    if (!width) {
+    if (! width) {
         width = _width;
     }
     
-    if (!height) {
+    if (! height) {
         height = _height;
     }
     
@@ -183,11 +183,11 @@ PImageNative::getMask(bool &need_free, uint width, uint height)
     need_free = false;
 
     // Expand parameters.
-    if (!width) {
+    if (! width) {
         width = _width;
     }
     
-    if (!height) {
+    if (! height) {
         height = _height;
     }
     
@@ -215,7 +215,7 @@ void
 PImageNative::scale(uint width, uint height)
 {
     // Invalid width or height or no need to scale.
-    if (!width || !height || ((width == _width) && (height == height))) {
+    if (! width || ! height || ((width == _width) && (height == height))) {
         return;
     }
     uchar *scaled_data;
@@ -346,7 +346,7 @@ PImageNative::createPixmap(uchar *data, uint width, uint height)
 Pixmap
 PImageNative::createMask(uchar *data, uint width, uint height)
 {
-    if (!_has_alpha) {
+    if (! _has_alpha) {
         return None;
     }
 
@@ -354,7 +354,7 @@ PImageNative::createMask(uchar *data, uint width, uint height)
     XImage *ximage;
     ximage = XCreateImage(_dpy, PScreen::instance()->getVisual()->getXVisual(),
                           1, ZPixmap, 0, NULL, width, height, 32, 0);
-    if (!ximage) {
+    if (! ximage) {
         cerr << " *** WARNING: unable to create XImage!" << endl;
         return None;
     }
@@ -405,7 +405,7 @@ PImageNative::createXImage(uchar *data, uint width, uint height)
     ximage = XCreateImage(_dpy, PScreen::instance()->getVisual()->getXVisual(),
                           PScreen::instance()->getDepth(), ZPixmap, 0, NULL,
                           width, height, 32, 0);
-    if (!ximage) {
+    if (! ximage) {
         cerr << " *** WARNING: unable to create XImage!" << endl;
         return NULL;
     }
@@ -465,7 +465,7 @@ PImageNative::createXImage(uchar *data, uint width, uint height)
 uchar*
 PImageNative::getScaledData(uint width, uint height)
 {
-    if (!width || !height) {
+    if (! width || ! height) {
         return NULL;
     }
     

@@ -46,7 +46,7 @@ PImageNativeLoaderJpeg::load(const std::string &file, uint &width,
     FILE *fp;
 
     fp= fopen(file.c_str(), "rb");
-    if (!fp) {
+    if (! fp) {
         cerr << " *** WARNING: unable to open " << file << " for reading!" << endl;
         return NULL;
     }
