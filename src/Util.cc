@@ -115,7 +115,7 @@ isExecutable(const std::string &file)
     }
 
     struct stat stat_buf;
-    if (!stat(file.c_str(), &stat_buf)) {
+    if (! stat(file.c_str(), &stat_buf)) {
         if (stat_buf.st_uid == getuid()) { // user readable and executable
             if ((stat_buf.st_mode&S_IRUSR) && (stat_buf.st_mode&S_IXUSR)) {
                 return true;
@@ -445,7 +445,7 @@ int
 setenv(const char *name, const char *value, int overwrite)
 {
     // invalid parameters
-    if (!name || !value) {
+    if (! name || ! value) {
         return -1;
     }
 
@@ -456,7 +456,7 @@ setenv(const char *name, const char *value, int overwrite)
 
     size_t len = strlen(name) + strlen(value) + 2;
     char *str = new char[len];
-    if (!str) {
+    if (! str) {
         errno = ENOMEM;
         return -1;
     }
