@@ -116,7 +116,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
     list<Action>::const_iterator it = ap.ae.action_list.begin();
     for (; it != ap.ae.action_list.end(); ++it, matched = false) {
         // actions valid for all PWinObjs
-        if (!matched && ap.wo) {
+        if (! matched && ap.wo) {
             matched = true;
             switch (it->getAction()) {
             case ACTION_FOCUS:
@@ -138,7 +138,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
         }
 
         // actions valid for Clients and Frames
-        if (!matched && frame) {
+        if (! matched && frame) {
             matched = true;
             switch (it->getAction()) {
             case ACTION_GROUPING_DRAG:
@@ -242,7 +242,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
 
         // Actions valid for Menus
 #ifdef MENUS
-        if (!matched && menu) {
+        if (! matched && menu) {
             matched = true;
             switch (it->getAction()) {
                 // menu navigation
@@ -280,7 +280,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
         }
 #endif // MENUS
         // actions valid for pdecor
-        if (!matched && decor) {
+        if (! matched && decor) {
             int x_root, y_root;
 
             matched = true;
@@ -309,7 +309,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
         }
 
         // Actions valid from everywhere
-        if (!matched) {
+        if (! matched) {
             matched = true;
             switch (it->getAction()) {
             case ACTION_SET:
@@ -407,7 +407,7 @@ ActionHandler::handleStateAction(const Action &action, PWinObj *wo,
     bool matched = false;
 
     // check for frame actions
-    if (!matched && frame) {
+    if (! matched && frame) {
         matched = true;
         switch (action.getParamI(0)) {
         case ACTION_STATE_MAXIMIZED:
@@ -463,7 +463,7 @@ ActionHandler::handleStateAction(const Action &action, PWinObj *wo,
     }
 
     // check for menu actions
-    if (!matched && wo &&
+    if (! matched && wo &&
             (wo->getType() == PWinObj::WO_MENU)) {
         matched = true;
         switch (action.getParamI(0)) {
@@ -476,7 +476,7 @@ ActionHandler::handleStateAction(const Action &action, PWinObj *wo,
         }
     }
 
-    if (!matched) {
+    if (! matched) {
         matched = true;
         switch (action.getParamI(0)) {
 #ifdef HARBOUR
@@ -510,7 +510,7 @@ ActionEvent*
 ActionHandler::findMouseAction(uint button, uint state, MouseEventType type,
                                std::list<ActionEvent> *actions)
 {
-    if (!actions)
+    if (! actions)
         return NULL;
 
     state &= ~PScreen::instance()->getNumLock() &
@@ -635,7 +635,7 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off,
     }
 
     // unable to grab keyboard
-    if (!PScreen::instance()->grabKeyboard(PScreen::instance()->getRoot())) {
+    if (! PScreen::instance()->grabKeyboard(PScreen::instance()->getRoot())) {
         return;
     }
 
@@ -819,7 +819,7 @@ ActionHandler::actionShowMenu(const std::string &name, bool stick,
                               uint e_type, PWinObj *wo_ref)
 {
     PMenu *menu = WindowManager::inst()->getMenu(name);
-    if (!menu) {
+    if (! menu) {
         return;
     }
 
@@ -919,7 +919,7 @@ ActionHandler::createMenuInclude(Frame *frame, bool show_iconified)
     // mos == mapped or shown nonetheless 
     bool mos = frame->isMapped() || ibs;
     
-    return !frame->isSkip(SKIP_FOCUS_TOGGLE) && frame->isFocusable() && mos;
+    return ! frame->isSkip(SKIP_FOCUS_TOGGLE) && frame->isFocusable() && mos;
 }
 
 //! @brief Searches the client list for a client with a title matching title
@@ -956,7 +956,7 @@ ActionHandler::gotoClient(Client *client)
     }
 
     // Make sure it's visible
-    if (!frame->isSticky()
+    if (! frame->isSticky()
         && (frame->getWorkspace() != Workspaces::instance()->getActive())) {
         Workspaces::instance()->setWorkspace(frame->getWorkspace(), false);
     }

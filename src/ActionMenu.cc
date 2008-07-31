@@ -74,7 +74,7 @@ void
 ActionMenu::mapWindow(void)
 {
     // find and rebuild the dynamic entries
-    if (!isMapped() && _has_dynamic) {
+    if (! isMapped() && _has_dynamic) {
         uint size_before = _item_list.size();
         rebuildDynamic();
         if (size_before != _item_list.size()) {
@@ -89,7 +89,7 @@ ActionMenu::mapWindow(void)
 void
 ActionMenu::unmapWindow(void)
 {
-    if (!isMapped()) {
+    if (! isMapped()) {
         return;
     }
 
@@ -108,7 +108,7 @@ ActionMenu::unmapWindow(void)
 void
 ActionMenu::handleItemExec(PMenu::Item *item)
 {
-    if (!item) {
+    if (! item) {
         return;
     }
 
@@ -135,7 +135,7 @@ ActionMenu::reload(CfgParser::Entry *section)
 void
 ActionMenu::insert(PMenu::Item *item)
 {
-    if (!item) {
+    if (! item) {
         return;
     }
 
@@ -166,7 +166,7 @@ ActionMenu::insert(const std::wstring &or_name, const ActionEvent &or_ae, PWinOb
 void
 ActionMenu::remove(PMenu::Item *item)
 {
-    if (!item) {
+    if (! item) {
         return;
     }
 
@@ -197,9 +197,9 @@ ActionMenu::removeAll(void)
 void
 ActionMenu::parse(CfgParser::Entry *op_section, bool dynamic)
 {
-    if (!op_section) {
+    if (! op_section) {
         return;
-    } else if (!op_section->get_section()) {
+    } else if (! op_section->get_section()) {
 #ifdef DEBUG
         cerr << " *** ERROR: Unable to get subsection in menu parsing" << endl;
 #endif // DEBUG
