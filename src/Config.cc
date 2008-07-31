@@ -354,7 +354,7 @@ Config::load(const std::string &config_file)
     }
 
     // Try loading ~/.pekwm/config
-    if (!success) {
+    if (! success) {
         _config_file = string(getenv("HOME")) + string("/.pekwm/config");
         success = cfg.parse (_config_file, CfgParserSource::SOURCE_FILE);
         if (success) {
@@ -363,7 +363,7 @@ Config::load(const std::string &config_file)
     }
 
     // Copy cfg files to ~/.pekwm and then try loading global config
-    if (!success) {
+    if (! success) {
         copyConfigFiles();
 
         _config_file = string(SYSCONFDIR "/config");
@@ -373,14 +373,14 @@ Config::load(const std::string &config_file)
         }
     }
 
-    if (!success) {
+    if (! success) {
         cerr << " *** WARNING: unable to load configuration files!" << endl;
         return;
     }
 
     // Update PEKWM_CONFIG_FILE environment if needed ( to reflect active file )
     char *cfg_env = getenv("PEKWM_CONFIG_FILE");
-    if (!cfg_env || (strcmp(cfg_env, file_success.c_str()) != 0))
+    if (! cfg_env || (strcmp(cfg_env, file_success.c_str()) != 0))
         setenv("PEKWM_CONFIG_FILE", file_success.c_str(), 1);
 
     string o_file_mouse; // temporary filepath for mouseconfig
@@ -424,7 +424,7 @@ Config::load(const std::string &config_file)
 void
 Config::loadFiles(CfgParser::Entry *op_section)
 {
-    if (!op_section) {
+    if (! op_section) {
         return;
     }
 
@@ -462,7 +462,7 @@ Config::loadFiles(CfgParser::Entry *op_section)
 void
 Config::loadMoveReszie(CfgParser::Entry *op_section)
 {
-    if (!op_section) {
+    if (! op_section) {
         return;
     }
 
@@ -612,7 +612,7 @@ Config::loadScreen(CfgParser::Entry *op_section)
     }
 
     // Fallback value
-    if (!_screen_placementmodels.size()) {
+    if (! _screen_placementmodels.size()) {
         _screen_placementmodels.push_back(PLACE_MOUSE_CENTERED);
     }
 
@@ -642,7 +642,7 @@ Config::loadScreen(CfgParser::Entry *op_section)
 void
 Config::loadMenu(CfgParser::Entry *op_section)
 {
-    if (!op_section) {
+    if (! op_section) {
         return;
     }
 
@@ -674,7 +674,7 @@ Config::loadMenu(CfgParser::Entry *op_section)
 void
 Config::loadHarbour(CfgParser::Entry *op_section)
 {
-    if (!op_section) {
+    if (! op_section) {
         return;
     }
 
@@ -1053,7 +1053,7 @@ Config::parseActionEvent(CfgParser::Entry *op_section, ActionEvent &ae,
     CfgParser::Entry *op_value;
 
     string o_button = op_section->get_value ();
-    if (!o_button.size()) {
+    if (! o_button.size()) {
         if ((ae.type == MOUSE_EVENT_ENTER) || (ae.type == MOUSE_EVENT_LEAVE)) {
             o_button = "1";
         } else {
@@ -1142,7 +1142,7 @@ Config::parseMoveResizeEvent(CfgParser::Entry *op_section, ActionEvent& ae)
 {
     CfgParser::Entry *op_value;
 
-    if (!op_section->get_value ().size ()) {
+    if (! op_section->get_value ().size ()) {
         return false;
     }
     
@@ -1197,7 +1197,7 @@ Config::parseInputDialogEvent (CfgParser::Entry *op_section, ActionEvent &ae)
 {
     CfgParser::Entry *op_value;
 
-    if (!op_section->get_value ().size ()) {
+    if (! op_section->get_value ().size()) {
         return false;
     }
     
@@ -1282,7 +1282,7 @@ Config::parseMenuEvent (CfgParser::Entry *op_section, ActionEvent& ae)
 {
     CfgParser::Entry *op_value;
 
-    if (!op_section->get_value ().size ()) {
+    if (! op_section->get_value ().size()) {
         return false;
     }
 
@@ -1341,7 +1341,7 @@ Config::copyConfigFiles(void)
     // check and see if we allready have a ~/.pekwm/ directory
     if (stat(cfg_dir.c_str(), &stat_buf) == 0) {
         // is it a dir or file?
-        if (!S_ISDIR(stat_buf.st_mode)) {
+        if (! S_ISDIR(stat_buf.st_mode)) {
             cerr << cfg_dir << " allready exists and isn't a directory" << endl
                  << "Can't copy config files !" << endl;
             return;
@@ -1363,8 +1363,8 @@ Config::copyConfigFiles(void)
             }
         }
 
-        if (!cfg_dir_ok) {
-            if (!(stat_buf.st_mode&S_IWOTH) || !(stat_buf.st_mode&(S_IXOTH))) {
+        if (! cfg_dir_ok) {
+            if (! (stat_buf.st_mode&S_IWOTH) || ! (stat_buf.st_mode&(S_IXOTH))) {
                 cerr << "You don't have the rights to add files to the: " << cfg_dir
                 << " directory! Therefor I can't copy the config files!" << endl;
                 return;
@@ -1424,7 +1424,7 @@ Config::copyTextFile(const std::string &from, const std::string &to)
     }
 
     ifstream stream_from(from.c_str());
-    if (!stream_from.good()) {
+    if (! stream_from.good()) {
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "Can't copy: " << from << " to: " << to << endl
              << "Shutting down" << endl;
@@ -1432,7 +1432,7 @@ Config::copyTextFile(const std::string &from, const std::string &to)
     }
 
     ofstream stream_to(to.c_str());
-    if (!stream_to.good()) {
+    if (! stream_to.good()) {
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "Can't copy: " << from << " to: " << to << endl;
     }
@@ -1444,19 +1444,19 @@ Config::copyTextFile(const std::string &from, const std::string &to)
 void
 Config::loadMouseConfig(const std::string &file)
 {
-    if (!file.size()) {
+    if (! file.size()) {
         return;
     }
     
     CfgParser mouse_cfg;
 
     bool success = mouse_cfg.parse (file, CfgParserSource::SOURCE_FILE);
-    if (!success) {
+    if (! success) {
         success = mouse_cfg.parse (string(SYSCONFDIR "/mouse"),
                                    CfgParserSource::SOURCE_FILE);
     }
     
-    if (!success) {
+    if (! success) {
         return;
     }
 
@@ -1537,7 +1537,7 @@ void
 Config::parseButtons(CfgParser::Entry *op_section,
                      std::list<ActionEvent>* mouse_list, ActionOk action_ok)
 {
-    if (!op_section || !mouse_list)
+    if (! op_section || ! mouse_list)
         return;
     op_section = op_section->get_section ();
 
