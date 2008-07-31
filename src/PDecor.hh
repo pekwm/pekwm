@@ -76,13 +76,13 @@ class Button : public PWinObj {
 
         void setReal(const std::wstring &real) {
             _real = real;
-            if (!isUserSet() && !isCustom()) {
+            if (! isUserSet() && ! isCustom()) {
                 updateVisible();
             }
         }
         void setCustom(const std::wstring &custom) {
             _custom = custom;
-            if (_custom.size() > 0 && !isUserSet()) {
+            if (_custom.size() > 0 && ! isUserSet()) {
                 updateVisible();
             }
         }
