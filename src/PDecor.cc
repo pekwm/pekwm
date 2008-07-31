@@ -110,6 +110,7 @@ PDecor::Button::setState(ButtonState state)
 
     _data->getTexture(state)->render(_bg, 0, 0, _gm.width, _gm.height);
 
+#ifdef HAVE_SHAPE
     // Get shape mask
     bool need_free;
     Pixmap shape = _data->getTexture(state)->getMask(0, 0, need_free);
@@ -123,7 +124,7 @@ PDecor::Button::setState(ButtonState state)
         XShapeCombineRectangles(_dpy, _window, ShapeBounding,
                                 0, 0, &rect, 1, ShapeSet, YXBanded);
     }
-
+#endif
     clear();
 }
 
