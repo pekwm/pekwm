@@ -52,7 +52,7 @@ RegexString::~RegexString (void)
 bool
 RegexString::ed_s (std::wstring &or_string)
 {
-    if (!_reg_ok) {
+    if (! _reg_ok) {
         return false;
     }
 
@@ -140,7 +140,7 @@ RegexString::parse_match(const std::wstring &or_match, bool full)
             expression = Util::to_mb_str(or_match);
         }
 
-        _reg_ok = !regcomp(&_o_regex, expression.c_str(), flags);
+        _reg_ok = ! regcomp(&_o_regex, expression.c_str(), flags);
     } else {
         _reg_ok = false;
     }
@@ -238,13 +238,13 @@ RegexString::parse_ed_s(const std::wstring &or_ed_s)
 bool
 RegexString::operator==(const std::wstring &or_rhs)
 {
-    if (!_reg_ok) {
+    if (! _reg_ok) {
         return false;
     }
 
     string rhs(Util::to_mb_str(or_rhs));
 
-    return !regexec(&_o_regex, rhs.c_str(), 0, 0, 0);
+    return ! regexec(&_o_regex, rhs.c_str(), 0, 0, 0);
 }
 
 //! @brief Free resources used by RegexString.

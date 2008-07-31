@@ -131,7 +131,7 @@ TextureHandler::returnTexture(PTexture *texture)
         }
     }
 
-    if (!found) {
+    if (! found) {
         delete texture;
     }
 }

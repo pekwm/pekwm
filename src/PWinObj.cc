@@ -94,7 +94,7 @@ PWinObj::mapWindowRaised(void)
 void
 PWinObj::unmapWindow(void)
 {
-    if (!_mapped) {
+    if (! _mapped) {
         return;
     }
     
@@ -221,7 +221,7 @@ PWinObj::setHidden(bool hidden)
 bool
 PWinObj::giveInputFocus(void)
 {
-    if (!_mapped  || !_focusable) {
+    if (! _mapped  || ! _focusable) {
 #ifdef DEBUG
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "PWinObj(" << this << ")::giveInputFocus()" << endl
