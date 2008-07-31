@@ -532,7 +532,7 @@ WindowManager::execStartFile(void)
     string start_file(_config->getStartFile());
 
     bool exec = Util::isExecutable(start_file);
-    if (!exec) {
+    if (! exec) {
         start_file = SYSCONFDIR "/start";
         exec = Util::isExecutable(start_file);
     }
@@ -595,7 +595,7 @@ void
 WindowManager::setupDisplay(void)
 {
     Display *dpy = XOpenDisplay(NULL);
-    if (!dpy) {
+    if (! dpy) {
         cerr << "Can not open display!" << endl
              << "Your DISPLAY variable currently is set to: "
              << getenv("DISPLAY") << endl;
@@ -719,7 +719,7 @@ WindowManager::scanWindows(void)
         }
         
         XGetWindowAttributes(_screen->getDpy(), *it, &attr);
-        if (!attr.override_redirect && (attr.map_state != IsUnmapped)) {
+        if (! attr.override_redirect && attr.map_state != IsUnmapped) {
 #ifdef HARBOUR
             XWMHints *wm_hints = XGetWMHints(_screen->getDpy(), *it);
             if (wm_hints) {
@@ -728,7 +728,7 @@ WindowManager::scanWindows(void)
                     _harbour->addDockApp(new DockApp(_screen, _theme, *it));
                 } else {
                     client = new Client(*it);
-                    if (!client->isAlive())
+                    if (! client->isAlive())
                         delete client;
 
                 }
@@ -737,7 +737,7 @@ WindowManager::scanWindows(void)
 #endif // HARBOUR
             {
                 client = new Client(*it);
-                if (!client->isAlive())
+                if (! client->isAlive())
                     delete client;
             }
         }
@@ -975,7 +975,7 @@ WindowManager::doEventLoop(void)
     XEvent ev;
     Timer<ActionPerformed>::timed_event_list events;
 
-    while (!_shutdown && ! is_signal_int_term) {
+    while (! _shutdown && ! is_signal_int_term) {
         // Handle timeouts
         if (is_signal_alrm) {
             is_signal_alrm = false;
@@ -1317,7 +1317,7 @@ WindowManager::handleMapRequestEvent(XMapRequestEvent *ev)
     } else {
         XWindowAttributes attr;
         XGetWindowAttributes(_screen->getDpy(), ev->window, &attr);
-        if (!attr.override_redirect) {
+        if (! attr.override_redirect) {
             // if we have the harbour enabled, we need to figure out wheter or
             // not this is a dockapp.
 #ifdef HARBOUR
@@ -1328,7 +1328,7 @@ WindowManager::handleMapRequestEvent(XMapRequestEvent *ev)
                     _harbour->addDockApp(new DockApp(_screen, _theme, ev->window));
                 } else {
                     Client *client = new Client(ev->window, true);
-                    if (!client->isAlive()) {
+                    if (! client->isAlive()) {
                         delete client;
                     }
                 }
@@ -1337,7 +1337,7 @@ WindowManager::handleMapRequestEvent(XMapRequestEvent *ev)
 #endif // HARBOUR
             {
                 Client *client = new Client(ev->window, true);
-                if (!client->isAlive()) {
+                if (! client->isAlive()) {
                     delete client;
                 }
             }
@@ -1379,7 +1379,7 @@ WindowManager::handleUnmapEvent(XUnmapEvent *ev)
 #endif // HARBOUR
 
     if ((wo_type != PWinObj::WO_MENU) && (wo_type != PWinObj::WO_CMD_DIALOG)
-        && !PWinObj::getFocusedPWinObj()) {
+        && ! PWinObj::getFocusedPWinObj()) {
         findWOAndFocus(wo_search);
     }
 }
@@ -1393,7 +1393,7 @@ WindowManager::handleDestroyWindowEvent(XDestroyWindowEvent *ev)
         PWinObj *wo_search = client->getParent();
         client->handleDestroyEvent(ev);
 
-        if (!PWinObj::getFocusedPWinObj()) {
+        if (! PWinObj::getFocusedPWinObj()) {
             findWOAndFocus(wo_search);
         }
     }
@@ -1482,7 +1482,7 @@ WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
             wo = static_cast<Frame*>(wo)->getActiveChild();
         }
 
-        if (!wo->isFocusable() || !wo->isMapped()) {
+        if (! wo->isFocusable() || ! wo->isMapped()) {
             findWOAndFocus(NULL);
 
         } else if (wo != PWinObj::getFocusedPWinObj()) {
@@ -1841,9 +1841,9 @@ WindowManager::findWOAndFocus(PWinObj *search)
     }
 
     // search window object didn't exist, go through the MRU list
-    if (!focus) {
+    if (! focus) {
         list<PWinObj*>::reverse_iterator f_it = _mru_list.rbegin();
-        for (; !focus  && (f_it != _mru_list.rend()); ++f_it) {
+        for (; ! focus  && (f_it != _mru_list.rend()); ++f_it) {
             if ((*f_it)->isMapped() && (*f_it)->isFocusable()) {
                 focus = *f_it;
             }
@@ -1853,7 +1853,7 @@ WindowManager::findWOAndFocus(PWinObj *search)
     if (focus) {
         focus->giveInputFocus();
 
-    }  else if (!PWinObj::getFocusedPWinObj()) {
+    }  else if (! PWinObj::getFocusedPWinObj()) {
         _root_wo->giveInputFocus();
         setEwmhActiveWindow(None);
     }
@@ -1943,7 +1943,7 @@ WindowManager::removeFromFrameList(Frame *frame)
 Frame*
 WindowManager::findGroup(AutoProperty *property)
 {
-    if (!_allow_grouping) {
+    if (! _allow_grouping) {
         return NULL;
     }
 
@@ -1970,7 +1970,7 @@ WindowManager::findGroup(AutoProperty *property)
     }
 
     // search the list of frames
-    if (!frame) {
+    if (! frame) {
         list<Frame*>::iterator it(Frame::frame_begin());
         for (; it != Frame::frame_end(); ++it) {
             if (MATCH_GROUP(*it, property)) {
@@ -2006,7 +2006,7 @@ WindowManager::attachMarked(Frame *frame)
 void
 WindowManager::attachInNextPrevFrame(Client *client, bool frame, bool next)
 {
-    if (!client)
+    if (! client)
         return;
 
     Frame *new_frame;
@@ -2040,7 +2040,7 @@ WindowManager::attachInNextPrevFrame(Client *client, bool frame, bool next)
 Frame*
 WindowManager::getNextFrame(Frame* frame, bool mapped, uint mask)
 {
-    if (!frame || (Frame::frame_size() < 2)) {
+    if (! frame || (Frame::frame_size() < 2)) {
         return NULL;
     }
 
@@ -2055,8 +2055,8 @@ WindowManager::getNextFrame(Frame* frame, bool mapped, uint mask)
             n_it = Frame::frame_begin();
         }
 
-        while (!next_frame && (n_it != f_it)) {
-            if (!(*n_it)->isSkip(mask) && (!mapped || (*n_it)->isMapped()))
+        while (! next_frame && (n_it != f_it)) {
+            if (! (*n_it)->isSkip(mask) && (! mapped || (*n_it)->isMapped()))
                 next_frame =  (*n_it);
 
             if (++n_it == Frame::frame_end()) {
@@ -2076,7 +2076,7 @@ WindowManager::getNextFrame(Frame* frame, bool mapped, uint mask)
 Frame*
 WindowManager::getPrevFrame(Frame* frame, bool mapped, uint mask)
 {
-    if (!frame || (Frame::frame_size() < 2)) {
+    if (! frame || (Frame::frame_size() < 2)) {
         return NULL;
     }
 
@@ -2093,8 +2093,8 @@ WindowManager::getPrevFrame(Frame* frame, bool mapped, uint mask)
             --n_it;
         }
 
-        while (!next_frame && (n_it != f_it)) {
-            if (!(*n_it)->isSkip(mask) && (!mapped || (*n_it)->isMapped())) {
+        while (! next_frame && (n_it != f_it)) {
+            if (! (*n_it)->isSkip(mask) && (! mapped || (*n_it)->isMapped())) {
                 next_frame =  (*n_it);
             }
 
