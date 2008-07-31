@@ -36,7 +36,7 @@ throw (std::string&)
     }
 
     _op_file = fopen (_or_name.c_str (), "r");
-    if (!_op_file)  {
+    if (! _op_file)  {
         throw string("FAILED TO OPEN " + _or_name);
     }
 
@@ -48,7 +48,7 @@ void
 CfgParserSourceFile::close (void)
 throw (std::string&)
 {
-    if (!_op_file) {
+    if (! _op_file) {
         throw string("TRYING TO CLOSE ALLREADY CLOSED SOURCE");
     }
 

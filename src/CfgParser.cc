@@ -91,7 +91,7 @@ CfgParser::Entry::find_entry (const std::string &or_name)
     CfgParser::Entry *op_it;
 
     for (op_it = _op_entry_next; op_it; op_it = op_it->_op_entry_next) {
-        if (!op_it->_op_section && (*op_it == or_name.c_str ())) {
+        if (! op_it->_op_section && (*op_it == or_name.c_str())) {
             return op_it;
         }
     }
@@ -313,21 +313,21 @@ CfgParser::parse_source_new(const std::string &or_name,
 
             // If the open fails and we are trying to open a file, try
             // to open the file from the current files directory.
-            if (!i_done && (i_type == CfgParserSource::SOURCE_FILE)) {
+            if (! i_done && (i_type == CfgParserSource::SOURCE_FILE)) {
                 if (_o_source_name_list.size() && (or_name[0] != '/')) {
                     o_name = Util::getDir(_o_source_name_list.back());
                     o_name += "/" + or_name;
                 }
             }
         }
-    } while (!i_done++ && (i_type == CfgParserSource::SOURCE_FILE));
+    } while (! i_done++ && (i_type == CfgParserSource::SOURCE_FILE));
 }
 
 //! @brief Parses from beginning to first blank.
 bool
 CfgParser::parse_name(std::string &or_buf)
 {
-    if (!or_buf.size()) {
+    if (! or_buf.size()) {
         cerr << _("Unable to parse empty name.\n");
         return false;
     }
@@ -373,7 +373,7 @@ CfgParser::parse_value(CfgParserSource *op_source, std::string &or_value)
 
         o_buf += i_c;
 
-        if (!isspace(i_c))
+        if (! isspace(i_c))
             b_garbage = true;
     }
 
@@ -416,7 +416,7 @@ CfgParser::parse_value(CfgParserSource *op_source, std::string &or_value)
 void
 CfgParser::parse_entry_finish(std::string &or_buf, std::string &or_value)
 {
-    if (!or_value.size()) {
+    if (! or_value.size()) {
         or_buf.clear();
         return;
     }

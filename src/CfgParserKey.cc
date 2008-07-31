@@ -63,9 +63,9 @@ void
 CfgParserKeyBool::parse_value (const std::string &or_value)
 throw (std::string&)
 {
-    if ((or_value == "1") || !strcasecmp (or_value.c_str(), "TRUE")) {
+    if ((or_value == "1") || ! strcasecmp(or_value.c_str(), "TRUE")) {
         _br_set = true;
-    } else if ((or_value == "0") || !strcasecmp (or_value.c_str(), "FALSE")) {
+    } else if ((or_value == "0") || ! strcasecmp(or_value.c_str(), "FALSE")) {
         _br_set = false;
     } else  {
         _br_set = _b_default;
