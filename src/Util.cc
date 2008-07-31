@@ -453,13 +453,14 @@ setenv(const char *name, const char *value, int overwrite)
         return 0;
     }
 
-    char *str = new char[strlen(name) + strlen(value) + 2];
+    size_t len = strlen(name) + strlen(value) + 2;
+    char *str = new char[len];
     if (str == NULL) {
         errno = ENOMEM;
         return -1;
     }
 
-    snprintf(str, strlen(str), "%s=%s", name, value);
+    snprintf(str, len, "%s=%s", name, value);
 
     return (putenv(str));
 }
