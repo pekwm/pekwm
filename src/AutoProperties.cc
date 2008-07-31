@@ -110,10 +110,9 @@ AutoProperties::load(void)
     unload();
 
     CfgParser a_cfg;
-    if (!a_cfg.parse (Config::instance()->getAutoPropsFile()))
-    {
+    if (! a_cfg.parse (Config::instance()->getAutoPropsFile())) {
         string cfg_file = SYSCONFDIR "/autoproperties";
-        if (!a_cfg.parse (cfg_file)) {
+        if (! a_cfg.parse (cfg_file)) {
           setDefaultTypeProperties();
           return;
         }
@@ -144,7 +143,7 @@ AutoProperties::load(void)
             op_it = op_it->get_section ();
 
             CfgParser::Entry *op_value = op_it->find_entry ("WORKSPACE");
-            if (!op_value) {
+            if (! op_value) {
                 continue; // Need workspace numbers.
             }
             
@@ -213,7 +212,7 @@ AutoProperties::findProperty(const ClassHint* class_hint,
                              std::list<Property*>* prop_list, int ws, uint type)
 {
     // Allready remove apply on start
-    if (!_apply_on_start && (type == APPLY_ON_START))
+    if (! _apply_on_start && (type == APPLY_ON_START))
         return NULL;
 
     list<Property*>::iterator it(prop_list->begin());
@@ -222,7 +221,7 @@ AutoProperties::findProperty(const ClassHint* class_hint,
     // start searching for a suitable property
     for (bool ok = false; it != prop_list->end(); ++it, ok = false) {
         // see if the type matches, if we have one
-        if ((type != 0) && !(*it)->isApplyOn(type))
+        if ((type != 0) && ! (*it)->isApplyOn(type))
             continue;
 
         if (matchAutoClass(*class_hint, *it)) {
@@ -809,7 +808,7 @@ AutoProperties::removeApplyOnStart(void)
     for (; it != _prop_list.end(); ++it) {
         if ((*it)->isApplyOn(APPLY_ON_START)) {
             (*it)->applyRemove(APPLY_ON_START);
-            if (!(*it)->getApplyOn()) {
+            if (! (*it)->getApplyOn()) {
                 delete *it;
                 it = _prop_list.erase(it);
                 --it; // compensate for the ++ in the loop

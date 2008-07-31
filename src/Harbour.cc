@@ -73,7 +73,7 @@ Harbour::~Harbour(void)
 void
 Harbour::addDockApp(DockApp *da)
 {
-    if (!da) {
+    if (! da) {
         return;
     }
 
@@ -89,7 +89,7 @@ Harbour::addDockApp(DockApp *da)
     da->setLayer(Config::instance()->isHarbourOntop() ? LAYER_DOCK : LAYER_DESKTOP);
     _workspaces->insert(da); // add the dockapp to the stacking list
 
-    if (!da->isMapped()) { // make sure it's visible
+    if (! da->isMapped()) { // make sure it's visible
         da->mapWindow();
     }
 
@@ -100,7 +100,7 @@ Harbour::addDockApp(DockApp *da)
 void
 Harbour::removeDockApp(DockApp *da)
 {
-    if (!da)
+    if (! da)
         return;
 
     list<DockApp*>::iterator it(find(_da_list.begin(), _da_list.end(), da));
@@ -279,7 +279,7 @@ Harbour::updateStrutSize(void)
 {
     _strut->left = _strut->right = _strut->top = _strut->bottom = 0;
 
-    if (!Config::instance()->isHarbourMaximizeOver()) {
+    if (! Config::instance()->isHarbourMaximizeOver()) {
         switch (Config::instance()->getHarbourPlacement()) {
         case TOP:
             _strut->top = _size;
@@ -303,7 +303,7 @@ Harbour::updateStrutSize(void)
 void
 Harbour::handleButtonEvent(XButtonEvent* ev, DockApp* da)
 {
-    if (!da) {
+    if (! da) {
         return;
     }
     
@@ -331,7 +331,7 @@ Harbour::handleButtonEvent(XButtonEvent* ev, DockApp* da)
 void
 Harbour::handleMotionNotifyEvent(XMotionEvent* ev, DockApp* da)
 {
-    if (!da) {
+    if (! da) {
         return;
     }
     
@@ -373,7 +373,7 @@ Harbour::handleMotionNotifyEvent(XMotionEvent* ev, DockApp* da)
 void
 Harbour::handleConfigureRequestEvent(XConfigureRequestEvent* ev, DockApp* da)
 {
-    if (!da) {
+    if (! da) {
         return;
     }
     
@@ -397,7 +397,7 @@ Harbour::handleConfigureRequestEvent(XConfigureRequestEvent* ev, DockApp* da)
 void
 Harbour::placeDockApp(DockApp *da)
 {
-    if (!da || !_da_list.size ())
+    if (! da || ! _da_list.size ())
         return;
 
     bool right = (Config::instance()->getHarbourOrientation() == BOTTOM_TO_TOP);
@@ -421,7 +421,7 @@ Harbour::placeDockApp(DockApp *da)
     if (x_place) {
         x = test = right ? head.x + head.width - da->getWidth() : head.x;
 
-        while (!placed
+        while (! placed
                 && (right
                     ? (test >= 0)
                     : ((test + da->getWidth()) < (head.x + head.width))))
@@ -450,7 +450,7 @@ Harbour::placeDockApp(DockApp *da)
     } else { // !x_place
         y = test = right ? head.y + head.height - da->getHeight() : head.y;
 
-        while (!placed
+        while (! placed
                 && (right
                     ? (test >= 0)
                     : ((test + da->getHeight()) < (head.y + head.height))))
@@ -487,7 +487,7 @@ Harbour::placeDockApp(DockApp *da)
 void
 Harbour::placeDockAppsSorted(void)
 {
-    if (!_da_list.size ()) {
+    if (! _da_list.size ()) {
         return;
     }
     
@@ -568,7 +568,7 @@ Harbour::placeDockAppInsideScreen(DockApp *da)
 void
 Harbour::getPlaceStartPosition(DockApp *da, int &x, int &y, bool &inc_x)
 {
-    if (!da) {
+    if (! da) {
         return;
     }
     

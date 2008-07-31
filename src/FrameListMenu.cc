@@ -76,14 +76,14 @@ FrameListMenu::mapWindow(void)
 void
 FrameListMenu::handleItemExec(PMenu::Item *item)
 {
-    if (!item) {
+    if (! item) {
         return;
     }
 
-    if (!PWinObj::windowObjectExists(_wo_ref)) {
+    if (! PWinObj::windowObjectExists(_wo_ref)) {
         _wo_ref = NULL;
     }
-    if (!PWinObj::windowObjectExists(item->getWORef())) {
+    if (! PWinObj::windowObjectExists(item->getWORef())) {
         item->setWORef(NULL);
     }
 
@@ -236,18 +236,18 @@ FrameListMenu::buildFrameNames(Frame *frame, std::wstring &pre_name)
 void
 FrameListMenu::handleGotomenu(Client *client)
 {
-    if (!client) {
+    if (! client) {
         return;
     }
     Frame *frame = static_cast<Frame*>(client->getParent());
 
     // make sure it's on correct workspace
-    if (!frame->isSticky() &&
+    if (! frame->isSticky() &&
             (frame->getWorkspace() != Workspaces::instance()->getActive())) {
         Workspaces::instance()->setWorkspace(frame->getWorkspace(), false);
     }
     // make sure it isn't hidden
-    if (!frame->isMapped()) {
+    if (! frame->isMapped()) {
         frame->mapWindow();
     }
 
@@ -260,7 +260,7 @@ FrameListMenu::handleGotomenu(Client *client)
 void
 FrameListMenu::handleIconmenu(Client *client)
 {
-    if (!client) {
+    if (! client) {
         return;
     }
     Frame *frame = static_cast<Frame*>(client->getParent());
@@ -278,7 +278,7 @@ FrameListMenu::handleIconmenu(Client *client)
 void
 FrameListMenu::handleAttach(Client *client_to, Client *client_from, bool frame)
 {
-    if (!client_to || !client_from) {
+    if (! client_to || ! client_from) {
         return;
     }
 

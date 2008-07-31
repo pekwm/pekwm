@@ -48,7 +48,7 @@ HarbourMenu::~HarbourMenu(void)
 void
 HarbourMenu::handleItemExec(PMenu::Item *item)
 {
-    if (!item || !_dockapp) {
+    if (! item || ! _dockapp) {
         return;
     }
 

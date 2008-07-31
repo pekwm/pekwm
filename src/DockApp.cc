@@ -166,7 +166,7 @@ DockApp::mapWindow(void)
 void
 DockApp::unmapWindow(void)
 {
-    if (!_mapped) {
+    if (! _mapped) {
         return;
     }
     _mapped = false;
