@@ -99,8 +99,8 @@ public:
         inline bool isTitleWidthSymetric(void) const {
             return _title_width_symetric;
         }
-      //! @brief Returns wheter titlebar height should be relative the font height
-      inline bool isTitleHeightAdapt(void) const { return _title_height_adapt; }
+        //! @brief Returns wheter titlebar height should be relative the font height
+        inline bool isTitleHeightAdapt(void) const { return _title_height_adapt; }
 
         // Title textures
 
@@ -123,7 +123,7 @@ public:
 
         //! @brief Returns PFont used in FocusedState state.
         inline PFont *getFont(FocusedState state) const {
-            return _font[((state == FOCUSED_STATE_NO) || !_font[state])
+            return _font[((state == FOCUSED_STATE_NO) || ! _font[state])
                          ? FOCUSED_STATE_FOCUSED : state];
         }
         //! @brief Return PFont::Color used in FocusedState state.
