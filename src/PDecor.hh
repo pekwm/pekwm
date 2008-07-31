@@ -137,9 +137,9 @@ class Button : public PWinObj {
 
     virtual bool operator == (const Window &window) {
         if ((_window == window) || (_title_wo == window) ||
-                (findButton(window) != NULL) ||
+                findButton(window) ||
                 (getBorderPosition(window) != BORDER_NO_POS) ||
-                ((_child != NULL) ? (*_child == window) : false)) {
+                ((_child) ? (*_child == window) : false)) {
             return true;
         }
         return false;

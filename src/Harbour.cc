@@ -62,7 +62,7 @@ Harbour::~Harbour(void)
     delete _strut;
 
 #ifdef MENUS
-    if (_harbour_menu != NULL) {
+    if (_harbour_menu) {
         delete _harbour_menu;
     }
 #endif // MENUS
@@ -73,7 +73,7 @@ Harbour::~Harbour(void)
 void
 Harbour::addDockApp(DockApp *da)
 {
-    if (da == NULL) {
+    if (!da) {
         return;
     }
 
@@ -89,7 +89,7 @@ Harbour::addDockApp(DockApp *da)
     da->setLayer(Config::instance()->isHarbourOntop() ? LAYER_DOCK : LAYER_DESKTOP);
     _workspaces->insert(da); // add the dockapp to the stacking list
 
-    if (da->isMapped() == false) { // make sure it's visible
+    if (!da->isMapped()) { // make sure it's visible
         da->mapWindow();
     }
 
@@ -100,7 +100,7 @@ Harbour::addDockApp(DockApp *da)
 void
 Harbour::removeDockApp(DockApp *da)
 {
-    if (da == NULL)
+    if (!da)
         return;
 
     list<DockApp*>::iterator it(find(_da_list.begin(), _da_list.end(), da));
@@ -303,9 +303,10 @@ Harbour::updateStrutSize(void)
 void
 Harbour::handleButtonEvent(XButtonEvent* ev, DockApp* da)
 {
-    if (da == 0)
+    if (!da) {
         return;
-
+    }
+    
     _last_button_x = ev->x;
     _last_button_y = ev->y;
 
@@ -330,9 +331,10 @@ Harbour::handleButtonEvent(XButtonEvent* ev, DockApp* da)
 void
 Harbour::handleMotionNotifyEvent(XMotionEvent* ev, DockApp* da)
 {
-    if (da == NULL)
+    if (!da) {
         return;
-
+    }
+    
     Geometry head;
     int x = 0, y = 0;
 
@@ -371,9 +373,10 @@ Harbour::handleMotionNotifyEvent(XMotionEvent* ev, DockApp* da)
 void
 Harbour::handleConfigureRequestEvent(XConfigureRequestEvent* ev, DockApp* da)
 {
-    if (da == NULL)
+    if (!da) {
         return;
-
+    }
+    
     list<DockApp*>::iterator it(find(_da_list.begin(), _da_list.end(), da));
 
     if (it != _da_list.end()) {
@@ -406,17 +409,16 @@ Harbour::placeDockApp(DockApp *da)
     PScreen::instance()->getHeadInfo(Config::instance()->getHarbourHead(), head);
 
     getPlaceStartPosition (da, x, y, x_place);
-    if (right)
-    {
-        if (x_place)
+    if (right) {
+        if (x_place) {
             x -= da->getWidth ();
-        else
+        } else {
             y -= da->getHeight ();
+        }
     }
 
     list<DockApp*>::iterator it;
-    if (x_place)
-    {
+    if (x_place) {
         x = test = right ? head.x + head.width - da->getWidth() : head.x;
 
         while (!placed
@@ -427,27 +429,25 @@ Harbour::placeDockApp(DockApp *da)
             placed = increase = true;
 
             it = _da_list.begin();
-            for (; placed && (it != _da_list.end()); ++it)
-            {
-                if ((*it) == da)
+            for (; placed && (it != _da_list.end()); ++it) {
+                if ((*it) == da) {
                     continue; // exclude ourselves
-
+                }
+                
                 if (((*it)->getX() < signed(test + da->getWidth())) &&
-                        ((*it)->getRX() > test))
-                {
+                        ((*it)->getRX() > test)) {
                     placed = increase = false;
                     test = right ? (*it)->getX() - da->getWidth() : (*it)->getRX();
                 }
             }
 
-            if (placed)
+            if (placed) {
                 x = test;
-            else if (increase)
+            } else if (increase) {
                 test += right ? -1 : 1;
+            }
         }
-    }
-    else // !x_place
-    {
+    } else { // !x_place
         y = test = right ? head.y + head.height - da->getHeight() : head.y;
 
         while (!placed
@@ -458,23 +458,23 @@ Harbour::placeDockApp(DockApp *da)
             placed = increase = true;
 
             it = _da_list.begin();
-            for (; placed && (it != _da_list.end()); ++it)
-            {
-                if ((*it) == da)
+            for (; placed && (it != _da_list.end()); ++it) {
+                if ((*it) == da) {
                     continue; // exclude ourselves
-
+                }
+                
                 if (((*it)->getY() < signed(test + da->getHeight())) &&
-                        ((*it)->getBY() > test))
-                {
+                        ((*it)->getBY() > test)) {
                     placed = increase = false;
                     test = right ? (*it)->getY() - da->getHeight() : (*it)->getBY();
                 }
             }
 
-            if (placed)
+            if (placed) {
                 y = test;
-            else if (increase)
+            } else if (increase) {
                 test += right ? -1 : 1;
+            }
         }
     }
 
@@ -487,9 +487,10 @@ Harbour::placeDockApp(DockApp *da)
 void
 Harbour::placeDockAppsSorted(void)
 {
-    if (!_da_list.size ())
+    if (!_da_list.size ()) {
         return;
-
+    }
+    
     // place the dockapps
     int x, y, x_real, y_real;
     bool inc_x = false;
@@ -498,32 +499,22 @@ Harbour::placeDockAppsSorted(void)
     getPlaceStartPosition (_da_list.front (), x_real, y_real, inc_x);
 
     list<DockApp*>::iterator it (_da_list.begin ());
-    for (; it != _da_list.end (); ++it)
-    {
+    for (; it != _da_list.end (); ++it) {
         getPlaceStartPosition (*it, x, y, inc_x);
 
-        if (inc_x)
-        {
-            if (right)
-            {
+        if (inc_x) {
+            if (right) {
                 (*it)->move (x_real - (*it)->getWidth (), y);
                 x_real -= -(*it)->getWidth ();
-            }
-            else
-            {
+            } else {
                 (*it)->move (x_real, y);
                 x_real += (*it)->getWidth ();
             }
-        }
-        else
-        {
-            if (right)
-            {
+        } else {
+            if (right) {
                 (*it)->move (x, y_real - (*it)->getHeight ());
                 y_real -= (*it)->getHeight ();
-            }
-            else
-            {
+            } else {
                 (*it)->move (x, y_real);
                 y_real += (*it)->getHeight ();
             }
@@ -577,9 +568,10 @@ Harbour::placeDockAppInsideScreen(DockApp *da)
 void
 Harbour::getPlaceStartPosition(DockApp *da, int &x, int &y, bool &inc_x)
 {
-    if (!da)
+    if (!da) {
         return;
-
+    }
+    
     Geometry head;
     PScreen::instance()->getHeadInfo(Config::instance()->getHarbourHead(), head);
     bool right = (Config::instance()->getHarbourOrientation() == BOTTOM_TO_TOP);
@@ -619,17 +611,14 @@ Harbour::insertDockAppSorted(DockApp *da)
     // anyway, order goes as follows: 1 2 3 0 0 0 -3 -2 -1
 
     // Middle of the list.
-    if (da->getPosition () == 0)
-    {
+    if (da->getPosition () == 0) {
         for (; (it != _da_list.end ()) && ((*it)->getPosition () >= 0); ++it)
             ;
         // Beginning of the list.
     } else if (da->getPosition () > 0) {
-        for (; it != _da_list.end (); ++it)
-        {
+        for (; it != _da_list.end (); ++it) {
             if (((*it)->getPosition () < 1) || // got to 0 or less
-                    (da->getPosition () <= (*it)->getPosition ()))
-            {
+                    (da->getPosition () <= (*it)->getPosition ())) {
                 break;
             }
         }

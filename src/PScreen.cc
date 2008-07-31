@@ -43,8 +43,8 @@ using std::map;
 using std::string;
 
 const uint PScreen::MODIFIER_TO_MASK[] = {
-  ShiftMask, LockMask, ControlMask,
-  Mod1Mask, Mod2Mask, Mod3Mask, Mod4Mask, Mod5Mask
+    ShiftMask, LockMask, ControlMask,
+    Mod1Mask, Mod2Mask, Mod3Mask, Mod4Mask, Mod5Mask
 };
 const uint PScreen::MODIFIER_TO_MASK_NUM = sizeof(PScreen::MODIFIER_TO_MASK[0]) / sizeof(PScreen::MODIFIER_TO_MASK);
 
@@ -74,11 +74,13 @@ PScreen::PVisual::~PVisual(void)
 void
 PScreen::PVisual::getShiftPrecFromMask(ulong mask, int &shift, int &prec)
 {
-    for (shift = 0; !(mask&0x1); ++shift)
+    for (shift = 0; !(mask&0x1); ++shift) {
         mask >>= 1;
-
-    for (prec = 0; (mask&0x1); ++prec)
+    }
+    
+    for (prec = 0; (mask&0x1); ++prec) {
         mask >>= 1;
+    }
 }
 
 //! @brief PScreen constructor
@@ -93,8 +95,9 @@ PScreen::PScreen(Display *dpy) :
         _has_extension_xrandr(false), _event_xrandr(-1),
         _server_grabs(0), _last_event_time(0), _last_click_id(None)
 {
-    if (_instance != NULL)
+    if (_instance) {
         throw string("PScreen, trying to create multiple instances");
+    }
     _instance = this;
 
     XGrabServer(_dpy);
@@ -159,25 +162,25 @@ PScreen::~PScreen(void) {
 bool
 PScreen::getNextEvent(XEvent &ev)
 {
-  if (XPending(_dpy) > 0) {
-    XNextEvent(_dpy, &ev);
-    return true;
-  }
+    if (XPending(_dpy) > 0) {
+        XNextEvent(_dpy, &ev);
+        return true;
+    }
 
-  int ret;
-  fd_set rfds;
+    int ret;
+    fd_set rfds;
 
-  XFlush(_dpy);
+    XFlush(_dpy);
 
-  FD_ZERO(&rfds);
-  FD_SET(_fd, &rfds);
+    FD_ZERO(&rfds);
+    FD_SET(_fd, &rfds);
 
-  ret = select(_fd + 1, &rfds, NULL, NULL, NULL);
-  if (ret > 0) {
-    XNextEvent(_dpy, &ev);
-  }
+    ret = select(_fd + 1, &rfds, NULL, NULL, NULL);
+    if (ret > 0) {
+        XNextEvent(_dpy, &ev);
+    }
 
-  return ret > 0;
+    return ret > 0;
 }
 
 //! @brief Grabs the server, counting number of grabs
@@ -359,19 +362,19 @@ PScreen::getNearestHead(int x, int y)
 uint
 PScreen::getCurrHead(void)
 {
-  uint head = 0;
+    uint head = 0;
 
-  if (_heads.size() > 1) {
-    int x = 0, y = 0;
-    getMousePosition(x, y);
-    head = getNearestHead(x, y);
+    if (_heads.size() > 1) {
+        int x = 0, y = 0;
+        getMousePosition(x, y);
+        head = getNearestHead(x, y);
 #ifdef DEBUG
-    cerr << __FILE__ << "@" << __LINE__ << ": PScreen::getCurrHead() got head "
-         << head << " from mouse position " << x << "," << y << endl;
+        cerr << __FILE__ << "@" << __LINE__ << ": PScreen::getCurrHead() got head "
+             << head << " from mouse position " << x << "," << y << endl;
 #endif // DEBUG
-  }
+    }
 
-  return head;
+    return head;
 }
 
 //! @brief Fills head_info with info about head nr head
@@ -381,45 +384,45 @@ PScreen::getCurrHead(void)
 bool
 PScreen::getHeadInfo(uint head, Geometry &head_info)
 {
-  if (head  < _heads.size()) {
-    head_info.x = _heads[head].x;
-    head_info.y = _heads[head].y;
-    head_info.width = _heads[head].width;
-    head_info.height = _heads[head].height;
-    return true;
-  } else {
+    if (head  < _heads.size()) {
+        head_info.x = _heads[head].x;
+        head_info.y = _heads[head].y;
+        head_info.width = _heads[head].width;
+        head_info.height = _heads[head].height;
+        return true;
+    } else {
 #ifdef DEBUG
-    cerr << __FILE__ << "@" << __LINE__ << ": Head: " << head << " doesn't exist!" << endl;
+        cerr << __FILE__ << "@" << __LINE__ << ": Head: " << head << " doesn't exist!" << endl;
 #endif // DEBUG
-    return false;
-  }
+        return false;
+    }
 }
 
 //! @brief Fill information about head and the strut.
 void
 PScreen::getHeadInfoWithEdge(uint num, Geometry &head)
 {
-  if (! getHeadInfo(num, head)) {
-    return;
-  }
+    if (!getHeadInfo(num, head)) {
+        return;
+    }
 
-  int strut_val;
-  Strut strut(_heads[num].strut); // Convenience
+    int strut_val;
+    Strut strut(_heads[num].strut); // Convenience
 
-  // Remove the strut area from the head info
-  strut_val = (head.x == 0) ? std::max(_strut.left, strut.left) : strut.left;
-  head.x += strut_val;
-  head.width -= strut_val;  
+    // Remove the strut area from the head info
+    strut_val = (head.x == 0) ? std::max(_strut.left, strut.left) : strut.left;
+    head.x += strut_val;
+    head.width -= strut_val;  
 
-  strut_val = ((head.x + head.width) == _width) ? std::max(_strut.right, strut.right) : strut.right;
-  head.width -= strut_val;
+    strut_val = ((head.x + head.width) == _width) ? std::max(_strut.right, strut.right) : strut.right;
+    head.width -= strut_val;
 
-  strut_val = (head.y == 0) ? std::max(_strut.top, strut.top) : strut.top;
-  head.y += strut_val;
-  head.height -= strut_val;
+    strut_val = (head.y == 0) ? std::max(_strut.top, strut.top) : strut.top;
+    head.y += strut_val;
+    head.height -= strut_val;
 
-  strut_val = (head.y + head.height == _height) ? std::max(_strut.bottom, strut.bottom) : strut.bottom;
-  head.height -= strut_val;
+    strut_val = (head.y + head.height == _height) ? std::max(_strut.bottom, strut.bottom) : strut.bottom;
+    head.height -= strut_val;
 }
 
 void
@@ -517,19 +520,19 @@ PScreen::updateStrut(void)
 void
 PScreen::initHeads(void)
 {
-  _heads.clear();
+    _heads.clear();
 
-  // Read head information, randr has priority over xinerama then
-  // comes ordinary X11 information.
+    // Read head information, randr has priority over xinerama then
+    // comes ordinary X11 information.
 
-  initHeadsRandr();
-  if (! _heads.size()) {
-    initHeadsXinerama();
-
+    initHeadsRandr();
     if (! _heads.size()) {
-      _heads.push_back(Head(0, 0, _width, _height));
+        initHeadsXinerama();
+
+        if (! _heads.size()) {
+            _heads.push_back(Head(0, 0, _width, _height));
+        }
     }
-  }
 }
 
 //! @brief Initialize head information from Xinerama
@@ -537,19 +540,19 @@ void
 PScreen::initHeadsXinerama(void)
 {
 #ifdef HAVE_XINERAMA
-  // Check if there are heads already initialized from example Randr
-  if (! XineramaIsActive(_dpy)) {
-    return;
-  }
+    // Check if there are heads already initialized from example Randr
+    if (! XineramaIsActive(_dpy)) {
+        return;
+    }
 
-  int num_heads = 0;
-  XineramaScreenInfo *infos = XineramaQueryScreens(_dpy, &num_heads);
+    int num_heads = 0;
+    XineramaScreenInfo *infos = XineramaQueryScreens(_dpy, &num_heads);
 
-  for (int i = 0; i < num_heads; ++i) {
-    _heads.push_back(Head(infos[i].x_org, infos[i].y_org, infos[i].width, infos[i].height));
-  }
+    for (int i = 0; i < num_heads; ++i) {
+        _heads.push_back(Head(infos[i].x_org, infos[i].y_org, infos[i].width, infos[i].height));
+    }
 
-  XFree(infos);
+    XFree(infos);
 #endif // HAVE_XINERAMA
 }
 
@@ -558,34 +561,34 @@ void
 PScreen::initHeadsRandr(void)
 {
 #ifdef HAVE_XRANDR
-  if (! _has_extension_xrandr) {
-    return;
-  }
-
-  XRRScreenResources *resources = XRRGetScreenResources(_dpy, _root);
-  if (! resources) {
-    return;
-  }
-
-  for (int i = 0; i < resources->noutput; ++i) {
-    XRROutputInfo *output = XRRGetOutputInfo(_dpy, resources, resources->outputs[i]);
-
-    if (output->crtc) {
-      XRRCrtcInfo *crtc = XRRGetCrtcInfo(_dpy, resources, output->crtc);
-
-      _heads.push_back(Head(crtc->x, crtc->y, crtc->width, crtc->height));
-#ifdef DEBUG
-      cerr << __FILE__ << "@" << __LINE__ << ": PScreen::initHeadsRandr() added head "
-           << crtc->x << "," << crtc->y << "," << crtc->width << "," << crtc->height << endl;
-#endif // DEBUG
-
-      XRRFreeCrtcInfo (crtc);
+    if (! _has_extension_xrandr) {
+        return;
     }
 
-    XRRFreeOutputInfo (output);
-  }
+    XRRScreenResources *resources = XRRGetScreenResources(_dpy, _root);
+    if (! resources) {
+        return;
+    }
 
-  XRRFreeScreenResources (resources);
+    for (int i = 0; i < resources->noutput; ++i) {
+        XRROutputInfo *output = XRRGetOutputInfo(_dpy, resources, resources->outputs[i]);
+
+        if (output->crtc) {
+            XRRCrtcInfo *crtc = XRRGetCrtcInfo(_dpy, resources, output->crtc);
+
+            _heads.push_back(Head(crtc->x, crtc->y, crtc->width, crtc->height));
+#ifdef DEBUG
+            cerr << __FILE__ << "@" << __LINE__ << ": PScreen::initHeadsRandr() added head "
+                << crtc->x << "," << crtc->y << "," << crtc->width << "," << crtc->height << endl;
+#endif // DEBUG
+
+            XRRFreeCrtcInfo (crtc);
+        }
+
+        XRRFreeOutputInfo (output);
+    }
+
+    XRRFreeScreenResources (resources);
 #endif // HAVE_XRANDR
 }
 
@@ -598,20 +601,20 @@ PScreen::initHeadsRandr(void)
 uint
 PScreen::getMaskFromKeycode(KeyCode keycode)
 {
-  // Make sure modifier mappings were looked up ok
-  if (! _modifier_map || _modifier_map->max_keypermod < 1) {
-    return 0;
-  }
-
-  // .h files states that modifiermap is an 8 * max_keypermod array.
-  int max_info = _modifier_map->max_keypermod * 8;
-  for (int i = 0; i < max_info; ++i) {
-    if (_modifier_map->modifiermap[i] == keycode) {
-      return MODIFIER_TO_MASK[i / _modifier_map->max_keypermod];
+    // Make sure modifier mappings were looked up ok
+    if (! _modifier_map || _modifier_map->max_keypermod < 1) {
+        return 0;
     }
-  }
 
-  return 0;
+    // .h files states that modifiermap is an 8 * max_keypermod array.
+    int max_info = _modifier_map->max_keypermod * 8;
+    for (int i = 0; i < max_info; ++i) {
+        if (_modifier_map->modifiermap[i] == keycode) {
+            return MODIFIER_TO_MASK[i / _modifier_map->max_keypermod];
+        }
+    }
+
+    return 0;
 }
 
 /**
@@ -623,17 +626,17 @@ PScreen::getMaskFromKeycode(KeyCode keycode)
 KeyCode
 PScreen::getKeycodeFromMask(uint mask)
 {
-  // Make sure modifier mappings were looked up ok
-  if (! _modifier_map || _modifier_map->max_keypermod < 1) {
-    return 0;
-  }
-
-  for (int i = 0; i < 8; ++i) {
-    if (MODIFIER_TO_MASK[i] == mask) {
-      // FIXME: Is iteration over the range required?
-      return _modifier_map->modifiermap[i * _modifier_map->max_keypermod];
+    // Make sure modifier mappings were looked up ok
+    if (! _modifier_map || _modifier_map->max_keypermod < 1) {
+        return 0;
     }
-  }
 
-  return 0;
+    for (int i = 0; i < 8; ++i) {
+        if (MODIFIER_TO_MASK[i] == mask) {
+            // FIXME: Is iteration over the range required?
+            return _modifier_map->modifiermap[i * _modifier_map->max_keypermod];
+        }
+    }
+
+    return 0;
 }

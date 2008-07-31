@@ -65,13 +65,13 @@ ActionHandler *ActionHandler::_instance = NULL;
 //! @brief ActionHandler constructor
 ActionHandler::ActionHandler(void)
 {
-  _instance = this;
+    _instance = this;
 
-  // Initialize state_to_keycode map
-  for (uint i = 0; i < PScreen::MODIFIER_TO_MASK_NUM; ++i) {
-    uint modifier = PScreen::MODIFIER_TO_MASK[i];
-    _state_to_keycode[modifier] = PScreen::instance()->getKeycodeFromMask(modifier);
-  }
+    // Initialize state_to_keycode map
+    for (uint i = 0; i < PScreen::MODIFIER_TO_MASK_NUM; ++i) {
+        uint modifier = PScreen::MODIFIER_TO_MASK[i];
+        _state_to_keycode[modifier] = PScreen::instance()->getKeycodeFromMask(modifier);
+    }
 }
 
 //! @brief ActionHandler destructor
@@ -93,7 +93,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
     bool matched = false;
 
     // determine what type if any of the window object that is focused
-    if (ap.wo != NULL) {
+    if (ap.wo) {
         if (ap.wo->getType() == PWinObj::WO_CLIENT) {
             client = static_cast<Client*>(ap.wo);
             frame = static_cast<Frame*>(client->getParent());
@@ -116,7 +116,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
     list<Action>::const_iterator it = ap.ae.action_list.begin();
     for (; it != ap.ae.action_list.end(); ++it, matched = false) {
         // actions valid for all PWinObjs
-        if ((matched == false) && (ap.wo != NULL)) {
+        if (!matched && ap.wo) {
             matched = true;
             switch (it->getAction()) {
             case ACTION_FOCUS:
@@ -138,7 +138,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
         }
 
         // actions valid for Clients and Frames
-        if ((matched == false) && (frame != NULL)) {
+        if (!matched && frame) {
             matched = true;
             switch (it->getAction()) {
             case ACTION_GROUPING_DRAG:
@@ -175,14 +175,14 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 client->kill();
                 break;
             case ACTION_RAISE:
-                if (it->getParamI(0) == true) {
+                if (it->getParamI(0)) {
                     WindowManager::inst()->familyRaiseLower(client, true);
                 } else {
                     frame->raise();
                 }
                 break;
             case ACTION_LOWER:
-                if (it->getParamI(0) == true) {
+                if (it->getParamI(0)) {
                     WindowManager::inst()->familyRaiseLower(client, false);
                 } else {
                     frame->lower();
@@ -242,7 +242,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
 
         // Actions valid for Menus
 #ifdef MENUS
-        if ((matched == false) && (menu != NULL)) {
+        if (!matched && menu) {
             matched = true;
             switch (it->getAction()) {
                 // menu navigation
@@ -260,8 +260,8 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 // it can't be used anymore
                 return;
             case ACTION_MENU_ENTER_SUBMENU:
-                if ((menu->getItemCurr() != NULL) &&
-                        (menu->getItemCurr()->getWORef() != NULL) &&
+                if (menu->getItemCurr() &&
+                        menu->getItemCurr()->getWORef() &&
                         (menu->getItemCurr()->getWORef()->getType() == PWinObj::WO_MENU)) {
                     menu->mapSubmenu(static_cast<PMenu*>(menu->getItemCurr()->getWORef()), true);
                 }
@@ -280,7 +280,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
         }
 #endif // MENUS
         // actions valid for pdecor
-        if ((matched == false) && (decor != NULL)) {
+        if (!matched && decor) {
             int x_root, y_root;
 
             matched = true;
@@ -309,7 +309,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
         }
 
         // Actions valid from everywhere
-        if (matched == false) {
+        if (!matched) {
             matched = true;
             switch (it->getAction()) {
             case ACTION_SET:
@@ -381,14 +381,14 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 }
                 break;
             case ACTION_SHOW_SEARCH_DIALOG:
-              if (WindowManager::inst()->getSearchDialog()->isMapped()) {
-                  WindowManager::inst()->getSearchDialog()->unmapWindow();
-              } else {
-                  WindowManager::inst()->getSearchDialog()->mapCentered(it->getParamS(), true, frame ? frame : ap.wo);
-              }
+                if (WindowManager::inst()->getSearchDialog()->isMapped()) {
+                    WindowManager::inst()->getSearchDialog()->unmapWindow();
+                } else {
+                    WindowManager::inst()->getSearchDialog()->mapCentered(it->getParamS(), true, frame ? frame : ap.wo);
+                }
             case ACTION_HIDE_WORKSPACE_INDICATOR:
-              WindowManager::inst()->getWorkspaceIndicator()->unmapWindow();
-              break;
+                WindowManager::inst()->getWorkspaceIndicator()->unmapWindow();
+                break;
             default:
                 matched = false;
                 break;
@@ -407,7 +407,7 @@ ActionHandler::handleStateAction(const Action &action, PWinObj *wo,
     bool matched = false;
 
     // check for frame actions
-    if ((matched == false) && (frame != NULL)) {
+    if (!matched && frame) {
         matched = true;
         switch (action.getParamI(0)) {
         case ACTION_STATE_MAXIMIZED:
@@ -463,7 +463,7 @@ ActionHandler::handleStateAction(const Action &action, PWinObj *wo,
     }
 
     // check for menu actions
-    if ((matched == false) && (wo != NULL) &&
+    if (!matched && wo &&
             (wo->getType() == PWinObj::WO_MENU)) {
         matched = true;
         switch (action.getParamI(0)) {
@@ -476,7 +476,7 @@ ActionHandler::handleStateAction(const Action &action, PWinObj *wo,
         }
     }
 
-    if (matched == false) {
+    if (!matched) {
         matched = true;
         switch (action.getParamI(0)) {
 #ifdef HARBOUR
@@ -510,7 +510,7 @@ ActionEvent*
 ActionHandler::findMouseAction(uint button, uint state, MouseEventType type,
                                std::list<ActionEvent> *actions)
 {
-    if (actions == NULL)
+    if (!actions)
         return NULL;
 
     state &= ~PScreen::instance()->getNumLock() &
@@ -546,14 +546,14 @@ ActionHandler::actionFindClient(const std::wstring &title)
 void
 ActionHandler::actionGotoWorkspace(uint workspace, bool warp)
 {
-  Workspaces::instance()->gotoWorkspace(workspace, warp);
+    Workspaces::instance()->gotoWorkspace(workspace, warp);
 
-  if (Config::instance()->getShowWorkspaceIndicator() > 0) {
-    // Show workspace indicator if requested
-    WindowManager::inst()->getWorkspaceIndicator()->render();
-    WindowManager::inst()->getWorkspaceIndicator()->mapWindowRaised();
-    WindowManager::inst()->getWorkspaceIndicator()->updateHideTimer(Config::instance()->getShowWorkspaceIndicator());
-  }
+    if (Config::instance()->getShowWorkspaceIndicator() > 0) {
+        // Show workspace indicator if requested
+        WindowManager::inst()->getWorkspaceIndicator()->render();
+        WindowManager::inst()->getWorkspaceIndicator()->mapWindowRaised();
+        WindowManager::inst()->getWorkspaceIndicator()->updateHideTimer(Config::instance()->getShowWorkspaceIndicator());
+    }
 }
 
 //! @brief Focus client with id.
@@ -604,7 +604,7 @@ void
 ActionHandler::actionWarpToWorkspace(PDecor *decor, uint direction)
 {
     // actually did move
-    if (Workspaces::instance()->gotoWorkspace(DirectionType(direction), true) == true) {
+    if (Workspaces::instance()->gotoWorkspace(DirectionType(direction), true)) {
         int x, y;
         PScreen::instance()->getMousePosition(x, y);
 
@@ -635,13 +635,13 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off,
     }
 
     // unable to grab keyboard
-    if (PScreen::instance()->grabKeyboard(PScreen::instance()->getRoot()) == false) {
+    if (!PScreen::instance()->grabKeyboard(PScreen::instance()->getRoot())) {
         return;
     }
 
     // find the focused window object
     PWinObj *fo_wo = NULL;
-    if (PWinObj::getFocusedPWinObj() != NULL) {
+    if (PWinObj::getFocusedPWinObj()) {
         if (PWinObj::getFocusedPWinObj()->getType() == PWinObj::WO_CLIENT) {
             fo_wo = PWinObj::getFocusedPWinObj()->getParent();
 
@@ -683,7 +683,7 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off,
     bool was_iconified = false;
 
     while (cycling) {
-        if (fo_wo != NULL) {
+        if (fo_wo) {
             fo_wo->setFocused(true);
             if (Raise(raise) == ALWAYS_RAISE) {
                 // Make sure it's not iconified if raise is on.
@@ -698,7 +698,7 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off,
         XMaskEvent(PScreen::instance()->getDpy(), KeyPressMask|KeyReleaseMask, &ev);
         if (ev.type == KeyPress) {
             if (ev.xkey.keycode == button) {
-                if (fo_wo != NULL) {
+                if (fo_wo) {
                     // Restore iconified state
                     if (was_iconified) {
                         was_iconified = false;
@@ -750,8 +750,8 @@ ActionHandler::actionFocusDirectional(PWinObj *wo, DirectionType dir, bool raise
     PWinObj *wo_focus =
         Workspaces::instance()->findDirectional(wo, dir, SKIP_FOCUS_TOGGLE);
 
-    if (wo_focus != NULL) {
-        if (raise == true) {
+    if (wo_focus) {
+        if (raise) {
             wo_focus->raise();
         }
         wo_focus->giveInputFocus();
@@ -772,40 +772,40 @@ ActionHandler::actionFocusDirectional(PWinObj *wo, DirectionType dir, bool raise
 bool
 ActionHandler::actionSendKey(PWinObj *wo, const std::string &key_str)
 {
-  uint mod, key;
-  if (! Config::instance()->parseKey(key_str, mod, key)) {
-    return false;
-  }
-
-  XEvent ev;
-  initSendKeyEvent(ev, wo);
-
-  // Press state modifiers
-  map<uint, uint>::iterator it;
-  for (it = _state_to_keycode.begin(); it != _state_to_keycode.end(); ++it) {
-    if (mod & it->first) {
-      ev.xkey.keycode = it->second;
-      XSendEvent(PScreen::instance()->getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
-      ev.xkey.state |= it->first;
+    uint mod, key;
+    if (! Config::instance()->parseKey(key_str, mod, key)) {
+        return false;
     }
-  }
 
-  // Send press and release of main key
-  ev.xkey.keycode = key;
-  XSendEvent(PScreen::instance()->getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
-  ev.type = KeyRelease;
-  XSendEvent(PScreen::instance()->getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
+    XEvent ev;
+    initSendKeyEvent(ev, wo);
 
-  // Release state modifiers
-  for (it = _state_to_keycode.begin(); it != _state_to_keycode.end(); ++it) {
-    if (mod & it->first) {
-      ev.xkey.keycode = it->second;
-      XSendEvent(PScreen::instance()->getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
-      ev.xkey.state &= ~it->first;
+    // Press state modifiers
+    map<uint, uint>::iterator it;
+    for (it = _state_to_keycode.begin(); it != _state_to_keycode.end(); ++it) {
+        if (mod & it->first) {
+            ev.xkey.keycode = it->second;
+            XSendEvent(PScreen::instance()->getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
+            ev.xkey.state |= it->first;
+        }
     }
-  }
 
-  return true;
+    // Send press and release of main key
+    ev.xkey.keycode = key;
+    XSendEvent(PScreen::instance()->getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
+    ev.type = KeyRelease;
+    XSendEvent(PScreen::instance()->getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
+
+    // Release state modifiers
+    for (it = _state_to_keycode.begin(); it != _state_to_keycode.end(); ++it) {
+        if (mod & it->first) {
+            ev.xkey.keycode = it->second;
+            XSendEvent(PScreen::instance()->getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
+            ev.xkey.state &= ~it->first;
+        }
+    }
+
+    return true;
 }
 
 #ifdef MENUS
@@ -819,7 +819,7 @@ ActionHandler::actionShowMenu(const std::string &name, bool stick,
                               uint e_type, PWinObj *wo_ref)
 {
     PMenu *menu = WindowManager::inst()->getMenu(name);
-    if (menu == NULL) {
+    if (!menu) {
         return;
     }
 
@@ -882,9 +882,8 @@ PMenu*
 ActionHandler::createMRUMenu(bool show_iconified)
 {
     ActionEvent ae; // empty ae, used when inserting
-    PMenu *menu =
-        new PMenu(PScreen::instance()->getDpy(), WindowManager::inst()->getTheme(), L"MRU Windows",
-                  "" /* Empty name */);
+    PMenu *menu = new PMenu(PScreen::instance()->getDpy(),
+            WindowManager::inst()->getTheme(), L"MRU Windows", "" /* Empty name */);
 
     Frame *fr;
     list<PWinObj*>::reverse_iterator f_it = WindowManager::inst()->mru_rbegin();
@@ -908,17 +907,19 @@ ActionHandler::createMenuInclude(Frame *frame, bool show_iconified)
 {
     // Make sure the frame is mapped, or on the correct workspace if
     // it's iconified. Also make sure it's possible to give it focus
-    // and should not be skipped
-    if ((frame->isMapped()
-            || (show_iconified && frame->isIconified()
-                && (frame->isSticky()
-                    || frame->getWorkspace() == Workspaces::instance()->getActive())))
-            && frame->isFocusable()
-            && !frame->isSkip(SKIP_FOCUS_TOGGLE)) {
-        return true;
-    }
-
-    return false;
+    // and should not be skipped. The condition is rather complex, so
+    // we split it up for readability.
+    
+    // focw == frame on current workspace
+    bool focw = frame->isSticky() || frame->getWorkspace() == Workspaces::instance()->getActive();
+    
+    // ibs == iconified but should be shown
+    bool ibs = show_iconified && frame->isIconified() && focw;
+    
+    // mos == mapped or shown nonetheless 
+    bool mos = frame->isMapped() || ibs;
+    
+    return !frame->isSkip(SKIP_FOCUS_TOGGLE) && frame->isFocusable() && mos;
 }
 
 //! @brief Searches the client list for a client with a title matching title
@@ -979,15 +980,15 @@ ActionHandler::gotoClient(Client *client)
 void
 ActionHandler::initSendKeyEvent(XEvent &ev, PWinObj *wo)
 {
-  ev.type = KeyPress;
-  ev.xkey.display = PScreen::instance()->getDpy();
-  ev.xkey.root = PScreen::instance()->getRoot();
-  ev.xkey.window = wo->getWindow();
-  ev.xkey.time = CurrentTime;
-  ev.xkey.x = 1;
-  ev.xkey.y = 1;
-  PScreen::instance()->getMousePosition(ev.xkey.x_root, ev.xkey.y_root);
-  ev.xkey.same_screen = True;
-  ev.xkey.type = KeyPress;
-  ev.xkey.state = 0;
+    ev.type = KeyPress;
+    ev.xkey.display = PScreen::instance()->getDpy();
+    ev.xkey.root = PScreen::instance()->getRoot();
+    ev.xkey.window = wo->getWindow();
+    ev.xkey.time = CurrentTime;
+    ev.xkey.x = 1;
+    ev.xkey.y = 1;
+    PScreen::instance()->getMousePosition(ev.xkey.x_root, ev.xkey.y_root);
+    ev.xkey.same_screen = True;
+    ev.xkey.type = KeyPress;
+    ev.xkey.state = 0;
 }

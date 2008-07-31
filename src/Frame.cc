@@ -84,7 +84,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
     }
 
     // get unique id of the frame, if the client didn't have an id
-    if (WindowManager::inst()->isStartup() == false) {
+    if (!WindowManager::inst()->isStartup()) {
         long id;
 
         if (AtomUtil::getLong(client->getWindow(),
@@ -108,10 +108,12 @@ Frame::Frame(Client *client, AutoProperty *ap)
 
     // Before setting position and size up we make sure the decor state
     // of the client match the decore state of the framewidget
-    if (!client->hasBorder())
+    if (!client->hasBorder()) {
         setBorder(STATE_UNSET);
-    if (!client->hasTitlebar())
+    }
+    if (!client->hasTitlebar()) {
         setTitlebar(STATE_UNSET);
+    }
 
     // We first get the size of the window as it will be needed when placing
     // the window with the help of WinGravity.
@@ -130,7 +132,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
     }
 
     // override both position and size with autoproperties
-    if (ap != NULL) {
+    if (ap) {
         if (ap->isMask(AP_FRAME_GEOMETRY|AP_CLIENT_GEOMETRY)) {
             setupAPGeometry(client, ap);
 
@@ -215,12 +217,12 @@ Frame::~Frame(void)
 void
 Frame::iconify(void)
 {
-  if (_iconified) {
-    return;
-  }
-  _iconified = true;
+    if (_iconified) {
+        return;
+    }
+    _iconified = true;
 
-  unmapWindow();
+    unmapWindow();
 }
 
 //! @brief Toggles the Frame's sticky state
@@ -261,7 +263,7 @@ Frame::handleMotionEvent(XMotionEvent *ev)
 {
     // This is true when we have a title button pressed and then we don't want
     // to be able to drag windows around, therefore we ignore the event
-    if (_button != NULL) {
+    if (_button) {
         return NULL;
     }
 
@@ -283,7 +285,7 @@ Frame::handleMotionEvent(XMotionEvent *ev)
     }
 
     // check motion threshold
-    if ((ae != NULL) && (ae->threshold > 0)) {
+    if (ae && (ae->threshold > 0)) {
         if (!ActionHandler::checkAEThreshold(ev->x_root, ev->y_root,
                                              _pointer_x, _pointer_y, ae->threshold)) {
             ae = NULL;
@@ -313,7 +315,7 @@ Frame::handleEnterEvent(XCrossingEvent *ev)
         }
     }
 
-    if (al != NULL) {
+    if (al) {
         ae = ActionHandler::findMouseAction(BUTTON_ANY, ev->state, MOUSE_EVENT_ENTER, al);
     }
 
@@ -341,7 +343,7 @@ Frame::handleLeaveEvent(XCrossingEvent *ev)
 ActionEvent*
 Frame::handleMapRequest(XMapRequestEvent *ev)
 {
-    if ((_client == NULL) || (ev->window != _client->getWindow())) {
+    if (!_client || (ev->window != _client->getWindow())) {
         return NULL;
     }
 
@@ -380,7 +382,7 @@ Frame::handleUnmapEvent(XUnmapEvent *ev)
 void
 Frame::handleShapeEvent(XAnyEvent *ev)
 {
-    if ((_client == NULL) || (ev->window != _client->getWindow())) {
+    if (!_client || (ev->window != _client->getWindow())) {
         return;
     }
     _client->setShaped(setShape());
@@ -420,13 +422,15 @@ Frame::activateChild (PWinObj *child)
     // setShape uses current active child, so we need to activate the child
     // before setting shape
 #ifdef HAVE_SHAPE
-    if (PScreen::instance ()->hasExtensionShape ())
+    if (PScreen::instance ()->hasExtensionShape ()) {
         _client->setShaped (setShape());
+    }
 #endif // HAVE_SHAPE
 
-    if (_focused)
+    if (_focused) {
         child->giveInputFocus ();
-
+    }
+    
     Workspaces::instance ()->updateClientStackingList (true, true);
 }
 
@@ -466,7 +470,7 @@ void
 Frame::getDecorInfo(wchar_t *buf, uint size)
 {
     uint width, height;
-    if (_client != NULL) {
+    if (_client) {
         calcSizeInCells(width, height);
     } else {
         width = _gm.width;
@@ -491,7 +495,7 @@ Frame::setShaded(StateAction sa)
 int
 Frame::resizeHorzStep(int diff) const
 {
-    if (_client == NULL) {
+    if (!_client) {
         return diff;
     }
 
@@ -531,7 +535,7 @@ Frame::resizeHorzStep(int diff) const
 int
 Frame::resizeVertStep(int diff) const
 {
-    if (_client == NULL) {
+    if (!_client) {
         return diff;
     }
 
@@ -614,24 +618,26 @@ Frame::getState(Client *cl)
         setStateFullscreen(STATE_TOGGLE);
 
     if (_iconified != b_client_iconified) {
-      if (_iconified) {
-        mapWindow();
-      } else {
-        iconify();
-      }
+        if (_iconified) {
+            mapWindow();
+        } else {
+            iconify();
+        }
     }
 
-    if (_skip != cl->getSkip())
+    if (_skip != cl->getSkip()) {
         setSkip(cl->getSkip());
+    }
 }
 
 //! @brief Applies the frame's state on the Client
 void
 Frame::applyState(Client *cl)
 {
-    if (!cl)
+    if (!cl) {
         return;
-
+    }
+    
     cl->setSticky(_sticky);
     cl->setMaximizedHorz(_maximized_horz);
     cl->setMaximizedVert(_maximized_vert);
@@ -644,7 +650,7 @@ Frame::applyState(Client *cl)
     cl->setTitlebar(hasTitlebar());
     // make sure the window has the correct mapped state
     if (_mapped != cl->isMapped()) {
-        if (_mapped == false) {
+        if (!_mapped) {
             cl->unmapWindow();
         } else {
             cl->mapWindow();
@@ -661,7 +667,7 @@ Frame::setSkip(uint skip)
     PDecor::setSkip(skip);
 
     // Propagate changes on client as well
-    if (_client != NULL) {
+    if (_client) {
         _client->setSkip(skip);
     }
 }
@@ -741,35 +747,36 @@ Frame::setupAPGeometry(Client *client, AutoProperty *ap)
 void
 Frame::applyAPGeometry(Geometry &gm, const Geometry &ap_gm, int mask)
 {
-  // Read size before position so negative position works, if size is
-  // < 1 consider it to be full screen size.
-  if (mask&WidthValue) {
-    if (ap_gm.width < 1) {
-      gm.width = _scr->getWidth();
-    } else {
-      gm.width = ap_gm.width;
+    // Read size before position so negative position works, if size is
+    // < 1 consider it to be full screen size.
+    if (mask&WidthValue) {
+        if (ap_gm.width < 1) {
+            gm.width = _scr->getWidth();
+        } else {
+            gm.width = ap_gm.width;
+        }
     }
-  }
-  if (mask&HeightValue) {
-    if (ap_gm.height < 1) {
-    } else {
-      gm.height = ap_gm.height;
+    
+    if (mask&HeightValue) {
+        if (ap_gm.height < 1) {
+        } else {
+            gm.height = ap_gm.height;
+        }
     }
-  }
 
-  // Read position
-  if (mask&XValue) {
-    gm.x = ap_gm.x;
-    if (mask&XNegative) {
-      gm.x += _scr->getWidth() - gm.width;
+    // Read position
+    if (mask&XValue) {
+        gm.x = ap_gm.x;
+        if (mask&XNegative) {
+            gm.x += _scr->getWidth() - gm.width;
+        }
     }
-  }
-  if (mask&YValue) {
-    gm.y = ap_gm.y;
-    if (mask&YNegative) {
-      gm.y += _scr->getHeight() - gm.height;
+    if (mask&YValue) {
+        gm.y = ap_gm.y;
+        if (mask&YNegative) {
+            gm.y += _scr->getHeight() - gm.height;
+        }
     }
-  }
 }
 
 //! @brief Finds free Frame ID.
@@ -944,7 +951,7 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: r
 
             // if we found a client, and it's not in the current frame and
             // it has a "normal" ( make configurable? ) layer we group
-            if ((search != NULL) && (search->getParent() != NULL) &&
+            if (search && search->getParent() &&
                     (search->getParent() != this) &&
                     (search->getLayer() > LAYER_BELOW) &&
                     (search->getLayer() < LAYER_ONTOP)) {
@@ -957,7 +964,7 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: r
 
                 Frame *frame = static_cast<Frame*>(search->getParent());
                 frame->addChild(client);
-                if (behind == false) {
+                if (!behind) {
                     frame->activateChild(client);
                     frame->giveInputFocus();
                 }
@@ -992,16 +999,19 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: r
 void
 Frame::doResize(XMotionEvent *ev)
 {
-    if (!ev)
+    if (!ev) {
         return;
-
+    }
+    
     // figure out which part of the window we are in
     bool left = false, top = false;
-    if (ev->x < signed(_gm.width / 2))
+    if (ev->x < signed(_gm.width / 2)) {
         left = true;
-    if (ev->y < signed(_gm.height / 2))
+    }
+    if (ev->y < signed(_gm.height / 2)) {
         top = true;
-
+    }
+    
     doResize(left, true, top, true);
 }
 
@@ -1051,13 +1061,14 @@ Frame::doResize(BorderPosition pos)
 void
 Frame::doResize(bool left, bool x, bool top, bool y)
 {
-    if ((_client->allowResize() == false) || isShaded()) {
+    if (!_client->allowResize() || isShaded()) {
         return;
     }
 
     if (!_scr->grabPointer(_scr->getRoot(), ButtonMotionMask|ButtonReleaseMask,
-                           ScreenResources::instance()->getCursor(ScreenResources::CURSOR_RESIZE)))
+                           ScreenResources::instance()->getCursor(ScreenResources::CURSOR_RESIZE))) {
         return;
+    }
 
     setShaded(STATE_UNSET); // make sure the frame isn't shaded
 
@@ -1089,7 +1100,7 @@ Frame::doResize(bool left, bool x, bool top, bool y)
         sw->draw(buf);
     }
 
-    bool outline = (Config::instance()->getOpaqueResize() == false);
+    bool outline = !Config::instance()->getOpaqueResize();
 
     // grab server, we don't want invert traces
     if (outline) {
@@ -1124,7 +1135,7 @@ Frame::doResize(bool left, bool x, bool top, bool y)
             }
 
             // only updated when needed when in opaque mode
-            if (outline == false) {
+            if (!outline) {
                 if ((old_width != _gm.width) || (old_height != _gm.height)) {
                     moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
                 }
@@ -1283,9 +1294,10 @@ Frame::moveToEdge(OrientationType ori)
 void
 Frame::updateInactiveChildInfo(void)
 {
-    if (_client == NULL)
+    if (!_client) {
         return;
-
+    }
+    
     list<PWinObj*>::iterator it(_child_list.begin());
     for (; it != _child_list.end(); ++it) {
         if (*it != _client) {
@@ -1341,10 +1353,10 @@ Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
     if (horz && (fill || _client->allowMaximizeHorz())) {
         // maximize
         if ((sa == STATE_SET) ||
-                ((sa == STATE_TOGGLE) && (_maximized_horz == false))) {
+                ((sa == STATE_TOGGLE) && !_maximized_horz)) {
             uint h_decor = _gm.width - getChildWidth();
 
-            if (fill == false) {
+            if (!fill) {
                 _old_gm.x = _gm.x;
                 _old_gm.width = _gm.width;
             }
@@ -1358,7 +1370,7 @@ Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
             }
             // demaximize
         } else if ((sa == STATE_UNSET) ||
-                   ((sa == STATE_TOGGLE) && (_maximized_horz == true))) {
+                   ((sa == STATE_TOGGLE) && _maximized_horz)) {
             _gm.x = _old_gm.x;
             _gm.width = _old_gm.width;
         }
@@ -1371,10 +1383,10 @@ Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
     if (vert && (fill || _client->allowMaximizeVert())) {
         // maximize
         if ((sa == STATE_SET) ||
-                ((sa == STATE_TOGGLE) && (_maximized_vert == false))) {
+                ((sa == STATE_TOGGLE) && !_maximized_vert)) {
             uint v_decor = _gm.height - getChildHeight();
 
-            if (fill == false) {
+            if (!fill) {
                 _old_gm.y = _gm.y;
                 _old_gm.height = _gm.height;
             }
@@ -1388,7 +1400,7 @@ Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
             }
             // demaximize
         } else if ((sa == STATE_UNSET) ||
-                   ((sa == STATE_TOGGLE) && (_maximized_vert == true))) {
+                   ((sa == STATE_TOGGLE) && _maximized_vert)) {
             _gm.y = _old_gm.y;
             _gm.height = _old_gm.height;
         }
@@ -1410,7 +1422,7 @@ Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
 void
 Frame::setStateFullscreen(StateAction sa)
 {
-    if (ActionUtil::needToggle(sa, _fullscreen) == false) {
+    if (!ActionUtil::needToggle(sa, _fullscreen)) {
         return;
     }
 
@@ -1454,7 +1466,7 @@ Frame::setStateFullscreen(StateAction sa)
 void
 Frame::setStateSticky(StateAction sa)
 {
-    if (ActionUtil::needToggle(sa, _sticky) == true) {
+    if (ActionUtil::needToggle(sa, _sticky)) {
         stick();
     }
 }
@@ -1463,7 +1475,7 @@ Frame::setStateSticky(StateAction sa)
 void
 Frame::setStateAlwaysOnTop(StateAction sa)
 {
-    if (ActionUtil::needToggle(sa, _layer == LAYER_ONTOP) == false) {
+    if (!ActionUtil::needToggle(sa, _layer == LAYER_ONTOP)) {
         return;
     }
 
@@ -1477,7 +1489,7 @@ Frame::setStateAlwaysOnTop(StateAction sa)
 void
 Frame::setStateAlwaysBelow(StateAction sa)
 {
-    if (ActionUtil::needToggle(sa, _layer == LAYER_BELOW) == false) {
+    if (!ActionUtil::needToggle(sa, _layer == LAYER_BELOW)) {
         return;
     }
 
@@ -1530,7 +1542,7 @@ Frame::setStateDecorTitlebar(StateAction sa)
 void
 Frame::setStateIconified(StateAction sa)
 {
-    if (ActionUtil::needToggle(sa, _iconified) == false) {
+    if (!ActionUtil::needToggle(sa, _iconified)) {
         return;
     }
 
@@ -1558,7 +1570,7 @@ Frame::setStateTagged(StateAction sa, bool behind)
 void
 Frame::setStateSkip(StateAction sa, uint skip)
 {
-    if (ActionUtil::needToggle(sa, _skip&skip) == false) {
+    if (!ActionUtil::needToggle(sa, _skip&skip)) {
         return;
     }
 
@@ -1627,7 +1639,7 @@ Frame::getMaxBounds(int &max_x,int &max_r, int &max_y, int &max_b)
 
     list<Frame*>::iterator it = _frame_list.begin();
     for (; it != _frame_list.end(); ++it) {
-        if ((*it)->isMapped() == false) {
+        if (!(*it)->isMapped()) {
             continue;
         }
 
@@ -1709,8 +1721,9 @@ Frame::readAutoprops(uint type)
         AutoProperties::instance()->findAutoProperty(_class_hint, _workspace, type);
     _class_hint->title = L"";
 
-    if (data == NULL)
+    if (!data) {
         return;
+    }
 
     // Set the correct group of the window
     _class_hint->group = data->group_name;
@@ -1721,10 +1734,12 @@ Frame::readAutoprops(uint type)
         return;
     }
 
-    if (data->isMask(AP_STICKY) && (_sticky != data->sticky))
+    if (data->isMask(AP_STICKY) && (_sticky != data->sticky)) {
         stick();
-    if (data->isMask(AP_SHADED) && (isShaded() != data->shaded))
+    }
+    if (data->isMask(AP_SHADED) && (isShaded() != data->shaded)) {
         setShaded(STATE_UNSET);
+    }
     if (data->isMask(AP_MAXIMIZED_HORIZONTAL) &&
             (_maximized_horz != data->maximized_horizontal)) {
         setStateMaximized(STATE_TOGGLE, true, false, false);
@@ -1738,8 +1753,11 @@ Frame::readAutoprops(uint type)
     }
 
     if (data->isMask(AP_ICONIFIED) && (_iconified != data->iconified)) {
-        if (_iconified) mapWindow();
-        else iconify();
+        if (_iconified) {
+            mapWindow();
+        } else {
+            iconify();
+        }
     }
     if (data->isMask(AP_WORKSPACE)) {
         // In order to avoid eternal recursion, the workspace is only set here
@@ -1752,8 +1770,9 @@ Frame::readAutoprops(uint type)
         }
     }
 
-    if (data->isMask(AP_SHADED) && (isShaded() != data->shaded))
+    if (data->isMask(AP_SHADED) && (isShaded() != data->shaded)) {
         setShaded(STATE_TOGGLE);
+    }
     if (data->isMask(AP_LAYER) && (data->layer <= LAYER_MENU)) {
         _client->setLayer(data->layer);
         raise(); // restack the frame
@@ -1766,10 +1785,12 @@ Frame::readAutoprops(uint type)
         moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
     }
 
-    if (data->isMask(AP_BORDER) && (hasBorder() != data->border))
+    if (data->isMask(AP_BORDER) && (hasBorder() != data->border)) {
         setStateDecorBorder(STATE_TOGGLE);
-    if (data->isMask(AP_TITLEBAR) && (hasTitlebar() != data->titlebar))
+    }
+    if (data->isMask(AP_TITLEBAR) && (hasTitlebar() != data->titlebar)) {
         setStateDecorTitlebar(STATE_TOGGLE);
+    }
 
     if (data->isMask(AP_SKIP)) {
         _client->setSkip(data->skip);
@@ -1861,7 +1882,7 @@ Frame::downSize(bool keep_x, bool keep_y)
                   : (size_hint->flags&PMinSize) ? size_hint->min_width : 0;
 
         _gm.width -= (getChildWidth() - b_x) % size_hint->width_inc;
-        if (keep_x == false) {
+        if (!keep_x) {
             _gm.x = o_r - _gm.width;
         }
     }
@@ -1874,7 +1895,7 @@ Frame::downSize(bool keep_x, bool keep_y)
                   : (size_hint->flags&PMinSize) ? size_hint->min_height : 0;
 
         _gm.height -= (getChildHeight() - b_y) % size_hint->height_inc;
-        if (keep_y == false) {
+        if (!keep_y) {
             _gm.y = o_b - _gm.height;
         }
     }
@@ -1892,7 +1913,7 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
     }
 
     // size before position, as we rely on size when gravitating
-    if (client->isCfgDeny(CFG_DENY_SIZE) == false) {
+    if (!client->isCfgDeny(CFG_DENY_SIZE)) {
         if ((ev->value_mask&CWWidth) || (ev->value_mask&CWHeight)) {
             resizeChild(ev->width, ev->height);
 #ifdef HAVE_SHAPE
@@ -1901,7 +1922,7 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
         }
     }
 
-    if (client->isCfgDeny(CFG_DENY_POSITION) == false) {
+    if (!client->isCfgDeny(CFG_DENY_POSITION)) {
         if ((ev->value_mask&CWX) || (ev->value_mask&CWY)) {
             calcGravityPosition(_client->getXSizeHints()->win_gravity,
                                 ev->x, ev->y, _gm.x, _gm.y);
@@ -1910,7 +1931,7 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
     }
 
     // update the stacking
-    if (client->isCfgDeny(CFG_DENY_STACKING) == false) {
+    if (!client->isCfgDeny(CFG_DENY_STACKING)) {
         if (ev->value_mask&CWStackMode) {
             if (ev->value_mask&CWSibling) {
                 switch(ev->detail) {
@@ -2021,7 +2042,8 @@ Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
             // Active child if it's not the active child
             if (client != _client) {
                 activateChild(client);
-	    }
+	        }
+
             // If we aren't mapped we check if we make sure we're on the right
             // workspace and then map the window.
             if (!_mapped) {
@@ -2030,19 +2052,21 @@ Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
                 }
                 mapWindow();
             }
-	    // Seems as if raising the window is implied in activating it
-	    raise();
+            // Seems as if raising the window is implied in activating it
+            raise();
             giveInputFocus();
         }
     } else if (ev->message_type == ewmh->getAtom(NET_CLOSE_WINDOW)) {
         client->close();
     } else if (ev->message_type == ewmh->getAtom(NET_WM_DESKTOP)) {
-        if (client == _client)
+        if (client == _client) {
             setWorkspace(ev->data.l[0]);
+        }
     } else if (ev->message_type == IcccmAtoms::instance()->getAtom(WM_CHANGE_STATE) &&
                (ev->format == 32) && (ev->data.l[0] == IconicState)) {
-        if (client == _client)
+        if (client == _client) {
             iconify();
+        }
     }
 #undef IS_STATE
 }
@@ -2063,7 +2087,6 @@ Frame::handlePropertyChange(XPropertyEvent *ev, Client *client)
                 if (workspace != signed(_workspace))
                     setWorkspace(workspace);
             }
-
         }
     } else if (ev->atom == ewmh->getAtom(NET_WM_STRUT)) {
         client->getStrutHint();

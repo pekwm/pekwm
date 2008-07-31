@@ -28,7 +28,7 @@ EwmhAtoms* EwmhAtoms::_instance = NULL;
 //! @brief PekwmAtoms constructor
 PekwmAtoms::PekwmAtoms(void)
 {
-    if (_instance != NULL)
+    if (_instance)
         throw string("PekwmAtoms, trying to create multiple instances");
     _instance = this;
 
@@ -60,7 +60,7 @@ PekwmAtoms::~PekwmAtoms(void)
 //! @brief IcccmAtoms constructor
 IcccmAtoms::IcccmAtoms(void)
 {
-    if (_instance != NULL)
+    if (_instance)
         throw string("IcccmAtoms, trying to create multiple instances");
     _instance = this;
 
@@ -96,7 +96,7 @@ IcccmAtoms::~IcccmAtoms(void)
 //! @brief EwmhAtoms constructor
 EwmhAtoms::EwmhAtoms(void)
 {
-    if (_instance != NULL)
+    if (_instance)
         throw string("EwmhAtoms, trying to create multiple instances");
     _instance = this;
 
@@ -183,7 +183,7 @@ getProperty(Window win, Atom atom, Atom type, ulong expected, uchar** data)
                            &r_type, &r_format, &read, &left, data);
 
     if ((status != Success) || (read == 0)) {
-        if (*data != NULL) {
+        if (*data) {
             XFree(*data);
             *data = NULL;
         }
@@ -231,7 +231,7 @@ getLong(Window win, Atom atom, long &value)
     long *data = NULL;
     uchar *udata = NULL;
 
-    if (getProperty(win, atom, XA_CARDINAL, 1L, &udata) == true) {
+    if (getProperty(win, atom, XA_CARDINAL, 1L, &udata)) {
         data = reinterpret_cast<long*>(udata);
         value = *data;
         XFree(udata);
@@ -256,7 +256,7 @@ getString(Window win, Atom atom, string &value)
 {
     uchar *data = NULL;
 
-    if (getProperty(win, atom, XA_STRING, 64L, &data) == true) {
+    if (getProperty(win, atom, XA_STRING, 64L, &data)) {
         value = string((const char*) data);
         XFree(data);
 
@@ -270,32 +270,32 @@ getString(Window win, Atom atom, string &value)
 bool
 getUtf8String(Window win, Atom atom, std::wstring &value)
 {
-  bool status = false;
-  unsigned char *data = NULL;
+    bool status = false;
+    unsigned char *data = NULL;
 
-  if (getProperty(win, atom, EwmhAtoms::instance()->getAtom(UTF8_STRING),
-                  32, &data)) {
-    status = true;
+    if (getProperty(win, atom, EwmhAtoms::instance()->getAtom(UTF8_STRING),
+                    32, &data)) {
+        status = true;
 
-    string utf8_str(reinterpret_cast<char*>(data));
-    value = Util::from_utf8_str(utf8_str);
-    XFree(data);
-  }
+        string utf8_str(reinterpret_cast<char*>(data));
+        value = Util::from_utf8_str(utf8_str);
+        XFree(data);
+    }
 
-  return status;
+    return status;
 }
 
 //! @brief Set UTF-8 string.
 void
 setUtf8String(Window win, Atom atom, const std::wstring &value)
 {
-  string utf8_string(Util::to_utf8_str(value));
+    string utf8_string(Util::to_utf8_str(value));
 
-  XChangeProperty(PScreen::instance()->getDpy(), win, atom,
-                  EwmhAtoms::instance()->getAtom(UTF8_STRING), 8,
-                  PropModeReplace,
-                  reinterpret_cast<const uchar*>(utf8_string.c_str()),
-                  utf8_string.size());
+    XChangeProperty(PScreen::instance()->getDpy(), win, atom,
+                    EwmhAtoms::instance()->getAtom(UTF8_STRING), 8,
+                    PropModeReplace,
+                    reinterpret_cast<const uchar*>(utf8_string.c_str()),
+                    utf8_string.size());
 }
 
 //! @brief Set XA_STRING property

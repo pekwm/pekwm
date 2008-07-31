@@ -96,7 +96,7 @@ main(int argc, char **argv)
     }
 
     // read in the environment
-    if ((config_file.size() == 0) && (getenv("PEKWM_CONFIG_FILE") != NULL)) {
+    if ((config_file.size() == 0) && getenv("PEKWM_CONFIG_FILE")) {
         config_file = getenv("PEKWM_CONFIG_FILE");
     }
 

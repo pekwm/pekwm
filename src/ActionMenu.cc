@@ -74,7 +74,7 @@ void
 ActionMenu::mapWindow(void)
 {
     // find and rebuild the dynamic entries
-    if ((isMapped() == false) && (_has_dynamic == true)) {
+    if (!isMapped() && _has_dynamic) {
         uint size_before = _item_list.size();
         rebuildDynamic();
         if (size_before != _item_list.size()) {
@@ -89,13 +89,13 @@ ActionMenu::mapWindow(void)
 void
 ActionMenu::unmapWindow(void)
 {
-    if (isMapped() == false) {
+    if (!isMapped()) {
         return;
     }
 
     // causes segfault as the entries get removed before they are executed
     // it seems, is my brain b0rked?
-    if (_has_dynamic == true) {
+    if (_has_dynamic) {
         removeDynamic();
     }
 
@@ -108,7 +108,7 @@ ActionMenu::unmapWindow(void)
 void
 ActionMenu::handleItemExec(PMenu::Item *item)
 {
-    if (item == NULL) {
+    if (!item) {
         return;
     }
 
@@ -135,7 +135,7 @@ ActionMenu::reload(CfgParser::Entry *section)
 void
 ActionMenu::insert(PMenu::Item *item)
 {
-    if (item == NULL) {
+    if (!item) {
         return;
     }
 
@@ -152,21 +152,21 @@ ActionMenu::insert(PMenu::Item *item)
 void
 ActionMenu::insert(const std::wstring &or_name, PWinObj *op_wo_ref, PTexture *icon)
 {
-    PMenu::insert (or_name, op_wo_ref, icon);
+    PMenu::insert(or_name, op_wo_ref, icon);
 }
 
 //! @brief Non-shadowing PMenu::insert
 void
 ActionMenu::insert(const std::wstring &or_name, const ActionEvent &or_ae, PWinObj *op_wo_ref, PTexture *icon)
 {
-    PMenu::insert (or_name, or_ae, op_wo_ref);
+    PMenu::insert(or_name, or_ae, op_wo_ref);
 }
 
 //! @brief Removes a BaseMenuItem from the menu
 void
 ActionMenu::remove(PMenu::Item *item)
 {
-    if (item == NULL) {
+    if (!item) {
         return;
     }
 
@@ -174,7 +174,7 @@ ActionMenu::remove(PMenu::Item *item)
         TextureHandler::instance()->returnTexture(item->getIcon());
     }
 
-    if ((item->getWORef() != NULL) && (item->getWORef()->getType() == WO_MENU)) {
+    if (item->getWORef() && (item->getWORef()->getType() == WO_MENU)) {
         delete item->getWORef();
     }
 
@@ -215,16 +215,14 @@ ActionMenu::parse(CfgParser::Entry *op_section, bool dynamic)
     PMenu::Item *item = NULL;
     PTexture *icon = NULL;
 
-    if (op_section->get_value ().size ())
-    {      
+    if (op_section->get_value ().size ()) {      
         wstring title(Util::to_wide_str(op_section->get_value ()));
         setTitle (title);
         _title_base = title;
     }
     op_section = op_section->get_section ();
 
-    while ((op_section = op_section->get_section_next ()) != NULL)
-    {
+    while (op_section = op_section->get_section_next ()) {
         item = NULL;
         op_sub = op_section->get_section ();
 
@@ -235,8 +233,7 @@ ActionMenu::parse(CfgParser::Entry *op_section, bool dynamic)
             icon = NULL;
         }
 
-        if (*op_section == "SUBMENU")
-        {
+        if (*op_section == "SUBMENU") {
             submenu = new ActionMenu (_menu_type,
                                       Util::to_wide_str(op_section->get_value()),
                                       "" /* Empty name for submenus */);
@@ -246,15 +243,11 @@ ActionMenu::parse(CfgParser::Entry *op_section, bool dynamic)
             item = new PMenu::Item (Util::to_wide_str(op_sub->get_value()),
                                     submenu, icon);
             item->setDynamic(dynamic);
-        }
-        else if (*op_section == "SEPARATOR")
-        {
+        } else if (*op_section == "SEPARATOR") {
             item = new PMenu::Item (L"", NULL, icon);
             item->setDynamic (dynamic);
             item->setType (PMenu::Item::MENU_ITEM_SEPARATOR);
-        }
-        else
-        {
+        } else {
             op_value = op_section->get_section ()->find_entry ("ACTIONS");
             if (op_value
                     && Config::instance ()->parseActions (op_value->get_value (),
@@ -265,8 +258,7 @@ ActionMenu::parse(CfgParser::Entry *op_section, bool dynamic)
                 item->setDynamic (dynamic);
                 item->setAE (ae);
 
-                if (ae.isOnlyAction (ACTION_MENU_DYN))
-                {
+                if (ae.isOnlyAction (ACTION_MENU_DYN)) {
                     _has_dynamic = true;
                     item->setType (PMenu::Item::MENU_ITEM_HIDDEN);
                 }
@@ -274,8 +266,7 @@ ActionMenu::parse(CfgParser::Entry *op_section, bool dynamic)
         }
 
         // If an item was successfully created, insert it to the menu.
-        if (item != NULL)
-        {
+        if (item) {
             ActionMenu::insert (item);
         }
     }
@@ -295,8 +286,7 @@ ActionMenu::rebuildDynamic(void)
 
             CfgParser dynamic;
             if (dynamic.parse ((*it)->getAE().action_list.front().getParamS(),
-                               CfgParserSource::SOURCE_COMMAND))
-            {
+                               CfgParserSource::SOURCE_COMMAND)) {
                 parse (dynamic.get_entry_root ()->find_section ("DYNAMIC"), true);
             }
 
@@ -312,7 +302,7 @@ ActionMenu::removeDynamic(void)
     list<PMenu::Item*>::iterator it(_item_list.begin());
     for (; it != _item_list.end(); ++it) {
         if ((*it)->isDynamic()) {
-            if (((*it)->getWORef() != NULL) &&
+            if ((*it)->getWORef() &&
                     ((*it)->getWORef()->getType() == WO_MENU)) {
                 delete (*it)->getWORef();
             }

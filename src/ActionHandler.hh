@@ -40,6 +40,7 @@ public:
     static ActionEvent *findMouseAction(uint button, uint mod,
                                         MouseEventType type,
                                         std::list<ActionEvent> *actions);
+    
 private:
     void handleStateAction(const Action &action, PWinObj *wo,
                            Client *client, Frame *frame);
@@ -52,9 +53,9 @@ private:
     void actionFocusToggle(uint button, uint raise, int off,
                            bool show_iconified, bool mru);
     void actionFocusDirectional(PWinObj *wo, DirectionType dir, bool raise);
-  bool actionSendKey(PWinObj *wo, const std::string &key_str);
+    bool actionSendKey(PWinObj *wo, const std::string &key_str);
 #ifdef MENUS
-  void actionShowMenu(const std::string &name, bool stick, uint e_type, PWinObj *wo_ref);
+    void actionShowMenu(const std::string &name, bool stick, uint e_type, PWinObj *wo_ref);
 #endif // MENUS
 
     // action helpers
@@ -65,12 +66,12 @@ private:
     PMenu *createMRUMenu(bool show_iconified);
     bool createMenuInclude(Frame *frame, bool show_iconified);
 
-  void initSendKeyEvent(XEvent &ev, PWinObj *wo);
+    void initSendKeyEvent(XEvent &ev, PWinObj *wo);
 
 private:
-  std::map<uint, uint> _state_to_keycode; /**< Map translating state modifiers to keycode. */
+    std::map<uint, uint> _state_to_keycode; /**< Map translating state modifiers to keycode. */
 
-  static ActionHandler *_instance; /**< Instance pointer for ActionHandler. */
+    static ActionHandler *_instance; /**< Instance pointer for ActionHandler. */
 };
 
 #endif // _ACTIONHANDLER_HH_

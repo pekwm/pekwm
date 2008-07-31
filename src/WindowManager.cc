@@ -121,57 +121,56 @@ const unsigned int WindowManager::MENU_NAMES_RESERVED_COUNT =
 
 extern "C" {
 
-  static bool is_signal_hup = false;
-  static bool is_signal_int_term = false;
-  static bool is_signal_alrm = false;
+    static bool is_signal_hup = false;
+    static bool is_signal_int_term = false;
+    static bool is_signal_alrm = false;
 
-  /**
-   * Signal handler setting signal flags.
-   */
-  static void
-  sigHandler(int signal)
-  {
-    switch (signal) {
-    case SIGHUP:
-        is_signal_hup = true;
-        break;
-    case SIGINT:
-    case SIGTERM:
-        is_signal_int_term = true;
-        break;
-    case SIGCHLD:
-        wait(NULL);
-        break;
-    case SIGALRM:
-      // Do nothing, just used to break out of waiting
-      is_signal_alrm = true;
-      break;
+    /**
+      * Signal handler setting signal flags.
+      */
+    static void
+    sigHandler(int signal)
+    {
+        switch (signal) {
+        case SIGHUP:
+            is_signal_hup = true;
+            break;
+        case SIGINT:
+        case SIGTERM:
+            is_signal_int_term = true;
+            break;
+        case SIGCHLD:
+            wait(NULL);
+            break;
+        case SIGALRM:
+            // Do nothing, just used to break out of waiting
+            is_signal_alrm = true;
+            break;
+        }
     }
-  }
 
-  /**
-   * XError handler, prints error.
-   */
-  static int
-  handleXError(Display *dpy, XErrorEvent *e)
-  {
-    if ((e->error_code == BadAccess) &&
-        (e->resourceid == (RootWindow(dpy, DefaultScreen(dpy))))) {
-      cerr << "pekwm: root window unavailable, can't start!" << endl;
-      exit(1);
-    }
+    /**
+      * XError handler, prints error.
+      */
+    static int
+    handleXError(Display *dpy, XErrorEvent *e)
+    {
+        if ((e->error_code == BadAccess) &&
+                (e->resourceid == (RootWindow(dpy, DefaultScreen(dpy))))) {
+            cerr << "pekwm: root window unavailable, can't start!" << endl;
+            exit(1);
 #ifdef DEBUG
-    else {
-      char error_buf[256];
-      XGetErrorText(dpy, e->error_code, error_buf, 256);
+        } else {
+            char error_buf[256];
+            XGetErrorText(dpy, e->error_code, error_buf, 256);
 
-      cerr << "XError: " << error_buf << " id: " << e->resourceid << endl;
-    }
+            cerr << "XError: " << error_buf << " id: " << e->resourceid << endl;
 #endif // DEBUG
-
-    return 0;
-  }
-}
+        }
+        return 0;
+    }
+    
+} // extern "C"
 
 // WindowManager::EdgeWO
 
@@ -217,28 +216,28 @@ WindowManager::EdgeWO::~EdgeWO(void)
 void
 WindowManager::EdgeWO::configureStrut(bool set_strut)
 {
-  _strut.left = _strut.right = _strut.top = _strut.bottom = 0;
+    _strut.left = _strut.right = _strut.top = _strut.bottom = 0;
 
-  if (set_strut) {
-    switch (_edge) {
-    case SCREEN_EDGE_TOP:
-      _strut.top = _gm.height;
-      break;
-    case SCREEN_EDGE_BOTTOM:
-      _strut.bottom = _gm.height;
-      break;
-    case SCREEN_EDGE_LEFT:
-      _strut.left = _gm.width;
-      break;
-    case SCREEN_EDGE_RIGHT:
-      _strut.right = _gm.width;
-      break;
-    case SCREEN_EDGE_NO:
-    default:
-      // do nothing
-      break;
+    if (set_strut) {
+        switch (_edge) {
+        case SCREEN_EDGE_TOP:
+            _strut.top = _gm.height;
+            break;
+        case SCREEN_EDGE_BOTTOM:
+            _strut.bottom = _gm.height;
+            break;
+        case SCREEN_EDGE_LEFT:
+            _strut.left = _gm.width;
+            break;
+        case SCREEN_EDGE_RIGHT:
+            _strut.right = _gm.width;
+            break;
+        case SCREEN_EDGE_NO:
+        default:
+            // do nothing
+            break;
+        }
     }
-  }
 }
 
 //! @brief Map window also setting iconified state
@@ -284,7 +283,6 @@ WindowManager::EdgeWO::handleButtonRelease(XButtonEvent *ev)
         PScreen::instance()->setLastClickTime(ev->button - 1, 0);
 
         mb = MOUSE_EVENT_DOUBLE;
-
     } else {
         PScreen::instance()->setLastClickID(ev->window);
         PScreen::instance()->setLastClickTime(ev->button - 1, ev->time);
@@ -467,7 +465,7 @@ WindowManager::~WindowManager(void)
 {
     cleanup();
 
-    if (_root_wo != NULL)
+    if (_root_wo)
         delete _root_wo;
 
 #ifdef HARBOUR
@@ -476,8 +474,9 @@ WindowManager::~WindowManager(void)
     }
 #endif // HARBOUR
 
-    if (_cmd_dialog)
+    if (_cmd_dialog) {
         delete _cmd_dialog;
+    }
     if (_search_dialog)
         delete _search_dialog;
     if (_status_window)
@@ -494,30 +493,30 @@ WindowManager::~WindowManager(void)
     deleteMenus();
 #endif // MENUS
 
-    if (_pekwm_atoms != NULL)
+    if (_pekwm_atoms)
         delete _pekwm_atoms;
-    if (_icccm_atoms != NULL)
+    if (_icccm_atoms)
         delete _icccm_atoms;
-    if (_ewmh_atoms != NULL)
+    if (_ewmh_atoms)
         delete _ewmh_atoms;
-    if (_keygrabber != NULL)
+    if (_keygrabber)
         delete _keygrabber;
-    if (_workspaces != NULL)
+    if (_workspaces)
         delete _workspaces;
-    if (_config != NULL)
+    if (_config)
         delete _config;
-    if (_theme != NULL)
+    if (_theme)
         delete _theme;
-    if (_color_handler != NULL)
+    if (_color_handler)
         delete _color_handler;
-    if (_font_handler != NULL)
+    if (_font_handler)
         delete _font_handler;
-    if (_texture_handler != NULL)
+    if (_texture_handler)
         delete _texture_handler;
-    if (_screen_resources != NULL)
+    if (_screen_resources)
         delete _screen_resources;
 
-    if (_screen != NULL) {
+    if (_screen) {
         Display *dpy = _screen->getDpy();
 
         delete _screen;
@@ -538,8 +537,9 @@ WindowManager::execStartFile(void)
         exec = Util::isExecutable(start_file);
     }
 
-    if (exec)
+    if (exec) {
         Util::forkExec(start_file);
+    }
 }
 
 //! @brief Cleans up, Maps windows etc.
@@ -674,9 +674,10 @@ WindowManager::setupDisplay(void)
 void
 WindowManager::scanWindows(void)
 {
-    if (_startup) // only done once when we start
+    if (_startup) { // only done once when we start
         return;
-
+    }
+    
     uint num_wins;
     Window d_win1, d_win2, *wins;
     XWindowAttributes attr;
@@ -694,8 +695,9 @@ WindowManager::scanWindows(void)
     // the IconWindowHint set not pointing to themself, making DockApps
     // work as they are supposed to.
     for (; it != win_list.end(); ++it) {
-        if (*it == None)
+        if (*it == None) {
             continue;
+        }
 
         XWMHints *wm_hints = XGetWMHints(_screen->getDpy(), *it);
         if (wm_hints) {
@@ -712,9 +714,10 @@ WindowManager::scanWindows(void)
 
     Client *client;
     for (it = win_list.begin(); it != win_list.end(); ++it) {
-        if (*it == None)
+        if (*it == None) {
             continue;
-
+        }
+        
         XGetWindowAttributes(_screen->getDpy(), *it, &attr);
         if (!attr.override_redirect && (attr.map_state != IsUnmapped)) {
 #ifdef HARBOUR
@@ -742,7 +745,7 @@ WindowManager::scanWindows(void)
 
     // Try to focus the ontop window, if no window we give root focus
     PWinObj *wo = _workspaces->getTopWO(PWinObj::WO_FRAME);
-    if ((wo != NULL) && wo->isMapped()) {
+    if (wo && wo->isMapped()) {
         wo->giveInputFocus();
     } else {
         _root_wo->giveInputFocus();
@@ -969,114 +972,112 @@ WindowManager::restart(std::string command)
 void
 WindowManager::doEventLoop(void)
 {
-  XEvent ev;
-  Timer<ActionPerformed>::timed_event_list events;
+    XEvent ev;
+    Timer<ActionPerformed>::timed_event_list events;
 
-  while (!_shutdown && ! is_signal_int_term) {
-    // Handle timeouts
-    if (is_signal_alrm) {
-      is_signal_alrm = false;
+    while (!_shutdown && ! is_signal_int_term) {
+        // Handle timeouts
+        if (is_signal_alrm) {
+            is_signal_alrm = false;
 
-      if (_timer_action.getTimedOut(events)) {
-        Timer<ActionPerformed>::timed_event_list_it it(events.begin());
-        for (; it != events.end(); ++it) {
-          _action_handler->handleAction((*it)->data);
+            if (_timer_action.getTimedOut(events)) {
+                Timer<ActionPerformed>::timed_event_list_it it(events.begin());
+                for (; it != events.end(); ++it) {
+                    _action_handler->handleAction((*it)->data);
+                }
+                events.clear();
+            }
         }
-        events.clear();
-      }
-    }
 
-    // Reload if requested
-    if (is_signal_hup || _reload) {
-      is_signal_hup = false;
-      doReload();
-    }
+        // Reload if requested
+        if (is_signal_hup || _reload) {
+            is_signal_hup = false;
+            doReload();
+        }
 
-    // Get next event, drop event handling if none was given
-    if (_screen->getNextEvent(ev)) {
-      switch (ev.type) {
-      case MapRequest:
-        handleMapRequestEvent(&ev.xmaprequest);
-        break;
-      case UnmapNotify:
-        handleUnmapEvent(&ev.xunmap);
-        break;
-      case DestroyNotify:
-        handleDestroyWindowEvent(&ev.xdestroywindow);
-        break;
+        // Get next event, drop event handling if none was given
+        if (_screen->getNextEvent(ev)) {
+            switch (ev.type) {
+            case MapRequest:
+                handleMapRequestEvent(&ev.xmaprequest);
+                break;
+            case UnmapNotify:
+                handleUnmapEvent(&ev.xunmap);
+                break;
+            case DestroyNotify:
+                handleDestroyWindowEvent(&ev.xdestroywindow);
+                break;
+                
+            case ConfigureRequest:
+                handleConfigureRequestEvent(&ev.xconfigurerequest);
+                break;
+            case ClientMessage:
+                handleClientMessageEvent(&ev.xclient);
+                break;
+            case ColormapNotify:
+                handleColormapEvent(&ev.xcolormap);
+                break;
+            case PropertyNotify:
+                _screen->setLastEventTime(ev.xproperty.time);
+                handlePropertyEvent(&ev.xproperty);
+                break;
+            case MappingNotify:
+                handleMappingEvent(&ev.xmapping);
+                break;
+            case Expose:
+                handleExposeEvent(&ev.xexpose);
+                break;
+      
+            case KeyPress:
+            case KeyRelease:
+                _screen->setLastEventTime(ev.xkey.time);
+                handleKeyEvent(&ev.xkey);
+                break;
 
-      case ConfigureRequest:
-        handleConfigureRequestEvent(&ev.xconfigurerequest);
-        break;
-      case ClientMessage:
-        handleClientMessageEvent(&ev.xclient);
-        break;
+            case ButtonPress:
+                _screen->setLastEventTime(ev.xbutton.time);
+                handleButtonPressEvent(&ev.xbutton);
+                break;
+            case ButtonRelease:
+                _screen->setLastEventTime(ev.xbutton.time);
+                handleButtonReleaseEvent(&ev.xbutton);
+                break;
 
-      case ColormapNotify:
-        handleColormapEvent(&ev.xcolormap);
-        break;
-      case PropertyNotify:
-        _screen->setLastEventTime(ev.xproperty.time);
-        handlePropertyEvent(&ev.xproperty);
-        break;
-      case MappingNotify:
-        handleMappingEvent(&ev.xmapping);
-        break;
+            case MotionNotify:
+                _screen->setLastEventTime(ev.xmotion.time);
+                handleMotionEvent(&ev.xmotion);
+                break;
 
-      case Expose:
-        handleExposeEvent(&ev.xexpose);
-        break;
+            case EnterNotify:
+                _screen->setLastEventTime(ev.xcrossing.time);
+                handleEnterNotify(&ev.xcrossing);
+                break;
+            case LeaveNotify:
+                _screen->setLastEventTime(ev.xcrossing.time);
+                handleLeaveNotify(&ev.xcrossing);
+                break;
+            case FocusIn:
+                handleFocusInEvent(&ev.xfocus);
+                break;
+            case FocusOut:
+                handleFocusOutEvent(&ev.xfocus);
+                break;
 
-      case KeyPress:
-      case KeyRelease:
-        _screen->setLastEventTime(ev.xkey.time);
-        handleKeyEvent(&ev.xkey);
-        break;
-
-      case ButtonPress:
-        _screen->setLastEventTime(ev.xbutton.time);
-        handleButtonPressEvent(&ev.xbutton);
-        break;
-      case ButtonRelease:
-        _screen->setLastEventTime(ev.xbutton.time);
-        handleButtonReleaseEvent(&ev.xbutton);
-        break;
-
-      case MotionNotify:
-        _screen->setLastEventTime(ev.xmotion.time);
-        handleMotionEvent(&ev.xmotion);
-        break;
-
-      case EnterNotify:
-        _screen->setLastEventTime(ev.xcrossing.time);
-        handleEnterNotify(&ev.xcrossing);
-        break;
-      case LeaveNotify:
-        _screen->setLastEventTime(ev.xcrossing.time);
-        handleLeaveNotify(&ev.xcrossing);
-        break;
-      case FocusIn:
-        handleFocusInEvent(&ev.xfocus);
-        break;
-      case FocusOut:
-        handleFocusOutEvent(&ev.xfocus);
-        break;
-
-      default:
+            default:
 #ifdef HAVE_SHAPE
-        if (_screen->hasExtensionShape() && (ev.type == _screen->getEventShape())) {
-          handleShapeEvent(&ev.xany);
-        }
+                if (_screen->hasExtensionShape() && (ev.type == _screen->getEventShape())) {
+                    handleShapeEvent(&ev.xany);
+                }
 #endif // HAVE_SHAPE
 #ifdef HAVE_XRANDR
-        if (_screen->hasExtensionXRandr() && (ev.type == _screen->getEventXRandr())) {
-          handleXRandrEvent(reinterpret_cast<XRRNotifyEvent*>(&ev));
-        }
+                if (_screen->hasExtensionXRandr() && (ev.type == _screen->getEventXRandr())) {
+                    handleXRandrEvent(reinterpret_cast<XRRNotifyEvent*>(&ev));
+                }
 #endif // HAVE_XRANDR
-        break;
-      }
+                break;
+            }
+        }
     }
-  }
 }
 
 //! @brief Handle XKeyEvents
@@ -1086,7 +1087,7 @@ WindowManager::handleKeyEvent(XKeyEvent *ev)
     ActionEvent *ae =	NULL;
     PWinObj *wo, *wo_orig;
     wo = wo_orig = PWinObj::getFocusedPWinObj();
-    PWinObj::Type type = (wo == NULL) ? PWinObj::WO_SCREEN_ROOT : wo->getType();
+    PWinObj::Type type = (wo) ? wo->getType() : PWinObj::WO_SCREEN_ROOT;
 
     switch (type) {
     case PWinObj::WO_CLIENT:
@@ -1106,7 +1107,7 @@ WindowManager::handleKeyEvent(XKeyEvent *ev)
         wo = static_cast<CmdDialog*>(wo)->getWORef();
         break;
     default:
-        if (wo != NULL) {
+        if (wo) {
             if (ev->type == KeyPress) {
                 ae = wo->handleKeyPress(ev);
             } else {
@@ -1116,7 +1117,7 @@ WindowManager::handleKeyEvent(XKeyEvent *ev)
         break;
     }
 
-    if (ae != NULL) {
+    if (ae) {
         // HACK: Always close CmdDialog before actions
         if (wo_orig && (wo_orig->getType() == PWinObj::WO_CMD_DIALOG)) {
             ::Action close_action;
@@ -1151,7 +1152,7 @@ WindowManager::handleButtonPressEvent(XButtonEvent *ev)
     PWinObj *wo = NULL;
 
     wo = PWinObj::findPWinObj(ev->window);
-    if (wo != NULL) {
+    if (wo) {
         ae = wo->handleButtonPress(ev);
 
         if (wo->getType() == PWinObj::WO_FRAME) {
@@ -1167,7 +1168,7 @@ WindowManager::handleButtonPressEvent(XButtonEvent *ev)
         }
     }
 
-    if (ae != NULL) {
+    if (ae) {
         ActionPerformed ap(wo, *ae);
         ap.type = ev->type;
         ap.event.button = ev;
@@ -1194,7 +1195,7 @@ WindowManager::handleButtonReleaseEvent(XButtonEvent *ev)
     ActionEvent *ae = NULL;
     PWinObj *wo = PWinObj::findPWinObj(ev->window);
 
-    if (wo != NULL) {
+    if (wo) {
         ae = wo->handleButtonRelease(ev);
 
         if (wo->getType() == PWinObj::WO_FRAME) {
@@ -1209,7 +1210,7 @@ WindowManager::handleButtonReleaseEvent(XButtonEvent *ev)
             }
         }
 
-        if (ae != NULL) {
+        if (ae) {
             ActionPerformed ap(wo, *ae);
             ap.type = ev->type;
             ap.event.button = ev;
@@ -1268,7 +1269,7 @@ WindowManager::handleMotionEvent(XMotionEvent *ev)
     ActionEvent *ae = NULL;
     PWinObj *wo = PWinObj::findPWinObj(ev->window);
 
-    if (wo != NULL) {
+    if (wo) {
         if (wo->getType() == PWinObj::WO_CLIENT) {
             ae = wo->getParent()->handleMotionEvent(ev);
 
@@ -1287,7 +1288,7 @@ WindowManager::handleMotionEvent(XMotionEvent *ev)
             ae = wo->handleMotionEvent(ev);
         }
 
-        if (ae != NULL) {
+        if (ae) {
             ActionPerformed ap(wo, *ae);
             ap.type = ev->type;
             ap.event.motion = ev;
@@ -1311,9 +1312,8 @@ WindowManager::handleMapRequestEvent(XMapRequestEvent *ev)
 {
     PWinObj *wo = PWinObj::findPWinObj(ev->window);
 
-    if (wo != NULL) {
+    if (wo) {
         wo->handleMapRequest(ev);
-
     } else {
         XWindowAttributes attr;
         XGetWindowAttributes(_screen->getDpy(), ev->window, &attr);
@@ -1322,13 +1322,13 @@ WindowManager::handleMapRequestEvent(XMapRequestEvent *ev)
             // not this is a dockapp.
 #ifdef HARBOUR
             XWMHints *wm_hints = XGetWMHints(_screen->getDpy(), ev->window);
-            if (wm_hints != NULL) {
+            if (wm_hints) {
                 if ((wm_hints->flags&StateHint) &&
                         (wm_hints->initial_state == WithdrawnState)) {
                     _harbour->addDockApp(new DockApp(_screen, _theme, ev->window));
                 } else {
                     Client *client = new Client(ev->window, true);
-                    if (client->isAlive() == false) {
+                    if (!client->isAlive()) {
                         delete client;
                     }
                 }
@@ -1337,7 +1337,7 @@ WindowManager::handleMapRequestEvent(XMapRequestEvent *ev)
 #endif // HARBOUR
             {
                 Client *client = new Client(ev->window, true);
-                if (client->isAlive() == false) {
+                if (!client->isAlive()) {
                     delete client;
                 }
             }
@@ -1354,7 +1354,7 @@ WindowManager::handleUnmapEvent(XUnmapEvent *ev)
 
     PWinObj::Type wo_type = PWinObj::WO_NO_TYPE;
 
-    if (wo != NULL) {
+    if (wo) {
         wo_type = wo->getType();
         if (wo_type == PWinObj::WO_CLIENT) {
             wo_search = wo->getParent();
@@ -1379,7 +1379,7 @@ WindowManager::handleUnmapEvent(XUnmapEvent *ev)
 #endif // HARBOUR
 
     if ((wo_type != PWinObj::WO_MENU) && (wo_type != PWinObj::WO_CMD_DIALOG)
-        && (PWinObj::getFocusedPWinObj() == NULL)) {
+        && !PWinObj::getFocusedPWinObj()) {
         findWOAndFocus(wo_search);
     }
 }
@@ -1393,7 +1393,7 @@ WindowManager::handleDestroyWindowEvent(XDestroyWindowEvent *ev)
         PWinObj *wo_search = client->getParent();
         client->handleDestroyEvent(ev);
 
-        if (PWinObj::getFocusedPWinObj() == NULL) {
+        if (!PWinObj::getFocusedPWinObj()) {
             findWOAndFocus(wo_search);
         }
     }
@@ -1420,7 +1420,7 @@ WindowManager::handleEnterNotify(XCrossingEvent *ev)
 
     PWinObj *wo = PWinObj::findPWinObj(ev->window);
 
-    if (wo != NULL) {
+    if (wo) {
 
         if (wo->getType() == PWinObj::WO_CLIENT) {
             wo = wo->getParent();
@@ -1428,7 +1428,7 @@ WindowManager::handleEnterNotify(XCrossingEvent *ev)
 
         ActionEvent *ae = wo->handleEnterEvent(ev);
 
-        if (ae != NULL) {
+        if (ae) {
             ActionPerformed ap(wo, *ae);
             ap.type = ev->type;
             ap.event.crossing = ev;
@@ -1450,10 +1450,10 @@ WindowManager::handleLeaveNotify(XCrossingEvent *ev)
 
     PWinObj *wo = PWinObj::findPWinObj(ev->window);
 
-    if (wo != NULL) {
+    if (wo) {
         ActionEvent *ae = wo->handleLeaveEvent(ev);
 
-        if (ae != NULL) {
+        if (ae) {
             ActionPerformed ap(wo, *ae);
             ap.type = ev->type;
             ap.event.crossing = ev;
@@ -1496,7 +1496,7 @@ WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
             PWinObj *focused_wo = PWinObj::getFocusedPWinObj(); // convenience
 
             // unfocus last window
-            if (focused_wo != NULL) {
+            if (focused_wo) {
                 if (focused_wo->getType() == PWinObj::WO_CLIENT) {
                     focused_wo->getParent()->setFocused(false);
                 } else {
@@ -1534,7 +1534,8 @@ WindowManager::handleFocusOutEvent(XFocusChangeEvent *ev)
     }
 
     // Get the last focus in event, no need to go through them all.
-    while (XCheckTypedEvent(_screen->getDpy(), FocusOut, (XEvent *) ev));
+    while (XCheckTypedEvent(_screen->getDpy(), FocusOut, (XEvent *) ev))
+        ;
 
     // Match against focusd PWinObj if any, if matches we see if
     // there are any FocusIn events in the queue, if not we give focus to
@@ -1601,7 +1602,7 @@ WindowManager::handlePropertyEvent(XPropertyEvent *ev)
 
     Client *client = Client::findClientFromWindow(ev->window);
 
-    if (client != NULL) {
+    if (client) {
         ((Frame*) client->getParent())->handlePropertyChange(ev, client);
     }
 }
@@ -1622,11 +1623,11 @@ WindowManager::handleExposeEvent(XExposeEvent *ev)
     ActionEvent *ae = NULL;
 
     PWinObj *wo = PWinObj::findPWinObj(ev->window);
-    if (wo != NULL) {
+    if (wo) {
         ae = wo->handleExposeEvent(ev);
     }
 
-    if (ae != NULL) {
+    if (ae) {
         ActionPerformed ap(wo, *ae);
         ap.type = ev->type;
         ap.event.expose = ev;
@@ -1640,10 +1641,10 @@ WindowManager::handleExposeEvent(XExposeEvent *ev)
 void
 WindowManager::handleShapeEvent(XAnyEvent *ev)
 {
-  Client *client = Client::findClient(ev->window);
-  if ((client != NULL) && (client->getParent() != NULL)) {
-    static_cast<Frame*>(client->getParent())->handleShapeEvent(ev);
-  }
+    Client *client = Client::findClient(ev->window);
+    if (client && client->getParent()) {
+        static_cast<Frame*>(client->getParent())->handleShapeEvent(ev);
+    }
 }
 #endif // HAVE_SHAPE
 
@@ -1653,11 +1654,11 @@ WindowManager::handleShapeEvent(XAnyEvent *ev)
 void
 WindowManager::handleXRandrEvent(XRRNotifyEvent *ev)
 {
-  if (ev->subtype == RRNotify_CrtcChange) {
-    handleXRandrCrtcChangeEvent(reinterpret_cast<XRRCrtcChangeNotifyEvent*>(ev));
-  } else {
-    handleXRandrScreenChangeEvent(reinterpret_cast<XRRScreenChangeNotifyEvent*>(ev));
-  }
+    if (ev->subtype == RRNotify_CrtcChange) {
+        handleXRandrCrtcChangeEvent(reinterpret_cast<XRRCrtcChangeNotifyEvent*>(ev));
+    } else {
+        handleXRandrScreenChangeEvent(reinterpret_cast<XRRScreenChangeNotifyEvent*>(ev));
+    }
 }
 
 //! @brief Handle screen change event.
@@ -1670,15 +1671,15 @@ void
 WindowManager::handleXRandrScreenChangeEvent(XRRScreenChangeNotifyEvent *ev)
 {
 #ifdef DEBUG
-  cerr << __FILE__ << "@" << __LINE__ << ": WindowManager::handleXRandrScreenChangeEvent()" << endl;
+    cerr << __FILE__ << "@" << __LINE__ << ": WindowManager::handleXRandrScreenChangeEvent()" << endl;
 #endif // DEBUG
 
-  _screen->updateGeometry(ev->width, ev->height);
+    _screen->updateGeometry(ev->width, ev->height);
 #ifdef HARBOUR
-  _harbour->updateGeometry();
+    _harbour->updateGeometry();
 #endif // HARBOUR
 
-  screenEdgeResize();
+    screenEdgeResize();
 }
 
 //! @brief Handle crtc change event, does nothing.
@@ -1687,7 +1688,7 @@ void
 WindowManager::handleXRandrCrtcChangeEvent(XRRCrtcChangeNotifyEvent *ev)
 {
 #ifdef DEBUG
-  cerr << __FILE__ << "@" << __LINE__ << ": WindowManager::handleXRandrCrtcChangeEvent()" << endl;
+    cerr << __FILE__ << "@" << __LINE__ << ": WindowManager::handleXRandrCrtcChangeEvent()" << endl;
 #endif // DEBUG
 }
 
@@ -1834,25 +1835,25 @@ WindowManager::findWOAndFocus(PWinObj *search)
 {
     PWinObj *focus = NULL;
 
-    if ((PWinObj::windowObjectExists(search) == true) &&
+    if (PWinObj::windowObjectExists(search) &&
             (search->isMapped()) && (search->isFocusable()))  {
         focus = search;
     }
 
     // search window object didn't exist, go through the MRU list
-    if (focus == NULL) {
+    if (!focus) {
         list<PWinObj*>::reverse_iterator f_it = _mru_list.rbegin();
-        for (; (focus == NULL) && (f_it != _mru_list.rend()); ++f_it) {
+        for (; !focus  && (f_it != _mru_list.rend()); ++f_it) {
             if ((*f_it)->isMapped() && (*f_it)->isFocusable()) {
                 focus = *f_it;
             }
         }
     }
 
-    if (focus != NULL) {
+    if (focus) {
         focus->giveInputFocus();
 
-    }  else if (PWinObj::getFocusedPWinObj() == NULL) {
+    }  else if (!PWinObj::getFocusedPWinObj()) {
         _root_wo->giveInputFocus();
         setEwmhActiveWindow(None);
     }
@@ -1909,8 +1910,8 @@ WindowManager::familyRaiseLower(Client *client, bool raise)
     list<Client*> client_list;
     findFamily(client_list, win_search);
 
-    if (parent != NULL) { // make sure parent gets underneath the children
-        if (raise == true) {
+    if (parent) { // make sure parent gets underneath the children
+        if (raise) {
             client_list.push_front(parent);
         } else {
             client_list.push_back(parent);
@@ -1921,8 +1922,8 @@ WindowManager::familyRaiseLower(Client *client, bool raise)
     list<Client*>::iterator it(client_list.begin());
     for (; it != client_list.end(); ++it) {
         frame = dynamic_cast<Frame*>((*it)->getParent());
-        if ((frame != NULL) && (frame->getActiveChild() == *it)) {
-            if (raise == true) {
+        if (frame && frame->getActiveChild() == *it) {
+            if (raise) {
                 frame->raise();
             } else {
                 frame->lower();
@@ -1942,7 +1943,7 @@ WindowManager::removeFromFrameList(Frame *frame)
 Frame*
 WindowManager::findGroup(AutoProperty *property)
 {
-    if (_allow_grouping == false) {
+    if (!_allow_grouping) {
         return NULL;
     }
 
@@ -1957,7 +1958,7 @@ WindowManager::findGroup(AutoProperty *property)
 
     // try to match the focused window first
     if (property->group_focused_first &&
-            (PWinObj::getFocusedPWinObj() != NULL) &&
+            PWinObj::getFocusedPWinObj() &&
             (PWinObj::getFocusedPWinObj()->getType() == PWinObj::WO_CLIENT)) {
 
         Frame *fo_frame =
@@ -1969,7 +1970,7 @@ WindowManager::findGroup(AutoProperty *property)
     }
 
     // search the list of frames
-    if (frame == NULL) {
+    if (!frame) {
         list<Frame*>::iterator it(Frame::frame_begin());
         for (; it != Frame::frame_end(); ++it) {
             if (MATCH_GROUP(*it, property)) {

@@ -88,11 +88,11 @@ public: // Public Member Functions
     virtual void reparent(PWinObj *parent, int x, int y);
 
     virtual ActionEvent *handleButtonPress(XButtonEvent *ev) {
-        if (_parent != NULL) { return _parent->handleButtonPress(ev); }
+        if (_parent) { return _parent->handleButtonPress(ev); }
         return NULL;
     }
     virtual ActionEvent *handleButtonRelease(XButtonEvent *ev) {
-        if (_parent != NULL) { return _parent->handleButtonRelease(ev); }
+        if (_parent) { return _parent->handleButtonRelease(ev); }
         return NULL;
     }
 
@@ -192,10 +192,10 @@ public: // Public Member Functions
     void setSkip(uint skip);
 
     inline void setStateSkip(StateAction sa, Skip skip) {
-      if ((isSkip(skip) && (sa == STATE_SET)) || (! isSkip(skip) && (sa == STATE_UNSET))) {
-        return;
-      }
-      _state.skip ^= skip;
+        if ((isSkip(skip) && (sa == STATE_SET)) || (! isSkip(skip) && (sa == STATE_UNSET))) {
+            return;
+        }
+        _state.skip ^= skip;
     }
 
     inline void setTitlebar(bool titlebar) {
@@ -227,9 +227,10 @@ public: // Public Member Functions
     inline bool setConfigureRequestLock(bool lock) {
         bool old_lock = _cfg_request_lock;
         _cfg_request_lock = lock;
-    return old_lock;
-}
-void configureRequestSend(void);
+        return old_lock;
+    }
+    
+    void configureRequestSend(void);
 
     bool getIncSize(uint *r_w, uint *r_h, uint w, uint h);
 

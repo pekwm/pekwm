@@ -76,14 +76,14 @@ FrameListMenu::mapWindow(void)
 void
 FrameListMenu::handleItemExec(PMenu::Item *item)
 {
-    if (item == NULL) {
+    if (!item) {
         return;
     }
 
-    if (PWinObj::windowObjectExists(_wo_ref) == false) {
+    if (!PWinObj::windowObjectExists(_wo_ref)) {
         _wo_ref = NULL;
     }
-    if (PWinObj::windowObjectExists(item->getWORef()) == false) {
+    if (!PWinObj::windowObjectExists(item->getWORef())) {
         item->setWORef(NULL);
     }
 
@@ -171,7 +171,7 @@ FrameListMenu::updateFrameListMenu(void)
     }
 
     // remove the last separator, not needed
-    if ((show_clients == true) && (size() > 0)) {
+    if (show_clients && (size() > 0)) {
         remove(_item_list.back());
     }
 
@@ -236,18 +236,18 @@ FrameListMenu::buildFrameNames(Frame *frame, std::wstring &pre_name)
 void
 FrameListMenu::handleGotomenu(Client *client)
 {
-    if (client == NULL) {
+    if (!client) {
         return;
     }
     Frame *frame = static_cast<Frame*>(client->getParent());
 
     // make sure it's on correct workspace
-    if ((frame->isSticky() == false) &&
+    if (!frame->isSticky() &&
             (frame->getWorkspace() != Workspaces::instance()->getActive())) {
         Workspaces::instance()->setWorkspace(frame->getWorkspace(), false);
     }
     // make sure it isn't hidden
-    if (frame->isMapped() == false) {
+    if (!frame->isMapped()) {
         frame->mapWindow();
     }
 
@@ -260,7 +260,7 @@ FrameListMenu::handleGotomenu(Client *client)
 void
 FrameListMenu::handleIconmenu(Client *client)
 {
-    if (client == NULL) {
+    if (!client) {
         return;
     }
     Frame *frame = static_cast<Frame*>(client->getParent());
@@ -278,7 +278,7 @@ FrameListMenu::handleIconmenu(Client *client)
 void
 FrameListMenu::handleAttach(Client *client_to, Client *client_from, bool frame)
 {
-    if ((client_to == NULL) || (client_from == NULL)) {
+    if (!client_to || !client_from) {
         return;
     }
 
@@ -286,7 +286,7 @@ FrameListMenu::handleAttach(Client *client_to, Client *client_from, bool frame)
     Frame *frame_from = static_cast<Frame*>(client_from->getParent());
 
     // insert frame
-    if (frame == true) {
+    if (frame) {
         frame_to->addDecor(frame_from);
         // insert client
     } else if (frame_to != frame_from) {

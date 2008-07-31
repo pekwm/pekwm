@@ -153,10 +153,10 @@ Client::Client(Window new_client, bool is_new)
 
     ulong initial_state = NormalState;
     XWMHints* hints = XGetWMHints(_dpy, _window);
-    if (hints != NULL) {
+    if (hints) {
         // get the input focus mode
         if (hints->flags&InputHint) { // FIXME: More logic needed
-          _wm_hints_input = hints->input;
+            _wm_hints_input = hints->input;
         }
 
         // Get initial state of the window
@@ -169,15 +169,15 @@ Client::Client(Window new_client, bool is_new)
 
     // Set state either specified in hint
     if (getWmState() == IconicState) {
-      _iconified = true;
+        _iconified = true;
     }
 
     if (_iconified || initial_state == IconicState) {
-      _iconified = true;
-      _mapped = true;
-      unmapWindow();
+        _iconified = true;
+        _mapped = true;
+        unmapWindow();
     } else {
-      setWmState(initial_state);
+        setWmState(initial_state);
     }
 
     // grab keybindings and mousebutton actions
@@ -232,7 +232,7 @@ Client::Client(Window new_client, bool is_new)
             if (frame) {
                 frame->addChild(this);
 
-                if (ap->group_behind == false) {
+                if (!ap->group_behind) {
                     frame->activateChild(this);
                     do_focus = frame->isFocused();
                 }
@@ -249,7 +249,7 @@ Client::Client(Window new_client, bool is_new)
     PScreen::instance()->ungrabServer(true);
 
     // if we don't have a frame allready, create a new one
-    if (_parent == NULL) {
+    if (!_parent) {
         _parent = new Frame(this, ap);
     }
 
@@ -257,11 +257,11 @@ Client::Client(Window new_client, bool is_new)
     // added to the decor/frame as otherwise IsViewable state won't
     // be correct and we don't know wheter or not to place the window
     if (! _iconified) {
-      PWinObj::mapWindow();
+        PWinObj::mapWindow();
     }
 
     // Let us hear what autoproperties has to say about focusing
-    if (is_new && (ap != NULL) && ap->isMask(AP_FOCUS_NEW)) {
+    if (is_new && ap && ap->isMask(AP_FOCUS_NEW)) {
         do_focus = ap->focus_new;
     }
 
@@ -327,7 +327,7 @@ Client::~Client(void)
     // Focus the parent if we had focus before
     if (focus && (_transient != None)) {
         Client *trans_cli = findClientFromWindow(_transient);
-        if ((trans_cli != NULL) &&
+        if (trans_cli &&
                 (((Frame*) trans_cli->getParent())->getActiveChild() == trans_cli)) {
             trans_cli->getParent()->giveInputFocus();
         }
@@ -353,8 +353,8 @@ Client::~Client(void)
     }
 
     if (_icon) {
-      TextureHandler::instance()->returnTexture(_icon);
-      _icon = NULL;
+        TextureHandler::instance()->returnTexture(_icon);
+        _icon = NULL;
     }
 
     PScreen::instance()->ungrabServer(true);
@@ -366,25 +366,25 @@ Client::~Client(void)
 void
 Client::mapWindow(void)
 {
-  if (_mapped) {
-    return;
-  }
+    if (_mapped) {
+        return;
+    }
 
-  if (_iconified) {
-    _iconified = false;
-    setWmState(NormalState);
-    updateEwmhStates();
-  }
+    if (_iconified) {
+        _iconified = false;
+        setWmState(NormalState);
+        updateEwmhStates();
+    }
 
-  if(! _transient) {
-    // Unmap our transient windows if we have any
-    WindowManager::inst()->findTransientsToMapOrUnmap(_window, false);
-  }
+    if(! _transient) {
+        // Unmap our transient windows if we have any
+        WindowManager::inst()->findTransientsToMapOrUnmap(_window, false);
+    }
 
-  XSelectInput(_dpy, _window, NoEventMask);
-  PWinObj::mapWindow();
-  XSelectInput(_dpy, _window,
-               PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
+    XSelectInput(_dpy, _window, NoEventMask);
+    PWinObj::mapWindow();
+    XSelectInput(_dpy, _window,
+                 PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
 }
 
 
@@ -392,36 +392,36 @@ Client::mapWindow(void)
 void
 Client::unmapWindow(void)
 {
-  if (!_mapped) {
-    return;
-  }
+    if (!_mapped) {
+        return;
+    }
 
-  if (_iconified) {
-    // Set the state of the window
-    setWmState(IconicState);
-    updateEwmhStates();
-  }
+    if (_iconified) {
+        // Set the state of the window
+        setWmState(IconicState);
+        updateEwmhStates();
+    }
 
-  XSelectInput(_dpy, _window, NoEventMask);
-  PWinObj::unmapWindow();
-  XSelectInput(_dpy, _window,
-               PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
+    XSelectInput(_dpy, _window, NoEventMask);
+    PWinObj::unmapWindow();
+    XSelectInput(_dpy, _window,
+                 PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
 }
 
 //! @brief Iconifies the client and adds it to the iconmenu
 void
 Client::iconify(void)
 {
-  if (_iconified) {
-    return;
-  }
+    if (_iconified) {
+        return;
+    }
 
-  _iconified = true;
-  if (!_transient) {
-    WindowManager::inst()->findTransientsToMapOrUnmap(_window, true);
-  }
+    _iconified = true;
+    if (!_transient) {
+        WindowManager::inst()->findTransientsToMapOrUnmap(_window, true);
+    }
 
-  unmapWindow();
+    unmapWindow();
 }
 
 //! @brief Toggle client sticky state
@@ -464,14 +464,14 @@ Client::resize(uint width, uint height)
 void
 Client::moveResize(int x, int y, uint width, uint height)
 {
-  bool request = ((_gm.x != x) || (_gm.y != y)
+    bool request = ((_gm.x != x) || (_gm.y != y)
                   || (_gm.width != width) || (_gm.height != height));
 
-  PWinObj::resize(width, height);
+    PWinObj::resize(width, height);
 
-  if (request) {
-    configureRequestSend();
-  }
+    if (request) {
+        configureRequestSend();
+    }
 }
 
 //! @brief Sets the workspce and updates the _NET_WM_DESKTOP hint.
@@ -498,18 +498,17 @@ Client::setWorkspace(uint workspace)
 bool
 Client::giveInputFocus(void)
 {
-  if (_wm_hints_input) {
-    return PWinObj::giveInputFocus();
-
-  } else if (_send_focus_message) {
-    sendXMessage(_window,
-                 IcccmAtoms::instance()->getAtom(WM_PROTOCOLS), NoEventMask,
-                 IcccmAtoms::instance()->getAtom(WM_TAKE_FOCUS),
-                 PScreen::instance()->getLastEventTime());
-    return true;
-  } else {
-    return true;
-  }
+    if (_wm_hints_input) {
+        return PWinObj::giveInputFocus();
+    } else if (_send_focus_message) {
+        sendXMessage(_window,
+                    IcccmAtoms::instance()->getAtom(WM_PROTOCOLS), NoEventMask,
+                    IcccmAtoms::instance()->getAtom(WM_TAKE_FOCUS),
+                    PScreen::instance()->getLastEventTime());
+        return true;
+    } else {
+        return true;
+    }
 }
 
 //! @brief Reparents and sets _parent member, filtering unmap events
@@ -583,7 +582,7 @@ Client*
 Client::findClientFromWindow(Window win)
 {
     // Validate input window.
-    if ((win == None) || (win == PScreen::instance()->getRoot())) {
+    if (!win || (win == PScreen::instance()->getRoot())) {
         return NULL;
     }
 
@@ -688,7 +687,7 @@ Client::grabButtons(void)
 void
 Client::setStateCfgDeny(StateAction sa, uint deny)
 {
-    if (ActionUtil::needToggle(sa, _state.cfg_deny&deny) == false) {
+    if (!ActionUtil::needToggle(sa, _state.cfg_deny&deny)) {
         return;
     }
 
@@ -780,7 +779,7 @@ Client::readEwmhHints(void)
 
     // The _NET_WM_STATE overides the _NET_WM_TYPE
     NetWMStates win_states;
-    if (getEwmhStates(win_states) == true) {
+    if (getEwmhStates(win_states)) {
         if (win_states.hidden) _iconified = true;
         if (win_states.shaded) _state.shaded = true;
         if (win_states.max_vert) _state.maximized_vert = true;
@@ -803,7 +802,7 @@ Client::readMwmHints(void)
 {
     MwmHints *mwm_hints = getMwmHints(_window);
 
-    if (mwm_hints != NULL) {
+    if (mwm_hints) {
 
         if (mwm_hints->flags&MWM_HINTS_FUNCTIONS) {
           if ((mwm_hints->functions&MWM_FUNC_ALL) != 0) {
@@ -871,24 +870,24 @@ Client::readPekwmHints(void)
 void
 Client::readIcon(void)
 {
-  PImageNativeIcon *image = new PImageNativeIcon(_dpy);
-  if (image->loadFromWindow(_window)) {
-    if (! _icon) {
-      _icon = new PTextureImage(_dpy);
-      TextureHandler::instance()->referenceTexture(_icon);
-    }
+    PImageNativeIcon *image = new PImageNativeIcon(_dpy);
+    if (image->loadFromWindow(_window)) {
+        if (! _icon) {
+            _icon = new PTextureImage(_dpy);
+            TextureHandler::instance()->referenceTexture(_icon);
+        }
 
-    _icon->setImage(image);
+        _icon->setImage(image);
+    } else {
+        if (image) {
+            delete image;
+        }
 
-  } else {
-    if (image) {
-      delete image;
+        if (_icon) {
+            TextureHandler::instance()->returnTexture(_icon);
+            _icon = NULL;
+        }
     }
-    if (_icon) {
-      TextureHandler::instance()->returnTexture(_icon);
-      _icon = NULL;
-    }
-  }
 }
 
 //! @brief Tries to find a AutoProp for the current client.
@@ -897,21 +896,21 @@ Client::readIcon(void)
 AutoProperty*
 Client::readAutoprops(uint type)
 {
-  AutoProperty *data =
-    AutoProperties::instance()->findAutoProperty(_class_hint, _workspace, type);
+    AutoProperty *data =
+        AutoProperties::instance()->findAutoProperty(_class_hint, _workspace, type);
 
-  if (data) {
-    // Make sure transient state matches
-    if (_transient
-        ? data->isApplyOn(APPLY_ON_TRANSIENT|APPLY_ON_TRANSIENT_ONLY)
-        : ! data->isApplyOn(APPLY_ON_TRANSIENT_ONLY)) {
-      applyAutoprops(data);
-    } else {
-      data = NULL;
+    if (data) {
+        // Make sure transient state matches
+        if (_transient
+                ? data->isApplyOn(APPLY_ON_TRANSIENT|APPLY_ON_TRANSIENT_ONLY)
+                : ! data->isApplyOn(APPLY_ON_TRANSIENT_ONLY)) {
+            applyAutoprops(data);
+        } else {
+            data = NULL;
+        }
     }
-  }
 
-  return data;
+    return data;
 }
 
 //! @brief Applies AutoPropery to this Client.
@@ -987,48 +986,47 @@ Client::returnClientID(uint id)
 void
 Client::getXClientName(void)
 {
-  wstring title;
+    wstring title;
 
-  if (AtomUtil::getUtf8String(_window,
+    if (AtomUtil::getUtf8String(_window,
                               EwmhAtoms::instance()->getAtom(NET_WM_NAME),
                               title)) {
-  } else {
-    // read X11 property
-    XTextProperty text_property;
-    if ((XGetWMName(_dpy, _window, &text_property) == False) ||
-        (text_property.value == NULL) || (text_property.nitems == 0)){
-        return;
-    }
-
-    if (text_property.encoding == XA_STRING) {
-      string value(reinterpret_cast<const  char*>(text_property.value));
-      title = Util::to_wide_str(value);
-
     } else {
-      char **list;
-      int num;
+        // read X11 property
+        XTextProperty text_property;
+        if ((XGetWMName(_dpy, _window, &text_property) == False) ||
+                !text_property.value || (text_property.nitems == 0)){
+            return;
+        }
 
-      XmbTextPropertyToTextList(_dpy, &text_property, &list, &num);
-      if (list && (num > 0)) {
-        string value(*list);
-        title = Util::to_wide_str(value);
-        XFreeStringList(list);
-      }
+        if (text_property.encoding == XA_STRING) {
+            string value(reinterpret_cast<const  char*>(text_property.value));
+            title = Util::to_wide_str(value);
+        } else {
+            char **list;
+            int num;
+
+            XmbTextPropertyToTextList(_dpy, &text_property, &list, &num);
+            if (list && (num > 0)) {
+                string value(*list);
+                title = Util::to_wide_str(value);
+                XFreeStringList(list);
+            }
+        }
+
+        XFree(text_property.value);
     }
 
-    XFree(text_property.value);
-  }
+    // Mirror it on the visible
+    _title.setCustom(L"");
+    _title.setCount(titleFindID(title));
+    _title.setReal(title);
 
-  // Mirror it on the visible
-  _title.setCustom(L"");
-  _title.setCount(titleFindID(title));
-  _title.setReal(title);
-
-  // Apply title rules and find unique name, doesn't apply on
-  // user-set titles
-  if (titleApplyRule(title)) {
-    _title.setCustom(title);
-  }
+    // Apply title rules and find unique name, doesn't apply on
+    // user-set titles
+    if (titleApplyRule(title)) {
+        _title.setCustom(title);
+    }
 }
 
 //! @brief Searches for an TitleRule and if found, applies it
@@ -1056,7 +1054,7 @@ uint
 Client::titleFindID(std::wstring &title)
 {
     // Do not search for unique IDs if it is not enabled.
-    if (Config::instance()->getClientUniqueName() == false) {
+    if (!Config::instance()->getClientUniqueName()) {
         return 0;
     }
 
@@ -1396,7 +1394,7 @@ Client::getEwmhStates(NetWMStates &win_states)
              AtomUtil::getEwmhPropData(_window, EwmhAtoms::instance()->getAtom(STATE),
                                        XA_ATOM, num);
 
-    if (states != NULL) {
+    if (states) {
         EwmhAtoms *ewmh = EwmhAtoms::instance(); // convenience
 
         for (int i = 0; i < num; ++i) {
@@ -1528,8 +1526,8 @@ Client::getStrutHint(void)
                                       EwmhAtoms::instance()->getAtom(NET_WM_STRUT),
                                       XA_CARDINAL, num);
 
-    if (strut != NULL) {
-        if (_strut != NULL) {
+    if (strut) {
+        if (_strut) {
             PScreen::instance()->removeStrut(_strut);
         } else {
             _strut = new Strut();
@@ -1540,7 +1538,7 @@ Client::getStrutHint(void)
 
         XFree(strut);
 
-    } else if (_strut != NULL) {
+    } else if (_strut) {
         PScreen::instance()->removeStrut(_strut);
         delete _strut;
         _strut = NULL;
@@ -1551,11 +1549,10 @@ Client::getStrutHint(void)
 void
 Client::removeStrutHint(void)
 {
-    if (_strut == NULL)
+    if (!_strut)
         return;
 
     PScreen::instance()->removeStrut(_strut);
     delete _strut;
     _strut = NULL;
 }
-

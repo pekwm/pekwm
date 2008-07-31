@@ -37,7 +37,7 @@ ImageHandler::ImageHandler(void)
     : _free_on_return(false)
 {
 #ifdef DEBUG
-    if (_instance != NULL) {
+    if (_instance) {
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "ImageHandler(" << this << ")::ImageHandler()"
              << " *** _instance allready set: "

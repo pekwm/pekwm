@@ -57,43 +57,50 @@ Theme::PDecorButtonData::~PDecorButtonData(void)
 bool
 Theme::PDecorButtonData::load (CfgParser::Entry *op_section)
 {
-    if (*op_section == "LEFT")
+    if (*op_section == "LEFT") {
         _left = true;
-    else if (*op_section == "RIGHT")
+    } else if (*op_section == "RIGHT") {
         _left = false;
-    else
+    } else {
         return false;
-
+    }
+    
     op_section = op_section->get_section ();
 
     // Get actions.
     ActionEvent ae;
     CfgParser::Entry *op_it;
-    for (op_it = op_section->get_section_next (); op_it; op_it = op_it->get_section_next ())
-    {
-        if (Config::instance ()->parseActionEvent (op_it, ae, BUTTONCLICK_OK, true))
+    for (op_it = op_section->get_section_next (); op_it; op_it = op_it->get_section_next ()) {
+        if (Config::instance ()->parseActionEvent (op_it, ae, BUTTONCLICK_OK, true)) {
             _ae_list.push_back (ae);
+        }
     }
 
     // Got some actions, consider it to be a valid button.
-    if (_ae_list.size() > 0)
-    {
+    if (_ae_list.size() > 0) {
         TextureHandler *th = TextureHandler::instance();
         CfgParser::Entry *op_value;
 
         op_value = op_section->find_entry ("FOCUSED");
-        if (op_value)
+        if (op_value) {
             _texture[BUTTON_STATE_FOCUSED] = th->getTexture (op_value->get_value ());
+        }
+        
         op_value = op_section->find_entry ("UNFOCUSED");
-        if (op_value)
+        if (op_value) {
             _texture[BUTTON_STATE_UNFOCUSED] = th->getTexture (op_value->get_value ());
+        }
+        
         op_value = op_section->find_entry ("PRESSED");
-        if (op_value)
+        if (op_value) {
             _texture[BUTTON_STATE_PRESSED] = th->getTexture (op_value->get_value ());
+        }
+        
         op_value = op_section->find_entry ("HOOVER");
-        if (op_value)
+        if (op_value) {
             _texture[BUTTON_STATE_HOOVER] = th->getTexture (op_value->get_value ());
-
+        }
+        
         check ();
 
         return true;
@@ -117,7 +124,7 @@ void
 Theme::PDecorButtonData::check(void)
 {
     for (uint i = 0; i < BUTTON_STATE_NO; ++i) {
-        if (_texture[i] == NULL) {
+        if (!_texture[i]) {
             _texture[i] = TextureHandler::instance()->getTexture("EMPTY");
         }
     }
@@ -190,8 +197,7 @@ Theme::PDecorData::load (CfgParser::Entry *op_section)
     CfgParser::Entry *op_value;
 
     _name = op_section->get_value ();
-    if (!_name.size ())
-    {
+    if (!_name.size ()) {
         cerr << " *** WARNING: no name identifying decor" << endl;
         return false;
     }
@@ -200,8 +206,7 @@ Theme::PDecorData::load (CfgParser::Entry *op_section)
 
     CfgParser::Entry *op_sub, *op_sub_2;
     op_sub = op_section->find_section ("TITLE");
-    if (!op_sub)
-    {
+    if (!op_sub) {
         cerr << " *** WARNING: no title section in decor: " << _name << endl;
         return false;
     }
@@ -234,27 +239,24 @@ Theme::PDecorData::load (CfgParser::Entry *op_section)
     // Handle parsed data.
     _texture_main[FOCUSED_STATE_FOCUSED] = th->getTexture(o_value_focused);
     _texture_main[FOCUSED_STATE_UNFOCUSED] = th->getTexture(o_value_unfocused);
-    if (Util::splitString(o_value_pad, tok, " \t", 4) == 4)
-    {
+    if (Util::splitString(o_value_pad, tok, " \t", 4) == 4) {
         for (uint i = 0; i < PAD_NO; ++i)
             _pad[i] = strtol (tok[i].c_str (), NULL, 10);
     }
 
     op_sub_2 = op_sub->find_section ("TAB");
-    if (op_sub_2)
-    {
+    if (op_sub_2) {
         op_sub_2 = op_sub_2->get_section ();
-        for (uint i = 0; i < FOCUSED_STATE_NO; ++i)
-        {
+        for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
             op_value = op_sub_2->find_entry (_fs_map[FocusedState (i)]);
-            if (op_value)
+            if (op_value) {
                 _texture_tab[i] = th->getTexture (op_value->get_value ());
+            }
         }
     }
 
     op_sub_2 = op_sub->find_section ("SEPARATOR");
-    if (op_sub_2)
-    {
+    if (op_sub_2) {
         op_sub_2 = op_sub_2->get_section ();
 
         o_key_list.push_back (new CfgParserKeyString ("FOCUSED", o_value_focused,
@@ -279,28 +281,26 @@ Theme::PDecorData::load (CfgParser::Entry *op_section)
 
 
     op_sub_2 = op_sub->find_section ("FONT");
-    if (op_sub_2)
-    {
+    if (op_sub_2) {
         op_sub_2 = op_sub_2->get_section ();
-        for (uint i = 0; i < FOCUSED_STATE_NO; ++i)
-        {
+        for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
             op_value = op_sub_2->find_entry (_fs_map[FocusedState(i)]);
-            if (op_value)
+            if (op_value) {
                 _font[i] = FontHandler::instance()->getFont(op_value->get_value ());
+            }
         }
-    }
-    else
+    } else {
         cerr << " *** WARNING: no font section in decor: " << _name << endl;
+    }
 
     op_sub_2 = op_sub->find_section ("FONTCOLOR");
-    if (op_sub_2)
-    {
+    if (op_sub_2) {
         op_sub_2 = op_sub_2->get_section ();
-        for (uint i = 0; i < FOCUSED_STATE_NO; ++i)
-        {
+        for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
             op_value = op_sub_2->find_entry (_fs_map[FocusedState(i)]);
-            if (op_value)
+            if (op_value) {
                 _font_color[i] = FontHandler::instance()->getColor(op_value->get_value ());
+            }
         }
     }
 
@@ -367,8 +367,9 @@ Theme::PDecorData::check(void)
 void
 Theme::PDecorData::loadBorder (CfgParser::Entry *op_section)
 {
-    if (!op_section)
+    if (!op_section) {
         return;
+    }
     op_section = op_section->get_section ();
 
     TextureHandler *th = TextureHandler::instance(); // convenience
@@ -376,14 +377,11 @@ Theme::PDecorData::loadBorder (CfgParser::Entry *op_section)
     CfgParser::Entry *op_sub, *op_value;
 
     op_sub = op_section->find_section ("FOCUSED");
-    if (op_sub)
-    {
+    if (op_sub) {
         op_sub = op_sub->get_section ();
-        for (uint i = 0; i < BORDER_NO_POS; ++i)
-        {
+        for (uint i = 0; i < BORDER_NO_POS; ++i) {
             op_value = op_sub->find_entry (_border_map[BorderPosition (i)]);
-            if (op_value)
-            {
+            if (op_value) {
                 _texture_border[FOCUSED_STATE_FOCUSED][i] =
                     th->getTexture (op_value->get_value ());
             }
@@ -391,14 +389,11 @@ Theme::PDecorData::loadBorder (CfgParser::Entry *op_section)
     }
 
     op_sub = op_section->find_section ("UNFOCUSED");
-    if (op_sub)
-    {
+    if (op_sub) {
         op_sub = op_sub->get_section ();
-        for (uint i = 0; i < BORDER_NO_POS; ++i)
-        {
+        for (uint i = 0; i < BORDER_NO_POS; ++i) {
             op_value = op_sub->find_entry (_border_map[BorderPosition (i)]);
-            if (op_value)
-            {
+            if (op_value) {
                 _texture_border[FOCUSED_STATE_UNFOCUSED][i] =
                     th->getTexture (op_value->get_value ());
             }
@@ -410,17 +405,18 @@ Theme::PDecorData::loadBorder (CfgParser::Entry *op_section)
 void
 Theme::PDecorData::loadButtons (CfgParser::Entry *op_section)
 {
-    if (!op_section)
+    if (!op_section) {
         return;
+    }
     op_section = op_section->get_section ();
 
-    while ((op_section = op_section->get_section_next ()) != NULL)
-    {
+    while (op_section = op_section->get_section_next()) {
         Theme::PDecorButtonData *btn = new Theme::PDecorButtonData ();
-        if (btn->load (op_section))
+        if (btn->load (op_section)) {
             _button_list.push_back(btn);
-        else
+        } else {
             delete btn;
+        }
     }
 }
 
@@ -429,19 +425,19 @@ void
 Theme::PDecorData::checkTextures(void)
 {
     for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
-        if (_texture_tab[i] == NULL) {
+        if (!_texture_tab[i]) {
             cerr << " *** WARNING: " << _name << " missing tab texture state "
                  << _fs_map[FocusedState(i)] << endl;
             _texture_tab[i] = TextureHandler::instance()->getTexture("EMPTY");
         }
     }
     for (uint i = 0; i < FOCUSED_STATE_FOCUSED_SELECTED; ++i) {
-        if (_texture_main[i] == NULL) {
+        if (!_texture_main[i]) {
             cerr << " *** WARNING: " << _name << " missing main texture state "
                  << _fs_map[FocusedState(i)] << endl;
             _texture_main[i] = TextureHandler::instance()->getTexture("EMPTY");
         }
-        if (_texture_separator[i] == NULL) {
+        if (!_texture_separator[i]) {
             cerr << " *** WARNING: " << _name << " missing tab texture state "
                  << _fs_map[FocusedState(i)] << endl;
             _texture_separator[i] = TextureHandler::instance()->getTexture("EMPTY");
@@ -455,7 +451,7 @@ Theme::PDecorData::checkFonts(void)
 {
     // the only font that's "obligatory" is the standard focused font,
     // others are only used if availible so we only check the focused font.
-    if (_font[FOCUSED_STATE_FOCUSED] == NULL) {
+    if (!_font[FOCUSED_STATE_FOCUSED]) {
         cerr << " *** WARNING: " << _name << " missing font state "
              << _fs_map[FOCUSED_STATE_FOCUSED] << endl;
         _font[FOCUSED_STATE_FOCUSED] = FontHandler::instance()->getFont("");
@@ -468,7 +464,7 @@ Theme::PDecorData::checkBorder(void)
 {
     for (uint state = FOCUSED_STATE_FOCUSED; state < FOCUSED_STATE_FOCUSED_SELECTED; ++state) {
         for (uint i = 0; i < BORDER_NO_POS; ++i) {
-            if (_texture_border[state][i] == NULL) {
+            if (!_texture_border[state][i]) {
                 cerr << " *** WARNING: " << _name << " missing border texture "
                      << _border_map[BorderPosition(i)] << " "
                      << _fs_map[FocusedState(state)] << endl;
@@ -484,7 +480,7 @@ void
 Theme::PDecorData::checkColors(void)
 {
     for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
-        if (_font_color[i] == NULL) {
+        if (!_font_color[i]) {
             cerr << " *** WARNING: " << _name << " missing font color state "
                  << _fs_map[FocusedState(i)] << endl;
             _font_color[i] = FontHandler::instance()->getColor("#000000");
@@ -527,25 +523,29 @@ Theme::PMenuData::load(CfgParser::Entry *op_section)
 
     CfgParser::Entry *op_value;
     op_value = op_section->find_entry ("PAD");
-    if (op_value)
-    {
+    if (op_value) {
         vector<string> tok;
-        if (Util::splitString (op_value->get_value (), tok, " \t", 4) == 4)
-        {
-            for (int i = 0; i < PAD_NO; ++i)
+        if (Util::splitString (op_value->get_value (), tok, " \t", 4) == 4) {
+            for (int i = 0; i < PAD_NO; ++i) {
                 _pad[i] = strtol (tok[i].c_str(), NULL, 10);
+            }
         }
     }
 
     op_value = op_section->find_section ("FOCUSED");
-    if (op_value)
+    if (op_value) {
         loadState (op_value, OBJECT_STATE_FOCUSED);
+    }
+    
     op_value = op_section->find_section ("UNFOCUSED");
-    if (op_value)
+    if (op_value) {
         loadState (op_value, OBJECT_STATE_UNFOCUSED);
+    }
+    
     op_value = op_section->find_section ("SELECTED");
-    if (op_value)
+    if (op_value) {
         loadState (op_value, OBJECT_STATE_SELECTED);
+    }
 
     check();
 }
@@ -579,25 +579,25 @@ void
 Theme::PMenuData::check(void)
 {
     for (uint i = 0; i <= OBJECT_STATE_NO; ++i) {
-        if (_font[i] == NULL) {
+        if (!_font[i]) {
             _font[i] = FontHandler::instance()->getFont("");
         }
-        if (_color[i] == NULL) {
+        if (!_color[i]) {
             _color[i] = FontHandler::instance()->getColor("#000000");
         }
-        if (_tex_menu[i] == NULL) {
+        if (!_tex_menu[i]) {
             _tex_menu[i] = TextureHandler::instance()->getTexture("EMPTY");
         }
-        if (_tex_item[i] == NULL) {
+        if (!_tex_item[i]) {
             _tex_item[i] = TextureHandler::instance()->getTexture("EMPTY");
         }
-        if (_tex_arrow[i] == NULL) {
+        if (!_tex_arrow[i]) {
             _tex_arrow[i] = TextureHandler::instance()->getTexture("EMPTY");
         }
     }
 
     for (uint i = 0; i < OBJECT_STATE_NO; ++i) {
-        if (_tex_sep[i] == NULL) {
+        if (!_tex_sep[i]) {
             _tex_sep[i] = TextureHandler::instance()->getTexture("EMPTY");
         }
     }
@@ -642,8 +642,9 @@ Theme::PMenuData::loadState (CfgParser::Entry *op_section, ObjectState state)
     _tex_item[state] = th->getTexture (o_value_item);
     _color[state] = FontHandler::instance ()->getColor (o_value_text);
     _tex_arrow[state] = th->getTexture (o_value_arrow);
-    if (state < OBJECT_STATE_SELECTED)
+    if (state < OBJECT_STATE_SELECTED) {
         _tex_sep[state] = th->getTexture(o_value_separator);
+    }
 }
 
 // Theme::TextDialogData
@@ -692,10 +693,10 @@ Theme::TextDialogData::load (CfgParser::Entry *op_section)
     _tex = TextureHandler::instance ()->getTexture (o_value_texture);
 
     vector<string> tok;
-    if (Util::splitString (o_value_pad, tok, " \t", 4) == 4)
-    {
-        for (uint i = 0; i < PAD_NO; ++i)
+    if (Util::splitString (o_value_pad, tok, " \t", 4) == 4) {
+        for (uint i = 0; i < PAD_NO; ++i) {
             _pad[i] = strtol(tok[i].c_str(), NULL, 10);
+        }
     }
 
     check();
@@ -719,13 +720,13 @@ Theme::TextDialogData::unload(void)
 void
 Theme::TextDialogData::check(void)
 {
-    if (_font == NULL) {
+    if (!_font) {
         _font = FontHandler::instance()->getFont("");
     }
-    if (_color == NULL) {
+    if (!_color) {
         _color = FontHandler::instance()->getColor("#000000");
     }
-    if (_tex == NULL) {
+    if (!_tex) {
         _tex = TextureHandler::instance()->getTexture("EMPTY");
     }
 }
@@ -747,7 +748,7 @@ Theme::WorkspaceIndicatorData::WorkspaceIndicatorData(void)
  */
 Theme::WorkspaceIndicatorData::~WorkspaceIndicatorData(void)
 {
-  unload();
+    unload();
 }
 
 /**
@@ -756,31 +757,31 @@ Theme::WorkspaceIndicatorData::~WorkspaceIndicatorData(void)
 void
 Theme::WorkspaceIndicatorData::load(CfgParser::Entry *cs)
 {
-  cs = cs->get_section();
+    cs = cs->get_section();
 
-  list<CfgParserKey*> key_list;
+    list<CfgParserKey*> key_list;
 
-  string value_font, value_color, value_tex_bg;
-  string value_tex_ws, value_tex_ws_act;
+    string value_font, value_color, value_tex_bg;
+    string value_tex_ws, value_tex_ws_act;
 
-  key_list.push_back(new CfgParserKeyString("FONT", value_font));
-  key_list.push_back(new CfgParserKeyString("COLOR", value_color));
-  key_list.push_back(new CfgParserKeyString("BACKGROUND", value_tex_bg));
-  key_list.push_back(new CfgParserKeyString("WORKSPACE", value_tex_ws));
-  key_list.push_back(new CfgParserKeyString("WORKSPACEACTIVE", value_tex_ws_act));
-  key_list.push_back(new CfgParserKeyInt("EDGEPADDING", edge_padding, 5, 0));
-  key_list.push_back(new CfgParserKeyInt("WORKSPACEPADDING", workspace_padding, 2, 0));
+    key_list.push_back(new CfgParserKeyString("FONT", value_font));
+    key_list.push_back(new CfgParserKeyString("COLOR", value_color));
+    key_list.push_back(new CfgParserKeyString("BACKGROUND", value_tex_bg));
+    key_list.push_back(new CfgParserKeyString("WORKSPACE", value_tex_ws));
+    key_list.push_back(new CfgParserKeyString("WORKSPACEACTIVE", value_tex_ws_act));
+    key_list.push_back(new CfgParserKeyInt("EDGEPADDING", edge_padding, 5, 0));
+    key_list.push_back(new CfgParserKeyInt("WORKSPACEPADDING", workspace_padding, 2, 0));
 
-  cs->parse_key_values(key_list.begin(), key_list.end());
-  for_each (key_list.begin (), key_list.end (), Util::Free<CfgParserKey*>());  
+    cs->parse_key_values(key_list.begin(), key_list.end());
+    for_each (key_list.begin (), key_list.end (), Util::Free<CfgParserKey*>());  
 
-  font = FontHandler::instance()->getFont(value_font);
-  font_color = FontHandler::instance()->getColor(value_color);
-  texture_background = TextureHandler::instance()->getTexture(value_tex_bg);
-  texture_workspace = TextureHandler::instance()->getTexture(value_tex_ws);
-  texture_workspace_act = TextureHandler::instance()->getTexture(value_tex_ws_act);
+    font = FontHandler::instance()->getFont(value_font);
+    font_color = FontHandler::instance()->getColor(value_color);
+    texture_background = TextureHandler::instance()->getTexture(value_tex_bg);
+    texture_workspace = TextureHandler::instance()->getTexture(value_tex_ws);
+    texture_workspace_act = TextureHandler::instance()->getTexture(value_tex_ws_act);
 
-  check();
+    check();
 }
 
 /**
@@ -789,19 +790,19 @@ Theme::WorkspaceIndicatorData::load(CfgParser::Entry *cs)
 void
 Theme::WorkspaceIndicatorData::unload(void)
 {
-  FontHandler::instance()->returnFont(font);
-  FontHandler::instance()->returnColor(font_color);
-  TextureHandler::instance()->returnTexture(texture_background);
-  TextureHandler::instance()->returnTexture(texture_workspace);
-  TextureHandler::instance()->returnTexture(texture_workspace_act);
+    FontHandler::instance()->returnFont(font);
+    FontHandler::instance()->returnColor(font_color);
+    TextureHandler::instance()->returnTexture(texture_background);
+    TextureHandler::instance()->returnTexture(texture_workspace);
+    TextureHandler::instance()->returnTexture(texture_workspace_act);
 
-  font = 0;
-  font_color = 0;
-  texture_background = 0;
-  texture_workspace = 0;
-  texture_workspace_act = 0;
-  edge_padding = 0;
-  workspace_padding = 0;
+    font = 0;
+    font_color = 0;
+    texture_background = 0;
+    texture_workspace = 0;
+    texture_workspace_act = 0;
+    edge_padding = 0;
+    workspace_padding = 0;
 }
 
 /**
@@ -810,21 +811,25 @@ Theme::WorkspaceIndicatorData::unload(void)
 void
 Theme::WorkspaceIndicatorData::check(void)
 {
-  if (! font) {
-    font = FontHandler::instance()->getFont("Sans#Center#XFT");
-  }
-  if (! font_color) {
-    font_color = FontHandler::instance()->getColor("#000000");
-  }
-  if (! texture_background) {
-    texture_background = TextureHandler::instance()->getTexture("Solid #ffffff");
-  }
-  if (! texture_workspace) {
-    texture_workspace = TextureHandler::instance()->getTexture("Solid #cccccc");
-  }
-  if (! texture_workspace_act) {
-    texture_workspace_act = TextureHandler::instance()->getTexture("Solid #aaaaaa");
-  }
+    if (! font) {
+        font = FontHandler::instance()->getFont("Sans#Center#XFT");
+    }
+    
+    if (! font_color) {
+        font_color = FontHandler::instance()->getColor("#000000");
+    }
+    
+    if (! texture_background) {
+        texture_background = TextureHandler::instance()->getTexture("Solid #ffffff");
+    }
+    
+    if (! texture_workspace) {
+        texture_workspace = TextureHandler::instance()->getTexture("Solid #cccccc");
+    }
+    
+    if (! texture_workspace_act) {
+        texture_workspace_act = TextureHandler::instance()->getTexture("Solid #aaaaaa");
+    }
 }
 
 // Theme
@@ -867,30 +872,27 @@ Theme::~Theme(void)
 void
 Theme::load(const std::string &dir)
 {
-    if (_is_loaded)
+    if (_is_loaded) {
         unload();
-
+    }
+    
     CfgParser theme;
 
     _theme_dir = dir;
-    if (_theme_dir.size ())
-    {
-        if (_theme_dir.at (_theme_dir.size() - 1) != '/')
+    if (_theme_dir.size ()) {
+        if (_theme_dir.at (_theme_dir.size() - 1) != '/') {
             _theme_dir.append("/");
-    }
-    else
-    {
+        }
+    } else {
         cerr << " *** WARNING: empty theme directory name, using default." << endl;
         _theme_dir = DATADIR "/pekwm/themes/default/";
     }
 
     string theme_file = _theme_dir + string("theme");
-    if (!theme.parse (theme_file, CfgParserSource::SOURCE_FILE))
-    {
+    if (!theme.parse (theme_file, CfgParserSource::SOURCE_FILE)) {
         _theme_dir = DATADIR "/pekwm/themes/default/";
         theme_file = _theme_dir + string ("theme");
-        if (!theme.parse (theme_file, CfgParserSource::SOURCE_FILE))
-        {
+        if (!theme.parse (theme_file, CfgParserSource::SOURCE_FILE)) {
             cerr << " *** WARNING: couldn't load " << _theme_dir
                  << " or default theme." << endl;
         }
@@ -903,24 +905,22 @@ Theme::load(const std::string &dir)
 
     // Load decor data.
     op_section = theme.get_entry_root ()->find_section ("PDECOR");
-    if (op_section)
-    {
+    if (op_section) {
         // Get section data, don't need name or value.
         op_section = op_section->get_section ();
 
         //op_section = op_section->get_section ();
-        while ((op_section = op_section->get_section_next ()) != NULL)
-        {
+        while (op_section = op_section->get_section_next ()) {
             Theme::PDecorData *data = new Theme::PDecorData();
-            if (data->load (op_section))
+            if (data->load (op_section)) {
                 _pdecordata_map[data->getName()] = data;
-            else
+            } else {
                 delete data;
+            }
         }
     }
 
-    if (!getPDecorData ("DEFAULT"))
-    {
+    if (!getPDecorData ("DEFAULT")) {
         cerr << " *** WARNING: theme doesn't contain any DEFAULT decor." << endl;
 
         // Create DEFAULT decor, let check fill it up with empty but non-null data.
@@ -932,30 +932,27 @@ Theme::load(const std::string &dir)
 
     // Load menu data.
     op_section = theme.get_entry_root ()->find_section ("MENU");
-    if (op_section)
+    if (op_section) {
         _menu_data.load(op_section);
-    else
-    {
+    } else {
         cerr << " *** WARNING: missing menu section" << endl;
         _menu_data.check ();
     }
 
     // Load StatusWindow data.
     op_section = theme.get_entry_root ()->find_section ("STATUS");
-    if (op_section)
+    if (op_section) {
         _status_data.load (op_section);
-    else
-    {
+    } else {
         cerr << " *** WARNING: missing status section" << endl;
         _status_data.check ();
     }
 
     // Load CmdDialog data.
     op_section = theme.get_entry_root ()->find_section ("CMDDIALOG");
-    if (op_section)
+    if (op_section) {
         _cmd_d_data.load (op_section);
-    else
-    {
+    } else {
         cerr << " *** WARNING: missing cmddialog section" << endl;
         _cmd_d_data.check ();
     }
@@ -972,19 +969,18 @@ Theme::load(const std::string &dir)
 #ifdef HARBOUR
     // Load Harbour texture.
     op_section = theme.get_entry_root ()->find_section ("HARBOUR");
-    if (op_section)
-    {
+    if (op_section) {
         op_section = op_section->get_section ();
 
         op_value = op_section->find_entry ("TEXTURE");
-        if (op_value)
+        if (op_value) {
             _harbour_texture = TextureHandler::instance ()->getTexture (op_value->get_value ());
-    }
-    else
+        }
+    } else {
         cerr << " *** WARNING: missing harbour section" << endl;
-
-    if (!_harbour_texture)
-    {
+    }
+    
+    if (!_harbour_texture) {
         cerr << " *** WARNING: missing harbour texture" << endl;
         _harbour_texture = TextureHandler::instance ()->getTexture("EMPTY");
     }

@@ -70,7 +70,7 @@ Config::Config(void) :
         _harbour_head_nr(0)
 #endif // HARBOUR
 {
-    if (_instance != NULL) {
+    if (_instance) {
         throw string("Config, trying to create multiple instances");
     }
     _instance = this;
@@ -346,35 +346,34 @@ Config::load(const std::string &config_file)
     _config_file = config_file;
 
     // Try loading command line specified file.
-    if (_config_file.size ())
-    {
+    if (_config_file.size ()) {
         success = cfg.parse (config_file, CfgParserSource::SOURCE_FILE);
-        if (success)
+        if (success) {
             file_success = config_file;
+        }
     }
 
     // Try loading ~/.pekwm/config
-    if (!success)
-    {
+    if (!success) {
         _config_file = string(getenv("HOME")) + string("/.pekwm/config");
         success = cfg.parse (_config_file, CfgParserSource::SOURCE_FILE);
-        if (success)
+        if (success) {
             file_success = _config_file;
+        }
     }
 
     // Copy cfg files to ~/.pekwm and then try loading global config
-    if (!success)
-    {
+    if (!success) {
         copyConfigFiles();
 
         _config_file = string(SYSCONFDIR "/config");
         success = cfg.parse (_config_file, CfgParserSource::SOURCE_FILE);
-        if (success)
+        if (success) {
             file_success = _config_file;
+        }
     }
 
-    if (!success)
-    {
+    if (!success) {
         cerr << " *** WARNING: unable to load configuration files!" << endl;
         return;
     }
@@ -542,20 +541,20 @@ Config::loadScreen(CfgParser::Entry *op_section)
     int edge_size_all = 0;
     _screen_edge_sizes.clear();
     if (edge_size.size()) {
-      vector<string> sizes;
-      if (Util::splitString(edge_size, sizes, " \t", 4) == 4) {
-        for (vector<string>::iterator it(sizes.begin()); it != sizes.end(); ++it) {
-          _screen_edge_sizes.push_back(strtol(it->c_str(), NULL, 10));
+        vector<string> sizes;
+        if (Util::splitString(edge_size, sizes, " \t", 4) == 4) {
+            for (vector<string>::iterator it(sizes.begin()); it != sizes.end(); ++it) {
+                _screen_edge_sizes.push_back(strtol(it->c_str(), NULL, 10));
+            }
+        } else {
+            edge_size_all = strtol(edge_size.c_str(), NULL, 10);
         }
-      } else {
-        edge_size_all = strtol(edge_size.c_str(), NULL, 10);
-      }
     }
 
     if (! _screen_edge_sizes.size()) {
-      for (uint i = 0; i < SCREEN_EDGE_NO; ++i) {
-        _screen_edge_sizes.push_back(edge_size_all);
-      }
+        for (uint i = 0; i < SCREEN_EDGE_NO; ++i) {
+            _screen_edge_sizes.push_back(edge_size_all);
+        }
     }
     // Add SCREEN_EDGE_NO to the list for safety
     _screen_edge_sizes.push_back(0);
@@ -565,10 +564,10 @@ Config::loadScreen(CfgParser::Entry *op_section)
 
     vector<string> vs;
     if (Util::splitString(workspace_names, vs, ";")) {
-      vector<string>::iterator vs_it(vs.begin());
-      for (; vs_it != vs.end(); ++vs_it) {
-        _screen_workspace_names.push_back(Util::to_wide_str(*vs_it));
-      }
+        vector<string>::iterator vs_it(vs.begin());
+        for (; vs_it != vs.end(); ++vs_it) {
+            _screen_workspace_names.push_back(Util::to_wide_str(*vs_it));
+        }
     }
 
     CfgParser::Entry *op_sub = op_section->find_section ("PLACEMENT");
@@ -1054,23 +1053,25 @@ Config::parseActionEvent(CfgParser::Entry *op_section, ActionEvent &ae,
     CfgParser::Entry *op_value;
 
     string o_button = op_section->get_value ();
-    if (!o_button.size())
-    {
-        if ((ae.type == MOUSE_EVENT_ENTER) || (ae.type == MOUSE_EVENT_LEAVE))
+    if (!o_button.size()) {
+        if ((ae.type == MOUSE_EVENT_ENTER) || (ae.type == MOUSE_EVENT_LEAVE)) {
             o_button = "1";
-        else
+        } else {
             return false;
+        }
     }
 
     bool ok;
-    if (button)
+    if (button) {
         ok = parseButton (o_button, ae.mod, ae.sym);
-    else
+    } else {
         ok = parseKey (o_button, ae.mod, ae.sym);
-
+    }
+    
     op_value = op_section->get_section ()->find_entry ("ACTIONS");
-    if (ok && op_value)
+    if (ok && op_value) {
         return parseActions (op_value->get_value (), ae, mask);
+    }
     return false;
 }
 
@@ -1082,15 +1083,12 @@ Config::parseMoveResizeAction(const std::string &action_string, Action &action)
 
     // Chop the string up separating the actions.
     tok.clear();
-    if (Util::splitString(action_string, tok, " \t", 2))
-    {
+    if (Util::splitString(action_string, tok, " \t", 2)) {
         action.setAction(ParseUtil::getValue<MoveResizeActionType>(tok[0],
                          _moveresize_map));
-        if (action.getAction() != NO_MOVERESIZE_ACTION)
-        {
+        if (action.getAction() != NO_MOVERESIZE_ACTION) {
             if (tok.size() == 2) { // we got enough tok for a paremeter
-                switch (action.getAction())
-                {
+                switch (action.getAction()) {
                 case MOVE_HORIZONTAL:
                 case MOVE_VERTICAL:
                 case RESIZE_HORIZONTAL:
@@ -1144,14 +1142,15 @@ Config::parseMoveResizeEvent(CfgParser::Entry *op_section, ActionEvent& ae)
 {
     CfgParser::Entry *op_value;
 
-    if (!op_section->get_value ().size ())
+    if (!op_section->get_value ().size ()) {
         return false;
-
-    if (parseKey (op_section->get_value (), ae.mod, ae.sym))
-    {
+    }
+    
+    if (parseKey (op_section->get_value (), ae.mod, ae.sym)) {
         op_value = op_section->get_section ()->find_entry ("ACTIONS");
-        if (op_value)
+        if (op_value) {
             return parseMoveResizeActions (op_value->get_value (), ae);
+        }
     }
 
     return false;
@@ -1198,14 +1197,15 @@ Config::parseInputDialogEvent (CfgParser::Entry *op_section, ActionEvent &ae)
 {
     CfgParser::Entry *op_value;
 
-    if (!op_section->get_value ().size ())
+    if (!op_section->get_value ().size ()) {
         return false;
-
-    if (parseKey (op_section->get_value (), ae.mod, ae.sym))
-    {
+    }
+    
+    if (parseKey (op_section->get_value (), ae.mod, ae.sym)) {
         op_value = op_section->get_section ()->find_entry ("ACTIONS");
-        if (op_value)
+        if (op_value) {
             return parseInputDialogActions(op_value->get_value (), ae);
+        }
     }
 
     return false;
@@ -1221,11 +1221,11 @@ Config::getMenuMask (const std::string &mask)
     Util::splitString (mask, tok, " \t");
 
     vector<string>::iterator it (tok.begin ());
-    for (; it != tok.end(); ++it)
-    {
+    for (; it != tok.end(); ++it) {
         val = ParseUtil::getValue<MouseEventType> (*it, _mouse_event_map);
-        if (val < MOUSE_EVENT_ENTER)
+        if (val < MOUSE_EVENT_ENTER) {
             mask_return |= val;
+        }
     }
     return mask_return;
 }
@@ -1282,14 +1282,15 @@ Config::parseMenuEvent (CfgParser::Entry *op_section, ActionEvent& ae)
 {
     CfgParser::Entry *op_value;
 
-    if (!op_section->get_value ().size ())
+    if (!op_section->get_value ().size ()) {
         return false;
+    }
 
-    if (parseKey (op_section->get_value (), ae.mod, ae.sym))
-    {
+    if (parseKey (op_section->get_value (), ae.mod, ae.sym)) {
         op_value = op_section->get_section ()->find_entry ("ACTIONS");
-        if (op_value)
+        if (op_value) {
             return parseMenuActions (op_value->get_value (), ae);
+        }
     }
 
     return false;
@@ -1423,7 +1424,7 @@ Config::copyTextFile(const std::string &from, const std::string &to)
     }
 
     ifstream stream_from(from.c_str());
-    if (stream_from.good() == false) {
+    if (!stream_from.good()) {
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "Can't copy: " << from << " to: " << to << endl
              << "Shutting down" << endl;
@@ -1431,7 +1432,7 @@ Config::copyTextFile(const std::string &from, const std::string &to)
     }
 
     ofstream stream_to(to.c_str());
-    if (stream_to.good() == false) {
+    if (!stream_to.good()) {
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "Can't copy: " << from << " to: " << to << endl;
     }
@@ -1443,68 +1444,71 @@ Config::copyTextFile(const std::string &from, const std::string &to)
 void
 Config::loadMouseConfig(const std::string &file)
 {
-    if (!file.size())
+    if (!file.size()) {
         return;
-
+    }
+    
     CfgParser mouse_cfg;
 
     bool success = mouse_cfg.parse (file, CfgParserSource::SOURCE_FILE);
-    if (!success)
+    if (!success) {
         success = mouse_cfg.parse (string(SYSCONFDIR "/mouse"),
                                    CfgParserSource::SOURCE_FILE);
-
-    if (!success)
+    }
+    
+    if (!success) {
         return;
+    }
 
     // Make sure old actions get unloaded.
     map<MouseActionListName, list<ActionEvent>* >::iterator it;
-    for (it = _mouse_action_map.begin (); it != _mouse_action_map.end (); ++it)
+    for (it = _mouse_action_map.begin (); it != _mouse_action_map.end (); ++it) {
         it->second->clear ();
+    }
 
     CfgParser::Entry *op_section, *op_sub;
 
     op_section = mouse_cfg.get_entry_root ()->find_section ("FRAMETITLE");
-    if (op_section)
-    {
+    if (op_section) {
         parseButtons (op_section,
                       _mouse_action_map[MOUSE_ACTION_LIST_TITLE_FRAME], FRAME_OK);
     }
+
     op_section = mouse_cfg.get_entry_root ()->find_section ("OTHERTITLE");
-    if (op_section)
-    {
+    if (op_section) {
         parseButtons(op_section,
                      _mouse_action_map[MOUSE_ACTION_LIST_TITLE_OTHER], FRAME_OK);
     }
+    
     op_section = mouse_cfg.get_entry_root ()->find_section ("CLIENT");
-    if (op_section)
-    {
+    if (op_section) {
         parseButtons (op_section,
                       _mouse_action_map[MOUSE_ACTION_LIST_CHILD_FRAME], CLIENT_OK);
     }
+    
     op_section = mouse_cfg.get_entry_root ()->find_section ("ROOT");
-    if (op_section)
-    {
+    if (op_section) {
         parseButtons(op_section,
                      _mouse_action_map[MOUSE_ACTION_LIST_ROOT], ROOTCLICK_OK);
     }
+    
     op_section = mouse_cfg.get_entry_root ()->find_section ("MENU");
-    if (op_section)
-    {
+    if (op_section) {
         parseButtons (op_section,
                       _mouse_action_map[MOUSE_ACTION_LIST_MENU], FRAME_OK);
     }
+    
     op_section = mouse_cfg.get_entry_root ()->find_section ("OTHER");
-    if (op_section)
-    {
+    if (op_section) {
         parseButtons (op_section,
                       _mouse_action_map[MOUSE_ACTION_LIST_OTHER], FRAME_OK);
     }
+    
     op_section = mouse_cfg.get_entry_root ()->find_section ("SCREENEDGE");
-    if (op_section)
-    {
+    if (op_section) {
         op_section = op_section->get_section ();
         uint pos;
-        for (op_sub = op_section->get_section_next (); op_sub != NULL; op_sub = op_sub->get_section_next ())
+        for (op_sub = op_section->get_section_next (); op_sub; op_sub = op_sub->get_section_next ())
         {
             pos = ParseUtil::getValue<DirectionType>(op_sub->get_name (),
                     _direction_map);
@@ -1513,17 +1517,17 @@ Config::loadMouseConfig(const std::string &file)
                 parseButtons (op_sub, getEdgeListFromPosition (pos), SCREEN_EDGE_OK);
         }
     }
+    
     op_section = mouse_cfg.get_entry_root ()->find_section ("BORDER");
-    if (op_section)
-    {
+    if (op_section) {
         op_section = op_section->get_section ();
         uint pos;
-        for (op_sub = op_section->get_section_next (); op_sub; op_sub = op_sub->get_section_next ())
-        {
+        for (op_sub = op_section->get_section_next (); op_sub; op_sub = op_sub->get_section_next ()) {
             pos = ParseUtil::getValue<BorderPosition>(op_sub->get_name(),
                     _borderpos_map);
-            if (pos != BORDER_NO_POS)
+            if (pos != BORDER_NO_POS) {
                 parseButtons(op_sub, getBorderListFromPosition (pos), FRAME_BORDER_OK);
+            }
         }
     }
 }
@@ -1540,25 +1544,26 @@ Config::parseButtons(CfgParser::Entry *op_section,
     ActionEvent ae;
     CfgParser::Entry *op_value;
 
-    while ((op_section = op_section->get_section_next ()) != NULL)
-    {
+    while (op_section = op_section->get_section_next()) {
         ae.type = ParseUtil::getValue<MouseEventType>(op_section->get_name (),
                   _mouse_event_map);
 
-        if (ae.type == MOUSE_EVENT_NO)
+        if (ae.type == MOUSE_EVENT_NO) {
             continue;
-
-        if (ae.type == MOUSE_EVENT_MOTION)
-        {
-            op_value = op_section->get_section ()->find_entry ("THRESHOLD");
-            if (op_value)
-                ae.threshold = strtol (op_value->get_value ().c_str (), NULL, 10);
-            else
-                ae.threshold = 0;
         }
 
-        if (parseActionEvent (op_section, ae, action_ok, true))
+        if (ae.type == MOUSE_EVENT_MOTION) {
+            op_value = op_section->get_section ()->find_entry ("THRESHOLD");
+            if (op_value) {
+                ae.threshold = strtol (op_value->get_value ().c_str (), NULL, 10);
+            } else {
+                ae.threshold = 0;
+            }
+        }
+
+        if (parseActionEvent (op_section, ae, action_ok, true)) {
             mouse_list->push_back(ae);
+        }
     }
 }
 
@@ -1627,27 +1632,27 @@ Config::getEdgeListFromPosition(uint pos)
 int
 Config::parseWorkspaceNumber(const std::string &workspace)
 {
-  // Get workspace looking for relative numbers
-  uint num = ParseUtil::getValue<WorkspaceChangeType>(workspace, _workspace_change_map);
+    // Get workspace looking for relative numbers
+    uint num = ParseUtil::getValue<WorkspaceChangeType>(workspace, _workspace_change_map);
 
-  if (num == WORKSPACE_NO) {
-    // Workspace isn't relative, check for 2x2 and ordinary specification
-    vector<string> tok;
-    if (Util::splitString(workspace, tok, "x", 2) == 2) {
-      uint row = strtol(tok[0].c_str(), NULL, 10) - 1;
-      uint col = strtol(tok[1].c_str(), NULL, 10) - 1;
+    if (num == WORKSPACE_NO) {
+        // Workspace isn't relative, check for 2x2 and ordinary specification
+        vector<string> tok;
+        if (Util::splitString(workspace, tok, "x", 2) == 2) {
+            uint row = strtol(tok[0].c_str(), NULL, 10) - 1;
+            uint col = strtol(tok[1].c_str(), NULL, 10) - 1;
 
-      num = _screen_workspaces_per_row * row + col;
+            num = _screen_workspaces_per_row * row + col;
 
-    } else {
-      num = strtol(workspace.c_str(), NULL, 10) - 1;
+        } else {
+            num = strtol(workspace.c_str(), NULL, 10) - 1;
+        }
     }
-  }
 
-  // Fallback to 0 if something went wrong
-  if (num < 0) {
-    num = 0;
-  }
+    // Fallback to 0 if something went wrong
+    if (num < 0) {
+        num = 0;
+    }
 
-  return num;
+    return num;
 }

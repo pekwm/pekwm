@@ -80,7 +80,7 @@ PTextureSolid::setColor(const std::string &color)
 void
 PTextureSolid::unsetColor(void)
 {
-    if (_xc != NULL) {
+    if (_xc) {
         ColorHandler::instance()->returnColor(_xc);
 
         _xc = NULL;

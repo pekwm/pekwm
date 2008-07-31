@@ -52,7 +52,7 @@ WORefMenu::setWORef(PWinObj *wo)
     wstring title(_title_base);
 
     // if of client type, add the clients named to the title
-    if ((_wo_ref != NULL) && (_wo_ref->getType() == PWinObj::WO_CLIENT)) {
+    if (_wo_ref && (_wo_ref->getType() == PWinObj::WO_CLIENT)) {
         Client *client = static_cast<Client*>(wo);
         title += _title_pre + client->getTitle()->getVisible() + _title_post;
     }

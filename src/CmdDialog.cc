@@ -51,9 +51,10 @@ ActionEvent*
 CmdDialog::exec(void)
 {
     _hist_list.push_back(_buf);
-    if (_hist_list.size() > 10) // FIXME: make configurable
+    if (_hist_list.size() > 10) { // FIXME: make configurable
         _hist_list.pop_front();
-
+    }
+    
     // Check if it's a valid Action, if not we assume it's a command and try
     // to execute it.
     string buf_mb(Util::to_mb_str(_buf));
@@ -87,7 +88,7 @@ CmdDialog::complete(void)
 void
 CmdDialog::mapCentered(const std::string &buf, bool focus, PWinObj *wo_ref)
 {
-  _wo_ref = wo_ref ? wo_ref : _wo_ref;
+    _wo_ref = wo_ref ? wo_ref : _wo_ref;
 
-  InputDialog::mapCentered(buf, focus, wo_ref);
+    InputDialog::mapCentered(buf, focus, wo_ref);
 }

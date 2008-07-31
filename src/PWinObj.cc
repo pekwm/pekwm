@@ -68,7 +68,7 @@ PWinObj::removeChildWindow(Window win)
 void
 PWinObj::mapWindow(void)
 {
-    if (_mapped == true) {
+    if (_mapped) {
         return;
     }
     _mapped = true;
@@ -81,7 +81,7 @@ PWinObj::mapWindow(void)
 void
 PWinObj::mapWindowRaised(void)
 {
-    if (_mapped == true) {
+    if (_mapped) {
         return;
     }
     _mapped = true;
@@ -94,8 +94,10 @@ PWinObj::mapWindowRaised(void)
 void
 PWinObj::unmapWindow(void)
 {
-    if (!_mapped)
+    if (!_mapped) {
         return;
+    }
+    
     _mapped = false;
 
     // Make sure unmapped windows drops focus
@@ -108,8 +110,10 @@ PWinObj::unmapWindow(void)
 void
 PWinObj::iconify(void)
 {
-    if (_iconified)
+    if (_iconified) {
         return;
+    }
+    
     _iconified = true;
 }
 
@@ -217,7 +221,7 @@ PWinObj::setHidden(bool hidden)
 bool
 PWinObj::giveInputFocus(void)
 {
-    if ((_mapped == false) || (_focusable == false)) {
+    if (!_mapped  || !_focusable) {
 #ifdef DEBUG
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "PWinObj(" << this << ")::giveInputFocus()" << endl
@@ -246,7 +250,7 @@ PWinObj::reparent(PWinObj *wo, int x, int y)
 bool
 PWinObj::getSizeRequest(Geometry &request)
 {
-  return false;
+    return false;
 }
 
 //! @brief Adds PWinObj to _wo_list.

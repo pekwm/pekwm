@@ -48,14 +48,12 @@ PImageNativeLoaderPng::load(const std::string &file, uint &width, uint &height,
     FILE *fp;
 
     fp = fopen (file.c_str (), "rb");
-    if (!fp)
-    {
+    if (!fp) {
         cerr << " *** WARNING: unable to open " << file << " for reading!" << endl;
         return NULL;
     }
 
-    if (!checkSignature (fp))
-    {
+    if (!checkSignature (fp)) {
         cerr << " *** WARNING: " << file << " not a PNG file!" << endl;
         fclose (fp);
         return NULL;
@@ -66,15 +64,14 @@ PImageNativeLoaderPng::load(const std::string &file, uint &width, uint &height,
     png_infop info_ptr;
 
     png_ptr = png_create_read_struct (PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    if (!png_ptr)
-    {
+    if (!png_ptr) {
         cerr << " *** ERROR: out of memory, png_create_read_struct failed!" << endl;
         fclose (fp);
         return NULL;
     }
+    
     info_ptr = png_create_info_struct (png_ptr);
-    if (!info_ptr)
-    {
+    if (!info_ptr) {
         cerr << " *** ERROR: out of memory, png_create_info_struct failed!" << endl;
         png_destroy_read_struct (&png_ptr, NULL, NULL);
         fclose (fp);
@@ -82,8 +79,7 @@ PImageNativeLoaderPng::load(const std::string &file, uint &width, uint &height,
     }
 
     // Setup error handling.
-    if (setjmp (png_jmpbuf (png_ptr)))
-    {
+    if (setjmp (png_jmpbuf (png_ptr))) {
         png_destroy_read_struct (&png_ptr, &info_ptr, NULL);
         fclose (fp);
         return NULL;
@@ -105,19 +101,22 @@ PImageNativeLoaderPng::load(const std::string &file, uint &width, uint &height,
     // 16 bit RGB(A)
 
     // palette -> RGB mode
-    if (color_type == PNG_COLOR_TYPE_PALETTE)
+    if (color_type == PNG_COLOR_TYPE_PALETTE) {
         png_set_palette_to_rgb(png_ptr);
-
+    }
+    
     // gray -> 8 bit gray
-    if (color_type == PNG_COLOR_TYPE_GRAY && (bpp < 8))
+    if (color_type == PNG_COLOR_TYPE_GRAY && (bpp < 8)) {
         png_set_gray_1_2_4_to_8 (png_ptr);
+    }
 
-    if (png_get_valid (png_ptr, info_ptr, PNG_INFO_tRNS))
+    if (png_get_valid (png_ptr, info_ptr, PNG_INFO_tRNS)) {
         png_set_tRNS_to_alpha (png_ptr);
-
-    if (bpp == 16)
+    }
+    
+    if (bpp == 16) {
         png_set_strip_16 (png_ptr);
-
+    }
     // gray, gray alpha -> to RGB
     if ((color_type == PNG_COLOR_TYPE_GRAY)
             || (color_type == PNG_COLOR_TYPE_GRAY_ALPHA))

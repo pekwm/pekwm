@@ -123,7 +123,7 @@ public:
 
         //! @brief Returns PFont used in FocusedState state.
         inline PFont *getFont(FocusedState state) const {
-            return _font[((state == FOCUSED_STATE_NO) || (_font[state] == NULL))
+            return _font[((state == FOCUSED_STATE_NO) || !_font[state])
                          ? FOCUSED_STATE_FOCUSED : state];
         }
         //! @brief Return PFont::Color used in FocusedState state.

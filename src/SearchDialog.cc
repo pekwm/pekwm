@@ -29,7 +29,7 @@ using std::wcerr;
 SearchDialog::SearchDialog(Display *dpy, Theme *theme)
   : InputDialog(dpy, theme, L"Search")
 {
-  _type = PWinObj::WO_SEARCH_DIALOG;
+    _type = PWinObj::WO_SEARCH_DIALOG;
 }
 
 /**
@@ -38,10 +38,10 @@ SearchDialog::SearchDialog(Display *dpy, Theme *theme)
 void
 SearchDialog::bufChanged(void)
 {
-  InputDialog::bufChanged();
+    InputDialog::bufChanged();
 
-  // FIXME: Update list of clients
-  findClients(_buf);
+    // FIXME: Update list of clients
+    findClients(_buf);
 }
 
 /**
@@ -51,9 +51,9 @@ SearchDialog::bufChanged(void)
 ActionEvent*
 SearchDialog::exec(void)
 {
-  // FIXME: Implement exec
+    // FIXME: Implement exec
 
-  return 0;
+    return 0;
 }
 
 /**
@@ -65,22 +65,22 @@ SearchDialog::exec(void)
 uint
 SearchDialog::findClients(const std::wstring &search)
 {
-  // FIXME: Clear previous matches
+    // FIXME: Clear previous matches
 
-  if (search.size() > 0) {
-    RegexString search_re(search);
-    if (! search_re.is_match_ok()) {
-      return 0;
+    if (search.size() > 0) {
+        RegexString search_re(search);
+        if (! search_re.is_match_ok()) {
+            return 0;
+        }
+
+        list<Client*> matches;
+        list<Client*>::iterator it(Client::client_begin());
+        for (; it != Client::client_end(); ++it) {
+            if (search_re == (*it)->getTitle()->getReal()) {
+                matches.push_back(*it);
+            }
+        }
     }
 
-    list<Client*> matches;
-    list<Client*>::iterator it(Client::client_begin());
-    for (; it != Client::client_end(); ++it) {
-      if (search_re == (*it)->getTitle()->getReal()) {
-        matches.push_back(*it);
-      }
-    }
-  }
-
-  return 0;
+    return 0;
 }

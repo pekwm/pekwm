@@ -30,18 +30,17 @@ WorkspaceIndicator::Display::Display(::Display *dpy, PWinObj *parent, Theme *the
   : PWinObj(dpy),
     _theme(theme), _pixmap(None)
 {
-  _parent = parent;
-  // Do not give the indicator focus, it doesn't handle input
-  _focusable = false;
+    _parent = parent;
+    // Do not give the indicator focus, it doesn't handle input
+    _focusable = false;
 
-  XSetWindowAttributes attr;
-  attr.override_redirect = false;
-  attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
-    FocusChangeMask|KeyPressMask|KeyReleaseMask;
-  _window = XCreateWindow(_dpy, _parent->getWindow(), 0, 0, 1, 1, 0,
-                          CopyFromParent, InputOutput, CopyFromParent,
-                          CWOverrideRedirect|CWEventMask, &attr);
-
+    XSetWindowAttributes attr;
+    attr.override_redirect = false;
+    attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
+                    FocusChangeMask|KeyPressMask|KeyReleaseMask;
+    _window = XCreateWindow(_dpy, _parent->getWindow(), 0, 0, 1, 1, 0,
+                            CopyFromParent, InputOutput, CopyFromParent,
+                            CWOverrideRedirect|CWEventMask, &attr);
 }
 
 /**
@@ -49,8 +48,8 @@ WorkspaceIndicator::Display::Display(::Display *dpy, PWinObj *parent, Theme *the
  */
 WorkspaceIndicator::Display::~Display(void)
 {
-  XDestroyWindow(_dpy, _window);
-  ScreenResources::instance()->getPixmapHandler()->returnPixmap(_pixmap);
+    XDestroyWindow(_dpy, _window);
+    ScreenResources::instance()->getPixmapHandler()->returnPixmap(_pixmap);
 }
 
 /**
@@ -59,18 +58,18 @@ WorkspaceIndicator::Display::~Display(void)
 bool
 WorkspaceIndicator::Display::getSizeRequest(Geometry &gm)
 {
-  Geometry head;
-  uint head_nr = PScreen::instance()->getNearestHead(_parent->getX(), _parent->getY());
-  PScreen::instance()->getHeadInfo(head_nr, head);
+    Geometry head;
+    uint head_nr = PScreen::instance()->getNearestHead(_parent->getX(), _parent->getY());
+    PScreen::instance()->getHeadInfo(head_nr, head);
 
-  Theme::WorkspaceIndicatorData &data(_theme->getWorkspaceIndicatorData());
+    Theme::WorkspaceIndicatorData &data(_theme->getWorkspaceIndicatorData());
 
-  uint head_size = std::min(head.width, head.height) / Config::instance()->getWorkspaceIndicatorScale();
-  gm.x = gm.y = 0;
-  gm.width = head_size * Workspaces::instance()->getPerRow() + data.edge_padding * 2;
-  gm.height = head_size * Workspaces::instance()->getRows() + data.edge_padding * 3 + data.font->getHeight();
+    uint head_size = std::min(head.width, head.height) / Config::instance()->getWorkspaceIndicatorScale();
+    gm.x = gm.y = 0;
+    gm.width = head_size * Workspaces::instance()->getPerRow() + data.edge_padding * 2;
+    gm.height = head_size * Workspaces::instance()->getRows() + data.edge_padding * 3 + data.font->getHeight();
 
-  return true;
+    return true;
 }
 
 /**
@@ -79,30 +78,30 @@ WorkspaceIndicator::Display::getSizeRequest(Geometry &gm)
 void
 WorkspaceIndicator::Display::render(void)
 {
-  Theme::WorkspaceIndicatorData &data(_theme->getWorkspaceIndicatorData());
+    Theme::WorkspaceIndicatorData &data(_theme->getWorkspaceIndicatorData());
 
-  // Make sure pixmap has correct size
-  ScreenResources::instance()->getPixmapHandler()->returnPixmap(_pixmap);
-  _pixmap = ScreenResources::instance()->getPixmapHandler()->getPixmap(_gm.width, _gm.height,
-                                                                       PScreen::instance()->getDepth());
+    // Make sure pixmap has correct size
+    ScreenResources::instance()->getPixmapHandler()->returnPixmap(_pixmap);
+    _pixmap = ScreenResources::instance()->getPixmapHandler()->getPixmap(_gm.width, _gm.height,
+                                                                        PScreen::instance()->getDepth());
 
-  // Render background
-  data.texture_background->render(_pixmap, 0, 0, _gm.width, _gm.height);
+    // Render background
+    data.texture_background->render(_pixmap, 0, 0, _gm.width, _gm.height);
 
-  // Render workspace grid, then active workspace fill and end with
-  // rendering active workspace number and name
-  renderWorkspaces(data.edge_padding, data.edge_padding,
-                   _gm.width - data.edge_padding * 2,
-                   _gm.height - data.edge_padding * 3 - data.font->getHeight());
+    // Render workspace grid, then active workspace fill and end with
+    // rendering active workspace number and name
+    renderWorkspaces(data.edge_padding, data.edge_padding,
+                     _gm.width - data.edge_padding * 2,
+                     _gm.height - data.edge_padding * 3 - data.font->getHeight());
 
-  data.font->setColor(data.font_color);
-  data.font->draw(_pixmap, data.edge_padding, _gm.height - data.edge_padding - data.font->getHeight(),
-                  Workspaces::instance()->getActiveWorkspace()->getName(),
-                  0 /* max_chars */, _gm.width - data.edge_padding * 2 /* max_width */);
+    data.font->setColor(data.font_color);
+    data.font->draw(_pixmap, data.edge_padding, _gm.height - data.edge_padding - data.font->getHeight(),
+                     Workspaces::instance()->getActiveWorkspace()->getName(),
+                     0 /* max_chars */, _gm.width - data.edge_padding * 2 /* max_width */);
 
-  // Refresh
-  setBackgroundPixmap(_pixmap);
-  clear();
+    // Refresh
+    setBackgroundPixmap(_pixmap);
+    clear();
 }
 
 /**
@@ -116,34 +115,34 @@ WorkspaceIndicator::Display::render(void)
 void
 WorkspaceIndicator::Display::renderWorkspaces(int x, int y, uint width, uint height)
 {
-  Theme::WorkspaceIndicatorData &data(_theme->getWorkspaceIndicatorData());
+    Theme::WorkspaceIndicatorData &data(_theme->getWorkspaceIndicatorData());
 
-  uint per_row = Workspaces::instance()->getPerRow();
-  uint rows = Workspaces::instance()->getRows();
+    uint per_row = Workspaces::instance()->getPerRow();
+    uint rows = Workspaces::instance()->getRows();
 
-  uint ws_width = (width - data.workspace_padding * (per_row - 1)) / per_row;
-  uint ws_height = (height - data.workspace_padding * (rows - 1)) / rows;
+    uint ws_width = (width - data.workspace_padding * (per_row - 1)) / per_row;
+    uint ws_height = (height - data.workspace_padding * (rows - 1)) / rows;
 
-  uint x_pos = x + data.workspace_padding;
-  uint y_pos = y + data.workspace_padding;
-  vector<Workspaces::Workspace*>::iterator it(Workspaces::instance()->ws_begin());
-  for (uint row = 0; it != Workspaces::instance()->ws_end(); ++it) {
-    // Check for next row
-    if (Workspaces::instance()->getRow((*it)->getNumber()) > row) {
-      row = Workspaces::instance()->getRow((*it)->getNumber());
+    uint x_pos = x + data.workspace_padding;
+    uint y_pos = y + data.workspace_padding;
+    vector<Workspaces::Workspace*>::iterator it(Workspaces::instance()->ws_begin());
+    for (uint row = 0; it != Workspaces::instance()->ws_end(); ++it) {
+        // Check for next row
+        if (Workspaces::instance()->getRow((*it)->getNumber()) > row) {
+            row = Workspaces::instance()->getRow((*it)->getNumber());
 
-      x_pos = x + data.workspace_padding;
-      y_pos += ws_height + data.workspace_padding;
+            x_pos = x + data.workspace_padding;
+            y_pos += ws_height + data.workspace_padding;
+        }
+
+        if ((*it)->getNumber() == Workspaces::instance()->getActive()) {
+            data.texture_workspace_act->render(_pixmap, x_pos, y_pos, ws_width, ws_height);
+        } else {
+            data.texture_workspace->render(_pixmap, x_pos, y_pos, ws_width, ws_height);
+        }
+
+        x_pos += ws_width + data.workspace_padding;
     }
-
-    if ((*it)->getNumber() == Workspaces::instance()->getActive()) {
-      data.texture_workspace_act->render(_pixmap, x_pos, y_pos, ws_width, ws_height);
-    } else {
-      data.texture_workspace->render(_pixmap, x_pos, y_pos, ws_width, ws_height);
-    }
-
-    x_pos += ws_width + data.workspace_padding;
-  }
 }
 
 /**
@@ -154,30 +153,30 @@ WorkspaceIndicator::WorkspaceIndicator(::Display *dpy, Theme *theme, Timer<Actio
     _timer(timer), _display_wo(dpy, this, theme),
     _timer_hide(0)
 {
-  _type = PWinObj::WO_WORKSPACE_INDICATOR;
-  _layer = LAYER_NONE; // Make sure this goes on top of everything
-  _hidden = true; // Do not include in workspace handling etc
+    _type = PWinObj::WO_WORKSPACE_INDICATOR;
+    _layer = LAYER_NONE; // Make sure this goes on top of everything
+    _hidden = true; // Do not include in workspace handling etc
 
-  // Add hide action to timer action
-  _action_hide.action_list.push_back(Action(ACTION_HIDE_WORKSPACE_INDICATOR));
+    // Add hide action to timer action
+    _action_hide.action_list.push_back(Action(ACTION_HIDE_WORKSPACE_INDICATOR));
 
-  // Add title
-  titleAdd(&_title);
-  titleSetActive(0);
-  _title.setReal(L"Workspace");
+    // Add title
+    titleAdd(&_title);
+    titleSetActive(0);
+    _title.setReal(L"Workspace");
 
-  // Add display window
-  addChild(&_display_wo);
-  activateChild(&_display_wo);
-  _display_wo.mapWindow();
+    // Add display window
+    addChild(&_display_wo);
+    activateChild(&_display_wo);
+    _display_wo.mapWindow();
 
-  // Load theme data, horay for pretty colors
-  loadTheme();
+    // Load theme data, horay for pretty colors
+    loadTheme();
 
-  // Register ourselves
-  Workspaces::instance()->insert(this);
-  woListAdd(this);
-  _wo_map[_window] = this;
+    // Register ourselves
+    Workspaces::instance()->insert(this);
+    woListAdd(this);
+    _wo_map[_window] = this;
 }
 
 /**
@@ -185,10 +184,10 @@ WorkspaceIndicator::WorkspaceIndicator(::Display *dpy, Theme *theme, Timer<Actio
  */
 WorkspaceIndicator::~WorkspaceIndicator(void)
 {
-  // Un-register ourselves
-  Workspaces::instance()->remove(this);
-  _wo_map.erase(_window);
-  woListRemove(this);
+    // Un-register ourselves
+    Workspaces::instance()->remove(this);
+    _wo_map.erase(_window);
+    woListRemove(this);
 }
 
 /**
@@ -197,18 +196,18 @@ WorkspaceIndicator::~WorkspaceIndicator(void)
 void
 WorkspaceIndicator::render(void)
 {
-  // Center on head
-  Geometry head, request;
-  PScreen::instance()->getHeadInfo(PScreen::instance()->getCurrHead(), head);
+    // Center on head
+    Geometry head, request;
+    PScreen::instance()->getHeadInfo(PScreen::instance()->getCurrHead(), head);
 
-  _display_wo.getSizeRequest(request);
-  resizeChild(request.width, request.height);
+    _display_wo.getSizeRequest(request);
+    resizeChild(request.width, request.height);
 
-  move(head.x + (head.width - _gm.width) / 2,
-       head.y + (head.height - _gm.height) / 2);
+    move(head.x + (head.width - _gm.width) / 2,
+         head.y + (head.height - _gm.height) / 2);
 
-  // Render workspaces
-  _display_wo.render();
+    // Render workspaces
+    _display_wo.render();
 }
 
 /**
@@ -218,8 +217,8 @@ WorkspaceIndicator::render(void)
 void
 WorkspaceIndicator::updateHideTimer(uint timeout)
 {
-  if (_timer_hide != 0) {
-    _timer.remove(_timer_hide);
-  }
-  _timer_hide = _timer.add(timeout * 1000, ActionPerformed(this, _action_hide));
+    if (_timer_hide) {
+        _timer.remove(_timer_hide);
+    }
+    _timer_hide = _timer.add(timeout * 1000, ActionPerformed(this, _action_hide));
 }

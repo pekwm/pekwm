@@ -31,7 +31,7 @@ StatusWindow::StatusWindow(Display *dpy, Theme *theme) :
         PDecor(dpy, theme, "STATUSWINDOW"),
         _bg(None)
 {
-    if (_instance != NULL) {
+    if (_instance) {
 #ifdef DEBUG
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "StatusWindow(" << this << ")::StatusWindow()" << endl

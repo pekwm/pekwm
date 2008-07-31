@@ -45,16 +45,16 @@ PMenu::Item::Item(const std::wstring &name, PWinObj *wo_ref, PTexture *icon)
   : _x(0), _y(0), _name(name), _wo_ref(wo_ref),
     _type(MENU_ITEM_NORMAL), _icon(icon), _dynamic(false)
 {
-  if (_icon) {
-    TextureHandler::instance()->referenceTexture(_icon);
-  }
+    if (_icon) {
+        TextureHandler::instance()->referenceTexture(_icon);
+    }
 }
 
 PMenu::Item::~Item(void)
 {
-  if (_icon) {
-    TextureHandler::instance()->returnTexture(_icon);
-  }
+    if (_icon) {
+        TextureHandler::instance()->returnTexture(_icon);
+    }
 }
 
 map<Window,PMenu*> PMenu::_menu_map = map<Window,PMenu*>();
@@ -113,7 +113,7 @@ PMenu::~PMenu(void)
     Workspaces::instance()->remove(this);
 
     // Free resources
-    if (_menu_wo != NULL) {
+    if (_menu_wo) {
         _child_list.remove(_menu_wo);
         removeChildWindow(_menu_wo->getWindow());
         XDestroyWindow(_dpy, _menu_wo->getWindow());
@@ -221,7 +221,7 @@ PMenu::handleMotionEvent(XMotionEvent *ev)
                                             Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_MENU));
 
         // check motion threshold
-        if ((ae != NULL) && (ae->threshold > 0)) {
+        if (ae && (ae->threshold > 0)) {
             if (!ActionHandler::checkAEThreshold(ev->x_root, ev->y_root,
                                                  _pointer_x, _pointer_y, ae->threshold)) {
                 ae = NULL;
@@ -275,15 +275,15 @@ PMenu::handleItemEvent(MouseEventType type, int x, int y)
         select(item, Config::instance()->isMenuEnterOn(type));
 
     if (Config::instance()->isMenuEnterOn(type)) {
-        if ((item->getWORef() != NULL) &&
+        if (item->getWORef() &&
                 (item->getWORef()->getType() == PWinObj::WO_MENU)) {
             // special case for motion, would flicker like crazy if we didn't check
             if ((type != MOUSE_EVENT_MOTION) &&
-                    (item->getWORef()->isMapped() == true)) {
+                    item->getWORef()->isMapped()) {
                 static_cast<PMenu*>(item->getWORef())->unmapSubmenus();
                 item->getWORef()->unmapWindow();
 
-            } else if (item->getWORef()->isMapped() == false) {
+            } else if (!item->getWORef()->isMapped()) {
                 // unmap previous opened submenu if any
                 unmapSubmenus();
                 mapSubmenu(static_cast<PMenu*>(item->getWORef()));
@@ -353,7 +353,7 @@ PMenu::buildMenuCalculate(void)
         }
 
         // Check if we have a submenu item
-        if (!_has_submenu && ((*it)->getWORef() != NULL) &&
+        if (!_has_submenu && (*it)->getWORef() &&
             ((*it)->getWORef()->getType() == PWinObj::WO_MENU)) {
           _has_submenu = true;
         }
@@ -727,7 +727,7 @@ PMenu::insert(const std::wstring &name, const ActionEvent &ae, PWinObj *wo_ref, 
 void
 PMenu::remove(PMenu::Item *item)
 {
-    if (item == NULL) {
+    if (!item) {
 #ifdef DEBUG
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "PMenu(" << this << ")::remove(" << item << ")" << endl
@@ -792,7 +792,7 @@ PMenu::mapSubmenu(PMenu *menu, bool focus)
     menu->mapWindowRaised();
     menu->makeInsideScreen(x, y);
 
-    if (focus == true) {
+    if (focus) {
         menu->giveInputFocus();
         menu->selectItemNum(0);
     }
@@ -819,7 +819,7 @@ PMenu::unmapSubmenus(void)
 void
 PMenu::unmapAll(void)
 {
-    if (_menu_parent != NULL) {
+    if (_menu_parent) {
         _menu_parent->unmapAll();
     } else {
         unmapSubmenus();
@@ -831,7 +831,7 @@ PMenu::unmapAll(void)
 void
 PMenu::gotoParentMenu(void)
 {
-    if (_menu_parent == NULL) {
+    if (!_menu_parent) {
         return;
     }
 
@@ -841,7 +841,7 @@ PMenu::gotoParentMenu(void)
 
 //! @brief Selects item, if NULL/not in list current item is deselected
 //! @param item Item to select
-//! @þaram unmap_submenu Defaults to true
+//! @ï¿½aram unmap_submenu Defaults to true
 void
 PMenu::select(PMenu::Item *item, bool unmap_submenu)
 {
@@ -909,11 +909,11 @@ PMenu::selectItemRel(int off)
 void
 PMenu::exec(PMenu::Item *item)
 {
-    if (_menu_parent != NULL) {
+    if (_menu_parent) {
         _menu_parent->exec(item);
     } else {
         handleItemExec(item);
-        if (_sticky == false) {
+        if (!_sticky) {
             unmapAll();
         }
     }
@@ -923,7 +923,7 @@ PMenu::exec(PMenu::Item *item)
 void
 PMenu::checkItemWORef(PMenu::Item *item)
 {
-    if ((item->getWORef() != NULL) &&
+    if (item->getWORef() &&
             (item->getWORef()->getType() == PWinObj::WO_MENU)) {
         PMenu *child = static_cast<PMenu*>(item->getWORef());
         child->_menu_parent = this;
@@ -962,7 +962,7 @@ PMenu::makeInsideScreen(int x, int y)
     if (x < head.x) {
         x = head.x;
     } else if ((x + _gm.width) > (head.x + head.width)) {
-        if (_menu_parent != NULL) {
+        if (_menu_parent) {
             x = _menu_parent->_gm.x - _gm.width; // not using getX(), refers to child
         } else {
             x = head.x + head.width - _gm.width;

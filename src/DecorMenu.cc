@@ -47,7 +47,7 @@ DecorMenu::~DecorMenu(void)
 void
 DecorMenu::handleItemExec(PMenu::Item *item)
 {
-    if (item == NULL) {
+    if (!item) {
         return;
     }
 

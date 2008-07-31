@@ -30,7 +30,7 @@ ColorHandler::ColorHandler(Display *dpy)
       _free_on_return(false)
 {
 #ifdef DEBUG
-    if (_instance != NULL) {
+    if (_instance) {
         cerr << __FILE__ << "@" << __LINE__ << ": " << endl
              << "ColorHandler(" << this << ")::ColorHandler(" << _dpy << ")"
              << endl << " *** _instance allready set" << endl;
@@ -88,7 +88,7 @@ ColorHandler::getColor(const std::string &color)
         _color_list.push_back(entry);
     }
 
-    return (entry != NULL) ? entry->getColor() : &_xc_default;
+    return (entry) ? entry->getColor() : &_xc_default;
 }
 
 //! @brief Returns a color
@@ -125,7 +125,7 @@ ColorHandler::freeColors(bool all)
     list<ColorHandler::Entry*>::iterator it(_color_list.begin());
 
     for (; it != _color_list.end(); ++it) {
-        if ((all == true) || ((*it)->getRef() == 0)) {
+        if (all || ((*it)->getRef() == 0)) {
             pixel_list.push_back((*it)->getColor()->pixel);
             delete *it;
         }

@@ -127,8 +127,8 @@ namespace ActionUtil {
     //! @brief Determines if state needs toggling.
     //! @return true if state needs toggling, else false.
     inline bool needToggle(StateAction sa, bool state) {
-        if (((state == true) && (sa == STATE_SET))
-            || ((state == false) && (sa == STATE_UNSET))) {
+        if ((state && (sa == STATE_SET))
+            || (!state && (sa == STATE_UNSET))) {
             return false;
         }
         return true;
@@ -140,23 +140,28 @@ namespace ActionUtil {
 class Action {
 public:
     Action(void) { }
-  Action(uint action)
-    : _action(action) { }
-  Action(uint action, int param_i[3])
-    : _action(action)
-  {
-    ::memcpy(_param_i, param_i, sizeof(param_i));
-  }
-  Action(uint action, const std::string &param_s)
-    : _action(action), _param_s(param_s) { }
-    ~Action(void) { }
+    Action(uint action) : _action(action)
+    {
+    }
+    
+    Action(uint action, int param_i[3]) : _action(action)
+    {
+        ::memcpy(_param_i, param_i, sizeof(param_i));
+    }
+    Action(uint action, const std::string &param_s)
+        : _action(action), _param_s(param_s)
+    {
+    }
+    ~Action(void)
+    {
+    }
 
     inline uint getAction(void) const { return _action; }
-inline int getParamI(uint n) const { return _param_i[(n < 3) ? n : 0]; }
+    inline int getParamI(uint n) const { return _param_i[(n < 3) ? n : 0]; }
     inline const std::string &getParamS(void) const { return _param_s; }
 
     inline void setAction(uint action) { _action = action; }
-inline void setParamI(uint n, int param) { _param_i[(n < 3) ? n : 0] = param; }
+    inline void setParamI(uint n, int param) { _param_i[(n < 3) ? n : 0] = param; }
     inline void setParamS(const std::string param) { _param_s = param; }
 
 private:
@@ -168,8 +173,12 @@ private:
 
 class ActionEvent {
 public:
-    ActionEvent(void) { }
-    ~ActionEvent(void) { }
+    ActionEvent(void)
+    {
+    }
+    ~ActionEvent(void)
+    {
+    }
 
     inline bool isOnlyAction(uint action) const {
         if ((action_list.size() == 1) &&

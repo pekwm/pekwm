@@ -150,8 +150,9 @@ DockApp::~DockApp(void)
 void
 DockApp::mapWindow(void)
 {
-    if (_mapped)
+    if (_mapped) {
         return;
+    }
     _mapped = true;
 
     XSelectInput(_dpy, _dockapp_window, NoEventMask);
@@ -165,8 +166,9 @@ DockApp::mapWindow(void)
 void
 DockApp::unmapWindow(void)
 {
-    if (!_mapped)
+    if (!_mapped) {
         return;
+    }
     _mapped = false;
 
     XSelectInput(_dpy, _dockapp_window, NoEventMask);
@@ -291,7 +293,7 @@ DockApp::readAutoProperties(void)
 {
     DockAppProperty *prop =
         AutoProperties::instance()->findDockAppProperty(&_class_hint);
-    if (prop != NULL) {
+    if (prop) {
         _position = prop->getPosition();
     }
 }

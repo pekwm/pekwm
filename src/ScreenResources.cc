@@ -32,7 +32,7 @@ ScreenResources *ScreenResources::_instance = NULL;
 ScreenResources::ScreenResources(void) :
         _pixmap_handler(NULL)
 {
-    if (_instance != NULL) {
+    if (_instance) {
 #ifdef DEBUG
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "ScreenResources(" << this << ")::ScreenResources()" << endl
@@ -71,7 +71,7 @@ ScreenResources::~ScreenResources(void)
         XFreeCursor(PScreen::instance()->getDpy(), c_it->second);
     }
 
-    if (_pixmap_handler != NULL) {
+    if (_pixmap_handler) {
         delete _pixmap_handler;
     }
 

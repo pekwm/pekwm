@@ -61,7 +61,7 @@ Workspaces::Workspaces(uint number, uint per_row)
   : _active(0), _previous(0), _per_row(per_row)
 {
 #ifdef DEBUG
-    if (_instance != NULL) {
+    if (_instance) {
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "Workspaces(" << this << ")::Workspaces(" << number << ")"
              << endl << " *** _instance allready set: " << _instance << endl;
@@ -361,7 +361,7 @@ Workspaces::hideAll(uint workspace)
 {
     list<PWinObj*>::iterator it(_wo_list.begin());
     for (; it != _wo_list.end(); ++it) {
-        if (((*it)->isSticky() == false) && ((*it)->isHidden() == false) &&
+        if (!((*it)->isSticky()) && !((*it)->isHidden()) &&
                 ((*it)->getWorkspace() == workspace)) {
             (*it)->unmapWindow();
         }
@@ -510,8 +510,10 @@ Workspaces::getLastFocused(uint workspace)
 void
 Workspaces::setLastFocused(uint workspace, PWinObj* wo)
 {
-    if (workspace >= _workspace_list.size())
+    if (workspace >= _workspace_list.size()) {
         return;
+    }
+    
     _workspace_list[workspace]->setLastFocused(wo);
 }
 
@@ -521,9 +523,10 @@ Workspaces::setLastFocused(uint workspace, PWinObj* wo)
 void
 Workspaces::stackWinUnderWin(Window over, Window under)
 {
-    if (over == under)
+    if (over == under) {
         return;
-
+    }
+    
     Window windows[2] = { over, under };
     XRestackWindows(PScreen::instance()->getDpy(), windows, 2);
 }
@@ -793,7 +796,7 @@ Workspaces::placeCenteredOnParent(PWinObj *wo, Window parent)
     }
 
     PWinObj *wo_s = PWinObj::findPWinObj(parent);
-    if (wo_s != NULL) {
+    if (wo_s) {
         wo->move(wo_s->getX() + wo_s->getWidth() / 2 - wo->getWidth() / 2,
                  wo_s->getY() + wo_s->getHeight() / 2 - wo->getHeight() / 2);
         return true;
@@ -827,7 +830,7 @@ Workspaces::placeInsideScreen(Geometry &gm)
 PWinObj*
 Workspaces::isEmptySpace(int x, int y, const PWinObj* wo)
 {
-    if (wo == NULL) {
+    if (!wo) {
         return NULL;
     }
 
@@ -888,7 +891,7 @@ Workspaces::findDirectional(PWinObj *wo, DirectionType dir, uint skip)
 
     list<PWinObj*>::iterator it(_wo_list.begin());
     for (; it != _wo_list.end(); ++it) {
-        if ((wo == (*it)) || ((*it)->isMapped() == false)) {
+        if ((wo == (*it)) || !((*it)->isMapped())) {
             continue; // skip ourselves and unmapped wo's
         }
         if (((*it)->getType() != PWinObj::WO_FRAME) ||

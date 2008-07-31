@@ -201,7 +201,7 @@ PDecor::PDecor(Display *dpy, Theme *theme, const std::string decor_name)
     // we be reset in loadDecor later on, inlines using the _data used before
     // loadDecor needs this though
     _data = _theme->getPDecorData(_decor_name);
-    if (_data == NULL) {
+    if (!_data) {
         _data = _theme->getPDecorData(DEFAULT_DECOR_NAME);
     }
 
@@ -286,20 +286,21 @@ PDecor::~PDecor(void)
 void
 PDecor::mapWindow(void)
 {
-  if (_mapped != true) {
-    PWinObj::mapWindow();
-    for_each(_child_list.begin(), _child_list.end(),
-             mem_fun(&PWinObj::mapWindow));
-  }
+    if (!_mapped) {
+        PWinObj::mapWindow();
+        for_each(_child_list.begin(), _child_list.end(),
+                 mem_fun(&PWinObj::mapWindow));
+    }
 }
 
 //! @brief Maps the window raised
 void
 PDecor::mapWindowRaised(void)
 {
-    if (_mapped == true) {
+    if (_mapped) {
         return;
     }
+    
     mapWindow();
 
     raise(); // XMapRaised wouldn't preserver layers
@@ -309,8 +310,8 @@ PDecor::mapWindowRaised(void)
 void
 PDecor::unmapWindow(void)
 {
-    if (_mapped == true) {
-        if (_iconified == true) {
+    if (_mapped) {
+        if (_iconified) {
             for_each(_child_list.begin(), _child_list.end(),
                      mem_fun(&PWinObj::iconify));
         } else {
@@ -327,7 +328,7 @@ PDecor::move(int x, int y)
 {
     // update real position
     PWinObj::move(x, y);
-    if ((_child != NULL) && (_decor_cfg_child_move_overloaded)) {
+    if (_child && (_decor_cfg_child_move_overloaded)) {
         _child->move(x + borderLeft(), y + borderTop() + getTitleHeight());
     }
 }
@@ -351,7 +352,7 @@ PDecor::resize(uint width, uint height)
 
     // Update size before moving and shaping the rest as shaping
     // depends on the child window
-    if (_child != NULL) {
+    if (_child) {
         _child->resize(getChildWidth(), getChildHeight());
     }
 
@@ -377,42 +378,42 @@ PDecor::resize(uint width, uint height)
 void
 PDecor::moveResize(int x, int y, uint width, uint height)
 {
-  // If shaded, don't resize to the size specified just update width
-  // and set _real_height to height
-  if (_shaded) {
-    _real_height = height;
+    // If shaded, don't resize to the size specified just update width
+    // and set _real_height to height
+    if (_shaded) {
+        _real_height = height;
 
-    height = getTitleHeight();
-    // shading in non full width title mode will make border go away
-    if (! _data->getTitleWidthMin()) {
-      height += borderTop() + borderBottom();
+        height = getTitleHeight();
+        // shading in non full width title mode will make border go away
+        if (! _data->getTitleWidthMin()) {
+            height += borderTop() + borderBottom();
+        }
     }
-  }
 
-  PWinObj::moveResize(x, y, width, height);
+    PWinObj::moveResize(x, y, width, height);
 
-  // Update size before moving and shaping the rest as shaping
-  // depends on the child window
-  if (_child != NULL) {
-    _child->moveResize(x + borderLeft(), y + borderTop() + getTitleHeight(),
-                       getChildWidth(), getChildHeight());
-  }
+    // Update size before moving and shaping the rest as shaping
+    // depends on the child window
+    if (_child) {
+        _child->moveResize(x + borderLeft(), y + borderTop() + getTitleHeight(),
+                          getChildWidth(), getChildHeight());
+    }
 
-  // Place and resize title and border
-  resizeTitle();
-  placeBorder();
+    // Place and resize title and border
+    resizeTitle();
+    placeBorder();
 
-  // render title and border
-  _dirty_resized = true;
+    // render title and border
+    _dirty_resized = true;
 
-  // Apply shape on window, all parts of the border can now be shaped.
-  setBorderShape();
-  applyBorderShape();
+    // Apply shape on window, all parts of the border can now be shaped.
+    setBorderShape();
+    applyBorderShape();
 
-  renderTitle();
-  renderBorder();
+    renderTitle();
+    renderBorder();
 
-  _dirty_resized = false;
+    _dirty_resized = false;
 }
 
 //! @brief
@@ -531,7 +532,7 @@ PDecor::handleButtonPress(XButtonEvent *ev)
         ae = _button->findAction(ev);
 
         // if the button is used for resizing, we don't want to wait for release
-        if ((ae != NULL) && ae->isOnlyAction(ACTION_RESIZE)) {
+        if (ae && ae->isOnlyAction(ACTION_RESIZE)) {
             _button->setState(_focused ? BUTTON_STATE_FOCUSED : BUTTON_STATE_UNFOCUSED);
             _button = NULL;
         } else {
@@ -546,7 +547,7 @@ PDecor::handleButtonPress(XButtonEvent *ev)
         _pointer_y = ev->y_root;
 
         // allow us to get clicks from anywhere on the window.
-        if (_decor_cfg_bpr_replay_pointer == true) {
+        if (_decor_cfg_bpr_replay_pointer) {
             XAllowEvents(_dpy, ReplayPointer, CurrentTime);
         }
 
@@ -604,7 +605,7 @@ PDecor::handleButtonRelease(XButtonEvent *ev)
             ae = _button->findAction(ev);
 
             // this is a little hack, resizing isn't wanted on both press and release
-            if ((ae != NULL) && ae->isOnlyAction(ACTION_RESIZE)) {
+            if (ae && ae->isOnlyAction(ACTION_RESIZE)) {
                 ae = NULL;
             }
         }
@@ -614,7 +615,7 @@ PDecor::handleButtonRelease(XButtonEvent *ev)
     } else {
 
         // allow us to get clicks from anywhere on the window.
-        if (_decor_cfg_bpr_replay_pointer == true) {
+        if (_decor_cfg_bpr_replay_pointer) {
             XAllowEvents(_dpy, ReplayPointer, CurrentTime);
         }
 
@@ -759,7 +760,7 @@ PDecor::loadDecor(void)
 
     // Get decordata with name.
     _data = _theme->getPDecorData(_decor_name);
-    if (_data == NULL) {
+    if (!_data) {
         _data = _theme->getPDecorData(DEFAULT_DECOR_NAME);
     }
     assert(_data);
@@ -767,12 +768,12 @@ PDecor::loadDecor(void)
     // Load decor.
     list<Theme::PDecorButtonData*>::iterator b_it(_data->buttonBegin());
     for (; b_it != _data->buttonEnd(); ++b_it) {
-      uint width = std::max(static_cast<uint>(1), (*b_it)->getWidth() ? (*b_it)->getWidth() : getTitleHeight());
-      uint height = std::max(static_cast<uint>(1), (*b_it)->getHeight() ? (*b_it)->getHeight() : getTitleHeight());
+        uint width = std::max(static_cast<uint>(1), (*b_it)->getWidth() ? (*b_it)->getWidth() : getTitleHeight());
+        uint height = std::max(static_cast<uint>(1), (*b_it)->getHeight() ? (*b_it)->getHeight() : getTitleHeight());
 
-      _button_list.push_back(new PDecor::Button(_dpy, &_title_wo, *b_it, width, height));
-      _button_list.back()->mapWindow();
-      addChildWindow(_button_list.back()->getWindow());
+        _button_list.push_back(new PDecor::Button(_dpy, &_title_wo, *b_it, width, height));
+        _button_list.back()->mapWindow();
+        addChildWindow(_button_list.back()->getWindow());
     }
 
     // Update title position.
@@ -797,7 +798,7 @@ PDecor::loadDecor(void)
     _dirty_resized = false;
 
     // Update the dimension of the frame.
-    if (_child != NULL) {
+    if (_child) {
         resizeChild(_child->getWidth(), _child->getHeight());
     }
 
@@ -928,16 +929,16 @@ PDecor::setTitlebar(StateAction sa)
 uint
 PDecor::getTitleHeight(void) const
 {
-  if (! _titlebar) {
-    return 0;
-  }
+    if (! _titlebar) {
+        return 0;
+    }
 
-  if (_data->isTitleHeightAdapt()) {
-    return getFont(getFocusedState(false))->getHeight()
-      + _data->getPad(PAD_UP) + _data->getPad(PAD_DOWN);
-  } else {
-    return _data->getTitleHeight();
-  }
+    if (_data->isTitleHeightAdapt()) {
+        return getFont(getFocusedState(false))->getHeight()
+              + _data->getPad(PAD_UP) + _data->getPad(PAD_DOWN);
+    } else {
+        return _data->getTitleHeight();
+    }
 }
 
 //! @brief Adds a child to the decor, reparenting the window
@@ -1023,7 +1024,7 @@ PDecor::activateChild(PWinObj *child)
 void
 PDecor::getDecorInfo(wchar_t *buf, uint size)
 {
-  swprintf(buf, size, L"%dx%d+%d+%d", _gm.width, _gm.height, _gm.x, _gm.y);
+    swprintf(buf, size, L"%dx%d+%d+%d", _gm.width, _gm.height, _gm.x, _gm.y);
 }
 
 //! @brief
@@ -1050,7 +1051,7 @@ void
 PDecor::activateChildRel(int off)
 {
     PWinObj *child = getChildRel(off);
-    if (child == NULL) {
+    if (!child) {
         child = _child_list.front();
     }
     activateChild(child);
@@ -1062,7 +1063,7 @@ void
 PDecor::moveChildRel(int off)
 {
     PWinObj *child = getChildRel(off);
-    if ((child == NULL) || (child == _child)) {
+    if (!child || (child == _child)) {
         return;
     }
 
@@ -1074,13 +1075,13 @@ PDecor::moveChildRel(int off)
     list<PWinObj*>::iterator it(find(_child_list.begin(), _child_list.end(), child));
     if (off > 0) {
         // when wrapping, we want to be able to insert at first place
-        if ((at_begin == true) || (*it != _child_list.front())) {
+        if (at_begin || (*it != _child_list.front())) {
             ++it;
         }
 
         _child_list.insert(it, _child);
     } else {
-        if ((at_end != true) && (*it == _child_list.back())) {
+        if (!at_end && (*it == _child_list.back())) {
             ++it;
         }
         _child_list.insert(it, _child);
@@ -1137,8 +1138,8 @@ PDecor::doMove(int x_root, int y_root)
     PScreen *scr = PScreen::instance(); // convenience
     StatusWindow *sw = StatusWindow::instance(); // convenience
 
-    if (scr->grabPointer(scr->getRoot(), ButtonMotionMask|ButtonReleaseMask,
-                         ScreenResources::instance()->getCursor(ScreenResources::CURSOR_MOVE)) == false) {
+    if (!scr->grabPointer(scr->getRoot(), ButtonMotionMask|ButtonReleaseMask,
+                         ScreenResources::instance()->getCursor(ScreenResources::CURSOR_MOVE))) {
         return;
     }
 
@@ -1146,7 +1147,7 @@ PDecor::doMove(int x_root, int y_root)
     int x = x_root - _gm.x;
     int y = y_root - _gm.y;
 
-    bool outline = (Config::instance()->getOpaqueMove() == false);
+    bool outline = !Config::instance()->getOpaqueMove();
     EdgeType edge;
 
     // grab server, we don't want invert traces
@@ -1165,7 +1166,7 @@ PDecor::doMove(int x_root, int y_root)
 
     XEvent e;
     bool exit = false;
-    while (exit != true) {
+    while (!exit) {
         if (outline) {
             drawOutline(_gm);
         }
@@ -1180,7 +1181,7 @@ PDecor::doMove(int x_root, int y_root)
             _gm.y = e.xmotion.y_root - y;
             checkSnap();
 
-            if (outline == false) {
+            if (!outline) {
                 move(_gm.x, _gm.y);
             }
 
@@ -1245,7 +1246,7 @@ PDecor::doMoveEdgeAction(XMotionEvent *ev, EdgeType edge)
                                         MOUSE_EVENT_ENTER_MOVING,
                                         Config::instance()->getEdgeListFromPosition(edge));
 
-    if (ae != NULL) {
+    if (ae) {
         ActionPerformed ap(this, *ae);
         ap.type = ev->type;
         ap.event.motion = ev;
@@ -1261,18 +1262,18 @@ PDecor::doKeyboardMoveResize(void)
     PScreen *scr = PScreen::instance(); // convenience
     StatusWindow *sw = StatusWindow::instance(); // convenience
 
-    if (scr->grabPointer(scr->getRoot(), NoEventMask,
-                         ScreenResources::instance()->getCursor(ScreenResources::CURSOR_MOVE)) == false) {
+    if (!scr->grabPointer(scr->getRoot(), NoEventMask,
+                         ScreenResources::instance()->getCursor(ScreenResources::CURSOR_MOVE))) {
         return;
     }
-    if (scr->grabKeyboard(scr->getRoot()) == false) {
+    if (!scr->grabKeyboard(scr->getRoot())) {
         scr->ungrabPointer();
         return;
     }
 
     Geometry old_gm = _gm; // backup geometry if we cancel
-    bool outline = ((Config::instance()->getOpaqueMove() == false) ||
-                    (Config::instance()->getOpaqueResize() == false));
+    bool outline = (!Config::instance()->getOpaqueMove() ||
+                    !Config::instance()->getOpaqueResize());
     ActionEvent *ae;
     list<Action>::iterator it;
 
@@ -1291,7 +1292,7 @@ PDecor::doKeyboardMoveResize(void)
 
     XEvent e;
     bool exit = false;
-    while (exit != true) {
+    while (!exit) {
         if (outline) {
             drawOutline(_gm);
         }
@@ -1300,43 +1301,43 @@ PDecor::doKeyboardMoveResize(void)
             drawOutline(_gm); // clear
         }
 
-        if ((ae = KeyGrabber::instance()->findMoveResizeAction(&e.xkey)) != NULL) {
+        if (ae = KeyGrabber::instance()->findMoveResizeAction(&e.xkey)) {
             for (it = ae->action_list.begin(); it != ae->action_list.end(); ++it) {
                 switch (it->getAction()) {
                 case MOVE_HORIZONTAL:
                     _gm.x += it->getParamI(0);
-                    if (outline == false) {
+                    if (!outline) {
                         move(_gm.x, _gm.y);
                     }
                     break;
                 case MOVE_VERTICAL:
                     _gm.y += it->getParamI(0);
-                    if (outline == false) {
+                    if (!outline) {
                         move(_gm.x, _gm.y);
                     }
                     break;
                 case RESIZE_HORIZONTAL:
                     _gm.width += resizeHorzStep(it->getParamI(0));
-                    if (outline == false) {
+                    if (!outline) {
                         resize(_gm.width, _gm.height);
                     }
                     break;
                 case RESIZE_VERTICAL:
                     _gm.height += resizeVertStep(it->getParamI(0));
-                    if (outline == false) {
+                    if (!outline) {
                         resize(_gm.width, _gm.height);
                     }
                     break;
                 case MOVE_SNAP:
                     checkSnap();
-                    if (outline == false) {
+                    if (!outline) {
                         move(_gm.x, _gm.y);
                     }
                     break;
                 case MOVE_CANCEL:
                     _gm = old_gm; // restore position
 
-                    if (outline == false) {
+                    if (!outline) {
                         move(_gm.x, _gm.y);
                         resize(_gm.width, _gm.height);
                     }
@@ -1561,35 +1562,35 @@ void
 PDecor::setBorderShape(void)
 {
 #ifdef HAVE_SHAPE
-  Pixmap pix;
-  bool do_free;
-  unsigned int width, height;
-  FocusedState state = getFocusedState(false);
+    Pixmap pix;
+    bool do_free;
+    unsigned int width, height;
+    FocusedState state = getFocusedState(false);
 
-  XRectangle rect = {0, 0, 0, 0};
+    XRectangle rect = {0, 0, 0, 0};
 
-  map<BorderPosition, Pixmap>::iterator it(_border_pos_map.begin());
-  for (; it != _border_pos_map.end(); ++it) {
-    // Get the size of the border at position
-    getBorderSize(it->first, width, height);
+    map<BorderPosition, Pixmap>::iterator it(_border_pos_map.begin());
+    for (; it != _border_pos_map.end(); ++it) {
+        // Get the size of the border at position
+        getBorderSize(it->first, width, height);
 
-    // Get shape pixmap
-    pix =  _data->getBorderTexture(state, it->first)->getMask(width, height,
-                                                              do_free);
-    if (pix != None) {
-      _need_shape = true;
-      XShapeCombineMask(_dpy, _border_win[it->first],
-                        ShapeBounding, 0, 0, pix, ShapeSet);
-      if (do_free) {
-        ScreenResources::instance()->getPixmapHandler()->returnPixmap(pix);
-      }
-    } else {
-      rect.width = width;
-      rect.height = height;
-      XShapeCombineRectangles(_dpy, _border_win[it->first], ShapeBounding,
-                              0, 0, &rect, 1, ShapeSet, YXBanded);
+        // Get shape pixmap
+        pix =  _data->getBorderTexture(state, it->first)->getMask(width, height,
+                                                                  do_free);
+        if (pix != None) {
+            _need_shape = true;
+            XShapeCombineMask(_dpy, _border_win[it->first],
+                            ShapeBounding, 0, 0, pix, ShapeSet);
+            if (do_free) {
+                ScreenResources::instance()->getPixmapHandler()->returnPixmap(pix);
+            }
+        } else {
+            rect.width = width;
+            rect.height = height;
+            XShapeCombineRectangles(_dpy, _border_win[it->first], ShapeBounding,
+                                    0, 0, &rect, 1, ShapeSet, YXBanded);
+        }
     }
-  }
 #endif // HAVE_SHAPE
 }
 
@@ -1744,7 +1745,7 @@ PDecor::setShape(void)
 void
 PDecor::alignChild(PWinObj *child)
 {
-    if (child == NULL) {
+    if (!child) {
         return;
     }
 
@@ -1870,7 +1871,7 @@ PDecor::applyBorderShape(void)
         shape = XCreateSimpleWindow(_dpy, PScreen::instance()->getRoot(),
                                     0, 0, _gm.width, _gm.height, 0, 0, 0);
 
-        if (_child != NULL) {
+        if (_child) {
             XShapeCombineShape(_dpy, shape, ShapeBounding,
                                borderLeft(), borderTop() + getTitleHeight(),
                                _child->getWindow(), ShapeBounding, ShapeSet);

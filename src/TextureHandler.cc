@@ -37,7 +37,7 @@ const int TextureHandler::LENGTH_MIN = 5;
 TextureHandler::TextureHandler(void)
 {
 #ifdef DEBUG
-    if (_instance != NULL) {
+    if (_instance) {
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "TextureHandler(" << this << ")::TextureHandler()"
              << " *** _instance allready set: " << _instance << endl;
@@ -76,7 +76,7 @@ TextureHandler::getTexture(const std::string &texture)
     // parse texture
     PTexture *ptexture = parse(texture);
 
-    if (ptexture != NULL) {
+    if (ptexture) {
         // create new entry
         TextureHandler::Entry *entry = new TextureHandler::Entry(texture, ptexture);
         entry->incRef();
@@ -92,149 +92,149 @@ TextureHandler::getTexture(const std::string &texture)
 PTexture*
 TextureHandler::referenceTexture(PTexture *texture)
 {
-  // Check for allready existing entry
-  list<TextureHandler::Entry*>::iterator it(_texture_list.begin());
+    // Check for allready existing entry
+    list<TextureHandler::Entry*>::iterator it(_texture_list.begin());
 
-  for (; it != _texture_list.end(); ++it) {
-    if ((*it)->getTexture() == texture) {
-      (*it)->incRef();
-      return texture;
+    for (; it != _texture_list.end(); ++it) {
+        if ((*it)->getTexture() == texture) {
+            (*it)->incRef();
+            return texture;
+        }
     }
-  }
 
-  // Create new entry
-  TextureHandler::Entry *entry = new TextureHandler::Entry("", texture);
-  entry->incRef();
+    // Create new entry
+    TextureHandler::Entry *entry = new TextureHandler::Entry("", texture);
+    entry->incRef();
 
-  _texture_list.push_back(entry);
+    _texture_list.push_back(entry);
 
-  return texture;
+    return texture;
 }
 
 //! @brief Returns a texture
 void
 TextureHandler::returnTexture(PTexture *texture)
 {
-  bool found = false;
+    bool found = false;
 
-  list<TextureHandler::Entry*>::iterator it(_texture_list.begin());
-  for (; it != _texture_list.end(); ++it) {
-    if ((*it)->getTexture() == texture) {
-      found = true;
+    list<TextureHandler::Entry*>::iterator it(_texture_list.begin());
+    for (; it != _texture_list.end(); ++it) {
+        if ((*it)->getTexture() == texture) {
+            found = true;
 
-      (*it)->decRef();
-      if ((*it)->getRef() == 0) {
-        delete *it;
-        _texture_list.erase(it);
-      }
-      break;
+            (*it)->decRef();
+            if ((*it)->getRef() == 0) {
+                delete *it;
+                _texture_list.erase(it);
+            }
+            break;
+        }
     }
-  }
 
-  if (! found) {
-    delete texture;
-  }
+    if (!found) {
+        delete texture;
+    }
 }
 
 //! @brief Parses the string, and creates a texture
 PTexture*
 TextureHandler::parse(const std::string &texture)
 {
-  PTexture *ptexture = NULL;
-  vector<string> tok;
+    PTexture *ptexture = NULL;
+    vector<string> tok;
 
-  PTexture::Type type;
-  if (Util::splitString(texture, tok, " \t")) {
-    type = ParseUtil::getValue<PTexture::Type>(tok[0], _parse_map);
-  } else {
-    type = ParseUtil::getValue<PTexture::Type>(texture, _parse_map);
-  }
-
-  // need atleast type and parameter, except for EMPTY type
-  if (tok.size() > 1) {
-    tok.erase(tok.begin()); // remove type
-    switch (type) {
-    case PTexture::TYPE_SOLID:
-      ptexture = parseSolid(tok);
-      break;
-    case PTexture::TYPE_SOLID_RAISED:
-      ptexture = parseSolidRaised(tok);
-      break;
-    case PTexture::TYPE_IMAGE:
-      ptexture = new PTextureImage(PScreen::instance()->getDpy(), tok[1]);
-      break;
-    case PTexture::TYPE_NO:
-    default:
-      cerr << "*** WARNING: invalid texture type: " << tok[0] << endl;
-      break;
+    PTexture::Type type;
+    if (Util::splitString(texture, tok, " \t")) {
+        type = ParseUtil::getValue<PTexture::Type>(tok[0], _parse_map);
+    } else {
+        type = ParseUtil::getValue<PTexture::Type>(texture, _parse_map);
     }
-  } else if (type == PTexture::TYPE_EMPTY) {
-    ptexture = new PTexture(PScreen::instance()->getDpy());
-  }
 
-  return ptexture;
+    // need atleast type and parameter, except for EMPTY type
+    if (tok.size() > 1) {
+        tok.erase(tok.begin()); // remove type
+        switch (type) {
+        case PTexture::TYPE_SOLID:
+            ptexture = parseSolid(tok);
+            break;
+        case PTexture::TYPE_SOLID_RAISED:
+            ptexture = parseSolidRaised(tok);
+            break;
+        case PTexture::TYPE_IMAGE:
+            ptexture = new PTextureImage(PScreen::instance()->getDpy(), tok[1]);
+            break;
+        case PTexture::TYPE_NO:
+        default:
+            cerr << "*** WARNING: invalid texture type: " << tok[0] << endl;
+            break;
+        }
+    } else if (type == PTexture::TYPE_EMPTY) {
+        ptexture = new PTexture(PScreen::instance()->getDpy());
+    }
+
+    return ptexture;
 }
 
 //! @brief Parse and create PTextureSolid
 PTexture*
 TextureHandler::parseSolid(std::vector<std::string> &tok)
 {
-  if (tok.size() < 1) {
-    cerr << "*** WARNING: not enough parameters to texture Solid" << endl;
-    return NULL;
-  }
+    if (tok.size() < 1) {
+        cerr << "*** WARNING: not enough parameters to texture Solid" << endl;
+        return NULL;
+    }
 
-  PTextureSolid *tex = new PTextureSolid(PScreen::instance()->getDpy(), tok[0]);	tok.erase(tok.begin());
+    PTextureSolid *tex = new PTextureSolid(PScreen::instance()->getDpy(), tok[0]);	tok.erase(tok.begin());
 
-  // check if we have size
-  if (tok.size() == 1) {
-    parseSize(tex, tok[0]);
-  }
+    // check if we have size
+    if (tok.size() == 1) {
+        parseSize(tex, tok[0]);
+    }
 
-  return tex;
+    return tex;
 }
 
 //! @brief Parse and create PTextureSolidRaised
 PTexture*
 TextureHandler::parseSolidRaised(std::vector<std::string> &tok)
 {
-  if (tok.size() < 3) {
-    cerr << "*** WARNING: not enough parameters to texture SolidRaised" << endl;
-    return NULL;
-  }
+    if (tok.size() < 3) {
+        cerr << "*** WARNING: not enough parameters to texture SolidRaised" << endl;
+        return NULL;
+    }
 
-  PTextureSolidRaised *tex = new PTextureSolidRaised(PScreen::instance()->getDpy(),
-                                                     tok[0], tok[1], tok[2]);
-  tok.erase(tok.begin(), tok.begin() + 3);
+    PTextureSolidRaised *tex = new PTextureSolidRaised(PScreen::instance()->getDpy(),
+                                                       tok[0], tok[1], tok[2]);
+    tok.erase(tok.begin(), tok.begin() + 3);
 
-  // Check if we have line width and offset.
-  if (tok.size() > 2) {
-    tex->setLineWidth(strtol(tok[0].c_str(), NULL, 10));
-    tex->setLineOff(strtol(tok[1].c_str(), NULL, 10));
-    tok.erase(tok.begin(), tok.begin() + 2);
-  }
-  // Check if have side draw specificed.
-  if (tok.size() > 4) {
-    tex->setDraw(Util::isTrue(tok[0]), Util::isTrue(tok[1]),
-                 Util::isTrue(tok[2]), Util::isTrue(tok[3]));
-    tok.erase(tok.begin(), tok.begin() + 4);
-  }
+    // Check if we have line width and offset.
+    if (tok.size() > 2) {
+        tex->setLineWidth(strtol(tok[0].c_str(), NULL, 10));
+        tex->setLineOff(strtol(tok[1].c_str(), NULL, 10));
+        tok.erase(tok.begin(), tok.begin() + 2);
+    }
+    // Check if have side draw specificed.
+    if (tok.size() > 4) {
+        tex->setDraw(Util::isTrue(tok[0]), Util::isTrue(tok[1]),
+                     Util::isTrue(tok[2]), Util::isTrue(tok[3]));
+        tok.erase(tok.begin(), tok.begin() + 4);
+    }
 
-  // Check if we have size
-  if (tok.size() == 1) {
-    parseSize(tex, tok[0]);
-  }
+    // Check if we have size
+    if (tok.size() == 1) {
+        parseSize(tex, tok[0]);
+    }
 
-  return tex;
+    return tex;
 }
 
 //! @brief Parses size paremeter ie 10x20
 void
 TextureHandler::parseSize(PTexture *tex, const std::string &size)
 {
-  vector<string> tok;
-  if ((Util::splitString(size, tok, "x", 2)) == 2) {
-    tex->setWidth(strtol(tok[0].c_str(), NULL, 10));
-    tex->setHeight(strtol(tok[1].c_str(), NULL, 10));
-  }
+    vector<string> tok;
+    if ((Util::splitString(size, tok, "x", 2)) == 2) {
+        tex->setWidth(strtol(tok[0].c_str(), NULL, 10));
+        tex->setHeight(strtol(tok[1].c_str(), NULL, 10));
+    }
 }
