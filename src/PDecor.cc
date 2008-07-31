@@ -948,11 +948,15 @@ PDecor::addChild(PWinObj *child)
 
     updatedChildOrder();
 
-    // if it's the first child, we'll want to initialize decor with
-    // shaping etc
+    // Sync focused state if it is the first child, the child will be
+    // activated later on. If there are children here already fit the
+    // child into the decor.
     if (_child_list.size() == 1) {
         _focused = !_focused;
         setFocused(!_focused);
+    } else {
+      alignChild(child);
+      child->resize(getChildWidth(), getChildHeight());
     }
 }
 
@@ -1893,25 +1897,19 @@ PDecor::applyBorderShape(void)
                                    ShapeBounding, ShapeUnion);
             }
 
-            // y position for left and right border
-            int side_y;
-            if (!bt_off && !borderTop())
-                side_y = getTitleHeight();
-            else
-                side_y = bt_off + borderTopLeftHeight();
-
-            // left
+            bool use_bt_off = bt_off || borderTop();
+            // Left border
             if (borderLeft() > 0) {
                 XShapeCombineShape(_dpy, shape, ShapeBounding,
-                                   0, side_y,
+                                   0, use_bt_off ? bt_off + borderTopLeftHeight() : getTitleHeight(),
                                    _border_win[BORDER_LEFT],
                                    ShapeBounding, ShapeUnion);
             }
 
-            // right
+            // Right border
             if (borderRight() > 0) {
                 XShapeCombineShape(_dpy, shape, ShapeBounding,
-                                   _gm.width - borderRight(), side_y,
+                                   _gm.width - borderRight(), use_bt_off ? bt_off + borderTopRightHeight() : getTitleHeight(),
                                    _border_win[BORDER_RIGHT],
                                    ShapeBounding, ShapeUnion);
             }
