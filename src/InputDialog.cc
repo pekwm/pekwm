@@ -111,7 +111,7 @@ InputDialog::handleKeyPress(XKeyEvent *ev)
 {
     ActionEvent *c_ae, *ae = NULL;
 
-    if (!(c_ae = KeyGrabber::instance()->findAction(ev, _type))) {
+    if (! (c_ae = KeyGrabber::instance()->findAction(ev, _type))) {
         list<Action>::iterator it(c_ae->action_list.begin());
         for (; it != c_ae->action_list.end(); ++it) {
             switch (it->getAction()) {
@@ -161,7 +161,7 @@ InputDialog::handleKeyPress(XKeyEvent *ev)
         }
 
         // something ( most likely ) changed, redraw the window
-        if (!ae) {
+        if (! ae) {
             bufChanged();
             render();
         }
@@ -222,7 +222,7 @@ void
 InputDialog::moveCentered(PWinObj *wo)
 {
     // Fallback wo on root.
-    if (!wo) {
+    if (! wo) {
         wo = PWinObj::getRootPWinObj();
     }
 

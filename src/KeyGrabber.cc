@@ -125,8 +125,8 @@ KeyGrabber::load(const std::string &file)
 {
     CfgParser key_cfg;
 
-    if (!key_cfg.parse (file, CfgParserSource::SOURCE_FILE)) {
-        if (!key_cfg.parse (SYSCONFDIR "/keys", CfgParserSource::SOURCE_FILE)) {
+    if (! key_cfg.parse (file, CfgParserSource::SOURCE_FILE)) {
+        if (! key_cfg.parse (SYSCONFDIR "/keys", CfgParserSource::SOURCE_FILE)) {
             cerr << __FILE__ << "@" << __LINE__
                  << "Error: no keyfile at " << file << " or "
                  << SYSCONFDIR << "/keys" << endl;
@@ -332,7 +332,7 @@ KeyGrabber::ungrabKeys(Window win)
 ActionEvent*
 KeyGrabber::findAction(XKeyEvent *ev, KeyGrabber::Chain *chain)
 {
-    if (!ev) {
+    if (! ev) {
         return NULL;
     }
     ev->state &= ~_num_lock & ~_scroll_lock & ~LockMask;
@@ -344,7 +344,7 @@ KeyGrabber::findAction(XKeyEvent *ev, KeyGrabber::Chain *chain)
         KeyGrabber::Chain *last_chain;
         bool exit = false;
 
-        while (!exit) {
+        while (! exit) {
             XMaskEvent(_scr->getDpy(), KeyPressMask, &c_ev);
             c_ev.xkey.state &= ~_num_lock & ~_scroll_lock & ~LockMask;
 
@@ -384,7 +384,7 @@ KeyGrabber::findAction(XKeyEvent *ev, PWinObj::Type type)
     }
 
     // no action the menu list, try the global list
-    if (!ae) {
+    if (! ae) {
         ae = findAction(ev, &_global_chain);
     }
 
