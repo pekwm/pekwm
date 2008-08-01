@@ -1403,6 +1403,7 @@ PDecor::setShaded(StateAction sa)
     }
 
     PWinObj::resize(_gm.width, _gm.height);
+    setBorderShape();
     placeBorder();
     restackBorder();
 }
