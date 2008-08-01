@@ -803,22 +803,15 @@ Client::readMwmHints(void)
     MwmHints *mwm_hints = getMwmHints(_window);
 
     if (mwm_hints) {
-
         if (mwm_hints->flags&MWM_HINTS_FUNCTIONS) {
-          if ((mwm_hints->functions&MWM_FUNC_ALL) != 0) {
-            if ((mwm_hints->functions&MWM_FUNC_RESIZE) == 0)
-                    _actions.resize = false;
-            if ((mwm_hints->functions&MWM_FUNC_MOVE) == 0)
-                    _actions.move = false;
-            if ((mwm_hints->functions&MWM_FUNC_ICONIFY) == 0)
-                    _actions.minimize = false;
-            if ((mwm_hints->functions&MWM_FUNC_CLOSE) == 0)
-                    _actions.close = false;
-            if ((mwm_hints->functions&MWM_FUNC_MAXIMIZE) == 0) {
-                    _actions.maximize_vert = true;
-                    _actions.maximize_horz = true;
-                }
-            }
+            bool state = ! (mwm_hints->functions&MWM_FUNC_ALL);
+
+            _actions.resize   = (mwm_hints->functions&MWM_FUNC_RESIZE)  ? state : ! state;
+            _actions.move     = (mwm_hints->functions&MWM_FUNC_MOVE)    ? state : ! state;
+            _actions.minimize = (mwm_hints->functions&MWM_FUNC_ICONIFY) ? state : ! state;
+            _actions.close    = (mwm_hints->functions&MWM_FUNC_CLOSE)   ? state : ! state;
+            _actions.maximize_vert = (mwm_hints->functions&MWM_FUNC_MAXIMIZE) ? state : ! state;
+            _actions.maximize_horz = (mwm_hints->functions&MWM_FUNC_MAXIMIZE) ? state : ! state;
         }
 
         // Check decoration flags
