@@ -20,7 +20,6 @@
 #include "Client.hh"
 #include "Config.hh"
 #include "CmdDialog.hh"
-#include "SearchDialog.hh"
 #include "Workspaces.hh"
 #include "WindowManager.hh"
 #include "Util.hh"
@@ -380,12 +379,6 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                                                      frame ? frame : ap.wo);
                 }
                 break;
-            case ACTION_SHOW_SEARCH_DIALOG:
-                if (WindowManager::inst()->getSearchDialog()->isMapped()) {
-                    WindowManager::inst()->getSearchDialog()->unmapWindow();
-                } else {
-                    WindowManager::inst()->getSearchDialog()->mapCentered(it->getParamS(), true, frame ? frame : ap.wo);
-                }
             case ACTION_HIDE_WORKSPACE_INDICATOR:
                 WindowManager::inst()->getWorkspaceIndicator()->unmapWindow();
                 break;
