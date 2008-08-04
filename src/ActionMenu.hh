@@ -65,7 +65,8 @@ private:
     ActionOk _action_ok;
     std::list<PMenu::Item*>::iterator _insert_at;
 
-    bool _has_dynamic;
+    bool _is_dynamic; /**< Set to true if the menu was dynamically created. */
+    bool _has_dynamic; /**< Set to true if any of the entries in the menu is dynamic. */
 };
 
 #endif // _ACTIONMENU_HH_

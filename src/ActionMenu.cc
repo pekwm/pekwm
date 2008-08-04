@@ -44,9 +44,10 @@ using std::wstring;
 ActionMenu::ActionMenu(MenuType type,
                        const std::wstring &title, const std::string &name,
                        const std::string &decor_name) :
-        WORefMenu(WindowManager::inst()->getScreen(),
-        WindowManager::inst()->getTheme(), title, name, decor_name),
-        _act(WindowManager::inst()->getActionHandler()), _has_dynamic(false)
+    WORefMenu(WindowManager::inst()->getScreen(),
+              WindowManager::inst()->getTheme(), title, name, decor_name),
+    _act(WindowManager::inst()->getActionHandler()),
+    _is_dynamic(false), _has_dynamic(false)
 {
     // when creating dynamic submenus, this needs to be initialized as
     // dynamic inserting will be done
@@ -93,8 +94,6 @@ ActionMenu::unmapWindow(void)
         return;
     }
 
-    // causes segfault as the entries get removed before they are executed
-    // it seems, is my brain b0rked?
     if (_has_dynamic) {
         removeDynamic();
     }
@@ -193,9 +192,9 @@ ActionMenu::removeAll(void)
 //! @brief Parse config and push items into menu
 //! @param cs Section object to read config from
 //! @param menu BaseMenu object to push object in
-//! @param dynamic Defaults to false
+//! @param has_dynamic If true the menu being parsed is dynamic, defaults to false.
 void
-ActionMenu::parse(CfgParser::Entry *section, bool dynamic)
+ActionMenu::parse(CfgParser::Entry *section, bool has_dynamic)
 {
     if (! section) {
         return;
@@ -206,7 +205,8 @@ ActionMenu::parse(CfgParser::Entry *section, bool dynamic)
         return;
     }
 
-    _has_dynamic = dynamic; // reset this
+    _has_dynamic = has_dynamic;
+    _is_dynamic = has_dynamic;
 
     CfgParser::Entry *sub, *value;
     ActionEvent ae;
@@ -235,20 +235,22 @@ ActionMenu::parse(CfgParser::Entry *section, bool dynamic)
 
         if (*section == "SUBMENU") {
             submenu = new ActionMenu(_menu_type, Util::to_wide_str(section->get_value()), "");
-            submenu->parse(section, dynamic);
+            submenu->_is_dynamic = _has_dynamic;
+            submenu->_menu_parent = this;
+            submenu->parse(section, _has_dynamic);
             submenu->buildMenu();
 
             item = new PMenu::Item(Util::to_wide_str(sub->get_value()), submenu, icon);
-            item->setDynamic(dynamic);
+            item->setDynamic(_has_dynamic);
         } else if (*section == "SEPARATOR") {
             item = new PMenu::Item(L"", NULL, icon);
-            item->setDynamic(dynamic);
+            item->setDynamic(_has_dynamic);
             item->setType(PMenu::Item::MENU_ITEM_SEPARATOR);
         } else {
             value = section->get_section()->find_entry("ACTIONS");
             if (value && Config::instance()->parseActions(value->get_value(), ae, _action_ok)) {
                 item = new PMenu::Item(Util::to_wide_str(sub->get_value()), 0, icon);
-                item->setDynamic(dynamic);
+                item->setDynamic(_has_dynamic);
                 item->setAE(ae);
 
                 if (ae.isOnlyAction (ACTION_MENU_DYN)) {
@@ -292,17 +294,35 @@ ActionMenu::rebuildDynamic(void)
 void
 ActionMenu::removeDynamic(void)
 {
+    // FIXME: This is a kludge.
+    // Problem: If a submenu is created by an "dynamic"-action, we cannot delete all the items
+    // as we cannot recreate them (we would need the original output of the 
+    // dynamic-command). Therefore we just unmap them and hope for the best.
+    // Second shortfall: We don't know for sure if this menu actually _was_ created dynamically, 
+    // hence the test with _parent. 
+
+    bool do_unmap = false;
+    if (_menu_parent) {
+        ActionMenu *parent = dynamic_cast<ActionMenu*>(_menu_parent);
+        do_unmap = (parent && parent->_is_dynamic);
+    }
+
     list<PMenu::Item*>::iterator it(_item_list.begin());
     for (; it != _item_list.end(); ++it) {
         if ((*it)->isDynamic()) {
-            if ((*it)->getWORef() &&
-                    ((*it)->getWORef()->getType() == WO_MENU)) {
-                delete (*it)->getWORef();
-            }
-            delete (*it);
+            if (do_unmap) {
+                if ((*it)->getWORef() && ((*it)->getWORef()->getType() == WO_MENU)) {
+                    (*it)->getWORef()->unmapWindow();
+                }
+            } else {
+                if ((*it)->getWORef() && ((*it)->getWORef()->getType() == WO_MENU)) {
+                    delete (*it)->getWORef();
+                }
+                delete (*it);
 
-            it = _item_list.erase(it);
-            --it; // compensate for the ++ in the loop
+                it = _item_list.erase(it);
+                --it; // compensate for the ++ in the loop
+            }
         }
     }
 }
