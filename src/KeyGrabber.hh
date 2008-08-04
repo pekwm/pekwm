@@ -82,14 +82,11 @@ public:
 private:
     void grabKey(Window win, uint mod, uint key);
 
-    void parseGlobalChain(CfgParser::Entry *op_section,
-                          KeyGrabber::Chain *chain);
-    void parseMoveResizeChain(CfgParser::Entry *op_section,
-                              KeyGrabber::Chain *chain);
-    void parseInputDialogChain(CfgParser::Entry *op_section, KeyGrabber::Chain *chain);
+    void parseGlobalChain(CfgParser::Entry *section, KeyGrabber::Chain *chain);
+    void parseMoveResizeChain(CfgParser::Entry *section, KeyGrabber::Chain *chain);
+    void parseInputDialogChain(CfgParser::Entry *section, KeyGrabber::Chain *chain);
 #ifdef MENUS
-    void parseMenuChain(CfgParser::Entry *op_section,
-                        KeyGrabber::Chain *chain);
+    void parseMenuChain(CfgParser::Entry *section, KeyGrabber::Chain *chain);
 #endif // MENUS
 
     ActionEvent *findAction(XKeyEvent *ev, KeyGrabber::Chain *chain);

@@ -31,15 +31,15 @@ using std::wstring;
 
 //! @brief RegexString constructor.
 RegexString::RegexString (void)
-    : _reg_ok(false), _i_ref_max(1)
+    : _reg_ok(false), _ref_max(1)
 {
 }
 
 //! @brief RegexString constructor with default search
-RegexString::RegexString (const std::wstring &or_string, bool full)
-  : _reg_ok(false), _i_ref_max(1)
+RegexString::RegexString (const std::wstring &str, bool full)
+  : _reg_ok(false), _ref_max(1)
 {
-  parse_match(or_string, full);
+  parse_match(str, full);
 }
 
 //! @brief RegexString destructor.
@@ -50,46 +50,45 @@ RegexString::~RegexString (void)
 
 //! @brief Simple ed s command lookalike.
 bool
-RegexString::ed_s (std::wstring &or_string)
+RegexString::ed_s (std::wstring &str)
 {
     if (! _reg_ok) {
         return false;
     }
 
-    string str(Util::to_mb_str(or_string));
+    string mb_str(Util::to_mb_str(str));
 
-    const char *op_str = str.c_str();
-    regmatch_t *op_matches = new regmatch_t[_i_ref_max];
+    const char *c_str = mb_str.c_str();
+    regmatch_t *matches = new regmatch_t[_ref_max];
 
     // Match
-    if (regexec(&_o_regex, str.c_str(), _i_ref_max, op_matches, 0)) {
-        delete [] op_matches;
+    if (regexec(&_regex, mb_str.c_str(), _ref_max, matches, 0)) {
+        delete [] matches;
         return false;
     }
 
-    string o_result;
-    uint i_ref, i_size;
+    string result;
+    uint ref, size;
 
-    list<RegexString::Part>::iterator it(_o_ref_list.begin ());
-    for (; it != _o_ref_list.end(); ++it) {
+    list<RegexString::Part>::iterator it(_ref_list.begin ());
+    for (; it != _ref_list.end(); ++it) {
         if (it->get_reference() >= 0) {
-            i_ref = it->get_reference();
+            ref = it->get_reference();
 
-            if (op_matches[i_ref].rm_so != -1) {
-                i_size = op_matches[i_ref].rm_eo - op_matches[i_ref].rm_so;
-                o_result.append(string(op_str + op_matches[i_ref].rm_so,
-                                       i_size));
+            if (matches[ref].rm_so != -1) {
+                size = matches[ref].rm_eo - matches[ref].rm_so;
+                result.append(string(c_str + matches[ref].rm_so, size));
             }
         } else {
-            o_result.append(Util::to_mb_str(it->get_string()));
+            result.append(Util::to_mb_str(it->get_string()));
         }
     }
 
     // Replace area regexp matched.
-    i_size = op_matches[0].rm_eo - op_matches[0].rm_so;
-    str.replace(op_matches[0].rm_so, i_size, o_result);
+    size = matches[0].rm_eo - matches[0].rm_so;
+    mb_str.replace(matches[0].rm_so, size, result);
 
-    or_string = Util::to_wide_str(str);
+    str = Util::to_wide_str(mb_str);
 
     return true;
 }
@@ -140,7 +139,7 @@ RegexString::parse_match(const std::wstring &or_match, bool full)
             expression = Util::to_mb_str(or_match);
         }
 
-        _reg_ok = ! regcomp(&_o_regex, expression.c_str(), flags);
+        _reg_ok = ! regcomp(&_regex, expression.c_str(), flags);
     } else {
         _reg_ok = false;
     }
@@ -155,45 +154,45 @@ RegexString::parse_match(const std::wstring &or_match, bool full)
 bool
 RegexString::parse_replace(const std::wstring &or_replace)
 {
-    _i_ref_max = 0;
+    _ref_max = 0;
 
-    wstring o_part;
-    wstring::size_type o_begin = 0, o_end = 0, o_last = 0;
+    wstring part;
+    wstring::size_type begin = 0, end = 0, last = 0;
 
     // Go through the string and split at \num points
-    while ((o_end = or_replace.find_first_of('\\', o_begin)) != string::npos) {
+    while ((end = or_replace.find_first_of('\\', begin)) != string::npos) {
         // Store string between references.
-        if (o_end > o_last) {
-            o_part = or_replace.substr(o_last, o_end - o_last);
-            _o_ref_list.push_back(RegexString::Part(o_part));
+        if (end > last) {
+            part = or_replace.substr(last, end - last);
+            _ref_list.push_back(RegexString::Part(part));
         }
 
         // Get reference number.
-        for (o_begin = ++o_end; isdigit(or_replace[o_end]); o_end++)
+        for (begin = ++end; isdigit(or_replace[end]); end++)
             ;
 
-        if (o_end > o_begin) {
+        if (end > begin) {
             // Convert number and add item.
-            o_part = or_replace.substr(o_begin, o_end - o_last);
-            int i_ref = strtol(Util::to_mb_str(o_part).c_str(), NULL, 10);
-            if (i_ref >= 0) {
-                _o_ref_list.push_back(RegexString::Part(L"", i_ref));
-                if (i_ref > _i_ref_max) {
-                    _i_ref_max = i_ref;
+            part = or_replace.substr(begin, end - last);
+            int ref = strtol(Util::to_mb_str(part).c_str(), NULL, 10);
+            if (ref >= 0) {
+                _ref_list.push_back(RegexString::Part(L"", ref));
+                if (ref > _ref_max) {
+                    _ref_max = ref;
                 }
             }
         }
 
-        o_last = o_end;
-        o_begin = o_last + 1;
+        last = end;
+        begin = last + 1;
     }
 
-    if (o_begin < or_replace.size()) {
-        o_part = or_replace.substr(o_begin, or_replace.size() - o_begin);
-        _o_ref_list.push_back(RegexString::Part(o_part));
+    if (begin < or_replace.size()) {
+        part = or_replace.substr(begin, or_replace.size() - begin);
+        _ref_list.push_back(RegexString::Part(part));
     }
 
-    _i_ref_max++;
+    _ref_max++;
 
     return true;
 }
@@ -207,29 +206,29 @@ RegexString::parse_ed_s(const std::wstring &or_ed_s)
     }
 
     wchar_t c_delimeter = or_ed_s[0];
-    string::size_type o_middle, o_end;
+    string::size_type middle, end;
 
     // Middle.
-    for (o_middle = 1; o_middle < or_ed_s.size(); o_middle++) {
-        if ((or_ed_s[o_middle] == c_delimeter)
-            && (or_ed_s[o_middle - 1] != '\\')) {
+    for (middle = 1; middle < or_ed_s.size(); middle++) {
+        if ((or_ed_s[middle] == c_delimeter)
+            && (or_ed_s[middle - 1] != '\\')) {
             break;
         }
     }
 
     // End.
-    for (o_end = o_middle + 1; o_end < or_ed_s.size(); o_end++) {
-        if ((or_ed_s[o_end] == c_delimeter) && (or_ed_s[o_end - 1] != '\\')) {
+    for (end = middle + 1; end < or_ed_s.size(); end++) {
+        if ((or_ed_s[end] == c_delimeter) && (or_ed_s[end - 1] != '\\')) {
             break;
         }
     }
 
-    wstring o_match, o_replace;
-    o_match = or_ed_s.substr(1, o_middle - 1);
-    o_replace = or_ed_s.substr(o_middle + 1, o_end - o_middle - 1);
+    wstring match, replace;
+    match = or_ed_s.substr(1, middle - 1);
+    replace = or_ed_s.substr(middle + 1, end - middle - 1);
 
-    parse_match(o_match);
-    parse_replace(o_replace);
+    parse_match(match);
+    parse_replace(replace);
 
     return true;
 }
@@ -244,7 +243,7 @@ RegexString::operator==(const std::wstring &or_rhs)
 
     string rhs(Util::to_mb_str(or_rhs));
 
-    return ! regexec(&_o_regex, rhs.c_str(), 0, 0, 0);
+    return ! regexec(&_regex, rhs.c_str(), 0, 0, 0);
 }
 
 //! @brief Free resources used by RegexString.
@@ -252,7 +251,7 @@ void
 RegexString::free_regex(void)
 {
     if (_reg_ok) {
-        regfree(&_o_regex);
+        regfree(&_regex);
         _reg_ok = false;
     }
 }

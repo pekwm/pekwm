@@ -150,16 +150,16 @@ ActionMenu::insert(PMenu::Item *item)
 
 //! @brief Non-shadowing PMenu::insert
 void
-ActionMenu::insert(const std::wstring &or_name, PWinObj *op_wo_ref, PTexture *icon)
+ActionMenu::insert(const std::wstring &name, PWinObj *wo_ref, PTexture *icon)
 {
-    PMenu::insert(or_name, op_wo_ref, icon);
+    PMenu::insert(name, wo_ref, icon);
 }
 
 //! @brief Non-shadowing PMenu::insert
 void
-ActionMenu::insert(const std::wstring &or_name, const ActionEvent &or_ae, PWinObj *op_wo_ref, PTexture *icon)
+ActionMenu::insert(const std::wstring &name, const ActionEvent &ae, PWinObj *wo_ref, PTexture *icon)
 {
-    PMenu::insert(or_name, or_ae, op_wo_ref);
+    PMenu::insert(name, ae, wo_ref);
 }
 
 //! @brief Removes a BaseMenuItem from the menu
@@ -195,11 +195,11 @@ ActionMenu::removeAll(void)
 //! @param menu BaseMenu object to push object in
 //! @param dynamic Defaults to false
 void
-ActionMenu::parse(CfgParser::Entry *op_section, bool dynamic)
+ActionMenu::parse(CfgParser::Entry *section, bool dynamic)
 {
-    if (! op_section) {
+    if (! section) {
         return;
-    } else if (! op_section->get_section()) {
+    } else if (! section->get_section()) {
 #ifdef DEBUG
         cerr << " *** ERROR: Unable to get subsection in menu parsing" << endl;
 #endif // DEBUG
@@ -208,55 +208,48 @@ ActionMenu::parse(CfgParser::Entry *op_section, bool dynamic)
 
     _has_dynamic = dynamic; // reset this
 
-    CfgParser::Entry *op_sub, *op_value;
+    CfgParser::Entry *sub, *value;
     ActionEvent ae;
 
     ActionMenu *submenu = NULL;
     PMenu::Item *item = NULL;
     PTexture *icon = NULL;
 
-    if (op_section->get_value ().size ()) {      
-        wstring title(Util::to_wide_str(op_section->get_value ()));
-        setTitle (title);
+    if (section->get_value ().size()) {      
+        wstring title(Util::to_wide_str(section->get_value()));
+        setTitle(title);
         _title_base = title;
     }
-    op_section = op_section->get_section ();
+    section = section->get_section();
 
-    while ((op_section = op_section->get_section_next ()) != 0) {
+    while ((section = section->get_section_next()) != 0) {
         item = NULL;
-        op_sub = op_section->get_section ();
+        sub = section->get_section();
 
-        op_value = op_section->get_section ()->find_entry("ICON");
-        if (op_value) {
-            icon = TextureHandler::instance()->getTexture("IMAGE " + op_value->get_value());
+        value = section->get_section()->find_entry("ICON");
+        if (value) {
+            icon = TextureHandler::instance()->getTexture("IMAGE " + value->get_value());
         } else {
             icon = NULL;
         }
 
-        if (*op_section == "SUBMENU") {
-            submenu = new ActionMenu (_menu_type,
-                                      Util::to_wide_str(op_section->get_value()),
-                                      "" /* Empty name for submenus */);
-            submenu->parse (op_section, dynamic);
-            submenu->buildMenu ();
+        if (*section == "SUBMENU") {
+            submenu = new ActionMenu(_menu_type, Util::to_wide_str(section->get_value()), "");
+            submenu->parse(section, dynamic);
+            submenu->buildMenu();
 
-            item = new PMenu::Item (Util::to_wide_str(op_sub->get_value()),
-                                    submenu, icon);
+            item = new PMenu::Item(Util::to_wide_str(sub->get_value()), submenu, icon);
             item->setDynamic(dynamic);
-        } else if (*op_section == "SEPARATOR") {
-            item = new PMenu::Item (L"", NULL, icon);
-            item->setDynamic (dynamic);
-            item->setType (PMenu::Item::MENU_ITEM_SEPARATOR);
+        } else if (*section == "SEPARATOR") {
+            item = new PMenu::Item(L"", NULL, icon);
+            item->setDynamic(dynamic);
+            item->setType(PMenu::Item::MENU_ITEM_SEPARATOR);
         } else {
-            op_value = op_section->get_section ()->find_entry ("ACTIONS");
-            if (op_value
-                    && Config::instance ()->parseActions (op_value->get_value (),
-                                                          ae, _action_ok))
-            {
-              item = new PMenu::Item (Util::to_wide_str(op_sub->get_value()),
-                                      NULL, icon);
-                item->setDynamic (dynamic);
-                item->setAE (ae);
+            value = section->get_section()->find_entry("ACTIONS");
+            if (value && Config::instance()->parseActions(value->get_value(), ae, _action_ok)) {
+                item = new PMenu::Item(Util::to_wide_str(sub->get_value()), 0, icon);
+                item->setDynamic(dynamic);
+                item->setAE(ae);
 
                 if (ae.isOnlyAction (ACTION_MENU_DYN)) {
                     _has_dynamic = true;

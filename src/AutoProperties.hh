@@ -217,21 +217,20 @@ private:
                            std::list<Property*>* prop_list,
                            int ws, uint type);
 
-  bool parsePropertyMatch(const std::string &str, Property *prop);
-  EwmhAtomName parsePropertyMatchWindowType(const std::string &str, Property *prop);
-    bool parseProperty(CfgParser::Entry *op_section, Property *prop);
-    void parseAutoProperty(CfgParser::Entry *op_section, std::list<uint>* ws);
-    void parseAutoGroup(CfgParser::Entry *op_section, AutoProperty* prop);
-    void parseTitleProperty(CfgParser::Entry *op_section);
-    void parseDecorProperty(CfgParser::Entry *op_section);
+    bool parsePropertyMatch(const std::string &str, Property *prop);
+    EwmhAtomName parsePropertyMatchWindowType(const std::string &str, Property *prop);
+    bool parseProperty(CfgParser::Entry *section, Property *prop);
+    void parseAutoProperty(CfgParser::Entry *section, std::list<uint>* ws);
+    void parseAutoGroup(CfgParser::Entry *section, AutoProperty* prop);
+    void parseTitleProperty(CfgParser::Entry *section);
+    void parseDecorProperty(CfgParser::Entry *section);
 
-  void parseAutoPropertyValue(CfgParser::Entry *op_section,
-                              AutoProperty *prop, std::list<uint> *ws);
+    void parseAutoPropertyValue(CfgParser::Entry *section, AutoProperty *prop, std::list<uint> *ws);
 
 #ifdef HARBOUR
-    void parseDockAppProperty(CfgParser::Entry *op_section);
+    void parseDockAppProperty(CfgParser::Entry *section);
 #endif // HARBOUR
-  void parseTypeProperty(CfgParser::Entry *op_section);
+  void parseTypeProperty(CfgParser::Entry *section);
 
   void setDefaultTypeProperties(void);
 

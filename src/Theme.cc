@@ -51,27 +51,27 @@ Theme::PDecorButtonData::~PDecorButtonData(void)
     unload();
 }
 
-//! @brief Parses CfgParser::Entry op_section, loads and verifies data.
-//! @param op_section CfgParser::Entry with button configuration.
+//! @brief Parses CfgParser::Entry section, loads and verifies data.
+//! @param section CfgParser::Entry with button configuration.
 //! @return True if a valid button was parsed.
 bool
-Theme::PDecorButtonData::load (CfgParser::Entry *op_section)
+Theme::PDecorButtonData::load (CfgParser::Entry *section)
 {
-    if (*op_section == "LEFT") {
+    if (*section == "LEFT") {
         _left = true;
-    } else if (*op_section == "RIGHT") {
+    } else if (*section == "RIGHT") {
         _left = false;
     } else {
         return false;
     }
     
-    op_section = op_section->get_section ();
+    section = section->get_section ();
 
     // Get actions.
     ActionEvent ae;
-    CfgParser::Entry *op_it;
-    for (op_it = op_section->get_section_next (); op_it; op_it = op_it->get_section_next ()) {
-        if (Config::instance ()->parseActionEvent (op_it, ae, BUTTONCLICK_OK, true)) {
+    CfgParser::Entry *it;
+    for (it = section->get_section_next (); it; it = it->get_section_next ()) {
+        if (Config::instance ()->parseActionEvent (it, ae, BUTTONCLICK_OK, true)) {
             _ae_list.push_back (ae);
         }
     }
@@ -79,26 +79,26 @@ Theme::PDecorButtonData::load (CfgParser::Entry *op_section)
     // Got some actions, consider it to be a valid button.
     if (_ae_list.size() > 0) {
         TextureHandler *th = TextureHandler::instance();
-        CfgParser::Entry *op_value;
+        CfgParser::Entry *value;
 
-        op_value = op_section->find_entry ("FOCUSED");
-        if (op_value) {
-            _texture[BUTTON_STATE_FOCUSED] = th->getTexture (op_value->get_value ());
+        value = section->find_entry ("FOCUSED");
+        if (value) {
+            _texture[BUTTON_STATE_FOCUSED] = th->getTexture (value->get_value ());
         }
         
-        op_value = op_section->find_entry ("UNFOCUSED");
-        if (op_value) {
-            _texture[BUTTON_STATE_UNFOCUSED] = th->getTexture (op_value->get_value ());
+        value = section->find_entry ("UNFOCUSED");
+        if (value) {
+            _texture[BUTTON_STATE_UNFOCUSED] = th->getTexture (value->get_value ());
         }
         
-        op_value = op_section->find_entry ("PRESSED");
-        if (op_value) {
-            _texture[BUTTON_STATE_PRESSED] = th->getTexture (op_value->get_value ());
+        value = section->find_entry ("PRESSED");
+        if (value) {
+            _texture[BUTTON_STATE_PRESSED] = th->getTexture (value->get_value ());
         }
         
-        op_value = op_section->find_entry ("HOOVER");
-        if (op_value) {
-            _texture[BUTTON_STATE_HOOVER] = th->getTexture (op_value->get_value ());
+        value = section->find_entry ("HOOVER");
+        if (value) {
+            _texture[BUTTON_STATE_HOOVER] = th->getTexture (value->get_value ());
         }
         
         check ();
@@ -188,29 +188,29 @@ Theme::PDecorData::~PDecorData(void)
     unload();
 }
 
-//! @brief Parses CfgParser::Entry op_section, loads and verifies data.
-//! @param op_section CfgParser::Entry with pdecor configuration.
+//! @brief Parses CfgParser::Entry section, loads and verifies data.
+//! @param section CfgParser::Entry with pdecor configuration.
 //! @return True if a valid pdecor was parsed.
 bool
-Theme::PDecorData::load (CfgParser::Entry *op_section)
+Theme::PDecorData::load (CfgParser::Entry *section)
 {
-    CfgParser::Entry *op_value;
+    CfgParser::Entry *value;
 
-    _name = op_section->get_value ();
+    _name = section->get_value ();
     if (! _name.size ()) {
         cerr << " *** WARNING: no name identifying decor" << endl;
         return false;
     }
 
-    op_section = op_section->get_section ();
+    section = section->get_section ();
 
-    CfgParser::Entry *op_sub, *op_sub_2;
-    op_sub = op_section->find_section ("TITLE");
-    if (! op_sub) {
+    CfgParser::Entry *sub, *sub_2;
+    sub = section->find_section ("TITLE");
+    if (! sub) {
         cerr << " *** WARNING: no title section in decor: " << _name << endl;
         return false;
     }
-    op_sub = op_sub->get_section ();
+    sub = sub->get_section ();
 
     TextureHandler *th = TextureHandler::instance(); // convenience
 
@@ -230,7 +230,7 @@ Theme::PDecorData::load (CfgParser::Entry *op_section)
     o_key_list.push_back (new CfgParserKeyString ("UNFOCUSED", o_value_unfocused,
                           "Empty", th->getLengthMin ()));
     // Free up resources
-    op_sub->parse_key_values (o_key_list.begin (), o_key_list.end ());
+    sub->parse_key_values (o_key_list.begin (), o_key_list.end ());
 
     for_each (o_key_list.begin (), o_key_list.end (),
               Util::Free<CfgParserKey*>());
@@ -244,20 +244,20 @@ Theme::PDecorData::load (CfgParser::Entry *op_section)
             _pad[i] = strtol (tok[i].c_str (), NULL, 10);
     }
 
-    op_sub_2 = op_sub->find_section ("TAB");
-    if (op_sub_2) {
-        op_sub_2 = op_sub_2->get_section ();
+    sub_2 = sub->find_section ("TAB");
+    if (sub_2) {
+        sub_2 = sub_2->get_section ();
         for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
-            op_value = op_sub_2->find_entry (_fs_map[FocusedState (i)]);
-            if (op_value) {
-                _texture_tab[i] = th->getTexture (op_value->get_value ());
+            value = sub_2->find_entry (_fs_map[FocusedState (i)]);
+            if (value) {
+                _texture_tab[i] = th->getTexture (value->get_value ());
             }
         }
     }
 
-    op_sub_2 = op_sub->find_section ("SEPARATOR");
-    if (op_sub_2) {
-        op_sub_2 = op_sub_2->get_section ();
+    sub_2 = sub->find_section ("SEPARATOR");
+    if (sub_2) {
+        sub_2 = sub_2->get_section ();
 
         o_key_list.push_back (new CfgParserKeyString ("FOCUSED", o_value_focused,
                               "Empty", th->getLengthMin ()));
@@ -265,7 +265,7 @@ Theme::PDecorData::load (CfgParser::Entry *op_section)
                               "Empty", th->getLengthMin ()));
 
         // Parse data
-        op_sub_2->parse_key_values (o_key_list.begin (), o_key_list.end ());
+        sub_2->parse_key_values (o_key_list.begin (), o_key_list.end ());
 
         // Free up resources
         for_each (o_key_list.begin (), o_key_list.end (),
@@ -280,32 +280,32 @@ Theme::PDecorData::load (CfgParser::Entry *op_section)
     }
 
 
-    op_sub_2 = op_sub->find_section ("FONT");
-    if (op_sub_2) {
-        op_sub_2 = op_sub_2->get_section ();
+    sub_2 = sub->find_section ("FONT");
+    if (sub_2) {
+        sub_2 = sub_2->get_section ();
         for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
-            op_value = op_sub_2->find_entry (_fs_map[FocusedState(i)]);
-            if (op_value) {
-                _font[i] = FontHandler::instance()->getFont(op_value->get_value ());
+            value = sub_2->find_entry (_fs_map[FocusedState(i)]);
+            if (value) {
+                _font[i] = FontHandler::instance()->getFont(value->get_value ());
             }
         }
     } else {
         cerr << " *** WARNING: no font section in decor: " << _name << endl;
     }
 
-    op_sub_2 = op_sub->find_section ("FONTCOLOR");
-    if (op_sub_2) {
-        op_sub_2 = op_sub_2->get_section ();
+    sub_2 = sub->find_section ("FONTCOLOR");
+    if (sub_2) {
+        sub_2 = sub_2->get_section ();
         for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
-            op_value = op_sub_2->find_entry (_fs_map[FocusedState(i)]);
-            if (op_value) {
-                _font_color[i] = FontHandler::instance()->getColor(op_value->get_value ());
+            value = sub_2->find_entry (_fs_map[FocusedState(i)]);
+            if (value) {
+                _font_color[i] = FontHandler::instance()->getColor(value->get_value ());
             }
         }
     }
 
-    loadButtons (op_sub->find_section ("BUTTONS"));
-    loadBorder (op_sub->find_section ("BORDER"));
+    loadButtons (sub->find_section ("BUTTONS"));
+    loadBorder (sub->find_section ("BORDER"));
 
     check();
 
@@ -365,37 +365,37 @@ Theme::PDecorData::check(void)
 
 //! @brief Loads border data.
 void
-Theme::PDecorData::loadBorder (CfgParser::Entry *op_section)
+Theme::PDecorData::loadBorder (CfgParser::Entry *section)
 {
-    if (! op_section) {
+    if (! section) {
         return;
     }
-    op_section = op_section->get_section ();
+    section = section->get_section ();
 
     TextureHandler *th = TextureHandler::instance(); // convenience
 
-    CfgParser::Entry *op_sub, *op_value;
+    CfgParser::Entry *sub, *value;
 
-    op_sub = op_section->find_section ("FOCUSED");
-    if (op_sub) {
-        op_sub = op_sub->get_section ();
+    sub = section->find_section ("FOCUSED");
+    if (sub) {
+        sub = sub->get_section ();
         for (uint i = 0; i < BORDER_NO_POS; ++i) {
-            op_value = op_sub->find_entry (_border_map[BorderPosition (i)]);
-            if (op_value) {
+            value = sub->find_entry (_border_map[BorderPosition (i)]);
+            if (value) {
                 _texture_border[FOCUSED_STATE_FOCUSED][i] =
-                    th->getTexture (op_value->get_value ());
+                    th->getTexture (value->get_value ());
             }
         }
     }
 
-    op_sub = op_section->find_section ("UNFOCUSED");
-    if (op_sub) {
-        op_sub = op_sub->get_section ();
+    sub = section->find_section ("UNFOCUSED");
+    if (sub) {
+        sub = sub->get_section ();
         for (uint i = 0; i < BORDER_NO_POS; ++i) {
-            op_value = op_sub->find_entry (_border_map[BorderPosition (i)]);
-            if (op_value) {
+            value = sub->find_entry (_border_map[BorderPosition (i)]);
+            if (value) {
                 _texture_border[FOCUSED_STATE_UNFOCUSED][i] =
-                    th->getTexture (op_value->get_value ());
+                    th->getTexture (value->get_value ());
             }
         }
     }
@@ -403,16 +403,16 @@ Theme::PDecorData::loadBorder (CfgParser::Entry *op_section)
 
 //! @brief Loads button data.
 void
-Theme::PDecorData::loadButtons (CfgParser::Entry *op_section)
+Theme::PDecorData::loadButtons (CfgParser::Entry *section)
 {
-    if (! op_section) {
+    if (! section) {
         return;
     }
-    op_section = op_section->get_section ();
+    section = section->get_section ();
 
-    while ((op_section = op_section->get_section_next()) != 0) {
+    while ((section = section->get_section_next()) != 0) {
         Theme::PDecorButtonData *btn = new Theme::PDecorButtonData ();
-        if (btn->load (op_section)) {
+        if (btn->load (section)) {
             _button_list.push_back(btn);
         } else {
             delete btn;
@@ -514,37 +514,37 @@ Theme::PMenuData::~PMenuData(void)
     unload();
 }
 
-//! @brief Parses CfgParser::Entry op_section, loads and verifies data.
-//! @param op_section CfgParser::Entry with pmenu configuration.
+//! @brief Parses CfgParser::Entry section, loads and verifies data.
+//! @param section CfgParser::Entry with pmenu configuration.
 void
-Theme::PMenuData::load(CfgParser::Entry *op_section)
+Theme::PMenuData::load(CfgParser::Entry *section)
 {
-    op_section = op_section->get_section ();
+    section = section->get_section ();
 
-    CfgParser::Entry *op_value;
-    op_value = op_section->find_entry ("PAD");
-    if (op_value) {
+    CfgParser::Entry *value;
+    value = section->find_entry ("PAD");
+    if (value) {
         vector<string> tok;
-        if (Util::splitString (op_value->get_value (), tok, " \t", 4) == 4) {
+        if (Util::splitString (value->get_value (), tok, " \t", 4) == 4) {
             for (int i = 0; i < PAD_NO; ++i) {
                 _pad[i] = strtol (tok[i].c_str(), NULL, 10);
             }
         }
     }
 
-    op_value = op_section->find_section ("FOCUSED");
-    if (op_value) {
-        loadState (op_value, OBJECT_STATE_FOCUSED);
+    value = section->find_section ("FOCUSED");
+    if (value) {
+        loadState (value, OBJECT_STATE_FOCUSED);
     }
     
-    op_value = op_section->find_section ("UNFOCUSED");
-    if (op_value) {
-        loadState (op_value, OBJECT_STATE_UNFOCUSED);
+    value = section->find_section ("UNFOCUSED");
+    if (value) {
+        loadState (value, OBJECT_STATE_UNFOCUSED);
     }
     
-    op_value = op_section->find_section ("SELECTED");
-    if (op_value) {
-        loadState (op_value, OBJECT_STATE_SELECTED);
+    value = section->find_section ("SELECTED");
+    if (value) {
+        loadState (value, OBJECT_STATE_SELECTED);
     }
 
     check();
@@ -605,9 +605,9 @@ Theme::PMenuData::check(void)
 
 //! @brief
 void
-Theme::PMenuData::loadState (CfgParser::Entry *op_section, ObjectState state)
+Theme::PMenuData::loadState (CfgParser::Entry *section, ObjectState state)
 {
-    op_section = op_section->get_section ();
+    section = section->get_section ();
 
     list<CfgParserKey*> o_key_list;
     string o_value_font, o_value_background, o_value_item;
@@ -629,7 +629,7 @@ Theme::PMenuData::loadState (CfgParser::Entry *op_section, ObjectState state)
                               "Solid #000000"));
     }
 
-    op_section->parse_key_values (o_key_list.begin (), o_key_list.end ());
+    section->parse_key_values (o_key_list.begin (), o_key_list.end ());
 
     for_each (o_key_list.begin (), o_key_list.end (),
               Util::Free<CfgParserKey*>());
@@ -664,12 +664,12 @@ Theme::TextDialogData::~TextDialogData(void)
     unload();
 }
 
-//! @brief Parses CfgParser::Entry op_section, loads and verifies data.
-//! @param op_section CfgParser::Entry with textdialog configuration.
+//! @brief Parses CfgParser::Entry section, loads and verifies data.
+//! @param section CfgParser::Entry with textdialog configuration.
 void
-Theme::TextDialogData::load (CfgParser::Entry *op_section)
+Theme::TextDialogData::load (CfgParser::Entry *section)
 {
-    op_section = op_section->get_section ();
+    section = section->get_section ();
 
     list<CfgParserKey*> o_key_list;
     string o_value_font, o_value_text, o_value_texture, o_value_pad;
@@ -682,7 +682,7 @@ Theme::TextDialogData::load (CfgParser::Entry *op_section)
     o_key_list.push_back (new CfgParserKeyString ("PAD", o_value_pad,
                           "0 0 0 0", 7));
 
-    op_section->parse_key_values (o_key_list.begin (), o_key_list.end ());
+    section->parse_key_values (o_key_list.begin (), o_key_list.end ());
 
     for_each (o_key_list.begin (), o_key_list.end (),
               Util::Free<CfgParserKey*>());
@@ -898,21 +898,21 @@ Theme::load(const std::string &dir)
         }
     }
 
-    CfgParser::Entry *op_section, *op_value;
+    CfgParser::Entry *section, *value;
 
     // Set image basedir.
     _image_handler->setDir(_theme_dir);
 
     // Load decor data.
-    op_section = theme.get_entry_root ()->find_section ("PDECOR");
-    if (op_section) {
+    section = theme.get_entry_root ()->find_section ("PDECOR");
+    if (section) {
         // Get section data, don't need name or value.
-        op_section = op_section->get_section ();
+        section = section->get_section ();
 
-        //op_section = op_section->get_section ();
-        while ((op_section = op_section->get_section_next ()) != 0) {
+        //section = section->get_section ();
+        while ((section = section->get_section_next ()) != 0) {
             Theme::PDecorData *data = new Theme::PDecorData();
-            if (data->load (op_section)) {
+            if (data->load (section)) {
                 _pdecordata_map[data->getName()] = data;
             } else {
                 delete data;
@@ -931,36 +931,36 @@ Theme::load(const std::string &dir)
     }
 
     // Load menu data.
-    op_section = theme.get_entry_root ()->find_section ("MENU");
-    if (op_section) {
-        _menu_data.load(op_section);
+    section = theme.get_entry_root ()->find_section ("MENU");
+    if (section) {
+        _menu_data.load(section);
     } else {
         cerr << " *** WARNING: missing menu section" << endl;
         _menu_data.check ();
     }
 
     // Load StatusWindow data.
-    op_section = theme.get_entry_root ()->find_section ("STATUS");
-    if (op_section) {
-        _status_data.load (op_section);
+    section = theme.get_entry_root ()->find_section ("STATUS");
+    if (section) {
+        _status_data.load (section);
     } else {
         cerr << " *** WARNING: missing status section" << endl;
         _status_data.check ();
     }
 
     // Load CmdDialog data.
-    op_section = theme.get_entry_root ()->find_section ("CMDDIALOG");
-    if (op_section) {
-        _cmd_d_data.load (op_section);
+    section = theme.get_entry_root ()->find_section ("CMDDIALOG");
+    if (section) {
+        _cmd_d_data.load (section);
     } else {
         cerr << " *** WARNING: missing cmddialog section" << endl;
         _cmd_d_data.check ();
     }
 
     // Load WorkspaceIndicator data.
-    op_section = theme.get_entry_root()->find_section("WORKSPACEINDICATOR");
-    if (op_section) {
-      _workspace_indicator_data.load(op_section);
+    section = theme.get_entry_root()->find_section("WORKSPACEINDICATOR");
+    if (section) {
+      _workspace_indicator_data.load(section);
     } else {
       cerr << " *** WARNING: missing workspaceindicator section" << endl;
       _workspace_indicator_data.check();
@@ -968,13 +968,13 @@ Theme::load(const std::string &dir)
 
 #ifdef HARBOUR
     // Load Harbour texture.
-    op_section = theme.get_entry_root ()->find_section ("HARBOUR");
-    if (op_section) {
-        op_section = op_section->get_section ();
+    section = theme.get_entry_root ()->find_section ("HARBOUR");
+    if (section) {
+        section = section->get_section ();
 
-        op_value = op_section->find_entry ("TEXTURE");
-        if (op_value) {
-            _harbour_texture = TextureHandler::instance ()->getTexture (op_value->get_value ());
+        value = section->find_entry ("TEXTURE");
+        if (value) {
+            _harbour_texture = TextureHandler::instance ()->getTexture (value->get_value ());
         }
     } else {
         cerr << " *** WARNING: missing harbour section" << endl;

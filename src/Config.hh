@@ -125,16 +125,15 @@ public:
     bool parseAction(const std::string &action_string, Action &action, uint mask);
     bool parseActionState(Action &action, const std::string &st_action);
     bool parseActions(const std::string &actions, ActionEvent &ae, uint mask);
-    bool parseActionEvent(CfgParser::Entry *op_section, ActionEvent &ae,
-                          uint mask, bool button);
+    bool parseActionEvent(CfgParser::Entry *section, ActionEvent &ae, uint mask, bool button);
 
     bool parseMoveResizeAction(const std::string &action_string, Action &action);
     bool parseMoveResizeActions(const std::string &actions, ActionEvent &ae);
-    bool parseMoveResizeEvent(CfgParser::Entry *op_section, ActionEvent &ae);
+    bool parseMoveResizeEvent(CfgParser::Entry *section, ActionEvent &ae);
 
     bool parseInputDialogAction(const std::string &val, Action &action);
     bool parseInputDialogActions(const std::string &actions, ActionEvent &ae);
-    bool parseInputDialogEvent(CfgParser::Entry *op_section, ActionEvent &ae);
+    bool parseInputDialogEvent(CfgParser::Entry *section, ActionEvent &ae);
 
     uint getMenuMask(const std::string &mask);
     uint getMenuIconWidth(void) const { return _menu_icon_width; }
@@ -143,7 +142,7 @@ public:
 #ifdef MENUS
     bool parseMenuAction(const std::string& action_string, Action& action);
     bool parseMenuActions(const std::string& actions, ActionEvent& ae);
-    bool parseMenuEvent(CfgParser::Entry *op_section, ActionEvent& ae);
+    bool parseMenuEvent(CfgParser::Entry *section, ActionEvent& ae);
 #endif // MENUS
 
     inline uint getMod(const std::string &mod) { return ParseUtil::getValue<uint>(mod, _mod_map); }
@@ -162,8 +161,7 @@ private:
 #endif // HARBOUR
 
     void loadMouseConfig(const std::string &file);
-    void parseButtons(CfgParser::Entry *op_section,
-                      std::list<ActionEvent>* mouse_list, ActionOk action_ok);
+    void parseButtons(CfgParser::Entry *section, std::list<ActionEvent>* mouse_list, ActionOk action_ok);
 
   int parseWorkspaceNumber(const std::string &workspace);
 
