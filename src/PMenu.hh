@@ -1,6 +1,6 @@
 //
 // PMenu.hh for pekwm
-// Copyright © 2004-2008 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2004-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -148,6 +148,7 @@ private:
 protected:
     std::string _name; //!< Name of menu, must be unique
     MenuType _menu_type; //!< Type of menu
+    PMenu *_menu_parent;
 
     // menu content data
     std::list<PMenu::Item*> _item_list;
@@ -157,7 +158,6 @@ private:
     static std::map<Window, PMenu*> _menu_map;
 
     PWinObj *_menu_wo;
-    PMenu *_menu_parent;
     PDecor::TitleItem _title;
 
     // menu render data

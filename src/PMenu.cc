@@ -1,11 +1,9 @@
 //
 // PMenu.cc for pekwm
-// Copyright © 2004-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright Â© 2004-2008 Claes NÃ¤stÃ©n <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
-//
-// $Id$
 //
 
 #ifdef HAVE_CONFIG_H
@@ -64,7 +62,7 @@ PMenu::PMenu(Display *dpy, Theme *theme, const std::wstring &title,
              const std::string &name, const std::string decor_name)
     : PDecor(dpy, theme, decor_name),
       _name(name),
-      _menu_wo(NULL), _menu_parent(NULL),
+      _menu_parent(0), _menu_wo(0),
       _menu_bg_fo(None), _menu_bg_un(None), _menu_bg_se(None),
       _item_height(0), _item_width_max(0), _item_width_max_avail(0),
       _icon_width(0), _icon_height(0),
@@ -601,7 +599,7 @@ PMenu::selectItem(std::list<PMenu::Item*>::iterator item, bool unmap_submenu)
 }
 
 //! @brief Deselects selected item
-//! @þaram unmap_submenu Defaults to true
+//! @param unmap_submenu Defaults to true
 void
 PMenu::deselectItem(bool unmap_submenu)
 {
@@ -841,7 +839,7 @@ PMenu::gotoParentMenu(void)
 
 //! @brief Selects item, if NULL/not in list current item is deselected
 //! @param item Item to select
-//! @ï¿½aram unmap_submenu Defaults to true
+//! @param unmap_submenu Defaults to true
 void
 PMenu::select(PMenu::Item *item, bool unmap_submenu)
 {
