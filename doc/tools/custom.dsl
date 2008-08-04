@@ -32,9 +32,7 @@
 	(list
 	 (list "BGCOLOR" "#FFFFFF")
 	 (list "TEXT" "#000000")
-	 (list "LINK" "#FF6600")
-	 (list "VLINK" "#FF6600")
-	 (list "ALINK" "#FF6600")))
+         (list "STYLE" "font-family: verdana, arial, helvetica, sans-serif;")))
 
 (define (chunk-skip-first-element-list)
 ;; forces the Table of Contents on separate page
@@ -56,7 +54,7 @@
 (element para
   (make element 
     gi: "P" 
-		attributes: '(("STYLE" "text-indent: 15px"))
+		attributes: '(("STYLE" "text-indent: 1em;"))
 		(process-children)))
 
 (element tgroup
@@ -83,7 +81,8 @@
 					attributes: '(("BGCOLOR" "#FEFFEC")) 
 					(make element
 						gi: "PRE" ;; (process-children)
-						attributes: '(("STYLE" "padding:5px") ("STYLE" "text-align:left"))))))))
+						attributes: '(("STYLE" "padding: 0.25em") ("STYLE" "text-align: left")
+                                                              ("STYLE" "margin-top: 0.25em") ("STYLE" "margin-bottom: 0.2em"))))))))
 
 ;; make role=strong equate to bold for emphasis tag
 (element emphasis

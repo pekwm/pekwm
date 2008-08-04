@@ -3,7 +3,7 @@
 
 
 <para>
-	There are three subsections in the screen section - Placement, Viewports and ClientUniqueNames.
+	There are two subsections in the screen section - Placement and UniqueNames.
 	Placement can optionally have it's own subsection. Sound hard? It's not! It's 
 	really quite simple.
 </para>
@@ -15,12 +15,7 @@
 	to place a new window in smart mode.
 </para>
 <para>
-	The second subsection is for viewports configuration. With it you can
-	manage the layout of your viewports. See <xref linkend="usage-workspaces-viewports"/>
-	for more info on viewports.
-</para>
-<para>
-	Third subsection, UniqueNames, lets you configure how pekwm should
+	The second subsection, UniqueNames, lets you configure how pekwm should
 handle similar client names.  Pekwm can add unique number identifiers to
 clients that have the same title so that instead of "terminal" and
 "terminal", you would end up with something like "terminal" and

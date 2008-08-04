@@ -3,7 +3,7 @@
 # creates documents. fuck make. seriously. make can go blow a goat while 
 # taking it from a monkey. i bet if i webcasted it, i could make good money.
 
-DOCSNAME=pekwmdocs
+DOCSNAME=pekwm-doc
 CURDIR=`pwd`
 FINDIR=${CURDIR}/fin
 HTMLDIR=${FINDIR}/html
@@ -26,10 +26,10 @@ LOGDIR="${CURDIR}/logs"
 # DBP="${DBDIR}/print/plain.dsl"
 # DBX="${DBDIR}/dtds/decls/xml.dcl"
 
- DBDIR="/usr/share/sgml/docbook/stylesheet/dsssl/modular"
- DBC="${DBDIR}/html/custom.dsl"
+ DBDIR="/usr/share/sgml/docbook/dsssl-stylesheets"
+ DBC="${DBDIR}/html/pekwm.dsl"
  DBP="${DBDIR}/print/plain.dsl"
- DBX="/usr/share/sgml/declaration/xml.dcl"
+ DBX="/usr/share/sgml/xml.dcl"
 
 printerr() {
 	echo "ERROR! $1!"

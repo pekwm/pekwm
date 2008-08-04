@@ -4,11 +4,6 @@
 <para>The source code is available from the pekwm website,
 <ulink url="&http-site;">&http-site;</ulink>.</para>
 
-<!--
-, and the ftp site,
-<ulink url="&ftp-site;">&ftp-site;</ulink>.</para>
--->
-
 <para>Files are named pekwm-&current-version;.tar.gz and 
 pekwm-&current-version;.tar.bz2. Although it doesn't matter 
 which you get, keep in mind that the .bz2 is smaller.</para>

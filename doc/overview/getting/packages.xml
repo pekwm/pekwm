@@ -4,11 +4,6 @@
 <para>Links to pre-built pekwm packages are available at
 the pekwm website, <ulink url="&http-site;">&http-site;</ulink>.</para>
 
-<!--
-, and the ftp site,
-<ulink url="&ftp-site;">&ftp-site;</ulink>.</para>
--->
-
 <para>The current version of pekwm is &current-version;.</para>
 
 <!--

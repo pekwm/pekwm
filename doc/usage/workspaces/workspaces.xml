@@ -10,6 +10,5 @@ editing your <filename>~/.pekwm/config</filename> file. See
 <xref linkend="config-configfile"/> section for more details.
 </para></note>
 &usage-workspaces-nav;
-&usage-workspaces-viewports;
 </chapter>
 
