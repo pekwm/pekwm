@@ -205,9 +205,6 @@ ActionMenu::parse(CfgParser::Entry *section, bool has_dynamic)
         return;
     }
 
-    _has_dynamic = has_dynamic;
-    _is_dynamic = has_dynamic;
-
     CfgParser::Entry *sub, *value;
     ActionEvent ae;
 
@@ -235,27 +232,27 @@ ActionMenu::parse(CfgParser::Entry *section, bool has_dynamic)
 
         if (*section == "SUBMENU") {
             submenu = new ActionMenu(_menu_type, Util::to_wide_str(section->get_value()), "");
-            submenu->_is_dynamic = _has_dynamic;
+            submenu->_is_dynamic = has_dynamic;
             submenu->_menu_parent = this;
-            submenu->parse(section, _has_dynamic);
+            submenu->parse(section, has_dynamic);
             submenu->buildMenu();
 
             item = new PMenu::Item(Util::to_wide_str(sub->get_value()), submenu, icon);
-            item->setDynamic(_has_dynamic);
+            item->setDynamic(has_dynamic);
         } else if (*section == "SEPARATOR") {
             item = new PMenu::Item(L"", NULL, icon);
-            item->setDynamic(_has_dynamic);
+            item->setDynamic(has_dynamic);
             item->setType(PMenu::Item::MENU_ITEM_SEPARATOR);
         } else {
             value = section->get_section()->find_entry("ACTIONS");
             if (value && Config::instance()->parseActions(value->get_value(), ae, _action_ok)) {
                 item = new PMenu::Item(Util::to_wide_str(sub->get_value()), 0, icon);
-                item->setDynamic(_has_dynamic);
+                item->setDynamic(has_dynamic);
                 item->setAE(ae);
 
-                if (ae.isOnlyAction (ACTION_MENU_DYN)) {
+                if (ae.isOnlyAction(ACTION_MENU_DYN)) {
                     _has_dynamic = true;
-                    item->setType (PMenu::Item::MENU_ITEM_HIDDEN);
+                    item->setType(PMenu::Item::MENU_ITEM_HIDDEN);
                 }
             }
         }
@@ -280,9 +277,10 @@ ActionMenu::rebuildDynamic(void)
             item = *it;
 
             CfgParser dynamic;
-            if (dynamic.parse ((*it)->getAE().action_list.front().getParamS(),
-                               CfgParserSource::SOURCE_COMMAND)) {
-                parse (dynamic.get_entry_root ()->find_section ("DYNAMIC"), true);
+            if (dynamic.parse((*it)->getAE().action_list.front().getParamS(),
+                              CfgParserSource::SOURCE_COMMAND)) {
+                _has_dynamic = true;
+                parse(dynamic.get_entry_root()->find_section("DYNAMIC"), true);
             }
 
             it = find(_item_list.begin(), _item_list.end(), item);
