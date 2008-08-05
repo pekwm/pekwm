@@ -1,81 +1,97 @@
 <chapter id="devel-irc" xreflabel="IRC">
-	<?dbhtml filename="irc.html" dir="development"?>
-<title>IRC</title>
-<para>
-	Our IRC channel is located on irc.freenode.net, in #pekwm. A lot of devel
-	discussion goes on there, however you can also get simple help there
-	pretty easily.
-</para>
-<para>
-	The following is a "do not" list. If some idiotic behaviour like, public
-	away messages, or nick changing as a way of telling what you are doing, are not
-	mentioned it doesn't mean you can do them.
-</para>
-<para>
-	As it seems to be a problem for some, do not ask questions in IRC
-	unless you are willing to listen to the answer. If listening is your
-	problem, you need other help than what we at IRC can provide.
-</para>
-<para>
-	If you have a question, ask it. It doesn't help to go around shouting
-	"can anyone help me". Help you with what? This will help the right
-	people to take initial contact with you, saving your time and adding
-	less clutter to the channel.
-</para>
-<para>
-	For same reasons, don't ask if we are alive or other meaningles
-	questions leading to the real question. Don't ask if someone specific
-	is around eather. This is not the pager channel for you and your friends.
-</para>
-<para>
-	Do not ask from one person. The fact is, even how much you think he or she must be the
-	only one who knows the answer, you are wrong. There's atleast a handful of people lurking
-	on the channel who could help you.
-</para>
-<para>
-	Read the documentation and FAQ before you ask anything.
-	Doing this is common courtesy towards the people who answer your
-	questions. Not reading atleast the FAQ will be considered rude.
-</para>
-<para>
-	When asking a question, the answer more than often depends on the
-	version of pekwm you use. Showing us the information the command
-	<command>pekwm --info</command> gives will help us help you.
-</para>
-<para>
-	Do not expect people to answer your questions during the two
-	minutes you stay in the channel. We can't sit there all the time
-	waiting for your questions. If you can't wait longer,
-	think about how stresful your life is, take a break,
-	go on a vacation, take it easy for a while.
-</para>
-<para>
-	For similar reasons, don't repeat yourself. We saw it the first time.
-	Repeating easily gets you ignored completely so it eats its own purpose.
-	It's also considered rude, much like cutting in line.
-</para>
-<para>
-	If people tell you to read the documentation, they have a good reason
-	to do so. If they include an URL that helps you find the info quicker,
-	offer them your firstborn as a payback.
-</para>
-<para>
-	Don't offend anyone. They will offend you back two times.
-</para>
-<para>
-	Nicks with excessive capital letters will be hunted down and shot on sight.
-	You might as well use a proper nick to start with to avoid this.
-</para>
-<para>
-	You can check the <xref linkend="devel-who"/> section to see the list of
-	developers mapped to their IRC nicks.
-</para>
-<para>
-	As with all IRC channels, it's best to not do anything too drastic before
-	keeping an eye for a while on how the channel works. We won't mind even if
-	you just idle there, there are long standing traditions on that.
-</para>
-<para>
-	Welcome aboard!
-</para>
+  <?dbhtml filename="irc.html" dir="development"?>
+  <title>IRC</title>
+
+  <para>
+    Our IRC channel is located on irc.freenode.net, in #pekwm. A lot
+    of devel discussion goes on there, however you can also get simple
+    help there pretty easily.
+  </para>
+
+  <para>
+    The following is a "do not" list. If some idiotic behaviour like, public
+    away messages, or nick changing as a way of telling what you are doing, are not
+    mentioned it doesn't mean you can do them.
+  </para>
+
+  <para>
+    As it seems to be a problem for some, do not ask questions in IRC
+    unless you are willing to listen to the answer. If listening is your
+    problem, you need other help than what we at IRC can provide.
+  </para>
+
+  <para>
+    If you have a question, ask it. It doesn't help to go around shouting
+    "can anyone help me". Help you with what? This will help the right
+    people to take initial contact with you, saving your time and adding
+    less clutter to the channel.
+  </para>
+
+  <para>
+    For same reasons, don't ask if we are alive or other meaningles
+    questions leading to the real question. Don't ask if someone specific
+    is around eather. This is not the pager channel for you and your friends.
+  </para>
+
+  <para>
+    Do not ask from one person. The fact is, even how much you think he or she must be the
+    only one who knows the answer, you are wrong. There's atleast a handful of people lurking
+    on the channel who could help you.
+  </para>
+
+  <para>
+    Read the documentation and FAQ before you ask anything.
+    Doing this is common courtesy towards the people who answer your
+    questions. Not reading atleast the FAQ will be considered rude.
+  </para>
+
+  <para>
+    When asking a question, the answer more than often depends on the
+    version of pekwm you use. Showing us the information the command
+    <command>pekwm --info</command> gives will help us help you.
+  </para>
+
+  <para>
+    Do not expect people to answer your questions during the two
+    minutes you stay in the channel. We can't sit there all the time
+    waiting for your questions. If you can't wait longer,
+    think about how stresful your life is, take a break,
+    go on a vacation, take it easy for a while.
+  </para>
+
+  <para>
+    For similar reasons, don't repeat yourself. We saw it the first time.
+    Repeating easily gets you ignored completely so it eats its own purpose.
+    It's also considered rude, much like cutting in line.
+  </para>
+
+  <para>
+    If people tell you to read the documentation, they have a good reason
+    to do so. If they include an URL that helps you find the info quicker,
+    offer them your firstborn as a payback.
+  </para>
+
+  <para>
+    Don't offend anyone. They will offend you back two times.
+  </para>
+
+  <para>
+    Nicks with excessive capital letters will be hunted down and shot on sight.
+    You might as well use a proper nick to start with to avoid this.
+  </para>
+
+  <para>
+    You can check the <xref linkend="devel-who"/> section to see the list of
+    developers mapped to their IRC nicks.
+  </para>
+
+  <para>
+    As with all IRC channels, it's best to not do anything too drastic before
+    keeping an eye for a while on how the channel works. We won't mind even if
+    you just idle there, there are long standing traditions on that.
+  </para>
+
+  <para>
+    Welcome aboard!
+  </para>
 </chapter>

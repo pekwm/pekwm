@@ -1,27 +1,26 @@
 <part id="faq" xreflabel="The pekwm FAQ">
-<?dbhtml filename="faq.html" dir="faq"?>
-<title>The pekwm FAQ</title>
-<partintro>
-<para>
-This is the official pekwm FAQ. Here you can find answers to the
-questions and cries for help frequently appearing in the pekwm IRC
-channel and mailing lists.
-</para>
-<para>
-If you can't find the answer to your question here, read the whole thing
-again. Changes are you just missed it the first time around. If you
-still can't find it, and you have gone thru the documentation, tried
-until your fingers bleed from typing, and started a hunger strike
-against evil documentation projects that contain no helpfull advices for
-you, then you may ask your question in IRC or one of the mailing lists.
-</para>
+  <?dbhtml filename="faq.html" dir="faq"?>
+  <title>The pekwm FAQ</title>
 
-  <!-- <para>
-  Maintained by <email>shared@surffi.net</email>.
-  </para> -->
+  <partintro>
+    <para>
+      This is the official pekwm FAQ. Here you can find answers to the
+      questions and cries for help frequently appearing in the pekwm
+      IRC channel and mailing lists.
+    </para>
 
-</partintro>
+    <para>
+      If you can't find the answer to your question here, read the
+      whole thing again. Changes are you just missed it the first time
+      around. If you still can't find it, and you have gone thru the
+      documentation, tried until your fingers bleed from typing, and
+      started a hunger strike against evil documentation projects that
+      contain no helpfull advices for you, then you may ask your
+      question in IRC or one of the mailing lists.
+    </para>
 
-&faq-answers;
+  </partintro>
+
+  &faq-answers;
 
 </part>

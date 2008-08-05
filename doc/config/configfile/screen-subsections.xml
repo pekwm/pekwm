@@ -1,25 +1,24 @@
 <simplesect id="config-configfile-screensubsections" xreflabel="Screen Subsections"> 
-<title>Screen Subsections</title>
+  <title>Screen Subsections</title>
 
-
-<para>
-	There are two subsections in the screen section - Placement and UniqueNames.
-	Placement can optionally have it's own subsection. Sound hard? It's not! It's 
-	really quite simple.
-</para>
-<para>
-	We'll start off with Placement. Placement has two options: Model, and a 'Smart'
-	subsection. Model is very simple, it's simply a list of keywords that describes 
-	how to place new windows, such as "Smart MouseCentered".
-	Secondly, there's a Smart section, which describes how pekwm computes where 
-	to place a new window in smart mode.
-</para>
-<para>
-	The second subsection, UniqueNames, lets you configure how pekwm should
-handle similar client names.  Pekwm can add unique number identifiers to
-clients that have the same title so that instead of "terminal" and
-"terminal", you would end up with something like "terminal" and
-"terminal [2]".
-</para>
+  <para>
+    There are two subsections in the screen section - Placement and UniqueNames.
+    Placement can optionally have it's own subsection. Sound hard? It's not! It's 
+    really quite simple.
+  </para>
+  <para>
+    We'll start off with Placement. Placement has two options: Model, and a 'Smart'
+    subsection. Model is very simple, it's simply a list of keywords that describes 
+    how to place new windows, such as "Smart MouseCentered".
+    Secondly, there's a Smart section, which describes how pekwm computes where 
+    to place a new window in smart mode.
+  </para>
+  <para>
+    The second subsection, UniqueNames, lets you configure how pekwm should
+    handle similar client names.  Pekwm can add unique number identifiers to
+    clients that have the same title so that instead of "terminal" and
+    "terminal", you would end up with something like "terminal" and
+    "terminal [2]".
+  </para>
 
 </simplesect>

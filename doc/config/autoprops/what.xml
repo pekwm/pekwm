@@ -1,11 +1,16 @@
 <simplesect id="config-autoprops-what" xreflabel="What are Autoproperties?"> 
-<title>What are Autoproperties?</title>
-<para>"Autoproperties" is short for "Automatic Properties". This is pekwm's way of
-setting certain things up for applications based on the window's internal id.
-You can set up a lot of things, such as Size, iconified state, start location,
-grouped state (automatically having one window group to another), workspace to
-start on, whether it has a border or titlebar, and more. It is also
-possible to automatically modify window titles and to decide the order
-of applications on the harbour with autoproperties.</para>
+  <title>What are Autoproperties?</title>
+
+  <para>
+    "Autoproperties" is short for "Automatic Properties". This is
+    pekwm's way of setting certain things up for applications based on
+    the window's internal id.  You can set up a lot of things, such as
+    size, iconified state, start location, grouped state
+    (automatically having one window group to another), workspace to
+    start on, whether it has a border or titlebar, and more. It is
+    also possible to automatically modify window titles and to decide
+    the order of applications on the harbour with
+    autoproperties.
+  </para>
 </simplesect>
 

@@ -20,6 +20,7 @@
 <!ENTITY config-autoprops-basic SYSTEM "autoprops/basic.xml">
 <!ENTITY config-autoprops-adv SYSTEM "autoprops/advanced.xml">
 <!ENTITY config-autoprops-groups SYSTEM "autoprops/grouping.xml">
+<!ENTITY config-autoprops-types SYSTEM "autoprops/types.xml">
 <!ENTITY config-autoprops-help SYSTEM "autoprops/morehelp.xml">
 
 <!ENTITY config-keys_mouse SYSTEM "keys_mouse/keys_mouse.xml">

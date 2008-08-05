@@ -1,9 +1,8 @@
 <simplesect id="config-theme-structure" xreflabel="theme structure">
-<?dbhtml filename="structure.html" dir="config"?>
-<title>Structure</title>
+  <?dbhtml filename="structure.html" dir="config"?>
+  <title>Structure</title>
 
-<screen>
-PDecor{}: the block for decoration sets, any amount of Decor sections can exist inside this block.
+<screen>PDecor{}: the block for decoration sets, any amount of Decor sections can exist inside this block.
 
 	Decor, decorname{}: name of the decoration set.
 
@@ -252,7 +251,6 @@ Status{}: themes the insides of the status window that shows up when moving wind
 
 	Pad, padding
 
-		Amount of pixels of space around font to reserve.
-</screen>
+		Amount of pixels of space around font to reserve.</screen>
 
 </simplesect>

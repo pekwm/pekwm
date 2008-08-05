@@ -9,15 +9,6 @@
   the entry.</para></listitem>
 </varlistentry>
 
-<!--
-<varlistentry>
-	<term>Name (Name)</term>
-	<listitem><para>Alternative way of saying <command>Submenu = "name" {</command>.
-		Start the submenu with <command>Submenu { Name = "name"</command> to
-		use this feature.</para></listitem>
-</varlistentry>
- -->
-
 <varlistentry>
 	<term>Entry (Name)</term>
 	<listitem><para>Begins a menu entry. 'Name' is the text shown in the menu for

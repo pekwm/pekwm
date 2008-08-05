@@ -1,43 +1,34 @@
 <chapter id="devel-who" xreflabel="developers">
-<?dbhtml filename="who.html" dir="development"?>
-<title>The developers</title>
-<para>
-	Below is a list of pekwm developers and what they do. The email address
-	is more of an informational thing than anything else; the developers all
-	subscribe to + <ulink url="http://lists.pekwm.org/mailman/listinfo/pekwm-devel">pekwm-devel mailing list</ulink>,
-	so you should email that instead.
-</para>
-<para>
-<variablelist><title>Developers:</title>
-<varlistentry>
+  <?dbhtml filename="who.html" dir="development"?>
+  <title>The developers</title>
+
+  <para>
+    Below is a list of pekwm developers and what they do. The email
+    address is more of an informational thing than anything else; the
+    developers all subscribe to
+    + <ulink url="http://www.pekwm.org/projects/pekwm/mailing_lists/4">pekwm-devel
+    mailing list</ulink>, so you should email that instead.
+  </para>
+
+  <para>
+    <variablelist>
+      <title>Developers:</title>
+      <varlistentry>
 	<term>&program-author; (aka &program-author-nick;)</term>
-	<listitem><para><email>&program-author-email;</email></para>
-	<para>Main developer- Writes code. Has a serious screenshot fetish.</para></listitem>
-</varlistentry>
+	<listitem>
+          <para><email>&program-author-email;</email></para>
+	  <para>Main developer- Writes code. Has a serious screenshot fetish.</para>
+        </listitem>
+      </varlistentry>
 
-<!--
-<row>
-	<entry>&docs-manager;</entry>
-	<entry><para><email>&docs-manager-email;</email></para></entry>
-	<entry>&docs-manager-nick;</entry>
-	<entry>Documentation manager; In charge of all documentation, Also
-		takes care of cvs/web/irc issues. In charge of the build process
-		and takes all Makefile complaints.</entry>
-</row>
-<row>
-	<entry>Justin Rebelo</entry>
-	<entry><para><email>justin@demerol.org</email></para></entry>
-	<entry>demerol</entry>
-	<entry>Web development. Care and feeding of the pekwm Bee.</entry>
-</row>
--->
-
-<varlistentry>
+      <varlistentry>
 	<term>Jyri Jokinen (aka shared)</term>
-	<listitem><para><email>shared@adresh.com</email></para>
-	<para>Writes documentation. Acts ill-tempered. You have been warned.</para></listitem>
-</varlistentry>
-</variablelist>
-</para>
+	<listitem>
+          <para><email>shared@adresh.com</email></para>
+	  <para>Writes documentation. Acts ill-tempered. You have been warned.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </para>
 
 </chapter>

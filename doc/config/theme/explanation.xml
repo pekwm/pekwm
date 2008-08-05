@@ -1,9 +1,8 @@
 <simplesect id="config-theme-explanation" xreflabel="theme explanations">
-<?dbhtml filename="explanation.html" dir="config"?>
-<title>Attribute names used, explanations, possible values, examples</title>
+  <?dbhtml filename="explanation.html" dir="config"?>
+  <title>Attribute names used, explanations, possible values, examples</title>
 
-<screen>
-Name            Example(s)
+  <screen>Name            Example(s)
 |               | Possible values (if not obvious)
 |               | | Explanation
 --------------------------------------------------------------------------------------------------
@@ -139,7 +138,7 @@ Name            Example(s)
                  "1" { Actions = "Close" }
 
                     Buttonactions work alike what you are used from the mouse config, first mouse button number
-                    pressed when this action should happen, then any standard pekwm actions.
-</screen>
+                    pressed when this action should happen, then any standard pekwm actions.</screen>
+
 </simplesect>
 

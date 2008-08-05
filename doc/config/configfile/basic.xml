@@ -1,14 +1,13 @@
 <simplesect id="config-configfile-basic" xreflabel="Basic Config"> 
-<title>Basic Config</title>
-<para>
-	As previously indicated, the config file follows the rules defined in 
-	<xref linkend="config-syntax"/>.
-</para>
-<para>
-	Here's an example <filename>~/.pekwm/config</filename> file:
-</para>
-<screen>
-Files {
+  <title>Basic Config</title>
+  <para>
+    As previously indicated, the config file follows the rules defined in 
+    <xref linkend="config-syntax"/>.
+  </para>
+  <para>
+    Here's an example <filename>~/.pekwm/config</filename> file:
+  </para>
+  <screen>Files {
 	Keys = "~/.pekwm/keys"
 	Mouse = "~/.pekwm/mouse"
 	Menu = "~/.pekwm/menu"
@@ -28,18 +27,23 @@ MoveResize {
 
 Screen {
 	Workspaces = "4"
+	WorkspacesPerRow = "2"
+	WorkspaceNames = "Main;Web;E-mail;Music"
 	ShowFrameList = "True"
-	PlaceNew = "True"
-	FocusNew = "True"
 	ShowStatusWindow = "True"
+	ShowClientID = "False"
+	ShowWorkspaceIndicator = "1"
+
+	FocusNew = "True"
+	PlaceNew = "True"
 
 	TrimTitle = "..."
 	EdgeSize = "1"
+	EdgeIndent = "False"
 	PixmapCacheSize = "20"
-	ImlibAntiAlias = "True"
 	DoubleClickTime = "250"
 
-Placement {
+	Placement {
 		Model = "CenteredOnParent Smart MouseCentered"
 		Smart {
 			Row = "False"
@@ -52,14 +56,6 @@ Placement {
 		SetUnique = "True"
 		Pre = " #";
 		Post = "";
-	}
-
-	Viewports {
-		Columns = "1"
-		Rows = "1"
-		# Viewports are disabled by default to avoid strange behaviour from buggy pagers
-		#Columns = "3"
-		#Rows = "3"
 	}
 }
 
@@ -80,7 +76,6 @@ Harbour {
 		SideMin = "64"
 		SideMax = "64"
 	}
-}
-</screen>
+}</screen>
 </simplesect>
 

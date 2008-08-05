@@ -1,16 +1,11 @@
 <chapter id="config-configfile" xreflabel="The main config file">
-<?dbhtml filename="configfile.html" dir="config"?>
-<title>The main config file</title>
-<para>
-	The main config file is where all the base config stuff goes.
-</para>
-&config-configfile-basic;
-&config-configfile-keywords;
-&config-configfile-screensubsections;
+  <?dbhtml filename="configfile.html" dir="config"?>
+  <title>The main config file</title>
+  <para>
+    The main config file is where all the base config stuff goes.
+  </para>
 
-<!-- 
-&usage-grouping-what;
-&usage-grouping-basics;
-&usage-grouping-build; -->
-
+  &config-configfile-basic;
+  &config-configfile-keywords;
+  &config-configfile-screensubsections;
 </chapter>

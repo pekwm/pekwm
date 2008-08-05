@@ -1,203 +1,346 @@
 <simplesect id="config-configfile-keywords" xreflabel="Config File Keywords"> 
-<title>Config File Keywords</title>
-<para>
-	Here's a table showing the different elements that can be used in 
-	your <filename>config</filename> file. Remember that 'boolean' means 'true' or 'false' and that 
-	all values should be placed inside quotes.
-</para>
-<para>
+  <title>Config File Keywords</title>
 
-<variablelist><title>Config File Elements under the Files-section:</title>
-<varlistentry>
-<term>Keys (string)</term>
-<listitem><para>The location of the keys file, such as <filename>~/.pekwm/keys</filename></para></listitem>
-</varlistentry>
-<varlistentry>
-<term>Menu (string)</term>
-<listitem><para>The location of the menu file, such as <filename>~/.pekwm/menu</filename></para></listitem>
-</varlistentry>
-<varlistentry>
-<term>Start (string)</term>
-<listitem><para>The location of the start file, such as <filename>~/.pekwm/start</filename></para></listitem>
-</varlistentry>
-<varlistentry>
-<term>AutoProps (string)</term>
-<listitem><para>The location of the autoprops file, such as <filename>~/.pekwm/autoproperties</filename></para></listitem>
-</varlistentry>
-<varlistentry>
-<term>Theme (string)</term>
-<listitem><para>The location of the Theme directory, such as <filename>~/.pekwm/themes/themename</filename></para></listitem>
-</varlistentry>
-</variablelist>
+  <para>
+    Here's a table showing the different elements that can be used in 
+    your <filename>config</filename> file. Remember that 'boolean' means 'true' or 'false' and that 
+    all values should be placed inside quotes.
+  </para>
 
-<variablelist><title>Config File Elements under the MoveResize-section:</title>
-<varlistentry>
-<term>EdgeAttract (int)</term>
-<listitem><para>The distance from screen edge required for the window to snap against it in pixels.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term>EdgeResist (int)</term>
-<listitem><para>The distance from screen edge required for the window moving to start being resisted in pizels.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term>WindowAttract (int)</term>
-<listitem><para>The distance from other clients that a window will snap against them to in pixels.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term>WindowResist (int)</term>
-<listitem><para>The distance from other clients that a window movement will start being resisted.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term>OpaqueMove (boolean)</term>
-<listitem><para>If true, turns on opaque Moving</para></listitem>
-</varlistentry>
-<varlistentry>
-<term>OpaqueResize (boolean)</term>
-<listitem><para>If true, turns on opaque Resizing</para></listitem>
-</varlistentry>
-</variablelist>
+  <para>
+    <variablelist>
+      <title>Config File Elements under the Files-section:</title>
 
+      <varlistentry>
+        <term>Keys (string)</term>
+        <listitem>
+          <para>The location of the keys file, such as <filename>~/.pekwm/keys</filename></para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Menu (string)</term>
+        <listitem>
+          <para>The location of the menu file, such as <filename>~/.pekwm/menu</filename></para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Start (string)</term>
+        <listitem>
+          <para>The location of the start file, such as <filename>~/.pekwm/start</filename></para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>AutoProps (string)</term>
+        <listitem>
+          <para>The location of the autoprops file, such as <filename>~/.pekwm/autoproperties</filename></para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Theme (string)</term>
+        <listitem>
+          <para>The location of the Theme directory, such as <filename>~/.pekwm/themes/themename</filename></para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
 
-<variablelist><title>Config File Elements under the Screen-section:</title>
-<varlistentry>
-<term>Workspaces (int)</term>
-<listitem><para>Number of workspaces enabled.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term>DoubleClicktime (int)</term>
-<listitem><para>Time, in milliseconds, between clicks to be counted as a doubleclick.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term>ShowFrameList (boolean)</term>
-<listitem><para>Controls whether a list of all available frames on the workspace is displayed during the NextFrame/PrevFrame actions.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term>ShowStatusWindow (boolean)</term>
-<listitem><para>Controls whether a size/position info window is shown when moving or resizing windows.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term>EdgeSize (int)</term>
-<listitem><para>How many pizels from the edge of the screen should screen edges be in pixels. A value of 0 disables edges.</para></listitem>
-</varlistentry>
-<!--
-	<varlistentry>
-	<term>ImlibAntiAlias (boolean)</term>
-	<listitem><para>If true, antialiases images rendered with imlib2 (requires imlib2 to be enabled at compile time).</para></listitem>
-	</varlistentry>
--->
-<varlistentry>
+    <variablelist>
+      <title>Config File Elements under the MoveResize-section:</title>
+
+      <varlistentry>
+        <term>EdgeAttract (int)</term>
+        <listitem>
+          <para>The distance from screen edge required for the window to snap against it in pixels.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>EdgeResist (int)</term>
+        <listitem>
+          <para>The distance from screen edge required for the window moving to start being resisted in pizels.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>WindowAttract (int)</term>
+        <listitem>
+          <para>The distance from other clients that a window will snap against them to in pixels.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>WindowResist (int)</term>
+        <listitem><para>The distance from other clients that a window movement will start being resisted.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>OpaqueMove (boolean)</term>
+        <listitem><para>If true, turns on opaque Moving</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>OpaqueResize (boolean)</term>
+        <listitem><para>If true, turns on opaque Resizing</para></listitem>
+      </varlistentry>
+    </variablelist>
+
+    <variablelist>
+      <title>Config File Elements under the Screen-section:</title>
+
+      <varlistentry>
+        <term>Workspaces (int)</term>
+        <listitem><para>Number of workspaces enabled.</para></listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>WorkspacesPerRow (int)</term>
+        <listitem>
+          <para>Number of workspaces on each row. Value &lt; 1 fits all workspaces on a single row.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>WorkspaceNames (string)</term>
+        <listitem>
+          <para>List of names for workspaces separated by ;.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>ShowFrameList (boolean)</term>
+        <listitem>
+          <para>Controls whether a list of all available frames on the workspace is displayed during the NextFrame/PrevFrame actions.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>ShowStatusWindow (boolean)</term>
+        <listitem><para>Controls whether a size/position info window is shown when moving or resizing windows.</para></listitem>
+      </varlistentry>
+      <varlistentry>
 	<term>ShowClientID (boolean)</term>
-	<listitem><para>Should Client IDs be displayed in window titles.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term>PixmapCacheSize (int)</term>
-<listitem><para>Determines how many unused pixmaps are stored on the image cache for future use.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term>FocusNew (boolean)</term>
-<listitem><para>Toggles if new windows should be focused when they pop up.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term>PlaceNew (boolean)</term>
-<listitem><para>Toggles if new windows should be placed using the rules found in the Placement subsection, or just opened on the top left corner of your screen.</para></listitem>
-</varlistentry>
-<varlistentry>
-<term>TrimTitle (string)</term>
-<listitem><para>This string contains what pekwm uses to trim down overlong window titles. If it's empty, no trimming down is performed at all.</para></listitem>
-</varlistentry>
-</variablelist>
+	<listitem>
+          <para>Should Client IDs be displayed in window titles.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>ShowClientWorkspaceIndicator (int)</term>
+        <listitem>
+          <para>Show WorkspaceIndicator for seconds. If set to &lt; 1 the WorkspaceIndicator is disabled.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>FocusNew (boolean)</term>
+        <listitem>
+          <para>Toggles if new windows should be focused when they pop up.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>PlaceNew (boolean)</term>
+        <listitem>
+          <para>Toggles if new windows should be placed using the rules found in the Placement subsection, or just opened on the top left corner of your screen.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>TrimTitle (string)</term>
+        <listitem>
+          <para>This string contains what pekwm uses to trim down overlong window titles. If it's empty, no trimming down is performed at all.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>EdgeSize (int)</term>
+        <listitem>
+          <para>How many pixels from the edge of the screen should screen edges be. A value of 0 disables edges.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>EdgeIndent (boolean)</term>
+        <listitem>
+          <para>Toggles if the screen edge should be reserved space.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>PixmapCacheSize (int)</term>
+        <listitem>
+          <para>Determines how many unused pixmaps are stored on the image cache for future use.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>DoubleClicktime (int)</term>
+        <listitem>
+          <para>Time, in milliseconds, between clicks to be counted as a doubleclick.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
 
-<variablelist><title>Config File Elements under the Placement-subsection of the Screen-section:</title>
-	<varlistentry><term>Model (string)</term>
-	<listitem><para><itemizedlist>
-		<listitem><para>Smart - Tries to place windows where no other window is present</para></listitem>
-		<listitem><para>MouseCentered - Places the center of the window underneath the current mouse pointer position</para></listitem>
-		<listitem><para>MouseTopLeft - Places the top-left corner of the window under the pointer</para></listitem>
-		<listitem><para>MouseNotUnder - Places windows on screen corners avoiding the current mouse cursor position.</para></listitem>
-		<listitem><para>CenteredOnParent - Places transient windows at center of their parent window.</para></listitem>
-	</itemizedlist></para></listitem>
-	</varlistentry>
-</variablelist>
+    <variablelist>
+      <title>Config File Elements under the Placement-subsection of the Screen-section:</title>
 
-<variablelist><title>Config File Elements under the Smart-subsection of the Placement-subsection:</title>
-	<varlistentry><term>Row (boolean)</term>
-		<listitem><para>Whether to use row or column placement, if true, uses row.</para></listitem>
-	</varlistentry>
-	<varlistentry><term>TopToBottom (boolean)</term>
-		<listitem><para>If false, the window is placed starting from the bottom.</para></listitem>
-	</varlistentry>
-	<varlistentry><term>LeftToRight (boolean)</term>
-		<listitem><para>If false, the window is placed starting from the right.</para></listitem>
-	</varlistentry>
-	<varlistentry><term>OffsetX (int)</term>
-		<listitem><para>Pixels to leave between new and old windows and screen edges. When 0, no space is reserved.</para></listitem>
-	</varlistentry>
-	<varlistentry><term>OffsetY (int)</term>
-		<listitem><para>Pixels to leave between new and old windows and screen edges. When 0, no space is reserved.</para></listitem>
-	</varlistentry>
-</variablelist>
+      <varlistentry>
+        <term>Model (string)</term>
 
-<variablelist><title>Config File Elements under the Viewports-subsection of the Screen-section:</title>
-	<varlistentry><term>Columns (int)</term>
-		<listitem><para>Specifies the size of the viewport horizontally. Value is an integer as n is in viewport_width=n*screenwidth.</para></listitem>
-	</varlistentry>
-	<varlistentry><term>Rows (int)</term>
-		<listitem><para>Specifies the size of the viewport vertically. Value is an integer as n is in viewport_height=n*screenheight.</para></listitem>
-	</varlistentry>
-</variablelist>
+	<listitem>
+          <para>
+            <itemizedlist>
+	      <listitem>
+                <para>Smart - Tries to place windows where no other window is present</para>
+              </listitem>
+	      <listitem>
+                <para>MouseCentered - Places the center of the window underneath the current mouse pointer position</para>
+              </listitem>
+	      <listitem>
+                <para>MouseTopLeft - Places the top-left corner of the window under the pointer</para>
+              </listitem>
+	      <listitem>
+                <para>MouseNotUnder - Places windows on screen corners avoiding the current mouse cursor position.</para>
+              </listitem>
+	      <listitem>
+                <para>CenteredOnParent - Places transient windows at center of their parent window.</para>
+              </listitem>
+	    </itemizedlist>
+          </para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
 
-<variablelist><title>Config File Elements under the UniqueNames-subsection of the Screen-section:</title>
-	<varlistentry><term>SetUnique (boolean)</term>
-		<listitem><para>Decides if the feature is used or not. False or True.</para></listitem>
-	</varlistentry>
-	<varlistentry><term>Pre (string)</term>
-		<listitem><para>String to place before the unique client number.</para></listitem>
-	</varlistentry>
-	<varlistentry><term>Post (string)</term>
-		<listitem><para>String to place after the unique client number.</para></listitem>
-	</varlistentry>
-</variablelist>
+    <variablelist>
+      <title>Config File Elements under the Smart-subsection of the Placement-subsection:</title>
 
-<variablelist><title>Config File Elements under the Menu-section:</title>
-	<varlistentry><term>Select (string)</term>
-		<listitem><para>Decides on what mouse events to select a menu entry. String is one of "ButtonPress, ButtonRelease, DoubleClick, Motion"</para></listitem>
-	</varlistentry>
-	<varlistentry><term>Enter (string)</term>
-		<listitem><para>Decides on what mouse events to enter a submenu. String is one of "ButtonPress, ButtonRelease, DoubleClick, Motion"</para></listitem>
-	</varlistentry>
-	<varlistentry><term>Exec (string)</term>
-		<listitem><para>Decides on what mouse events to execute an entry. String is one of "ButtonPress, ButtonRelease, DoubleClick, Motion"</para></listitem>
-	</varlistentry>
-</variablelist>
+      <varlistentry>
+        <term>Row (boolean)</term>
+	<listitem>
+          <para>Whether to use row or column placement, if true, uses row.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>TopToBottom (boolean)</term>
+	<listitem>
+          <para>If false, the window is placed starting from the bottom.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>LeftToRight (boolean)</term>
+	<listitem>
+          <para>If false, the window is placed starting from the right.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>OffsetX (int)</term>
+	<listitem>
+          <para>Pixels to leave between new and old windows and screen edges. When 0, no space is reserved.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>OffsetY (int)</term>
+	<listitem>
+          <para>Pixels to leave between new and old windows and screen edges. When 0, no space is reserved.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
 
+    <variablelist>
+      <title>Config File Elements under the Viewports-subsection of the Screen-section:</title>
+      <varlistentry>
+        <term>Columns (int)</term>
+	<listitem>
+          <para>Specifies the size of the viewport horizontally. Value is an integer as n is in viewport_width=n*screenwidth.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Rows (int)</term>
+	<listitem>
+          <para>Specifies the size of the viewport vertically. Value is an integer as n is in viewport_height=n*screenheight.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
 
-<variablelist><title>Config File Elements under the Harbour-section:</title>
-	<varlistentry><term>Placement (string)</term>
-		<listitem><para>Which edge to place the harbour on. One of Right, Left, Top, or Bottom.</para></listitem>
-	</varlistentry>
-	<varlistentry><term>Orientation (string)</term>
-		<listitem><para>From what to which direction the harbour expands. One of TopToBottom, BottomToTop, RightToLeft, LeftToRight.</para></listitem>
-	</varlistentry>
-	<varlistentry><term>OnTop (boolean)</term>
-		<listitem><para>Whether or not the harbour is "always on top"</para></listitem>
-	</varlistentry>
-	<varlistentry><term>MaximizeOver (boolean)</term>
-		<listitem><para>Controls whether maximized clients will cover the harbour (true), or if they will stop at the edge of the harbour (false).</para></listitem>
-	</varlistentry>
-	<varlistentry><term>Head (int)</term>
-		<listitem><para>When Xinerama is on, decides on what head the harbour resides on. Integer is the head number.</para></listitem>
-	</varlistentry>
-</variablelist>
+    <variablelist>
+      <title>Config File Elements under the UniqueNames-subsection of the Screen-section:</title>
 
-<variablelist><title>Config File Elements under the DockApp-subsection of the Harbour-section:</title>
-	<varlistentry><term>SideMin (int)</term>
-		<listitem><para>Controls the minimum size of dockapp clients. If a dockapp client is smaller than the minimum, it gets resized up to the SideMin value. Integer is a number of pixels.</para></listitem>
-	</varlistentry>
-	<varlistentry><term>SideMax (int)</term>
-		<listitem><para>Controls the maximum size of dockapp clients. If a dockapp client is larger than the maximum, it gets resized down to the SideMax value. Integer is a number of pixels.</para></listitem>
-	</varlistentry>
-</variablelist>
-</para>
+      <varlistentry>
+        <term>SetUnique (boolean)</term>
+	<listitem>
+          <para>Decides if the feature is used or not. False or True.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Pre (string)</term>
+	<listitem>
+          <para>String to place before the unique client number.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Post (string)</term>
+	<listitem>
+          <para>String to place after the unique client number.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+    <variablelist>
+      <title>Config File Elements under the Menu-section:</title>
+
+      <varlistentry>
+        <term>Select (string)</term>
+	<listitem>
+          <para>Decides on what mouse events to select a menu entry. String is one of "ButtonPress, ButtonRelease, DoubleClick, Motion"</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Enter (string)</term>
+	<listitem>
+          <para>Decides on what mouse events to enter a submenu. String is one of "ButtonPress, ButtonRelease, DoubleClick, Motion"</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Exec (string)</term>
+	<listitem>
+          <para>Decides on what mouse events to execute an entry. String is one of "ButtonPress, ButtonRelease, DoubleClick, Motion"</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+    <variablelist>
+      <title>Config File Elements under the Harbour-section:</title>
+
+      <varlistentry>
+        <term>Placement (string)</term>
+	<listitem>
+          <para>Which edge to place the harbour on. One of Right, Left, Top, or Bottom.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Orientation (string)</term>
+	<listitem>
+          <para>From what to which direction the harbour expands. One of TopToBottom, BottomToTop, RightToLeft, LeftToRight.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>OnTop (boolean)</term>
+	<listitem>
+          <para>Whether or not the harbour is "always on top"</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>MaximizeOver (boolean)</term>
+	<listitem>
+          <para>Controls whether maximized clients will cover the harbour (true), or if they will stop at the edge of the harbour (false).</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Head (int)</term>
+	<listitem>
+          <para>When RandR or Xinerama is on, decides on what head the harbour resides on. Integer is the head number.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+    <variablelist>
+      <title>Config File Elements under the DockApp-subsection of the Harbour-section:</title>
+
+      <varlistentry>
+        <term>SideMin (int)</term>
+	<listitem>
+          <para>Controls the minimum size of dockapp clients. If a dockapp client is smaller than the minimum, it gets resized up to the SideMin value. Integer is a number of pixels.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>SideMax (int)</term>
+	<listitem>
+          <para>Controls the maximum size of dockapp clients. If a dockapp client is larger than the maximum, it gets resized down to the SideMax value. Integer is a number of pixels.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+  </para>
 
 </simplesect>
-

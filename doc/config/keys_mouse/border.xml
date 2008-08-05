@@ -1,20 +1,23 @@
 <simplesect id="config-keys_mouse-border" xreflabel="Border Subsection">
-<title>Border Subsection</title>
-<para>
-	The Border subsection in <filename>~/.pekwm/mouse</filename>
-	defines the actions to take when handling the window borders.
-</para>
-<screen>
-Border {
+  <title>Border Subsection</title>
+
+  <para>
+    The Border subsection in <filename>~/.pekwm/mouse</filename>
+    defines the actions to take when handling the window borders.
+  </para>
+
+  <screen>Border {
 	TopLeft {
 		Enter = "Any Any" { Actions = "Focus" }
 		ButtonPress = "1" { Actions = "Resize TopLeft" }
 	}
-}
-</screen>
-<para>
-It's subsections refer to the frame part in question. They are:
-Top, Bottom, Left, Right, TopLeft, TopRight, BottomLeft, and BottomRight.
-In these subsections you can define events and actions as usual.
-</para>
+}</screen>
+
+  <para>
+    It's subsections refer to the frame part in question. They are:
+    Top, Bottom, Left, Right, TopLeft, TopRight, BottomLeft, and
+    BottomRight.  In these subsections you can define events and
+    actions as usual.
+  </para>
+
 </simplesect>

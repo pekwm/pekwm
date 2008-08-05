@@ -1,12 +1,13 @@
 <simplesect id="config-keys_mouse-screenedge" xreflabel="ScreenEdge Subsection">
-<title>ScreenEdge Subsection</title>
-<para>
-	The ScreenEdge subsection in  <filename>~/.pekwm/mouse</filename>
-	defines the actions to take when an event happens on the specified
-	screenedge.
-</para>
-<screen>
-ScreenEdge {
+  <title>ScreenEdge Subsection</title>
+
+  <para>
+    The ScreenEdge subsection in <filename>~/.pekwm/mouse</filename>
+    defines the actions to take when an event happens on the specified
+    screenedge.
+  </para>
+
+  <screen>ScreenEdge {
 	Left {
 		Enter = "Mod1 Any" { Actions = "GoToWorkspace Left" }
 		Enter = "Mod4 Any" { Actions = "ViewportMoveDirection Left" }
@@ -19,11 +20,12 @@ ScreenEdge {
 		EnterMoving = "Mod4 Any" { Actions = "WarpToViewport Left" }
 		EnterMoving = "Any Any" { Actions = "WarpToWorkspace Left" }
 	}
-}
-</screen>
-<para>
-	It has four subsections: Up, Down, Left, and Right, that all refer to
-	the screen edge in question. In these subsections you can give events
-	and actions as usual.
-</para>
+}</screen>
+
+  <para>
+    It has four subsections: Up, Down, Left, and Right, that all refer
+    to the screen edge in question. In these subsections you can give
+    events and actions as usual.
+  </para>
+
 </simplesect>

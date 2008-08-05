@@ -1,18 +1,16 @@
 <chapter id="config-keys_mouse" xreflabel="Keyboard and Mouse config">
-<?dbhtml filename="keys_mouse.html" dir="config"?>
-<title>Keyboard and Mouse Configuration</title>
-<para>
-	Pekwm allows you to remap almoust all keyboard and mouse events.
-</para>
-&config-keys_mouse-mouse;
-&config-keys_mouse-border;
-&config-keys_mouse-screenedge;
-&config-keys_mouse-keys;
-&config-keys_mouse-keychains;
-&config-keys_mouse-actions;
-<!-- 
-&usage-grouping-what;
-&usage-grouping-basics;
-&usage-grouping-build; -->
+  <?dbhtml filename="keys_mouse.html" dir="config"?>
+  <title>Keyboard and Mouse Configuration</title>
+
+  <para>
+    Pekwm allows you to remap almoust all keyboard and mouse events.
+  </para>
+
+  &config-keys_mouse-mouse;
+  &config-keys_mouse-border;
+  &config-keys_mouse-screenedge;
+  &config-keys_mouse-keys;
+  &config-keys_mouse-keychains;
+  &config-keys_mouse-actions;
 
 </chapter>
