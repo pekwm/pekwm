@@ -86,6 +86,7 @@ cvs_add() {
 
 mk_all() {
 	mk_prep
+	mk_pdf
 	mk_html
 	mk_rtf
 #	mk_man
@@ -229,6 +230,31 @@ mk_html_chunky() {
 	${TOOLDIR}/mklink.pl . ${HTMLDIR}/index.html HTML, Many files >> ${FINDIR}/inc.html
 	${TOOLDIR}/mklink.pl ${DPFX} ${HTMLDIR}/index.html HTML, Many files >> ${FINDIR}/inc2.html
 
+}
+
+mk_pdf() {
+	status "starting pdf"
+
+	mkdir -p ${LOGDIR}
+	mkdir -p ${PDFDIR}
+
+	# Step 1, generate TeX
+	status "starting tex generation"
+	openjade -t tex -o ${PDFDIR}/index.tex -d ${DBP} ${DBX} ${CURDIR}/index.xml >${LOGDIR}/pdf-tex.log 2>${LOGDIR}/pdf-tex.err
+	if [ ${?} -gt 0 ]
+	then
+		printerr "tex generation failed! see pdf logs!"
+	fi
+
+	# Step 2, generate PDF
+	status "starting pdf generation"
+	( cd ${PDFDIR} &&
+	pdfjadetex ${PDFDIR}/index.tex ) >${LOGDIR}/pdf-pdf.log 2>${LOGDIR}/pdf-pdf.err
+	find ${PDFDIR} -type f | grep -v '\.pdf' | xargs rm
+
+	status "generating pdf indicies"
+	${TOOLDIR}/mklink.pl . ${PDFDIR}/index.pdf PDF >> ${FINDIR}/inc.html
+	${TOOLDIR}/mklink.pl ${DPFX} ${PDFDIR}/index.pdf PDF >> ${FINDIR}/inc2.html
 }
 
 ############ PROGRAM EXECUTION BEGINS
