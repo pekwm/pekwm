@@ -121,7 +121,6 @@ Config::Config(void) :
     _action_map["RESTARTOTHER"] = pair<ActionType, uint>(ACTION_RESTART_OTHER, KEYGRABBER_OK|ROOTMENU_OK);
     _action_map["EXIT"] = pair<ActionType, uint>(ACTION_EXIT, KEYGRABBER_OK|ROOTMENU_OK);
     _action_map["SHOWCMDDIALOG"] = pair<ActionType, uint>(ACTION_SHOW_CMD_DIALOG, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK|ROOTMENU_OK|WINDOWMENU_OK);
-    _action_map["SHOWSEARCHDIALOG"] = pair<ActionType, uint>(ACTION_SHOW_SEARCH_DIALOG, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK|ROOTMENU_OK|WINDOWMENU_OK);
 #ifdef MENUS
     _action_map["SHOWMENU"] = pair<ActionType, uint>(ACTION_SHOW_MENU, FRAME_MASK|ROOTCLICK_OK|SCREEN_EDGE_OK|ROOTMENU_OK|WINDOWMENU_OK);
     _action_map["HIDEALLMENUS"] = pair<ActionType, uint>(ACTION_HIDE_ALL_MENUS, FRAME_MASK|ROOTCLICK_OK|SCREEN_EDGE_OK);
@@ -841,7 +840,6 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
                 case ACTION_RESTART_OTHER:
                 case ACTION_FIND_CLIENT:
                 case ACTION_SHOW_CMD_DIALOG:
-                case ACTION_SHOW_SEARCH_DIALOG:
                 case ACTION_SEND_KEY:
 #ifdef MENUS
                 case ACTION_MENU_DYN:
