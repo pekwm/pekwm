@@ -8,18 +8,14 @@
   </para>
 
   <screen>ScreenEdge {
-	Left {
-		Enter = "Mod1 Any" { Actions = "GoToWorkspace Left" }
-		Enter = "Mod4 Any" { Actions = "ViewportMoveDirection Left" }
-		ButtonPress = "3" { Actions = "ShowMenu Root" }
-		ButtonPress = "Mod4 1" { Actions = "ViewportMoveDirection Left" }
-		ButtonPress = "1" { Actions = "GoToWorkspace Left" }
-		ButtonPress = "2" { Actions = "ShowMenu Goto" }
-		ButtonPress = "4" { Actions = "GoToWorkspace Right" }
-		ButtonPress = "5" { Actions = "GoToWorkspace Left" }
-		EnterMoving = "Mod4 Any" { Actions = "WarpToViewport Left" }
-		EnterMoving = "Any Any" { Actions = "WarpToWorkspace Left" }
-	}
+    Left {
+        Enter = "Mod1 Any" { Actions = "GoToWorkspace Left" }
+        ButtonPress = "3" { Actions = "ShowMenu Root" }
+        ButtonPress = "1" { Actions = "GoToWorkspace Left" }
+        ButtonPress = "2" { Actions = "ShowMenu Goto" }
+        ButtonPress = "4" { Actions = "GoToWorkspace Right" }
+        ButtonPress = "5" { Actions = "GoToWorkspace Left" }
+    }
 }</screen>
 
   <para>
