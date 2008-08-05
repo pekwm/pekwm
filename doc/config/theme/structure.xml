@@ -13,6 +13,10 @@
 
 				Amount of pixels the titlebar should height.
 
+			HeightAdapt, boolean
+
+				If true, Height is adapted to fit the Title font.
+
 			Pad, padding
 
 				How many pixels are left around a title text.

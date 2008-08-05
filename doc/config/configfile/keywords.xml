@@ -114,9 +114,15 @@
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term>ShowClientWorkspaceIndicator (int)</term>
+        <term>ShowWorkspaceIndicator (int)</term>
         <listitem>
           <para>Show WorkspaceIndicator for seconds. If set to &lt; 1 the WorkspaceIndicator is disabled.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>WorkspaceIndicatorScale (int)</term>
+        <listitem>
+          <para>Changes the size of the WorkspaceIndicator, higher value means smaller size.</para>
         </listitem>
       </varlistentry>
       <varlistentry>
@@ -138,9 +144,13 @@
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term>EdgeSize (int)</term>
+        <term>EdgeSize (int) (int) (int) (int)</term>
         <listitem>
-          <para>How many pixels from the edge of the screen should screen edges be. A value of 0 disables edges.</para>
+          <para>
+            How many pixels from the edge of the screen should screen
+            edges be. Paremeters correspond to the following edges:
+            top bottom left right. A value of 0 disables edges.
+          </para>
         </listitem>
       </varlistentry>
       <varlistentry>

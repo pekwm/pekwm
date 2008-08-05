@@ -125,7 +125,7 @@
 
 
 "fontstring"
-                 "Verdana:size=10#Left#1 1#XFT"
+                 "XFT#Verdana:size=10#Left#1 1"
                  "-misc-fixed-*-*-*-*-14-*-*-*-*-*-*-1#Center#1 1"
 
                     Defines a font. Chopped to parts by # marks.

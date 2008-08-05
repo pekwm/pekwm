@@ -549,17 +549,19 @@
               </listitem>
               <listitem>
                 <para>
-                  prevv -
+                  prevv - send to the previous (vertical) workspace,
+                  if on last workspace, wrap to the first one.
                 </para>
               </listitem>
               <listitem>
                 <para>
-                  up -
+                  up - send to the previous (vertical) workspace.
                 </para>
               </listitem>
               <listitem>
                 <para>
-                  nextv -
+                  nextv - sed to the next (vertical) workspace, if on
+                  last workspace, wrap to the first one.
                 </para>
               </listitem>
               <listitem>
