@@ -348,10 +348,9 @@ Esetroot -s mybackground.png &</screen>
         <ulink url="http://www.useperl.ru/ipager/index.en.html">IPager</ulink>,
         <ulink url="http://zelea.com/project/screenpager/introduction.html">screenpager</ulink>,
         rox-pager, fbpanel's pager, obpager, gai-pager, gnome's pager,
-        kde's pager, perlpanel's pager, netwmpager, and so
-        on. Gai-pager is one of the few that actually work with
-        viewports. Do report your success stories with pagers not
-        already mentioned here.
+        kde's pager, perlpanel's pager, netwmpager, and so on. Do
+        report your success stories with pagers not already mentioned
+        here.
       </para>
     </simplesect>
 

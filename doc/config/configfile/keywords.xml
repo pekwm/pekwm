@@ -229,22 +229,6 @@
     </variablelist>
 
     <variablelist>
-      <title>Config File Elements under the Viewports-subsection of the Screen-section:</title>
-      <varlistentry>
-        <term>Columns (int)</term>
-	<listitem>
-          <para>Specifies the size of the viewport horizontally. Value is an integer as n is in viewport_width=n*screenwidth.</para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Rows (int)</term>
-	<listitem>
-          <para>Specifies the size of the viewport vertically. Value is an integer as n is in viewport_height=n*screenheight.</para>
-        </listitem>
-      </varlistentry>
-    </variablelist>
-
-    <variablelist>
       <title>Config File Elements under the UniqueNames-subsection of the Screen-section:</title>
 
       <varlistentry>
