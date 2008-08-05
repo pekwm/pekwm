@@ -1,6 +1,6 @@
-#!/usr/bin/env bash
+#!/bin/sh
 #
-# Copyright (c) 2003-2004 by the pekwm development team
+# Copyright © 2003-2008 the pekwm development team
 #
 # Add this to your menu to use this script:
 #
@@ -9,42 +9,51 @@
 # }
 #
 
-# list themes
-if [[ "x$2" == "x" ]]; then
+# Check usage
+if test -z "${1}"; then
+    echo "usage: $0 /path/to/themedir (theme)";
+    exit 1
+fi
 
-    DIR=$1
-    if [ -d $DIR ]; then
-				echo "Dynamic {";
-				for i in `ls $DIR | grep -v CVS`; do
-						if [ -d $DIR/$i ]; then
-								echo -e "Entry = \"$i\" { Actions = \"Exec $0 set $DIR/$i\" }";
-						fi
-				done;
-				echo "}";
+if test -z "${2}"; then
+    theme_dir="${1}"
 
+    echo "Dynamic {"
+
+    # Check that theme directory exists, if it does not exist create a
+    # dummy entry that says the dir does not exist.
+    if test -d "${theme_dir}"; then
+        for i in $(ls "${theme_dir}"); do
+            echo -e "Entry = \"${i}\" { Actions = \"Exec ${0} ${1} ${theme_dir}/${i}\" }"
+        done
     else
-				exit 1;
-    fi;
+        echo -e "Entry = "No such directory ${theme_dir}" { Actions = "NO" }"
+    fi
 
-# change theme
+    echo "}"
+
 else
-    
-    THEME=$(echo $2 | sed -e 's/\//\\\//g');
-    #if you don't have your pekwm config
-    if [ ! -w $PEKWM_CONFIG_FILE ]; then 
-						exit 1; #if you have pekwm installed ;)
-		fi;
+    # Check for configuration file, if the environment is not set the
+    # script is not being run from pekwm, then exit with failure.
+    if test -f "${PEKWM_CONFIG_FILE}"; then
+        theme="$(echo "${2}" | sed -e "s@^${HOME}@~@" | sed -e 's/\//\\\//g')"
 
-		if [ -x /bin/mktemp ]; then
-				TMPFILE=`mktemp -t pekwm_themeset.XXXXXXXXXX` || exit 1;
-		else
-				TMPFILE="/tmp/pekwm_themeset.tmp"
-		fi
+        # Get temporary file, not all platforms have mktemp though
+        if test -x "/bin/mktemp"; then
+            tmp_file=$(mktemp -t pekwm_themeset.XXX) || exit 1;
+        else
+            tmp_file="/tmp/pekwm_themeset.${USER}"
+        fi
 
-		sed -e "s/Theme\ =\ \".*\"/Theme\ =\ \"$THEME\"/" $PEKWM_CONFIG_FILE > $TMPFILE;
-		cp $TMPFILE $PEKWM_CONFIG_FILE;
-		rm $TMPFILE
-		pkill -HUP pekwm;
-fi;
+        # Change theme
+        sed -e "s/^\([^#]*\)Theme\ =\ \"[^\"]*\"/\\1Theme\ =\ \"${theme}\"/i" "${PEKWM_CONFIG_FILE}" > "${tmp_file}"
+        mv "${tmp_file}" "${PEKWM_CONFIG_FILE}"
+
+        # Reload pekwm
+        kill -HUP $(xprop -root _NET_WM_PID | awk '/_NET_WM_PID/ { print $3 }')
+    else
+        exit 1
+    fi
+fi
 
 exit 0
