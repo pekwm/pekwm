@@ -62,12 +62,10 @@ WorkspaceIndicator::Display::getSizeRequest(Geometry &gm)
     uint head_nr = PScreen::instance()->getNearestHead(_parent->getX(), _parent->getY());
     PScreen::instance()->getHeadInfo(head_nr, head);
 
-    Theme::WorkspaceIndicatorData &data(_theme->getWorkspaceIndicatorData());
-
     uint head_size = std::min(head.width, head.height) / Config::instance()->getWorkspaceIndicatorScale();
     gm.x = gm.y = 0;
-    gm.width = head_size * Workspaces::instance()->getPerRow() + data.edge_padding * 2;
-    gm.height = head_size * Workspaces::instance()->getRows() + data.edge_padding * 3 + data.font->getHeight();
+    gm.width = head_size * Workspaces::instance()->getPerRow() + getPaddingHorizontal();
+    gm.height = head_size * Workspaces::instance()->getRows() + getPaddingVertical();
 
     return true;
 }
@@ -91,8 +89,8 @@ WorkspaceIndicator::Display::render(void)
     // Render workspace grid, then active workspace fill and end with
     // rendering active workspace number and name
     renderWorkspaces(data.edge_padding, data.edge_padding,
-                     _gm.width - data.edge_padding * 2,
-                     _gm.height - data.edge_padding * 3 - data.font->getHeight());
+                     _gm.width - getPaddingHorizontal(),
+                     _gm.height - getPaddingVertical());
 
     data.font->setColor(data.font_color);
     data.font->draw(_pixmap, data.edge_padding, _gm.height - data.edge_padding - data.font->getHeight(),
@@ -120,18 +118,21 @@ WorkspaceIndicator::Display::renderWorkspaces(int x, int y, uint width, uint hei
     uint per_row = Workspaces::instance()->getPerRow();
     uint rows = Workspaces::instance()->getRows();
 
-    uint ws_width = (width - data.workspace_padding * (per_row - 1)) / per_row;
-    uint ws_height = (height - data.workspace_padding * (rows - 1)) / rows;
+    uint ws_width = width / per_row;
+    uint ws_height = height / rows;
 
-    uint x_pos = x + data.workspace_padding;
-    uint y_pos = y + data.workspace_padding;
+    // Starting positions of the workspace squares
+    uint x_pos = x;
+    uint y_pos = y;
+
     vector<Workspaces::Workspace*>::iterator it(Workspaces::instance()->ws_begin());
+
     for (uint row = 0; it != Workspaces::instance()->ws_end(); ++it) {
         // Check for next row
         if (Workspaces::instance()->getRow((*it)->getNumber()) > row) {
             row = Workspaces::instance()->getRow((*it)->getNumber());
 
-            x_pos = x + data.workspace_padding;
+            x_pos = x;
             y_pos += ws_height + data.workspace_padding;
         }
 
@@ -143,6 +144,29 @@ WorkspaceIndicator::Display::renderWorkspaces(int x, int y, uint width, uint hei
 
         x_pos += ws_width + data.workspace_padding;
     }
+}
+
+/**
+ * Get horizontal padding for window around workspaces.
+ */
+uint
+WorkspaceIndicator::Display::getPaddingHorizontal(void)
+{
+    Theme::WorkspaceIndicatorData &data(_theme->getWorkspaceIndicatorData());
+
+    return (data.edge_padding * 2 + data.workspace_padding * (Workspaces::instance()->getPerRow() - 1));
+}
+
+/**
+ * Get vertical padding for window around workspaces.
+ */
+uint
+WorkspaceIndicator::Display::getPaddingVertical(void)
+{
+    Theme::WorkspaceIndicatorData &data(_theme->getWorkspaceIndicatorData());
+
+    return (data.edge_padding * 3 + data.font->getHeight()
+            + data.workspace_padding * (Workspaces::instance()->getRows() - 1));
 }
 
 /**

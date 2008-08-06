@@ -42,6 +42,9 @@ public:
   private:
     void renderWorkspaces(int x, int y, uint width, uint height);
 
+    uint getPaddingHorizontal(void);
+    uint getPaddingVertical(void);
+
   private:
     Theme *_theme;
     Pixmap _pixmap; //!< Pixmap holding rendered workspace view
