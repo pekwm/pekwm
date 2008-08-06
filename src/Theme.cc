@@ -765,7 +765,7 @@ Theme::WorkspaceIndicatorData::load(CfgParser::Entry *cs)
     string value_tex_ws, value_tex_ws_act;
 
     key_list.push_back(new CfgParserKeyString("FONT", value_font));
-    key_list.push_back(new CfgParserKeyString("COLOR", value_color));
+    key_list.push_back(new CfgParserKeyString("TEXT", value_color));
     key_list.push_back(new CfgParserKeyString("BACKGROUND", value_tex_bg));
     key_list.push_back(new CfgParserKeyString("WORKSPACE", value_tex_ws));
     key_list.push_back(new CfgParserKeyString("WORKSPACEACTIVE", value_tex_ws_act));
