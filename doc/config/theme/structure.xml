@@ -255,6 +255,40 @@ Status{}: themes the insides of the status window that shows up when moving wind
 
 	Pad, padding
 
-		Amount of pixels of space around font to reserve.</screen>
+		Amount of pixels of space around font to reserve.
+
+
+
+WorkspaceIndicator{}: themes the workspace indicator that shows up when switching workspace.
+
+	Font, fontstring
+
+		What font to use.
+
+
+	Background, texture
+
+		Background for the whole window.
+
+
+	Workspace, texture
+
+		Texture to use when rendering a workspace.
+
+	WorkspaceActive, texture
+
+		Texture to use when rendering the active workspace.
+
+	Text, colour
+
+		Colour of text.
+
+	EdgePadding, padding
+
+		Amount of pixels of space around window edges and workspaces.
+
+	WorkspacePadding, padding
+
+		Amount of pixels of space between workspaces.</screen>
 
 </simplesect>

@@ -56,6 +56,10 @@
 
                     Defines decorations for the command dialog.
 
+                  WORKSPACEINDICATOR,
+
+                    Defines decorations for the workspace indicator.
+
                   BORDERLESS,
 
                     Defines decorations for borderless windows (recommended).
