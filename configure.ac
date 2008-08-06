@@ -9,13 +9,14 @@ AC_CONFIG_HEADERS(config.h)
 dnl Check for programs
 AC_PROG_CXX
 AC_PROG_INSTALL
+AC_PROG_SED
 
 AC_LANG_CPLUSPLUS
 
-AC_CHECK_PROGS(regex_cmd, sed)
-if test x$regex_cmd = "x"; then
-	AC_MSG_ERROR([Could not find sed. It is required to build the configuration files.])
-fi
+dnl Check for /usr/xpg4/bin/sh and use that in scripts if it does
+dnl exist, Solaris /bin/sh does feel like behaving with the standard
+dnl scripts it seems.
+AC_CHECK_PROG([SH], [sh], [/usr/xpg4/bin/sh], [/bin/sh], [/usr/xpg4/bin])
 
 dnl Check for iconv
 AM_ICONV
