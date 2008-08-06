@@ -178,11 +178,11 @@ AC_ARG_ENABLE(image-png,
 if test "x$enableval" = "xyes"; then
  	AC_MSG_RESULT([yes])
 
-        PKG_CHECK_MODULES([libpng], [libpng >= 1.2.0], HAVE_LIBPNG=yes, HAVE_LIBPNG=no)
+        PKG_CHECK_MODULES([libpng12], [libpng12 >= 1.2.0], HAVE_LIBPNG=yes, HAVE_LIBPNG=no)
         if test "x$HAVE_LIBPNG" = "xyes"; then
-		AC_DEFINE(HAVE_IMAGE_PNG, [1], [Define to 1 if you have libpng])
- 		LIBS="$LIBS $libpng_LIBS"
-                CXXFLAGS="$CXXFLAGS $libpng_CFLAGS"
+		AC_DEFINE(HAVE_IMAGE_PNG, [1], [Define to 1 if you have libpng12])
+ 		LIBS="$LIBS $libpng12_LIBS"
+                CXXFLAGS="$CXXFLAGS $libpng12_CFLAGS"
  		FEATURES="$FEATURES image-png"
  	else
  		AC_MSG_RESULT([no])
