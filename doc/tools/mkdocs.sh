@@ -2,7 +2,7 @@
 
 # Applications
 OPENJADE="/usr/bin/openjade"
-JADETEX="/usr/bin/pdfjadetex"
+PDFJADETEX="/usr/bin/pdfjadetex"
 TIDY="/usr/bin/tidy"
 ZIP="/usr/bin/zip"
 
