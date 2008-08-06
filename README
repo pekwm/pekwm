@@ -1,1 +1,11 @@
 README
+======
+
+The Pekwm Window Manager is written by Claes Nästén. The code is based
+on the aewm++ window manager, but it has evolved enough that it no
+longer resembles aewm++ at all. It also has an expanded feature-set,
+including window grouping (similar to ion, pwm, or fluxbox), auto
+properties, xinerama and keygrabber that supports keychains, and much
+more.
+
+For more information visit http://www.pekwm.org/
