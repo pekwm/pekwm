@@ -23,8 +23,10 @@ if test -z "${2}"; then
     # Check that theme directory exists, if it does not exist create a
     # dummy entry that says the dir does not exist.
     if test -d "${theme_dir}"; then
-        for i in $(ls "${theme_dir}"); do
-            echo -e "Entry = \"${i}\" { Actions = \"Exec ${0} ${1} ${theme_dir}/${i}\" }"
+        for path in $(find "${theme_dir}" -maxdepth 2 -type f -name theme); do
+            theme_path="$(dirname "${path}")"
+            theme_name="$(basename "${theme_path}")"
+            echo -e "Entry = \"${theme_name}\" { Actions = \"Exec ${0} ${1} ${theme_path}\" }"
         done
     else
         echo -e "Entry = "No such directory ${theme_dir}" { Actions = "NO" }"
@@ -36,7 +38,7 @@ else
     # Check for configuration file, if the environment is not set the
     # script is not being run from pekwm, then exit with failure.
     if test -f "${PEKWM_CONFIG_FILE}"; then
-        theme="$(echo "${2}" | sed -e "s@^${HOME}@~@" | sed -e 's/\//\\\//g')"
+        theme="$(echo "${2}" | <SED> -e "s@^${HOME}@~@" | <SED> -e 's/\//\\\//g')"
 
         # Get temporary file, not all platforms have mktemp though
         if test -x "/bin/mktemp"; then
@@ -46,7 +48,7 @@ else
         fi
 
         # Change theme
-        sed -e "s/^\([^#]*\)Theme\ =\ \"[^\"]*\"/\\1Theme\ =\ \"${theme}\"/i" "${PEKWM_CONFIG_FILE}" > "${tmp_file}"
+        <SED> -e "s/^\([^#]*\)[Tt][Hh][Ee][Mm][Ee]\ =\ \"[^\"]*\"/\\1Theme\ =\ \"${theme}\"/" "${PEKWM_CONFIG_FILE}" > "${tmp_file}"
         mv "${tmp_file}" "${PEKWM_CONFIG_FILE}"
 
         # Reload pekwm
