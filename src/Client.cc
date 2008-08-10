@@ -1512,13 +1512,9 @@ void
 Client::getStrutHint(void)
 {
     int num = 0;
-    CARD32 *strut = NULL;
-
-    strut = (CARD32*)
-            AtomUtil::getEwmhPropData(_window,
-                                      EwmhAtoms::instance()->getAtom(NET_WM_STRUT),
-                                      XA_CARDINAL, num);
-
+    long *strut = static_cast<long*>(AtomUtil::getEwmhPropData(_window,
+                                                               EwmhAtoms::instance()->getAtom(NET_WM_STRUT),
+                                                               XA_CARDINAL, num));
     if (strut) {
         if (_strut) {
             PScreen::instance()->removeStrut(_strut);

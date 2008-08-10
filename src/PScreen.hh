@@ -27,22 +27,27 @@ extern "C" {
 #include <list>
 #include <map>
 
+/**
+ * Class holding information about screen edge allocation.
+ */
 class Strut {
 public:
-  Strut(CARD32 l=0, CARD32 r=0, CARD32 t=0, CARD32 b=0, int nhead=-1) : left(l), right(r), top(t), bottom(b), head(nhead) { };
+    Strut(long l=0, long r=0, long t=0, long b=0, int nhead=-1)
+        : left(l), right(r), top(t), bottom(b), head(nhead) { };
     ~Strut(void) { };
 public: // member variables
-    CARD32 left, right;
-    CARD32 top, bottom;
-    int head;
+    long left; /**< Pixels allocated on the left of the head. */
+    long right; /**<Pixels allocated on the right of the head. */
+    long top; /**< Pixels allocated on the top of the head.*/
+    long bottom; /**< Pixels allocated on the bottom of the head.*/
+    int head; /**< Which head is the strut valid for */
 
-    inline void operator=(const CARD32 *s) {
-        if (sizeof(s) > 3) {
-            left = s[0];
-            right = s[1];
-            top = s[2];
-            bottom = s[3];
-        }
+    /** Assign values from array of longs. */
+    inline void operator=(const long *s) {
+        left = s[0];
+        right = s[1];
+        top = s[2];
+        bottom = s[3];
     }
 };
 
