@@ -78,29 +78,6 @@ else
 	AC_MSG_RESULT([no])
 fi
 
-dnl Check for XRANDR support
-AC_MSG_CHECKING([wheter to build support for the XRANDR extension])
-AC_ARG_ENABLE(xrandr,
-	AC_HELP_STRING([--enable-xrandr],
-								 [enable support for the XRANDR extension [default=yes]]), ,
-							[enable_xrandr=yes])
-if test "x$enable_xrandr" = "xyes"; then
-	AC_MSG_RESULT([yes])
-
-        PKG_CHECK_MODULES([xrandr], [xrandr >= 1.2.0], HAVE_XRANDR=yes, HAVE_XRANDR=no)
-        if test "x$HAVE_XRANDR" = "xyes"
-        then
-                AC_DEFINE(HAVE_XRANDR, [1], [Define to 1 if you have an XRANDR capable server])
-		LIBS="$LIBS $xrandr_LIBS"
-                CXXFLAGS="$CXXFLAGS $xrandr_CFLAGS"
-                FEATURES="$FEATURES Xrandr"
-        else
-                AC_MSG_WARN([Couldn't find Xrandr >= 1.2.0])
-        fi
-else
- 	AC_MSG_RESULT([no])
-fi
-
 dnl Check for Xft support
 AC_MSG_CHECKING([whether to support Xft fonts])
 AC_ARG_ENABLE(xft,
@@ -175,8 +152,8 @@ AC_MSG_CHECKING([wheter to build support for PNG images])
 AC_ARG_ENABLE(image-png,
 	AC_HELP_STRING([--enable-image-png],
 								 [enable support for PNG images [default=yes]]), ,
-							[enableval=yes])
-if test "x$enableval" = "xyes"; then
+							[enable_image_png=yes])
+if test "x$enable_image_png" = "xyes"; then
  	AC_MSG_RESULT([yes])
 
         PKG_CHECK_MODULES([libpng12], [libpng12 >= 1.2.0], HAVE_LIBPNG=yes, HAVE_LIBPNG=no)
@@ -190,6 +167,29 @@ if test "x$enableval" = "xyes"; then
         fi
 else
 	AC_MSG_RESULT([no])
+fi
+
+dnl Check for XRANDR support
+AC_MSG_CHECKING([wheter to build support for the XRANDR extension])
+AC_ARG_ENABLE(xrandr,
+	AC_HELP_STRING([--enable-xrandr],
+								 [enable support for the XRANDR extension [default=yes]]), ,
+							[enable_xrandr=yes])
+if test "x$enable_xrandr" = "xyes"; then
+	AC_MSG_RESULT([yes])
+
+        PKG_CHECK_MODULES([xrandr], [xrandr >= 1.2.0], HAVE_XRANDR=yes, HAVE_XRANDR=no)
+        if test "x$HAVE_XRANDR" = "xyes"
+        then
+                AC_DEFINE(HAVE_XRANDR, [1], [Define to 1 if you have an XRANDR capable server])
+		LIBS="$LIBS $xrandr_LIBS"
+                CXXFLAGS="$CXXFLAGS $xrandr_CFLAGS"
+                FEATURES="$FEATURES Xrandr"
+        else
+                AC_MSG_WARN([Couldn't find Xrandr >= 1.2.0])
+        fi
+else
+ 	AC_MSG_RESULT([no])
 fi
 
 dnl Check for header files
