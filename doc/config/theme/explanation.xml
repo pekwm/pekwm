@@ -1,148 +1,167 @@
 <simplesect id="config-theme-explanation" xreflabel="theme explanations">
   <?dbhtml filename="explanation.html" dir="config"?>
-  <title>Attribute names used, explanations, possible values, examples</title>
+    <title>Attribute names used, explanations, possible values, examples</title>
 
-  <screen>Name            Example(s)
-|               | Possible values (if not obvious)
-|               | | Explanation
---------------------------------------------------------------------------------------------------
-"pixels"
-                "2"
+      <para>
+	Here is the explanation of Attributes names of themes
+      </para>
 
-                    An integer, amount of pixels.
+      <para>
+	<variablelist>
+	  <title>Attributes:</title>
 
-
-"size"
-                "2x2"
-
-                    Pixels vertically times pixels horizontally.
-
-
-"percent"        
-                 "87"
-
-                    Any percent value from 1 to 100.
-
-"toggle"         
-                 "true"
-
-                    sets a value as true (1) or false (0).
-
-
-"padding"
-                "2 2 2 2"
-
-                    Free pixels from top, free pixels under, free pixels from left, free pixels from right.
-
-
-"decorname"
-                "DEFAULT"
-
-                    Any name for a decoration set, special decoration set names are:
-
-                  DEFAULT,
-
-                    Defines decorations to all windows unless overridden with another decoration set (REQUIRED).
-
-                  MENU,
-
-                    Defines decorations for menus.
-
-                  STATUSWINDOW,
-
-                    Defines decorations for the status window (REQUIRED).
-
-                  CMDDIALOG,
-
-                    Defines decorations for the command dialog.
-
-                  WORKSPACEINDICATOR,
-
-                    Defines decorations for the workspace indicator.
-
-                  BORDERLESS,
-
-                    Defines decorations for borderless windows (recommended).
-
-                  TITLEBARLESS,
-
-                    Defines decorations for titlebarless windows (recommended,
-                    should be there if your theme looks nasty when toggled titlebarless).
-
-
-"colour"
-                "#FFFFFF"
-
-                    A colour value in RGB format.
-
-"imagename"
-                "topleftcorner.png#fixed"
-
-                    Image files filename with one of these possible variables:
-
-                  #fixed,
-
-                    Image is fixed size. Default if omitted.
-
-                  #scaled,
-
-                    Image will be scaled to fit the area it's defined for.
-
-                  #tiled,
-
-                    Image will be repeated as many times as needed to fill the area it's defined for.
-
-
-"texture"
-                "Solid #888888 1x1"
-
-                    Any valid texture. Valid textures are:
-
-                  EMPTY,
-
-                    No texture (transparent).
-
-                  SOLID colour size,
-
-                    A solid colour texture of defined colour and size.
-
-                  SOLIDRAISED colour colour colour pixels pixels toggle toggle toggle toggle size,
-
-                    A solid colour texture with a 3D look of defined colours, form and size.
-
-                    First colour defines the main fill colour, second the hilight colour used on the left and top
-                    parts of the texture, third the hilight colour on the bottom and right parts of the texture.
-
-                    First pixel amount defines how fart apart the 3D effects are from eachother, second pixel
-                    amount is how thick the bordering will be (both pixels default to 1).
-                    
-                    The four toggles are used to tell which raised corners are to be drawn. This is usefull for
-                    example when defining solidraised frame corner pieces. The order is Top, Bottom, Left, Right
-                    (not unlike that used in padding). As example: "True False True False" (or 1 0 1 0) could
-                    mean you want to draw the TopLeft piece of a solidraised window border.
-
-                    Size should explain itself, see above.
-
-                  IMAGE imagename,
-
-                    An image texture using the defined imagename
-
-
-"fontstring"
-                 "XFT#Verdana:size=10#Left#1 1"
-                 "-misc-fixed-*-*-*-*-14-*-*-*-*-*-*-1#Center#1 1"
-
-                    Defines a font. Chopped to parts by # marks.
-
-                    First the font name, then the text orientation, then shadow offsets,
-                    then font type if not traditional x font. Some fields can be omitted.
-
-
-"buttonactions"
-                 "1" { Actions = "Close" }
-
-                    Buttonactions work alike what you are used from the mouse config, first mouse button number
-                    pressed when this action should happen, then any standard pekwm actions.</screen>
-
+	    <varlistentry>
+	      <term>pixels</term>
+		<listitem>
+		  <para>An integer, amount of pixels.</para>
+		  <para>example: "2"</para>
+        	</listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>size</term>
+		<listitem>
+		  <para>Pixels vertically times pixels horizontally.</para>
+		  <para>example: "2x2"</para>
+	        </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>percent</term>
+              <listitem>
+		<para>Any percent value from 1 to 100.</para>
+		<para>example: "87"</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>toggle</term>
+	      <listitem>
+		<para>sets a value as true (1) or false (0).</para>
+		<para>example: "true"</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>padding</term>
+              <listitem>
+		<para>Free pixels from top, free pixels under, free pixels from left, free pixels from right.</para>
+		<para>example: "2 2 2 2"</para>
+	      </listitem>
+	    </varlistentry>
+	    <varlistentry>
+	      <term>decorname</term>
+	      <listitem>
+		<para>
+		  Any name for a decoration set, special decoration set names are:
+		    <itemizedlist>	
+		      <listitem>
+			<para><emphasis role="bold">DEFAULT</emphasis></para>
+			<para>Defines decorations to all windows unless overridden with another decoration set (REQUIRED).</para>
+		      </listitem>
+		      <listitem>
+			<para><emphasis role="bold">MENU</emphasis></para>
+			<para>Defines decorations for menus.</para>
+		      </listitem>
+		      <listitem>
+			<para><emphasis role="bold">STATUSWINDOW</emphasis></para>
+			<para>Defines decorations for the command dialog.</para>
+		      </listitem>
+		      <listitem>
+			<para><emphasis role="bold">WORKSPACEINDICATOR</emphasis></para>
+			<para>Defines decorations for the workspace indicator.</para>
+		      </listitem>
+		      <listitem>
+			<para><emphasis role="bold">BORDERLESS</emphasis></para>
+			<para>Defines decorations for borderless windows (recommended).</para>
+		      </listitem>
+		      <listitem>
+			<para><emphasis role="bold">TITLEBARLESS</emphasis></para>
+			<para>Defines decorations for titlebarless windows (recommended,
+			  should be there if your theme looks nasty when toggled titlebarless).</para>
+		      </listitem>
+		    </itemizedlist>
+		  </para>
+		</listitem>
+	      </varlistentry>
+	      <varlistentry>
+		<term>colour</term>
+		  <listitem>
+			  <para>A colour value in RGB format.</para>
+			  <para>example: "#FFFFFF"</para>
+		  </listitem>
+		</varlistentry>
+		<varlistentry>
+		  <term>imagename</term>
+                  <listitem>
+		    <para>
+		      Name of the imagefile with an option after the #
+			<itemizedlist>
+			  <listitem>
+				  <para><emphasis role="bold">#fixed</emphasis></para>
+				  <para>Image is fixed size. Default if omitted.</para>
+			  </listitem>
+			  <listitem>
+				  <para><emphasis role="bold">#scaled</emphasis></para>
+				  <para>Image will be scaled to fit the area it's defined for.</para>
+			  </listitem>
+			  <listitem>
+				  <para><emphasis role="bold">#tiled</emphasis></para>
+				  <para>Image will be repeated as many times as needed to fill the area it's defined for.</para>
+			  </listitem>
+			</itemizedlist>
+		      </para>
+		    </listitem>
+		    </varlistentry>
+		    <varlistentry>
+		      <term>texture</term>
+			<listitem>
+			  <para>
+			    Any valid texture. Valid textures are:
+			      <itemizedlist>
+				<listitem>
+					<para><emphasis role="bold">EMPTY</emphasis></para>
+					<para>No texture (transparent).</para>
+				</listitem>
+				<listitem>
+					<para><emphasis role="bold">SOLID colour size</emphasis></para>
+					<para>A solid colour texture of defined colour and size.</para>
+				</listitem>
+				<listitem>
+					<para><emphasis role="bold">SOLIDRAISED colour colour colour pixels pixels toggle toggle toggle toggle size</emphasis></para>
+					<para>A solid colour texture with a 3D look of defined colours, form and size.
+				    First colour defines the main fill colour, second the hilight colour used on the left and top
+				    parts of the texture, third the hilight colour on the bottom and right parts of the texture.
+				    First pixel amount defines how fart apart the 3D effects are from eachother, second pixel
+				    amount is how thick the bordering will be (both pixels default to 1).
+				    The four toggles are used to tell which raised corners are to be drawn. This is usefull for
+				    example when defining solidraised frame corner pieces. The order is Top, Bottom, Left, Right
+				    (not unlike that used in padding). As example: "True False True False" (or 1 0 1 0) could
+				    mean you want to draw the TopLeft piece of a solidraised window border.
+				    Size should explain itself, see above.</para>
+				</listitem>
+				<listitem>
+					<para><emphasis role="bold">IMGAGE imagename</emphasis></para>
+					<para>An image texture using the defined imagename</para>	
+				</listitem>
+			      </itemizedlist>
+			    </para>
+			    </listitem>
+			  </varlistentry>	
+			  <varlistentry>
+			    <term>fontstring</term>
+                            <listitem>
+			      <para>Defines a font. Chopped to parts by # marks.
+				First the font name, then the text orientation, then shadow offsets,
+				then font type if not traditional x font. Some fields can be omitted.</para>
+			      <para>example: "XFT#Verdana:size=10#Left#1 1"
+				example: "-misc-fixed-*-*-*-*-14-*-*-*-*-*-*-1#Center#1 1"</para>
+			    </listitem>
+			  </varlistentry>
+			  <varlistentry>
+			    <term>buttonactions</term>
+                            <listitem>
+			      <para>Buttonactions work alike what you are used from the mouse config, first mouse button number
+				      pressed when this action should happen, then any standard pekwm actions.</para>
+			      <para>example: "1" { Actions = "Close" }</para>
+			    </listitem>
+			  </varlistentry>
+		</variablelist>
+	</para>
 </simplesect>
-
