@@ -53,7 +53,8 @@ Config::Config(void) :
         _screen_workspaces(4), _screen_pixmap_cache_size(20),
         _screen_workspaces_per_row(0), _screen_workspace_name_default(L"Workspace"),
         _screen_edge_indent(false),
-        _screen_doubleclicktime(250), _screen_showframelist(true),
+        _screen_doubleclicktime(250), _screen_fullscreen_above(true),
+        _screen_showframelist(true),
         _screen_show_status_window(true), _screen_show_client_id(false),
         _screen_show_workspace_indicator(1), _screen_workspace_indicator_scale(16),
         _screen_place_new(true), _screen_focus_new(false),
@@ -514,6 +515,7 @@ Config::loadScreen(CfgParser::Entry *section)
                           _screen_doubleclicktime, 250, 0));
     o_key_list.push_back (new CfgParserKeyString ("TRIMTITLE",
                           _screen_trim_title));
+    o_key_list.push_back (new CfgParserKeyBool ("FULLSCREENABOVE", _screen_fullscreen_above, true));
     o_key_list.push_back (new CfgParserKeyBool ("SHOWFRAMELIST",
                           _screen_showframelist));
     o_key_list.push_back (new CfgParserKeyBool ("SHOWSTATUSWINDOW",

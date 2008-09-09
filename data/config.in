@@ -28,6 +28,7 @@ Screen {
     FocusNew = "True"
 
     TrimTitle = "..."
+    FullscreenAbove = "True"
     EdgeSize = "1"
     EdgeIndent = "False"
     PixmapCacheSize = "20"

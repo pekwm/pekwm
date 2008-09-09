@@ -68,6 +68,8 @@ public:
     inline int getDoubleClickTime(void) const { return _screen_doubleclicktime; }
     inline const std::string &getTrimTitle(void) const { return _screen_trim_title; }
 
+    inline bool isFullscreenAbove(void) const { return _screen_fullscreen_above; }
+
     inline bool getShowFrameList(void) const { return _screen_showframelist; }
     inline bool isShowStatusWindow(void) const { return _screen_show_status_window; }
     inline bool isShowClientID(void) const { return _screen_show_client_id; }
@@ -187,6 +189,7 @@ private:
     bool _screen_edge_indent;
     int _screen_doubleclicktime;
     std::string _screen_trim_title;
+    bool _screen_fullscreen_above; //!< Flag to make fullscreen go above all windows. */
     bool _screen_showframelist;
     bool _screen_show_status_window;
     bool _screen_show_client_id; //!< Flag to display client ID in title.

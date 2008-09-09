@@ -170,7 +170,8 @@ private:
 
     // frame information used when maximizing / going fullscreen
     Geometry _old_gm; // FIXME: move to PDecor?
-    uint _old_decor_state; // FIXME: move to PDecor?
+    uint _non_fullscreen_decor_state; // FIXME: move to PDecor?
+    uint _non_fullscreen_layer;
 
     // ID list, list of free Frame ids.
     static std::list<Frame*> _frame_list; //!< List of all Frames.

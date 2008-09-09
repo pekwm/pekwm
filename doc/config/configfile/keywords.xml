@@ -144,6 +144,12 @@
         </listitem>
       </varlistentry>
       <varlistentry>
+        <term>FullscreenAbove (boolean)</term>
+        <listitem>
+          <para>Toggles restacking of windows when going to and from fullscreen mode. Windows are restacked to the top of all windows when going to fullscreen and to the top of their layer when being restored from fullscreen.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
         <term>EdgeSize (int) (int) (int) (int)</term>
         <listitem>
           <para>

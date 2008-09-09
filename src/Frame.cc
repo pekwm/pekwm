@@ -62,7 +62,8 @@ bool Frame::_tag_behind = false;
 Frame::Frame(Client *client, AutoProperty *ap)
     : PDecor(WindowManager::inst()->getScreen()->getDpy(), WindowManager::inst()->getTheme(),
              Frame::getClientDecorName(client)),
-      _id(0), _client(NULL), _class_hint(NULL), _old_decor_state(0)
+      _id(0), _client(NULL), _class_hint(NULL),
+      _non_fullscreen_decor_state(0), _non_fullscreen_layer(LAYER_NORMAL)
 {
     // setup basic pointers
     _scr = WindowManager::inst()->getScreen();
@@ -153,7 +154,8 @@ Frame::Frame(Client *client, AutoProperty *ap)
     }
 
     _old_gm = _gm;
-    _old_decor_state = client->getDecorState();
+    _non_fullscreen_decor_state = client->getDecorState();
+    _non_fullscreen_decor_state = client->getLayer();
 
     _scr->ungrabServer(true); // ungrab and sync
 
@@ -1429,17 +1431,18 @@ Frame::setStateFullscreen(StateAction sa)
     bool lock = _client->setConfigureRequestLock(true);
 
     if (_fullscreen) {
-        if ((_old_decor_state&DECOR_BORDER) != hasBorder()) {
+        if ((_non_fullscreen_decor_state&DECOR_BORDER) != hasBorder()) {
             setBorder(STATE_TOGGLE);
         }
-        if ((_old_decor_state&DECOR_TITLEBAR) != hasTitlebar()) {
+        if ((_non_fullscreen_decor_state&DECOR_TITLEBAR) != hasTitlebar()) {
             setTitlebar(STATE_TOGGLE);
         }
         _gm = _old_gm;
 
     } else {
         _old_gm = _gm;
-        _old_decor_state = _client->getDecorState();
+        _non_fullscreen_decor_state = _client->getDecorState();
+        _non_fullscreen_layer = _client->getLayer();
 
         setBorder(STATE_UNSET);
         setTitlebar(STATE_UNSET);
@@ -1456,6 +1459,12 @@ Frame::setStateFullscreen(StateAction sa)
 
     moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
 
+    // Re-stack window if fullscreen is above other windows.
+    if (Config::instance()->isFullscreenAbove()) {
+        _layer = _fullscreen ? LAYER_ABOVE_DOCK : _non_fullscreen_layer;
+        raise();
+    }
+    
     _client->setConfigureRequestLock(lock);
     _client->configureRequestSend();
 
