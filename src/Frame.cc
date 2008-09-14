@@ -155,7 +155,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
 
     _old_gm = _gm;
     _non_fullscreen_decor_state = client->getDecorState();
-    _non_fullscreen_decor_state = client->getLayer();
+    _non_fullscreen_layer = client->getLayer();
 
     _scr->ungrabServer(true); // ungrab and sync
 
