@@ -42,8 +42,8 @@ AC_MSG_CHECKING([whether to build support for the XShape extension])
 AC_ARG_ENABLE(shape,
 	AC_HELP_STRING([--enable-shape],
 								 [enable support of the XShape extension [default=yes]]), ,
-							[shape_enable=yes])
-if test "x$shape_enable" = "xyes"; then
+							[enableval=yes])
+if test "x$enableval" = "xyes"; then
   AC_MSG_RESULT([yes])
   AC_CHECK_LIB(Xext, XShapeCombineShape,
     AC_MSG_CHECKING([for X11/extensions/shape.h])
@@ -246,8 +246,8 @@ AC_MSG_CHECKING([whether to include menu support])
 AC_ARG_ENABLE(menus,
   AC_HELP_STRING([--enable-menus],
 								 [include menu support [default=yes]]), ,
-							[menus_enable=yes])
-if test "x$menus_enable" = "xyes"; then
+							[enableval=yes])
+if test "x$enableval" = "xyes"; then
 	AC_MSG_RESULT([yes])
 	AC_DEFINE(MENUS, [1], [Define to 1 to compile in menu support])
 	FEATURES="$FEATURES menus"
@@ -260,8 +260,8 @@ AC_MSG_CHECKING([whether to include harbour])
 AC_ARG_ENABLE(harbour,
 	AC_HELP_STRING([--enable-harbour],
 								 [include harbour [default=yes]]), ,
-							[harbour_enable=yes])
-if test "x$harbour_enable" = "xyes"; then
+							[enableval=yes])
+if test "x$enableval" = "xyes"; then
 	AC_MSG_RESULT([yes])
 	AC_DEFINE(HARBOUR, [1], [Define to 1 to compile in support for dockapps])
 	FEATURES="$FEATURES harbour"
