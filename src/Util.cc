@@ -18,6 +18,8 @@
 #include <cerrno>
 #include <iostream>
 #include <sstream>
+#include <fstream>
+#include <list>
 
 #include <iconv.h>
 #include <unistd.h>
@@ -39,6 +41,10 @@ using std::string;
 using std::transform;
 using std::vector;
 using std::wstring;
+using std::list;
+using std::ifstream;
+using std::ofstream;
+
 
 namespace Util {
 
@@ -56,6 +62,9 @@ size_t ICONV_BUF_LEN = 0;
 // Constants, name of iconv internal names
 const char *ICONV_WC_NAMES[] = {"WCHAR_T", "UCS-4", 0};
 const char *ICONV_UTF8_NAMES[] = {"UTF-8", "UTF8", 0};
+
+const char *ICONV_UTF8_INVALID_STR = "<INVALID>";
+const wchar_t *ICONV_WIDE_INVALID_STR = L"<INVALID>";
 
 // Constants, maximum number of bytes a single UTF-8 character can use.
 const size_t UTF8_MAX_BYTES = 6;
@@ -398,8 +407,8 @@ to_utf8_str(const std::wstring &str)
 
     } else {
         cerr << " *** WARNING: to_utf8_str, failed with error "
-            << strerror (errno) << endl;;
-            utf8_str = "<INVALID>";
+            << strerror (errno) << endl;
+	utf8_str = ICONV_UTF8_INVALID_STR;
     }
     
     return utf8_str;
@@ -431,10 +440,80 @@ from_utf8_str(const std::string &str)
     } else {
         cerr << " *** WARNING: from_utf8_str, failed on string \""
              << str << "\"." << endl;
-        wide_str = L"<INVALID>";
+        wide_str = ICONV_WIDE_INVALID_STR;
     }
 
     return wide_str;
+}
+
+/**
+ * Add object to list making sure there are no duplicates.
+ */
+void
+file_backed_list::push_back_unique(const std::wstring &entry)
+{
+  list<wstring>::iterator it(find(begin(), end(), entry));
+  if (it != end()) {
+    erase(it);
+  }
+
+  push_back(entry);
+}
+
+/**
+ * Load list from file, updating _path if set.
+ *
+ * @param path Load data from path.
+ * @return Number of elements loaded.
+ */
+unsigned int
+file_backed_list::load (const std::string &path)
+{
+  unsigned int loaded = 0;
+  ifstream ifile(_path.c_str());
+  if (ifile.is_open ()) {
+    // Update only path if successfully opened.
+    _path = path;
+
+    string mb_line;
+
+    for (; ! ifile.eof (); ++loaded) {
+      getline (ifile, mb_line);
+      if (mb_line.size()) {
+	push_back(to_wide_str(mb_line));
+      }
+    }
+
+    ifile.close();
+  }
+
+  return loaded;
+}
+
+/**
+ * Save list from file overwriting previous data.
+ */
+bool
+file_backed_list::save (const std::string &path)
+{
+  bool status = false;
+  ofstream ofile(path.c_str());
+  if (ofile.is_open ()) {
+    // Update path if successfully opened.
+    _path = path;
+
+    string line;
+
+    list<wstring>::iterator it(begin ());
+    for (; it != end(); ++it) {
+      ofile << to_utf8_str(*it) << "\n";
+    }
+
+    ofile.close();
+    status = true;
+  }
+
+  return status;
 }
 
 } // end namespace Util.

@@ -18,6 +18,7 @@
 #include <string>
 #include <cstring>
 #include <vector>
+#include <list>
 #include <functional>
 #include <sstream>
 
@@ -76,6 +77,28 @@ namespace Util {
         void operator ()(T t) { delete t; }
 
     };
+
+  /**
+   * File backed string list used to persist, amongst other things
+   * command history.
+   */
+  class file_backed_list : public std::list<std::wstring>
+  {
+  public:
+    /** Return path list is backed up by. */
+    const std::string &get_path (void) const { return _path; }
+    /** Set path list is backed up by. */
+    void set_path (const std::string &path) { _path = path; }
+
+    void push_back_unique(const std::wstring &entry);
+
+    unsigned int load (const std::string &path);
+    bool save (const std::string &path);
+
+  private:
+    std::string _path; /**< Path to file backed version. */
+  };
+
 }
 
 #ifndef HAVE_SETENV
