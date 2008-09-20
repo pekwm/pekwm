@@ -16,6 +16,8 @@
 #include <string>
 #include <limits>
 
+#include "Util.hh"
+
 //! @brief CfgParserKey value type.
 enum CfgParserKeyType {
     KEY_SECTION, //!< Subsection.
@@ -127,6 +129,7 @@ public:
             CfgParserKey(op_name), _or_set(or_set), _o_default(o_default)
     {
         _type = KEY_PATH;
+	Util::expandFileName (_o_default);
     }
     //! @brief CfgParserKeyPath destructor.
     virtual ~CfgParserKeyPath (void) { }
@@ -135,7 +138,7 @@ public:
 
 private:
     std::string &_or_set; //!< Reference to store parsed value in.
-    const std::string _o_default; //!< Default value.
+    std::string _o_default; //!< Default value.
 };
 
 #endif // _CFG_PARSER_KEY_HH_
