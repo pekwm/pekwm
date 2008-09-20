@@ -25,6 +25,7 @@ class CmdDialog : public InputDialog
 {
 public:
     CmdDialog(Display *dpy, Theme *theme);
+    virtual ~CmdDialog(void);
 
     void unmapWindow(void);
 
@@ -42,7 +43,8 @@ private:
     virtual void complete(void);
 
 private:
-    PWinObj *_wo_ref;
+  PWinObj *_wo_ref;
+  int _exec_count; /**< Number of CmdDialog has run exec since last history save. */
 };
 
 #endif // _CMD_DIALOG_HH_

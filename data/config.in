@@ -64,6 +64,12 @@ Menu {
     Exec = "ButtonRelease"
 }
 
+CmdDialog {
+    HistoryUnique = "True"
+    HistorySize = "1024"
+    HistoryFile = "~/.pekwm/history"
+}
+
 Harbour {
     OnTop = "True"
     MaximizeOver = "False"

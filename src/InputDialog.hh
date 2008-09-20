@@ -15,6 +15,7 @@
 
 #include "PWinObj.hh"
 #include "PDecor.hh"
+#include "Util.hh"
 
 /**
  * Base for windows handling text input.
@@ -75,8 +76,8 @@ protected:
 
   // history
   std::wstring _hist_new; // the one we started editing on
-  std::list<std::wstring> _hist_list;
-  std::list<std::wstring>::iterator _hist_it;
+  Util::file_backed_list _hist_list;
+  Util::file_backed_list::iterator _hist_it;
 };
 
 #endif // _INPUT_DIALOG_HH_

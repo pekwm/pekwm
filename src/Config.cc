@@ -65,7 +65,9 @@ Config::Config(void) :
         _screen_client_unique_name(true),
         _screen_client_unique_name_pre(" #"), _screen_client_unique_name_post(""),
         _menu_select_mask(0), _menu_enter_mask(0), _menu_exec_mask(0),
-        _menu_icon_width(16), _menu_icon_height(16)
+        _menu_icon_width(16), _menu_icon_height(16),
+        _cmd_dialog_history_unique(true), _cmd_dialog_history_size(1024),
+        _cmd_dialog_history_file(""), _cmd_dialog_history_save_interval(16)
 #ifdef HARBOUR
        ,_harbour_da_min_s(0), _harbour_da_max_s(0),
         _harbour_head_nr(0)
@@ -410,6 +412,11 @@ Config::load(const std::string &config_file)
         loadMenu(section->get_section());
     }
 
+    section = cfg.get_entry_root()->find_section("CMDDIALOG");
+    if (section) {
+      loadCmdDialog(section->get_section());
+    }
+
 #ifdef HARBOUR
     section = cfg.get_entry_root ()->find_section ("HARBOUR");
     if (section) {
@@ -668,6 +675,28 @@ Config::loadMenu(CfgParser::Entry *section)
     for_each (o_key_list.begin (), o_key_list.end (),
               Util::Free<CfgParserKey*>());
     o_key_list.clear();
+}
+
+/**
+ * Load configuration from CmdDialog section.
+ */
+void
+Config::loadCmdDialog(CfgParser::Entry *section)
+{
+  if (! section) {
+    return;
+  }
+
+  list<CfgParserKey*> key_list;
+
+  key_list.push_back(new CfgParserKeyBool("HISTORYUNIQUE", _cmd_dialog_history_unique));
+  key_list.push_back(new CfgParserKeyInt("HISTORYSIZE", _cmd_dialog_history_size, 1024, 1));
+  key_list.push_back(new CfgParserKeyPath("HISTORYFILE", _cmd_dialog_history_file, "~/.pekwm/history"));
+  key_list.push_back(new CfgParserKeyInt("HISTORYSAVEINTERVAL", _cmd_dialog_history_save_interval, 16, 0));
+
+  section->parse_key_values(key_list.begin(), key_list.end());
+
+  for_each(key_list.begin(), key_list.end(), Util::Free<CfgParserKey*>());
 }
 
 #ifdef HARBOUR

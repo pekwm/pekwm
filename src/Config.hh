@@ -100,6 +100,11 @@ public:
     inline bool isMenuEnterOn(uint val) const { return (_menu_enter_mask&val); }
     inline bool isMenuExecOn(uint val) const { return (_menu_exec_mask&val); }
 
+  bool isCmdDialogHistoryUnique(void) const { return _cmd_dialog_history_unique; }
+  int getCmdDialogHistorySize(void) const { return _cmd_dialog_history_size; }
+  const std::string &getCmdDialogHistoryFile(void) const { return _cmd_dialog_history_file; }
+  int getCmdDialogHistorySaveInterval(void) const { return _cmd_dialog_history_save_interval; }
+
 #ifdef HARBOUR
     inline int getHarbourDAMinSide(void) const { return _harbour_da_min_s; }
     inline int getHarbourDAMaxSide(void) const { return _harbour_da_max_s; }
@@ -158,6 +163,7 @@ private:
     void loadMoveReszie(CfgParser::Entry *section);
     void loadScreen(CfgParser::Entry *section);
     void loadMenu(CfgParser::Entry *section);
+    void loadCmdDialog(CfgParser::Entry *section);
 #ifdef HARBOUR
     void loadHarbour(CfgParser::Entry *section);
 #endif // HARBOUR
@@ -204,6 +210,11 @@ private:
 
     uint _menu_select_mask, _menu_enter_mask, _menu_exec_mask;
     uint _menu_icon_width, _menu_icon_height;
+
+  bool _cmd_dialog_history_unique; /**< Boolean flag, when true entries in the CmdDialog history are unique. */
+  int _cmd_dialog_history_size; /**< Number of entries in the history before the last entries are dropped. */
+  std::string _cmd_dialog_history_file; /**< Path to cmd dialog history file. */
+  int _cmd_dialog_history_save_interval; /**< Save history file each Nth CmdDialog exec. */
 
     // harbour
 #ifdef HARBOUR

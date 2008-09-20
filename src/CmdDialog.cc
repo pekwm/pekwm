@@ -36,24 +36,56 @@ using std::list;
 using std::string;
 using std::wstring;
 
-//! @brief CmdDialog constructor
-//! @todo Initial size, configurable?
+/**
+ * CmdDialog constructor, init and load history file.
+ *
+ * @todo Make size configurable.
+ */
 CmdDialog::CmdDialog(Display *dpy, Theme *theme)
   : InputDialog(dpy, theme, L"Enter command"),
     _wo_ref(0)
 {
-    _type = PWinObj::WO_CMD_DIALOG;
+  _type = PWinObj::WO_CMD_DIALOG;
+
+
+  if (Config::instance()->getCmdDialogHistoryFile().size() > 0) {
+    _hist_list.load(Config::instance()->getCmdDialogHistoryFile());
+  }
 }
+
+/**
+ * CmdDialog de-structor, clean up and save history file.
+ */
+CmdDialog::~CmdDialog(void)
+{
+  if (Config::instance()->getCmdDialogHistoryFile().size() > 0) {
+    _hist_list.save(Config::instance()->getCmdDialogHistoryFile());
+  }
+}
+
 
 //! @brief Parses _buf and tries to generate an ActionEvent
 //! @return Pointer to ActionEvent.
 ActionEvent*
 CmdDialog::exec(void)
 {
+  // Update history
+  if (Config::instance()->isCmdDialogHistoryUnique()) {
+    _hist_list.push_back_unique(_buf);
+  } else {
     _hist_list.push_back(_buf);
-    if (_hist_list.size() > 10) { // FIXME: make configurable
-        _hist_list.pop_front();
-    }
+  }
+  if (_hist_list.size() > static_cast<uint>(Config::instance()->getCmdDialogHistorySize())) {
+    _hist_list.pop_front();
+  }
+
+  // Persist changes
+  if (Config::instance()->getCmdDialogHistorySaveInterval() > 0
+      && Config::instance()->getCmdDialogHistoryFile().size() > 0
+      && ++_exec_count > Config::instance()->getCmdDialogHistorySaveInterval()) {
+    _hist_list.save(Config::instance()->getCmdDialogHistoryFile());    
+  }
+
     
     // Check if it's a valid Action, if not we assume it's a command and try
     // to execute it.
