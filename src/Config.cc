@@ -67,7 +67,7 @@ Config::Config(void) :
         _menu_select_mask(0), _menu_enter_mask(0), _menu_exec_mask(0),
         _menu_icon_width(16), _menu_icon_height(16),
         _cmd_dialog_history_unique(true), _cmd_dialog_history_size(1024),
-        _cmd_dialog_history_file(""), _cmd_dialog_history_save_interval(16)
+        _cmd_dialog_history_file("~/.pekwm/history"), _cmd_dialog_history_save_interval(16)
 #ifdef HARBOUR
        ,_harbour_da_min_s(0), _harbour_da_max_s(0),
         _harbour_head_nr(0)

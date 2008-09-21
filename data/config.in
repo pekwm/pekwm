@@ -68,6 +68,7 @@ CmdDialog {
     HistoryUnique = "True"
     HistorySize = "1024"
     HistoryFile = "~/.pekwm/history"
+    HistorySaveInterval = "16"
 }
 
 Harbour {

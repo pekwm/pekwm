@@ -268,6 +268,35 @@
     </variablelist>
 
     <variablelist>
+      <title>Config File Elements under the CmdDialog-section:</title>
+
+      <varlistentry>
+        <term>HistoryUnique (boolean)</term>
+	<listitem>
+          <para>If true, identicial items in the history will only appear once where the most recently used is the first item. Default true.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>HistorySize (integer)</term>
+	<listitem>
+          <para>Number of entries in the history that should be kept track of. Default 1024.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>HistoryFile (string)</item>
+	<listitem>
+          <para>Path to history file where history is persisted between session. Default ~/.pekwm/history</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>HistorySaveInterval (int)</item>
+	<listitem>
+          <para>Defines how often the history file should be saved counting each time the CmdDialog finish a command. Default 16.</para>
+        </listitem>
+      </varlistentry>
+    </variablelist>
+
+    <variablelist>
       <title>Config File Elements under the Menu-section:</title>
 
       <varlistentry>

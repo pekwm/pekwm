@@ -470,17 +470,19 @@ unsigned int
 file_backed_list::load (const std::string &path)
 {
   unsigned int loaded = 0;
-  ifstream ifile(_path.c_str());
-  if (ifile.is_open ()) {
+  ifstream ifile;
+  ifile.open(path.c_str());
+  if (ifile.is_open()) {
     // Update only path if successfully opened.
     _path = path;
 
     string mb_line;
 
-    for (; ! ifile.eof (); ++loaded) {
-      getline (ifile, mb_line);
+    while (ifile.good()) {
+      getline(ifile, mb_line);
       if (mb_line.size()) {
 	push_back(to_wide_str(mb_line));
+	++loaded;
       }
     }
 
@@ -498,7 +500,7 @@ file_backed_list::save (const std::string &path)
 {
   bool status = false;
   ofstream ofile(path.c_str());
-  if (ofile.is_open ()) {
+  if (ofile.is_open()) {
     // Update path if successfully opened.
     _path = path;
 

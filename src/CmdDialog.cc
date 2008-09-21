@@ -83,7 +83,8 @@ CmdDialog::exec(void)
   if (Config::instance()->getCmdDialogHistorySaveInterval() > 0
       && Config::instance()->getCmdDialogHistoryFile().size() > 0
       && ++_exec_count > Config::instance()->getCmdDialogHistorySaveInterval()) {
-    _hist_list.save(Config::instance()->getCmdDialogHistoryFile());    
+    _hist_list.save(Config::instance()->getCmdDialogHistoryFile());
+    _exec_count = 0;
   }
 
     
