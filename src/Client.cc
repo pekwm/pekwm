@@ -467,6 +467,9 @@ Client::moveResize(int x, int y, uint width, uint height)
     bool request = ((_gm.x != x) || (_gm.y != y)
                   || (_gm.width != width) || (_gm.height != height));
 
+    _gm.x = x;
+    _gm.y = y;
+
     PWinObj::resize(width, height);
 
     if (request) {

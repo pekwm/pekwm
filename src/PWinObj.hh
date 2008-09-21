@@ -205,7 +205,7 @@ protected:
 
     Type _type; //!< Type of PWinObj.
 
-    Geometry _gm; //!< Geometry of PWinObj.
+    Geometry _gm; //!< Geometry of PWinObj (always in absolute coordinates).
     uint _workspace; //!< Workspace PWinObj is on.
     uint _layer; //!< Layer PWinObj is in.
     bool _mapped; //!< Mapped state of PWinObj.
