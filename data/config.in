@@ -23,7 +23,7 @@ Screen {
     ShowFrameList = "True"
     ShowStatusWindow = "True"
     ShowClientID = "False"
-    ShowWorkspaceIndicator = "1"
+    ShowWorkspaceIndicator = "500"
     PlaceNew = "True"
     FocusNew = "True"
 

@@ -116,7 +116,7 @@
       <varlistentry>
         <term>ShowWorkspaceIndicator (int)</term>
         <listitem>
-          <para>Show WorkspaceIndicator for seconds. If set to &lt; 1 the WorkspaceIndicator is disabled.</para>
+          <para>Show WorkspaceIndicator for N milliseconds. If set to &lt; 1 the WorkspaceIndicator is disabled.</para>
         </listitem>
       </varlistentry>
       <varlistentry>
@@ -283,13 +283,13 @@
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term>HistoryFile (string)</item>
+        <term>HistoryFile (string)</term>
 	<listitem>
           <para>Path to history file where history is persisted between session. Default ~/.pekwm/history</para>
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term>HistorySaveInterval (int)</item>
+        <term>HistorySaveInterval (int)</term>
 	<listitem>
           <para>Defines how often the history file should be saved counting each time the CmdDialog finish a command. Default 16.</para>
         </listitem>

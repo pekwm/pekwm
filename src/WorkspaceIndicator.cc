@@ -244,5 +244,5 @@ WorkspaceIndicator::updateHideTimer(uint timeout)
     if (_timer_hide) {
         _timer.remove(_timer_hide);
     }
-    _timer_hide = _timer.add(timeout * 1000, ActionPerformed(this, _action_hide));
+    _timer_hide = _timer.add(timeout, ActionPerformed(this, _action_hide));
 }
