@@ -787,8 +787,8 @@ Client::readEwmhHints(void)
         if (win_states.skip_taskbar) _state.skip |= SKIP_TASKBAR;
         if (win_states.skip_pager) _state.skip |= SKIP_PAGER;
         if (win_states.sticky) _sticky = true;
-        if (win_states.above) _layer = LAYER_BELOW;
-        if (win_states.below) _layer = LAYER_ABOVE_DOCK;
+        if (win_states.above) _layer = LAYER_ABOVE_DOCK;
+        if (win_states.below) _layer = LAYER_BELOW;
         if (win_states.fullscreen) _state.fullscreen = true;
     }
 
