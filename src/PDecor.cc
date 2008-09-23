@@ -397,6 +397,14 @@ PDecor::moveResize(int x, int y, uint width, uint height)
     if (_child) {
         _child->moveResize(x + borderLeft(), y + borderTop() + getTitleHeight(),
                           getChildWidth(), getChildHeight());
+
+        // The client window may have its window gravity set to something different
+        // than NorthWestGravity (see Xlib manual chapter 3.2.3). Therefore the 
+        // X server may not move its top left corner along with the decoration.
+        // We correct these cases by calling alignChild(). It is called only for 
+        // _child and not all members of _child_list, because activateChild.*() 
+        // does it itself.
+        alignChild(_child);
     }
 
     // Place and resize title and border
