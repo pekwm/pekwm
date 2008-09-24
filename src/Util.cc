@@ -44,6 +44,7 @@ using std::wstring;
 using std::list;
 using std::ifstream;
 using std::ofstream;
+using std::find;
 
 
 namespace Util {
