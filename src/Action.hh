@@ -138,9 +138,14 @@ namespace ActionUtil {
 
 class Action {
 public:
-    Action(void) { }
+    Action(void) : _action(ACTION_UNSET)
+    { 
+        _param_i[0] = _param_i[1] = _param_i[2] = 0;
+    }
+    
     Action(uint action) : _action(action)
     {
+        _param_i[0] = _param_i[1] = _param_i[2] = 0;
     }
     
     Action(uint action, int param_i[3]) : _action(action)
@@ -150,6 +155,7 @@ public:
     Action(uint action, const std::string &param_s)
         : _action(action), _param_s(param_s)
     {
+        _param_i[0] = _param_i[1] = _param_i[2] = 0;
     }
     ~Action(void)
     {
@@ -163,6 +169,7 @@ public:
     inline void setParamI(uint n, int param) { _param_i[(n < 3) ? n : 0] = param; }
     inline void setParamS(const std::string param) { _param_s = param; }
 
+    inline void clear() { _action = ACTION_UNSET; _param_s.clear(); _param_i[0] = _param_i[1] = _param_i[2] = 0; }
 private:
     uint _action;
 

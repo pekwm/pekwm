@@ -778,13 +778,12 @@ bool
 Config::parseKey(const std::string &key_string, uint &mod, uint &key)
 {
     // used for parsing
-    static vector<string> tok;
-    static vector<string>::iterator it;
+    vector<string> tok;
+    vector<string>::iterator it;
 
-    static uint num;
+    uint num;
 
     // chop the string up separating mods and the end key/button
-    tok.clear();
     if (Util::splitString(key_string, tok, " \t")) {
         num = tok.size() - 1;
         if ((tok[num].size() > 1) && (tok[num][0] == '#')) {
@@ -818,11 +817,10 @@ bool
 Config::parseButton(const std::string &button_string, uint &mod, uint &button)
 {
     // used for parsing
-    static vector<string> tok;
-    static vector<string>::iterator it;
+    vector<string> tok;
+    vector<string>::iterator it;
 
     // chop the string up separating mods and the end key/button
-    tok.clear();
     if (Util::splitString(button_string, tok, " \t")) {
         // if the last token isn't an key/button, the action isn't valid
         button = getMouseButton(tok[tok.size() - 1]);
@@ -858,10 +856,9 @@ Config::parseButton(const std::string &button_string, uint &mod, uint &button)
 bool
 Config::parseAction(const std::string &action_string, Action &action, uint mask)
 {
-    static vector<string> tok;
+    vector<string> tok;
 
     // chop the string up separating the action and parameters
-    tok.clear();
     if (Util::splitString(action_string, tok, " \t", 2)) {
         action.setAction(getAction(tok[0], mask));
         if (action.getAction() != ACTION_NO) {
@@ -991,10 +988,9 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
 bool
 Config::parseActionState(Action &action, const std::string &as_action)
 {
-    static vector<string> tok;
+    vector<string> tok;
 
     // chop the string up separating the action and parameters
-    tok.clear();
     if (Util::splitString(as_action, tok, " \t", 2)) {
         action.setParamI(0, ParseUtil::getValue<ActionStateType>(tok[0], _action_state_map));
         if (action.getParamI(0) != ACTION_STATE_NO) {
@@ -1051,20 +1047,19 @@ Config::parseActionState(Action &action, const std::string &as_action)
 bool
 Config::parseActions(const std::string &action_string, ActionEvent &ae, uint mask)
 {
-    static vector<string> tok;
-    static vector<string>::iterator it;
-    static Action action;
+    vector<string> tok;
+    vector<string>::iterator it;
+    Action action;
 
     // reset the action event
     ae.action_list.clear();
 
     // chop the string up separating the actions
-    tok.clear();
     if (Util::splitString(action_string, tok, ";")) {
         for (it = tok.begin(); it != tok.end(); ++it) {
             if (parseAction(*it, action, mask)) {
                 ae.action_list.push_back(action);
-                action.setParamS("");
+                action.clear();
             }
         }
 
@@ -1107,10 +1102,9 @@ Config::parseActionEvent(CfgParser::Entry *section, ActionEvent &ae, uint mask, 
 bool
 Config::parseMoveResizeAction(const std::string &action_string, Action &action)
 {
-    static vector<string> tok;
+    vector<string> tok;
 
     // Chop the string up separating the actions.
-    tok.clear();
     if (Util::splitString(action_string, tok, " \t", 2)) {
         action.setAction(ParseUtil::getValue<MoveResizeActionType>(tok[0],
                          _moveresize_map));
@@ -1141,20 +1135,19 @@ Config::parseMoveResizeAction(const std::string &action_string, Action &action)
 bool
 Config::parseMoveResizeActions(const std::string &action_string, ActionEvent& ae)
 {
-    static vector<string> tok;
-    static vector<string>::iterator it;
-    static Action action;
+    vector<string> tok;
+    vector<string>::iterator it;
+    Action action;
 
     // reset the action event
     ae.action_list.clear();
 
     // chop the string up separating the actions
-    tok.clear();
     if (Util::splitString(action_string, tok, ";")) {
         for (it = tok.begin(); it != tok.end(); ++it) {
             if (parseMoveResizeAction(*it, action)) {
                 ae.action_list.push_back(action);
-                action.setParamS("");
+                action.clear();
             }
         }
 
@@ -1196,19 +1189,19 @@ Config::parseInputDialogAction(const std::string &val, Action &action)
 bool
 Config::parseInputDialogActions(const std::string &actions, ActionEvent &ae)
 {
-    static vector<string> tok;
-    static vector<string>::iterator it;
-    static Action action;
+    vector<string> tok;
+    vector<string>::iterator it;
+    Action action;
 
     // reset the action event
     ae.action_list.clear();
 
     // chop the string up separating the actions
-    tok.clear();
     if (Util::splitString(actions, tok, ";")) {
         for (it = tok.begin(); it != tok.end(); ++it) {
             if (parseInputDialogAction(*it, action)) {
                 ae.action_list.push_back(action);
+                action.clear();
             }
         }
 
@@ -1263,10 +1256,9 @@ Config::getMenuMask (const std::string &mask)
 bool
 Config::parseMenuAction(const std::string &action_string, Action &action)
 {
-    static vector<string> tok;
+    vector<string> tok;
 
     // chop the string up separating the actions
-    tok.clear();
     if (Util::splitString(action_string, tok, " \t", 2)) {
         action.setAction(ParseUtil::getValue<ActionType>(tok[0], _menu_action_map));
         if (action.getAction() != ACTION_NO) {
@@ -1281,20 +1273,19 @@ Config::parseMenuAction(const std::string &action_string, Action &action)
 bool
 Config::parseMenuActions(const std::string &actions, ActionEvent &ae)
 {
-    static vector<string> tok;
-    static vector<string>::iterator it;
-    static Action action;
+    vector<string> tok;
+    vector<string>::iterator it;
+    Action action;
 
     // reset the action event
     ae.action_list.clear();
 
     // chop the string up separating the actions
-    tok.clear();
     if (Util::splitString(actions, tok, ";")) {
         for (it = tok.begin(); it != tok.end(); ++it) {
             if (parseMenuAction(*it, action)) {
                 ae.action_list.push_back(action);
-                action.setParamS("");
+                action.clear();
             }
         }
 
