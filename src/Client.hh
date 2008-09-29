@@ -213,9 +213,12 @@ public: // Public Member Functions
         }
     }
 
+  /** Set shaped flag on Client. */
+  inline void setShaped(bool s) {
 #ifdef HAVE_SHAPE
-    inline void setShaped(bool s) { _shaped = s; }
+    _shaped = s;
 #endif // HAVE_SHAPE
+  }
 
     void close(void);
     void kill(void);

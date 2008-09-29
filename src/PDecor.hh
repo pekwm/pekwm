@@ -328,9 +328,7 @@ protected:
     void checkWOSnap(void);
     void checkEdgeSnap(void);
 
-#ifdef HAVE_SHAPE
     bool setShape(void);
-#endif // HAVE_SHAPE
     void alignChild(PWinObj *child);
     void drawOutline(const Geometry &gm);
 

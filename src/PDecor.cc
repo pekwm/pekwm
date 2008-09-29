@@ -1724,12 +1724,13 @@ PDecor::checkEdgeSnap(void)
     }
 }
 
-#ifdef HAVE_SHAPE
+
 //! @brief Set shapes of decor
 //! @return true if shape is on, else false.
 bool
 PDecor::setShape(void)
 {
+#ifdef HAVE_SHAPE
     if (! _child) {
         return false;
     }
@@ -1748,8 +1749,10 @@ PDecor::setShape(void)
     XFree(rect);
 
     return (num > 1);
-}
+#else // !HAVE_SHAPE
+    return false;
 #endif // HAVE_SHAPE
+}
 
 //! @brief
 void
