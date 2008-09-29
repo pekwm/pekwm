@@ -57,11 +57,8 @@ public:
     inline int getScreenPixmapCacheSize(void) const { return _screen_pixmap_cache_size; }
     inline int getWorkspacesPerRow(void) const { return _screen_workspaces_per_row; }
     const std::wstring &getWorkspaceName(uint num) const {
-        if (num >= _screen_workspace_names.size()) {
-            return _screen_workspace_name_default;
-        } else {
-            return _screen_workspace_names[num];
-        }
+        return (num >= _screen_workspace_names.size())?_screen_workspace_name_default:
+                                                       _screen_workspace_names[num];
     }
     inline int getScreenEdgeSize(EdgeType edge) const { return _screen_edge_sizes[edge]; }
     inline bool getScreenEdgeIndent(void) const { return _screen_edge_indent; }
