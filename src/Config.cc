@@ -59,7 +59,7 @@ Config::Config(void) :
         _screen_show_status_window(true), _screen_show_client_id(false),
         _screen_show_workspace_indicator(500), _screen_workspace_indicator_scale(16),
         _screen_place_new(true), _screen_focus_new(false),
-        _screen_focus_new_child (true),
+        _screen_focus_new_child(true),
         _screen_placement_row(false),
         _screen_placement_ltr(true), _screen_placement_ttb(true),
         _screen_placement_offset_x(0), _screen_placement_offset_y(0),
@@ -349,8 +349,8 @@ Config::load(const std::string &config_file)
     _config_file = config_file;
 
     // Try loading command line specified file.
-    if (_config_file.size ()) {
-        success = cfg.parse (config_file, CfgParserSource::SOURCE_FILE);
+    if (_config_file.size()) {
+        success = cfg.parse(config_file, CfgParserSource::SOURCE_FILE);
         if (success) {
             file_success = config_file;
         }
@@ -359,7 +359,7 @@ Config::load(const std::string &config_file)
     // Try loading ~/.pekwm/config
     if (! success) {
         _config_file = string(getenv("HOME")) + string("/.pekwm/config");
-        success = cfg.parse (_config_file, CfgParserSource::SOURCE_FILE);
+        success = cfg.parse(_config_file, CfgParserSource::SOURCE_FILE);
         if (success) {
             file_success = _config_file;
         }
@@ -370,7 +370,7 @@ Config::load(const std::string &config_file)
         copyConfigFiles();
 
         _config_file = string(SYSCONFDIR "/config");
-        success = cfg.parse (_config_file, CfgParserSource::SOURCE_FILE);
+        success = cfg.parse(_config_file, CfgParserSource::SOURCE_FILE);
         if (success) {
             file_success = _config_file;
         }
@@ -391,24 +391,24 @@ Config::load(const std::string &config_file)
     CfgParser::Entry *section;
 
     // Get other config files dests.
-    section = cfg.get_entry_root ()->find_section ("FILES");
+    section = cfg.get_entry_root()->find_section("FILES");
     if (section) {
         loadFiles(section->get_section());
     }
 
     // Parse moving / resizing options.
-    section = cfg.get_entry_root ()->find_section ("MOVERESIZE");
+    section = cfg.get_entry_root()->find_section("MOVERESIZE");
     if (section) {
         loadMoveReszie(section->get_section());
     }
 
     // Screen, important stuff such as number of workspaces
-    section = cfg.get_entry_root ()->find_section ("SCREEN");
+    section = cfg.get_entry_root()->find_section("SCREEN");
     if (section) {
         loadScreen(section->get_section());
     }
 
-    section = cfg.get_entry_root ()->find_section ("MENU");
+    section = cfg.get_entry_root()->find_section("MENU");
     if (section) {
         loadMenu(section->get_section());
     }
@@ -419,7 +419,7 @@ Config::load(const std::string &config_file)
     }
 
 #ifdef HARBOUR
-    section = cfg.get_entry_root ()->find_section ("HARBOUR");
+    section = cfg.get_entry_root()->find_section("HARBOUR");
     if (section) {
         loadHarbour(section->get_section());
     }
@@ -440,25 +440,25 @@ Config::loadFiles(CfgParser::Entry *section)
     string file_mouse;
 
     list<CfgParserKey*> o_key_list;
-    o_key_list.push_back (new CfgParserKeyPath ("KEYS", _files_keys,
-                          SYSCONFDIR "/keys"));
-    o_key_list.push_back (new CfgParserKeyPath ("MOUSE", file_mouse,
-                          SYSCONFDIR "/mouse"));
-    o_key_list.push_back (new CfgParserKeyPath ("MENU", _files_menu,
-                          SYSCONFDIR "/menu"));
-    o_key_list.push_back (new CfgParserKeyPath ("START", _files_start,
-                          SYSCONFDIR "/start"));
-    o_key_list.push_back (new CfgParserKeyPath ("AUTOPROPS", _files_autoprops,
-                          SYSCONFDIR "/autoproperties"));
-    o_key_list.push_back (new CfgParserKeyPath ("THEME", _files_theme,
-                          DATADIR "/pekwm/themes/default/theme"));
+    o_key_list.push_back(new CfgParserKeyPath("KEYS", _files_keys,
+                         SYSCONFDIR "/keys"));
+    o_key_list.push_back(new CfgParserKeyPath("MOUSE", file_mouse,
+                         SYSCONFDIR "/mouse"));
+    o_key_list.push_back(new CfgParserKeyPath("MENU", _files_menu,
+                         SYSCONFDIR "/menu"));
+    o_key_list.push_back(new CfgParserKeyPath("START", _files_start,
+                         SYSCONFDIR "/start"));
+    o_key_list.push_back(new CfgParserKeyPath("AUTOPROPS", _files_autoprops,
+                         SYSCONFDIR "/autoproperties"));
+    o_key_list.push_back(new CfgParserKeyPath("THEME", _files_theme,
+                         DATADIR "/pekwm/themes/default/theme"));
 
     // Parse
-    section->parse_key_values (o_key_list.begin (), o_key_list.end ());
+    section->parse_key_values(o_key_list.begin(), o_key_list.end());
 
     // Free up resources
-    for_each (o_key_list.begin (), o_key_list.end (),
-              Util::Free<CfgParserKey*>());
+    for_each(o_key_list.begin(), o_key_list.end(),
+             Util::Free<CfgParserKey*>());
 
 
     // Load the mouse configuration
@@ -475,25 +475,25 @@ Config::loadMoveReszie(CfgParser::Entry *section)
     }
 
     list<CfgParserKey*> o_key_list;
-    o_key_list.push_back (new CfgParserKeyInt ("EDGEATTRACT",
-                          _moveresize_edgeattract, 0, 0));
-    o_key_list.push_back (new CfgParserKeyInt ("EDGERESIST",
-                          _moveresize_edgeresist, 0, 0));
-    o_key_list.push_back (new CfgParserKeyInt ("WINDOWATTRACT",
-                          _moveresize_woattract, 0, 0));
-    o_key_list.push_back (new CfgParserKeyInt ("WINDOWRESIST",
-                          _moveresize_woresist, 0, 0));
-    o_key_list.push_back (new CfgParserKeyBool ("OPAQUEMOVE",
-                          _moveresize_opaquemove));
-    o_key_list.push_back (new CfgParserKeyBool ("OPAQUERESIZE",
-                          _moveresize_opaqueresize));
+    o_key_list.push_back(new CfgParserKeyInt("EDGEATTRACT",
+                         _moveresize_edgeattract, 0, 0));
+    o_key_list.push_back(new CfgParserKeyInt("EDGERESIST",
+                         _moveresize_edgeresist, 0, 0));
+    o_key_list.push_back(new CfgParserKeyInt("WINDOWATTRACT",
+                         _moveresize_woattract, 0, 0));
+    o_key_list.push_back(new CfgParserKeyInt("WINDOWRESIST",
+                         _moveresize_woresist, 0, 0));
+    o_key_list.push_back(new CfgParserKeyBool("OPAQUEMOVE",
+                         _moveresize_opaquemove));
+    o_key_list.push_back(new CfgParserKeyBool("OPAQUERESIZE",
+                         _moveresize_opaqueresize));
 
     // Parse data
-    section->parse_key_values (o_key_list.begin (), o_key_list.end ());
+    section->parse_key_values(o_key_list.begin(), o_key_list.end());
 
     // Free up resources
-    for_each (o_key_list.begin (), o_key_list.end (),
-              Util::Free<CfgParserKey*>());
+    for_each(o_key_list.begin(), o_key_list.end(),
+             Util::Free<CfgParserKey*>());
 }
 
 //! @brief Loads SCREEN section of main configuration
@@ -510,41 +510,34 @@ Config::loadScreen(CfgParser::Entry *section)
     CfgParser::Entry *value;
 
     list<CfgParserKey*> o_key_list;
-    o_key_list.push_back (new CfgParserKeyInt ("WORKSPACES",
-                          _screen_workspaces, 4, 1));
-    o_key_list.push_back (new CfgParserKeyInt ("PIXMAPCACHESIZE",
-                          _screen_pixmap_cache_size));
-    o_key_list.push_back (new CfgParserKeyInt ("WORKSPACESPERROW",
-                                               _screen_workspaces_per_row, 0, 0));
-    o_key_list.push_back (new CfgParserKeyString ("WORKSPACENAMES", workspace_names));
-    o_key_list.push_back (new CfgParserKeyString ("EDGESIZE", edge_size));
-    o_key_list.push_back (new CfgParserKeyBool ("EDGEINDENT", _screen_edge_indent));
-    o_key_list.push_back (new CfgParserKeyInt ("DOUBLECLICKTIME",
-                          _screen_doubleclicktime, 250, 0));
-    o_key_list.push_back (new CfgParserKeyString ("TRIMTITLE",
-                          _screen_trim_title));
-    o_key_list.push_back (new CfgParserKeyBool ("FULLSCREENABOVE", _screen_fullscreen_above, true));
-    o_key_list.push_back (new CfgParserKeyBool ("FULLSCREENDETECT", _screen_fullscreen_detect, true));
-    o_key_list.push_back (new CfgParserKeyBool ("SHOWFRAMELIST",
-                          _screen_showframelist));
-    o_key_list.push_back (new CfgParserKeyBool ("SHOWSTATUSWINDOW",
-                          _screen_show_status_window));
-    o_key_list.push_back (new CfgParserKeyBool ("SHOWCLIENTID",
-                                                _screen_show_client_id));
-    o_key_list.push_back (new CfgParserKeyInt ("SHOWWORKSPACEINDICATOR",
-                                               _screen_show_workspace_indicator, 500, 0));
-    o_key_list.push_back (new CfgParserKeyInt ("WORKSPACEINDICATORSCALE",
-					       _screen_workspace_indicator_scale, 16, 2)); 
+    o_key_list.push_back(new CfgParserKeyInt("WORKSPACES", _screen_workspaces, 4, 1));
+    o_key_list.push_back(new CfgParserKeyInt("PIXMAPCACHESIZE", _screen_pixmap_cache_size));
+    o_key_list.push_back(new CfgParserKeyInt("WORKSPACESPERROW",
+                                             _screen_workspaces_per_row, 0, 0));
+    o_key_list.push_back(new CfgParserKeyString("WORKSPACENAMES", workspace_names));
+    o_key_list.push_back(new CfgParserKeyString("EDGESIZE", edge_size));
+    o_key_list.push_back(new CfgParserKeyBool("EDGEINDENT", _screen_edge_indent));
+    o_key_list.push_back(new CfgParserKeyInt("DOUBLECLICKTIME", _screen_doubleclicktime, 250, 0));
+    o_key_list.push_back(new CfgParserKeyString("TRIMTITLE",_screen_trim_title));
+    o_key_list.push_back(new CfgParserKeyBool("FULLSCREENABOVE", _screen_fullscreen_above, true));
+    o_key_list.push_back(new CfgParserKeyBool("FULLSCREENDETECT", _screen_fullscreen_detect, true));
+    o_key_list.push_back(new CfgParserKeyBool("SHOWFRAMELIST", _screen_showframelist));
+    o_key_list.push_back(new CfgParserKeyBool("SHOWSTATUSWINDOW", _screen_show_status_window));
+    o_key_list.push_back(new CfgParserKeyBool("SHOWCLIENTID", _screen_show_client_id));
+    o_key_list.push_back(new CfgParserKeyInt("SHOWWORKSPACEINDICATOR",
+                                             _screen_show_workspace_indicator, 500, 0));
+    o_key_list.push_back(new CfgParserKeyInt("WORKSPACEINDICATORSCALE",
+                                             _screen_workspace_indicator_scale, 16, 2)); 
 
-    o_key_list.push_back (new CfgParserKeyBool ("PLACENEW", _screen_place_new));
-    o_key_list.push_back (new CfgParserKeyBool ("FOCUSNEW", _screen_focus_new));
-    o_key_list.push_back (new CfgParserKeyBool ("FOCUSNEWCHILD", _screen_focus_new_child, true));
+    o_key_list.push_back(new CfgParserKeyBool("PLACENEW", _screen_place_new));
+    o_key_list.push_back(new CfgParserKeyBool("FOCUSNEW", _screen_focus_new));
+    o_key_list.push_back(new CfgParserKeyBool("FOCUSNEWCHILD", _screen_focus_new_child, true));
 
     // Parse data
-    section->parse_key_values (o_key_list.begin (), o_key_list.end ());
+    section->parse_key_values(o_key_list.begin(), o_key_list.end());
 
     // Free up resources
-    for_each (o_key_list.begin (), o_key_list.end (), Util::Free<CfgParserKey*>());
+    for_each(o_key_list.begin(), o_key_list.end(), Util::Free<CfgParserKey*>());
     o_key_list.clear();
 
     // Convert input data
@@ -580,43 +573,43 @@ Config::loadScreen(CfgParser::Entry *section)
         }
     }
 
-    CfgParser::Entry *sub = section->find_section ("PLACEMENT");
+    CfgParser::Entry *sub = section->find_section("PLACEMENT");
     if (sub) {
-        sub = sub->get_section ();
+        sub = sub->get_section();
 
-        value = sub->find_entry ("MODEL");
+        value = sub->find_entry("MODEL");
         if (value) {
-            _screen_placementmodels.clear ();
+            _screen_placementmodels.clear();
 
             vector<string> models;
-            if (Util::splitString (value->get_value (), models, " \t")) {
-                vector<string>::iterator it( models.begin());
+            if (Util::splitString(value->get_value(), models, " \t")) {
+                vector<string>::iterator it(models.begin());
                 for (; it != models.end(); ++it)
-                    _screen_placementmodels.push_back(ParseUtil::getValue<PlacementModel> (*it, _placement_map));
+                    _screen_placementmodels.push_back(ParseUtil::getValue<PlacementModel>(*it, _placement_map));
             }
         }
 
-        CfgParser::Entry *sub_2 = sub->find_section ("SMART");
+        CfgParser::Entry *sub_2 = sub->find_section("SMART");
         if (sub_2) {
-            sub_2 = sub_2->get_section ();
+            sub_2 = sub_2->get_section();
 
-            o_key_list.push_back (new CfgParserKeyBool ("ROW",
-                                  _screen_placement_row));
-            o_key_list.push_back (new CfgParserKeyBool ("LEFTTORIGHT",
-                                  _screen_placement_ltr));
-            o_key_list.push_back (new CfgParserKeyBool ("TOPTOBOTTOM",
-                                  _screen_placement_ttb));
-            o_key_list.push_back (new CfgParserKeyInt ("OFFSETX",
-                                  _screen_placement_offset_x, 0, 0));
-            o_key_list.push_back (new CfgParserKeyInt ("OFFSETY",
-                                  _screen_placement_offset_y, 0, 0));
+            o_key_list.push_back(new CfgParserKeyBool("ROW",
+                                 _screen_placement_row));
+            o_key_list.push_back(new CfgParserKeyBool("LEFTTORIGHT",
+                                 _screen_placement_ltr));
+            o_key_list.push_back(new CfgParserKeyBool("TOPTOBOTTOM",
+                                 _screen_placement_ttb));
+            o_key_list.push_back(new CfgParserKeyInt("OFFSETX",
+                                 _screen_placement_offset_x, 0, 0));
+            o_key_list.push_back(new CfgParserKeyInt("OFFSETY",
+                                 _screen_placement_offset_y, 0, 0));
 
             // Do the parsing
-            sub_2->parse_key_values (o_key_list.begin (), o_key_list.end ());
+            sub_2->parse_key_values(o_key_list.begin(), o_key_list.end());
 
             // Freeup resources
-            for_each (o_key_list.begin (), o_key_list.end (),
-                      Util::Free<CfgParserKey*>());
+            for_each(o_key_list.begin(), o_key_list.end(),
+                     Util::Free<CfgParserKey*>());
             o_key_list.clear();
         }
     }
@@ -626,23 +619,23 @@ Config::loadScreen(CfgParser::Entry *section)
         _screen_placementmodels.push_back(PLACE_MOUSE_CENTERED);
     }
 
-    sub = section->find_section ("UNIQUENAMES");
+    sub = section->find_section("UNIQUENAMES");
     if (sub) {
-        sub = sub->get_section ();
+        sub = sub->get_section();
 
-        o_key_list.push_back (new CfgParserKeyBool ("SETUNIQUE",
-                              _screen_client_unique_name));
-        o_key_list.push_back (new CfgParserKeyString ("PRE",
-                              _screen_client_unique_name_pre));
-        o_key_list.push_back (new CfgParserKeyString ("POST",
-                              _screen_client_unique_name_post));
+        o_key_list.push_back(new CfgParserKeyBool("SETUNIQUE",
+                             _screen_client_unique_name));
+        o_key_list.push_back(new CfgParserKeyString("PRE",
+                             _screen_client_unique_name_pre));
+        o_key_list.push_back(new CfgParserKeyString("POST",
+                             _screen_client_unique_name_post));
 
         // Parse data
-        sub->parse_key_values (o_key_list.begin (), o_key_list.end ());
+        sub->parse_key_values(o_key_list.begin(), o_key_list.end());
 
         // Free up resources
-        for_each (o_key_list.begin (), o_key_list.end (),
-                  Util::Free<CfgParserKey*>());
+        for_each(o_key_list.begin(), o_key_list.end(),
+                 Util::Free<CfgParserKey*>());
         o_key_list.clear();
     }
 }
@@ -659,23 +652,23 @@ Config::loadMenu(CfgParser::Entry *section)
     list<CfgParserKey*> o_key_list;
     string o_value_select, o_value_enter, o_value_exec;
 
-    o_key_list.push_back (new CfgParserKeyString ("SELECT", o_value_select,
-                          "MOTION", 0));
-    o_key_list.push_back (new CfgParserKeyString ("ENTER", o_value_enter,
-                          "BUTTONPRESS", 0));
-    o_key_list.push_back (new CfgParserKeyString ("EXEC", o_value_exec,
-                          "BUTTONRELEASE", 0));
+    o_key_list.push_back(new CfgParserKeyString("SELECT", o_value_select,
+                         "MOTION", 0));
+    o_key_list.push_back(new CfgParserKeyString("ENTER", o_value_enter,
+                         "BUTTONPRESS", 0));
+    o_key_list.push_back(new CfgParserKeyString("EXEC", o_value_exec,
+                         "BUTTONRELEASE", 0));
 
     // Parse data
-    section->parse_key_values (o_key_list.begin (), o_key_list. end());
+    section->parse_key_values(o_key_list.begin(), o_key_list.end());
 
     _menu_select_mask = getMenuMask(o_value_select);
     _menu_enter_mask = getMenuMask(o_value_enter);
     _menu_exec_mask = getMenuMask(o_value_exec);
 
     // Free up resources
-    for_each (o_key_list.begin (), o_key_list.end (),
-              Util::Free<CfgParserKey*>());
+    for_each(o_key_list.begin(), o_key_list.end(),
+             Util::Free<CfgParserKey*>());
     o_key_list.clear();
 }
 
@@ -713,23 +706,23 @@ Config::loadHarbour(CfgParser::Entry *section)
     list<CfgParserKey*> o_key_list;
     string value_placement, value_orientation;
 
-    o_key_list.push_back (new CfgParserKeyBool ("ONTOP", _harbour_ontop));
-    o_key_list.push_back (new CfgParserKeyBool ("MAXIMIZEOVER",
-                          _harbour_maximize_over));
-    o_key_list.push_back (new CfgParserKeyInt ("HEAD", _harbour_head_nr,
-                          0, 0));
-    o_key_list.push_back (new CfgParserKeyString ("PLACEMENT", value_placement,
-                          "RIGHT", 0));
-    o_key_list.push_back (new CfgParserKeyString ("ORIENTATION",
-                          value_orientation,
-                          "TOPTOBOTTOM", 0));
+    o_key_list.push_back(new CfgParserKeyBool("ONTOP", _harbour_ontop));
+    o_key_list.push_back(new CfgParserKeyBool("MAXIMIZEOVER",
+                         _harbour_maximize_over));
+    o_key_list.push_back(new CfgParserKeyInt("HEAD", _harbour_head_nr,
+                         0, 0));
+    o_key_list.push_back(new CfgParserKeyString("PLACEMENT", value_placement,
+                         "RIGHT", 0));
+    o_key_list.push_back(new CfgParserKeyString("ORIENTATION",
+                         value_orientation,
+                         "TOPTOBOTTOM", 0));
 
     // Parse data
-    section->parse_key_values (o_key_list.begin (), o_key_list.end ());
+    section->parse_key_values(o_key_list.begin(), o_key_list.end());
 
     // Free up resources
-    for_each (o_key_list.begin (), o_key_list.end (),
-              Util::Free<CfgParserKey*>());
+    for_each(o_key_list.begin(), o_key_list.end(),
+             Util::Free<CfgParserKey*>());
     o_key_list.clear();
 
     _harbour_placement =
@@ -743,21 +736,21 @@ Config::loadHarbour(CfgParser::Entry *section)
     if (_harbour_orientation == NO_ORIENTATION)
         _harbour_orientation = TOP_TO_BOTTOM;
 
-    CfgParser::Entry *sub = section->find_section ("DOCKAPP");
+    CfgParser::Entry *sub = section->find_section("DOCKAPP");
     if (sub) {
-        sub = sub->get_section ();
+        sub = sub->get_section();
 
-        o_key_list.push_back (new CfgParserKeyInt ("SIDEMIN",
-                              _harbour_da_min_s, 64, 0));
-        o_key_list.push_back (new CfgParserKeyInt ("SIDEMAX",
-                              _harbour_da_max_s, 64, 0));
+        o_key_list.push_back(new CfgParserKeyInt("SIDEMIN",
+                             _harbour_da_min_s, 64, 0));
+        o_key_list.push_back(new CfgParserKeyInt("SIDEMAX",
+                             _harbour_da_max_s, 64, 0));
 
         // Parse data
-        sub->parse_key_values (o_key_list.begin (), o_key_list.end ());
+        sub->parse_key_values(o_key_list.begin(), o_key_list.end());
 
         // Free up resources
-        for_each (o_key_list.begin (), o_key_list.end (),
-                  Util::Free<CfgParserKey*>());
+        for_each(o_key_list.begin(), o_key_list.end(),
+                 Util::Free<CfgParserKey*>());
         o_key_list.clear();
     }
 }
@@ -907,8 +900,7 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
                 case ACTION_WARP_TO_WORKSPACE:
                 case ACTION_SEND_TO_WORKSPACE:
                 case ACTION_GOTO_WORKSPACE:
-                  action.setParamI(0, parseWorkspaceNumber(tok[1]));
-
+                    action.setParamI(0, parseWorkspaceNumber(tok[1]));
                     break;
                 case ACTION_GROUPING_DRAG:
                     action.setParamI(0, Util::isTrue(tok[1]));
@@ -1077,7 +1069,7 @@ Config::parseActionEvent(CfgParser::Entry *section, ActionEvent &ae, uint mask, 
 {
     CfgParser::Entry *value;
 
-    string o_button = section->get_value ();
+    string o_button = section->get_value();
     if (! o_button.size()) {
         if ((ae.type == MOUSE_EVENT_ENTER) || (ae.type == MOUSE_EVENT_LEAVE)) {
             o_button = "1";
@@ -1088,14 +1080,14 @@ Config::parseActionEvent(CfgParser::Entry *section, ActionEvent &ae, uint mask, 
 
     bool ok;
     if (button) {
-        ok = parseButton (o_button, ae.mod, ae.sym);
+        ok = parseButton(o_button, ae.mod, ae.sym);
     } else {
-        ok = parseKey (o_button, ae.mod, ae.sym);
+        ok = parseKey(o_button, ae.mod, ae.sym);
     }
     
-    value = section->get_section ()->find_entry ("ACTIONS");
+    value = section->get_section()->find_entry("ACTIONS");
     if (ok && value) {
-        return parseActions (value->get_value (), ae, mask);
+        return parseActions(value->get_value(), ae, mask);
     }
     return false;
 }
@@ -1165,14 +1157,14 @@ Config::parseMoveResizeEvent(CfgParser::Entry *section, ActionEvent& ae)
 {
     CfgParser::Entry *value;
 
-    if (! section->get_value ().size ()) {
+    if (! section->get_value().size ()) {
         return false;
     }
     
-    if (parseKey (section->get_value (), ae.mod, ae.sym)) {
-        value = section->get_section ()->find_entry ("ACTIONS");
+    if (parseKey(section->get_value(), ae.mod, ae.sym)) {
+        value = section->get_section()->find_entry("ACTIONS");
         if (value) {
-            return parseMoveResizeActions (value->get_value (), ae);
+            return parseMoveResizeActions(value->get_value(), ae);
         }
     }
 
@@ -1216,18 +1208,18 @@ Config::parseInputDialogActions(const std::string &actions, ActionEvent &ae)
 
 //! @brief Parses InputDialog Event.
 bool
-Config::parseInputDialogEvent (CfgParser::Entry *section, ActionEvent &ae)
+Config::parseInputDialogEvent(CfgParser::Entry *section, ActionEvent &ae)
 {
     CfgParser::Entry *value;
 
-    if (! section->get_value ().size()) {
+    if (! section->get_value().size()) {
         return false;
     }
     
-    if (parseKey (section->get_value (), ae.mod, ae.sym)) {
-        value = section->get_section ()->find_entry ("ACTIONS");
+    if (parseKey(section->get_value(), ae.mod, ae.sym)) {
+        value = section->get_section()->find_entry("ACTIONS");
         if (value) {
-            return parseInputDialogActions(value->get_value (), ae);
+            return parseInputDialogActions(value->get_value(), ae);
         }
     }
 
@@ -1236,16 +1228,16 @@ Config::parseInputDialogEvent (CfgParser::Entry *section, ActionEvent &ae)
 
 //! @brief
 uint
-Config::getMenuMask (const std::string &mask)
+Config::getMenuMask(const std::string &mask)
 {
     uint mask_return = 0, val;
 
     vector<string> tok;
-    Util::splitString (mask, tok, " \t");
+    Util::splitString(mask, tok, " \t");
 
-    vector<string>::iterator it (tok.begin ());
+    vector<string>::iterator it(tok.begin());
     for (; it != tok.end(); ++it) {
-        val = ParseUtil::getValue<MouseEventType> (*it, _mouse_event_map);
+        val = ParseUtil::getValue<MouseEventType>(*it, _mouse_event_map);
         if (val < MOUSE_EVENT_ENTER) {
             mask_return |= val;
         }
@@ -1299,18 +1291,18 @@ Config::parseMenuActions(const std::string &actions, ActionEvent &ae)
 
 //! @brief Parses MenuEvent.
 bool
-Config::parseMenuEvent (CfgParser::Entry *section, ActionEvent& ae)
+Config::parseMenuEvent(CfgParser::Entry *section, ActionEvent& ae)
 {
     CfgParser::Entry *value;
 
-    if (! section->get_value ().size()) {
+    if (! section->get_value().size()) {
         return false;
     }
 
-    if (parseKey (section->get_value (), ae.mod, ae.sym)) {
-        value = section->get_section ()->find_entry ("ACTIONS");
+    if (parseKey(section->get_value(), ae.mod, ae.sym)) {
+        value = section->get_section()->find_entry("ACTIONS");
         if (value) {
-            return parseMenuActions (value->get_value (), ae);
+            return parseMenuActions(value->get_value(), ae);
         }
     }
 
@@ -1471,10 +1463,10 @@ Config::loadMouseConfig(const std::string &file)
     
     CfgParser mouse_cfg;
 
-    bool success = mouse_cfg.parse (file, CfgParserSource::SOURCE_FILE);
+    bool success = mouse_cfg.parse(file, CfgParserSource::SOURCE_FILE);
     if (! success) {
-        success = mouse_cfg.parse (string(SYSCONFDIR "/mouse"),
-                                   CfgParserSource::SOURCE_FILE);
+        success = mouse_cfg.parse(string(SYSCONFDIR "/mouse"),
+                                  CfgParserSource::SOURCE_FILE);
     }
     
     if (! success) {
@@ -1483,71 +1475,71 @@ Config::loadMouseConfig(const std::string &file)
 
     // Make sure old actions get unloaded.
     map<MouseActionListName, list<ActionEvent>* >::iterator it;
-    for (it = _mouse_action_map.begin (); it != _mouse_action_map.end (); ++it) {
-        it->second->clear ();
+    for (it = _mouse_action_map.begin(); it != _mouse_action_map.end(); ++it) {
+        it->second->clear();
     }
 
     CfgParser::Entry *section, *sub;
 
-    section = mouse_cfg.get_entry_root ()->find_section ("FRAMETITLE");
+    section = mouse_cfg.get_entry_root()->find_section("FRAMETITLE");
     if (section) {
-        parseButtons (section,
-                      _mouse_action_map[MOUSE_ACTION_LIST_TITLE_FRAME], FRAME_OK);
+        parseButtons(section,
+                     _mouse_action_map[MOUSE_ACTION_LIST_TITLE_FRAME], FRAME_OK);
     }
 
-    section = mouse_cfg.get_entry_root ()->find_section ("OTHERTITLE");
+    section = mouse_cfg.get_entry_root()->find_section("OTHERTITLE");
     if (section) {
         parseButtons(section,
                      _mouse_action_map[MOUSE_ACTION_LIST_TITLE_OTHER], FRAME_OK);
     }
     
-    section = mouse_cfg.get_entry_root ()->find_section ("CLIENT");
+    section = mouse_cfg.get_entry_root()->find_section("CLIENT");
     if (section) {
-        parseButtons (section,
-                      _mouse_action_map[MOUSE_ACTION_LIST_CHILD_FRAME], CLIENT_OK);
+        parseButtons(section,
+                     _mouse_action_map[MOUSE_ACTION_LIST_CHILD_FRAME], CLIENT_OK);
     }
     
-    section = mouse_cfg.get_entry_root ()->find_section ("ROOT");
+    section = mouse_cfg.get_entry_root()->find_section("ROOT");
     if (section) {
         parseButtons(section,
                      _mouse_action_map[MOUSE_ACTION_LIST_ROOT], ROOTCLICK_OK);
     }
     
-    section = mouse_cfg.get_entry_root ()->find_section ("MENU");
+    section = mouse_cfg.get_entry_root()->find_section("MENU");
     if (section) {
-        parseButtons (section,
-                      _mouse_action_map[MOUSE_ACTION_LIST_MENU], FRAME_OK);
+        parseButtons(section,
+                     _mouse_action_map[MOUSE_ACTION_LIST_MENU], FRAME_OK);
     }
     
-    section = mouse_cfg.get_entry_root ()->find_section ("OTHER");
+    section = mouse_cfg.get_entry_root()->find_section("OTHER");
     if (section) {
-        parseButtons (section,
-                      _mouse_action_map[MOUSE_ACTION_LIST_OTHER], FRAME_OK);
+        parseButtons(section,
+                     _mouse_action_map[MOUSE_ACTION_LIST_OTHER], FRAME_OK);
     }
     
-    section = mouse_cfg.get_entry_root ()->find_section ("SCREENEDGE");
+    section = mouse_cfg.get_entry_root()->find_section("SCREENEDGE");
     if (section) {
-        section = section->get_section ();
+        section = section->get_section();
         uint pos;
-        for (sub = section->get_section_next (); sub; sub = sub->get_section_next ())
+        for (sub = section->get_section_next(); sub; sub = sub->get_section_next())
         {
-            pos = ParseUtil::getValue<DirectionType>(sub->get_name (),
+            pos = ParseUtil::getValue<DirectionType>(sub->get_name(),
                     _direction_map);
 
             if (pos != SCREEN_EDGE_NO)
-                parseButtons (sub, getEdgeListFromPosition (pos), SCREEN_EDGE_OK);
+                parseButtons(sub, getEdgeListFromPosition(pos), SCREEN_EDGE_OK);
         }
     }
     
-    section = mouse_cfg.get_entry_root ()->find_section ("BORDER");
+    section = mouse_cfg.get_entry_root()->find_section("BORDER");
     if (section) {
-        section = section->get_section ();
+        section = section->get_section();
         uint pos;
-        for (sub = section->get_section_next (); sub; sub = sub->get_section_next ()) {
+        for (sub = section->get_section_next(); sub; sub = sub->get_section_next()) {
             pos = ParseUtil::getValue<BorderPosition>(sub->get_name(),
                     _borderpos_map);
             if (pos != BORDER_NO_POS) {
-                parseButtons(sub, getBorderListFromPosition (pos), FRAME_BORDER_OK);
+                parseButtons(sub, getBorderListFromPosition(pos), FRAME_BORDER_OK);
             }
         }
     }
@@ -1560,29 +1552,29 @@ Config::parseButtons(CfgParser::Entry *section,
 {
     if (! section || ! mouse_list)
         return;
-    section = section->get_section ();
+    section = section->get_section();
 
     ActionEvent ae;
     CfgParser::Entry *value;
 
     while ((section = section->get_section_next()) != 0) {
-        ae.type = ParseUtil::getValue<MouseEventType>(section->get_name (),
-                  _mouse_event_map);
+        ae.type = ParseUtil::getValue<MouseEventType>(section->get_name(),
+                                                      _mouse_event_map);
 
         if (ae.type == MOUSE_EVENT_NO) {
             continue;
         }
 
         if (ae.type == MOUSE_EVENT_MOTION) {
-            value = section->get_section ()->find_entry ("THRESHOLD");
+            value = section->get_section()->find_entry("THRESHOLD");
             if (value) {
-                ae.threshold = strtol (value->get_value ().c_str (), NULL, 10);
+                ae.threshold = strtol(value->get_value().c_str(), NULL, 10);
             } else {
                 ae.threshold = 0;
             }
         }
 
-        if (parseActionEvent (section, ae, action_ok, true)) {
+        if (parseActionEvent(section, ae, action_ok, true)) {
             mouse_list->push_back(ae);
         }
     }

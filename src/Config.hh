@@ -56,13 +56,13 @@ public:
     inline int getWorkspaces(void) const { return _screen_workspaces; }
     inline int getScreenPixmapCacheSize(void) const { return _screen_pixmap_cache_size; }
     inline int getWorkspacesPerRow(void) const { return _screen_workspaces_per_row; }
-  const std::wstring &getWorkspaceName(uint num) const {
-    if (num >= _screen_workspace_names.size()) {
-      return _screen_workspace_name_default;
-    } else {
-      return _screen_workspace_names[num];
+    const std::wstring &getWorkspaceName(uint num) const {
+        if (num >= _screen_workspace_names.size()) {
+            return _screen_workspace_name_default;
+        } else {
+            return _screen_workspace_names[num];
+        }
     }
-  }
     inline int getScreenEdgeSize(EdgeType edge) const { return _screen_edge_sizes[edge]; }
     inline bool getScreenEdgeIndent(void) const { return _screen_edge_indent; }
     inline int getDoubleClickTime(void) const { return _screen_doubleclicktime; }
@@ -101,10 +101,10 @@ public:
     inline bool isMenuEnterOn(uint val) const { return (_menu_enter_mask&val); }
     inline bool isMenuExecOn(uint val) const { return (_menu_exec_mask&val); }
 
-  bool isCmdDialogHistoryUnique(void) const { return _cmd_dialog_history_unique; }
-  int getCmdDialogHistorySize(void) const { return _cmd_dialog_history_size; }
-  const std::string &getCmdDialogHistoryFile(void) const { return _cmd_dialog_history_file; }
-  int getCmdDialogHistorySaveInterval(void) const { return _cmd_dialog_history_save_interval; }
+    bool isCmdDialogHistoryUnique(void) const { return _cmd_dialog_history_unique; }
+    int getCmdDialogHistorySize(void) const { return _cmd_dialog_history_size; }
+    const std::string &getCmdDialogHistoryFile(void) const { return _cmd_dialog_history_file; }
+    int getCmdDialogHistorySaveInterval(void) const { return _cmd_dialog_history_save_interval; }
 
 #ifdef HARBOUR
     inline int getHarbourDAMinSide(void) const { return _harbour_da_min_s; }
@@ -213,10 +213,10 @@ private:
     uint _menu_select_mask, _menu_enter_mask, _menu_exec_mask;
     uint _menu_icon_width, _menu_icon_height;
 
-  bool _cmd_dialog_history_unique; /**< Boolean flag, when true entries in the CmdDialog history are unique. */
-  int _cmd_dialog_history_size; /**< Number of entries in the history before the last entries are dropped. */
-  std::string _cmd_dialog_history_file; /**< Path to cmd dialog history file. */
-  int _cmd_dialog_history_save_interval; /**< Save history file each Nth CmdDialog exec. */
+    bool _cmd_dialog_history_unique; /**< Boolean flag, when true entries in the CmdDialog history are unique. */
+    int _cmd_dialog_history_size; /**< Number of entries in the history before the last entries are dropped. */
+    std::string _cmd_dialog_history_file; /**< Path to cmd dialog history file. */
+    int _cmd_dialog_history_save_interval; /**< Save history file each Nth CmdDialog exec. */
 
     // harbour
 #ifdef HARBOUR
