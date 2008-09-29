@@ -1405,8 +1405,9 @@ PDecor::setShaded(StateAction sa)
         _real_height = _gm.height;
         _gm.height = getTitleHeight();
         // shading in non full width title mode will make border go away
-        if (! _data->getTitleWidthMin())
+        if (! _data->getTitleWidthMin()) {
             _gm.height += borderTop() + borderBottom();
+        }
         _shaded = true;
     }
 
@@ -1480,17 +1481,17 @@ PDecor::renderTitle(void)
         font->setColor(_data->getFontColor(getFocusedState(sel)));
 
         if ((*it)) {
-          PFont::TrimType trim = PFont::FONT_TRIM_MIDDLE;
-          if ((*it)->isCustom() || (*it)->isUserSet()) {
-            trim = PFont::FONT_TRIM_END;
-          }
+            PFont::TrimType trim = PFont::FONT_TRIM_MIDDLE;
+            if ((*it)->isCustom() || (*it)->isUserSet()) {
+                trim = PFont::FONT_TRIM_END;
+            }
 
-          font->draw(_title_bg,
-                     x + _data->getPad(PAD_LEFT), // X position
-                     _data->getPad(PAD_UP), // Y position
-                     (*it)->getVisible(), 0, // Text and max chars
-                     (*it)->getWidth() - pad_horiz, // Available width
-                     trim); // Type of trim
+            font->draw(_title_bg,
+                       x + _data->getPad(PAD_LEFT), // X position
+                       _data->getPad(PAD_UP), // Y position
+                       (*it)->getVisible(), 0, // Text and max chars
+                       (*it)->getWidth() - pad_horiz, // Available width
+                       trim); // Type of trim
         }
 
         // move to next tab (or separator if any)

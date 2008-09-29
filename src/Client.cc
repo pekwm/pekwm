@@ -343,8 +343,9 @@ Client::~Client(void)
     }
 
     // free names and size hint
-    if (_size)
+    if (_size) {
         XFree(_size);
+    }
 
     removeStrutHint();
 

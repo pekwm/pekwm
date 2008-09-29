@@ -141,8 +141,9 @@ ActionHandler::handleAction(const ActionPerformed &ap)
             matched = true;
             switch (it->getAction()) {
             case ACTION_GROUPING_DRAG:
-                if (ap.type == MotionNotify)
+                if (ap.type == MotionNotify) {
                     frame->doGroupingDrag(ap.event.motion, client, it->getParamI(0));
+                }
                 break;
             case ACTION_ACTIVATE_CLIENT:
                 if ((ap.type == ButtonPress) || (ap.type == ButtonRelease))
