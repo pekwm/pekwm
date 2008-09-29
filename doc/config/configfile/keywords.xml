@@ -150,6 +150,12 @@
         </listitem>
       </varlistentry>
       <varlistentry>
+        <term>FullscreenDetect (boolean)</term>
+        <listitem>
+          <para>Toggles detection of broken fullscreen requests setting clients to fullscreen mode when requesting to be the size of the screen. Default true.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
         <term>EdgeSize (int) (int) (int) (int)</term>
         <listitem>
           <para>

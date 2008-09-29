@@ -69,6 +69,7 @@ public:
     inline const std::string &getTrimTitle(void) const { return _screen_trim_title; }
 
     inline bool isFullscreenAbove(void) const { return _screen_fullscreen_above; }
+    inline bool isFullscreenDetect(void) const { return _screen_fullscreen_detect; }
 
     inline bool getShowFrameList(void) const { return _screen_showframelist; }
     inline bool isShowStatusWindow(void) const { return _screen_show_status_window; }
@@ -196,6 +197,7 @@ private:
     int _screen_doubleclicktime;
     std::string _screen_trim_title;
     bool _screen_fullscreen_above; //!< Flag to make fullscreen go above all windows. */
+    bool _screen_fullscreen_detect; /**< Flag to make configure request fullscreen detection. */
     bool _screen_showframelist;
     bool _screen_show_status_window;
     bool _screen_show_client_id; //!< Flag to display client ID in title.

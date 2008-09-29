@@ -86,7 +86,7 @@ PScreen::PVisual::getShiftPrecFromMask(ulong mask, int &shift, int &prec)
 //! @brief PScreen constructor
 PScreen::PScreen(Display *dpy) :
         _dpy(dpy), _fd(-1),
-        _screen(-1), _depth(-1), _width(0), _height(0),
+        _screen(-1), _depth(-1),
         _root(None), _visual(0), _colormap(None),
         _modifier_map(0),
         _num_lock(0), _scroll_lock(0),
@@ -111,8 +111,8 @@ PScreen::PScreen(Display *dpy) :
     _colormap = DefaultColormap(_dpy, _screen);
     _modifier_map = XGetModifierMapping(_dpy);
 
-    _width = WidthOfScreen(ScreenOfDisplay(_dpy, _screen));
-    _height = HeightOfScreen(ScreenOfDisplay(_dpy, _screen));
+    _screen_gm.width = WidthOfScreen(ScreenOfDisplay(_dpy, _screen));
+    _screen_gm.height = HeightOfScreen(ScreenOfDisplay(_dpy, _screen));
 
 #ifdef HAVE_SHAPE
     {
@@ -275,8 +275,8 @@ PScreen::updateGeometry(uint width, uint height)
   // and strut information is updated.
   initHeads();
 
-  _width = width;
-  _height = height;
+  _screen_gm.width = width;
+  _screen_gm.height = height;
   PWinObj::getRootPWinObj()->resize(width, height);
 
   updateStrut();
@@ -398,6 +398,17 @@ PScreen::getHeadInfo(uint head, Geometry &head_info)
     }
 }
 
+/**
+ * Same as getHeadInfo but returns Geometry instead of filling it in.
+ */
+Geometry
+PScreen::getHeadGeometry(uint head)
+{
+  Geometry gm(_screen_gm);
+  getHeadInfo(head, gm);
+  return gm;
+}
+
 //! @brief Fill information about head and the strut.
 void
 PScreen::getHeadInfoWithEdge(uint num, Geometry &head)
@@ -414,14 +425,14 @@ PScreen::getHeadInfoWithEdge(uint num, Geometry &head)
     head.x += strut_val;
     head.width -= strut_val;  
 
-    strut_val = ((head.x + head.width) == _width) ? std::max(_strut.right, strut.right) : strut.right;
+    strut_val = ((head.x + head.width) == _screen_gm.width) ? std::max(_strut.right, strut.right) : strut.right;
     head.width -= strut_val;
 
     strut_val = (head.y == 0) ? std::max(_strut.top, strut.top) : strut.top;
     head.y += strut_val;
     head.height -= strut_val;
 
-    strut_val = (head.y + head.height == _height) ? std::max(_strut.bottom, strut.bottom) : strut.bottom;
+    strut_val = (head.y + head.height == _screen_gm.height) ? std::max(_strut.bottom, strut.bottom) : strut.bottom;
     head.height -= strut_val;
 }
 
@@ -530,7 +541,7 @@ PScreen::initHeads(void)
         initHeadsXinerama();
 
         if (! _heads.size()) {
-            _heads.push_back(Head(0, 0, _width, _height));
+            _heads.push_back(Head(0, 0, _screen_gm.width, _screen_gm.height));
         }
     }
 }

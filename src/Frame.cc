@@ -1921,23 +1921,9 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
         return; // only handle the active client's events
     }
 
-    // size before position, as we rely on size when gravitating
-    if (! client->isCfgDeny(CFG_DENY_SIZE)) {
-        if ((ev->value_mask&CWWidth) || (ev->value_mask&CWHeight)) {
-            resizeChild(ev->width, ev->height);
-#ifdef HAVE_SHAPE
-            _client->setShaped(setShape());
-#endif // HAVE_SHAPE
-        }
-    }
-
-    if (! client->isCfgDeny(CFG_DENY_POSITION)) {
-        if ((ev->value_mask&CWX) || (ev->value_mask&CWY)) {
-            calcGravityPosition(_client->getXSizeHints()->win_gravity,
-                                ev->x, ev->y, _gm.x, _gm.y);
-            move(_gm.x, _gm.y);
-        }
-    }
+    // Handled geometry, this is handled seperatley due to fullscreen
+    // detection
+    handleConfigureRequestGeometry(ev, client);
 
     // update the stacking
     if (! client->isCfgDeny(CFG_DENY_STACKING)) {
@@ -1972,6 +1958,48 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
             }
         }
     }
+}
+
+/**
+ * Handle size and position part of configure request, detects
+ * fullscreen mode if detection is enabled.
+ */
+void
+Frame::handleConfigureRequestGeometry(XConfigureRequestEvent *ev, Client *client)
+{
+  // Look for fullscreen requests
+  long all_geometry = CWX|CWY|CWWidth|CWHeight;
+  bool is_fullscreen = false;
+  if (Config::instance()->isFullscreenDetect()
+      && !client->isCfgDeny(CFG_DENY_SIZE) && !client->isCfgDeny(CFG_DENY_POSITION)
+      && (ev->value_mask&all_geometry == all_geometry)) {
+    Geometry gm_request(ev->x, ev->y, ev->width, ev->height);
+    
+    if (gm_request == _scr->getScreenGeometry()
+	|| gm_request == _scr->getHeadGeometry(_scr->getNearestHead(ev->x, ev->y))) {
+      is_fullscreen = true;
+      setStateFullscreen(STATE_SET);
+    }
+  }
+
+  if (! is_fullscreen) {
+    // Remove fullscreen state if client changes it size
+    if (Config::instance()->isFullscreenDetect()) {
+      setStateFullscreen(STATE_UNSET);
+    }
+
+    if (!client->isCfgDeny(CFG_DENY_SIZE)
+	&& ((ev->value_mask&CWWidth) || (ev->value_mask&CWHeight))) {
+      resizeChild(ev->width, ev->height);
+      _client->setShaped(setShape());
+    }
+    if (!client->isCfgDeny(CFG_DENY_POSITION)
+	&& ((ev->value_mask&CWX) || (ev->value_mask&CWY))) {
+      calcGravityPosition(_client->getXSizeHints()->win_gravity,
+			  ev->x, ev->y, _gm.x, _gm.y);
+      move(_gm.x, _gm.y);
+    }
+  }
 }
 
 //! @brief

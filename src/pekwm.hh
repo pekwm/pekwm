@@ -26,13 +26,16 @@ extern "C" {
 
 class Geometry {
 public:
-    Geometry(void) : x(0), y(0), width(1), height(1) { }
-    Geometry(int _x, int _y, unsigned int _width, unsigned int _height) :
+  Geometry(void)
+    : x(0), y(0), width(1), height(1) { }
+  Geometry(int _x, int _y, unsigned int _width, unsigned int _height) :
     x(_x), y(_y), width(_width), height(_height) { }
-    ~Geometry(void) { }
+  Geometry(const Geometry &gm)
+    : x(gm.x), y(gm.y), width(gm.width), height(gm.height) { }
+  ~Geometry(void) { }
 
-    int x, y;
-    unsigned int width, height;
+  int x, y;
+  unsigned int width, height;
 
     inline Geometry& operator = (const Geometry& gm) {
         x = gm.x;

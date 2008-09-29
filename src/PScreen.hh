@@ -107,8 +107,10 @@ public:
     inline Display* getDpy(void) const { return _dpy; }
     inline int getScreenNum(void) const { return _screen; }
     inline Window getRoot(void) const { return _root; }
-    inline uint getWidth(void) const { return _width; }
-    inline uint getHeight(void) const { return _height; }
+
+    const Geometry &getScreenGeometry(void) const { return _screen_gm; }
+    inline uint getWidth(void) const { return _screen_gm.width; }
+    inline uint getHeight(void) const { return _screen_gm.height; }
 
     inline int getDepth(void) const { return _depth; }
     inline PScreen::PVisual *getVisual(void) { return _visual; }
@@ -145,6 +147,7 @@ public:
     uint getNearestHead(int x, int y);
     uint getCurrHead(void);
     bool getHeadInfo(uint head, Geometry &head_info);
+    Geometry getHeadGeometry(uint head);
     void getHeadInfoWithEdge(uint head, Geometry &head_info);
     inline int getNumHeads(void) const { return _heads.size(); }
 
@@ -208,7 +211,8 @@ private:
     int _fd;
 
     int _screen, _depth;
-    uint _width, _height;
+
+  Geometry _screen_gm; /**< Screen geometry, no head information. */
 
     Window _root;
     PScreen::PVisual *_visual;

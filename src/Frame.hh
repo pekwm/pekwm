@@ -141,6 +141,7 @@ protected:
     // END - PDecor interface
 
 private:
+    void handleConfigureRequestGeometry(XConfigureRequestEvent *ev, Client *client);
     void recalcResizeDrag(int nx, int ny, bool left, bool top);
     void getMaxBounds(int &max_x,int &max_r, int &max_y, int &max_b);
     void calcSizeInCells(uint &width, uint &height);
