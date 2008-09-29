@@ -1917,7 +1917,7 @@ WindowManager::familyRaiseLower(Client *client, bool raise)
     list<Client*>::iterator it(client_list.begin());
     for (; it != client_list.end(); ++it) {
         frame = dynamic_cast<Frame*>((*it)->getParent());
-        if (frame && frame->getActiveChild() == *it) {
+        if (frame) {
             if (raise) {
                 frame->raise();
             } else {
