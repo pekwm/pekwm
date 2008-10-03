@@ -25,15 +25,15 @@ DPFX=docs
 
 LOGDIR="${CURDIR}/logs"
 
-# DBDIR="/usr/share/sgml/docbook/dsssl-stylesheets"
+# DBDIR="/usr/share/sgml/docbook/stylesheets/dsssl/modular"
 # DBC="${DBDIR}/html/custom.dsl"
 # DBP="${DBDIR}/print/plain.dsl"
 # DBX="${DBDIR}/dtds/decls/xml.dcl"
 
-DBDIR="/usr/share/sgml/docbook/dsssl-stylesheets"
+DBDIR="/usr/share/sgml/docbook/stylesheet/dsssl/modular"
 DBC="${DBDIR}/html/pekwm.dsl"
 DBP="${DBDIR}/print/plain.dsl"
-DBX="/usr/share/sgml/xml.dcl"
+DBX="/usr/share/sgml/declaration/xml.dcl"
 
 # OpenJade configuration
 SP_CHARSET_FIXED="0"
