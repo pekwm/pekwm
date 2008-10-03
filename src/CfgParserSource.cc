@@ -25,43 +25,43 @@ using std::string;
 
 unsigned int CfgParserSourceCommand::_sigaction_counter = 0;
 
-//! @brief
-//! @return
+/**
+ * Open file based configuration source.
+ */
 bool
-CfgParserSourceFile::open (void)
-throw (std::string&)
+CfgParserSourceFile::open(void)
+    throw (std::string&)
 {
-    if (_op_file) {
-        throw string ("TRYING TO OPEN ALLREADY OPEN SOURCE");
+    if (_file) {
+        throw string("TRYING TO OPEN ALLREADY OPEN SOURCE");
     }
 
-    _op_file = fopen (_or_name.c_str (), "r");
-    if (! _op_file)  {
-        throw string("FAILED TO OPEN " + _or_name);
+    _file = fopen(_name.c_str(), "r");
+    if (! _file) {
+        throw string("failed to open file " + _name);
     }
 
     return true;
 }
 
-//! @brief
 void
-CfgParserSourceFile::close (void)
-throw (std::string&)
+CfgParserSourceFile::close(void)
+    throw (std::string&)
 {
-    if (! _op_file) {
-        throw string("TRYING TO CLOSE ALLREADY CLOSED SOURCE");
+    if (! _file) {
+        throw string("trying to close already closed source");
     }
 
-    fclose (_op_file);
-    _op_file = NULL;
+    fclose(_file);
+    _file = 0;
 }
 
-//! @brief
-//! @param
-//! @return
+/**
+ * Run command and treat output as configuration source.
+ */
 bool
-CfgParserSourceCommand::open (void)
-throw (std::string&)
+CfgParserSourceCommand::open(void)
+    throw (std::string&)
 {
     int fd[2];
     int status;
@@ -83,17 +83,17 @@ throw (std::string&)
         sigaction(SIGCHLD, &action, &_sigaction);
     }
 
-    _o_pid = fork ();
-    if (_o_pid == -1) { // Error
+    _pid = fork();
+    if (_pid == -1) { // Error
         return false;
 
-    } else if (_o_pid == 0) { // Child
-        dup2 (fd[1], STDOUT_FILENO);
+    } else if (_pid == 0) { // Child
+        dup2(fd[1], STDOUT_FILENO);
 
-        ::close (fd[0]);
-        ::close (fd[1]);
+        ::close(fd[0]);
+        ::close(fd[1]);
 
-        execlp ("/bin/sh", "sh", "-c", _or_name.c_str(), (char *) NULL);
+        execlp("/bin/sh", "sh", "-c", _name.c_str(), (char *) 0);
 
         // PRINT ERROR
 
@@ -105,15 +105,17 @@ throw (std::string&)
 
         ::close (fd[1]);
 
-        _op_file = fdopen (fd[0], "r");
+        _file = fdopen(fd[0], "r");
     }
     return true;
 }
 
-//! @brief
+/**
+ * Close source, wait for child process to finish.
+ */
 void
-CfgParserSourceCommand::close (void)
-throw (std::string&)
+CfgParserSourceCommand::close(void)
+    throw (std::string&)
 {
     if (_sigaction_counter < 1) {
         return;
@@ -121,21 +123,21 @@ throw (std::string&)
     _sigaction_counter--;
 
     // Close source.
-    fclose (_op_file);
+    fclose(_file);
 
     // Wait for process.
     int status;
     int pid_status;
 
-    status = waitpid(_o_pid, &pid_status, 0);
+    status = waitpid(_pid, &pid_status, 0);
 
     // If no other open CfgParserSourceCommand open, restore sigaction.
     if (_sigaction_counter == 0) {
-        sigaction(SIGCHLD, &_sigaction, NULL);
+        sigaction(SIGCHLD, &_sigaction, 0);
     }
 
     // Wait failed, throw error
     if (status == -1) {
-        throw string("FAILED TO WAIT FOR PID " + Util::to_string<int> (_o_pid));
+        throw string("failed to wait for pid " + Util::to_string<int>(_pid));
     }
 }

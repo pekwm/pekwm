@@ -1,10 +1,5 @@
-//! @file
-//! @author Claes Nasten <pekdon{@}pekdon{.}net
-//! @date 2005-06-15
-//! @brief Configuration parser source handler.
-
 //
-// Copyright (C) 2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2005-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -32,73 +27,73 @@ public:
         SOURCE_VIRTUAL //!< Source base type.
     };
 
-    CfgParserSource (const std::string &or_source) :
-            _op_file (NULL), _or_name(or_source),
-            _type(SOURCE_VIRTUAL), _i_line (0)
+    CfgParserSource(const std::string &source)
+        : _file(0), _name(source),
+          _type(SOURCE_VIRTUAL), _line(0)
     {
     }
     virtual ~CfgParserSource (void) { }
 
-    //! @brief Gets a character from _op_file, increments line count if \n.
-    inline int getc (void) {
-        int i_c = fgetc (_op_file);
-        if (i_c == '\n') {
-            ++_i_line;
+    //! @brief Gets a character from _file, increments line count if \n.
+    inline int getc(void) {
+        int c = fgetc(_file);
+        if (c == '\n') {
+            ++_line;
         }
-        return i_c;
+        return c;
     }
 
     //! @brief Returns a character to _op_file, decrements line count if \n.
-    inline void ungetc (int i_c)  {
-        ::ungetc (i_c, _op_file);
-        if (i_c == '\n') {
-            --_i_line;
+    inline void ungetc(int c)  {
+        ::ungetc (c, _file);
+        if (c == '\n') {
+            --_line;
         }
     }
 
-    const std::string &get_name(void) { return _or_name; }
+    const std::string &get_name(void) { return _name; }
     CfgParserSource::Type get_type(void) { return _type; }
-    int get_line (void) { return _i_line; }
+    int get_line(void) { return _line; }
 
-    virtual bool open (void) throw (std::string&) { return false; }
-    virtual void close (void) throw (std::string&) { }
+    virtual bool open(void) throw (std::string&) { return false; }
+    virtual void close(void) throw (std::string&) { }
 
 protected:
-    FILE *_op_file;
-    const std::string &_or_name;
+    FILE *_file;
+    const std::string &_name;
     CfgParserSource::Type _type;
-    int _i_line;
+    int _line;
 };
 
 class CfgParserSourceFile : public CfgParserSource
 {
 public:
-    CfgParserSourceFile (const std::string &or_source)
-            : CfgParserSource (or_source)
+    CfgParserSourceFile (const std::string &source)
+        : CfgParserSource(source)
     {
         _type = SOURCE_FILE;
     }
     virtual ~CfgParserSourceFile (void) { }
 
-    virtual bool open (void) throw (std::string&);
-    virtual void close (void) throw (std::string&);
+    virtual bool open(void) throw (std::string&);
+    virtual void close(void) throw (std::string&);
 };
 
 class CfgParserSourceCommand : public CfgParserSource
 {
 public:
-    CfgParserSourceCommand (const std::string &or_source)
-            : CfgParserSource (or_source)
+    CfgParserSourceCommand(const std::string &source)
+        : CfgParserSource (source)
     {
         _type = SOURCE_COMMAND;
     }
-    virtual ~CfgParserSourceCommand (void) { }
+    virtual ~CfgParserSourceCommand(void) { }
 
-    virtual bool open (void) throw (std::string&);
-    virtual void close (void) throw (std::string&);
+    virtual bool open(void) throw (std::string&);
+    virtual void close(void) throw (std::string&);
 
 private:
-    pid_t _o_pid;
+    pid_t _pid;
 
     struct sigaction _sigaction; //!< sigaction for restore.
     static unsigned int _sigaction_counter; //!< Counts open.
