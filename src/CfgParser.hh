@@ -45,6 +45,7 @@ public:
     public:
         Entry(const std::string &source_name, int line,
               const std::string &name, const std::string &value);
+        Entry(const Entry &entry);
         ~Entry(void);
 
         //! @brief Returns the name.
@@ -56,6 +57,7 @@ public:
         //! @brief Returns the name of the source this was parsed.
         const std::string &get_source_name(void) const { return _source_name; }
 
+        Entry *add_entry(Entry *entry);
         Entry *add_entry(const std::string &source_name, int line,
                          const std::string &name, const std::string &value);
 
@@ -74,7 +76,7 @@ public:
         void parse_key_values(std::list<CfgParserKey*>::iterator begin,
                               std::list<CfgParserKey*>::iterator end);
 
-        void print_tree(int level);
+        void copy_tree_into(CfgParser::Entry *from, bool overwrite=true);
         void free_tree(void);
 
         //! @brief Matches Entry name agains op_rhs.
@@ -109,6 +111,8 @@ private:
     bool parse_name(std::string &buf);
     bool parse_value(CfgParserSource *source, std::string &value);
     void parse_entry_finish(std::string &buf, std::string &value);
+    void parse_entry_finish_standard(std::string &buf, std::string &value);
+    void parse_entry_finish_template(std::string &name);
     void parse_section_finish(std::string &buf, std::string &value);
     void parse_comment_line(CfgParserSource *source);
     void parse_comment_c(CfgParserSource *source);
@@ -128,6 +132,7 @@ private:
     std::list<Entry*> _entry_list; //!< List of Entries with sections, for recursive parsing.
 
     std::map<std::string, std::string> _var_map; //!< Map of $VARS
+    std::map<std::string, CfgParser::Entry*> _section_map; //!< Map of Define = ... sections
 
     Entry _root_entry; //!< Root Entry.
     Entry *_entry; //!< Current Entry.

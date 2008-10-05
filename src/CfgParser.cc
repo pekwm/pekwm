@@ -45,9 +45,38 @@ CfgParser::Entry::Entry(const std::string &source_name, int line,
 {
 }
 
+/**
+ * Copy Entry together with the content.
+ */
+CfgParser::Entry::Entry(const CfgParser::Entry &entry)
+    : _name(entry._name), _value(entry._value),
+      _line(entry._line), _source_name(_source_name)
+{
+    if (entry._entry_next) {
+        _entry_next = new Entry(*entry._entry_next);
+    }
+    if (entry._section) {
+        _section = new Entry(*entry._section);
+    }
+}
+
 //! @brief CfgParser::Entry destructor.
 CfgParser::Entry::~Entry(void)
 {
+}
+
+/**
+ * Append Entry to the end of Entry list at current depth.
+ */
+CfgParser::Entry*
+CfgParser::Entry::add_entry(CfgParser::Entry *entry)
+{
+    if (_entry_next) {
+        return _entry_next->add_entry(entry);
+    } else {
+        _entry_next = entry;
+        return _entry_next;
+    }
 }
 
 //! @brief Adds Entry to the end of Entry list at current depth.
@@ -55,12 +84,7 @@ CfgParser::Entry*
 CfgParser::Entry::add_entry(const std::string &source_name, int line,
                             const std::string &name, const std::string &value)
 {
-    if (_entry_next) {
-        return _entry_next->add_entry(source_name, line, name, value);
-    } else {
-        _entry_next = new Entry(source_name, line, name, value);
-        return _entry_next;
-    }
+    return add_entry(new Entry(source_name, line, name, value));
 }
 
 //! @brief Gets next entry that has a sub section.
@@ -132,6 +156,40 @@ CfgParser::Entry::parse_key_values(std::list<CfgParserKey*>::iterator begin,
     }
 }
 
+/**
+ * Copy tree into current entry, overwrite entries if overwrite is
+ * true.
+ */
+void
+CfgParser::Entry::copy_tree_into(CfgParser::Entry *from, bool overwrite)
+{
+    CfgParser::Entry *it;
+    for (it = from; it; it = it->_entry_next) {
+        if (! overwrite) {
+            add_entry(new Entry(*it));
+            continue;
+        }
+
+        // Check for section, if one exists either copy into existing
+        // or create new copy.
+        if (it->get_section()) {
+            CfgParser::Entry *section = find_section(it->get_section()->get_name());
+            if (section) {
+                section->copy_tree_into(it->get_section(), overwrite);
+            } else {
+                add_entry(new Entry(*section));
+            }
+        }
+
+        CfgParser::Entry *entry = find_entry(it->get_name());
+        if (entry) {
+            entry->_name = it->get_value();
+        } else {
+            add_entry(it->get_source_name(), it->get_line(), it->get_name(), it->get_value());
+        }
+    }
+}
+
 //! @brief Frees Entry tree.
 void
 CfgParser::Entry::free_tree(void)
@@ -177,6 +235,11 @@ CfgParser::CfgParser(void)
 CfgParser::~CfgParser(void)
 {
     _root_entry.free_tree();
+
+    map<string, CfgParser::Entry*>::iterator it(_section_map.begin());
+    for (; it != _section_map.end(); ++it) {
+        delete it->second;
+    }
 }
 
 //! @brief Parses source and fills root section with data.
@@ -213,7 +276,7 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type)
                 break;
             case '{':
                 if (parse_name(buf)) {
-                    parse_section_finish (buf, value);
+                    parse_section_finish(buf, value);
                 } else {
                     cerr << _("Ignoring section as name is empty.\n");
                 }
@@ -411,15 +474,25 @@ CfgParser::parse_value(CfgParserSource *source, std::string &value)
 void
 CfgParser::parse_entry_finish(std::string &buf, std::string &value)
 {
-    if (! value.size()) {
+    if (value.size()) {
+        parse_entry_finish_standard(buf, value);
+    } else {
+        // Template handling, expand or define template.
+        if (buf.size() && parse_name(buf) && buf[0] == '@') {
+            parse_entry_finish_template(buf);
+        }
         buf.clear();
-        return;
     }
-
+}
+/**
+ * Finish standard entry.
+ */
+void
+CfgParser::parse_entry_finish_standard(std::string &buf, std::string &value)
+{
     if (parse_name(buf)) {
         if (buf[0] == '$') {
             variable_define(buf, value);
-
         } else  {
             variable_expand(value);
 
@@ -439,6 +512,21 @@ CfgParser::parse_entry_finish(std::string &buf, std::string &value)
     buf.clear();
 }
 
+/**
+ * Finish template entry, copy data into current section.
+ */
+void
+CfgParser::parse_entry_finish_template(std::string &name)
+{
+    map<string, CfgParser::Entry*>::iterator it(_section_map.find(name.c_str() + 1));
+    if (it == _section_map.end()) {
+        cerr << " *** WARNING: No such template " << name << endl;
+        return;
+    }
+
+    _entry->copy_tree_into(it->second);
+}
+
 //! @brief Creates new Section on {
 void
 CfgParser::parse_section_finish(std::string &buf, std::string &value)
@@ -446,9 +534,22 @@ CfgParser::parse_section_finish(std::string &buf, std::string &value)
     _entry = _entry->add_entry(_source->get_name(), _source->get_line(), buf, value);
     _entry_list.push_back(_entry);
 
-    // Create Entry representing Section and point to it.
+    // Create Entry representing Section
     Entry *section = new Entry(_source->get_name(), _source->get_line(), buf, value);
-    _entry->set_section(section);
+    if (buf.size() == 6 && strcasecmp(buf.c_str(), "DEFINE") == 0) {
+        // Look for define section, started with Define = "Name" { 
+        map<string, CfgParser::Entry*>::iterator it(_section_map.find(value));
+        if (it != _section_map.end()) {
+            delete it->second;
+            _section_map.erase(it);
+        }
+
+        _section_map[value] = section;
+    } else {
+        // Set section to current entry, if it is a Define section
+        // resource handling is done by the _section_map
+        _entry->set_section(section);
+    }
 
     // Set current Entry to newly created Section.
     _entry = section;
@@ -470,7 +571,7 @@ CfgParser::parse_comment_line(CfgParserSource *source)
 
 //! @brief Parses Source until */ is found.
 void
-CfgParser::parse_comment_c (CfgParserSource *source)
+CfgParser::parse_comment_c(CfgParserSource *source)
 {
     int c;
     while ((c = source->getc()) != EOF) {
