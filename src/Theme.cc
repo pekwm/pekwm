@@ -901,7 +901,7 @@ Theme::load(const std::string &dir)
         }
     }
 
-    CfgParser::Entry *section, *value;
+    CfgParser::Entry *section;
 
     // Set image basedir.
     _image_handler->setDir(_theme_dir);
@@ -970,6 +970,7 @@ Theme::load(const std::string &dir)
     }
 
 #ifdef HARBOUR
+    CfgParser::Entry *value;
     // Load Harbour texture.
     section = theme.get_entry_root ()->find_section ("HARBOUR");
     if (section) {
