@@ -1967,39 +1967,44 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
 void
 Frame::handleConfigureRequestGeometry(XConfigureRequestEvent *ev, Client *client)
 {
-  // Look for fullscreen requests
-  long all_geometry = CWX|CWY|CWWidth|CWHeight;
-  bool is_fullscreen = false;
-  if (Config::instance()->isFullscreenDetect()
-      && !client->isCfgDeny(CFG_DENY_SIZE) && !client->isCfgDeny(CFG_DENY_POSITION)
-      && (ev->value_mask&all_geometry == all_geometry)) {
-    Geometry gm_request(ev->x, ev->y, ev->width, ev->height);
-    
-    if (gm_request == _scr->getScreenGeometry()
-	|| gm_request == _scr->getHeadGeometry(_scr->getNearestHead(ev->x, ev->y))) {
-      is_fullscreen = true;
-      setStateFullscreen(STATE_SET);
-    }
-  }
+    // Look for fullscreen requests
+    long all_geometry = CWX|CWY|CWWidth|CWHeight;
+    bool is_fullscreen = false;
+    if (Config::instance()->isFullscreenDetect()
+            && ! client->isCfgDeny(CFG_DENY_SIZE)
+            && ! client->isCfgDeny(CFG_DENY_POSITION)
+            && (ev->value_mask&all_geometry == all_geometry)) {
 
-  if (! is_fullscreen) {
-    // Remove fullscreen state if client changes it size
-    if (Config::instance()->isFullscreenDetect()) {
-      setStateFullscreen(STATE_UNSET);
+        Geometry gm_request(ev->x, ev->y, ev->width, ev->height);
+        if (gm_request == _scr->getScreenGeometry()
+             || gm_request == _scr->getHeadGeometry(_scr->getNearestHead(ev->x, ev->y))) {
+
+            is_fullscreen = true;
+            setStateFullscreen(STATE_SET);
+        }
     }
 
-    if (!client->isCfgDeny(CFG_DENY_SIZE)
-	&& ((ev->value_mask&CWWidth) || (ev->value_mask&CWHeight))) {
-      resizeChild(ev->width, ev->height);
-      _client->setShaped(setShape());
+    if (! is_fullscreen) {
+        // Remove fullscreen state if client changes it size
+        if (Config::instance()->isFullscreenDetect()) {
+            setStateFullscreen(STATE_UNSET);
+        }
+
+        if (! client->isCfgDeny(CFG_DENY_SIZE)
+                && (ev->value_mask & (CWWidth|CWHeight)) ) {
+
+            resizeChild(ev->width, ev->height);
+            _client->setShaped(setShape());
+        }
+
+        if (! client->isCfgDeny(CFG_DENY_POSITION)
+               && (ev->value_mask & (CWX|CWY)) ) {
+
+            calcGravityPosition(_client->getXSizeHints()->win_gravity,
+                                ev->x, ev->y, _gm.x, _gm.y);
+            move(_gm.x, _gm.y);
+        }
     }
-    if (!client->isCfgDeny(CFG_DENY_POSITION)
-	&& ((ev->value_mask&CWX) || (ev->value_mask&CWY))) {
-      calcGravityPosition(_client->getXSizeHints()->win_gravity,
-			  ev->x, ev->y, _gm.x, _gm.y);
-      move(_gm.x, _gm.y);
-    }
-  }
 }
 
 //! @brief
