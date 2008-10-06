@@ -501,12 +501,11 @@ PDecor::setWorkspace(uint workspace)
 }
 
 //! @brief Gives decor input focus, fails if not mapped or not visible
-bool
+void
 PDecor::giveInputFocus(void)
 {
     if (_mapped && _child) {
-        return _child->giveInputFocus();
-
+        _child->giveInputFocus();
     } else {
 #ifdef DEBUG
         cerr << __FILE__ << "@" << __LINE__ << ": "
@@ -514,7 +513,6 @@ PDecor::giveInputFocus(void)
              << " *** reverting to root" << endl;
 #endif // DEBUG
         PWinObj::getRootPWinObj()->giveInputFocus();
-        return false;
     }
 }
 

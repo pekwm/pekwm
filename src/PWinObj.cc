@@ -218,7 +218,7 @@ PWinObj::setHidden(bool hidden)
 }
 
 //! @brief Executes XSetInputFocus on the appropriate window.
-bool
+void
 PWinObj::giveInputFocus(void)
 {
     if (! _mapped  || ! _focusable) {
@@ -228,12 +228,10 @@ PWinObj::giveInputFocus(void)
              << " *** non focusable window."
              << " mapped: " << _mapped  << " focusable: " << _focusable << endl;
 #endif // DEBUG
-        return false;
+        return;
     }
 
     XSetInputFocus(_dpy, _window, RevertToPointerRoot, CurrentTime);
-
-    return true;
 }
 
 //! @brief Reparents and sets _parent member

@@ -84,7 +84,7 @@ public: // Public Member Functions
 
     virtual void setWorkspace(uint workspace);
 
-    virtual bool giveInputFocus(void);
+    virtual void giveInputFocus(void);
     virtual void reparent(PWinObj *parent, int x, int y);
 
     virtual ActionEvent *handleButtonPress(XButtonEvent *ev) {

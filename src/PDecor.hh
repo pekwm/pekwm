@@ -127,7 +127,7 @@ class Button : public PWinObj {
     virtual void setFocused(bool focused);
     virtual void setWorkspace(uint workspace);
 
-    virtual bool giveInputFocus(void);
+    virtual void giveInputFocus(void);
 
     virtual ActionEvent *handleButtonPress(XButtonEvent *ev);
     virtual ActionEvent *handleButtonRelease(XButtonEvent *ev);

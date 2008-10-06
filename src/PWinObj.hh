@@ -141,7 +141,7 @@ public:
     virtual void setSticky(bool sticky);
     virtual void setHidden(bool hidden);
 
-    virtual bool giveInputFocus(void);
+    virtual void giveInputFocus(void);
     virtual void reparent(PWinObj *parent, int x, int y);
 
     virtual bool getSizeRequest(Geometry &request);

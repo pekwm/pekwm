@@ -499,19 +499,16 @@ Client::setWorkspace(uint workspace)
 }
 
 //! @brief Gives the Client input focus.
-bool
+void
 Client::giveInputFocus(void)
 {
     if (_wm_hints_input) {
-        return PWinObj::giveInputFocus();
+        PWinObj::giveInputFocus();
     } else if (_send_focus_message) {
         sendXMessage(_window,
                     IcccmAtoms::instance()->getAtom(WM_PROTOCOLS), NoEventMask,
                     IcccmAtoms::instance()->getAtom(WM_TAKE_FOCUS),
                     PScreen::instance()->getLastEventTime());
-        return true;
-    } else {
-        return true;
     }
 }
 
