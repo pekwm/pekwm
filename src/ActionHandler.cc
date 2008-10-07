@@ -356,7 +356,6 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 break;
             case ACTION_HIDE_ALL_MENUS:
                 WindowManager::inst()->hideAllMenus();
-                WindowManager::inst()->findWOAndFocus(NULL);
                 break;
 #endif // MENUS
             case ACTION_RELOAD:

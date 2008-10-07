@@ -2109,9 +2109,19 @@ WindowManager::getPrevFrame(Frame* frame, bool mapped, uint mask)
 void
 WindowManager::hideAllMenus(void)
 {
+    bool do_focus = false;
+    PWinObj *wo = PWinObj::getFocusedPWinObj();
+    if (wo && wo->getType() == PWinObj::WO_MENU) {
+        do_focus = true;
+    }
+
     map<std::string, PMenu*>::iterator it(_menu_map.begin());
     for (; it != _menu_map.end(); ++it) {
         it->second->unmapAll();
+    }
+
+    if (do_focus) {
+        findWOAndFocus(0);
     }
 }
 #endif // MENUS
