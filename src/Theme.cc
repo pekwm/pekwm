@@ -838,6 +838,9 @@ Theme::WorkspaceIndicatorData::check(void)
 Theme::Theme(PScreen *scr) :
         _scr(scr), _image_handler(NULL),
         _is_loaded(false), _invert_gc(None)
+#ifdef HARBOUR
+        , _harbour_texture(0)
+#endif
 {
     // image handler
     _image_handler = new ImageHandler();
