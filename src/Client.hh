@@ -234,7 +234,8 @@ public: // Public Member Functions
     }
     
     void configureRequestSend(void);
-
+    void sendTakeFocusMessage(void);
+    
     bool getIncSize(uint *r_w, uint *r_h, uint w, uint h);
 
     bool getEwmhStates(NetWMStates &win_states);

@@ -504,12 +504,9 @@ Client::giveInputFocus(void)
 {
     if (_wm_hints_input) {
         PWinObj::giveInputFocus();
-    } else if (_send_focus_message) {
-        sendXMessage(_window,
-                    IcccmAtoms::instance()->getAtom(WM_PROTOCOLS), NoEventMask,
-                    IcccmAtoms::instance()->getAtom(WM_TAKE_FOCUS),
-                    PScreen::instance()->getLastEventTime());
     }
+
+    sendTakeFocusMessage();
 }
 
 //! @brief Reparents and sets _parent member, filtering unmap events
@@ -1177,6 +1174,23 @@ Client::configureRequestSend(void)
     e.override_redirect = False;
 
     XSendEvent(_dpy, _window, false, StructureNotifyMask, (XEvent *) &e);
+}
+
+//! @brief Send a TAKE_FOCUS client message to the client (if requested by it).
+void Client::sendTakeFocusMessage(void)
+{
+    if (_send_focus_message) {
+        {
+            XEvent ev;
+            XChangeProperty(_dpy, RootWindow(_dpy, DefaultScreen(_dpy)), XA_PRIMARY, XA_STRING, 8, PropModeAppend, NULL, 0);
+            XWindowEvent(_dpy, RootWindow(_dpy, DefaultScreen(_dpy)), PropertyChangeMask, &ev);
+            PScreen::instance()->setLastEventTime(ev.xproperty.time);
+        }
+        sendXMessage(_window,
+                     IcccmAtoms::instance()->getAtom(WM_PROTOCOLS), NoEventMask,
+                     IcccmAtoms::instance()->getAtom(WM_TAKE_FOCUS),
+                     PScreen::instance()->getLastEventTime());
+    }
 }
 
 //! @brief Grabs a button on the window win
