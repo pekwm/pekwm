@@ -1486,9 +1486,6 @@ WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
         return;
     }
 
-    // Get the last focus in event, no need to go through them all.
-    while (XCheckTypedEvent(_screen->getDpy(), FocusIn, (XEvent *) ev));
-
     PWinObj *wo = PWinObj::findPWinObj(ev->window);
     if (wo) {
         // To simplify logic, changing client in frame wouldn't update the
@@ -1533,16 +1530,14 @@ WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
             if (wo->getType() == PWinObj::WO_CLIENT) {
                 wo->getParent()->setFocused(true);
                 setEwmhActiveWindow(wo->getWindow());
+                static_cast<Client *>(wo)->sendTakeFocusMessage();
 
+                // update the MRU list
+                _mru_list.remove(wo->getParent());
+                _mru_list.push_back(wo->getParent());
             } else {
                 wo->setFocused(true);
                 setEwmhActiveWindow(None);
-            }
-
-            // update the MRU list
-            if (wo->getType() == PWinObj::WO_CLIENT) {
-                _mru_list.remove(wo->getParent());
-                _mru_list.push_back(wo->getParent());
             }
         }
     }
@@ -1552,27 +1547,9 @@ WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
 void
 WindowManager::handleFocusOutEvent(XFocusChangeEvent *ev)
 {
-    if ((ev->mode == NotifyGrab) || (ev->mode == NotifyUngrab)) {
-        return;
-    }
-
     // Get the last focus in event, no need to go through them all.
     while (XCheckTypedEvent(_screen->getDpy(), FocusOut, (XEvent *) ev))
         ;
-
-    // Match against focusd PWinObj if any, if matches we see if
-    // there are any FocusIn events in the queue, if not we give focus to
-    // the root window as we don't want to get left without focus.
-    if (PWinObj::getFocusedPWinObj()
-            && (*PWinObj::getFocusedPWinObj() == ev->window)) {
-        if (XCheckTypedEvent(_screen->getDpy(), FocusIn, (XEvent *) ev)) {
-            // We found a Event, put it back and handle it later on.
-            XPutBackEvent(_screen->getDpy(), (XEvent *) ev);
-        } else {
-            // No event found, give the root PWinObj focus.
-            PWinObj::getRootPWinObj()->giveInputFocus();
-        }
-    }
 }
 
 void
