@@ -1133,7 +1133,11 @@ WindowManager::handleKeyEvent(XKeyEvent *ev)
 
     // flush Enter events caused by keygrabbing
     XEvent e;
-    while (XCheckTypedEvent(_screen->getDpy(), EnterNotify, &e));
+    while (XCheckTypedEvent(_screen->getDpy(), EnterNotify, &e)) {
+        if (! e.xcrossing.send_event) {
+            _screen->setLastEventTime(e.xcrossing.time);
+        }
+    }
 }
 
 //! @brief
@@ -1141,7 +1145,11 @@ void
 WindowManager::handleButtonPressEvent(XButtonEvent *ev)
 {
     // Clear event queue
-    while (XCheckTypedEvent(_screen->getDpy(), ButtonPress, (XEvent *) ev));
+    while (XCheckTypedEvent(_screen->getDpy(), ButtonPress, (XEvent *) ev)) {
+        if (! ev->send_event) {
+            _screen->setLastEventTime(ev->time);
+        }
+    }
 
     ActionEvent *ae = NULL;
     PWinObj *wo = NULL;
@@ -1185,7 +1193,11 @@ void
 WindowManager::handleButtonReleaseEvent(XButtonEvent *ev)
 {
     // Flush ButtonReleases
-    while (XCheckTypedEvent(_screen->getDpy(), ButtonRelease, (XEvent *) ev));
+    while (XCheckTypedEvent(_screen->getDpy(), ButtonRelease, (XEvent *) ev)) {
+        if (! ev->send_event) {
+            _screen->setLastEventTime(ev->time);
+        }
+    }
 
     ActionEvent *ae = NULL;
     PWinObj *wo = PWinObj::findPWinObj(ev->window);
@@ -1407,7 +1419,11 @@ void
 WindowManager::handleEnterNotify(XCrossingEvent *ev)
 {
     // Clear event queue
-    while (XCheckTypedEvent(_screen->getDpy(), EnterNotify, (XEvent *) ev));
+    while (XCheckTypedEvent(_screen->getDpy(), EnterNotify, (XEvent *) ev)) {
+        if (! ev->send_event) {
+            _screen->setLastEventTime(ev->time);
+        }
+    }
 
     if ((ev->mode == NotifyGrab) || (ev->mode == NotifyUngrab)) {
         return;
@@ -1437,7 +1453,11 @@ void
 WindowManager::handleLeaveNotify(XCrossingEvent *ev)
 {
     // Clear event queue
-    while (XCheckTypedEvent(_screen->getDpy(), LeaveNotify, (XEvent *) ev));
+    while (XCheckTypedEvent(_screen->getDpy(), LeaveNotify, (XEvent *) ev)) {
+        if (! ev->send_event) {
+            _screen->setLastEventTime(ev->time);
+        }
+    }
 
     if ((ev->mode == NotifyGrab) || (ev->mode == NotifyUngrab)) {
         return;
@@ -1485,8 +1505,16 @@ WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
             // all EnterNotify and LeaveNotify as they can interfere with
             // focusing if Sloppy or Follow like focus model is used.
             XEvent e_flush;
-            while (XCheckTypedEvent(_screen->getDpy(), EnterNotify, &e_flush));
-            while (XCheckTypedEvent(_screen->getDpy(), LeaveNotify, &e_flush));
+            while (XCheckTypedEvent(_screen->getDpy(), EnterNotify, &e_flush)) {
+                if (! e_flush.xcrossing.send_event) {
+                    _screen->setLastEventTime(e_flush.xcrossing.time);
+                }
+            }
+            while (XCheckTypedEvent(_screen->getDpy(), LeaveNotify, &e_flush)) {
+                if (! e_flush.xcrossing.send_event) {
+                    _screen->setLastEventTime(e_flush.xcrossing.time);
+                }
+            }
 
             PWinObj *focused_wo = PWinObj::getFocusedPWinObj(); // convenience
 
