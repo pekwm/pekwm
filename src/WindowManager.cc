@@ -854,10 +854,8 @@ WindowManager::doReload(void)
 {
     // unique client names state
     bool old_client_unique_name = _config->getClientUniqueName();
-    string old_client_unique_name_pre =
-        _config->getClientUniqueNamePre();
-    string old_client_unique_name_post =
-        _config->getClientUniqueNamePost();
+    string old_client_unique_name_pre = _config->getClientUniqueNamePre();
+    string old_client_unique_name_post = _config->getClientUniqueNamePost();
 
 #ifdef HARBOUR
     // I do not want to restack or rearrange if nothing has changed.
@@ -866,17 +864,18 @@ WindowManager::doReload(void)
     int old_harbour_head_nr = _config->getHarbourHead();
 #endif // HARBOUR
 
-    _config->load(_config->getConfigFile()); // reload the config
-    _autoproperties->load(); // reload autoprops config
+    // Reload configuration and autoproperties
+    _config->load(_config->getConfigFile());
+    _autoproperties->load();
 
-    // update what might have changed in the cfg toouching the hints
+    // Update what might have changed in the cfg touching the hints
     _workspaces->setSize(_config->getWorkspaces());
     _workspaces->setPerRow(_config->getWorkspacesPerRow());
 
-    // flush pixmap cache and set size
+    // Flush pixmap cache and set size
     _screen_resources->getPixmapHandler()->setCacheSize(_config->getScreenPixmapCacheSize());
 
-    // set the font title trim before reloading the themes
+    // Set the font title trim before reloading the themes
     wstring trim_title(Util::to_wide_str(_config->getTrimTitle()));
     PFont::setTrimString(trim_title);
 
@@ -884,42 +883,32 @@ WindowManager::doReload(void)
     if ((old_client_unique_name != _config->getClientUniqueName()) ||
         (old_client_unique_name_pre != _config->getClientUniqueNamePre()) ||
         (old_client_unique_name_post != _config->getClientUniqueNamePost())) {
-        for_each(Client::client_begin(), Client::client_end(),
-                 mem_fun(&Client::getXClientName));
+        for_each(Client::client_begin(), Client::client_end(), mem_fun(&Client::getXClientName));
     }
 
-    // reload the theme
+    // Reload the theme
     _theme->load(_config->getThemeFile());
 
     // resize the screen edge
     screenEdgeResize();
     screenEdgeMapUnmap();
 
-    // regrab the buttons on the client windows
-    for_each(Client::client_begin(), Client::client_end(),
-             mem_fun(&Client::grabButtons));
-
-    // reload the keygrabber
+    // Reload the keygrabber
     _keygrabber->load(_config->getKeyFile());
 
     _keygrabber->ungrabKeys(_screen->getRoot());
     _keygrabber->grabKeys(_screen->getRoot());
 
-    // regrab keys
+    // Regrab keys and buttons
     list<Client*>::iterator c_it(Client::client_begin());
     for (; c_it != Client::client_end(); ++c_it) {
+        (*c_it)->grabButtons();
         _keygrabber->ungrabKeys((*c_it)->getWindow());
         _keygrabber->grabKeys((*c_it)->getWindow());
     }
 
-    // update the status window and cmd dialog theme
-    _cmd_dialog->loadDecor();
-    _status_window->loadDecor();
-    _workspace_indicator->loadDecor();
-
-    // reload the themes on the frames
-    for_each(Frame::frame_begin(), Frame::frame_end(),
-             mem_fun(&PDecor::loadDecor));
+    // Reload the themes on all decors
+    for_each(PDecor::pdecor_begin(), PDecor::pdecor_end(), mem_fun(&PDecor::loadDecor));
 
     // NOTE: we need to load autoproperties after decor have been updated
     // as otherwise old theme data pointer will be used and sig 11 pekwm.
@@ -1771,7 +1760,6 @@ WindowManager::updateMenus(void)
             delete it->second;
             _menu_map.erase(it);
         } else {
-            it->second->loadDecor();
             // Only reload the menu if we got a ok configuration
             if (cfg_ok) {
                 it->second->reload(menu_cfg.get_entry_root()->find_section(it->second->getName()));
@@ -1784,7 +1772,6 @@ WindowManager::updateMenus(void)
 
     // Special case for HARBOUR menu which is not included in the menu map
 #ifdef HARBOUR
-    _harbour->getHarbourMenu()->loadDecor();
     _harbour->getHarbourMenu()->reload(static_cast<CfgParser::Entry*>(0));
 #endif // HARBOUR
 }

@@ -284,6 +284,7 @@ InputDialog::loadTheme(void)
 {
     _data = _theme->getCmdDialogData();
     updateSize();
+    updatePixmapSize();
 }
 
 /**

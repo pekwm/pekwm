@@ -172,6 +172,8 @@ const string PDecor::DEFAULT_DECOR_NAME = string("DEFAULT");
 const string PDecor::DEFAULT_DECOR_NAME_BORDERLESS = string("BORDERLESS");
 const string PDecor::DEFAULT_DECOR_NAME_TITLEBARLESS = string("TITLEBARLESS");
 
+list<PDecor*> PDecor::_pdecor_list = list<PDecor*>();
+
 //! @brief PDecor constructor
 //! @param dpy Display
 //! @param theme Theme
@@ -243,11 +245,15 @@ PDecor::PDecor(Display *dpy, Theme *theme, const std::string decor_name)
 
     // map title and border windows
     XMapSubwindows(_dpy, _window);
+
+    _pdecor_list.push_back(this);
 }
 
 //! @brief PDecor destructor
 PDecor::~PDecor(void)
 {
+    _pdecor_list.remove(this);
+
     if (_child_list.size() > 0) {
         while (_child_list.size() != 0) {
             removeChild(_child_list.back(), false); // Don't call delete this.

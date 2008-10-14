@@ -163,6 +163,9 @@ class Button : public PWinObj {
     virtual void setSkip(uint skip);
     // END - PDecor interface.
 
+    static std::list<PDecor*>::iterator pdecor_begin(void) { return _pdecor_list.begin(); }
+    static std::list<PDecor*>::iterator pdecor_end(void) { return _pdecor_list.end(); }
+
     inline bool isSkip(uint skip) const { return (_skip&skip); }
 
     void addDecor(PDecor *decor);
@@ -417,6 +420,8 @@ private:
     uint _title_active;
     std::list<PDecor::TitleItem*> _title_list;
     uint _titles_left, _titles_right; // area where to put titles
+
+    static std::list<PDecor*> _pdecor_list; /**< List of PDecors */
 };
 
 #endif // _PDECOR_HH_
