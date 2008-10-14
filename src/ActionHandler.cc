@@ -565,6 +565,7 @@ ActionHandler::actionGotoClientID(uint id)
 void
 ActionHandler::actionSendToWorkspace(PDecor *decor, int direction)
 {
+    // FIXME: Add Up, Down, PrevV and NextV support
     switch (direction) {
     case WORKSPACE_LEFT:
     case WORKSPACE_PREV:
