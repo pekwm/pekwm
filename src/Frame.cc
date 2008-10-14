@@ -278,8 +278,14 @@ Frame::handleMotionEvent(XMotionEvent *ev)
     } else if (ev->window == _client->getWindow()) {
         ae = ActionHandler::findMouseAction(button, ev->state, MOUSE_EVENT_MOTION,
                                             Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_CHILD_FRAME));
-    } else if (ev->subwindow != None) {
+    } else {
         uint pos = getBorderPosition(ev->subwindow);
+
+        // If ev->subwindow wasn't one of the border windows, perhaps ev->window is.
+        if (pos == BORDER_NO_POS) {
+            pos = getBorderPosition(ev->window);
+        }
+        
         if (pos != BORDER_NO_POS) {
             list<ActionEvent> *bl = Config::instance()->getBorderListFromPosition(pos);
             ae = ActionHandler::findMouseAction(button, ev->state, MOUSE_EVENT_MOTION, bl);

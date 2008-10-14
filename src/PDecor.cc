@@ -582,9 +582,14 @@ PDecor::handleButtonPress(XButtonEvent *ev)
                                                 Config::instance()->getMouseActionList(_decor_cfg_bpr_al_title));
 
             // clicks on the decor border
-        } else if ((ev->subwindow != None) && (_title_wo != ev->subwindow) &&
-                   (ev->window == _window)) {
+        } else {
             uint pos = getBorderPosition(ev->subwindow);
+
+            // If ev->subwindow wasn't one of the border windows, perhaps ev->window is.
+            if (pos == BORDER_NO_POS) {
+                pos = getBorderPosition(ev->window);
+            }
+
             if (pos != BORDER_NO_POS) {
                 list<ActionEvent> *bl = Config::instance()->getBorderListFromPosition(pos);
                 ae = ActionHandler::findMouseAction(ev->button, ev->state, mb, bl);
