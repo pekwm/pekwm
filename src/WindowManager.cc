@@ -1530,7 +1530,6 @@ WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
             if (wo->getType() == PWinObj::WO_CLIENT) {
                 wo->getParent()->setFocused(true);
                 setEwmhActiveWindow(wo->getWindow());
-                static_cast<Client *>(wo)->sendTakeFocusMessage();
 
                 // update the MRU list
                 _mru_list.remove(wo->getParent());
