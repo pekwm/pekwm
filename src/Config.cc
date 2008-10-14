@@ -885,7 +885,7 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
                     }
                     break;
                 case ACTION_RESIZE:
-                    action.setParamI(0, ParseUtil::getValue<BorderPosition>(tok[1], _borderpos_map));
+                    action.setParamI(0, 1 + ParseUtil::getValue<BorderPosition>(tok[1], _borderpos_map));
                     break;
                 case ACTION_RAISE:
                 case ACTION_LOWER:

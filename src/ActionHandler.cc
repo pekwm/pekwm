@@ -157,10 +157,10 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 frame->growDirection(it->getParamI(0));
                 break;
             case ACTION_RESIZE:
-                if (ap.type == MotionNotify)
+                if (ap.type == MotionNotify && ! it->getParamI(0))
                     frame->doResize(ap.event.motion);
                 else
-                    frame->doResize(BorderPosition(it->getParamI(0)));
+                    frame->doResize( BorderPosition(it->getParamI(0)-1) );
                 break;
             case ACTION_MOVE_RESIZE:
                 frame->doKeyboardMoveResize();
