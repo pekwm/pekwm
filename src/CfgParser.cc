@@ -49,13 +49,14 @@ CfgParser::Entry::Entry(const std::string &source_name, int line,
  * Copy Entry together with the content.
  */
 CfgParser::Entry::Entry(const CfgParser::Entry &entry)
-    : _name(entry._name), _value(entry._value),
+    : _section(0),
+      _name(entry._name), _value(entry._value),
       _line(entry._line), _source_name(_source_name)
 {
-    /*
-    if (entry._entry_next) {
-        _entry_next = new Entry(*entry._entry_next);
-        }*/
+    list<CfgParser::Entry*>::const_iterator it(entry._entries.begin());
+    for (; it != entry._entries.end(); ++it) {
+        _entries.push_back(new Entry(*(*it)));
+    }
     if (entry._section) {
         _section = new Entry(*entry._section);
     }
@@ -64,24 +65,44 @@ CfgParser::Entry::Entry(const CfgParser::Entry &entry)
 //! @brief CfgParser::Entry destructor.
 CfgParser::Entry::~Entry(void)
 {
+    for_each(_entries.begin(), _entries.end(), Util::Free<CfgParser::Entry*>());
+
+    if (_section) {
+        delete _section;
+        _section = 0;
+    }
 }
 
 /**
  * Append Entry to the end of Entry list at current depth.
  */
 CfgParser::Entry*
-CfgParser::Entry::add_entry(CfgParser::Entry *entry)
+CfgParser::Entry::add_entry(CfgParser::Entry *entry, bool overwrite)
 {
-    _entries.push_back(entry);
+    CfgParser::Entry *entry_search = 0;
+    if (overwrite) {
+        entry_search = find_entry(entry->get_name());
+    }
+
+    if (entry_search) {
+        entry_search->_value = entry->get_value();
+        // Clear resources used by entry
+        delete entry;
+        entry = entry_search;
+    } else {
+        _entries.push_back(entry);
+    }
+
     return entry;
 }
 
 //! @brief Adds Entry to the end of Entry list at current depth.
 CfgParser::Entry*
 CfgParser::Entry::add_entry(const std::string &source_name, int line,
-                            const std::string &name, const std::string &value)
+                            const std::string &name, const std::string &value,
+                            bool overwrite)
 {
-    return add_entry(new Entry(source_name, line, name, value));
+    return add_entry(new Entry(source_name, line, name, value), overwrite);
 }
 
 //! @brief Gets next entry that has a sub section.
@@ -157,44 +178,35 @@ CfgParser::Entry::parse_key_values(std::list<CfgParserKey*>::iterator begin,
 void
 CfgParser::Entry::copy_tree_into(CfgParser::Entry *from, bool overwrite)
 {
-    /*
-    CfgParser::Entry *it;
-    for (it = from; it; it = it->_entry_next) {
+    // Copy section
+    if (from->get_section()) {
+        if (_section) {
+            _section->copy_tree_into(from->get_section(), overwrite);
+        } else {
+            _section = new Entry(*(from->get_section()));
+        }
+    }
+
+    // Copy elements
+    CfgParser::iterator it(from->begin());
+    for (; it != from->end(); ++it) {
         if (! overwrite) {
-            add_entry(new Entry(*it));
+            add_entry(new Entry(*(*it)), false);
             continue;
         }
 
         // Check for section, if one exists either copy into existing
         // or create new copy.
-        if (it->get_section()) {
-            CfgParser::Entry *section = find_section(it->get_section()->get_name());
+        if ((*it)->get_section()) {
+            CfgParser::Entry *section = find_section((*it)->get_section()->get_name());
             if (section) {
-                section->copy_tree_into(it->get_section(), overwrite);
+                section->copy_tree_into((*it)->get_section(), overwrite);
             } else {
-                add_entry(new Entry(*section));
+                add_entry(new Entry(*(*it)), true);
             }
-        }
-
-        CfgParser::Entry *entry = find_entry(it->get_name());
-        if (entry) {
-            entry->_name = it->get_value();
         } else {
-            add_entry(it->get_source_name(), it->get_line(), it->get_name(), it->get_value());
+            add_entry((*it)->get_source_name(), (*it)->get_line(), (*it)->get_name(), (*it)->get_value(), true);
         }
-    }
-    */
-}
-
-//! @brief Frees Entry tree.
-void
-CfgParser::Entry::free_tree(void)
-{
-    for_each(_entries.begin(), _entries.end(), Util::Free<CfgParser::Entry*>());
-
-    if (_section) {
-        delete _section;
-        _section = 0;
     }
 }
 
@@ -211,25 +223,32 @@ operator<<(std::ostream &stream, const CfgParser::Entry &entry)
 CfgParser::CfgParser(void)
     : _source(0),
       _root_entry(_root_source_name, 0, "ROOT", ""),
-      _section(&_root_entry)
+      _section(&_root_entry), _overwrite(false)
 {
 }
 
 //! @brief CfgParser destructor.
 CfgParser::~CfgParser(void)
 {
-    _root_entry.free_tree();
-
     map<string, CfgParser::Entry*>::iterator it(_section_map.begin());
     for (; it != _section_map.end(); ++it) {
         delete it->second;
     }
 }
 
-//! @brief Parses source and fills root section with data.
+/**
+ * Parses source and fills root section with data.
+ *
+ * @param src Source.
+ * @param type Type of source, defaults to file.
+ * @param overwrite Overwrite or append duplicate elements, defaults to false.
+ */
 bool
-CfgParser::parse(const std::string &src, CfgParserSource::Type type)
+CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwrite)
 {
+    // Set overwrite
+    _overwrite = overwrite;
+
     // Init parse buffer and reserve memory.
     string buf, value;
     buf.reserve(PARSE_BUF_SIZE);
@@ -485,7 +504,7 @@ CfgParser::parse_entry_finish_standard(std::string &buf, std::string &value)
             } else if (buf == "COMMAND") {
                 parse_source_new(value, CfgParserSource::SOURCE_COMMAND);
             } else {
-                _section->add_entry(_source->get_name(), _source->get_line(), buf, value);
+                _section->add_entry(_source->get_name(), _source->get_line(), buf, value, _overwrite);
             }
         }
     } else {
@@ -517,7 +536,7 @@ CfgParser::parse_section_finish(std::string &buf, std::string &value)
 {
     // Create section
     CfgParser::Entry *section_parent;
-    section_parent = _section->add_entry(_source->get_name(), _source->get_line(), buf, value);
+    section_parent = _section->add_entry(_source->get_name(), _source->get_line(), buf, value, _overwrite);
 
     // Create Entry representing Section
     Entry *section = new Entry(_source->get_name(), _source->get_line(), buf, value);

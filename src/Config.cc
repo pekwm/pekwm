@@ -354,7 +354,7 @@ Config::load(const std::string &config_file)
 
     // Try loading command line specified file.
     if (_config_file.size()) {
-        success = cfg.parse(config_file, CfgParserSource::SOURCE_FILE);
+        success = cfg.parse(config_file, CfgParserSource::SOURCE_FILE, true);
         if (success) {
             file_success = config_file;
         }
@@ -363,7 +363,7 @@ Config::load(const std::string &config_file)
     // Try loading ~/.pekwm/config
     if (! success) {
         _config_file = string(getenv("HOME")) + string("/.pekwm/config");
-        success = cfg.parse(_config_file, CfgParserSource::SOURCE_FILE);
+        success = cfg.parse(_config_file, CfgParserSource::SOURCE_FILE, true);
         if (success) {
             file_success = _config_file;
         }
@@ -374,7 +374,7 @@ Config::load(const std::string &config_file)
         copyConfigFiles();
 
         _config_file = string(SYSCONFDIR "/config");
-        success = cfg.parse(_config_file, CfgParserSource::SOURCE_FILE);
+        success = cfg.parse(_config_file, CfgParserSource::SOURCE_FILE, true);
         if (success) {
             file_success = _config_file;
         }
@@ -1019,7 +1019,14 @@ Config::parseActions(const std::string &action_string, ActionEvent &ae, uint mas
 bool
 Config::parseActionEvent(CfgParser::Entry *section, ActionEvent &ae, uint mask, bool button)
 {
-    CfgParser::Entry *value;
+    CfgParser::Entry *value = section->find_entry("ACTIONS");
+    if (! value && section->get_section()) {
+        value = section->get_section()->find_entry("ACTIONS");
+    }
+
+    if (! value) {
+        return false;
+    }
 
     string str_button = section->get_value();
     if (! str_button.size()) {
@@ -1037,8 +1044,7 @@ Config::parseActionEvent(CfgParser::Entry *section, ActionEvent &ae, uint mask, 
         ok = parseKey(str_button, ae.mod, ae.sym);
     }
     
-    value = section->get_section()->find_entry("ACTIONS");
-    if (ok && value) {
+    if (ok) {
         return parseActions(value->get_value(), ae, mask);
     }
     return false;

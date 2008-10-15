@@ -60,9 +60,9 @@ public:
         //! @brief Returns the name of the source this was parsed.
         const std::string &get_source_name(void) const { return _source_name; }
 
-        Entry *add_entry(Entry *entry);
+        Entry *add_entry(Entry *entry, bool overwrite=false);
         Entry *add_entry(const std::string &source_name, int line,
-                         const std::string &name, const std::string &value);
+                         const std::string &name, const std::string &value, bool overwrite=false);
 
         //! @brief Returns the sub section.
         Entry *get_section(void) { return _section; }
@@ -78,7 +78,6 @@ public:
                               std::list<CfgParserKey*>::iterator end);
 
         void copy_tree_into(CfgParser::Entry *from, bool overwrite=true);
-        void free_tree(void);
 
         //! @brief Matches Entry name agains op_rhs.
         bool operator==(const char *rhs) {
@@ -106,9 +105,8 @@ public:
     //! @brief Returns the root Entry node.
     Entry *get_entry_root(void) { return &_root_entry; }
 
-    bool parse(const std::string &src,
-               CfgParserSource::Type type = CfgParserSource::SOURCE_FILE);
-
+    bool parse(const std::string &src, CfgParserSource::Type type = CfgParserSource::SOURCE_FILE,
+               bool overwrite = false);
 
 private:
     void parse_source_new(const std::string &name, CfgParserSource::Type type);
@@ -140,6 +138,7 @@ private:
 
     Entry _root_entry; //!< Root Entry.
     Entry *_section; /**< Current section. */
+    bool _overwrite; /**< Overwrite elements when appending. */
 
     static const std::string _root_source_name; //!< Root Entry Source Name.
 };

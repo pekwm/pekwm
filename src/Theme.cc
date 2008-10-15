@@ -858,10 +858,10 @@ Theme::load(const std::string &dir)
     }
 
     string theme_file = _theme_dir + string("theme");
-    if (! theme.parse(theme_file, CfgParserSource::SOURCE_FILE)) {
+    if (! theme.parse(theme_file, CfgParserSource::SOURCE_FILE, true)) {
         _theme_dir = DATADIR "/pekwm/themes/default/";
         theme_file = _theme_dir + string ("theme");
-        if (! theme.parse(theme_file, CfgParserSource::SOURCE_FILE)) {
+        if (! theme.parse(theme_file, CfgParserSource::SOURCE_FILE, true)) {
             cerr << " *** WARNING: couldn't load " << _theme_dir << " or default theme." << endl;
         }
     }
