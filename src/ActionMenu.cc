@@ -198,61 +198,62 @@ ActionMenu::parse(CfgParser::Entry *section, bool has_dynamic)
 {
     if (! section) {
         return;
-    } else if (! section->get_section()) {
-#ifdef DEBUG
-        cerr << " *** ERROR: Unable to get subsection in menu parsing" << endl;
-#endif // DEBUG
-        return;
     }
 
-    CfgParser::Entry *sub, *value;
-    ActionEvent ae;
-
-    ActionMenu *submenu = NULL;
-    PMenu::Item *item = NULL;
-    PTexture *icon = NULL;
-
-    if (section->get_value ().size()) {      
+    if (section->get_value().size()) {
         wstring title(Util::to_wide_str(section->get_value()));
         setTitle(title);
         _title_base = title;
     }
-    section = section->get_section();
 
-    while ((section = section->get_section_next()) != 0) {
-        item = NULL;
-        sub = section->get_section();
 
-        value = section->get_section()->find_entry("ICON");
+    CfgParser::Entry *value;
+    ActionEvent ae;
+
+    ActionMenu *submenu = 0;
+    PMenu::Item *item = 0;
+    PTexture *icon = 0;
+
+    CfgParser::iterator it(section->begin());
+    for (; it != section->end(); ++it) {
+        item = 0;
+
+        value = (*it)->find_entry("ICON");
         if (value) {
             icon = TextureHandler::instance()->getTexture("IMAGE " + value->get_value());
         } else {
             icon = NULL;
         }
 
-        if (*section == "SUBMENU") {
-            submenu = new ActionMenu(_menu_type, Util::to_wide_str(section->get_value()), "");
+        if (*(*it) == "SUBMENU") {
+            submenu = new ActionMenu(_menu_type, Util::to_wide_str((*it)->get_value()), "");
             submenu->_is_dynamic = has_dynamic;
             submenu->_menu_parent = this;
-            submenu->parse(section, has_dynamic);
+            submenu->parse((*it)->get_section(), has_dynamic);
             submenu->buildMenu();
 
-            item = new PMenu::Item(Util::to_wide_str(sub->get_value()), submenu, icon);
-            item->setDynamic(has_dynamic);
-        } else if (*section == "SEPARATOR") {
+            CfgParser::Entry *sub_section = (*it)->get_section();
+            if (sub_section) {
+                item = new PMenu::Item(Util::to_wide_str(sub_section->get_value()), submenu, icon);
+                item->setDynamic(has_dynamic);
+            }
+        } else if (*(*it) == "SEPARATOR") {
             item = new PMenu::Item(L"", NULL, icon);
             item->setDynamic(has_dynamic);
             item->setType(PMenu::Item::MENU_ITEM_SEPARATOR);
         } else {
-            value = section->get_section()->find_entry("ACTIONS");
-            if (value && Config::instance()->parseActions(value->get_value(), ae, _action_ok)) {
-                item = new PMenu::Item(Util::to_wide_str(sub->get_value()), 0, icon);
-                item->setDynamic(has_dynamic);
-                item->setAE(ae);
+            CfgParser::Entry *sub_section = (*it)->get_section();
+            if (sub_section) {
+                value = sub_section->find_entry("ACTIONS");
+                if (value && Config::instance()->parseActions(value->get_value(), ae, _action_ok)) {
+                    item = new PMenu::Item(Util::to_wide_str(sub_section->get_value()), 0, icon);
+                    item->setDynamic(has_dynamic);
+                    item->setAE(ae);
 
-                if (ae.isOnlyAction(ACTION_MENU_DYN)) {
-                    _has_dynamic = true;
-                    item->setType(PMenu::Item::MENU_ITEM_HIDDEN);
+                    if (ae.isOnlyAction(ACTION_MENU_DYN)) {
+                        _has_dynamic = true;
+                        item->setType(PMenu::Item::MENU_ITEM_HIDDEN);
+                    }
                 }
             }
         }

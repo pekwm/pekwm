@@ -48,6 +48,9 @@ public:
         Entry(const Entry &entry);
         ~Entry(void);
 
+        std::list<CfgParser::Entry*>::iterator begin(void) { return _entries.begin(); }
+        std::list<CfgParser::Entry*>::iterator end(void) { return _entries.end(); }
+
         //! @brief Returns the name.
         const std::string &get_name(void) const { return _name; }
         //! @brief Returns the value.
@@ -61,8 +64,6 @@ public:
         Entry *add_entry(const std::string &source_name, int line,
                          const std::string &name, const std::string &value);
 
-        //! @brief Returns the next Entry.
-        Entry *get_entry_next(void) { return _entry_next; }
         //! @brief Returns the sub section.
         Entry *get_section(void) { return _section; }
         Entry *get_section_next(void);
@@ -86,15 +87,18 @@ public:
         friend std::ostream &operator<<(std::ostream &stream, const CfgParser::Entry &entry);
 
     private:
-        Entry *_entry_next;
-        Entry *_section;
+        std::list<CfgParser::Entry*> _entries; /**< List of entries in section. */
+        Entry *_section; /**< Sub-section of node. */
 
-        std::string _name;
-        std::string _value;
+        std::string _name; /**< Name of node. */
+        std::string _value; /**< Value of node. */
 
         int _line;
         const std::string &_source_name;
     };
+
+
+    typedef std::list<CfgParser::Entry*>::iterator iterator;
 
     CfgParser(void);
     ~CfgParser(void);
@@ -129,13 +133,13 @@ private:
     std::list<CfgParserSource*> _source_list; //!< List of sources, for recursive parsing.
     std::list<std::string> _source_name_list; //!< List of source names, to keep track of current source.
     std::set<std::string> _source_name_set; //!< Set of source names, source of memory usage on long-going CfgParser objects.
-    std::list<Entry*> _entry_list; //!< List of Entries with sections, for recursive parsing.
+    std::list<Entry*> _section_list; //!< List sections, for recursive parsing.
 
     std::map<std::string, std::string> _var_map; //!< Map of $VARS
     std::map<std::string, CfgParser::Entry*> _section_map; //!< Map of Define = ... sections
 
     Entry _root_entry; //!< Root Entry.
-    Entry *_entry; //!< Current Entry.
+    Entry *_section; /**< Current section. */
 
     static const std::string _root_source_name; //!< Root Entry Source Name.
 };

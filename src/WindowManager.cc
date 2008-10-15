@@ -1736,7 +1736,7 @@ WindowManager::createMenus(void)
         }
 
         // Load standalone menus
-        updateMenusStandalone(menu_cfg.get_entry_root()->get_entry_next());
+        updateMenusStandalone(menu_cfg.get_entry_root());
     }
 }
 
@@ -1768,7 +1768,7 @@ WindowManager::updateMenus(void)
     }
 
     // Update standalone root menus (name != ROOTMENU)
-    updateMenusStandalone(menu_cfg.get_entry_root()->get_entry_next());
+    updateMenusStandalone(menu_cfg.get_entry_root());
 
     // Special case for HARBOUR menu which is not included in the menu map
 #ifdef HARBOUR
@@ -1778,15 +1778,16 @@ WindowManager::updateMenus(void)
 
 //! @brief Updates standalone root menus
 void
-WindowManager::updateMenusStandalone(CfgParser::Entry *cfg_root)
+WindowManager::updateMenusStandalone(CfgParser::Entry *section)
 {
     // Temporary name, as names are stored uppercase
     string menu_name;
 
     // Go through all but reserved section names and create menus
-    for (CfgParser::Entry *it = cfg_root; it; it = it->get_section_next ()) {
+    CfgParser::iterator it(section->begin());
+    for (; it != section->end(); ++it) {
         // Uppercase name
-        menu_name = it->get_name();
+        menu_name = (*it)->get_name();
         Util::to_upper(menu_name);
 
         // Create new menus, if the name is not reserved and not used
@@ -1795,9 +1796,8 @@ WindowManager::updateMenusStandalone(CfgParser::Entry *cfg_root)
                             menu_name)
                 && ! getMenu(menu_name)) {
             // Create, parse and add to map
-            PMenu *menu = new ActionMenu(ROOTMENU_STANDALONE_TYPE,
-                                         L"", menu_name);
-            menu->reload(it);
+            PMenu *menu = new ActionMenu(ROOTMENU_STANDALONE_TYPE, L"", menu_name);
+            menu->reload((*it)->get_section());
             _menu_map[menu->getName()] = menu;
         }
     }

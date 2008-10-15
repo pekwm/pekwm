@@ -39,7 +39,7 @@ const char *CP_PARSE_BLANKS = " \t\n";
 //! @brief CfgParser::Entry constructor.
 CfgParser::Entry::Entry(const std::string &source_name, int line,
                         const std::string &name, const std::string &value)
-    : _entry_next(0), _section(0),
+    : _section(0),
       _name(name), _value(value),
       _line(line), _source_name(source_name)
 {
@@ -52,9 +52,10 @@ CfgParser::Entry::Entry(const CfgParser::Entry &entry)
     : _name(entry._name), _value(entry._value),
       _line(entry._line), _source_name(_source_name)
 {
+    /*
     if (entry._entry_next) {
         _entry_next = new Entry(*entry._entry_next);
-    }
+        }*/
     if (entry._section) {
         _section = new Entry(*entry._section);
     }
@@ -71,12 +72,8 @@ CfgParser::Entry::~Entry(void)
 CfgParser::Entry*
 CfgParser::Entry::add_entry(CfgParser::Entry *entry)
 {
-    if (_entry_next) {
-        return _entry_next->add_entry(entry);
-    } else {
-        _entry_next = entry;
-        return _entry_next;
-    }
+    _entries.push_back(entry);
+    return entry;
 }
 
 //! @brief Adds Entry to the end of Entry list at current depth.
@@ -91,11 +88,10 @@ CfgParser::Entry::add_entry(const std::string &source_name, int line,
 CfgParser::Entry*
 CfgParser::Entry::get_section_next(void)
 {
-    Entry *entry;
-
-    for (entry = _entry_next; entry; entry = entry->_entry_next) {
-        if (entry->_section) {
-            return entry;
+    list<CfgParser::Entry*>::iterator it(_entries.begin());
+    for (; it != _entries.end(); ++it) {
+        if ((*it)->get_section()) {
+            return *it;
         }
     }
 
@@ -107,11 +103,10 @@ CfgParser::Entry::get_section_next(void)
 CfgParser::Entry*
 CfgParser::Entry::find_entry(const std::string &name)
 {
-    CfgParser::Entry *it;
-
-    for (it = _entry_next; it; it = it->_entry_next) {
-        if (! it->_section && (*it == name.c_str())) {
-            return it;
+    list<CfgParser::Entry*>::iterator it(_entries.begin());
+    for (; it != _entries.end(); ++it) {
+        if (! (*it)->get_section() && (*(*it) == name.c_str())) {
+            return *it;
         }
     }
 
@@ -123,11 +118,10 @@ CfgParser::Entry::find_entry(const std::string &name)
 CfgParser::Entry*
 CfgParser::Entry::find_section(const std::string &name)
 {
-    CfgParser::Entry *it;
-
-    for (it = _entry_next; it; it = it->_entry_next) {
-        if (it->_section && (*it == name.c_str ())) {
-            return it;
+    list<CfgParser::Entry*>::iterator it(_entries.begin());
+    for (; it != _entries.end(); ++it) {
+        if ((*it)->get_section() && (*(*it) == name.c_str ())) {
+            return (*it)->get_section();
         }
     }
 
@@ -163,6 +157,7 @@ CfgParser::Entry::parse_key_values(std::list<CfgParserKey*>::iterator begin,
 void
 CfgParser::Entry::copy_tree_into(CfgParser::Entry *from, bool overwrite)
 {
+    /*
     CfgParser::Entry *it;
     for (it = from; it; it = it->_entry_next) {
         if (! overwrite) {
@@ -188,29 +183,18 @@ CfgParser::Entry::copy_tree_into(CfgParser::Entry *from, bool overwrite)
             add_entry(it->get_source_name(), it->get_line(), it->get_name(), it->get_value());
         }
     }
+    */
 }
 
 //! @brief Frees Entry tree.
 void
 CfgParser::Entry::free_tree(void)
 {
-    Entry *entry, *entry_free;
+    for_each(_entries.begin(), _entries.end(), Util::Free<CfgParser::Entry*>());
 
-    for (entry = this; entry; ) {
-        // Delete subsection if any
-        if (entry->_section) {
-            entry->_section->free_tree();
-            delete entry->_section;
-            entry->_section = 0;
-        }
-
-        entry_free = entry;
-        entry = entry->_entry_next;
-
-        // Delete node if it is not ourselves
-        if (entry_free != this) {
-            delete entry_free;
-        }
+    if (_section) {
+        delete _section;
+        _section = 0;
     }
 }
 
@@ -227,7 +211,7 @@ operator<<(std::ostream &stream, const CfgParser::Entry &entry)
 CfgParser::CfgParser(void)
     : _source(0),
       _root_entry(_root_source_name, 0, "ROOT", ""),
-      _entry(&_root_entry)
+      _section(&_root_entry)
 {
 }
 
@@ -284,14 +268,14 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type)
                 value.clear();
                 break;
             case '}':
-                if (_entry_list.size() > 0) {
+                if (_section_list.size() > 0) {
                     if (buf.size() && parse_name(buf)) {
                         parse_entry_finish(buf, value);
                         buf.clear();
                         value.clear();
                     }
-                    _entry = _entry_list.back();
-                    _entry_list.pop_back();
+                    _section = _section_list.back();
+                    _section_list.pop_back();
                 } else {
                     cerr << _("Extra } character found, ignoring.\n");
                 }
@@ -501,7 +485,7 @@ CfgParser::parse_entry_finish_standard(std::string &buf, std::string &value)
             } else if (buf == "COMMAND") {
                 parse_source_new(value, CfgParserSource::SOURCE_COMMAND);
             } else {
-                _entry = _entry->add_entry(_source->get_name(), _source->get_line(), buf, value);
+                _section->add_entry(_source->get_name(), _source->get_line(), buf, value);
             }
         }
     } else {
@@ -524,15 +508,16 @@ CfgParser::parse_entry_finish_template(std::string &name)
         return;
     }
 
-    _entry->copy_tree_into(it->second);
+    _section->copy_tree_into(it->second);
 }
 
 //! @brief Creates new Section on {
 void
 CfgParser::parse_section_finish(std::string &buf, std::string &value)
 {
-    _entry = _entry->add_entry(_source->get_name(), _source->get_line(), buf, value);
-    _entry_list.push_back(_entry);
+    // Create section
+    CfgParser::Entry *section_parent;
+    section_parent = _section->add_entry(_source->get_name(), _source->get_line(), buf, value);
 
     // Create Entry representing Section
     Entry *section = new Entry(_source->get_name(), _source->get_line(), buf, value);
@@ -548,11 +533,12 @@ CfgParser::parse_section_finish(std::string &buf, std::string &value)
     } else {
         // Set section to current entry, if it is a Define section
         // resource handling is done by the _section_map
-        _entry->set_section(section);
+        section_parent->set_section(section);
     }
 
     // Set current Entry to newly created Section.
-    _entry = section;
+    _section_list.push_back(_section);
+    _section = section;
 }
 
 //! @brief Parses Source until end of line discarding input.
