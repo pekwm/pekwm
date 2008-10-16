@@ -132,6 +132,15 @@
         </listitem>
       </varlistentry>
       <varlistentry>
+        <term>FocusNewChild (boolean)</term>
+        <listitem>
+          <para>
+             Toggles if new transient windows should be focused when they pop
+             up if the window they are transient for is focused.
+           </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
         <term>PlaceNew (boolean)</term>
         <listitem>
           <para>Toggles if new windows should be placed using the rules found in the Placement subsection, or just opened on the top left corner of your screen.</para>

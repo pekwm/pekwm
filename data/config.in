@@ -30,6 +30,7 @@ Screen {
     TrimTitle = "..."
     FullscreenAbove = "True"
     FullscreenDetect = "True"
+    HonourRandr = "True"
     EdgeSize = "1"
     EdgeIndent = "False"
     PixmapCacheSize = "20"

@@ -362,19 +362,19 @@ AutoProperties::parseAutoGroup(CfgParser::Entry *section, AutoProperty* property
 
         switch (property_type) {
         case AP_GROUP_SIZE:
-            property->group_size = strtol(section->get_value().c_str(), 0, 10);
+            property->group_size = strtol((*it)->get_value().c_str(), 0, 10);
             break;
         case AP_GROUP_BEHIND:
-            property->group_behind = Util::isTrue(section->get_value());
+            property->group_behind = Util::isTrue((*it)->get_value());
             break;
         case AP_GROUP_FOCUSED_FIRST:
-            property->group_focused_first = Util::isTrue(section->get_value());
+            property->group_focused_first = Util::isTrue((*it)->get_value());
             break;
         case AP_GROUP_GLOBAL:
-            property->group_global = Util::isTrue(section->get_value());
+            property->group_global = Util::isTrue((*it)->get_value());
             break;
         case AP_GROUP_RAISE:
-            property->group_raise = Util::isTrue(section->get_value());
+            property->group_raise = Util::isTrue((*it)->get_value());
             break;
         default:
             // do nothing
