@@ -1476,7 +1476,7 @@ Config::loadMouseConfig(const std::string &file)
             uint pos = ParseUtil::getValue<DirectionType>((*edge_it)->get_name(), _direction_map);
 
             if (pos != SCREEN_EDGE_NO) {
-                parseButtons((*edge_it), getEdgeListFromPosition(pos), SCREEN_EDGE_OK);
+                parseButtons((*edge_it)->get_section(), getEdgeListFromPosition(pos), SCREEN_EDGE_OK);
             }
         }
     }
@@ -1487,7 +1487,7 @@ Config::loadMouseConfig(const std::string &file)
         for (; border_it != section->end(); ++border_it) {
             uint pos = ParseUtil::getValue<BorderPosition>((*border_it)->get_name(), _borderpos_map);
             if (pos != BORDER_NO_POS) {
-                parseButtons((*border_it), getBorderListFromPosition(pos), FRAME_BORDER_OK);
+                parseButtons((*border_it)->get_section(), getBorderListFromPosition(pos), FRAME_BORDER_OK);
             }
         }
     }
