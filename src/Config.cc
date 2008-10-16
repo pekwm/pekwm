@@ -59,7 +59,7 @@ Config::Config(void) :
         _screen_show_status_window(true), _screen_show_client_id(false),
         _screen_show_workspace_indicator(500), _screen_workspace_indicator_scale(16),
         _screen_place_new(true), _screen_focus_new(false),
-        _screen_focus_new_child(true),
+        _screen_focus_new_child(true), _screen_honour_randr(true),
         _screen_placement_row(false),
         _screen_placement_ltr(true), _screen_placement_ttb(true),
         _screen_placement_offset_x(0), _screen_placement_offset_y(0),
@@ -519,6 +519,7 @@ Config::loadScreen(CfgParser::Entry *section)
     key_list.push_back(new CfgParserKeyBool("PLACENEW", _screen_place_new));
     key_list.push_back(new CfgParserKeyBool("FOCUSNEW", _screen_focus_new));
     key_list.push_back(new CfgParserKeyBool("FOCUSNEWCHILD", _screen_focus_new_child, true));
+    key_list.push_back(new CfgParserKeyBool("HONOURRANDR", _screen_honour_randr, true));
 
     // Parse data
     section->parse_key_values(key_list.begin(), key_list.end());

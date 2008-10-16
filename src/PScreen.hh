@@ -99,7 +99,7 @@ public:
         int _b_prec; //!< Blue prec, alternative blue_mask representation.
     };
 
-    PScreen(Display *dpy);
+    PScreen(Display *dpy, bool honour_randr = true);
     ~PScreen(void);
 
     static PScreen* instance(void) { return _instance; }
@@ -208,6 +208,7 @@ private:
 
 private:
     Display *_dpy;
+    bool _honour_randr; /**< Boolean flag if randr should be honoured. */
     int _fd;
 
     int _screen, _depth;

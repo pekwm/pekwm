@@ -156,6 +156,12 @@
         </listitem>
       </varlistentry>
       <varlistentry>
+        <term>HonourRandr (boolean)</term>
+        <listitem>
+          <para>Toggles reading of XRANDR informaiton, this can be disabled if the display driver gives both Xinerama and Randr information and only of the two is correct. Default true.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
         <term>EdgeSize (int) (int) (int) (int)</term>
         <listitem>
           <para>

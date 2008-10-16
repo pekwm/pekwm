@@ -601,7 +601,7 @@ WindowManager::setupDisplay(void)
 
     XSetErrorHandler(handleXError);
 
-    _screen = new PScreen(dpy);
+    _screen = new PScreen(dpy, _config->isHonourRandr());
     _color_handler = new ColorHandler(dpy);
     _font_handler = new FontHandler();
     _texture_handler = new TextureHandler();

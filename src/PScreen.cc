@@ -33,7 +33,6 @@ extern "C" {
 }
 
 #include "PScreen.hh"
-#include "Config.hh"
 
 using std::cerr;
 using std::endl;
@@ -84,16 +83,16 @@ PScreen::PVisual::getShiftPrecFromMask(ulong mask, int &shift, int &prec)
 }
 
 //! @brief PScreen constructor
-PScreen::PScreen(Display *dpy) :
-        _dpy(dpy), _fd(-1),
-        _screen(-1), _depth(-1),
-        _root(None), _visual(0), _colormap(None),
-        _modifier_map(0),
-        _num_lock(0), _scroll_lock(0),
-        _has_extension_shape(false), _event_shape(-1),
-        _has_extension_xinerama(false),
-        _has_extension_xrandr(false), _event_xrandr(-1),
-        _server_grabs(0), _last_event_time(0), _last_click_id(None)
+PScreen::PScreen(Display *dpy, bool honour_randr)
+    : _dpy(dpy), _honour_randr(honour_randr), _fd(-1),
+      _screen(-1), _depth(-1),
+      _root(None), _visual(0), _colormap(None),
+      _modifier_map(0),
+      _num_lock(0), _scroll_lock(0),
+      _has_extension_shape(false), _event_shape(-1),
+      _has_extension_xinerama(false),
+      _has_extension_xrandr(false), _event_xrandr(-1),
+      _server_grabs(0), _last_event_time(0), _last_click_id(None)
 {
     if (_instance) {
         throw string("PScreen, trying to create multiple instances");
@@ -266,7 +265,7 @@ void
 PScreen::updateGeometry(uint width, uint height)
 {
 #ifdef HAVE_XRANDR
-  if (! _has_extension_xrandr) {
+  if (! _honour_randr || ! _has_extension_xrandr) {
     return;
   }
 
@@ -572,7 +571,7 @@ void
 PScreen::initHeadsRandr(void)
 {
 #ifdef HAVE_XRANDR
-    if (! _has_extension_xrandr) {
+    if (! _honour_randr || ! _has_extension_xrandr) {
         return;
     }
 
