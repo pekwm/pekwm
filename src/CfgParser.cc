@@ -9,6 +9,7 @@
 #include "CfgParser.hh"
 #include "Util.hh"
 
+#include <algorithm>
 #include <iostream>
 #include <memory>
 #include <cassert>
