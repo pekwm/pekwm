@@ -39,8 +39,9 @@ const char *CP_PARSE_BLANKS = " \t\n";
 
 //! @brief CfgParser::Entry constructor.
 CfgParser::Entry::Entry(const std::string &source_name, int line,
-                        const std::string &name, const std::string &value)
-    : _section(0),
+                        const std::string &name, const std::string &value,
+                        CfgParser::Entry *section)
+    : _section(section),
       _name(name), _value(value),
       _line(line), _source_name(source_name)
 {
@@ -82,7 +83,7 @@ CfgParser::Entry::add_entry(CfgParser::Entry *entry, bool overwrite)
 {
     CfgParser::Entry *entry_search = 0;
     if (overwrite) {
-        entry_search = find_entry(entry->get_name());
+        entry_search = find_entry(entry->get_name(), entry->get_section() != 0);
     }
 
     if (entry_search) {
@@ -101,33 +102,41 @@ CfgParser::Entry::add_entry(CfgParser::Entry *entry, bool overwrite)
 CfgParser::Entry*
 CfgParser::Entry::add_entry(const std::string &source_name, int line,
                             const std::string &name, const std::string &value,
-                            bool overwrite)
+                            CfgParser::Entry *section, bool overwrite)
 {
-    return add_entry(new Entry(source_name, line, name, value), overwrite);
+    return add_entry(new Entry(source_name, line, name, value, section), overwrite);
 }
 
-//! @brief Gets next entry that has a sub section.
+/**
+ * Set section, copy section entires over if overwrite.
+ */
 CfgParser::Entry*
-CfgParser::Entry::get_section_next(void)
+CfgParser::Entry::set_section(CfgParser::Entry *section, bool overwrite)
 {
-    list<CfgParser::Entry*>::iterator it(_entries.begin());
-    for (; it != _entries.end(); ++it) {
-        if ((*it)->get_section()) {
-            return *it;
+    if (_section) {
+        if (overwrite) {
+            _section->copy_tree_into(section);
+            delete section;
+        } else {
+            delete _section;
+            _section = section;
         }
+    } else {
+        _section = section;
     }
 
-    return 0;
+    return _section;
 }
 
 //! @brief Gets next entry without subsection matching the name name.
 //! @param name Name of Entry to look for.
 CfgParser::Entry*
-CfgParser::Entry::find_entry(const std::string &name)
+CfgParser::Entry::find_entry(const std::string &name, bool include_sections)
 {
     list<CfgParser::Entry*>::iterator it(_entries.begin());
     for (; it != _entries.end(); ++it) {
-        if (! (*it)->get_section() && (*(*it) == name.c_str())) {
+        if ((include_sections || ! (*it)->get_section())
+            && (*(*it) == name.c_str())) {
             return *it;
         }
     }
@@ -206,7 +215,7 @@ CfgParser::Entry::copy_tree_into(CfgParser::Entry *from, bool overwrite)
                 add_entry(new Entry(*(*it)), true);
             }
         } else {
-            add_entry((*it)->get_source_name(), (*it)->get_line(), (*it)->get_name(), (*it)->get_value(), true);
+            add_entry((*it)->get_source_name(), (*it)->get_line(), (*it)->get_name(), (*it)->get_value(), 0, true);
         }
     }
 }
@@ -505,7 +514,7 @@ CfgParser::parse_entry_finish_standard(std::string &buf, std::string &value)
             } else if (buf == "COMMAND") {
                 parse_source_new(value, CfgParserSource::SOURCE_COMMAND);
             } else {
-                _section->add_entry(_source->get_name(), _source->get_line(), buf, value, _overwrite);
+                _section->add_entry(_source->get_name(), _source->get_line(), buf, value, 0, _overwrite);
             }
         }
     } else {
@@ -535,12 +544,8 @@ CfgParser::parse_entry_finish_template(std::string &name)
 void
 CfgParser::parse_section_finish(std::string &buf, std::string &value)
 {
-    // Create section
-    CfgParser::Entry *section_parent;
-    section_parent = _section->add_entry(_source->get_name(), _source->get_line(), buf, value, _overwrite);
-
     // Create Entry representing Section
-    Entry *section = new Entry(_source->get_name(), _source->get_line(), buf, value);
+    Entry *section = 0;
     if (buf.size() == 6 && strcasecmp(buf.c_str(), "DEFINE") == 0) {
         // Look for define section, started with Define = "Name" { 
         map<string, CfgParser::Entry*>::iterator it(_section_map.find(value));
@@ -549,11 +554,17 @@ CfgParser::parse_section_finish(std::string &buf, std::string &value)
             _section_map.erase(it);
         }
 
+        section = new Entry(_source->get_name(), _source->get_line(), buf, value);
         _section_map[value] = section;
     } else {
-        // Set section to current entry, if it is a Define section
-        // resource handling is done by the _section_map
-        section_parent->set_section(section);
+        // Create Entry for sub-section.
+        section = new Entry(_source->get_name(), _source->get_line(), buf, value);
+
+        // Add parent section, get section from parent section as it
+        // can be different from the newly created if it is not
+        // overwritten.
+        CfgParser::Entry *section_parent = _section->add_entry(_source->get_name(), _source->get_line(), buf, value, section, _overwrite);
+        section = section_parent->get_section();
     }
 
     // Set current Entry to newly created Section.

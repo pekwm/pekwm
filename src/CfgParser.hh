@@ -44,7 +44,8 @@ public:
     class Entry {
     public:
         Entry(const std::string &source_name, int line,
-              const std::string &name, const std::string &value);
+              const std::string &name, const std::string &value,
+              CfgParser::Entry *section=0);
         Entry(const Entry &entry);
         ~Entry(void);
 
@@ -62,22 +63,20 @@ public:
 
         Entry *add_entry(Entry *entry, bool overwrite=false);
         Entry *add_entry(const std::string &source_name, int line,
-                         const std::string &name, const std::string &value, bool overwrite=false);
+                         const std::string &name, const std::string &value,
+                         CfgParser::Entry *section=0, bool overwrite=false);
 
         //! @brief Returns the sub section.
         Entry *get_section(void) { return _section; }
-        Entry *get_section_next(void);
+        Entry *set_section(Entry *section, bool overwrite=false);
 
-        //! @brief Sets the sub section.
-        void set_section(Entry *section) { _section = section; }
-
-        Entry *find_entry(const std::string &name);
+        Entry *find_entry(const std::string &name, bool include_sections=false);
         Entry *find_section(const std::string &name);
 
         void parse_key_values(std::list<CfgParserKey*>::iterator begin,
                               std::list<CfgParserKey*>::iterator end);
 
-        void copy_tree_into(CfgParser::Entry *from, bool overwrite=true);
+        void copy_tree_into(CfgParser::Entry *from, bool overwrite=false);
 
         //! @brief Matches Entry name agains op_rhs.
         bool operator==(const char *rhs) {
