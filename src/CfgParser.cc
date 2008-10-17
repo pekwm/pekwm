@@ -86,7 +86,12 @@ CfgParser::Entry::add_entry(CfgParser::Entry *entry, bool overwrite)
         entry_search = find_entry(entry->get_name(), entry->get_section() != 0);
     }
 
-    if (entry_search) {
+    // This is a bit awkward but to keep compatible with old
+    // configuration syntax overwriting of section is only allowed
+    // when the value is the same.
+    if (entry_search
+        && (! entry_search->get_section()
+            || strcasecmp(entry->get_value().c_str(), entry_search->get_value().c_str()) == 0)) { 
         entry_search->_value = entry->get_value();
         // Clear resources used by entry
         delete entry;
@@ -215,7 +220,8 @@ CfgParser::Entry::copy_tree_into(CfgParser::Entry *from, bool overwrite)
                 add_entry(new Entry(*(*it)), true);
             }
         } else {
-            add_entry((*it)->get_source_name(), (*it)->get_line(), (*it)->get_name(), (*it)->get_value(), 0, true);
+            add_entry((*it)->get_source_name(), (*it)->get_line(),
+                      (*it)->get_name(), (*it)->get_value(), 0, true);
         }
     }
 }
@@ -563,8 +569,9 @@ CfgParser::parse_section_finish(std::string &buf, std::string &value)
         // Add parent section, get section from parent section as it
         // can be different from the newly created if it is not
         // overwritten.
-        CfgParser::Entry *section_parent = _section->add_entry(_source->get_name(), _source->get_line(), buf, value, section, _overwrite);
-        section = section_parent->get_section();
+        CfgParser::Entry *parent = _section->add_entry(_source->get_name(), _source->get_line(),
+                                                       buf, value, section, _overwrite);
+        section = parent->get_section();
     }
 
     // Set current Entry to newly created Section.
