@@ -44,7 +44,7 @@ public:
     virtual void handleItemExec(PMenu::Item *item);
 
     virtual void insert(PMenu::Item *item);
-    virtual void insert(const std::wstring &name, PWinObj *wo_ref = NULL, PTexture *icon = NULL);
+    virtual void insert(const std::wstring &name, PWinObj *wo_ref = 0, PTexture *icon = 0);
     virtual void insert(const std::wstring &name, const ActionEvent &ae,
                         PWinObj *wo_ref = 0, PTexture *icon = 0);
 

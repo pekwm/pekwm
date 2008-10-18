@@ -21,9 +21,9 @@ using std::endl;
 using std::string;
 using std::map;
 
-PekwmAtoms* PekwmAtoms::_instance = NULL;
-IcccmAtoms* IcccmAtoms::_instance = NULL;
-EwmhAtoms* EwmhAtoms::_instance = NULL;
+PekwmAtoms* PekwmAtoms::_instance = 0;
+IcccmAtoms* IcccmAtoms::_instance = 0;
+EwmhAtoms* EwmhAtoms::_instance = 0;
 
 //! @brief PekwmAtoms constructor
 PekwmAtoms::PekwmAtoms(void)
@@ -54,7 +54,7 @@ PekwmAtoms::PekwmAtoms(void)
 //! @brief PekwmAtoms destructor
 PekwmAtoms::~PekwmAtoms(void)
 {
-    _instance = NULL;
+    _instance = 0;
 }
 
 //! @brief IcccmAtoms constructor
@@ -90,7 +90,7 @@ IcccmAtoms::IcccmAtoms(void)
 //! @brief IcccmAtoms destructor
 IcccmAtoms::~IcccmAtoms(void)
 {
-    _instance = NULL;
+    _instance = 0;
 }
 
 //! @brief EwmhAtoms constructor
@@ -151,7 +151,7 @@ EwmhAtoms::EwmhAtoms(void)
 //! @brief EwmhAtoms destructor
 EwmhAtoms::~EwmhAtoms(void)
 {
-    _instance = NULL;
+    _instance = 0;
 }
 
 //! @brief Builds a array of all atoms in the map.
@@ -185,11 +185,11 @@ getProperty(Window win, Atom atom, Atom type, ulong expected, uchar** data)
     if ((status != Success) || (read == 0)) {
         if (*data) {
             XFree(*data);
-            *data = NULL;
+            *data = 0;
         }
     }
 
-    return (*data != NULL);
+    return (*data != 0);
 }
 
 //! @brief Set XA_ATOM, one value
@@ -228,8 +228,8 @@ setWindows(Window win, Atom atom, Window *values, int size)
 bool
 getLong(Window win, Atom atom, long &value)
 {
-    long *data = NULL;
-    uchar *udata = NULL;
+    long *data = 0;
+    uchar *udata = 0;
 
     if (getProperty(win, atom, XA_CARDINAL, 1L, &udata)) {
         data = reinterpret_cast<long*>(udata);
@@ -254,7 +254,7 @@ setLong(Window win, Atom atom, long value)
 bool
 getString(Window win, Atom atom, string &value)
 {
-    uchar *data = NULL;
+    uchar *data = 0;
 
     if (getProperty(win, atom, XA_STRING, 64L, &data)) {
         value = string((const char*) data);
@@ -271,7 +271,7 @@ bool
 getUtf8String(Window win, Atom atom, std::wstring &value)
 {
     bool status = false;
-    unsigned char *data = NULL;
+    unsigned char *data = 0;
 
     if (getProperty(win, atom, EwmhAtoms::instance()->getAtom(UTF8_STRING),
                     32, &data)) {
@@ -313,7 +313,7 @@ getEwmhPropData(Window win, Atom prop, Atom type, int &num)
     Atom type_ret;
     int format_ret;
     ulong items_ret, after_ret;
-    uchar *prop_data = NULL;
+    uchar *prop_data = 0;
 
     XGetWindowProperty(PScreen::instance()->getDpy(), win, prop, 0, 0x7fffffff,
                        False, type, &type_ret, &format_ret, &items_ret,

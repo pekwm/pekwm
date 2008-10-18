@@ -53,13 +53,10 @@ public:
 
     //! @brief Searches for the PWinObj matching Window win.
     //! @param win Window to match PWinObjs against.
-    //! @return PWinObj pointer on match, else NULL.
+    //! @return PWinObj pointer on match, else 0.
     static inline PWinObj *findPWinObj(Window win) {
         std::map<Window, PWinObj*>::iterator it(_wo_map.find(win));
-        if (it != _wo_map.end()) {
-            return it->second;
-        }
-        return NULL;
+        return (it != _wo_map.end()) ? it->second : 0;
     }
 
     //! @brief Searches in PWinObj list if PWinObj wo exists.
@@ -148,27 +145,27 @@ public:
 
     // event interface
 
-    //! @brief Handles button press events, always return NULL.
-    virtual ActionEvent *handleButtonPress(XButtonEvent *ev) { return NULL; }
-    //! @brief Handles button release events, always return NULL.
-    virtual ActionEvent *handleButtonRelease(XButtonEvent *ev) { return NULL; }
-    //! @brief Handles key press events, always return NULL.
-    virtual ActionEvent *handleKeyPress(XKeyEvent *ev) { return NULL; }
-    //! @brief Handles key release vents, always return NULL.
-    virtual ActionEvent *handleKeyRelease(XKeyEvent *ev) { return NULL; }
-    //! @brief Handles motion events, always return NULL.
-    virtual ActionEvent *handleMotionEvent(XMotionEvent *ev) { return NULL; }
-    //! @brief Handles enter events, always return NULL.
-    virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev) { return NULL; }
-    //! @brief Handles leave events, always return NULL.
-    virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev) { return NULL; }
-    //! @brief Handles expose events, always return NULL.
-    virtual ActionEvent *handleExposeEvent(XExposeEvent *ev) { return NULL; }
+    //! @brief Handles button press events, always return 0.
+    virtual ActionEvent *handleButtonPress(XButtonEvent *ev) { return 0; }
+    //! @brief Handles button release events, always return 0.
+    virtual ActionEvent *handleButtonRelease(XButtonEvent *ev) { return 0; }
+    //! @brief Handles key press events, always return 0.
+    virtual ActionEvent *handleKeyPress(XKeyEvent *ev) { return 0; }
+    //! @brief Handles key release vents, always return 0.
+    virtual ActionEvent *handleKeyRelease(XKeyEvent *ev) { return 0; }
+    //! @brief Handles motion events, always return 0.
+    virtual ActionEvent *handleMotionEvent(XMotionEvent *ev) { return 0; }
+    //! @brief Handles enter events, always return 0.
+    virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev) { return 0; }
+    //! @brief Handles leave events, always return 0.
+    virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev) { return 0; }
+    //! @brief Handles expose events, always return 0.
+    virtual ActionEvent *handleExposeEvent(XExposeEvent *ev) { return 0; }
 
-    //! @brief Handles handle map request events, always return NULL.
-    virtual ActionEvent *handleMapRequest(XMapRequestEvent *ev) { return NULL; }
-    //! @brief Handles handle unmap events, always return NULL.
-    virtual ActionEvent *handleUnmapEvent(XUnmapEvent *ev) { return NULL; }
+    //! @brief Handles handle map request events, always return 0.
+    virtual ActionEvent *handleMapRequest(XMapRequestEvent *ev) { return 0; }
+    //! @brief Handles handle unmap events, always return 0.
+    virtual ActionEvent *handleUnmapEvent(XUnmapEvent *ev) { return 0; }
 
     // operators
 

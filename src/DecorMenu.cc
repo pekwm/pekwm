@@ -73,7 +73,7 @@ DecorMenu::reload(CfgParser::Entry *section)
     map<string, Theme::PDecorData*>::const_iterator it(_theme->decor_begin());
     for (; it != _theme->decor_end(); ++it) {
         ae.action_list.back().setParamS(it->first);
-        insert(Util::to_wide_str(it->first), ae, NULL);
+        insert(Util::to_wide_str(it->first), ae, 0);
     }
 
     buildMenu(); // rebuild the menu

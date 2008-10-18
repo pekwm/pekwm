@@ -28,7 +28,7 @@ using std::string;
 using std::cerr;
 using std::endl;
 
-TextureHandler* TextureHandler::_instance = NULL;
+TextureHandler* TextureHandler::_instance = 0;
 map<ParseUtil::Entry, PTexture::Type> TextureHandler::_parse_map = map<ParseUtil::Entry, PTexture::Type>();
 
 const int TextureHandler::LENGTH_MIN = 5;
@@ -56,7 +56,7 @@ TextureHandler::TextureHandler(void)
 //! @brief TextureHandler destructor
 TextureHandler::~TextureHandler(void)
 {
-    _instance = NULL;
+    _instance = 0;
 }
 
 //! @brief Gets or creates a PTexture
@@ -140,7 +140,7 @@ TextureHandler::returnTexture(PTexture *texture)
 PTexture*
 TextureHandler::parse(const std::string &texture)
 {
-    PTexture *ptexture = NULL;
+    PTexture *ptexture = 0;
     vector<string> tok;
 
     PTexture::Type type;
@@ -181,7 +181,7 @@ TextureHandler::parseSolid(std::vector<std::string> &tok)
 {
     if (tok.size() < 1) {
         cerr << "*** WARNING: not enough parameters to texture Solid" << endl;
-        return NULL;
+        return 0;
     }
 
     PTextureSolid *tex = new PTextureSolid(PScreen::instance()->getDpy(), tok[0]);	tok.erase(tok.begin());
@@ -200,7 +200,7 @@ TextureHandler::parseSolidRaised(std::vector<std::string> &tok)
 {
     if (tok.size() < 3) {
         cerr << "*** WARNING: not enough parameters to texture SolidRaised" << endl;
-        return NULL;
+        return 0;
     }
 
     PTextureSolidRaised *tex = new PTextureSolidRaised(PScreen::instance()->getDpy(),
@@ -209,8 +209,8 @@ TextureHandler::parseSolidRaised(std::vector<std::string> &tok)
 
     // Check if we have line width and offset.
     if (tok.size() > 2) {
-        tex->setLineWidth(strtol(tok[0].c_str(), NULL, 10));
-        tex->setLineOff(strtol(tok[1].c_str(), NULL, 10));
+        tex->setLineWidth(strtol(tok[0].c_str(), 0, 10));
+        tex->setLineOff(strtol(tok[1].c_str(), 0, 10));
         tok.erase(tok.begin(), tok.begin() + 2);
     }
     // Check if have side draw specificed.
@@ -234,7 +234,7 @@ TextureHandler::parseSize(PTexture *tex, const std::string &size)
 {
     vector<string> tok;
     if ((Util::splitString(size, tok, "x", 2)) == 2) {
-        tex->setWidth(strtol(tok[0].c_str(), NULL, 10));
-        tex->setHeight(strtol(tok[1].c_str(), NULL, 10));
+        tex->setWidth(strtol(tok[0].c_str(), 0, 10));
+        tex->setHeight(strtol(tok[1].c_str(), 0, 10));
     }
 }

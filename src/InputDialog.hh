@@ -40,7 +40,7 @@ public:
   void unloadTheme(void);
   void render(void);
 
-  virtual void mapCentered(const std::string &buf, bool focus, PWinObj *wo_ref = NULL);
+  virtual void mapCentered(const std::string &buf, bool focus, PWinObj *wo_ref = 0);
   virtual void moveCentered(PWinObj *wo);
 
 protected:

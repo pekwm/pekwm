@@ -319,7 +319,7 @@ public:
                 return it->second;
             }
         }
-        return NULL;
+        return 0;
     }
 
   Theme::WorkspaceIndicatorData &getWorkspaceIndicatorData(void) { return _workspace_indicator_data; }

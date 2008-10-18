@@ -86,7 +86,7 @@ forkExec(std::string command)
     switch (pid) {
     case 0:
         setsid();
-        execlp("/bin/sh", "sh", "-c", command.c_str(), (char *) NULL);
+        execlp("/bin/sh", "sh", "-c", command.c_str(), (char *) 0);
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "Util::forkExec(" << command << ") execlp failed." << endl;
         exit(1);

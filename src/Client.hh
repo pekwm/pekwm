@@ -89,11 +89,11 @@ public: // Public Member Functions
 
     virtual ActionEvent *handleButtonPress(XButtonEvent *ev) {
         if (_parent) { return _parent->handleButtonPress(ev); }
-        return NULL;
+        return 0;
     }
     virtual ActionEvent *handleButtonRelease(XButtonEvent *ev) {
         if (_parent) { return _parent->handleButtonRelease(ev); }
-        return NULL;
+        return 0;
     }
 
     virtual ActionEvent *handleUnmapEvent(XUnmapEvent *ev);

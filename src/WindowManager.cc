@@ -139,7 +139,7 @@ extern "C" {
             is_signal_int_term = true;
             break;
         case SIGCHLD:
-            wait(NULL);
+            wait(0);
             break;
         case SIGALRM:
             // Do nothing, just used to break out of waiting
@@ -425,24 +425,24 @@ void WindowManager::destroy() {
 
 //! @brief Constructor for WindowManager class
 WindowManager::WindowManager(const std::string &command_line, const std::string &config_file) :
-        _screen(NULL), _screen_resources(NULL),
-        _keygrabber(NULL),
-        _config(NULL), _color_handler(NULL),
-        _font_handler(NULL), _texture_handler(NULL),
-        _theme(NULL), _action_handler(NULL),
-        _autoproperties(NULL), _workspaces(NULL),
+        _screen(0), _screen_resources(0),
+        _keygrabber(0),
+        _config(0), _color_handler(0),
+        _font_handler(0), _texture_handler(0),
+        _theme(0), _action_handler(0),
+        _autoproperties(0), _workspaces(0),
 #ifdef HARBOUR
-        _harbour(NULL),
+        _harbour(0),
 #endif // HARBOUR
-        _cmd_dialog(NULL),
-        _status_window(NULL), _workspace_indicator(NULL),
+        _cmd_dialog(0),
+        _status_window(0), _workspace_indicator(0),
 #ifdef MENUS
         _menu_mtime(0),
 #endif // MENUS
         _command_line(command_line),
         _startup(false), _shutdown(false), _reload(false),
-        _allow_grouping(true), _root_wo(NULL),
-        _pekwm_atoms(NULL), _icccm_atoms(NULL), _ewmh_atoms(NULL)
+        _allow_grouping(true), _root_wo(0),
+        _pekwm_atoms(0), _icccm_atoms(0), _ewmh_atoms(0)
 {
     struct sigaction act;
 
@@ -451,11 +451,11 @@ WindowManager::WindowManager(const std::string &command_line, const std::string 
     act.sa_mask = sigset_t();
     act.sa_flags = SA_NOCLDSTOP | SA_NODEFER;
 
-    sigaction(SIGTERM, &act, NULL);
-    sigaction(SIGINT, &act, NULL);
-    sigaction(SIGHUP, &act, NULL);
-    sigaction(SIGCHLD, &act, NULL);
-    sigaction(SIGALRM, &act, NULL);
+    sigaction(SIGTERM, &act, 0);
+    sigaction(SIGINT, &act, 0);
+    sigaction(SIGHUP, &act, 0);
+    sigaction(SIGCHLD, &act, 0);
+    sigaction(SIGALRM, &act, 0);
 
     // construct
     _config = new Config();
@@ -595,7 +595,7 @@ WindowManager::cleanup(void)
 void
 WindowManager::setupDisplay(void)
 {
-    Display *dpy = XOpenDisplay(NULL);
+    Display *dpy = XOpenDisplay(0);
     if (! dpy) {
         cerr << "Can not open display!" << endl
              << "Your DISPLAY variable currently is set to: "
@@ -1122,7 +1122,7 @@ WindowManager::doEventLoop(void)
 void
 WindowManager::handleKeyEvent(XKeyEvent *ev)
 {
-    ActionEvent *ae =	NULL;
+    ActionEvent *ae = 0;
     PWinObj *wo, *wo_orig;
     wo = wo_orig = PWinObj::getFocusedPWinObj();
     PWinObj::Type type = (wo) ? wo->getType() : PWinObj::WO_SCREEN_ROOT;
@@ -1194,8 +1194,8 @@ WindowManager::handleButtonPressEvent(XButtonEvent *ev)
         }
     }
 
-    ActionEvent *ae = NULL;
-    PWinObj *wo = NULL;
+    ActionEvent *ae = 0;
+    PWinObj *wo = 0;
 
     wo = PWinObj::findPWinObj(ev->window);
     if (wo) {
@@ -1242,7 +1242,7 @@ WindowManager::handleButtonReleaseEvent(XButtonEvent *ev)
         }
     }
 
-    ActionEvent *ae = NULL;
+    ActionEvent *ae = 0;
     PWinObj *wo = PWinObj::findPWinObj(ev->window);
 
     if (wo) {
@@ -1316,7 +1316,7 @@ WindowManager::handleConfigureRequestEvent(XConfigureRequestEvent *ev)
 void
 WindowManager::handleMotionEvent(XMotionEvent *ev)
 {
-    ActionEvent *ae = NULL;
+    ActionEvent *ae = 0;
     PWinObj *wo = PWinObj::findPWinObj(ev->window);
 
     if (wo) {
@@ -1400,7 +1400,7 @@ void
 WindowManager::handleUnmapEvent(XUnmapEvent *ev)
 {
     PWinObj *wo = PWinObj::findPWinObj(ev->window);
-    PWinObj *wo_search = NULL;
+    PWinObj *wo_search = 0;
 
     PWinObj::Type wo_type = PWinObj::WO_NO_TYPE;
 
@@ -1413,7 +1413,7 @@ WindowManager::handleUnmapEvent(XUnmapEvent *ev)
         wo->handleUnmapEvent(ev);
 
         if (wo == PWinObj::getFocusedPWinObj()) {
-            PWinObj::setFocusedPWinObj(NULL);
+            PWinObj::setFocusedPWinObj(0);
         }
     }
 
@@ -1538,7 +1538,7 @@ WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
         }
 
         if (! wo->isFocusable() || ! wo->isMapped()) {
-            findWOAndFocus(NULL);
+            findWOAndFocus(0);
 
         } else if (wo != PWinObj::getFocusedPWinObj()) {
             // If it's a valid FocusIn event with accepatable target lets flush
@@ -1662,7 +1662,7 @@ WindowManager::handleMappingEvent(XMappingEvent *ev)
 void
 WindowManager::handleExposeEvent(XExposeEvent *ev)
 {
-    ActionEvent *ae = NULL;
+    ActionEvent *ae = 0;
 
     PWinObj *wo = PWinObj::findPWinObj(ev->window);
     if (wo) {
@@ -1881,7 +1881,7 @@ WindowManager::deleteMenus(void)
 void
 WindowManager::findWOAndFocus(PWinObj *search)
 {
-    PWinObj *focus = NULL;
+    PWinObj *focus = 0;
 
     if (PWinObj::windowObjectExists(search) &&
             (search->isMapped()) && (search->isFocusable()))  {
@@ -1992,10 +1992,10 @@ Frame*
 WindowManager::findGroup(AutoProperty *property)
 {
     if (! _allow_grouping) {
-        return NULL;
+        return 0;
     }
 
-    Frame *frame = NULL;
+    Frame *frame = 0;
 
 #define MATCH_GROUP(F,P) \
 ((P->group_global || ((F)->isMapped())) && \
@@ -2089,12 +2089,11 @@ Frame*
 WindowManager::getNextFrame(Frame* frame, bool mapped, uint mask)
 {
     if (! frame || (Frame::frame_size() < 2)) {
-        return NULL;
+        return 0;
     }
 
-    Frame *next_frame = NULL;
-    list<Frame*>::iterator f_it(find(Frame::frame_begin(), Frame::frame_end(),
-                                     frame));
+    Frame *next_frame = 0;
+    list<Frame*>::iterator f_it(find(Frame::frame_begin(), Frame::frame_end(), frame));
 
     if (f_it != Frame::frame_end()) {
         list<Frame*>::iterator n_it(f_it);
@@ -2125,12 +2124,11 @@ Frame*
 WindowManager::getPrevFrame(Frame* frame, bool mapped, uint mask)
 {
     if (! frame || (Frame::frame_size() < 2)) {
-        return NULL;
+        return 0;
     }
 
-    Frame *next_frame = NULL;
-    list<Frame*>::iterator f_it(find(Frame::frame_begin(), Frame::frame_end(),
-                                     frame));
+    Frame *next_frame = 0;
+    list<Frame*>::iterator f_it(find(Frame::frame_begin(), Frame::frame_end(), frame));
 
     if (f_it != Frame::frame_end()) {
         list<Frame*>::iterator n_it(f_it);

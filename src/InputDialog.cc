@@ -97,7 +97,7 @@ InputDialog::handleButtonPress(XButtonEvent *ev)
 {
     if (*_text_wo == ev->window) {
         // FIXME: move cursor
-        return NULL;
+        return 0;
     } else {
         return PDecor::handleButtonPress(ev);
     }
@@ -109,7 +109,7 @@ InputDialog::handleButtonPress(XButtonEvent *ev)
 ActionEvent*
 InputDialog::handleKeyPress(XKeyEvent *ev)
 {
-    ActionEvent *c_ae, *ae = NULL;
+    ActionEvent *c_ae, *ae = 0;
 
     if ( (c_ae = KeyGrabber::instance()->findAction(ev, _type)) ) {
         list<Action>::iterator it(c_ae->action_list.begin());
@@ -177,10 +177,10 @@ ActionEvent*
 InputDialog::handleExposeEvent(XExposeEvent *ev)
 {
     if (ev->count > 0) {
-        return NULL;
+        return 0;
     }
     render();
-    return NULL;
+    return 0;
 }
 
 /**
@@ -188,7 +188,7 @@ InputDialog::handleExposeEvent(XExposeEvent *ev)
  *
  * @param buf Buffer content.
  * @param focus Give input focus if true.
- * @param wo_ref PWinObj reference, defaults to NULL which does not update.
+ * @param wo_ref PWinObj reference, defaults to 0 which does not update.
  */
 void
 InputDialog::mapCentered(const std::string &buf, bool focus, PWinObj *wo_ref)
@@ -340,7 +340,7 @@ InputDialog::bufAdd(XKeyEvent *ev)
     char c_return[64];
     memset(c_return, '\0', 64);
 
-    XLookupString(ev, c_return, 64, NULL, NULL);
+    XLookupString(ev, c_return, 64, 0, 0);
 
     // Add wide string to buffer counting position
     wstring buf_ret(Util::to_wide_str(c_return));

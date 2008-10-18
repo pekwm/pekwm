@@ -25,7 +25,7 @@ using std::list;
 using std::vector;
 using std::string;
 
-FontHandler* FontHandler::_instance = NULL;
+FontHandler* FontHandler::_instance = 0;
 
 //! @brief FontHandler constructor
 FontHandler::FontHandler(void) :
@@ -89,7 +89,7 @@ FontHandler::getFont(const std::string &font)
     }
 
     // create new
-    PFont *pfont = NULL;
+    PFont *pfont = 0;
 
     vector<string> tok;
     vector<string>::iterator tok_it; // old gcc doesn't like --tok.end()
@@ -134,8 +134,8 @@ FontHandler::getFont(const std::string &font)
             if (isdigit((*s_it)[0])) { // number
                 vector<string> tok_2;
                 if (Util::splitString(*s_it, tok_2, " \t", 2) == 2) {
-                    pfont->setOffset(strtol(tok_2[0].c_str(), NULL, 10),
-                           strtol(tok_2[1].c_str(), NULL, 10));
+                    pfont->setOffset(strtol(tok_2[0].c_str(), 0, 10),
+                           strtol(tok_2[1].c_str(), 0, 10));
                 }
             } else { // justify
                 uint justify = ParseUtil::getValue<FontJustify>(*s_it, _map_justify);
@@ -268,7 +268,7 @@ FontHandler::loadColor(const std::string &color, PFont::Color *font_color, bool 
 
     vector<string> tok;
     if (Util::splitString(color, tok, ",", 2) == 2) {
-        uint alpha = static_cast<uint>(strtol(tok[1].c_str(), NULL, 10));
+        uint alpha = static_cast<uint>(strtol(tok[1].c_str(), 0, 10));
         if (alpha > 100) {
             cerr << " *** WARNING: Alpha for font color greater than 100%" << endl;
             alpha = 100;

@@ -43,7 +43,7 @@ using std::endl;
 // Workspaces::Workspace
 
 Workspaces::Workspace::Workspace(const std::wstring &name, uint number, const std::list<PWinObj*> &wo_list)
-  : _name(name), _number(number), _wo_list(wo_list), _last_focused(NULL)
+  : _name(name), _number(number), _wo_list(wo_list), _last_focused(0)
 {
 }
 
@@ -53,7 +53,7 @@ Workspaces::Workspace::~Workspace(void)
 
 // Workspaces
 
-Workspaces *Workspaces::_instance = NULL;
+Workspaces *Workspaces::_instance = 0;
 
 
 //! @brief Workpsaces constructor
@@ -92,7 +92,7 @@ Workspaces::~Workspaces(void)
         delete *it;
     }
 
-    _instance = NULL;
+    _instance = 0;
 }
 
 //! @brief Sets total amount of workspaces to number
@@ -127,7 +127,7 @@ Workspaces::setSize(uint number)
             delete _workspace_list[i];
         }
 
-        _workspace_list.resize(number, NULL);
+        _workspace_list.resize(number, 0);
 
     } else { // We need more workspaces, lets create some
         for (uint i = before; i < number; ++i) {
@@ -173,7 +173,7 @@ Workspaces::setWorkspace(uint num, bool focus)
 
     // Save the focused window object
     setLastFocused(_active, wo);
-    PWinObj::setFocusedPWinObj(NULL);
+    PWinObj::setFocusedPWinObj(0);
 
     // switch workspace
     hideAll(_active);
@@ -350,8 +350,9 @@ Workspaces::remove(PWinObj* wo)
     // remove from last focused
     vector<Workspace*>::iterator it(_workspace_list.begin());
     for (; it != _workspace_list.end(); ++it) {
-        if (wo == (*it)->getLastFocused())
-            (*it)->setLastFocused(NULL);
+        if (wo == (*it)->getLastFocused()) {
+            (*it)->setLastFocused(0);
+        }
     }
 }
 
@@ -501,8 +502,9 @@ Workspaces::stackBelow(PWinObj* wo, Window win, bool restack)
 PWinObj*
 Workspaces::getLastFocused(uint workspace)
 {
-    if (workspace >= _workspace_list.size())
-        return NULL;
+    if (workspace >= _workspace_list.size()) {
+        return 0;
+    }
     return _workspace_list[workspace]->getLastFocused();
 }
 
@@ -557,7 +559,7 @@ Workspaces::getTopWO(uint type_mask)
             return (*r_it);
         }
     }
-    return NULL;
+    return 0;
 }
 
 //! @brief Updates the Ewmh Client list and Stacking list hint.
@@ -831,7 +833,7 @@ PWinObj*
 Workspaces::isEmptySpace(int x, int y, const PWinObj* wo)
 {
     if (! wo) {
-        return NULL;
+        return 0;
     }
 
     // say that it's placed, now check if we are wrong!
@@ -853,7 +855,7 @@ Workspaces::isEmptySpace(int x, int y, const PWinObj* wo)
         }
     }
 
-    return NULL; // we passed the test, no frames in the way
+    return 0; // we passed the test, no frames in the way
 }
 
 //! @brief
@@ -868,7 +870,7 @@ Workspaces::findDirectional(PWinObj *wo, DirectionType dir, uint skip)
         wo = static_cast<Client*>(wo)->getParent();
     }
 
-    PWinObj *found_wo = NULL;
+    PWinObj *found_wo = 0;
 
     uint score = 0, score_min;
     int wo_main, wo_sec;
@@ -916,7 +918,7 @@ Workspaces::findDirectional(PWinObj *wo, DirectionType dir, uint skip)
             diff_main = ((*it)->getX() + (*it)->getWidth() / 2) - wo_main;
             break;
         default:
-            return NULL; // no direction to search
+            return 0; // no direction to search
         }
 
         if (diff_main < 0) {

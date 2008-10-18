@@ -35,7 +35,7 @@ public:
     //! @brief Returns Key type.
     const CfgParserKeyType get_type(void) const { return _type; }
 
-    //! @brief Parses or_value and sets Key value.
+    //! @brief Parses value and sets Key value.
     virtual void parse_value(const std::string &value) throw (std::string&) { }
 
 protected:

@@ -190,9 +190,9 @@ PFont::justify(const std::wstring &text, uint max_width,
 // PFontX11
 
 //! @brief PFontX11 constructor
-PFontX11::PFontX11(PScreen *scr) : PFont(scr),
-        _font(NULL),
-        _gc_fg(None), _gc_bg(None)
+PFontX11::PFontX11(PScreen *scr)
+    : PFont(scr),
+      _font(0), _gc_fg(None), _gc_bg(None)
 {
     _type = FONT_TYPE_X11;
 }
@@ -239,7 +239,7 @@ PFontX11::unload(void)
 {
     if (_font) {
         XFreeFont(_scr->getDpy(), _font);
-        _font = NULL;
+        _font = 0;
     }
     if (_gc_fg != None) {
         XFreeGC(_scr->getDpy(), _gc_fg);
@@ -318,7 +318,7 @@ const char* PFontXmb::DEFAULT_FONTSET = "fixed*";
 //! @brief PFontXmb constructor
 PFontXmb::PFontXmb(PScreen *scr)
   : PFont(scr),
-    _fontset(NULL), _gc_fg(None), _gc_bg(None)
+    _fontset(0), _gc_fg(None), _gc_bg(None)
 {
     _type = FONT_TYPE_XMB;
 }
@@ -392,7 +392,7 @@ PFontXmb::unload(void)
 {
     if (_fontset) {
         XFreeFontSet(_scr->getDpy(), _fontset);
-        _fontset = NULL;
+        _fontset = 0;
     }
 }
 
@@ -454,9 +454,9 @@ PFontXmb::setColor(PFont::Color *color)
 #ifdef HAVE_XFT
 
 //! @brief PFontXft constructor
-PFontXft::PFontXft(PScreen *scr) : PFont(scr),
-        _draw(NULL), _font(NULL),
-        _cl_fg(NULL), _cl_bg(NULL)
+PFontXft::PFontXft(PScreen *scr)
+    : PFont(scr),
+      _draw(0), _font(0), _cl_fg(0), _cl_bg(0)
 {
     _type = FONT_TYPE_XFT;
     _draw = XftDrawCreate(_scr->getDpy(), _scr->getRoot(),
@@ -512,7 +512,7 @@ PFontXft::unload(void)
 {
     if (_font) {
         XftFontClose(_scr->getDpy(), _font);
-        _font = NULL;
+        _font = 0;
     }
 }
 
@@ -578,13 +578,13 @@ PFontXft::setColor(PFont::Color *color)
         XftColorFree(_scr->getDpy(), _scr->getVisual()->getXVisual(),
                      _scr->getColormap(), _cl_fg);
         delete _cl_fg;
-        _cl_fg = NULL;
+        _cl_fg = 0;
     }
     if (_cl_bg) {
         XftColorFree(_scr->getDpy(), _scr->getVisual()->getXVisual(),
                      _scr->getColormap(), _cl_bg);
         delete _cl_bg;
-        _cl_bg = NULL;
+        _cl_bg = 0;
     }
 
     if (color->hasFg()) {

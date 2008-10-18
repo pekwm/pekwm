@@ -41,25 +41,22 @@ PImageNativeLoaderXpm::~PImageNativeLoaderXpm(void)
 //! @param width Set to the width of image.
 //! @param height Set to the height of image.
 //! @param alpha Set to wheter image has alpha channel.
-//! @return Pointer to data on success, else NULL.
+//! @return Pointer to data on success, else 0.
 uchar*
-PImageNativeLoaderXpm::load(const std::string &file, uint &width, uint &height,
-                            bool &alpha)
+PImageNativeLoaderXpm::load(const std::string &file, uint &width, uint &height, bool &alpha)
 {
     XpmImage xpm_image;
     XpmInfo xpm_info;
 
     // Read XPM to XpmImage format.
-    if (XpmReadFileToXpmImage((char*) file.c_str(),
-                              &xpm_image, &xpm_info) != Success) {
+    if (XpmReadFileToXpmImage((char*) file.c_str(), &xpm_image, &xpm_info) != Success) {
         cerr << " *** WARNING: " << file << " not a valid XPM file!" << endl;
-        return NULL;
+        return 0;
     }
 
-    if (! xpm_image.ncolors || ! xpm_image.data
-            || ! xpm_image.width || ! xpm_image.height) {
+    if (! xpm_image.ncolors || ! xpm_image.data || ! xpm_image.width || ! xpm_image.height) {
         cerr << " *** WARNING: " << file << " invalid file information!" << endl;
-        return NULL;
+        return 0;
     }
 
     // Build XpmColor -> RGBA Table.

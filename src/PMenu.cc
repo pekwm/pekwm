@@ -221,8 +221,8 @@ PMenu::handleMotionEvent(XMotionEvent *ev)
         // check motion threshold
         if (ae && (ae->threshold > 0)) {
             if (! ActionHandler::checkAEThreshold(ev->x_root, ev->y_root,
-                                                 _pointer_x, _pointer_y, ae->threshold)) {
-                ae = NULL;
+                                                  _pointer_x, _pointer_y, ae->threshold)) {
+                ae = 0;
             }
         }
         return ae;
@@ -708,7 +708,7 @@ PMenu::insert(PMenu::Item *item)
 
 //! @brief Creates and inserts Item
 //! @param name Name of objet to create and insert
-//! @param wo_ref PWinObj to refer to, defaults to NULL
+//! @param wo_ref PWinObj to refer to, defaults to 0
 void
 PMenu::insert(const std::wstring &name, PWinObj *wo_ref, PTexture *icon)
 {
@@ -722,7 +722,7 @@ PMenu::insert(const std::wstring &name, PWinObj *wo_ref, PTexture *icon)
 //! @brief Creates and inserts Item
 //! @param name Name of object to create and insert
 //! @param ae ActionEvent for the object
-//! @param wo_ref PWinObj to refer to, defaults to NULL
+//! @param wo_ref PWinObj to refer to, defaults to 0
 void
 PMenu::insert(const std::wstring &name, const ActionEvent &ae, PWinObj *wo_ref, PTexture *icon)
 {
@@ -742,7 +742,7 @@ PMenu::remove(PMenu::Item *item)
 #ifdef DEBUG
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "PMenu(" << this << ")::remove(" << item << ")" << endl
-             << " *** item == NULL" << endl;
+             << " *** item == 0" << endl;
 #endif // DEBUG
         return;
     }
@@ -850,7 +850,7 @@ PMenu::gotoParentMenu(void)
     _menu_parent->giveInputFocus();
 }
 
-//! @brief Selects item, if NULL/not in list current item is deselected
+//! @brief Selects item, if 0/not in list current item is deselected
 //! @param item Item to select
 //! @param unmap_submenu Defaults to true
 void
@@ -953,7 +953,7 @@ PMenu::findItem(int x, int y)
             return *it;
         }
     }
-    return NULL;
+    return 0;
 }
 
 //! @brief Moves the menu relative to it's parent to make it fit on screen

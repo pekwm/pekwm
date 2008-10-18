@@ -55,14 +55,14 @@ using std::wstring;
 list<Frame*> Frame::_frame_list = list<Frame*>();
 vector<uint> Frame::_frameid_list = vector<uint>();
 
-Frame* Frame::_tag_frame = NULL;
+Frame* Frame::_tag_frame = 0;
 bool Frame::_tag_behind = false;
 
 //! @brief Frame constructor
 Frame::Frame(Client *client, AutoProperty *ap)
     : PDecor(WindowManager::inst()->getScreen()->getDpy(), WindowManager::inst()->getTheme(),
              Frame::getClientDecorName(client)),
-      _id(0), _client(NULL), _class_hint(NULL),
+      _id(0), _client(0), _class_hint(0),
       _non_fullscreen_decor_state(0), _non_fullscreen_layer(LAYER_NORMAL)
 {
     // setup basic pointers
@@ -201,7 +201,7 @@ Frame::~Frame(void)
     Workspaces::instance()->remove(this);
     WindowManager::inst()->removeFromFrameList(this);
     if (_tag_frame == this) {
-        _tag_frame = NULL;
+        _tag_frame = 0;
     }
 
     returnFrameID(_id);
@@ -266,10 +266,10 @@ Frame::handleMotionEvent(XMotionEvent *ev)
     // This is true when we have a title button pressed and then we don't want
     // to be able to drag windows around, therefore we ignore the event
     if (_button) {
-        return NULL;
+        return 0;
     }
 
-    ActionEvent *ae = NULL;
+    ActionEvent *ae = 0;
     uint button = _scr->getButtonFromState(ev->state);
 
     if (ev->window == getTitleWindow()) {
@@ -296,7 +296,7 @@ Frame::handleMotionEvent(XMotionEvent *ev)
     if (ae && (ae->threshold > 0)) {
         if (! ActionHandler::checkAEThreshold(ev->x_root, ev->y_root,
                                              _pointer_x, _pointer_y, ae->threshold)) {
-            ae = NULL;
+            ae = 0;
         }
     }
 
@@ -307,8 +307,8 @@ Frame::handleMotionEvent(XMotionEvent *ev)
 ActionEvent*
 Frame::handleEnterEvent(XCrossingEvent *ev)
 {
-    ActionEvent *ae = NULL;
-    list<ActionEvent> *al = NULL;
+    ActionEvent *ae = 0;
+    list<ActionEvent> *al = 0;
 
     if (ev->window == getTitleWindow()) {
         al = Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_TITLE_FRAME);
@@ -352,7 +352,7 @@ ActionEvent*
 Frame::handleMapRequest(XMapRequestEvent *ev)
 {
     if (! _client || (ev->window != _client->getWindow())) {
-        return NULL;
+        return 0;
     }
 
     if (! _sticky && (_workspace != Workspaces::instance()->getActive())) {
@@ -360,12 +360,12 @@ Frame::handleMapRequest(XMapRequestEvent *ev)
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "Ignoring MapRequest, not on current workspace!" << endl;
 #endif // DEBUG
-        return NULL;
+        return 0;
     }
 
     mapWindow();
 
-    return NULL;
+    return 0;
 }
 
 //! @brief
@@ -380,7 +380,7 @@ Frame::handleUnmapEvent(XUnmapEvent *ev)
         }
     }
 
-    return NULL;
+    return 0;
 }
 
 // END - PWinObj interface.
@@ -682,13 +682,13 @@ Frame::setSkip(uint skip)
 
 //! @brief Find Frame with Window
 //! @param win Window to search for.
-//! @return Frame if found, else NULL.
+//! @return Frame if found, else 0.
 Frame*
 Frame::findFrameFromWindow(Window win)
 {
     // Validate input window.
     if ((win == None) || (win == PScreen::instance()->getRoot())) {
-        return NULL;
+        return 0;
     }
 
     list<Frame*>::iterator it(_frame_list.begin());
@@ -698,12 +698,12 @@ Frame::findFrameFromWindow(Window win)
         }
     }
 
-    return NULL;
+    return 0;
 }
 
 //! @brief Find Frame with id.
 //! @param id ID to search for.
-//! @return Frame if found, else NULL.
+//! @return Frame if found, else 0.
 Frame*
 Frame::findFrameFromID(uint id)
 {
@@ -714,7 +714,7 @@ Frame::findFrameFromID(uint id)
         }
     }
 
-    return NULL;
+    return 0;
 }
 
 //! @brief
@@ -851,7 +851,7 @@ Frame::detachClient(Client *client)
         removeChild(client);
 
         client->move(_gm.x, _gm.y + borderTop());
-        Frame *frame = new Frame(client, NULL);
+        Frame *frame = new Frame(client, 0);
 
         client->setParent(frame);
         client->setWorkspace(Workspaces::instance()->getActive());
@@ -941,7 +941,7 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: r
             sw->unmapWindow();
             _scr->ungrabPointer();
 
-            Client *search = NULL;
+            Client *search = 0;
 
             // only group if we have grouping turned on
             if (WindowManager::inst()->isAllowGrouping()) {
@@ -986,7 +986,7 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: r
 
                 client->move(e.xmotion.x_root, e.xmotion.y_root);
 
-                Frame *frame = new Frame(client, NULL);
+                Frame *frame = new Frame(client, 0);
                 client->setParent(frame);
 
                 // make sure the client ends up on the current workspace
@@ -1575,8 +1575,8 @@ Frame::setStateIconified(StateAction sa)
 void
 Frame::setStateTagged(StateAction sa, bool behind)
 {
-    if (ActionUtil::needToggle(sa, (_tag_frame != NULL))) {
-        _tag_frame = (this == _tag_frame) ? NULL : this;
+    if (ActionUtil::needToggle(sa, (_tag_frame != 0))) {
+        _tag_frame = (this == _tag_frame) ? 0 : this;
         _tag_behind = behind;
     }
 }

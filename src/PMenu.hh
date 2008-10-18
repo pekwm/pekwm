@@ -32,8 +32,7 @@ public:
         enum Type {
             MENU_ITEM_NORMAL, MENU_ITEM_SEPARATOR, MENU_ITEM_HIDDEN
         };
-        Item(const std::wstring &name,
-             PWinObj *wo_ref = NULL, PTexture *icon = NULL);
+        Item(const std::wstring &name, PWinObj *wo_ref = 0, PTexture *icon = 0);
         virtual ~Item(void);
 
         inline int getX(void) const { return _x; }
@@ -89,9 +88,7 @@ public:
 
     static inline PMenu *findMenu(Window win) {
         std::map<Window, PMenu*>::iterator it = _menu_map.find(win);
-        if (it != _menu_map.end())
-            return it->second;
-        return NULL;
+        return (it != _menu_map.end()) ? it->second : 0;
     }
 
     inline const std::string &getName(void) { return _name; }
@@ -103,9 +100,9 @@ public:
     void setTitle(const std::wstring &title);
 
     virtual void insert(PMenu::Item *item);
-    virtual void insert(const std::wstring &name, PWinObj *wo_ref = NULL, PTexture *icon = NULL);
+    virtual void insert(const std::wstring &name, PWinObj *wo_ref = 0, PTexture *icon = 0);
     virtual void insert(const std::wstring &name, const ActionEvent &ae,
-                        PWinObj *wo_ref = NULL, PTexture *icon = NULL);
+                        PWinObj *wo_ref = 0, PTexture *icon = 0);
     virtual void remove(PMenu::Item *item);
     virtual void removeAll(void);
 

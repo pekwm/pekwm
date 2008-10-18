@@ -222,7 +222,7 @@ ActionMenu::parse(CfgParser::Entry *section, bool has_dynamic)
         if (value) {
             icon = TextureHandler::instance()->getTexture("IMAGE " + value->get_value());
         } else {
-            icon = NULL;
+            icon = 0;
         }
 
         if (*(*it) == "SUBMENU") {
@@ -238,7 +238,7 @@ ActionMenu::parse(CfgParser::Entry *section, bool has_dynamic)
                 item->setDynamic(has_dynamic);
             }
         } else if (*(*it) == "SEPARATOR") {
-            item = new PMenu::Item(L"", NULL, icon);
+            item = new PMenu::Item(L"", 0, icon);
             item->setDynamic(has_dynamic);
             item->setType(PMenu::Item::MENU_ITEM_SEPARATOR);
         } else {
@@ -269,7 +269,7 @@ ActionMenu::parse(CfgParser::Entry *section, bool has_dynamic)
 void
 ActionMenu::rebuildDynamic(void)
 {
-    PMenu::Item* item = NULL;
+    PMenu::Item* item = 0;
     list<PMenu::Item*>::iterator it;
     for (it = _item_list.begin(); it != _item_list.end(); ++it) {
         if ((*it)->getAE().isOnlyAction(ACTION_MENU_DYN)) {

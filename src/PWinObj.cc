@@ -23,15 +23,15 @@ using std::find;
 using std::vector;
 using std::map;
 
-PWinObj* PWinObj::_focused_wo = (PWinObj*) NULL;
-PWinObj* PWinObj::_root_wo = (PWinObj*) NULL;
+PWinObj* PWinObj::_focused_wo = (PWinObj*) 0;
+PWinObj* PWinObj::_root_wo = (PWinObj*) 0;
 vector<PWinObj*> PWinObj::_wo_list = vector<PWinObj*>();
 map<Window, PWinObj*> PWinObj::_wo_map = map<Window, PWinObj*>();
 
 //! @brief PWinObj constructor.
 PWinObj::PWinObj(Display *dpy)
     : _dpy(dpy), _window(None),
-      _parent(NULL), _type(WO_NO_TYPE),
+      _parent(0), _type(WO_NO_TYPE),
       _workspace(0), _layer(LAYER_NORMAL),
       _mapped(false), _iconified(false), _hidden(false),
       _focused(false), _sticky(false),
@@ -43,7 +43,7 @@ PWinObj::PWinObj(Display *dpy)
 PWinObj::~PWinObj(void)
 {
     if (_focused_wo == this) {
-        _focused_wo = NULL;
+        _focused_wo = 0;
     }
 }
 

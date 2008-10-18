@@ -39,9 +39,9 @@ using std::endl;
 Harbour::Harbour(PScreen *s, Theme *t, Workspaces *w) :
         _scr(s), _theme(t), _workspaces(w),
 #ifdef MENUS
-        _harbour_menu(NULL),
+        _harbour_menu(0),
 #endif // MENUS
-        _hidden(false), _size(0), _strut(NULL),
+        _hidden(false), _size(0), _strut(0),
         _last_button_x(0), _last_button_y(0)
 {
     _strut = new Strut();
@@ -134,7 +134,7 @@ Harbour::removeAllDockApps(void)
 DockApp*
 Harbour::findDockApp(Window win)
 {
-    DockApp *dockapp = NULL;
+    DockApp *dockapp = 0;
 
     list<DockApp*>::iterator it(_da_list.begin());
     for (; it != _da_list.end(); ++it) {
@@ -151,7 +151,7 @@ Harbour::findDockApp(Window win)
 DockApp*
 Harbour::findDockAppFromFrame(Window win)
 {
-    DockApp *dockapp = NULL;
+    DockApp *dockapp = 0;
 
     list<DockApp*>::iterator it(_da_list.begin());
     for (; it != _da_list.end(); ++it) {

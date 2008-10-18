@@ -47,7 +47,7 @@ const uint PScreen::MODIFIER_TO_MASK[] = {
 };
 const uint PScreen::MODIFIER_TO_MASK_NUM = sizeof(PScreen::MODIFIER_TO_MASK[0]) / sizeof(PScreen::MODIFIER_TO_MASK);
 
-PScreen* PScreen::_instance = NULL;
+PScreen* PScreen::_instance = 0;
 
 //! @brief PScreen::Visual constructor.
 //! @param x_visual X Visual to wrap.
@@ -152,7 +152,7 @@ PScreen::~PScreen(void) {
         XFreeModifiermap(_modifier_map);
     }
 
-    _instance = NULL;
+    _instance = 0;
 }
 
 //! @brief Get next event using select to avoid signal blocking
@@ -174,7 +174,7 @@ PScreen::getNextEvent(XEvent &ev)
     FD_ZERO(&rfds);
     FD_SET(_fd, &rfds);
 
-    ret = select(_fd + 1, &rfds, NULL, NULL, NULL);
+    ret = select(_fd + 1, &rfds, 0, 0, 0);
     if (ret > 0) {
         XNextEvent(_dpy, &ev);
     }

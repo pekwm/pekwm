@@ -81,10 +81,10 @@ FrameListMenu::handleItemExec(PMenu::Item *item)
     }
 
     if (! PWinObj::windowObjectExists(_wo_ref)) {
-        _wo_ref = NULL;
+        _wo_ref = 0;
     }
     if (! PWinObj::windowObjectExists(item->getWORef())) {
-        item->setWORef(NULL);
+        item->setWORef(0);
     }
 
     switch (_menu_type) {

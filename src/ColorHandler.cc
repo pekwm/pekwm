@@ -22,7 +22,7 @@ using std::endl;
 using std::list;
 using std::string;
 
-ColorHandler* ColorHandler::_instance = NULL;
+ColorHandler* ColorHandler::_instance = 0;
 
 //! @brief ColorHandler constructor
 ColorHandler::ColorHandler(Display *dpy)
@@ -48,7 +48,7 @@ ColorHandler::~ColorHandler(void)
 {
     freeColors(true);
 
-    _instance = NULL;
+    _instance = 0;
 }
 
 //! @brief Gets or allocs a color
@@ -83,7 +83,7 @@ ColorHandler::getColor(const std::string &color)
              << " *** failed to alloc color: " << color << endl;
 #endif // DEBUG
         delete entry;
-        entry = NULL;
+        entry = 0;
     } else {
         _color_list.push_back(entry);
     }

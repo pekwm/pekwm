@@ -23,8 +23,9 @@ using std::string;
 // PTextureSolid
 
 //! @brief PTextureSolid constructor
-PTextureSolid::PTextureSolid(Display *dpy, const std::string &color) : PTexture(dpy),
-        _xc(NULL)
+PTextureSolid::PTextureSolid(Display *dpy, const std::string &color)
+    : PTexture(dpy),
+      _xc(0)
 {
     // PTexture attributes
     _type = PTexture::TYPE_SOLID;
@@ -83,7 +84,7 @@ PTextureSolid::unsetColor(void)
     if (_xc) {
         ColorHandler::instance()->returnColor(_xc);
 
-        _xc = NULL;
+        _xc = 0;
         _ok = false;
     }
 }
@@ -91,11 +92,12 @@ PTextureSolid::unsetColor(void)
 // PTextureSolidRaised
 
 //! @brief PTextureSolidRaised constructor
-PTextureSolidRaised::PTextureSolidRaised(Display *dpy, const std::string &base, const std::string &hi, const std::string &lo) : PTexture(dpy),
-        _xc_base(NULL), _xc_hi(NULL), _xc_lo(NULL),
-        _lw(1), _loff(0), _loff2(0),
-        _draw_top(true), _draw_bottom(true),
-        _draw_left(true), _draw_right(true)
+PTextureSolidRaised::PTextureSolidRaised(Display *dpy, const std::string &base, const std::string &hi, const std::string &lo)
+    : PTexture(dpy),
+      _xc_base(0), _xc_hi(0), _xc_lo(0),
+      _lw(1), _loff(0), _loff2(0),
+      _draw_top(true), _draw_bottom(true),
+      _draw_left(true), _draw_right(true)
 {
     // PTexture attributes
     _type = PTexture::TYPE_SOLID_RAISED;
@@ -205,7 +207,7 @@ PTextureSolidRaised::unsetColor(void)
     ColorHandler::instance()->returnColor(_xc_hi);
     ColorHandler::instance()->returnColor(_xc_lo);
 
-    _xc_base = _xc_hi = _xc_lo = NULL;
+    _xc_base = _xc_hi = _xc_lo = 0;
 }
 
 // PTextureImage
@@ -213,7 +215,7 @@ PTextureSolidRaised::unsetColor(void)
 //! @brief PTextureImage constructor
 PTextureImage::PTextureImage(Display *dpy)
   : PTexture(dpy),
-    _image(NULL)
+    _image(0)
 {
   // PTexture attributes
   _type = PTexture::TYPE_IMAGE;
@@ -221,8 +223,9 @@ PTextureImage::PTextureImage(Display *dpy)
                                              
 
 //! @brief PTextureImage constructor
-PTextureImage::PTextureImage(Display *dpy, const std::string &image) : PTexture(dpy),
-        _image(NULL)
+PTextureImage::PTextureImage(Display *dpy, const std::string &image)
+    : PTexture(dpy),
+      _image(0)
 {
     // PTexture attributes
     _type = PTexture::TYPE_IMAGE;
@@ -279,7 +282,7 @@ void
 PTextureImage::unsetImage(void)
 {
     ImageHandler::instance()->returnImage(_image);
-    _image = NULL;
+    _image = 0;
     _width = 1;
     _height = 1;
     _ok = false;

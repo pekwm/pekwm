@@ -26,11 +26,11 @@ using std::endl;
 
 using std::map;
 
-ScreenResources *ScreenResources::_instance = NULL;
+ScreenResources *ScreenResources::_instance = 0;
 
 //! @brief ScreenResources constructor
-ScreenResources::ScreenResources(void) :
-        _pixmap_handler(NULL)
+ScreenResources::ScreenResources(void)
+    : _pixmap_handler(0)
 {
     if (_instance) {
 #ifdef DEBUG
@@ -75,5 +75,5 @@ ScreenResources::~ScreenResources(void)
         delete _pixmap_handler;
     }
 
-    _instance = NULL;
+    _instance = 0;
 }

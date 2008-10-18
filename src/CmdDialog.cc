@@ -107,7 +107,7 @@ CmdDialog::unmapWindow(void)
     if (_mapped) {
         PDecor::unmapWindow();
 
-        _wo_ref = NULL;
+        _wo_ref = 0;
         bufClear();
     }
 }

@@ -30,7 +30,7 @@ using std::list;
 using std::vector;
 using std::string;
 
-ImageHandler *ImageHandler::_instance = NULL;
+ImageHandler *ImageHandler::_instance = 0;
 
 //! @brief ImageHandler constructor
 ImageHandler::ImageHandler(void)
@@ -85,7 +85,7 @@ PImage*
 ImageHandler::getImage(const std::string &file)
 {
     if (! file.size()) {
-        return NULL;
+        return 0;
     }
 
     string real_file;

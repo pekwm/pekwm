@@ -92,7 +92,7 @@ PDecor::Button::findAction(XButtonEvent *ev)
         if (it->mod == ev->state && it->sym == ev->button)
             return &*it;
     }
-    return NULL;
+    return 0;
 }
 
 //! @brief Sets the state of the button

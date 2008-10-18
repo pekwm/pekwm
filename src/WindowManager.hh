@@ -137,9 +137,7 @@ class RootWO : public PWinObj {
 #ifdef MENUS
     inline PMenu* getMenu(const std::string &name) {
         std::map<std::string, PMenu*>::iterator it = _menu_map.find(name);
-        if (it != _menu_map.end())
-            return it->second;
-        return NULL;
+        return (it != _menu_map.end()) ? it->second : 0;
     }
 #endif // MENUS
 

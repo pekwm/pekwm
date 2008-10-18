@@ -31,7 +31,7 @@ using std::list;
 using std::vector;
 using std::find;
 
-KeyGrabber* KeyGrabber::_instance = NULL;
+KeyGrabber* KeyGrabber::_instance = 0;
 
 //! @brief Constructor for Chain class
 KeyGrabber::Chain::Chain(uint mod, uint key) :
@@ -70,7 +70,7 @@ KeyGrabber::Chain::findChain(XKeyEvent *ev)
         }
     }
 
-    return NULL;
+    return 0;
 }
 
 //! @brief Searches the _keys list for an action
@@ -86,7 +86,7 @@ KeyGrabber::Chain::findAction(XKeyEvent *ev)
         }
     }
 
-    return NULL;
+    return 0;
 }
 
 //! @brief KeyGrabber constructor
@@ -114,7 +114,7 @@ KeyGrabber::KeyGrabber(PScreen *scr)
 //! @brief Destructor for KeyGrabber class
 KeyGrabber::~KeyGrabber(void)
 {
-    _instance = NULL;
+    _instance = 0;
 }
 
 //! @brief Parses the "KeyFile" and inserts into _global_keys.
@@ -327,11 +327,11 @@ ActionEvent*
 KeyGrabber::findAction(XKeyEvent *ev, KeyGrabber::Chain *chain)
 {
     if (! ev) {
-        return NULL;
+        return 0;
     }
     ev->state &= ~_num_lock & ~_scroll_lock & ~LockMask;
 
-    ActionEvent *action = NULL;
+    ActionEvent *action = 0;
     KeyGrabber::Chain *sub_chain = _global_chain.findChain(ev);
     if (sub_chain && _scr->grabKeyboard(_scr->getRoot())) {
         XEvent c_ev;
@@ -365,7 +365,7 @@ KeyGrabber::findAction(XKeyEvent *ev, KeyGrabber::Chain *chain)
 ActionEvent*
 KeyGrabber::findAction(XKeyEvent *ev, PWinObj::Type type)
 {
-    ActionEvent *ae = NULL;
+    ActionEvent *ae = 0;
 
 #ifdef MENUS
     if (type == PWinObj::WO_MENU) {

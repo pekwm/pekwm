@@ -167,7 +167,7 @@ RegexString::parse_replace(const std::wstring &or_replace)
         if (end > begin) {
             // Convert number and add item.
             part = or_replace.substr(begin, end - last);
-            int ref = strtol(Util::to_mb_str(part).c_str(), NULL, 10);
+            int ref = strtol(Util::to_mb_str(part).c_str(), 0, 10);
             if (ref >= 0) {
                 _ref_list.push_back(RegexString::Part(L"", ref));
                 if (ref > _ref_max) {

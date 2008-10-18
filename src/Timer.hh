@@ -159,12 +159,12 @@ private:
     struct itimerval value;
 
     timerclear(&value.it_interval);
-    if (gettimeofday(&value.it_value, NULL) == -1) {
+    if (gettimeofday(&value.it_value, 0) == -1) {
       // FIXME: raise exception?
     }
     timersub(&event->timeval, &value.it_value, &value.it_value);
 
-    setitimer(ITIMER_REAL, &value, NULL);
+    setitimer(ITIMER_REAL, &value, 0);
   }
 
 private:

@@ -59,7 +59,7 @@ using std::list;
 using std::find;
 using std::map;
 
-ActionHandler *ActionHandler::_instance = NULL;
+ActionHandler *ActionHandler::_instance = 0;
 
 //! @brief ActionHandler constructor
 ActionHandler::ActionHandler(void)
@@ -76,19 +76,19 @@ ActionHandler::ActionHandler(void)
 //! @brief ActionHandler destructor
 ActionHandler::~ActionHandler(void)
 {
-    _instance = NULL;
+    _instance = 0;
 }
 
 //! @brief Executes an ActionPerformed event.
 void
 ActionHandler::handleAction(const ActionPerformed &ap)
 {
-    Client *client = NULL;
-    Frame *frame = NULL;
+    Client *client = 0;
+    Frame *frame = 0;
 #ifdef MENUS
-    PMenu *menu = NULL;
+    PMenu *menu = 0;
 #endif // MENUS
-    PDecor *decor = NULL;
+    PDecor *decor = 0;
     bool matched = false;
 
     // determine what type if any of the window object that is focused
@@ -271,7 +271,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 break;
             case ACTION_CLOSE:
                 menu->unmapAll();
-                WindowManager::inst()->findWOAndFocus(NULL);
+                WindowManager::inst()->findWOAndFocus(0);
                 break;
             default:
                 matched = false;
@@ -296,7 +296,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
             case ACTION_CLOSE:
                 decor->unmapWindow();
                 if (decor->getType() == PWinObj::WO_CMD_DIALOG) {
-                    WindowManager::inst()->findWOAndFocus(NULL);
+                    WindowManager::inst()->findWOAndFocus(0);
                 }
                 break;
             case ACTION_WARP_TO_WORKSPACE:
@@ -500,27 +500,25 @@ ActionHandler::checkAEThreshold(int x, int y, int x_t, int y_t, uint t)
 
 //! @brief Searches the actions list for an matching event
 ActionEvent*
-ActionHandler::findMouseAction(uint button, uint state, MouseEventType type,
-                               std::list<ActionEvent> *actions)
+ActionHandler::findMouseAction(uint button, uint state, MouseEventType type, std::list<ActionEvent> *actions)
 {
-    if (! actions)
-        return NULL;
+    if (! actions) {
+        return 0;
+    }
 
-    state &= ~PScreen::instance()->getNumLock() &
-             ~PScreen::instance()->getScrollLock() & ~LockMask;
-    state &= ~Button1Mask & ~Button2Mask & ~Button3Mask
-             & ~Button4Mask & ~Button5Mask;
+    state &= ~PScreen::instance()->getNumLock() & ~PScreen::instance()->getScrollLock() & ~LockMask;
+    state &= ~Button1Mask & ~Button2Mask & ~Button3Mask & ~Button4Mask & ~Button5Mask;
 
     list<ActionEvent>::iterator it(actions->begin());
     for (; it != actions->end(); ++it) {
-        if ((it->type == unsigned(type)) &&
-                ((it->mod == MOD_ANY) || (it->mod == state)) &&
-                ((it->sym == BUTTON_ANY) || (it->sym == button))) {
+        if ((it->type == unsigned(type))
+            && ((it->mod == MOD_ANY) || (it->mod == state))
+            && ((it->sym == BUTTON_ANY) || (it->sym == button))) {
             return &*it;
         }
     }
 
-    return NULL;
+    return 0;
 }
 
 //! @brief Searches for a client matching titles and makes it visible
@@ -634,7 +632,7 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off,
     }
 
     // find the focused window object
-    PWinObj *fo_wo = NULL;
+    PWinObj *fo_wo = 0;
     if (PWinObj::getFocusedPWinObj()) {
         if (PWinObj::getFocusedPWinObj()->getType() == PWinObj::WO_CLIENT) {
             fo_wo = PWinObj::getFocusedPWinObj()->getParent();
@@ -931,7 +929,7 @@ ActionHandler::findClientFromTitle(const std::wstring &or_title)
         }
     }
 
-    return NULL;
+    return 0;
 }
 
 //! @brief Makes sure Client gets visible and focus it.

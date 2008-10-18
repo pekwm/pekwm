@@ -24,12 +24,12 @@ using std::cerr;
 using std::endl;
 #endif // DEBUG
 
-StatusWindow *StatusWindow::_instance = NULL;
+StatusWindow *StatusWindow::_instance = 0;
 
 //! @brief StatusWindow constructor
-StatusWindow::StatusWindow(Display *dpy, Theme *theme) :
-        PDecor(dpy, theme, "STATUSWINDOW"),
-        _bg(None)
+StatusWindow::StatusWindow(Display *dpy, Theme *theme)
+    : PDecor(dpy, theme, "STATUSWINDOW"),
+      _bg(None)
 {
     if (_instance) {
 #ifdef DEBUG
@@ -79,7 +79,7 @@ StatusWindow::~StatusWindow(void)
 
     unloadTheme();
 
-    _instance = NULL;
+    _instance = 0;
 }
 
 //! @brief Resizes window to fit the text and renders text

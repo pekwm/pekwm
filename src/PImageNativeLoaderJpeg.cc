@@ -38,17 +38,16 @@ PImageNativeLoaderJpeg::~PImageNativeLoaderJpeg(void)
 //! @param width Set to the width of image.
 //! @param height Set to the height of image.
 //! @param alpha Set to wheter image has alpha channel.
-//! @return Pointer to data on success, else NULL.
+//! @return Pointer to data on success, else 0.
 uchar*
-PImageNativeLoaderJpeg::load(const std::string &file, uint &width,
-                             uint &height, bool &alpha)
+PImageNativeLoaderJpeg::load(const std::string &file, uint &width, uint &height, bool &alpha)
 {
     FILE *fp;
 
     fp= fopen(file.c_str(), "rb");
     if (! fp) {
         cerr << " *** WARNING: unable to open " << file << " for reading!" << endl;
-        return NULL;
+        return 0;
     }
 
     struct jpeg_decompress_struct cinfo;

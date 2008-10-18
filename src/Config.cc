@@ -36,7 +36,7 @@ using std::pair;
 using std::ifstream;
 using std::ofstream;
 
-Config* Config::_instance = NULL;
+Config* Config::_instance = 0;
 
 const int FRAME_MASK =
     FRAME_OK|FRAME_BORDER_OK|CLIENT_OK|WINDOWMENU_OK|
@@ -335,7 +335,7 @@ Config::Config(void) :
 //! @brief Destructor for Config class
 Config::~Config(void)
 {
-    _instance = NULL;
+    _instance = 0;
 
     map<MouseActionListName, list<ActionEvent>* >::iterator it;
     for (it = _mouse_action_map.begin(); it != _mouse_action_map.end(); ++it) {
@@ -537,10 +537,10 @@ Config::loadScreen(CfgParser::Entry *section)
         vector<string> sizes;
         if (Util::splitString(edge_size, sizes, " \t", 4) == 4) {
             for (vector<string>::iterator it(sizes.begin()); it != sizes.end(); ++it) {
-                _screen_edge_sizes.push_back(strtol(it->c_str(), NULL, 10));
+                _screen_edge_sizes.push_back(strtol(it->c_str(), 0, 10));
             }
         } else {
-            edge_size_all = strtol(edge_size.c_str(), NULL, 10);
+            edge_size_all = strtol(edge_size.c_str(), 0, 10);
         }
     }
 
@@ -737,7 +737,7 @@ Config::parseKey(const std::string &key_string, uint &mod, uint &key)
     if (Util::splitString(key_string, tok, " \t")) {
         num = tok.size() - 1;
         if ((tok[num].size() > 1) && (tok[num][0] == '#')) {
-            key = strtol(tok[num].c_str() + 1, NULL, 10);
+            key = strtol(tok[num].c_str() + 1, 0, 10);
         } else {
             key = XKeysymToKeycode(PScreen::instance()->getDpy(),
                                    XStringToKeysym(tok[num].c_str()));
@@ -827,7 +827,7 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
                 case ACTION_ACTIVATE_CLIENT_REL:
                 case ACTION_MOVE_CLIENT_REL:
                 case ACTION_GOTO_CLIENT_ID:
-                    action.setParamI(0, strtol(tok[1].c_str(), NULL, 10));
+                    action.setParamI(0, strtol(tok[1].c_str(), 0, 10));
                     break;
                 case ACTION_SET:
                 case ACTION_UNSET:
@@ -846,7 +846,7 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
                     action.setParamI(0, ParseUtil::getValue<DirectionType>(tok[1], _direction_map));
                     break;
                 case ACTION_ACTIVATE_CLIENT_NUM:
-                    action.setParamI(0, strtol(tok[1].c_str(), NULL, 10) - 1);
+                    action.setParamI(0, strtol(tok[1].c_str(), 0, 10) - 1);
                     if (action.getParamI(0) < 0) {
                         cerr << "*** WARNING: Negative number to ActivateClientNum." << endl;
                         action.setParamI(0, 0);
@@ -1071,7 +1071,7 @@ Config::parseMoveResizeAction(const std::string &action_string, Action &action)
                 case RESIZE_HORIZONTAL:
                 case RESIZE_VERTICAL:
                 case MOVE_SNAP:
-                    action.setParamI(0, strtol(tok[1].c_str(), NULL, 10));
+                    action.setParamI(0, strtol(tok[1].c_str(), 0, 10));
                     break;
                 default:
                     // Do nothing.
@@ -1278,7 +1278,7 @@ Config::getMouseButton(const std::string &button)
     uint btn;
 
     if (button.size() == 1) { // it's a button
-        btn = unsigned(strtol(button.c_str(), NULL, 10));
+        btn = unsigned(strtol(button.c_str(), 0, 10));
     } else if (strcasecmp(button.c_str(), "ANY") == 0) { // any button
         btn = BUTTON_ANY;
     } else {
@@ -1508,7 +1508,7 @@ Config::parseButtons(CfgParser::Entry *section, std::list<ActionEvent>* mouse_li
         if (ae.type == MOUSE_EVENT_MOTION) {
             value = (*it)->get_section()->find_entry("THRESHOLD");
             if (value) {
-                ae.threshold = strtol(value->get_value().c_str(), NULL, 10);
+                ae.threshold = strtol(value->get_value().c_str(), 0, 10);
             } else {
                 ae.threshold = 0;
             }
@@ -1525,7 +1525,7 @@ Config::parseButtons(CfgParser::Entry *section, std::list<ActionEvent>* mouse_li
 list<ActionEvent>*
 Config::getBorderListFromPosition(uint pos)
 {
-    list<ActionEvent> *ret = NULL;
+    list<ActionEvent> *ret = 0;
 
     switch (pos) {
     case BORDER_TOP_LEFT:
@@ -1560,7 +1560,7 @@ Config::getBorderListFromPosition(uint pos)
 list<ActionEvent>*
 Config::getEdgeListFromPosition(uint pos)
 {
-    list<ActionEvent> *ret = NULL;
+    list<ActionEvent> *ret = 0;
 
     switch (pos) {
     case SCREEN_EDGE_TOP:
@@ -1592,13 +1592,13 @@ Config::parseWorkspaceNumber(const std::string &workspace)
         // Workspace isn't relative, check for 2x2 and ordinary specification
         vector<string> tok;
         if (Util::splitString(workspace, tok, "x", 2) == 2) {
-            uint row = strtol(tok[0].c_str(), NULL, 10) - 1;
-            uint col = strtol(tok[1].c_str(), NULL, 10) - 1;
+            uint row = strtol(tok[0].c_str(), 0, 10) - 1;
+            uint col = strtol(tok[1].c_str(), 0, 10) - 1;
 
             num = _screen_workspaces_per_row * row + col;
 
         } else {
-            num = strtol(workspace.c_str(), NULL, 10) - 1;
+            num = strtol(workspace.c_str(), 0, 10) - 1;
         }
     }
 

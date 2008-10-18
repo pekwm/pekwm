@@ -39,7 +39,7 @@ PImageNativeIcon::loadFromWindow(Window win)
     bool status = false;
 
     Atom icon = EwmhAtoms::instance()->getAtom(NET_WM_ICON);
-    uchar *udata = NULL;
+    uchar *udata = 0;
     long expected = 2;
 
     // Start reading icon size

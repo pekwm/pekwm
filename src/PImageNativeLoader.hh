@@ -25,9 +25,8 @@ public:
     inline const char *getExt(void) const { return _ext; }
 
     //! @brief Loads file into data. (empty method, interface)
-    virtual uchar *load(const std::string &file, uint &width, uint &height,
-                        bool &alpha) {
-        return NULL;
+    virtual uchar *load(const std::string &file, uint &width, uint &height, bool &alpha) {
+        return 0;
     }
 
 private:

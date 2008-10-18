@@ -118,7 +118,7 @@ main(int argc, char **argv)
         WindowManager::destroy();
         Util::iconv_deinit();
 
-        execlp("/bin/sh", "sh" , "-c", restart_command.c_str(), (char*) NULL);
+        execlp("/bin/sh", "sh" , "-c", restart_command.c_str(), (char*) 0);
     }
 
     WindowManager::destroy();

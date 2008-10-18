@@ -19,10 +19,9 @@
 #include "DockApp.hh"
 
 //! @brief HarbourMenu constructor
-HarbourMenu::HarbourMenu(PScreen *scr, Theme *theme, Harbour *harbour) :
-        PMenu(scr->getDpy(), theme, L"Harbour", "HARBOUR"),
-        _harbour(harbour),
-        _dockapp(NULL)
+HarbourMenu::HarbourMenu(PScreen *scr, Theme *theme, Harbour *harbour)
+    : PMenu(scr->getDpy(), theme, L"Harbour", "HARBOUR"),
+      _harbour(harbour), _dockapp(0)
 {
     ActionEvent ae;
     Action action;
@@ -57,7 +56,7 @@ HarbourMenu::handleItemExec(PMenu::Item *item)
 
     } else if (item->getAE().isOnlyAction(ACTION_CLOSE)) {
         _dockapp->kill();
-        _dockapp = NULL;
+        _dockapp = 0;
     }
 }
 

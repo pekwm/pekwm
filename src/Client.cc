@@ -59,9 +59,9 @@ vector<uint> Client::_clientid_list = vector<uint>();
 
 Client::Client(Window new_client, bool is_new)
     : PWinObj(WindowManager::inst()->getScreen()->getDpy()),
-      _id(0), _size(NULL),
-      _transient(None), _strut(NULL), _icon(NULL),
-      _class_hint(NULL),
+      _id(0), _size(0),
+      _transient(None), _strut(0), _icon(0),
+      _class_hint(0),
       _alive(false), _marked(false),
       _send_focus_message(false), _send_close_message(false),
       _wm_hints_input(true), _cfg_request_lock(false),
@@ -306,13 +306,13 @@ Client::~Client(void)
 
     wo_ref_menu = static_cast<WORefMenu*>(WindowManager::inst()->getMenu("WINDOW"));
     if (this == wo_ref_menu->getWORef()) {
-        wo_ref_menu->setWORef(NULL);
+        wo_ref_menu->setWORef(0);
         wo_ref_menu->unmapAll();
     }
 
     wo_ref_menu = static_cast<WORefMenu*>(WindowManager::inst()->getMenu("DECORMENU"));
     if (this == wo_ref_menu->getWORef()) {
-        wo_ref_menu->setWORef(NULL);
+        wo_ref_menu->setWORef(0);
         wo_ref_menu->unmapAll();
     }
 #endif // MENUS
@@ -355,7 +355,7 @@ Client::~Client(void)
 
     if (_icon) {
         TextureHandler::instance()->returnTexture(_icon);
-        _icon = NULL;
+        _icon = 0;
     }
 
     PScreen::instance()->ungrabServer(true);
@@ -526,7 +526,7 @@ ActionEvent*
 Client::handleUnmapEvent(XUnmapEvent *ev)
 {
     if ((ev->window != ev->event) && (ev->send_event != true)) {
-        return NULL;
+        return 0;
     }
 
     // ICCCM 4.1.4 advices the window manager to trigger the transition to
@@ -547,20 +547,20 @@ Client::handleUnmapEvent(XUnmapEvent *ev)
     _alive = false;
     delete this;
 
-    return NULL;
+    return 0;
 }
 
 // END - PWinObj interface.
 
 //! @brief Finds the Client which holds the Window w.
 //! @param win Window to search for.
-//! @return Pointer to the client if found, else NULL
+//! @return Pointer to the client if found, else 0
 Client*
 Client::findClient(Window win)
 {
     // Validate input window.
     if ((win == None) || (win == PScreen::instance()->getRoot())) {
-        return NULL;
+        return 0;
     }
 
     list<Client*>::iterator it(_client_list.begin());
@@ -571,7 +571,7 @@ Client::findClient(Window win)
         }
     }
 
-    return NULL;
+    return 0;
 }
 
 //! @brief Finds the Client of Window win.
@@ -581,7 +581,7 @@ Client::findClientFromWindow(Window win)
 {
     // Validate input window.
     if (! win || win == PScreen::instance()->getRoot()) {
-        return NULL;
+        return 0;
     }
 
     list<Client*>::iterator it(_client_list.begin());
@@ -591,12 +591,12 @@ Client::findClientFromWindow(Window win)
         }
     }
 
-    return NULL;
+    return 0;
 }
 
 //! @brief Finds Client with equal ClassHint.
 //! @param class_hint ClassHint to search for.
-//! @return Client if found, else NULL.
+//! @return Client if found, else 0.
 Client*
 Client::findClientFromHint(const ClassHint *class_hint)
 {
@@ -607,12 +607,12 @@ Client::findClientFromHint(const ClassHint *class_hint)
         }
     }
 
-    return NULL;
+    return 0;
 }
 
 //! @brief Finds Client with id.
 //! @param id ID to search for.
-//! @return Client if found, else NULL.
+//! @return Client if found, else 0.
 Client*
 Client::findClientFromID(uint id)
 {
@@ -623,7 +623,7 @@ Client::findClientFromID(uint id)
         }
     }
 
-    return NULL;
+    return 0;
 }
 
 //! @brief Checks if the window has any Destroy or Unmap notifys.
@@ -734,7 +734,7 @@ Client::readEwmhHints(void)
 
     // try to figure out what kind of window we are and alter it acordingly
     int items;
-    Atom *atoms = NULL;
+    Atom *atoms = 0;
 
     EwmhAtomName window_type = WINDOW_TYPE;
     atoms = (Atom*) AtomUtil::getEwmhPropData(_window,
@@ -876,14 +876,14 @@ Client::readIcon(void)
 
         if (_icon) {
             TextureHandler::instance()->returnTexture(_icon);
-            _icon = NULL;
+            _icon = 0;
         }
     }
 }
 
 //! @brief Tries to find a AutoProp for the current client.
 //! @param type Defaults to 0
-//! @return AutoProperty if any is found, else NULL.
+//! @return AutoProperty if any is found, else 0.
 AutoProperty*
 Client::readAutoprops(uint type)
 {
@@ -897,7 +897,7 @@ Client::readAutoprops(uint type)
                 : ! data->isApplyOn(APPLY_ON_TRANSIENT_ONLY)) {
             applyAutoprops(data);
         } else {
-            data = NULL;
+            data = 0;
         }
     }
 
@@ -1178,7 +1178,7 @@ void Client::sendTakeFocusMessage(void)
     if (_send_focus_message) {
         {
             XEvent ev;
-            XChangeProperty(_dpy, RootWindow(_dpy, DefaultScreen(_dpy)), XA_PRIMARY, XA_STRING, 8, PropModeAppend, NULL, 0);
+            XChangeProperty(_dpy, RootWindow(_dpy, DefaultScreen(_dpy)), XA_PRIMARY, XA_STRING, 8, PropModeAppend, 0, 0);
             XWindowEvent(_dpy, RootWindow(_dpy, DefaultScreen(_dpy)), PropertyChangeMask, &ev);
             PScreen::instance()->setLastEventTime(ev.xproperty.time);
         }
@@ -1322,7 +1322,7 @@ Client::getMwmHints(Window win)
 {
     Atom real_type; int real_format;
     ulong items_read, items_left;
-    MwmHints *data = NULL;
+    MwmHints *data = 0;
     uchar *udata;
 
     int status =
@@ -1335,10 +1335,10 @@ Client::getMwmHints(Window win)
     if (status == Success) {
         if (items_read < MWM_HINTS_NUM) {
             XFree(udata);
-            udata = NULL;
+            udata = 0;
         }
     } else {
-        udata = NULL;
+        udata = 0;
     }
 
     if (udata) {
@@ -1541,7 +1541,7 @@ Client::getStrutHint(void)
     } else if (_strut) {
         PScreen::instance()->removeStrut(_strut);
         delete _strut;
-        _strut = NULL;
+        _strut = 0;
     }
 }
 
@@ -1554,5 +1554,5 @@ Client::removeStrutHint(void)
 
     PScreen::instance()->removeStrut(_strut);
     delete _strut;
-    _strut = NULL;
+    _strut = 0;
 }

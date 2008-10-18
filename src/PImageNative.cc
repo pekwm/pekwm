@@ -28,8 +28,9 @@ using std::string;
 list<PImageNativeLoader*> PImageNative::_loader_list = list<PImageNativeLoader*>();
 
 //! @brief PImageNative constructor.
-PImageNative::PImageNative(Display *dpy) : PImage(dpy),
-        _data(NULL), _has_alpha(false)
+PImageNative::PImageNative(Display *dpy)
+    : PImage(dpy),
+      _data(0), _has_alpha(false)
 {
 }
 
@@ -72,7 +73,7 @@ PImageNative::unload(void)
 {
     if (_data) {
         delete [] _data;
-        _data = NULL;
+        _data = 0;
     }
     if (_pixmap) {
         ScreenResources::instance()->getPixmapHandler()->returnPixmap(_pixmap);
@@ -331,7 +332,7 @@ PImageNative::createPixmap(uchar *data, uint width, uint height)
                   0, 0, 0, 0, width, height);
 
         delete [] ximage->data;
-        ximage->data = NULL;
+        ximage->data = 0;
         XDestroyImage(ximage);
     }
 
@@ -353,7 +354,7 @@ PImageNative::createMask(uchar *data, uint width, uint height)
     // Create XImage
     XImage *ximage;
     ximage = XCreateImage(_dpy, PScreen::instance()->getVisual()->getXVisual(),
-                          1, ZPixmap, 0, NULL, width, height, 32, 0);
+                          1, ZPixmap, 0, 0, width, height, 32, 0);
     if (! ximage) {
         cerr << " *** WARNING: unable to create XImage!" << endl;
         return None;
@@ -377,17 +378,14 @@ PImageNative::createMask(uchar *data, uint width, uint height)
 
     // Create Pixmap
     Pixmap pix;
-    pix = ScreenResources::instance()->getPixmapHandler()->getPixmap(width,
-                                                                     height,
-                                                                     1);
+    pix = ScreenResources::instance()->getPixmapHandler()->getPixmap(width, height, 1);
 
-    GC gc = XCreateGC(_dpy, pix, 0, NULL);
-    XPutImage(_dpy, pix, gc, ximage,
-              0, 0, 0, 0, width, height);
+    GC gc = XCreateGC(_dpy, pix, 0, 0);
+    XPutImage(_dpy, pix, gc, ximage, 0, 0, 0, 0, width, height);
     XFreeGC(_dpy, gc);
 
     delete [] ximage->data;
-    ximage->data = NULL;
+    ximage->data = 0;
     XDestroyImage(ximage);
 
     return pix;
@@ -403,11 +401,11 @@ PImageNative::createXImage(uchar *data, uint width, uint height)
     // Create XImage
     XImage *ximage;
     ximage = XCreateImage(_dpy, PScreen::instance()->getVisual()->getXVisual(),
-                          PScreen::instance()->getDepth(), ZPixmap, 0, NULL,
+                          PScreen::instance()->getDepth(), ZPixmap, 0, 0,
                           width, height, 32, 0);
     if (! ximage) {
         cerr << " *** WARNING: unable to create XImage!" << endl;
-        return NULL;
+        return 0;
     }
 
     // Allocate ximage data storage.
@@ -460,13 +458,13 @@ PImageNative::createXImage(uchar *data, uint width, uint height)
 //! @brief Scales image data and returns pointer to new data.
 //! @param width Width of image data to return.
 //! @param height Height of image data to return.
-//! @return Pointer to image data on success, else NULL.
+//! @return Pointer to image data on success, else 0.
 //! @todo Implement decent scaling routine with data [] cache?
 uchar*
 PImageNative::getScaledData(uint width, uint height)
 {
     if (! width || ! height) {
-        return NULL;
+        return 0;
     }
     
     // Calculate aspect ratio.
