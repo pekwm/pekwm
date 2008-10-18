@@ -1977,9 +1977,9 @@ Frame::handleConfigureRequestGeometry(XConfigureRequestEvent *ev, Client *client
     long all_geometry = CWX|CWY|CWWidth|CWHeight;
     bool is_fullscreen = false;
     if (Config::instance()->isFullscreenDetect()
-            && ! client->isCfgDeny(CFG_DENY_SIZE)
-            && ! client->isCfgDeny(CFG_DENY_POSITION)
-            && (ev->value_mask&all_geometry == all_geometry)) {
+        && ! client->isCfgDeny(CFG_DENY_SIZE)
+        && ! client->isCfgDeny(CFG_DENY_POSITION)
+        && ((ev->value_mask&all_geometry) == static_cast<unsigned>(all_geometry))) {
 
         Geometry gm_request(ev->x, ev->y, ev->width, ev->height);
         if (gm_request == _scr->getScreenGeometry()

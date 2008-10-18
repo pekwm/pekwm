@@ -180,7 +180,8 @@ list<PDecor*> PDecor::_pdecor_list = list<PDecor*>();
 //! @param decor_name String, if not DEFAULT_DECOR_NAME sets _decor_name_override
 PDecor::PDecor(Display *dpy, Theme *theme, const std::string decor_name)
     : PWinObj(dpy),
-      _theme(theme), _child(NULL), _button(NULL),
+      _theme(theme),_decor_name(decor_name),
+      _child(0), _button(0),
       _pointer_x(0), _pointer_y(0),
       _click_x(0), _click_y(0),
       _decor_cfg_keep_empty(false), _decor_cfg_child_move_overloaded(false),
@@ -188,8 +189,7 @@ PDecor::PDecor(Display *dpy, Theme *theme, const std::string decor_name)
       _decor_cfg_bpr_al_child(MOUSE_ACTION_LIST_CHILD_OTHER),
       _decor_cfg_bpr_al_title(MOUSE_ACTION_LIST_TITLE_OTHER),
       _maximized_vert(false), _maximized_horz(false),
-      _fullscreen(false), _skip(0),
-      _data(NULL), _decor_name(decor_name),
+      _fullscreen(false), _skip(0), _data(0), 
       _border(true), _titlebar(true), _shaded(false),
       _need_shape(false), _need_client_shape(false),
       _dirty_resized(true), _real_height(1),
@@ -526,7 +526,7 @@ PDecor::giveInputFocus(void)
 ActionEvent*
 PDecor::handleButtonPress(XButtonEvent *ev)
 {
-    ActionEvent *ae = NULL;
+    ActionEvent *ae = 0;
     MouseEventType mb = MOUSE_EVENT_PRESS;
 
     ev->state &= ~Button1Mask & ~Button2Mask & ~Button3Mask
@@ -546,9 +546,9 @@ PDecor::handleButtonPress(XButtonEvent *ev)
         // if the button is used for resizing, we don't want to wait for release
         if (ae && ae->isOnlyAction(ACTION_RESIZE)) {
             _button->setState(_focused ? BUTTON_STATE_FOCUSED : BUTTON_STATE_UNFOCUSED);
-            _button = NULL;
+            _button = 0;
         } else {
-            ae = NULL;
+            ae = 0;
         }
 
     } else {
@@ -604,7 +604,7 @@ PDecor::handleButtonPress(XButtonEvent *ev)
 ActionEvent*
 PDecor::handleButtonRelease(XButtonEvent *ev)
 {
-    ActionEvent *ae = NULL;
+    ActionEvent *ae = 0;
     MouseEventType mb = MOUSE_EVENT_RELEASE;
 
     ev->state &= ~Button1Mask & ~Button2Mask & ~Button3Mask
@@ -623,11 +623,11 @@ PDecor::handleButtonRelease(XButtonEvent *ev)
 
             // this is a little hack, resizing isn't wanted on both press and release
             if (ae && ae->isOnlyAction(ACTION_RESIZE)) {
-                ae = NULL;
+                ae = 0;
             }
         }
 
-        _button = NULL;
+        _button = 0;
 
     } else {
 
@@ -832,9 +832,9 @@ PDecor::loadDecor(void)
 void
 PDecor::unloadDecor(void)
 {
-    // Set active button to NULL as it can not be valid after deleting
+    // Set active button to 0 as it can not be valid after deleting
     // the current buttons.
-    _button = NULL;
+    _button = 0;
 
     list<PDecor::Button*>::iterator it(_button_list.begin());
     for (; it != _button_list.end(); ++it) {
@@ -855,7 +855,7 @@ PDecor::findButton(Window win)
         }
     }
 
-    return NULL;
+    return 0;
 }
 
 //! @brief
@@ -863,7 +863,7 @@ PWinObj*
 PDecor::getChildFromPos(int x)
 {
     if (! _child_list.size() || (_child_list.size() != _title_list.size()))
-        return NULL;
+        return 0;
     if (_child_list.size() == 1)
         return _child_list.front();
 
@@ -885,7 +885,7 @@ PDecor::getChildFromPos(int x)
         pos += (*t_it)->getWidth();
     }
 
-    return NULL;
+    return 0;
 }
 
 //! @brief Moves making the child be positioned at x y
@@ -1123,7 +1123,7 @@ PDecor::getChildRel(int off)
              << "PDecor(" << this << ")::getChildRel(" << off << ")" << endl
              << " *** off == 0 or not enough children" << endl;
 #endif // DEBUG
-        return NULL;
+        return 0;
     }
 
     list<PWinObj*>::iterator it(find(_child_list.begin(), _child_list.end(), _child));

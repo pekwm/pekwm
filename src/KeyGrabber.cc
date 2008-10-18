@@ -171,6 +171,8 @@ KeyGrabber::load(const std::string &file)
         parseMenuChain(section, &_menu_chain);
     }
 #endif // MENUS
+
+    return true;
 }
 
 //! @brief Parses chain, getting actions as plain ActionEvents
