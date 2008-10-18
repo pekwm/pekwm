@@ -1,17 +1,17 @@
 //
 // AutoProperties.hh for pekwm
-// Copyright © 2003-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2003-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
+#ifndef _AUTOPROPERTIES_HH_
+#define _AUTOPROPERTIES_HH_
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif // HAVE_CONFIG_H
-
-#ifndef _AUTOPROPERTIES_HH_
-#define _AUTOPROPERTIES_HH_
 
 #include "pekwm.hh"
 #include "Atoms.hh"
@@ -203,9 +203,9 @@ public:
     inline bool isHarbourSort(void) const { return _harbour_sort; }
 #endif // HARBOUR
 
-  AutoProperty *findWindowTypeProperty(EwmhAtomName atom);
+    AutoProperty *findWindowTypeProperty(EwmhAtomName atom);
 
-    void load(void);
+    bool load(void);
     void unload(void);
 
     void removeApplyOnStart(void);
@@ -235,6 +235,9 @@ private:
   void setDefaultTypeProperties(void);
 
 private:
+    std::string _autoproperties_path; /**< Path to last loaded autoproperties file. */
+    time_t _autoproperties_mtime; /**< Mtime of last loaded autoproperties file. */
+
   std::map<EwmhAtomName, AutoProperty*> _window_type_prop_map;
     std::list<Property*> _prop_list;
     std::list<Property*> _title_prop_list;

@@ -144,6 +144,77 @@ isExecutable(const std::string &file)
     return false;
 }
 
+/**
+ * Check if file has different mtime than provided mtime.
+ */
+bool
+isFileChanged(const std::string &file, time_t &mtime)
+{
+    struct stat stat_buf;
+
+    if (! stat(file.c_str(), &stat_buf)) {
+        if (stat_buf.st_mtime != mtime) {
+            mtime = stat_buf.st_mtime;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Check if old_file needs to be reloaded due to it being different
+ * from new_file, path or mtime.
+ */
+bool
+requireReload(std::string &old_file, const std::string &new_file,  time_t &mtime)
+{
+    bool reload = false;
+
+    // Reload if file is newer than mtime, if it's another file reload
+    // either way. isFileChanged is used to update mtime.
+    reload = isFileChanged(new_file, mtime);
+    if (old_file.compare(new_file)) {
+        reload = true;
+    }
+
+    if (reload) {
+        old_file = new_file;
+    }
+
+    return reload;
+}
+
+/**
+ * Copies a single text file.
+ */
+bool
+copyTextFile(const std::string &from, const std::string &to)
+{
+    if ((from.length() == 0) || (to.length() == 0)) {
+        return false;
+    }
+
+    ifstream stream_from(from.c_str());
+    if (! stream_from.good()) {
+        cerr << __FILE__ << "@" << __LINE__ << ": "
+             << "Can't copy: " << from << " to: " << to << endl;
+        return false;
+    }
+
+    ofstream stream_to(to.c_str());
+    if (! stream_to.good()) {
+        cerr << __FILE__ << "@" << __LINE__ << ": "
+             << "Can't copy: " << from << " to: " << to << endl;
+        return false;
+    }
+
+    stream_to << stream_from.rdbuf();
+
+    return true;
+}
+
+
 //! @brief Returns .extension of file
 std::string
 getFileExt(const std::string &file)

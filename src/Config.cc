@@ -47,6 +47,7 @@ const int ANY_MASK =
 
 //! @brief Constructor for Config class
 Config::Config(void) :
+        _config_mtime(0), _mouse_mtime(0),
         _moveresize_edgeattract(0), _moveresize_edgeresist(0),
         _moveresize_woattract(0), _moveresize_woresist(0),
         _moveresize_opaquemove(0), _moveresize_opaqueresize(0),
@@ -343,9 +344,13 @@ Config::~Config(void)
 }
 
 //! @brief Tries to load config_file, ~/.pekwm/config, SYSCONFDIR/config
-void
+bool
 Config::load(const std::string &config_file)
 {
+    if (! Util::requireReload(_config_file, config_file, _config_mtime)) {
+        return false;
+    }
+
     CfgParser cfg;
     bool success = false;
     string file_success;
@@ -382,7 +387,7 @@ Config::load(const std::string &config_file)
 
     if (! success) {
         cerr << " *** WARNING: unable to load configuration files!" << endl;
-        return;
+        return false;
     }
 
     // Update PEKWM_CONFIG_FILE environment if needed ( to reflect active file )
@@ -403,7 +408,7 @@ Config::load(const std::string &config_file)
     // Parse moving / resizing options.
     section = cfg.get_entry_root()->find_section("MOVERESIZE");
     if (section) {
-        loadMoveReszie(section);
+        loadMoveResize(section);
     }
 
     // Screen, important stuff such as number of workspaces
@@ -427,8 +432,9 @@ Config::load(const std::string &config_file)
     if (section) {
         loadHarbour(section);
     }
-
 #endif // HARBOUR
+
+    return true;
 }
 
 //! @brief Loads file section of configuration
@@ -440,12 +446,9 @@ Config::loadFiles(CfgParser::Entry *section)
         return;
     }
 
-    // Mouse file loading in here as well
-    string file_mouse;
-
     list<CfgParserKey*> key_list;
     key_list.push_back(new CfgParserKeyPath("KEYS", _files_keys, SYSCONFDIR "/keys"));
-    key_list.push_back(new CfgParserKeyPath("MOUSE", file_mouse, SYSCONFDIR "/mouse"));
+    key_list.push_back(new CfgParserKeyPath("MOUSE", _files_mouse, SYSCONFDIR "/mouse"));
     key_list.push_back(new CfgParserKeyPath("MENU", _files_menu, SYSCONFDIR "/menu"));
     key_list.push_back(new CfgParserKeyPath("START", _files_start, SYSCONFDIR "/start"));
     key_list.push_back(new CfgParserKeyPath("AUTOPROPS", _files_autoprops, SYSCONFDIR "/autoproperties"));
@@ -456,15 +459,12 @@ Config::loadFiles(CfgParser::Entry *section)
 
     // Free up resources
     for_each(key_list.begin(), key_list.end(), Util::Free<CfgParserKey*>());
-
-    // Load the mouse configuration
-    loadMouseConfig(file_mouse);
 }
 
 //! @brief Loads MOVERESIZE section of main configuration
 //! @param section Pointer to MOVERESIZE section.
 void
-Config::loadMoveReszie(CfgParser::Entry *section)
+Config::loadMoveResize(CfgParser::Entry *section)
 {
     if (! section) {
         return;
@@ -495,7 +495,7 @@ Config::loadScreen(CfgParser::Entry *section)
     }
 
     // Parse data
-    string edge_size, workspace_names;
+    string edge_size, workspace_names, trim_title;
     CfgParser::Entry *value;
 
     list<CfgParserKey*> key_list;
@@ -506,7 +506,7 @@ Config::loadScreen(CfgParser::Entry *section)
     key_list.push_back(new CfgParserKeyString("EDGESIZE", edge_size));
     key_list.push_back(new CfgParserKeyBool("EDGEINDENT", _screen_edge_indent));
     key_list.push_back(new CfgParserKeyInt("DOUBLECLICKTIME", _screen_doubleclicktime, 250, 0));
-    key_list.push_back(new CfgParserKeyString("TRIMTITLE",_screen_trim_title));
+    key_list.push_back(new CfgParserKeyString("TRIMTITLE", trim_title));
     key_list.push_back(new CfgParserKeyBool("FULLSCREENABOVE", _screen_fullscreen_above, true));
     key_list.push_back(new CfgParserKeyBool("FULLSCREENDETECT", _screen_fullscreen_detect, true));
     key_list.push_back(new CfgParserKeyBool("SHOWFRAMELIST", _screen_showframelist));
@@ -529,6 +529,8 @@ Config::loadScreen(CfgParser::Entry *section)
     key_list.clear();
 
     // Convert input data
+    _screen_trim_title = Util::to_wide_str(trim_title);
+
     int edge_size_all = 0;
     _screen_edge_sizes.clear();
     if (edge_size.size()) {
@@ -1371,64 +1373,49 @@ Config::copyConfigFiles(void)
         cp_autoprops = cp_start = cp_vars = true;
     }
 
-    if (cp_config)
-        copyTextFile(SYSCONFDIR "/config", cfg_file);
-    if (cp_keys)
-        copyTextFile(SYSCONFDIR "/keys", keys_file);
-    if (cp_mouse)
-        copyTextFile(SYSCONFDIR "/mouse", mouse_file);
-    if (cp_menu)
-        copyTextFile(SYSCONFDIR "/menu", menu_file);
-    if (cp_autoprops)
-        copyTextFile(SYSCONFDIR "/autoproperties", autoprops_file);
-    if (cp_start)
-        copyTextFile(SYSCONFDIR "/start", start_file);
-    if (cp_vars)
-        copyTextFile(SYSCONFDIR "/vars", vars_file);
+    if (cp_config) {
+        Util::copyTextFile(SYSCONFDIR "/config", cfg_file);
+    }
+    if (cp_keys) {
+        Util::copyTextFile(SYSCONFDIR "/keys", keys_file);
+    }
+    if (cp_mouse) {
+        Util::copyTextFile(SYSCONFDIR "/mouse", mouse_file);
+    }
+    if (cp_menu) {
+        Util::copyTextFile(SYSCONFDIR "/menu", menu_file);
+    }
+    if (cp_autoprops) {
+        Util::copyTextFile(SYSCONFDIR "/autoproperties", autoprops_file);
+    }
+    if (cp_start) {
+        Util::copyTextFile(SYSCONFDIR "/start", start_file);
+    }
+    if (cp_vars) {
+        Util::copyTextFile(SYSCONFDIR "/vars", vars_file);
+    }
 }
 
-//! @brief Copies a single text file.
-void
-Config::copyTextFile(const std::string &from, const std::string &to)
+/**
+ * Parses mouse configuration file.
+ */
+bool
+Config::loadMouseConfig(const std::string &mouse_file)
 {
-    if ((from.length() == 0) || (to.length() == 0)) {
-        return;
+    if (! Util::requireReload(_mouse_file, mouse_file, _mouse_mtime)) {
+        return false;
     }
 
-    ifstream stream_from(from.c_str());
-    if (! stream_from.good()) {
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "Can't copy: " << from << " to: " << to << endl
-             << "Shutting down" << endl;
-        exit(1);
-    }
-
-    ofstream stream_to(to.c_str());
-    if (! stream_to.good()) {
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "Can't copy: " << from << " to: " << to << endl;
-    }
-
-    stream_to << stream_from.rdbuf();
-}
-
-//! @brief Parses the Section for mouse actions.
-void
-Config::loadMouseConfig(const std::string &file)
-{
-    if (! file.size()) {
-        return;
-    }
     
     CfgParser mouse_cfg;
-
-    bool success = mouse_cfg.parse(file, CfgParserSource::SOURCE_FILE);
+    bool success = mouse_cfg.parse(_mouse_file, CfgParserSource::SOURCE_FILE);
     if (! success) {
-        success = mouse_cfg.parse(string(SYSCONFDIR "/mouse"), CfgParserSource::SOURCE_FILE);
+        _mouse_file = string(SYSCONFDIR "/mouse");
+        success = mouse_cfg.parse(_mouse_file, CfgParserSource::SOURCE_FILE);
     }
     
     if (! success) {
-        return;
+        return false;
     }
 
     // Make sure old actions get unloaded.
@@ -1491,6 +1478,8 @@ Config::loadMouseConfig(const std::string &file)
             }
         }
     }
+
+    return true;
 }
 
 //! @brief Parses mouse config section, like FRAME

@@ -27,6 +27,10 @@ namespace Util {
     void forkExec(std::string command);
     bool isFile(const std::string &file);
     bool isExecutable(const std::string &file);
+    bool isFileChanged(const std::string &file, time_t &mtime);
+    bool requireReload(std::string &old_file, const std::string &new_file,  time_t &mtime);
+
+    bool copyTextFile(const std::string &from, const std::string &to);
 
     std::string getFileExt(const std::string &file);
     std::string getDir(const std::string &file);

@@ -801,11 +801,11 @@ Theme::WorkspaceIndicatorData::check(void)
 // Theme
 
 //! @brief Theme constructor
-Theme::Theme(PScreen *scr) :
-        _scr(scr), _image_handler(NULL),
-        _is_loaded(false), _invert_gc(None)
+Theme::Theme(PScreen *scr)
+    : _scr(scr), _image_handler(NULL), _theme_mtime(0),
+      _is_loaded(false), _invert_gc(None)
 #ifdef HARBOUR
-        , _harbour_texture(0)
+    , _harbour_texture(0)
 #endif
 {
     // image handler
@@ -838,41 +838,44 @@ Theme::~Theme(void)
 }
 
 //! @brief Loads the "ThemeFile", unloads any previous loaded theme.
-void
+bool
 Theme::load(const std::string &dir)
 {
+    string norm_dir(dir);
+    if (dir.size() && dir.at(dir.size() - 1) != '/') {
+        norm_dir.append("/");
+    }
+    string theme_file(norm_dir + string("theme"));
+
+    if (! Util::requireReload(_theme_path, theme_file, _theme_mtime)) {
+        return false;
+    }
+
     if (_is_loaded) {
         unload();
     }
-    
-    CfgParser theme;
 
-    _theme_dir = dir;
-    if (_theme_dir.size()) {
-        if (_theme_dir.at(_theme_dir.size() - 1) != '/') {
-            _theme_dir.append("/");
-        }
-    } else {
+    _theme_dir = norm_dir;
+    if (! _theme_dir.size()) {
         cerr << " *** WARNING: empty theme directory name, using default." << endl;
         _theme_dir = DATADIR "/pekwm/themes/default/";
     }
 
-    string theme_file = _theme_dir + string("theme");
+    CfgParser theme;
+
     if (! theme.parse(theme_file, CfgParserSource::SOURCE_FILE, true)) {
         _theme_dir = DATADIR "/pekwm/themes/default/";
-        theme_file = _theme_dir + string ("theme");
-        if (! theme.parse(theme_file, CfgParserSource::SOURCE_FILE, true)) {
+        _theme_path = _theme_dir + string("theme");
+        if (! theme.parse(_theme_path, CfgParserSource::SOURCE_FILE, true)) {
             cerr << " *** WARNING: couldn't load " << _theme_dir << " or default theme." << endl;
         }
     }
-
-    CfgParser::Entry *section;
 
     // Set image basedir.
     _image_handler->setDir(_theme_dir);
 
     // Load decor data.
-    section = theme.get_entry_root()->find_section("PDECOR");
+    CfgParser::Entry *section = theme.get_entry_root()->find_section("PDECOR");
     if (section) {
         CfgParser::iterator it(section->begin());
         for (; it != section->end(); ++it) {
@@ -951,6 +954,8 @@ Theme::load(const std::string &dir)
 #endif // HARBOUR
 
     _is_loaded = true;
+
+    return true;
 }
 
 //! @brief Unloads all pixmaps, fonts, gc and colors allocated by the theme.

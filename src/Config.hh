@@ -31,18 +31,18 @@ public:
 
     static Config* instance(void) { return _instance; }
 
-    void load(const std::string &config_file);
+    bool load(const std::string &config_file);
+    bool loadMouseConfig(const std::string &mouse_file);
 
     inline const std::string &getConfigFile(void) const { return _config_file; }
 
     // Files
-    inline const std::string &getKeyFile(void) const { return _files_keys; }
-    inline const std::string &getMenuFile(void) const { return _files_menu; }
-    inline const std::string &getStartFile(void) const { return _files_start; }
-    inline const std::string &getAutoPropsFile(void) const {
-        return _files_autoprops;
-    }
-    inline const std::string &getThemeFile(void) const { return _files_theme; }
+    const std::string &getKeyFile(void) const { return _files_keys; }
+    const std::string &getMenuFile(void) const { return _files_menu; }
+    const std::string &getStartFile(void) const { return _files_start; }
+    const std::string &getAutoPropsFile(void) const { return _files_autoprops; }
+    const std::string &getThemeFile(void) const { return _files_theme; }
+    const std::string &getMouseConfigFile(void) const { return _files_mouse; }
 
     // Moveresize
     inline int getEdgeAttract(void) const { return _moveresize_edgeattract; }
@@ -63,7 +63,7 @@ public:
     inline int getScreenEdgeSize(EdgeType edge) const { return _screen_edge_sizes[edge]; }
     inline bool getScreenEdgeIndent(void) const { return _screen_edge_indent; }
     inline int getDoubleClickTime(void) const { return _screen_doubleclicktime; }
-    inline const std::string &getTrimTitle(void) const { return _screen_trim_title; }
+    inline const std::wstring &getTrimTitle(void) const { return _screen_trim_title; }
 
     inline bool isFullscreenAbove(void) const { return _screen_fullscreen_above; }
     inline bool isFullscreenDetect(void) const { return _screen_fullscreen_detect; }
@@ -156,10 +156,9 @@ public:
 
 private:
     void copyConfigFiles(void);
-    void copyTextFile(const std::string &from, const std::string &to);
 
     void loadFiles(CfgParser::Entry *section);
-    void loadMoveReszie(CfgParser::Entry *section);
+    void loadMoveResize(CfgParser::Entry *section);
     void loadScreen(CfgParser::Entry *section);
     void loadMenu(CfgParser::Entry *section);
     void loadCmdDialog(CfgParser::Entry *section);
@@ -167,18 +166,20 @@ private:
     void loadHarbour(CfgParser::Entry *section);
 #endif // HARBOUR
 
-    void loadMouseConfig(const std::string &file);
     void parseButtons(CfgParser::Entry *section, std::list<ActionEvent>* mouse_list, ActionOk action_ok);
 
-  int parseWorkspaceNumber(const std::string &workspace);
+    int parseWorkspaceNumber(const std::string &workspace);
 
 private:
-    std::string _config_file;
+    std::string _config_file; /**< Path to config file last loaded. */
+    time_t _config_mtime; /**< Mtime of config file last loaded. */
+    std::string _mouse_file; /**< Path to mouse config file last loaded. */
+    time_t _mouse_mtime; /**< Mtime of mouse config file last loaded. */
 
     // files
     std::string _files_keys, _files_menu;
     std::string _files_start, _files_autoprops;
-    std::string _files_theme;
+    std::string _files_theme, _files_mouse;
 
     // moveresize
     int _moveresize_edgeattract, _moveresize_edgeresist;
@@ -193,7 +194,7 @@ private:
     std::vector<int> _screen_edge_sizes;
     bool _screen_edge_indent;
     int _screen_doubleclicktime;
-    std::string _screen_trim_title;
+    std::wstring _screen_trim_title;
     bool _screen_fullscreen_above; //!< Flag to make fullscreen go above all windows. */
     bool _screen_fullscreen_detect; /**< Flag to make configure request fullscreen detection. */
     bool _screen_showframelist;

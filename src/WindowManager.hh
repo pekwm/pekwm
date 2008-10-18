@@ -202,13 +202,21 @@ class RootWO : public PWinObj {
 private:
     WindowManager(const std::string &command_line, const std::string &config_file);
     WindowManager(const WindowManager &); // not implemented to ensure singleton
-    ~WindowManager();
+    ~WindowManager(void);
     
     void setupDisplay(void);
     void scanWindows(void);
     void execStartFile(void);
 
     void doReload(void);
+    void doReloadConfig(void);
+    void doReloadTheme(void);
+    void doReloadMouse(void);
+    void doReloadKeygrabber(void);
+    void doReloadAutoproperties(void);
+#ifdef HARBOUR
+    void doReloadHarbour(void);
+#endif // HARBOUR
 
     void cleanup(void);
 
@@ -252,7 +260,7 @@ private:
 
 #ifdef MENUS
     void createMenus(void);
-    void updateMenus(void);
+    void doReloadMenus(void);
     void updateMenusStandalone(CfgParser::Entry *cfg_root);
     void deleteMenus(void);
 #endif // MENUS
@@ -283,6 +291,8 @@ private:
   Timer<ActionPerformed> _timer_action;
 
 #ifdef MENUS
+    std::string _menu_path; /**< Path to last loaded menu file. */
+    time_t _menu_mtime; /**< Mtime of last loaded menu file. */
     std::map<std::string, PMenu*> _menu_map;
 
     static const char *MENU_NAMES_RESERVED[];

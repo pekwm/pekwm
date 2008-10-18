@@ -29,11 +29,12 @@ using std::vector;
 AutoProperties *AutoProperties::_instance = 0;
 
 //! @brief Constructor for AutoProperties class
-AutoProperties::AutoProperties(void) :
+AutoProperties::AutoProperties(void)
+    : _autoproperties_mtime(0),
 #ifdef HARBOUR
-        _harbour_sort(false),
+      _harbour_sort(false),
 #endif // HARBOUR
-        _apply_on_start(true)
+      _apply_on_start(true)
 {
 #ifdef DEBUG
     if (_instance)
@@ -103,18 +104,23 @@ AutoProperties::~AutoProperties(void)
 }
 
 //! @brief Loads the autoprop config file.
-void
+bool
 AutoProperties::load(void)
 {
+    string cfg_file(Config::instance()->getAutoPropsFile());
+    if (! Util::requireReload(_autoproperties_path, cfg_file, _autoproperties_mtime)) {
+        return false;
+    }
+
     // dealloc memory
     unload();
 
     CfgParser a_cfg;
-    if (! a_cfg.parse (Config::instance()->getAutoPropsFile())) {
-        string cfg_file = SYSCONFDIR "/autoproperties";
+    if (! a_cfg.parse(cfg_file)) {
+        cfg_file = SYSCONFDIR "/autoproperties";
         if (! a_cfg.parse (cfg_file)) {
           setDefaultTypeProperties();
-          return;
+          return false;
         }
     }
 
@@ -163,6 +169,8 @@ AutoProperties::load(void)
 
     // Validate date
     setDefaultTypeProperties();
+
+    return true;
 }
 
 //! @brief Frees allocated memory

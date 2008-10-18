@@ -259,6 +259,19 @@ PMenu::handleLeaveEvent(XCrossingEvent *ev)
 
 // END - PWinObj interface.
 
+// START - PDecor interface.
+
+/**
+ * Load menu theme after border has been updated.
+ */
+void
+PMenu::loadTheme(void)
+{
+    buildMenuRender();
+}
+
+// END - PDecor interface.
+
 //! @brief
 void
 PMenu::handleItemEvent(MouseEventType type, int x, int y)

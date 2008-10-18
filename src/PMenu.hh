@@ -83,6 +83,10 @@ public:
     virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev);
     // END - PWinObj interface.
 
+    // START - PDecor interface.
+    virtual void loadTheme(void);
+    // END - PDecor interface.
+
     static inline PMenu *findMenu(Window win) {
         std::map<Window, PMenu*>::iterator it = _menu_map.find(win);
         if (it != _menu_map.end())
@@ -105,7 +109,7 @@ public:
     virtual void remove(PMenu::Item *item);
     virtual void removeAll(void);
 
-virtual void reload(CfgParser::Entry *section) { }
+    virtual void reload(CfgParser::Entry *section) { }
     void buildMenu(void);
 
     inline uint size(void) const { return _item_list.size(); }

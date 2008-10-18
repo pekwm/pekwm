@@ -90,13 +90,13 @@ KeyGrabber::Chain::findAction(XKeyEvent *ev)
 }
 
 //! @brief KeyGrabber constructor
-KeyGrabber::KeyGrabber(PScreen *scr) :
-        _scr(scr),
+KeyGrabber::KeyGrabber(PScreen *scr)
+    : _scr(scr), _keygrabber_mtime(0),
 #ifdef MENUS
-        _menu_chain(0, 0),
+      _menu_chain(0, 0),
 #endif // MENUS
-        _global_chain(0, 0), _moveresize_chain(0, 0),
-        _input_dialog_chain(0, 0)
+      _global_chain(0, 0), _moveresize_chain(0, 0),
+      _input_dialog_chain(0, 0)
 {
 #ifdef DEBUG
     if (_instance) {
@@ -120,17 +120,20 @@ KeyGrabber::~KeyGrabber(void)
 //! @brief Parses the "KeyFile" and inserts into _global_keys.
 //! If _global_keys holds any keygrabs they will be flushed before
 //! reloading the new keybindings.
-void
+bool
 KeyGrabber::load(const std::string &file)
 {
-    CfgParser key_cfg;
+    if (! Util::requireReload(_keygrabber_path, file, _keygrabber_mtime)) {
+        return false;
+    }
 
-    if (! key_cfg.parse (file, CfgParserSource::SOURCE_FILE)) {
-        if (! key_cfg.parse (SYSCONFDIR "/keys", CfgParserSource::SOURCE_FILE)) {
-            cerr << __FILE__ << "@" << __LINE__
-                 << "Error: no keyfile at " << file << " or "
-                 << SYSCONFDIR << "/keys" << endl;
-            return;
+    CfgParser key_cfg;
+    if (! key_cfg.parse(file, CfgParserSource::SOURCE_FILE)) {
+        _keygrabber_path = SYSCONFDIR "/keys";
+        if (! key_cfg.parse(_keygrabber_path, CfgParserSource::SOURCE_FILE)) {
+            cerr << __FILE__ << "@" << __LINE__ << "Error: no keyfile at " << file
+                 << " or " << _keygrabber_path << endl;
+            return false;
         }
     }
 

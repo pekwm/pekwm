@@ -72,7 +72,7 @@ public:
     //! @brief Returns the KeyGrabber instance pointer.
     static KeyGrabber *instance(void) { return _instance; }
 
-    void load(const std::string &file);
+    bool load(const std::string &file);
     void grabKeys(Window win);
     void ungrabKeys(Window win);
 
@@ -93,6 +93,9 @@ private:
 
 private:
     PScreen *_scr;
+
+    std::string _keygrabber_path; /**< Path to keygrabber configuration last loaded. */
+    time_t _keygrabber_mtime; /**< Mtime of keygrabber configuration last loaded. */
 
 #ifdef MENUS
     KeyGrabber::Chain _menu_chain;

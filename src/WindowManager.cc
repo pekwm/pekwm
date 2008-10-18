@@ -436,6 +436,9 @@ WindowManager::WindowManager(const std::string &command_line, const std::string 
 #endif // HARBOUR
         _cmd_dialog(NULL),
         _status_window(NULL), _workspace_indicator(NULL),
+#ifdef MENUS
+        _menu_mtime(0),
+#endif // MENUS
         _command_line(command_line),
         _startup(false), _shutdown(false), _reload(false),
         _allow_grouping(true), _root_wo(NULL),
@@ -457,6 +460,7 @@ WindowManager::WindowManager(const std::string &command_line, const std::string 
     // construct
     _config = new Config();
     _config->load(config_file);
+    _config->loadMouseConfig(_config->getMouseConfigFile());
 }
 
 //! @brief WindowManager destructor
@@ -607,9 +611,8 @@ WindowManager::setupDisplay(void)
     _texture_handler = new TextureHandler();
     _action_handler = new ActionHandler();
 
-    // setup the font trimming
-    wstring trim_title(Util::to_wide_str(_config->getTrimTitle()));
-    PFont::setTrimString(trim_title);
+    // Setup the font trimming
+    PFont::setTrimString(_config->getTrimTitle());
 
     // load colors, fonts
     _screen_resources = new ScreenResources();
@@ -852,21 +855,37 @@ WindowManager::screenEdgeMapUnmap(void)
 void
 WindowManager::doReload(void)
 {
-    // unique client names state
+    doReloadConfig();
+    doReloadTheme();
+    doReloadMouse();
+    doReloadKeygrabber();
+    doReloadAutoproperties();
+
+#ifdef MENUS
+    doReloadMenus();
+#endif // MENUS
+#ifdef HARBOUR
+    doReloadHarbour();
+#endif // HARBOUR
+
+    _reload = false;
+}
+
+/**
+ * Reload main config file.
+ */
+void
+WindowManager::doReloadConfig(void)
+{
+    // If any of these changes, re-fetch of all names is required
     bool old_client_unique_name = _config->getClientUniqueName();
     string old_client_unique_name_pre = _config->getClientUniqueNamePre();
     string old_client_unique_name_post = _config->getClientUniqueNamePost();
 
-#ifdef HARBOUR
-    // I do not want to restack or rearrange if nothing has changed.
-    uint old_harbour_placement = _config->getHarbourPlacement();
-    bool old_harbour_stacking = _config->isHarbourOntop();
-    int old_harbour_head_nr = _config->getHarbourHead();
-#endif // HARBOUR
-
-    // Reload configuration and autoproperties
-    _config->load(_config->getConfigFile());
-    _autoproperties->load();
+    // Reload configuration
+    if (! _config->load(_config->getConfigFile())) {
+        return;
+    }
 
     // Update what might have changed in the cfg touching the hints
     _workspaces->setSize(_config->getWorkspaces());
@@ -876,25 +895,60 @@ WindowManager::doReload(void)
     _screen_resources->getPixmapHandler()->setCacheSize(_config->getScreenPixmapCacheSize());
 
     // Set the font title trim before reloading the themes
-    wstring trim_title(Util::to_wide_str(_config->getTrimTitle()));
-    PFont::setTrimString(trim_title);
+    PFont::setTrimString(_config->getTrimTitle());
 
-    // update the ClientUniqueNames if needed
+    // Update the ClientUniqueNames if needed
     if ((old_client_unique_name != _config->getClientUniqueName()) ||
         (old_client_unique_name_pre != _config->getClientUniqueNamePre()) ||
         (old_client_unique_name_post != _config->getClientUniqueNamePost())) {
         for_each(Client::client_begin(), Client::client_end(), mem_fun(&Client::getXClientName));
     }
 
-    // Reload the theme
-    _theme->load(_config->getThemeFile());
-
-    // resize the screen edge
+    // Resize the screen edge
     screenEdgeResize();
     screenEdgeMapUnmap();
 
+    _screen->updateStrut();
+}
+
+/**
+ * Reload theme file and update decorations.
+ */
+void
+WindowManager::doReloadTheme(void)
+{
+    // Reload the theme
+    if (! _theme->load(_config->getThemeFile())) {
+        return;
+    }
+
+    // Reload the themes on all decors
+    for_each(PDecor::pdecor_begin(), PDecor::pdecor_end(), mem_fun(&PDecor::loadDecor));
+}
+
+/**
+ * Reload mouse configuration and re-grab buttons on all windows.
+ */
+void
+WindowManager::doReloadMouse(void)
+{
+    if (! _config->loadMouseConfig(_config->getMouseConfigFile())) {
+        return;
+    }
+
+    for_each(Client::client_begin(), Client::client_end(), mem_fun(&Client::grabButtons));
+}
+
+/**
+ * Reload keygrabber configuration and re-grab keys on all windows.
+ */
+void
+WindowManager::doReloadKeygrabber(void)
+{
     // Reload the keygrabber
-    _keygrabber->load(_config->getKeyFile());
+    if (! _keygrabber->load(_config->getKeyFile())) {
+        return;
+    }
 
     _keygrabber->ungrabKeys(_screen->getRoot());
     _keygrabber->grabKeys(_screen->getRoot());
@@ -906,39 +960,39 @@ WindowManager::doReload(void)
         _keygrabber->ungrabKeys((*c_it)->getWindow());
         _keygrabber->grabKeys((*c_it)->getWindow());
     }
+}
 
-    // Reload the themes on all decors
-    for_each(PDecor::pdecor_begin(), PDecor::pdecor_end(), mem_fun(&PDecor::loadDecor));
+/**
+ * Reload autoproperties.
+ */
+void
+WindowManager::doReloadAutoproperties(void)
+{
+    if (! _autoproperties->load()) {
+        return;
+    }
 
     // NOTE: we need to load autoproperties after decor have been updated
     // as otherwise old theme data pointer will be used and sig 11 pekwm.
-    list<Frame*>::iterator f_it(Frame::frame_begin());
-    for (; f_it != Frame::frame_end(); ++f_it) {
-        (*f_it)->readAutoprops();
+    list<Frame*>::iterator it(Frame::frame_begin());
+    for (; it != Frame::frame_end(); ++it) {
+        (*it)->readAutoprops();
     }
+}
 
 #ifdef HARBOUR
+/**
+ * Reload harbour configuration.
+ */
+void
+WindowManager::doReloadHarbour(void)
+{
     _harbour->loadTheme();
-    if (old_harbour_placement != _config->getHarbourPlacement()) {
-        _harbour->rearrange();
-    }
-    if (old_harbour_stacking != _config->isHarbourOntop()) {
-        _harbour->restack();
-    }
-    if (old_harbour_head_nr != _config->getHarbourHead()) {
-        _harbour->rearrange();
-    }
+    _harbour->rearrange();
+    _harbour->restack();
     _harbour->updateHarbourSize();
-#endif // HARBOUR
-
-#ifdef MENUS
-    updateMenus();
-#endif // MENUS
-
-    _screen->updateStrut();
-
-    _reload = false;
 }
+#endif // HARBOUR
 
 //! @brief Exit pekwm and restart with the command command
 void
@@ -1726,8 +1780,9 @@ WindowManager::createMenus(void)
 
     // Load configuration, pass specific section to loading
     CfgParser menu_cfg;
-    if (menu_cfg.parse(_config->getMenuFile())
-            || menu_cfg.parse (string(SYSCONFDIR "/menu"))) {
+    if (menu_cfg.parse(_config->getMenuFile()) || menu_cfg.parse (string(SYSCONFDIR "/menu"))) {
+        // Make sure mtime gets updated
+        Util::requireReload(_menu_path, _config->getMenuFile(), _menu_mtime);
 
         // Load standard menus
         map<string, PMenu*>::iterator it = _menu_map.begin();
@@ -1740,10 +1795,17 @@ WindowManager::createMenus(void)
     }
 }
 
-//! @brief (re)loads the menus in the menu configuration
+/**
+ * (re)loads the menus in the menu configuration if the file has been
+ * updated since last load.
+ */
 void
-WindowManager::updateMenus(void)
+WindowManager::doReloadMenus(void)
 {
+    if (! Util::requireReload(_menu_path, _config->getMenuFile(), _menu_mtime)) {
+        return;
+    }    
+
     // Load configuration, pass specific section to loading
     bool cfg_ok = true;
     CfgParser menu_cfg;

@@ -1,6 +1,6 @@
 //
 // Theme.hh for pekwm
-// Copyright (C) 2003-2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2003-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -304,7 +304,7 @@ public:
     Theme(PScreen *scr);
     ~Theme(void);
 
-    void load(const std::string &dir);
+    bool load(const std::string &dir);
     void unload(void);
 
     inline const GC &getInvertGC(void) const { return _invert_gc; }
@@ -338,7 +338,9 @@ public:
 private:
     PScreen *_scr;
     ImageHandler *_image_handler;
-    std::string _theme_dir;
+    std::string _theme_dir; /**< Path to theme directory. */
+    std::string _theme_path; /**< Path to theme file. */
+    time_t _theme_mtime; /**< Mtime of theme last loaded. */
 
     bool _is_loaded;
 
