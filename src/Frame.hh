@@ -148,6 +148,8 @@ private:
     void calcGravityPosition(int gravity, int x, int y, int &g_x, int &g_y);
     void downSize(bool keep_x, bool keep_y);
 
+    void handleTitleChange(Client *client);
+
     void getState(Client *cl);
     void applyState(Client *cl);
 

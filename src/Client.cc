@@ -979,14 +979,11 @@ Client::getXClientName(void)
 {
     wstring title;
 
-    if (AtomUtil::getUtf8String(_window,
-                              EwmhAtoms::instance()->getAtom(NET_WM_NAME),
-                              title)) {
-    } else {
+    if (! AtomUtil::getUtf8String(_window, EwmhAtoms::instance()->getAtom(NET_WM_NAME), title)) {
         // read X11 property
         XTextProperty text_property;
-        if ((XGetWMName(_dpy, _window, &text_property) == False) ||
-                ! text_property.value || (text_property.nitems == 0)){
+        if ((XGetWMName(_dpy, _window, &text_property) == False)
+            || ! text_property.value || (text_property.nitems == 0)){
             return;
         }
 
@@ -1029,10 +1026,9 @@ Client::titleApplyRule(std::wstring &title)
     _class_hint->title = title;
     TitleProperty *data =
         AutoProperties::instance()->findTitleProperty (_class_hint);
-    _class_hint->title = L"";
 
     if (data) {
-        return data->getTitleRule ().ed_s (title);
+        return data->getTitleRule().ed_s(title);
     } else {
         return false;
     }

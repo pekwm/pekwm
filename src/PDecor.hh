@@ -366,6 +366,8 @@ private:
 
 protected:
     Theme *_theme; //!< Pointer to Theme used by PDecor.
+    std::string _decor_name; /**< Name of decoration used. */
+    std::string _decor_name_override; /**< Overridden decoration name. */
 
     PWinObj *_child; //!< Pointer to active child in PDecor.
     std::list<PWinObj*> _child_list; //!< List of children in PDecor.
@@ -399,7 +401,6 @@ protected:
 
 private:
     Theme::PDecorData *_data;
-    std::string _decor_name, _decor_name_override;
 
     // decor state
     bool _border, _titlebar, _shaded;

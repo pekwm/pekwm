@@ -825,7 +825,6 @@ std::string
 Frame::getClientDecorName(Client *client)
 {
   DecorProperty *prop = WindowManager::inst()->getAutoProperties()->findDecorProperty(client->getClassHint());
-
   return prop ? prop->getName() : PDecor::DEFAULT_DECOR_NAME;
 }
 
@@ -2139,16 +2138,36 @@ Frame::handlePropertyChange(XPropertyEvent *ev, Client *client)
         }
     } else if (ev->atom == ewmh->getAtom(NET_WM_STRUT)) {
         client->getStrutHint();
-    } else if (ev->atom == ewmh->getAtom(NET_WM_NAME)) {
-        client->getXClientName();
-        renderTitle();
-    } else if (ev->atom == XA_WM_NAME) {
-//	if (! m_has_extended_net_name)
-        client->getXClientName();
-        renderTitle();
+    } else if (ev->atom == ewmh->getAtom(NET_WM_NAME)
+               || ev->atom == XA_WM_NAME) {
+        handleTitleChange(client);
     } else if (ev->atom == XA_WM_NORMAL_HINTS) {
         client->getWMNormalHints();
     } else if (ev->atom == XA_WM_TRANSIENT_FOR) {
         client->getTransientForHint();
+    }
+}
+
+/**
+ * Handle title change, find decoration rules based on changed title
+ * and update if changed.
+ */
+void
+Frame::handleTitleChange(Client *client)
+{
+    // Update title
+    client->getXClientName();
+
+    bool require_render = true;
+    if (client == _client) {
+        string new_decor_name(getClientDecorName(client));
+        if (new_decor_name != _decor_name) {
+            require_render = ! setDecor(new_decor_name);
+        }
+    }
+
+    // Render title if decoration was not updated
+    if (require_render) {
+        renderTitle();
     }
 }
