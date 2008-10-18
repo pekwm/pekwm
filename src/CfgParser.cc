@@ -15,13 +15,6 @@
 #include <cassert>
 #include <cstring>
 
-#ifdef HAVE_GETTEXT
-#include <libintl.h>
-#define _(S) gettext(S)
-#else // !HAVE_GETTEXT
-#define _(S) S
-#endif // HAVE_GETTEXT
-
 enum {
     PARSE_BUF_SIZE = 1024
 };
@@ -297,7 +290,7 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwr
                 if (parse_name(buf)) {
                     parse_section_finish(buf, value);
                 } else {
-                    cerr << _("Ignoring section as name is empty.\n");
+                    cerr << "Ignoring section as name is empty." << endl;
                 }
                 buf.clear();
                 value.clear();
@@ -312,7 +305,7 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwr
                     _section = _section_list.back();
                     _section_list.pop_back();
                 } else {
-                    cerr << _("Extra } character found, ignoring.\n");
+                    cerr << "Extra } character found, ignoring." << endl;
                 }
                 break;
             case '=':
@@ -403,7 +396,7 @@ bool
 CfgParser::parse_name(std::string &buf)
 {
     if (! buf.size()) {
-        cerr << _("Unable to parse empty name.\n");
+        cerr << "Unable to parse empty name." << endl;
         return false;
     }
 
@@ -455,7 +448,7 @@ CfgParser::parse_value(CfgParserSource *source, std::string &value)
 
     // Check if we got to a " or found EOF first.
     if (c == EOF) {
-        cerr << _("Reached EOF before opening \" in value.\n");
+        cerr << "Reached EOF before opening \" in value." << endl;
         return false;
     }
 
@@ -481,7 +474,7 @@ CfgParser::parse_value(CfgParserSource *source, std::string &value)
     }
 
     if (c == EOF) {
-        cerr << _("Reached EOF before closing \" in value.\n");
+        cerr << "Reached EOF before closing \" in value." << endl;
     }
 
     value = buf;
@@ -524,7 +517,7 @@ CfgParser::parse_entry_finish_standard(std::string &buf, std::string &value)
             }
         }
     } else {
-        cerr << _("Dropping entry with empty name.\n");
+        cerr << "Dropping entry with empty name." << endl;
     }
 
     value.clear();
@@ -605,7 +598,7 @@ CfgParser::parse_comment_c(CfgParserSource *source)
     }
 
     if (c == EOF)  {
-        cerr << _("Reached EOF before closing */ in comment.\n");
+        cerr << "Reached EOF before closing */ in comment." << endl;
     }
 }
 
@@ -687,7 +680,7 @@ CfgParser::variable_expand(std::string &var)
                 var.replace(begin, end - begin, value);
                 end = begin + strlen(value);
             } else {
-                cerr << _("Trying to use undefined environment variable: ") << var_name << endl;;
+                cerr << "Trying to use undefined environment variable: " << var_name << endl;;
             }
         } else {
             map<string, string>::iterator it(_var_map.find(var_name));
@@ -695,7 +688,7 @@ CfgParser::variable_expand(std::string &var)
                 var.replace(begin, end - begin, it->second);
                 end = begin + it->second.size();
             } else  {
-                cerr << _("Trying to use undefined variable: ") << var_name << endl;
+                cerr << "Trying to use undefined variable: " << var_name << endl;
             }
         }
     }

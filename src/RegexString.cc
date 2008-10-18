@@ -16,13 +16,6 @@
 #include "RegexString.hh"
 #include "Util.hh"
 
-#ifdef HAVE_GETTEXT
-#include <libintl.h>
-#define _(S) gettext(S)
-#else // !HAVE_GETTEXT
-#define _(S) S
-#endif // HAVE_GETTEXT
-
 using std::cerr;
 using std::endl;
 using std::list;
@@ -125,12 +118,12 @@ RegexString::parse_match(const std::wstring &or_match, bool full)
                         flags |= REG_ICASE;
                         break;
                     default:
-                        cerr << _("Invalid flag for regular expression.\n");
+                        cerr << "Invalid flag for regular expression." << endl;
                         break;
                     }
                 }
             } else {
-                cerr << _("Invalid format of regular expression.\n");
+                cerr << "Invalid format of regular expression." << endl;
             }
 
             expression = Util::to_mb_str(expression_str);

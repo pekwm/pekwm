@@ -1,6 +1,6 @@
 //
 // main.cc for pekwm
-// Copyright (C) 2003-2004 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2003-2008 Claes Nästén <me@pekdon.net>
 //
 // main.cc for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
@@ -10,7 +10,10 @@
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
+
 #include "PWinObj.hh"
 #include "PDecor.hh"
 #include "Client.hh"
@@ -113,7 +116,6 @@ main(int argc, char **argv)
 
         // cleanup before restarting
         WindowManager::destroy();
-
         Util::iconv_deinit();
 
         execlp("/bin/sh", "sh" , "-c", restart_command.c_str(), (char*) NULL);
