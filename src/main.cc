@@ -84,7 +84,7 @@ main(int argc, char **argv)
     for (int i = 1; i < argc; ++i)	{
         if ((strcmp("--display", argv[i]) == 0) && ((i + 1) < argc)) {
             setenv("DISPLAY", argv[++i], 1);
-        }	else if ((strcmp("--config", argv[i]) == 0) && ((i + 1) < argc)) {
+        } else if ((strcmp("--config", argv[i]) == 0) && ((i + 1) < argc)) {
             config_file = argv[++i];
         } else if (strcmp("--version", argv[i]) == 0) {
             Info::printVersion();
@@ -98,9 +98,14 @@ main(int argc, char **argv)
         }
     }
 
-    // read in the environment
-    if ((config_file.size() == 0) && getenv("PEKWM_CONFIG_FILE")) {
-        config_file = getenv("PEKWM_CONFIG_FILE");
+    // Get configuration file if none was specified as a parameter,
+    // default to reading environment, if not set get ~/.pekwm/config
+    if (config_file.size() == 0) {
+        if (getenv("PEKWM_CONFIG_FILE") && strlen(getenv("PEKWM_CONFIG_FILE"))) {
+            config_file = getenv("PEKWM_CONFIG_FILE");
+        } else {
+            config_file = string(getenv("HOME")) + string("/.pekwm/config");
+        }
     }
 
 #ifdef DEBUG
