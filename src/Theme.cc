@@ -121,7 +121,7 @@ Theme::PDecorButtonData::unload(void)
 void
 Theme::PDecorButtonData::check(void)
 {
-    for (uint i = 0; i < BUTTON_STATE_NO; ++i) {
+    for (uint i = 0; i < (BUTTON_STATE_NO - 1); ++i) {
         if (! _texture[i]) {
             _texture[i] = TextureHandler::instance()->getTexture("EMPTY");
         }

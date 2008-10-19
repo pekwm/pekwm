@@ -35,6 +35,7 @@ class Button : public PWinObj {
         ~Button(void);
 
         ActionEvent *findAction(XButtonEvent *ev);
+        ButtonState getState(void) const { return _state; }
         void setState(ButtonState state);
 
         //! @brief Returns wheter the button is positioned relative the left title edge.

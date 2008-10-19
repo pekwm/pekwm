@@ -307,6 +307,10 @@ Frame::handleMotionEvent(XMotionEvent *ev)
 ActionEvent*
 Frame::handleEnterEvent(XCrossingEvent *ev)
 {
+    // Run event handler to get hoovering to work but ignore action
+    // returned.
+    PDecor::handleEnterEvent(ev);
+
     ActionEvent *ae = 0;
     list<ActionEvent> *al = 0;
 
@@ -334,6 +338,10 @@ Frame::handleEnterEvent(XCrossingEvent *ev)
 ActionEvent*
 Frame::handleLeaveEvent(XCrossingEvent *ev)
 {
+    // Run event handler to get hoovering to work but ignore action
+    // returned.
+    PDecor::handleLeaveEvent(ev);
+
     ActionEvent *ae;
 
     MouseActionListName ln = MOUSE_ACTION_LIST_TITLE_FRAME;

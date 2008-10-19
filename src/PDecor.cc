@@ -63,12 +63,13 @@ PDecor::Button::Button(Display *dpy, PWinObj *parent, Theme::PDecorButtonData *d
     _gm.height = height;
 
     XSetWindowAttributes attr;
+    attr.event_mask = EnterWindowMask|LeaveWindowMask;
     attr.override_redirect = True;
     _window =
         XCreateWindow(_dpy, _parent->getWindow(),
                       -_gm.width, -_gm.height, _gm.width, _gm.height, 0,
                       CopyFromParent, InputOutput, CopyFromParent,
-                      CWOverrideRedirect, &attr);
+                      CWEventMask|CWOverrideRedirect, &attr);
 
     _bg = ScreenResources::instance()->getPixmapHandler()->getPixmap(_gm.width, _gm.height, PScreen::instance()->getDepth());
 
@@ -103,29 +104,32 @@ PDecor::Button::setState(ButtonState state)
         return;
     }
 
-    // only update if we don't hoover, we want to be able to turn back
+    // Only update if we don't hoover, we want to be able to turn back
     if (state != BUTTON_STATE_HOOVER) {
         _state = state;
     }
 
-    _data->getTexture(state)->render(_bg, 0, 0, _gm.width, _gm.height);
+    PTexture *texture = _data->getTexture(state);
+    if (texture) {
+        texture->render(_bg, 0, 0, _gm.width, _gm.height);
 
 #ifdef HAVE_SHAPE
-    // Get shape mask
-    bool need_free;
-    Pixmap shape = _data->getTexture(state)->getMask(0, 0, need_free);
-    if (shape != None) {
-        XShapeCombineMask(_dpy, _window, ShapeBounding, 0, 0, shape, ShapeSet);
-        if (need_free) {
-            ScreenResources::instance()->getPixmapHandler()->returnPixmap(shape);
+        // Get shape mask
+        bool need_free;
+        Pixmap shape = _data->getTexture(state)->getMask(0, 0, need_free);
+        if (shape != None) {
+            XShapeCombineMask(_dpy, _window, ShapeBounding, 0, 0, shape, ShapeSet);
+            if (need_free) {
+                ScreenResources::instance()->getPixmapHandler()->returnPixmap(shape);
+            }
+        } else {
+            XRectangle rect = {0 /* x */, 0 /* y */, _gm.width, _gm.height };
+            XShapeCombineRectangles(_dpy, _window, ShapeBounding,
+                                    0, 0, &rect, 1, ShapeSet, YXBanded);
         }
-    } else {
-        XRectangle rect = {0 /* x */, 0 /* y */, _gm.width, _gm.height };
-        XShapeCombineRectangles(_dpy, _window, ShapeBounding,
-                                0, 0, &rect, 1, ShapeSet, YXBanded);
-    }
 #endif
-    clear();
+        clear();
+    }
 }
 
 //! @brief Update visible version of title
@@ -695,21 +699,35 @@ PDecor::handleMotionEvent(XMotionEvent *ev)
                                           Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_OTHER));
 }
 
-//! @brief
+/**
+ * Handle enter event, find action and toggle hoover state if enter
+ * was on a button.
+ */
 ActionEvent*
 PDecor::handleEnterEvent(XCrossingEvent *ev)
 {
-    return ActionHandler::findMouseAction(BUTTON_ANY, ev->state,
-                                          MOUSE_EVENT_ENTER,
+    PDecor::Button *button = findButton(ev->window);
+    if (button) {
+        button->setState(BUTTON_STATE_HOOVER);
+    }
+
+    return ActionHandler::findMouseAction(BUTTON_ANY, ev->state, MOUSE_EVENT_ENTER,
                                           Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_OTHER));
 }
 
-//! @brief
+/**
+ * Handle leave event, find action and toggle hoover state if leave
+ * was from a button.
+ */
 ActionEvent*
 PDecor::handleLeaveEvent(XCrossingEvent *ev)
 {
-    return ActionHandler::findMouseAction(BUTTON_ANY, ev->state,
-                                          MOUSE_EVENT_LEAVE,
+    PDecor::Button *button = findButton(ev->window);
+    if (button) {
+        button->setState(button->getState());
+    }
+
+    return ActionHandler::findMouseAction(BUTTON_ANY, ev->state, MOUSE_EVENT_LEAVE,
                                           Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_OTHER));
 }
 
