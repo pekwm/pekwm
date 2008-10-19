@@ -424,30 +424,37 @@ Frame::removeChild (PWinObj *child, bool do_delete)
     PDecor::removeChild (child, do_delete);
 }
 
-//! @brief Acttivates child in Frame.
+/**
+ * Activates child in Frame, updating it's state and re-loading decor
+ * rules to match updated title.
+ */
 void
 Frame::activateChild (PWinObj *child)
 {
-    // sync the frame state with the client only if we already had a client
-    if (_client && (_client != child))
-        applyState (static_cast<Client*> (child));
+    // Sync the frame state with the client only if we already had a client
+    if (_client && _client != child) {
+        applyState(static_cast<Client*>(child));
+    }
 
-    _client = static_cast<Client*> (child);
-    PDecor::activateChild (child);
+    _client = static_cast<Client*>(child);
+    PDecor::activateChild(child);
 
-    // setShape uses current active child, so we need to activate the child
-    // before setting shape
+    // setShape uses current active child, so we need to activate the
+    // child before setting shape
 #ifdef HAVE_SHAPE
-    if (PScreen::instance ()->hasExtensionShape ()) {
-        _client->setShaped (setShape());
+    if (PScreen::instance()->hasExtensionShape()) {
+        _client->setShaped(setShape());
     }
 #endif // HAVE_SHAPE
 
     if (_focused) {
-        child->giveInputFocus ();
+        child->giveInputFocus();
     }
     
-    Workspaces::instance ()->updateClientStackingList (true, true);
+    // Reload decor rules if needed.
+    handleTitleChange(_client);
+
+    Workspaces::instance()->updateClientStackingList(true, true);
 }
 
 //! @brief
