@@ -86,7 +86,10 @@ CfgParser::Entry::add_entry(CfgParser::Entry *entry, bool overwrite)
         && (! entry_search->get_section()
             || strcasecmp(entry->get_value().c_str(), entry_search->get_value().c_str()) == 0)) { 
         entry_search->_value = entry->get_value();
+        entry_search->set_section(entry->get_section(), overwrite);
+
         // Clear resources used by entry
+        entry->_section = 0;
         delete entry;
         entry = entry_search;
     } else {
@@ -198,24 +201,13 @@ CfgParser::Entry::copy_tree_into(CfgParser::Entry *from, bool overwrite)
     // Copy elements
     CfgParser::iterator it(from->begin());
     for (; it != from->end(); ++it) {
-        if (! overwrite) {
-            add_entry(new Entry(*(*it)), false);
-            continue;
-        }
-
-        // Check for section, if one exists either copy into existing
-        // or create new copy.
+        CfgParser::Entry *entry_section = 0;
         if ((*it)->get_section()) {
-            CfgParser::Entry *section = find_section((*it)->get_section()->get_name());
-            if (section) {
-                section->copy_tree_into((*it)->get_section(), overwrite);
-            } else {
-                add_entry(new Entry(*(*it)), true);
-            }
-        } else {
-            add_entry((*it)->get_source_name(), (*it)->get_line(),
-                      (*it)->get_name(), (*it)->get_value(), 0, true);
+            entry_section = new Entry(*((*it)->get_section()));
         }
+        
+        add_entry((*it)->get_source_name(), (*it)->get_line(), (*it)->get_name(), (*it)->get_value(),
+                  entry_section, true);
     }
 }
 
