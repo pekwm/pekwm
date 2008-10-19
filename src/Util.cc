@@ -308,7 +308,7 @@ to_lower(std::string &str)
     transform(str.begin(), str.end(), str.begin(), (int(*)(int)) std::tolower);
 }
 
-//! @brief Converts string to multi byte version
+//! @brief Converts wide-character string to multibyte version
 //! @param str String to convert.
 //! @return Returns multibyte version of string.
 std::string
@@ -329,9 +329,9 @@ to_mb_str(const std::wstring &str)
     return ret_str;
 }
 
-//! @brief Converts string to multi byte version
+//! @brief Converts multibyte string to wide-character version
 //! @param str String to convert.
-//! @return Returns multibyte version of string.
+//! @return Returns wide-character version of string.
 std::wstring
 to_wide_str(const std::string &str)
 {
@@ -453,7 +453,7 @@ iconv_buf_grow (size_t size)
     }
 }
 
-//! @brief Converts string to UTF-8
+//! @brief Converts wide-character string to UTF-8
 //! @param str String to convert.
 //! @return Returns UTF-8 representation of string.
 std::string
