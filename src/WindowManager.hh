@@ -191,6 +191,7 @@ class RootWO : public PWinObj {
     // Extended Window Manager hints function prototypes
     void setEwmhSupported(void);
     void setEwmhActiveWindow(Window w);
+    void setDesktopNames();
 
     // public event handlers used when doing grabbed actions
     void handleKeyEvent(XKeyEvent *ev);

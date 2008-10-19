@@ -409,7 +409,8 @@ void WindowManager::start(const std::string &command_line, const std::string &co
 
     _inst->scanWindows();
     Frame::resetFrameIDs();
-
+    setDesktopNames();
+    
     // add all frames to the MRU list
     _inst->_mru_list.resize(Frame::frame_size());
     copy(Frame::frame_begin(), Frame::frame_end (), _inst->_mru_list.begin());
@@ -867,6 +868,8 @@ WindowManager::doReload(void)
 #ifdef HARBOUR
     doReloadHarbour();
 #endif // HARBOUR
+
+    setDesktopNames();
 
     _reload = false;
 }
@@ -2229,4 +2232,22 @@ void
 WindowManager::setEwmhActiveWindow(Window w)
 {
     AtomUtil::setWindow(_screen->getRoot(), _ewmh_atoms->getAtom(NET_ACTIVE_WINDOW), w);
+}
+
+//! @brief Sets the _NET_DESKTOP_NAMES extended window manager hint.
+void
+WindowManager::setDesktopNames()
+{
+    unsigned char *desktopnames = 0;
+    unsigned int length=0;
+    Config::instance()->getDesktopNamesUTF8(&desktopnames, &length);
+
+    if (desktopnames) {
+        XChangeProperty(PScreen::instance()->getDpy(), _screen->getRoot(),
+                        _ewmh_atoms->getAtom(NET_DESKTOP_NAMES),
+                        _ewmh_atoms->getAtom(UTF8_STRING), 8, PropModeReplace,
+                        desktopnames, length);
+    }
+    
+    delete [] desktopnames;
 }

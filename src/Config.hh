@@ -56,6 +56,7 @@ public:
     inline int getWorkspaces(void) const { return _screen_workspaces; }
     inline int getScreenPixmapCacheSize(void) const { return _screen_pixmap_cache_size; }
     inline int getWorkspacesPerRow(void) const { return _screen_workspaces_per_row; }
+    void getDesktopNamesUTF8(unsigned char **, unsigned int *) const;
     const std::wstring &getWorkspaceName(uint num) const {
         return (num >= _screen_workspace_names.size())?_screen_workspace_name_default:
                                                        _screen_workspace_names[num];

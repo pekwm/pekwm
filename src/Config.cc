@@ -343,6 +343,37 @@ Config::~Config(void)
     }
 }
 
+//! @brief Returns an array of NULL-terminated desktop names in UTF-8.
+//!
+//! @param names *names will be set to an array of desktop names (or 0). The caller has to call "delete [] *names"!
+//! @param length *length will be set to the complete length of array *names points to (or 0).
+void
+Config::getDesktopNamesUTF8(unsigned char **names, unsigned int *length) const {
+    if (! _screen_workspace_names.size()) {
+        *names = 0;
+        *length = 0;
+        return;
+    }
+
+    unsigned char *namestr=0, *cpytmp=0;
+    const char *utf8tmpc=0;
+    string utf8tmp;
+    unsigned int strlength=0;
+    for (unsigned int i=0; i<_screen_workspace_names.size(); ++i) {
+        utf8tmp = Util::to_utf8_str(_screen_workspace_names[i]);
+        utf8tmpc = utf8tmp.c_str();
+        cpytmp = new unsigned char[strlength + strlen(utf8tmpc) + 1];
+        ::memcpy(cpytmp, namestr, strlength);
+        ::memcpy(&cpytmp[strlength], utf8tmpc, strlen(utf8tmpc) + 1);
+        strlength += strlen(utf8tmpc) + 1;
+        delete [] namestr;
+        namestr = cpytmp;
+    }
+
+    *names = namestr;
+    *length = strlength;
+}
+
 //! @brief Tries to load config_file, ~/.pekwm/config, SYSCONFDIR/config
 bool
 Config::load(const std::string &config_file)
