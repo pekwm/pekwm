@@ -33,6 +33,7 @@ public:
         ~Workspace(void);
 
         inline std::wstring &getName(void) { return _name; }
+        void setName(const std::wstring &name) { _name = name; }
         inline uint getNumber(void) { return _number; }
         inline PWinObj* getLastFocused(void) { return _last_focused; }
 
@@ -75,6 +76,7 @@ public:
 
   void setSize(uint number);
   void setPerRow(uint per_row) { _per_row = per_row; }
+    void setNames(void);
 
     void setWorkspace(uint num, bool focus);
     bool gotoWorkspace(uint direction, bool warp);

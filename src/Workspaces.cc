@@ -148,6 +148,18 @@ Workspaces::setSize(uint number)
     }
 }
 
+/**
+ * Set workspace names.
+ */
+void
+Workspaces::setNames(void)
+{
+    vector<Workspace*>::iterator it(_workspace_list.begin());
+    for (; it != _workspace_list.end(); ++it) {
+        (*it)->setName(Config::instance()->getWorkspaceName((*it)->getNumber()));
+    }
+}
+
 //! @brief Activates Workspace workspace and sets the right hints
 //! @param num Workspace to activate
 //! @param focus wheter or not to focus a window after switch

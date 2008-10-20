@@ -29,6 +29,7 @@ extern "C" {
 using std::cerr;
 using std::endl;
 using std::string;
+using std::wstring;
 using std::list;
 using std::map;
 using std::vector;
@@ -343,35 +344,32 @@ Config::~Config(void)
     }
 }
 
-//! @brief Returns an array of NULL-terminated desktop names in UTF-8.
-//!
-//! @param names *names will be set to an array of desktop names (or 0). The caller has to call "delete [] *names"!
-//! @param length *length will be set to the complete length of array *names points to (or 0).
+/**
+ * Returns an array of NULL-terminated desktop names in UTF-8.
+ *
+ * @param names *names will be set to an array of desktop names or 0. The caller has to delete [] *names
+ * @param length *length will be set to the complete length of array *names points to or 0.
+ */
 void
-Config::getDesktopNamesUTF8(unsigned char **names, unsigned int *length) const {
+Config::getDesktopNamesUTF8(uchar **names, uint *length)
+{
     if (! _screen_workspace_names.size()) {
         *names = 0;
         *length = 0;
         return;
     }
 
-    unsigned char *namestr=0, *cpytmp=0;
-    const char *utf8tmpc=0;
-    string utf8tmp;
-    unsigned int strlength=0;
-    for (unsigned int i=0; i<_screen_workspace_names.size(); ++i) {
-        utf8tmp = Util::to_utf8_str(_screen_workspace_names[i]);
-        utf8tmpc = utf8tmp.c_str();
-        cpytmp = new unsigned char[strlength + strlen(utf8tmpc) + 1];
-        ::memcpy(cpytmp, namestr, strlength);
-        ::memcpy(&cpytmp[strlength], utf8tmpc, strlen(utf8tmpc) + 1);
-        strlength += strlen(utf8tmpc) + 1;
-        delete [] namestr;
-        namestr = cpytmp;
+    // Convert strings to UTF-8 and calculate total length
+    string utf8_names;
+    vector<wstring>::iterator it(_screen_workspace_names.begin());
+    for (; it != _screen_workspace_names.end(); ++it) {
+        string utf8_name(Util::to_utf8_str(*it));
+        utf8_names.append(utf8_name.c_str(), utf8_name.size() + 1);
     }
 
-    *names = namestr;
-    *length = strlength;
+    *names = new uchar[utf8_names.size()];
+    ::memcpy(*names, utf8_names.c_str(), utf8_names.size());
+    *length = utf8_names.size();
 }
 
 //! @brief Tries to load config_file, ~/.pekwm/config, SYSCONFDIR/config

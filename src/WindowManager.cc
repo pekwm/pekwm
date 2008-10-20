@@ -399,17 +399,21 @@ WindowManager::RootWO::handleLeaveEvent(XCrossingEvent *ev)
 
 // WindowManager
 
-void WindowManager::start(const std::string &command_line, const std::string &config_file) {
-    if (_inst)
+/**
+ * Create window manager instance and run main routine.
+ */
+void
+WindowManager::start(const std::string &command_line, const std::string &config_file) {
+    if (_inst) {
         delete _inst;
-    
+    }
     _inst = new WindowManager(command_line, config_file);
 
     _inst->setupDisplay();
 
     _inst->scanWindows();
     Frame::resetFrameIDs();
-    setDesktopNames();
+    _inst->setDesktopNames();
     
     // add all frames to the MRU list
     _inst->_mru_list.resize(Frame::frame_size());
@@ -893,6 +897,7 @@ WindowManager::doReloadConfig(void)
     // Update what might have changed in the cfg touching the hints
     _workspaces->setSize(_config->getWorkspaces());
     _workspaces->setPerRow(_config->getWorkspacesPerRow());
+    _workspaces->setNames();
 
     // Flush pixmap cache and set size
     _screen_resources->getPixmapHandler()->setCacheSize(_config->getScreenPixmapCacheSize());
@@ -2236,10 +2241,10 @@ WindowManager::setEwmhActiveWindow(Window w)
 
 //! @brief Sets the _NET_DESKTOP_NAMES extended window manager hint.
 void
-WindowManager::setDesktopNames()
+WindowManager::setDesktopNames(void)
 {
     unsigned char *desktopnames = 0;
-    unsigned int length=0;
+    unsigned int length = 0;
     Config::instance()->getDesktopNamesUTF8(&desktopnames, &length);
 
     if (desktopnames) {
@@ -2247,7 +2252,6 @@ WindowManager::setDesktopNames()
                         _ewmh_atoms->getAtom(NET_DESKTOP_NAMES),
                         _ewmh_atoms->getAtom(UTF8_STRING), 8, PropModeReplace,
                         desktopnames, length);
+        delete [] desktopnames;
     }
-    
-    delete [] desktopnames;
 }
