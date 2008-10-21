@@ -1,4 +1,14 @@
-# default theme for pekwm, created for version 0.1.7
+# default theme for pekwm
+# 
+# ChangeLog:
+#
+# * Update for 0.1.8 with templates enabled.
+# * Created for version 0.1.7
+#
+
+Require {
+  Templates = "True"
+}
 
 Define = "BaseDecor" {
   Height = "17"

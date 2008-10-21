@@ -37,8 +37,9 @@ using std::map;
 // Theme::PDecorButtonData
 
 //! @brief Theme::PDecorButtonData constructor.
-Theme::PDecorButtonData::PDecorButtonData(void) :
-        _left(false), _width(1), _height(1)
+Theme::PDecorButtonData::PDecorButtonData(void)
+    : ThemeData(),
+      _left(false), _width(1), _height(1)
 {
     for (uint i = 0; i < BUTTON_STATE_NO; ++i) {
         _texture[i] = 0;
@@ -137,10 +138,15 @@ map<FocusedState, string> Theme::PDecorData::_fs_map = map<FocusedState, string>
 map<BorderPosition, string> Theme::PDecorData::_border_map = map<BorderPosition, string>();
 
 //! @brief Theme::PDecorData constructor.
-Theme::PDecorData::PDecorData(void) :
-        _title_height(0), _title_width_min(0), _title_width_max(100),
-        _title_width_symetric(true), _title_height_adapt(false)
+Theme::PDecorData::PDecorData(const char *name)
+    : ThemeData(),
+      _title_height(0), _title_width_min(0), _title_width_max(100),
+      _title_width_symetric(true), _title_height_adapt(false)
 {
+    if (name) {
+        _name = name;
+    }
+
     // init static data
     if (! _fs_map.size()) {
         _fs_map[FOCUSED_STATE_FOCUSED] = "FOCUSED";
@@ -478,6 +484,7 @@ Theme::PDecorData::checkColors(void)
 
 //! @brief PMenuData constructor
 Theme::PMenuData::PMenuData(void)
+    : ThemeData()
 {
     for (uint i = 0; i <= OBJECT_STATE_NO; ++i) {
         _font[i] = 0;
@@ -502,7 +509,7 @@ Theme::PMenuData::~PMenuData(void)
 
 //! @brief Parses CfgParser::Entry section, loads and verifies data.
 //! @param section CfgParser::Entry with pmenu configuration.
-void
+bool
 Theme::PMenuData::load(CfgParser::Entry *section)
 {
     CfgParser::Entry *value;
@@ -532,6 +539,8 @@ Theme::PMenuData::load(CfgParser::Entry *section)
     }
 
     check();
+
+    return true;
 }
 
 //! @brief Unloads data.
@@ -625,7 +634,8 @@ Theme::PMenuData::loadState (CfgParser::Entry *section, ObjectState state)
 
 //! @brief TextDialogData constructor.
 Theme::TextDialogData::TextDialogData(void)
-    : _font(0), _color(0), _tex(0)
+    : ThemeData(),
+      _font(0), _color(0), _tex(0)
 {
     for (uint i = 0; i < PAD_NO; ++i) {
         _pad[i] = 0;
@@ -640,7 +650,7 @@ Theme::TextDialogData::~TextDialogData(void)
 
 //! @brief Parses CfgParser::Entry section, loads and verifies data.
 //! @param section CfgParser::Entry with textdialog configuration.
-void
+bool
 Theme::TextDialogData::load(CfgParser::Entry *section)
 {
     list<CfgParserKey*> key_list;
@@ -668,6 +678,8 @@ Theme::TextDialogData::load(CfgParser::Entry *section)
     }
 
     check();
+
+    return true;
 }
 
 //! @brief Unloads data.
@@ -705,9 +717,10 @@ Theme::TextDialogData::check(void)
  * WorkspaceIndicatorData constructor
  */
 Theme::WorkspaceIndicatorData::WorkspaceIndicatorData(void)
-  : font(0), font_color(0), texture_background(0), 
-    texture_workspace(0), texture_workspace_act(0),
-    edge_padding(0), workspace_padding(0)
+    : ThemeData(),
+      font(0), font_color(0), texture_background(0), 
+      texture_workspace(0), texture_workspace_act(0),
+      edge_padding(0), workspace_padding(0)
 {
 }
 
@@ -722,7 +735,7 @@ Theme::WorkspaceIndicatorData::~WorkspaceIndicatorData(void)
 /**
  * Load theme data and check.
  */
-void
+bool
 Theme::WorkspaceIndicatorData::load(CfgParser::Entry *section)
 {
     list<CfgParserKey*> key_list;
@@ -748,6 +761,8 @@ Theme::WorkspaceIndicatorData::load(CfgParser::Entry *section)
     texture_workspace_act = TextureHandler::instance()->getTexture(value_tex_ws_act);
 
     check();
+
+    return true;
 }
 
 /**
@@ -798,18 +813,90 @@ Theme::WorkspaceIndicatorData::check(void)
     }
 }
 
+#ifdef HARBOUR
+// HarbourData
+
+/**
+ * HarbourData constructor.
+ */
+Theme::HarbourData::HarbourData(void)
+    : ThemeData(),
+      _texture(0)
+{
+}
+
+/**
+ * HarbourData destructor, unload data.
+ */
+Theme::HarbourData::~HarbourData(void)
+{
+    unload();
+}
+
+/**
+ * Load harbour data and validate state, unloading previously loaded
+ * data if any.
+ */
+bool
+Theme::HarbourData::load(CfgParser::Entry *section)
+{
+    CfgParser::Entry *value;
+
+    value = section->find_entry ("TEXTURE");
+    if (value) {
+        _texture = TextureHandler::instance()->getTexture (value->get_value());
+    }
+
+    check();
+
+    return true;
+}
+
+
+/**
+ * Unload harbour data.
+ */
+void
+Theme::HarbourData::unload(void)
+{
+    if (_texture) {
+        TextureHandler::instance()->returnTexture(_texture);
+        _texture = 0;        
+    }
+}
+
+
+/**
+ * Check state of harbour data.
+ */
+void
+Theme::HarbourData::check(void)
+{
+    if (! _texture) {
+        _texture = TextureHandler::instance()->getTexture("EMPTY");
+    }
+}
+
+#endif // HARBOUR
+
 // Theme
 
 //! @brief Theme constructor
 Theme::Theme(PScreen *scr)
     : _scr(scr), _image_handler(0), _theme_mtime(0),
       _is_loaded(false), _invert_gc(None)
-#ifdef HARBOUR
-    , _harbour_texture(0)
-#endif
 {
     // image handler
     _image_handler = new ImageHandler();
+
+    // Map between theme sections and ThemeData structures.
+    _section_data_map["MENU"] = &_menu_data;
+    _section_data_map["STATUS"] = &_status_data;
+    _section_data_map["CMDDIALOG"] = &_cmd_d_data;
+    _section_data_map["WORKSPACEINDICATOR"] = &_workspace_indicator_data;
+#ifdef HARBOUR
+    _section_data_map["HARBOUR"] = &_harbour_data;
+#endif // HARBOUR
 
     // window gc's
     XGCValues gv;
@@ -837,7 +924,9 @@ Theme::~Theme(void)
     delete _image_handler;
 }
 
-//! @brief Loads the "ThemeFile", unloads any previous loaded theme.
+/**
+ * Re-loads theme if needed, clears up previously used resources.
+ */
 bool
 Theme::load(const std::string &dir)
 {
@@ -861,14 +950,21 @@ Theme::load(const std::string &dir)
         _theme_dir = DATADIR "/pekwm/themes/default/";
     }
 
+    bool theme_ok = true;
     CfgParser theme;
 
-    if (! theme.parse(theme_file, CfgParserSource::SOURCE_FILE, true)) {
+    if (! theme.parse(theme_file)) {
         _theme_dir = DATADIR "/pekwm/themes/default/";
         _theme_path = _theme_dir + string("theme");
-        if (! theme.parse(_theme_path, CfgParserSource::SOURCE_FILE, true)) {
+        if (! theme.parse(_theme_path)) {
             cerr << " *** WARNING: couldn't load " << _theme_dir << " or default theme." << endl;
+            theme_ok = false;
         }
+    }
+
+    // Setup quirks and requirements before parsing.
+    if (theme_ok) {
+        loadThemeRequire(theme);
     }
 
     // Set image basedir.
@@ -888,95 +984,75 @@ Theme::load(const std::string &dir)
         }
     }
 
-    if (! getPDecorData ("DEFAULT")) {
-        cerr << " *** WARNING: theme doesn't contain any DEFAULT decor." << endl;
-
+    if (! getPDecorData("DEFAULT")) {
         // Create DEFAULT decor, let check fill it up with empty but non-null data.
-        Theme::PDecorData *data = new Theme::PDecorData();
-        data->setName("DEFAULT");
-        data->check();
-        _pdecordata_map[data->getName()] = data;
+        cerr << " *** WARNING: theme doesn't contain any DEFAULT decor." << endl;
+        Theme::PDecorData *decor_data = new Theme::PDecorData("DEFAULT");
+        decor_data->check();
+        _pdecordata_map["DEFAULT"] = decor_data;
     }
 
-    // Load menu data.
-    section = theme.get_entry_root()->find_section ("MENU");
-    if (section) {
-        _menu_data.load(section);
-    } else {
-        cerr << " *** WARNING: missing menu section" << endl;
-        _menu_data.check ();
-    }
-
-    // Load StatusWindow data.
-    section = theme.get_entry_root()->find_section("STATUS");
-    if (section) {
-        _status_data.load(section);
-    } else {
-        cerr << " *** WARNING: missing status section" << endl;
-        _status_data.check ();
-    }
-
-    // Load CmdDialog data.
-    section = theme.get_entry_root()->find_section("CMDDIALOG");
-    if (section) {
-        _cmd_d_data.load(section);
-    } else {
-        cerr << " *** WARNING: missing cmddialog section" << endl;
-        _cmd_d_data.check();
-    }
-
-    // Load WorkspaceIndicator data.
-    section = theme.get_entry_root()->find_section("WORKSPACEINDICATOR");
-    if (section) {
-      _workspace_indicator_data.load(section);
-    } else {
-      cerr << " *** WARNING: missing workspaceindicator section" << endl;
-      _workspace_indicator_data.check();
-    }
-
-#ifdef HARBOUR
-    CfgParser::Entry *value;
-    // Load Harbour texture.
-    section = theme.get_entry_root()->find_section("HARBOUR");
-    if (section) {
-        value = section->find_entry ("TEXTURE");
-        if (value) {
-            _harbour_texture = TextureHandler::instance()->getTexture (value->get_value());
+    map<string, ThemeData*>::iterator it(_section_data_map.begin());
+    for (; it != _section_data_map.end(); ++it) {
+        section = theme.get_entry_root()->find_section(it->first);
+        if (section) {
+            it->second->load(section);
+        } else {
+            cerr << " *** WARNING: missing " << it->first << " section!" << endl;
+            it->second->check();
         }
-    } else {
-        cerr << " *** WARNING: missing harbour section" << endl;
     }
-    
-    if (! _harbour_texture) {
-        cerr << " *** WARNING: missing harbour texture" << endl;
-        _harbour_texture = TextureHandler::instance ()->getTexture("EMPTY");
-    }
-#endif // HARBOUR
 
     _is_loaded = true;
 
     return true;
 }
 
-//! @brief Unloads all pixmaps, fonts, gc and colors allocated by the theme.
+/**
+ * Load template quirks.
+ */
 void
-Theme::unload(void) {
-    map<string, Theme::PDecorData*>::iterator it(_pdecordata_map.begin());
-    for (; it != _pdecordata_map.end(); ++it) {
-        delete it->second;
+Theme::loadThemeRequire(CfgParser &theme_cfg)
+{
+    CfgParser::Entry *section;
+
+    // Look for requires section, 
+    section = theme_cfg.get_entry_root()->find_section("REQUIRE");
+    if (section) {
+        list<CfgParserKey*> key_list;
+        bool value_templates;
+
+        key_list.push_back(new CfgParserKeyBool("TEMPLATES", value_templates, false));
+        section->parse_key_values(key_list.begin(), key_list.end());
+        for_each(key_list.begin(), key_list.end(), Util::Free<CfgParserKey*>());
+
+        // Re-load configuration with templates enabled.
+        if (value_templates) {
+            string theme_path(_theme_path);
+            theme_cfg.clear();
+            theme_cfg.parse(theme_path, CfgParserSource::SOURCE_FILE, true);
+        }
+    }
+}
+
+/**
+ * Unload theme data.
+ */
+void
+Theme::unload(void)
+{
+    // Unload decors
+    map<string, Theme::PDecorData*>::iterator p_it(_pdecordata_map.begin());
+    for (; p_it != _pdecordata_map.end(); ++p_it) {
+        delete p_it->second;
     }
     _pdecordata_map.clear();
 
-#ifdef HARBOUR
-    TextureHandler::instance()->returnTexture(_harbour_texture);
-    _harbour_texture = 0;
-#endif // HARBOUR
-
-    // unload menu
-    _menu_data.unload();
-
-    _status_data.unload();
-    _cmd_d_data.unload();
+    // Unload theme data
+    map<string, Theme::ThemeData*>::iterator d_it(_section_data_map.begin());
+    for (; d_it != _section_data_map.end(); ++d_it) {
+        d_it->second->unload();
+    }
 
     _is_loaded = false;
 }

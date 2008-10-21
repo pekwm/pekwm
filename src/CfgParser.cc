@@ -222,19 +222,45 @@ operator<<(std::ostream &stream, const CfgParser::Entry &entry)
 
 //! @brief CfgParser constructor.
 CfgParser::CfgParser(void)
-    : _source(0),
-      _root_entry(_root_source_name, 0, "ROOT", ""),
-      _section(&_root_entry), _overwrite(false)
+    : _source(0), _root_entry(0),
+      _section(_root_entry), _overwrite(false)
 {
+    _root_entry = new CfgParser::Entry(_root_source_name, 0, "ROOT", "");
+    _section = _root_entry;
 }
 
 //! @brief CfgParser destructor.
 CfgParser::~CfgParser(void)
 {
+    clear();
+}
+
+/**
+ * Clear resources used by parser, end up in the same state as in
+ * after construction.
+ */
+void
+CfgParser::clear(void)
+{
+    _source = 0;
+    delete _root_entry;
+    _root_entry = new CfgParser::Entry(_root_source_name, 0, "ROOT", "");
+    _section = _root_entry;
+    _overwrite = false;
+
+    // Clear lists
+    _source_list.clear();
+    _source_name_list.clear();
+    _source_name_set.clear();
+    _section_list.clear();
+    _var_map.clear();
+
+    // Remove sections
     map<string, CfgParser::Entry*>::iterator it(_section_map.begin());
     for (; it != _section_map.end(); ++it) {
         delete it->second;
     }
+    _section_map.clear();
 }
 
 /**

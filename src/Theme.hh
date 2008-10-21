@@ -33,11 +33,22 @@ class ImageHandler;
 class Theme
 {
 public:
+    /**
+     * Base class for all theme data objects, provides interface for
+     * loading and un-loading of decoration data.
+     */
+    class ThemeData {
+    public:
+        virtual bool load(CfgParser::Entry *section) = 0;
+        virtual void unload(void) = 0;
+        virtual void check(void) = 0;
+    };
+
     //! @brief Theme data parser and container for PDecor::Button
-    class PDecorButtonData {
+    class PDecorButtonData : public ThemeData {
     public:
         PDecorButtonData(void);
-        ~PDecorButtonData(void);
+        virtual ~PDecorButtonData(void);
 
         //! @brief Returns wheter the button is positioned relative to the left title edge.
         inline bool isLeft(void) const { return _left; }
@@ -59,11 +70,9 @@ public:
             return _ae_list.end();
         }
 
-        bool load(CfgParser::Entry *cs);
-        void unload(void);
-
-    private:
-        void check(void);
+        virtual bool load(CfgParser::Entry *section);
+        virtual void unload(void);
+        virtual void check(void);
 
     private:
         std::list<ActionEvent> _ae_list;
@@ -74,10 +83,10 @@ public:
     };
 
     //! @brief PDecor theme data container and parser.
-    class PDecorData {
+    class PDecorData : public ThemeData {
     public:
-        PDecorData(void);
-        ~PDecorData(void);
+        PDecorData(const char *name=0);
+        virtual ~PDecorData(void);
 
         //! @brief Returns decor name.
         inline const std::string &getName(void) const { return _name; }
@@ -150,11 +159,9 @@ public:
             return _button_list.end();
         }
 
-        bool load(CfgParser::Entry *cs);
-        void unload(void);
-
-        // sanity functions
-        void check(void);
+        virtual bool load(CfgParser::Entry *section);
+        virtual void unload(void);
+        virtual void check(void);
 
     private:
         void loadBorder(CfgParser::Entry *cs);
@@ -195,10 +202,10 @@ public:
     };
 
     //! @brief PMenu theme data container and parser.
-    class PMenuData {
+    class PMenuData : public ThemeData {
     public:
         PMenuData(void);
-        ~PMenuData(void);
+        virtual ~PMenuData(void);
 
         //! @brief Returns PFont used in ObjectState state.
         inline PFont *getFont(ObjectState state) { return _font[state]; }
@@ -226,11 +233,9 @@ public:
             return _pad[(dir != PAD_NO) ? dir : 0];
         }
 
-        void load(CfgParser::Entry *cs);
-        void unload(void);
-
-        // sanity functions
-        void check(void);
+        virtual bool load(CfgParser::Entry *section);
+        virtual void unload(void);
+        virtual void check(void);
 
     private:
         void loadState(CfgParser::Entry *cs, ObjectState state);
@@ -247,10 +252,10 @@ public:
     };
 
     //! @brief CmdDialog/StatusWindow theme data container and parser.
-    class TextDialogData {
+    class TextDialogData : public ThemeData {
     public:
         TextDialogData(void);
-        ~TextDialogData(void);
+        virtual ~TextDialogData(void);
 
         //! @brief Returns PFont.
         inline PFont *getFont(void) { return _font; }
@@ -263,11 +268,9 @@ public:
             return _pad[(dir != PAD_NO) ? dir : 0];
         }
 
-        void load(CfgParser::Entry *cs);
-        void unload(void);
-
-        // sanity functions
-        void check(void);
+        virtual bool load(CfgParser::Entry *section);
+        virtual void unload(void);
+        virtual void check(void);
 
     private:
         PFont *_font;
@@ -280,15 +283,14 @@ public:
   /**
    * Class holding WorkspaceIndicator theme data.
    */
-  class WorkspaceIndicatorData {
+  class WorkspaceIndicatorData : public ThemeData {
   public:
-    WorkspaceIndicatorData(void);
-    ~WorkspaceIndicatorData(void);
+      WorkspaceIndicatorData(void);
+      virtual ~WorkspaceIndicatorData(void);
 
-    void load(CfgParser::Entry *cs);
-    void unload(void);
-
-    void check(void);
+      virtual bool load(CfgParser::Entry *section);
+      virtual void unload(void);
+      virtual void check(void);
 
   public:
     PFont *font;
@@ -300,6 +302,27 @@ public:
     int edge_padding;
     int workspace_padding;
   };
+
+#ifdef HARBOUR
+    /**
+     * Class holding harbour theme data.
+     */
+    class HarbourData : public ThemeData {
+    public:
+        HarbourData(void);
+        virtual ~HarbourData(void);
+
+        inline PTexture *getTexture(void) const { return _texture; }
+
+        virtual bool load(CfgParser::Entry *section);
+        virtual void unload(void);
+        virtual void check(void);
+    private:
+        PTexture *_texture; /**< Texture for rendering dockapps in the harbour. */
+    };
+
+    inline Theme::HarbourData *getHarbourData(void) { return &_harbour_data; }
+#endif // HARBOUR
 
     Theme(PScreen *scr);
     ~Theme(void);
@@ -327,17 +350,19 @@ public:
     // menu
     inline Theme::PMenuData *getMenuData(void) { return &_menu_data; }
 
-#ifdef HARBOUR
-    inline PTexture *getHarbourTexture(void) const { return _harbour_texture; }
-#endif // HARBOUR
-
     // status/cmd
     inline Theme::TextDialogData *getStatusData(void) { return &_status_data; }
     inline Theme::TextDialogData *getCmdDialogData(void) { return &_cmd_d_data; }
 
 private:
+    void loadThemeRequire(CfgParser &theme_cfg);
+
+private:
     PScreen *_scr;
     ImageHandler *_image_handler;
+
+    std::map<std::string, Theme::ThemeData*> _section_data_map; /**< Map between section names and data. */
+
     std::string _theme_dir; /**< Path to theme directory. */
     std::string _theme_path; /**< Path to theme file. */
     time_t _theme_mtime; /**< Mtime of theme last loaded. */
@@ -355,13 +380,12 @@ private:
 
     // harbour
 #ifdef HARBOUR
-    PTexture *_harbour_texture;
+    HarbourData _harbour_data; /**< Data for styling harbour. */
 #endif // HARBOUR
 
     // status window
     TextDialogData _status_data, _cmd_d_data;
-
-  WorkspaceIndicatorData _workspace_indicator_data;
+    WorkspaceIndicatorData _workspace_indicator_data;
 };
 
 #endif // _THEME_HH_

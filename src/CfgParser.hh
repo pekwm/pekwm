@@ -102,8 +102,9 @@ public:
     ~CfgParser(void);
 
     //! @brief Returns the root Entry node.
-    Entry *get_entry_root(void) { return &_root_entry; }
+    Entry *get_entry_root(void) { return _root_entry; }
 
+    void clear(void);
     bool parse(const std::string &src, CfgParserSource::Type type = CfgParserSource::SOURCE_FILE,
                bool overwrite = false);
 
@@ -135,7 +136,7 @@ private:
     std::map<std::string, std::string> _var_map; //!< Map of $VARS
     std::map<std::string, CfgParser::Entry*> _section_map; //!< Map of Define = ... sections
 
-    Entry _root_entry; //!< Root Entry.
+    Entry *_root_entry; /**< Root Entry. */
     Entry *_section; /**< Current section. */
     bool _overwrite; /**< Overwrite elements when appending. */
 

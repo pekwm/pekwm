@@ -227,7 +227,7 @@ DockApp::repaint(void)
     pm->returnPixmap(_background);
     _background = pm->getPixmap(_gm.width, _gm.height, _scr->getDepth());
 
-    _theme->getHarbourTexture()->render(_background, 0, 0, _gm.width, _gm.height);
+    _theme->getHarbourData()->getTexture()->render(_background, 0, 0, _gm.width, _gm.height);
 
     XSetWindowBackgroundPixmap(_dpy, _window, _background);
     XClearWindow(_dpy, _window);
