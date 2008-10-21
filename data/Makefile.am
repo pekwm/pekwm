@@ -9,11 +9,8 @@ cfgdata_DATA = autoproperties config keys menu mouse start vars
 
 all-local: config menu
 
-config: config.in
-	@SED@ -e 's:<PREFIX>:$(pkgdatadir):g' config.in > config
-
-menu: menu.in
-	@SED@ -e 's:<PREFIX>:$(pkgdatadir):g' menu.in > menu
+%: $(srcdir)/%.in
+	@SED@ -e 's:<PREFIX>:$(pkgdatadir):g' $< > $@
 
 distclean-local:
 	rm -f *\~ .\#*

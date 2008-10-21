@@ -8,11 +8,8 @@ EXTRA_DIST = pekwm_ws_menu.sh.in pekwm_themeset.sh.in
 
 all-local: $(scripts_SCRIPTS)
 
-pekwm_ws_menu.sh:
-	@SED@ -e 's:<SH>:$(SH):g' pekwm_ws_menu.sh.in > pekwm_ws_menu.sh
-
-pekwm_themeset.sh:
-	@SED@ -e 's:<SH>:$(SH):g' -e 's:<SED>:$(SED):g' pekwm_themeset.sh.in > pekwm_themeset.sh
+%.sh: $(srcdir)/%.sh.in
+	@SED@ -e 's:<SH>:$(SH):g' -e 's:<SED>:$(SED):g' $< > $@
 
 distclean-local:
 	rm -f *\~ .\#*
