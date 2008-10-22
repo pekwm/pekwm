@@ -263,7 +263,7 @@ expandFileName(std::string &file)
 //! @param max Maximum number of elements to put into vals (optional)
 //! @return Number of tokens inserted into vals
 uint
-splitString(const std::string &str, std::vector<std::string> &toks,
+splitString(const std::string str, std::vector<std::string> &toks,
             const char *sep, uint max)
 {
     if (str.size() < 1) {
