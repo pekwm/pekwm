@@ -1029,7 +1029,7 @@ Theme::loadThemeRequire(CfgParser &theme_cfg)
         // Re-load configuration with templates enabled.
         if (value_templates) {
             string theme_path(_theme_path);
-            theme_cfg.clear();
+            theme_cfg.clear(true);
             theme_cfg.parse(theme_path, CfgParserSource::SOURCE_FILE, true);
         }
     }

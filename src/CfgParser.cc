@@ -241,7 +241,7 @@ CfgParser::CfgParser(void)
 //! @brief CfgParser destructor.
 CfgParser::~CfgParser(void)
 {
-    clear();
+    clear(false);
 }
 
 /**
@@ -249,11 +249,17 @@ CfgParser::~CfgParser(void)
  * after construction.
  */
 void
-CfgParser::clear(void)
+CfgParser::clear(bool alloc)
 {
     _source = 0;
     delete _root_entry;
-    _root_entry = new CfgParser::Entry(_root_source_name, 0, "ROOT", "");
+
+    if (alloc) {
+        _root_entry = new CfgParser::Entry(_root_source_name, 0, "ROOT", "");
+    } else {
+        _root_entry = 0;
+    }
+
     _section = _root_entry;
     _overwrite = false;
 
