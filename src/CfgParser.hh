@@ -70,9 +70,8 @@ public:
         Entry *get_section(void) { return _section; }
         Entry *set_section(Entry *section, bool overwrite=false);
 
-        Entry *find_entry(const std::string &name, bool include_sections=false);
-        Entry *find_section(const std::string &name);
-
+        Entry *find_entry(const std::string &name, bool include_sections=false, const char *value=0);
+        Entry *find_section(const std::string &name, const char *value=0);
         void parse_key_values(std::list<CfgParserKey*>::iterator begin,
                               std::list<CfgParserKey*>::iterator end);
 

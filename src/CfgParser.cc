@@ -76,7 +76,11 @@ CfgParser::Entry::add_entry(CfgParser::Entry *entry, bool overwrite)
 {
     CfgParser::Entry *entry_search = 0;
     if (overwrite) {
-        entry_search = find_entry(entry->get_name(), entry->get_section() != 0);
+        if (entry->get_section()) {
+            entry_search = find_entry(entry->get_name(), true, entry->get_section()->get_value().c_str());
+        } else {
+            entry_search = find_entry(entry->get_name(), false);
+        }
     }
 
     // This is a bit awkward but to keep compatible with old
@@ -132,12 +136,16 @@ CfgParser::Entry::set_section(CfgParser::Entry *section, bool overwrite)
 //! @brief Gets next entry without subsection matching the name name.
 //! @param name Name of Entry to look for.
 CfgParser::Entry*
-CfgParser::Entry::find_entry(const std::string &name, bool include_sections)
+CfgParser::Entry::find_entry(const std::string &name, bool include_sections, const char *value)
 {
+    CfgParser::Entry *value_check;
     list<CfgParser::Entry*>::iterator it(_entries.begin());
     for (; it != _entries.end(); ++it) {
-        if ((include_sections || ! (*it)->get_section())
-            && (*(*it) == name.c_str())) {
+        value_check = include_sections ? (*it)->get_section() : (*it);
+
+        if (*(*it) == name.c_str()
+            && (! (*it)->get_section() || include_sections)
+            && (! value || (value_check && value_check->get_value() == value))) {
             return *it;
         }
     }
@@ -148,11 +156,12 @@ CfgParser::Entry::find_entry(const std::string &name, bool include_sections)
 //! @brief Gets the next entry with subsection matchin the name name.
 //! @param name Name of Entry to look for.
 CfgParser::Entry*
-CfgParser::Entry::find_section(const std::string &name)
+CfgParser::Entry::find_section(const std::string &name, const char *value)
 {
     list<CfgParser::Entry*>::iterator it(_entries.begin());
     for (; it != _entries.end(); ++it) {
-        if ((*it)->get_section() && (*(*it) == name.c_str ())) {
+        if ((*it)->get_section() && *(*it) == name.c_str()
+            && (! value || (*it)->get_section()->get_value() == value)) {
             return (*it)->get_section();
         }
     }
