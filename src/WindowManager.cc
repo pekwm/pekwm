@@ -2180,6 +2180,56 @@ WindowManager::hideAllMenus(void)
 #endif // MENUS
 // here follows methods for hints and atoms
 
+/**
+ * Reads the _NET_DESKTOP_NAMES hint and sets the workspaces names accordingly.
+ */
+void
+WindowManager::readDesktopNamesHint(void)
+{
+    Atom actType;
+    int actFormat, status;
+    ulong read = 0, left = 0;
+    long maxfetch = 100;
+    unsigned char *data = 0;
+
+    // for convenience
+    const Atom utf8Atom=_ewmh_atoms->getAtom(UTF8_STRING);
+
+    do {
+        if (left) {
+            if (data) {
+                XFree(data);
+                data = 0;
+            }
+            data = 0;
+            maxfetch += left;
+        }
+
+        status =
+            XGetWindowProperty(PScreen::instance()->getDpy(),
+                               _screen->getRoot(),
+                               _ewmh_atoms->getAtom(NET_DESKTOP_NAMES),
+                               0L, maxfetch, False, utf8Atom,
+                               &actType, &actFormat, &read, &left, &data);
+
+        if (Success != status || actFormat != 8 || actType != utf8Atom) {
+            if (data) {
+                XFree(data);
+                data = 0;
+            }
+            return;
+        }
+    } while (left);
+
+    Config::instance()->setDesktopNamesUTF8(reinterpret_cast<char *>(data), read);
+    _workspaces->setNames();
+
+    if (data) {
+        XFree(data);
+        data = 0;
+    }
+}
+
 void
 WindowManager::initHints(void)
 {

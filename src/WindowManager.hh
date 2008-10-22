@@ -264,6 +264,8 @@ private:
     void deleteMenus(void);
 #endif // MENUS
 
+    void readDesktopNamesHint(void);
+
     // private methods for the hints
     void initHints(void);
 
