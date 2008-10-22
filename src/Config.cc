@@ -351,7 +351,7 @@ Config::~Config(void)
  * @param length *length will be set to the complete length of array *names points to or 0.
  */
 void
-Config::getDesktopNamesUTF8(uchar **names, uint *length)
+Config::getDesktopNamesUTF8(uchar **names, uint *length) const
 {
     if (! _screen_workspace_names.size()) {
         *names = 0;
@@ -361,7 +361,7 @@ Config::getDesktopNamesUTF8(uchar **names, uint *length)
 
     // Convert strings to UTF-8 and calculate total length
     string utf8_names;
-    vector<wstring>::iterator it(_screen_workspace_names.begin());
+    vector<wstring>::const_iterator it(_screen_workspace_names.begin());
     for (; it != _screen_workspace_names.end(); ++it) {
         string utf8_name(Util::to_utf8_str(*it));
         utf8_names.append(utf8_name.c_str(), utf8_name.size() + 1);
