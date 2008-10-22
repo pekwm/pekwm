@@ -39,6 +39,7 @@ public:
      */
     class ThemeData {
     public:
+        virtual ~ThemeData() {}
         virtual bool load(CfgParser::Entry *section) = 0;
         virtual void unload(void) = 0;
         virtual void check(void) = 0;
