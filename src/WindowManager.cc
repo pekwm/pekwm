@@ -473,22 +473,16 @@ WindowManager::~WindowManager(void)
 {
     cleanup();
 
-    if (_root_wo)
-        delete _root_wo;
+    delete _cmd_dialog;
+    delete _status_window;
+    delete _workspace_indicator;
+    delete _root_wo;
 
 #ifdef HARBOUR
     if (_harbour) {
         delete _harbour;
     }
 #endif // HARBOUR
-
-    if (_cmd_dialog) {
-        delete _cmd_dialog;
-    }
-    if (_status_window)
-        delete _status_window;
-    if (_workspace_indicator)
-        delete _workspace_indicator;
 
     if (_action_handler)
         delete _action_handler;
