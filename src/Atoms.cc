@@ -170,7 +170,7 @@ EwmhAtoms::getAtomArray(void) const
 namespace AtomUtil {
 
 //! @brief Get unknown property
-ulong
+bool
 getProperty(Window win, Atom atom, Atom type, ulong expected, uchar** data)
 {
     Atom r_type;
