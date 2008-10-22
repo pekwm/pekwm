@@ -1641,6 +1641,10 @@ void
 WindowManager::handlePropertyEvent(XPropertyEvent *ev)
 {
     if (ev->window == _screen->getRoot()) {
+        if (ev->atom == _ewmh_atoms->getAtom(NET_DESKTOP_NAMES)) {
+            readDesktopNamesHint();
+        }
+
         return;
     }
 
