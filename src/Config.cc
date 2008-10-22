@@ -372,6 +372,31 @@ Config::getDesktopNamesUTF8(uchar **names, uint *length) const
     *length = utf8_names.size();
 }
 
+/**
+ * Sets the desktop names.
+ *
+ * @param names names is expected to point to an array of NULL-terminated utf8-strings.
+ * @param length The length of the array "names".
+ */
+void
+Config::setDesktopNamesUTF8(char *names, uint length)
+{
+    _screen_workspace_names.clear();
+
+    if (! length || ! names) {
+        return;
+    }
+
+    string name;
+
+    for (uint i=0; i<length;) {
+        name = names;
+        i += strlen(names) + 1;
+        names += strlen(names) + 1;
+        _screen_workspace_names.push_back(Util::from_utf8_str(name));
+    }
+}
+
 //! @brief Tries to load config_file, ~/.pekwm/config, SYSCONFDIR/config
 bool
 Config::load(const std::string &config_file)
