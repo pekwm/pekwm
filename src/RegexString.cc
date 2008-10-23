@@ -22,6 +22,8 @@ using std::list;
 using std::string;
 using std::wstring;
 
+const char RegexString::SEPARATOR = '/';
+
 //! @brief RegexString constructor.
 RegexString::RegexString(void)
     : _reg_ok(false), _reg_inverted(false), _ref_max(1)
@@ -103,10 +105,9 @@ RegexString::parse_match(const std::wstring &match, bool full)
         wstring expression_str;
 
         // Full regular expression syntax, parse out flags etc
-        char sep = match[0];
-
-        string::size_type pos = match.find_last_of(sep);
-        if ((pos != 0) && (pos != string::npos)) {
+        string::size_type pos;
+        if (match[0] == SEPARATOR
+            && (pos = match.find_last_of(SEPARATOR)) != string::npos) {
             // Main expression
             expression_str = match.substr(1, pos - 1);
 
@@ -128,7 +129,7 @@ RegexString::parse_match(const std::wstring &match, bool full)
             expression = Util::to_mb_str(expression_str);
         } else {
             if (full) {
-                cerr << "Invalid format of regular expression, missing separator " << sep << endl;
+                cerr << "Invalid format of regular expression, missing separator " << SEPARATOR << endl;
             }
             expression = Util::to_mb_str(match);
         }
