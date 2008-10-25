@@ -171,22 +171,36 @@ namespace AtomUtil {
 
 //! @brief Get unknown property
 bool
-getProperty(Window win, Atom atom, Atom type, ulong expected, uchar** data)
+getProperty(Window win, Atom atom, Atom type, ulong expected, uchar** data, ulong *actual)
 {
     Atom r_type;
     int r_format, status;
-    ulong read, left;
+    ulong read = 0, left = 0;
 
-    status =
-        XGetWindowProperty(PScreen::instance()->getDpy(), win, atom,
-                           0L, expected, False, type,
-                           &r_type, &r_format, &read, &left, data);
-
-    if ((status != Success) || (read == 0)) {
+    *data = 0;
+    do {
         if (*data) {
             XFree(*data);
             *data = 0;
         }
+        expected += left;
+
+        status =
+            XGetWindowProperty(PScreen::instance()->getDpy(), win, atom,
+                               0L, expected, False, type,
+                               &r_type, &r_format, &read, &left, data);
+
+        if (status != Success || type != r_type || read == 0) {
+            if (*data) {
+                XFree(*data);
+                *data = 0;
+            }
+            left = 0;
+        }
+    } while (left);
+
+    if (actual) {
+        * actual = read;
     }
 
     return (*data != 0);

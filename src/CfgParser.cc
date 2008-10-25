@@ -4,7 +4,6 @@
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
-//
 
 #include "CfgParser.hh"
 #include "Util.hh"
@@ -247,14 +246,16 @@ CfgParser::~CfgParser(void)
 /**
  * Clear resources used by parser, end up in the same state as in
  * after construction.
+ *
+ * @param realloc If realloc is false, root_entry will be cleared as well rendering the parser useless. Defaults to true.
  */
 void
-CfgParser::clear(bool alloc)
+CfgParser::clear(bool realloc)
 {
     _source = 0;
     delete _root_entry;
 
-    if (alloc) {
+    if (realloc) {
         _root_entry = new CfgParser::Entry(_root_source_name, 0, "ROOT", "");
     } else {
         _root_entry = 0;

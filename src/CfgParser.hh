@@ -103,7 +103,7 @@ public:
     //! @brief Returns the root Entry node.
     Entry *get_entry_root(void) { return _root_entry; }
 
-    void clear(bool alloc);
+    void clear(bool realloc = true);
     bool parse(const std::string &src, CfgParserSource::Type type = CfgParserSource::SOURCE_FILE,
                bool overwrite = false);
 

@@ -323,7 +323,9 @@ private:
 
     // Windows for the different hints
     Window _extended_hints_win;
-    
+
+    static const ulong EXPECTED_DESKTOP_NAMES_LENGTH; /**< Start retrieving up to as many bytes for desktop names. */
+
     // pointer for singleton pattern
     static WindowManager *_inst;
 };

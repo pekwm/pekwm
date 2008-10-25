@@ -379,21 +379,18 @@ Config::getDesktopNamesUTF8(uchar **names, uint *length) const
  * @param length The length of the array "names".
  */
 void
-Config::setDesktopNamesUTF8(char *names, uint length)
+Config::setDesktopNamesUTF8(char *names, ulong length)
 {
     _screen_workspace_names.clear();
 
-    if (! length || ! names) {
+    if (! names || ! length) {
         return;
     }
 
-    string name;
-
-    for (uint i=0; i<length;) {
-        name = names;
+    for (ulong i = 0; i < length;) {
+        _screen_workspace_names.push_back(Util::from_utf8_str(names));
         i += strlen(names) + 1;
         names += strlen(names) + 1;
-        _screen_workspace_names.push_back(Util::from_utf8_str(name));
     }
 }
 

@@ -61,7 +61,7 @@ public:
         return (num >= _screen_workspace_names.size())?_screen_workspace_name_default:
                                                        _screen_workspace_names[num];
     }
-    void setDesktopNamesUTF8(char *names, uint length);
+    void setDesktopNamesUTF8(char *names, ulong length);
 
     inline int getScreenEdgeSize(EdgeType edge) const { return _screen_edge_sizes[edge]; }
     inline bool getScreenEdgeIndent(void) const { return _screen_edge_indent; }
