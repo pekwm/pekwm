@@ -12,6 +12,7 @@
 
 #include "Config.hh"
 
+#include "Compat.hh"
 #include "Util.hh"
 #include "PScreen.hh" // for DPY in keyconfig code
 
@@ -443,8 +444,9 @@ Config::load(const std::string &config_file)
 
     // Update PEKWM_CONFIG_FILE environment if needed ( to reflect active file )
     char *cfg_env = getenv("PEKWM_CONFIG_FILE");
-    if (! cfg_env || (strcmp(cfg_env, file_success.c_str()) != 0))
+    if (! cfg_env || (strcmp(cfg_env, file_success.c_str()) != 0)) {
         setenv("PEKWM_CONFIG_FILE", file_success.c_str(), 1);
+    }
 
     string o_file_mouse; // temporary filepath for mouseconfig
 

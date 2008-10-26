@@ -1,6 +1,6 @@
 //
 // Util.cc for pekwm
-// Copyright (C) 2002-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2002-2008 Claes Nästén <me@pekdon.net>
 //
 // misc.cc for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
@@ -592,30 +592,3 @@ file_backed_list::save (const std::string &path)
 
 } // end namespace Util.
 
-//! @brief Inserts or resets the enviornment variable name
-#ifndef HAVE_SETENV
-int
-setenv(const char *name, const char *value, int overwrite)
-{
-    // invalid parameters
-    if (! name || ! value) {
-        return -1;
-    }
-
-    // don't owerwrite
-    if ((overwrite == 0) && getenv(name)) {
-        return 0;
-    }
-
-    size_t len = strlen(name) + strlen(value) + 2;
-    char *str = new char[len];
-    if (! str) {
-        errno = ENOMEM;
-        return -1;
-    }
-
-    snprintf(str, len, "%s=%s", name, value);
-
-    return (putenv(str));
-}
-#endif // HAVE_SETENV

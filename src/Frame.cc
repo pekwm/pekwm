@@ -23,6 +23,7 @@ extern "C" {
 #include "PDecor.hh"
 #include "Frame.hh"
 
+#include "Compat.hh"
 #include "PScreen.hh"
 #include "Config.hh"
 #include "ActionHandler.hh"

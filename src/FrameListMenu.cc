@@ -1,11 +1,9 @@
 //
 // FrameListMenu.cc for pekwm
-// Copyright © 2002-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2002-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
-//
-// $Id$
 //
 
 #ifdef HAVE_CONFIG_H
@@ -18,6 +16,7 @@
 #include <cstdio>
 #include <iostream>
 
+#include "Compat.hh"
 #include "PWinObj.hh"
 #include "PDecor.hh"
 #include "PMenu.hh"

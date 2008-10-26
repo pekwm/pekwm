@@ -25,6 +25,7 @@ extern "C" {
 #endif // HAVE_SHAPE
 }
 
+#include "Compat.hh"
 #include "Config.hh"
 #include "PWinObj.hh"
 #include "PFont.hh"

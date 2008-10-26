@@ -6,6 +6,7 @@
 //
 
 #include "CfgParser.hh"
+#include "Compat.hh"
 #include "Util.hh"
 
 #include <algorithm>
@@ -680,7 +681,7 @@ CfgParser::variable_define(const std::string &name, const std::string &value)
 
     // If the variable begins with $_ it should update the environment aswell.
     if ((name.size() > 2) && (name[1] == '_')) {
-        setenv (name.c_str() + 2, value.c_str(), 1);
+        setenv(name.c_str() + 2, value.c_str(), 1);
     }
 }
 

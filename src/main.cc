@@ -17,6 +17,7 @@
 #include "PWinObj.hh"
 #include "PDecor.hh"
 #include "Client.hh"
+#include "Compat.hh"
 #include "Frame.hh"
 #include "WindowManager.hh"
 #include "Util.hh"
