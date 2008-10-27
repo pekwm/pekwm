@@ -13,6 +13,9 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
+#include <cwchar>
+#include <cstddef>
+
 #ifndef HAVE_SWPRINTF
 int swprintf(wchar_t *wcs, size_t maxlen, const wchar_t *format, ...);
 #endif // HAVE_SWPRINTF
