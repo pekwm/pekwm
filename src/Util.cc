@@ -388,7 +388,7 @@ do_iconv (iconv_t ic, const char **inp, size_t *in_bytes,
     return iconv(ic, inp, in_bytes, outp, out_bytes);
 #else // !ICONV_CONST
     return iconv(ic, const_cast<char**>(inp), in_bytes, outp, out_bytes);
-#endif // HAVE_CONST_ICONV
+#endif // ICONV_CONST
 }
 
 //! @brief Init iconv conversion.

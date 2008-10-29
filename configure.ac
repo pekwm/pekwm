@@ -20,7 +20,12 @@ AC_CHECK_PROG([SH], [sh], [/usr/xpg4/bin/sh], [/bin/sh], [/usr/xpg4/bin])
 
 dnl Check for iconv
 AM_ICONV
+if test "x$am_cv_func_iconv" != "xyes"; then
+   AC_MSG_ERROR([Could not find iconv.])
+fi
+
 LIBS="$LIBS $LIBICONV"
+CXXFLAGS="$CXXFLAGS $INCICONV"
 
 dnl add x11 to the env
 AC_PATH_X
@@ -163,7 +168,16 @@ if test "x$enable_image_png" = "xyes"; then
                 CXXFLAGS="$CXXFLAGS $libpng12_CFLAGS"
  		FEATURES="$FEATURES image-png"
  	else
- 		AC_MSG_RESULT([no])
+                PKG_CHECK_MODULES([libpng], [libpng >= 1.0.0], HAVE_LIBPNG=yes, HAVE_LIBPNG=no)
+
+                if test "x$HAVE_LIBPNG" = "xyes"; then                
+	        	AC_DEFINE(HAVE_IMAGE_PNG, [1], [Define to 1 if you have libpng12])
+ 		        LIBS="$LIBS $libpng_LIBS"
+                        CXXFLAGS="$CXXFLAGS $libpng_CFLAGS"
+                        FEATURES="$FEATURES image-png"
+                else
+                        AC_MSG_RESULT([no])
+                fi
         fi
 else
 	AC_MSG_RESULT([no])
