@@ -3,7 +3,7 @@
   <title>Keyboard and Mouse Configuration</title>
 
   <para>
-    Pekwm allows you to remap almoust all keyboard and mouse events.
+    Pekwm allows you to remap almost all keyboard and mouse events.
   </para>
 
   &config-keys_mouse-mouse;

@@ -711,7 +711,7 @@
 	      <listitem><para>decor - shows possible decorations in the current theme</para></listitem>
 	      <listitem><para>attachclient - allows to attach clients in current frame</para></listitem>
 	      <listitem><para>attachframe - allows to attach whole frame in current frame</para></listitem>
-	      <listitem><para>attachclientinframe - allows attaching current clent in any other frame</para></listitem>
+	      <listitem><para>attachclientinframe - allows attaching current client in any other frame</para></listitem>
 	      <listitem><para>attachframeinframe - allows attaching current frame in any other frame</para></listitem>
 	    </itemizedlist>
 
@@ -796,7 +796,7 @@
         <term>End</term>
         <listitem>
           <para>
-            Aknowledges the moveresize actions and moves/resizes the frame as wished.
+            Acknowledges the moveresize actions and moves/resizes the frame as wished.
           </para>
           <para>Moveresize-specific keybinding</para></listitem>
       </varlistentry>

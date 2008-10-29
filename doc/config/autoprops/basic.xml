@@ -98,7 +98,7 @@
     on the harbour. If you have application on the harbour that do not
     match any of the property rules on the Harbour section, they will
     act as if you had given them Position 0. Applications with the
-    same Position will show up next to eachother in the order they are
+    same Position will show up next to each other in the order they are
     launched. In our example below, obpager will always be placed the
     last on the harbour.
   </para>
@@ -162,7 +162,7 @@ Harbour {
       <title>Regular Expressions!</title>
 
       <para>
-	The pekwm autoproperrties file uses Regular Expression syntax
+	The pekwm autoproperties file uses Regular Expression syntax
 	for wildcards.  Regular expressions can be really confusing to
 	people with no experience with them. A good rule of thumb is:
 	"Anywhere you'd think to use '*', use '.*'". Also, '^' matches

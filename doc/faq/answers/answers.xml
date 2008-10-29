@@ -136,14 +136,14 @@ Esetroot -s mybackground.png &</screen>
       of <filename>~/.pekwm</filename> (
       <command>mv ~/.pekwm ~/old.pekwm</command>), which will result
       in new fresh configuration files being copied in. If this helps,
-      your configuration files werent compatible with the new version
+      your configuration files weren't compatible with the new version
       of pekwm.
     </para>
 
     <para>
       <emphasis>Check the ChangeLog</emphasis> - If something
       configurable wise has been changed, it has also been documented
-      in the <filename>ChangeLog</filename>.  This is a helpfull
+      in the <filename>ChangeLog</filename>.  This is a helpful
       resource when you want to convert your old configuration files
       to a newer configuration format.
     </para>
@@ -196,7 +196,7 @@ Esetroot -s mybackground.png &</screen>
 
       <para>
         The default <filename>~/.pekwm/mouse</filename> configuration
-        file has helpfull "# Remove the following line if you want to
+        file has helpful "# Remove the following line if you want to
         use click to focus."  notes in it to make this easier. Just
         search for such lines and remove or comment out the line
         (using a # in front of the line) next to the message.
@@ -282,7 +282,7 @@ Esetroot -s mybackground.png &</screen>
       <title>How do I set a background/root/desktop image?</title>
 
       <para>
-        In simple terms, you use any program that is capaple of
+        In simple terms, you use any program that is capable of
         setting background images.  What? Want links too? Because you
         asked nice,
         <ulink url="http://www.linuxbrit.co.uk/feh/">here's feh</ulink> and
@@ -294,7 +294,7 @@ Esetroot -s mybackground.png &</screen>
 
       <para>
         You want that the background gets set automatically when you
-        start pekwm?  You have three options. Eather, add the command
+        start pekwm?  You have three options. Either, add the command
         that you use to set your background
         into <filename>~/.xinitrc</filename> (or similar) before the
         command that starts pekwm. Or, add the command to set a
@@ -315,14 +315,14 @@ Esetroot -s mybackground.png &</screen>
         changes are backwards compatible, some are not. You have hit a
         theme with too old or too new theme syntax for your copy of
         pekwm.  Nothing can be done unless someone who knows the
-        differences between theme formats owns you a favor and agrees
+        differences between theme formats owns you a favour and agrees
         to edit it out for you.
       </para>
 
       <para>
         Pekwm shouldn't refuse to start again after a faulting theme
         test, but you will usually see everything scrambled up. In
-        this case you can eather try to select a new working theme
+        this case you can either try to select a new working theme
         from the menu or change the theme used manually.  This is done
         in <filename>~/.pekwm/config</filename>.  Under the
         Files-section, there is an entry named Theme, that points to

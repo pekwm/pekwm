@@ -4,7 +4,7 @@
   <para>
     The TypeRules decides how the _NET_WM_WINDOW_TYPE should be
     interpreted. The _NET_WM_WINDOW_TYPE hint gives the application
-    writer possiblity to inform the window manager what kind of window
+    writer possibility to inform the window manager what kind of window
     it is creating.
   </para>
 

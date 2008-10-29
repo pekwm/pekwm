@@ -13,7 +13,7 @@
 
   <para>
     Multiple actions can be given for one keypress. The actions are
-    separated from eachother with a semicolon:
+    separated from each other with a semicolon:
   </para>
 
   <screen>Keypress = "Ctrl t" { Actions = "Exec xterm; Set Maximized True True; Close" }</screen>

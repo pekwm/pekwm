@@ -126,11 +126,11 @@
 				<listitem>
 					<para><emphasis role="bold">SOLIDRAISED colour colour colour pixels pixels toggle toggle toggle toggle size</emphasis></para>
 					<para>A solid colour texture with a 3D look of defined colours, form and size.
-				    First colour defines the main fill colour, second the hilight colour used on the left and top
-				    parts of the texture, third the hilight colour on the bottom and right parts of the texture.
-				    First pixel amount defines how fart apart the 3D effects are from eachother, second pixel
+				    First colour defines the main fill colour, second the highlight colour used on the left and top
+				    parts of the texture, third the highlight colour on the bottom and right parts of the texture.
+				    First pixel amount defines how fart apart the 3D effects are from each other, second pixel
 				    amount is how thick the bordering will be (both pixels default to 1).
-				    The four toggles are used to tell which raised corners are to be drawn. This is usefull for
+				    The four toggles are used to tell which raised corners are to be drawn. This is useful for
 				    example when defining solidraised frame corner pieces. The order is Top, Bottom, Left, Right
 				    (not unlike that used in padding). As example: "True False True False" (or 1 0 1 0) could
 				    mean you want to draw the TopLeft piece of a solidraised window border.

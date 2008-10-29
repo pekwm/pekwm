@@ -7,7 +7,7 @@ see a rectangle with the window's title in it. Drag that rectangle to above the
 target window, and release your mouse button.</para>
 
 <note><para>Any time this document mentions a key or mouse button, there's a strong 
-likelyhood that you can change which key or mouse button is used for that 
+likelihood that you can change which key or mouse button is used for that 
 function. Please see the <xref linkend="config-keys_mouse"/> section.</para></note>
 <para>Now that you have windows in a group, you need to learn to choose 
 between windows in that group. The first way is by clicking the middle

@@ -149,7 +149,7 @@ Other {
       <varlistentry>
 	<term>Client</term>
 	<listitem>
-          <para>Anywhere on the window's interiour- it's best to use a
+          <para>Anywhere on the window's interior. It's best to use a
           keyboard modifier with these.</para>
         </listitem>
       </varlistentry>

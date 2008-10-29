@@ -27,7 +27,7 @@ pekwm_0.1.5/menubg.png
 pekwm_0.1.5/submenu.png</screen>
 
   <para>
-    The theme file header should contain attleast the themes name, the
+    The theme file header should contain at least the themes name, the
     pekwm version the theme is for, address to reach the theme
     maker/porter or get an updated theme, and a last modified
     date. Changelog entries won't hurt if you aren't the original
