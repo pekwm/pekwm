@@ -60,7 +60,7 @@
         <term>AlwaysOnTop</term>
         <listitem>
           <para>
-            If frame should allways be on top of other frames.
+            If frame should always be on top of other frames.
           </para>
         </listitem>
       </varlistentry>
@@ -68,7 +68,7 @@
         <term>AlwaysBelow</term>
         <listitem>
           <para>
-            If a frame should allways be below other frames.
+            If a frame should always be below other frames.
           </para>
         </listitem>
       </varlistentry>

@@ -33,7 +33,7 @@
     Exec makes pekwm to execute the command that follows it.
     Make sure the program gets backgrounded. Put an '&' at the end of the action if it doesn't do this on it's own.
     </para></listitem></varlistentry>
-  <varlistentry><term>Reload</term><listitem><para>When this is called, pekwm will Re-read all configuration files without exiting.</para></listitem></varlistentry>
+  <varlistentry><term>Reload</term><listitem><para>When this is called, pekwm will re-read all configuration files without exiting.</para></listitem></varlistentry>
   <varlistentry><term>Restart</term><listitem><para>This will cause pekwm to exit and re-start completely.</para></listitem></varlistentry>
   <varlistentry><term>RestartOther</term><listitem><para>Quits pekwm and starts another application. The application to run is given as a parameter.</para></listitem></varlistentry>
   <varlistentry><term>Exit</term><listitem><para>Exits pekwm. Under a normal X setup, This will end your X session.</para></listitem></varlistentry>

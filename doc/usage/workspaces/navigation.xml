@@ -5,7 +5,7 @@ You can send windows to another workspace by right-clicking the titlebar, going 
 'send to' and picking the desktop you'd like. Another option is using the SendToWorkspace
 keybindings (by default, Mod4 and one of F1, F2, F3, or F4). Using the mouse to drag a
 window over the right or left screen edge makes it move to the next or previous workspace.
-Also try placing the mouse pointer on a client window and rotatign the mouse wheel while
+Also try placing the mouse pointer on a client window and rotating the mouse wheel while
 holding Mod1 down to send a window to the next or previous workspace and follow it there yourself.
 </para>
 <para>

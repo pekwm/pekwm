@@ -42,7 +42,7 @@
 			WidthSymetric, toggle
 
 				Set true to constant width titles or false to use titles that only are as big as the clients
-				title text string requires (note, asymmetric width is not fully implemented yet, allways set
+				title text string requires (note, asymmetric width is not fully implemented yet, always set
 				this true for now to avoid problems).
 
 

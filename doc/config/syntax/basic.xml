@@ -3,7 +3,7 @@
 <title>Basic Syntax</title>
 <para>
 	All pekwm config files (with the exception of the start file- see 
-	<xref linkend="config-start"/> ) Follow a common syntax for options. 
+	<xref linkend="config-start"/> ) follow a common syntax for options. 
 </para>
 <screen>
 # comment

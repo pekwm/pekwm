@@ -116,7 +116,7 @@
       <varlistentry>
         <term>ShowWorkspaceIndicator (int)</term>
         <listitem>
-          <para>Show WorkspaceIndicator for N milliseconds. If set to &lt; 1 the WorkspaceIndicator is disabled.</para>
+          <para>Show WorkspaceIndicator for N milliseconds. If set to &lt; 1, the WorkspaceIndicator is disabled.</para>
         </listitem>
       </varlistentry>
       <varlistentry>

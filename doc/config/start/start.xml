@@ -14,8 +14,8 @@
   <para>
     Why anyone would use <filename>start</filename> rather than just use their 
     <filename>~/.xinitrc</filename> file? Well, the answer is, the
-    start file is executed during the pekwm initialization phase-
-    Therefore, it gets re-executed when you issue a pekwm 'restart'.
+    start file is executed during the pekwm initialization phase -
+    therefore, it gets re-executed when you issue a pekwm 'restart'.
   </para>
 
   <para>

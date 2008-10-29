@@ -48,7 +48,7 @@
 
   <para>
     Pekwm can rewrite window titles.  This is done in a separate
-    TitleRules section, where one defines properties on wich clients
+    TitleRules section, where one defines properties on which clients
     to use the rewriting and then a regexp rule of what to do to that
     clients title. These rules do not affect the actual WM_NAME
     string. You can use Role and Title keywords to narrow down the
@@ -99,7 +99,7 @@
     match any of the property rules on the Harbour section, they will
     act as if you had given them Position 0. Applications with the
     same Position will show up next to eachother in the order they are
-    launched. In our example below, obpager will allways be placed the
+    launched. In our example below, obpager will always be placed the
     last on the harbour.
   </para>
 

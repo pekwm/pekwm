@@ -5,9 +5,9 @@
 to test how the basics work.</para>
 
 <para>The documentation generally tries to explain the terms it uses,
-but usefull terms to know beforehand include "Mod1" wich usually means
-your Alt key, and "Mod4" wich refers to the "windows key" found on recen
-t keyboards.</para>
+but useful terms to know beforehand include "Mod1" which usually means
+your Alt key, and "Mod4" which refers to the "windows key" found on recent
+keyboards.</para>
 <para>It's also good to know that a "frame" basically means the same as a
 window, but this window can contain one or more real windows. The same
 concept is also referred as a "window group". In relation to this,

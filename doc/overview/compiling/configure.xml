@@ -82,7 +82,7 @@
       <varlistentry>
 	<term>--enable-harbour</term>
 	<listitem>
-          <para>Enables the use of the harbour wich is used to swallow
+          <para>Enables the use of the harbour which is used to swallow
 	   Window Maker dockapps.</para>
 	  <para>By default, Enabled</para>
         </listitem>
