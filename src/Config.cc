@@ -426,10 +426,19 @@ Config::load(const std::string &config_file)
         }
     }
 
-    // Copy cfg files to ~/.pekwm and then try loading global config
+    // Copy cfg files to ~/.pekwm and try loading ~/.pekwm/config again.
     if (! success) {
         copyConfigFiles();
 
+        _config_file = string(getenv("HOME")) + string("/.pekwm/config");
+        success = cfg.parse(_config_file, CfgParserSource::SOURCE_FILE, true);
+        if (success) {
+            file_success = _config_file;
+        }
+    }
+
+    // Try loading system configuration files.
+    if (! success) {
         _config_file = string(SYSCONFDIR "/config");
         success = cfg.parse(_config_file, CfgParserSource::SOURCE_FILE, true);
         if (success) {
