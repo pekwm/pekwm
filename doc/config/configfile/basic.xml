@@ -38,7 +38,7 @@ Screen {
 	PlaceNew = "True"
 
 	TrimTitle = "..."
-	EdgeSize = "1"
+	EdgeSize = "1 1 1 1"
 	EdgeIndent = "False"
 	PixmapCacheSize = "20"
 	DoubleClickTime = "250"
