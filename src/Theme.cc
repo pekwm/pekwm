@@ -910,7 +910,6 @@ Theme::Theme(PScreen *scr)
     _invert_gc = XCreateGC(_scr->getDpy(), _scr->getRoot(),
                            GCFunction|GCSubwindowMode|GCLineWidth, &gv);
 
-
     _scr->grabServer();
 
     load(Config::instance()->getThemeFile());

@@ -336,6 +336,9 @@ public:
     inline std::map<std::string, Theme::PDecorData*>::const_iterator decor_begin(void) { return _pdecordata_map.begin(); }
     inline std::map<std::string, Theme::PDecorData*>::const_iterator decor_end(void) { return _pdecordata_map.end(); }
 
+    /**
+     * Find PDecorData based on name.
+     */
     Theme::PDecorData *getPDecorData(const std::string &name) {
         std::map<std::string, Theme::PDecorData*>::iterator it = _pdecordata_map.begin();
         for (; it != _pdecordata_map.end(); ++it) {
@@ -343,6 +346,13 @@ public:
                 return it->second;
             }
         }
+
+        // Backwards compatibility, CMDDIALOG was used instead of
+        // INPUTDIALOG previously.
+        if (strcasecmp("INPUTDIALOG", name.c_str()) == 0) {
+            return getPDecorData("CMDDIALOG");
+        }
+
         return 0;
     }
 
