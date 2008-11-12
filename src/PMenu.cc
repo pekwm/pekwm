@@ -24,6 +24,7 @@
 #include "Theme.hh"
 #include "PixmapHandler.hh"
 #include "Workspaces.hh"
+#include "AutoProperties.hh"
 
 #include <algorithm>
 #include <cstdlib>
@@ -37,6 +38,7 @@ using std::endl;
 using std::list;
 using std::map;
 using std::string;
+using std::wstring;
 using std::find;
 
 PMenu::Item::Item(const std::wstring &name, PWinObj *wo_ref, PTexture *icon)
@@ -62,7 +64,8 @@ PMenu::PMenu(Display *dpy, Theme *theme, const std::wstring &title,
              const std::string &name, const std::string decor_name)
     : PDecor(dpy, theme, decor_name),
       _name(name),
-      _menu_parent(0), _menu_wo(0),
+      _menu_parent(0), _class_hint(L"pekwm", L"Menu", L"", L"", L""),
+      _menu_wo(0),
       _menu_bg_fo(None), _menu_bg_un(None), _menu_bg_se(None),
       _item_height(0), _item_width_max(0), _item_width_max_avail(0),
       _icon_width(0), _icon_height(0),
@@ -705,6 +708,26 @@ void
 PMenu::setTitle(const std::wstring &title)
 {
     _title.setReal(title);
+	
+    // Apply title rules to allow title rewriting
+    applyTitleRules(title);
+}
+
+/**
+ * Applies title rules to menu.
+ */
+void
+PMenu::applyTitleRules(const std::wstring &title)
+{
+    _class_hint.title = title;
+    TitleProperty *data = AutoProperties::instance()->findTitleProperty(&_class_hint);
+
+    if (data) {
+        wstring new_title(title);
+        if (data->getTitleRule().ed_s(new_title)) {
+            _title.setCustom(new_title);
+        }
+    }
 }
 
 //! @brief Inserts item into the menu ( without rebuilding )

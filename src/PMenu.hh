@@ -18,6 +18,7 @@
 #include <string>
 
 #include "pekwm.hh"
+#include "AutoProperties.hh"
 #include "CfgParser.hh"
 #include "PDecor.hh"
 
@@ -145,11 +146,15 @@ private:
 
     PMenu::Item *findItem(int x, int y);
     void makeInsideScreen(int x, int y);
+	
+    void applyTitleRules(const std::wstring &title);
 
 protected:
     std::string _name; //!< Name of menu, must be unique
     MenuType _menu_type; //!< Type of menu
     PMenu *_menu_parent;
+
+    ClassHint _class_hint; /**< Class information for menu. */
 
     // menu content data
     std::list<PMenu::Item*> _item_list;
