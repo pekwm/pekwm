@@ -22,8 +22,10 @@
 #include <string>
 #include <list>
 
-class RegexString;
-
+/**
+ * Bitmask with different auto property types, used to identify what
+ * properties has been set in Property.
+ */
 enum PropertyType {
     AP_STICKY = (1L << 1),
     AP_SHADED = (1L << 2),
@@ -87,10 +89,16 @@ public:
     }
 
 public:
-    std::wstring h_name, h_class, h_role;
-    std::wstring title, group;
+    std::wstring h_name; /**< name part of WM_CLASS hint. */
+    std::wstring h_class; /**< class part of WM_CLASS hint. */
+    std::wstring h_role; /**< WM_ROLE hint value. */
+    std::wstring title; /**< Title of window. */
+    std::wstring group; /**< Group window belongs to. */
 };
 
+/**
+ * Base class for auto properties, includes base matching information.
+ */
 class Property {
 public:
     Property(void) : _apply_mask(0) { }

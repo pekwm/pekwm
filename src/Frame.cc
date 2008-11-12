@@ -412,17 +412,16 @@ Frame::handleShapeEvent(XAnyEvent *ev)
 void
 Frame::addChild (PWinObj *child)
 {
-    PDecor::addChild (child);
-    AtomUtil::setLong (child->getWindow (),
-                       PekwmAtoms::instance ()->getAtom (PEKWM_FRAME_ID), _id);
-    child->lower ();
+    PDecor::addChild(child);
+    AtomUtil::setLong(child->getWindow(), PekwmAtoms::instance()->getAtom(PEKWM_FRAME_ID), _id);
+    child->lower();
 }
 
 //! @brief Removes child from the frame.
 void
 Frame::removeChild (PWinObj *child, bool do_delete)
 {
-    PDecor::removeChild (child, do_delete);
+    PDecor::removeChild(child, do_delete);
 }
 
 /**

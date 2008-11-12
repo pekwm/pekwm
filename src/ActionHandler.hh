@@ -1,6 +1,6 @@
 //
 // ActionHandler.hh for pekwm
-// Copyright (C) 2003-2006 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2003-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -42,16 +42,14 @@ public:
                                         std::list<ActionEvent> *actions);
     
 private:
-    void handleStateAction(const Action &action, PWinObj *wo,
-                           Client *client, Frame *frame);
+    void handleStateAction(const Action &action, PWinObj *wo, Client *client, Frame *frame);
 
     void actionFindClient(const std::wstring &title);
     void actionGotoClientID(uint id);
     void actionGotoWorkspace(uint workspace, bool warp);
     void actionSendToWorkspace(PDecor *decor, int direction);
     void actionWarpToWorkspace(PDecor *decor, uint direction);
-    void actionFocusToggle(uint button, uint raise, int off,
-                           bool show_iconified, bool mru);
+    void actionFocusToggle(uint button, uint raise, int off, bool show_iconified, bool mru);
     void actionFocusDirectional(PWinObj *wo, DirectionType dir, bool raise);
     bool actionSendKey(PWinObj *wo, const std::string &key_str);
 #ifdef MENUS

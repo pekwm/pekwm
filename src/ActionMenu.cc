@@ -56,8 +56,7 @@ ActionMenu::ActionMenu(MenuType type,
 
     if (_menu_type == WINDOWMENU_TYPE) {
         _action_ok = WINDOWMENU_OK;
-    } else if ((_menu_type == ROOTMENU_TYPE)
-               || (_menu_type == ROOTMENU_STANDALONE_TYPE)) {
+    } else if ((_menu_type == ROOTMENU_TYPE) || (_menu_type == ROOTMENU_STANDALONE_TYPE)) {
         _action_ok = ROOTMENU_OK;
     }
 }
