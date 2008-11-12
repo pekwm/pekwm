@@ -1,4 +1,4 @@
-<simplesect id="config-theme-guidelines" xreflabel="theme guidelines">
+<section id="config-theme-guidelines" xreflabel="theme guidelines">
   <?dbhtml filename="guidelines.html" dir="config"?>
   <title>Guidelines</title>
 
@@ -7,7 +7,7 @@
     labeled for the pekwm version they are made and tested with. The
     filename format should be
     <filename>theme_name-pekwm_version.[tar.gz|tgz|tar.bz2|tbz]</filename>.
-    For example <filename>silly_theme-pekwm_0.1.5.bz2</filename>.
+    For example <filename>silly_theme-pekwm_0.1.5.tar.bz2</filename>.
   </para>
 
   <para>
@@ -49,6 +49,5 @@ pekwm_0.1.5/submenu.png</screen>
   <para>
     Try to stick to the theme syntax and rather than deleting entries please use the EMPTY texture.
   </para>
-
-</simplesect>
+</section>
 

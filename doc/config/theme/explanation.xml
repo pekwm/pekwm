@@ -1,4 +1,4 @@
-<simplesect id="config-theme-explanation" xreflabel="theme explanations">
+<section id="config-theme-explanation" xreflabel="theme explanations">
   <?dbhtml filename="explanation.html" dir="config"?>
     <title>Attribute names used, explanations, possible values, examples</title>
 
@@ -164,4 +164,4 @@
 			  </varlistentry>
 		</variablelist>
 	</para>
-</simplesect>
+</section>
