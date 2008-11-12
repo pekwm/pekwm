@@ -55,6 +55,8 @@ Screen {
 }
 
 Menu {
+    DisplayIcons = "True"
+
     # Defines how menus act on mouse input.
     # Possible values are: "ButtonPress ButtonRelease DoubleClick Motion"
     # To make submenus open on mouse over, comment the default Enter,

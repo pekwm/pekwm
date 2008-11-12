@@ -101,6 +101,7 @@ public:
     inline bool isMenuSelectOn(uint val) const { return (_menu_select_mask&val); }
     inline bool isMenuEnterOn(uint val) const { return (_menu_enter_mask&val); }
     inline bool isMenuExecOn(uint val) const { return (_menu_exec_mask&val); }
+    bool isDisplayMenuIcons(void) const { return _menu_display_icons; }
 
     bool isCmdDialogHistoryUnique(void) const { return _cmd_dialog_history_unique; }
     int getCmdDialogHistorySize(void) const { return _cmd_dialog_history_size; }
@@ -214,6 +215,7 @@ private:
     std::string _screen_client_unique_name_pre, _screen_client_unique_name_post;
 
     uint _menu_select_mask, _menu_enter_mask, _menu_exec_mask;
+    bool _menu_display_icons; /**< Boolean flag, when true display icons in menus. */
     uint _menu_icon_width, _menu_icon_height;
 
     bool _cmd_dialog_history_unique; /**< Boolean flag, when true entries in the CmdDialog history are unique. */

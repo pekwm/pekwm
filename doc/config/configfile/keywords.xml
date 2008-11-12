@@ -321,6 +321,13 @@
       <title>Config File Elements under the Menu-section:</title>
 
       <varlistentry>
+        <term>DisplayIcons (boolean)</term>
+        <listitem>
+          <para>Defines wheter menus should render their icons. Default true.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
         <term>Select (string)</term>
 	<listitem>
           <para>Decides on what mouse events to select a menu entry. String is one of "ButtonPress, ButtonRelease, DoubleClick, Motion"</para>

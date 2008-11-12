@@ -77,10 +77,6 @@ PMenu::PMenu(Display *dpy, Theme *theme, const std::wstring &title,
     _layer = LAYER_MENU;
     _hidden = true; // don't care about it when changing worskpace etc
 
-    titleAdd(&_title);
-    titleSetActive(0);
-    setTitle(title);
-
     // create menu content child
     _menu_wo = new PWinObj(_dpy);
     XSetWindowAttributes attr;
@@ -91,6 +87,11 @@ PMenu::PMenu(Display *dpy, Theme *theme, const std::wstring &title,
                                       0, 0, 1, 1, 0,
                                       CopyFromParent, InputOutput, CopyFromParent,
                                       CWOverrideRedirect|CWEventMask, &attr));
+
+    titleAdd(&_title);
+    titleSetActive(0);
+    setTitle(title);
+	
     addChild(_menu_wo);
     addChildWindow(_menu_wo->getWindow());
     activateChild(_menu_wo);
@@ -398,8 +399,10 @@ PMenu::buildMenuCalculate(void)
     _item_width_max_avail = _item_width_max;
 
     // Continue add padding etc.
-    _item_width_max += _theme->getMenuData()->getPad(PAD_LEFT)
-      + _theme->getMenuData()->getPad(PAD_RIGHT) + _icon_width;
+    _item_width_max += _theme->getMenuData()->getPad(PAD_LEFT) + _theme->getMenuData()->getPad(PAD_RIGHT);
+    if (Config::instance()->isDisplayMenuIcons()) {
+        _item_width_max += _icon_width;
+    }
 
     // If we have any submenus, increase the maximum width with arrow width +
     // right pad as we are going to pad the arrow from the text too.
@@ -546,7 +549,7 @@ PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
                     item->getX(), item->getY(), _item_width_max, _item_height);
 
         // If entry has an icon, draw it
-        if (item->getIcon()) {
+        if (item->getIcon() && Config::instance()->isDisplayMenuIcons()) {
           uint i_w = std::min(Config::instance()->getMenuIconWidth(),
                               item->getIcon()->getWidth());
           uint i_h = std::min(Config::instance()->getMenuIconHeight(),
@@ -574,9 +577,15 @@ PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
         }
 
         PFont *font = md->getFont(state);
+        uint start_x = item->getX() + md->getPad(PAD_LEFT);
+		
+        // Add icon width to starting x position if frame icons are enabled.
+        if (Config::instance()->isDisplayMenuIcons()) {
+            start_x += _icon_width;
+        }
+		
         font->draw(pix,
-                   item->getX() + md->getPad(PAD_LEFT) + _icon_width,
-                   item->getY() + md->getPad(PAD_UP),
+                   start_x, item->getY() + md->getPad(PAD_UP),
                    item->getName().c_str(), 0, // Text and max chars
                    _item_width_max_avail);
 

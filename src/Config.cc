@@ -69,6 +69,7 @@ Config::Config(void) :
         _screen_client_unique_name(true),
         _screen_client_unique_name_pre(" #"), _screen_client_unique_name_post(""),
         _menu_select_mask(0), _menu_enter_mask(0), _menu_exec_mask(0),
+        _menu_display_icons(true),
         _menu_icon_width(16), _menu_icon_height(16),
         _cmd_dialog_history_unique(true), _cmd_dialog_history_size(1024),
         _cmd_dialog_history_file("~/.pekwm/history"), _cmd_dialog_history_save_interval(16)
@@ -689,6 +690,7 @@ Config::loadMenu(CfgParser::Entry *section)
     key_list.push_back(new CfgParserKeyString("SELECT", value_select, "MOTION", 0));
     key_list.push_back(new CfgParserKeyString("ENTER", value_enter, "BUTTONPRESS", 0));
     key_list.push_back(new CfgParserKeyString("EXEC", value_exec, "BUTTONRELEASE", 0));
+    key_list.push_back(new CfgParserKeyBool("DISPLAYICONS", _menu_display_icons, true));
 
     // Parse data
     section->parse_key_values(key_list.begin(), key_list.end());
