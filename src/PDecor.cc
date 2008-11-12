@@ -106,7 +106,7 @@ PDecor::Button::setState(ButtonState state)
     }
 
     // Only update if we don't hoover, we want to be able to turn back
-    if (state != BUTTON_STATE_HOOVER) {
+    if (state != BUTTON_STATE_HOVER) {
         _state = state;
     }
 
@@ -709,7 +709,7 @@ PDecor::handleEnterEvent(XCrossingEvent *ev)
 {
     PDecor::Button *button = findButton(ev->window);
     if (button) {
-        button->setState(BUTTON_STATE_HOOVER);
+        button->setState(BUTTON_STATE_HOVER);
     }
 
     return ActionHandler::findMouseAction(BUTTON_ANY, ev->state, MOUSE_EVENT_ENTER,

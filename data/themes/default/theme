@@ -67,7 +67,7 @@ Define = "ButtonStates" {
   Focused = "Solid #ff790c 0x0"
   Unfocused = "Solid #999999 0x0"
   Pressed = "Solid #000000 0x0"
-  Hoover = "Solid #ffcea5 0x0"
+  Hover = "Solid #ffcea5 0x0"
 }
 
 Define = "ButtonStatesRemote" {

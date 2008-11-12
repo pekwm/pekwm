@@ -80,24 +80,28 @@ Theme::PDecorButtonData::load(CfgParser::Entry *section)
         TextureHandler *th = TextureHandler::instance();
         CfgParser::Entry *value;
 
-        value = section->find_entry ("FOCUSED");
+        value = section->find_entry("FOCUSED");
         if (value) {
             _texture[BUTTON_STATE_FOCUSED] = th->getTexture(value->get_value());
         }
         
-        value = section->find_entry ("UNFOCUSED");
+        value = section->find_entry("UNFOCUSED");
         if (value) {
             _texture[BUTTON_STATE_UNFOCUSED] = th->getTexture(value->get_value());
         }
         
-        value = section->find_entry ("PRESSED");
+        value = section->find_entry("PRESSED");
         if (value) {
             _texture[BUTTON_STATE_PRESSED] = th->getTexture(value->get_value());
         }
-        
-        value = section->find_entry ("HOOVER");
+
+        // HOOVER has been kept around due to backwards compatibility.
+        value = section->find_entry("HOVER");
+        if (! value) {
+            value = section->find_entry("HOOVER");
+        }
         if (value) {
-            _texture[BUTTON_STATE_HOOVER] = th->getTexture(value->get_value());
+            _texture[BUTTON_STATE_HOVER] = th->getTexture(value->get_value());
         }
         
         check ();
