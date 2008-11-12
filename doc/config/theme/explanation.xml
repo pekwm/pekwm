@@ -49,11 +49,21 @@
 	      <term>decorname</term>
 	      <listitem>
 		<para>
-		  Any name for a decoration set, special decoration set names are:
+                  Name for decoration, any name can be used and applied to windows with autoproperties or
+                  the set decor action. The list below includes names with special meaning:
 		    <itemizedlist>	
 		      <listitem>
 			<para><emphasis role="bold">DEFAULT</emphasis></para>
-			<para>Defines decorations to all windows unless overridden with another decoration set (REQUIRED).</para>
+			<para>
+                          Defines decorations to all windows unless overridden with another decoration
+                          set (REQUIRED).
+                        </para>
+		      </listitem>
+		      <listitem>
+			<para><emphasis role="bold">INPUTDIALOG</emphasis></para>
+			<para>
+                          Defines decorations for input dialogs, such as the CmdDialog.
+                        </para>
 		      </listitem>
 		      <listitem>
 			<para><emphasis role="bold">MENU</emphasis></para>
