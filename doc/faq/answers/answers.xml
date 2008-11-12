@@ -439,7 +439,52 @@ Esetroot -s mybackground.png &</screen>
       <para>
         Edit your favorite theme to use your preferred Unicode font,
         and enjoy all kinds of characters on the titlebars and
-        menus.</para>
+        menus.
+      </para>
+    </simplesect>
+
+    <simplesect id="FAQ-1547" xreflabel="Where did my buttons go?">
+      <title>Where did my buttons go?</title>
+
+      <para>
+        When enabling template based syntax in themes buttons requrie
+        a name to be set otherwise the last button will be the only
+        visible one.
+      </para>
+
+      <para>
+        Using this syntax will only create one button:
+
+        <programlisting>Require {
+ Templates = "True"
+}
+
+Buttons {
+ Left {
+   @button
+ }
+ Left {
+   @button
+ }
+}</programlisting>
+      </para>
+
+      <para>
+        Using names on the buttons will however create two buttons:
+
+        <programlisting>Require {
+ Templates = "True"
+}
+
+Buttons {
+ Left = "button1" {
+   @button
+ }
+ Left = "button2" {
+   @button
+ }
+}</programlisting>
+      </para>
     </simplesect>
 
 </chapter>
