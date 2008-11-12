@@ -19,6 +19,8 @@
 #include "PDecor.hh"
 #include "Frame.hh"
 #include "Client.hh" // For isSkip()
+#include "WindowManager.hh"
+#include "WorkspaceIndicator.hh"
 
 #include <iostream>
 #include <sstream>
@@ -195,6 +197,13 @@ Workspaces::setWorkspace(uint num, bool focus)
     unhideAll(num, focus);
 
     PScreen::instance()->ungrabServer(true);
+
+    // Show workspace indicator if requested
+    if (Config::instance()->getShowWorkspaceIndicator() > 0) {
+        WindowManager::inst()->getWorkspaceIndicator()->render();
+        WindowManager::inst()->getWorkspaceIndicator()->mapWindowRaised();
+        WindowManager::inst()->getWorkspaceIndicator()->updateHideTimer(Config::instance()->getShowWorkspaceIndicator());
+    }
 }
 
 //! @brief

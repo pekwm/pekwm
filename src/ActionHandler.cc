@@ -538,13 +538,6 @@ void
 ActionHandler::actionGotoWorkspace(uint workspace, bool warp)
 {
     Workspaces::instance()->gotoWorkspace(workspace, warp);
-
-    if (Config::instance()->getShowWorkspaceIndicator() > 0) {
-        // Show workspace indicator if requested
-        WindowManager::inst()->getWorkspaceIndicator()->render();
-        WindowManager::inst()->getWorkspaceIndicator()->mapWindowRaised();
-        WindowManager::inst()->getWorkspaceIndicator()->updateHideTimer(Config::instance()->getShowWorkspaceIndicator());
-    }
 }
 
 //! @brief Focus client with id.
