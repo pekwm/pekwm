@@ -16,6 +16,7 @@
 
 #include <iostream>
 #include <cstring>
+#include <cstdio>
 
 using std::cerr;
 using std::endl;
