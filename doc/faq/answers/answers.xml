@@ -487,4 +487,14 @@ Buttons {
       </para>
     </simplesect>
 
+    <simplesect id="FAQ-1548" xreflabel="How I can disable the workspace indicator popup?">
+      <title>How I can disable the workspace indicator popup?</title>
+
+      <para>
+        In the main configuration file under the Screen section there
+        should be a ShowWorkspaceIndicator parameter, set this to 0 to
+        disable the WorkspaceIndicator.
+      </para>
+    </simplesect>
+
 </chapter>
