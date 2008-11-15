@@ -354,9 +354,10 @@ PDecor::resize(uint width, uint height)
         _real_height = height;
 
         height = getTitleHeight();
-        // shading in non full width title mode will make border go away
-        if (! _data->getTitleWidthMin())
+        // Shading in non full width title mode will make border go away
+        if (! _data->getTitleWidthMin()) {
             height += borderTop() + borderBottom();
+        }
     }
 
     PWinObj::resize(width, height);
@@ -395,7 +396,7 @@ PDecor::moveResize(int x, int y, uint width, uint height)
         _real_height = height;
 
         height = getTitleHeight();
-        // shading in non full width title mode will make border go away
+        // Shading in non full width title mode will make border go away
         if (! _data->getTitleWidthMin()) {
             height += borderTop() + borderBottom();
         }
@@ -439,8 +440,8 @@ PDecor::moveResize(int x, int y, uint width, uint height)
 void
 PDecor::resizeTitle(void)
 {
-    if (getTitleHeight()) {
-        _title_wo.resize(calcTitleWidth(), getTitleHeight());
+    if (getTitleHeight()) { 
+       _title_wo.resize(calcTitleWidth(), getTitleHeight());
         calcTabsWidth();
     }
 
@@ -520,8 +521,7 @@ PDecor::giveInputFocus(void)
     } else {
 #ifdef DEBUG
         cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "PDecor::giveInputFocus(" << this << ")" << endl
-             << " *** reverting to root" << endl;
+             << "PDecor::giveInputFocus(" << this << ")" << endl << " *** reverting to root" << endl;
 #endif // DEBUG
         PWinObj::getRootPWinObj()->giveInputFocus();
     }
@@ -741,8 +741,7 @@ PDecor::addDecor(PDecor *decor)
     if (this == decor) {
 #ifdef DEBUG
         cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "PDecor(" << this << ")::addDecor(" << decor << ")"
-             << " *** this == decor" << endl;
+             << "PDecor(" << this << ")::addDecor(" << decor << ")" << " *** this == decor" << endl;
 #endif // DEBUG
         return;
     }
@@ -1486,20 +1485,17 @@ PDecor::renderTitle(void)
     // Get new title pixmap
     if (_dirty_resized || force_update) {
         pm->returnPixmap(_title_bg);
-        _title_bg = pm->getPixmap(_title_wo.getWidth(), _title_wo.getHeight(),
-                                  PScreen::instance()->getDepth());
+        _title_bg = pm->getPixmap(_title_wo.getWidth(), _title_wo.getHeight(), PScreen::instance()->getDepth());
         _title_wo.setBackgroundPixmap(_title_bg);
     }
 
-    // render main background on pixmap
+    // Render main background on pixmap
     _data->getTextureMain(getFocusedState(false))->render(_title_bg, 0, 0,
-            _title_wo.getWidth(),
-            _title_wo.getHeight());
+                                                          _title_wo.getWidth(), _title_wo.getHeight());
 
     bool sel; // Current tab selected flag
     uint x = _titles_left; // Position
-    uint pad_horiz = // Amount of horizontal padding
-        _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT);
+    uint pad_horiz =  _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT); // Amount of horizontal padding
 
     list<PDecor::TitleItem*>::iterator it(_title_list.begin());
     for (uint i = 0; it != _title_list.end(); ++i, ++it) {
@@ -1507,8 +1503,7 @@ PDecor::renderTitle(void)
 
         // render tab
         _data->getTextureTab(getFocusedState(sel))->render(_title_bg, x, 0,
-                (*it)->getWidth(),
-                _title_wo.getHeight());
+                                                           (*it)->getWidth(), _title_wo.getHeight());
 
         font = getFont(getFocusedState(sel));
         font->setColor(_data->getFontColor(getFocusedState(sel)));
@@ -1835,15 +1830,12 @@ PDecor::placeBorder(void)
 {
     // if we have tab min == 0 then we have full width title and place the
     // border ontop, else we put the border under the title
-    uint bt_off = 0;
-    if (_data->getTitleWidthMin() > 0)
-        bt_off = getTitleHeight();
+    uint bt_off = (_data->getTitleWidthMin() > 0) ? getTitleHeight() : 0;
 
     if (borderTop() > 0) {
         XMoveResizeWindow(_dpy, _border_win[BORDER_TOP],
                           borderTopLeft(), bt_off,
-                          _gm.width - borderTopLeft() - borderTopRight(),
-                          borderTop());
+                          _gm.width - borderTopLeft() - borderTopRight(), borderTop());
 
         XMoveResizeWindow(_dpy, _border_win[BORDER_TOP_LEFT],
                           0, bt_off,
@@ -1855,54 +1847,47 @@ PDecor::placeBorder(void)
         if (borderLeft()) {
             XMoveResizeWindow(_dpy, _border_win[BORDER_LEFT],
                               0, borderTopLeftHeight() + bt_off,
-                              borderLeft(),
-                              _gm.height - borderTopLeftHeight() - borderBottomLeftHeight());
+                              borderLeft(), _gm.height - borderTopLeftHeight() - borderBottomLeftHeight());
         }
 
         if (borderRight()) {
             XMoveResizeWindow(_dpy, _border_win[BORDER_RIGHT],
                               _gm.width - borderRight(), borderTopRightHeight() + bt_off,
-                              borderRight(),
-                              _gm.height - borderTopRightHeight() - borderBottomRightHeight());
+                              borderRight(), _gm.height - borderTopRightHeight() - borderBottomRightHeight());
         }
     } else {
         if (borderLeft()) {
             XMoveResizeWindow(_dpy, _border_win[BORDER_LEFT],
                               0, getTitleHeight(),
-                              borderLeft(),
-                              _gm.height - getTitleHeight() - borderBottom());
+                              borderLeft(), _gm.height - getTitleHeight() - borderBottom());
         }
 
         if (borderRight()) {
             XMoveResizeWindow(_dpy, _border_win[BORDER_RIGHT],
                               _gm.width - borderRight(), getTitleHeight(),
-                              borderRight(),
-                              _gm.height - getTitleHeight() - borderBottom());
+                              borderRight(), _gm.height - getTitleHeight() - borderBottom());
         }
     }
 
     if (borderBottom()) {
         XMoveResizeWindow(_dpy, _border_win[BORDER_BOTTOM],
-                          borderBottomLeft(),
-                          _gm.height - borderBottom(),
-                          _gm.width - borderBottomLeft() - borderBottomRight(),
-                          borderBottom());
+                          borderBottomLeft(), _gm.height - borderBottom(),
+                          _gm.width - borderBottomLeft() - borderBottomRight(), borderBottom());
         XMoveResizeWindow(_dpy, _border_win[BORDER_BOTTOM_LEFT],
-                          0,
-                          _gm.height - borderBottomLeftHeight(),
-                          borderBottomLeft(),
-                          borderBottomLeftHeight());
+                          0, _gm.height - borderBottomLeftHeight(),
+                          borderBottomLeft(), borderBottomLeftHeight());
         XMoveResizeWindow(_dpy, _border_win[BORDER_BOTTOM_RIGHT],
-                          _gm.width - borderBottomRight(),
-                          _gm.height - borderBottomRightHeight(),
-                          borderBottomRight(),
-                          borderBottomRightHeight());
+                          _gm.width - borderBottomRight(), _gm.height - borderBottomRightHeight(),
+                          borderBottomRight(), borderBottomRightHeight());
     }
 
     applyBorderShape();
 }
 
-//! @brief
+/**
+ * Apply shaping on the window based on the shape of the client and
+ * the borders.
+ */
 void
 PDecor::applyBorderShape(void)
 {
@@ -1910,9 +1895,7 @@ PDecor::applyBorderShape(void)
     if (_need_shape || _need_client_shape) {
         // if we have tab min == 0 then we have full width title and place the
         // border ontop, else we put the border under the title
-        uint bt_off = 0;
-        if (_data->getTitleWidthMin() > 0)
-            bt_off = getTitleHeight();
+        uint bt_off = (_data->getTitleWidthMin() > 0) ? getTitleHeight() : 0;
 
         Window shape;
         shape = XCreateSimpleWindow(_dpy, PScreen::instance()->getRoot(),
@@ -1931,18 +1914,15 @@ PDecor::applyBorderShape(void)
             // top
             if (borderTop() > 0) {
                 XShapeCombineShape(_dpy, shape, ShapeBounding,
-                                   0, bt_off,
-                                   _border_win[BORDER_TOP_LEFT],
+                                   0, bt_off, _border_win[BORDER_TOP_LEFT],
                                    ShapeBounding, ShapeUnion);
 
                 XShapeCombineShape(_dpy, shape, ShapeBounding,
-                                   borderTopLeft(), bt_off,
-                                   _border_win[BORDER_TOP],
+                                   borderTopLeft(), bt_off, _border_win[BORDER_TOP],
                                    ShapeBounding, ShapeUnion);
 
                 XShapeCombineShape(_dpy, shape, ShapeBounding,
-                                   _gm.width - borderTopRight(), bt_off,
-                                   _border_win[BORDER_TOP_RIGHT],
+                                   _gm.width - borderTopRight(), bt_off, _border_win[BORDER_TOP_RIGHT],
                                    ShapeBounding, ShapeUnion);
             }
 
@@ -1966,13 +1946,11 @@ PDecor::applyBorderShape(void)
             // bottom
             if (borderBottom() > 0) {
                 XShapeCombineShape(_dpy, shape, ShapeBounding,
-                                   0, _gm.height - borderBottomLeftHeight(),
-                                   _border_win[BORDER_BOTTOM_LEFT],
+                                   0, _gm.height - borderBottomLeftHeight(), _border_win[BORDER_BOTTOM_LEFT],
                                    ShapeBounding, ShapeUnion);
 
                 XShapeCombineShape(_dpy, shape, ShapeBounding,
-                                   borderBottomLeft(), _gm.height - borderBottom(),
-                                   _border_win[BORDER_BOTTOM],
+                                   borderBottomLeft(), _gm.height - borderBottom(), _border_win[BORDER_BOTTOM],
                                    ShapeBounding, ShapeUnion);
 
                 XShapeCombineShape(_dpy, shape, ShapeBounding,
@@ -1984,25 +1962,24 @@ PDecor::applyBorderShape(void)
         if (_titlebar) {
             // apply title shape
             XShapeCombineShape(_dpy, shape, ShapeBounding,
-                               _title_wo.getX(), _title_wo.getY(),
-                               _title_wo.getWindow(),
+                               _title_wo.getX(), _title_wo.getY(), _title_wo.getWindow(),
                                ShapeBounding, ShapeUnion);
         }
 
-        // apply the shape mask to the window
-        XShapeCombineShape(_dpy, _window, ShapeBounding, 0, 0, shape,
-                           ShapeBounding, ShapeSet);
+        // Apply the shape mask to the window
+        XShapeCombineShape(_dpy, _window, ShapeBounding, 0, 0, shape, ShapeBounding, ShapeSet);
 
         XDestroyWindow(_dpy, shape);
     } else {
+        // No shaping is required, apply a square shape to remove
+        // possible stale shaping.
         XRectangle rect_square;
         rect_square.x = 0;
         rect_square.y = 0;
         rect_square.width = _gm.width;
         rect_square.height = _gm.height;
 
-        XShapeCombineRectangles(_dpy, _window, ShapeBounding,
-                                0, 0, &rect_square, 1, ShapeSet, YXBanded);
+        XShapeCombineRectangles(_dpy, _window, ShapeBounding, 0, 0, &rect_square, 1, ShapeSet, YXBanded);
     }
 #endif // HAVE_SHAPE
 }
@@ -2053,7 +2030,13 @@ PDecor::updateDecorName(void)
     return setDecor(name);
 }
 
-//! @brief
+/**
+ * Get size of border at position.
+ *
+ * @param pos Position to get size for.
+ * @param width Width of border at position.
+ * @param height Height of border at position.
+ */
 void
 PDecor::getBorderSize(BorderPosition pos, uint &width, uint &height)
 {
@@ -2102,8 +2085,7 @@ PDecor::getBorderSize(BorderPosition pos, uint &width, uint &height)
     default:
 #ifdef DEBUG
         cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "PDecor(" << this << ")::getBorderSize()" << endl
-             << " *** invalid border position" << endl;
+             << "PDecor(" << this << ")::getBorderSize()" << endl << " *** invalid border position" << endl;
 #endif // DEBUG
         width = 1;
         height = 1;
@@ -2111,7 +2093,10 @@ PDecor::getBorderSize(BorderPosition pos, uint &width, uint &height)
     };
 }
 
-//! @brief
+/**
+ * Calculate width of title, if width min is 0 use the full available
+ * size minus borders. Else get width from content.
+ */
 uint
 PDecor::calcTitleWidth(void)
 {
@@ -2119,59 +2104,64 @@ PDecor::calcTitleWidth(void)
 
     if (_data->getTitleWidthMin() == 0) {
         width = _gm.width;
-        if (width > (borderTopLeft() + borderTopRight()))
+        if (width > (borderTopLeft() + borderTopRight())) {
             width -= borderTopLeft() + borderTopRight();
+        }
 
     } else {
         uint width_max = 0;
         // FIXME: what about selected tabs?
         PFont *font = getFont(getFocusedState(false));
 
-        // Symetric mode, get max tab width, multiply with num
         if (_data->isTitleWidthSymetric()) {
+            // Symetric mode, get max tab width, multiply with number of tabs
             list<PDecor::TitleItem*>::iterator it(_title_list.begin());
             for (; it != _title_list.end(); ++it) {
                 width = font->getWidth((*it)->getVisible());
-                if (width > width_max)
+                if (width > width_max) {
                     width_max = width;
+                }
             }
 
-            width = width_max
-                    + _data->getPad(PAD_LEFT)	+ _data->getPad(PAD_RIGHT);
+            width = width_max + _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT);
             width *= _title_list.size();
 
-            // Asymetric mode, get individual widths
         } else {
+            // Asymetric mode, get individual widths
             list<PDecor::TitleItem*>::iterator it(_title_list.begin());
             for (; it != _title_list.end(); ++it) {
                 width += font->getWidth((*it)->getVisible())
-                         + _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT);
+                    + _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT);
             }
         }
 
-        // add width of all separatorns
+        // Add width of separators and buttons
         width += (_title_list.size() - 1)
                  * _data->getTextureSeparator(getFocusedState(false))->getWidth();
-
-        // add width of buttons
         width += _titles_left + _titles_right;
 
-        // validate size
-        if (width < static_cast<uint>(_data->getTitleWidthMin()))
+        // Validate sizes, make sure it is not less than width min
+        // pixels and more than width max percent.
+        if (width < static_cast<uint>(_data->getTitleWidthMin())) {
             width = _data->getTitleWidthMin();
-        if (width > (_gm.width * _data->getTitleWidthMax() / 100))
+        }
+        if (width > (_gm.width * _data->getTitleWidthMax() / 100)) {
             width = _gm.width * _data->getTitleWidthMax() / 100;
+        }
     }
 
     return width;
 }
 
-//! @brief Calculate tab width, wrapper to choose correct algorithm.
+/**
+ * Calculate tab width, wrapper to choose correct algorithm..
+ */
 void
 PDecor::calcTabsWidth(void)
 {
-    if (! _title_list.size())
+    if (! _title_list.size()) {
         return;
+    }
 
     if (_data->isTitleWidthSymetric()) {
         calcTabsWidthSymetric();
@@ -2180,43 +2170,121 @@ PDecor::calcTabsWidth(void)
     }
 }
 
-//! @brief Calculate tab width symetric, sets up _title_list widths.
+/**
+ * Get available tabs width and average width of a single tab.
+ *
+ * @param width_avail Number of pixels available in the titlebar.
+ * @param tab_width Width in pixels to use for one tab.
+ * @param off Number of pixels left with tab_width pixels wide tabs.
+ */
 void
-PDecor::calcTabsWidthSymetric(void)
+PDecor::calcTabsGetAvailAndTabWidth(uint &width_avail, uint &tab_width, int &off)
 {
-    // include separators in calculation if needed
-    uint sep_width = (_title_list.size() - 1)
-                     * _data->getTextureSeparator(getFocusedState(false))->getWidth();
-
     // Calculate width
-    uint width_avail = _title_wo.getWidth();
+    width_avail = _title_wo.getWidth();
 
-    // Remove spacing if enough space available
+    // Remove spacing if enough space is available
     if (width_avail > (_titles_left + _titles_right)) {
         width_avail -= _titles_left + _titles_right;
     }
+ 
+    // Remove separators if enough space is available
+    uint sep_width = (_title_list.size() - 1)
+        * _data->getTextureSeparator(getFocusedState(false))->getWidth();
     if (width_avail > sep_width) {
         width_avail -= sep_width;
     }
 
-    uint width = width_avail / _title_list.size();
-    uint off = width_avail % _title_list.size();
+    tab_width = width_avail / _title_list.size();
+    off = width_avail % _title_list.size();
+}
+
+//! @brief Calculate tab width symetric, sets up _title_list widths.
+void
+PDecor::calcTabsWidthSymetric(void)
+{
+    int off;
+    uint width_avail, tab_width;
+    calcTabsGetAvailAndTabWidth(width_avail, tab_width, off);
 
     // Assign width to elements
     list<PDecor::TitleItem*>::iterator it(_title_list.begin());
     for (; it != _title_list.end(); ++it) {
-        if (off > 0) {
-            (*it)->setWidth(width + 1);
-            off--;
-        } else {
-            (*it)->setWidth(width);
+        (*it)->setWidth(tab_width + ((off-- > 0) ? 1 : 0));
+    }
+}
+
+/**
+ * Calculate tab width asymmetrically. This is done with the following
+ * priority:
+ *
+ *   1. Give tabs their required width, if it fits this is complete.
+ *   2. Tabs did not fit, calculate average width.
+ *   3. Add width of tabs requiring less space to average.
+ *   4. Re-assign width equally to tabs using more than average.
+ */
+void
+PDecor::calcTabsWidthAsymetric(void)
+{
+    int off;
+    uint width, width_avail, tab_width;
+    calcTabsGetAvailAndTabWidth(width_avail, tab_width, off);
+
+    // Convenience
+    PFont *font = getFont(getFocusedState(false));
+
+    // 1. give tabs their required width.
+    uint width_total = 0;
+    list<PDecor::TitleItem*>::iterator it(_title_list.begin());
+    for (; it != _title_list.end(); ++it) {
+        // This should set the tab width to be only the size needed
+        width = font->getWidth((*it)->getVisible().c_str())
+            + _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT) + ((off-- > 0) ? 1 : 0);
+        width_total += width;
+        (*it)->setWidth(width);
+    }
+
+    if (width_total > width_avail) {
+        calcTabsWidthAsymetricShrink(width_avail, tab_width);
+    } else if (width_total < static_cast<uint>(_data->getTitleWidthMin())) {
+        calcTabsWidthAsymetricGrow(width_avail, tab_width);
+    }
+}
+
+/**
+ * This is called to shrink the tabs that are over the tab_width in
+ * order to make room for all
+ */
+void
+PDecor::calcTabsWidthAsymetricShrink(uint width_avail, uint tab_width)
+{
+    // 2. Tabs did not fit
+    uint tabs_left = _title_list.size();
+    list<PDecor::TitleItem*>::iterator it(_title_list.begin());
+    for (; it != _title_list.end(); ++it) {
+        if ((*it)->getWidth() < tab_width) {
+            // 3. Add width of tabs requiring less space to the average.
+            tabs_left--;
+            width_avail -= (*it)->getWidth();
+        }
+    }
+
+    // 4. Re-assign width equally to tabs using more than average
+    tab_width = width_avail / tabs_left;
+    uint off = width_avail % tabs_left;
+    for (it = _title_list.begin(); it != _title_list.end(); ++it) {
+        if ((*it)->getWidth() >= tab_width) {
+            (*it)->setWidth(tab_width + ((off-- > 0) ? 1 : 0));
         }
     }
 }
 
-//! @brief
+/**
+ * This is called when tabs in the decor are using less space than
+ * width min, grow tabs that are smaller than the average.
+ */
 void
-PDecor::calcTabsWidthAsymetric(void)
+PDecor::calcTabsWidthAsymetricGrow(uint width_avail, uint tab_width)
 {
-    calcTabsWidthSymetric();
+    // FIXME: Implement growing of asymetric tabs.
 }

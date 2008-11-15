@@ -362,8 +362,11 @@ private:
 
     uint calcTitleWidth(void);
     void calcTabsWidth(void);
+    void calcTabsGetAvailAndTabWidth(uint &width_avail, uint &tab_width, int &off);
     void calcTabsWidthSymetric(void);
     void calcTabsWidthAsymetric(void);
+    void calcTabsWidthAsymetricGrow(uint width_avail, uint tab_width);
+    void calcTabsWidthAsymetricShrink(uint width_avail, uint tab_width);
 
 protected:
     Theme *_theme; //!< Pointer to Theme used by PDecor.
