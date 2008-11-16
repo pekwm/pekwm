@@ -21,6 +21,12 @@
   </para></listitem>
 </varlistentry>
 <varlistentry>
+  <term>Icon (Image)</term>
+  <listitem>
+    <para>Set icon left of entry from image in icon path.</para>
+  </listitem>
+</varlistentry>
+<varlistentry>
 	<term>Separator</term>
 	<listitem><para>Adds a separator to the menu.</para></listitem>
 </varlistentry>

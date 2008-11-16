@@ -43,6 +43,8 @@ public:
     const std::string &getAutoPropsFile(void) const { return _files_autoprops; }
     const std::string &getThemeFile(void) const { return _files_theme; }
     const std::string &getMouseConfigFile(void) const { return _files_mouse; }
+    const std::string &getIconPath(void) const { return _files_icon_path; }
+    const char *getSystemIconPath(void) const { return DATADIR "/pekwm/icons/"; }
 
     // Moveresize
     inline int getEdgeAttract(void) const { return _moveresize_edgeattract; }
@@ -184,6 +186,7 @@ private:
     std::string _files_keys, _files_menu;
     std::string _files_start, _files_autoprops;
     std::string _files_theme, _files_mouse;
+    std::string _files_icon_path; /**< Path to user icon directory. */
 
     // moveresize
     int _moveresize_edgeattract, _moveresize_edgeresist;
@@ -235,8 +238,6 @@ private:
 
     std::map<MouseActionListName, std::list<ActionEvent>* > _mouse_action_map;
 
-    static Config *_instance;
-
     std::map<ParseUtil::Entry, std::pair<ActionType, uint> > _action_map;
     std::map<ParseUtil::Entry, PlacementModel> _placement_map;
     std::map<ParseUtil::Entry, OrientationType> _edge_map;
@@ -259,6 +260,8 @@ private:
     std::map<ParseUtil::Entry, HarbourPlacement> _harbour_placement_map;
     std::map<ParseUtil::Entry, Orientation> _harbour_orientation_map;
 #endif // HARBOUR
+
+    static Config *_instance; /**< Singleton Config pointer. */
 };
 
 #endif // _CONFIG_HH_

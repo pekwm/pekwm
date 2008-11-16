@@ -104,7 +104,7 @@ Theme::PDecorButtonData::load(CfgParser::Entry *section)
             _texture[BUTTON_STATE_HOVER] = th->getTexture(value->get_value());
         }
         
-        check ();
+        check();
 
         return true;
     }
@@ -360,7 +360,7 @@ Theme::PDecorData::check(void)
 
 //! @brief Loads border data.
 void
-Theme::PDecorData::loadBorder (CfgParser::Entry *section)
+Theme::PDecorData::loadBorder(CfgParser::Entry *section)
 {
     if (! section) {
         return;
@@ -395,7 +395,7 @@ Theme::PDecorData::loadBorder (CfgParser::Entry *section)
 
 //! @brief Loads button data.
 void
-Theme::PDecorData::loadButtons (CfgParser::Entry *section)
+Theme::PDecorData::loadButtons(CfgParser::Entry *section)
 {
     if (! section) {
         return;
@@ -971,7 +971,8 @@ Theme::load(const std::string &dir)
     }
 
     // Set image basedir.
-    _image_handler->setDir(_theme_dir);
+    _image_handler->path_clear();
+    _image_handler->path_push_back(_theme_dir);
 
     // Load decor data.
     CfgParser::Entry *section = theme.get_entry_root()->find_section("PDECOR");

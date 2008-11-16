@@ -19,6 +19,7 @@
 
 #include "Compat.hh"
 #include "Types.hh"
+#include "Exception.hh"
 
 extern "C" {
 #include <X11/Xlib.h>

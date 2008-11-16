@@ -1,11 +1,9 @@
 //
 // ImageHandler.cc for pekwm
-// Copyright © 2003-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2003-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
-//
-// $Id$
 //
 
 #ifdef HAVE_CONFIG_H
@@ -39,8 +37,7 @@ ImageHandler::ImageHandler(void)
 #ifdef DEBUG
     if (_instance) {
         cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "ImageHandler(" << this << ")::ImageHandler()"
-             << " *** _instance allready set: "
+             << "ImageHandler(" << this << ")::ImageHandler() *** _instance allready set: "
              << _instance << endl;
     }
 #endif // DEBUG
@@ -67,8 +64,7 @@ ImageHandler::ImageHandler(void)
 ImageHandler::~ImageHandler(void)
 {
     if (_image_list.size()) {
-      cerr << " *** WARNING: ImageHandler list not empty, "
-           << _image_list.size() << " entries left:" << endl;
+      cerr << " *** WARNING: ImageHandler not empty, " << _image_list.size() << " entries left:" << endl;
 
         while (_image_list.size()) {
             cerr << "              * " << _image_list.back().getName() << endl;
@@ -88,41 +84,69 @@ ImageHandler::getImage(const std::string &file)
         return 0;
     }
 
-    string real_file;
-    if (file[0] == '/') {
-        real_file = file;
-    } else {
-        real_file = _dir + file;
+    string real_file(file);
+    ImageType image_type = IMAGE_TYPE_TILED;
+
+    // Split image in path # type parts.
+    vector<string> tok;
+    if ((Util::splitString(file, tok, "#", 2)) == 2) {
+        real_file = tok[0];
+        image_type = ParseUtil::getValue<ImageType>(tok[1], _image_type_map);
     }
 
-    // check cache
+    // Load the image, try load paths if not an absolute image path
+    // already.
+    PImage *image = 0;
+    if (real_file[0] == '/') {
+        image = getImageFromPath(real_file);
+    } else {
+        list<string>::reverse_iterator it(_search_path.rbegin());
+        for (; ! image && it != _search_path.rend(); ++it) {
+            image = getImageFromPath(*it + real_file);
+        }
+    }
+
+    // Image was found, set correct type.
+    if (image) {
+        image->setType(image_type);
+    }
+
+    return image;
+}
+
+/**
+ * Load image from absolute path, checks cache for hit before loading.
+ *
+ * @param file Path to image file.
+ * @return PImage or 0 if fails.
+ */
+PImage*
+ImageHandler::getImageFromPath(const std::string &file)
+{
+    // Check cache for entry.
     list<HandlerEntry<PImage*> >::iterator it(_image_list.begin());
     for (; it != _image_list.end(); ++it) {
-        if (*it == real_file) {
+        if (*it == file) {
             it->incRef();
             return it->getData();
         }
     }
 
-    // Create new PImageNative
+    // Try to load the image, setup cache only if it succeeds.
     PImage *image;
-    image = new PImageNative(PScreen::instance()->getDpy());
-
-    vector<string> tok;
-    if ((Util::splitString(file, tok, "#", 2)) == 2) {
-        image->load(_dir + tok[0]);
-        image->setType(ParseUtil::getValue<ImageType>(tok[1], _image_type_map));
-    } else {
-        image->load(real_file);
-        image->setType(IMAGE_TYPE_TILED);
+    try {
+        image = new PImageNative(PScreen::instance()->getDpy(), file);
+    } catch (LoadException&) {
+        image = 0;
     }
 
-    // create new entry
-    HandlerEntry<PImage*> entry(real_file);
-    entry.incRef();
-    entry.setData(image);
-
-    _image_list.push_back(entry);
+    // Create new PImageNative and handler entry for it.
+    if (image) {
+        HandlerEntry<PImage*> entry(file);
+        entry.incRef();
+        entry.setData(image);
+        _image_list.push_back(entry);
+    }
 
     return image;
 }

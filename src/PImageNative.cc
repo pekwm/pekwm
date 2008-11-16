@@ -27,11 +27,21 @@ using std::string;
 
 list<PImageNativeLoader*> PImageNative::_loader_list = list<PImageNativeLoader*>();
 
-//! @brief PImageNative constructor.
-PImageNative::PImageNative(Display *dpy)
+/**
+ * PImageNative constructor, loads image if one is specified.
+ *
+ * @param dpy Display image is valid on.
+ * @param path Path to image file, if specified this is loaded.
+ */
+PImageNative::PImageNative(Display *dpy, const std::string &path) throw(LoadException&)
     : PImage(dpy),
       _data(0), _has_alpha(false)
 {
+    if (path.size()) {
+        if (! load(path)) {
+            throw LoadException(path.c_str());
+        }
+    }
 }
 
 //! @brief PImageNative destructor.

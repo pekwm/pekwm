@@ -19,6 +19,7 @@ pekwm_SOURCES = \
 	Config.cc Config.hh \
 	DecorMenu.cc DecorMenu.hh \
 	DockApp.cc DockApp.hh \
+	Exception.hh \
 	Frame.cc Frame.hh \
 	FontHandler.cc FontHandler.hh \
 	FrameListMenu.cc FrameListMenu.hh \

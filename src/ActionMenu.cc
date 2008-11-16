@@ -21,6 +21,7 @@
 #include "WORefMenu.hh"
 #include "ActionMenu.hh"
 #include "TextureHandler.hh"
+#include "ImageHandler.hh"
 
 #include "Config.hh"
 #include "ActionHandler.hh"
@@ -115,7 +116,13 @@ ActionMenu::handleItemExec(PMenu::Item *item)
 }
 
 
-//! @brief Re-reads the configuration
+/**
+ * Re-reads the configuration clearing old entries from the menu. This
+ * adds the ICON_PATH to the ImageHandler before loading to support
+ * loading icons properly.
+ *
+ * @param section CfgParser::Entry with menu configuration
+ */
 void
 ActionMenu::reload(CfgParser::Entry *section)
 {
@@ -123,7 +130,11 @@ ActionMenu::reload(CfgParser::Entry *section)
     removeAll();
 
     // Parse section (if any)
+    ImageHandler::instance()->path_push_back(Config::instance()->getSystemIconPath());
+    ImageHandler::instance()->path_push_back(Config::instance()->getIconPath());
     parse(section);
+    ImageHandler::instance()->path_pop_back();
+    ImageHandler::instance()->path_pop_back();
 
     // Build menu from parsed content
     buildMenu();
@@ -205,7 +216,6 @@ ActionMenu::parse(CfgParser::Entry *section, bool has_dynamic)
         _title_base = title;
     }
 
-
     CfgParser::Entry *value;
     ActionEvent ae;
 
@@ -217,13 +227,6 @@ ActionMenu::parse(CfgParser::Entry *section, bool has_dynamic)
     for (; it != section->end(); ++it) {
         item = 0;
 
-        value = (*it)->find_entry("ICON");
-        if (value) {
-            icon = TextureHandler::instance()->getTexture("IMAGE " + value->get_value());
-        } else {
-            icon = 0;
-        }
-
         if (*(*it) == "SUBMENU") {
             submenu = new ActionMenu(_menu_type, Util::to_wide_str((*it)->get_value()), "");
             submenu->_is_dynamic = has_dynamic;
@@ -233,18 +236,25 @@ ActionMenu::parse(CfgParser::Entry *section, bool has_dynamic)
 
             CfgParser::Entry *sub_section = (*it)->get_section();
             if (sub_section) {
+                icon = getIcon(sub_section->find_entry("ICON"));
+
                 item = new PMenu::Item(Util::to_wide_str(sub_section->get_value()), submenu, icon);
                 item->setDynamic(has_dynamic);
             }
         } else if (*(*it) == "SEPARATOR") {
-            item = new PMenu::Item(L"", 0, icon);
+            // No icon support on separators.
+            item = new PMenu::Item(L"", 0, 0);
             item->setDynamic(has_dynamic);
             item->setType(PMenu::Item::MENU_ITEM_SEPARATOR);
         } else {
             CfgParser::Entry *sub_section = (*it)->get_section();
             if (sub_section) {
+                // Inside of the Entry = "foo" { ... } section, here
+                // Actions and Icon are the valid options.
                 value = sub_section->find_entry("ACTIONS");
                 if (value && Config::instance()->parseActions(value->get_value(), ae, _action_ok)) {
+                    icon = getIcon(sub_section->find_entry("ICON"));
+
                     item = new PMenu::Item(Util::to_wide_str(sub_section->get_value()), 0, icon);
                     item->setDynamic(has_dynamic);
                     item->setAE(ae);
@@ -262,6 +272,24 @@ ActionMenu::parse(CfgParser::Entry *section, bool has_dynamic)
             ActionMenu::insert (item);
         }
     }
+}
+
+/**
+ * Get icon texture from parser value.
+ *
+ * @param value Entry to get icon name from.
+ * @return PTexture if icon was loaded, else 0.
+ */
+PTexture*
+ActionMenu::getIcon(CfgParser::Entry *value)
+{
+    PTexture *icon = 0;
+
+    if (value) {
+        icon = TextureHandler::instance()->getTexture("IMAGE " + value->get_value());
+    }
+
+    return icon;
 }
 
 //! @brief Executes all Dynamic entries in the menu.

@@ -56,6 +56,7 @@ public:
 private:
     void parse(CfgParser::Entry *section, bool dynamic = false);
 
+    PTexture *getIcon(CfgParser::Entry *value);
     void rebuildDynamic(void);
     void removeDynamic(void);
 

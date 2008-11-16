@@ -41,6 +41,12 @@
           <para>The location of the Theme directory, such as <filename>~/.pekwm/themes/themename</filename></para>
         </listitem>
       </varlistentry>
+      <varlistentry>
+        <term>Icons (string)</term>
+        <listitem>
+          <para>The location of the Icons directory, such as <filename>~/.pekwm/icons</filename></para>
+        </listitem>
+      </varlistentry>
     </variablelist>
 
     <variablelist>

@@ -23,7 +23,7 @@ $TERM = "xterm -fn fixed +sb -bg black -fg white"
 
 RootMenu = "Pekwm" {
     Entry = "Term" { Actions = "Exec $TERM &" }
-    Entry = "Emacs" { Actions = "Exec $TERM -title emacs -e emacs -nw &" }
+    Entry = "Emacs" { Icon = "emacs.png"; Actions = "Exec $TERM -title emacs -e emacs -nw &" }
     Entry = "Vim" { Actions = "Exec $TERM -title vim -e vi &" }
 
     Separator {}

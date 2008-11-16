@@ -5,6 +5,7 @@ Files {
     Start = "~/.pekwm/start"
     AutoProps = "~/.pekwm/autoproperties"
     Theme = "<PREFIX>/themes/default"
+    Icons = "~/.pekwm/icons/"
 }
 
 MoveResize {

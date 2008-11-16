@@ -516,6 +516,7 @@ Config::loadFiles(CfgParser::Entry *section)
     key_list.push_back(new CfgParserKeyPath("START", _files_start, SYSCONFDIR "/start"));
     key_list.push_back(new CfgParserKeyPath("AUTOPROPS", _files_autoprops, SYSCONFDIR "/autoproperties"));
     key_list.push_back(new CfgParserKeyPath("THEME", _files_theme, DATADIR "/pekwm/themes/default/theme"));
+    key_list.push_back(new CfgParserKeyPath("ICONS", _files_icon_path, DATADIR "/pekwm/icons"));
 
     // Parse
     section->parse_key_values(key_list.begin(), key_list.end());

@@ -1,11 +1,9 @@
 //
 // TextureHandler.cc for pekwm
-// Copyright © 2004-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2004-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
-//
-// $Id$
 //
 
 #ifdef HAVE_CONFIG_H
@@ -168,6 +166,13 @@ TextureHandler::parse(const std::string &texture)
             cerr << "*** WARNING: invalid texture type: " << tok[0] << endl;
             break;
         }
+
+        // If it fails to load, set clean resources and set it to 0.
+        if (ptexture && ! ptexture->isOk()) {
+            delete ptexture;
+            ptexture = 0;
+        }
+
     } else if (type == PTexture::TYPE_EMPTY) {
         ptexture = new PTexture(PScreen::instance()->getDpy());
     }

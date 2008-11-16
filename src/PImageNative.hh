@@ -1,11 +1,9 @@
 //
 // PImageNative.hh for pekwm
-// Copyright © 2005-2007 Claes  Nästén <me{@}pekdon.net>
+// Copyright © 2005-2008 Claes  Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
-//
-// $Id$
 //
 
 #ifndef _PIMAGE_NATIVE_HH_
@@ -24,7 +22,7 @@
 //! @brief Image class with pekwm native backend.
 class PImageNative : public PImage {
 public:
-    PImageNative(Display *dpy);
+    PImageNative(Display *dpy, const std::string &path="") throw(LoadException&);
     virtual ~PImageNative(void);
 
     //! @brief Add loader to loader list.

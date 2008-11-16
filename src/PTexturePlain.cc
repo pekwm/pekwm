@@ -1,11 +1,9 @@
 //
 // PTexturePlain.cc for pekwm
-// Copyright © 2004-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2004-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
-//
-// $Id$
 //
 
 #ifdef HAVE_CONFIG_H
@@ -271,9 +269,13 @@ PTextureImage::setImage(const std::string &image)
 {
     unsetImage();
     _image = ImageHandler::instance()->getImage(image);
-    _width = _image->getWidth();
-    _height = _image->getHeight();
-    _ok = true;
+    if (_image) {
+        _width = _image->getWidth();
+        _height = _image->getHeight();
+        _ok = true;
+    } else {
+        _ok = false;
+    }
     return _ok;
 }
 

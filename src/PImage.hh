@@ -1,12 +1,14 @@
 //
 // PImage.hh for pekwm
-// Copyright (C) 2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2005-2008 Claes Nasten <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #ifndef _PIMAGE_HH_
 #define _PIMAGE_HH_
@@ -19,9 +21,8 @@
 class PImage {
 public:
     //! @brief PImage constructor.
-    PImage(Display *dpy) : _dpy(dpy), _type(IMAGE_TYPE_NO),
-            _pixmap(None), _mask(None),
-    _width(0), _height(0) { }
+    PImage(Display *dpy) throw(LoadException&)
+        : _dpy(dpy), _type(IMAGE_TYPE_NO), _pixmap(None), _mask(None), _width(0), _height(0)  { }
     //! @brief PImage destructor.
     virtual ~PImage(void) { unload(); }
 
