@@ -102,6 +102,8 @@ public:
 
     //! @brief Returns the root Entry node.
     Entry *get_entry_root(void) { return _root_entry; }
+    /** Return true if data parsed included dynamic content such as from COMMAND. */
+    bool is_dynamic_content(void) { return _is_dynamic_content; }
 
     void clear(bool realloc = true);
     bool parse(const std::string &src, CfgParserSource::Type type = CfgParserSource::SOURCE_FILE,
@@ -136,6 +138,7 @@ private:
     std::map<std::string, CfgParser::Entry*> _section_map; //!< Map of Define = ... sections
 
     Entry *_root_entry; /**< Root Entry. */
+    bool _is_dynamic_content; /**< If true, parsed data included command or similar. */
     Entry *_section; /**< Current section. */
     bool _overwrite; /**< Overwrite elements when appending. */
 

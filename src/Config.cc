@@ -447,6 +447,12 @@ Config::load(const std::string &config_file)
         }
     }
 
+    // Make sure config is reloaded next time as content is dynamically
+    // generated from the configuration file.
+    if (! success || cfg.is_dynamic_content()) {
+        _config_mtime = 0;
+    }
+
     if (! success) {
         cerr << " *** WARNING: unable to load configuration files!" << endl;
         return false;

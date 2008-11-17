@@ -1766,8 +1766,7 @@ WindowManager::createMenus(void)
     _menu_map["ATTACHFRAME"] =
         new FrameListMenu(_screen, _theme, ATTACH_FRAME_TYPE,
                           L"Attach Frame", "ATTACHFRAME");
-    _menu_map["DECORMENU"] =
-        new DecorMenu(_screen, _theme, _action_handler, "DECORMENU");
+    _menu_map["DECORMENU"] = new DecorMenu(_screen, _theme, _action_handler, "DECORMENU");
     _menu_map["GOTOCLIENT"] =
         new FrameListMenu(_screen, _theme, GOTOCLIENTMENU_TYPE,
                           L"Focus Client", "GOTOCLIENT");
@@ -1818,9 +1817,15 @@ WindowManager::doReloadMenus(void)
     bool cfg_ok = true;
     CfgParser menu_cfg;
     if (! menu_cfg.parse(_config->getMenuFile())) {
-        if (! menu_cfg.parse (string(SYSCONFDIR "/menu"))) {
+        if (! menu_cfg.parse(string(SYSCONFDIR "/menu"))) {
             cfg_ok = false;
         }
+    }
+
+    // Make sure menu is reloaded next time as content is dynamically
+    // generated from the configuration file.
+    if (! cfg_ok || menu_cfg.is_dynamic_content()) {
+        _menu_mtime = 0;
     }
 
     // Update, delete standalone root menus, load decors on others

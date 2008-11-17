@@ -967,6 +967,9 @@ Theme::load(const std::string &dir)
 
     // Setup quirks and requirements before parsing.
     if (theme_ok) {
+        if (theme.is_dynamic_content()) {
+            _theme_mtime = 0;
+        }
         loadThemeRequire(theme);
     }
 

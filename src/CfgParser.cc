@@ -306,6 +306,9 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwr
     int c, next;
     while (_source_list.size()) {
         _source = _source_list.back();
+        if (_source->is_dynamic()) {
+            _is_dynamic_content = true;
+        }
 
         while ((c = _source->getc()) != EOF) {
             switch (c) {

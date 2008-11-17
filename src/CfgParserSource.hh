@@ -17,6 +17,10 @@ extern "C" {
 #include <signal.h>
 }
 
+/**
+ * Base class for configuration sources defining the interface and
+ * common methods.
+ */
 class CfgParserSource
 {
 public:
@@ -27,14 +31,17 @@ public:
         SOURCE_VIRTUAL //!< Source base type.
     };
 
+    /**
+     * CfgParserSource constructor, just set default values.
+     */
     CfgParserSource(const std::string &source)
         : _file(0), _name(source),
-          _type(SOURCE_VIRTUAL), _line(0)
-    {
-    }
+          _type(SOURCE_VIRTUAL), _line(0), _is_dynamic(false) { }
     virtual ~CfgParserSource (void) { }
 
-    //! @brief Gets a character from _file, increments line count if \n.
+    /**
+     * Gets a character from _file, increments line count if \n.
+     */
     inline int getc(void) {
         int c = fgetc(_file);
         if (c == '\n') {
@@ -43,28 +50,40 @@ public:
         return c;
     }
 
-    //! @brief Returns a character to _op_file, decrements line count if \n.
+    /**
+     * Returns a character to _op_file, decrements line count if \n.
+     */
     inline void ungetc(int c)  {
-        ::ungetc (c, _file);
+        ::ungetc(c, _file);
         if (c == '\n') {
             --_line;
         }
     }
 
-    const std::string &get_name(void) { return _name; }
-    CfgParserSource::Type get_type(void) { return _type; }
-    int get_line(void) { return _line; }
+    /**< Return name of source. */
+    const std::string &get_name(void) const { return _name; }
+    /**< return type of source. */
+    CfgParserSource::Type get_type(void)  const { return _type; }
+    /**< Get current line from source. */
+    unsigned int get_line(void) const { return _line; }
+    /**< Return true if current source is dynamic. */
+    bool is_dynamic(void) const { return _is_dynamic; }
 
     virtual bool open(void) throw (std::string&) { return false; }
     virtual void close(void) throw (std::string&) { }
 
 protected:
-    FILE *_file;
-    const std::string &_name;
-    CfgParserSource::Type _type;
-    int _line;
+    FILE *_file; /**< FILE object source is reading from. */
+    const std::string &_name; /**< Name of source. */
+    CfgParserSource::Type _type; /**< Type of source. */
+    unsigned int _line; /**< Line number. */
+    bool _is_dynamic; /**< Set to true if source has dynamic content. */
 };
 
+/**
+ * File based configuration source, reads data from a plain file on
+ * disk.
+ */
 class CfgParserSourceFile : public CfgParserSource
 {
 public:
@@ -79,6 +98,10 @@ public:
     virtual void close(void) throw (std::string&);
 };
 
+/**
+ * Command based configuration source, executes a commands and parses
+ * the output.
+ */
 class CfgParserSourceCommand : public CfgParserSource
 {
 public:
@@ -86,6 +109,7 @@ public:
         : CfgParserSource (source)
     {
         _type = SOURCE_COMMAND;
+        _is_dynamic = true;
     }
     virtual ~CfgParserSourceCommand(void) { }
 
@@ -93,10 +117,9 @@ public:
     virtual void close(void) throw (std::string&);
 
 private:
-    pid_t _pid;
-
-    struct sigaction _sigaction; //!< sigaction for restore.
-    static unsigned int _sigaction_counter; //!< Counts open.
+    pid_t _pid; /**< Process id of command generating output. */
+    struct sigaction _sigaction; /**< sigaction for restore. */
+    static unsigned int _sigaction_counter; /**< Counts open. */
 };
 
 #endif // _CFG_PARSER_SOURCE_HH_

@@ -120,8 +120,13 @@ AutoProperties::load(void)
         cfg_file = SYSCONFDIR "/autoproperties";
         if (! a_cfg.parse (cfg_file)) {
           setDefaultTypeProperties();
+          _autoproperties_mtime = 0;
           return false;
         }
+    }
+
+    if (a_cfg.is_dynamic_content()) {
+        _autoproperties_mtime = 0;
     }
 
     // reset values

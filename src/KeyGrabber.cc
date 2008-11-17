@@ -133,8 +133,13 @@ KeyGrabber::load(const std::string &file)
         if (! key_cfg.parse(_keygrabber_path, CfgParserSource::SOURCE_FILE)) {
             cerr << __FILE__ << "@" << __LINE__ << "Error: no keyfile at " << file
                  << " or " << _keygrabber_path << endl;
+            _keygrabber_mtime = 0;
             return false;
         }
+    }
+
+    if (key_cfg.is_dynamic_content()) {
+        _keygrabber_mtime = 0;
     }
 
     CfgParser::Entry *section;

@@ -1,12 +1,14 @@
 //
 // PImageNative.cc for pekwm
-// Copyright (C) 2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2005-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #include "PImageNative.hh"
 #include "PScreen.hh"
@@ -300,24 +302,21 @@ PImageNative::drawTiled(Drawable dest, int x, int y, uint width, uint height)
 
 //! @brief Draw image at position, not scaling.
 void
-PImageNative::drawAlphaFixed(Drawable dest,
-                             int x, int y, uint width, uint height)
+PImageNative::drawAlphaFixed(Drawable dest, int x, int y, uint width, uint height)
 {
     drawFixed(dest, x, y, width, height);
 }
 
 //! @brief Draw image scaled to fit width and height.
 void
-PImageNative::drawAlphaScaled(Drawable dest,
-                              int x, int y, uint width, uint height)
+PImageNative::drawAlphaScaled(Drawable dest, int x, int y, uint width, uint height)
 {
     drawScaled(dest, x, y, width, height);
 }
 
 //! @brief Draw image tiled to fit width and height.
 void
-PImageNative::drawAlphaTiled(Drawable dest,
-                             int x, int y, uint width, uint height)
+PImageNative::drawAlphaTiled(Drawable dest, int x, int y, uint width, uint height)
 {
     drawTiled(dest, x, y, width, height);
 }
