@@ -292,10 +292,16 @@ ActionMenu::getIcon(CfgParser::Entry *value)
     return icon;
 }
 
-//! @brief Executes all Dynamic entries in the menu.
+/**
+ * Executes all Dynamic entries in the menu.
+ */
 void
 ActionMenu::rebuildDynamic(void)
 {
+    // Setup icon path before parsing.
+    ImageHandler::instance()->path_push_back(Config::instance()->getSystemIconPath());
+    ImageHandler::instance()->path_push_back(Config::instance()->getIconPath());
+
     PMenu::Item* item = 0;
     list<PMenu::Item*>::iterator it;
     for (it = _item_list.begin(); it != _item_list.end(); ++it) {
@@ -314,6 +320,10 @@ ActionMenu::rebuildDynamic(void)
             it = find(_item_list.begin(), _item_list.end(), item);
         }
     }
+
+    // Cleanup icon path
+    ImageHandler::instance()->path_pop_back();
+    ImageHandler::instance()->path_pop_back();
 }
 
 //! @brief Remove all entries from the menu created by dynamic entries.
