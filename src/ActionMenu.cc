@@ -228,24 +228,28 @@ ActionMenu::parse(CfgParser::Entry *section, bool has_dynamic)
         item = 0;
 
         if (*(*it) == "SUBMENU") {
-            submenu = new ActionMenu(_menu_type, Util::to_wide_str((*it)->get_value()), "");
-            submenu->_is_dynamic = has_dynamic;
-            submenu->_menu_parent = this;
-            submenu->parse((*it)->get_section(), has_dynamic);
-            submenu->buildMenu();
-
             CfgParser::Entry *sub_section = (*it)->get_section();
             if (sub_section) {
                 icon = getIcon(sub_section->find_entry("ICON"));
 
+                submenu = new ActionMenu(_menu_type, Util::to_wide_str((*it)->get_value()), "");
+                submenu->_is_dynamic = has_dynamic;
+                submenu->_menu_parent = this;
+                submenu->parse(sub_section, has_dynamic);
+                submenu->buildMenu();
+
                 item = new PMenu::Item(Util::to_wide_str(sub_section->get_value()), submenu, icon);
                 item->setDynamic(has_dynamic);
+            } else {
+                cerr << " *** WARNING: submenu entry does not contain any section." << endl;
             }
         } else if (*(*it) == "SEPARATOR") {
             // No icon support on separators.
             item = new PMenu::Item(L"", 0, 0);
             item->setDynamic(has_dynamic);
             item->setType(PMenu::Item::MENU_ITEM_SEPARATOR);
+
+
         } else {
             CfgParser::Entry *sub_section = (*it)->get_section();
             if (sub_section) {
@@ -286,7 +290,7 @@ ActionMenu::getIcon(CfgParser::Entry *value)
     PTexture *icon = 0;
 
     if (value) {
-        icon = TextureHandler::instance()->getTexture("IMAGE " + value->get_value());
+        icon = TextureHandler::instance()->getTexture("IMAGE " + value->get_value() + "#SCALED");
     }
 
     return icon;
