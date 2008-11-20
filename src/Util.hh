@@ -25,6 +25,8 @@
 //! @brief Namespace Util used for various small file/string tasks.
 namespace Util {
     void forkExec(std::string command);
+    std::string getHostname(void);
+
     bool isFile(const std::string &file);
     bool isExecutable(const std::string &file);
     bool isFileChanged(const std::string &file, time_t &mtime);

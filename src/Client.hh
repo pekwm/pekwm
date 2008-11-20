@@ -144,6 +144,8 @@ public: // Public Member Functions
 
     PTexture *getIcon(void) const { return _icon; }
 
+    bool isRemote(void) const { return _is_remote; }
+
     // State accessors
     inline bool isMaximizedVert(void) const { return _state.maximized_vert; }
     inline bool isMaximizedHorz(void) const { return _state.maximized_horz; }
@@ -279,6 +281,7 @@ private:
     void readIcon(void);
     AutoProperty* readAutoprops(uint type = 0);
     void applyAutoprops(AutoProperty *ap);
+    void readClientRemote(void);
 
     static uint findClientID(void);
     static void returnClientID(uint id);
@@ -296,6 +299,7 @@ private: // Private Member Variables
     std::string _icon_name;
     PDecor::TitleItem _title;
     PTextureImage *_icon;
+    bool _is_remote; /**< Boolean flag  */
 
     ClassHint *_class_hint;
 

@@ -46,8 +46,11 @@ using std::ifstream;
 using std::ofstream;
 using std::find;
 
-
 namespace Util {
+
+#ifndef HOST_NAME_MAX
+#define HOST_NAME_MAX 255
+#endif // HOST_NAME_MAX
 
 static iconv_t do_iconv_open(const char **from_names, const char **to_names);
 static size_t do_iconv (iconv_t ic, const char **inp, size_t *in_bytes,
@@ -94,6 +97,26 @@ forkExec(std::string command)
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "Util::forkExec(" << command << ") fork failed." << endl;
     }
+}
+
+/**
+ * Wrapper for gethostname returning a string instead of populating
+ * char buffer.
+ */
+std::string
+getHostname(void)
+{
+    string hostname;
+
+    // Set WM_CLIENT_MACHINE
+    char hostname_buf[HOST_NAME_MAX + 1];
+    if (! gethostname(hostname_buf, HOST_NAME_MAX)) {
+      // Make sure it is null terminated
+      hostname_buf[HOST_NAME_MAX] = '\0';
+      hostname = hostname_buf;
+    }
+
+    return hostname;
 }
 
 //! @brief Determines if the file exists

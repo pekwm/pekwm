@@ -78,10 +78,6 @@ extern "C" {
 #endif // HAVE_XRANDR
 }
 
-#ifndef HOST_NAME_MAX
-#define HOST_NAME_MAX 255
-#endif // HOST_NAME_MAX
-
 using std::cout;
 using std::cerr;
 using std::endl;
@@ -309,19 +305,10 @@ WindowManager::RootWO::RootWO(Display *dpy, Window root) :
     _gm.height = PScreen::instance()->getHeight();
 
     // Set _NET_WM_PID 
-    AtomUtil::setLong(_window, EwmhAtoms::instance()->getAtom(NET_WM_PID),
-                      static_cast<long>(getpid()));
+    AtomUtil::setLong(_window, EwmhAtoms::instance()->getAtom(NET_WM_PID), static_cast<long>(getpid()));
 
     // Set WM_CLIENT_MACHINE
-    char hostname[HOST_NAME_MAX + 1];
-    if (! gethostname (hostname, HOST_NAME_MAX)) {
-      // Make sure it is null terminated
-      hostname[HOST_NAME_MAX] = '\0';
-
-      AtomUtil::setString (_window,
-                           IcccmAtoms::instance()->getAtom(WM_CLIENT_MACHINE),
-                           hostname);
-    }
+    AtomUtil::setString(_window, IcccmAtoms::instance()->getAtom(WM_CLIENT_MACHINE), Util::getHostname());
     
     woListAdd(this);
     _wo_map[_window] = this;

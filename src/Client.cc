@@ -61,7 +61,7 @@ Client::Client(Window new_client, bool is_new)
     : PWinObj(WindowManager::inst()->getScreen()->getDpy()),
       _id(0), _size(0),
       _transient(None), _strut(0), _icon(0),
-      _class_hint(0),
+      _is_remote(false), _class_hint(0),
       _alive(false), _marked(false),
       _send_focus_message(false), _send_close_message(false),
       _wm_hints_input(true), _cfg_request_lock(false),
@@ -147,6 +147,7 @@ Client::Client(Window new_client, bool is_new)
     readEwmhHints();
     readPekwmHints();
     readIcon();
+    readClientRemote();
     getWMProtocols();
 
     ulong initial_state = NormalState;
@@ -930,6 +931,19 @@ Client::applyAutoprops(AutoProperty *ap)
     }
     if (ap->isMask(AP_CFG_DENY)) {
         _state.cfg_deny = ap->cfg_deny;
+    }
+}
+
+/**
+ * Read WM_CLIENT_MACHINE and check against local hostname and set
+ * _is_remote if it does not match.
+ */
+void
+Client::readClientRemote(void)
+{
+    string client_machine;
+    if (AtomUtil::getTextProperty(_window, IcccmAtoms::instance()->getAtom(WM_CLIENT_MACHINE), client_machine)) {
+        _is_remote = Util::getHostname() != client_machine;
     }
 }
 
