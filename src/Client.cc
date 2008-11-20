@@ -84,8 +84,7 @@ Client::Client(Window new_client, bool is_new)
 
     if (! validate()) {
 #ifdef DEBUG
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "Couldn't validate client." << endl;
+        cerr << __FILE__ << "@" << __LINE__ << ": " << "Couldn't validate client." << endl;
 #endif // DEBUG
         PScreen::instance()->ungrabServer(true);
         return;
@@ -94,8 +93,7 @@ Client::Client(Window new_client, bool is_new)
     XWindowAttributes attr;
     if (! XGetWindowAttributes(_dpy, _window, &attr)) {
 #ifdef DEBUG
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "Client died." << endl;
+        cerr << __FILE__ << "@" << __LINE__ << ": " << "Client died." << endl;
 #endif // DEBUG
         PScreen::instance()->ungrabServer(true);
         return;
@@ -207,9 +205,7 @@ Client::Client(Window new_client, bool is_new)
         // Not startup, pekwm (re)start it is.
     } else {
         long id;
-        if (AtomUtil::getLong(_window,
-                              PekwmAtoms::instance()->getAtom(PEKWM_FRAME_ID),
-                              id)) {
+        if (AtomUtil::getLong(_window, PekwmAtoms::instance()->getAtom(PEKWM_FRAME_ID), id)) {
             do_autogroup = false;
             _parent = Frame::findFrameFromID(id);
             if (_parent) {
@@ -405,8 +401,7 @@ Client::unmapWindow(void)
 
     XSelectInput(_dpy, _window, NoEventMask);
     PWinObj::unmapWindow();
-    XSelectInput(_dpy, _window,
-                 PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
+    XSelectInput(_dpy, _window, PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
 }
 
 //! @brief Iconifies the client and adds it to the iconmenu
@@ -465,8 +460,7 @@ Client::resize(uint width, uint height)
 void
 Client::moveResize(int x, int y, uint width, uint height)
 {
-    bool request = ((_gm.x != x) || (_gm.y != y)
-                  || (_gm.width != width) || (_gm.height != height));
+    bool request = ((_gm.x != x) || (_gm.y != y) || (_gm.width != width) || (_gm.height != height));
 
     _gm.x = x;
     _gm.y = y;
@@ -489,11 +483,10 @@ Client::setWorkspace(uint workspace)
         _workspace = workspace;
 
         if (_sticky) {
-            AtomUtil::setLong(_window, EwmhAtoms::instance()->getAtom(NET_WM_DESKTOP),
-                              NET_WM_STICKY_WINDOW);
+            AtomUtil::setLong(_window,
+                              EwmhAtoms::instance()->getAtom(NET_WM_DESKTOP),  NET_WM_STICKY_WINDOW);
         } else {
-            AtomUtil::setLong(_window, EwmhAtoms::instance()->getAtom(NET_WM_DESKTOP),
-                              _workspace);
+            AtomUtil::setLong(_window, EwmhAtoms::instance()->getAtom(NET_WM_DESKTOP), _workspace);
         }
     }
 }
@@ -633,8 +626,8 @@ Client::validate(void)
     XSync(_dpy, false);
 
     XEvent ev;
-    if (XCheckTypedWindowEvent(_dpy, _window, DestroyNotify, &ev) ||
-            XCheckTypedWindowEvent(_dpy, _window, UnmapNotify, &ev)) {
+    if (XCheckTypedWindowEvent(_dpy, _window, DestroyNotify, &ev)
+        || XCheckTypedWindowEvent(_dpy, _window, UnmapNotify, &ev)) {
         XPutBackEvent(_dpy, &ev);
         return false;
     }
@@ -659,8 +652,7 @@ Client::grabButtons(void)
     // Make sure we don't have any buttons grabbed.
     XUngrabButton(_dpy, AnyButton, AnyModifier, _window);
 
-    list<ActionEvent> *actions =
-        Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_CHILD_FRAME);
+    list<ActionEvent> *actions = Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_CHILD_FRAME);
     list<ActionEvent>::iterator it(actions->begin());
     for (; it != actions->end(); ++it) {
         if ((it->type == MOUSE_EVENT_PRESS) || (it->type == MOUSE_EVENT_RELEASE)) {
@@ -714,8 +706,7 @@ Client::readClassRoleHints(void)
 
     // wm window role
     string role;
-    AtomUtil::getString(_window,
-                        IcccmAtoms::instance()->getAtom(WM_WINDOW_ROLE),  role);
+    AtomUtil::getString(_window, IcccmAtoms::instance()->getAtom(WM_WINDOW_ROLE),  role);
 
     _class_hint->h_role = Util::to_wide_str(role);
 }
@@ -741,9 +732,7 @@ Client::readEwmhHints(void)
     Atom *atoms = 0;
 
     EwmhAtomName window_type = WINDOW_TYPE;
-    atoms = (Atom*) AtomUtil::getEwmhPropData(_window,
-                                              ewmh->getAtom(WINDOW_TYPE),
-                                              XA_ATOM, items);
+    atoms = (Atom*) AtomUtil::getEwmhPropData(_window, ewmh->getAtom(WINDOW_TYPE), XA_ATOM, items);
     if (atoms) {
       for (int i = 0; window_type == WINDOW_TYPE && i < items; ++i) {
         if (atoms[i] == ewmh->getAtom(WINDOW_TYPE_DESKTOP)) {
@@ -769,8 +758,7 @@ Client::readEwmhHints(void)
     // Set window type to WINDOW_TYPE_NORMAL if it did not match
     if (window_type == WINDOW_TYPE) {
       window_type = WINDOW_TYPE_NORMAL;
-      AtomUtil::setAtom(_window, ewmh->getAtom(WINDOW_TYPE),
-                        ewmh->getAtom(WINDOW_TYPE_NORMAL));
+      AtomUtil::setAtom(_window, ewmh->getAtom(WINDOW_TYPE), ewmh->getAtom(WINDOW_TYPE_NORMAL));
     }
      
     // Apply autoproperties for window type
@@ -845,13 +833,11 @@ Client::readPekwmHints(void)
     PekwmAtoms *atoms = PekwmAtoms::instance();
 
     // Get decor state
-    if (AtomUtil::getLong(_window, atoms->getAtom(PEKWM_FRAME_DECOR),
-                          value)) {
+    if (AtomUtil::getLong(_window, atoms->getAtom(PEKWM_FRAME_DECOR), value)) {
         _state.decor = value;
     }
     // Get skip state
-    if (AtomUtil::getLong(_window, atoms->getAtom(PEKWM_FRAME_SKIP),
-                          value)) {
+    if (AtomUtil::getLong(_window, atoms->getAtom(PEKWM_FRAME_SKIP), value)) {
         _state.skip = value;
     }
 
@@ -1015,8 +1001,7 @@ bool
 Client::titleApplyRule(std::wstring &title)
 {
     _class_hint->title = title;
-    TitleProperty *data =
-        AutoProperties::instance()->findTitleProperty (_class_hint);
+    TitleProperty *data = AutoProperties::instance()->findTitleProperty(_class_hint);
 
     if (data) {
         return data->getTitleRule().ed_s(title);

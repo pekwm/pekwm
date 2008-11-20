@@ -2227,22 +2227,17 @@ WindowManager::initHints(void)
     XChangeWindowAttributes(_screen->getDpy(), _extended_hints_win,
                             CWOverrideRedirect, &pattr);
 
-    AtomUtil::setString(_extended_hints_win, _ewmh_atoms->getAtom(NET_WM_NAME),
-                        _wm_name);
+    AtomUtil::setString(_extended_hints_win, _ewmh_atoms->getAtom(NET_WM_NAME), _wm_name);
     AtomUtil::setWindow(_extended_hints_win,
-                        _ewmh_atoms->getAtom(NET_SUPPORTING_WM_CHECK),
-                        _extended_hints_win);
+                        _ewmh_atoms->getAtom(NET_SUPPORTING_WM_CHECK), _extended_hints_win);
     AtomUtil::setWindow(_screen->getRoot(),
-                        _ewmh_atoms->getAtom(NET_SUPPORTING_WM_CHECK),
-                        _extended_hints_win);
+                        _ewmh_atoms->getAtom(NET_SUPPORTING_WM_CHECK), _extended_hints_win);
 
     setEwmhSupported();
-    AtomUtil::setLong(_screen->getRoot(),
-                      _ewmh_atoms->getAtom(NET_NUMBER_OF_DESKTOPS),
+    AtomUtil::setLong(_screen->getRoot(), _ewmh_atoms->getAtom(NET_NUMBER_OF_DESKTOPS),
                       _config->getWorkspaces());
 
-    AtomUtil::setLong(_screen->getRoot(),
-                      _ewmh_atoms->getAtom(NET_CURRENT_DESKTOP), 0);
+    AtomUtil::setLong(_screen->getRoot(), _ewmh_atoms->getAtom(NET_CURRENT_DESKTOP), 0);
 }
 
 void
@@ -2250,16 +2245,18 @@ WindowManager::setEwmhSupported(void)
 {
     Atom *atoms = _ewmh_atoms->getAtomArray();
 
-    AtomUtil::setAtoms(_screen->getRoot(), _ewmh_atoms->getAtom(NET_SUPPORTED),
-                       atoms, _ewmh_atoms->size());
+    AtomUtil::setAtoms(_screen->getRoot(), _ewmh_atoms->getAtom(NET_SUPPORTED), atoms, _ewmh_atoms->size());
 
     delete [] atoms;
 }
 
+/**
+ * Update _NET_ACTIVE_WINDOW property.
+ */
 void
-WindowManager::setEwmhActiveWindow(Window w)
+WindowManager::setEwmhActiveWindow(Window win)
 {
-    AtomUtil::setWindow(_screen->getRoot(), _ewmh_atoms->getAtom(NET_ACTIVE_WINDOW), w);
+    AtomUtil::setWindow(_screen->getRoot(), _ewmh_atoms->getAtom(NET_ACTIVE_WINDOW), win);
 }
 
 //! @brief Sets the _NET_DESKTOP_NAMES extended window manager hint.

@@ -126,9 +126,10 @@ Frame::Frame(Client *client, AutoProperty *ap)
     if (client->isViewable() || client->isPlaced()) {
         moveChild(client->getX(), client->getY());
     } else if (client->setPUPosition()) {
+        int x, y;
         calcGravityPosition(client->getXSizeHints()->win_gravity,
-                            client->getX(), client->getY(), _gm.x, _gm.y);
-        move(_gm.x, _gm.y);
+                            client->getX(), client->getY(), x, y);
+        move(x, y);
     } else {
         place = Config::instance()->isPlaceNew();
     }
@@ -2159,8 +2160,7 @@ Frame::handlePropertyChange(XPropertyEvent *ev, Client *client)
         }
     } else if (ev->atom == ewmh->getAtom(NET_WM_STRUT)) {
         client->getStrutHint();
-    } else if (ev->atom == ewmh->getAtom(NET_WM_NAME)
-               || ev->atom == XA_WM_NAME) {
+    } else if (ev->atom == ewmh->getAtom(NET_WM_NAME) || ev->atom == XA_WM_NAME) {
         handleTitleChange(client);
     } else if (ev->atom == XA_WM_NORMAL_HINTS) {
         client->getWMNormalHints();

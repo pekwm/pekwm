@@ -5,8 +5,6 @@
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
-// $Id$
-//
 
 #ifdef HAVE_CONFIG_H
 #include "../config.h"

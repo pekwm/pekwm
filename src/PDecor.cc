@@ -1783,16 +1783,15 @@ PDecor::setShape(void)
 #endif // HAVE_SHAPE
 }
 
-//! @brief
+/**
+ * Move child into position with regards to title and border.
+ */
 void
 PDecor::alignChild(PWinObj *child)
 {
-    if (! child) {
-        return;
+    if (child) {
+        XMoveWindow(_dpy, child->getWindow(), borderLeft(), borderTop() + getTitleHeight());
     }
-
-    XMoveWindow(_dpy, child->getWindow(),
-                borderLeft(), borderTop() + getTitleHeight());
 }
 
 //! @brief Draws outline of the decor with geometry gm
