@@ -696,6 +696,10 @@ Client::setStateCfgDeny(StateAction sa, uint deny)
     }
 }
 
+/**
+ * Read the WM_CLASS hint and set information on the _class_hint used
+ * in matching auto properties.
+ */
 void
 Client::readClassRoleHints(void)
 {
@@ -973,36 +977,20 @@ Client::returnClientID(uint id)
     _clientid_list.insert(it, id);
 }
 
-//! @brief Tries to get the NET_WM name, else fall back to XA_WM_NAME
+/**
+ * Tries to get the NET_WM name, else fall back to WM_NAME
+ */
 void
 Client::getXClientName(void)
 {
+    // Read title, bail out if it fails.
     wstring title;
-
     if (! AtomUtil::getUtf8String(_window, EwmhAtoms::instance()->getAtom(NET_WM_NAME), title)) {
-        // read X11 property
-        XTextProperty text_property;
-        if ((XGetWMName(_dpy, _window, &text_property) == False)
-            || ! text_property.value || (text_property.nitems == 0)){
+        string mb_title;
+        if (! AtomUtil::getTextProperty(_window, IcccmAtoms::instance()->getAtom(WM_NAME), mb_title)) {
             return;
         }
-
-        if (text_property.encoding == XA_STRING) {
-            string value(reinterpret_cast<const  char*>(text_property.value));
-            title = Util::to_wide_str(value);
-        } else {
-            char **list;
-            int num;
-
-            XmbTextPropertyToTextList(_dpy, &text_property, &list, &num);
-            if (list && (num > 0)) {
-                string value(*list);
-                title = Util::to_wide_str(value);
-                XFreeStringList(list);
-            }
-        }
-
-        XFree(text_property.value);
+        title = Util::to_wide_str(mb_title);
     }
 
     // Mirror it on the visible
@@ -1014,6 +1002,9 @@ Client::getXClientName(void)
     // user-set titles
     if (titleApplyRule(title)) {
         _title.setCustom(title);
+        AtomUtil::setUtf8String(_window, EwmhAtoms::instance()->getAtom(NET_WM_VISIBLE_NAME), title);
+    } else {
+        AtomUtil::unsetProperty(_window, EwmhAtoms::instance()->getAtom(NET_WM_VISIBLE_NAME));
     }
 }
 
@@ -1081,27 +1072,9 @@ Client::titleFindID(std::wstring &title)
 void
 Client::getXIconName(void)
 {
-    _icon_name = "";
-
-    XTextProperty text_property;
-    if (! XGetWMIconName(_dpy, _window, &text_property) ||
-            ! text_property.value || ! text_property.nitems)
-        return;
-
-    if (text_property.encoding == XA_STRING) {
-        _icon_name = (const char*) text_property.value;
-    } else {
-        char **list;
-        int num;
-
-        XmbTextPropertyToTextList(_dpy, &text_property, &list, &num);
-        if (num && *list) {
-            _icon_name = *list;
-            XFreeStringList(list);
-        }
+    if (! AtomUtil::getTextProperty(_window, IcccmAtoms::instance()->getAtom(WM_ICON_NAME), _icon_name)) {
+        _icon_name = "";
     }
-
-    XFree (text_property.value);
 }
 
 //! @brief Sets the WM_STATE of the client to state

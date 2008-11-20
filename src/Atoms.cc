@@ -16,6 +16,10 @@
 #include "PScreen.hh"
 #include "Util.hh"
 
+extern "C" {
+#include <X11/Xutil.h>
+}
+
 using std::cerr;
 using std::endl;
 using std::string;
@@ -66,20 +70,21 @@ IcccmAtoms::IcccmAtoms(void)
 
     // ICCCM atoms
     const char *names[] = {
-                        "WM_STATE",
-                        "WM_CHANGE_STATE",
-                        "WM_PROTOCOLS",
-                        "WM_DELETE_WINDOW",
-                        "WM_COLORMAP_WINDOWS",
-                        "WM_TAKE_FOCUS",
-                        "WM_WINDOW_ROLE",
-                        "WM_CLIENT_MACHINE"
-                    };
+        "WM_NAME",
+        "WM_ICON_NAME"
+        "WM_STATE",
+        "WM_CHANGE_STATE",
+        "WM_PROTOCOLS",
+        "WM_DELETE_WINDOW",
+        "WM_COLORMAP_WINDOWS",
+        "WM_TAKE_FOCUS",
+        "WM_WINDOW_ROLE",
+        "WM_CLIENT_MACHINE"
+    };
     const uint num = sizeof(names) / sizeof(char*);
     Atom atoms[num];
 
-    XInternAtoms(PScreen::instance()->getDpy(),
-                 const_cast<char**>(names), num, 0, atoms);
+    XInternAtoms(PScreen::instance()->getDpy(), const_cast<char**>(names), num, 0, atoms);
 
     // Insert all atoms into the _atoms map
     for (uint i = 0; i < num; ++i) {
@@ -320,6 +325,42 @@ setString(Window win, Atom atom, const string &value)
                     PropModeReplace, (uchar*) value.c_str(), value.size());
 }
 
+/**
+ * Read text property.
+ *
+ * @param win Window to get property from.
+ * @param atom Atom holding the property.
+ * @param value Return string.
+ * @return true if property was successfully read.
+ */
+bool
+getTextProperty(Window win, Atom atom, std::string &value)
+{
+    // Read text property, return if it fails.
+    XTextProperty text_property;
+    if (! XGetTextProperty(PScreen::instance()->getDpy(), win, &text_property, atom)
+        || ! text_property.value || ! text_property.nitems) {
+        return false;
+    }
+
+    if (text_property.encoding == XA_STRING) {
+        value = reinterpret_cast<const  char*>(text_property.value);
+    } else {
+        char **list;
+        int num;
+
+        XmbTextPropertyToTextList(PScreen::instance()->getDpy(), &text_property, &list, &num);
+        if (list && num > 0) {
+            value = *list;
+            XFreeStringList(list);
+        }
+    }
+
+    XFree(text_property.value);
+
+    return true;
+}
+
 //! @brief
 void*
 getEwmhPropData(Window win, Atom prop, Atom type, int &num)
@@ -338,7 +379,9 @@ getEwmhPropData(Window win, Atom prop, Atom type, int &num)
     return prop_data;
 }
 
-//! @brief
+/**
+ * Remove property from window.
+ */
 void
 unsetProperty(Window win, Atom prop)
 {

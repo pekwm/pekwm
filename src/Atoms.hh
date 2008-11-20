@@ -33,10 +33,16 @@ enum PekwmAtomName {
 
 // ICCCM Atom Names
 enum IcccmAtomName {
-    WM_STATE, WM_CHANGE_STATE,
-    WM_PROTOCOLS, WM_DELETE_WINDOW,
-    WM_COLORMAP_WINDOWS, WM_TAKE_FOCUS,
-    WM_WINDOW_ROLE, WM_CLIENT_MACHINE
+    WM_NAME,
+    WM_ICON_NAME,
+    WM_STATE,
+    WM_CHANGE_STATE,
+    WM_PROTOCOLS,
+    WM_DELETE_WINDOW,
+    WM_COLORMAP_WINDOWS,
+    WM_TAKE_FOCUS,
+    WM_WINDOW_ROLE,
+    WM_CLIENT_MACHINE
 };
 
 // Ewmh Atom Names
@@ -164,6 +170,8 @@ void setString(Window win, Atom atom, const std::string &value);
 
 bool getUtf8String(Window win, Atom atom, std::wstring &value);
 void setUtf8String(Window win, Atom atom, const std::wstring &value);
+
+bool getTextProperty(Window win, Atom atom, std::string &value);
 
 void *getEwmhPropData(Window win, Atom prop, Atom type, int &num);
 
