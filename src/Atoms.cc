@@ -71,7 +71,7 @@ IcccmAtoms::IcccmAtoms(void)
     // ICCCM atoms
     const char *names[] = {
         "WM_NAME",
-        "WM_ICON_NAME"
+        "WM_ICON_NAME",
         "WM_STATE",
         "WM_CHANGE_STATE",
         "WM_PROTOCOLS",
@@ -344,15 +344,15 @@ getTextProperty(Window win, Atom atom, std::string &value)
     }
 
     if (text_property.encoding == XA_STRING) {
-        value = reinterpret_cast<const  char*>(text_property.value);
+        value = reinterpret_cast<const char*>(text_property.value);
     } else {
-        char **list;
+        char **mb_list;
         int num;
 
-        XmbTextPropertyToTextList(PScreen::instance()->getDpy(), &text_property, &list, &num);
-        if (list && num > 0) {
-            value = *list;
-            XFreeStringList(list);
+        XmbTextPropertyToTextList(PScreen::instance()->getDpy(), &text_property, &mb_list, &num);
+        if (mb_list && num > 0) {
+            value = *mb_list;
+            XFreeStringList(mb_list);
         }
     }
 

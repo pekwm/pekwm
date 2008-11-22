@@ -942,7 +942,7 @@ void
 Client::readClientRemote(void)
 {
     string client_machine;
-    if (AtomUtil::getTextProperty(_window, IcccmAtoms::instance()->getAtom(WM_CLIENT_MACHINE), client_machine)) {
+    if (AtomUtil::getTextProperty(_window, XA_WM_CLIENT_MACHINE, client_machine)) {
         _is_remote = Util::getHostname() != client_machine;
     }
 }
@@ -987,7 +987,7 @@ Client::getXClientName(void)
     wstring title;
     if (! AtomUtil::getUtf8String(_window, EwmhAtoms::instance()->getAtom(NET_WM_NAME), title)) {
         string mb_title;
-        if (! AtomUtil::getTextProperty(_window, IcccmAtoms::instance()->getAtom(WM_NAME), mb_title)) {
+        if (! AtomUtil::getTextProperty(_window, XA_WM_NAME, mb_title)) {
             return;
         }
         title = Util::to_wide_str(mb_title);
@@ -1067,11 +1067,14 @@ Client::titleFindID(std::wstring &title)
     return id_found;
 }
 
-//! @brief Tries to get Client's icon name, and puts it in _icon_name.
+/**
+ * Get the clients icon name to be displayed when the client is
+ * iconified.
+ */
 void
 Client::getXIconName(void)
 {
-    if (! AtomUtil::getTextProperty(_window, IcccmAtoms::instance()->getAtom(WM_ICON_NAME), _icon_name)) {
+    if (! AtomUtil::getTextProperty(_window, XA_WM_ICON_NAME, _icon_name)) {
         _icon_name = "";
     }
 }
