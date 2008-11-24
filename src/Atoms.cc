@@ -28,6 +28,7 @@ using std::map;
 PekwmAtoms* PekwmAtoms::_instance = 0;
 IcccmAtoms* IcccmAtoms::_instance = 0;
 EwmhAtoms* EwmhAtoms::_instance = 0;
+MiscAtoms* MiscAtoms::_instance = 0;
 
 //! @brief PekwmAtoms constructor
 PekwmAtoms::PekwmAtoms(void)
@@ -170,6 +171,39 @@ EwmhAtoms::getAtomArray(void) const
         atoms[i] = it->second;
 
     return atoms;
+}
+
+/**
+ * MiscAtoms constructor, initializes hints.
+ */
+MiscAtoms::MiscAtoms(void)
+{
+    if (_instance) {
+        throw string("MiscAtoms, trying to create multiple instances");
+    }
+    _instance = this;
+
+    // Misc atoms
+    const char *names[] = {
+        "_MOTIF_WM_HINTS"
+    };
+    const unsigned int num = sizeof(names) / sizeof(char*);
+    Atom atoms[num];
+
+    XInternAtoms(PScreen::instance()->getDpy(), const_cast<char**>(names), num, 0, atoms);
+
+    // Insert all atoms into the _atoms map
+    for (unsigned int i = 0; i < num; ++i) {
+        _atoms[MiscAtomName(i)] = atoms[i];
+    }
+}
+
+/**
+ * MiscAtoms destructor, clears instance pointer.
+ */
+MiscAtoms::~MiscAtoms(void)
+{
+    _instance = 0;
 }
 
 namespace AtomUtil {
@@ -316,6 +350,21 @@ setUtf8String(Window win, Atom atom, const std::wstring &value)
                     reinterpret_cast<const uchar*>(utf8_string.c_str()),
                     utf8_string.size());
 }
+
+    /**
+     * Set array of UTF-8 strings.
+     *
+     * @param win Window to set string on.
+     * @param atom Atom to set array value.
+     * @param values Array of strings.
+     * @param length Number of elements in value.
+     */
+    void
+    setUtf8StringArray(Window win, Atom atom, unsigned char *values, unsigned int length)
+    {
+        XChangeProperty(PScreen::instance()->getDpy(), win, atom, EwmhAtoms::instance()->getAtom(UTF8_STRING),
+                        8, PropModeReplace, values, length);
+    }
 
 //! @brief Set XA_STRING property
 void

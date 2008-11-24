@@ -29,6 +29,7 @@ pekwm_SOURCES = \
 	ImageHandler.cc ImageHandler.hh \
 	InputDialog.cc InputDialog.hh \
 	KeyGrabber.cc KeyGrabber.hh \
+	ManagerWindows.cc ManagerWindows.hh \
 	PDecor.cc PDecor.hh \
 	PFont.cc PFont.hh \
 	PMenu.cc PMenu.hh \

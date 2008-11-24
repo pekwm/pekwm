@@ -432,6 +432,9 @@ Frame::removeChild (PWinObj *child, bool do_delete)
 void
 Frame::activateChild (PWinObj *child)
 {
+    // FIXME: Update default decoration for this child, can change
+    // decoration from DEFAULT to REMOTE or WARNING
+
     // Sync the frame state with the client only if we already had a client
     if (_client && _client != child) {
         applyState(static_cast<Client*>(child));

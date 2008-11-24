@@ -22,6 +22,7 @@
 #include "Atoms.hh"
 #include "PScreen.hh"
 #include "Timer.hh"
+#include "ManagerWindows.hh"
 
 #include <list>
 #include <map>
@@ -63,45 +64,9 @@ class Harbour;
 class WindowManager
 {
 public:
-class EdgeWO : public PWinObj {
-    public:
-        EdgeWO(Display *dpy, Window root, EdgeType edge, bool set_strut);
-        virtual ~EdgeWO(void);
-
-        void configureStrut(bool set_strut);
-
-        virtual void mapWindow(void);
-
-        virtual ActionEvent *handleButtonPress(XButtonEvent *ev);
-        virtual ActionEvent *handleButtonRelease(XButtonEvent *ev);
-        virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev);
-
-        inline EdgeType getEdge(void) const { return _edge; }
-
-    private:
-        EdgeType _edge;
-        Strut _strut; //!< Strut for reserving screen edge space
-    };
-
-class RootWO : public PWinObj {
-    public:
-        RootWO(Display *dpy, Window root);
-        virtual ~RootWO(void);
-
-        virtual void resize(uint width, uint height) {
-            _gm.width = width; _gm.height = height;
-        }
-
-        virtual ActionEvent *handleButtonPress(XButtonEvent *ev);
-        virtual ActionEvent *handleButtonRelease(XButtonEvent *ev);
-        virtual ActionEvent *handleMotionEvent(XMotionEvent *ev);
-        virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev);
-        virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev);
-    };
-
     static void start(const std::string &command_line, const std::string &config_file);
     static void destroy();
-    inline static WindowManager *inst() { return _inst; }
+    inline static WindowManager *instance(void) { return _instance; }
 
     //! @brief Sets reload status, will reload from main loop.
     void reload(void) { _reload = true; }
@@ -184,9 +149,6 @@ class RootWO : public PWinObj {
     inline CmdDialog *getCmdDialog(void) { return _cmd_dialog; }
     inline StatusWindow *getStatusWindow(void) { return _status_window; }
     WorkspaceIndicator *getWorkspaceIndicator(void) { return _workspace_indicator; }
-
-    // Methods for the various hints
-    inline Atom getMwmHintsAtom(void) { return _atom_mwm_hints; }
 
     // Extended Window Manager hints function prototypes
     void setEwmhSupported(void);
@@ -300,7 +262,6 @@ private:
     static const unsigned int MENU_NAMES_RESERVED_COUNT;
 #endif // MENUS
 
-    static const std::string _wm_name;
     std::string _command_line, _restart_command;
     bool _startup; //!< Indicates startup status.
     bool _shutdown; //!< Set to wheter we want to shutdown.
@@ -311,23 +272,18 @@ private:
     bool _allow_grouping; //<! Flag turning grouping on/off.
 
     std::list<EdgeWO*> _screen_edge_list;
-    PWinObj *_root_wo;
+    HintWO *_hint_wo; /**< Hint window object, communicates EWMH hints. */
+    RootWO *_root_wo; /**< Root window object, wrapper for root window. */
+
 
     // Atoms and hints follow under here
     PekwmAtoms *_pekwm_atoms;
     IcccmAtoms *_icccm_atoms;
     EwmhAtoms *_ewmh_atoms;
-
-    // Atom for motif hints
-    Atom _atom_mwm_hints;
-
-    // Windows for the different hints
-    Window _extended_hints_win;
-
-    static const ulong EXPECTED_DESKTOP_NAMES_LENGTH; /**< Start retrieving up to as many bytes for desktop names. */
+    MiscAtoms *_misc_atoms;
 
     // pointer for singleton pattern
-    static WindowManager *_inst;
+    static WindowManager *_instance;
 };
 
 #endif // _WINDOWMANAGER_HH_

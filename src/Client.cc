@@ -1300,12 +1300,10 @@ Client::getMwmHints(Window win)
     MwmHints *data = 0;
     uchar *udata;
 
-    int status =
-        XGetWindowProperty(_dpy, win, WindowManager::inst()->getMwmHintsAtom(),
-                           0L, 20L, False, WindowManager::inst()->getMwmHintsAtom(),
-                           &real_type, &real_format,
-                           &items_read, &items_left,
-                           &udata);
+    Atom hints_atom = MiscAtoms::instance()->getAtom(MOTIF_WM_HINTS);
+
+    int status = XGetWindowProperty(_dpy, win, hints_atom, 0L, 20L, False, hints_atom,
+                                    &real_type, &real_format, &items_read, &items_left, &udata);
 
     if (status == Success) {
         if (items_read < MWM_HINTS_NUM) {

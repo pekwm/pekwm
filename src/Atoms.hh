@@ -84,6 +84,13 @@ enum EwmhAtomName {
     UTF8_STRING
 };
 
+/**
+ * List of non PEKWM, ICCCM and EWMH atoms.
+ */
+enum MiscAtomName {
+    MOTIF_WM_HINTS
+};
+
 // pekwm stuff
 class PekwmAtoms {
 public:
@@ -130,7 +137,7 @@ private:
 class EwmhAtoms {
 public:
     EwmhAtoms(void);
-    ~EwmhAtoms();
+    ~EwmhAtoms(void);
 
     static EwmhAtoms* instance(void) { return _instance; }
 
@@ -148,6 +155,30 @@ private:
     std::map<EwmhAtomName, Atom> _atoms;
 
     static EwmhAtoms *_instance;
+};
+
+/**
+ * Misc atoms.
+ */
+class MiscAtoms {
+public:
+    MiscAtoms(void);
+    ~MiscAtoms(void);
+
+    /** Get singleton instance. */
+    static MiscAtoms *instance(void) { return _instance; }
+
+    /**
+     * Get atom from enum type. 
+     */
+    Atom getAtom(MiscAtomName name) const {
+        std::map<MiscAtomName, Atom>::const_iterator it(_atoms.find(name));
+        return (it == _atoms.end()) ? None : it->second;
+    }
+
+private:
+    std::map<MiscAtomName, Atom> _atoms; /**< Map from atom type to atom. */
+    static MiscAtoms *_instance; /**< Singleton instance pointer. */
 };
 
 namespace AtomUtil {
@@ -168,10 +199,12 @@ void setLong(Window win, Atom atom, long value);
 bool getString(Window win, Atom atom, std::string &value);
 void setString(Window win, Atom atom, const std::string &value);
 
-bool getUtf8String(Window win, Atom atom, std::wstring &value);
-void setUtf8String(Window win, Atom atom, const std::wstring &value);
+    bool getUtf8String(Window win, Atom atom, std::wstring &value);
+    void setUtf8String(Window win, Atom atom, const std::wstring &value);
 
-bool getTextProperty(Window win, Atom atom, std::string &value);
+    void setUtf8StringArray(Window win, Atom atom, unsigned char *values, unsigned int length);
+
+    bool getTextProperty(Window win, Atom atom, std::string &value);
 
 void *getEwmhPropData(Window win, Atom prop, Atom type, int &num);
 

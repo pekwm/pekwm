@@ -90,10 +90,7 @@ using std::vector;
 using std::wstring;
 
 // Static initializers
-const string WindowManager::_wm_name = string("pekwm");
-const ulong WindowManager::EXPECTED_DESKTOP_NAMES_LENGTH = 256;
-
-WindowManager *WindowManager::_inst = 0;
+WindowManager *WindowManager::_instance = 0;
 
 #ifdef MENUS
 const char *WindowManager::MENU_NAMES_RESERVED[] = {
@@ -169,222 +166,6 @@ extern "C" {
     
 } // extern "C"
 
-// WindowManager::EdgeWO
-
-//! @brief EdgeWO constructor
-WindowManager::EdgeWO::EdgeWO(Display *dpy, Window root, EdgeType edge, bool set_strut) :
-  PWinObj(dpy), _edge(edge)
-{
-    _type = WO_SCREEN_EDGE;
-    _layer = LAYER_NONE; // hack, goes over LAYER_MENU
-    _sticky = true; // don't map/unmap
-    _iconified = true; // hack, to be ignored when placing
-    _focusable = false; // focusing input only windows crashes X
-
-    XSetWindowAttributes sattr;
-    sattr.override_redirect = True;
-    sattr.event_mask =
-        EnterWindowMask|LeaveWindowMask|ButtonPressMask|ButtonReleaseMask;
-
-    _window =
-        XCreateWindow(_dpy, root,
-                      0, 0, 1, 1, 0,
-                      CopyFromParent, InputOnly, CopyFromParent,
-                      CWOverrideRedirect|CWEventMask, &sattr);
-
-    configureStrut(set_strut);
-    PScreen::instance()->addStrut(&_strut);
-
-    woListAdd(this);
-    _wo_map[_window] = this;
-}
-
-//! @brief EdgeWO destructor
-WindowManager::EdgeWO::~EdgeWO(void)
-{
-    PScreen::instance()->removeStrut(&_strut);
-    _wo_map.erase(_window);
-    woListRemove(this);
-
-    XDestroyWindow(_dpy, _window);
-}
-
-//! @brief Initialize strut
-void
-WindowManager::EdgeWO::configureStrut(bool set_strut)
-{
-    _strut.left = _strut.right = _strut.top = _strut.bottom = 0;
-
-    if (set_strut) {
-        switch (_edge) {
-        case SCREEN_EDGE_TOP:
-            _strut.top = _gm.height;
-            break;
-        case SCREEN_EDGE_BOTTOM:
-            _strut.bottom = _gm.height;
-            break;
-        case SCREEN_EDGE_LEFT:
-            _strut.left = _gm.width;
-            break;
-        case SCREEN_EDGE_RIGHT:
-            _strut.right = _gm.width;
-            break;
-        case SCREEN_EDGE_NO:
-        default:
-            // do nothing
-            break;
-        }
-    }
-}
-
-//! @brief Map window also setting iconified state
-void
-WindowManager::EdgeWO::mapWindow(void)
-{
-    if (_mapped) {
-        return;
-    }
-
-    PWinObj::mapWindow();
-    _iconified = true;
-}
-
-//! @brief
-ActionEvent*
-WindowManager::EdgeWO::handleEnterEvent(XCrossingEvent *ev)
-{
-    return ActionHandler::findMouseAction(BUTTON_ANY, ev->state,
-                                          MOUSE_EVENT_ENTER,
-                                          Config::instance()->getEdgeListFromPosition(_edge));
-}
-
-//! @brief
-ActionEvent*
-WindowManager::EdgeWO::handleButtonPress(XButtonEvent *ev)
-{
-    return ActionHandler::findMouseAction(ev->button, ev->state,
-                                          MOUSE_EVENT_PRESS,
-                                          Config::instance()->getEdgeListFromPosition(_edge));
-}
-
-//! @brief
-ActionEvent*
-WindowManager::EdgeWO::handleButtonRelease(XButtonEvent *ev)
-{
-    MouseEventType mb = MOUSE_EVENT_RELEASE;
-
-    // first we check if it's a double click
-    if (PScreen::instance()->isDoubleClick(ev->window, ev->button - 1, ev->time,
-                                           Config::instance()->getDoubleClickTime())) {
-        PScreen::instance()->setLastClickID(ev->window);
-        PScreen::instance()->setLastClickTime(ev->button - 1, 0);
-
-        mb = MOUSE_EVENT_DOUBLE;
-    } else {
-        PScreen::instance()->setLastClickID(ev->window);
-        PScreen::instance()->setLastClickTime(ev->button - 1, ev->time);
-    }
-
-    return ActionHandler::findMouseAction(ev->button, ev->state, mb,
-                                          Config::instance()->getEdgeListFromPosition(_edge));
-}
-
-
-// WindowManager::RootWO
-
-//! @brief RootWO constructor
-WindowManager::RootWO::RootWO(Display *dpy, Window root) :
-        PWinObj(dpy)
-{
-    _type = WO_SCREEN_ROOT;
-    _layer = LAYER_NONE;
-    _mapped = true;
-
-    _window = root;
-    _gm.width = PScreen::instance()->getWidth();
-    _gm.height = PScreen::instance()->getHeight();
-
-    // Set _NET_WM_PID 
-    AtomUtil::setLong(_window, EwmhAtoms::instance()->getAtom(NET_WM_PID), static_cast<long>(getpid()));
-
-    // Set WM_CLIENT_MACHINE
-    AtomUtil::setString(_window, IcccmAtoms::instance()->getAtom(WM_CLIENT_MACHINE), Util::getHostname());
-    
-    woListAdd(this);
-    _wo_map[_window] = this;
-}
-
-//! @brief RootWO destructor
-WindowManager::RootWO::~RootWO(void)
-{
-    // Remove atoms, PID will not be valid on shutdown.
-    AtomUtil::unsetProperty(_window, EwmhAtoms::instance()->getAtom(NET_WM_PID));
-    AtomUtil::unsetProperty(_window, IcccmAtoms::instance()->getAtom(WM_CLIENT_MACHINE));
-
-    _wo_map.erase(_window);
-    woListRemove(this);
-}
-
-//! @brief
-ActionEvent*
-WindowManager::RootWO::handleButtonPress(XButtonEvent *ev)
-{
-    return ActionHandler::findMouseAction(ev->button, ev->state,
-                                          MOUSE_EVENT_PRESS,
-                                          Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
-}
-
-//! @brief
-ActionEvent*
-WindowManager::RootWO::handleButtonRelease(XButtonEvent *ev)
-{
-    MouseEventType mb = MOUSE_EVENT_RELEASE;
-
-    // first we check if it's a double click
-    if (PScreen::instance()->isDoubleClick(ev->window, ev->button - 1, ev->time,
-                                           Config::instance()->getDoubleClickTime())) {
-        PScreen::instance()->setLastClickID(ev->window);
-        PScreen::instance()->setLastClickTime(ev->button - 1, 0);
-
-        mb = MOUSE_EVENT_DOUBLE;
-
-    } else {
-        PScreen::instance()->setLastClickID(ev->window);
-        PScreen::instance()->setLastClickTime(ev->button - 1, ev->time);
-    }
-
-    return ActionHandler::findMouseAction(ev->button, ev->state, mb,
-                                          Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
-}
-
-//! @brief
-ActionEvent*
-WindowManager::RootWO::handleMotionEvent(XMotionEvent *ev)
-{
-    uint button = PScreen::instance()->getButtonFromState(ev->state);
-
-    return ActionHandler::findMouseAction(button, ev->state,
-                                          MOUSE_EVENT_MOTION,
-                                          Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
-}
-
-//! @brief
-ActionEvent*
-WindowManager::RootWO::handleEnterEvent(XCrossingEvent *ev)
-{
-    return ActionHandler::findMouseAction(BUTTON_ANY, ev->state,
-                                          MOUSE_EVENT_ENTER,
-                                          Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
-}
-
-//! @brief
-ActionEvent*
-WindowManager::RootWO::handleLeaveEvent(XCrossingEvent *ev)
-{
-    return ActionHandler::findMouseAction(BUTTON_ANY, ev->state,
-                                          MOUSE_EVENT_LEAVE,
-                                          Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
-}
 
 // WindowManager
 
@@ -471,6 +252,7 @@ WindowManager::~WindowManager(void)
     delete _status_window;
     delete _workspace_indicator;
     delete _root_wo;
+    delete _hint_wo;
 
 #ifdef HARBOUR
     if (_harbour) {
@@ -576,12 +358,8 @@ WindowManager::cleanup(void)
     // destroy screen edge
     screenEdgeDestroy();
 
-    // destroy atom windows
-    XDestroyWindow(_screen->getDpy(), _extended_hints_win);
-
     XInstallColormap(_screen->getDpy(), _screen->getColormap());
-    XSetInputFocus(_screen->getDpy(), PointerRoot,
-                   RevertToPointerRoot, CurrentTime);
+    XSetInputFocus(_screen->getDpy(), PointerRoot, RevertToPointerRoot, CurrentTime);
 }
 
 //! @brief
@@ -617,11 +395,9 @@ WindowManager::setupDisplay(void)
     _pekwm_atoms = new PekwmAtoms();
     _icccm_atoms = new IcccmAtoms();
     _ewmh_atoms = new EwmhAtoms();
+    _misc_atoms = new MiscAtoms();
 
     _workspaces = new Workspaces(_config->getWorkspaces(), _config->getWorkspacesPerRow());
-
-    // set initial values of hints
-    initHints();
 
 #ifdef HARBOUR
     _harbour = new Harbour(_screen, _theme, _workspaces);
@@ -656,6 +432,9 @@ WindowManager::setupDisplay(void)
     // Create screen edge windows
     screenEdgeCreate();
     screenEdgeMapUnmap();
+
+    // Create hint window _before_ root window.
+    _hint_wo = new HintWO(dpy, _screen->getRoot());
 
     // Create root PWinObj
     _root_wo = new RootWO(dpy, _screen->getRoot());
@@ -861,7 +640,7 @@ WindowManager::doReload(void)
     doReloadHarbour();
 #endif // HARBOUR
 
-    setDesktopNames();
+    _root_wo->setEwmhDesktopNames();
 
     _reload = false;
 }
@@ -1568,14 +1347,14 @@ WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
 
             if (wo->getType() == PWinObj::WO_CLIENT) {
                 wo->getParent()->setFocused(true);
-                setEwmhActiveWindow(wo->getWindow());
+                _root_wo->setEwmhActiveWindow(wo->getWindow());
 
                 // update the MRU list
                 _mru_list.remove(wo->getParent());
                 _mru_list.push_back(wo->getParent());
             } else {
                 wo->setFocused(true);
-                setEwmhActiveWindow(None);
+                _root_wo->setEwmhActiveWindow(None);
             }
         }
     }
@@ -1636,7 +1415,8 @@ WindowManager::handlePropertyEvent(XPropertyEvent *ev)
 {
     if (ev->window == _screen->getRoot()) {
         if (ev->atom == _ewmh_atoms->getAtom(NET_DESKTOP_NAMES)) {
-            readDesktopNamesHint();
+            _root_wo->readEwmhDesktopNames();
+            _workspaces->setNames();
         }
 
         return;
@@ -1908,7 +1688,7 @@ WindowManager::findWOAndFocus(PWinObj *search)
 
     }  else if (! PWinObj::getFocusedPWinObj()) {
         _root_wo->giveInputFocus();
-        setEwmhActiveWindow(None);
+        _root_wo->setEwmhActiveWindow(None);
     }
 }
 
@@ -2182,88 +1962,3 @@ WindowManager::hideAllMenus(void)
 }
 #endif // MENUS
 // here follows methods for hints and atoms
-
-/**
- * Reads the _NET_DESKTOP_NAMES hint and sets the workspaces names accordingly.
- */
-void
-WindowManager::readDesktopNamesHint(void)
-{
-    uchar *data;
-    ulong data_length;
-    if (AtomUtil::getProperty(_screen->getRoot(), _ewmh_atoms->getAtom(NET_DESKTOP_NAMES),
-                              _ewmh_atoms->getAtom(UTF8_STRING),
-                              EXPECTED_DESKTOP_NAMES_LENGTH, &data, &data_length)) {
-        Config::instance()->setDesktopNamesUTF8(reinterpret_cast<char *>(data), data_length);
-        _workspaces->setNames();
-
-        XFree(data);
-    }
-}
-
-void
-WindowManager::initHints(void)
-{
-    // Motif hints
-    _atom_mwm_hints =
-        XInternAtom(_screen->getDpy(), "_MOTIF_WM_HINTS", False);
-
-    // Setup Extended Net WM hints
-    _extended_hints_win =
-        XCreateSimpleWindow(_screen->getDpy(), _screen->getRoot(),
-                            -200, -200, 5, 5, 0, 0, 0);
-
-    XSetWindowAttributes pattr;
-    pattr.override_redirect = True;
-
-    XChangeWindowAttributes(_screen->getDpy(), _extended_hints_win,
-                            CWOverrideRedirect, &pattr);
-
-    AtomUtil::setString(_extended_hints_win, _ewmh_atoms->getAtom(NET_WM_NAME), _wm_name);
-    AtomUtil::setWindow(_extended_hints_win,
-                        _ewmh_atoms->getAtom(NET_SUPPORTING_WM_CHECK), _extended_hints_win);
-    AtomUtil::setWindow(_screen->getRoot(),
-                        _ewmh_atoms->getAtom(NET_SUPPORTING_WM_CHECK), _extended_hints_win);
-
-    setEwmhSupported();
-    AtomUtil::setLong(_screen->getRoot(), _ewmh_atoms->getAtom(NET_NUMBER_OF_DESKTOPS),
-                      _config->getWorkspaces());
-
-    AtomUtil::setLong(_screen->getRoot(), _ewmh_atoms->getAtom(NET_CURRENT_DESKTOP), 0);
-}
-
-void
-WindowManager::setEwmhSupported(void)
-{
-    Atom *atoms = _ewmh_atoms->getAtomArray();
-
-    AtomUtil::setAtoms(_screen->getRoot(), _ewmh_atoms->getAtom(NET_SUPPORTED), atoms, _ewmh_atoms->size());
-
-    delete [] atoms;
-}
-
-/**
- * Update _NET_ACTIVE_WINDOW property.
- */
-void
-WindowManager::setEwmhActiveWindow(Window win)
-{
-    AtomUtil::setWindow(_screen->getRoot(), _ewmh_atoms->getAtom(NET_ACTIVE_WINDOW), win);
-}
-
-//! @brief Sets the _NET_DESKTOP_NAMES extended window manager hint.
-void
-WindowManager::setDesktopNames(void)
-{
-    unsigned char *desktopnames = 0;
-    unsigned int length = 0;
-    Config::instance()->getDesktopNamesUTF8(&desktopnames, &length);
-
-    if (desktopnames) {
-        XChangeProperty(PScreen::instance()->getDpy(), _screen->getRoot(),
-                        _ewmh_atoms->getAtom(NET_DESKTOP_NAMES),
-                        _ewmh_atoms->getAtom(UTF8_STRING), 8, PropModeReplace,
-                        desktopnames, length);
-        delete [] desktopnames;
-    }
-}
