@@ -393,28 +393,33 @@ WindowManager::RootWO::handleLeaveEvent(XCrossingEvent *ev)
  */
 void
 WindowManager::start(const std::string &command_line, const std::string &config_file) {
-    if (_inst) {
-        delete _inst;
+    if (_instance) {
+        delete _instance;
     }
-    _inst = new WindowManager(command_line, config_file);
+    _instance = new WindowManager(command_line, config_file);
 
-    _inst->setupDisplay();
+    _instance->setupDisplay();
 
-    _inst->scanWindows();
+    _instance->scanWindows();
     Frame::resetFrameIDs();
-    _inst->setDesktopNames();
+    static_cast<RootWO*>(PWinObj::getRootPWinObj())->setEwmhDesktopNames();
     
     // add all frames to the MRU list
-    _inst->_mru_list.resize(Frame::frame_size());
-    copy(Frame::frame_begin(), Frame::frame_end (), _inst->_mru_list.begin());
+    _instance->_mru_list.resize(Frame::frame_size());
+    copy(Frame::frame_begin(), Frame::frame_end (), _instance->_mru_list.begin());
 
-    _inst->execStartFile();
-    _inst->doEventLoop();
+    _instance->execStartFile();
+    _instance->doEventLoop();
 }
 
-void WindowManager::destroy() {
-    delete _inst;
-    _inst = 0;
+/**
+ * Destroy current running window manager.
+ */
+void
+WindowManager::destroy(void)
+{
+    delete _instance;
+    _instance = 0;
 }
 
 //! @brief Constructor for WindowManager class

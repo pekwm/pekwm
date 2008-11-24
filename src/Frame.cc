@@ -61,13 +61,13 @@ bool Frame::_tag_behind = false;
 
 //! @brief Frame constructor
 Frame::Frame(Client *client, AutoProperty *ap)
-    : PDecor(WindowManager::inst()->getScreen()->getDpy(), WindowManager::inst()->getTheme(),
+    : PDecor(WindowManager::instance()->getScreen()->getDpy(), WindowManager::instance()->getTheme(),
              Frame::getClientDecorName(client)),
       _id(0), _client(0), _class_hint(0),
       _non_fullscreen_decor_state(0), _non_fullscreen_layer(LAYER_NORMAL)
 {
     // setup basic pointers
-    _scr = WindowManager::inst()->getScreen();
+    _scr = WindowManager::instance()->getScreen();
 
     // PWinObj attributes
     _type = WO_FRAME;
@@ -86,7 +86,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
     }
 
     // get unique id of the frame, if the client didn't have an id
-    if (! WindowManager::inst()->isStartup()) {
+    if (! WindowManager::instance()->isStartup()) {
         long id;
 
         if (AtomUtil::getLong(client->getWindow(),
@@ -167,7 +167,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
     // I add these to the list before I insert the client into the frame to
     // be able to skip an extra updateClientList
     _frame_list.push_back(this);
-    WindowManager::inst()->addToFrameList(this);
+    WindowManager::instance()->addToFrameList(this);
     Workspaces::instance()->insert(this);
 
     // now insert the client in the frame we created, do not give it focus.
@@ -201,7 +201,7 @@ Frame::~Frame(void)
     woListRemove(this);
     _frame_list.remove(this);
     Workspaces::instance()->remove(this);
-    WindowManager::inst()->removeFromFrameList(this);
+    WindowManager::instance()->removeFromFrameList(this);
     if (_tag_frame == this) {
         _tag_frame = 0;
     }
@@ -840,7 +840,7 @@ Frame::returnFrameID(uint id)
 std::string
 Frame::getClientDecorName(Client *client)
 {
-  DecorProperty *prop = WindowManager::inst()->getAutoProperties()->findDecorProperty(client->getClassHint());
+  DecorProperty *prop = WindowManager::instance()->getAutoProperties()->findDecorProperty(client->getClassHint());
   return prop ? prop->getName() : PDecor::DEFAULT_DECOR_NAME;
 }
 
@@ -960,7 +960,7 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: r
             Client *search = 0;
 
             // only group if we have grouping turned on
-            if (WindowManager::inst()->isAllowGrouping()) {
+            if (WindowManager::instance()->isAllowGrouping()) {
                 int x, y;
                 Window win;
 

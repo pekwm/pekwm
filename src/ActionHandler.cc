@@ -176,14 +176,14 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 break;
             case ACTION_RAISE:
                 if (it->getParamI(0)) {
-                    WindowManager::inst()->familyRaiseLower(client, true);
+                    WindowManager::instance()->familyRaiseLower(client, true);
                 } else {
                     frame->raise();
                 }
                 break;
             case ACTION_LOWER:
                 if (it->getParamI(0)) {
-                    WindowManager::inst()->familyRaiseLower(client, false);
+                    WindowManager::instance()->familyRaiseLower(client, false);
                 } else {
                     frame->lower();
                 }
@@ -220,19 +220,19 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 frame->detachClient(client);
                 break;
             case ACTION_ATTACH_MARKED:
-                WindowManager::inst()->attachMarked(frame);
+                WindowManager::instance()->attachMarked(frame);
                 break;
             case ACTION_ATTACH_CLIENT_IN_NEXT_FRAME:
-                WindowManager::inst()->attachInNextPrevFrame(client, false, true);
+                WindowManager::instance()->attachInNextPrevFrame(client, false, true);
                 break;
             case ACTION_ATTACH_CLIENT_IN_PREV_FRAME:
-                WindowManager::inst()->attachInNextPrevFrame(client, false, false);
+                WindowManager::instance()->attachInNextPrevFrame(client, false, false);
                 break;
             case ACTION_ATTACH_FRAME_IN_NEXT_FRAME:
-                WindowManager::inst()->attachInNextPrevFrame(client, true, true);
+                WindowManager::instance()->attachInNextPrevFrame(client, true, true);
                 break;
             case ACTION_ATTACH_FRAME_IN_PREV_FRAME:
-                WindowManager::inst()->attachInNextPrevFrame(client, true, false);
+                WindowManager::instance()->attachInNextPrevFrame(client, true, false);
                 break;
             default:
                 matched = false;
@@ -271,7 +271,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 break;
             case ACTION_CLOSE:
                 menu->unmapAll();
-                WindowManager::inst()->findWOAndFocus(0);
+                WindowManager::instance()->findWOAndFocus(0);
                 break;
             default:
                 matched = false;
@@ -296,7 +296,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
             case ACTION_CLOSE:
                 decor->unmapWindow();
                 if (decor->getType() == PWinObj::WO_CMD_DIALOG) {
-                    WindowManager::inst()->findWOAndFocus(0);
+                    WindowManager::instance()->findWOAndFocus(0);
                 }
                 break;
             case ACTION_WARP_TO_WORKSPACE:
@@ -355,32 +355,32 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                                ap.type, client ? client : ap.wo);
                 break;
             case ACTION_HIDE_ALL_MENUS:
-                WindowManager::inst()->hideAllMenus();
+                WindowManager::instance()->hideAllMenus();
                 break;
 #endif // MENUS
             case ACTION_RELOAD:
-                WindowManager::inst()->reload();
+                WindowManager::instance()->reload();
                 break;
             case ACTION_RESTART:
-                WindowManager::inst()->restart();
+                WindowManager::instance()->restart();
                 break;
             case ACTION_RESTART_OTHER:
                 if (it->getParamS().size())
-                    WindowManager::inst()->restart(it->getParamS());
+                    WindowManager::instance()->restart(it->getParamS());
                 break;
             case ACTION_EXIT:
-                WindowManager::inst()->shutdown();
+                WindowManager::instance()->shutdown();
                 break;
             case ACTION_SHOW_CMD_DIALOG:
-                if (WindowManager::inst()->getCmdDialog()->isMapped()) {
-                    WindowManager::inst()->getCmdDialog()->unmapWindow();
+                if (WindowManager::instance()->getCmdDialog()->isMapped()) {
+                    WindowManager::instance()->getCmdDialog()->unmapWindow();
                 } else {
-                    WindowManager::inst()->getCmdDialog()->mapCentered(it->getParamS(), true,
+                    WindowManager::instance()->getCmdDialog()->mapCentered(it->getParamS(), true,
                                                      frame ? frame : ap.wo);
                 }
                 break;
             case ACTION_HIDE_WORKSPACE_INDICATOR:
-                WindowManager::inst()->getWorkspaceIndicator()->unmapWindow();
+                WindowManager::instance()->getWorkspaceIndicator()->unmapWindow();
                 break;
             default:
                 matched = false;
@@ -474,11 +474,11 @@ ActionHandler::handleStateAction(const Action &action, PWinObj *wo,
         switch (action.getParamI(0)) {
 #ifdef HARBOUR
         case ACTION_STATE_HARBOUR_HIDDEN:
-            WindowManager::inst()->getHarbour()->setStateHidden(sa);
+            WindowManager::instance()->getHarbour()->setStateHidden(sa);
             break;
 #endif // HARBOUR
         case ACTION_STATE_GLOBAL_GROUPING:
-            WindowManager::inst()->setStateGlobalGrouping(sa);
+            WindowManager::instance()->setStateGlobalGrouping(sa);
             break;
         default:
             matched = false;
@@ -803,7 +803,7 @@ void
 ActionHandler::actionShowMenu(const std::string &name, bool stick,
                               uint e_type, PWinObj *wo_ref)
 {
-    PMenu *menu = WindowManager::inst()->getMenu(name);
+    PMenu *menu = WindowManager::instance()->getMenu(name);
     if (! menu) {
         return;
     }
@@ -845,7 +845,7 @@ ActionHandler::createNextPrevMenu(bool show_iconified)
 {
     ActionEvent ae; // empty ae, used when inserting
     PMenu *menu =
-        new PMenu(PScreen::instance()->getDpy(), WindowManager::inst()->getTheme(), L"Windows",
+        new PMenu(PScreen::instance()->getDpy(), WindowManager::instance()->getTheme(), L"Windows",
                   "" /* Empty name*/);
 
     Frame *fr;
@@ -868,11 +868,11 @@ ActionHandler::createMRUMenu(bool show_iconified)
 {
     ActionEvent ae; // empty ae, used when inserting
     PMenu *menu = new PMenu(PScreen::instance()->getDpy(),
-            WindowManager::inst()->getTheme(), L"MRU Windows", "" /* Empty name */);
+            WindowManager::instance()->getTheme(), L"MRU Windows", "" /* Empty name */);
 
     Frame *fr;
-    list<PWinObj*>::reverse_iterator f_it = WindowManager::inst()->mru_rbegin();
-    for (; f_it != WindowManager::inst()->mru_rend(); ++f_it) {
+    list<PWinObj*>::reverse_iterator f_it = WindowManager::instance()->mru_rbegin();
+    for (; f_it != WindowManager::instance()->mru_rend(); ++f_it) {
         fr = static_cast<Frame*>(*f_it);
         if (createMenuInclude(fr, show_iconified)) {
             menu->insert(static_cast<Client*>(fr->getActiveChild())->getTitle()->getVisible(),

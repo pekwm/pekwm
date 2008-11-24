@@ -58,7 +58,7 @@ list<Client*> Client::_client_list = list<Client*>();
 vector<uint> Client::_clientid_list = vector<uint>();
 
 Client::Client(Window new_client, bool is_new)
-    : PWinObj(WindowManager::inst()->getScreen()->getDpy()),
+    : PWinObj(WindowManager::instance()->getScreen()->getDpy()),
       _id(0), _size(0),
       _transient(None), _strut(0), _icon(0),
       _is_remote(false), _class_hint(0),
@@ -140,7 +140,7 @@ Client::Client(Window new_client, bool is_new)
     _class_hint->title = _title.getReal();
 
     // Get Autoproperties before EWMH as we need the cfg_deny property.
-    AutoProperty *ap = readAutoprops(WindowManager::inst()->isStartup()
+    AutoProperty *ap = readAutoprops(WindowManager::instance()->isStartup()
                                      ? APPLY_ON_NEW : APPLY_ON_START);
 
     readMwmHints(); // read atoms
@@ -190,7 +190,7 @@ Client::Client(Window new_client, bool is_new)
     // If pekwm allready is running, check against autoproperty then
     // tagged frame. If starting up, check if it has a FRAME_ID and if not
     // use autoproperties.
-    if (WindowManager::inst()->isStartup()) {
+    if (WindowManager::instance()->isStartup()) {
         // Check for tagged frame
         Frame *frame = Frame::getTagFrame();
         if (frame && frame->isMapped()) {
@@ -225,7 +225,7 @@ Client::Client(Window new_client, bool is_new)
         applyAutoprops(ap);
 
         if (do_autogroup && ! _parent && (ap->group_size >= 0)) {
-            Frame* frame = WindowManager::inst()->findGroup(ap);
+            Frame* frame = WindowManager::instance()->findGroup(ap);
             if (frame) {
                 frame->addChild(this);
 
@@ -301,13 +301,13 @@ Client::~Client(void)
 #ifdef MENUS
     WORefMenu *wo_ref_menu;
 
-    wo_ref_menu = static_cast<WORefMenu*>(WindowManager::inst()->getMenu("WINDOW"));
+    wo_ref_menu = static_cast<WORefMenu*>(WindowManager::instance()->getMenu("WINDOW"));
     if (this == wo_ref_menu->getWORef()) {
         wo_ref_menu->setWORef(0);
         wo_ref_menu->unmapAll();
     }
 
-    wo_ref_menu = static_cast<WORefMenu*>(WindowManager::inst()->getMenu("DECORMENU"));
+    wo_ref_menu = static_cast<WORefMenu*>(WindowManager::instance()->getMenu("DECORMENU"));
     if (this == wo_ref_menu->getWORef()) {
         wo_ref_menu->setWORef(0);
         wo_ref_menu->unmapAll();
@@ -376,7 +376,7 @@ Client::mapWindow(void)
 
     if(! _transient) {
         // Unmap our transient windows if we have any
-        WindowManager::inst()->findTransientsToMapOrUnmap(_window, false);
+        WindowManager::instance()->findTransientsToMapOrUnmap(_window, false);
     }
 
     XSelectInput(_dpy, _window, NoEventMask);
@@ -415,7 +415,7 @@ Client::iconify(void)
 
     _iconified = true;
     if (! _transient) {
-        WindowManager::inst()->findTransientsToMapOrUnmap(_window, true);
+        WindowManager::instance()->findTransientsToMapOrUnmap(_window, true);
     }
 
     unmapWindow();

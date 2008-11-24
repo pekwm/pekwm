@@ -117,8 +117,8 @@ main(int argc, char **argv)
     WindowManager::start(command_line, config_file);
 
     // see if we wanted to restart
-    if (WindowManager::inst()->getRestartCommand().size() > 0) {
-        string restart_command = WindowManager::inst()->getRestartCommand();
+    if (WindowManager::instance()->getRestartCommand().size() > 0) {
+        string restart_command = WindowManager::instance()->getRestartCommand();
 
         // cleanup before restarting
         WindowManager::destroy();

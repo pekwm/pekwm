@@ -200,9 +200,9 @@ Workspaces::setWorkspace(uint num, bool focus)
 
     // Show workspace indicator if requested
     if (Config::instance()->getShowWorkspaceIndicator() > 0) {
-        WindowManager::inst()->getWorkspaceIndicator()->render();
-        WindowManager::inst()->getWorkspaceIndicator()->mapWindowRaised();
-        WindowManager::inst()->getWorkspaceIndicator()->updateHideTimer(Config::instance()->getShowWorkspaceIndicator());
+        WindowManager::instance()->getWorkspaceIndicator()->render();
+        WindowManager::instance()->getWorkspaceIndicator()->mapWindowRaised();
+        WindowManager::instance()->getWorkspaceIndicator()->updateHideTimer(Config::instance()->getShowWorkspaceIndicator());
     }
 }
 
