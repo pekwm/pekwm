@@ -144,6 +144,9 @@ public: // Public Member Functions
 
     PTexture *getIcon(void) const { return _icon; }
 
+    /** Return PID of client. */
+    long getPid(void) const { return _pid; }
+    /** Return true if client is remote. */
     bool isRemote(void) const { return _is_remote; }
 
     // State accessors
@@ -281,6 +284,7 @@ private:
     void readIcon(void);
     AutoProperty* readAutoprops(uint type = 0);
     void applyAutoprops(AutoProperty *ap);
+    void readClientPid(void);
     void readClientRemote(void);
 
     static uint findClientID(void);
@@ -299,6 +303,8 @@ private: // Private Member Variables
     std::string _icon_name;
     PDecor::TitleItem _title;
     PTextureImage *_icon;
+    
+    long _pid; /**< _NET_WM_PID of the client, only valid if is_remote is false. */
     bool _is_remote; /**< Boolean flag  */
 
     ClassHint *_class_hint;

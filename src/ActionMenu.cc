@@ -302,6 +302,13 @@ ActionMenu::getIcon(CfgParser::Entry *value)
 void
 ActionMenu::rebuildDynamic(void)
 {
+    // Export environment before to dynamic script.
+    if (_wo_ref && _wo_ref->getType() == WO_CLIENT) {
+        Client *client = static_cast<Client*>(_wo_ref);
+        setenv("CLIENT_PID", Util::to_string<long>(client->isRemote() ? -1 : client->getPid()).c_str(), 1);
+        setenv("CLIENT_WINDOW", Util::to_string<Window>(client->getWindow()).c_str(), 1);
+    }
+
     // Setup icon path before parsing.
     ImageHandler::instance()->path_push_back(Config::instance()->getSystemIconPath());
     ImageHandler::instance()->path_push_back(Config::instance()->getIconPath());

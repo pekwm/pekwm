@@ -61,7 +61,7 @@ Client::Client(Window new_client, bool is_new)
     : PWinObj(WindowManager::instance()->getScreen()->getDpy()),
       _id(0), _size(0),
       _transient(None), _strut(0), _icon(0),
-      _is_remote(false), _class_hint(0),
+      _pid(0), _is_remote(false), _class_hint(0),
       _alive(false), _marked(false),
       _send_focus_message(false), _send_close_message(false),
       _wm_hints_input(true), _cfg_request_lock(false),
@@ -147,6 +147,7 @@ Client::Client(Window new_client, bool is_new)
     readEwmhHints();
     readPekwmHints();
     readIcon();
+    readClientPid();
     readClientRemote();
     getWMProtocols();
 
@@ -932,6 +933,15 @@ Client::applyAutoprops(AutoProperty *ap)
     if (ap->isMask(AP_CFG_DENY)) {
         _state.cfg_deny = ap->cfg_deny;
     }
+}
+
+/**
+ * Read _NET_WM_PID.
+ */
+void
+Client::readClientPid(void)
+{
+    AtomUtil::getLong(_window, EwmhAtoms::instance()->getAtom(NET_WM_PID), _pid);
 }
 
 /**
