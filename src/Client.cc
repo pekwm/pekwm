@@ -133,8 +133,8 @@ Client::Client(Window new_client, bool is_new)
     readClassRoleHints();
 
     getWMNormalHints();
-    getXClientName();
-    getXIconName();
+    readName();
+    readIconName();
 
     // cyclic dependency, getting the name requires quiering autoprops
     _class_hint->title = _title.getReal();
@@ -991,7 +991,7 @@ Client::returnClientID(uint id)
  * Tries to get the NET_WM name, else fall back to WM_NAME
  */
 void
-Client::getXClientName(void)
+Client::readName(void)
 {
     // Read title, bail out if it fails.
     wstring title;
@@ -1082,10 +1082,25 @@ Client::titleFindID(std::wstring &title)
  * iconified.
  */
 void
-Client::getXIconName(void)
+Client::readIconName(void)
 {
-    if (! AtomUtil::getTextProperty(_window, XA_WM_ICON_NAME, _icon_name)) {
-        _icon_name = "";
+    wstring icon_name;
+
+    if (! AtomUtil::getUtf8String(_window, EwmhAtoms::instance()->getAtom(NET_WM_ICON_NAME), icon_name)) {
+        string mb_icon_name;
+        if (AtomUtil::getTextProperty(_window, XA_WM_ICON_NAME, mb_icon_name)) {
+            icon_name = Util::to_wide_str(mb_icon_name);
+        }
+    }
+
+    // Set real name
+    _icon_name.setReal(icon_name);
+    _icon_name.setCustom(icon_name);
+
+    if (_icon_name.getVisible() == _icon_name.getReal()) {
+        AtomUtil::unsetProperty(_window, EwmhAtoms::instance()->getAtom(NET_WM_VISIBLE_ICON_NAME));
+    } else {
+        AtomUtil::setUtf8String(_window, EwmhAtoms::instance()->getAtom(NET_WM_VISIBLE_NAME), icon_name);
     }
 }
 

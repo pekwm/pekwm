@@ -123,8 +123,10 @@ public: // Public Member Functions
     bool validate(void);
 
     inline uint getClientID(void) { return _id; }
-    inline std::string* getIconName(void) { return &_icon_name; }
+    /**< Return title item for client name. */
     inline PDecor::TitleItem *getTitle(void) { return &_title; }
+    /**< Return title item for client icon name. */
+    inline PDecor::TitleItem *getIconName(void) { return &_icon_name; }
 
     inline const ClassHint* getClassHint(void) const { return _class_hint; }
 
@@ -250,8 +252,8 @@ public: // Public Member Functions
     void getWMProtocols(void);
     void getTransientForHint(void);
     void getStrutHint(void);
-    void getXClientName(void);
-    void getXIconName(void);
+    void readName(void);
+    void readIconName(void);
     void removeStrutHint(void);
 
 private:
@@ -300,8 +302,8 @@ private: // Private Member Variables
 
     Strut *_strut;
 
-    std::string _icon_name;
-    PDecor::TitleItem _title;
+    PDecor::TitleItem _title; /**< Name of the client. */
+    PDecor::TitleItem _icon_name; /**< Name of the client when iconified. */
     PTextureImage *_icon;
     
     long _pid; /**< _NET_WM_PID of the client, only valid if is_remote is false. */

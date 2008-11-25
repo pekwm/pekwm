@@ -1625,7 +1625,7 @@ Frame::setStateTitle(StateAction sa, Client *client, const std::wstring &title)
 
     } else if (sa == STATE_UNSET) {
         client->getTitle()->setUser(L"");
-        client->getXClientName();
+        client->readName();
     } else {
         if (client->getTitle()->isUserSet()) {
             client->getTitle()->setUser(L"");
@@ -2179,7 +2179,7 @@ void
 Frame::handleTitleChange(Client *client)
 {
     // Update title
-    client->getXClientName();
+    client->readName();
 
     bool require_render = true;
     if (client == _client) {

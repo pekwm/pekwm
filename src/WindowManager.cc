@@ -676,7 +676,7 @@ WindowManager::doReloadConfig(void)
     if ((old_client_unique_name != _config->getClientUniqueName()) ||
         (old_client_unique_name_pre != _config->getClientUniqueNamePre()) ||
         (old_client_unique_name_post != _config->getClientUniqueNamePost())) {
-        for_each(Client::client_begin(), Client::client_end(), mem_fun(&Client::getXClientName));
+        for_each(Client::client_begin(), Client::client_end(), mem_fun(&Client::readName));
     }
 
     // Resize the screen edge
