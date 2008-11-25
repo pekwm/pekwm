@@ -88,9 +88,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
     // get unique id of the frame, if the client didn't have an id
     if (! WindowManager::instance()->isStartup()) {
         long id;
-
-        if (AtomUtil::getLong(client->getWindow(),
-                              PekwmAtoms::instance()->getAtom(PEKWM_FRAME_ID), id)) {
+        if (AtomUtil::getLong(client->getWindow(), PekwmAtoms::instance()->getAtom(PEKWM_FRAME_ID), id)) {
             _id = id;
         }
 
@@ -127,20 +125,21 @@ Frame::Frame(Client *client, AutoProperty *ap)
         moveChild(client->getX(), client->getY());
     } else if (client->setPUPosition()) {
         int x, y;
-        calcGravityPosition(client->getXSizeHints()->win_gravity,
-                            client->getX(), client->getY(), x, y);
+        calcGravityPosition(client->getXSizeHints()->win_gravity, client->getX(), client->getY(), x, y);
         move(x, y);
     } else {
         place = Config::instance()->isPlaceNew();
     }
 
     // override both position and size with autoproperties
+    bool ap_geometry = false;
     if (ap) {
         if (ap->isMask(AP_FRAME_GEOMETRY|AP_CLIENT_GEOMETRY)) {
+            ap_geometry = true;
+
             setupAPGeometry(client, ap);
 
-            if (ap->frame_gm_mask&(XValue|YValue) ||
-                    ap->client_gm_mask&(XValue|YValue)) {
+            if (ap->frame_gm_mask&(XValue|YValue) || ap->client_gm_mask&(XValue|YValue)) {
                 place = false;
             }
         }
@@ -177,7 +176,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
     // set the window states, shaded, maximized...
     getState(client);
 
-    if (! _client->hasStrut()) {
+    if (! _client->hasStrut() && ! ap_geometry) {
         if (fixGeometry()) {
             moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
         }
