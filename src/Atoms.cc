@@ -303,6 +303,22 @@ setLong(Window win, Atom atom, long value)
                     PropModeReplace, (uchar *) &value, 1);
 }
 
+/**
+ * Set array of longs as Cardinal/32.
+ *
+ * @param win Window to set longs on.
+ * @param atom Atom to set longs as.
+ * @param values Array of longs to set.
+ * @param size Number of elements in array.
+ */
+void
+setLongs(Window win, Atom atom, long *values, int size)
+{
+    XChangeProperty(PScreen::instance()->getDpy(), win, atom, XA_CARDINAL, 32,
+                    PropModeReplace, reinterpret_cast<unsigned char*>(values), size);
+}
+
+
 //! @brief Get XA_STRING property
 bool
 getString(Window win, Atom atom, string &value)

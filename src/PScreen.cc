@@ -33,6 +33,9 @@ extern "C" {
 }
 
 #include "PScreen.hh"
+// FIXME: Remove when strut handling is moved away from here.
+#include "PWinObj.hh"
+#include "ManagerWindows.hh"
 
 using std::cerr;
 using std::endl;
@@ -524,6 +527,12 @@ PScreen::updateStrut(void)
           strut->bottom = (*it)->bottom;
         }
     }
+
+    // Update hints on the root window
+    Geometry workarea(_strut.left, _strut.top,
+                      _screen_gm.width - _strut.left - _strut.right, _screen_gm.height - _strut.top - _strut.bottom);
+
+    static_cast<RootWO*>(PWinObj::getRootPWinObj())->setEwmhWorkarea(workarea);
 }
 
 //! @brief Initialize head information

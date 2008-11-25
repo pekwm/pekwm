@@ -59,6 +59,7 @@ public:
     virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev);
     virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev);
 
+    void setEwmhWorkarea(const Geometry &workarea);
     void setEwmhActiveWindow(Window win);
     void readEwmhDesktopNames(void);
     void setEwmhDesktopNames(void);

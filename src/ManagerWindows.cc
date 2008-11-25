@@ -93,6 +93,9 @@ RootWO::RootWO(Display *dpy, Window root)
     AtomUtil::setLong(_window, atoms->getAtom(NET_NUMBER_OF_DESKTOPS), Config::instance()->getWorkspaces());
     AtomUtil::setLong(_window, atoms->getAtom(NET_CURRENT_DESKTOP), 0);
 
+    long desktop_geometry[2] = { _gm.width, _gm.height };
+    AtomUtil::setLongs(_window, atoms->getAtom(NET_DESKTOP_GEOMETRY), desktop_geometry, 2);
+
     delete [] supported_atoms;
     
     woListAdd(this);
@@ -177,6 +180,18 @@ RootWO::handleLeaveEvent(XCrossingEvent *ev)
 {
     return ActionHandler::findMouseAction(BUTTON_ANY, ev->state, MOUSE_EVENT_LEAVE,
                                           Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
+}
+
+/**
+ * Update _NET_WORKAREA property.
+ *
+ * @param workarea Geometry with work area.
+ */
+void
+RootWO::setEwmhWorkarea(const Geometry &workarea)
+{
+    long workarea_array[4] = { workarea.x, workarea.y, workarea.width, workarea.height };
+    AtomUtil::setLongs(_window, EwmhAtoms::instance()->getAtom(NET_WORKAREA), workarea_array, 4);
 }
 
 /**

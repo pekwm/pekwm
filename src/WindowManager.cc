@@ -397,6 +397,13 @@ WindowManager::setupDisplay(void)
     _ewmh_atoms = new EwmhAtoms();
     _misc_atoms = new MiscAtoms();
 
+    // Create hint window _before_ root window.
+    _hint_wo = new HintWO(dpy, _screen->getRoot());
+
+    // Create root PWinObj
+    _root_wo = new RootWO(dpy, _screen->getRoot());
+    PWinObj::setRootPWinObj(_root_wo);
+
     _workspaces = new Workspaces(_config->getWorkspaces(), _config->getWorkspacesPerRow());
 
 #ifdef HARBOUR
@@ -432,13 +439,6 @@ WindowManager::setupDisplay(void)
     // Create screen edge windows
     screenEdgeCreate();
     screenEdgeMapUnmap();
-
-    // Create hint window _before_ root window.
-    _hint_wo = new HintWO(dpy, _screen->getRoot());
-
-    // Create root PWinObj
-    _root_wo = new RootWO(dpy, _screen->getRoot());
-    PWinObj::setRootPWinObj(_root_wo);
 }
 
 //! @brief Goes through the window and creates Clients/DockApps.
@@ -1369,6 +1369,11 @@ WindowManager::handleFocusOutEvent(XFocusChangeEvent *ev)
         ;
 }
 
+/**
+ * Handle XClientMessageEvent events.
+ *
+ * @param ev Event to handle.
+ */
 void
 WindowManager::handleClientMessageEvent(XClientMessageEvent *ev)
 {
