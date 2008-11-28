@@ -114,6 +114,10 @@
         <listitem><para>Controls whether a size/position info window is shown when moving or resizing windows.</para></listitem>
       </varlistentry>
       <varlistentry>
+        <term>ShowStatusWindowCenteredOnRoot (boolean)</term>
+        <listitem><para>Controls whether a size/position info window is shown centered on the current head or the current window.</para></listitem>
+      </varlistentry>
+      <varlistentry>
 	<term>ShowClientID (boolean)</term>
 	<listitem>
           <para>Should Client IDs be displayed in window titles.</para>

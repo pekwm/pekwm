@@ -1,15 +1,18 @@
 //
 // StatusWindow.hh for pekwm
-// Copyright (C) 2004-2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2004-2008 Claes Nasten <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
 
 #ifndef _STATUS_WINDOW_HH_
 #define _STATUS_WINDOW_HH_
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #include "pekwm.hh"
 
@@ -24,7 +27,7 @@ public:
     //! @brief Returns the StatusWindow instance pointer.
     static StatusWindow *instance(void) { return _instance; }
 
-    void draw(const std::wstring &text, bool do_center = false);
+    void draw(const std::wstring &text, bool do_center = false, Geometry *gm = 0);
 
 private:
     // BEGIN - PDecor interface
@@ -33,7 +36,7 @@ private:
     void unloadTheme(void);
 
     void render(void);
-    void center(void);
+    void center(Geometry *gm = 0);
 
 private:
     PWinObj *_status_wo;

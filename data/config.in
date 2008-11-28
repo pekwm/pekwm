@@ -23,6 +23,7 @@ Screen {
     WorkspaceNames = "Main;Web;E-mail;Music"
     ShowFrameList = "True"
     ShowStatusWindow = "True"
+    ShowStatusWindowCenteredOnRoot = "False"
     ShowClientID = "False"
     ShowWorkspaceIndicator = "500"
     PlaceNew = "True"

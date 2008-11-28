@@ -59,7 +59,8 @@ Config::Config(void) :
         _screen_doubleclicktime(250), _screen_fullscreen_above(true),
         _screen_fullscreen_detect(true),
         _screen_showframelist(true),
-        _screen_show_status_window(true), _screen_show_client_id(false),
+        _screen_show_status_window(true), _screen_show_status_window_on_root(false),
+        _screen_show_client_id(false),
         _screen_show_workspace_indicator(500), _screen_workspace_indicator_scale(16),
         _screen_place_new(true), _screen_focus_new(false),
         _screen_focus_new_child(true), _screen_honour_randr(true),
@@ -581,6 +582,7 @@ Config::loadScreen(CfgParser::Entry *section)
     key_list.push_back(new CfgParserKeyBool("FULLSCREENDETECT", _screen_fullscreen_detect, true));
     key_list.push_back(new CfgParserKeyBool("SHOWFRAMELIST", _screen_showframelist));
     key_list.push_back(new CfgParserKeyBool("SHOWSTATUSWINDOW", _screen_show_status_window));
+    key_list.push_back(new CfgParserKeyBool("SHOWSTATUSWINDOWCENTEREDONROOT", _screen_show_status_window_on_root, false));
     key_list.push_back(new CfgParserKeyBool("SHOWCLIENTID", _screen_show_client_id));
     key_list.push_back(new CfgParserKeyInt("SHOWWORKSPACEINDICATOR",
                                            _screen_show_workspace_indicator, 500, 0));

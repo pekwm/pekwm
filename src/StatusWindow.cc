@@ -86,7 +86,7 @@ StatusWindow::~StatusWindow(void)
 //! @param text Text to draw in StatusWindow
 //! @param do_center Center the StatusWindow on screen. Defaults to false.
 void
-StatusWindow::draw(const std::wstring &text, bool do_center)
+StatusWindow::draw(const std::wstring &text, bool do_center, Geometry *gm)
 {
     uint width, height;
     PFont *font = _theme->getStatusData()->getFont(); // convenience
@@ -103,7 +103,7 @@ StatusWindow::draw(const std::wstring &text, bool do_center)
     }
 
     if (do_center) {
-        center();
+        center(gm);
     }
 
     font->setColor(_theme->getStatusData()->getColor());
@@ -145,11 +145,13 @@ StatusWindow::render(void)
 
 //! @brief Centers the StatusWindow on the current head/screen
 void
-StatusWindow::center(void)
+StatusWindow::center(Geometry *gm)
 {
     Geometry head;
-    PScreen::instance()->getHeadInfo(PScreen::instance()->getCurrHead(), head);
+    if (! gm) {
+        PScreen::instance()->getHeadInfo(PScreen::instance()->getCurrHead(), head);
+        gm = &head;
+    }
 
-    move(head.x + (head.width - _gm.width) / 2,
-         head.y + (head.height - _gm.height) / 2);
+    move(gm->x + (gm->width - _gm.width) / 2, gm->y + (gm->height - _gm.height) / 2);
 }

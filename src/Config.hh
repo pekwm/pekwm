@@ -75,6 +75,7 @@ public:
 
     inline bool getShowFrameList(void) const { return _screen_showframelist; }
     inline bool isShowStatusWindow(void) const { return _screen_show_status_window; }
+    bool isShowStatusWindowOnRoot(void) const { return _screen_show_status_window_on_root; }
     inline bool isShowClientID(void) const { return _screen_show_client_id; }
     int getShowWorkspaceIndicator(void) const { return _screen_show_workspace_indicator; }
     int getWorkspaceIndicatorScale(void) const { return _screen_workspace_indicator_scale; }
@@ -206,6 +207,7 @@ private:
     bool _screen_fullscreen_detect; /**< Flag to make configure request fullscreen detection. */
     bool _screen_showframelist;
     bool _screen_show_status_window;
+    bool _screen_show_status_window_on_root; /**< If true, center status window relative to current head. */
     bool _screen_show_client_id; //!< Flag to display client ID in title.
     int _screen_show_workspace_indicator; //!< Display workspace indicator for N seconds.
     int _screen_workspace_indicator_scale; //!< Scale of the workspace indicator head

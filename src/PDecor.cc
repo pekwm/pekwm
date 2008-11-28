@@ -1189,6 +1189,7 @@ PDecor::doMove(int x_root, int y_root)
     int y = y_root - _gm.y;
 
     bool outline = ! Config::instance()->getOpaqueMove();
+    bool center_on_root = Config::instance()->isShowStatusWindowOnRoot();
     EdgeType edge;
 
     // grab server, we don't want invert traces
@@ -1200,9 +1201,9 @@ PDecor::doMove(int x_root, int y_root)
     getDecorInfo(buf, 128);
 
     if (Config::instance()->isShowStatusWindow()) {
-        sw->draw(buf, true);
+        sw->draw(buf, true, center_on_root ? 0 : &_gm);
         sw->mapWindowRaised();
-        sw->draw(buf);
+        sw->draw(buf, true, center_on_root ? 0 : &_gm);
     }
 
     XEvent e;
@@ -1233,7 +1234,7 @@ PDecor::doMove(int x_root, int y_root)
 
             getDecorInfo(buf, 128);
             if (Config::instance()->isShowStatusWindow()) {
-                sw->draw(buf, true);
+                sw->draw(buf, true, center_on_root ? 0 : &_gm);
             }
 
             break;
@@ -1296,7 +1297,9 @@ PDecor::doMoveEdgeAction(XMotionEvent *ev, EdgeType edge)
     }
 }
 
-//! @brief
+/**
+ * Move and resize window with keybindings.
+ */
 void
 PDecor::doKeyboardMoveResize(void)
 {
@@ -1321,10 +1324,11 @@ PDecor::doKeyboardMoveResize(void)
     wchar_t buf[128];
     getDecorInfo(buf, 128);
 
+    bool center_on_root = Config::instance()->isShowStatusWindowOnRoot();    
     if (Config::instance()->isShowStatusWindow()) {
-        sw->draw(buf, true);
+        sw->draw(buf, true, center_on_root ? 0 : &_gm);
         sw->mapWindowRaised();
-        sw->draw(buf);
+        sw->draw(buf, true, center_on_root ? 0 : &_gm);
     }
 
     if (outline) {
@@ -1401,7 +1405,7 @@ PDecor::doKeyboardMoveResize(void)
 
                 getDecorInfo(buf, 128);
                 if (Config::instance()->isShowStatusWindow()) {
-                    sw->draw(buf, true);
+                    sw->draw(buf, true, center_on_root ? 0 : &_gm);
                 }
             }
         }
