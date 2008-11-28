@@ -1488,12 +1488,14 @@ WindowManager::handleXRandrEvent(XRRNotifyEvent *ev)
     }
 }
 
-//! @brief Handle screen change event.
-//!
-//! Reads the screen geometry and head information all over, updates
-//! the screen edge and harbour.
-//!
-//! @param ev XRRScreenChangeNotifyEvent event to handle.
+/**
+ * Handle screen change event.
+ *
+ * Reads the screen geometry and head information all over, updates
+ * the screen edge and harbour.
+ *
+ * @param ev XRRScreenChangeNotifyEvent event to handle.
+ */
 void
 WindowManager::handleXRandrScreenChangeEvent(XRRScreenChangeNotifyEvent *ev)
 {
@@ -1507,6 +1509,12 @@ WindowManager::handleXRandrScreenChangeEvent(XRRScreenChangeNotifyEvent *ev)
 #endif // HARBOUR
 
     screenEdgeResize();
+
+    // Make sure windows are visible after resize
+    list<PDecor*>::iterator it(PDecor::pdecor_begin());
+    for (; it != PDecor::pdecor_end(); ++it) {
+        _workspaces->placeWoInsideScreen(*it);
+    }
 }
 
 //! @brief Handle crtc change event, does nothing.

@@ -111,6 +111,7 @@ public:
     PWinObj* getTopWO(uint type_mask);
     void updateClientStackingList(bool client, bool stacking);
     void placeWo(PWinObj* wo, Window parent);
+    void placeWoInsideScreen(PWinObj *wo);
 
     PWinObj *findDirectional(PWinObj *wo, DirectionType dir, uint skip = 0);
 

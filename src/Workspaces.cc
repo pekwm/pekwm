@@ -656,6 +656,21 @@ Workspaces::placeWo(PWinObj *wo, Window parent)
     }
 }
 
+/**
+ * Make sure window is inside screen boundaries.
+ */
+void
+Workspaces::placeWoInsideScreen(PWinObj *wo)
+{
+    Geometry gm_before(wo->getX(), wo->getY(), wo->getWidth(), wo->getHeight());
+    Geometry gm_after(gm_before);
+
+    placeInsideScreen(gm_after);
+    if (gm_before != gm_after) {
+        wo->move(gm_after.x, gm_after.y);
+    }
+}
+
 //! @brief Tries to find empty space to place the client in
 //! @return true if client got placed, else false
 //! @todo What should we do about Xinerama as when we don't have it enabled we care about the struts.
@@ -833,8 +848,7 @@ void
 Workspaces::placeInsideScreen(Geometry &gm)
 {
     Geometry head;
-    PScreen::instance()->getHeadInfoWithEdge(PScreen::instance()->getCurrHead(),
-            head);
+    PScreen::instance()->getHeadInfoWithEdge(PScreen::instance()->getCurrHead(), head);
 
     if (gm.x < head.x) {
         gm.x = head.x;
