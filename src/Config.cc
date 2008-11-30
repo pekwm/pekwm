@@ -542,10 +542,10 @@ Config::loadMoveResize(CfgParser::Entry *section)
     }
 
     list<CfgParserKey*> key_list;
-    key_list.push_back(new CfgParserKeyInt("EDGEATTRACT", _moveresize_edgeattract, 0, 0));
-    key_list.push_back(new CfgParserKeyInt("EDGERESIST", _moveresize_edgeresist, 0, 0));
-    key_list.push_back(new CfgParserKeyInt("WINDOWATTRACT",_moveresize_woattract, 0, 0));
-    key_list.push_back(new CfgParserKeyInt("WINDOWRESIST", _moveresize_woresist, 0, 0));
+    key_list.push_back(new CfgParserKeyNumeric<int>("EDGEATTRACT", _moveresize_edgeattract, 0, 0));
+    key_list.push_back(new CfgParserKeyNumeric<int>("EDGERESIST", _moveresize_edgeresist, 0, 0));
+    key_list.push_back(new CfgParserKeyNumeric<int>("WINDOWATTRACT",_moveresize_woattract, 0, 0));
+    key_list.push_back(new CfgParserKeyNumeric<int>("WINDOWRESIST", _moveresize_woresist, 0, 0));
     key_list.push_back(new CfgParserKeyBool("OPAQUEMOVE", _moveresize_opaquemove));
     key_list.push_back(new CfgParserKeyBool("OPAQUERESIZE", _moveresize_opaqueresize));
 
@@ -570,13 +570,13 @@ Config::loadScreen(CfgParser::Entry *section)
     CfgParser::Entry *value;
 
     list<CfgParserKey*> key_list;
-    key_list.push_back(new CfgParserKeyInt("WORKSPACES", _screen_workspaces, 4, 1));
-    key_list.push_back(new CfgParserKeyInt("PIXMAPCACHESIZE", _screen_pixmap_cache_size));
-    key_list.push_back(new CfgParserKeyInt("WORKSPACESPERROW", _screen_workspaces_per_row, 0, 0));
+    key_list.push_back(new CfgParserKeyNumeric<int>("WORKSPACES", _screen_workspaces, 4, 1));
+    key_list.push_back(new CfgParserKeyNumeric<int>("PIXMAPCACHESIZE", _screen_pixmap_cache_size));
+    key_list.push_back(new CfgParserKeyNumeric<int>("WORKSPACESPERROW", _screen_workspaces_per_row, 0, 0));
     key_list.push_back(new CfgParserKeyString("WORKSPACENAMES", workspace_names));
     key_list.push_back(new CfgParserKeyString("EDGESIZE", edge_size));
     key_list.push_back(new CfgParserKeyBool("EDGEINDENT", _screen_edge_indent));
-    key_list.push_back(new CfgParserKeyInt("DOUBLECLICKTIME", _screen_doubleclicktime, 250, 0));
+    key_list.push_back(new CfgParserKeyNumeric<int>("DOUBLECLICKTIME", _screen_doubleclicktime, 250, 0));
     key_list.push_back(new CfgParserKeyString("TRIMTITLE", trim_title));
     key_list.push_back(new CfgParserKeyBool("FULLSCREENABOVE", _screen_fullscreen_above, true));
     key_list.push_back(new CfgParserKeyBool("FULLSCREENDETECT", _screen_fullscreen_detect, true));
@@ -584,9 +584,9 @@ Config::loadScreen(CfgParser::Entry *section)
     key_list.push_back(new CfgParserKeyBool("SHOWSTATUSWINDOW", _screen_show_status_window));
     key_list.push_back(new CfgParserKeyBool("SHOWSTATUSWINDOWCENTEREDONROOT", _screen_show_status_window_on_root, false));
     key_list.push_back(new CfgParserKeyBool("SHOWCLIENTID", _screen_show_client_id));
-    key_list.push_back(new CfgParserKeyInt("SHOWWORKSPACEINDICATOR",
+    key_list.push_back(new CfgParserKeyNumeric<int>("SHOWWORKSPACEINDICATOR",
                                            _screen_show_workspace_indicator, 500, 0));
-    key_list.push_back(new CfgParserKeyInt("WORKSPACEINDICATORSCALE",
+    key_list.push_back(new CfgParserKeyNumeric<int>("WORKSPACEINDICATORSCALE",
                                            _screen_workspace_indicator_scale, 16, 2)); 
     key_list.push_back(new CfgParserKeyBool("PLACENEW", _screen_place_new));
     key_list.push_back(new CfgParserKeyBool("FOCUSNEW", _screen_focus_new));
@@ -652,8 +652,8 @@ Config::loadScreen(CfgParser::Entry *section)
             key_list.push_back(new CfgParserKeyBool("ROW", _screen_placement_row));
             key_list.push_back(new CfgParserKeyBool("LEFTTORIGHT", _screen_placement_ltr));
             key_list.push_back(new CfgParserKeyBool("TOPTOBOTTOM", _screen_placement_ttb));
-            key_list.push_back(new CfgParserKeyInt("OFFSETX", _screen_placement_offset_x, 0, 0));
-            key_list.push_back(new CfgParserKeyInt("OFFSETY", _screen_placement_offset_y, 0, 0));
+            key_list.push_back(new CfgParserKeyNumeric<int>("OFFSETX", _screen_placement_offset_x, 0, 0));
+            key_list.push_back(new CfgParserKeyNumeric<int>("OFFSETY", _screen_placement_offset_y, 0, 0));
 
             // Do the parsing
             sub_2->parse_key_values(key_list.begin(), key_list.end());
@@ -726,9 +726,9 @@ Config::loadCmdDialog(CfgParser::Entry *section)
   list<CfgParserKey*> key_list;
 
   key_list.push_back(new CfgParserKeyBool("HISTORYUNIQUE", _cmd_dialog_history_unique));
-  key_list.push_back(new CfgParserKeyInt("HISTORYSIZE", _cmd_dialog_history_size, 1024, 1));
+  key_list.push_back(new CfgParserKeyNumeric<int>("HISTORYSIZE", _cmd_dialog_history_size, 1024, 1));
   key_list.push_back(new CfgParserKeyPath("HISTORYFILE", _cmd_dialog_history_file, "~/.pekwm/history"));
-  key_list.push_back(new CfgParserKeyInt("HISTORYSAVEINTERVAL", _cmd_dialog_history_save_interval, 16, 0));
+  key_list.push_back(new CfgParserKeyNumeric<int>("HISTORYSAVEINTERVAL", _cmd_dialog_history_save_interval, 16, 0));
 
   section->parse_key_values(key_list.begin(), key_list.end());
 
@@ -749,7 +749,7 @@ Config::loadHarbour(CfgParser::Entry *section)
 
     key_list.push_back(new CfgParserKeyBool("ONTOP", _harbour_ontop));
     key_list.push_back(new CfgParserKeyBool("MAXIMIZEOVER", _harbour_maximize_over));
-    key_list.push_back(new CfgParserKeyInt("HEAD", _harbour_head_nr, 0, 0));
+    key_list.push_back(new CfgParserKeyNumeric<int>("HEAD", _harbour_head_nr, 0, 0));
     key_list.push_back(new CfgParserKeyString("PLACEMENT", value_placement, "RIGHT", 0));
     key_list.push_back(new CfgParserKeyString("ORIENTATION", value_orientation, "TOPTOBOTTOM", 0));
 
@@ -771,8 +771,8 @@ Config::loadHarbour(CfgParser::Entry *section)
 
     CfgParser::Entry *sub = section->find_section("DOCKAPP");
     if (sub) {
-        key_list.push_back(new CfgParserKeyInt("SIDEMIN", _harbour_da_min_s, 64, 0));
-        key_list.push_back(new CfgParserKeyInt("SIDEMAX", _harbour_da_max_s, 64, 0));
+        key_list.push_back(new CfgParserKeyNumeric<int>("SIDEMIN", _harbour_da_min_s, 64, 0));
+        key_list.push_back(new CfgParserKeyNumeric<int>("SIDEMAX", _harbour_da_max_s, 64, 0));
 
         // Parse data
         sub->parse_key_values(key_list.begin(), key_list.end());

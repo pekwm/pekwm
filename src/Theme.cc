@@ -226,9 +226,9 @@ Theme::PDecorData::load(CfgParser::Entry *section)
     list<CfgParserKey*> key_list;
     string value_pad, value_focused, value_unfocused;
 
-    key_list.push_back(new CfgParserKeyInt("HEIGHT", _title_height, 10, 0));
-    key_list.push_back(new CfgParserKeyInt("WIDTHMIN", _title_width_min, 0));
-    key_list.push_back(new CfgParserKeyInt("WIDTHMAX", _title_width_max, 100, 0, 100));
+    key_list.push_back(new CfgParserKeyNumeric<int>("HEIGHT", _title_height, 10, 0));
+    key_list.push_back(new CfgParserKeyNumeric<int>("WIDTHMIN", _title_width_min, 0));
+    key_list.push_back(new CfgParserKeyNumeric<int>("WIDTHMAX", _title_width_max, 100, 0, 100));
     key_list.push_back(new CfgParserKeyBool("WIDTHSYMETRIC", _title_width_symetric));
     key_list.push_back(new CfgParserKeyBool("HEIGHTADAPT", _title_height_adapt));
     key_list.push_back(new CfgParserKeyString("PAD", value_pad, "0 0 0 0", 7));
@@ -752,8 +752,8 @@ Theme::WorkspaceIndicatorData::load(CfgParser::Entry *section)
     key_list.push_back(new CfgParserKeyString("BACKGROUND", value_tex_bg));
     key_list.push_back(new CfgParserKeyString("WORKSPACE", value_tex_ws));
     key_list.push_back(new CfgParserKeyString("WORKSPACEACTIVE", value_tex_ws_act));
-    key_list.push_back(new CfgParserKeyInt("EDGEPADDING", edge_padding, 5, 0));
-    key_list.push_back(new CfgParserKeyInt("WORKSPACEPADDING", workspace_padding, 2, 0));
+    key_list.push_back(new CfgParserKeyNumeric<int>("EDGEPADDING", edge_padding, 5, 0));
+    key_list.push_back(new CfgParserKeyNumeric<int>("WORKSPACEPADDING", workspace_padding, 2, 0));
 
     section->parse_key_values(key_list.begin(), key_list.end());
     for_each(key_list.begin(), key_list.end(), Util::Free<CfgParserKey*>());  

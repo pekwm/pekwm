@@ -16,36 +16,6 @@ using std::cerr;
 using std::endl;
 using std::numeric_limits;
 
-//! @brief Parses and store integer value.
-//! @param value Reference to string representing integer value.
-//! @return true on success, else false and _set to _default.
-void
-CfgParserKeyInt::parse_value(const std::string &value_str)
-    throw (std::string&)
-{
-    long value;
-    char *endptr;
-
-    // Get long value.
-    value = strtol(value_str.c_str(), &endptr, 10);
-
-    // Check for validity, 0 is returned on failiure with endptr set to the
-    // beginning of the string, else we are (semi) ok.
-    if ((value == 0) && (endptr == value_str.c_str())) {
-        _set = _default;
-
-    } else {
-        if (value < _value_min) {
-            _set = _value_min;
-            throw string("value to low, min value " + Util::to_string<int>(_value_min));
-        } if (value > _value_max)  {
-            _set = _value_max;
-            throw string("value to high, max value " + Util::to_string<int>(_value_max));
-        }
-    }
-
-    _set = value;
-}
 
 //! @brief Parses value and sets _br_set.
 //! Boolean true is represented either by case insensitive true or 1.
