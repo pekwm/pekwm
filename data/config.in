@@ -58,6 +58,10 @@ Screen {
 
 Menu {
     DisplayIcons = "True"
+    IconWidthMin = "16"
+    IconWidthMax = "16"
+    IconHeightMin = "16"
+    IconHeightMax = "16"
 
     # Defines how menus act on mouse input.
     # Possible values are: "ButtonPress ButtonRelease DoubleClick Motion"
