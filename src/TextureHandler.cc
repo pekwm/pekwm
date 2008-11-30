@@ -163,7 +163,6 @@ TextureHandler::parse(const std::string &texture)
             break;
         case PTexture::TYPE_NO:
         default:
-            cerr << "*** WARNING: invalid texture type: " << tok[0] << endl;
             break;
         }
 

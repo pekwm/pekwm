@@ -287,9 +287,17 @@ ActionMenu::parse(CfgParser::Entry *section, bool has_dynamic)
 PTexture*
 ActionMenu::getIcon(CfgParser::Entry *value)
 {
+    // Skip blank icons
+    if (! value || ! value->get_value().size()) {
+        return 0;
+    }
+
     PTexture *icon = 0;
 
-    if (value) {
+    // Try to load the icon as a complete texture specification, if
+    // that fails load is an scaled image.
+    icon = TextureHandler::instance()->getTexture(value->get_value());
+    if (! icon) {
         icon = TextureHandler::instance()->getTexture("IMAGE " + value->get_value() + "#SCALED");
     }
 
