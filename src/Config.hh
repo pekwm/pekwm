@@ -149,8 +149,14 @@ public:
     bool parseInputDialogEvent(CfgParser::Entry *section, ActionEvent &ae);
 
     uint getMenuMask(const std::string &mask);
-    uint getMenuIconWidth(void) const { return _menu_icon_width; }
-    uint getMenuIconHeight(void) const { return _menu_icon_height; }
+    /** Return maximum allowed icon width. */
+    uint getMenuIconWidthMax(uint value) const { return _menu_icon_width_max ? _menu_icon_width_max : value; }
+    /** Return minimum allowed icon width. */
+    uint getMenuIconWidthMin(uint value) const { return _menu_icon_width_min ? _menu_icon_width_min : value; }
+    /** Return maximum allowed icon height. */
+    uint getMenuIconHeightMax(uint value) const { return _menu_icon_height_max ? _menu_icon_height_max : value; }
+    /** Return minimum allowed icon height. */
+    uint getMenuIconHeightMin(uint value) const { return _menu_icon_height_min ? _menu_icon_height_min : value; }
 
 #ifdef MENUS
     bool parseMenuAction(const std::string& action_string, Action& action);
@@ -221,7 +227,10 @@ private:
 
     uint _menu_select_mask, _menu_enter_mask, _menu_exec_mask;
     bool _menu_display_icons; /**< Boolean flag, when true display icons in menus. */
-    uint _menu_icon_width, _menu_icon_height;
+    uint _menu_icon_width_max; /** Maximum allowed icon width, 0 to disable check. */
+    uint _menu_icon_width_min; /** Minimum allowed icon width, 0 to disable check. */
+    uint _menu_icon_height_max; /** Maximum allowed icon height, 0 to disable check. */
+    uint _menu_icon_height_min; /** Minimum allowed icon height, 0 to disable check. */
 
     bool _cmd_dialog_history_unique; /**< Boolean flag, when true entries in the CmdDialog history are unique. */
     int _cmd_dialog_history_size; /**< Number of entries in the history before the last entries are dropped. */

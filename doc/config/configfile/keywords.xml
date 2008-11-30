@@ -338,6 +338,34 @@
       </varlistentry>
 
       <varlistentry>
+        <term>IconWidthMin (int)</term>
+        <listitem>
+          <para>Defines minimum width of icons, if 0 no check is done. Default 16.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>IconWidthMax (int)</term>
+        <listitem>
+          <para>Defines maximum width of icons, if 0 no check is done. Default 16.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>IconHeightMin (int)</term>
+        <listitem>
+          <para>Defines minimum height of icons, if 0 no check is done. Default 16.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>IconHeightMax (int)</term>
+        <listitem>
+          <para>Defines maximum height of icons, if 0 no check is done. Default 16.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
         <term>Select (string)</term>
 	<listitem>
           <para>Decides on what mouse events to select a menu entry. String is one of "ButtonPress, ButtonRelease, DoubleClick, Motion"</para>

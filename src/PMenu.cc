@@ -390,12 +390,12 @@ PMenu::buildMenuCalculate(void)
     }
 
     // Make sure icon width and height are not larger than configured.
-    if (Config::instance()->getMenuIconWidth()) {
-      _icon_width = std::min(Config::instance()->getMenuIconWidth(), _icon_width);
-    }
-    if (Config::instance()->getMenuIconHeight()) {
-      _icon_height = std::min(Config::instance()->getMenuIconHeight(), _icon_height);
-    }
+    _icon_width = Util::between<uint>(_icon_width,
+                                      Config::instance()->getMenuIconWidthMin(_icon_width),
+                                      Config::instance()->getMenuIconWidthMax(_icon_width));
+    _icon_height = Util::between<uint>(_icon_height,
+                                       Config::instance()->getMenuIconHeightMin(_icon_height),
+                                       Config::instance()->getMenuIconHeightMax(_icon_height));
 
     // This is the available width for drawing text on, the rest is reserved
     // for submenu indicator, padding etc.
@@ -548,56 +548,56 @@ PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
 
     if (item->getType() == PMenu::Item::MENU_ITEM_NORMAL) {
         tex = md->getTextureItem(state);
-        tex->render(pix,
-                    item->getX(), item->getY(), _item_width_max, _item_height);
+        tex->render(pix, item->getX(), item->getY(), _item_width_max, _item_height);
 
+        uint start_x, start_y, icon_width, icon_height;
         // If entry has an icon, draw it
         if (item->getIcon() && Config::instance()->isDisplayMenuIcons()) {
-          uint i_w = std::min(Config::instance()->getMenuIconWidth(),
-                              item->getIcon()->getWidth());
-          uint i_h = std::min(Config::instance()->getMenuIconHeight(),
-                              item->getIcon()->getHeight());
+            icon_width = Util::between<uint>(item->getIcon()->getWidth(),
+                                             Config::instance()->getMenuIconWidthMin(_icon_width),
+                                             Config::instance()->getMenuIconWidthMax(_icon_width));
+            
+            icon_height = Util::between<uint>(item->getIcon()->getHeight(),
+                                              Config::instance()->getMenuIconHeightMin(_icon_height),
+                                              Config::instance()->getMenuIconHeightMax(_icon_height));
 
-          item->getIcon()->render(pix,
-                                  item->getX() + md->getPad(PAD_LEFT) + (_icon_width - i_w) / 2,
-                                  item->getY() + (_item_height - i_h) / 2,
-                                  i_w, i_h);
+            start_x = item->getX() + md->getPad(PAD_LEFT) + (_icon_width - icon_width) / 2;
+            start_y = item->getY() + (_item_height - icon_height) / 2;
+            item->getIcon()->render(pix, start_x, start_y, icon_width, icon_height);
+        } else {
+            icon_width = 0;
+            icon_height = 0;
         }
 
         // If entry has a submenu, lets draw our submenu "arrow"
-        if (item->getWORef()
-                && (item->getWORef()->getType() == PWinObj::WO_MENU)) {
+        if (item->getWORef() && (item->getWORef()->getType() == PWinObj::WO_MENU)) {
             tex = md->getTextureArrow(state);
-            uint a_w = tex->getWidth();
-            uint a_h = tex->getHeight();
-            uint a_y = static_cast<uint>((_item_height / 2) - (a_h / 2));
+            uint arrow_width = tex->getWidth();
+            uint arrow_height = tex->getHeight();
+            uint arrow_y = static_cast<uint>((_item_height / 2) - (arrow_height / 2));
 
-            tex->render(pix,
-                        item->getX() + _item_width_max - a_w -
-                        md->getPad(PAD_RIGHT),
-                        item->getY() + a_y,
-                        a_w, a_h);
+            start_x = item->getX() + _item_width_max - arrow_width - md->getPad(PAD_RIGHT);
+            start_y = item->getY() + arrow_y;
+            tex->render(pix, start_x, start_y, arrow_width, arrow_height);
         }
 
         PFont *font = md->getFont(state);
-        uint start_x = item->getX() + md->getPad(PAD_LEFT);
-		
+        start_x = item->getX() + md->getPad(PAD_LEFT);
         // Add icon width to starting x position if frame icons are enabled.
         if (Config::instance()->isDisplayMenuIcons()) {
             start_x += _icon_width;
         }
 		
-        font->draw(pix,
-                   start_x, item->getY() + md->getPad(PAD_UP),
-                   item->getName().c_str(), 0, // Text and max chars
-                   _item_width_max_avail);
+        start_y = item->getY() + md->getPad(PAD_UP)
+            + (_item_height - font->getHeight() - md->getPad(PAD_UP) - md->getPad(PAD_DOWN)) / 2;
+
+        // Render item text.
+        font->draw(pix, start_x, start_y, item->getName().c_str(), 0, _item_width_max_avail);
 
     } else if ((item->getType() == PMenu::Item::MENU_ITEM_SEPARATOR) &&
                (state < OBJECT_STATE_SELECTED)) {
         tex = md->getTextureSeparator(state);
-        tex->render(pix,
-                    item->getX(), item->getY(),
-                    _item_width_max, _separator_height);
+        tex->render(pix, item->getX(), item->getY(), _item_width_max, _separator_height);
     }
 }
 

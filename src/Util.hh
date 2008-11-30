@@ -54,6 +54,19 @@ namespace Util {
   void iconv_init(void);
   void iconv_deinit(void);
 
+    /**
+     * Return value within bounds of min and max value.
+     */
+    template<typename T>
+    T between(T value, T min_val, T max_val) {
+        if (value < min_val) {
+            value = min_val;
+        } else if (value > max_val) {
+            value = max_val;
+        }
+        return value;
+    }
+
   std::string to_utf8_str(const std::wstring &str);
   std::wstring from_utf8_str(const std::string &str);
 
