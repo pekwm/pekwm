@@ -1100,7 +1100,7 @@ Client::readIconName(void)
     if (_icon_name.getVisible() == _icon_name.getReal()) {
         AtomUtil::unsetProperty(_window, EwmhAtoms::instance()->getAtom(NET_WM_VISIBLE_ICON_NAME));
     } else {
-        AtomUtil::setUtf8String(_window, EwmhAtoms::instance()->getAtom(NET_WM_VISIBLE_NAME), icon_name);
+        AtomUtil::setUtf8String(_window, EwmhAtoms::instance()->getAtom(NET_WM_VISIBLE_ICON_NAME), icon_name);
     }
 }
 
