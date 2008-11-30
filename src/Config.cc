@@ -1486,10 +1486,10 @@ Config::loadMouseConfig(const std::string &mouse_file)
 
     
     CfgParser mouse_cfg;
-    bool success = mouse_cfg.parse(_mouse_file, CfgParserSource::SOURCE_FILE);
+    bool success = mouse_cfg.parse(_mouse_file, CfgParserSource::SOURCE_FILE, true);
     if (! success) {
         _mouse_file = string(SYSCONFDIR "/mouse");
-        success = mouse_cfg.parse(_mouse_file, CfgParserSource::SOURCE_FILE);
+        success = mouse_cfg.parse(_mouse_file, CfgParserSource::SOURCE_FILE, true);
     }
     
     if (! success) {

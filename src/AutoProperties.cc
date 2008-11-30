@@ -116,9 +116,9 @@ AutoProperties::load(void)
     unload();
 
     CfgParser a_cfg;
-    if (! a_cfg.parse(cfg_file)) {
+    if (! a_cfg.parse(cfg_file, CfgParserSource::SOURCE_FILE, true)) {
         cfg_file = SYSCONFDIR "/autoproperties";
-        if (! a_cfg.parse (cfg_file)) {
+        if (! a_cfg.parse (cfg_file, CfgParserSource::SOURCE_FILE, true)) {
           setDefaultTypeProperties();
           _autoproperties_mtime = 0;
           return false;

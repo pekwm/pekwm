@@ -130,7 +130,7 @@ KeyGrabber::load(const std::string &file)
     CfgParser key_cfg;
     if (! key_cfg.parse(file, CfgParserSource::SOURCE_FILE)) {
         _keygrabber_path = SYSCONFDIR "/keys";
-        if (! key_cfg.parse(_keygrabber_path, CfgParserSource::SOURCE_FILE)) {
+        if (! key_cfg.parse(_keygrabber_path, CfgParserSource::SOURCE_FILE, true)) {
             cerr << __FILE__ << "@" << __LINE__ << "Error: no keyfile at " << file
                  << " or " << _keygrabber_path << endl;
             _keygrabber_mtime = 0;
