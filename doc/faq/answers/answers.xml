@@ -20,37 +20,37 @@ Esetroot -s mybackground.png &</screen>
     <para>Remember the &'s.</para>
   </simplesect>
 
-  <simplesect id="FAQ-2312" xreflabel="What is the harbour?">
-    <title>What is the harbour?</title>
+  <simplesect id="FAQ-2312" xreflabel="What is the harbour and how is it used?">
+    <title>What is the harbour and how is it used?</title>
 
     <para>
-      Harbour is pekwm's way of supporting dockapps. It's the same as
+      Harbour is pekwm's way of supporting dockapps, special small applications
+      that usually display things like system information or the status of
+      your email inbox. It's essentially the same thing you might know as
       a dock or a wharf. The harbour is not a KDE/GNOME systray for
       notification icons. If you want notification icons in the
       harbour, you need to find a dockapp that does this for you.
     </para>
-
+  
+ <!-- We can get rid of this by now, right?
     <para>
       The harbour is incomplete in features. It has simple
       functionality and if it works for you, good. If it doesn't, you
       are free to share your code on it.
     </para>
-
-  </simplesect>
-
-  <simplesect id="FAQ-1233" xreflabel="Why doesn't the harbour work for my dockapp?">
-    <title>Why doesn't the harbour work for my dockapp?</title>
+ -->
 
     <para>
       The harbour needs to be enabled at compile time. When you are
       doing the <command>./configure</command> -phase of the pekwm
       compile, you can use the <command>--enable-harbour</command>
-      option to enable it.
+      option to enable it. Harbour should show up in the features list
+      on <command>pekwm --info</command>.
     </para>
 
     <para>
-      If the dockapp still doesn't go into the harbour, even you have
-      it enabled at compile time, you should see if the application
+      If a dockapp doesn't go into the harbour even you have it
+      enabled at compile time, you should see if the application
       has an option to start it "withdrawn".
     </para>
   </simplesect>
@@ -255,17 +255,15 @@ Esetroot -s mybackground.png &</screen>
       </para>
     </simplesect>
 
+ <!-- This seems to have been fixed in recent Xorg releases. I'm not sure if this warrants a place in the FAQ anymore.
     <simplesect id="FAQ-1154" xreflabel="When I xprop a grouped window, it gives the results of wrong window!">
       <title>When I xprop a grouped window, it gives the results of wrong window!</title>
 
       <para>
-        Yep. We know. Actually, there already exist a patch that makes
-        it work
-        at <ulink url="http://bugs.xfree86.org/show_bug.cgi?id=384">bugs.xfree86.org</ulink>.
-        In short, it's a X-issue - go whine at your favourite X
-        developers.
+        Yep. We know. In short, it's an X11 issue - go cry at your favourite X developers.
       </para>
     </simplesect>
+ -->
 
     <simplesect id="FAQ-7599" xreflabel="The start file doesn't work!">
       <title>The start file doesn't work!</title>
@@ -273,8 +271,7 @@ Esetroot -s mybackground.png &</screen>
       <para>
         <command>chmod +x ~/.pekwm/start</command>. Yes, this is a
         duplicate of the first FAQ entry. Just making sure we never
-        have to see this question in IRC anymore. So if you asked this
-        question and was directed here, remorse.
+	have to see this question in IRC anymore.
       </para>
     </simplesect>
 
@@ -294,15 +291,10 @@ Esetroot -s mybackground.png &</screen>
 
       <para>
         You want that the background gets set automatically when you
-        start pekwm?  You have three options. Either, add the command
-        that you use to set your background
-        into <filename>~/.xinitrc</filename> (or similar) before the
-        command that starts pekwm. Or, add the command to set a
-        background in to your pekwm
-        <filename>start</filename> file located
-        at <filename>~/.pekwm/start</filename>.  Or, edit the right
-        place in your pekwm theme file to include the command to set a
-        background with.
+        start pekwm? Add the command for setting background in to your
+        pekwm <filename>start</filename> file located at
+        <filename>~/.pekwm/start</filename>.
+        Remember to <command>chmod +x</command>.
       </para>
     </simplesect>
 
@@ -433,8 +425,8 @@ Esetroot -s mybackground.png &</screen>
 
     </simplesect>
 
-    <simplesect id="FAQ-1546" xreflabel="Where's my Unicode support, bitch?">
-      <title>Where's my Unicode support, bitch?</title>
+    <simplesect id="FAQ-1546" xreflabel="Where's my Unicode support?">
+      <title>Where's my Unicode support?</title>
 
       <para>
         Edit your favorite theme to use your preferred Unicode font,
@@ -443,17 +435,17 @@ Esetroot -s mybackground.png &</screen>
       </para>
     </simplesect>
 
-    <simplesect id="FAQ-1547" xreflabel="Where did my buttons go?">
-      <title>Where did my buttons go?</title>
+    <simplesect id="FAQ-1547" xreflabel="Where did my titlebar buttons go?">
+      <title>Where did my titlebar buttons go?</title>
 
       <para>
-        When enabling template based syntax in themes buttons requrie
-        a name to be set otherwise the last button will be the only
-        visible one.
+        Buttons require a name to be set when template based
+        syntax is enabled in themes or the last button will
+        be the only visible one.
       </para>
 
       <para>
-        Using this syntax will only create one button:
+        Using this syntax will create only one button:
 
         <programlisting>Require {
  Templates = "True"
@@ -470,7 +462,7 @@ Buttons {
       </para>
 
       <para>
-        Using names on the buttons will however create two buttons:
+        Given names, both buttons will be created:
 
         <programlisting>Require {
  Templates = "True"
@@ -487,8 +479,8 @@ Buttons {
       </para>
     </simplesect>
 
-    <simplesect id="FAQ-1548" xreflabel="How I can disable the workspace indicator popup?">
-      <title>How I can disable the workspace indicator popup?</title>
+    <simplesect id="FAQ-1548" xreflabel="How can I disable the workspace indicator popup?">
+      <title>How can I disable the workspace indicator popup?</title>
 
       <para>
         In the main configuration file under the Screen section there
