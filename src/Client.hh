@@ -205,6 +205,8 @@ public: // Public Member Functions
         _state.skip ^= skip;
     }
 
+    void setStateDemandsAttention(StateAction sa, bool attention);
+
     inline void setTitlebar(bool titlebar) {
         if (titlebar) {
             _state.decor |= DECOR_TITLEBAR;
@@ -321,10 +323,10 @@ private: // Private Member Variables
 
     class State {
     public:
-        State(void) : maximized_vert(false), maximized_horz(false),
-                shaded(false), fullscreen(false),
-                placed(false), skip(0), decor(DECOR_TITLEBAR|DECOR_BORDER),
-        cfg_deny(CFG_DENY_NO) { }
+        State(void)
+            : maximized_vert(false), maximized_horz(false), shaded(false), fullscreen(false),
+              placed(false), skip(0), decor(DECOR_TITLEBAR|DECOR_BORDER),
+              cfg_deny(CFG_DENY_NO), demands_attention(true) { }
         ~State(void) { }
 
         bool maximized_vert, maximized_horz;
@@ -334,6 +336,7 @@ private: // Private Member Variables
         // pekwm states
         bool placed;
         uint skip, decor, cfg_deny;
+        bool demands_attention; /**< If true, the client requires attention from the user. */
     } _state;
 
     class Actions {

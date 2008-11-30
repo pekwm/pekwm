@@ -65,12 +65,13 @@ public:
 // Extended Net Hints stuff
 class NetWMStates {
 public:
-    NetWMStates() : modal(false), sticky(false),
-            max_vert(false), max_horz(false), shaded(false),
-            skip_taskbar(false), skip_pager(false),
-            hidden(false), fullscreen(false),
-    above(false), below(false) { }
-    ~NetWMStates() { }
+    NetWMStates(void)
+        : modal(false), sticky(false),
+          max_vert(false), max_horz(false), shaded(false),
+          skip_taskbar(false), skip_pager(false),
+          hidden(false), fullscreen(false),
+          above(false), below(false), demands_attention(false) { }
+    ~NetWMStates(void) { }
 
     bool modal;
     bool sticky;
@@ -80,6 +81,7 @@ public:
     bool hidden;
     bool fullscreen;
     bool above, below;
+    bool demands_attention;
 };
 
 // defines... eek

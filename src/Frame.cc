@@ -2107,6 +2107,9 @@ Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
         if (IS_STATE(STATE_SKIP_PAGER)) {
             client->setStateSkip(sa, SKIP_PAGER);
         }
+        if (IS_STATE(STATE_DEMANDS_ATTENTION)) {
+            client->setStateDemandsAttention(sa, true);
+        }
 
         client->updateEwmhStates();
 

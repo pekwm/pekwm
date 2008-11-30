@@ -1244,10 +1244,17 @@ void
 Client::setSkip(uint skip)
 {
     _state.skip = skip;
+    AtomUtil::setLong(_window, PekwmAtoms::instance()->getAtom(PEKWM_FRAME_SKIP), _state.skip);
+}
 
-    AtomUtil::setLong(_window,
-                      PekwmAtoms::instance()->getAtom(PEKWM_FRAME_SKIP),
-                      _state.skip);
+/**
+ * Set demands attention state, this should be unset when client
+ * recieves focus. This is ignored if client has focus.
+ */
+void
+Client::setStateDemandsAttention(StateAction sa, bool attention)
+{
+    // FIXME: Demands attention state.
 }
 
 //! @brief Sends an WM_DELETE message to the client, else kills it.
@@ -1416,6 +1423,8 @@ Client::getEwmhStates(NetWMStates &win_states)
                 win_states.skip_taskbar = true;
             } else if (states[i] == ewmh->getAtom(STATE_SKIP_PAGER)) {
                 win_states.skip_pager = true;
+            } else if (states[i] == ewmh->getAtom(STATE_DEMANDS_ATTENTION)) {
+                win_states.demands_attention = true;
             } else if (states[i] == ewmh->getAtom(STATE_HIDDEN)
                        && ! isCfgDeny(CFG_DENY_STATE_HIDDEN)) {
                 win_states.hidden = true;
