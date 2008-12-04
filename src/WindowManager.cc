@@ -1083,6 +1083,7 @@ WindowManager::handleKeyEvent(XKeyEvent *ev)
         }
         break;
     case PWinObj::WO_CMD_DIALOG:
+    case PWinObj::WO_SEARCH_DIALOG:
         if (ev->type == KeyPress) {
             ae = wo->handleKeyPress(ev);
         } else {
