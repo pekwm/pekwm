@@ -26,12 +26,22 @@ Global {
 	KeyPress = "Mod4 2" { Actions = "GotoWorkspace 2" }
 	KeyPress = "Mod4 3" { Actions = "GotoWorkspace 3" }
 	KeyPress = "Mod4 4" { Actions = "GotoWorkspace 4" }
+	KeyPress = "Mod4 5" { Actions = "GotoWorkspace 5" }
+	KeyPress = "Mod4 6" { Actions = "GotoWorkspace 6" }
+	KeyPress = "Mod4 7" { Actions = "GotoWorkspace 7" }
+	KeyPress = "Mod4 8" { Actions = "GotoWorkspace 8" }
+	KeyPress = "Mod4 9" { Actions = "GotoWorkspace 9" }
 	KeyPress = "Ctrl Mod1 Up" { Actions = "SendToWorkspace Next; GoToWorkspace Next" }
 	KeyPress = "Ctrl Mod1 Down" { Actions = "SendToWorkspace Prev; GoToWorkspace Prev" }
 	KeyPress = "Mod4 F1" { Actions = "SendToWorkspace 1" }
 	KeyPress = "Mod4 F2" { Actions = "SendToWorkspace 2" }
 	KeyPress = "Mod4 F3" { Actions = "SendToWorkspace 3" }
 	KeyPress = "Mod4 F4" { Actions = "SendToWorkspace 4" }
+	KeyPress = "Mod4 F5" { Actions = "SendToWorkspace 5" }
+	KeyPress = "Mod4 F6" { Actions = "SendToWorkspace 6" }
+	KeyPress = "Mod4 F7" { Actions = "SendToWorkspace 7" }
+	KeyPress = "Mod4 F8" { Actions = "SendToWorkspace 8" }
+	KeyPress = "Mod4 F9" { Actions = "SendToWorkspace 9" }
 	# Simple window management
 	KeyPress = "Mod4 M" { Actions = "Toggle Maximized True True" }
 	KeyPress = "Mod4 G" { Actions = "Maxfill True True" }
@@ -190,12 +200,22 @@ Global {
 		KeyPress = "2" { Actions = "GoToWorkspace 2" }
 		KeyPress = "3" { Actions = "GoToWorkspace 3" }
 		KeyPress = "4" { Actions = "GoToWorkspace 4" }
+		KeyPress = "5" { Actions = "GoToWorkspace 5" }
+		KeyPress = "6" { Actions = "GoToWorkspace 6" }
+		KeyPress = "7" { Actions = "GoToWorkspace 7" }
+		KeyPress = "8" { Actions = "GoToWorkspace 8" }
+		KeyPress = "9" { Actions = "GoToWorkspace 9" }
 		KeyPress = "Up" { Actions = "SendToWorkspace Next; GoToWorkspace Next" }
 		KeyPress = "Down" { Actions = "SendToWorkspace Prev; GoToWorkspace Prev" }
 		KeyPress = "F1" { Actions = "SendToWorkspace 1" }
 		KeyPress = "F2" { Actions = "SendToWorkspace 2" }
 		KeyPress = "F3" { Actions = "SendToWorkspace 3" }
 		KeyPress = "F4" { Actions = "SendToWorkspace 4" }
+		KeyPress = "F5" { Actions = "SendToWorkspace 5" }
+		KeyPress = "F6" { Actions = "SendToWorkspace 6" }
+		KeyPress = "F7" { Actions = "SendToWorkspace 7" }
+		KeyPress = "F8" { Actions = "SendToWorkspace 8" }
+		KeyPress = "F9" { Actions = "SendToWorkspace 9" }
 	}
 	# External commands
 	Chain = "Ctrl Mod1 E" {
