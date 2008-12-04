@@ -43,23 +43,28 @@ public:
   virtual void mapCentered(const std::string &buf, bool focus, PWinObj *wo_ref = 0);
   virtual void moveCentered(PWinObj *wo);
 
+  /** @brief Returns the PWinObj the CmdDialog executes actions on. */
+  inline PWinObj *getWORef(void) { return _wo_ref; }
+  /** @brief Sets the PWinObj the CmdDialog executes actions on. */
+  inline void setWORef(PWinObj *wo) { _wo_ref = wo; }
+
 protected:
   virtual ActionEvent *close(void);
   virtual ActionEvent *exec(void) { return 0; }
 
-  void bufAdd(XKeyEvent *ev);
-  void bufRemove(void);
-  void bufClear(void);
-  void bufKill(void);
-  void bufChangePos(int off);
+  virtual void bufAdd(XKeyEvent *ev);
+  virtual void bufRemove(void);
+  virtual void bufClear(void);
+  virtual void bufKill(void);
+  virtual void bufChangePos(int off);
 
   virtual void bufChanged(void); // recalculates buf position
 
-  void histNext(void);
-  void histPrev(void);
+  virtual void histNext(void);
+  virtual void histPrev(void);
 
-  void updateSize(void);
-  void updatePixmapSize(void);
+  virtual void updateSize(void);
+  virtual void updatePixmapSize(void);
 
 protected:
   Theme::TextDialogData *_data;
@@ -78,6 +83,8 @@ protected:
   std::wstring _hist_new; // the one we started editing on
   Util::file_backed_list _hist_list;
   Util::file_backed_list::iterator _hist_it;
+
+  PWinObj *_wo_ref; /**< referenced window object. */
 };
 
 #endif // _INPUT_DIALOG_HH_

@@ -67,6 +67,7 @@ PMenu::PMenu(Display *dpy, Theme *theme, const std::wstring &title,
       _menu_parent(0), _class_hint(L"pekwm", L"Menu", L"", L"", L""),
       _menu_wo(0),
       _menu_bg_fo(None), _menu_bg_un(None), _menu_bg_se(None),
+      _menu_width(0),
       _item_height(0), _item_width_max(0), _item_width_max_avail(0),
       _icon_width(0), _icon_height(0),
       _separator_height(0),
@@ -389,6 +390,11 @@ PMenu::buildMenuCalculate(void)
         }
     }
 
+    // FIXME: Remove extra padding from calculation
+    if (_menu_width) {
+      _item_width_max = _menu_width;
+    }
+
     // Make sure icon width and height are not larger than configured.
     _icon_width = Util::between<uint>(_icon_width,
                                       Config::instance()->getMenuIconWidthMin(_icon_width),
@@ -422,8 +428,9 @@ PMenu::buildMenuCalculate(void)
 
     height = (_item_height * _size) + (_separator_height * sep);
 
-    // check if menu should have more than one row
-    if ((height + getTitleHeight()) > PScreen::instance()->getHeight()) {
+    // Check if menu should have more than one row, this does not apply on
+    // static width menus.
+    if (! _menu_width && (height + getTitleHeight()) > PScreen::instance()->getHeight()) {
         _cols = height / (PScreen::instance()->getHeight() - getTitleHeight());
         if ((height % (PScreen::instance()->getHeight() - getTitleHeight())) != 0) {
             ++_cols;

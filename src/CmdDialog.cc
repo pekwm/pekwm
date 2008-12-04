@@ -43,7 +43,7 @@ using std::wstring;
  */
 CmdDialog::CmdDialog(Display *dpy, Theme *theme)
   : InputDialog(dpy, theme, L"Enter command"),
-    _wo_ref(0), _exec_count(0)
+    _exec_count(0)
 {
   _type = PWinObj::WO_CMD_DIALOG;
 

@@ -29,11 +29,6 @@ public:
 
     void unmapWindow(void);
 
-    //! @brief Returns the PWinObj the CmdDialog executes actions on.
-    inline PWinObj *getWORef(void) { return _wo_ref; }
-    //! @brief Sets the PWinObj the CmdDialog executes actions on.
-    inline void setWORef(PWinObj *wo) { _wo_ref = wo; }
-
     virtual void mapCentered(const std::string &buf, bool focus, PWinObj *wo_ref);
 
 private:
@@ -43,8 +38,7 @@ private:
     virtual void complete(void);
 
 private:
-  PWinObj *_wo_ref;
-  int _exec_count; /**< Number of CmdDialog has run exec since last history save. */
+    int _exec_count; /**< Number of CmdDialog has run exec since last history save. */ 
 };
 
 #endif // _CMD_DIALOG_HH_

@@ -43,6 +43,7 @@
 #include "DockApp.hh"
 #endif // HARBOUR
 #include "CmdDialog.hh"
+#include "SearchDialog.hh"
 #include "StatusWindow.hh"
 #include "WorkspaceIndicator.hh"
 
@@ -214,7 +215,7 @@ WindowManager::WindowManager(const std::string &command_line, const std::string 
 #ifdef HARBOUR
         _harbour(0),
 #endif // HARBOUR
-        _cmd_dialog(0),
+        _cmd_dialog(0), _search_dialog(0),
         _status_window(0), _workspace_indicator(0),
 #ifdef MENUS
         _menu_mtime(0),
@@ -249,6 +250,7 @@ WindowManager::~WindowManager(void)
     cleanup();
 
     delete _cmd_dialog;
+    delete _search_dialog;
     delete _status_window;
     delete _workspace_indicator;
     delete _root_wo;
@@ -411,6 +413,7 @@ WindowManager::setupDisplay(void)
 #endif // HARBOUR
 
     _cmd_dialog = new CmdDialog(_screen->getDpy(), _theme);
+    _search_dialog = new SearchDialog(_screen->getDpy(), _theme);
     _status_window = new StatusWindow(_screen->getDpy(), _theme);
     _workspace_indicator = new WorkspaceIndicator(_screen->getDpy(), _theme, _timer_action);
 
@@ -912,6 +915,7 @@ WindowManager::handleKeyEvent(XKeyEvent *ev)
         }
         break;
     case PWinObj::WO_CMD_DIALOG:
+    case PWinObj::WO_SEARCH_DIALOG:
         if (ev->type == KeyPress) {
             ae = wo->handleKeyPress(ev);
         } else {

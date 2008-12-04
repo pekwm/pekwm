@@ -37,6 +37,7 @@ public:
         WO_STATUS = (1<<8), //!< StatusWindow type.
         WO_WORKSPACE_INDICATOR = (1<<9), //!< WorkspaceIndicator type.
         WO_SCREEN_HINT = (1<<10), /**< Invisible hint window. */
+        WO_SEARCH_DIALOG = (1<<11), //!< SearchDialog type
         WO_NO_TYPE = 0 //!< No type.
     };
 

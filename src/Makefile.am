@@ -49,6 +49,7 @@ pekwm_SOURCES = \
 	PScreen.cc PScreen.hh \
 	ScreenResources.cc ScreenResources.hh \
 	StatusWindow.cc StatusWindow.hh \
+	SearchDialog.cc SearchDialog.hh \
 	Theme.cc Theme.hh \
 	TextureHandler.cc TextureHandler.hh \
 	Timer.hh Types.hh \
