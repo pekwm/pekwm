@@ -36,6 +36,9 @@ private:
 
     virtual ActionEvent *exec(void);
     virtual void complete(void);
+
+private:
+    int _exec_count; /**< Number of CmdDialog has run exec since last history save. */ 
 };
 
 #endif // _CMD_DIALOG_HH_

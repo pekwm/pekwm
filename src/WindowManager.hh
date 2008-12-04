@@ -52,6 +52,7 @@ class PMenu; // used together with Focus actions
 
 class AutoProperty; // for findGroup
 class CmdDialog;
+class SearchDialog;
 class StatusWindow;
 class WorkspaceIndicator;
 
@@ -184,6 +185,7 @@ class RootWO : public PWinObj {
 #endif // MENUS
 
     inline CmdDialog *getCmdDialog(void) { return _cmd_dialog; }
+    inline SearchDialog *getSearchDialog(void) { return _search_dialog; }
     inline StatusWindow *getStatusWindow(void) { return _status_window; }
     WorkspaceIndicator *getWorkspaceIndicator(void) { return _workspace_indicator; }
 
@@ -276,6 +278,7 @@ private:
     Harbour *_harbour;
 #endif // HARBOUR
     CmdDialog *_cmd_dialog;
+    SearchDialog *_search_dialog;
     StatusWindow *_status_window;
 
   WorkspaceIndicator *_workspace_indicator; //!< Window popping up when switching workspace
