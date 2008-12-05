@@ -181,10 +181,18 @@ PMenu::handleButtonPress(XButtonEvent *ev)
     }
 }
 
-//! @brief
+/**
+ * Handle button release.
+ */
 ActionEvent*
 PMenu::handleButtonRelease(XButtonEvent *ev)
 {
+    if (_window == ev->subwindow) {
+        ev->window = _menu_wo->getWindow();
+        ev->x -= _gm.x;
+        ev->y -= _gm.y + getTitleHeight();
+    }
+
     if (*_menu_wo == ev->window) {
         MouseEventType mb = MOUSE_EVENT_RELEASE;
 
@@ -210,17 +218,27 @@ PMenu::handleButtonRelease(XButtonEvent *ev)
     }
 }
 
-//! @brief
+/**
+ * Handle motion event, select buttons and execute actions.
+ *
+ * @param ev Handle motion event.
+ */
 ActionEvent*
 PMenu::handleMotionEvent(XMotionEvent *ev)
 {
+    if (_window == ev->subwindow) {
+        ev->window = _menu_wo->getWindow();
+        ev->x -= _gm.x;
+        ev->y -= _gm.y + getTitleHeight();
+    }
+
     if (*_menu_wo == ev->window) {
         handleItemEvent(MOUSE_EVENT_MOTION, ev->x, ev->y);
 
         ActionEvent *ae;
         uint button = PScreen::instance()->getButtonFromState(ev->state);
-        ae = ActionHandler::findMouseAction(button, ev->state,
-                                            MOUSE_EVENT_MOTION,
+        ev->state = PScreen::instance()->stripButtonModifiers(ev->state);
+        ae = ActionHandler::findMouseAction(button, ev->state, MOUSE_EVENT_MOTION,
                                             Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_MENU));
 
         // check motion threshold
@@ -241,8 +259,7 @@ ActionEvent*
 PMenu::handleEnterEvent(XCrossingEvent *ev)
 {
     if (*_menu_wo == ev->window) {
-        return ActionHandler::findMouseAction(BUTTON_ANY, ev->state,
-                                              MOUSE_EVENT_ENTER,
+        return ActionHandler::findMouseAction(BUTTON_ANY, ev->state, MOUSE_EVENT_ENTER,
                                               Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_MENU));
     } else {
         return PDecor::handleEnterEvent(ev);
@@ -282,20 +299,20 @@ void
 PMenu::handleItemEvent(MouseEventType type, int x, int y)
 {
     PMenu::Item *item = findItem(x, y);
-    if (! item)
+    if (! item) {
         return;
+    }
 
     // Unmap submenu if we enter them on the same event as selecting.
     if (((_item_curr == _item_list.end()) || (item != *_item_curr))
-            && Config::instance()->isMenuSelectOn(type))
+        && Config::instance()->isMenuSelectOn(type))
         select(item, Config::instance()->isMenuEnterOn(type));
 
     if (Config::instance()->isMenuEnterOn(type)) {
-        if (item->getWORef() &&
-                (item->getWORef()->getType() == PWinObj::WO_MENU)) {
+        if (item->getWORef()
+            && (item->getWORef()->getType() == PWinObj::WO_MENU)) {
             // special case for motion, would flicker like crazy if we didn't check
-            if ((type != MOUSE_EVENT_MOTION) &&
-                    item->getWORef()->isMapped()) {
+            if ((type != MOUSE_EVENT_MOTION) && item->getWORef()->isMapped()) {
                 static_cast<PMenu*>(item->getWORef())->unmapSubmenus();
                 item->getWORef()->unmapWindow();
 
@@ -308,8 +325,7 @@ PMenu::handleItemEvent(MouseEventType type, int x, int y)
     }
 
     // Submenus don't have any actions, so we don't exec ( and close them )
-    if (item->getAE().action_list.size()
-            && Config::instance()->isMenuExecOn(type)) {
+    if (item->getAE().action_list.size() && Config::instance()->isMenuExecOn(type)) {
         exec(item);
     }
 }

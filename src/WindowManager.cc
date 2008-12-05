@@ -1023,6 +1023,9 @@ WindowManager::handleButtonReleaseEvent(XButtonEvent *ev)
 
     ActionEvent *ae = 0;
     PWinObj *wo = PWinObj::findPWinObj(ev->window);
+    if (wo == _root_wo && ev->subwindow != None) {
+        wo = PWinObj::findPWinObj(ev->subwindow);
+    }
 
     if (wo) {
         ae = wo->handleButtonRelease(ev);
@@ -1031,8 +1034,8 @@ WindowManager::handleButtonReleaseEvent(XButtonEvent *ev)
             // this is done so that clicking the titlebar executes action on
             // the client clicked on, doesn't apply when subwindow is set (meaning
             // a titlebar button beeing pressed)
-            if ((ev->subwindow == None) &&
-                    (ev->window == static_cast<Frame*>(wo)->getTitleWindow())) {
+            if ((ev->subwindow == None)
+                && (ev->window == static_cast<Frame*>(wo)->getTitleWindow())) {
                 wo = static_cast<Frame*>(wo)->getChildFromPos(ev->x);
             } else {
                 wo = static_cast<Frame*>(wo)->getActiveChild();
@@ -1085,18 +1088,23 @@ WindowManager::handleConfigureRequestEvent(XConfigureRequestEvent *ev)
             wc.sibling = ev->above;
             wc.stack_mode = ev->detail;
 
-            XConfigureWindow(_screen->getDpy(), ev->window,
-                             ev->value_mask, &wc);
+            XConfigureWindow(_screen->getDpy(), ev->window, ev->value_mask, &wc);
         }
     }
 }
 
-//! @brief
+/**
+ * Handle motion event, match on event window expect when event window
+ * is root and subwindow is set then also match on menus.
+ */
 void
 WindowManager::handleMotionEvent(XMotionEvent *ev)
 {
     ActionEvent *ae = 0;
     PWinObj *wo = PWinObj::findPWinObj(ev->window);
+    if (wo == _root_wo && ev->subwindow != None) {
+        wo = PWinObj::findPWinObj(ev->subwindow);
+    }
 
     if (wo) {
         if (wo->getType() == PWinObj::WO_CLIENT) {
