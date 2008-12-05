@@ -167,9 +167,16 @@ Harbour {
 	people with no experience with them. A good rule of thumb is:
 	"Anywhere you'd think to use '*', use '.*'". Also, '^' matches
 	the beginning of a string, '$' matches the end, and '.' is any
-	single character. Regular Expression syntax is a little bit
-	beyond the scope of this documentation.  There's a really
-	basic tutorial at
+	single character.
+
+        Pekwm has some special flags to that modifies regular
+        expression matching. Specifying regular expressions in the
+        form /pattern/flags allow flags to be set. The supported flags
+        are ! for inverting the match and i for case insensitive
+        matches.
+
+        Regular Expression syntax is a little bit beyond the scope of
+	this documentation. There's a really basic tutorial at
 	<ulink url="http://www.living-source.com/user/adi/regexp/regexp_tutorial.html">http://www.living-source.com/user/adi/regexp/regexp_tutorial.html</ulink>,
 	And a slightly more advanced one at
         <ulink url="http://www.zytrax.com/tech/web/regex.htm">http://www.zytrax.com/tech/web/regex.htm</ulink>.

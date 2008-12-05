@@ -9,6 +9,8 @@ FrameTitle {
 	ButtonRelease = "5" { Actions = "ActivateClientRel -1" }
 	ButtonRelease = "Mod1 4" { Actions = "SendToWorkspace Next; GotoWorkspace Next" }
 	ButtonRelease = "Mod1 5" { Actions = "SendToWorkspace Prev; GotoWorkspace Prev" }
+	ButtonRelease = "Mod1 Shift 4" { Actions = "SendToWorkspace PrevV; GotoWorkspace PrevV" }
+	ButtonRelease = "Mod1 Shift 5" { Actions = "SendToWorkspace NextV; GotoWorkspace NextV" }
 	ButtonRelease = "Ctrl 4" { Actions = "MoveClientRel 1" }
 	ButtonRelease = "Ctrl 5" { Actions = "MoveClientRel -1" }
 	ButtonRelease = "Ctrl Mod1 1" { Actions = "Focus; Raise True" }
@@ -32,6 +34,8 @@ OtherTitle {
 	ButtonRelease = "Mod4 3" { Actions = "ShowMenu Window" }
 	ButtonRelease = "Mod1 4" { Actions = "SendToWorkspace Next; GotoWorkspace Next" }
 	ButtonRelease = "Mod1 5" { Actions = "SendToWorkspace Prev; GotoWorkspace Prev" }
+	ButtonRelease = "Mod1 Shift 4" { Actions = "SendToWorkspace PrevV; GotoWorkspace PrevV" }
+	ButtonRelease = "Mod1 Shift 5" { Actions = "SendToWorkspace NextV; GotoWorkspace NextV" }
 	Motion = "1" { Threshold = "4"; Actions = "Raise; Move" }
 	Motion = "Mod1 1" { Threshold = "4"; Actions = "Raise; Move" }
 	Motion = "Mod4 1" { Threshold = "4"; Actions = "Raise; Move" }
@@ -129,6 +133,8 @@ Client {
 	ButtonRelease = "Mod4 1" { Actions = "Lower" }
 	ButtonRelease = "Mod1 4" { Actions = "SendToWorkspace Next; GotoWorkspace Next" }
 	ButtonRelease = "Mod1 5" { Actions = "SendToWorkspace Prev; GotoWorkspace Prev" }
+	ButtonRelease = "Mod1 Shift 4" { Actions = "SendToWorkspace PrevV; GotoWorkspace PrevV" }
+	ButtonRelease = "Mod1 Shift 5" { Actions = "SendToWorkspace NextV; GotoWorkspace NextV" }
 	ButtonRelease = "Ctrl Mod1 1" { Actions = "Focus; Raise True" }
 	Motion = "Mod1 1" { Threshold = "4"; Actions = "Focus; Raise; Move" }
 	Motion = "Mod4 1" { Threshold = "4"; Actions = "Focus; Raise; Move" }

@@ -564,27 +564,48 @@ ActionHandler::actionGotoClientID(uint id)
 void
 ActionHandler::actionSendToWorkspace(PDecor *decor, int direction)
 {
-    // FIXME: Add Up, Down, PrevV and NextV support
+    // Convenience
+    Workspaces *ws = Workspaces::instance();
+    uint per_row = Config::instance()->getWorkspacesPerRow();
+    uint cur_row = ws->getRow(), row_min = ws->getRowMin(), row_max = ws->getRowMax();
+
     switch (direction) {
     case WORKSPACE_LEFT:
     case WORKSPACE_PREV:
-        if (Workspaces::instance()->getActive() > 0) {
-            decor->setWorkspace(Workspaces::instance()->getActive() - 1);
+        if (ws->getActive() > row_min) {
+            decor->setWorkspace(ws->getActive() - 1);
         } else if (static_cast<uint>(direction) == WORKSPACE_PREV) {
-            decor->setWorkspace(Workspaces::instance()->size() - 1);
+            decor->setWorkspace(row_max);
         }
         break;
     case WORKSPACE_NEXT:
     case WORKSPACE_RIGHT:
-        if ((Workspaces::instance()->getActive() + 1) <
-                Workspaces::instance()->size()) {
-            decor->setWorkspace(Workspaces::instance()->getActive() + 1);
+        if (ws->getActive() < row_max) {
+            decor->setWorkspace(ws->getActive() + 1);
         } else if (static_cast<uint>(direction) == WORKSPACE_NEXT) {
-            decor->setWorkspace(0);
+            decor->setWorkspace(row_min);
+        }
+        break;
+    case WORKSPACE_PREV_V:
+    case WORKSPACE_UP:
+        if (ws->getActive() >= per_row) {
+            decor->setWorkspace(ws->getActive() - per_row);
+        } else if (static_cast<uint>(direction) == WORKSPACE_PREV_V) {
+            // Bottom left + column
+            decor->setWorkspace(ws->size() - per_row
+                                + ws->getActive() - cur_row * per_row);
+        }
+        break;
+    case WORKSPACE_NEXT_V:
+    case WORKSPACE_DOWN:
+        if ((ws->getActive() + per_row) < ws->size()) {
+            decor->setWorkspace(ws->getActive() + per_row);
+        } else if (static_cast<uint>(direction) == WORKSPACE_NEXT_V) {
+            decor->setWorkspace(ws->getActive() - cur_row * per_row);
         }
         break;
     case WORKSPACE_LAST:
-        decor->setWorkspace(Workspaces::instance()->getPrevious());
+        decor->setWorkspace(ws->getPrevious());
         break;
     default:
         decor->setWorkspace(direction);
