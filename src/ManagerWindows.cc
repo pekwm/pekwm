@@ -18,6 +18,8 @@
 
 #include <string>
 
+using std::cerr;
+using std::endl;
 using std::string;
 
 // Static initializers
@@ -357,6 +359,13 @@ EdgeWO::handleButtonPress(XButtonEvent *ev)
 ActionEvent*
 EdgeWO::handleButtonRelease(XButtonEvent *ev)
 {
+    // Make sure the release is on the actual window. This probably
+    // could be done smarter.
+    if (ev->x_root < _gm.x || ev->x_root > static_cast<int>(_gm.x + _gm.width)
+        || ev->y_root < _gm.y || ev->y_root > static_cast<int>(_gm.y + _gm.height)) {
+        return 0;
+    }
+
     MouseEventType mb = MOUSE_EVENT_RELEASE;
 
     // first we check if it's a double click

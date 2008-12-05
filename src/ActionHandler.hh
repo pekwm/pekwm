@@ -37,8 +37,7 @@ public:
     void handleAction(const ActionPerformed &ap);
 
     static bool checkAEThreshold(int x, int y, int x_t, int y_t, uint t);
-    static ActionEvent *findMouseAction(uint button, uint mod,
-                                        MouseEventType type,
+    static ActionEvent *findMouseAction(uint button, uint mod, MouseEventType type,
                                         std::list<ActionEvent> *actions);
     
 private:

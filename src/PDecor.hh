@@ -347,6 +347,11 @@ protected:
 private:
     void unloadDecor(void);
 
+    ActionEvent *handleButtonPressButton(XButtonEvent *ev, PDecor::Button *button);
+    ActionEvent *handleButtonPressBorder(XButtonEvent *ev);
+    ActionEvent *handleButtonReleaseButton(XButtonEvent *ev, PDecor::Button *button);
+    ActionEvent *handleButtonReleaseBorder(XButtonEvent *ev);
+
     EdgeType doMoveEdgeFind(int x, int y);
     void doMoveEdgeAction(XMotionEvent *ev, EdgeType edge);
 
@@ -376,7 +381,8 @@ protected:
     PWinObj *_child; //!< Pointer to active child in PDecor.
     std::list<PWinObj*> _child_list; //!< List of children in PDecor.
 
-    PDecor::Button *_button; //!< Active title button in PDecor.
+    PDecor::Button *_button; /**< Active title button in PDecor. */
+    Window _button_press_win; /**< Active border window, for button release handling. */
 
     // used for treshold calculation
     int _pointer_x; //!< Last click x root position.
