@@ -222,7 +222,7 @@ PDecor::PDecor(Display *dpy, Theme *theme, const std::string decor_name)
                       CopyFromParent, InputOutput, CopyFromParent,
                       CWOverrideRedirect|CWEventMask, &attr);
 
-    attr.event_mask = EnterWindowMask;
+    attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|EnterWindowMask;
     attr.override_redirect = True;
     _title_wo.setWindow(XCreateWindow(_dpy, _window,
                                       borderLeft(), borderTop(), 1, 1, 0, // don't know our size yet

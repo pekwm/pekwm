@@ -192,6 +192,7 @@ enum MouseEventType {
     MOUSE_EVENT_ENTER = (1<<5),
     MOUSE_EVENT_LEAVE = (1<<6),
     MOUSE_EVENT_ENTER_MOVING = (1<<7),
+    MOUSE_EVENT_MOTION_PRESSED = (1<<8), /**< Motion event with button pressed. */
     MOUSE_EVENT_NO = 0
 };
 enum ButtonNum {

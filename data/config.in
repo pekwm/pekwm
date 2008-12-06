@@ -68,8 +68,8 @@ Menu {
     # To make submenus open on mouse over, comment the default Enter,
     # uncomment the alternative, and reload pekwm.
     
-    Select = "Motion"
-    Enter = "ButtonPress"
+    Select = "Motion MotionPressed"
+    Enter = "MotionPressed ButtonPress"
     # Enter = "Motion"
     Exec = "ButtonRelease"
 }

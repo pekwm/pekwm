@@ -246,6 +246,7 @@ Config::Config(void) :
     _mouse_event_map["ENTER"] = MOUSE_EVENT_ENTER;
     _mouse_event_map["LEAVE"] = MOUSE_EVENT_LEAVE;
     _mouse_event_map["ENTERMOVING"] = MOUSE_EVENT_ENTER_MOVING;
+    _mouse_event_map["MOTIONPRESSED"] = MOUSE_EVENT_MOTION_PRESSED;
 
     _mod_map[""] = 0;
     _mod_map["NONE"] = 0;
@@ -1267,7 +1268,9 @@ Config::parseInputDialogEvent(CfgParser::Entry *section, ActionEvent &ae)
     return false;
 }
 
-//! @brief
+/**
+ * Get mask for handling menu events.
+ */
 uint
 Config::getMenuMask(const std::string &mask)
 {
@@ -1279,7 +1282,7 @@ Config::getMenuMask(const std::string &mask)
     vector<string>::iterator it(tok.begin());
     for (; it != tok.end(); ++it) {
         val = ParseUtil::getValue<MouseEventType>(*it, _mouse_event_map);
-        if (val < MOUSE_EVENT_ENTER) {
+        if (val != MOUSE_EVENT_NO) {
             mask_return |= val;
         }
     }

@@ -233,10 +233,10 @@ PMenu::handleMotionEvent(XMotionEvent *ev)
     }
 
     if (*_menu_wo == ev->window) {
-        handleItemEvent(MOUSE_EVENT_MOTION, ev->x, ev->y);
+        uint button = PScreen::instance()->getButtonFromState(ev->state);
+        handleItemEvent(button ? MOUSE_EVENT_MOTION_PRESSED : MOUSE_EVENT_MOTION, ev->x, ev->y);
 
         ActionEvent *ae;
-        uint button = PScreen::instance()->getButtonFromState(ev->state);
         ev->state = PScreen::instance()->stripButtonModifiers(ev->state);
         ae = ActionHandler::findMouseAction(button, ev->state, MOUSE_EVENT_MOTION,
                                             Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_MENU));
@@ -294,7 +294,10 @@ PMenu::loadTheme(void)
 
 // END - PDecor interface.
 
-//! @brief
+/**
+ * Handle event on menu item at position, ignores event if no item
+ * exists at the position.
+ */
 void
 PMenu::handleItemEvent(MouseEventType type, int x, int y)
 {
@@ -305,14 +308,16 @@ PMenu::handleItemEvent(MouseEventType type, int x, int y)
 
     // Unmap submenu if we enter them on the same event as selecting.
     if (((_item_curr == _item_list.end()) || (item != *_item_curr))
-        && Config::instance()->isMenuSelectOn(type))
+        && Config::instance()->isMenuSelectOn(type)) {
         select(item, Config::instance()->isMenuEnterOn(type));
+    }
 
     if (Config::instance()->isMenuEnterOn(type)) {
         if (item->getWORef()
             && (item->getWORef()->getType() == PWinObj::WO_MENU)) {
-            // special case for motion, would flicker like crazy if we didn't check
-            if ((type != MOUSE_EVENT_MOTION) && item->getWORef()->isMapped()) {
+            // Special case for motion, would flicker like crazy if we didn't check
+            if ((type != MOUSE_EVENT_MOTION) && (type != MOUSE_EVENT_MOTION_PRESSED)
+                && item->getWORef()->isMapped()) {
                 static_cast<PMenu*>(item->getWORef())->unmapSubmenus();
                 item->getWORef()->unmapWindow();
 
