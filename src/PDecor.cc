@@ -562,16 +562,16 @@ PDecor::handleButtonPress(XButtonEvent *ev)
             _button_press_win = _child->getWindow();
             actions = Config::instance()->getMouseActionList(_decor_cfg_bpr_al_child);
             
-        } else if (ev->subwindow == getTitleWindow()) {
+        } else if (_title_wo == ev->window) {
             // Clicks on the decor title
-            _button_press_win = ev->subwindow;
+            _button_press_win = ev->window;
             actions = Config::instance()->getMouseActionList(_decor_cfg_bpr_al_title);
             
         } else {
             // Clicks on the decor border, default case. Try both window and sub-window.
-            uint pos = getBorderPosition(ev->subwindow);
+            uint pos = getBorderPosition(ev->window);
             if (pos != BORDER_NO_POS) {
-                _button_press_win = ev->subwindow;
+                _button_press_win = ev->window;
                 actions = Config::instance()->getBorderListFromPosition(pos);
             }
         }
@@ -640,8 +640,8 @@ PDecor::handleButtonRelease(XButtonEvent *ev)
                 actions = Config::instance()->getMouseActionList(_decor_cfg_bpr_al_child);
             }
 
-        } else if (_title_wo == ev->subwindow) {
-            if (_button_press_win == ev->subwindow) {
+        } else if (_title_wo == ev->window) {
+            if (_button_press_win == ev->window) {
                 // Handle clicks on the decor title, checking double clicks first.
                 if (PScreen::instance()->isDoubleClick(ev->window, ev->button - 1, ev->time,
                                                        Config::instance()->getDoubleClickTime())) {
@@ -657,8 +657,8 @@ PDecor::handleButtonRelease(XButtonEvent *ev)
             }
         } else {
             // Clicks on the decor border, check subwindow then window.
-            uint pos = getBorderPosition(ev->subwindow);
-            if (pos != BORDER_NO_POS && (_button_press_win == _border_win[pos])) {
+            uint pos = getBorderPosition(ev->window);
+            if (pos != BORDER_NO_POS && (_button_press_win == ev->window)) {
                 actions = Config::instance()->getBorderListFromPosition(pos);
             }
         }
