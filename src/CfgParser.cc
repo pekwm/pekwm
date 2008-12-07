@@ -231,7 +231,7 @@ operator<<(std::ostream &stream, const CfgParser::Entry &entry)
 
 //! @brief CfgParser constructor.
 CfgParser::CfgParser(void)
-    : _source(0), _root_entry(0),
+    : _source(0), _root_entry(0), _is_dynamic_content(false),
       _section(_root_entry), _overwrite(false)
 {
     _root_entry = new CfgParser::Entry(_root_source_name, 0, "ROOT", "");
