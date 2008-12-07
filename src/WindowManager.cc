@@ -253,8 +253,6 @@ WindowManager::~WindowManager(void)
     delete _search_dialog;
     delete _status_window;
     delete _workspace_indicator;
-    delete _root_wo;
-    delete _hint_wo;
 
 #ifdef HARBOUR
     if (_harbour) {
@@ -262,10 +260,10 @@ WindowManager::~WindowManager(void)
     }
 #endif // HARBOUR
 
-    if (_action_handler)
-        delete _action_handler;
-    if (_autoproperties)
-        delete _autoproperties;
+    delete _root_wo;
+    delete _hint_wo;
+    delete _action_handler;
+    delete _autoproperties;
 
 #ifdef MENUS
     deleteMenus();
