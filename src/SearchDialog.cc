@@ -44,6 +44,11 @@ SearchDialog::SearchDialog(Display *dpy, Theme *theme)
   _result_menu->mapWindow();
 }
 
+SearchDialog::~SearchDialog(void) 
+{
+    delete _result_menu;
+}
+
 /**
  * Called whenever the buffer has change, update the clients displayed.
  */
