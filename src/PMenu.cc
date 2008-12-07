@@ -43,7 +43,7 @@ using std::find;
 
 PMenu::Item::Item(const std::wstring &name, PWinObj *wo_ref, PTexture *icon)
   : _x(0), _y(0), _name(name), _wo_ref(wo_ref),
-    _type(MENU_ITEM_NORMAL), _icon(icon), _creator(0), _dynamic(false)
+    _type(MENU_ITEM_NORMAL), _icon(icon), _creator(0)
 {
     if (_icon) {
         TextureHandler::instance()->referenceTexture(_icon);
@@ -878,11 +878,9 @@ PMenu::unmapSubmenus(void)
     list<PMenu::Item*>::iterator it(_item_list.begin());
     for (; it != _item_list.end(); ++it) {
         if ((*it)->getWORef() && (*it)->getWORef()->getType() == PWinObj::WO_MENU) {
-            if (! (*it)->isDynamic()) {
-                // Sub-menus will be deleted when unmapping this, so no need
-                // to continue.
-                static_cast<PMenu*>((*it)->getWORef())->unmapSubmenus();
-            }
+            // Sub-menus will be deleted when unmapping this, so no need
+            // to continue.
+            static_cast<PMenu*>((*it)->getWORef())->unmapSubmenus();
             (*it)->getWORef()->unmapWindow();
         }
     }

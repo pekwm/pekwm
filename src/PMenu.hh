@@ -51,9 +51,6 @@ public:
         inline void setWORef(PWinObj *wo_ref) { _wo_ref = wo_ref; }
         inline void setType(PMenu::Item::Type type) { _type = type; }
 
-        inline bool isDynamic(void) const { return _dynamic; }
-        inline void setDynamic(bool dynamic) { _dynamic = dynamic; }
-
         inline void setCreator(PMenu::Item *c) { _creator = c; }
         inline PMenu::Item *getCreator(void) const { return _creator; }
 
@@ -69,8 +66,6 @@ public:
 
         PMenu::Item *_creator; /**< pointer to the dynamic action item
                                     that created this item. */
-
-        bool _dynamic;
     };
 
     PMenu(Display *dpy, Theme *theme, const std::wstring &title,

@@ -133,6 +133,7 @@ ActionMenu::reload(CfgParser::Entry *section)
     // Parse section (if any)
     ImageHandler::instance()->path_push_back(Config::instance()->getSystemIconPath());
     ImageHandler::instance()->path_push_back(Config::instance()->getIconPath());
+    _insert_at = _item_list.begin();
     parse(section);
     ImageHandler::instance()->path_pop_back();
     ImageHandler::instance()->path_pop_back();
@@ -151,11 +152,7 @@ ActionMenu::insert(PMenu::Item *item)
 
     checkItemWORef(item);
 
-    if (item->isDynamic()) {
-        _insert_at = _item_list.insert(++_insert_at, item);
-    } else {
-        _item_list.push_back(item);
-    }
+    _insert_at = _item_list.insert(++_insert_at, item);
 }
 
 //! @brief Non-shadowing PMenu::insert
@@ -205,7 +202,7 @@ ActionMenu::removeAll(void)
 //! @param menu BaseMenu object to push object in
 //! @param has_dynamic If true the menu being parsed is dynamic, defaults to false.
 void
-ActionMenu::parse(CfgParser::Entry *section, bool has_dynamic, PMenu::Item *parent)
+ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
 {
     if (! section) {
         return;
@@ -235,11 +232,10 @@ ActionMenu::parse(CfgParser::Entry *section, bool has_dynamic, PMenu::Item *pare
 
                 submenu = new ActionMenu(_menu_type, Util::to_wide_str((*it)->get_value()), "");
                 submenu->_menu_parent = this;
-                submenu->parse(sub_section, has_dynamic, parent);
+                submenu->parse(sub_section, parent);
                 submenu->buildMenu();
 
                 item = new PMenu::Item(Util::to_wide_str(sub_section->get_value()), submenu, icon);
-                item->setDynamic(has_dynamic);
                 item->setCreator(parent);
             } else {
                 cerr << " *** WARNING: submenu entry does not contain any section." << endl;
@@ -247,7 +243,6 @@ ActionMenu::parse(CfgParser::Entry *section, bool has_dynamic, PMenu::Item *pare
         } else if (*(*it) == "SEPARATOR") {
             // No icon support on separators.
             item = new PMenu::Item(L"", 0, 0);
-            item->setDynamic(has_dynamic);
             item->setType(PMenu::Item::MENU_ITEM_SEPARATOR);
             item->setCreator(parent);
 
@@ -261,7 +256,6 @@ ActionMenu::parse(CfgParser::Entry *section, bool has_dynamic, PMenu::Item *pare
                     icon = getIcon(sub_section->find_entry("ICON"));
 
                     item = new PMenu::Item(Util::to_wide_str(sub_section->get_value()), 0, icon);
-                    item->setDynamic(has_dynamic);
                     item->setCreator(parent);
                     item->setAE(ae);
 
@@ -335,10 +329,11 @@ ActionMenu::rebuildDynamic(void)
             if (dynamic.parse((*it)->getAE().action_list.front().getParamS(),
                               CfgParserSource::SOURCE_COMMAND)) {
                 _has_dynamic = true;
-                parse(dynamic.get_entry_root()->find_section("DYNAMIC"), true, *it);
+                parse(dynamic.get_entry_root()->find_section("DYNAMIC"), *it);
             }
 
             it = find(_item_list.begin(), _item_list.end(), item);
+            _insert_at = _item_list.end();
         }
     }
 

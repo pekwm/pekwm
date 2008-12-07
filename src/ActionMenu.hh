@@ -54,7 +54,7 @@ public:
     virtual void removeAll(void);
 
 private:
-    void parse(CfgParser::Entry *section, bool dynamic = false, PMenu::Item *parent=0);
+    void parse(CfgParser::Entry *section, PMenu::Item *parent=0);
 
     PTexture *getIcon(CfgParser::Entry *value);
     void rebuildDynamic(void);
