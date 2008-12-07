@@ -291,12 +291,14 @@ AC_DEFINE_UNQUOTED(EXTRA_VERSION_INFO, " Built on $EVO", [Build info, do not tou
 
 dnl create the makefiles
 AC_OUTPUT(Makefile
-				src/Makefile
-				data/Makefile
-				data/themes/Makefile
-				data/themes/default/Makefile
-				data/scripts/Makefile
-				doc/Makefile)
+          src/Makefile
+          data/Makefile
+          data/themes/Makefile
+          data/themes/default/Makefile
+          data/scripts/Makefile
+          doc/Makefile
+          contrib/Makefile
+          contrib/lobo/Makefile)
 
 dnl print results
 AC_MSG_RESULT([*])
