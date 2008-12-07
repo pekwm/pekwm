@@ -14,6 +14,7 @@
 
 #include <cstdio>
 #include <iostream>
+#include <set>
 
 #include "PWinObj.hh"
 #include "PDecor.hh"
@@ -48,7 +49,7 @@ ActionMenu::ActionMenu(MenuType type,
     WORefMenu(WindowManager::instance()->getScreen(),
               WindowManager::instance()->getTheme(), title, name, decor_name),
     _act(WindowManager::instance()->getActionHandler()),
-    _is_dynamic(false), _has_dynamic(false)
+    _has_dynamic(false)
 {
     // when creating dynamic submenus, this needs to be initialized as
     // dynamic inserting will be done
@@ -204,7 +205,7 @@ ActionMenu::removeAll(void)
 //! @param menu BaseMenu object to push object in
 //! @param has_dynamic If true the menu being parsed is dynamic, defaults to false.
 void
-ActionMenu::parse(CfgParser::Entry *section, bool has_dynamic)
+ActionMenu::parse(CfgParser::Entry *section, bool has_dynamic, PMenu::Item *parent)
 {
     if (! section) {
         return;
@@ -233,13 +234,13 @@ ActionMenu::parse(CfgParser::Entry *section, bool has_dynamic)
                 icon = getIcon(sub_section->find_entry("ICON"));
 
                 submenu = new ActionMenu(_menu_type, Util::to_wide_str((*it)->get_value()), "");
-                submenu->_is_dynamic = has_dynamic;
                 submenu->_menu_parent = this;
-                submenu->parse(sub_section, has_dynamic);
+                submenu->parse(sub_section, has_dynamic, parent);
                 submenu->buildMenu();
 
                 item = new PMenu::Item(Util::to_wide_str(sub_section->get_value()), submenu, icon);
                 item->setDynamic(has_dynamic);
+                item->setCreator(parent);
             } else {
                 cerr << " *** WARNING: submenu entry does not contain any section." << endl;
             }
@@ -248,7 +249,7 @@ ActionMenu::parse(CfgParser::Entry *section, bool has_dynamic)
             item = new PMenu::Item(L"", 0, 0);
             item->setDynamic(has_dynamic);
             item->setType(PMenu::Item::MENU_ITEM_SEPARATOR);
-
+            item->setCreator(parent);
 
         } else {
             CfgParser::Entry *sub_section = (*it)->get_section();
@@ -261,6 +262,7 @@ ActionMenu::parse(CfgParser::Entry *section, bool has_dynamic)
 
                     item = new PMenu::Item(Util::to_wide_str(sub_section->get_value()), 0, icon);
                     item->setDynamic(has_dynamic);
+                    item->setCreator(parent);
                     item->setAE(ae);
 
                     if (ae.isOnlyAction(ACTION_MENU_DYN)) {
@@ -333,7 +335,7 @@ ActionMenu::rebuildDynamic(void)
             if (dynamic.parse((*it)->getAE().action_list.front().getParamS(),
                               CfgParserSource::SOURCE_COMMAND)) {
                 _has_dynamic = true;
-                parse(dynamic.get_entry_root()->find_section("DYNAMIC"), true);
+                parse(dynamic.get_entry_root()->find_section("DYNAMIC"), true, *it);
             }
 
             it = find(_item_list.begin(), _item_list.end(), item);
@@ -349,35 +351,25 @@ ActionMenu::rebuildDynamic(void)
 void
 ActionMenu::removeDynamic(void)
 {
-    // FIXME: This is a kludge.
-    // Problem: If a submenu is created by an "dynamic"-action, we cannot delete all the items
-    // as we cannot recreate them (we would need the original output of the 
-    // dynamic-command). Therefore we just unmap them and hope for the best.
-    // Second shortfall: We don't know for sure if this menu actually _was_ created dynamically, 
-    // hence the test with _parent. 
-
-    bool do_unmap = false;
-    if (_menu_parent) {
-        ActionMenu *parent = dynamic_cast<ActionMenu*>(_menu_parent);
-        do_unmap = (parent && parent->_is_dynamic);
-    }
+    std::set<PMenu::Item *> dynlist;
 
     list<PMenu::Item*>::iterator it(_item_list.begin());
     for (; it != _item_list.end(); ++it) {
-        if ((*it)->isDynamic()) {
-            if (do_unmap) {
-                if ((*it)->getWORef() && ((*it)->getWORef()->getType() == WO_MENU)) {
-                    (*it)->getWORef()->unmapWindow();
-                }
-            } else {
-                if ((*it)->getWORef() && ((*it)->getWORef()->getType() == WO_MENU)) {
-                    delete (*it)->getWORef();
-                }
-                delete (*it);
+        if ((*it)->getType() == PMenu::Item::MENU_ITEM_HIDDEN) {
+            dynlist.insert(*it);
+        }
+    }
 
-                it = _item_list.erase(it);
-                --it; // compensate for the ++ in the loop
+    it = _item_list.begin();
+    for (; it != _item_list.end();) {
+        if (dynlist.find((*it)->getCreator()) != dynlist.end()) {
+            if ((*it)->getWORef() && ((*it)->getWORef()->getType() == WO_MENU)) {
+                delete (*it)->getWORef();
             }
+            delete (*it);
+            it = _item_list.erase(it);
+        } else {
+            ++it;
         }
     }
 }

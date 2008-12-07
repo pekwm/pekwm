@@ -54,6 +54,9 @@ public:
         inline bool isDynamic(void) const { return _dynamic; }
         inline void setDynamic(bool dynamic) { _dynamic = dynamic; }
 
+        inline void setCreator(PMenu::Item *c) { _creator = c; }
+        inline PMenu::Item *getCreator(void) const { return _creator; }
+
     private:
         int _x, _y;
         std::wstring _name;
@@ -63,6 +66,9 @@ public:
 
         PMenu::Item::Type _type; // normal, separator or hidden item
         PTexture *_icon; // icon texture.
+
+        PMenu::Item *_creator; /**< pointer to the dynamic action item
+                                    that created this item. */
 
         bool _dynamic;
     };

@@ -54,7 +54,7 @@ public:
     virtual void removeAll(void);
 
 private:
-    void parse(CfgParser::Entry *section, bool dynamic = false);
+    void parse(CfgParser::Entry *section, bool dynamic = false, PMenu::Item *parent=0);
 
     PTexture *getIcon(CfgParser::Entry *value);
     void rebuildDynamic(void);
@@ -66,7 +66,6 @@ private:
     ActionOk _action_ok;
     std::list<PMenu::Item*>::iterator _insert_at;
 
-    bool _is_dynamic; /**< Set to true if the menu was dynamically created. */
     bool _has_dynamic; /**< Set to true if any of the entries in the menu is dynamic. */
 };
 

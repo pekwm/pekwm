@@ -1026,9 +1026,11 @@ WindowManager::handleButtonReleaseEvent(XButtonEvent *ev)
     }
 
     if (wo) {
+        // Kludge for the case that wo is freed by handleButtonRelease(.).
+        PWinObj::Type wotype = wo->getType();
         ae = wo->handleButtonRelease(ev);
 
-        if (wo->getType() == PWinObj::WO_FRAME) {
+        if (wotype == PWinObj::WO_FRAME) {
             // this is done so that clicking the titlebar executes action on
             // the client clicked on, doesn't apply when subwindow is set (meaning
             // a titlebar button beeing pressed)
