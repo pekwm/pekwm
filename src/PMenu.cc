@@ -417,12 +417,14 @@ PMenu::buildMenuCalculate(void)
     }
 
     // Make sure icon width and height are not larger than configured.
-    _icon_width = Util::between<uint>(_icon_width,
-                                      Config::instance()->getMenuIconWidthMin(_icon_width),
-                                      Config::instance()->getMenuIconWidthMax(_icon_width));
-    _icon_height = Util::between<uint>(_icon_height,
-                                       Config::instance()->getMenuIconHeightMin(_icon_height),
-                                       Config::instance()->getMenuIconHeightMax(_icon_height));
+    if (_icon_width) {
+        _icon_width = Util::between<uint>(_icon_width,
+                                          Config::instance()->getMenuIconWidthMin(_icon_width),
+                                          Config::instance()->getMenuIconWidthMax(_icon_width));
+        _icon_height = Util::between<uint>(_icon_height,
+                                           Config::instance()->getMenuIconHeightMin(_icon_height),
+                                           Config::instance()->getMenuIconHeightMax(_icon_height));
+    }
 
     // This is the available width for drawing text on, the rest is reserved
     // for submenu indicator, padding etc.
