@@ -162,6 +162,16 @@ PMenu::setFocused(bool focused)
     }
 }
 
+/**
+ * Set focusable, includes the _menu_wo as well as the decor.
+ */
+void
+PMenu::setFocusable(bool focusable)
+{
+    PDecor::setFocusable(focusable);
+    _menu_wo->setFocusable(focusable);
+}
+
 //! @brief
 ActionEvent*
 PMenu::handleButtonPress(XButtonEvent *ev)
@@ -356,13 +366,12 @@ PMenu::buildMenu(void)
 void
 PMenu::buildMenuCalculate(void)
 {
-    uint width = 1, height = 1, sep = 0;
-    list<PMenu::Item*>::iterator it;
     _has_submenu = false;
 
     // Get how many visible objects we have
-    _size = 0;
-    for (it = _item_list.begin(); it != _item_list.end(); ++it) {
+    unsigned int sep = 0;
+    list<PMenu::Item*>::iterator it(_item_list.begin());
+    for (_size = 0; it != _item_list.end(); ++it) {
         if ((*it)->getType() == PMenu::Item::MENU_ITEM_NORMAL) {
             ++_size;
         } else if ((*it)->getType() == PMenu::Item::MENU_ITEM_SEPARATOR) {
@@ -371,18 +380,69 @@ PMenu::buildMenuCalculate(void)
     }
 
     if (_size == 0) {
-#ifdef DEBUG
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "PMenu(" << this << ")::buildMenuCalculate()" << endl
-             << " *** _size == 0" << endl;
-#endif // DEBUG
         return;
     }
 
+    unsigned int width = 1, height = 1;
+    buildMenuCalculateMaxWidth(width, height);
+
+    // FIXME: Remove extra padding from calculation
+    if (_menu_width) {
+      _item_width_max = _menu_width;
+    }
+
+    // This is the available width for drawing text on, the rest is reserved
+    // for submenu indicator, padding etc.
+    _item_width_max_avail = _item_width_max;
+
+    // Continue add padding etc.
+    _item_width_max += _theme->getMenuData()->getPad(PAD_LEFT)
+        + _theme->getMenuData()->getPad(PAD_RIGHT);
+    if (Config::instance()->isDisplayMenuIcons()) {
+        _item_width_max += _icon_width;
+    }
+
+    // If we have any submenus, increase the maximum width with arrow width +
+    // right pad as we are going to pad the arrow from the text too.
+    if (_has_submenu) {
+        _item_width_max += _theme->getMenuData()->getPad(PAD_RIGHT)
+            + _theme->getMenuData()->getTextureArrow(OBJECT_STATE_FOCUSED)->getWidth();
+    }
+
+    // Remove padding etc from avail and item width.
+    if (_menu_width) {
+        unsigned int padding = _item_width_max - _item_width_max_avail;
+        _item_width_max -= padding;
+        _item_width_max_avail -= padding;
+    }
+
+    // Calculate item height
+    _item_height = std::max(_theme->getMenuData()->getFont(OBJECT_STATE_FOCUSED)->getHeight(), _icon_height)
+      + _theme->getMenuData()->getPad(PAD_UP)
+      + _theme->getMenuData()->getPad(PAD_DOWN);
+    _separator_height = _theme->getMenuData()->getTextureSeparator(OBJECT_STATE_FOCUSED)->getHeight();
+
+    height = (_item_height * _size) + (_separator_height * sep);
+    buildMenuCalculateColumns(width, height);
+
+    // Check if we need to enable scrolling
+    _scroll = (width > PScreen::instance()->getWidth());
+
+    resizeChild(width, height);
+}
+
+/**
+ * Get maximum item width and icon size.
+ */
+void
+PMenu::buildMenuCalculateMaxWidth(unsigned int &width, unsigned int &height)
+{
     // Calculate max item width, to be used if/when splitting a menu
     // up in rows because of limited vertical space.
     _item_width_max = 1;
     _icon_width = _icon_height = 0;
+
+    list<PMenu::Item*>::iterator it(_item_list.begin());
     for (it = _item_list.begin(); it != _item_list.end(); ++it) {
         // Only include standard items
         if ((*it)->getType() != PMenu::Item::MENU_ITEM_NORMAL) {
@@ -411,10 +471,6 @@ PMenu::buildMenuCalculate(void)
         }
     }
 
-    // FIXME: Remove extra padding from calculation
-    if (_menu_width) {
-      _item_width_max = _menu_width;
-    }
 
     // Make sure icon width and height are not larger than configured.
     if (_icon_width) {
@@ -425,46 +481,31 @@ PMenu::buildMenuCalculate(void)
                                            Config::instance()->getMenuIconHeightMin(_icon_height),
                                            Config::instance()->getMenuIconHeightMax(_icon_height));
     }
+}
 
-    // This is the available width for drawing text on, the rest is reserved
-    // for submenu indicator, padding etc.
-    _item_width_max_avail = _item_width_max;
-
-    // Continue add padding etc.
-    _item_width_max += _theme->getMenuData()->getPad(PAD_LEFT) + _theme->getMenuData()->getPad(PAD_RIGHT);
-    if (Config::instance()->isDisplayMenuIcons()) {
-        _item_width_max += _icon_width;
-    }
-
-    // If we have any submenus, increase the maximum width with arrow width +
-    // right pad as we are going to pad the arrow from the text too.
-    if (_has_submenu) {
-        _item_width_max += _theme->getMenuData()->getPad(PAD_RIGHT)
-                           + _theme->getMenuData()->getTextureArrow(OBJECT_STATE_FOCUSED)->getWidth();
-    }
-
-    // calculate item height
-    _item_height = std::max(_theme->getMenuData()->getFont(OBJECT_STATE_FOCUSED)->getHeight(), _icon_height)
-      + _theme->getMenuData()->getPad(PAD_UP)
-      + _theme->getMenuData()->getPad(PAD_DOWN);
-    _separator_height = _theme->getMenuData()->getTextureSeparator(OBJECT_STATE_FOCUSED)->getHeight();
-
-    height = (_item_height * _size) + (_separator_height * sep);
-
-    // Check if menu should have more than one row, this does not apply on
-    // static width menus.
-    if (! _menu_width && (height + getTitleHeight()) > PScreen::instance()->getHeight()) {
-        _cols = height / (PScreen::instance()->getHeight() - getTitleHeight());
-        if ((height % (PScreen::instance()->getHeight() - getTitleHeight())) != 0) {
-            ++_cols;
-        }
-        _rows = _size / _cols;
-        if ((_size % _cols) != 0) {
-            ++_rows;
-        }
-    } else {
+/**
+ * Calculate number of columns, this does not apply to static width
+ * menus.
+ */
+void
+PMenu::buildMenuCalculateColumns(unsigned int &width, unsigned int &height)
+{
+    // Check if the menu fits or is static width
+    if (_menu_width
+        || (height + getTitleHeight()) <= PScreen::instance()->getHeight()) {
         _cols = 1;
+        width = _menu_width ? _menu_width : _item_width_max;
         _rows = _size;
+        return;
+    }
+
+    _cols = height / (PScreen::instance()->getHeight() - getTitleHeight());
+    if ((height % (PScreen::instance()->getHeight() - getTitleHeight())) != 0) {
+        ++_cols;
+    }
+    _rows = _size / _cols;
+    if ((_size % _cols) != 0) {
+        ++_rows;
     }
 
     width = _cols * _item_width_max;
@@ -472,7 +513,8 @@ PMenu::buildMenuCalculate(void)
     if (_cols > 1) {
         uint i, j, row_height;
         height = 0;
-
+       
+        list<PMenu::Item*>::iterator it(_item_list.begin());
         for (i = 0, it = _item_list.begin(); i < _cols; ++i) {
             row_height = 0;
             for (j = 0; (j < _rows) && (it != _item_list.end()); ++it) {
@@ -489,15 +531,6 @@ PMenu::buildMenuCalculate(void)
             }
         }
     }
-
-    // check if we need to enable scrolling
-    if (width > PScreen::instance()->getWidth()) {
-        _scroll = true;
-    } else {
-        _scroll = false;
-    }
-
-    resizeChild(width, height);
 }
 
 //! @brief Places the items in the menu
@@ -642,15 +675,16 @@ PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
 void
 PMenu::selectItem(std::list<PMenu::Item*>::iterator item, bool unmap_submenu)
 {
-    if (_item_curr == item)
+    if (_item_curr == item) {
         return;
+    }
 
     deselectItem(unmap_submenu);
-
     _item_curr = item;
 
-    if (_mapped)
+    if (_mapped) {
         COPY_ITEM_AREA((*item), _menu_bg_se);
+    }
 }
 
 //! @brief Deselects selected item
@@ -809,8 +843,9 @@ PMenu::remove(PMenu::Item *item)
         return;
     }
 
-    if ((_item_curr != _item_list.end()) && (item == *_item_curr))
+    if ((_item_curr != _item_list.end()) && (item == *_item_curr)) {
         _item_curr = _item_list.end();
+    }
 
     delete item;
     _item_list.remove(item);
@@ -825,6 +860,7 @@ PMenu::removeAll(void)
         delete *it;
     }
     _item_list.clear();
+    _item_curr = _item_list.end();
 }
 
 //! @brief Places the menu under the mouse and maps it.

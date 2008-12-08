@@ -76,6 +76,7 @@ public:
     virtual void unmapWindow(void);
 
     virtual void setFocused(bool focused);
+    virtual void setFocusable(bool focusable);
 
     virtual ActionEvent *handleButtonPress(XButtonEvent *ev);
     virtual ActionEvent *handleButtonRelease(XButtonEvent *ev);
@@ -141,6 +142,8 @@ private:
     void handleItemEvent(MouseEventType type, int x, int y);
 
     void buildMenuCalculate(void);
+    void buildMenuCalculateMaxWidth(unsigned int &width, unsigned int &height);
+    void buildMenuCalculateColumns(unsigned int &width, unsigned int &height);
     void buildMenuPlace(void);
     void buildMenuRender(void);
     void buildMenuRenderState(Pixmap &pix, ObjectState state);
