@@ -150,6 +150,9 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 if ((ap.type == ButtonPress) || (ap.type == ButtonRelease))
                     frame->activateChild(frame->getChildFromPos(ap.event.button->x));
                 break;
+            case ACTION_GOTO_CLIENT:
+                gotoClient(client);
+                break;
             case ACTION_MAXFILL:
                 frame->setStateMaximized(STATE_SET,
                                          it->getParamI(0), it->getParamI(1), true);

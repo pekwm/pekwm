@@ -33,8 +33,7 @@ SearchDialog::SearchDialog(Display *dpy, Theme *theme)
   _type = PWinObj::WO_SEARCH_DIALOG;
 
   // Setup ActionEvent
-  _ae.action_list.back().setAction(ACTION_FOCUS);
-  _ae.action_list.push_front(::Action(ACTION_RAISE));
+  _ae.action_list.back().setAction(ACTION_GOTO_CLIENT);
 
   // Setup menu for displaying results
   _result_menu = new PMenu(_dpy, _theme, L"", "");
