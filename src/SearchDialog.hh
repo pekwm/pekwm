@@ -46,6 +46,7 @@ private:
   uint findClients(const std::wstring &search);
 
   PMenu *_result_menu; /**< Menu for displaying results. */
+    std::wstring _previous_search; /**< Buffer with previous search string. */
 };
 
 #endif // _SEARCH_DIALOG_HH_

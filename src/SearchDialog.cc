@@ -117,8 +117,13 @@ SearchDialog::updateSize(void)
 uint
 SearchDialog::findClients(const std::wstring &search)
 {
-  _result_menu->removeAll();
+    // Do nothing if search has not changed.
+    if (_previous_search == search) {
+        return _result_menu->size();
+    }
+    _previous_search = search;
 
+  _result_menu->removeAll();
   if (search.size() > 0) {
     RegexString search_re(L"/" + search + L"/i");
     if (! search_re.is_match_ok()) {
@@ -168,6 +173,7 @@ SearchDialog::unmapWindow(void)
 
         // Clear the menu and hide it.
         _result_menu->clear();
+        _previous_search.clear();
         XLowerWindow(_dpy, _result_menu->getWindow());
     }
 }
