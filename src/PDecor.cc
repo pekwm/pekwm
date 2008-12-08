@@ -552,8 +552,8 @@ PDecor::handleButtonPress(XButtonEvent *ev)
             XAllowEvents(_dpy, ReplayPointer, CurrentTime);
         }
 
-        if ((ev->window == _child->getWindow())
-            || ((ev->state == 0) && (ev->subwindow == _child->getWindow()))) {
+        if (ev->window == _child->getWindow()
+            || (ev->state == 0 && ev->subwindow == _child->getWindow())) {
             // Clicks on the child window
             // NOTE: If the we're matching against the subwindow we need to make
             // sure that the state is 0, meaning we didn't have any modifier
@@ -630,8 +630,8 @@ PDecor::handleButtonRelease(XButtonEvent *ev)
         }
 
         // clicks on the child window
-        if ((ev->window == _child->getWindow())
-            || ((ev->state == 0) && (ev->subwindow == _child->getWindow()))) {
+        if (ev->window == _child->getWindow()
+            || (ev->state == 0 && ev->subwindow == _child->getWindow())) {
             // NOTE: If the we're matching against the subwindow we need to make
             // sure that the state is 0, meaning we didn't have any modifier
             // because if we don't care about the modifier we'll get two actions

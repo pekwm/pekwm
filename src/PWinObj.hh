@@ -138,6 +138,8 @@ public:
     virtual void setLayer(uint layer);
     virtual void setFocused(bool focused);
     virtual void setSticky(bool sticky);
+    /** Set focusable flag. */
+    virtual void setFocusable(bool focusable) { _focusable = focusable; }
     virtual void setHidden(bool hidden);
 
     virtual void giveInputFocus(void);

@@ -66,6 +66,8 @@ protected:
   virtual void updateSize(void);
   virtual void updatePixmapSize(void);
 
+    void getInputSize(unsigned int &width, unsigned int &height);
+
 protected:
   Theme::TextDialogData *_data;
 

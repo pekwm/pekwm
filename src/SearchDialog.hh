@@ -30,6 +30,8 @@ public:
     SearchDialog(Display *dpy, Theme *theme);
     virtual ~SearchDialog(void);
 
+    void unmapWindow(void);
+
 protected:
   virtual void bufChanged(void);
 

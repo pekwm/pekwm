@@ -296,7 +296,8 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 break;
             case ACTION_CLOSE:
                 decor->unmapWindow();
-                if (decor->getType() == PWinObj::WO_CMD_DIALOG) {
+                if (decor->getType() == PWinObj::WO_CMD_DIALOG
+                    || decor->getType() == PWinObj::WO_SEARCH_DIALOG) {
                     WindowManager::instance()->findWOAndFocus(0);
                 }
                 break;

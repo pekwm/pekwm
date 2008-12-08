@@ -409,6 +409,9 @@ protected:
     bool _fullscreen;
     uint _skip;
 
+    Window _border_win[BORDER_NO_POS]; /** Array of border windows. */
+    std::map<BorderPosition, Pixmap> _border_pos_map;
+
 private:
     Theme::PDecorData *_data;
 
@@ -421,9 +424,6 @@ private:
 
     PWinObj _title_wo;
     std::list<PDecor::Button*> _button_list;
-
-    Window _border_win[BORDER_NO_POS];
-    std::map<BorderPosition, Pixmap> _border_pos_map;
 
     Pixmap _title_bg;
 

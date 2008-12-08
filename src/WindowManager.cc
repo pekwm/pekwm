@@ -919,7 +919,7 @@ WindowManager::handleKeyEvent(XKeyEvent *ev)
         } else {
             ae = wo->handleKeyRelease(ev);
         }
-        wo = static_cast<CmdDialog*>(wo)->getWORef();
+        wo = static_cast<InputDialog*>(wo)->getWORef();
         break;
     default:
         if (wo) {
@@ -933,8 +933,10 @@ WindowManager::handleKeyEvent(XKeyEvent *ev)
     }
 
     if (ae) {
-        // HACK: Always close CmdDialog before actions
-        if (wo_orig && (wo_orig->getType() == PWinObj::WO_CMD_DIALOG)) {
+        // HACK: Always close CmdDialog and SearchDialog before actions
+        if (wo_orig
+            && (wo_orig->getType() == PWinObj::WO_CMD_DIALOG
+                || wo_orig->getType() == PWinObj::WO_SEARCH_DIALOG)) {
             ::Action close_action;
             ActionEvent close_ae;
             
@@ -1215,7 +1217,8 @@ WindowManager::handleUnmapEvent(XUnmapEvent *ev)
     }
 #endif // HARBOUR
 
-    if ((wo_type != PWinObj::WO_MENU) && (wo_type != PWinObj::WO_CMD_DIALOG)
+    if (wo_type != PWinObj::WO_MENU 
+        && wo_type != PWinObj::WO_CMD_DIALOG && wo_type != PWinObj::WO_SEARCH_DIALOG
         && ! PWinObj::getFocusedPWinObj()) {
         findWOAndFocus(wo_search);
     }

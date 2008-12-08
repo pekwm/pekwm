@@ -34,6 +34,7 @@ SearchDialog::SearchDialog(Display *dpy, Theme *theme)
 
   // Setup ActionEvent
   _ae.action_list.back().setAction(ACTION_FOCUS);
+  _ae.action_list.push_front(::Action(ACTION_RAISE));
 
   // Setup menu for displaying results
   _result_menu = new PMenu(_dpy, _theme, L"", "");
@@ -41,9 +42,13 @@ SearchDialog::SearchDialog(Display *dpy, Theme *theme)
   _result_menu->setSticky(STATE_SET);
   _result_menu->setBorder(STATE_UNSET);
   _result_menu->setTitlebar(STATE_UNSET);
+  _result_menu->setFocusable(false);
   _result_menu->mapWindow();
 }
 
+/**
+ * SearchDialog destructor.
+ */
 SearchDialog::~SearchDialog(void) 
 {
     delete _result_menu;
@@ -56,8 +61,6 @@ void
 SearchDialog::bufChanged(void)
 {
   InputDialog::bufChanged();
-
-  // FIXME: Update list of clients
   findClients(_buf);
 }
 
@@ -102,11 +105,7 @@ void
 SearchDialog::updateSize(void)
 {
   InputDialog::updateSize();
-
-  if (_result_menu->size()) {
-    _result_menu->setMenuWidth(_text_wo->getWidth());
-    resize(_gm.width, _gm.height + _result_menu->getHeight());
-  }
+  _result_menu->setMenuWidth(_text_wo->getWidth());
 }
 
 /**
@@ -121,7 +120,7 @@ SearchDialog::findClients(const std::wstring &search)
   _result_menu->removeAll();
 
   if (search.size() > 0) {
-    RegexString search_re(search);
+    RegexString search_re(L"/" + search + L"/i");
     if (! search_re.is_match_ok()) {
       return 0;
     }
@@ -139,8 +138,36 @@ SearchDialog::findClients(const std::wstring &search)
     }
   }
 
+  // Rebuild menu and make room for it
   _result_menu->buildMenu();
-  updateSize();
+
+  unsigned int width, height;
+  getInputSize(width, height);
+
+  if (_result_menu->size()) {
+      resizeChild(_text_wo->getWidth(), height + _result_menu->getHeight());
+      XRaiseWindow(_dpy, _result_menu->getWindow());
+  } else {
+      resizeChild(_text_wo->getWidth(), height);
+      XLowerWindow(_dpy, _result_menu->getWindow());
+  }
 
   return 0;
+}
+
+/**
+ * Unmap window and clear buffer, result menu and window reference.
+ */
+void
+SearchDialog::unmapWindow(void)
+{
+    if (_mapped) {
+        InputDialog::unmapWindow();
+        _wo_ref = 0;
+        bufClear();
+
+        // Clear the menu and hide it.
+        _result_menu->clear();
+        XLowerWindow(_dpy, _result_menu->getWindow());
+    }
 }

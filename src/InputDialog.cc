@@ -478,12 +478,12 @@ InputDialog::histPrev(void)
 void
 InputDialog::updateSize(void)
 {
-    Geometry head;
-    PScreen::instance()->getHeadInfo(PScreen::instance()->getNearestHead(_gm.x, _gm.y), head);
-
     // Resize the child window and update the size depending.
     uint old_width = _gm.width;
-    resizeChild(head.width / 3, _data->getFont()->getHeight() + _data->getPad(PAD_UP) + _data->getPad(PAD_DOWN));
+
+    unsigned int width, height;
+    getInputSize(width, height);
+    resizeChild(width, height);
 
     // If size was updated, replace the texture and recalculate display
     // buffer.
@@ -507,4 +507,20 @@ InputDialog::updatePixmapSize(void)
     _data->getTexture()->render(_pixmap_bg, 0, 0, _text_wo->getWidth(), _text_wo->getHeight());
     _text_wo->setBackgroundPixmap(_pixmap_bg);
     _text_wo->clear();
+}
+
+/**
+ * Get size of the text input widget.
+ *
+ * @param width Fill in width.
+ * @param height Fill in height.
+ */
+void
+InputDialog::getInputSize(unsigned int &width, unsigned int &height)
+{
+    Geometry head;
+    PScreen::instance()->getHeadInfo(PScreen::instance()->getNearestHead(_gm.x, _gm.y), head);
+
+    width = head.width / 3;
+    height = _data->getFont()->getHeight() + _data->getPad(PAD_UP) + _data->getPad(PAD_DOWN);
 }

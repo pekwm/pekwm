@@ -47,7 +47,6 @@ CmdDialog::CmdDialog(Display *dpy, Theme *theme)
 {
   _type = PWinObj::WO_CMD_DIALOG;
 
-
   if (Config::instance()->getCmdDialogHistoryFile().size() > 0) {
     _hist_list.load(Config::instance()->getCmdDialogHistoryFile());
   }
@@ -91,8 +90,7 @@ CmdDialog::exec(void)
     // Check if it's a valid Action, if not we assume it's a command and try
     // to execute it.
     string buf_mb(Util::to_mb_str(_buf));
-    if (! Config::instance()->parseAction(buf_mb, _ae.action_list.back(),
-                                         KEYGRABBER_OK)) {
+    if (! Config::instance()->parseAction(buf_mb, _ae.action_list.back(), KEYGRABBER_OK)) {
         _ae.action_list.back().setAction(ACTION_EXEC);
         _ae.action_list.back().setParamS(buf_mb);
     }
@@ -105,8 +103,7 @@ void
 CmdDialog::unmapWindow(void)
 {
     if (_mapped) {
-        PDecor::unmapWindow();
-
+        InputDialog::unmapWindow();
         _wo_ref = 0;
         bufClear();
     }

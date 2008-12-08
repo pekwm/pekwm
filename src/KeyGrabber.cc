@@ -377,7 +377,7 @@ KeyGrabber::findAction(XKeyEvent *ev, PWinObj::Type type)
         ae = findAction(ev, &_menu_chain);
     }
 #endif // MENUS
-    if (type == PWinObj::WO_CMD_DIALOG) {
+    if (type == PWinObj::WO_CMD_DIALOG || type == PWinObj::WO_SEARCH_DIALOG) {
         ae = findAction(ev, &_input_dialog_chain);
     }
 
