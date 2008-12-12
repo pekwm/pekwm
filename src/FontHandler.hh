@@ -43,9 +43,6 @@ public:
     PFont::Color *getColor(const std::string &color);
     void returnColor(PFont::Color *color);
 
-    void freeUnrefFonts(void);
-    void freeUnrefColors(void);
-
 private:
     void loadColor(const std::string &color, PFont::Color *font_color, bool fg);
     void freeColor(PFont::Color *font_color);

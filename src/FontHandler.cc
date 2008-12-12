@@ -230,36 +230,6 @@ FontHandler::returnColor(PFont::Color *color)
     }
 }
 
-//! @brief Frees all fonts not beeing in use
-void
-FontHandler::freeUnrefFonts(void)
-{
-    list<HandlerEntry<PFont*> >::iterator it(_font_list.begin());
-    while (it != _font_list.end()) {
-        if (it->getRef() == 0) {
-            delete it->getData();
-            it = _font_list.erase(it);
-        } else {
-            ++it;
-        }
-    }
-}
-
-//! @brief Frees all colors not beeing in use
-void
-FontHandler::freeUnrefColors(void)
-{
-    list<HandlerEntry<PFont::Color*> >::iterator it(_color_list.begin());
-    while (it != _color_list.end()) {
-        if (it->getRef() == 0) {
-            freeColor(it->getData());
-            it = _color_list.erase(it);
-        } else {
-            ++it;
-        }
-    }
-}
-
 //! @brief Helper loader of font colors ( main and offset color )
 void
 FontHandler::loadColor(const std::string &color, PFont::Color *font_color, bool fg)
