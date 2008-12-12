@@ -28,8 +28,7 @@ using std::string;
 FontHandler* FontHandler::_instance = 0;
 
 //! @brief FontHandler constructor
-FontHandler::FontHandler(void) :
-  _free_on_return_font(false), _free_on_return_color(false)
+FontHandler::FontHandler(void)
 {
 #ifdef DEBUG
     if (_instance) {
@@ -168,7 +167,7 @@ FontHandler::returnFont(PFont *font)
     for (; it != _font_list.begin(); ++it) {
         if (it->getData() == font) {
             it->decRef();
-            if ((it->getRef() == 0) && _free_on_return_font) {
+            if (! it->getRef()) {
                 delete it->getData();
                 _font_list.erase(it);
             }
@@ -221,7 +220,7 @@ FontHandler::returnColor(PFont::Color *color)
     for (; it != _color_list.begin(); ++it) {
         if (it->getData() == color) {
             it->decRef();
-            if ((it->getRef() == 0) && _free_on_return_color) {
+            if (! it->getRef()) {
                 delete it->getData();
                 _color_list.erase(it);
             }
