@@ -182,7 +182,7 @@ FontHandler::getColor(const std::string &color)
 {
     // check cache
     list<HandlerEntry<PFont::Color*> >::iterator it(_color_list.begin());
-    for (; it != _color_list.begin(); ++it) {
+    for (; it != _color_list.end(); ++it) {
         if (*it == color) {
             it->incRef();
             return it->getData();
