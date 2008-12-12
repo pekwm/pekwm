@@ -23,36 +23,14 @@ extern "C" {
 #include <X11/Xatom.h>
 }
 
-// pekwm Atom Names
-enum PekwmAtomName {
-    PEKWM_FRAME_ID,
-    PEKWM_FRAME_DECOR,
-    PEKWM_FRAME_SKIP,
-    PEKWM_TITLE
-};
-
-// ICCCM Atom Names
-enum IcccmAtomName {
-    WM_NAME,
-    WM_ICON_NAME,
-    WM_STATE,
-    WM_CHANGE_STATE,
-    WM_PROTOCOLS,
-    WM_DELETE_WINDOW,
-    WM_COLORMAP_WINDOWS,
-    WM_TAKE_FOCUS,
-    WM_WINDOW_ROLE,
-    WM_CLIENT_MACHINE
-};
-
-// Ewmh Atom Names
-enum EwmhAtomName {
+enum AtomName {
+    // Ewmh Atom Names
     NET_SUPPORTED,
     NET_CLIENT_LIST, NET_CLIENT_LIST_STACKING,
     NET_NUMBER_OF_DESKTOPS,
     NET_DESKTOP_GEOMETRY, NET_DESKTOP_VIEWPORT,
     NET_CURRENT_DESKTOP, NET_DESKTOP_NAMES,
-    NET_ACTIVE_WINDOW, NET_WORKAREA, 
+    NET_ACTIVE_WINDOW, NET_WORKAREA,
     NET_DESKTOP_LAYOUT, NET_SUPPORTING_WM_CHECK,
     NET_CLOSE_WINDOW,
     NET_WM_NAME, NET_WM_VISIBLE_NAME,
@@ -83,104 +61,49 @@ enum EwmhAtomName {
     EWMH_ACTION_FULLSCREEN, ACTION_CHANGE_DESKTOP,
     EWMH_ACTION_CLOSE,
 
-    UTF8_STRING
-};
+    UTF8_STRING,  // When adding an ewmh atom after this,
+                  // fix setEwmhAtomsSupport(Window)
 
-/**
- * List of non PEKWM, ICCCM and EWMH atoms.
- */
-enum MiscAtomName {
+    // pekwm atom names
+    PEKWM_FRAME_ID,
+    PEKWM_FRAME_DECOR,
+    PEKWM_FRAME_SKIP,
+    PEKWM_TITLE,
+
+    // ICCCM Atom Names
+    WM_NAME,
+    WM_ICON_NAME,
+    WM_STATE,
+    WM_CHANGE_STATE,
+    WM_PROTOCOLS,
+    WM_DELETE_WINDOW,
+    WM_COLORMAP_WINDOWS,
+    WM_TAKE_FOCUS,
+    WM_WINDOW_ROLE,
+    WM_CLIENT_MACHINE,
+
+    // List of non PEKWM, ICCCM and EWMH atoms.
     MOTIF_WM_HINTS
 };
 
-// pekwm stuff
-class PekwmAtoms {
+
+// Atoms class
+class Atoms {
 public:
-    PekwmAtoms(void);
-    ~PekwmAtoms(void);
+    static void init();
 
-    static PekwmAtoms* instance(void) { return _instance; }
-
-    inline Atom getAtom(PekwmAtomName name) const {
-        std::map<PekwmAtomName, Atom>::const_iterator it = _atoms.find(name);
-        if (it != _atoms.end())
+    static inline Atom getAtom(AtomName name) {
+        std::map<AtomName, Atom>::const_iterator it = _atoms.find(name);
+        if (it != _atoms.end()) {
             return it->second;
+        }
         return None;
     }
 
-private:
-    std::map<PekwmAtomName, Atom> _atoms;
-
-    static PekwmAtoms *_instance;
-};
-
-// ICCCM stuff
-class IcccmAtoms {
-public:
-    IcccmAtoms(void);
-    ~IcccmAtoms(void);
-
-    static IcccmAtoms* instance(void) { return _instance; }
-
-    inline Atom getAtom(IcccmAtomName name) const {
-        std::map<IcccmAtomName, Atom>::const_iterator it = _atoms.find(name);
-        if (it != _atoms.end())
-            return it->second;
-        return None;
-    }
+    static void setEwmhAtomsSupport(Window win);
 
 private:
-    std::map<IcccmAtomName, Atom> _atoms;
-
-    static IcccmAtoms *_instance;
-};
-
-// Extended WM Hints
-class EwmhAtoms {
-public:
-    EwmhAtoms(void);
-    ~EwmhAtoms(void);
-
-    static EwmhAtoms* instance(void) { return _instance; }
-
-    inline uint size(void) const { return _atoms.size(); }
-    inline Atom getAtom(EwmhAtomName name) const {
-        std::map<EwmhAtomName, Atom>::const_iterator it = _atoms.find(name);
-        if (it != _atoms.end())
-            return it->second;
-        return None;
-    }
-
-    Atom* getAtomArray(void) const;
-
-private:
-    std::map<EwmhAtomName, Atom> _atoms;
-
-    static EwmhAtoms *_instance;
-};
-
-/**
- * Misc atoms.
- */
-class MiscAtoms {
-public:
-    MiscAtoms(void);
-    ~MiscAtoms(void);
-
-    /** Get singleton instance. */
-    static MiscAtoms *instance(void) { return _instance; }
-
-    /**
-     * Get atom from enum type. 
-     */
-    Atom getAtom(MiscAtomName name) const {
-        std::map<MiscAtomName, Atom>::const_iterator it(_atoms.find(name));
-        return (it == _atoms.end()) ? None : it->second;
-    }
-
-private:
-    std::map<MiscAtomName, Atom> _atoms; /**< Map from atom type to atom. */
-    static MiscAtoms *_instance; /**< Singleton instance pointer. */
+    static std::map<AtomName, Atom> _atoms;
 };
 
 namespace AtomUtil {

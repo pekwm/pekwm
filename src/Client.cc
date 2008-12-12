@@ -207,7 +207,7 @@ Client::Client(Window new_client, bool is_new)
         // Not startup, pekwm (re)start it is.
     } else {
         long id;
-        if (AtomUtil::getLong(_window, PekwmAtoms::instance()->getAtom(PEKWM_FRAME_ID), id)) {
+        if (AtomUtil::getLong(_window, Atoms::getAtom(PEKWM_FRAME_ID), id)) {
             do_autogroup = false;
             _parent = Frame::findFrameFromID(id);
             if (_parent) {
@@ -486,9 +486,9 @@ Client::setWorkspace(uint workspace)
 
         if (_sticky) {
             AtomUtil::setLong(_window,
-                              EwmhAtoms::instance()->getAtom(NET_WM_DESKTOP),  NET_WM_STICKY_WINDOW);
+                              Atoms::getAtom(NET_WM_DESKTOP), NET_WM_STICKY_WINDOW);
         } else {
-            AtomUtil::setLong(_window, EwmhAtoms::instance()->getAtom(NET_WM_DESKTOP), _workspace);
+            AtomUtil::setLong(_window, Atoms::getAtom(NET_WM_DESKTOP), _workspace);
         }
     }
 }
@@ -530,7 +530,7 @@ Client::handleUnmapEvent(XUnmapEvent *ev)
 
     // Extended Window Manager Hints 1.3 specifies that a window manager
     // should remove the _NET_WM_STATE property when a window is withdrawn.
-    AtomUtil::unsetProperty(_window, EwmhAtoms::instance()->getAtom(STATE));
+    AtomUtil::unsetProperty(_window, Atoms::getAtom(STATE));
 
 #ifdef DEBUG
     cerr << __FILE__ << "@" << __LINE__ << ": "
@@ -708,7 +708,7 @@ Client::readClassRoleHints(void)
 
     // wm window role
     string role;
-    AtomUtil::getString(_window, IcccmAtoms::instance()->getAtom(WM_WINDOW_ROLE),  role);
+    AtomUtil::getString(_window, Atoms::getAtom(WM_WINDOW_ROLE), role);
 
     _class_hint->h_role = Util::to_wide_str(role);
 }
@@ -717,14 +717,12 @@ Client::readClassRoleHints(void)
 void
 Client::readEwmhHints(void)
 {
-    EwmhAtoms *ewmh = EwmhAtoms::instance(); // convenience
-
     // which workspace do we belong to?
     long workspace = -1;
-    AtomUtil::getLong(_window, ewmh->getAtom(NET_WM_DESKTOP), workspace);
+    AtomUtil::getLong(_window, Atoms::getAtom(NET_WM_DESKTOP), workspace);
     if (workspace < 0) {
         _workspace = Workspaces::instance()->getActive();
-        AtomUtil::setLong(_window, ewmh->getAtom(NET_WM_DESKTOP), _workspace);
+        AtomUtil::setLong(_window, Atoms::getAtom(NET_WM_DESKTOP), _workspace);
     } else {
         _workspace = workspace;
     }
@@ -733,23 +731,23 @@ Client::readEwmhHints(void)
     int items;
     Atom *atoms = 0;
 
-    EwmhAtomName window_type = WINDOW_TYPE;
-    atoms = (Atom*) AtomUtil::getEwmhPropData(_window, ewmh->getAtom(WINDOW_TYPE), XA_ATOM, items);
+    AtomName window_type = WINDOW_TYPE;
+    atoms = (Atom*) AtomUtil::getEwmhPropData(_window, Atoms::getAtom(WINDOW_TYPE), XA_ATOM, items);
     if (atoms) {
       for (int i = 0; window_type == WINDOW_TYPE && i < items; ++i) {
-        if (atoms[i] == ewmh->getAtom(WINDOW_TYPE_DESKTOP)) {
+        if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_DESKTOP)) {
           window_type = WINDOW_TYPE_DESKTOP;
-        } else if (atoms[i] == ewmh->getAtom(WINDOW_TYPE_DOCK)) {
+        } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_DOCK)) {
           window_type = WINDOW_TYPE_DOCK;
-        } else if (atoms[i] == ewmh->getAtom(WINDOW_TYPE_TOOLBAR)) {
+        } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_TOOLBAR)) {
           window_type = WINDOW_TYPE_TOOLBAR;
-        } else if (atoms[i] == ewmh->getAtom(WINDOW_TYPE_MENU)) {
+        } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_MENU)) {
           window_type = WINDOW_TYPE_MENU;
-        } else if (atoms[i] == ewmh->getAtom(WINDOW_TYPE_UTILITY)) {
+        } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_UTILITY)) {
           window_type = WINDOW_TYPE_UTILITY;
-        } else if (atoms[i] == ewmh->getAtom(WINDOW_TYPE_DIALOG)) {
+        } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_DIALOG)) {
           window_type = WINDOW_TYPE_DIALOG;
-        } else if (atoms[i] == ewmh->getAtom(WINDOW_TYPE_SPLASH)) {
+        } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_SPLASH)) {
           window_type = WINDOW_TYPE_SPLASH;
         }
       }
@@ -760,9 +758,9 @@ Client::readEwmhHints(void)
     // Set window type to WINDOW_TYPE_NORMAL if it did not match
     if (window_type == WINDOW_TYPE) {
       window_type = WINDOW_TYPE_NORMAL;
-      AtomUtil::setAtom(_window, ewmh->getAtom(WINDOW_TYPE), ewmh->getAtom(WINDOW_TYPE_NORMAL));
+      AtomUtil::setAtom(_window, Atoms::getAtom(WINDOW_TYPE), Atoms::getAtom(WINDOW_TYPE_NORMAL));
     }
-     
+
     // Apply autoproperties for window type
     AutoProperty *auto_property = AutoProperties::instance()->findWindowTypeProperty(window_type);
     if (auto_property) {
@@ -832,19 +830,17 @@ Client::readPekwmHints(void)
     long value;
     string str;
 
-    PekwmAtoms *atoms = PekwmAtoms::instance();
-
     // Get decor state
-    if (AtomUtil::getLong(_window, atoms->getAtom(PEKWM_FRAME_DECOR), value)) {
+    if (AtomUtil::getLong(_window, Atoms::getAtom(PEKWM_FRAME_DECOR), value)) {
         _state.decor = value;
     }
     // Get skip state
-    if (AtomUtil::getLong(_window, atoms->getAtom(PEKWM_FRAME_SKIP), value)) {
+    if (AtomUtil::getLong(_window, Atoms::getAtom(PEKWM_FRAME_SKIP), value)) {
         _state.skip = value;
     }
 
     // Get custom title
-    if (AtomUtil::getString(_window, atoms->getAtom(PEKWM_TITLE), str)) {
+    if (AtomUtil::getString(_window, Atoms::getAtom(PEKWM_TITLE), str)) {
         _title.setUser(Util::to_wide_str(str));
     }
 }
@@ -941,7 +937,7 @@ Client::applyAutoprops(AutoProperty *ap)
 void
 Client::readClientPid(void)
 {
-    AtomUtil::getLong(_window, EwmhAtoms::instance()->getAtom(NET_WM_PID), _pid);
+    AtomUtil::getLong(_window, Atoms::getAtom(NET_WM_PID), _pid);
 }
 
 /**
@@ -995,7 +991,7 @@ Client::readName(void)
 {
     // Read title, bail out if it fails.
     wstring title;
-    if (! AtomUtil::getUtf8String(_window, EwmhAtoms::instance()->getAtom(NET_WM_NAME), title)) {
+    if (! AtomUtil::getUtf8String(_window, Atoms::getAtom(NET_WM_NAME), title)) {
         string mb_title;
         if (! AtomUtil::getTextProperty(_window, XA_WM_NAME, mb_title)) {
             return;
@@ -1012,9 +1008,9 @@ Client::readName(void)
     // user-set titles
     if (titleApplyRule(title)) {
         _title.setCustom(title);
-        AtomUtil::setUtf8String(_window, EwmhAtoms::instance()->getAtom(NET_WM_VISIBLE_NAME), title);
+        AtomUtil::setUtf8String(_window, Atoms::getAtom(NET_WM_VISIBLE_NAME), title);
     } else {
-        AtomUtil::unsetProperty(_window, EwmhAtoms::instance()->getAtom(NET_WM_VISIBLE_NAME));
+        AtomUtil::unsetProperty(_window, Atoms::getAtom(NET_WM_VISIBLE_NAME));
     }
 }
 
@@ -1086,7 +1082,7 @@ Client::readIconName(void)
 {
     wstring icon_name;
 
-    if (! AtomUtil::getUtf8String(_window, EwmhAtoms::instance()->getAtom(NET_WM_ICON_NAME), icon_name)) {
+    if (! AtomUtil::getUtf8String(_window, Atoms::getAtom(NET_WM_ICON_NAME), icon_name)) {
         string mb_icon_name;
         if (AtomUtil::getTextProperty(_window, XA_WM_ICON_NAME, mb_icon_name)) {
             icon_name = Util::to_wide_str(mb_icon_name);
@@ -1098,9 +1094,9 @@ Client::readIconName(void)
     _icon_name.setCustom(icon_name);
 
     if (_icon_name.getVisible() == _icon_name.getReal()) {
-        AtomUtil::unsetProperty(_window, EwmhAtoms::instance()->getAtom(NET_WM_VISIBLE_ICON_NAME));
+        AtomUtil::unsetProperty(_window, Atoms::getAtom(NET_WM_VISIBLE_ICON_NAME));
     } else {
-        AtomUtil::setUtf8String(_window, EwmhAtoms::instance()->getAtom(NET_WM_VISIBLE_ICON_NAME), icon_name);
+        AtomUtil::setUtf8String(_window, Atoms::getAtom(NET_WM_VISIBLE_ICON_NAME), icon_name);
     }
 }
 
@@ -1115,8 +1111,8 @@ Client::setWmState(ulong state)
     data[1] = None; // No Icon
 
     XChangeProperty(_dpy, _window,
-                    IcccmAtoms::instance()->getAtom(WM_STATE),
-                    IcccmAtoms::instance()->getAtom(WM_STATE),
+                    Atoms::getAtom(WM_STATE),
+                    Atoms::getAtom(WM_STATE),
                     32, PropModeReplace, (uchar*) data, 2);
 }
 
@@ -1135,8 +1131,8 @@ Client::getWmState(void)
     uchar *udata;
 
     int status =
-        XGetWindowProperty(_dpy, _window, IcccmAtoms::instance()->getAtom(WM_STATE),
-                           0L, 2L, False, IcccmAtoms::instance()->getAtom(WM_STATE),
+        XGetWindowProperty(_dpy, _window, Atoms::getAtom(WM_STATE),
+                           0L, 2L, False, Atoms::getAtom(WM_STATE),
                            &real_type, &real_format, &items_read, &items_left,
                            &udata);
     if ((status  == Success) && items_read) {
@@ -1183,8 +1179,8 @@ void Client::sendTakeFocusMessage(void)
             PScreen::instance()->setLastEventTime(ev.xproperty.time);
         }
         sendXMessage(_window,
-                     IcccmAtoms::instance()->getAtom(WM_PROTOCOLS), NoEventMask,
-                     IcccmAtoms::instance()->getAtom(WM_TAKE_FOCUS),
+                     Atoms::getAtom(WM_PROTOCOLS), NoEventMask,
+                     Atoms::getAtom(WM_TAKE_FOCUS),
                      PScreen::instance()->getLastEventTime());
     }
 }
@@ -1244,7 +1240,7 @@ void
 Client::setSkip(uint skip)
 {
     _state.skip = skip;
-    AtomUtil::setLong(_window, PekwmAtoms::instance()->getAtom(PEKWM_FRAME_SKIP), _state.skip);
+    AtomUtil::setLong(_window, Atoms::getAtom(PEKWM_FRAME_SKIP), _state.skip);
 }
 
 /**
@@ -1261,11 +1257,9 @@ Client::setStateDemandsAttention(StateAction sa, bool attention)
 void
 Client::close(void)
 {
-    IcccmAtoms *icccm = IcccmAtoms::instance(); // convenience
-
     if (_send_close_message) {
-        sendXMessage(_window, icccm->getAtom(WM_PROTOCOLS), NoEventMask,
-                     icccm->getAtom(WM_DELETE_WINDOW), CurrentTime);
+        sendXMessage(_window, Atoms::getAtom(WM_PROTOCOLS), NoEventMask,
+                     Atoms::getAtom(WM_DELETE_WINDOW), CurrentTime);
     } else {
         kill();
     }
@@ -1332,7 +1326,7 @@ Client::getMwmHints(Window win)
     MwmHints *data = 0;
     uchar *udata;
 
-    Atom hints_atom = MiscAtoms::instance()->getAtom(MOTIF_WM_HINTS);
+    Atom hints_atom = Atoms::getAtom(MOTIF_WM_HINTS);
 
     int status = XGetWindowProperty(_dpy, win, hints_atom, 0L, 20L, False, hints_atom,
                                     &real_type, &real_format, &items_read, &items_left, &udata);
@@ -1400,41 +1394,39 @@ Client::getEwmhStates(NetWMStates &win_states)
     int num = 0;
     Atom *states;
     states = (Atom*)
-             AtomUtil::getEwmhPropData(_window, EwmhAtoms::instance()->getAtom(STATE),
+             AtomUtil::getEwmhPropData(_window, Atoms::getAtom(STATE),
                                        XA_ATOM, num);
 
     if (states) {
-        EwmhAtoms *ewmh = EwmhAtoms::instance(); // convenience
-
         for (int i = 0; i < num; ++i) {
-            if (states[i] == ewmh->getAtom(STATE_MODAL)) {
+            if (states[i] == Atoms::getAtom(STATE_MODAL)) {
                 win_states.modal = true;
-            } else if (states[i] == ewmh->getAtom(STATE_STICKY)) {
+            } else if (states[i] == Atoms::getAtom(STATE_STICKY)) {
                 win_states.sticky = true;
-            } else if (states[i] == ewmh->getAtom(STATE_MAXIMIZED_VERT)
+            } else if (states[i] == Atoms::getAtom(STATE_MAXIMIZED_VERT)
                        && ! isCfgDeny(CFG_DENY_STATE_MAXIMIZED_VERT)) {
                 win_states.max_vert = true;
-            } else if (states[i] == ewmh->getAtom(STATE_MAXIMIZED_HORZ)
+            } else if (states[i] == Atoms::getAtom(STATE_MAXIMIZED_HORZ)
                        && ! isCfgDeny(CFG_DENY_STATE_MAXIMIZED_HORZ)) {
                 win_states.max_horz = true;
-            } else if (states[i] == ewmh->getAtom(STATE_SHADED)) {
+            } else if (states[i] == Atoms::getAtom(STATE_SHADED)) {
                 win_states.shaded = true;
-            } else if (states[i] == ewmh->getAtom(STATE_SKIP_TASKBAR)) {
+            } else if (states[i] == Atoms::getAtom(STATE_SKIP_TASKBAR)) {
                 win_states.skip_taskbar = true;
-            } else if (states[i] == ewmh->getAtom(STATE_SKIP_PAGER)) {
+            } else if (states[i] == Atoms::getAtom(STATE_SKIP_PAGER)) {
                 win_states.skip_pager = true;
-            } else if (states[i] == ewmh->getAtom(STATE_DEMANDS_ATTENTION)) {
+            } else if (states[i] == Atoms::getAtom(STATE_DEMANDS_ATTENTION)) {
                 win_states.demands_attention = true;
-            } else if (states[i] == ewmh->getAtom(STATE_HIDDEN)
+            } else if (states[i] == Atoms::getAtom(STATE_HIDDEN)
                        && ! isCfgDeny(CFG_DENY_STATE_HIDDEN)) {
                 win_states.hidden = true;
-            } else if (states[i] == ewmh->getAtom(STATE_FULLSCREEN)
+            } else if (states[i] == Atoms::getAtom(STATE_FULLSCREEN)
                        && ! isCfgDeny(CFG_DENY_STATE_FULLSCREEN)) {
                 win_states.fullscreen = true;
-            } else if (states[i] == ewmh->getAtom(STATE_ABOVE)
+            } else if (states[i] == Atoms::getAtom(STATE_ABOVE)
                        && ! isCfgDeny(CFG_DENY_STATE_ABOVE)) {
                 win_states.above = true;
-            } else if (states[i] == ewmh->getAtom(STATE_BELOW)
+            } else if (states[i] == Atoms::getAtom(STATE_BELOW)
                        && ! isCfgDeny(CFG_DENY_STATE_BELOW)) {
                 win_states.below = true;
             }
@@ -1452,38 +1444,36 @@ Client::getEwmhStates(NetWMStates &win_states)
 void
 Client::updateEwmhStates(void)
 {
-    EwmhAtoms *ewmh = EwmhAtoms::instance();
-
     list<Atom> states;
 
     if (false) // we don't yet support modal state
-        states.push_back(ewmh->getAtom(STATE_MODAL));
+        states.push_back(Atoms::getAtom(STATE_MODAL));
     if (_sticky)
-        states.push_back(ewmh->getAtom(STATE_STICKY));
+        states.push_back(Atoms::getAtom(STATE_STICKY));
     if (_state.maximized_vert)
-        states.push_back(ewmh->getAtom(STATE_MAXIMIZED_VERT));
+        states.push_back(Atoms::getAtom(STATE_MAXIMIZED_VERT));
     if (_state.maximized_horz)
-        states.push_back(ewmh->getAtom(STATE_MAXIMIZED_HORZ));
+        states.push_back(Atoms::getAtom(STATE_MAXIMIZED_HORZ));
     if (_state.shaded)
-        states.push_back(ewmh->getAtom(STATE_SHADED));
+        states.push_back(Atoms::getAtom(STATE_SHADED));
     if (isSkip(SKIP_TASKBAR))
-        states.push_back(ewmh->getAtom(STATE_SKIP_TASKBAR));
+        states.push_back(Atoms::getAtom(STATE_SKIP_TASKBAR));
     if (isSkip(SKIP_PAGER))
-        states.push_back(ewmh->getAtom(STATE_SKIP_PAGER));
+        states.push_back(Atoms::getAtom(STATE_SKIP_PAGER));
     if (_iconified)
-        states.push_back(ewmh->getAtom(STATE_HIDDEN));
+        states.push_back(Atoms::getAtom(STATE_HIDDEN));
     if (_state.fullscreen)
-        states.push_back(ewmh->getAtom(STATE_FULLSCREEN));
+        states.push_back(Atoms::getAtom(STATE_FULLSCREEN));
     if (_layer == LAYER_ABOVE_DOCK)
-        states.push_back(ewmh->getAtom(STATE_ABOVE));
+        states.push_back(Atoms::getAtom(STATE_ABOVE));
     if (_layer == LAYER_BELOW)
-        states.push_back(ewmh->getAtom(STATE_BELOW));
+        states.push_back(Atoms::getAtom(STATE_BELOW));
 
     Atom *atoms = new Atom[(states.size() > 0) ? states.size() : 1];
     if (states.size() > 0) {
         copy(states.begin(), states.end(), atoms);
     }
-    AtomUtil::setAtoms(_window, ewmh->getAtom(STATE), atoms, states.size());
+    AtomUtil::setAtoms(_window, Atoms::getAtom(STATE), atoms, states.size());
     delete [] atoms;
 }
 
@@ -1503,12 +1493,10 @@ Client::getWMProtocols(void)
     Atom *protocols;
 
     if (XGetWMProtocols(_dpy, _window, &protocols, &count) != 0) {
-        IcccmAtoms *icccm = IcccmAtoms::instance(); // convenience
-
         for (int i = 0; i < count; ++i) {
-            if (protocols[i] == icccm->getAtom(WM_TAKE_FOCUS)) {
+            if (protocols[i] == Atoms::getAtom(WM_TAKE_FOCUS)) {
                 _send_focus_message = true;
-            } else if (protocols[i] == icccm->getAtom(WM_DELETE_WINDOW)) {
+            } else if (protocols[i] == Atoms::getAtom(WM_DELETE_WINDOW)) {
                 _send_close_message = true;
             }
         }
@@ -1531,7 +1519,7 @@ Client::getStrutHint(void)
 {
     int num = 0;
     long *strut = static_cast<long*>(AtomUtil::getEwmhPropData(_window,
-                                                               EwmhAtoms::instance()->getAtom(NET_WM_STRUT),
+                                                               Atoms::getAtom(NET_WM_STRUT),
                                                                XA_CARDINAL, num));
     if (strut) {
         if (_strut) {

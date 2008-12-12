@@ -211,7 +211,7 @@ AutoProperties::unload(void)
 #endif // HARBOUR
 
     // remove type properties
-    map<EwmhAtomName, AutoProperty*>::iterator m_it(_window_type_prop_map.begin());
+    map<AtomName, AutoProperty*>::iterator m_it(_window_type_prop_map.begin());
     for (; m_it != _window_type_prop_map.end(); ++m_it) {
         delete m_it->second;
     }
@@ -258,11 +258,11 @@ AutoProperties::findProperty(const ClassHint* class_hint,
 //! @param str String to parse.
 //! @param prop Property to place result in.
 //! @return true on success, else false.
-EwmhAtomName
+AtomName
 AutoProperties::parsePropertyMatchWindowType(const std::string &str,
                                              Property *prop)
 {
-    EwmhAtomName atom = ParseUtil::getValue<EwmhAtomName>(str, _window_type_map);
+    AtomName atom = ParseUtil::getValue<AtomName>(str, _window_type_map);
     if (atom == WINDOW_TYPE) {
         cerr << " *** WARNING: unknown type " << str << " for autoproperty" << endl;
     }
@@ -518,10 +518,10 @@ AutoProperties::parseTypeProperty(CfgParser::Entry *section)
     // Get sub section
     section = section->get_section();
 
-    EwmhAtomName atom;
+    AtomName atom;
     AutoProperty *type_property;
     CfgParser::Entry *type_section;
-    map<EwmhAtomName, AutoProperty*>::iterator atom_it;
+    map<AtomName, AutoProperty*>::iterator atom_it;
 
     // Look for all type properties
     CfgParser::iterator it(section->begin());
@@ -800,10 +800,10 @@ AutoProperties::findDockAppProperty(const ClassHint *class_hint)
 //! @param atom Atom to get property for.
 //! @return AutoProperty on success, else 0.
 AutoProperty*
-AutoProperties::findWindowTypeProperty(EwmhAtomName atom)
+AutoProperties::findWindowTypeProperty(AtomName atom)
 {
     AutoProperty *prop = 0;
-    map<EwmhAtomName, AutoProperty*>::iterator it(_window_type_prop_map.find(atom));
+    map<AtomName, AutoProperty*>::iterator it(_window_type_prop_map.find(atom));
     if (it != _window_type_prop_map.end()) {
         prop = it->second;
     }

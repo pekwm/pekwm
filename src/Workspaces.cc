@@ -140,7 +140,7 @@ Workspaces::setSize(uint number)
     // Tell the rest of the world how many workspaces we have.
     XChangeProperty(PScreen::instance()->getDpy(),
                     PScreen::instance()->getRoot(),
-                    EwmhAtoms::instance()->getAtom(NET_NUMBER_OF_DESKTOPS),
+                    Atoms::getAtom(NET_NUMBER_OF_DESKTOPS),
                     XA_CARDINAL, 32, PropModeReplace,
                     (uchar *) &number, 1);
 
@@ -192,7 +192,7 @@ Workspaces::setWorkspace(uint num, bool focus)
     // switch workspace
     hideAll(_active);
     AtomUtil::setLong(PScreen::instance()->getRoot(),
-                      EwmhAtoms::instance()->getAtom(NET_CURRENT_DESKTOP),
+                      Atoms::getAtom(NET_CURRENT_DESKTOP),
                       num);
     unhideAll(num, focus);
 
@@ -610,12 +610,12 @@ Workspaces::updateClientStackingList(bool client, bool stacking)
 
     if (client) {
         AtomUtil::setWindows(PScreen::instance()->getRoot(),
-                             EwmhAtoms::instance()->getAtom(NET_CLIENT_LIST),
+                             Atoms::getAtom(NET_CLIENT_LIST),
                              windows, pos);
     }
     if (stacking) {
         AtomUtil::setWindows(PScreen::instance()->getRoot(),
-                             EwmhAtoms::instance()->getAtom(NET_CLIENT_LIST_STACKING),
+                             Atoms::getAtom(NET_CLIENT_LIST_STACKING),
                              windows, pos);
     }
 

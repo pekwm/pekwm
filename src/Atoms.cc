@@ -10,8 +10,6 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#include <iostream>
-
 #include "Atoms.hh"
 #include "PScreen.hh"
 #include "Util.hh"
@@ -20,193 +18,104 @@ extern "C" {
 #include <X11/Xutil.h>
 }
 
-using std::cerr;
-using std::endl;
 using std::string;
 using std::map;
 
-PekwmAtoms* PekwmAtoms::_instance = 0;
-IcccmAtoms* IcccmAtoms::_instance = 0;
-EwmhAtoms* EwmhAtoms::_instance = 0;
-MiscAtoms* MiscAtoms::_instance = 0;
+static const char *atomnames[] = {
+    // EWMH atoms
+    "_NET_SUPPORTED",
+    "_NET_CLIENT_LIST", "_NET_CLIENT_LIST_STACKING",
+    "_NET_NUMBER_OF_DESKTOPS",
+    "_NET_DESKTOP_GEOMETRY", "_NET_DESKTOP_VIEWPORT",
+    "_NET_CURRENT_DESKTOP", "_NET_DESKTOP_NAMES",
+    "_NET_ACTIVE_WINDOW", "_NET_WORKAREA",
+    "_NET_DESKTOP_LAYOUT", "_NET_SUPPORTING_WM_CHECK",
+    "_NET_CLOSE_WINDOW",
+    "_NET_WM_NAME", "_NET_WM_VISIBLE_NAME",
+    "_NET_WM_ICON_NAME", "_NET_WM_VISIBLE_ICON_NAME",
+    "_NET_WM_ICON", "_NET_WM_DESKTOP",
+    "_NET_WM_STRUT", "_NET_WM_PID",
 
-//! @brief PekwmAtoms constructor
-PekwmAtoms::PekwmAtoms(void)
-{
-    if (_instance)
-        throw string("PekwmAtoms, trying to create multiple instances");
-    _instance = this;
+    "_NET_WM_WINDOW_TYPE",
+    "_NET_WM_WINDOW_TYPE_DESKTOP", "_NET_WM_WINDOW_TYPE_DOCK",
+    "_NET_WM_WINDOW_TYPE_TOOLBAR", "_NET_WM_WINDOW_TYPE_MENU",
+    "_NET_WM_WINDOW_TYPE_UTILITY", "_NET_WM_WINDOW_TYPE_SPLASH",
+    "_NET_WM_WINDOW_TYPE_DIALOG", "_NET_WM_WINDOW_TYPE_NORMAL",
+
+    "_NET_WM_STATE",
+    "_NET_WM_STATE_MODAL", "_NET_WM_STATE_STICKY",
+    "_NET_WM_STATE_MAXIMIZED_VERT", "_NET_WM_STATE_MAXIMIZED_HORZ",
+    "_NET_WM_STATE_SHADED",
+    "_NET_WM_STATE_SKIP_TASKBAR", "_NET_WM_STATE_SKIP_PAGER",
+    "_NET_WM_STATE_HIDDEN", "_NET_WM_STATE_FULLSCREEN",
+    "_NET_WM_STATE_ABOVE", "_NET_WM_STATE_BELOW",
+    "_NET_WM_STATE_DEMANDS_ATTENTION",
+
+    "_NET_WM_ALLOWED_ACTIONS",
+    "_NET_WM_ACTION_MOVE", "_NET_WM_ACTION_RESIZE",
+    "_NET_WM_ACTION_MINIMIZE", "_NET_WM_ACTION_SHADE",
+    "_NET_WM_ACTION_STICK",
+    "_NET_WM_ACTION_MAXIMIZE_VERT", "_NET_WM_ACTION_MAXIMIZE_HORZ",
+    "_NET_WM_ACTION_FULLSCREEN", "_NET_WM_ACTION_CHANGE_DESKTOP",
+    "_NET_WM_ACTION_CLOSE",
+    "UTF8_STRING", // When adding an ewmh atom after this,
+                   // fix setEwmhAtomsSupport(Window)
 
     // pekwm atoms
-    const char *names[] = {
-                        "_PEKWM_FRAME_ID",
-                        "_PEKWM_FRAME_DECOR",
-                        "_PEKWM_FRAME_SKIP",
-                        "_PEKWM_TITLE"
-                    };
-    const uint num = sizeof(names) / sizeof(char*);
-    Atom atoms[num];
-
-    XInternAtoms(PScreen::instance()->getDpy(),
-                 const_cast<char**>(names), num, 0, atoms);
-
-    // Insert all atoms into the _atoms map
-    for (uint i = 0; i < num; ++i) {
-        _atoms[PekwmAtomName(i)] = atoms[i];
-    }
-}
-
-//! @brief PekwmAtoms destructor
-PekwmAtoms::~PekwmAtoms(void)
-{
-    _instance = 0;
-}
-
-//! @brief IcccmAtoms constructor
-IcccmAtoms::IcccmAtoms(void)
-{
-    if (_instance)
-        throw string("IcccmAtoms, trying to create multiple instances");
-    _instance = this;
+    "_PEKWM_FRAME_ID",
+    "_PEKWM_FRAME_DECOR",
+    "_PEKWM_FRAME_SKIP",
+    "_PEKWM_TITLE",
 
     // ICCCM atoms
-    const char *names[] = {
-        "WM_NAME",
-        "WM_ICON_NAME",
-        "WM_STATE",
-        "WM_CHANGE_STATE",
-        "WM_PROTOCOLS",
-        "WM_DELETE_WINDOW",
-        "WM_COLORMAP_WINDOWS",
-        "WM_TAKE_FOCUS",
-        "WM_WINDOW_ROLE",
-        "WM_CLIENT_MACHINE"
-    };
-    const uint num = sizeof(names) / sizeof(char*);
-    Atom atoms[num];
+    "WM_NAME",
+    "WM_ICON_NAME",
+    "WM_STATE",
+    "WM_CHANGE_STATE",
+    "WM_PROTOCOLS",
+    "WM_DELETE_WINDOW",
+    "WM_COLORMAP_WINDOWS",
+    "WM_TAKE_FOCUS",
+    "WM_WINDOW_ROLE",
+    "WM_CLIENT_MACHINE",
 
-    XInternAtoms(PScreen::instance()->getDpy(), const_cast<char**>(names), num, 0, atoms);
+    // miscellaneous atoms
+    "_MOTIF_WM_HINTS"
+};
 
-    // Insert all atoms into the _atoms map
-    for (uint i = 0; i < num; ++i) {
-        _atoms[IcccmAtomName(i)] = atoms[i];
-    }
-}
-
-//! @brief IcccmAtoms destructor
-IcccmAtoms::~IcccmAtoms(void)
+//! @brief initialise the atoms mappings
+void
+Atoms::init(void)
 {
-    _instance = 0;
-}
-
-//! @brief EwmhAtoms constructor
-EwmhAtoms::EwmhAtoms(void)
-{
-    if (_instance)
-        throw string("EwmhAtoms, trying to create multiple instances");
-    _instance = this;
-
-    const char *names[] = {
-                        "_NET_SUPPORTED",
-                        "_NET_CLIENT_LIST", "_NET_CLIENT_LIST_STACKING",
-                        "_NET_NUMBER_OF_DESKTOPS",
-                        "_NET_DESKTOP_GEOMETRY", "_NET_DESKTOP_VIEWPORT",
-                        "_NET_CURRENT_DESKTOP", "_NET_DESKTOP_NAMES",
-                        "_NET_ACTIVE_WINDOW", "_NET_WORKAREA",
-                        "_NET_DESKTOP_LAYOUT", "_NET_SUPPORTING_WM_CHECK",
-                        "_NET_CLOSE_WINDOW",
-                        "_NET_WM_NAME", "_NET_WM_VISIBLE_NAME",
-                        "_NET_WM_ICON_NAME", "_NET_WM_VISIBLE_ICON_NAME",
-                        "_NET_WM_ICON", "_NET_WM_DESKTOP",
-                        "_NET_WM_STRUT", "_NET_WM_PID",
-
-                        "_NET_WM_WINDOW_TYPE",
-                        "_NET_WM_WINDOW_TYPE_DESKTOP", "_NET_WM_WINDOW_TYPE_DOCK",
-                        "_NET_WM_WINDOW_TYPE_TOOLBAR", "_NET_WM_WINDOW_TYPE_MENU",
-                        "_NET_WM_WINDOW_TYPE_UTILITY", "_NET_WM_WINDOW_TYPE_SPLASH",
-                        "_NET_WM_WINDOW_TYPE_DIALOG", "_NET_WM_WINDOW_TYPE_NORMAL",
-
-                        "_NET_WM_STATE",
-                        "_NET_WM_STATE_MODAL", "_NET_WM_STATE_STICKY",
-                        "_NET_WM_STATE_MAXIMIZED_VERT", "_NET_WM_STATE_MAXIMIZED_HORZ",
-                        "_NET_WM_STATE_SHADED",
-                        "_NET_WM_STATE_SKIP_TASKBAR", "_NET_WM_STATE_SKIP_PAGER",
-                        "_NET_WM_STATE_HIDDEN", "_NET_WM_STATE_FULLSCREEN",
-                        "_NET_WM_STATE_ABOVE", "_NET_WM_STATE_BELOW",
-                        "_NET_WM_STATE_DEMANDS_ATTENTION",
-
-                        "_NET_WM_ALLOWED_ACTIONS",
-                        "_NET_WM_ACTION_MOVE", "_NET_WM_ACTION_RESIZE",
-                        "_NET_WM_ACTION_MINIMIZE", "_NET_WM_ACTION_SHADE",
-                        "_NET_WM_ACTION_STICK",
-                        "_NET_WM_ACTION_MAXIMIZE_VERT", "_NET_WM_ACTION_MAXIMIZE_HORZ",
-                        "_NET_WM_ACTION_FULLSCREEN", "_NET_WM_ACTION_CHANGE_DESKTOP",
-                        "_NET_WM_ACTION_CLOSE",
-                        "UTF8_STRING"
-                    };
-    const uint num = sizeof(names) / sizeof(char*);
-    Atom atoms[num];
+    const uint num = sizeof(atomnames) / sizeof(char*);
+    Atom *atoms = new Atom[num];
 
     XInternAtoms(PScreen::instance()->getDpy(),
-                 const_cast<char**>(names), num, 0, atoms);
+                 const_cast<char**>(atomnames), num, 0, atoms);
 
-    // Insert all items into the _atoms map
     for (uint i = 0; i < num; ++i) {
-        _atoms[EwmhAtomName(i)] = atoms[i];
+        _atoms[AtomName(i)] = atoms[i];
     }
-}
 
-//! @brief EwmhAtoms destructor
-EwmhAtoms::~EwmhAtoms(void)
-{
-    _instance = 0;
+    delete [] atoms;
 }
 
 //! @brief Builds a array of all atoms in the map.
-Atom*
-EwmhAtoms::getAtomArray(void) const
+void
+Atoms::setEwmhAtomsSupport(Window win)
 {
-    Atom *atoms = new Atom[_atoms.size()];
+    Atom *atoms = new Atom[UTF8_STRING+1];
 
-    map<EwmhAtomName, Atom>::const_iterator it = _atoms.begin();
-    for (uint i = 0; it != _atoms.end(); ++i, ++it)
-        atoms[i] = it->second;
-
-    return atoms;
-}
-
-/**
- * MiscAtoms constructor, initializes hints.
- */
-MiscAtoms::MiscAtoms(void)
-{
-    if (_instance) {
-        throw string("MiscAtoms, trying to create multiple instances");
+    for (uint i = 0; i<=UTF8_STRING; ++i) {
+        atoms[i] = _atoms[AtomName(i)];
     }
-    _instance = this;
 
-    // Misc atoms
-    const char *names[] = {
-        "_MOTIF_WM_HINTS"
-    };
-    const unsigned int num = sizeof(names) / sizeof(char*);
-    Atom atoms[num];
+    AtomUtil::setAtoms(win, getAtom(NET_SUPPORTED), atoms, UTF8_STRING+1);
 
-    XInternAtoms(PScreen::instance()->getDpy(), const_cast<char**>(names), num, 0, atoms);
-
-    // Insert all atoms into the _atoms map
-    for (unsigned int i = 0; i < num; ++i) {
-        _atoms[MiscAtomName(i)] = atoms[i];
-    }
+    delete [] atoms;
 }
 
-/**
- * MiscAtoms destructor, clears instance pointer.
- */
-MiscAtoms::~MiscAtoms(void)
-{
-    _instance = 0;
-}
+std::map<AtomName, Atom> Atoms::_atoms;
 
 namespace AtomUtil {
 
@@ -344,7 +253,7 @@ getUtf8String(Window win, Atom atom, std::wstring &value)
     bool status = false;
     unsigned char *data = 0;
 
-    if (getProperty(win, atom, EwmhAtoms::instance()->getAtom(UTF8_STRING),
+    if (getProperty(win, atom, Atoms::getAtom(UTF8_STRING),
                     32, &data)) {
         status = true;
 
@@ -363,7 +272,7 @@ setUtf8String(Window win, Atom atom, const std::wstring &value)
     string utf8_string(Util::to_utf8_str(value));
 
     XChangeProperty(PScreen::instance()->getDpy(), win, atom,
-                    EwmhAtoms::instance()->getAtom(UTF8_STRING), 8,
+                    Atoms::getAtom(UTF8_STRING), 8,
                     PropModeReplace,
                     reinterpret_cast<const uchar*>(utf8_string.c_str()),
                     utf8_string.size());
@@ -380,7 +289,7 @@ setUtf8String(Window win, Atom atom, const std::wstring &value)
     void
     setUtf8StringArray(Window win, Atom atom, unsigned char *values, unsigned int length)
     {
-        XChangeProperty(PScreen::instance()->getDpy(), win, atom, EwmhAtoms::instance()->getAtom(UTF8_STRING),
+        XChangeProperty(PScreen::instance()->getDpy(), win, atom, Atoms::getAtom(UTF8_STRING),
                         8, PropModeReplace, values, length);
     }
 

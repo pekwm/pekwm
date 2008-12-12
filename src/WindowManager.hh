@@ -278,13 +278,6 @@ private:
     HintWO *_hint_wo; /**< Hint window object, communicates EWMH hints. */
     RootWO *_root_wo; /**< Root window object, wrapper for root window. */
 
-
-    // Atoms and hints follow under here
-    PekwmAtoms *_pekwm_atoms;
-    IcccmAtoms *_icccm_atoms;
-    EwmhAtoms *_ewmh_atoms;
-    MiscAtoms *_misc_atoms;
-
     // pointer for singleton pattern
     static WindowManager *_instance;
 };

@@ -54,8 +54,8 @@ HintWO::HintWO(Display *dpy, Window root)
     XChangeWindowAttributes(_dpy, _window, CWOverrideRedirect, &attr);
 
     // Set hints not being updated
-    AtomUtil::setString(_window, EwmhAtoms::instance()->getAtom(NET_WM_NAME), WM_NAME);
-    AtomUtil::setWindow(_window, EwmhAtoms::instance()->getAtom(NET_SUPPORTING_WM_CHECK), _window);
+    AtomUtil::setString(_window, Atoms::getAtom(NET_WM_NAME), WM_NAME);
+    AtomUtil::setWindow(_window, Atoms::getAtom(NET_SUPPORTING_WM_CHECK), _window);
 }
 
 /**
@@ -81,25 +81,19 @@ RootWO::RootWO(Display *dpy, Window root)
     _gm.width = PScreen::instance()->getWidth();
     _gm.height = PScreen::instance()->getHeight();
 
-    // Convenience
-    EwmhAtoms *atoms = EwmhAtoms::instance();
-    Atom *supported_atoms = atoms->getAtomArray();
-
     // Set hits on the hint window, these are not updated so they are
     // set in the constructor.
-    AtomUtil::setLong(_window, atoms->getAtom(NET_WM_PID), static_cast<long>(getpid()));
-    AtomUtil::setString(_window, IcccmAtoms::instance()->getAtom(WM_CLIENT_MACHINE), Util::getHostname());
+    AtomUtil::setLong(_window, Atoms::getAtom(NET_WM_PID), static_cast<long>(getpid()));
+    AtomUtil::setString(_window, Atoms::getAtom(WM_CLIENT_MACHINE), Util::getHostname());
 
-    AtomUtil::setWindow(_window, atoms->getAtom(NET_SUPPORTING_WM_CHECK), HintWO::instance()->getWindow());
-    AtomUtil::setAtoms(_window, atoms->getAtom(NET_SUPPORTED), supported_atoms, atoms->size());
-    AtomUtil::setLong(_window, atoms->getAtom(NET_NUMBER_OF_DESKTOPS), Config::instance()->getWorkspaces());
-    AtomUtil::setLong(_window, atoms->getAtom(NET_CURRENT_DESKTOP), 0);
+    AtomUtil::setWindow(_window, Atoms::getAtom(NET_SUPPORTING_WM_CHECK), HintWO::instance()->getWindow());
+    Atoms::setEwmhAtomsSupport(_window);
+    AtomUtil::setLong(_window, Atoms::getAtom(NET_NUMBER_OF_DESKTOPS), Config::instance()->getWorkspaces());
+    AtomUtil::setLong(_window, Atoms::getAtom(NET_CURRENT_DESKTOP), 0);
 
     long desktop_geometry[2] = { _gm.width, _gm.height };
-    AtomUtil::setLongs(_window, atoms->getAtom(NET_DESKTOP_GEOMETRY), desktop_geometry, 2);
+    AtomUtil::setLongs(_window, Atoms::getAtom(NET_DESKTOP_GEOMETRY), desktop_geometry, 2);
 
-    delete [] supported_atoms;
-    
     woListAdd(this);
     _wo_map[_window] = this;
 }
@@ -110,8 +104,8 @@ RootWO::RootWO(Display *dpy, Window root)
 RootWO::~RootWO(void)
 {
     // Remove atoms, PID will not be valid on shutdown.
-    AtomUtil::unsetProperty(_window, EwmhAtoms::instance()->getAtom(NET_WM_PID));
-    AtomUtil::unsetProperty(_window, IcccmAtoms::instance()->getAtom(WM_CLIENT_MACHINE));
+    AtomUtil::unsetProperty(_window, Atoms::getAtom(NET_WM_PID));
+    AtomUtil::unsetProperty(_window, Atoms::getAtom(WM_CLIENT_MACHINE));
 
     _wo_map.erase(_window);
     woListRemove(this);
@@ -193,7 +187,7 @@ void
 RootWO::setEwmhWorkarea(const Geometry &workarea)
 {
     long workarea_array[4] = { workarea.x, workarea.y, workarea.width, workarea.height };
-    AtomUtil::setLongs(_window, EwmhAtoms::instance()->getAtom(NET_WORKAREA), workarea_array, 4);
+    AtomUtil::setLongs(_window, Atoms::getAtom(NET_WORKAREA), workarea_array, 4);
 }
 
 /**
@@ -204,7 +198,7 @@ RootWO::setEwmhWorkarea(const Geometry &workarea)
 void
 RootWO::setEwmhActiveWindow(Window win)
 {
-    AtomUtil::setWindow(PScreen::instance()->getRoot(), EwmhAtoms::instance()->getAtom(NET_ACTIVE_WINDOW), win);
+    AtomUtil::setWindow(PScreen::instance()->getRoot(), Atoms::getAtom(NET_ACTIVE_WINDOW), win);
 }
 
 /**
@@ -215,9 +209,9 @@ RootWO::readEwmhDesktopNames(void)
 {
     uchar *data;
     ulong data_length;
-    if (AtomUtil::getProperty(PScreen::instance()->getRoot(), 
-                              EwmhAtoms::instance()->getAtom(NET_DESKTOP_NAMES),
-                              EwmhAtoms::instance()->getAtom(UTF8_STRING),
+    if (AtomUtil::getProperty(PScreen::instance()->getRoot(),
+                              Atoms::getAtom(NET_DESKTOP_NAMES),
+                              Atoms::getAtom(UTF8_STRING),
                               EXPECTED_DESKTOP_NAMES_LENGTH, &data, &data_length)) {
         Config::instance()->setDesktopNamesUTF8(reinterpret_cast<char *>(data), data_length);
 
@@ -237,7 +231,7 @@ RootWO::setEwmhDesktopNames(void)
 
     if (desktopnames) {
         AtomUtil::setUtf8StringArray(PScreen::instance()->getRoot(),
-                                     EwmhAtoms::instance()->getAtom(NET_DESKTOP_NAMES), desktopnames, length);
+                                     Atoms::getAtom(NET_DESKTOP_NAMES), desktopnames, length);
         delete [] desktopnames;
     }
 }

@@ -38,7 +38,7 @@ PImageNativeIcon::loadFromWindow(Window win)
 {
     bool status = false;
 
-    Atom icon = EwmhAtoms::instance()->getAtom(NET_WM_ICON);
+    Atom icon = Atoms::getAtom(NET_WM_ICON);
     uchar *udata = 0;
     long expected = 2;
 

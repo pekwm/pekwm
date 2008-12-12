@@ -222,8 +222,7 @@ WindowManager::WindowManager(const std::string &command_line, const std::string 
 #endif // MENUS
         _command_line(command_line),
         _startup(false), _shutdown(false), _reload(false),
-        _allow_grouping(true), _root_wo(0),
-        _pekwm_atoms(0), _icccm_atoms(0), _ewmh_atoms(0)
+        _allow_grouping(true), _root_wo(0)
 {
     struct sigaction act;
 
@@ -269,12 +268,6 @@ WindowManager::~WindowManager(void)
     deleteMenus();
 #endif // MENUS
 
-    if (_pekwm_atoms)
-        delete _pekwm_atoms;
-    if (_icccm_atoms)
-        delete _icccm_atoms;
-    if (_ewmh_atoms)
-        delete _ewmh_atoms;
     if (_keygrabber)
         delete _keygrabber;
     if (_workspaces)
@@ -392,10 +385,7 @@ WindowManager::setupDisplay(void)
     _autoproperties = new AutoProperties();
     _autoproperties->load();
 
-    _pekwm_atoms = new PekwmAtoms();
-    _icccm_atoms = new IcccmAtoms();
-    _ewmh_atoms = new EwmhAtoms();
-    _misc_atoms = new MiscAtoms();
+    Atoms::init();
 
     // Create hint window _before_ root window.
     _hint_wo = new HintWO(dpy, _screen->getRoot());
@@ -1397,11 +1387,11 @@ WindowManager::handleClientMessageEvent(XClientMessageEvent *ev)
 
         if (ev->format == 32) {
 
-            if (ev->message_type == _ewmh_atoms->getAtom(NET_CURRENT_DESKTOP)) {
+            if (ev->message_type == Atoms::getAtom(NET_CURRENT_DESKTOP)) {
                 _workspaces->setWorkspace(ev->data.l[0], true);
 
             } else if (ev->message_type ==
-                       _ewmh_atoms->getAtom(NET_NUMBER_OF_DESKTOPS)) {
+                       Atoms::getAtom(NET_NUMBER_OF_DESKTOPS)) {
                 if (ev->data.l[0] > 0) {
                     _workspaces->setSize(ev->data.l[0]);
                 }
@@ -1434,7 +1424,7 @@ void
 WindowManager::handlePropertyEvent(XPropertyEvent *ev)
 {
     if (ev->window == _screen->getRoot()) {
-        if (ev->atom == _ewmh_atoms->getAtom(NET_DESKTOP_NAMES)) {
+        if (ev->atom == Atoms::getAtom(NET_DESKTOP_NAMES)) {
             _root_wo->readEwmhDesktopNames();
             _workspaces->setNames();
         }

@@ -218,7 +218,7 @@ public:
     inline bool isHarbourSort(void) const { return _harbour_sort; }
 #endif // HARBOUR
 
-    AutoProperty *findWindowTypeProperty(EwmhAtomName atom);
+    AutoProperty *findWindowTypeProperty(AtomName atom);
 
     bool load(void);
     void unload(void);
@@ -233,7 +233,7 @@ private:
                            int ws, uint type);
 
     bool parsePropertyMatch(const std::string &str, Property *prop);
-    EwmhAtomName parsePropertyMatchWindowType(const std::string &str, Property *prop);
+    AtomName parsePropertyMatchWindowType(const std::string &str, Property *prop);
     bool parseProperty(CfgParser::Entry *section, Property *prop);
     void parseAutoProperty(CfgParser::Entry *section, std::list<uint>* ws);
     void parseAutoGroup(CfgParser::Entry *section, AutoProperty* prop);
@@ -253,7 +253,7 @@ private:
     std::string _autoproperties_path; /**< Path to last loaded autoproperties file. */
     time_t _autoproperties_mtime; /**< Mtime of last loaded autoproperties file. */
 
-  std::map<EwmhAtomName, AutoProperty*> _window_type_prop_map;
+  std::map<AtomName, AutoProperty*> _window_type_prop_map;
     std::list<Property*> _prop_list;
     std::list<Property*> _title_prop_list;
     std::list<Property*> _decor_prop_list;
@@ -266,7 +266,7 @@ private:
     std::map<ParseUtil::Entry, ApplyOn> _apply_on_map;
     std::map<ParseUtil::Entry, PropertyType> _property_map;
     std::map<ParseUtil::Entry, PropertyType> _group_property_map;
-    std::map<ParseUtil::Entry, EwmhAtomName> _window_type_map;
+    std::map<ParseUtil::Entry, AtomName> _window_type_map;
 
     static AutoProperties *_instance;
 };
