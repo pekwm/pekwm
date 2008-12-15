@@ -24,6 +24,9 @@ public:
     Entry(const std::string &text) : _text(text.c_str()) { }
     ~Entry(void) { }
 
+    /** Get text version of string. */
+    inline const char *get_text(void) const { return _text; }
+
     // operators
     inline bool operator==(const std::string &rhs) const {
         return (strcasecmp(rhs.c_str(), _text) == 0);

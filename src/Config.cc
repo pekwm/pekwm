@@ -204,6 +204,7 @@ Config::Config(void) :
     _inputdialog_map["EXEC"] = INPUT_EXEC;
     _inputdialog_map["CLOSE"] = INPUT_CLOSE;
     _inputdialog_map["COMPLETE"] = INPUT_COMPLETE;
+    _inputdialog_map["COMPLETEABORT"] = INPUT_COMPLETE_ABORT;
     _inputdialog_map["CURSNEXT"] = INPUT_CURS_NEXT;
     _inputdialog_map["CURSPREV"] = INPUT_CURS_PREV;
     _inputdialog_map["CURSEND"] = INPUT_CURS_END;

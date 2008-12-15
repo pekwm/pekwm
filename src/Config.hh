@@ -26,6 +26,8 @@
 class Config
 {
 public:
+    typedef std::map<ParseUtil::Entry, std::pair<ActionType, uint> >::iterator action_map_it;
+
     Config(void);
     ~Config(void);
 
@@ -35,6 +37,11 @@ public:
     bool loadMouseConfig(const std::string &mouse_file);
 
     inline const std::string &getConfigFile(void) const { return _config_file; }
+
+    /** Return start iterator for iterating over actions. */
+    action_map_it action_map_begin(void) { return _action_map.begin(); }
+    /** Return end iterator for iterating over actions. */
+    action_map_it action_map_end(void) { return _action_map.end(); }
 
     // Files
     const std::string &getKeyFile(void) const { return _files_keys; }

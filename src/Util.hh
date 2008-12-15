@@ -22,6 +22,17 @@
 #include <functional>
 #include <sstream>
 
+/**
+ * String utilities, convenience functions for making life easier
+ * when working with strings.
+ */
+namespace String {
+    /** Get safe version of position */
+    inline size_t safe_position(size_t pos, size_t fallback = 0) {
+        return pos == std::wstring::npos ? fallback : pos;
+    }
+}
+
 //! @brief Namespace Util used for various small file/string tasks.
 namespace Util {
     void forkExec(std::string command);

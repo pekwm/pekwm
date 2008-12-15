@@ -51,6 +51,8 @@ public:
 protected:
   virtual ActionEvent *close(void);
   virtual ActionEvent *exec(void) { return 0; }
+  virtual void complete(void);
+  virtual void completeAbort(void);
 
   virtual void bufAdd(XKeyEvent *ev);
   virtual void bufRemove(void);
@@ -80,6 +82,10 @@ protected:
   // content related
   std::wstring _buf;
   uint _pos, _buf_off, _buf_chars; // position, start and num display
+
+    // Completion
+    std::wstring _buf_on_complete; /**< Buffer before completion. */
+    std::wstring _buf_on_complete_result; /** Buffer after completion. */
 
   // history
   std::wstring _hist_new; // the one we started editing on

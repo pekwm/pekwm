@@ -14,6 +14,7 @@
 #endif // HAVE_CONFIG_H
 
 #include "Action.hh"
+#include "Completer.hh"
 #include "InputDialog.hh"
 #include "Theme.hh"
 
@@ -38,6 +39,10 @@ private:
     virtual void complete(void);
 
 private:
+    Completer _completer; /**< Completer used completing actions. */
+    complete_list _complete_list; /**< List of completions found by completer. */
+    complete_it _complete_it; /**< Iterator used to step between completions. */
+
     int _exec_count; /**< Number of CmdDialog has run exec since last history save. */ 
 };
 

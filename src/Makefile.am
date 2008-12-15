@@ -13,6 +13,7 @@ pekwm_SOURCES = \
 	CfgParserKey.cc CfgParserKey.hh \
 	CfgParserSource.cc CfgParserSource.hh \
 	Compat.cc Compat.hh \
+	Completer.cc Completer.hh \
 	ColorHandler.cc ColorHandler.hh \
 	Client.cc Client.hh \
 	CmdDialog.cc CmdDialog.hh \

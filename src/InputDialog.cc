@@ -135,6 +135,10 @@ InputDialog::handleKeyPress(XKeyEvent *ev)
                 ae = close();
                 break;
             case INPUT_COMPLETE:
+                complete();
+                break;
+            case INPUT_COMPLETE_ABORT:
+                completeAbort();
                 break;
             case INPUT_CURS_NEXT:
                 bufChangePos(1);
@@ -333,6 +337,28 @@ InputDialog::close(void)
 }
 
 /**
+ * Default implementation, fills in _buf_on_complete to safely run
+ * completeAbort.
+ */
+void
+InputDialog::complete(void)
+{
+    _buf_on_complete = _buf;
+}
+
+/**
+ * Restore buffer and clear completion buffers.
+ */
+void
+InputDialog::completeAbort(void)
+{
+    if (_buf_on_complete.size()) {
+        _buf = _buf_on_complete;
+    }
+    _buf_on_complete = _buf_on_complete_result = L""; // old gcc doesn't know about .clear()
+}
+
+/**
  * Adds char to buffer
  */
 void
@@ -371,7 +397,7 @@ InputDialog::bufRemove(void)
 void
 InputDialog::bufClear(void)
 {
-    _buf = L""; // old gcc doesn't know about .clear()
+    _buf = _buf_on_complete = _buf_on_complete_result = L""; // old gcc doesn't know about .clear()
     _pos = _buf_off = _buf_chars = 0;
 }
 

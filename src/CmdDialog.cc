@@ -43,9 +43,12 @@ using std::wstring;
  */
 CmdDialog::CmdDialog(Display *dpy, Theme *theme)
   : InputDialog(dpy, theme, L"Enter command"),
-    _exec_count(0)
+    _completer(L";"), _exec_count(0)
 {
   _type = PWinObj::WO_CMD_DIALOG;
+
+  // Setup completer
+  _completer.add_method(new PathCompleterMethod());
 
   if (Config::instance()->getCmdDialogHistoryFile().size() > 0) {
     _hist_list.load(Config::instance()->getCmdDialogHistoryFile());
@@ -109,12 +112,28 @@ CmdDialog::unmapWindow(void)
     }
 }
 
-//! @brief Tab completion, complete word at cursor position.
+/**
+ * Tab completion, complete word at cursor position.
+ */
 void
 CmdDialog::complete(void)
 {
+    // Find completion if changed since last time.
+    if (_buf != _buf_on_complete_result) {
+        _buf_on_complete = _buf;
+        _complete_list = _completer.find_completions(_buf, _pos);
+        _complete_it = _complete_list.begin();
+    }
+
+    if (_complete_list.size()) {
+        _buf = _completer.do_complete(_buf_on_complete, _pos, _complete_list, _complete_it);
+        _buf_on_complete_result = _buf;
+    }
 }
 
+/**
+ * Map CmdDialog centered on wo_ref is specified, else _wo_ref.
+ */
 void
 CmdDialog::mapCentered(const std::string &buf, bool focus, PWinObj *wo_ref)
 {
