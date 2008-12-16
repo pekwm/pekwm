@@ -120,7 +120,7 @@ CmdDialog::complete(void)
 {
     // Find completion if changed since last time.
     if (_buf != _buf_on_complete_result) {
-        _buf_on_complete = _buf;
+        InputDialog::complete();
         _complete_list = _completer.find_completions(_buf, _pos);
         _complete_it = _complete_list.begin();
     }

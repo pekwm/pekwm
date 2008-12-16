@@ -86,6 +86,7 @@ protected:
     // Completion
     std::wstring _buf_on_complete; /**< Buffer before completion. */
     std::wstring _buf_on_complete_result; /** Buffer after completion. */
+    unsigned int _pos_on_complete; /**< Cursor position on completion start. */
 
   // history
   std::wstring _hist_new; // the one we started editing on

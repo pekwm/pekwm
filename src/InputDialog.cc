@@ -344,6 +344,7 @@ void
 InputDialog::complete(void)
 {
     _buf_on_complete = _buf;
+    _pos_on_complete = _pos;
 }
 
 /**
@@ -354,8 +355,10 @@ InputDialog::completeAbort(void)
 {
     if (_buf_on_complete.size()) {
         _buf = _buf_on_complete;
+        _pos = _pos_on_complete;
     }
     _buf_on_complete = _buf_on_complete_result = L""; // old gcc doesn't know about .clear()
+    _pos_on_complete = 0;
 }
 
 /**
@@ -398,7 +401,7 @@ void
 InputDialog::bufClear(void)
 {
     _buf = _buf_on_complete = _buf_on_complete_result = L""; // old gcc doesn't know about .clear()
-    _pos = _buf_off = _buf_chars = 0;
+    _pos = _pos_on_complete = _buf_off = _buf_chars = 0;
 }
 
 /**
