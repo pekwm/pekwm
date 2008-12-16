@@ -1544,33 +1544,21 @@ WindowManager::createMenus(void)
     // Make sure this is not called twice without an delete in between
     assert(! _menu_map.size());
 
-    _menu_map["ATTACHCLIENTINFRAME"] =
-        new FrameListMenu(_screen, _theme, ATTACH_CLIENT_IN_FRAME_TYPE,
-                          L"Attach Client In Frame", "ATTACHCLIENTINFRAME");
-    _menu_map["ATTACHCLIENT"] =
-        new FrameListMenu(_screen, _theme, ATTACH_CLIENT_TYPE,
-                          L"Attach Client", "ATTACHCLIENT");
-    _menu_map["ATTACHFRAMEINFRAME"] =
-        new FrameListMenu(_screen, _theme, ATTACH_FRAME_IN_FRAME_TYPE,
-                          L"Attach Frame In Frame", "ATTACHFRAMEINFRAME");
-    _menu_map["ATTACHFRAME"] =
-        new FrameListMenu(_screen, _theme, ATTACH_FRAME_TYPE,
-                          L"Attach Frame", "ATTACHFRAME");
+    _menu_map["ATTACHCLIENTINFRAME"] = new FrameListMenu(_screen, _theme, ATTACH_CLIENT_IN_FRAME_TYPE,
+                                                         L"Attach Client In Frame", "ATTACHCLIENTINFRAME");
+    _menu_map["ATTACHCLIENT"] = new FrameListMenu(_screen, _theme, ATTACH_CLIENT_TYPE,
+                                                  L"Attach Client", "ATTACHCLIENT");
+    _menu_map["ATTACHFRAMEINFRAME"] = new FrameListMenu(_screen, _theme, ATTACH_FRAME_IN_FRAME_TYPE,
+                                                        L"Attach Frame In Frame", "ATTACHFRAMEINFRAME");
+    _menu_map["ATTACHFRAME"] = new FrameListMenu(_screen, _theme, ATTACH_FRAME_TYPE,
+                                                 L"Attach Frame", "ATTACHFRAME");
+    _menu_map["GOTOCLIENT"] = new FrameListMenu(_screen, _theme, GOTOCLIENTMENU_TYPE,
+                                                L"Focus Client", "GOTOCLIENT");
     _menu_map["DECORMENU"] = new DecorMenu(_screen, _theme, _action_handler, "DECORMENU");
-    _menu_map["GOTOCLIENT"] =
-        new FrameListMenu(_screen, _theme, GOTOCLIENTMENU_TYPE,
-                          L"Focus Client", "GOTOCLIENT");
-    _menu_map["GOTO"] =
-        new FrameListMenu(_screen, _theme, GOTOMENU_TYPE,
-                          L"Focus Frame", "GOTO");
-    _menu_map["ICON"] =
-        new FrameListMenu(_screen, _theme, ICONMENU_TYPE,
-                          L"Focus Iconified Frame", "ICON");
-
-    _menu_map["ROOT"] = // It's named ROOT to be backwards compatible
-        new ActionMenu(ROOTMENU_TYPE, L"", "ROOTMENU");
-    _menu_map["WINDOW"] = // It's named WINDOW to be backwards compatible
-        new ActionMenu(WINDOWMENU_TYPE, L"", "WINDOWMENU");
+    _menu_map["GOTO"] = new FrameListMenu(_screen, _theme, GOTOMENU_TYPE, L"Focus Frame", "GOTO");
+    _menu_map["ICON"] = new FrameListMenu(_screen, _theme, ICONMENU_TYPE, L"Focus Iconified Frame", "ICON");
+    _menu_map["ROOT"] =  new ActionMenu(ROOTMENU_TYPE, L"", "ROOTMENU");
+    _menu_map["WINDOW"] = new ActionMenu(WINDOWMENU_TYPE, L"", "WINDOWMENU");
 
     // As the previous step is done manually, make sure it's done correct.
     assert(_menu_map.size() == (MENU_NAMES_RESERVED_COUNT - 2));
