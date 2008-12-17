@@ -47,6 +47,36 @@ const int ANY_MASK =
     KEYGRABBER_OK|FRAME_OK|FRAME_BORDER_OK|CLIENT_OK|ROOTCLICK_OK|
     BUTTONCLICK_OK|WINDOWMENU_OK|ROOTMENU_OK|SCREEN_EDGE_OK;
 
+/**
+ * Parse width and height limits.
+ */
+bool
+SizeLimits::parse(const std::string &minimum, const std::string &maximum)
+{
+    return (parseLimit(minimum, _limits[WIDTH_MIN], _limits[HEIGHT_MIN])
+            && parseLimit(maximum, _limits[WIDTH_MAX], _limits[HEIGHT_MAX]));
+}
+
+/**
+ * Parse single limit.
+ */
+bool
+SizeLimits::parseLimit(const std::string &limit, unsigned int &min, unsigned int &max)
+{
+    bool status = false;
+    vector<string> tokens;
+    if ((Util::splitString(limit, tokens, "x", 2)) == 2) {
+        min = strtol(tokens[0].c_str(), 0, 10);
+        max = strtol(tokens[1].c_str(), 0, 10);
+        status = true;
+    } else {
+        min = 0;
+        max = 0;
+    }
+
+    return status;
+}
+
 //! @brief Constructor for Config class
 Config::Config(void) :
         _config_mtime(0), _mouse_mtime(0),
@@ -71,8 +101,6 @@ Config::Config(void) :
         _screen_client_unique_name_pre(" #"), _screen_client_unique_name_post(""),
         _menu_select_mask(0), _menu_enter_mask(0), _menu_exec_mask(0),
         _menu_display_icons(true),
-        _menu_icon_width_max(16), _menu_icon_width_min(16),
-        _menu_icon_height_max(16), _menu_icon_height_min(16),
         _cmd_dialog_history_unique(true), _cmd_dialog_history_size(1024),
         _cmd_dialog_history_file("~/.pekwm/history"), _cmd_dialog_history_save_interval(16)
 #ifdef HARBOUR
@@ -704,10 +732,6 @@ Config::loadMenu(CfgParser::Entry *section)
     key_list.push_back(new CfgParserKeyString("ENTER", value_enter, "BUTTONPRESS", 0));
     key_list.push_back(new CfgParserKeyString("EXEC", value_exec, "BUTTONRELEASE", 0));
     key_list.push_back(new CfgParserKeyBool("DISPLAYICONS", _menu_display_icons, true));
-    key_list.push_back(new CfgParserKeyNumeric<uint>("ICONWIDTHMAX", _menu_icon_width_max, 16));
-    key_list.push_back(new CfgParserKeyNumeric<uint>("ICONWIDTHMIN", _menu_icon_width_min, 16));
-    key_list.push_back(new CfgParserKeyNumeric<uint>("ICONHEIGHTMAX", _menu_icon_height_max, 16));
-    key_list.push_back(new CfgParserKeyNumeric<uint>("ICONHEIGHTMIN", _menu_icon_height_min, 16));
 
     // Parse data
     section->parse_key_values(key_list.begin(), key_list.end());
@@ -719,6 +743,39 @@ Config::loadMenu(CfgParser::Entry *section)
     // Free up resources
     for_each(key_list.begin(), key_list.end(), Util::Free<CfgParserKey*>());
     key_list.clear();
+
+    // Parse icon size limits
+    CfgParser::iterator it(section->begin());
+    for (; it != section->end(); ++it) {
+        if (*(*it) == "ICONS") {
+            loadMenuIcons((*it)->get_section());
+        }
+    }
+}
+
+/**
+ * Load Icon size limits for menu.
+ */
+void
+Config::loadMenuIcons(CfgParser::Entry *section)
+{
+    if (! section || ! section->get_value().size()) {
+        return;
+    }
+
+    list<CfgParserKey*> key_list;
+    string minimum, maximum;
+
+    key_list.push_back(new CfgParserKeyString("MINIMUM", minimum, "16x16", 3));
+    key_list.push_back(new CfgParserKeyString("MAXIMUM", maximum, "16x16", 3));
+
+    // Parse data
+    section->parse_key_values(key_list.begin(), key_list.end());
+
+    SizeLimits limits;
+    if (limits.parse(minimum, maximum)) {
+        _menu_icon_limits[section->get_name()] = limits;
+    }
 }
 
 /**

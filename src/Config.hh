@@ -23,6 +23,45 @@
 #include <map>
 #include <utility>
 
+/**
+ * Enum describing the different limits of a size limit.
+ */
+enum SizeLimitType {
+    WIDTH_MIN = 0,
+    WIDTH_MAX,
+    HEIGHT_MIN,
+    HEIGHT_MAX
+};
+
+/**
+ * Simple class describing size limitations, width and height min and
+ * max sizes.
+ */
+class SizeLimits
+{
+public:
+    /** SizeLimits constructor setting limits to 0. */
+    SizeLimits(void) {
+        for (unsigned int i = 0; i < HEIGHT_MAX; ++i) {
+            _limits[i] = 0;
+        }
+    }
+
+    /** Get limit for limit type. */
+    unsigned int get(SizeLimitType limit) const { return _limits[limit]; }
+    bool parse(const std::string &minimum, const std::string &maximum);
+
+private:
+    bool parseLimit(const std::string &limit, unsigned int &min, unsigned int &max);
+
+private:
+    unsigned int _limits[HEIGHT_MAX]; /**< Limits. */
+};
+
+/**
+ * Large set of configuration options stored and parsed by the
+ * singleton Config class.
+ */
 class Config
 {
 public:
@@ -157,13 +196,21 @@ public:
 
     uint getMenuMask(const std::string &mask);
     /** Return maximum allowed icon width. */
-    uint getMenuIconWidthMax(uint value) const { return _menu_icon_width_max ? _menu_icon_width_max : value; }
-    /** Return minimum allowed icon width. */
-    uint getMenuIconWidthMin(uint value) const { return _menu_icon_width_min ? _menu_icon_width_min : value; }
-    /** Return maximum allowed icon height. */
-    uint getMenuIconHeightMax(uint value) const { return _menu_icon_height_max ? _menu_icon_height_max : value; }
-    /** Return minimum allowed icon height. */
-    uint getMenuIconHeightMin(uint value) const { return _menu_icon_height_min ? _menu_icon_height_min : value; }
+    unsigned int getMenuIconLimit(unsigned int value, SizeLimitType limit, const std::string &name) const {
+        unsigned int limit_val = 0;
+        std::map<std::string, SizeLimits>::const_iterator it(_menu_icon_limits.find(name));
+        if (it == _menu_icon_limits.end()) {
+            if (name == "DEFAULT") {
+                limit_val = 16;
+            } else {
+                limit_val = getMenuIconLimit(value, limit, "DEFAULT");
+            }
+        } else {
+            limit_val = it->second.get(limit);
+        }
+
+        return limit_val ? limit_val : value;
+    }
 
 #ifdef MENUS
     bool parseMenuAction(const std::string& action_string, Action& action);
@@ -181,6 +228,7 @@ private:
     void loadMoveResize(CfgParser::Entry *section);
     void loadScreen(CfgParser::Entry *section);
     void loadMenu(CfgParser::Entry *section);
+    void loadMenuIcons(CfgParser::Entry *section);
     void loadCmdDialog(CfgParser::Entry *section);
 #ifdef HARBOUR
     void loadHarbour(CfgParser::Entry *section);
@@ -234,10 +282,8 @@ private:
 
     uint _menu_select_mask, _menu_enter_mask, _menu_exec_mask;
     bool _menu_display_icons; /**< Boolean flag, when true display icons in menus. */
-    uint _menu_icon_width_max; /** Maximum allowed icon width, 0 to disable check. */
-    uint _menu_icon_width_min; /** Minimum allowed icon width, 0 to disable check. */
-    uint _menu_icon_height_max; /** Maximum allowed icon height, 0 to disable check. */
-    uint _menu_icon_height_min; /** Minimum allowed icon height, 0 to disable check. */
+
+    std::map<std::string, SizeLimits> _menu_icon_limits; /**< Map of name -> limit for icons in menus */
 
     bool _cmd_dialog_history_unique; /**< Boolean flag, when true entries in the CmdDialog history are unique. */
     int _cmd_dialog_history_size; /**< Number of entries in the history before the last entries are dropped. */

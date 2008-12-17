@@ -475,11 +475,11 @@ PMenu::buildMenuCalculateMaxWidth(unsigned int &width, unsigned int &height)
     // Make sure icon width and height are not larger than configured.
     if (_icon_width) {
         _icon_width = Util::between<uint>(_icon_width,
-                                          Config::instance()->getMenuIconWidthMin(_icon_width),
-                                          Config::instance()->getMenuIconWidthMax(_icon_width));
+                                          Config::instance()->getMenuIconLimit(_icon_width, WIDTH_MIN, _name),
+                                          Config::instance()->getMenuIconLimit(_icon_width, WIDTH_MAX, _name));
         _icon_height = Util::between<uint>(_icon_height,
-                                           Config::instance()->getMenuIconHeightMin(_icon_height),
-                                           Config::instance()->getMenuIconHeightMax(_icon_height));
+                                           Config::instance()->getMenuIconLimit(_icon_height, HEIGHT_MIN, _name),
+                                           Config::instance()->getMenuIconLimit(_icon_height, HEIGHT_MAX, _name));
     }
 }
 
@@ -617,12 +617,12 @@ PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
         // If entry has an icon, draw it
         if (item->getIcon() && Config::instance()->isDisplayMenuIcons()) {
             icon_width = Util::between<uint>(item->getIcon()->getWidth(),
-                                             Config::instance()->getMenuIconWidthMin(_icon_width),
-                                             Config::instance()->getMenuIconWidthMax(_icon_width));
+                                             Config::instance()->getMenuIconLimit(_icon_width, WIDTH_MIN, _name),
+                                             Config::instance()->getMenuIconLimit(_icon_width, WIDTH_MAX, _name));
             
             icon_height = Util::between<uint>(item->getIcon()->getHeight(),
-                                              Config::instance()->getMenuIconHeightMin(_icon_height),
-                                              Config::instance()->getMenuIconHeightMax(_icon_height));
+                                              Config::instance()->getMenuIconLimit(_icon_height, HEIGHT_MIN, _name),
+                                              Config::instance()->getMenuIconLimit(_icon_height, HEIGHT_MAX, _name));
 
             start_x = item->getX() + md->getPad(PAD_LEFT) + (_icon_width - icon_width) / 2;
             start_y = item->getY() + (_item_height - icon_height) / 2;
