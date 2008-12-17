@@ -258,7 +258,7 @@ private:
     time_t _autoproperties_mtime; /**< Mtime of last loaded autoproperties file. */
     bool _extended; /**< Extended syntax enabled for autoproperties? */
 
-  std::map<AtomName, AutoProperty*> _window_type_prop_map;
+    std::map<AtomName, AutoProperty*> _window_type_prop_map;
     std::list<Property*> _prop_list;
     std::list<Property*> _title_prop_list;
     std::list<Property*> _decor_prop_list;

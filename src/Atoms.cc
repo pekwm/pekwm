@@ -106,7 +106,7 @@ Atoms::setEwmhAtomsSupport(Window win)
 {
     Atom *atoms = new Atom[UTF8_STRING+1];
 
-    for (uint i = 0; i<=UTF8_STRING; ++i) {
+    for (uint i = 0; i <= UTF8_STRING; ++i) {
         atoms[i] = _atoms[AtomName(i)];
     }
 

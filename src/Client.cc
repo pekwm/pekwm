@@ -188,7 +188,7 @@ Client::Client(Window new_client, bool is_new)
     bool do_focus = is_new ? Config::instance()->isFocusNew() : false;
     bool do_autogroup = true;
 
-    // If pekwm allready is running, check against autoproperty then
+    // If pekwm is already running, check against autoproperty then
     // tagged frame. If starting up, check if it has a FRAME_ID and if not
     // use autoproperties.
     if (WindowManager::instance()->isStartup()) {
@@ -246,14 +246,14 @@ Client::Client(Window new_client, bool is_new)
 
     PScreen::instance()->ungrabServer(true);
 
-    // if we don't have a frame allready, create a new one
+    // if we don't have a frame already, create a new one
     if (! _parent) {
         _parent = new Frame(this, ap);
     }
 
     // Make sure the window is mapped, this is done after it has been
     // added to the decor/frame as otherwise IsViewable state won't
-    // be correct and we don't know wheter or not to place the window
+    // be correct and we don't know whether or not to place the window
     if (! _iconified) {
         PWinObj::mapWindow();
     }
@@ -727,7 +727,7 @@ Client::readEwmhHints(void)
         _workspace = workspace;
     }
 
-    // try to figure out what kind of window we are and alter it acordingly
+    // try to figure out what kind of window we are and alter it accordingly
     int items;
     Atom *atoms = 0;
 
@@ -757,17 +757,17 @@ Client::readEwmhHints(void)
 
     // Set window type to WINDOW_TYPE_NORMAL if it did not match
     if (window_type == WINDOW_TYPE) {
-      window_type = WINDOW_TYPE_NORMAL;
-      AtomUtil::setAtom(_window, Atoms::getAtom(WINDOW_TYPE), Atoms::getAtom(WINDOW_TYPE_NORMAL));
+        window_type = WINDOW_TYPE_NORMAL;
+        AtomUtil::setAtom(_window, Atoms::getAtom(WINDOW_TYPE), Atoms::getAtom(WINDOW_TYPE_NORMAL));
     }
 
     // Apply autoproperties for window type
     AutoProperty *auto_property = AutoProperties::instance()->findWindowTypeProperty(window_type);
     if (auto_property) {
-      applyAutoprops(auto_property);
+        applyAutoprops(auto_property);
     }
 
-    // The _NET_WM_STATE overides the _NET_WM_TYPE
+    // The _NET_WM_STATE overrides the _NET_WM_TYPE
     NetWMStates win_states;
     if (getEwmhStates(win_states)) {
         if (win_states.hidden) _iconified = true;
