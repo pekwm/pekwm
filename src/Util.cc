@@ -286,8 +286,7 @@ expandFileName(std::string &file)
 //! @param max Maximum number of elements to put into vals (optional)
 //! @return Number of tokens inserted into vals
 uint
-splitString(const std::string str, std::vector<std::string> &toks,
-            const char *sep, uint max)
+splitString(const std::string str, std::vector<std::string> &toks, const char *sep, uint max)
 {
     if (str.size() < 1) {
         return 0;
@@ -309,7 +308,10 @@ splitString(const std::string str, std::vector<std::string> &toks,
             break;
         }
 
-        s = str.find_first_not_of(sep, e);
+        s = str.find_first_of(sep, e + 1);
+        if (s != (e + 1)) {
+            s = str.find_first_not_of(sep, e);
+        }
     }
 
     return (toks.size() - n);

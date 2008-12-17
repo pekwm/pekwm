@@ -37,8 +37,7 @@ AutoProperties::AutoProperties(void)
       _apply_on_start(true)
 {
 #ifdef DEBUG
-    if (_instance)
-    {
+    if (_instance) {
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "AutoProperties(" << this << ")::AutoProperties()" << endl
              << " *** _instance allready set: " << _instance << endl;
@@ -116,14 +115,17 @@ AutoProperties::load(void)
     unload();
 
     CfgParser a_cfg;
-    if (! a_cfg.parse(cfg_file, CfgParserSource::SOURCE_FILE, true)) {
+    if (! a_cfg.parse(cfg_file, CfgParserSource::SOURCE_FILE, false)) {
         cfg_file = SYSCONFDIR "/autoproperties";
-        if (! a_cfg.parse (cfg_file, CfgParserSource::SOURCE_FILE, true)) {
+        if (! a_cfg.parse (cfg_file, CfgParserSource::SOURCE_FILE, false)) {
           setDefaultTypeProperties();
           _autoproperties_mtime = 0;
           return false;
         }
     }
+
+    // Setup template parsing if requested
+    loadRequire(a_cfg);
 
     if (a_cfg.is_dynamic_content()) {
         _autoproperties_mtime = 0;
@@ -176,6 +178,33 @@ AutoProperties::load(void)
     setDefaultTypeProperties();
 
     return true;
+}
+
+/**
+ * Load autoproperties quirks.
+ */
+void
+AutoProperties::loadRequire(CfgParser &a_cfg)
+{
+    CfgParser::Entry *section;
+
+    // Look for requires section, 
+    section = a_cfg.get_entry_root()->find_section("REQUIRE");
+    if (section) {
+        list<CfgParserKey*> key_list;
+        bool value_templates;
+
+        key_list.push_back(new CfgParserKeyBool("TEMPLATES", value_templates, false));
+        section->parse_key_values(key_list.begin(), key_list.end());
+        for_each(key_list.begin(), key_list.end(), Util::Free<CfgParserKey*>());
+
+        // Re-load configuration with templates enabled.
+        if (value_templates) {
+            string autoproperties_path(_autoproperties_path);
+            a_cfg.clear(true);
+            a_cfg.parse(autoproperties_path, CfgParserSource::SOURCE_FILE, true);
+        }
+    }
 }
 
 //! @brief Frees allocated memory
@@ -270,32 +299,51 @@ AutoProperties::parsePropertyMatchWindowType(const std::string &str,
     return atom;
 }
 
+/**
+ * Parse regex_str and set on regex, outputting warning with name if
+ * it fails.
+ */
+bool
+AutoProperties::parseRegexpOrWarning(RegexString &regex, const std::string regex_str, const std::string &name)
+{
+    if (! regex_str.size() || regex.parse_match(Util::to_wide_str(regex_str))) {
+        return true;
+    } else {
+        cerr << " *** WARNING: invalid regexp " << regex_str << " for autoproperty " << name << endl;
+        return false;
+    }
+}
+
 //! @brief Parses a property match rule
 //! @param str String to parse.
 //! @param prop Property to place result in.
+//! @param extended Extended syntax including role and title in the name, defaults to true.
 //! @return true on success, else false.
 bool
-AutoProperties::parsePropertyMatch(const std::string &str, Property *prop)
+AutoProperties::parsePropertyMatch(const std::string &str, Property *prop, bool extended)
 {
     bool status = false;
 
     // Format of property matches are regexp,regexp . Split up in class
     // and role regexps.
     vector<string> tokens;
-    if ((Util::splitString (str, tokens, ",", 2)) == 2) {
+    Util::splitString(str, tokens, ",", extended ? 5 : 2);
+    if (tokens.size() >= 2) {
         // Make sure one of the two regexps compiles
-        if (prop->getHintName().parse_match (Util::to_wide_str(tokens[0]))) {
-            status = true;
-        } else {
-            cerr << " *** WARNING: failed to compile name regexp for autoproperty, "
-                 << tokens[0] << endl;
-        }
+        status = parseRegexpOrWarning(prop->getHintName(), tokens[0], "name");
+        status = status && parseRegexpOrWarning(prop->getHintClass(), tokens[1], "class");
+    }
 
-        if (prop->getHintClass().parse_match (Util::to_wide_str(tokens[1]))) {
-            status = true;
-        } else {
-            cerr << " *** WARNING: failed to compile class regexp for autoproperty, "
-                 << tokens[1] << endl;
+    // Parse extended part of regexp, role, title and apply on
+    if (status && extended) {
+        if (status && tokens.size() > 2) {
+            status = parseRegexpOrWarning(prop->getRole(), tokens[2], "role");
+        }
+        if (status && tokens.size() > 3) {
+            status = parseRegexpOrWarning(prop->getTitle(), tokens[3], "title");
+        }
+        if (status && tokens.size() > 4) {
+            parsePropertyApplyOn(tokens[4], prop);
         }
     }
 
@@ -306,31 +354,40 @@ AutoProperties::parsePropertyMatch(const std::string &str, Property *prop)
 bool
 AutoProperties::parseProperty(CfgParser::Entry *section, Property *prop)
 {
-    vector<string> tokens;
     CfgParser::Entry *value;
 
     // Get extra matching info.
     value = section->find_entry ("TITLE");
     if (value) {
-        prop->getTitle().parse_match (Util::to_wide_str(value->get_value ()));
+        parseRegexpOrWarning(prop->getTitle(), value->get_value(), "title");
     }
     value = section->find_entry ("ROLE");
     if (value) {
-        prop->getRole().parse_match (Util::to_wide_str(value->get_value ()));
+        parseRegexpOrWarning(prop->getRole(), value->get_value(), "role");
     }
 
     // Parse apply on mask.
     value = section->find_entry ("APPLYON");
     if (value) {
-        tokens.clear();
-        if ((Util::splitString(value->get_value (), tokens, " \t", 5))) {
-            vector<string>::iterator it;
-            for (it = tokens.begin(); it != tokens.end(); ++it)
-                prop->applyAdd((uint) ParseUtil::getValue<ApplyOn>(*it, _apply_on_map));
-        }
+        parsePropertyApplyOn(value->get_value(), prop);
     }
 
     return true;
+}
+
+/**
+ * Parse property apply on.
+ */
+void
+AutoProperties::parsePropertyApplyOn(const std::string &apply_on, Property *prop)
+{
+    vector<string> tokens;
+    if ((Util::splitString(apply_on, tokens, " \t", 5))) {
+        vector<string>::iterator it(tokens.begin());
+        for (; it != tokens.end(); ++it) {
+            prop->applyAdd(static_cast<unsigned int>(ParseUtil::getValue<ApplyOn>(*it, _apply_on_map)));
+        }
+    }
 }
 
 //! @brief Parses AutopProperty

@@ -232,7 +232,11 @@ private:
                            std::list<Property*>* prop_list,
                            int ws, uint type);
 
-    bool parsePropertyMatch(const std::string &str, Property *prop);
+    void loadRequire(CfgParser &a_cfg);
+
+    bool parsePropertyMatch(const std::string &str, Property *prop, bool extended = true);
+    void parsePropertyApplyOn(const std::string &apply_on, Property *prop);
+    bool parseRegexpOrWarning(RegexString &regex, const std::string regex_str, const std::string &name);
     AtomName parsePropertyMatchWindowType(const std::string &str, Property *prop);
     bool parseProperty(CfgParser::Entry *section, Property *prop);
     void parseAutoProperty(CfgParser::Entry *section, std::list<uint>* ws);
