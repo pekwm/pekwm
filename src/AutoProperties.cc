@@ -657,9 +657,9 @@ AutoProperties::setDefaultTypeProperties(void)
     if (! findWindowTypeProperty(WINDOW_TYPE_TOOLBAR)) {
         AutoProperty *prop = new AutoProperty();
         prop->maskAdd(AP_TITLEBAR);
-        prop->titlebar = false;
+        prop->titlebar = true;
         prop->maskAdd(AP_BORDER);
-        prop->border = false;
+        prop->border = true;
         prop->maskAdd(AP_SKIP);
         prop->skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE|SKIP_PAGER|SKIP_TASKBAR;
 
@@ -683,9 +683,9 @@ AutoProperties::setDefaultTypeProperties(void)
     if (! findWindowTypeProperty(WINDOW_TYPE_UTILITY)) {
         AutoProperty *prop = new AutoProperty();
         prop->maskAdd(AP_TITLEBAR);
-        prop->titlebar = false;
+        prop->titlebar = true;
         prop->maskAdd(AP_BORDER);
-        prop->border = false;
+        prop->border = true;
         prop->maskAdd(AP_SKIP);
         prop->skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE|SKIP_SNAP;
 
