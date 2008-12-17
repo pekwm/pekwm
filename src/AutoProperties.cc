@@ -625,7 +625,7 @@ AutoProperties::setDefaultTypeProperties(void)
         prop->maskAdd(AP_STICKY);
         prop->sticky = true;
         prop->maskAdd(AP_TITLEBAR);
-        prop->border = false;
+        prop->titlebar = false;
         prop->maskAdd(AP_BORDER);
         prop->border = false;
         prop->maskAdd(AP_SKIP);
@@ -636,13 +636,13 @@ AutoProperties::setDefaultTypeProperties(void)
         _window_type_prop_map[WINDOW_TYPE_DESKTOP] = prop;
     }
 
-    // DOCK  
+    // DOCK
     if (! findWindowTypeProperty(WINDOW_TYPE_DOCK)) {
         AutoProperty *prop = new AutoProperty();
         prop->maskAdd(AP_STICKY);
         prop->sticky = true;
         prop->maskAdd(AP_TITLEBAR);
-        prop->border = false;
+        prop->titlebar = false;
         prop->maskAdd(AP_BORDER);
         prop->border = false;
         prop->maskAdd(AP_SKIP);
@@ -657,7 +657,7 @@ AutoProperties::setDefaultTypeProperties(void)
     if (! findWindowTypeProperty(WINDOW_TYPE_TOOLBAR)) {
         AutoProperty *prop = new AutoProperty();
         prop->maskAdd(AP_TITLEBAR);
-        prop->border = false;
+        prop->titlebar = false;
         prop->maskAdd(AP_BORDER);
         prop->border = false;
         prop->maskAdd(AP_SKIP);
@@ -670,7 +670,7 @@ AutoProperties::setDefaultTypeProperties(void)
     if (! findWindowTypeProperty(WINDOW_TYPE_MENU)) {
         AutoProperty *prop = new AutoProperty();
         prop->maskAdd(AP_TITLEBAR);
-        prop->border = false;
+        prop->titlebar = false;
         prop->maskAdd(AP_BORDER);
         prop->border = false;
         prop->maskAdd(AP_SKIP);
@@ -683,7 +683,7 @@ AutoProperties::setDefaultTypeProperties(void)
     if (! findWindowTypeProperty(WINDOW_TYPE_UTILITY)) {
         AutoProperty *prop = new AutoProperty();
         prop->maskAdd(AP_TITLEBAR);
-        prop->border = false;
+        prop->titlebar = false;
         prop->maskAdd(AP_BORDER);
         prop->border = false;
         prop->maskAdd(AP_SKIP);
@@ -696,7 +696,7 @@ AutoProperties::setDefaultTypeProperties(void)
     if (! findWindowTypeProperty(WINDOW_TYPE_SPLASH)) {
         AutoProperty *prop = new AutoProperty();
         prop->maskAdd(AP_TITLEBAR);
-        prop->border = false;
+        prop->titlebar = false;
         prop->maskAdd(AP_BORDER);
         prop->border = false;
 
