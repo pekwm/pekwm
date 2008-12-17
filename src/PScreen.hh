@@ -122,12 +122,19 @@ public:
     inline ulong getBlackPixel(void)
     const { return BlackPixel(_dpy, _screen); }
 
-    /** 
-     * Remove modifiers from state.
+    /**
+     * Remove state modifiers such as NumLock from state.
      */
-    uint stripButtonModifiers(uint state) const {
-        state &= ~Button1Mask & ~Button2Mask & ~Button3Mask
-            & ~Button4Mask & ~Button5Mask & ~_num_lock & _scroll_lock & ~LockMask;
+    unsigned int stripStateModifiers(unsigned int state) const {
+        state &= ~_num_lock & _scroll_lock & ~LockMask;
+        return state;
+    }
+
+    /** 
+     * Remove button modifiers from state.
+     */
+    unsigned int stripButtonModifiers(unsigned int state) const {
+        state &= ~Button1Mask & ~Button2Mask & ~Button3Mask & ~Button4Mask & ~Button5Mask;
         return state;
     }
     inline uint getNumLock(void) const { return _num_lock; }
