@@ -256,6 +256,7 @@ private:
 private:
     std::string _autoproperties_path; /**< Path to last loaded autoproperties file. */
     time_t _autoproperties_mtime; /**< Mtime of last loaded autoproperties file. */
+    bool _extended; /**< Extended syntax enabled for autoproperties? */
 
   std::map<AtomName, AutoProperty*> _window_type_prop_map;
     std::list<Property*> _prop_list;

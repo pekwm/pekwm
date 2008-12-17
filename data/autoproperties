@@ -19,12 +19,15 @@
  own autoproperties. :)
 */
 
+Require {
+	Templates = "True"
+}
+
 /*
  Remove decor of customize toolbar window of mozilla firefox.
  */
-Property = "^(gecko|Gecko|firefox-bin),^Firefox-bin" {
+Property = "^(gecko|Gecko|firefox-bin),^Firefox-bin,,^Customize Toolbar\$" {
 	ApplyOn = "Start New TransientOnly"
-	Title = "^Customize Toolbar\$"
 	Border = "False"
 	Titlebar = "False"
 }
@@ -36,9 +39,8 @@ Property = "^(gecko|Gecko|firefox-bin),^Firefox-bin" {
  your workspace and place them under other windows. Do this when new
  windows show up, also to so called transient windows.
 */
-# Property = "^mozilla-bin,^Mozilla-bin" {
+# Property = "^mozilla-bin,^Mozilla-bin,,^Saving" {
 # 	ApplyOn = "New Transient"
-# 	Title = "^Saving"
 # 	Group = "moz-dl" { Size = "10" }
 # 	FrameGeometry = "+0+0"
 # 	Layer = "Below"
@@ -92,16 +94,14 @@ Property = "^(gecko|Gecko|firefox-bin),^Firefox-bin" {
  toolbox later on. Without this, the toolbox would match with "the rest
  of the windows" and get ignored from the pekwm menus! We don't want that.
 */
-# Property = "^gimp,^Gimp" {
-#  Role = "gimp-toolbox"
+# Property = "^gimp,^Gimp,gimp-toolbox" {
 #  ApplyOn = "Start New"
 # }
 /*
  The Crop dialog always gets in the way, put it in the corner but place
  it above other windows anyways. Don't show the window in pekwm menus.
 */
-# Property = "^gimp,^Gimp" {
-# 	Role = "gimp-crop-tool"
+# Property = "^gimp,^Gimp,gimp-crop-tool" {
 # 	ApplyOn = "Start New"
 # 	Layer = "OnTop"
 # 	FrameGeometry = "+0+0"

@@ -30,7 +30,7 @@ AutoProperties *AutoProperties::_instance = 0;
 
 //! @brief Constructor for AutoProperties class
 AutoProperties::AutoProperties(void)
-    : _autoproperties_mtime(0),
+    : _autoproperties_mtime(0), _extended(false),
 #ifdef HARBOUR
       _harbour_sort(false),
 #endif // HARBOUR
@@ -192,18 +192,19 @@ AutoProperties::loadRequire(CfgParser &a_cfg)
     section = a_cfg.get_entry_root()->find_section("REQUIRE");
     if (section) {
         list<CfgParserKey*> key_list;
-        bool value_templates;
 
-        key_list.push_back(new CfgParserKeyBool("TEMPLATES", value_templates, false));
+        key_list.push_back(new CfgParserKeyBool("TEMPLATES", _extended, false));
         section->parse_key_values(key_list.begin(), key_list.end());
         for_each(key_list.begin(), key_list.end(), Util::Free<CfgParserKey*>());
 
         // Re-load configuration with templates enabled.
-        if (value_templates) {
+        if (_extended) {
             string autoproperties_path(_autoproperties_path);
             a_cfg.clear(true);
             a_cfg.parse(autoproperties_path, CfgParserSource::SOURCE_FILE, true);
         }
+    } else {
+        _extended = false;
     }
 }
 
@@ -288,8 +289,7 @@ AutoProperties::findProperty(const ClassHint* class_hint,
 //! @param prop Property to place result in.
 //! @return true on success, else false.
 AtomName
-AutoProperties::parsePropertyMatchWindowType(const std::string &str,
-                                             Property *prop)
+AutoProperties::parsePropertyMatchWindowType(const std::string &str, Property *prop)
 {
     AtomName atom = ParseUtil::getValue<AtomName>(str, _window_type_map);
     if (atom == WINDOW_TYPE) {
@@ -328,6 +328,7 @@ AutoProperties::parsePropertyMatch(const std::string &str, Property *prop, bool 
     // and role regexps.
     vector<string> tokens;
     Util::splitString(str, tokens, ",", extended ? 5 : 2);
+
     if (tokens.size() >= 2) {
         // Make sure one of the two regexps compiles
         status = parseRegexpOrWarning(prop->getHintName(), tokens[0], "name");
@@ -401,7 +402,7 @@ AutoProperties::parseAutoProperty(CfgParser::Entry *section, std::list<uint>* ws
     }
 
     AutoProperty* property = new AutoProperty();
-    parsePropertyMatch(section->get_value (), property);
+    parsePropertyMatch(section->get_value(), property, _extended);
 
     if (parseProperty(section, property)) {
         parseAutoPropertyValue(section, property, ws);
@@ -472,7 +473,7 @@ AutoProperties::parseTitleProperty(CfgParser::Entry *section)
         }
 
         title_property = new TitleProperty();
-        parsePropertyMatch(title_section->get_value(), title_property);
+        parsePropertyMatch(title_section->get_value(), title_property, _extended);
         if (parseProperty(title_section, title_property)) {
             CfgParser::Entry *value = title_section->find_entry("RULE");
             if (value && title_property->getTitleRule().parse_ed_s(Util::to_wide_str(value->get_value()))) {
@@ -506,7 +507,7 @@ AutoProperties::parseDecorProperty(CfgParser::Entry *section)
         }
 
         decor_property = new DecorProperty();
-        parsePropertyMatch(decor_section->get_value (), decor_property);
+        parsePropertyMatch(decor_section->get_value (), decor_property, _extended);
         if (parseProperty(decor_section, decor_property)) {
             CfgParser::Entry *value = decor_section->find_entry("DECOR");
             if (value) {
@@ -546,7 +547,7 @@ AutoProperties::parseDockAppProperty(CfgParser::Entry *section)
         }
 
         dock_property = new DockAppProperty();
-        parsePropertyMatch(dock_section->get_value(), dock_property);
+        parsePropertyMatch(dock_section->get_value(), dock_property, _extended);
         if (parseProperty(dock_section, dock_property)) {
             CfgParser::Entry *value = dock_section->find_entry("POSITION");
             if (value) {
