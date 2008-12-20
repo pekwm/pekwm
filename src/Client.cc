@@ -485,8 +485,7 @@ Client::setWorkspace(uint workspace)
         _workspace = workspace;
 
         if (_sticky) {
-            AtomUtil::setLong(_window,
-                              Atoms::getAtom(NET_WM_DESKTOP), NET_WM_STICKY_WINDOW);
+            AtomUtil::setLong(_window, Atoms::getAtom(NET_WM_DESKTOP), NET_WM_STICKY_WINDOW);
         } else {
             AtomUtil::setLong(_window, Atoms::getAtom(NET_WM_DESKTOP), _workspace);
         }
