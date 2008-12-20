@@ -55,7 +55,7 @@ private:
     bool parseLimit(const std::string &limit, unsigned int &min, unsigned int &max);
 
 private:
-    unsigned int _limits[HEIGHT_MAX]; /**< Limits. */
+    unsigned int _limits[HEIGHT_MAX + 1]; /**< Limits. */
 };
 
 /**

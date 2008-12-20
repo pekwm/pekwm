@@ -772,9 +772,11 @@ Config::loadMenuIcons(CfgParser::Entry *section)
     // Parse data
     section->parse_key_values(key_list.begin(), key_list.end());
 
+    for_each(key_list.begin(), key_list.end(), Util::Free<CfgParserKey*>());
+
     SizeLimits limits;
     if (limits.parse(minimum, maximum)) {
-        _menu_icon_limits[section->get_name()] = limits;
+        _menu_icon_limits[section->get_value()] = limits;
     }
 }
 

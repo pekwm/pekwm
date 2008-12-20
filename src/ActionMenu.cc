@@ -230,7 +230,7 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
             if (sub_section) {
                 icon = getIcon(sub_section->find_entry("ICON"));
 
-                submenu = new ActionMenu(_menu_type, Util::to_wide_str((*it)->get_value()), "");
+                submenu = new ActionMenu(_menu_type, Util::to_wide_str((*it)->get_value()), (*it)->get_value());
                 submenu->_menu_parent = this;
                 submenu->parse(sub_section, parent);
                 submenu->buildMenu();
