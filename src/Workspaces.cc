@@ -347,13 +347,13 @@ Workspaces::insert(PWinObj* wo, bool raise)
 
         if (raise) {
             // If raising, make sure the inserted wo gets below the first
-            // window in the next layer.            
+            // window in the next layer.
             if ((*it)->getLayer() > wo->getLayer()) {
                 position = it;
             }
         } else {
             // If lowering, put the window below the first window with the same level.
-            if (wo->getLayer() < (*it)->getLayer()) {
+            if (wo->getLayer() <= (*it)->getLayer()) {
                 position = it;
             }
         }
