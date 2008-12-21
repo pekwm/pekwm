@@ -437,7 +437,7 @@ Harbour::placeDockApp(DockApp *da)
                     continue; // exclude ourselves
                 }
                 
-                if (((*it)->getX() < signed(test + da->getWidth())) &&
+                if (((*it)->getX() < static_cast<signed>(test + da->getWidth())) &&
                         ((*it)->getRX() > test)) {
                     placed = increase = false;
                     test = right ? (*it)->getX() - da->getWidth() : (*it)->getRX();
@@ -466,7 +466,7 @@ Harbour::placeDockApp(DockApp *da)
                     continue; // exclude ourselves
                 }
                 
-                if (((*it)->getY() < signed(test + da->getHeight())) &&
+                if (((*it)->getY() < static_cast<signed>(test + da->getHeight())) &&
                         ((*it)->getBY() > test)) {
                     placed = increase = false;
                     test = right ? (*it)->getY() - da->getHeight() : (*it)->getBY();
@@ -525,7 +525,10 @@ Harbour::placeDockAppsSorted(void)
     }
 }
 
-//! @brief
+/**
+ * Make sure dock app is inside screen boundaries and placed on the
+ * right edge, usually called after resizing the dockapp.
+ */
 void
 Harbour::placeDockAppInsideScreen(DockApp *da)
 {
@@ -538,14 +541,14 @@ Harbour::placeDockAppInsideScreen(DockApp *da)
         // check horizontal position
         if (da->getX() < head.x) {
             da->move(head.x, da->getY());
-        } else if (da->getRX() > signed(head.x + head.width)) {
+        } else if (da->getRX() > static_cast<signed>(head.x + head.width)) {
             da->move(head.x + head.width - da->getWidth(), da->getY());
         }
 
         // check vertical position
-        if ((pos == TOP) && (da->getY() < head.y)) {
+        if ((pos == TOP) && (da->getY() != head.y)) {
             da->move(da->getX(), head.y);
-        } else if ((pos == BOTTOM) && (da->getBY() > signed(head.y + head.height))) {
+        } else if ((pos == BOTTOM) && (da->getBY() != static_cast<signed>(head.y + head.height))) {
             da->move(da->getX(), head.y + head.height - da->getHeight());
         }
 
@@ -554,14 +557,14 @@ Harbour::placeDockAppInsideScreen(DockApp *da)
         // check vertical position
         if (da->getY() < head.y) {
             da->move(da->getX(), head.y);
-        } else if (da->getBY() > signed(head.y + head.height)) {
+        } else if (da->getBY() > static_cast<signed>(head.y + head.height)) {
             da->move(da->getX(), head.y + head.height - da->getHeight());
         }
 
         // check horizontal position
-        if ((pos == LEFT) && (da->getX() < head.x)) {
+        if ((pos == LEFT) && (da->getX() != head.x)) {
             da->move(head.x, da->getY());
-        } else if ((pos == RIGHT) && (da->getRX() > signed(head.x + head.width))) {
+        } else if ((pos == RIGHT) && (da->getRX() != static_cast<signed>(head.x + head.width))) {
             da->move(head.x + head.width - da->getWidth(), da->getY());
         }
     }
