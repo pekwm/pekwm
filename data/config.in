@@ -50,18 +50,28 @@ Screen {
     }
 
     UniqueNames  {
-        SetUnique = "False";
-        Pre = " #";
-        Post = "";
+        SetUnique = "False"
+        Pre = " #"
+        Post = ""
     }
 }
 
 Menu {
     DisplayIcons = "True"
-    IconWidthMin = "16"
-    IconWidthMax = "16"
-    IconHeightMin = "16"
-    IconHeightMax = "16"
+
+    Icons = "DEFAULT" {
+        Minimum = "16x16"
+        Maximum = "16x16"
+    }
+
+    # To enable make separate window have other icon size restrictions,
+    # for example wallpaper menu found in pekwm_menu_tools, set the following
+    # for each menu you want to "free".
+
+    # Icons = "Wallpaper" {
+    #     Minimum = "64x64"
+    #     Maximum = "64x64"
+    # }
 
     # Defines how menus act on mouse input.
     # Possible values are: "ButtonPress ButtonRelease DoubleClick Motion"

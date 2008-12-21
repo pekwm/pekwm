@@ -186,8 +186,6 @@ TypeRules {
 		Skip = "FocusToggle Menus"
 	}
 	Property = "TOOLBAR"  {
-		Titlebar = "False"
-		Border = "False"
 		Skip = "FocusToggle Menus Snap"
 	}
 	Property = "MENU"  {
@@ -196,9 +194,6 @@ TypeRules {
 		Skip = "FocusToggle Menus Snap"
 	}
 	Property = "UTILITY"  {
-                Titlebar = "False"
-                Border = "False"
-		Skip = "FocusToggle Menus Snap"
 	}
 	Property = "SPLASH"  {
 		Titlebar = "False"
