@@ -775,9 +775,11 @@ AutoProperties::parseAutoPropertyValue(CfgParser::Entry *section, AutoProperty *
                        &prop->client_gm.x, &prop->client_gm.y,
                        &prop->client_gm.width, &prop->client_gm.height);
             break;
-        case AP_LAYER:
-            prop->maskAdd(AP_LAYER);
+        case AP_LAYER:            
             prop->layer = Config::instance()->getLayer((*it)->get_value());
+            if (prop->layer != LAYER_NONE) {
+                prop->maskAdd(AP_LAYER);
+            }
             break;
         case AP_WORKSPACE:
             prop->maskAdd(AP_WORKSPACE);

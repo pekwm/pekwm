@@ -105,7 +105,8 @@ Config::Config(void) :
         _cmd_dialog_history_file("~/.pekwm/history"), _cmd_dialog_history_save_interval(16)
 #ifdef HARBOUR
        ,_harbour_da_min_s(0), _harbour_da_max_s(0),
-        _harbour_head_nr(0)
+        _harbour_ontop(true), _harbour_maximize_over(false),
+        _harbour_placement(TOP), _harbour_orientation(TOP_TO_BOTTOM), _harbour_head_nr(0)
 #endif // HARBOUR
 {
     if (_instance) {
@@ -814,8 +815,8 @@ Config::loadHarbour(CfgParser::Entry *section)
     list<CfgParserKey*> key_list;
     string value_placement, value_orientation;
 
-    key_list.push_back(new CfgParserKeyBool("ONTOP", _harbour_ontop));
-    key_list.push_back(new CfgParserKeyBool("MAXIMIZEOVER", _harbour_maximize_over));
+    key_list.push_back(new CfgParserKeyBool("ONTOP", _harbour_ontop, true));
+    key_list.push_back(new CfgParserKeyBool("MAXIMIZEOVER", _harbour_maximize_over, false));
     key_list.push_back(new CfgParserKeyNumeric<int>("HEAD", _harbour_head_nr, 0, 0));
     key_list.push_back(new CfgParserKeyString("PLACEMENT", value_placement, "RIGHT", 0));
     key_list.push_back(new CfgParserKeyString("ORIENTATION", value_orientation, "TOPTOBOTTOM", 0));
@@ -830,7 +831,7 @@ Config::loadHarbour(CfgParser::Entry *section)
     _harbour_placement = ParseUtil::getValue<HarbourPlacement>(value_placement, _harbour_placement_map);
     _harbour_orientation = ParseUtil::getValue<Orientation>(value_orientation, _harbour_orientation_map);
     if (_harbour_placement == NO_HARBOUR_PLACEMENT) {
-        _harbour_placement = TOP;
+        _harbour_placement = RIGHT;
     }
     if (_harbour_orientation == NO_ORIENTATION) {
         _harbour_orientation = TOP_TO_BOTTOM;

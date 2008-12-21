@@ -490,8 +490,9 @@ WindowManager::scanWindows(void)
                     _harbour->addDockApp(new DockApp(_screen, _theme, *it));
                 } else {
                     client = new Client(*it);
-                    if (! client->isAlive())
+                    if (! client->isAlive()) {
                         delete client;
+                    }
 
                 }
                 XFree(wm_hints);

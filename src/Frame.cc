@@ -34,9 +34,6 @@ extern "C" {
 #include "Workspaces.hh"
 #include "WindowManager.hh"
 #include "KeyGrabber.hh"
-#ifdef HARBOUR
-#include "Harbour.hh"
-#endif // HARBOUR
 
 #ifdef MENUS
 #include "PMenu.hh"

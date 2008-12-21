@@ -339,26 +339,32 @@ Workspaces::warpToWorkspace(uint num, int dir)
 void
 Workspaces::insert(PWinObj* wo, bool raise)
 {
-    bool inserted = false;
+    list<PWinObj*>::iterator it(_wo_list.begin()), position(_wo_list.end());
+    for (; it != _wo_list.end() && position == _wo_list.end(); ++it) {
+        if (! (*it)->isFocusable()) {
+            continue;
+        }
 
-    list<PWinObj*>::iterator it(_wo_list.begin());
-    for (; it != _wo_list.end() && ! inserted; ++it) {
-        if (raise
-                ? (wo->getLayer() < (*it)->getLayer())
-                : (wo->getLayer() <= (*it)->getLayer())) {
-            _wo_list.insert(it, wo);
-
-            stackWinUnderWin((*it)->getWindow(), wo->getWindow());
-
-            inserted = true;
+        if (raise) {
+            // If raising, make sure the inserted wo gets below the first
+            // window in the next layer.            
+            if ((*it)->getLayer() > wo->getLayer()) {
+                position = it;
+            }
+        } else {
+            // If lowering, put the window below the first window with the same level.
+            if (wo->getLayer() < (*it)->getLayer()) {
+                position = it;
+            }
         }
     }
 
-    if (! inserted) {
-        _wo_list.push_back(wo);
-        // we can't do raise here as it'll end up in an recursive loop
-        // if we use Workspaces::raise to restack the PWinObj.
-        XRaiseWindow(PScreen::instance()->getDpy(), wo->getWindow());
+    _wo_list.insert(position, wo);
+
+    if (position == _wo_list.end()) {
+         XRaiseWindow(PScreen::instance()->getDpy(), wo->getWindow());
+    } else {
+         stackWinUnderWin((*position)->getWindow(), wo->getWindow());
     }
 }
 

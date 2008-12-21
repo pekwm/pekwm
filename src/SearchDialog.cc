@@ -152,6 +152,8 @@ SearchDialog::findClients(const std::wstring &search)
   if (_result_menu->size()) {
       resizeChild(_text_wo->getWidth(), height + _result_menu->getHeight());
       XRaiseWindow(_dpy, _result_menu->getWindow());
+      // Render first item as selected, needs to be done after map/raise.
+      _result_menu->selectItemNum(0);
   } else {
       resizeChild(_text_wo->getWidth(), height);
       XLowerWindow(_dpy, _result_menu->getWindow());

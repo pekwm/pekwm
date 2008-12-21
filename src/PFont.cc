@@ -56,7 +56,7 @@ PFont::draw(Drawable dest, int x, int y, const std::wstring &text,
             uint max_chars, uint max_width, PFont::TrimType trim_type)
 {
     if (! text.size()) {
-        cerr << " *** WARNING: trying to draw empty string." << endl;
+        return;
     }
 
     uint offset = x, chars = max_chars;
