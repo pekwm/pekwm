@@ -1,3 +1,1400 @@
+commit 84611e4ec1ac7b79d84ad3bb85cc695907f5a821
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Dec 21 14:30:54 2008 +0100
+
+    Update configuration files for 0.1.9
+
+commit e0c39871446a1ac31d6f1a933c6e75786809ff01
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Dec 21 14:16:30 2008 +0100
+
+    Add link in README and update menu mouse events names.
+
+commit 16ad93bfdf56f9bf2d6eb2556f80615ab82365dd
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Dec 21 14:14:52 2008 +0100
+
+    Fix #119, make sure dock app gets placed on the screen edge after resize.
+
+commit 47014c960e33f9bda71b2d469932148570b32217
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Dec 21 14:02:43 2008 +0100
+
+    Update documentation, missing updates since 0.1.8.
+
+commit 6bc1e56860f253f70c8761515f25a191b7aceea5
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Dec 21 14:01:17 2008 +0100
+
+    Update default configuration file, introduce new features.
+
+commit 5ce58a637bc158327ddd6a019194bfe9f83f9850
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Dec 21 12:45:18 2008 +0100
+
+    Re-work client restacking, select first element in search dialog.
+    
+    Now stacking seems to be working ok both with and without harbour
+    enabled. SearchDialog also renders the first item as selected when it is
+    mapped.
+
+commit a3b40e241064c142a6030710af3fe2e4aab9cb75
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Dec 20 18:43:10 2008 +0100
+
+    Filter out non-focusable and skip focus toggle windows in SearchDialog.
+
+commit ca32fe2f28eafd534a7d154e994e76033ea65f37
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Dec 20 18:27:49 2008 +0100
+
+    Make icon size limitations actually work.
+
+commit 0f779deaaa51d70daae6e31300ef00401d74c786
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Thu Dec 18 00:26:31 2008 +0100
+
+    Set new default window type properties.
+
+commit a6eed5eaf8a847b1c31805dedb1ead23dcbf2c56
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Thu Dec 18 00:21:21 2008 +0100
+
+    Bugfix for incorrectly set default window type properties.
+
+commit f9693c92c700c00ee0aa387d6c015399b502feba
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Thu Dec 18 00:19:48 2008 +0100
+
+    Small indentation and spelling fix.
+
+commit cd0ae893dd8ae6af7a075d2bfaff7d8ceaafa9f3
+Author: Claes Nästén <me@pekdon.net>
+Date:   Wed Dec 17 22:31:16 2008 +0100
+
+    Start on new limit on menu icon sizes.
+    
+    To have per-menu (class) icon size restrictions KoFish suggested
+    to have a syntax like
+    
+     Menu {
+       Icons = "ROOT" {
+         Minimum = "32x32"
+         Maximum = "64x64"
+       }
+     }
+    
+    Not tested, most likely not working.
+
+commit d8c77975f990b877a31f905bb2bd472ded82aaef
+Author: Claes Nästén <me@pekdon.net>
+Date:   Wed Dec 17 19:35:52 2008 +0100
+
+    Make templates available in autoproperties only with require syntax.
+    
+    In order to support having templates overwriting in autoproperties file
+    a Require section was added just as in the theme file. To enable
+    templates overwriting add this to your autoproperties file:
+    
+     Require {
+       Templates = "True"
+     }
+    
+    To support defining title and role in the matching enabling templates
+    also enables an extended autoproperties syntax.
+    
+    Example:
+    
+     Property = "name,class,role,title,apply on" {
+       Sticky = "True"
+     }
+    
+    Enjoy!
+
+commit 26466f1a8401607e5cdb741e23200405383c1682
+Author: Claes Nästén <me@pekdon.net>
+Date:   Wed Dec 17 19:35:07 2008 +0100
+
+    Bug fix in split string, it previously skipped empty elements.
+
+commit 156cd1b36ea817c6036836c9736592ed4b391084
+Author: Claes Nästén <me@pekdon.net>
+Date:   Wed Dec 17 18:38:55 2008 +0100
+
+    Only strip button modifiers in stripButtonModifiers.
+
+commit 760f90c42ac7bf55c4600f979285b54f7c0e65db
+Author: Claes Nästén <me@pekdon.net>
+Date:   Tue Dec 16 09:42:56 2008 +0100
+
+    Tidying menu creation, code style changes.
+
+commit 496ec5ea9728313614ef858f0ac2efca5e549a01
+Author: Claes Nästén <me@pekdon.net>
+Date:   Tue Dec 16 09:42:38 2008 +0100
+
+    Remember position before completion on completion and restore on abort.
+
+commit e594c54131c6a75c71f3f7e0b93efbc5ee392c14
+Author: Claes Nästén <me@pekdon.net>
+Date:   Mon Dec 15 20:43:16 2008 +0100
+
+    Initial commit on tab completion for the command dialog.
+    
+    This is case sensitive and currently only does path completions,
+    however it is a start.
+
+commit 8da517445d48c5af0419104f03f71da3c99a99d7
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Fri Dec 12 11:45:32 2008 +0100
+
+    Fix the check for already loaded colors in FontHandler::getColor(.).
+
+commit 92cc32c8f4fd7d8aad57c5580c142ed65c07f22c
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Fri Dec 12 11:44:06 2008 +0100
+
+    Remove _free_on_return_{font,color} from FontHandler and related functions.
+    
+    returnColor() and returnFont() will now free the resources when no reference
+    is hold anymore.
+
+commit 6bd1c36ef58f26418a84aba2c85629ad61a657ac
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Fri Dec 12 11:38:40 2008 +0100
+
+    Remove functions from FontHandler that are never used.
+
+commit 9b16978e5b8fde4f9cd3b7fb005583a4396ab82c
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Fri Dec 12 11:35:45 2008 +0100
+
+    Consolidate the different classes and enums for the atoms.
+
+commit 71f650ab7c43a1351dff14b7e2ef0e71a8d5c7b5
+Author: Claes Nästén <me@pekdon.net>
+Date:   Mon Dec 8 18:56:34 2008 +0100
+
+    Make use of gotoClient in ActionHandler to active found client.
+
+commit 2aef5ee05f4eaec136a21d94f31e1aee55ad2e8f
+Author: Claes Nästén <me@pekdon.net>
+Date:   Mon Dec 8 18:38:47 2008 +0100
+
+    Ah, menu was cleared all the time. Now fixed and search dialog working ok.
+    
+    New action ShowSearchDialog seems to be working ok now, doing something
+    nice when the menu grows too big etc is not yet implemented. Not sure
+    what a sane strategy would be.
+
+commit af18fad44248cd495c2037b8dd1a200e9bc822fe
+Author: Claes Nästén <me@pekdon.net>
+Date:   Mon Dec 8 18:31:00 2008 +0100
+
+    Cleanups in re-building menu code to support fixed with menus better.
+
+commit a43748d9b9f7efbf6ac58ab9d737edfaecc548e1
+Author: Claes Nästén <me@pekdon.net>
+Date:   Mon Dec 8 18:28:00 2008 +0100
+
+    Work on SearchDialog, results are found and displayed. Issues with next/prev.
+    
+    Now most basic issues that was around seems to have been resolved, still
+    it is not possible to select previous/next item with the arrow keys.
+    Seems to be an PMenu issue?
+
+commit 3ea3f4996a489036187c3d6cdc571b78b2f21ac2
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Dec 7 22:20:46 2008 +0100
+
+    Add new sub folder to build system, where are all the files?
+
+commit adf17946458f665577ca740c57efc1c1b6afdda6
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Dec 7 22:06:28 2008 +0100
+
+    Add scripts by Matt Hayes to contrib folder, autoprops and config menu.
+    
+    These scripts are also available at http://nxc.ath.cx/lobo/filez/pekwm/
+    and requires perl and thus is not part of the main distribution.
+    
+    Closing #64 to export autoprops.
+
+commit 8c3e239c4d07eb205ba0ea0525f9e8a319f7068f
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Sun Dec 7 18:59:54 2008 +0100
+
+    Remove PMenu::Item::_dynamic.
+
+commit 486fe28b9e6c19ce8d778bf3c864efbb17229f75
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Sun Dec 7 18:56:06 2008 +0100
+
+    Fixing the still broken dynamic menus (#75).
+
+commit f18d7ba1f50495d5ccb45c2e0f360c8a093db1d7
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Sun Dec 7 18:54:29 2008 +0100
+
+    Bugfix: Windowmanager must not delete _harbour after freeing _root_wo.
+
+commit 7c305fb24131f314a2919c9bb6034b0369722cae
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Sun Dec 7 18:53:30 2008 +0100
+
+    Bugfix: SearchDialog missed a destructor to free its _result_menu.
+
+commit af88e4d29e14e852f438a4d4a3ff2fd0a3793d64
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Sun Dec 7 18:51:02 2008 +0100
+
+    Bugfix: Add missing initialising of CfgParser::_is_dynamic_content.
+
+commit 28c07f7dfa750bd6a4022c83345949c484eb340e
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Dec 7 18:24:06 2008 +0100
+
+    Do not add space for icons when there's no icon in the menu.
+
+commit 4ab86d2c6be0e3b2cfcc7a33e09ae7058f0b3953
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Dec 7 18:23:41 2008 +0100
+
+    Ops, issues with button press/release handling. Hopefully ok now.
+
+commit b780a1ac2029d1fd1b2bd729346631a031f304e6
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Dec 6 14:05:44 2008 +0100
+
+    More fixing for menu click menu selections, now works. Closing #13
+
+commit 471f5e8113a353b9f68a50e2d68ecd35618383ca
+Author: Claes Nästén <me@pekdon.net>
+Date:   Fri Dec 5 21:10:42 2008 +0100
+
+    Make it possible to select menu entries while holding mouse button.
+    
+    The start of nicer menu handling, not 100% there yet considering closing
+    the menu and maybe interference with other actions.
+
+commit b2a09684531885540869a075d9b87a50d9ca9192
+Author: Claes Nästén <me@pekdon.net>
+Date:   Fri Dec 5 19:58:39 2008 +0100
+
+    Add regular expression syntax, a general formatting cleanup is required.
+
+commit 92b25c48b318800c0b234b722133f85dbc4c07b7
+Author: Claes Nästén <me@pekdon.net>
+Date:   Fri Dec 5 19:30:10 2008 +0100
+
+    Fix #104, make sure pointer is released on is the same as pressed.
+
+commit d5f010f8204bb7293bb4690d710128810d077569
+Author: Claes Nästén <me@pekdon.net>
+Date:   Thu Dec 4 21:56:06 2008 +0100
+
+    Include first 9 workspaces in goto/send-to actions.
+
+commit b68d07a0f12ee7c941097c722e77e6c0070c8e84
+Merge: 014fac9... 241eef9...
+Author: Claes Nästén <me@pekdon.net>
+Date:   Thu Dec 4 21:52:26 2008 +0100
+
+    Merge branch 'searchdialog'
+    
+    Conflicts:
+    
+    	src/CmdDialog.cc
+    	src/Frame.cc
+    	src/PWinObj.hh
+    	src/WindowManager.cc
+
+commit 241eef99dee8ed2142c4a95d183704f70a109b12
+Author: Claes Nästén <me@pekdon.net>
+Date:   Thu Dec 4 21:43:03 2008 +0100
+
+    Where did these changes go, I'm not playing nice here it seems.
+
+commit f42c5cd376aea67ef4f5bb5eba90b387be5a0787
+Merge: 433fb98... 4de33c1...
+Author: Claes Nästén <me@pekdon.net>
+Date:   Thu Dec 4 21:24:58 2008 +0100
+
+    Merge branch 'searchdialog' of
+    ssh://me@pekdon.net@projects.pekdon.net/srv/git/pekwm into searchdialog
+    
+    Conflicts:
+    
+    	src/Client.cc
+    	src/CmdDialog.hh
+    	src/InputDialog.hh
+    	src/SearchDialog.cc
+    	src/SearchDialog.hh
+
+commit 014fac9c962696b99fb02400426d1eeb88218745
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Nov 30 17:42:59 2008 +0100
+
+    Update default configuration with icon sizes.
+
+commit 91dc0997b86d78d7c685b0af8f9a067ca4f9fcc9
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Nov 30 17:36:36 2008 +0100
+
+    Enable template overwriting for more configuration files. Closing #103
+    
+    This enables templates in auto properties, mouse configuration and the
+    keygrabber. It is not enabled in the menu as it is 100% valid to have
+    multiple entries at each level with the same name.
+
+commit 320a5d3e8642df11b57ea3aa2ee2a92290a0679b
+Merge: 2015c1f... 05b470b...
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Nov 30 15:59:43 2008 +0100
+
+    Merge branch 'master' of ssh://me@pekdon.net@projects.pekdon.net/srv/git/pekwm
+
+commit 2015c1f5ac7f8d10c3e9245e52c7bb4d07e7293a
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Nov 30 15:59:24 2008 +0100
+
+    Ops, s/_NET_WM_VISIBLE_NAME/_NET_WM_VISIBLE_ICON_NAME/
+
+commit db7359695afa9181e1d52eb36dbed299159ff743
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Nov 30 15:59:03 2008 +0100
+
+    Start implementation of demands attention hint.
+
+commit f11081fb8e4d022bbba56cf3bdfb8a5f566f7eb3
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Nov 30 15:57:10 2008 +0100
+
+    Icon can now specify ordinary texture, falls back on scaled image texture.
+    
+    Now Icon in menus first tries to load it as an full texture
+    specification, if that fails it is loaded as an scaled image texture
+    with the icon value as the image.
+
+commit 1e42384d2e6c682a40d6e67cfee38daac6a1381f
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Nov 30 15:55:38 2008 +0100
+
+    Implement new icon menu size restriction options.
+    
+    Now it is possible to set the following in the Menu section of the
+    default configuration file.
+    
+    IconWidthMin, minimum width of icons, 0 to disable check.
+    IconWidthMax, maximum width of icons, 0 to disable check.
+    IconHeightMin, minimum width of icons, 0 to disable check.
+    IconHeightMax, maximum height of icons, 0 to disable check.
+
+commit 0ee6821792013daf18017191b41ec1806d4f41ff
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Nov 30 15:54:32 2008 +0100
+
+    Replace CfgParserKeyInt with CfgParserKeyNumeric<T>.
+
+commit 05b470b3c81f95c7e414cd4688321d1d6436fa00
+Author: Jyri Jokinen <shared@adresh.com>
+Date:   Sun Nov 30 06:55:33 2008 +0200
+
+    minor fixes to faq entries and language
+
+commit 9ae13ad3016bc24ba1302cce319d15682789fa44
+Author: Claes Nästén <me@pekdon.net>
+Date:   Fri Nov 28 22:55:15 2008 +0100
+
+    Fix #110, render resize/move information centered on the window being moved.
+    
+    This introduces a new option in the main configuration file under the
+    Screen section, ShowWorkspaceCenteredOnRoot. When set to false, the
+    WorkspaceIndicator is centered on the window being moved/resize and not
+    the current head.
+
+commit 0f213782507697c79177b095da6a5dce3448c306
+Author: Claes Nästén <me@pekdon.net>
+Date:   Fri Nov 28 15:13:18 2008 +0100
+
+    Move windows inside screen when resizing screen size.
+    
+    This got lost somewhere, or was it ever supported? Anyway, changing
+    screen resolution should now move windows inside visible range.
+
+commit 3c24847d340d9892a4965adf307f4443952754a3
+Author: Claes Nästén <me@pekdon.net>
+Date:   Tue Nov 25 22:03:37 2008 +0100
+
+    Work on EWMH support, _NET_WM_ICON_NAME and _NET_WM_VISIBLE_ICON_NAME.
+    
+    Currently pekwm does not do anything with the icon names, but now it is
+    at least read correctly.
+
+commit f7c2cedb4f4450c21cd6e3beab3f146faf993e9b
+Author: Claes Nästén <me@pekdon.net>
+Date:   Tue Nov 25 21:33:05 2008 +0100
+
+    Work on #72, add _NET_DESKTOP_GEOMETRY and_NET_WORKAREA hints.
+
+commit b237dcaa8203323d4607594c4ef37b416ab75ddf
+Author: Claes Nästén <me@pekdon.net>
+Date:   Tue Nov 25 15:26:03 2008 +0100
+
+    Fix #109, do not fixup geometry if specified in autoprops.
+    
+    It is possible to specify size and position with autoprops, stay away from
+    changing the geometry to fit the screen if that is done as we then assume
+    the user know what he/she is doing.
+
+commit 3ed59886a8d7ea12c412891a83caa135945528e4
+Author: Claes Nästén <me@pekdon.net>
+Date:   Mon Nov 24 22:15:02 2008 +0100
+
+    Work on #109, export CLIENT_PID and CLIENT_WINDOW to environment.
+    
+    Now it is possible to grab client PID and Window from dynamic scripts, they
+    are available as $CLIENT_PID and $CLIENT_WINDOW.
+    
+    Example dynamic script:
+    
+     #!/bin/bash
+    
+     cat << EOF
+     Dynamic {
+         Entry = "Info" { Actions = "Exec xmessage \"PID: $CLIENT_PID WINDOW: $CLIENT_WINDOW\"" }
+         }
+     EOF
+    
+    Put that in the window menu as this:
+    
+     Entry { Actions = "Dynamic /path/to/dynamic.sh" }
+    
+    And it should pop up PID: pid WINDOW: window in an xmessage.
+
+commit b6bc171b6aa9e24de8c418285d87248877e7779a
+Author: Claes Nästén <me@pekdon.net>
+Date:   Mon Nov 24 21:43:37 2008 +0100
+
+    Big commit, move things away from WindowManger to ManagerWindows.
+    
+    EdgeWO and RootWO was moved into ManagerWindows and HintWO was created which
+    handles setting hints etc. Move MWM hints into Atoms, should not have been
+    in the WindowManager in the first place.
+
+commit e173e1bc75c7f2bf6483245d649b0cf01ea1e933
+Author: Claes Nästén <me@pekdon.net>
+Date:   Mon Nov 24 21:41:59 2008 +0100
+
+    Start rename inst to instance in WindowManager.
+
+commit 0175ac37b675a2c152745a30e4fc15ea10f4cc5d
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Nov 22 19:54:04 2008 +0100
+
+    Arg, missing , caused head-ache trying to figure why text property broke.
+    
+    "str1" "str2" is valid for creating one string "str1str2", this caused
+    the atoms parsing offset incorrect.
+
+commit 80dcadb2a894f1f99262e40b2d36984fee3ceaba
+Author: Claes Nästén <me@pekdon.net>
+Date:   Thu Nov 20 20:35:44 2008 +0100
+
+    Start detection of remote clients, should set the decor to REMOTE.
+    
+    Start reading the WM_CLIENT_MACHINE in order to detect wheter or not clients
+    are remote also support this to group clients by pid, then grouping also
+    needs to be done by host.
+
+commit 4a0629c1250cc922ca6d06dcf941760c3f147ae6
+Author: Claes Nästén <me@pekdon.net>
+Date:   Thu Nov 20 20:34:55 2008 +0100
+
+    Code style cleanups.
+
+commit b889e7b426b482acb9362d0161f1cc84af74f7e9
+Author: Claes Nästén <me@pekdon.net>
+Date:   Thu Nov 20 20:32:42 2008 +0100
+
+    Add AtomUtil::getTextProperty and use in client.
+    
+    Shorten down code reading client name and icon name by using common
+    code now placed in AtomUtil namespace.
+
+commit 3f4d16f71070a1c703674e5c47deb706bdaafe9e
+Author: Claes Nästén <me@pekdon.net>
+Date:   Tue Nov 18 19:50:16 2008 +0100
+
+    Scale menu icons and some small cleanups.
+
+commit ba0e513595264d6a003f811575c3f56d6d0f2afa
+Author: Claes Nästén <me@pekdon.net>
+Date:   Mon Nov 17 21:52:03 2008 +0100
+
+    Add is_dynamic_content to CfgParser and re-set mtime to cfgs.
+    
+    To avoid re-load issues with configuaration files using COMMAND, this
+    previously did not re-load on reloads.
+
+commit 96fe3f8d15b3cd6fcf670a9f56523bc5a8901fbb
+Author: Claes Nästén <me@pekdon.net>
+Date:   Mon Nov 17 21:51:07 2008 +0100
+
+    Load icons correctly when building dynamic menus.
+
+commit 1732ad39efc14014b4e84b2c06d18e895a476e2d
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Nov 16 19:22:32 2008 +0100
+
+    Implement #98, add Icon to the Entry.
+    
+    This includes quite a few changes in order to support loading icons from a
+    set of directories. Documentation updates included.
+
+commit 9e1f275854c76332c258a90d1922da4922ad1e25
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Nov 15 19:03:28 2008 +0100
+
+    Start asymetric tab support based on patch from Justin Rebelo (hermit)
+    
+    This is not yet working, it seems to be partially shrinking tabs and it does
+    not grow them properly at all.
+
+commit d02f51c4221f5f61e33ee5da737487d1a9d6ff95
+Author: Claes Nästén <me@pekdon.net>
+Date:   Fri Nov 14 17:43:20 2008 +0100
+
+    Add WorkspaceIndicator FAQ entry.
+
+commit ef7f7aba281747014355f813a9216f00875a6d89
+Author: Daniel Moerner <dmoerner@gmail.com>
+Date:   Fri Nov 14 09:02:29 2008 +0100
+
+    Close #95, fix compile issues with gcc-4.4.
+    
+    pekwm currently fails to build with gcc-4.4 development snapshots. gcc-4.4
+    has stricter rules for includes, and indirectly including cstdio through
+    other headers no longer works. I have applied the following to the Debian
+    source to fix this problem.
+
+commit e939bbff3d90479e03b0fc8e930df79375267080
+Author: Claes Nästén <me@pekdon.net>
+Date:   Wed Nov 12 21:41:35 2008 +0100
+
+    Fix #82 having the workspace not being showed when changing workspace with pager
+
+commit 0b33e758b3bf5256ef3eb683cde7ceed36d12550
+Author: Claes Nästén <me@pekdon.net>
+Date:   Wed Nov 12 21:36:43 2008 +0100
+
+    Fix #80, CmdDialog backwards compatibility.
+    
+    InputDialog decorations was previously called CmdDialog, add compatibility
+    code to support both names.
+
+commit 77a49b2cda0185382f175e173fcfc9478cbda71b
+Author: Claes Nästén <me@pekdon.net>
+Date:   Wed Nov 12 21:23:03 2008 +0100
+
+    Update decor name documentation closing #89.
+
+commit 447c1dbb18884bc547d2afe886e5df8149c75698
+Author: Claes Nästén <me@pekdon.net>
+Date:   Wed Nov 12 21:15:31 2008 +0100
+
+    Small comments and style cleanups.
+
+commit 46a3798c456e8cc353dadff94a637f3828fb0079
+Author: Matt Hayes <nobomb@gmail.com>
+Date:   Wed Nov 12 21:13:01 2008 +0100
+
+    Patch closing #88 TitleRules on Pekwm generated menus.
+    
+    Apply adopted patch from Matt Hayes, using a ClassHint on the PMenu instead
+    of creating a new one each time the rule is setup. To make this complete,
+    setting of Role should be done on all menu types.
+
+commit 4bd180405c597b5d04ea2cddaf123cfd90f4ef15
+Author: Claes Nästén <me@pekdon.net>
+Date:   Wed Nov 12 21:08:31 2008 +0100
+
+    Update default configuration to have edgesize per edge configuration.
+    
+    In order to make it easier to "detect" that EdgeSize support per-edge
+    configuration, set it in the default configuration. It is already in the
+    documentation.
+
+commit 6f5b7dec551de536bf9475f2c3a4b6259c4b64e2
+Author: Matt Hayes <nobomb@gmail.com>
+Date:   Wed Nov 12 21:04:44 2008 +0100
+
+    Close #86 icons should be configurable in Focus Frame window.
+    
+    Patch from Matt Hayes, changed name and position of DisplayIcons.
+
+commit 0b617f56d573de0b686deaa9ee51eb10d56beccd
+Author: Claes Nästén <me@pekdon.net>
+Date:   Wed Nov 12 20:41:38 2008 +0100
+
+    Add FAQ for multiple buttons in themes with template syntax. Closing #90.
+
+commit 7e3052621383d8682a0279fdd4cbb0edbfa0d709
+Author: Claes Nästén <me@pekdon.net>
+Date:   Wed Nov 12 20:39:36 2008 +0100
+
+    Start restructuring theme documentation with docbook syntax.
+    
+    Previously the theme documentation was text only, start structuring as a
+    docbook document. Not near to being complete yet.
+
+commit 599361d25421da4ff435569656eaf93128c00654
+Author: Claes Nästén <me@pekdon.net>
+Date:   Wed Nov 12 14:34:30 2008 +0100
+
+    Close #91, s/Hoover/Hover/ also keeping backwards compatibility.
+
+commit 375a575d8f1c77692cf6931ceeeb2825a957db1e
+Author: Vladimir A. Pavlov <pv4@bk.ru>
+Date:   Tue Nov 4 11:57:18 2008 +0100
+
+    Close #84, unable to make mplayer window fullscreen.
+    
+    I installed pekwm-0.1.8 and when I started watching movie with mplayer
+    and pressed 'f' (make mplayer fullscreen) the size of the window remains the
+    same, not fullscreen, although its content changed so that I could see the
+    top-left region of the movie in the small window. It looked like mplayer
+    incorrectly "thought" the size of the window changed.
+    
+    The bug seems to be in the code introduced by the revision
+    7bd7afc250a9f7578de7e38b5ed5925af8860de1.
+    
+    When debugging I discovered that sometimes ev->value_mask includes
+    CWStackMode and doesn't include CWY/X/Height/Width. In such case if the
+    window had been already maximized earlier then the code sets fullscreen
+    state to STATE_UNSET which is wrong.
+    
+    The obvious fix (the attached one) is to set fullscreen state only if
+    one of CWY/X/Height/Width was found in ev->value_mask.
+    
+    But I guess the actual error is in another place where somebody passes
+    ev->value_mask with anything unexpected (CWStackMode) althought it
+    should not.
+    
+    What do you think?
+    
+    P.S. The bug appears only when FullscreenDetect is True or unset (since
+    it defaults to True)
+
+commit 8aab298d86261f9cd489ebe22a102375755fd014
+Author: Andreas <ioerror@lavabit.com>
+Date:   Tue Nov 4 01:54:52 2008 +0100
+
+    Implement #81 by loading local configuration files after copying them.
+
+commit 9d4691f304752e47fc0f0270d8c8efdca9a72a35
+Author: Andreas <ioerror@lavabit.com>
+Date:   Thu Oct 30 00:18:13 2008 +0100
+
+    Fixes some spelling mistakes in the documentation.
+
+commit 85799c7d6be1c9194d3b0c7f5f7b9a2281922fcc
+Author: Claes Nästén <me@pekdon.net>
+Date:   Wed Oct 29 22:12:12 2008 +0100
+
+    Changes to the configure script.
+
+commit ad5a586adccafcc84273713b46f87c05c2ae0db5
+Author: Andreas <ioerror@lavabit.com>
+Date:   Wed Oct 29 20:29:27 2008 +0100
+
+    Fixes some spelling mistakes in the documentation.
+
+commit 7f0ef5c858700ba9580163c746f19df91d53ff91
+Author: Claes Nästén <me@pekdon.net>
+Date:   Mon Oct 27 09:27:33 2008 +0100
+
+    Add missing includes to Compat.hh
+
+commit a6944a1f21fd453f3d9dcee184f63904ce23e5ce
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Oct 26 15:48:51 2008 +0100
+
+    Add preliminary swprintf compat code for fixing OpenBSD compat.
+    
+    Noticed in the OpenBSD port of pekwm patches exist to work around use of
+    swprintf, this implements partial swprintf support which should be
+    enough to get things working.
+
+commit c032ac5fe2c231cf13e095dc32cd0605cf1bd5ff
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Oct 26 09:52:47 2008 +0100
+
+    Start on minimal pekwm manual page "pointing" to the web site.
+
+commit a1f32141eaf87fbd9bff175a71e74a2f3d92e0c1
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Oct 25 19:13:19 2008 +0200
+
+    Change default of CfgParser::clear and use AtomUtils in desktop names reading.
+    
+    Changed the default parameter of CfgParser::clear to realloc by default
+    as the only case when alloc will not be wanted is in the CfgParser
+    destructor. Clean-up and make use of AtomUtils in new desktop name
+    reading code, not sure if this works though.
+
+commit 062b5bf751a483576bbfd923d689b1c886e0c09e
+Author: Andreas <ioerror@lavabit.com>
+Date:   Wed Oct 22 18:10:44 2008 +0200
+
+    Call WindowManager::readDesktopNamesHint() when the hint is changed.
+
+commit affd012be56be675a56766afe241ea645691666e
+Author: Andreas <ioerror@lavabit.com>
+Date:   Wed Oct 22 18:10:16 2008 +0200
+
+    Add a function to WindowManager to read the _NET_DESKTOP_NAMES hint.
+
+commit 0a26ea4cddc3bc669b7c48ba78f2a671ced28353
+Author: Andreas <ioerror@lavabit.com>
+Date:   Wed Oct 22 18:09:50 2008 +0200
+
+    Add a function to Config to set the workspace names from an utf8 string.
+
+commit d6f6618dc4ba5b5275981d1bc86e8c80d05fd246
+Author: Claes Nästén <me@pekdon.net>
+Date:   Thu Oct 23 16:09:38 2008 +0200
+
+    Force use of / as regexp separator, not the first character.
+
+commit 4c796b158c72a962cd6d4ad8024cf43111389ff6
+Author: Andreas <ioerror@lavabit.com>
+Date:   Wed Oct 22 17:16:16 2008 +0200
+
+    Fix a wrong memory access.
+    
+    splitString() is sometimes (in Config.cc) called with a string str from its
+    second parameter toks. str is therefore a reference to a sting object in
+    vector but by changing vec later it invalidates this reference.
+    The solution is to not pass str by reference or change all calls to
+    splitString(). We do the former.
+
+commit 06085fcded1632d61b4f1bdf45bcc3c33fe4db84
+Author: Andreas <ioerror@lavabit.com>
+Date:   Wed Oct 22 17:02:03 2008 +0200
+
+    Change return type of AtomUtil::getPropoerty to bool.
+
+commit 83d1c11d6935fb92cd153eb5fc43120930c2a1dc
+Author: Andreas <ioerror@lavabit.com>
+Date:   Wed Oct 22 17:00:28 2008 +0200
+
+    Fix compiling with --enable-pedantic.
+
+commit cd1e92b0a06ee7bdceb53d90dfa1e14506709ae5
+Author: Andreas <ioerror@lavabit.com>
+Date:   Wed Oct 22 17:00:04 2008 +0200
+
+    Fix access to uninitialised memory.
+
+commit 95820d7830a6507afe81779b2bc142f261558a37
+Author: Andreas <ioerror@lavabit.com>
+Date:   Wed Oct 22 16:59:31 2008 +0200
+
+    Fix access to already freed memory.
+
+commit 38c62e99bc0dae05dfa37de6dca44b606dbef67e
+Author: Andreas <ioerror@lavabit.com>
+Date:   Wed Oct 22 16:58:35 2008 +0200
+
+    Fix memory leak in CfgParser.
+
+commit 54b53a3134da9131b1cc0074c796b8e1c22e4d92
+Author: Andreas <ioerror@lavabit.com>
+Date:   Wed Oct 22 14:33:49 2008 +0200
+
+    Change getDesktopNamesUTF8() to be const.
+
+commit 4aec7a1cb6e66efa4439d366e02175b1de09de92
+Author: Claes Nästén <me@pekdon.net>
+Date:   Wed Oct 22 11:37:48 2008 +0200
+
+    Fix overriding section values on section with values. :-O
+    
+    Hmm, to explain it a bit further here is an example:
+    
+    Define = "FOO" {
+      Bar = "1" {
+        Value = "1"
+      }
+      Bar = "2" {
+        Value = "1"
+      }
+    }
+    
+    And you wanted to override the value of Value in Bar = "2", this was not
+    possible before as the value "2" was never looked for.
+
+commit 28b0a0cf2eab89637bc01cba840180270d08ede3
+Author: Aristotle Pagalztis <pagaltzis@gmx.de>
+Date:   Wed Oct 22 00:28:34 2008 +0200
+
+    fix data Makefiles to allow out-of-tree build
+
+commit bbed3989edf7c546cb6728336e56e9f901562c2a
+Author: Claes Nästén <me@pekdon.net>
+Date:   Tue Oct 21 20:29:41 2008 +0200
+
+    Add Require section to themes.
+    
+    To avoid breaking themes from pre 0.1.8 and to support detecting
+    incompabilities before loading themes a require section has been added.
+    
+    This currently only supports Templates = "True" / "False" switch which
+    enables/disables the new template syntax overriding.
+
+commit a68d7f8fb29272483439ec4f3fecaecaf8708845
+Author: Claes Nästén <me@pekdon.net>
+Date:   Mon Oct 20 18:20:31 2008 +0200
+
+    Cleanup of fix for #33 and re-load workspace name on reload.
+    
+    Less code and more C++ like, seems to be working fine here.
+
+commit 609d95179e51c2f49d6e4c98f721a4b0cf75f39e
+Author: Andreas <ioerror@lavabit.com>
+Date:   Sun Oct 19 23:33:59 2008 +0200
+
+    Add support for _NET_DESKTOP_NAMES (#33).
+
+commit 24736ee9b7d622b6e1d1e72c5381353e84402b90
+Author: Andreas <ioerror@lavabit.com>
+Date:   Sun Oct 19 22:48:54 2008 +0200
+
+    Fix comments on string conversion functions.
+
+commit 85de360f19be513ecbb10f8e5fc696eb5b04cc6a
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Oct 19 17:20:17 2008 +0200
+
+    Enable decoration switching when activating client in a Frame.
+    
+    Previously decor properties was only matched on when the client
+    updated it's title and not when you change active client in a
+    Frame.
+
+commit 74d0a9eb3fac88d1bc0023654df416428030eab3
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Oct 19 17:14:48 2008 +0200
+
+    Make use of Hoover state for buttons, closing #41
+    
+    Parsing of button hoover state has been around for ages but has not actively
+    been used. Added code hoovering buttons.
+
+commit 2f6a9ce662a39ca9e658bd451926debf5cce6659
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Oct 19 16:46:06 2008 +0200
+
+    Support // style regexps by default and cleanup or_ naming.
+    
+    Now // style regexps are used by default if the first and
+    last character in the regexp are the same.
+
+commit 202bf2a4137cf38152bca3bcc0faa24ec8ba3a7e
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Oct 19 11:10:21 2008 +0200
+
+    Fix copying of sections, thought this was already comitted.
+
+commit ddb8e8f9a2e5bc39a885c8df6bc38365045bf845
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Oct 18 20:11:53 2008 +0200
+
+    Fix default configuration file when creating WindowManager.
+
+commit 35ef075b4d6f37928f92e409fba37905da4d536a
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Oct 18 19:54:02 2008 +0200
+
+    Style changes, s/NULL/0/.
+
+commit f16174d75ceb02b7a220b2dd79a4e01bf1b0374a
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Oct 18 19:32:16 2008 +0200
+
+    Remove un-used gettext code and fix include in main.cc
+    
+    General gettext support was not in place anyway, will re-write this
+    when/if it becomes relevant.
+
+commit 965d19cedc7ae7d15c354e187fa12b3499d61a80
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Oct 18 18:00:13 2008 +0200
+
+    Fix g++-4.3 compile warnings and replace NULL with 0
+
+commit 43e69751395582ae6b6044c879d5ca674f0f0c6a
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Oct 18 16:41:42 2008 +0200
+
+    Make DecorRules reload on title change.
+    
+    Now it is possible to get different decors when changing titles on
+    windows, this can be useful to get all your "root" terminals end
+    up red so you do not poweroff the wrong machines.
+
+commit 94478b800a6c5d738af921bf41169493e801a200
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Oct 18 12:13:58 2008 +0200
+
+    Add conditional re-loading of files, changing theme now only reloads 2 files.
+    
+    Before re-loading a check on mtime and path is done before reloading,
+    this seems to be working fine but has two drawbacks (that I currently
+    can see) which are:
+    
+     * Changing a theme image file will not make the theme to reload as the
+       theme definition is left unchanged.
+    
+     * Updating an included file will not make the file including it reload.
+    
+    To avoid issues with the either touch the file, restart or wait for a
+    force option to reload.
+
+commit f1a4273455032c01828046f2595d5df4af8f9770
+Author: Claes Nästén <me@pekdon.net>
+Date:   Fri Oct 17 19:41:44 2008 +0200
+
+    Limit when overwriting is ok due to unique vs non-unique sections.
+
+commit f552747ce6f1a2ce452669993e0e9fed5923af0b
+Author: Claes Nästén <me@pekdon.net>
+Date:   Fri Oct 17 13:55:22 2008 +0200
+
+    Support overriding attributes in sub sections, closing #23.
+
+commit 1b27282359abc9ec33fa7aeaa39b8e0f3052ed23
+Author: Claes Nästén <me@pekdon.net>
+Date:   Thu Oct 16 16:34:16 2008 +0200
+
+    Fix ops in parsing after structure update, now border and edges should work.
+
+commit cc1ff4ed0be3210c039f4338fa629ff3b30e17ea
+Author: Andreas <ioerror@lavabit.com>
+Date:   Wed Oct 15 00:31:43 2008 +0200
+
+    Just a hack to allow the configuration of a resize for a mouse motion event.
+
+commit 3fa9c90154ff9de8a2012218165b021c94dd3062
+Author: Andreas <ioerror@lavabit.com>
+Date:   Wed Oct 15 00:31:20 2008 +0200
+
+    Trigger ButtonRelease config even when ButtonPress does a resize (#60).
+
+commit 9c7e31bc969cef6e7694accbbbb953933fcd86ee
+Author: Andreas <ioerror@lavabit.com>
+Date:   Wed Oct 15 00:30:48 2008 +0200
+
+    Generally check event's window and event's subwindow member for a valid border window (similar to the last patch).
+
+commit 69f21a298b215e9c0d395886f28db4e6ed32f93a
+Author: Andreas <ioerror@lavabit.com>
+Date:   Wed Oct 15 00:27:12 2008 +0200
+
+    Allow ButtonRelease on the decor (see #60).
+    
+    However, if ButtonPress is configured to do a resize, this doesn't work,
+    because Frame::doResize() eats the ButtonRelease event.
+
+commit 0eb33f36389242158e842f5844b63c1698eaaeb9
+Author: Claes Nästén <me@pekdon.net>
+Date:   Thu Oct 16 14:25:40 2008 +0200
+
+    Fix ops in autoprops parsing, update conifg and docs with small...
+
+commit bd0060b6e3b717b4f26d9b68d3d1cefa3b2edfa4
+Author: Claes Nästén <me@pekdon.net>
+Date:   Thu Oct 16 14:03:07 2008 +0200
+
+    Add HonourRandr option, fix issues with Xinerama vs Randr.
+    
+    Some drivers provide both randr and xinereama information, if you want
+    xinerama should be used instead of randr set HonourRandr to False.
+
+commit d72f78ca0a5ad87e325a43887582041bbabcda49
+Author: Claes Nästén <me@pekdon.net>
+Date:   Thu Oct 16 10:59:14 2008 +0200
+
+    Add missing algorithm include, reported by smurfd.
+
+commit b240062e8df575c442671bc6d55ddec47ffa72ed
+Author: Claes Nästén <me@pekdon.net>
+Date:   Wed Oct 15 22:40:11 2008 +0200
+
+    Work on #23, template in use for themes but loading of configuration not 100%
+    
+    Template code is starting to take shape, configuration loading is not
+    100% yet.
+
+commit d0ffaaa54d4864241a5711fafd126ef43fc3a776
+Author: Claes Nästén <me@pekdon.net>
+Date:   Wed Oct 15 13:49:12 2008 +0200
+
+    Re-work CfgParser structure, use list instead of homegrown list.
+    
+    First step in cleaning up the CfgParser structure, parsing code a bit
+    updated but find_* should return iterators instead of actual elements.
+
+commit 433fb988d2003673423daa111e20ce5cf6239b0e
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Jul 20 18:04:41 2008 +0200
+
+    Start on fixed width menus to be used in searchdialog for displaying results.
+
+commit aa4c99c127462b1c6feebeffbfb4d0cdd0da83b4
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Jul 20 17:54:11 2008 +0200
+
+    Move wo_ref from CmdDialog to InputDialog as it is to be used in SearchDialog
+
+commit 7261c762cd4a3f361700fad84ef015d7c8ee1a3a
+Author: Claes Nästén <me@pekdon.net>
+Date:   Tue Oct 14 19:35:43 2008 +0200
+
+    Update default mouse configuration, Vertical workspace navigation.
+
+commit ca9b7e54f5db793016698d607b6c235847733f8d
+Author: Claes Nästén <me@pekdon.net>
+Date:   Tue Oct 14 19:29:06 2008 +0200
+
+    Start cleaning of reload and actually reload InputDialog texture closing #67
+
+commit 924f6fdaeae19c5456d5387efb093f72badb0032
+Author: Andreas <ioerror@lavabit.com>
+Date:   Tue Oct 14 13:35:12 2008 +0200
+
+    Fix continuous-focus-switching bug.
+
+commit dbee6ff35bb5f21e704208203b473af110138580
+Author: Andreas <ioerror@lavabit.com>
+Date:   Fri Oct 10 17:01:27 2008 +0200
+
+    This should probably fix #38 (vnc issue).
+    
+    Longer explanation (as far as I understand it):
+    A client that uses the "Locally Active" input model (see ICCCM 2.0 §4.1.7)
+    may delegate its input focus to one of its subwindows. If this happens,
+    a FocusOut event for the top level window is generated but pekwm does not
+    get the FocusIn event for the subwindow (because it is not managed by
+    pekwm ?!). WindowManager::handleFocusOutEvent() then gives the input focus
+    to the root window and thereby removing the input focus from the client
+    completely.
+
+commit 96dbb189110eda75aa53a7e42c485ce940fe742e
+Author: Andreas <ioerror@lavabit.com>
+Date:   Fri Oct 10 16:36:58 2008 +0200
+
+    Call PScreen::setLastEventTime() for skipped events.
+
+commit 3b8e66840efe965aa7048146fecde8401876e28d
+Author: Andreas <ioerror@lavabit.com>
+Date:   Fri Oct 10 16:31:57 2008 +0200
+
+    Add Client::sendTakeFocusMessage() and call it from Client::giveInputFocus().
+
+commit 6c54e7516ddefe14b6e90f159e88606de0352356
+Author: Andreas <ioerror@lavabit.com>
+Date:   Mon Oct 6 16:47:43 2008 +0200
+
+    Change return value from giveInputFocus() from bool to void.
+    
+    The return value was never used anyway.
+
+commit dabc94342c6c6abfbfcaef5ac92536bee25382dd
+Author: Andreas <ioerror@lavabit.com>
+Date:   Thu Oct 9 16:02:21 2008 +0200
+
+    Change type of PScreen::_last_event_time to Time.
+
+commit 4631a0bf6d6fcc7f487fe9f91c89ca09a8c15e5b
+Author: Andreas <ioerror@lavabit.com>
+Date:   Mon Oct 6 16:46:24 2008 +0200
+
+    Fix a compile error when using ./configure --disable-harbour --enable-pedantic.
+
+commit 062ee33fbf5dd111581b4641bdff49df0a62d25e
+Author: Andreas <ioerror@lavabit.com>
+Date:   Wed Oct 8 17:35:14 2008 +0200
+
+    Initialise Theme::_harbour_texture correctly.
+    
+    This fixes a possible crash when pekwm is shutdown.
+
+commit 61ffb8939da7d77ef73346e7d7350ab717f66121
+Author: Claes Nästén <me@pekdon.net>
+Date:   Tue Oct 7 23:51:32 2008 +0200
+
+    Only find window to focus if menu had focus in HideAllMenus. Closing #65
+
+commit 25db0c25df08f09ba06b58cf730d8c92f0a46dec
+Author: Andreas <ioerror@lavabit.com>
+Date:   Mon Oct 6 16:45:11 2008 +0200
+
+    Indentation clean up of Frame::handleConfigureRequestGeometry() with
+    
+    additional change of the if-clause.
+
+commit fe61e00a64ee9c2699ec7ce2167b355c60af2545
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Oct 5 19:31:23 2008 +0200
+
+    Start on @template syntax for configuration files, not working yet.
+    
+    Data seems to be copied over just fine but overwriting does not work
+    yet, should fine to use for things such as defining @BORDER for decors
+    and the like.
+
+commit aa0a21844694ec0881ee5d3172ddd2ae811cb127
+Author: Claes Nästén <me@pekdon.net>
+Date:   Fri Oct 3 10:40:18 2008 +0200
+
+    Fixes for mkdocs script, now works on Ubuntu Hardy.
+
+commit 8307a4fbe7cf1e18a1bfe54bb811b52b48c9d1ba
+Author: Claes Nästén <me@pekdon.net>
+Date:   Fri Oct 3 10:33:49 2008 +0200
+
+    Style cleanup of CfgParserSource.
+
+commit 93534951358ddfd36ded0ac687472ab824a38c1d
+Author: Claes Nästén <me@pekdon.net>
+Date:   Thu Oct 2 08:47:47 2008 +0200
+
+    Cleanup of naming in CfgParser, first go.
+    
+    Start cleaning CfgParser before looking at templates in configuration.
+    This code has not been tested much.
+
+commit ad511f0dd8de6e00781592084b99e7ad49495e79
+Author: Andreas <ioerror@lavabit.com>
+Date:   Mon Sep 29 17:15:07 2008 +0200
+
+    Changes Config::getWorkspaceName() to a more concise form.
+
+commit 03eb26a686d2427308c68d030752a353520ddb16
+Author: Andreas <ioerror@lavabit.com>
+Date:   Mon Sep 29 17:08:34 2008 +0200
+
+    Just code style cleaning (2/2).
+
+commit d21cbbb11611cbb7cb57071cf557742d85c762f3
+Author: Andreas <ioerror@lavabit.com>
+Date:   Mon Sep 29 17:02:17 2008 +0200
+
+    Just code style cleaning (1/2).
+
+commit 7bd7afc250a9f7578de7e38b5ed5925af8860de1
+Author: Claes Nästén <me@pekdon.net>
+Date:   Mon Sep 29 22:36:28 2008 +0200
+
+    First try to get fullscreen detection, code has not yet been tested.
+    
+    This introcuses a new option, FullscreenDetect to be put in the Screen
+    section. When True pekwm will try to detect non EWMH fullscreen requests
+    and make the window go to real fullscreen mode (removing decoration and
+    raising it).
+
+commit b15e00fea34232dba87226008328edcc67f93b6e
+Author: Claes Nästén <me@pekdon.net>
+Date:   Mon Sep 29 22:17:51 2008 +0200
+
+    Remove some ifdefs around SHAPEing
+
+commit 33394a6b599c9205f4d6f032420c70b27ceaeec2
+Author: Andreas <ioerror@lavabit.com>
+Date:   Mon Sep 29 15:22:12 2008 +0200
+
+    Makes the "raise true" action work on unselected tabs.
+    
+    Together with the last commit a01e05c18 this fixes task #59.
+
+commit a01e05c18316c84de86f2c5a09a15d7ec5065bb9
+Author: Andreas <ioerror@lavabit.com>
+Date:   Thu Sep 25 15:13:43 2008 +0200
+
+    Removes 'static' keyword from a few variables in Config.cc and cleans up the initialisation of the Action class.
+
+commit f5395090cb7cfceaf94cab1ac8d2cc2a68ce2493
+Author: Vladimir Marek <Vladimir.Marek@Sun.COM>
+Date:   Wed Sep 24 11:28:58 2008 +0200
+
+    Fix compilation with SunStudio, missing std:: for find.
+
+commit 88eeb5c87a72e45c2083709000b79702e1903559
+Author: Andreas <ioerror@lavabit.com>
+Date:   Tue Sep 23 14:43:18 2008 +0200
+
+    Handle top level windows with window gravity != NW correctly.
+
+commit 2ef821e253bcb144500e075a024f3693e65e117d
+Author: Andreas <ioerror@lavabit.com>
+Date:   Sun Sep 21 15:25:39 2008 +0200
+
+    Fix Client::moveResize(). It updates its geometry now.
+
+commit 2a501740b4e375bfc3e939c0549b2929bb912bcd
+Author: Claes Nästén <me@pekdon.net>
+Date:   Mon Sep 22 10:12:49 2008 +0200
+
+    Convert ShowWorkspaceIndicator to milliseconds instead of seconds.
+    
+    The 1 second display of the WorkspaceIndicator is too long, make it configurable in
+    milliseconds instead and set the default time to 0.5 seconds.
+
+commit 96b60f54821456bbe03691639ca3c18bf78e11c1
+Author: Jyri Jokinen <shared@adresh.com>
+Date:   Mon Sep 22 08:49:11 2008 +0200
+
+    Fix #63 above dialog issue.
+    
+    Looks like a brainfart. This trivial patch should fix it.
+
+commit c4527978b82174b3a43909c5618ee715d547325f
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Sep 21 12:36:01 2008 +0200
+
+    CmdDialog history persistance, now actually tested and with documentation.
+    
+    Now the code actually is tested minimally and documentation is in place,
+    still needs more testing I would guess.
+
+commit 8bed7cf4b3a5fa4bfc8ec5ea94fb8768ac0032c4
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Sep 20 20:06:26 2008 +0200
+
+    Start on CmdDialog history persistance.
+    
+    New CmdDialog section has been introduced to the main configuration
+    file. The CmdDialog section currently only configures the history
+    aspects of the CmdDialog.
+    
+    The default section looks like this:
+    
+     CmdDialog {
+         HistoryUnique = "True"
+         HistorySize = "1024"
+         HistoryFile = "~/.pekwm/history"
+     }
+
+commit 973f97b522e1a7dd278326a7e3b65e012f9a648b
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Sep 20 19:08:24 2008 +0200
+
+    Add file_backed_list for use in CmdDialog.
+    
+    List for use in the CmdDialog for persisintg configuration between
+    sessions, untested code.
+
+commit 70988e8fe0e35382a324ecbdddd6e8c3fe2f4e83
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Sep 20 18:51:59 2008 +0200
+
+    Make CfgParserKeyPath expand default value.
+
+commit e903c7b3bab44b578c43b5c438121d91bba6b768
+Author: Nathan Howard <cornet@sheepy.org>
+Date:   Tue Sep 16 20:48:06 2008 +0100
+
+    Fix fix for #56, use enableval rather than custom variable
+
+commit 891047b4f822ceaf483dc39e1d09ef4c8b1def15
+Author: Nathan Howard <cornet@sheepy.org>
+Date:   Mon Sep 15 23:48:42 2008 +0100
+
+    #56 Fix: make sure we test right variable
+
+commit 155e1c311d6a464ef9e44260a513b065e8d5b45b
+Author: Andreas <ioerror@lavabit.com>
+Date:   Sun Sep 14 14:47:24 2008 +0200
+
+    Fix small copy&paste error in Frame::Frame().
+    
+    _non_fullscreen_decor_state was initialised with client->getLayer().
+
+commit 4b129941c9e030a0c5b39ef221ee99965f84c433
+Author: Claes Nästén <me@pekdon.net>
+Date:   Tue Sep 9 22:06:09 2008 +0200
+
+    Add FullscreenAbove configuration option, closing #61
+    
+    It is now configurable to make applications going to fullscreen mode
+    being raised above other windows, this is set to true as default as I
+    guess most users will want it even though I have turned off.
+
+commit 45797d285880fe181de0de17a3413c76e976ec06
+Author: Jérôme Pigeot <j.pigeot@gmail.com>
+Date:   Sat Aug 30 11:07:15 2008 +0200
+
+    Update theme explanation file to use docbook structure.
+
+commit 5ee205f63aa52c47c3a7ce74cff6e7d523bdb028
+Author: Claes Nästén <me@pekdon.net>
+Date:   Tue Aug 12 23:04:09 2008 +0200
+
+    Work-around #56, somehow xrandr interferes with png.
+    
+    Nathan reports doing --disable-xrandr also disabled png image support,
+    moving the xrandr test further down makes it work but I wonder what
+    is actually causing this.
+
+commit 5f39fa2d94ad5fc1d06cf0e1486c3b4b3cebd65a
+Author: Vladimir A. Pavlov <pv4@bk.ru>
+Date:   Sun Aug 10 12:58:58 2008 +0200
+
+    Fix strut reading on x86_64, use long and not CARD32, closing #51.
+    
+    The bug is that on x86 sizeof(long)==4 and sizeof(CARD32)==4 while
+    on x86_64 sizeof(long)==8 and sizeof(CARD32)==4.
+    
+    So if I have pypanel at the bottom of the screen the strut array
+    is { 0, 0, 0, 24 } each element being of 8 bytes length. But pekwm
+    assumes them to be of type CARD32 that's only 4 bytes, and it sees only
+    the first 16 (zero) bytes of the actual array and therefore it doesn't
+    properly apply the strut cause windows overlap the panel.
+    
+    The fix is to replace all the arrays of CARD32 with arrays of long when
+    working with Xlib. I looked through pekwm sources and found only two places
+    where CARD32 arrays are used.
+
+commit 43e1201c8dbe15ce4aaec929a2e5267247bfc6d9
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Aug 9 20:18:20 2008 +0200
+
+    Rename custom.dsl to pekwm.dsl to avoid conflicts.
+
+commit 8c6bfae31bdd9a81f69f2df452f806c6e64551a0
+Author: Claes Nästén <me@pekdon.net>
+Date:   Fri Aug 8 09:24:38 2008 +0200
+
+    Updates on themeset script, use SED found by configure, and find to find themes.
+    
+    Try to make things more correct and work on more variants of sed, it seems
+    as if sed on NetBSD does not support the i flag (? is that true ?), also
+    make sure there is a theme file in theme directories by using find.
+
+commit 3ea8a8c84136b87d22e89da64405b054d2535615
+Author: Claes Nästén <me@pekdon.net>
+Date:   Wed Aug 6 22:55:35 2008 +0200
+
+    Back to GIT version after 0.1.7 release and tag.
+
+commit 502bc44912bac628ead111c820c335941a99c979
+Author: Claes Nästén <me@pekdon.net>
+Date:   Wed Aug 6 22:35:20 2008 +0200
+
+    More updates before 0.1.7 release, missing files and version set.
+
 commit aec08f709f2488547abad7e0e075d4c8de3d4a55
 Author: Claes Nästén <me@pekdon.net>
 Date:   Wed Aug 6 22:19:27 2008 +0200
@@ -543,6 +1940,33 @@ Date:   Mon Jul 21 23:24:41 2008 +0200
     
     ICCCM 4.1.4 advices the window manager to trigger the transition to
     Withdrawn state on real and synthetic UnmapNotify events.
+
+commit 4de33c16cb96d5f1c8ff59c79e5cc9790d99de6a
+Author: Andreas (ioerror) <ioerror@lavabit.com>
+Date:   Mon Jul 21 23:24:41 2008 +0200
+
+    Fix map/unmap issue with QT programs.
+    
+    ICCCM 4.1.4 advices the window manager to trigger the transition to
+    Withdrawn state on real and synthetic UnmapNotify events.
+
+commit 708893ab3d74a58840efa1690d7c393513ca93bc
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Jul 20 18:06:11 2008 +0200
+
+    Start on getting search results displayed in menu, this is buggy though
+
+commit 9967401614c01db781298518a3f077d99dceeb32
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Jul 20 18:04:41 2008 +0200
+
+    Start on fixed width menus to be used in searchdialog for displaying results.
+
+commit 9f962fdc6467af33afeeb4cdeb764fd75372f41f
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Jul 20 17:54:11 2008 +0200
+
+    Move wo_ref from CmdDialog to InputDialog as it is to be used in SearchDialog
 
 commit 1e66925308a2555a698d511ac25cbc18ea039afe
 Author: Claes Nästén <me@pekdon.net>
