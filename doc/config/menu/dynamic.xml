@@ -39,5 +39,12 @@ echo "}"</screen>
  Entry = "31549" { Actions = "Exec xmessage 31549" }
 }</screen>
 
+  <para>
+    Clients can access the PID and Window that was active when the
+    script was executed via the environment variables $CLIENT_PID and
+    $CLIENT_WINDOW. $CLIENT_PID is only available if the client is
+    being run on the same host as pekwm.
+  </para>
+
 </simplesect>
 

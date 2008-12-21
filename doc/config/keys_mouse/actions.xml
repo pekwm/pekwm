@@ -696,6 +696,18 @@
         </listitem>
       </varlistentry>
       <varlistentry>
+	<term>ShowSearchDialog (string)</term>
+        <listitem>
+          <para>
+            Shows the search dialog that can be used to search for
+            clients and when selected the client will be
+            activated. Takes an optional string as a parameter. This
+            string will then be pre-filled as the initial value of the
+            dialog.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
         <term>ShowMenu (string bool)</term>
         <listitem>
           <para>

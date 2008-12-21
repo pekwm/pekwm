@@ -338,49 +338,42 @@
       </varlistentry>
 
       <varlistentry>
-        <term>IconWidthMin (int)</term>
+        <term>Icons = "MENU"</term>
         <listitem>
-          <para>Defines minimum width of icons, if 0 no check is done. Default 16.</para>
+          <variablelist>
+            <varlistentry>
+              <term>Minimum (width x height)</term>
+              <listitem>
+                <para>Defines minimum size of icons, if 0x0 no check is done. Default 16x16.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>Maximum (width x height)</term>
+              <listitem>
+                <para>Defines maximum size of icons, if 0x0 no check is done. Default 16x16.</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
         </listitem>
       </varlistentry>
 
       <varlistentry>
-        <term>IconWidthMax (int)</term>
-        <listitem>
-          <para>Defines maximum width of icons, if 0 no check is done. Default 16.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>IconHeightMin (int)</term>
-        <listitem>
-          <para>Defines minimum height of icons, if 0 no check is done. Default 16.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>IconHeightMax (int)</term>
-        <listitem>
-          <para>Defines maximum height of icons, if 0 no check is done. Default 16.</para>
-        </listitem>
-      </varlistentry>
-
-      <varlistentry>
-        <term>Select (string)</term>
+        <term>Select (list of strings)</term>
 	<listitem>
-          <para>Decides on what mouse events to select a menu entry. String is one of "ButtonPress, ButtonRelease, DoubleClick, Motion"</para>
+          <para>Decides on what mouse events to select a menu entry. List is space separated and can include "ButtonPress, ButtonRelease, DoubleClick, Motion, MotionPressed"</para>
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term>Enter (string)</term>
+        <term>Enter (list of strings)</term>
 	<listitem>
-          <para>Decides on what mouse events to enter a submenu. String is one of "ButtonPress, ButtonRelease, DoubleClick, Motion"</para>
+          <para>Decides on what mouse events to enter a submenu. List is space separated and can include "ButtonPress, ButtonRelease, DoubleClick, Motion, MotionPressed"</para>
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term>Exec (string)</term>
+        <term>Exec (list of strings)</term>
 	<listitem>
-          <para>Decides on what mouse events to execute an entry. String is one of "ButtonPress, ButtonRelease, DoubleClick, Motion"</para>
+          <para>Decides on what mouse events to execute an entry. List is space separated anc can include "ButtonPress, ButtonRelease, DoubleClick, Motion, MotionPressed"</para>
         </listitem>
       </varlistentry>
     </variablelist>

@@ -26,12 +26,26 @@
 }</screen>
 
   <para>
-    In addition with WM_CLASS, pekwm also can identify clients by
-    their title string (<command>xprop WM_NAME</command>).
+    Autoproperties have an both an old and new style matching
+    clients. The new style was introduced to support using
+    configuration template overwriting.
   </para>
 
-  <screen>Property = "^dillo,^Dillo" {
-	Title = "Dillo: pekwm.org - not just another windowmanager"
+  <para>
+    In addition with WM_CLASS, pekwm also can identify clients by
+    their title string (<command>xprop WM_NAME</command>
+    or <command>xprop _NET_WM_NAME</command>).
+  </para>
+
+  <screen># New syntax, requires Require { Templates = "True" }
+Property = "^dillo,^Dillo,,Dillo: pekwm.org - not just another windowmanager" {
+	ApplyOn = "Start New"
+	Layer = "OnTop"
+}
+
+# Old syntax
+Property = "^dillo,^Dillo" {
+        Title = "Dillo: pekwm.org - not just another windowmanager"
 	ApplyOn = "Start New"
 	Layer = "OnTop"
 }</screen>
@@ -40,7 +54,14 @@
     Or by their role (<command>xprop WM_WINDOW_ROLE</command>):
   </para>
 
-  <screen>Property = "^gaim,^Gaim" {
+  <screen># New syntax, requires Require { Templates = "True" }
+Property = "^gaim,^Gaim,preferences" {
+	ApplyOn = "New"
+	Skip = "Menus"
+}
+
+# Old syntax
+Property = "^gaim,^Gaim" {
 	Role = "preferences"
 	ApplyOn = "New"
 	Skip = "Menus"
