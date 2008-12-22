@@ -279,7 +279,7 @@ InputDialog {
 	KeyPress = "Right" { Actions = "CursNext" }
 	KeyPress = "Ctrl A" { Actions = "CursBegin" }
 	KeyPress = "Ctrl E" { Actions = "CursEnd" }
-	KeyPress = "BackSpace" { Actions = "CompleteAbort; Erase" }
+	KeyPress = "BackSpace" { Actions = "Erase;CompleteAbort" }
 	KeyPress = "Ctrl K" { Actions = "ClearFromCursor" }
 	KeyPress = "Ctrl C" { Actions = "Clear" }
 	KeyPress = "Return" { Actions = "Exec" }
@@ -288,6 +288,8 @@ InputDialog {
 	KeyPress = "Down" { Actions = "HistNext" }
 	KeyPress = "Ctrl P" { Actions = "HistPrev" }
 	KeyPress = "Ctrl N" { Actions = "HistNext" }
+        KeyPress = "Ctrl B" { Actions = "CursPrev" }
+        KeyPress = "Ctrl F" { Actions = "CursNext" }
         KeyPress = "Tab" { Actions = "Complete" }
 	KeyPress = "Any Any" { Actions = "Insert" }
 }
