@@ -95,7 +95,7 @@ public:
     }
 
     inline const std::string &getName(void) { return _name; }
-    inline PMenu::Item *getItemCurr(void) { return *_item_curr; }
+    inline PMenu::Item *getItemCurr(void) { return (_item_curr == _item_list.end()) ? 0 : *_item_curr; }
     void selectNextItem(void);
     void selectPrevItem(void);
 
