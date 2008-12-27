@@ -12,6 +12,7 @@
 
 #ifdef HAVE_IMAGE_XPM
 
+#include "PScreen.hh"
 #include "PImageNativeLoaderXpm.hh"
 
 #include <iostream>
@@ -108,23 +109,25 @@ PImageNativeLoaderXpm::createXpmToRgbaTable(XpmImage *xpm_image)
     char c_buf[3] = { '\0', '\0', '\0' }; // Temporary hex color string.
     const char *color;
     uchar *xpm_to_rgba, *dest;
+    XColor xcolor_exact;
 
     xpm_to_rgba = new uchar[xpm_image->ncolors * CHANNELS];
     dest = xpm_to_rgba;
     for (uint i = 0; i < xpm_image->ncolors; ++i) {
-        if (xpm_image->colorTable[i].c_color)
+        if (xpm_image->colorTable[i].c_color) {
             color = xpm_image->colorTable[i].c_color;
-        else if (xpm_image->colorTable[i].g_color)
+        } else if (xpm_image->colorTable[i].g_color) {
             color = xpm_image->colorTable[i].g_color;
-        else if (xpm_image->colorTable[i].g4_color)
+        } else if (xpm_image->colorTable[i].g4_color) {
             color = xpm_image->colorTable[i].g4_color;
-        else if (xpm_image->colorTable[i].m_color)
+        } else if (xpm_image->colorTable[i].m_color) {
             color = xpm_image->colorTable[i].m_color;
-        else
+        } else {
             color = COLOR_DEFAULT;
+        }
 
-        // Color in format #RRGGBB.
-        if (color && (strlen(color) == 7)) {
+        if (color && color[0] == '#' && strlen(color) == 7) {
+            // Color in format #RRGGBB
             for (uint j = 0; j < 3; ++j) {
                 c_buf[0] = color[j * 2 + 1];
                 c_buf[1] = color[j * 2 + 2];
@@ -137,8 +140,14 @@ PImageNativeLoaderXpm::createXpmToRgbaTable(XpmImage *xpm_image)
             }
             *dest++ = ALPHA_SOLID;
 
-            // Invalid format or None, set it transparent
+        } else if (color && XParseColor(PScreen::instance()->getDpy(), PScreen::instance()->getColormap(),
+                                        color, &xcolor_exact)) {
+            *dest++ = xcolor_exact.red;
+            *dest++ = xcolor_exact.green;
+            *dest++ = xcolor_exact.blue;
+            *dest++ = ALPHA_SOLID;
         } else {
+            // Invalid format or None, set it transparent
             *dest++ = 0; // R
             *dest++ = 0; // G
             *dest++ = 0; // B
