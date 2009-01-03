@@ -49,7 +49,8 @@ protected:
     void drawFixed(Drawable dest, int x, int y, uint width, uint height);
     void drawScaled(Drawable dest, int x, int y, uint widht, uint height);
     void drawTiled(Drawable dest, int x, int y, uint widht, uint height);
-    void drawAlphaFixed(Drawable dest, int x, int y, uint widht, uint height);
+    void drawAlphaFixed(Drawable dest, int x, int y, uint widht, uint height,
+                        uchar *data = 0);
     void drawAlphaScaled(Drawable dest, int x, int y, uint widht, uint height);
     void drawAlphaTiled(Drawable dest, int x, int y, uint widht, uint height);
 
@@ -59,6 +60,65 @@ protected:
 private:
     XImage *createXImage(uchar *data, uint width, uint height);
     uchar *getScaledData(uint width, uint height);
+
+    /**
+     * Create pixel value suitable for ximage from R, G and B.
+     */
+    inline ulong
+    getPixelFromRgb(XImage *ximage, uchar r, uchar g, uchar b)
+    {
+        // 5 R, 5 G, 5 B (15 bit display)
+        if ((ximage->red_mask == 0x7c00)
+            && (ximage->green_mask == 0x3e0) && (ximage->blue_mask == 0x1f)) {
+            return ((r << 7) & 0x7c00)
+                | ((g << 2) & 0x03e0) | ((b >> 3) & 0x001f);
+
+            // 5 R, 6 G, 5 B (16 bit display)
+        } else  if ((ximage->red_mask == 0xf800)
+                    && (ximage->green_mask == 0x07e0)
+                    && (ximage->blue_mask == 0x001f)) {
+            return ((r << 8) &  0xf800)
+                | ((g << 3) & 0x07e0) | ((b >> 3) & 0x001f);
+
+            // 8 R, 8 G, 8 B (24/32 bit display)
+        } else if  ((ximage->red_mask == 0xff0000)
+                    && (ximage->green_mask == 0xff00)
+                    && (ximage->blue_mask == 0xff)) {
+            return ((r << 16) & 0xff0000)
+                | ((g << 8) & 0x00ff00) | (b & 0x0000ff);
+        } else {
+            return 0;
+        }
+    }
+
+    /**
+     * Fill in RGB values from pixel value from ximage.
+     */
+    inline void
+    getRgbFromPixel(XImage *ximage, ulong pixel, uchar &r, uchar &g, uchar &b)
+    {
+        // 5 R, 5 G, 5 B (15 bit display)
+        if ((ximage->red_mask == 0x7c00)
+            && (ximage->green_mask == 0x3e0) && (ximage->blue_mask == 0x1f)) {
+            r = g = b = 0;
+            // 5 R, 6 G, 5 B (16 bit display)
+        } else  if ((ximage->red_mask == 0xf800)
+                    && (ximage->green_mask == 0x07e0)
+                    && (ximage->blue_mask == 0x001f)) {
+            r = g = b = 0;
+            // 8 R, 8 G, 8 B (24/32 bit display)
+        } else if  ((ximage->red_mask == 0xff0000)
+                    && (ximage->green_mask == 0xff00)
+                    && (ximage->blue_mask == 0xff)) {
+            r = (pixel >> 16) & 0xff;
+            g = (pixel >> 8) & 0xff;
+            b = pixel & 0xff;
+        } else {
+            r = 0;
+            g = 0;
+            b = 0;
+        }
+    }
 
 protected:
     uchar *_data; //!< Data describing image.

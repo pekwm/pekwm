@@ -302,22 +302,81 @@ PImageNative::drawTiled(Drawable dest, int x, int y, uint width, uint height)
 
 //! @brief Draw image at position, not scaling.
 void
-PImageNative::drawAlphaFixed(Drawable dest, int x, int y, uint width, uint height)
+PImageNative::drawAlphaFixed(Drawable dest, int x, int y, uint width, uint height, uchar *data)
 {
-    drawFixed(dest, x, y, width, height);
+    XImage *dest_image = XGetImage(_dpy, dest, x, y, width, height, AllPlanes, ZPixmap);
+
+    // Get mask from visual
+    Visual *visual = PScreen::instance()->getVisual()->getXVisual();
+    dest_image->red_mask = visual->red_mask;
+    dest_image->green_mask = visual->green_mask;
+    dest_image->blue_mask = visual->blue_mask;
+
+    if (! dest_image) {
+        cerr << " *** ERROR: failed to get image for destination." << endl;
+        return;
+    }
+
+    uchar *src;
+    uchar r, g, b, a;
+    uchar d_r = 0, d_g = 0, d_b = 0;
+    float a_percent, a_percent_inv;
+
+    if (data) {
+        src = data;
+    } else {
+        src = _data;
+        width = std::min(width, _width);
+        height = std::min(height, _height);
+    }
+
+    for (uint i_y = 0; i_y < height; ++i_y) {
+        for (uint i_x = 0; i_x < width; ++i_x) {
+            // Get pixel value, copy them directly if alpha is set to 255.
+            r = *src++;
+            g = *src++;
+            b = *src++;
+            a = *src++;
+
+            // Alpha not 100% solid, blend
+            if (a != 255) {
+                // Get RGB values from pixel.
+                getRgbFromPixel(dest_image, XGetPixel(dest_image, i_x, i_y),
+                                d_r, d_g, d_b);
+
+                a_percent = static_cast<float>(a) / 255;
+                a_percent_inv = 1 - a_percent;
+
+                r = (a_percent_inv * d_r) + (a_percent * r);
+                g = (a_percent_inv * d_g) + (a_percent * g);
+                b = (a_percent_inv * d_b) + (a_percent * b);
+            }
+
+            XPutPixel(dest_image, i_x, i_y, getPixelFromRgb(dest_image, r, g, b));
+        }
+    }
+
+    XPutImage(_dpy, dest, PScreen::instance()->getGC(), dest_image,
+              0, 0, x, y, width, height);
+    XDestroyImage(dest_image);
 }
 
 //! @brief Draw image scaled to fit width and height.
 void
 PImageNative::drawAlphaScaled(Drawable dest, int x, int y, uint width, uint height)
 {
-    drawScaled(dest, x, y, width, height);
+    uchar *scaled_data = getScaledData(width, height);
+    if (scaled_data) {
+        drawAlphaFixed(dest, x, y, width, height, scaled_data);
+        delete [] scaled_data;
+    }
 }
 
 //! @brief Draw image tiled to fit width and height.
 void
 PImageNative::drawAlphaTiled(Drawable dest, int x, int y, uint width, uint height)
 {
+    // FIXME: Implement tiled rendering with alpha support
     drawTiled(dest, x, y, width, height);
 }
 
@@ -422,7 +481,6 @@ PImageNative::createXImage(uchar *data, uint width, uint height)
 
     uchar *src = data;
     uchar r, g, b;
-    ulong pixel;
 
     // Put data into XImage.
     for (uint y = 0; y < height; ++y) {
@@ -434,30 +492,7 @@ PImageNative::createXImage(uchar *data, uint width, uint height)
                 *src++;
             }
             
-            // 5 R, 5 G, 5 B (15 bit display)
-            if ((ximage->red_mask == 0x7c00)
-                    && (ximage->green_mask == 0x3e0) && (ximage->blue_mask == 0x1f)) {
-                pixel = ((r << 7) & 0x7c00)
-                        | ((g << 2) & 0x03e0) | ((b >> 3) & 0x001f);
-
-                // 5 R, 6 G, 5 B (16 bit display)
-            } else  if ((ximage->red_mask == 0xf800)
-                        && (ximage->green_mask == 0x07e0)
-                        && (ximage->blue_mask == 0x001f)) {
-                pixel = ((r << 8) &  0xf800)
-                        | ((g << 3) & 0x07e0) | ((b >> 3) & 0x001f);
-
-                // 8 R, 8 G, 8 B (24/32 bit display)
-            } else if  ((ximage->red_mask == 0xff0000)
-                        && (ximage->green_mask == 0xff00)
-                        && (ximage->blue_mask == 0xff)) {
-                pixel = ((r << 16) & 0xff0000)
-                        | ((g << 8) & 0x00ff00) | (b & 0x0000ff);
-            } else {
-                pixel = 0;
-            }
-
-            XPutPixel(ximage, x, y, pixel);
+            XPutPixel(ximage, x, y, getPixelFromRgb(ximage, r, g, b));
         }
     }
 
@@ -498,8 +533,9 @@ PImageNative::getScaledData(uint width, uint height)
             *dest++ = _data[i_src++];
             *dest++ = _data[i_src++];
             *dest++ = _data[i_src++];
-            if (_has_alpha)
+            if (_has_alpha) {
                 *dest++ = _data[i_src++];
+            }
 
             f_src += ratio_x;
         }
