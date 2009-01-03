@@ -126,7 +126,7 @@ public:
      * Remove state modifiers such as NumLock from state.
      */
     unsigned int stripStateModifiers(unsigned int state) const {
-        state &= ~_num_lock & _scroll_lock & ~LockMask;
+        state &= ~_num_lock & ~_scroll_lock & ~LockMask;
         return state;
     }
 
