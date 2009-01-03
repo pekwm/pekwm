@@ -45,7 +45,8 @@ PImageNativeLoaderXpm::~PImageNativeLoaderXpm(void)
 //! @param alpha Set to wheter image has alpha channel.
 //! @return Pointer to data on success, else 0.
 uchar*
-PImageNativeLoaderXpm::load(const std::string &file, uint &width, uint &height, bool &alpha)
+PImageNativeLoaderXpm::load(const std::string &file, uint &width, uint &height,
+                            bool &alpha, bool &use_alpha)
 {
     XpmImage xpm_image;
     XpmInfo xpm_info;
@@ -76,6 +77,9 @@ PImageNativeLoaderXpm::load(const std::string &file, uint &width, uint &height, 
     dest = data;
     src = xpm_image.data;
 
+    alpha = true;
+    use_alpha = false;
+
     // Fill data.
     for (uint y = 0; y < height; ++y) {
         for (uint x = 0; x < width; ++x) {
@@ -83,6 +87,11 @@ PImageNativeLoaderXpm::load(const std::string &file, uint &width, uint &height, 
             *dest++ = xpm_to_rgba[*src * CHANNELS + 1]; // G
             *dest++ = xpm_to_rgba[*src * CHANNELS + 2]; // B
             *dest++ = xpm_to_rgba[*src * CHANNELS + 3]; // A
+
+            // Check for active use of alpha
+            if (! use_alpha && xpm_to_rgba[*src * CHANNELS + 3] != 255) {
+                use_alpha = true;
+            }
 
             *src++;
         }
@@ -93,8 +102,6 @@ PImageNativeLoaderXpm::load(const std::string &file, uint &width, uint &height, 
 
     XpmFreeXpmImage(&xpm_image);
     XpmFreeXpmInfo(&xpm_info);
-
-    alpha = true;
 
     return data;
 }

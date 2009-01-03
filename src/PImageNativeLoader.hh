@@ -1,12 +1,14 @@
 //
 // PImageNativeLoader.hh for pekwm
-// Copyright (C) 2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2005-2008 Claes Nasten <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #ifndef _PIMAGE_NATIVE_LOADER_HH_
 #define _PIMAGE_NATIVE_LOADER_HH_
@@ -25,7 +27,7 @@ public:
     inline const char *getExt(void) const { return _ext; }
 
     //! @brief Loads file into data. (empty method, interface)
-    virtual uchar *load(const std::string &file, uint &width, uint &height, bool &alpha) {
+    virtual uchar *load(const std::string &file, uint &width, uint &height, bool &alpha, bool &use_alpha) {
         return 0;
     }
 

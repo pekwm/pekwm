@@ -63,6 +63,7 @@ private:
 protected:
     uchar *_data; //!< Data describing image.
     bool _has_alpha; //!< Wheter image has alpha channel.
+    bool _use_alpha; //!< Wheter image has alpha < 100%
 
 private:
     static std::list<PImageNativeLoader*> _loader_list; //!< List of loaders.

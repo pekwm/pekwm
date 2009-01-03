@@ -1,17 +1,19 @@
 //
 // PImageNativeLoaderXpm.hh for pekwm
-// Copyright (C) 2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2005-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
-
-#ifdef HAVE_IMAGE_XPM
-
 #ifndef _PIMAGE_NATIVE_LOADER_XPM_HH_
 #define _PIMAGE_NATIVE_LOADER_XPM_HH_
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
+
+#ifdef HAVE_IMAGE_XPM
 
 #include "pekwm.hh"
 #include "PImageNativeLoader.hh"
@@ -28,7 +30,7 @@ public:
     virtual ~PImageNativeLoaderXpm(void);
 
     virtual uchar *load(const std::string &file, uint &width, uint &height,
-                        bool &alpha);
+                        bool &alpha, bool &use_alpha);
 
 private:
     uchar *createXpmToRgbaTable(XpmImage *xpm_image);
@@ -40,6 +42,6 @@ private:
     static const char *COLOR_DEFAULT; //!< Default Color if translation fails.
 };
 
-#endif // _PIMAGE_NATIVE_LOADER_XPM_HH_
-
 #endif // HAVE_IMAGE_XPM
+
+#endif // _PIMAGE_NATIVE_LOADER_XPM_HH_

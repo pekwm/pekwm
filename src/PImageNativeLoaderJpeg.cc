@@ -1,12 +1,14 @@
 //
 // PImageNativeLoaderJpeg.cc for pekwm
-// Copyright (C) 2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2005-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #ifdef HAVE_IMAGE_JPEG
 
@@ -40,7 +42,8 @@ PImageNativeLoaderJpeg::~PImageNativeLoaderJpeg(void)
 //! @param alpha Set to wheter image has alpha channel.
 //! @return Pointer to data on success, else 0.
 uchar*
-PImageNativeLoaderJpeg::load(const std::string &file, uint &width, uint &height, bool &alpha)
+PImageNativeLoaderJpeg::load(const std::string &file, uint &width, uint &height,
+                             bool &alpha, bool &use_alpha)
 {
     FILE *fp;
 
@@ -92,6 +95,7 @@ PImageNativeLoaderJpeg::load(const std::string &file, uint &width, uint &height,
     fclose(fp);
 
     alpha = false; // Jpeg doesn't support alpha.
+    use_alpha = false; // Jpeg doesn't support alpha.
 
     return data;
 }

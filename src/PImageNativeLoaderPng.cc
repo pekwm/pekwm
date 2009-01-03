@@ -1,12 +1,14 @@
 //
 // PImageNativeLoaderPng.cc for pekwm
-// Copyright (C) 2005 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2005-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #ifdef HAVE_IMAGE_PNG
 
@@ -42,7 +44,8 @@ PImageNativeLoaderPng::~PImageNativeLoaderPng(void)
 //! @param alpha Set to wheter image has alpha channel.
 //! @return Pointer to data on success, else 0.
 uchar*
-PImageNativeLoaderPng::load(const std::string &file, uint &width, uint &height, bool &alpha)
+PImageNativeLoaderPng::load(const std::string &file, uint &width, uint &height,
+                            bool &alpha, bool &use_alpha)
 {
     FILE *fp;
 
@@ -122,6 +125,7 @@ PImageNativeLoaderPng::load(const std::string &file, uint &width, uint &height, 
 
     // Now load image data.
     uchar *data;
+    size_t data_size;
     png_uint_32 rowbytes, channels;
     png_bytepp row_pointers;
 
@@ -130,7 +134,8 @@ PImageNativeLoaderPng::load(const std::string &file, uint &width, uint &height, 
     rowbytes = png_get_rowbytes(png_ptr, info_ptr);
     channels = png_get_channels(png_ptr, info_ptr);
 
-    data = new uchar[rowbytes * height / sizeof(uchar)];
+    data_size = rowbytes * height / sizeof(uchar);
+    data = new uchar[data_size];
     row_pointers = new png_bytep[height];
 
     for (png_uint_32 y = 0; y < height; ++y) {
@@ -149,6 +154,16 @@ PImageNativeLoaderPng::load(const std::string &file, uint &width, uint &height, 
     fclose(fp);
 
     alpha = (channels == 4);
+    use_alpha = false;
+
+    if (alpha) {
+        uchar *p = data + 3, *end = data + data_size;
+        for (; p != end && ! use_alpha; p += 4) {
+            if (*p != 255) {
+                use_alpha = true;
+            }
+        }
+    }
 
     return data;
 }

@@ -37,7 +37,7 @@ list<PImageNativeLoader*> PImageNative::_loader_list = list<PImageNativeLoader*>
  */
 PImageNative::PImageNative(Display *dpy, const std::string &path) throw(LoadException&)
     : PImage(dpy),
-      _data(0), _has_alpha(false)
+      _data(0), _has_alpha(false), _use_alpha(false)
 {
     if (path.size()) {
         if (! load(path)) {
@@ -67,7 +67,7 @@ PImageNative::load(const std::string &file)
     list<PImageNativeLoader*>::iterator it(_loader_list.begin());
     for (; it != _loader_list.end(); ++it) {
         if (! strcasecmp((*it)->getExt(), ext.c_str())) {
-            _data = (*it)->load(file, _width, _height, _has_alpha);
+            _data = (*it)->load(file, _width, _height, _has_alpha, _use_alpha);
             if (_data) {
                 _pixmap = createPixmap(_data, _width, _height);
                 _mask = createMask(_data, _width, _height);
@@ -125,19 +125,19 @@ PImageNative::draw(Drawable draw, int x, int y, uint width, uint height)
     if ((_type == IMAGE_TYPE_FIXED)
         || ((_type == IMAGE_TYPE_SCALED)
             && (_width == width) && (_height == height))) {
-        if (_has_alpha) {
-            drawFixed(draw, x, y, width, height);
-        } else {
+        if (_use_alpha) {
             drawAlphaFixed(draw, x, y, width, height);
+        } else {
+            drawFixed(draw, x, y, width, height);
         }
     } else if (_type == IMAGE_TYPE_SCALED) {
-        if (_has_alpha) {
+        if (_use_alpha) {
             drawAlphaScaled(draw, x, y, width, height);
         } else {
             drawScaled(draw, x, y, width, height);
         }
     } else if (_type == IMAGE_TYPE_TILED) {
-        if (_has_alpha) {
+        if (_use_alpha) {
             drawAlphaTiled(draw, x, y, width, height);
         } else {
             drawTiled(draw, x, y, width, height);
