@@ -1,5 +1,5 @@
 //
-// PImageNativeLoaderJpeg.hh for pekwm
+// PImageLoaderJpeg.hh for pekwm
 // Copyright © 2005-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
@@ -16,16 +16,16 @@
 #ifdef HAVE_IMAGE_JPEG
 
 #include "pekwm.hh"
-#include "PImageNativeLoader.hh"
+#include "PImageLoader.hh"
 
 #include <cstdio>
 
 //! @brief Jpeg Loader class.
-class PImageNativeLoaderJpeg : public PImageNativeLoader
+class PImageLoaderJpeg : public PImageLoader
 {
 public:
-    PImageNativeLoaderJpeg(void);
-    virtual ~PImageNativeLoaderJpeg(void);
+    PImageLoaderJpeg(void);
+    virtual ~PImageLoaderJpeg(void);
 
     virtual uchar *load(const std::string &file, uint &width, uint &height,
                         bool &alpha, bool &use_alpha);

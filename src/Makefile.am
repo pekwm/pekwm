@@ -37,13 +37,12 @@ pekwm_SOURCES = \
 	PTexture.hh \
 	PTexturePlain.cc PTexturePlain.hh \
 	PWinObj.cc PWinObj.hh \
-	PImage.hh \
-	PImageNative.cc PImageNative.hh \
-	PImageNativeIcon.cc PImageNativeIcon.hh \
-	PImageNativeLoader.hh \
-	PImageNativeLoaderJpeg.cc PImageNativeLoaderJpeg.hh \
-	PImageNativeLoaderPng.cc PImageNativeLoaderPng.hh \
-	PImageNativeLoaderXpm.cc PImageNativeLoaderXpm.hh \
+	PImage.cc PImage.hh \
+	PImageIcon.cc PImageIcon.hh \
+	PImageLoader.hh \
+	PImageLoaderJpeg.cc PImageLoaderJpeg.hh \
+	PImageLoaderPng.cc PImageLoaderPng.hh \
+	PImageLoaderXpm.cc PImageLoaderXpm.hh \
 	PixmapHandler.cc PixmapHandler.hh \
 	RegexString.cc RegexString.hh \
 	ParseUtil.hh \

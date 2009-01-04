@@ -1,5 +1,5 @@
 //
-// PImageNative.cc for pekwm
+// PImage.cc for pekwm
 // Copyright © 2005-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
@@ -10,7 +10,7 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#include "PImageNative.hh"
+#include "PImage.hh"
 #include "PScreen.hh"
 #include "ScreenResources.hh"
 #include "PixmapHandler.hh"
@@ -27,16 +27,16 @@ using std::endl;
 using std::list;
 using std::string;
 
-list<PImageNativeLoader*> PImageNative::_loader_list = list<PImageNativeLoader*>();
+list<PImageLoader*> PImage::_loader_list = list<PImageLoader*>();
 
 /**
- * PImageNative constructor, loads image if one is specified.
+ * PImage constructor, loads image if one is specified.
  *
  * @param dpy Display image is valid on.
  * @param path Path to image file, if specified this is loaded.
  */
-PImageNative::PImageNative(Display *dpy, const std::string &path) throw(LoadException&)
-    : PImage(dpy),
+PImage::PImage(Display *dpy, const std::string &path) throw(LoadException&)
+    : _dpy(dpy), _type(IMAGE_TYPE_NO), _pixmap(None), _mask(None), _width(0), _height(0),
       _data(0), _has_alpha(false), _use_alpha(false)
 {
     if (path.size()) {
@@ -46,8 +46,8 @@ PImageNative::PImageNative(Display *dpy, const std::string &path) throw(LoadExce
     }
 }
 
-//! @brief PImageNative destructor.
-PImageNative::~PImageNative(void)
+//! @brief PImage destructor.
+PImage::~PImage(void)
 {
     unload();
 }
@@ -56,7 +56,7 @@ PImageNative::~PImageNative(void)
 //! @param file File to load.
 //! @return Returns true on success, else false.
 bool
-PImageNative::load(const std::string &file)
+PImage::load(const std::string &file)
 {
     string ext(Util::getFileExt(file));
     if (! ext.size()) {
@@ -64,7 +64,7 @@ PImageNative::load(const std::string &file)
         return false;
     }
 
-    list<PImageNativeLoader*>::iterator it(_loader_list.begin());
+    list<PImageLoader*>::iterator it(_loader_list.begin());
     for (; it != _loader_list.end(); ++it) {
         if (! strcasecmp((*it)->getExt(), ext.c_str())) {
             _data = (*it)->load(file, _width, _height, _has_alpha, _use_alpha);
@@ -81,7 +81,7 @@ PImageNative::load(const std::string &file)
 
 //! @brief Frees resources used by image.
 void
-PImageNative::unload(void)
+PImage::unload(void)
 {
     if (_data) {
         delete [] _data;
@@ -107,7 +107,7 @@ PImageNative::unload(void)
 //! @param width Destination width, defaults to 0 which expands to image size.
 //! @param height Destination height, defaults to 0 which expands to image size.
 void
-PImageNative::draw(Drawable draw, int x, int y, uint width, uint height)
+PImage::draw(Drawable draw, int x, int y, uint width, uint height)
 {
     if (! _data) {
         return;
@@ -151,7 +151,7 @@ PImageNative::draw(Drawable draw, int x, int y, uint width, uint height)
 //! @param height Pixmap height, defaults to 0 which expands to image size.
 //! @return Returns pixmap at size or None on error.
 Pixmap
-PImageNative::getPixmap(bool &need_free, uint width, uint height)
+PImage::getPixmap(bool &need_free, uint width, uint height)
 {
     // Default
     Pixmap pix = None;
@@ -189,7 +189,7 @@ PImageNative::getPixmap(bool &need_free, uint width, uint height)
 //! @param height Shape mask height, defaults to 0 which expands to image size.
 //! @return Returns shape mask at size or None if there is no mask information.
 Pixmap
-PImageNative::getMask(bool &need_free, uint width, uint height)
+PImage::getMask(bool &need_free, uint width, uint height)
 {
     // Default
     Pixmap pix = None;
@@ -225,7 +225,7 @@ PImageNative::getMask(bool &need_free, uint width, uint height)
 //! @param width Width to scale image to.
 //! @param height Height to scale image to.
 void
-PImageNative::scale(uint width, uint height)
+PImage::scale(uint width, uint height)
 {
     // Invalid width or height or no need to scale.
     if (! width || ! height || ((width == _width) && (height == height))) {
@@ -249,7 +249,7 @@ PImageNative::scale(uint width, uint height)
 
 //! @brief Draw image at position, not scaling.
 void
-PImageNative::drawFixed(Drawable dest, int x, int y, uint width, uint height)
+PImage::drawFixed(Drawable dest, int x, int y, uint width, uint height)
 {
     // Plain copy of the pixmap onto Drawable.
     XCopyArea(_dpy, _pixmap, dest, PScreen::instance()->getGC(),
@@ -259,7 +259,7 @@ PImageNative::drawFixed(Drawable dest, int x, int y, uint width, uint height)
 
 //! @brief Draw image scaled to fit width and height.
 void
-PImageNative::drawScaled(Drawable dest, int x, int y, uint width, uint height)
+PImage::drawScaled(Drawable dest, int x, int y, uint width, uint height)
 {
     uchar *scaled_data;
     // Create scaled representation of image.
@@ -280,7 +280,7 @@ PImageNative::drawScaled(Drawable dest, int x, int y, uint width, uint height)
 
 //! @brief Draw image tiled to fit width and height.
 void
-PImageNative::drawTiled(Drawable dest, int x, int y, uint width, uint height)
+PImage::drawTiled(Drawable dest, int x, int y, uint width, uint height)
 {
     // Create a GC with _pixmap as tile and tiled fill style.
     GC gc;
@@ -302,7 +302,7 @@ PImageNative::drawTiled(Drawable dest, int x, int y, uint width, uint height)
 
 //! @brief Draw image at position, not scaling.
 void
-PImageNative::drawAlphaFixed(Drawable dest, int x, int y, uint width, uint height, uchar *data)
+PImage::drawAlphaFixed(Drawable dest, int x, int y, uint width, uint height, uchar *data)
 {
     XImage *dest_image = XGetImage(_dpy, dest, x, y, width, height, AllPlanes, ZPixmap);
     if (! dest_image) {
@@ -362,7 +362,7 @@ PImageNative::drawAlphaFixed(Drawable dest, int x, int y, uint width, uint heigh
 
 //! @brief Draw image scaled to fit width and height.
 void
-PImageNative::drawAlphaScaled(Drawable dest, int x, int y, uint width, uint height)
+PImage::drawAlphaScaled(Drawable dest, int x, int y, uint width, uint height)
 {
     uchar *scaled_data = getScaledData(width, height);
     if (scaled_data) {
@@ -373,7 +373,7 @@ PImageNative::drawAlphaScaled(Drawable dest, int x, int y, uint width, uint heig
 
 //! @brief Draw image tiled to fit width and height.
 void
-PImageNative::drawAlphaTiled(Drawable dest, int x, int y, uint width, uint height)
+PImage::drawAlphaTiled(Drawable dest, int x, int y, uint width, uint height)
 {
     // FIXME: Implement tiled rendering with alpha support
     drawTiled(dest, x, y, width, height);
@@ -385,7 +385,7 @@ PImageNative::drawAlphaTiled(Drawable dest, int x, int y, uint width, uint heigh
 //! @param height Height of image data is representing.
 //! @return Returns Pixmap on success, else None.
 Pixmap
-PImageNative::createPixmap(uchar *data, uint width, uint height)
+PImage::createPixmap(uchar *data, uint width, uint height)
 {
     XImage *ximage;
     Pixmap pix = None;
@@ -412,7 +412,7 @@ PImageNative::createPixmap(uchar *data, uint width, uint height)
 //! @param height Height of image data is representing.
 //! @return Returns Pixmap mask on success, else None.
 Pixmap
-PImageNative::createMask(uchar *data, uint width, uint height)
+PImage::createMask(uchar *data, uint width, uint height)
 {
     if (! _has_alpha) {
         return None;
@@ -463,7 +463,7 @@ PImageNative::createMask(uchar *data, uint width, uint height)
 //! @param width Width of image data is representing.
 //! @param height Height of image data is representing.
 XImage*
-PImageNative::createXImage(uchar *data, uint width, uint height)
+PImage::createXImage(uchar *data, uint width, uint height)
 {
     // Create XImage
     XImage *ximage;
@@ -504,7 +504,7 @@ PImageNative::createXImage(uchar *data, uint width, uint height)
 //! @return Pointer to image data on success, else 0.
 //! @todo Implement decent scaling routine with data [] cache?
 uchar*
-PImageNative::getScaledData(uint width, uint height)
+PImage::getScaledData(uint width, uint height)
 {
     if (! width || ! height) {
         return 0;

@@ -1,5 +1,5 @@
 //
-// PImageNativeLoaderPng.hh for pekwm
+// PImageLoaderPng.hh for pekwm
 // Copyright © 2005-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
@@ -16,16 +16,16 @@
 #ifdef HAVE_IMAGE_PNG
 
 #include "pekwm.hh"
-#include "PImageNativeLoader.hh"
+#include "PImageLoader.hh"
 
 #include <cstdio>
 
 //! @brief PNG Loader class.
-class PImageNativeLoaderPng : public PImageNativeLoader
+class PImageLoaderPng : public PImageLoader
 {
 public:
-    PImageNativeLoaderPng(void);
-    virtual ~PImageNativeLoaderPng(void);
+    PImageLoaderPng(void);
+    virtual ~PImageLoaderPng(void);
 
     virtual uchar *load(const std::string &file, uint &width, uint &height,
                         bool &alpha, bool &use_alpha);

@@ -38,7 +38,7 @@ extern "C" {
 #include "Workspaces.hh"
 #include "WindowManager.hh"
 #include "PTexturePlain.hh"
-#include "PImageNativeIcon.hh"
+#include "PImageIcon.hh"
 #include "TextureHandler.hh"
 
 #ifdef MENUS
@@ -848,7 +848,7 @@ Client::readPekwmHints(void)
 void
 Client::readIcon(void)
 {
-    PImageNativeIcon *image = new PImageNativeIcon(_dpy);
+    PImageIcon *image = new PImageIcon(_dpy);
     if (image->loadFromWindow(_window)) {
         if (! _icon) {
             _icon = new PTextureImage(_dpy);

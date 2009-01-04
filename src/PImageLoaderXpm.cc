@@ -1,5 +1,5 @@
 //
-// PImageNativeLoaderXpm.cc for pekwm
+// PImageLoaderXpm.cc for pekwm
 // Copyright © 2005-2008 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
@@ -13,7 +13,7 @@
 #ifdef HAVE_IMAGE_XPM
 
 #include "PScreen.hh"
-#include "PImageNativeLoaderXpm.hh"
+#include "PImageLoaderXpm.hh"
 
 #include <iostream>
 #include <cstring>
@@ -23,18 +23,19 @@ using std::cerr;
 using std::endl;
 using std::string;
 
-const uint PImageNativeLoaderXpm::CHANNELS = 4;
-const uint PImageNativeLoaderXpm::ALPHA_SOLID = 255;
-const uint PImageNativeLoaderXpm::ALPHA_TRANSPARENT = 0;
-const char *PImageNativeLoaderXpm::COLOR_DEFAULT = "#000000";
+const uint PImageLoaderXpm::CHANNELS = 4;
+const uint PImageLoaderXpm::ALPHA_SOLID = 255;
+const uint PImageLoaderXpm::ALPHA_TRANSPARENT = 0;
+const char *PImageLoaderXpm::COLOR_DEFAULT = "#000000";
 
-//! @brief PImageNativeLoaderXpm constructor.
-PImageNativeLoaderXpm::PImageNativeLoaderXpm(void) : PImageNativeLoader("XPM")
+//! @brief PImageLoaderXpm constructor.
+PImageLoaderXpm::PImageLoaderXpm(void)
+    : PImageLoader("XPM")
 {
 }
 
-//! @brief PImageNativeLoaderXpm destructor.
-PImageNativeLoaderXpm::~PImageNativeLoaderXpm(void)
+//! @brief PImageLoaderXpm destructor.
+PImageLoaderXpm::~PImageLoaderXpm(void)
 {
 }
 
@@ -45,8 +46,8 @@ PImageNativeLoaderXpm::~PImageNativeLoaderXpm(void)
 //! @param alpha Set to wheter image has alpha channel.
 //! @return Pointer to data on success, else 0.
 uchar*
-PImageNativeLoaderXpm::load(const std::string &file, uint &width, uint &height,
-                            bool &alpha, bool &use_alpha)
+PImageLoaderXpm::load(const std::string &file, uint &width, uint &height,
+                      bool &alpha, bool &use_alpha)
 {
     XpmImage xpm_image;
     XpmInfo xpm_info;
@@ -110,7 +111,7 @@ PImageNativeLoaderXpm::load(const std::string &file, uint &width, uint &height,
 //! @param xpm_image Pointer to XpmImage.
 //! @return Pointer to color number to RGBA conversion table.
 uchar*
-PImageNativeLoaderXpm::createXpmToRgbaTable(XpmImage *xpm_image)
+PImageLoaderXpm::createXpmToRgbaTable(XpmImage *xpm_image)
 {
     uint c_tmp; // Temporary color value.
     char c_buf[3] = { '\0', '\0', '\0' }; // Temporary hex color string.

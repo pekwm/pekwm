@@ -1,5 +1,5 @@
 //
-// PImageNativeLoaderXpm.hh for pekwm
+// PImageLoaderXpm.hh for pekwm
 // Copyright © 2005-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
@@ -16,18 +16,18 @@
 #ifdef HAVE_IMAGE_XPM
 
 #include "pekwm.hh"
-#include "PImageNativeLoader.hh"
+#include "PImageLoader.hh"
 
 extern "C" {
 #include <X11/xpm.h>
 }
 
 //! @brief Xpm Loader class.
-class PImageNativeLoaderXpm : public PImageNativeLoader
+class PImageLoaderXpm : public PImageLoader
 {
 public:
-    PImageNativeLoaderXpm(void);
-    virtual ~PImageNativeLoaderXpm(void);
+    PImageLoaderXpm(void);
+    virtual ~PImageLoaderXpm(void);
 
     virtual uchar *load(const std::string &file, uint &width, uint &height,
                         bool &alpha, bool &use_alpha);

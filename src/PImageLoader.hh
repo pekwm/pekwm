@@ -1,5 +1,5 @@
 //
-// PImageNativeLoader.hh for pekwm
+// PImageLoader.hh for pekwm
 // Copyright © 2005-2008 Claes Nasten <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
@@ -16,12 +16,12 @@
 #include <string>
 
 //! @brief Image loader base class.
-class PImageNativeLoader {
+class PImageLoader {
 public:
-    //! @brief PImageNativeLoader constructor.
-    PImageNativeLoader(const char *ext) : _ext(ext) { }
-    //! @brief PImageNativeLoader destructor.
-    virtual ~PImageNativeLoader(void) { }
+    //! @brief PImageLoader constructor.
+    PImageLoader(const char *ext) : _ext(ext) { }
+    //! @brief PImageLoader destructor.
+    virtual ~PImageLoader(void) { }
 
     //! @brief Return file extension matching loader.
     inline const char *getExt(void) const { return _ext; }

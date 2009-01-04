@@ -1,5 +1,5 @@
 //
-// PImageNative.hh for pekwm
+// PImage.hh for pekwm
 // Copyright © 2007-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
@@ -13,29 +13,29 @@
 #include <iostream>
 
 #include "Atoms.hh"
-#include "PImageNativeIcon.hh"
+#include "PImageIcon.hh"
 
 using std::cerr;
 using std::endl;
 
-//! @brief PImageNativeIcon constructor.
+//! @brief PImageIcon constructor.
 //! @param dpy Display to load icon from.
-PImageNativeIcon::PImageNativeIcon(Display *dpy)
-  : PImageNative(dpy)
+PImageIcon::PImageIcon(Display *dpy)
+  : PImage(dpy)
 {
     _type = IMAGE_TYPE_SCALED;
     _has_alpha = true;
     _use_alpha = true;
 }
 
-//! @brief PImageNative destructor.
-PImageNativeIcon::~PImageNativeIcon(void)
+//! @brief PImage destructor.
+PImageIcon::~PImageIcon(void)
 {
 }
 
 //! @brief Load icon from window (if atom is set)
 bool
-PImageNativeIcon::loadFromWindow(Window win)
+PImageIcon::loadFromWindow(Window win)
 {
     bool status = false;
 

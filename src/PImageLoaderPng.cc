@@ -1,5 +1,5 @@
 //
-// PImageNativeLoaderPng.cc for pekwm
+// PImageLoaderPng.cc for pekwm
 // Copyright © 2005-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
@@ -12,7 +12,7 @@
 
 #ifdef HAVE_IMAGE_PNG
 
-#include "PImageNativeLoaderPng.hh"
+#include "PImageLoaderPng.hh"
 
 #include <iostream>
 
@@ -24,16 +24,16 @@ using std::string;
 using std::cerr;
 using std::endl;
 
-const int PImageNativeLoaderPng::PNG_SIG_BYTES = 8;
+const int PImageLoaderPng::PNG_SIG_BYTES = 8;
 
-//! @brief PImageNativeLoaderPng constructor.
-PImageNativeLoaderPng::PImageNativeLoaderPng(void)
-        : PImageNativeLoader("PNG")
+//! @brief PImageLoaderPng constructor.
+PImageLoaderPng::PImageLoaderPng(void)
+        : PImageLoader("PNG")
 {
 }
 
-//! @brief PImageNativeLoaderPng destructor.
-PImageNativeLoaderPng::~PImageNativeLoaderPng(void)
+//! @brief PImageLoaderPng destructor.
+PImageLoaderPng::~PImageLoaderPng(void)
 {
 }
 
@@ -44,7 +44,7 @@ PImageNativeLoaderPng::~PImageNativeLoaderPng(void)
 //! @param alpha Set to wheter image has alpha channel.
 //! @return Pointer to data on success, else 0.
 uchar*
-PImageNativeLoaderPng::load(const std::string &file, uint &width, uint &height,
+PImageLoaderPng::load(const std::string &file, uint &width, uint &height,
                             bool &alpha, bool &use_alpha)
 {
     FILE *fp;
@@ -88,7 +88,7 @@ PImageNativeLoaderPng::load(const std::string &file, uint &width, uint &height,
     }
 
     png_init_io(png_ptr, fp);
-    png_set_sig_bytes(png_ptr, PImageNativeLoaderPng::PNG_SIG_BYTES);
+    png_set_sig_bytes(png_ptr, PImageLoaderPng::PNG_SIG_BYTES);
     png_read_info(png_ptr, info_ptr);
 
     int color_type, bpp;
@@ -172,14 +172,14 @@ PImageNativeLoaderPng::load(const std::string &file, uint &width, uint &height,
 //! @param fp Pointer to open (rb) FILE.
 //! @return true if fp is a PNG file, else false.
 bool
-PImageNativeLoaderPng::checkSignature(FILE *fp)
+PImageLoaderPng::checkSignature(FILE *fp)
 {
     int status;
-    uchar sig[PImageNativeLoaderPng::PNG_SIG_BYTES];
+    uchar sig[PImageLoaderPng::PNG_SIG_BYTES];
 
-    status = fread(sig, 1, PImageNativeLoaderPng::PNG_SIG_BYTES, fp);
-    if (status == PImageNativeLoaderPng::PNG_SIG_BYTES) {
-        return (png_check_sig(sig, PImageNativeLoaderPng::PNG_SIG_BYTES) != 0);
+    status = fread(sig, 1, PImageLoaderPng::PNG_SIG_BYTES, fp);
+    if (status == PImageLoaderPng::PNG_SIG_BYTES) {
+        return (png_check_sig(sig, PImageLoaderPng::PNG_SIG_BYTES) != 0);
     }
     return false;
 }

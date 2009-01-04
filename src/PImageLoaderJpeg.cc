@@ -1,5 +1,5 @@
 //
-// PImageNativeLoaderJpeg.cc for pekwm
+// PImageLoaderJpeg.cc for pekwm
 // Copyright © 2005-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
@@ -12,7 +12,7 @@
 
 #ifdef HAVE_IMAGE_JPEG
 
-#include "PImageNativeLoaderJpeg.hh"
+#include "PImageLoaderJpeg.hh"
 
 #include <iostream>
 
@@ -24,14 +24,14 @@ using std::string;
 using std::cerr;
 using std::endl;
 
-//! @brief PImageNativeLoaderJpeg constructor.
-PImageNativeLoaderJpeg::PImageNativeLoaderJpeg(void)
-        : PImageNativeLoader("JPG")
+//! @brief PImageLoaderJpeg constructor.
+PImageLoaderJpeg::PImageLoaderJpeg(void)
+        : PImageLoader("JPG")
 {
 }
 
-//! @brief PImageNativeLoaderJpeg destructor.
-PImageNativeLoaderJpeg::~PImageNativeLoaderJpeg(void)
+//! @brief PImageLoaderJpeg destructor.
+PImageLoaderJpeg::~PImageLoaderJpeg(void)
 {
 }
 
@@ -42,7 +42,7 @@ PImageNativeLoaderJpeg::~PImageNativeLoaderJpeg(void)
 //! @param alpha Set to wheter image has alpha channel.
 //! @return Pointer to data on success, else 0.
 uchar*
-PImageNativeLoaderJpeg::load(const std::string &file, uint &width, uint &height,
+PImageLoaderJpeg::load(const std::string &file, uint &width, uint &height,
                              bool &alpha, bool &use_alpha)
 {
     FILE *fp;

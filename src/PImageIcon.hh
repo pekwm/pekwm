@@ -1,5 +1,5 @@
 //
-// PImageNative.hh for pekwm
+// PImage.hh for pekwm
 // Copyright © 2007-2008 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
@@ -13,13 +13,13 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#include "PImageNative.hh"
+#include "PImage.hh"
 
 //! @brief Image class with pekwm native backend.
-class PImageNativeIcon : public PImageNative {
+class PImageIcon : public PImage {
 public:
-    PImageNativeIcon(Display *dpy);
-    virtual ~PImageNativeIcon(void);
+    PImageIcon(Display *dpy);
+    virtual ~PImageIcon(void);
 
     bool loadFromWindow(Window win);
 };

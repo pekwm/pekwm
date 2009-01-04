@@ -15,10 +15,10 @@
 #include "Config.hh"
 #include "PImage.hh"
 #include "ImageHandler.hh"
-#include "PImageNative.hh"
-#include "PImageNativeLoaderJpeg.hh"
-#include "PImageNativeLoaderPng.hh"
-#include "PImageNativeLoaderXpm.hh"
+#include "PImage.hh"
+#include "PImageLoaderJpeg.hh"
+#include "PImageLoaderPng.hh"
+#include "PImageLoaderXpm.hh"
 #include "PScreen.hh"
 #include "Util.hh"
 
@@ -50,13 +50,13 @@ ImageHandler::ImageHandler(void)
     _image_type_map["FIXED"] = IMAGE_TYPE_FIXED;
 
 #ifdef HAVE_IMAGE_JPEG
-    PImageNative::loaderAdd(new PImageNativeLoaderJpeg());
+    PImage::loaderAdd(new PImageLoaderJpeg());
 #endif // HAVE_IMAGE_JPEG
 #ifdef HAVE_IMAGE_PNG
-    PImageNative::loaderAdd(new PImageNativeLoaderPng());
+    PImage::loaderAdd(new PImageLoaderPng());
 #endif // HAVE_IMAGE_PNG
 #ifdef HAVE_IMAGE_XPM
-    PImageNative::loaderAdd(new PImageNativeLoaderXpm());
+    PImage::loaderAdd(new PImageLoaderXpm());
 #endif // HAVE_IMAGE_XPM
 }
 
@@ -73,7 +73,7 @@ ImageHandler::~ImageHandler(void)
         }
     }
 
-    PImageNative::loaderClear();
+    PImage::loaderClear();
 }
 
 //! @brief Gets or creates a Image
@@ -135,12 +135,12 @@ ImageHandler::getImageFromPath(const std::string &file)
     // Try to load the image, setup cache only if it succeeds.
     PImage *image;
     try {
-        image = new PImageNative(PScreen::instance()->getDpy(), file);
+        image = new PImage(PScreen::instance()->getDpy(), file);
     } catch (LoadException&) {
         image = 0;
     }
 
-    // Create new PImageNative and handler entry for it.
+    // Create new PImage and handler entry for it.
     if (image) {
         HandlerEntry<PImage*> entry(file);
         entry.incRef();
