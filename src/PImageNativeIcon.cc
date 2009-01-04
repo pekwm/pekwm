@@ -25,6 +25,7 @@ PImageNativeIcon::PImageNativeIcon(Display *dpy)
 {
     _type = IMAGE_TYPE_SCALED;
     _has_alpha = true;
+    _use_alpha = true;
 }
 
 //! @brief PImageNative destructor.

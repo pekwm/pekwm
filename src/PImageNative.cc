@@ -305,17 +305,16 @@ void
 PImageNative::drawAlphaFixed(Drawable dest, int x, int y, uint width, uint height, uchar *data)
 {
     XImage *dest_image = XGetImage(_dpy, dest, x, y, width, height, AllPlanes, ZPixmap);
+    if (! dest_image) {
+        cerr << " *** ERROR: failed to get image for destination." << endl;
+        return;
+    }
 
     // Get mask from visual
     Visual *visual = PScreen::instance()->getVisual()->getXVisual();
     dest_image->red_mask = visual->red_mask;
     dest_image->green_mask = visual->green_mask;
     dest_image->blue_mask = visual->blue_mask;
-
-    if (! dest_image) {
-        cerr << " *** ERROR: failed to get image for destination." << endl;
-        return;
-    }
 
     uchar *src;
     uchar r, g, b, a;
