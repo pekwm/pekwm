@@ -183,6 +183,14 @@ else
 	AC_MSG_RESULT([no])
 fi
 
+dnl Check for default theme
+if test "x$HAVE_LIBPNG" = "xyes"; then                
+        THEME="default"
+else
+        THEME="default-plain"
+fi
+AC_SUBST([THEME])
+
 dnl Check for XRANDR support
 AC_MSG_CHECKING([wheter to build support for the XRANDR extension])
 AC_ARG_ENABLE(xrandr,
@@ -295,6 +303,7 @@ AC_OUTPUT(Makefile
           data/Makefile
           data/themes/Makefile
           data/themes/default/Makefile
+          data/themes/default-plain/Makefile
           data/scripts/Makefile
           doc/Makefile
           contrib/Makefile

@@ -1,216 +1,298 @@
-# default theme for pekwm
-# 
-# ChangeLog:
-#
-# * Update for 0.1.8 with templates enabled.
-# * Created for version 0.1.7
-#
+# default-nice Pekwm theme
+# License: GPL
+# Author: adriano.src
+# Email: adriano.src@gmail.com
+# Homepage: http://adrinux.wordpress.com
 
-Require {
-  Templates = "True"
-}
-
-Define = "BaseDecor" {
-  Height = "17"
-  HeightAdapt = "True"
-
-  # increase first number to bring title text downwards
-  Pad = "2 0 2 0"
-  
-  Focused = "Empty"
-  Unfocused = "Empty"
-  
-  Tab {
-    Focused = "Solid #dddddd"
-    FocusedSelected = "Solid #ffffff"
-    Unfocused = "Solid #aaaaaa"
-    UnfocusedSelected = "Solid #aaaaaa"
-  }
-  Separator {
-    Focused = "Empty"
-    Unfocused = "Empty"
-  }
-  Font {
-    Focused = "Sans:size=12#CENTER#XFT"
-  }
-  FontColor {
-    Focused = "#000000"
-    FocusedSelected = "#000000"
-    Unfocused = "#333333"
-    UnfocusedSelected = "#333333"
-  }
-  Border {
-    Focused {
-      TopLeft = "Solid #000000 1x1"
-      Top = "Solid #000000 1x1"
-      TopRight = "Solid #000000 1x1"
-      Left = "Solid #000000 1x1"
-      Right = "Solid #000000 1x1"
-      BottomLeft = "Solid #000000 1x1"
-      Bottom = "Solid #000000 1x1"
-      BottomRight = "Solid #000000 1x1"
-    }
-    Unfocused {
-      TopLeft = "Solid #666666 1x1"
-      Top = "Solid #666666 1x1"
-      TopRight = "Solid #666666 1x1"
-      Left = "Solid #666666 1x1"
-      Right = "Solid #666666 1x1"
-      BottomLeft = "Solid #666666 1x1"
-      Bottom = "Solid #666666 1x1"
-      BottomRight = "Solid #666666 1x1"
-    }
-  }
-}
-
-Define = "ButtonStates" {
-  Focused = "Solid #ff790c 0x0"
-  Unfocused = "Solid #999999 0x0"
-  Pressed = "Solid #000000 0x0"
-  Hover = "Solid #ffcea5 0x0"
-}
-
-Define = "ButtonStatesRemote" {
-  @ButtonStates
-}
-
-Define = "ButtonStatesWarning" {
-  @ButtonStates
-  Focused = "Solid #ff0000 0x0"
-}
-
-Define = "BaseButtonDecor" {
-  @BaseDecor
-
-  Buttons {
-    Left {
-      @ButtonStates
-
-      Button = "1" { Actions = "Close" }
-      Button = "2" { Actions = "Kill" }
-    }
-    Right { 
-      @ButtonStates
-
-      Button = "1" { Actions = "Toggle Maximized 1 1" }
-      Button = "2" { Actions = "Toggle Maximized 0 1" }
-      Button = "3" { Actions = "Toggle Maximized 1 0" }
-    }
-  }
-}
+$font = "Liberation Sans  Bold-10Left#XFT"
+$font_title = "XFT#verdana:size=10:weight=none#1#Center"
 
 PDecor {
-  Decor = "DEFAULT" {
-    Title {
-      @BaseButtonDecor
-    }
-  }
+	Decor = "Default" {
+		Title {
+			Height = "25"
+			Pad = "3 5 5 0"
 
-  Decor = "REMOTE" {
-    Title {
-      @BaseButtonDecor
+			Focused = "Image title.png"
+			Unfocused = "Image title_unfocus.png"
 
-      Tab {
-        Focused = "Solid #fffcec"
-        FocusedSelected = "Solid #fff9d6"
-      }
+			Tab {
+				Focused = "Image title.png"
+				FocusedSelected = "Image title.png"
+				Unfocused = "Image title_unfocus.png"
+				UnfocusedSelected = "Image title_unfocus.png"
+			}
+			Separator {
+				Focused = "Image tab-separator.png"
+				Unfocused = "Image tab-separator_unfocus.png"
+			}
+			Font {
+				Focused           = "$font_title"
+			}
+			FontColor {
+				Focused = "#ffc571"
+				FocusedSelected = "white"
+				Unfocused = "#777777"
+				UnfocusedSelected = "#777777"
 
-      Buttons {
-        Left {
-          @ButtonStatesRemote
-        }
-        Right {
-          @ButtonStatesRemote
-        }
-      }
-    }
-  }
+			}
+	        Buttons {
+			Right {
+				Focused = "Image button.png"
+				Unfocused = "Image button_unfocus.png"
+				Hoover = "Image button_hover.png"
+				Pressed = "Image button_press.png"
+				Button = "1" { Actions = "Close" }
+				Button = "3" { Actions = "Kill" }
+			}
 
-  Decor = "WARNING" {
-    Title {
-      @BaseButtonDecor
+			Right {
+				Focused = "Image button.png"
+				Unfocused = "Image button_unfocus.png"
+				Hoover = "Image button_hover.png"
+				Pressed = "Image button_press.png"
+				Button = "1" { Actions = "Toggle Maximized 1 1" }
+			}
 
-      Tab {
-        Focused = "Solid #ee5454"
-        FocusedSelected = "Solid #ff7474"
-      }
+			Right {
+				Focused = "Image button.png"
+				Unfocused = "Image button_unfocus.png"
+				Hoover = "Image button_hover.png"
+				Pressed = "Image button_press.png"
+				Button = "1" { Actions = "Set Iconified" }
+			}
+			
+			Left {
+				Focused = "Image button.png"
+				Unfocused = "Image button_unfocus.png"
+				Hoover = "Image button_hover.png"
+				Pressed = "Image button_press.png"
+				Button = "1" { Actions = "Toggle Shaded" }
+			}
+		}
+			Border {
+				Focused {
+					TopLeft = "Image top-left.png"
+					Top = "Image top-border.png"
+					TopRight = "Image top-right.png"
+					Left =  "Image left-border.png"
+					Right = "Image right-border.png"
+					BottomLeft = "Image bottom-left.png"
+					Bottom = "Image bottom-border.png"
+					BottomRight = "Image bottom-right.png"
+				}
+				Unfocused {
+					TopLeft = "Image top-left_unfocus.png"
+					Top = "Image top-border_unfocus.png"
+					TopRight = "Image top-right_unfocus.png"
+					Left =  "Image left-border_unfocus.png"
+					Right = "Image right-border_unfocus.png"
+					BottomLeft = "Image bottom-left_unfocus.png"
+					Bottom = "Image bottom-border_unfocus.png"
+					BottomRight = "Image bottom-right_unfocus.png"
+				}
+			}
+		}
+	}
 
-      Buttons {
-        Left {
-          @ButtonStatesWarning
-        }
-        Right {
-          @ButtonStatesWarning
-        }
-      }
-    }
-  }
+	Decor = "Menu" {
+		Title {
+			Height = "25"
+			Pad = "3 5 5 0"
+		
+			Focused = "Image title.png"
+			Unfocused = "Image title_unfocus.png"
 
-  Decor = "MENU" {
-    Title {
-      @BaseDecor
-    }
-  }
+	                Tab {
+	                        Focused = "Image title.png"
+	       	                FocusedSelected = "Image title.png"
+	                        Unfocused = "Image title_unfocus.png"
+	                        UnfocusedSelected = "Image title_unfocus.png"  
+	                }
+                        Separator {
+                                Focused = "Image top-left.png"
+                                Unfocused = "Image top-left.png"
+                        }       
+	                Font {
+	                        Focused = "$font_title"
+	                }
+	                FontColor {
+						Focused = "#c5d5e7 black, 50"
+						FocusedSelected = "white black, 50"
+						Unfocused = "#777777"
+						UnfocusedSelected = "#777777"
+	                }
+	                Buttons {
+					}
+			Border {
+				Focused {
+					TopLeft = "Image top-left.png"
+					Top = "Image top-border.png"
+					TopRight = "Image top-right.png"
+					Left =  "Image left-border.png"
+					Right = "Image right-border.png"
+					BottomLeft = "Image bottom-left.png"
+					Bottom = "Image menu-bottom.png"
+					BottomRight = "Image bottom-right.png"
+				}
+				Unfocused {
+					TopLeft = "Image top-left_unfocus.png"
+					Top = "Image top-border_unfocus.png"
+					TopRight = "Image top-right_unfocus.png"
+					Left =  "Image left-border_unfocus.png"
+					Right = "Image right-border_unfocus.png"
+					BottomLeft = "Image bottom-left_unfocus.png"
+					Bottom = "Image menu-bottom_unfocus.png"
+					BottomRight = "Image bottom-right_unfocus.png"
+				}
+			}
+		}		
+	}
 
-  Decor = "WORKSPACEINDICATOR" {
-    Title {
-        @BaseDecor
+	Decor = "Titlebarless" {
+		Title {
+			Focused = "Empty"
+			Unfocused = "Empty"
 
-        Height = "0"
-        HeightAdapt = "False"
-    }
-  }
+                        Tab {
+                                Focused = "Empty"
+                                FocusedSelected = "Empty"
+                                Unfocused = "Empty"
+                                UnfocusedSelected = "Empty"
+                        }
+
+	                Separator {
+	                        Focused = "Empty"
+	                        Unfocused = "Empty"
+        	        }
+	                Font {
+	                        Focused = "Empty"
+	                }
+	                FontColor {
+	                        Focused = "Empty"
+	                        FocusedSelected = "Empty"
+	                        Unfocused = "Empty"
+	                        UnfocusedSelected = "Empty"
+	                }    
+			Border {
+				Focused {
+					TopLeft = "Empty"
+					Top = "Empty"
+					TopRight = "Empty"
+					Left =  "Empty"
+					Right = "Empty"
+					BottomLeft = "Empty"
+					Bottom = "Empty"
+					BottomRight = "Empty"
+				}
+				Unfocused {
+	                                TopLeft = "Empty"           
+	                                Top = "Empty"           
+        	                        TopRight = "Empty"           
+	                                Left =  "Empty"           
+	                                Right = "Empty"           
+	                                BottomLeft = "Empty"           
+	                                Bottom = "Empty"           
+	                                BottomRight = "Empty"
+				}
+			}
+		}
+	}
+
+	Decor = "Statuswindow" {
+		Title {
+			Height = "0"
+			Pad = "0 0 0 0"
+
+			Focused = "Empty"
+			Unfocused = "Empty"
+	
+			Tab {
+				Focused = "Empty"
+				FocusedSelected = "Empty"
+				Unfocused = "Empty"
+				UnfocusedSelected = "Empty"
+			}
+			Separator {
+				Focused = "Empty"
+				Unfocused = "Empty"
+			}
+			Font {
+				Focused = "Empty"
+			}
+			FontColor {
+				Focused = "Empty"
+				FocusedSelected = "Empty"
+				Unfocused = "Empty"
+				UnfocusedSelected = "Empty"
+			}
+			Buttons {
+			}
+	                Border {  
+	                      Focused {
+				TopLeft = "Empty"
+				Top = "Empty"
+				TopRight = "Empty"
+				Left =  "Empty"
+				Right = "Empty"
+				BottomLeft = "Empty"
+				Bottom = "Empty"
+				BottomRight = "Empty"
+			}
+			Unfocused {
+				TopLeft = "Empty"
+				Top = "Empty"
+				TopRight = "Empty"
+				Left = "Empty"
+				Right = "Empty"
+				BottomLeft = "Empty"
+				Bottom = "Empty"
+				BottomRight = "Empty"
+	                        }
+	                }
+		}
+	}
 }
 
 Harbour {
-    Texture = "SolidRaised #ffffff #000000 #000000 1 0"
-}
-
+        Texture = "Solid #f9f9f9"
+	}
 Menu {
-    Pad = "2 2 2 2"
-    Focused {
-        Font = "Sans:size=12#XFT"
-        Background = "Empty"
-        Item = "Solid #ffffff 1 0"
-        Separator = "Solid #aaaaaa 0x1"
-        Arrow = "Solid #ff790c 4x4"
-        Text = "#000000"
-    }
-    Unfocused {
-        Font = "Sans:size=12#XFT"
-        Background = "Empty"
-        Item = "Solid #cccccc 1 0"
-        Separator = "Solid #999999 0x2"
-        Arrow = "Solid #999999 4x4"
-        Text = "#000000"
-    }
-    Selected {
-        Font = "Sans:size=12#XFT"
-        Background = "Empty"
-        Item = "Solid #eeeeee"
-        Arrow = "Solid #ff790c 4x4"
-        Text = "#000000"
-    }
-}
+        Pad = "0 0 4 4" 
 
+	Focused {
+    		Font = "$font"
+		Background = "Solid #f9f9f9"
+    		Item = "Empty"
+		Text = "#8b8b89" 
+				Separator = "Image menuline.png#Scaled"
+                Arrow = "Image arrow.png"
+  	}
+  	Unfocused {
+    		Font = "$font"
+                Background = "Solid #f9f9f9"
+    		Item = "Empty"
+		Text = "#777777"
+				Separator = "Image menuline.png#Scaled"
+                Arrow = "Image arrow.png"
+  	}
+  	Selected {
+    		Font = "$font"
+    		Background = "Solid #f88408"
+		Item = "Image item_focus.png"
+    		Text = "#ffffff"
+                Arrow = "Image arrow_focus.png"
+  	}
+}
 CmdDialog {
-    Font = "Sans:size=12#CENTER#XFT"
-    Texture = "Solid #ffffff"
-    Text = "#000000"
+ 	Font = "$font"
+	Texture = "Solid #ffffff"
+	Text = "#000000"
+        Pad = "3 0 1 10"
 }
-
 Status {
-    Font = "Sans:size=12#CENTER#XFT"
-    Texture = "Solid #ffffff"
-    Text = "#000000"
-}
-
-WorkspaceIndicator {
-    Font = "Sans:size=12#XFT"
-    Background = "Solid #ffffff"
-    Workspace = "Solid #cccccc"
-    WorkspaceActive = "Solid #aaaaaa"
-    Text = "#000000"
-    EdgePadding = "5"
-    WorkspacePadding = "2"
+	Font = "$font"
+	Texture = "Solid #ffffff"
+        Text = "#8b8b89"
+	Pad = "2 2 10 10"
 }

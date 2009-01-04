@@ -1,6 +1,6 @@
 AUTOMAKE_OPTIONS = foreign
 
-SUBDIRS = default
+SUBDIRS = default default-plain
 
 disclean-local:
 	rm -f *\~ .\#*
