@@ -30,37 +30,27 @@ SearchDialog::SearchDialog(Display *dpy, Theme *theme)
   : InputDialog(dpy, theme, L"Search"),
     _result_menu(0)
 {
-  _type = PWinObj::WO_SEARCH_DIALOG;
+    _type = PWinObj::WO_SEARCH_DIALOG;
 
-  // Setup ActionEvent
-  _ae.action_list.back().setAction(ACTION_GOTO_CLIENT);
+    // Set up ActionEvent
+    _ae.action_list.back().setAction(ACTION_GOTO_CLIENT);
 
-  // Setup menu for displaying results
-  _result_menu = new PMenu(_dpy, _theme, L"", "");
-  _result_menu->reparent(this, borderLeft(), borderTop() + getTitleHeight() + _text_wo->getHeight());
-  _result_menu->setSticky(STATE_SET);
-  _result_menu->setBorder(STATE_UNSET);
-  _result_menu->setTitlebar(STATE_UNSET);
-  _result_menu->setFocusable(false);
-  _result_menu->mapWindow();
+    // Set up menu for displaying results
+    _result_menu = new PMenu(_dpy, _theme, L"", "");
+    _result_menu->reparent(this, borderLeft(), borderTop() + getTitleHeight() + _text_wo->getHeight());
+    _result_menu->setSticky(STATE_SET);
+    _result_menu->setBorder(STATE_UNSET);
+    _result_menu->setTitlebar(STATE_UNSET);
+    _result_menu->setFocusable(false);
+    _result_menu->mapWindow();
 }
 
 /**
  * SearchDialog destructor.
  */
-SearchDialog::~SearchDialog(void) 
+SearchDialog::~SearchDialog(void)
 {
     delete _result_menu;
-}
-
-/**
- * Called whenever the buffer has change, update the clients displayed.
- */
-void
-SearchDialog::bufChanged(void)
-{
-  InputDialog::bufChanged();
-  findClients(_buf);
 }
 
 /**
@@ -73,13 +63,23 @@ SearchDialog::exec(void)
     // InputDialog::close() may have overwritten our action.
     _ae.action_list.back().setAction(ACTION_GOTO_CLIENT);
 
-  if (_result_menu->getItemCurr()) {
-    _wo_ref = _result_menu->getItemCurr()->getWORef();
-  } else {
-    _wo_ref = 0;
-  }
+    if (_result_menu->getItemCurr()) {
+        _wo_ref = _result_menu->getItemCurr()->getWORef();
+    } else {
+        _wo_ref = 0;
+    }
 
-  return &_ae;
+    return &_ae;
+}
+
+/**
+ * Called whenever the buffer has changed. Updates the displayed clients.
+ */
+void
+SearchDialog::bufChanged(void)
+{
+    InputDialog::bufChanged();
+    findClients(_buf);
 }
 
 /**
@@ -88,7 +88,7 @@ SearchDialog::exec(void)
 void
 SearchDialog::histNext(void)
 {
-  _result_menu->selectItemRel(1);
+    _result_menu->selectItemRel(1);
 }
 
 /**
@@ -97,7 +97,7 @@ SearchDialog::histNext(void)
 void
 SearchDialog::histPrev(void)
 {
-  _result_menu->selectItemRel(-1);
+    _result_menu->selectItemRel(-1);
 }
 
 /**
@@ -106,8 +106,8 @@ SearchDialog::histPrev(void)
 void
 SearchDialog::updateSize(void)
 {
-  InputDialog::updateSize();
-  _result_menu->setMenuWidth(_text_wo->getWidth());
+    InputDialog::updateSize();
+    _result_menu->setMenuWidth(_text_wo->getWidth());
 }
 
 /**
@@ -125,44 +125,44 @@ SearchDialog::findClients(const std::wstring &search)
     }
     _previous_search = search;
 
-  _result_menu->removeAll();
-  if (search.size() > 0) {
-    RegexString search_re(L"/" + search + L"/i");
-    if (! search_re.is_match_ok()) {
-      return 0;
+    _result_menu->removeAll();
+    if (search.size() > 0) {
+        RegexString search_re(L"/" + search + L"/i");
+        if (! search_re.is_match_ok()) {
+            return 0;
+        }
+
+        list<Client*> matches;
+        list<Client*>::iterator it(Client::client_begin());
+        for (; it != Client::client_end(); ++it) {
+            if ((*it)->isFocusable()  && ! (*it)->isSkip(SKIP_FOCUS_TOGGLE)
+                 && search_re == (*it)->getTitle()->getReal()) {
+                matches.push_back(*it);
+            }
+        }
+
+        for (it = matches.begin(); it != matches.end(); ++it) {
+            _result_menu->insert((*it)->getTitle()->getVisible(), *it, (*it)->getIcon());
+        }
     }
 
-    list<Client*> matches;
-    list<Client*>::iterator it(Client::client_begin());
-    for (; it != Client::client_end(); ++it) {
-      if ((*it)->isFocusable()  && ! (*it)->isSkip(SKIP_FOCUS_TOGGLE)
-          && search_re == (*it)->getTitle()->getReal()) {
-        matches.push_back(*it);
-      }
+    // Rebuild menu and make room for it
+    _result_menu->buildMenu();
+
+    unsigned int width, height;
+    getInputSize(width, height);
+
+    if (_result_menu->size()) {
+        resizeChild(_text_wo->getWidth(), height + _result_menu->getHeight());
+        XRaiseWindow(_dpy, _result_menu->getWindow());
+        // Render first item as selected, needs to be done after map/raise.
+        _result_menu->selectItemNum(0);
+    } else {
+        resizeChild(_text_wo->getWidth(), height);
+        XLowerWindow(_dpy, _result_menu->getWindow());
     }
 
-    for (it = matches.begin(); it != matches.end(); ++it) {
-      _result_menu->insert((*it)->getTitle()->getVisible(), *it, (*it)->getIcon());
-    }
-  }
-
-  // Rebuild menu and make room for it
-  _result_menu->buildMenu();
-
-  unsigned int width, height;
-  getInputSize(width, height);
-
-  if (_result_menu->size()) {
-      resizeChild(_text_wo->getWidth(), height + _result_menu->getHeight());
-      XRaiseWindow(_dpy, _result_menu->getWindow());
-      // Render first item as selected, needs to be done after map/raise.
-      _result_menu->selectItemNum(0);
-  } else {
-      resizeChild(_text_wo->getWidth(), height);
-      XLowerWindow(_dpy, _result_menu->getWindow());
-  }
-
-  return 0;
+    return 0;
 }
 
 /**
