@@ -70,6 +70,9 @@ SearchDialog::bufChanged(void)
 ActionEvent*
 SearchDialog::exec(void)
 {
+    // InputDialog::close() may have overwritten our action.
+    _ae.action_list.back().setAction(ACTION_GOTO_CLIENT);
+
   if (_result_menu->getItemCurr()) {
     _wo_ref = _result_menu->getItemCurr()->getWORef();
   } else {
