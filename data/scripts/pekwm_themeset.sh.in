@@ -1,6 +1,6 @@
 #!<SH>
 #
-# Copyright © 2003-2008 the pekwm development team
+# Copyright © 2003-2009 the pekwm development team
 #
 # Add this to your menu to use this script:
 #
@@ -23,13 +23,13 @@ if test -z "${2}"; then
     # Check that theme directory exists, if it does not exist create a
     # dummy entry that says the dir does not exist.
     if test -d "${theme_dir}"; then
-        for path in $(find "${theme_dir}" -maxdepth 2 -type f -name theme); do
-            theme_path="$(dirname "${path}")"
-            theme_name="$(basename "${theme_path}")"
-            echo -e "Entry = \"${theme_name}\" { Actions = \"Exec ${0} ${1} ${theme_path}\" }"
-        done
+        ( cd ${theme_dir};
+          for theme_name in *; do
+            theme_path="${theme_dir}/${theme_name}"
+            echo "Entry = \"${theme_name}\" { Actions = \"Exec ${0} ${1} ${theme_path}\" }"
+          done )
     else
-        echo -e "Entry = "No such directory ${theme_dir}" { Actions = "NO" }"
+        echo "Entry = \"No such directory ${theme_dir}\" { Actions = \"None\" }"
     fi
 
     echo "}"
