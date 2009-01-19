@@ -3,58 +3,14 @@
   <title>Mailing Lists</title>
 
   <para>
-    The pekwm Mailing lists are used for questions, comments, development
-    talk and announces.
-    <emphasis>Both lists are only subscriber postable!</emphasis>
-    You need to be subscribed to a list before being able to send messages to it.
+    The <ulink url="http://pekwm.org/projects/pekwm/mailing_lists/15">pekwm mailing list</ulink>
+    is used for questions, comments, development talk and announces.
+    <emphasis>You can only post to the list as a subscriber!</emphasis>
+    Please subscribe before posting using the web interface mentioned above.
   </para>
 
   <para>
     Include your <command>pekwm --info</command> output with your questions
     and generally try to be as clear as possible so that everyone understands you.
   </para>
-
-  <simplesect id="devel-ml-lists" xreflabel="The Lists">
-    <title>The Lists</title>
-
-    <para>
-      There are two pekwm mailing lists- pekwm-devel and pekwm-users.
-      Which should you subscribe to? Well, that's for you to decide.
-      Many people subscribe to both of them.
-    </para>
-
-    <para>
-      <ulink url="http://www.pekwm.org/projects/pekwm/mailing_lists/3">pekwm-users</ulink>
-      is a basic questions mailing list. "How do I...", "Where do I...",
-      "Check this out!", and so on. Talk between users is encouraged, but
-      advanced users will follow the list for questions, too.
-    </para>
-
-    <para>
-      <ulink url="http://www.pekwm.org/projects/pekwm/mailing_lists/4">pekwm-devel</ulink>
-      is a more discussion-based mailing list. We discuss where we're
-      going with development, new features being implemented, current
-      features. Questions and talk about the development version
-      belong here.
-    </para>
-
-  </simplesect>
-
-  <!-- simplesect id="devel-ml-subfil" xreflabel="Subscribing and Filtering">
-    <title>Subscribing and Filtering</title>
-
-    <para>
-      To subscribe, visit the list info page for
-      <ulink url="http://lists.pekwm.org/mailman/listinfo/pekwm-users">pekwm-users</ulink>,
-      <ulink url="http://lists.pekwm.org/mailman/listinfo/pekwm-devel">pekwm-devel</ulink> or
-    </para>
-
-    <para>
-      If you'd like to use filters with your mail program, you can
-      check for mail-headers. Lists produce a List-Id: header which
-      will contain the name of the mailing list (note that there's
-      other information in that header, though the string
-      'pekwm-listname' will be in there).
-    </para>
-  </simplesect -->
 </chapter>
