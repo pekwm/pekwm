@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
+#
+# Copyright © 2009 the pekwm development team
+#
 
 # Applications
-OPENJADE="/usr/bin/openjade"
-PDFJADETEX="/usr/bin/pdfjadetex"
-TIDY="/usr/bin/tidy"
-ZIP="/usr/bin/zip"
+OPENJADE=$(which openjade)
+PDFJADETEX=$(which pdfjadetex)
+TIDY=$(which tidy)
+ZIP=$(which zip)
 
 # Paths
 DOCSNAME=pekwm-doc
@@ -25,15 +28,19 @@ DPFX=docs
 
 LOGDIR="${CURDIR}/logs"
 
-# DBDIR="/usr/share/sgml/docbook/stylesheets/dsssl/modular"
-# DBC="${DBDIR}/html/custom.dsl"
-# DBP="${DBDIR}/print/plain.dsl"
-# DBX="${DBDIR}/dtds/decls/xml.dcl"
+# Ubuntu Hardy/Intrepid
+# DBDIR="/usr/share/sgml/docbook/stylesheet/dsssl/modular"
+# DBX="/usr/share/sgml/declaration/xml.dcl"
+# DBV="FIXME"
 
-DBDIR="/usr/share/sgml/docbook/stylesheet/dsssl/modular"
-DBC="${DBDIR}/html/pekwm.dsl"
+# NetBSD 5
+DBDIR="/usr/pkg/share/sgml/docbook/dsssl/modular"
+DBV="/usr/pkg/share/xml/docbook/4.3/docbookx.dtd"
+DBX="/usr/pkg/share/sgml/docbook/dsssl/modular/dtds/decls/xml.dcl"
+
+# Shared
 DBP="${DBDIR}/print/plain.dsl"
-DBX="/usr/share/sgml/declaration/xml.dcl"
+DBC="${DBDIR}/html/pekwm.dsl"
 
 # OpenJade configuration
 SP_CHARSET_FIXED="0"
@@ -73,7 +80,7 @@ mk_all() {
 ## Prepare for document generation
 function do_prep() {
     print_status "versioning index.xml"
-    ${TOOLDIR}/version-process.pl index.in.xml index.xml
+    ${TOOLDIR}/version-process.pl index.in.xml index.xml "$DBV"
 
     print_status "versioning indices"
     mkdir -p ${FINDIR} || print_error "unable to create directory ${FINDIR}"
@@ -106,7 +113,7 @@ function mk_arc() {
     ${TOOLDIR}/mkdulink.pl ${DPFX} ${ARCDIR}/${DOCSNAME}.tar.bz2 HTML Files, tar + bzip2 >> ${FINDIR}/inc2.html
     ${TOOLDIR}/mkdulink.pl ${DPFX} ${ARCDIR}/${DOCSNAME}.tar.gz HTML Files, tar + gzip >> ${FINDIR}/inc2.html
 
-    if test -x ${ZIP}; then
+    if test -x "${ZIP}"; then
         print_status "creating zip"
         zip -9rq ${ARCDIR}/${DOCSNAME}.zip ${DOCSNAME}
         rm -r ${DOCSNAME}
@@ -153,7 +160,7 @@ function mk_html_singlefile() {
 	print_error "html generation failed! see html-singlefile logs!"
     fi
 
-    if test -x ${TIDY}; then
+    if test -x "${TIDY}"; then
         print_status "tidy - html-singlefile"
         ${TIDY} -cibqm ${NOCHDIR}/${DOCSNAME}.html \
             >${LOGDIR}/htsinglefile-tidy.log 2>${LOGDIR}/htsinglefile-tidy.err
@@ -182,7 +189,7 @@ function mk_html_multifile() {
 	print_error "html generation failed! see html-multifile logs!"
     fi
 
-    if test -x ${TIDY}; then
+    if test -x "${TIDY}"; then
         print_status "tidy - html-multifile"
         for i in $(find ${HTMLDIR} -name '*.html'); do 
 	    print_status "tidy - html-multifile - $i"
@@ -204,8 +211,8 @@ function mk_html_multifile() {
 
 ## Generate PDF documentation
 function mk_pdf() {
-    if ! test -x ${PDFJADETEX}; then
-        print_status "skipping PDF generation as ${PDFJADETEX} does not exist."
+    if ! test -x "${PDFJADETEX}"; then
+        print_status "skipping PDF generation as pdfjadetex does not exist."
         return
     fi
 
@@ -235,8 +242,21 @@ function mk_pdf() {
 
 ############ PROGRAM EXECUTION BEGINS
 
+# Check for required tools
 if test ! -x "${OPENJADE}"; then
-    print_error "${OPENJADE} does not exist, can not generate documentation"
+    print_error "openjade does not exist, can not generate documentation"
+fi
+
+# Check standard files, checked before pekwm as it depends on DBPATH
+for f in $DBP $DBC $DBV $DBX; do
+    if test ! -e "$f"; then
+      print_error "$f does not exist, make sure dsssl-docbook-modular is installed,\nand that DBPATH ($DBPATH) is set correctly."
+    fi
+done
+
+# Pekwm specific files
+if test ! -e "${DBC}"; then
+    print_error "${DBC} does not exist, copy from doc/tools/pekwm.dsl"
 fi
 
 case $1 in

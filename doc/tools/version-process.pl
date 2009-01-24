@@ -1,8 +1,15 @@
-#!/usr/bin/perl -w
+#!/usr/bin/env perl
+#
+# Copyright © 2009 the pekwm development team
+#
+
+use strict;
+use warnings;
 
 use POSIX qw(strftime);
 my $infile = $ARGV[0];
 my $outfile = $ARGV[1];
+my $dbv = $ARGV[2];
 
 #-- set up date variables
 my @lt        = localtime();
@@ -29,7 +36,13 @@ close(INPUT);
 my @outvar = ();
 my $inloop=0;
 foreach (@invar) {
-  if(m/BEGIN VERSIONING/g) {
+  if(m/BEGIN HEADER/g) {
+    $inloop=1;
+    push(@outvar, "\"$dbv\" [\n");
+  } elsif(m/END HEADER/g) {
+    $inloop=0;
+    push(@outvar, $_);
+  } elsif(m/BEGIN VERSIONING/g) {
     $inloop=1;
     push(@outvar, $_, $o_cv, $o_dc, $o_df)
   } elsif(m/BEGIN HTML VERSIONING/g) {
@@ -43,7 +56,7 @@ foreach (@invar) {
   }
 }
 open(OUT, ">$outfile");
-foreach $str (@outvar) {
+foreach my $str (@outvar) {
 print(OUT $str);
 }
 close(OUT);
