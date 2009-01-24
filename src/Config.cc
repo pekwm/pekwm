@@ -65,7 +65,7 @@ SizeLimits::parseLimit(const std::string &limit, unsigned int &min, unsigned int
 {
     bool status = false;
     vector<string> tokens;
-    if ((Util::splitString(limit, tokens, "x", 2)) == 2) {
+    if ((Util::splitString(limit, tokens, "x", 2, true)) == 2) {
         min = strtol(tokens[0].c_str(), 0, 10);
         max = strtol(tokens[1].c_str(), 0, 10);
         status = true;
@@ -659,7 +659,7 @@ Config::loadScreen(CfgParser::Entry *section)
     _screen_workspace_names.clear();
 
     vector<string> vs;
-    if (Util::splitString(workspace_names, vs, ";")) {
+    if (Util::splitString(workspace_names, vs, ";", 0, true)) {
         vector<string>::iterator vs_it(vs.begin());
         for (; vs_it != vs.end(); ++vs_it) {
             _screen_workspace_names.push_back(Util::to_wide_str(*vs_it));
@@ -1735,7 +1735,7 @@ Config::parseWorkspaceNumber(const std::string &workspace)
     if (num == WORKSPACE_NO) {
         // Workspace isn't relative, check for 2x2 and ordinary specification
         vector<string> tok;
-        if (Util::splitString(workspace, tok, "x", 2) == 2) {
+        if (Util::splitString(workspace, tok, "x", 2, true) == 2) {
             uint row = strtol(tok[0].c_str(), 0, 10) - 1;
             uint col = strtol(tok[1].c_str(), 0, 10) - 1;
 

@@ -237,7 +237,7 @@ void
 TextureHandler::parseSize(PTexture *tex, const std::string &size)
 {
     vector<string> tok;
-    if ((Util::splitString(size, tok, "x", 2)) == 2) {
+    if ((Util::splitString(size, tok, "x", 2, true)) == 2) {
         tex->setWidth(strtol(tok[0].c_str(), 0, 10));
         tex->setHeight(strtol(tok[1].c_str(), 0, 10));
     }

@@ -284,9 +284,10 @@ expandFileName(std::string &file)
 //! @param vals Vector to put split values into
 //! @param sep Separators to use when splitting string
 //! @param max Maximum number of elements to put into vals (optional)
+//! @param include_empty Include empty elements, defaults to false.
 //! @return Number of tokens inserted into vals
 uint
-splitString(const std::string str, std::vector<std::string> &toks, const char *sep, uint max)
+splitString(const std::string str, std::vector<std::string> &toks, const char *sep, uint max, bool include_empty)
 {
     if (str.size() < 1) {
         return 0;
@@ -308,8 +309,12 @@ splitString(const std::string str, std::vector<std::string> &toks, const char *s
             break;
         }
 
-        s = str.find_first_of(sep, e + 1);
-        if (s != (e + 1)) {
+        if (include_empty) {
+            s = str.find_first_of(sep, e + 1);
+            if (s != (e + 1)) {
+                s = str.find_first_not_of(sep, e);
+            }
+        } else {
             s = str.find_first_not_of(sep, e);
         }
     }

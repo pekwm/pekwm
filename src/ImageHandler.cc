@@ -89,7 +89,7 @@ ImageHandler::getImage(const std::string &file)
 
     // Split image in path # type parts.
     vector<string> tok;
-    if ((Util::splitString(file, tok, "#", 2)) == 2) {
+    if ((Util::splitString(file, tok, "#", 2, true)) == 2) {
         real_file = tok[0];
         image_type = ParseUtil::getValue<ImageType>(tok[1], _image_type_map);
     }

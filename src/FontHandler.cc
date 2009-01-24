@@ -92,7 +92,7 @@ FontHandler::getFont(const std::string &font)
 
     vector<string> tok;
     vector<string>::iterator tok_it; // old gcc doesn't like --tok.end()
-    if ((Util::splitString(font, tok, "#")) > 1) {
+    if ((Util::splitString(font, tok, "#", 0, true)) > 1) {
         // Try getting the font type from the first paramter, if that
         // doesn't work fall back to the last. This is to backwards
         // compatible.
@@ -236,7 +236,7 @@ FontHandler::loadColor(const std::string &color, PFont::Color *font_color, bool 
     XColor *xc;
 
     vector<string> tok;
-    if (Util::splitString(color, tok, ",", 2) == 2) {
+    if (Util::splitString(color, tok, ",", 2, true) == 2) {
         uint alpha = static_cast<uint>(strtol(tok[1].c_str(), 0, 10));
         if (alpha > 100) {
             cerr << " *** WARNING: Alpha for font color greater than 100%" << endl;

@@ -327,7 +327,7 @@ AutoProperties::parsePropertyMatch(const std::string &str, Property *prop, bool 
     // Format of property matches are regexp,regexp . Split up in class
     // and role regexps.
     vector<string> tokens;
-    Util::splitString(str, tokens, ",", extended ? 5 : 2);
+    Util::splitString(str, tokens, ",", extended ? 5 : 2, true);
 
     if (tokens.size() >= 2) {
         // Make sure one of the two regexps compiles
