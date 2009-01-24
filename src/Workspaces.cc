@@ -309,22 +309,22 @@ Workspaces::warpToWorkspace(uint num, int dir)
     if (dir != 0) {
       switch(dir) {
       case 1:
-        x = PScreen::instance()->getWidth() - std::max(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_RIGHT) * 2, 2);
+        x = PScreen::instance()->getWidth() - std::max(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_LEFT) + 2, 2);
         break;
       case 2:
         x = std::max(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_RIGHT) * 2, 2);
         break;
       case -1:
-        y = PScreen::instance()->getHeight() - std::max(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_BOTTOM) * 2, 2);;
+        y = PScreen::instance()->getHeight() - std::max(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_BOTTOM) + 2, 2);
         break;
       case -2:
-        y = std::max(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_TOP) * 2, 2);
+        y = std::max(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_TOP) + 2, 2);
         break;
       }
 
         // warp pointer
-        XWarpPointer(PScreen::instance()->getDpy(), None, PScreen::instance()->getRoot(),
-                     0, 0, 0, 0, x, y);
+        XWarpPointer(PScreen::instance()->getDpy(), None,
+                     PScreen::instance()->getRoot(), 0, 0, 0, 0, x, y);
     }
 
     // set workpsace
