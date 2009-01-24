@@ -346,9 +346,9 @@ PImage::drawAlphaFixed(Drawable dest, int x, int y, uint width, uint height, uch
                 a_percent = static_cast<float>(a) / 255;
                 a_percent_inv = 1 - a_percent;
 
-                r = (a_percent_inv * d_r) + (a_percent * r);
-                g = (a_percent_inv * d_g) + (a_percent * g);
-                b = (a_percent_inv * d_b) + (a_percent * b);
+                r = static_cast<uchar>((a_percent_inv * d_r) + (a_percent * r));
+                g = static_cast<uchar>((a_percent_inv * d_g) + (a_percent * g));
+                b = static_cast<uchar>((a_percent_inv * d_b) + (a_percent * b));
             }
 
             XPutPixel(dest_image, i_x, i_y, getPixelFromRgb(dest_image, r, g, b));
