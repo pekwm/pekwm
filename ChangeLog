@@ -1,3 +1,189 @@
+commit 41dbd72f529f79e9f809d0951ddea6e86970fc60
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Sun Jan 25 14:44:31 2009 +0100
+
+    No change to the code, just some typos fixed.
+
+commit fbe63b8871d1e689adb15a6641c1d147c72fd3a1
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Jan 25 18:42:07 2009 +0100
+
+    Ops, || is not the same as &&
+    
+    The mouse configuration would not load if pekwm was not installed (system
+    configuration files) was not installed and the system config would always
+    be the "master" with this setup.
+
+commit 0f6cecf09129cc83b2fcc14f63abbc8b23d71c65
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Jan 25 13:43:01 2009 +0100
+
+    Check included files when doing re-load.
+    
+    This will resolve issues with chaning ~/.pekwm/vars, doing a reload and nothing
+    happens as the main configuration file had not changed.
+    
+    This patch does not cover graphics loaded, but I think the imagehandler should
+    take care about that.
+
+commit c32b7923350c36288f985504f3ca0b963882a15b
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Jan 25 11:27:31 2009 +0100
+
+    Fix placement issue after the search dialog has been used.
+    
+    The PMenu showing results in the search dialog was included when placing
+    windows causing windows being placed with an offset after the search dialog
+    had been used.
+
+commit fe1b3c7501a671a7bc9db97e7c55d24485c47fc5
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Jan 24 13:21:28 2009 +0100
+
+    Improve documentation generation to add actual warning messages.
+    
+    Documentation generation gives more helpful error messages now and does not
+    hard-code platform dependant files in the XML anymore.
+    
+    Under NetBSD the following packages are required:
+    
+    * opensp
+    * docbook-xml
+    * dsssl-docbook-modular
+    * perl
+    
+    And optionally:
+    
+    * tidy (nicer html)
+    * tex-jadetex (pdf generation)
+    * zip (zip files)
+
+commit 6a22affa43c10e50b5b9d510d1bd8efb9aead425
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Jan 24 12:29:19 2009 +0100
+
+    Limit pointer warping to screen edge size + 2 instead of * 2.
+
+commit 31567e442925cf93c4e985cf6202952a7edf98fb
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Jan 24 12:29:02 2009 +0100
+
+    Avoid compile warnings, float to unsigned int casting.
+
+commit 8a6b7e47648d368eca46e25a211dc6b997823cb6
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Jan 24 12:25:12 2009 +0100
+
+    Add include_empty parameter to splitString, default to false.
+    
+    When using separators such as space and tab when splitting strings it is not
+    inituitive to include empty tokens (having two spaces after each other).
+    However, using ; as a separator ;; should include an empty token.
+
+commit c511b0412cc0434ef8d4f3bc8c4e7ea03e179520
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Mon Jan 19 22:59:39 2009 +0100
+
+    Updated documentation for mailing lists.
+
+commit cfe4fc43e6001337b6068726ed548e34759ba798
+Author: Claes Nästén <me@pekdon.net>
+Date:   Thu Jan 8 21:54:25 2009 +0100
+
+    Add autoconf dependencies to acinclude.m4
+
+commit 2a637dfae019e57e70499af3300dbed4f226ac15
+Author: Claes Nästén <me@pekdon.net>
+Date:   Thu Jan 8 21:26:51 2009 +0100
+
+    Make pekwm_themeset.sh much faster avoiding a lot of forks.
+
+commit e01ba5a1cc3c5185b3d0a8a5320413998f1da85e
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Wed Jan 7 21:49:30 2009 +0100
+
+    A few cosmetic changes (indentation, spelling).
+
+commit a3925ad28d39f1af6fc1bb3bc33d0cfda94125af
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Wed Jan 7 21:42:09 2009 +0100
+
+    Bugfix for #131 ("Search dialog stops focusing selected client").
+
+commit 7ddf51d751bedad65fa480cee2d74aa7c1b2b5f8
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Jan 4 21:34:29 2009 +0100
+
+    Add new default theme, enabled only if png support is available.
+
+commit 316bb4ef3afe15071d40699d6f52c6ab2e455b94
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Jan 4 21:06:39 2009 +0100
+
+    Rename PImageNative* to PImage*, there is no other type of image.
+
+commit 2c2c0ec4579d7df939a55b77a33275c81e8e974d
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Jan 4 12:46:03 2009 +0100
+
+    Fix potential crash bug (mis-placed error output) and make icons use alpha.
+
+commit 9ed2b874128d295f5f33a73956ea91eb9abf3ab2
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Jan 3 22:13:19 2009 +0100
+
+    Ops, missing ~ and state modifiers was not stripped.
+    
+    This seems to be fixing #129, was missing a ~ in the stripping of state
+    modifiers and when that function being ok and called in the handlers
+    things seemt to be ok.
+
+commit 21bace12530b448e06a59b2aeb99b24c34d07838
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Jan 3 02:27:00 2009 +0100
+
+    Start on rendering transperent images correctly, works ok in the menu.
+
+commit e49065442e5a990ca60e66165194b6aa778e923c
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Jan 3 02:25:40 2009 +0100
+
+    Introduced use_alpha to complement has_alpha.
+    
+    In order to avoid rendering with alpha composition even if the image is
+    100% solid use_alpha was introduced which is true if there are
+    transparenet pixels in a image.
+
+commit 5afda71035954d271ffd5ab8db4ba64a5dd572fc
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Dec 27 11:36:51 2008 +0100
+
+    Fallback to XParseColor in xpm loading to support more than #ffffff formats.
+
+commit d032b5dd8cb05ba2d90fba3b6a645a79dae9ddd1
+Author: Claes Nästén <me@pekdon.net>
+Date:   Mon Dec 22 19:03:50 2008 +0100
+
+    Final fixes before 0.1.9a
+
+commit c2057b53d565674f45d8fd5058e1801052cdd81a
+Author: Claes Nästén <me@pekdon.net>
+Date:   Mon Dec 22 15:46:47 2008 +0100
+
+    Fix crash issue end of list item not detected.
+
+commit b48fdd3c9dffbecc5e03e6a0ec5709d6b1cff60d
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Sun Dec 21 22:18:50 2008 +0100
+
+    Fix the bug that a lower-action produces a raise-action.
+
+commit 8019bbc60a011da24edde40910cbcfffefcdd2cb
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Dec 21 14:44:34 2008 +0100
+
+    Update ChangeLog before release.
+
 commit 84611e4ec1ac7b79d84ad3bb85cc695907f5a821
 Author: Claes Nästén <me@pekdon.net>
 Date:   Sun Dec 21 14:30:54 2008 +0100
