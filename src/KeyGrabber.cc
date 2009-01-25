@@ -102,7 +102,7 @@ KeyGrabber::KeyGrabber(PScreen *scr)
     if (_instance) {
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "KeyGrabber(" << this << ")::KeyGrabber(" << scr << ")" << endl
-             << " *** _instance allready set: " << _instance << endl;
+             << " *** _instance already set: " << _instance << endl;
     }
 #endif // DEBUG
     _instance = this;

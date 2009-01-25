@@ -33,7 +33,7 @@ ColorHandler::ColorHandler(Display *dpy)
     if (_instance) {
         cerr << __FILE__ << "@" << __LINE__ << ": " << endl
              << "ColorHandler(" << this << ")::ColorHandler(" << _dpy << ")"
-             << endl << " *** _instance allready set" << endl;
+             << endl << " *** _instance already set" << endl;
     }
 #endif // DEBUG
     _instance = this;
@@ -55,7 +55,7 @@ ColorHandler::~ColorHandler(void)
 XColor*
 ColorHandler::getColor(const std::string &color)
 {
-    // check for allready existing entry
+    // check for already existing entry
     list<ColorHandler::Entry*>::iterator it(_color_list.begin());
 
     if (strcasecmp(color.c_str(), "EMPTY") == 0) {

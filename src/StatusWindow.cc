@@ -35,7 +35,7 @@ StatusWindow::StatusWindow(Display *dpy, Theme *theme)
 #ifdef DEBUG
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "StatusWindow(" << this << ")::StatusWindow()" << endl
-             << " *** _instance allready set: " << _instance << endl;
+             << " *** _instance already set: " << _instance << endl;
 #endif // DEBUG
     }
     _instance = this;

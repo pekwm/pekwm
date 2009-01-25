@@ -34,7 +34,7 @@ FontHandler::FontHandler(void)
     if (_instance) {
         cerr << __FILE__ << "@" << __LINE__ << ": "
             << "FontHandler(" << this << ")::FontHandler()"
-            << endl << " *** _instance allready set" << endl;
+            << endl << " *** _instance already set" << endl;
     }
 #endif // DEBUG
   

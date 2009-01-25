@@ -968,7 +968,7 @@ PDecor::setTitlebar(StateAction sa)
         _titlebar = false;
     }
 
-    // If updateDecorName returns true, it allready loaded decor stuff for us.
+    // If updateDecorName returns true, it already loaded decor stuff for us.
     if (! updateDecorName() && _child) {
         alignChild(_child);
         resizeChild(_child->getWidth(), _child->getHeight());

@@ -40,7 +40,7 @@ AutoProperties::AutoProperties(void)
     if (_instance) {
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "AutoProperties(" << this << ")::AutoProperties()" << endl
-             << " *** _instance allready set: " << _instance << endl;
+             << " *** _instance already set: " << _instance << endl;
     }
 #endif // DEBUG
     _instance = this;

@@ -36,7 +36,7 @@ ScreenResources::ScreenResources(void)
 #ifdef DEBUG
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "ScreenResources(" << this << ")::ScreenResources()" << endl
-             << " *** _instance allready set: " << _instance << endl;
+             << " *** _instance already set: " << _instance << endl;
 #endif // DEBUG
     }
     _instance = this;

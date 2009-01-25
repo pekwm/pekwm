@@ -38,7 +38,7 @@ TextureHandler::TextureHandler(void)
     if (_instance) {
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "TextureHandler(" << this << ")::TextureHandler()"
-             << " *** _instance allready set: " << _instance << endl;
+             << " *** _instance already set: " << _instance << endl;
     }
 #endif // DEBUG
     _instance = this;
@@ -61,7 +61,7 @@ TextureHandler::~TextureHandler(void)
 PTexture*
 TextureHandler::getTexture(const std::string &texture)
 {
-    // check for allready existing entry
+    // check for already existing entry
     list<TextureHandler::Entry*>::iterator it(_texture_list.begin());
 
     for (; it != _texture_list.end(); ++it) {
@@ -90,7 +90,7 @@ TextureHandler::getTexture(const std::string &texture)
 PTexture*
 TextureHandler::referenceTexture(PTexture *texture)
 {
-    // Check for allready existing entry
+    // Check for already existing entry
     list<TextureHandler::Entry*>::iterator it(_texture_list.begin());
 
     for (; it != _texture_list.end(); ++it) {
@@ -148,7 +148,7 @@ TextureHandler::parse(const std::string &texture)
         type = ParseUtil::getValue<PTexture::Type>(texture, _parse_map);
     }
 
-    // need atleast type and parameter, except for EMPTY type
+    // need at least type and parameter, except for EMPTY type
     if (tok.size() > 1) {
         tok.erase(tok.begin()); // remove type
         switch (type) {
@@ -217,7 +217,7 @@ TextureHandler::parseSolidRaised(std::vector<std::string> &tok)
         tex->setLineOff(strtol(tok[1].c_str(), 0, 10));
         tok.erase(tok.begin(), tok.begin() + 2);
     }
-    // Check if have side draw specificed.
+    // Check if have side draw specified.
     if (tok.size() > 4) {
         tex->setDraw(Util::isTrue(tok[0]), Util::isTrue(tok[1]),
                      Util::isTrue(tok[2]), Util::isTrue(tok[3]));
@@ -232,7 +232,7 @@ TextureHandler::parseSolidRaised(std::vector<std::string> &tok)
     return tex;
 }
 
-//! @brief Parses size paremeter ie 10x20
+//! @brief Parses size parameter, i.e. 10x20
 void
 TextureHandler::parseSize(PTexture *tex, const std::string &size)
 {

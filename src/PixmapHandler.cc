@@ -84,7 +84,7 @@ PixmapHandler::getPixmap(uint width, uint height, uint depth)
 {
     Pixmap pixmap = None;
 
-    // search allready created pixmaps
+    // search already created pixmaps
     map<Pixmap, Entry*>::iterator it(_free_pix.begin());
     for (; it != _free_pix.end(); ++it) {
         if (it->second->isMatch(width, height, depth)) {

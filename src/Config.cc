@@ -1458,16 +1458,16 @@ Config::copyConfigFiles(void)
     cp_autoprops = cp_start = cp_vars = false;
 
     struct stat stat_buf;
-    // check and see if we allready have a ~/.pekwm/ directory
+    // check and see if we already have a ~/.pekwm/ directory
     if (stat(cfg_dir.c_str(), &stat_buf) == 0) {
         // is it a dir or file?
         if (! S_ISDIR(stat_buf.st_mode)) {
-            cerr << cfg_dir << " allready exists and isn't a directory" << endl
+            cerr << cfg_dir << " already exists and isn't a directory" << endl
                  << "Can't copy config files !" << endl;
             return;
         }
 
-        // we allready have a directory, see if it's writeable and executable
+        // we already have a directory, see if it's writeable and executable
         bool cfg_dir_ok = false;
 
         if (getuid() == stat_buf.st_uid) {
@@ -1491,7 +1491,7 @@ Config::copyConfigFiles(void)
             }
         }
 
-        // we apperently could write and exec that dir, now see if we have any
+        // we apparently could write and exec that dir, now see if we have any
         // files in it
         if (stat(cfg_file.c_str(), &stat_buf))
             cp_config = true;
@@ -1508,7 +1508,7 @@ Config::copyConfigFiles(void)
         if (stat(vars_file.c_str(), &stat_buf))
             cp_vars = true;
 
-    } else { // we didn't have a ~/.pekwm directory allready, lets create one
+    } else { // we didn't have a ~/.pekwm directory already, lets create one
         if (mkdir(cfg_dir.c_str(), 0700)) {
             cerr << "Can't create " << cfg_dir << " directory!" << endl;
             cerr << "Can't copy config files !" << endl;

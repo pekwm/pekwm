@@ -65,7 +65,7 @@ PTextureSolid::render(Drawable draw, int x, int y, uint width, uint height)
 bool
 PTextureSolid::setColor(const std::string &color)
 {
-    unsetColor(); // unload resources if any usedA
+    unsetColor(); // unload used resources
 
     _xc = ColorHandler::instance()->getColor(color);
     XSetForeground(_dpy, _gc, _xc->pixel);
@@ -184,7 +184,7 @@ PTextureSolidRaised::setLineWidth(uint lw)
 bool
 PTextureSolidRaised::setColor(const std::string &base, const std::string &hi, const std::string &lo)
 {
-    unsetColor(); // unload resources if any usedA
+    unsetColor(); // unload used resources
 
     _xc_base = ColorHandler::instance()->getColor(base);
     _xc_hi = ColorHandler::instance()->getColor(hi);

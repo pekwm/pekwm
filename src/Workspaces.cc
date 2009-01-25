@@ -66,7 +66,7 @@ Workspaces::Workspaces(uint number, uint per_row)
     if (_instance) {
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "Workspaces(" << this << ")::Workspaces(" << number << ")"
-             << endl << " *** _instance allready set: " << _instance << endl;
+             << endl << " *** _instance already set: " << _instance << endl;
     }
 #endif // DEBUG
     _instance = this;
