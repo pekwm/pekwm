@@ -222,6 +222,7 @@ public:
     uint getMouseButton(const std::string& button);
 
 private:
+    bool tryHardLoadConfig(CfgParser &cfg, std::string &file);
     void copyConfigFiles(void);
 
     void loadFiles(CfgParser::Entry *section);
@@ -240,9 +241,8 @@ private:
 
 private:
     std::string _config_file; /**< Path to config file last loaded. */
-    time_t _config_mtime; /**< Mtime of config file last loaded. */
-    std::string _mouse_file; /**< Path to mouse config file last loaded. */
-    time_t _mouse_mtime; /**< Mtime of mouse config file last loaded. */
+    std::map <std::string, time_t> _cfg_state; /**< Map of file mtime for all files touched by a configuration. */    
+    std::map <std::string, time_t> _mouse_state; /**< Map of file mtime for all files touched by a configuration. */    
 
     // files
     std::string _files_keys, _files_menu;

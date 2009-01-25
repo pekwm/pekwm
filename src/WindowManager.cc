@@ -217,9 +217,6 @@ WindowManager::WindowManager(const std::string &command_line, const std::string 
 #endif // HARBOUR
         _cmd_dialog(0), _search_dialog(0),
         _status_window(0), _workspace_indicator(0),
-#ifdef MENUS
-        _menu_mtime(0),
-#endif // MENUS
         _command_line(command_line),
         _startup(false), _shutdown(false), _reload(false),
         _allow_grouping(true), _root_wo(0)
@@ -1567,8 +1564,7 @@ WindowManager::createMenus(void)
     // Load configuration, pass specific section to loading
     CfgParser menu_cfg;
     if (menu_cfg.parse(_config->getMenuFile()) || menu_cfg.parse (string(SYSCONFDIR "/menu"))) {
-        // Make sure mtime gets updated
-        Util::requireReload(_menu_path, _config->getMenuFile(), _menu_mtime);
+        _menu_state = menu_cfg.get_file_list();
 
         // Load standard menus
         map<string, PMenu*>::iterator it = _menu_map.begin();
@@ -1588,7 +1584,7 @@ WindowManager::createMenus(void)
 void
 WindowManager::doReloadMenus(void)
 {
-    if (! Util::requireReload(_menu_path, _config->getMenuFile(), _menu_mtime)) {
+    if (! Util::requireReload(_menu_state, _config->getMenuFile())) {
         return;
     }    
 
@@ -1604,7 +1600,9 @@ WindowManager::doReloadMenus(void)
     // Make sure menu is reloaded next time as content is dynamically
     // generated from the configuration file.
     if (! cfg_ok || menu_cfg.is_dynamic_content()) {
-        _menu_mtime = 0;
+        _menu_state.clear();
+    } else {
+        _menu_state = menu_cfg.get_file_list();
     }
 
     // Update, delete standalone root menus, load decors on others

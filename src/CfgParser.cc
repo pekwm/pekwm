@@ -402,6 +402,11 @@ CfgParser::parse_source_new(const std::string &name_orig, CfgParserSource::Type 
         // Open and set as active, delete if fails.
         try {
             source->open();
+            // Add source to file list if file
+            if (type == CfgParserSource::SOURCE_FILE) {
+                _file_list[name] = Util::getMtime(name);
+            }
+
             _source = source;
             _source_list.push_back(_source);
             done = 1;

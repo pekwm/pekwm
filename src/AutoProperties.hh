@@ -232,7 +232,7 @@ private:
                            std::list<Property*>* prop_list,
                            int ws, uint type);
 
-    void loadRequire(CfgParser &a_cfg);
+    void loadRequire(CfgParser &a_cfg, std::string &file);
 
     bool parsePropertyMatch(const std::string &str, Property *prop, bool extended = true);
     void parsePropertyApplyOn(const std::string &apply_on, Property *prop);
@@ -254,8 +254,7 @@ private:
   void setDefaultTypeProperties(void);
 
 private:
-    std::string _autoproperties_path; /**< Path to last loaded autoproperties file. */
-    time_t _autoproperties_mtime; /**< Mtime of last loaded autoproperties file. */
+    std::map <std::string, time_t> _cfg_state; /**< Map of file mtime for all files touched by a configuration. */    
     bool _extended; /**< Extended syntax enabled for autoproperties? */
 
     std::map<AtomName, AutoProperty*> _window_type_prop_map;

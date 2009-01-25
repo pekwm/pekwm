@@ -366,7 +366,7 @@ public:
     inline Theme::TextDialogData *getCmdDialogData(void) { return &_cmd_d_data; }
 
 private:
-    void loadThemeRequire(CfgParser &theme_cfg);
+    void loadThemeRequire(CfgParser &theme_cfg, std::string &file);
 
 private:
     PScreen *_scr;
@@ -375,8 +375,7 @@ private:
     std::map<std::string, Theme::ThemeData*> _section_data_map; /**< Map between section names and data. */
 
     std::string _theme_dir; /**< Path to theme directory. */
-    std::string _theme_path; /**< Path to theme file. */
-    time_t _theme_mtime; /**< Mtime of theme last loaded. */
+    std::map <std::string, time_t> _cfg_state; /**< Map of file mtime for all files touched by a configuration. */    
 
     bool _is_loaded;
 

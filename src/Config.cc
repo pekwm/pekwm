@@ -79,7 +79,6 @@ SizeLimits::parseLimit(const std::string &limit, unsigned int &min, unsigned int
 
 //! @brief Constructor for Config class
 Config::Config(void) :
-        _config_mtime(0), _mouse_mtime(0),
         _moveresize_edgeattract(0), _moveresize_edgeresist(0),
         _moveresize_woattract(0), _moveresize_woresist(0),
         _moveresize_opaquemove(0), _moveresize_opaqueresize(0),
@@ -434,57 +433,21 @@ Config::setDesktopNamesUTF8(char *names, ulong length)
 bool
 Config::load(const std::string &config_file)
 {
-    if (! Util::requireReload(_config_file, config_file, _config_mtime)) {
+    if (! Util::requireReload(_cfg_state, config_file)) {
         return false;
     }
 
     CfgParser cfg;
-    bool success = false;
-    string file_success;
 
     _config_file = config_file;
-
-    // Try loading command line specified file.
-    if (_config_file.size()) {
-        success = cfg.parse(config_file, CfgParserSource::SOURCE_FILE, true);
-        if (success) {
-            file_success = config_file;
-        }
-    }
-
-    // Try loading ~/.pekwm/config
-    if (! success) {
-        _config_file = string(getenv("HOME")) + string("/.pekwm/config");
-        success = cfg.parse(_config_file, CfgParserSource::SOURCE_FILE, true);
-        if (success) {
-            file_success = _config_file;
-        }
-    }
-
-    // Copy cfg files to ~/.pekwm and try loading ~/.pekwm/config again.
-    if (! success) {
-        copyConfigFiles();
-
-        _config_file = string(getenv("HOME")) + string("/.pekwm/config");
-        success = cfg.parse(_config_file, CfgParserSource::SOURCE_FILE, true);
-        if (success) {
-            file_success = _config_file;
-        }
-    }
-
-    // Try loading system configuration files.
-    if (! success) {
-        _config_file = string(SYSCONFDIR "/config");
-        success = cfg.parse(_config_file, CfgParserSource::SOURCE_FILE, true);
-        if (success) {
-            file_success = _config_file;
-        }
-    }
+    bool success = tryHardLoadConfig(cfg, _config_file);
 
     // Make sure config is reloaded next time as content is dynamically
     // generated from the configuration file.
     if (! success || cfg.is_dynamic_content()) {
-        _config_mtime = 0;
+        _cfg_state.clear();
+    } else {
+        _cfg_state = cfg.get_file_list();
     }
 
     if (! success) {
@@ -492,10 +455,10 @@ Config::load(const std::string &config_file)
         return false;
     }
 
-    // Update PEKWM_CONFIG_FILE environment if needed ( to reflect active file )
+    // Update PEKWM_CONFIG_FILE environment if needed (to reflect active file)
     char *cfg_env = getenv("PEKWM_CONFIG_FILE");
-    if (! cfg_env || (strcmp(cfg_env, file_success.c_str()) != 0)) {
-        setenv("PEKWM_CONFIG_FILE", file_success.c_str(), 1);
+    if (! cfg_env || (strcmp(cfg_env, _config_file.c_str()) != 0)) {
+        setenv("PEKWM_CONFIG_FILE", _config_file.c_str(), 1);
     }
 
     string o_file_mouse; // temporary filepath for mouseconfig
@@ -1436,6 +1399,45 @@ Config::getMouseButton(const std::string &button)
     return btn;
 }
 
+/**
+ * Load main configuration file, priority as follows:
+ *
+ *   1. Load command line specified file.
+ *   2. Load ~/.pekwm/config
+ *   3. Copy configuration and load ~/.pekwm/config
+ *   4. Load system configuration
+ */
+bool
+Config::tryHardLoadConfig(CfgParser &cfg, std::string &file)
+{
+    bool success = false;
+
+    // Try loading command line specified file.
+    if (file.size()) {
+        success = cfg.parse(file, CfgParserSource::SOURCE_FILE, true);
+    }
+
+    // Try loading ~/.pekwm/config
+    if (! success) {
+        file = string(getenv("HOME")) + string("/.pekwm/config");
+        success = cfg.parse(file, CfgParserSource::SOURCE_FILE, true);
+
+        // Copy cfg files to ~/.pekwm and try loading ~/.pekwm/config again.
+        if (! success) {
+            copyConfigFiles();
+            success = cfg.parse(file, CfgParserSource::SOURCE_FILE, true);
+        }
+    }
+
+    // Try loading system configuration files.
+    if (! success) {
+        file = string(SYSCONFDIR "/config");
+        success = cfg.parse(file, CfgParserSource::SOURCE_FILE, true);
+    }
+
+    return success;
+}
+
 //! @brief Populates the ~/.pekwm/ dir with config files
 void
 Config::copyConfigFiles(void)
@@ -1546,20 +1548,22 @@ Config::copyConfigFiles(void)
 bool
 Config::loadMouseConfig(const std::string &mouse_file)
 {
-    if (! Util::requireReload(_mouse_file, mouse_file, _mouse_mtime)) {
+    if (! Util::requireReload(_mouse_state, mouse_file)) {
         return false;
     }
-
     
     CfgParser mouse_cfg;
-    bool success = mouse_cfg.parse(_mouse_file, CfgParserSource::SOURCE_FILE, true);
-    if (! success) {
-        _mouse_file = string(SYSCONFDIR "/mouse");
-        success = mouse_cfg.parse(_mouse_file, CfgParserSource::SOURCE_FILE, true);
+    if (! mouse_cfg.parse(mouse_file, CfgParserSource::SOURCE_FILE, true)
+        || ! mouse_cfg.parse(SYSCONFDIR "/mouse", CfgParserSource::SOURCE_FILE, true)) {
+        _mouse_state.clear();
+        return false;
     }
     
-    if (! success) {
-        return false;
+    // Clear state if load failed or dynamic content.
+    if (mouse_cfg.is_dynamic_content()) {
+        _mouse_state.clear();
+    } else {
+        _mouse_state = mouse_cfg.get_file_list();
     }
 
     // Make sure old actions get unloaded.

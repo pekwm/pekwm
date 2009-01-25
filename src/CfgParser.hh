@@ -100,6 +100,9 @@ public:
     CfgParser(void);
     ~CfgParser(void);
 
+    /** Return map of file / mtime */
+    const std::map<std::string, time_t> &get_file_list(void) const { return _file_list; }
+
     //! @brief Returns the root Entry node.
     Entry *get_entry_root(void) { return _root_entry; }
     /** Return true if data parsed included dynamic content such as from COMMAND. */
@@ -128,6 +131,8 @@ private:
 
 private:
     CfgParserSource *_source;
+
+    std::map<std::string, time_t> _file_list; //!< Map of source, mtime of loaded files. */
 
     std::list<CfgParserSource*> _source_list; //!< List of sources, for recursive parsing.
     std::list<std::string> _source_name_list; //!< List of source names, to keep track of current source.

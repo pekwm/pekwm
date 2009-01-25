@@ -19,6 +19,7 @@
 #include <cstring>
 #include <vector>
 #include <list>
+#include <map>
 #include <functional>
 #include <sstream>
 
@@ -40,8 +41,9 @@ namespace Util {
 
     bool isFile(const std::string &file);
     bool isExecutable(const std::string &file);
+    time_t getMtime(const std::string &file);
     bool isFileChanged(const std::string &file, time_t &mtime);
-    bool requireReload(std::string &old_file, const std::string &new_file,  time_t &mtime);
+    bool requireReload(std::map<std::string, time_t> &state, const std::string &file);
 
     bool copyTextFile(const std::string &from, const std::string &to);
 

@@ -94,8 +94,7 @@ private:
 private:
     PScreen *_scr;
 
-    std::string _keygrabber_path; /**< Path to keygrabber configuration last loaded. */
-    time_t _keygrabber_mtime; /**< Mtime of keygrabber configuration last loaded. */
+    std::map <std::string, time_t> _cfg_state; /**< Map of file mtime for all files touched by a configuration. */
 
 #ifdef MENUS
     KeyGrabber::Chain _menu_chain;

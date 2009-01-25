@@ -30,7 +30,7 @@ AutoProperties *AutoProperties::_instance = 0;
 
 //! @brief Constructor for AutoProperties class
 AutoProperties::AutoProperties(void)
-    : _autoproperties_mtime(0), _extended(false),
+    : _extended(false),
 #ifdef HARBOUR
       _harbour_sort(false),
 #endif // HARBOUR
@@ -107,7 +107,7 @@ bool
 AutoProperties::load(void)
 {
     string cfg_file(Config::instance()->getAutoPropsFile());
-    if (! Util::requireReload(_autoproperties_path, cfg_file, _autoproperties_mtime)) {
+    if (! Util::requireReload(_cfg_state, cfg_file)) {
         return false;
     }
 
@@ -119,16 +119,17 @@ AutoProperties::load(void)
         cfg_file = SYSCONFDIR "/autoproperties";
         if (! a_cfg.parse (cfg_file, CfgParserSource::SOURCE_FILE, false)) {
           setDefaultTypeProperties();
-          _autoproperties_mtime = 0;
           return false;
         }
     }
 
     // Setup template parsing if requested
-    loadRequire(a_cfg);
+    loadRequire(a_cfg, cfg_file);
 
     if (a_cfg.is_dynamic_content()) {
-        _autoproperties_mtime = 0;
+        _cfg_state.clear();
+    } else {
+        _cfg_state = a_cfg.get_file_list();
     }
 
     // reset values
@@ -184,7 +185,7 @@ AutoProperties::load(void)
  * Load autoproperties quirks.
  */
 void
-AutoProperties::loadRequire(CfgParser &a_cfg)
+AutoProperties::loadRequire(CfgParser &a_cfg, std::string &file)
 {
     CfgParser::Entry *section;
 
@@ -199,9 +200,8 @@ AutoProperties::loadRequire(CfgParser &a_cfg)
 
         // Re-load configuration with templates enabled.
         if (_extended) {
-            string autoproperties_path(_autoproperties_path);
             a_cfg.clear(true);
-            a_cfg.parse(autoproperties_path, CfgParserSource::SOURCE_FILE, true);
+            a_cfg.parse(file, CfgParserSource::SOURCE_FILE, true);
         }
     } else {
         _extended = false;

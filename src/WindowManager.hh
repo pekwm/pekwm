@@ -257,8 +257,7 @@ private:
   Timer<ActionPerformed> _timer_action;
 
 #ifdef MENUS
-    std::string _menu_path; /**< Path to last loaded menu file. */
-    time_t _menu_mtime; /**< Mtime of last loaded menu file. */
+    std::map <std::string, time_t> _menu_state; /**< Map of file mtime for all files touched by a configuration. */    
     std::map<std::string, PMenu*> _menu_map;
 
     static const char *MENU_NAMES_RESERVED[];

@@ -887,7 +887,7 @@ Theme::HarbourData::check(void)
 
 //! @brief Theme constructor
 Theme::Theme(PScreen *scr)
-    : _scr(scr), _image_handler(0), _theme_mtime(0),
+    : _scr(scr), _image_handler(0),
       _is_loaded(false), _invert_gc(None)
 {
     // image handler
@@ -939,7 +939,7 @@ Theme::load(const std::string &dir)
     }
     string theme_file(norm_dir + string("theme"));
 
-    if (! Util::requireReload(_theme_path, theme_file, _theme_mtime)) {
+    if (! Util::requireReload(_cfg_state, theme_file)) {
         return false;
     }
 
@@ -958,8 +958,8 @@ Theme::load(const std::string &dir)
 
     if (! theme.parse(theme_file)) {
         _theme_dir = DATADIR "/pekwm/themes/default/";
-        _theme_path = _theme_dir + string("theme");
-        if (! theme.parse(_theme_path)) {
+        theme_file = _theme_dir + string("theme");
+        if (! theme.parse(theme_file)) {
             cerr << " *** WARNING: couldn't load " << _theme_dir << " or default theme." << endl;
             theme_ok = false;
         }
@@ -968,9 +968,11 @@ Theme::load(const std::string &dir)
     // Setup quirks and requirements before parsing.
     if (theme_ok) {
         if (theme.is_dynamic_content()) {
-            _theme_mtime = 0;
+            _cfg_state.clear();
+        } else {
+            _cfg_state = theme.get_file_list();
         }
-        loadThemeRequire(theme);
+        loadThemeRequire(theme, theme_file);
     }
 
     // Set image basedir.
@@ -1019,7 +1021,7 @@ Theme::load(const std::string &dir)
  * Load template quirks.
  */
 void
-Theme::loadThemeRequire(CfgParser &theme_cfg)
+Theme::loadThemeRequire(CfgParser &theme_cfg, std::string &file)
 {
     CfgParser::Entry *section;
 
@@ -1035,9 +1037,8 @@ Theme::loadThemeRequire(CfgParser &theme_cfg)
 
         // Re-load configuration with templates enabled.
         if (value_templates) {
-            string theme_path(_theme_path);
             theme_cfg.clear(true);
-            theme_cfg.parse(theme_path, CfgParserSource::SOURCE_FILE, true);
+            theme_cfg.parse(file, CfgParserSource::SOURCE_FILE, true);
         }
     }
 }

@@ -45,6 +45,7 @@ using std::list;
 using std::ifstream;
 using std::ofstream;
 using std::find;
+using std::map;
 
 namespace Util {
 
@@ -168,20 +169,31 @@ isExecutable(const std::string &file)
 }
 
 /**
+ * Get file mtime.
+ */
+time_t
+getMtime(const std::string &file)
+{
+    struct stat stat_buf;
+
+    if (! stat(file.c_str(), &stat_buf)) {
+        return stat_buf.st_mtime;
+    } else {
+        return 0;
+    }
+}
+
+/**
  * Check if file has different mtime than provided mtime.
  */
 bool
 isFileChanged(const std::string &file, time_t &mtime)
 {
-    struct stat stat_buf;
-
-    if (! stat(file.c_str(), &stat_buf)) {
-        if (stat_buf.st_mtime != mtime) {
-            mtime = stat_buf.st_mtime;
-            return true;
-        }
+    time_t cur_mtime = getMtime(file);
+    if (cur_mtime != mtime) {
+        mtime = cur_mtime;
+        return true;
     }
-
     return false;
 }
 
@@ -190,22 +202,22 @@ isFileChanged(const std::string &file, time_t &mtime)
  * from new_file, path or mtime.
  */
 bool
-requireReload(std::string &old_file, const std::string &new_file,  time_t &mtime)
+requireReload(std::map <std::string, time_t> &state, const std::string &file)
 {
-    bool reload = false;
-
-    // Reload if file is newer than mtime, if it's another file reload
-    // either way. isFileChanged is used to update mtime.
-    reload = isFileChanged(new_file, mtime);
-    if (old_file.compare(new_file)) {
-        reload = true;
+    // Check for the file, signal reload if not previously loaded.
+    map<string, time_t>::iterator it(state.find(file));
+    if (it == state.end()) {
+        return true;
     }
 
-    if (reload) {
-        old_file = new_file;
+    // Check state of all files, if one is updated reload.
+    for (it = state.begin(); it != state.end(); ++it) {
+        if (isFileChanged(it->first, it->second)) {
+            return true;
+        }
     }
 
-    return reload;
+    return false;
 }
 
 /**

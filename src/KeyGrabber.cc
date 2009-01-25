@@ -91,7 +91,7 @@ KeyGrabber::Chain::findAction(XKeyEvent *ev)
 
 //! @brief KeyGrabber constructor
 KeyGrabber::KeyGrabber(PScreen *scr)
-    : _scr(scr), _keygrabber_mtime(0),
+    : _scr(scr),
 #ifdef MENUS
       _menu_chain(0, 0),
 #endif // MENUS
@@ -123,23 +123,24 @@ KeyGrabber::~KeyGrabber(void)
 bool
 KeyGrabber::load(const std::string &file)
 {
-    if (! Util::requireReload(_keygrabber_path, file, _keygrabber_mtime)) {
+    if (! Util::requireReload(_cfg_state, file)) {
         return false;
     }
 
     CfgParser key_cfg;
     if (! key_cfg.parse(file, CfgParserSource::SOURCE_FILE)) {
-        _keygrabber_path = SYSCONFDIR "/keys";
-        if (! key_cfg.parse(_keygrabber_path, CfgParserSource::SOURCE_FILE, true)) {
+        _cfg_state.clear();
+        if (! key_cfg.parse(SYSCONFDIR "/keys", CfgParserSource::SOURCE_FILE, true)) {
             cerr << __FILE__ << "@" << __LINE__ << "Error: no keyfile at " << file
-                 << " or " << _keygrabber_path << endl;
-            _keygrabber_mtime = 0;
+                 << " or " << SYSCONFDIR "/keys" << endl;
             return false;
         }
     }
 
     if (key_cfg.is_dynamic_content()) {
-        _keygrabber_mtime = 0;
+        _cfg_state.clear();
+    } else {
+        _cfg_state = key_cfg.get_file_list();
     }
 
     CfgParser::Entry *section;
