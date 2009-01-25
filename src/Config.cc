@@ -1554,7 +1554,7 @@ Config::loadMouseConfig(const std::string &mouse_file)
     
     CfgParser mouse_cfg;
     if (! mouse_cfg.parse(mouse_file, CfgParserSource::SOURCE_FILE, true)
-        || ! mouse_cfg.parse(SYSCONFDIR "/mouse", CfgParserSource::SOURCE_FILE, true)) {
+        && ! mouse_cfg.parse(SYSCONFDIR "/mouse", CfgParserSource::SOURCE_FILE, true)) {
         _mouse_state.clear();
         return false;
     }
