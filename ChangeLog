@@ -1,3 +1,15 @@
+commit 720fefb20032ff2eade947d73744b6f90546342c
+Author: Claes Nästén <me@pekdon.net>
+Date:   Mon Jan 26 15:08:51 2009 +0100
+
+    Fix destdir for default-plain file.
+
+commit 9eb00b48ddf37b59a9e54f6c5252f5209f277687
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Jan 25 20:44:26 2009 +0100
+
+    Update ChangeLog and set version to 0.1.10
+
 commit 41dbd72f529f79e9f809d0951ddea6e86970fc60
 Author: Andreas Schlick <ioerror@lavabit.com>
 Date:   Sun Jan 25 14:44:31 2009 +0100
