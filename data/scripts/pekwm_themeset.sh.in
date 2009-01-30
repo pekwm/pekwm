@@ -25,8 +25,12 @@ if test -z "${2}"; then
     if test -d "${theme_dir}"; then
         ( cd ${theme_dir};
           for theme_name in *; do
-            theme_path="${theme_dir}/${theme_name}"
-            echo "Entry = \"${theme_name}\" { Actions = \"Exec ${0} ${1} ${theme_path}\" }"
+            # Themes must be directories. This test also prevents * globbing
+            # problems if theme_dir is empty.
+            if test -d "${theme_name}"; then
+                theme_path="${theme_dir}/${theme_name}"
+                echo "Entry = \"${theme_name}\" { Actions = \"Exec ${0} ${1} ${theme_path}\" }"
+            fi
           done )
     else
         echo "Entry = \"No such directory ${theme_dir}\" { Actions = \"None\" }"
