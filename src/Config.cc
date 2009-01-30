@@ -1451,9 +1451,11 @@ Config::copyConfigFiles(void)
     string autoprops_file = cfg_dir + string("/autoproperties");
     string start_file = cfg_dir + string("/start");
     string vars_file = cfg_dir + string("/vars");
+    string themes_dir = cfg_dir + string("/themes");
 
     bool cp_config, cp_keys, cp_mouse, cp_menu;
     bool cp_autoprops, cp_start, cp_vars;
+    bool make_themes = false;
     cp_config = cp_keys = cp_mouse = cp_menu = false;
     cp_autoprops = cp_start = cp_vars = false;
 
@@ -1507,7 +1509,9 @@ Config::copyConfigFiles(void)
             cp_start = true;
         if (stat(vars_file.c_str(), &stat_buf))
             cp_vars = true;
-
+        if (stat(themes_dir.c_str(), &stat_buf)) {
+            make_themes = true;
+        }
     } else { // we didn't have a ~/.pekwm directory already, lets create one
         if (mkdir(cfg_dir.c_str(), 0700)) {
             cerr << "Can't create " << cfg_dir << " directory!" << endl;
@@ -1517,6 +1521,7 @@ Config::copyConfigFiles(void)
 
         cp_config = cp_keys = cp_mouse = cp_menu = true;
         cp_autoprops = cp_start = cp_vars = true;
+        make_themes = true;
     }
 
     if (cp_config) {
@@ -1539,6 +1544,9 @@ Config::copyConfigFiles(void)
     }
     if (cp_vars) {
         Util::copyTextFile(SYSCONFDIR "/vars", vars_file);
+    }
+    if (make_themes) {
+        mkdir(themes_dir.c_str(), 0700);
     }
 }
 
