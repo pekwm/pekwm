@@ -1,6 +1,6 @@
 //
 // PImageLoaderJpeg.cc for pekwm
-// Copyright © 2005-2008 Claes Nästén <me@pekdon.net>
+// Copyright © 2005-2009 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.

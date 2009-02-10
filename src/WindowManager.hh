@@ -1,6 +1,6 @@
 //
 // WindowManager.hh for pekwm
-// Copyright © 2003-2008 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2003-2009 Claes Nästén <me{@}pekdon{.}net>
 //
 // windowmanager.hh for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>

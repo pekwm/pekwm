@@ -1,6 +1,6 @@
 //
 // PTexturePlain.hh for pekwm
-// Copyright © 2004-2007 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2004-2009 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.

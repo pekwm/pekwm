@@ -1,6 +1,6 @@
 #!<SH>
 #
-# Copyright © 2008 the pekwm development team
+# Copyright © 2009 the pekwm development team
 #
 
 if test "${1}" = "send"; then

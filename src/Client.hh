@@ -1,6 +1,6 @@
 //
 // Client.hh for pekwm
-// Copyright © 2003-2008 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2003-2009 Claes Nästén <me{@}pekdon{.}net>
 //
 // client.hh for aewm++
 // Copyright (C) 2002 Frank Hale <frankhale@yahoo.com>

@@ -1,6 +1,6 @@
 //
 // FrameListMenu.cc for pekwm
-// Copyright (C) 2002-2004 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright (C) 2002-2009 Claes Nasten <pekdon{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
