@@ -303,7 +303,7 @@ Menu {
 	KeyPress = "Left" { Actions = "LeaveSubmenu" }
 	KeyPress = "Right" { Actions = "EnterSubmenu" }
 	KeyPress = "Return" { Actions = "Select" }
-	KeyPress = "Space" { Actions = "Select" }
+	KeyPress = "space" { Actions = "Select" }
 	KeyPress = "Escape" { Actions = "Close" }
 	KeyPress = "Q" { Actions = "Close" }
 }
