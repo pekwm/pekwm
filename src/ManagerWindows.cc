@@ -18,6 +18,10 @@
 
 #include <string>
 
+extern "C" {
+#include <unistd.h>
+}
+
 using std::cerr;
 using std::endl;
 using std::string;

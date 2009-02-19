@@ -205,7 +205,7 @@ Completer::get_part(const wstring &str, unsigned int pos, size_t &part_begin, si
     }
 
     // Get beginning and end of string, add 1 for removal of separator
-    part_begin = String::safe_position(str.find_last_of(_separators, pos), -1) + 1;
+    part_begin = String::safe_position(str.find_last_of(_separators, pos), 0, 1);
     part_end = String::safe_position(str.find_first_of(_separators, pos), str.size());
 
     // Strip spaces from the beginning of the string
@@ -221,7 +221,7 @@ wstring
 Completer::get_word_at_position(const wstring &str, unsigned int pos, size_t &word_begin, size_t &word_end)
 {
     // Get beginning and end of string, add 1 for removal of separator
-    word_begin = String::safe_position(str.find_last_of(L" \t", pos), -1) + 1;
+    word_begin = String::safe_position(str.find_last_of(L" \t", pos), 0, 1);
     word_end = String::safe_position(str.find_first_of(L" \t", pos), str.size());
 
     return str.substr(word_begin, word_end - word_begin);    

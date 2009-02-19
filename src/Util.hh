@@ -29,8 +29,8 @@
  */
 namespace String {
     /** Get safe version of position */
-    inline size_t safe_position(size_t pos, size_t fallback = 0) {
-        return pos == std::wstring::npos ? fallback : pos;
+    inline size_t safe_position(size_t pos, size_t fallback = 0, size_t add = 0) {
+        return pos == std::wstring::npos ? fallback : (pos + add);
     }
 }
 
