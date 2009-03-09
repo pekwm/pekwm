@@ -184,7 +184,9 @@ void
 Harbour::restack(void)
 {
     PScreen::instance()->removeStrut(_strut);
-    if (Config::instance()->isHarbourOntop()) {
+    if (Config::instance()->isHarbourOntop() ||
+            ! Config::instance()->isHarbourMaximizeOver()) {
+
         PScreen::instance()->addStrut(_strut);
     }
     uint l = Config::instance()->isHarbourOntop() ? LAYER_DOCK : LAYER_DESKTOP;
