@@ -632,6 +632,8 @@ AutoProperties::setDefaultTypeProperties(void)
         prop->skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE|SKIP_SNAP|SKIP_PAGER|SKIP_TASKBAR;
         prop->maskAdd(AP_LAYER);
         prop->layer = LAYER_DESKTOP;
+        prop->maskAdd(AP_FOCUSABLE);
+        prop->focusable = false;
 
         _window_type_prop_map[WINDOW_TYPE_DESKTOP] = prop;
     }
@@ -649,6 +651,8 @@ AutoProperties::setDefaultTypeProperties(void)
         prop->skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE|SKIP_PAGER|SKIP_TASKBAR;
         prop->maskAdd(AP_LAYER);
         prop->layer = LAYER_DOCK;
+        prop->maskAdd(AP_FOCUSABLE);
+        prop->focusable = false;
 
         _window_type_prop_map[WINDOW_TYPE_DOCK] = prop;
     }

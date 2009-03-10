@@ -177,6 +177,7 @@ TypeRules {
 		Sticky = "True"
 		Skip = "FocusToggle Menus Snap"
 		Layer = "Desktop"
+		Focusable = "False"
 	}
 	Property = "DOCK" {
 		Titlebar = "False"
@@ -184,6 +185,7 @@ TypeRules {
 		Sticky = "True"
 		Layer = "Dock"
 		Skip = "FocusToggle Menus"
+		Focusable = "False"
 	}
 	Property = "TOOLBAR"  {
 		Skip = "FocusToggle Menus Snap"
