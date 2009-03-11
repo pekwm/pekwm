@@ -47,6 +47,8 @@ namespace Util {
 
     bool copyTextFile(const std::string &from, const std::string &to);
 
+    std::string getUserName(void);
+
     std::string getFileExt(const std::string &file);
     std::string getDir(const std::string &file);
     void expandFileName(std::string &file);

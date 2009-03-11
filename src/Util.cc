@@ -21,10 +21,13 @@
 #include <fstream>
 #include <list>
 
+extern "C" {
 #include <iconv.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <pwd.h>
+}
 
 #ifndef HAVE_SETENV
 #include <cstdio>
@@ -247,6 +250,26 @@ copyTextFile(const std::string &from, const std::string &to)
     stream_to << stream_from.rdbuf();
 
     return true;
+}
+
+/**
+ * Get name of the current user.
+ */
+string
+getUserName(void)
+{
+    // Try to lookup current user with 
+    struct passwd *entry = getpwuid(geteuid());
+
+    if (entry && entry->pw_name) {
+        return entry->pw_name;
+    } else {
+        if (getenv("USER")) {
+            return getenv("USER");
+        } else {
+            return "UNKNOWN";
+        }
+    }
 }
 
 
