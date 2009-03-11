@@ -60,6 +60,7 @@ static const char *atomnames[] = {
     "_NET_WM_ACTION_CLOSE",
     "UTF8_STRING", // When adding an ewmh atom after this,
                    // fix setEwmhAtomsSupport(Window)
+    "STRING", "MANAGER",
 
     // pekwm atoms
     "_PEKWM_FRAME_ID",
@@ -70,6 +71,7 @@ static const char *atomnames[] = {
     // ICCCM atoms
     "WM_NAME",
     "WM_ICON_NAME",
+    "WM_CLASS",
     "WM_STATE",
     "WM_CHANGE_STATE",
     "WM_PROTOCOLS",

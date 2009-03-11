@@ -63,6 +63,7 @@ enum AtomName {
 
     UTF8_STRING,  // When adding an ewmh atom after this,
                   // fix setEwmhAtomsSupport(Window)
+    STRING, MANAGER,
 
     // pekwm atom names
     PEKWM_FRAME_ID,
@@ -73,6 +74,7 @@ enum AtomName {
     // ICCCM Atom Names
     WM_NAME,
     WM_ICON_NAME,
+    WM_CLASS,
     WM_STATE,
     WM_CHANGE_STATE,
     WM_PROTOCOLS,
