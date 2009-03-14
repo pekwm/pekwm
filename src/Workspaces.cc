@@ -335,16 +335,12 @@ Workspaces::warpToWorkspace(uint num, int dir)
 
 //! @brief Adds a PWinObj to the stacking list.
 //! @param wo PWinObj to insert
-//! @param raise Defaults to true, wheter to check for bottom or top.
+//! @param raise Whether to insert at the bottom or top of the layer (defaults to true).
 void
 Workspaces::insert(PWinObj* wo, bool raise)
 {
     list<PWinObj*>::iterator it(_wo_list.begin()), position(_wo_list.end());
     for (; it != _wo_list.end() && position == _wo_list.end(); ++it) {
-        if (! (*it)->isFocusable()) {
-            continue;
-        }
-
         if (raise) {
             // If raising, make sure the inserted wo gets below the first
             // window in the next layer.
