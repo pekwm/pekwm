@@ -173,25 +173,33 @@ extern "C" {
 /**
  * Create window manager instance and run main routine.
  */
-void
-WindowManager::start(const std::string &command_line, const std::string &config_file) {
+WindowManager*
+WindowManager::start(const std::string &command_line,
+                     const std::string &config_file, bool replace)
+{
     if (_instance) {
         delete _instance;
     }
+
+    // Setup window manager
     _instance = new WindowManager(command_line, config_file);
-
-    _instance->setupDisplay();
-
-    _instance->scanWindows();
-    Frame::resetFrameIDs();
-    static_cast<RootWO*>(PWinObj::getRootPWinObj())->setEwmhDesktopNames();
+    if (_instance->setupDisplay(replace)) {
+        _instance->scanWindows();
+        Frame::resetFrameIDs();
+        static_cast<RootWO*>(PWinObj::getRootPWinObj())->setEwmhDesktopNames();
     
-    // add all frames to the MRU list
-    _instance->_mru_list.resize(Frame::frame_size());
-    copy(Frame::frame_begin(), Frame::frame_end (), _instance->_mru_list.begin());
+        // add all frames to the MRU list
+        _instance->_mru_list.resize(Frame::frame_size());
+        copy(Frame::frame_begin(), Frame::frame_end (),
+             _instance->_mru_list.begin());
 
-    _instance->execStartFile();
-    _instance->doEventLoop();
+        _instance->execStartFile();
+    } else {
+        delete _instance;
+        _instance = 0;
+    }
+
+    return _instance;
 }
 
 /**
@@ -205,7 +213,9 @@ WindowManager::destroy(void)
 }
 
 //! @brief Constructor for WindowManager class
-WindowManager::WindowManager(const std::string &command_line, const std::string &config_file) :
+WindowManager::WindowManager(const std::string &command_line,
+                             const std::string &config_file)
+        :
         _screen(0), _screen_resources(0),
         _keygrabber(0),
         _config(0), _color_handler(0),
@@ -219,7 +229,7 @@ WindowManager::WindowManager(const std::string &command_line, const std::string 
         _status_window(0), _workspace_indicator(0),
         _command_line(command_line),
         _startup(false), _shutdown(false), _reload(false),
-        _allow_grouping(true), _root_wo(0)
+        _allow_grouping(true), _hint_wo(0), _root_wo(0)
 {
     struct sigaction act;
 
@@ -320,21 +330,29 @@ WindowManager::cleanup(void)
 
     // remove all dockapps
 #ifdef HARBOUR
-    _harbour->removeAllDockApps();
+    if (_harbour) {
+        _harbour->removeAllDockApps();
+    }
 #endif // HARBOUR
 
     // To preserve stacking order when destroying the frames, we go through
     // the PWinObj list from the Workspaces and put all Frames into our own
     // list, then we delete the frames in order.
-    list<Frame*> frame_list;
-    list<PWinObj*>::iterator it_w(_workspaces->begin());
-    for (; it_w != _workspaces->end(); ++it_w) {
-        if ((*it_w)->getType() == PWinObj::WO_FRAME)
-            frame_list.push_back(static_cast<Frame*>(*it_w));
+    if (_workspaces) {
+        list<Frame*> frame_list;
+
+        list<PWinObj*>::iterator it_w(_workspaces->begin());
+        for (; it_w != _workspaces->end(); ++it_w) {
+            if ((*it_w)->getType() == PWinObj::WO_FRAME) {
+                frame_list.push_back(static_cast<Frame*>(*it_w));
+            }
+        }
+
+        // Delete all Frames. This reparents the Clients.
+        for (it_f = frame_list.begin(); it_f != frame_list.end(); ++it_f) {
+            delete *it_f;
+        }
     }
-    // Delete all Frames. This reparents the Clients.
-    for (it_f = frame_list.begin(); it_f != frame_list.end(); ++it_f)
-        delete *it_f;
 
     // Delete all Clients.
     list<Client*> client_list(Client::client_begin(), Client::client_end());
@@ -343,7 +361,9 @@ WindowManager::cleanup(void)
         delete *it_c;
     }
 
-    _keygrabber->ungrabKeys(_screen->getRoot());
+    if (_keygrabber) {
+        _keygrabber->ungrabKeys(_screen->getRoot());
+    }
 
     // destroy screen edge
     screenEdgeDestroy();
@@ -352,9 +372,11 @@ WindowManager::cleanup(void)
     XSetInputFocus(_screen->getDpy(), PointerRoot, RevertToPointerRoot, CurrentTime);
 }
 
-//! @brief
-void
-WindowManager::setupDisplay(void)
+/**
+ * Setup display and claim resources.
+ */
+bool
+WindowManager::setupDisplay(bool replace)
 {
     Display *dpy = XOpenDisplay(0);
     if (! dpy) {
@@ -363,10 +385,25 @@ WindowManager::setupDisplay(void)
              << getenv("DISPLAY") << endl;
         exit(1);
     }
-
     XSetErrorHandler(handleXError);
 
+    // Setup screen, init atoms and claim the display.
     _screen = new PScreen(dpy, _config->isHonourRandr());
+
+    Atoms::init();
+
+    try {
+        // Create hint window _before_ root window.
+        _hint_wo = new HintWO(dpy, _screen->getRoot(), replace);
+    } catch (string &ex) {
+        return false;
+    }
+
+    // Create root PWinObj
+    _root_wo = new RootWO(dpy, _screen->getRoot());
+    PWinObj::setRootPWinObj(_root_wo);
+
+    // 
     _color_handler = new ColorHandler(dpy);
     _font_handler = new FontHandler();
     _texture_handler = new TextureHandler();
@@ -381,15 +418,6 @@ WindowManager::setupDisplay(void)
 
     _autoproperties = new AutoProperties();
     _autoproperties->load();
-
-    Atoms::init();
-
-    // Create hint window _before_ root window.
-    _hint_wo = new HintWO(dpy, _screen->getRoot());
-
-    // Create root PWinObj
-    _root_wo = new RootWO(dpy, _screen->getRoot());
-    PWinObj::setRootPWinObj(_root_wo);
 
     _workspaces = new Workspaces(_config->getWorkspaces(), _config->getWorkspacesPerRow());
 
@@ -427,6 +455,8 @@ WindowManager::setupDisplay(void)
     // Create screen edge windows
     screenEdgeCreate();
     screenEdgeMapUnmap();
+
+    return true;
 }
 
 //! @brief Goes through the window and creates Clients/DockApps.
@@ -863,6 +893,12 @@ WindowManager::doEventLoop(void)
                 break;
             case FocusOut:
                 handleFocusOutEvent(&ev.xfocus);
+                break;
+
+            case SelectionClear:
+                // Another window
+                cerr << " *** INFO: Being replaced by another WM" << endl;
+                _shutdown = true;
                 break;
 
             default:

@@ -65,15 +65,20 @@ class Harbour;
 class WindowManager
 {
 public:
-    static void start(const std::string &command_line, const std::string &config_file);
-    static void destroy();
+    static WindowManager *start(const std::string &command_line,
+                                const std::string &config_file, bool replace);
+    static void destroy(void);
     inline static WindowManager *instance(void) { return _instance; }
+
+    void doEventLoop(void);
 
     //! @brief Sets reload status, will reload from main loop.
     void reload(void) { _reload = true; }
     void restart(std::string command = "");
     //! @brief Sets shutdown status, will shutdown from main loop.
     void shutdown(void) { _shutdown = true; }
+    /**< Return shutdown flag, set to tru to shutdown window manager. */
+    bool *getShutdownFlag(void) { return &_shutdown; }
 
     // get "base" classes
     inline PScreen *getScreen(void) const { return _screen; }
@@ -163,11 +168,12 @@ public:
     void handleButtonReleaseEvent(XButtonEvent *ev);
 
 private:
-    WindowManager(const std::string &command_line, const std::string &config_file);
+    WindowManager(const std::string &command_line,
+                  const std::string &config_file);
     WindowManager(const WindowManager &); // not implemented to ensure singleton
     ~WindowManager(void);
     
-    void setupDisplay(void);
+    bool setupDisplay(bool replace);
     void scanWindows(void);
     void execStartFile(void);
 
@@ -188,9 +194,6 @@ private:
     void screenEdgeDestroy(void);
     void screenEdgeResize(void);
     void screenEdgeMapUnmap(void);
-
-    // event handling
-    void doEventLoop(void);
 
     void handleMapRequestEvent(XMapRequestEvent *ev);
     void handleUnmapEvent(XUnmapEvent *ev);

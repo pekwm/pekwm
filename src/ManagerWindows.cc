@@ -29,6 +29,7 @@ using std::string;
 // Static initializers
 const string HintWO::WM_NAME = string("pekwm");
 HintWO *HintWO::_instance = 0;
+const unsigned int HintWO::DISPLAY_WAIT = 10;
 
 const unsigned long RootWO::EXPECTED_DESKTOP_NAMES_LENGTH = 256;
 
@@ -36,7 +37,7 @@ const unsigned long RootWO::EXPECTED_DESKTOP_NAMES_LENGTH = 256;
  * Hint window constructor, creates window and sets supported
  * protocols.
  */
-HintWO::HintWO(Display *dpy, Window root)
+HintWO::HintWO(Display *dpy, Window root, bool replace) throw (std::string&)
     : PWinObj(dpy)
 {
     if (_instance) {
@@ -55,11 +56,16 @@ HintWO::HintWO(Display *dpy, Window root)
     // Remove override redirect from window
     XSetWindowAttributes attr;
     attr.override_redirect = True;
-    XChangeWindowAttributes(_dpy, _window, CWOverrideRedirect, &attr);
+    attr.event_mask = PropertyChangeMask;
+    XChangeWindowAttributes(_dpy, _window, CWEventMask|CWOverrideRedirect, &attr);
 
     // Set hints not being updated
     AtomUtil::setString(_window, Atoms::getAtom(NET_WM_NAME), WM_NAME);
     AtomUtil::setWindow(_window, Atoms::getAtom(NET_SUPPORTING_WM_CHECK), _window);
+
+    if (! claimDisplay(replace)) {
+        throw string("unable to claim display");
+    }
 }
 
 /**
@@ -69,6 +75,115 @@ HintWO::~HintWO(void)
 {
     XDestroyWindow(PScreen::instance()->getDpy(), _window);
     _instance = 0;
+}
+
+/**
+ * Get current time of server by generating an event and reading the
+ * timestamp on it.
+ *
+ * @return Time on server.
+ */
+Time
+HintWO::getTime(void)
+{
+    XEvent event;
+
+    // Generate event on ourselves
+    XChangeProperty(_dpy, _window,
+		    Atoms::getAtom(WM_CLASS), Atoms::getAtom(STRING),
+                    8, PropModeAppend, 0, 0);
+    XWindowEvent(_dpy, _window, PropertyChangeMask, &event);
+
+    return event.xproperty.time;
+}
+
+/**
+ * Claim ownership over the current display.
+ *
+ * @param replace Replace current running window manager.
+ */
+bool
+HintWO::claimDisplay(bool replace)
+{
+    bool status = true;
+
+    // Get atom for the current screen and it's owner
+    string session_name("WM_S" + Util::to_string<int>(DefaultScreen(_dpy)));
+    Atom session_atom = XInternAtom(_dpy, session_name.c_str(), false);
+    Window session_owner = XGetSelectionOwner(_dpy, session_atom);
+    
+    if (session_owner && session_owner != _window) {
+        if (! replace) {
+            cerr << " *** WARNING: window manager already running." << endl;
+            return false;
+        }
+
+        // FIXME: Validate session owner
+    }
+
+    Time timestamp = getTime();
+
+    XSetSelectionOwner(_dpy, session_atom, _window, timestamp);
+    if (XGetSelectionOwner(_dpy, session_atom) == _window) {
+        if (session_owner) {
+            // Wait for the previous window manager to go away and update owner.
+            status = claimDisplayWait(session_owner);
+            if (status) {
+                claimDisplayOwner(session_atom, timestamp);
+            }
+        }
+    } else {
+      cerr << "pekwm: unable to replace current window manager." << endl;
+      status = false;
+    }
+
+    return status;
+}
+
+
+/**
+ * After claiming the display, wait for the previous window manager to
+ * go away.
+ */
+bool
+HintWO::claimDisplayWait(Window session_owner)
+{
+    XEvent event;
+
+    cerr << " *** INFO: waiting for previous window manager to exit. " << endl;
+
+    for (uint waited = 0; waited < HintWO::DISPLAY_WAIT; ++waited) {
+        if (XCheckWindowEvent(_dpy, session_owner, StructureNotifyMask, &event)
+            && event.type == DestroyNotify) {
+            return true;
+        }
+
+        sleep(1);
+    }
+
+    return false;
+}
+
+/**
+ * Send message updating the owner of the screen.
+ */
+void
+HintWO::claimDisplayOwner(Window session_atom, Time timestamp)
+{
+    XEvent event;
+    // FIXME: One should use _root_wo here?
+    Window root = RootWindow(_dpy, DefaultScreen(_dpy));
+
+    event.xclient.type = ClientMessage;
+    event.xclient.message_type = Atoms::getAtom(MANAGER);
+    event.xclient.window = root;
+    event.xclient.format = 32;
+    event.xclient.data.l[0] = timestamp;
+    event.xclient.data.l[1] = session_atom;
+    event.xclient.data.l[2] = _window;
+    event.xclient.data.l[3] = 0;
+ 
+    XSendEvent(_dpy, root, false, SubstructureNotifyMask, &event);
 }
 
 /**

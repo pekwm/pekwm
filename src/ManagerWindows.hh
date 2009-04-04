@@ -26,14 +26,21 @@
 class HintWO : public PWinObj
 {
 public:
-    HintWO(Display *dpy, Window root);
+    HintWO(Display *dpy, Window root, bool replace) throw (std::string&);
     virtual ~HintWO(void);
 
     inline static HintWO *instance(void) { return _instance; }
 
 private:
+    Time getTime(void);
+    bool claimDisplay(bool replace);
+    bool claimDisplayWait(Window session_owner);
+    void claimDisplayOwner(Window session_atom, Time timestamp);
+
+private:
     static const std::string WM_NAME; /**< Name of the window manager, that is pekwm. */
     static HintWO *_instance; /**< Singleton HintWO pointer. */
+    static const unsigned int DISPLAY_WAIT; /**< Max wait time for previous WM. */
 };
 
 /**

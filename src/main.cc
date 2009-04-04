@@ -21,6 +21,7 @@
 #include "Frame.hh"
 #include "WindowManager.hh"
 #include "Util.hh"
+#include "Session.hh"
 
 #include <iostream>
 #include <string>
@@ -54,6 +55,7 @@ printUsage(void)
     cout << " --info       extended info. Use for bug reports." << endl;
     cout << " --display    display to connect to" << endl;
     cout << " --config     alternative config file" << endl;
+    cout << " --replace    replace running window manager" << endl;
 }
 
 //! @brief Prints version and build-time options
@@ -72,6 +74,7 @@ main(int argc, char **argv)
 {
     string config_file;
     string command_line;
+    bool replace = false;
 
     setlocale(LC_CTYPE, "");
     Util::iconv_init();
@@ -96,6 +99,8 @@ main(int argc, char **argv)
         } else if (strcmp("--help", argv[i]) || ! strcmp("-h", argv[i]) == 0) {
             Info::printUsage();
             exit(0);
+        } else if (strcmp("--replace", argv[i]) == 0) {
+            replace = true;
         }
     }
 
@@ -114,20 +119,32 @@ main(int argc, char **argv)
     Info::printInfo();
 #endif // DEBUG
 
-    WindowManager::start(command_line, config_file);
+    // Setup session before starting pekwm
+    Session *session = new Session(argc, argv);
+    WindowManager *wm = WindowManager::start(command_line, config_file, replace);
 
-    // see if we wanted to restart
-    if (WindowManager::instance()->getRestartCommand().size() > 0) {
-        string restart_command = WindowManager::instance()->getRestartCommand();
+    if (wm) {
+        // Hookup shutdown flag and run the main loop if window manager was
+        // created
+        session->setShutdownFlag(wm->getShutdownFlag());
+        wm->doEventLoop();
 
-        // cleanup before restarting
+        // see if we wanted to restart
+        if (WindowManager::instance()->getRestartCommand().size() > 0) {
+            string command = WindowManager::instance()->getRestartCommand();
+
+            // cleanup before restarting
+            WindowManager::destroy();
+            delete session;
+            Util::iconv_deinit();
+
+            execlp("/bin/sh", "sh" , "-c", command.c_str(), (char*) 0);
+        }
         WindowManager::destroy();
-        Util::iconv_deinit();
-
-        execlp("/bin/sh", "sh" , "-c", restart_command.c_str(), (char*) 0);
     }
 
-    WindowManager::destroy();
+    // Cleanup
+    delete session;
     Util::iconv_deinit();
 
     return 0;
