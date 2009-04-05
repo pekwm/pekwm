@@ -61,7 +61,7 @@
       <varlistentry>
         <term>EdgeResist (int)</term>
         <listitem>
-          <para>The distance from screen edge required for the window moving to start being resisted in pizels.</para>
+          <para>The distance from screen edge required for the window moving to start being resisted in pixels.</para>
         </listitem>
       </varlistentry>
       <varlistentry>
