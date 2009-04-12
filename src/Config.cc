@@ -18,7 +18,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <algorithm>
 
 #include <cstdlib>
 
@@ -853,13 +852,13 @@ Config::parseKey(const std::string &key_string, uint &mod, uint &key)
             // fails, we print a warning and return false.
             if (keysym == NoSymbol) {
                 std::string str = tok[num];
-                std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+                Util::to_lower(str);
                 keysym = XStringToKeysym(str.c_str());
                 if (keysym == NoSymbol) {
                     str[0] = ::toupper(str[0]);
                     keysym = XStringToKeysym(str.c_str());
                     if (keysym == NoSymbol) {
-                        std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+                        Util::to_upper(str);
                         keysym = XStringToKeysym(str.c_str());
                         if (keysym == NoSymbol) {
                             std::cerr << " *** WARNING: Couldn't find keysym for " << tok[num] <<std::endl;
