@@ -41,7 +41,7 @@
 		KeyPress = "Delete" { Actions = "Reload" }
 		KeyPress = "Next" { Actions = "Restart" }
 		KeyPress = "End" { Actions = "Exit" }
-		KeyPress = "Prev" { Actions = "RestartOther twm" }
+		KeyPress = "Prior" { Actions = "RestartOther twm" }
 	}
 }
 
