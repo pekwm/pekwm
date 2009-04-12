@@ -15,6 +15,7 @@
 
 #include "Types.hh"
 
+#include <algorithm>
 #include <string>
 #include <cstring>
 #include <vector>
@@ -60,14 +61,29 @@ namespace Util {
         return oss.str();
     }
 
-    void to_upper(std::string &str);
-    void to_lower(std::string &str);
+    /**
+     * Converts string to uppercase
+     *
+     * @param str Reference to the string to convert
+     */
+    static void to_upper(std::string &str) {
+        std::transform(str.begin(), str.end(), str.begin(), (int(*)(int)) std::toupper);
+    }
 
-  std::string to_mb_str(const std::wstring &str);
-  std::wstring to_wide_str(const std::string &str);
+    /**
+     * Converts string to lowercase
+     *
+     * @param str Reference to the string to convert
+     */
+    static void to_lower(std::string &str) {
+        std::transform(str.begin(), str.end(), str.begin(), (int(*)(int)) std::tolower);
+    }
 
-  void iconv_init(void);
-  void iconv_deinit(void);
+    std::string to_mb_str(const std::wstring &str);
+    std::wstring to_wide_str(const std::string &str);
+
+    void iconv_init(void);
+    void iconv_deinit(void);
 
     /**
      * Return value within bounds of min and max value.

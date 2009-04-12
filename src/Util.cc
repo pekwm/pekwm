@@ -14,7 +14,6 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#include <algorithm>
 #include <cerrno>
 #include <iostream>
 #include <sstream>
@@ -355,22 +354,6 @@ splitString(const std::string str, std::vector<std::string> &toks, const char *s
     }
 
     return (toks.size() - n);
-}
-
-//! @brief Converts string to uppercase
-//! @param str Reference to string to convert
-void
-to_upper(std::string &str)
-{
-    transform(str.begin(), str.end(), str.begin(), (int(*)(int)) std::toupper);
-}
-
-//! @brief Converts string to lowercase
-//! @param str Reference to string to convert
-void
-to_lower(std::string &str)
-{
-    transform(str.begin(), str.end(), str.begin(), (int(*)(int)) std::tolower);
 }
 
 //! @brief Converts wide-character string to multibyte version
