@@ -18,6 +18,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <algorithm>
 
 #include <cstdlib>
 
@@ -843,8 +844,32 @@ Config::parseKey(const std::string &key_string, uint &mod, uint &key)
         if ((tok[num].size() > 1) && (tok[num][0] == '#')) {
             key = strtol(tok[num].c_str() + 1, 0, 10);
         } else {
+            KeySym keysym = XStringToKeysym(tok[num].c_str());
+
+            // XStringToKeysym() may fail. Perhaps we have luck after some
+            // simple transformations. First we convert the string to lowercase
+            // and try again. Then we try with only the first character in
+            // uppercase and at last we try a complete uppercase string. If all
+            // fails, we print a warning and return false.
+            if (keysym == NoSymbol) {
+                std::string str = tok[num];
+                std::transform(str.begin(), str.end(), str.begin(), ::tolower);
+                keysym = XStringToKeysym(str.c_str());
+                if (keysym == NoSymbol) {
+                    str[0] = ::toupper(str[0]);
+                    keysym = XStringToKeysym(str.c_str());
+                    if (keysym == NoSymbol) {
+                        std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+                        keysym = XStringToKeysym(str.c_str());
+                        if (keysym == NoSymbol) {
+                            std::cerr << " *** WARNING: Couldn't find keysym for " << tok[num] <<std::endl;
+                            return false;
+                        }
+                    }
+                }
+            }
             key = XKeysymToKeycode(PScreen::instance()->getDpy(),
-                                   XStringToKeysym(tok[num].c_str()));
+                                   keysym);
             if (strcasecmp(tok[num].c_str(), "ANY") == 0) {
                 key = 0; // FIXME: for now, but there's no XK_Any?
             }
