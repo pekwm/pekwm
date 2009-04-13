@@ -72,6 +72,7 @@ public:
     void setEwmhDesktopNames(void);
 
 private:
+    static const unsigned long EVENT_MASK; /**< Root window event mask. */
     static const unsigned long EXPECTED_DESKTOP_NAMES_LENGTH; /**< Expected length of desktop hint. */
 };
 

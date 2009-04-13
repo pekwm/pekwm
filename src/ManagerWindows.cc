@@ -31,6 +31,11 @@ const string HintWO::WM_NAME = string("pekwm");
 HintWO *HintWO::_instance = 0;
 const unsigned int HintWO::DISPLAY_WAIT = 10;
 
+const unsigned long RootWO::EVENT_MASK =
+    StructureNotifyMask|PropertyChangeMask|
+    SubstructureNotifyMask|SubstructureRedirectMask|
+    ColormapChangeMask|FocusChangeMask|EnterWindowMask|
+    ButtonPressMask|ButtonReleaseMask|ButtonMotionMask;
 const unsigned long RootWO::EXPECTED_DESKTOP_NAMES_LENGTH = 256;
 
 /**
@@ -199,6 +204,9 @@ RootWO::RootWO(Display *dpy, Window root)
     _window = root;
     _gm.width = PScreen::instance()->getWidth();
     _gm.height = PScreen::instance()->getHeight();
+
+    // Select window events
+    XSelectInput(dpy, _window, RootWO::EVENT_MASK);
 
     // Set hits on the hint window, these are not updated so they are
     // set in the constructor.

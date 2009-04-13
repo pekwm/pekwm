@@ -433,13 +433,6 @@ WindowManager::setupDisplay(bool replace)
     XDefineCursor(dpy, _screen->getRoot(),
                   _screen_resources->getCursor(ScreenResources::CURSOR_ARROW));
 
-    // select root window events
-    XSelectInput(dpy, _screen->getRoot(),
-                 SubstructureNotifyMask|SubstructureRedirectMask|
-                 ColormapChangeMask|FocusChangeMask|EnterWindowMask|
-                 PropertyChangeMask|
-                 ButtonPressMask|ButtonReleaseMask|ButtonMotionMask);
-
 #ifdef HAVE_XRANDR
     XRRSelectInput(dpy, _screen->getRoot(), RRScreenChangeNotifyMask|RRCrtcChangeNotifyMask);
 #endif // HAVE_XRANDR
