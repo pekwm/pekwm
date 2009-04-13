@@ -66,7 +66,7 @@ namespace Util {
      *
      * @param str Reference to the string to convert
      */
-    static void to_upper(std::string &str) {
+    inline void to_upper(std::string &str) {
         std::transform(str.begin(), str.end(), str.begin(), (int(*)(int)) std::toupper);
     }
 
@@ -75,7 +75,7 @@ namespace Util {
      *
      * @param str Reference to the string to convert
      */
-    static void to_lower(std::string &str) {
+    inline void to_lower(std::string &str) {
         std::transform(str.begin(), str.end(), str.begin(), (int(*)(int)) std::tolower);
     }
 
