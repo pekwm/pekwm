@@ -112,12 +112,16 @@ private:
         // 5 R, 5 G, 5 B (15 bit display)
         if ((ximage->red_mask == 0x7c00)
             && (ximage->green_mask == 0x3e0) && (ximage->blue_mask == 0x1f)) {
-            r = g = b = 0;
+            r = (pixel >> 7) & 0x7c;
+            g = (pixel >> 2) & 0x3e;
+            b = (pixel << 3) & 0x1f;
             // 5 R, 6 G, 5 B (16 bit display)
         } else  if ((ximage->red_mask == 0xf800)
                     && (ximage->green_mask == 0x07e0)
                     && (ximage->blue_mask == 0x001f)) {
-            r = g = b = 0;
+            r = (pixel >> 8) & 0xf8;
+            g = (pixel >> 3) & 0x7e;
+            b = (pixel << 3) & 0x1f;
             // 8 R, 8 G, 8 B (24/32 bit display)
         } else if  ((ximage->red_mask == 0xff0000)
                     && (ximage->green_mask == 0xff00)
