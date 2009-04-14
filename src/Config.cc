@@ -842,6 +842,9 @@ Config::parseKey(const std::string &key_string, uint &mod, uint &key)
         num = tok.size() - 1;
         if ((tok[num].size() > 1) && (tok[num][0] == '#')) {
             key = strtol(tok[num].c_str() + 1, 0, 10);
+        } else if (strcasecmp(tok[num].c_str(), "ANY") == 0) {
+            // Do no matching, anything goes.
+            key = 0;
         } else {
             KeySym keysym = XStringToKeysym(tok[num].c_str());
 
@@ -851,7 +854,7 @@ Config::parseKey(const std::string &key_string, uint &mod, uint &key)
             // uppercase and at last we try a complete uppercase string. If all
             // fails, we print a warning and return false.
             if (keysym == NoSymbol) {
-                std::string str = tok[num];
+                string str = tok[num];
                 Util::to_lower(str);
                 keysym = XStringToKeysym(str.c_str());
                 if (keysym == NoSymbol) {
@@ -861,17 +864,13 @@ Config::parseKey(const std::string &key_string, uint &mod, uint &key)
                         Util::to_upper(str);
                         keysym = XStringToKeysym(str.c_str());
                         if (keysym == NoSymbol) {
-                            std::cerr << " *** WARNING: Couldn't find keysym for " << tok[num] <<std::endl;
+                            cerr << " *** WARNING: Couldn't find keysym for " << tok[num] << endl;
                             return false;
                         }
                     }
                 }
             }
-            key = XKeysymToKeycode(PScreen::instance()->getDpy(),
-                                   keysym);
-            if (strcasecmp(tok[num].c_str(), "ANY") == 0) {
-                key = 0; // FIXME: for now, but there's no XK_Any?
-            }
+            key = XKeysymToKeycode(PScreen::instance()->getDpy(), keysym);
         }
 
         // if the last token isn't an key/button, the action isn't valid
