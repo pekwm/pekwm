@@ -21,7 +21,9 @@
 #include "Frame.hh"
 #include "WindowManager.hh"
 #include "Util.hh"
+#ifdef HAVE_SESSION
 #include "Session.hh"
+#endif // HAVE_SESSION
 
 #include <iostream>
 #include <string>
@@ -120,13 +122,17 @@ main(int argc, char **argv)
 #endif // DEBUG
 
     // Setup session before starting pekwm
+#ifdef HAVE_SESSION
     Session *session = new Session(argc, argv);
+#endif // HAVE_SESSION
     WindowManager *wm = WindowManager::start(command_line, config_file, replace);
 
     if (wm) {
+#ifdef HAVE_SESSION
         // Hookup shutdown flag and run the main loop if window manager was
         // created
         session->setShutdownFlag(wm->getShutdownFlag());
+#endif // HAVE_SESSION
         wm->doEventLoop();
 
         // see if we wanted to restart
@@ -135,7 +141,9 @@ main(int argc, char **argv)
 
             // cleanup before restarting
             WindowManager::destroy();
+#ifdef HAVE_SESSION
             delete session;
+#endif // HAVE_SESSION
             Util::iconv_deinit();
 
             execlp("/bin/sh", "sh" , "-c", command.c_str(), (char*) 0);
@@ -144,7 +152,9 @@ main(int argc, char **argv)
     }
 
     // Cleanup
+#ifdef HAVE_SESSION
     delete session;
+#endif // HAVE_SESSION
     Util::iconv_deinit();
 
     return 0;

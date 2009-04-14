@@ -15,6 +15,8 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
+#ifdef HAVE_SESSION
+
 #include "Session.hh"
 #include "Util.hh"
 
@@ -351,3 +353,5 @@ Session::setProperty(SmPropValue *vals, int num_vals,
     free(prop.name);
     free(prop.type);
 }
+
+#endif // HAVE_SESSION

@@ -13,6 +13,8 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
+#ifdef HAVE_SESSION
+
 #include <string>
 
 extern "C" {
@@ -63,5 +65,7 @@ private:
 
     static const int ERROR_BUF_SIZE; /**< Session manager buffer size */
 };
+
+#endif // HAVE_SESSION
 
 #endif // _SESSION_HH_

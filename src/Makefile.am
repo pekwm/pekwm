@@ -50,7 +50,6 @@ pekwm_SOURCES = \
 	ScreenResources.cc ScreenResources.hh \
 	StatusWindow.cc StatusWindow.hh \
 	SearchDialog.cc SearchDialog.hh \
-	Session.cc Session.hh \
 	Theme.cc Theme.hh \
 	TextureHandler.cc TextureHandler.hh \
 	Timer.hh Types.hh \
@@ -61,6 +60,10 @@ pekwm_SOURCES = \
 	WorkspaceIndicator.cc WorkspaceIndicator.hh \
 	main.cc \
 	pekwm.hh
+
+if HAVE_SESSION
+pekwm_SOURCES += Session.cc Session.hh
+endif
 
 distclean-local:
 	rm -f *\~ .\#*
