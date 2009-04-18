@@ -82,7 +82,7 @@ if test "x$enable_session" = "xyes"; then
 else
   AC_MSG_RESULT([no])
 fi
-AM_CONDITIONAL([HAVE_SESSION], [test "x$HAVE_SESSION" = "x1"])
+AM_CONDITIONAL([HAVE_SESSION], [test "x$ac_cv_lib_SM_SmcOpenConnection" = "xyes"])
 
 dnl Check for Xinerama support
 AC_MSG_CHECKING([whether to build support for the Xinerama extension])
