@@ -5,17 +5,17 @@
 # Homepage: http://adrinux.wordpress.com
 
 $FONT = "XFT#Sans:size=9#Left"
-$FONT_TITLE = "XFT#Sans:size=10#Center"
+$FONT_TITLE = "XFT#Sans:size=9#Center"
 
 Require {
   Templates = "True"
 }
 
 Define = "BaseDecor" {
-  Height = "25"
+  Height = "20"
 
   # Increase first number to bring title text downwards
-  Pad = "3 5 5 0"
+  Pad = "2 5 5 0"
 
   Focused = "Image title.png"
   Unfocused = "Image title_unfocus.png"
