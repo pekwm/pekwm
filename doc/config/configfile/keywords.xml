@@ -181,6 +181,12 @@
         </listitem>
       </varlistentry>
       <varlistentry>
+        <term>HonourAspectRatio (boolean)</term>
+        <listitem>
+          <para>Toggles if pekwm respects the aspect ratio of clients (XSizeHints). Default true.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
         <term>EdgeSize (int) (int) (int) (int)</term>
         <listitem>
           <para>

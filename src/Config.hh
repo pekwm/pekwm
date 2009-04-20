@@ -129,6 +129,7 @@ public:
     inline bool isFocusNew(void) const { return _screen_focus_new; }
     inline bool isFocusNewChild(void) const { return _screen_focus_new_child; }
     inline bool isHonourRandr(void) const { return _screen_honour_randr; }
+    inline bool isHonourAspectRatio(void) const { return _screen_honour_aspectratio; }
 
     inline std::list<uint>::iterator getPlacementModelBegin(void) { return _screen_placementmodels.begin(); }
     inline std::list<uint>::iterator getPlacementModelEnd(void) { return _screen_placementmodels.end(); }
@@ -274,6 +275,7 @@ private:
     int _screen_workspace_indicator_scale; //!< Scale of the workspace indicator head
     bool _screen_place_new, _screen_focus_new, _screen_focus_new_child;
     bool _screen_honour_randr; /**< Boolean flag if randr information should be honoured. */
+    bool _screen_honour_aspectratio; /**< if true, pekwm keeps aspect ratio (XSizeHint) */
     bool _screen_placement_row, _screen_placement_ltr, _screen_placement_ttb;
     int _screen_placement_offset_x, _screen_placement_offset_y;
     std::list<uint> _screen_placementmodels;

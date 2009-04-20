@@ -1299,7 +1299,7 @@ bool
 Client::getAspectSize(uint *r_w, uint *r_h, uint w, uint h)
 {
     // see ICCCM 4.1.2.3 for PAspect and {min,max}_aspect
-    if (_size->flags & PAspect) {
+    if (_size->flags & PAspect && Config::instance()->isHonourAspectRatio()) {
         // shorthand
         const uint amin_x = _size->min_aspect.x;
         const uint amin_y = _size->min_aspect.y;
