@@ -21,6 +21,16 @@ extern "C" {
 #ifdef HAVE_XINERAMA
 #include <X11/extensions/Xinerama.h>
 #endif // HAVE_XINERAMA
+
+extern bool xerrors_ignore; /**< If true, ignore X errors. */
+extern unsigned int xerrors_count; /**< Number of X errors occured. */
+
+#ifdef DEBUG
+#define setXErrorsIgnore(X) xerrors_ignore = (X)
+#else // ! DEBUG
+#define setXErrorsIgnore(X)
+#endif // DEBUG
+
 }
 
 #include <vector>

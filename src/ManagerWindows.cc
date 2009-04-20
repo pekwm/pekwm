@@ -116,14 +116,25 @@ HintWO::claimDisplay(bool replace)
     string session_name("WM_S" + Util::to_string<int>(DefaultScreen(_dpy)));
     Atom session_atom = XInternAtom(_dpy, session_name.c_str(), false);
     Window session_owner = XGetSelectionOwner(_dpy, session_atom);
-    
+
     if (session_owner && session_owner != _window) {
         if (! replace) {
             cerr << " *** WARNING: window manager already running." << endl;
             return false;
         }
 
-        // FIXME: Validate session owner
+        XSync(_dpy, false);
+        setXErrorsIgnore(true);
+        uint errors_before = xerrors_count;
+
+        // Select event to get notified when current owner dies.
+        XSelectInput(_dpy, session_owner, StructureNotifyMask);
+
+        XSync(_dpy, false);
+        setXErrorsIgnore(false);
+        if (errors_before != xerrors_count) {
+            session_owner = None;
+        }
     }
 
     Time timestamp = getTime();
@@ -166,6 +177,8 @@ HintWO::claimDisplayWait(Window session_owner)
         sleep(1);
     }
 
+    cerr << " *** INFO: previous window manager did not exit. " << endl;
+
     return false;
 }
 
@@ -181,13 +194,14 @@ HintWO::claimDisplayOwner(Window session_atom, Time timestamp)
 
     event.xclient.type = ClientMessage;
     event.xclient.message_type = Atoms::getAtom(MANAGER);
+    event.xclient.display = _dpy;
     event.xclient.window = root;
     event.xclient.format = 32;
     event.xclient.data.l[0] = timestamp;
     event.xclient.data.l[1] = session_atom;
     event.xclient.data.l[2] = _window;
     event.xclient.data.l[3] = 0;
- 
+
     XSendEvent(_dpy, root, false, SubstructureNotifyMask, &event);
 }
 
@@ -205,8 +219,20 @@ RootWO::RootWO(Display *dpy, Window root)
     _gm.width = PScreen::instance()->getWidth();
     _gm.height = PScreen::instance()->getHeight();
 
+
+    XSync(_dpy, false);
+    setXErrorsIgnore(true);
+    uint errors_before = xerrors_count;
+
     // Select window events
     XSelectInput(dpy, _window, RootWO::EVENT_MASK);
+
+    XSync(_dpy, false);
+    setXErrorsIgnore(false);
+    if (errors_before != xerrors_count) {
+        cerr << "pekwm: root window unavailable, can't start!" << endl;
+        exit(1);
+    }
 
     // Set hits on the hint window, these are not updated so they are
     // set in the constructor.

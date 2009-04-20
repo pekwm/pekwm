@@ -143,27 +143,6 @@ extern "C" {
             break;
         }
     }
-
-    /**
-      * XError handler, prints error.
-      */
-    static int
-    handleXError(Display *dpy, XErrorEvent *e)
-    {
-        if ((e->error_code == BadAccess) &&
-                (e->resourceid == (RootWindow(dpy, DefaultScreen(dpy))))) {
-            cerr << "pekwm: root window unavailable, can't start!" << endl;
-            exit(1);
-#ifdef DEBUG
-        } else {
-            char error_buf[256];
-            XGetErrorText(dpy, e->error_code, error_buf, 256);
-
-            cerr << "XError: " << error_buf << " id: " << e->resourceid << endl;
-#endif // DEBUG
-        }
-        return 0;
-    }
     
 } // extern "C"
 
@@ -385,7 +364,6 @@ WindowManager::setupDisplay(bool replace)
              << getenv("DISPLAY") << endl;
         exit(1);
     }
-    XSetErrorHandler(handleXError);
 
     // Setup screen, init atoms and claim the display.
     _screen = new PScreen(dpy, _config->isHonourRandr());

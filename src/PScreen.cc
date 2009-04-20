@@ -30,6 +30,12 @@ extern "C" {
 #endif // HAVE_XRANDR
 #include <X11/keysym.h> // For XK_ entries
 #include <sys/select.h>
+
+#ifdef DEBUG
+bool xerrors_ignore = false;
+#endif // DEBUG
+
+unsigned int xerrors_count = 0;
 }
 
 #include "PScreen.hh"
@@ -51,6 +57,30 @@ const uint PScreen::MODIFIER_TO_MASK[] = {
 const uint PScreen::MODIFIER_TO_MASK_NUM = sizeof(PScreen::MODIFIER_TO_MASK[0]) / sizeof(PScreen::MODIFIER_TO_MASK);
 
 PScreen* PScreen::_instance = 0;
+
+
+extern "C" {
+    /**
+      * XError handler, prints error.
+      */
+    static int
+    handleXError(Display *dpy, XErrorEvent *ev)
+    {
+        ++xerrors_count;
+
+#ifdef DEBUG
+        if (xerrors_ignore) {
+            return 0;
+        }
+
+        char error_buf[256];
+        XGetErrorText(dpy, ev->error_code, error_buf, 256);
+        cerr << "XError: " << error_buf << " id: " << ev->resourceid << endl;
+#endif // DEBUG
+
+        return 0;
+    }
+}
 
 //! @brief PScreen::Visual constructor.
 //! @param x_visual X Visual to wrap.
@@ -101,6 +131,8 @@ PScreen::PScreen(Display *dpy, bool honour_randr)
         throw string("PScreen, trying to create multiple instances");
     }
     _instance = this;
+
+    XSetErrorHandler(handleXError);
 
     XGrabServer(_dpy);
 

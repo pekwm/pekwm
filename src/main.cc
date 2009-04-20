@@ -92,6 +92,8 @@ main(int argc, char **argv)
             setenv("DISPLAY", argv[++i], 1);
         } else if ((strcmp("--config", argv[i]) == 0) && ((i + 1) < argc)) {
             config_file = argv[++i];
+        } else if (strcmp("--replace", argv[i]) == 0) {
+            replace = true;
         } else if (strcmp("--version", argv[i]) == 0) {
             Info::printVersion();
             exit(0);
@@ -101,8 +103,6 @@ main(int argc, char **argv)
         } else if (strcmp("--help", argv[i]) || ! strcmp("-h", argv[i]) == 0) {
             Info::printUsage();
             exit(0);
-        } else if (strcmp("--replace", argv[i]) == 0) {
-            replace = true;
         }
     }
 
