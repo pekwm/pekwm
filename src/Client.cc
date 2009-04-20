@@ -1271,7 +1271,7 @@ Client::kill(void)
     XKillClient(_dpy, _window);
 }
 
-//! @brief Sets the positoin based on P or U position.
+//! @brief Sets the position based on P or U position.
 //! @return Returns true on success, else false.
 bool
 Client::setPUPosition(void)
@@ -1288,15 +1288,87 @@ Client::setPUPosition(void)
     return false;
 }
 
-//! @brief Get the size closest to the ResizeInc incremeter
+
+//! @brief Get the closest size confirming to the aspect ratio and ResizeInc (if applicable)
 //! @param r_w Pointer to put the new width in
 //! @param r_h Pointer to put the new height in
 //! @param w Width to calculate from
 //! @param h Height to calculate from
+//! @return true if width/height have changed
 bool
-Client::getIncSize(uint *r_w, uint *r_h, uint w, uint h)
+Client::getAspectSize(uint *r_w, uint *r_h, uint w, uint h)
 {
-    int basex, basey;
+    // see ICCCM 4.1.2.3 for PAspect and {min,max}_aspect
+    if (_size->flags & PAspect) {
+        // shorthand
+        const uint amin_x = _size->min_aspect.x;
+        const uint amin_y = _size->min_aspect.y;
+        const uint amax_x = _size->max_aspect.x;
+        const uint amax_y = _size->max_aspect.y;
+
+        uint base_w = 0, base_h = 0;
+
+        // If PBaseSize is specified, base_{width,height} should be subtracted
+        // before checking the aspect ratio (c.f. ICCCM). The additional checks avoid
+        // underflows in w and h. Keep in mind that _size->base_{width,height} are
+        // guaranteed to be non-negative by getWMNormalHints().
+        if (_size->flags & PBaseSize) {
+            if ((uint)(_size->base_width) < w) {
+                base_w = _size->base_width;
+                w -= base_w;
+            }
+            if ((uint)(_size->base_height) < h) {
+                base_h = _size->base_height;
+                h -= base_h;
+            }
+        }
+
+        double tmp;
+
+        // We have to ensure: min_aspect.x/min_aspect.y <= w/h <= max_aspect.x/max_aspect.y
+
+        // How do we calculate the new r_w, r_h?
+        // Consider the plane spanned by width and height. The points with one specific
+        // aspect ratio form a line and (w,h) is a point. So, we simply calculate the
+        // point on the line that is closest to (w, h) under the Euclidean metric.
+
+        // Lesson learned doing this: It is good to look at a different implementation
+        // (thanks fluxbox!) and then let a friend go over your own calculation to
+        // tell you what your mistake is (thanks Robert!). ;-)
+
+        // Check if w/h is less than amin_x/amin_y
+        if (w * amin_y < h * amin_x) {
+            tmp = ((double)(w * amin_x + h * amin_y)) /
+                  ((double)(amin_x * amin_x + amin_y * amin_y));
+
+            w = (uint)(amin_x * tmp) + base_w;
+            h = (uint)(amin_y * tmp) + base_h;
+
+        // Check if w/h is greater than amax_x/amax_y
+        } else if (w * amax_y > amax_x * h) {
+            tmp = ((double)(w * amax_x + h * amax_y)) /
+                  ((double)(amax_x * amax_x + amax_y * amax_y));
+
+            w = (uint)(amax_x * tmp) + base_w;
+            h = (uint)(amax_y * tmp) + base_h;
+        }
+
+        getIncSize(r_w, r_h, w, h, false);
+        return true;
+    }
+    return getIncSize(r_w, r_h, w, h);
+}
+
+//! @brief Get the size closest to the ResizeInc incrementer
+//! @param r_w Pointer to put the new width in
+//! @param r_h Pointer to put the new height in
+//! @param w Width to calculate from
+//! @param h Height to calculate from
+//! @param incr If true, increase w,h to fulfil PResizeInc (instead of decreasing them)
+bool
+Client::getIncSize(uint *r_w, uint *r_h, uint w, uint h, bool incr)
+{
+    uint basex, basey;
 
     if (_size->flags&PResizeInc) {
         basex = (_size->flags&PBaseSize)
@@ -1307,12 +1379,20 @@ Client::getIncSize(uint *r_w, uint *r_h, uint w, uint h)
                 ? _size->base_height
                 : (_size->flags&PMinSize) ? _size->min_height : 0;
 
-        *r_w = w - ((w - basex) % _size->width_inc);
-        *r_h = h - ((h - basey) % _size->height_inc);
+        if (w-basex < 0 || h-basey<0) {
+            basex=basey=0;
+        }
 
+        uint dw = (w - basex) % _size->width_inc;
+        uint dh = (h - basey) % _size->height_inc;
+
+        *r_w = w - dw + ((incr && dw)?_size->width_inc:0);
+        *r_h = h - dh + ((incr && dh)?_size->height_inc:0);
         return true;
     }
 
+    *r_w = w;
+    *r_h = h;
     return false;
 }
 
@@ -1482,6 +1562,31 @@ Client::getWMNormalHints(void)
 {
     long dummy;
     XGetWMNormalHints(_dpy, _window, _size, &dummy);
+
+    // let's do some sanity checking
+    if (_size->flags & PBaseSize) {
+        if (_size->base_width<0 || _size->base_height<0) {
+            _size->base_width = _size->base_height = 0;
+            _size->flags &= ~PBaseSize;
+        }
+    }
+    if (_size->flags & PAspect) {
+        if (_size->min_aspect.x < 0 || _size->min_aspect.y < 0 ||
+            _size->max_aspect.x < 0 || _size->max_aspect.y < 0) {
+
+            _size->min_aspect.x = _size->min_aspect.y = 0;
+            _size->max_aspect.x = _size->max_aspect.y = 0;
+            _size->flags &= ~PAspect;
+        }
+    }
+    if (_size->flags & PResizeInc) {
+        if (_size->width_inc <= 0 || _size->height_inc <= 0) {
+            _size->width_inc = 0;
+            _size->height_inc = 0;
+            _size->flags &= ~PBaseSize;
+        }
+    }
+
 }
 
 //! @brief

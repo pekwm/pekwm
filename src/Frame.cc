@@ -1222,7 +1222,8 @@ Frame::recalcResizeDrag(int nx, int ny, bool left, bool top)
 
     width -= brdr_lr;
     height -= brdr_tb + getTitleHeight();
-    _client->getIncSize(&width, &height, width, height);
+
+    _client->getAspectSize(&width, &height, width, height);
 
     const XSizeHints *hints = _client->getXSizeHints();
     // check so we aren't overriding min or max size

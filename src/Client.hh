@@ -241,11 +241,12 @@ public: // Public Member Functions
         _cfg_request_lock = lock;
         return old_lock;
     }
-    
+
     void configureRequestSend(void);
     void sendTakeFocusMessage(void);
-    
-    bool getIncSize(uint *r_w, uint *r_h, uint w, uint h);
+
+    bool getAspectSize(uint *r_w, uint *r_h, uint w, uint h);
+    bool getIncSize(uint *r_w, uint *r_h, uint w, uint h, bool incr=false);
 
     bool getEwmhStates(NetWMStates &win_states);
     void updateEwmhStates(void);
