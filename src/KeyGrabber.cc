@@ -121,9 +121,9 @@ KeyGrabber::~KeyGrabber(void)
 //! If _global_keys holds any keygrabs they will be flushed before
 //! reloading the new keybindings.
 bool
-KeyGrabber::load(const std::string &file)
+KeyGrabber::load(const std::string &file, bool force)
 {
-    if (! Util::requireReload(_cfg_state, file)) {
+    if (! force && ! Util::requireReload(_cfg_state, file)) {
         return false;
     }
 

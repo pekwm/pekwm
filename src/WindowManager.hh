@@ -181,7 +181,7 @@ private:
     void doReloadConfig(void);
     void doReloadTheme(void);
     void doReloadMouse(void);
-    void doReloadKeygrabber(void);
+    void doReloadKeygrabber(bool force=false);
     void doReloadAutoproperties(void);
 #ifdef HARBOUR
     void doReloadHarbour(void);

@@ -172,8 +172,7 @@ PScreen::PScreen(Display *dpy, bool honour_randr)
     }
 
     // Figure out what keys the Num and Scroll Locks are
-    _num_lock = getMaskFromKeycode(XKeysymToKeycode(_dpy, XK_Num_Lock));
-    _scroll_lock = getMaskFromKeycode(XKeysymToKeycode(_dpy, XK_Scroll_Lock));
+    setLockKeys();
 
     XSync(_dpy, false);
     XUngrabServer(_dpy);
@@ -188,6 +187,16 @@ PScreen::~PScreen(void) {
     }
 
     _instance = 0;
+}
+
+/**
+ * Figure out what keys the Num and Scroll Locks are
+ */
+void
+PScreen::setLockKeys(void)
+{
+    _num_lock = getMaskFromKeycode(XKeysymToKeycode(_dpy, XK_Num_Lock));
+    _scroll_lock = getMaskFromKeycode(XKeysymToKeycode(_dpy, XK_Scroll_Lock));
 }
 
 //! @brief Get next event using select to avoid signal blocking

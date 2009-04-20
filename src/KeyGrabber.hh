@@ -72,7 +72,7 @@ public:
     //! @brief Returns the KeyGrabber instance pointer.
     static KeyGrabber *instance(void) { return _instance; }
 
-    bool load(const std::string &file);
+    bool load(const std::string &file, bool force=false);
     void grabKeys(Window win);
     void ungrabKeys(Window win);
 

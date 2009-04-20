@@ -708,10 +708,10 @@ WindowManager::doReloadMouse(void)
  * Reload keygrabber configuration and re-grab keys on all windows.
  */
 void
-WindowManager::doReloadKeygrabber(void)
+WindowManager::doReloadKeygrabber(bool force)
 {
     // Reload the keygrabber
-    if (! _keygrabber->load(_config->getKeyFile())) {
+    if (! _keygrabber->load(_config->getKeyFile(), force)) {
         return;
     }
 
@@ -1450,7 +1450,8 @@ WindowManager::handleMappingEvent(XMappingEvent *ev)
 {
     if (ev->request == MappingKeyboard || ev->request == MappingModifier) {
         XRefreshKeyboardMapping(ev);
-
+        _screen->setLockKeys();
+        doReloadKeygrabber(true);
     }
 }
 

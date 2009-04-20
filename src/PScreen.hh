@@ -147,6 +147,8 @@ public:
         state &= ~Button1Mask & ~Button2Mask & ~Button3Mask & ~Button4Mask & ~Button5Mask;
         return state;
     }
+
+    void setLockKeys(void);
     inline uint getNumLock(void) const { return _num_lock; }
     inline uint getScrollLock(void) const { return _scroll_lock; }
 
