@@ -1313,11 +1313,11 @@ Client::getAspectSize(uint *r_w, uint *r_h, uint w, uint h)
         // underflows in w and h. Keep in mind that _size->base_{width,height} are
         // guaranteed to be non-negative by getWMNormalHints().
         if (_size->flags & PBaseSize) {
-            if ((uint)(_size->base_width) < w) {
+            if (static_cast<uint>(_size->base_width) < w) {
                 base_w = _size->base_width;
                 w -= base_w;
             }
-            if ((uint)(_size->base_height) < h) {
+            if (static_cast<uint>(_size->base_height) < h) {
                 base_h = _size->base_height;
                 h -= base_h;
             }
@@ -1341,16 +1341,16 @@ Client::getAspectSize(uint *r_w, uint *r_h, uint w, uint h)
             tmp = ((double)(w * amin_x + h * amin_y)) /
                   ((double)(amin_x * amin_x + amin_y * amin_y));
 
-            w = (uint)(amin_x * tmp) + base_w;
-            h = (uint)(amin_y * tmp) + base_h;
+            w = static_cast<uint>(amin_x * tmp) + base_w;
+            h = static_cast<uint>(amin_y * tmp) + base_h;
 
         // Check if w/h is greater than amax_x/amax_y
         } else if (w * amax_y > amax_x * h) {
             tmp = ((double)(w * amax_x + h * amax_y)) /
                   ((double)(amax_x * amax_x + amax_y * amax_y));
 
-            w = (uint)(amax_x * tmp) + base_w;
-            h = (uint)(amax_y * tmp) + base_h;
+            w = static_cast<uint>(amax_x * tmp) + base_w;
+            h = static_cast<uint>(amax_y * tmp) + base_h;
         }
 
         getIncSize(r_w, r_h, w, h, false);
