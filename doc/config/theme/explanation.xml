@@ -147,7 +147,7 @@
 				    Size should explain itself, see above.</para>
 				</listitem>
 				<listitem>
-					<para><emphasis role="bold">IMGAGE imagename</emphasis></para>
+					<para><emphasis role="bold">IMAGE imagename</emphasis></para>
 					<para>An image texture using the defined imagename</para>	
 				</listitem>
 			      </itemizedlist>
