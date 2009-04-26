@@ -14,10 +14,10 @@
     </para>
 
     <screen>#!/bin/sh
-gkrellm &
-Esetroot -s mybackground.png &</screen>
+gkrellm &amp;
+Esetroot -s mybackground.png &amp;</screen>
 
-    <para>Remember the &'s.</para>
+    <para>Remember the &amp;'s.</para>
   </simplesect>
 
   <simplesect id="FAQ-2312" xreflabel="What is the harbour and how is it used?">
@@ -488,5 +488,27 @@ Buttons {
         disable the WorkspaceIndicator.
       </para>
     </simplesect>
+
+
+    <simplesect id="FAQ-1549" xreflabel="Why is nvidia dual-head misbehaving?">
+      <title>Why is nvidia dual-head misbehaving?</title>
+
+      <para>
+        The nvidia proprietary driver provides dual head information
+        both in Xinerama and RANDR form. The RANDR information given
+        by the driver is in the form of one large screen, the Xinerama
+        is divided up into multiple heads. To work around this the
+        HonourRandr option has been introduced in the Screen section
+        of the main configuration file. Set it to False making pekwm
+        only listen on the Xinerama information.
+
+        <programlisting>Screen {
+...
+    HonourRandr = "False"
+...
+</programlisting>
+      </para>
+    </simplesect>
+
 
 </chapter>

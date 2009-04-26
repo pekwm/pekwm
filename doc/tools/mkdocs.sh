@@ -3,10 +3,10 @@
 # Copyright © 2009 the pekwm development team
 #
 
-# Applications
+# Applications, tidy is disabled as it fails on many platforms.
 OPENJADE=$(which openjade)
 PDFJADETEX=$(which pdfjadetex)
-TIDY=$(which tidy)
+TIDY=$(which tidy-disabled)
 ZIP=$(which zip)
 
 # Paths
@@ -28,15 +28,20 @@ DPFX=docs
 
 LOGDIR="${CURDIR}/logs"
 
+# Fedora 11
+DBDIR="/usr/share/sgml/docbook/dsssl-stylesheets-1.79/"
+DBX="${DBDIR}/dtds/decls/xml.dcl"
+DBV="/usr/share/sgml/docbook/xml-dtd-4.3-1.0-46.fc11/docbookx.dtd"
+
 # Ubuntu Hardy/Intrepid
 # DBDIR="/usr/share/sgml/docbook/stylesheet/dsssl/modular"
 # DBX="/usr/share/sgml/declaration/xml.dcl"
 # DBV="FIXME"
 
 # NetBSD 5
-DBDIR="/usr/pkg/share/sgml/docbook/dsssl/modular"
-DBV="/usr/pkg/share/xml/docbook/4.3/docbookx.dtd"
-DBX="/usr/pkg/share/sgml/docbook/dsssl/modular/dtds/decls/xml.dcl"
+# DBDIR="/usr/pkg/share/sgml/docbook/dsssl/modular"
+# DBV="/usr/pkg/share/xml/docbook/4.3/docbookx.dtd"
+# DBX="/usr/pkg/share/sgml/docbook/dsssl/modular/dtds/decls/xml.dcl"
 
 # Shared
 DBP="${DBDIR}/print/plain.dsl"
