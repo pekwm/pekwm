@@ -84,11 +84,11 @@ public:
     parse_value(const std::string &value_str)
         throw (std::string&)
     {
-        long double value;
+        double value;
         char *endptr;
 
         // Get long value.
-        value = strtold(value_str.c_str(), &endptr);
+        value = strtod(value_str.c_str(), &endptr);
 
         // Check for validity, 0 is returned on failiure with endptr set to the
         // beginning of the string, else we are (semi) ok.
