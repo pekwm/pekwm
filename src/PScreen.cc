@@ -117,7 +117,7 @@ PScreen::PVisual::getShiftPrecFromMask(ulong mask, int &shift, int &prec)
 
 //! @brief PScreen constructor
 PScreen::PScreen(Display *dpy, bool honour_randr)
-    : _dpy(dpy), _honour_randr(honour_randr), _fd(-1),
+    : _dpy(dpy), _honour_randr(honour_randr), 
       _screen(-1), _depth(-1),
       _root(None), _visual(0), _colormap(None),
       _modifier_map(0),
@@ -136,7 +136,6 @@ PScreen::PScreen(Display *dpy, bool honour_randr)
 
     XGrabServer(_dpy);
 
-    _fd = ConnectionNumber(dpy);
     _screen = DefaultScreen(_dpy);
     _root = RootWindow(_dpy, _screen);
 

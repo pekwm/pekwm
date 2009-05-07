@@ -235,16 +235,15 @@ private:
 private:
     Display *_dpy;
     bool _honour_randr; /**< Boolean flag if randr should be honoured. */
-    int _fd;
 
     int _screen, _depth;
 
-  Geometry _screen_gm; /**< Screen geometry, no head information. */
+    Geometry _screen_gm; /**< Screen geometry, no head information. */
 
     Window _root;
     PScreen::PVisual *_visual;
     Colormap _colormap;
-  XModifierKeymap *_modifier_map; /**< Key to modifier mappings. */
+    XModifierKeymap *_modifier_map; /**< Key to modifier mappings. */
 
     uint _num_lock;
     uint _scroll_lock;
