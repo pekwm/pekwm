@@ -163,7 +163,6 @@ public:
     inline int getEventXRandr(void) const { return _event_xrandr; }
 #endif // HAVE_XRANDR
 
-    bool getNextEvent(XEvent &ev);
     bool grabServer(void);
     bool ungrabServer(bool sync);
     bool grabKeyboard(Window win);

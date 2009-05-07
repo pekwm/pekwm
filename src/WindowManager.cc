@@ -143,6 +143,22 @@ extern "C" {
             break;
         }
     }
+
+    /**
+     * Handler setting ice connections
+     */
+    static void
+    iceWatch(IceConn ice_conn, IcePointer data,
+             Bool opening, IcePointer *watch_data)
+    {
+        if (opening) {
+            WindowManager::instance()->setIceConn(ice_conn);
+            WindowManager::instance()->setIceFd(IceConnectionNumber(ice_conn));
+        } else {
+            WindowManager::instance()->setIceConn(0);
+            WindowManager::instance()->setIceFd(0);
+        }
+    }
     
 } // extern "C"
 
@@ -162,6 +178,7 @@ WindowManager::start(const std::string &command_line,
 
     // Setup window manager
     _instance = new WindowManager(command_line, config_file);
+
     if (_instance->setupDisplay(replace)) {
         _instance->scanWindows();
         Frame::resetFrameIDs();
@@ -206,6 +223,7 @@ WindowManager::WindowManager(const std::string &command_line,
 #endif // HARBOUR
         _cmd_dialog(0), _search_dialog(0),
         _status_window(0), _workspace_indicator(0),
+        _max_fd(0), _dpy_fd(0), _ice_fd(0), _ice_conn(0),
         _command_line(command_line),
         _startup(false), _shutdown(false), _reload(false),
         _allow_grouping(true), _hint_wo(0), _root_wo(0)
@@ -367,6 +385,8 @@ WindowManager::setupDisplay(bool replace)
 
     // Setup screen, init atoms and claim the display.
     _screen = new PScreen(dpy, _config->isHonourRandr());
+    _dpy_fd = ConnectionNumber(dpy);
+    _max_fd = _dpy_fd + 1;
 
     Atoms::init();
 
@@ -776,7 +796,12 @@ void
 WindowManager::doEventLoop(void)
 {
     XEvent ev;
+    bool is_xevent, is_icevent;
     Timer<ActionPerformed>::timed_event_list events;
+
+#ifdef HAVE_SESSION
+    IceAddConnectionWatch(iceWatch, NULL);
+#endif // HAVE_SESSION
 
     while (! _shutdown && ! is_signal_int_term) {
         // Handle timeouts
@@ -798,8 +823,13 @@ WindowManager::doEventLoop(void)
             doReload();
         }
 
+        // Wait for IO
+        waitIO(is_xevent, is_icevent);
+
         // Get next event, drop event handling if none was given
-        if (_screen->getNextEvent(ev)) {
+        if (is_xevent) {
+            XNextEvent(_screen->getDpy(), &ev);
+
             switch (ev.type) {
             case MapRequest:
                 handleMapRequestEvent(&ev.xmaprequest);
@@ -886,6 +916,55 @@ WindowManager::doEventLoop(void)
                 break;
             }
         }
+
+#ifdef HAVE_SESSION
+        if (is_icevent) {
+            Bool dummy_b;
+            // Process messages, might not 
+            IceProcessMessages(_ice_conn, NULL, &dummy_b);
+        }
+#endif // HAVE_SESSION
+    }
+
+#ifdef HAVE_SESSION
+    IceRemoveConnectionWatch(iceWatch, NULL);
+#endif // HAVE_SESSION
+}
+
+/**
+ * Wait for data from connections.
+ */
+void
+WindowManager::waitIO(bool &is_xevent, bool &is_iceevent)
+{
+    is_xevent = is_iceevent = false;
+
+    if (XPending(PScreen::instance()->getDpy()) > 0) {
+        is_xevent = true;
+        return;
+    }
+
+    // Make sure to flush X11 connection before starting to wait or
+    // else we might end up waiting here forever.
+    XFlush(_screen->getDpy());
+
+    int ret;
+    fd_set rfds;
+
+    FD_ZERO(&rfds);
+    FD_SET(_dpy_fd, &rfds);
+#ifdef HAVE_SESSION
+    if (_ice_fd) {
+        FD_SET(_ice_fd, &rfds);
+    }
+#endif // HAVE_SESSION
+
+    ret = select(_max_fd, &rfds, 0, 0, 0);
+    if (ret > 0) {
+        is_xevent = FD_ISSET(_dpy_fd, &rfds);
+#ifdef HAVE_SESSION
+        is_iceevent = FD_ISSET(_ice_fd, &rfds);
+#endif // HAVE_SESSION
     }
 }
 

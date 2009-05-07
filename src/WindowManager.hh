@@ -27,11 +27,14 @@
 #include <list>
 #include <map>
 
-#ifdef HAVE_XRANDR
 extern "C" {
+#ifdef HAVE_XRANDR
 #include <X11/extensions/Xrandr.h>
-}
 #endif // HAVE_XRANDR
+#ifdef HAVE_SESSION
+#include <X11/ICE/ICElib.h>
+#endif // HAVE_SESSION
+}
 
 class ActionHandler;
 class AutoProperties;
@@ -79,6 +82,12 @@ public:
     void shutdown(void) { _shutdown = true; }
     /**< Return shutdown flag, set to tru to shutdown window manager. */
     bool *getShutdownFlag(void) { return &_shutdown; }
+
+    void setIceConn(IceConn ice_conn) { _ice_conn = ice_conn; }
+    void setIceFd(int ice_fd) {
+        _ice_fd = ice_fd;
+        _max_fd = std::max(_dpy_fd, _ice_fd) + 1;
+    }
 
     // get "base" classes
     inline PScreen *getScreen(void) const { return _screen; }
@@ -177,6 +186,8 @@ private:
     void scanWindows(void);
     void execStartFile(void);
 
+    void waitIO(bool &is_xevent, bool &is_iceevent);
+
     void doReload(void);
     void doReloadConfig(void);
     void doReloadTheme(void);
@@ -266,6 +277,13 @@ private:
     static const char *MENU_NAMES_RESERVED[];
     static const unsigned int MENU_NAMES_RESERVED_COUNT;
 #endif // MENUS
+
+    int _max_fd; /**< Max file descriptor to select on. */
+    int _dpy_fd; /**< Display file descriptor. */
+#ifdef HAVE_SESSION
+    int _ice_fd; /**< ICE file descriptor.*/
+    IceConn _ice_conn; /**< Connection to ICE. */
+#endif // HAVE_SESSION
 
     std::string _command_line, _restart_command;
     bool _startup; //!< Indicates startup status.

@@ -199,33 +199,6 @@ PScreen::setLockKeys(void)
     _scroll_lock = getMaskFromKeycode(XKeysymToKeycode(_dpy, XK_Scroll_Lock));
 }
 
-//! @brief Get next event using select to avoid signal blocking
-//! @param ev Event to fill in.
-//! @return true if event was fetched, else false.
-bool
-PScreen::getNextEvent(XEvent &ev)
-{
-    if (XPending(_dpy) > 0) {
-        XNextEvent(_dpy, &ev);
-        return true;
-    }
-
-    int ret;
-    fd_set rfds;
-
-    XFlush(_dpy);
-
-    FD_ZERO(&rfds);
-    FD_SET(_fd, &rfds);
-
-    ret = select(_fd + 1, &rfds, 0, 0, 0);
-    if (ret > 0) {
-        XNextEvent(_dpy, &ev);
-    }
-
-    return ret > 0;
-}
-
 //! @brief Grabs the server, counting number of grabs
 bool
 PScreen::grabServer(void)
