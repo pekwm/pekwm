@@ -163,6 +163,7 @@ public:
     inline int getEventXRandr(void) const { return _event_xrandr; }
 #endif // HAVE_XRANDR
 
+    bool getNextEvent(XEvent &ev);
     bool grabServer(void);
     bool ungrabServer(bool sync);
     bool grabKeyboard(Window win);
@@ -235,6 +236,7 @@ private:
 private:
     Display *_dpy;
     bool _honour_randr; /**< Boolean flag if randr should be honoured. */
+    int _fd;
 
     int _screen, _depth;
 

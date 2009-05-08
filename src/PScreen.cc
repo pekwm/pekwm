@@ -117,7 +117,7 @@ PScreen::PVisual::getShiftPrecFromMask(ulong mask, int &shift, int &prec)
 
 //! @brief PScreen constructor
 PScreen::PScreen(Display *dpy, bool honour_randr)
-    : _dpy(dpy), _honour_randr(honour_randr), 
+    : _dpy(dpy), _honour_randr(honour_randr), _fd(-1),
       _screen(-1), _depth(-1),
       _root(None), _visual(0), _colormap(None),
       _modifier_map(0),
@@ -136,6 +136,7 @@ PScreen::PScreen(Display *dpy, bool honour_randr)
 
     XGrabServer(_dpy);
 
+    _fd = ConnectionNumber(dpy);
     _screen = DefaultScreen(_dpy);
     _root = RootWindow(_dpy, _screen);
 
@@ -196,6 +197,33 @@ PScreen::setLockKeys(void)
 {
     _num_lock = getMaskFromKeycode(XKeysymToKeycode(_dpy, XK_Num_Lock));
     _scroll_lock = getMaskFromKeycode(XKeysymToKeycode(_dpy, XK_Scroll_Lock));
+}
+
+//! @brief Get next event using select to avoid signal blocking
+//! @param ev Event to fill in.
+//! @return true if event was fetched, else false.
+bool
+PScreen::getNextEvent(XEvent &ev)
+{
+    if (XPending(_dpy) > 0) {
+        XNextEvent(_dpy, &ev);
+        return true;
+    }
+
+    int ret;
+    fd_set rfds;
+
+    XFlush(_dpy);
+
+    FD_ZERO(&rfds);
+    FD_SET(_fd, &rfds);
+
+    ret = select(_fd + 1, &rfds, 0, 0, 0);
+    if (ret > 0) {
+        XNextEvent(_dpy, &ev);
+    }
+
+    return ret > 0;
 }
 
 //! @brief Grabs the server, counting number of grabs

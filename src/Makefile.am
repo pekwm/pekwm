@@ -61,10 +61,6 @@ pekwm_SOURCES = \
 	main.cc \
 	pekwm.hh
 
-if HAVE_SESSION
-pekwm_SOURCES += Session.cc Session.hh
-endif
-
 distclean-local:
 	rm -f *\~ .\#*
 

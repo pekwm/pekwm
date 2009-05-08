@@ -67,23 +67,6 @@ else
   CONFIGOPTS="$CONFIGOPTS --disable-shape"
 fi
 
-dnl Check for session support
-AC_MSG_CHECKING([whether to build session support])
-AC_ARG_ENABLE(session,
-              AC_HELP_STRING([--enable-session],	
-                             [enable session support [default=yes]]), ,
-              [enable_session=yes])
-if test "x$enable_session" = "xyes"; then
-  AC_MSG_RESULT([yes])
-  AC_CHECK_LIB(SM, SmcOpenConnection,
-               AC_DEFINE(HAVE_SESSION, [1], [Define to 1 if you want session support])
-               LIBS="$LIBS -lSM"
-               FEATURES="$FEATURES session")
-else
-  AC_MSG_RESULT([no])
-fi
-AM_CONDITIONAL([HAVE_SESSION], [test "x$ac_cv_lib_SM_SmcOpenConnection" = "xyes"])
-
 dnl Check for Xinerama support
 AC_MSG_CHECKING([whether to build support for the Xinerama extension])
 AC_ARG_ENABLE(xinerama,
