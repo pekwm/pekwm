@@ -144,6 +144,7 @@ extern "C" {
         }
     }
 
+#ifdef HAVE_SESSION
     /**
      * Handler setting ice connections
      */
@@ -159,7 +160,7 @@ extern "C" {
             WindowManager::instance()->setIceFd(0);
         }
     }
-    
+#endif // HAVE_SESSION
 } // extern "C"
 
 
@@ -223,7 +224,10 @@ WindowManager::WindowManager(const std::string &command_line,
 #endif // HARBOUR
         _cmd_dialog(0), _search_dialog(0),
         _status_window(0), _workspace_indicator(0),
-        _max_fd(0), _dpy_fd(0), _ice_fd(0), _ice_conn(0),
+        _max_fd(0), _dpy_fd(0),
+#ifdef HAVE_SESSION
+        _ice_fd(0), _ice_conn(0),
+#endif // HAVE_SESSION
         _command_line(command_line),
         _startup(false), _shutdown(false), _reload(false),
         _allow_grouping(true), _hint_wo(0), _root_wo(0)

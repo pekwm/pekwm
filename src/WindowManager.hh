@@ -83,11 +83,13 @@ public:
     /**< Return shutdown flag, set to tru to shutdown window manager. */
     bool *getShutdownFlag(void) { return &_shutdown; }
 
+#ifdef HAVE_SESSION
     void setIceConn(IceConn ice_conn) { _ice_conn = ice_conn; }
     void setIceFd(int ice_fd) {
         _ice_fd = ice_fd;
         _max_fd = std::max(_dpy_fd, _ice_fd) + 1;
     }
+#endif // HAVE_SESSION
 
     // get "base" classes
     inline PScreen *getScreen(void) const { return _screen; }
