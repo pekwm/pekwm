@@ -1,3 +1,340 @@
+commit 4c838a40db929800e224c35b042d73d24266fbd0
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Fri May 8 19:59:46 2009 +0200
+
+    Revert the session code.
+    
+    Rationale:
+    Claes ran successfully pekwm under gnome without the session management code.
+    The session code didn't actually load/save the session and therefore it is
+    removed for 0.1.11. Should it cause any regressions under gnome I'll re-add it.
+
+commit e61768094f5ac329ed1341015afab16c11d96902
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Fri May 8 17:19:51 2009 +0200
+
+    Add missing #ifdef to make --disable-session compile.
+
+commit d431299511ea4a2dbbc2238d1fc7dfda99494068
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Thu May 7 23:45:02 2009 +0200
+
+    Remove unused _fd member from PScreen.
+
+commit cf2659d7048fd1a14e47787d7b8286c0f714f516
+Author: Claes Nästén <me@pekdon.net>
+Date:   Thu May 7 22:30:11 2009 +0200
+
+    A not so beautiful patch for making session shutdown work ok.
+    
+    With this logging out from Gnome also shuts down pekwm successfully, and
+    it's possible to start it by setting the window manager gconf value.
+    
+    In the future file descriptors probably should be possible to match with
+    event handlers or similar to simplify this logic.
+
+commit 71ab91eeb2d56f7e2f2732b57c53ae7c0ec0911a
+Author: Claes Nästén <me@pekdon.net>
+Date:   Fri May 1 20:14:32 2009 +0200
+
+    Ops, did not include the scripts directory when fixing for BSD make.
+
+commit 38f050fe74136ca570acda9812f3d7fc9452c996
+Author: Claes Nästén <me@pekdon.net>
+Date:   Fri May 1 10:26:43 2009 +0200
+
+    make Makefile less BSD hostile, seems to work with OpenBSD make now.
+
+commit 9f3e133cbc28a62c978891e3d533a1d96200733f
+Author: Claes Nästén <me@pekdon.net>
+Date:   Wed Apr 29 09:06:42 2009 +0200
+
+    Add PKG_CONFIG macros, OpenBSD does not include this.
+    
+    OpenBSD does not include the pkg config macros, just a perl reimplementation
+    of pkg-config. Add this to make autoconf play.
+
+commit 0e1077a366ec99fff9b45d758a3f3a432e013517
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Apr 26 22:27:37 2009 +0200
+
+    Make default keybindgs handle multi-row workspace layouts.
+    
+    Navigating vertically has not been supported with the default keybindings,
+    changed the up/down to with shift modifier. Also increased the default
+    workspace count to 9.
+
+commit 6349e8b1743081b957ad3a20720a45ee9ef14eb3
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Apr 26 22:18:30 2009 +0200
+
+    Remove log file from repository, should not be there.
+
+commit c5aa19853cd3de1cd3a1588839dd07762b07901e
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Apr 26 22:15:57 2009 +0200
+
+    Add Nvidia FAQ entry and update mkdocs.sh with settings for Fedora.
+    
+    One of the worst FAQ entries ever, hopefully it is informative enough. Also,
+    made sure the docs are building on Fedora 11.
+
+commit 755f5b0a4bdaf6f619c21c9bbf261280cd2f8032
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sun Apr 26 20:23:38 2009 +0200
+
+    strtold doesn't exist on OpenBSD, use strtod instead.
+
+commit ead1a87154370ef8e798518545cb5b5d443f83d7
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Apr 25 00:13:25 2009 +0200
+
+    Fix spelling of image in the theme documentation reported by markand.
+
+commit 44c17cd32cb3f0fa5c5c41d6735a4dca21477ca3
+Author: Claes Nästén <me@pekdon.net>
+Date:   Wed Apr 22 21:55:16 2009 +0200
+
+    Add --replace option to the man page.
+
+commit 6c8214b1306b92bbaf73ed3f36a7dc1c85f9dd36
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Tue Apr 21 12:39:18 2009 +0200
+
+    Change some of the casts to use static_cast.
+
+commit c3058ddc13a5b5901b7e7d4cd908dc7768edab03
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Mon Apr 20 23:56:44 2009 +0200
+
+    Reload the key-bindings when an input device changes (#173).
+    Reported and fixed by Wallex.
+
+commit b2da3b96854856c29b661739a540d90bc9dbacf9
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Mon Apr 20 23:25:56 2009 +0200
+
+    Add config option to disable support for aspect ratio.
+
+commit 0ed3b0a0bbe3f6b77f797f92252164c2c5069f90
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Mon Apr 20 23:17:04 2009 +0200
+
+    Add support for XSizeHints' PAspect (aspect ratio of windows, see #171).
+
+commit cb1533f6adadc1c845bba3b0bd8be59018c9348c
+Author: Claes Nästén <me@pekdon.net>
+Date:   Mon Apr 20 23:11:33 2009 +0200
+
+    Move error handler to PScreen and make it possible to replace current wm.
+    
+    Now pekwm is able to replace metacity in recent gnome releases and take over
+    as the window manager, it still doesn't know how to give the session up when
+    exiting though.
+
+commit 11ce948c8dd725ac6ef01ed4cd4e88ff36447d48
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Mon Apr 20 00:49:35 2009 +0200
+
+    Change the default theme to use a smaller title bar (created by Adriano).
+
+commit ceab99812c016e01fd63b44576d7a5c9d0482e9c
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Sat Apr 18 23:04:03 2009 +0200
+
+    Fix the test in AM_CONDITIONAL([HAVE_SESSION], ..).
+
+commit 3c0d8e9dd414dbc6373d306bc47ab21a63283dd7
+Author: Claes Nästén <me@pekdon.net>
+Date:   Tue Apr 14 19:23:49 2009 +0200
+
+    Make session support a compile time option.
+    
+    It is now possible, per io-error's request, to disable session support when
+    compiling pekwm.
+
+commit e5ac974192f2cea31755758f59e72de2d7bc4a3a
+Author: Claes Nästén <me@pekdon.net>
+Date:   Tue Apr 14 19:07:54 2009 +0200
+
+    Alpha blending for different color depths, 15 and 16.
+
+commit ad0e50a080c3e6033c3b600d14c075e7d93ea5f9
+Author: Claes Nästén <me@pekdon.net>
+Date:   Tue Apr 14 18:22:38 2009 +0200
+
+    Fix invalid keys from causing BadAccess errors, and make Any work again.
+    
+    After fix for #142 Any did not work anymore as the key section identifying
+    Any was never reached.
+
+commit d1aebc00406af0a3508f8bccaaa496765434a343
+Author: Claes Nästén <me@pekdon.net>
+Date:   Mon Apr 13 19:44:29 2009 +0200
+
+    Inline instead of static, make the compiler much happier.
+
+commit 300d481eadc1a4475ef8f1f45110f6441d245b7f
+Author: Claes Nästén <me@pekdon.net>
+Date:   Mon Apr 13 19:43:30 2009 +0200
+
+    Move selection of root window input to RootWO.
+    
+    I think it makes more sense having as much as possible of the root window
+    handling in RootWO and not in WindowManager which includes way to much stuff.
+
+commit b81e0e03004690a662d340609a2b8126c6866068
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Sun Apr 12 23:04:20 2009 +0200
+
+    Move the body of Util::to_upper and Util::to_lower to the header file.
+
+commit 5c28eae032ac1bb4a1e178aafa46ec65708e388c
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Sun Apr 12 22:47:58 2009 +0200
+
+    Change Config::parseKey() to use the to_lower/to_upper functions from Util.
+
+commit 4acd0cf46f5e04705463d1a3398a1bd40ce16754
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Sun Apr 12 15:27:15 2009 +0200
+
+    Change the keys configuration file to use "Prior" instead of "Prev".
+
+commit a2bd7da32898baab1c1f646def98fad62eb1d8e0
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Sun Apr 12 15:02:19 2009 +0200
+
+    When parsing a key-string try different upper-/lowercase combinations (#142).
+
+commit 14d6e363a5d142e8cb93266a5e6db4e5cdeea879
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Sat Mar 14 22:33:56 2009 +0100
+
+    Commit a experimental fix for #166. Please report if it breaks anything.
+    
+    The removed if-clause caused unfocusable windows to be ignored and
+    thereby being put below windows of a lower layer.
+
+commit 7c2fc41442c5e0a6a5a67e83d00ad5cfbf8e4812
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Sun Apr 5 18:58:46 2009 +0200
+
+    Fix a typo in the documentation that was reported by Rikard Lindsröm.
+
+commit 51cb6f37f80c00704afd0273657b81ed26b454b4
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Apr 4 21:53:07 2009 +0200
+
+    More on session handling, cleans up a bit of the WindowManager destructor.
+    
+    This code is not yet working as it should, but it at least a start.
+
+commit e4f5c6ee880795be1254ecae550b96d8473d9d95
+Author: Claes Nästén <me@pekdon.net>
+Date:   Sat Apr 4 14:08:09 2009 +0200
+
+    Add start of session handling, just adding the non interfering.
+    
+    Start adding session handling code, not very functional, tested or working
+    but a first step.
+
+commit 1c05fbd5116be94b872171b1835ad78c574ead5a
+Author: Claes Nästén <me@pekdon.net>
+Date:   Wed Mar 11 06:53:04 2009 +0100
+
+    Add string, manager and wm_class hints.
+
+commit c3cb8c679611d46f339935d0309179804f50cb54
+Author: Claes Nästén <me@pekdon.net>
+Date:   Wed Mar 11 06:50:42 2009 +0100
+
+    Get username added to utility functions, to be used in session.
+
+commit 857326ff4bbfbab621c809cc28f4c3385d09bad1
+Author: Claes Nästén <me@pekdon.net>
+Date:   Tue Mar 10 23:04:33 2009 +0100
+
+    Make desktop and dock not focusable.
+    
+    To make pekwm behave better with gnome-panel and nautilus in sloppy focus
+    mode, do not allow them to focus. Interaction is done with mouse anyway.
+
+commit d272889f689f8ff4ab2e1ab24124f69c8e0ec77e
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Mon Mar 9 20:37:16 2009 +0100
+
+    Fix Harbour::restack() to re-add its _strut if windows shouldn't maximise
+    over the harbour (#156).
+
+commit aa3be5a350cea1c810ab00faca2151b3af21059c
+Author: Claes Nästén <me@pekdon.net>
+Date:   Thu Feb 19 22:56:28 2009 +0100
+
+    Compile fixes for GCC on OpenSolaris 2008.11
+    
+    It seems as if GCC complained more than CC under OpenSolaris with default
+    compiler flags. While at it I updated the autogen.sh script to look for
+    version 1.10 and not 1.9 of automake.
+
+commit c72ea308376c26ba7251bd041a7427688b82a7f0
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Mon Feb 16 16:28:39 2009 +0100
+
+    Fix the spelling of the space binding (#142).
+
+commit 4e1890eee7d4ffca7912c7feed3fe27a5377f723
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Tue Feb 10 16:20:47 2009 +0100
+
+    Update the copyright notes.
+
+commit 2777ec6b59fbd78c290fc72d6208293499f6876d
+Author: Daniel Moerner <dmoerner@gmail.com>
+Date:   Fri Jan 30 14:53:53 2009 -0800
+
+    Make .pekwm/themes dir on first run
+    
+    This patch makes a ~/.pekwm/themes directory if it doesn't already exist when
+    pekwm is run, mimicking the behavior of other config files in ~/.pekwm. This
+    is useful to prevent an ugly "No such directory $HOME/.pekwm/themes" when using
+    the default menu in a fresh installation of pekwm.
+
+commit 3d048ad5f41664a7888080570a2d8ec9a538eca5
+Author: Daniel Moerner <dmoerner@gmail.com>
+Date:   Fri Jan 30 01:26:54 2009 +0100
+
+    Properly handle empty theme directories in menu script
+    
+    This patch fixes two bugs: First, any arbitrary file in the theme directory
+    will no longer be treated as a theme--only directories will be listed. Second,
+    if the directory is empty and '*' is therefore passed as the theme_name, '*'
+    will not be added to the theme list. Since we use sh and not bash, nullglob is
+    not an option so a test must be used.
+
+commit 0f4e7059031b3ecea83ec64ea64afeab81c01398
+Author: Andreas Schlick <ioerror@lavabit.com>
+Date:   Thu Jan 29 14:13:10 2009 +0100
+
+    Set version back to GIT.
+
+commit a677a4b62528531754f1541634df45464bf28b98
+Author: Claes Nästén <me@pekdon.net>
+Date:   Mon Jan 26 18:13:49 2009 +0100
+
+    Update to use templates fully, seems to be working ok now.
+
+commit fd54d2775b78874b6bdad98a3912af62dda5238e
+Author: Claes Nästén <me@pekdon.net>
+Date:   Mon Jan 26 16:22:27 2009 +0100
+
+    Fix font and change indentation.
+
+commit fb1eca1dc601c09fbe6d6705f03a5765ed15c46e
+Author: Claes Nästén <me@pekdon.net>
+Date:   Mon Jan 26 15:10:31 2009 +0100
+
+    Final changes to ChangeLog
 commit 720fefb20032ff2eade947d73744b6f90546342c
 Author: Claes Nästén <me@pekdon.net>
 Date:   Mon Jan 26 15:08:51 2009 +0100
