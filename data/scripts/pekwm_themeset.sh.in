@@ -46,7 +46,7 @@ else
 
         # Get temporary file, not all platforms have mktemp though
         if test -x "/bin/mktemp"; then
-            tmp_file=$(mktemp -t pekwm_themeset.XXX) || exit 1;
+            tmp_file=$(mktemp -t pekwm_themeset.XXXXXX) || exit 1;
         else
             tmp_file="/tmp/pekwm_themeset.${USER}"
         fi
