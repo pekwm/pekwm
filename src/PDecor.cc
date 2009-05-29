@@ -1469,6 +1469,16 @@ PDecor::setSkip(uint skip)
     _skip = skip;
 }
 
+//! @brief Remove iconified state.
+void PDecor::deiconify(void) {
+    if (_iconified) {
+        if (_workspace == Workspaces::instance()->getActive()) {
+            mapWindow();
+        }
+        _iconified = false;
+    }
+}
+
 //! @brief Renders and sets title background
 void
 PDecor::renderTitle(void)

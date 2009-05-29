@@ -307,6 +307,7 @@ class Button : public PWinObj {
         return (_border ? _data->getBorderTexture(getFocusedState(false), BORDER_RIGHT)->getWidth() : 0);
     }
 
+    void deiconify(void);
 protected:
     // START - PDecor interface.
     virtual void renderTitle(void);

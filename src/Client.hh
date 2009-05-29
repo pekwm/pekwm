@@ -96,6 +96,7 @@ public: // Public Member Functions
         return 0;
     }
 
+    virtual ActionEvent *handleMapRequest(XMapRequestEvent *ev);
     virtual ActionEvent *handleUnmapEvent(XUnmapEvent *ev);
     // END - PWinObj interface.
 

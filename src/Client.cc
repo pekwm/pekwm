@@ -544,6 +544,16 @@ Client::handleUnmapEvent(XUnmapEvent *ev)
     return 0;
 }
 
+//!@brief
+ActionEvent*
+Client::handleMapRequest(XMapRequestEvent *ev)
+{
+       if (_parent && dynamic_cast<PDecor *>(_parent)) {
+           dynamic_cast<PDecor*>(_parent)->deiconify();
+       }
+       return 0;
+}
+
 // END - PWinObj interface.
 
 //! @brief Finds the Client which holds the Window w.
