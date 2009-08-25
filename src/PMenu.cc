@@ -247,7 +247,7 @@ PMenu::handleMotionEvent(XMotionEvent *ev)
         handleItemEvent(button ? MOUSE_EVENT_MOTION_PRESSED : MOUSE_EVENT_MOTION, ev->x, ev->y);
 
         ActionEvent *ae;
-        ev->state = PScreen::instance()->stripButtonModifiers(ev->state);
+        PScreen::stripButtonModifiers(&ev->state);
         ae = ActionHandler::findMouseAction(button, ev->state, MOUSE_EVENT_MOTION,
                                             Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_MENU));
 

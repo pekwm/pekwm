@@ -335,7 +335,8 @@ KeyGrabber::findAction(XKeyEvent *ev, KeyGrabber::Chain *chain)
     if (! ev) {
         return 0;
     }
-    ev->state &= ~_num_lock & ~_scroll_lock & ~LockMask;
+
+    PScreen::stripStateModifiers(&ev->state);
 
     ActionEvent *action = 0;
     KeyGrabber::Chain *sub_chain = _global_chain.findChain(ev);
@@ -346,7 +347,7 @@ KeyGrabber::findAction(XKeyEvent *ev, KeyGrabber::Chain *chain)
 
         while (! exit) {
             XMaskEvent(_scr->getDpy(), KeyPressMask, &c_ev);
-            c_ev.xkey.state &= ~_num_lock & ~_scroll_lock & ~LockMask;
+            PScreen::stripStateModifiers(&c_ev.xkey.state);
 
             if (IsModifierKey(XKeycodeToKeysym(_scr->getDpy(),
                                                c_ev.xkey.keycode, 0))) {

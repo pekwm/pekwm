@@ -121,7 +121,6 @@ PScreen::PScreen(Display *dpy, bool honour_randr)
       _screen(-1), _depth(-1),
       _root(None), _visual(0), _colormap(None),
       _modifier_map(0),
-      _num_lock(0), _scroll_lock(0),
       _has_extension_shape(false), _event_shape(-1),
       _has_extension_xinerama(false),
       _has_extension_xrandr(false), _event_xrandr(-1),
@@ -700,3 +699,6 @@ PScreen::getKeycodeFromMask(uint mask)
 
     return 0;
 }
+
+uint PScreen::_num_lock = 0;
+uint PScreen::_scroll_lock = 0;

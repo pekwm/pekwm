@@ -534,8 +534,8 @@ PDecor::handleButtonPress(XButtonEvent *ev)
     list<ActionEvent> *actions = 0;
 
     // Remove state modifiers from event
-    ev->state = PScreen::instance()->stripStateModifiers(ev->state);
-    ev->state = PScreen::instance()->stripButtonModifiers(ev->state);
+    PScreen::stripStateModifiers(&ev->state);
+    PScreen::stripButtonModifiers(&ev->state);
 
     // Try to do something about frame buttons
     if (ev->subwindow != None && (_button = findButton(ev->subwindow)) != 0) {
@@ -618,8 +618,8 @@ PDecor::handleButtonRelease(XButtonEvent *ev)
     MouseEventType mb = MOUSE_EVENT_RELEASE;
 
     // Remove state modifiers from event
-    ev->state = PScreen::instance()->stripStateModifiers(ev->state);
-    ev->state = PScreen::instance()->stripButtonModifiers(ev->state);
+    PScreen::stripStateModifiers(&ev->state);
+    PScreen::stripButtonModifiers(&ev->state);
 
     // handle titlebar buttons
     if (_button) {

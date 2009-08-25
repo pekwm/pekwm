@@ -64,20 +64,24 @@ public: // member variables
 //! Output head, used to share same code with Xinerama and RandR
 class Head {
 public:
-  Head(int nx, int ny, uint nwidth, uint nheight) : x(nx), y(ny), width(nwidth), height(nheight) { };
+    Head(int nx, int ny, uint nwidth, uint nheight) : x(nx), y(ny), width(nwidth), height(nheight) { };
 
 public:
-  int x;
-  int y;
-  uint width;
-  uint height;
+    int x;
+    int y;
+    uint width;
+    uint height;
 
-  Strut strut;
+    Strut strut;
 };
 
 //! @brief Display information class.
 class PScreen
 {
+    //! Bits 1-15 are modifier masks, but bits 13 and 14 aren't named in X11/X.h.
+    static const unsigned KbdLayoutMask1 = 1<<13;
+    static const unsigned KbdLayoutMask2 = 1<<14;
+
 public:
     //! @brief Visual wrapper class.
     class PVisual {
@@ -135,17 +139,15 @@ public:
     /**
      * Remove state modifiers such as NumLock from state.
      */
-    unsigned int stripStateModifiers(unsigned int state) const {
-        state &= ~_num_lock & ~_scroll_lock & ~LockMask;
-        return state;
+    static void stripStateModifiers(unsigned int *state) {
+        *state &= ~(_num_lock | _scroll_lock | LockMask | KbdLayoutMask1 | KbdLayoutMask2);
     }
 
     /** 
      * Remove button modifiers from state.
      */
-    unsigned int stripButtonModifiers(unsigned int state) const {
-        state &= ~Button1Mask & ~Button2Mask & ~Button3Mask & ~Button4Mask & ~Button5Mask;
-        return state;
+    static void stripButtonModifiers(unsigned int *state) {
+        *state &= ~(Button1Mask | Button2Mask | Button3Mask | Button4Mask | Button5Mask);
     }
 
     void setLockKeys(void);
@@ -212,12 +214,12 @@ public:
     void updateStrut(void);
     inline Strut *getStrut(void) { return &_strut; }
 
-  uint getMaskFromKeycode(KeyCode keycode);
-  KeyCode getKeycodeFromMask(uint mask);
+    uint getMaskFromKeycode(KeyCode keycode);
+    KeyCode getKeycodeFromMask(uint mask);
 
 public:
-  static const uint MODIFIER_TO_MASK[]; /**< Modifier from (XModifierKeymap) to mask table. */
-  static const uint MODIFIER_TO_MASK_NUM; /**< Number of entries in MODIFIER_TO_MASK. */
+    static const uint MODIFIER_TO_MASK[]; /**< Modifier from (XModifierKeymap) to mask table. */
+    static const uint MODIFIER_TO_MASK_NUM; /**< Number of entries in MODIFIER_TO_MASK. */
 
 private:
     // squared distance because computing with sqrt is expensive
@@ -229,9 +231,9 @@ private:
     // gets the squared distance between 2 points with either x or y the same
     inline uint calcDistance(int p1, int p2) { return (p1 - p2) * (p1 - p2); }
 
-  void initHeads(void);
-  void initHeadsRandr(void);
-  void initHeadsXinerama(void);
+    void initHeads(void);
+    void initHeadsRandr(void);
+    void initHeadsXinerama(void);
 
 private:
     Display *_dpy;
@@ -247,8 +249,8 @@ private:
     Colormap _colormap;
     XModifierKeymap *_modifier_map; /**< Key to modifier mappings. */
 
-    uint _num_lock;
-    uint _scroll_lock;
+    static uint _num_lock;
+    static uint _scroll_lock;
 
     bool _has_extension_shape;
     int _event_shape;
@@ -258,8 +260,8 @@ private:
     bool _has_extension_xrandr;
     int _event_xrandr;
 
-  std::vector<Head> _heads; //! Array of head information
-  uint _last_head; //! Last accessed head
+    std::vector<Head> _heads; //! Array of head information
+    uint _last_head; //! Last accessed head
 
     uint _server_grabs;
 

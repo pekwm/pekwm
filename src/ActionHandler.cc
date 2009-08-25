@@ -518,8 +518,8 @@ ActionHandler::findMouseAction(uint button, uint state, MouseEventType type, std
         return 0;
     }
 
-    state &= ~PScreen::instance()->getNumLock() & ~PScreen::instance()->getScrollLock() & ~LockMask;
-    state &= ~Button1Mask & ~Button2Mask & ~Button3Mask & ~Button4Mask & ~Button5Mask;
+    PScreen::stripStateModifiers(&state);
+    PScreen::stripButtonModifiers(&state);
 
     list<ActionEvent>::iterator it(actions->begin());
     for (; it != actions->end(); ++it) {
