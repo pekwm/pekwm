@@ -407,11 +407,30 @@ Frame::handleShapeEvent(XAnyEvent *ev)
 
 //! @brief Adds child to the frame.
 void
-Frame::addChild (PWinObj *child)
+Frame::addChild (PWinObj *child, std::list<PWinObj*>::iterator *it)
 {
-    PDecor::addChild(child);
+    PDecor::addChild(child, it);
     AtomUtil::setLong(child->getWindow(), Atoms::getAtom(PEKWM_FRAME_ID), _id);
     child->lower();
+}
+
+/**
+ * Add child preserving order from the previous pekwm run.
+ */
+void
+Frame::addChildOrdered (Client *child)
+{
+    Client *client;
+    
+    list<PWinObj*>::iterator it(_child_list.begin());
+    for (; it != _child_list.end(); ++it) {
+        client = static_cast<Client*>(*it);
+        if (child->getInitialFrameOrder() < client->getInitialFrameOrder()) {
+            break;
+        }
+    }
+
+    addChild(child, &it);
 }
 
 //! @brief Removes child from the frame.
@@ -457,21 +476,29 @@ Frame::activateChild (PWinObj *child)
     Workspaces::instance()->updateClientStackingList(true, true);
 }
 
-//! @brief
+/**
+ * Called when child order is updated, re-sets the titles and updates
+ * the _PEKWM_FRAME hints.
+ */
 void
 Frame::updatedChildOrder(void)
 {
     titleClear();
 
+    Client *client;
     list<PWinObj*>::iterator it(_child_list.begin());
-    for (; it != _child_list.end(); ++it) {
-        titleAdd(static_cast<Client*>(*it)->getTitle());
+    for (long num = 0; it != _child_list.end(); ++num, ++it) {
+        client = static_cast<Client*>(*it);
+        client->setPekwmFrameOrder(num);
+        titleAdd(client->getTitle());
     }
 
     updatedActiveChild();
 }
 
-//! @brief
+/**
+ * Set the active title and update the _PEKWM_FRAME hints.
+ */
 void
 Frame::updatedActiveChild(void)
 {
@@ -479,9 +506,9 @@ Frame::updatedActiveChild(void)
 
     list<PWinObj*>::iterator it(_child_list.begin());
     for (uint i = 0; it != _child_list.end(); ++i, ++it) {
+        static_cast<Client*>(*it)->setPekwmFrameActive(_child == *it);
         if (_child == *it) {
             titleSetActive(i);
-            break;
         }
     }
 

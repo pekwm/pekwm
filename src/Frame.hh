@@ -55,7 +55,7 @@ public:
 #endif // HAVE_SHAPE
 
     // START - PDecor interface.
-    virtual void addChild(PWinObj *child);
+    virtual void addChild(PWinObj *child, std::list<PWinObj*>::iterator *it = 0);
     virtual void removeChild(PWinObj *child, bool do_delete = true);
     virtual void activateChild(PWinObj *child);
 
@@ -67,6 +67,8 @@ public:
     virtual void setShaded(StateAction sa);
     virtual void setSkip(uint skip);
     // END - PDecor interface.
+
+    void addChildOrdered(Client *child);
 
     static Frame *findFrameFromWindow(Window win);
     static Frame *findFrameFromID(uint id);

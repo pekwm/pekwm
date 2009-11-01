@@ -158,6 +158,7 @@ public: // Public Member Functions
     inline bool isShaded(void) const { return _state.shaded; }
     inline bool isFullscreen(void) const { return _state.fullscreen; }
     inline bool isPlaced(void) const { return _state.placed; }
+    inline uint getInitialFrameOrder(void) const { return _state.initial_frame_order; }
     inline uint getSkip(void) const { return _state.skip; }
     inline bool isSkip(Skip skip) const { return (_state.skip&skip); }
     inline uint getDecorState(void) const { return _state.decor; }
@@ -259,6 +260,11 @@ public: // Public Member Functions
     void readName(void);
     void readIconName(void);
     void removeStrutHint(void);
+    
+    long getPekwmFrameOrder(void);
+    void setPekwmFrameOrder(long num);
+    bool getPekwmFrameActive(void);
+    void setPekwmFrameActive(bool active);
 
 private:
     bool titleApplyRule(std::wstring &wtitle);
@@ -327,7 +333,8 @@ private: // Private Member Variables
     public:
         State(void)
             : maximized_vert(false), maximized_horz(false), shaded(false), fullscreen(false),
-              placed(false), skip(0), decor(DECOR_TITLEBAR|DECOR_BORDER),
+              placed(false), initial_frame_order(0),
+              skip(0), decor(DECOR_TITLEBAR|DECOR_BORDER),
               cfg_deny(CFG_DENY_NO), demands_attention(true) { }
         ~State(void) { }
 
@@ -337,6 +344,7 @@ private: // Private Member Variables
 
         // pekwm states
         bool placed;
+        uint initial_frame_order; /**< Initial frame position */
         uint skip, decor, cfg_deny;
         bool demands_attention; /**< If true, the client requires attention from the user. */
     } _state;

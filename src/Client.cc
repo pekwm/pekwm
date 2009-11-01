@@ -187,6 +187,7 @@ Client::Client(Window new_client, bool is_new)
     // don't want to spread the giveInputFocuses
     bool do_focus = is_new ? Config::instance()->isFocusNew() : false;
     bool do_autogroup = true;
+    bool is_active = getPekwmFrameActive();
 
     // If pekwm is already running, check against autoproperty then
     // tagged frame. If starting up, check if it has a FRAME_ID and if not
@@ -212,8 +213,10 @@ Client::Client(Window new_client, bool is_new)
             _parent = Frame::findFrameFromID(id);
             if (_parent) {
                 Frame *frame = static_cast<Frame*>(_parent);
-                frame->addChild(this);
-                frame->activateChild(this);
+                frame->addChildOrdered(this);
+                if (is_active) {
+                    frame->activateChild(this);
+                }
                 do_focus = frame->isFocused();
             }
         }
@@ -852,6 +855,8 @@ Client::readPekwmHints(void)
     if (AtomUtil::getString(_window, Atoms::getAtom(PEKWM_TITLE), str)) {
         _title.setUser(Util::to_wide_str(str));
     }
+
+    _state.initial_frame_order = getPekwmFrameOrder();
 }
 
 //! @brief Read _NET_WM_ICON from client window.
@@ -1664,4 +1669,45 @@ Client::removeStrutHint(void)
     PScreen::instance()->removeStrut(_strut);
     delete _strut;
     _strut = 0;
+}
+
+/**
+ * Get _PEKWM_FRAME_ORDER hint from client, return < 0 on failure.
+ */
+long
+Client::getPekwmFrameOrder(void)
+{
+    long num = -1;
+    AtomUtil::getLong(_window, Atoms::getAtom(PEKWM_FRAME_ORDER), num);
+    return num;
+}
+
+/**
+ * Update _PEKWM_FRAME_ORDER hint on client window.
+ */
+void
+Client::setPekwmFrameOrder(long num)
+{
+    AtomUtil::setLong(_window, Atoms::getAtom(PEKWM_FRAME_ORDER), num);
+}
+
+/**
+ * Get _PEKWM_FRAME_ACTIVE hint from client window, return true if
+ * client is treated as active.
+ */
+bool
+Client::getPekwmFrameActive(void)
+{
+    long act = 0;
+    return (AtomUtil::getLong(_window, Atoms::getAtom(PEKWM_FRAME_ACTIVE), act)
+            && act == 1);
+}
+
+/**
+ * Set _PEKWM_FRAME_ACTIVE hint on client window.
+ */
+void
+Client::setPekwmFrameActive(bool act)
+{
+    AtomUtil::setLong(_window, Atoms::getAtom(PEKWM_FRAME_ACTIVE), act ? 1 : 0);
 }

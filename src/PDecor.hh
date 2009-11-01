@@ -151,7 +151,7 @@ class Button : public PWinObj {
     // END - PWinObj interface.
 
     // START - PDecor interface.
-    virtual void addChild(PWinObj *child);
+    virtual void addChild(PWinObj *child, std::list<PWinObj*>::iterator *it = 0);
     virtual void removeChild(PWinObj *child, bool do_delete = true);
     virtual void activateChild(PWinObj *child);
 

@@ -67,6 +67,8 @@ enum AtomName {
 
     // pekwm atom names
     PEKWM_FRAME_ID,
+    PEKWM_FRAME_ORDER,
+    PEKWM_FRAME_ACTIVE,
     PEKWM_FRAME_DECOR,
     PEKWM_FRAME_SKIP,
     PEKWM_TITLE,

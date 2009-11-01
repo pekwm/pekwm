@@ -993,10 +993,14 @@ PDecor::getTitleHeight(void) const
 
 //! @brief Adds a child to the decor, reparenting the window
 void
-PDecor::addChild(PWinObj *child)
+PDecor::addChild(PWinObj *child, std::list<PWinObj*>::iterator *it)
 {
     child->reparent(this, borderLeft(), borderTop() + getTitleHeight());
-    _child_list.push_back(child);
+    if (it == 0) {
+        _child_list.push_back(child);
+    } else {
+        _child_list.insert(*it, child);
+    }
 
     updatedChildOrder();
 

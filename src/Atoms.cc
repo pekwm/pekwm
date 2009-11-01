@@ -64,6 +64,8 @@ static const char *atomnames[] = {
 
     // pekwm atoms
     "_PEKWM_FRAME_ID",
+    "_PEKWM_FRAME_ORDER",
+    "_PEKWM_FRAME_ACTIVE",
     "_PEKWM_FRAME_DECOR",
     "_PEKWM_FRAME_SKIP",
     "_PEKWM_TITLE",
