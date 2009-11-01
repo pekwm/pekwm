@@ -423,6 +423,11 @@ PMenu::buildMenuCalculate(void)
     _separator_height = _theme->getMenuData()->getTextureSeparator(OBJECT_STATE_FOCUSED)->getHeight();
 
     height = (_item_height * _size) + (_separator_height * sep);
+
+    if (_size) {
+    	_size += sep;
+    }
+
     buildMenuCalculateColumns(width, height);
 
     // Check if we need to enable scrolling
@@ -517,12 +522,17 @@ PMenu::buildMenuCalculateColumns(unsigned int &width, unsigned int &height)
         list<PMenu::Item*>::iterator it(_item_list.begin());
         for (i = 0, it = _item_list.begin(); i < _cols; ++i) {
             row_height = 0;
-            for (j = 0; (j < _rows) && (it != _item_list.end()); ++it) {
-                if ((*it)->getType() == PMenu::Item::MENU_ITEM_NORMAL) {
+            for (j = 0; (j < _rows) && (it != _item_list.end()); ++it, ++j) {
+                switch ((*it)->getType()) {
+                case PMenu::Item::MENU_ITEM_NORMAL:
                     row_height += _item_height;
-                    ++j; // only count real menu items
-                } else if ((*it)->getType() == PMenu::Item::MENU_ITEM_SEPARATOR) {
+                    break;
+                case PMenu::Item::MENU_ITEM_SEPARATOR:
                     row_height += _separator_height;
+                    break;
+                case PMenu::Item::MENU_ITEM_HIDDEN:
+                default:
+                	break;
                 }
             }
 
