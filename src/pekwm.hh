@@ -198,8 +198,8 @@ enum MouseEventType {
 enum ButtonNum {
     BUTTON_ANY = 0,
     BUTTON1 = Button1, BUTTON2, BUTTON3, BUTTON4, BUTTON5,
-    BUTTON6, BUTTON7,
-    BUTTON_NO
+    BUTTON6, BUTTON7, BUTTON8, BUTTON9, BUTTON10, BUTTON11,
+    BUTTON12, BUTTON_NO
 };
 enum Mod {
     MOD_ANY = (uint) ~0
