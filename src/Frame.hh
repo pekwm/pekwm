@@ -50,9 +50,7 @@ public:
     virtual ActionEvent *handleUnmapEvent(XUnmapEvent *ev);
     // END - PWinObj interface.
 
-#ifdef HAVE_SHAPE
     virtual void handleShapeEvent(XAnyEvent *ev);
-#endif // HAVE_SHAPE
 
     // START - PDecor interface.
     virtual void addChild(PWinObj *child, std::list<PWinObj*>::iterator *it = 0);

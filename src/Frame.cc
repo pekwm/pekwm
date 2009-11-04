@@ -391,17 +391,17 @@ Frame::handleUnmapEvent(XUnmapEvent *ev)
 
 // END - PWinObj interface.
 
-#ifdef HAVE_SHAPE
-//! @brief
 void
 Frame::handleShapeEvent(XAnyEvent *ev)
 {
+#ifdef HAVE_SHAPE
     if (! _client || (ev->window != _client->getWindow())) {
         return;
     }
     _client->setShaped(setShape());
-}
 #endif // HAVE_SHAPE
+}
+
 
 // START - PDecor interface.
 
@@ -460,11 +460,9 @@ Frame::activateChild (PWinObj *child)
 
     // setShape uses current active child, so we need to activate the
     // child before setting shape
-#ifdef HAVE_SHAPE
     if (PScreen::instance()->hasExtensionShape()) {
         _client->setShaped(setShape());
     }
-#endif // HAVE_SHAPE
 
     if (_focused) {
         child->giveInputFocus();

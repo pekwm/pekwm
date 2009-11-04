@@ -65,10 +65,7 @@ Client::Client(Window new_client, bool is_new)
       _alive(false), _marked(false),
       _send_focus_message(false), _send_close_message(false),
       _wm_hints_input(true), _cfg_request_lock(false),
-#ifdef HAVE_SHAPE
-      _shaped(false),
-#endif // HAVE_SHAPE
-      _extended_net_name(false)
+      _shaped(false), _extended_net_name(false)
 {
     // Construct the client
     PScreen::instance()->grabServer();
@@ -86,11 +83,11 @@ Client::Client(Window new_client, bool is_new)
     _title.setId(_id);
     _title.infoAdd(PDecor::TitleItem::INFO_ID);
 
-#ifdef HAVE_SHAPE
     if (PScreen::instance()->hasExtensionShape()) {
+#ifdef HAVE_SHAPE
         XShapeSelectInput(_dpy, _window, ShapeNotifyMask);
-    }
 #endif // HAVE_SHAPE
+    }
 
     XAddToSaveSet(_dpy, _window);
     XSetWindowBorderWidth(_dpy, _window, 0);

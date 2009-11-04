@@ -128,7 +128,7 @@ PDecor::Button::setState(ButtonState state)
             XShapeCombineRectangles(_dpy, _window, ShapeBounding,
                                     0, 0, &rect, 1, ShapeSet, YXBanded);
         }
-#endif
+#endif // HAVE_SHAPE
         clear();
     }
 }

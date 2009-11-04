@@ -154,10 +154,8 @@ public:
     inline uint getNumLock(void) const { return _num_lock; }
     inline uint getScrollLock(void) const { return _scroll_lock; }
 
-#ifdef HAVE_SHAPE
     inline bool hasExtensionShape(void) const { return _has_extension_shape; }
     inline int getEventShape(void) const { return _event_shape; }
-#endif // HAVE_SHAPE
 
     void updateGeometry(uint width, uint height);
 #ifdef HAVE_XRANDR

@@ -1475,17 +1475,18 @@ WindowManager::handleExposeEvent(XExposeEvent *ev)
     }
 }
 
-#ifdef HAVE_SHAPE
+
 //! @brief Handle shape events applying shape to clients
 void
 WindowManager::handleShapeEvent(XAnyEvent *ev)
 {
+#ifdef HAVE_SHAPE
     Client *client = Client::findClient(ev->window);
     if (client && client->getParent()) {
         static_cast<Frame*>(client->getParent())->handleShapeEvent(ev);
     }
-}
 #endif // HAVE_SHAPE
+}
 
 #ifdef HAVE_XRANDR
 //! @brief Handles XRandr events

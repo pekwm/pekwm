@@ -140,9 +140,7 @@ public: // Public Member Functions
 
     inline bool hasTitlebar(void) const { return (_state.decor&DECOR_TITLEBAR); }
     inline bool hasBorder(void) const { return (_state.decor&DECOR_BORDER); }
-#ifdef HAVE_SHAPE
     inline bool isShaped(void) const { return _shaped; }
-#endif // HAVE_SHAPE
     inline bool hasStrut(void) const { return (_strut); }
 
     PTexture *getIcon(void) const { return _icon; }
@@ -225,10 +223,8 @@ public: // Public Member Functions
     }
 
   /** Set shaped flag on Client. */
-  inline void setShaped(bool s) {
-#ifdef HAVE_SHAPE
-    _shaped = s;
-#endif // HAVE_SHAPE
+  inline void setShaped(bool shaped) {
+    _shaped = shaped;
   }
 
     void close(void);
@@ -336,9 +332,7 @@ private: // Private Member Variables
     bool _alive, _marked;
     bool _send_focus_message, _send_close_message, _wm_hints_input;
     bool _cfg_request_lock;
-#ifdef HAVE_SHAPE
     bool _shaped;
-#endif // HAVE_SHAPE
     bool _extended_net_name;
 
     class State {
