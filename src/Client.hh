@@ -267,6 +267,16 @@ public: // Public Member Functions
     void setPekwmFrameActive(bool active);
 
 private:
+    bool getAndUpdateWindowAttributes(void);
+
+    void findOrCreateFrame(AutoProperty *autoproperty);
+    bool findTaggedFrame(void);
+    bool findPreviousFrame(void);
+    bool findAutoGroupFrame(AutoProperty *autoproperty);
+
+    void setInitialState(void);
+    void setMappedStateAndFocus(bool is_new, AutoProperty *autoproperty);
+
     bool titleApplyRule(std::wstring &wtitle);
     uint titleFindID(std::wstring &wtitle);
 
@@ -289,6 +299,8 @@ private:
     // Grabs button with Caps,Num and so on
     void grabButton(int button, int mod, int mask, Window win, Cursor curs);
 
+    void readHints(void);
+    ulong readWmHints(void);
     void readClassRoleHints(void);
     void readEwmhHints(void);
     void readMwmHints(void);

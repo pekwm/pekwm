@@ -72,6 +72,10 @@ Client::Client(Window new_client, bool is_new)
 {
     // Construct the client
     PScreen::instance()->grabServer();
+    if (! validate() || ! getAndUpdateWindowAttributes()) {
+        PScreen::instance()->ungrabServer(true);
+        return;
+    }
 
     // PWinObj attributes
     _window = new_client;
@@ -81,42 +85,6 @@ Client::Client(Window new_client, bool is_new)
     _id = findClientID();
     _title.setId(_id);
     _title.infoAdd(PDecor::TitleItem::INFO_ID);
-
-    if (! validate()) {
-#ifdef DEBUG
-        cerr << __FILE__ << "@" << __LINE__ << ": " << "Couldn't validate client." << endl;
-#endif // DEBUG
-        PScreen::instance()->ungrabServer(true);
-        return;
-    }
-
-    XWindowAttributes attr;
-    if (! XGetWindowAttributes(_dpy, _window, &attr)) {
-#ifdef DEBUG
-        cerr << __FILE__ << "@" << __LINE__ << ": " << "Client died." << endl;
-#endif // DEBUG
-        PScreen::instance()->ungrabServer(true);
-        return;
-    }
-    _gm.x = attr.x;
-    _gm.y = attr.y;
-    _gm.width = attr.width;
-    _gm.height = attr.height;
-
-    _cmap = attr.colormap;
-    _size = XAllocSizeHints();
-
-    // get trans window and the window attributes
-    getTransientForHint();
-
-    XSetWindowAttributes sattr;
-    sattr.event_mask =
-        PropertyChangeMask|StructureNotifyMask|FocusChangeMask;
-    sattr.do_not_propagate_mask =
-        ButtonPressMask|ButtonReleaseMask|ButtonMotionMask;
-
-    // We don't want these masks to be propagated down to the frame
-    XChangeWindowAttributes(_dpy, _window, CWEventMask|CWDontPropagate, &sattr);
 
 #ifdef HAVE_SHAPE
     if (PScreen::instance()->hasExtensionShape()) {
@@ -143,144 +111,20 @@ Client::Client(Window new_client, bool is_new)
     AutoProperty *ap = readAutoprops(WindowManager::instance()->isStartup()
                                      ? APPLY_ON_NEW : APPLY_ON_START);
 
-    readMwmHints(); // read atoms
-    readEwmhHints();
-    readPekwmHints();
-    readIcon();
-    readClientPid();
-    readClientRemote();
-    getWMProtocols();
+    readHints();
+    findOrCreateFrame(ap);
+    setInitialState();
 
-    ulong initial_state = NormalState;
-    XWMHints* hints = XGetWMHints(_dpy, _window);
-    if (hints) {
-        // get the input focus mode
-        if (hints->flags&InputHint) { // FIXME: More logic needed
-            _wm_hints_input = hints->input;
-        }
-
-        // Get initial state of the window
-        if (hints->flags&StateHint) {
-            initial_state = hints->initial_state;
-        }
-
-        XFree(hints);
-    }
-
-    // Set state either specified in hint
-    if (getWmState() == IconicState) {
-        _iconified = true;
-    }
-
-    if (_iconified || initial_state == IconicState) {
-        _iconified = true;
-        _mapped = true;
-        unmapWindow();
-    } else {
-        setWmState(initial_state);
-    }
-
-    // grab keybindings and mousebutton actions
+    // Grab keybindings and mousebutton actions
     KeyGrabber::instance()->grabKeys(_window);
     grabButtons();
-
-    // don't want to spread the giveInputFocuses
-    bool do_focus = is_new ? Config::instance()->isFocusNew() : false;
-    bool do_autogroup = true;
-    bool is_active = getPekwmFrameActive();
-
-    // If pekwm is already running, check against autoproperty then
-    // tagged frame. If starting up, check if it has a FRAME_ID and if not
-    // use autoproperties.
-    if (WindowManager::instance()->isStartup()) {
-        // Check for tagged frame
-        Frame *frame = Frame::getTagFrame();
-        if (frame && frame->isMapped()) {
-            _parent = frame;
-            frame->addChild(this);
-
-            if (! Frame::getTagBehind()) {
-                frame->activateChild(this);
-                do_focus = frame->isFocused();
-            }
-        }
-
-        // Not startup, pekwm (re)start it is.
-    } else {
-        long id;
-        if (AtomUtil::getLong(_window, Atoms::getAtom(PEKWM_FRAME_ID), id)) {
-            do_autogroup = false;
-            _parent = Frame::findFrameFromID(id);
-            if (_parent) {
-                Frame *frame = static_cast<Frame*>(_parent);
-                frame->addChildOrdered(this);
-                if (is_active) {
-                    frame->activateChild(this);
-                }
-                do_focus = frame->isFocused();
-            }
-        }
-    }
-
-
-    // Apply Autoproperties again to override EWMH state. It's done twice as
-    // we need the cfg_deny property when reading the EWMH state.
-    if (ap) {
-        applyAutoprops(ap);
-
-        if (do_autogroup && ! _parent && (ap->group_size >= 0)) {
-            Frame* frame = WindowManager::instance()->findGroup(ap);
-            if (frame) {
-                frame->addChild(this);
-
-                if (! ap->group_behind) {
-                    frame->activateChild(this);
-                    do_focus = frame->isFocused();
-                }
-                if (ap->group_raise) {
-                    frame->raise();
-                }
-            }
-        }
-    }
 
     // Tell the world about our state
     updateEwmhStates();
 
     PScreen::instance()->ungrabServer(true);
 
-    // if we don't have a frame already, create a new one
-    if (! _parent) {
-        _parent = new Frame(this, ap);
-    }
-
-    // Make sure the window is mapped, this is done after it has been
-    // added to the decor/frame as otherwise IsViewable state won't
-    // be correct and we don't know whether or not to place the window
-    if (! _iconified) {
-        PWinObj::mapWindow();
-    }
-
-    // Let us hear what autoproperties has to say about focusing
-    if (is_new && ap && ap->isMask(AP_FOCUS_NEW)) {
-        do_focus = ap->focus_new;
-    }
-
-    // Only can give input focus to mapped windows
-    if (_parent->isMapped()) {
-        // Ordinary focus
-        if (do_focus) {
-            _parent->giveInputFocus();
-
-            // Check if we are transient, and if we want to focus
-        } else if ((_transient != None)
-                   && Config::instance()->isFocusNewChild()) {
-            Client *trans_for = findClientFromWindow(_transient);
-            if (trans_for && trans_for->isFocused()) {
-                _parent->giveInputFocus();
-            }
-        }
-    }
+    setMappedStateAndFocus(is_new, ap);
 
     _alive = true;
 
@@ -360,6 +204,198 @@ Client::~Client(void)
     }
 
     PScreen::instance()->ungrabServer(true);
+}
+
+/**
+ * Read basic window attributes including geometry and update the
+ * window attributes being listened to. Returns false if the client
+ * disappears during the check.
+ */
+bool
+Client::getAndUpdateWindowAttributes(void)
+{
+    XWindowAttributes attr;
+    if (! XGetWindowAttributes(_dpy, _window, &attr)) {
+        return false;
+    }
+    _gm.x = attr.x;
+    _gm.y = attr.y;
+    _gm.width = attr.width;
+    _gm.height = attr.height;
+
+    _cmap = attr.colormap;
+    _size = XAllocSizeHints();
+
+    XSetWindowAttributes sattr;
+    sattr.event_mask =
+        PropertyChangeMask|StructureNotifyMask|FocusChangeMask;
+    sattr.do_not_propagate_mask =
+        ButtonPressMask|ButtonReleaseMask|ButtonMotionMask;
+
+    // We don't want these masks to be propagated down to the frame
+    XChangeWindowAttributes(_dpy, _window, CWEventMask|CWDontPropagate, &sattr);
+
+    return true;
+}
+
+/**
+ * Find frame for client based on tagging, hints and
+ * autoproperties. Create a new one if not found and add the client.
+ */
+void
+Client::findOrCreateFrame(AutoProperty *autoproperty)
+{
+    if (! _parent) {
+        findTaggedFrame();
+    }
+    if (! _parent) {
+        findPreviousFrame();
+    }
+
+    // Apply Autoproperties again to override EWMH state. It's done twice as
+    // we need the cfg_deny property when reading the EWMH state.
+    if (autoproperty != 0) {
+        applyAutoprops(autoproperty);
+        if (! _parent) {
+            findAutoGroupFrame(autoproperty);
+        }
+    }
+
+    // if we don't have a frame already, create a new one
+    if (! _parent) {
+        _parent = new Frame(this, autoproperty);
+    }
+}
+
+/**
+ * Find from client from for the currently tagged client.
+ */
+bool
+Client::findTaggedFrame(void)
+{
+    if (! WindowManager::instance()->isStartup()) {
+        return false;
+    }
+
+    // Check for tagged frame
+    Frame *frame = Frame::getTagFrame();
+    if (frame && frame->isMapped()) {
+        _parent = frame;
+        frame->addChild(this);
+
+        if (! Frame::getTagBehind()) {
+            frame->activateChild(this);
+        }
+    }
+
+    return _parent != 0;
+}
+
+/**
+ * Find frame for client on PEKWM_FRAME_ID hint.
+ */
+bool
+Client::findPreviousFrame(void)
+{
+    if (WindowManager::instance()->isStartup()) {
+        return false;
+    }
+
+    long id;
+    if (! AtomUtil::getLong(_window, Atoms::getAtom(PEKWM_FRAME_ID), id)) {
+        _parent = Frame::findFrameFromID(id);
+        if (_parent) {
+            Frame *frame = static_cast<Frame*>(_parent);
+            frame->addChildOrdered(this);
+            if (getPekwmFrameActive()) {
+                frame->activateChild(this);
+            }
+        }
+    }
+
+    return _parent != 0;
+}
+
+/**
+ * Find frame for client based on autoproperties.
+ */
+bool
+Client::findAutoGroupFrame(AutoProperty *autoproperty)
+{
+    if (autoproperty->group_size < 0) {
+        return false;
+    }
+
+    Frame* frame = WindowManager::instance()->findGroup(autoproperty);
+    if (frame) {
+        frame->addChild(this);
+
+        if (! autoproperty->group_behind) {
+            frame->activateChild(this);
+        }
+        if (autoproperty->group_raise) {
+            frame->raise();
+        }
+    }
+
+    return _parent != 0;
+}
+
+/**
+ * Get the client state and set iconified and mapped flags.
+ */
+void
+Client::setInitialState(void)
+{
+    // Set state either specified in hint
+    ulong initial_state = readWmHints();
+    if (getWmState() == IconicState) {
+        _iconified = true;
+    }
+
+    if (_iconified || initial_state == IconicState) {
+        _iconified = true;
+        _mapped = true;
+        unmapWindow();
+    } else {
+        setWmState(initial_state);
+    }
+}
+
+/**
+ * Ensure the Client is (un) mapped and give input focus if requested.
+ */
+void
+Client::setMappedStateAndFocus(bool is_new, AutoProperty *autoproperty)
+{
+    // Make sure the window is mapped, this is done after it has been
+    // added to the decor/frame as otherwise IsViewable state won't
+    // be correct and we don't know whether or not to place the window
+    if (! _iconified) {
+        PWinObj::mapWindow();
+    }
+
+    // Let us hear what autoproperties has to say about focusing
+    bool do_focus = is_new ? Config::instance()->isFocusNew() : false;
+    if (is_new && autoproperty && autoproperty->isMask(AP_FOCUS_NEW)) {
+        do_focus = autoproperty->focus_new;
+    }
+
+    // Only can give input focus to mapped windows
+    if (_parent->isMapped()) {
+        // Ordinary focus
+        if (do_focus) {
+            _parent->giveInputFocus();
+
+            // Check if we are transient, and if we want to focus
+        } else if ((_transient != None)
+                   && Config::instance()->isFocusNewChild()) {
+            Client *trans_for = findClientFromWindow(_transient);
+            if (trans_for && trans_for->isFocused()) {
+                _parent->giveInputFocus();
+            }
+        }
+    }
 }
 
 // START - PWinObj interface.
@@ -700,6 +736,46 @@ Client::setStateCfgDeny(StateAction sa, uint deny)
     } else {
         _state.cfg_deny |= deny;
     }
+}
+
+/**
+ * Read "all" hints required during creation of Client.
+ */
+void
+Client::readHints(void)
+{
+    getTransientForHint();
+    readMwmHints(); // read atoms
+    readEwmhHints();
+    readPekwmHints();
+    readIcon();
+    readClientPid();
+    readClientRemote();
+    getWMProtocols();
+}
+
+/**
+ * Read WM Hints, return the initial state of the window.
+ */
+ulong
+Client::readWmHints(void)
+{
+    ulong initial_state = NormalState;
+    XWMHints* hints = XGetWMHints(_dpy, _window);
+    if (hints) {
+        // get the input focus mode
+        if (hints->flags&InputHint) { // FIXME: More logic needed
+            _wm_hints_input = hints->input;
+        }
+
+        // Get initial state of the window
+        if (hints->flags&StateHint) {
+            initial_state = hints->initial_state;
+        }
+
+        XFree(hints);
+    }
+    return initial_state;
 }
 
 /**
