@@ -33,54 +33,80 @@ PImageIcon::~PImageIcon(void)
 {
 }
 
-//! @brief Load icon from window (if atom is set)
+/**
+ * Load icon from window (if atom is set)
+ */
 bool
 PImageIcon::loadFromWindow(Window win)
 {
     bool status = false;
-
-    Atom icon = Atoms::getAtom(NET_WM_ICON);
     uchar *udata = 0;
-    long expected = 2;
-
-    // Start reading icon size
-    if (AtomUtil::getProperty(win, icon, XA_CARDINAL, expected, &udata)) {
-        long *data = reinterpret_cast<long*>(udata);
-
-        uint width = data[0];
-        uint height = data[1];
+    ulong expected = 2, actual;
+    if (AtomUtil::getProperty(win, Atoms::getAtom(NET_WM_ICON), XA_CARDINAL,
+                              expected, &udata, &actual)) {
+        if (expected == actual) {
+            // Icon size successfully read, proceed with loading the
+            // actual icon data.
+            uint width = udata[0];
+            uint height = udata[1];
+            expected += width * height;
+            status = loadActualFromWindow(win, expected, width, height);
+        }
 
         XFree(udata);
+    }
 
-        // Read the actual icon
-        expected += width * height;
-        if (AtomUtil::getProperty(win, icon, XA_CARDINAL, expected, &udata)) {
-            status = true;
+    return status;
+}
 
-            data = reinterpret_cast<long*>(udata);
+/**
+ * Do the actual reading and loading of the icon data in ARGB data.
+ */
+bool
+PImageIcon::loadActualFromWindow(Window win, ulong expected,
+                                 uint width, uint height)
+{
+    bool status = false;
+    uchar *udata = 0;
+    ulong actual;
 
-            _data = new uchar[width * height * 4];
+    if (AtomUtil::getProperty(win, Atoms::getAtom(NET_WM_ICON), XA_CARDINAL,
+                              expected, &udata, &actual)) {
+        if (expected == actual) {
+            long *from_data = reinterpret_cast<long*>(udata);
+
             _width = width;
             _height = height;
 
-            // Assign data, source data is ARGB one pixel per 32bit and
-            // destination is RGBA in 4x8bit.
-            uchar *p = _data;
-            int pixel;
-            for (int i = 2; i < expected; i += 1) {
-                pixel = data[i]; // in case 64bit system drop the unneeded bits
-                *p++ = pixel >> 16 & 0xff;
-                *p++ = pixel >> 8 & 0xff;
-                *p++ = pixel & 0xff;
-                *p++ = pixel >> 24 & 0xff;
-            }
+            _data = new uchar[_width * _height * 4];
+            convertARGBtoRGBA(expected, from_data, _data);
 
             _pixmap = createPixmap(_data, _width, _height);
             _mask =  createMask(_data, _width, _height);
 
-            XFree(udata);
+            status = true;
         }
+
+        XFree(udata);
     }
 
     return status;
+}
+
+/**
+ * Convert data, source data is ARGB one pixel per 32bit and
+ * destination is RGBA in 4x8bit.
+ */
+void
+PImageIcon::convertARGBtoRGBA(ulong size, long *from_data, uchar *to_data)
+{
+    uchar *p = to_data;
+    int pixel;
+    for (ulong i = 2; i < size; i += 1) {
+        pixel = from_data[i]; // in case 64bit system drop the unneeded bits
+        *p++ = pixel >> 16 & 0xff;
+        *p++ = pixel >> 8 & 0xff;
+        *p++ = pixel & 0xff;
+        *p++ = pixel >> 24 & 0xff;
+    }
 }

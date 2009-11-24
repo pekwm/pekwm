@@ -125,7 +125,8 @@ namespace AtomUtil {
 
 //! @brief Get unknown property
 bool
-getProperty(Window win, Atom atom, Atom type, ulong expected, uchar** data, ulong *actual)
+getProperty(Window win, Atom atom, Atom type,
+            ulong expected, uchar** data, ulong *actual)
 {
     Atom r_type;
     int r_format, status;
@@ -154,7 +155,7 @@ getProperty(Window win, Atom atom, Atom type, ulong expected, uchar** data, ulon
     } while (left);
 
     if (actual) {
-        * actual = read;
+        *actual = read;
     }
 
     return (*data != 0);
@@ -199,7 +200,7 @@ getLong(Window win, Atom atom, long &value)
     long *data = 0;
     uchar *udata = 0;
 
-    if (getProperty(win, atom, XA_CARDINAL, 1L, &udata)) {
+    if (getProperty(win, atom, XA_CARDINAL, 1L, &udata, 0)) {
         data = reinterpret_cast<long*>(udata);
         value = *data;
         XFree(udata);
@@ -240,7 +241,7 @@ getString(Window win, Atom atom, string &value)
 {
     uchar *data = 0;
 
-    if (getProperty(win, atom, XA_STRING, 64L, &data)) {
+    if (getProperty(win, atom, XA_STRING, 64L, &data, 0)) {
         value = string((const char*) data);
         XFree(data);
 
@@ -258,7 +259,7 @@ getUtf8String(Window win, Atom atom, std::wstring &value)
     unsigned char *data = 0;
 
     if (getProperty(win, atom, Atoms::getAtom(UTF8_STRING),
-                    32, &data)) {
+                    32, &data, 0)) {
         status = true;
 
         string utf8_str(reinterpret_cast<char*>(data));

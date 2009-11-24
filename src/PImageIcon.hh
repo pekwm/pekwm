@@ -22,6 +22,10 @@ public:
     virtual ~PImageIcon(void);
 
     bool loadFromWindow(Window win);
+
+private:
+    bool loadActualFromWindow(Window win, ulong expected, uint width, uint height);
+    void convertARGBtoRGBA(ulong size, long *from_data, uchar *to_data);
 };
 
 #endif // _PIMAGE_NATIVE_ICON_HH_

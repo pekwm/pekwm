@@ -111,7 +111,8 @@ private:
 };
 
 namespace AtomUtil {
-    bool getProperty(Window win, Atom atom, Atom type, ulong expected, uchar **data, ulong *actual = 0);
+    bool getProperty(Window win, Atom atom, Atom type,
+                     ulong expected, uchar **data, ulong *actual);
 
     void setAtom(Window win, Atom atom, Atom value);
     void setAtoms(Window win, Atom atom, Atom *values, int size);
