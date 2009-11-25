@@ -67,16 +67,16 @@ Client::Client(Window new_client, bool is_new)
       _wm_hints_input(true), _cfg_request_lock(false),
       _shaped(false), _extended_net_name(false)
 {
+    // PWinObj attributes, required by validate etc.
+    _window = new_client;
+    _type = WO_CLIENT;
+
     // Construct the client
     PScreen::instance()->grabServer();
     if (! validate() || ! getAndUpdateWindowAttributes()) {
         PScreen::instance()->ungrabServer(true);
         return;
     }
-
-    // PWinObj attributes
-    _window = new_client;
-    _type = WO_CLIENT;
 
     // Get unique Client id
     _id = findClientID();
