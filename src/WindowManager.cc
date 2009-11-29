@@ -1788,7 +1788,28 @@ WindowManager::removeFromFrameList(Frame *frame)
     _mru_list.remove(frame);
 }
 
-//! @brief Tries to find a Frame to autogroup with
+/**
+ * Match Frame against autoproperty.
+ */
+bool
+WindowManager::findGroupMatchProperty(Frame *frame, AutoProperty *property)
+{
+#define MATCH_GROUP(F,P) \
+    ((P->group_global || ((F)->isMapped())) &&                      \
+     ((P->group_size == 0) || (signed((F)->size()) < P->group_size)) && \
+     ((((F)->getClassHint()->group.size() > 0)                          \
+       ? ((F)->getClassHint()->group == P->group_name) : false) ||      \
+      AutoProperties::matchAutoClass(*(F)->getClassHint(), (Property*) P)))
+
+    return MATCH_GROUP(frame, property);
+#undef MATCH_GROUP
+}
+
+/**
+ * Tries to find a Frame to autogroup with. This is called recursively
+ * if workspace specific matching is on to avoid conflicts with the
+ * global property.
+ */
 Frame*
 WindowManager::findGroup(AutoProperty *property)
 {
@@ -1797,39 +1818,40 @@ WindowManager::findGroup(AutoProperty *property)
     }
 
     Frame *frame = 0;
+    frame = findGroupMatch(property);
 
-#define MATCH_GROUP(F,P) \
-((P->group_global || ((F)->isMapped())) && \
-((P->group_size == 0) || (signed((F)->size()) < P->group_size)) && \
-((((F)->getClassHint()->group.size() > 0) \
-	? ((F)->getClassHint()->group == P->group_name) : false) || \
- AutoProperties::matchAutoClass(*(F)->getClassHint(), (Property*) P)))
+    return frame;
+}
 
-    // try to match the focused window first
-    if (property->group_focused_first &&
-            PWinObj::getFocusedPWinObj() &&
-            (PWinObj::getFocusedPWinObj()->getType() == PWinObj::WO_CLIENT)) {
+/**
+ * Do matching against Frames searching for a suitable Frame for
+ * grouping.
+ */
+Frame*
+WindowManager::findGroupMatch(AutoProperty *property)
+{
+    Frame *frame = 0;
 
+    // Matching against the focused window first if requested
+    if (property->group_focused_first
+        && PWinObj::isFocusedPWinObj(PWinObj::WO_CLIENT)) {
         Frame *fo_frame =
             static_cast<Frame*>(PWinObj::getFocusedPWinObj()->getParent());
-
-        if (MATCH_GROUP(fo_frame, property)) {
+        if (findGroupMatchProperty(fo_frame, property)) {
             frame = fo_frame;
         }
     }
 
-    // search the list of frames
+    // Moving on to the rest of the frames.
     if (! frame) {
         list<Frame*>::iterator it(Frame::frame_begin());
         for (; it != Frame::frame_end(); ++it) {
-            if (MATCH_GROUP(*it, property)) {
+            if (findGroupMatchProperty(*it, property)) {
                 frame = *it;
                 break;
             }
         }
     }
-
-#undef MATCH_GROUP
 
     return frame;
 }

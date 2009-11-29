@@ -234,6 +234,9 @@ private:
     // private methods for the hints
     void initHints(void);
 
+    bool findGroupMatchProperty(Frame *frame, AutoProperty *property);
+    Frame *findGroupMatch(AutoProperty *property);
+
 private:
     PScreen *_screen;
     ScreenResources *_screen_resources;
