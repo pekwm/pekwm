@@ -1214,7 +1214,8 @@ WindowManager::handleUnmapEvent(XUnmapEvent *ev)
 #endif // HARBOUR
 
     if (wo_type != PWinObj::WO_MENU 
-        && wo_type != PWinObj::WO_CMD_DIALOG && wo_type != PWinObj::WO_SEARCH_DIALOG
+        && wo_type != PWinObj::WO_CMD_DIALOG
+        && wo_type != PWinObj::WO_SEARCH_DIALOG
         && ! PWinObj::getFocusedPWinObj()) {
         findWOAndFocus(wo_search);
     }
@@ -1960,11 +1961,7 @@ WindowManager::getPrevFrame(Frame* frame, bool mapped, uint mask)
 void
 WindowManager::hideAllMenus(void)
 {
-    bool do_focus = false;
-    PWinObj *wo = PWinObj::getFocusedPWinObj();
-    if (wo && wo->getType() == PWinObj::WO_MENU) {
-        do_focus = true;
-    }
+    bool do_focus = PWinObj::isFocusedPWinObj(PWinObj::WO_MENU);
 
     map<std::string, PMenu*>::iterator it(_menu_map.begin());
     for (; it != _menu_map.end(); ++it) {

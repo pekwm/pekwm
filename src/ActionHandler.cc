@@ -659,27 +659,17 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off,
 
     // find the focused window object
     PWinObj *fo_wo = 0;
-    if (PWinObj::getFocusedPWinObj()) {
-        if (PWinObj::getFocusedPWinObj()->getType() == PWinObj::WO_CLIENT) {
-            fo_wo = PWinObj::getFocusedPWinObj()->getParent();
+    if (PWinObj::isFocusedPWinObj(PWinObj::WO_CLIENT)) {
+        fo_wo = PWinObj::getFocusedPWinObj()->getParent();
 
-            list<PMenu::Item*>::iterator it(menu->m_begin());
-            for (; it != menu->m_end(); ++it) {
-                if ((*it)->getWORef() == fo_wo) {
-                    menu->selectItem(it);
-                    break;
-                }
+        list<PMenu::Item*>::iterator it(menu->m_begin());
+        for (; it != menu->m_end(); ++it) {
+            if ((*it)->getWORef() == fo_wo) {
+                menu->selectItem(it);
+                break;
             }
-            fo_wo->setFocused(false);
-
-        } else {
-#ifdef DEBUG
-            cerr << __FILE__ << "@" << __LINE__ << ": "
-                 << "ActionHandler(" << this << ")::actionFocusToggle("
-                 << button << "," << raise << "," << off << "," << mru << ")"
-                 << endl << " *** focused PWinObj != WO_FRAME" << endl;
-#endif // DEBUG
         }
+        fo_wo->setFocused(false);
     }
 
     if (Config::instance()->getShowFrameList()) {

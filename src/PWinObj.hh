@@ -52,6 +52,10 @@ public:
     static inline void setFocusedPWinObj(PWinObj *wo) {	_focused_wo = wo; }
     //! @brief Sets the PWinObj representing the root Window.
     static inline void setRootPWinObj(PWinObj *wo) { _root_wo = wo; }
+    //! @brief Checks if focused window is of type
+    static inline bool isFocusedPWinObj(Type type) {
+        return _focused_wo ? _focused_wo->getType() == type : false;
+    }
 
     //! @brief Searches for the PWinObj matching Window win.
     //! @param win Window to match PWinObjs against.
