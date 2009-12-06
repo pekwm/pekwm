@@ -1794,15 +1794,20 @@ WindowManager::removeFromFrameList(Frame *frame)
 bool
 WindowManager::findGroupMatchProperty(Frame *frame, AutoProperty *property)
 {
-#define MATCH_GROUP(F,P) \
-    ((P->group_global || ((F)->isMapped())) &&                      \
-     ((P->group_size == 0) || (signed((F)->size()) < P->group_size)) && \
-     ((((F)->getClassHint()->group.size() > 0)                          \
-       ? ((F)->getClassHint()->group == P->group_name) : false) ||      \
-      AutoProperties::matchAutoClass(*(F)->getClassHint(), (Property*) P)))
-
-    return MATCH_GROUP(frame, property);
-#undef MATCH_GROUP
+    if ((property->group_global
+         || (property->isMask(AP_WORKSPACE)
+             ? (frame->getWorkspace() == property->workspace
+                && ! frame->isIconified())
+             : frame->isMapped()))
+        && (property->group_size == 0
+            || signed(frame->size()) < property->group_size)
+        && (((frame->getClassHint()->group.size() > 0)
+             ? (frame->getClassHint()->group == property->group_name) : false)
+            || AutoProperties::matchAutoClass(*frame->getClassHint(),
+                                              static_cast<Property*>(property)))) {
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -1818,7 +1823,15 @@ WindowManager::findGroup(AutoProperty *property)
     }
 
     Frame *frame = 0;
-    frame = findGroupMatch(property);
+    if (property->group_global && property->isMask(AP_WORKSPACE)) {
+        AutoProperty no_global_property = *property;
+        no_global_property.group_global = false;
+        frame = findGroup(&no_global_property);
+    }
+
+    if (! frame) {
+        frame = findGroupMatch(property);
+    }
 
     return frame;
 }
