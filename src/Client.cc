@@ -299,7 +299,7 @@ Client::findPreviousFrame(void)
     }
 
     long id;
-    if (! AtomUtil::getLong(_window, Atoms::getAtom(PEKWM_FRAME_ID), id)) {
+    if (AtomUtil::getLong(_window, Atoms::getAtom(PEKWM_FRAME_ID), id)) {
         _parent = Frame::findFrameFromID(id);
         if (_parent) {
             Frame *frame = static_cast<Frame*>(_parent);
