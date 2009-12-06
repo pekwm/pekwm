@@ -44,13 +44,8 @@ PImageIcon::loadFromWindow(Window win)
     ulong expected = 2, actual;
     if (AtomUtil::getProperty(win, Atoms::getAtom(NET_WM_ICON), XA_CARDINAL,
                               expected, &udata, &actual)) {
-        if (expected == actual) {
-            // Icon size successfully read, proceed with loading the
-            // actual icon data.
-            uint width = udata[0];
-            uint height = udata[1];
-            expected += width * height;
-            status = loadActualFromWindow(win, expected, width, height);
+        if (actual >= expected) {
+            status = loadActualFromWindow(udata, actual);
         }
 
         XFree(udata);
@@ -63,34 +58,26 @@ PImageIcon::loadFromWindow(Window win)
  * Do the actual reading and loading of the icon data in ARGB data.
  */
 bool
-PImageIcon::loadActualFromWindow(Window win, ulong expected,
-                                 uint width, uint height)
+PImageIcon::loadActualFromWindow(uchar *udata, ulong actual)
 {
-    bool status = false;
-    uchar *udata = 0;
-    ulong actual;
-
-    if (AtomUtil::getProperty(win, Atoms::getAtom(NET_WM_ICON), XA_CARDINAL,
-                              expected, &udata, &actual)) {
-        if (expected == actual) {
-            long *from_data = reinterpret_cast<long*>(udata);
-
-            _width = width;
-            _height = height;
-
-            _data = new uchar[_width * _height * 4];
-            convertARGBtoRGBA(expected, from_data, _data);
-
-            _pixmap = createPixmap(_data, _width, _height);
-            _mask =  createMask(_data, _width, _height);
-
-            status = true;
-        }
-
-        XFree(udata);
+    // Icon size successfully read, proceed with loading the actual icon data.
+    long *from_data = reinterpret_cast<long*>(udata);
+    uint width = from_data[0];
+    uint height = from_data[1];
+    if (actual < (width * height + 2)) {
+        return false;
     }
 
-    return status;
+    _width = width;
+    _height = height;
+
+    _data = new uchar[_width * _height * 4];
+    convertARGBtoRGBA(_width * _height, from_data, _data);
+
+    _pixmap = createPixmap(_data, _width, _height);
+    _mask =  createMask(_data, _width, _height);
+
+    return true;
 }
 
 /**

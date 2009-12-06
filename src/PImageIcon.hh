@@ -24,7 +24,7 @@ public:
     bool loadFromWindow(Window win);
 
 private:
-    bool loadActualFromWindow(Window win, ulong expected, uint width, uint height);
+    bool loadActualFromWindow(uchar *data, ulong actual);
     void convertARGBtoRGBA(ulong size, long *from_data, uchar *to_data);
 };
 
