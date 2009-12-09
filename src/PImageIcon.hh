@@ -24,8 +24,8 @@ public:
     bool loadFromWindow(Window win);
 
 private:
-    bool loadActualFromWindow(uchar *data, ulong actual);
-    void convertARGBtoRGBA(ulong size, long *from_data, uchar *to_data);
+    bool setImageFromData(uchar *data, ulong actual);
+    static void convertARGBtoRGBA(ulong size, long *from_data, uchar *to_data);
 };
 
 #endif // _PIMAGE_NATIVE_ICON_HH_

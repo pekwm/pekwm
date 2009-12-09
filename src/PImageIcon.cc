@@ -45,7 +45,7 @@ PImageIcon::loadFromWindow(Window win)
     if (AtomUtil::getProperty(win, Atoms::getAtom(NET_WM_ICON), XA_CARDINAL,
                               expected, &udata, &actual)) {
         if (actual >= expected) {
-            status = loadActualFromWindow(udata, actual);
+            status = setImageFromData(udata, actual);
         }
 
         XFree(udata);
@@ -58,7 +58,7 @@ PImageIcon::loadFromWindow(Window win)
  * Do the actual reading and loading of the icon data in ARGB data.
  */
 bool
-PImageIcon::loadActualFromWindow(uchar *udata, ulong actual)
+PImageIcon::setImageFromData(uchar *udata, ulong actual)
 {
     // Icon size successfully read, proceed with loading the actual icon data.
     long *from_data = reinterpret_cast<long*>(udata);
