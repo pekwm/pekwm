@@ -14,13 +14,14 @@
 #endif // HAVE_CONFIG_H
 
 #include "PWinObj.hh"
+#include "PWinObjReference.hh"
 #include "PDecor.hh"
 #include "Util.hh"
 
 /**
  * Base for windows handling text input.
  */
-class InputDialog : public PDecor {
+class InputDialog : public PDecor, public PWinObjReference {
 public:
   InputDialog(Display *dpy, Theme *theme, const std::wstring &title);
   virtual ~InputDialog(void);
@@ -42,11 +43,6 @@ public:
 
   virtual void mapCentered(const std::string &buf, bool focus, PWinObj *wo_ref = 0);
   virtual void moveCentered(PWinObj *wo);
-
-  /** @brief Returns the PWinObj the CmdDialog executes actions on. */
-  inline PWinObj *getWORef(void) { return _wo_ref; }
-  /** @brief Sets the PWinObj the CmdDialog executes actions on. */
-  inline void setWORef(PWinObj *wo) { _wo_ref = wo; }
 
 protected:
   virtual ActionEvent *close(void);
@@ -92,8 +88,6 @@ protected:
   std::wstring _hist_new; // the one we started editing on
   Util::file_backed_list _hist_list;
   Util::file_backed_list::iterator _hist_it;
-
-  PWinObj *_wo_ref; /**< referenced window object. */
 };
 
 #endif // _INPUT_DIALOG_HH_

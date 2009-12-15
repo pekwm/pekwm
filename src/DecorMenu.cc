@@ -51,7 +51,7 @@ DecorMenu::handleItemExec(PMenu::Item *item)
         return;
     }
 
-    ActionPerformed ap(_wo_ref, item->getAE());
+    ActionPerformed ap(getWORef(), item->getAE());
     _act->handleAction(ap);
 }
 

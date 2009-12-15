@@ -208,6 +208,8 @@ WorkspaceIndicator::WorkspaceIndicator(::Display *dpy, Theme *theme, Timer<Actio
  */
 WorkspaceIndicator::~WorkspaceIndicator(void)
 {
+    removeChild(&_display_wo, false);
+
     // Un-register ourselves
     Workspaces::instance()->remove(this);
     _wo_map.erase(_window);

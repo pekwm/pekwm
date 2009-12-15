@@ -21,6 +21,7 @@
 #include "AutoProperties.hh"
 #include "CfgParser.hh"
 #include "PDecor.hh"
+#include "PWinObjReference.hh"
 
 class PTexture;
 class ActionEvent;
@@ -28,7 +29,7 @@ class Theme;
 
 class PMenu : public PDecor {
 public:
-    class Item {
+    class Item : public PWinObjReference {
     public:
         enum Type {
             MENU_ITEM_NORMAL, MENU_ITEM_SEPARATOR, MENU_ITEM_HIDDEN
@@ -40,7 +41,6 @@ public:
         inline int getY(void) const { return _y; }
         inline const std::wstring &getName(void) const { return _name; }
         inline const ActionEvent &getAE(void) const { return _ae; }
-        inline PWinObj *getWORef(void) const { return _wo_ref; }
         inline PTexture *getIcon(void) { return _icon; }
         inline PMenu::Item::Type getType(void) const { return _type; }
 
@@ -48,7 +48,6 @@ public:
         inline void setY(int y) { _y = y; }
         inline void setName(const std::wstring &name) { _name = name; }
         inline void setAE(const ActionEvent &ae) { _ae = ae; }
-        inline void setWORef(PWinObj *wo_ref) { _wo_ref = wo_ref; }
         inline void setType(PMenu::Item::Type type) { _type = type; }
 
         inline void setCreator(PMenu::Item *c) { _creator = c; }
@@ -59,7 +58,6 @@ public:
         std::wstring _name;
 
         ActionEvent _ae; // used for specifying action of the entry
-        PWinObj *_wo_ref; // used for client, frame, parent etc
 
         PMenu::Item::Type _type; // normal, separator or hidden item
         PTexture *_icon; // icon texture.

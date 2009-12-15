@@ -71,7 +71,9 @@ FrameListMenu::mapWindow(void)
 
 // END - PWinObj interface.
 
-//! @brief
+/**
+ * Execute item execution.
+ */
 void
 FrameListMenu::handleItemExec(PMenu::Item *item)
 {
@@ -79,29 +81,25 @@ FrameListMenu::handleItemExec(PMenu::Item *item)
         return;
     }
 
-    if (! PWinObj::windowObjectExists(_wo_ref)) {
-        _wo_ref = 0;
-    }
-    if (! PWinObj::windowObjectExists(item->getWORef())) {
-        item->setWORef(0);
-    }
-
+    Client *item_client = dynamic_cast<Client*>(item->getWORef());
+    Client *wo_ref_client = dynamic_cast<Client*>(getWORef());
+    
     switch (_menu_type) {
     case GOTOMENU_TYPE:
     case GOTOCLIENTMENU_TYPE:
-        handleGotomenu(dynamic_cast<Client*>(item->getWORef()));
+        handleGotomenu(item_client);
         break;
     case ICONMENU_TYPE:
-        handleIconmenu(dynamic_cast<Client*>(item->getWORef()));
+        handleIconmenu(item_client);
         break;
     case ATTACH_CLIENT_TYPE:
     case ATTACH_FRAME_TYPE:
-        handleAttach(dynamic_cast<Client*>(_wo_ref), dynamic_cast<Client*>(item->getWORef()),
+        handleAttach(wo_ref_client, item_client,
                      (_menu_type == ATTACH_FRAME_TYPE));
         break;
     case ATTACH_CLIENT_IN_FRAME_TYPE:
     case ATTACH_FRAME_IN_FRAME_TYPE:
-        handleAttach(dynamic_cast<Client*>(item->getWORef()), dynamic_cast<Client*>(_wo_ref),
+        handleAttach(item_client, wo_ref_client,
                      (_menu_type == ATTACH_FRAME_IN_FRAME_TYPE));
         break;
     default:
@@ -147,7 +145,7 @@ FrameListMenu::updateFrameListMenu(void)
             if (((*it)->getWorkspace() == i) && // sort by workspace
                     // don't include ourselves if we're not doing a gotoclient menu
                     ((_menu_type != GOTOCLIENTMENU_TYPE)
-                     ? ((*it)->getActiveChild() != _wo_ref)
+                     ? ((*it)->getActiveChild() != getWORef())
                      : true) &&
                     (show_iconified_only
                      ? (*it)->isIconified()

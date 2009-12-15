@@ -112,7 +112,7 @@ ActionMenu::handleItemExec(PMenu::Item *item)
         return;
     }
 
-    ActionPerformed ap(_wo_ref, item->getAE());
+    ActionPerformed ap(getWORef(), item->getAE());
     _act->handleAction(ap);
 }
 
@@ -306,9 +306,11 @@ ActionMenu::getIcon(CfgParser::Entry *value)
 void
 ActionMenu::rebuildDynamic(void)
 {
+    PWinObj *wo_ref = getWORef();
+
     // Export environment before to dynamic script.
-    if (_wo_ref && _wo_ref->getType() == WO_CLIENT) {
-        Client *client = static_cast<Client*>(_wo_ref);
+    if (wo_ref && wo_ref->getType() == WO_CLIENT) {
+        Client *client = static_cast<Client*>(wo_ref);
         setenv("CLIENT_PID", Util::to_string<long>(client->isRemote() ? -1 : client->getPid()).c_str(), 1);
         setenv("CLIENT_WINDOW", Util::to_string<Window>(client->getWindow()).c_str(), 1);
     }

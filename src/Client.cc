@@ -146,22 +146,6 @@ Client::~Client(void)
 
     PScreen::instance()->grabServer();
 
-#ifdef MENUS
-    WORefMenu *wo_ref_menu;
-
-    wo_ref_menu = static_cast<WORefMenu*>(WindowManager::instance()->getMenu("WINDOW"));
-    if (this == wo_ref_menu->getWORef()) {
-        wo_ref_menu->setWORef(0);
-        wo_ref_menu->unmapAll();
-    }
-
-    wo_ref_menu = static_cast<WORefMenu*>(WindowManager::instance()->getMenu("DECORMENU"));
-    if (this == wo_ref_menu->getWORef()) {
-        wo_ref_menu->setWORef(0);
-        wo_ref_menu->unmapAll();
-    }
-#endif // MENUS
-
     // removes gravity and moves it back to root if we are alive
     bool focus = false;
     if (_parent && (_parent->getType() == PWinObj::WO_FRAME)) {

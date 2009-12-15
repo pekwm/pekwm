@@ -64,11 +64,11 @@ SearchDialog::exec(void)
     // InputDialog::close() may have overwritten our action.
     _ae.action_list.back().setAction(ACTION_GOTO_CLIENT);
 
+    PWinObj *wo_ref = 0;
     if (_result_menu->getItemCurr()) {
-        _wo_ref = _result_menu->getItemCurr()->getWORef();
-    } else {
-        _wo_ref = 0;
+        wo_ref = _result_menu->getItemCurr()->getWORef();
     }
+    setWORef(wo_ref);
 
     return &_ae;
 }
@@ -174,7 +174,7 @@ SearchDialog::unmapWindow(void)
 {
     if (_mapped) {
         InputDialog::unmapWindow();
-        _wo_ref = 0;
+        setWORef(0);
         bufClear();
 
         // Clear the menu and hide it.

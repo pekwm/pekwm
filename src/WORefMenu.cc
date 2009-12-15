@@ -31,8 +31,8 @@ using std::wstring;
 //! @param decor_name Name of decor, defaults to MENU
 WORefMenu::WORefMenu(PScreen *scr, Theme *theme, const std::wstring &title,
                      const std::string &name, const std::string &decor_name)
-    : PMenu(scr->getDpy(), theme, title, name, decor_name),
-      _wo_ref(0), _title_base(title),
+    : PMenu(scr->getDpy(), theme, title, name, decor_name), PWinObjReference(0),
+      _title_base(title),
       _title_pre(L" ["), _title_post(L"]")
 {
 }
@@ -42,17 +42,28 @@ WORefMenu::~WORefMenu(void)
 {
 }
 
+/**
+ * When notified, unmap all windows as window menu refers to object
+ * being removed.
+ */
+void
+WORefMenu::notify(Observable *observable)
+{
+    PWinObjReference::notify(observable);
+    unmapAll();
+}
+
 //! @brief Sets the reference and updates the title
 void
-WORefMenu::setWORef(PWinObj *wo)
+WORefMenu::setWORef(PWinObj *wo_ref)
 {
-    _wo_ref = wo;
+    PWinObjReference::setWORef(wo_ref);
 
     wstring title(_title_base);
 
     // if of client type, add the clients named to the title
-    if (_wo_ref && (_wo_ref->getType() == PWinObj::WO_CLIENT)) {
-        Client *client = static_cast<Client*>(wo);
+    if (wo_ref && (wo_ref->getType() == PWinObj::WO_CLIENT)) {
+        Client *client = static_cast<Client*>(wo_ref);
         title += _title_pre + client->getTitle()->getVisible() + _title_post;
     }
 

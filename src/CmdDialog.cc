@@ -107,7 +107,7 @@ CmdDialog::unmapWindow(void)
 {
     if (_mapped) {
         InputDialog::unmapWindow();
-        _wo_ref = 0;
+        setWORef(0);
         bufClear();
     }
 }
@@ -137,7 +137,8 @@ CmdDialog::complete(void)
 void
 CmdDialog::mapCentered(const std::string &buf, bool focus, PWinObj *wo_ref)
 {
-    _wo_ref = wo_ref ? wo_ref : _wo_ref;
-
+    if (wo_ref != 0) {
+        setWORef(wo_ref);
+    }
     InputDialog::mapCentered(buf, focus, wo_ref);
 }
