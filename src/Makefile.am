@@ -31,12 +31,15 @@ pekwm_SOURCES = \
 	InputDialog.cc InputDialog.hh \
 	KeyGrabber.cc KeyGrabber.hh \
 	ManagerWindows.cc ManagerWindows.hh \
+	Observer.hh \
+	Observable.cc Observable.hh \
 	PDecor.cc PDecor.hh \
 	PFont.cc PFont.hh \
 	PMenu.cc PMenu.hh \
 	PTexture.hh \
 	PTexturePlain.cc PTexturePlain.hh \
 	PWinObj.cc PWinObj.hh \
+	PWinObjReference.cc PWinObjReference.hh \
 	PImage.cc PImage.hh \
 	PImageIcon.cc PImageIcon.hh \
 	PImageLoader.hh \
