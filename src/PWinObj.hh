@@ -6,8 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _WINDOW_OBJECT_HH_
-#define _WINDOW_OBJECT_HH_
+#ifndef _PWIN_OBJ_HH_
+#define _PWIN_OBJ_HH_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -19,10 +19,10 @@
 
 #include "pekwm.hh"
 #include "Action.hh"
-
+#include "Observable.hh"
 
 //! @brief X11 Window wrapper class.
-class PWinObj
+class PWinObj : public Observable
 {
 public:
     //! @brief PWinObj inherited types.
@@ -226,4 +226,4 @@ protected:
     static std::map<Window, PWinObj*> _wo_map; //!< Mapping of Window to PWinObj
 };
 
-#endif // _WINDOW_OBJECT_HH_
+#endif // _PWIN_OBJ_HH_

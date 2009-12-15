@@ -1,13 +1,13 @@
 //
 // PWinObj.cc for pekwm
-// Copyright © 2003-2009 Claes Nästen <me{@}pekdon{.}net>
+// Copyright © 2003-2009 Claes Nästen <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
 #ifdef HAVE_CONFIG_H
-#include "../config.h"
+#include "config.h"
 #endif // HAVE_CONFIG_H
 
 #include <algorithm>
@@ -43,6 +43,7 @@ PWinObj::~PWinObj(void)
     if (_focused_wo == this) {
         _focused_wo = 0;
     }
+    notifyObservers();
 }
 
 //! @brief Associates Window with PWinObj
