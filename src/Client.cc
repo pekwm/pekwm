@@ -104,7 +104,10 @@ Client::Client(Window new_client, bool is_new)
     // cyclic dependency, getting the name requires quiering autoprops
     _class_hint->title = _title.getReal();
 
-    // Get Autoproperties before EWMH as we need the cfg_deny property.
+    // Get Autoproperties before EWMH as we need the cfg_deny
+    // property, however the _transient hint needs to be setup to
+    // avoid auto-grouping to be to greedy.
+    getTransientForHint();
     AutoProperty *ap = readAutoprops(WindowManager::instance()->isStartup()
                                      ? APPLY_ON_NEW : APPLY_ON_START);
 
@@ -741,7 +744,6 @@ Client::setStateCfgDeny(StateAction sa, uint deny)
 void
 Client::readHints(void)
 {
-    getTransientForHint();
     readMwmHints(); // read atoms
     readEwmhHints();
     readPekwmHints();
@@ -1697,12 +1699,15 @@ Client::getWMProtocols(void)
     }
 }
 
-//! @brief
+/**
+ * Read WM_TRANSIENT_FOR hint.
+ */
 void
 Client::getTransientForHint(void)
 {
-    if (! _transient)
+    if (_transient == None) {
         XGetTransientForHint(_dpy, _window, &_transient);
+    }
 }
 
 //! @brief
