@@ -1,19 +1,25 @@
 //
 // ParseUtil.hh for pekwm
-// Copyright (C) 2004-2009 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2004-2009 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
-
 #ifndef _PARSE_UTIL_HH_
 #define _PARSE_UTIL_HH_
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #include <map>
 #include <string>
 #include <cstring>
+
+extern "C" {
+#include <string.h>
+}
 
 namespace ParseUtil {
 

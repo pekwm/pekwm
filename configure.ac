@@ -18,6 +18,14 @@ dnl exist, Solaris /bin/sh does feel like behaving with the standard
 dnl scripts it seems.
 AC_CHECK_PROG([SH], [sh], [/usr/xpg4/bin/sh], [/bin/sh], [/usr/xpg4/bin])
 
+dnl Check for sun studio compiler and add -library=stlport4 compiler flag
+dnl to make slist etc available.
+AC_CHECK_DECL([__SUNPRO_CC], [SUNCC=yes], [SUNCC=no])
+if test "x$SUNCC" = "xyes"; then
+   CPPFLAGS="$CPPFLAGS -library=stlport4"
+   CXXFLAGS="$CXXFLAGS -library=stlport4"
+fi
+
 dnl Check for iconv
 AM_ICONV
 if test "x$am_cv_func_iconv" != "xyes"; then
@@ -216,7 +224,34 @@ fi
 
 dnl Check for header files
 AC_STDC_HEADERS
-AC_CHECK_HEADERS([limits])
+AC_CHECK_HEADERS([limits slist ext/slist])
+
+dnl Check that at least one of slist or ext/slist exists
+if test "x$av_cv_header_slist" = "xno" \
+   && test "x$av_cv_header_ext_slist" = "xno"; then
+  AC_MSG_ERROR([Could not find slist or ext/slist include.])
+fi
+
+dnl Detect namespace slist is available in
+AC_TRY_COMPILE([
+#ifdef HAVE_SLIST
+#include <slist>
+#else // HAVE_EXT_SLIST
+#include <ext/slist>
+#endif // HAVE_SLIST
+               ],[std::slist<int> test;],
+               AC_DEFINE(SLIST_NAMESPACE, [std], [Name of namespace slist is in])
+               slist_std_namespace=yes, [])
+if test "x$slist_std_namespace" != "xyes"; then
+  AC_TRY_COMPILE([
+#ifdef HAVE_SLIST
+#include <slist>
+#else // HAVE_EXT_SLIST
+#include <ext/slist>
+#endif // HAVE_SLIST
+                 ],[__gnu_cxx::slist<int> test;],
+                 AC_DEFINE(SLIST_NAMESPACE, [__gnu_cxx], [Name of namespace slist is in]), [])
+fi
 
 dnl Check for library functions
 AC_CHECK_FUNC(setenv, [AC_DEFINE(HAVE_SETENV, [1], [Define to 1 if you the setenv systam call])], )

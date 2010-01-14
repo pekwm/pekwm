@@ -1,5 +1,5 @@
 //
-// Copyright © 2005-2009 Claes Nasten <me{@}pekdon{.}net>
+// Copyright © 2005-2009 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -13,15 +13,20 @@
 #include "Util.hh"
 
 #include <iostream>
+#include <cstdio>
 #include <cstdlib>
 
 extern "C" {
+#include <stdio.h>
 #include <unistd.h>
 }
 
 using std::cerr;
 using std::endl;
 using std::string;
+using std::fopen;
+using std::fclose;
+using std::exit;
 
 unsigned int CfgParserSourceCommand::_sigaction_counter = 0;
 
@@ -105,7 +110,7 @@ CfgParserSourceCommand::open(void)
 
         ::close (fd[1]);
 
-        _file = fdopen(fd[0], "r");
+        _file = ::fdopen(fd[0], "r");
     }
     return true;
 }

@@ -25,6 +25,7 @@ using std::list;
 using std::map;
 using std::string;
 using std::vector;
+using std::strtol;
 
 AutoProperties *AutoProperties::_instance = 0;
 

@@ -22,6 +22,8 @@
 using std::cerr;
 using std::endl;
 using std::string;
+using std::sscanf;
+using std::strlen;
 
 const uint PImageLoaderXpm::CHANNELS = 4;
 const uint PImageLoaderXpm::ALPHA_SOLID = 255;

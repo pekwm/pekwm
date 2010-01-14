@@ -1,21 +1,27 @@
 //
 // TextureHandler.hh for pekwm
-// Copyright (C) 2009 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2005 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
-
 #ifndef _TEXTURE_HANDLER_HH_
 #define _TEXTURE_HANDLER_HH_
+
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
 #include "ParseUtil.hh"
 
 #include <string>
 #include <list>
 #include <vector>
+
+extern "C" {
+#include <string.h>
+}
 
 class PTexture;
 
@@ -34,7 +40,7 @@ public:
         }
 
         inline bool operator==(const std::string &name) {
-            return (strcasecmp(_name.c_str(), name.c_str()) == 0);
+            return (::strcasecmp(_name.c_str(), name.c_str()) == 0);
         }
 
     private:

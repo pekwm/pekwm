@@ -24,6 +24,10 @@
 #include <functional>
 #include <sstream>
 
+extern "C" {
+#include <string.h>
+}
+
 /**
  * String utilities, convenience functions for making life easier
  * when working with strings.
@@ -114,7 +118,7 @@ namespace Util {
     inline bool isTrue(const std::string &value) {
         if (value.size() > 0) {
             if ((value[0] == '1') // check for 1 / 0
-                || ! strncasecmp(value.c_str(), "TRUE", 4)) {
+                || ! ::strncasecmp(value.c_str(), "TRUE", 4)) {
                 return true;
             }
         }

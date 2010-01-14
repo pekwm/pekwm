@@ -17,6 +17,7 @@
 #include <iostream>
 
 extern "C" {
+#include <stdio.h>
 #include <jpeglib.h>
 }
 

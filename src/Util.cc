@@ -19,6 +19,9 @@
 #include <sstream>
 #include <fstream>
 #include <list>
+#include <cstdio>
+#include <cstring>
+#include <cwchar>
 
 extern "C" {
 #include <iconv.h>
@@ -26,13 +29,8 @@ extern "C" {
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <pwd.h>
-}
-
-#ifndef HAVE_SETENV
-#include <cstdio>
-#include <cstring>
 #include <errno.h>
-#endif // HAVE_SETENV
+}
 
 #include "Util.hh"
 
@@ -48,6 +46,11 @@ using std::ifstream;
 using std::ofstream;
 using std::find;
 using std::map;
+using std::getenv;
+using std::wcstombs;
+using std::wmemset;
+using std::mbstowcs;
+using std::exit;
 
 namespace Util {
 

@@ -37,6 +37,8 @@ using std::vector;
 using std::pair;
 using std::ifstream;
 using std::ofstream;
+using std::strtol;
+using std::getenv;
 
 Config* Config::_instance = 0;
 

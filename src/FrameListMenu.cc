@@ -14,6 +14,7 @@
 
 #include <algorithm>
 #include <cstdio>
+#include <cwchar>
 #include <iostream>
 
 #include "Compat.hh"
@@ -35,6 +36,7 @@ using std::list;
 using std::string;
 using std::vector;
 using std::wstring;
+using std::swprintf;
 
 //! @brief FrameListMenu constructor.
 //! @param scr Pointer to PScreen.

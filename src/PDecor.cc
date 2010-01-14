@@ -49,6 +49,7 @@ using std::map;
 using std::mem_fun;
 using std::string;
 using std::vector;
+using std::swprintf;
 
 // PDecor::Button
 

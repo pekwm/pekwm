@@ -1,6 +1,6 @@
 //
 // PScreen.cc for pekwm
-// Copyright © 2003-2009 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2003-2009 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -13,6 +13,7 @@
 #include <string>
 #include <iostream>
 #include <cassert>
+#include <cstring> // required for memset in FD_ZERO
 
 #ifdef HAVE_LIMITS
 #include <limits>
@@ -49,6 +50,7 @@ using std::vector;
 using std::list;
 using std::map;
 using std::string;
+using std::memset; // required for FD_ZERO
 
 const uint PScreen::MODIFIER_TO_MASK[] = {
     ShiftMask, LockMask, ControlMask,

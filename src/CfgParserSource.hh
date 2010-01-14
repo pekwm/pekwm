@@ -43,7 +43,7 @@ public:
      * Gets a character from _file, increments line count if \n.
      */
     inline int getc(void) {
-        int c = fgetc(_file);
+        int c = std::fgetc(_file);
         if (c == '\n') {
             ++_line;
         }
@@ -54,7 +54,7 @@ public:
      * Returns a character to _op_file, decrements line count if \n.
      */
     inline void ungetc(int c)  {
-        ::ungetc(c, _file);
+        std::ungetc(c, _file);
         if (c == '\n') {
             --_line;
         }
@@ -73,7 +73,7 @@ public:
     virtual void close(void) throw (std::string&) { }
 
 protected:
-    FILE *_file; /**< FILE object source is reading from. */
+    std::FILE *_file; /**< FILE object source is reading from. */
     const std::string &_name; /**< Name of source. */
     CfgParserSource::Type _type; /**< Type of source. */
     unsigned int _line; /**< Line number. */

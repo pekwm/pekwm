@@ -36,35 +36,37 @@ static const wchar_t *SWPRINTF_LS_NOT_SUPPORTED = L"%ls format string not suppor
  * @param ... Formatting arguments.
  * @return Number of characters written or -1 on error.
  */
-int
-swprintf(wchar_t *wcs, size_t maxlen, const wchar_t *format, ...)
-{
-    size_t len;
-    string mb_format(Util::to_mb_str(format));
+namespace std {
+    int
+    swprintf(wchar_t *wcs, size_t maxlen, const wchar_t *format, ...)
+    {
+        size_t len;
+        string mb_format(Util::to_mb_str(format));
     
-    // Look for wide string formatting, not yet implemented.
-    if (mb_format.find("%ls") != string::npos) {
-        len = std::min(wcslen(SWPRINTF_LS_NOT_SUPPORTED), maxlen - 1);
-        wmemcpy(wcs, SWPRINTF_LS_NOT_SUPPORTED, len);
-    } else {
-        char *res = new char[maxlen];
+        // Look for wide string formatting, not yet implemented.
+        if (mb_format.find("%ls") != string::npos) {
+            len = std::min(wcslen(SWPRINTF_LS_NOT_SUPPORTED), maxlen - 1);
+            wmemcpy(wcs, SWPRINTF_LS_NOT_SUPPORTED, len);
+        } else {
+            char *res = new char[maxlen];
 
-        va_list ap;
-        va_start(ap, format);
-        vsnprintf(res, maxlen, mb_format.c_str(), ap);
-        va_end(ap);
+            va_list ap;
+            va_start(ap, format);
+            vsnprintf(res, maxlen, mb_format.c_str(), ap);
+            va_end(ap);
 
-        wstring w_res(Util::to_wide_str(res));
-        len = std::min(maxlen - 1, w_res.size());
-        wmemcpy(wcs, w_res.c_str(), len);
+            wstring w_res(Util::to_wide_str(res));
+            len = std::min(maxlen - 1, w_res.size());
+            wmemcpy(wcs, w_res.c_str(), len);
 
-        delete [] res;
+            delete [] res;
+        }
+
+        // Null terminate and return result.
+        wcs[len] = L'\0';
+
+        return wcslen(wcs);
     }
-
-    // Null terminate and return result.
-    wcs[len] = L'\0';
-
-    return wcslen(wcs);
 }
 #endif // HAVE_SWPRINTF
 

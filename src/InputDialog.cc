@@ -11,6 +11,8 @@
 #endif // HAVE_CONFIG_H
 
 #include <list>
+#include <cwchar>
+#include <cwctype>
 
 #include "InputDialog.hh"
 #include "KeyGrabber.hh"
@@ -25,6 +27,7 @@ extern "C" {
 
 using std::list;
 using std::wstring;
+using std::iswprint;
 
 /**
  * InputDialog constructor.

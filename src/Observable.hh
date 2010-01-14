@@ -9,14 +9,18 @@
 #ifndef _OBSERVABLE_HH_
 #define _OBSERVABLE_HH_
 
-#include <list>
+#ifdef HAVE_SLIST
+#include <slist>
+#else // HAVE_EXT_SLIST
+#include <ext/slist>
+#endif // HAVE_SLIST
 
 class Observer;
 
 class Observable {
 public:
-    Observable(void) : _observers(0) { }
-    virtual ~Observable(void) { delete _observers; }
+    Observable(void) { }
+    virtual ~Observable(void) { }
 
     void notifyObservers(void);
 
@@ -24,7 +28,7 @@ public:
     void removeObserver(Observer *observer); 
 
 private:
-    std::list<Observer*> *_observers; /**< List of observers. */
+    SLIST_NAMESPACE::slist<Observer*> _observers; /**< List of observers. */
 };
 
 #endif // _OBSERVABLE_HH_

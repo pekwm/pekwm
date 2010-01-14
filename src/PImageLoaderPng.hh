@@ -20,7 +20,9 @@
 
 #include <cstdio>
 
-//! @brief PNG Loader class.
+/**
+ * PNG Loader class.
+ */
 class PImageLoaderPng : public PImageLoader
 {
 public:
@@ -31,7 +33,7 @@ public:
                         bool &alpha, bool &use_alpha);
 
 private:
-    bool checkSignature(FILE *fp);
+    bool checkSignature(std::FILE *fp);
 
     static const int PNG_SIG_BYTES;
 };

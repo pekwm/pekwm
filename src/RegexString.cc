@@ -21,6 +21,7 @@ using std::endl;
 using std::list;
 using std::string;
 using std::wstring;
+using std::strtol;
 
 const char RegexString::SEPARATOR = '/';
 

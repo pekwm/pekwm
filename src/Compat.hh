@@ -17,10 +17,16 @@
 #include <cstddef>
 
 #ifndef HAVE_SWPRINTF
-int swprintf(wchar_t *wcs, size_t maxlen, const wchar_t *format, ...);
+namespace std {
+    int swprintf(wchar_t *wcs, size_t maxlen, const wchar_t *format, ...);
+}
 #endif // HAVE_SWPRINTF
 
-#ifndef HAVE_SETENV
+#ifdef HAVE_SETENV
+extern "C" {
+#include <stdlib.h>
+}
+#else // ! HAVE_SETENV
 int setenv(const char *name, const char *value, int overwrite);
 #endif // HAVE_SETENV
 

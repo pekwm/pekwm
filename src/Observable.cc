@@ -13,7 +13,7 @@
 #include "Observer.hh"
 #include "Observable.hh"
 
-using std::list;
+using SLIST_NAMESPACE::slist;
 
 /**
  * Notify all observers.
@@ -21,13 +21,11 @@ using std::list;
 void
 Observable::notifyObservers(void)
 {
-    if (! _observers) {
-        return;
-    }
-
-    list<Observer*>::iterator it(_observers->begin());
-    for (; it != _observers->end(); ++it) {
-        (*it)->notify(this);
+    if (_observers.size()) {
+        slist<Observer*>::iterator it(_observers.begin());
+        for (; it != _observers.end(); ++it) {
+            (*it)->notify(this);
+        }
     }
 }
 
@@ -37,10 +35,7 @@ Observable::notifyObservers(void)
 void
 Observable::addObserver(Observer *observer)
 {
-    if (! _observers) {
-        _observers = new list<Observer*>;
-    }
-    _observers->push_back(observer);
+    _observers.push_front(observer);
 }
 
 /**
@@ -49,13 +44,7 @@ Observable::addObserver(Observer *observer)
 void
 Observable::removeObserver(Observer *observer)
 {
-    if (! _observers) {
-        return;
-    }
-
-    _observers->remove(observer);
-    if (! _observers->size()) {
-        delete _observers;
-        _observers = 0;
+    if (_observers.size()) {
+        _observers.remove(observer);
     }
 }
