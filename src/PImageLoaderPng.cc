@@ -105,16 +105,16 @@ PImageLoaderPng::load(const std::string &file, uint &width, uint &height,
     if (color_type == PNG_COLOR_TYPE_PALETTE) {
         png_set_palette_to_rgb(png_ptr);
     }
-    
+
     // gray -> 8 bit gray
     if (color_type == PNG_COLOR_TYPE_GRAY && (bpp < 8)) {
-        png_set_gray_1_2_4_to_8(png_ptr);
+        png_set_expand_gray_1_2_4_to_8(png_ptr);
     }
 
     if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
         png_set_tRNS_to_alpha(png_ptr);
     }
-    
+
     if (bpp == 16) {
         png_set_strip_16(png_ptr);
     }
@@ -179,7 +179,7 @@ PImageLoaderPng::checkSignature(FILE *fp)
 
     status = fread(sig, 1, PImageLoaderPng::PNG_SIG_BYTES, fp);
     if (status == PImageLoaderPng::PNG_SIG_BYTES) {
-        return (png_check_sig(sig, PImageLoaderPng::PNG_SIG_BYTES) != 0);
+        return (png_sig_cmp(sig,0,PImageLoaderPng::PNG_SIG_BYTES) == 0);
     }
     return false;
 }
