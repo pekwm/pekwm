@@ -112,8 +112,10 @@ Client::Client(Window new_client, bool is_new)
                                      ? APPLY_ON_NEW : APPLY_ON_START);
 
     readHints();
-    findOrCreateFrame(ap);
+    // We need to set the state before acquiring a frame,
+    // so that Frame's state can match the state of the Client.
     setInitialState();
+    findOrCreateFrame(ap);
 
     // Grab keybindings and mousebutton actions
     KeyGrabber::instance()->grabKeys(_window);
