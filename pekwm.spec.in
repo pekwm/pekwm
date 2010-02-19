@@ -1,0 +1,64 @@
+Name: 		pekwm
+Version: 	<VERSION>
+Release: 	2
+URL: 		http://www.pekwm.org/
+Summary: 	The Pek Window Manager (pekwm) is a small and flexible window manager that aims to be usable.
+License: 	GPLv2
+Group: 		User Interface/Desktops
+Source0:	http://www.pekwm.org/projects/pekwm/files/%{name}-%{version}.tar.bz2
+BuildRoot: 	%{_tmppath}/%{name}-%{version}-root
+BuildRequires:	gcc, ccache
+
+%description
+Pekwm is a window manager that once up on a time was based on the aewm++ window manager, but it has evolved enough that it no longer resembles aewm++ at all. It has a much expanded feature-set, including window grouping (similar to ion, pwm, or fluxbox), autoproperties, xinerama, keygrabber that supports keychains, and much more.
+
+    * Lightweight and Unobtrusive, a window manager shouldn't be noticed.
+    * Very configurable, we all work and think in different ways.
+    * Automatic properties, for all the lazy people, make things appear as they should when starting applications.
+    * Chainable Keygrabber, usability for everyone. 
+
+%prep
+%setup -q
+
+%build
+%configure
+%__make
+
+%install
+%__rm -rf %{buildroot}
+%__make DESTDIR=%{buildroot} install
+
+# Creamos el archivo pekwm.desktop
+mkdir -p %{buildroot}%{_datadir}/xsessions/
+touch %{buildroot}%{_datadir}/xsessions/%{name}.desktop
+cat << EOF > %{buildroot}%{_datadir}/xsessions/%{name}.desktop
+[Desktop Entry]
+Encoding=UTF-8
+Name=PekWM
+Comment=Very small and fast window manger
+Exec=pekwm
+TryExec=pekwm
+EOF
+
+%clean
+%__rm -rf %{buildroot}
+
+%post
+
+%postun
+
+%files
+%defattr(-, root, root)
+%doc AUTHORS ChangeLog LICENSE NEWS README
+%{_bindir}/%{name}
+%{_sysconfdir}/%{name}/*
+%{_datadir}/%{name}/*
+%{_mandir}/man1/%{name}.1.gz
+%{_datadir}/xsessions/%{name}.desktop
+
+%changelog
+* Fri Jan 15 2010 German A. Racca <gracca@gmail.com> 0.1.11-2
+- Added Source0 to spec file
+
+* Thu Dec 17 2009 German A. Racca <gracca@gmail.com> 0.1.11-1
+- Initial release of RPM package
