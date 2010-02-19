@@ -415,9 +415,13 @@ do_iconv_open(const char **from_names, const char **to_names)
     for (unsigned int i = 0; from_names[i]; ++i) {
         for (unsigned int j = 0; to_names[j]; ++j) {
             ic = iconv_open (to_names[j], from_names[i]);
-                if (ic != reinterpret_cast<iconv_t>(-1)) {
-                    return ic;
-                }
+            if (ic != reinterpret_cast<iconv_t>(-1)) {
+#ifdef HAVE_ICONVCTL
+                int int_value_one = 1;
+                iconvctl(ic, ICONV_SET_DISCARD_ILSEQ, &int_value_one);
+#endif // HAVE_ICONVCTL
+                return ic;
+            }
         }
     }
 

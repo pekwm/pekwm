@@ -35,6 +35,9 @@ fi
 LIBS="$LIBS $LIBICONV"
 CXXFLAGS="$CXXFLAGS $INCICONV"
 
+dnl Check for iconvctl
+AC_CHECK_FUNC(iconvctl, [AC_DEFINE(HAVE_ICONVCTL, [1], [Define to 1 if you the iconvctl call])], )
+
 dnl add x11 to the env
 AC_PATH_X
 AC_PATH_XTRA
