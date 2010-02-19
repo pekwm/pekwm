@@ -62,6 +62,8 @@ public:
     bool operator==(const std::wstring &rhs);
 
 private:
+    RegexString(const RegexString &);
+    RegexString &operator=(const RegexString &);
     void free_regex (void);
 
 private:

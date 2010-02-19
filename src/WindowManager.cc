@@ -1824,9 +1824,10 @@ WindowManager::findGroup(AutoProperty *property)
 
     Frame *frame = 0;
     if (property->group_global && property->isMask(AP_WORKSPACE)) {
-        AutoProperty no_global_property = *property;
-        no_global_property.group_global = false;
-        frame = findGroup(&no_global_property);
+        bool group_global_orig = property->group_global;
+        property->group_global= false;
+        frame = findGroup(property);
+        property->group_global= group_global_orig;
     }
 
     if (! frame) {
