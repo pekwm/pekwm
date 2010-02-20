@@ -30,6 +30,14 @@ extern "C" {
 int setenv(const char *name, const char *value, int overwrite);
 #endif // HAVE_SETENV
 
+#ifdef HAVE_UNSETENV
+extern "C" {
+#include <stdlib.h>
+}
+#else // ! HAVE_UNSETENV
+int unsetenv(const char *name);
+#endif // HAVE_UNSETENV
+
 #ifndef HAVE_TIMERSUB
 #define timersub(a, b, result)                                                \
   do {                                                                        \

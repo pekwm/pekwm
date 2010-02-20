@@ -258,6 +258,7 @@ fi
 
 dnl Check for library functions
 AC_CHECK_FUNC(setenv, [AC_DEFINE(HAVE_SETENV, [1], [Define to 1 if you the setenv systam call])], )
+AC_CHECK_FUNC(unsetenv, [AC_DEFINE(HAVE_UNSETENV, [1], [Define to 1 if you the unsetenv systam call])], )
 AC_CHECK_FUNC(swprintf, [AC_DEFINE(HAVE_SWPRINTF, [1], [Define to 1 if you have swprintf])], )
 
 dnl Check whether time.h has timersub

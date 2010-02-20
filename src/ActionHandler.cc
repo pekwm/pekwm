@@ -351,8 +351,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 actionGotoClientID(it->getParamI(0));
                 break;
             case ACTION_EXEC:
-                if (it->getParamS().size())
-                    Util::forkExec(it->getParamS());
+                actionExec(client, it->getParamS());
                 break;
 #ifdef MENUS
             case ACTION_SHOW_MENU:
@@ -531,6 +530,18 @@ ActionHandler::findMouseAction(uint button, uint state, MouseEventType type, std
     }
 
     return 0;
+}
+
+/**
+ * Execute action, setting client environment before (if any).
+ */
+void
+ActionHandler::actionExec(Client *client, const std::string &command)
+{
+    if (command.size()) {
+        Client::setClientEnvironment(client);
+        Util::forkExec(command);
+    }
 }
 
 //! @brief Searches for a client matching titles and makes it visible

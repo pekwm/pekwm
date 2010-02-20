@@ -262,6 +262,8 @@ public: // Public Member Functions
     bool getPekwmFrameActive(void);
     void setPekwmFrameActive(bool active);
 
+    static void setClientEnvironment(Client *client);
+
 private:
     bool getAndUpdateWindowAttributes(void);
 

@@ -26,6 +26,7 @@ extern "C" {
 #endif // HAVE_SHAPE
 }
 
+#include "Compat.hh" // setenv, unsetenv
 #include "PWinObj.hh"
 #include "PDecor.hh" // PDecor::TitleItem
 #include "Client.hh"
@@ -1774,4 +1775,19 @@ void
 Client::setPekwmFrameActive(bool act)
 {
     AtomUtil::setLong(_window, Atoms::getAtom(PEKWM_FRAME_ACTIVE), act ? 1 : 0);
+}
+
+/**
+ * Update the environment with CLIENT_PID and CLIENT_WINDOW.
+ */
+void
+Client::setClientEnvironment(Client *client)
+{
+    if (client) {
+        setenv("CLIENT_PID", Util::to_string<long>(client->isRemote() ? -1 : client->getPid()).c_str(), 1);
+        setenv("CLIENT_WINDOW", Util::to_string<Window>(client->getWindow()).c_str(), 1);
+    } else {
+        unsetenv("CLIENT_PID");
+        unsetenv("CLIENT_WINDOW");
+    }
 }

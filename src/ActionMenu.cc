@@ -309,11 +309,11 @@ ActionMenu::rebuildDynamic(void)
     PWinObj *wo_ref = getWORef();
 
     // Export environment before to dynamic script.
+    Client *client = 0;
     if (wo_ref && wo_ref->getType() == WO_CLIENT) {
-        Client *client = static_cast<Client*>(wo_ref);
-        setenv("CLIENT_PID", Util::to_string<long>(client->isRemote() ? -1 : client->getPid()).c_str(), 1);
-        setenv("CLIENT_WINDOW", Util::to_string<Window>(client->getWindow()).c_str(), 1);
+        client = static_cast<Client*>(wo_ref);
     }
+    Client::setClientEnvironment(client);
 
     // Setup icon path before parsing.
     ImageHandler::instance()->path_push_back(Config::instance()->getSystemIconPath());

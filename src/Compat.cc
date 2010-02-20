@@ -20,6 +20,10 @@ extern "C" {
 #include <wchar.h>
 }
 
+#ifndef HAVE_UNSETENV
+#include <errno.h>
+#endif // ! HAVE_UNSETENV
+
 using std::string;
 using std::wstring;
 
@@ -97,4 +101,20 @@ setenv(const char *name, const char *value, int overwrite)
 
     return (putenv(str));
 }
-#endif // HAVE_SETENV
+#endif // ! HAVE_SETENV
+
+#ifndef HAVE_UNSETENV
+/**
+ * Compat unsetenv, removes variable from the environment.
+ */
+int
+unsetenv(const char *name) {
+    const char *value = getenv(name);
+    if (value && strlen(value)) {
+        return setenv(name, "", 1);
+    } else {
+        errno = EINVAL;
+        return -1;
+    }
+}
+#endif // ! HAVE_UNSETENV
