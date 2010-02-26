@@ -56,7 +56,7 @@ const uint PScreen::MODIFIER_TO_MASK[] = {
     ShiftMask, LockMask, ControlMask,
     Mod1Mask, Mod2Mask, Mod3Mask, Mod4Mask, Mod5Mask
 };
-const uint PScreen::MODIFIER_TO_MASK_NUM = sizeof(PScreen::MODIFIER_TO_MASK[0]) / sizeof(PScreen::MODIFIER_TO_MASK);
+const uint PScreen::MODIFIER_TO_MASK_NUM = sizeof(PScreen::MODIFIER_TO_MASK) / sizeof(PScreen::MODIFIER_TO_MASK[0]);
 
 PScreen* PScreen::_instance = 0;
 
