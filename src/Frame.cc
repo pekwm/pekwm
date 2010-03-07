@@ -1120,6 +1120,7 @@ Frame::doResize(bool left, bool x, bool top, bool y)
     }
 
     setShaded(STATE_UNSET); // make sure the frame isn't shaded
+    setStateFullscreen(STATE_UNSET);
 
     // Initialize variables
     int start_x, new_x;
@@ -1375,6 +1376,7 @@ Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
     }
 
     setShaded(STATE_UNSET);
+    setStateFullscreen(STATE_UNSET);
 
     // make sure the two states are in sync if toggling
     if ((horz == vert) && (sa == STATE_TOGGLE)) {
