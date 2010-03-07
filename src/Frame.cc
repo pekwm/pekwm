@@ -2063,79 +2063,14 @@ Frame::handleConfigureRequestGeometry(XConfigureRequestEvent *ev, Client *client
     }
 }
 
-//! @brief
+/**
+ * Handle client message.
+ */
 void
 Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
 {
-    StateAction sa;
-
     if (ev->message_type == Atoms::getAtom(STATE)) {
-        if (ev->data.l[0]== NET_WM_STATE_REMOVE) {
-            sa = STATE_UNSET;
-        } else if (ev->data.l[0]== NET_WM_STATE_ADD) {
-            sa = STATE_SET;
-        } else if (ev->data.l[0]== NET_WM_STATE_TOGGLE) {
-            sa = STATE_TOGGLE;
-        } else {
-#ifdef DEBUG
-            cerr << __FILE__ << "@" << __LINE__ << ": "
-                 << "None of StateAdd, StateRemove or StateToggle." << endl;
-#endif // DEBUG
-            return;
-        }
-
-#define IS_STATE(S) ((ev->data.l[1] == long(Atoms::getAtom(S))) || (ev->data.l[2] == long(Atoms::getAtom(S))))
-
-        // actions that only is going to be applied on the active client
-        if (client == _client) {
-            // there is no modal support in pekwm yet
-// 			if (IS_STATE(STATE_MODAL)) {
-// 				is_modal=true;
-// 			}
-            if (IS_STATE(STATE_STICKY)) {
-                setStateSticky(sa);
-            }
-            if (IS_STATE(STATE_MAXIMIZED_HORZ)
-                    && ! client->isCfgDeny(CFG_DENY_STATE_MAXIMIZED_HORZ)) {
-                setStateMaximized(sa, true, false, false);
-            }
-            if (IS_STATE(STATE_MAXIMIZED_VERT)
-                    && ! client->isCfgDeny(CFG_DENY_STATE_MAXIMIZED_VERT)) {
-                setStateMaximized(sa, false, true, false);
-            }
-            if (IS_STATE(STATE_SHADED)) {
-                setShaded(sa);
-            }
-            if (IS_STATE(STATE_HIDDEN)
-                    && ! client->isCfgDeny(CFG_DENY_STATE_HIDDEN)) {
-                setStateIconified(sa);
-            }
-            if (IS_STATE(STATE_FULLSCREEN)
-                    && ! client->isCfgDeny(CFG_DENY_STATE_FULLSCREEN)) {
-                setStateFullscreen(sa);
-            }
-            if (IS_STATE(STATE_ABOVE)
-                    && ! client->isCfgDeny(CFG_DENY_STATE_ABOVE)) {
-                setStateAlwaysOnTop(sa);
-            }
-            if (IS_STATE(STATE_BELOW)
-                    && ! client->isCfgDeny(CFG_DENY_STATE_BELOW)) {
-                setStateAlwaysBelow(sa);
-            }
-        }
-
-        if (IS_STATE(STATE_SKIP_TASKBAR)) {
-            client->setStateSkip(sa, SKIP_TASKBAR);
-        }
-        if (IS_STATE(STATE_SKIP_PAGER)) {
-            client->setStateSkip(sa, SKIP_PAGER);
-        }
-        if (IS_STATE(STATE_DEMANDS_ATTENTION)) {
-            client->setStateDemandsAttention(sa, true);
-        }
-
-        client->updateEwmhStates();
-
+        handleClientStateMessage(ev, client);
     } else if (ev->message_type == Atoms::getAtom(NET_ACTIVE_WINDOW)) {
         if (! client->isCfgDeny(CFG_DENY_ACTIVE_WINDOW)) {
             // Active child if it's not the active child
@@ -2167,9 +2102,105 @@ Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
             iconify();
         }
     }
-#undef IS_STATE
 }
 
+/**
+ * Handle _NET_WM_STATE atom.
+ */
+void
+Frame::handleClientStateMessage(XClientMessageEvent *ev, Client *client)
+{
+    StateAction sa = getStateActionFromMessage(ev);
+    handleStateAtom(sa, ev->data.l[1], client);
+    handleStateAtom(sa, ev->data.l[2], client);
+    client->updateEwmhStates();
+}
+
+/**
+ * Get StateAction from NET_WM atom.
+ */
+StateAction
+Frame::getStateActionFromMessage(XClientMessageEvent *ev)
+{
+    StateAction sa = STATE_SET;
+    if (ev->data.l[0]== NET_WM_STATE_REMOVE) {
+        sa = STATE_UNSET;
+    } else if (ev->data.l[0]== NET_WM_STATE_ADD) {
+        sa = STATE_SET;
+    } else if (ev->data.l[0]== NET_WM_STATE_TOGGLE) {
+        sa = STATE_TOGGLE;
+    }
+    return sa;
+}
+
+/**
+ * Handle state atom for client.
+ */
+void
+Frame::handleStateAtom(StateAction sa, long atom, Client *client)
+{
+    if (client == _client) {
+        handleCurrentClientStateAtom(sa, atom, client);
+    }
+
+    switch (atom) {
+    case STATE_SKIP_TASKBAR:
+        client->setStateSkip(sa, SKIP_TASKBAR);
+        break;
+    case STATE_SKIP_PAGER:
+        client->setStateSkip(sa, SKIP_PAGER);
+        break;
+    case STATE_DEMANDS_ATTENTION:
+        client->setStateDemandsAttention(sa, true);
+        break;
+    }
+}
+
+/**
+ * Handle state atom for actions that apply only on active client.
+ */
+void
+Frame::handleCurrentClientStateAtom(StateAction sa, long atom, Client *client)
+{
+    switch (atom) {
+    case STATE_STICKY:
+        setStateSticky(sa);
+        break;
+    case STATE_MAXIMIZED_HORZ:
+        if (! client->isCfgDeny(CFG_DENY_STATE_MAXIMIZED_HORZ)) {
+            setStateMaximized(sa, true, false, false);
+        }
+        break;
+    case STATE_MAXIMIZED_VERT:
+        if (! client->isCfgDeny(CFG_DENY_STATE_MAXIMIZED_VERT)) {
+            setStateMaximized(sa, false, true, false);
+        }
+        break;
+    case STATE_SHADED:
+        setShaded(sa);
+        break;
+    case STATE_HIDDEN:
+        if (! client->isCfgDeny(CFG_DENY_STATE_HIDDEN)) {
+            setStateIconified(sa);
+        }
+        break;
+    case STATE_FULLSCREEN:
+        if (! client->isCfgDeny(CFG_DENY_STATE_FULLSCREEN)) {
+            setStateFullscreen(sa);
+        }
+        break;
+    case STATE_ABOVE:
+        if (! client->isCfgDeny(CFG_DENY_STATE_ABOVE)) {
+            setStateAlwaysOnTop(sa);
+        }
+        break;
+    case STATE_BELOW:
+        if (! client->isCfgDeny(CFG_DENY_STATE_BELOW)) {
+            setStateAlwaysBelow(sa);
+        }
+        break;
+    }
+}
 
 //! @brief
 void

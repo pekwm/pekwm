@@ -141,6 +141,10 @@ protected:
     // END - PDecor interface
 
 private:
+    void handleClientStateMessage(XClientMessageEvent *ev, Client *client);
+    StateAction getStateActionFromMessage(XClientMessageEvent *ev);
+    void handleStateAtom(StateAction sa, long atom, Client *client);
+    void handleCurrentClientStateAtom(StateAction sa, long atom, Client *client);
     void handleConfigureRequestGeometry(XConfigureRequestEvent *ev, Client *client);
     void recalcResizeDrag(int nx, int ny, bool left, bool top);
     void getMaxBounds(int &max_x,int &max_r, int &max_y, int &max_b);
