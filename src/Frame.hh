@@ -146,11 +146,13 @@ private:
     void handleStateAtom(StateAction sa, long atom, Client *client);
     void handleCurrentClientStateAtom(StateAction sa, long atom, Client *client);
     void handleConfigureRequestGeometry(XConfigureRequestEvent *ev, Client *client);
+    bool isRequestGeometryFullscreen(XConfigureRequestEvent *ev, Client *client);
+
     void recalcResizeDrag(int nx, int ny, bool left, bool top);
     void getMaxBounds(int &max_x,int &max_r, int &max_y, int &max_b);
     void calcSizeInCells(uint &width, uint &height);
     void calcGravityPosition(int gravity, int x, int y, int &g_x, int &g_y);
-    void downSize(bool keep_x, bool keep_y);
+    void downSize(Geometry &gm, bool keep_x, bool keep_y);
 
     void handleTitleChange(Client *client);
 

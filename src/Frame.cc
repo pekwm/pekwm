@@ -1463,7 +1463,7 @@ Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
     }
 
     fixGeometry(); // harbour already considered
-    downSize(true, true); // keep x and keep y ( make conform to inc size )
+    downSize(_gm, true, true); // keep x and keep y ( make conform to inc size )
 
     moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
 
@@ -1752,7 +1752,7 @@ Frame::growDirection(uint direction)
         break;
     }
 
-    downSize((direction != DIRECTION_LEFT), (direction != DIRECTION_UP));
+    downSize(_gm, (direction != DIRECTION_LEFT), (direction != DIRECTION_UP));
 
     moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
 }
@@ -1927,9 +1927,11 @@ Frame::calcGravityPosition(int gravity, int x, int y, int &g_x, int &g_y)
     }
 }
 
-//! @brief Makes Frame conform to Clients width and height inc
+/**
+ * Makes gm conform to _clients width and height inc.
+ */
 void
-Frame::downSize(bool keep_x, bool keep_y)
+Frame::downSize(Geometry &gm, bool keep_x, bool keep_y)
 {
     XSizeHints *size_hint = _client->getXSizeHints(); // convenience
 
@@ -1940,9 +1942,9 @@ Frame::downSize(bool keep_x, bool keep_y)
                   ? size_hint->base_width
                   : (size_hint->flags&PMinSize) ? size_hint->min_width : 0;
 
-        _gm.width -= (getChildWidth() - b_x) % size_hint->width_inc;
+        gm.width -= (getChildWidth() - b_x) % size_hint->width_inc;
         if (! keep_x) {
-            _gm.x = o_r - _gm.width;
+            gm.x = o_r - gm.width;
         }
     }
 
@@ -1953,9 +1955,9 @@ Frame::downSize(bool keep_x, bool keep_y)
                   ? size_hint->base_height
                   : (size_hint->flags&PMinSize) ? size_hint->min_height : 0;
 
-        _gm.height -= (getChildHeight() - b_y) % size_hint->height_inc;
+        gm.height -= (getChildHeight() - b_y) % size_hint->height_inc;
         if (! keep_y) {
-            _gm.y = o_b - _gm.height;
+            gm.y = o_b - gm.height;
         }
     }
 }
@@ -2017,50 +2019,62 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
 void
 Frame::handleConfigureRequestGeometry(XConfigureRequestEvent *ev, Client *client)
 {
-    // Look for fullscreen requests
-    const long all_geometry = CWX|CWY|CWWidth|CWHeight;
+    if (isRequestGeometryFullscreen(ev, client)) {
+        client->configureRequestSend();
+        return;
+    }
+
+    bool change_geometry = false;
+    if (! client->isCfgDeny(CFG_DENY_SIZE)
+        && (ev->value_mask & (CWWidth|CWHeight))) {
+        resizeChild(ev->width, ev->height);
+        _client->setShaped(setShape());
+        change_geometry = true;
+    }
+
+    if (! client->isCfgDeny(CFG_DENY_POSITION)
+        && (ev->value_mask & (CWX|CWY)) ) {
+        calcGravityPosition(_client->getXSizeHints()->win_gravity,
+                            ev->x, ev->y, _gm.x, _gm.y);
+        move(_gm.x, _gm.y);
+        change_geometry = true;
+    }
+
+    // Remove fullscreen state if client changes it size
+    if (change_geometry && Config::instance()->isFullscreenDetect()) {
+        setStateFullscreen(STATE_UNSET);
+    }
+}
+
+/**
+ * Check if requested size if "fullscreen"
+ */
+bool
+Frame::isRequestGeometryFullscreen(XConfigureRequestEvent *ev, Client *client)
+{
     bool is_fullscreen = false;
-    if (Config::instance()->isFullscreenDetect()
-        && ! client->isCfgDeny(CFG_DENY_SIZE)
-        && ! client->isCfgDeny(CFG_DENY_POSITION)
-        && ((ev->value_mask&all_geometry) == static_cast<unsigned>(all_geometry))) {
-
+    if (! client->isCfgDeny(CFG_DENY_SIZE)
+        && ! client->isCfgDeny(CFG_DENY_POSITION)) {
+        int nearest_head = _scr->getNearestHead(ev->x, ev->y);
         Geometry gm_request(ev->x, ev->y, ev->width, ev->height);
-        if (gm_request == _scr->getScreenGeometry()
-             || gm_request == _scr->getHeadGeometry(_scr->getNearestHead(ev->x, ev->y))) {
+        Geometry gm_screen(_scr->getScreenGeometry());
+        Geometry gm_head(_scr->getHeadGeometry(nearest_head));
 
+        if (gm_request == gm_screen || gm_request == gm_head) {
             is_fullscreen = true;
+        } else {
+            downSize(gm_screen, true, true);
+            downSize(gm_head, true, true);
+            if (gm_request == gm_screen || gm_request == gm_head) {
+                is_fullscreen = true;
+            }
+        }
+
+        if (is_fullscreen && Config::instance()->isFullscreenDetect()) {
             setStateFullscreen(STATE_SET);
         }
     }
-
-    if (! is_fullscreen) {
-        bool change_geometry = false;
-
-        if (! client->isCfgDeny(CFG_DENY_SIZE)
-                && (ev->value_mask & (CWWidth|CWHeight)) ) {
-
-            resizeChild(ev->width, ev->height);
-            _client->setShaped(setShape());
-
-           change_geometry = true;
-        }
-
-        if (! client->isCfgDeny(CFG_DENY_POSITION)
-               && (ev->value_mask & (CWX|CWY)) ) {
-
-            calcGravityPosition(_client->getXSizeHints()->win_gravity,
-                                ev->x, ev->y, _gm.x, _gm.y);
-            move(_gm.x, _gm.y);
-
-           change_geometry = true;
-        }
-
-        // Remove fullscreen state if client changes it size
-        if (change_geometry && Config::instance()->isFullscreenDetect()) {
-            setStateFullscreen(STATE_UNSET);
-        }
-    }
+    return is_fullscreen;
 }
 
 /**
@@ -2112,7 +2126,9 @@ Frame::handleClientStateMessage(XClientMessageEvent *ev, Client *client)
 {
     StateAction sa = getStateActionFromMessage(ev);
     handleStateAtom(sa, ev->data.l[1], client);
-    handleStateAtom(sa, ev->data.l[2], client);
+    if (ev->data.l[2] != 0) {
+        handleStateAtom(sa, ev->data.l[2], client);
+    }
     client->updateEwmhStates();
 }
 
