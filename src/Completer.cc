@@ -156,8 +156,10 @@ ActionCompleterMethod::complete(CompletionState &state)
         return complete_word(_menu_list, state.completions, state.word_lower);
 #endif // MENUS
     case STATE_ACTION:
-    default:
         return complete_word(_action_list, state.completions, state.word_lower);
+    case STATE_NO:
+    default:
+        return 0;
     }
 }
 
@@ -202,7 +204,7 @@ ActionCompleterMethod::completions_list_from_name_list(std::list<std::string> na
 ActionCompleterMethod::State
 ActionCompleterMethod::find_state(CompletionState &completion_state)
 {
-    State state = STATE_NO;
+    State state = STATE_ACTION;
     if (completion_state.word_begin != 0) {
         state = find_state_match(completion_state.part_lower,
                                  completion_state.part_begin);
