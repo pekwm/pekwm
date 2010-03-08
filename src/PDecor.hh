@@ -346,6 +346,10 @@ protected:
     }
 
 private:
+    void createParentWindow(void);
+    void createTitle(void);
+    void createBorder(void);
+
     void unloadDecor(void);
 
     ActionEvent *handleButtonPressButton(XButtonEvent *ev, PDecor::Button *button);

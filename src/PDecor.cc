@@ -1,6 +1,6 @@
 //
 // PDecor.cc for pekwm
-// Copyright © 2004-2009 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2004-2009 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -213,35 +213,9 @@ PDecor::PDecor(Display *dpy, Theme *theme, const std::string decor_name)
         _data = _theme->getPDecorData(DEFAULT_DECOR_NAME);
     }
 
-    XSetWindowAttributes attr;
-    attr.override_redirect = True;
-    attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
-                      EnterWindowMask|SubstructureRedirectMask|SubstructureNotifyMask;
-    _window =
-        XCreateWindow(_dpy, PScreen::instance()->getRoot(),
-                      _gm.x, _gm.y, _gm.width, _gm.height, 0,
-                      CopyFromParent, InputOutput, CopyFromParent,
-                      CWOverrideRedirect|CWEventMask, &attr);
-
-    attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|EnterWindowMask;
-    attr.override_redirect = True;
-    _title_wo.setWindow(XCreateWindow(_dpy, _window,
-                                      borderLeft(), borderTop(), 1, 1, 0, // don't know our size yet
-                                      CopyFromParent, InputOutput, CopyFromParent,
-                                      CWOverrideRedirect|CWEventMask, &attr));
-    addChildWindow(_title_wo.getWindow());
-
-    // create border windows
-    for (uint i = 0; i < BORDER_NO_POS; ++i) {
-        attr.cursor = ScreenResources::instance()->getCursor(ScreenResources::CursorType(i));
-
-        _border_win[i] =
-            XCreateWindow(_dpy, _window, -1, -1, 1, 1, 0,
-                          CopyFromParent, InputOutput, CopyFromParent,
-                          CWOverrideRedirect|CWEventMask|CWCursor, &attr);
-        _border_pos_map[BorderPosition(i)] = None;
-        addChildWindow(_border_win[i]);
-    }
+    createParentWindow();
+    createTitle();
+    createBorder();
 
     // sets buttons etc up
     loadDecor();
@@ -250,6 +224,66 @@ PDecor::PDecor(Display *dpy, Theme *theme, const std::string decor_name)
     XMapSubwindows(_dpy, _window);
 
     _pdecor_list.push_back(this);
+}
+
+/**
+ * Create container window.
+ */
+void
+PDecor::createParentWindow(void)
+{
+    XSetWindowAttributes attr;
+    attr.override_redirect = True;
+    attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
+                      EnterWindowMask|SubstructureRedirectMask|
+                      SubstructureNotifyMask;
+
+    _window = XCreateWindow(_dpy, PScreen::instance()->getRoot(),
+                            _gm.x, _gm.y, _gm.width, _gm.height, 0,
+                            CopyFromParent, InputOutput, CopyFromParent,
+                            CWOverrideRedirect|CWEventMask, &attr);
+}
+
+/**
+ * Create title window.
+ */
+void
+PDecor::createTitle(void)
+{
+    XSetWindowAttributes attr;
+    attr.override_redirect = True;
+    attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
+                      EnterWindowMask;
+    Window title = XCreateWindow(_dpy, _window,
+                                 borderLeft(), borderTop(), 1, 1, 0,
+                                 CopyFromParent, InputOutput, CopyFromParent,
+                                 CWOverrideRedirect|CWEventMask, &attr);
+    _title_wo.setWindow(title);
+    addChildWindow(_title_wo.getWindow());
+}
+
+/**
+ * Create border windows
+ */
+void
+PDecor::createBorder(void)
+{
+    XSetWindowAttributes attr;
+    attr.override_redirect = True;
+    attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
+                      EnterWindowMask;
+
+    ScreenResources *sr = ScreenResources::instance();
+    for (uint i = 0; i < BORDER_NO_POS; ++i) {
+        attr.cursor = sr->getCursor(ScreenResources::CursorType(i));
+
+        _border_win[i] =
+            XCreateWindow(_dpy, _window, -1, -1, 1, 1, 0,
+                          CopyFromParent, InputOutput, CopyFromParent,
+                          CWOverrideRedirect|CWEventMask|CWCursor, &attr);
+        _border_pos_map[BorderPosition(i)] = None;
+        addChildWindow(_border_win[i]);
+    }
 }
 
 //! @brief PDecor destructor
