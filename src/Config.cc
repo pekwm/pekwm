@@ -122,58 +122,58 @@ Config::Config(void) :
 
     // fill parsing maps
     _action_map[""] = pair<ActionType, uint>(ACTION_NO, 0);
-    _action_map["FOCUS"] = pair<ActionType, uint>(ACTION_FOCUS, ANY_MASK);
-    _action_map["UNFOCUS"] = pair<ActionType, uint>(ACTION_UNFOCUS, ANY_MASK);
+    _action_map["Focus"] = pair<ActionType, uint>(ACTION_FOCUS, ANY_MASK);
+    _action_map["UnFocus"] = pair<ActionType, uint>(ACTION_UNFOCUS, ANY_MASK);
 
-    _action_map["SET"] = pair<ActionType, uint>(ACTION_SET, ANY_MASK);
-    _action_map["UNSET"] = pair<ActionType, uint>(ACTION_UNSET, ANY_MASK);
-    _action_map["TOGGLE"] = pair<ActionType, uint>(ACTION_TOGGLE, ANY_MASK);
+    _action_map["Set"] = pair<ActionType, uint>(ACTION_SET, ANY_MASK);
+    _action_map["Unset"] = pair<ActionType, uint>(ACTION_UNSET, ANY_MASK);
+    _action_map["Toggle"] = pair<ActionType, uint>(ACTION_TOGGLE, ANY_MASK);
 
-    _action_map["MAXFILL"] = pair<ActionType, uint>(ACTION_MAXFILL, FRAME_MASK);
-    _action_map["GROWDIRECTION"] = pair<ActionType, uint>(ACTION_GROW_DIRECTION, FRAME_MASK);
-    _action_map["CLOSE"] = pair<ActionType, uint>(ACTION_CLOSE, FRAME_MASK);
-    _action_map["CLOSEFRAME"] = pair<ActionType, uint>(ACTION_CLOSE_FRAME, FRAME_MASK);
-    _action_map["KILL"] = pair<ActionType, uint>(ACTION_KILL, FRAME_MASK);
-    _action_map["RAISE"] = pair<ActionType, uint>(ACTION_RAISE, FRAME_MASK);
-    _action_map["LOWER"] = pair<ActionType, uint>(ACTION_LOWER, FRAME_MASK);
-    _action_map["ACTIVATEORRAISE"] = pair<ActionType, uint>(ACTION_ACTIVATE_OR_RAISE, FRAME_MASK);
-    _action_map["ACTIVATECLIENTREL"] = pair<ActionType, uint>(ACTION_ACTIVATE_CLIENT_REL, FRAME_MASK);
-    _action_map["MOVECLIENTREL"] = pair<ActionType, uint>(ACTION_MOVE_CLIENT_REL, FRAME_MASK);
-    _action_map["ACTIVATECLIENT"] = pair<ActionType, uint>(ACTION_ACTIVATE_CLIENT, FRAME_MASK);
-    _action_map["ACTIVATECLIENTNUM"] = pair<ActionType, uint>(ACTION_ACTIVATE_CLIENT_NUM, KEYGRABBER_OK);
-    _action_map["RESIZE"] = pair<ActionType, uint>(ACTION_RESIZE, BUTTONCLICK_OK|CLIENT_OK|FRAME_OK|FRAME_BORDER_OK);
-    _action_map["MOVE"] = pair<ActionType, uint>(ACTION_MOVE, FRAME_OK|FRAME_BORDER_OK|CLIENT_OK);
-    _action_map["MOVERESIZE"] = pair<ActionType, uint>(ACTION_MOVE_RESIZE, KEYGRABBER_OK);
-    _action_map["GROUPINGDRAG"] = pair<ActionType, uint>(ACTION_GROUPING_DRAG, FRAME_OK|CLIENT_OK);
-    _action_map["WARPTOWORKSPACE"] = pair<ActionType, uint>(ACTION_WARP_TO_WORKSPACE, SCREEN_EDGE_OK);
-    _action_map["MOVETOEDGE"] = pair<ActionType, uint>(ACTION_MOVE_TO_EDGE, KEYGRABBER_OK);
-    _action_map["NEXTFRAME"] = pair<ActionType, uint>(ACTION_NEXT_FRAME, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
-    _action_map["PREVFRAME"] = pair<ActionType, uint>(ACTION_PREV_FRAME, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
-    _action_map["NEXTFRAMEMRU"] = pair<ActionType, uint>(ACTION_NEXT_FRAME_MRU, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
-    _action_map["PREVFRAMEMRU"] = pair<ActionType, uint>(ACTION_PREV_FRAME_MRU, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
-    _action_map["FOCUSDIRECTIONAL"] = pair<ActionType, uint>(ACTION_FOCUS_DIRECTIONAL, FRAME_MASK);
-    _action_map["ATTACHMARKED"] = pair<ActionType, uint>(ACTION_ATTACH_MARKED, FRAME_MASK);
-    _action_map["ATTACHCLIENTINNEXTFRAME"] = pair<ActionType, uint>(ACTION_ATTACH_CLIENT_IN_NEXT_FRAME, FRAME_MASK);
-    _action_map["ATTACHCLIENTINPREVFRAME"] = pair<ActionType, uint>(ACTION_ATTACH_CLIENT_IN_PREV_FRAME, FRAME_MASK);
-    _action_map["FINDCLIENT"] = pair<ActionType, uint>(ACTION_FIND_CLIENT, ANY_MASK);
-    _action_map["GOTOCLIENTID"] = pair<ActionType, uint>(ACTION_GOTO_CLIENT_ID, ANY_MASK);
-    _action_map["DETACH"] = pair<ActionType, uint>(ACTION_DETACH, FRAME_MASK);
-    _action_map["SENDTOWORKSPACE"] = pair<ActionType, uint>(ACTION_SEND_TO_WORKSPACE, ANY_MASK);
-    _action_map["GOTOWORKSPACE"] = pair<ActionType, uint>(ACTION_GOTO_WORKSPACE, ANY_MASK );
-    _action_map["EXEC"] = pair<ActionType, uint>(ACTION_EXEC, FRAME_MASK|ROOTMENU_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
-    _action_map["RELOAD"] = pair<ActionType, uint>(ACTION_RELOAD, KEYGRABBER_OK|ROOTMENU_OK);
-    _action_map["RESTART"] = pair<ActionType, uint>(ACTION_RESTART, KEYGRABBER_OK|ROOTMENU_OK);
-    _action_map["RESTARTOTHER"] = pair<ActionType, uint>(ACTION_RESTART_OTHER, KEYGRABBER_OK|ROOTMENU_OK);
-    _action_map["EXIT"] = pair<ActionType, uint>(ACTION_EXIT, KEYGRABBER_OK|ROOTMENU_OK);
-    _action_map["SHOWCMDDIALOG"] = pair<ActionType, uint>(ACTION_SHOW_CMD_DIALOG, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK|ROOTMENU_OK|WINDOWMENU_OK);
-    _action_map["SHOWSEARCHDIALOG"] = pair<ActionType, uint>(ACTION_SHOW_SEARCH_DIALOG, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK|ROOTMENU_OK|WINDOWMENU_OK);
+    _action_map["MaxFill"] = pair<ActionType, uint>(ACTION_MAXFILL, FRAME_MASK);
+    _action_map["GrowDirection"] = pair<ActionType, uint>(ACTION_GROW_DIRECTION, FRAME_MASK);
+    _action_map["Close"] = pair<ActionType, uint>(ACTION_CLOSE, FRAME_MASK);
+    _action_map["CloseFrame"] = pair<ActionType, uint>(ACTION_CLOSE_FRAME, FRAME_MASK);
+    _action_map["Kill"] = pair<ActionType, uint>(ACTION_KILL, FRAME_MASK);
+    _action_map["Raise"] = pair<ActionType, uint>(ACTION_RAISE, FRAME_MASK);
+    _action_map["Lower"] = pair<ActionType, uint>(ACTION_LOWER, FRAME_MASK);
+    _action_map["ActivateOrRaise"] = pair<ActionType, uint>(ACTION_ACTIVATE_OR_RAISE, FRAME_MASK);
+    _action_map["ActivateClientRel"] = pair<ActionType, uint>(ACTION_ACTIVATE_CLIENT_REL, FRAME_MASK);
+    _action_map["MoveClientRel"] = pair<ActionType, uint>(ACTION_MOVE_CLIENT_REL, FRAME_MASK);
+    _action_map["ActivateClient"] = pair<ActionType, uint>(ACTION_ACTIVATE_CLIENT, FRAME_MASK);
+    _action_map["ActivateClientNum"] = pair<ActionType, uint>(ACTION_ACTIVATE_CLIENT_NUM, KEYGRABBER_OK);
+    _action_map["Resize"] = pair<ActionType, uint>(ACTION_RESIZE, BUTTONCLICK_OK|CLIENT_OK|FRAME_OK|FRAME_BORDER_OK);
+    _action_map["Move"] = pair<ActionType, uint>(ACTION_MOVE, FRAME_OK|FRAME_BORDER_OK|CLIENT_OK);
+    _action_map["MoveResize"] = pair<ActionType, uint>(ACTION_MOVE_RESIZE, KEYGRABBER_OK);
+    _action_map["GroupingDrag"] = pair<ActionType, uint>(ACTION_GROUPING_DRAG, FRAME_OK|CLIENT_OK);
+    _action_map["WarpToWorkspace"] = pair<ActionType, uint>(ACTION_WARP_TO_WORKSPACE, SCREEN_EDGE_OK);
+    _action_map["MoveToEdge"] = pair<ActionType, uint>(ACTION_MOVE_TO_EDGE, KEYGRABBER_OK);
+    _action_map["NextFrame"] = pair<ActionType, uint>(ACTION_NEXT_FRAME, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
+    _action_map["PrevFrame"] = pair<ActionType, uint>(ACTION_PREV_FRAME, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
+    _action_map["NextFrameMRU"] = pair<ActionType, uint>(ACTION_NEXT_FRAME_MRU, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
+    _action_map["PrevFrameMRU"] = pair<ActionType, uint>(ACTION_PREV_FRAME_MRU, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
+    _action_map["FocusDirectional"] = pair<ActionType, uint>(ACTION_FOCUS_DIRECTIONAL, FRAME_MASK);
+    _action_map["AttachMarked"] = pair<ActionType, uint>(ACTION_ATTACH_MARKED, FRAME_MASK);
+    _action_map["AttachClientInNextFrame"] = pair<ActionType, uint>(ACTION_ATTACH_CLIENT_IN_NEXT_FRAME, FRAME_MASK);
+    _action_map["AttachClientInPrevFrame"] = pair<ActionType, uint>(ACTION_ATTACH_CLIENT_IN_PREV_FRAME, FRAME_MASK);
+    _action_map["FindClient"] = pair<ActionType, uint>(ACTION_FIND_CLIENT, ANY_MASK);
+    _action_map["GotoClientID"] = pair<ActionType, uint>(ACTION_GOTO_CLIENT_ID, ANY_MASK);
+    _action_map["Detach"] = pair<ActionType, uint>(ACTION_DETACH, FRAME_MASK);
+    _action_map["SendToWorkspace"] = pair<ActionType, uint>(ACTION_SEND_TO_WORKSPACE, ANY_MASK);
+    _action_map["GoToWorkspace"] = pair<ActionType, uint>(ACTION_GOTO_WORKSPACE, ANY_MASK );
+    _action_map["Exec"] = pair<ActionType, uint>(ACTION_EXEC, FRAME_MASK|ROOTMENU_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
+    _action_map["Reload"] = pair<ActionType, uint>(ACTION_RELOAD, KEYGRABBER_OK|ROOTMENU_OK);
+    _action_map["Restart"] = pair<ActionType, uint>(ACTION_RESTART, KEYGRABBER_OK|ROOTMENU_OK);
+    _action_map["RestartOther"] = pair<ActionType, uint>(ACTION_RESTART_OTHER, KEYGRABBER_OK|ROOTMENU_OK);
+    _action_map["Exit"] = pair<ActionType, uint>(ACTION_EXIT, KEYGRABBER_OK|ROOTMENU_OK);
+    _action_map["ShowCmdDialog"] = pair<ActionType, uint>(ACTION_SHOW_CMD_DIALOG, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK|ROOTMENU_OK|WINDOWMENU_OK);
+    _action_map["ShowSearchDialog"] = pair<ActionType, uint>(ACTION_SHOW_SEARCH_DIALOG, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK|ROOTMENU_OK|WINDOWMENU_OK);
 #ifdef MENUS
-    _action_map["SHOWMENU"] = pair<ActionType, uint>(ACTION_SHOW_MENU, FRAME_MASK|ROOTCLICK_OK|SCREEN_EDGE_OK|ROOTMENU_OK|WINDOWMENU_OK);
-    _action_map["HIDEALLMENUS"] = pair<ActionType, uint>(ACTION_HIDE_ALL_MENUS, FRAME_MASK|ROOTCLICK_OK|SCREEN_EDGE_OK);
-    _action_map["SUBMENU"] = pair<ActionType, uint>(ACTION_MENU_SUB, ROOTMENU_OK|WINDOWMENU_OK);
-    _action_map["DYNAMIC"] = pair<ActionType, uint>(ACTION_MENU_DYN, ROOTMENU_OK|WINDOWMENU_OK);
+    _action_map["ShowMenu"] = pair<ActionType, uint>(ACTION_SHOW_MENU, FRAME_MASK|ROOTCLICK_OK|SCREEN_EDGE_OK|ROOTMENU_OK|WINDOWMENU_OK);
+    _action_map["HideAllMenus"] = pair<ActionType, uint>(ACTION_HIDE_ALL_MENUS, FRAME_MASK|ROOTCLICK_OK|SCREEN_EDGE_OK);
+    _action_map["SubMenu"] = pair<ActionType, uint>(ACTION_MENU_SUB, ROOTMENU_OK|WINDOWMENU_OK);
+    _action_map["Dynamic"] = pair<ActionType, uint>(ACTION_MENU_DYN, ROOTMENU_OK|WINDOWMENU_OK);
 #endif // MENUS
-    _action_map["SENDKEY"] = pair<ActionType, uint>(ACTION_SEND_KEY, ANY_MASK);
+    _action_map["SendKey"] = pair<ActionType, uint>(ACTION_SEND_KEY, ANY_MASK);
 
     _placement_map[""] = PLACE_NO;
     _placement_map["SMART"] = PLACE_SMART;
@@ -292,24 +292,24 @@ Config::Config(void) :
     _mod_map["ANY"] = MOD_ANY;
 
     _action_state_map[""] = ACTION_STATE_NO;
-    _action_state_map["MAXIMIZED"] = ACTION_STATE_MAXIMIZED;
-    _action_state_map["FULLSCREEN"] = ACTION_STATE_FULLSCREEN;
-    _action_state_map["SHADED"] = ACTION_STATE_SHADED;
-    _action_state_map["STICKY"] = ACTION_STATE_STICKY;
-    _action_state_map["ALWAYSONTOP"] = ACTION_STATE_ALWAYS_ONTOP;
-    _action_state_map["ALWAYSBELOW"] = ACTION_STATE_ALWAYS_BELOW;
-    _action_state_map["DECORBORDER"] = ACTION_STATE_DECOR_BORDER;
-    _action_state_map["DECORTITLEBAR"] = ACTION_STATE_DECOR_TITLEBAR;
-    _action_state_map["ICONIFIED"] = ACTION_STATE_ICONIFIED;
-    _action_state_map["TAGGED"] = ACTION_STATE_TAGGED;
-    _action_state_map["MARKED"] = ACTION_STATE_MARKED;
-    _action_state_map["SKIP"] = ACTION_STATE_SKIP;
-    _action_state_map["CFGDENY"] = ACTION_STATE_CFG_DENY;
-    _action_state_map["TITLE"] = ACTION_STATE_TITLE;
+    _action_state_map["Maximized"] = ACTION_STATE_MAXIMIZED;
+    _action_state_map["Fullscreen"] = ACTION_STATE_FULLSCREEN;
+    _action_state_map["Shaded"] = ACTION_STATE_SHADED;
+    _action_state_map["Sticky"] = ACTION_STATE_STICKY;
+    _action_state_map["AlwaysOnTop"] = ACTION_STATE_ALWAYS_ONTOP;
+    _action_state_map["AlwaysBelow"] = ACTION_STATE_ALWAYS_BELOW;
+    _action_state_map["DecorBorder"] = ACTION_STATE_DECOR_BORDER;
+    _action_state_map["DecorTitlebar"] = ACTION_STATE_DECOR_TITLEBAR;
+    _action_state_map["Iconified"] = ACTION_STATE_ICONIFIED;
+    _action_state_map["Tagged"] = ACTION_STATE_TAGGED;
+    _action_state_map["Marked"] = ACTION_STATE_MARKED;
+    _action_state_map["Skip"] = ACTION_STATE_SKIP;
+    _action_state_map["CfgDeny"] = ACTION_STATE_CFG_DENY;
+    _action_state_map["Title"] = ACTION_STATE_TITLE;
 #ifdef HARBOUR
-    _action_state_map["HARBOURHIDDEN"] = ACTION_STATE_HARBOUR_HIDDEN;
+    _action_state_map["HarbourHidden"] = ACTION_STATE_HARBOUR_HIDDEN;
 #endif // HARBOUR
-    _action_state_map["GLOBALGROUPING"] = ACTION_STATE_GLOBAL_GROUPING;
+    _action_state_map["GlobalGrouping"] = ACTION_STATE_GLOBAL_GROUPING;
 
 
     _cfg_deny_map["POSITION"] = CFG_DENY_POSITION;

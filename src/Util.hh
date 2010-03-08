@@ -83,6 +83,25 @@ namespace Util {
         std::transform(str.begin(), str.end(), str.begin(), (int(*)(int)) std::tolower);
     }
 
+    /**
+     * Converts wide string to uppercase
+     *
+     * @param str Reference to the string to convert
+     */
+    inline void to_upper(std::wstring &str) {
+        std::transform(str.begin(), str.end(), str.begin(), (int(*)(int)) std::towupper);
+    }
+
+
+    /**
+     * Converts wide string to lowercase
+     *
+     * @param str Reference to the string to convert
+     */
+    inline void to_lower(std::wstring &str) {
+        std::transform(str.begin(), str.end(), str.begin(), (int(*)(int)) std::towlower);
+    }
+
     std::string to_mb_str(const std::wstring &str);
     std::wstring to_wide_str(const std::string &str);
 

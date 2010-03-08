@@ -48,6 +48,7 @@ CmdDialog::CmdDialog(Display *dpy, Theme *theme)
   _type = PWinObj::WO_CMD_DIALOG;
 
   // Setup completer
+  _completer.add_method(new ActionCompleterMethod());
   _completer.add_method(new PathCompleterMethod());
 
   if (Config::instance()->getCmdDialogHistoryFile().size() > 0) {

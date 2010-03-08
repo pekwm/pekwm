@@ -16,8 +16,29 @@
 #include <list>
 #include <string>
 
+extern "C" {
+#include <sys/types.h>
+#include <dirent.h>
+}
+
 typedef std::list<std::wstring> complete_list;
 typedef complete_list::iterator complete_it;
+typedef std::list<std::pair<std::wstring, std::wstring> > completions_list;
+typedef completions_list::iterator completions_it;
+
+/**
+ * State data used during completion.
+ */
+class CompletionState {
+public:
+    std::wstring part;
+    std::wstring part_lower;
+    size_t part_begin, part_end;
+    std::wstring word;
+    std::wstring word_lower;
+    size_t word_begin, word_end;
+    complete_list completions;
+};
 
 /**
  * Base class for completer methods, provides method to see if it
@@ -34,10 +55,14 @@ public:
     /** Return true if method can complete. */
     virtual bool can_complete(const std::wstring &str) { return false; }
     /** Find completions for string. */
-    virtual unsigned int complete(const std::wstring &str, const std::wstring &word,
-                                  complete_list &completions) { return 0; }
+    virtual unsigned int complete(CompletionState &completion_state) { return 0; }
     /** Refresh completion list. */
     virtual void refresh(void) { }
+
+protected:
+    unsigned int complete_word(completions_list &completions_list,
+                               complete_list &completions,
+                               const std::wstring &word);
 };
 
 /**
@@ -49,8 +74,7 @@ public:
     /** Null completer can always complete. */
     virtual bool can_complete(const std::wstring &str) { return true; }
     /** Find completions, does nothing. */
-    virtual unsigned int complete(const std::wstring &str, const std::wstring &word,
-                                  complete_list &completions) { return 0; }
+    virtual unsigned int complete(CompletionState &completion_state) { return 0; }
 };
 
 /**
@@ -66,12 +90,15 @@ public:
 
     /** Path completer can always complete. */
     virtual bool can_complete(const std::wstring &str) { return true; }
-    virtual unsigned int complete(const std::wstring &str, const std::wstring &word,
-                                  complete_list &completions);
+    virtual unsigned int complete(CompletionState &completion_state);
     virtual void refresh(void);
 
 private:
-    std::list<std::wstring> _path_list; /**< List of all elements in path. */
+    void refresh_path(DIR *dh, const std::wstring path);
+
+private:
+    completions_list _path_list; /**< List of all elements in path. */
+    std::set<std::pair<std::wstring, std::wstring> > _path_name_set; /**< Set with unique names */
 };
 
 /**
@@ -81,15 +108,60 @@ private:
 class ActionCompleterMethod : public CompleterMethod
 {
 public:
+    /**
+     * States for context sensitive ActionCompleterMethod completions.
+     */
+    enum State {
+        STATE_ACTION,
+        STATE_STATE,
+        STATE_MENU,
+        STATE_NO,
+        STATE_NUM = 5
+    };
+
+    /**
+     * Context match information.
+     */
+    class StateMatch {
+    public:
+        StateMatch(State state, const wchar_t *prefix)
+           : _prefix(prefix), _prefix_len(wcslen(prefix)), _state(state) {
+        }
+
+        State get_state(void) { return _state; }
+        bool is_state(const std::wstring &str, size_t pos);
+    private:
+        const wchar_t *_prefix; /**< Matching prefix */
+        const size_t _prefix_len; /**< */
+        State _state; /**< State */
+    };
+
+    /** Constructor for ActionCompleter method. */
+    ActionCompleterMethod(void) : CompleterMethod() { refresh(); }
+    /** Destructor for ActionCompleterMethod */
+    virtual ~ActionCompleterMethod(void) { }
+
     /** Path completer can always complete. */
     virtual bool can_complete(const std::wstring &str) { return true; }
-    virtual unsigned int complete(const std::wstring &str, const std::wstring &word,
-                                  complete_list &completions);
+    virtual unsigned int complete(CompletionState &completion_state);
     virtual void refresh(void);
 
 private:
-    std::list<std::wstring> _action_list; /**< List of all available actions. */
-    std::list<std::wstring> _state_param_list; /**< List of parameters to state actions. */
+    unsigned int complete_state(const std::wstring &word, complete_list &completions);
+    unsigned int complete_menu(const std::wstring &word, complete_list &completions);
+    unsigned int complete_action(const std::wstring &word, complete_list &completions);
+
+    State find_state(CompletionState &completion_state);
+    size_t find_state_word_start(const std::wstring &str);
+    State find_state_match(const std::wstring &str, size_t pos);
+
+private:
+    completions_list _action_list; /**< List of all available actions. */
+    completions_list _state_list; /**< List of parameters to state actions. */
+#ifdef MENUS
+    completions_list _menu_list; /**< List of parameters to state actions. */
+#endif // MENUS
+    static StateMatch STATE_MATCHES[]; /**< List of known states with matching data. */
 };
 
 /**

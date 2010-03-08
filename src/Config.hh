@@ -66,6 +66,7 @@ class Config
 {
 public:
     typedef std::map<ParseUtil::Entry, std::pair<ActionType, uint> >::iterator action_map_it;
+    typedef std::map<ParseUtil::Entry, ActionStateType>::iterator action_state_map_it;
 
     Config(void);
     ~Config(void);
@@ -81,6 +82,11 @@ public:
     action_map_it action_map_begin(void) { return _action_map.begin(); }
     /** Return end iterator for iterating over actions. */
     action_map_it action_map_end(void) { return _action_map.end(); }
+
+    /** Return start iterator for iterating over state actions. */
+    action_state_map_it action_state_map_begin(void) { return _action_state_map.begin(); }
+    /** Return end iterator for iterating over state actions. */
+    action_state_map_it action_state_map_end(void) { return _action_state_map.end(); }
 
     // Files
     const std::string &getKeyFile(void) const { return _files_keys; }
