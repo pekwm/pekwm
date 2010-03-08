@@ -184,7 +184,8 @@ list<PDecor*> PDecor::_pdecor_list = list<PDecor*>();
 //! @param dpy Display
 //! @param theme Theme
 //! @param decor_name String, if not DEFAULT_DECOR_NAME sets _decor_name_override
-PDecor::PDecor(Display *dpy, Theme *theme, const std::string decor_name)
+PDecor::PDecor(Display *dpy, Theme *theme,
+               const std::string decor_name, const Window child_window)
     : PWinObj(dpy),
       _theme(theme),_decor_name(decor_name),
       _child(0), _button(0), _button_press_win(None),
@@ -213,9 +214,16 @@ PDecor::PDecor(Display *dpy, Theme *theme, const std::string decor_name)
         _data = _theme->getPDecorData(DEFAULT_DECOR_NAME);
     }
 
-    createParentWindow();
-    createTitle();
-    createBorder();
+    CreateWindowParams window_params;
+    getParentWindowAttributes(window_params, child_window);
+    createParentWindow(window_params);
+    if (window_params.mask & CWColormap) {
+        window_params.depth = PScreen::instance()->getDepth();
+        window_params.visual = PScreen::instance()->getVisual()->getXVisual();
+        window_params.attr.colormap = PScreen::instance()->getColormap();
+    }
+    createTitle(window_params);
+    createBorder(window_params);
 
     // sets buttons etc up
     loadDecor();
@@ -227,37 +235,70 @@ PDecor::PDecor(Display *dpy, Theme *theme, const std::string decor_name)
 }
 
 /**
+ * Create window attributes
+ */
+void
+PDecor::getParentWindowAttributes(CreateWindowParams &params,
+                                  Window child_window)
+{
+    params.mask = CWOverrideRedirect|CWEventMask|CWBorderPixel|CWBackPixel;
+    params.depth = CopyFromParent;
+    params.visual = CopyFromParent;
+    params.attr.override_redirect = True;
+    params.attr.border_pixel = 0;
+    params.attr.background_pixel = 0;
+
+    if (child_window != None) {
+        getChildWindowAttributes(params, child_window);
+    }
+}
+
+/**
+ * Get window attributes from child window
+ */
+void
+PDecor::getChildWindowAttributes(CreateWindowParams &params,
+                                 Window child_window)
+{
+    XWindowAttributes attr;
+    Status status =  XGetWindowAttributes(_dpy, child_window, &attr);
+    if (status != BadDrawable && status != BadWindow && attr.depth == 32) {
+        params.mask |= CWColormap;
+        params.depth = attr.depth;
+        params.visual = attr.visual;
+        params.attr.colormap = XCreateColormap(_dpy,
+                                               PScreen::instance()->getRoot(),
+                                               params.visual, AllocNone);
+    }
+}
+
+/**
  * Create container window.
  */
 void
-PDecor::createParentWindow(void)
+PDecor::createParentWindow(CreateWindowParams &params)
 {
-    XSetWindowAttributes attr;
-    attr.override_redirect = True;
-    attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
-                      EnterWindowMask|SubstructureRedirectMask|
-                      SubstructureNotifyMask;
-
+    params.attr.event_mask = ButtonPressMask|ButtonReleaseMask|
+        ButtonMotionMask|EnterWindowMask|SubstructureRedirectMask|
+        SubstructureNotifyMask;
     _window = XCreateWindow(_dpy, PScreen::instance()->getRoot(),
                             _gm.x, _gm.y, _gm.width, _gm.height, 0,
-                            CopyFromParent, InputOutput, CopyFromParent,
-                            CWOverrideRedirect|CWEventMask, &attr);
+                            params.depth, InputOutput, params.visual,
+                            params.mask, &params.attr);
 }
 
 /**
  * Create title window.
  */
 void
-PDecor::createTitle(void)
+PDecor::createTitle(CreateWindowParams &params)
 {
-    XSetWindowAttributes attr;
-    attr.override_redirect = True;
-    attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
-                      EnterWindowMask;
+    params.attr.event_mask = ButtonPressMask|ButtonReleaseMask|
+        ButtonMotionMask|EnterWindowMask;
     Window title = XCreateWindow(_dpy, _window,
                                  borderLeft(), borderTop(), 1, 1, 0,
-                                 CopyFromParent, InputOutput, CopyFromParent,
-                                 CWOverrideRedirect|CWEventMask, &attr);
+                                 params.depth, InputOutput, params.visual,
+                                 params.mask, &params.attr);
     _title_wo.setWindow(title);
     addChildWindow(_title_wo.getWindow());
 }
@@ -266,21 +307,19 @@ PDecor::createTitle(void)
  * Create border windows
  */
 void
-PDecor::createBorder(void)
+PDecor::createBorder(CreateWindowParams &params)
 {
-    XSetWindowAttributes attr;
-    attr.override_redirect = True;
-    attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
-                      EnterWindowMask;
+    params.attr.event_mask = ButtonPressMask|ButtonReleaseMask|
+        ButtonMotionMask|EnterWindowMask;
 
     ScreenResources *sr = ScreenResources::instance();
     for (uint i = 0; i < BORDER_NO_POS; ++i) {
-        attr.cursor = sr->getCursor(ScreenResources::CursorType(i));
+        params.attr.cursor = sr->getCursor(ScreenResources::CursorType(i));
 
         _border_win[i] =
             XCreateWindow(_dpy, _window, -1, -1, 1, 1, 0,
-                          CopyFromParent, InputOutput, CopyFromParent,
-                          CWOverrideRedirect|CWEventMask|CWCursor, &attr);
+                          params.depth, InputOutput, params.visual,
+                          params.mask|CWCursor, &params.attr);
         _border_pos_map[BorderPosition(i)] = None;
         addChildWindow(_border_win[i]);
     }

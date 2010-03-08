@@ -24,6 +24,17 @@ class ActionEvent;
 class PFont;
 class PWinObj;
 
+/**
+ * Create window attributes.
+ */
+class CreateWindowParams {
+public:
+    int depth;
+    long mask;
+    XSetWindowAttributes attr;
+    Visual *visual;
+};
+
 //! @brief PWinObj container class with fancy decor.
 class PDecor : public PWinObj
 {
@@ -111,7 +122,9 @@ class Button : public PWinObj {
         uint _width;
     };
 
-    PDecor(Display *dpy, Theme *theme, const std::string decor_name = DEFAULT_DECOR_NAME);
+    PDecor(Display *dpy, Theme *theme,
+           const std::string decor_name = DEFAULT_DECOR_NAME,
+           const Window child_window = None);
     virtual ~PDecor(void);
 
     // START - PWinObj interface.
@@ -346,9 +359,13 @@ protected:
     }
 
 private:
-    void createParentWindow(void);
-    void createTitle(void);
-    void createBorder(void);
+    void getParentWindowAttributes(CreateWindowParams &params,
+                                   Window child_window);
+    void getChildWindowAttributes(CreateWindowParams &params,
+                                  Window child_window);
+    void createParentWindow(CreateWindowParams &params);
+    void createTitle(CreateWindowParams &params);
+    void createBorder(CreateWindowParams &params);
 
     void unloadDecor(void);
 
