@@ -38,6 +38,12 @@
 #include "RegexString.hh"
 
 #include "KeyGrabber.hh"
+#ifdef MENUS
+#include "MenuHandler.hh"
+#ifdef HARBOUR
+#include "HarbourMenu.hh"
+#endif // HARBOUR
+#endif // MENUS
 #ifdef HARBOUR
 #include "Harbour.hh"
 #include "DockApp.hh"
@@ -46,17 +52,6 @@
 #include "SearchDialog.hh"
 #include "StatusWindow.hh"
 #include "WorkspaceIndicator.hh"
-
-#include "PMenu.hh" // we need this for the "Alt+Tabbing"
-#ifdef MENUS
-#include "WORefMenu.hh"
-#include "ActionMenu.hh"
-#include "FrameListMenu.hh"
-#include "DecorMenu.hh"
-#ifdef HARBOUR
-#include "HarbourMenu.hh"
-#endif // HARBOUR
-#endif // MENUS
 
 #include <iostream>
 #include <list>
@@ -92,27 +87,6 @@ using std::wstring;
 
 // Static initializers
 WindowManager *WindowManager::_instance = 0;
-
-#ifdef MENUS
-const char *WindowManager::MENU_NAMES_RESERVED[] = {
-            "ATTACHCLIENTINFRAME",
-            "ATTACHCLIENT",
-            "ATTACHFRAMEINFRAME",
-            "ATTACHFRAME",
-            "DECORMENU",
-            "GOTOCLIENT",
-            "GOTO",
-            "ICON",
-            "ROOTMENU",
-            "ROOT", // To avoid name conflict, ROOTMENU -> ROOT
-            "WINDOWMENU",
-            "WINDOW" // To avoid name conflict, WINDOWMENU -> WINDOW
-        };
-
-const unsigned int WindowManager::MENU_NAMES_RESERVED_COUNT =
-    sizeof(WindowManager::MENU_NAMES_RESERVED)
-    / sizeof(WindowManager::MENU_NAMES_RESERVED[0]);
-#endif // MENUS
 
 extern "C" {
 
@@ -240,20 +214,17 @@ WindowManager::~WindowManager(void)
     delete _status_window;
     delete _workspace_indicator;
 
+#ifdef MENUS
+    MenuHandler::destroy();
+#endif // MENUS
 #ifdef HARBOUR
-    if (_harbour) {
-        delete _harbour;
-    }
+    delete _harbour;
 #endif // HARBOUR
 
     delete _root_wo;
     delete _hint_wo;
     delete _action_handler;
     delete _autoproperties;
-
-#ifdef MENUS
-    deleteMenus();
-#endif // MENUS
 
     if (_keygrabber)
         delete _keygrabber;
@@ -403,6 +374,9 @@ WindowManager::setupDisplay(bool replace)
 #ifdef HARBOUR
     _harbour = new Harbour(_screen, _theme, _workspaces);
 #endif // HARBOUR
+#ifdef MENUS
+    MenuHandler::init(_theme);
+#endif // MENUS
 
     _cmd_dialog = new CmdDialog(_screen->getDpy(), _theme);
     _search_dialog = new SearchDialog(_screen->getDpy(), _theme);
@@ -419,10 +393,6 @@ WindowManager::setupDisplay(bool replace)
     _keygrabber = new KeyGrabber(_screen);
     _keygrabber->load(_config->getKeyFile());
     _keygrabber->grabKeys(_screen->getRoot());
-
-#ifdef MENUS
-    createMenus();
-#endif // MENUS
 
     // Create screen edge windows
     screenEdgeCreate();
@@ -625,7 +595,11 @@ WindowManager::doReload(void)
     doReloadAutoproperties();
 
 #ifdef MENUS
-    doReloadMenus();
+    MenuHandler::instance()->reloadMenus();
+#ifdef HARBOUR
+    // Special case for HARBOUR menu which is not included in the menu map
+    _harbour->getHarbourMenu()->reload(static_cast<CfgParser::Entry*>(0));
+#endif // HARBOUR
 #endif // MENUS
 #ifdef HARBOUR
     doReloadHarbour();
@@ -1545,139 +1519,6 @@ WindowManager::handleXRandrCrtcChangeEvent(XRRCrtcChangeNotifyEvent *ev)
 
 // Event handling routines stop ============================================
 
-#ifdef MENUS
-//! @brief Creates reserved menus and populates _menu_map
-void
-WindowManager::createMenus(void)
-{
-    // Make sure this is not called twice without an delete in between
-    assert(! _menu_map.size());
-
-    _menu_map["ATTACHCLIENTINFRAME"] = new FrameListMenu(_screen, _theme, ATTACH_CLIENT_IN_FRAME_TYPE,
-                                                         L"Attach Client In Frame", "ATTACHCLIENTINFRAME");
-    _menu_map["ATTACHCLIENT"] = new FrameListMenu(_screen, _theme, ATTACH_CLIENT_TYPE,
-                                                  L"Attach Client", "ATTACHCLIENT");
-    _menu_map["ATTACHFRAMEINFRAME"] = new FrameListMenu(_screen, _theme, ATTACH_FRAME_IN_FRAME_TYPE,
-                                                        L"Attach Frame In Frame", "ATTACHFRAMEINFRAME");
-    _menu_map["ATTACHFRAME"] = new FrameListMenu(_screen, _theme, ATTACH_FRAME_TYPE,
-                                                 L"Attach Frame", "ATTACHFRAME");
-    _menu_map["GOTOCLIENT"] = new FrameListMenu(_screen, _theme, GOTOCLIENTMENU_TYPE,
-                                                L"Focus Client", "GOTOCLIENT");
-    _menu_map["DECORMENU"] = new DecorMenu(_screen, _theme, _action_handler, "DECORMENU");
-    _menu_map["GOTO"] = new FrameListMenu(_screen, _theme, GOTOMENU_TYPE, L"Focus Frame", "GOTO");
-    _menu_map["ICON"] = new FrameListMenu(_screen, _theme, ICONMENU_TYPE, L"Focus Iconified Frame", "ICON");
-    _menu_map["ROOT"] =  new ActionMenu(ROOTMENU_TYPE, L"", "ROOTMENU");
-    _menu_map["WINDOW"] = new ActionMenu(WINDOWMENU_TYPE, L"", "WINDOWMENU");
-
-    // As the previous step is done manually, make sure it's done correct.
-    assert(_menu_map.size() == (MENU_NAMES_RESERVED_COUNT - 2));
-
-    // Load configuration, pass specific section to loading
-    CfgParser menu_cfg;
-    if (menu_cfg.parse(_config->getMenuFile()) || menu_cfg.parse (string(SYSCONFDIR "/menu"))) {
-        _menu_state = menu_cfg.get_file_list();
-
-        // Load standard menus
-        map<string, PMenu*>::iterator it = _menu_map.begin();
-        for (; it != _menu_map.end(); ++it) {
-            it->second->reload(menu_cfg.get_entry_root()->find_section(it->second->getName()));
-        }
-
-        // Load standalone menus
-        updateMenusStandalone(menu_cfg.get_entry_root());
-    }
-}
-
-/**
- * (re)loads the menus in the menu configuration if the file has been
- * updated since last load.
- */
-void
-WindowManager::doReloadMenus(void)
-{
-    if (! Util::requireReload(_menu_state, _config->getMenuFile())) {
-        return;
-    }    
-
-    // Load configuration, pass specific section to loading
-    bool cfg_ok = true;
-    CfgParser menu_cfg;
-    if (! menu_cfg.parse(_config->getMenuFile())) {
-        if (! menu_cfg.parse(string(SYSCONFDIR "/menu"))) {
-            cfg_ok = false;
-        }
-    }
-
-    // Make sure menu is reloaded next time as content is dynamically
-    // generated from the configuration file.
-    if (! cfg_ok || menu_cfg.is_dynamic_content()) {
-        _menu_state.clear();
-    } else {
-        _menu_state = menu_cfg.get_file_list();
-    }
-
-    // Update, delete standalone root menus, load decors on others
-    map<string, PMenu*>::iterator it(_menu_map.begin());
-    for (; it != _menu_map.end(); ++it) {
-        if (it->second->getMenuType() == ROOTMENU_STANDALONE_TYPE) {
-            delete it->second;
-            _menu_map.erase(it);
-        } else {
-            // Only reload the menu if we got a ok configuration
-            if (cfg_ok) {
-                it->second->reload(menu_cfg.get_entry_root()->find_section(it->second->getName()));
-            }
-        }
-    }
-
-    // Update standalone root menus (name != ROOTMENU)
-    updateMenusStandalone(menu_cfg.get_entry_root());
-
-    // Special case for HARBOUR menu which is not included in the menu map
-#ifdef HARBOUR
-    _harbour->getHarbourMenu()->reload(static_cast<CfgParser::Entry*>(0));
-#endif // HARBOUR
-}
-
-//! @brief Updates standalone root menus
-void
-WindowManager::updateMenusStandalone(CfgParser::Entry *section)
-{
-    // Temporary name, as names are stored uppercase
-    string menu_name;
-
-    // Go through all but reserved section names and create menus
-    CfgParser::iterator it(section->begin());
-    for (; it != section->end(); ++it) {
-        // Uppercase name
-        menu_name = (*it)->get_name();
-        Util::to_upper(menu_name);
-
-        // Create new menus, if the name is not reserved and not used
-        if (! binary_search(MENU_NAMES_RESERVED,
-                            MENU_NAMES_RESERVED + MENU_NAMES_RESERVED_COUNT,
-                            menu_name)
-                && ! getMenu(menu_name)) {
-            // Create, parse and add to map
-            PMenu *menu = new ActionMenu(ROOTMENU_STANDALONE_TYPE, L"", menu_name);
-            menu->reload((*it)->get_section());
-            _menu_map[menu->getName()] = menu;
-        }
-    }
-}
-
-//! @brief Clears the menu map and frees up resources used by menus
-void
-WindowManager::deleteMenus(void)
-{
-    map<std::string, PMenu*>::iterator it(_menu_map.begin());
-    for (; it != _menu_map.end(); ++it) {
-        delete it->second;
-    }
-    _menu_map.clear();
-}
-#endif // MENUS
-
 //! @brief Searches for a PWinObj to focus, and then gives it input focus
 void
 WindowManager::findWOAndFocus(PWinObj *search)
@@ -1991,22 +1832,3 @@ WindowManager::getPrevFrame(Frame* frame, bool mapped, uint mask)
 
     return next_frame;
 }
-
-#ifdef MENUS
-//! @brief Hides all menus
-void
-WindowManager::hideAllMenus(void)
-{
-    bool do_focus = PWinObj::isFocusedPWinObj(PWinObj::WO_MENU);
-
-    map<std::string, PMenu*>::iterator it(_menu_map.begin());
-    for (; it != _menu_map.end(); ++it) {
-        it->second->unmapAll();
-    }
-
-    if (do_focus) {
-        findWOAndFocus(0);
-    }
-}
-#endif // MENUS
-// here follows methods for hints and atoms

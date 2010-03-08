@@ -32,6 +32,7 @@
 #endif // HARBOUR
 
 #ifdef MENUS
+#include "MenuHandler.hh"
 #include "PDecor.hh"
 #include "PMenu.hh"
 #include "WORefMenu.hh"
@@ -359,7 +360,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                                ap.type, client ? client : ap.wo);
                 break;
             case ACTION_HIDE_ALL_MENUS:
-                WindowManager::instance()->hideAllMenus();
+                MenuHandler::instance()->hideAllMenus();
                 break;
 #endif // MENUS
             case ACTION_RELOAD:
@@ -837,7 +838,7 @@ void
 ActionHandler::actionShowMenu(const std::string &name, bool stick,
                               uint e_type, PWinObj *wo_ref)
 {
-    PMenu *menu = WindowManager::instance()->getMenu(name);
+    PMenu *menu = MenuHandler::instance()->getMenu(name);
     if (! menu) {
         return;
     }

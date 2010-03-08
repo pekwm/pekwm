@@ -49,7 +49,6 @@ class PDecor;
 class Frame;
 class Client;
 class ClassHint;
-class PMenu; // used together with Focus actions
 
 class AutoProperty; // for findGroup
 class CmdDialog;
@@ -104,14 +103,6 @@ public:
     inline std::list<PWinObj*>::iterator mru_end(void) { return _mru_list.end(); }
     inline std::list<PWinObj*>::reverse_iterator mru_rend(void) { return _mru_list.rend(); }
 
-    // menus
-#ifdef MENUS
-    inline PMenu* getMenu(const std::string &name) {
-        std::map<std::string, PMenu*>::iterator it = _menu_map.find(name);
-        return (it != _menu_map.end()) ? it->second : 0;
-    }
-#endif // MENUS
-
     // adds
     inline void addToFrameList(Frame *frame) {
         if (frame) {
@@ -147,10 +138,6 @@ public:
     Frame* getPrevFrame(Frame* frame, bool mapped, uint mask = 0);
 
     void findWOAndFocus(PWinObj *wo);
-
-#ifdef MENUS
-    void hideAllMenus(void);
-#endif // MENUS
 
     inline CmdDialog *getCmdDialog(void) { return _cmd_dialog; }
     inline SearchDialog *getSearchDialog(void) { return _search_dialog; }
@@ -222,13 +209,6 @@ private:
     void handleXRandrCrtcChangeEvent(XRRCrtcChangeNotifyEvent *ev);
 #endif // HAVE_XRANDR
 
-#ifdef MENUS
-    void createMenus(void);
-    void doReloadMenus(void);
-    void updateMenusStandalone(CfgParser::Entry *cfg_root);
-    void deleteMenus(void);
-#endif // MENUS
-
     void readDesktopNamesHint(void);
 
     // private methods for the hints
@@ -259,14 +239,6 @@ private:
   WorkspaceIndicator *_workspace_indicator; //!< Window popping up when switching workspace
 
   Timer<ActionPerformed> _timer_action;
-
-#ifdef MENUS
-    std::map <std::string, time_t> _menu_state; /**< Map of file mtime for all files touched by a configuration. */    
-    std::map<std::string, PMenu*> _menu_map;
-
-    static const char *MENU_NAMES_RESERVED[];
-    static const unsigned int MENU_NAMES_RESERVED_COUNT;
-#endif // MENUS
 
     std::string _command_line, _restart_command;
     bool _startup; //!< Indicates startup status.

@@ -31,6 +31,7 @@ pekwm_SOURCES = \
 	InputDialog.cc InputDialog.hh \
 	KeyGrabber.cc KeyGrabber.hh \
 	ManagerWindows.cc ManagerWindows.hh \
+	MenuHandler.cc MenuHandler.hh \
 	Observer.hh \
 	Observable.cc Observable.hh \
 	PDecor.cc PDecor.hh \
