@@ -16,7 +16,6 @@
 #include <list>
 #include <vector>
 #include <string>
-#include <set>
 
 extern "C" {
 #include <sys/types.h>
@@ -41,7 +40,6 @@ using std::vector;
 using std::string;
 using std::wstring;
 using std::pair;
-using std::set;
 
 ActionCompleterMethod::StateMatch ActionCompleterMethod::STATE_MATCHES[] = {
   StateMatch(ActionCompleterMethod::STATE_STATE, L"set"),
@@ -94,9 +92,7 @@ PathCompleterMethod::refresh(void)
 {
     // Clear out previous data
     _path_list.clear();
-    _path_name_set.clear();
 
-    set<pair<wstring, wstring> > name_set;
     vector<string> path_parts;
     Util::splitString(getenv("PATH") ? getenv("PATH") : "", path_parts, ":");
 
@@ -109,9 +105,8 @@ PathCompleterMethod::refresh(void)
         }
     }
 
-    copy(_path_name_set.begin(), _path_name_set.end(), _path_list.begin());
+    _path_list.unique();
     _path_list.sort();
-    _path_name_set.clear();
 }
 
 /**
@@ -127,7 +122,7 @@ PathCompleterMethod::refresh_path(DIR *dh, const std::wstring path)
         }
 
         wstring name(Util::to_wide_str(entry->d_name));
-        _path_name_set.insert(pair<wstring, wstring>(name, name));
+        _path_list.push_back(pair<wstring, wstring>(name, name));
         _path_list.push_back(pair<wstring, wstring>(path + L"/" + name,
                                                     path + L"/" + name));
     }
@@ -244,6 +239,7 @@ ActionCompleterMethod::refresh(void)
         pair<wstring, wstring> menu_pair(menu_name_lower, menu_name);
         _menu_list.push_back(menu_pair);
     }
+    _menu_list.unique();
     _menu_list.sort();
 #endif // MENUS
 }

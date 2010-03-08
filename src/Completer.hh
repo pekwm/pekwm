@@ -98,7 +98,6 @@ private:
 
 private:
     completions_list _path_list; /**< List of all elements in path. */
-    std::set<std::pair<std::wstring, std::wstring> > _path_name_set; /**< Set with unique names */
 };
 
 /**
