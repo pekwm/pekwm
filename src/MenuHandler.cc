@@ -1,3 +1,10 @@
+//
+// MenuHandler.cc for pekwm
+// Copyright © 2009 Claes Nästén <me@pekdon.net>
+//
+// This program is licensed under the GNU GPL.
+// See the LICENSE file for more information.
+//
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -29,18 +36,18 @@ MenuHandler *MenuHandler::_instance = 0;
  * List of reserved names of built-in menus.
  */
 const char *MenuHandler::MENU_NAMES_RESERVED[] = {
-    "AttachClientInFrame",
-    "AttachClient",
-    "AttachFrameInFrame",
-    "AttachFrame",
-    "DecorMenu",
-    "GotoClient",
-    "Goto",
-    "Icon",
-    "RootMenu",
-    "Root", // To avoid name conflict, ROOTMENU -> ROOT
-    "WindowMenu",
-    "Window" // To avoid name conflict, WINDOWMENU -> WINDOW
+    "ATTACHCLIENTINFRAME",
+    "ATTACHCLIENT",
+    "ATTACHFRAMEINFRAME",
+    "ATTACHFRAME",
+    "DECORMENU",
+    "GOTOCLIENT",
+    "GOTO",
+    "ICON",
+    "ROOTMENU",
+    "ROOT", // To avoid name conflict, ROOTMENU -> ROOT
+    "WINDOWMENU",
+    "WINDOW" // To avoid name conflict, WINDOWMENU -> WINDOW
 };
 
 const unsigned int MenuHandler::MENU_NAMES_RESERVED_COUNT =
@@ -79,6 +86,8 @@ MenuHandler::destroy(void)
 
 /**
  * Menu handler constructor, create menus.
+ *
+ * Requires Config, PScreen and ActionHandler to be constructed.
  */
 MenuHandler::MenuHandler(Theme *theme)
     : _theme(theme)
@@ -100,19 +109,10 @@ MenuHandler::~MenuHandler(void)
 void
 MenuHandler::hideAllMenus(void)
 {
-    // bool do_focus = PWinObj::isFocusedPWinObj(PWinObj::WO_MENU);
-
     map<std::string, PMenu*>::iterator it(_menu_map.begin());
     for (; it != _menu_map.end(); ++it) {
         it->second->unmapAll();
     }
-
-    /**
-     * FIXME: Handled in window manager?
-     * if (do_focus) {
-     * findWOAndFocus(0);
-     * }
-     */
 }
 
 /**
@@ -121,54 +121,63 @@ MenuHandler::hideAllMenus(void)
 void
 MenuHandler::createMenus(void)
 {
-    Config *config = Config::instance();
     PScreen *screen = PScreen::instance();
     ActionHandler *action_handler = ActionHandler::instance();
     PMenu *menu = 0;
 
     menu = new FrameListMenu(screen, _theme, ATTACH_CLIENT_IN_FRAME_TYPE,
                              L"Attach Client In Frame",
-                             "ATTACHCLIENTINFRAME");
+                             "AttachClientInFrame");
     _menu_map["ATTACHCLIENTINFRAME"] = menu;
      menu = new FrameListMenu(screen, _theme, ATTACH_CLIENT_TYPE,
-                              L"Attach Client", "ATTACHCLIENT");
+                              L"Attach Client", "AttachClient");
     _menu_map["ATTACHCLIENT"] = menu;
      menu = new FrameListMenu(screen, _theme, ATTACH_FRAME_IN_FRAME_TYPE,
                               L"Attach Frame In Frame",
-                              "ATTACHFRAMEINFRAME");
+                              "AttachFrameInFrame");
     _menu_map["ATTACHFRAMEINFRAME"] = menu;
     menu = new FrameListMenu(screen, _theme, ATTACH_FRAME_TYPE,
-                             L"Attach Frame", "ATTACHFRAME");
+                             L"Attach Frame", "AttachFrame");
     _menu_map["ATTACHFRAME"] = menu;
     menu = new FrameListMenu(screen, _theme, GOTOCLIENTMENU_TYPE,
-                             L"Focus Client", "GOTOCLIENT");
+                             L"Focus Client", "GotoClient");
     _menu_map["GOTOCLIENT"] = menu;
     menu = new FrameListMenu(screen, _theme, GOTOMENU_TYPE,
-                             L"Focus Frame", "GOTO");
+                             L"Focus Frame", "Goto");
     _menu_map["GOTO"] = menu;
     menu = new FrameListMenu(screen, _theme, ICONMENU_TYPE,
-                             L"Focus Iconified Frame", "ICON");
+                             L"Focus Iconified Frame", "Icon");
     _menu_map["ICON"] = menu;
-    menu = new DecorMenu(screen, _theme, action_handler, "DECORMENU");
+    menu = new DecorMenu(screen, _theme, action_handler, "DecorMenu");
     _menu_map["DECORMENU"] = menu;
-    menu =  new ActionMenu(ROOTMENU_TYPE, L"", "ROOTMENU");
+    menu =  new ActionMenu(ROOTMENU_TYPE, L"", "RootMenu");
     _menu_map["ROOT"] = menu;
-    menu = new ActionMenu(WINDOWMENU_TYPE, L"", "WINDOWMENU");
+    menu = new ActionMenu(WINDOWMENU_TYPE, L"", "WindowMenu");
     _menu_map["WINDOW"] = menu;
 
     // As the previous step is done manually, make sure it's done correct.
     assert(_menu_map.size() == (MENU_NAMES_RESERVED_COUNT - 2));
 
+    createMenusLoadConfiguration();
+}
+
+/**
+ * Initial load of menu configuration.
+ */
+void
+MenuHandler::createMenusLoadConfiguration(void)
+{
     // Load configuration, pass specific section to loading
     CfgParser menu_cfg;
-    if (menu_cfg.parse(config->getMenuFile())
+    if (menu_cfg.parse(Config::instance()->getMenuFile())
         || menu_cfg.parse (string(SYSCONFDIR "/menu"))) {
         _menu_state = menu_cfg.get_file_list();
+        CfgParser::Entry *root_entry = menu_cfg.get_entry_root();
 
         // Load standard menus
         map<string, PMenu*>::iterator it = _menu_map.begin();
         for (; it != _menu_map.end(); ++it) {
-            it->second->reload(menu_cfg.get_entry_root()->find_section(it->second->getName()));
+            it->second->reload(root_entry->find_section(it->second->getName()));
         }
 
         // Load standalone menus
@@ -188,9 +197,34 @@ MenuHandler::reloadMenus(void)
         return;
     }
 
-    // Load configuration, pass specific section to loading
+    CfgParser cfg;
+    bool cfg_ok = loadMenuConfig(menu_file, cfg);
+    CfgParser::Entry *root = cfg.get_entry_root();
+
+    // Update, delete standalone root menus, load decors on others
+    map<string, PMenu*>::iterator it(_menu_map.begin());
+    for (; it != _menu_map.end(); ++it) {
+        if (it->second->getMenuType() == ROOTMENU_STANDALONE_TYPE) {
+            delete it->second;
+            _menu_map.erase(it);
+        } else if (cfg_ok) {
+            // Only reload the menu if we got a ok configuration
+            it->second->reload(root->find_section(it->second->getName()));
+        }
+    }
+
+    // Update standalone root menus (name != ROOTMENU)
+    reloadStandaloneMenus(root);
+}
+
+/**
+ * Load menu configuration from menu_file resetting menu state.
+ */
+bool
+MenuHandler::loadMenuConfig(const std::string &menu_file, CfgParser &menu_cfg)
+{
     bool cfg_ok = true;
-    CfgParser menu_cfg;
+
     if (! menu_cfg.parse(menu_file)) {
         if (! menu_cfg.parse(string(SYSCONFDIR "/menu"))) {
             cfg_ok = false;
@@ -205,22 +239,7 @@ MenuHandler::reloadMenus(void)
         _menu_state = menu_cfg.get_file_list();
     }
 
-    // Update, delete standalone root menus, load decors on others
-    map<string, PMenu*>::iterator it(_menu_map.begin());
-    for (; it != _menu_map.end(); ++it) {
-        if (it->second->getMenuType() == ROOTMENU_STANDALONE_TYPE) {
-            delete it->second;
-            _menu_map.erase(it);
-        } else {
-            // Only reload the menu if we got a ok configuration
-            if (cfg_ok) {
-                it->second->reload(menu_cfg.get_entry_root()->find_section(it->second->getName()));
-            }
-        }
-    }
-
-    // Update standalone root menus (name != ROOTMENU)
-    reloadStandaloneMenus(menu_cfg.get_entry_root());
+    return cfg_ok;
 }
 
 /**
@@ -230,24 +249,23 @@ void
 MenuHandler::reloadStandaloneMenus(CfgParser::Entry *section)
 {
     // Temporary name, as names are stored uppercase
-    string menu_name;
+    string menu_name, menu_name_upper;
 
     // Go through all but reserved section names and create menus
     CfgParser::iterator it(section->begin());
     for (; it != section->end(); ++it) {
         // Uppercase name
         menu_name = (*it)->get_name();
-        Util::to_upper(menu_name);
+        menu_name_upper = menu_name;
+        Util::to_upper(menu_name_upper);
 
         // Create new menus, if the name is not reserved and not used
-        if (! binary_search(MENU_NAMES_RESERVED,
-                            MENU_NAMES_RESERVED + MENU_NAMES_RESERVED_COUNT,
-                            menu_name, str_comparator)
-                && ! getMenu(menu_name)) {
+        if (! isReservedName(menu_name_upper) && ! getMenu(menu_name_upper)) {
             // Create, parse and add to map
-            PMenu *menu = new ActionMenu(ROOTMENU_STANDALONE_TYPE, L"", menu_name);
+            PMenu *menu = new ActionMenu(ROOTMENU_STANDALONE_TYPE,
+                                         L"", menu_name);
             menu->reload((*it)->get_section());
-            _menu_map[menu->getName()] = menu;
+            _menu_map[menu_name_upper] = menu;
         }
     }
 }
@@ -263,6 +281,17 @@ MenuHandler::deleteMenus(void)
         delete it->second;
     }
     _menu_map.clear();
+}
+
+/**
+ * Check if name is reserved, return true if it is.
+ */
+bool
+MenuHandler::isReservedName(const std::string &name)
+{
+    return binary_search(MENU_NAMES_RESERVED,
+                         MENU_NAMES_RESERVED + MENU_NAMES_RESERVED_COUNT,
+                         name, str_comparator);
 }
 
 #endif // MENUS
