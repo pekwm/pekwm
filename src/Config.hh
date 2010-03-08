@@ -19,6 +19,7 @@
 #include "ParseUtil.hh"
 
 #include <list>
+#include <string>
 #include <vector>
 #include <map>
 #include <utility>
@@ -65,9 +66,6 @@ private:
 class Config
 {
 public:
-    typedef std::map<ParseUtil::Entry, std::pair<ActionType, uint> >::iterator action_map_it;
-    typedef std::map<ParseUtil::Entry, ActionStateType>::iterator action_state_map_it;
-
     Config(void);
     ~Config(void);
 
@@ -78,15 +76,27 @@ public:
 
     inline const std::string &getConfigFile(void) const { return _config_file; }
 
-    /** Return start iterator for iterating over actions. */
-    action_map_it action_map_begin(void) { return _action_map.begin(); }
-    /** Return end iterator for iterating over actions. */
-    action_map_it action_map_end(void) { return _action_map.end(); }
+    /** Return list with available keyboard actions names. */
+    std::list<std::string> getActionNameList(void) {
+        std::list<std::string> action_names;
+        std::map<ParseUtil::Entry, std::pair<ActionType, uint> >::iterator it;
+        for (it = _action_map.begin(); it != _action_map.end(); ++it) {
+            if (it->second.second&KEYGRABBER_OK) {
+                action_names.push_back(it->first.get_text());
+            }
+        }
+        return action_names;
+    }
 
-    /** Return start iterator for iterating over state actions. */
-    action_state_map_it action_state_map_begin(void) { return _action_state_map.begin(); }
-    /** Return end iterator for iterating over state actions. */
-    action_state_map_it action_state_map_end(void) { return _action_state_map.end(); }
+    /** Return list with available state action names. */
+    std::list<std::string> getStateNameList(void) {
+        std::list<std::string> state_names;
+        std::map<ParseUtil::Entry, ActionStateType>::iterator it;
+        for (it = _action_state_map.begin(); it != _action_state_map.end(); ++it) {
+            state_names.push_back(it->first.get_text());
+        }
+        return state_names;
+    }
 
     // Files
     const std::string &getKeyFile(void) const { return _files_keys; }

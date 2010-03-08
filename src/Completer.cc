@@ -145,55 +145,20 @@ ActionCompleterMethod::StateMatch::is_state(const wstring &str, size_t pos)
  * Complete action.
  */
 unsigned int
-ActionCompleterMethod::complete(CompletionState &completion_state)
+ActionCompleterMethod::complete(CompletionState &state)
 {
-    State state = find_state(completion_state);
-    switch (state) {
+    State type_state = find_state(state);
+    switch (type_state) {
     case STATE_STATE:
-        return complete_state(completion_state.word_lower,
-                              completion_state.completions);
+        return complete_word(_state_list, state.completions, state.word_lower);
 #ifdef MENUS
     case STATE_MENU:
-        return complete_menu(completion_state.word_lower,
-                             completion_state.completions);
+        return complete_word(_menu_list, state.completions, state.word_lower);
 #endif // MENUS
     case STATE_ACTION:
     default:
-        return complete_action(completion_state.word_lower,
-                               completion_state.completions);
+        return complete_word(_action_list, state.completions, state.word_lower);
     }
-}
-
-/**
- * Complete state actions.
- */
-unsigned int
-ActionCompleterMethod::complete_state(const wstring &word,
-                                      complete_list &completions)
-{
-    return complete_word(_state_list, completions, word);
-}
-
-#ifdef MENUS
-/**
- * Complete menu names.
- */
-unsigned int
-ActionCompleterMethod::complete_menu(const wstring &word,
-                                     complete_list &completions)
-{
-    return complete_word(_menu_list, completions, word);
-}
-#endif // MENUS
-
-/**
- * Complete action names.
- */
-unsigned int
-ActionCompleterMethod::complete_action(const wstring &word,
-                                       complete_list &completions)
-{
-    return complete_word(_action_list, completions, word);
 }
 
 /**
@@ -202,46 +167,33 @@ ActionCompleterMethod::complete_action(const wstring &word,
 void
 ActionCompleterMethod::refresh(void)
 {
-    // Grab list of actions
-    _action_list.clear();
-    Config::action_map_it action_it(Config::instance()->action_map_begin()), action_it_end(Config::instance()->action_map_end());
-    for (; action_it != action_it_end; ++action_it) {
-        if (action_it->second.second&KEYGRABBER_OK) {
-            wstring action_name(Util::to_wide_str(action_it->first.get_text()));
-            wstring action_name_lower(action_name);
-            Util::to_lower(action_name_lower);
-            pair<wstring, wstring> action_pair(action_name_lower, action_name);
-            _action_list.push_back(action_pair);
-        }
-    }
-    _action_list.sort();
-
-    // Grab list of state actions
-    _state_list.clear();
-    Config::action_state_map_it state_it(Config::instance()->action_state_map_begin()), state_it_end(Config::instance()->action_state_map_end());
-    for (; state_it != state_it_end; ++state_it) {
-        wstring state_name(Util::to_wide_str(state_it->first.get_text()));
-        wstring state_name_lower(state_name);
-        Util::to_lower(state_name_lower);
-        pair<wstring, wstring> state_pair(state_name_lower, state_name);
-        _state_list.push_back(state_pair);
-    }
-    _state_list.sort();
-
+    completions_list_from_name_list(Config::instance()->getActionNameList(),
+                                    _action_list);
+    completions_list_from_name_list(Config::instance()->getStateNameList(),
+                                    _state_list);
 #ifdef MENUS
-    _menu_list.clear();
-    list<string> menu_names(MenuHandler::instance()->getMenuNames());
-    list<string>::iterator menu_it(menu_names.begin());
-    for (; menu_it != menu_names.end(); ++menu_it) {
-        wstring menu_name(Util::to_wide_str(*menu_it));
-        wstring menu_name_lower(menu_name);
-        Util::to_lower(menu_name_lower);
-        pair<wstring, wstring> menu_pair(menu_name_lower, menu_name);
-        _menu_list.push_back(menu_pair);
-    }
-    _menu_list.unique();
-    _menu_list.sort();
+    completions_list_from_name_list(MenuHandler::instance()->getMenuNames(),
+                                    _menu_list);
 #endif // MENUS
+}
+
+/**
+ * Build completions_list from a list with strings.
+ */
+void
+ActionCompleterMethod::completions_list_from_name_list(std::list<std::string> name_list,
+                                                       completions_list &completions_list)
+{
+    completions_list.clear();
+    list<string>::iterator it(name_list.begin());
+    for (; it != name_list.end(); ++it) {
+        wstring name(Util::to_wide_str(*it));
+        wstring name_lower(name);
+        Util::to_lower(name_lower);
+        completions_list.push_back(pair<wstring, wstring>(name_lower, name));
+    }
+    completions_list.unique();
+    completions_list.sort();
 }
 
 /**

@@ -146,9 +146,8 @@ public:
     virtual void refresh(void);
 
 private:
-    unsigned int complete_state(const std::wstring &word, complete_list &completions);
-    unsigned int complete_menu(const std::wstring &word, complete_list &completions);
-    unsigned int complete_action(const std::wstring &word, complete_list &completions);
+    void completions_list_from_name_list(std::list<std::string> name_list,
+                                         completions_list &completions_list);
 
     State find_state(CompletionState &completion_state);
     size_t find_state_word_start(const std::wstring &str);
