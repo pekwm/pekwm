@@ -5,6 +5,7 @@
 </para>
 
 &config-syntax-basic;
+&config-syntax-templates;
 &config-syntax-variables;
 
 </chapter>

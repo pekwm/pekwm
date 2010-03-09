@@ -2,6 +2,7 @@
 
 <!ENTITY config-syntax SYSTEM "syntax/syntax.xml">
 <!ENTITY config-syntax-basic SYSTEM "syntax/basic.xml">
+<!ENTITY config-syntax-templates SYSTEM "syntax/templates.xml">
 <!ENTITY config-syntax-variables SYSTEM "syntax/variables.xml">
 
 <!ENTITY config-configfile SYSTEM "configfile/configfile.xml">

@@ -5,16 +5,15 @@
 	All pekwm config files (with the exception of the start file- see 
 	<xref linkend="config-start"/> ) follow a common syntax for options. 
 </para>
-<screen>
-# comment
+<screen># comment
 // another comment
 /*
 	yet another comment
 */
 
-$VAR = "Value"
-$_VARIABLE = "Value"
-INCLUDE = "vars"
+$VARIABLE = "Value"
+$_ENVIRONMENT_VARIABLE = "Value"
+INCLUDE = "another_configuration.cfg"
 COMMAND = "program to execute and add the valid config syntax it outputs here"
 
 # Normal format
@@ -25,8 +24,7 @@ Section = "Name" {
 }
 
 // Compressed format
-Section = "Name" { Event = "Param" { Actions = "action parameters; action parameters; $VAR $_VARIABLE" } }
-</screen>
+Section = "Name" { Event = "Param" { Actions = "action parameters; action parameters; $VAR $_VARIABLE" } }</screen>
 <para>
 You can usually modify the spacing and line breaks, but this is the "Correct" format, so
 the documentation will try to stick to it.
