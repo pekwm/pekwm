@@ -447,7 +447,7 @@ Esetroot -s mybackground.png &amp;</screen>
       <para>
         Using this syntax will create only one button:
 
-        <programlisting>Require {
+        <screen>Require {
  Templates = "True"
 }
 
@@ -458,13 +458,13 @@ Buttons {
  Left {
    @button
  }
-}</programlisting>
+}</screen>
       </para>
 
       <para>
         Given names, both buttons will be created:
 
-        <programlisting>Require {
+        <screen>Require {
  Templates = "True"
 }
 
@@ -475,7 +475,7 @@ Buttons {
  Left = "button2" {
    @button
  }
-}</programlisting>
+}</screen>
       </para>
     </simplesect>
 
@@ -502,11 +502,11 @@ Buttons {
         of the main configuration file. Set it to False making pekwm
         only listen on the Xinerama information.
 
-        <programlisting>Screen {
+        <screen>Screen {
 ...
     HonourRandr = "False"
 ...
-</programlisting>
+</screen>
       </para>
     </simplesect>
 

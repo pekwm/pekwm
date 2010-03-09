@@ -29,14 +29,14 @@ DPFX=docs
 LOGDIR="${CURDIR}/logs"
 
 # Fedora 11
-DBDIR="/usr/share/sgml/docbook/dsssl-stylesheets-1.79/"
-DBX="${DBDIR}/dtds/decls/xml.dcl"
-DBV="/usr/share/sgml/docbook/xml-dtd-4.3-1.0-46.fc11/docbookx.dtd"
+# DBDIR="/usr/share/sgml/docbook/dsssl-stylesheets-1.79/"
+# DBX="${DBDIR}/dtds/decls/xml.dcl"
+# DBV="/usr/share/sgml/docbook/xml-dtd-4.3-1.0-46.fc11/docbookx.dtd"
 
 # Ubuntu Hardy/Intrepid
-# DBDIR="/usr/share/sgml/docbook/stylesheet/dsssl/modular"
-# DBX="/usr/share/sgml/declaration/xml.dcl"
-# DBV="FIXME"
+DBDIR="/usr/share/sgml/docbook/stylesheet/dsssl/modular"
+DBX="/usr/share/sgml/declaration/xml.dcl"
+DBV="/usr/share/xml/docbook/schema/dtd/4.3/docbookx.dtd"
 
 # NetBSD 5
 # DBDIR="/usr/pkg/share/sgml/docbook/dsssl/modular"
@@ -165,6 +165,15 @@ function mk_html_singlefile() {
 	print_error "html generation failed! see html-singlefile logs!"
     fi
 
+    cp -R ${CURDIR}/img ${NOCHDIR}
+    if test ${?} -ne 0; then
+	print_error "failed to copy images! see html-singlefile logs!"
+    fi
+    cp -R ${CURDIR}/css ${NOCHDIR}
+    if test ${?} -ne 0; then
+	print_error "failed to copy stylesheets! see html-singlefile logs!"
+    fi
+
     if test -x "${TIDY}"; then
         print_status "tidy - html-singlefile"
         ${TIDY} -cibqm ${NOCHDIR}/${DOCSNAME}.html \
@@ -192,6 +201,15 @@ function mk_html_multifile() {
         >${LOGDIR}/html-multifile.log 2>${LOGDIR}/html-multifile.err
     if test ${?} -gt 0; then
 	print_error "html generation failed! see html-multifile logs!"
+    fi
+
+    cp -R ${CURDIR}/img ${HTMLDIR}
+    if test ${?} -ne 0; then
+	print_error "failed to copy images! see html-multifile logs!"
+    fi
+    cp -R ${CURDIR}/css ${HTMLDIR}
+    if test ${?} -ne 0; then
+	print_error "failed to copy stylesheets!! see html-multifile logs!"
     fi
 
     if test -x "${TIDY}"; then

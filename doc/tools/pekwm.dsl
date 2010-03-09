@@ -11,6 +11,9 @@
 ;; put the legal notice in a separate file
 #t)
 
+(define %stylesheet%
+  "css/pekwm-docs.css")
+
 (define ($legalnotice-link-file$ legalnotice)
 ;; filename of the legalnotice file
 (string-append "legalnotice"%html-ext%))
@@ -31,8 +34,7 @@
 ;; html body settings
 	(list
 	 (list "BGCOLOR" "#FFFFFF")
-	 (list "TEXT" "#000000")
-         (list "STYLE" "font-family: verdana, arial, helvetica, sans-serif;")))
+	 (list "TEXT" "#000000")))
 
 (define (chunk-skip-first-element-list)
 ;; forces the Table of Contents on separate page
@@ -70,19 +72,24 @@
 (element screen
   (make element
     gi: "DIV"
-		attributes: '(("ALIGN" "center"))
-		(make element 
-			gi: "TABLE"
-			attributes: '(("CELLSPACING" "1") ("CELLPADDING" "1") ("WIDTH" "100%") ("BGCOLOR" "#C8CCC8"))
-			(make element 
-				gi: "TR"
-				(make element 
-					gi: "TD"
-					attributes: '(("BGCOLOR" "#FEFFEC")) 
-					(make element
-						gi: "PRE" ;; (process-children)
-						attributes: '(("STYLE" "padding: 0.25em") ("STYLE" "text-align: left")
-                                                              ("STYLE" "margin-top: 0.25em") ("STYLE" "margin-bottom: 0.2em"))))))))
+    attributes: '(("ALIGN" "center"))
+    (make element 
+      gi: "TABLE"
+      attributes: '(("CELLSPACING" "1")
+                    ("CELLPADDING" "1")
+                    ("WIDTH" "100%")
+                    ("BGCOLOR" "#C8CCC8"))
+      (make element 
+        gi: "TR"
+        (make element 
+          gi: "TD"
+          attributes: '(("BGCOLOR" "#FEFFEC")) 
+          (make element
+            gi: "PRE" ;; (process-children)
+            attributes: '(("STYLE" "padding: 0.25em")
+                          ("STYLE" "text-align: left")
+                          ("STYLE" "margin-top: 0.25em")
+                          ("STYLE" "margin-bottom: 0.2em"))))))))
 
 ;; make role=strong equate to bold for emphasis tag
 (element emphasis

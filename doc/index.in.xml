@@ -28,7 +28,6 @@
 ]>
 
 <book>
-
-&book;
-
+  <title>pekwm documentation</title>
+  &book;
 </book>
