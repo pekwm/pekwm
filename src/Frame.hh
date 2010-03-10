@@ -142,7 +142,7 @@ protected:
 
 private:
     void handleClientStateMessage(XClientMessageEvent *ev, Client *client);
-    StateAction getStateActionFromMessage(XClientMessageEvent *ev);
+    static StateAction getStateActionFromMessage(XClientMessageEvent *ev);
     void handleStateAtom(StateAction sa, long atom, Client *client);
     void handleCurrentClientStateAtom(StateAction sa, long atom, Client *client);
     void handleConfigureRequestGeometry(XConfigureRequestEvent *ev, Client *client);
