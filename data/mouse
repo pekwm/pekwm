@@ -80,20 +80,28 @@ Border {
 
 ScreenEdge {
 	Down {
+		Enter = "Mod1 Any" { Actions = "GoToWorkspace Down" }
 		ButtonRelease = "3" { Actions = "ShowMenu Root" }
 		ButtonRelease = "2" { Actions = "ShowMenu Goto" }
+		ButtonRelease = "1" { Actions = "GoToWorkspace Down" }
 		ButtonRelease = "Mod4 2" { Actions = "ShowMenu GotoClient" }
-		ButtonRelease = "4" { Actions = "GoToWorkspace Right" }
-		ButtonRelease = "5" { Actions = "GoToWorkspace Left" }
-		ButtonRelease = "Mod1 4" { Actions = "GoToWorkspace Next" }
-		ButtonRelease = "Mod1 5" { Actions = "GoToWorkspace Prev" }
+		ButtonRelease = "4" { Actions = "GoToWorkspace Up" }
+		ButtonRelease = "5" { Actions = "GoToWorkspace Down" }
+		ButtonRelease = "Mod1 4" { Actions = "GoToWorkspace PrevV" }
+		ButtonRelease = "Mod1 5" { Actions = "GoToWorkspace NextV" }
+		EnterMoving = "Any Any" { Actions = "WarpToWorkspace Down" }
 	}
 	Up {
+		Enter = "Mod1 Any" { Actions = "GoToWorkspace Up" }
 		ButtonRelease = "3" { Actions = "ShowMenu Root" }
 		ButtonRelease = "2" { Actions = "ShowMenu Goto" }
+		ButtonRelease = "1" { Actions = "GoToWorkspace Up" }
 		ButtonRelease = "Mod4 2" { Actions = "ShowMenu GotoClient" }
-		ButtonRelease = "Mod1 4" { Actions = "GoToWorkspace Next" }
-		ButtonRelease = "Mod1 5" { Actions = "GoToWorkspace Prev" }
+		ButtonRelease = "4" { Actions = "GoToWorkspace Up" }
+		ButtonRelease = "5" { Actions = "GoToWorkspace Down" }
+		ButtonRelease = "Mod1 4" { Actions = "GoToWorkspace PrevV" }
+		ButtonRelease = "Mod1 5" { Actions = "GoToWorkspace NextV" }
+		EnterMoving = "Any Any" { Actions = "WarpToWorkspace Up" }
 	}
 	Left {
 		Enter = "Mod1 Any" { Actions = "GoToWorkspace Left" }
