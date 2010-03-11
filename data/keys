@@ -71,6 +71,7 @@ Global {
 	# Pekwm control
 	KeyPress = "Ctrl Mod1 Delete" { Actions = "Reload" }
 	KeyPress = "Mod4 D" { Actions = "ShowCmdDialog" }
+	KeyPress = "Mod4 V" { Actions = "ShowSearchDialog" }
 	KeyPress = "Mod4 H" { Actions = "Toggle HarbourHidden" }
 
 # - - ----------------------------------------------- - -

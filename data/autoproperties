@@ -24,6 +24,18 @@ Require {
 }
 
 /*
+ Group terminal applications
+ */
+# Property = "(term|rxvt),(erm|xvt)" {
+# 	ApplyOn = "New"
+# 	Group = "term" {
+# 		Size = "5"
+# 		FocusedFirst = "True"
+# 		Raise = "True"
+# 	}
+# }
+
+/*
  Remove decor of customize toolbar window of mozilla firefox.
  */
 Property = "^(gecko|Gecko|firefox-bin),^Firefox-bin,,^Customize Toolbar\$" {
