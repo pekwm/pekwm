@@ -203,6 +203,9 @@ function mk_html_multifile() {
 	print_error "html generation failed! see html-multifile logs!"
     fi
 
+    # Correct relative css/img links
+    sed -i 's/HREF="\(css\|img\)/HREF="..\/\1/gi' ${HTMLDIR}/*/*.html
+
     cp -R ${CURDIR}/img ${HTMLDIR}
     if test ${?} -ne 0; then
 	print_error "failed to copy images! see html-multifile logs!"
