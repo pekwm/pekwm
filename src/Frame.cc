@@ -2155,7 +2155,7 @@ Frame::getStateActionFromMessage(XClientMessageEvent *ev)
  * Handle state atom for client.
  */
 void
-Frame::handleStateAtom(StateAction sa, long atom, Client *client)
+Frame::handleStateAtom(StateAction sa, Atom atom, Client *client)
 {
     if (client == _client) {
         handleCurrentClientStateAtom(sa, atom, client);
@@ -2178,7 +2178,7 @@ Frame::handleStateAtom(StateAction sa, long atom, Client *client)
  * Handle state atom for actions that apply only on active client.
  */
 void
-Frame::handleCurrentClientStateAtom(StateAction sa, long atom, Client *client)
+Frame::handleCurrentClientStateAtom(StateAction sa, Atom atom, Client *client)
 {
     if (atom == Atoms::getAtom(STATE_STICKY)) {
         setStateSticky(sa);

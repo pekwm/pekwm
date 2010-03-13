@@ -143,8 +143,8 @@ protected:
 private:
     void handleClientStateMessage(XClientMessageEvent *ev, Client *client);
     static StateAction getStateActionFromMessage(XClientMessageEvent *ev);
-    void handleStateAtom(StateAction sa, long atom, Client *client);
-    void handleCurrentClientStateAtom(StateAction sa, long atom, Client *client);
+    void handleStateAtom(StateAction sa, Atom atom, Client *client);
+    void handleCurrentClientStateAtom(StateAction sa, Atom atom, Client *client);
     void handleConfigureRequestGeometry(XConfigureRequestEvent *ev, Client *client);
     bool isRequestGeometryFullscreen(XConfigureRequestEvent *ev, Client *client);
 
