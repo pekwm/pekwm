@@ -2180,43 +2180,35 @@ Frame::handleStateAtom(StateAction sa, long atom, Client *client)
 void
 Frame::handleCurrentClientStateAtom(StateAction sa, long atom, Client *client)
 {
-    switch (atom) {
-    case STATE_STICKY:
+    if (atom == Atoms::getAtom(STATE_STICKY)) {
         setStateSticky(sa);
-        break;
-    case STATE_MAXIMIZED_HORZ:
-        if (! client->isCfgDeny(CFG_DENY_STATE_MAXIMIZED_HORZ)) {
-            setStateMaximized(sa, true, false, false);
-        }
-        break;
-    case STATE_MAXIMIZED_VERT:
-        if (! client->isCfgDeny(CFG_DENY_STATE_MAXIMIZED_VERT)) {
-            setStateMaximized(sa, false, true, false);
-        }
-        break;
-    case STATE_SHADED:
+    }
+    if (atom == Atoms::getAtom(STATE_MAXIMIZED_HORZ)
+            && ! client->isCfgDeny(CFG_DENY_STATE_MAXIMIZED_HORZ)) {
+        setStateMaximized(sa, true, false, false);
+    }
+    if (atom == Atoms::getAtom(STATE_MAXIMIZED_VERT)
+            && ! client->isCfgDeny(CFG_DENY_STATE_MAXIMIZED_VERT)) {
+        setStateMaximized(sa, false, true, false);
+    }
+    if (atom == Atoms::getAtom(STATE_SHADED)) {
         setShaded(sa);
-        break;
-    case STATE_HIDDEN:
-        if (! client->isCfgDeny(CFG_DENY_STATE_HIDDEN)) {
-            setStateIconified(sa);
-        }
-        break;
-    case STATE_FULLSCREEN:
-        if (! client->isCfgDeny(CFG_DENY_STATE_FULLSCREEN)) {
-            setStateFullscreen(sa);
-        }
-        break;
-    case STATE_ABOVE:
-        if (! client->isCfgDeny(CFG_DENY_STATE_ABOVE)) {
-            setStateAlwaysOnTop(sa);
-        }
-        break;
-    case STATE_BELOW:
-        if (! client->isCfgDeny(CFG_DENY_STATE_BELOW)) {
-            setStateAlwaysBelow(sa);
-        }
-        break;
+    }
+    if (atom == Atoms::getAtom(STATE_HIDDEN)
+            && ! client->isCfgDeny(CFG_DENY_STATE_HIDDEN)) {
+        setStateIconified(sa);
+    }
+    if (atom == Atoms::getAtom(STATE_FULLSCREEN)
+            && ! client->isCfgDeny(CFG_DENY_STATE_FULLSCREEN)) {
+        setStateFullscreen(sa);
+    }
+    if (atom == Atoms::getAtom(STATE_ABOVE)
+            && ! client->isCfgDeny(CFG_DENY_STATE_ABOVE)) {
+        setStateAlwaysOnTop(sa);
+    }
+    if (atom == Atoms::getAtom(STATE_BELOW)
+            && ! client->isCfgDeny(CFG_DENY_STATE_BELOW)) {
+        setStateAlwaysBelow(sa);
     }
 }
 
