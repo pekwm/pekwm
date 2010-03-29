@@ -1,62 +1,75 @@
-Name: 		pekwm
-Version: 	<VERSION>
-Release: 	2
-URL: 		http://www.pekwm.org/
-Summary: 	The Pek Window Manager (pekwm) is a small and flexible window manager that aims to be usable.
-License: 	GPLv2
-Group: 		User Interface/Desktops
+Name:		pekwm
+Version:	<VERSION>
+Release:	3
+URL:		http://www.pekwm.org/
+Summary:	A small and flexible window manager
+License:	GPLv2+
+Group:		User Interface/Desktops
 Source0:	http://www.pekwm.org/projects/pekwm/files/%{name}-%{version}.tar.bz2
-BuildRoot: 	%{_tmppath}/%{name}-%{version}-root
-BuildRequires:	gcc, ccache
+BuildRequires:	libX11-devel libpng-devel libXrandr-devel
+BuildRequires:	libXft-devel libXext-devel libXinerama-devel
 
 %description
-Pekwm is a window manager that once up on a time was based on the aewm++ window manager, but it has evolved enough that it no longer resembles aewm++ at all. It has a much expanded feature-set, including window grouping (similar to ion, pwm, or fluxbox), autoproperties, xinerama, keygrabber that supports keychains, and much more.
+Pekwm is a window manager that once up on a time was based on the aewm++ window
+manager, but it has evolved enough that it no longer resembles aewm++ at all.
+It has a much expanded feature-set, including window grouping (similar to ion,
+pwm, or fluxbox), autoproperties, xinerama, keygrabber that supports keychains,
+and much more.
 
-    * Lightweight and Unobtrusive, a window manager shouldn't be noticed.
-    * Very configurable, we all work and think in different ways.
-    * Automatic properties, for all the lazy people, make things appear as they should when starting applications.
-    * Chainable Keygrabber, usability for everyone. 
+   * Lightweight and Unobtrusive, a window manager shouldn't be noticed.
+   * Very configurable, we all work and think in different ways.
+   * Automatic properties, for all the lazy people, make things appear as they
+should when starting applications.
+   * Chainable Keygrabber, usability for everyone. 
 
 %prep
 %setup -q
 
 %build
 %configure
-%__make
+make %{?_smp_mflags}
 
 %install
-%__rm -rf %{buildroot}
-%__make DESTDIR=%{buildroot} install
+rm -rf %{buildroot}
+make install DESTDIR=%{buildroot}
 
-# Creamos el archivo pekwm.desktop
+# Create desktop file
 mkdir -p %{buildroot}%{_datadir}/xsessions/
 touch %{buildroot}%{_datadir}/xsessions/%{name}.desktop
 cat << EOF > %{buildroot}%{_datadir}/xsessions/%{name}.desktop
 [Desktop Entry]
-Encoding=UTF-8
 Name=PekWM
 Comment=Very small and fast window manger
 Exec=pekwm
 TryExec=pekwm
+Type=Application
 EOF
 
 %clean
-%__rm -rf %{buildroot}
-
-%post
-
-%postun
+rm -rf %{buildroot}
 
 %files
 %defattr(-, root, root)
 %doc AUTHORS ChangeLog LICENSE NEWS README
 %{_bindir}/%{name}
-%{_sysconfdir}/%{name}/*
+%config(noreplace) %{_sysconfdir}/%{name}/autoproperties
+%config(noreplace) %{_sysconfdir}/%{name}/config
+%config(noreplace) %{_sysconfdir}/%{name}/keys
+%config(noreplace) %{_sysconfdir}/%{name}/menu
+%config(noreplace) %{_sysconfdir}/%{name}/mouse
+%config(noreplace) %{_sysconfdir}/%{name}/vars
+%attr(755,root,root) %{_sysconfdir}/%{name}/start
 %{_datadir}/%{name}/*
-%{_mandir}/man1/%{name}.1.gz
+%{_mandir}/man1/%{name}.*
 %{_datadir}/xsessions/%{name}.desktop
 
 %changelog
+* Sat Feb 20 2010 German A. Racca <gracca@gmail.com> 0.1.11-3
+- Changed Summary
+- Changed BuildRequires
+- Modified desktop file
+- Added exec attr to 'start' file
+
 * Fri Jan 15 2010 German A. Racca <gracca@gmail.com> 0.1.11-2
 - Added Source0 to spec file
 
