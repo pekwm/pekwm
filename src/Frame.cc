@@ -2097,7 +2097,8 @@ Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
             // If we aren't mapped we check if we make sure we're on the right
             // workspace and then map the window.
             if (! _mapped) {
-                if (_workspace != Workspaces::instance()->getActive()) {
+                if (_workspace != Workspaces::instance()->getActive() &&
+                        !isSticky()) {
                     Workspaces::instance()->setWorkspace(_workspace, false);
                 }
                 mapWindow();
