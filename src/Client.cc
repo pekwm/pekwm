@@ -358,7 +358,7 @@ Client::setMappedStateAndFocus(bool is_new, AutoProperty *autoproperty)
     // Make sure the window is mapped, this is done after it has been
     // added to the decor/frame as otherwise IsViewable state won't
     // be correct and we don't know whether or not to place the window
-    if (! _iconified) {
+    if (! _iconified && _parent->isMapped()) {
         PWinObj::mapWindow();
     }
 
@@ -500,7 +500,7 @@ Client::moveResize(int x, int y, uint width, uint height)
     }
 }
 
-//! @brief Sets the workspce and updates the _NET_WM_DESKTOP hint.
+//! @brief Sets the workspace and updates the _NET_WM_DESKTOP hint.
 void
 Client::setWorkspace(uint workspace)
 {
@@ -556,6 +556,11 @@ Client::handleUnmapEvent(XUnmapEvent *ev)
     // Extended Window Manager Hints 1.3 specifies that a window manager
     // should remove the _NET_WM_STATE property when a window is withdrawn.
     AtomUtil::unsetProperty(_window, Atoms::getAtom(STATE));
+
+    // Extended Window Manager Hints 1.3 specifies that a window manager
+    // should remove the _NET_WM_DESKTOP property when a window is withdrawn.
+    // (to allow legacy applications to reuse a withdrawn window)
+    AtomUtil::unsetProperty(_window, Atoms::getAtom(NET_WM_DESKTOP));
 
 #ifdef DEBUG
     cerr << __FILE__ << "@" << __LINE__ << ": "
