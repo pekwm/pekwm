@@ -883,6 +883,18 @@ Workspaces::isEmptySpace(int x, int y, const PWinObj* wo)
             continue;
         }
 
+        // Also skip windows tagged as Maximized as they cause us to
+        // automatically fail.
+        if ((*it)->getType() == PWinObj::WO_FRAME) {
+            PWinObj *active_wo = static_cast<Frame*>((*it))->getActiveChild();
+            Client *client = dynamic_cast<Client*>(active_wo);
+            if (client &&
+                (client->isFullscreen()
+                 || (client->isMaximizedVert() && client->isMaximizedHorz()))) {
+                continue;
+            }
+        }
+
         // Check if we are "intruding" on some other window's place
         if (((*it)->getX() < signed(x + wo->getWidth())) &&
             (signed((*it)->getX() + (*it)->getWidth()) > x) &&
