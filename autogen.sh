@@ -33,10 +33,10 @@ find_fallback_and_execute()
 # Begin output
 echo "Generating build scripts, this might take a while."
 
-find_fallback_and_execute "aclocal" "aclocal-1.10" "aclocal" ""
-find_fallback_and_execute "autoheader" "autoheader-2.59" "autoheader" ""
-find_fallback_and_execute "autoconf" "autoconf-2.59" "autoconf" ""
-find_fallback_and_execute "automake" "automake-1.10" "automake" "-a"
+find_fallback_and_execute "aclocal" "aclocal" "aclocal-1.10" ""
+find_fallback_and_execute "autoheader" "autoheader" "autoheader-2.59" ""
+find_fallback_and_execute "autoconf" "autoconf" "autoconf-2.59" ""
+find_fallback_and_execute "automake" "automake" "automake-1.10" "-a"
 
 # End output
 echo ""
