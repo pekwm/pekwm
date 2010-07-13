@@ -714,9 +714,14 @@ WindowManager::doReloadAutoproperties(void)
 
     // NOTE: we need to load autoproperties after decor have been updated
     // as otherwise old theme data pointer will be used and sig 11 pekwm.
-    list<Frame*>::iterator it(Frame::frame_begin());
-    for (; it != Frame::frame_end(); ++it) {
-        (*it)->readAutoprops();
+    list<Client*>::iterator it_c(Client::client_begin());
+    for (; it_c != Client::client_end(); ++it_c) {
+        (*it_c)->readAutoprops(APPLY_ON_RELOAD);
+    }
+
+    list<Frame*>::iterator it_f(Frame::frame_begin());
+    for (; it_f != Frame::frame_end(); ++it_f) {
+        (*it_f)->readAutoprops(APPLY_ON_RELOAD);
     }
 }
 

@@ -407,6 +407,12 @@ Frame::handleShapeEvent(XAnyEvent *ev)
 
 // START - PDecor interface.
 
+bool
+Frame::allowMove(void) const
+{
+    return _client ? _client->allowMove() : true;
+}
+
 //! @brief Adds child to the frame.
 void
 Frame::addChild (PWinObj *child, std::list<PWinObj*>::iterator *it)

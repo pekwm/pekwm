@@ -1,6 +1,6 @@
 //
 // Config.cc for pekwm
-// Copyright © 2002-2009 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2002-2009 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -174,6 +174,18 @@ Config::Config(void) :
     _action_map["Dynamic"] = pair<ActionType, uint>(ACTION_MENU_DYN, ROOTMENU_OK|WINDOWMENU_OK);
 #endif // MENUS
     _action_map["SendKey"] = pair<ActionType, uint>(ACTION_SEND_KEY, ANY_MASK);
+
+    _action_access_mask_map[""] = ACTION_ACCESS_NO;
+    _action_access_mask_map["MOVE"] = ACTION_ACCESS_MOVE;
+    _action_access_mask_map["RESIZE"] = ACTION_ACCESS_RESIZE;
+    _action_access_mask_map["ICONIFY"] = ACTION_ACCESS_MINIMIZE;
+    _action_access_mask_map["SHADE"] = ACTION_ACCESS_SHADE;
+    _action_access_mask_map["STICK"] = ACTION_ACCESS_STICK;
+    _action_access_mask_map["MAXIMIZEHORIZONTAL"] = ACTION_ACCESS_MAXIMIZE_HORZ;
+    _action_access_mask_map["MAXIMIZEVERTICAL"] = ACTION_ACCESS_MAXIMIZE_VERT;
+    _action_access_mask_map["FULLSCREEN"] = ACTION_ACCESS_FULLSCREEN;
+    _action_access_mask_map["SETWORKSPACE"] = ACTION_ACCESS_CHANGE_DESKTOP;
+    _action_access_mask_map["CLOSE"] = ACTION_ACCESS_CLOSE;
 
     _placement_map[""] = PLACE_NO;
     _placement_map["SMART"] = PLACE_SMART;
@@ -831,6 +843,13 @@ Config::getAction(const std::string &name, uint mask)
     return ACTION_NO;
 }
 
+ActionAccessMask
+Config::getActionAccessMask(const std::string &name)
+{
+    ActionAccessMask mask = ParseUtil::getValue<ActionAccessMask>(name, _action_access_mask_map);
+    return mask;
+}
+
 //! @brief
 bool
 Config::parseKey(const std::string &key_string, uint &mod, uint &key)
@@ -1063,6 +1082,22 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
     }
 
     return false;
+}
+
+bool
+Config::parseActionAccessMask(const std::string &action_mask, uint &mask)
+{
+    mask = ACTION_ACCESS_NO;
+
+    vector<string> tok;
+    if (Util::splitString(action_mask, tok, " \t")) {
+        vector<string>::iterator it(tok.begin());
+        for (; it != tok.end(); ++it) {
+            mask |= getActionAccessMask(*it);
+        }
+    }
+
+    return true;
 }
 
 //! @brief

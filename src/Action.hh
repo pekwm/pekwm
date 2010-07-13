@@ -34,6 +34,23 @@ enum ActionOk {
     SCREEN_EDGE_OK = (1<<9) //!< ScreenEdge ok.
 };
 
+/**
+ * Mask used in auto properties granting/disallowing actions.
+ */
+enum ActionAccessMask {
+    ACTION_ACCESS_NO = 0,
+    ACTION_ACCESS_MOVE = 1<<1,
+    ACTION_ACCESS_RESIZE = 1<<2,
+    ACTION_ACCESS_MINIMIZE = 1<<3,
+    ACTION_ACCESS_SHADE = 1<<4,
+    ACTION_ACCESS_STICK = 1<<5,
+    ACTION_ACCESS_MAXIMIZE_HORZ = 1<<6,
+    ACTION_ACCESS_MAXIMIZE_VERT = 1<<7,
+    ACTION_ACCESS_FULLSCREEN = 1<<8,
+    ACTION_ACCESS_CHANGE_DESKTOP = 1<<9,
+    ACTION_ACCESS_CLOSE = 1<<10,
+};
+
 enum ActionType {
     ACTION_UNSET = 0, ACTION_SET = 1, // to conform with bool values
     ACTION_TOGGLE,

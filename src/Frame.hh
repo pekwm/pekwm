@@ -53,6 +53,8 @@ public:
     virtual void handleShapeEvent(XAnyEvent *ev);
 
     // START - PDecor interface.
+    virtual bool allowMove(void) const;
+
     virtual void addChild(PWinObj *child, std::list<PWinObj*>::iterator *it = 0);
     virtual void removeChild(PWinObj *child, bool do_delete = true);
     virtual void activateChild(PWinObj *child);

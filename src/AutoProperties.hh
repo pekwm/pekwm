@@ -44,6 +44,8 @@ enum PropertyType {
     AP_FOCUS_NEW = (1L << 15),
     AP_FOCUSABLE = (1L << 16),
     AP_CFG_DENY = (1L << 17),
+    AP_ALLOWED_ACTIONS = (1L << 18),
+    AP_DISALLOWED_ACTIONS = (1L << 19),
 
     AP_GROUP_SIZE,
     AP_GROUP_BEHIND,
@@ -147,6 +149,7 @@ public:
     bool border, titlebar;
     bool focusable, place_new, focus_new;
     uint workspace, layer, skip, cfg_deny;
+    uint allowed_actions, disallowed_actions;
 
     std::string frame_decor;
 

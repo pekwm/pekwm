@@ -1010,6 +1010,47 @@ Client::applyAutoprops(AutoProperty *ap)
     if (ap->isMask(AP_CFG_DENY)) {
         _state.cfg_deny = ap->cfg_deny;
     }
+    if (ap->isMask(AP_ALLOWED_ACTIONS)) {
+        applyActionAccessMask(ap->allowed_actions, true);
+    }
+    if (ap->isMask(AP_DISALLOWED_ACTIONS)) {
+        applyActionAccessMask(ap->disallowed_actions, false);
+    }
+}
+
+void
+Client::applyActionAccessMask(uint mask, bool value)
+{
+    if (mask & ACTION_ACCESS_MOVE) {
+        _actions.move = value;
+    }
+    if (mask & ACTION_ACCESS_RESIZE) {
+        _actions.resize = value;
+    }
+    if (mask & ACTION_ACCESS_MINIMIZE) {
+        _actions.minimize = value;
+    }
+    if (mask & ACTION_ACCESS_SHADE) {
+        _actions.shade = value;
+    }
+    if (mask & ACTION_ACCESS_STICK) {
+        _actions.stick = value;
+    }
+    if (mask & ACTION_ACCESS_MAXIMIZE_HORZ) {
+        _actions.maximize_horz = value;
+    }
+    if (mask & ACTION_ACCESS_MAXIMIZE_VERT) {
+        _actions.maximize_vert = value;
+    }
+    if (mask & ACTION_ACCESS_FULLSCREEN) {
+        _actions.fullscreen = value;
+    }
+    if (mask & ACTION_ACCESS_CHANGE_DESKTOP) {
+        _actions.change_desktop = value;
+    }
+    if (mask & ACTION_ACCESS_CLOSE) {
+        _actions.close = value;
+    }
 }
 
 /**

@@ -263,6 +263,7 @@ public: // Public Member Functions
     void setPekwmFrameActive(bool active);
 
     static void setClientEnvironment(Client *client);
+    AutoProperty* readAutoprops(uint type = 0);
 
 private:
     bool getAndUpdateWindowAttributes(void);
@@ -304,8 +305,8 @@ private:
     void readMwmHints(void);
     void readPekwmHints(void);
     void readIcon(void);
-    AutoProperty* readAutoprops(uint type = 0);
     void applyAutoprops(AutoProperty *ap);
+    void applyActionAccessMask(uint mask, bool value);
     void readClientPid(void);
     void readClientRemote(void);
 

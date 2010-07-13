@@ -192,6 +192,7 @@ public:
 
     // map parsing
     ActionType getAction(const std::string &name, uint mask);
+    ActionAccessMask getActionAccessMask(const std::string &name);
     inline Layer getLayer(const std::string &layer) { return ParseUtil::getValue<Layer>(layer, _layer_map); }
     inline Skip getSkip(const std::string &skip) { return ParseUtil::getValue<Skip>(skip, _skip_map); }
     inline CfgDeny getCfgDeny(const std::string &deny) { return ParseUtil::getValue<CfgDeny>(deny, _cfg_deny_map); }
@@ -199,6 +200,7 @@ public:
     bool parseKey(const std::string &key_string, uint& mod, uint &key);
     bool parseButton(const std::string &button_string, uint &mod, uint &button);
     bool parseAction(const std::string &action_string, Action &action, uint mask);
+    bool parseActionAccessMask(const std::string &action_mask_string, uint &mask);
     bool parseActionState(Action &action, const std::string &st_action);
     bool parseActions(const std::string &actions, ActionEvent &ae, uint mask);
     bool parseActionEvent(CfgParser::Entry *section, ActionEvent &ae, uint mask, bool button);
@@ -321,6 +323,7 @@ private:
     std::map<MouseActionListName, std::list<ActionEvent>* > _mouse_action_map;
 
     std::map<ParseUtil::Entry, std::pair<ActionType, uint> > _action_map;
+    std::map<ParseUtil::Entry, ActionAccessMask> _action_access_mask_map;
     std::map<ParseUtil::Entry, PlacementModel> _placement_map;
     std::map<ParseUtil::Entry, OrientationType> _edge_map;
     std::map<ParseUtil::Entry, Raise> _raise_map;

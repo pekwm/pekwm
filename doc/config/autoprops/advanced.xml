@@ -223,6 +223,70 @@
 	</listitem>
       </varlistentry>
       <varlistentry>
+	<term>AllowedActions (string) , DisallowedActions (string)</term>
+	<listitem>
+	  <para>
+	    A list of actions to allow/deny performing on a client.
+	    <itemizedlist>
+	      <listitem>
+                <para>
+                  "Move" ((Dis)allow moving of the client window)
+                </para>
+              </listitem>
+	      <listitem>
+                <para>
+                  "Resize" ((Dis)allow resizing of the client window)
+                </para>
+              </listitem>
+	      <listitem>
+                <para>
+                  "Iconify" ((Dis)allow iconifying of the client window)
+                </para>
+              </listitem>
+	      <listitem>
+                <para>
+                  "Shade" ((Dis)allow shading of the client window)
+                </para>
+              </listitem>
+	      <listitem>
+                <para>
+                  "Stick" ((Dis)allow setting sticky state on the client window)
+                </para>
+              </listitem>
+	      <listitem>
+                <para>
+                  "MaximizeHorizontal" ((Dis)allow maximizing the client window
+                  horizontally)
+                </para>
+              </listitem>
+	      <listitem>
+                <para>
+                  "MaximizeVertical" ((Dis)allow maximizing the client window
+                  vertically)
+                </para>
+              </listitem>
+	      <listitem>
+                <para>
+                  "Fullscreen" ((Dis)allow setting the client window in
+                  fullscreen mode)
+                </para>
+              </listitem>
+	      <listitem>
+                <para>
+                  "SetWorkspace" ((Dis)allow changing of workspace)
+                </para>
+              </listitem>
+	      <listitem>
+                <para>
+                  "Close" ((Dis)allow closing)
+                </para>
+              </listitem>
+	    </itemizedlist>
+	  </para>
+	</listitem>
+      </varlistentry>
+
+      <varlistentry>
 	<term>ApplyOn (string)</term>
 	<listitem>
 	  <para>

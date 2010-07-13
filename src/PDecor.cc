@@ -1263,6 +1263,10 @@ PDecor::getChildRel(int off)
 void
 PDecor::doMove(int x_root, int y_root)
 {
+    if (! allowMove()) {
+        return;
+    }
+
     PScreen *scr = PScreen::instance(); // convenience
     StatusWindow *sw = StatusWindow::instance(); // convenience
 

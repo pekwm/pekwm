@@ -190,6 +190,7 @@ TypeRules {
 		Skip = "FocusToggle Menus Snap"
 		Layer = "Desktop"
 		Focusable = "False"
+		DisallowedActions = "Move"
 	}
 	Property = "DOCK" {
 		Titlebar = "False"
@@ -198,6 +199,7 @@ TypeRules {
 		Layer = "Dock"
 		Skip = "FocusToggle Menus"
 		Focusable = "False"
+		DisallowedActions = "Move"
 	}
 	Property = "TOOLBAR"  {
 		Skip = "FocusToggle Menus Snap"

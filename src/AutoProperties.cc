@@ -75,6 +75,8 @@ AutoProperties::AutoProperties(void)
     _property_map["FOCUSNEW"] = AP_FOCUS_NEW;
     _property_map["FOCUSABLE"] = AP_FOCUSABLE;
     _property_map["CFGDENY"] = AP_CFG_DENY;
+    _property_map["ALLOWEDACTIONS"] = AP_ALLOWED_ACTIONS;
+    _property_map["DISALLOWEDACTIONS"] = AP_DISALLOWED_ACTIONS;
 
     // group properties
     _group_property_map[""] = AP_NO_PROPERTY;
@@ -635,6 +637,8 @@ AutoProperties::setDefaultTypeProperties(void)
         prop->layer = LAYER_DESKTOP;
         prop->maskAdd(AP_FOCUSABLE);
         prop->focusable = false;
+        prop->maskAdd(AP_DISALLOWED_ACTIONS);
+        prop->disallowed_actions = ACTION_ACCESS_MOVE|ACTION_ACCESS_RESIZE;
 
         _window_type_prop_map[WINDOW_TYPE_DESKTOP] = prop;
     }
@@ -654,6 +658,8 @@ AutoProperties::setDefaultTypeProperties(void)
         prop->layer = LAYER_DOCK;
         prop->maskAdd(AP_FOCUSABLE);
         prop->focusable = false;
+        prop->maskAdd(AP_DISALLOWED_ACTIONS);
+        prop->disallowed_actions = ACTION_ACCESS_MOVE|ACTION_ACCESS_RESIZE;
 
         _window_type_prop_map[WINDOW_TYPE_DOCK] = prop;
     }
@@ -824,7 +830,13 @@ AutoProperties::parseAutoPropertyValue(CfgParser::Entry *section, AutoProperty *
                 }
             }
             break;
-
+        case AP_ALLOWED_ACTIONS:
+            prop->maskAdd(AP_ALLOWED_ACTIONS);
+            Config::instance()->parseActionAccessMask((*it)->get_value(), prop->allowed_actions);
+            break;
+        case AP_DISALLOWED_ACTIONS:
+            prop->maskAdd(AP_DISALLOWED_ACTIONS);
+            Config::instance()->parseActionAccessMask((*it)->get_value(), prop->disallowed_actions);
         default:
             // do nothing
             break;
