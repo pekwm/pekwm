@@ -1177,19 +1177,24 @@ Frame::doResize(bool left, bool x, bool top, bool y)
         _scr->grabServer();
     }
 
+    const long resize_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask;
     XEvent ev;
     bool exit = false;
     while (exit != true) {
         if (outline) {
             drawOutline(_gm);
         }
-        XMaskEvent(_dpy, ButtonPressMask|ButtonReleaseMask|ButtonMotionMask, &ev);
+        XMaskEvent(_dpy, resize_mask, &ev);
         if (outline) {
             drawOutline(_gm); // clear
         }
 
         switch (ev.type) {
         case MotionNotify:
+            // Flush all pointer motion, no need to redraw and redraw.
+            while (XCheckMaskEvent(_dpy, PointerMotionMask, &ev) == True)
+                ;
+
             if (x) {
                 new_x = start_x - pointer_x + ev.xmotion.x;
             }

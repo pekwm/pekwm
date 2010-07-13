@@ -1297,24 +1297,32 @@ PDecor::doMove(int x_root, int y_root)
         sw->draw(buf, true, center_on_root ? 0 : &_gm);
     }
 
+    Geometry last_gm(_gm);
+
     XEvent e;
+    const long move_mask = ButtonPressMask|ButtonReleaseMask|PointerMotionMask;
     bool exit = false;
     while (! exit) {
         if (outline) {
             drawOutline(_gm);
         }
-        XMaskEvent(_dpy, ButtonPressMask|ButtonReleaseMask|PointerMotionMask, &e);
+        XMaskEvent(_dpy, move_mask, &e);
         if (outline) {
             drawOutline(_gm); // clear
         }
 
         switch (e.type) {
         case MotionNotify:
+            // Flush all pointer motion, no need to redraw and redraw.
+            while (XCheckMaskEvent(_dpy, PointerMotionMask, &e) == True)
+                ;
+
             _gm.x = e.xmotion.x_root - x;
             _gm.y = e.xmotion.y_root - y;
             checkSnap();
 
-            if (! outline) {
+            if (! outline && _gm != last_gm) {
+                last_gm = _gm;
                 move(_gm.x, _gm.y);
             }
 
