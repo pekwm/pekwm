@@ -667,7 +667,15 @@ Workspaces::placeWoInsideScreen(PWinObj *wo)
     Geometry gm_before(wo->getX(), wo->getY(), wo->getWidth(), wo->getHeight());
     Geometry gm_after(gm_before);
 
-    placeInsideScreen(gm_after);
+    Strut *strut = 0;
+    if (wo->getType() == PWinObj::WO_FRAME) {
+        Client *client = static_cast<Frame*>(wo)->getActiveClient();
+        if (client) {
+            strut = client->getStrut();
+        }
+    }
+
+    placeInsideScreen(gm_after, strut);
     if (gm_before != gm_after) {
         wo->move(gm_after.x, gm_after.y);
     }
@@ -847,10 +855,17 @@ Workspaces::placeCenteredOnParent(PWinObj *wo, Window parent)
 
 //! @brief Makes sure the window is inside the screen.
 void
-Workspaces::placeInsideScreen(Geometry &gm)
+Workspaces::placeInsideScreen(Geometry &gm, Strut *strut)
 {
+    // Do not include screen edges when calculating the position if the window
+    // has a strut as it then is likely to be a panel or the like placed
+    // along the edge of the screen.
     Geometry head;
-    PScreen::instance()->getHeadInfoWithEdge(PScreen::instance()->getCurrHead(), head);
+    if (strut) {
+        PScreen::instance()->getHeadInfo(PScreen::instance()->getCurrHead(), head);
+    } else {
+        PScreen::instance()->getHeadInfoWithEdge(PScreen::instance()->getCurrHead(), head);
+    }
 
     if (gm.x < head.x) {
         gm.x = head.x;
@@ -886,8 +901,7 @@ Workspaces::isEmptySpace(int x, int y, const PWinObj* wo)
         // Also skip windows tagged as Maximized as they cause us to
         // automatically fail.
         if ((*it)->getType() == PWinObj::WO_FRAME) {
-            PWinObj *active_wo = static_cast<Frame*>((*it))->getActiveChild();
-            Client *client = dynamic_cast<Client*>(active_wo);
+            Client *client = static_cast<Frame*>((*it))->getActiveClient();
             if (client &&
                 (client->isFullscreen()
                  || (client->isMaximizedVert() && client->isMaximizedHorz()))) {

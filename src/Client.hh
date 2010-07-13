@@ -142,6 +142,7 @@ public: // Public Member Functions
     inline bool hasBorder(void) const { return (_state.decor&DECOR_BORDER); }
     inline bool isShaped(void) const { return _shaped; }
     inline bool hasStrut(void) const { return (_strut); }
+    Strut *getStrut(void) const { return _strut; }
 
     PTexture *getIcon(void) const { return _icon; }
 

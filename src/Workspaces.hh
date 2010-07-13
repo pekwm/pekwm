@@ -14,6 +14,7 @@
 #endif // HAVE_CONFIG_H
 
 #include "pekwm.hh"
+#include "PScreen.hh"
 
 #include <string>
 #include <list>
@@ -128,7 +129,7 @@ private:
     bool placeMouseCentered(PWinObj *wo);
     bool placeMouseTopLeft(PWinObj *wo);
     bool placeCenteredOnParent(PWinObj *wo, Window parent);
-    void placeInsideScreen(Geometry &gm);
+    void placeInsideScreen(Geometry &gm, Strut *strut=0);
 
     // placement helpers
     PWinObj* isEmptySpace(int x, int y, const PWinObj *wo);

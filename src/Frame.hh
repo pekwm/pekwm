@@ -68,6 +68,8 @@ public:
     virtual void setSkip(uint skip);
     // END - PDecor interface.
 
+    Client *getActiveClient(void);
+
     void addChildOrdered(Client *child);
 
     static Frame *findFrameFromWindow(Window win);

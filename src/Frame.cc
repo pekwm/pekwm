@@ -413,6 +413,19 @@ Frame::allowMove(void) const
     return _client ? _client->allowMove() : true;
 }
 
+/**
+ * Return active client, or 0 if no clients or active child is not a Client.
+ */
+Client*
+Frame::getActiveClient(void)
+{
+    if (getActiveChild() && getActiveChild()->getType() == WO_CLIENT) {
+        return static_cast<Client*>(getActiveChild());
+    } else {
+        return 0;
+    }
+}
+
 //! @brief Adds child to the frame.
 void
 Frame::addChild (PWinObj *child, std::list<PWinObj*>::iterator *it)
