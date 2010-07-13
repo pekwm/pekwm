@@ -1432,6 +1432,7 @@ WindowManager::handleMappingEvent(XMappingEvent *ev)
     if (ev->request == MappingKeyboard || ev->request == MappingModifier) {
         XRefreshKeyboardMapping(ev);
         _screen->setLockKeys();
+        InputDialog::reloadKeysymMap();
         doReloadKeygrabber(true);
     }
 }

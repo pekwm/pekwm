@@ -13,6 +13,12 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
+#include <map>
+
+extern "C" {
+#include <X11/Xutil.h>
+}
+
 #include "PWinObj.hh"
 #include "PWinObjReference.hh"
 #include "PDecor.hh"
@@ -41,6 +47,8 @@ public:
   void unloadTheme(void);
   void render(void);
 
+  static void reloadKeysymMap(void);
+
   virtual void mapCentered(const std::string &buf, bool focus, PWinObj *wo_ref = 0);
   virtual void moveCentered(PWinObj *wo);
 
@@ -66,6 +74,9 @@ protected:
 
     void getInputSize(unsigned int &width, unsigned int &height);
 
+private:
+    static void addKeysymToKeysymMap(KeySym keysym, wchar_t chr);
+
 protected:
   Theme::TextDialogData *_data;
 
@@ -88,6 +99,9 @@ protected:
   std::wstring _hist_new; // the one we started editing on
   Util::file_backed_list _hist_list;
   Util::file_backed_list::iterator _hist_it;
+
+private:
+    static std::map<KeySym, wchar_t> _keysym_map;
 };
 
 #endif // _INPUT_DIALOG_HH_

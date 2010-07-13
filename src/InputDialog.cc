@@ -26,8 +26,11 @@ extern "C" {
 }
 
 using std::list;
+using std::map;
 using std::wstring;
 using std::iswprint;
+
+map<KeySym, wchar_t> InputDialog::_keysym_map;
 
 /**
  * InputDialog constructor.
@@ -40,6 +43,10 @@ InputDialog::InputDialog(Display *dpy, Theme *theme, const std::wstring &title)
     // PWinObj attributes
     _layer = LAYER_NONE; // hack, goes over LAYER_MENU
     _hidden = true; // don't care about it when changing worskpace etc
+
+    if (! _keysym_map.size()) {
+        reloadKeysymMap();
+    }
 
     // Add action to list, going to be used from close and exec
     ::Action action;
@@ -90,6 +97,41 @@ InputDialog::~InputDialog(void)
     }
 
     unloadTheme();
+}
+
+void
+InputDialog::reloadKeysymMap(void)
+{
+    _keysym_map.clear();
+
+    addKeysymToKeysymMap(XK_KP_0, L'0');
+    addKeysymToKeysymMap(XK_KP_1, L'1');
+    addKeysymToKeysymMap(XK_KP_2, L'2');
+    addKeysymToKeysymMap(XK_KP_3, L'3');
+    addKeysymToKeysymMap(XK_KP_4, L'4');
+    addKeysymToKeysymMap(XK_KP_5, L'5');
+    addKeysymToKeysymMap(XK_KP_6, L'6');
+    addKeysymToKeysymMap(XK_KP_7, L'7');
+    addKeysymToKeysymMap(XK_KP_8, L'8');
+    addKeysymToKeysymMap(XK_KP_9, L'9');
+}
+
+void
+InputDialog::addKeysymToKeysymMap(KeySym keysym, wchar_t chr)
+{
+    Display *dpy = PScreen::instance()->getDpy();
+
+    int keysyms_per_keycode;
+    KeyCode keycode = XKeysymToKeycode(dpy, keysym);
+    KeySym *keysyms = XGetKeyboardMapping(dpy, keycode, 1, &keysyms_per_keycode);
+
+    for (int i = 0; i < keysyms_per_keycode; i++) {
+        if (keysyms[i] != NoSymbol) {
+            _keysym_map[keysyms[i]] = chr;
+        }
+    }
+
+    XFree(keysyms);
 }
 
 /**
@@ -369,16 +411,20 @@ InputDialog::completeAbort(void)
 void
 InputDialog::bufAdd(XKeyEvent *ev)
 {
+    KeySym keysym;
     char c_return[64];
-    memset(c_return, '\0', 64);
+    memset(c_return, '\0', sizeof(c_return));
 
-    XLookupString(ev, c_return, 64, 0, 0);
-
-    // Add wide string to buffer counting position
-    wstring buf_ret(Util::to_wide_str(c_return));
-    for (unsigned int i = 0; i < buf_ret.size(); ++i) {
-        if (iswprint(buf_ret[i])) {
-            _buf.insert(_buf.begin() + _pos++, buf_ret[i]);
+    XLookupString(ev, c_return, sizeof(c_return), &keysym, 0);
+    if (_keysym_map.count(keysym)) {
+        _buf.insert(_buf.begin() + _pos++, _keysym_map[keysym]);
+    } else {
+        // Add wide string to buffer counting position
+        wstring buf_ret(Util::to_wide_str(c_return));
+        for (unsigned int i = 0; i < buf_ret.size(); ++i) {
+            if (iswprint(buf_ret[i])) {
+                _buf.insert(_buf.begin() + _pos++, buf_ret[i]);
+            }
         }
     }
 }
