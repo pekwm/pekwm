@@ -177,50 +177,7 @@ Property = "^(gecko|Gecko|firefox-bin),^Firefox-bin,,^Customize Toolbar\$" {
 // End of autoproperties. -------------------------
 
 TypeRules {
-	/*
-	 Desktop windows such as nautilus window in gnome. These should
-	 cover the root window and be below all other windows. Also they
-	 should not be included in the menu and in snapping.
-	 */
- 	Property = "DESKTOP" {
-		FrameGeometry = "0x0+0+0"
-		Titlebar = "False"
-		Border = "False"
-		Sticky = "True"
-		Skip = "FocusToggle Menus Snap"
-		Layer = "Desktop"
-		Focusable = "False"
-		DisallowedActions = "Move"
-	}
-	Property = "DOCK" {
-		Titlebar = "False"
-		Border = "False"
-		Sticky = "True"
-		Layer = "Dock"
-		Skip = "FocusToggle Menus"
-		Focusable = "False"
-		DisallowedActions = "Move"
-	}
-	Property = "TOOLBAR"  {
-		Skip = "FocusToggle Menus Snap"
-	}
-	Property = "MENU"  {
-		Titlebar = "False"
-		Border = "False"
-		Skip = "FocusToggle Menus Snap"
-	}
-	Property = "UTILITY"  {
-	}
-	Property = "SPLASH"  {
-		Titlebar = "False"
-		Border = "False"
-		Layer = "OnTop"
-	}
-	Property = "DIALOG"  {
-		Layer = "OnTop"
-	}
-	Property = "NORMAL"  {
-	}
+	INCLUDE = "$_PEKWM_ETC_PATH/autoproperties_typerules"
 }
 
 /*

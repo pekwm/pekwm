@@ -2,17 +2,9 @@ AUTOMAKE_OPTIONS = foreign
 
 SUBDIRS = themes scripts
 
-CLEANFILES = config menu
-EXTRA_DIST = autoproperties config.in keys menu.in mouse start vars
+EXTRA_DIST = autoproperties autoproperties_typerules config keys menu mouse start vars
 cfgdatadir = $(sysconfdir)/pekwm
-cfgdata_DATA = autoproperties config keys menu mouse start vars
-
-all-local: config menu
-
-config:
-	@SED@ -e 's:<PREFIX>:$(pkgdatadir):g' -e "s:<THEME>:@THEME@:g" $@.in > $@
-menu:
-	@SED@ -e 's:<PREFIX>:$(pkgdatadir):g' -e "s:<THEME>:@THEME@:g" $@.in > $@
+cfgdata_DATA = autoproperties autoproperties_typerules config keys menu mouse start vars
 
 distclean-local:
 	rm -f *\~ .\#*

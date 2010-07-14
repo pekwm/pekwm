@@ -75,19 +75,19 @@ RootMenu = "Pekwm" {
 		SubMenu = "Workspace" {
 			# Create goto menu once per pekwm config reload. The fast way that
 			# will work for most if not all users.
-			COMMAND = "<PREFIX>/scripts/pekwm_ws_menu.sh goto"
+			COMMAND = "$_PEKWM_SCRIPT_PATH/pekwm_ws_menu.sh goto"
 			# Create goto menu every time the menu is opened. The slow way.
 			# This is what you want if you are using external tools to make
 			# the amount of workspaces something else than what you define in
 			# ~/.pekwm/config. You will know if you want this.
-			# Entry = "" { Actions = "Dynamic <PREFIX>/scripts/pekwm_ws_menu.sh goto dynamic" }
+			# Entry = "" { Actions = "Dynamic $_PEKWM_SCRIPT_PATH/pekwm_ws_menu.sh goto dynamic" }
 		}
 		Entry = "Window.." { Actions = "ShowMenu GotoClient True" }
 	}
 	Submenu = "Pekwm" {
 		Submenu = "Themes" {
-			Entry { Actions = "Dynamic <PREFIX>/scripts/pekwm_themeset.sh <PREFIX>/themes" }
-			Entry { Actions = "Dynamic <PREFIX>/scripts/pekwm_themeset.sh ~/.pekwm/themes" }
+			Entry { Actions = "Dynamic $_PEKWM_SCRIPT_PATH/pekwm_themeset.sh $_PEKWM_THEME_PATH" }
+			Entry { Actions = "Dynamic $_PEKWM_SCRIPT_PATH/pekwm_themeset.sh ~/.pekwm/themes" }
 		}
 		Entry = "Reload" { Actions = "Reload" }
 		Entry = "Restart" { Actions = "Restart" }
@@ -134,12 +134,12 @@ WindowMenu = "Window Menu" {
 	SubMenu = "Send To" {
 		# Create sendto menu once per pekwm config reload. The fast way that
 		# will work for most if not all users.
-		COMMAND = "<PREFIX>/scripts/pekwm_ws_menu.sh send"
+		COMMAND = "$_PEKWM_SCRIPT_PATH/pekwm_ws_menu.sh send"
 		# Create sendto menu every time the menu is opened. The slow way.
 		# This is what you want if you are using external tools to make
 		# the amount of workspaces something else than what you define in
 		# ~/.pekwm/config. You will know if you want this.
-		# Entry = "" { Actions = "Dynamic <PREFIX>/scripts/pekwm_ws_menu.sh send dynamic" }
+		# Entry = "" { Actions = "Dynamic $_PEKWM_SCRIPT_PATH/pekwm_ws_menu.sh send dynamic" }
 	}
 	Separator {}
 	Entry = "Close" { Actions = "Close" }

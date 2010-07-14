@@ -78,6 +78,10 @@ main(int argc, char **argv)
     setlocale(LC_CTYPE, "");
     Util::iconv_init();
 
+    setenv("PEKWM_ETC_PATH", SYSCONFDIR, 1);
+    setenv("PEKWM_SCRIPT_PATH", DATADIR "/pekwm/scripts", 1);
+    setenv("PEKWM_THEME_PATH", DATADIR "/pekwm/themes", 1);
+
     // build commandline
     for (int i = 0; i < argc; ++i) {
         command_line = command_line + argv[i] + " ";
