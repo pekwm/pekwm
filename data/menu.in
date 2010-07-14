@@ -10,7 +10,6 @@ RootMenu = "Pekwm" {
 	Separator {}
 
 	Submenu = "Editors" {
-		Entry = "vi" { Actions = "Exec $TERM -title vi -e vi &" }
 		Entry = "vim" { Actions = "Exec $TERM -title vim -e vim &" }
 		Entry = "gvim" { Actions = "Exec gvim &" }
 		Entry = "Emacs" { Actions = "Exec emacs &" }
@@ -28,29 +27,23 @@ RootMenu = "Pekwm" {
 		Entry = "Amarok" { Actions = "Exec amarok &" }
 		Entry = "Quod Libet" { Actions = "Exec quodlibet &" }
 		Entry = "Xmms" { Actions = "Exec xmms &" }
-		Entry = "MPlayer" { Actions = "Exec gmplayer &" }
+		Entry = "MPlayer" { Actions = "Exec gnome-mplayer &" }
 		Entry = "Xine" { Actions = "Exec xine &" }
 		Entry = "xawtv" { Actions = "Exec xawtv &" }
-		Entry = "Ogle" { actions = "exec ogle &" }
+		Entry = "Totem" { actions = "exec totem &" }
 		Entry = "alsamixer" { Actions = "Exec $TERM -title alsamixer -e alsamixer &" }
 	}
 	Submenu = "Utils" {
-		Entry = "XCalc" { Actions = "Exec xcalc &" }
-		Entry = "XMan" { Actions = "Exec xman &" }
+		Entry = "Calculator" { Actions = "Exec gcalctool &" }
 		Entry = "Xpdf" { Actions = "Exec xpdf &" }
-		Entry = "GGv" { Actions = "Exec ggv &" }
 		Entry = "Evince" { Actions = "Exec evince &" }
 		Entry = "gucharmap" { Actions = "Exec gucharmap &" }
 		Entry = "Gkrellm" { Actions = "Exec gkrellm &" }
-		Entry = "Gkrellm2" { Actions = "Exec gkrellm2 &" }
-		Entry = "ROX Filer" { Actions = "Exec rox &" }
 	}
 	Submenu = "WWW" {
 		Entry = "Dillo" { Actions = "Exec dillo &" }
 		Entry = "Konqueror" { Actions = "Exec konqueror &" }
-		Entry = "Mozilla" { Actions = "Exec mozilla &" }
 		Entry = "Firefox" { Actions = "Exec firefox &" }
-		Entry = "Mozilla Firefox" { Actions = "Exec mozilla-firefox &" }
 	}
 	Submenu = "FTP" {
 		Entry = "gftp" { Actions = "Exec gftp &" }
@@ -58,19 +51,17 @@ RootMenu = "Pekwm" {
 	}
 	Submenu = "Communication" {
 		Entry = "Mutt" { Actions = "Exec $TERM -title mutt -e mutt &" }
-		Entry = "Pine" { Actions = "Exec $TERM -title pine -e pine &" }
+		Entry = "Alpine" { Actions = "Exec $TERM -title alpine -e alpine &" }
 		Entry = "Thunderbird" { Actions = "Exec thunderbird &" }
-		Entry = "Mozilla Thunderbird" { Actions = "Exec mozilla-thunderbird &" }
 		Entry = "Evolution" { Actions = "Exec evolution &" }
 		Entry = "KMail" { Actions = "Exec kmail &" }
-		Entry = "Gaim" { Actions = "Exec gaim &" }
+		Entry = "Pidgin" { Actions = "Exec pidgin &" }
 		Entry = "Irssi" { Actions = "Exec $TERM -title irssi -e irssi &" }
 		Entry = "Kopete" { Actions = "Exec kopete &" }
 	}
 	Submenu = "Office" {
 		Entry = "KOffice Workspace" { Actions = "Exec koshell &" }
 		Entry = "OpenOffice" { Actions = "Exec ooffice &" }
-		Entry = "StarOffice" { Actions = "Exec soffice &" }
 	}
 	Submenu = "Development" {
 		Entry = "Anjuta" { Actions = "Exec anjuta &" }
