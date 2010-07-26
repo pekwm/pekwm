@@ -157,6 +157,12 @@
         </listitem>
       </varlistentry>
       <varlistentry>
+        <term>ReportAllClients (boolean)</term>
+        <listitem>
+          <para>Toggles if all clients in a frame or only the active one should be reported and thus displayed in pager applications etc.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
         <term>TrimTitle (string)</term>
         <listitem>
           <para>This string contains what pekwm uses to trim down overlong window titles. If it's empty, no trimming down is performed at all.</para>

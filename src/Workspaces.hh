@@ -110,13 +110,15 @@ public:
     void stackBelow(PWinObj *wo, Window win, bool restack = true);
 
     PWinObj* getTopWO(uint type_mask);
-    void updateClientStackingList(bool client, bool stacking);
+    void updateClientList(void);
+    void updateClientStackingList(void);
     void placeWo(PWinObj* wo, Window parent);
     void placeWoInsideScreen(PWinObj *wo);
 
     PWinObj *findDirectional(PWinObj *wo, DirectionType dir, uint skip = 0);
 
 private:
+    Window *buildClientList(unsigned int &num_windows);
     bool warpToWorkspace(uint num, int dir);
 
     void stackWinUnderWin(Window over, Window under);

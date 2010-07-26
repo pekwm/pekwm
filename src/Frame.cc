@@ -210,7 +210,8 @@ Frame::~Frame(void)
         delete _class_hint;
     }
 
-    Workspaces::instance()->updateClientStackingList(true, true);
+    Workspaces::instance()->updateClientList();
+    Workspaces::instance()->updateClientStackingList();
 }
 
 // START - PWinObj interface.
@@ -492,7 +493,8 @@ Frame::activateChild (PWinObj *child)
     // Reload decor rules if needed.
     handleTitleChange(_client);
 
-    Workspaces::instance()->updateClientStackingList(true, true);
+    Workspaces::instance()->updateClientList();
+    Workspaces::instance()->updateClientStackingList();
 }
 
 /**

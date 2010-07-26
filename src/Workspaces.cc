@@ -585,41 +585,79 @@ Workspaces::getTopWO(uint type_mask)
     return 0;
 }
 
-//! @brief Updates the Ewmh Client list and Stacking list hint.
-void
-Workspaces::updateClientStackingList(bool client, bool stacking)
+/**
+ * Builds a list of all clients in stacking order, clients in the same
+ * frame come after each other.
+ */
+Window*
+Workspaces::buildClientList(unsigned int &num_windows)
 {
-    if (! Frame::frame_size()) {
-        return;
+    Frame *frame;
+    Client *client, *client_active;
+
+    list<Window> windows_list;
+    list<PWinObj*>::iterator it_f, it_c;
+    for (it_f = _wo_list.begin(); it_f != _wo_list.end(); ++it_f) {
+        if ((*it_f)->getType() != PWinObj::WO_FRAME) {
+	  continue;
+	}
+
+	frame = static_cast<Frame*>(*it_f);
+	client_active = frame->getActiveClient();
+
+	if (Config::instance()->isReportAllClients()) {
+            for (it_c = frame->begin(); it_c != frame->end(); ++it_c) {
+                client = dynamic_cast<Client*>(*it_c);
+                if (client
+		    && ! client->isSkip(SKIP_TASKBAR)
+		    && client != client_active) {
+                    windows_list.push_back(client->getWindow());
+	        }
+	    }
+	}
+
+	if (client_active && ! client_active->isSkip(SKIP_TASKBAR)) {
+	    windows_list.push_back(client_active->getWindow());
+	}
     }
 
-    Client *cl;
-
-    // Create array for holding windows, can not be more than this.
-    Window *windows = new Window[Frame::frame_size()];
-
-    // Copy Frame windows in order
-    uint pos = 0;
-    list<PWinObj*>::iterator it(_wo_list.begin());
-    for (; it != _wo_list.end(); ++it) {
-        if ((*it)->getType() == PWinObj::WO_FRAME) {
-            cl = static_cast<Client*>(static_cast<Frame*>((*it))->getActiveChild());
-            if (cl && ! cl->isSkip(SKIP_TASKBAR)) {
-                windows[pos++] = cl->getWindow();
-            }
-        }
+    num_windows = windows_list.size();
+    Window *windows = new Window[num_windows ? num_windows : 1];
+    if (num_windows > 0) {
+      copy(windows_list.begin(), windows_list.end(), windows);
     }
 
-    if (client) {
-        AtomUtil::setWindows(PScreen::instance()->getRoot(),
-                             Atoms::getAtom(NET_CLIENT_LIST),
-                             windows, pos);
-    }
-    if (stacking) {
-        AtomUtil::setWindows(PScreen::instance()->getRoot(),
-                             Atoms::getAtom(NET_CLIENT_LIST_STACKING),
-                             windows, pos);
-    }
+    return windows;
+}
+
+/**
+ * Updates the Ewmh Client list hint.
+ */
+void
+Workspaces::updateClientList(void)
+{
+    unsigned int num_windows;
+    Window *windows = buildClientList(num_windows);
+
+    AtomUtil::setWindows(PScreen::instance()->getRoot(),
+			 Atoms::getAtom(NET_CLIENT_LIST),
+			 windows, num_windows);
+    
+    delete [] windows;
+}
+
+/**
+ * Updates the Ewmh Stacking list hint.
+ */
+void
+Workspaces::updateClientStackingList(void)
+{
+    unsigned int num_windows;
+    Window *windows = buildClientList(num_windows);
+
+    AtomUtil::setWindows(PScreen::instance()->getRoot(),
+			 Atoms::getAtom(NET_CLIENT_LIST_STACKING),
+			 windows, num_windows);
 
     delete [] windows;
 }

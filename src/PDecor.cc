@@ -525,7 +525,7 @@ void
 PDecor::raise(void)
 {
     Workspaces::instance()->raise(this);
-    Workspaces::instance()->updateClientStackingList(false, true);
+    Workspaces::instance()->updateClientStackingList();
 }
 
 //! @brief Lowers the window, taking _layer into account
@@ -533,7 +533,7 @@ void
 PDecor::lower(void)
 {
     Workspaces::instance()->lower(this);
-    Workspaces::instance()->updateClientStackingList(false, true);
+    Workspaces::instance()->updateClientStackingList();
 }
 
 //! @brief

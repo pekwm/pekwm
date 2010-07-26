@@ -29,6 +29,8 @@ Screen {
     PlaceNew = "True"
     FocusNew = "True"
 
+    ReportAllClients = "False"
+
     TrimTitle = "..."
     FullscreenAbove = "True"
     FullscreenDetect = "True"

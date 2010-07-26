@@ -101,6 +101,7 @@ Config::Config(void) :
         _screen_placement_offset_x(0), _screen_placement_offset_y(0),
         _screen_client_unique_name(true),
         _screen_client_unique_name_pre(" #"), _screen_client_unique_name_post(""),
+	_screen_report_all_clients(false),
         _menu_select_mask(0), _menu_enter_mask(0), _menu_exec_mask(0),
         _menu_display_icons(true),
         _cmd_dialog_history_unique(true), _cmd_dialog_history_size(1024),
@@ -604,6 +605,7 @@ Config::loadScreen(CfgParser::Entry *section)
     key_list.push_back(new CfgParserKeyBool("FOCUSNEWCHILD", _screen_focus_new_child, true));
     key_list.push_back(new CfgParserKeyBool("HONOURRANDR", _screen_honour_randr, true));
     key_list.push_back(new CfgParserKeyBool("HONOURASPECTRATIO", _screen_honour_aspectratio, true));
+    key_list.push_back(new CfgParserKeyBool("REPORTALLCLIENTS", _screen_report_all_clients, false));
 
     // Parse data
     section->parse_key_values(key_list.begin(), key_list.end());

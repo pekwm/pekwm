@@ -163,6 +163,7 @@ public:
     inline const std::string &getClientUniqueNamePost(void) const {
         return _screen_client_unique_name_post;
     }
+    inline bool isReportAllClients(void) const { return _screen_report_all_clients; }
 
     inline bool isMenuSelectOn(uint val) const { return (_menu_select_mask&val); }
     inline bool isMenuEnterOn(uint val) const { return (_menu_enter_mask&val); }
@@ -299,6 +300,7 @@ private:
     std::list<uint> _screen_placementmodels;
     bool _screen_client_unique_name;
     std::string _screen_client_unique_name_pre, _screen_client_unique_name_post;
+    bool _screen_report_all_clients;
 
     uint _menu_select_mask, _menu_enter_mask, _menu_exec_mask;
     bool _menu_display_icons; /**< Boolean flag, when true display icons in menus. */
