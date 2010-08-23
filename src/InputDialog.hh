@@ -57,6 +57,7 @@ protected:
   virtual ActionEvent *exec(void) { return 0; }
   virtual void complete(void);
   virtual void completeAbort(void);
+  virtual void completeReset(void);
 
   virtual void bufAdd(XKeyEvent *ev);
   virtual void bufRemove(void);

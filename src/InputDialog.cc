@@ -162,15 +162,18 @@ InputDialog::handleKeyPress(XKeyEvent *ev)
             switch (it->getAction()) {
             case INPUT_INSERT:
                 bufAdd(ev);
+                completeReset();
                 break;
             case INPUT_REMOVE:
                 bufRemove();
                 break;
             case INPUT_CLEAR:
                 bufClear();
+                completeReset();
                 break;
             case INPUT_CLEARFROMCURSOR:
                 bufKill();
+                completeReset();
                 break;
             case INPUT_EXEC:
                 ae = exec();
@@ -186,21 +189,27 @@ InputDialog::handleKeyPress(XKeyEvent *ev)
                 break;
             case INPUT_CURS_NEXT:
                 bufChangePos(1);
+                completeReset();
                 break;
             case INPUT_CURS_PREV:
                 bufChangePos(-1);
+                completeReset();
                 break;
             case INPUT_CURS_BEGIN:
                 _pos = 0;
+                completeReset();
                 break;
             case INPUT_CURS_END:
                 _pos = _buf.size();
+                completeReset();
                 break;
             case INPUT_HIST_NEXT:
                 histNext();
+                completeReset();
                 break;
             case INPUT_HIST_PREV:
                 histPrev();
+                completeReset();
                 break;
             case INPUT_NO_ACTION:
             default:
@@ -401,7 +410,18 @@ InputDialog::completeAbort(void)
         _buf = _buf_on_complete;
         _pos = _pos_on_complete;
     }
-    _buf_on_complete = _buf_on_complete_result = L""; // old gcc doesn't know about .clear()
+
+    completeReset();
+}
+
+/**
+ * Clear the completion buffer.
+ */
+void
+InputDialog::completeReset(void)
+{
+    // Old gcc doesn't know about .clear()
+    _buf_on_complete = _buf_on_complete_result = L"";
     _pos_on_complete = 0;
 }
 

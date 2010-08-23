@@ -281,11 +281,13 @@ Completer::do_complete(const wstring &str, unsigned int &pos,
 {
     // Do not perform completion if there is nothing to complete
     if (! completions.size()) {
+        pos = str.size();
         return str;
     }
     // Wrap completions, return original string
     if (it == completions.end()) {
         it = completions.begin();
+        pos = str.size();
         return str;
     }
 
