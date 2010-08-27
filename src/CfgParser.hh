@@ -115,7 +115,7 @@ public:
 private:
     void parse_source_new(const std::string &name, CfgParserSource::Type type);
     bool parse_name(std::string &buf);
-    bool parse_value(CfgParserSource *source, std::string &value);
+    void parse_value(CfgParserSource *source, std::string &value);
     void parse_entry_finish(std::string &buf, std::string &value);
     void parse_entry_finish_standard(std::string &buf, std::string &value);
     void parse_entry_finish_template(std::string &name);

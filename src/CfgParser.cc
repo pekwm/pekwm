@@ -465,64 +465,41 @@ CfgParser::parse_name(std::string &buf)
 }
 
 //! @brief Parses from = to end of " pair.
-bool
+void
 CfgParser::parse_value(CfgParserSource *source, std::string &value)
 {
-    // Init parse buffer and reserve memory.
-    string buf;
-    buf.reserve(PARSE_BUF_SIZE);
-
-    // We expect to get a " after the =, however to do proper error reporting
-    // we store the what we get between so we can show the output if it includes
-    // anything else than spaces.
-    int c, next;
-    bool garbage = false;
-    while ((c = source->getc()) != EOF) {
-        if (c == '"') {
-            break;
-        }
-
-        buf += c;
-
-        if (! isspace(c)) {
-            garbage = true;
-        }
-    }
+    // We expect to get a " after the =, however we ignore anything else.
+    int c;
+    while ((c = source->getc()) != EOF && c != '"')
+         ;
 
     // Check if we got to a " or found EOF first.
     if (c == EOF) {
         cerr << "Reached EOF before opening \" in value." << endl;
-        return false;
-    }
-
-    // Check if there was garbage between = and ".
-    if (garbage) {
-        // pass, do nothing
+        return;
     }
 
     // Parse until next ", and escape characters after \.
-    buf.clear();
-    while ((c = source->getc()) != EOF) {
+    while ((c = source->getc()) != EOF && c != '"') {
         // Escape character after \, if newline drop it.
         if (c == '\\') {
-            next = source->getc();
-            if (next != '\n') {
-                buf += next;
+            c = source->getc();
+            if (c == '\n' || c == EOF) {
+                continue;
             }
-        } else if (c == '"') {
-            break;
-        } else {
-            buf += c;
         }
+        value += c;
     }
 
     if (c == EOF) {
         cerr << "Reached EOF before closing \" in value." << endl;
     }
 
-    value = buf;
-
-    return false;
+    // If the value is empty, parse_entry_finish() might later just skip
+    // the complete entry. To allow empty config options we add a dummy space.
+    if (!value.size()) {
+    	value = " ";
+    }
 }
 
 //! @brief Parses entry (name + value) and executes command accordingly.
