@@ -131,7 +131,7 @@ private:
 class AutoProperty : public Property
 {
 public:
-    AutoProperty(void) : cfg_deny(0),
+    AutoProperty(void) : skip(SKIP_NONE), cfg_deny(0),
             group_size(-1), group_behind(false), group_focused_first(false),
     group_global(false), group_raise(false), _prop_mask(0) { }
     virtual ~AutoProperty(void) { }
