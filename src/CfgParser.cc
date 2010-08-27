@@ -612,8 +612,12 @@ CfgParser::parse_comment_c(CfgParserSource *source)
 {
     int c;
     while ((c = source->getc()) != EOF) {
-        if ((c == '*') && (source->getc() == '/')) {
-            break;
+        if (c == '*') {
+            if ((c = source->getc()) == '/') {
+                break;
+        	} else if (c != EOF) {
+                source->ungetc(c);
+            }
         }
     }
 
@@ -624,7 +628,7 @@ CfgParser::parse_comment_c(CfgParserSource *source)
 
 //! @brief Parses Source until next non whitespace char is found.
 char
-CfgParser::parse_skip_blank (CfgParserSource *source)
+CfgParser::parse_skip_blank(CfgParserSource *source)
 {
     int c;
     while (((c = source->getc()) != EOF) && isspace(c))
