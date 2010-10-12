@@ -333,11 +333,13 @@ Workspaces::warpToWorkspace(uint num, int dir)
     return true;
 }
 
-//! @brief Adds a PWinObj to the stacking list.
-//! @param wo PWinObj to insert
-//! @param raise Whether to insert at the bottom or top of the layer (defaults to true).
+/**
+ * Adds a PWinObj to the stacking list.
+ * @param wo PWinObj to insert
+ * @param raise Whether to insert at the bottom or top of the layer (defaults to true).
+ */
 void
-Workspaces::insert(PWinObj* wo, bool raise)
+Workspaces::insert(PWinObj *wo, bool raise)
 {
     list<PWinObj*>::iterator it(_wo_list.begin()), position(_wo_list.end());
     for (; it != _wo_list.end() && position == _wo_list.end(); ++it) {
@@ -450,8 +452,9 @@ Workspaces::raise(PWinObj* wo)
 {
     list<PWinObj*>::iterator it(find(_wo_list.begin(), _wo_list.end(), wo));
 
-    if (it == _wo_list.end()) // no Frame to raise.
+    if (it == _wo_list.end()) { // no Frame to raise.
         return;
+    }
     _wo_list.erase(it);
 
     insert(wo, true); // reposition and restack
@@ -488,8 +491,9 @@ Workspaces::stackAbove(PWinObj *wo, Window win, bool restack)
 
                 // Before restacking make sure we are the active frame
                 // also that there are two different frames
-                if (restack)
-                    stackWinUnderWin((*--it)->getWindow(), wo->getWindow());
+                if (restack) {
+                    stackWinUnderWin(win, wo->getWindow());
+                }
                 break;
             }
         }
@@ -512,8 +516,9 @@ Workspaces::stackBelow(PWinObj* wo, Window win, bool restack)
                 _wo_list.erase(old_pos);
                 _wo_list.insert(it, wo);
 
-                if (restack)
-                    stackWinUnderWin((*it)->getWindow(), wo->getWindow());
+                if (restack) {
+                    stackWinUnderWin(wo->getWindow(), win);
+                }
                 break;
             }
         }

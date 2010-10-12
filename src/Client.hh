@@ -18,6 +18,7 @@
 #endif // HAVE_CONFIG_H
 
 #include "pekwm.hh"
+#include "Observer.hh"
 #include "PTexturePlain.hh"
 #include "PDecor.hh"
 
@@ -34,7 +35,15 @@ extern "C" {
 #include <X11/Xutil.h>
 }
 
-class Client : public PWinObj
+class LayerObservation : public Observation {
+public:
+    LayerObservation(enum Layer _layer) : layer(_layer) { };
+    virtual ~LayerObservation(void) { };
+public:
+    const enum Layer layer; /**< Layer client changed to. */
+};
+
+class Client : public PWinObj, public Observer
 {
     // FIXME: This relationship should end as soon as possible, but I need to
     // figure out a good way of sharing. :)
@@ -126,6 +135,12 @@ public: // Public Member Functions
     static std::list<Client*>::reverse_iterator client_rend(void) {
         return _client_list.rend();
     }
+
+    unsigned int transient_size(void) { return _transient_clients.size(); }
+    std::list<Client*>::iterator transient_begin(void) {
+        return _transient_clients.begin(); }
+    std::list<Client*>::iterator transient_end(void) {
+        return _transient_clients.end(); }
     // END - Iterators
 
     bool validate(void);
@@ -138,7 +153,7 @@ public: // Public Member Functions
 
     inline const ClassHint* getClassHint(void) const { return _class_hint; }
 
-    inline Window getTransientWindow(void) const { return _transient; }
+    inline Client *getTransientClient(void) const { return _transient; }
 
     inline XSizeHints* getXSizeHints(void) const { return _size; }
 
@@ -327,7 +342,8 @@ private: // Private Member Variables
     XSizeHints *_size;
     Colormap _cmap;
 
-    Window _transient; // window id for which this client is transient for
+    Client *_transient; /**< Client for which this client is transient for */
+    std::list<Client*> _transient_clients; /**< List of transient clients. */
 
     Strut *_strut;
 

@@ -134,6 +134,15 @@ Client::Client(Window new_client, bool is_new)
 
     _alive = true;
 
+    if (_transient) {
+        Frame *frame = static_cast<Frame*>(getParent());
+        Frame *frame_transient = static_cast<Frame*>(_transient->getParent());
+        if (frame->getActiveChild() == this) {
+            frame->setLayer(frame_transient->getLayer() + 1);
+            frame->raise();
+        }
+    }
+
     // Finished creating the client, so now adding it to the client list.
     woListAdd(this);
     _wo_map[_window] = this;
@@ -144,6 +153,10 @@ Client::Client(Window new_client, bool is_new)
 Client::~Client(void)
 {
     // Remove from lists
+    if (_transient) {
+        _transient->_transient_clients.remove(this);
+        _transient->removeObserver(this);
+    }
     _wo_map.erase(_window);
     woListRemove(this);
     _client_list.remove(this);
@@ -160,11 +173,10 @@ Client::~Client(void)
     }
 
     // Focus the parent if we had focus before
-    if (focus && (_transient != None)) {
-        Client *trans_cli = findClientFromWindow(_transient);
-        if (trans_cli &&
-                (((Frame*) trans_cli->getParent())->getActiveChild() == trans_cli)) {
-            trans_cli->getParent()->giveInputFocus();
+    if (focus && _transient) {
+        Frame *trans_frame = static_cast<Frame*>(_transient->getParent());
+        if (trans_frame->getActiveChild() == _transient) {
+            trans_frame->giveInputFocus();
         }
     }
 
@@ -378,12 +390,9 @@ Client::setMappedStateAndFocus(bool is_new, AutoProperty *autoproperty)
             _parent->giveInputFocus();
 
             // Check if we are transient, and if we want to focus
-        } else if ((_transient != None)
+        } else if (_transient && _transient->isFocused()
                    && Config::instance()->isFocusNewChild()) {
-            Client *trans_for = findClientFromWindow(_transient);
-            if (trans_for && trans_for->isFocused()) {
-                _parent->giveInputFocus();
-            }
+            _parent->giveInputFocus();
         }
     }
 }
@@ -587,6 +596,34 @@ Client::handleMapRequest(XMapRequestEvent *ev)
 }
 
 // END - PWinObj interface.
+
+// START - Observer interface
+
+void
+Client::notify(Observable *observable, Observation *observation)
+{
+    if (observation) {
+        LayerObservation *layer_observation = dynamic_cast<LayerObservation*>(observation);
+        if (layer_observation) {
+            setLayer(layer_observation->layer + 1);
+
+            Frame *frame = static_cast<Frame*>(getParent());
+            if (frame->getActiveChild() == this) {
+                frame->setLayer(layer_observation->layer + 1);
+                frame->raise();
+            }
+        }
+    } else {
+        Client *client = static_cast<Client*>(observable);
+        if (client == _transient) {
+            _transient = 0;
+        } else {
+            _transient_clients.remove(client);
+        }
+    }
+}
+
+// END - Observer interface
 
 //! @brief Finds the Client which holds the Window w.
 //! @param win Window to search for.
@@ -1786,8 +1823,17 @@ Client::getWMProtocols(void)
 void
 Client::getTransientForHint(void)
 {
-    if (_transient == None) {
-        XGetTransientForHint(_dpy, _window, &_transient);
+    if (! _transient) {
+        Window window;
+        XGetTransientForHint(_dpy, _window, &window);
+
+        if (window != None) {
+            _transient = findClientFromWindow(window);
+            if (_transient) {
+               _transient->_transient_clients.push_back(this);
+               _transient->addObserver(this);
+            }
+        }
     }
 }
 

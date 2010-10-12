@@ -150,7 +150,11 @@ Frame::Frame(Client *client, AutoProperty *ap)
 
     // still need a position?
     if (place) {
-        Workspaces::instance()->placeWo(this, client->getTransientWindow());
+        Window transient = None;
+        if (client->getTransientClient()) {
+            transient = client->getTransientClient()->getWindow();
+        }
+        Workspaces::instance()->placeWo(this, transient);
     }
 
     _old_gm = _gm;
@@ -159,7 +163,12 @@ Frame::Frame(Client *client, AutoProperty *ap)
 
     _scr->ungrabServer(true); // ungrab and sync
 
-    // needs to be done before the workspace insert
+    // now insert the client in the frame we created, do not give it focus.
+    addChild(client);
+    activateChild(client);
+
+    // needs to be done before the workspace insert and after the client
+    // has been inserted, in order for layer settings to be propagated
     setLayer(client->getLayer());
 
     // I add these to the list before I insert the client into the frame to
@@ -167,10 +176,6 @@ Frame::Frame(Client *client, AutoProperty *ap)
     _frame_list.push_back(this);
     WindowManager::instance()->addToFrameList(this);
     Workspaces::instance()->insert(this);
-
-    // now insert the client in the frame we created, do not give it focus.
-    addChild(client);
-    activateChild(client);
 
     // set the window states, shaded, maximized...
     getState(client);
@@ -241,9 +246,26 @@ Frame::stick(void)
     PDecor::setWorkspace(Workspaces::instance()->getActive());
 }
 
+void
+Frame::raise(void)
+{
+    PDecor::raise();
+
+    if (_client->transient_size()) {
+        Frame *frame;
+        list<Client*>::iterator it(_client->transient_begin());
+        for (; it != _client->transient_end(); ++it) {
+            frame = static_cast<Frame*>((*it)->getParent());
+            if (frame != this && frame->getActiveClient() == *it) {
+                frame->raise();
+            }
+        }
+    }
+}
+
 //! @brief Sets workspace on frame, wrapper to allow autoproperty loading
 void
-Frame::setWorkspace(uint workspace)
+Frame::setWorkspace(unsigned int workspace)
 {
     // Duplicate the behavior done in PDecor::setWorkspace to have a sane
     // value on _workspace and not NET_WM_STICKY_WINDOW.
@@ -258,9 +280,20 @@ Frame::setWorkspace(uint workspace)
     PDecor::setWorkspace(workspace);
 }
 
+void
+Frame::setLayer(unsigned int layer)
+{
+    PDecor::setLayer(layer);
+
+    if (_client) {
+        LayerObservation *observation = new LayerObservation(Layer(layer));
+        _client->notifyObservers(observation);
+        delete observation;
+    }
+}
+
 // event handlers
 
-//! @brief
 ActionEvent*
 Frame::handleMotionEvent(XMotionEvent *ev)
 {
@@ -1395,7 +1428,7 @@ void
 Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
 {
     // we don't want to maximize transients
-    if (_client->getTransientWindow()) {
+    if (_client->getTransientClient()) {
         return;
     }
 
@@ -1811,9 +1844,9 @@ Frame::readAutoprops(uint type)
     // Set the correct group of the window
     _class_hint->group = data->group_name;
 
-    if (_class_hint == _client->getClassHint() &&
-            (_client->getTransientWindow() &&
-             ! data->isApplyOn(APPLY_ON_TRANSIENT))) {
+    if (_class_hint == _client->getClassHint()
+        && (_client->getTransientClient()
+            && ! data->isApplyOn(APPLY_ON_TRANSIENT))) {
         return;
     }
 

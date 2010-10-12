@@ -1563,16 +1563,16 @@ WindowManager::familyRaiseLower(Client *client, bool raise)
 {
     Client *parent;
     Window win_search;
-    if (client->getTransientWindow() == None) {
+    if (! client->getTransientClient()) {
         parent = client;
         win_search = client->getWindow();
     } else {
-        parent = Client::findClientFromWindow(client->getTransientWindow());
-        win_search = client->getTransientWindow();
+        parent = client->getTransientClient();
+        win_search = client->getTransientClient()->getWindow();
     }
 
     list<Client*> client_list;
-    findFamily(client_list, win_search);
+    Client::findFamilyFromWindow(client_list, win_search);
 
     if (parent) { // make sure parent gets underneath the children
         if (raise) {

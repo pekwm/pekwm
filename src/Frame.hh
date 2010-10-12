@@ -40,7 +40,9 @@ public:
     virtual void iconify(void);
     virtual void stick(void);
 
-    virtual void setWorkspace(uint workspace);
+    virtual void raise(void);
+    virtual void setWorkspace(unsigned int workspace);
+    virtual void setLayer(unsigned int layer);
 
     virtual ActionEvent *handleMotionEvent(XMotionEvent *ev);
     virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev);
