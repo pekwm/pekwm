@@ -17,12 +17,20 @@
 
 class Observer;
 
+/**
+ * Message sent to observer.
+ */
+class Observation {
+public:
+    virtual ~Observation(void) { };
+};
+
 class Observable {
 public:
     Observable(void) { }
     virtual ~Observable(void) { }
 
-    void notifyObservers(void);
+    void notifyObservers(Observation *observation);
 
     void addObserver(Observer *observer); 
     void removeObserver(Observer *observer); 

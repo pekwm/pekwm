@@ -22,7 +22,8 @@ public:
     virtual ~PWinObjReference(void);
 
     /** Notify about reference update, unset the reference. */
-    virtual void notify(Observable *observable) { _wo_ref = 0; }
+    virtual void notify(Observable *observable, Observation *observation) {
+        _wo_ref = 0; }
 
     /** Returns the PWinObj reference. */
     PWinObj *getWORef(void) { return _wo_ref; }

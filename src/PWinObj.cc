@@ -43,7 +43,7 @@ PWinObj::~PWinObj(void)
     if (_focused_wo == this) {
         _focused_wo = 0;
     }
-    notifyObservers();
+    notifyObservers(0);
 }
 
 //! @brief Associates Window with PWinObj

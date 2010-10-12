@@ -10,8 +10,8 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#include "Observer.hh"
 #include "Observable.hh"
+#include "Observer.hh"
 
 using SLIST_NAMESPACE::slist;
 
@@ -19,12 +19,12 @@ using SLIST_NAMESPACE::slist;
  * Notify all observers.
  */
 void
-Observable::notifyObservers(void)
+Observable::notifyObservers(Observation *observation)
 {
     if (_observers.size()) {
         slist<Observer*>::iterator it(_observers.begin());
         for (; it != _observers.end(); ++it) {
-            (*it)->notify(this);
+            (*it)->notify(this, observation);
         }
     }
 }

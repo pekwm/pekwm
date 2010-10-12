@@ -14,13 +14,14 @@
 #endif // HAVE_CONFIG_H
 
 class Observable;
+class Observation;
 
 class Observer {
 public:
     Observer(void) { }
     virtual ~Observer(void) { }
 
-    virtual void notify(Observable *observable) { }
+    virtual void notify(Observable *observable, Observation *observation) { }
 };
 
 #endif // _OBSERVER_HH_

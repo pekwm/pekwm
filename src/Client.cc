@@ -109,13 +109,16 @@ Client::Client(Window new_client, bool is_new)
     // property, however the _transient hint needs to be setup to
     // avoid auto-grouping to be to greedy.
     getTransientForHint();
+
     AutoProperty *ap = readAutoprops(WindowManager::instance()->isStartup()
                                      ? APPLY_ON_NEW : APPLY_ON_START);
 
     readHints();
+
     // We need to set the state before acquiring a frame,
     // so that Frame's state can match the state of the Client.
     setInitialState();
+
     findOrCreateFrame(ap);
 
     // Grab keybindings and mousebutton actions

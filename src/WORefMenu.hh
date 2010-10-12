@@ -32,7 +32,7 @@ public:
               const std::string &decor_name = "MENU");
     virtual ~WORefMenu(void);
 
-    virtual void notify(Observable *observable);
+    virtual void notify(Observable *observable, Observation *observation);
 
     virtual void setWORef(PWinObj *wo_ref);
 

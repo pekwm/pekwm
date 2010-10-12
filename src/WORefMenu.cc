@@ -47,9 +47,9 @@ WORefMenu::~WORefMenu(void)
  * being removed.
  */
 void
-WORefMenu::notify(Observable *observable)
+WORefMenu::notify(Observable *observable, Observation *observation)
 {
-    PWinObjReference::notify(observable);
+    PWinObjReference::notify(observable, observation);
     unmapAll();
 }
 
