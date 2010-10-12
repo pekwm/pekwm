@@ -84,18 +84,24 @@ public:
     bool demands_attention;
 };
 
-// defines... eek
 #define NET_WM_STICKY_WINDOW	0xffffffff
 
 // enums
 enum Layer {
-    LAYER_DESKTOP =	0,
+    LAYER_DESKTOP = 0,
+    LAYER_DESKTOP_TRANSIENT = 1,
     LAYER_BELOW = 2,
+    LAYER_BELOW_TRANSIENT = 3,
     LAYER_NORMAL = 4,
-    LAYER_ONTOP	= 6,
+    LAYER_NORMAL_TRANSIENT = 5,
+    LAYER_ONTOP = 6,
+    LAYER_ONTOP_TRANSIENT = 7,
     LAYER_DOCK = 8,
+    LAYER_DOCK_TRANSIENT = 9,
     LAYER_ABOVE_DOCK = 10,
+    LAYER_ABOVE_DOCK_TRANSIENT = 11,
     LAYER_MENU = 12,
+    LAYER_MENU_TRANSIENT = 13,
     LAYER_NONE = 14
 };
 

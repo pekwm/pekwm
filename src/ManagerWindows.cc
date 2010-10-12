@@ -51,7 +51,7 @@ HintWO::HintWO(Display *dpy, Window root, bool replace) throw (std::string&)
     _instance = this;
 
     _type = WO_SCREEN_HINT;
-    _layer = LAYER_NONE;
+    setLayer(LAYER_NONE);
     _sticky = true; // Hack, do not map/unmap this window
     _iconified = true; // Hack, to be ignored when placing
 
@@ -212,7 +212,7 @@ RootWO::RootWO(Display *dpy, Window root)
     : PWinObj(dpy)
 {
     _type = WO_SCREEN_ROOT;
-    _layer = LAYER_NONE;
+    setLayer(LAYER_NONE);
     _mapped = true;
 
     _window = root;
@@ -399,7 +399,7 @@ EdgeWO::EdgeWO(Display *dpy, Window root, EdgeType edge, bool set_strut)
       _edge(edge)
 {
     _type = WO_SCREEN_EDGE;
-    _layer = LAYER_NONE; // hack, goes over LAYER_MENU
+    setLayer(LAYER_NONE); // hack, goes over LAYER_MENU
     _sticky = true; // don't map/unmap
     _iconified = true; // hack, to be ignored when placing
     _focusable = false; // focusing input only windows crashes X

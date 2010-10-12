@@ -891,8 +891,12 @@ Client::readEwmhHints(void)
         if (win_states.skip_taskbar) _state.skip |= SKIP_TASKBAR;
         if (win_states.skip_pager) _state.skip |= SKIP_PAGER;
         if (win_states.sticky) _sticky = true;
-        if (win_states.above) _layer = LAYER_ABOVE_DOCK;
-        if (win_states.below) _layer = LAYER_BELOW;
+        if (win_states.above) {
+            setLayer(LAYER_ABOVE_DOCK);
+        }
+        if (win_states.below) {
+            setLayer(LAYER_BELOW);
+        }
         if (win_states.fullscreen) _state.fullscreen = true;
     }
 
@@ -1033,8 +1037,9 @@ Client::applyAutoprops(AutoProperty *ap)
         setTitlebar(ap->titlebar);
     if (ap->isMask(AP_BORDER))
         setBorder(ap->border);
-    if (ap->isMask(AP_LAYER) && (ap->layer <= LAYER_MENU))
-        _layer = ap->layer;
+    if (ap->isMask(AP_LAYER) && (ap->layer <= LAYER_MENU)) {
+        setLayer(ap->layer);
+    }
     if (ap->isMask(AP_SKIP))
         _state.skip = ap->skip;
     if (ap->isMask(AP_FOCUSABLE))
@@ -1376,19 +1381,23 @@ Client::grabButton(int button, int mod, int mask, Window win, Cursor curs)
     }
 }
 
-//! @brief Toggles the clients always on top state
+/**
+ * Toggles the clients always on top state
+ */
 void
 Client::alwaysOnTop(bool top)
 {
-    _layer = top ? LAYER_ONTOP : LAYER_NORMAL;
+    setLayer(top ? LAYER_ONTOP : LAYER_NORMAL);
     updateEwmhStates();
 }
 
-//! @brief Toggles the clients always below state.
+/**
+ * Toggles the clients always below state.
+ */
 void
 Client::alwaysBelow(bool below)
 {
-    _layer = below ? LAYER_BELOW : LAYER_NORMAL;
+    setLayer(below ? LAYER_BELOW : LAYER_NORMAL);
     updateEwmhStates();
 }
 
@@ -1701,10 +1710,12 @@ Client::updateEwmhStates(void)
         states.push_back(Atoms::getAtom(STATE_HIDDEN));
     if (_state.fullscreen)
         states.push_back(Atoms::getAtom(STATE_FULLSCREEN));
-    if (_layer == LAYER_ABOVE_DOCK)
+    if (getLayer() == LAYER_ABOVE_DOCK) {
         states.push_back(Atoms::getAtom(STATE_ABOVE));
-    if (_layer == LAYER_BELOW)
+    }
+    if (getLayer() == LAYER_BELOW) {
         states.push_back(Atoms::getAtom(STATE_BELOW));
+    }
 
     Atom *atoms = new Atom[(states.size() > 0) ? states.size() : 1];
     if (states.size() > 0) {

@@ -41,7 +41,7 @@ InputDialog::InputDialog(Display *dpy, Theme *theme, const std::wstring &title)
       _pixmap_bg(None), _pos(0), _buf_off(0), _buf_chars(0)
 {
     // PWinObj attributes
-    _layer = LAYER_NONE; // hack, goes over LAYER_MENU
+    setLayer(LAYER_NONE); // hack, goes over LAYER_MENU
     _hidden = true; // don't care about it when changing worskpace etc
 
     if (! _keysym_map.size()) {

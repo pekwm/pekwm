@@ -178,7 +178,7 @@ WorkspaceIndicator::WorkspaceIndicator(::Display *dpy, Theme *theme, Timer<Actio
     _timer_hide(0)
 {
     _type = PWinObj::WO_WORKSPACE_INDICATOR;
-    _layer = LAYER_NONE; // Make sure this goes on top of everything
+    setLayer(LAYER_NONE); // Make sure this goes on top of everything
     _hidden = true; // Do not include in workspace handling etc
 
     // Add hide action to timer action

@@ -106,8 +106,8 @@ public:
 
     //! @brief Returns workspace PWinObj is on.
     inline uint getWorkspace(void) const { return _workspace; }
-    //! @brief Returns layer PWinObj is in.
-    inline uint getLayer(void) const { return _layer; }
+    /** @brief Returns layer PWinObj is in. */
+    inline unsigned int getLayer(void) const { return _layer; }
 
     //! @brief Returns mapped state of PWinObj.
     inline bool isMapped(void) const { return _mapped; }
@@ -212,7 +212,7 @@ protected:
 
     Geometry _gm; //!< Geometry of PWinObj (always in absolute coordinates).
     uint _workspace; //!< Workspace PWinObj is on.
-    uint _layer; //!< Layer PWinObj is in.
+    unsigned int _layer; //!< Layer PWinObj is in.
     bool _mapped; //!< Mapped state of PWinObj.
     bool _iconified; //!< Iconified state of PWinObj.
     bool _hidden; //!< Hidden state of PWinObj.

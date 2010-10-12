@@ -79,7 +79,7 @@ PMenu::PMenu(Display *dpy, Theme *theme, const std::wstring &title,
 
     // PWinObj attributes
     _type = PWinObj::WO_MENU;
-    _layer = LAYER_MENU;
+    setLayer(LAYER_MENU);
     _hidden = true; // don't care about it when changing worskpace etc
 
     // create menu content child

@@ -671,8 +671,9 @@ Frame::getState(Client *cl)
         setStateMaximized(STATE_TOGGLE, false, true, false);
     if (isShaded() != cl->isShaded())
         setShaded(STATE_TOGGLE);
-    if (_layer != cl->getLayer())
+    if (getLayer() != cl->getLayer()) {
         setLayer(cl->getLayer());
+    }
     if (_workspace != cl->getWorkspace())
         PDecor::setWorkspace(cl->getWorkspace());
 
@@ -711,7 +712,7 @@ Frame::applyState(Client *cl)
     cl->setMaximizedVert(_maximized_vert);
     cl->setShade(isShaded());
     cl->setWorkspace(_workspace);
-    cl->setLayer(_layer);
+    cl->setLayer(getLayer());
 
     // fix border / titlebar state
     cl->setBorder(hasBorder());
@@ -1536,7 +1537,7 @@ Frame::setStateFullscreen(StateAction sa)
 
     // Re-stack window if fullscreen is above other windows.
     if (Config::instance()->isFullscreenAbove()) {
-        _layer = _fullscreen ? LAYER_ABOVE_DOCK : _non_fullscreen_layer;
+        setLayer(_fullscreen ? LAYER_ABOVE_DOCK : _non_fullscreen_layer);
         raise();
     }
     
@@ -1555,29 +1556,27 @@ Frame::setStateSticky(StateAction sa)
     }
 }
 
-//! @brief
 void
 Frame::setStateAlwaysOnTop(StateAction sa)
 {
-    if (! ActionUtil::needToggle(sa, _layer == LAYER_ONTOP)) {
+    if (! ActionUtil::needToggle(sa, getLayer() == LAYER_ONTOP)) {
         return;
     }
 
-    _client->alwaysOnTop(_layer < LAYER_ONTOP);
+    _client->alwaysOnTop(getLayer() < LAYER_ONTOP);
     setLayer(_client->getLayer());
 
     raise();
 }
 
-//! @brief
 void
 Frame::setStateAlwaysBelow(StateAction sa)
 {
-    if (! ActionUtil::needToggle(sa, _layer == LAYER_BELOW)) {
+    if (! ActionUtil::needToggle(sa, getLayer() == LAYER_BELOW)) {
         return;
     }
 
-    _client->alwaysBelow(_layer > LAYER_BELOW);
+    _client->alwaysBelow(getLayer() > LAYER_BELOW);
     setLayer(_client->getLayer());
 
     lower();

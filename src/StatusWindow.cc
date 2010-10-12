@@ -43,7 +43,7 @@ StatusWindow::StatusWindow(Display *dpy, Theme *theme)
 
     // PWinObj attributes
     _type = PWinObj::WO_STATUS;
-    _layer = LAYER_NONE; // hack, goes over LAYER_MENU
+    setLayer(LAYER_NONE); // hack, goes over LAYER_MENU
     _hidden = true; // don't care about it when changing worskpace etc
 
     XSetWindowAttributes attr;
