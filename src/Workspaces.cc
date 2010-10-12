@@ -551,7 +551,7 @@ Workspaces::stackWinUnderWin(Window over, Window under)
     if (over == under) {
         return;
     }
-    
+
     Window windows[2] = { over, under };
     XRestackWindows(PScreen::instance()->getDpy(), windows, 2);
 }

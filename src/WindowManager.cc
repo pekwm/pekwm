@@ -1555,38 +1555,6 @@ WindowManager::findWOAndFocus(PWinObj *search)
     }
 }
 
-//! @brief Insert all clients with the transient for set to win
-void
-WindowManager::findFamily(std::list<Client*> &client_list, Window win)
-{
-    // search for windows having transient for set to this window
-    list<Client*>::iterator it(Client::client_begin());
-    for (; it != Client::client_end(); ++it) {
-        if ((*it)->getTransientWindow() == win) {
-            client_list.push_back(*it);
-        }
-    }
-}
-
-//! @brief (Un)Maps all windows having transient_for set to win
-void
-WindowManager::findTransientsToMapOrUnmap(Window win, bool hide)
-{
-    list<Client*> client_list;
-    findFamily(client_list, win);
-
-    list<Client*>::iterator it(client_list.begin());
-    for (; it != client_list.end(); ++it) {
-        if (static_cast<Frame*>((*it)->getParent())->getActiveChild() == *it) {
-            if (hide) {
-                (*it)->getParent()->iconify();
-            } else {
-                (*it)->getParent()->mapWindow();
-            }
-        }
-    }
-}
-
 //! @brief Raises the client and all window having transient relationship with it
 //! @param client Client part of the famliy
 //! @param raise If true, raise frames, else lowers them

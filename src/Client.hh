@@ -100,10 +100,17 @@ public: // Public Member Functions
     virtual ActionEvent *handleUnmapEvent(XUnmapEvent *ev);
     // END - PWinObj interface.
 
+    // START - Observer interface.
+    virtual void notify(Observable *observable, Observation *observation);
+    // END - Observer interface.
+
     static Client *findClient(Window win);
     static Client *findClientFromWindow(Window win);
     static Client *findClientFromHint(const ClassHint *class_hint);
     static Client *findClientFromID(uint id);
+    static void findFamilyFromWindow(std::list<Client*> &client_list, Window win);
+
+    static void mapOrUnmapTransients(Window win, bool hide);
 
     // START - Iterators
     static uint client_size(void) { return _client_list.size(); }

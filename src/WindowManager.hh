@@ -115,11 +115,6 @@ public:
     void removeFromFrameList(Frame *frame);
 
     PWinObj *findPWinObj(Window win);
-
-    // If a window unmaps and has transients lets unmap them too!
-    // true = hide | false = unhide
-    void findFamily(std::list<Client*> &client_list, Window win);
-    void findTransientsToMapOrUnmap(Window win, bool hide);
     void familyRaiseLower(Client *client, bool raise);
 
     Frame* findGroup(AutoProperty *property);

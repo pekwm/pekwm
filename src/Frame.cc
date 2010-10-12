@@ -356,7 +356,6 @@ Frame::handleLeaveEvent(XCrossingEvent *ev)
     return ae;
 }
 
-//! @brief
 ActionEvent*
 Frame::handleMapRequest(XMapRequestEvent *ev)
 {
@@ -377,7 +376,6 @@ Frame::handleMapRequest(XMapRequestEvent *ev)
     return 0;
 }
 
-//! @brief
 ActionEvent*
 Frame::handleUnmapEvent(XUnmapEvent *ev)
 {
@@ -404,7 +402,6 @@ Frame::handleShapeEvent(XAnyEvent *ev)
     _client->setShaped(setShape());
 #endif // HAVE_SHAPE
 }
-
 
 // START - PDecor interface.
 

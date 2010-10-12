@@ -403,7 +403,7 @@ Client::mapWindow(void)
 
     if(! _transient) {
         // Unmap our transient windows if we have any
-        WindowManager::instance()->findTransientsToMapOrUnmap(_window, false);
+        mapOrUnmapTransients(_window, false);
     }
 
     XSelectInput(_dpy, _window, NoEventMask);
@@ -442,7 +442,7 @@ Client::iconify(void)
 
     _iconified = true;
     if (! _transient) {
-        WindowManager::instance()->findTransientsToMapOrUnmap(_window, true);
+        mapOrUnmapTransients(_window, true);
     }
 
     unmapWindow();
@@ -541,7 +541,6 @@ Client::reparent(PWinObj *parent, int x, int y)
                  PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
 }
 
-//! @brief
 ActionEvent*
 Client::handleUnmapEvent(XUnmapEvent *ev)
 {
@@ -575,7 +574,6 @@ Client::handleUnmapEvent(XUnmapEvent *ev)
     return 0;
 }
 
-//!@brief
 ActionEvent*
 Client::handleMapRequest(XMapRequestEvent *ev)
 {
@@ -661,6 +659,43 @@ Client::findClientFromID(uint id)
     return 0;
 }
 
+/**
+ * Insert all clients with the transient for set to win.
+ */
+void
+Client::findFamilyFromWindow(std::list<Client*> &client_list, Window win)
+{
+    list<Client*>::iterator it(Client::client_begin());
+    for (; it != Client::client_end(); ++it) {
+        if ((*it)->getTransientClient()
+            && (*it)->getTransientClient()->getWindow() == win) {
+            client_list.push_back(*it);
+        }
+    }
+}
+
+
+/**
+ * (Un)Maps all windows having transient_for set to win
+ */
+void
+Client::mapOrUnmapTransients(Window win, bool hide)
+{
+    list<Client*> client_list;
+    findFamilyFromWindow(client_list, win);
+
+    list<Client*>::iterator it(client_list.begin());
+    for (; it != client_list.end(); ++it) {
+        if (static_cast<Frame*>((*it)->getParent())->getActiveChild() == *it) {
+            if (hide) {
+                (*it)->getParent()->iconify();
+            } else {
+                (*it)->getParent()->mapWindow();
+            }
+        }
+    }
+}
+
 //! @brief Checks if the window has any Destroy or Unmap notifys.
 bool
 Client::validate(void)
@@ -736,7 +771,7 @@ Client::setStateCfgDeny(StateAction sa, uint deny)
 void
 Client::readHints(void)
 {
-    readMwmHints(); // read atoms
+    readMwmHints();
     readEwmhHints();
     readPekwmHints();
     readIcon();
@@ -1679,7 +1714,6 @@ Client::updateEwmhStates(void)
     delete [] atoms;
 }
 
-//! @brief
 void
 Client::getWMNormalHints(void)
 {
