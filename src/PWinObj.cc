@@ -15,6 +15,10 @@
 
 #include "PWinObj.hh"
 
+#ifdef OPACITY
+#include "Atoms.hh"
+#endif // OPACITY
+
 using std::cerr;
 using std::endl;
 using std::find;
@@ -34,6 +38,9 @@ PWinObj::PWinObj(Display *dpy)
       _mapped(false), _iconified(false), _hidden(false),
       _focused(false), _sticky(false),
       _focusable(true)
+#ifdef OPACITY
+     ,_opaque(true)
+#endif // OPACITY
 {
 }
 
@@ -62,6 +69,35 @@ PWinObj::removeChildWindow(Window win)
         _wo_map.erase(it);
     }
 }
+
+#ifdef OPACITY
+//! @brief Sets the desired opacity values for focused/unfocused states
+void
+PWinObj::setOpacity(ulong focused, ulong unfocused, bool enabled)
+{
+    _opacity.focused = focused;
+    _opacity.unfocused = unfocused;
+    _opaque = !enabled;
+    updateOpacity();
+}
+
+//! @brief Updates the opacity Xhint based on focused state
+void
+PWinObj::updateOpacity(void)
+{
+    unsigned long opacity;
+    if (_opaque) {
+        opacity = EWMH_OPAQUE_WINDOW;
+    } else {
+        opacity = isFocused()?_opacity.focused:_opacity.unfocused;
+    }
+
+    if (_opacity.current != opacity) {
+        _opacity.current = opacity;
+        AtomUtil::setLong(_window, Atoms::getAtom(NET_WM_WINDOW_OPACITY), opacity);
+    }
+}
+#endif // OPACITY
 
 //! @brief Maps the window and sets _mapped to true.
 void
@@ -195,11 +231,14 @@ PWinObj::setLayer(uint layer)
     _layer = layer;
 }
 
-//! @brief Only sets _focused to focused.
+//! @brief Sets _focused to focused and updates opacity as needed.
 void
 PWinObj::setFocused(bool focused)
 {
     _focused = focused;
+#ifdef OPACITY
+    updateOpacity();
+#endif // OPACITY
 }
 
 //! @brief Only sets _sticky to sticky.
@@ -208,6 +247,16 @@ PWinObj::setSticky(bool sticky)
 {
     _sticky = sticky;
 }
+
+#ifdef OPACITY
+//! @brief Updates opaque state
+void
+PWinObj::setOpaque(bool opaque)
+{
+    _opaque = opaque;
+    updateOpacity();
+}
+#endif // OPACITY
 
 //! @brief Only sets _hidden to hidden.
 void

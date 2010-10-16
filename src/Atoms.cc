@@ -35,6 +35,9 @@ static const char *atomnames[] = {
     "_NET_WM_ICON_NAME", "_NET_WM_VISIBLE_ICON_NAME",
     "_NET_WM_ICON", "_NET_WM_DESKTOP",
     "_NET_WM_STRUT", "_NET_WM_PID",
+#ifdef OPACITY
+    "_NET_WM_WINDOW_OPACITY",
+#endif // OPACITY
 
     "_NET_WM_WINDOW_TYPE",
     "_NET_WM_WINDOW_TYPE_DESKTOP", "_NET_WM_WINDOW_TYPE_DOCK",

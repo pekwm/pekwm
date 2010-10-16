@@ -77,6 +77,9 @@ AutoProperties::AutoProperties(void)
     _property_map["CFGDENY"] = AP_CFG_DENY;
     _property_map["ALLOWEDACTIONS"] = AP_ALLOWED_ACTIONS;
     _property_map["DISALLOWEDACTIONS"] = AP_DISALLOWED_ACTIONS;
+#ifdef OPACITY
+    _property_map["OPACITY"] = AP_OPACITY;
+#endif // OPACITY
 
     // group properties
     _group_property_map[""] = AP_NO_PROPERTY;
@@ -837,6 +840,12 @@ AutoProperties::parseAutoPropertyValue(CfgParser::Entry *section, AutoProperty *
         case AP_DISALLOWED_ACTIONS:
             prop->maskAdd(AP_DISALLOWED_ACTIONS);
             Config::instance()->parseActionAccessMask((*it)->get_value(), prop->disallowed_actions);
+#ifdef OPACITY
+        case AP_OPACITY:
+            prop->maskAdd(AP_OPACITY);
+            Config::parseOpacity((*it)->get_value(), prop->focus_opacity, prop->unfocus_opacity);
+            break;
+#endif // OPACITY
         default:
             // do nothing
             break;

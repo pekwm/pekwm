@@ -118,6 +118,9 @@ public:
     void setStateSkip(StateAction sa, uint skip);
     void setStateTitle(StateAction sa, Client *client, const std::wstring &title);
     void setStateMarked(StateAction sa, Client *client);
+#ifdef OPACITY
+    void setStateOpaque(StateAction sa);
+#endif // OPACITY
 
     void close(void);
 

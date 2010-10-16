@@ -46,6 +46,9 @@ enum PropertyType {
     AP_CFG_DENY = (1L << 17),
     AP_ALLOWED_ACTIONS = (1L << 18),
     AP_DISALLOWED_ACTIONS = (1L << 19),
+#ifdef OPACITY
+    AP_OPACITY = (1L << 20),
+#endif // OPACITY
 
     AP_GROUP_SIZE,
     AP_GROUP_BEHIND,
@@ -133,7 +136,7 @@ class AutoProperty : public Property
 public:
     AutoProperty(void) : skip(SKIP_NONE), cfg_deny(0),
             group_size(-1), group_behind(false), group_focused_first(false),
-    group_global(false), group_raise(false), _prop_mask(0) { }
+            group_global(false), group_raise(false), _prop_mask(0) { }
     virtual ~AutoProperty(void) { }
 
     inline bool isMask(uint mask) { return (_prop_mask&mask); }
@@ -149,6 +152,9 @@ public:
     bool border, titlebar;
     bool focusable, place_new, focus_new;
     uint workspace, layer, skip, cfg_deny;
+#ifdef OPACITY
+    unsigned long focus_opacity, unfocus_opacity;
+#endif //OPACITY
     uint allowed_actions, disallowed_actions;
 
     std::string frame_decor;

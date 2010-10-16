@@ -201,6 +201,10 @@ WorkspaceIndicator::WorkspaceIndicator(::Display *dpy, Theme *theme, Timer<Actio
     Workspaces::instance()->insert(this);
     woListAdd(this);
     _wo_map[_window] = this;
+
+#ifdef OPACITY
+    setOpacity(Config::instance()->getWorkspaceIndicatorOpacity());
+#endif // OPACITY
 }
 
 /**

@@ -93,6 +93,9 @@ Config::Config(void) :
         _screen_show_status_window(true), _screen_show_status_window_on_root(false),
         _screen_show_client_id(false),
         _screen_show_workspace_indicator(500), _screen_workspace_indicator_scale(16),
+#ifdef OPACITY
+        _screen_workspace_indicator_opacity(EWMH_OPAQUE_WINDOW),
+#endif // OPACITY
         _screen_place_new(true), _screen_focus_new(false),
         _screen_focus_new_child(true), _screen_honour_randr(true),
         _screen_honour_aspectratio(true),
@@ -104,12 +107,19 @@ Config::Config(void) :
 	_screen_report_all_clients(false),
         _menu_select_mask(0), _menu_enter_mask(0), _menu_exec_mask(0),
         _menu_display_icons(true),
+#ifdef OPACITY
+        _menu_focus_opacity(EWMH_OPAQUE_WINDOW),
+        _menu_unfocus_opacity(EWMH_OPAQUE_WINDOW),
+#endif // OPACITY
         _cmd_dialog_history_unique(true), _cmd_dialog_history_size(1024),
         _cmd_dialog_history_file("~/.pekwm/history"), _cmd_dialog_history_save_interval(16)
 #ifdef HARBOUR
        ,_harbour_da_min_s(0), _harbour_da_max_s(0),
         _harbour_ontop(true), _harbour_maximize_over(false),
         _harbour_placement(TOP), _harbour_orientation(TOP_TO_BOTTOM), _harbour_head_nr(0)
+#ifdef OPACITY
+       ,_harbour_opacity(EWMH_OPAQUE_WINDOW)
+#endif // OPACITY
 #endif // HARBOUR
 {
     if (_instance) {
@@ -175,6 +185,9 @@ Config::Config(void) :
     _action_map["Dynamic"] = pair<ActionType, uint>(ACTION_MENU_DYN, ROOTMENU_OK|WINDOWMENU_OK);
 #endif // MENUS
     _action_map["SendKey"] = pair<ActionType, uint>(ACTION_SEND_KEY, ANY_MASK);
+#ifdef OPACITY
+    _action_map["SetOpacity"] = pair<ActionType, uint>(ACTION_SET_OPACITY, FRAME_MASK);
+#endif // OPACITY
 
     _action_access_mask_map[""] = ACTION_ACCESS_NO;
     _action_access_mask_map["MOVE"] = ACTION_ACCESS_MOVE;
@@ -318,6 +331,9 @@ Config::Config(void) :
     _action_state_map["Marked"] = ACTION_STATE_MARKED;
     _action_state_map["Skip"] = ACTION_STATE_SKIP;
     _action_state_map["CfgDeny"] = ACTION_STATE_CFG_DENY;
+#ifdef OPACITY
+    _action_state_map["Opaque"] = ACTION_STATE_OPAQUE;
+#endif // OPACITY
     _action_state_map["Title"] = ACTION_STATE_TITLE;
 #ifdef HARBOUR
     _action_state_map["HarbourHidden"] = ACTION_STATE_HARBOUR_HIDDEN;
@@ -600,6 +616,10 @@ Config::loadScreen(CfgParser::Entry *section)
                                            _screen_show_workspace_indicator, 500, 0));
     key_list.push_back(new CfgParserKeyNumeric<int>("WORKSPACEINDICATORSCALE",
                                            _screen_workspace_indicator_scale, 16, 2)); 
+#ifdef OPACITY
+    key_list.push_back(new CfgParserKeyNumeric<float>("WORKSPACEINDICATOROPACITY",
+                                           _screen_workspace_indicator_opacity, 1.0, 0, 1.0)); 
+#endif // OPACITY
     key_list.push_back(new CfgParserKeyBool("PLACENEW", _screen_place_new));
     key_list.push_back(new CfgParserKeyBool("FOCUSNEW", _screen_focus_new));
     key_list.push_back(new CfgParserKeyBool("FOCUSNEWCHILD", _screen_focus_new_child, true));
@@ -714,6 +734,10 @@ Config::loadMenu(CfgParser::Entry *section)
     key_list.push_back(new CfgParserKeyString("ENTER", value_enter, "BUTTONPRESS", 0));
     key_list.push_back(new CfgParserKeyString("EXEC", value_exec, "BUTTONRELEASE", 0));
     key_list.push_back(new CfgParserKeyBool("DISPLAYICONS", _menu_display_icons, true));
+#ifdef OPACITY
+    key_list.push_back(new CfgParserKeyNumeric<float>("FOCUSOPACITY", _menu_focus_opacity, 1.0, 0.0, 1.0));
+    key_list.push_back(new CfgParserKeyNumeric<float>("UNFOCUSOPACITY", _menu_unfocus_opacity, 1.0, 0.0, 1.0));
+#endif // OPACITY
 
     // Parse data
     section->parse_key_values(key_list.begin(), key_list.end());
@@ -801,6 +825,9 @@ Config::loadHarbour(CfgParser::Entry *section)
     key_list.push_back(new CfgParserKeyNumeric<int>("HEAD", _harbour_head_nr, 0, 0));
     key_list.push_back(new CfgParserKeyString("PLACEMENT", value_placement, "RIGHT", 0));
     key_list.push_back(new CfgParserKeyString("ORIENTATION", value_orientation, "TOPTOBOTTOM", 0));
+#ifdef OPACITY
+    key_list.push_back(new CfgParserKeyNumeric<float>("OPACITY", _harbour_opacity, 1.0, 0.0, 1.0));
+#endif // OPACITY
 
     // Parse data
     section->parse_key_values(key_list.begin(), key_list.end());
@@ -1063,6 +1090,18 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
                     }
                     break;
 #endif // MENUS
+#ifdef OPACITY
+                case ACTION_SET_OPACITY:
+                    if ((Util::splitString(tok[1], tok, " \t", 2)) == 2) {
+                        action.setParamI(0, (int)(100*atof(tok[tok.size() - 2].c_str())));
+
+                        action.setParamI(1, (int)(100*atof(tok[tok.size() - 1].c_str())));
+                    } else {
+                        action.setParamI(0, (int)(100*atof(tok[1].c_str())));
+                        action.setParamI(1, (int)(100*atof(tok[1].c_str())));
+                    }
+                    break;
+#endif // OPACITY
                 default:
                     // do nothing
                     break;
@@ -1829,3 +1868,45 @@ Config::parseWorkspaceNumber(const std::string &workspace)
 
     return num;
 }
+
+#ifdef OPACITY
+unsigned long
+Config::parseOpacity(double value)
+{
+    if (value >= 1.0) {
+        return EWMH_OPAQUE_WINDOW;
+    }
+    return (ulong)(value*EWMH_OPAQUE_WINDOW);
+}
+
+unsigned long
+Config::parseOpacity(const std::string value)
+{
+    double opacity = atof(value.c_str());
+    if (opacity > 1.0) {
+        opacity = 1.0;
+    } else if (opacity < 0.0) {
+        opacity = 0.0;
+    }
+    return Config::parseOpacity(opacity);
+} 
+
+//! @brief Parses a string which contains two opacity values
+bool
+Config::parseOpacity(const std::string value, ulong &focused, ulong &unfocused)
+{
+    std::vector<string> tokens;
+    switch ((Util::splitString(value, tokens, " ,", 2))) {
+    case 2:
+        focused = parseOpacity(tokens.at(0));
+        unfocused = parseOpacity(tokens.at(1));
+        break;
+    case 1:
+        focused = unfocused = parseOpacity(tokens.at(0));
+        break;
+    default:
+        return false;
+    }
+    return true;
+}
+#endif // OPACITY

@@ -50,7 +50,9 @@ Harbour::Harbour(PScreen *s, Theme *t, Workspaces *w) :
     _strut = new Strut();
     _scr->addStrut(_strut);
     _strut->head = Config::instance()->getHarbourHead();
-
+#ifdef OPACITY
+    _opacity = Config::instance()->getHarbourOpacity();
+#endif // OPACITY
 #ifdef MENUS
     _harbour_menu = new HarbourMenu(_scr, _theme, this);
 #endif // MENUS
@@ -96,6 +98,9 @@ Harbour::addDockApp(DockApp *da)
         da->mapWindow();
     }
 
+#ifdef OPACITY
+    da->setOpacity(_opacity);
+#endif // OPACITY
     updateHarbourSize();
 }
 

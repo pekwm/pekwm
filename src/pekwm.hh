@@ -85,6 +85,7 @@ public:
 };
 
 #define NET_WM_STICKY_WINDOW	0xffffffff
+#define EWMH_OPAQUE_WINDOW	0xffffffff
 
 // enums
 enum Layer {

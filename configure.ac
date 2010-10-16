@@ -332,6 +332,20 @@ else
 	AC_MSG_RESULT([no])
 fi
 
+dnl Check whether to include opacity hinting 
+AC_MSG_CHECKING([whether to include opacity hinting])
+AC_ARG_ENABLE(opacity,
+	AC_HELP_STRING([--enable-opacity],
+								 [include opacity hinting [default=no]]), ,
+							[enableval=no])
+if test "x$enableval" = "xyes"; then
+	AC_MSG_RESULT([yes])
+	AC_DEFINE(OPACITY, [1], [Define to 1 to compile in support for opacity hinting])
+	FEATURES="$FEATURES opacity"
+else
+	AC_MSG_RESULT([no])
+fi
+
 dnl define build info
 EVO=`date`
 AC_DEFINE_UNQUOTED(FEATURES, "$FEATURES", [Build info, do not touch])
