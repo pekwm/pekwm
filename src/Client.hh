@@ -153,7 +153,10 @@ public: // Public Member Functions
 
     inline const ClassHint* getClassHint(void) const { return _class_hint; }
 
-    inline Client *getTransientClient(void) const { return _transient; }
+    bool isTransient(void) const { return _transient_window != None; }
+    Client *getTransientClient(void) const { return _transient; }
+    Window getTransientClientWindow(void) const { return _transient_window; }
+    void findAndRaiseIfTransient(void);
 
     inline XSizeHints* getXSizeHints(void) const { return _size; }
 
@@ -343,6 +346,7 @@ private: // Private Member Variables
     Colormap _cmap;
 
     Client *_transient; /**< Client for which this client is transient for */
+    Window _transient_window;
     std::list<Client*> _transient_clients; /**< List of transient clients. */
 
     Strut *_strut;

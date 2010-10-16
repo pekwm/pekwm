@@ -134,14 +134,7 @@ Client::Client(Window new_client, bool is_new)
 
     _alive = true;
 
-    if (_transient) {
-        Frame *frame = static_cast<Frame*>(getParent());
-        Frame *frame_transient = static_cast<Frame*>(_transient->getParent());
-        if (frame->getActiveChild() == this) {
-            frame->setLayer(frame_transient->getLayer() + 1);
-            frame->raise();
-        }
-    }
+    findAndRaiseIfTransient();
 
     // Finished creating the client, so now adding it to the client list.
     woListAdd(this);
@@ -393,6 +386,27 @@ Client::setMappedStateAndFocus(bool is_new, AutoProperty *autoproperty)
         } else if (_transient && _transient->isFocused()
                    && Config::instance()->isFocusNewChild()) {
             _parent->giveInputFocus();
+        }
+    }
+}
+
+/**
+ * Re-lookup transient client if window is set but not client, raise over
+ * transient for window if found/set.
+ */
+void
+Client::findAndRaiseIfTransient(void)
+{
+    if (_transient_window != None && ! _transient) {
+        getTransientForHint();
+    }
+
+    if (_transient) {
+        Frame *frame = static_cast<Frame*>(getParent());
+        Frame *frame_transient = static_cast<Frame*>(_transient->getParent());
+        if (frame->getActiveChild() == this) {
+            frame->setLayer(frame_transient->getLayer() + 1);
+            frame->raise();
         }
     }
 }
@@ -707,8 +721,7 @@ Client::findFamilyFromWindow(std::list<Client*> &client_list, Window win)
 {
     list<Client*>::iterator it(Client::client_begin());
     for (; it != Client::client_end(); ++it) {
-        if ((*it)->getTransientClient()
-            && (*it)->getTransientClient()->getWindow() == win) {
+        if ((*it)->getTransientClientWindow() == win) {
             client_list.push_back(*it);
         }
     }
@@ -1824,11 +1837,10 @@ void
 Client::getTransientForHint(void)
 {
     if (! _transient) {
-        Window window;
-        XGetTransientForHint(_dpy, _window, &window);
+        XGetTransientForHint(_dpy, _window, &_transient_window);
 
-        if (window != None) {
-            _transient = findClientFromWindow(window);
+        if (_transient_window != None) {
+            _transient = findClientFromWindow(_transient_window);
             if (_transient) {
                _transient->_transient_clients.push_back(this);
                _transient->addObserver(this);

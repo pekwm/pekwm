@@ -483,6 +483,15 @@ WindowManager::scanWindows(void)
         _root_wo->giveInputFocus();
     }
 
+    // Try to find transients for all clients, on restarts ordering might
+    // not be correct.
+    list<Client*>::iterator it_client = Client::client_begin();
+    for (; it_client != Client::client_end(); ++it_client) {
+        if ((*it_client)->isTransient() && ! (*it_client)->getTransientClient()) {
+            (*it_client)->findAndRaiseIfTransient();
+        }
+    }
+
     // We won't be needing these anymore until next restart
     _autoproperties->removeApplyOnStart();
 
@@ -1568,7 +1577,7 @@ WindowManager::familyRaiseLower(Client *client, bool raise)
         win_search = client->getWindow();
     } else {
         parent = client->getTransientClient();
-        win_search = client->getTransientClient()->getWindow();
+        win_search = client->getTransientClientWindow();
     }
 
     list<Client*> client_list;

@@ -150,11 +150,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
 
     // still need a position?
     if (place) {
-        Window transient = None;
-        if (client->getTransientClient()) {
-            transient = client->getTransientClient()->getWindow();
-        }
-        Workspaces::instance()->placeWo(this, transient);
+        Workspaces::instance()->placeWo(this, client->getTransientClientWindow());
     }
 
     _old_gm = _gm;
@@ -1428,7 +1424,7 @@ void
 Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
 {
     // we don't want to maximize transients
-    if (_client->getTransientClient()) {
+    if (_client->isTransient()) {
         return;
     }
 
@@ -1845,7 +1841,7 @@ Frame::readAutoprops(uint type)
     _class_hint->group = data->group_name;
 
     if (_class_hint == _client->getClassHint()
-        && (_client->getTransientClient()
+        && (_client->isTransient()
             && ! data->isApplyOn(APPLY_ON_TRANSIENT))) {
         return;
     }
@@ -1856,12 +1852,12 @@ Frame::readAutoprops(uint type)
     if (data->isMask(AP_SHADED) && (isShaded() != data->shaded)) {
         setShaded(STATE_UNSET);
     }
-    if (data->isMask(AP_MAXIMIZED_HORIZONTAL) &&
-            (_maximized_horz != data->maximized_horizontal)) {
+    if (data->isMask(AP_MAXIMIZED_HORIZONTAL)
+        && (_maximized_horz != data->maximized_horizontal)) {
         setStateMaximized(STATE_TOGGLE, true, false, false);
     }
-    if (data->isMask(AP_MAXIMIZED_VERTICAL) &&
-            (_maximized_vert != data->maximized_vertical)) {
+    if (data->isMask(AP_MAXIMIZED_VERTICAL)
+        && (_maximized_vert != data->maximized_vertical)) {
         setStateMaximized(STATE_TOGGLE, false, true, false);
     }
     if (data->isMask(AP_FULLSCREEN) && (_fullscreen != data->fullscreen)) {
