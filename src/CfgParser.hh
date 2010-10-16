@@ -128,7 +128,8 @@ private:
 
     void variable_define(const std::string &name, const std::string &value);
     void variable_expand(std::string &var);
-
+    bool variable_expand_name(std::string &var,
+                              std::string::size_type begin, std::string::size_type &end);
 private:
     CfgParserSource *_source;
 

@@ -678,42 +678,60 @@ CfgParser::variable_define(const std::string &name, const std::string &value)
 void
 CfgParser::variable_expand(std::string &var)
 {
-    string::size_type begin = 0, end = 0;
+    bool did_expand;
 
-    while ((begin = var.find_first_of('$', end)) != string::npos) {
-        end = begin + 1;
+    do {
+        did_expand = false;
 
-        // Skip escaped \$
-        if ((begin > 0) && (var[begin - 1] == '\\')) {
-            continue;
-        }
+        string::size_type begin = 0, end = 0;
+        while ((begin = var.find_first_of('$', end)) != string::npos) {
+            end = begin + 1;
 
-	// Find end of variable
-        for (; end != var.size(); ++end) {
-            if ((isalnum(var[end]) == 0) && (var[end] != '_'))  {
-                break;
+            // Skip escaped \$
+            if ((begin > 0) && (var[begin - 1] == '\\')) {
+                continue;
             }
-        }
 
-        string var_name(var.substr(begin, end - begin));
-        // If the variable starts with _ it is considered an environment
-        // variable, use getenv to see if it is available
-        if (var_name.size() > 2 && var_name[1] == '_') {
-            char *value = getenv(var_name.c_str() + 2);
-            if (value) {
-                var.replace(begin, end - begin, value);
-                end = begin + strlen(value);
-            } else {
-                cerr << "Trying to use undefined environment variable: " << var_name << endl;;
+            // Find end of variable
+            for (; end != var.size(); ++end) {
+                if ((isalnum(var[end]) == 0) && (var[end] != '_'))  {
+                    break;
+                }
             }
+
+            did_expand = variable_expand_name(var, begin, end) || did_expand;
+        }
+    } while (did_expand);
+}
+
+bool
+CfgParser::variable_expand_name(std::string &var,
+                                string::size_type begin, string::size_type &end)
+{
+    bool did_expand = false;
+    string var_name(var.substr(begin, end - begin));
+
+    // If the variable starts with _ it is considered an environment
+    // variable, use getenv to see if it is available
+    if (var_name.size() > 2 && var_name[1] == '_') {
+        char *value = getenv(var_name.c_str() + 2);
+        if (value) {
+            var.replace(begin, end - begin, value);
+            end = begin + strlen(value);
+            did_expand = true;
         } else {
-            map<string, string>::iterator it(_var_map.find(var_name));
-            if (it != _var_map.end()) {
-                var.replace(begin, end - begin, it->second);
-                end = begin + it->second.size();
-            } else  {
-                cerr << "Trying to use undefined variable: " << var_name << endl;
-            }
+            cerr << "Trying to use undefined environment variable: " << var_name << endl;;
+        }
+    } else {
+        map<string, string>::iterator it(_var_map.find(var_name));
+        if (it != _var_map.end()) {
+            var.replace(begin, end - begin, it->second);
+            end = begin + it->second.size();
+            did_expand = true;
+        } else  {
+            cerr << "Trying to use undefined variable: " << var_name << endl;
         }
     }
+
+    return did_expand;
 }
