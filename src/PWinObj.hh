@@ -151,7 +151,7 @@ public:
     virtual void setFocused(bool focused);
     virtual void setSticky(bool sticky);
 #ifdef OPACITY
-    virtual void setOpaque(bool opaque);
+    void setOpaque(bool opaque);
 #endif // OPACITY
     /** Set focusable flag. */
     virtual void setFocusable(bool focusable) { _focusable = focusable; }
