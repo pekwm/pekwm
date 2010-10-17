@@ -37,7 +37,6 @@ static const char *atomnames[] = {
     "_NET_WM_STRUT", "_NET_WM_PID",
     "_NET_WM_WINDOW_OPACITY",
 
-
     "_NET_WM_WINDOW_TYPE",
     "_NET_WM_WINDOW_TYPE_DESKTOP", "_NET_WM_WINDOW_TYPE_DOCK",
     "_NET_WM_WINDOW_TYPE_TOOLBAR", "_NET_WM_WINDOW_TYPE_MENU",

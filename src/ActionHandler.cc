@@ -839,7 +839,7 @@ ActionHandler::actionSendKey(PWinObj *wo, const std::string &key_str)
 }
 
 #ifdef OPACITY
-void 
+void
 ActionHandler::actionSetOpacity(PWinObj *client, PWinObj *frame, int focus, int unfocus)
 {
     if (! unfocus) {

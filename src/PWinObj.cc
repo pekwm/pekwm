@@ -73,7 +73,7 @@ PWinObj::removeChildWindow(Window win)
 #ifdef OPACITY
 //! @brief Sets the desired opacity values for focused/unfocused states
 void
-PWinObj::setOpacity(ulong focused, ulong unfocused, bool enabled)
+PWinObj::setOpacity(uint focused, uint unfocused, bool enabled)
 {
     _opacity.focused = focused;
     _opacity.unfocused = unfocused;
@@ -81,11 +81,11 @@ PWinObj::setOpacity(ulong focused, ulong unfocused, bool enabled)
     updateOpacity();
 }
 
-//! @brief Updates the opacity Xhint based on focused state
+//! @brief Updates the opacity hint based on focused state
 void
 PWinObj::updateOpacity(void)
 {
-    unsigned long opacity;
+    uint opacity;
     if (_opaque) {
         opacity = EWMH_OPAQUE_WINDOW;
     } else {

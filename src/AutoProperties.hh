@@ -153,7 +153,7 @@ public:
     bool focusable, place_new, focus_new;
     uint workspace, layer, skip, cfg_deny;
 #ifdef OPACITY
-    unsigned long focus_opacity, unfocus_opacity;
+    uint focus_opacity, unfocus_opacity;
 #endif //OPACITY
     uint allowed_actions, disallowed_actions;
 

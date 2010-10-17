@@ -125,8 +125,8 @@ public:
 #ifdef OPACITY
     //! @brief Returns transparency state of PWinObj
     inline bool isOpaque(void) const { return _opaque; }
-    void setOpacity(ulong focused, ulong unfocused, bool enabled=true);
-    inline void setOpacity(ulong value) { setOpacity(value, value); }
+    void setOpacity(uint focused, uint unfocused, bool enabled=true);
+    inline void setOpacity(uint value) { setOpacity(value, value); }
     inline void setOpacity(PWinObj *child) { setOpacity(child->_opacity.focused, child->_opacity.unfocused, !child->_opaque); }
     void updateOpacity(void);
 #endif // OPACITY
@@ -228,10 +228,7 @@ protected:
             : current(EWMH_OPAQUE_WINDOW),
               focused(EWMH_OPAQUE_WINDOW),
               unfocused(EWMH_OPAQUE_WINDOW) { }
-        unsigned long current;
-        unsigned long focused;
-        unsigned long unfocused;
-        ~Opacity(void) { }
+        uint current, focused, unfocused;
     } _opacity;
 #endif // OPACITY
 
