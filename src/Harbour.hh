@@ -87,9 +87,6 @@ private:
     uint _size;
     Strut *_strut;
     int _last_button_x, _last_button_y;
-#ifdef OPACITY
-    unsigned long _opacity;
-#endif // OPACITY
 };
 
 #endif // _HARBOUR_HH_
