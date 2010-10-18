@@ -618,7 +618,7 @@ Config::loadScreen(CfgParser::Entry *section)
                                            _screen_workspace_indicator_scale, 16, 2)); 
 #ifdef OPACITY
     key_list.push_back(new CfgParserKeyNumeric<uint>("WORKSPACEINDICATOROPACITY",
-                                           _screen_workspace_indicator_opacity, EWMH_OPAQUE_WINDOW));
+                                           _screen_workspace_indicator_opacity, 100, 0, 100));
 #endif // OPACITY
     key_list.push_back(new CfgParserKeyBool("PLACENEW", _screen_place_new));
     key_list.push_back(new CfgParserKeyBool("FOCUSNEW", _screen_focus_new));
@@ -636,6 +636,9 @@ Config::loadScreen(CfgParser::Entry *section)
 
     // Convert input data
     _screen_trim_title = Util::to_wide_str(trim_title);
+
+    // Convert opacity from percent to absolute value
+    CONV_OPACITY(_screen_workspace_indicator_opacity);
 
     int edge_size_all = 0;
     _screen_edge_sizes.clear();
@@ -735,8 +738,8 @@ Config::loadMenu(CfgParser::Entry *section)
     key_list.push_back(new CfgParserKeyString("EXEC", value_exec, "BUTTONRELEASE", 0));
     key_list.push_back(new CfgParserKeyBool("DISPLAYICONS", _menu_display_icons, true));
 #ifdef OPACITY
-    key_list.push_back(new CfgParserKeyNumeric<uint>("FOCUSOPACITY", _menu_focus_opacity, EWMH_OPAQUE_WINDOW));
-    key_list.push_back(new CfgParserKeyNumeric<uint>("UNFOCUSOPACITY", _menu_unfocus_opacity, EWMH_OPAQUE_WINDOW));
+    key_list.push_back(new CfgParserKeyNumeric<uint>("FOCUSOPACITY", _menu_focus_opacity, 100, 0, 100));
+    key_list.push_back(new CfgParserKeyNumeric<uint>("UNFOCUSOPACITY", _menu_unfocus_opacity, 100, 0, 100));
 #endif // OPACITY
 
     // Parse data
@@ -757,6 +760,10 @@ Config::loadMenu(CfgParser::Entry *section)
             loadMenuIcons((*it)->get_section());
         }
     }
+
+    // Convert opacity from percent to absolute value
+    CONV_OPACITY(_menu_focus_opacity);
+    CONV_OPACITY(_menu_unfocus_opacity);
 }
 
 /**
@@ -826,7 +833,7 @@ Config::loadHarbour(CfgParser::Entry *section)
     key_list.push_back(new CfgParserKeyString("PLACEMENT", value_placement, "RIGHT", 0));
     key_list.push_back(new CfgParserKeyString("ORIENTATION", value_orientation, "TOPTOBOTTOM", 0));
 #ifdef OPACITY
-    key_list.push_back(new CfgParserKeyNumeric<uint>("OPACITY", _harbour_opacity, EWMH_OPAQUE_WINDOW));
+    key_list.push_back(new CfgParserKeyNumeric<uint>("OPACITY", _harbour_opacity, 100, 0, 100));
 #endif // OPACITY
 
     // Parse data
@@ -835,6 +842,9 @@ Config::loadHarbour(CfgParser::Entry *section)
     // Free up resources
     for_each(key_list.begin(), key_list.end(), Util::Free<CfgParserKey*>());
     key_list.clear();
+
+    // Convert opacity from percent to absolute value
+    CONV_OPACITY(_harbour_opacity);
 
     _harbour_placement = ParseUtil::getValue<HarbourPlacement>(value_placement, _harbour_placement_map);
     _harbour_orientation = ParseUtil::getValue<Orientation>(value_orientation, _harbour_orientation_map);
@@ -1093,12 +1103,11 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
 #ifdef OPACITY
                 case ACTION_SET_OPACITY:
                     if ((Util::splitString(tok[1], tok, " \t", 2)) == 2) {
-                        action.setParamI(0, (int)(100*atof(tok[tok.size() - 2].c_str())));
-
-                        action.setParamI(1, (int)(100*atof(tok[tok.size() - 1].c_str())));
+                        action.setParamI(0, std::atoi(tok[tok.size() - 2].c_str()));
+                        action.setParamI(1, std::atoi(tok[tok.size() - 1].c_str()));
                     } else {
-                        action.setParamI(0, (int)(100*atof(tok[1].c_str())));
-                        action.setParamI(1, (int)(100*atof(tok[1].c_str())));
+                        action.setParamI(0, std::atoi(tok[1].c_str()));
+                        action.setParamI(1, std::atoi(tok[1].c_str()));
                     }
                     break;
 #endif // OPACITY
@@ -1870,18 +1879,6 @@ Config::parseWorkspaceNumber(const std::string &workspace)
 }
 
 #ifdef OPACITY
-uint
-Config::parseOpacity(double value)
-{
-    if (value >= 1) {
-        return EWMH_OPAQUE_WINDOW;
-    }
-    if (value <= 0) {
-        return 0;
-    }
-    return static_cast<uint>(value * EWMH_OPAQUE_WINDOW);
-}
-
 //! @brief Parses a string which contains two opacity values
 bool
 Config::parseOpacity(const std::string value, uint &focused, uint &unfocused)
@@ -1889,15 +1886,17 @@ Config::parseOpacity(const std::string value, uint &focused, uint &unfocused)
     std::vector<string> tokens;
     switch ((Util::splitString(value, tokens, " ,", 2))) {
     case 2:
-        focused = parseOpacity(tokens.at(0));
-        unfocused = parseOpacity(tokens.at(1));
+        focused = std::atoi(tokens.at(0).c_str());
+        unfocused = std::atoi(tokens.at(1).c_str());
         break;
     case 1:
-        focused = unfocused = parseOpacity(tokens.at(0));
+        focused = unfocused = std::atoi(tokens.at(0).c_str());
         break;
     default:
         return false;
     }
+    CONV_OPACITY(focused);
+    CONV_OPACITY(unfocused);
     return true;
 }
 #endif // OPACITY

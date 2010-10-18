@@ -261,8 +261,6 @@ public:
     uint getMouseButton(const std::string& button);
 
 #ifdef OPACITY
-    static uint parseOpacity(double value);
-    static uint parseOpacity(const std::string value) { return parseOpacity(std::atof(value.c_str())); }
     static bool parseOpacity(const std::string value, uint &focused, uint &unfocused);
 #endif // OPACITY
 
