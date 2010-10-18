@@ -53,7 +53,7 @@ private:
     void actionFocusDirectional(PWinObj *wo, DirectionType dir, bool raise);
     bool actionSendKey(PWinObj *wo, const std::string &key_str);
 #ifdef OPACITY
-    void actionSetOpacity(PWinObj *client, PWinObj *frame, int focus, int unfocus);
+    static void actionSetOpacity(PWinObj *client, PWinObj *frame, uint focus, uint unfocus);
 #endif // OPACITY
 #ifdef MENUS
     void actionShowMenu(const std::string &name, bool stick, uint e_type, PWinObj *wo_ref);
