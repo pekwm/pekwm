@@ -59,6 +59,15 @@ private:
     unsigned int _limits[HEIGHT_MAX + 1]; /**< Limits. */
 };
 
+// CONV_OPACITY converts percentage to absolute opacity values.
+// The variable X containing the percent value is changed directly.
+#ifdef OPACITY
+#define CONV_OPACITY(X)\
+    X = (X == 100)?EWMH_OPAQUE_WINDOW:X*(EWMH_OPAQUE_WINDOW/100)
+#else
+#define CONV_OPACITY(X)
+#endif
+
 /**
  * Large set of configuration options stored and parsed by the
  * singleton Config class.
