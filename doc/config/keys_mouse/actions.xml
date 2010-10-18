@@ -95,6 +95,12 @@
         </listitem>
       </varlistentry>
       <varlistentry>
+        <term>Opaque</term>
+        <listitem>
+          <para>If the frame should be fully opaque (ie: disable the opacity setting).</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
         <term>Tagged (bool)</term>
         <listitem>
           <para>
@@ -742,6 +748,14 @@
         <listitem>
           <para>
             Send a key, possibly with modifiers, to the active window.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>SetOpacity (int int)</term>
+        <listitem>
+          <para>
+            Sets the Focused and Unfocused opacity values for the active window. 100 stands for fully opaque while 0 is completely transparent.
           </para>
         </listitem>
       </varlistentry>

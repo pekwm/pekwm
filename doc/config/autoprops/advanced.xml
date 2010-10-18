@@ -81,6 +81,13 @@
       </listitem>
       </varlistentry>
       <varlistentry>
+        <term>Opacity (int int)</term>
+        <listitem>
+          <para>Sets the focused and unfocused opacity values for the window. A value of 100 means completely opaque, while 0 stands for completely transparent.</para>
+          <para>Note that a Composite Manager needs to be running for this feature to take effect.</para>
+      </listitem>
+      </varlistentry>
+      <varlistentry>
 	<term>Layer (string)</term>
 	<listitem>
 	  <para>

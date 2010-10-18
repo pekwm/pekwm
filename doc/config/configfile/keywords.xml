@@ -136,6 +136,13 @@
         </listitem>
       </varlistentry>
       <varlistentry>
+        <term>WorkspaceIndicatorOpacity (int)</term>
+        <listitem>
+          <para>Sets the opacity/transparency of the WorkspaceIndicator. A value of 100 means completely opaque, while 0 stands for completely transparent.</para>
+          <para>Note that a Composite Manager needs to be running for this feature to take effect.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
         <term>FocusNew (boolean)</term>
         <listitem>
           <para>Toggles if new windows should be focused when they pop up.</para>
@@ -350,6 +357,20 @@
       </varlistentry>
 
       <varlistentry>
+        <term>FocusOpacity (int)</term>
+        <listitem>
+          <para>Sets the opacity/transparency for focused Menus. A value of 100 means completely opaque, while 0 stands for completely transparent.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
+        <term>UnfocusOpacity (int)</term>
+        <listitem>
+          <para>Sets the opacity/transparency for unfocused Menus.</para>
+        </listitem>
+      </varlistentry>
+
+      <varlistentry>
         <term>Icons = "MENU"</term>
         <listitem>
           <variablelist>
@@ -421,6 +442,12 @@
         <term>Head (int)</term>
 	<listitem>
           <para>When RandR or Xinerama is on, decides on what head the harbour resides on. Integer is the head number.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Opacity (int)</term>
+        <listitem>
+          <para>Sets the opacity/transparency for the harbour. A value of 100 means completely opaque, while 0 stands for completely transparent.</para>
         </listitem>
       </varlistentry>
     </variablelist>
