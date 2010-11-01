@@ -38,12 +38,10 @@
 #include "RegexString.hh"
 
 #include "KeyGrabber.hh"
-#ifdef MENUS
 #include "MenuHandler.hh"
 #ifdef HARBOUR
 #include "HarbourMenu.hh"
 #endif // HARBOUR
-#endif // MENUS
 #ifdef HARBOUR
 #include "Harbour.hh"
 #include "DockApp.hh"
@@ -214,9 +212,7 @@ WindowManager::~WindowManager(void)
     delete _status_window;
     delete _workspace_indicator;
 
-#ifdef MENUS
     MenuHandler::destroy();
-#endif // MENUS
 #ifdef HARBOUR
     delete _harbour;
 #endif // HARBOUR
@@ -374,9 +370,7 @@ WindowManager::setupDisplay(bool replace)
 #ifdef HARBOUR
     _harbour = new Harbour(_screen, _theme, _workspaces);
 #endif // HARBOUR
-#ifdef MENUS
     MenuHandler::init(_theme);
-#endif // MENUS
 
     _cmd_dialog = new CmdDialog(_screen->getDpy(), _theme);
     _search_dialog = new SearchDialog(_screen->getDpy(), _theme);
@@ -423,7 +417,7 @@ WindowManager::scanWindows(void)
 
 #ifdef HARBOUR
     // If we have the Harbour on, we filter out all windows with the
-    // the IconWindowHint set not pointing to themself, making DockApps
+    // the IconWindowHint set not pointing to themselves, making DockApps
     // work as they are supposed to.
     for (; it != win_list.end(); ++it) {
         if (*it == None) {
@@ -603,14 +597,10 @@ WindowManager::doReload(void)
     doReloadKeygrabber();
     doReloadAutoproperties();
 
-#ifdef MENUS
     MenuHandler::instance()->reloadMenus();
 #ifdef HARBOUR
     // Special case for HARBOUR menu which is not included in the menu map
     _harbour->getHarbourMenu()->reload(static_cast<CfgParser::Entry*>(0));
-#endif // HARBOUR
-#endif // MENUS
-#ifdef HARBOUR
     doReloadHarbour();
 #endif // HARBOUR
 

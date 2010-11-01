@@ -10,8 +10,6 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#ifdef MENUS
-
 #include <algorithm>
 #include <cstdio>
 #include <cwchar>
@@ -296,5 +294,3 @@ FrameListMenu::handleAttach(Client *client_to, Client *client_from, bool frame)
         frame_to->giveInputFocus();
     }
 }
-
-#endif // MENUS

@@ -13,8 +13,6 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#ifdef MENUS
-
 #include "pekwm.hh"
 #include "PMenu.hh"
 
@@ -56,4 +54,3 @@ private:
 
 #endif //  _FRAMELISTMENU_HH_
 
-#endif // MENUS

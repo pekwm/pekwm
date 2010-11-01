@@ -10,8 +10,6 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#ifdef MENUS
-
 #include <cassert>
 #include <map>
 #include <string>
@@ -294,4 +292,3 @@ MenuHandler::isReservedName(const std::string &name)
                          name, str_comparator);
 }
 
-#endif // MENUS

@@ -156,9 +156,7 @@ private:
 private:
     completions_list _action_list; /**< List of all available actions. */
     completions_list _state_list; /**< List of parameters to state actions. */
-#ifdef MENUS
     completions_list _menu_list; /**< List of parameters to state actions. */
-#endif // MENUS
     static StateMatch STATE_MATCHES[]; /**< List of known states with matching data. */
 };
 

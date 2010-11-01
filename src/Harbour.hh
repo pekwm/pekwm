@@ -20,10 +20,8 @@ class Theme;
 class Workspaces;
 class DockApp;
 class Strut;
-#ifdef MENUS
 class BaseMenu;
 class HarbourMenu;
-#endif // MENUS
 
 #include "Action.hh"
 
@@ -42,9 +40,7 @@ public:
     DockApp* findDockApp(Window win);
     DockApp* findDockAppFromFrame(Window win);
 
-#ifdef MENUS
     HarbourMenu* getHarbourMenu(void) { return _harbour_menu; }
-#endif // MENUS
 
     inline uint getSize(void) const { return _size; }
 
@@ -79,9 +75,7 @@ private:
     Workspaces *_workspaces;
 
     std::list<DockApp*> _da_list;
-#ifdef MENUS
     HarbourMenu *_harbour_menu;
-#endif // MENUS
 
     bool _hidden;
     uint _size;

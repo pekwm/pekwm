@@ -178,12 +178,10 @@ Config::Config(void) :
     _action_map["Exit"] = pair<ActionType, uint>(ACTION_EXIT, KEYGRABBER_OK|ROOTMENU_OK);
     _action_map["ShowCmdDialog"] = pair<ActionType, uint>(ACTION_SHOW_CMD_DIALOG, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK|ROOTMENU_OK|WINDOWMENU_OK);
     _action_map["ShowSearchDialog"] = pair<ActionType, uint>(ACTION_SHOW_SEARCH_DIALOG, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK|ROOTMENU_OK|WINDOWMENU_OK);
-#ifdef MENUS
     _action_map["ShowMenu"] = pair<ActionType, uint>(ACTION_SHOW_MENU, FRAME_MASK|ROOTCLICK_OK|SCREEN_EDGE_OK|ROOTMENU_OK|WINDOWMENU_OK);
     _action_map["HideAllMenus"] = pair<ActionType, uint>(ACTION_HIDE_ALL_MENUS, FRAME_MASK|ROOTCLICK_OK|SCREEN_EDGE_OK);
     _action_map["SubMenu"] = pair<ActionType, uint>(ACTION_MENU_SUB, ROOTMENU_OK|WINDOWMENU_OK);
     _action_map["Dynamic"] = pair<ActionType, uint>(ACTION_MENU_DYN, ROOTMENU_OK|WINDOWMENU_OK);
-#endif // MENUS
     _action_map["SendKey"] = pair<ActionType, uint>(ACTION_SEND_KEY, ANY_MASK);
 #ifdef OPACITY
     _action_map["SetOpacity"] = pair<ActionType, uint>(ACTION_SET_OPACITY, FRAME_MASK);
@@ -352,7 +350,6 @@ Config::Config(void) :
     _cfg_deny_map["ABOVE"] = CFG_DENY_STATE_ABOVE;
     _cfg_deny_map["BELOW"] = CFG_DENY_STATE_BELOW;
 
-#ifdef MENUS
     _menu_action_map[""] = ACTION_MENU_NEXT;
     _menu_action_map["NEXTITEM"] = ACTION_MENU_NEXT;
     _menu_action_map["PREVITEM"] = ACTION_MENU_PREV;
@@ -360,7 +357,6 @@ Config::Config(void) :
     _menu_action_map["ENTERSUBMENU"] = ACTION_MENU_ENTER_SUBMENU;
     _menu_action_map["LEAVESUBMENU"] = ACTION_MENU_LEAVE_SUBMENU;
     _menu_action_map["CLOSE"] = ACTION_CLOSE;
-#endif // MENUS
 
 #ifdef HARBOUR
     _harbour_placement_map[""] = NO_HARBOUR_PLACEMENT;
@@ -1009,9 +1005,7 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
                 case ACTION_SHOW_CMD_DIALOG:
                 case ACTION_SHOW_SEARCH_DIALOG:
                 case ACTION_SEND_KEY:
-#ifdef MENUS
                 case ACTION_MENU_DYN:
-#endif // MENUS
                     action.setParamS(tok[1]);
                     break;
                 case ACTION_ACTIVATE_CLIENT_REL:
@@ -1087,7 +1081,6 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
                         action.setParamI(0, false);
                     }
                     break;
-#ifdef MENUS
                 case ACTION_SHOW_MENU:
                     if ((Util::splitString(tok[1], tok, " \t", 2)) == 2) {
                         Util::to_upper(tok[tok.size() - 2]);
@@ -1099,7 +1092,6 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
                         action.setParamI(0, false); // Default to non-sticky
                     }
                     break;
-#endif // MENUS
 #ifdef OPACITY
                 case ACTION_SET_OPACITY:
                     if ((Util::splitString(tok[1], tok, " \t", 2)) == 2) {
@@ -1425,7 +1417,6 @@ Config::getMenuMask(const std::string &mask)
     return mask_return;
 }
 
-#ifdef MENUS
 //! @brief
 bool
 Config::parseMenuAction(const std::string &action_string, Action &action)
@@ -1488,7 +1479,6 @@ Config::parseMenuEvent(CfgParser::Entry *section, ActionEvent& ae)
 
     return false;
 }
-#endif // MENUS
 
 //! @brief
 uint

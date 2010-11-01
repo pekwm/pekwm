@@ -31,7 +31,6 @@
 #include "Harbour.hh"
 #endif // HARBOUR
 
-#ifdef MENUS
 #include "MenuHandler.hh"
 #include "PDecor.hh"
 #include "PMenu.hh"
@@ -42,7 +41,6 @@
 #ifdef HARBOUR
 #include "HarbourMenu.hh"
 #endif // HARBOUR
-#endif // MENUS
 
 #include <memory>
 
@@ -87,9 +85,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
 {
     Client *client = 0;
     Frame *frame = 0;
-#ifdef MENUS
     PMenu *menu = 0;
-#endif // MENUS
     PDecor *decor = 0;
     bool matched = false;
 
@@ -103,11 +99,9 @@ ActionHandler::handleAction(const ActionPerformed &ap)
             frame = static_cast<Frame*>(ap.wo);
             client = static_cast<Client*>(frame->getActiveChild());
             decor = static_cast<PDecor*>(ap.wo);
-#ifdef MENUS
         } else if (ap.wo->getType() == PWinObj::WO_MENU) {
             menu = static_cast<PMenu*>(ap.wo);
             decor = static_cast<PDecor*>(ap.wo);
-#endif // MENUS
         } else {
             decor = dynamic_cast<PDecor*>(ap.wo);
         }
@@ -251,7 +245,6 @@ ActionHandler::handleAction(const ActionPerformed &ap)
         }
 
         // Actions valid for Menus
-#ifdef MENUS
         if (! matched && menu) {
             matched = true;
             switch (it->getAction()) {
@@ -288,7 +281,6 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 break;
             }
         }
-#endif // MENUS
         // actions valid for pdecor
         if (! matched && decor) {
             int x_root, y_root;
@@ -359,7 +351,6 @@ ActionHandler::handleAction(const ActionPerformed &ap)
             case ACTION_EXEC:
                 actionExec(client, it->getParamS());
                 break;
-#ifdef MENUS
             case ACTION_SHOW_MENU:
                 actionShowMenu(it->getParamS(), it->getParamI(0),
                                ap.type, client ? client : ap.wo);
@@ -367,7 +358,6 @@ ActionHandler::handleAction(const ActionPerformed &ap)
             case ACTION_HIDE_ALL_MENUS:
                 MenuHandler::instance()->hideAllMenus();
                 break;
-#endif // MENUS
             case ACTION_RELOAD:
                 WindowManager::instance()->reload();
                 break;
@@ -852,7 +842,6 @@ ActionHandler::actionSetOpacity(PWinObj *client, PWinObj *frame, uint focus, uin
 }
 #endif // OPACITY
 
-#ifdef MENUS
 //! @brief Toggles visibility of menu.
 //! @param name Name of menu to toggle visibilty of
 //! @param stick Stick menu when showing
@@ -895,7 +884,6 @@ ActionHandler::actionShowMenu(const std::string &name, bool stick,
         }
     }
 }
-#endif // MENUS
 
 //! @brief Creates a menu containing a list of Frames currently visible
 //! @param show_iconified Flag to show/hide iconified windows

@@ -304,20 +304,6 @@ else
 	AC_MSG_RESULT([no])
 fi
 
-dnl Check whether to use menus
-AC_MSG_CHECKING([whether to include menu support])
-AC_ARG_ENABLE(menus,
-  AC_HELP_STRING([--enable-menus],
-								 [include menu support [default=yes]]), ,
-							[enableval=yes])
-if test "x$enableval" = "xyes"; then
-	AC_MSG_RESULT([yes])
-	AC_DEFINE(MENUS, [1], [Define to 1 to compile in menu support])
-	FEATURES="$FEATURES menus"
-else
-	AC_MSG_RESULT([no])
-fi
-
 dnl Check whether to include harbour
 AC_MSG_CHECKING([whether to include harbour])
 AC_ARG_ENABLE(harbour,

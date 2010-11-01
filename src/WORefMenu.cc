@@ -10,8 +10,6 @@
 #include "../config.h"
 #endif // HAVE_CONFIG_H
 
-#ifdef MENUS
-
 #include "PWinObj.hh"
 #include "PDecor.hh"
 #include "PMenu.hh"
@@ -69,5 +67,3 @@ WORefMenu::setWORef(PWinObj *wo_ref)
 
     setTitle(title);
 }
-
-#endif // MENUS

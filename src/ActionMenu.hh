@@ -13,8 +13,6 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#ifdef MENUS
-
 #include "pekwm.hh"
 #include "Action.hh" // For ActionOk
 #include "CfgParser.hh"
@@ -70,5 +68,3 @@ private:
 };
 
 #endif // _ACTIONMENU_HH_
-
-#endif // MENUS

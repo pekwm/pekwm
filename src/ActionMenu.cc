@@ -10,8 +10,6 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#ifdef MENUS
-
 #include <cstdio>
 #include <iostream>
 #include <set>
@@ -370,5 +368,3 @@ ActionMenu::removeDynamic(void)
         }
     }
 }
-
-#endif // MENUS

@@ -251,11 +251,9 @@ public:
         return limit_val ? limit_val : value;
     }
 
-#ifdef MENUS
     bool parseMenuAction(const std::string& action_string, Action& action);
     bool parseMenuActions(const std::string& actions, ActionEvent& ae);
     bool parseMenuEvent(CfgParser::Entry *section, ActionEvent& ae);
-#endif // MENUS
 
     inline uint getMod(const std::string &mod) { return ParseUtil::getValue<uint>(mod, _mod_map); }
     uint getMouseButton(const std::string& button);
@@ -372,9 +370,7 @@ private:
     std::map<ParseUtil::Entry, uint> _mod_map;
     std::map<ParseUtil::Entry, ActionStateType> _action_state_map;
     std::map<ParseUtil::Entry, CfgDeny> _cfg_deny_map;
-#ifdef MENUS
     std::map<ParseUtil::Entry, ActionType> _menu_action_map;
-#endif // MENUS
 #ifdef HARBOUR
     std::map<ParseUtil::Entry, HarbourPlacement> _harbour_placement_map;
     std::map<ParseUtil::Entry, Orientation> _harbour_orientation_map;

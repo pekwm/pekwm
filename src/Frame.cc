@@ -35,11 +35,7 @@ extern "C" {
 #include "Workspaces.hh"
 #include "WindowManager.hh"
 #include "KeyGrabber.hh"
-
-#ifdef MENUS
 #include "PMenu.hh"
-#endif //MENUS
-
 #include "Theme.hh"
 
 using std::cerr;

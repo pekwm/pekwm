@@ -20,11 +20,9 @@
 #include "DockApp.hh"
 #include "Workspaces.hh"
 #include "AutoProperties.hh"
-#ifdef MENUS
 #include "PDecor.hh"
 #include "PMenu.hh"
 #include "HarbourMenu.hh"
-#endif // MENUS
 
 #include <algorithm>
 #include <functional>
@@ -41,18 +39,14 @@ using std::endl;
 //! @brief Harbour constructor
 Harbour::Harbour(PScreen *s, Theme *t, Workspaces *w) :
         _scr(s), _theme(t), _workspaces(w),
-#ifdef MENUS
         _harbour_menu(0),
-#endif // MENUS
         _hidden(false), _size(0), _strut(0),
         _last_button_x(0), _last_button_y(0)
 {
     _strut = new Strut();
     _scr->addStrut(_strut);
     _strut->head = Config::instance()->getHarbourHead();
-#ifdef MENUS
     _harbour_menu = new HarbourMenu(_scr, _theme, this);
-#endif // MENUS
 }
 
 //! @brief Harbour destructor
@@ -62,12 +56,7 @@ Harbour::~Harbour(void)
 
     _scr->removeStrut(_strut);
     delete _strut;
-
-#ifdef MENUS
-    if (_harbour_menu) {
-        delete _harbour_menu;
-    }
-#endif // MENUS
+    delete _harbour_menu;
 }
 
 //! @brief Adds a DockApp to the Harbour
@@ -317,7 +306,6 @@ Harbour::handleButtonEvent(XButtonEvent* ev, DockApp* da)
     _last_button_x = ev->x;
     _last_button_y = ev->y;
 
-#ifdef MENUS
     // FIXME: Make configurable
     if (ev->type == ButtonPress) {
         if (ev->button == BUTTON3) {
@@ -331,7 +319,6 @@ Harbour::handleButtonEvent(XButtonEvent* ev, DockApp* da)
             _harbour_menu->unmapWindow();
         }
     }
-#endif // MENUS
 }
 
 //! @brief Initiates moving of a DockApp based on info from a XMotionEvent.

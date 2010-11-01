@@ -14,7 +14,6 @@
 #endif // HAVE_CONFIG_H
 
 #ifdef HARBOUR
-#ifdef MENUS
 
 #include "pekwm.hh"
 #include "PMenu.hh"
@@ -42,5 +41,4 @@ private:
 
 #endif // _HARBOURMENU_HH_
 
-#endif // MENUS
 #endif // HARBOUR

@@ -91,10 +91,7 @@ KeyGrabber::Chain::findAction(XKeyEvent *ev)
 
 //! @brief KeyGrabber constructor
 KeyGrabber::KeyGrabber(PScreen *scr)
-    : _scr(scr),
-#ifdef MENUS
-      _menu_chain(0, 0),
-#endif // MENUS
+    : _scr(scr), _menu_chain(0, 0),
       _global_chain(0, 0), _moveresize_chain(0, 0),
       _input_dialog_chain(0, 0)
 {
@@ -170,13 +167,11 @@ KeyGrabber::load(const std::string &file, bool force)
         parseInputDialogChain (section, &_input_dialog_chain);
     }
 
-#ifdef MENUS
     section = key_cfg.get_entry_root ()->find_section("MENU");
     if (section) {
         _menu_chain.unload();
         parseMenuChain(section, &_menu_chain);
     }
-#endif // MENUS
 
     return true;
 }
@@ -247,7 +242,6 @@ KeyGrabber::parseInputDialogChain(CfgParser::Entry *section, KeyGrabber::Chain *
     }
 }
 
-#ifdef MENUS
 //! @brief Parses chain, getting actions as MenuEvents
 void
 KeyGrabber::parseMenuChain(CfgParser::Entry *section, KeyGrabber::Chain *chain)
@@ -269,7 +263,6 @@ KeyGrabber::parseMenuChain(CfgParser::Entry *section, KeyGrabber::Chain *chain)
         }
     }
 }
-#endif // MENUS
 
 //! @brief Grabs all the keybindings in _keybindings on the Window win.
 //! @param win Window to grab the keys on.
@@ -374,11 +367,9 @@ KeyGrabber::findAction(XKeyEvent *ev, PWinObj::Type type)
 {
     ActionEvent *ae = 0;
 
-#ifdef MENUS
     if (type == PWinObj::WO_MENU) {
         ae = findAction(ev, &_menu_chain);
     }
-#endif // MENUS
     if (type == PWinObj::WO_CMD_DIALOG || type == PWinObj::WO_SEARCH_DIALOG) {
         ae = findAction(ev, &_input_dialog_chain);
     }

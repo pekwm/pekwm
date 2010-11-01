@@ -55,9 +55,7 @@ private:
 #ifdef OPACITY
     static void actionSetOpacity(PWinObj *client, PWinObj *frame, uint focus, uint unfocus);
 #endif // OPACITY
-#ifdef MENUS
     void actionShowMenu(const std::string &name, bool stick, uint e_type, PWinObj *wo_ref);
-#endif // MENUS
 
     // action helpers
     Client *findClientFromTitle(const std::wstring &title);

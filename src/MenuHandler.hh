@@ -10,8 +10,6 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#ifdef MENUS
-
 #include <map>
 #include <list>
 #include <string>
@@ -75,5 +73,3 @@ private:
     static const char *MENU_NAMES_RESERVED[];
     static const unsigned int MENU_NAMES_RESERVED_COUNT;
 };
-
-#endif // MENUS

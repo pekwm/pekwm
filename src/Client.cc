@@ -42,10 +42,8 @@ extern "C" {
 #include "PImageIcon.hh"
 #include "TextureHandler.hh"
 
-#ifdef MENUS
 #include "PMenu.hh"
 #include "WORefMenu.hh"
-#endif // MENUS
 
 using std::cerr;
 using std::endl;

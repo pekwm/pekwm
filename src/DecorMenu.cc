@@ -7,7 +7,6 @@
 //
 
 #include "../config.h"
-#ifdef MENUS
 
 #include "PWinObj.hh"
 #include "PDecor.hh"
@@ -78,5 +77,3 @@ DecorMenu::reload(CfgParser::Entry *section)
 
     buildMenu(); // rebuild the menu
 }
-
-#endif // MENUS

@@ -11,7 +11,6 @@
 #endif // HAVE_CONFIG_H
 
 #ifdef HARBOUR
-#ifdef MENUS
 
 #include "PWinObj.hh"
 #include "PDecor.hh"
@@ -63,5 +62,4 @@ HarbourMenu::handleItemExec(PMenu::Item *item)
     }
 }
 
-#endif // MENUS
 #endif // HARBOUR

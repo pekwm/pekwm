@@ -10,8 +10,6 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#ifdef MENUS
-
 #ifndef _WOREFMENU_HH_
 #define _WOREFMENU_HH_
 
@@ -42,5 +40,3 @@ protected:
 };
 
 #endif // _WOREFMENU_HH_
-
-#endif // MENUS

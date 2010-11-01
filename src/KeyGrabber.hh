@@ -85,9 +85,7 @@ private:
     void parseGlobalChain(CfgParser::Entry *section, KeyGrabber::Chain *chain);
     void parseMoveResizeChain(CfgParser::Entry *section, KeyGrabber::Chain *chain);
     void parseInputDialogChain(CfgParser::Entry *section, KeyGrabber::Chain *chain);
-#ifdef MENUS
     void parseMenuChain(CfgParser::Entry *section, KeyGrabber::Chain *chain);
-#endif // MENUS
 
     ActionEvent *findAction(XKeyEvent *ev, KeyGrabber::Chain *chain);
 
@@ -96,9 +94,7 @@ private:
 
     std::map <std::string, time_t> _cfg_state; /**< Map of file mtime for all files touched by a configuration. */
 
-#ifdef MENUS
     KeyGrabber::Chain _menu_chain;
-#endif // MENUS
     KeyGrabber::Chain _global_chain;
     KeyGrabber::Chain _moveresize_chain;
     KeyGrabber::Chain _input_dialog_chain;

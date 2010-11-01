@@ -26,10 +26,8 @@ extern "C" {
 #include "Completer.hh"
 #include "Config.hh"
 #include "Util.hh"
-#ifdef MENUS
 #include "PWinObj.hh"
 #include "MenuHandler.hh"
-#endif // MENUS
 
 using std::copy;
 using std::cerr;
@@ -151,10 +149,8 @@ ActionCompleterMethod::complete(CompletionState &state)
     switch (type_state) {
     case STATE_STATE:
         return complete_word(_state_list, state.completions, state.word_lower);
-#ifdef MENUS
     case STATE_MENU:
         return complete_word(_menu_list, state.completions, state.word_lower);
-#endif // MENUS
     case STATE_ACTION:
         return complete_word(_action_list, state.completions, state.word_lower);
     case STATE_NO:
@@ -173,10 +169,8 @@ ActionCompleterMethod::refresh(void)
                                     _action_list);
     completions_list_from_name_list(Config::instance()->getStateNameList(),
                                     _state_list);
-#ifdef MENUS
     completions_list_from_name_list(MenuHandler::instance()->getMenuNames(),
                                     _menu_list);
-#endif // MENUS
 }
 
 /**
