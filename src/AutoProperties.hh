@@ -195,7 +195,6 @@ private:
     std::string _decor_name;
 };
 
-#ifdef HARBOUR
 // DockApp for Harbour sorting
 class DockAppProperty : public Property
 {
@@ -209,7 +208,6 @@ public:
 private:
     int _position;
 };
-#endif // HARBOUR
 
 class AutoProperties {
 public:
@@ -222,10 +220,8 @@ public:
                                    int ws = -1, uint type = 0);
     TitleProperty* findTitleProperty(const ClassHint* class_hint);
     DecorProperty* findDecorProperty(const ClassHint* class_hint);
-#ifdef HARBOUR
     DockAppProperty* findDockAppProperty(const ClassHint *class_hint);
     inline bool isHarbourSort(void) const { return _harbour_sort; }
-#endif // HARBOUR
 
     AutoProperty *findWindowTypeProperty(AtomName atom);
 
@@ -255,12 +251,10 @@ private:
 
     void parseAutoPropertyValue(CfgParser::Entry *section, AutoProperty *prop, std::list<uint> *ws);
 
-#ifdef HARBOUR
     void parseDockAppProperty(CfgParser::Entry *section);
-#endif // HARBOUR
-  void parseTypeProperty(CfgParser::Entry *section);
+    void parseTypeProperty(CfgParser::Entry *section);
 
-  void setDefaultTypeProperties(void);
+    void setDefaultTypeProperties(void);
 
 private:
     std::map <std::string, time_t> _cfg_state; /**< Map of file mtime for all files touched by a configuration. */    
@@ -270,10 +264,8 @@ private:
     std::list<Property*> _prop_list;
     std::list<Property*> _title_prop_list;
     std::list<Property*> _decor_prop_list;
-#ifdef HARBOUR
     std::list<Property*> _dock_app_prop_list;
     bool _harbour_sort;
-#endif // HARBOUR
     bool _apply_on_start;
 
     std::map<ParseUtil::Entry, ApplyOn> _apply_on_map;

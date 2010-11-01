@@ -304,20 +304,6 @@ else
 	AC_MSG_RESULT([no])
 fi
 
-dnl Check whether to include harbour
-AC_MSG_CHECKING([whether to include harbour])
-AC_ARG_ENABLE(harbour,
-	AC_HELP_STRING([--enable-harbour],
-								 [include harbour [default=yes]]), ,
-							[enableval=yes])
-if test "x$enableval" = "xyes"; then
-	AC_MSG_RESULT([yes])
-	AC_DEFINE(HARBOUR, [1], [Define to 1 to compile in support for dockapps])
-	FEATURES="$FEATURES harbour"
-else
-	AC_MSG_RESULT([no])
-fi
-
 dnl Check whether to include opacity hinting 
 AC_MSG_CHECKING([whether to include opacity hinting])
 AC_ARG_ENABLE(opacity,

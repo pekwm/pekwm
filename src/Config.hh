@@ -191,7 +191,6 @@ public:
     const std::string &getCmdDialogHistoryFile(void) const { return _cmd_dialog_history_file; }
     int getCmdDialogHistorySaveInterval(void) const { return _cmd_dialog_history_save_interval; }
 
-#ifdef HARBOUR
     inline int getHarbourDAMinSide(void) const { return _harbour_da_min_s; }
     inline int getHarbourDAMaxSide(void) const { return _harbour_da_max_s; }
     inline int getHarbourHead(void) const { return _harbour_head_nr; }
@@ -202,7 +201,6 @@ public:
 #ifdef OPACITY
     inline uint getHarbourOpacity(void) const { return _harbour_opacity; }
 #endif // OPACITY
-#endif // HARBOUR
 
     inline std::list<ActionEvent>  *getMouseActionList(MouseActionListName name)
     { return _mouse_action_map[name]; }
@@ -272,9 +270,7 @@ private:
     void loadMenu(CfgParser::Entry *section);
     void loadMenuIcons(CfgParser::Entry *section);
     void loadCmdDialog(CfgParser::Entry *section);
-#ifdef HARBOUR
     void loadHarbour(CfgParser::Entry *section);
-#endif // HARBOUR
 
     void parseButtons(CfgParser::Entry *section, std::list<ActionEvent>* mouse_list, ActionOk action_ok);
 
@@ -339,8 +335,6 @@ private:
     std::string _cmd_dialog_history_file; /**< Path to cmd dialog history file. */
     int _cmd_dialog_history_save_interval; /**< Save history file each Nth CmdDialog exec. */
 
-    // harbour
-#ifdef HARBOUR
     int _harbour_da_min_s, _harbour_da_max_s;
     bool _harbour_ontop;
     bool _harbour_maximize_over;
@@ -350,7 +344,6 @@ private:
 #ifdef OPACITY
     uint _harbour_opacity;
 #endif // OPACITY
-#endif // HARBOUR
 
     std::map<MouseActionListName, std::list<ActionEvent>* > _mouse_action_map;
 
@@ -371,10 +364,8 @@ private:
     std::map<ParseUtil::Entry, ActionStateType> _action_state_map;
     std::map<ParseUtil::Entry, CfgDeny> _cfg_deny_map;
     std::map<ParseUtil::Entry, ActionType> _menu_action_map;
-#ifdef HARBOUR
     std::map<ParseUtil::Entry, HarbourPlacement> _harbour_placement_map;
     std::map<ParseUtil::Entry, Orientation> _harbour_orientation_map;
-#endif // HARBOUR
 
     static Config *_instance; /**< Singleton Config pointer. */
 };

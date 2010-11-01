@@ -112,15 +112,13 @@ Config::Config(void) :
         _menu_unfocus_opacity(EWMH_OPAQUE_WINDOW),
 #endif // OPACITY
         _cmd_dialog_history_unique(true), _cmd_dialog_history_size(1024),
-        _cmd_dialog_history_file("~/.pekwm/history"), _cmd_dialog_history_save_interval(16)
-#ifdef HARBOUR
-       ,_harbour_da_min_s(0), _harbour_da_max_s(0),
+        _cmd_dialog_history_file("~/.pekwm/history"), _cmd_dialog_history_save_interval(16),
+        _harbour_da_min_s(0), _harbour_da_max_s(0),
         _harbour_ontop(true), _harbour_maximize_over(false),
         _harbour_placement(TOP), _harbour_orientation(TOP_TO_BOTTOM), _harbour_head_nr(0)
 #ifdef OPACITY
        ,_harbour_opacity(EWMH_OPAQUE_WINDOW)
 #endif // OPACITY
-#endif // HARBOUR
 {
     if (_instance) {
         throw string("Config, trying to create multiple instances");
@@ -333,9 +331,7 @@ Config::Config(void) :
     _action_state_map["Opaque"] = ACTION_STATE_OPAQUE;
 #endif // OPACITY
     _action_state_map["Title"] = ACTION_STATE_TITLE;
-#ifdef HARBOUR
     _action_state_map["HarbourHidden"] = ACTION_STATE_HARBOUR_HIDDEN;
-#endif // HARBOUR
     _action_state_map["GlobalGrouping"] = ACTION_STATE_GLOBAL_GROUPING;
 
 
@@ -358,7 +354,6 @@ Config::Config(void) :
     _menu_action_map["LEAVESUBMENU"] = ACTION_MENU_LEAVE_SUBMENU;
     _menu_action_map["CLOSE"] = ACTION_CLOSE;
 
-#ifdef HARBOUR
     _harbour_placement_map[""] = NO_HARBOUR_PLACEMENT;
     _harbour_placement_map["TOP"] = TOP;
     _harbour_placement_map["LEFT"] = LEFT;
@@ -370,7 +365,6 @@ Config::Config(void) :
     _harbour_orientation_map["LEFTTORIGHT"] = TOP_TO_BOTTOM;
     _harbour_orientation_map["BOTTOMTOTOP"] = BOTTOM_TO_TOP;
     _harbour_orientation_map["RIGHTTOLEFT"] = BOTTOM_TO_TOP;
-#endif // HARBOUR
 
     // fill the mouse action map
     _mouse_action_map[MOUSE_ACTION_LIST_TITLE_FRAME] = new list<ActionEvent>;
@@ -521,12 +515,10 @@ Config::load(const std::string &config_file)
       loadCmdDialog(section);
     }
 
-#ifdef HARBOUR
     section = cfg.get_entry_root()->find_section("HARBOUR");
     if (section) {
         loadHarbour(section);
     }
-#endif // HARBOUR
 
     return true;
 }
@@ -811,7 +803,6 @@ Config::loadCmdDialog(CfgParser::Entry *section)
   for_each(key_list.begin(), key_list.end(), Util::Free<CfgParserKey*>());
 }
 
-#ifdef HARBOUR
 //! @brief Loads the HARBOUR section of the main configuration
 void
 Config::loadHarbour(CfgParser::Entry *section)
@@ -864,7 +855,6 @@ Config::loadHarbour(CfgParser::Entry *section)
         key_list.clear();
     }
 }
-#endif
 
 //! @brief
 ActionType

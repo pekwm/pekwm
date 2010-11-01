@@ -8,8 +8,6 @@
 
 #include "../config.h"
 
-#ifdef HARBOUR
-
 #ifndef _HARBOUR_HH_
 #define _HARBOUR_HH_
 
@@ -84,5 +82,3 @@ private:
 };
 
 #endif // _HARBOUR_HH_
-
-#endif // HARBOUR

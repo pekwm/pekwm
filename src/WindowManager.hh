@@ -57,9 +57,7 @@ class StatusWindow;
 class WorkspaceIndicator;
 
 class KeyGrabber;
-#ifdef HARBOUR
 class Harbour;
-#endif // HARBOUR
 
 class WindowManager
 {
@@ -90,9 +88,7 @@ public:
     }
     inline Workspaces *getWorkspaces(void) const { return _workspaces; }
     inline KeyGrabber *getKeyGrabber(void) const { return _keygrabber; }
-#ifdef HARBOUR
     inline Harbour *getHarbour(void) const { return _harbour; }
-#endif //HARBOUR
 
     inline const std::string &getRestartCommand(void) const { return _restart_command; }
     inline bool isStartup(void) const { return _startup; }
@@ -165,9 +161,7 @@ private:
     void doReloadMouse(void);
     void doReloadKeygrabber(bool force=false);
     void doReloadAutoproperties(void);
-#ifdef HARBOUR
     void doReloadHarbour(void);
-#endif // HARBOUR
 
     void cleanup(void);
 
@@ -224,9 +218,7 @@ private:
     ActionHandler *_action_handler;
     AutoProperties *_autoproperties;
     Workspaces *_workspaces;
-#ifdef HARBOUR
     Harbour *_harbour;
-#endif // HARBOUR
     CmdDialog *_cmd_dialog;
     SearchDialog *_search_dialog;
     StatusWindow *_status_window;

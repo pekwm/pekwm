@@ -8,8 +8,6 @@
 
 #include "../config.h"
 
-#ifdef HARBOUR
-
 #include "PWinObj.hh"
 #include "DockApp.hh"
 
@@ -297,5 +295,3 @@ DockApp::readAutoProperties(void)
         _position = prop->getPosition();
     }
 }
-
-#endif // HARBOUR

@@ -817,9 +817,6 @@ Theme::WorkspaceIndicatorData::check(void)
     }
 }
 
-#ifdef HARBOUR
-// HarbourData
-
 /**
  * HarbourData constructor.
  */
@@ -881,8 +878,6 @@ Theme::HarbourData::check(void)
     }
 }
 
-#endif // HARBOUR
-
 // Theme
 
 //! @brief Theme constructor
@@ -898,9 +893,7 @@ Theme::Theme(PScreen *scr)
     _section_data_map["STATUS"] = &_status_data;
     _section_data_map["CMDDIALOG"] = &_cmd_d_data;
     _section_data_map["WORKSPACEINDICATOR"] = &_workspace_indicator_data;
-#ifdef HARBOUR
     _section_data_map["HARBOUR"] = &_harbour_data;
-#endif // HARBOUR
 
     // window gc's
     XGCValues gv;

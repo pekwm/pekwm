@@ -13,8 +13,6 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#ifdef HARBOUR
-
 #include "pekwm.hh"
 #include "AutoProperties.hh"
 
@@ -89,5 +87,3 @@ private:
 };
 
 #endif // _DOCKAPP_HH_
-
-#endif // HARBOUR

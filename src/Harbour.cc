@@ -10,8 +10,6 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#ifdef HARBOUR
-
 #include "Harbour.hh"
 
 #include "PScreen.hh"
@@ -630,4 +628,3 @@ Harbour::insertDockAppSorted(DockApp *da)
     _da_list.insert (it, da);
 }
 
-#endif // HARBOUR

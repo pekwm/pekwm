@@ -31,10 +31,7 @@ AutoProperties *AutoProperties::_instance = 0;
 
 //! @brief Constructor for AutoProperties class
 AutoProperties::AutoProperties(void)
-    : _extended(false),
-#ifdef HARBOUR
-      _harbour_sort(false),
-#endif // HARBOUR
+    : _extended(false), _harbour_sort(false),
       _apply_on_start(true)
 {
 #ifdef DEBUG
@@ -155,10 +152,8 @@ AutoProperties::load(void)
             parseDecorProperty(*it);
         } else if (*(*it) == "TYPERULES") {
             parseTypeProperty(*it);
-#ifdef HARBOUR
         } else if (*(*it) == "HARBOUR") {
             parseDockAppProperty(*it);
-#endif // HARBOUR
         } else if (*(*it) == "WORKSPACE") { // Workspace section
             CfgParser::Entry *workspace = (*it)->get_section();
             CfgParser::Entry *value = workspace->find_entry("WORKSPACE");
@@ -239,12 +234,10 @@ AutoProperties::unload(void)
     _decor_prop_list.clear();
 
     // remove dock app properties
-#ifdef HARBOUR
     for (it = _dock_app_prop_list.begin(); it != _dock_app_prop_list.end(); ++it) {
         delete *it;
     }
     _dock_app_prop_list.clear();
-#endif // HARBOUR
 
     // remove type properties
     map<AtomName, AutoProperty*>::iterator m_it(_window_type_prop_map.begin());
@@ -530,7 +523,6 @@ AutoProperties::parseDecorProperty(CfgParser::Entry *section)
     }
 }
 
-#ifdef HARBOUR
 /**
  * Parse dock app properties.
  */
@@ -571,8 +563,6 @@ AutoProperties::parseDockAppProperty(CfgParser::Entry *section)
         }
     }
 }
-#endif // HARBOUR
-
 
 //! @brief Parse type auto properties.
 //! @param section Section containing properties.
@@ -874,13 +864,11 @@ AutoProperties::findDecorProperty(const ClassHint* class_hint)
     return static_cast<DecorProperty*>(findProperty(class_hint, &_decor_prop_list, -1, 0));
 }
 
-#ifdef HARBOUR
 DockAppProperty*
 AutoProperties::findDockAppProperty(const ClassHint *class_hint)
 {
     return static_cast<DockAppProperty*>(findProperty(class_hint, &_dock_app_prop_list, -1, 0));
 }
-#endif // HARBOUR
 
 //! @brief Get AutoProperty for window of type type
 //! @param atom Atom to get property for.

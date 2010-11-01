@@ -39,13 +39,9 @@
 
 #include "KeyGrabber.hh"
 #include "MenuHandler.hh"
-#ifdef HARBOUR
-#include "HarbourMenu.hh"
-#endif // HARBOUR
-#ifdef HARBOUR
 #include "Harbour.hh"
+#include "HarbourMenu.hh"
 #include "DockApp.hh"
-#endif // HARBOUR
 #include "CmdDialog.hh"
 #include "SearchDialog.hh"
 #include "StatusWindow.hh"
@@ -174,9 +170,7 @@ WindowManager::WindowManager(const std::string &command_line,
         _font_handler(0), _texture_handler(0),
         _theme(0), _action_handler(0),
         _autoproperties(0), _workspaces(0),
-#ifdef HARBOUR
         _harbour(0),
-#endif // HARBOUR
         _cmd_dialog(0), _search_dialog(0),
         _status_window(0), _workspace_indicator(0),
         _command_line(command_line),
@@ -211,33 +205,20 @@ WindowManager::~WindowManager(void)
     delete _search_dialog;
     delete _status_window;
     delete _workspace_indicator;
-
     MenuHandler::destroy();
-#ifdef HARBOUR
     delete _harbour;
-#endif // HARBOUR
-
     delete _root_wo;
     delete _hint_wo;
     delete _action_handler;
     delete _autoproperties;
-
-    if (_keygrabber)
-        delete _keygrabber;
-    if (_workspaces)
-        delete _workspaces;
-    if (_config)
-        delete _config;
-    if (_theme)
-        delete _theme;
-    if (_color_handler)
-        delete _color_handler;
-    if (_font_handler)
-        delete _font_handler;
-    if (_texture_handler)
-        delete _texture_handler;
-    if (_screen_resources)
-        delete _screen_resources;
+    delete _keygrabber;
+    delete _workspaces;
+    delete _config;
+    delete _theme;
+    delete _color_handler;
+    delete _font_handler;
+    delete _texture_handler;
+    delete _screen_resources;
 
     if (_screen) {
         Display *dpy = _screen->getDpy();
@@ -275,12 +256,7 @@ WindowManager::cleanup(void)
         (*it_f)->updateInactiveChildInfo();
     }
 
-    // remove all dockapps
-#ifdef HARBOUR
-    if (_harbour) {
-        _harbour->removeAllDockApps();
-    }
-#endif // HARBOUR
+    _harbour->removeAllDockApps();
 
     // To preserve stacking order when destroying the frames, we go through
     // the PWinObj list from the Workspaces and put all Frames into our own
@@ -349,7 +325,6 @@ WindowManager::setupDisplay(bool replace)
     _root_wo = new RootWO(dpy, _screen->getRoot());
     PWinObj::setRootPWinObj(_root_wo);
 
-    // 
     _color_handler = new ColorHandler(dpy);
     _font_handler = new FontHandler();
     _texture_handler = new TextureHandler();
@@ -367,9 +342,8 @@ WindowManager::setupDisplay(bool replace)
 
     _workspaces = new Workspaces(_config->getWorkspaces(), _config->getWorkspacesPerRow());
 
-#ifdef HARBOUR
     _harbour = new Harbour(_screen, _theme, _workspaces);
-#endif // HARBOUR
+
     MenuHandler::init(_theme);
 
     _cmd_dialog = new CmdDialog(_screen->getDpy(), _theme);
@@ -415,9 +389,8 @@ WindowManager::scanWindows(void)
 
     list<Window>::iterator it(win_list.begin());
 
-#ifdef HARBOUR
-    // If we have the Harbour on, we filter out all windows with the
-    // the IconWindowHint set not pointing to themselves, making DockApps
+    // We filter out all windows with the the IconWindowHint
+    // set not pointing to themselves, making DockApps
     // work as they are supposed to.
     for (; it != win_list.end(); ++it) {
         if (*it == None) {
@@ -435,7 +408,6 @@ WindowManager::scanWindows(void)
             XFree(wm_hints);
         }
     }
-#endif // HARBOUR
 
     Client *client;
     for (it = win_list.begin(); it != win_list.end(); ++it) {
@@ -445,7 +417,6 @@ WindowManager::scanWindows(void)
         
         XGetWindowAttributes(_screen->getDpy(), *it, &attr);
         if (! attr.override_redirect && attr.map_state != IsUnmapped) {
-#ifdef HARBOUR
             XWMHints *wm_hints = XGetWMHints(_screen->getDpy(), *it);
             if (wm_hints) {
                 if ((wm_hints->flags&StateHint) &&
@@ -459,9 +430,7 @@ WindowManager::scanWindows(void)
 
                 }
                 XFree(wm_hints);
-            } else
-#endif // HARBOUR
-            {
+            } else {
                 client = new Client(*it);
                 if (! client->isAlive())
                     delete client;
@@ -598,11 +567,9 @@ WindowManager::doReload(void)
     doReloadAutoproperties();
 
     MenuHandler::instance()->reloadMenus();
-#ifdef HARBOUR
     // Special case for HARBOUR menu which is not included in the menu map
     _harbour->getHarbourMenu()->reload(static_cast<CfgParser::Entry*>(0));
     doReloadHarbour();
-#endif // HARBOUR
 
     _root_wo->setEwmhDesktopNames();
 
@@ -724,7 +691,6 @@ WindowManager::doReloadAutoproperties(void)
     }
 }
 
-#ifdef HARBOUR
 /**
  * Reload harbour configuration.
  */
@@ -736,7 +702,6 @@ WindowManager::doReloadHarbour(void)
     _harbour->restack();
     _harbour->updateHarbourSize();
 }
-#endif // HARBOUR
 
 //! @brief Exit pekwm and restart with the command command
 void
@@ -973,15 +938,12 @@ WindowManager::handleButtonPressEvent(XButtonEvent *ev)
         ap.event.button = ev;
 
         _action_handler->handleAction(ap);
-    }
-#ifdef HARBOUR
-    else {
+    } else {
         DockApp *da = _harbour->findDockAppFromFrame(ev->window);
         if (da) {
             _harbour->handleButtonEvent(ev, da);
         }
     }
-#endif // HARBOUR
 }
 
 //! @brief
@@ -1025,15 +987,12 @@ WindowManager::handleButtonReleaseEvent(XButtonEvent *ev)
 
             _action_handler->handleAction(ap);
         }
-    }
-#ifdef HARBOUR
-    else {
+    } else {
         DockApp *da = _harbour->findDockAppFromFrame(ev->window);
         if (da) {
             _harbour->handleButtonEvent(ev, da);
         }
     }
-#endif // HARBOUR
 }
 
 void
@@ -1045,13 +1004,10 @@ WindowManager::handleConfigureRequestEvent(XConfigureRequestEvent *ev)
         ((Frame*) client->getParent())->handleConfigureRequest(ev, client);
 
     } else {
-#ifdef HARBOUR
         DockApp *da = _harbour->findDockApp(ev->window);
         if (da) {
             _harbour->handleConfigureRequestEvent(ev, da);
-        } else
-#endif // HARBOUR
-        {
+        } else {
             // Since this window isn't yet a client lets delegate
             // the configure request back to the window so it can use it.
 
@@ -1108,15 +1064,12 @@ WindowManager::handleMotionEvent(XMotionEvent *ev)
 
             _action_handler->handleAction(ap);
         }
-    }
-#ifdef HARBOUR
-    else {
+    } else {
         DockApp *da = _harbour->findDockAppFromFrame(ev->window);
         if (da) {
             _harbour->handleMotionNotifyEvent(ev, da);
         }
     }
-#endif // HARBOUR
 }
 
 //! @brief
@@ -1131,9 +1084,7 @@ WindowManager::handleMapRequestEvent(XMapRequestEvent *ev)
         XWindowAttributes attr;
         XGetWindowAttributes(_screen->getDpy(), ev->window, &attr);
         if (! attr.override_redirect) {
-            // if we have the harbour enabled, we need to figure out wheter or
-            // not this is a dockapp.
-#ifdef HARBOUR
+            // We need to figure out whether or not this is a dockapp.
             XWMHints *wm_hints = XGetWMHints(_screen->getDpy(), ev->window);
             if (wm_hints) {
                 if ((wm_hints->flags&StateHint) &&
@@ -1146,9 +1097,7 @@ WindowManager::handleMapRequestEvent(XMapRequestEvent *ev)
                     }
                 }
                 XFree(wm_hints);
-            } else
-#endif // HARBOUR
-            {
+            } else {
                 Client *client = new Client(ev->window, true);
                 if (! client->isAlive()) {
                     delete client;
@@ -1178,10 +1127,7 @@ WindowManager::handleUnmapEvent(XUnmapEvent *ev)
         if (wo == PWinObj::getFocusedPWinObj()) {
             PWinObj::setFocusedPWinObj(0);
         }
-    }
-
-#ifdef HARBOUR
-    else {
+    } else {
         DockApp *da = _harbour->findDockApp(ev->window);
         if (da) {
             if (ev->window == ev->event) {
@@ -1189,7 +1135,6 @@ WindowManager::handleUnmapEvent(XUnmapEvent *ev)
             }
         }
     }
-#endif // HARBOUR
 
     if (wo_type != PWinObj::WO_MENU 
         && wo_type != PWinObj::WO_CMD_DIALOG
@@ -1211,16 +1156,13 @@ WindowManager::handleDestroyWindowEvent(XDestroyWindowEvent *ev)
         if (! PWinObj::getFocusedPWinObj()) {
             findWOAndFocus(wo_search);
         }
-    }
-#ifdef HARBOUR
-    else {
+    } else {
         DockApp *da = _harbour->findDockApp(ev->window);
         if (da) {
             da->setAlive(false);
             _harbour->removeDockApp(da);
         }
     }
-#endif // HARBOUR
 }
 
 void
@@ -1497,10 +1439,7 @@ WindowManager::handleXRandrScreenChangeEvent(XRRScreenChangeNotifyEvent *ev)
 #endif // DEBUG
 
     _screen->updateGeometry(ev->width, ev->height);
-#ifdef HARBOUR
     _harbour->updateGeometry();
-#endif // HARBOUR
-
     screenEdgeResize();
 
     // Make sure windows are visible after resize

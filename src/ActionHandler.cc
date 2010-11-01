@@ -26,11 +26,7 @@
 #include "Util.hh"
 #include "RegexString.hh"
 #include "WorkspaceIndicator.hh"
-
-#ifdef HARBOUR
 #include "Harbour.hh"
-#endif // HARBOUR
-
 #include "MenuHandler.hh"
 #include "PDecor.hh"
 #include "PMenu.hh"
@@ -38,9 +34,7 @@
 #include "ActionMenu.hh"
 #include "FrameListMenu.hh"
 #include "DecorMenu.hh"
-#ifdef HARBOUR
 #include "HarbourMenu.hh"
-#endif // HARBOUR
 
 #include <memory>
 
@@ -484,11 +478,9 @@ ActionHandler::handleStateAction(const Action &action, PWinObj *wo,
     if (! matched) {
         matched = true;
         switch (action.getParamI(0)) {
-#ifdef HARBOUR
         case ACTION_STATE_HARBOUR_HIDDEN:
             WindowManager::instance()->getHarbour()->setStateHidden(sa);
             break;
-#endif // HARBOUR
         case ACTION_STATE_GLOBAL_GROUPING:
             WindowManager::instance()->setStateGlobalGrouping(sa);
             break;

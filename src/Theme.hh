@@ -281,33 +281,32 @@ public:
         uint _pad[PAD_NO];
     };
 
-  /**
-   * Class holding WorkspaceIndicator theme data.
-   */
-  class WorkspaceIndicatorData : public ThemeData {
-  public:
-      WorkspaceIndicatorData(void);
-      virtual ~WorkspaceIndicatorData(void);
-
-      virtual bool load(CfgParser::Entry *section);
-      virtual void unload(void);
-      virtual void check(void);
-
-  public:
-    PFont *font;
-    PFont::Color *font_color;
-    PTexture *texture_background;
-    PTexture *texture_workspace;
-    PTexture *texture_workspace_act;
-
-    int edge_padding;
-    int workspace_padding;
-  };
-
-#ifdef HARBOUR
     /**
-     * Class holding harbour theme data.
-     */
+      * Class holding WorkspaceIndicator theme data.
+      */
+    class WorkspaceIndicatorData : public ThemeData {
+    public:
+        WorkspaceIndicatorData(void);
+        virtual ~WorkspaceIndicatorData(void);
+
+        virtual bool load(CfgParser::Entry *section);
+        virtual void unload(void);
+        virtual void check(void);
+
+    public:
+        PFont *font;
+        PFont::Color *font_color;
+        PTexture *texture_background;
+        PTexture *texture_workspace;
+        PTexture *texture_workspace_act;
+
+        int edge_padding;
+        int workspace_padding;
+    };
+
+    /**
+      * Class holding harbour theme data.
+      */
     class HarbourData : public ThemeData {
     public:
         HarbourData(void);
@@ -323,7 +322,6 @@ public:
     };
 
     inline Theme::HarbourData *getHarbourData(void) { return &_harbour_data; }
-#endif // HARBOUR
 
     Theme(PScreen *scr);
     ~Theme(void);
@@ -388,10 +386,7 @@ private:
     // menu
     Theme::PMenuData _menu_data;
 
-    // harbour
-#ifdef HARBOUR
     HarbourData _harbour_data; /**< Data for styling harbour. */
-#endif // HARBOUR
 
     // status window
     TextDialogData _status_data, _cmd_d_data;
