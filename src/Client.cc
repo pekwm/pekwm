@@ -1051,7 +1051,7 @@ Client::readAutoprops(uint type)
 
     if (data) {
         // Make sure transient state matches
-        if (_transient
+        if (isTransient()
                 ? data->isApplyOn(APPLY_ON_TRANSIENT|APPLY_ON_TRANSIENT_ONLY)
                 : ! data->isApplyOn(APPLY_ON_TRANSIENT_ONLY)) {
             applyAutoprops(data);
