@@ -44,8 +44,8 @@ using std::endl;
 
 // Workspaces::Workspace
 
-Workspaces::Workspace::Workspace(const std::wstring &name, uint number, const std::list<PWinObj*> &wo_list)
-  : _name(name), _number(number), _wo_list(wo_list), _last_focused(0)
+Workspaces::Workspace::Workspace(const std::wstring &name, uint number)
+  : _name(name), _number(number), _last_focused(0)
 {
 }
 
@@ -58,7 +58,7 @@ Workspaces::Workspace::~Workspace(void)
 Workspaces *Workspaces::_instance = 0;
 
 
-//! @brief Workpsaces constructor
+//! @brief Workspaces constructor
 Workspaces::Workspaces(uint number, uint per_row)
   : _active(0), _previous(0), _per_row(per_row)
 {
@@ -82,7 +82,7 @@ Workspaces::Workspaces(uint number, uint per_row)
 
     // create new workspaces
     for (uint i = 0; i < number; ++i) {
-      _workspace_list.push_back(new Workspace(getWorkspaceName(i), i, _wo_list));
+        _workspace_list.push_back(new Workspace(getWorkspaceName(i), i));
     }
 }
 
@@ -133,7 +133,7 @@ Workspaces::setSize(uint number)
 
     } else { // We need more workspaces, lets create some
         for (uint i = before; i < number; ++i) {
-          _workspace_list.push_back(new Workspace(getWorkspaceName(i), i, _wo_list));
+            _workspace_list.push_back(new Workspace(getWorkspaceName(i), i));
         }
     }
 
@@ -164,7 +164,7 @@ Workspaces::setNames(void)
 
 //! @brief Activates Workspace workspace and sets the right hints
 //! @param num Workspace to activate
-//! @param focus wheter or not to focus a window after switch
+//! @param focus whether or not to focus a window after switch
 void
 Workspaces::setWorkspace(uint num, bool focus)
 {
