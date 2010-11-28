@@ -1811,6 +1811,16 @@ Client::getWMNormalHints(void)
         }
     }
 
+    if (_size->flags & PMaxSize) {
+        if (_size->max_width <= 0 || _size->max_height <= 0 ||
+            ((_size->flags & PMinSize) &&
+                (_size->max_width < _size->min_width ||
+                 _size->max_height < _size->min_height) )) {
+            _size->max_width = 0;
+            _size->max_height = 0;
+            _size->flags &= ~PMaxSize;
+        }
+    }
 }
 
 //! @brief
