@@ -283,21 +283,6 @@ AutoProperties::findProperty(const ClassHint* class_hint,
     return 0;
 }
 
-//! @brief Parses a property match rule for window types.
-//! @param str String to parse.
-//! @param prop Property to place result in.
-//! @return true on success, else false.
-AtomName
-AutoProperties::parsePropertyMatchWindowType(const std::string &str, Property *prop)
-{
-    AtomName atom = ParseUtil::getValue<AtomName>(str, _window_type_map);
-    if (atom == WINDOW_TYPE) {
-        cerr << " *** WARNING: unknown type " << str << " for autoproperty" << endl;
-    }
-
-    return atom;
-}
-
 /**
  * Parse regex_str and set on regex, outputting warning with name if
  * it fails.
@@ -587,7 +572,11 @@ AutoProperties::parseTypeProperty(CfgParser::Entry *section)
 
         // Create new property and try to parse
         type_property = new AutoProperty();
-        atom = parsePropertyMatchWindowType(type_section->get_value(), type_property);
+        atom = ParseUtil::getValue<AtomName>(type_section->get_value(), _window_type_map);
+        if (atom == WINDOW_TYPE) {
+            cerr << " *** WARNING: unknown type " << type_section->get_value() << " for autoproperty." << endl;
+        }
+
         if (atom != WINDOW_TYPE && parseProperty(type_section, type_property)) {
             // Parse of match ok, parse values
             parseAutoPropertyValue(type_section, type_property, 0);

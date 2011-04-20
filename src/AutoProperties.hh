@@ -242,7 +242,6 @@ private:
     bool parsePropertyMatch(const std::string &str, Property *prop, bool extended = true);
     void parsePropertyApplyOn(const std::string &apply_on, Property *prop);
     bool parseRegexpOrWarning(RegexString &regex, const std::string regex_str, const std::string &name);
-    AtomName parsePropertyMatchWindowType(const std::string &str, Property *prop);
     bool parseProperty(CfgParser::Entry *section, Property *prop);
     void parseAutoProperty(CfgParser::Entry *section, std::list<uint>* ws);
     void parseAutoGroup(CfgParser::Entry *section, AutoProperty* prop);
