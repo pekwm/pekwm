@@ -830,6 +830,7 @@ AutoProperties::parseAutoPropertyValue(CfgParser::Entry *section, AutoProperty *
         case AP_DISALLOWED_ACTIONS:
             prop->maskAdd(AP_DISALLOWED_ACTIONS);
             Config::instance()->parseActionAccessMask((*it)->get_value(), prop->disallowed_actions);
+            break;
 #ifdef OPACITY
         case AP_OPACITY:
             prop->maskAdd(AP_OPACITY);
