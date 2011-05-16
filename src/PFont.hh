@@ -18,13 +18,13 @@
 #include <limits>
 #endif // HAVE_LIMITS
 
+#include "pekwm.hh"
+
 extern "C" {
 #ifdef HAVE_XFT
 #include <X11/Xft/Xft.h>
 #endif // HAVE_XFT
 }
-
-#include "pekwm.hh"
 
 class PScreen;
 
