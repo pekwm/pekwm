@@ -41,6 +41,8 @@ public:
                                         std::list<ActionEvent> *actions);
     
 private:
+    void lookupWindowObjects(PWinObj **wo, Client **client, Frame **frame,
+                             PMenu **menu, PDecor **decor);
     void handleStateAction(const Action &action, PWinObj *wo, Client *client, Frame *frame);
 
     void actionExec(Client *client, const std::string &command);

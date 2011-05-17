@@ -77,48 +77,35 @@ ActionHandler::~ActionHandler(void)
 void
 ActionHandler::handleAction(const ActionPerformed &ap)
 {
+    PWinObj *wo = ap.wo;
     Client *client = 0;
     Frame *frame = 0;
     PMenu *menu = 0;
     PDecor *decor = 0;
     bool matched = false;
 
-    // determine what type if any of the window object that is focused
-    if (ap.wo) {
-        if (ap.wo->getType() == PWinObj::WO_CLIENT) {
-            client = static_cast<Client*>(ap.wo);
-            frame = static_cast<Frame*>(client->getParent());
-            decor = static_cast<PDecor*>(frame);
-        } else if (ap.wo->getType() == PWinObj::WO_FRAME) {
-            frame = static_cast<Frame*>(ap.wo);
-            client = static_cast<Client*>(frame->getActiveChild());
-            decor = static_cast<PDecor*>(ap.wo);
-        } else if (ap.wo->getType() == PWinObj::WO_MENU) {
-            menu = static_cast<PMenu*>(ap.wo);
-            decor = static_cast<PDecor*>(ap.wo);
-        } else {
-            decor = dynamic_cast<PDecor*>(ap.wo);
-        }
-    }
-
     // go through the list of actions and execute them
     list<Action>::const_iterator it = ap.ae.action_list.begin();
     for (; it != ap.ae.action_list.end(); ++it, matched = false) {
+        // Determine what type if any of the window object that is focused
+        // and check if it is still alive.
+        lookupWindowObjects(&wo, &client, &frame, &menu, &decor);
+
         // actions valid for all PWinObjs
-        if (! matched && ap.wo) {
+        if (! matched && wo) {
             matched = true;
             switch (it->getAction()) {
             case ACTION_FOCUS:
-                ap.wo->giveInputFocus();
+                wo->giveInputFocus();
                 break;
             case ACTION_UNFOCUS:
                 PWinObj::getRootPWinObj()->giveInputFocus();
                 break;
             case ACTION_FOCUS_DIRECTIONAL:
-                actionFocusDirectional(ap.wo, DirectionType(it->getParamI(0)), it->getParamI(1));
+                actionFocusDirectional(wo, DirectionType(it->getParamI(0)), it->getParamI(1));
                 break;
             case ACTION_SEND_KEY:
-                actionSendKey(ap.wo, it->getParamS());
+                actionSendKey(wo, it->getParamS());
                 break;
             default:
                 matched = false;
@@ -191,7 +178,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 if (frame->isFocused()) {
                     frame->raise();
                 } else {
-                    ap.wo->giveInputFocus();
+                    wo->giveInputFocus();
                 }
                 break;
             case ACTION_MOVE_TO_EDGE:
@@ -312,7 +299,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
             case ACTION_SET:
             case ACTION_UNSET:
             case ACTION_TOGGLE:
-                handleStateAction(*it, ap.wo, client, frame);
+                handleStateAction(*it, wo, client, frame);
                 break;
             case ACTION_NEXT_FRAME:
                 actionFocusToggle(ap.ae.sym, it->getParamI(0), 1 /* Direction */,
@@ -347,7 +334,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 break;
             case ACTION_SHOW_MENU:
                 actionShowMenu(it->getParamS(), it->getParamI(0),
-                               ap.type, client ? client : ap.wo);
+                               ap.type, client ? client : wo);
                 break;
             case ACTION_HIDE_ALL_MENUS:
                 MenuHandler::instance()->hideAllMenus();
@@ -370,14 +357,14 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                     WindowManager::instance()->getCmdDialog()->unmapWindow();
                 } else {
                     WindowManager::instance()->getCmdDialog()->mapCentered(it->getParamS(), true,
-                                                     frame ? frame : ap.wo);
+                                                     frame ? frame : wo);
                 }
                 break;
             case ACTION_SHOW_SEARCH_DIALOG:
                 if (WindowManager::instance()->getSearchDialog()->isMapped()) {
                     WindowManager::instance()->getSearchDialog()->unmapWindow();
                 } else {
-                    WindowManager::instance()->getSearchDialog()->mapCentered(it->getParamS(), true, frame ? frame : ap.wo);
+                    WindowManager::instance()->getSearchDialog()->mapCentered(it->getParamS(), true, frame ? frame : wo);
                 } 
                 break;
             case ACTION_HIDE_WORKSPACE_INDICATOR:
@@ -387,6 +374,34 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 matched = false;
                 break;
             }
+        }
+    }
+}
+
+void
+ActionHandler::lookupWindowObjects(PWinObj **wo, Client **client, Frame **frame,
+                                   PMenu **menu, PDecor **decor)
+{
+    *wo = 0;
+    *client = 0;
+    *frame = 0;
+    *menu = 0;
+    *decor = 0;
+
+    if (PWinObj::windowObjectExists(*wo)) {
+        if ((*wo)->getType() == PWinObj::WO_CLIENT) {
+            *client = static_cast<Client*>(*wo);
+            *frame = static_cast<Frame*>((*client)->getParent());
+            *decor = static_cast<PDecor*>(*frame);
+        } else if ((*wo)->getType() == PWinObj::WO_FRAME) {
+            *frame = static_cast<Frame*>(*wo);
+            *client = static_cast<Client*>((*frame)->getActiveChild());
+            *decor = static_cast<PDecor*>(*wo);
+        } else if ((*wo)->getType() == PWinObj::WO_MENU) {
+            *menu = static_cast<PMenu*>(*wo);
+            *decor = static_cast<PDecor*>(*wo);
+        } else {
+            *decor = dynamic_cast<PDecor*>(*wo);
         }
     }
 }
