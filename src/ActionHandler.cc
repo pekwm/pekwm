@@ -382,7 +382,6 @@ void
 ActionHandler::lookupWindowObjects(PWinObj **wo, Client **client, Frame **frame,
                                    PMenu **menu, PDecor **decor)
 {
-    *wo = 0;
     *client = 0;
     *frame = 0;
     *menu = 0;
@@ -403,6 +402,8 @@ ActionHandler::lookupWindowObjects(PWinObj **wo, Client **client, Frame **frame,
         } else {
             *decor = dynamic_cast<PDecor*>(*wo);
         }
+    } else {
+        *wo = 0;
     }
 }
 
