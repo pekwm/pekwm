@@ -41,7 +41,7 @@ public:
         WO_NO_TYPE = 0 //!< No type.
     };
 
-    PWinObj(Display *dpy);
+    PWinObj();
     virtual ~PWinObj(void);
 
     //! @brief Set the X Display structure.

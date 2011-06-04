@@ -61,9 +61,9 @@ PMenu::Item::~Item(void)
 map<Window,PMenu*> PMenu::_menu_map = map<Window,PMenu*>();
 
 //! @brief Constructor for PMenu class
-PMenu::PMenu(Display *dpy, Theme *theme, const std::wstring &title,
+PMenu::PMenu(Theme *theme, const std::wstring &title,
              const std::string &name, const std::string decor_name)
-    : PDecor(dpy, theme, decor_name),
+    : PDecor(theme, decor_name),
       _name(name),
       _menu_parent(0), _class_hint(L"pekwm", L"Menu", L"", L"", L""),
       _menu_wo(0),
@@ -83,7 +83,7 @@ PMenu::PMenu(Display *dpy, Theme *theme, const std::wstring &title,
     _hidden = true; // don't care about it when changing worskpace etc
 
     // create menu content child
-    _menu_wo = new PWinObj(_dpy);
+    _menu_wo = new PWinObj;
     XSetWindowAttributes attr;
     attr.override_redirect = True;
     attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|

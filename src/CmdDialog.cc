@@ -41,8 +41,8 @@ using std::wstring;
  *
  * @todo Make size configurable.
  */
-CmdDialog::CmdDialog(Display *dpy, Theme *theme)
-  : InputDialog(dpy, theme, L"Enter command"),
+CmdDialog::CmdDialog(Theme *theme)
+  : InputDialog(theme, L"Enter command"),
     _completer(L";"), _exec_count(0)
 {
   _type = PWinObj::WO_CMD_DIALOG;

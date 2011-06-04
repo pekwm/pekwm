@@ -26,8 +26,8 @@ using std::wcerr;
 /**
  * SearchDialog constructor.
  */
-SearchDialog::SearchDialog(Display *dpy, Theme *theme)
-  : InputDialog(dpy, theme, L"Search"),
+SearchDialog::SearchDialog(Theme *theme)
+  : InputDialog(theme, L"Search"),
     _result_menu(0)
 {
     _type = PWinObj::WO_SEARCH_DIALOG;
@@ -36,7 +36,7 @@ SearchDialog::SearchDialog(Display *dpy, Theme *theme)
     _ae.action_list.back().setAction(ACTION_GOTO_CLIENT);
 
     // Set up menu for displaying results
-    _result_menu = new PMenu(_dpy, _theme, L"", "");
+    _result_menu = new PMenu(_theme, L"", "");
     _result_menu->reparent(this, borderLeft(), borderTop() + getTitleHeight() + _text_wo->getHeight());
     _result_menu->setLayer(LAYER_DESKTOP); // Ignore when placing
     _result_menu->setSticky(STATE_SET);

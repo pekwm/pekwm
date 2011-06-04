@@ -25,7 +25,7 @@
 class CmdDialog : public InputDialog
 {
 public:
-    CmdDialog(Display *dpy, Theme *theme);
+    CmdDialog(Theme *theme);
     virtual ~CmdDialog(void);
 
     void unmapWindow(void);

@@ -26,8 +26,8 @@ using std::vector;
 /**
  * Display constructor
  */
-WorkspaceIndicator::Display::Display(::Display *dpy, PWinObj *parent, Theme *theme)
-  : PWinObj(dpy),
+WorkspaceIndicator::Display::Display(PWinObj *parent, Theme *theme)
+  : PWinObj(),
     _theme(theme), _pixmap(None)
 {
     _parent = parent;
@@ -172,9 +172,9 @@ WorkspaceIndicator::Display::getPaddingVertical(void)
 /**
  * WorkspaceIndicator constructor
  */
-WorkspaceIndicator::WorkspaceIndicator(::Display *dpy, Theme *theme, Timer<ActionPerformed> &timer)
-  : PDecor(dpy, theme, "WORKSPACEINDICATOR"),
-    _timer(timer), _display_wo(dpy, this, theme),
+WorkspaceIndicator::WorkspaceIndicator(Theme *theme, Timer<ActionPerformed> &timer)
+  : PDecor(theme, "WORKSPACEINDICATOR"),
+    _timer(timer), _display_wo(this, theme),
     _timer_hide(0)
 {
     _type = PWinObj::WO_WORKSPACE_INDICATOR;

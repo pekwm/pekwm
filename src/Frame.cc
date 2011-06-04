@@ -56,7 +56,7 @@ bool Frame::_tag_behind = false;
 
 //! @brief Frame constructor
 Frame::Frame(Client *client, AutoProperty *ap)
-    : PDecor(WindowManager::instance()->getScreen()->getDpy(), WindowManager::instance()->getTheme(),
+    : PDecor(WindowManager::instance()->getTheme(),
              Frame::getClientDecorName(client), client->getWindow()),
       _id(0), _client(0), _class_hint(0),
       _non_fullscreen_decor_state(0), _non_fullscreen_layer(LAYER_NORMAL)

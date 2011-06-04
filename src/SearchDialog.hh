@@ -27,7 +27,7 @@
  */
 class SearchDialog : public InputDialog {
 public:
-    SearchDialog(Display *dpy, Theme *theme);
+    SearchDialog(Theme *theme);
     virtual ~SearchDialog(void);
 
     void unmapWindow(void);

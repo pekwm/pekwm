@@ -35,7 +35,7 @@ const uint DOCKAPP_BORDER_WIDTH = 2;
 
 //! @brief DockApp constructor
 DockApp::DockApp(PScreen *s, Theme *t, Window win) :
-        PWinObj(s->getDpy()),
+        PWinObj(),
         _scr(s), _theme(t),
         _dockapp_window(win),
         _client_window(win), _icon_window(None),

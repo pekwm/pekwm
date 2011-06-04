@@ -57,7 +57,7 @@ list<Client*> Client::_client_list = list<Client*>();
 vector<uint> Client::_clientid_list = vector<uint>();
 
 Client::Client(Window new_client, bool is_new)
-    : PWinObj(WindowManager::instance()->getScreen()->getDpy()),
+    : PWinObj(),
       _id(0), _size(0),
       _transient(None), _strut(0), _icon(0),
       _pid(0), _is_remote(false), _class_hint(0),

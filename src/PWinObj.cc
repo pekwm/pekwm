@@ -32,7 +32,7 @@ vector<PWinObj*> PWinObj::_wo_list = vector<PWinObj*>();
 map<Window, PWinObj*> PWinObj::_wo_map = map<Window, PWinObj*>();
 
 //! @brief PWinObj constructor.
-PWinObj::PWinObj(Display *dpy)
+PWinObj::PWinObj()
     : _window(None),
       _parent(0), _type(WO_NO_TYPE),
       _workspace(0), _layer(LAYER_NORMAL),

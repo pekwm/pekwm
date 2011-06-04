@@ -32,7 +32,7 @@ public:
    */
   class Display : public PWinObj {
   public:
-    Display(::Display *dpy, PWinObj *parent, Theme *theme);
+    Display(PWinObj *parent, Theme *theme);
     virtual ~Display(void);
 
     virtual bool getSizeRequest(Geometry &request);
@@ -50,7 +50,7 @@ public:
     Pixmap _pixmap; //!< Pixmap holding rendered workspace view
   };
 
-  WorkspaceIndicator(::Display *dpy, Theme *theme, Timer<ActionPerformed> &timer);
+  WorkspaceIndicator(Theme *theme, Timer<ActionPerformed> &timer);
   virtual ~WorkspaceIndicator(void);
 
   void render(void);

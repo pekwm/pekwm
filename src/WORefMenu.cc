@@ -29,7 +29,7 @@ using std::wstring;
 //! @param decor_name Name of decor, defaults to MENU
 WORefMenu::WORefMenu(PScreen *scr, Theme *theme, const std::wstring &title,
                      const std::string &name, const std::string &decor_name)
-    : PMenu(scr->getDpy(), theme, title, name, decor_name), PWinObjReference(0),
+    : PMenu(theme, title, name, decor_name), PWinObjReference(0),
       _title_base(title),
       _title_pre(L" ["), _title_post(L"]")
 {

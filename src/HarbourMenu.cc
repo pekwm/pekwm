@@ -20,7 +20,7 @@
 
 //! @brief HarbourMenu constructor
 HarbourMenu::HarbourMenu(PScreen *scr, Theme *theme, Harbour *harbour)
-    : PMenu(scr->getDpy(), theme, L"Harbour", "HARBOUR"),
+    : PMenu(theme, L"Harbour", "HARBOUR"),
       _harbour(harbour), _dockapp(0)
 {
     ActionEvent ae;

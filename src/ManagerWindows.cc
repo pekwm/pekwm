@@ -42,8 +42,8 @@ const unsigned long RootWO::EXPECTED_DESKTOP_NAMES_LENGTH = 256;
  * Hint window constructor, creates window and sets supported
  * protocols.
  */
-HintWO::HintWO(Display *dpy, Window root, bool replace) throw (std::string&)
-    : PWinObj(dpy)
+HintWO::HintWO(Window root, bool replace) throw (std::string&)
+    : PWinObj()
 {
     if (_instance) {
         throw string("trying to create HintWO which is already created.");
@@ -208,8 +208,8 @@ HintWO::claimDisplayOwner(Window session_atom, Time timestamp)
 /**
  * Root window constructor, reads geometry and sets basic atoms.
  */
-RootWO::RootWO(Display *dpy, Window root)
-    : PWinObj(dpy)
+RootWO::RootWO(Window root)
+    : PWinObj()
 {
     _type = WO_SCREEN_ROOT;
     setLayer(LAYER_NONE);
@@ -225,7 +225,7 @@ RootWO::RootWO(Display *dpy, Window root)
     uint errors_before = xerrors_count;
 
     // Select window events
-    XSelectInput(dpy, _window, RootWO::EVENT_MASK);
+    XSelectInput(_dpy, _window, RootWO::EVENT_MASK);
 
     XSync(_dpy, false);
     setXErrorsIgnore(false);
@@ -394,8 +394,8 @@ RootWO::setEwmhDesktopNames(void)
  * Edge window constructor, create window, setup strut and register
  * window.
  */
-EdgeWO::EdgeWO(Display *dpy, Window root, EdgeType edge, bool set_strut)
-    : PWinObj(dpy),
+EdgeWO::EdgeWO(Window root, EdgeType edge, bool set_strut)
+    : PWinObj(),
       _edge(edge)
 {
     _type = WO_SCREEN_EDGE;

@@ -35,8 +35,8 @@ map<KeySym, wchar_t> InputDialog::_keysym_map;
 /**
  * InputDialog constructor.
  */
-InputDialog::InputDialog(Display *dpy, Theme *theme, const std::wstring &title)
-    : PDecor(dpy, theme, "INPUTDIALOG"), PWinObjReference(0),
+InputDialog::InputDialog(Theme *theme, const std::wstring &title)
+    : PDecor(theme, "INPUTDIALOG"), PWinObjReference(0),
       _data(theme->getCmdDialogData()),
       _pixmap_bg(None), _pos(0), _buf_off(0), _buf_chars(0)
 {
@@ -56,7 +56,7 @@ InputDialog::InputDialog(Display *dpy, Theme *theme, const std::wstring &title)
     titleSetActive(0);
     setTitle(title);
 
-    _text_wo = new PWinObj(_dpy);
+    _text_wo = new PWinObj;
     XSetWindowAttributes attr;
     attr.override_redirect = false;
     attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|

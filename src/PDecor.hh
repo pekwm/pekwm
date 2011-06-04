@@ -42,7 +42,7 @@ public:
     //! @brief Decor title button class.
 class Button : public PWinObj {
     public:
-         Button(Display *dpy, PWinObj *parent, Theme::PDecorButtonData *data, uint width, uint height);
+         Button(PWinObj *parent, Theme::PDecorButtonData *data, uint width, uint height);
         ~Button(void);
 
         ActionEvent *findAction(XButtonEvent *ev);
@@ -122,7 +122,7 @@ class Button : public PWinObj {
         uint _width;
     };
 
-    PDecor(Display *dpy, Theme *theme,
+    PDecor(Theme *theme,
            const std::string decor_name = DEFAULT_DECOR_NAME,
            const Window child_window = None);
     virtual ~PDecor(void);

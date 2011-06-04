@@ -26,7 +26,7 @@
 class HintWO : public PWinObj
 {
 public:
-    HintWO(Display *dpy, Window root, bool replace) throw (std::string&);
+    HintWO(Window root, bool replace) throw (std::string&);
     virtual ~HintWO(void);
 
     inline static HintWO *instance(void) { return _instance; }
@@ -50,7 +50,7 @@ private:
 class RootWO : public PWinObj
 {
 public:
-    RootWO(Display *dpy, Window root);
+    RootWO(Window root);
     virtual ~RootWO(void);
 
     /** Resize root window, does no actual resizing but updates the
@@ -83,7 +83,7 @@ private:
 class EdgeWO : public PWinObj
 {
 public:
-    EdgeWO(Display *dpy, Window root, EdgeType edge, bool set_strut);
+    EdgeWO(Window root, EdgeType edge, bool set_strut);
     virtual ~EdgeWO(void);
 
     void configureStrut(bool set_strut);

@@ -27,8 +27,8 @@ using std::endl;
 StatusWindow *StatusWindow::_instance = 0;
 
 //! @brief StatusWindow constructor
-StatusWindow::StatusWindow(Display *dpy, Theme *theme)
-    : PDecor(dpy, theme, "STATUSWINDOW"),
+StatusWindow::StatusWindow(Theme *theme)
+    : PDecor(theme, "STATUSWINDOW"),
       _bg(None)
 {
     if (_instance) {
@@ -49,7 +49,7 @@ StatusWindow::StatusWindow(Display *dpy, Theme *theme)
     XSetWindowAttributes attr;
     attr.event_mask = None;
 
-    _status_wo = new PWinObj(_dpy);
+    _status_wo = new PWinObj;
     _status_wo->setWindow(XCreateWindow(_dpy, _window,
                                         0, 0, 1, 1, 0,
                                         CopyFromParent, CopyFromParent, CopyFromParent,

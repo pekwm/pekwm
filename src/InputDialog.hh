@@ -29,7 +29,7 @@ extern "C" {
  */
 class InputDialog : public PDecor, public PWinObjReference {
 public:
-  InputDialog(Display *dpy, Theme *theme, const std::wstring &title);
+  InputDialog(Theme *theme, const std::wstring &title);
   virtual ~InputDialog(void);
 
   // BEGIN - PWinObj interface

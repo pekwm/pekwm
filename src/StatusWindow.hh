@@ -21,7 +21,7 @@ class PDecor;
 //! @brief Status display window.
 class StatusWindow : public PDecor {
 public:
-    StatusWindow(Display *dpy, Theme *theme);
+    StatusWindow(Theme *theme);
     virtual ~StatusWindow(void);
 
     //! @brief Returns the StatusWindow instance pointer.

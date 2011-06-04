@@ -318,13 +318,13 @@ WindowManager::setupDisplay(bool replace)
 
     try {
         // Create hint window _before_ root window.
-        _hint_wo = new HintWO(dpy, _screen->getRoot(), replace);
+        _hint_wo = new HintWO(_screen->getRoot(), replace);
     } catch (string &ex) {
         return false;
     }
 
     // Create root PWinObj
-    _root_wo = new RootWO(dpy, _screen->getRoot());
+    _root_wo = new RootWO(_screen->getRoot());
     PWinObj::setRootPWinObj(_root_wo);
 
     _color_handler = new ColorHandler(dpy);
@@ -348,10 +348,10 @@ WindowManager::setupDisplay(bool replace)
 
     MenuHandler::init(_theme);
 
-    _cmd_dialog = new CmdDialog(_screen->getDpy(), _theme);
-    _search_dialog = new SearchDialog(_screen->getDpy(), _theme);
-    _status_window = new StatusWindow(_screen->getDpy(), _theme);
-    _workspace_indicator = new WorkspaceIndicator(_screen->getDpy(), _theme, _timer_action);
+    _cmd_dialog = new CmdDialog(_theme);
+    _search_dialog = new SearchDialog(_theme);
+    _status_window = new StatusWindow(_theme);
+    _workspace_indicator = new WorkspaceIndicator(_theme, _timer_action);
 
     XDefineCursor(dpy, _screen->getRoot(),
                   _screen_resources->getCursor(ScreenResources::CURSOR_ARROW));
@@ -473,13 +473,13 @@ WindowManager::screenEdgeCreate(void)
 
     bool indent = Config::instance()->getScreenEdgeIndent();
 
-    _screen_edge_list.push_back(new EdgeWO(_screen->getDpy(), _screen->getRoot(), SCREEN_EDGE_LEFT,
+    _screen_edge_list.push_back(new EdgeWO(_screen->getRoot(), SCREEN_EDGE_LEFT,
                                            indent && (_config->getScreenEdgeSize(SCREEN_EDGE_LEFT) > 0)));
-    _screen_edge_list.push_back(new EdgeWO(_screen->getDpy(), _screen->getRoot(), SCREEN_EDGE_RIGHT,
+    _screen_edge_list.push_back(new EdgeWO(_screen->getRoot(), SCREEN_EDGE_RIGHT,
                                            indent && (_config->getScreenEdgeSize(SCREEN_EDGE_RIGHT) > 0)));
-    _screen_edge_list.push_back(new EdgeWO(_screen->getDpy(), _screen->getRoot(), SCREEN_EDGE_TOP,
+    _screen_edge_list.push_back(new EdgeWO(_screen->getRoot(), SCREEN_EDGE_TOP,
                                            indent && (_config->getScreenEdgeSize(SCREEN_EDGE_TOP) > 0)));
-    _screen_edge_list.push_back(new EdgeWO(_screen->getDpy(), _screen->getRoot(), SCREEN_EDGE_BOTTOM,
+    _screen_edge_list.push_back(new EdgeWO(_screen->getRoot(), SCREEN_EDGE_BOTTOM,
                                            indent && (_config->getScreenEdgeSize(SCREEN_EDGE_BOTTOM) > 0)));
 
     // make sure the edge stays ontop

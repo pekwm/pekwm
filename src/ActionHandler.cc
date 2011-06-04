@@ -900,7 +900,7 @@ ActionHandler::createNextPrevMenu(bool show_iconified)
 {
     ActionEvent ae; // empty ae, used when inserting
     PMenu *menu =
-        new PMenu(PScreen::instance()->getDpy(), WindowManager::instance()->getTheme(), L"Windows",
+        new PMenu(WindowManager::instance()->getTheme(), L"Windows",
                   "" /* Empty name*/);
 
     Frame *fr;
@@ -922,8 +922,8 @@ PMenu*
 ActionHandler::createMRUMenu(bool show_iconified)
 {
     ActionEvent ae; // empty ae, used when inserting
-    PMenu *menu = new PMenu(PScreen::instance()->getDpy(),
-            WindowManager::instance()->getTheme(), L"MRU Windows", "" /* Empty name */);
+    PMenu *menu = new PMenu(WindowManager::instance()->getTheme(),
+                            L"MRU Windows", "" /* Empty name */);
 
     Frame *fr;
     list<PWinObj*>::reverse_iterator f_it = WindowManager::instance()->mru_rbegin();

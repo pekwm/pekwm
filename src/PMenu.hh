@@ -66,7 +66,7 @@ public:
                                     that created this item. */
     };
 
-    PMenu(Display *dpy, Theme *theme, const std::wstring &title,
+    PMenu(Theme *theme, const std::wstring &title,
           const std::string &name, const std::string decor_name = "MENU");
     virtual ~PMenu(void);
 
