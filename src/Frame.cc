@@ -155,9 +155,8 @@ Frame::Frame(Client *client, AutoProperty *ap)
 
     _scr->ungrabServer(true); // ungrab and sync
 
-    // now insert the client in the frame we created, do not give it focus.
+    // now insert the client in the frame we created.
     addChild(client);
-    activateChild(client);
 
     // needs to be done before the workspace insert and after the client
     // has been inserted, in order for layer settings to be propagated
@@ -168,6 +167,8 @@ Frame::Frame(Client *client, AutoProperty *ap)
     _frame_list.push_back(this);
     WindowManager::instance()->addToFrameList(this);
     Workspaces::instance()->insert(this);
+
+    activateChild(client);
 
     // set the window states, shaded, maximized...
     getState(client);
