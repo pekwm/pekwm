@@ -234,7 +234,7 @@ private:
     void initHeadsXinerama(void);
 
 private:
-    Display *_dpy;
+    static Display *_dpy;
     bool _honour_randr; /**< Boolean flag if randr should be honoured. */
     int _fd;
 

@@ -119,7 +119,7 @@ PScreen::PVisual::getShiftPrecFromMask(ulong mask, int &shift, int &prec)
 
 //! @brief PScreen constructor
 PScreen::PScreen(Display *dpy, bool honour_randr)
-    : _dpy(dpy), _honour_randr(honour_randr), _fd(-1),
+    : _honour_randr(honour_randr), _fd(-1),
       _screen(-1), _depth(-1),
       _root(None), _visual(0), _colormap(None),
       _modifier_map(0),
@@ -134,6 +134,8 @@ PScreen::PScreen(Display *dpy, bool honour_randr)
     _instance = this;
 
     XSetErrorHandler(handleXError);
+
+    _dpy = dpy;
 
     XGrabServer(_dpy);
 
@@ -702,5 +704,6 @@ PScreen::getKeycodeFromMask(uint mask)
     return 0;
 }
 
+Display *PScreen::_dpy;
 uint PScreen::_num_lock = 0;
 uint PScreen::_scroll_lock = 0;
