@@ -25,6 +25,7 @@ using std::find;
 using std::vector;
 using std::map;
 
+Display *PWinObj::_dpy;
 PWinObj* PWinObj::_focused_wo = (PWinObj*) 0;
 PWinObj* PWinObj::_root_wo = (PWinObj*) 0;
 vector<PWinObj*> PWinObj::_wo_list = vector<PWinObj*>();
@@ -32,7 +33,7 @@ map<Window, PWinObj*> PWinObj::_wo_map = map<Window, PWinObj*>();
 
 //! @brief PWinObj constructor.
 PWinObj::PWinObj(Display *dpy)
-    : _dpy(dpy), _window(None),
+    : _window(None),
       _parent(0), _type(WO_NO_TYPE),
       _workspace(0), _layer(LAYER_NORMAL),
       _mapped(false), _iconified(false), _hidden(false),

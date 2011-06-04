@@ -44,6 +44,9 @@ public:
     PWinObj(Display *dpy);
     virtual ~PWinObj(void);
 
+    //! @brief Set the X Display structure.
+    static void setDisplay(Display *dpy) { _dpy = dpy; }
+
     //! @brief Returns the focused PWinObj.
     static inline PWinObj *getFocusedPWinObj(void) { return _focused_wo; }
     //! @brief Returns the PWinObj representing the root Window.
@@ -215,7 +218,7 @@ protected:
     static void woListRemove(PWinObj *wo);
 
 protected:
-    Display *_dpy; //!< Display PWinObj is on.
+    static Display *_dpy; //!< Display PWinObj is on.
     Window _window; //!< Window PWinObj represents.
     PWinObj *_parent; //!< Parent PWinObj.
 
