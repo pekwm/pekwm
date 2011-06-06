@@ -641,6 +641,10 @@ ActionHandler::actionSendToWorkspace(PDecor *decor, int direction)
 void
 ActionHandler::actionWarpToWorkspace(PDecor *decor, uint direction)
 {
+    // Removing the already accumulated motion events can help
+    // to avoid skipping workspaces (see task #77).
+    PScreen::removeMotionEvents();
+
     // actually did move
     if (Workspaces::instance()->gotoWorkspace(DirectionType(direction), true)) {
         int x, y;
