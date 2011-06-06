@@ -215,7 +215,7 @@ public:
     uint getMaskFromKeycode(KeyCode keycode);
     KeyCode getKeycodeFromMask(uint mask);
 
-    inline static void removeMotionEvents() {
+    inline static void removeMotionEvents(void) {
         XEvent xev;
         while (XCheckMaskEvent(_dpy, PointerMotionMask, &xev))
             ;
