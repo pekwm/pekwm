@@ -839,7 +839,7 @@ PDecor::addDecor(PDecor *decor)
     delete decor;
 }
 
-//! @brief Sets prefered decor_name
+//! @brief Sets preferred decor_name
 //! @return True on change, False if unchanged
 bool
 PDecor::setDecor(const std::string &name)
@@ -1314,8 +1314,7 @@ PDecor::doMove(int x_root, int y_root)
         switch (e.type) {
         case MotionNotify:
             // Flush all pointer motion, no need to redraw and redraw.
-            while (XCheckMaskEvent(_dpy, PointerMotionMask, &e) == True)
-                ;
+            PScreen::removeMotionEvents();
 
             _gm.x = e.xmotion.x_root - x;
             _gm.y = e.xmotion.y_root - y;
