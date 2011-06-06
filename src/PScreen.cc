@@ -119,19 +119,13 @@ PScreen::PVisual::getShiftPrecFromMask(ulong mask, int &shift, int &prec)
 
 //! @brief PScreen constructor
 PScreen::PScreen(Display *dpy, bool honour_randr)
-    : _honour_randr(honour_randr), _fd(-1),
-      _screen(-1), _depth(-1),
-      _root(None), _visual(0), _colormap(None),
-      _modifier_map(0),
-      _has_extension_shape(false), _event_shape(-1),
-      _has_extension_xinerama(false),
-      _has_extension_xrandr(false), _event_xrandr(-1),
-      _server_grabs(0), _last_event_time(0), _last_click_id(None)
 {
     if (_instance) {
         throw string("PScreen, trying to create multiple instances");
     }
     _instance = this;
+
+    _honour_randr = honour_randr;
 
     XSetErrorHandler(handleXError);
 
@@ -705,5 +699,26 @@ PScreen::getKeycodeFromMask(uint mask)
 }
 
 Display *PScreen::_dpy;
-uint PScreen::_num_lock = 0;
-uint PScreen::_scroll_lock = 0;
+bool PScreen::_honour_randr = false;
+int PScreen::_fd = -1;
+int PScreen::_screen = -1;
+int PScreen::_depth = -1;
+Geometry PScreen::_screen_gm;
+Window PScreen::_root = None;
+PScreen::PVisual *PScreen::_visual;
+Colormap PScreen::_colormap = None;
+XModifierKeymap *PScreen::_modifier_map;
+bool PScreen::_has_extension_shape = false;
+int PScreen::_event_shape = -1;
+bool PScreen::_has_extension_xinerama = false;
+bool PScreen::_has_extension_xrandr = false;
+int PScreen::_event_xrandr = -1;
+uint PScreen::_num_lock;
+uint PScreen::_scroll_lock;
+std::vector<Head> PScreen::_heads;
+uint PScreen::_server_grabs;
+Time PScreen::_last_event_time;
+Window PScreen::_last_click_id = None;
+Time PScreen::_last_click_time[BUTTON_NO - 1];
+Strut PScreen::_strut;
+std::list<Strut*> PScreen::_strut_list;

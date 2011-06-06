@@ -118,22 +118,22 @@ public:
     static PScreen* instance(void) { return _instance; }
 
     inline static Display* getDpy(void) { return _dpy; }
-    inline int getScreenNum(void) const { return _screen; }
-    inline Window getRoot(void) const { return _root; }
+    inline static int getScreenNum(void) { return _screen; }
+    inline static Window getRoot(void) { return _root; }
 
-    const Geometry &getScreenGeometry(void) const { return _screen_gm; }
-    inline uint getWidth(void) const { return _screen_gm.width; }
-    inline uint getHeight(void) const { return _screen_gm.height; }
+    inline static const Geometry &getScreenGeometry(void) { return _screen_gm; }
+    inline static uint getWidth(void)  { return _screen_gm.width; }
+    inline static uint getHeight(void) { return _screen_gm.height; }
 
-    inline int getDepth(void) const { return _depth; }
-    inline PScreen::PVisual *getVisual(void) { return _visual; }
-    inline GC getGC(void) { return DefaultGC(_dpy, _screen); }
-    inline Colormap getColormap(void) const { return _colormap; }
+    inline static int getDepth(void) { return _depth; }
+    inline static PScreen::PVisual *getVisual(void) { return _visual; }
+    inline static GC getGC(void) { return DefaultGC(_dpy, _screen); }
+    inline static Colormap getColormap(void) { return _colormap; }
 
-    inline ulong getWhitePixel(void)
-    const { return WhitePixel(_dpy, _screen); }
-    inline ulong getBlackPixel(void)
-    const { return BlackPixel(_dpy, _screen); }
+    inline static
+    ulong getWhitePixel(void) { return WhitePixel(_dpy, _screen); }
+    inline static 
+    ulong getBlackPixel(void) { return BlackPixel(_dpy, _screen); }
 
     /**
      * Remove state modifiers such as NumLock from state.
@@ -149,53 +149,53 @@ public:
         *state &= ~(Button1Mask | Button2Mask | Button3Mask | Button4Mask | Button5Mask);
     }
 
-    void setLockKeys(void);
-    inline uint getNumLock(void) const { return _num_lock; }
-    inline uint getScrollLock(void) const { return _scroll_lock; }
+    static void setLockKeys(void);
+    inline static uint getNumLock(void) { return _num_lock; }
+    inline static uint getScrollLock(void) { return _scroll_lock; }
 
-    inline bool hasExtensionShape(void) const { return _has_extension_shape; }
-    inline int getEventShape(void) const { return _event_shape; }
+    inline static bool hasExtensionShape(void) { return _has_extension_shape; }
+    inline static int getEventShape(void) { return _event_shape; }
 
-    void updateGeometry(uint width, uint height);
+    static void updateGeometry(uint width, uint height);
 #ifdef HAVE_XRANDR
-    inline bool hasExtensionXRandr(void) const { return _has_extension_xrandr; }
-    inline int getEventXRandr(void) const { return _event_xrandr; }
+    inline static bool hasExtensionXRandr(void) { return _has_extension_xrandr; }
+    inline static int getEventXRandr(void) { return _event_xrandr; }
 #endif // HAVE_XRANDR
 
-    bool getNextEvent(XEvent &ev);
-    bool grabServer(void);
-    bool ungrabServer(bool sync);
-    bool grabKeyboard(Window win);
-    bool ungrabKeyboard(void);
-    bool grabPointer(Window win, uint event_mask, Cursor cursor);
-    bool ungrabPointer(void);
+    static bool getNextEvent(XEvent &ev);
+    static bool grabServer(void);
+    static bool ungrabServer(bool sync);
+    static bool grabKeyboard(Window win);
+    static bool ungrabKeyboard(void);
+    static bool grabPointer(Window win, uint event_mask, Cursor cursor);
+    static bool ungrabPointer(void);
 
-    uint getNearestHead(int x, int y);
-    uint getCurrHead(void);
-    bool getHeadInfo(uint head, Geometry &head_info);
-    Geometry getHeadGeometry(uint head);
-    void getHeadInfoWithEdge(uint head, Geometry &head_info);
-    inline int getNumHeads(void) const { return _heads.size(); }
+    static uint getNearestHead(int x, int y);
+    static uint getCurrHead(void);
+    static bool getHeadInfo(uint head, Geometry &head_info);
+    static Geometry getHeadGeometry(uint head);
+    static void getHeadInfoWithEdge(uint head, Geometry &head_info);
+    inline static int getNumHeads(void) { return _heads.size(); }
 
-    inline Time getLastEventTime(void) const { return _last_event_time; }
-    inline void setLastEventTime(Time t) { _last_event_time = t; }
+    inline static Time getLastEventTime(void) { return _last_event_time; }
+    inline static void setLastEventTime(Time t) { _last_event_time = t; }
 
-    inline Window getLastClickID(void) { return _last_click_id; }
-    inline void setLastClickID(Window id) { _last_click_id = id; }
+    inline static Window getLastClickID(void) { return _last_click_id; }
+    inline static void setLastClickID(Window id) { _last_click_id = id; }
 
-    inline Time getLastClickTime(uint button) {
+    inline static Time getLastClickTime(uint button) {
         if (button < BUTTON_NO) {
             return _last_click_time[button];
         }
         return 0;
     }
-    inline void setLastClickTime(uint button, Time time) {
+    inline static void setLastClickTime(uint button, Time time) {
         if (button < BUTTON_NO) {
             _last_click_time[button] = time;
         }
     }
 
-    inline bool isDoubleClick(Window id, uint button, Time time, Time dc_time) {
+    inline static bool isDoubleClick(Window id, uint button, Time time, Time dc_time) {
         if ((_last_click_id == id) &&
                 ((time - getLastClickTime(button)) < dc_time)) {
             return true;
@@ -203,16 +203,16 @@ public:
         return false;
     }
 
-    void getMousePosition(int &x, int &y);
-    uint getButtonFromState(uint state);
+    static void getMousePosition(int &x, int &y);
+    static uint getButtonFromState(uint state);
 
-    void addStrut(Strut *strut);
-    void removeStrut(Strut *rem_strut);
-    void updateStrut(void);
-    inline Strut *getStrut(void) { return &_strut; }
+    static void addStrut(Strut *strut);
+    static void removeStrut(Strut *rem_strut);
+    static void updateStrut(void);
+    inline static Strut *getStrut(void) { return &_strut; }
 
-    uint getMaskFromKeycode(KeyCode keycode);
-    KeyCode getKeycodeFromMask(uint mask);
+    static uint getMaskFromKeycode(KeyCode keycode);
+    static KeyCode getKeycodeFromMask(uint mask);
 
     inline static void removeMotionEvents(void) {
         XEvent xev;
@@ -228,53 +228,53 @@ private:
     // squared distance because computing with sqrt is expensive
 
     // gets the squared distance between 2 points
-    inline uint calcDistance(int x1, int y1, int x2, int y2) {
+    inline static uint calcDistance(int x1, int y1, int x2, int y2) {
         return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
     }
     // gets the squared distance between 2 points with either x or y the same
-    inline uint calcDistance(int p1, int p2) { return (p1 - p2) * (p1 - p2); }
+    inline static uint calcDistance(int p1, int p2) { return (p1 - p2) * (p1 - p2); }
 
-    void initHeads(void);
-    void initHeadsRandr(void);
-    void initHeadsXinerama(void);
+    static void initHeads(void);
+    static void initHeadsRandr(void);
+    static void initHeadsXinerama(void);
 
 private:
     static Display *_dpy;
-    bool _honour_randr; /**< Boolean flag if randr should be honoured. */
-    int _fd;
+    static bool _honour_randr; /**< Boolean flag if randr should be honoured. */
+    static int _fd;
 
-    int _screen, _depth;
+    static int _screen, _depth;
 
-    Geometry _screen_gm; /**< Screen geometry, no head information. */
+    static Geometry _screen_gm; /**< Screen geometry, no head information. */
 
-    Window _root;
-    PScreen::PVisual *_visual;
-    Colormap _colormap;
-    XModifierKeymap *_modifier_map; /**< Key to modifier mappings. */
+    static Window _root;
+    static PScreen::PVisual *_visual;
+    static Colormap _colormap;
+    static XModifierKeymap *_modifier_map; /**< Key to modifier mappings. */
 
     static uint _num_lock;
     static uint _scroll_lock;
 
-    bool _has_extension_shape;
-    int _event_shape;
+    static bool _has_extension_shape;
+    static int _event_shape;
 
-    bool _has_extension_xinerama;
+    static bool _has_extension_xinerama;
 
-    bool _has_extension_xrandr;
-    int _event_xrandr;
+    static bool _has_extension_xrandr;
+    static int _event_xrandr;
 
-    std::vector<Head> _heads; //! Array of head information
-    uint _last_head; //! Last accessed head
+    static std::vector<Head> _heads; //! Array of head information
+    static uint _last_head; //! Last accessed head
 
-    uint _server_grabs;
+    static uint _server_grabs;
 
-    Time _last_event_time;
+    static Time _last_event_time;
     // information for dobule clicks
-    Window _last_click_id;
-    Time _last_click_time[BUTTON_NO - 1];
+    static Window _last_click_id;
+    static Time _last_click_time[BUTTON_NO - 1];
 
-    Strut _strut;
-    std::list<Strut*> _strut_list;
+    static Strut _strut;
+    static std::list<Strut*> _strut_list;
 
     static PScreen *_instance;
 };
