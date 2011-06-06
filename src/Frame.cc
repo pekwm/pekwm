@@ -505,7 +505,7 @@ Frame::activateChild (PWinObj *child)
 
     // setShape uses current active child, so we need to activate the
     // child before setting shape
-    if (PScreen::instance()->hasExtensionShape()) {
+    if (PScreen::hasExtensionShape()) {
         _client->setShaped(setShape());
     }
 
@@ -778,7 +778,7 @@ Frame*
 Frame::findFrameFromWindow(Window win)
 {
     // Validate input window.
-    if ((win == None) || (win == PScreen::instance()->getRoot())) {
+    if ((win == None) || (win == PScreen::getRoot())) {
         return 0;
     }
 
@@ -956,7 +956,7 @@ bool
 Frame::fixGeometry(void)
 {
     Geometry head, before;
-    PScreen::instance()->getHeadInfoWithEdge(getNearestHead(), head);
+    PScreen::getHeadInfoWithEdge(getNearestHead(), head);
 
     before = _gm;
 

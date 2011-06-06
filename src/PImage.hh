@@ -23,7 +23,7 @@
 class PImage {
 public:
     //! @brief PImage constructor.
-    PImage(Display *dpy, const std::string &path="") throw(LoadException&);
+    PImage(const std::string &path="") throw(LoadException&);
     //! @brief PImage destructor.
     virtual ~PImage(void);
 
@@ -137,8 +137,6 @@ private:
     }
 
 protected:
-    Display *_dpy; //!< Display image is on.
-
     ImageType _type; //!< Type of image.
 
     Pixmap _pixmap; //!< Pixmap representation of image.

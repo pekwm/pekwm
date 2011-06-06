@@ -115,8 +115,6 @@ public:
     PScreen(Display *dpy, bool honour_randr = true);
     ~PScreen(void);
 
-    static PScreen* instance(void) { return _instance; }
-
     inline static Display* getDpy(void) { return _dpy; }
     inline static int getScreenNum(void) { return _screen; }
     inline static Window getRoot(void) { return _root; }

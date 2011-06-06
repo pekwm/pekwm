@@ -63,7 +63,7 @@ ActionHandler::ActionHandler(void)
     // Initialize state_to_keycode map
     for (uint i = 0; i < PScreen::MODIFIER_TO_MASK_NUM; ++i) {
         uint modifier = PScreen::MODIFIER_TO_MASK[i];
-        _state_to_keycode[modifier] = PScreen::instance()->getKeycodeFromMask(modifier);
+        _state_to_keycode[modifier] = PScreen::getKeycodeFromMask(modifier);
     }
 }
 
@@ -272,7 +272,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 // Get root position, previously event positions was
                 // used however this seems to be error prone on
                 // Xinerama setups
-                PScreen::instance()->getMousePosition(x_root, y_root);
+                PScreen::getMousePosition(x_root, y_root);
 
                 decor->doMove(x_root, y_root);
                 break;
@@ -648,7 +648,7 @@ ActionHandler::actionWarpToWorkspace(PDecor *decor, uint direction)
     // actually did move
     if (Workspaces::instance()->gotoWorkspace(DirectionType(direction), true)) {
         int x, y;
-        PScreen::instance()->getMousePosition(x, y);
+        PScreen::getMousePosition(x, y);
 
         decor->move(decor->getClickX() + x - decor->getPointerX(),
                     decor->getClickY() + y - decor->getPointerY());
@@ -677,7 +677,7 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off,
     }
 
     // unable to grab keyboard
-    if (! PScreen::instance()->grabKeyboard(PScreen::instance()->getRoot())) {
+    if (! PScreen::grabKeyboard(PScreen::getRoot())) {
         return;
     }
 
@@ -700,7 +700,7 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off,
         menu->buildMenu();
 
         Geometry head;
-        PScreen::instance()->getHeadInfo(PScreen::instance()->getCurrHead(), head);
+        PScreen::getHeadInfo(PScreen::getCurrHead(), head);
         menu->move(head.x + ((head.width - menu->getWidth()) / 2),
                    head.y + ((head.height - menu->getHeight()) / 2));
         menu->setFocused(true);
@@ -727,7 +727,7 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off,
             }
         }
 
-        XMaskEvent(PScreen::instance()->getDpy(), KeyPressMask|KeyReleaseMask, &ev);
+        XMaskEvent(PScreen::getDpy(), KeyPressMask|KeyReleaseMask, &ev);
         if (ev.type == KeyPress) {
             if (ev.xkey.keycode == button) {
                 if (fo_wo) {
@@ -742,20 +742,20 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off,
                 menu->selectItemRel(off);
                 fo_wo = menu->getItemCurr()->getWORef();
             } else {
-                XPutBackEvent (PScreen::instance()->getDpy(), &ev);
+                XPutBackEvent(PScreen::getDpy(), &ev);
                 cycling = false;
             }
         } else if (ev.type == KeyRelease) {
-            if (IsModifierKey(XKeycodeToKeysym(PScreen::instance()->getDpy(),
+            if (IsModifierKey(XKeycodeToKeysym(PScreen::getDpy(),
                                                ev.xkey.keycode, 0))) {
                 cycling = false;
             }
         } else {
-            XPutBackEvent(PScreen::instance()->getDpy(), &ev);
+            XPutBackEvent(PScreen::getDpy(), &ev);
         }
     }
 
-    PScreen::instance()->ungrabKeyboard();
+    PScreen::ungrabKeyboard();
 
     // Got something to focus
     if (fo_wo) {
@@ -817,22 +817,22 @@ ActionHandler::actionSendKey(PWinObj *wo, const std::string &key_str)
     for (it = _state_to_keycode.begin(); it != _state_to_keycode.end(); ++it) {
         if (mod & it->first) {
             ev.xkey.keycode = it->second;
-            XSendEvent(PScreen::instance()->getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
+            XSendEvent(PScreen::getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
             ev.xkey.state |= it->first;
         }
     }
 
     // Send press and release of main key
     ev.xkey.keycode = key;
-    XSendEvent(PScreen::instance()->getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
+    XSendEvent(PScreen::getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
     ev.type = KeyRelease;
-    XSendEvent(PScreen::instance()->getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
+    XSendEvent(PScreen::getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
 
     // Release state modifiers
     for (it = _state_to_keycode.begin(); it != _state_to_keycode.end(); ++it) {
         if (mod & it->first) {
             ev.xkey.keycode = it->second;
-            XSendEvent(PScreen::instance()->getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
+            XSendEvent(PScreen::getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
             ev.xkey.state &= ~it->first;
         }
     }
@@ -1025,13 +1025,13 @@ void
 ActionHandler::initSendKeyEvent(XEvent &ev, PWinObj *wo)
 {
     ev.type = KeyPress;
-    ev.xkey.display = PScreen::instance()->getDpy();
-    ev.xkey.root = PScreen::instance()->getRoot();
+    ev.xkey.display = PScreen::getDpy();
+    ev.xkey.root = PScreen::getRoot();
     ev.xkey.window = wo->getWindow();
     ev.xkey.time = CurrentTime;
     ev.xkey.x = 1;
     ev.xkey.y = 1;
-    PScreen::instance()->getMousePosition(ev.xkey.x_root, ev.xkey.y_root);
+    PScreen::getMousePosition(ev.xkey.x_root, ev.xkey.y_root);
     ev.xkey.same_screen = True;
     ev.xkey.type = KeyPress;
     ev.xkey.state = 0;

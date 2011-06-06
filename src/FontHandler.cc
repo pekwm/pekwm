@@ -105,21 +105,21 @@ FontHandler::getFont(const std::string &font)
 
         switch (type) {
         case PFont::FONT_TYPE_XMB:
-            pfont = new PFontXmb(PScreen::instance());
+            pfont = new PFontXmb;
             tok.erase(tok_it);
             break;
 #ifdef HAVE_XFT
         case PFont::FONT_TYPE_XFT:
-            pfont = new PFontXft(PScreen::instance());
+            pfont = new PFontXft;
             tok.erase(tok_it);
             break;
 #endif // HAVE_XFT
         case PFont::FONT_TYPE_X11:
-            pfont = new PFontX11(PScreen::instance());
+            pfont = new PFontX11;
             tok.erase(tok_it);
             break;
         default:
-            pfont = new PFontXmb(PScreen::instance());
+            pfont = new PFontXmb;
             break;
         };
         pfont->load(tok.front());
@@ -145,7 +145,7 @@ FontHandler::getFont(const std::string &font)
             }
         }
     } else {
-        pfont = new PFontXmb(PScreen::instance());
+        pfont = new PFontXmb;
         pfont->load(font);
     }
 

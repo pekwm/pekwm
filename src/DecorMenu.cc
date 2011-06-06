@@ -29,9 +29,9 @@ using std::string;
 using std::map;
 
 //! @brief Constructor for DecorMenu.
-DecorMenu::DecorMenu(PScreen *scr, Theme *theme, ActionHandler *act,
+DecorMenu::DecorMenu(Theme *theme, ActionHandler *act,
                      const std::string &name) :
-        WORefMenu(scr, theme, L"Decor Menu", name),
+        WORefMenu(theme, L"Decor Menu", name),
         _act(act)
 {
     _menu_type = DECORMENU_TYPE;

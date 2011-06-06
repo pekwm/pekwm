@@ -22,12 +22,11 @@ using std::string;
 using std::wstring;
 
 //! @brief WORefMenu constructor
-//! @param scr Pointer to PScreen
 //! @param theme Pointer to Theme
 //! @param title Title of menu
 //! @param name Name of menu
 //! @param decor_name Name of decor, defaults to MENU
-WORefMenu::WORefMenu(PScreen *scr, Theme *theme, const std::wstring &title,
+WORefMenu::WORefMenu(Theme *theme, const std::wstring &title,
                      const std::string &name, const std::string &decor_name)
     : PMenu(theme, title, name, decor_name), PWinObjReference(0),
       _title_base(title),

@@ -918,7 +918,7 @@ Config::parseKey(const std::string &key_string, uint &mod, uint &key)
                     }
                 }
             }
-            key = XKeysymToKeycode(PScreen::instance()->getDpy(), keysym);
+            key = XKeysymToKeycode(PScreen::getDpy(), keysym);
         }
 
         // if the last token isn't an key/button, the action isn't valid

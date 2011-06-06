@@ -119,7 +119,7 @@ InputDialog::reloadKeysymMap(void)
 void
 InputDialog::addKeysymToKeysymMap(KeySym keysym, wchar_t chr)
 {
-    Display *dpy = PScreen::instance()->getDpy();
+    Display *dpy = PScreen::getDpy();
 
     int keysyms_per_keycode;
     KeyCode keycode = XKeysymToKeycode(dpy, keysym);
@@ -286,9 +286,9 @@ InputDialog::moveCentered(PWinObj *wo)
 
     // Make sure position is inside head.
     Geometry head;
-    uint head_nr = PScreen::instance()->getNearestHead(wo->getX() + (wo->getWidth() / 2),
+    uint head_nr = PScreen::getNearestHead(wo->getX() + (wo->getWidth() / 2),
                                                      wo->getY() + (wo->getHeight() / 2));
-    PScreen::instance()->getHeadInfo(head_nr, head);
+    PScreen::getHeadInfo(head_nr, head);
 
     // Make sure X is inside head.
     int new_x = wo->getX() + (static_cast<int>(wo->getWidth()) - static_cast<int>(_gm.width)) / 2;
@@ -599,7 +599,7 @@ InputDialog::updatePixmapSize(void)
     // Get new pixmap and render texture
     PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
     pm->returnPixmap(_pixmap_bg);
-    _pixmap_bg = pm->getPixmap(_text_wo->getWidth(), _text_wo->getHeight(), PScreen::instance()->getDepth());
+    _pixmap_bg = pm->getPixmap(_text_wo->getWidth(), _text_wo->getHeight(), PScreen::getDepth());
 
     _data->getTexture()->render(_pixmap_bg, 0, 0, _text_wo->getWidth(), _text_wo->getHeight());
     _text_wo->setBackgroundPixmap(_pixmap_bg);
@@ -616,7 +616,7 @@ void
 InputDialog::getInputSize(unsigned int &width, unsigned int &height)
 {
     Geometry head;
-    PScreen::instance()->getHeadInfo(PScreen::instance()->getNearestHead(_gm.x, _gm.y), head);
+    PScreen::getHeadInfo(PScreen::getNearestHead(_gm.x, _gm.y), head);
 
     width = head.width / 3;
     height = _data->getFont()->getHeight() + _data->getPad(PAD_UP) + _data->getPad(PAD_DOWN);

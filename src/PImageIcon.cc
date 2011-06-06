@@ -20,8 +20,8 @@ using std::endl;
 
 //! @brief PImageIcon constructor.
 //! @param dpy Display to load icon from.
-PImageIcon::PImageIcon(Display *dpy)
-  : PImage(dpy)
+PImageIcon::PImageIcon()
+  : PImage()
 {
     _type = IMAGE_TYPE_SCALED;
     _has_alpha = true;

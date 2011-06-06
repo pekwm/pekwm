@@ -37,17 +37,16 @@ using std::wstring;
 using std::swprintf;
 
 //! @brief FrameListMenu constructor.
-//! @param scr Pointer to PScreen.
 //! @param theme Pointer to Theme
 //! @param type Type of menu.
 //! @param title Title of menu.
 //! @param name Name of menu
 //! @param decor_name Decor name, defaults to MENU
-FrameListMenu::FrameListMenu(PScreen *scr, Theme *theme,
+FrameListMenu::FrameListMenu(Theme *theme,
                              MenuType type,
                              const std::wstring &title, const std::string &name,
                              const std::string &decor_name)
-    : WORefMenu(scr, theme, title, name, decor_name)
+    : WORefMenu(theme, title, name, decor_name)
 {
     _menu_type = type;
 }

@@ -26,7 +26,7 @@ class ActionHandler;
 class DecorMenu : public WORefMenu
 {
 public:
-    DecorMenu(PScreen *scr, Theme *theme, ActionHandler *act,
+    DecorMenu(Theme *theme, ActionHandler *act,
               const std::string &name);
     virtual ~DecorMenu(void);
 

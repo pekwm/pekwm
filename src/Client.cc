@@ -71,9 +71,9 @@ Client::Client(Window new_client, bool is_new)
     _type = WO_CLIENT;
 
     // Construct the client
-    PScreen::instance()->grabServer();
+    PScreen::grabServer();
     if (! validate() || ! getAndUpdateWindowAttributes()) {
-        PScreen::instance()->ungrabServer(true);
+        PScreen::ungrabServer(true);
         return;
     }
 
@@ -82,7 +82,7 @@ Client::Client(Window new_client, bool is_new)
     _title.setId(_id);
     _title.infoAdd(PDecor::TitleItem::INFO_ID);
 
-    if (PScreen::instance()->hasExtensionShape()) {
+    if (PScreen::hasExtensionShape()) {
 #ifdef HAVE_SHAPE
         XShapeSelectInput(PScreen::getDpy(), _window, ShapeNotifyMask);
 #endif // HAVE_SHAPE
@@ -126,7 +126,7 @@ Client::Client(Window new_client, bool is_new)
     // Tell the world about our state
     updateEwmhStates();
 
-    PScreen::instance()->ungrabServer(true);
+    PScreen::ungrabServer(true);
 
     setMappedStateAndFocus(is_new, ap);
 
@@ -154,7 +154,7 @@ Client::~Client(void)
 
     returnClientID(_id);
 
-    PScreen::instance()->grabServer();
+    PScreen::grabServer();
 
     // removes gravity and moves it back to root if we are alive
     bool focus = false;
@@ -196,7 +196,7 @@ Client::~Client(void)
         _icon = 0;
     }
 
-    PScreen::instance()->ungrabServer(true);
+    PScreen::ungrabServer(true);
 }
 
 /**
@@ -645,7 +645,7 @@ Client*
 Client::findClient(Window win)
 {
     // Validate input window.
-    if ((win == None) || (win == PScreen::instance()->getRoot())) {
+    if ((win == None) || (win == PScreen::getRoot())) {
         return 0;
     }
 
@@ -666,7 +666,7 @@ Client*
 Client::findClientFromWindow(Window win)
 {
     // Validate input window.
-    if (! win || win == PScreen::instance()->getRoot()) {
+    if (! win || win == PScreen::getRoot()) {
         return 0;
     }
 
@@ -1021,7 +1021,7 @@ Client::readPekwmHints(void)
 void
 Client::readIcon(void)
 {
-    PImageIcon *image = new PImageIcon(PScreen::getDpy());
+    PImageIcon *image = new PImageIcon;
     if (image->loadFromWindow(_window)) {
         if (! _icon) {
             _icon = new PTextureImage(PScreen::getDpy());
@@ -1393,14 +1393,18 @@ void Client::sendTakeFocusMessage(void)
     if (_send_focus_message) {
         {
             XEvent ev;
-            XChangeProperty(PScreen::getDpy(), RootWindow(PScreen::getDpy(), DefaultScreen(PScreen::getDpy())), XA_PRIMARY, XA_STRING, 8, PropModeAppend, 0, 0);
-            XWindowEvent(PScreen::getDpy(), RootWindow(PScreen::getDpy(), DefaultScreen(PScreen::getDpy())), PropertyChangeMask, &ev);
-            PScreen::instance()->setLastEventTime(ev.xproperty.time);
+            XChangeProperty(PScreen::getDpy(),
+                            RootWindow(PScreen::getDpy(), DefaultScreen(PScreen::getDpy())),
+                            XA_PRIMARY, XA_STRING, 8, PropModeAppend, 0, 0);
+            XWindowEvent(PScreen::getDpy(),
+                         RootWindow(PScreen::getDpy(), DefaultScreen(PScreen::getDpy())),
+                         PropertyChangeMask, &ev);
+            PScreen::setLastEventTime(ev.xproperty.time);
         }
         sendXMessage(_window,
                      Atoms::getAtom(WM_PROTOCOLS), NoEventMask,
                      Atoms::getAtom(WM_TAKE_FOCUS),
-                     PScreen::instance()->getLastEventTime());
+                     PScreen::getLastEventTime());
     }
 }
 
@@ -1410,8 +1414,8 @@ void Client::sendTakeFocusMessage(void)
 void
 Client::grabButton(int button, int mod, int mask, Window win, Cursor curs)
 {
-    uint num_lock = PScreen::instance()->getNumLock();
-    uint scroll_lock = PScreen::instance()->getScrollLock();
+    uint num_lock = PScreen::getNumLock();
+    uint scroll_lock = PScreen::getScrollLock();
 
     XGrabButton(PScreen::getDpy(), button, mod,
                 win, true, mask, GrabModeAsync, GrabModeAsync, None, curs);
@@ -1873,18 +1877,18 @@ Client::getStrutHint(void)
                                                                XA_CARDINAL, num));
     if (strut) {
         if (_strut) {
-            PScreen::instance()->removeStrut(_strut);
+            PScreen::removeStrut(_strut);
         } else {
             _strut = new Strut();
         }
 
         *_strut = strut;
-        PScreen::instance()->addStrut(_strut);
+        PScreen::addStrut(_strut);
 
         XFree(strut);
 
     } else if (_strut) {
-        PScreen::instance()->removeStrut(_strut);
+        PScreen::removeStrut(_strut);
         delete _strut;
         _strut = 0;
     }
@@ -1897,7 +1901,7 @@ Client::removeStrutHint(void)
     if (! _strut)
         return;
 
-    PScreen::instance()->removeStrut(_strut);
+    PScreen::removeStrut(_strut);
     delete _strut;
     _strut = 0;
 }

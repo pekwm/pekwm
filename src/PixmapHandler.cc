@@ -35,7 +35,7 @@ PixmapHandler::Entry::Entry(uint width, uint height, uint depth, Pixmap pixmap)
 //! @brief Destructor for Entry class
 PixmapHandler::Entry::~Entry(void)
 {
-    XFreePixmap(PScreen::instance()->getDpy(), _pixmap);
+    XFreePixmap(PScreen::getDpy(), _pixmap);
 }
 
 // PixmapHandler
@@ -99,8 +99,8 @@ PixmapHandler::getPixmap(uint width, uint height, uint depth)
 
     // No entry, create one
     if (pixmap == None) {
-        pixmap = XCreatePixmap(PScreen::instance()->getDpy(),
-                               PScreen::instance()->getRoot(),
+        pixmap = XCreatePixmap(PScreen::getDpy(),
+                               PScreen::getRoot(),
                                width, height, depth);
 
         _used_pix[pixmap] = new Entry(width, height, depth, pixmap);

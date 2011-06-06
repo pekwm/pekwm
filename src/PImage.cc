@@ -35,8 +35,8 @@ list<PImageLoader*> PImage::_loader_list = list<PImageLoader*>();
  * @param dpy Display image is valid on.
  * @param path Path to image file, if specified this is loaded.
  */
-PImage::PImage(Display *dpy, const std::string &path) throw(LoadException&)
-    : _dpy(dpy), _type(IMAGE_TYPE_NO), _pixmap(None), _mask(None), _width(0), _height(0),
+PImage::PImage(const std::string &path) throw(LoadException&)
+    : _type(IMAGE_TYPE_NO), _pixmap(None), _mask(None), _width(0), _height(0),
       _data(0), _has_alpha(false), _use_alpha(false)
 {
     if (path.size()) {
@@ -252,7 +252,7 @@ void
 PImage::drawFixed(Drawable dest, int x, int y, uint width, uint height)
 {
     // Plain copy of the pixmap onto Drawable.
-    XCopyArea(_dpy, _pixmap, dest, PScreen::instance()->getGC(),
+    XCopyArea(PScreen::getDpy(), _pixmap, dest, PScreen::getGC(),
               0, 0, width, height, x, y);
 
 }
@@ -269,7 +269,7 @@ PImage::drawScaled(Drawable dest, int x, int y, uint width, uint height)
         // Create pixmap.
         pix = createPixmap(scaled_data, width, height);
         if (pix) {
-            XCopyArea(_dpy, pix, dest, PScreen::instance()->getGC(),
+            XCopyArea(PScreen::getDpy(), pix, dest, PScreen::getGC(),
                       0, 0, width, height, x, y);
             ScreenResources::instance()->getPixmapHandler()->returnPixmap(pix);
         }
@@ -291,27 +291,28 @@ PImage::drawTiled(Drawable dest, int x, int y, uint width, uint height)
     gv.ts_x_origin = x;
     gv.ts_y_origin = y;
 
-    gc = XCreateGC(_dpy , dest,
+    gc = XCreateGC(PScreen::getDpy(), dest,
                    GCFillStyle|GCTile|GCTileStipXOrigin|GCTileStipYOrigin, &gv);
 
     // Tile the image onto drawable.
-    XFillRectangle(_dpy, dest, gc, x, y, width, height);
+    XFillRectangle(PScreen::getDpy(), dest, gc, x, y, width, height);
 
-    XFreeGC(_dpy, gc);
+    XFreeGC(PScreen::getDpy(), gc);
 }
 
 //! @brief Draw image at position, not scaling.
 void
 PImage::drawAlphaFixed(Drawable dest, int x, int y, uint width, uint height, uchar *data)
 {
-    XImage *dest_image = XGetImage(_dpy, dest, x, y, width, height, AllPlanes, ZPixmap);
+    XImage *dest_image = XGetImage(PScreen::getDpy(), dest,
+                                   x, y, width, height, AllPlanes, ZPixmap);
     if (! dest_image) {
         cerr << " *** ERROR: failed to get image for destination." << endl;
         return;
     }
 
     // Get mask from visual
-    Visual *visual = PScreen::instance()->getVisual()->getXVisual();
+    Visual *visual = PScreen::getVisual()->getXVisual();
     dest_image->red_mask = visual->red_mask;
     dest_image->green_mask = visual->green_mask;
     dest_image->blue_mask = visual->blue_mask;
@@ -355,7 +356,7 @@ PImage::drawAlphaFixed(Drawable dest, int x, int y, uint width, uint height, uch
         }
     }
 
-    XPutImage(_dpy, dest, PScreen::instance()->getGC(), dest_image,
+    XPutImage(PScreen::getDpy(), dest, PScreen::getGC(), dest_image,
               0, 0, x, y, width, height);
     XDestroyImage(dest_image);
 }
@@ -393,9 +394,9 @@ PImage::createPixmap(uchar *data, uint width, uint height)
     ximage = createXImage(data, width, height);
     if (ximage) {
         pix = ScreenResources::instance()->getPixmapHandler()->getPixmap(width,
-                height, PScreen::instance()->getDepth());
+                height, PScreen::getDepth());
 
-        XPutImage(_dpy, pix, PScreen::instance()->getGC(), ximage,
+        XPutImage(PScreen::getDpy(), pix, PScreen::getGC(), ximage,
                   0, 0, 0, 0, width, height);
 
         delete [] ximage->data;
@@ -420,7 +421,7 @@ PImage::createMask(uchar *data, uint width, uint height)
 
     // Create XImage
     XImage *ximage;
-    ximage = XCreateImage(_dpy, PScreen::instance()->getVisual()->getXVisual(),
+    ximage = XCreateImage(PScreen::getDpy(), PScreen::getVisual()->getXVisual(),
                           1, ZPixmap, 0, 0, width, height, 32, 0);
     if (! ximage) {
         cerr << " *** WARNING: unable to create XImage!" << endl;
@@ -433,8 +434,8 @@ PImage::createMask(uchar *data, uint width, uint height)
     uchar *src = data + 3; // Skip R, G and B.
     ulong pixel_trans, pixel_solid;
 
-    pixel_trans = PScreen::instance()->getBlackPixel();
-    pixel_solid = PScreen::instance()->getWhitePixel();
+    pixel_trans = PScreen::getBlackPixel();
+    pixel_solid = PScreen::getWhitePixel();
 
     for (uint y = 0; y < height; ++y) {
         for (uint x = 0; x < width; ++x) {
@@ -447,9 +448,9 @@ PImage::createMask(uchar *data, uint width, uint height)
     Pixmap pix;
     pix = ScreenResources::instance()->getPixmapHandler()->getPixmap(width, height, 1);
 
-    GC gc = XCreateGC(_dpy, pix, 0, 0);
-    XPutImage(_dpy, pix, gc, ximage, 0, 0, 0, 0, width, height);
-    XFreeGC(_dpy, gc);
+    GC gc = XCreateGC(PScreen::getDpy(), pix, 0, 0);
+    XPutImage(PScreen::getDpy(), pix, gc, ximage, 0, 0, 0, 0, width, height);
+    XFreeGC(PScreen::getDpy(), gc);
 
     delete [] ximage->data;
     ximage->data = 0;
@@ -467,8 +468,8 @@ PImage::createXImage(uchar *data, uint width, uint height)
 {
     // Create XImage
     XImage *ximage;
-    ximage = XCreateImage(_dpy, PScreen::instance()->getVisual()->getXVisual(),
-                          PScreen::instance()->getDepth(), ZPixmap, 0, 0,
+    ximage = XCreateImage(PScreen::getDpy(), PScreen::getVisual()->getXVisual(),
+                          PScreen::getDepth(), ZPixmap, 0, 0,
                           width, height, 32, 0);
     if (! ximage) {
         cerr << " *** WARNING: unable to create XImage!" << endl;

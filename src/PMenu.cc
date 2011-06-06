@@ -212,16 +212,16 @@ PMenu::handleButtonRelease(XButtonEvent *ev)
         MouseEventType mb = MOUSE_EVENT_RELEASE;
 
         // first we check if it's a double click
-        if (PScreen::instance()->isDoubleClick(ev->window, ev->button - 1, ev->time,
+        if (PScreen::isDoubleClick(ev->window, ev->button - 1, ev->time,
                                                Config::instance()->getDoubleClickTime())) {
-            PScreen::instance()->setLastClickID(ev->window);
-            PScreen::instance()->setLastClickTime(ev->button - 1, 0);
+            PScreen::setLastClickID(ev->window);
+            PScreen::setLastClickTime(ev->button - 1, 0);
 
             mb = MOUSE_EVENT_DOUBLE;
 
         } else {
-            PScreen::instance()->setLastClickID(ev->window);
-            PScreen::instance()->setLastClickTime(ev->button - 1, ev->time);
+            PScreen::setLastClickID(ev->window);
+            PScreen::setLastClickTime(ev->button - 1, ev->time);
         }
 
         handleItemEvent(mb, ev->x, ev->y);
@@ -248,7 +248,7 @@ PMenu::handleMotionEvent(XMotionEvent *ev)
     }
 
     if (*_menu_wo == ev->window) {
-        uint button = PScreen::instance()->getButtonFromState(ev->state);
+        uint button = PScreen::getButtonFromState(ev->state);
         handleItemEvent(button ? MOUSE_EVENT_MOTION_PRESSED : MOUSE_EVENT_MOTION, ev->x, ev->y);
 
         ActionEvent *ae;
@@ -436,7 +436,7 @@ PMenu::buildMenuCalculate(void)
     buildMenuCalculateColumns(width, height);
 
     // Check if we need to enable scrolling
-    _scroll = (width > PScreen::instance()->getWidth());
+    _scroll = (width > PScreen::getWidth());
 
     resizeChild(width, height);
 }
@@ -502,15 +502,15 @@ PMenu::buildMenuCalculateColumns(unsigned int &width, unsigned int &height)
 {
     // Check if the menu fits or is static width
     if (_menu_width
-        || (height + getTitleHeight()) <= PScreen::instance()->getHeight()) {
+        || (height + getTitleHeight()) <= PScreen::getHeight()) {
         _cols = 1;
         width = _menu_width ? _menu_width : _item_width_max;
         _rows = _size;
         return;
     }
 
-    _cols = height / (PScreen::instance()->getHeight() - getTitleHeight());
-    if ((height % (PScreen::instance()->getHeight() - getTitleHeight())) != 0) {
+    _cols = height / (PScreen::getHeight() - getTitleHeight());
+    if ((height % (PScreen::getHeight() - getTitleHeight())) != 0) {
         ++_cols;
     }
     _rows = _size / _cols;
@@ -598,7 +598,7 @@ PMenu::buildMenuRenderState(Pixmap &pix, ObjectState state)
     // get a fresh pixmap for the menu
     pm->returnPixmap(pix);
     pix = pm->getPixmap(getChildWidth(), getChildHeight(),
-                        PScreen::instance()->getDepth());
+                        PScreen::getDepth());
 
     PTexture *tex;
     PFont *font;
@@ -680,9 +680,9 @@ PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
 }
 
 #define COPY_ITEM_AREA(ITEM, PIX) \
-		XCopyArea(PScreen::getDpy(), PIX, _menu_wo->getWindow(), PScreen::instance()->getGC(), \
-							(ITEM)->getX(), (ITEM)->getY(), _item_width_max, _item_height, \
-							(ITEM)->getX(), (ITEM)->getY());
+    XCopyArea(PScreen::getDpy(), PIX, _menu_wo->getWindow(), PScreen::getGC(), \
+              (ITEM)->getX(), (ITEM)->getY(), _item_width_max, _item_height, \
+              (ITEM)->getX(), (ITEM)->getY());
 
 //! @brief Renders item as selected
 //! @param item Item to select
@@ -884,7 +884,7 @@ PMenu::mapUnderMouse(void)
 {
     int x, y;
 
-    PScreen::instance()->getMousePosition(x, y);
+    PScreen::getMousePosition(x, y);
 
     // this might seem a bit silly but the menu won't get updated before
     // it has been mapped (if dynamic) so we're doing it twice to reduce the
@@ -1074,7 +1074,7 @@ void
 PMenu::makeInsideScreen(int x, int y)
 {
     Geometry head;
-    PScreen::instance()->getHeadInfo(PScreen::instance()->getCurrHead(), head);
+    PScreen::getHeadInfo(PScreen::getCurrHead(), head);
 
     x = (x == -1) ? _gm.x : x;
     y = (y == -1) ? _gm.y : y;

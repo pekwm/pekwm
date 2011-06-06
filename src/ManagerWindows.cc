@@ -78,7 +78,7 @@ HintWO::HintWO(Window root, bool replace) throw (std::string&)
  */
 HintWO::~HintWO(void)
 {
-    XDestroyWindow(PScreen::instance()->getDpy(), _window);
+    XDestroyWindow(PScreen::getDpy(), _window);
     _instance = 0;
 }
 
@@ -216,8 +216,8 @@ RootWO::RootWO(Window root)
     _mapped = true;
 
     _window = root;
-    _gm.width = PScreen::instance()->getWidth();
-    _gm.height = PScreen::instance()->getHeight();
+    _gm.width = PScreen::getWidth();
+    _gm.height = PScreen::getHeight();
 
 
     XSync(PScreen::getDpy(), false);
@@ -283,16 +283,16 @@ RootWO::handleButtonRelease(XButtonEvent *ev)
     MouseEventType mb = MOUSE_EVENT_RELEASE;
 
     // first we check if it's a double click
-    if (PScreen::instance()->isDoubleClick(ev->window, ev->button - 1, ev->time,
+    if (PScreen::isDoubleClick(ev->window, ev->button - 1, ev->time,
                                            Config::instance()->getDoubleClickTime())) {
-        PScreen::instance()->setLastClickID(ev->window);
-        PScreen::instance()->setLastClickTime(ev->button - 1, 0);
+        PScreen::setLastClickID(ev->window);
+        PScreen::setLastClickTime(ev->button - 1, 0);
 
         mb = MOUSE_EVENT_DOUBLE;
 
     } else {
-        PScreen::instance()->setLastClickID(ev->window);
-        PScreen::instance()->setLastClickTime(ev->button - 1, ev->time);
+        PScreen::setLastClickID(ev->window);
+        PScreen::setLastClickTime(ev->button - 1, ev->time);
     }
 
     return ActionHandler::findMouseAction(ev->button, ev->state, mb,
@@ -305,7 +305,7 @@ RootWO::handleButtonRelease(XButtonEvent *ev)
 ActionEvent*
 RootWO::handleMotionEvent(XMotionEvent *ev)
 {
-    unsigned int button = PScreen::instance()->getButtonFromState(ev->state);
+    unsigned int button = PScreen::getButtonFromState(ev->state);
 
     return ActionHandler::findMouseAction(button, ev->state, MOUSE_EVENT_MOTION,
                                           Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
@@ -351,7 +351,7 @@ RootWO::setEwmhWorkarea(const Geometry &workarea)
 void
 RootWO::setEwmhActiveWindow(Window win)
 {
-    AtomUtil::setWindow(PScreen::instance()->getRoot(), Atoms::getAtom(NET_ACTIVE_WINDOW), win);
+    AtomUtil::setWindow(PScreen::getRoot(), Atoms::getAtom(NET_ACTIVE_WINDOW), win);
 }
 
 /**
@@ -362,7 +362,7 @@ RootWO::readEwmhDesktopNames(void)
 {
     uchar *data;
     ulong data_length;
-    if (AtomUtil::getProperty(PScreen::instance()->getRoot(),
+    if (AtomUtil::getProperty(PScreen::getRoot(),
                               Atoms::getAtom(NET_DESKTOP_NAMES),
                               Atoms::getAtom(UTF8_STRING),
                               EXPECTED_DESKTOP_NAMES_LENGTH, &data, &data_length)) {
@@ -383,7 +383,7 @@ RootWO::setEwmhDesktopNames(void)
     Config::instance()->getDesktopNamesUTF8(&desktopnames, &length);
 
     if (desktopnames) {
-        AtomUtil::setUtf8StringArray(PScreen::instance()->getRoot(),
+        AtomUtil::setUtf8StringArray(PScreen::getRoot(),
                                      Atoms::getAtom(NET_DESKTOP_NAMES), desktopnames, length);
         delete [] desktopnames;
     }
@@ -412,7 +412,7 @@ EdgeWO::EdgeWO(Window root, EdgeType edge, bool set_strut)
                             CWOverrideRedirect|CWEventMask, &sattr);
 
     configureStrut(set_strut);
-    PScreen::instance()->addStrut(&_strut);
+    PScreen::addStrut(&_strut);
 
     woListAdd(this);
     _wo_map[_window] = this;
@@ -423,7 +423,7 @@ EdgeWO::EdgeWO(Window root, EdgeType edge, bool set_strut)
  */
 EdgeWO::~EdgeWO(void)
 {
-    PScreen::instance()->removeStrut(&_strut);
+    PScreen::removeStrut(&_strut);
     _wo_map.erase(_window);
     woListRemove(this);
 
@@ -516,15 +516,15 @@ EdgeWO::handleButtonRelease(XButtonEvent *ev)
     MouseEventType mb = MOUSE_EVENT_RELEASE;
 
     // first we check if it's a double click
-    if (PScreen::instance()->isDoubleClick(ev->window, ev->button - 1, ev->time,
+    if (PScreen::isDoubleClick(ev->window, ev->button - 1, ev->time,
                                            Config::instance()->getDoubleClickTime())) {
-        PScreen::instance()->setLastClickID(ev->window);
-        PScreen::instance()->setLastClickTime(ev->button - 1, 0);
+        PScreen::setLastClickID(ev->window);
+        PScreen::setLastClickTime(ev->button - 1, 0);
 
         mb = MOUSE_EVENT_DOUBLE;
     } else {
-        PScreen::instance()->setLastClickID(ev->window);
-        PScreen::instance()->setLastClickTime(ev->button - 1, ev->time);
+        PScreen::setLastClickID(ev->window);
+        PScreen::setLastClickTime(ev->button - 1, ev->time);
     }
 
     return ActionHandler::findMouseAction(ev->button, ev->state, mb,

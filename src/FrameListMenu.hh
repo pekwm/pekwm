@@ -28,7 +28,7 @@ class Client;
 class FrameListMenu : public WORefMenu
 {
 public:
-    FrameListMenu(PScreen *scr, Theme *theme,
+    FrameListMenu(Theme *theme,
                   MenuType type,
                   const std::wstring &title, const std::string &name,
                   const std::string &decor_name = "MENU");

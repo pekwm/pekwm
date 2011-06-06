@@ -44,8 +44,7 @@ using std::wstring;
 ActionMenu::ActionMenu(MenuType type,
                        const std::wstring &title, const std::string &name,
                        const std::string &decor_name) :
-    WORefMenu(WindowManager::instance()->getScreen(),
-              WindowManager::instance()->getTheme(), title, name, decor_name),
+    WORefMenu(WindowManager::instance()->getTheme(), title, name, decor_name),
     _act(WindowManager::instance()->getActionHandler()),
     _has_dynamic(false)
 {

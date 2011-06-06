@@ -59,8 +59,8 @@ bool
 WorkspaceIndicator::Display::getSizeRequest(Geometry &gm)
 {
     Geometry head;
-    uint head_nr = PScreen::instance()->getNearestHead(_parent->getX(), _parent->getY());
-    PScreen::instance()->getHeadInfo(head_nr, head);
+    uint head_nr = PScreen::getNearestHead(_parent->getX(), _parent->getY());
+    PScreen::getHeadInfo(head_nr, head);
 
     uint head_size = std::min(head.width, head.height) / Config::instance()->getWorkspaceIndicatorScale();
     gm.x = gm.y = 0;
@@ -81,7 +81,7 @@ WorkspaceIndicator::Display::render(void)
     // Make sure pixmap has correct size
     ScreenResources::instance()->getPixmapHandler()->returnPixmap(_pixmap);
     _pixmap = ScreenResources::instance()->getPixmapHandler()->getPixmap(_gm.width, _gm.height,
-                                                                        PScreen::instance()->getDepth());
+                                                                        PScreen::getDepth());
 
     // Render background
     data.texture_background->render(_pixmap, 0, 0, _gm.width, _gm.height);
@@ -228,7 +228,7 @@ WorkspaceIndicator::render(void)
 {
     // Center on head
     Geometry head, request;
-    PScreen::instance()->getHeadInfo(PScreen::instance()->getCurrHead(), head);
+    PScreen::getHeadInfo(PScreen::getCurrHead(), head);
 
     _display_wo.getSizeRequest(request);
     resizeChild(request.width, request.height);

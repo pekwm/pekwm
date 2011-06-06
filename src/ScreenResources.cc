@@ -41,7 +41,7 @@ ScreenResources::ScreenResources(void)
     }
     _instance = this;
 
-    Display *dpy = PScreen::instance()->getDpy();
+    Display *dpy = PScreen::getDpy();
 
     // create resize cursors
     _cursor_map[CURSOR_TOP_LEFT] = XCreateFontCursor(dpy, XC_top_left_corner);
@@ -68,7 +68,7 @@ ScreenResources::~ScreenResources(void)
 {
     map<CursorType, Cursor>::iterator c_it(_cursor_map.begin());
     for (; c_it != _cursor_map.end(); ++c_it) {
-        XFreeCursor(PScreen::instance()->getDpy(), c_it->second);
+        XFreeCursor(PScreen::getDpy(), c_it->second);
     }
 
     if (_pixmap_handler) {

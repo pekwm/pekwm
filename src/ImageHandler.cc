@@ -135,7 +135,7 @@ ImageHandler::getImageFromPath(const std::string &file)
     // Try to load the image, setup cache only if it succeeds.
     PImage *image;
     try {
-        image = new PImage(PScreen::instance()->getDpy(), file);
+        image = new PImage(file);
     } catch (LoadException&) {
         image = 0;
     }

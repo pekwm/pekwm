@@ -138,8 +138,8 @@ Workspaces::setSize(uint number)
     }
 
     // Tell the rest of the world how many workspaces we have.
-    XChangeProperty(PScreen::instance()->getDpy(),
-                    PScreen::instance()->getRoot(),
+    XChangeProperty(PScreen::getDpy(),
+                    PScreen::getRoot(),
                     Atoms::getAtom(NET_NUMBER_OF_DESKTOPS),
                     XA_CARDINAL, 32, PropModeReplace,
                     (uchar *) &number, 1);
@@ -172,7 +172,7 @@ Workspaces::setWorkspace(uint num, bool focus)
         return;
     }
 
-    PScreen::instance()->grabServer();
+    PScreen::grabServer();
 
     PWinObj *wo = PWinObj::getFocusedPWinObj();
     // Make sure that sticky windows gets unfocused on workspace change,
@@ -191,12 +191,12 @@ Workspaces::setWorkspace(uint num, bool focus)
 
     // switch workspace
     hideAll(_active);
-    AtomUtil::setLong(PScreen::instance()->getRoot(),
+    AtomUtil::setLong(PScreen::getRoot(),
                       Atoms::getAtom(NET_CURRENT_DESKTOP),
                       num);
     unhideAll(num, focus);
 
-    PScreen::instance()->ungrabServer(true);
+    PScreen::ungrabServer(true);
 
     // Show workspace indicator if requested
     if (Config::instance()->getShowWorkspaceIndicator() > 0) {
@@ -304,18 +304,18 @@ Workspaces::warpToWorkspace(uint num, int dir)
     }
 
     int x, y;
-    PScreen::instance()->getMousePosition(x, y);
+    PScreen::getMousePosition(x, y);
 
     if (dir != 0) {
       switch(dir) {
       case 1:
-        x = PScreen::instance()->getWidth() - std::max(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_LEFT) + 2, 2);
+        x = PScreen::getWidth() - std::max(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_LEFT) + 2, 2);
         break;
       case 2:
         x = std::max(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_RIGHT) * 2, 2);
         break;
       case -1:
-        y = PScreen::instance()->getHeight() - std::max(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_BOTTOM) + 2, 2);
+        y = PScreen::getHeight() - std::max(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_BOTTOM) + 2, 2);
         break;
       case -2:
         y = std::max(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_TOP) + 2, 2);
@@ -323,8 +323,8 @@ Workspaces::warpToWorkspace(uint num, int dir)
       }
 
         // warp pointer
-        XWarpPointer(PScreen::instance()->getDpy(), None,
-                     PScreen::instance()->getRoot(), 0, 0, 0, 0, x, y);
+        XWarpPointer(PScreen::getDpy(), None,
+                     PScreen::getRoot(), 0, 0, 0, 0, x, y);
     }
 
     // set workpsace
@@ -360,7 +360,7 @@ Workspaces::insert(PWinObj *wo, bool raise)
     _wo_list.insert(position, wo);
 
     if (position == _wo_list.end()) {
-         XRaiseWindow(PScreen::instance()->getDpy(), wo->getWindow());
+         XRaiseWindow(PScreen::getDpy(), wo->getWindow());
     } else {
          stackWinUnderWin((*position)->getWindow(), wo->getWindow());
     }
@@ -558,7 +558,7 @@ Workspaces::stackWinUnderWin(Window over, Window under)
     }
 
     Window windows[2] = { over, under };
-    XRestackWindows(PScreen::instance()->getDpy(), windows, 2);
+    XRestackWindows(PScreen::getDpy(), windows, 2);
 }
 
 //! @brief Create name for workspace num
@@ -644,7 +644,7 @@ Workspaces::updateClientList(void)
     unsigned int num_windows;
     Window *windows = buildClientList(num_windows);
 
-    AtomUtil::setWindows(PScreen::instance()->getRoot(),
+    AtomUtil::setWindows(PScreen::getRoot(),
 			 Atoms::getAtom(NET_CLIENT_LIST),
 			 windows, num_windows);
     
@@ -660,7 +660,7 @@ Workspaces::updateClientStackingList(void)
     unsigned int num_windows;
     Window *windows = buildClientList(num_windows);
 
-    AtomUtil::setWindows(PScreen::instance()->getRoot(),
+    AtomUtil::setWindows(PScreen::getRoot(),
 			 Atoms::getAtom(NET_CLIENT_LIST_STACKING),
 			 windows, num_windows);
 
@@ -748,8 +748,7 @@ Workspaces::placeSmart(PWinObj* wo)
     uint wo_height = wo->getHeight() + Config::instance()->getPlacementOffsetY();
 
     Geometry head;
-    PScreen::instance()->getHeadInfoWithEdge(PScreen::instance()->getCurrHead(),
-            head);
+    PScreen::getHeadInfoWithEdge(PScreen::getCurrHead(), head);
 
     start_x = (Config::instance()->getPlacementLtR())
               ? (head.x)
@@ -811,11 +810,10 @@ bool
 Workspaces::placeMouseNotUnder(PWinObj *wo)
 {
     Geometry head;
-    PScreen::instance()->getHeadInfoWithEdge(PScreen::instance()->getCurrHead(),
-            head);
+    PScreen::getHeadInfoWithEdge(PScreen::getCurrHead(), head);
 
     int mouse_x, mouse_y;
-    PScreen::instance()->getMousePosition(mouse_x, mouse_y);
+    PScreen::getMousePosition(mouse_x, mouse_y);
 
     // compensate for head offset
     mouse_x -= head.x;
@@ -850,7 +848,7 @@ bool
 Workspaces::placeMouseCentered(PWinObj *wo)
 {
     int mouse_x, mouse_y;
-    PScreen::instance()->getMousePosition(mouse_x, mouse_y);
+    PScreen::getMousePosition(mouse_x, mouse_y);
 
     Geometry gm(mouse_x - (wo->getWidth() / 2), mouse_y - (wo->getHeight() / 2),
                 wo->getWidth(), wo->getHeight());
@@ -868,7 +866,7 @@ bool
 Workspaces::placeMouseTopLeft(PWinObj *wo)
 {
     int mouse_x, mouse_y;
-    PScreen::instance()->getMousePosition(mouse_x, mouse_y);
+    PScreen::getMousePosition(mouse_x, mouse_y);
 
     Geometry gm(mouse_x, mouse_y, wo->getWidth(), wo->getHeight());
     placeInsideScreen(gm); // make sure it's within the screens border
@@ -905,9 +903,9 @@ Workspaces::placeInsideScreen(Geometry &gm, Strut *strut)
     // along the edge of the screen.
     Geometry head;
     if (strut) {
-        PScreen::instance()->getHeadInfo(PScreen::instance()->getCurrHead(), head);
+        PScreen::getHeadInfo(PScreen::getCurrHead(), head);
     } else {
-        PScreen::instance()->getHeadInfoWithEdge(PScreen::instance()->getCurrHead(), head);
+        PScreen::getHeadInfoWithEdge(PScreen::getCurrHead(), head);
     }
 
     if (gm.x < head.x) {
@@ -1035,14 +1033,14 @@ Workspaces::findDirectional(PWinObj *wo, DirectionType dir, uint skip)
 
         if ((dir == DIRECTION_UP) || (dir == DIRECTION_DOWN)) {
             if ((wo_sec < (*it)->getX()) || (wo_sec > (*it)->getRX())) {
-                score += PScreen::instance()->getHeight() / 2;
+                score += PScreen::getHeight() / 2;
             }
             score += abs (static_cast<long> (wo_sec - ((*it)->getX ()
                                              + (*it)->getWidth () / 2)));
 
         } else {
             if ((wo_sec < (*it)->getY()) || (wo_sec > (*it)->getBY())) {
-                score += PScreen::instance()->getWidth() / 2;
+                score += PScreen::getWidth() / 2;
             }
 
             score += abs (static_cast<long> (wo_sec - ((*it)->getY ()

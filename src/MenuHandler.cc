@@ -119,34 +119,33 @@ MenuHandler::hideAllMenus(void)
 void
 MenuHandler::createMenus(void)
 {
-    PScreen *screen = PScreen::instance();
     ActionHandler *action_handler = ActionHandler::instance();
     PMenu *menu = 0;
 
-    menu = new FrameListMenu(screen, _theme, ATTACH_CLIENT_IN_FRAME_TYPE,
+    menu = new FrameListMenu(_theme, ATTACH_CLIENT_IN_FRAME_TYPE,
                              L"Attach Client In Frame",
                              "AttachClientInFrame");
     _menu_map["ATTACHCLIENTINFRAME"] = menu;
-     menu = new FrameListMenu(screen, _theme, ATTACH_CLIENT_TYPE,
+     menu = new FrameListMenu(_theme, ATTACH_CLIENT_TYPE,
                               L"Attach Client", "AttachClient");
     _menu_map["ATTACHCLIENT"] = menu;
-     menu = new FrameListMenu(screen, _theme, ATTACH_FRAME_IN_FRAME_TYPE,
+     menu = new FrameListMenu(_theme, ATTACH_FRAME_IN_FRAME_TYPE,
                               L"Attach Frame In Frame",
                               "AttachFrameInFrame");
     _menu_map["ATTACHFRAMEINFRAME"] = menu;
-    menu = new FrameListMenu(screen, _theme, ATTACH_FRAME_TYPE,
+    menu = new FrameListMenu(_theme, ATTACH_FRAME_TYPE,
                              L"Attach Frame", "AttachFrame");
     _menu_map["ATTACHFRAME"] = menu;
-    menu = new FrameListMenu(screen, _theme, GOTOCLIENTMENU_TYPE,
+    menu = new FrameListMenu(_theme, GOTOCLIENTMENU_TYPE,
                              L"Focus Client", "GotoClient");
     _menu_map["GOTOCLIENT"] = menu;
-    menu = new FrameListMenu(screen, _theme, GOTOMENU_TYPE,
+    menu = new FrameListMenu(_theme, GOTOMENU_TYPE,
                              L"Focus Frame", "Goto");
     _menu_map["GOTO"] = menu;
-    menu = new FrameListMenu(screen, _theme, ICONMENU_TYPE,
+    menu = new FrameListMenu(_theme, ICONMENU_TYPE,
                              L"Focus Iconified Frame", "Icon");
     _menu_map["ICON"] = menu;
-    menu = new DecorMenu(screen, _theme, action_handler, "DecorMenu");
+    menu = new DecorMenu(_theme, action_handler, "DecorMenu");
     _menu_map["DECORMENU"] = menu;
     menu =  new ActionMenu(ROOTMENU_TYPE, L"", "RootMenu");
     _menu_map["ROOT"] = menu;

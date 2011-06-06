@@ -150,7 +150,7 @@ PImageLoaderXpm::createXpmToRgbaTable(XpmImage *xpm_image)
             }
             *dest++ = ALPHA_SOLID;
 
-        } else if (color && XParseColor(PScreen::instance()->getDpy(), PScreen::instance()->getColormap(),
+        } else if (color && XParseColor(PScreen::getDpy(), PScreen::getColormap(),
                                         color, &xcolor_exact)) {
             *dest++ = xcolor_exact.red;
             *dest++ = xcolor_exact.green;

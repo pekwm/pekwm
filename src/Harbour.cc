@@ -172,11 +172,11 @@ Harbour::updateGeometry(void)
 void
 Harbour::restack(void)
 {
-    PScreen::instance()->removeStrut(_strut);
+    PScreen::removeStrut(_strut);
     if (Config::instance()->isHarbourOntop() ||
             ! Config::instance()->isHarbourMaximizeOver()) {
 
-        PScreen::instance()->addStrut(_strut);
+        PScreen::addStrut(_strut);
     }
     uint l = Config::instance()->isHarbourOntop() ? LAYER_DOCK : LAYER_DESKTOP;
 
@@ -398,7 +398,7 @@ Harbour::placeDockApp(DockApp *da)
     bool placed = false, increase = false, x_place = false;
 
     Geometry head;
-    PScreen::instance()->getHeadInfo(Config::instance()->getHarbourHead(), head);
+    PScreen::getHeadInfo(Config::instance()->getHarbourHead(), head);
 
     getPlaceStartPosition (da, x, y, x_place);
     if (right) {
@@ -522,7 +522,7 @@ void
 Harbour::placeDockAppInsideScreen(DockApp *da)
 {
     Geometry head;
-    PScreen::instance()->getHeadInfo(Config::instance()->getHarbourHead(), head);
+    PScreen::getHeadInfo(Config::instance()->getHarbourHead(), head);
     uint pos = Config::instance()->getHarbourPlacement();
 
     // top or bottom placement
@@ -568,7 +568,7 @@ Harbour::getPlaceStartPosition(DockApp *da, int &x, int &y, bool &inc_x)
     }
     
     Geometry head;
-    PScreen::instance()->getHeadInfo(Config::instance()->getHarbourHead(), head);
+    PScreen::getHeadInfo(Config::instance()->getHarbourHead(), head);
     bool right = (Config::instance()->getHarbourOrientation() == BOTTOM_TO_TOP);
 
     switch (Config::instance()->getHarbourPlacement()) {

@@ -73,7 +73,7 @@ PDecor::Button::Button(PWinObj *parent, Theme::PDecorButtonData *data, uint widt
                       CopyFromParent, InputOutput, CopyFromParent,
                       CWEventMask|CWOverrideRedirect, &attr);
 
-    _bg = ScreenResources::instance()->getPixmapHandler()->getPixmap(_gm.width, _gm.height, PScreen::instance()->getDepth());
+    _bg = ScreenResources::instance()->getPixmapHandler()->getPixmap(_gm.width, _gm.height, PScreen::getDepth());
 
     setBackgroundPixmap(_bg);
     setState(_state);
@@ -218,9 +218,9 @@ PDecor::PDecor(Theme *theme,
     getParentWindowAttributes(window_params, child_window);
     createParentWindow(window_params);
     if (window_params.mask & CWColormap) {
-        window_params.depth = PScreen::instance()->getDepth();
-        window_params.visual = PScreen::instance()->getVisual()->getXVisual();
-        window_params.attr.colormap = PScreen::instance()->getColormap();
+        window_params.depth = PScreen::getDepth();
+        window_params.visual = PScreen::getVisual()->getXVisual();
+        window_params.attr.colormap = PScreen::getColormap();
     }
     createTitle(window_params);
     createBorder(window_params);
@@ -267,7 +267,7 @@ PDecor::getChildWindowAttributes(CreateWindowParams &params,
         params.depth = attr.depth;
         params.visual = attr.visual;
         params.attr.colormap = XCreateColormap(PScreen::getDpy(),
-                                               PScreen::instance()->getRoot(),
+                                               PScreen::getRoot(),
                                                params.visual, AllocNone);
     }
 }
@@ -281,7 +281,7 @@ PDecor::createParentWindow(CreateWindowParams &params)
     params.attr.event_mask = ButtonPressMask|ButtonReleaseMask|
         ButtonMotionMask|EnterWindowMask|SubstructureRedirectMask|
         SubstructureNotifyMask;
-    _window = XCreateWindow(PScreen::getDpy(), PScreen::instance()->getRoot(),
+    _window = XCreateWindow(PScreen::getDpy(), PScreen::getRoot(),
                             _gm.x, _gm.y, _gm.width, _gm.height, 0,
                             params.depth, InputOutput, params.visual,
                             params.mask, &params.attr);
@@ -719,14 +719,14 @@ PDecor::handleButtonRelease(XButtonEvent *ev)
         } else if (_title_wo == ev->window) {
             if (_button_press_win == ev->window) {
                 // Handle clicks on the decor title, checking double clicks first.
-                if (PScreen::instance()->isDoubleClick(ev->window, ev->button - 1, ev->time,
+                if (PScreen::isDoubleClick(ev->window, ev->button - 1, ev->time,
                                                        Config::instance()->getDoubleClickTime())) {
-                    PScreen::instance()->setLastClickID(ev->window);
-                    PScreen::instance()->setLastClickTime(ev->button - 1, 0);
+                    PScreen::setLastClickID(ev->window);
+                    PScreen::setLastClickTime(ev->button - 1, 0);
                     mb = MOUSE_EVENT_DOUBLE;
                 } else {
-                    PScreen::instance()->setLastClickID(ev->window);
-                    PScreen::instance()->setLastClickTime(ev->button - 1, ev->time);
+                    PScreen::setLastClickID(ev->window);
+                    PScreen::setLastClickTime(ev->button - 1, ev->time);
                 }
 
                 actions = Config::instance()->getMouseActionList(_decor_cfg_bpr_al_title);
@@ -777,7 +777,7 @@ PDecor::handleButtonReleaseButton(XButtonEvent *ev, PDecor::Button *button)
 ActionEvent*
 PDecor::handleMotionEvent(XMotionEvent *ev)
 {
-    uint button = PScreen::instance()->getButtonFromState(ev->state);
+    uint button = PScreen::getButtonFromState(ev->state);
     return ActionHandler::findMouseAction(button, ev->state,
                                           MOUSE_EVENT_MOTION,
                                           Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_OTHER));
@@ -1267,10 +1267,9 @@ PDecor::doMove(int x_root, int y_root)
         return;
     }
 
-    PScreen *scr = PScreen::instance(); // convenience
     StatusWindow *sw = StatusWindow::instance(); // convenience
 
-    if (! scr->grabPointer(scr->getRoot(), ButtonMotionMask|ButtonReleaseMask,
+    if (! PScreen::grabPointer(PScreen::getRoot(), ButtonMotionMask|ButtonReleaseMask,
                          ScreenResources::instance()->getCursor(ScreenResources::CURSOR_MOVE))) {
         return;
     }
@@ -1285,7 +1284,7 @@ PDecor::doMove(int x_root, int y_root)
 
     // grab server, we don't want invert traces
     if (outline) {
-        scr->grabServer();
+        PScreen::grabServer();
     }
 
     wchar_t buf[128];
@@ -1349,10 +1348,10 @@ PDecor::doMove(int x_root, int y_root)
     // ungrab the server
     if (outline) {
         move(_gm.x, _gm.y);
-        scr->ungrabServer(true);
+        PScreen::ungrabServer(true);
     }
 
-    scr->ungrabPointer();
+    PScreen::ungrabPointer();
 }
 
 //! @brief Matches cordinates against screen edge
@@ -1362,12 +1361,12 @@ PDecor::doMoveEdgeFind(int x, int y)
     EdgeType edge = SCREEN_EDGE_NO;
     if (x <= signed(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_LEFT))) {
         edge = SCREEN_EDGE_LEFT;
-    } else if (x >= signed(PScreen::instance()->getWidth() -
+    } else if (x >= signed(PScreen::getWidth() -
                            Config::instance()->getScreenEdgeSize(SCREEN_EDGE_RIGHT))) {
         edge = SCREEN_EDGE_RIGHT;
     } else if (y <= signed(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_TOP))) {
         edge = SCREEN_EDGE_TOP;
-    } else if (y >= signed(PScreen::instance()->getHeight() -
+    } else if (y >= signed(PScreen::getHeight() -
                            Config::instance()->getScreenEdgeSize(SCREEN_EDGE_BOTTOM))) {
         edge = SCREEN_EDGE_BOTTOM;
     }
@@ -1381,7 +1380,7 @@ PDecor::doMoveEdgeAction(XMotionEvent *ev, EdgeType edge)
 {
     ActionEvent *ae;
 
-    uint button = PScreen::instance()->getButtonFromState(ev->state);
+    uint button = PScreen::getButtonFromState(ev->state);
     ae = ActionHandler::findMouseAction(button, ev->state,
                                         MOUSE_EVENT_ENTER_MOVING,
                                         Config::instance()->getEdgeListFromPosition(edge));
@@ -1401,15 +1400,14 @@ PDecor::doMoveEdgeAction(XMotionEvent *ev, EdgeType edge)
 void
 PDecor::doKeyboardMoveResize(void)
 {
-    PScreen *scr = PScreen::instance(); // convenience
     StatusWindow *sw = StatusWindow::instance(); // convenience
 
-    if (! scr->grabPointer(scr->getRoot(), NoEventMask,
+    if (! PScreen::grabPointer(PScreen::getRoot(), NoEventMask,
                          ScreenResources::instance()->getCursor(ScreenResources::CURSOR_MOVE))) {
         return;
     }
-    if (! scr->grabKeyboard(scr->getRoot())) {
-        scr->ungrabPointer();
+    if (! PScreen::grabKeyboard(PScreen::getRoot())) {
+        PScreen::ungrabPointer();
         return;
     }
 
@@ -1430,7 +1428,7 @@ PDecor::doKeyboardMoveResize(void)
     }
 
     if (outline) {
-        PScreen::instance()->grabServer();
+        PScreen::grabServer();
     }
 
     XEvent e;
@@ -1514,11 +1512,11 @@ PDecor::doKeyboardMoveResize(void)
     }
 
     if (outline) {
-        scr->ungrabServer(true);
+        PScreen::ungrabServer(true);
     }
 
-    scr->ungrabKeyboard();
-    scr->ungrabPointer();
+    PScreen::ungrabKeyboard();
+    PScreen::ungrabPointer();
 }
 
 //! @brief Sets shaded state
@@ -1597,7 +1595,7 @@ PDecor::renderTitle(void)
     // Get new title pixmap
     if (_dirty_resized || force_update) {
         pm->returnPixmap(_title_bg);
-        _title_bg = pm->getPixmap(_title_wo.getWidth(), _title_wo.getHeight(), PScreen::instance()->getDepth());
+        _title_bg = pm->getPixmap(_title_wo.getWidth(), _title_wo.getHeight(), PScreen::getDepth());
         _title_wo.setBackgroundPixmap(_title_bg);
     }
 
@@ -1695,7 +1693,7 @@ PDecor::renderBorder(void)
             if ((width > 0) && (height > 0)) {
                 if (_dirty_resized) {
                     it->second = pm->getPixmap(width, height,
-                                               PScreen::instance()->getDepth());
+                                               PScreen::getDepth());
                     XSetWindowBackgroundPixmap(PScreen::getDpy(), _border_win[it->first],
                                                it->second);
                 }
@@ -1749,7 +1747,7 @@ PDecor::setBorderShape(void)
 uint
 PDecor::getNearestHead(void)
 {
-    return PScreen::instance()->getNearestHead(_gm.x + (_gm.width / 2), _gm.y + (_gm.height / 2));
+    return PScreen::getNearestHead(_gm.x + (_gm.width / 2), _gm.y + (_gm.height / 2));
 }
 
 //! @brief
@@ -1849,7 +1847,7 @@ PDecor::checkEdgeSnap(void)
     int resist = Config::instance()->getEdgeResist();
 
     Geometry head;
-    PScreen::instance()->getHeadInfoWithEdge(PScreen::instance()->getNearestHead(_gm.x, _gm.y), head);
+    PScreen::getHeadInfoWithEdge(PScreen::getNearestHead(_gm.x, _gm.y), head);
 
     if ((_gm.x >= (head.x - resist)) && (_gm.x <= (head.x + attract))) {
         _gm.x = head.x;
@@ -1910,7 +1908,7 @@ PDecor::alignChild(PWinObj *child)
 void
 PDecor::drawOutline(const Geometry &gm)
 {
-    XDrawRectangle(PScreen::getDpy(), PScreen::instance()->getRoot(),
+    XDrawRectangle(PScreen::getDpy(), PScreen::getRoot(),
                    _theme->getInvertGC(),
                    gm.x, gm.y, gm.width,
                    _shaded ? _gm.height : gm.height);
@@ -2009,7 +2007,7 @@ PDecor::applyBorderShape(void)
         uint bt_off = (_data->getTitleWidthMin() > 0) ? getTitleHeight() : 0;
 
         Window shape;
-        shape = XCreateSimpleWindow(PScreen::getDpy(), PScreen::instance()->getRoot(),
+        shape = XCreateSimpleWindow(PScreen::getDpy(), PScreen::getRoot(),
                                     0, 0, _gm.width, _gm.height, 0, 0, 0);
 
         if (_child) {

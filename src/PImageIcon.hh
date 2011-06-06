@@ -18,7 +18,7 @@
 //! @brief Image class with pekwm native backend.
 class PImageIcon : public PImage {
 public:
-    PImageIcon(Display *dpy);
+    PImageIcon(void);
     virtual ~PImageIcon(void);
 
     bool loadFromWindow(Window win);
