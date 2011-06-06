@@ -215,6 +215,12 @@ public:
     uint getMaskFromKeycode(KeyCode keycode);
     KeyCode getKeycodeFromMask(uint mask);
 
+    inline static void removeMotionEvents() {
+        XEvent xev;
+        while (XCheckMaskEvent(_dpy, PointerMotionMask, &xev))
+            ;
+    }
+
 public:
     static const uint MODIFIER_TO_MASK[]; /**< Modifier from (XModifierKeymap) to mask table. */
     static const uint MODIFIER_TO_MASK_NUM; /**< Number of entries in MODIFIER_TO_MASK. */
