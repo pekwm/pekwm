@@ -155,10 +155,9 @@ public:
     inline static int getEventShape(void) { return _event_shape; }
 
     static void updateGeometry(uint width, uint height);
-#ifdef HAVE_XRANDR
+
     inline static bool hasExtensionXRandr(void) { return _has_extension_xrandr; }
     inline static int getEventXRandr(void) { return _event_xrandr; }
-#endif // HAVE_XRANDR
 
     static bool getNextEvent(XEvent &ev);
     static bool grabServer(void);
@@ -218,9 +217,28 @@ public:
             ;
     }
 
-public:
     static const uint MODIFIER_TO_MASK[]; /**< Modifier from (XModifierKeymap) to mask table. */
     static const uint MODIFIER_TO_MASK_NUM; /**< Number of entries in MODIFIER_TO_MASK. */
+
+    // X11 function wrappers
+
+    inline static void grabButton(unsigned b, unsigned int mod, Window win, 
+                                  unsigned mask, int mode=GrabModeAsync)
+    {
+        XGrabButton(_dpy, b, mod, win, true, mask, mode, GrabModeAsync, None, None);
+    }
+
+    inline static void ungrabButton(Window win) {
+        XUngrabButton(_dpy, AnyButton, AnyModifier, win);
+    }
+
+    inline static bool checkTypedEvent(int type, XEvent *ev) {
+        return XCheckTypedEvent(_dpy, type, ev);
+    }
+
+    inline static int selectInput(Window w, long mask) {
+        return XSelectInput(_dpy, w, mask);
+    }
 
 private:
     // squared distance because computing with sqrt is expensive
