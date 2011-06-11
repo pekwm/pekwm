@@ -14,7 +14,6 @@
 #define _SCREENINFO_HH_
 
 #include "pekwm.hh"
-#include "PWinObj.hh"
 
 extern "C" {
 #include <X11/Xlib.h>
@@ -118,7 +117,7 @@ public:
 
     static PScreen* instance(void) { return _instance; }
 
-    inline Display* getDpy(void) const { return _dpy; }
+    inline static Display* getDpy(void) { return _dpy; }
     inline int getScreenNum(void) const { return _screen; }
     inline Window getRoot(void) const { return _root; }
 
