@@ -228,6 +228,9 @@ public:
         XGrabButton(_dpy, b, mod, win, true, mask, mode, GrabModeAsync, None, None);
     }
 
+    inline static void mapWindow(Window w)   { XMapWindow(_dpy, w); }
+    inline static void unmapWindow(Window w) { XUnmapWindow(_dpy, w); }
+
     inline static void ungrabButton(Window win) {
         XUngrabButton(_dpy, AnyButton, AnyModifier, win);
     }
