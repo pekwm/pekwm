@@ -314,8 +314,6 @@ WindowManager::setupDisplay(bool replace)
     // Setup screen, init atoms and claim the display.
     _screen = new PScreen(dpy, _config->isHonourRandr());
 
-    PWinObj::setDisplay(dpy);
-
     Atoms::init();
 
     try {

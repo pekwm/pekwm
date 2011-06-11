@@ -75,7 +75,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
 
     // grab buttons so that we can reply them
     for (uint i = 0; i < BUTTON_NO; ++i) {
-        XGrabButton(_dpy, i, AnyModifier, _window,
+        XGrabButton(PScreen::getDpy(), i, AnyModifier, _window,
                     True, ButtonPressMask|ButtonReleaseMask,
                     GrabModeSync, GrabModeAsync, None, None);
     }
@@ -1016,7 +1016,7 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: r
 
     XEvent e;
     while (true) { // this breaks when we get an button release
-        XMaskEvent(_dpy, PointerMotionMask|ButtonReleaseMask, &e);
+        XMaskEvent(PScreen::getDpy(), PointerMotionMask|ButtonReleaseMask, &e);
 
         switch (e.type)  {
         case MotionNotify:
@@ -1040,7 +1040,7 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: r
                 Window win;
 
                 // find the frame we dropped the client on
-                XTranslateCoordinates(_dpy, _scr->getRoot(), _scr->getRoot(),
+                XTranslateCoordinates(PScreen::getDpy(), _scr->getRoot(), _scr->getRoot(),
                                       e.xmotion.x_root, e.xmotion.y_root,
                                       &x, &y, &win);
 
@@ -1214,7 +1214,7 @@ Frame::doResize(bool left, bool x, bool top, bool y)
         if (outline) {
             drawOutline(_gm);
         }
-        XMaskEvent(_dpy, resize_mask, &ev);
+        XMaskEvent(PScreen::getDpy(), resize_mask, &ev);
         if (outline) {
             drawOutline(_gm); // clear
         }
@@ -1249,7 +1249,7 @@ Frame::doResize(bool left, bool x, bool top, bool y)
             break;
         case ButtonRelease:
             exit = true;
-            XPutBackEvent(_dpy, &ev);
+            XPutBackEvent(PScreen::getDpy(), &ev);
             break;
         }
     }

@@ -56,13 +56,13 @@ HintWO::HintWO(Window root, bool replace) throw (std::string&)
     _iconified = true; // Hack, to be ignored when placing
 
     // Create window
-    _window = XCreateSimpleWindow(_dpy, root, -200, -200, 5, 5, 0, 0, 0);
+    _window = XCreateSimpleWindow(PScreen::getDpy(), root, -200, -200, 5, 5, 0, 0, 0);
 
     // Remove override redirect from window
     XSetWindowAttributes attr;
     attr.override_redirect = True;
     attr.event_mask = PropertyChangeMask;
-    XChangeWindowAttributes(_dpy, _window, CWEventMask|CWOverrideRedirect, &attr);
+    XChangeWindowAttributes(PScreen::getDpy(), _window, CWEventMask|CWOverrideRedirect, &attr);
 
     // Set hints not being updated
     AtomUtil::setString(_window, Atoms::getAtom(NET_WM_NAME), WM_NAME);
@@ -94,10 +94,10 @@ HintWO::getTime(void)
     XEvent event;
 
     // Generate event on ourselves
-    XChangeProperty(_dpy, _window,
+    XChangeProperty(PScreen::getDpy(), _window,
 		    Atoms::getAtom(WM_CLASS), Atoms::getAtom(STRING),
                     8, PropModeAppend, 0, 0);
-    XWindowEvent(_dpy, _window, PropertyChangeMask, &event);
+    XWindowEvent(PScreen::getDpy(), _window, PropertyChangeMask, &event);
 
     return event.xproperty.time;
 }
@@ -113,9 +113,9 @@ HintWO::claimDisplay(bool replace)
     bool status = true;
 
     // Get atom for the current screen and it's owner
-    string session_name("WM_S" + Util::to_string<int>(DefaultScreen(_dpy)));
-    Atom session_atom = XInternAtom(_dpy, session_name.c_str(), false);
-    Window session_owner = XGetSelectionOwner(_dpy, session_atom);
+    string session_name("WM_S" + Util::to_string<int>(DefaultScreen(PScreen::getDpy())));
+    Atom session_atom = XInternAtom(PScreen::getDpy(), session_name.c_str(), false);
+    Window session_owner = XGetSelectionOwner(PScreen::getDpy(), session_atom);
 
     if (session_owner && session_owner != _window) {
         if (! replace) {
@@ -123,14 +123,14 @@ HintWO::claimDisplay(bool replace)
             return false;
         }
 
-        XSync(_dpy, false);
+        XSync(PScreen::getDpy(), false);
         setXErrorsIgnore(true);
         uint errors_before = xerrors_count;
 
         // Select event to get notified when current owner dies.
-        XSelectInput(_dpy, session_owner, StructureNotifyMask);
+        XSelectInput(PScreen::getDpy(), session_owner, StructureNotifyMask);
 
-        XSync(_dpy, false);
+        XSync(PScreen::getDpy(), false);
         setXErrorsIgnore(false);
         if (errors_before != xerrors_count) {
             session_owner = None;
@@ -139,8 +139,8 @@ HintWO::claimDisplay(bool replace)
 
     Time timestamp = getTime();
 
-    XSetSelectionOwner(_dpy, session_atom, _window, timestamp);
-    if (XGetSelectionOwner(_dpy, session_atom) == _window) {
+    XSetSelectionOwner(PScreen::getDpy(), session_atom, _window, timestamp);
+    if (XGetSelectionOwner(PScreen::getDpy(), session_atom) == _window) {
         if (session_owner) {
             // Wait for the previous window manager to go away and update owner.
             status = claimDisplayWait(session_owner);
@@ -169,7 +169,7 @@ HintWO::claimDisplayWait(Window session_owner)
     cerr << " *** INFO: waiting for previous window manager to exit. " << endl;
 
     for (uint waited = 0; waited < HintWO::DISPLAY_WAIT; ++waited) {
-        if (XCheckWindowEvent(_dpy, session_owner, StructureNotifyMask, &event)
+        if (XCheckWindowEvent(PScreen::getDpy(), session_owner, StructureNotifyMask, &event)
             && event.type == DestroyNotify) {
             return true;
         }
@@ -190,11 +190,11 @@ HintWO::claimDisplayOwner(Window session_atom, Time timestamp)
 {
     XEvent event;
     // FIXME: One should use _root_wo here?
-    Window root = RootWindow(_dpy, DefaultScreen(_dpy));
+    Window root = RootWindow(PScreen::getDpy(), DefaultScreen(PScreen::getDpy()));
 
     event.xclient.type = ClientMessage;
     event.xclient.message_type = Atoms::getAtom(MANAGER);
-    event.xclient.display = _dpy;
+    event.xclient.display = PScreen::getDpy();
     event.xclient.window = root;
     event.xclient.format = 32;
     event.xclient.data.l[0] = timestamp;
@@ -202,7 +202,7 @@ HintWO::claimDisplayOwner(Window session_atom, Time timestamp)
     event.xclient.data.l[2] = _window;
     event.xclient.data.l[3] = 0;
 
-    XSendEvent(_dpy, root, false, SubstructureNotifyMask, &event);
+    XSendEvent(PScreen::getDpy(), root, false, SubstructureNotifyMask, &event);
 }
 
 /**
@@ -220,14 +220,14 @@ RootWO::RootWO(Window root)
     _gm.height = PScreen::instance()->getHeight();
 
 
-    XSync(_dpy, false);
+    XSync(PScreen::getDpy(), false);
     setXErrorsIgnore(true);
     uint errors_before = xerrors_count;
 
     // Select window events
-    XSelectInput(_dpy, _window, RootWO::EVENT_MASK);
+    XSelectInput(PScreen::getDpy(), _window, RootWO::EVENT_MASK);
 
-    XSync(_dpy, false);
+    XSync(PScreen::getDpy(), false);
     setXErrorsIgnore(false);
     if (errors_before != xerrors_count) {
         cerr << "pekwm: root window unavailable, can't start!" << endl;
@@ -408,7 +408,7 @@ EdgeWO::EdgeWO(Window root, EdgeType edge, bool set_strut)
     sattr.override_redirect = True;
     sattr.event_mask = EnterWindowMask|LeaveWindowMask|ButtonPressMask|ButtonReleaseMask;
 
-    _window = XCreateWindow(_dpy, root, 0, 0, 1, 1, 0, CopyFromParent, InputOnly, CopyFromParent,
+    _window = XCreateWindow(PScreen::getDpy(), root, 0, 0, 1, 1, 0, CopyFromParent, InputOnly, CopyFromParent,
                             CWOverrideRedirect|CWEventMask, &sattr);
 
     configureStrut(set_strut);
@@ -427,7 +427,7 @@ EdgeWO::~EdgeWO(void)
     _wo_map.erase(_window);
     woListRemove(this);
 
-    XDestroyWindow(_dpy, _window);
+    XDestroyWindow(PScreen::getDpy(), _window);
 }
 
 /**

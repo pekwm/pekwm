@@ -61,7 +61,7 @@ InputDialog::InputDialog(Theme *theme, const std::wstring &title)
     attr.override_redirect = false;
     attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
     FocusChangeMask|KeyPressMask|KeyReleaseMask;
-    _text_wo->setWindow(XCreateWindow(_dpy, _window,
+    _text_wo->setWindow(XCreateWindow(PScreen::getDpy(), _window,
                                    0, 0, 1, 1, 0,
                                    CopyFromParent, InputOutput, CopyFromParent,
                                    CWOverrideRedirect|CWEventMask, &attr));
@@ -92,7 +92,7 @@ InputDialog::~InputDialog(void)
     if (_text_wo) {
         _child_list.remove(_text_wo);
         removeChildWindow(_text_wo->getWindow());
-        XDestroyWindow(_dpy, _text_wo->getWindow());
+        XDestroyWindow(PScreen::getDpy(), _text_wo->getWindow());
         delete _text_wo;
     }
 

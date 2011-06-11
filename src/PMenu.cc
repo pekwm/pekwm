@@ -88,7 +88,7 @@ PMenu::PMenu(Theme *theme, const std::wstring &title,
     attr.override_redirect = True;
     attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
                       FocusChangeMask|KeyPressMask|KeyReleaseMask|PointerMotionMask;
-    _menu_wo->setWindow(XCreateWindow(_dpy, _window,
+    _menu_wo->setWindow(XCreateWindow(PScreen::getDpy(), _window,
                                       0, 0, 1, 1, 0,
                                       CopyFromParent, InputOutput, CopyFromParent,
                                       CWOverrideRedirect|CWEventMask, &attr));
@@ -124,7 +124,7 @@ PMenu::~PMenu(void)
     if (_menu_wo) {
         _child_list.remove(_menu_wo);
         removeChildWindow(_menu_wo->getWindow());
-        XDestroyWindow(_dpy, _menu_wo->getWindow());
+        XDestroyWindow(PScreen::getDpy(), _menu_wo->getWindow());
         delete _menu_wo;
     }
 
@@ -680,7 +680,7 @@ PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
 }
 
 #define COPY_ITEM_AREA(ITEM, PIX) \
-		XCopyArea(_dpy, PIX, _menu_wo->getWindow(), PScreen::instance()->getGC(), \
+		XCopyArea(PScreen::getDpy(), PIX, _menu_wo->getWindow(), PScreen::instance()->getGC(), \
 							(ITEM)->getX(), (ITEM)->getY(), _item_width_max, _item_height, \
 							(ITEM)->getX(), (ITEM)->getY());
 

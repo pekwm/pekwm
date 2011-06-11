@@ -18,6 +18,7 @@
 #include <vector>
 
 #include "pekwm.hh"
+#include "PScreen.hh"
 #include "Action.hh"
 #include "Observable.hh"
 
@@ -44,15 +45,12 @@ public:
     PWinObj(void);
     virtual ~PWinObj(void);
 
-    //! @brief Set the X Display structure.
-    static void setDisplay(Display *dpy) { _dpy = dpy; }
-
     //! @brief Returns the focused PWinObj.
     static inline PWinObj *getFocusedPWinObj(void) { return _focused_wo; }
     //! @brief Returns the PWinObj representing the root Window.
-    static inline PWinObj *getRootPWinObj(void) {	return _root_wo; }
+    static inline PWinObj *getRootPWinObj(void) { return _root_wo; }
     //! @brief Sets the focused PWinObj.
-    static inline void setFocusedPWinObj(PWinObj *wo) {	_focused_wo = wo; }
+    static inline void setFocusedPWinObj(PWinObj *wo) { _focused_wo = wo; }
     //! @brief Sets the PWinObj representing the root Window.
     static inline void setRootPWinObj(PWinObj *wo) { _root_wo = wo; }
     //! @brief Checks if focused window is of type
@@ -145,9 +143,9 @@ public:
     virtual void resize(uint width, uint height);
     virtual void moveResize(int x, int y, uint width, uint height);
     //! @brief Raises PWinObj without respect of layer.
-    virtual void raise(void) { XRaiseWindow(_dpy, _window); }
+    virtual void raise(void) { XRaiseWindow(PScreen::getDpy(), _window); }
     //! @brief Lowers PWinObj without respect of layer.
-    virtual void lower(void) { XLowerWindow(_dpy, _window); }
+    virtual void lower(void) { XLowerWindow(PScreen::getDpy(), _window); }
 
     virtual void setWorkspace(uint workspace);
     virtual void setLayer(uint layer);
@@ -203,14 +201,14 @@ public:
     // other window commands
 
     //! @brief Clears Window causing a redraw.
-    inline void clear(void) { XClearWindow(_dpy, _window); }
+    inline void clear(void) { XClearWindow(PScreen::getDpy(), _window); }
     //! @brief Sets Window background colour.
     inline void setBackground(long pixel) {
-        XSetWindowBackground(_dpy, _window, pixel);
+        XSetWindowBackground(PScreen::getDpy(), _window, pixel);
     }
     //! @brief Sets Window background pixmap.
     inline void setBackgroundPixmap(Pixmap pm) {
-        XSetWindowBackgroundPixmap(_dpy, _window, pm);
+        XSetWindowBackgroundPixmap(PScreen::getDpy(), _window, pm);
     }
 
 protected:
@@ -218,7 +216,6 @@ protected:
     static void woListRemove(PWinObj *wo);
 
 protected:
-    static Display *_dpy; //!< Display PWinObj is on.
     Window _window; //!< Window PWinObj represents.
     PWinObj *_parent; //!< Parent PWinObj.
 

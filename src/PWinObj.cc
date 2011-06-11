@@ -25,7 +25,6 @@ using std::find;
 using std::vector;
 using std::map;
 
-Display *PWinObj::_dpy;
 PWinObj* PWinObj::_focused_wo = (PWinObj*) 0;
 PWinObj* PWinObj::_root_wo = (PWinObj*) 0;
 vector<PWinObj*> PWinObj::_wo_list = vector<PWinObj*>();
@@ -110,7 +109,7 @@ PWinObj::mapWindow(void)
     _mapped = true;
     _iconified = false;
 
-    XMapWindow(_dpy, _window);
+    XMapWindow(PScreen::getDpy(), _window);
 }
 
 //! @brief Maps the window and raises it
@@ -123,7 +122,7 @@ PWinObj::mapWindowRaised(void)
     _mapped = true;
     _iconified = false;
 
-    XMapRaised(_dpy, _window);
+    XMapRaised(PScreen::getDpy(), _window);
 }
 
 //! @brief Unmaps the window and sets _mapped to false.
@@ -139,7 +138,7 @@ PWinObj::unmapWindow(void)
     // Make sure unmapped windows drops focus
     setFocused(false);
 
-    XUnmapWindow(_dpy, _window);
+    XUnmapWindow(PScreen::getDpy(), _window);
 }
 
 //! @brief Only sets _iconified to true.
@@ -169,7 +168,7 @@ PWinObj::move(int x, int y)
     _gm.x = x;
     _gm.y = y;
 
-    XMoveWindow(_dpy, _window, _gm.x, _gm.y);
+    XMoveWindow(PScreen::getDpy(), _window, _gm.x, _gm.y);
 }
 
 //! @brief Resizes the window and updates _gm.
@@ -189,7 +188,7 @@ PWinObj::resize(uint width, uint height)
     _gm.width = width;
     _gm.height = height;
 
-    XResizeWindow(_dpy, _window, _gm.width, _gm.height);
+    XResizeWindow(PScreen::getDpy(), _window, _gm.width, _gm.height);
 }
 
 //! @brief Move and resize window in one call.
@@ -215,7 +214,7 @@ PWinObj::moveResize(int x, int y, uint width, uint height)
     _gm.width = width;
     _gm.height = height;
 
-    XMoveResizeWindow(_dpy, _window, _gm.x, _gm.y, _gm.width, _gm.height);
+    XMoveResizeWindow(PScreen::getDpy(), _window, _gm.x, _gm.y, _gm.width, _gm.height);
 }
 
 //! @brief Only sets _workspace to workspace.
@@ -280,7 +279,7 @@ PWinObj::giveInputFocus(void)
         return;
     }
 
-    XSetInputFocus(_dpy, _window, RevertToPointerRoot, CurrentTime);
+    XSetInputFocus(PScreen::getDpy(), _window, RevertToPointerRoot, CurrentTime);
 }
 
 //! @brief Reparents and sets _parent member
@@ -288,7 +287,7 @@ void
 PWinObj::reparent(PWinObj *wo, int x, int y)
 {
     _parent = wo;
-    XReparentWindow(_dpy, _window, wo->getWindow(), x, y);
+    XReparentWindow(PScreen::getDpy(), _window, wo->getWindow(), x, y);
 }
 
 //! @brief Get required size to hold content for window

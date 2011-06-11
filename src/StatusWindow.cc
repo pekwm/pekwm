@@ -50,7 +50,7 @@ StatusWindow::StatusWindow(Theme *theme)
     attr.event_mask = None;
 
     _status_wo = new PWinObj;
-    _status_wo->setWindow(XCreateWindow(_dpy, _window,
+    _status_wo->setWindow(XCreateWindow(PScreen::getDpy(), _window,
                                         0, 0, 1, 1, 0,
                                         CopyFromParent, CopyFromParent, CopyFromParent,
                                         CWEventMask, &attr));
@@ -74,7 +74,7 @@ StatusWindow::~StatusWindow(void)
     _child_list.remove(_status_wo);
 
     // free resources
-    XDestroyWindow(_dpy, _status_wo->getWindow());
+    XDestroyWindow(PScreen::getDpy(), _status_wo->getWindow());
     delete _status_wo;
 
     unloadTheme();

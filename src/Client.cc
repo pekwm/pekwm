@@ -84,12 +84,12 @@ Client::Client(Window new_client, bool is_new)
 
     if (PScreen::instance()->hasExtensionShape()) {
 #ifdef HAVE_SHAPE
-        XShapeSelectInput(_dpy, _window, ShapeNotifyMask);
+        XShapeSelectInput(PScreen::getDpy(), _window, ShapeNotifyMask);
 #endif // HAVE_SHAPE
     }
 
-    XAddToSaveSet(_dpy, _window);
-    XSetWindowBorderWidth(_dpy, _window, 0);
+    XAddToSaveSet(PScreen::getDpy(), _window);
+    XSetWindowBorderWidth(PScreen::getDpy(), _window, 0);
 
     // Load the Class hint before loading the autoprops and
     // getting client title as we search for TitleRule in the autoprops
@@ -174,9 +174,9 @@ Client::~Client(void)
     // Clean up if the client still is alive, it'll be dead all times
     // except when we exit pekwm
     if (_alive) {
-        XUngrabButton(_dpy, AnyButton, AnyModifier, _window);
+        XUngrabButton(PScreen::getDpy(), AnyButton, AnyModifier, _window);
         KeyGrabber::instance()->ungrabKeys(_window);
-        XRemoveFromSaveSet(_dpy, _window);
+        XRemoveFromSaveSet(PScreen::getDpy(), _window);
         PWinObj::mapWindow();
     }
 
@@ -208,7 +208,7 @@ bool
 Client::getAndUpdateWindowAttributes(void)
 {
     XWindowAttributes attr;
-    if (! XGetWindowAttributes(_dpy, _window, &attr)) {
+    if (! XGetWindowAttributes(PScreen::getDpy(), _window, &attr)) {
         return false;
     }
     _gm.x = attr.x;
@@ -226,7 +226,8 @@ Client::getAndUpdateWindowAttributes(void)
         ButtonPressMask|ButtonReleaseMask|ButtonMotionMask;
 
     // We don't want these masks to be propagated down to the frame
-    XChangeWindowAttributes(_dpy, _window, CWEventMask|CWDontPropagate, &sattr);
+    XChangeWindowAttributes(PScreen::getDpy(), _window,
+                            CWEventMask|CWDontPropagate, &sattr);
 
     return true;
 }
@@ -430,9 +431,9 @@ Client::mapWindow(void)
         mapOrUnmapTransients(_window, false);
     }
 
-    XSelectInput(_dpy, _window, NoEventMask);
+    XSelectInput(PScreen::getDpy(), _window, NoEventMask);
     PWinObj::mapWindow();
-    XSelectInput(_dpy, _window,
+    XSelectInput(PScreen::getDpy(), _window,
                  PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
 }
 
@@ -451,9 +452,9 @@ Client::unmapWindow(void)
         updateEwmhStates();
     }
 
-    XSelectInput(_dpy, _window, NoEventMask);
+    XSelectInput(PScreen::getDpy(), _window, NoEventMask);
     PWinObj::unmapWindow();
-    XSelectInput(_dpy, _window, PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
+    XSelectInput(PScreen::getDpy(), _window, PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
 }
 
 //! @brief Iconifies the client and adds it to the iconmenu
@@ -557,11 +558,11 @@ Client::giveInputFocus(void)
 void
 Client::reparent(PWinObj *parent, int x, int y)
 {
-    XSelectInput(_dpy, _window, NoEventMask);
+    XSelectInput(PScreen::getDpy(), _window, NoEventMask);
     PWinObj::reparent(parent, x, y);
     _gm.x = parent->getX() + x;
     _gm.y = parent->getY() + y;
-    XSelectInput(_dpy, _window,
+    XSelectInput(PScreen::getDpy(), _window,
                  PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
 }
 
@@ -751,12 +752,12 @@ Client::mapOrUnmapTransients(Window win, bool hide)
 bool
 Client::validate(void)
 {
-    XSync(_dpy, false);
+    XSync(PScreen::getDpy(), false);
 
     XEvent ev;
-    if (XCheckTypedWindowEvent(_dpy, _window, DestroyNotify, &ev)
-        || XCheckTypedWindowEvent(_dpy, _window, UnmapNotify, &ev)) {
-        XPutBackEvent(_dpy, &ev);
+    if (XCheckTypedWindowEvent(PScreen::getDpy(), _window, DestroyNotify, &ev)
+        || XCheckTypedWindowEvent(PScreen::getDpy(), _window, UnmapNotify, &ev)) {
+        XPutBackEvent(PScreen::getDpy(), &ev);
         return false;
     }
 
@@ -768,7 +769,7 @@ bool
 Client::isViewable(void)
 {
     XWindowAttributes attr;
-    XGetWindowAttributes(_dpy, _window, &attr);
+    XGetWindowAttributes(PScreen::getDpy(), _window, &attr);
 
     return (attr.map_state == IsViewable);
 }
@@ -778,7 +779,7 @@ void
 Client::grabButtons(void)
 {
     // Make sure we don't have any buttons grabbed.
-    XUngrabButton(_dpy, AnyButton, AnyModifier, _window);
+    XUngrabButton(PScreen::getDpy(), AnyButton, AnyModifier, _window);
 
     list<ActionEvent> *actions = Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_CHILD_FRAME);
     list<ActionEvent>::iterator it(actions->begin());
@@ -838,7 +839,7 @@ ulong
 Client::readWmHints(void)
 {
     ulong initial_state = NormalState;
-    XWMHints* hints = XGetWMHints(_dpy, _window);
+    XWMHints* hints = XGetWMHints(PScreen::getDpy(), _window);
     if (hints) {
         // get the input focus mode
         if (hints->flags&InputHint) { // FIXME: More logic needed
@@ -864,7 +865,7 @@ Client::readClassRoleHints(void)
 {
     // class hint
     XClassHint class_hint;
-    if (XGetClassHint(_dpy, _window, &class_hint)) {
+    if (XGetClassHint(PScreen::getDpy(), _window, &class_hint)) {
         _class_hint->h_name = Util::to_wide_str(class_hint.res_name);
         _class_hint->h_class = Util::to_wide_str(class_hint.res_class);
         XFree(class_hint.res_name);
@@ -1020,10 +1021,10 @@ Client::readPekwmHints(void)
 void
 Client::readIcon(void)
 {
-    PImageIcon *image = new PImageIcon(_dpy);
+    PImageIcon *image = new PImageIcon(PScreen::getDpy());
     if (image->loadFromWindow(_window)) {
         if (! _icon) {
-            _icon = new PTextureImage(_dpy);
+            _icon = new PTextureImage(PScreen::getDpy());
             TextureHandler::instance()->referenceTexture(_icon);
         }
 
@@ -1328,7 +1329,7 @@ Client::setWmState(ulong state)
     data[0] = state;
     data[1] = None; // No Icon
 
-    XChangeProperty(_dpy, _window,
+    XChangeProperty(PScreen::getDpy(), _window,
                     Atoms::getAtom(WM_STATE),
                     Atoms::getAtom(WM_STATE),
                     32, PropModeReplace, (uchar*) data, 2);
@@ -1349,7 +1350,7 @@ Client::getWmState(void)
     uchar *udata;
 
     int status =
-        XGetWindowProperty(_dpy, _window, Atoms::getAtom(WM_STATE),
+        XGetWindowProperty(PScreen::getDpy(), _window, Atoms::getAtom(WM_STATE),
                            0L, 2L, False, Atoms::getAtom(WM_STATE),
                            &real_type, &real_format, &items_read, &items_left,
                            &udata);
@@ -1383,7 +1384,7 @@ Client::configureRequestSend(void)
     e.above = None;
     e.override_redirect = False;
 
-    XSendEvent(_dpy, _window, false, StructureNotifyMask, (XEvent *) &e);
+    XSendEvent(PScreen::getDpy(), _window, false, StructureNotifyMask, (XEvent *) &e);
 }
 
 //! @brief Send a TAKE_FOCUS client message to the client (if requested by it).
@@ -1392,8 +1393,8 @@ void Client::sendTakeFocusMessage(void)
     if (_send_focus_message) {
         {
             XEvent ev;
-            XChangeProperty(_dpy, RootWindow(_dpy, DefaultScreen(_dpy)), XA_PRIMARY, XA_STRING, 8, PropModeAppend, 0, 0);
-            XWindowEvent(_dpy, RootWindow(_dpy, DefaultScreen(_dpy)), PropertyChangeMask, &ev);
+            XChangeProperty(PScreen::getDpy(), RootWindow(PScreen::getDpy(), DefaultScreen(PScreen::getDpy())), XA_PRIMARY, XA_STRING, 8, PropModeAppend, 0, 0);
+            XWindowEvent(PScreen::getDpy(), RootWindow(PScreen::getDpy(), DefaultScreen(PScreen::getDpy())), PropertyChangeMask, &ev);
             PScreen::instance()->setLastEventTime(ev.xproperty.time);
         }
         sendXMessage(_window,
@@ -1412,27 +1413,27 @@ Client::grabButton(int button, int mod, int mask, Window win, Cursor curs)
     uint num_lock = PScreen::instance()->getNumLock();
     uint scroll_lock = PScreen::instance()->getScrollLock();
 
-    XGrabButton(_dpy, button, mod,
+    XGrabButton(PScreen::getDpy(), button, mod,
                 win, true, mask, GrabModeAsync, GrabModeAsync, None, curs);
-    XGrabButton(_dpy, button, mod|LockMask,
+    XGrabButton(PScreen::getDpy(), button, mod|LockMask,
                 win, true, mask, GrabModeAsync, GrabModeAsync, None, curs);
 
     if (num_lock) {
-        XGrabButton(_dpy, button, mod|num_lock,
+        XGrabButton(PScreen::getDpy(), button, mod|num_lock,
                     win, true, mask, GrabModeAsync, GrabModeAsync, None, curs);
-        XGrabButton(_dpy, button, mod|num_lock|LockMask,
+        XGrabButton(PScreen::getDpy(), button, mod|num_lock|LockMask,
                     win, true, mask, GrabModeAsync, GrabModeAsync, None, curs);
     }
     if (scroll_lock) {
-        XGrabButton(_dpy, button, mod|scroll_lock,
+        XGrabButton(PScreen::getDpy(), button, mod|scroll_lock,
                     win, true, mask, GrabModeAsync, GrabModeAsync, None, curs);
-        XGrabButton(_dpy, button, mod|scroll_lock|LockMask,
+        XGrabButton(PScreen::getDpy(), button, mod|scroll_lock|LockMask,
                     win, true, mask, GrabModeAsync, GrabModeAsync, None, curs);
     }
     if (num_lock && scroll_lock) {
-        XGrabButton(_dpy, button, mod|num_lock|scroll_lock,
+        XGrabButton(PScreen::getDpy(), button, mod|num_lock|scroll_lock,
                     win, true, mask, GrabModeAsync, GrabModeAsync, None, curs);
-        XGrabButton(_dpy, button, mod|num_lock|scroll_lock|LockMask,
+        XGrabButton(PScreen::getDpy(), button, mod|num_lock|scroll_lock|LockMask,
                     win, true, mask, GrabModeAsync, GrabModeAsync, None, curs);
     }
 }
@@ -1491,7 +1492,7 @@ Client::close(void)
 void
 Client::kill(void)
 {
-    XKillClient(_dpy, _window);
+    XKillClient(PScreen::getDpy(), _window);
 }
 
 //! @brief Sets the position based on P or U position.
@@ -1630,7 +1631,7 @@ Client::getMwmHints(Window win)
 
     Atom hints_atom = Atoms::getAtom(MOTIF_WM_HINTS);
 
-    int status = XGetWindowProperty(_dpy, win, hints_atom, 0L, 20L, False, hints_atom,
+    int status = XGetWindowProperty(PScreen::getDpy(), win, hints_atom, 0L, 20L, False, hints_atom,
                                     &real_type, &real_format, &items_read, &items_left, &udata);
 
     if (status == Success) {
@@ -1664,7 +1665,7 @@ Client::handleColormapChange(XColormapEvent *e)
 {
     if (e->c_new) {
         _cmap = e->colormap;
-        XInstallColormap(_dpy, _cmap);
+        XInstallColormap(PScreen::getDpy(), _cmap);
     }
 }
 
@@ -1675,7 +1676,7 @@ Client::sendXMessage(Window window, Atom atom, long mask,
     XEvent e;
 
     e.type = e.xclient.type = ClientMessage;
-    e.xclient.display = _dpy;
+    e.xclient.display = PScreen::getDpy();
     e.xclient.window = window;
     e.xclient.format = 32;
     e.xclient.message_type = atom;
@@ -1686,7 +1687,7 @@ Client::sendXMessage(Window window, Atom atom, long mask,
     e.xclient.data.l[3] = v4;
     e.xclient.data.l[4] = v5;
 
-    return XSendEvent(_dpy, window, false, mask, &e);
+    return XSendEvent(PScreen::getDpy(), window, false, mask, &e);
 }
 
 //! @brief
@@ -1785,7 +1786,7 @@ void
 Client::getWMNormalHints(void)
 {
     long dummy;
-    XGetWMNormalHints(_dpy, _window, _size, &dummy);
+    XGetWMNormalHints(PScreen::getDpy(), _window, _size, &dummy);
 
     // let's do some sanity checking
     if (_size->flags & PBaseSize) {
@@ -1830,7 +1831,7 @@ Client::getWMProtocols(void)
     int count;
     Atom *protocols;
 
-    if (XGetWMProtocols(_dpy, _window, &protocols, &count) != 0) {
+    if (XGetWMProtocols(PScreen::getDpy(), _window, &protocols, &count) != 0) {
         for (int i = 0; i < count; ++i) {
             if (protocols[i] == Atoms::getAtom(WM_TAKE_FOCUS)) {
                 _send_focus_message = true;
@@ -1850,7 +1851,7 @@ void
 Client::getTransientForHint(void)
 {
     if (! _transient) {
-        XGetTransientForHint(_dpy, _window, &_transient_window);
+        XGetTransientForHint(PScreen::getDpy(), _window, &_transient_window);
 
         if (_transient_window != None) {
             _transient = findClientFromWindow(_transient_window);

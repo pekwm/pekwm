@@ -38,7 +38,7 @@ WorkspaceIndicator::Display::Display(PWinObj *parent, Theme *theme)
     attr.override_redirect = false;
     attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
                     FocusChangeMask|KeyPressMask|KeyReleaseMask;
-    _window = XCreateWindow(_dpy, _parent->getWindow(), 0, 0, 1, 1, 0,
+    _window = XCreateWindow(PScreen::getDpy(), _parent->getWindow(), 0, 0, 1, 1, 0,
                             CopyFromParent, InputOutput, CopyFromParent,
                             CWOverrideRedirect|CWEventMask, &attr);
 }
@@ -48,7 +48,7 @@ WorkspaceIndicator::Display::Display(PWinObj *parent, Theme *theme)
  */
 WorkspaceIndicator::Display::~Display(void)
 {
-    XDestroyWindow(_dpy, _window);
+    XDestroyWindow(PScreen::getDpy(), _window);
     ScreenResources::instance()->getPixmapHandler()->returnPixmap(_pixmap);
 }
 

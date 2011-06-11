@@ -68,7 +68,7 @@ PDecor::Button::Button(PWinObj *parent, Theme::PDecorButtonData *data, uint widt
     attr.event_mask = EnterWindowMask|LeaveWindowMask;
     attr.override_redirect = True;
     _window =
-        XCreateWindow(_dpy, _parent->getWindow(),
+        XCreateWindow(PScreen::getDpy(), _parent->getWindow(),
                       -_gm.width, -_gm.height, _gm.width, _gm.height, 0,
                       CopyFromParent, InputOutput, CopyFromParent,
                       CWEventMask|CWOverrideRedirect, &attr);
@@ -82,7 +82,7 @@ PDecor::Button::Button(PWinObj *parent, Theme::PDecorButtonData *data, uint widt
 //! @brief PDecor::Button destructor
 PDecor::Button::~Button(void)
 {
-    XDestroyWindow(_dpy, _window);
+    XDestroyWindow(PScreen::getDpy(), _window);
     ScreenResources::instance()->getPixmapHandler()->returnPixmap(_bg);
 }
 
@@ -120,13 +120,13 @@ PDecor::Button::setState(ButtonState state)
         bool need_free;
         Pixmap shape = _data->getTexture(state)->getMask(0, 0, need_free);
         if (shape != None) {
-            XShapeCombineMask(_dpy, _window, ShapeBounding, 0, 0, shape, ShapeSet);
+            XShapeCombineMask(PScreen::getDpy(), _window, ShapeBounding, 0, 0, shape, ShapeSet);
             if (need_free) {
                 ScreenResources::instance()->getPixmapHandler()->returnPixmap(shape);
             }
         } else {
             XRectangle rect = {0 /* x */, 0 /* y */, _gm.width, _gm.height };
-            XShapeCombineRectangles(_dpy, _window, ShapeBounding,
+            XShapeCombineRectangles(PScreen::getDpy(), _window, ShapeBounding,
                                     0, 0, &rect, 1, ShapeSet, YXBanded);
         }
 #endif // HAVE_SHAPE
@@ -229,7 +229,7 @@ PDecor::PDecor(Theme *theme,
     loadDecor();
 
     // map title and border windows
-    XMapSubwindows(_dpy, _window);
+    XMapSubwindows(PScreen::getDpy(), _window);
 
     _pdecor_list.push_back(this);
 }
@@ -261,12 +261,12 @@ PDecor::getChildWindowAttributes(CreateWindowParams &params,
                                  Window child_window)
 {
     XWindowAttributes attr;
-    Status status =  XGetWindowAttributes(_dpy, child_window, &attr);
+    Status status =  XGetWindowAttributes(PScreen::getDpy(), child_window, &attr);
     if (status != BadDrawable && status != BadWindow && attr.depth == 32) {
         params.mask |= CWColormap;
         params.depth = attr.depth;
         params.visual = attr.visual;
-        params.attr.colormap = XCreateColormap(_dpy,
+        params.attr.colormap = XCreateColormap(PScreen::getDpy(),
                                                PScreen::instance()->getRoot(),
                                                params.visual, AllocNone);
     }
@@ -281,7 +281,7 @@ PDecor::createParentWindow(CreateWindowParams &params)
     params.attr.event_mask = ButtonPressMask|ButtonReleaseMask|
         ButtonMotionMask|EnterWindowMask|SubstructureRedirectMask|
         SubstructureNotifyMask;
-    _window = XCreateWindow(_dpy, PScreen::instance()->getRoot(),
+    _window = XCreateWindow(PScreen::getDpy(), PScreen::instance()->getRoot(),
                             _gm.x, _gm.y, _gm.width, _gm.height, 0,
                             params.depth, InputOutput, params.visual,
                             params.mask, &params.attr);
@@ -295,7 +295,7 @@ PDecor::createTitle(CreateWindowParams &params)
 {
     params.attr.event_mask = ButtonPressMask|ButtonReleaseMask|
         ButtonMotionMask|EnterWindowMask;
-    Window title = XCreateWindow(_dpy, _window,
+    Window title = XCreateWindow(PScreen::getDpy(), _window,
                                  borderLeft(), borderTop(), 1, 1, 0,
                                  params.depth, InputOutput, params.visual,
                                  params.mask, &params.attr);
@@ -317,7 +317,7 @@ PDecor::createBorder(CreateWindowParams &params)
         params.attr.cursor = sr->getCursor(ScreenResources::CursorType(i));
 
         _border_win[i] =
-            XCreateWindow(_dpy, _window, -1, -1, 1, 1, 0,
+            XCreateWindow(PScreen::getDpy(), _window, -1, -1, 1, 1, 0,
                           params.depth, InputOutput, params.visual,
                           params.mask|CWCursor, &params.attr);
         _border_pos_map[BorderPosition(i)] = None;
@@ -339,7 +339,7 @@ PDecor::~PDecor(void)
     // Make things look smoother, buttons will be noticed as deleted
     // otherwise. Using X call directly to avoid re-drawing and other
     // special features not required when removing the window.
-    XUnmapWindow(_dpy, _window);
+    XUnmapWindow(PScreen::getDpy(), _window);
 
     // free buttons
     unloadDecor();
@@ -354,12 +354,12 @@ PDecor::~PDecor(void)
     ScreenResources::instance()->getPixmapHandler()->returnPixmap(_title_bg);
 
     removeChildWindow(_title_wo.getWindow());
-    XDestroyWindow(_dpy, _title_wo.getWindow());
+    XDestroyWindow(PScreen::getDpy(), _title_wo.getWindow());
     for (uint i = 0; i < BORDER_NO_POS; ++i) {
         removeChildWindow(_border_win[i]);
-        XDestroyWindow(_dpy, _border_win[i]);
+        XDestroyWindow(PScreen::getDpy(), _border_win[i]);
     }
-    XDestroyWindow(_dpy, _window);
+    XDestroyWindow(PScreen::getDpy(), _window);
 }
 
 // START - PWinObj interface.
@@ -624,7 +624,7 @@ PDecor::handleButtonPress(XButtonEvent *ev)
 
         // Allow us to get clicks from anywhere on the window.
         if (_decor_cfg_bpr_replay_pointer) {
-            XAllowEvents(_dpy, ReplayPointer, CurrentTime);
+            XAllowEvents(PScreen::getDpy(), ReplayPointer, CurrentTime);
         }
 
         if (ev->window == _child->getWindow()
@@ -702,7 +702,7 @@ PDecor::handleButtonRelease(XButtonEvent *ev)
     } else {
         // Allow us to get clicks from anywhere on the window.
         if (_decor_cfg_bpr_replay_pointer) {
-            XAllowEvents(_dpy, ReplayPointer, CurrentTime);
+            XAllowEvents(PScreen::getDpy(), ReplayPointer, CurrentTime);
         }
 
         // clicks on the child window
@@ -1306,7 +1306,7 @@ PDecor::doMove(int x_root, int y_root)
         if (outline) {
             drawOutline(_gm);
         }
-        XMaskEvent(_dpy, move_mask, &e);
+        XMaskEvent(PScreen::getDpy(), move_mask, &e);
         if (outline) {
             drawOutline(_gm); // clear
         }
@@ -1439,7 +1439,7 @@ PDecor::doKeyboardMoveResize(void)
         if (outline) {
             drawOutline(_gm);
         }
-        XMaskEvent(_dpy, KeyPressMask, &e);
+        XMaskEvent(PScreen::getDpy(), KeyPressMask, &e);
         if (outline) {
             drawOutline(_gm); // clear
         }
@@ -1685,7 +1685,7 @@ PDecor::renderBorder(void)
 
         // Solid texture, get the color and set as bg, no need to render pixmap
         if (tex->getType() == PTexture::TYPE_SOLID) {
-            XSetWindowBackground(_dpy, _border_win[it->first],
+            XSetWindowBackground(PScreen::getDpy(), _border_win[it->first],
                                  static_cast<PTextureSolid*>(tex)->getColor()->pixel);
 
         } else {
@@ -1696,7 +1696,7 @@ PDecor::renderBorder(void)
                 if (_dirty_resized) {
                     it->second = pm->getPixmap(width, height,
                                                PScreen::instance()->getDepth());
-                    XSetWindowBackgroundPixmap(_dpy, _border_win[it->first],
+                    XSetWindowBackgroundPixmap(PScreen::getDpy(), _border_win[it->first],
                                                it->second);
                 }
 
@@ -1704,7 +1704,7 @@ PDecor::renderBorder(void)
             }
         }
 
-        XClearWindow(_dpy, _border_win[it->first]);
+        XClearWindow(PScreen::getDpy(), _border_win[it->first]);
     }
 }
 
@@ -1730,7 +1730,7 @@ PDecor::setBorderShape(void)
                                                                   do_free);
         if (pix != None) {
             _need_shape = true;
-            XShapeCombineMask(_dpy, _border_win[it->first],
+            XShapeCombineMask(PScreen::getDpy(), _border_win[it->first],
                             ShapeBounding, 0, 0, pix, ShapeSet);
             if (do_free) {
                 ScreenResources::instance()->getPixmapHandler()->returnPixmap(pix);
@@ -1738,7 +1738,7 @@ PDecor::setBorderShape(void)
         } else {
             rect.width = width;
             rect.height = height;
-            XShapeCombineRectangles(_dpy, _border_win[it->first], ShapeBounding,
+            XShapeCombineRectangles(PScreen::getDpy(), _border_win[it->first], ShapeBounding,
                                     0, 0, &rect, 1, ShapeSet, YXBanded);
         }
     }
@@ -1879,7 +1879,7 @@ PDecor::setShape(void)
     int num, t;
     XRectangle *rect;
 
-    rect = XShapeGetRectangles(_dpy, _child->getWindow(), ShapeBounding,
+    rect = XShapeGetRectangles(PScreen::getDpy(), _child->getWindow(), ShapeBounding,
                                &num, &t);
     // If there is more than one Rectangle it has an irregular shape.
     _need_client_shape = (num > 1);
@@ -1902,7 +1902,7 @@ void
 PDecor::alignChild(PWinObj *child)
 {
     if (child) {
-        XMoveWindow(_dpy, child->getWindow(), borderLeft(), borderTop() + getTitleHeight());
+        XMoveWindow(PScreen::getDpy(), child->getWindow(), borderLeft(), borderTop() + getTitleHeight());
     }
 }
 
@@ -1910,7 +1910,7 @@ PDecor::alignChild(PWinObj *child)
 void
 PDecor::drawOutline(const Geometry &gm)
 {
-    XDrawRectangle(_dpy, PScreen::instance()->getRoot(),
+    XDrawRectangle(PScreen::getDpy(), PScreen::instance()->getRoot(),
                    _theme->getInvertGC(),
                    gm.x, gm.y, gm.width,
                    _shaded ? _gm.height : gm.height);
@@ -1944,50 +1944,50 @@ PDecor::placeBorder(void)
     uint bt_off = (_data->getTitleWidthMin() > 0) ? getTitleHeight() : 0;
 
     if (borderTop() > 0) {
-        XMoveResizeWindow(_dpy, _border_win[BORDER_TOP],
+        XMoveResizeWindow(PScreen::getDpy(), _border_win[BORDER_TOP],
                           borderTopLeft(), bt_off,
                           _gm.width - borderTopLeft() - borderTopRight(), borderTop());
 
-        XMoveResizeWindow(_dpy, _border_win[BORDER_TOP_LEFT],
+        XMoveResizeWindow(PScreen::getDpy(), _border_win[BORDER_TOP_LEFT],
                           0, bt_off,
                           borderTopLeft(), borderTopLeftHeight());
-        XMoveResizeWindow(_dpy, _border_win[BORDER_TOP_RIGHT],
+        XMoveResizeWindow(PScreen::getDpy(), _border_win[BORDER_TOP_RIGHT],
                           _gm.width - borderTopRight(), bt_off,
                           borderTopRight(), borderTopRightHeight());
 
         if (borderLeft()) {
-            XMoveResizeWindow(_dpy, _border_win[BORDER_LEFT],
+            XMoveResizeWindow(PScreen::getDpy(), _border_win[BORDER_LEFT],
                               0, borderTopLeftHeight() + bt_off,
                               borderLeft(), _gm.height - borderTopLeftHeight() - borderBottomLeftHeight());
         }
 
         if (borderRight()) {
-            XMoveResizeWindow(_dpy, _border_win[BORDER_RIGHT],
+            XMoveResizeWindow(PScreen::getDpy(), _border_win[BORDER_RIGHT],
                               _gm.width - borderRight(), borderTopRightHeight() + bt_off,
                               borderRight(), _gm.height - borderTopRightHeight() - borderBottomRightHeight());
         }
     } else {
         if (borderLeft()) {
-            XMoveResizeWindow(_dpy, _border_win[BORDER_LEFT],
+            XMoveResizeWindow(PScreen::getDpy(), _border_win[BORDER_LEFT],
                               0, getTitleHeight(),
                               borderLeft(), _gm.height - getTitleHeight() - borderBottom());
         }
 
         if (borderRight()) {
-            XMoveResizeWindow(_dpy, _border_win[BORDER_RIGHT],
+            XMoveResizeWindow(PScreen::getDpy(), _border_win[BORDER_RIGHT],
                               _gm.width - borderRight(), getTitleHeight(),
                               borderRight(), _gm.height - getTitleHeight() - borderBottom());
         }
     }
 
     if (borderBottom()) {
-        XMoveResizeWindow(_dpy, _border_win[BORDER_BOTTOM],
+        XMoveResizeWindow(PScreen::getDpy(), _border_win[BORDER_BOTTOM],
                           borderBottomLeft(), _gm.height - borderBottom(),
                           _gm.width - borderBottomLeft() - borderBottomRight(), borderBottom());
-        XMoveResizeWindow(_dpy, _border_win[BORDER_BOTTOM_LEFT],
+        XMoveResizeWindow(PScreen::getDpy(), _border_win[BORDER_BOTTOM_LEFT],
                           0, _gm.height - borderBottomLeftHeight(),
                           borderBottomLeft(), borderBottomLeftHeight());
-        XMoveResizeWindow(_dpy, _border_win[BORDER_BOTTOM_RIGHT],
+        XMoveResizeWindow(PScreen::getDpy(), _border_win[BORDER_BOTTOM_RIGHT],
                           _gm.width - borderBottomRight(), _gm.height - borderBottomRightHeight(),
                           borderBottomRight(), borderBottomRightHeight());
     }
@@ -2009,11 +2009,11 @@ PDecor::applyBorderShape(void)
         uint bt_off = (_data->getTitleWidthMin() > 0) ? getTitleHeight() : 0;
 
         Window shape;
-        shape = XCreateSimpleWindow(_dpy, PScreen::instance()->getRoot(),
+        shape = XCreateSimpleWindow(PScreen::getDpy(), PScreen::instance()->getRoot(),
                                     0, 0, _gm.width, _gm.height, 0, 0, 0);
 
         if (_child) {
-            XShapeCombineShape(_dpy, shape, ShapeBounding,
+            XShapeCombineShape(PScreen::getDpy(), shape, ShapeBounding,
                                borderLeft(), borderTop() + getTitleHeight(),
                                _child->getWindow(), ShapeBounding, ShapeSet);
         }
@@ -2024,15 +2024,15 @@ PDecor::applyBorderShape(void)
                 && ! (_need_client_shape)) { // Shaped clients should appear bordeless.
             // top
             if (borderTop() > 0) {
-                XShapeCombineShape(_dpy, shape, ShapeBounding,
+                XShapeCombineShape(PScreen::getDpy(), shape, ShapeBounding,
                                    0, bt_off, _border_win[BORDER_TOP_LEFT],
                                    ShapeBounding, ShapeUnion);
 
-                XShapeCombineShape(_dpy, shape, ShapeBounding,
+                XShapeCombineShape(PScreen::getDpy(), shape, ShapeBounding,
                                    borderTopLeft(), bt_off, _border_win[BORDER_TOP],
                                    ShapeBounding, ShapeUnion);
 
-                XShapeCombineShape(_dpy, shape, ShapeBounding,
+                XShapeCombineShape(PScreen::getDpy(), shape, ShapeBounding,
                                    _gm.width - borderTopRight(), bt_off, _border_win[BORDER_TOP_RIGHT],
                                    ShapeBounding, ShapeUnion);
             }
@@ -2040,7 +2040,7 @@ PDecor::applyBorderShape(void)
             bool use_bt_off = bt_off || borderTop();
             // Left border
             if (borderLeft() > 0) {
-                XShapeCombineShape(_dpy, shape, ShapeBounding,
+                XShapeCombineShape(PScreen::getDpy(), shape, ShapeBounding,
                                    0, use_bt_off ? bt_off + borderTopLeftHeight() : getTitleHeight(),
                                    _border_win[BORDER_LEFT],
                                    ShapeBounding, ShapeUnion);
@@ -2048,7 +2048,7 @@ PDecor::applyBorderShape(void)
 
             // Right border
             if (borderRight() > 0) {
-                XShapeCombineShape(_dpy, shape, ShapeBounding,
+                XShapeCombineShape(PScreen::getDpy(), shape, ShapeBounding,
                                    _gm.width - borderRight(), use_bt_off ? bt_off + borderTopRightHeight() : getTitleHeight(),
                                    _border_win[BORDER_RIGHT],
                                    ShapeBounding, ShapeUnion);
@@ -2056,15 +2056,15 @@ PDecor::applyBorderShape(void)
 
             // bottom
             if (borderBottom() > 0) {
-                XShapeCombineShape(_dpy, shape, ShapeBounding,
+                XShapeCombineShape(PScreen::getDpy(), shape, ShapeBounding,
                                    0, _gm.height - borderBottomLeftHeight(), _border_win[BORDER_BOTTOM_LEFT],
                                    ShapeBounding, ShapeUnion);
 
-                XShapeCombineShape(_dpy, shape, ShapeBounding,
+                XShapeCombineShape(PScreen::getDpy(), shape, ShapeBounding,
                                    borderBottomLeft(), _gm.height - borderBottom(), _border_win[BORDER_BOTTOM],
                                    ShapeBounding, ShapeUnion);
 
-                XShapeCombineShape(_dpy, shape, ShapeBounding,
+                XShapeCombineShape(PScreen::getDpy(), shape, ShapeBounding,
                                    _gm.width - borderBottomRight(), _gm.height - borderBottomRightHeight(),
                                    _border_win[BORDER_BOTTOM_RIGHT],
                                    ShapeBounding, ShapeUnion);
@@ -2072,15 +2072,15 @@ PDecor::applyBorderShape(void)
         }
         if (_titlebar) {
             // apply title shape
-            XShapeCombineShape(_dpy, shape, ShapeBounding,
+            XShapeCombineShape(PScreen::getDpy(), shape, ShapeBounding,
                                _title_wo.getX(), _title_wo.getY(), _title_wo.getWindow(),
                                ShapeBounding, ShapeUnion);
         }
 
         // Apply the shape mask to the window
-        XShapeCombineShape(_dpy, _window, ShapeBounding, 0, 0, shape, ShapeBounding, ShapeSet);
+        XShapeCombineShape(PScreen::getDpy(), _window, ShapeBounding, 0, 0, shape, ShapeBounding, ShapeSet);
 
-        XDestroyWindow(_dpy, shape);
+        XDestroyWindow(PScreen::getDpy(), shape);
     } else {
         // No shaping is required, apply a square shape to remove
         // possible stale shaping.
@@ -2090,7 +2090,7 @@ PDecor::applyBorderShape(void)
         rect_square.width = _gm.width;
         rect_square.height = _gm.height;
 
-        XShapeCombineRectangles(_dpy, _window, ShapeBounding, 0, 0, &rect_square, 1, ShapeSet, YXBanded);
+        XShapeCombineRectangles(PScreen::getDpy(), _window, ShapeBounding, 0, 0, &rect_square, 1, ShapeSet, YXBanded);
     }
 #endif // HAVE_SHAPE
 }
@@ -2119,8 +2119,8 @@ PDecor::restackBorder(void)
     }
 
     // Raise the top window so actual restacking is done.
-    XRaiseWindow(_dpy, windows[0]);
-    XRestackWindows(_dpy, windows, BORDER_NO_POS + extra);
+    XRaiseWindow(PScreen::getDpy(), windows[0]);
+    XRestackWindows(PScreen::getDpy(), windows, BORDER_NO_POS + extra);
 }
 
 //! @brief  Updates _decor_name to represent decor state
