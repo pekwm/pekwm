@@ -896,7 +896,7 @@ WindowManager::handleKeyEvent(XKeyEvent *ev)
 
     // flush Enter events caused by keygrabbing
     XEvent e;
-    while (XCheckTypedEvent(_screen->getDpy(), EnterNotify, &e)) {
+    while (PScreen::checkTypedEvent(EnterNotify, &e)) {
         if (! e.xcrossing.send_event) {
             _screen->setLastEventTime(e.xcrossing.time);
         }
@@ -908,7 +908,7 @@ void
 WindowManager::handleButtonPressEvent(XButtonEvent *ev)
 {
     // Clear event queue
-    while (XCheckTypedEvent(_screen->getDpy(), ButtonPress, (XEvent *) ev)) {
+    while (PScreen::checkTypedEvent(ButtonPress, (XEvent *) ev)) {
         if (! ev->send_event) {
             _screen->setLastEventTime(ev->time);
         }
@@ -953,7 +953,7 @@ void
 WindowManager::handleButtonReleaseEvent(XButtonEvent *ev)
 {
     // Flush ButtonReleases
-    while (XCheckTypedEvent(_screen->getDpy(), ButtonRelease, (XEvent *) ev)) {
+    while (PScreen::checkTypedEvent(ButtonRelease, (XEvent *) ev)) {
         if (! ev->send_event) {
             _screen->setLastEventTime(ev->time);
         }
@@ -1171,7 +1171,7 @@ void
 WindowManager::handleEnterNotify(XCrossingEvent *ev)
 {
     // Clear event queue
-    while (XCheckTypedEvent(_screen->getDpy(), EnterNotify, (XEvent *) ev)) {
+    while (PScreen::checkTypedEvent(EnterNotify, (XEvent *) ev)) {
         if (! ev->send_event) {
             _screen->setLastEventTime(ev->time);
         }
@@ -1205,7 +1205,7 @@ void
 WindowManager::handleLeaveNotify(XCrossingEvent *ev)
 {
     // Clear event queue
-    while (XCheckTypedEvent(_screen->getDpy(), LeaveNotify, (XEvent *) ev)) {
+    while (PScreen::checkTypedEvent(LeaveNotify, (XEvent *) ev)) {
         if (! ev->send_event) {
             _screen->setLastEventTime(ev->time);
         }
@@ -1254,12 +1254,12 @@ WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
             // all EnterNotify and LeaveNotify as they can interfere with
             // focusing if Sloppy or Follow like focus model is used.
             XEvent e_flush;
-            while (XCheckTypedEvent(_screen->getDpy(), EnterNotify, &e_flush)) {
+            while (PScreen::checkTypedEvent(EnterNotify, &e_flush)) {
                 if (! e_flush.xcrossing.send_event) {
                     _screen->setLastEventTime(e_flush.xcrossing.time);
                 }
             }
-            while (XCheckTypedEvent(_screen->getDpy(), LeaveNotify, &e_flush)) {
+            while (PScreen::checkTypedEvent(LeaveNotify, &e_flush)) {
                 if (! e_flush.xcrossing.send_event) {
                     _screen->setLastEventTime(e_flush.xcrossing.time);
                 }
@@ -1299,7 +1299,7 @@ void
 WindowManager::handleFocusOutEvent(XFocusChangeEvent *ev)
 {
     // Get the last focus in event, no need to go through them all.
-    while (XCheckTypedEvent(_screen->getDpy(), FocusOut, (XEvent *) ev))
+    while (PScreen::checkTypedEvent(FocusOut, (XEvent *) ev))
         ;
 }
 

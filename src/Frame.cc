@@ -75,9 +75,8 @@ Frame::Frame(Client *client, AutoProperty *ap)
 
     // grab buttons so that we can reply them
     for (uint i = 0; i < BUTTON_NO; ++i) {
-        XGrabButton(PScreen::getDpy(), i, AnyModifier, _window,
-                    True, ButtonPressMask|ButtonReleaseMask,
-                    GrabModeSync, GrabModeAsync, None, None);
+        PScreen::grabButton(i, AnyModifier, _window,
+                            ButtonPressMask|ButtonReleaseMask, GrabModeSync);
     }
 
     // get unique id of the frame, if the client didn't have an id

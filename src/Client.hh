@@ -248,10 +248,10 @@ public: // Public Member Functions
         }
     }
 
-  /** Set shaped flag on Client. */
-  inline void setShaped(bool shaped) {
-    _shaped = shaped;
-  }
+    /** Set shaped flag on Client. */
+    inline void setShaped(bool shaped) {
+        _shaped = shaped;
+    }
 
     void close(void);
     void kill(void);
@@ -322,7 +322,7 @@ private:
     inline void setFocusable(bool f) { _focusable = f; }
 
     // Grabs button with Caps,Num and so on
-    void grabButton(int button, int mod, int mask, Window win, Cursor curs);
+    void grabButton(int button, int mod, int mask, Window win);
 
     void readHints(void);
     ulong readWmHints(void);

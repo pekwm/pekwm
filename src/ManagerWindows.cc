@@ -128,7 +128,7 @@ HintWO::claimDisplay(bool replace)
         uint errors_before = xerrors_count;
 
         // Select event to get notified when current owner dies.
-        XSelectInput(PScreen::getDpy(), session_owner, StructureNotifyMask);
+        PScreen::selectInput(session_owner, StructureNotifyMask);
 
         XSync(PScreen::getDpy(), false);
         setXErrorsIgnore(false);
@@ -225,7 +225,7 @@ RootWO::RootWO(Window root)
     uint errors_before = xerrors_count;
 
     // Select window events
-    XSelectInput(PScreen::getDpy(), _window, RootWO::EVENT_MASK);
+    PScreen::selectInput(_window, RootWO::EVENT_MASK);
 
     XSync(PScreen::getDpy(), false);
     setXErrorsIgnore(false);

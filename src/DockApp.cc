@@ -108,9 +108,9 @@ DockApp::DockApp(PScreen *s, Theme *t, Window win) :
 
     // move the dockapp to it's new parent, making sure we don't
     // get any UnmapEvents
-    XSelectInput(PScreen::getDpy(), _dockapp_window, NoEventMask);
+    PScreen::selectInput(_dockapp_window, NoEventMask);
     XReparentWindow(PScreen::getDpy(), _dockapp_window, _window, _c_gm.x, _c_gm.y);
-    XSelectInput(PScreen::getDpy(), _dockapp_window, SubstructureNotifyMask);
+    PScreen::selectInput(_dockapp_window, SubstructureNotifyMask);
 
     readClassHint();
     readAutoProperties();
@@ -130,7 +130,7 @@ DockApp::~DockApp(void)
 
         // move the dockapp back to the root window, making sure we don't
         // get any UnmapEvents
-        XSelectInput(PScreen::getDpy(), _dockapp_window, NoEventMask);
+        PScreen::selectInput(_dockapp_window, NoEventMask);
         XReparentWindow(PScreen::getDpy(), _dockapp_window, _scr->getRoot(), _gm.x, _gm.y);
         XMapWindow(PScreen::getDpy(), _client_window);
 
@@ -153,10 +153,10 @@ DockApp::mapWindow(void)
     }
     _mapped = true;
 
-    XSelectInput(PScreen::getDpy(), _dockapp_window, NoEventMask);
+    PScreen::selectInput(_dockapp_window, NoEventMask);
     XMapWindow(PScreen::getDpy(), _window);
     XMapWindow(PScreen::getDpy(), _dockapp_window);
-    XSelectInput(PScreen::getDpy(), _dockapp_window,
+    PScreen::selectInput(_dockapp_window,
                  StructureNotifyMask|SubstructureNotifyMask);
 }
 
@@ -169,10 +169,10 @@ DockApp::unmapWindow(void)
     }
     _mapped = false;
 
-    XSelectInput(PScreen::getDpy(), _dockapp_window, NoEventMask);
+    PScreen::selectInput(_dockapp_window, NoEventMask);
     XUnmapWindow(PScreen::getDpy(), _dockapp_window);
     XUnmapWindow(PScreen::getDpy(), _window);
-    XSelectInput(PScreen::getDpy(), _dockapp_window,
+    PScreen::selectInput(_dockapp_window,
                  StructureNotifyMask|SubstructureNotifyMask);
 }
 

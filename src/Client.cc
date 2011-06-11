@@ -174,7 +174,7 @@ Client::~Client(void)
     // Clean up if the client still is alive, it'll be dead all times
     // except when we exit pekwm
     if (_alive) {
-        XUngrabButton(PScreen::getDpy(), AnyButton, AnyModifier, _window);
+        PScreen::ungrabButton(_window);
         KeyGrabber::instance()->ungrabKeys(_window);
         XRemoveFromSaveSet(PScreen::getDpy(), _window);
         PWinObj::mapWindow();
@@ -431,10 +431,10 @@ Client::mapWindow(void)
         mapOrUnmapTransients(_window, false);
     }
 
-    XSelectInput(PScreen::getDpy(), _window, NoEventMask);
+    PScreen::selectInput(_window, NoEventMask);
     PWinObj::mapWindow();
-    XSelectInput(PScreen::getDpy(), _window,
-                 PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
+    PScreen::selectInput(_window,
+                         PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
 }
 
 
@@ -452,9 +452,10 @@ Client::unmapWindow(void)
         updateEwmhStates();
     }
 
-    XSelectInput(PScreen::getDpy(), _window, NoEventMask);
+    PScreen::selectInput(_window, NoEventMask);
     PWinObj::unmapWindow();
-    XSelectInput(PScreen::getDpy(), _window, PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
+    PScreen::selectInput(_window,
+                         PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
 }
 
 //! @brief Iconifies the client and adds it to the iconmenu
@@ -558,12 +559,12 @@ Client::giveInputFocus(void)
 void
 Client::reparent(PWinObj *parent, int x, int y)
 {
-    XSelectInput(PScreen::getDpy(), _window, NoEventMask);
+    PScreen::selectInput(_window, NoEventMask);
     PWinObj::reparent(parent, x, y);
     _gm.x = parent->getX() + x;
     _gm.y = parent->getY() + y;
-    XSelectInput(PScreen::getDpy(), _window,
-                 PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
+    PScreen::selectInput(_window,
+                         PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
 }
 
 ActionEvent*
@@ -779,7 +780,7 @@ void
 Client::grabButtons(void)
 {
     // Make sure we don't have any buttons grabbed.
-    XUngrabButton(PScreen::getDpy(), AnyButton, AnyModifier, _window);
+    PScreen::ungrabButton(_window);
 
     list<ActionEvent> *actions = Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_CHILD_FRAME);
     list<ActionEvent>::iterator it(actions->begin());
@@ -792,12 +793,12 @@ Client::grabButtons(void)
 
             grabButton(it->sym, it->mod,
                        ButtonPressMask|ButtonReleaseMask,
-                       _window, None);
+                       _window);
         } else if (it->type == MOUSE_EVENT_MOTION) {
             // FIXME: Add support for MOD_ANY
             grabButton(it->sym, it->mod,
                        ButtonPressMask|ButtonReleaseMask|ButtonMotionMask,
-                       _window, None);
+                       _window);
         }
     }
 }
@@ -1412,33 +1413,25 @@ void Client::sendTakeFocusMessage(void)
 //! Grabs the button button, with the mod mod and mask mask on the window win
 //! and cursor curs with "all" possible extra modifiers
 void
-Client::grabButton(int button, int mod, int mask, Window win, Cursor curs)
+Client::grabButton(int button, int mod, int mask, Window win)
 {
     uint num_lock = PScreen::getNumLock();
     uint scroll_lock = PScreen::getScrollLock();
 
-    XGrabButton(PScreen::getDpy(), button, mod,
-                win, true, mask, GrabModeAsync, GrabModeAsync, None, curs);
-    XGrabButton(PScreen::getDpy(), button, mod|LockMask,
-                win, true, mask, GrabModeAsync, GrabModeAsync, None, curs);
+    PScreen::grabButton(button, mod, win, mask);
+    PScreen::grabButton(button, mod|LockMask, win, mask);
 
     if (num_lock) {
-        XGrabButton(PScreen::getDpy(), button, mod|num_lock,
-                    win, true, mask, GrabModeAsync, GrabModeAsync, None, curs);
-        XGrabButton(PScreen::getDpy(), button, mod|num_lock|LockMask,
-                    win, true, mask, GrabModeAsync, GrabModeAsync, None, curs);
+        PScreen::grabButton(button, mod|num_lock, win, mask);
+        PScreen::grabButton(button, mod|num_lock|LockMask, win, mask);
     }
     if (scroll_lock) {
-        XGrabButton(PScreen::getDpy(), button, mod|scroll_lock,
-                    win, true, mask, GrabModeAsync, GrabModeAsync, None, curs);
-        XGrabButton(PScreen::getDpy(), button, mod|scroll_lock|LockMask,
-                    win, true, mask, GrabModeAsync, GrabModeAsync, None, curs);
+        PScreen::grabButton(button, mod|scroll_lock, win, mask);
+        PScreen::grabButton(button, mod|scroll_lock|LockMask, win, mask);
     }
     if (num_lock && scroll_lock) {
-        XGrabButton(PScreen::getDpy(), button, mod|num_lock|scroll_lock,
-                    win, true, mask, GrabModeAsync, GrabModeAsync, None, curs);
-        XGrabButton(PScreen::getDpy(), button, mod|num_lock|scroll_lock|LockMask,
-                    win, true, mask, GrabModeAsync, GrabModeAsync, None, curs);
+        PScreen::grabButton(button, mod|num_lock|scroll_lock, win, mask);
+        PScreen::grabButton(button, mod|num_lock|scroll_lock|LockMask, win, mask);
     }
 }
 
