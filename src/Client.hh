@@ -308,10 +308,6 @@ private:
     void setWmState(ulong state);
     long getWmState(void);
 
-    int sendXMessage(Window window, Atom atom, long mask,
-                     long v1 = 0l, long v2 = 0l, long v3 = 0l,
-                     long v4 = 0l, long v5 = 0l);
-
     MwmHints* getMwmHints(Window w);
 
     // these are used by frame

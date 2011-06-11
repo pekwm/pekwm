@@ -1402,10 +1402,10 @@ void Client::sendTakeFocusMessage(void)
                          PropertyChangeMask, &ev);
             PScreen::setLastEventTime(ev.xproperty.time);
         }
-        sendXMessage(_window,
-                     Atoms::getAtom(WM_PROTOCOLS), NoEventMask,
-                     Atoms::getAtom(WM_TAKE_FOCUS),
-                     PScreen::getLastEventTime());
+        PScreen::sendEvent(_window,
+                           Atoms::getAtom(WM_PROTOCOLS), NoEventMask,
+                           Atoms::getAtom(WM_TAKE_FOCUS),
+                           PScreen::getLastEventTime());
     }
 }
 
@@ -1478,7 +1478,7 @@ void
 Client::close(void)
 {
     if (_send_close_message) {
-        sendXMessage(_window, Atoms::getAtom(WM_PROTOCOLS), NoEventMask,
+        PScreen::sendEvent(_window, Atoms::getAtom(WM_PROTOCOLS), NoEventMask,
                      Atoms::getAtom(WM_DELETE_WINDOW), CurrentTime);
     } else {
         kill();
@@ -1664,27 +1664,6 @@ Client::handleColormapChange(XColormapEvent *e)
         _cmap = e->colormap;
         XInstallColormap(PScreen::getDpy(), _cmap);
     }
-}
-
-int
-Client::sendXMessage(Window window, Atom atom, long mask,
-                     long v1, long v2, long v3, long v4, long v5)
-{
-    XEvent e;
-
-    e.type = e.xclient.type = ClientMessage;
-    e.xclient.display = PScreen::getDpy();
-    e.xclient.window = window;
-    e.xclient.format = 32;
-    e.xclient.message_type = atom;
-
-    e.xclient.data.l[0] = v1;
-    e.xclient.data.l[1] = v2;
-    e.xclient.data.l[2] = v3;
-    e.xclient.data.l[3] = v4;
-    e.xclient.data.l[4] = v5;
-
-    return XSendEvent(PScreen::getDpy(), window, false, mask, &e);
 }
 
 //! @brief
