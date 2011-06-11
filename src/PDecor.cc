@@ -339,7 +339,7 @@ PDecor::~PDecor(void)
     // Make things look smoother, buttons will be noticed as deleted
     // otherwise. Using X call directly to avoid re-drawing and other
     // special features not required when removing the window.
-    XUnmapWindow(PScreen::getDpy(), _window);
+    PScreen::unmapWindow(_window);
 
     // free buttons
     unloadDecor();

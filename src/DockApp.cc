@@ -57,7 +57,7 @@ DockApp::DockApp(PScreen *s, Theme *t, Window win) :
         if ((wm_hints->flags&IconWindowHint) &&
                 (wm_hints->icon_window != None)) {
             // let us hide the _client_window window, as we won't use it.
-            XUnmapWindow(PScreen::getDpy(), _client_window);
+            PScreen::unmapWindow(_client_window);
 
             _icon_window = wm_hints->icon_window;
             _dockapp_window = wm_hints->icon_window;
@@ -125,14 +125,14 @@ DockApp::~DockApp(void)
         _scr->grabServer();
 
         if (_icon_window != None) {
-            XUnmapWindow(PScreen::getDpy(), _icon_window);
+            PScreen::unmapWindow(_icon_window);
         }
 
         // move the dockapp back to the root window, making sure we don't
         // get any UnmapEvents
         PScreen::selectInput(_dockapp_window, NoEventMask);
         XReparentWindow(PScreen::getDpy(), _dockapp_window, _scr->getRoot(), _gm.x, _gm.y);
-        XMapWindow(PScreen::getDpy(), _client_window);
+        PScreen::mapWindow(_client_window);
 
         _scr->ungrabServer(false);
     }
@@ -154,8 +154,8 @@ DockApp::mapWindow(void)
     _mapped = true;
 
     PScreen::selectInput(_dockapp_window, NoEventMask);
-    XMapWindow(PScreen::getDpy(), _window);
-    XMapWindow(PScreen::getDpy(), _dockapp_window);
+    PScreen::mapWindow(_window);
+    PScreen::mapWindow(_dockapp_window);
     PScreen::selectInput(_dockapp_window,
                  StructureNotifyMask|SubstructureNotifyMask);
 }
@@ -170,8 +170,8 @@ DockApp::unmapWindow(void)
     _mapped = false;
 
     PScreen::selectInput(_dockapp_window, NoEventMask);
-    XUnmapWindow(PScreen::getDpy(), _dockapp_window);
-    XUnmapWindow(PScreen::getDpy(), _window);
+    PScreen::unmapWindow(_dockapp_window);
+    PScreen::unmapWindow(_window);
     PScreen::selectInput(_dockapp_window,
                  StructureNotifyMask|SubstructureNotifyMask);
 }

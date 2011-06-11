@@ -109,7 +109,7 @@ PWinObj::mapWindow(void)
     _mapped = true;
     _iconified = false;
 
-    XMapWindow(PScreen::getDpy(), _window);
+    PScreen::mapWindow(_window);
 }
 
 //! @brief Maps the window and raises it
@@ -138,7 +138,7 @@ PWinObj::unmapWindow(void)
     // Make sure unmapped windows drops focus
     setFocused(false);
 
-    XUnmapWindow(PScreen::getDpy(), _window);
+    PScreen::unmapWindow(_window);
 }
 
 //! @brief Only sets _iconified to true.
