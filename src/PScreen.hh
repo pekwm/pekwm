@@ -240,6 +240,10 @@ public:
         return XSelectInput(_dpy, w, mask);
     }
 
+    static int sendEvent(Window win, Atom atom, long mask,
+                         long v1=0l, long v2=0l, long v3=0l,
+                         long v4=0l, long v5=0l);
+
 private:
     // squared distance because computing with sqrt is expensive
 
