@@ -62,19 +62,19 @@ public:
 
     inline uint getActive(void) const { return _active; }
     inline uint getPrevious(void) const { return _previous; }
-  uint getRow(int active = -1) {
-    if (active < 0) {
-      active = _active;
+    uint getRow(int active = -1) {
+        if (active < 0) {
+            active = _active;
+        }
+        return _per_row ? (active / _per_row) : 0; 
     }
-    return _per_row ? (active / _per_row) : 0; 
-  }
-  uint getRowMin(void) { return _per_row ? (getRow() * _per_row) : 0; }
-  uint getRowMax(void) { return _per_row ? (getRowMin() + _per_row - 1) : size() - 1; }
-  uint getRows(void) { return _per_row ? (size() / _per_row + (size() % _per_row ? 1 : 0)) : 1; }
-  uint getPerRow(void) { return _per_row ? _per_row : size(); }
+    uint getRowMin(void) { return _per_row ? (getRow() * _per_row) : 0; }
+    uint getRowMax(void) { return _per_row ? (getRowMin() + _per_row - 1) : size() - 1; }
+    uint getRows(void) { return _per_row ? (size() / _per_row + (size() % _per_row ? 1 : 0)) : 1; }
+    uint getPerRow(void) { return _per_row ? _per_row : size(); }
 
-  void setSize(uint number);
-  void setPerRow(uint per_row) { _per_row = per_row; }
+    void setSize(uint number);
+    void setPerRow(uint per_row) { _per_row = per_row; }
     void setNames(void);
 
     void setWorkspace(uint num, bool focus);
