@@ -61,9 +61,6 @@ Frame::Frame(Client *client, AutoProperty *ap)
       _id(0), _client(0), _class_hint(0),
       _non_fullscreen_decor_state(0), _non_fullscreen_layer(LAYER_NORMAL)
 {
-    // setup basic pointers
-    _scr = WindowManager::instance()->getScreen();
-
     // PWinObj attributes
     _type = WO_FRAME;
 
@@ -94,7 +91,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
     _class_hint = new ClassHint();
     *_class_hint = *client->getClassHint();
 
-    _scr->grabServer();
+    PScreen::grabServer();
 
     // We don't send any ConfigurRequests during setup, we send one when we
     // are finished to minimize traffic and confusion
@@ -152,7 +149,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
     _non_fullscreen_decor_state = client->getDecorState();
     _non_fullscreen_layer = client->getLayer();
 
-    _scr->ungrabServer(true); // ungrab and sync
+    PScreen::ungrabServer(true); // ungrab and sync
 
     // now insert the client in the frame we created.
     addChild(client);
@@ -296,7 +293,7 @@ Frame::handleMotionEvent(XMotionEvent *ev)
     }
 
     ActionEvent *ae = 0;
-    uint button = _scr->getButtonFromState(ev->state);
+    uint button = PScreen::getButtonFromState(ev->state);
 
     if (ev->window == getTitleWindow()) {
         ae = ActionHandler::findMouseAction(button, ev->state, MOUSE_EVENT_MOTION,
@@ -849,7 +846,7 @@ Frame::applyAPGeometry(Geometry &gm, const Geometry &ap_gm, int mask)
     // < 1 consider it to be full screen size.
     if (mask&WidthValue) {
         if (ap_gm.width < 1) {
-            gm.width = _scr->getWidth();
+            gm.width = PScreen::getWidth();
         } else {
             gm.width = ap_gm.width;
         }
@@ -866,13 +863,13 @@ Frame::applyAPGeometry(Geometry &gm, const Geometry &ap_gm, int mask)
     if (mask&XValue) {
         gm.x = ap_gm.x;
         if (mask&XNegative) {
-            gm.x += _scr->getWidth() - gm.width;
+            gm.x += PScreen::getWidth() - gm.width;
         }
     }
     if (mask&YValue) {
         gm.y = ap_gm.y;
         if (mask&YNegative) {
-            gm.y += _scr->getHeight() - gm.height;
+            gm.y += PScreen::getHeight() - gm.height;
         }
     }
 }
@@ -1000,8 +997,9 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: r
         name += L"No Name";
     }
 
-    bool status = _scr->grabPointer(_scr->getRoot(),
-                                    ButtonReleaseMask|PointerMotionMask, None);
+    bool status = PScreen::grabPointer(PScreen::getRoot(),
+                                       ButtonReleaseMask|PointerMotionMask,
+                                       None);
     if (status != true) {
         return;
     }
@@ -1029,7 +1027,7 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: r
 
         case ButtonRelease:
             sw->unmapWindow();
-            _scr->ungrabPointer();
+            PScreen::ungrabPointer();
 
             Client *search = 0;
 
@@ -1039,7 +1037,8 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: r
                 Window win;
 
                 // find the frame we dropped the client on
-                XTranslateCoordinates(PScreen::getDpy(), _scr->getRoot(), _scr->getRoot(),
+                XTranslateCoordinates(PScreen::getDpy(),
+                                      PScreen::getRoot(), PScreen::getRoot(),
                                       e.xmotion.x_root, e.xmotion.y_root,
                                       &x, &y, &win);
 
@@ -1162,8 +1161,8 @@ Frame::doResize(bool left, bool x, bool top, bool y)
         return;
     }
 
-    if (! _scr->grabPointer(_scr->getRoot(), ButtonMotionMask|ButtonReleaseMask,
-                           ScreenResources::instance()->getCursor(ScreenResources::CURSOR_RESIZE))) {
+    if (! PScreen::grabPointer(PScreen::getRoot(), ButtonMotionMask|ButtonReleaseMask,
+                            ScreenResources::instance()->getCursor(ScreenResources::CURSOR_RESIZE))) {
         return;
     }
 
@@ -1186,7 +1185,7 @@ Frame::doResize(bool left, bool x, bool top, bool y)
     _click_y = top ? (_gm.y + _gm.height) : _gm.y;
 
     int pointer_x = _gm.x, pointer_y = _gm.y;
-    _scr->getMousePosition(pointer_x, pointer_y);
+    PScreen::getMousePosition(pointer_x, pointer_y);
 
     wchar_t buf[128];
     getDecorInfo(buf, 128);
@@ -1203,7 +1202,7 @@ Frame::doResize(bool left, bool x, bool top, bool y)
 
     // grab server, we don't want invert traces
     if (outline) {
-        _scr->grabServer();
+        PScreen::grabServer();
     }
 
     const long resize_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask;
@@ -1257,7 +1256,7 @@ Frame::doResize(bool left, bool x, bool top, bool y)
         sw->unmapWindow();
     }
 
-    _scr->ungrabPointer();
+    PScreen::ungrabPointer();
 
     // Make sure the state isn't set to maximized after we've resized.
     if (_maximized_horz || _maximized_vert) {
@@ -1270,7 +1269,7 @@ Frame::doResize(bool left, bool x, bool top, bool y)
 
     if (outline) {
         moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
-        _scr->ungrabServer(true);
+        PScreen::ungrabServer(true);
     }
 }
 
@@ -1336,8 +1335,8 @@ Frame::moveToEdge(OrientationType ori)
     Geometry head, real_head;
 
     head_nr = getNearestHead();
-    _scr->getHeadInfo(head_nr, real_head);
-    _scr->getHeadInfoWithEdge(head_nr, head);
+    PScreen::getHeadInfo(head_nr, real_head);
+    PScreen::getHeadInfoWithEdge(head_nr, head);
 
     switch (ori) {
     case TOP_LEFT:
@@ -1441,7 +1440,7 @@ Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
     XSizeHints *size_hint = _client->getXSizeHints(); // convenience
 
     Geometry head;
-    _scr->getHeadInfoWithEdge(getNearestHead(), head);
+    PScreen::getHeadInfoWithEdge(getNearestHead(), head);
 
     int max_x, max_r, max_y, max_b;
     max_x = head.x;
@@ -1553,7 +1552,7 @@ Frame::setStateFullscreen(StateAction sa)
 
         Geometry head;
         uint nr = getNearestHead();
-        _scr->getHeadInfo(nr, head);
+        PScreen::getHeadInfo(nr, head);
 
         _gm = head;
     }
@@ -1794,7 +1793,7 @@ void
 Frame::growDirection(uint direction)
 {
     Geometry head;
-    _scr->getHeadInfoWithEdge(getNearestHead(), head);
+    PScreen::getHeadInfoWithEdge(getNearestHead(), head);
 
     switch (direction) {
     case DIRECTION_UP:
@@ -2118,10 +2117,10 @@ Frame::isRequestGeometryFullscreen(XConfigureRequestEvent *ev, Client *client)
     bool is_fullscreen = false;
     if (! client->isCfgDeny(CFG_DENY_SIZE)
         && ! client->isCfgDeny(CFG_DENY_POSITION)) {
-        int nearest_head = _scr->getNearestHead(ev->x, ev->y);
+        int nearest_head = PScreen::getNearestHead(ev->x, ev->y);
         Geometry gm_request(ev->x, ev->y, ev->width, ev->height);
-        Geometry gm_screen(_scr->getScreenGeometry());
-        Geometry gm_head(_scr->getHeadGeometry(nearest_head));
+        Geometry gm_screen(PScreen::getScreenGeometry());
+        Geometry gm_head(PScreen::getHeadGeometry(nearest_head));
 
         if (gm_request == gm_screen || gm_request == gm_head) {
             is_fullscreen = true;

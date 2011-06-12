@@ -17,7 +17,6 @@
 #include "Action.hh"
 #include "PDecor.hh"
 
-class PScreen;
 class PWinObj;
 class Strut;
 class Theme;
@@ -179,8 +178,6 @@ private:
     static std::string getClientDecorName(Client *client);
 
 private:
-    PScreen *_scr;
-
     uint _id; // unique id of the frame
 
     Client *_client; // to skip all the casts from PWinObj
