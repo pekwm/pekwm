@@ -14,12 +14,12 @@
 #endif // HAVE_CONFIG_H
 
 #include "pekwm.hh"
-#include "x11.hh"
 
 #include <string>
 #include <list>
 #include <vector>
 
+class Strut;
 class EwmhAtoms;
 class PWinObj;
 class Frame;
