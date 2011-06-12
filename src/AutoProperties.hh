@@ -46,9 +46,7 @@ enum PropertyType {
     AP_CFG_DENY = (1L << 17),
     AP_ALLOWED_ACTIONS = (1L << 18),
     AP_DISALLOWED_ACTIONS = (1L << 19),
-#ifdef OPACITY
     AP_OPACITY = (1L << 20),
-#endif // OPACITY
 
     AP_GROUP_SIZE,
     AP_GROUP_BEHIND,
@@ -152,9 +150,7 @@ public:
     bool border, titlebar;
     bool focusable, place_new, focus_new;
     uint workspace, layer, skip, cfg_deny;
-#ifdef OPACITY
     uint focus_opacity, unfocus_opacity;
-#endif //OPACITY
     uint allowed_actions, disallowed_actions;
 
     std::string frame_decor;

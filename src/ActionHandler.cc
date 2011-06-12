@@ -214,11 +214,9 @@ ActionHandler::handleAction(const ActionPerformed &ap)
             case ACTION_ATTACH_FRAME_IN_PREV_FRAME:
                 WindowManager::instance()->attachInNextPrevFrame(client, true, false);
                 break;
-#ifdef OPACITY
             case ACTION_SET_OPACITY:
                 actionSetOpacity(client, frame, it->getParamI(0), it->getParamI(1));
                 break;
-#endif // OPACITY
             default:
                 matched = false;
                 break;
@@ -466,11 +464,9 @@ ActionHandler::handleStateAction(const Action &action, PWinObj *wo,
         case ACTION_STATE_TITLE:
             frame->setStateTitle(sa, client, Util::to_wide_str(action.getParamS()));
             break;
-#ifdef OPACITY
         case ACTION_STATE_OPAQUE:
             frame->setStateOpaque(sa);
             break;
-#endif // OPACITY
         default:
             matched = false;
             break;
@@ -840,7 +836,6 @@ ActionHandler::actionSendKey(PWinObj *wo, const std::string &key_str)
     return true;
 }
 
-#ifdef OPACITY
 void
 ActionHandler::actionSetOpacity(PWinObj *client, PWinObj *frame, uint focus, uint unfocus)
 {
@@ -852,7 +847,6 @@ ActionHandler::actionSetOpacity(PWinObj *client, PWinObj *frame, uint focus, uin
     client->setOpacity(focus, unfocus);
     frame->setOpacity(client);
 }
-#endif // OPACITY
 
 //! @brief Toggles visibility of menu.
 //! @param name Name of menu to toggle visibilty of

@@ -15,9 +15,7 @@
 
 #include "PWinObj.hh"
 
-#ifdef OPACITY
 #include "Atoms.hh"
-#endif // OPACITY
 
 using std::cerr;
 using std::endl;
@@ -37,10 +35,8 @@ PWinObj::PWinObj(void)
       _workspace(0), _layer(LAYER_NORMAL),
       _mapped(false), _iconified(false), _hidden(false),
       _focused(false), _sticky(false),
-      _focusable(true)
-#ifdef OPACITY
-     ,_opaque(true)
-#endif // OPACITY
+      _focusable(true),
+      _opaque(true)
 {
 }
 
@@ -70,7 +66,6 @@ PWinObj::removeChildWindow(Window win)
     }
 }
 
-#ifdef OPACITY
 //! @brief Sets the desired opacity values for focused/unfocused states
 void
 PWinObj::setOpacity(uint focused, uint unfocused, bool enabled)
@@ -97,7 +92,6 @@ PWinObj::updateOpacity(void)
         AtomUtil::setLong(_window, Atoms::getAtom(NET_WM_WINDOW_OPACITY), opacity);
     }
 }
-#endif // OPACITY
 
 //! @brief Maps the window and sets _mapped to true.
 void
@@ -236,9 +230,7 @@ void
 PWinObj::setFocused(bool focused)
 {
     _focused = focused;
-#ifdef OPACITY
     updateOpacity();
-#endif // OPACITY
 }
 
 //! @brief Only sets _sticky to sticky.
@@ -248,7 +240,6 @@ PWinObj::setSticky(bool sticky)
     _sticky = sticky;
 }
 
-#ifdef OPACITY
 //! @brief Updates opaque state
 void
 PWinObj::setOpaque(bool opaque)
@@ -256,7 +247,6 @@ PWinObj::setOpaque(bool opaque)
     _opaque = opaque;
     updateOpacity();
 }
-#endif // OPACITY
 
 //! @brief Only sets _hidden to hidden.
 void

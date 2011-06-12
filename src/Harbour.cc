@@ -82,9 +82,7 @@ Harbour::addDockApp(DockApp *da)
         da->mapWindow();
     }
 
-#ifdef OPACITY
     da->setOpacity(Config::instance()->getHarbourOpacity());
-#endif // OPACITY
     updateHarbourSize();
 }
 

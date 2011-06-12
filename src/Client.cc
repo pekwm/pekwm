@@ -1109,11 +1109,9 @@ Client::applyAutoprops(AutoProperty *ap)
     if (ap->isMask(AP_DISALLOWED_ACTIONS)) {
         applyActionAccessMask(ap->disallowed_actions, false);
     }
-#ifdef OPACITY
     if (ap->isMask(AP_OPACITY)) {
         setOpacity(ap->focus_opacity, ap->unfocus_opacity);
     }
-#endif // OPACITY
 }
 
 void

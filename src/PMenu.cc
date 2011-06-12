@@ -106,10 +106,8 @@ PMenu::PMenu(Theme *theme, const std::wstring &title,
     _menu_map[_window] = this; // add to menu map
     woListAdd(this);
     _wo_map[_window] = this;
-#ifdef OPACITY
     setOpacity(Config::instance()->getMenuFocusOpacity(),
                Config::instance()->getMenuUnfocusOpacity());
-#endif // OPACITY
 }
 
 //! @brief Destructor for PMenu class

@@ -505,9 +505,7 @@ Frame::activateChild (PWinObj *child)
         _client->setShaped(setShape());
     }
 
-#ifdef OPACITY
     setOpacity(_client);
-#endif // OPACITY
 
     if (_focused) {
         child->giveInputFocus();
@@ -1735,7 +1733,6 @@ Frame::setStateMarked(StateAction sa, Client *client)
     renderTitle();
 }
 
-#ifdef OPACITY
 void
 Frame::setStateOpaque(StateAction sa)
 {
@@ -1745,7 +1742,6 @@ Frame::setStateOpaque(StateAction sa)
     _client->setOpaque(!_opaque);
     setOpaque(!_opaque);
 }
-#endif // OPACITY
 // STATE actions end
 
 //! @brief

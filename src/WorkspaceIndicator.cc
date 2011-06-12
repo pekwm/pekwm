@@ -202,9 +202,7 @@ WorkspaceIndicator::WorkspaceIndicator(Theme *theme, Timer<ActionPerformed> &tim
     woListAdd(this);
     _wo_map[_window] = this;
 
-#ifdef OPACITY
     setOpacity(Config::instance()->getWorkspaceIndicatorOpacity());
-#endif // OPACITY
 }
 
 /**

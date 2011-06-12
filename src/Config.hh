@@ -61,12 +61,8 @@ private:
 
 // CONV_OPACITY converts percentage to absolute opacity values.
 // The variable X containing the percent value is changed directly.
-#ifdef OPACITY
 #define CONV_OPACITY(X)\
     X = (X == 100)?EWMH_OPAQUE_WINDOW:X*(EWMH_OPAQUE_WINDOW/100)
-#else
-#define CONV_OPACITY(X)
-#endif
 
 /**
  * Large set of configuration options stored and parsed by the
@@ -150,9 +146,7 @@ public:
     inline bool isShowClientID(void) const { return _screen_show_client_id; }
     int getShowWorkspaceIndicator(void) const { return _screen_show_workspace_indicator; }
     int getWorkspaceIndicatorScale(void) const { return _screen_workspace_indicator_scale; }
-#ifdef OPACITY
-    uint getWorkspaceIndicatorOpacity(void) const { return _screen_workspace_indicator_opacity; }
-#endif // OPACITY
+    inline uint getWorkspaceIndicatorOpacity(void) const { return _screen_workspace_indicator_opacity; }
     inline bool isPlaceNew(void) const { return _screen_place_new; }
     inline bool isFocusNew(void) const { return _screen_focus_new; }
     inline bool isFocusNewChild(void) const { return _screen_focus_new_child; }
@@ -181,10 +175,8 @@ public:
     inline bool isMenuEnterOn(uint val) const { return (_menu_enter_mask&val); }
     inline bool isMenuExecOn(uint val) const { return (_menu_exec_mask&val); }
     bool isDisplayMenuIcons(void) const { return _menu_display_icons; }
-#ifdef OPACITY
     inline uint getMenuFocusOpacity(void) const { return _menu_focus_opacity; }
     inline uint getMenuUnfocusOpacity(void) const { return _menu_unfocus_opacity; }
-#endif // OPACITY
 
     bool isCmdDialogHistoryUnique(void) const { return _cmd_dialog_history_unique; }
     int getCmdDialogHistorySize(void) const { return _cmd_dialog_history_size; }
@@ -198,9 +190,7 @@ public:
     inline bool isHarbourMaximizeOver(void) const { return _harbour_maximize_over; }
     inline uint getHarbourPlacement(void) const { return _harbour_placement; }
     inline uint getHarbourOrientation(void) const { return _harbour_orientation; }
-#ifdef OPACITY
     inline uint getHarbourOpacity(void) const { return _harbour_opacity; }
-#endif // OPACITY
 
     inline std::list<ActionEvent>  *getMouseActionList(MouseActionListName name)
     { return _mouse_action_map[name]; }
@@ -256,9 +246,7 @@ public:
     inline uint getMod(const std::string &mod) { return ParseUtil::getValue<uint>(mod, _mod_map); }
     uint getMouseButton(const std::string& button);
 
-#ifdef OPACITY
     static bool parseOpacity(const std::string value, uint &focused, uint &unfocused);
-#endif // OPACITY
 
 private:
     bool tryHardLoadConfig(CfgParser &cfg, std::string &file);
@@ -309,9 +297,7 @@ private:
     bool _screen_show_client_id; //!< Flag to display client ID in title.
     int _screen_show_workspace_indicator; //!< Display workspace indicator for N seconds.
     int _screen_workspace_indicator_scale; //!< Scale of the workspace indicator head
-#ifdef OPACITY
     uint _screen_workspace_indicator_opacity;
-#endif // OPACITY
     bool _screen_place_new, _screen_focus_new, _screen_focus_new_child;
     bool _screen_honour_randr; /**< Boolean flag if randr information should be honoured. */
     bool _screen_honour_aspectratio; /**< if true, pekwm keeps aspect ratio (XSizeHint) */
@@ -324,9 +310,7 @@ private:
 
     uint _menu_select_mask, _menu_enter_mask, _menu_exec_mask;
     bool _menu_display_icons; /**< Boolean flag, when true display icons in menus. */
-#ifdef OPACITY
     uint _menu_focus_opacity, _menu_unfocus_opacity;
-#endif // OPACITY
 
     std::map<std::string, SizeLimits> _menu_icon_limits; /**< Map of name -> limit for icons in menus */
 
@@ -341,9 +325,7 @@ private:
     uint _harbour_placement;
     uint _harbour_orientation;
     int _harbour_head_nr;
-#ifdef OPACITY
     uint _harbour_opacity;
-#endif // OPACITY
 
     std::map<MouseActionListName, std::list<ActionEvent>* > _mouse_action_map;
 

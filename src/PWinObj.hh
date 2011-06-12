@@ -123,14 +123,13 @@ public:
     //! @brief Returns Focusable state of PWinObj.
     inline bool isFocusable(void) const { return _focusable; }
 
-#ifdef OPACITY
     //! @brief Returns transparency state of PWinObj
     inline bool isOpaque(void) const { return _opaque; }
     void setOpacity(uint focused, uint unfocused, bool enabled=true);
     inline void setOpacity(uint value) { setOpacity(value, value); }
     inline void setOpacity(PWinObj *child) { setOpacity(child->_opacity.focused, child->_opacity.unfocused, !child->_opaque); }
     void updateOpacity(void);
-#endif // OPACITY
+    void setOpaque(bool opaque);
  
     // interface
     virtual void mapWindow(void);
@@ -151,9 +150,7 @@ public:
     virtual void setLayer(uint layer);
     virtual void setFocused(bool focused);
     virtual void setSticky(bool sticky);
-#ifdef OPACITY
-    void setOpaque(bool opaque);
-#endif // OPACITY
+
     /** Set focusable flag. */
     virtual void setFocusable(bool focusable) { _focusable = focusable; }
     virtual void setHidden(bool hidden);
@@ -220,7 +217,7 @@ protected:
     PWinObj *_parent; //!< Parent PWinObj.
 
     Type _type; //!< Type of PWinObj.
-#ifdef OPACITY
+
     // Opacity information
     class Opacity {
     public:
@@ -230,7 +227,7 @@ protected:
               unfocused(EWMH_OPAQUE_WINDOW) { }
         uint current, focused, unfocused;
     } _opacity;
-#endif // OPACITY
+    bool _opaque; //!< Opaque set state of PWinObj
 
     Geometry _gm; //!< Geometry of PWinObj (always in absolute coordinates).
     uint _workspace; //!< Workspace PWinObj is on.
@@ -241,9 +238,7 @@ protected:
     bool _focused; //!< Focused state of PWinObj.
     bool _sticky; //!< Sticky state of PWinObj.
     bool _focusable; //!< Focusable state of PWinObj.
-#ifdef OPACITY
-    bool _opaque; //!< Opaque set state of PWinObj
-#endif // OPACITY
+
     static PWinObj *_root_wo; //!< Static root PWinObj pointer.
     static PWinObj *_focused_wo; //!< Static focused PWinObj pointer.
     static std::vector<PWinObj*> _wo_list; //!< List of PWinObjs.
