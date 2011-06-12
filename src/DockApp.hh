@@ -16,7 +16,6 @@
 #include "pekwm.hh"
 #include "AutoProperties.hh"
 
-class PScreen;
 class Theme;
 class PWinObj;
 
@@ -24,7 +23,7 @@ class PWinObj;
 class DockApp : public PWinObj
 {
 public:
-    DockApp(PScreen *scr, Theme *theme, Window win);
+    DockApp(Theme *theme, Window win);
     ~DockApp(void);
 
     // START - PWinObj interface.
@@ -43,10 +42,10 @@ public:
 
     //! @brief Matches win against DockApp client window(s).
     inline bool findDockApp(Window win) {
-      if ((win != None) && ((win == _client_window) || (win == _icon_window))) {
-        return true;
-      }
-      return false;
+        if ((win != None) && ((win == _client_window) || (win == _icon_window))) {
+            return true;
+        }
+        return false;
     }
     //! @brief Matches win against DockApp window.
     inline bool findDockAppFromFrame(Window win) {
@@ -70,7 +69,6 @@ private:
     void readAutoProperties(void);
 
 private:
-    PScreen *_scr;
     Theme *_theme;
 
     Window _dockapp_window;

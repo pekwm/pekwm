@@ -34,9 +34,9 @@ const uint DOCKAPP_DEFAULT_SIDE = 64;
 const uint DOCKAPP_BORDER_WIDTH = 2;
 
 //! @brief DockApp constructor
-DockApp::DockApp(PScreen *s, Theme *t, Window win) :
+DockApp::DockApp(Theme *t, Window win) :
         PWinObj(),
-        _scr(s), _theme(t),
+        _theme(t),
         _dockapp_window(win),
         _client_window(win), _icon_window(None),
         _position(0), _background(None),
@@ -97,7 +97,7 @@ DockApp::DockApp(PScreen *s, Theme *t, Window win) :
     sattr.event_mask = SubstructureRedirectMask|ButtonPressMask|ButtonMotionMask;
 
     _window =
-        XCreateWindow(PScreen::getDpy(), _scr->getRoot(),
+        XCreateWindow(PScreen::getDpy(), PScreen::getRoot(),
                       _gm.x, _gm.y, _gm.width, _gm.height, 0,
                       CopyFromParent, InputOutput, CopyFromParent,
                       CWOverrideRedirect|CWEventMask, &sattr);
@@ -122,7 +122,7 @@ DockApp::~DockApp(void)
     // if the client still is alive, we should reparent it to the root
     // window, else we don't have to care about that.
     if (_is_alive) {
-        _scr->grabServer();
+        PScreen::grabServer();
 
         if (_icon_window != None) {
             PScreen::unmapWindow(_icon_window);
@@ -131,10 +131,10 @@ DockApp::~DockApp(void)
         // move the dockapp back to the root window, making sure we don't
         // get any UnmapEvents
         PScreen::selectInput(_dockapp_window, NoEventMask);
-        XReparentWindow(PScreen::getDpy(), _dockapp_window, _scr->getRoot(), _gm.x, _gm.y);
+        XReparentWindow(PScreen::getDpy(), _dockapp_window, PScreen::getRoot(), _gm.x, _gm.y);
         PScreen::mapWindow(_client_window);
 
-        _scr->ungrabServer(false);
+        PScreen::ungrabServer(false);
     }
 
     // clean up
@@ -223,7 +223,7 @@ DockApp::repaint(void)
     PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
 
     pm->returnPixmap(_background);
-    _background = pm->getPixmap(_gm.width, _gm.height, _scr->getDepth());
+    _background = pm->getPixmap(_gm.width, _gm.height, PScreen::getDepth());
 
     _theme->getHarbourData()->getTexture()->render(_background, 0, 0, _gm.width, _gm.height);
 

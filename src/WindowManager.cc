@@ -423,7 +423,7 @@ WindowManager::scanWindows(void)
             if (wm_hints) {
                 if ((wm_hints->flags&StateHint) &&
                         (wm_hints->initial_state == WithdrawnState)) {
-                    _harbour->addDockApp(new DockApp(_screen, _theme, *it));
+                    _harbour->addDockApp(new DockApp(_theme, *it));
                 } else {
                     client = new Client(*it);
                     if (! client->isAlive()) {
@@ -1091,7 +1091,7 @@ WindowManager::handleMapRequestEvent(XMapRequestEvent *ev)
             if (wm_hints) {
                 if ((wm_hints->flags&StateHint) &&
                         (wm_hints->initial_state == WithdrawnState)) {
-                    _harbour->addDockApp(new DockApp(_screen, _theme, ev->window));
+                    _harbour->addDockApp(new DockApp(_theme, ev->window));
                 } else {
                     Client *client = new Client(ev->window, true);
                     if (! client->isAlive()) {
