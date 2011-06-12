@@ -19,8 +19,6 @@
 #include "CfgParser.hh"
 #include "PWinObj.hh"
 
-class PScreen;
-
 #include <string>
 #include <list>
 
@@ -66,7 +64,7 @@ public:
         std::list<ActionEvent> _keys;
     };
 
-    KeyGrabber(PScreen *scr);
+    KeyGrabber(void);
     ~KeyGrabber(void);
 
     //! @brief Returns the KeyGrabber instance pointer.
@@ -88,9 +86,6 @@ private:
     void parseMenuChain(CfgParser::Entry *section, KeyGrabber::Chain *chain);
 
     ActionEvent *findAction(XKeyEvent *ev, KeyGrabber::Chain *chain);
-
-private:
-    PScreen *_scr;
 
     std::map <std::string, time_t> _cfg_state; /**< Map of file mtime for all files touched by a configuration. */
 

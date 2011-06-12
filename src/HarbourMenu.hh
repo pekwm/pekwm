@@ -17,7 +17,6 @@
 #include "PMenu.hh"
 
 class WORefMenu;
-class PScreen;
 class Theme;
 class Harbour;
 class DockApp;
@@ -25,7 +24,7 @@ class DockApp;
 class HarbourMenu : public PMenu
 {
 public:
-    HarbourMenu(PScreen *scr, Theme *theme, Harbour *harbour);
+    HarbourMenu(Theme *theme, Harbour *harbour);
     virtual ~HarbourMenu(void);
 
     virtual void handleItemExec(PMenu::Item *item);

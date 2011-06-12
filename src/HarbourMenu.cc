@@ -19,7 +19,7 @@
 #include "DockApp.hh"
 
 //! @brief HarbourMenu constructor
-HarbourMenu::HarbourMenu(PScreen *scr, Theme *theme, Harbour *harbour)
+HarbourMenu::HarbourMenu(Theme *theme, Harbour *harbour)
     : PMenu(theme, L"Harbour", "HARBOUR"),
       _harbour(harbour), _dockapp(0)
 {

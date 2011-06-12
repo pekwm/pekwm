@@ -35,16 +35,16 @@ using std::endl;
 #endif // DEBUG
 
 //! @brief Harbour constructor
-Harbour::Harbour(PScreen *s, Theme *t, Workspaces *w) :
-        _scr(s), _theme(t), _workspaces(w),
+Harbour::Harbour(Theme *t, Workspaces *w) :
+        _theme(t), _workspaces(w),
         _harbour_menu(0),
         _hidden(false), _size(0), _strut(0),
         _last_button_x(0), _last_button_y(0)
 {
     _strut = new Strut();
-    _scr->addStrut(_strut);
+    PScreen::addStrut(_strut);
     _strut->head = Config::instance()->getHarbourHead();
-    _harbour_menu = new HarbourMenu(_scr, _theme, this);
+    _harbour_menu = new HarbourMenu(_theme, this);
 }
 
 //! @brief Harbour destructor
@@ -52,7 +52,7 @@ Harbour::~Harbour(void)
 {
     removeAllDockApps();
 
-    _scr->removeStrut(_strut);
+    PScreen::removeStrut(_strut);
     delete _strut;
     delete _harbour_menu;
 }
@@ -290,7 +290,7 @@ Harbour::updateStrutSize(void)
         }
     }
 
-    _scr->updateStrut();
+    PScreen::updateStrut();
 }
 
 //! @brief Handles XButtonEvents made on the DockApp's frames.
@@ -330,7 +330,7 @@ Harbour::handleMotionNotifyEvent(XMotionEvent* ev, DockApp* da)
     Geometry head;
     int x = 0, y = 0;
 
-    _scr->getHeadInfo(Config::instance()->getHarbourHead(), head);
+    PScreen::getHeadInfo(Config::instance()->getHarbourHead(), head);
 
     switch(Config::instance()->getHarbourPlacement()) {
     case TOP:

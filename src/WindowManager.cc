@@ -344,7 +344,7 @@ WindowManager::setupDisplay(bool replace)
 
     _workspaces = new Workspaces(_config->getWorkspaces(), _config->getWorkspacesPerRow());
 
-    _harbour = new Harbour(_screen, _theme, _workspaces);
+    _harbour = new Harbour(_theme, _workspaces);
 
     MenuHandler::init(_theme);
 
@@ -360,7 +360,7 @@ WindowManager::setupDisplay(bool replace)
     XRRSelectInput(dpy, _screen->getRoot(), RRScreenChangeNotifyMask|RRCrtcChangeNotifyMask);
 #endif // HAVE_XRANDR
 
-    _keygrabber = new KeyGrabber(_screen);
+    _keygrabber = new KeyGrabber;
     _keygrabber->load(_config->getKeyFile());
     _keygrabber->grabKeys(_screen->getRoot());
 

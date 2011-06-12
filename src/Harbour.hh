@@ -13,7 +13,6 @@
 
 #include "pekwm.hh"
 
-class PScreen;
 class Theme;
 class Workspaces;
 class DockApp;
@@ -28,7 +27,7 @@ class HarbourMenu;
 class Harbour
 {
 public:
-    Harbour(PScreen *s, Theme *t, Workspaces *w);
+    Harbour(Theme *t, Workspaces *w);
     ~Harbour(void);
 
     void addDockApp(DockApp* da);
@@ -68,7 +67,6 @@ private:
     void updateStrutSize(void);
 
 private:
-    PScreen *_scr;
     Theme *_theme;
     Workspaces *_workspaces;
 

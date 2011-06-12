@@ -90,8 +90,8 @@ KeyGrabber::Chain::findAction(XKeyEvent *ev)
 }
 
 //! @brief KeyGrabber constructor
-KeyGrabber::KeyGrabber(PScreen *scr)
-    : _scr(scr), _menu_chain(0, 0),
+KeyGrabber::KeyGrabber(void)
+    : _menu_chain(0, 0),
       _global_chain(0, 0), _moveresize_chain(0, 0),
       _input_dialog_chain(0, 0)
 {
@@ -104,8 +104,8 @@ KeyGrabber::KeyGrabber(PScreen *scr)
 #endif // DEBUG
     _instance = this;
 
-    _num_lock = _scr->getNumLock();
-    _scroll_lock = _scr->getScrollLock();
+    _num_lock = PScreen::getNumLock();
+    _scroll_lock = PScreen::getScrollLock();
 }
 
 //! @brief Destructor for KeyGrabber class
@@ -287,7 +287,7 @@ KeyGrabber::grabKeys(Window win)
 void
 KeyGrabber::grabKey(Window win, uint mod, uint key)
 {
-    Display *dpy = _scr->getDpy(); // convenience
+    Display *dpy = PScreen::getDpy(); // convenience
 
     XGrabKey(dpy, key, mod, win, true, GrabModeAsync, GrabModeAsync);
     XGrabKey(dpy, key, mod|LockMask, win, true, GrabModeAsync, GrabModeAsync);
@@ -317,7 +317,7 @@ KeyGrabber::grabKey(Window win, uint mod, uint key)
 void
 KeyGrabber::ungrabKeys(Window win)
 {
-    XUngrabKey(_scr->getDpy(), AnyKey, AnyModifier, win);
+    XUngrabKey(PScreen::getDpy(), AnyKey, AnyModifier, win);
 }
 
 //! @brief Tries to match the XKeyEvent to an usefull action and return it
@@ -333,16 +333,16 @@ KeyGrabber::findAction(XKeyEvent *ev, KeyGrabber::Chain *chain)
 
     ActionEvent *action = 0;
     KeyGrabber::Chain *sub_chain = _global_chain.findChain(ev);
-    if (sub_chain && _scr->grabKeyboard(_scr->getRoot())) {
+    if (sub_chain && PScreen::grabKeyboard(PScreen::getRoot())) {
         XEvent c_ev;
         KeyGrabber::Chain *last_chain;
         bool exit = false;
 
         while (! exit) {
-            XMaskEvent(_scr->getDpy(), KeyPressMask, &c_ev);
+            XMaskEvent(PScreen::getDpy(), KeyPressMask, &c_ev);
             PScreen::stripStateModifiers(&c_ev.xkey.state);
 
-            if (IsModifierKey(XKeycodeToKeysym(_scr->getDpy(),
+            if (IsModifierKey(XKeycodeToKeysym(PScreen::getDpy(),
                                                c_ev.xkey.keycode, 0))) {
                 // do nothing
             } else  if ((last_chain = sub_chain->findChain(&c_ev.xkey))) {
@@ -353,7 +353,7 @@ KeyGrabber::findAction(XKeyEvent *ev, KeyGrabber::Chain *chain)
             }
         }
 
-        _scr->ungrabKeyboard();
+        PScreen::ungrabKeyboard();
     } else {
         action = chain->findAction(ev);
     }
