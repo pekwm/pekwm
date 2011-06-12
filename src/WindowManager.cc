@@ -164,7 +164,7 @@ WindowManager::destroy(void)
 WindowManager::WindowManager(const std::string &command_line,
                              const std::string &config_file)
         :
-        _screen(0), _screen_resources(0),
+        _screen_resources(0),
         _keygrabber(0),
         _config(0), _color_handler(0),
         _font_handler(0), _texture_handler(0),
@@ -220,13 +220,7 @@ WindowManager::~WindowManager(void)
     delete _texture_handler;
     delete _screen_resources;
 
-    if (_screen) {
-        Display *dpy = _screen->getDpy();
-
-        delete _screen;
-
-        XCloseDisplay(dpy);
-    }
+    PScreen::destruct();
 }
 
 //! @brief Checks if the start file is executable then execs it.
@@ -287,14 +281,14 @@ WindowManager::cleanup(void)
     }
 
     if (_keygrabber) {
-        _keygrabber->ungrabKeys(_screen->getRoot());
+        _keygrabber->ungrabKeys(PScreen::getRoot());
     }
 
     // destroy screen edge
     screenEdgeDestroy();
 
-    XInstallColormap(_screen->getDpy(), _screen->getColormap());
-    XSetInputFocus(_screen->getDpy(), PointerRoot, RevertToPointerRoot, CurrentTime);
+    XInstallColormap(PScreen::getDpy(), PScreen::getColormap());
+    XSetInputFocus(PScreen::getDpy(), PointerRoot, RevertToPointerRoot, CurrentTime);
 }
 
 /**
@@ -312,19 +306,19 @@ WindowManager::setupDisplay(bool replace)
     }
 
     // Setup screen, init atoms and claim the display.
-    _screen = new PScreen(dpy, _config->isHonourRandr());
+    PScreen::init(dpy, _config->isHonourRandr());
 
     Atoms::init();
 
     try {
         // Create hint window _before_ root window.
-        _hint_wo = new HintWO(_screen->getRoot(), replace);
+        _hint_wo = new HintWO(PScreen::getRoot(), replace);
     } catch (string &ex) {
         return false;
     }
 
     // Create root PWinObj
-    _root_wo = new RootWO(_screen->getRoot());
+    _root_wo = new RootWO(PScreen::getRoot());
     PWinObj::setRootPWinObj(_root_wo);
 
     _color_handler = new ColorHandler(dpy);
@@ -353,16 +347,16 @@ WindowManager::setupDisplay(bool replace)
     _status_window = new StatusWindow(_theme);
     _workspace_indicator = new WorkspaceIndicator(_theme, _timer_action);
 
-    XDefineCursor(dpy, _screen->getRoot(),
+    XDefineCursor(dpy, PScreen::getRoot(),
                   _screen_resources->getCursor(ScreenResources::CURSOR_ARROW));
 
 #ifdef HAVE_XRANDR
-    XRRSelectInput(dpy, _screen->getRoot(), RRScreenChangeNotifyMask|RRCrtcChangeNotifyMask);
+    XRRSelectInput(dpy, PScreen::getRoot(), RRScreenChangeNotifyMask|RRCrtcChangeNotifyMask);
 #endif // HAVE_XRANDR
 
     _keygrabber = new KeyGrabber;
     _keygrabber->load(_config->getKeyFile());
-    _keygrabber->grabKeys(_screen->getRoot());
+    _keygrabber->grabKeys(PScreen::getRoot());
 
     // Create screen edge windows
     screenEdgeCreate();
@@ -384,7 +378,7 @@ WindowManager::scanWindows(void)
     XWindowAttributes attr;
 
     // Lets create a list of windows on the display
-    XQueryTree(_screen->getDpy(), _screen->getRoot(),
+    XQueryTree(PScreen::getDpy(), PScreen::getRoot(),
                &d_win1, &d_win2, &wins, &num_wins);
     list<Window> win_list(wins, wins + num_wins);
     XFree(wins);
@@ -399,7 +393,7 @@ WindowManager::scanWindows(void)
             continue;
         }
 
-        XWMHints *wm_hints = XGetWMHints(_screen->getDpy(), *it);
+        XWMHints *wm_hints = XGetWMHints(PScreen::getDpy(), *it);
         if (wm_hints) {
             if ((wm_hints->flags&IconWindowHint) &&
                     (wm_hints->icon_window != *it)) {
@@ -417,9 +411,9 @@ WindowManager::scanWindows(void)
             continue;
         }
         
-        XGetWindowAttributes(_screen->getDpy(), *it, &attr);
+        XGetWindowAttributes(PScreen::getDpy(), *it, &attr);
         if (! attr.override_redirect && attr.map_state != IsUnmapped) {
-            XWMHints *wm_hints = XGetWMHints(_screen->getDpy(), *it);
+            XWMHints *wm_hints = XGetWMHints(PScreen::getDpy(), *it);
             if (wm_hints) {
                 if ((wm_hints->flags&StateHint) &&
                         (wm_hints->initial_state == WithdrawnState)) {
@@ -473,13 +467,13 @@ WindowManager::screenEdgeCreate(void)
 
     bool indent = Config::instance()->getScreenEdgeIndent();
 
-    _screen_edge_list.push_back(new EdgeWO(_screen->getRoot(), SCREEN_EDGE_LEFT,
+    _screen_edge_list.push_back(new EdgeWO(PScreen::getRoot(), SCREEN_EDGE_LEFT,
                                            indent && (_config->getScreenEdgeSize(SCREEN_EDGE_LEFT) > 0)));
-    _screen_edge_list.push_back(new EdgeWO(_screen->getRoot(), SCREEN_EDGE_RIGHT,
+    _screen_edge_list.push_back(new EdgeWO(PScreen::getRoot(), SCREEN_EDGE_RIGHT,
                                            indent && (_config->getScreenEdgeSize(SCREEN_EDGE_RIGHT) > 0)));
-    _screen_edge_list.push_back(new EdgeWO(_screen->getRoot(), SCREEN_EDGE_TOP,
+    _screen_edge_list.push_back(new EdgeWO(PScreen::getRoot(), SCREEN_EDGE_TOP,
                                            indent && (_config->getScreenEdgeSize(SCREEN_EDGE_TOP) > 0)));
-    _screen_edge_list.push_back(new EdgeWO(_screen->getRoot(), SCREEN_EDGE_BOTTOM,
+    _screen_edge_list.push_back(new EdgeWO(PScreen::getRoot(), SCREEN_EDGE_BOTTOM,
                                            indent && (_config->getScreenEdgeSize(SCREEN_EDGE_BOTTOM) > 0)));
 
     // make sure the edge stays ontop
@@ -520,26 +514,26 @@ WindowManager::screenEdgeResize(void)
     list<EdgeWO*>::iterator it(_screen_edge_list.begin());
 
     // Left edge
-    (*it)->moveResize(0, 0, l_size, _screen->getHeight());
+    (*it)->moveResize(0, 0, l_size, PScreen::getHeight());
     ++it;
 
     // Right edge
-    (*it)->moveResize(_screen->getWidth() - r_size, 0, r_size, _screen->getHeight());
+    (*it)->moveResize(PScreen::getWidth() - r_size, 0, r_size, PScreen::getHeight());
     ++it;
 
     // Top edge
-    (*it)->moveResize(l_size, 0, _screen->getWidth() - l_size - r_size, t_size);
+    (*it)->moveResize(l_size, 0, PScreen::getWidth() - l_size - r_size, t_size);
     ++it;
 
     // Bottom edge
-    (*it)->moveResize(l_size, _screen->getHeight() - b_size, _screen->getWidth() - l_size - r_size, b_size);
+    (*it)->moveResize(l_size, PScreen::getHeight() - b_size, PScreen::getWidth() - l_size - r_size, b_size);
 
     for (it = _screen_edge_list.begin(); it != _screen_edge_list.end(); ++it) {
       (*it)->configureStrut(_config->getScreenEdgeIndent()
                             && (_config->getScreenEdgeSize((*it)->getEdge()) > 0));
     }
 
-    _screen->updateStrut();
+    PScreen::updateStrut();
 }
 
 void
@@ -616,7 +610,7 @@ WindowManager::doReloadConfig(void)
     screenEdgeResize();
     screenEdgeMapUnmap();
 
-    _screen->updateStrut();
+    PScreen::updateStrut();
 }
 
 /**
@@ -658,8 +652,8 @@ WindowManager::doReloadKeygrabber(bool force)
         return;
     }
 
-    _keygrabber->ungrabKeys(_screen->getRoot());
-    _keygrabber->grabKeys(_screen->getRoot());
+    _keygrabber->ungrabKeys(PScreen::getRoot());
+    _keygrabber->grabKeys(PScreen::getRoot());
 
     // Regrab keys and buttons
     list<Client*>::iterator c_it(Client::client_begin());
@@ -745,7 +739,7 @@ WindowManager::doEventLoop(void)
         }
 
         // Get next event, drop event handling if none was given
-        if (_screen->getNextEvent(ev)) {
+        if (PScreen::getNextEvent(ev)) {
             switch (ev.type) {
             case MapRequest:
                 handleMapRequestEvent(&ev.xmaprequest);
@@ -767,7 +761,7 @@ WindowManager::doEventLoop(void)
                 handleColormapEvent(&ev.xcolormap);
                 break;
             case PropertyNotify:
-                _screen->setLastEventTime(ev.xproperty.time);
+                PScreen::setLastEventTime(ev.xproperty.time);
                 handlePropertyEvent(&ev.xproperty);
                 break;
             case MappingNotify:
@@ -779,30 +773,30 @@ WindowManager::doEventLoop(void)
       
             case KeyPress:
             case KeyRelease:
-                _screen->setLastEventTime(ev.xkey.time);
+                PScreen::setLastEventTime(ev.xkey.time);
                 handleKeyEvent(&ev.xkey);
                 break;
 
             case ButtonPress:
-                _screen->setLastEventTime(ev.xbutton.time);
+                PScreen::setLastEventTime(ev.xbutton.time);
                 handleButtonPressEvent(&ev.xbutton);
                 break;
             case ButtonRelease:
-                _screen->setLastEventTime(ev.xbutton.time);
+                PScreen::setLastEventTime(ev.xbutton.time);
                 handleButtonReleaseEvent(&ev.xbutton);
                 break;
 
             case MotionNotify:
-                _screen->setLastEventTime(ev.xmotion.time);
+                PScreen::setLastEventTime(ev.xmotion.time);
                 handleMotionEvent(&ev.xmotion);
                 break;
 
             case EnterNotify:
-                _screen->setLastEventTime(ev.xcrossing.time);
+                PScreen::setLastEventTime(ev.xcrossing.time);
                 handleEnterNotify(&ev.xcrossing);
                 break;
             case LeaveNotify:
-                _screen->setLastEventTime(ev.xcrossing.time);
+                PScreen::setLastEventTime(ev.xcrossing.time);
                 handleLeaveNotify(&ev.xcrossing);
                 break;
             case FocusIn:
@@ -820,12 +814,12 @@ WindowManager::doEventLoop(void)
 
             default:
 #ifdef HAVE_SHAPE
-                if (_screen->hasExtensionShape() && (ev.type == _screen->getEventShape())) {
+                if (PScreen::hasExtensionShape() && (ev.type == PScreen::getEventShape())) {
                     handleShapeEvent(&ev.xany);
                 }
 #endif // HAVE_SHAPE
 #ifdef HAVE_XRANDR
-                if (_screen->hasExtensionXRandr() && (ev.type == _screen->getEventXRandr())) {
+                if (PScreen::hasExtensionXRandr() && (ev.type == PScreen::getEventXRandr())) {
                     handleXRandrEvent(reinterpret_cast<XRRNotifyEvent*>(&ev));
                 }
 #endif // HAVE_XRANDR
@@ -898,7 +892,7 @@ WindowManager::handleKeyEvent(XKeyEvent *ev)
     XEvent e;
     while (PScreen::checkTypedEvent(EnterNotify, &e)) {
         if (! e.xcrossing.send_event) {
-            _screen->setLastEventTime(e.xcrossing.time);
+            PScreen::setLastEventTime(e.xcrossing.time);
         }
     }
 }
@@ -910,7 +904,7 @@ WindowManager::handleButtonPressEvent(XButtonEvent *ev)
     // Clear event queue
     while (PScreen::checkTypedEvent(ButtonPress, (XEvent *) ev)) {
         if (! ev->send_event) {
-            _screen->setLastEventTime(ev->time);
+            PScreen::setLastEventTime(ev->time);
         }
     }
 
@@ -955,7 +949,7 @@ WindowManager::handleButtonReleaseEvent(XButtonEvent *ev)
     // Flush ButtonReleases
     while (PScreen::checkTypedEvent(ButtonRelease, (XEvent *) ev)) {
         if (! ev->send_event) {
-            _screen->setLastEventTime(ev->time);
+            PScreen::setLastEventTime(ev->time);
         }
     }
 
@@ -1022,7 +1016,7 @@ WindowManager::handleConfigureRequestEvent(XConfigureRequestEvent *ev)
             wc.sibling = ev->above;
             wc.stack_mode = ev->detail;
 
-            XConfigureWindow(_screen->getDpy(), ev->window, ev->value_mask, &wc);
+            XConfigureWindow(PScreen::getDpy(), ev->window, ev->value_mask, &wc);
         }
     }
 }
@@ -1084,10 +1078,10 @@ WindowManager::handleMapRequestEvent(XMapRequestEvent *ev)
         wo->handleMapRequest(ev);
     } else {
         XWindowAttributes attr;
-        XGetWindowAttributes(_screen->getDpy(), ev->window, &attr);
+        XGetWindowAttributes(PScreen::getDpy(), ev->window, &attr);
         if (! attr.override_redirect) {
             // We need to figure out whether or not this is a dockapp.
-            XWMHints *wm_hints = XGetWMHints(_screen->getDpy(), ev->window);
+            XWMHints *wm_hints = XGetWMHints(PScreen::getDpy(), ev->window);
             if (wm_hints) {
                 if ((wm_hints->flags&StateHint) &&
                         (wm_hints->initial_state == WithdrawnState)) {
@@ -1173,7 +1167,7 @@ WindowManager::handleEnterNotify(XCrossingEvent *ev)
     // Clear event queue
     while (PScreen::checkTypedEvent(EnterNotify, (XEvent *) ev)) {
         if (! ev->send_event) {
-            _screen->setLastEventTime(ev->time);
+            PScreen::setLastEventTime(ev->time);
         }
     }
 
@@ -1207,7 +1201,7 @@ WindowManager::handleLeaveNotify(XCrossingEvent *ev)
     // Clear event queue
     while (PScreen::checkTypedEvent(LeaveNotify, (XEvent *) ev)) {
         if (! ev->send_event) {
-            _screen->setLastEventTime(ev->time);
+            PScreen::setLastEventTime(ev->time);
         }
     }
 
@@ -1256,12 +1250,12 @@ WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
             XEvent e_flush;
             while (PScreen::checkTypedEvent(EnterNotify, &e_flush)) {
                 if (! e_flush.xcrossing.send_event) {
-                    _screen->setLastEventTime(e_flush.xcrossing.time);
+                    PScreen::setLastEventTime(e_flush.xcrossing.time);
                 }
             }
             while (PScreen::checkTypedEvent(LeaveNotify, &e_flush)) {
                 if (! e_flush.xcrossing.send_event) {
-                    _screen->setLastEventTime(e_flush.xcrossing.time);
+                    PScreen::setLastEventTime(e_flush.xcrossing.time);
                 }
             }
 
@@ -1311,7 +1305,7 @@ WindowManager::handleFocusOutEvent(XFocusChangeEvent *ev)
 void
 WindowManager::handleClientMessageEvent(XClientMessageEvent *ev)
 {
-    if (ev->window == _screen->getRoot()) {
+    if (ev->window == PScreen::getRoot()) {
         // root window messages
 
         if (ev->format == 32) {
@@ -1352,7 +1346,7 @@ WindowManager::handleColormapEvent(XColormapEvent *ev)
 void
 WindowManager::handlePropertyEvent(XPropertyEvent *ev)
 {
-    if (ev->window == _screen->getRoot()) {
+    if (ev->window == PScreen::getRoot()) {
         if (ev->atom == Atoms::getAtom(NET_DESKTOP_NAMES)) {
             _root_wo->readEwmhDesktopNames();
             _workspaces->setNames();
@@ -1374,7 +1368,7 @@ WindowManager::handleMappingEvent(XMappingEvent *ev)
 {
     if (ev->request == MappingKeyboard || ev->request == MappingModifier) {
         XRefreshKeyboardMapping(ev);
-        _screen->setLockKeys();
+        PScreen::setLockKeys();
         InputDialog::reloadKeysymMap();
         doReloadKeygrabber(true);
     }
@@ -1440,7 +1434,7 @@ WindowManager::handleXRandrScreenChangeEvent(XRRScreenChangeNotifyEvent *ev)
     cerr << __FILE__ << "@" << __LINE__ << ": WindowManager::handleXRandrScreenChangeEvent()" << endl;
 #endif // DEBUG
 
-    _screen->updateGeometry(ev->width, ev->height);
+    PScreen::updateGeometry(ev->width, ev->height);
     _harbour->updateGeometry();
     screenEdgeResize();
 

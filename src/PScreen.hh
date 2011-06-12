@@ -112,8 +112,8 @@ public:
         int _b_prec; //!< Blue prec, alternative blue_mask representation.
     };
 
-    PScreen(Display *dpy, bool honour_randr = true);
-    ~PScreen(void);
+    static void init(Display *dpy, bool honour_randr = true);
+    static void destruct(void);
 
     inline static Display* getDpy(void) { return _dpy; }
     inline static int getScreenNum(void) { return _screen; }
@@ -261,7 +261,6 @@ private:
     static void initHeadsRandr(void);
     static void initHeadsXinerama(void);
 
-private:
     static Display *_dpy;
     static bool _honour_randr; /**< Boolean flag if randr should be honoured. */
     static int _fd;
@@ -299,7 +298,8 @@ private:
     static Strut _strut;
     static std::list<Strut*> _strut_list;
 
-    static PScreen *_instance;
+    PScreen() {}
+    ~PScreen() {}
 };
 
 #endif // _SCREENINFO_HH_

@@ -42,7 +42,6 @@ class TextureHandler;
 class Theme;
 class Workspaces;
 
-class PScreen;
 class ScreenResources;
 class PWinObj;
 class PDecor;
@@ -78,7 +77,6 @@ public:
     bool *getShutdownFlag(void) { return &_shutdown; }
 
     // get "base" classes
-    inline PScreen *getScreen(void) const { return _screen; }
     inline Config *getConfig(void) const { return _config; }
     inline Theme *getTheme(void) const { return _theme; }
     inline ActionHandler *getActionHandler(void)
@@ -190,7 +188,7 @@ private:
     void handleFocusInEvent(XFocusChangeEvent *ev);
     void handleFocusOutEvent(XFocusChangeEvent *ev);
 
-  void handleShapeEvent(XAnyEvent *ev);
+    void handleShapeEvent(XAnyEvent *ev);
 
 #ifdef HAVE_XRANDR
     void handleXRandrEvent(XRRNotifyEvent *ev);
@@ -207,7 +205,6 @@ private:
     Frame *findGroupMatch(AutoProperty *property);
 
 private:
-    PScreen *_screen;
     ScreenResources *_screen_resources;
     KeyGrabber *_keygrabber;
     Config *_config;
@@ -223,9 +220,9 @@ private:
     SearchDialog *_search_dialog;
     StatusWindow *_status_window;
 
-  WorkspaceIndicator *_workspace_indicator; //!< Window popping up when switching workspace
+    WorkspaceIndicator *_workspace_indicator; //!< Window popping up when switching workspace
 
-  Timer<ActionPerformed> _timer_action;
+    Timer<ActionPerformed> _timer_action;
 
     std::string _command_line, _restart_command;
     bool _startup; //!< Indicates startup status.

@@ -58,9 +58,6 @@ const uint PScreen::MODIFIER_TO_MASK[] = {
 };
 const uint PScreen::MODIFIER_TO_MASK_NUM = sizeof(PScreen::MODIFIER_TO_MASK) / sizeof(PScreen::MODIFIER_TO_MASK[0]);
 
-PScreen* PScreen::_instance = 0;
-
-
 extern "C" {
     /**
       * XError handler, prints error.
@@ -118,12 +115,12 @@ PScreen::PVisual::getShiftPrecFromMask(ulong mask, int &shift, int &prec)
 }
 
 //! @brief PScreen constructor
-PScreen::PScreen(Display *dpy, bool honour_randr)
+void
+PScreen::init(Display *dpy, bool honour_randr)
 {
-    if (_instance) {
+    if (_dpy) {
         throw string("PScreen, trying to create multiple instances");
     }
-    _instance = this;
 
     _honour_randr = honour_randr;
 
@@ -176,14 +173,15 @@ PScreen::PScreen(Display *dpy, bool honour_randr)
 }
 
 //! @brief PScreen destructor
-PScreen::~PScreen(void) {
+void
+PScreen::destruct(void) {
     delete _visual;
 
     if (_modifier_map) {
         XFreeModifiermap(_modifier_map);
     }
-
-    _instance = 0;
+    XCloseDisplay(_dpy);
+    _dpy = 0;
 }
 
 /**
