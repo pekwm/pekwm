@@ -11,7 +11,7 @@
 #include "PWinObj.hh"
 #include "PDecor.hh"
 #include "StatusWindow.hh"
-#include "PScreen.hh"
+#include "x11.hh"
 #include "PTexture.hh"
 #include "PixmapHandler.hh"
 #include "ScreenResources.hh"
@@ -50,7 +50,7 @@ StatusWindow::StatusWindow(Theme *theme)
     attr.event_mask = None;
 
     _status_wo = new PWinObj;
-    _status_wo->setWindow(XCreateWindow(PScreen::getDpy(), _window,
+    _status_wo->setWindow(XCreateWindow(X11::getDpy(), _window,
                                         0, 0, 1, 1, 0,
                                         CopyFromParent, CopyFromParent, CopyFromParent,
                                         CWEventMask, &attr));
@@ -74,7 +74,7 @@ StatusWindow::~StatusWindow(void)
     _child_list.remove(_status_wo);
 
     // free resources
-    XDestroyWindow(PScreen::getDpy(), _status_wo->getWindow());
+    XDestroyWindow(X11::getDpy(), _status_wo->getWindow());
     delete _status_wo;
 
     unloadTheme();
@@ -135,7 +135,7 @@ StatusWindow::render(void)
     PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
     pm->returnPixmap(_bg);
     _bg = pm->getPixmap(_status_wo->getWidth(), _status_wo->getHeight(),
-                        PScreen::getDepth());
+                        X11::getDepth());
 
     _theme->getStatusData()->getTexture()->render(_bg, 0, 0, _status_wo->getWidth(), _status_wo->getHeight());
 
@@ -149,7 +149,7 @@ StatusWindow::center(Geometry *gm)
 {
     Geometry head;
     if (! gm) {
-        PScreen::getHeadInfo(PScreen::getCurrHead(), head);
+        X11::getHeadInfo(X11::getCurrHead(), head);
         gm = &head;
     }
 

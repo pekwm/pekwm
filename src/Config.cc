@@ -14,7 +14,7 @@
 
 #include "Compat.hh"
 #include "Util.hh"
-#include "PScreen.hh" // for DPY in keyconfig code
+#include "x11.hh" // for DPY in keyconfig code
 
 #include <iostream>
 #include <fstream>
@@ -918,7 +918,7 @@ Config::parseKey(const std::string &key_string, uint &mod, uint &key)
                     }
                 }
             }
-            key = XKeysymToKeycode(PScreen::getDpy(), keysym);
+            key = XKeysymToKeycode(X11::getDpy(), keysym);
         }
 
         // if the last token isn't an key/button, the action isn't valid

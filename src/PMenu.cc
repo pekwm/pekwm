@@ -16,7 +16,6 @@
 #include "PMenu.hh"
 #include "PTexture.hh"
 #include "PTexturePlain.hh"
-#include "PScreen.hh"
 #include "ActionHandler.hh"
 #include "Config.hh"
 #include "ScreenResources.hh"
@@ -25,6 +24,7 @@
 #include "PixmapHandler.hh"
 #include "Workspaces.hh"
 #include "AutoProperties.hh"
+#include "x11.hh"
 
 #include <algorithm>
 #include <cstdlib>
@@ -88,7 +88,7 @@ PMenu::PMenu(Theme *theme, const std::wstring &title,
     attr.override_redirect = True;
     attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
                       FocusChangeMask|KeyPressMask|KeyReleaseMask|PointerMotionMask;
-    _menu_wo->setWindow(XCreateWindow(PScreen::getDpy(), _window,
+    _menu_wo->setWindow(XCreateWindow(X11::getDpy(), _window,
                                       0, 0, 1, 1, 0,
                                       CopyFromParent, InputOutput, CopyFromParent,
                                       CWOverrideRedirect|CWEventMask, &attr));
@@ -124,7 +124,7 @@ PMenu::~PMenu(void)
     if (_menu_wo) {
         _child_list.remove(_menu_wo);
         removeChildWindow(_menu_wo->getWindow());
-        XDestroyWindow(PScreen::getDpy(), _menu_wo->getWindow());
+        XDestroyWindow(X11::getDpy(), _menu_wo->getWindow());
         delete _menu_wo;
     }
 
@@ -212,16 +212,16 @@ PMenu::handleButtonRelease(XButtonEvent *ev)
         MouseEventType mb = MOUSE_EVENT_RELEASE;
 
         // first we check if it's a double click
-        if (PScreen::isDoubleClick(ev->window, ev->button - 1, ev->time,
+        if (X11::isDoubleClick(ev->window, ev->button - 1, ev->time,
                                                Config::instance()->getDoubleClickTime())) {
-            PScreen::setLastClickID(ev->window);
-            PScreen::setLastClickTime(ev->button - 1, 0);
+            X11::setLastClickID(ev->window);
+            X11::setLastClickTime(ev->button - 1, 0);
 
             mb = MOUSE_EVENT_DOUBLE;
 
         } else {
-            PScreen::setLastClickID(ev->window);
-            PScreen::setLastClickTime(ev->button - 1, ev->time);
+            X11::setLastClickID(ev->window);
+            X11::setLastClickTime(ev->button - 1, ev->time);
         }
 
         handleItemEvent(mb, ev->x, ev->y);
@@ -248,11 +248,11 @@ PMenu::handleMotionEvent(XMotionEvent *ev)
     }
 
     if (*_menu_wo == ev->window) {
-        uint button = PScreen::getButtonFromState(ev->state);
+        uint button = X11::getButtonFromState(ev->state);
         handleItemEvent(button ? MOUSE_EVENT_MOTION_PRESSED : MOUSE_EVENT_MOTION, ev->x, ev->y);
 
         ActionEvent *ae;
-        PScreen::stripButtonModifiers(&ev->state);
+        X11::stripButtonModifiers(&ev->state);
         ae = ActionHandler::findMouseAction(button, ev->state, MOUSE_EVENT_MOTION,
                                             Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_MENU));
 
@@ -436,7 +436,7 @@ PMenu::buildMenuCalculate(void)
     buildMenuCalculateColumns(width, height);
 
     // Check if we need to enable scrolling
-    _scroll = (width > PScreen::getWidth());
+    _scroll = (width > X11::getWidth());
 
     resizeChild(width, height);
 }
@@ -502,15 +502,15 @@ PMenu::buildMenuCalculateColumns(unsigned int &width, unsigned int &height)
 {
     // Check if the menu fits or is static width
     if (_menu_width
-        || (height + getTitleHeight()) <= PScreen::getHeight()) {
+        || (height + getTitleHeight()) <= X11::getHeight()) {
         _cols = 1;
         width = _menu_width ? _menu_width : _item_width_max;
         _rows = _size;
         return;
     }
 
-    _cols = height / (PScreen::getHeight() - getTitleHeight());
-    if ((height % (PScreen::getHeight() - getTitleHeight())) != 0) {
+    _cols = height / (X11::getHeight() - getTitleHeight());
+    if ((height % (X11::getHeight() - getTitleHeight())) != 0) {
         ++_cols;
     }
     _rows = _size / _cols;
@@ -598,7 +598,7 @@ PMenu::buildMenuRenderState(Pixmap &pix, ObjectState state)
     // get a fresh pixmap for the menu
     pm->returnPixmap(pix);
     pix = pm->getPixmap(getChildWidth(), getChildHeight(),
-                        PScreen::getDepth());
+                        X11::getDepth());
 
     PTexture *tex;
     PFont *font;
@@ -680,7 +680,7 @@ PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
 }
 
 #define COPY_ITEM_AREA(ITEM, PIX) \
-    XCopyArea(PScreen::getDpy(), PIX, _menu_wo->getWindow(), PScreen::getGC(), \
+    XCopyArea(X11::getDpy(), PIX, _menu_wo->getWindow(), X11::getGC(), \
               (ITEM)->getX(), (ITEM)->getY(), _item_width_max, _item_height, \
               (ITEM)->getX(), (ITEM)->getY());
 
@@ -884,7 +884,7 @@ PMenu::mapUnderMouse(void)
 {
     int x, y;
 
-    PScreen::getMousePosition(x, y);
+    X11::getMousePosition(x, y);
 
     // this might seem a bit silly but the menu won't get updated before
     // it has been mapped (if dynamic) so we're doing it twice to reduce the
@@ -1074,7 +1074,7 @@ void
 PMenu::makeInsideScreen(int x, int y)
 {
     Geometry head;
-    PScreen::getHeadInfo(PScreen::getCurrHead(), head);
+    X11::getHeadInfo(X11::getCurrHead(), head);
 
     x = (x == -1) ? _gm.x : x;
     y = (y == -1) ? _gm.y : y;

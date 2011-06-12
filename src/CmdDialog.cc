@@ -24,7 +24,6 @@ extern "C" {
 #include "PDecor.hh"
 #include "CmdDialog.hh"
 #include "Config.hh"
-#include "PScreen.hh"
 #include "PixmapHandler.hh"
 #include "KeyGrabber.hh"
 #include "ScreenResources.hh"

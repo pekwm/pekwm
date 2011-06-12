@@ -15,7 +15,6 @@
 
 #include "pekwm.hh"
 
-#include "PScreen.hh"
 #include "PWinObj.hh"
 
 #include <string>

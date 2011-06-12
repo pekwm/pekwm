@@ -9,7 +9,7 @@
 #include "../config.h"
 
 #include "PixmapHandler.hh"
-#include "PScreen.hh"
+#include "x11.hh"
 
 #ifdef DEBUG
 #include <iostream>
@@ -35,7 +35,7 @@ PixmapHandler::Entry::Entry(uint width, uint height, uint depth, Pixmap pixmap)
 //! @brief Destructor for Entry class
 PixmapHandler::Entry::~Entry(void)
 {
-    XFreePixmap(PScreen::getDpy(), _pixmap);
+    XFreePixmap(X11::getDpy(), _pixmap);
 }
 
 // PixmapHandler
@@ -99,8 +99,8 @@ PixmapHandler::getPixmap(uint width, uint height, uint depth)
 
     // No entry, create one
     if (pixmap == None) {
-        pixmap = XCreatePixmap(PScreen::getDpy(),
-                               PScreen::getRoot(),
+        pixmap = XCreatePixmap(X11::getDpy(),
+                               X11::getRoot(),
                                width, height, depth);
 
         _used_pix[pixmap] = new Entry(width, height, depth, pixmap);

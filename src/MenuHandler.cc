@@ -16,7 +16,6 @@
 
 #include "PWinObj.hh"
 #include "PMenu.hh"
-#include "PScreen.hh"
 #include "MenuHandler.hh"
 #include "ActionHandler.hh"
 

@@ -12,7 +12,7 @@
 #include "DockApp.hh"
 
 #include "Config.hh"
-#include "PScreen.hh"
+#include "x11.hh"
 #include "PTexture.hh"
 #include "PDecor.hh"
 #include "ScreenResources.hh"
@@ -52,12 +52,12 @@ DockApp::DockApp(Theme *t, Window win) :
     // First, we need to figure out which window that actually belongs to the
     // dockapp. This we do by checking if it has the IconWindowHint set in it's
     // WM Hint.
-    XWMHints *wm_hints = XGetWMHints(PScreen::getDpy(), _dockapp_window);
+    XWMHints *wm_hints = XGetWMHints(X11::getDpy(), _dockapp_window);
     if (wm_hints) {
         if ((wm_hints->flags&IconWindowHint) &&
                 (wm_hints->icon_window != None)) {
             // let us hide the _client_window window, as we won't use it.
-            PScreen::unmapWindow(_client_window);
+            X11::unmapWindow(_client_window);
 
             _icon_window = wm_hints->icon_window;
             _dockapp_window = wm_hints->icon_window;
@@ -67,7 +67,7 @@ DockApp::DockApp(Theme *t, Window win) :
 
     // Now, when we now what window id we should use, set the size up.
     XWindowAttributes attr;
-    if (XGetWindowAttributes(PScreen::getDpy(), _dockapp_window, &attr)) {
+    if (XGetWindowAttributes(X11::getDpy(), _dockapp_window, &attr)) {
         _c_gm.width = attr.width;
         _c_gm.height = attr.height;
 
@@ -97,20 +97,20 @@ DockApp::DockApp(Theme *t, Window win) :
     sattr.event_mask = SubstructureRedirectMask|ButtonPressMask|ButtonMotionMask;
 
     _window =
-        XCreateWindow(PScreen::getDpy(), PScreen::getRoot(),
+        XCreateWindow(X11::getDpy(), X11::getRoot(),
                       _gm.x, _gm.y, _gm.width, _gm.height, 0,
                       CopyFromParent, InputOutput, CopyFromParent,
                       CWOverrideRedirect|CWEventMask, &sattr);
 
     // initial makeup
     repaint();
-    XSetWindowBorderWidth(PScreen::getDpy(), _dockapp_window, 0);
+    XSetWindowBorderWidth(X11::getDpy(), _dockapp_window, 0);
 
     // move the dockapp to it's new parent, making sure we don't
     // get any UnmapEvents
-    PScreen::selectInput(_dockapp_window, NoEventMask);
-    XReparentWindow(PScreen::getDpy(), _dockapp_window, _window, _c_gm.x, _c_gm.y);
-    PScreen::selectInput(_dockapp_window, SubstructureNotifyMask);
+    X11::selectInput(_dockapp_window, NoEventMask);
+    XReparentWindow(X11::getDpy(), _dockapp_window, _window, _c_gm.x, _c_gm.y);
+    X11::selectInput(_dockapp_window, SubstructureNotifyMask);
 
     readClassHint();
     readAutoProperties();
@@ -122,24 +122,24 @@ DockApp::~DockApp(void)
     // if the client still is alive, we should reparent it to the root
     // window, else we don't have to care about that.
     if (_is_alive) {
-        PScreen::grabServer();
+        X11::grabServer();
 
         if (_icon_window != None) {
-            PScreen::unmapWindow(_icon_window);
+            X11::unmapWindow(_icon_window);
         }
 
         // move the dockapp back to the root window, making sure we don't
         // get any UnmapEvents
-        PScreen::selectInput(_dockapp_window, NoEventMask);
-        XReparentWindow(PScreen::getDpy(), _dockapp_window, PScreen::getRoot(), _gm.x, _gm.y);
-        PScreen::mapWindow(_client_window);
+        X11::selectInput(_dockapp_window, NoEventMask);
+        XReparentWindow(X11::getDpy(), _dockapp_window, X11::getRoot(), _gm.x, _gm.y);
+        X11::mapWindow(_client_window);
 
-        PScreen::ungrabServer(false);
+        X11::ungrabServer(false);
     }
 
     // clean up
     ScreenResources::instance()->getPixmapHandler()->returnPixmap(_background);
-    XDestroyWindow(PScreen::getDpy(), _window);
+    XDestroyWindow(X11::getDpy(), _window);
 }
 
 // START - PWinObj interface.
@@ -153,10 +153,10 @@ DockApp::mapWindow(void)
     }
     _mapped = true;
 
-    PScreen::selectInput(_dockapp_window, NoEventMask);
-    PScreen::mapWindow(_window);
-    PScreen::mapWindow(_dockapp_window);
-    PScreen::selectInput(_dockapp_window,
+    X11::selectInput(_dockapp_window, NoEventMask);
+    X11::mapWindow(_window);
+    X11::mapWindow(_dockapp_window);
+    X11::selectInput(_dockapp_window,
                  StructureNotifyMask|SubstructureNotifyMask);
 }
 
@@ -169,10 +169,10 @@ DockApp::unmapWindow(void)
     }
     _mapped = false;
 
-    PScreen::selectInput(_dockapp_window, NoEventMask);
-    PScreen::unmapWindow(_dockapp_window);
-    PScreen::unmapWindow(_window);
-    PScreen::selectInput(_dockapp_window,
+    X11::selectInput(_dockapp_window, NoEventMask);
+    X11::unmapWindow(_dockapp_window);
+    X11::unmapWindow(_window);
+    X11::selectInput(_dockapp_window,
                  StructureNotifyMask|SubstructureNotifyMask);
 }
 
@@ -182,7 +182,7 @@ DockApp::unmapWindow(void)
 void
 DockApp::kill(void)
 {
-    XKillClient(PScreen::getDpy(), _dockapp_window);
+    XKillClient(X11::getDpy(), _dockapp_window);
 }
 
 //! @brief Resizes the DockApp, size excludes the border.
@@ -199,9 +199,9 @@ DockApp::resize(uint width, uint height)
 
     updateSize();
 
-    XMoveResizeWindow(PScreen::getDpy(), _window,
+    XMoveResizeWindow(X11::getDpy(), _window,
                       _gm.x, _gm.y, _gm.width, _gm.height);
-    XMoveResizeWindow(PScreen::getDpy(), _dockapp_window,
+    XMoveResizeWindow(X11::getDpy(), _dockapp_window,
                       _c_gm.x, _c_gm.y, _c_gm.width, _c_gm.height);
 
     repaint();
@@ -223,12 +223,12 @@ DockApp::repaint(void)
     PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
 
     pm->returnPixmap(_background);
-    _background = pm->getPixmap(_gm.width, _gm.height, PScreen::getDepth());
+    _background = pm->getPixmap(_gm.width, _gm.height, X11::getDepth());
 
     _theme->getHarbourData()->getTexture()->render(_background, 0, 0, _gm.width, _gm.height);
 
-    XSetWindowBackgroundPixmap(PScreen::getDpy(), _window, _background);
-    XClearWindow(PScreen::getDpy(), _window);
+    XSetWindowBackgroundPixmap(X11::getDpy(), _window, _background);
+    XClearWindow(X11::getDpy(), _window);
 }
 
 //! @brief Validates geometry and centers the window
@@ -277,7 +277,7 @@ void
 DockApp::readClassHint(void)
 {
     XClassHint x_class_hint;
-    if (XGetClassHint(PScreen::getDpy(), _client_window, &x_class_hint)) {
+    if (XGetClassHint(X11::getDpy(), _client_window, &x_class_hint)) {
         _class_hint.h_name = Util::to_wide_str(x_class_hint.res_name);
         _class_hint.h_class = Util::to_wide_str(x_class_hint.res_class);
         XFree(x_class_hint.res_name);

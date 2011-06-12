@@ -13,7 +13,7 @@
 #include "KeyGrabber.hh"
 
 #include "Config.hh"
-#include "PScreen.hh"
+#include "x11.hh"
 #include "CfgParser.hh"
 #include "Util.hh"
 
@@ -104,8 +104,8 @@ KeyGrabber::KeyGrabber(void)
 #endif // DEBUG
     _instance = this;
 
-    _num_lock = PScreen::getNumLock();
-    _scroll_lock = PScreen::getScrollLock();
+    _num_lock = X11::getNumLock();
+    _scroll_lock = X11::getScrollLock();
 }
 
 //! @brief Destructor for KeyGrabber class
@@ -287,7 +287,7 @@ KeyGrabber::grabKeys(Window win)
 void
 KeyGrabber::grabKey(Window win, uint mod, uint key)
 {
-    Display *dpy = PScreen::getDpy(); // convenience
+    Display *dpy = X11::getDpy(); // convenience
 
     XGrabKey(dpy, key, mod, win, true, GrabModeAsync, GrabModeAsync);
     XGrabKey(dpy, key, mod|LockMask, win, true, GrabModeAsync, GrabModeAsync);
@@ -317,7 +317,7 @@ KeyGrabber::grabKey(Window win, uint mod, uint key)
 void
 KeyGrabber::ungrabKeys(Window win)
 {
-    XUngrabKey(PScreen::getDpy(), AnyKey, AnyModifier, win);
+    XUngrabKey(X11::getDpy(), AnyKey, AnyModifier, win);
 }
 
 //! @brief Tries to match the XKeyEvent to an usefull action and return it
@@ -329,20 +329,20 @@ KeyGrabber::findAction(XKeyEvent *ev, KeyGrabber::Chain *chain)
         return 0;
     }
 
-    PScreen::stripStateModifiers(&ev->state);
+    X11::stripStateModifiers(&ev->state);
 
     ActionEvent *action = 0;
     KeyGrabber::Chain *sub_chain = _global_chain.findChain(ev);
-    if (sub_chain && PScreen::grabKeyboard(PScreen::getRoot())) {
+    if (sub_chain && X11::grabKeyboard(X11::getRoot())) {
         XEvent c_ev;
         KeyGrabber::Chain *last_chain;
         bool exit = false;
 
         while (! exit) {
-            XMaskEvent(PScreen::getDpy(), KeyPressMask, &c_ev);
-            PScreen::stripStateModifiers(&c_ev.xkey.state);
+            XMaskEvent(X11::getDpy(), KeyPressMask, &c_ev);
+            X11::stripStateModifiers(&c_ev.xkey.state);
 
-            if (IsModifierKey(XKeycodeToKeysym(PScreen::getDpy(),
+            if (IsModifierKey(XKeycodeToKeysym(X11::getDpy(),
                                                c_ev.xkey.keycode, 0))) {
                 // do nothing
             } else  if ((last_chain = sub_chain->findChain(&c_ev.xkey))) {
@@ -353,7 +353,7 @@ KeyGrabber::findAction(XKeyEvent *ev, KeyGrabber::Chain *chain)
             }
         }
 
-        PScreen::ungrabKeyboard();
+        X11::ungrabKeyboard();
     } else {
         action = chain->findAction(ev);
     }

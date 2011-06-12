@@ -13,7 +13,6 @@
 #include <cctype>
 #include <iostream>
 
-#include "PScreen.hh"
 #include "ColorHandler.hh"
 #include "FontHandler.hh"
 #include "Util.hh"

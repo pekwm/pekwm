@@ -19,7 +19,6 @@
 #include "PImageLoaderJpeg.hh"
 #include "PImageLoaderPng.hh"
 #include "PImageLoaderXpm.hh"
-#include "PScreen.hh"
 #include "Util.hh"
 
 using std::cerr;

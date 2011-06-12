@@ -16,7 +16,7 @@
 
 #include "InputDialog.hh"
 #include "KeyGrabber.hh"
-#include "PScreen.hh"
+#include "x11.hh"
 #include "PixmapHandler.hh"
 #include "ScreenResources.hh"
 #include "Workspaces.hh"
@@ -61,7 +61,7 @@ InputDialog::InputDialog(Theme *theme, const std::wstring &title)
     attr.override_redirect = false;
     attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
     FocusChangeMask|KeyPressMask|KeyReleaseMask;
-    _text_wo->setWindow(XCreateWindow(PScreen::getDpy(), _window,
+    _text_wo->setWindow(XCreateWindow(X11::getDpy(), _window,
                                    0, 0, 1, 1, 0,
                                    CopyFromParent, InputOutput, CopyFromParent,
                                    CWOverrideRedirect|CWEventMask, &attr));
@@ -92,7 +92,7 @@ InputDialog::~InputDialog(void)
     if (_text_wo) {
         _child_list.remove(_text_wo);
         removeChildWindow(_text_wo->getWindow());
-        XDestroyWindow(PScreen::getDpy(), _text_wo->getWindow());
+        XDestroyWindow(X11::getDpy(), _text_wo->getWindow());
         delete _text_wo;
     }
 
@@ -119,7 +119,7 @@ InputDialog::reloadKeysymMap(void)
 void
 InputDialog::addKeysymToKeysymMap(KeySym keysym, wchar_t chr)
 {
-    Display *dpy = PScreen::getDpy();
+    Display *dpy = X11::getDpy();
 
     int keysyms_per_keycode;
     KeyCode keycode = XKeysymToKeycode(dpy, keysym);
@@ -286,9 +286,9 @@ InputDialog::moveCentered(PWinObj *wo)
 
     // Make sure position is inside head.
     Geometry head;
-    uint head_nr = PScreen::getNearestHead(wo->getX() + (wo->getWidth() / 2),
+    uint head_nr = X11::getNearestHead(wo->getX() + (wo->getWidth() / 2),
                                                      wo->getY() + (wo->getHeight() / 2));
-    PScreen::getHeadInfo(head_nr, head);
+    X11::getHeadInfo(head_nr, head);
 
     // Make sure X is inside head.
     int new_x = wo->getX() + (static_cast<int>(wo->getWidth()) - static_cast<int>(_gm.width)) / 2;
@@ -599,7 +599,7 @@ InputDialog::updatePixmapSize(void)
     // Get new pixmap and render texture
     PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
     pm->returnPixmap(_pixmap_bg);
-    _pixmap_bg = pm->getPixmap(_text_wo->getWidth(), _text_wo->getHeight(), PScreen::getDepth());
+    _pixmap_bg = pm->getPixmap(_text_wo->getWidth(), _text_wo->getHeight(), X11::getDepth());
 
     _data->getTexture()->render(_pixmap_bg, 0, 0, _text_wo->getWidth(), _text_wo->getHeight());
     _text_wo->setBackgroundPixmap(_pixmap_bg);
@@ -616,7 +616,7 @@ void
 InputDialog::getInputSize(unsigned int &width, unsigned int &height)
 {
     Geometry head;
-    PScreen::getHeadInfo(PScreen::getNearestHead(_gm.x, _gm.y), head);
+    X11::getHeadInfo(X11::getNearestHead(_gm.x, _gm.y), head);
 
     width = head.width / 3;
     height = _data->getFont()->getHeight() + _data->getPad(PAD_UP) + _data->getPad(PAD_DOWN);

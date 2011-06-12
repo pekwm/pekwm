@@ -50,7 +50,6 @@ pekwm_SOURCES = \
 	PixmapHandler.cc PixmapHandler.hh \
 	RegexString.cc RegexString.hh \
 	ParseUtil.hh \
-	PScreen.cc PScreen.hh \
 	ScreenResources.cc ScreenResources.hh \
 	StatusWindow.cc StatusWindow.hh \
 	SearchDialog.cc SearchDialog.hh \
@@ -62,6 +61,7 @@ pekwm_SOURCES = \
 	WindowManager.cc WindowManager.hh \
 	Workspaces.cc Workspaces.hh \
 	WorkspaceIndicator.cc WorkspaceIndicator.hh \
+	x11.cc x11.hh \
 	main.cc \
 	pekwm.hh
 

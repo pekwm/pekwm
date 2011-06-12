@@ -1,6 +1,6 @@
 //
-// PScreen.cc for pekwm
-// Copyright © 2003-2009 Claes Nästén <me@pekdon.net>
+// X11.cc for pekwm
+// Copyright © 2003-2011 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -39,7 +39,7 @@ bool xerrors_ignore = false;
 unsigned int xerrors_count = 0;
 }
 
-#include "PScreen.hh"
+#include "x11.hh"
 // FIXME: Remove when strut handling is moved away from here.
 #include "PWinObj.hh"
 #include "ManagerWindows.hh"
@@ -52,11 +52,11 @@ using std::map;
 using std::string;
 using std::memset; // required for FD_ZERO
 
-const uint PScreen::MODIFIER_TO_MASK[] = {
+const uint X11::MODIFIER_TO_MASK[] = {
     ShiftMask, LockMask, ControlMask,
     Mod1Mask, Mod2Mask, Mod3Mask, Mod4Mask, Mod5Mask
 };
-const uint PScreen::MODIFIER_TO_MASK_NUM = sizeof(PScreen::MODIFIER_TO_MASK) / sizeof(PScreen::MODIFIER_TO_MASK[0]);
+const uint X11::MODIFIER_TO_MASK_NUM = sizeof(X11::MODIFIER_TO_MASK) / sizeof(X11::MODIFIER_TO_MASK[0]);
 
 extern "C" {
     /**
@@ -81,9 +81,9 @@ extern "C" {
     }
 }
 
-//! @brief PScreen::Visual constructor.
+//! @brief X11::Visual constructor.
 //! @param x_visual X Visual to wrap.
-PScreen::PVisual::PVisual(Visual *x_visual) : _x_visual(x_visual),
+X11::PVisual::PVisual(Visual *x_visual) : _x_visual(x_visual),
         _r_shift(0), _r_prec(0),
         _g_shift(0), _g_prec(0),
         _b_shift(0), _b_prec(0)
@@ -93,8 +93,8 @@ PScreen::PVisual::PVisual(Visual *x_visual) : _x_visual(x_visual),
     getShiftPrecFromMask(_x_visual->blue_mask, _b_shift, _b_prec);
 }
 
-//! @brief PScreen::Visual destructor.
-PScreen::PVisual::~PVisual(void)
+//! @brief X11::Visual destructor.
+X11::PVisual::~PVisual(void)
 {
 }
 
@@ -103,7 +103,7 @@ PScreen::PVisual::~PVisual(void)
 //! @param shift Set to the shift of mask.
 //! @param prec Set to the prec of mask.
 void
-PScreen::PVisual::getShiftPrecFromMask(ulong mask, int &shift, int &prec)
+X11::PVisual::getShiftPrecFromMask(ulong mask, int &shift, int &prec)
 {
     for (shift = 0; ! (mask&0x1); ++shift) {
         mask >>= 1;
@@ -116,7 +116,7 @@ PScreen::PVisual::getShiftPrecFromMask(ulong mask, int &shift, int &prec)
 
 //! @brief PScreen constructor
 void
-PScreen::init(Display *dpy, bool honour_randr)
+X11::init(Display *dpy, bool honour_randr)
 {
     if (_dpy) {
         throw string("PScreen, trying to create multiple instances");
@@ -135,7 +135,7 @@ PScreen::init(Display *dpy, bool honour_randr)
     _root = RootWindow(_dpy, _screen);
 
     _depth = DefaultDepth(_dpy, _screen);
-    _visual = new PScreen::PVisual(DefaultVisual(_dpy, _screen));
+    _visual = new X11::PVisual(DefaultVisual(_dpy, _screen));
     _colormap = DefaultColormap(_dpy, _screen);
     _modifier_map = XGetModifierMapping(_dpy);
 
@@ -174,7 +174,7 @@ PScreen::init(Display *dpy, bool honour_randr)
 
 //! @brief PScreen destructor
 void
-PScreen::destruct(void) {
+X11::destruct(void) {
     delete _visual;
 
     if (_modifier_map) {
@@ -188,7 +188,7 @@ PScreen::destruct(void) {
  * Figure out what keys the Num and Scroll Locks are
  */
 void
-PScreen::setLockKeys(void)
+X11::setLockKeys(void)
 {
     _num_lock = getMaskFromKeycode(XKeysymToKeycode(_dpy, XK_Num_Lock));
     _scroll_lock = getMaskFromKeycode(XKeysymToKeycode(_dpy, XK_Scroll_Lock));
@@ -198,7 +198,7 @@ PScreen::setLockKeys(void)
 //! @param ev Event to fill in.
 //! @return true if event was fetched, else false.
 bool
-PScreen::getNextEvent(XEvent &ev)
+X11::getNextEvent(XEvent &ev)
 {
     if (XPending(_dpy) > 0) {
         XNextEvent(_dpy, &ev);
@@ -223,7 +223,7 @@ PScreen::getNextEvent(XEvent &ev)
 
 //! @brief Grabs the server, counting number of grabs
 bool
-PScreen::grabServer(void)
+X11::grabServer(void)
 {
     if (_server_grabs == 0) {
         XGrabServer(_dpy);
@@ -235,7 +235,7 @@ PScreen::grabServer(void)
 
 //! @brief Ungrabs the server, counting number of grabs
 bool
-PScreen::ungrabServer(bool sync)
+X11::ungrabServer(bool sync)
 {
     if (_server_grabs > 0) {
         --_server_grabs;
@@ -252,7 +252,7 @@ PScreen::ungrabServer(bool sync)
 
 //! @brief Grabs the keyboard
 bool
-PScreen::grabKeyboard(Window win)
+X11::grabKeyboard(Window win)
 {
     if (XGrabKeyboard(_dpy, win, false, GrabModeAsync, GrabModeAsync,
                       CurrentTime) == GrabSuccess) {
@@ -268,7 +268,7 @@ PScreen::grabKeyboard(Window win)
 
 //! @brief Ungrabs the keyboard
 bool
-PScreen::ungrabKeyboard(void)
+X11::ungrabKeyboard(void)
 {
     XUngrabKeyboard(_dpy, CurrentTime);
     return true;
@@ -276,7 +276,7 @@ PScreen::ungrabKeyboard(void)
 
 //! @brief Grabs the pointer
 bool
-PScreen::grabPointer(Window win, uint event_mask, Cursor cursor)
+X11::grabPointer(Window win, uint event_mask, Cursor cursor)
 {
     if (XGrabPointer(_dpy, win, false, event_mask, GrabModeAsync, GrabModeAsync,
                      None, cursor, CurrentTime) == GrabSuccess) {
@@ -293,7 +293,7 @@ PScreen::grabPointer(Window win, uint event_mask, Cursor cursor)
 
 //! @brief Ungrabs the pointer
 bool
-PScreen::ungrabPointer(void)
+X11::ungrabPointer(void)
 {
     XUngrabPointer(_dpy, CurrentTime);
     return true;
@@ -301,7 +301,7 @@ PScreen::ungrabPointer(void)
 
 //! @brief Refetches the root-window size.
 void
-PScreen::updateGeometry(uint width, uint height)
+X11::updateGeometry(uint width, uint height)
 {
 #ifdef HAVE_XRANDR
   if (! _honour_randr || ! _has_extension_xrandr) {
@@ -324,7 +324,7 @@ PScreen::updateGeometry(uint width, uint height)
 //! @brief Searches for the head closest to the coordinates x,y.
 //! @return The nearest head.  Head numbers are indexed from 0.
 uint
-PScreen::getNearestHead(int x, int y)
+X11::getNearestHead(int x, int y)
 {
   if(_heads.size() > 1) {
         // set distance to the highest uint value
@@ -379,7 +379,7 @@ PScreen::getNearestHead(int x, int y)
             }
 
 #ifdef DEBUG
-            cerr << __FILE__ << "@" << __LINE__ << ": PScreen::getNearestHead( " << x << "," << y << ") "
+            cerr << __FILE__ << "@" << __LINE__ << ": X11::getNearestHead( " << x << "," << y << ") "
                  << "head boundaries " << head_t << "," << head_b << "," << head_l << "," << head_r << " "
                  << "distance " << distance << " min_distance " << min_distance << endl;
 #endif // DEBUG
@@ -398,7 +398,7 @@ PScreen::getNearestHead(int x, int y)
 //! @brief Searches for the head that the pointer currently is on.
 //! @return Active head number
 uint
-PScreen::getCurrHead(void)
+X11::getCurrHead(void)
 {
     uint head = 0;
 
@@ -407,7 +407,7 @@ PScreen::getCurrHead(void)
         getMousePosition(x, y);
         head = getNearestHead(x, y);
 #ifdef DEBUG
-        cerr << __FILE__ << "@" << __LINE__ << ": PScreen::getCurrHead() got head "
+        cerr << __FILE__ << "@" << __LINE__ << ": X11::getCurrHead() got head "
              << head << " from mouse position " << x << "," << y << endl;
 #endif // DEBUG
     }
@@ -420,7 +420,7 @@ PScreen::getCurrHead(void)
 //! @param head_info Returning info about the head
 //! @return true if xinerama is off or head exists.
 bool
-PScreen::getHeadInfo(uint head, Geometry &head_info)
+X11::getHeadInfo(uint head, Geometry &head_info)
 {
     if (head  < _heads.size()) {
         head_info.x = _heads[head].x;
@@ -440,7 +440,7 @@ PScreen::getHeadInfo(uint head, Geometry &head_info)
  * Same as getHeadInfo but returns Geometry instead of filling it in.
  */
 Geometry
-PScreen::getHeadGeometry(uint head)
+X11::getHeadGeometry(uint head)
 {
   Geometry gm(_screen_gm);
   getHeadInfo(head, gm);
@@ -449,7 +449,7 @@ PScreen::getHeadGeometry(uint head)
 
 //! @brief Fill information about head and the strut.
 void
-PScreen::getHeadInfoWithEdge(uint num, Geometry &head)
+X11::getHeadInfoWithEdge(uint num, Geometry &head)
 {
     if (! getHeadInfo(num, head)) {
         return;
@@ -475,7 +475,7 @@ PScreen::getHeadInfoWithEdge(uint num, Geometry &head)
 }
 
 void
-PScreen::getMousePosition(int &x, int &y)
+X11::getMousePosition(int &x, int &y)
 {
     Window d_root, d_win;
     int win_x, win_y;
@@ -485,7 +485,7 @@ PScreen::getMousePosition(int &x, int &y)
 }
 
 uint
-PScreen::getButtonFromState(uint state)
+X11::getButtonFromState(uint state)
 {
     uint button = 0;
 
@@ -505,7 +505,7 @@ PScreen::getButtonFromState(uint state)
 
 //! @brief Adds a strut to the strut list, updating max strut sizes
 void
-PScreen::addStrut(Strut *strut)
+X11::addStrut(Strut *strut)
 {
     assert(strut);
     _strut_list.push_back(strut);
@@ -515,7 +515,7 @@ PScreen::addStrut(Strut *strut)
 
 //! @brief Removes a strut from the strut list
 void
-PScreen::removeStrut(Strut *strut)
+X11::removeStrut(Strut *strut)
 {
     assert(strut);
     _strut_list.remove(strut);
@@ -525,7 +525,7 @@ PScreen::removeStrut(Strut *strut)
 
 //! @brief Updates strut max size.
 void
-PScreen::updateStrut(void)
+X11::updateStrut(void)
 {
     // Reset strut data.
     _strut.left = 0;
@@ -572,7 +572,7 @@ PScreen::updateStrut(void)
 }
 
 int
-PScreen::sendEvent(Window win, Atom atom, long mask,
+X11::sendEvent(Window win, Atom atom, long mask,
                    long v1, long v2, long v3, long v4, long v5)
 {
     XEvent e;
@@ -591,7 +591,7 @@ PScreen::sendEvent(Window win, Atom atom, long mask,
 
 //! @brief Initialize head information
 void
-PScreen::initHeads(void)
+X11::initHeads(void)
 {
     _heads.clear();
 
@@ -610,7 +610,7 @@ PScreen::initHeads(void)
 
 //! @brief Initialize head information from Xinerama
 void
-PScreen::initHeadsXinerama(void)
+X11::initHeadsXinerama(void)
 {
 #ifdef HAVE_XINERAMA
     // Check if there are heads already initialized from example Randr
@@ -631,7 +631,7 @@ PScreen::initHeadsXinerama(void)
 
 //! @brief Initialize head information from RandR
 void
-PScreen::initHeadsRandr(void)
+X11::initHeadsRandr(void)
 {
 #ifdef HAVE_XRANDR
     if (! _honour_randr || ! _has_extension_xrandr) {
@@ -651,7 +651,7 @@ PScreen::initHeadsRandr(void)
 
             _heads.push_back(Head(crtc->x, crtc->y, crtc->width, crtc->height));
 #ifdef DEBUG
-            cerr << __FILE__ << "@" << __LINE__ << ": PScreen::initHeadsRandr() added head "
+            cerr << __FILE__ << "@" << __LINE__ << ": X11::initHeadsRandr() added head "
                 << crtc->x << "," << crtc->y << "," << crtc->width << "," << crtc->height << endl;
 #endif // DEBUG
 
@@ -672,7 +672,7 @@ PScreen::initHeadsRandr(void)
  * @return Mask for keycode, 0 if something fails.
  */
 uint
-PScreen::getMaskFromKeycode(KeyCode keycode)
+X11::getMaskFromKeycode(KeyCode keycode)
 {
     // Make sure modifier mappings were looked up ok
     if (! _modifier_map || _modifier_map->max_keypermod < 1) {
@@ -697,7 +697,7 @@ PScreen::getMaskFromKeycode(KeyCode keycode)
  * @return KeyCode for mask, 0 if failing.
  */
 KeyCode
-PScreen::getKeycodeFromMask(uint mask)
+X11::getKeycodeFromMask(uint mask)
 {
     // Make sure modifier mappings were looked up ok
     if (! _modifier_map || _modifier_map->max_keypermod < 1) {
@@ -714,27 +714,27 @@ PScreen::getKeycodeFromMask(uint mask)
     return 0;
 }
 
-Display *PScreen::_dpy;
-bool PScreen::_honour_randr = false;
-int PScreen::_fd = -1;
-int PScreen::_screen = -1;
-int PScreen::_depth = -1;
-Geometry PScreen::_screen_gm;
-Window PScreen::_root = None;
-PScreen::PVisual *PScreen::_visual;
-Colormap PScreen::_colormap = None;
-XModifierKeymap *PScreen::_modifier_map;
-bool PScreen::_has_extension_shape = false;
-int PScreen::_event_shape = -1;
-bool PScreen::_has_extension_xinerama = false;
-bool PScreen::_has_extension_xrandr = false;
-int PScreen::_event_xrandr = -1;
-uint PScreen::_num_lock;
-uint PScreen::_scroll_lock;
-std::vector<Head> PScreen::_heads;
-uint PScreen::_server_grabs;
-Time PScreen::_last_event_time;
-Window PScreen::_last_click_id = None;
-Time PScreen::_last_click_time[BUTTON_NO - 1];
-Strut PScreen::_strut;
-std::list<Strut*> PScreen::_strut_list;
+Display *X11::_dpy;
+bool X11::_honour_randr = false;
+int X11::_fd = -1;
+int X11::_screen = -1;
+int X11::_depth = -1;
+Geometry X11::_screen_gm;
+Window X11::_root = None;
+X11::PVisual *X11::_visual;
+Colormap X11::_colormap = None;
+XModifierKeymap *X11::_modifier_map;
+bool X11::_has_extension_shape = false;
+int X11::_event_shape = -1;
+bool X11::_has_extension_xinerama = false;
+bool X11::_has_extension_xrandr = false;
+int X11::_event_xrandr = -1;
+uint X11::_num_lock;
+uint X11::_scroll_lock;
+std::vector<Head> X11::_heads;
+uint X11::_server_grabs;
+Time X11::_last_event_time;
+Window X11::_last_click_id = None;
+Time X11::_last_click_time[BUTTON_NO - 1];
+Strut X11::_strut;
+std::list<Strut*> X11::_strut_list;

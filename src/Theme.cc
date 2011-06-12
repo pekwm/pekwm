@@ -13,7 +13,7 @@
 #include "ParseUtil.hh"
 #include "Theme.hh"
 
-#include "PScreen.hh"
+#include "x11.hh"
 #include "Config.hh"
 #include "PWinObj.hh"
 #include "PFont.hh"
@@ -900,14 +900,14 @@ Theme::Theme(void)
     gv.function = GXinvert;
     gv.subwindow_mode = IncludeInferiors;
     gv.line_width = 1;
-    _invert_gc = XCreateGC(PScreen::getDpy(), PScreen::getRoot(),
+    _invert_gc = XCreateGC(X11::getDpy(), X11::getRoot(),
                            GCFunction|GCSubwindowMode|GCLineWidth, &gv);
 
-    PScreen::grabServer();
+    X11::grabServer();
 
     load(Config::instance()->getThemeFile());
 
-    PScreen::ungrabServer(true);
+    X11::ungrabServer(true);
 }
 
 //! @brief Theme destructor
@@ -915,7 +915,7 @@ Theme::~Theme(void)
 {
     unload(); // should clean things up
 
-    XFreeGC(PScreen::getDpy(), _invert_gc);
+    XFreeGC(X11::getDpy(), _invert_gc);
 
     delete _image_handler;
 }

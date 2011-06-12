@@ -56,13 +56,13 @@ HintWO::HintWO(Window root, bool replace) throw (std::string&)
     _iconified = true; // Hack, to be ignored when placing
 
     // Create window
-    _window = XCreateSimpleWindow(PScreen::getDpy(), root, -200, -200, 5, 5, 0, 0, 0);
+    _window = XCreateSimpleWindow(X11::getDpy(), root, -200, -200, 5, 5, 0, 0, 0);
 
     // Remove override redirect from window
     XSetWindowAttributes attr;
     attr.override_redirect = True;
     attr.event_mask = PropertyChangeMask;
-    XChangeWindowAttributes(PScreen::getDpy(), _window, CWEventMask|CWOverrideRedirect, &attr);
+    XChangeWindowAttributes(X11::getDpy(), _window, CWEventMask|CWOverrideRedirect, &attr);
 
     // Set hints not being updated
     AtomUtil::setString(_window, Atoms::getAtom(NET_WM_NAME), WM_NAME);
@@ -78,7 +78,7 @@ HintWO::HintWO(Window root, bool replace) throw (std::string&)
  */
 HintWO::~HintWO(void)
 {
-    XDestroyWindow(PScreen::getDpy(), _window);
+    XDestroyWindow(X11::getDpy(), _window);
     _instance = 0;
 }
 
@@ -94,10 +94,10 @@ HintWO::getTime(void)
     XEvent event;
 
     // Generate event on ourselves
-    XChangeProperty(PScreen::getDpy(), _window,
+    XChangeProperty(X11::getDpy(), _window,
 		    Atoms::getAtom(WM_CLASS), Atoms::getAtom(STRING),
                     8, PropModeAppend, 0, 0);
-    XWindowEvent(PScreen::getDpy(), _window, PropertyChangeMask, &event);
+    XWindowEvent(X11::getDpy(), _window, PropertyChangeMask, &event);
 
     return event.xproperty.time;
 }
@@ -113,9 +113,9 @@ HintWO::claimDisplay(bool replace)
     bool status = true;
 
     // Get atom for the current screen and it's owner
-    string session_name("WM_S" + Util::to_string<int>(DefaultScreen(PScreen::getDpy())));
-    Atom session_atom = XInternAtom(PScreen::getDpy(), session_name.c_str(), false);
-    Window session_owner = XGetSelectionOwner(PScreen::getDpy(), session_atom);
+    string session_name("WM_S" + Util::to_string<int>(DefaultScreen(X11::getDpy())));
+    Atom session_atom = XInternAtom(X11::getDpy(), session_name.c_str(), false);
+    Window session_owner = XGetSelectionOwner(X11::getDpy(), session_atom);
 
     if (session_owner && session_owner != _window) {
         if (! replace) {
@@ -123,14 +123,14 @@ HintWO::claimDisplay(bool replace)
             return false;
         }
 
-        XSync(PScreen::getDpy(), false);
+        XSync(X11::getDpy(), false);
         setXErrorsIgnore(true);
         uint errors_before = xerrors_count;
 
         // Select event to get notified when current owner dies.
-        PScreen::selectInput(session_owner, StructureNotifyMask);
+        X11::selectInput(session_owner, StructureNotifyMask);
 
-        XSync(PScreen::getDpy(), false);
+        XSync(X11::getDpy(), false);
         setXErrorsIgnore(false);
         if (errors_before != xerrors_count) {
             session_owner = None;
@@ -139,8 +139,8 @@ HintWO::claimDisplay(bool replace)
 
     Time timestamp = getTime();
 
-    XSetSelectionOwner(PScreen::getDpy(), session_atom, _window, timestamp);
-    if (XGetSelectionOwner(PScreen::getDpy(), session_atom) == _window) {
+    XSetSelectionOwner(X11::getDpy(), session_atom, _window, timestamp);
+    if (XGetSelectionOwner(X11::getDpy(), session_atom) == _window) {
         if (session_owner) {
             // Wait for the previous window manager to go away and update owner.
             status = claimDisplayWait(session_owner);
@@ -169,7 +169,7 @@ HintWO::claimDisplayWait(Window session_owner)
     cerr << " *** INFO: waiting for previous window manager to exit. " << endl;
 
     for (uint waited = 0; waited < HintWO::DISPLAY_WAIT; ++waited) {
-        if (XCheckWindowEvent(PScreen::getDpy(), session_owner, StructureNotifyMask, &event)
+        if (XCheckWindowEvent(X11::getDpy(), session_owner, StructureNotifyMask, &event)
             && event.type == DestroyNotify) {
             return true;
         }
@@ -190,11 +190,11 @@ HintWO::claimDisplayOwner(Window session_atom, Time timestamp)
 {
     XEvent event;
     // FIXME: One should use _root_wo here?
-    Window root = RootWindow(PScreen::getDpy(), DefaultScreen(PScreen::getDpy()));
+    Window root = RootWindow(X11::getDpy(), DefaultScreen(X11::getDpy()));
 
     event.xclient.type = ClientMessage;
     event.xclient.message_type = Atoms::getAtom(MANAGER);
-    event.xclient.display = PScreen::getDpy();
+    event.xclient.display = X11::getDpy();
     event.xclient.window = root;
     event.xclient.format = 32;
     event.xclient.data.l[0] = timestamp;
@@ -202,7 +202,7 @@ HintWO::claimDisplayOwner(Window session_atom, Time timestamp)
     event.xclient.data.l[2] = _window;
     event.xclient.data.l[3] = 0;
 
-    XSendEvent(PScreen::getDpy(), root, false, SubstructureNotifyMask, &event);
+    XSendEvent(X11::getDpy(), root, false, SubstructureNotifyMask, &event);
 }
 
 /**
@@ -216,18 +216,18 @@ RootWO::RootWO(Window root)
     _mapped = true;
 
     _window = root;
-    _gm.width = PScreen::getWidth();
-    _gm.height = PScreen::getHeight();
+    _gm.width = X11::getWidth();
+    _gm.height = X11::getHeight();
 
 
-    XSync(PScreen::getDpy(), false);
+    XSync(X11::getDpy(), false);
     setXErrorsIgnore(true);
     uint errors_before = xerrors_count;
 
     // Select window events
-    PScreen::selectInput(_window, RootWO::EVENT_MASK);
+    X11::selectInput(_window, RootWO::EVENT_MASK);
 
-    XSync(PScreen::getDpy(), false);
+    XSync(X11::getDpy(), false);
     setXErrorsIgnore(false);
     if (errors_before != xerrors_count) {
         cerr << "pekwm: root window unavailable, can't start!" << endl;
@@ -283,16 +283,16 @@ RootWO::handleButtonRelease(XButtonEvent *ev)
     MouseEventType mb = MOUSE_EVENT_RELEASE;
 
     // first we check if it's a double click
-    if (PScreen::isDoubleClick(ev->window, ev->button - 1, ev->time,
+    if (X11::isDoubleClick(ev->window, ev->button - 1, ev->time,
                                            Config::instance()->getDoubleClickTime())) {
-        PScreen::setLastClickID(ev->window);
-        PScreen::setLastClickTime(ev->button - 1, 0);
+        X11::setLastClickID(ev->window);
+        X11::setLastClickTime(ev->button - 1, 0);
 
         mb = MOUSE_EVENT_DOUBLE;
 
     } else {
-        PScreen::setLastClickID(ev->window);
-        PScreen::setLastClickTime(ev->button - 1, ev->time);
+        X11::setLastClickID(ev->window);
+        X11::setLastClickTime(ev->button - 1, ev->time);
     }
 
     return ActionHandler::findMouseAction(ev->button, ev->state, mb,
@@ -305,7 +305,7 @@ RootWO::handleButtonRelease(XButtonEvent *ev)
 ActionEvent*
 RootWO::handleMotionEvent(XMotionEvent *ev)
 {
-    unsigned int button = PScreen::getButtonFromState(ev->state);
+    unsigned int button = X11::getButtonFromState(ev->state);
 
     return ActionHandler::findMouseAction(button, ev->state, MOUSE_EVENT_MOTION,
                                           Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
@@ -351,7 +351,7 @@ RootWO::setEwmhWorkarea(const Geometry &workarea)
 void
 RootWO::setEwmhActiveWindow(Window win)
 {
-    AtomUtil::setWindow(PScreen::getRoot(), Atoms::getAtom(NET_ACTIVE_WINDOW), win);
+    AtomUtil::setWindow(X11::getRoot(), Atoms::getAtom(NET_ACTIVE_WINDOW), win);
 }
 
 /**
@@ -362,7 +362,7 @@ RootWO::readEwmhDesktopNames(void)
 {
     uchar *data;
     ulong data_length;
-    if (AtomUtil::getProperty(PScreen::getRoot(),
+    if (AtomUtil::getProperty(X11::getRoot(),
                               Atoms::getAtom(NET_DESKTOP_NAMES),
                               Atoms::getAtom(UTF8_STRING),
                               EXPECTED_DESKTOP_NAMES_LENGTH, &data, &data_length)) {
@@ -383,7 +383,7 @@ RootWO::setEwmhDesktopNames(void)
     Config::instance()->getDesktopNamesUTF8(&desktopnames, &length);
 
     if (desktopnames) {
-        AtomUtil::setUtf8StringArray(PScreen::getRoot(),
+        AtomUtil::setUtf8StringArray(X11::getRoot(),
                                      Atoms::getAtom(NET_DESKTOP_NAMES), desktopnames, length);
         delete [] desktopnames;
     }
@@ -408,11 +408,11 @@ EdgeWO::EdgeWO(Window root, EdgeType edge, bool set_strut)
     sattr.override_redirect = True;
     sattr.event_mask = EnterWindowMask|LeaveWindowMask|ButtonPressMask|ButtonReleaseMask;
 
-    _window = XCreateWindow(PScreen::getDpy(), root, 0, 0, 1, 1, 0, CopyFromParent, InputOnly, CopyFromParent,
+    _window = XCreateWindow(X11::getDpy(), root, 0, 0, 1, 1, 0, CopyFromParent, InputOnly, CopyFromParent,
                             CWOverrideRedirect|CWEventMask, &sattr);
 
     configureStrut(set_strut);
-    PScreen::addStrut(&_strut);
+    X11::addStrut(&_strut);
 
     woListAdd(this);
     _wo_map[_window] = this;
@@ -423,11 +423,11 @@ EdgeWO::EdgeWO(Window root, EdgeType edge, bool set_strut)
  */
 EdgeWO::~EdgeWO(void)
 {
-    PScreen::removeStrut(&_strut);
+    X11::removeStrut(&_strut);
     _wo_map.erase(_window);
     woListRemove(this);
 
-    XDestroyWindow(PScreen::getDpy(), _window);
+    XDestroyWindow(X11::getDpy(), _window);
 }
 
 /**
@@ -516,15 +516,15 @@ EdgeWO::handleButtonRelease(XButtonEvent *ev)
     MouseEventType mb = MOUSE_EVENT_RELEASE;
 
     // first we check if it's a double click
-    if (PScreen::isDoubleClick(ev->window, ev->button - 1, ev->time,
+    if (X11::isDoubleClick(ev->window, ev->button - 1, ev->time,
                                            Config::instance()->getDoubleClickTime())) {
-        PScreen::setLastClickID(ev->window);
-        PScreen::setLastClickTime(ev->button - 1, 0);
+        X11::setLastClickID(ev->window);
+        X11::setLastClickTime(ev->button - 1, 0);
 
         mb = MOUSE_EVENT_DOUBLE;
     } else {
-        PScreen::setLastClickID(ev->window);
-        PScreen::setLastClickTime(ev->button - 1, ev->time);
+        X11::setLastClickID(ev->window);
+        X11::setLastClickTime(ev->button - 1, ev->time);
     }
 
     return ActionHandler::findMouseAction(ev->button, ev->state, mb,

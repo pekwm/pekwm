@@ -10,7 +10,7 @@
 
 #include "PWinObj.hh"
 #include "ScreenResources.hh"
-#include "PScreen.hh"
+#include "x11.hh"
 #include "Config.hh"
 #include "PixmapHandler.hh"
 
@@ -41,7 +41,7 @@ ScreenResources::ScreenResources(void)
     }
     _instance = this;
 
-    Display *dpy = PScreen::getDpy();
+    Display *dpy = X11::getDpy();
 
     // create resize cursors
     _cursor_map[CURSOR_TOP_LEFT] = XCreateFontCursor(dpy, XC_top_left_corner);
@@ -68,7 +68,7 @@ ScreenResources::~ScreenResources(void)
 {
     map<CursorType, Cursor>::iterator c_it(_cursor_map.begin());
     for (; c_it != _cursor_map.end(); ++c_it) {
-        XFreeCursor(PScreen::getDpy(), c_it->second);
+        XFreeCursor(X11::getDpy(), c_it->second);
     }
 
     if (_pixmap_handler) {

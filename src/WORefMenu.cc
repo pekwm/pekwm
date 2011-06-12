@@ -15,7 +15,6 @@
 #include "PMenu.hh"
 #include "WORefMenu.hh"
 
-#include "PScreen.hh"
 #include "Client.hh"
 
 using std::string;

@@ -18,7 +18,7 @@
 #include <vector>
 
 #include "pekwm.hh"
-#include "PScreen.hh"
+#include "x11.hh"
 #include "Action.hh"
 #include "Observable.hh"
 
@@ -143,9 +143,9 @@ public:
     virtual void resize(uint width, uint height);
     virtual void moveResize(int x, int y, uint width, uint height);
     //! @brief Raises PWinObj without respect of layer.
-    virtual void raise(void) { XRaiseWindow(PScreen::getDpy(), _window); }
+    virtual void raise(void) { XRaiseWindow(X11::getDpy(), _window); }
     //! @brief Lowers PWinObj without respect of layer.
-    virtual void lower(void) { XLowerWindow(PScreen::getDpy(), _window); }
+    virtual void lower(void) { XLowerWindow(X11::getDpy(), _window); }
 
     virtual void setWorkspace(uint workspace);
     virtual void setLayer(uint layer);
@@ -201,14 +201,14 @@ public:
     // other window commands
 
     //! @brief Clears Window causing a redraw.
-    inline void clear(void) { XClearWindow(PScreen::getDpy(), _window); }
+    inline void clear(void) { XClearWindow(X11::getDpy(), _window); }
     //! @brief Sets Window background colour.
     inline void setBackground(long pixel) {
-        XSetWindowBackground(PScreen::getDpy(), _window, pixel);
+        XSetWindowBackground(X11::getDpy(), _window, pixel);
     }
     //! @brief Sets Window background pixmap.
     inline void setBackgroundPixmap(Pixmap pm) {
-        XSetWindowBackgroundPixmap(PScreen::getDpy(), _window, pm);
+        XSetWindowBackgroundPixmap(X11::getDpy(), _window, pm);
     }
 
 protected:

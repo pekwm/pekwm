@@ -20,7 +20,6 @@
 #include "pekwm.hh"
 #include "Action.hh"
 #include "Atoms.hh"
-#include "PScreen.hh"
 #include "Timer.hh"
 #include "ManagerWindows.hh"
 

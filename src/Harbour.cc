@@ -12,7 +12,7 @@
 
 #include "Harbour.hh"
 
-#include "PScreen.hh"
+#include "x11.hh"
 #include "Config.hh"
 #include "PWinObj.hh"
 #include "DockApp.hh"
@@ -42,7 +42,7 @@ Harbour::Harbour(Theme *t, Workspaces *w) :
         _last_button_x(0), _last_button_y(0)
 {
     _strut = new Strut();
-    PScreen::addStrut(_strut);
+    X11::addStrut(_strut);
     _strut->head = Config::instance()->getHarbourHead();
     _harbour_menu = new HarbourMenu(_theme, this);
 }
@@ -52,7 +52,7 @@ Harbour::~Harbour(void)
 {
     removeAllDockApps();
 
-    PScreen::removeStrut(_strut);
+    X11::removeStrut(_strut);
     delete _strut;
     delete _harbour_menu;
 }
@@ -172,11 +172,11 @@ Harbour::updateGeometry(void)
 void
 Harbour::restack(void)
 {
-    PScreen::removeStrut(_strut);
+    X11::removeStrut(_strut);
     if (Config::instance()->isHarbourOntop() ||
             ! Config::instance()->isHarbourMaximizeOver()) {
 
-        PScreen::addStrut(_strut);
+        X11::addStrut(_strut);
     }
     uint l = Config::instance()->isHarbourOntop() ? LAYER_DOCK : LAYER_DESKTOP;
 
@@ -290,7 +290,7 @@ Harbour::updateStrutSize(void)
         }
     }
 
-    PScreen::updateStrut();
+    X11::updateStrut();
 }
 
 //! @brief Handles XButtonEvents made on the DockApp's frames.
@@ -330,7 +330,7 @@ Harbour::handleMotionNotifyEvent(XMotionEvent* ev, DockApp* da)
     Geometry head;
     int x = 0, y = 0;
 
-    PScreen::getHeadInfo(Config::instance()->getHarbourHead(), head);
+    X11::getHeadInfo(Config::instance()->getHarbourHead(), head);
 
     switch(Config::instance()->getHarbourPlacement()) {
     case TOP:
@@ -398,7 +398,7 @@ Harbour::placeDockApp(DockApp *da)
     bool placed = false, increase = false, x_place = false;
 
     Geometry head;
-    PScreen::getHeadInfo(Config::instance()->getHarbourHead(), head);
+    X11::getHeadInfo(Config::instance()->getHarbourHead(), head);
 
     getPlaceStartPosition (da, x, y, x_place);
     if (right) {
@@ -522,7 +522,7 @@ void
 Harbour::placeDockAppInsideScreen(DockApp *da)
 {
     Geometry head;
-    PScreen::getHeadInfo(Config::instance()->getHarbourHead(), head);
+    X11::getHeadInfo(Config::instance()->getHarbourHead(), head);
     uint pos = Config::instance()->getHarbourPlacement();
 
     // top or bottom placement
@@ -568,7 +568,7 @@ Harbour::getPlaceStartPosition(DockApp *da, int &x, int &y, bool &inc_x)
     }
     
     Geometry head;
-    PScreen::getHeadInfo(Config::instance()->getHarbourHead(), head);
+    X11::getHeadInfo(Config::instance()->getHarbourHead(), head);
     bool right = (Config::instance()->getHarbourOrientation() == BOTTOM_TO_TOP);
 
     switch (Config::instance()->getHarbourPlacement()) {

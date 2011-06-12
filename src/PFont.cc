@@ -14,7 +14,7 @@
 #include <cstring>
 
 #include "PFont.hh"
-#include "PScreen.hh"
+#include "x11.hh"
 #include "Util.hh"
 
 using std::cerr;
@@ -208,9 +208,9 @@ PFontX11::load(const std::string &font_name)
 {
     unload();
 
-    _font = XLoadQueryFont(PScreen::getDpy(), font_name.c_str());
+    _font = XLoadQueryFont(X11::getDpy(), font_name.c_str());
     if (! _font) {
-        _font = XLoadQueryFont(PScreen::getDpy(), FALLBACK_FONT);
+        _font = XLoadQueryFont(X11::getDpy(), FALLBACK_FONT);
         if (! _font) {
             return false;
         }
@@ -226,8 +226,8 @@ PFontX11::load(const std::string &font_name)
     uint mask = GCFunction|GCFont;
     gv.function = GXcopy;
     gv.font = _font->fid;
-    _gc_fg = XCreateGC(PScreen::getDpy(), PScreen::getRoot(), mask, &gv);
-    _gc_bg = XCreateGC(PScreen::getDpy(), PScreen::getRoot(), mask, &gv);
+    _gc_fg = XCreateGC(X11::getDpy(), X11::getRoot(), mask, &gv);
+    _gc_bg = XCreateGC(X11::getDpy(), X11::getRoot(), mask, &gv);
 
     return true;
 }
@@ -237,15 +237,15 @@ void
 PFontX11::unload(void)
 {
     if (_font) {
-        XFreeFont(PScreen::getDpy(), _font);
+        XFreeFont(X11::getDpy(), _font);
         _font = 0;
     }
     if (_gc_fg != None) {
-        XFreeGC(PScreen::getDpy(), _gc_fg);
+        XFreeGC(X11::getDpy(), _gc_fg);
         _gc_fg = None;
     }
     if (_gc_bg != None) {
-        XFreeGC(PScreen::getDpy(), _gc_bg);
+        XFreeGC(X11::getDpy(), _gc_bg);
         _gc_bg = None;
     }
 }
@@ -292,7 +292,7 @@ PFontX11::drawText(Drawable dest, int x, int y,
             mb_text = Util::to_mb_str(text);
         }
 
-        XDrawString(PScreen::getDpy(), dest, gc, x, y,
+        XDrawString(X11::getDpy(), dest, gc, x, y,
                 mb_text.c_str(), mb_text.size());
     }
 }
@@ -302,11 +302,11 @@ void
 PFontX11::setColor(PFont::Color *color)
 {
     if (color->hasFg()) {
-        XSetForeground(PScreen::getDpy(), _gc_fg, color->getFg()->pixel);
+        XSetForeground(X11::getDpy(), _gc_fg, color->getFg()->pixel);
     }
 
     if (color->hasBg()) {
-        XSetForeground(PScreen::getDpy(), _gc_bg, color->getBg()->pixel);
+        XSetForeground(X11::getDpy(), _gc_bg, color->getBg()->pixel);
     }
 }
 
@@ -344,18 +344,18 @@ PFontXmb::load(const std::string &font_name)
 
     uint mask = GCFunction;
     gv.function = GXcopy;
-    _gc_fg = XCreateGC(PScreen::getDpy(), PScreen::getRoot(), mask, &gv);
-    _gc_bg = XCreateGC(PScreen::getDpy(), PScreen::getRoot(), mask, &gv);
+    _gc_fg = XCreateGC(X11::getDpy(), X11::getRoot(), mask, &gv);
+    _gc_bg = XCreateGC(X11::getDpy(), X11::getRoot(), mask, &gv);
 
     // Try to load font
     char *def_string;
     char **missing_list, **font_names;
     int missing_count;
 
-    _fontset = XCreateFontSet(PScreen::getDpy(), basename.c_str(), &missing_list, &missing_count, &def_string);
+    _fontset = XCreateFontSet(X11::getDpy(), basename.c_str(), &missing_list, &missing_count, &def_string);
     if (! _fontset) {
         cerr << "PFontXmb::load(): Failed to create fontset for " << font_name << endl;
-        _fontset = XCreateFontSet(PScreen::getDpy(), DEFAULT_FONTSET, &missing_list, &missing_count, &def_string);
+        _fontset = XCreateFontSet(X11::getDpy(), DEFAULT_FONTSET, &missing_list, &missing_count, &def_string);
     }
 
     if (_fontset) {
@@ -390,7 +390,7 @@ void
 PFontXmb::unload(void)
 {
     if (_fontset) {
-        XFreeFontSet(PScreen::getDpy(), _fontset);
+        XFreeFontSet(X11::getDpy(), _fontset);
         _fontset = 0;
     }
 }
@@ -430,7 +430,7 @@ PFontXmb::drawText(Drawable dest, int x, int y,
     GC gc = fg ? _gc_fg : _gc_bg;
 
     if (_fontset && (gc != None)) {
-        XwcDrawString(PScreen::getDpy(), dest, _fontset, gc,
+        XwcDrawString(X11::getDpy(), dest, _fontset, gc,
                   x, y, text.c_str(), chars ? chars : text.size());
     }
 }
@@ -440,11 +440,11 @@ void
 PFontXmb::setColor(PFont::Color *color)
 {
     if (color->hasFg()) {
-        XSetForeground(PScreen::getDpy(), _gc_fg, color->getFg()->pixel);
+        XSetForeground(X11::getDpy(), _gc_fg, color->getFg()->pixel);
     }
 
     if (color->hasBg()) {
-        XSetForeground(PScreen::getDpy(), _gc_bg, color->getBg()->pixel);
+        XSetForeground(X11::getDpy(), _gc_bg, color->getBg()->pixel);
     }
 }
 
@@ -458,8 +458,8 @@ PFontXft::PFontXft(void)
       _draw(0), _font(0), _cl_fg(0), _cl_bg(0)
 {
     _type = FONT_TYPE_XFT;
-    _draw = XftDrawCreate(PScreen::getDpy(), PScreen::getRoot(),
-                          PScreen::getVisual()->getXVisual(), PScreen::getColormap());
+    _draw = XftDrawCreate(X11::getDpy(), X11::getRoot(),
+                          X11::getVisual()->getXVisual(), X11::getColormap());
 }
 
 //! @brief PFontXft destructor
@@ -470,14 +470,14 @@ PFontXft::~PFontXft(void)
     XftDrawDestroy(_draw);
 
     if (_cl_fg) {
-        XftColorFree(PScreen::getDpy(), PScreen::getVisual()->getXVisual(),
-                     PScreen::getColormap(), _cl_fg);
+        XftColorFree(X11::getDpy(), X11::getVisual()->getXVisual(),
+                     X11::getColormap(), _cl_fg);
         delete _cl_fg;
     }
     
     if (_cl_bg) {
-        XftColorFree(PScreen::getDpy(), PScreen::getVisual()->getXVisual(),
-                     PScreen::getColormap(), _cl_bg);
+        XftColorFree(X11::getDpy(), X11::getVisual()->getXVisual(),
+                     X11::getColormap(), _cl_bg);
         delete _cl_bg;
     }
 }
@@ -488,10 +488,10 @@ PFontXft::load(const std::string &font_name)
 {
     unload();
 
-    _font = XftFontOpenName(PScreen::getDpy(), PScreen::getScreenNum(),
+    _font = XftFontOpenName(X11::getDpy(), X11::getScreenNum(),
                             font_name.c_str());
     if (! _font) {
-        _font = XftFontOpenXlfd(PScreen::getDpy(), PScreen::getScreenNum(),
+        _font = XftFontOpenXlfd(X11::getDpy(), X11::getScreenNum(),
                                 font_name.c_str());
     }
 
@@ -510,7 +510,7 @@ void
 PFontXft::unload(void)
 {
     if (_font) {
-        XftFontClose(PScreen::getDpy(), _font);
+        XftFontClose(X11::getDpy(), _font);
         _font = 0;
     }
 }
@@ -534,7 +534,7 @@ PFontXft::getWidth(const std::wstring &text, uint max_chars)
         string utf8_text(Util::to_utf8_str(text.substr(0, max_chars)));
 
         XGlyphInfo extents;
-        XftTextExtentsUtf8(PScreen::getDpy(), _font,
+        XftTextExtentsUtf8(X11::getDpy(), _font,
                          reinterpret_cast<const XftChar8*>(utf8_text.c_str()),
                          utf8_text.size(), &extents);
 
@@ -574,14 +574,14 @@ void
 PFontXft::setColor(PFont::Color *color)
 {
     if (_cl_fg) {
-        XftColorFree(PScreen::getDpy(), PScreen::getVisual()->getXVisual(),
-                     PScreen::getColormap(), _cl_fg);
+        XftColorFree(X11::getDpy(), X11::getVisual()->getXVisual(),
+                     X11::getColormap(), _cl_fg);
         delete _cl_fg;
         _cl_fg = 0;
     }
     if (_cl_bg) {
-        XftColorFree(PScreen::getDpy(), PScreen::getVisual()->getXVisual(),
-                     PScreen::getColormap(), _cl_bg);
+        XftColorFree(X11::getDpy(), X11::getVisual()->getXVisual(),
+                     X11::getColormap(), _cl_bg);
         delete _cl_bg;
         _cl_bg = 0;
     }
@@ -594,8 +594,8 @@ PFontXft::setColor(PFont::Color *color)
 
         _cl_fg = new XftColor;
 
-        XftColorAllocValue(PScreen::getDpy(), PScreen::getVisual()->getXVisual(),
-                           PScreen::getColormap(), &_xrender_color, _cl_fg);
+        XftColorAllocValue(X11::getDpy(), X11::getVisual()->getXVisual(),
+                           X11::getColormap(), &_xrender_color, _cl_fg);
     }
 
     if (color->hasBg()) {
@@ -606,8 +606,8 @@ PFontXft::setColor(PFont::Color *color)
 
         _cl_bg = new XftColor;
 
-        XftColorAllocValue(PScreen::getDpy(), PScreen::getVisual()->getXVisual(),
-                           PScreen::getColormap(), &_xrender_color, _cl_bg);
+        XftColorAllocValue(X11::getDpy(), X11::getVisual()->getXVisual(),
+                           X11::getColormap(), &_xrender_color, _cl_bg);
     }
 }
 

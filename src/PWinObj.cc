@@ -109,7 +109,7 @@ PWinObj::mapWindow(void)
     _mapped = true;
     _iconified = false;
 
-    PScreen::mapWindow(_window);
+    X11::mapWindow(_window);
 }
 
 //! @brief Maps the window and raises it
@@ -122,7 +122,7 @@ PWinObj::mapWindowRaised(void)
     _mapped = true;
     _iconified = false;
 
-    XMapRaised(PScreen::getDpy(), _window);
+    XMapRaised(X11::getDpy(), _window);
 }
 
 //! @brief Unmaps the window and sets _mapped to false.
@@ -138,7 +138,7 @@ PWinObj::unmapWindow(void)
     // Make sure unmapped windows drops focus
     setFocused(false);
 
-    PScreen::unmapWindow(_window);
+    X11::unmapWindow(_window);
 }
 
 //! @brief Only sets _iconified to true.
@@ -168,7 +168,7 @@ PWinObj::move(int x, int y)
     _gm.x = x;
     _gm.y = y;
 
-    XMoveWindow(PScreen::getDpy(), _window, _gm.x, _gm.y);
+    XMoveWindow(X11::getDpy(), _window, _gm.x, _gm.y);
 }
 
 //! @brief Resizes the window and updates _gm.
@@ -188,7 +188,7 @@ PWinObj::resize(uint width, uint height)
     _gm.width = width;
     _gm.height = height;
 
-    XResizeWindow(PScreen::getDpy(), _window, _gm.width, _gm.height);
+    XResizeWindow(X11::getDpy(), _window, _gm.width, _gm.height);
 }
 
 //! @brief Move and resize window in one call.
@@ -214,7 +214,7 @@ PWinObj::moveResize(int x, int y, uint width, uint height)
     _gm.width = width;
     _gm.height = height;
 
-    XMoveResizeWindow(PScreen::getDpy(), _window, _gm.x, _gm.y, _gm.width, _gm.height);
+    XMoveResizeWindow(X11::getDpy(), _window, _gm.x, _gm.y, _gm.width, _gm.height);
 }
 
 //! @brief Only sets _workspace to workspace.
@@ -279,7 +279,7 @@ PWinObj::giveInputFocus(void)
         return;
     }
 
-    XSetInputFocus(PScreen::getDpy(), _window, RevertToPointerRoot, CurrentTime);
+    XSetInputFocus(X11::getDpy(), _window, RevertToPointerRoot, CurrentTime);
 }
 
 //! @brief Reparents and sets _parent member
@@ -287,7 +287,7 @@ void
 PWinObj::reparent(PWinObj *wo, int x, int y)
 {
     _parent = wo;
-    XReparentWindow(PScreen::getDpy(), _window, wo->getWindow(), x, y);
+    XReparentWindow(X11::getDpy(), _window, wo->getWindow(), x, y);
 }
 
 //! @brief Get required size to hold content for window

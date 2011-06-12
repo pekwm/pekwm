@@ -12,7 +12,7 @@
 
 #ifdef HAVE_IMAGE_XPM
 
-#include "PScreen.hh"
+#include "x11.hh"
 #include "PImageLoaderXpm.hh"
 
 #include <iostream>
@@ -150,7 +150,7 @@ PImageLoaderXpm::createXpmToRgbaTable(XpmImage *xpm_image)
             }
             *dest++ = ALPHA_SOLID;
 
-        } else if (color && XParseColor(PScreen::getDpy(), PScreen::getColormap(),
+        } else if (color && XParseColor(X11::getDpy(), X11::getColormap(),
                                         color, &xcolor_exact)) {
             *dest++ = xcolor_exact.red;
             *dest++ = xcolor_exact.green;

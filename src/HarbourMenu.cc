@@ -13,7 +13,6 @@
 #include "PWinObj.hh"
 #include "PDecor.hh"
 #include "PMenu.hh"
-#include "PScreen.hh"
 //#include "Action.hh"
 #include "HarbourMenu.hh"
 #include "DockApp.hh"

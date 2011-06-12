@@ -11,7 +11,7 @@
 #endif // HAVE_CONFIG_H
 
 #include "Atoms.hh"
-#include "PScreen.hh"
+#include "x11.hh"
 #include "Util.hh"
 
 extern "C" {
@@ -95,7 +95,7 @@ Atoms::init(void)
     const uint num = sizeof(atomnames) / sizeof(char*);
     Atom *atoms = new Atom[num];
 
-    XInternAtoms(PScreen::getDpy(),
+    XInternAtoms(X11::getDpy(),
                  const_cast<char**>(atomnames), num, 0, atoms);
 
     for (uint i = 0; i < num; ++i) {
@@ -142,7 +142,7 @@ getProperty(Window win, Atom atom, Atom type,
         expected += left;
 
         status =
-            XGetWindowProperty(PScreen::getDpy(), win, atom,
+            XGetWindowProperty(X11::getDpy(), win, atom,
                                0L, expected, False, type,
                                &r_type, &r_format, &read, &left, data);
 
@@ -166,7 +166,7 @@ getProperty(Window win, Atom atom, Atom type,
 void
 setAtom(Window win, Atom atom, Atom value)
 {
-    XChangeProperty(PScreen::getDpy(), win, atom, XA_ATOM, 32,
+    XChangeProperty(X11::getDpy(), win, atom, XA_ATOM, 32,
                     PropModeReplace, (uchar *) &value, 1);
 }
 
@@ -174,7 +174,7 @@ setAtom(Window win, Atom atom, Atom value)
 void
 setAtoms(Window win, Atom atom, Atom *values, int size)
 {
-    XChangeProperty(PScreen::getDpy(), win, atom, XA_ATOM, 32,
+    XChangeProperty(X11::getDpy(), win, atom, XA_ATOM, 32,
                     PropModeReplace, (uchar *) values, size);
 }
 
@@ -182,7 +182,7 @@ setAtoms(Window win, Atom atom, Atom *values, int size)
 void
 setWindow(Window win, Atom atom, Window value)
 {
-    XChangeProperty(PScreen::getDpy(), win, atom, XA_WINDOW, 32,
+    XChangeProperty(X11::getDpy(), win, atom, XA_WINDOW, 32,
                     PropModeReplace, (uchar *) &value, 1);
 }
 
@@ -190,7 +190,7 @@ setWindow(Window win, Atom atom, Window value)
 void
 setWindows(Window win, Atom atom, Window *values, int size)
 {
-    XChangeProperty(PScreen::getDpy(), win, atom, XA_WINDOW, 32,
+    XChangeProperty(X11::getDpy(), win, atom, XA_WINDOW, 32,
                     PropModeReplace, (uchar *) values, size);
 }
 
@@ -216,7 +216,7 @@ getLong(Window win, Atom atom, long &value)
 void
 setLong(Window win, Atom atom, long value)
 {
-    XChangeProperty(PScreen::getDpy(), win, atom, XA_CARDINAL, 32,
+    XChangeProperty(X11::getDpy(), win, atom, XA_CARDINAL, 32,
                     PropModeReplace, (uchar *) &value, 1);
 }
 
@@ -231,7 +231,7 @@ setLong(Window win, Atom atom, long value)
 void
 setLongs(Window win, Atom atom, long *values, int size)
 {
-    XChangeProperty(PScreen::getDpy(), win, atom, XA_CARDINAL, 32,
+    XChangeProperty(X11::getDpy(), win, atom, XA_CARDINAL, 32,
                     PropModeReplace, reinterpret_cast<unsigned char*>(values), size);
 }
 
@@ -277,7 +277,7 @@ setUtf8String(Window win, Atom atom, const std::wstring &value)
 {
     string utf8_string(Util::to_utf8_str(value));
 
-    XChangeProperty(PScreen::getDpy(), win, atom,
+    XChangeProperty(X11::getDpy(), win, atom,
                     Atoms::getAtom(UTF8_STRING), 8,
                     PropModeReplace,
                     reinterpret_cast<const uchar*>(utf8_string.c_str()),
@@ -295,7 +295,7 @@ setUtf8String(Window win, Atom atom, const std::wstring &value)
     void
     setUtf8StringArray(Window win, Atom atom, unsigned char *values, unsigned int length)
     {
-        XChangeProperty(PScreen::getDpy(), win, atom, Atoms::getAtom(UTF8_STRING),
+        XChangeProperty(X11::getDpy(), win, atom, Atoms::getAtom(UTF8_STRING),
                         8, PropModeReplace, values, length);
     }
 
@@ -303,7 +303,7 @@ setUtf8String(Window win, Atom atom, const std::wstring &value)
 void
 setString(Window win, Atom atom, const string &value)
 {
-    XChangeProperty(PScreen::getDpy(), win, atom, XA_STRING, 8,
+    XChangeProperty(X11::getDpy(), win, atom, XA_STRING, 8,
                     PropModeReplace, (uchar*) value.c_str(), value.size());
 }
 
@@ -320,7 +320,7 @@ getTextProperty(Window win, Atom atom, std::string &value)
 {
     // Read text property, return if it fails.
     XTextProperty text_property;
-    if (! XGetTextProperty(PScreen::getDpy(), win, &text_property, atom)
+    if (! XGetTextProperty(X11::getDpy(), win, &text_property, atom)
         || ! text_property.value || ! text_property.nitems) {
         return false;
     }
@@ -331,7 +331,7 @@ getTextProperty(Window win, Atom atom, std::string &value)
         char **mb_list;
         int num;
 
-        XmbTextPropertyToTextList(PScreen::getDpy(), &text_property, &mb_list, &num);
+        XmbTextPropertyToTextList(X11::getDpy(), &text_property, &mb_list, &num);
         if (mb_list && num > 0) {
             value = *mb_list;
             XFreeStringList(mb_list);
@@ -352,7 +352,7 @@ getEwmhPropData(Window win, Atom prop, Atom type, int &num)
     ulong items_ret, after_ret;
     uchar *prop_data = 0;
 
-    XGetWindowProperty(PScreen::getDpy(), win, prop, 0, 0x7fffffff,
+    XGetWindowProperty(X11::getDpy(), win, prop, 0, 0x7fffffff,
                        False, type, &type_ret, &format_ret, &items_ret,
                        &after_ret, &prop_data);
 
@@ -367,7 +367,7 @@ getEwmhPropData(Window win, Atom prop, Atom type, int &num)
 void
 unsetProperty(Window win, Atom prop)
 {
-    XDeleteProperty(PScreen::getDpy(), win, prop);
+    XDeleteProperty(X11::getDpy(), win, prop);
 }
 
 } // end namespace AtomUtil

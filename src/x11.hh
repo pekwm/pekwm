@@ -1,6 +1,6 @@
 //
-// Screen.hh for pekwm
-// Copyright © 2003-2009 Claes Nästén <me{@}pekdon{.}net>
+// x11.hh for pekwm
+// Copyright © 2003-2011 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -10,8 +10,8 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#ifndef _SCREENINFO_HH_
-#define _SCREENINFO_HH_
+#ifndef _PEKWM_X11_HH_
+#define _PEKWM_X11_HH_
 
 #include "pekwm.hh"
 
@@ -75,7 +75,7 @@ public:
 };
 
 //! @brief Display information class.
-class PScreen
+class X11
 {
     //! Bits 1-15 are modifier masks, but bits 13 and 14 aren't named in X11/X.h.
     static const unsigned KbdLayoutMask1 = 1<<13;
@@ -124,7 +124,7 @@ public:
     inline static uint getHeight(void) { return _screen_gm.height; }
 
     inline static int getDepth(void) { return _depth; }
-    inline static PScreen::PVisual *getVisual(void) { return _visual; }
+    inline static X11::PVisual *getVisual(void) { return _visual; }
     inline static GC getGC(void) { return DefaultGC(_dpy, _screen); }
     inline static Colormap getColormap(void) { return _colormap; }
 
@@ -270,7 +270,7 @@ private:
     static Geometry _screen_gm; /**< Screen geometry, no head information. */
 
     static Window _root;
-    static PScreen::PVisual *_visual;
+    static X11::PVisual *_visual;
     static Colormap _colormap;
     static XModifierKeymap *_modifier_map; /**< Key to modifier mappings. */
 
@@ -298,8 +298,8 @@ private:
     static Strut _strut;
     static std::list<Strut*> _strut_list;
 
-    PScreen() {}
-    ~PScreen() {}
+    X11(void) {}
+    ~X11(void) {}
 };
 
-#endif // _SCREENINFO_HH_
+#endif // _PEKWM_X11_HH_

@@ -14,10 +14,10 @@
 
 #include "Config.hh"
 #include "PixmapHandler.hh"
-#include "PScreen.hh"
 #include "ScreenResources.hh"
 #include "Workspaces.hh"
 #include "WorkspaceIndicator.hh"
+#include "x11.hh"
 
 using std::cerr;
 using std::endl;
@@ -38,7 +38,7 @@ WorkspaceIndicator::Display::Display(PWinObj *parent, Theme *theme)
     attr.override_redirect = false;
     attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
                     FocusChangeMask|KeyPressMask|KeyReleaseMask;
-    _window = XCreateWindow(PScreen::getDpy(), _parent->getWindow(), 0, 0, 1, 1, 0,
+    _window = XCreateWindow(X11::getDpy(), _parent->getWindow(), 0, 0, 1, 1, 0,
                             CopyFromParent, InputOutput, CopyFromParent,
                             CWOverrideRedirect|CWEventMask, &attr);
 }
@@ -48,7 +48,7 @@ WorkspaceIndicator::Display::Display(PWinObj *parent, Theme *theme)
  */
 WorkspaceIndicator::Display::~Display(void)
 {
-    XDestroyWindow(PScreen::getDpy(), _window);
+    XDestroyWindow(X11::getDpy(), _window);
     ScreenResources::instance()->getPixmapHandler()->returnPixmap(_pixmap);
 }
 
@@ -59,8 +59,8 @@ bool
 WorkspaceIndicator::Display::getSizeRequest(Geometry &gm)
 {
     Geometry head;
-    uint head_nr = PScreen::getNearestHead(_parent->getX(), _parent->getY());
-    PScreen::getHeadInfo(head_nr, head);
+    uint head_nr = X11::getNearestHead(_parent->getX(), _parent->getY());
+    X11::getHeadInfo(head_nr, head);
 
     uint head_size = std::min(head.width, head.height) / Config::instance()->getWorkspaceIndicatorScale();
     gm.x = gm.y = 0;
@@ -81,7 +81,7 @@ WorkspaceIndicator::Display::render(void)
     // Make sure pixmap has correct size
     ScreenResources::instance()->getPixmapHandler()->returnPixmap(_pixmap);
     _pixmap = ScreenResources::instance()->getPixmapHandler()->getPixmap(_gm.width, _gm.height,
-                                                                        PScreen::getDepth());
+                                                                        X11::getDepth());
 
     // Render background
     data.texture_background->render(_pixmap, 0, 0, _gm.width, _gm.height);
@@ -228,7 +228,7 @@ WorkspaceIndicator::render(void)
 {
     // Center on head
     Geometry head, request;
-    PScreen::getHeadInfo(PScreen::getCurrHead(), head);
+    X11::getHeadInfo(X11::getCurrHead(), head);
 
     _display_wo.getSizeRequest(request);
     resizeChild(request.width, request.height);

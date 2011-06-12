@@ -10,7 +10,7 @@
 #endif // HAVE_CONFIG_H
 
 #include "ColorHandler.hh"
-#include "PScreen.hh"
+#include "x11.hh"
 #include <cstring>
 
 #ifdef DEBUG
@@ -39,7 +39,7 @@ ColorHandler::ColorHandler(Display *dpy)
     _instance = this;
     
     // setup default color
-    _xc_default.pixel = PScreen::getBlackPixel();
+    _xc_default.pixel = X11::getBlackPixel();
     _xc_default.red = _xc_default.green = _xc_default.blue = 0;
 }
 
@@ -75,7 +75,7 @@ ColorHandler::getColor(const std::string &color)
 
     // X alloc
     XColor dummy;
-    if (XAllocNamedColor(_dpy, PScreen::getColormap(),
+    if (XAllocNamedColor(_dpy, X11::getColormap(),
                          color.c_str(), entry->getColor(), &dummy) == 0) {
 #ifdef DEBUG
         cerr << __FILE__ << "@" << __LINE__ << ": "
@@ -106,7 +106,7 @@ ColorHandler::returnColor(XColor *xc)
             (*it)->decRef();
             if (_free_on_return && ((*it)->getRef() == 0)) {
                 ulong pixels[1] = { (*it)->getColor()->pixel };
-                XFreeColors(_dpy, PScreen::getColormap(), pixels, 1, 0);
+                XFreeColors(_dpy, X11::getColormap(), pixels, 1, 0);
 
                 delete *it;
                 _color_list.erase(it);
@@ -134,7 +134,7 @@ ColorHandler::freeColors(bool all)
     if (pixel_list.size() > 0) {
         ulong *pixels = new ulong[pixel_list.size()];
         copy(pixel_list.begin(), pixel_list.end(), pixels);
-        XFreeColors(_dpy, PScreen::getColormap(),
+        XFreeColors(_dpy, X11::getColormap(),
                     pixels, pixel_list.size(), 0);
         delete [] pixels;
     }
