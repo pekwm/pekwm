@@ -881,8 +881,8 @@ Theme::HarbourData::check(void)
 // Theme
 
 //! @brief Theme constructor
-Theme::Theme(PScreen *scr)
-    : _scr(scr), _image_handler(0),
+Theme::Theme(void)
+    : _image_handler(0),
       _is_loaded(false), _invert_gc(None)
 {
     // image handler
@@ -900,14 +900,14 @@ Theme::Theme(PScreen *scr)
     gv.function = GXinvert;
     gv.subwindow_mode = IncludeInferiors;
     gv.line_width = 1;
-    _invert_gc = XCreateGC(_scr->getDpy(), _scr->getRoot(),
+    _invert_gc = XCreateGC(PScreen::getDpy(), PScreen::getRoot(),
                            GCFunction|GCSubwindowMode|GCLineWidth, &gv);
 
-    _scr->grabServer();
+    PScreen::grabServer();
 
     load(Config::instance()->getThemeFile());
 
-    _scr->ungrabServer(true);
+    PScreen::ungrabServer(true);
 }
 
 //! @brief Theme destructor
@@ -915,7 +915,7 @@ Theme::~Theme(void)
 {
     unload(); // should clean things up
 
-    XFreeGC(_scr->getDpy(), _invert_gc);
+    XFreeGC(PScreen::getDpy(), _invert_gc);
 
     delete _image_handler;
 }

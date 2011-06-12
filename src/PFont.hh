@@ -26,8 +26,6 @@ extern "C" {
 #endif // HAVE_XFT
 }
 
-class PScreen;
-
 class PFont
 {
 public:

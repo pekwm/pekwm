@@ -19,7 +19,6 @@
 
 class PWinObj;
 class PMenu;
-class PScreen;
 class Theme;
 
 class WORefMenu : public PMenu, public PWinObjReference

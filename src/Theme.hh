@@ -20,7 +20,6 @@
 #include "PFont.hh" // PFont::Color
 #include "ParseUtil.hh"
 
-class PScreen;
 class PTexture;
 class Button;
 class ButtonData;
@@ -323,7 +322,7 @@ public:
 
     inline Theme::HarbourData *getHarbourData(void) { return &_harbour_data; }
 
-    Theme(PScreen *scr);
+    Theme(void);
     ~Theme(void);
 
     bool load(const std::string &dir);
@@ -354,7 +353,7 @@ public:
         return 0;
     }
 
-  Theme::WorkspaceIndicatorData &getWorkspaceIndicatorData(void) { return _workspace_indicator_data; }
+    Theme::WorkspaceIndicatorData &getWorkspaceIndicatorData(void) { return _workspace_indicator_data; }
 
     // menu
     inline Theme::PMenuData *getMenuData(void) { return &_menu_data; }
@@ -367,7 +366,6 @@ private:
     void loadThemeRequire(CfgParser &theme_cfg, std::string &file);
 
 private:
-    PScreen *_scr;
     ImageHandler *_image_handler;
 
     std::map<std::string, Theme::ThemeData*> _section_data_map; /**< Map between section names and data. */

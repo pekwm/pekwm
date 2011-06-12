@@ -20,7 +20,6 @@
 #include <list>
 #include <vector>
 
-class PScreen;
 class EwmhAtoms;
 class PWinObj;
 class Frame;

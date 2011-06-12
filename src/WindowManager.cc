@@ -337,7 +337,7 @@ WindowManager::setupDisplay(bool replace)
 
     // load colors, fonts
     _screen_resources = new ScreenResources();
-    _theme = new Theme(_screen);
+    _theme = new Theme;
 
     _autoproperties = new AutoProperties();
     _autoproperties->load();
