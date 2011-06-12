@@ -159,7 +159,7 @@ TextureHandler::parse(const std::string &texture)
             ptexture = parseSolidRaised(tok);
             break;
         case PTexture::TYPE_IMAGE:
-            ptexture = new PTextureImage(X11::getDpy(), tok[1]);
+            ptexture = new PTextureImage(tok[1]);
             break;
         case PTexture::TYPE_NO:
         default:
@@ -173,7 +173,7 @@ TextureHandler::parse(const std::string &texture)
         }
 
     } else if (type == PTexture::TYPE_EMPTY) {
-        ptexture = new PTexture(X11::getDpy());
+        ptexture = new PTexture;
     }
 
     return ptexture;
@@ -188,7 +188,8 @@ TextureHandler::parseSolid(std::vector<std::string> &tok)
         return 0;
     }
 
-    PTextureSolid *tex = new PTextureSolid(X11::getDpy(), tok[0]);	tok.erase(tok.begin());
+    PTextureSolid *tex = new PTextureSolid(tok[0]);
+    tok.erase(tok.begin());
 
     // check if we have size
     if (tok.size() == 1) {
@@ -207,8 +208,7 @@ TextureHandler::parseSolidRaised(std::vector<std::string> &tok)
         return 0;
     }
 
-    PTextureSolidRaised *tex = new PTextureSolidRaised(X11::getDpy(),
-                                                       tok[0], tok[1], tok[2]);
+    PTextureSolidRaised *tex = new PTextureSolidRaised(tok[0], tok[1], tok[2]);
     tok.erase(tok.begin(), tok.begin() + 3);
 
     // Check if we have line width and offset.

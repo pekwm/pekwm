@@ -1025,7 +1025,7 @@ Client::readIcon(void)
     PImageIcon *image = new PImageIcon;
     if (image->loadFromWindow(_window)) {
         if (! _icon) {
-            _icon = new PTextureImage(X11::getDpy());
+            _icon = new PTextureImage;
             TextureHandler::instance()->referenceTexture(_icon);
         }
 

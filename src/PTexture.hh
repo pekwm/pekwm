@@ -20,7 +20,7 @@ public:
         TYPE_IMAGE, TYPE_EMPTY, TYPE_NO
     };
 
-    PTexture(Display *dpy) : _dpy(dpy), _ok(false), _width(0), _height(0), _type(PTexture::TYPE_NO) { }
+    PTexture() : _ok(false), _width(0), _height(0), _type(PTexture::TYPE_NO) { }
     virtual ~PTexture(void) { }
 
     virtual void render(Drawable draw, int x, int y, uint width, uint height) { }
@@ -35,8 +35,6 @@ public:
     inline void setHeight(uint height) { _height = height; }
 
 protected:
-    Display *_dpy;
-
     bool _ok; // Texture successfully loaded
     uint _width, _height; // for images etc, 0 for infinite like in stretch
     PTexture::Type _type; // Type of texture

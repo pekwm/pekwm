@@ -24,7 +24,7 @@
 
 class PTextureSolid : public PTexture {
 public:
-    PTextureSolid(Display *dpy, const std::string &color);
+    PTextureSolid(const std::string &color);
     virtual ~PTextureSolid(void);
 
     // START - PTexture interface.
@@ -45,7 +45,7 @@ private:
 
 class PTextureSolidRaised : public PTexture {
 public:
-    PTextureSolidRaised(Display *dpy, const std::string &base, const std::string &hi, const std::string &lo);
+    PTextureSolidRaised(const std::string &base, const std::string &hi, const std::string &lo);
     virtual ~PTextureSolidRaised(void);
 
     // START - PTexture interface.
@@ -80,8 +80,8 @@ private:
 
 class PTextureImage : public PTexture {
 public:
-    PTextureImage(Display *dpy);
-    PTextureImage(Display *dpy, const std::string &image);
+    PTextureImage(void);
+    PTextureImage(const std::string &image);
     virtual ~PTextureImage(void);
 
     // START - PTexture interface.

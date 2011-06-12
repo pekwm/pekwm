@@ -15,14 +15,15 @@
 #include "ColorHandler.hh"
 #include "PImage.hh"
 #include "ImageHandler.hh"
+#include "x11.hh"
 
 using std::string;
 
 // PTextureSolid
 
 //! @brief PTextureSolid constructor
-PTextureSolid::PTextureSolid(Display *dpy, const std::string &color)
-    : PTexture(dpy),
+PTextureSolid::PTextureSolid(const std::string &color)
+    : PTexture(),
       _xc(0)
 {
     // PTexture attributes
@@ -30,7 +31,7 @@ PTextureSolid::PTextureSolid(Display *dpy, const std::string &color)
 
     XGCValues gv;
     gv.function = GXcopy;
-    _gc = XCreateGC(_dpy, RootWindow(_dpy, DefaultScreen(_dpy)), GCFunction, &gv);
+    _gc = XCreateGC(X11::getDpy(), RootWindow(X11::getDpy(), DefaultScreen(X11::getDpy())), GCFunction, &gv);
 
     setColor(color);
 }
@@ -38,7 +39,7 @@ PTextureSolid::PTextureSolid(Display *dpy, const std::string &color)
 //! @brief PTextureSolid destructor
 PTextureSolid::~PTextureSolid(void)
 {
-    XFreeGC(_dpy, _gc);
+    XFreeGC(X11::getDpy(), _gc);
 
     unsetColor();
 }
@@ -56,7 +57,7 @@ PTextureSolid::render(Drawable draw, int x, int y, uint width, uint height)
         height = _height;
     }
 
-    XFillRectangle(_dpy, draw, _gc, x, y, width, height);
+    XFillRectangle(X11::getDpy(), draw, _gc, x, y, width, height);
 }
 
 // END - PTexture interface.
@@ -68,7 +69,7 @@ PTextureSolid::setColor(const std::string &color)
     unsetColor(); // unload used resources
 
     _xc = ColorHandler::instance()->getColor(color);
-    XSetForeground(_dpy, _gc, _xc->pixel);
+    XSetForeground(X11::getDpy(), _gc, _xc->pixel);
 
     _ok = true;
 
@@ -90,8 +91,8 @@ PTextureSolid::unsetColor(void)
 // PTextureSolidRaised
 
 //! @brief PTextureSolidRaised constructor
-PTextureSolidRaised::PTextureSolidRaised(Display *dpy, const std::string &base, const std::string &hi, const std::string &lo)
-    : PTexture(dpy),
+PTextureSolidRaised::PTextureSolidRaised(const std::string &base, const std::string &hi, const std::string &lo)
+    : PTexture(),
       _xc_base(0), _xc_hi(0), _xc_lo(0),
       _lw(1), _loff(0), _loff2(0),
       _draw_top(true), _draw_bottom(true),
@@ -103,7 +104,7 @@ PTextureSolidRaised::PTextureSolidRaised(Display *dpy, const std::string &base, 
     XGCValues gv;
     gv.function = GXcopy;
     gv.line_width = _lw;
-    _gc = XCreateGC(_dpy, RootWindow(_dpy, DefaultScreen(_dpy)),
+    _gc = XCreateGC(X11::getDpy(), RootWindow(X11::getDpy(), DefaultScreen(X11::getDpy())),
                     GCFunction|GCLineWidth, &gv);
 
     setColor(base, hi, lo);
@@ -112,7 +113,7 @@ PTextureSolidRaised::PTextureSolidRaised(Display *dpy, const std::string &base, 
 //! @brief PTextureSolidRasied destructor
 PTextureSolidRaised::~PTextureSolidRaised(void)
 {
-    XFreeGC(_dpy, _gc);
+    XFreeGC(X11::getDpy(), _gc);
 
     unsetColor();
 }
@@ -131,31 +132,31 @@ PTextureSolidRaised::render(Drawable draw, int x, int y, uint width, uint height
     }
 
     // base rectangle
-    XSetForeground(_dpy, _gc, _xc_base->pixel);
-    XFillRectangle(_dpy, draw, _gc, x, y, width, height);
+    XSetForeground(X11::getDpy(), _gc, _xc_base->pixel);
+    XFillRectangle(X11::getDpy(), draw, _gc, x, y, width, height);
 
     // hi line ( consisting of two lines )
-    XSetForeground(_dpy, _gc, _xc_hi->pixel);
+    XSetForeground(X11::getDpy(), _gc, _xc_hi->pixel);
     if (_draw_top) {
-        XDrawLine(_dpy, draw, _gc,
+        XDrawLine(X11::getDpy(), draw, _gc,
                   x + _loff, y + _loff, x + width - _loff - _lw, y + _loff);
     }
     if (_draw_left) {
-        XDrawLine(_dpy, draw, _gc,
+        XDrawLine(X11::getDpy(), draw, _gc,
                   x + _loff, y + _loff, x + _loff, y + height - _loff - _lw);
     }
 
     // lo line ( consisting of two lines )
-    XSetForeground(_dpy, _gc, _xc_lo->pixel);
+    XSetForeground(X11::getDpy(), _gc, _xc_lo->pixel);
     if (_draw_bottom) {
-        XDrawLine(_dpy, draw, _gc,
+        XDrawLine(X11::getDpy(), draw, _gc,
                   x + _loff + _lw,
                   y + height - _loff - (_lw ? _lw : 1),
                   x + width - _loff - _lw,
                   y + height - _loff - (_lw ? _lw : 1));
     }
     if (_draw_right) {
-        XDrawLine(_dpy, draw, _gc,
+        XDrawLine(X11::getDpy(), draw, _gc,
                   x + width - _loff - (_lw ? _lw : 1),
                   y + _loff + _lw,
                   x + width - _loff - (_lw ? _lw : 1),
@@ -177,7 +178,7 @@ PTextureSolidRaised::setLineWidth(uint lw)
 
     XGCValues gv;
     gv.line_width = lw;
-    XChangeGC(_dpy, _gc, GCLineWidth, &gv);
+    XChangeGC(X11::getDpy(), _gc, GCLineWidth, &gv);
 }
 
 //! @brief Loads color resources
@@ -211,8 +212,8 @@ PTextureSolidRaised::unsetColor(void)
 // PTextureImage
 
 //! @brief PTextureImage constructor
-PTextureImage::PTextureImage(Display *dpy)
-  : PTexture(dpy),
+PTextureImage::PTextureImage(void)
+  : PTexture(),
     _image(0)
 {
   // PTexture attributes
@@ -221,8 +222,8 @@ PTextureImage::PTextureImage(Display *dpy)
                                              
 
 //! @brief PTextureImage constructor
-PTextureImage::PTextureImage(Display *dpy, const std::string &image)
-    : PTexture(dpy),
+PTextureImage::PTextureImage(const std::string &image)
+    : PTexture(),
       _image(0)
 {
     // PTexture attributes
