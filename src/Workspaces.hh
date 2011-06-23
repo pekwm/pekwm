@@ -85,12 +85,12 @@ public:
     }
 
     Workspace *getActiveWorkspace(void) {
-      return _workspace_list[_active];
+        return _workspace_list[_active];
     }
     Workspace *getWorkspace(uint workspace) {
-      if (workspace >= _workspace_list.size())
-        return 0;
-      return _workspace_list[workspace];
+        if (workspace >= _workspace_list.size())
+            return 0;
+        return _workspace_list[workspace];
     };
 
     void insert(PWinObj* wo, bool raise = true);
@@ -133,18 +133,7 @@ private:
 
     // placement helpers
     PWinObj* isEmptySpace(int x, int y, const PWinObj *wo);
-    inline bool isBetween(const int &x1, const int &x2,
-                          const int &t1, const int &t2) {
-        if (x1 > t1) {
-            if (x1 < t2)
-                return true;
-        } else if (x2 > t1) {
-            return true;
-        }
-        return false;
-    }
 
-private:
     static Workspaces *_instance;
 
     uint _active; /**< Current active workspace. */
