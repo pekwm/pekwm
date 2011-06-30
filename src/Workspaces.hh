@@ -80,10 +80,6 @@ public:
     void setWorkspace(uint num, bool focus);
     bool gotoWorkspace(uint direction, bool warp);
 
-    inline const std::list<PWinObj*> &getWOList(void) const {
-        return _wo_list;
-    }
-
     Workspace *getActiveWorkspace(void) {
         return _workspace_list[_active];
     }
