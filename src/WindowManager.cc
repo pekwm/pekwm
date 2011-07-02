@@ -256,7 +256,9 @@ WindowManager::cleanup(void)
         (*it_f)->updateInactiveChildInfo();
     }
 
-    _harbour->removeAllDockApps();
+    if (_harbour) {
+        _harbour->removeAllDockApps();
+    }
 
     // To preserve stacking order when destroying the frames, we go through
     // the PWinObj list from the Workspaces and put all Frames into our own
