@@ -404,8 +404,7 @@ Client::findAndRaiseIfTransient(void)
         Frame *frame = static_cast<Frame*>(getParent());
         Frame *frame_transient = static_cast<Frame*>(_transient->getParent());
         if (frame->getActiveChild() == this) {
-            frame->setLayer(frame_transient->getLayer() + 1);
-            frame->raise();
+            Workspaces::instance()->stackAbove(this, frame_transient->getWindow());
         }
     }
 }
