@@ -247,6 +247,10 @@ public:
                          long v1=0l, long v2=0l, long v3=0l,
                          long v4=0l, long v5=0l);
 
+    static Colormap createColormap(Visual *visual) {
+        return XCreateColormap(_dpy, _root, visual, AllocNone);
+    }
+
 private:
     // squared distance because computing with sqrt is expensive
 
