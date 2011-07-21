@@ -61,6 +61,7 @@ Client::Client(Window new_client, bool is_new)
       _id(0), _size(0),
       _transient(None), _strut(0), _icon(0),
       _pid(0), _is_remote(false), _class_hint(0),
+      _window_type(WINDOW_TYPE_NORMAL),
       _alive(false), _marked(false),
       _send_focus_message(false), _send_close_message(false),
       _wm_hints_input(true), _cfg_request_lock(false),
@@ -893,42 +894,10 @@ Client::readEwmhHints(void)
         _workspace = workspace;
     }
 
-    // try to figure out what kind of window we are and alter it accordingly
-    int items;
-    Atom *atoms = 0;
-
-    AtomName window_type = WINDOW_TYPE;
-    atoms = (Atom*) AtomUtil::getEwmhPropData(_window, Atoms::getAtom(WINDOW_TYPE), XA_ATOM, items);
-    if (atoms) {
-      for (int i = 0; window_type == WINDOW_TYPE && i < items; ++i) {
-        if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_DESKTOP)) {
-          window_type = WINDOW_TYPE_DESKTOP;
-        } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_DOCK)) {
-          window_type = WINDOW_TYPE_DOCK;
-        } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_TOOLBAR)) {
-          window_type = WINDOW_TYPE_TOOLBAR;
-        } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_MENU)) {
-          window_type = WINDOW_TYPE_MENU;
-        } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_UTILITY)) {
-          window_type = WINDOW_TYPE_UTILITY;
-        } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_DIALOG)) {
-          window_type = WINDOW_TYPE_DIALOG;
-        } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_SPLASH)) {
-          window_type = WINDOW_TYPE_SPLASH;
-        }
-      }
-
-      XFree(atoms);
-    }
-
-    // Set window type to WINDOW_TYPE_NORMAL if it did not match
-    if (window_type == WINDOW_TYPE) {
-        window_type = WINDOW_TYPE_NORMAL;
-        AtomUtil::setAtom(_window, Atoms::getAtom(WINDOW_TYPE), Atoms::getAtom(WINDOW_TYPE_NORMAL));
-    }
+    updateWinType(true);
 
     // Apply autoproperties for window type
-    AutoProperty *auto_property = AutoProperties::instance()->findWindowTypeProperty(window_type);
+    AutoProperty *auto_property = AutoProperties::instance()->findWindowTypeProperty(_window_type);
     if (auto_property) {
         applyAutoprops(auto_property);
     }
@@ -1753,6 +1722,46 @@ Client::updateEwmhStates(void)
     }
     AtomUtil::setAtoms(_window, Atoms::getAtom(STATE), atoms, states.size());
     delete [] atoms;
+}
+
+void
+Client::updateWinType(bool set)
+{
+    // try to figure out what kind of window we are and alter it accordingly
+    int items;
+    Atom *atoms = 0;
+
+    _window_type = WINDOW_TYPE;
+    atoms = (Atom*) AtomUtil::getEwmhPropData(_window, Atoms::getAtom(WINDOW_TYPE), XA_ATOM, items);
+    if (atoms) {
+        for (int i = 0; _window_type == WINDOW_TYPE && i < items; ++i) {
+            if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_DESKTOP)) {
+                _window_type = WINDOW_TYPE_DESKTOP;
+            } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_DOCK)) {
+                _window_type = WINDOW_TYPE_DOCK;
+            } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_TOOLBAR)) {
+                _window_type = WINDOW_TYPE_TOOLBAR;
+            } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_MENU)) {
+                _window_type = WINDOW_TYPE_MENU;
+            } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_UTILITY)) {
+                _window_type = WINDOW_TYPE_UTILITY;
+            } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_DIALOG)) {
+                _window_type = WINDOW_TYPE_DIALOG;
+            } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_SPLASH)) {
+                _window_type = WINDOW_TYPE_SPLASH;
+            } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_NORMAL)) {
+                _window_type = WINDOW_TYPE_NORMAL;
+            }
+        }
+        XFree(atoms);
+    }
+
+    // Set window type to WINDOW_TYPE_NORMAL if it did not match
+    if (_window_type == WINDOW_TYPE) {
+        _window_type = WINDOW_TYPE_NORMAL;
+        if (set)
+            AtomUtil::setAtom(_window, Atoms::getAtom(WINDOW_TYPE), Atoms::getAtom(WINDOW_TYPE_NORMAL));
+    }
 }
 
 void

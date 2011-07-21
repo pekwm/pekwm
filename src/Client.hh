@@ -19,6 +19,7 @@
 
 #include "pekwm.hh"
 #include "Observer.hh"
+#include "Atoms.hh"
 #include "PTexturePlain.hh"
 #include "PDecor.hh"
 
@@ -275,6 +276,9 @@ public: // Public Member Functions
     bool getEwmhStates(NetWMStates &win_states);
     void updateEwmhStates(void);
 
+    inline AtomName getWinType(void) const { return _window_type; }
+    void updateWinType(bool set);
+
     void getWMNormalHints(void);
     void getWMProtocols(void);
     void getTransientForHint(void);
@@ -355,6 +359,7 @@ private: // Private Member Variables
     bool _is_remote; /**< Boolean flag  */
 
     ClassHint *_class_hint;
+    AtomName _window_type; /**< _NET_WM_WINDOW_TYPE */
 
     bool _alive, _marked;
     bool _send_focus_message, _send_close_message, _wm_hints_input;
