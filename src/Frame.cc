@@ -909,8 +909,25 @@ Frame::returnFrameID(uint id)
 std::string
 Frame::getClientDecorName(Client *client)
 {
-  DecorProperty *prop = WindowManager::instance()->getAutoProperties()->findDecorProperty(client->getClassHint());
-  return prop ? prop->getName() : PDecor::DEFAULT_DECOR_NAME;
+    DecorProperty *dp;
+    AutoProperty *ap;
+
+    ap = WindowManager::instance()->getAutoProperties()->findAutoProperty(client->getClassHint());
+    if (ap && ap->isMask(AP_DECOR)) {
+        return ap->frame_decor;
+    }
+
+    ap = WindowManager::instance()->getAutoProperties()->findWindowTypeProperty(client->getWinType());
+    if (ap && ap->isMask(AP_DECOR)) {
+        return ap->frame_decor;
+    }
+
+    dp = WindowManager::instance()->getAutoProperties()->findDecorProperty(client->getClassHint());
+    if (dp) {
+        return dp->getName();
+    }
+
+    return PDecor::DEFAULT_DECOR_NAME;
 }
 
 //! @brief Resets Frame IDs.

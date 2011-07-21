@@ -406,6 +406,15 @@
 	  </para>
 	</listitem>
       </varlistentry>
+      <varlistentry>
+       <term>Decor (string)</term>
+       <listitem>
+         <para>
+           Use the specified decor for this window. The decor has to be defined in the used theme.
+           The decor is chosen by the first match in order: AutoProperty, TypeRules, DecorRules.
+         </para>
+       </listitem>
+      </varlistentry>
     </variablelist>
   </para>
 </simplesect>

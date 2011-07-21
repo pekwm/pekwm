@@ -47,6 +47,7 @@ enum PropertyType {
     AP_ALLOWED_ACTIONS = (1L << 18),
     AP_DISALLOWED_ACTIONS = (1L << 19),
     AP_OPACITY = (1L << 20),
+    AP_DECOR = (1L << 21),
 
     AP_GROUP_SIZE,
     AP_GROUP_BEHIND,
