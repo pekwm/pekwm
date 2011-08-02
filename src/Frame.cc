@@ -142,7 +142,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
 
     // still need a position?
     if (place) {
-        Workspaces::instance()->placeWo(this, client->getTransientClientWindow());
+        Workspaces::placeWo(this, client->getTransientClientWindow());
     }
 
     _old_gm = _gm;
@@ -162,7 +162,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
     // be able to skip an extra updateClientList
     _frame_list.push_back(this);
     WindowManager::instance()->addToFrameList(this);
-    Workspaces::instance()->insert(this);
+    Workspaces::insert(this);
 
     activateChild(client);
 
@@ -192,7 +192,7 @@ Frame::~Frame(void)
     _wo_map.erase(_window);
     woListRemove(this);
     _frame_list.remove(this);
-    Workspaces::instance()->remove(this);
+    Workspaces::remove(this);
     WindowManager::instance()->removeFromFrameList(this);
     if (_tag_frame == this) {
         _tag_frame = 0;
@@ -204,8 +204,8 @@ Frame::~Frame(void)
         delete _class_hint;
     }
 
-    Workspaces::instance()->updateClientList();
-    Workspaces::instance()->updateClientStackingList();
+    Workspaces::updateClientList();
+    Workspaces::updateClientStackingList();
 }
 
 // START - PWinObj interface.
@@ -232,7 +232,7 @@ Frame::stick(void)
     _sticky = ! _sticky;
 
     // make sure it's visible/hidden
-    PDecor::setWorkspace(Workspaces::instance()->getActive());
+    PDecor::setWorkspace(Workspaces::getActive());
 }
 
 void
@@ -385,7 +385,7 @@ Frame::handleMapRequest(XMapRequestEvent *ev)
         return 0;
     }
 
-    if (! _sticky && (_workspace != Workspaces::instance()->getActive())) {
+    if (! _sticky && (_workspace != Workspaces::getActive())) {
 #ifdef DEBUG
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "Ignoring MapRequest, not on current workspace!" << endl;
@@ -514,8 +514,8 @@ Frame::activateChild (PWinObj *child)
     // Reload decor rules if needed.
     handleTitleChange(_client);
 
-    Workspaces::instance()->updateClientList();
-    Workspaces::instance()->updateClientStackingList();
+    Workspaces::updateClientList();
+    Workspaces::updateClientStackingList();
 }
 
 /**
@@ -956,7 +956,7 @@ Frame::detachClient(Client *client)
         Frame *frame = new Frame(client, 0);
 
         client->setParent(frame);
-        client->setWorkspace(Workspaces::instance()->getActive());
+        client->setWorkspace(Workspaces::getActive());
 
         setFocused(false);
     }
@@ -1094,7 +1094,7 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: r
                 client->setParent(frame);
 
                 // make sure the client ends up on the current workspace
-                client->setWorkspace(Workspaces::instance()->getActive());
+                client->setWorkspace(Workspaces::getActive());
 
                 // make sure it get's focus
                 setFocused(false);
@@ -2058,10 +2058,10 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
             if (ev->value_mask&CWSibling) {
                 switch(ev->detail) {
                 case Above:
-                    Workspaces::instance()->stackAbove(this, ev->above);
+                    Workspaces::stackAbove(this, ev->above);
                     break;
                 case Below:
-                    Workspaces::instance()->stackBelow(this, ev->above);
+                    Workspaces::stackBelow(this, ev->above);
                     break;
                 case TopIf:
                 case BottomIf:
@@ -2170,9 +2170,9 @@ Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
             // If we aren't mapped we check if we make sure we're on the right
             // workspace and then map the window.
             if (! _mapped) {
-                if (_workspace != Workspaces::instance()->getActive() &&
+                if (_workspace != Workspaces::getActive() &&
                         !isSticky()) {
-                    Workspaces::instance()->setWorkspace(_workspace, false);
+                    Workspaces::setWorkspace(_workspace, false);
                 }
                 mapWindow();
             }

@@ -64,8 +64,8 @@ WorkspaceIndicator::Display::getSizeRequest(Geometry &gm)
 
     uint head_size = std::min(head.width, head.height) / Config::instance()->getWorkspaceIndicatorScale();
     gm.x = gm.y = 0;
-    gm.width = head_size * Workspaces::instance()->getPerRow() + getPaddingHorizontal();
-    gm.height = head_size * Workspaces::instance()->getRows() + getPaddingVertical();
+    gm.width = head_size * Workspaces::getPerRow() + getPaddingHorizontal();
+    gm.height = head_size * Workspaces::getRows() + getPaddingVertical();
 
     return true;
 }
@@ -94,7 +94,7 @@ WorkspaceIndicator::Display::render(void)
 
     data.font->setColor(data.font_color);
     data.font->draw(_pixmap, data.edge_padding, _gm.height - data.edge_padding - data.font->getHeight(),
-                     Workspaces::instance()->getActiveWorkspace()->getName(),
+                     Workspaces::getActiveWorkspace()->getName(),
                      0 /* max_chars */, _gm.width - data.edge_padding * 2 /* max_width */);
 
     // Refresh
@@ -115,8 +115,8 @@ WorkspaceIndicator::Display::renderWorkspaces(int x, int y, uint width, uint hei
 {
     Theme::WorkspaceIndicatorData &data(_theme->getWorkspaceIndicatorData());
 
-    uint per_row = Workspaces::instance()->getPerRow();
-    uint rows = Workspaces::instance()->getRows();
+    uint per_row = Workspaces::getPerRow();
+    uint rows = Workspaces::getRows();
 
     uint ws_width = width / per_row;
     uint ws_height = height / rows;
@@ -125,18 +125,18 @@ WorkspaceIndicator::Display::renderWorkspaces(int x, int y, uint width, uint hei
     uint x_pos = x;
     uint y_pos = y;
 
-    vector<Workspaces::Workspace*>::iterator it(Workspaces::instance()->ws_begin());
+    vector<Workspaces::Workspace*>::iterator it(Workspaces::ws_begin());
 
-    for (uint row = 0; it != Workspaces::instance()->ws_end(); ++it) {
+    for (uint row = 0; it != Workspaces::ws_end(); ++it) {
         // Check for next row
-        if (Workspaces::instance()->getRow((*it)->getNumber()) > row) {
-            row = Workspaces::instance()->getRow((*it)->getNumber());
+        if (Workspaces::getRow((*it)->getNumber()) > row) {
+            row = Workspaces::getRow((*it)->getNumber());
 
             x_pos = x;
             y_pos += ws_height + data.workspace_padding;
         }
 
-        if ((*it)->getNumber() == Workspaces::instance()->getActive()) {
+        if ((*it)->getNumber() == Workspaces::getActive()) {
             data.texture_workspace_act->render(_pixmap, x_pos, y_pos, ws_width, ws_height);
         } else {
             data.texture_workspace->render(_pixmap, x_pos, y_pos, ws_width, ws_height);
@@ -154,7 +154,7 @@ WorkspaceIndicator::Display::getPaddingHorizontal(void)
 {
     Theme::WorkspaceIndicatorData &data(_theme->getWorkspaceIndicatorData());
 
-    return (data.edge_padding * 2 + data.workspace_padding * (Workspaces::instance()->getPerRow() - 1));
+    return (data.edge_padding * 2 + data.workspace_padding * (Workspaces::getPerRow() - 1));
 }
 
 /**
@@ -166,7 +166,7 @@ WorkspaceIndicator::Display::getPaddingVertical(void)
     Theme::WorkspaceIndicatorData &data(_theme->getWorkspaceIndicatorData());
 
     return (data.edge_padding * 3 + data.font->getHeight()
-            + data.workspace_padding * (Workspaces::instance()->getRows() - 1));
+            + data.workspace_padding * (Workspaces::getRows() - 1));
 }
 
 /**
@@ -198,7 +198,7 @@ WorkspaceIndicator::WorkspaceIndicator(Theme *theme, Timer<ActionPerformed> &tim
     loadTheme();
 
     // Register ourselves
-    Workspaces::instance()->insert(this);
+    Workspaces::insert(this);
     woListAdd(this);
     _wo_map[_window] = this;
 
@@ -213,7 +213,7 @@ WorkspaceIndicator::~WorkspaceIndicator(void)
     removeChild(&_display_wo, false);
 
     // Un-register ourselves
-    Workspaces::instance()->remove(this);
+    Workspaces::remove(this);
     _wo_map.erase(_window);
     woListRemove(this);
 }

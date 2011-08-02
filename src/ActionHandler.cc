@@ -565,7 +565,7 @@ ActionHandler::actionFindClient(const std::wstring &title)
 void
 ActionHandler::actionGotoWorkspace(uint workspace, bool warp)
 {
-    Workspaces::instance()->gotoWorkspace(workspace, warp);
+    Workspaces::gotoWorkspace(workspace, warp);
 }
 
 //! @brief Focus client with id.
@@ -585,47 +585,49 @@ void
 ActionHandler::actionSendToWorkspace(PDecor *decor, int direction)
 {
     // Convenience
-    Workspaces *ws = Workspaces::instance();
-    uint per_row = Config::instance()->getWorkspacesPerRow();
-    uint cur_row = ws->getRow(), row_min = ws->getRowMin(), row_max = ws->getRowMax();
+    const uint per_row = Workspaces::getPerRow(),
+        cur_row = Workspaces::getRow(),
+        cur_act = Workspaces::getActive(),
+        row_min = Workspaces::getRowMin(),
+        row_max = Workspaces::getRowMax();
 
     switch (direction) {
     case WORKSPACE_LEFT:
     case WORKSPACE_PREV:
-        if (ws->getActive() > row_min) {
-            decor->setWorkspace(ws->getActive() - 1);
+        if (cur_act > row_min) {
+            decor->setWorkspace(cur_act - 1);
         } else if (static_cast<uint>(direction) == WORKSPACE_PREV) {
             decor->setWorkspace(row_max);
         }
         break;
     case WORKSPACE_NEXT:
     case WORKSPACE_RIGHT:
-        if (ws->getActive() < row_max) {
-            decor->setWorkspace(ws->getActive() + 1);
+        if (cur_act < row_max) {
+            decor->setWorkspace(cur_act + 1);
         } else if (static_cast<uint>(direction) == WORKSPACE_NEXT) {
             decor->setWorkspace(row_min);
         }
         break;
     case WORKSPACE_PREV_V:
     case WORKSPACE_UP:
-        if (ws->getActive() >= per_row) {
-            decor->setWorkspace(ws->getActive() - per_row);
+        if (cur_act >= per_row) {
+            decor->setWorkspace(cur_act - per_row);
         } else if (static_cast<uint>(direction) == WORKSPACE_PREV_V) {
             // Bottom left + column
-            decor->setWorkspace(ws->size() - per_row
-                                + ws->getActive() - cur_row * per_row);
+            decor->setWorkspace(Workspaces::size() - per_row
+                                + cur_act - cur_row * per_row);
         }
         break;
     case WORKSPACE_NEXT_V:
     case WORKSPACE_DOWN:
-        if ((ws->getActive() + per_row) < ws->size()) {
-            decor->setWorkspace(ws->getActive() + per_row);
+        if ((cur_act + per_row) < Workspaces::size()) {
+            decor->setWorkspace(cur_act + per_row);
         } else if (static_cast<uint>(direction) == WORKSPACE_NEXT_V) {
-            decor->setWorkspace(ws->getActive() - cur_row * per_row);
+            decor->setWorkspace(cur_act - cur_row * per_row);
         }
         break;
     case WORKSPACE_LAST:
-        decor->setWorkspace(ws->getPrevious());
+        decor->setWorkspace(Workspaces::getPrevious());
         break;
     default:
         decor->setWorkspace(direction);
@@ -642,13 +644,13 @@ ActionHandler::actionWarpToWorkspace(PDecor *decor, uint direction)
     X11::removeMotionEvents();
 
     // actually did move
-    if (Workspaces::instance()->gotoWorkspace(DirectionType(direction), true)) {
+    if (Workspaces::gotoWorkspace(DirectionType(direction), true)) {
         int x, y;
         X11::getMousePosition(x, y);
 
         decor->move(decor->getClickX() + x - decor->getPointerX(),
                     decor->getClickY() + y - decor->getPointerY());
-        decor->setWorkspace(Workspaces::instance()->getActive());
+        decor->setWorkspace(Workspaces::getActive());
     }
 }
 
@@ -758,7 +760,7 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off,
         // De-iconify if iconified, user probably wants this
         if (fo_wo->isIconified()) {
             // If the window was iconfied, and sticky
-            fo_wo->setWorkspace(Workspaces::instance()->getActive());
+            fo_wo->setWorkspace(Workspaces::getActive());
             fo_wo->mapWindow();
             fo_wo->raise();
         } else if (Raise(raise) == END_RAISE) {
@@ -776,7 +778,7 @@ void
 ActionHandler::actionFocusDirectional(PWinObj *wo, DirectionType dir, bool raise)
 {
     PWinObj *wo_focus =
-        Workspaces::instance()->findDirectional(wo, dir, SKIP_FOCUS_TOGGLE);
+        Workspaces::findDirectional(wo, dir, SKIP_FOCUS_TOGGLE);
 
     if (wo_focus) {
         if (raise) {
@@ -949,7 +951,7 @@ ActionHandler::createMenuInclude(Frame *frame, bool show_iconified)
     // we split it up for readability.
     
     // focw == frame on current workspace
-    bool focw = frame->isSticky() || frame->getWorkspace() == Workspaces::instance()->getActive();
+    bool focw = frame->isSticky() || frame->getWorkspace() == Workspaces::getActive();
     
     // ibs == iconified but should be shown
     bool ibs = show_iconified && frame->isIconified() && focw;
@@ -995,8 +997,8 @@ ActionHandler::gotoClient(Client *client)
 
     // Make sure it's visible
     if (! frame->isSticky()
-        && (frame->getWorkspace() != Workspaces::instance()->getActive())) {
-        Workspaces::instance()->setWorkspace(frame->getWorkspace(), false);
+        && (frame->getWorkspace() != Workspaces::getActive())) {
+        Workspaces::setWorkspace(frame->getWorkspace(), false);
     }
 
     if (! frame->isMapped()) {

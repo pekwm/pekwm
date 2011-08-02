@@ -74,7 +74,7 @@ InputDialog::InputDialog(Theme *theme, const std::wstring &title)
     // setup texture, size etc
     loadTheme();
 
-    Workspaces::instance()->insert(this);
+    Workspaces::insert(this);
     woListAdd(this);
     _wo_map[_window] = this;
 }
@@ -84,7 +84,7 @@ InputDialog::InputDialog(Theme *theme, const std::wstring &title)
  */
 InputDialog::~InputDialog(void)
 {
-    Workspaces::instance()->remove(this);
+    Workspaces::remove(this);
     _wo_map.erase(_window);
     woListRemove(this);
 

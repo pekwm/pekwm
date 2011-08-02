@@ -83,7 +83,6 @@ public:
     inline AutoProperties* getAutoProperties(void) const {
         return _autoproperties;
     }
-    inline Workspaces *getWorkspaces(void) const { return _workspaces; }
     inline KeyGrabber *getKeyGrabber(void) const { return _keygrabber; }
     inline Harbour *getHarbour(void) const { return _harbour; }
 
@@ -213,7 +212,6 @@ private:
     Theme *_theme;
     ActionHandler *_action_handler;
     AutoProperties *_autoproperties;
-    Workspaces *_workspaces;
     Harbour *_harbour;
     CmdDialog *_cmd_dialog;
     SearchDialog *_search_dialog;

@@ -55,52 +55,20 @@ Workspaces::Workspace::~Workspace(void)
 
 // Workspaces
 
-Workspaces *Workspaces::_instance = 0;
-
 uint Workspaces::_active;
 uint Workspaces::_previous;
 uint Workspaces::_per_row;
 std::list<PWinObj*> Workspaces::_wo_list;
 std::vector<Workspaces::Workspace *> Workspaces::_workspace_list;
 
-//! @brief Workspaces constructor
-Workspaces::Workspaces(uint number, uint per_row)
-{
-#ifdef DEBUG
-    if (_instance) {
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "Workspaces(" << this << ")::Workspaces(" << number << ")"
-             << endl << " *** _instance already set: " << _instance << endl;
-    }
-#endif // DEBUG
-    _instance = this;
-
-    if (number < 1) {
-#ifdef DEBUG
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "Workspaces(" << this << ")::Workspaces(" << number << ")"
-             << " *** number < 1" << endl;
-#endif // DEBUG
-        number = 1;
-    }
-
-    _per_row = per_row;
-
-    // create new workspaces
-    for (uint i = 0; i < number; ++i) {
-        _workspace_list.push_back(new Workspace(getWorkspaceName(i), i));
-    }
-}
-
 //! @brief Workspaces destructor
-Workspaces::~Workspaces(void)
+void
+Workspaces::free(void)
 {
     vector<Workspace*>::iterator it(_workspace_list.begin());
     for (; it != _workspace_list.end(); ++it) {
         delete *it;
     }
-
-    _instance = 0;
 }
 
 //! @brief Sets total amount of workspaces to number

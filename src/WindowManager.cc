@@ -169,7 +169,7 @@ WindowManager::WindowManager(const std::string &command_line,
         _config(0), _color_handler(0),
         _font_handler(0), _texture_handler(0),
         _theme(0), _action_handler(0),
-        _autoproperties(0), _workspaces(0),
+        _autoproperties(0),
         _harbour(0),
         _cmd_dialog(0), _search_dialog(0),
         _status_window(0), _workspace_indicator(0),
@@ -212,7 +212,7 @@ WindowManager::~WindowManager(void)
     delete _action_handler;
     delete _autoproperties;
     delete _keygrabber;
-    delete _workspaces;
+    Workspaces::free();
     delete _config;
     delete _theme;
     delete _color_handler;
@@ -257,20 +257,17 @@ WindowManager::cleanup(void)
     // To preserve stacking order when destroying the frames, we go through
     // the PWinObj list from the Workspaces and put all Frames into our own
     // list, then we delete the frames in order.
-    if (_workspaces) {
-        list<Frame*> frame_list;
-
-        list<PWinObj*>::iterator it_w(_workspaces->begin());
-        for (; it_w != _workspaces->end(); ++it_w) {
-            if ((*it_w)->getType() == PWinObj::WO_FRAME) {
-                frame_list.push_back(static_cast<Frame*>(*it_w));
-            }
+    list<Frame*> frame_list;
+    list<PWinObj*>::iterator it_w(Workspaces::begin());
+    for (; it_w != Workspaces::end(); ++it_w) {
+        if ((*it_w)->getType() == PWinObj::WO_FRAME) {
+            frame_list.push_back(static_cast<Frame*>(*it_w));
         }
+    }
 
-        // Delete all Frames. This reparents the Clients.
-        for (it_f = frame_list.begin(); it_f != frame_list.end(); ++it_f) {
-            delete *it_f;
-        }
+    // Delete all Frames. This reparents the Clients.
+    for (it_f = frame_list.begin(); it_f != frame_list.end(); ++it_f) {
+        delete *it_f;
     }
 
     // Delete all Clients.
@@ -336,7 +333,8 @@ WindowManager::setupDisplay(bool replace)
     _autoproperties = new AutoProperties();
     _autoproperties->load();
 
-    _workspaces = new Workspaces(_config->getWorkspaces(), _config->getWorkspacesPerRow());
+    Workspaces::setSize(_config->getWorkspaces());
+    Workspaces::setPerRow(_config->getWorkspacesPerRow());
 
     _harbour = new Harbour(_theme);
 
@@ -435,7 +433,7 @@ WindowManager::scanWindows(void)
     }
 
     // Try to focus the ontop window, if no window we give root focus
-    PWinObj *wo = _workspaces->getTopWO(PWinObj::WO_FRAME);
+    PWinObj *wo = Workspaces::getTopWO(PWinObj::WO_FRAME);
     if (wo && wo->isMapped()) {
         wo->giveInputFocus();
     } else {
@@ -479,7 +477,7 @@ WindowManager::screenEdgeCreate(void)
     // make sure the edge stays ontop
     list<EdgeWO*>::iterator it(_screen_edge_list.begin());
     for (; it != _screen_edge_list.end(); ++it) {
-        _workspaces->insert(*it);
+        Workspaces::insert(*it);
     }
 
     screenEdgeResize();
@@ -495,7 +493,7 @@ WindowManager::screenEdgeDestroy(void)
 
     list<EdgeWO*>::iterator it(_screen_edge_list.begin());
     for (; it != _screen_edge_list.end(); ++it) {
-        _workspaces->remove(*it);
+        Workspaces::remove(*it);
         delete *it;
     }
 }
@@ -589,9 +587,9 @@ WindowManager::doReloadConfig(void)
     }
 
     // Update what might have changed in the cfg touching the hints
-    _workspaces->setSize(_config->getWorkspaces());
-    _workspaces->setPerRow(_config->getWorkspacesPerRow());
-    _workspaces->setNames();
+    Workspaces::setSize(_config->getWorkspaces());
+    Workspaces::setPerRow(_config->getWorkspacesPerRow());
+    Workspaces::setNames();
 
     // Flush pixmap cache and set size
     _screen_resources->getPixmapHandler()->setCacheSize(_config->getScreenPixmapCacheSize());
@@ -1268,7 +1266,7 @@ WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
                 } else {
                     focused_wo->setFocused(false);
                 }
-                _workspaces->setLastFocused(_workspaces->getActive(), focused_wo);
+                Workspaces::setLastFocused(Workspaces::getActive(), focused_wo);
             }
 
             PWinObj::setFocusedPWinObj(wo);
@@ -1311,12 +1309,12 @@ WindowManager::handleClientMessageEvent(XClientMessageEvent *ev)
         if (ev->format == 32) {
 
             if (ev->message_type == Atoms::getAtom(NET_CURRENT_DESKTOP)) {
-                _workspaces->setWorkspace(ev->data.l[0], true);
+                Workspaces::setWorkspace(ev->data.l[0], true);
 
             } else if (ev->message_type ==
                        Atoms::getAtom(NET_NUMBER_OF_DESKTOPS)) {
                 if (ev->data.l[0] > 0) {
-                    _workspaces->setSize(ev->data.l[0]);
+                    Workspaces::setSize(ev->data.l[0]);
                 }
             }
         }
@@ -1349,7 +1347,7 @@ WindowManager::handlePropertyEvent(XPropertyEvent *ev)
     if (ev->window == X11::getRoot()) {
         if (ev->atom == Atoms::getAtom(NET_DESKTOP_NAMES)) {
             _root_wo->readEwmhDesktopNames();
-            _workspaces->setNames();
+            Workspaces::setNames();
         }
 
         return;
@@ -1441,7 +1439,7 @@ WindowManager::handleXRandrScreenChangeEvent(XRRScreenChangeNotifyEvent *ev)
     // Make sure windows are visible after resize
     list<PDecor*>::iterator it(PDecor::pdecor_begin());
     for (; it != PDecor::pdecor_end(); ++it) {
-        _workspaces->placeWoInsideScreen(*it);
+        Workspaces::placeWoInsideScreen(*it);
     }
 }
 

@@ -62,13 +62,13 @@ StatusWindow::StatusWindow(Theme *theme)
     setTitlebar(STATE_UNSET);
     setFocused(true); // always draw as focused
 
-    Workspaces::instance()->insert(this);
+    Workspaces::insert(this);
 }
 
 //! @brief StatusWindow destructor
 StatusWindow::~StatusWindow(void)
 {
-    Workspaces::instance()->remove(this);
+    Workspaces::remove(this);
 
     // remove ourself from the decor manually, no need to reparent and stuff
     _child_list.remove(_status_wo);

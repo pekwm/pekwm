@@ -531,16 +531,16 @@ PDecor::resizeTitle(void)
 void
 PDecor::raise(void)
 {
-    Workspaces::instance()->raise(this);
-    Workspaces::instance()->updateClientStackingList();
+    Workspaces::raise(this);
+    Workspaces::updateClientStackingList();
 }
 
 //! @brief Lowers the window, taking _layer into account
 void
 PDecor::lower(void)
 {
-    Workspaces::instance()->lower(this);
-    Workspaces::instance()->updateClientStackingList();
+    Workspaces::lower(this);
+    Workspaces::updateClientStackingList();
 }
 
 //! @brief
@@ -564,14 +564,14 @@ void
 PDecor::setWorkspace(uint workspace)
 {
     if (workspace != NET_WM_STICKY_WINDOW) {
-        if (workspace >= Workspaces::instance ()->size ()) {
+        if (workspace >= Workspaces::size()) {
 #ifdef DEBUG
             cerr << __FILE__ << "@" << __LINE__ << ": "
                  << "PDecor(" << this << ")::setWorkspace(" << workspace << ")"
                  << endl << " *** workspace > number of workspaces:"
                  << Workspaces::instance ()->size () << endl;
 #endif // DEBUG
-            workspace = Workspaces::instance()->size() - 1;
+            workspace = Workspaces::size() - 1;
         }
         _workspace = workspace;
     }
@@ -582,10 +582,10 @@ PDecor::setWorkspace(uint workspace)
     }
 
     if (! _mapped && ! _iconified) {
-        if (_sticky || (_workspace == Workspaces::instance()->getActive())) {
+        if (_sticky || (_workspace == Workspaces::getActive())) {
             mapWindow();
         }
-    } else if (! _sticky && (_workspace != Workspaces::instance()->getActive())) {
+    } else if (! _sticky && (_workspace != Workspaces::getActive())) {
         unmapWindow();
     }
 }
@@ -1566,7 +1566,7 @@ PDecor::setSkip(uint skip)
 //! @brief Remove iconified state.
 void PDecor::deiconify(void) {
     if (_iconified) {
-        if (_workspace == Workspaces::instance()->getActive()) {
+        if (_workspace == Workspaces::getActive()) {
             mapWindow();
         }
         _iconified = false;

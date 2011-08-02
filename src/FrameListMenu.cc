@@ -135,8 +135,8 @@ FrameListMenu::updateFrameListMenu(void)
     // if we have 1 workspace, we won't put an workspace indicator
     buf[0] = '\0';
 
-    for (uint i = 0; i < Workspaces::instance()->size(); ++i) {
-        if (Workspaces::instance()->size() > 1) {
+    for (uint i = 0; i < Workspaces::size(); ++i) {
+        if (Workspaces::size() > 1) {
             swprintf(buf, 16, L"<%d> ", i + 1);
         }
 
@@ -239,8 +239,8 @@ FrameListMenu::handleGotomenu(Client *client)
 
     // make sure it's on correct workspace
     if (! frame->isSticky() &&
-            (frame->getWorkspace() != Workspaces::instance()->getActive())) {
-        Workspaces::instance()->setWorkspace(frame->getWorkspace(), false);
+            (frame->getWorkspace() != Workspaces::getActive())) {
+        Workspaces::setWorkspace(frame->getWorkspace(), false);
     }
     // make sure it isn't hidden
     if (! frame->isMapped()) {
@@ -262,8 +262,8 @@ FrameListMenu::handleIconmenu(Client *client)
     Frame *frame = static_cast<Frame*>(client->getParent());
 
     // make sure it's on the current workspace
-    if (frame->getWorkspace() != Workspaces::instance()->getActive()) {
-        frame->setWorkspace(Workspaces::instance()->getActive());
+    if (frame->getWorkspace() != Workspaces::getActive()) {
+        frame->setWorkspace(Workspaces::getActive());
     }
 
     frame->raise();

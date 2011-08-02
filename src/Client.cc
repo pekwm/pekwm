@@ -405,7 +405,7 @@ Client::findAndRaiseIfTransient(void)
         Frame *frame = static_cast<Frame*>(getParent());
         Frame *frame_transient = static_cast<Frame*>(_transient->getParent());
         if (frame->getActiveChild() == this) {
-            Workspaces::instance()->stackAbove(this, frame_transient->getWindow());
+            Workspaces::stackAbove(this, frame_transient->getWindow());
         }
     }
 }
@@ -531,8 +531,8 @@ void
 Client::setWorkspace(uint workspace)
 {
     if (workspace != NET_WM_STICKY_WINDOW) {
-        if (workspace >= Workspaces::instance()->size()) {
-            workspace = Workspaces::instance()->size() - 1;
+        if (workspace >= Workspaces::size()) {
+            workspace = Workspaces::size() - 1;
         }
         _workspace = workspace;
 
@@ -888,7 +888,7 @@ Client::readEwmhHints(void)
     long workspace = -1;
     AtomUtil::getLong(_window, Atoms::getAtom(NET_WM_DESKTOP), workspace);
     if (workspace < 0) {
-        _workspace = Workspaces::instance()->getActive();
+        _workspace = Workspaces::getActive();
         AtomUtil::setLong(_window, Atoms::getAtom(NET_WM_DESKTOP), _workspace);
     } else {
         _workspace = workspace;

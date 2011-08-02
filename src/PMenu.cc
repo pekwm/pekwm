@@ -102,7 +102,7 @@ PMenu::PMenu(Theme *theme, const std::wstring &title,
     activateChild(_menu_wo);
     _menu_wo->mapWindow();
 
-    Workspaces::instance()->insert(this);
+    Workspaces::insert(this);
     _menu_map[_window] = this; // add to menu map
     woListAdd(this);
     _wo_map[_window] = this;
@@ -116,7 +116,7 @@ PMenu::~PMenu(void)
     _wo_map.erase(_window);
     woListRemove(this);
     _menu_map.erase(_window); // remove from menu map
-    Workspaces::instance()->remove(this);
+    Workspaces::remove(this);
 
     // Free resources
     if (_menu_wo) {

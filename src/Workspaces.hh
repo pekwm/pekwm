@@ -46,10 +46,7 @@ public:
         PWinObj *_last_focused;
     };
 
-    Workspaces(uint number, uint per_row);
-    ~Workspaces(void);
-
-    static inline Workspaces *instance(void) { return _instance; }
+    static void free(void);
 
     static inline uint size(void) { return _workspace_list.size(); }
     static inline std::list<PWinObj*>::iterator begin(void) { return _wo_list.begin(); }
@@ -129,8 +126,6 @@ private:
 
     // placement helpers
     static PWinObj* isEmptySpace(int x, int y, const PWinObj *wo);
-
-    static Workspaces *_instance;
 
     static uint _active; /**< Current active workspace. */
     static uint _previous; /**< Previous workspace. */
