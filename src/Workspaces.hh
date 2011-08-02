@@ -51,93 +51,93 @@ public:
 
     static inline Workspaces *instance(void) { return _instance; }
 
-    inline uint size(void) const { return _workspace_list.size(); }
-    inline std::list<PWinObj*>::iterator begin(void) { return _wo_list.begin(); }
-    inline std::list<PWinObj*>::iterator end(void) { return _wo_list.end(); }
-    inline std::list<PWinObj*>::reverse_iterator rbegin(void) { return _wo_list.rbegin(); }
-    inline std::list<PWinObj*>::reverse_iterator rend(void) { return _wo_list.rend(); }
+    static inline uint size(void) { return _workspace_list.size(); }
+    static inline std::list<PWinObj*>::iterator begin(void) { return _wo_list.begin(); }
+    static inline std::list<PWinObj*>::iterator end(void) { return _wo_list.end(); }
+    static inline std::list<PWinObj*>::reverse_iterator rbegin(void) { return _wo_list.rbegin(); }
+    static inline std::list<PWinObj*>::reverse_iterator rend(void) { return _wo_list.rend(); }
 
-    std::vector<Workspace*>::iterator ws_begin(void) { return _workspace_list.begin(); }
-    std::vector<Workspace*>::iterator ws_end(void) { return _workspace_list.end(); }
+    static std::vector<Workspace*>::iterator ws_begin(void) { return _workspace_list.begin(); }
+    static std::vector<Workspace*>::iterator ws_end(void) { return _workspace_list.end(); }
 
-    inline uint getActive(void) const { return _active; }
-    inline uint getPrevious(void) const { return _previous; }
-    uint getRow(int active = -1) {
+    static inline uint getActive(void) { return _active; }
+    static inline uint getPrevious(void) { return _previous; }
+    static uint getRow(int active = -1) {
         if (active < 0) {
             active = _active;
         }
         return _per_row ? (active / _per_row) : 0; 
     }
-    uint getRowMin(void) { return _per_row ? (getRow() * _per_row) : 0; }
-    uint getRowMax(void) { return _per_row ? (getRowMin() + _per_row - 1) : size() - 1; }
-    uint getRows(void) { return _per_row ? (size() / _per_row + (size() % _per_row ? 1 : 0)) : 1; }
-    uint getPerRow(void) { return _per_row ? _per_row : size(); }
+    static uint getRowMin(void) { return _per_row ? (getRow() * _per_row) : 0; }
+    static uint getRowMax(void) { return _per_row ? (getRowMin() + _per_row - 1) : size() - 1; }
+    static uint getRows(void) { return _per_row ? (size() / _per_row + (size() % _per_row ? 1 : 0)) : 1; }
+    static uint getPerRow(void) { return _per_row ? _per_row : size(); }
 
-    void setSize(uint number);
-    void setPerRow(uint per_row) { _per_row = per_row; }
-    void setNames(void);
+    static void setSize(uint number);
+    static void setPerRow(uint per_row) { _per_row = per_row; }
+    static void setNames(void);
 
-    void setWorkspace(uint num, bool focus);
-    bool gotoWorkspace(uint direction, bool warp);
+    static void setWorkspace(uint num, bool focus);
+    static bool gotoWorkspace(uint direction, bool warp);
 
-    Workspace *getActiveWorkspace(void) {
+    static Workspace *getActiveWorkspace(void) {
         return _workspace_list[_active];
     }
-    Workspace *getWorkspace(uint workspace) {
+    static Workspace *getWorkspace(uint workspace) {
         if (workspace >= _workspace_list.size())
             return 0;
         return _workspace_list[workspace];
     };
 
-    void insert(PWinObj* wo, bool raise = true);
-    void remove(PWinObj* wo);
+    static void insert(PWinObj* wo, bool raise = true);
+    static void remove(PWinObj* wo);
 
-    void hideAll(uint workspace);
-    void unhideAll(uint workspace, bool focus);
+    static void hideAll(uint workspace);
+    static void unhideAll(uint workspace, bool focus);
 
-    PWinObj* getLastFocused(uint workspace);
-    void setLastFocused(uint workspace, PWinObj* wo);
+    static PWinObj* getLastFocused(uint workspace);
+    static void setLastFocused(uint workspace, PWinObj* wo);
 
-    void raise(PWinObj* wo);
-    void lower(PWinObj* wo);
-    void stackAbove(PWinObj* wo, Window win, bool restack = true);
-    void stackBelow(PWinObj *wo, Window win, bool restack = true);
+    static void raise(PWinObj* wo);
+    static void lower(PWinObj* wo);
+    static void stackAbove(PWinObj* wo, Window win, bool restack = true);
+    static void stackBelow(PWinObj *wo, Window win, bool restack = true);
 
-    PWinObj* getTopWO(uint type_mask);
-    void updateClientList(void);
-    void updateClientStackingList(void);
-    void placeWo(PWinObj* wo, Window parent);
-    void placeWoInsideScreen(PWinObj *wo);
+    static PWinObj* getTopWO(uint type_mask);
+    static void updateClientList(void);
+    static void updateClientStackingList(void);
+    static void placeWo(PWinObj* wo, Window parent);
+    static void placeWoInsideScreen(PWinObj *wo);
 
-    PWinObj *findDirectional(PWinObj *wo, DirectionType dir, uint skip = 0);
+    static PWinObj *findDirectional(PWinObj *wo, DirectionType dir, uint skip = 0);
 
 private:
-    Window *buildClientList(unsigned int &num_windows);
-    bool warpToWorkspace(uint num, int dir);
+    static Window *buildClientList(unsigned int &num_windows);
+    static bool warpToWorkspace(uint num, int dir);
 
-    void stackWinUnderWin(Window over, Window under);
+    static void stackWinUnderWin(Window over, Window under);
 
-    std::wstring getWorkspaceName(uint num);
+    static std::wstring getWorkspaceName(uint num);
 
     // placement
-    bool placeSmart(PWinObj* wo);
-    bool placeMouseNotUnder(PWinObj *wo);
-    bool placeMouseCentered(PWinObj *wo);
-    bool placeMouseTopLeft(PWinObj *wo);
-    bool placeCenteredOnParent(PWinObj *wo, Window parent);
-    void placeInsideScreen(Geometry &gm, Strut *strut=0);
+    static bool placeSmart(PWinObj* wo);
+    static bool placeMouseNotUnder(PWinObj *wo);
+    static bool placeMouseCentered(PWinObj *wo);
+    static bool placeMouseTopLeft(PWinObj *wo);
+    static bool placeCenteredOnParent(PWinObj *wo, Window parent);
+    static void placeInsideScreen(Geometry &gm, Strut *strut=0);
 
     // placement helpers
-    PWinObj* isEmptySpace(int x, int y, const PWinObj *wo);
+    static PWinObj* isEmptySpace(int x, int y, const PWinObj *wo);
 
     static Workspaces *_instance;
 
-    uint _active; /**< Current active workspace. */
-    uint _previous; /**< Previous workspace. */
-    uint _per_row; /**< Workspaces per row in layout. */
+    static uint _active; /**< Current active workspace. */
+    static uint _previous; /**< Previous workspace. */
+    static uint _per_row; /**< Workspaces per row in layout. */
 
-    std::list<PWinObj*> _wo_list;
-    std::vector<Workspace*> _workspace_list;
+    static std::list<PWinObj*> _wo_list;
+    static std::vector<Workspace*> _workspace_list;
 };
 
 #endif // _WORKSPACES_HH_

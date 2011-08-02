@@ -57,10 +57,14 @@ Workspaces::Workspace::~Workspace(void)
 
 Workspaces *Workspaces::_instance = 0;
 
+uint Workspaces::_active;
+uint Workspaces::_previous;
+uint Workspaces::_per_row;
+std::list<PWinObj*> Workspaces::_wo_list;
+std::vector<Workspaces::Workspace *> Workspaces::_workspace_list;
 
 //! @brief Workspaces constructor
 Workspaces::Workspaces(uint number, uint per_row)
-  : _active(0), _previous(0), _per_row(per_row)
 {
 #ifdef DEBUG
     if (_instance) {
@@ -79,6 +83,8 @@ Workspaces::Workspaces(uint number, uint per_row)
 #endif // DEBUG
         number = 1;
     }
+
+    _per_row = per_row;
 
     // create new workspaces
     for (uint i = 0; i < number; ++i) {
