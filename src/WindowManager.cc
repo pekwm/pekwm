@@ -338,7 +338,7 @@ WindowManager::setupDisplay(bool replace)
 
     _workspaces = new Workspaces(_config->getWorkspaces(), _config->getWorkspacesPerRow());
 
-    _harbour = new Harbour(_theme, _workspaces);
+    _harbour = new Harbour(_theme);
 
     MenuHandler::init(_theme);
 

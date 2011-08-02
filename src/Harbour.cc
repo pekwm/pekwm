@@ -35,8 +35,8 @@ using std::endl;
 #endif // DEBUG
 
 //! @brief Harbour constructor
-Harbour::Harbour(Theme *t, Workspaces *w) :
-        _theme(t), _workspaces(w),
+Harbour::Harbour(Theme *t) :
+        _theme(t),
         _harbour_menu(0),
         _hidden(false), _size(0), _strut(0),
         _last_button_x(0), _last_button_y(0)
@@ -76,7 +76,7 @@ Harbour::addDockApp(DockApp *da)
     }
 
     da->setLayer(Config::instance()->isHarbourOntop() ? LAYER_DOCK : LAYER_DESKTOP);
-    _workspaces->insert(da); // add the dockapp to the stacking list
+    Workspaces::insert(da); // add the dockapp to the stacking list
 
     if (! da->isMapped()) { // make sure it's visible
         da->mapWindow();
@@ -97,7 +97,7 @@ Harbour::removeDockApp(DockApp *da)
 
     if (it != _da_list.end()) {
         _da_list.remove(da);
-        _workspaces->remove(da); // remove the dockapp to the stacking list
+        Workspaces::remove(da); // remove the dockapp to the stacking list
         delete da;
 
         if (AutoProperties::instance()->isHarbourSort()) {
@@ -114,7 +114,7 @@ Harbour::removeAllDockApps(void)
 {
     list<DockApp*>::iterator it(_da_list.begin());
     for (; it != _da_list.end(); ++it) {
-        _workspaces->remove(*it); // remove the dockapp to the stacking list
+        Workspaces::remove(*it); // remove the dockapp to the stacking list
         delete (*it);
     }
     _da_list.clear();
@@ -183,9 +183,9 @@ Harbour::restack(void)
         (*it)->setLayer(l);
 
         if (Config::instance()->isHarbourOntop()) {
-            _workspaces->raise(*it);
+            Workspaces::raise(*it);
         } else {
-            _workspaces->lower(*it);
+            Workspaces::lower(*it);
         }
     }
 }

@@ -27,7 +27,7 @@ class HarbourMenu;
 class Harbour
 {
 public:
-    Harbour(Theme *t, Workspaces *w);
+    Harbour(Theme *t);
     ~Harbour(void);
 
     void addDockApp(DockApp* da);
@@ -68,7 +68,6 @@ private:
 
 private:
     Theme *_theme;
-    Workspaces *_workspaces;
 
     std::list<DockApp*> _da_list;
     HarbourMenu *_harbour_menu;
