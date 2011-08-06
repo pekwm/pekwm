@@ -18,7 +18,9 @@
 #include <string>
 
 #include "pekwm.hh"
-#include "PImage.hh"
+#include "PTexture.hh"
+
+class PImage;
 
 // PTextureSolid
 
