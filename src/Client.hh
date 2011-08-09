@@ -18,6 +18,7 @@
 #endif // HAVE_CONFIG_H
 
 #include "pekwm.hh"
+#include "PWinObj.hh"
 #include "Observer.hh"
 #include "Atoms.hh"
 #include "PTexturePlain.hh"
@@ -25,7 +26,6 @@
 
 class PScreen;
 class Strut;
-class PWinObj;
 class ClassHint;
 class AutoProperty;
 class Frame;
