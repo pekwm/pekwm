@@ -569,7 +569,7 @@ PDecor::setWorkspace(uint workspace)
             cerr << __FILE__ << "@" << __LINE__ << ": "
                  << "PDecor(" << this << ")::setWorkspace(" << workspace << ")"
                  << endl << " *** workspace > number of workspaces:"
-                 << Workspaces::instance ()->size () << endl;
+                 << Workspaces::size () << endl;
 #endif // DEBUG
             workspace = Workspaces::size() - 1;
         }

@@ -98,7 +98,7 @@ KeyGrabber::KeyGrabber(void)
 #ifdef DEBUG
     if (_instance) {
         cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "KeyGrabber(" << this << ")::KeyGrabber(" << scr << ")" << endl
+             << "KeyGrabber(" << this << ")::KeyGrabber()" << endl
              << " *** _instance already set: " << _instance << endl;
     }
 #endif // DEBUG

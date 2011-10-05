@@ -114,12 +114,12 @@ X11::PVisual::getShiftPrecFromMask(ulong mask, int &shift, int &prec)
     }
 }
 
-//! @brief PScreen constructor
+//! @brief X11 constructor
 void
 X11::init(Display *dpy, bool honour_randr)
 {
     if (_dpy) {
-        throw string("PScreen, trying to create multiple instances");
+        throw string("X11, trying to create multiple instances");
     }
 
     _honour_randr = honour_randr;
@@ -172,7 +172,7 @@ X11::init(Display *dpy, bool honour_randr)
     XUngrabServer(_dpy);
 }
 
-//! @brief PScreen destructor
+//! @brief X11 destructor
 void
 X11::destruct(void) {
     delete _visual;
@@ -260,7 +260,7 @@ X11::grabKeyboard(Window win)
     }
 #ifdef DEBUG
     cerr << __FILE__ << "@" << __LINE__ << ": "
-         << "PScreen(" << this << ")::grabKeyboard(" << win << ")" << endl
+         << "X11()::grabKeyboard(" << win << ")" << endl
          << " *** unable to grab keyboard." << endl;
 #endif // DEBUG
     return false;
@@ -284,7 +284,7 @@ X11::grabPointer(Window win, uint event_mask, Cursor cursor)
     }
 #ifdef DEBUG
     cerr << __FILE__ << "@" << __LINE__ << ": "
-         << "PScreen(" << this << ")::grabPointer(" << win << ","
+         << "X11()::grabPointer(" << win << ","
          << event_mask << "," << cursor << ")" << endl
          << " *** unable to grab pointer." << endl;
 #endif // DEBUG
