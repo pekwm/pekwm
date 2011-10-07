@@ -1262,7 +1262,6 @@ Frame::doResize(bool left, bool x, bool top, bool y)
             break;
         case ButtonRelease:
             exit = true;
-            XPutBackEvent(X11::getDpy(), &ev);
             break;
         }
     }
