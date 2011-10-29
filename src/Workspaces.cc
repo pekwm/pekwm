@@ -410,6 +410,12 @@ Workspaces::unhideAll(uint workspace, bool focus)
             // Focus
             wo->giveInputFocus();
             PWinObj::setFocusedPWinObj(wo);
+
+            // update the MRU list
+            if (wo->getType() == PWinObj::WO_CLIENT) {
+                Frame *frame = static_cast<Frame*>(wo->getParent());
+                WindowManager::instance()->addToFrameListBack(frame);
+            }
         }
 
         // If focusing fails, focus the root window.

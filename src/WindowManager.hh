@@ -103,6 +103,13 @@ public:
         }
     }
 
+    inline void addToFrameListBack(Frame *frame) {
+        if (frame) {
+            _mru_list.remove(frame);
+            _mru_list.push_back(frame);
+        }
+    }
+
     // removes
     void removeFromFrameList(Frame *frame);
 
