@@ -266,16 +266,9 @@ PDecor::getChildWindowAttributes(CreateWindowParams &params,
         params.mask |= CWColormap;
         params.depth = attr.depth;
         params.visual = attr.visual;
-        params.attr.colormap = X11::createColormap(params.visual);
-    } else {
-        XVisualInfo vinfo;
-        if (XMatchVisualInfo(X11::getDpy(), X11::getScreenNum(),
-                             32, TrueColor, &vinfo)) {
-            params.mask |= CWColormap;
-            params.depth = 32;
-            params.visual = vinfo.visual;
-            params.attr.colormap = X11::createColormap(params.visual);
-        }
+        params.attr.colormap = XCreateColormap(X11::getDpy(),
+                                               X11::getRoot(),
+                                               params.visual, AllocNone);
     }
 }
 
