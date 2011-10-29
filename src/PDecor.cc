@@ -1543,10 +1543,10 @@ PDecor::setShaded(StateAction sa)
         _shaded = true;
     }
 
-    PWinObj::resize(_gm.width, _gm.height);
     setBorderShape();
     placeBorder();
     restackBorder();
+    PWinObj::resize(_gm.width, _gm.height);
 }
 
 //! @brief Sets skip state.
@@ -2010,7 +2010,7 @@ PDecor::applyBorderShape(void)
         shape = XCreateSimpleWindow(X11::getDpy(), X11::getRoot(),
                                     0, 0, _gm.width, _gm.height, 0, 0, 0);
 
-        if (_child) {
+        if (_child && ! _shaded) {
             XShapeCombineShape(X11::getDpy(), shape, ShapeBounding,
                                borderLeft(), borderTop() + getTitleHeight(),
                                _child->getWindow(), ShapeBounding, ShapeSet);
