@@ -90,10 +90,10 @@ public:
     inline bool isStartup(void) const { return _startup; }
 
     // list iterators
-    inline std::list<PWinObj*>::iterator mru_begin(void) { return _mru_list.begin(); }
-    inline std::list<PWinObj*>::reverse_iterator mru_rbegin(void) { return _mru_list.rbegin(); }
-    inline std::list<PWinObj*>::iterator mru_end(void) { return _mru_list.end(); }
-    inline std::list<PWinObj*>::reverse_iterator mru_rend(void) { return _mru_list.rend(); }
+    inline std::list<Frame*>::iterator mru_begin(void) { return _mru_list.begin(); }
+    inline std::list<Frame*>::reverse_iterator mru_rbegin(void) { return _mru_list.rbegin(); }
+    inline std::list<Frame*>::iterator mru_end(void) { return _mru_list.end(); }
+    inline std::list<Frame*>::reverse_iterator mru_rend(void) { return _mru_list.rend(); }
 
     // adds
     inline void addToFrameList(Frame *frame) {
@@ -226,7 +226,7 @@ private:
     bool _shutdown; //!< Set to wheter we want to shutdown.
     bool _reload; //!< Set to wheter we want to reload.
 
-    std::list<PWinObj*> _mru_list;
+    std::list<Frame *> _mru_list;
 
     bool _allow_grouping; //<! Flag turning grouping on/off.
 

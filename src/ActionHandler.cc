@@ -926,7 +926,7 @@ ActionHandler::createMRUMenu(bool show_iconified)
                             L"MRU Windows", "" /* Empty name */);
 
     Frame *fr;
-    list<PWinObj*>::reverse_iterator f_it = WindowManager::instance()->mru_rbegin();
+    list<Frame*>::reverse_iterator f_it = WindowManager::instance()->mru_rbegin();
     for (; f_it != WindowManager::instance()->mru_rend(); ++f_it) {
         fr = static_cast<Frame*>(*f_it);
         if (createMenuInclude(fr, show_iconified)) {
