@@ -489,7 +489,7 @@ PImage::createXImage(uchar *data, uint width, uint height)
             g = *src++;
             b = *src++;
             if (_has_alpha) {
-                *src++;
+                src++;
             }
             
             XPutPixel(ximage, x, y, getPixelFromRgb(ximage, r, g, b));

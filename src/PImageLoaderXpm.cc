@@ -96,7 +96,7 @@ PImageLoaderXpm::load(const std::string &file, uint &width, uint &height,
                 use_alpha = true;
             }
 
-            *src++;
+            src++;
         }
     }
 
