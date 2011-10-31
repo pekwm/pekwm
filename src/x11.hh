@@ -20,6 +20,9 @@ extern "C" {
 #ifdef HAVE_XINERAMA
 #include <X11/extensions/Xinerama.h>
 #endif // HAVE_XINERAMA
+#ifdef HAVE_SHAPE
+#include <X11/extensions/shape.h>
+#endif // HAVE_SHAPE
 
 extern bool xerrors_ignore; /**< If true, ignore X errors. */
 extern unsigned int xerrors_count; /**< Number of X errors occured. */
@@ -211,7 +214,8 @@ public:
     static uint getMaskFromKeycode(KeyCode keycode);
     static KeyCode getKeycodeFromMask(uint mask);
 
-    inline static void removeMotionEvents(void) {
+    inline static void removeMotionEvents(void)
+    {
         XEvent xev;
         while (XCheckMaskEvent(_dpy, PointerMotionMask, &xev))
             ;
@@ -246,6 +250,25 @@ public:
     static int sendEvent(Window win, Atom atom, long mask,
                          long v1=0l, long v2=0l, long v3=0l,
                          long v4=0l, long v5=0l);
+
+#ifdef HAVE_SHAPE
+    inline static void shapeCombine(Window dst, int x, int y, Window src, int op) {
+        XShapeCombineShape(_dpy, dst, ShapeBounding, x, y, src, ShapeBounding, op);
+    }
+
+    inline static void shapeSetRect(Window dst, XRectangle *rect) {
+        XShapeCombineRectangles(_dpy, dst, ShapeBounding, 0, 0, rect, 1, ShapeSet, YXBanded);
+    }
+
+    inline static void shapeSetMask(Window dst, Pixmap pix) {
+        XShapeCombineMask(_dpy, dst, ShapeBounding, 0, 0, pix, ShapeSet);
+    }
+
+    inline static XRectangle *shapeGetRects(Window win, int *num) {
+        int t;
+        return XShapeGetRectangles(_dpy, win, ShapeBounding, num, &t);
+    }
+#endif
 
 private:
     // squared distance because computing with sqrt is expensive

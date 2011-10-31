@@ -20,9 +20,6 @@
 extern "C" {
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
-#ifdef HAVE_SHAPE
-#include <X11/extensions/shape.h>
-#endif // HAVE_SHAPE
 }
 
 #include "Compat.hh"
@@ -120,14 +117,13 @@ PDecor::Button::setState(ButtonState state)
         bool need_free;
         Pixmap shape = _data->getTexture(state)->getMask(0, 0, need_free);
         if (shape != None) {
-            XShapeCombineMask(X11::getDpy(), _window, ShapeBounding, 0, 0, shape, ShapeSet);
+            X11::shapeSetMask(_window, shape);
             if (need_free) {
                 ScreenResources::instance()->getPixmapHandler()->returnPixmap(shape);
             }
         } else {
             XRectangle rect = {0 /* x */, 0 /* y */, _gm.width, _gm.height };
-            XShapeCombineRectangles(X11::getDpy(), _window, ShapeBounding,
-                                    0, 0, &rect, 1, ShapeSet, YXBanded);
+            X11::shapeSetRect(_window, &rect);
         }
 #endif // HAVE_SHAPE
         clear();
@@ -1728,16 +1724,14 @@ PDecor::setBorderShape(void)
                                                                   do_free);
         if (pix != None) {
             _need_shape = true;
-            XShapeCombineMask(X11::getDpy(), _border_win[it->first],
-                            ShapeBounding, 0, 0, pix, ShapeSet);
+            X11::shapeSetMask(_border_win[it->first], pix);
             if (do_free) {
                 ScreenResources::instance()->getPixmapHandler()->returnPixmap(pix);
             }
         } else {
             rect.width = width;
             rect.height = height;
-            XShapeCombineRectangles(X11::getDpy(), _border_win[it->first], ShapeBounding,
-                                    0, 0, &rect, 1, ShapeSet, YXBanded);
+            X11::shapeSetRect(_border_win[it->first], &rect);
         }
     }
 #endif // HAVE_SHAPE
@@ -1874,18 +1868,19 @@ PDecor::setShape(void)
         return false;
     }
 
-    int num, t;
+    int num;
     XRectangle *rect;
 
-    rect = XShapeGetRectangles(X11::getDpy(), _child->getWindow(), ShapeBounding,
-                               &num, &t);
+    rect = X11::shapeGetRects(_child->getWindow(), &num);
     // If there is more than one Rectangle it has an irregular shape.
     _need_client_shape = (num > 1);
 
     // Will set or unset shape depending on _need_shape and _need_client_shape.
     applyBorderShape();
 
-    XFree(rect);
+    if (rect) {
+        XFree(rect);
+    }
 
     return (num > 1);
 #else // !HAVE_SHAPE
@@ -2011,9 +2006,8 @@ PDecor::applyBorderShape(void)
                                     0, 0, _gm.width, _gm.height, 0, 0, 0);
 
         if (_child && ! _shaded) {
-            XShapeCombineShape(X11::getDpy(), shape, ShapeBounding,
-                               borderLeft(), borderTop() + getTitleHeight(),
-                               _child->getWindow(), ShapeBounding, ShapeSet);
+            X11::shapeCombine(shape, borderLeft(), borderTop() + getTitleHeight(),
+                               _child->getWindow(), ShapeSet);
         }
 
         // Apply border shape. Need to be carefull wheter or not to include it.
@@ -2022,61 +2016,53 @@ PDecor::applyBorderShape(void)
                 && ! (_need_client_shape)) { // Shaped clients should appear bordeless.
             // top
             if (borderTop() > 0) {
-                XShapeCombineShape(X11::getDpy(), shape, ShapeBounding,
-                                   0, bt_off, _border_win[BORDER_TOP_LEFT],
-                                   ShapeBounding, ShapeUnion);
+                X11::shapeCombine(shape, 0, bt_off, _border_win[BORDER_TOP_LEFT],
+                                  ShapeUnion);
 
-                XShapeCombineShape(X11::getDpy(), shape, ShapeBounding,
-                                   borderTopLeft(), bt_off, _border_win[BORDER_TOP],
-                                   ShapeBounding, ShapeUnion);
+                X11::shapeCombine(shape, borderTopLeft(), bt_off, _border_win[BORDER_TOP],
+                                  ShapeUnion);
 
-                XShapeCombineShape(X11::getDpy(), shape, ShapeBounding,
-                                   _gm.width - borderTopRight(), bt_off, _border_win[BORDER_TOP_RIGHT],
-                                   ShapeBounding, ShapeUnion);
+                X11::shapeCombine(shape, _gm.width - borderTopRight(), bt_off,
+                                  _border_win[BORDER_TOP_RIGHT], ShapeUnion);
             }
 
             bool use_bt_off = bt_off || borderTop();
             // Left border
             if (borderLeft() > 0) {
-                XShapeCombineShape(X11::getDpy(), shape, ShapeBounding,
-                                   0, use_bt_off ? bt_off + borderTopLeftHeight() : getTitleHeight(),
-                                   _border_win[BORDER_LEFT],
-                                   ShapeBounding, ShapeUnion);
+                X11::shapeCombine(shape, 0, 
+                                  use_bt_off ? bt_off + borderTopLeftHeight() : getTitleHeight(),
+                                  _border_win[BORDER_LEFT], ShapeUnion);
             }
 
             // Right border
             if (borderRight() > 0) {
-                XShapeCombineShape(X11::getDpy(), shape, ShapeBounding,
-                                   _gm.width - borderRight(), use_bt_off ? bt_off + borderTopRightHeight() : getTitleHeight(),
-                                   _border_win[BORDER_RIGHT],
-                                   ShapeBounding, ShapeUnion);
+                X11::shapeCombine(shape, _gm.width - borderRight(), 
+                                  use_bt_off ? bt_off + borderTopRightHeight() : getTitleHeight(),
+                                  _border_win[BORDER_RIGHT], ShapeUnion);
             }
 
             // bottom
             if (borderBottom() > 0) {
-                XShapeCombineShape(X11::getDpy(), shape, ShapeBounding,
-                                   0, _gm.height - borderBottomLeftHeight(), _border_win[BORDER_BOTTOM_LEFT],
-                                   ShapeBounding, ShapeUnion);
+                X11::shapeCombine(shape, 0, _gm.height - borderBottomLeftHeight(), 
+                                  _border_win[BORDER_BOTTOM_LEFT], ShapeUnion);
 
-                XShapeCombineShape(X11::getDpy(), shape, ShapeBounding,
-                                   borderBottomLeft(), _gm.height - borderBottom(), _border_win[BORDER_BOTTOM],
-                                   ShapeBounding, ShapeUnion);
+                X11::shapeCombine(shape, borderBottomLeft(), _gm.height - borderBottom(),
+                                  _border_win[BORDER_BOTTOM], ShapeUnion);
 
-                XShapeCombineShape(X11::getDpy(), shape, ShapeBounding,
-                                   _gm.width - borderBottomRight(), _gm.height - borderBottomRightHeight(),
-                                   _border_win[BORDER_BOTTOM_RIGHT],
-                                   ShapeBounding, ShapeUnion);
+                X11::shapeCombine(shape, _gm.width - borderBottomRight(), 
+                                  _gm.height - borderBottomRightHeight(),
+                                  _border_win[BORDER_BOTTOM_RIGHT],
+                                  ShapeUnion);
             }
         }
         if (_titlebar) {
             // apply title shape
-            XShapeCombineShape(X11::getDpy(), shape, ShapeBounding,
-                               _title_wo.getX(), _title_wo.getY(), _title_wo.getWindow(),
-                               ShapeBounding, ShapeUnion);
+            X11::shapeCombine(shape, _title_wo.getX(), _title_wo.getY(),
+                              _title_wo.getWindow(), ShapeUnion);
         }
 
         // Apply the shape mask to the window
-        XShapeCombineShape(X11::getDpy(), _window, ShapeBounding, 0, 0, shape, ShapeBounding, ShapeSet);
+        X11::shapeCombine(_window, 0, 0, shape, ShapeSet);
 
         XDestroyWindow(X11::getDpy(), shape);
     } else {
@@ -2088,7 +2074,7 @@ PDecor::applyBorderShape(void)
         rect_square.width = _gm.width;
         rect_square.height = _gm.height;
 
-        XShapeCombineRectangles(X11::getDpy(), _window, ShapeBounding, 0, 0, &rect_square, 1, ShapeSet, YXBanded);
+        X11::shapeSetRect(_window, &rect_square);
     }
 #endif // HAVE_SHAPE
 }
