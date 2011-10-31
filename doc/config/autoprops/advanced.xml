@@ -17,46 +17,218 @@
     <variablelist>
       <title>Exhaustive Autoprops List</title>
       <varlistentry>
-        <term>Sticky (bool)</term>
+        <term>AllowedActions (string) , DisallowedActions (string)</term>
         <listitem>
-          <para>Window starts Sticky (present on all workspaces)</para>
+          <para>
+            A list of actions to allow/deny performing on a client.
+            <itemizedlist>
+              <listitem>
+                <para>
+                  "Move" ((Dis)allow moving of the client window)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "Resize" ((Dis)allow resizing of the client window)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "Iconify" ((Dis)allow iconifying of the client window)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "Shade" ((Dis)allow shading of the client window)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "Stick" ((Dis)allow setting sticky state on the client window)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "MaximizeHorizontal" ((Dis)allow maximizing the client window
+                  horizontally)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "MaximizeVertical" ((Dis)allow maximizing the client window
+                  vertically)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "Fullscreen" ((Dis)allow setting the client window in
+                  fullscreen mode)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "SetWorkspace" ((Dis)allow changing of workspace)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "Close" ((Dis)allow closing)
+                </para>
+              </listitem>
+            </itemizedlist>
+          </para>
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term>Shaded (bool)</term>
+        <term>ApplyOn (string)</term>
         <listitem>
-          <para>Window starts Shaded</para>
+          <para>
+            A list of conditions of when to apply this autoprop (so be
+            sure to include this in your property), consisting of
+            <itemizedlist>
+              <listitem>
+                <para>
+                  "Start" (Apply if window already exists before pekwm
+                  starts/restarts. Note when using grouping Start will
+                  not take workspaces in account)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "New" (Applies when the application first starts)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "Reload" (Apply when pekwm's config files are
+                  reloaded)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "Workspace" (Apply when the window is sent to another workspace)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "Transient" (Apply to Transient windows as well as
+                  normal windows. Dialog boxes are commonly transient
+                  windows)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "TransientOnly" (Apply to Transient windows
+                  only. Dialog boxes are commonly transient
+                  windows)
+                </para>
+              </listitem>
+            </itemizedlist>
+          </para>
         </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>MaximizedVertical (bool)</term>
-        <listitem>
-          <para>Window starts Maximized Vertically</para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>MaximizedHorizontal (bool)</term>
-        <listitem>
-          <para>Window starts Maximized Horizontally</para>
-      </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Iconified (bool)</term>
-        <listitem>
-          <para>Window starts Iconified</para>
-      </listitem>
       </varlistentry>
       <varlistentry>
         <term>Border (bool)</term>
         <listitem>
           <para>Window starts with a border</para>
-      </listitem>
+        </listitem>
       </varlistentry>
       <varlistentry>
-        <term>Titlebar (bool)</term>
+        <term>CfgDeny (string)</term>
         <listitem>
-          <para>Window starts with a TitleBar</para>
-      </listitem>
+          <para>
+            A list of conditions of when to deny things requested by the client program, consisting of
+            <itemizedlist>
+              <listitem>
+                <para>
+                  "Position" (Ignore client requested changes to
+                  window position)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "Size" (Ignore client requested changes to window
+                  size)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "Stacking" (Ignore client requested changes to
+                  window stacking)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "ActiveWindow" (Ignore client requests for showing
+                  and giving input focus)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "MaximizedVert" (Ignore client request to maximize
+                  window vertically)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "MaximizedHorz" (Ignore client request to maximize
+                  window horizontally)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "Hidden" (Ignore client request to show/hide window)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "Fullscreen" (Ignore client request to set window to fullscreen mode)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "Above" (Ignore client request to always place window above other windows)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "Below" (Ignore client request to always place window below other windows)
+                </para>
+              </listitem>
+            </itemizedlist>
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>ClientGeometry (geom)</term>
+        <listitem>
+          <para>
+            X Geometry String showing the initial size and position of
+            the client, excluding the possible pekwm titlebar and
+            window borders.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Decor (string)</term>
+        <listitem>
+          <para>
+            Use the specified decor for this window. The decor has to be defined in the used theme.
+            The decor is chosen by the first match in order: AutoProperty, TypeRules, DecorRules.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Focusable (bool)</term>
+        <listitem>
+          <para>Toggles if this client can be focused while it's running.</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>FocusNew (bool)</term>
+        <listitem>
+          <para>Toggles if this client gets focused when it initially pops up a window.</para>
+        </listitem>
       </varlistentry>
       <varlistentry>
         <term>FrameGeometry (geom)</term>
@@ -71,14 +243,90 @@
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term>ClientGeometry (geom)</term>
+        <term>Fullscreen (bool)</term>
+        <listitem>
+          <para>Window starts in fullscreen mode</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Group (string)</term>
         <listitem>
           <para>
-            X Geometry String showing the initial size and position of
-            the client, excluding the possible pekwm titlebar and
-            window borders.
+            Defines the name of the group. Also the section that 
+            contains all the grouping options. They are:
           </para>
+          <para>
+            <itemizedlist>
+              <listitem>
+                <para>
+                  Size (integer) - How many clients should be grouped in one group.
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  Behind (bool) - If true makes new clients of a group
+                  not to become the active one in the group.
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  FocusedFirst (bool) - If true and there are more
+                  than one frame where the window could be autogrouped
+                  into, the currently focused frame is considered the
+                  first option.
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  Raise (bool) - If true makes new clients raise the
+                  frame they open in.
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  Global (bool) - If true makes new clients start in a
+                  group even if the group is on another workspace or
+                  iconified.
+                </para>
+              </listitem>
+            </itemizedlist>
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Iconified (bool)</term>
+        <listitem>
+          <para>Window starts Iconified</para>
       </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Layer (string)</term>
+        <listitem>
+          <para>Windows layer. Makes the window stay under or above other windows. Default layer is "Normal".
+            Possible parameters are (listed from the bottommost to the uppermost):
+            <itemizedlist>
+              <listitem><para>Desktop</para></listitem>
+              <listitem><para>Below</para></listitem>
+              <listitem><para>Normal</para></listitem>
+              <listitem><para>OnTop</para></listitem>
+              <listitem><para>Harbour</para></listitem>
+              <listitem><para>AboveHarbour</para></listitem>
+              <listitem><para>Menu</para></listitem>
+            </itemizedlist>
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>MaximizedHorizontal (bool)</term>
+        <listitem>
+          <para>Window starts Maximized Horizontally</para>
+      </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>MaximizedVertical (bool)</term>
+        <listitem>
+          <para>Window starts Maximized Vertically</para>
+        </listitem>
       </varlistentry>
       <varlistentry>
         <term>Opacity (int int)</term>
@@ -88,332 +336,71 @@
       </listitem>
       </varlistentry>
       <varlistentry>
-	<term>Layer (string)</term>
-	<listitem>
-	  <para>
-	    Windows layer. Makes the window stay under or above other windows. Default layer is "Normal".
-	    Possible parameters are (listed from the bottommost to the uppermost):
-	    <itemizedlist>
-	      <listitem><para>Desktop</para></listitem>
-	      <listitem><para>Below</para></listitem>
-	      <listitem><para>Normal</para></listitem>
-	      <listitem><para>OnTop</para></listitem>
-	      <listitem><para>Harbour</para></listitem>
-	      <listitem><para>AboveHarbour</para></listitem>
-	      <listitem><para>Menu</para></listitem>
-	    </itemizedlist>
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Workspace (integer)</term>
-        <listitem>
-          <para>Which workspace to start program on.</para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>Skip (string)</term>
-	<listitem>
-	  <para>
-	    A list of situations when to ignore the defined application and
-	    let the user action skip over it, consisting of
-	    <itemizedlist>
-	      <listitem>
-                <para>
-                  "Snap" (Do not snap to this window while moving
-                  windows)
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  "Menus" (Do not show this window in pekwm menus
-                  other than the icon menu)
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  "FocusToggle" (Do not focus to this window when doing Next/PrevFrame)
-                </para>
-              </listitem>
-	    </itemizedlist>
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Fullscreen (bool)</term>
-        <listitem>
-          <para>Window starts in fullscreen mode</para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
         <term>PlaceNew (bool)</term>
         <listitem>
           <para>Toggles the use of placing rules for this client.</para>
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term>FocusNew (bool)</term>
+        <term>Role (string)</term>
         <listitem>
-          <para>Toggles if this client gets focused when it initially pops up a window.</para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-        <term>Focusable (bool)</term>
-        <listitem>
-          <para>Toggles if this client can be focused while it's running.</para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>CfgDeny (string)</term>
-	<listitem>
-	  <para>
-	    A list of conditions of when to deny things requested by the client program, consisting of
-	    <itemizedlist>
-	      <listitem>
-                <para>
-                  "Position" (Ignore client requested changes to
-                  window position)
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  "Size" (Ignore client requested changes to window
-                  size)
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  "Stacking" (Ignore client requested changes to
-                  window stacking)
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  "ActiveWindow" (Ignore client requests for showing
-                  and giving input focus)
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  "MaximizedVert" (Ignore client request to maximize
-                  window vertically)
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  "MaximizedHorz" (Ignore client request to maximize
-                  window horizontally)
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  "Hidden" (Ignore client request to show/hide window)
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  "Fullscreen" (Ignore client request to set window to fullscreen mode)
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  "Above" (Ignore client request to always place window above other windows)
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  "Below" (Ignore client request to always place window below other windows)
-                </para>
-              </listitem>
-	    </itemizedlist>
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>AllowedActions (string) , DisallowedActions (string)</term>
-	<listitem>
-	  <para>
-	    A list of actions to allow/deny performing on a client.
-	    <itemizedlist>
-	      <listitem>
-                <para>
-                  "Move" ((Dis)allow moving of the client window)
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  "Resize" ((Dis)allow resizing of the client window)
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  "Iconify" ((Dis)allow iconifying of the client window)
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  "Shade" ((Dis)allow shading of the client window)
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  "Stick" ((Dis)allow setting sticky state on the client window)
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  "MaximizeHorizontal" ((Dis)allow maximizing the client window
-                  horizontally)
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  "MaximizeVertical" ((Dis)allow maximizing the client window
-                  vertically)
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  "Fullscreen" ((Dis)allow setting the client window in
-                  fullscreen mode)
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  "SetWorkspace" ((Dis)allow changing of workspace)
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  "Close" ((Dis)allow closing)
-                </para>
-              </listitem>
-	    </itemizedlist>
-	  </para>
-	</listitem>
-      </varlistentry>
-
-      <varlistentry>
-	<term>ApplyOn (string)</term>
-	<listitem>
-	  <para>
-	    A list of conditions of when to apply this autoprop (so be
-	    sure to include this in your property), consisting of
-
-	    <itemizedlist>
-	      <listitem>
-                <para>
-                  "Start" (Apply if window already exists before pekwm
-                  starts/restarts. Note when using grouping Start will
-                  not take workspaces in account)
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  "New" (Applies when the application first starts)
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  "Reload" (Apply when pekwm's config files are
-                  reloaded)
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  "Workspace" (Apply when the window is sent to another workspace)
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  "Transient" (Apply to Transient windows as well as
-                  normal windows. Dialog boxes are commonly transient
-                  windows)
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  "TransientOnly" (Apply to Transient windows
-                  only. Dialog boxes are commonly transient
-                  windows)
-                </para>
-              </listitem>
-	    </itemizedlist>
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>Title (string)</term>
-	<listitem>
-	  <para>
-	    Apply this autoproperty on clients that have a title that matches
-	    this string. String is a regexp like: "^Saving".
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>Role (string)</term>
-	<listitem>
-	  <para>
-	    Apply this autoproperty on clients that have a WM_WINDOW_ROLE hint that matches
-	    this string. String is a regexp like: "^Main".
-	  </para>
-	</listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>Group (string)</term>
-	<listitem>
-	  <para>
-	    Defines the name of the group.  Also the section that
-	    contains all the grouping options. They are:
+          <para>
+            Apply this autoproperty on clients that have a WM_WINDOW_ROLE hint that matches
+            this string. String is a regexp like: "^Main".
           </para>
-	  <para>
-	    <itemizedlist>
-	      <listitem>
-                <para>
-                  Size (integer) - How many clients should be grouped
-                  in one group.
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  Behind (bool) - If true makes new clients of a group
-                  not to become the active one in the group.
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  FocusedFirst (bool) - If true and there are more
-                  than one frame where the window could be autogrouped
-                  into, the currently focused frame is considered the
-                  first option.
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  Raise (bool) - If true makes new clients raise the
-                  frame they open in.
-                </para>
-              </listitem>
-	      <listitem>
-                <para>
-                  Global (bool) - If true makes new clients start in a
-                  group even if the group is on another workspace or
-                  iconified.
-                </para>
-              </listitem>
-	    </itemizedlist>
-	  </para>
-	</listitem>
+        </listitem>
       </varlistentry>
       <varlistentry>
-       <term>Decor (string)</term>
-       <listitem>
-         <para>
-           Use the specified decor for this window. The decor has to be defined in the used theme.
-           The decor is chosen by the first match in order: AutoProperty, TypeRules, DecorRules.
-         </para>
-       </listitem>
+        <term>Shaded (bool)</term>
+        <listitem>
+          <para>Window starts Shaded</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Skip (string)</term>
+        <listitem>
+          <para>A list of situations when to ignore the defined application and
+            let the user action skip over it, consisting of
+            <itemizedlist>
+              <listitem>
+                <para>"Snap" (Do not snap to this window while moving windows)</para>
+              </listitem>
+              <listitem>
+                <para>"Menus" (Do not show this window in pekwm menus other than the icon menu)</para>
+              </listitem>
+              <listitem>
+                <para>"FocusToggle" (Do not focus to this window when doing Next/PrevFrame)</para>
+              </listitem>
+            </itemizedlist>
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Sticky (bool)</term>
+        <listitem>
+          <para>Window starts Sticky (present on all workspaces)</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Title (string)</term>
+        <listitem>
+          <para>
+            Apply this autoproperty on clients that have a title that matches
+            this string. String is a regexp like: "^Saving".
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Titlebar (bool)</term>
+        <listitem>
+          <para>Window starts with a TitleBar</para>
+      </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>Workspace (integer)</term>
+        <listitem>
+          <para>Which workspace to start program on.</para>
+        </listitem>
       </varlistentry>
     </variablelist>
   </para>
