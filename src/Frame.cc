@@ -1187,13 +1187,13 @@ Frame::doResize(bool left, bool x, bool top, bool y)
     // Initialize variables
     int start_x, new_x;
     int start_y, new_y;
-    uint last_width, old_width;
-    uint last_height, old_height;
+    uint old_width;
+    uint old_height;
 
     start_x = new_x = left ? _gm.x : (_gm.x + _gm.width);
     start_y = new_y = top ? _gm.y : (_gm.y + _gm.height);
-    last_width = old_width = _gm.width;
-    last_height = old_height = _gm.height;
+    old_width = _gm.width;
+    old_height = _gm.height;
 
     // the basepoint of our window
     _click_x = left ? (_gm.x + _gm.width) : _gm.x;
@@ -1765,7 +1765,7 @@ void
 Frame::getMaxBounds(int &max_x,int &max_r, int &max_y, int &max_b)
 {
     int f_r, f_b;
-    int x, y, h, w, r, b;
+    int x, y, r, b;
 
     f_r = getRX();
     f_b = getBY();
@@ -1778,8 +1778,6 @@ Frame::getMaxBounds(int &max_x,int &max_r, int &max_y, int &max_b)
 
         x = (*it)->getX();
         y = (*it)->getY();
-        h = (*it)->getHeight();
-        w = (*it)->getWidth();
         r = (*it)->getRX();
         b = (*it)->getBY();
 

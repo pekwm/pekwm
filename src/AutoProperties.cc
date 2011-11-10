@@ -259,7 +259,7 @@ AutoProperties::findProperty(const ClassHint* class_hint,
     list<uint>::iterator w_it;
 
     // start searching for a suitable property
-    for (bool ok = false; it != prop_list->end(); ++it, ok = false) {
+    for (; it != prop_list->end(); ++it) {
         // see if the type matches, if we have one
         if ((type != 0) && ! (*it)->isApplyOn(type))
             continue;
