@@ -1996,6 +1996,12 @@ void
 PDecor::applyBorderShape(void)
 {
 #ifdef HAVE_SHAPE
+    XRectangle rect_square;
+    rect_square.x = 0;
+    rect_square.y = 0;
+    rect_square.width = _gm.width;
+    rect_square.height = _gm.height;
+
     if (_need_shape || _need_client_shape) {
         // if we have tab min == 0 then we have full width title and place the
         // border ontop, else we put the border under the title
@@ -2061,6 +2067,11 @@ PDecor::applyBorderShape(void)
                               _title_wo.getWindow(), ShapeUnion);
         }
 
+        // The borders might extend beyond the window area (causing
+        // artifacts under xcompmgr), so we cut the shape down to the
+        // original window size.
+        X11::shapeIntersectRect(shape, &rect_square);
+
         // Apply the shape mask to the window
         X11::shapeCombine(_window, 0, 0, shape, ShapeSet);
 
@@ -2068,12 +2079,6 @@ PDecor::applyBorderShape(void)
     } else {
         // No shaping is required, apply a square shape to remove
         // possible stale shaping.
-        XRectangle rect_square;
-        rect_square.x = 0;
-        rect_square.y = 0;
-        rect_square.width = _gm.width;
-        rect_square.height = _gm.height;
-
         X11::shapeSetRect(_window, &rect_square);
     }
 #endif // HAVE_SHAPE

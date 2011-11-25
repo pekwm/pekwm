@@ -257,7 +257,13 @@ public:
     }
 
     inline static void shapeSetRect(Window dst, XRectangle *rect) {
-        XShapeCombineRectangles(_dpy, dst, ShapeBounding, 0, 0, rect, 1, ShapeSet, YXBanded);
+        XShapeCombineRectangles(_dpy, dst, ShapeBounding, 0, 0, rect, 1,
+                                ShapeSet, YXBanded);
+    }
+
+    inline static void shapeIntersectRect(Window dst, XRectangle *rect) {
+        XShapeCombineRectangles(_dpy, dst, ShapeBounding, 0, 0, rect, 1,
+                                ShapeIntersect, YXBanded);
     }
 
     inline static void shapeSetMask(Window dst, Pixmap pix) {
