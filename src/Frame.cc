@@ -1435,11 +1435,6 @@ Frame::updateInactiveChildInfo(void)
 void
 Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
 {
-    // we don't want to maximize transients
-    if (_client->isTransient()) {
-        return;
-    }
-
     setShaded(STATE_UNSET);
     setStateFullscreen(STATE_UNSET);
 
