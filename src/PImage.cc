@@ -415,7 +415,7 @@ PImage::createPixmap(uchar *data, uint width, uint height)
 Pixmap
 PImage::createMask(uchar *data, uint width, uint height)
 {
-    if (! _has_alpha) {
+    if (! _has_alpha || ! _use_alpha) {
         return None;
     }
 
