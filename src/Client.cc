@@ -344,7 +344,7 @@ void
 Client::setInitialState(void)
 {
     // Set state either specified in hint
-    ulong initial_state = readWmHints();
+    ulong initial_state = getWMHints();
     if (getWmState() == IconicState) {
         _iconified = true;
     }
@@ -832,31 +832,6 @@ Client::readHints(void)
     readClientPid();
     readClientRemote();
     getWMProtocols();
-}
-
-/**
- * Read WM Hints, return the initial state of the window.
- */
-ulong
-Client::readWmHints(void)
-{
-    ulong initial_state = NormalState;
-    XWMHints* hints = XGetWMHints(X11::getDpy(), _window);
-    if (hints) {
-        // get the input focus mode
-        if (hints->flags&InputHint) { // FIXME: More logic needed
-            _wm_hints_input = hints->input;
-        }
-
-        // Get initial state of the window
-        if (hints->flags&StateHint) {
-            initial_state = hints->initial_state;
-        }
-
-        setDemandsAttention(hints->flags&XUrgencyHint);
-        XFree(hints);
-    }
-    return initial_state;
 }
 
 /**
@@ -1754,6 +1729,31 @@ Client::updateWinType(bool set)
         if (set)
             AtomUtil::setAtom(_window, Atoms::getAtom(WINDOW_TYPE), Atoms::getAtom(WINDOW_TYPE_NORMAL));
     }
+}
+
+/**
+ * Read WM Hints, return the initial state of the window.
+ */
+ulong
+Client::getWMHints(void)
+{
+    ulong initial_state = NormalState;
+    XWMHints* hints = XGetWMHints(X11::getDpy(), _window);
+    if (hints) {
+        // get the input focus mode
+        if (hints->flags&InputHint) { // FIXME: More logic needed
+            _wm_hints_input = hints->input;
+        }
+
+        // Get initial state of the window
+        if (hints->flags&StateHint) {
+            initial_state = hints->initial_state;
+        }
+
+        setDemandsAttention(hints->flags&XUrgencyHint);
+        XFree(hints);
+    }
+    return initial_state;
 }
 
 void

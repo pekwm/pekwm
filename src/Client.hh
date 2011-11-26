@@ -283,6 +283,7 @@ public: // Public Member Functions
     inline AtomName getWinType(void) const { return _window_type; }
     void updateWinType(bool set);
 
+    ulong getWMHints(void);
     void getWMNormalHints(void);
     void getWMProtocols(void);
     void getTransientForHint(void);
@@ -329,7 +330,6 @@ private:
     void grabButton(int button, int mod, int mask, Window win);
 
     void readHints(void);
-    ulong readWmHints(void);
     void readClassRoleHints(void);
     void readEwmhHints(void);
     void readMwmHints(void);
