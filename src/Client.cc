@@ -65,7 +65,8 @@ Client::Client(Window new_client, bool is_new)
       _alive(false), _marked(false),
       _send_focus_message(false), _send_close_message(false),
       _wm_hints_input(true), _cfg_request_lock(false),
-      _shaped(false), _extended_net_name(false)
+      _shaped(false), _extended_net_name(false),
+      _demands_attention(false)
 {
     // PWinObj attributes, required by validate etc.
     _window = new_client;
@@ -852,6 +853,7 @@ Client::readWmHints(void)
             initial_state = hints->initial_state;
         }
 
+        setDemandsAttention(hints->flags&XUrgencyHint);
         XFree(hints);
     }
     return initial_state;
@@ -1427,16 +1429,6 @@ Client::setSkip(uint skip)
 {
     _state.skip = skip;
     AtomUtil::setLong(_window, Atoms::getAtom(PEKWM_FRAME_SKIP), _state.skip);
-}
-
-/**
- * Set demands attention state, this should be unset when client
- * recieves focus. This is ignored if client has focus.
- */
-void
-Client::setStateDemandsAttention(StateAction sa, bool attention)
-{
-    // FIXME: Demands attention state.
 }
 
 //! @brief Sends an WM_DELETE message to the client, else kills it.

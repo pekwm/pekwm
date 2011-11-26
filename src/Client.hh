@@ -169,6 +169,7 @@ public: // Public Member Functions
     inline bool isShaped(void) const { return _shaped; }
     inline bool hasStrut(void) const { return (_strut); }
     Strut *getStrut(void) const { return _strut; }
+    inline bool demandsAttention(void) const { return _demands_attention; }
 
     PTexture *getIcon(void) const { return _icon; }
 
@@ -232,8 +233,6 @@ public: // Public Member Functions
         _state.skip ^= skip;
     }
 
-    void setStateDemandsAttention(StateAction sa, bool attention);
-
     inline void setTitlebar(bool titlebar) {
         if (titlebar) {
             _state.decor |= DECOR_TITLEBAR;
@@ -241,6 +240,7 @@ public: // Public Member Functions
             _state.decor &= ~DECOR_TITLEBAR;
         }
     }
+
     inline void setBorder(bool border) {
         if (border) {
             _state.decor |= DECOR_BORDER;
@@ -252,6 +252,10 @@ public: // Public Member Functions
     /** Set shaped flag on Client. */
     inline void setShaped(bool shaped) {
         _shaped = shaped;
+    }
+
+    inline void setDemandsAttention(bool attention) {
+        _demands_attention = attention;
     }
 
     void close(void);
@@ -366,6 +370,7 @@ private: // Private Member Variables
     bool _cfg_request_lock;
     bool _shaped;
     bool _extended_net_name;
+    bool _demands_attention; /**< If true, the client requires attention from the user. */
 
     class State {
     public:
@@ -373,7 +378,7 @@ private: // Private Member Variables
             : maximized_vert(false), maximized_horz(false), shaded(false), fullscreen(false),
               placed(false), initial_frame_order(0),
               skip(0), decor(DECOR_TITLEBAR|DECOR_BORDER),
-              cfg_deny(CFG_DENY_NO), demands_attention(true) { }
+              cfg_deny(CFG_DENY_NO) { }
         ~State(void) { }
 
         bool maximized_vert, maximized_horz;
@@ -384,7 +389,6 @@ private: // Private Member Variables
         bool placed;
         uint initial_frame_order; /**< Initial frame position */
         uint skip, decor, cfg_deny;
-        bool demands_attention; /**< If true, the client requires attention from the user. */
     } _state;
 
     class Actions {

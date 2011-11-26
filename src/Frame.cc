@@ -2235,7 +2235,6 @@ Frame::handleStateAtom(StateAction sa, Atom atom, Client *client)
         client->setStateSkip(sa, SKIP_PAGER);
         break;
     case STATE_DEMANDS_ATTENTION:
-        client->setStateDemandsAttention(sa, true);
         break;
     }
 }
