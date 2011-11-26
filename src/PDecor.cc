@@ -173,6 +173,7 @@ PDecor::TitleItem::updateVisible(void) {
 const string PDecor::DEFAULT_DECOR_NAME = string("DEFAULT");
 const string PDecor::DEFAULT_DECOR_NAME_BORDERLESS = string("BORDERLESS");
 const string PDecor::DEFAULT_DECOR_NAME_TITLEBARLESS = string("TITLEBARLESS");
+const string PDecor::DEFAULT_DECOR_NAME_ATTENTION = string("ATTENTION");
 
 list<PDecor*> PDecor::_pdecor_list = list<PDecor*>();
 
