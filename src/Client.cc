@@ -549,6 +549,12 @@ Client::setWorkspace(uint workspace)
 void
 Client::giveInputFocus(void)
 {
+    Frame *frame;
+    if (demandsAttention() && (frame = static_cast<Frame *>(_parent))) {
+        setDemandsAttention(false);
+        frame->removeAttention();
+    }
+
     if (_wm_hints_input) {
         PWinObj::giveInputFocus();
     }
@@ -896,6 +902,7 @@ Client::readEwmhHints(void)
             setLayer(LAYER_BELOW);
         }
         if (win_states.fullscreen) _state.fullscreen = true;
+        _demands_attention = win_states.demands_attention;
     }
 
     // check if we have a strut

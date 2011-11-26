@@ -1,96 +1,102 @@
 <section id="config-theme-explanation" xreflabel="theme explanations">
-  <?dbhtml filename="explanation.html" dir="config"?>
-    <title>Attribute names used, explanations, possible values, examples</title>
+<?dbhtml filename="explanation.html" dir="config"?>
 
-      <para>
-	Here is the explanation of Attributes names of themes
-      </para>
+<title>Attribute names used, explanations, possible values, examples</title>
 
-      <para>
-	<variablelist>
-	  <title>Attributes:</title>
+<para>Here is the explanation of Attributes names of themes</para>
 
-	    <varlistentry>
-	      <term>pixels</term>
-		<listitem>
-		  <para>An integer, amount of pixels.</para>
-		  <para>example: "2"</para>
-        	</listitem>
-	    </varlistentry>
-	    <varlistentry>
-	      <term>size</term>
-		<listitem>
-		  <para>Pixels vertically times pixels horizontally.</para>
-		  <para>example: "2x2"</para>
-	        </listitem>
-	    </varlistentry>
-	    <varlistentry>
-	      <term>percent</term>
-              <listitem>
-		<para>Any percent value from 1 to 100.</para>
-		<para>example: "87"</para>
-	      </listitem>
-	    </varlistentry>
-	    <varlistentry>
-	      <term>toggle</term>
-	      <listitem>
-		<para>sets a value as true (1) or false (0).</para>
-		<para>example: "true"</para>
-	      </listitem>
-	    </varlistentry>
-	    <varlistentry>
-	      <term>padding</term>
-              <listitem>
-		<para>Free pixels from top, free pixels under, free pixels from left, free pixels from right.</para>
-		<para>example: "2 2 2 2"</para>
-	      </listitem>
-	    </varlistentry>
-	    <varlistentry>
-	      <term>decorname</term>
-	      <listitem>
-		<para>
-                  Name for decoration, any name can be used and applied to windows with autoproperties or
-                  the set decor action. The list below includes names with special meaning:
-		    <itemizedlist>	
-		      <listitem>
-			<para><emphasis role="bold">DEFAULT</emphasis></para>
-			<para>
-                          Defines decorations to all windows unless overridden with another decoration
-                          set (REQUIRED).
-                        </para>
-		      </listitem>
-		      <listitem>
-			<para><emphasis role="bold">INPUTDIALOG</emphasis></para>
-			<para>
-                          Defines decorations for input dialogs, such as the CmdDialog.
-                        </para>
-		      </listitem>
-		      <listitem>
-			<para><emphasis role="bold">MENU</emphasis></para>
-			<para>Defines decorations for menus.</para>
-		      </listitem>
-		      <listitem>
-			<para><emphasis role="bold">STATUSWINDOW</emphasis></para>
-			<para>Defines decorations for the command dialog.</para>
-		      </listitem>
-		      <listitem>
-			<para><emphasis role="bold">WORKSPACEINDICATOR</emphasis></para>
-			<para>Defines decorations for the workspace indicator.</para>
-		      </listitem>
-		      <listitem>
-			<para><emphasis role="bold">BORDERLESS</emphasis></para>
-			<para>Defines decorations for borderless windows (recommended).</para>
-		      </listitem>
-		      <listitem>
-			<para><emphasis role="bold">TITLEBARLESS</emphasis></para>
-			<para>Defines decorations for titlebarless windows (recommended,
-			  should be there if your theme looks nasty when toggled titlebarless).</para>
-		      </listitem>
-		    </itemizedlist>
-		  </para>
-		</listitem>
-	      </varlistentry>
-	      <varlistentry>
+<para>
+  <variablelist>
+    <title>Attributes:</title>
+    <varlistentry>
+      <term>pixels</term>
+      <listitem>
+        <para>An integer, amount of pixels.</para>
+        <para>example: "2"</para>
+      </listitem>
+	</varlistentry>
+    <varlistentry>
+      <term>size</term>
+      <listitem>
+        <para>Pixels vertically times pixels horizontally.</para>
+        <para>example: "2x2"</para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>percent</term>
+      <listitem>
+        <para>Any percent value from 1 to 100.</para>
+        <para>example: "87"</para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>toggle</term>
+      <listitem>
+        <para>sets a value as true (1) or false (0).</para>
+        <para>example: "true"</para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>padding</term>
+      <listitem>
+        <para>
+          Free pixels from top, free pixels under, free pixels from left, free pixels from right.
+        </para>
+        <para>example: "2 2 2 2"</para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
+      <term>decorname</term>
+      <listitem>
+        <para>
+          Name for decoration, any name can be used and applied to windows with autoproperties or
+          the set decor action. The list below includes names with special meaning:
+          <itemizedlist>
+            <listitem>
+              <para><emphasis role="bold">DEFAULT</emphasis></para>
+              <para>
+                Defines decorations to all windows unless overridden with another decoration
+                set (REQUIRED).
+              </para>
+            </listitem>
+            <listitem>
+              <para><emphasis role="bold">ATTENTION</emphasis></para>
+              <para>
+                Defines the decoration for windows that set the urgency/demand-attention hint.
+              </para>
+            </listitem>
+            <listitem>
+              <para><emphasis role="bold">BORDERLESS</emphasis></para>
+              <para>Defines decorations for borderless windows (recommended).</para>
+            </listitem>
+            <listitem>
+              <para><emphasis role="bold">INPUTDIALOG</emphasis></para>
+              <para>Defines decorations for input dialogs, such as the CmdDialog.</para>
+            </listitem>
+            <listitem>
+              <para><emphasis role="bold">MENU</emphasis></para>
+              <para>Defines decorations for menus.</para>
+            </listitem>
+            <listitem>
+              <para><emphasis role="bold">STATUSWINDOW</emphasis></para>
+              <para>Defines decorations for the command dialog.</para>
+            </listitem>
+            <listitem>
+              <para><emphasis role="bold">TITLEBARLESS</emphasis></para>
+              <para>
+                Defines decorations for titlebarless windows (recommended,
+                should be there if your theme looks nasty when toggled titlebarless).
+              </para>
+            </listitem>
+            <listitem>
+              <para><emphasis role="bold">WORKSPACEINDICATOR</emphasis></para>
+              <para>Defines decorations for the workspace indicator.</para>
+            </listitem>
+          </itemizedlist>
+        </para>
+      </listitem>
+    </varlistentry>
+    <varlistentry>
 		<term>colour</term>
 		  <listitem>
 			  <para>A colour value in RGB format.</para>

@@ -65,6 +65,7 @@ public:
 
     virtual void getDecorInfo(wchar_t *buf, uint size);
 
+    virtual void giveInputFocus(void);
     virtual void setShaded(StateAction sa);
     virtual void setSkip(uint skip);
     // END - PDecor interface.
@@ -118,6 +119,11 @@ public:
     void setStateTitle(StateAction sa, Client *client, const std::wstring &title);
     void setStateMarked(StateAction sa, Client *client);
     void setStateOpaque(StateAction sa);
+
+    void removeAttention(void) {
+        if (! --_attention)
+            setDecor(getClientDecorName(_client));
+    }
 
     void close(void);
 
@@ -185,6 +191,8 @@ private:
     Geometry _old_gm; // FIXME: move to PDecor?
     uint _non_fullscreen_decor_state; // FIXME: move to PDecor?
     uint _non_fullscreen_layer;
+
+    uint _attention; // Number of clients that demand attention
 
     // ID list, list of free Frame ids.
     static std::list<Frame*> _frame_list; //!< List of all Frames.
