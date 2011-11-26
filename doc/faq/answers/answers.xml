@@ -41,14 +41,6 @@ Esetroot -s mybackground.png &amp;</screen>
  -->
 
     <para>
-      The harbour needs to be enabled at compile time. When you are
-      doing the <command>./configure</command> -phase of the pekwm
-      compile, you can use the <command>--enable-harbour</command>
-      option to enable it. Harbour should show up in the features list
-      on <command>pekwm --info</command>.
-    </para>
-
-    <para>
       If a dockapp doesn't go into the harbour even you have it
       enabled at compile time, you should see if the application
       has an option to start it "withdrawn".
