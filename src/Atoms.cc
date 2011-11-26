@@ -74,6 +74,7 @@ static const char *atomnames[] = {
     // ICCCM atoms
     "WM_NAME",
     "WM_ICON_NAME",
+    "WM_HINTS",
     "WM_CLASS",
     "WM_STATE",
     "WM_CHANGE_STATE",

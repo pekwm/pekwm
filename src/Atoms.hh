@@ -77,6 +77,7 @@ enum AtomName {
     // ICCCM Atom Names
     WM_NAME,
     WM_ICON_NAME,
+    WM_HINTS,
     WM_CLASS,
     WM_STATE,
     WM_CHANGE_STATE,
