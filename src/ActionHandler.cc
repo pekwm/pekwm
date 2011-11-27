@@ -906,7 +906,7 @@ ActionHandler::createNextPrevMenu(bool show_iconified)
     Frame *fr;
     list<Frame*>::iterator f_it(Frame::frame_begin());
     for (; f_it != Frame::frame_end(); ++f_it) {
-        fr = static_cast<Frame*>(*f_it);
+        fr = *f_it;
         if (createMenuInclude(fr, show_iconified)) {
             menu->insert(static_cast<Client*>(fr->getActiveChild())->getTitle()->getVisible(),
                          ae, fr, static_cast<Client*>(fr->getActiveChild())->getIcon());
