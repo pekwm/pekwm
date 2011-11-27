@@ -1275,9 +1275,11 @@ WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
                 wo->getParent()->setFocused(true);
                 _root_wo->setEwmhActiveWindow(wo->getWindow());
 
-                // update the MRU list
-                _mru_list.remove(static_cast<Frame*>(wo->getParent()));
-                _mru_list.push_back(static_cast<Frame*>(wo->getParent()));
+                // update the MRU list (except for skip focus windows, see #297)
+                if (! static_cast<Client*>(wo)->isSkip(SKIP_FOCUS_TOGGLE)) {
+                    _mru_list.remove(static_cast<Frame*>(wo->getParent()));
+                    _mru_list.push_back(static_cast<Frame*>(wo->getParent()));
+                }
             } else {
                 wo->setFocused(true);
                 _root_wo->setEwmhActiveWindow(None);
