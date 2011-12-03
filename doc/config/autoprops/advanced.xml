@@ -88,13 +88,6 @@
             <itemizedlist>
               <listitem>
                 <para>
-                  "Start" (Apply if window already exists before pekwm
-                  starts/restarts. Note when using grouping Start will
-                  not take workspaces in account)
-                </para>
-              </listitem>
-              <listitem>
-                <para>
                   "New" (Applies when the application first starts)
                 </para>
               </listitem>
@@ -106,7 +99,9 @@
               </listitem>
               <listitem>
                 <para>
-                  "Workspace" (Apply when the window is sent to another workspace)
+                  "Start" (Apply if window already exists before pekwm
+                  starts/restarts. Note when using grouping Start will
+                  not take workspaces in account)
                 </para>
               </listitem>
               <listitem>
@@ -121,6 +116,11 @@
                   "TransientOnly" (Apply to Transient windows
                   only. Dialog boxes are commonly transient
                   windows)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "Workspace" (Apply when the window is sent to another workspace)
                 </para>
               </listitem>
             </itemizedlist>
@@ -141,6 +141,44 @@
             <itemizedlist>
               <listitem>
                 <para>
+                  "Above" (Ignore client request to always place window above other windows)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "ActiveWindow" (Ignore client requests for showing
+                  and giving input focus)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "Below" (Ignore client request to always place window below other windows)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "Fullscreen" (Ignore client request to set window to fullscreen mode)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "Hidden" (Ignore client request to show/hide window)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "MaximizedHorz" (Ignore client request to maximize
+                  window horizontally)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  "MaximizedVert" (Ignore client request to maximize
+                  window vertically)
+                </para>
+              </listitem>
+              <listitem>
+                <para>
                   "Position" (Ignore client requested changes to
                   window position)
                 </para>
@@ -155,44 +193,6 @@
                 <para>
                   "Stacking" (Ignore client requested changes to
                   window stacking)
-                </para>
-              </listitem>
-              <listitem>
-                <para>
-                  "ActiveWindow" (Ignore client requests for showing
-                  and giving input focus)
-                </para>
-              </listitem>
-              <listitem>
-                <para>
-                  "MaximizedVert" (Ignore client request to maximize
-                  window vertically)
-                </para>
-              </listitem>
-              <listitem>
-                <para>
-                  "MaximizedHorz" (Ignore client request to maximize
-                  window horizontally)
-                </para>
-              </listitem>
-              <listitem>
-                <para>
-                  "Hidden" (Ignore client request to show/hide window)
-                </para>
-              </listitem>
-              <listitem>
-                <para>
-                  "Fullscreen" (Ignore client request to set window to fullscreen mode)
-                </para>
-              </listitem>
-              <listitem>
-                <para>
-                  "Above" (Ignore client request to always place window above other windows)
-                </para>
-              </listitem>
-              <listitem>
-                <para>
-                  "Below" (Ignore client request to always place window below other windows)
                 </para>
               </listitem>
             </itemizedlist>
@@ -259,11 +259,6 @@
             <itemizedlist>
               <listitem>
                 <para>
-                  Size (integer) - How many clients should be grouped in one group.
-                </para>
-              </listitem>
-              <listitem>
-                <para>
                   Behind (bool) - If true makes new clients of a group
                   not to become the active one in the group.
                 </para>
@@ -278,15 +273,20 @@
               </listitem>
               <listitem>
                 <para>
+                  Global (bool) - If true makes new clients start in a
+                  group even if the group is on another workspace or
+                  iconified.
+                </para>
+              </listitem>
+              <listitem>
+                <para>
                   Raise (bool) - If true makes new clients raise the
                   frame they open in.
                 </para>
               </listitem>
               <listitem>
                 <para>
-                  Global (bool) - If true makes new clients start in a
-                  group even if the group is on another workspace or
-                  iconified.
+                  Size (integer) - How many clients should be grouped in one group.
                 </para>
               </listitem>
             </itemizedlist>
