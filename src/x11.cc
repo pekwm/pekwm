@@ -180,6 +180,12 @@ X11::destruct(void) {
     if (_modifier_map) {
         XFreeModifiermap(_modifier_map);
     }
+
+    // Under certain circumstances trying to restart pekwm can cause it to
+    // use 100% of the CPU without making any progress with the restart.
+    // This XSync() seems to be work around the issue (c.f. #300).
+    XSync(_dpy, true);
+
     XCloseDisplay(_dpy);
     _dpy = 0;
 }
