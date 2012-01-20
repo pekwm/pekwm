@@ -34,9 +34,14 @@ LOGDIR="${CURDIR}/logs"
 # DBV="/usr/share/sgml/docbook/xml-dtd-4.3-1.0-46.fc11/docbookx.dtd"
 
 # Ubuntu Hardy/Intrepid
-DBDIR="/usr/share/sgml/docbook/stylesheet/dsssl/modular"
-DBX="/usr/share/sgml/declaration/xml.dcl"
-DBV="/usr/share/xml/docbook/schema/dtd/4.3/docbookx.dtd"
+#DBDIR="/usr/share/sgml/docbook/stylesheet/dsssl/modular"
+#DBX="/usr/share/sgml/declaration/xml.dcl"
+#DBV="/usr/share/xml/docbook/schema/dtd/4.3/docbookx.dtd"
+
+# FreeBSD 9
+DBDIR="/usr/local/share/sgml/docbook/dsssl/modular"
+DBV="/usr/local/share/xml/docbook/4.3/docbookx.dtd"
+DBX="/usr/local/share/sgml/docbook/dsssl/modular/dtds/decls/xml.dcl"
 
 # NetBSD 5
 # DBDIR="/usr/pkg/share/sgml/docbook/dsssl/modular"
@@ -204,7 +209,10 @@ function mk_html_multifile() {
     fi
 
     # Correct relative css/img links
-    sed -i 's/HREF="\(css\|img\)/HREF="..\/\1/gi' ${HTMLDIR}/*/*.html
+    for html in ${HTMLDIR}/*/*.html; do
+        sed 's/HREF="\(css\|img\)/HREF="..\/\1/g' ${html} > ${html}.tmp
+        mv ${html}.tmp ${html}
+    done
 
     cp -R ${CURDIR}/img ${HTMLDIR}
     if test ${?} -ne 0; then
