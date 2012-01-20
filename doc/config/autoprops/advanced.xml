@@ -195,6 +195,12 @@
                   window stacking)
                 </para>
               </listitem>
+              <listitem>
+                <para>
+                  "Strut" (Ignore client request for reserving space in the screen corners,
+		  typically done by panels and the like)
+                </para>
+              </listitem>
             </itemizedlist>
           </para>
         </listitem>

@@ -335,6 +335,7 @@ Config::Config(void) :
     _cfg_deny_map["FULLSCREEN"] = CFG_DENY_STATE_FULLSCREEN;
     _cfg_deny_map["ABOVE"] = CFG_DENY_STATE_ABOVE;
     _cfg_deny_map["BELOW"] = CFG_DENY_STATE_BELOW;
+    _cfg_deny_map["STRUT"] = CFG_DENY_STRUT;
 
     _menu_action_map[""] = ACTION_MENU_NEXT;
     _menu_action_map["NEXTITEM"] = ACTION_MENU_NEXT;

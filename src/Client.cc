@@ -1844,43 +1844,45 @@ Client::getTransientForHint(void)
     }
 }
 
-//! @brief
+/**
+   Read the NET_WM_STRUT hint from the client window if any, adding it to
+   the global list of struts if the client does not have Strut in it's CfgDeny.
+*/
 void
 Client::getStrutHint(void)
 {
+    // Clear out old strut, well re-add if a new one is found.
+    removeStrutHint();
+
     int num = 0;
     long *strut = static_cast<long*>(AtomUtil::getEwmhPropData(_window,
                                                                Atoms::getAtom(NET_WM_STRUT),
                                                                XA_CARDINAL, num));
     if (strut) {
-        if (_strut) {
-            X11::removeStrut(_strut);
-        } else {
-            _strut = new Strut();
-        }
-
+        _strut = new Strut();
         *_strut = strut;
-        X11::addStrut(_strut);
-
         XFree(strut);
-
-    } else if (_strut) {
-        X11::removeStrut(_strut);
-        delete _strut;
-        _strut = 0;
+        
+        if (! isCfgDeny(CFG_DENY_STRUT)) {
+            X11::addStrut(_strut);
+        }
     }
 }
 
-//! @brief
+/**
+   Free resources used by the clients strut hint if any and unregister it from
+   the screen if Strut is not in it's CfgDeny.
+*/
 void
 Client::removeStrutHint(void)
 {
-    if (! _strut)
-        return;
-
-    X11::removeStrut(_strut);
-    delete _strut;
-    _strut = 0;
+    if ( _strut) {
+        if (! isCfgDeny(CFG_DENY_STRUT)) {
+            X11::removeStrut(_strut);
+        }
+        delete _strut;
+        _strut = 0;
+    }
 }
 
 /**
