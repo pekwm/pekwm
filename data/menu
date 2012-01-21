@@ -10,63 +10,70 @@ RootMenu = "Pekwm" {
 	Separator {}
 
 	Submenu = "Editors" {
-		Entry = "vim" { Actions = "Exec $TERM -title vim -e vim &" }
-		Entry = "gvim" { Actions = "Exec gvim &" }
-		Entry = "Emacs" { Actions = "Exec emacs &" }
-		Entry = "Emacs Terminal" { Actions = "Exec $TERM -title emacs -e emacs -nw &" }
-		Entry = "Kate" { Actions = "Exec kate &" }
+		Entry = "emacs" { Actions = "Exec emacs" }
+		Entry = "emacs terminal" { Actions = "Exec $TERM -title emacs -e emacs -nw" }
+		Entry = "gedit" { Actions = "Exec gedit" }
+		Entry = "gvim" { Actions = "Exec gvim" }
+		Entry = "kate" { Actions = "Exec kate" }
+		Entry = "vim" { Actions = "Exec $TERM -title vim -e vim" }
+	}
+	Submenu = "eMail" {
+		Entry = "claws-mail" { Actions = "Exec claws-mail" }
+		Entry = "evolution" { Actions = "Exec evolution" }
+		Entry = "kmail" { Actions = "Exec kmail" }
+		Entry = "mutt" { Actions = "Exec $TERM -e mutt" }
+		Entry = "thunderbird" { Actions = "Exec thunderbird" }
+	}
+	Submenu = "Filemanager" {
+		Entry = "dolphin" { Actions = "Exec dolphin" }
+		Entry = "mc" { Actions = "Exec $TERM -e mc" }
+		Entry = "nautilus" { Actions = "Exec nautilus" }
+		Entry = "pcmanfm" { Actions = "Exec pcmanfm" }
+		Entry = "rox" { Actions = "Exec rox" }
+		Entry = "thunar" { Actions = "Exec thunar" }
 	}
 	Submenu = "Graphics" {
-		Entry = "display" { Actions = "Exec display &" }
-		Entry = "Gimp" { Actions = "Exec gimp &" }
-		Entry = "Gv" { Actions = "Exec gv &" }
-		Entry = "Xpdf" { Actions = "Exec xpdf &" }
-		Entry = "gqview" { Actions = "Exec gqview &" }
+		Entry = "gimp" { Actions = "Exec gimp" }
+		Entry = "digikam" { Actions = "Exec digikam" }
+		Entry = "display" { Actions = "Exec display" }
+		Entry = "eog" { Actions = "Exec eog" }
+		Entry = "gwenview" { Actions = "Exec gwenview" }
+		Entry = "shotwell" { Actions = "Exec shotwell" }
+	}
+	Submenu = "IDE" {
+		Entry = "anjuta" { Actions = "Exec anjuta" }
+		Entry = "eclipse" { Actions = "Exec eclipse" }
+		Entry = "kdevelop" { Actions = "Exec kdevelop" }
+	}
+	Submenu = "IM" {
+		Entry = "empathy" { Actions = "Exec empathy" }
+		Entry = "kopete" { Actions = "Exec kopete" }
+		Entry = "pidgin" { Actions = "Exec pidgin" }
+		Entry = "psi" { Actions = "Exec psi" }
 	}
 	Submenu = "Multimedia" {
-		Entry = "Amarok" { Actions = "Exec amarok &" }
-		Entry = "Quod Libet" { Actions = "Exec quodlibet &" }
-		Entry = "Xmms" { Actions = "Exec xmms &" }
-		Entry = "MPlayer" { Actions = "Exec gnome-mplayer &" }
-		Entry = "Xine" { Actions = "Exec xine &" }
-		Entry = "xawtv" { Actions = "Exec xawtv &" }
-		Entry = "Totem" { actions = "exec totem &" }
-		Entry = "alsamixer" { Actions = "Exec $TERM -title alsamixer -e alsamixer &" }
-	}
-	Submenu = "Utils" {
-		Entry = "Calculator" { Actions = "Exec gcalctool &" }
-		Entry = "Xpdf" { Actions = "Exec xpdf &" }
-		Entry = "Evince" { Actions = "Exec evince &" }
-		Entry = "gucharmap" { Actions = "Exec gucharmap &" }
-		Entry = "Gkrellm" { Actions = "Exec gkrellm &" }
-	}
-	Submenu = "WWW" {
-		Entry = "Dillo" { Actions = "Exec dillo &" }
-		Entry = "Konqueror" { Actions = "Exec konqueror &" }
-		Entry = "Firefox" { Actions = "Exec firefox &" }
-	}
-	Submenu = "FTP" {
-		Entry = "gftp" { Actions = "Exec gftp &" }
-		Entry = "lftp" { Actions = "Exec $TERM -title lftp -e lftp &" }
-	}
-	Submenu = "Communication" {
-		Entry = "Mutt" { Actions = "Exec $TERM -title mutt -e mutt &" }
-		Entry = "Alpine" { Actions = "Exec $TERM -title alpine -e alpine &" }
-		Entry = "Thunderbird" { Actions = "Exec thunderbird &" }
-		Entry = "Evolution" { Actions = "Exec evolution &" }
-		Entry = "KMail" { Actions = "Exec kmail &" }
-		Entry = "Pidgin" { Actions = "Exec pidgin &" }
-		Entry = "Irssi" { Actions = "Exec $TERM -title irssi -e irssi &" }
-		Entry = "Kopete" { Actions = "Exec kopete &" }
+		Entry = "vlc" { Actions = "Exec vlc" }
+		Entry = "amarok" { Actions = "Exec amarok" }
+		Entry = "banshee" { Actions = "Exec banshee" }
+		Entry = "rhythmbox" { Actions = "Exec rhythmbox" }
+		Entry = "smplayer" { Actions = "Exec smplayer" }
+		Entry = "alsamixer" { Actions = "Exec $TERM -title alsamixer -e alsamixer" }
 	}
 	Submenu = "Office" {
-		Entry = "KOffice Workspace" { Actions = "Exec koshell &" }
-		Entry = "OpenOffice" { Actions = "Exec ooffice &" }
+		Entry = "LOffice - Calc" { Actions = "Exec libreoffice --calc" }
+		Entry = "LOffice - Draw" { Actions = "Exec libreoffice --draw" }
+		Entry = "LOffice - Impress" { Actions = "Exec libreoffice --impress" }
+		Entry = "LOffice - Writer" { Actions = "Exec libreoffice --writer" }
 	}
-	Submenu = "Development" {
-		Entry = "Anjuta" { Actions = "Exec anjuta &" }
-		Entry = "Eclipse" { Actions = "Exec eclipse &" }
-		Entry = "KDevelop" { Actions = "Exec kdevelop &" }
+	Submenu = "VoIP" {
+		Entry = "ekiga" { Actions = "Exec ekiga" }
+		Entry = "jitsi" { Actions = "Exec jitsi" }
+		Entry = "sflphone" { Actions = "Exec sflphone" }
+}
+	Submenu = "WWW" {
+		Entry = "firefox" { Actions = "Exec firefox" }
+		Entry = "chromium" { Actions = "Exec chromium" }
+		Entry = "opera" { Actions = "Exec opera" }
 	}
 
 	Separator {}
