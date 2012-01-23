@@ -61,8 +61,7 @@ private:
     Client *findClientFromTitle(const std::wstring &title);
     void gotoClient(Client *client);
 
-    PMenu *createNextPrevMenu(bool show_iconified);
-    PMenu *createMRUMenu(bool show_iconified);
+    PMenu *createNextPrevMenu(bool show_iconified, bool mru);
     bool createMenuInclude(Frame *frame, bool show_iconified);
 
     void initSendKeyEvent(XEvent &ev, PWinObj *wo);

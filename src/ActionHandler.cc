@@ -659,14 +659,7 @@ void
 ActionHandler::actionFocusToggle(uint button, uint raise, int off,
                                  bool show_iconified, bool mru)
 {
-    PMenu *p_menu;
-
-    if (mru) {
-        p_menu = createMRUMenu(show_iconified);
-    } else {
-        p_menu = createNextPrevMenu(show_iconified);
-    }
-
+    PMenu *p_menu = createNextPrevMenu(show_iconified, mru);
     auto_ptr<PMenu> menu(p_menu);
 
     // no clients in the list
@@ -895,40 +888,21 @@ ActionHandler::actionShowMenu(const std::string &name, bool stick,
 
 //! @brief Creates a menu containing a list of Frames currently visible
 //! @param show_iconified Flag to show/hide iconified windows
+//! @param mru Whether MRU order should be used or not.
 PMenu*
-ActionHandler::createNextPrevMenu(bool show_iconified)
+ActionHandler::createNextPrevMenu(bool show_iconified, bool mru)
 {
+    Frame *fr;
     ActionEvent ae; // empty ae, used when inserting
     PMenu *menu =
-        new PMenu(WindowManager::instance()->getTheme(), L"Windows",
+        new PMenu(WindowManager::instance()->getTheme(),
+                  mru?L"MRU Windows":L"Windows",
                   "" /* Empty name*/);
 
-    Frame *fr;
-    list<Frame*>::iterator f_it(Frame::frame_begin());
-    for (; f_it != Frame::frame_end(); ++f_it) {
-        fr = *f_it;
-        if (createMenuInclude(fr, show_iconified)) {
-            menu->insert(static_cast<Client*>(fr->getActiveChild())->getTitle()->getVisible(),
-                         ae, fr, static_cast<Client*>(fr->getActiveChild())->getIcon());
-        }
-    }
-
-    return menu;
-}
-
-//! @brief Creates a menu containing a list of Frames currently visible ( MRU order )
-//! @param show_iconified Flag to show/hide iconified windows
-PMenu*
-ActionHandler::createMRUMenu(bool show_iconified)
-{
-    ActionEvent ae; // empty ae, used when inserting
-    PMenu *menu = new PMenu(WindowManager::instance()->getTheme(),
-                            L"MRU Windows", "" /* Empty name */);
-
-    Frame *fr;
-    list<Frame*>::iterator f_it = WindowManager::instance()->mru_begin();
-    for (; f_it != WindowManager::instance()->mru_end(); ++f_it) {
-        fr = *f_it;
+    list<Frame*>::iterator itr = mru?WindowManager::instance()->mru_begin():Frame::frame_begin();
+    list<Frame*>::iterator end = mru?WindowManager::instance()->mru_end():Frame::frame_end();
+    for (; itr != end; ++itr) {
+        fr = *itr;
         if (createMenuInclude(fr, show_iconified)) {
             menu->insert(static_cast<Client*>(fr->getActiveChild())->getTitle()->getVisible(),
                          ae, fr, static_cast<Client*>(fr->getActiveChild())->getIcon());
