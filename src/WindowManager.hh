@@ -90,9 +90,7 @@ public:
     inline bool isStartup(void) const { return _startup; }
 
     // list iterators
-    inline std::list<Frame*>::iterator mru_begin(void) { return _mru_list.begin(); }
     inline std::list<Frame*>::reverse_iterator mru_rbegin(void) { return _mru_list.rbegin(); }
-    inline std::list<Frame*>::iterator mru_end(void) { return _mru_list.end(); }
     inline std::list<Frame*>::reverse_iterator mru_rend(void) { return _mru_list.rend(); }
 
     // adds
