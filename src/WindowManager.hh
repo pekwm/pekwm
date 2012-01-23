@@ -90,18 +90,18 @@ public:
     inline bool isStartup(void) const { return _startup; }
 
     // list iterators
-    inline std::list<Frame*>::reverse_iterator mru_rbegin(void) { return _mru_list.rbegin(); }
-    inline std::list<Frame*>::reverse_iterator mru_rend(void) { return _mru_list.rend(); }
+    inline std::list<Frame*>::iterator mru_begin(void) { return _mru_list.begin(); }
+    inline std::list<Frame*>::iterator mru_end(void) { return _mru_list.end(); }
 
     // adds
-    inline void addToFrameList(Frame *frame) {
+    inline void addToMRUFront(Frame *frame) {
         if (frame) {
             _mru_list.remove(frame);
             _mru_list.push_front(frame);
         }
     }
 
-    inline void addToFrameListBack(Frame *frame) {
+    inline void addToMRUBack(Frame *frame) {
         if (frame) {
             _mru_list.remove(frame);
             _mru_list.push_back(frame);
@@ -231,7 +231,7 @@ private:
     bool _shutdown; //!< Set to wheter we want to shutdown.
     bool _reload; //!< Set to wheter we want to reload.
 
-    std::list<Frame *> _mru_list;
+    std::list<Frame *> _mru_list; // The most recently used frame is kept at the front.
 
     bool _allow_grouping; //<! Flag turning grouping on/off.
 

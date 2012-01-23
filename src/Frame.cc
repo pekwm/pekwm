@@ -162,7 +162,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
     // I add these to the list before I insert the client into the frame to
     // be able to skip an extra updateClientList
     _frame_list.push_back(this);
-    WindowManager::instance()->addToFrameList(this);
+    WindowManager::instance()->addToMRUBack(this);
     Workspaces::insert(this);
 
     activateChild(client);

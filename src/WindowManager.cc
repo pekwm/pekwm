@@ -1278,7 +1278,7 @@ WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
                 // update the MRU list (except for skip focus windows, see #297)
                 if (! static_cast<Client*>(wo)->isSkip(SKIP_FOCUS_TOGGLE)) {
                     _mru_list.remove(static_cast<Frame*>(wo->getParent()));
-                    _mru_list.push_back(static_cast<Frame*>(wo->getParent()));
+                    _mru_list.push_front(static_cast<Frame*>(wo->getParent()));
                 }
             } else {
                 wo->setFocused(true);
@@ -1472,8 +1472,8 @@ WindowManager::findWOAndFocus(PWinObj *search)
 
     // search window object didn't exist, go through the MRU list
     if (! focus) {
-        list<Frame *>::reverse_iterator f_it = _mru_list.rbegin();
-        for (; ! focus  && (f_it != _mru_list.rend()); ++f_it) {
+        list<Frame *>::iterator f_it = _mru_list.begin();
+        for (; ! focus && f_it != _mru_list.end(); ++f_it) {
             if ((*f_it)->isMapped() && (*f_it)->isFocusable()) {
                 focus = *f_it;
             }
@@ -1482,7 +1482,6 @@ WindowManager::findWOAndFocus(PWinObj *search)
 
     if (focus) {
         focus->giveInputFocus();
-
     }  else if (! PWinObj::getFocusedPWinObj()) {
         _root_wo->giveInputFocus();
         _root_wo->setEwmhActiveWindow(None);

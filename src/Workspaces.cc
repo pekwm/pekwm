@@ -414,7 +414,7 @@ Workspaces::unhideAll(uint workspace, bool focus)
             // update the MRU list
             if (wo->getType() == PWinObj::WO_CLIENT) {
                 Frame *frame = static_cast<Frame*>(wo->getParent());
-                WindowManager::instance()->addToFrameListBack(frame);
+                WindowManager::instance()->addToMRUFront(frame);
             }
         }
 
