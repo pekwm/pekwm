@@ -52,7 +52,14 @@ else
         fi
 
         # Change theme
-        <SED> -e "s/^\([^#]*\)[Tt][Hh][Ee][Mm][Ee]\ =\ \"[^\"]*\"/\\1Theme\ =\ \"${theme}\"/" "${PEKWM_CONFIG_FILE}" > "${tmp_file}"
+
+	# Literal tab-character, whitespace and double quote
+	tab="	"
+	wspc="\\([ $tab]*\\)"
+	qq='\"'
+	text='[Tt][Hh][Ee][Mm][Ee]'
+
+        <SED> -e "s/^\([^#]*\)$text$wspc=$wspc$qq[^$qq]*$qq/\1Theme\2=\3$qq${theme}$qq/" "${PEKWM_CONFIG_FILE}" > "${tmp_file}"
         mv "${tmp_file}" "${PEKWM_CONFIG_FILE}"
 
         # Reload pekwm
