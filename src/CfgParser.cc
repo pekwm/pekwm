@@ -46,7 +46,7 @@ CfgParser::Entry::Entry(const std::string &source_name, int line,
 CfgParser::Entry::Entry(const CfgParser::Entry &entry)
     : _section(0),
       _name(entry._name), _value(entry._value),
-      _line(entry._line), _source_name(_source_name)
+      _line(entry._line), _source_name(entry._source_name)
 {
     list<CfgParser::Entry*>::const_iterator it(entry._entries.begin());
     for (; it != entry._entries.end(); ++it) {

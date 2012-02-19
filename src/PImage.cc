@@ -228,7 +228,7 @@ void
 PImage::scale(uint width, uint height)
 {
     // Invalid width or height or no need to scale.
-    if (! width || ! height || ((width == _width) && (height == height))) {
+    if (! width || ! height || ((width == _width) && (height == _height))) {
         return;
     }
     uchar *scaled_data;

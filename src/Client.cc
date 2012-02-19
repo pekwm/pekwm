@@ -1540,7 +1540,7 @@ Client::getIncSize(uint *r_w, uint *r_h, uint w, uint h, bool incr)
                 ? _size->base_height
                 : (_size->flags&PMinSize) ? _size->min_height : 0;
 
-        if (w-basex < 0 || h-basey<0) {
+        if (w < basex || h < basey) {
             basex=basey=0;
         }
 

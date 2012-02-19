@@ -1833,11 +1833,6 @@ Config::parseWorkspaceNumber(const std::string &workspace)
         }
     }
 
-    // Fallback to 0 if something went wrong
-    if (num < 0) {
-        num = 0;
-    }
-
     return num;
 }
 
