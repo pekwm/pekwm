@@ -157,3 +157,18 @@ WindowMenu = "Window Menu" {
 	Entry = "Close" { Actions = "Close" }
 	Submenu = "Kill" { Entry = "Kill application" { Actions = "Kill" } }
 }
+
+LayoutMenu = "Layout" {
+	Entry = "Smart" { Actions = "SetLayouter Smart" }
+	Entry = "Mouse Not Under" { Actions = "SetLayouter MouseNotUnder" }
+	Entry = "Mouse Centered" { Actions = "SetLayouter MouseCentered" }
+	Entry = "Mouse Top Left" { Actions = "SetLayouter MouseTopLeft" }
+	Separator {}
+	Entry = "Layout Horizontal" { Actions = "SetLayouter TILE_Horizontal" }
+	Entry = "Layout Vertical" { Actions = "SetLayouter TILE_Vertical" }
+	Entry = "Layout Dwindle" { Actions = "SetLayouter TILE_Dwindle" }
+	Entry = "Layout Stacked" { Actions = "SetLayouter TILE_Stacked" }
+	Entry = "Layout Center One" { Actions = "SetLayouter TILE_CenterOne" }
+	Entry = "Layout Boxed" { Actions = "SetLayouter TILE_Boxed" }
+	Entry = "Layout Fib" { Actions = "SetLayouter TILE_Fib" }
+}
