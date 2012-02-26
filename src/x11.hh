@@ -310,6 +310,31 @@ public:
     static const uint MODIFIER_TO_MASK[]; /**< Modifier from (XModifierKeymap) to mask table. */
     static const uint MODIFIER_TO_MASK_NUM; /**< Number of entries in MODIFIER_TO_MASK. */
 
+    // helper functions
+
+    //! @brief Makes sure the Geometry is inside the screen.
+    static
+    void placeInsideScreen(Geometry &gm, bool withoutedge=false) {
+        Geometry head;
+        if (withoutedge) {
+            getHeadInfo(getCurrHead(), head);
+        } else {
+            getHeadInfoWithEdge(getCurrHead(), head);
+        }
+
+        if (gm.x < head.x) {
+            gm.x = head.x;
+        } else if ((gm.x + gm.width) > (head.x + head.width)) {
+            gm.x = head.x + head.width - gm.width;
+        }
+
+        if (gm.y < head.y) {
+            gm.y = head.y;
+        } else if ((gm.y + gm.height) > (head.y + head.height)) {
+            gm.y = head.y + head.height - gm.height;
+        }
+    }
+
     // X11 function wrappers
 
     inline static void grabButton(unsigned b, unsigned int mod, Window win, 

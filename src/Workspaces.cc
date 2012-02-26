@@ -678,7 +678,7 @@ Workspaces::placeWoInsideScreen(PWinObj *wo)
         }
     }
 
-    placeInsideScreen(gm_after, strut);
+    X11::placeInsideScreen(gm_after, strut);
     if (gm_before != gm_after) {
         wo->move(gm_after.x, gm_after.y);
     }
@@ -813,8 +813,8 @@ Workspaces::placeMouseCentered(PWinObj *wo)
     Geometry gm(mouse_x - (wo->getWidth() / 2), mouse_y - (wo->getHeight() / 2),
                 wo->getWidth(), wo->getHeight());
 
-    // make sure it's within the screens border
-    placeInsideScreen(gm);
+    // make sure it's within the screen's border
+    X11::placeInsideScreen(gm);
 
     wo->move(gm.x, gm.y);
 
@@ -829,7 +829,7 @@ Workspaces::placeMouseTopLeft(PWinObj *wo)
     X11::getMousePosition(mouse_x, mouse_y);
 
     Geometry gm(mouse_x, mouse_y, wo->getWidth(), wo->getHeight());
-    placeInsideScreen(gm); // make sure it's within the screens border
+    X11::placeInsideScreen(gm); // make sure it's within the screen's border
 
     wo->move(gm.x, gm.y);
 
@@ -852,33 +852,6 @@ Workspaces::placeCenteredOnParent(PWinObj *wo, Window parent)
     }
 
     return false;
-}
-
-//! @brief Makes sure the window is inside the screen.
-void
-Workspaces::placeInsideScreen(Geometry &gm, Strut *strut)
-{
-    // Do not include screen edges when calculating the position if the window
-    // has a strut as it then is likely to be a panel or the like placed
-    // along the edge of the screen.
-    Geometry head;
-    if (strut) {
-        X11::getHeadInfo(X11::getCurrHead(), head);
-    } else {
-        X11::getHeadInfoWithEdge(X11::getCurrHead(), head);
-    }
-
-    if (gm.x < head.x) {
-        gm.x = head.x;
-    } else if ((gm.x + gm.width) > (head.x + head.width)) {
-        gm.x = head.x + head.width - gm.width;
-    }
-
-    if (gm.y < head.y) {
-        gm.y = head.y;
-    } else if ((gm.y + gm.height) > (head.y + head.height)) {
-        gm.y = head.y + head.height - gm.height;
-    }
 }
 
 //! @brief

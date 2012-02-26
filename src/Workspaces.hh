@@ -114,7 +114,6 @@ private:
     static bool placeMouseCentered(PWinObj *wo);
     static bool placeMouseTopLeft(PWinObj *wo);
     static bool placeCenteredOnParent(PWinObj *wo, Window parent);
-    static void placeInsideScreen(Geometry &gm, Strut *strut=0);
 
     // placement helpers
     static PWinObj* isEmptySpace(int x, int y, const PWinObj *wo);
