@@ -191,9 +191,12 @@ PImage::getPixmap(bool &need_free, uint width, uint height)
 Pixmap
 PImage::getMask(bool &need_free, uint width, uint height)
 {
-    // Default
     Pixmap pix = None;
     need_free = false;
+
+    if (! _has_alpha || ! _use_alpha) {
+        return None;
+    }
 
     // Expand parameters.
     if (! width) {
