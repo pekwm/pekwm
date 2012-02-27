@@ -164,12 +164,6 @@ public:
     {
         _param_i[0] = _param_i[1] = _param_i[2] = 0;
     }
-    
-    Action(uint action, const std::string &param_s)
-        : _action(action), _param_s(param_s)
-    {
-        _param_i[0] = _param_i[1] = _param_i[2] = 0;
-    }
     ~Action(void)
     {
     }
@@ -182,7 +176,11 @@ public:
     inline void setParamI(uint n, int param) { _param_i[(n < 3) ? n : 0] = param; }
     inline void setParamS(const std::string param) { _param_s = param; }
 
-    inline void clear() { _action = ACTION_UNSET; _param_s.clear(); _param_i[0] = _param_i[1] = _param_i[2] = 0; }
+    inline void clear()
+    {
+        _action = ACTION_UNSET; _param_s.clear();
+        _param_i[0] = _param_i[1] = _param_i[2] = 0;
+    }
 private:
     uint _action;
 
@@ -200,11 +198,8 @@ public:
     }
 
     inline bool isOnlyAction(uint action) const {
-        if ((action_list.size() == 1) &&
-                (action_list.front().getAction() == action)) {
-            return true;
-        }
-        return false;
+        return ((action_list.size() == 1) &&
+                (action_list.front().getAction() == action));
     }
 
 public:
