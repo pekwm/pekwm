@@ -168,6 +168,10 @@ Workspaces::setWorkspace(uint num, bool focus)
     AtomUtil::setLong(X11::getRoot(),
                       Atoms::getAtom(NET_CURRENT_DESKTOP),
                       num);
+
+    _previous = _active;
+    _active = num;
+
     unhideAll(num, focus);
 
     X11::ungrabServer(true);
@@ -372,12 +376,6 @@ Workspaces::hideAll(uint workspace)
 void
 Workspaces::unhideAll(uint workspace, bool focus)
 {
-    if (workspace >= _workspace_list.size())
-        return;
-    _previous = _active;
-    _active = workspace;
-
-
     list<PWinObj*>::iterator it(_wo_list.begin());
     for (; it != _wo_list.end(); ++it) {
         if (! (*it)->isMapped() && ! (*it)->isIconified() && ! (*it)->isHidden()
