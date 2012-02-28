@@ -12,7 +12,7 @@ AC_PROG_INSTALL
 AC_PROG_SED
 PKG_PROG_PKG_CONFIG
 
-AC_LANG_CPLUSPLUS
+AC_LANG([C++])
 
 dnl Check for /usr/xpg4/bin/sh and use that in scripts if it does
 dnl exist, Solaris /bin/sh does feel like behaving with the standard
@@ -265,8 +265,8 @@ AC_CHECK_FUNC(swprintf, [AC_DEFINE(HAVE_SWPRINTF, [1], [Define to 1 if you have 
 dnl Check whether time.h has timersub
 AC_MSG_CHECKING(for timersub in time.h)
 AC_LINK_IFELSE(
-  AC_LANG_PROGRAM([#include <sys/time.h>],
-    [struct timeval *a; timersub(a, a, a);]),
+  [AC_LANG_PROGRAM([#include <sys/time.h>],
+    [struct timeval *a; timersub(a, a, a);])],
   AC_MSG_RESULT(yes)
     AC_DEFINE([HAVE_TIMERSUB], 1, [Define to 1 if your system defines timersub.]),
   AC_MSG_RESULT(no)
