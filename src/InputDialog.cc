@@ -125,13 +125,15 @@ InputDialog::addKeysymToKeysymMap(KeySym keysym, wchar_t chr)
     KeyCode keycode = XKeysymToKeycode(dpy, keysym);
     KeySym *keysyms = XGetKeyboardMapping(dpy, keycode, 1, &keysyms_per_keycode);
 
-    for (int i = 0; i < keysyms_per_keycode; i++) {
-        if (keysyms[i] != NoSymbol) {
-            _keysym_map[keysyms[i]] = chr;
+    if (keysyms) {
+        for (int i = 0; i < keysyms_per_keycode; i++) {
+            if (keysyms[i] != NoSymbol) {
+                _keysym_map[keysyms[i]] = chr;
+            }
         }
-    }
 
-    XFree(keysyms);
+        XFree(keysyms);
+    }
 }
 
 /**
