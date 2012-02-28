@@ -75,6 +75,7 @@ public:
         void parse_key_values(std::list<CfgParserKey*>::iterator begin,
                               std::list<CfgParserKey*>::iterator end);
 
+        void print(uint level = 0);
         void copy_tree_into(CfgParser::Entry *from, bool overwrite=false);
 
         //! @brief Matches Entry name agains op_rhs.

@@ -120,7 +120,7 @@ CfgParser::Entry::set_section(CfgParser::Entry *section, bool overwrite)
 {
     if (_section) {
         if (overwrite) {
-            _section->copy_tree_into(section);
+            _section->copy_tree_into(section, overwrite);
             delete section;
         } else {
             delete _section;
@@ -187,6 +187,30 @@ CfgParser::Entry::parse_key_values(std::list<CfgParserKey*>::iterator begin,
             } catch (string &ex) {
                 cerr << " *** WARNING " << ex << endl << "  " << *value << endl;
             }
+        }
+    }
+}
+
+/**
+   Print tree to stderr.
+*/
+void
+CfgParser::Entry::print(uint level)
+{
+    for (uint i = 0; i < level; ++i) {
+        cerr << " ";
+    }
+    cerr << " * " << get_name() << "=" << get_value() << endl;
+
+    CfgParser::iterator it(begin());
+    for (; it != end(); ++it) {
+        if ((*it)->get_section()) {
+            (*it)->get_section()->print(level + 1);
+        } else {
+            for (uint i = 0; i < level; ++i) {
+                cerr << " ";
+            }
+            cerr << "   - " << get_name() << "=" << get_value() << endl;
         }
     }
 }
