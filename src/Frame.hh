@@ -19,7 +19,6 @@
 
 class PWinObj;
 class Strut;
-class Theme;
 class ClassHint;
 class AutoProperty;
 
