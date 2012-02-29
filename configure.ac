@@ -118,52 +118,6 @@ else
 	AC_MSG_RESULT([no])
 fi
 
-dnl Check for XPM support
-AC_MSG_CHECKING([wheter to build support XPM images])
-AC_ARG_ENABLE(image-xpm,
-	AC_HELP_STRING([--enable-image-xpm],
-								 [enable support for XPM images [default=yes]]), ,
-							[enableval=yes])
-if test "x$enableval" = "xyes"; then
-	AC_MSG_RESULT([yes])
-	AC_CHECK_LIB(Xpm, XpmReadFileToPixmap,
-		AC_MSG_CHECKING([for X11/xpm.h])
-		AC_TRY_COMPILE(
-#include <X11/xpm.h>
-			, int foo = XpmSuccess,
-			AC_MSG_RESULT([yes])
-			AC_DEFINE(HAVE_IMAGE_XPM, [1], [Define to 1 if you libXpm])
-			LIBS="$LIBS -lXpm"
-			FEATURES="$FEATURES image-xpm",
-		AC_MSG_RESULT([no])))
-else
-	AC_MSG_RESULT([no])
-fi
-
-dnl Check for JPEG support
-AC_MSG_CHECKING([wheter to build support for JPEG images])
-AC_ARG_ENABLE(image-jpeg,
-	AC_HELP_STRING([--enable-image-jpeg],
-								 [enable support for JPEG images [default=yes]]), ,
-							[enableval=yes])
-if test "x$enableval" = "xyes"; then
- 	AC_MSG_RESULT([yes])
- 	AC_CHECK_LIB(jpeg, jpeg_read_header,
- 		AC_MSG_CHECKING([for jpeglib.h])
- 		AC_TRY_CPP([#include <jpeglib.h>],
-			jpeg_ok=yes,
- 			jpeg_ok=no)
- 		AC_MSG_RESULT($jpeg_ok)
- 		if test "$jpeg_ok" = yes; then
-			AC_DEFINE(HAVE_IMAGE_JPEG, [1], [Define to 1 if you have jpeg6b])
- 			LIBS="$LIBS -ljpeg"
- 			FEATURES="$FEATURES image-jpeg"
- 		fi,
- 		AC_MSG_RESULT([no]))
-else
-	AC_MSG_RESULT([no])
-fi
-
 dnl Check for PNG support
 AC_MSG_CHECKING([wheter to build support for PNG images])
 AC_ARG_ENABLE(image-png,
@@ -199,9 +153,55 @@ dnl Check for default theme
 if test "x$HAVE_LIBPNG" = "xyes"; then                
         THEME="default"
 else
-        THEME="default-plain"
+        AC_MSG_ERROR([Could not find libpng.])
 fi
 AC_SUBST([THEME])
+
+dnl Check for JPEG support
+AC_MSG_CHECKING([wheter to build support for JPEG images])
+AC_ARG_ENABLE(image-jpeg,
+	AC_HELP_STRING([--enable-image-jpeg],
+								 [enable support for JPEG images [default=yes]]), ,
+							[enableval=yes])
+if test "x$enableval" = "xyes"; then
+ 	AC_MSG_RESULT([yes])
+ 	AC_CHECK_LIB(jpeg, jpeg_read_header,
+ 		AC_MSG_CHECKING([for jpeglib.h])
+ 		AC_TRY_CPP([#include <jpeglib.h>],
+			jpeg_ok=yes,
+ 			jpeg_ok=no)
+ 		AC_MSG_RESULT($jpeg_ok)
+ 		if test "$jpeg_ok" = yes; then
+			AC_DEFINE(HAVE_IMAGE_JPEG, [1], [Define to 1 if you have jpeg6b])
+ 			LIBS="$LIBS -ljpeg"
+ 			FEATURES="$FEATURES image-jpeg"
+ 		fi,
+ 		AC_MSG_RESULT([no]))
+else
+	AC_MSG_RESULT([no])
+fi
+
+dnl Check for XPM support
+AC_MSG_CHECKING([wheter to build support XPM images])
+AC_ARG_ENABLE(image-xpm,
+	AC_HELP_STRING([--enable-image-xpm],
+								 [enable support for XPM images [default=yes]]), ,
+							[enableval=yes])
+if test "x$enableval" = "xyes"; then
+	AC_MSG_RESULT([yes])
+	AC_CHECK_LIB(Xpm, XpmReadFileToPixmap,
+		AC_MSG_CHECKING([for X11/xpm.h])
+		AC_TRY_COMPILE(
+#include <X11/xpm.h>
+			, int foo = XpmSuccess,
+			AC_MSG_RESULT([yes])
+			AC_DEFINE(HAVE_IMAGE_XPM, [1], [Define to 1 if you libXpm])
+			LIBS="$LIBS -lXpm"
+			FEATURES="$FEATURES image-xpm",
+		AC_MSG_RESULT([no])))
+else
+	AC_MSG_RESULT([no])
+fi
 
 dnl Check for XRANDR support
 AC_MSG_CHECKING([wheter to build support for the XRANDR extension])
