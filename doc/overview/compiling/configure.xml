@@ -71,23 +71,6 @@
         </listitem>
       </varlistentry>
       <varlistentry>
-	<term>--enable-menus</term>
-	<listitem>
-          <para>Enables menu support (It's useful to turn this off if
-	    you rely completely on a desktop environment using the
-	    root window)</para>
-	  <para>By default, Enabled</para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
-	<term>--enable-harbour</term>
-	<listitem>
-          <para>Enables the use of the harbour which is used to swallow
-	   Window Maker dockapps.</para>
-	  <para>By default, Enabled</para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
 	<term>--prefix=PREFIX</term>
 	<listitem>
           <para>It may be useful to use a custom prefix to install the files.</para>
