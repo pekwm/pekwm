@@ -1,0 +1,205 @@
+# 
+# pekwm theme for ordinary and tiling mode, based on pwm_brownsteel
+# and ion_cleanice themes modelled after PWM and ION themes.
+#
+
+$FONT = "XFT#Sans:size=9#Left"
+$FONT_TITLE = "XFT#Sans:size=9#Center"
+
+Require {
+  Templates = "True"
+}
+
+Define = "BaseDecor" {
+  Height = "20"
+  Pad = "2 5 2 5"
+
+  Font {
+    Focused = "$FONT_TITLE"
+  }
+  FontColor {
+    Focused = "#ffc571"
+    FocusedSelected = "white"
+    Unfocused = "#777777"
+    UnfocusedSelected = "#777777"
+  }
+  Separator {
+    Focused = "EMPTY"
+    Unfocused = "EMPTY"
+  }
+  Border {
+    Focused {
+      TopLeft = "Solid #303030 1x1"
+      Top = "Solid #303030 1x1"
+      TopRight = "Solid #303030 1x1"
+      Left =  "Solid #303030 1x1"
+      Right = "Solid #303030 1x1"
+      BottomLeft = "Solid #303030 1x1"
+      Bottom = "Solid #303030 1x1"
+      BottomRight = "Solid #303030 1x1"
+    }
+    Unfocused {
+      TopLeft = "Solid #303030 1x1"
+      Top = "Solid #303030 1x1"
+      TopRight = "Solid #303030 1x1"
+      Left =  "Solid #303030 1x1"
+      Right = "Solid #303030 1x1"
+      BottomLeft = "Solid #303030 1x1"
+      Bottom = "Solid #303030 1x1"
+      BottomRight = "Solid #303030 1x1"
+    }
+  }
+}
+
+Define = "BaseButtons" {
+  Buttons {
+  }
+}
+
+Define = "EmptyDecor" {
+  Focused = "Empty"
+  Unfocused = "Empty"
+
+  Tab {
+    Focused = "Empty"
+    FocusedSelected = "Empty"
+    Unfocused = "Empty"
+    UnfocusedSelected = "Empty"
+  }
+
+  Font {
+    Focused = "Empty"
+  }
+
+  FontColor {
+    Focused = "Empty"
+    FocusedSelected = "Empty"
+    Unfocused = "Empty"
+    UnfocusedSelected = "Empty"
+  }    
+
+  Border {
+    Focused {
+      TopLeft = "Empty"
+      Top = "Empty"
+      TopRight = "Empty"
+      Left =  "Empty"
+      Right = "Empty"
+      BottomLeft = "Empty"
+      Bottom = "Empty"
+      BottomRight = "Empty"
+    }
+    Unfocused {
+      TopLeft = "Empty"
+      Top = "Empty"
+      TopRight = "Empty"
+      Left =  "Empty"
+      Right = "Empty"
+      BottomLeft = "Empty"
+      Bottom = "Empty"
+      BottomRight = "Empty"
+    }
+  }
+}
+
+PDecor {
+  Decor = "Default" {
+    Title {
+      @BaseDecor
+      @BaseButtons
+
+      WidthMin = "150"
+      WidthMax = "95"
+      WidthSymetric = "true"
+
+      Tab {
+        Focused = "SolidRaised #586468 #f8fcf8 #f8fcf8 0 0 1x1"
+        FocusedSelected = "SolidRaised #889898 #f8fcf8 0 0 1x1"
+        Unfocused = "SolidRaised #505c70 #b8bcb8 #b8bcb8  0 0 1x1"
+        UnfocusedSelected = "SolidRaised #283038 #b8bcb8 #b8bcb8 0 0 1x1"
+      }
+    }
+  }
+
+  Decor = "Tiling" {
+    Title {
+      @BaseDecor
+
+      Pad = "2 0 2 0"
+
+      Tab {
+        Focused = "SolidRaised #586468 #f8fcf8 #f8fcf8 0 0 1x1"
+        FocusedSelected = "SolidRaised #889898 #f8fcf8 0 0 1x1"
+        Unfocused = "SolidRaised #505c70 #b8bcb8 #b8bcb8  0 0 1x1"
+        UnfocusedSelected = "SolidRaised #283038 #b8bcb8 #b8bcb8 0 0 1x1"
+      }
+    }
+  }
+
+  Decor = "Menu" {
+    Title {
+      @BaseDecor
+
+      Focused = "SolidRaised #586468 #f8fcf8 #f8fcf8 0 0 1x1"
+      Unfocused = "SolidRaised #505c70 #b8bcb8 #b8bcb8  0 0 1x1"
+    }
+  }
+
+  Decor = "Titlebarless" {
+    Title {
+      @EmptyDecor
+    }
+  }
+
+  Decor = "Statuswindow" {
+    Title {
+      @EmptyDecor
+    }
+  }
+}
+
+Harbour {
+  Texture = "Solid #f9f9f9"
+}
+
+Menu {
+  Pad = "0 0 4 4" 
+
+  Focused {
+    Font = "$FONT"
+    Background = "Solid #f8fcf8"
+    Item = "Solid #ffffff"
+    Text = "#111111" 
+    Separator = "Solid #888888 0x1"
+    Arrow = "Image #111111 2x2"
+  }
+  Unfocused {
+    Font = "$FONT"
+    Background = "Solid #b8bcb8"
+    Item = "Solid #cccccc"
+    Text = "#555555"
+    Separator = "Solid #303030 0x1"
+    Arrow = "Image #555555 2x2"
+  }
+  Selected {
+    Font = "$FONT"
+    Background = "Empty"
+    Item = "SolidRaised #bbbbbb #666666 #666666 1 0"
+    Text = "#ffffff"
+    Arrow = "Solid #111111 2x2"
+  }
+}
+
+CmdDialog {
+  Font = "$FONT"
+  Texture = "Solid #ffffff"
+  Text = "#000000"
+  Pad = "3 0 1 10"
+}
+
+Status {
+  Font = "$FONT"
+  Texture = "Solid #ffffff"
+  Text = "#8b8b89"
+  Pad = "2 2 10 10"
+}

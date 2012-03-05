@@ -288,6 +288,7 @@ AC_OUTPUT(Makefile
           data/themes/Makefile
           data/themes/default/Makefile
           data/themes/default-plain/Makefile
+          data/themes/pion/Makefile
           data/scripts/Makefile
           doc/Makefile
           contrib/Makefile
