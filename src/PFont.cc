@@ -335,7 +335,8 @@ PFontXmb::load(const std::string &font_name)
     unload();
 
     string basename(font_name);
-    if (font_name.rfind(",*") != (font_name.size() - 2)) {
+    size_t pos = font_name.rfind(",*");
+    if (pos == string::npos || pos != (font_name.size() - 2)) {
         basename.append(",*");
     }
 
