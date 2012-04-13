@@ -44,7 +44,7 @@ AutoProperties::AutoProperties(void)
     _instance = this;
 
     // fill parsing maps
-    _apply_on_map[""] = APPLY_ON_NONE;
+    _apply_on_map[""] = APPLY_ON_ALWAYS;
     _apply_on_map["START"] = APPLY_ON_START;
     _apply_on_map["NEW"] = APPLY_ON_NEW;
     _apply_on_map["RELOAD"] = APPLY_ON_RELOAD;
@@ -255,19 +255,20 @@ AutoProperties::findProperty(const ClassHint* class_hint,
     if (! _apply_on_start && (type == APPLY_ON_START))
         return 0;
 
-    vector<Property*>::iterator it(prop_list->begin());
+    vector<Property*>::const_iterator it(prop_list->begin());
+    vector<Property*>::const_iterator end(prop_list->end());
     list<uint>::iterator w_it;
 
     // start searching for a suitable property
-    for (; it != prop_list->end(); ++it) {
+    for (; it != end; ++it) {
         // see if the type matches, if we have one
-        if ((type != 0) && ! (*it)->isApplyOn(type))
+        if ((type != APPLY_ON_ALWAYS) && ! (*it)->isApplyOn(type))
             continue;
 
         if (matchAutoClass(*class_hint, *it)) {
 
             // make sure it applies on the correct workspace
-            if ((*it)->getWsList().size()) {
+            if (! (*it)->getWsList().empty()) {
                 w_it = find((*it)->getWsList().begin(), (*it)->getWsList().end(),
                             unsigned(ws));
                 if (w_it != (*it)->getWsList().end()) {
@@ -845,20 +846,20 @@ AutoProperties::findAutoProperty(const ClassHint* class_hint, int ws, ApplyOn ty
 TitleProperty*
 AutoProperties::findTitleProperty(const ClassHint* class_hint)
 {
-    return static_cast<TitleProperty*>(findProperty(class_hint, &_title_prop_list, -1, APPLY_ON_NONE));
+    return static_cast<TitleProperty*>(findProperty(class_hint, &_title_prop_list, -1, APPLY_ON_ALWAYS));
 }
 
 //! @brief
 DecorProperty*
 AutoProperties::findDecorProperty(const ClassHint* class_hint)
 {
-    return static_cast<DecorProperty*>(findProperty(class_hint, &_decor_prop_list, -1, APPLY_ON_NONE));
+    return static_cast<DecorProperty*>(findProperty(class_hint, &_decor_prop_list, -1, APPLY_ON_ALWAYS));
 }
 
 DockAppProperty*
 AutoProperties::findDockAppProperty(const ClassHint *class_hint)
 {
-    return static_cast<DockAppProperty*>(findProperty(class_hint, &_dock_app_prop_list, -1, APPLY_ON_NONE));
+    return static_cast<DockAppProperty*>(findProperty(class_hint, &_dock_app_prop_list, -1, APPLY_ON_ALWAYS));
 }
 
 //! @brief Get AutoProperty for window of type type

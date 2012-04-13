@@ -995,7 +995,7 @@ Client::readIcon(void)
 }
 
 //! @brief Tries to find a AutoProp for the current client.
-//! @param type Defaults to APPLY_ON_NONE.
+//! @param type Defaults to APPLY_ON_ALWAYS.
 //! @return AutoProperty if any is found, else 0.
 AutoProperty*
 Client::readAutoprops(ApplyOn type)

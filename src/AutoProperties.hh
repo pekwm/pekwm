@@ -214,7 +214,7 @@ public:
     static inline AutoProperties *instance(void) { return _instance; }
 
     AutoProperty* findAutoProperty(const ClassHint* class_hintbb,
-                                   int ws = -1, ApplyOn type = APPLY_ON_NONE);
+                                   int ws = -1, ApplyOn type = APPLY_ON_ALWAYS);
     TitleProperty* findTitleProperty(const ClassHint* class_hint);
     DecorProperty* findDecorProperty(const ClassHint* class_hint);
     DockAppProperty* findDockAppProperty(const ClassHint *class_hint);

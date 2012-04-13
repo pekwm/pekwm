@@ -298,7 +298,7 @@ public: // Public Member Functions
     void setPekwmFrameActive(bool active);
 
     static void setClientEnvironment(Client *client);
-    AutoProperty* readAutoprops(ApplyOn type = APPLY_ON_NONE);
+    AutoProperty* readAutoprops(ApplyOn type = APPLY_ON_ALWAYS);
 
 private:
     bool getAndUpdateWindowAttributes(void);

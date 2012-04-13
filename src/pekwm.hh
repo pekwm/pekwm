@@ -103,13 +103,13 @@ enum Layer {
 };
 
 enum ApplyOn {
+    APPLY_ON_ALWAYS = 0,
     APPLY_ON_START = (1<<1),
     APPLY_ON_NEW = (1<<2),
     APPLY_ON_RELOAD = (1<<3),
     APPLY_ON_WORKSPACE = (1<<4),
     APPLY_ON_TRANSIENT = (1<<5),
-    APPLY_ON_TRANSIENT_ONLY = (1<<6),
-    APPLY_ON_NONE = 0
+    APPLY_ON_TRANSIENT_ONLY = (1<<6)
 };
 
 enum Skip {
