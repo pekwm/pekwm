@@ -212,7 +212,7 @@ AutoProperties::loadRequire(CfgParser &a_cfg, std::string &file)
 void
 AutoProperties::unload(void)
 {
-    list<Property*>::iterator it;
+    vector<Property*>::iterator it;
 
     // remove auto properties
     for (it = _prop_list.begin(); it != _prop_list.end(); ++it) {
@@ -249,13 +249,13 @@ AutoProperties::unload(void)
 //! @brief Finds a property from the prop_list
 Property*
 AutoProperties::findProperty(const ClassHint* class_hint,
-                             std::list<Property*>* prop_list, int ws, uint type)
+                             std::vector<Property*>* prop_list, int ws, uint type)
 {
     // Allready remove apply on start
     if (! _apply_on_start && (type == APPLY_ON_START))
         return 0;
 
-    list<Property*>::iterator it(prop_list->begin());
+    vector<Property*>::iterator it(prop_list->begin());
     list<uint>::iterator w_it;
 
     // start searching for a suitable property
@@ -880,7 +880,7 @@ AutoProperties::findWindowTypeProperty(AtomName atom)
 void
 AutoProperties::removeApplyOnStart(void)
 {
-    list<Property*>::iterator it(_prop_list.begin());
+    vector<Property*>::iterator it(_prop_list.begin());
     for (; it != _prop_list.end(); ++it) {
         if ((*it)->isApplyOn(APPLY_ON_START)) {
             (*it)->applyRemove(APPLY_ON_START);
