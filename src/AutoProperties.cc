@@ -249,7 +249,7 @@ AutoProperties::unload(void)
 //! @brief Finds a property from the prop_list
 Property*
 AutoProperties::findProperty(const ClassHint* class_hint,
-                             std::vector<Property*>* prop_list, int ws, uint type)
+                             std::vector<Property*>* prop_list, int ws, ApplyOn type)
 {
     // Allready remove apply on start
     if (! _apply_on_start && (type == APPLY_ON_START))
@@ -836,7 +836,7 @@ AutoProperties::parseAutoPropertyValue(CfgParser::Entry *section, AutoProperty *
 
 //! @brief Searches the _prop_list for a property
 AutoProperty*
-AutoProperties::findAutoProperty(const ClassHint* class_hint, int ws, uint type)
+AutoProperties::findAutoProperty(const ClassHint* class_hint, int ws, ApplyOn type)
 {
     return static_cast<AutoProperty*>(findProperty(class_hint, &_prop_list, ws, type));
 }
@@ -845,20 +845,20 @@ AutoProperties::findAutoProperty(const ClassHint* class_hint, int ws, uint type)
 TitleProperty*
 AutoProperties::findTitleProperty(const ClassHint* class_hint)
 {
-    return static_cast<TitleProperty*>(findProperty(class_hint, &_title_prop_list, -1, 0));
+    return static_cast<TitleProperty*>(findProperty(class_hint, &_title_prop_list, -1, APPLY_ON_NONE));
 }
 
 //! @brief
 DecorProperty*
 AutoProperties::findDecorProperty(const ClassHint* class_hint)
 {
-    return static_cast<DecorProperty*>(findProperty(class_hint, &_decor_prop_list, -1, 0));
+    return static_cast<DecorProperty*>(findProperty(class_hint, &_decor_prop_list, -1, APPLY_ON_NONE));
 }
 
 DockAppProperty*
 AutoProperties::findDockAppProperty(const ClassHint *class_hint)
 {
-    return static_cast<DockAppProperty*>(findProperty(class_hint, &_dock_app_prop_list, -1, 0));
+    return static_cast<DockAppProperty*>(findProperty(class_hint, &_dock_app_prop_list, -1, APPLY_ON_NONE));
 }
 
 //! @brief Get AutoProperty for window of type type

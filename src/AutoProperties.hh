@@ -214,7 +214,7 @@ public:
     static inline AutoProperties *instance(void) { return _instance; }
 
     AutoProperty* findAutoProperty(const ClassHint* class_hintbb,
-                                   int ws = -1, uint type = 0);
+                                   int ws = -1, ApplyOn type = APPLY_ON_NONE);
     TitleProperty* findTitleProperty(const ClassHint* class_hint);
     DecorProperty* findDecorProperty(const ClassHint* class_hint);
     DockAppProperty* findDockAppProperty(const ClassHint *class_hint);
@@ -232,7 +232,7 @@ public:
 private:
     Property* findProperty(const ClassHint* class_hint,
                            std::vector<Property*>* prop_list,
-                           int ws, uint type);
+                           int ws, ApplyOn type);
 
     void loadRequire(CfgParser &a_cfg, std::string &file);
 

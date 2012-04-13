@@ -1858,7 +1858,7 @@ Frame::close(void)
 //! @brief Reads autoprops for the active client.
 //! @param type Defaults to APPLY_ON_RELOAD
 void
-Frame::readAutoprops(uint type)
+Frame::readAutoprops(ApplyOn type)
 {
     if ((type != APPLY_ON_RELOAD) && (type != APPLY_ON_WORKSPACE))
         return;

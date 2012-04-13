@@ -126,7 +126,7 @@ public:
 
     void close(void);
 
-    void readAutoprops(uint type = APPLY_ON_RELOAD);
+    void readAutoprops(ApplyOn type = APPLY_ON_RELOAD);
 
     void doResize(XMotionEvent *ev); // redirects to doResize(bool...
     void doResize(BorderPosition pos); // redirect to doResize(bool...
