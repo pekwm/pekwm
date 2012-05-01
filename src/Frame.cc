@@ -988,7 +988,10 @@ bool
 Frame::fixGeometry(void)
 {
     Geometry head, before;
-    X11::getHeadInfoWithEdge(getNearestHead(), head);
+    if (_fullscreen)
+        X11::getHeadInfo(getNearestHead(), head);
+    else
+        X11::getHeadInfoWithEdge(getNearestHead(), head);
 
     before = _gm;
 
@@ -1616,7 +1619,7 @@ Frame::setStateSticky(StateAction sa)
 void
 Frame::setStateAlwaysOnTop(StateAction sa)
 {
-    if (! ActionUtil::needToggle(sa, getLayer() == LAYER_ONTOP)) {
+    if (! ActionUtil::needToggle(sa, getLayer() >= LAYER_ONTOP)) {
         return;
     }
 
