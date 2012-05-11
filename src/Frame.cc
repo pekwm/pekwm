@@ -481,8 +481,11 @@ Frame::addChildOrdered (Client *child)
 
 //! @brief Removes child from the frame.
 void
-Frame::removeChild (PWinObj *child, bool do_delete)
+Frame::removeChild(PWinObj *child, bool do_delete)
 {
+    if (static_cast<Client *>(child)->demandsAttention()) {
+        --_attention;
+    }
     PDecor::removeChild(child, do_delete);
 }
 
