@@ -971,16 +971,17 @@ PDecor::getChildFromPos(int x)
         return _child_list.back();
     }
 
+    PTexture *t_sep = _data->getTextureSeparator(getFocusedState(false));
+    uint sepw = t_sep?t_sep->getWidth():0;
     list<PWinObj*>::iterator c_it(_child_list.begin());
     list<PDecor::TitleItem*>::iterator t_it(_title_list.begin());
 
-    // FIXME: make getChildFromPos separator aware!
     uint pos = _titles_left, xx = x;
     for (uint i = 0; i < _title_list.size(); ++i, ++t_it, ++c_it) {
-        if ((xx >= pos) && (xx <= (pos + (*t_it)->getWidth()))) {
+        if (xx >= pos && xx <= pos + (*t_it)->getWidth() + sepw) {
             return *c_it;
         }
-        pos += (*t_it)->getWidth();
+        pos += (*t_it)->getWidth() + sepw;
     }
 
     return 0;
