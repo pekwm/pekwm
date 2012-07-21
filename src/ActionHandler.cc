@@ -38,10 +38,6 @@
 
 #include <memory>
 
-extern "C" {
-#include <X11/keysym.h>
-}
-
 #ifdef DEBUG
 #include <iostream>
 using std::cerr;
@@ -737,8 +733,7 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off,
                 cycling = false;
             }
         } else if (ev.type == KeyRelease) {
-            if (IsModifierKey(XKeycodeToKeysym(X11::getDpy(),
-                                               ev.xkey.keycode, 0))) {
+            if (IsModifierKey(X11::getKeysymFromKeycode(ev.xkey.keycode))) {
                 cycling = false;
             }
         } else {

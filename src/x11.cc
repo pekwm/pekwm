@@ -31,7 +31,9 @@ extern "C" {
 #endif // HAVE_XRANDR
 #include <X11/keysym.h> // For XK_ entries
 #include <sys/select.h>
-
+#ifdef HAVE_X11_XKBLIB_H
+#include <X11/XKBlib.h>
+#endif
 #ifdef DEBUG
 bool xerrors_ignore = false;
 #endif // DEBUG
@@ -718,6 +720,19 @@ X11::getKeycodeFromMask(uint mask)
     }
 
     return 0;
+}
+
+/**
+ * Wrapper for XKeycodeToKeysym and XkbKeycodeToKeysym depending on which one is available.
+ */
+KeySym
+X11::getKeysymFromKeycode(KeyCode keycode)
+{
+#ifdef HAVE_X11_XKBLIB_H
+    return XkbKeycodeToKeysym(_dpy, keycode, 0, 0);
+#else
+    return XKeycodeToKeysym(_dpy, keycode, 0);
+#endif
 }
 
 Display *X11::_dpy;

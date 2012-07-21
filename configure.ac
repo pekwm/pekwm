@@ -272,6 +272,9 @@ AC_LINK_IFELSE(
   AC_MSG_RESULT(no)
 )
 
+dnl Check for XkbKeycodeToKeysym replacing XKeycodeToKeysym
+AC_CHECK_HEADERS([X11/XKBlib.h])
+
 dnl Check simple toggles ( no outer dependecies )
 
 dnl Check whether to include debugging code

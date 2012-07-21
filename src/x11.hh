@@ -213,6 +213,7 @@ public:
 
     static uint getMaskFromKeycode(KeyCode keycode);
     static KeyCode getKeycodeFromMask(uint mask);
+    static KeySym getKeysymFromKeycode(KeyCode keycode);
 
     inline static void removeMotionEvents(void)
     {

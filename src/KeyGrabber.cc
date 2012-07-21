@@ -22,6 +22,9 @@
 extern "C" {
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
+#ifdef HAVE_X11_XKBLIB_H
+#include <X11/XKBlib.h>
+#endif
 }
 
 using std::cerr;
@@ -342,8 +345,7 @@ KeyGrabber::findAction(XKeyEvent *ev, KeyGrabber::Chain *chain)
             XMaskEvent(X11::getDpy(), KeyPressMask, &c_ev);
             X11::stripStateModifiers(&c_ev.xkey.state);
 
-            if (IsModifierKey(XKeycodeToKeysym(X11::getDpy(),
-                                               c_ev.xkey.keycode, 0))) {
+            if (IsModifierKey(X11::getKeysymFromKeycode(c_ev.xkey.keycode))) {
                 // do nothing
             } else  if ((last_chain = sub_chain->findChain(&c_ev.xkey))) {
                 sub_chain = last_chain;
