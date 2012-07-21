@@ -80,11 +80,6 @@ public:
     static Workspace *getActiveWorkspace(void) {
         return _workspace_list[_active];
     }
-    static Workspace *getWorkspace(uint workspace) {
-        if (workspace >= _workspace_list.size())
-            return 0;
-        return _workspace_list[workspace];
-    };
 
     static void insert(PWinObj* wo, bool raise = true);
     static void remove(PWinObj* wo);
