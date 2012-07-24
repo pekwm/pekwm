@@ -22,9 +22,6 @@
 extern "C" {
 #include <X11/Xutil.h>
 #include <X11/keysym.h>
-#ifdef HAVE_X11_XKBLIB_H
-#include <X11/XKBlib.h>
-#endif
 }
 
 using std::cerr;

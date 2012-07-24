@@ -34,10 +34,10 @@ public:
     //! @brief Returns Key name.
     const char *get_name(void) const { return _name; }
     //! @brief Returns Key type.
-    const CfgParserKeyType get_type(void) const { return _type; }
+    CfgParserKeyType get_type(void) const { return _type; }
 
     //! @brief Parses value and sets Key value.
-    virtual void parse_value(const std::string &value) throw (std::string&) { }
+    virtual void parse_value(const std::string &) throw (std::string&) { }
 
 protected:
     CfgParserKeyType _type; //!< Key type.
