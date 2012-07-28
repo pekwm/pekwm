@@ -158,6 +158,15 @@ X11::init(Display *dpy, bool honour_randr)
     }
 #endif // HAVE_XRANDR
 
+#ifdef HAVE_X11_XKBLIB_H
+    {
+        int major = XkbMajorVersion;
+        int minor = XkbMinorVersion;
+        int ext_opcode, ext_ev, ext_err;
+        _has_extension_xkb = XkbQueryExtension(_dpy, &ext_opcode, &ext_ev, &ext_err, &major, &minor);
+    }
+#endif // HAVE_X11_XKBLIB_H
+
     // Now screen geometry has been read and extensions have been
     // looked for, read head information.
     initHeads();
@@ -729,10 +738,11 @@ KeySym
 X11::getKeysymFromKeycode(KeyCode keycode)
 {
 #ifdef HAVE_X11_XKBLIB_H
-    return XkbKeycodeToKeysym(_dpy, keycode, 0, 0);
-#else
-    return XKeycodeToKeysym(_dpy, keycode, 0);
+    if (_has_extension_xkb)
+        return XkbKeycodeToKeysym(_dpy, keycode, 0, 0);
+    else
 #endif
+        return XKeycodeToKeysym(_dpy, keycode, 0);
 }
 
 Display *X11::_dpy;
@@ -747,6 +757,7 @@ Colormap X11::_colormap = None;
 XModifierKeymap *X11::_modifier_map;
 bool X11::_has_extension_shape = false;
 int X11::_event_shape = -1;
+bool X11::_has_extension_xkb = false;
 bool X11::_has_extension_xinerama = false;
 bool X11::_has_extension_xrandr = false;
 int X11::_event_xrandr = -1;

@@ -1,6 +1,6 @@
 //
 // x11.hh for pekwm
-// Copyright © 2003-2011 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2003-2012 Claes Nästén <me{@}pekdon{.}net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -309,6 +309,8 @@ private:
 
     static bool _has_extension_shape;
     static int _event_shape;
+
+    static bool _has_extension_xkb;
 
     static bool _has_extension_xinerama;
 
