@@ -34,7 +34,6 @@
 #include "ActionMenu.hh"
 #include "FrameListMenu.hh"
 #include "DecorMenu.hh"
-#include "HarbourMenu.hh"
 
 #include <memory>
 
