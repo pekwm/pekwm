@@ -19,11 +19,6 @@
 
 #include <iostream>
 
-extern "C" {
-#include <X11/Xutil.h>
-#include <X11/keysym.h>
-}
-
 using std::cerr;
 using std::endl;
 using std::string;
