@@ -19,6 +19,7 @@ extern "C" {
 #include <X11/Xatom.h>
 }
 
+#include "Debug.hh"
 #include "PWinObj.hh"
 #include "PDecor.hh"
 #include "Frame.hh"
@@ -36,12 +37,7 @@ extern "C" {
 #include "KeyGrabber.hh"
 #include "Theme.hh"
 
-using std::cerr;
-using std::endl;
-using std::find;
-using std::mem_fun;
 using std::string;
-using std::vector;
 using std::wstring;
 
 vector<Frame*> Frame::_frames;
@@ -381,10 +377,7 @@ Frame::handleMapRequest(XMapRequestEvent *ev)
     }
 
     if (! _sticky && (_workspace != Workspaces::getActive())) {
-#ifdef DEBUG
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "Ignoring MapRequest, not on current workspace!" << endl;
-#endif // DEBUG
+        LOG("Ignoring MapRequest, not on current workspace!");
         return 0;
     }
 

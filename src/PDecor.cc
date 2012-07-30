@@ -10,18 +10,16 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#include <cassert>
-#include <cstdio>
-#include <cstdlib>
 #include <functional>
-#include <iostream>
 #include <algorithm>
+using std::mem_fun;
 
 extern "C" {
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 }
 
+#include "Debug.hh"
 #include "Compat.hh"
 #include "Config.hh"
 #include "PWinObj.hh"
@@ -38,11 +36,8 @@ extern "C" {
 #include "PixmapHandler.hh"
 #include "Workspaces.hh"
 
-using std::cerr;
-using std::endl;
 using std::find;
 using std::map;
-using std::mem_fun;
 using std::string;
 using std::vector;
 
@@ -553,12 +548,8 @@ PDecor::setWorkspace(uint workspace)
 {
     if (workspace != NET_WM_STICKY_WINDOW) {
         if (workspace >= Workspaces::size()) {
-#ifdef DEBUG
-            cerr << __FILE__ << "@" << __LINE__ << ": "
-                 << "PDecor(" << this << ")::setWorkspace(" << workspace << ")"
-                 << endl << " *** workspace > number of workspaces:"
-                 << Workspaces::size () << endl;
-#endif // DEBUG
+            LOG("this == " << this << " workspace == " << workspace
+                << " >= number of workspaces == " << Workspaces::size());
             workspace = Workspaces::size() - 1;
         }
         _workspace = workspace;
@@ -585,10 +576,7 @@ PDecor::giveInputFocus(void)
     if (_mapped && _child) {
         _child->giveInputFocus();
     } else {
-#ifdef DEBUG
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "PDecor::giveInputFocus(" << this << ")" << endl << " *** reverting to root" << endl;
-#endif // DEBUG
+        LOG("this == " << this << " - reverting to root");
         PWinObj::getRootPWinObj()->giveInputFocus();
     }
 }
@@ -817,10 +805,7 @@ void
 PDecor::addDecor(PDecor *decor)
 {
     if (this == decor) {
-#ifdef DEBUG
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "PDecor(" << this << ")::addDecor(" << decor << ")" << " *** this == decor" << endl;
-#endif // DEBUG
+        LOG("this == decor (" << this << ")");
         return;
     }
 
@@ -881,7 +866,7 @@ PDecor::loadDecor(void)
     if (! _data) {
         _data = _theme->getPDecorData(DEFAULT_DECOR_NAME);
     }
-    assert(_data);
+    LOG_IF(!_data, "_data == 0");
 
     // Load decor.
     vector<Theme::PDecorButtonData*>::const_iterator b_it(_data->buttonBegin());
@@ -1096,11 +1081,8 @@ PDecor::removeChild(PWinObj *child, bool do_delete)
 
     vector<PWinObj*>::iterator it(find(_children.begin(), _children.end(), child));
     if (it == _children.end()) {
-#ifdef DEBUG
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "PDecor(" << this << ")::removeChild(" << child << ")" << endl
-             << " *** child not in _children, bailing out." << endl;
-#endif // DEBUG
+        LOG("this == " << this << " child == " << child
+            << " - child not in _child_list, bailing out");
         return;
     }
 
@@ -1154,11 +1136,8 @@ void
 PDecor::activateChildNum(uint num)
 {
     if (num >= _children.size()) {
-#ifdef DEBUG
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "PDecor(" << this << ")::activeChildNum(" << num << ")" << endl
-             << " *** num > _children.size()" << endl;
-#endif // DEBUG
+        LOG("this == " << this << " num == " << num
+             << " >= _children.size() == " << _children.size());
         return;
     }
 
@@ -1202,7 +1181,7 @@ PDecor::moveChildRel(int off)
 
     if (idx == size) {
         if (! _children.size()) {
-            std::cerr << "ERR: PDecor::moveChildRel(" << off <<") called, but _children is empty. Please report." << std::endl;
+            ERR("_children is empty! off == " << off << " Please report.");
             return;
         }
         _child = _children.front();
@@ -2122,10 +2101,7 @@ PDecor::getBorderSize(BorderPosition pos, uint &width, uint &height)
         }
         break;
     default:
-#ifdef DEBUG
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "PDecor(" << this << ")::getBorderSize()" << endl << " *** invalid border position" << endl;
-#endif // DEBUG
+        LOG("this == " << this << " - invalid border position");
         width = 1;
         height = 1;
         break;
