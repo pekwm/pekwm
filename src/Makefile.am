@@ -18,7 +18,6 @@ pekwm_SOURCES = \
 	Client.cc Client.hh \
 	CmdDialog.cc CmdDialog.hh \
 	Config.cc Config.hh \
-	DecorMenu.cc DecorMenu.hh \
 	DockApp.cc DockApp.hh \
 	Exception.hh \
 	Frame.cc Frame.hh \

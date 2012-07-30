@@ -22,7 +22,6 @@
 #include "WORefMenu.hh"
 #include "ActionMenu.hh"
 #include "FrameListMenu.hh"
-#include "DecorMenu.hh"
 
 using std::map;
 using std::string;
@@ -35,7 +34,6 @@ const char *MenuHandler::MENU_NAMES_RESERVED[] = {
     "ATTACHCLIENT",
     "ATTACHFRAMEINFRAME",
     "ATTACHFRAME",
-    "DECORMENU",
     "GOTOCLIENT",
     "GOTO",
     "ICON",
@@ -91,8 +89,6 @@ MenuHandler::createMenus(Theme *theme)
     menu = new FrameListMenu(theme, ICONMENU_TYPE,
                              L"Focus Iconified Frame", "Icon");
     _menu_map["ICON"] = menu;
-    menu = new DecorMenu(theme, "DecorMenu");
-    _menu_map["DECORMENU"] = menu;
     menu =  new ActionMenu(ROOTMENU_TYPE, L"", "RootMenu");
     _menu_map["ROOT"] = menu;
     menu = new ActionMenu(WINDOWMENU_TYPE, L"", "WindowMenu");

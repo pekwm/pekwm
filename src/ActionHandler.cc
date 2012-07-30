@@ -33,7 +33,6 @@
 #include "WORefMenu.hh"
 #include "ActionMenu.hh"
 #include "FrameListMenu.hh"
-#include "DecorMenu.hh"
 
 #include <memory>
 

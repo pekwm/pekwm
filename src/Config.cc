@@ -312,6 +312,7 @@ Config::Config(void) :
     _action_state_map["Sticky"] = ACTION_STATE_STICKY;
     _action_state_map["AlwaysOnTop"] = ACTION_STATE_ALWAYS_ONTOP;
     _action_state_map["AlwaysBelow"] = ACTION_STATE_ALWAYS_BELOW;
+    _action_state_map["Decor"] = ACTION_STATE_DECOR;
     _action_state_map["DecorBorder"] = ACTION_STATE_DECOR_BORDER;
     _action_state_map["DecorTitlebar"] = ACTION_STATE_DECOR_TITLEBAR;
     _action_state_map["Iconified"] = ACTION_STATE_ICONIFIED;

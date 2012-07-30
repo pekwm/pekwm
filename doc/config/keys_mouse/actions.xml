@@ -73,6 +73,15 @@
         </listitem>
       </varlistentry>
       <varlistentry>
+        <term>Decor</term>
+        <listitem>
+          <para>
+            When used with Set/Toggle it takes an additional parameter for the decorname that is set/toggled.
+            Unset just removes the last "override"-decor.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
         <term>DecorBorder</term>
         <listitem>
           <para>
