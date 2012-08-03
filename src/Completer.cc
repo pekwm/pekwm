@@ -188,8 +188,7 @@ ActionCompleterMethod::refresh(void)
                                     _action_list);
     completions_list_from_name_list(Config::instance()->getStateNameList(),
                                     _state_list);
-    completions_list_from_name_list(MenuHandler::instance()->getMenuNames(),
-                                    _menu_list);
+    completions_list_from_name_list(MenuHandler::getMenuNames(), _menu_list);
 }
 
 /**

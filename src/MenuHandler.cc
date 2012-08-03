@@ -27,8 +27,6 @@
 using std::map;
 using std::string;
 
-MenuHandler *MenuHandler::_instance = 0;
-
 /**
  * List of reserved names of built-in menus.
  */
@@ -51,6 +49,9 @@ const unsigned int MenuHandler::MENU_NAMES_RESERVED_COUNT =
     sizeof(MenuHandler::MENU_NAMES_RESERVED)
     / sizeof(MenuHandler::MENU_NAMES_RESERVED[0]);
 
+std::map<std::string, time_t> MenuHandler::_menu_state;
+std::map<std::string, PMenu*> MenuHandler::_menu_map;
+
 /**
  * Comparsion for binary search
  */
@@ -60,91 +61,38 @@ str_comparator(const string &lhs, const string &rhs) {
 }
 
 /**
- * Initialize menu handler instance.
- */
-void
-MenuHandler::init(Theme *theme)
-{
-    if (_instance) {
-        delete _instance;
-    }
-    _instance = new MenuHandler(theme);
-}
-
-/**
- * Destroy menu handler instance.
- */
-void
-MenuHandler::destroy(void)
-{
-    delete _instance;
-    _instance = 0;
-}
-
-/**
- * Menu handler constructor, create menus.
- *
- * Requires Config, PScreen and ActionHandler to be constructed.
- */
-MenuHandler::MenuHandler(Theme *theme)
-    : _theme(theme)
-{
-    createMenus();
-}
-
-/**
- * Menu handler destructor, delete menus.
- */
-MenuHandler::~MenuHandler(void)
-{
-    deleteMenus();
-}
-
-/**
- * Hides all menus
- */
-void
-MenuHandler::hideAllMenus(void)
-{
-    map<std::string, PMenu*>::iterator it(_menu_map.begin());
-    for (; it != _menu_map.end(); ++it) {
-        it->second->unmapAll();
-    }
-}
-
-/**
  * Creates reserved menus and populates _menu_map
  */
 void
-MenuHandler::createMenus(void)
+MenuHandler::createMenus(Theme *theme)
 {
     ActionHandler *action_handler = ActionHandler::instance();
     PMenu *menu = 0;
 
-    menu = new FrameListMenu(_theme, ATTACH_CLIENT_IN_FRAME_TYPE,
+    menu = new FrameListMenu(theme, ATTACH_CLIENT_IN_FRAME_TYPE,
                              L"Attach Client In Frame",
                              "AttachClientInFrame");
     _menu_map["ATTACHCLIENTINFRAME"] = menu;
-     menu = new FrameListMenu(_theme, ATTACH_CLIENT_TYPE,
+     menu = new FrameListMenu(theme, ATTACH_CLIENT_TYPE,
                               L"Attach Client", "AttachClient");
     _menu_map["ATTACHCLIENT"] = menu;
-     menu = new FrameListMenu(_theme, ATTACH_FRAME_IN_FRAME_TYPE,
+     menu = new FrameListMenu(theme, ATTACH_FRAME_IN_FRAME_TYPE,
                               L"Attach Frame In Frame",
                               "AttachFrameInFrame");
     _menu_map["ATTACHFRAMEINFRAME"] = menu;
-    menu = new FrameListMenu(_theme, ATTACH_FRAME_TYPE,
+    menu = new FrameListMenu(theme, ATTACH_FRAME_TYPE,
                              L"Attach Frame", "AttachFrame");
     _menu_map["ATTACHFRAME"] = menu;
-    menu = new FrameListMenu(_theme, GOTOCLIENTMENU_TYPE,
+    menu = new FrameListMenu(theme, GOTOCLIENTMENU_TYPE,
                              L"Focus Client", "GotoClient");
     _menu_map["GOTOCLIENT"] = menu;
-    menu = new FrameListMenu(_theme, GOTOMENU_TYPE,
+    menu = new FrameListMenu(theme, GOTOMENU_TYPE,
                              L"Focus Frame", "Goto");
     _menu_map["GOTO"] = menu;
-    menu = new FrameListMenu(_theme, ICONMENU_TYPE,
+    menu = new FrameListMenu(theme, ICONMENU_TYPE,
                              L"Focus Iconified Frame", "Icon");
     _menu_map["ICON"] = menu;
-    menu = new DecorMenu(_theme, action_handler, "DecorMenu");
+    menu = new DecorMenu(theme, action_handler, "DecorMenu");
     _menu_map["DECORMENU"] = menu;
     menu =  new ActionMenu(ROOTMENU_TYPE, L"", "RootMenu");
     _menu_map["ROOT"] = menu;

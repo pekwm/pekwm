@@ -11,23 +11,19 @@
 #endif // HAVE_CONFIG_H
 
 #include <map>
-#include <list>
 #include <string>
+#include <vector>
+using std::vector;
 
-#include "CfgParser.hh"
 #include "PMenu.hh"
-#include "Theme.hh"
+class Theme;
 
 /**
  * Menu manager, creates, reloads and delete menus.
  */
 class MenuHandler {
 public:
-    static void init(Theme *theme);
-    static void destroy(void);
-    static MenuHandler *instance(void) { return _instance; }
-
-    PMenu *getMenu(const std::string &name) {
+    static PMenu *getMenu(const std::string &name) {
         std::map<std::string, PMenu*>::iterator it = _menu_map.find(name);
         return (it != _menu_map.end()) ? it->second : 0;
     }
@@ -35,8 +31,8 @@ public:
     /**
      * Return list with names of loaded menus.
      */
-    std::list<std::string> getMenuNames(void) {
-        std::list<std::string> menu_names;
+    static vector<std::string> getMenuNames(void) {
+        vector<std::string> menu_names;
         std::map<std::string, PMenu*>::iterator it(_menu_map.begin());
         for (; it != _menu_map.end(); ++it) {
             menu_names.push_back(it->second->getName());
@@ -44,32 +40,27 @@ public:
         return menu_names;
     }
 
-    void hideAllMenus(void);
-    void reloadMenus(void);
+    static void createMenus(Theme *);
+    static void hideAllMenus(void) {
+        std::map<std::string, PMenu*>::iterator it(_menu_map.begin());
+        for (; it != _menu_map.end(); ++it) {
+            it->second->unmapAll();
+        }
+    }
+    static void reloadMenus(void);
+    static void deleteMenus(void);
 
 private:
-    MenuHandler(Theme *theme);
-    MenuHandler(MenuHandler &menu_handler);
-    ~MenuHandler(void);
+    static bool loadMenuConfig(const std::string &menu_file, CfgParser &menu_cfg);
 
-    bool loadMenuConfig(const std::string &menu_file, CfgParser &menu_cfg);
+    static void createMenusLoadConfiguration(void);
 
-    void createMenus(void);
-    void createMenusLoadConfiguration(void);
-    void deleteMenus(void);
-
-    void reloadStandaloneMenus(CfgParser::Entry *section);
+    static void reloadStandaloneMenus(CfgParser::Entry *section);
 
     static bool isReservedName(const std::string &name);
 
-private:
-    Theme *_theme; /**< Theme in use. */
-
-    std::map <std::string, time_t> _menu_state; /**< Map of file mtime for all files touched by a configuration. */
-    std::map<std::string, PMenu*> _menu_map; /**< Map from menu name to menu */
-
-    static MenuHandler *_instance; /**< Instance pointer for MenuHandler. */
-
+    static std::map<std::string, time_t> _menu_state; /**< Map of file mtime for all files touched by a configuration. */
+    static std::map<std::string, PMenu*> _menu_map; /**< Map from menu name to menu */
     static const char *MENU_NAMES_RESERVED[];
     static const unsigned int MENU_NAMES_RESERVED_COUNT;
 };

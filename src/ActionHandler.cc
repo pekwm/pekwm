@@ -330,7 +330,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                                ap.type, client ? client : wo);
                 break;
             case ACTION_HIDE_ALL_MENUS:
-                MenuHandler::instance()->hideAllMenus();
+                MenuHandler::hideAllMenus();
                 break;
             case ACTION_RELOAD:
                 WindowManager::instance()->reload();
@@ -846,7 +846,7 @@ void
 ActionHandler::actionShowMenu(const std::string &name, bool stick,
                               uint e_type, PWinObj *wo_ref)
 {
-    PMenu *menu = MenuHandler::instance()->getMenu(name);
+    PMenu *menu = MenuHandler::getMenu(name);
     if (! menu) {
         return;
     }

@@ -205,7 +205,7 @@ WindowManager::~WindowManager(void)
     delete _search_dialog;
     delete _status_window;
     delete _workspace_indicator;
-    MenuHandler::destroy();
+    MenuHandler::deleteMenus();
     delete _harbour;
     delete _root_wo;
     delete _hint_wo;
@@ -338,7 +338,7 @@ WindowManager::setupDisplay(bool replace)
 
     _harbour = new Harbour(_theme);
 
-    MenuHandler::init(_theme);
+    MenuHandler::createMenus(_theme);
 
     _cmd_dialog = new CmdDialog(_theme);
     _search_dialog = new SearchDialog(_theme);
@@ -560,7 +560,7 @@ WindowManager::doReload(void)
     doReloadKeygrabber();
     doReloadAutoproperties();
 
-    MenuHandler::instance()->reloadMenus();
+    MenuHandler::reloadMenus();
     // Special case for HARBOUR menu which is not included in the menu map
     _harbour->getHarbourMenu()->reload(static_cast<CfgParser::Entry*>(0));
     doReloadHarbour();
