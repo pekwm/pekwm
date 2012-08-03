@@ -29,10 +29,8 @@ using std::string;
 using std::map;
 
 //! @brief Constructor for DecorMenu.
-DecorMenu::DecorMenu(Theme *theme, ActionHandler *act,
-                     const std::string &name) :
-        WORefMenu(theme, L"Decor Menu", name),
-        _act(act)
+DecorMenu::DecorMenu(Theme *theme, const std::string &name) :
+        WORefMenu(theme, L"Decor Menu", name)
 {
     _menu_type = DECORMENU_TYPE;
 }
@@ -51,7 +49,7 @@ DecorMenu::handleItemExec(PMenu::Item *item)
     }
 
     ActionPerformed ap(getWORef(), item->getAE());
-    _act->handleAction(ap);
+    ActionHandler::instance()->handleAction(ap);
 }
 
 //! @brief Rebuilds the menu.

@@ -14,27 +14,21 @@
 #endif // HAVE_CONFIG_H
 
 #include "pekwm.hh"
-#include "PMenu.hh"
+#include "WORefMenu.hh"
+#include "CfgParser.hh"
 
 #include <string>
 
-class WORefMenu;
-class PScreen;
 class Theme;
-class ActionHandler;
 
 class DecorMenu : public WORefMenu
 {
 public:
-    DecorMenu(Theme *theme, ActionHandler *act,
-              const std::string &name);
+    DecorMenu(Theme *theme, const std::string &name);
     virtual ~DecorMenu(void);
 
     virtual void handleItemExec(PMenu::Item *item);
     virtual void reload(CfgParser::Entry *section);
-
-private:
-    ActionHandler *_act;
 };
 
 #endif //  _DECORMENU_HH_

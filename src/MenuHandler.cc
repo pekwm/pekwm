@@ -66,7 +66,6 @@ str_comparator(const string &lhs, const string &rhs) {
 void
 MenuHandler::createMenus(Theme *theme)
 {
-    ActionHandler *action_handler = ActionHandler::instance();
     PMenu *menu = 0;
 
     menu = new FrameListMenu(theme, ATTACH_CLIENT_IN_FRAME_TYPE,
@@ -92,7 +91,7 @@ MenuHandler::createMenus(Theme *theme)
     menu = new FrameListMenu(theme, ICONMENU_TYPE,
                              L"Focus Iconified Frame", "Icon");
     _menu_map["ICON"] = menu;
-    menu = new DecorMenu(theme, action_handler, "DecorMenu");
+    menu = new DecorMenu(theme, "DecorMenu");
     _menu_map["DECORMENU"] = menu;
     menu =  new ActionMenu(ROOTMENU_TYPE, L"", "RootMenu");
     _menu_map["ROOT"] = menu;
