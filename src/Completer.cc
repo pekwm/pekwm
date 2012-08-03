@@ -39,6 +39,25 @@ using std::string;
 using std::wstring;
 using std::pair;
 
+/**
+ * Build completions_list from a container of strings.
+ */
+template<typename T>
+static void
+completions_list_from_name_list(T name_list, completions_list &completions_list)
+{
+    completions_list.clear();
+    typename T::const_iterator it(name_list.begin());
+    for (; it != name_list.end(); ++it) {
+        wstring name(Util::to_wide_str(*it));
+        wstring name_lower(name);
+        Util::to_lower(name_lower);
+        completions_list.push_back(pair<wstring, wstring>(name_lower, name));
+    }
+    completions_list.unique();
+    completions_list.sort();
+}
+
 ActionCompleterMethod::StateMatch ActionCompleterMethod::STATE_MATCHES[] = {
   StateMatch(ActionCompleterMethod::STATE_STATE, L"set"),
   StateMatch(ActionCompleterMethod::STATE_STATE, L"unset"),
@@ -171,25 +190,6 @@ ActionCompleterMethod::refresh(void)
                                     _state_list);
     completions_list_from_name_list(MenuHandler::instance()->getMenuNames(),
                                     _menu_list);
-}
-
-/**
- * Build completions_list from a list with strings.
- */
-void
-ActionCompleterMethod::completions_list_from_name_list(std::list<std::string> name_list,
-                                                       completions_list &completions_list)
-{
-    completions_list.clear();
-    list<string>::iterator it(name_list.begin());
-    for (; it != name_list.end(); ++it) {
-        wstring name(Util::to_wide_str(*it));
-        wstring name_lower(name);
-        Util::to_lower(name_lower);
-        completions_list.push_back(pair<wstring, wstring>(name_lower, name));
-    }
-    completions_list.unique();
-    completions_list.sort();
 }
 
 /**

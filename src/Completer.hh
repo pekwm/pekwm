@@ -146,9 +146,6 @@ public:
     virtual void refresh(void);
 
 private:
-    void completions_list_from_name_list(std::list<std::string> name_list,
-                                         completions_list &completions_list);
-
     State find_state(CompletionState &completion_state);
     size_t find_state_word_start(const std::wstring &str);
     State find_state_match(const std::wstring &str, size_t pos);
