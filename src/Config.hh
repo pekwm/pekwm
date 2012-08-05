@@ -20,7 +20,6 @@
 
 #include <list>
 #include <string>
-#include <vector>
 #include <map>
 #include <utility>
 
@@ -283,9 +282,9 @@ private:
     // screen
     int _screen_workspaces, _screen_pixmap_cache_size;
     int _screen_workspaces_per_row;
-    std::vector<std::wstring> _screen_workspace_names;
+    vector<std::wstring> _screen_workspace_names;
     std::wstring _screen_workspace_name_default;
-    std::vector<int> _screen_edge_sizes;
+    vector<int> _screen_edge_sizes;
     bool _screen_edge_indent;
     int _screen_doubleclicktime;
     std::wstring _screen_trim_title;

@@ -12,8 +12,6 @@
 
 #include <map>
 #include <string>
-#include <vector>
-using std::vector;
 
 #include "PMenu.hh"
 class Theme;

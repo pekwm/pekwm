@@ -11,7 +11,6 @@
 #endif // HAVE_CONFIG_H
 
 #include <algorithm>
-#include <vector>
 #include <iostream>
 
 #include "AutoProperties.hh"
@@ -24,7 +23,6 @@ using std::find;
 using std::list;
 using std::map;
 using std::string;
-using std::vector;
 using std::strtol;
 
 AutoProperties *AutoProperties::_instance = 0;
@@ -249,7 +247,7 @@ AutoProperties::unload(void)
 //! @brief Finds a property from the prop_list
 Property*
 AutoProperties::findProperty(const ClassHint* class_hint,
-                             std::vector<Property*>* prop_list, int ws, ApplyOn type)
+                             vector<Property*>* prop_list, int ws, ApplyOn type)
 {
     // Allready remove apply on start
     if (! _apply_on_start && (type == APPLY_ON_START))

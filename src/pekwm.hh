@@ -17,6 +17,9 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
+#include <vector>
+using std::vector;
+
 #include "Compat.hh"
 #include "Types.hh"
 #include "Exception.hh"

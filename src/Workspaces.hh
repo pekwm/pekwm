@@ -17,7 +17,6 @@
 
 #include <string>
 #include <list>
-#include <vector>
 
 class Strut;
 class EwmhAtoms;
@@ -54,8 +53,8 @@ public:
     static inline std::list<PWinObj*>::reverse_iterator rbegin(void) { return _wo_list.rbegin(); }
     static inline std::list<PWinObj*>::reverse_iterator rend(void) { return _wo_list.rend(); }
 
-    static std::vector<Workspace*>::iterator ws_begin(void) { return _workspace_list.begin(); }
-    static std::vector<Workspace*>::iterator ws_end(void) { return _workspace_list.end(); }
+    static vector<Workspace*>::iterator ws_begin(void) { return _workspace_list.begin(); }
+    static vector<Workspace*>::iterator ws_end(void) { return _workspace_list.end(); }
 
     static inline uint getActive(void) { return _active; }
     static inline uint getPrevious(void) { return _previous; }
@@ -127,7 +126,7 @@ private:
     static uint _per_row; /**< Workspaces per row in layout. */
 
     static std::list<PWinObj*> _wo_list;
-    static std::vector<Workspace*> _workspace_list;
+    static vector<Workspace*> _workspace_list;
 };
 
 #endif // _WORKSPACES_HH_

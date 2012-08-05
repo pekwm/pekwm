@@ -35,7 +35,6 @@ extern unsigned int xerrors_count; /**< Number of X errors occured. */
 
 }
 
-#include <vector>
 #include <list>
 #include <map>
 
@@ -317,7 +316,7 @@ private:
     static bool _has_extension_xrandr;
     static int _event_xrandr;
 
-    static std::vector<Head> _heads; //! Array of head information
+    static vector<Head> _heads; //! Array of head information
     static uint _last_head; //! Last accessed head
 
     static uint _server_grabs;

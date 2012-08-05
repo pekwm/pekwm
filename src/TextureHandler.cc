@@ -16,7 +16,6 @@
 #include "PTexturePlain.hh"
 #include "Util.hh"
 
-#include <vector>
 #include <iostream>
 
 using std::list;

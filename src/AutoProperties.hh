@@ -20,7 +20,6 @@
 #include "ParseUtil.hh"
 
 #include <string>
-#include <vector>
 
 /**
  * Bitmask with different auto property types, used to identify what
@@ -231,7 +230,7 @@ public:
 
 private:
     Property* findProperty(const ClassHint* class_hint,
-                           std::vector<Property*>* prop_list,
+                           vector<Property*>* prop_list,
                            int ws, ApplyOn type);
 
     void loadRequire(CfgParser &a_cfg, std::string &file);
@@ -257,10 +256,10 @@ private:
     bool _extended; /**< Extended syntax enabled for autoproperties? */
 
     std::map<AtomName, AutoProperty*> _window_type_prop_map;
-    std::vector<Property*> _prop_list;
-    std::vector<Property*> _title_prop_list;
-    std::vector<Property*> _decor_prop_list;
-    std::vector<Property*> _dock_app_prop_list;
+    vector<Property*> _prop_list;
+    vector<Property*> _title_prop_list;
+    vector<Property*> _decor_prop_list;
+    vector<Property*> _dock_app_prop_list;
     bool _harbour_sort;
     bool _apply_on_start;
 
