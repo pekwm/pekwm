@@ -15,20 +15,51 @@
 #include <cassert>
 #include <cstring>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <time.h>
+
 enum {
     PARSE_BUF_SIZE = 1024
 };
 
 using std::cerr;
 using std::endl;
+using std::vector;
 using std::list;
 using std::map;
 using std::set;
 using std::string;
-using std::auto_ptr;
 
 const string CfgParser::_root_source_name = string("");
 const char *CP_PARSE_BLANKS = " \t\n";
+
+bool
+TimeFiles::requireReload(const std::string &file)
+{
+    // Check for the file, signal reload if not previously loaded.
+    vector<std::string>::const_iterator it(find(files.begin(), files.end(), file));
+    if (it == files.end()) {
+        return true;
+    }
+
+    struct stat stat_buf;
+    // Check state of all files, if one is updated reload.
+    for (it = files.begin(); it != files.end(); ++it) {
+        if (stat((*it).c_str(), &stat_buf))
+            stat_buf.st_mtime = 0;
+
+        if (stat_buf.st_mtime > mtime) {
+            if (time(0) > stat_buf.st_mtime) {
+                mtime = stat_buf.st_mtime;
+            }
+            return true;
+        }
+    }
+
+    return false;
+}
 
 //! @brief CfgParser::Entry constructor.
 CfgParser::Entry::Entry(const std::string &source_name, int line,

@@ -29,6 +29,7 @@
 #include "CfgParserKey.hh"
 #include "CfgParserSource.hh"
 
+#include <vector>
 #include <list>
 #include <map>
 #include <set>
@@ -36,6 +37,18 @@
 #include <cstring>
 #include <iostream>
 #include <cstdlib>
+
+//! @brief Helper class
+class TimeFiles {
+public:
+    TimeFiles() : mtime(0) {}
+
+    time_t mtime;
+    std::vector<std::string> files;
+
+    bool requireReload(const std::string &file);
+    void clear() { files.clear(); mtime = 0; }
+};
 
 //! @brief Configuration file parser.
 class CfgParser {
