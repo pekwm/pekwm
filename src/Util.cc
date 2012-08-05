@@ -189,43 +189,6 @@ getMtime(const std::string &file)
 }
 
 /**
- * Check if file has different mtime than provided mtime.
- */
-bool
-isFileChanged(const std::string &file, time_t &mtime)
-{
-    time_t cur_mtime = getMtime(file);
-    if (cur_mtime != mtime) {
-        mtime = cur_mtime;
-        return true;
-    }
-    return false;
-}
-
-/**
- * Check if old_file needs to be reloaded due to it being different
- * from new_file, path or mtime.
- */
-bool
-requireReload(std::map <std::string, time_t> &state, const std::string &file)
-{
-    // Check for the file, signal reload if not previously loaded.
-    map<string, time_t>::iterator it(state.find(file));
-    if (it == state.end()) {
-        return true;
-    }
-
-    // Check state of all files, if one is updated reload.
-    for (it = state.begin(); it != state.end(); ++it) {
-        if (isFileChanged(it->first, it->second)) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-/**
  * Copies a single text file.
  */
 bool
