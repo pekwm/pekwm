@@ -16,7 +16,6 @@
 #include "pekwm.hh"
 
 #include <string>
-#include <list>
 
 class Strut;
 class EwmhAtoms;
@@ -48,10 +47,10 @@ public:
     static void free(void);
 
     static inline uint size(void) { return _workspace_list.size(); }
-    static inline std::list<PWinObj*>::iterator begin(void) { return _wo_list.begin(); }
-    static inline std::list<PWinObj*>::iterator end(void) { return _wo_list.end(); }
-    static inline std::list<PWinObj*>::reverse_iterator rbegin(void) { return _wo_list.rbegin(); }
-    static inline std::list<PWinObj*>::reverse_iterator rend(void) { return _wo_list.rend(); }
+    static inline vector<PWinObj*>::iterator begin(void) { return _wobjs.begin(); }
+    static inline vector<PWinObj*>::iterator end(void) { return _wobjs.end(); }
+    static inline vector<PWinObj*>::reverse_iterator rbegin(void) { return _wobjs.rbegin(); }
+    static inline vector<PWinObj*>::reverse_iterator rend(void) { return _wobjs.rend(); }
 
     static vector<Workspace*>::iterator ws_begin(void) { return _workspace_list.begin(); }
     static vector<Workspace*>::iterator ws_end(void) { return _workspace_list.end(); }
@@ -125,7 +124,7 @@ private:
     static uint _previous; /**< Previous workspace. */
     static uint _per_row; /**< Workspaces per row in layout. */
 
-    static std::list<PWinObj*> _wo_list;
+    static vector<PWinObj*> _wobjs;
     static vector<Workspace*> _workspace_list;
 };
 

@@ -58,8 +58,8 @@ Workspaces::Workspace::~Workspace(void)
 uint Workspaces::_active;
 uint Workspaces::_previous;
 uint Workspaces::_per_row;
-std::list<PWinObj*> Workspaces::_wo_list;
-std::vector<Workspaces::Workspace *> Workspaces::_workspace_list;
+vector<PWinObj*> Workspaces::_wobjs;
+vector<Workspaces::Workspace *> Workspaces::_workspace_list;
 
 //! @brief Workspaces destructor
 void
@@ -93,8 +93,8 @@ Workspaces::setSize(uint number)
 
     // We have more workspaces than we want, lets remove the last ones
     if (before > number) {
-        list<PWinObj*>::iterator it(_wo_list.begin());
-        for (; it != _wo_list.end(); ++it) {
+        vector<PWinObj*>::const_iterator it(_wobjs.begin());
+        for (; it != _wobjs.end(); ++it) {
             if ((*it)->getWorkspace() > (number - 1))
                 (*it)->setWorkspace(number - 1);
         }
@@ -319,8 +319,8 @@ Workspaces::warpToWorkspace(uint num, int dir)
 void
 Workspaces::insert(PWinObj *wo, bool raise)
 {
-    list<PWinObj*>::iterator it(_wo_list.begin()), position(_wo_list.end());
-    for (; it != _wo_list.end() && position == _wo_list.end(); ++it) {
+    vector<PWinObj*>::iterator it(_wobjs.begin()), position(_wobjs.end());
+    for (; it != _wobjs.end() && position == _wobjs.end(); ++it) {
         if (raise) {
             // If raising, make sure the inserted wo gets below the first
             // window in the next layer.
@@ -335,12 +335,12 @@ Workspaces::insert(PWinObj *wo, bool raise)
         }
     }
 
-    _wo_list.insert(position, wo);
+    position = _wobjs.insert(position, wo);
 
-    if (position == _wo_list.end()) {
-         XRaiseWindow(X11::getDpy(), wo->getWindow());
+    if (++position == _wobjs.end()) {
+        XRaiseWindow(X11::getDpy(), wo->getWindow());
     } else {
-         stackWinUnderWin((*position)->getWindow(), wo->getWindow());
+        stackWinUnderWin((*position)->getWindow(), wo->getWindow());
     }
 }
 
@@ -348,7 +348,14 @@ Workspaces::insert(PWinObj *wo, bool raise)
 void
 Workspaces::remove(PWinObj* wo)
 {
-    _wo_list.remove(wo);
+    vector<PWinObj*>::iterator it_wo(_wobjs.begin());
+    for (;it_wo != _wobjs.end();) {
+        if (wo == *it_wo) {
+            it_wo = _wobjs.erase(it_wo);
+        } else {
+            ++it_wo;
+        }
+    }
 
     // remove from last focused
     vector<Workspace*>::iterator it(_workspace_list.begin());
@@ -363,8 +370,8 @@ Workspaces::remove(PWinObj* wo)
 void
 Workspaces::hideAll(uint workspace)
 {
-    list<PWinObj*>::iterator it(_wo_list.begin());
-    for (; it != _wo_list.end(); ++it) {
+    vector<PWinObj*>::const_iterator it(_wobjs.begin());
+    for (; it != _wobjs.end(); ++it) {
         if (! ((*it)->isSticky()) && ! ((*it)->isHidden()) &&
                 ((*it)->getWorkspace() == workspace)) {
             (*it)->unmapWindow();
@@ -376,8 +383,8 @@ Workspaces::hideAll(uint workspace)
 void
 Workspaces::unhideAll(uint workspace, bool focus)
 {
-    list<PWinObj*>::iterator it(_wo_list.begin());
-    for (; it != _wo_list.end(); ++it) {
+    vector<PWinObj*>::const_iterator it(_wobjs.begin());
+    for (; it != _wobjs.end(); ++it) {
         if (! (*it)->isMapped() && ! (*it)->isIconified() && ! (*it)->isHidden()
                 && ((*it)->getWorkspace() == workspace)) {
             (*it)->mapWindow(); // don't restack ontop windows
@@ -428,12 +435,12 @@ Workspaces::unhideAll(uint workspace, bool focus)
 void
 Workspaces::raise(PWinObj* wo)
 {
-    list<PWinObj*>::iterator it(find(_wo_list.begin(), _wo_list.end(), wo));
+    vector<PWinObj*>::iterator it(find(_wobjs.begin(), _wobjs.end(), wo));
 
-    if (it == _wo_list.end()) { // no Frame to raise.
+    if (it == _wobjs.end()) { // no Frame to raise.
         return;
     }
-    _wo_list.erase(it);
+    _wobjs.erase(it);
 
     insert(wo, true); // reposition and restack
 }
@@ -442,11 +449,11 @@ Workspaces::raise(PWinObj* wo)
 void
 Workspaces::lower(PWinObj* wo)
 {
-    list<PWinObj*>::iterator it(find(_wo_list.begin(), _wo_list.end(), wo));
+    vector<PWinObj*>::iterator it(find(_wobjs.begin(), _wobjs.end(), wo));
 
-    if (it == _wo_list.end()) // no Frame to raise.
+    if (it == _wobjs.end()) // no Frame to raise.
         return;
-    _wo_list.erase(it);
+    _wobjs.erase(it);
 
     insert(wo, false); // reposition and restack
 }
@@ -458,23 +465,24 @@ Workspaces::lower(PWinObj* wo)
 void
 Workspaces::stackAbove(PWinObj *wo, Window win, bool restack)
 {
-    list<PWinObj*>::iterator old_pos(find(_wo_list.begin(), _wo_list.end(), wo));
+    vector<PWinObj*>::iterator old_pos(find(_wobjs.begin(), _wobjs.end(), wo));
 
-    if (old_pos != _wo_list.end()) {
-        list<PWinObj*>::iterator it(_wo_list.begin());
-        for (; it != _wo_list.end(); ++it) {
+    if (old_pos != _wobjs.end()) {
+        old_pos = _wobjs.erase(old_pos);
+        vector<PWinObj*>::iterator it(_wobjs.begin());
+        for (; it != _wobjs.end(); ++it) {
             if (win == (*it)->getWindow()) {
-                _wo_list.erase(old_pos);
-                _wo_list.insert(++it, wo);
+                _wobjs.insert(++it, wo);
 
                 // Before restacking make sure we are the active frame
                 // also that there are two different frames
                 if (restack) {
                     stackWinUnderWin(win, wo->getWindow());
                 }
-                break;
+                return;
             }
         }
+        _wobjs.insert(old_pos, wo);
     }
 }
 
@@ -485,21 +493,22 @@ Workspaces::stackAbove(PWinObj *wo, Window win, bool restack)
 void
 Workspaces::stackBelow(PWinObj* wo, Window win, bool restack)
 {
-    list<PWinObj*>::iterator old_pos(find(_wo_list.begin(), _wo_list.end(), wo));
+    vector<PWinObj*>::iterator old_pos(find(_wobjs.begin(), _wobjs.end(), wo));
 
-    if (old_pos != _wo_list.end()) {
-        list<PWinObj*>::iterator it(_wo_list.begin());
-        for (; it != _wo_list.end(); ++it) {
+    if (old_pos != _wobjs.end()) {
+        old_pos = _wobjs.erase(old_pos);
+        vector<PWinObj*>::iterator it(_wobjs.begin());
+        for (; it != _wobjs.end(); ++it) {
             if (win == (*it)->getWindow()) {
-                _wo_list.erase(old_pos);
-                _wo_list.insert(it, wo);
+                _wobjs.insert(it, wo);
 
                 if (restack) {
                     stackWinUnderWin(wo->getWindow(), win);
                 }
-                break;
+                return;
             }
         }
+        _wobjs.insert(old_pos, wo);
     }
 }
 
@@ -543,12 +552,12 @@ Workspaces::stackWinUnderWin(Window over, Window under)
 wstring
 Workspaces::getWorkspaceName(uint num)
 {
-  wostringstream buf;
-  buf << num + 1;
-  buf << L": ";
-  buf << Config::instance()->getWorkspaceName(num);
-
-  return buf.str();
+    wostringstream buf;
+    buf << num + 1;
+    buf << L": ";
+    buf << Config::instance()->getWorkspaceName(num);
+    
+    return buf.str();
 }
 
 // MISC METHODS
@@ -557,8 +566,8 @@ Workspaces::getWorkspaceName(uint num)
 PWinObj*
 Workspaces::getTopWO(uint type_mask)
 {
-    list<PWinObj*>::reverse_iterator r_it = _wo_list.rbegin();
-    for (; r_it != _wo_list.rend(); ++r_it) {
+    vector<PWinObj*>::const_reverse_iterator r_it = _wobjs.rbegin();
+    for (; r_it != _wobjs.rend(); ++r_it) {
         if ((*r_it)->isMapped()
                 && (*r_it)->isFocusable()
                 && ((*r_it)->getType()&type_mask)) {
@@ -579,35 +588,35 @@ Workspaces::buildClientList(unsigned int &num_windows)
     Client *client, *client_active;
 
     list<Window> windows_list;
-    list<PWinObj*>::iterator it_f, it_c;
-    for (it_f = _wo_list.begin(); it_f != _wo_list.end(); ++it_f) {
+    list<PWinObj*>::const_iterator it_c;
+    vector<PWinObj*>::const_iterator it_f;
+    for (it_f = _wobjs.begin(); it_f != _wobjs.end(); ++it_f) {
         if ((*it_f)->getType() != PWinObj::WO_FRAME) {
-	  continue;
-	}
+            continue;
+        }
 
-	frame = static_cast<Frame*>(*it_f);
-	client_active = frame->getActiveClient();
+        frame = static_cast<Frame*>(*it_f);
+        client_active = frame->getActiveClient();
 
-	if (Config::instance()->isReportAllClients()) {
+        if (Config::instance()->isReportAllClients()) {
             for (it_c = frame->begin(); it_c != frame->end(); ++it_c) {
                 client = dynamic_cast<Client*>(*it_c);
-                if (client
-		    && ! client->isSkip(SKIP_TASKBAR)
-		    && client != client_active) {
+                if (client && ! client->isSkip(SKIP_TASKBAR)
+                    && client != client_active) {
                     windows_list.push_back(client->getWindow());
-	        }
-	    }
-	}
+                }
+            }
+        }
 
-	if (client_active && ! client_active->isSkip(SKIP_TASKBAR)) {
-	    windows_list.push_back(client_active->getWindow());
-	}
+        if (client_active && ! client_active->isSkip(SKIP_TASKBAR)) {
+            windows_list.push_back(client_active->getWindow());
+        }
     }
 
     num_windows = windows_list.size();
     Window *windows = new Window[num_windows ? num_windows : 1];
     if (num_windows > 0) {
-      copy(windows_list.begin(), windows_list.end(), windows);
+        copy(windows_list.begin(), windows_list.end(), windows);
     }
 
     return windows;
@@ -623,9 +632,9 @@ Workspaces::updateClientList(void)
     Window *windows = buildClientList(num_windows);
 
     AtomUtil::setWindows(X11::getRoot(),
-			 Atoms::getAtom(NET_CLIENT_LIST),
-			 windows, num_windows);
-    
+                         Atoms::getAtom(NET_CLIENT_LIST),
+                         windows, num_windows);
+
     delete [] windows;
 }
 
@@ -639,8 +648,8 @@ Workspaces::updateClientStackingList(void)
     Window *windows = buildClientList(num_windows);
 
     AtomUtil::setWindows(X11::getRoot(),
-			 Atoms::getAtom(NET_CLIENT_LIST_STACKING),
-			 windows, num_windows);
+                         Atoms::getAtom(NET_CLIENT_LIST_STACKING),
+                         windows, num_windows);
 
     delete [] windows;
 }
@@ -908,8 +917,8 @@ Workspaces::isEmptySpace(int x, int y, const PWinObj* wo)
     }
 
     // say that it's placed, now check if we are wrong!
-    list<PWinObj*>::iterator it(_wo_list.begin());
-    for (; it != _wo_list.end(); ++it) {
+    vector<PWinObj*>::const_iterator it(_wobjs.begin());
+    for (; it != _wobjs.end(); ++it) {
         // Skip ourselves, non-mapped and desktop objects. Iconified means
         // skip placement.
         if (wo == (*it) || ! (*it)->isMapped() || (*it)->isIconified()
@@ -973,8 +982,8 @@ Workspaces::findDirectional(PWinObj *wo, DirectionType dir, uint skip)
         wo_sec = wo->getY() + wo->getHeight() / 2;
     }
 
-    list<PWinObj*>::iterator it(_wo_list.begin());
-    for (; it != _wo_list.end(); ++it) {
+    vector<PWinObj*>::const_iterator it(_wobjs.begin());
+    for (; it != _wobjs.end(); ++it) {
         if ((wo == (*it)) || ! ((*it)->isMapped())) {
             continue; // skip ourselves and unmapped wo's
         }
