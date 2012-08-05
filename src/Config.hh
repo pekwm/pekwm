@@ -265,8 +265,8 @@ private:
 
 private:
     std::string _config_file; /**< Path to config file last loaded. */
-    std::map <std::string, time_t> _cfg_state; /**< Map of file mtime for all files touched by a configuration. */    
-    std::map <std::string, time_t> _mouse_state; /**< Map of file mtime for all files touched by a configuration. */    
+    TimeFiles _cfg_files;
+    TimeFiles _cfg_files_mouse;
 
     // files
     std::string _files_keys, _files_menu;

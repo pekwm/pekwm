@@ -446,7 +446,7 @@ Config::setDesktopNamesUTF8(char *names, ulong length)
 bool
 Config::load(const std::string &config_file)
 {
-    if (! Util::requireReload(_cfg_state, config_file)) {
+    if (! _cfg_files.requireReload(config_file)) {
         return false;
     }
 
@@ -458,9 +458,9 @@ Config::load(const std::string &config_file)
     // Make sure config is reloaded next time as content is dynamically
     // generated from the configuration file.
     if (! success || cfg.is_dynamic_content()) {
-        _cfg_state.clear();
+        _cfg_files.clear();
     } else {
-        _cfg_state = cfg.get_file_list();
+        _cfg_files = cfg.getCfgFiles();
     }
 
     if (! success) {
@@ -1631,22 +1631,21 @@ Config::copyConfigFiles(void)
 bool
 Config::loadMouseConfig(const std::string &mouse_file)
 {
-    if (! Util::requireReload(_mouse_state, mouse_file)) {
+    if (! _cfg_files_mouse.requireReload(mouse_file)) {
         return false;
     }
     
     CfgParser mouse_cfg;
     if (! mouse_cfg.parse(mouse_file, CfgParserSource::SOURCE_FILE, true)
         && ! mouse_cfg.parse(SYSCONFDIR "/mouse", CfgParserSource::SOURCE_FILE, true)) {
-        _mouse_state.clear();
+        _cfg_files_mouse.clear();
         return false;
     }
     
-    // Clear state if load failed or dynamic content.
     if (mouse_cfg.is_dynamic_content()) {
-        _mouse_state.clear();
+        _cfg_files_mouse.clear();
     } else {
-        _mouse_state = mouse_cfg.get_file_list();
+        _cfg_files_mouse = mouse_cfg.getCfgFiles();
     }
 
     // Make sure old actions get unloaded.
