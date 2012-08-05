@@ -457,9 +457,15 @@ CfgParser::parse_source_new(const std::string &name_orig, CfgParserSource::Type 
         // Open and set as active, delete if fails.
         try {
             source->open();
+            time_t time;
             // Add source to file list if file
             if (type == CfgParserSource::SOURCE_FILE) {
-                _file_list[name] = Util::getMtime(name);
+                time = Util::getMtime(name);
+                _file_list[name] = time;
+                _cfg_files.files.push_back(name);
+                if (_cfg_files.mtime < time) {
+                    _cfg_files.mtime = time;
+                }
             }
 
             _source = source;
