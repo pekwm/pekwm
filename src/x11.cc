@@ -49,8 +49,6 @@ unsigned int xerrors_count = 0;
 using std::cerr;
 using std::endl;
 using std::vector;
-using std::list;
-using std::map;
 using std::string;
 using std::memset; // required for FD_ZERO
 
@@ -525,7 +523,7 @@ void
 X11::addStrut(Strut *strut)
 {
     assert(strut);
-    _strut_list.push_back(strut);
+    _struts.push_back(strut);
 
     updateStrut();
 }
@@ -535,7 +533,9 @@ void
 X11::removeStrut(Strut *strut)
 {
     assert(strut);
-    _strut_list.remove(strut);
+    vector<Strut *>::iterator it(find(_struts.begin(), _struts.end(), strut));
+    if (it != _struts.end())
+        _struts.erase(it);
 
     updateStrut();
 }
@@ -551,14 +551,14 @@ X11::updateStrut(void)
     _strut.bottom = 0;
 
     for (vector<Head>::iterator it(_heads.begin()); it != _heads.end(); ++it) {
-      it->strut.left = 0;
-      it->strut.right = 0;
-      it->strut.top = 0;
-      it->strut.bottom = 0;
+        it->strut.left = 0;
+        it->strut.right = 0;
+        it->strut.top = 0;
+        it->strut.bottom = 0;
     }
 
     Strut *strut;
-    for(list<Strut*>::iterator it(_strut_list.begin()); it != _strut_list.end(); ++it) {
+    for(vector<Strut*>::iterator it(_struts.begin()); it != _struts.end(); ++it) {
         if ((*it)->head < 0) {
             strut = &_strut;
         } else if (static_cast<uint>((*it)->head) < _heads.size()) {
@@ -769,4 +769,4 @@ Time X11::_last_event_time;
 Window X11::_last_click_id = None;
 Time X11::_last_click_time[BUTTON_NO - 1];
 Strut X11::_strut;
-std::list<Strut*> X11::_strut_list;
+vector<Strut*> X11::_struts;

@@ -35,9 +35,6 @@ extern unsigned int xerrors_count; /**< Number of X errors occured. */
 
 }
 
-#include <list>
-#include <map>
-
 /**
  * Class holding information about screen edge allocation.
  */
@@ -327,7 +324,7 @@ private:
     static Time _last_click_time[BUTTON_NO - 1];
 
     static Strut _strut;
-    static std::list<Strut*> _strut_list;
+    static vector<Strut*> _struts;
 
     X11(void) {}
     ~X11(void) {}
