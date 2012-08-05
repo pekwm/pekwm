@@ -107,7 +107,7 @@ bool
 AutoProperties::load(void)
 {
     string cfg_file(Config::instance()->getAutoPropsFile());
-    if (! Util::requireReload(_cfg_state, cfg_file)) {
+    if (! _cfg_files.requireReload(cfg_file)) {
         return false;
     }
 
@@ -127,9 +127,9 @@ AutoProperties::load(void)
     loadRequire(a_cfg, cfg_file);
 
     if (a_cfg.is_dynamic_content()) {
-        _cfg_state.clear();
+        _cfg_files.clear();
     } else {
-        _cfg_state = a_cfg.get_file_list();
+        _cfg_files = a_cfg.getCfgFiles();
     }
 
     // reset values

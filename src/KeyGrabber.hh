@@ -87,7 +87,7 @@ private:
 
     ActionEvent *findAction(XKeyEvent *ev, KeyGrabber::Chain *chain);
 
-    std::map <std::string, time_t> _cfg_state; /**< Map of file mtime for all files touched by a configuration. */
+    TimeFiles _cfg_files;
 
     KeyGrabber::Chain _menu_chain;
     KeyGrabber::Chain _global_chain;

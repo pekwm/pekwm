@@ -49,7 +49,7 @@ const unsigned int MenuHandler::MENU_NAMES_RESERVED_COUNT =
     sizeof(MenuHandler::MENU_NAMES_RESERVED)
     / sizeof(MenuHandler::MENU_NAMES_RESERVED[0]);
 
-std::map<std::string, time_t> MenuHandler::_menu_state;
+TimeFiles MenuHandler::_cfg_files;
 std::map<std::string, PMenu*> MenuHandler::_menu_map;
 
 /**
@@ -114,7 +114,7 @@ MenuHandler::createMenusLoadConfiguration(void)
     CfgParser menu_cfg;
     if (menu_cfg.parse(Config::instance()->getMenuFile())
         || menu_cfg.parse (string(SYSCONFDIR "/menu"))) {
-        _menu_state = menu_cfg.get_file_list();
+        _cfg_files = menu_cfg.getCfgFiles();
         CfgParser::Entry *root_entry = menu_cfg.get_entry_root();
 
         // Load standard menus
@@ -136,7 +136,7 @@ void
 MenuHandler::reloadMenus(void)
 {
     string menu_file(Config::instance()->getMenuFile());
-    if (! Util::requireReload(_menu_state, menu_file)) {
+    if (! _cfg_files.requireReload(menu_file)) {
         return;
     }
 
@@ -177,9 +177,9 @@ MenuHandler::loadMenuConfig(const std::string &menu_file, CfgParser &menu_cfg)
     // Make sure menu is reloaded next time as content is dynamically
     // generated from the configuration file.
     if (! cfg_ok || menu_cfg.is_dynamic_content()) {
-        _menu_state.clear();
+        _cfg_files.clear();
     } else {
-        _menu_state = menu_cfg.get_file_list();
+        _cfg_files = menu_cfg.getCfgFiles();
     }
 
     return cfg_ok;

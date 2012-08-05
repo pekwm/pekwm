@@ -932,7 +932,7 @@ Theme::load(const std::string &dir)
     }
     string theme_file(norm_dir + string("theme"));
 
-    if (! Util::requireReload(_cfg_state, theme_file)) {
+    if (! _cfg_files.requireReload(theme_file)) {
         return false;
     }
 
@@ -961,9 +961,9 @@ Theme::load(const std::string &dir)
     // Setup quirks and requirements before parsing.
     if (theme_ok) {
         if (theme.is_dynamic_content()) {
-            _cfg_state.clear();
+            _cfg_files.clear();
         } else {
-            _cfg_state = theme.get_file_list();
+            _cfg_files = theme.getCfgFiles();
         }
         loadThemeRequire(theme, theme_file);
     }

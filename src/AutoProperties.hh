@@ -251,8 +251,7 @@ private:
 
     void setDefaultTypeProperties(void);
 
-private:
-    std::map <std::string, time_t> _cfg_state; /**< Map of file mtime for all files touched by a configuration. */    
+    TimeFiles _cfg_files;
     bool _extended; /**< Extended syntax enabled for autoproperties? */
 
     std::map<AtomName, AutoProperty*> _window_type_prop_map;

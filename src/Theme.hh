@@ -365,13 +365,12 @@ public:
 private:
     void loadThemeRequire(CfgParser &theme_cfg, std::string &file);
 
-private:
     ImageHandler *_image_handler;
 
     std::map<std::string, Theme::ThemeData*> _section_data_map; /**< Map between section names and data. */
 
     std::string _theme_dir; /**< Path to theme directory. */
-    std::map <std::string, time_t> _cfg_state; /**< Map of file mtime for all files touched by a configuration. */    
+    TimeFiles _cfg_files;
 
     bool _is_loaded;
 

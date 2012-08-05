@@ -115,13 +115,13 @@ KeyGrabber::~KeyGrabber(void)
 bool
 KeyGrabber::load(const std::string &file, bool force)
 {
-    if (! force && ! Util::requireReload(_cfg_state, file)) {
+    if (! force && ! _cfg_files.requireReload(file)) {
         return false;
     }
 
     CfgParser key_cfg;
     if (! key_cfg.parse(file, CfgParserSource::SOURCE_FILE)) {
-        _cfg_state.clear();
+        _cfg_files.clear();
         if (! key_cfg.parse(SYSCONFDIR "/keys", CfgParserSource::SOURCE_FILE, true)) {
             cerr << __FILE__ << "@" << __LINE__ << "Error: no keyfile at " << file
                  << " or " << SYSCONFDIR "/keys" << endl;
@@ -130,9 +130,9 @@ KeyGrabber::load(const std::string &file, bool force)
     }
 
     if (key_cfg.is_dynamic_content()) {
-        _cfg_state.clear();
+        _cfg_files.clear();
     } else {
-        _cfg_state = key_cfg.get_file_list();
+        _cfg_files = key_cfg.getCfgFiles();
     }
 
     CfgParser::Entry *section;

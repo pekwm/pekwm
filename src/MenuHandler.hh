@@ -57,7 +57,7 @@ private:
 
     static bool isReservedName(const std::string &name);
 
-    static std::map<std::string, time_t> _menu_state; /**< Map of file mtime for all files touched by a configuration. */
+    static TimeFiles _cfg_files;
     static std::map<std::string, PMenu*> _menu_map; /**< Map from menu name to menu */
     static const char *MENU_NAMES_RESERVED[];
     static const unsigned int MENU_NAMES_RESERVED_COUNT;
