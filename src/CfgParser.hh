@@ -114,8 +114,6 @@ public:
     CfgParser(void);
     ~CfgParser(void);
 
-    /** Return map of file / mtime */
-    const std::map<std::string, time_t> &get_file_list(void) const { return _file_list; }
     TimeFiles getCfgFiles(void) const { return _cfg_files; }
 
     //! @brief Returns the root Entry node.
@@ -148,7 +146,6 @@ private:
 private:
     CfgParserSource *_source;
 
-    std::map<std::string, time_t> _file_list; //!< Map of source, mtime of loaded files. */
     TimeFiles _cfg_files;
 
     std::list<CfgParserSource*> _source_list; //!< List of sources, for recursive parsing.

@@ -461,7 +461,6 @@ CfgParser::parse_source_new(const std::string &name_orig, CfgParserSource::Type 
             // Add source to file list if file
             if (type == CfgParserSource::SOURCE_FILE) {
                 time = Util::getMtime(name);
-                _file_list[name] = time;
                 _cfg_files.files.push_back(name);
                 if (_cfg_files.mtime < time) {
                     _cfg_files.mtime = time;
