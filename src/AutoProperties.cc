@@ -137,7 +137,7 @@ AutoProperties::load(void)
 
     vector<string> tokens;
     vector<string>::iterator token_it;
-    list<uint> workspaces;
+    vector<uint> workspaces;
 
     CfgParser::iterator it(a_cfg.get_entry_root()->begin());
     for (; it != a_cfg.get_entry_root()->end(); ++it) {
@@ -153,16 +153,11 @@ AutoProperties::load(void)
             parseDockAppProperty(*it);
         } else if (*(*it) == "WORKSPACE") { // Workspace section
             CfgParser::Entry *workspace = (*it)->get_section();
-            CfgParser::Entry *value = workspace->find_entry("WORKSPACE");
-            if (! value) {
-                continue; // Need workspace numbers.
-            }
-            
             tokens.clear();
-            if (Util::splitString(value->get_value(), tokens, " \t")) {
+            if (Util::splitString(workspace->get_value(), tokens, " \t")) {
                 workspaces.clear();
                 for (token_it = tokens.begin(); token_it != tokens.end(); ++token_it)
-                    workspaces.push_back(strtol(token_it->c_str(), 0, 10) - 1);
+                    workspaces.push_back(strtol(token_it->c_str(), 0, 10));
 
                 // Get all properties on for these workspaces.
                 CfgParser::iterator workspace_it(workspace->begin());
@@ -247,7 +242,7 @@ AutoProperties::unload(void)
 //! @brief Finds a property from the prop_list
 Property*
 AutoProperties::findProperty(const ClassHint* class_hint,
-                             vector<Property*>* prop_list, int ws, ApplyOn type)
+                             vector<Property*>* prop_list, uint ws, ApplyOn type)
 {
     // Allready remove apply on start
     if (! _apply_on_start && (type == APPLY_ON_START))
@@ -255,8 +250,6 @@ AutoProperties::findProperty(const ClassHint* class_hint,
 
     vector<Property*>::const_iterator it(prop_list->begin());
     vector<Property*>::const_iterator end(prop_list->end());
-    list<uint>::iterator w_it;
-
     // start searching for a suitable property
     for (; it != end; ++it) {
         // see if the type matches, if we have one
@@ -264,17 +257,7 @@ AutoProperties::findProperty(const ClassHint* class_hint,
             continue;
 
         if (matchAutoClass(*class_hint, *it)) {
-
-            // make sure it applies on the correct workspace
-            if (! (*it)->getWsList().empty()) {
-                w_it = find((*it)->getWsList().begin(), (*it)->getWsList().end(),
-                            unsigned(ws));
-                if (w_it != (*it)->getWsList().end()) {
-                  return *it;
-                }
-            } else {
-                return *it;
-            }
+            return (*it)->applyOnWs(ws)?*it:0;
         }
     }
 
@@ -375,7 +358,7 @@ AutoProperties::parsePropertyApplyOn(const std::string &apply_on, Property *prop
 
 //! @brief Parses AutopProperty
 void
-AutoProperties::parseAutoProperty(CfgParser::Entry *section, std::list<uint>* ws)
+AutoProperties::parseAutoProperty(CfgParser::Entry *section, vector<uint> *ws)
 {
     // Get sub section
     section = section->get_section();
@@ -389,7 +372,6 @@ AutoProperties::parseAutoProperty(CfgParser::Entry *section, std::list<uint>* ws
     if (parseProperty(section, property)) {
         parseAutoPropertyValue(section, property, ws);
         _prop_list.push_back(property);
-
     } else {
         delete property;
     }
@@ -700,11 +682,11 @@ AutoProperties::setDefaultTypeProperties(void)
 //! @param prop Property to store result in.
 //! @param ws List of workspaces to apply property on.
 void
-AutoProperties::parseAutoPropertyValue(CfgParser::Entry *section, AutoProperty *prop, std::list<uint> *ws)
+AutoProperties::parseAutoPropertyValue(CfgParser::Entry *section, AutoProperty *prop, vector<uint> *ws)
 {
     // Copy workspaces, if any
     if (ws) {
-        prop->getWsList().assign(ws->begin(), ws->end());
+        prop->setWorkspaces(*ws);
     }
 
     // See if we have a group section

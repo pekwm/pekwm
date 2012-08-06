@@ -118,14 +118,18 @@ public:
     inline void applyAdd(uint mask) { _apply_mask |= mask; }
     inline void applyRemove(uint mask) { _apply_mask &= ~mask; }
 
-    inline std::list<uint> getWsList(void) { return _ws_list; }
+    inline void setWorkspaces(const vector<uint> &ws) { _workspaces=ws; }
+    inline bool applyOnWs(uint ws) {
+        vector<uint>::const_iterator it(find(_workspaces.begin(), _workspaces.end(), ws));
+        return _workspaces.empty() || it != _workspaces.end();
+    }
 
 private:
     RegexString _hint_name, _hint_class;
     RegexString _role, _title;
 
     uint _apply_mask;
-    std::list<uint> _ws_list;
+    vector<uint> _workspaces;
 };
 
 // AutoProperty for everything except title rewriting
@@ -231,7 +235,7 @@ public:
 private:
     Property* findProperty(const ClassHint* class_hint,
                            vector<Property*>* prop_list,
-                           int ws, ApplyOn type);
+                           uint ws, ApplyOn type);
 
     void loadRequire(CfgParser &a_cfg, std::string &file);
 
@@ -239,12 +243,12 @@ private:
     void parsePropertyApplyOn(const std::string &apply_on, Property *prop);
     bool parseRegexpOrWarning(RegexString &regex, const std::string regex_str, const std::string &name);
     bool parseProperty(CfgParser::Entry *section, Property *prop);
-    void parseAutoProperty(CfgParser::Entry *section, std::list<uint>* ws);
+    void parseAutoProperty(CfgParser::Entry *section, vector<uint> *ws);
     void parseAutoGroup(CfgParser::Entry *section, AutoProperty* prop);
     void parseTitleProperty(CfgParser::Entry *section);
     void parseDecorProperty(CfgParser::Entry *section);
 
-    void parseAutoPropertyValue(CfgParser::Entry *section, AutoProperty *prop, std::list<uint> *ws);
+    void parseAutoPropertyValue(CfgParser::Entry *section, AutoProperty *prop, vector<uint> *ws);
 
     void parseDockAppProperty(CfgParser::Entry *section);
     void parseTypeProperty(CfgParser::Entry *section);

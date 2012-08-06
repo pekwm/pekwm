@@ -131,6 +131,21 @@ Property = "^gaim,^Gaim" {
 }</screen>
 
   <para>
+    If you want certain autoproperties to be only applied when you are
+    on a specific workspace, you can add a workspace section. The
+    following example sets an autoproperty that removes the border and
+    titlebar from xterm on the second and third workspace. Please keep
+    in mind that we start counting with 0.
+  </para>
+  <screen>Workspace = "1 2" {
+    Property = "xterm,XTerm" {
+        ApplyOn = "Start New Reload"
+        Border = "False"
+        Titlebar = "False"
+    }
+}</screen>
+
+  <para>
     Here's an example <filename>~/.pekwm/autoproperties</filename> file:
   </para>
 
