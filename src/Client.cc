@@ -1001,7 +1001,7 @@ AutoProperty*
 Client::readAutoprops(ApplyOn type)
 {
     AutoProperty *data =
-        AutoProperties::instance()->findAutoProperty(_class_hint, _workspace, type);
+        AutoProperties::instance()->findAutoProperty(_class_hint, Workspaces::getActive(), type);
 
     if (data) {
         // Make sure transient state matches
