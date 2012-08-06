@@ -5,6 +5,8 @@
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
+#ifndef _MENUHANDLER_HH_
+#define _MENUHANDLER_HH_
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -62,3 +64,5 @@ private:
     static const char *MENU_NAMES_RESERVED[];
     static const unsigned int MENU_NAMES_RESERVED_COUNT;
 };
+
+#endif // _MENUHANDLER_HH_
