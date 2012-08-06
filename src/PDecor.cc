@@ -15,7 +15,6 @@
 #include <cstdlib>
 #include <functional>
 #include <iostream>
-#include <cwchar>
 
 extern "C" {
 #include <X11/Xlib.h>
@@ -46,7 +45,6 @@ using std::map;
 using std::mem_fun;
 using std::string;
 using std::vector;
-using std::swprintf;
 
 // PDecor::Button
 

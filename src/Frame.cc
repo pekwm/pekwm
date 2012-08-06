@@ -12,7 +12,6 @@
 
 #include <algorithm>
 #include <cstdio>
-#include <cwchar>
 #include <functional>
 #include <iostream>
 
@@ -46,7 +45,6 @@ using std::mem_fun;
 using std::string;
 using std::vector;
 using std::wstring;
-using std::swprintf;
 
 list<Frame*> Frame::_frame_list = list<Frame*>();
 vector<uint> Frame::_frameid_list = vector<uint>();

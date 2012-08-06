@@ -21,6 +21,7 @@ namespace std {
     int swprintf(wchar_t *wcs, size_t maxlen, const wchar_t *format, ...);
 }
 #endif // HAVE_SWPRINTF
+using std::swprintf;
 
 #ifdef HAVE_SETENV
 extern "C" {
