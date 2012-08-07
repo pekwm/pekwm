@@ -95,6 +95,8 @@ enum ActionType {
     ACTION_SEND_KEY,
     ACTION_SET_OPACITY,
 
+
+    ACTION_DEBUG,
     ACTION_NO
 };
 

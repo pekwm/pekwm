@@ -176,6 +176,7 @@ Config::Config(void) :
     _action_map["Dynamic"] = pair<ActionType, uint>(ACTION_MENU_DYN, ROOTMENU_OK|WINDOWMENU_OK);
     _action_map["SendKey"] = pair<ActionType, uint>(ACTION_SEND_KEY, ANY_MASK);
     _action_map["SetOpacity"] = pair<ActionType, uint>(ACTION_SET_OPACITY, FRAME_MASK);
+    _action_map["Debug"] = pair<ActionType, uint>(ACTION_DEBUG, ANY_MASK);
 
     _action_access_mask_map[""] = ACTION_ACCESS_NO;
     _action_access_mask_map["MOVE"] = ACTION_ACCESS_MOVE;
@@ -982,6 +983,7 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
                 case ACTION_SHOW_SEARCH_DIALOG:
                 case ACTION_SEND_KEY:
                 case ACTION_MENU_DYN:
+                case ACTION_DEBUG:
                     action.setParamS(tok[1]);
                     break;
                 case ACTION_ACTIVATE_CLIENT_REL:

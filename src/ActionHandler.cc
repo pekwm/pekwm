@@ -362,6 +362,10 @@ ActionHandler::handleAction(const ActionPerformed &ap)
             case ACTION_HIDE_WORKSPACE_INDICATOR:
                 WindowManager::instance()->getWorkspaceIndicator()->unmapWindow();
                 break;
+            case ACTION_DEBUG:
+#ifdef DEBUG
+#endif
+                break;
             default:
                 matched = false;
                 break;
