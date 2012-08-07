@@ -300,7 +300,7 @@ AC_ARG_ENABLE(pedantic,
 if test "$enable_pedantic" = "yes"; then
 	AC_MSG_RESULT([yes])
         if test "x$GXX" = "xyes"; then
-		CXXFLAGS="-Wall -Werror -pedantic $CXXFLAGS"
+		CXXFLAGS="-Wall -Werror -pedantic -Wno-deprecated-declarations $CXXFLAGS"
 	fi
 	FEATURES="$FEATURES pedantic"
 else
