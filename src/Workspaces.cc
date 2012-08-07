@@ -458,12 +458,13 @@ Workspaces::lower(PWinObj* wo)
     insert(wo, false); // reposition and restack
 }
 
-//! @brief Places the PWinObj above the window win
+//! @brief Places the PWinObj below the window win
 //! @param wo PWinObj to place.
-//! @param win Window to place Frame above.
-//! @param restack Restack the X windows, defaults to true.
+//! @param win Window to place Frame under
+//! @param above Stack above or below
+//! @param restack Restack the X windows, defaults to true
 void
-Workspaces::stackAbove(PWinObj *wo, Window win, bool restack)
+Workspaces::stack(PWinObj* wo, Window win, bool above, bool restack)
 {
     vector<PWinObj*>::iterator old_pos(find(_wobjs.begin(), _wobjs.end(), wo));
 
@@ -472,38 +473,19 @@ Workspaces::stackAbove(PWinObj *wo, Window win, bool restack)
         vector<PWinObj*>::iterator it(_wobjs.begin());
         for (; it != _wobjs.end(); ++it) {
             if (win == (*it)->getWindow()) {
-                _wobjs.insert(++it, wo);
+                if (above) {
+                    ++it;
+                }
+
+                _wobjs.insert(it, wo);
 
                 // Before restacking make sure we are the active frame
                 // also that there are two different frames
                 if (restack) {
-                    stackWinUnderWin(win, wo->getWindow());
-                }
-                return;
-            }
-        }
-        _wobjs.insert(old_pos, wo);
-    }
-}
-
-//! @brief Places the PWinObj below the window win
-//! @param wo PWinObj to place.
-//! @param win Window to place Frame under
-//! @param restack Restack the X windows, defaults to true
-void
-Workspaces::stackBelow(PWinObj* wo, Window win, bool restack)
-{
-    vector<PWinObj*>::iterator old_pos(find(_wobjs.begin(), _wobjs.end(), wo));
-
-    if (old_pos != _wobjs.end()) {
-        old_pos = _wobjs.erase(old_pos);
-        vector<PWinObj*>::iterator it(_wobjs.begin());
-        for (; it != _wobjs.end(); ++it) {
-            if (win == (*it)->getWindow()) {
-                _wobjs.insert(it, wo);
-
-                if (restack) {
-                    stackWinUnderWin(wo->getWindow(), win);
+                    if (above)
+                        stackWinUnderWin(win, wo->getWindow());
+                    else
+                        stackWinUnderWin(wo->getWindow(), win);
                 }
                 return;
             }

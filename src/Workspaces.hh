@@ -90,8 +90,7 @@ public:
 
     static void raise(PWinObj* wo);
     static void lower(PWinObj* wo);
-    static void stackAbove(PWinObj* wo, Window win, bool restack = true);
-    static void stackBelow(PWinObj *wo, Window win, bool restack = true);
+    static void stack(PWinObj* wo, Window win, bool above, bool restack = true);
 
     static PWinObj* getTopWO(uint type_mask);
     static void updateClientList(void);

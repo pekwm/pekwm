@@ -2077,10 +2077,10 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
             if (ev->value_mask&CWSibling) {
                 switch(ev->detail) {
                 case Above:
-                    Workspaces::stackAbove(this, ev->above);
+                    Workspaces::stack(this, ev->above, true);
                     break;
                 case Below:
-                    Workspaces::stackBelow(this, ev->above);
+                    Workspaces::stack(this, ev->above, false);
                     break;
                 case TopIf:
                 case BottomIf:
