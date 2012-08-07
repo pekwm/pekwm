@@ -1439,7 +1439,7 @@ WindowManager::handleXRandrScreenChangeEvent(XRRScreenChangeNotifyEvent *ev)
     screenEdgeResize();
 
     // Make sure windows are visible after resize
-    list<PDecor*>::iterator it(PDecor::pdecor_begin());
+    vector<PDecor*>::const_iterator it(PDecor::pdecor_begin());
     for (; it != PDecor::pdecor_end(); ++it) {
         Workspaces::placeWoInsideScreen(*it);
     }

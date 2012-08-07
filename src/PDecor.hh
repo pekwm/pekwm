@@ -14,9 +14,9 @@
 #endif // HAVE_CONFIG_H
 
 #include "Config.hh"
+#include "PWinObj.hh"
 #include "Theme.hh" // for Theme::FrameData inlines
 #include "PTexture.hh" // for border/image inlines
-#include "Util.hh"
 
 #include <list>
 
@@ -40,7 +40,7 @@ class PDecor : public PWinObj
 {
 public:
     //! @brief Decor title button class.
-class Button : public PWinObj {
+    class Button : public PWinObj {
     public:
          Button(PWinObj *parent, Theme::PDecorButtonData *data, uint width, uint height);
         ~Button(void);
@@ -179,8 +179,8 @@ class Button : public PWinObj {
     virtual void setSkip(uint skip);
     // END - PDecor interface.
 
-    static std::list<PDecor*>::iterator pdecor_begin(void) { return _pdecor_list.begin(); }
-    static std::list<PDecor*>::iterator pdecor_end(void) { return _pdecor_list.end(); }
+    static vector<PDecor*>::const_iterator pdecor_begin(void) { return _pdecors.begin(); }
+    static vector<PDecor*>::const_iterator pdecor_end(void) { return _pdecors.end(); }
 
     inline bool isSkip(uint skip) const { return (_skip&skip); }
 
@@ -457,7 +457,7 @@ private:
     std::list<PDecor::TitleItem*> _title_list;
     uint _titles_left, _titles_right; // area where to put titles
 
-    static std::list<PDecor*> _pdecor_list; /**< List of PDecors */
+    static vector<PDecor*> _pdecors; /**< List of all PDecors */
 };
 
 #endif // _PDECOR_HH_

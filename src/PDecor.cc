@@ -15,6 +15,7 @@
 #include <cstdlib>
 #include <functional>
 #include <iostream>
+#include <algorithm>
 
 extern "C" {
 #include <X11/Xlib.h>
@@ -173,7 +174,7 @@ const string PDecor::DEFAULT_DECOR_NAME_BORDERLESS = string("BORDERLESS");
 const string PDecor::DEFAULT_DECOR_NAME_TITLEBARLESS = string("TITLEBARLESS");
 const string PDecor::DEFAULT_DECOR_NAME_ATTENTION = string("ATTENTION");
 
-list<PDecor*> PDecor::_pdecor_list = list<PDecor*>();
+vector<PDecor*> PDecor::_pdecors;
 
 //! @brief PDecor constructor
 //! @param dpy Display
@@ -226,7 +227,7 @@ PDecor::PDecor(Theme *theme,
     // map title and border windows
     XMapSubwindows(X11::getDpy(), _window);
 
-    _pdecor_list.push_back(this);
+    _pdecors.push_back(this);
 }
 
 /**
@@ -323,7 +324,7 @@ PDecor::createBorder(CreateWindowParams &params)
 //! @brief PDecor destructor
 PDecor::~PDecor(void)
 {
-    _pdecor_list.remove(this);
+    _pdecors.erase(std::remove(_pdecors.begin(), _pdecors.end(), this), _pdecors.end());
 
     if (_child_list.size() > 0) {
         while (_child_list.size() != 0) {
