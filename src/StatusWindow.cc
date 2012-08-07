@@ -18,6 +18,8 @@
 #include "Theme.hh"
 #include "Workspaces.hh"
 
+#include <algorithm>
+
 #ifdef DEBUG
 #include <iostream>
 using std::cerr;
@@ -71,7 +73,7 @@ StatusWindow::~StatusWindow(void)
     Workspaces::remove(this);
 
     // remove ourself from the decor manually, no need to reparent and stuff
-    _child_list.remove(_status_wo);
+    _children.erase(std::remove(_children.begin(), _children.end(), _status_wo), _children.end());
 
     // free resources
     XDestroyWindow(X11::getDpy(), _status_wo->getWindow());

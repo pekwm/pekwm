@@ -166,7 +166,7 @@ public:
     // START - PDecor interface.
     virtual bool allowMove(void) const { return true; }
 
-    virtual void addChild(PWinObj *child, std::list<PWinObj*>::iterator *it = 0);
+    virtual void addChild(PWinObj *child, vector<PWinObj*>::iterator *it = 0);
     virtual void removeChild(PWinObj *child, bool do_delete = true);
     virtual void activateChild(PWinObj *child);
 
@@ -226,13 +226,11 @@ public:
     // child list actions
 
     //! @brief Returns number of children in PDecor.
-    inline uint size(void) const { return _child_list.size(); }
+    inline uint size(void) const { return _children.size(); }
     //! @brief Returns iterator to the first child in PDecor.
-    inline std::list<PWinObj*>::iterator begin(void) {
-        return _child_list.begin();
-    }
+    inline vector<PWinObj*>::const_iterator begin(void) { return _children.begin(); }
     //! @brief Returns iterator to the last+1 child in PDecor.
-    inline std::list<PWinObj*>::iterator end(void) { return _child_list.end(); }
+    inline vector<PWinObj*>::const_iterator end(void) { return _children.end(); }
 
     //! @brief Returns pointer to active PWinObj.
     inline PWinObj *getActiveChild(void) { return _child; }
@@ -386,7 +384,6 @@ private:
 
     bool updateDecorName(void);
 
-    PWinObj *getChildRel(int off); // +/- relative from active
     void getBorderSize(BorderPosition pos, uint &width, uint &height);
 
     uint calcTitleWidth(void);
@@ -403,7 +400,7 @@ protected:
     std::string _decor_name_override; /**< Overridden decoration name. */
 
     PWinObj *_child; //!< Pointer to active child in PDecor.
-    std::list<PWinObj*> _child_list; //!< List of children in PDecor.
+    vector<PWinObj*> _children; //!< List of children in PDecor.
 
     PDecor::Button *_button; /**< Active title button in PDecor. */
     Window _button_press_win; /**< Active border window, for button release handling. */

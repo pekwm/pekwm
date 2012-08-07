@@ -588,8 +588,7 @@ Workspaces::buildClientList(unsigned int &num_windows)
     Client *client, *client_active;
 
     list<Window> windows_list;
-    list<PWinObj*>::const_iterator it_c;
-    vector<PWinObj*>::const_iterator it_f;
+    vector<PWinObj*>::const_iterator it_f, it_c;
     for (it_f = _wobjs.begin(); it_f != _wobjs.end(); ++it_f) {
         if ((*it_f)->getType() != PWinObj::WO_FRAME) {
             continue;

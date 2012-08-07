@@ -13,6 +13,7 @@
 #include <list>
 #include <cwchar>
 #include <cwctype>
+#include <algorithm>
 
 #include "InputDialog.hh"
 #include "KeyGrabber.hh"
@@ -90,7 +91,7 @@ InputDialog::~InputDialog(void)
 
     // Free resources
     if (_text_wo) {
-        _child_list.remove(_text_wo);
+        _children.erase(std::remove(_children.begin(), _children.end(), _text_wo), _children.end());
         removeChildWindow(_text_wo->getWindow());
         XDestroyWindow(X11::getDpy(), _text_wo->getWindow());
         delete _text_wo;

@@ -326,9 +326,9 @@ PDecor::~PDecor(void)
 {
     _pdecors.erase(std::remove(_pdecors.begin(), _pdecors.end(), this), _pdecors.end());
 
-    if (_child_list.size() > 0) {
-        while (_child_list.size() != 0) {
-            removeChild(_child_list.back(), false); // Don't call delete this.
+    if (_children.size() > 0) {
+        while (_children.size() != 0) {
+            removeChild(_children.back(), false); // Don't call delete this.
         }
     }
 
@@ -366,7 +366,7 @@ PDecor::mapWindow(void)
 {
     if (! _mapped) {
         PWinObj::mapWindow();
-        for_each(_child_list.begin(), _child_list.end(),
+        for_each(_children.begin(), _children.end(),
                  mem_fun(&PWinObj::mapWindow));
     }
 }
@@ -390,10 +390,10 @@ PDecor::unmapWindow(void)
 {
     if (_mapped) {
         if (_iconified) {
-            for_each(_child_list.begin(), _child_list.end(),
+            for_each(_children.begin(), _children.end(),
                      mem_fun(&PWinObj::iconify));
         } else {
-            for_each(_child_list.begin(), _child_list.end(),
+            for_each(_children.begin(), _children.end(),
                      mem_fun(&PWinObj::unmapWindow));
         }
         PWinObj::unmapWindow();
@@ -478,10 +478,10 @@ PDecor::moveResize(int x, int y, uint width, uint height)
                           getChildWidth(), getChildHeight());
 
         // The client window may have its window gravity set to something different
-        // than NorthWestGravity (see Xlib manual chapter 3.2.3). Therefore the 
+        // than NorthWestGravity (see Xlib manual chapter 3.2.3). Therefore the
         // X server may not move its top left corner along with the decoration.
-        // We correct these cases by calling alignChild(). It is called only for 
-        // _child and not all members of _child_list, because activateChild.*() 
+        // We correct these cases by calling alignChild(). It is called only for
+        // _child and not all members of _children, because activateChild.*()
         // does it itself.
         alignChild(_child);
     }
@@ -565,9 +565,9 @@ PDecor::setWorkspace(uint workspace)
         _workspace = workspace;
     }
 
-    list<PWinObj*>::iterator it (_child_list.begin ());
-    for (; it != _child_list.end (); ++it) {
-        (*it)->setWorkspace (workspace);
+    vector<PWinObj*>::const_iterator it(_children.begin());
+    for (; it != _children.end(); ++it) {
+        (*it)->setWorkspace(workspace);
     }
 
     if (! _mapped && ! _iconified) {
@@ -825,13 +825,13 @@ PDecor::addDecor(PDecor *decor)
         return;
     }
 
-    list<PWinObj*>::iterator it(decor->begin());
+    vector<PWinObj*>::const_iterator it(decor->begin());
     for (; it != decor->end(); ++it) {
         addChild(*it);
         (*it)->setWorkspace(_workspace);
     }
 
-    decor->_child_list.clear();
+    decor->_children.clear();
     delete decor;
 }
 
@@ -905,8 +905,8 @@ PDecor::loadDecor(void)
     }
 
     // Update child positions.
-    list<PWinObj*>::iterator c_it(_child_list.begin());
-    for (; c_it != _child_list.end(); ++c_it) {
+    vector<PWinObj*>::const_iterator c_it(_children.begin());
+    for (; c_it != _children.end(); ++c_it) {
         alignChild(*c_it);
     }
 
@@ -959,26 +959,25 @@ PDecor::findButton(Window win)
 PWinObj*
 PDecor::getChildFromPos(int x)
 {
-    if (! _child_list.size() || (_child_list.size() != _title_list.size()))
+    if (! _children.size() || (_children.size() != _title_list.size()))
         return 0;
-    if (_child_list.size() == 1)
-        return _child_list.front();
+    if (_children.size() == 1)
+        return _children.front();
 
     if (x < static_cast<int>(_titles_left)) {
-        return _child_list.front();
+        return _children.front();
     } else if (x > static_cast<int>(_title_wo.getWidth() - _titles_right)) {
-        return _child_list.back();
+        return _children.back();
     }
 
     PTexture *t_sep = _data->getTextureSeparator(getFocusedState(false));
     uint sepw = t_sep?t_sep->getWidth():0;
-    list<PWinObj*>::iterator c_it(_child_list.begin());
     list<PDecor::TitleItem*>::iterator t_it(_title_list.begin());
 
     uint pos = _titles_left, xx = x;
-    for (uint i = 0; i < _title_list.size(); ++i, ++t_it, ++c_it) {
+    for (uint i = 0; i < _title_list.size(); ++i, ++t_it) {
         if (xx >= pos && xx <= pos + (*t_it)->getWidth() + sepw) {
-            return *c_it;
+            return  _children[i];
         }
         pos += (*t_it)->getWidth() + sepw;
     }
@@ -1064,13 +1063,13 @@ PDecor::getTitleHeight(void) const
 
 //! @brief Adds a child to the decor, reparenting the window
 void
-PDecor::addChild(PWinObj *child, std::list<PWinObj*>::iterator *it)
+PDecor::addChild(PWinObj *child, vector<PWinObj*>::iterator *it)
 {
     child->reparent(this, borderLeft(), borderTop() + getTitleHeight());
     if (it == 0) {
-        _child_list.push_back(child);
+        _children.push_back(child);
     } else {
-        _child_list.insert(*it, child);
+        _children.insert(*it, child);
     }
 
     updatedChildOrder();
@@ -1078,7 +1077,7 @@ PDecor::addChild(PWinObj *child, std::list<PWinObj*>::iterator *it)
     // Sync focused state if it is the first child, the child will be
     // activated later on. If there are children here already fit the
     // child into the decor.
-    if (_child_list.size() == 1) {
+    if (_children.size() == 1) {
         _focused = ! _focused;
         setFocused(! _focused);
     } else {
@@ -1097,21 +1096,21 @@ PDecor::removeChild(PWinObj *child, bool do_delete)
                     _gm.x + borderLeft(),
                     _gm.y + borderTop() + getTitleHeight());
 
-    list<PWinObj*>::iterator it(find(_child_list.begin(), _child_list.end(), child));
-    if (it == _child_list.end()) {
+    vector<PWinObj*>::iterator it(find(_children.begin(), _children.end(), child));
+    if (it == _children.end()) {
 #ifdef DEBUG
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "PDecor(" << this << ")::removeChild(" << child << ")" << endl
-             << " *** child not in _child_list, bailing out." << endl;
+             << " *** child not in _children, bailing out." << endl;
 #endif // DEBUG
         return;
     }
 
-    it = _child_list.erase(it);
+    it = _children.erase(it);
 
-    if (_child_list.size() > 0) {
+    if (_children.size() > 0) {
         if (_child == child) {
-            if (it == _child_list.end()) {
+            if (it == _children.end()) {
                 --it;
             }
 
@@ -1156,30 +1155,39 @@ PDecor::getDecorInfo(wchar_t *buf, uint size)
 void
 PDecor::activateChildNum(uint num)
 {
-    if (num >= _child_list.size()) {
+    if (num >= _children.size()) {
 #ifdef DEBUG
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "PDecor(" << this << ")::activeChildNum(" << num << ")" << endl
-             << " *** num > _child_list.size()" << endl;
+             << " *** num > _children.size()" << endl;
 #endif // DEBUG
         return;
     }
 
-    list<PWinObj*>::iterator it(_child_list.begin());
-    for (uint i = 0; i < num; ++i, ++it);
-
-    activateChild(*it);
+    activateChild(_children[num]);
 }
 
 //! @brief
 void
 PDecor::activateChildRel(int off)
 {
-    PWinObj *child = getChildRel(off);
-    if (! child) {
-        child = _child_list.front();
+    vector<PWinObj*>::size_type cur=0, size = _children.size();
+    for (; cur < size; ++cur) {
+        if (_child == _children[cur]) {
+            break;
+        }
     }
-    activateChild(child);
+
+    if (cur == size) {
+        _child = _children.front();
+        cur = 0;
+    }
+
+    off = (off+cur)%size;
+    if (off < 0) {
+        off += size;
+    }
+    activateChild(_children[off]);
 }
 
 //! @brief Moves the current child off steps
@@ -1187,71 +1195,30 @@ PDecor::activateChildRel(int off)
 void
 PDecor::moveChildRel(int off)
 {
-    PWinObj *child = getChildRel(off);
-    if (! child || (child == _child)) {
-        return;
+    vector<PWinObj*>::size_type idx=0, size = _children.size();
+    for (; idx < size; ++idx) {
+        if (_child == _children[idx]) {
+            break;
+        }
     }
 
-    bool at_begin = (_child == _child_list.front());
-    bool at_end = (_child == _child_list.back());
-
-    // switch place
-    _child_list.remove(_child);
-    list<PWinObj*>::iterator it(find(_child_list.begin(), _child_list.end(), child));
-    if (off > 0) {
-        // when wrapping, we want to be able to insert at first place
-        if (at_begin || (*it != _child_list.front())) {
-            ++it;
+    if (idx == size) {
+        if (! _children.size()) {
+            std::cerr << "ERR: PDecor::moveChildRel(" << off <<") called, but _children is empty. Please report." << std::endl;
+            return;
         }
-
-        _child_list.insert(it, _child);
-    } else {
-        if (! at_end && (*it == _child_list.back())) {
-            ++it;
-        }
-        _child_list.insert(it, _child);
+        _child = _children.front();
+        idx = 0;
     }
 
+    off = (off+idx)%size;
+    if (off < 0) {
+        off += size;
+    }
+
+    _children.erase(std::remove(_children.begin(), _children.end(), _child), _children.end());
+    _children.insert(_children.begin()+off, _child);
     updatedChildOrder();
-}
-
-//! @brief
-PWinObj*
-PDecor::getChildRel(int off)
-{
-    if ((off == 0) || (_child_list.size() < 2)) {
-#ifdef DEBUG
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "PDecor(" << this << ")::getChildRel(" << off << ")" << endl
-             << " *** off == 0 or not enough children" << endl;
-#endif // DEBUG
-        return 0;
-    }
-
-    list<PWinObj*>::iterator it(find(_child_list.begin(), _child_list.end(), _child));
-    // if no active child, use first
-    if (it == _child_list.end()) {
-        it = _child_list.begin();
-    }
-
-    int dir = (off > 0) ? 1 : -1;
-    off = abs(off);
-
-    for (int i = 0; i < off; ++i) {
-        if (dir == 1) { // forward
-            if (++it == _child_list.end()) {
-                it = _child_list.begin();
-            }
-
-        } else { // backward
-            if (it == _child_list.begin()) {
-                it = _child_list.end();
-            }
-            --it;
-        }
-    }
-
-    return *it;
 }
 
 //! @brief Do move of Decor with the mouse.

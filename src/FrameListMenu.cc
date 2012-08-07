@@ -207,7 +207,7 @@ FrameListMenu::buildFrameNames(Frame *frame, std::wstring &pre_name)
 
     buildName(frame, status_name); // add states to the name
 
-    list<PWinObj*>::iterator it(frame->begin());
+    vector<PWinObj*>::const_iterator it(frame->begin());
     for (; it != frame->end(); ++it) {
         name = pre_name;
         name.append(status_name);

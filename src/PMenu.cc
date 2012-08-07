@@ -120,7 +120,7 @@ PMenu::~PMenu(void)
 
     // Free resources
     if (_menu_wo) {
-        _child_list.remove(_menu_wo);
+        _children.erase(std::remove(_children.begin(), _children.end(), _menu_wo), _children.end());
         removeChildWindow(_menu_wo->getWindow());
         XDestroyWindow(X11::getDpy(), _menu_wo->getWindow());
         delete _menu_wo;

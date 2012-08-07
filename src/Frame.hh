@@ -54,7 +54,7 @@ public:
     // START - PDecor interface.
     virtual bool allowMove(void) const;
 
-    virtual void addChild(PWinObj *child, std::list<PWinObj*>::iterator *it = 0);
+    virtual void addChild(PWinObj *child, vector<PWinObj*>::iterator *it = 0);
     virtual void removeChild(PWinObj *child, bool do_delete = true);
     virtual void activateChild(PWinObj *child);
 

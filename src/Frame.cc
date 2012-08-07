@@ -400,8 +400,8 @@ Frame::handleMapRequest(XMapRequestEvent *ev)
 ActionEvent*
 Frame::handleUnmapEvent(XUnmapEvent *ev)
 {
-    list<PWinObj*>::iterator it(_child_list.begin());
-    for (; it != _child_list.end(); ++it) {
+    vector<PWinObj*>::const_iterator it(_children.begin());
+    for (; it != _children.end(); ++it) {
         if (*(*it) == ev->window) {
             (*it)->handleUnmapEvent(ev);
             break;
@@ -447,7 +447,7 @@ Frame::getActiveClient(void)
 
 //! @brief Adds child to the frame.
 void
-Frame::addChild(PWinObj *child, std::list<PWinObj*>::iterator *it)
+Frame::addChild(PWinObj *child, vector<PWinObj*>::iterator *it)
 {
     PDecor::addChild(child, it);
     AtomUtil::setLong(child->getWindow(), Atoms::getAtom(PEKWM_FRAME_ID), _id);
@@ -462,12 +462,12 @@ Frame::addChild(PWinObj *child, std::list<PWinObj*>::iterator *it)
  * Add child preserving order from the previous pekwm run.
  */
 void
-Frame::addChildOrdered (Client *child)
+Frame::addChildOrdered(Client *child)
 {
     Client *client;
     
-    list<PWinObj*>::iterator it(_child_list.begin());
-    for (; it != _child_list.end(); ++it) {
+    vector<PWinObj*>::iterator it(_children.begin());
+    for (; it != _children.end(); ++it) {
         client = static_cast<Client*>(*it);
         if (child->getInitialFrameOrder() < client->getInitialFrameOrder()) {
             break;
@@ -538,8 +538,8 @@ Frame::updatedChildOrder(void)
     titleClear();
 
     Client *client;
-    list<PWinObj*>::iterator it(_child_list.begin());
-    for (long num = 0; it != _child_list.end(); ++num, ++it) {
+    vector<PWinObj*>::const_iterator it(_children.begin());
+    for (long num = 0; it != _children.end(); ++num, ++it) {
         client = static_cast<Client*>(*it);
         client->setPekwmFrameOrder(num);
         titleAdd(client->getTitle());
@@ -556,10 +556,12 @@ Frame::updatedActiveChild(void)
 {
     titleSetActive(0);
 
-    list<PWinObj*>::iterator it(_child_list.begin());
-    for (uint i = 0; it != _child_list.end(); ++i, ++it) {
-        static_cast<Client*>(*it)->setPekwmFrameActive(_child == *it);
-        if (_child == *it) {
+    Client *client;
+    uint size = _children.size();
+    for (uint i = 0; i < size; ++i) {
+        client = static_cast<Client*>(_children[i]);
+        client->setPekwmFrameActive(_child == client);
+        if (_child == client) {
             titleSetActive(i);
         }
     }
@@ -693,9 +695,9 @@ Frame::setId(uint id)
 {
     _id = id;
 
-    list<PWinObj*>::iterator it(_child_list.begin());
     long atom = Atoms::getAtom(PEKWM_FRAME_ID);
-    for (; it != _child_list.end(); ++it) {
+    vector<PWinObj*>::const_iterator it(_children.begin());
+    for (; it != _children.end(); ++it) {
         AtomUtil::setLong((*it)->getWindow(), atom, id);
     }
 }
@@ -971,7 +973,7 @@ Frame::detachClient(Client *client)
         return;
     }
 
-    if (_child_list.size() > 1) {
+    if (_children.size() > 1) {
         removeChild(client);
 
         client->move(_gm.x, _gm.y + borderTop());
@@ -1094,7 +1096,7 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: r
 
                 // if we currently have focus and the frame exists after we remove
                 // this client we need to redraw it as unfocused
-                bool focus = behind ? false : (_child_list.size() > 1);
+                bool focus = behind ? false : (_children.size() > 1);
 
                 removeChild(client);
 
@@ -1109,7 +1111,7 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: r
                     setFocused(false);
                 }
 
-            }  else if (_child_list.size() > 1) {
+            }  else if (_children.size() > 1) {
                 // if we have more than one client in the frame detach this one
                 removeChild(client);
 
@@ -1441,8 +1443,8 @@ Frame::updateInactiveChildInfo(void)
         return;
     }
     
-    list<PWinObj*>::iterator it(_child_list.begin());
-    for (; it != _child_list.end(); ++it) {
+    vector<PWinObj*>::const_iterator it(_children.begin());
+    for (; it != _children.end(); ++it) {
         if (*it != _client) {
             applyState(static_cast<Client*>(*it));
             (*it)->resize(getChildWidth(), getChildHeight());
@@ -1853,8 +1855,8 @@ Frame::growDirection(uint direction)
 void
 Frame::close(void)
 {
-    list<PWinObj*>::iterator it(_child_list.begin());
-    for (; it != _child_list.end(); ++it) {
+    vector<PWinObj*>::const_iterator it(_children.begin());
+    for (; it != _children.end(); ++it) {
         static_cast<Client*>(*it)->close();
     }
 }
