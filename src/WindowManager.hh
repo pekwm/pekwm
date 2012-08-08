@@ -168,7 +168,6 @@ private:
 
     // screen edge related
     void screenEdgeCreate(void);
-    void screenEdgeDestroy(void);
     void screenEdgeResize(void);
     void screenEdgeMapUnmap(void);
 
@@ -235,7 +234,7 @@ private:
 
     bool _allow_grouping; //<! Flag turning grouping on/off.
 
-    std::list<EdgeWO*> _screen_edge_list;
+    EdgeWO *_screen_edges[4];
     HintWO *_hint_wo; /**< Hint window object, communicates EWMH hints. */
     RootWO *_root_wo; /**< Root window object, wrapper for root window. */
 

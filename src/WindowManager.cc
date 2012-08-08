@@ -282,7 +282,11 @@ WindowManager::cleanup(void)
     }
 
     // destroy screen edge
-    screenEdgeDestroy();
+    for (int i=0; i < 4; ++i) {
+        Workspaces::remove(_screen_edges[i]);
+        delete _screen_edges[i];
+        _screen_edges[i]=0;
+    }
 
     XInstallColormap(X11::getDpy(), X11::getColormap());
     XSetInputFocus(X11::getDpy(), PointerRoot, RevertToPointerRoot, CurrentTime);
@@ -459,25 +463,20 @@ WindowManager::scanWindows(void)
 void
 WindowManager::screenEdgeCreate(void)
 {
-    if (_screen_edge_list.size() != 0) {
-        return;
-    }
-
     bool indent = Config::instance()->getScreenEdgeIndent();
 
-    _screen_edge_list.push_back(new EdgeWO(X11::getRoot(), SCREEN_EDGE_LEFT,
-                                           indent && (_config->getScreenEdgeSize(SCREEN_EDGE_LEFT) > 0)));
-    _screen_edge_list.push_back(new EdgeWO(X11::getRoot(), SCREEN_EDGE_RIGHT,
-                                           indent && (_config->getScreenEdgeSize(SCREEN_EDGE_RIGHT) > 0)));
-    _screen_edge_list.push_back(new EdgeWO(X11::getRoot(), SCREEN_EDGE_TOP,
-                                           indent && (_config->getScreenEdgeSize(SCREEN_EDGE_TOP) > 0)));
-    _screen_edge_list.push_back(new EdgeWO(X11::getRoot(), SCREEN_EDGE_BOTTOM,
-                                           indent && (_config->getScreenEdgeSize(SCREEN_EDGE_BOTTOM) > 0)));
+    _screen_edges[0] = new EdgeWO(X11::getRoot(), SCREEN_EDGE_LEFT,
+                                  indent && (_config->getScreenEdgeSize(SCREEN_EDGE_LEFT) > 0));
+    _screen_edges[1] = new EdgeWO(X11::getRoot(), SCREEN_EDGE_RIGHT,
+                                  indent && (_config->getScreenEdgeSize(SCREEN_EDGE_RIGHT) > 0));
+    _screen_edges[2] = new EdgeWO(X11::getRoot(), SCREEN_EDGE_TOP,
+                                  indent && (_config->getScreenEdgeSize(SCREEN_EDGE_TOP) > 0));
+    _screen_edges[3] = new EdgeWO(X11::getRoot(), SCREEN_EDGE_BOTTOM,
+                                  indent && (_config->getScreenEdgeSize(SCREEN_EDGE_BOTTOM) > 0));
 
     // make sure the edge stays ontop
-    list<EdgeWO*>::iterator it(_screen_edge_list.begin());
-    for (; it != _screen_edge_list.end(); ++it) {
-        Workspaces::insert(*it);
+    for (int i=0; i < 4; ++i) {
+        Workspaces::insert(_screen_edges[i]);
     }
 
     screenEdgeResize();
@@ -485,50 +484,28 @@ WindowManager::screenEdgeCreate(void)
 
 //! @brief
 void
-WindowManager::screenEdgeDestroy(void)
-{
-    if (_screen_edge_list.size() == 0) {
-        return;
-    }
-
-    list<EdgeWO*>::iterator it(_screen_edge_list.begin());
-    for (; it != _screen_edge_list.end(); ++it) {
-        Workspaces::remove(*it);
-        delete *it;
-    }
-}
-
-//! @brief
-void
 WindowManager::screenEdgeResize(void)
 {
-    assert(_screen_edge_list.size() == 4);
-
     uint l_size = std::max(_config->getScreenEdgeSize(SCREEN_EDGE_LEFT), 1);
     uint r_size = std::max(_config->getScreenEdgeSize(SCREEN_EDGE_RIGHT), 1);
     uint t_size = std::max(_config->getScreenEdgeSize(SCREEN_EDGE_TOP), 1);
     uint b_size = std::max(_config->getScreenEdgeSize(SCREEN_EDGE_BOTTOM), 1);
 
-    list<EdgeWO*>::iterator it(_screen_edge_list.begin());
-
     // Left edge
-    (*it)->moveResize(0, 0, l_size, X11::getHeight());
-    ++it;
+    _screen_edges[0]->moveResize(0, 0, l_size, X11::getHeight());
 
     // Right edge
-    (*it)->moveResize(X11::getWidth() - r_size, 0, r_size, X11::getHeight());
-    ++it;
+    _screen_edges[1]->moveResize(X11::getWidth() - r_size, 0, r_size, X11::getHeight());
 
     // Top edge
-    (*it)->moveResize(l_size, 0, X11::getWidth() - l_size - r_size, t_size);
-    ++it;
+    _screen_edges[2]->moveResize(l_size, 0, X11::getWidth() - l_size - r_size, t_size);
 
     // Bottom edge
-    (*it)->moveResize(l_size, X11::getHeight() - b_size, X11::getWidth() - l_size - r_size, b_size);
+    _screen_edges[3]->moveResize(l_size, X11::getHeight() - b_size, X11::getWidth() - l_size - r_size, b_size);
 
-    for (it = _screen_edge_list.begin(); it != _screen_edge_list.end(); ++it) {
-      (*it)->configureStrut(_config->getScreenEdgeIndent()
-                            && (_config->getScreenEdgeSize((*it)->getEdge()) > 0));
+    for (int i=0; i<4; ++i) {
+        _screen_edges[i]->configureStrut(_config->getScreenEdgeIndent()
+                        && _config->getScreenEdgeSize(_screen_edges[i]->getEdge()) > 0);
     }
 
     X11::updateStrut();
@@ -537,15 +514,14 @@ WindowManager::screenEdgeResize(void)
 void
 WindowManager::screenEdgeMapUnmap(void)
 {
-    assert (_screen_edge_list.size() == 4);
-
-    list<EdgeWO*>::iterator it(_screen_edge_list.begin());
-    for (; it != _screen_edge_list.end(); ++it) {
-        if ((_config->getScreenEdgeSize((*it)->getEdge()) > 0) &&
-            (_config->getEdgeListFromPosition((*it)->getEdge())->size() > 0)) {
-            (*it)->mapWindow();
+    EdgeWO* edge;
+    for (int i=0; i<4; ++i) {
+        edge = _screen_edges[i];
+        if (_config->getScreenEdgeSize(edge->getEdge()) > 0
+            && _config->getEdgeListFromPosition(edge->getEdge())->size() > 0) {
+            edge->mapWindow();
         } else {
-            (*it)->unmapWindow();
+            edge->unmapWindow();
         }
     }
 }
