@@ -46,8 +46,8 @@ using std::string;
 using std::vector;
 using std::wstring;
 
-list<Frame*> Frame::_frame_list = list<Frame*>();
-vector<uint> Frame::_frameid_list = vector<uint>();
+vector<Frame*> Frame::_frames;
+vector<uint> Frame::_frameid_list;
 
 Frame* Frame::_tag_frame = 0;
 bool Frame::_tag_behind = false;
@@ -159,7 +159,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
 
     // I add these to the list before I insert the client into the frame to
     // be able to skip an extra updateClientList
-    _frame_list.push_back(this);
+    _frames.push_back(this);
     WindowManager::instance()->addToMRUBack(this);
     Workspaces::insert(this);
 
@@ -190,7 +190,7 @@ Frame::~Frame(void)
     // remove from lists
     _wo_map.erase(_window);
     woListRemove(this);
-    _frame_list.remove(this);
+    _frames.erase(std::remove(_frames.begin(), _frames.end(), this), _frames.end());
     Workspaces::remove(this);
     WindowManager::instance()->removeFromFrameList(this);
     if (_tag_frame == this) {
@@ -800,8 +800,8 @@ Frame::findFrameFromWindow(Window win)
         return 0;
     }
 
-    list<Frame*>::iterator it(_frame_list.begin());
-    for(; it !=_frame_list.end(); ++it) {
+    vector<Frame*>::const_iterator it(_frames.begin());
+    for(; it !=_frames.end(); ++it) {
         if (win == (*it)->getWindow()) { // operator == does more than that
             return (*it);
         }
@@ -816,8 +816,8 @@ Frame::findFrameFromWindow(Window win)
 Frame*
 Frame::findFrameFromID(uint id)
 {
-    list<Frame*>::iterator it(Frame::frame_begin());
-    for (; it != Frame::frame_end(); ++it) {
+    vector<Frame*>::const_iterator it(_frames.begin());
+    for (; it != _frames.end(); ++it) {
         if ((*it)->getId() == id) {
             return (*it);
         }
@@ -909,7 +909,7 @@ Frame::findFrameID(void)
         _frameid_list.pop_back();
     } else {
         // No free, get next number (Frame is not in list when this is called.)
-        id = _frame_list.size() + 1;
+        id = _frames.size() + 1;
     }
 
     return id;
@@ -958,8 +958,8 @@ Frame::getClientDecorName(Client *client)
 void
 Frame::resetFrameIDs(void)
 {
-    list<Frame*>::iterator it(_frame_list.begin());
-    for (uint id = 1; it != _frame_list.end(); ++id, ++it) {
+    vector<Frame*>::const_iterator it(_frames.begin());
+    for (uint id = 1; it != _frames.end(); ++id, ++it) {
         (*it)->setId(id);
     }
 }
@@ -1792,8 +1792,8 @@ Frame::getMaxBounds(int &max_x,int &max_r, int &max_y, int &max_b)
     f_r = getRX();
     f_b = getBY();
 
-    list<Frame*>::iterator it = _frame_list.begin();
-    for (; it != _frame_list.end(); ++it) {
+    vector<Frame*>::const_iterator it = _frames.begin();
+    for (; it != _frames.end(); ++it) {
         if (! (*it)->isMapped()) {
             continue;
         }

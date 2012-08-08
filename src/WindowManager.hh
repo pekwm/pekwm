@@ -23,7 +23,7 @@
 #include "Timer.hh"
 #include "ManagerWindows.hh"
 
-#include <list>
+#include <algorithm>
 #include <map>
 
 #ifdef HAVE_XRANDR
@@ -90,26 +90,27 @@ public:
     inline bool isStartup(void) const { return _startup; }
 
     // list iterators
-    inline std::list<Frame*>::iterator mru_begin(void) { return _mru_list.begin(); }
-    inline std::list<Frame*>::iterator mru_end(void) { return _mru_list.end(); }
+    inline vector<Frame*>::iterator mru_begin(void) { return _mru.begin(); }
+    inline vector<Frame*>::iterator mru_end(void) { return _mru.end(); }
 
     // adds
     inline void addToMRUFront(Frame *frame) {
         if (frame) {
-            _mru_list.remove(frame);
-            _mru_list.push_front(frame);
+            _mru.erase(std::remove(_mru.begin(), _mru.end(), frame), _mru.end());
+            _mru.insert(_mru.begin(), frame);
         }
     }
 
     inline void addToMRUBack(Frame *frame) {
         if (frame) {
-            _mru_list.remove(frame);
-            _mru_list.push_back(frame);
+            _mru.erase(std::remove(_mru.begin(), _mru.end(), frame), _mru.end());
+            _mru.push_back(frame);
         }
     }
 
-    // removes
-    void removeFromFrameList(Frame *frame);
+    void removeFromFrameList(Frame *frame) {
+        _mru.erase(std::remove(_mru.begin(), _mru.end(), frame), _mru.end());
+    }
 
     PWinObj *findPWinObj(Window win);
     void familyRaiseLower(Client *client, bool raise);
@@ -230,7 +231,7 @@ private:
     bool _shutdown; //!< Set to wheter we want to shutdown.
     bool _reload; //!< Set to wheter we want to reload.
 
-    std::list<Frame *> _mru_list; // The most recently used frame is kept at the front.
+    vector<Frame *> _mru; // The most recently used frame is kept at the front.
 
     bool _allow_grouping; //<! Flag turning grouping on/off.
 

@@ -25,7 +25,6 @@ class AutoProperty;
 class Client;
 
 #include <string>
-#include <list>
 
 class Frame : public PDecor
 {
@@ -76,18 +75,18 @@ public:
     static Frame *findFrameFromID(uint id);
 
     // START - Iterators
-    static uint frame_size(void) { return _frame_list.size(); }
-    static std::list<Frame*>::iterator frame_begin(void) {
-        return _frame_list.begin();
+    static uint frame_size(void) { return _frames.size(); }
+    static vector<Frame*>::const_iterator frame_begin(void) {
+        return _frames.begin();
     }
-    static std::list<Frame*>::iterator frame_end(void) {
-        return _frame_list.end();
+    static vector<Frame*>::const_iterator frame_end(void) {
+        return _frames.end();
     }
-    static std::list<Frame*>::reverse_iterator frame_rbegin(void) {
-        return _frame_list.rbegin();
+    static vector<Frame*>::const_reverse_iterator frame_rbegin(void) {
+        return _frames.rbegin();
     }
-    static std::list<Frame*>::reverse_iterator frame_rend(void) {
-        return _frame_list.rend();
+    static vector<Frame*>::const_reverse_iterator frame_rend(void) {
+        return _frames.rend();
     }
     // END - Iterator
 
@@ -192,9 +191,8 @@ private:
 
     uint _attention; // Number of clients that demand attention
 
-    // ID list, list of free Frame ids.
-    static std::list<Frame*> _frame_list; //!< List of all Frames.
-    static vector<uint> _frameid_list; //!< List of free Frame IDs.
+    static vector<Frame*> _frames; //!< Vector of all Frames.
+    static vector<uint> _frameid_list; //!< Vector of free Frame IDs.
 
     // Tagging, static as only one Frame can be tagged
     static Frame *_tag_frame; //!< Pointer to tagged frame.

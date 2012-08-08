@@ -49,7 +49,6 @@
 
 #include <iostream>
 #include <list>
-#include <algorithm>
 #include <functional>
 #include <memory>
 #include <cassert>
@@ -137,9 +136,9 @@ WindowManager::start(const std::string &command_line,
         static_cast<RootWO*>(PWinObj::getRootPWinObj())->setEwmhDesktopNames();
     
         // add all frames to the MRU list
-        _instance->_mru_list.resize(Frame::frame_size());
-        copy(Frame::frame_begin(), Frame::frame_end (),
-             _instance->_mru_list.begin());
+        _instance->_mru.resize(Frame::frame_size());
+        copy(Frame::frame_begin(), Frame::frame_end(),
+             _instance->_mru.begin());
 
         _instance->execStartFile();
     } else {
@@ -245,7 +244,7 @@ void
 WindowManager::cleanup(void)
 {
     // update all nonactive clients properties
-    list<Frame*>::iterator it_f(Frame::frame_begin());
+    vector<Frame*>::const_iterator it_f(Frame::frame_begin());
     for (; it_f != Frame::frame_end(); ++it_f) {
         (*it_f)->updateInactiveChildInfo();
     }
@@ -257,7 +256,7 @@ WindowManager::cleanup(void)
     // To preserve stacking order when destroying the frames, we go through
     // the PWinObj list from the Workspaces and put all Frames into our own
     // list, then we delete the frames in order.
-    list<Frame*> frame_list;
+    vector<Frame*> frame_list;
     vector<PWinObj*>::iterator it_w(Workspaces::begin());
     for (; it_w != Workspaces::end(); ++it_w) {
         if ((*it_w)->getType() == PWinObj::WO_FRAME) {
@@ -655,7 +654,7 @@ WindowManager::doReloadAutoproperties(void)
         (*it_c)->readAutoprops(APPLY_ON_RELOAD);
     }
 
-    list<Frame*>::iterator it_f(Frame::frame_begin());
+    vector<Frame*>::const_iterator it_f(Frame::frame_begin());
     for (; it_f != Frame::frame_end(); ++it_f) {
         (*it_f)->readAutoprops(APPLY_ON_RELOAD);
     }
@@ -1253,8 +1252,7 @@ WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
 
                 // update the MRU list (except for skip focus windows, see #297)
                 if (! static_cast<Client*>(wo)->isSkip(SKIP_FOCUS_TOGGLE)) {
-                    _mru_list.remove(static_cast<Frame*>(wo->getParent()));
-                    _mru_list.push_front(static_cast<Frame*>(wo->getParent()));
+                    addToMRUFront(static_cast<Frame*>(wo->getParent()));
                 }
             } else {
                 wo->setFocused(true);
@@ -1448,8 +1446,8 @@ WindowManager::findWOAndFocus(PWinObj *search)
 
     // search window object didn't exist, go through the MRU list
     if (! focus) {
-        list<Frame *>::iterator f_it = _mru_list.begin();
-        for (; ! focus && f_it != _mru_list.end(); ++f_it) {
+        vector<Frame *>::const_iterator f_it = _mru.begin();
+        for (; ! focus && f_it != _mru.end(); ++f_it) {
             if ((*f_it)->isMapped() && (*f_it)->isFocusable()) {
                 focus = *f_it;
             }
@@ -1503,13 +1501,6 @@ WindowManager::familyRaiseLower(Client *client, bool raise)
             }
         }
     }
-}
-
-//! @brief Remove from MRU list.
-void
-WindowManager::removeFromFrameList(Frame *frame)
-{
-    _mru_list.remove(frame);
 }
 
 /**
@@ -1582,7 +1573,7 @@ WindowManager::findGroupMatch(AutoProperty *property)
 
     // Moving on to the rest of the frames.
     if (! frame) {
-        list<Frame*>::iterator it(Frame::frame_begin());
+        vector<Frame*>::const_iterator it(Frame::frame_begin());
         for (; it != Frame::frame_end(); ++it) {
             if (findGroupMatchProperty(*it, property)) {
                 frame = *it;
@@ -1654,10 +1645,10 @@ WindowManager::getNextFrame(Frame* frame, bool mapped, uint mask)
     }
 
     Frame *next_frame = 0;
-    list<Frame*>::iterator f_it(find(Frame::frame_begin(), Frame::frame_end(), frame));
+    vector<Frame*>::const_iterator f_it(find(Frame::frame_begin(), Frame::frame_end(), frame));
 
     if (f_it != Frame::frame_end()) {
-        list<Frame*>::iterator n_it(f_it);
+        vector<Frame*>::const_iterator n_it(f_it);
 
         if (++n_it == Frame::frame_end()) {
             n_it = Frame::frame_begin();
@@ -1689,10 +1680,10 @@ WindowManager::getPrevFrame(Frame* frame, bool mapped, uint mask)
     }
 
     Frame *next_frame = 0;
-    list<Frame*>::iterator f_it(find(Frame::frame_begin(), Frame::frame_end(), frame));
+    vector<Frame*>::const_iterator f_it(find(Frame::frame_begin(), Frame::frame_end(), frame));
 
     if (f_it != Frame::frame_end()) {
-        list<Frame*>::iterator n_it(f_it);
+        vector<Frame*>::const_iterator n_it(f_it);
 
         if (n_it == Frame::frame_begin()) {
             n_it = --Frame::frame_end();

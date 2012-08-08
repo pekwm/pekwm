@@ -896,8 +896,8 @@ ActionHandler::createNextPrevMenu(bool show_iconified, bool mru)
                   mru?L"MRU Windows":L"Windows",
                   "" /* Empty name*/);
 
-    list<Frame*>::iterator itr = mru?WindowManager::instance()->mru_begin():Frame::frame_begin();
-    list<Frame*>::iterator end = mru?WindowManager::instance()->mru_end():Frame::frame_end();
+    vector<Frame*>::const_iterator itr = mru?WindowManager::instance()->mru_begin():Frame::frame_begin();
+    vector<Frame*>::const_iterator end = mru?WindowManager::instance()->mru_end():Frame::frame_end();
     for (; itr != end; ++itr) {
         fr = *itr;
         if (createMenuInclude(fr, show_iconified)) {

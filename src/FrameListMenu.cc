@@ -128,11 +128,10 @@ FrameListMenu::updateFrameListMenu(void)
         show_iconified_only = true;
     }
 
-    list<Frame*>::const_iterator it;
-
     // if we have 1 workspace, we won't put an workspace indicator
     buf[0] = '\0';
 
+    vector<Frame*>::const_iterator it;
     for (uint i = 0; i < Workspaces::size(); ++i) {
         if (Workspaces::size() > 1) {
             swprintf(buf, 16, L"<%d> ", i + 1);
