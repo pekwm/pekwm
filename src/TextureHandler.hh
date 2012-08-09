@@ -16,7 +16,6 @@
 #include "ParseUtil.hh"
 
 #include <string>
-#include <list>
 #include <vector>
 
 extern "C" {
@@ -72,7 +71,7 @@ private:
     static std::map<ParseUtil::Entry, PTexture::Type> _parse_map;
     static const int LENGTH_MIN; //!< Minimum texture name length.
 
-    std::list<TextureHandler::Entry*> _texture_list;
+    std::vector<TextureHandler::Entry*> _textures;
 };
 
 #endif // _TEXTURE_HANDLER_HH_

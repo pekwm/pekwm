@@ -18,7 +18,6 @@
 
 #include <iostream>
 
-using std::list;
 using std::vector;
 using std::map;
 using std::string;
@@ -61,9 +60,9 @@ PTexture*
 TextureHandler::getTexture(const std::string &texture)
 {
     // check for already existing entry
-    list<TextureHandler::Entry*>::iterator it(_texture_list.begin());
+    vector<TextureHandler::Entry*>::const_iterator it(_textures.begin());
 
-    for (; it != _texture_list.end(); ++it) {
+    for (; it != _textures.end(); ++it) {
         if (*(*it) == texture) {
             (*it)->incRef();
             return (*it)->getTexture();
@@ -78,7 +77,7 @@ TextureHandler::getTexture(const std::string &texture)
         TextureHandler::Entry *entry = new TextureHandler::Entry(texture, ptexture);
         entry->incRef();
 
-        _texture_list.push_back(entry);
+        _textures.push_back(entry);
     }
 
     return ptexture;
@@ -90,9 +89,9 @@ PTexture*
 TextureHandler::referenceTexture(PTexture *texture)
 {
     // Check for already existing entry
-    list<TextureHandler::Entry*>::iterator it(_texture_list.begin());
+    vector<TextureHandler::Entry*>::const_iterator it(_textures.begin());
 
-    for (; it != _texture_list.end(); ++it) {
+    for (; it != _textures.end(); ++it) {
         if ((*it)->getTexture() == texture) {
             (*it)->incRef();
             return texture;
@@ -103,7 +102,7 @@ TextureHandler::referenceTexture(PTexture *texture)
     TextureHandler::Entry *entry = new TextureHandler::Entry("", texture);
     entry->incRef();
 
-    _texture_list.push_back(entry);
+    _textures.push_back(entry);
 
     return texture;
 }
@@ -114,15 +113,15 @@ TextureHandler::returnTexture(PTexture *texture)
 {
     bool found = false;
 
-    list<TextureHandler::Entry*>::iterator it(_texture_list.begin());
-    for (; it != _texture_list.end(); ++it) {
+    vector<TextureHandler::Entry*>::iterator it(_textures.begin());
+    for (; it != _textures.end(); ++it) {
         if ((*it)->getTexture() == texture) {
             found = true;
 
             (*it)->decRef();
             if ((*it)->getRef() == 0) {
                 delete *it;
-                _texture_list.erase(it);
+                _textures.erase(it);
             }
             break;
         }
