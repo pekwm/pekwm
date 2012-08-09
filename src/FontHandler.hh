@@ -16,7 +16,6 @@
 #include "ParseUtil.hh"
 
 #include <map>
-#include <list>
 #include <string>
 
 //! @brief FontHandler, a caching and font type transparent font handler.
@@ -39,8 +38,8 @@ private:
     void freeColor(PFont::Color *font_color);
 
 private:
-    std::list<HandlerEntry<PFont*> > _font_list;
-    std::list<HandlerEntry<PFont::Color*> > _color_list;
+    vector<HandlerEntry<PFont*> > _fonts;
+    vector<HandlerEntry<PFont::Color*> > _colours;
 
     std::map<ParseUtil::Entry, PFont::Type> _map_type;
     std::map<ParseUtil::Entry, FontJustify> _map_justify;

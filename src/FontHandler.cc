@@ -20,8 +20,6 @@
 using std::cerr;
 using std::endl;
 using std::map;
-using std::list;
-using std::vector;
 using std::string;
 
 FontHandler* FontHandler::_instance = 0;
@@ -57,13 +55,13 @@ FontHandler::FontHandler(void)
 //! @brief FontHandler destructor
 FontHandler::~FontHandler(void)
 {
-    list<HandlerEntry<PFont*> >::iterator it_f(_font_list.begin());
-    for (; it_f != _font_list.end(); ++it_f) {
+    vector<HandlerEntry<PFont*> >::iterator it_f(_fonts.begin());
+    for (; it_f != _fonts.end(); ++it_f) {
         delete it_f->getData();
     }
 
-    list<HandlerEntry<PFont::Color*> >::iterator it_c(_color_list.begin());
-    for (; it_c != _color_list.end(); ++it_c) {
+    vector<HandlerEntry<PFont::Color*> >::iterator it_c(_colours.begin());
+    for (; it_c != _colours.end(); ++it_c) {
         delete it_c->getData();
     }
 }
@@ -78,8 +76,8 @@ PFont*
 FontHandler::getFont(const std::string &font)
 {
     // Check cache
-    list<HandlerEntry<PFont*> >::iterator it(_font_list.begin());
-    for (; it != _font_list.end(); ++it) {
+    vector<HandlerEntry<PFont*> >::iterator it(_fonts.begin());
+    for (; it != _fonts.end(); ++it) {
         if (*it == font) {
             it->incRef();
             return it->getData();
@@ -153,7 +151,7 @@ FontHandler::getFont(const std::string &font)
     entry.incRef();
     entry.setData(pfont);
 
-    _font_list.push_back(entry);
+    _fonts.push_back(entry);
 
     return pfont;
 }
@@ -162,13 +160,13 @@ FontHandler::getFont(const std::string &font)
 void
 FontHandler::returnFont(PFont *font)
 {
-    list<HandlerEntry<PFont*> >::iterator it(_font_list.begin());
-    for (; it != _font_list.begin(); ++it) {
+    vector<HandlerEntry<PFont*> >::iterator it(_fonts.begin());
+    for (; it != _fonts.begin(); ++it) {
         if (it->getData() == font) {
             it->decRef();
             if (! it->getRef()) {
                 delete it->getData();
-                _font_list.erase(it);
+                _fonts.erase(it);
             }
             break;
         }
@@ -180,8 +178,8 @@ PFont::Color*
 FontHandler::getColor(const std::string &color)
 {
     // check cache
-    list<HandlerEntry<PFont::Color*> >::iterator it(_color_list.begin());
-    for (; it != _color_list.end(); ++it) {
+    vector<HandlerEntry<PFont::Color*> >::iterator it(_colours.begin());
+    for (; it != _colours.end(); ++it) {
         if (*it == color) {
             it->incRef();
             return it->getData();
@@ -206,7 +204,7 @@ FontHandler::getColor(const std::string &color)
     entry.incRef();
     entry.setData(font_color);
 
-    _color_list.push_back(entry);
+    _colours.push_back(entry);
 
     return font_color;
 }
@@ -215,13 +213,13 @@ FontHandler::getColor(const std::string &color)
 void
 FontHandler::returnColor(PFont::Color *color)
 {
-    list<HandlerEntry<PFont::Color*> >::iterator it(_color_list.begin());
-    for (; it != _color_list.begin(); ++it) {
+    vector<HandlerEntry<PFont::Color*> >::iterator it(_colours.begin());
+    for (; it != _colours.begin(); ++it) {
         if (it->getData() == color) {
             it->decRef();
             if (! it->getRef()) {
                 delete it->getData();
-                _color_list.erase(it);
+                _colours.erase(it);
             }
             break;
         }
