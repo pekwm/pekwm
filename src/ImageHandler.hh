@@ -17,7 +17,6 @@
 #include "ParseUtil.hh"
 
 #include <string>
-#include <list>
 
 class PImage;
 
@@ -47,9 +46,8 @@ public:
 private:
     PImage *getImageFromPath(const std::string &file);
 
-private:
-    std::list<std::string> _search_path; /**< List of directories to search. */
-    std::list<HandlerEntry<PImage*> > _image_list; /**< List of loaded images. */
+    vector<std::string> _search_path; /**< List of directories to search. */
+    vector<HandlerEntry<PImage*> > _images; /**< List of loaded images. */
 
     bool _free_on_return; /**< If true, images are deleted when returned. */
 

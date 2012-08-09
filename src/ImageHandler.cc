@@ -15,7 +15,6 @@
 #include "Config.hh"
 #include "PImage.hh"
 #include "ImageHandler.hh"
-#include "PImage.hh"
 #include "PImageLoaderJpeg.hh"
 #include "PImageLoaderPng.hh"
 #include "PImageLoaderXpm.hh"
@@ -23,8 +22,6 @@
 
 using std::cerr;
 using std::endl;
-using std::list;
-using std::vector;
 using std::string;
 
 ImageHandler *ImageHandler::_instance = 0;
@@ -62,13 +59,13 @@ ImageHandler::ImageHandler(void)
 //! @brief ImageHandler destructor
 ImageHandler::~ImageHandler(void)
 {
-    if (_image_list.size()) {
-      cerr << " *** WARNING: ImageHandler not empty, " << _image_list.size() << " entries left:" << endl;
+    if (_images.size()) {
+        cerr << " *** WARNING: ImageHandler not empty, " << _images.size() << " entries left:" << endl;
 
-        while (_image_list.size()) {
-            cerr << "              * " << _image_list.back().getName() << endl;
-            delete _image_list.back().getData();
-            _image_list.pop_back();
+        while (_images.size()) {
+            cerr << "              * " << _images.back().getName() << endl;
+            delete _images.back().getData();
+            _images.pop_back();
         }
     }
 
@@ -99,7 +96,7 @@ ImageHandler::getImage(const std::string &file)
     if (real_file[0] == '/') {
         image = getImageFromPath(real_file);
     } else {
-        list<string>::reverse_iterator it(_search_path.rbegin());
+        vector<string>::const_reverse_iterator it(_search_path.rbegin());
         for (; ! image && it != _search_path.rend(); ++it) {
             image = getImageFromPath(*it + real_file);
         }
@@ -123,8 +120,8 @@ PImage*
 ImageHandler::getImageFromPath(const std::string &file)
 {
     // Check cache for entry.
-    list<HandlerEntry<PImage*> >::iterator it(_image_list.begin());
-    for (; it != _image_list.end(); ++it) {
+    vector<HandlerEntry<PImage*> >::iterator it(_images.begin());
+    for (; it != _images.end(); ++it) {
         if (*it == file) {
             it->incRef();
             return it->getData();
@@ -144,7 +141,7 @@ ImageHandler::getImageFromPath(const std::string &file)
         HandlerEntry<PImage*> entry(file);
         entry.incRef();
         entry.setData(image);
-        _image_list.push_back(entry);
+        _images.push_back(entry);
     }
 
     return image;
@@ -156,15 +153,15 @@ ImageHandler::returnImage(PImage *image)
 {
     bool found = false;
 
-    list<HandlerEntry<PImage*> >::iterator it(_image_list.begin());
-    for (; it != _image_list.end(); ++it) {
+    vector<HandlerEntry<PImage*> >::iterator it(_images.begin());
+    for (; it != _images.end(); ++it) {
         if (it->getData() == image) {
             found = true;
 
             it->decRef();
             if (_free_on_return || ! it->getRef()) {
                 delete it->getData();
-                _image_list.erase(it);
+                _images.erase(it);
             }
             break;
         }
@@ -179,11 +176,11 @@ ImageHandler::returnImage(PImage *image)
 void
 ImageHandler::freeUnref(void)
 {
-    list<HandlerEntry<PImage*> >::iterator it(_image_list.begin());
-    while (it != _image_list.end()) {
+    vector<HandlerEntry<PImage*> >::iterator it(_images.begin());
+    while (it != _images.end()) {
         if (it->getRef() == 0) {
             delete it->getData();
-            it = _image_list.erase(it);
+            it = _images.erase(it);
         } else {
             ++it;
         }
