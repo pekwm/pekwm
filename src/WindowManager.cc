@@ -48,7 +48,6 @@
 #include "WorkspaceIndicator.hh"
 
 #include <iostream>
-#include <list>
 #include <functional>
 #include <memory>
 #include <cassert>
@@ -71,7 +70,6 @@ using std::cout;
 using std::cerr;
 using std::endl;
 using std::find;
-using std::list;
 using std::map;
 using std::mem_fun;
 using std::string;
@@ -270,11 +268,8 @@ WindowManager::cleanup(void)
     }
 
     // Delete all Clients.
-    list<Client*> client_list(Client::client_begin(), Client::client_end());
-    list<Client*>::iterator it_c(client_list.begin());
-    for (; it_c != client_list.end(); ++it_c) {
-        delete *it_c;
-    }
+    while (Client::client_begin() != Client::client_end())
+        delete *Client::client_begin();
 
     if (_keygrabber) {
         _keygrabber->ungrabKeys(X11::getRoot());
@@ -381,10 +376,10 @@ WindowManager::scanWindows(void)
     // Lets create a list of windows on the display
     XQueryTree(X11::getDpy(), X11::getRoot(),
                &d_win1, &d_win2, &wins, &num_wins);
-    list<Window> win_list(wins, wins + num_wins);
+    vector<Window> win_list(wins, wins + num_wins);
     XFree(wins);
 
-    list<Window>::iterator it(win_list.begin());
+    vector<Window>::iterator it(win_list.begin());
 
     // We filter out all windows with the the IconWindowHint
     // set not pointing to themselves, making DockApps
@@ -398,7 +393,7 @@ WindowManager::scanWindows(void)
         if (wm_hints) {
             if ((wm_hints->flags&IconWindowHint) &&
                     (wm_hints->icon_window != *it)) {
-                list<Window>::iterator i_it(find(win_list.begin(), win_list.end(), wm_hints->icon_window));
+                vector<Window>::iterator i_it(find(win_list.begin(), win_list.end(), wm_hints->icon_window));
                 if (i_it != win_list.end())
                     *i_it = None;
             }
