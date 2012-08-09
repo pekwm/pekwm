@@ -22,8 +22,6 @@ class HarbourMenu;
 
 #include "Action.hh"
 
-#include <list>
-
 class Harbour
 {
 public:
@@ -69,7 +67,7 @@ private:
 private:
     Theme *_theme;
 
-    std::list<DockApp*> _da_list;
+    vector<DockApp*> _dapps;
     HarbourMenu *_harbour_menu;
 
     bool _hidden;
