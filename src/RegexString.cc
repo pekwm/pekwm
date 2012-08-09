@@ -16,9 +16,9 @@
 #include "RegexString.hh"
 #include "Util.hh"
 
+using std::vector;
 using std::cerr;
 using std::endl;
-using std::list;
 using std::string;
 using std::wstring;
 using std::strtol;
@@ -66,8 +66,8 @@ RegexString::ed_s(std::wstring &str)
     string result;
     uint ref, size;
 
-    list<RegexString::Part>::iterator it(_ref_list.begin());
-    for (; it != _ref_list.end(); ++it) {
+    vector<RegexString::Part>::iterator it(_refs.begin());
+    for (; it != _refs.end(); ++it) {
         if (it->get_reference() >= 0) {
             ref = it->get_reference();
 
@@ -160,7 +160,7 @@ RegexString::parse_replace(const std::wstring &replace)
         // Store string between references.
         if (end > last) {
             part = replace.substr(last, end - last);
-            _ref_list.push_back(RegexString::Part(part));
+            _refs.push_back(RegexString::Part(part));
         }
 
         // Get reference number.
@@ -172,7 +172,7 @@ RegexString::parse_replace(const std::wstring &replace)
             part = replace.substr(begin, end - last);
             int ref = strtol(Util::to_mb_str(part).c_str(), 0, 10);
             if (ref >= 0) {
-                _ref_list.push_back(RegexString::Part(L"", ref));
+                _refs.push_back(RegexString::Part(L"", ref));
                 if (ref > _ref_max) {
                     _ref_max = ref;
                 }
@@ -185,7 +185,7 @@ RegexString::parse_replace(const std::wstring &replace)
 
     if (begin < replace.size()) {
         part = replace.substr(begin, replace.size() - begin);
-        _ref_list.push_back(RegexString::Part(part));
+        _refs.push_back(RegexString::Part(part));
     }
 
     _ref_max++;
