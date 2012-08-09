@@ -39,7 +39,6 @@ extern "C" {
 using std::cerr;
 using std::endl;
 using std::find;
-using std::list;
 using std::mem_fun;
 using std::string;
 using std::vector;

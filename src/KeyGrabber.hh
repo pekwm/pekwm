@@ -20,7 +20,6 @@
 #include "PWinObj.hh"
 
 #include <string>
-#include <list>
 
 extern "C" {
 #include <X11/Xlib.h>
@@ -44,14 +43,14 @@ public:
         //! @brief Returns key state Chain represents.
         inline uint getKey(void) const { return _key; }
 
-        //! @brief Returns list of Chains that follows.
-        inline const std::list<Chain*> &getChainList(void) const { return _chains; }
-        //! @brief Returns list of Keys in chain.
-        inline const std::list<ActionEvent> &getKeyList(void) const { return _keys; }
+        //! @brief Returns vector of Chains that follows.
+        inline const vector<Chain*> &getChains(void) const { return _chains; }
+        //! @brief Returns vector of Keys in chain.
+        inline const vector<ActionEvent> &getKeys(void) const { return _keys; }
 
-        //! @brief Adds chain to Chain list.
+        //! @brief Adds chain to Chain vector.
         inline void addChain(Chain *chain) { _chains.push_back(chain); }
-        //! @brief Adds action to Key list.
+        //! @brief Adds action to Key vector.
         inline void addAction(const ActionEvent &key) { _keys.push_back(key); }
 
         Chain *findChain(XKeyEvent *ev);
@@ -60,8 +59,8 @@ public:
     private:
         uint _mod, _key;
 
-        std::list<Chain*> _chains;
-        std::list<ActionEvent> _keys;
+        vector<Chain*> _chains;
+        vector<ActionEvent> _keys;
     };
 
     KeyGrabber(void);

@@ -22,8 +22,6 @@
 using std::cerr;
 using std::endl;
 using std::string;
-using std::list;
-using std::vector;
 using std::find;
 
 KeyGrabber* KeyGrabber::_instance = 0;
@@ -44,7 +42,7 @@ KeyGrabber::Chain::~Chain(void)
 void
 KeyGrabber::Chain::unload(void)
 {
-    list<KeyGrabber::Chain*>::iterator it(_chains.begin());
+    vector<KeyGrabber::Chain*>::iterator it(_chains.begin());
     for (; it != _chains.end(); ++it) {
         delete *it;
     }
@@ -56,7 +54,7 @@ KeyGrabber::Chain::unload(void)
 KeyGrabber::Chain*
 KeyGrabber::Chain::findChain(XKeyEvent *ev)
 {
-    list<KeyGrabber::Chain*>::iterator it(_chains.begin());
+    vector<KeyGrabber::Chain*>::iterator it(_chains.begin());
 
     for (; it != _chains.end(); ++it) {
         if ((((*it)->getMod() == MOD_ANY) || ((*it)->getMod() == ev->state)) &&
@@ -72,7 +70,7 @@ KeyGrabber::Chain::findChain(XKeyEvent *ev)
 ActionEvent*
 KeyGrabber::Chain::findAction(XKeyEvent *ev)
 {
-    list<ActionEvent>::iterator it(_keys.begin());
+    vector<ActionEvent>::iterator it(_keys.begin());
 
     for (; it != _keys.end(); ++it) {
         if (((it->mod == MOD_ANY) || (it->mod == ev->state)) &&
@@ -264,13 +262,13 @@ KeyGrabber::parseMenuChain(CfgParser::Entry *section, KeyGrabber::Chain *chain)
 void
 KeyGrabber::grabKeys(Window win)
 {
-    const list<KeyGrabber::Chain*> chains = _global_chain.getChainList();
-    list<KeyGrabber::Chain*>::const_iterator c_it = chains.begin();
+    const vector<KeyGrabber::Chain*> &chains(_global_chain.getChains());
+    vector<KeyGrabber::Chain*>::const_iterator c_it = chains.begin();
     for (; c_it != chains.end(); ++c_it)
         grabKey(win, (*c_it)->getMod(), (*c_it)->getKey());
 
-    const list<ActionEvent> keys = _global_chain.getKeyList();
-    list<ActionEvent>::const_iterator k_it = keys.begin();
+    const vector<ActionEvent> &keys(_global_chain.getKeys());
+    vector<ActionEvent>::const_iterator k_it = keys.begin();
     for (; k_it != keys.end(); ++k_it)
         grabKey(win, k_it->mod, k_it->sym);
 }

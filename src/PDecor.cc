@@ -41,7 +41,6 @@ extern "C" {
 using std::cerr;
 using std::endl;
 using std::find;
-using std::list;
 using std::map;
 using std::mem_fun;
 using std::string;
