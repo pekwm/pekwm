@@ -18,8 +18,6 @@
 #include "Theme.hh" // for Theme::FrameData inlines
 #include "PTexture.hh" // for border/image inlines
 
-#include <list>
-
 class ActionEvent;
 class PFont;
 class PWinObj;
@@ -243,12 +241,12 @@ public:
     // title
 
     //! @brief Adds TitleItem to title list.
-    inline void titleAdd(PDecor::TitleItem *ct) { _title_list.push_back(ct); }
+    inline void titleAdd(PDecor::TitleItem *ct) { _titles.push_back(ct); }
     //! @brief Removes all TitleItems from title list.
-    inline void titleClear(void) { _title_list.clear(); }
+    inline void titleClear(void) { _titles.clear(); }
     //! @brief Sets active TitleItem.
     void titleSetActive(uint num) {
-        _title_active = (num > _title_list.size()) ? 0 : num;
+        _title_active = (num > _titles.size()) ? 0 : num;
     }
 
     // move and resize relative to the child instead of decor
@@ -445,13 +443,13 @@ private:
     uint _real_height;
 
     PWinObj _title_wo;
-    std::list<PDecor::Button*> _button_list;
+    vector<PDecor::Button*> _buttons;
 
     Pixmap _title_bg;
 
     // variable decor data
     uint _title_active;
-    std::list<PDecor::TitleItem*> _title_list;
+    vector<PDecor::TitleItem*> _titles;
     uint _titles_left, _titles_right; // area where to put titles
 
     static vector<PDecor*> _pdecors; /**< List of all PDecors */

@@ -890,9 +890,9 @@ PDecor::loadDecor(void)
         uint width = std::max(static_cast<uint>(1), (*b_it)->getWidth() ? (*b_it)->getWidth() : getTitleHeight());
         uint height = std::max(static_cast<uint>(1), (*b_it)->getHeight() ? (*b_it)->getHeight() : getTitleHeight());
 
-        _button_list.push_back(new PDecor::Button(&_title_wo, *b_it, width, height));
-        _button_list.back()->mapWindow();
-        addChildWindow(_button_list.back()->getWindow());
+        _buttons.push_back(new PDecor::Button(&_title_wo, *b_it, width, height));
+        _buttons.back()->mapWindow();
+        addChildWindow(_buttons.back()->getWindow());
     }
 
     // Update title position.
@@ -933,20 +933,20 @@ PDecor::unloadDecor(void)
     // the current buttons.
     _button = 0;
 
-    list<PDecor::Button*>::iterator it(_button_list.begin());
-    for (; it != _button_list.end(); ++it) {
+    vector<PDecor::Button*>::const_iterator it(_buttons.begin());
+    for (; it != _buttons.end(); ++it) {
         removeChildWindow((*it)->getWindow());
         delete *it;
     }
-    _button_list.clear();
+    _buttons.clear();
 }
 
 //! @brief
 PDecor::Button*
 PDecor::findButton(Window win)
 {
-    list<PDecor::Button*>::iterator it(_button_list.begin());
-    for (; it != _button_list.end(); ++it) {
+    vector<PDecor::Button*>::const_iterator it(_buttons.begin());
+    for (; it != _buttons.end(); ++it) {
         if (**it == win) {
             return *it;
         }
@@ -959,7 +959,7 @@ PDecor::findButton(Window win)
 PWinObj*
 PDecor::getChildFromPos(int x)
 {
-    if (! _children.size() || (_children.size() != _title_list.size()))
+    if (! _children.size() || _children.size() != _titles.size())
         return 0;
     if (_children.size() == 1)
         return _children.front();
@@ -972,14 +972,13 @@ PDecor::getChildFromPos(int x)
 
     PTexture *t_sep = _data->getTextureSeparator(getFocusedState(false));
     uint sepw = t_sep?t_sep->getWidth():0;
-    list<PDecor::TitleItem*>::iterator t_it(_title_list.begin());
 
     uint pos = _titles_left, xx = x;
-    for (uint i = 0; i < _title_list.size(); ++i, ++t_it) {
-        if (xx >= pos && xx <= pos + (*t_it)->getWidth() + sepw) {
-            return  _children[i];
+    for (uint i = 0; i < _titles.size(); ++i) {
+        if (xx >= pos && xx <= pos + _titles[i]->getWidth() + sepw) {
+            return _children[i];
         }
-        pos += (*t_it)->getWidth() + sepw;
+        pos += _titles[i]->getWidth() + sepw;
     }
 
     return 0;
@@ -1571,36 +1570,35 @@ PDecor::renderTitle(void)
     uint x = _titles_left; // Position
     uint pad_horiz =  _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT); // Amount of horizontal padding
 
-    list<PDecor::TitleItem*>::iterator it(_title_list.begin());
-    for (uint i = 0; it != _title_list.end(); ++i, ++it) {
+    uint size = _titles.size();
+    for (uint i = 0; i < size; ++i) {
         sel = (_title_active == i);
 
         // render tab
         _data->getTextureTab(getFocusedState(sel))->render(_title_bg, x, 0,
-                                                           (*it)->getWidth(), _title_wo.getHeight());
+                                                           _titles[i]->getWidth(),
+                                                           _title_wo.getHeight());
 
         font = getFont(getFocusedState(sel));
         font->setColor(_data->getFontColor(getFocusedState(sel)));
 
-        if ((*it)) {
-            PFont::TrimType trim = PFont::FONT_TRIM_MIDDLE;
-            if ((*it)->isCustom() || (*it)->isUserSet()) {
-                trim = PFont::FONT_TRIM_END;
-            }
-
-            font->draw(_title_bg,
-                       x + _data->getPad(PAD_LEFT), // X position
-                       _data->getPad(PAD_UP), // Y position
-                       (*it)->getVisible(), 0, // Text and max chars
-                       (*it)->getWidth() - pad_horiz, // Available width
-                       trim); // Type of trim
+        PFont::TrimType trim = PFont::FONT_TRIM_MIDDLE;
+        if (_titles[i]->isCustom() || _titles[i]->isUserSet()) {
+            trim = PFont::FONT_TRIM_END;
         }
 
+        font->draw(_title_bg,
+                   x + _data->getPad(PAD_LEFT), // X position
+                   _data->getPad(PAD_UP), // Y position
+                   _titles[i]->getVisible(), 0, // Text and max chars
+                   _titles[i]->getWidth() - pad_horiz, // Available width
+                   trim); // Type of trim
+
         // move to next tab (or separator if any)
-        x += (*it)->getWidth();
+        x += _titles[i]->getWidth();
 
         // draw separator
-        if ((_title_list.size() > 1) && (i < (_title_list.size() - 1))) {
+        if (size > 1 && i < size - 1) {
             t_sep->render(_title_bg, x, 0, 0, 0);
             x += t_sep->getWidth();
         }
@@ -1613,8 +1611,8 @@ PDecor::renderTitle(void)
 void
 PDecor::renderButtons(void)
 {
-    list<PDecor::Button*>::iterator it(_button_list.begin());
-    for (; it != _button_list.end(); ++it) {
+    vector<PDecor::Button*>::const_iterator it(_buttons.begin());
+    for (; it != _buttons.end(); ++it) {
         (*it)->setState(_focused ? BUTTON_STATE_FOCUSED : BUTTON_STATE_UNFOCUSED);
     }
 }
@@ -1884,8 +1882,8 @@ PDecor::placeButtons(void)
     _titles_left = 0;
     _titles_right = 0;
 
-    list<PDecor::Button*>::iterator it(_button_list.begin());
-    for (; it != _button_list.end(); ++it) {
+    vector<PDecor::Button*>::const_iterator it(_buttons.begin());
+    for (; it != _buttons.end(); ++it) {
         if ((*it)->isLeft()) {
             (*it)->move(_titles_left, 0);
             _titles_left += (*it)->getWidth();
@@ -2183,8 +2181,8 @@ PDecor::calcTitleWidth(void)
 
         if (_data->isTitleWidthSymetric()) {
             // Symetric mode, get max tab width, multiply with number of tabs
-            list<PDecor::TitleItem*>::iterator it(_title_list.begin());
-            for (; it != _title_list.end(); ++it) {
+            vector<PDecor::TitleItem*>::const_iterator it(_titles.begin());
+            for (; it != _titles.end(); ++it) {
                 width = font->getWidth((*it)->getVisible());
                 if (width > width_max) {
                     width_max = width;
@@ -2192,19 +2190,19 @@ PDecor::calcTitleWidth(void)
             }
 
             width = width_max + _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT);
-            width *= _title_list.size();
+            width *= _titles.size();
 
         } else {
             // Asymetric mode, get individual widths
-            list<PDecor::TitleItem*>::iterator it(_title_list.begin());
-            for (; it != _title_list.end(); ++it) {
+            vector<PDecor::TitleItem*>::const_iterator it(_titles.begin());
+            for (; it != _titles.end(); ++it) {
                 width += font->getWidth((*it)->getVisible())
                     + _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT);
             }
         }
 
         // Add width of separators and buttons
-        width += (_title_list.size() - 1)
+        width += (_titles.size() - 1)
                  * _data->getTextureSeparator(getFocusedState(false))->getWidth();
         width += _titles_left + _titles_right;
 
@@ -2227,7 +2225,7 @@ PDecor::calcTitleWidth(void)
 void
 PDecor::calcTabsWidth(void)
 {
-    if (! _title_list.size()) {
+    if (! _titles.size()) {
         return;
     }
 
@@ -2257,17 +2255,17 @@ PDecor::calcTabsGetAvailAndTabWidth(uint &width_avail, uint &tab_width, int &off
     }
  
     // Remove separators if enough space is available
-    uint sep_width = (_title_list.size() - 1)
+    uint sep_width = (_titles.size() - 1)
         * _data->getTextureSeparator(getFocusedState(false))->getWidth();
     if (width_avail > sep_width) {
         width_avail -= sep_width;
     }
 
-    tab_width = width_avail / _title_list.size();
-    off = width_avail % _title_list.size();
+    tab_width = width_avail / _titles.size();
+    off = width_avail % _titles.size();
 }
 
-//! @brief Calculate tab width symetric, sets up _title_list widths.
+//! @brief Calculate tab width symetric, sets up _titles widths.
 void
 PDecor::calcTabsWidthSymetric(void)
 {
@@ -2276,8 +2274,8 @@ PDecor::calcTabsWidthSymetric(void)
     calcTabsGetAvailAndTabWidth(width_avail, tab_width, off);
 
     // Assign width to elements
-    list<PDecor::TitleItem*>::iterator it(_title_list.begin());
-    for (; it != _title_list.end(); ++it) {
+    vector<PDecor::TitleItem*>::const_iterator it(_titles.begin());
+    for (; it != _titles.end(); ++it) {
         (*it)->setWidth(tab_width + ((off-- > 0) ? 1 : 0));
     }
 }
@@ -2303,8 +2301,8 @@ PDecor::calcTabsWidthAsymetric(void)
 
     // 1. give tabs their required width.
     uint width_total = 0;
-    list<PDecor::TitleItem*>::iterator it(_title_list.begin());
-    for (; it != _title_list.end(); ++it) {
+    vector<PDecor::TitleItem*>::const_iterator it(_titles.begin());
+    for (; it != _titles.end(); ++it) {
         // This should set the tab width to be only the size needed
         width = font->getWidth((*it)->getVisible().c_str())
             + _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT) + ((off-- > 0) ? 1 : 0);
@@ -2327,9 +2325,9 @@ void
 PDecor::calcTabsWidthAsymetricShrink(uint width_avail, uint tab_width)
 {
     // 2. Tabs did not fit
-    uint tabs_left = _title_list.size();
-    list<PDecor::TitleItem*>::iterator it(_title_list.begin());
-    for (; it != _title_list.end(); ++it) {
+    uint tabs_left = _titles.size();
+    vector<PDecor::TitleItem*>::const_iterator it(_titles.begin());
+    for (; it != _titles.end(); ++it) {
         if ((*it)->getWidth() < tab_width) {
             // 3. Add width of tabs requiring less space to the average.
             tabs_left--;
@@ -2340,7 +2338,7 @@ PDecor::calcTabsWidthAsymetricShrink(uint width_avail, uint tab_width)
     // 4. Re-assign width equally to tabs using more than average
     tab_width = width_avail / tabs_left;
     uint off = width_avail % tabs_left;
-    for (it = _title_list.begin(); it != _title_list.end(); ++it) {
+    for (it = _titles.begin(); it != _titles.end(); ++it) {
         if ((*it)->getWidth() >= tab_width) {
             (*it)->setWidth(tab_width + ((off-- > 0) ? 1 : 0));
         }
