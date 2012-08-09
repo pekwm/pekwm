@@ -27,7 +27,6 @@ enum {
 using std::cerr;
 using std::endl;
 using std::vector;
-using std::list;
 using std::map;
 using std::set;
 using std::string;
@@ -79,7 +78,7 @@ CfgParser::Entry::Entry(const CfgParser::Entry &entry)
       _name(entry._name), _value(entry._value),
       _line(entry._line), _source_name(entry._source_name)
 {
-    list<CfgParser::Entry*>::const_iterator it(entry._entries.begin());
+    vector<CfgParser::Entry*>::const_iterator it(entry._entries.begin());
     for (; it != entry._entries.end(); ++it) {
         _entries.push_back(new Entry(*(*it)));
     }
@@ -170,7 +169,7 @@ CfgParser::Entry*
 CfgParser::Entry::find_entry(const std::string &name, bool include_sections, const char *value)
 {
     CfgParser::Entry *value_check;
-    list<CfgParser::Entry*>::iterator it(_entries.begin());
+    vector<CfgParser::Entry*>::iterator it(_entries.begin());
     for (; it != _entries.end(); ++it) {
         value_check = include_sections ? (*it)->get_section() : (*it);
 
@@ -189,7 +188,7 @@ CfgParser::Entry::find_entry(const std::string &name, bool include_sections, con
 CfgParser::Entry*
 CfgParser::Entry::find_section(const std::string &name, const char *value)
 {
-    list<CfgParser::Entry*>::iterator it(_entries.begin());
+    vector<CfgParser::Entry*>::iterator it(_entries.begin());
     for (; it != _entries.end(); ++it) {
         if ((*it)->get_section() && *(*it) == name.c_str()
             && (! value || (*it)->get_section()->get_value() == value)) {
@@ -203,11 +202,11 @@ CfgParser::Entry::find_section(const std::string &name, const char *value)
 
 //! @brief Sets and validates data specified by key list.
 void
-CfgParser::Entry::parse_key_values(std::list<CfgParserKey*>::iterator begin,
-                                   std::list<CfgParserKey*>::iterator end)
+CfgParser::Entry::parse_key_values(std::vector<CfgParserKey*>::const_iterator begin,
+                                   std::vector<CfgParserKey*>::const_iterator end)
 {
     CfgParser::Entry *value;
-    list<CfgParserKey*>::iterator it;
+    vector<CfgParserKey*>::const_iterator it;
 
     for (it = begin; it != end; ++it) {
         value = find_entry((*it)->get_name());
@@ -321,10 +320,10 @@ CfgParser::clear(bool realloc)
     _overwrite = false;
 
     // Clear lists
-    _source_list.clear();
-    _source_name_list.clear();
+    _sources.clear();
+    _source_names.clear();
     _source_name_set.clear();
-    _section_list.clear();
+    _sections.clear();
     _var_map.clear();
 
     // Remove sections
@@ -354,13 +353,13 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwr
 
     // Open initial source.
     parse_source_new(src, type);
-    if (_source_list.size() == 0) {
+    if (_sources.size() == 0) {
         return false;
     }
 
     int c, next;
-    while (_source_list.size()) {
-        _source = _source_list.back();
+    while (_sources.size()) {
+        _source = _sources.back();
         if (_source->is_dynamic()) {
             _is_dynamic_content = true;
         }
@@ -389,14 +388,14 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwr
                 value.clear();
                 break;
             case '}':
-                if (_section_list.size() > 0) {
+                if (_sections.size() > 0) {
                     if (buf.size() && parse_name(buf)) {
                         parse_entry_finish(buf, value);
                         buf.clear();
                         value.clear();
                     }
-                    _section = _section_list.back();
-                    _section_list.pop_back();
+                    _section = _sections.back();
+                    _sections.pop_back();
                 } else {
                     cerr << "Extra } character found, ignoring." << endl;
                 }
@@ -432,8 +431,8 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwr
             cerr << ex << endl;
         }
         delete _source;
-        _source_list.pop_back();
-        _source_name_list.pop_back();
+        _sources.pop_back();
+        _source_names.pop_back();
     }
 
     if (buf.size()) {
@@ -468,13 +467,13 @@ CfgParser::parse_source_new(const std::string &name_orig, CfgParserSource::Type 
             }
 
             _source = source;
-            _source_list.push_back(_source);
+            _sources.push_back(_source);
             done = 1;
 
         } catch (string &ex) {
             delete source;
             // Previously added in source_new
-            _source_name_list.pop_back();
+            _source_names.pop_back();
 
 
             // Display error message on second try
@@ -485,8 +484,8 @@ CfgParser::parse_source_new(const std::string &name_orig, CfgParserSource::Type 
             // If the open fails and we are trying to open a file, try
             // to open the file from the current files directory.
             if (! done && (type == CfgParserSource::SOURCE_FILE)) {
-                if (_source_name_list.size() && (name[0] != '/')) {
-                    name = Util::getDir(_source_name_list.back());
+                if (_source_names.size() && name[0] != '/') {
+                    name = Util::getDir(_source_names.back());
                     name += "/" + name_orig;
                 }
             }
@@ -648,7 +647,7 @@ CfgParser::parse_section_finish(std::string &buf, std::string &value)
     }
 
     // Set current Entry to newly created Section.
-    _section_list.push_back(_section);
+    _sections.push_back(_section);
     _section = section;
 }
 
@@ -706,7 +705,7 @@ CfgParser::source_new(const std::string &name, CfgParserSource::Type type)
     CfgParserSource *source = 0;
 
     // Create CfgParserSource.
-    _source_name_list.push_back(name);
+    _source_names.push_back(name);
     _source_name_set.insert(name);
     switch (type) {
     case CfgParserSource::SOURCE_FILE:

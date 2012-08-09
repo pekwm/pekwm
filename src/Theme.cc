@@ -223,23 +223,23 @@ Theme::PDecorData::load(CfgParser::Entry *section)
     TextureHandler *th = TextureHandler::instance(); // convenience
 
     vector<string> tok;
-    list<CfgParserKey*> key_list;
+    vector<CfgParserKey*> keys;
     string value_pad, value_focused, value_unfocused;
 
-    key_list.push_back(new CfgParserKeyNumeric<int>("HEIGHT", _title_height, 10, 0));
-    key_list.push_back(new CfgParserKeyNumeric<int>("WIDTHMIN", _title_width_min, 0));
-    key_list.push_back(new CfgParserKeyNumeric<int>("WIDTHMAX", _title_width_max, 100, 0, 100));
-    key_list.push_back(new CfgParserKeyBool("WIDTHSYMETRIC", _title_width_symetric));
-    key_list.push_back(new CfgParserKeyBool("HEIGHTADAPT", _title_height_adapt));
-    key_list.push_back(new CfgParserKeyString("PAD", value_pad, "0 0 0 0", 7));
-    key_list.push_back(new CfgParserKeyString("FOCUSED", value_focused, "Empty", th->getLengthMin ()));
-    key_list.push_back(new CfgParserKeyString("UNFOCUSED", value_unfocused, "Empty", th->getLengthMin ()));
+    keys.push_back(new CfgParserKeyNumeric<int>("HEIGHT", _title_height, 10, 0));
+    keys.push_back(new CfgParserKeyNumeric<int>("WIDTHMIN", _title_width_min, 0));
+    keys.push_back(new CfgParserKeyNumeric<int>("WIDTHMAX", _title_width_max, 100, 0, 100));
+    keys.push_back(new CfgParserKeyBool("WIDTHSYMETRIC", _title_width_symetric));
+    keys.push_back(new CfgParserKeyBool("HEIGHTADAPT", _title_height_adapt));
+    keys.push_back(new CfgParserKeyString("PAD", value_pad, "0 0 0 0", 7));
+    keys.push_back(new CfgParserKeyString("FOCUSED", value_focused, "Empty", th->getLengthMin ()));
+    keys.push_back(new CfgParserKeyString("UNFOCUSED", value_unfocused, "Empty", th->getLengthMin ()));
 
     // Free up resources
-    title_section->parse_key_values(key_list.begin(), key_list.end());
+    title_section->parse_key_values(keys.begin(), keys.end());
 
-    for_each (key_list.begin(), key_list.end(), Util::Free<CfgParserKey*>());
-    key_list.clear();
+    for_each (keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+    keys.clear();
 
     // Handle parsed data.
     _texture_main[FOCUSED_STATE_FOCUSED] = th->getTexture(value_focused);
@@ -261,15 +261,15 @@ Theme::PDecorData::load(CfgParser::Entry *section)
 
     CfgParser::Entry *separator_section = title_section->find_section ("SEPARATOR");
     if (separator_section) {
-        key_list.push_back(new CfgParserKeyString("FOCUSED", value_focused, "Empty", th->getLengthMin()));
-        key_list.push_back(new CfgParserKeyString("UNFOCUSED", value_unfocused, "Empty", th->getLengthMin()));
+        keys.push_back(new CfgParserKeyString("FOCUSED", value_focused, "Empty", th->getLengthMin()));
+        keys.push_back(new CfgParserKeyString("UNFOCUSED", value_unfocused, "Empty", th->getLengthMin()));
 
         // Parse data
-        separator_section->parse_key_values(key_list.begin(), key_list.end());
+        separator_section->parse_key_values(keys.begin(), keys.end());
 
         // Free up resources
-        for_each (key_list.begin(), key_list.end(), Util::Free<CfgParserKey*>());
-        key_list.clear();
+        for_each (keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+        keys.clear();
 
         // Handle parsed data.
         _texture_separator[FOCUSED_STATE_FOCUSED] = th->getTexture(value_focused);
@@ -604,22 +604,22 @@ Theme::PMenuData::check(void)
 void
 Theme::PMenuData::loadState (CfgParser::Entry *section, ObjectState state)
 {
-    list<CfgParserKey*> key_list;
+    vector<CfgParserKey*> keys;
     string value_font, value_background, value_item;
     string value_text, value_arrow, value_separator;
 
-    key_list.push_back(new CfgParserKeyString ("FONT", value_font));
-    key_list.push_back(new CfgParserKeyString ("BACKGROUND", value_background, "Solid #ffffff"));
-    key_list.push_back(new CfgParserKeyString ("ITEM", value_item, "Solid #ffffff"));
-    key_list.push_back(new CfgParserKeyString ("TEXT", value_text, "Solid #000000"));
-    key_list.push_back(new CfgParserKeyString ("ARROW", value_arrow, "Solid #000000"));
+    keys.push_back(new CfgParserKeyString ("FONT", value_font));
+    keys.push_back(new CfgParserKeyString ("BACKGROUND", value_background, "Solid #ffffff"));
+    keys.push_back(new CfgParserKeyString ("ITEM", value_item, "Solid #ffffff"));
+    keys.push_back(new CfgParserKeyString ("TEXT", value_text, "Solid #000000"));
+    keys.push_back(new CfgParserKeyString ("ARROW", value_arrow, "Solid #000000"));
     if (state < OBJECT_STATE_SELECTED) {
-        key_list.push_back(new CfgParserKeyString("SEPARATOR", value_separator, "Solid #000000"));
+        keys.push_back(new CfgParserKeyString("SEPARATOR", value_separator, "Solid #000000"));
     }
 
-    section->parse_key_values(key_list.begin(), key_list.end());
+    section->parse_key_values(keys.begin(), keys.end());
 
-    for_each(key_list.begin(), key_list.end(), Util::Free<CfgParserKey*>());
+    for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 
     TextureHandler *th = TextureHandler::instance ();
 
@@ -657,17 +657,17 @@ Theme::TextDialogData::~TextDialogData(void)
 bool
 Theme::TextDialogData::load(CfgParser::Entry *section)
 {
-    list<CfgParserKey*> key_list;
+    vector<CfgParserKey*> keys;
     string value_font, value_text, value_texture, value_pad;
 
-    key_list.push_back(new CfgParserKeyString("FONT", value_font));
-    key_list.push_back(new CfgParserKeyString("TEXT", value_text, "#000000"));
-    key_list.push_back(new CfgParserKeyString("TEXTURE", value_texture, "Solid #ffffff"));
-    key_list.push_back(new CfgParserKeyString("PAD", value_pad, "0 0 0 0", 7));
+    keys.push_back(new CfgParserKeyString("FONT", value_font));
+    keys.push_back(new CfgParserKeyString("TEXT", value_text, "#000000"));
+    keys.push_back(new CfgParserKeyString("TEXTURE", value_texture, "Solid #ffffff"));
+    keys.push_back(new CfgParserKeyString("PAD", value_pad, "0 0 0 0", 7));
 
-    section->parse_key_values(key_list.begin(), key_list.end());
+    section->parse_key_values(keys.begin(), keys.end());
 
-    for_each(key_list.begin(), key_list.end(), Util::Free<CfgParserKey*>());
+    for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 
     // Handle parsed data.
     _font = FontHandler::instance ()->getFont (value_font);
@@ -722,7 +722,7 @@ Theme::TextDialogData::check(void)
  */
 Theme::WorkspaceIndicatorData::WorkspaceIndicatorData(void)
     : ThemeData(),
-      font(0), font_color(0), texture_background(0), 
+      font(0), font_color(0), texture_background(0),
       texture_workspace(0), texture_workspace_act(0),
       edge_padding(0), workspace_padding(0)
 {
@@ -742,21 +742,21 @@ Theme::WorkspaceIndicatorData::~WorkspaceIndicatorData(void)
 bool
 Theme::WorkspaceIndicatorData::load(CfgParser::Entry *section)
 {
-    list<CfgParserKey*> key_list;
+    vector<CfgParserKey*> keys;
 
     string value_font, value_color, value_tex_bg;
     string value_tex_ws, value_tex_ws_act;
 
-    key_list.push_back(new CfgParserKeyString("FONT", value_font));
-    key_list.push_back(new CfgParserKeyString("TEXT", value_color));
-    key_list.push_back(new CfgParserKeyString("BACKGROUND", value_tex_bg));
-    key_list.push_back(new CfgParserKeyString("WORKSPACE", value_tex_ws));
-    key_list.push_back(new CfgParserKeyString("WORKSPACEACTIVE", value_tex_ws_act));
-    key_list.push_back(new CfgParserKeyNumeric<int>("EDGEPADDING", edge_padding, 5, 0));
-    key_list.push_back(new CfgParserKeyNumeric<int>("WORKSPACEPADDING", workspace_padding, 2, 0));
+    keys.push_back(new CfgParserKeyString("FONT", value_font));
+    keys.push_back(new CfgParserKeyString("TEXT", value_color));
+    keys.push_back(new CfgParserKeyString("BACKGROUND", value_tex_bg));
+    keys.push_back(new CfgParserKeyString("WORKSPACE", value_tex_ws));
+    keys.push_back(new CfgParserKeyString("WORKSPACEACTIVE", value_tex_ws_act));
+    keys.push_back(new CfgParserKeyNumeric<int>("EDGEPADDING", edge_padding, 5, 0));
+    keys.push_back(new CfgParserKeyNumeric<int>("WORKSPACEPADDING", workspace_padding, 2, 0));
 
-    section->parse_key_values(key_list.begin(), key_list.end());
-    for_each(key_list.begin(), key_list.end(), Util::Free<CfgParserKey*>());  
+    section->parse_key_values(keys.begin(), keys.end());
+    for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 
     font = FontHandler::instance()->getFont(value_font);
     font_color = FontHandler::instance()->getColor(value_color);
@@ -862,7 +862,7 @@ Theme::HarbourData::unload(void)
 {
     if (_texture) {
         TextureHandler::instance()->returnTexture(_texture);
-        _texture = 0;        
+        _texture = 0;
     }
 }
 
@@ -1018,15 +1018,15 @@ Theme::loadThemeRequire(CfgParser &theme_cfg, std::string &file)
 {
     CfgParser::Entry *section;
 
-    // Look for requires section, 
+    // Look for requires section,
     section = theme_cfg.get_entry_root()->find_section("REQUIRE");
     if (section) {
-        list<CfgParserKey*> key_list;
+        vector<CfgParserKey*> keys;
         bool value_templates;
 
-        key_list.push_back(new CfgParserKeyBool("TEMPLATES", value_templates, false));
-        section->parse_key_values(key_list.begin(), key_list.end());
-        for_each(key_list.begin(), key_list.end(), Util::Free<CfgParserKey*>());
+        keys.push_back(new CfgParserKeyBool("TEMPLATES", value_templates, false));
+        section->parse_key_values(keys.begin(), keys.end());
+        for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 
         // Re-load configuration with templates enabled.
         if (value_templates) {
