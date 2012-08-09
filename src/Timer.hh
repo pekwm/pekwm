@@ -15,7 +15,6 @@
 
 #include "pekwm.hh"
 
-#include <list>
 extern "C" {
 #include <sys/time.h>
 }
@@ -27,33 +26,29 @@ template<typename T>
 class TimedEvent
 {
 public:
-  /**
-   * TimedEvent constructor, set timeval to current time + timeout miliseconds.
-   */
-  TimedEvent(uint timeout, T set_data)
-    : data(set_data)
-  {
-    if (gettimeofday(&timeval, 0) == -1) {
-      // FIXME: throw sane exception
+    /**
+      * TimedEvent constructor, set timeval to current time + timeout miliseconds.
+      */
+    TimedEvent(uint timeout, T set_data) : data(set_data) {
+        if (gettimeofday(&timeval, 0) == -1) {
+            // FIXME: throw sane exception
+        }
+        timeval.tv_sec += timeout / 1000;
+        timeval.tv_usec += (timeout % 1000) * 1000;
     }
-
-    timeval.tv_sec += timeout / 1000;
-    timeval.tv_usec += (timeout % 1000) * 1000;
-  }
 
   /**
    * Compare timeout value
    */
-  bool operator<(const TimedEvent &rhs) {
-    return timercmp(&timeval, &rhs.timeval, <);
-  }
-  bool operator<(const struct timeval &rhs) {
-    return timercmp(&timeval, &rhs, <);
-  }
+    bool operator<(const TimedEvent &rhs) {
+        return timercmp(&timeval, &rhs.timeval, <);
+    }
+    bool operator<(const struct timeval &rhs) {
+        return timercmp(&timeval, &rhs, <);
+    }
 
-public:
-  T data; //!< Data for timed event
-  struct timeval timeval; //!< Time when timer expires
+    T data; //!< Data for timed event
+    struct timeval timeval; //!< Time when timer expires
 };
 
 /**
@@ -63,21 +58,19 @@ template<typename T>
 class Timer
 {
 public:
-  typedef TimedEvent<T>* timed_event_list_entry;
-  typedef typename std::list<timed_event_list_entry> timed_event_list;
-  typedef typename timed_event_list::iterator timed_event_list_it;
+    typedef TimedEvent<T>* timed_event_list_entry;
+    typedef typename std::vector<timed_event_list_entry> timed_event_list;
+    typedef typename timed_event_list::iterator timed_event_list_it;
 
-  /**
-   * Timer destructor, removes all timed events.
-   */
-  ~Timer(void)
-  {
-    timed_event_list_it it(_events.begin());
-
-    for (; it != _events.end(); ++it) {
-      delete *it;
+    /**
+     * Timer destructor, removes all timed events.
+     */
+    ~Timer(void) {
+        timed_event_list_it it(_events.begin());
+        for (; it != _events.end(); ++it) {
+            delete *it;
+        }
     }
-  }
 
   /**
    * Add timeout to timer.
