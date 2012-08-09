@@ -164,8 +164,8 @@ FrameListMenu::updateFrameListMenu(void)
     }
 
     // remove the last separator, not needed
-    if (show_clients && (size() > 0)) {
-        remove(_item_list.back());
+    if (show_clients && size() > 0) {
+        remove(_items.back());
     }
 
     buildMenu();

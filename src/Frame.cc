@@ -34,7 +34,6 @@ extern "C" {
 #include "Workspaces.hh"
 #include "WindowManager.hh"
 #include "KeyGrabber.hh"
-#include "PMenu.hh"
 #include "Theme.hh"
 
 using std::cerr;

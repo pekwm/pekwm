@@ -32,7 +32,6 @@
 using std::cerr;
 using std::endl;
 using std::find;
-using std::list;
 using std::string;
 using std::wstring;
 
@@ -50,7 +49,7 @@ ActionMenu::ActionMenu(MenuType type,
 {
     // when creating dynamic submenus, this needs to be initialized as
     // dynamic inserting will be done
-    _insert_at = _item_list.begin();
+    _insert_at = 0;
     _menu_type = type;
 
     if (_menu_type == WINDOWMENU_TYPE) {
@@ -74,9 +73,9 @@ ActionMenu::mapWindow(void)
 {
     // find and rebuild the dynamic entries
     if (! isMapped() && _has_dynamic) {
-        uint size_before = _item_list.size();
+        uint size_before = _items.size();
         rebuildDynamic();
-        if (size_before != _item_list.size()) {
+        if (size_before != _items.size()) {
             buildMenu();
         }
     }
@@ -130,7 +129,7 @@ ActionMenu::reload(CfgParser::Entry *section)
     // Parse section (if any)
     ImageHandler::instance()->path_push_back(Config::instance()->getSystemIconPath());
     ImageHandler::instance()->path_push_back(Config::instance()->getIconPath());
-    _insert_at = _item_list.begin();
+    _insert_at = 0;
     parse(section);
     ImageHandler::instance()->path_pop_back();
     ImageHandler::instance()->path_pop_back();
@@ -149,21 +148,8 @@ ActionMenu::insert(PMenu::Item *item)
 
     checkItemWORef(item);
 
-    _insert_at = _item_list.insert(++_insert_at, item);
-}
-
-//! @brief Non-shadowing PMenu::insert
-void
-ActionMenu::insert(const std::wstring &name, PWinObj *wo_ref, PTexture *icon)
-{
-    PMenu::insert(name, wo_ref, icon);
-}
-
-//! @brief Non-shadowing PMenu::insert
-void
-ActionMenu::insert(const std::wstring &name, const ActionEvent &ae, PWinObj *wo_ref, PTexture *icon)
-{
-    PMenu::insert(name, ae, wo_ref);
+    _items.insert(_items.begin() + _insert_at, item);
+    ++_insert_at;
 }
 
 //! @brief Removes a BaseMenuItem from the menu
@@ -189,8 +175,8 @@ ActionMenu::remove(PMenu::Item *item)
 void
 ActionMenu::removeAll(void)
 {
-    while (_item_list.size() > 0) {
-        remove(_item_list.back());
+    while (_items.size() > 0) {
+        remove(_items.back());
     }
 }
 
@@ -266,7 +252,7 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
 
         // If an item was successfully created, insert it to the menu.
         if (item) {
-            ActionMenu::insert (item);
+            insert(item);
         }
     }
 }
@@ -317,10 +303,10 @@ ActionMenu::rebuildDynamic(void)
     ImageHandler::instance()->path_push_back(Config::instance()->getIconPath());
 
     PMenu::Item* item = 0;
-    list<PMenu::Item*>::iterator it;
-    for (it = _item_list.begin(); it != _item_list.end(); ++it) {
+    vector<PMenu::Item*>::iterator it;
+    for (it = _items.begin(); it != _items.end(); ++it) {
         if ((*it)->getAE().isOnlyAction(ACTION_MENU_DYN)) {
-            _insert_at = it;
+            _insert_at = it - _items.begin();
 
             item = *it;
 
@@ -331,10 +317,10 @@ ActionMenu::rebuildDynamic(void)
                 parse(dynamic.get_entry_root()->find_section("DYNAMIC"), *it);
             }
 
-            it = find(_item_list.begin(), _item_list.end(), item);
-            _insert_at = _item_list.end();
+            it = find(_items.begin(), _items.end(), item);
         }
     }
+    _insert_at = _items.size();
 
     // Cleanup icon path
     ImageHandler::instance()->path_pop_back();
@@ -347,21 +333,21 @@ ActionMenu::removeDynamic(void)
 {
     std::set<PMenu::Item *> dynlist;
 
-    list<PMenu::Item*>::iterator it(_item_list.begin());
-    for (; it != _item_list.end(); ++it) {
+    vector<PMenu::Item*>::iterator it(_items.begin());
+    for (; it != _items.end(); ++it) {
         if ((*it)->getType() == PMenu::Item::MENU_ITEM_HIDDEN) {
             dynlist.insert(*it);
         }
     }
 
-    it = _item_list.begin();
-    for (; it != _item_list.end();) {
+    it = _items.begin();
+    for (; it != _items.end();) {
         if (dynlist.find((*it)->getCreator()) != dynlist.end()) {
             if ((*it)->getWORef() && ((*it)->getWORef()->getType() == WO_MENU)) {
                 delete (*it)->getWORef();
             }
             delete (*it);
-            it = _item_list.erase(it);
+            it = _items.erase(it);
         } else {
             ++it;
         }

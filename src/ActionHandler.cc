@@ -675,7 +675,7 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off,
     if (PWinObj::isFocusedPWinObj(PWinObj::WO_CLIENT)) {
         fo_wo = PWinObj::getFocusedPWinObj()->getParent();
 
-        list<PMenu::Item*>::iterator it(menu->m_begin());
+        vector<PMenu::Item*>::const_iterator it(menu->m_begin());
         for (; it != menu->m_end(); ++it) {
             if ((*it)->getWORef() == fo_wo) {
                 menu->selectItem(it);

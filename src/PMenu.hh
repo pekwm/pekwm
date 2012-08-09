@@ -13,7 +13,6 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#include <list>
 #include <map>
 #include <string>
 
@@ -93,7 +92,7 @@ public:
     }
 
     inline const std::string &getName(void) { return _name; }
-    inline PMenu::Item *getItemCurr(void) { return (_item_curr == _item_list.end()) ? 0 : *_item_curr; }
+    inline PMenu::Item *getItemCurr(void) { return _item_curr<_items.size()?_items[_item_curr]:0; }
     void selectNextItem(void);
     void selectPrevItem(void);
 
@@ -111,9 +110,9 @@ public:
     virtual void reload(CfgParser::Entry *section) { }
     void buildMenu(void);
 
-    inline uint size(void) const { return _item_list.size(); }
-    inline std::list<PMenu::Item*>::iterator m_begin(void) { return _item_list.begin(); }
-    inline std::list<PMenu::Item*>::iterator m_end(void) { return _item_list.end(); }
+    inline uint size(void) const { return _items.size(); }
+    inline vector<PMenu::Item*>::const_iterator m_begin(void) { return _items.begin(); }
+    inline vector<PMenu::Item*>::const_iterator m_end(void) { return _items.end(); }
 
     inline MenuType getMenuType(void) const { return _menu_type; }
 
@@ -127,7 +126,7 @@ public:
     void gotoParentMenu(void);
 
     void select(PMenu::Item *item, bool unmap_submenu = true);
-    void selectItem(std::list<PMenu::Item*>::iterator item, bool unmap_submenu = true);
+    void selectItem(vector<PMenu::Item*>::const_iterator item, bool unmap_submenu = true);
     void deselectItem(bool unmap_submenu = true);
     void selectItemNum(uint num);
     void selectItemRel(int off);
@@ -160,8 +159,8 @@ protected:
     ClassHint _class_hint; /**< Class information for menu. */
 
     // menu content data
-    std::list<PMenu::Item*> _item_list;
-    std::list<PMenu::Item*>::iterator _item_curr;
+    vector<PMenu::Item*> _items;
+    vector<PMenu::Item*>::size_type _item_curr;
 
 private:
     static std::map<Window, PMenu*> _menu_map;

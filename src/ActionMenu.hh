@@ -19,7 +19,6 @@
 #include "PMenu.hh"
 
 #include <string>
-#include <list>
 
 class WORefMenu;
 class PScreen;
@@ -42,9 +41,7 @@ public:
     virtual void handleItemExec(PMenu::Item *item);
 
     virtual void insert(PMenu::Item *item);
-    virtual void insert(const std::wstring &name, PWinObj *wo_ref = 0, PTexture *icon = 0);
-    virtual void insert(const std::wstring &name, const ActionEvent &ae,
-                        PWinObj *wo_ref = 0, PTexture *icon = 0);
+    using PMenu::insert;
 
     virtual void reload(CfgParser::Entry *section);
 
@@ -62,7 +59,7 @@ private:
     ActionHandler *_act;
 
     ActionOk _action_ok;
-    std::list<PMenu::Item*>::iterator _insert_at;
+    vector<PMenu::Item*>::size_type _insert_at;
 
     bool _has_dynamic; /**< Set to true if any of the entries in the menu is dynamic. */
 };
