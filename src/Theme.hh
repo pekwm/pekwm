@@ -25,6 +25,7 @@ class Button;
 class ButtonData;
 class ImageHandler;
 
+#include <list>
 #include <string>
 #include <map>
 

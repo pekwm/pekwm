@@ -159,7 +159,7 @@ InputDialog::handleKeyPress(XKeyEvent *ev)
     ActionEvent *c_ae, *ae = 0;
 
     if ( (c_ae = KeyGrabber::instance()->findAction(ev, _type)) ) {
-        std::list<Action>::iterator it(c_ae->action_list.begin());
+        vector<Action>::iterator it(c_ae->action_list.begin());
         for (; it != c_ae->action_list.end(); ++it) {
             switch (it->getAction()) {
             case INPUT_INSERT:

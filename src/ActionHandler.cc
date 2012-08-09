@@ -79,7 +79,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
     bool matched = false;
 
     // go through the list of actions and execute them
-    list<Action>::const_iterator it = ap.ae.action_list.begin();
+    vector<Action>::const_iterator it = ap.ae.action_list.begin();
     for (; it != ap.ae.action_list.end(); ++it, matched = false) {
         // Determine what type if any of the window object that is focused
         // and check if it is still alive.

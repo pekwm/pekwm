@@ -15,7 +15,7 @@
 
 #include "Types.hh"
 
-#include <list>
+#include <vector>
 #include <string>
 #include <cstring>
 
@@ -192,23 +192,17 @@ private:
 
 class ActionEvent {
 public:
-    ActionEvent(void)
-    {
-    }
-    ~ActionEvent(void)
-    {
-    }
+    ActionEvent(void) { }
+    ~ActionEvent(void) { }
 
     inline bool isOnlyAction(uint action) const {
         return ((action_list.size() == 1) &&
                 (action_list.front().getAction() == action));
     }
 
-public:
     uint mod, sym; // event matching
     uint type, threshold; // more matching, press, release etc
-
-    std::list<Action> action_list;
+    std::vector<Action> action_list;
 };
 
 class ActionPerformed {

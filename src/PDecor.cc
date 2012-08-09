@@ -1378,7 +1378,7 @@ PDecor::doKeyboardMoveResize(void)
     bool outline = (! Config::instance()->getOpaqueMove() ||
                     ! Config::instance()->getOpaqueResize());
     ActionEvent *ae;
-    list<Action>::iterator it;
+    vector<Action>::iterator it;
 
     wchar_t buf[128];
     getDecorInfo(buf, 128);
