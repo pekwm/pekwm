@@ -18,11 +18,11 @@
 #include <algorithm>
 #include <string>
 #include <cstring>
-#include <vector>
-#include <list>
 #include <map>
 #include <functional>
 #include <sstream>
+#include <vector>
+using std::vector;
 
 extern "C" {
 #include <string.h>
@@ -55,7 +55,7 @@ namespace Util {
     std::string getFileExt(const std::string &file);
     std::string getDir(const std::string &file);
     void expandFileName(std::string &file);
-    uint splitString(const std::string str, std::vector<std::string> &vals, const char *sep, uint max = 0, bool include_empty = false);
+    uint splitString(const std::string str, vector<std::string> &vals, const char *sep, uint max = 0, bool include_empty = false);
 
     template<class T> std::string to_string(T t) {
         std::ostringstream oss;
@@ -119,8 +119,8 @@ namespace Util {
         return value;
     }
 
-  std::string to_utf8_str(const std::wstring &str);
-  std::wstring from_utf8_str(const std::string &str);
+    std::string to_utf8_str(const std::wstring &str);
+    std::wstring from_utf8_str(const std::string &str);
 
     //! @brief Removes leading blanks( \n\t) from string.
     inline void trimLeadingBlanks(std::string &trim) {
@@ -145,30 +145,7 @@ namespace Util {
     //! @brief for_each delete utility.
     template<class T> struct Free : public std::unary_function<T, void> {
         void operator ()(T t) { delete t; }
-
     };
-
-  /**
-   * File backed string list used to persist, amongst other things
-   * command history.
-   */
-  class file_backed_list : public std::list<std::wstring>
-  {
-  public:
-    /** Return path list is backed up by. */
-    const std::string &get_path (void) const { return _path; }
-    /** Set path list is backed up by. */
-    void set_path (const std::string &path) { _path = path; }
-
-    void push_back_unique(const std::wstring &entry);
-
-    unsigned int load (const std::string &path);
-    bool save (const std::string &path);
-
-  private:
-    std::string _path; /**< Path to file backed version. */
-  };
-
 }
 
 #endif // _UTIL_HH_

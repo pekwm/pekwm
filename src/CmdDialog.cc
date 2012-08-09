@@ -44,15 +44,15 @@ CmdDialog::CmdDialog(Theme *theme)
   : InputDialog(theme, L"Enter command"),
     _completer(L";"), _exec_count(0)
 {
-  _type = PWinObj::WO_CMD_DIALOG;
+    _type = PWinObj::WO_CMD_DIALOG;
 
-  // Setup completer
-  _completer.add_method(new ActionCompleterMethod());
-  _completer.add_method(new PathCompleterMethod());
+    // Setup completer
+    _completer.add_method(new ActionCompleterMethod());
+    _completer.add_method(new PathCompleterMethod());
 
-  if (Config::instance()->getCmdDialogHistoryFile().size() > 0) {
-    _hist_list.load(Config::instance()->getCmdDialogHistoryFile());
-  }
+    if (Config::instance()->getCmdDialogHistoryFile().size() > 0) {
+        loadHistory(Config::instance()->getCmdDialogHistoryFile());
+    }
 }
 
 /**
@@ -60,9 +60,9 @@ CmdDialog::CmdDialog(Theme *theme)
  */
 CmdDialog::~CmdDialog(void)
 {
-  if (Config::instance()->getCmdDialogHistoryFile().size() > 0) {
-    _hist_list.save(Config::instance()->getCmdDialogHistoryFile());
-  }
+    if (Config::instance()->getCmdDialogHistoryFile().size() > 0) {
+        saveHistory(Config::instance()->getCmdDialogHistoryFile());
+    }
 }
 
 
@@ -71,24 +71,23 @@ CmdDialog::~CmdDialog(void)
 ActionEvent*
 CmdDialog::exec(void)
 {
-  // Update history
-  if (Config::instance()->isCmdDialogHistoryUnique()) {
-    _hist_list.push_back_unique(_buf);
-  } else {
-    _hist_list.push_back(_buf);
-  }
-  if (_hist_list.size() > static_cast<uint>(Config::instance()->getCmdDialogHistorySize())) {
-    _hist_list.pop_front();
-  }
+    // Update history
+    if (Config::instance()->isCmdDialogHistoryUnique()) {
+        addHistoryUnique(_buf);
+    } else {
+        _history.push_back(_buf);
+    }
+    if (_history.size() > static_cast<uint>(Config::instance()->getCmdDialogHistorySize())) {
+        _history.erase(_history.begin());
+    }
 
-  // Persist changes
-  if (Config::instance()->getCmdDialogHistorySaveInterval() > 0
-      && Config::instance()->getCmdDialogHistoryFile().size() > 0
-      && ++_exec_count > Config::instance()->getCmdDialogHistorySaveInterval()) {
-    _hist_list.save(Config::instance()->getCmdDialogHistoryFile());
-    _exec_count = 0;
-  }
-
+    // Persist changes
+    if (Config::instance()->getCmdDialogHistorySaveInterval() > 0
+        && Config::instance()->getCmdDialogHistoryFile().size() > 0
+        && ++_exec_count > Config::instance()->getCmdDialogHistorySaveInterval()) {
+        saveHistory(Config::instance()->getCmdDialogHistoryFile());
+        _exec_count = 0;
+    }
     
     // Check if it's a valid Action, if not we assume it's a command and try
     // to execute it.

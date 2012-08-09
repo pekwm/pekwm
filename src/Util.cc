@@ -18,7 +18,6 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
-#include <list>
 #include <cstdio>
 #include <cstring>
 #include <cwchar>
@@ -41,7 +40,6 @@ using std::string;
 using std::transform;
 using std::vector;
 using std::wstring;
-using std::list;
 using std::ifstream;
 using std::ofstream;
 using std::find;
@@ -534,78 +532,6 @@ from_utf8_str(const std::string &str)
     }
 
     return wide_str;
-}
-
-/**
- * Add object to list making sure there are no duplicates.
- */
-void
-file_backed_list::push_back_unique(const std::wstring &entry)
-{
-  list<wstring>::iterator it(find(begin(), end(), entry));
-  if (it != end()) {
-    erase(it);
-  }
-
-  push_back(entry);
-}
-
-/**
- * Load list from file, updating _path if set.
- *
- * @param path Load data from path.
- * @return Number of elements loaded.
- */
-unsigned int
-file_backed_list::load (const std::string &path)
-{
-  unsigned int loaded = 0;
-  ifstream ifile;
-  ifile.open(path.c_str());
-  if (ifile.is_open()) {
-    // Update only path if successfully opened.
-    _path = path;
-
-    string mb_line;
-
-    while (ifile.good()) {
-      getline(ifile, mb_line);
-      if (mb_line.size()) {
-	push_back(to_wide_str(mb_line));
-	++loaded;
-      }
-    }
-
-    ifile.close();
-  }
-
-  return loaded;
-}
-
-/**
- * Save list from file overwriting previous data.
- */
-bool
-file_backed_list::save (const std::string &path)
-{
-  bool status = false;
-  ofstream ofile(path.c_str());
-  if (ofile.is_open()) {
-    // Update path if successfully opened.
-    _path = path;
-
-    string line;
-
-    list<wstring>::iterator it(begin ());
-    for (; it != end(); ++it) {
-      ofile << to_utf8_str(*it) << "\n";
-    }
-
-    ofile.close();
-    status = true;
-  }
-
-  return status;
 }
 
 } // end namespace Util.

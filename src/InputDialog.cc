@@ -10,9 +10,9 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#include <list>
 #include <cwchar>
 #include <cwctype>
+#include <fstream>
 #include <algorithm>
 
 #include "InputDialog.hh"
@@ -26,7 +26,6 @@ extern "C" {
 #include <X11/Xutil.h>
 }
 
-using std::list;
 using std::map;
 using std::wstring;
 using std::iswprint;
@@ -160,7 +159,7 @@ InputDialog::handleKeyPress(XKeyEvent *ev)
     ActionEvent *c_ae, *ae = 0;
 
     if ( (c_ae = KeyGrabber::instance()->findAction(ev, _type)) ) {
-        list<Action>::iterator it(c_ae->action_list.begin());
+        std::list<Action>::iterator it(c_ae->action_list.begin());
         for (; it != c_ae->action_list.end(); ++it) {
             switch (it->getAction()) {
             case INPUT_INSERT:
@@ -255,7 +254,7 @@ void
 InputDialog::mapCentered(const std::string &buf, bool focus, PWinObj *wo_ref)
 {
     // Setup data
-    _hist_it = _hist_list.end();
+    _hist_it = _history.end();
 
     _buf = Util::to_wide_str(buf);
     _pos = _buf.size();
@@ -534,13 +533,13 @@ InputDialog::bufChanged(void)
 void
 InputDialog::histNext(void)
 {
-    if (_hist_it == _hist_list.end()) {
+    if (_hist_it == _history.end()) {
         return; // nothing to do
     }
 
     // get next item, if at the end, restore the edit buffer
     ++_hist_it;
-    if (_hist_it == _hist_list.end()) {
+    if (_hist_it == _history.end()) {
         _buf = _hist_new;
     } else {
         _buf = *_hist_it;
@@ -556,12 +555,12 @@ InputDialog::histNext(void)
 void
 InputDialog::histPrev(void)
 {
-    if (_hist_it == _hist_list.begin()) {
+    if (_hist_it == _history.begin()) {
         return; // nothing to do
     }
 
     // save item so we can restore the edit buffer later
-    if (_hist_it == _hist_list.end()) {
+    if (_hist_it == _history.end()) {
         _hist_new = _buf;
     }
 
@@ -623,4 +622,45 @@ InputDialog::getInputSize(unsigned int &width, unsigned int &height)
 
     width = head.width / 3;
     height = _data->getFont()->getHeight() + _data->getPad(PAD_UP) + _data->getPad(PAD_DOWN);
+}
+
+void
+InputDialog::addHistoryUnique(const std::wstring &entry)
+{
+    vector<wstring>::iterator it(find(_history.begin(), _history.end(), entry));
+    if (it != _history.end()) {
+        _history.erase(it);
+    }
+
+    _history.push_back(entry);
+}
+
+void
+InputDialog::loadHistory(const std::string &path)
+{
+    std::ifstream ifile(path.c_str());
+    if (ifile.is_open()) {
+        // Update only path if successfully opened.
+        std::string mb_line;
+        while (ifile.good()) {
+            getline(ifile, mb_line);
+            if (mb_line.size()) {
+                _history.push_back(Util::to_wide_str(mb_line));
+            }
+        }
+        ifile.close();
+    }
+}
+
+void
+InputDialog::saveHistory(const std::string &path)
+{
+    std::ofstream ofile(path.c_str());
+    if (ofile.is_open()) {
+        vector<wstring>::iterator it(_history.begin());
+        for (; it != _history.end(); ++it) {
+            ofile << Util::to_utf8_str(*it) << "\n";
+        }
+        ofile.close();
+    }
 }
