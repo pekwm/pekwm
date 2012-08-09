@@ -13,7 +13,6 @@
 #include <cstdlib>
 #include <algorithm>
 #include <iostream>
-#include <list>
 #include <vector>
 #include <string>
 
@@ -33,7 +32,6 @@ using std::copy;
 using std::cerr;
 using std::wcerr;
 using std::endl;
-using std::list;
 using std::vector;
 using std::string;
 using std::wstring;
@@ -54,8 +52,8 @@ completions_list_from_name_list(T name_list, completions_list &completions_list)
         Util::to_lower(name_lower);
         completions_list.push_back(pair<wstring, wstring>(name_lower, name));
     }
-    completions_list.unique();
-    completions_list.sort();
+    std::unique(completions_list.begin(), completions_list.end());
+    std::sort(completions_list.begin(), completions_list.end());
 }
 
 ActionCompleterMethod::StateMatch ActionCompleterMethod::STATE_MATCHES[] = {
@@ -122,8 +120,8 @@ PathCompleterMethod::refresh(void)
         }
     }
 
-    _path_list.unique();
-    _path_list.sort();
+    std::unique(_path_list.begin(), _path_list.end());
+    std::sort(_path_list.begin(), _path_list.end());
 }
 
 /**
@@ -224,7 +222,7 @@ ActionCompleterMethod::find_state_match(const std::wstring &str, size_t pos)
  */
 Completer::~Completer(void)
 {
-    list<CompleterMethod*>::iterator it(_methods.begin());
+    vector<CompleterMethod*>::iterator it(_methods.begin());
     for (; it != _methods.end(); ++it) {
         delete *it;
     }
@@ -250,7 +248,7 @@ Completer::find_completions(const wstring &str, unsigned int pos)
     Util::to_lower(state.word_lower);
 
     // Go through completer methods and add completions.
-    list<CompleterMethod*>::iterator it(_methods.begin());
+    vector<CompleterMethod*>::const_iterator it(_methods.begin());
     for (; it != _methods.end(); ++it) {
         if ((*it)->can_complete(state.part)) {
             (*it)->complete(state);

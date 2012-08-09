@@ -13,7 +13,7 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#include <list>
+#include <vector>
 #include <string>
 
 extern "C" {
@@ -21,9 +21,9 @@ extern "C" {
 #include <dirent.h>
 }
 
-typedef std::list<std::wstring> complete_list;
+typedef std::vector<std::wstring> complete_list;
 typedef complete_list::iterator complete_it;
-typedef std::list<std::pair<std::wstring, std::wstring> > completions_list;
+typedef std::vector<std::pair<std::wstring, std::wstring> > completions_list;
 typedef completions_list::iterator completions_it;
 
 /**
@@ -184,7 +184,7 @@ private:
                                       size_t &word_begin, size_t &word_end);
 
 private:
-    std::list<CompleterMethod*> _methods; /**< List of CompleterMethods. */
+    std::vector<CompleterMethod*> _methods; /**< List of CompleterMethods. */
     const std::wstring _separators; /**< String with separator characters. */
 };
 
