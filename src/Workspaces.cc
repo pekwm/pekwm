@@ -643,7 +643,7 @@ Workspaces::placeWo(PWinObj *wo, Window parent)
 {
     bool placed = false;
 
-    list<uint>::iterator it(Config::instance()->getPlacementModelBegin());
+    vector<uint>::const_iterator it(Config::instance()->getPlacementModelBegin());
     for (; (placed != true) &&
             (it != Config::instance()->getPlacementModelEnd()); ++it) {
         switch (*it) {

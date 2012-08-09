@@ -18,7 +18,6 @@
 #include "CfgParser.hh"
 #include "ParseUtil.hh"
 
-#include <list>
 #include <string>
 #include <map>
 #include <utility>
@@ -80,9 +79,9 @@ public:
 
     inline const std::string &getConfigFile(void) const { return _config_file; }
 
-    /** Return list with available keyboard actions names. */
-    std::list<std::string> getActionNameList(void) {
-        std::list<std::string> action_names;
+    /** Return vector with available keyboard actions names. */
+    vector<std::string> getActionNameList(void) {
+        vector<std::string> action_names;
         std::map<ParseUtil::Entry, std::pair<ActionType, uint> >::iterator it;
         for (it = _action_map.begin(); it != _action_map.end(); ++it) {
             if (it->second.second&KEYGRABBER_OK) {
@@ -92,9 +91,9 @@ public:
         return action_names;
     }
 
-    /** Return list with available state action names. */
-    std::list<std::string> getStateNameList(void) {
-        std::list<std::string> state_names;
+    /** Return vector with available state action names. */
+    vector<std::string> getStateNameList(void) {
+        vector<std::string> state_names;
         std::map<ParseUtil::Entry, ActionStateType>::iterator it;
         for (it = _action_state_map.begin(); it != _action_state_map.end(); ++it) {
             state_names.push_back(it->first.get_text());
@@ -152,8 +151,8 @@ public:
     inline bool isHonourRandr(void) const { return _screen_honour_randr; }
     inline bool isHonourAspectRatio(void) const { return _screen_honour_aspectratio; }
 
-    inline std::list<uint>::iterator getPlacementModelBegin(void) { return _screen_placementmodels.begin(); }
-    inline std::list<uint>::iterator getPlacementModelEnd(void) { return _screen_placementmodels.end(); }
+    inline vector<uint>::const_iterator getPlacementModelBegin(void) { return _screen_placementmodels.begin(); }
+    inline vector<uint>::const_iterator getPlacementModelEnd(void) { return _screen_placementmodels.end(); }
 
     inline bool getPlacementRow(void) const { return _screen_placement_row; }
     inline bool getPlacementLtR(void) const { return _screen_placement_ltr; }
@@ -191,11 +190,12 @@ public:
     inline uint getHarbourOrientation(void) const { return _harbour_orientation; }
     inline uint getHarbourOpacity(void) const { return _harbour_opacity; }
 
-    inline std::list<ActionEvent>  *getMouseActionList(MouseActionListName name)
-    { return _mouse_action_map[name]; }
+    inline vector<ActionEvent> *getMouseActionList(MouseActionListName name) {
+        return _mouse_action_map[name];
+    }
 
-    std::list<ActionEvent> *getBorderListFromPosition(uint pos);
-    std::list<ActionEvent> *getEdgeListFromPosition(uint pos);
+    vector<ActionEvent> *getBorderListFromPosition(uint pos);
+    vector<ActionEvent> *getEdgeListFromPosition(uint pos);
 
     // map parsing
     ActionType getAction(const std::string &name, uint mask);
@@ -259,11 +259,10 @@ private:
     void loadCmdDialog(CfgParser::Entry *section);
     void loadHarbour(CfgParser::Entry *section);
 
-    void parseButtons(CfgParser::Entry *section, std::list<ActionEvent>* mouse_list, ActionOk action_ok);
+    void parseButtons(CfgParser::Entry *section, vector<ActionEvent>* mouse_list, ActionOk action_ok);
 
     int parseWorkspaceNumber(const std::string &workspace);
 
-private:
     std::string _config_file; /**< Path to config file last loaded. */
     TimeFiles _cfg_files;
     TimeFiles _cfg_files_mouse;
@@ -302,7 +301,7 @@ private:
     bool _screen_honour_aspectratio; /**< if true, pekwm keeps aspect ratio (XSizeHint) */
     bool _screen_placement_row, _screen_placement_ltr, _screen_placement_ttb;
     int _screen_placement_offset_x, _screen_placement_offset_y;
-    std::list<uint> _screen_placementmodels;
+    vector<uint> _screen_placementmodels;
     bool _screen_client_unique_name;
     std::string _screen_client_unique_name_pre, _screen_client_unique_name_post;
     bool _screen_report_all_clients;
@@ -326,7 +325,7 @@ private:
     int _harbour_head_nr;
     uint _harbour_opacity;
 
-    std::map<MouseActionListName, std::list<ActionEvent>* > _mouse_action_map;
+    std::map<MouseActionListName, vector<ActionEvent>* > _mouse_action_map;
 
     std::map<ParseUtil::Entry, std::pair<ActionType, uint> > _action_map;
     std::map<ParseUtil::Entry, ActionAccessMask> _action_access_mask_map;

@@ -49,7 +49,6 @@ extern "C" {
 using std::cerr;
 using std::endl;
 using std::find;
-using std::list;
 using std::string;
 using std::vector;
 using std::wstring;
@@ -794,8 +793,8 @@ Client::grabButtons(void)
     // Make sure we don't have any buttons grabbed.
     X11::ungrabButton(_window);
 
-    list<ActionEvent> *actions = Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_CHILD_FRAME);
-    list<ActionEvent>::iterator it(actions->begin());
+    vector<ActionEvent> *actions = Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_CHILD_FRAME);
+    vector<ActionEvent>::const_iterator it(actions->begin());
     for (; it != actions->end(); ++it) {
         if ((it->type == MOUSE_EVENT_PRESS) || (it->type == MOUSE_EVENT_RELEASE)) {
             // No need to grab mod less events, replied with the frame

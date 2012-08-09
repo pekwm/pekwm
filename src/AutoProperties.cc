@@ -20,7 +20,6 @@
 using std::cerr;
 using std::endl;
 using std::find;
-using std::list;
 using std::map;
 using std::string;
 using std::strtol;

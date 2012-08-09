@@ -601,7 +601,7 @@ ActionEvent*
 PDecor::handleButtonPress(XButtonEvent *ev)
 {
     ActionEvent *ae = 0;
-    list<ActionEvent> *actions = 0;
+    vector<ActionEvent> *actions = 0;
 
     // Remove state modifiers from event
     X11::stripStateModifiers(&ev->state);
@@ -684,7 +684,7 @@ ActionEvent*
 PDecor::handleButtonRelease(XButtonEvent *ev)
 {
     ActionEvent *ae = 0;
-    list<ActionEvent> *actions = 0;
+    vector<ActionEvent> *actions = 0;
     MouseEventType mb = MOUSE_EVENT_RELEASE;
 
     // Remove state modifiers from event

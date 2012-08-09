@@ -17,7 +17,6 @@
 #include "Action.hh"
 
 #include <string>
-#include <list>
 #include <map>
 
 class Client;
@@ -38,7 +37,7 @@ public:
 
     static bool checkAEThreshold(int x, int y, int x_t, int y_t, uint t);
     static ActionEvent *findMouseAction(uint button, uint mod, MouseEventType type,
-                                        std::list<ActionEvent> *actions);
+                                        vector<ActionEvent> *actions);
     
 private:
     void lookupWindowObjects(PWinObj **wo, Client **client, Frame **frame,

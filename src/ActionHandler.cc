@@ -43,7 +43,6 @@ using std::endl;
 #endif // DEBUG
 using std::auto_ptr;
 using std::string;
-using std::list;
 using std::find;
 using std::map;
 
@@ -514,7 +513,7 @@ ActionHandler::checkAEThreshold(int x, int y, int x_t, int y_t, uint t)
 
 //! @brief Searches the actions list for an matching event
 ActionEvent*
-ActionHandler::findMouseAction(uint button, uint state, MouseEventType type, std::list<ActionEvent> *actions)
+ActionHandler::findMouseAction(uint button, uint state, MouseEventType type, vector<ActionEvent> *actions)
 {
     if (! actions) {
         return 0;
@@ -523,7 +522,7 @@ ActionHandler::findMouseAction(uint button, uint state, MouseEventType type, std
     X11::stripStateModifiers(&state);
     X11::stripButtonModifiers(&state);
 
-    list<ActionEvent>::iterator it(actions->begin());
+    vector<ActionEvent>::iterator it(actions->begin());
     for (; it != actions->end(); ++it) {
         if ((it->type == unsigned(type))
             && ((it->mod == MOD_ANY) || (it->mod == state))

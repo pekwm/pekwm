@@ -308,7 +308,7 @@ Frame::handleMotionEvent(XMotionEvent *ev)
         }
         
         if (pos != BORDER_NO_POS) {
-            list<ActionEvent> *bl = Config::instance()->getBorderListFromPosition(pos);
+            vector<ActionEvent> *bl = Config::instance()->getBorderListFromPosition(pos);
             ae = ActionHandler::findMouseAction(button, ev->state, MOUSE_EVENT_MOTION, bl);
         }
     }
@@ -333,7 +333,7 @@ Frame::handleEnterEvent(XCrossingEvent *ev)
     PDecor::handleEnterEvent(ev);
 
     ActionEvent *ae = 0;
-    list<ActionEvent> *al = 0;
+    vector<ActionEvent> *al = 0;
 
     if (ev->window == getTitleWindow()) {
         al = Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_TITLE_FRAME);

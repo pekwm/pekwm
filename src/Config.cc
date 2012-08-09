@@ -31,7 +31,6 @@ using std::cerr;
 using std::endl;
 using std::string;
 using std::wstring;
-using std::list;
 using std::map;
 using std::vector;
 using std::pair;
@@ -360,27 +359,27 @@ Config::Config(void) :
     _harbour_orientation_map["RIGHTTOLEFT"] = BOTTOM_TO_TOP;
 
     // fill the mouse action map
-    _mouse_action_map[MOUSE_ACTION_LIST_TITLE_FRAME] = new list<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_TITLE_OTHER] = new list<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_CHILD_FRAME] = new list<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_CHILD_OTHER] = new list<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_ROOT] = new list<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_MENU] = new list<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_OTHER] = new list<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_TITLE_FRAME] = new vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_TITLE_OTHER] = new vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_CHILD_FRAME] = new vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_CHILD_OTHER] = new vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_ROOT] = new vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_MENU] = new vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_OTHER] = new vector<ActionEvent>;
 
-    _mouse_action_map[MOUSE_ACTION_LIST_EDGE_T] = new list<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_EDGE_B] = new list<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_EDGE_L] = new list<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_EDGE_R] = new list<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_EDGE_T] = new vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_EDGE_B] = new vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_EDGE_L] = new vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_EDGE_R] = new vector<ActionEvent>;
 
-    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_TL] = new list<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_T] = new list<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_TR] = new list<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_L] = new list<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_R] = new list<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_BL] = new list<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_B] = new list<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_BR] = new list<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_TL] = new vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_T] = new vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_TR] = new vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_L] = new vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_R] = new vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_BL] = new vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_B] = new vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_BR] = new vector<ActionEvent>;
 }
 
 //! @brief Destructor for Config class
@@ -388,7 +387,7 @@ Config::~Config(void)
 {
     _instance = 0;
 
-    map<MouseActionListName, list<ActionEvent>* >::iterator it;
+    map<MouseActionListName, vector<ActionEvent>* >::iterator it;
     for (it = _mouse_action_map.begin(); it != _mouse_action_map.end(); ++it) {
         delete it->second;
     }
@@ -1652,7 +1651,7 @@ Config::loadMouseConfig(const std::string &mouse_file)
     }
 
     // Make sure old actions get unloaded.
-    map<MouseActionListName, list<ActionEvent>* >::iterator it;
+    map<MouseActionListName, vector<ActionEvent>* >::iterator it;
     for (it = _mouse_action_map.begin(); it != _mouse_action_map.end(); ++it) {
         it->second->clear();
     }
@@ -1717,7 +1716,7 @@ Config::loadMouseConfig(const std::string &mouse_file)
 
 //! @brief Parses mouse config section, like FRAME
 void
-Config::parseButtons(CfgParser::Entry *section, std::list<ActionEvent>* mouse_list, ActionOk action_ok)
+Config::parseButtons(CfgParser::Entry *section, vector<ActionEvent>* mouse_list, ActionOk action_ok)
 {
     if (! section || ! mouse_list) {
         return;
@@ -1755,10 +1754,10 @@ Config::parseButtons(CfgParser::Entry *section, std::list<ActionEvent>* mouse_li
 
 // frame border configuration
 
-list<ActionEvent>*
+vector<ActionEvent>*
 Config::getBorderListFromPosition(uint pos)
 {
-    list<ActionEvent> *ret = 0;
+    vector<ActionEvent> *ret = 0;
 
     switch (pos) {
     case BORDER_TOP_LEFT:
@@ -1790,10 +1789,10 @@ Config::getBorderListFromPosition(uint pos)
     return ret;
 }
 
-list<ActionEvent>*
+vector<ActionEvent>*
 Config::getEdgeListFromPosition(uint pos)
 {
-    list<ActionEvent> *ret = 0;
+    vector<ActionEvent> *ret = 0;
 
     switch (pos) {
     case SCREEN_EDGE_TOP:
