@@ -30,7 +30,6 @@
 using std::cerr;
 using std::endl;
 using std::string;
-using std::list;
 using std::vector;
 using std::map;
 
@@ -71,12 +70,12 @@ Theme::PDecorButtonData::load(CfgParser::Entry *section)
     CfgParser::iterator it(section->begin());
     for (; it != section->end(); ++it) {
         if (Config::instance()->parseActionEvent(*it, ae, BUTTONCLICK_OK, true)) {
-            _ae_list.push_back (ae);
+            _aes.push_back (ae);
         }
     }
 
     // Got some actions, consider it to be a valid button.
-    if (_ae_list.size() > 0) {
+    if (_aes.size() > 0) {
         TextureHandler *th = TextureHandler::instance();
         CfgParser::Entry *value;
 
@@ -335,11 +334,11 @@ Theme::PDecorData::unload(void)
         }
     }
 
-    list<Theme::PDecorButtonData*>::iterator it(_button_list.begin());
-    for (; it != _button_list.end(); ++it) {
+    vector<Theme::PDecorButtonData*>::const_iterator it(_buttons.begin());
+    for (; it != _buttons.end(); ++it) {
         delete *it;
     }
-    _button_list.clear();
+    _buttons.clear();
 }
 
 //! @brief Checks data properties, prints warning and tries to fix.
@@ -407,9 +406,9 @@ Theme::PDecorData::loadButtons(CfgParser::Entry *section)
             continue;
         }
 
-        Theme::PDecorButtonData *btn = new Theme::PDecorButtonData ();
+        Theme::PDecorButtonData *btn = new Theme::PDecorButtonData();
         if (btn->load((*it)->get_section())) {
-            _button_list.push_back(btn);
+            _buttons.push_back(btn);
         } else {
             delete btn;
         }

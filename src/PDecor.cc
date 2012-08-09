@@ -86,7 +86,7 @@ PDecor::Button::~Button(void)
 ActionEvent*
 PDecor::Button::findAction(XButtonEvent *ev)
 {
-    list<ActionEvent>::iterator it(_data->begin());
+    vector<ActionEvent>::iterator it(_data->begin());
     for (; it != _data->end(); ++it) {
         if (it->mod == ev->state && it->sym == ev->button)
             return &*it;
@@ -885,7 +885,7 @@ PDecor::loadDecor(void)
     assert(_data);
 
     // Load decor.
-    list<Theme::PDecorButtonData*>::iterator b_it(_data->buttonBegin());
+    vector<Theme::PDecorButtonData*>::const_iterator b_it(_data->buttonBegin());
     for (; b_it != _data->buttonEnd(); ++b_it) {
         uint width = std::max(static_cast<uint>(1), (*b_it)->getWidth() ? (*b_it)->getWidth() : getTitleHeight());
         uint height = std::max(static_cast<uint>(1), (*b_it)->getHeight() ? (*b_it)->getHeight() : getTitleHeight());

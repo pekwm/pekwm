@@ -33,7 +33,6 @@ extern "C" {
 #include <X11/Xatom.h> // for XA_WINDOW
 }
 
-using std::list;
 using std::vector;
 using std::string;
 using std::find;

@@ -25,7 +25,6 @@ class Button;
 class ButtonData;
 class ImageHandler;
 
-#include <list>
 #include <string>
 #include <map>
 
@@ -63,12 +62,12 @@ public:
             return _texture[(state != BUTTON_STATE_NO) ? state : 0];
         }
         //! @brief Returns iterator to the first ActionEvent.
-        inline std::list<ActionEvent>::iterator begin(void) {
-            return _ae_list.begin();
+        inline vector<ActionEvent>::iterator begin(void) {
+            return _aes.begin();
         }
         //! @brief Return iterator to the last+1 ActionEvent.
-        inline std::list<ActionEvent>::iterator end(void) {
-            return _ae_list.end();
+        inline vector<ActionEvent>::iterator end(void) {
+            return _aes.end();
         }
 
         virtual bool load(CfgParser::Entry *section);
@@ -76,7 +75,7 @@ public:
         virtual void check(void);
 
     private:
-        std::list<ActionEvent> _ae_list;
+        vector<ActionEvent> _aes;
         PTexture *_texture[BUTTON_STATE_NO];
 
         bool _left;
@@ -152,12 +151,12 @@ public:
         // button
 
         //! @brief Return iterator to the first Theme::PDecorButtonData.
-        inline std::list<Theme::PDecorButtonData*>::iterator buttonBegin(void) {
-            return _button_list.begin();
+        inline vector<Theme::PDecorButtonData*>::const_iterator buttonBegin(void) {
+            return _buttons.begin();
         }
         //! @brief Return iterator to the last+1 Theme::PDecorButtonData.
-        inline std::list<Theme::PDecorButtonData*>::iterator buttonEnd(void) {
-            return _button_list.end();
+        inline vector<Theme::PDecorButtonData*>::const_iterator buttonEnd(void) {
+            return _buttons.end();
         }
 
         virtual bool load(CfgParser::Entry *section);
@@ -195,8 +194,7 @@ public:
         // border
         PTexture *_texture_border[FOCUSED_STATE_FOCUSED_SELECTED][BORDER_NO_POS];
 
-        // buttons
-        std::list<Theme::PDecorButtonData*> _button_list;
+        vector<Theme::PDecorButtonData*> _buttons;
 
         static std::map<FocusedState, std::string> _fs_map;
         static std::map<BorderPosition, std::string> _border_map;
