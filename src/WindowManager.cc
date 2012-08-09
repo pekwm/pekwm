@@ -321,7 +321,7 @@ WindowManager::setupDisplay(bool replace)
     _root_wo = new RootWO(X11::getRoot());
     PWinObj::setRootPWinObj(_root_wo);
 
-    _color_handler = new ColorHandler(dpy);
+    _color_handler = new ColorHandler;
     _font_handler = new FontHandler();
     _texture_handler = new TextureHandler();
     _action_handler = new ActionHandler();

@@ -15,7 +15,7 @@
 
 #include "pekwm.hh"
 
-#include <list>
+#include <vector>
 #include <string>
 #include <cstring>
 
@@ -34,8 +34,7 @@ public:
 
         inline uint getRef(void) const { return _ref; }
         inline void incRef(void) { _ref++; }
-        inline void decRef(void) { if (_ref > 0) {_ref--; }
-        }
+        inline void decRef(void) { if (_ref > 0) { _ref--; } }
 
         inline bool operator==(const std::string &name) {
             return (::strcasecmp(_name.c_str(), name.c_str()) == 0);
@@ -44,11 +43,10 @@ public:
     private:
         std::string _name;
         XColor _xc;
-
         uint _ref;
     };
 
-    ColorHandler(Display *dpy);
+    ColorHandler(void);
     ~ColorHandler(void);
 
     static ColorHandler *instance(void) { return _instance; }
@@ -59,13 +57,9 @@ public:
     XColor *getColor(const std::string &color);
     void returnColor(XColor *xc);
 
-    void freeColors(bool all);
-
 private:
-    Display *_dpy;
-
     XColor _xc_default; // when allocating fails
-    std::list<ColorHandler::Entry*> _color_list;
+    std::vector<ColorHandler::Entry*> _colours;
     bool _free_on_return; // used when returning many colours
 
     static ColorHandler *_instance;
