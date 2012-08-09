@@ -24,10 +24,9 @@ extern "C" {
 
 using std::cerr;
 using std::endl;
-using std::list;
 using std::string;
 
-list<PImageLoader*> PImage::_loader_list = list<PImageLoader*>();
+vector<PImageLoader*> PImage::_loaders;
 
 /**
  * PImage constructor, loads image if one is specified.
@@ -64,8 +63,8 @@ PImage::load(const std::string &file)
         return false;
     }
 
-    list<PImageLoader*>::iterator it(_loader_list.begin());
-    for (; it != _loader_list.end(); ++it) {
+    vector<PImageLoader*>::const_iterator it(_loaders.begin());
+    for (; it != _loaders.end(); ++it) {
         if (! strcasecmp((*it)->getExt(), ext.c_str())) {
             _data = (*it)->load(file, _width, _height, _has_alpha, _use_alpha);
             if (_data) {

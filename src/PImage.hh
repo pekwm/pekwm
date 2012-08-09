@@ -16,7 +16,6 @@
 #include "pekwm.hh"
 #include "PImageLoader.hh"
 
-#include <list>
 #include <string>
 
 //! @brief Image baseclass defining interface for image handling.
@@ -29,13 +28,13 @@ public:
 
     //! @brief Add loader to loader list.
     static void loaderAdd(PImageLoader *loader) {
-        _loader_list.push_back(loader);
+        _loaders.push_back(loader);
     }
     //! @brief Removes and frees all loaders.
     static void loaderClear(void) {
-        while (_loader_list.size()) {
-            delete _loader_list.back();
-            _loader_list.pop_back();
+        while (_loaders.size()) {
+            delete _loaders.back();
+            _loaders.pop_back();
         }
     }
 
@@ -150,7 +149,7 @@ protected:
     bool _use_alpha; //!< Wheter image has alpha < 100%
 
 private:
-    static std::list<PImageLoader*> _loader_list; //!< List of loaders.
+    static vector<PImageLoader*> _loaders; //!< List of loaders.
 };
 
 #endif // _PIMAGE_HH_
