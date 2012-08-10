@@ -241,7 +241,7 @@ Frame::raise(void)
 
     if (_client->transient_size()) {
         Frame *frame;
-        list<Client*>::iterator it(_client->transient_begin());
+        vector<Client*>::const_iterator it(_client->transient_begin());
         for (; it != _client->transient_end(); ++it) {
             frame = static_cast<Frame*>((*it)->getParent());
             if (frame != this && frame->getActiveClient() == *it) {

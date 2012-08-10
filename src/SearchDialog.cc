@@ -133,8 +133,8 @@ SearchDialog::findClients(const std::wstring &search)
             return 0;
         }
 
-        list<Client*> matches;
-        list<Client*>::iterator it(Client::client_begin());
+        vector<Client*> matches;
+        vector<Client*>::const_iterator it(Client::client_begin());
         for (; it != Client::client_end(); ++it) {
             if ((*it)->isFocusable()  && ! (*it)->isSkip(SKIP_FOCUS_TOGGLE)
                  && search_re == (*it)->getTitle()->getReal()) {

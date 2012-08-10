@@ -445,7 +445,7 @@ WindowManager::scanWindows(void)
 
     // Try to find transients for all clients, on restarts ordering might
     // not be correct.
-    list<Client*>::iterator it_client = Client::client_begin();
+    vector<Client*>::const_iterator it_client = Client::client_begin();
     for (; it_client != Client::client_end(); ++it_client) {
         if ((*it_client)->isTransient() && ! (*it_client)->getTransientClient()) {
             (*it_client)->findAndRaiseIfTransient();
@@ -629,7 +629,7 @@ WindowManager::doReloadKeygrabber(bool force)
     _keygrabber->grabKeys(X11::getRoot());
 
     // Regrab keys and buttons
-    list<Client*>::iterator c_it(Client::client_begin());
+    vector<Client*>::const_iterator c_it(Client::client_begin());
     for (; c_it != Client::client_end(); ++c_it) {
         (*c_it)->grabButtons();
         _keygrabber->ungrabKeys((*c_it)->getWindow());
@@ -649,7 +649,7 @@ WindowManager::doReloadAutoproperties(void)
 
     // NOTE: we need to load autoproperties after decor have been updated
     // as otherwise old theme data pointer will be used and sig 11 pekwm.
-    list<Client*>::iterator it_c(Client::client_begin());
+    vector<Client*>::const_iterator it_c(Client::client_begin());
     for (; it_c != Client::client_end(); ++it_c) {
         (*it_c)->readAutoprops(APPLY_ON_RELOAD);
     }
@@ -1478,19 +1478,19 @@ WindowManager::familyRaiseLower(Client *client, bool raise)
         win_search = client->getTransientClientWindow();
     }
 
-    list<Client*> client_list;
+    vector<Client*> client_list;
     Client::findFamilyFromWindow(client_list, win_search);
 
     if (parent) { // make sure parent gets underneath the children
         if (raise) {
-            client_list.push_front(parent);
+            client_list.insert(client_list.begin(), parent);
         } else {
             client_list.push_back(parent);
         }
     }
 
     Frame *frame;
-    list<Client*>::iterator it(client_list.begin());
+    vector<Client*>::const_iterator it(client_list.begin());
     for (; it != client_list.end(); ++it) {
         frame = dynamic_cast<Frame*>((*it)->getParent());
         if (frame) {
@@ -1589,7 +1589,7 @@ WindowManager::findGroupMatch(AutoProperty *property)
 void
 WindowManager::attachMarked(Frame *frame)
 {
-    list<Client*>::iterator it(Client::client_begin());
+    vector<Client*>::const_iterator it(Client::client_begin());
     for (; it != Client::client_end(); ++it) {
         if ((*it)->isMarked()) {
             if ((*it)->getParent() != frame) {

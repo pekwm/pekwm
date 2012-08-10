@@ -118,29 +118,29 @@ public: // Public Member Functions
     static Client *findClientFromWindow(Window win);
     static Client *findClientFromHint(const ClassHint *class_hint);
     static Client *findClientFromID(uint id);
-    static void findFamilyFromWindow(std::list<Client*> &client_list, Window win);
+    static void findFamilyFromWindow(vector<Client*> &client_list, Window win);
 
     static void mapOrUnmapTransients(Window win, bool hide);
 
     // START - Iterators
-    static uint client_size(void) { return _client_list.size(); }
-    static std::list<Client*>::iterator client_begin(void) {
-        return _client_list.begin();
+    static uint client_size(void) { return _clients.size(); }
+    static vector<Client*>::const_iterator client_begin(void) {
+        return _clients.begin();
     }
-    static std::list<Client*>::iterator client_end(void) {
-        return _client_list.end();
+    static vector<Client*>::const_iterator client_end(void) {
+        return _clients.end();
     }
-    static std::list<Client*>::reverse_iterator client_rbegin(void) {
-        return _client_list.rbegin();
+    static vector<Client*>::const_reverse_iterator client_rbegin(void) {
+        return _clients.rbegin();
     }
-    static std::list<Client*>::reverse_iterator client_rend(void) {
-        return _client_list.rend();
+    static vector<Client*>::const_reverse_iterator client_rend(void) {
+        return _clients.rend();
     }
 
     unsigned int transient_size(void) { return _transient_clients.size(); }
-    std::list<Client*>::iterator transient_begin(void) {
+    vector<Client*>::const_iterator transient_begin(void) {
         return _transient_clients.begin(); }
-    std::list<Client*>::iterator transient_end(void) {
+    vector<Client*>::const_iterator transient_end(void) {
         return _transient_clients.end(); }
     // END - Iterators
 
@@ -351,7 +351,7 @@ private: // Private Member Variables
 
     Client *_transient; /**< Client for which this client is transient for */
     Window _transient_window;
-    std::list<Client*> _transient_clients; /**< List of transient clients. */
+    vector<Client*> _transient_clients; /**< Vector of transient clients. */
 
     Strut *_strut;
 
@@ -411,8 +411,8 @@ private: // Private Member Variables
         bool close;
     } _actions;
 
-    static std::list<Client*> _client_list; //!< List of all Clients.
-    static vector<uint> _clientid_list; //!< List of free Client IDs.
+    static vector<Client*> _clients; //!< Vector of all Clients.
+    static vector<uint> _clientids; //!< Vector of free Client IDs.
 };
 
 #endif // _CLIENT_HH_

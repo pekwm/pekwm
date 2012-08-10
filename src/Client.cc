@@ -16,6 +16,7 @@
 
 #include <cstdio>
 #include <iostream>
+#include <algorithm>
 
 extern "C" {
 #include <X11/Xlib.h>
@@ -53,8 +54,8 @@ using std::string;
 using std::vector;
 using std::wstring;
 
-list<Client*> Client::_client_list = list<Client*>();
-vector<uint> Client::_clientid_list = vector<uint>();
+vector<Client*> Client::_clients;
+vector<uint> Client::_clientids;
 
 Client::Client(Window new_client, bool is_new)
     : PWinObj(),
@@ -139,7 +140,7 @@ Client::Client(Window new_client, bool is_new)
     // Finished creating the client, so now adding it to the client list.
     woListAdd(this);
     _wo_map[_window] = this;
-    _client_list.push_back(this);
+    _clients.push_back(this);
 }
 
 //! @brief Client destructor
@@ -147,12 +148,13 @@ Client::~Client(void)
 {
     // Remove from lists
     if (_transient) {
-        _transient->_transient_clients.remove(this);
+        vector<Client *> &tc(_transient->_transient_clients);
+        tc.erase(std::remove(tc.begin(), tc.end(), this), tc.end());
         _transient->removeObserver(this);
     }
     _wo_map.erase(_window);
     woListRemove(this);
-    _client_list.remove(this);
+    _clients.erase(std::remove(_clients.begin(), _clients.end(), this), _clients.end());
 
     returnClientID(_id);
 
@@ -639,7 +641,10 @@ Client::notify(Observable *observable, Observation *observation)
         if (client == _transient) {
             _transient = 0;
         } else {
-            _transient_clients.remove(client);
+            _transient_clients.erase(std::remove(_transient_clients.begin(),
+                                                 _transient_clients.end(),
+                                                 this),
+                                     _transient_clients.end());
         }
     }
 }
@@ -657,8 +662,8 @@ Client::findClient(Window win)
         return 0;
     }
 
-    list<Client*>::iterator it(_client_list.begin());
-    for (; it != _client_list.end(); ++it) {
+    vector<Client*>::const_iterator it(_clients.begin());
+    for (; it != _clients.end(); ++it) {
         if (win == (*it)->getWindow()
             || ((*it)->getParent() && (*((*it)->getParent()) == win))) {
             return (*it);
@@ -678,8 +683,8 @@ Client::findClientFromWindow(Window win)
         return 0;
     }
 
-    list<Client*>::iterator it(_client_list.begin());
-    for(; it != _client_list.end(); ++it) {
+    vector<Client*>::const_iterator it(_clients.begin());
+    for(; it != _clients.end(); ++it) {
         if (win == (*it)->getWindow()) {
             return (*it);
         }
@@ -694,8 +699,8 @@ Client::findClientFromWindow(Window win)
 Client*
 Client::findClientFromHint(const ClassHint *class_hint)
 {
-    list<Client*>::iterator it(_client_list.begin());
-    for (; it != _client_list.end(); ++it) {
+    vector<Client*>::const_iterator it(_clients.begin());
+    for (; it != _clients.end(); ++it) {
         if (*class_hint == *(*it)->getClassHint()) {
             return *it;
         }
@@ -710,8 +715,8 @@ Client::findClientFromHint(const ClassHint *class_hint)
 Client*
 Client::findClientFromID(uint id)
 {
-    list<Client*>::iterator it(_client_list.begin());
-    for (; it != _client_list.end(); ++it) {
+    vector<Client*>::const_iterator it(_clients.begin());
+    for (; it != _clients.end(); ++it) {
         if ((*it)->getClientID() == id) {
             return *it;
         }
@@ -724,9 +729,9 @@ Client::findClientFromID(uint id)
  * Insert all clients with the transient for set to win.
  */
 void
-Client::findFamilyFromWindow(std::list<Client*> &client_list, Window win)
+Client::findFamilyFromWindow(vector<Client*> &client_list, Window win)
 {
-    list<Client*>::iterator it(Client::client_begin());
+    vector<Client*>::const_iterator it(Client::client_begin());
     for (; it != Client::client_end(); ++it) {
         if ((*it)->getTransientClientWindow() == win) {
             client_list.push_back(*it);
@@ -741,10 +746,10 @@ Client::findFamilyFromWindow(std::list<Client*> &client_list, Window win)
 void
 Client::mapOrUnmapTransients(Window win, bool hide)
 {
-    list<Client*> client_list;
+    vector<Client*> client_list;
     findFamilyFromWindow(client_list, win);
 
-    list<Client*>::iterator it(client_list.begin());
+    vector<Client*>::const_iterator it(client_list.begin());
     for (; it != client_list.end(); ++it) {
         if (static_cast<Frame*>((*it)->getParent())->getActiveChild() == *it) {
             if (hide) {
@@ -1130,13 +1135,13 @@ Client::findClientID(void)
 {
     uint id = 0;    
 
-    if (_clientid_list.size()) {
+    if (_clientids.size()) {
         // Check for used Frame IDs
-        id = _clientid_list.back();
-        _clientid_list.pop_back();
+        id = _clientids.back();
+        _clientids.pop_back();
     } else {
         // No free, get next number (Client is not in list when this is called.)
-        id = _client_list.size() + 1;
+        id = _clients.size() + 1;
     }
 
     return id;
@@ -1147,10 +1152,10 @@ Client::findClientID(void)
 void
 Client::returnClientID(uint id)
 {
-    vector<uint>::iterator it(_clientid_list.begin());
-    for (; it != _clientid_list.end() && id < *it; ++it)
+    vector<uint>::iterator it(_clientids.begin());
+    for (; it != _clientids.end() && id < *it; ++it)
         ;
-    _clientid_list.insert(it, id);
+    _clientids.insert(it, id);
 }
 
 /**
@@ -1212,10 +1217,10 @@ Client::titleFindID(std::wstring &title)
     }
 
     uint id_found = 0;
-    list<uint> ids_used;
+    vector<uint> ids_used;
 
-    list<Client*>::iterator it = _client_list.begin();
-    for (; it != _client_list.end(); ++it) {
+    vector<Client*>::const_iterator it = _clients.begin();
+    for (; it != _clients.end(); ++it) {
         if (*it != this) {
             if ((*it)->getTitle()->getReal() == title) {
                 ids_used.push_back((*it)->getTitle()->getCount());
@@ -1225,9 +1230,9 @@ Client::titleFindID(std::wstring &title)
 
     // more than one client having this name
     if (ids_used.size() > 0) {
-        ids_used.sort();
+        std::sort(ids_used.begin(), ids_used.end());
 
-        list<uint>::iterator ui_it( ids_used.begin());
+        vector<uint>::const_iterator ui_it(ids_used.begin());
         for (uint i = 0; ui_it != ids_used.end(); ++i, ++ui_it) {
             if (i < *ui_it) {
                 id_found = i;
@@ -1663,7 +1668,7 @@ Client::getEwmhStates(NetWMStates &win_states)
 void
 Client::updateEwmhStates(void)
 {
-    list<Atom> states;
+    vector<Atom> states;
 
     if (false) // we don't yet support modal state
         states.push_back(Atoms::getAtom(STATE_MODAL));

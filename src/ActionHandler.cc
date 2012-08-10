@@ -940,8 +940,8 @@ ActionHandler::findClientFromTitle(const std::wstring &or_title)
     RegexString o_rs;
 
     if (o_rs.parse_match(or_title, true)) {
-        list<Client*>::iterator it (Client::client_begin());
-        for (; it != Client::client_end (); ++it) {
+        vector<Client*>::const_iterator it(Client::client_begin());
+        for (; it != Client::client_end(); ++it) {
             if (o_rs == (*it)->getTitle()->getVisible()) {
                 return (*it);
             }
