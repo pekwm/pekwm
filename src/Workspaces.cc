@@ -569,7 +569,7 @@ Workspaces::buildClientList(unsigned int &num_windows)
     Frame *frame;
     Client *client, *client_active;
 
-    list<Window> windows_list;
+    vector<Window> windows;
     vector<PWinObj*>::const_iterator it_f, it_c;
     for (it_f = _wobjs.begin(); it_f != _wobjs.end(); ++it_f) {
         if ((*it_f)->getType() != PWinObj::WO_FRAME) {
@@ -584,23 +584,23 @@ Workspaces::buildClientList(unsigned int &num_windows)
                 client = dynamic_cast<Client*>(*it_c);
                 if (client && ! client->isSkip(SKIP_TASKBAR)
                     && client != client_active) {
-                    windows_list.push_back(client->getWindow());
+                    windows.push_back(client->getWindow());
                 }
             }
         }
 
         if (client_active && ! client_active->isSkip(SKIP_TASKBAR)) {
-            windows_list.push_back(client_active->getWindow());
+            windows.push_back(client_active->getWindow());
         }
     }
 
-    num_windows = windows_list.size();
-    Window *windows = new Window[num_windows ? num_windows : 1];
+    num_windows = windows.size();
+    Window *wins = new Window[num_windows ? num_windows : 1];
     if (num_windows > 0) {
-        copy(windows_list.begin(), windows_list.end(), windows);
+        copy(windows.begin(), windows.end(), wins);
     }
 
-    return windows;
+    return wins;
 }
 
 /**
