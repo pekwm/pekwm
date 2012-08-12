@@ -27,7 +27,6 @@
 #include "Theme.hh"
 #include "PFont.hh"
 #include "PTexture.hh"
-#include "ColorHandler.hh"
 #include "FontHandler.hh"
 #include "PixmapHandler.hh"
 #include "TextureHandler.hh"
@@ -163,7 +162,7 @@ WindowManager::WindowManager(const std::string &command_line,
         :
         _screen_resources(0),
         _keygrabber(0),
-        _config(0), _color_handler(0),
+        _config(0),
         _font_handler(0), _texture_handler(0),
         _theme(0), _action_handler(0),
         _autoproperties(0),
@@ -212,7 +211,6 @@ WindowManager::~WindowManager(void)
     Workspaces::free();
     delete _config;
     delete _theme;
-    delete _color_handler;
     delete _font_handler;
     delete _texture_handler;
     delete _screen_resources;
@@ -316,7 +314,6 @@ WindowManager::setupDisplay(bool replace)
     _root_wo = new RootWO(X11::getRoot());
     PWinObj::setRootPWinObj(_root_wo);
 
-    _color_handler = new ColorHandler;
     _font_handler = new FontHandler();
     _texture_handler = new TextureHandler();
     _action_handler = new ActionHandler();

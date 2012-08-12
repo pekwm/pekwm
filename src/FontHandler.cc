@@ -13,8 +13,8 @@
 #include <cctype>
 #include <iostream>
 
-#include "ColorHandler.hh"
 #include "FontHandler.hh"
+#include "x11.hh"
 #include "Util.hh"
 
 using std::cerr;
@@ -247,9 +247,9 @@ FontHandler::loadColor(const std::string &color, PFont::Color *font_color, bool 
         } else {
             font_color->setBgAlpha(alpha);
         }
-        xc = ColorHandler::instance()->getColor(tok[0]);
+        xc = X11::getColor(tok[0]);
     } else {
-        xc = ColorHandler::instance()->getColor(color);
+        xc = X11::getColor(color);
     }
 
     if (fg) {
@@ -264,11 +264,11 @@ void
 FontHandler::freeColor(PFont::Color *font_color)
 {
     if (font_color->hasFg()) {
-        ColorHandler::instance()->returnColor(font_color->getFg());
+        X11::returnColor(font_color->getFg());
     }
     
     if (font_color->hasBg()) {
-        ColorHandler::instance()->returnColor(font_color->getBg());
+        X11::returnColor(font_color->getBg());
     }
     
     delete font_color;

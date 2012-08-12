@@ -18,7 +18,6 @@
 #include "PWinObj.hh"
 #include "PFont.hh"
 #include "PTexture.hh"
-#include "ColorHandler.hh"
 #include "FontHandler.hh"
 #include "ImageHandler.hh"
 #include "TextureHandler.hh"

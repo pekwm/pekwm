@@ -35,7 +35,6 @@ extern "C" {
 class ActionHandler;
 class AutoProperties;
 class Config;
-class ColorHandler;
 class FontHandler;
 class TextureHandler;
 class Theme;
@@ -211,7 +210,6 @@ private:
     ScreenResources *_screen_resources;
     KeyGrabber *_keygrabber;
     Config *_config;
-    ColorHandler *_color_handler;
     FontHandler *_font_handler;
     TextureHandler *_texture_handler;
     Theme *_theme;

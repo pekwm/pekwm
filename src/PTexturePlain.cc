@@ -12,7 +12,6 @@
 
 #include "PTexture.hh"
 #include "PTexturePlain.hh"
-#include "ColorHandler.hh"
 #include "PImage.hh"
 #include "ImageHandler.hh"
 #include "x11.hh"
@@ -68,7 +67,7 @@ PTextureSolid::setColor(const std::string &color)
 {
     unsetColor(); // unload used resources
 
-    _xc = ColorHandler::instance()->getColor(color);
+    _xc = X11::getColor(color);
     XSetForeground(X11::getDpy(), _gc, _xc->pixel);
 
     _ok = true;
@@ -81,7 +80,7 @@ void
 PTextureSolid::unsetColor(void)
 {
     if (_xc) {
-        ColorHandler::instance()->returnColor(_xc);
+        X11::returnColor(_xc);
 
         _xc = 0;
         _ok = false;
@@ -187,9 +186,9 @@ PTextureSolidRaised::setColor(const std::string &base, const std::string &hi, co
 {
     unsetColor(); // unload used resources
 
-    _xc_base = ColorHandler::instance()->getColor(base);
-    _xc_hi = ColorHandler::instance()->getColor(hi);
-    _xc_lo = ColorHandler::instance()->getColor(lo);
+    _xc_base = X11::getColor(base);
+    _xc_hi = X11::getColor(hi);
+    _xc_lo = X11::getColor(lo);
 
     _ok = true;
 
@@ -202,9 +201,9 @@ PTextureSolidRaised::unsetColor(void)
 {
     _ok = false;
 
-    ColorHandler::instance()->returnColor(_xc_base);
-    ColorHandler::instance()->returnColor(_xc_hi);
-    ColorHandler::instance()->returnColor(_xc_lo);
+    X11::returnColor(_xc_base);
+    X11::returnColor(_xc_hi);
+    X11::returnColor(_xc_lo);
 
     _xc_base = _xc_hi = _xc_lo = 0;
 }
