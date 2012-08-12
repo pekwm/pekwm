@@ -15,6 +15,8 @@
 
 #include "pekwm.hh"
 
+#include <string>
+
 extern "C" {
 #include <X11/Xlib.h>
 #ifdef HAVE_XINERAMA
@@ -126,6 +128,9 @@ public:
     inline static X11::PVisual *getVisual(void) { return _visual; }
     inline static GC getGC(void) { return DefaultGC(_dpy, _screen); }
     inline static Colormap getColormap(void) { return _colormap; }
+
+    static XColor *getColor(const std::string &color);
+    static void returnColor(XColor *xc);
 
     inline static
     ulong getWhitePixel(void) { return WhitePixel(_dpy, _screen); }
@@ -325,6 +330,10 @@ private:
 
     static Strut _strut;
     static vector<Strut*> _struts;
+
+    class ColorEntry;
+    static std::vector<ColorEntry *> _colours;
+    static XColor _xc_default; // when allocating fails
 
     X11(void) {}
     ~X11(void) {}

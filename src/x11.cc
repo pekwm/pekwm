@@ -81,6 +81,31 @@ extern "C" {
     }
 }
 
+/**
+ * Helper class for XColor.
+ */
+
+class X11::ColorEntry {
+public:
+    ColorEntry(const std::string &name) : _name(name), _ref(0) { }
+    ~ColorEntry(void) { }
+
+    inline XColor *getColor(void) { return &_xc; }
+
+    inline uint getRef(void) const { return _ref; }
+    inline void incRef(void) { _ref++; }
+    inline void decRef(void) { if (_ref > 0) { _ref--; } }
+
+    inline bool operator==(const std::string &name) {
+        return (::strcasecmp(_name.c_str(), name.c_str()) == 0);
+    }
+
+private:
+    std::string _name;
+    XColor _xc;
+    uint _ref;
+};
+
 //! @brief X11::Visual constructor.
 //! @param x_visual X Visual to wrap.
 X11::PVisual::PVisual(Visual *x_visual) : _x_visual(x_visual),
@@ -179,11 +204,25 @@ X11::init(Display *dpy, bool honour_randr)
 
     XSync(_dpy, false);
     XUngrabServer(_dpy);
+
+    _xc_default.pixel = BlackPixel(_dpy, _screen);
+    _xc_default.red = _xc_default.green = _xc_default.blue = 0;
 }
 
 //! @brief X11 destructor
 void
 X11::destruct(void) {
+    if (_colours.size() > 0) {
+        ulong *pixels = new ulong[_colours.size()];
+        for (uint i=0; i < _colours.size(); ++i) {
+            pixels[i] = _colours[i]->getColor()->pixel;
+            delete _colours[i];
+        }
+        XFreeColors(_dpy, X11::getColormap(),
+                    pixels, _colours.size(), 0);
+        delete [] pixels;
+    }
+
     delete _visual;
 
     if (_modifier_map) {
@@ -197,6 +236,71 @@ X11::destruct(void) {
 
     XCloseDisplay(_dpy);
     _dpy = 0;
+}
+
+XColor *
+X11::getColor(const std::string &color)
+{
+    // check for already existing entry
+    vector<ColorEntry*>::const_iterator it(_colours.begin());
+
+    if (strcasecmp(color.c_str(), "EMPTY") == 0) {
+        return &_xc_default;
+    }
+
+    for (; it != _colours.end(); ++it) {
+        if (*(*it) == color) {
+            (*it)->incRef();
+            return (*it)->getColor();
+        }
+    }
+
+    // create new entry
+    ColorEntry *entry = new ColorEntry(color);
+
+    // X alloc
+    XColor dummy;
+    if (XAllocNamedColor(_dpy, X11::getColormap(),
+                         color.c_str(), entry->getColor(), &dummy) == 0) {
+#ifdef DEBUG
+        cerr << __FILE__ << "@" << __LINE__ << ": "
+             << "ColorHandler(" << this << ")::getColor(" << color << ")" << endl
+             << " *** failed to alloc color: " << color << endl;
+#endif // DEBUG
+        delete entry;
+        entry = 0;
+    } else {
+        _colours.push_back(entry);
+    }
+
+    entry->incRef();
+    return entry ? entry->getColor() : &_xc_default;
+}
+
+void
+X11::returnColor(XColor *xc)
+{
+    bool _free_on_return = false;
+
+    if (&_xc_default == xc) { // no need to return default color
+        return;
+    }
+
+    vector<ColorEntry*>::iterator it(_colours.begin());
+
+    for (; it != _colours.end(); ++it) {
+        if ((*it)->getColor() == xc) {
+            (*it)->decRef();
+            if (_free_on_return && ((*it)->getRef() == 0)) {
+                ulong pixels[1] = { (*it)->getColor()->pixel };
+                XFreeColors(X11::getDpy(), X11::getColormap(), pixels, 1, 0);
+
+                delete *it;
+                _colours.erase(it);
+            }
+            break;
+        }
+    }
 }
 
 /**
@@ -770,3 +874,5 @@ Window X11::_last_click_id = None;
 Time X11::_last_click_time[BUTTON_NO - 1];
 Strut X11::_strut;
 vector<Strut*> X11::_struts;
+vector<X11::ColorEntry*> X11::_colours;
+XColor X11::_xc_default;
