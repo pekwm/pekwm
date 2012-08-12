@@ -209,7 +209,7 @@ ActionCompleterMethod::find_state(CompletionState &completion_state)
 ActionCompleterMethod::State
 ActionCompleterMethod::find_state_match(const std::wstring &str, size_t pos)
 {
-    for (int i = 0; i < STATE_NUM; ++i) {
+    for (int i = 0; i < sizeof(STATE_MATCHES)/sizeof(StateMatch); ++i) {
         if (STATE_MATCHES[i].is_state(str, pos)) {
             return STATE_MATCHES[i].get_state();
         }
