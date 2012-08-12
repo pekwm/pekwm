@@ -66,18 +66,6 @@ protected:
 };
 
 /**
- * Null completer, provides no completion independent of input.
- */
-class NullCompleterMethod : public CompleterMethod
-{
-public:
-    /** Null completer can always complete. */
-    virtual bool can_complete(const std::wstring &str) { return true; }
-    /** Find completions, does nothing. */
-    virtual unsigned int complete(CompletionState &completion_state) { return 0; }
-};
-
-/**
  * Path completer, provides completion of elements in the path.
  */
 class PathCompleterMethod : public CompleterMethod
