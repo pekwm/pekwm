@@ -1181,7 +1181,7 @@ PDecor::activateChildRel(int off)
         cur = 0;
     }
 
-    off = (off+cur)%size;
+    off = (off+signed(cur))%signed(size);
     if (off < 0) {
         off += size;
     }
