@@ -154,7 +154,7 @@ class Completer
 {
 public:
     /** Completer constructor */
-    Completer(const std::wstring separators = L"") : _separators(separators) { }
+    Completer(void) { }
     /** Completer destructor. */
     ~Completer(void);
 
@@ -173,7 +173,6 @@ private:
 
 private:
     std::vector<CompleterMethod*> _methods; /**< List of CompleterMethods. */
-    const std::wstring _separators; /**< String with separator characters. */
 };
 
 #endif // _COMPLETER_HH_

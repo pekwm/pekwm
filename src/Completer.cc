@@ -312,14 +312,9 @@ Completer::do_complete(const wstring &str, unsigned int &pos,
 wstring
 Completer::get_part(const wstring &str, unsigned int pos, size_t &part_begin, size_t &part_end)
 {
-    // If no separators are defined, do nothing.
-    if (! _separators.size()) {
-        return str;
-    }
-
     // Get beginning and end of string, add 1 for removal of separator
-    part_begin = String::safe_position(str.find_last_of(_separators, pos), 0, 1);
-    part_end = String::safe_position(str.find_first_of(_separators, pos), str.size());
+    part_begin = String::safe_position(str.find_last_of(L";", pos), 0, 1);
+    part_end = String::safe_position(str.find_first_of(L";", pos), str.size());
 
     // Strip spaces from the beginning of the string
     part_begin = String::safe_position(str.find_first_not_of(L" \t", part_begin), part_end);
