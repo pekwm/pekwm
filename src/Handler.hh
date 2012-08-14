@@ -12,6 +12,7 @@
 #define _HANDLER_HH_
 
 #include <string>
+#include <cstring>
 
 template<class T>
 class HandlerEntry {
