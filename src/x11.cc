@@ -271,9 +271,9 @@ X11::getColor(const std::string &color)
         entry = 0;
     } else {
         _colours.push_back(entry);
+        entry->incRef();
     }
 
-    entry->incRef();
     return entry ? entry->getColor() : &_xc_default;
 }
 
