@@ -250,9 +250,7 @@ Completer::find_completions(const wstring &str, unsigned int pos)
     // Go through completer methods and add completions.
     vector<CompleterMethod*>::const_iterator it(_methods.begin());
     for (; it != _methods.end(); ++it) {
-        if ((*it)->can_complete(state.part)) {
-            (*it)->complete(state);
-        }
+        (*it)->complete(state);
     }
 
     return state.completions;

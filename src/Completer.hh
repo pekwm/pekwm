@@ -52,12 +52,10 @@ public:
     /** Destructor for CompleterMethod */
     virtual ~CompleterMethod(void) { }
 
-    /** Return true if method can complete. */
-    virtual bool can_complete(const std::wstring &str) { return false; }
     /** Find completions for string. */
     virtual unsigned int complete(CompletionState &completion_state) { return 0; }
     /** Refresh completion list. */
-    virtual void refresh(void) { }
+    virtual void refresh(void)=0;
 
 protected:
     unsigned int complete_word(completions_list &completions_list,
@@ -76,8 +74,6 @@ public:
     /** Destructor for PathCompleterMethod */
     virtual ~PathCompleterMethod(void) { }
 
-    /** Path completer can always complete. */
-    virtual bool can_complete(const std::wstring &str) { return true; }
     virtual unsigned int complete(CompletionState &completion_state);
     virtual void refresh(void);
 
@@ -128,8 +124,6 @@ public:
     /** Destructor for ActionCompleterMethod */
     virtual ~ActionCompleterMethod(void) { }
 
-    /** Path completer can always complete. */
-    virtual bool can_complete(const std::wstring &str) { return true; }
     virtual unsigned int complete(CompletionState &completion_state);
     virtual void refresh(void);
 
