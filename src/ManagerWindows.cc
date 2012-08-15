@@ -190,7 +190,7 @@ HintWO::claimDisplayOwner(Window session_atom, Time timestamp)
 {
     XEvent event;
     // FIXME: One should use _root_wo here?
-    Window root = RootWindow(X11::getDpy(), DefaultScreen(X11::getDpy()));
+    Window root = X11::getRoot();
 
     event.xclient.type = ClientMessage;
     event.xclient.message_type = Atoms::getAtom(MANAGER);

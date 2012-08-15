@@ -1348,11 +1348,9 @@ void Client::sendTakeFocusMessage(void)
     if (_send_focus_message) {
         {
             XEvent ev;
-            XChangeProperty(X11::getDpy(),
-                            RootWindow(X11::getDpy(), DefaultScreen(X11::getDpy())),
+            XChangeProperty(X11::getDpy(), X11::getRoot(),
                             XA_PRIMARY, XA_STRING, 8, PropModeAppend, 0, 0);
-            XWindowEvent(X11::getDpy(),
-                         RootWindow(X11::getDpy(), DefaultScreen(X11::getDpy())),
+            XWindowEvent(X11::getDpy(), X11::getRoot(),
                          PropertyChangeMask, &ev);
             X11::setLastEventTime(ev.xproperty.time);
         }

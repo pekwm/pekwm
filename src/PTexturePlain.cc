@@ -30,7 +30,7 @@ PTextureSolid::PTextureSolid(const std::string &color)
 
     XGCValues gv;
     gv.function = GXcopy;
-    _gc = XCreateGC(X11::getDpy(), RootWindow(X11::getDpy(), DefaultScreen(X11::getDpy())), GCFunction, &gv);
+    _gc = XCreateGC(X11::getDpy(), X11::getRoot(), GCFunction, &gv);
 
     setColor(color);
 }
@@ -103,8 +103,7 @@ PTextureSolidRaised::PTextureSolidRaised(const std::string &base, const std::str
     XGCValues gv;
     gv.function = GXcopy;
     gv.line_width = _lw;
-    _gc = XCreateGC(X11::getDpy(), RootWindow(X11::getDpy(), DefaultScreen(X11::getDpy())),
-                    GCFunction|GCLineWidth, &gv);
+    _gc = XCreateGC(X11::getDpy(), X11::getRoot(), GCFunction|GCLineWidth, &gv);
 
     setColor(base, hi, lo);
 }
