@@ -76,7 +76,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
     // get unique id of the frame, if the client didn't have an id
     if (! WindowManager::instance()->isStartup()) {
         long id;
-        if (AtomUtil::getLong(client->getWindow(), Atoms::getAtom(PEKWM_FRAME_ID), id)) {
+        if (AtomUtil::getLong(client->getWindow(), X11::getAtom(PEKWM_FRAME_ID), id)) {
             _id = id;
         }
 
@@ -448,7 +448,7 @@ void
 Frame::addChild(PWinObj *child, vector<PWinObj*>::iterator *it)
 {
     PDecor::addChild(child, it);
-    AtomUtil::setLong(child->getWindow(), Atoms::getAtom(PEKWM_FRAME_ID), _id);
+    AtomUtil::setLong(child->getWindow(), X11::getAtom(PEKWM_FRAME_ID), _id);
     child->lower();
 
     Client *client = dynamic_cast<Client*>(child);
@@ -693,7 +693,7 @@ Frame::setId(uint id)
 {
     _id = id;
 
-    long atom = Atoms::getAtom(PEKWM_FRAME_ID);
+    long atom = X11::getAtom(PEKWM_FRAME_ID);
     vector<PWinObj*>::const_iterator it(_children.begin());
     for (; it != _children.end(); ++it) {
         AtomUtil::setLong((*it)->getWindow(), atom, id);
@@ -1658,7 +1658,7 @@ Frame::setStateDecorBorder(StateAction sa)
 
         // update the _PEKWM_FRAME_DECOR hint
         AtomUtil::setLong(_client->getWindow(),
-                          Atoms::getAtom(PEKWM_FRAME_DECOR),
+                          X11::getAtom(PEKWM_FRAME_DECOR),
                           _client->getDecorState());
     }
 }
@@ -1677,7 +1677,7 @@ Frame::setStateDecorTitlebar(StateAction sa)
         _client->setTitlebar(hasTitlebar());
 
         AtomUtil::setLong(_client->getWindow(),
-                          Atoms::getAtom(PEKWM_FRAME_DECOR),
+                          X11::getAtom(PEKWM_FRAME_DECOR),
                           _client->getDecorState());
     }
 }
@@ -1747,7 +1747,7 @@ Frame::setStateTitle(StateAction sa, Client *client, const std::wstring &title)
 
     // Set PEKWM_TITLE atom to preserve title on client between sessions.
     AtomUtil::setString(client->getWindow(),
-                        Atoms::getAtom(PEKWM_TITLE),
+                        X11::getAtom(PEKWM_TITLE),
                         Util::to_mb_str(client->getTitle()->getUser()));
 
 
@@ -2175,9 +2175,9 @@ Frame::isRequestGeometryFullscreen(XConfigureRequestEvent *ev, Client *client)
 void
 Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
 {
-    if (ev->message_type == Atoms::getAtom(STATE)) {
+    if (ev->message_type == X11::getAtom(STATE)) {
         handleClientStateMessage(ev, client);
-    } else if (ev->message_type == Atoms::getAtom(NET_ACTIVE_WINDOW)) {
+    } else if (ev->message_type == X11::getAtom(NET_ACTIVE_WINDOW)) {
         if (! client->isCfgDeny(CFG_DENY_ACTIVE_WINDOW)) {
             // Active child if it's not the active child
             if (client != _client) {
@@ -2197,13 +2197,13 @@ Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
             raise();
             giveInputFocus();
         }
-    } else if (ev->message_type == Atoms::getAtom(NET_CLOSE_WINDOW)) {
+    } else if (ev->message_type == X11::getAtom(NET_CLOSE_WINDOW)) {
         client->close();
-    } else if (ev->message_type == Atoms::getAtom(NET_WM_DESKTOP)) {
+    } else if (ev->message_type == X11::getAtom(NET_WM_DESKTOP)) {
         if (client == _client) {
             setWorkspace(ev->data.l[0]);
         }
-    } else if (ev->message_type == Atoms::getAtom(WM_CHANGE_STATE) &&
+    } else if (ev->message_type == X11::getAtom(WM_CHANGE_STATE) &&
                (ev->format == 32) && (ev->data.l[0] == IconicState)) {
         if (client == _client) {
             iconify();
@@ -2277,33 +2277,33 @@ Frame::handleStateAtom(StateAction sa, Atom atom, Client *client)
 void
 Frame::handleCurrentClientStateAtom(StateAction sa, Atom atom, Client *client)
 {
-    if (atom == Atoms::getAtom(STATE_STICKY)) {
+    if (atom == X11::getAtom(STATE_STICKY)) {
         setStateSticky(sa);
     }
-    if (atom == Atoms::getAtom(STATE_MAXIMIZED_HORZ)
+    if (atom == X11::getAtom(STATE_MAXIMIZED_HORZ)
             && ! client->isCfgDeny(CFG_DENY_STATE_MAXIMIZED_HORZ)) {
         setStateMaximized(sa, true, false, false);
     }
-    if (atom == Atoms::getAtom(STATE_MAXIMIZED_VERT)
+    if (atom == X11::getAtom(STATE_MAXIMIZED_VERT)
             && ! client->isCfgDeny(CFG_DENY_STATE_MAXIMIZED_VERT)) {
         setStateMaximized(sa, false, true, false);
     }
-    if (atom == Atoms::getAtom(STATE_SHADED)) {
+    if (atom == X11::getAtom(STATE_SHADED)) {
         setShaded(sa);
     }
-    if (atom == Atoms::getAtom(STATE_HIDDEN)
+    if (atom == X11::getAtom(STATE_HIDDEN)
             && ! client->isCfgDeny(CFG_DENY_STATE_HIDDEN)) {
         setStateIconified(sa);
     }
-    if (atom == Atoms::getAtom(STATE_FULLSCREEN)
+    if (atom == X11::getAtom(STATE_FULLSCREEN)
             && ! client->isCfgDeny(CFG_DENY_STATE_FULLSCREEN)) {
         setStateFullscreen(sa);
     }
-    if (atom == Atoms::getAtom(STATE_ABOVE)
+    if (atom == X11::getAtom(STATE_ABOVE)
             && ! client->isCfgDeny(CFG_DENY_STATE_ABOVE)) {
         setStateAlwaysOnTop(sa);
     }
-    if (atom == Atoms::getAtom(STATE_BELOW)
+    if (atom == X11::getAtom(STATE_BELOW)
             && ! client->isCfgDeny(CFG_DENY_STATE_BELOW)) {
         setStateAlwaysBelow(sa);
     }
@@ -2313,25 +2313,25 @@ Frame::handleCurrentClientStateAtom(StateAction sa, Atom atom, Client *client)
 void
 Frame::handlePropertyChange(XPropertyEvent *ev, Client *client)
 {
-    if (ev->atom == Atoms::getAtom(NET_WM_DESKTOP)) {
+    if (ev->atom == X11::getAtom(NET_WM_DESKTOP)) {
         if (client == _client) {
             long workspace;
 
             if (AtomUtil::getLong(client->getWindow(),
-                                  Atoms::getAtom(NET_WM_DESKTOP), workspace)) {
+                                  X11::getAtom(NET_WM_DESKTOP), workspace)) {
                 if (workspace != signed(_workspace))
                     setWorkspace(workspace);
             }
         }
-    } else if (ev->atom == Atoms::getAtom(NET_WM_STRUT)) {
+    } else if (ev->atom == X11::getAtom(NET_WM_STRUT)) {
         client->getStrutHint();
-    } else if (ev->atom == Atoms::getAtom(NET_WM_NAME) || ev->atom == XA_WM_NAME) {
+    } else if (ev->atom == X11::getAtom(NET_WM_NAME) || ev->atom == XA_WM_NAME) {
         handleTitleChange(client);
     } else if (ev->atom == XA_WM_NORMAL_HINTS) {
         client->getWMNormalHints();
     } else if (ev->atom == XA_WM_TRANSIENT_FOR) {
         client->getTransientForHint();
-    } else if (ev->atom == Atoms::getAtom(WM_HINTS)) {
+    } else if (ev->atom == X11::getAtom(WM_HINTS)) {
         bool nstate, ostate = client->demandsAttention();
         client->getWMHints();
         nstate = client->demandsAttention();

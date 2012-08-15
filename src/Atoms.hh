@@ -24,25 +24,6 @@ extern "C" {
 #include <X11/Xatom.h>
 }
 
-// Atoms class
-class Atoms {
-public:
-    static void init();
-
-    static inline Atom getAtom(AtomName name) {
-        std::map<AtomName, Atom>::const_iterator it = _atoms.find(name);
-        if (it != _atoms.end()) {
-            return it->second;
-        }
-        return None;
-    }
-
-    static void setEwmhAtomsSupport(Window win);
-
-private:
-    static std::map<AtomName, Atom> _atoms;
-};
-
 namespace AtomUtil {
     bool getProperty(Window win, Atom atom, Atom type,
                      ulong expected, uchar **data, ulong *actual);

@@ -65,8 +65,8 @@ HintWO::HintWO(Window root, bool replace) throw (std::string&)
     XChangeWindowAttributes(X11::getDpy(), _window, CWEventMask|CWOverrideRedirect, &attr);
 
     // Set hints not being updated
-    AtomUtil::setString(_window, Atoms::getAtom(NET_WM_NAME), WM_NAME);
-    AtomUtil::setWindow(_window, Atoms::getAtom(NET_SUPPORTING_WM_CHECK), _window);
+    AtomUtil::setString(_window, X11::getAtom(NET_WM_NAME), WM_NAME);
+    AtomUtil::setWindow(_window, X11::getAtom(NET_SUPPORTING_WM_CHECK), _window);
 
     if (! claimDisplay(replace)) {
         throw string("unable to claim display");
@@ -95,7 +95,7 @@ HintWO::getTime(void)
 
     // Generate event on ourselves
     XChangeProperty(X11::getDpy(), _window,
-		    Atoms::getAtom(WM_CLASS), Atoms::getAtom(STRING),
+		    X11::getAtom(WM_CLASS), X11::getAtom(STRING),
                     8, PropModeAppend, 0, 0);
     XWindowEvent(X11::getDpy(), _window, PropertyChangeMask, &event);
 
@@ -193,7 +193,7 @@ HintWO::claimDisplayOwner(Window session_atom, Time timestamp)
     Window root = X11::getRoot();
 
     event.xclient.type = ClientMessage;
-    event.xclient.message_type = Atoms::getAtom(MANAGER);
+    event.xclient.message_type = X11::getAtom(MANAGER);
     event.xclient.display = X11::getDpy();
     event.xclient.window = root;
     event.xclient.format = 32;
@@ -236,16 +236,16 @@ RootWO::RootWO(Window root)
 
     // Set hits on the hint window, these are not updated so they are
     // set in the constructor.
-    AtomUtil::setLong(_window, Atoms::getAtom(NET_WM_PID), static_cast<long>(getpid()));
-    AtomUtil::setString(_window, Atoms::getAtom(WM_CLIENT_MACHINE), Util::getHostname());
+    AtomUtil::setLong(_window, X11::getAtom(NET_WM_PID), static_cast<long>(getpid()));
+    AtomUtil::setString(_window, X11::getAtom(WM_CLIENT_MACHINE), Util::getHostname());
 
-    AtomUtil::setWindow(_window, Atoms::getAtom(NET_SUPPORTING_WM_CHECK), HintWO::instance()->getWindow());
-    Atoms::setEwmhAtomsSupport(_window);
-    AtomUtil::setLong(_window, Atoms::getAtom(NET_NUMBER_OF_DESKTOPS), Config::instance()->getWorkspaces());
-    AtomUtil::setLong(_window, Atoms::getAtom(NET_CURRENT_DESKTOP), 0);
+    AtomUtil::setWindow(_window, X11::getAtom(NET_SUPPORTING_WM_CHECK), HintWO::instance()->getWindow());
+    X11::setEwmhAtomsSupport(_window);
+    AtomUtil::setLong(_window, X11::getAtom(NET_NUMBER_OF_DESKTOPS), Config::instance()->getWorkspaces());
+    AtomUtil::setLong(_window, X11::getAtom(NET_CURRENT_DESKTOP), 0);
 
     long desktop_geometry[2] = { _gm.width, _gm.height };
-    AtomUtil::setLongs(_window, Atoms::getAtom(NET_DESKTOP_GEOMETRY), desktop_geometry, 2);
+    AtomUtil::setLongs(_window, X11::getAtom(NET_DESKTOP_GEOMETRY), desktop_geometry, 2);
 
     woListAdd(this);
     _wo_map[_window] = this;
@@ -257,8 +257,8 @@ RootWO::RootWO(Window root)
 RootWO::~RootWO(void)
 {
     // Remove atoms, PID will not be valid on shutdown.
-    AtomUtil::unsetProperty(_window, Atoms::getAtom(NET_WM_PID));
-    AtomUtil::unsetProperty(_window, Atoms::getAtom(WM_CLIENT_MACHINE));
+    AtomUtil::unsetProperty(_window, X11::getAtom(NET_WM_PID));
+    AtomUtil::unsetProperty(_window, X11::getAtom(WM_CLIENT_MACHINE));
 
     _wo_map.erase(_window);
     woListRemove(this);
@@ -340,7 +340,7 @@ void
 RootWO::setEwmhWorkarea(const Geometry &workarea)
 {
     long workarea_array[4] = { workarea.x, workarea.y, workarea.width, workarea.height };
-    AtomUtil::setLongs(_window, Atoms::getAtom(NET_WORKAREA), workarea_array, 4);
+    AtomUtil::setLongs(_window, X11::getAtom(NET_WORKAREA), workarea_array, 4);
 }
 
 /**
@@ -351,7 +351,7 @@ RootWO::setEwmhWorkarea(const Geometry &workarea)
 void
 RootWO::setEwmhActiveWindow(Window win)
 {
-    AtomUtil::setWindow(X11::getRoot(), Atoms::getAtom(NET_ACTIVE_WINDOW), win);
+    AtomUtil::setWindow(X11::getRoot(), X11::getAtom(NET_ACTIVE_WINDOW), win);
 }
 
 /**
@@ -363,8 +363,8 @@ RootWO::readEwmhDesktopNames(void)
     uchar *data;
     ulong data_length;
     if (AtomUtil::getProperty(X11::getRoot(),
-                              Atoms::getAtom(NET_DESKTOP_NAMES),
-                              Atoms::getAtom(UTF8_STRING),
+                              X11::getAtom(NET_DESKTOP_NAMES),
+                              X11::getAtom(UTF8_STRING),
                               EXPECTED_DESKTOP_NAMES_LENGTH, &data, &data_length)) {
         Config::instance()->setDesktopNamesUTF8(reinterpret_cast<char *>(data), data_length);
 
@@ -384,7 +384,7 @@ RootWO::setEwmhDesktopNames(void)
 
     if (desktopnames) {
         AtomUtil::setUtf8StringArray(X11::getRoot(),
-                                     Atoms::getAtom(NET_DESKTOP_NAMES), desktopnames, length);
+                                     X11::getAtom(NET_DESKTOP_NAMES), desktopnames, length);
         delete [] desktopnames;
     }
 }

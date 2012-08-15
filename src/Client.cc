@@ -299,7 +299,7 @@ Client::findPreviousFrame(void)
     }
 
     long id;
-    if (AtomUtil::getLong(_window, Atoms::getAtom(PEKWM_FRAME_ID), id)) {
+    if (AtomUtil::getLong(_window, X11::getAtom(PEKWM_FRAME_ID), id)) {
         _parent = Frame::findFrameFromID(id);
         if (_parent) {
             Frame *frame = static_cast<Frame*>(_parent);
@@ -539,9 +539,9 @@ Client::setWorkspace(uint workspace)
         _workspace = workspace;
 
         if (_sticky) {
-            AtomUtil::setLong(_window, Atoms::getAtom(NET_WM_DESKTOP), NET_WM_STICKY_WINDOW);
+            AtomUtil::setLong(_window, X11::getAtom(NET_WM_DESKTOP), NET_WM_STICKY_WINDOW);
         } else {
-            AtomUtil::setLong(_window, Atoms::getAtom(NET_WM_DESKTOP), _workspace);
+            AtomUtil::setLong(_window, X11::getAtom(NET_WM_DESKTOP), _workspace);
         }
     }
 }
@@ -588,12 +588,12 @@ Client::handleUnmapEvent(XUnmapEvent *ev)
 
     // Extended Window Manager Hints 1.3 specifies that a window manager
     // should remove the _NET_WM_STATE property when a window is withdrawn.
-    AtomUtil::unsetProperty(_window, Atoms::getAtom(STATE));
+    AtomUtil::unsetProperty(_window, X11::getAtom(STATE));
 
     // Extended Window Manager Hints 1.3 specifies that a window manager
     // should remove the _NET_WM_DESKTOP property when a window is withdrawn.
     // (to allow legacy applications to reuse a withdrawn window)
-    AtomUtil::unsetProperty(_window, Atoms::getAtom(NET_WM_DESKTOP));
+    AtomUtil::unsetProperty(_window, X11::getAtom(NET_WM_DESKTOP));
 
 #ifdef DEBUG
     cerr << __FILE__ << "@" << __LINE__ << ": "
@@ -862,7 +862,7 @@ Client::readClassRoleHints(void)
 
     // wm window role
     string role;
-    AtomUtil::getString(_window, Atoms::getAtom(WM_WINDOW_ROLE), role);
+    AtomUtil::getString(_window, X11::getAtom(WM_WINDOW_ROLE), role);
 
     _class_hint->h_role = Util::to_wide_str(role);
 }
@@ -873,10 +873,10 @@ Client::readEwmhHints(void)
 {
     // which workspace do we belong to?
     long workspace = -1;
-    AtomUtil::getLong(_window, Atoms::getAtom(NET_WM_DESKTOP), workspace);
+    AtomUtil::getLong(_window, X11::getAtom(NET_WM_DESKTOP), workspace);
     if (workspace < 0) {
         _workspace = Workspaces::getActive();
-        AtomUtil::setLong(_window, Atoms::getAtom(NET_WM_DESKTOP), _workspace);
+        AtomUtil::setLong(_window, X11::getAtom(NET_WM_DESKTOP), _workspace);
     } else {
         _workspace = workspace;
     }
@@ -958,16 +958,16 @@ Client::readPekwmHints(void)
     string str;
 
     // Get decor state
-    if (AtomUtil::getLong(_window, Atoms::getAtom(PEKWM_FRAME_DECOR), value)) {
+    if (AtomUtil::getLong(_window, X11::getAtom(PEKWM_FRAME_DECOR), value)) {
         _state.decor = value;
     }
     // Get skip state
-    if (AtomUtil::getLong(_window, Atoms::getAtom(PEKWM_FRAME_SKIP), value)) {
+    if (AtomUtil::getLong(_window, X11::getAtom(PEKWM_FRAME_SKIP), value)) {
         _state.skip = value;
     }
 
     // Get custom title
-    if (AtomUtil::getString(_window, Atoms::getAtom(PEKWM_TITLE), str)) {
+    if (AtomUtil::getString(_window, X11::getAtom(PEKWM_TITLE), str)) {
         _title.setUser(Util::to_wide_str(str));
     }
 
@@ -1111,7 +1111,7 @@ Client::applyActionAccessMask(uint mask, bool value)
 void
 Client::readClientPid(void)
 {
-    AtomUtil::getLong(_window, Atoms::getAtom(NET_WM_PID), _pid);
+    AtomUtil::getLong(_window, X11::getAtom(NET_WM_PID), _pid);
 }
 
 /**
@@ -1165,7 +1165,7 @@ Client::readName(void)
 {
     // Read title, bail out if it fails.
     wstring title;
-    if (! AtomUtil::getUtf8String(_window, Atoms::getAtom(NET_WM_NAME), title)) {
+    if (! AtomUtil::getUtf8String(_window, X11::getAtom(NET_WM_NAME), title)) {
         string mb_title;
         if (! AtomUtil::getTextProperty(_window, XA_WM_NAME, mb_title)) {
             return;
@@ -1182,9 +1182,9 @@ Client::readName(void)
     // user-set titles
     if (titleApplyRule(title)) {
         _title.setCustom(title);
-        AtomUtil::setUtf8String(_window, Atoms::getAtom(NET_WM_VISIBLE_NAME), title);
+        AtomUtil::setUtf8String(_window, X11::getAtom(NET_WM_VISIBLE_NAME), title);
     } else {
-        AtomUtil::unsetProperty(_window, Atoms::getAtom(NET_WM_VISIBLE_NAME));
+        AtomUtil::unsetProperty(_window, X11::getAtom(NET_WM_VISIBLE_NAME));
     }
 }
 
@@ -1256,7 +1256,7 @@ Client::readIconName(void)
 {
     wstring icon_name;
 
-    if (! AtomUtil::getUtf8String(_window, Atoms::getAtom(NET_WM_ICON_NAME), icon_name)) {
+    if (! AtomUtil::getUtf8String(_window, X11::getAtom(NET_WM_ICON_NAME), icon_name)) {
         string mb_icon_name;
         if (AtomUtil::getTextProperty(_window, XA_WM_ICON_NAME, mb_icon_name)) {
             icon_name = Util::to_wide_str(mb_icon_name);
@@ -1268,9 +1268,9 @@ Client::readIconName(void)
     _icon_name.setCustom(icon_name);
 
     if (_icon_name.getVisible() == _icon_name.getReal()) {
-        AtomUtil::unsetProperty(_window, Atoms::getAtom(NET_WM_VISIBLE_ICON_NAME));
+        AtomUtil::unsetProperty(_window, X11::getAtom(NET_WM_VISIBLE_ICON_NAME));
     } else {
-        AtomUtil::setUtf8String(_window, Atoms::getAtom(NET_WM_VISIBLE_ICON_NAME), icon_name);
+        AtomUtil::setUtf8String(_window, X11::getAtom(NET_WM_VISIBLE_ICON_NAME), icon_name);
     }
 }
 
@@ -1285,8 +1285,8 @@ Client::setWmState(ulong state)
     data[1] = None; // No Icon
 
     XChangeProperty(X11::getDpy(), _window,
-                    Atoms::getAtom(WM_STATE),
-                    Atoms::getAtom(WM_STATE),
+                    X11::getAtom(WM_STATE),
+                    X11::getAtom(WM_STATE),
                     32, PropModeReplace, (uchar*) data, 2);
 }
 
@@ -1305,8 +1305,8 @@ Client::getWmState(void)
     uchar *udata;
 
     int status =
-        XGetWindowProperty(X11::getDpy(), _window, Atoms::getAtom(WM_STATE),
-                           0L, 2L, False, Atoms::getAtom(WM_STATE),
+        XGetWindowProperty(X11::getDpy(), _window, X11::getAtom(WM_STATE),
+                           0L, 2L, False, X11::getAtom(WM_STATE),
                            &real_type, &real_format, &items_read, &items_left,
                            &udata);
     if ((status  == Success) && items_read) {
@@ -1355,8 +1355,8 @@ void Client::sendTakeFocusMessage(void)
             X11::setLastEventTime(ev.xproperty.time);
         }
         X11::sendEvent(_window,
-                       Atoms::getAtom(WM_PROTOCOLS), NoEventMask,
-                       Atoms::getAtom(WM_TAKE_FOCUS),
+                       X11::getAtom(WM_PROTOCOLS), NoEventMask,
+                       X11::getAtom(WM_TAKE_FOCUS),
                        X11::getLastEventTime());
     }
 }
@@ -1412,7 +1412,7 @@ void
 Client::setSkip(uint skip)
 {
     _state.skip = skip;
-    AtomUtil::setLong(_window, Atoms::getAtom(PEKWM_FRAME_SKIP), _state.skip);
+    AtomUtil::setLong(_window, X11::getAtom(PEKWM_FRAME_SKIP), _state.skip);
 }
 
 //! @brief Sends an WM_DELETE message to the client, else kills it.
@@ -1420,8 +1420,8 @@ void
 Client::close(void)
 {
     if (_send_close_message) {
-        X11::sendEvent(_window, Atoms::getAtom(WM_PROTOCOLS), NoEventMask,
-                     Atoms::getAtom(WM_DELETE_WINDOW), CurrentTime);
+        X11::sendEvent(_window, X11::getAtom(WM_PROTOCOLS), NoEventMask,
+                     X11::getAtom(WM_DELETE_WINDOW), CurrentTime);
     } else {
         kill();
     }
@@ -1568,7 +1568,7 @@ Client::getMwmHints(Window win)
     MwmHints *data = 0;
     uchar *udata;
 
-    Atom hints_atom = Atoms::getAtom(MOTIF_WM_HINTS);
+    Atom hints_atom = X11::getAtom(MOTIF_WM_HINTS);
 
     int status = XGetWindowProperty(X11::getDpy(), win, hints_atom, 0L, 20L, False, hints_atom,
                                     &real_type, &real_format, &items_read, &items_left, &udata);
@@ -1615,39 +1615,39 @@ Client::getEwmhStates(NetWMStates &win_states)
     int num = 0;
     Atom *states;
     states = (Atom*)
-             AtomUtil::getEwmhPropData(_window, Atoms::getAtom(STATE),
+             AtomUtil::getEwmhPropData(_window, X11::getAtom(STATE),
                                        XA_ATOM, num);
 
     if (states) {
         for (int i = 0; i < num; ++i) {
-            if (states[i] == Atoms::getAtom(STATE_MODAL)) {
+            if (states[i] == X11::getAtom(STATE_MODAL)) {
                 win_states.modal = true;
-            } else if (states[i] == Atoms::getAtom(STATE_STICKY)) {
+            } else if (states[i] == X11::getAtom(STATE_STICKY)) {
                 win_states.sticky = true;
-            } else if (states[i] == Atoms::getAtom(STATE_MAXIMIZED_VERT)
+            } else if (states[i] == X11::getAtom(STATE_MAXIMIZED_VERT)
                        && ! isCfgDeny(CFG_DENY_STATE_MAXIMIZED_VERT)) {
                 win_states.max_vert = true;
-            } else if (states[i] == Atoms::getAtom(STATE_MAXIMIZED_HORZ)
+            } else if (states[i] == X11::getAtom(STATE_MAXIMIZED_HORZ)
                        && ! isCfgDeny(CFG_DENY_STATE_MAXIMIZED_HORZ)) {
                 win_states.max_horz = true;
-            } else if (states[i] == Atoms::getAtom(STATE_SHADED)) {
+            } else if (states[i] == X11::getAtom(STATE_SHADED)) {
                 win_states.shaded = true;
-            } else if (states[i] == Atoms::getAtom(STATE_SKIP_TASKBAR)) {
+            } else if (states[i] == X11::getAtom(STATE_SKIP_TASKBAR)) {
                 win_states.skip_taskbar = true;
-            } else if (states[i] == Atoms::getAtom(STATE_SKIP_PAGER)) {
+            } else if (states[i] == X11::getAtom(STATE_SKIP_PAGER)) {
                 win_states.skip_pager = true;
-            } else if (states[i] == Atoms::getAtom(STATE_DEMANDS_ATTENTION)) {
+            } else if (states[i] == X11::getAtom(STATE_DEMANDS_ATTENTION)) {
                 win_states.demands_attention = true;
-            } else if (states[i] == Atoms::getAtom(STATE_HIDDEN)
+            } else if (states[i] == X11::getAtom(STATE_HIDDEN)
                        && ! isCfgDeny(CFG_DENY_STATE_HIDDEN)) {
                 win_states.hidden = true;
-            } else if (states[i] == Atoms::getAtom(STATE_FULLSCREEN)
+            } else if (states[i] == X11::getAtom(STATE_FULLSCREEN)
                        && ! isCfgDeny(CFG_DENY_STATE_FULLSCREEN)) {
                 win_states.fullscreen = true;
-            } else if (states[i] == Atoms::getAtom(STATE_ABOVE)
+            } else if (states[i] == X11::getAtom(STATE_ABOVE)
                        && ! isCfgDeny(CFG_DENY_STATE_ABOVE)) {
                 win_states.above = true;
-            } else if (states[i] == Atoms::getAtom(STATE_BELOW)
+            } else if (states[i] == X11::getAtom(STATE_BELOW)
                        && ! isCfgDeny(CFG_DENY_STATE_BELOW)) {
                 win_states.below = true;
             }
@@ -1668,35 +1668,35 @@ Client::updateEwmhStates(void)
     vector<Atom> states;
 
     if (false) // we don't yet support modal state
-        states.push_back(Atoms::getAtom(STATE_MODAL));
+        states.push_back(X11::getAtom(STATE_MODAL));
     if (_sticky)
-        states.push_back(Atoms::getAtom(STATE_STICKY));
+        states.push_back(X11::getAtom(STATE_STICKY));
     if (_state.maximized_vert)
-        states.push_back(Atoms::getAtom(STATE_MAXIMIZED_VERT));
+        states.push_back(X11::getAtom(STATE_MAXIMIZED_VERT));
     if (_state.maximized_horz)
-        states.push_back(Atoms::getAtom(STATE_MAXIMIZED_HORZ));
+        states.push_back(X11::getAtom(STATE_MAXIMIZED_HORZ));
     if (_state.shaded)
-        states.push_back(Atoms::getAtom(STATE_SHADED));
+        states.push_back(X11::getAtom(STATE_SHADED));
     if (isSkip(SKIP_TASKBAR))
-        states.push_back(Atoms::getAtom(STATE_SKIP_TASKBAR));
+        states.push_back(X11::getAtom(STATE_SKIP_TASKBAR));
     if (isSkip(SKIP_PAGER))
-        states.push_back(Atoms::getAtom(STATE_SKIP_PAGER));
+        states.push_back(X11::getAtom(STATE_SKIP_PAGER));
     if (_iconified)
-        states.push_back(Atoms::getAtom(STATE_HIDDEN));
+        states.push_back(X11::getAtom(STATE_HIDDEN));
     if (_state.fullscreen)
-        states.push_back(Atoms::getAtom(STATE_FULLSCREEN));
+        states.push_back(X11::getAtom(STATE_FULLSCREEN));
     if (getLayer() == LAYER_ABOVE_DOCK) {
-        states.push_back(Atoms::getAtom(STATE_ABOVE));
+        states.push_back(X11::getAtom(STATE_ABOVE));
     }
     if (getLayer() == LAYER_BELOW) {
-        states.push_back(Atoms::getAtom(STATE_BELOW));
+        states.push_back(X11::getAtom(STATE_BELOW));
     }
 
     Atom *atoms = new Atom[(states.size() > 0) ? states.size() : 1];
     if (states.size() > 0) {
         copy(states.begin(), states.end(), atoms);
     }
-    AtomUtil::setAtoms(_window, Atoms::getAtom(STATE), atoms, states.size());
+    AtomUtil::setAtoms(_window, X11::getAtom(STATE), atoms, states.size());
     delete [] atoms;
 }
 
@@ -1708,24 +1708,24 @@ Client::updateWinType(bool set)
     Atom *atoms = 0;
 
     _window_type = WINDOW_TYPE;
-    atoms = (Atom*) AtomUtil::getEwmhPropData(_window, Atoms::getAtom(WINDOW_TYPE), XA_ATOM, items);
+    atoms = (Atom*) AtomUtil::getEwmhPropData(_window, X11::getAtom(WINDOW_TYPE), XA_ATOM, items);
     if (atoms) {
         for (int i = 0; _window_type == WINDOW_TYPE && i < items; ++i) {
-            if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_DESKTOP)) {
+            if (atoms[i] == X11::getAtom(WINDOW_TYPE_DESKTOP)) {
                 _window_type = WINDOW_TYPE_DESKTOP;
-            } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_DOCK)) {
+            } else if (atoms[i] == X11::getAtom(WINDOW_TYPE_DOCK)) {
                 _window_type = WINDOW_TYPE_DOCK;
-            } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_TOOLBAR)) {
+            } else if (atoms[i] == X11::getAtom(WINDOW_TYPE_TOOLBAR)) {
                 _window_type = WINDOW_TYPE_TOOLBAR;
-            } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_MENU)) {
+            } else if (atoms[i] == X11::getAtom(WINDOW_TYPE_MENU)) {
                 _window_type = WINDOW_TYPE_MENU;
-            } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_UTILITY)) {
+            } else if (atoms[i] == X11::getAtom(WINDOW_TYPE_UTILITY)) {
                 _window_type = WINDOW_TYPE_UTILITY;
-            } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_DIALOG)) {
+            } else if (atoms[i] == X11::getAtom(WINDOW_TYPE_DIALOG)) {
                 _window_type = WINDOW_TYPE_DIALOG;
-            } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_SPLASH)) {
+            } else if (atoms[i] == X11::getAtom(WINDOW_TYPE_SPLASH)) {
                 _window_type = WINDOW_TYPE_SPLASH;
-            } else if (atoms[i] == Atoms::getAtom(WINDOW_TYPE_NORMAL)) {
+            } else if (atoms[i] == X11::getAtom(WINDOW_TYPE_NORMAL)) {
                 _window_type = WINDOW_TYPE_NORMAL;
             }
         }
@@ -1736,7 +1736,7 @@ Client::updateWinType(bool set)
     if (_window_type == WINDOW_TYPE) {
         _window_type = WINDOW_TYPE_NORMAL;
         if (set)
-            AtomUtil::setAtom(_window, Atoms::getAtom(WINDOW_TYPE), Atoms::getAtom(WINDOW_TYPE_NORMAL));
+            AtomUtil::setAtom(_window, X11::getAtom(WINDOW_TYPE), X11::getAtom(WINDOW_TYPE_NORMAL));
     }
 }
 
@@ -1816,9 +1816,9 @@ Client::getWMProtocols(void)
 
     if (XGetWMProtocols(X11::getDpy(), _window, &protocols, &count) != 0) {
         for (int i = 0; i < count; ++i) {
-            if (protocols[i] == Atoms::getAtom(WM_TAKE_FOCUS)) {
+            if (protocols[i] == X11::getAtom(WM_TAKE_FOCUS)) {
                 _send_focus_message = true;
-            } else if (protocols[i] == Atoms::getAtom(WM_DELETE_WINDOW)) {
+            } else if (protocols[i] == X11::getAtom(WM_DELETE_WINDOW)) {
                 _send_close_message = true;
             }
         }
@@ -1858,7 +1858,7 @@ Client::getStrutHint(void)
 
     int num = 0;
     long *strut = static_cast<long*>(AtomUtil::getEwmhPropData(_window,
-                                                               Atoms::getAtom(NET_WM_STRUT),
+                                                               X11::getAtom(NET_WM_STRUT),
                                                                XA_CARDINAL, num));
     if (strut) {
         _strut = new Strut();
@@ -1894,7 +1894,7 @@ long
 Client::getPekwmFrameOrder(void)
 {
     long num = -1;
-    AtomUtil::getLong(_window, Atoms::getAtom(PEKWM_FRAME_ORDER), num);
+    AtomUtil::getLong(_window, X11::getAtom(PEKWM_FRAME_ORDER), num);
     return num;
 }
 
@@ -1904,7 +1904,7 @@ Client::getPekwmFrameOrder(void)
 void
 Client::setPekwmFrameOrder(long num)
 {
-    AtomUtil::setLong(_window, Atoms::getAtom(PEKWM_FRAME_ORDER), num);
+    AtomUtil::setLong(_window, X11::getAtom(PEKWM_FRAME_ORDER), num);
 }
 
 /**
@@ -1915,7 +1915,7 @@ bool
 Client::getPekwmFrameActive(void)
 {
     long act = 0;
-    return (AtomUtil::getLong(_window, Atoms::getAtom(PEKWM_FRAME_ACTIVE), act)
+    return (AtomUtil::getLong(_window, X11::getAtom(PEKWM_FRAME_ACTIVE), act)
             && act == 1);
 }
 
@@ -1925,7 +1925,7 @@ Client::getPekwmFrameActive(void)
 void
 Client::setPekwmFrameActive(bool act)
 {
-    AtomUtil::setLong(_window, Atoms::getAtom(PEKWM_FRAME_ACTIVE), act ? 1 : 0);
+    AtomUtil::setLong(_window, X11::getAtom(PEKWM_FRAME_ACTIVE), act ? 1 : 0);
 }
 
 /**

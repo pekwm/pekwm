@@ -19,109 +19,6 @@ extern "C" {
 }
 
 using std::string;
-using std::map;
-
-static const char *atomnames[] = {
-    // EWMH atoms
-    "_NET_SUPPORTED",
-    "_NET_CLIENT_LIST", "_NET_CLIENT_LIST_STACKING",
-    "_NET_NUMBER_OF_DESKTOPS",
-    "_NET_DESKTOP_GEOMETRY", "_NET_DESKTOP_VIEWPORT",
-    "_NET_CURRENT_DESKTOP", "_NET_DESKTOP_NAMES",
-    "_NET_ACTIVE_WINDOW", "_NET_WORKAREA",
-    "_NET_DESKTOP_LAYOUT", "_NET_SUPPORTING_WM_CHECK",
-    "_NET_CLOSE_WINDOW",
-    "_NET_WM_NAME", "_NET_WM_VISIBLE_NAME",
-    "_NET_WM_ICON_NAME", "_NET_WM_VISIBLE_ICON_NAME",
-    "_NET_WM_ICON", "_NET_WM_DESKTOP",
-    "_NET_WM_STRUT", "_NET_WM_PID",
-    "_NET_WM_WINDOW_OPACITY",
-
-    "_NET_WM_WINDOW_TYPE",
-    "_NET_WM_WINDOW_TYPE_DESKTOP", "_NET_WM_WINDOW_TYPE_DOCK",
-    "_NET_WM_WINDOW_TYPE_TOOLBAR", "_NET_WM_WINDOW_TYPE_MENU",
-    "_NET_WM_WINDOW_TYPE_UTILITY", "_NET_WM_WINDOW_TYPE_SPLASH",
-    "_NET_WM_WINDOW_TYPE_DIALOG", "_NET_WM_WINDOW_TYPE_NORMAL",
-
-    "_NET_WM_STATE",
-    "_NET_WM_STATE_MODAL", "_NET_WM_STATE_STICKY",
-    "_NET_WM_STATE_MAXIMIZED_VERT", "_NET_WM_STATE_MAXIMIZED_HORZ",
-    "_NET_WM_STATE_SHADED",
-    "_NET_WM_STATE_SKIP_TASKBAR", "_NET_WM_STATE_SKIP_PAGER",
-    "_NET_WM_STATE_HIDDEN", "_NET_WM_STATE_FULLSCREEN",
-    "_NET_WM_STATE_ABOVE", "_NET_WM_STATE_BELOW",
-    "_NET_WM_STATE_DEMANDS_ATTENTION",
-
-    "_NET_WM_ALLOWED_ACTIONS",
-    "_NET_WM_ACTION_MOVE", "_NET_WM_ACTION_RESIZE",
-    "_NET_WM_ACTION_MINIMIZE", "_NET_WM_ACTION_SHADE",
-    "_NET_WM_ACTION_STICK",
-    "_NET_WM_ACTION_MAXIMIZE_VERT", "_NET_WM_ACTION_MAXIMIZE_HORZ",
-    "_NET_WM_ACTION_FULLSCREEN", "_NET_WM_ACTION_CHANGE_DESKTOP",
-    "_NET_WM_ACTION_CLOSE",
-    "UTF8_STRING", // When adding an ewmh atom after this,
-                   // fix setEwmhAtomsSupport(Window)
-    "STRING", "MANAGER",
-
-    // pekwm atoms
-    "_PEKWM_FRAME_ID",
-    "_PEKWM_FRAME_ORDER",
-    "_PEKWM_FRAME_ACTIVE",
-    "_PEKWM_FRAME_DECOR",
-    "_PEKWM_FRAME_SKIP",
-    "_PEKWM_TITLE",
-
-    // ICCCM atoms
-    "WM_NAME",
-    "WM_ICON_NAME",
-    "WM_HINTS",
-    "WM_CLASS",
-    "WM_STATE",
-    "WM_CHANGE_STATE",
-    "WM_PROTOCOLS",
-    "WM_DELETE_WINDOW",
-    "WM_COLORMAP_WINDOWS",
-    "WM_TAKE_FOCUS",
-    "WM_WINDOW_ROLE",
-    "WM_CLIENT_MACHINE",
-
-    // miscellaneous atoms
-    "_MOTIF_WM_HINTS"
-};
-
-//! @brief initialise the atoms mappings
-void
-Atoms::init(void)
-{
-    const uint num = sizeof(atomnames) / sizeof(char*);
-    Atom *atoms = new Atom[num];
-
-    XInternAtoms(X11::getDpy(),
-                 const_cast<char**>(atomnames), num, 0, atoms);
-
-    for (uint i = 0; i < num; ++i) {
-        _atoms[AtomName(i)] = atoms[i];
-    }
-
-    delete [] atoms;
-}
-
-//! @brief Builds a array of all atoms in the map.
-void
-Atoms::setEwmhAtomsSupport(Window win)
-{
-    Atom *atoms = new Atom[UTF8_STRING+1];
-
-    for (uint i = 0; i <= UTF8_STRING; ++i) {
-        atoms[i] = _atoms[AtomName(i)];
-    }
-
-    AtomUtil::setAtoms(win, getAtom(NET_SUPPORTED), atoms, UTF8_STRING+1);
-
-    delete [] atoms;
-}
-
-std::map<AtomName, Atom> Atoms::_atoms;
 
 namespace AtomUtil {
 
@@ -260,7 +157,7 @@ getUtf8String(Window win, Atom atom, std::wstring &value)
     bool status = false;
     unsigned char *data = 0;
 
-    if (getProperty(win, atom, Atoms::getAtom(UTF8_STRING),
+    if (getProperty(win, atom, X11::getAtom(UTF8_STRING),
                     32, &data, 0)) {
         status = true;
 
@@ -279,7 +176,7 @@ setUtf8String(Window win, Atom atom, const std::wstring &value)
     string utf8_string(Util::to_utf8_str(value));
 
     XChangeProperty(X11::getDpy(), win, atom,
-                    Atoms::getAtom(UTF8_STRING), 8,
+                    X11::getAtom(UTF8_STRING), 8,
                     PropModeReplace,
                     reinterpret_cast<const uchar*>(utf8_string.c_str()),
                     utf8_string.size());
@@ -296,7 +193,7 @@ setUtf8String(Window win, Atom atom, const std::wstring &value)
     void
     setUtf8StringArray(Window win, Atom atom, unsigned char *values, unsigned int length)
     {
-        XChangeProperty(X11::getDpy(), win, atom, Atoms::getAtom(UTF8_STRING),
+        XChangeProperty(X11::getDpy(), win, atom, X11::getAtom(UTF8_STRING),
                         8, PropModeReplace, values, length);
     }
 

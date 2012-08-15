@@ -12,8 +12,9 @@
 
 #include <iostream>
 
-#include "Atoms.hh"
 #include "PImageIcon.hh"
+#include "Atoms.hh"
+#include "x11.hh"
 
 using std::cerr;
 using std::endl;
@@ -42,7 +43,7 @@ PImageIcon::loadFromWindow(Window win)
     bool status = false;
     uchar *udata = 0;
     ulong expected = 2, actual;
-    if (AtomUtil::getProperty(win, Atoms::getAtom(NET_WM_ICON), XA_CARDINAL,
+    if (AtomUtil::getProperty(win, X11::getAtom(NET_WM_ICON), XA_CARDINAL,
                               expected, &udata, &actual)) {
         if (actual >= expected) {
             status = setImageFromData(udata, actual);

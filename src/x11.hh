@@ -14,11 +14,13 @@
 #define _PEKWM_X11_HH_
 
 #include "pekwm.hh"
+#include "Atoms.hh"
 
 #include <string>
 
 extern "C" {
 #include <X11/Xlib.h>
+#include <X11/Xatom.h>
 #ifdef HAVE_XINERAMA
 #include <X11/extensions/Xinerama.h>
 #endif // HAVE_XINERAMA
@@ -204,6 +206,11 @@ public:
         return false;
     }
 
+    inline static Atom getAtom(AtomName name) { return _atoms[name]; }
+    inline static void setEwmhAtomsSupport(Window win) {
+        AtomUtil::setAtoms(win, getAtom(NET_SUPPORTED), _atoms, UTF8_STRING+1);
+    }
+
     static void getMousePosition(int &x, int &y);
     static uint getButtonFromState(uint state);
 
@@ -341,6 +348,8 @@ private:
     class ColorEntry;
     static std::vector<ColorEntry *> _colours;
     static XColor _xc_default; // when allocating fails
+
+    static Atom _atoms[MAX_NR_ATOMS];
 
     X11(void) {}
     ~X11(void) {}

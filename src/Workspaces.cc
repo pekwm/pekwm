@@ -113,7 +113,7 @@ Workspaces::setSize(uint number)
     // Tell the rest of the world how many workspaces we have.
     XChangeProperty(X11::getDpy(),
                     X11::getRoot(),
-                    Atoms::getAtom(NET_NUMBER_OF_DESKTOPS),
+                    X11::getAtom(NET_NUMBER_OF_DESKTOPS),
                     XA_CARDINAL, 32, PropModeReplace,
                     (uchar *) &number, 1);
 
@@ -165,7 +165,7 @@ Workspaces::setWorkspace(uint num, bool focus)
     // switch workspace
     hideAll(_active);
     AtomUtil::setLong(X11::getRoot(),
-                      Atoms::getAtom(NET_CURRENT_DESKTOP),
+                      X11::getAtom(NET_CURRENT_DESKTOP),
                       num);
 
     _previous = _active;
@@ -612,7 +612,7 @@ Workspaces::updateClientList(void)
     Window *windows = buildClientList(num_windows);
 
     AtomUtil::setWindows(X11::getRoot(),
-                         Atoms::getAtom(NET_CLIENT_LIST),
+                         X11::getAtom(NET_CLIENT_LIST),
                          windows, num_windows);
 
     delete [] windows;
@@ -628,7 +628,7 @@ Workspaces::updateClientStackingList(void)
     Window *windows = buildClientList(num_windows);
 
     AtomUtil::setWindows(X11::getRoot(),
-                         Atoms::getAtom(NET_CLIENT_LIST_STACKING),
+                         X11::getAtom(NET_CLIENT_LIST_STACKING),
                          windows, num_windows);
 
     delete [] windows;

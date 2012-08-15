@@ -89,7 +89,7 @@ PWinObj::updateOpacity(void)
 
     if (_opacity.current != opacity) {
         _opacity.current = opacity;
-        AtomUtil::setLong(_window, Atoms::getAtom(NET_WM_WINDOW_OPACITY), opacity);
+        AtomUtil::setLong(_window, X11::getAtom(NET_WM_WINDOW_OPACITY), opacity);
     }
 }
 

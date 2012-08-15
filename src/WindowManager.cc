@@ -301,8 +301,6 @@ WindowManager::setupDisplay(bool replace)
     // Setup screen, init atoms and claim the display.
     X11::init(dpy, _config->isHonourRandr());
 
-    Atoms::init();
-
     try {
         // Create hint window _before_ root window.
         _hint_wo = new HintWO(X11::getRoot(), replace);
@@ -1276,11 +1274,11 @@ WindowManager::handleClientMessageEvent(XClientMessageEvent *ev)
 
         if (ev->format == 32) {
 
-            if (ev->message_type == Atoms::getAtom(NET_CURRENT_DESKTOP)) {
+            if (ev->message_type == X11::getAtom(NET_CURRENT_DESKTOP)) {
                 Workspaces::setWorkspace(ev->data.l[0], true);
 
             } else if (ev->message_type ==
-                       Atoms::getAtom(NET_NUMBER_OF_DESKTOPS)) {
+                       X11::getAtom(NET_NUMBER_OF_DESKTOPS)) {
                 if (ev->data.l[0] > 0) {
                     Workspaces::setSize(ev->data.l[0]);
                 }
@@ -1313,7 +1311,7 @@ void
 WindowManager::handlePropertyEvent(XPropertyEvent *ev)
 {
     if (ev->window == X11::getRoot()) {
-        if (ev->atom == Atoms::getAtom(NET_DESKTOP_NAMES)) {
+        if (ev->atom == X11::getAtom(NET_DESKTOP_NAMES)) {
             _root_wo->readEwmhDesktopNames();
             Workspaces::setNames();
         }
