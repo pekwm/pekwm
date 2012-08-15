@@ -253,6 +253,13 @@ public:
                          long v1=0l, long v2=0l, long v3=0l,
                          long v4=0l, long v5=0l);
 
+    inline static int
+    changeProperty(Window win, Atom prop, Atom type, int format,
+                   int mode, unsigned char *data, int ne)
+    {
+        return XChangeProperty(_dpy, win, prop, type, format, mode, data, ne);
+    }
+
 #ifdef HAVE_SHAPE
     inline static void shapeCombine(Window dst, int x, int y, Window src, int op) {
         XShapeCombineShape(_dpy, dst, ShapeBounding, x, y, src, ShapeBounding, op);
