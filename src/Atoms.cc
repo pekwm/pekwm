@@ -60,22 +60,6 @@ getProperty(Window win, Atom atom, Atom type,
     return (*data != 0);
 }
 
-//! @brief Set XA_ATOM, one value
-void
-setAtom(Window win, Atom atom, Atom value)
-{
-    XChangeProperty(X11::getDpy(), win, atom, XA_ATOM, 32,
-                    PropModeReplace, (uchar *) &value, 1);
-}
-
-//! @brief Set XA_ATOM, multiple values
-void
-setAtoms(Window win, Atom atom, Atom *values, int size)
-{
-    XChangeProperty(X11::getDpy(), win, atom, XA_ATOM, 32,
-                    PropModeReplace, (uchar *) values, size);
-}
-
 //! @brief Set XA_WINDOW, one value
 void
 setWindow(Window win, Atom atom, Window value)

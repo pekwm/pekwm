@@ -207,8 +207,17 @@ public:
     }
 
     inline static Atom getAtom(AtomName name) { return _atoms[name]; }
+    inline static void setAtom(Window win, AtomName aname, AtomName value) {
+        XChangeProperty(_dpy, win, _atoms[aname], XA_ATOM, 32,
+                        PropModeReplace, (uchar *) &_atoms[value], 1);
+    }
+    inline static void setAtoms(Window win, AtomName aname, Atom *values, int size) {
+        XChangeProperty(_dpy, win, _atoms[aname], XA_ATOM, 32,
+                        PropModeReplace, (uchar *) values, size);
+    }
     inline static void setEwmhAtomsSupport(Window win) {
-        AtomUtil::setAtoms(win, getAtom(NET_SUPPORTED), _atoms, UTF8_STRING+1);
+        XChangeProperty(_dpy, win, _atoms[NET_SUPPORTED], XA_ATOM, 32,
+                        PropModeReplace, (uchar *) _atoms, UTF8_STRING+1);
     }
 
     static void getMousePosition(int &x, int &y);

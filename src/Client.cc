@@ -1696,7 +1696,7 @@ Client::updateEwmhStates(void)
     if (states.size() > 0) {
         copy(states.begin(), states.end(), atoms);
     }
-    AtomUtil::setAtoms(_window, X11::getAtom(STATE), atoms, states.size());
+    X11::setAtoms(_window, STATE, atoms, states.size());
     delete [] atoms;
 }
 
@@ -1736,7 +1736,7 @@ Client::updateWinType(bool set)
     if (_window_type == WINDOW_TYPE) {
         _window_type = WINDOW_TYPE_NORMAL;
         if (set)
-            AtomUtil::setAtom(_window, X11::getAtom(WINDOW_TYPE), X11::getAtom(WINDOW_TYPE_NORMAL));
+            X11::setAtom(_window, WINDOW_TYPE, WINDOW_TYPE_NORMAL);
     }
 }
 

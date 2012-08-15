@@ -28,9 +28,6 @@ namespace AtomUtil {
     bool getProperty(Window win, Atom atom, Atom type,
                      ulong expected, uchar **data, ulong *actual);
 
-    void setAtom(Window win, Atom atom, Atom value);
-    void setAtoms(Window win, Atom atom, Atom *values, int size);
-
     void setWindow(Window win, Atom atom, Window value);
     void setWindows(Window win, Atom atom, Window *values, int size);
 
