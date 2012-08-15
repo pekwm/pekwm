@@ -322,17 +322,17 @@ AutoProperties::parseProperty(CfgParser::Entry *section, Property *prop)
     CfgParser::Entry *value;
 
     // Get extra matching info.
-    value = section->find_entry ("TITLE");
+    value = section->find_entry("TITLE");
     if (value) {
         parseRegexpOrWarning(prop->getTitle(), value->get_value(), "title");
     }
-    value = section->find_entry ("ROLE");
+    value = section->find_entry("ROLE");
     if (value) {
         parseRegexpOrWarning(prop->getRole(), value->get_value(), "role");
     }
 
     // Parse apply on mask.
-    value = section->find_entry ("APPLYON");
+    value = section->find_entry("APPLYON");
     if (value) {
         parsePropertyApplyOn(value->get_value(), prop);
     }
@@ -347,7 +347,7 @@ void
 AutoProperties::parsePropertyApplyOn(const std::string &apply_on, Property *prop)
 {
     vector<string> tokens;
-    if ((Util::splitString(apply_on, tokens, " \t", 5))) {
+    if (Util::splitString(apply_on, tokens, " \t", 5)) {
         vector<string>::iterator it(tokens.begin());
         for (; it != tokens.end(); ++it) {
             prop->applyAdd(static_cast<unsigned int>(ParseUtil::getValue<ApplyOn>(*it, _apply_on_map)));
