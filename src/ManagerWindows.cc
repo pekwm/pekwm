@@ -236,16 +236,16 @@ RootWO::RootWO(Window root)
 
     // Set hits on the hint window, these are not updated so they are
     // set in the constructor.
-    AtomUtil::setLong(_window, X11::getAtom(NET_WM_PID), static_cast<long>(getpid()));
+    X11::setLong(_window, NET_WM_PID, static_cast<long>(getpid()));
     AtomUtil::setString(_window, X11::getAtom(WM_CLIENT_MACHINE), Util::getHostname());
 
     AtomUtil::setWindow(_window, X11::getAtom(NET_SUPPORTING_WM_CHECK), HintWO::instance()->getWindow());
     X11::setEwmhAtomsSupport(_window);
-    AtomUtil::setLong(_window, X11::getAtom(NET_NUMBER_OF_DESKTOPS), Config::instance()->getWorkspaces());
-    AtomUtil::setLong(_window, X11::getAtom(NET_CURRENT_DESKTOP), 0);
+    X11::setLong(_window, NET_NUMBER_OF_DESKTOPS, Config::instance()->getWorkspaces());
+    X11::setLong(_window, NET_CURRENT_DESKTOP, 0);
 
     long desktop_geometry[2] = { _gm.width, _gm.height };
-    AtomUtil::setLongs(_window, X11::getAtom(NET_DESKTOP_GEOMETRY), desktop_geometry, 2);
+    X11::setLongs(_window, NET_DESKTOP_GEOMETRY, desktop_geometry, 2);
 
     woListAdd(this);
     _wo_map[_window] = this;
@@ -340,7 +340,7 @@ void
 RootWO::setEwmhWorkarea(const Geometry &workarea)
 {
     long workarea_array[4] = { workarea.x, workarea.y, workarea.width, workarea.height };
-    AtomUtil::setLongs(_window, X11::getAtom(NET_WORKAREA), workarea_array, 4);
+    X11::setLongs(_window, NET_WORKAREA, workarea_array, 4);
 }
 
 /**

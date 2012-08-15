@@ -220,6 +220,24 @@ public:
                         PropModeReplace, (uchar *) _atoms, UTF8_STRING+1);
     }
 
+    inline static bool getLong(Window win, AtomName aname, long &value) {
+        uchar *udata = 0;
+        if (AtomUtil::getProperty(win, _atoms[aname], XA_CARDINAL, 1L, &udata, 0)) {
+            value = *reinterpret_cast<long*>(udata);
+            XFree(udata);
+            return true;
+        }
+        return false;
+    }
+    inline static void setLong(Window win, AtomName aname, long value) {
+        XChangeProperty(_dpy, win, _atoms[aname], XA_CARDINAL, 32,
+                        PropModeReplace, (uchar *) &value, 1);
+    }
+    inline static void setLongs(Window win, AtomName aname, long *values, int num) {
+        XChangeProperty(_dpy, win, _atoms[aname], XA_CARDINAL, 32,
+                        PropModeReplace, reinterpret_cast<unsigned char*>(values), num);
+    }
+
     static void getMousePosition(int &x, int &y);
     static uint getButtonFromState(uint state);
 

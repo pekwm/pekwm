@@ -76,7 +76,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
     // get unique id of the frame, if the client didn't have an id
     if (! WindowManager::instance()->isStartup()) {
         long id;
-        if (AtomUtil::getLong(client->getWindow(), X11::getAtom(PEKWM_FRAME_ID), id)) {
+        if (X11::getLong(client->getWindow(), PEKWM_FRAME_ID, id)) {
             _id = id;
         }
 
@@ -448,7 +448,7 @@ void
 Frame::addChild(PWinObj *child, vector<PWinObj*>::iterator *it)
 {
     PDecor::addChild(child, it);
-    AtomUtil::setLong(child->getWindow(), X11::getAtom(PEKWM_FRAME_ID), _id);
+    X11::setLong(child->getWindow(), PEKWM_FRAME_ID, _id);
     child->lower();
 
     Client *client = dynamic_cast<Client*>(child);
@@ -693,10 +693,9 @@ Frame::setId(uint id)
 {
     _id = id;
 
-    long atom = X11::getAtom(PEKWM_FRAME_ID);
     vector<PWinObj*>::const_iterator it(_children.begin());
     for (; it != _children.end(); ++it) {
-        AtomUtil::setLong((*it)->getWindow(), atom, id);
+        X11::setLong((*it)->getWindow(), PEKWM_FRAME_ID, id);
     }
 }
 
@@ -1657,9 +1656,8 @@ Frame::setStateDecorBorder(StateAction sa)
         _client->setBorder(hasBorder());
 
         // update the _PEKWM_FRAME_DECOR hint
-        AtomUtil::setLong(_client->getWindow(),
-                          X11::getAtom(PEKWM_FRAME_DECOR),
-                          _client->getDecorState());
+        X11::setLong(_client->getWindow(), PEKWM_FRAME_DECOR,
+                     _client->getDecorState());
     }
 }
 
@@ -1676,9 +1674,8 @@ Frame::setStateDecorTitlebar(StateAction sa)
     if (titlebar != hasTitlebar()) {
         _client->setTitlebar(hasTitlebar());
 
-        AtomUtil::setLong(_client->getWindow(),
-                          X11::getAtom(PEKWM_FRAME_DECOR),
-                          _client->getDecorState());
+        X11::setLong(_client->getWindow(), PEKWM_FRAME_DECOR,
+                     _client->getDecorState());
     }
 }
 
@@ -2317,8 +2314,8 @@ Frame::handlePropertyChange(XPropertyEvent *ev, Client *client)
         if (client == _client) {
             long workspace;
 
-            if (AtomUtil::getLong(client->getWindow(),
-                                  X11::getAtom(NET_WM_DESKTOP), workspace)) {
+            if (X11::getLong(client->getWindow(),
+                             NET_WM_DESKTOP, workspace)) {
                 if (workspace != signed(_workspace))
                     setWorkspace(workspace);
             }

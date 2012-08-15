@@ -31,10 +31,6 @@ namespace AtomUtil {
     void setWindow(Window win, Atom atom, Window value);
     void setWindows(Window win, Atom atom, Window *values, int size);
 
-    bool getLong(Window win, Atom atom, long &value);
-    void setLong(Window win, Atom atom, long value);
-    void setLongs(Window win, Atom atom, long *values, int size);
-
     bool getString(Window win, Atom atom, std::string &value);
     void setString(Window win, Atom atom, const std::string &value);
 

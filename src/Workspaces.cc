@@ -164,9 +164,7 @@ Workspaces::setWorkspace(uint num, bool focus)
 
     // switch workspace
     hideAll(_active);
-    AtomUtil::setLong(X11::getRoot(),
-                      X11::getAtom(NET_CURRENT_DESKTOP),
-                      num);
+    X11::setLong(X11::getRoot(), NET_CURRENT_DESKTOP, num);
 
     _previous = _active;
     _active = num;

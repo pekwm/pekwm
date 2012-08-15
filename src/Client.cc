@@ -299,7 +299,7 @@ Client::findPreviousFrame(void)
     }
 
     long id;
-    if (AtomUtil::getLong(_window, X11::getAtom(PEKWM_FRAME_ID), id)) {
+    if (X11::getLong(_window, PEKWM_FRAME_ID, id)) {
         _parent = Frame::findFrameFromID(id);
         if (_parent) {
             Frame *frame = static_cast<Frame*>(_parent);
@@ -539,9 +539,9 @@ Client::setWorkspace(uint workspace)
         _workspace = workspace;
 
         if (_sticky) {
-            AtomUtil::setLong(_window, X11::getAtom(NET_WM_DESKTOP), NET_WM_STICKY_WINDOW);
+            X11::setLong(_window, NET_WM_DESKTOP, NET_WM_STICKY_WINDOW);
         } else {
-            AtomUtil::setLong(_window, X11::getAtom(NET_WM_DESKTOP), _workspace);
+            X11::setLong(_window, NET_WM_DESKTOP, _workspace);
         }
     }
 }
@@ -873,10 +873,10 @@ Client::readEwmhHints(void)
 {
     // which workspace do we belong to?
     long workspace = -1;
-    AtomUtil::getLong(_window, X11::getAtom(NET_WM_DESKTOP), workspace);
+    X11::getLong(_window, NET_WM_DESKTOP, workspace);
     if (workspace < 0) {
         _workspace = Workspaces::getActive();
-        AtomUtil::setLong(_window, X11::getAtom(NET_WM_DESKTOP), _workspace);
+        X11::setLong(_window, NET_WM_DESKTOP, _workspace);
     } else {
         _workspace = workspace;
     }
@@ -958,11 +958,11 @@ Client::readPekwmHints(void)
     string str;
 
     // Get decor state
-    if (AtomUtil::getLong(_window, X11::getAtom(PEKWM_FRAME_DECOR), value)) {
+    if (X11::getLong(_window, PEKWM_FRAME_DECOR, value)) {
         _state.decor = value;
     }
     // Get skip state
-    if (AtomUtil::getLong(_window, X11::getAtom(PEKWM_FRAME_SKIP), value)) {
+    if (X11::getLong(_window, PEKWM_FRAME_SKIP, value)) {
         _state.skip = value;
     }
 
@@ -1111,7 +1111,7 @@ Client::applyActionAccessMask(uint mask, bool value)
 void
 Client::readClientPid(void)
 {
-    AtomUtil::getLong(_window, X11::getAtom(NET_WM_PID), _pid);
+    X11::getLong(_window, NET_WM_PID, _pid);
 }
 
 /**
@@ -1412,7 +1412,7 @@ void
 Client::setSkip(uint skip)
 {
     _state.skip = skip;
-    AtomUtil::setLong(_window, X11::getAtom(PEKWM_FRAME_SKIP), _state.skip);
+    X11::setLong(_window, PEKWM_FRAME_SKIP, _state.skip);
 }
 
 //! @brief Sends an WM_DELETE message to the client, else kills it.
@@ -1894,7 +1894,7 @@ long
 Client::getPekwmFrameOrder(void)
 {
     long num = -1;
-    AtomUtil::getLong(_window, X11::getAtom(PEKWM_FRAME_ORDER), num);
+    X11::getLong(_window, PEKWM_FRAME_ORDER, num);
     return num;
 }
 
@@ -1904,7 +1904,7 @@ Client::getPekwmFrameOrder(void)
 void
 Client::setPekwmFrameOrder(long num)
 {
-    AtomUtil::setLong(_window, X11::getAtom(PEKWM_FRAME_ORDER), num);
+    X11::setLong(_window, PEKWM_FRAME_ORDER, num);
 }
 
 /**
@@ -1915,7 +1915,7 @@ bool
 Client::getPekwmFrameActive(void)
 {
     long act = 0;
-    return (AtomUtil::getLong(_window, X11::getAtom(PEKWM_FRAME_ACTIVE), act)
+    return (X11::getLong(_window, PEKWM_FRAME_ACTIVE, act)
             && act == 1);
 }
 
@@ -1925,7 +1925,7 @@ Client::getPekwmFrameActive(void)
 void
 Client::setPekwmFrameActive(bool act)
 {
-    AtomUtil::setLong(_window, X11::getAtom(PEKWM_FRAME_ACTIVE), act ? 1 : 0);
+    X11::setLong(_window, PEKWM_FRAME_ACTIVE, act ? 1 : 0);
 }
 
 /**

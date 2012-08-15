@@ -76,48 +76,6 @@ setWindows(Window win, Atom atom, Window *values, int size)
                     PropModeReplace, (uchar *) values, size);
 }
 
-//! @brief Get XA_CARDINAL
-bool
-getLong(Window win, Atom atom, long &value)
-{
-    long *data = 0;
-    uchar *udata = 0;
-
-    if (getProperty(win, atom, XA_CARDINAL, 1L, &udata, 0)) {
-        data = reinterpret_cast<long*>(udata);
-        value = *data;
-        XFree(udata);
-
-        return true;
-    }
-
-    return false;
-}
-
-//! @brief Set XA_CARDINAL
-void
-setLong(Window win, Atom atom, long value)
-{
-    XChangeProperty(X11::getDpy(), win, atom, XA_CARDINAL, 32,
-                    PropModeReplace, (uchar *) &value, 1);
-}
-
-/**
- * Set array of longs as Cardinal/32.
- *
- * @param win Window to set longs on.
- * @param atom Atom to set longs as.
- * @param values Array of longs to set.
- * @param size Number of elements in array.
- */
-void
-setLongs(Window win, Atom atom, long *values, int size)
-{
-    XChangeProperty(X11::getDpy(), win, atom, XA_CARDINAL, 32,
-                    PropModeReplace, reinterpret_cast<unsigned char*>(values), size);
-}
-
-
 //! @brief Get XA_STRING property
 bool
 getString(Window win, Atom atom, string &value)
