@@ -15,8 +15,6 @@
 
 #include "PWinObj.hh"
 
-#include "Atoms.hh"
-
 using std::cerr;
 using std::endl;
 using std::find;

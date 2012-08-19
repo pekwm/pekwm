@@ -11,7 +11,6 @@
 #endif // HAVE_CONFIG_H
 
 #include "Workspaces.hh"
-#include "Atoms.hh"
 #include "ParseUtil.hh"
 #include "Config.hh"
 #include "PWinObj.hh"

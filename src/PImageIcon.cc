@@ -13,7 +13,6 @@
 #include <iostream>
 
 #include "PImageIcon.hh"
-#include "Atoms.hh"
 #include "x11.hh"
 
 using std::cerr;

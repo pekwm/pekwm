@@ -14,7 +14,6 @@
 #endif // HAVE_CONFIG_H
 
 #include "pekwm.hh"
-#include "Atoms.hh"
 #include "CfgParser.hh"
 #include "RegexString.hh"
 #include "ParseUtil.hh"

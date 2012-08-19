@@ -19,7 +19,6 @@
 
 #include "pekwm.hh"
 #include "Action.hh"
-#include "Atoms.hh"
 #include "Timer.hh"
 #include "ManagerWindows.hh"
 

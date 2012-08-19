@@ -20,7 +20,6 @@
 #include "pekwm.hh"
 #include "PWinObj.hh"
 #include "Observer.hh"
-#include "Atoms.hh"
 #include "PTexturePlain.hh"
 #include "PDecor.hh"
 

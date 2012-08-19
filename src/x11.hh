@@ -14,7 +14,6 @@
 #define _PEKWM_X11_HH_
 
 #include "pekwm.hh"
-#include "Atoms.hh"
 
 #include <string>
 

@@ -7,7 +7,6 @@ pekwm_SOURCES = \
 	Action.hh \
 	ActionHandler.cc ActionHandler.hh \
 	ActionMenu.cc ActionMenu.hh \
-	Atoms.cc Atoms.hh \
 	AutoProperties.cc AutoProperties.hh \
 	CfgParser.cc CfgParser.hh \
 	CfgParserKey.cc CfgParserKey.hh \

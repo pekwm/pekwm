@@ -12,7 +12,6 @@
 
 #include "Config.hh"
 #include "ActionHandler.hh"
-#include "Atoms.hh"
 #include "ManagerWindows.hh"
 #include "Util.hh"
 
