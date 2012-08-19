@@ -100,7 +100,6 @@ Client::Client(Window new_client, bool is_new)
 
     getWMNormalHints();
     readName();
-    readIconName();
 
     // cyclic dependency, getting the name requires quiering autoprops
     _class_hint->title = _title.getReal();
@@ -1245,33 +1244,6 @@ Client::titleFindID(std::wstring &title)
     }
 
     return id_found;
-}
-
-/**
- * Get the clients icon name to be displayed when the client is
- * iconified.
- */
-void
-Client::readIconName(void)
-{
-    wstring icon_name;
-
-    if (! AtomUtil::getUtf8String(_window, X11::getAtom(NET_WM_ICON_NAME), icon_name)) {
-        string mb_icon_name;
-        if (AtomUtil::getTextProperty(_window, XA_WM_ICON_NAME, mb_icon_name)) {
-            icon_name = Util::to_wide_str(mb_icon_name);
-        }
-    }
-
-    // Set real name
-    _icon_name.setReal(icon_name);
-    _icon_name.setCustom(icon_name);
-
-    if (_icon_name.getVisible() == _icon_name.getReal()) {
-        AtomUtil::unsetProperty(_window, X11::getAtom(NET_WM_VISIBLE_ICON_NAME));
-    } else {
-        AtomUtil::setUtf8String(_window, X11::getAtom(NET_WM_VISIBLE_ICON_NAME), icon_name);
-    }
 }
 
 //! @brief Sets the WM_STATE of the client to state

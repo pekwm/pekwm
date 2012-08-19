@@ -149,8 +149,6 @@ public: // Public Member Functions
     inline uint getClientID(void) { return _id; }
     /**< Return title item for client name. */
     inline PDecor::TitleItem *getTitle(void) { return &_title; }
-    /**< Return title item for client icon name. */
-    inline PDecor::TitleItem *getIconName(void) { return &_icon_name; }
 
     inline const ClassHint* getClassHint(void) const { return _class_hint; }
 
@@ -289,7 +287,6 @@ public: // Public Member Functions
     void getTransientForHint(void);
     void getStrutHint(void);
     void readName(void);
-    void readIconName(void);
     void removeStrutHint(void);
     
     long getPekwmFrameOrder(void);
@@ -356,7 +353,6 @@ private: // Private Member Variables
     Strut *_strut;
 
     PDecor::TitleItem _title; /**< Name of the client. */
-    PDecor::TitleItem _icon_name; /**< Name of the client when iconified. */
     PTextureImage *_icon;
     
     long _pid; /**< _NET_WM_PID of the client, only valid if is_remote is false. */
