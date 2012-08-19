@@ -1121,7 +1121,7 @@ void
 Client::readClientRemote(void)
 {
     string client_machine;
-    if (AtomUtil::getTextProperty(_window, XA_WM_CLIENT_MACHINE, client_machine)) {
+    if (X11::getTextProperty(_window, XA_WM_CLIENT_MACHINE, client_machine)) {
         _is_remote = Util::getHostname() != client_machine;
     }
 }
@@ -1165,7 +1165,7 @@ Client::readName(void)
     // Read title, bail out if it fails.
     string title;
     if (! X11::getUtf8String(_window, NET_WM_NAME, title)) {
-        if (! AtomUtil::getTextProperty(_window, XA_WM_NAME, title)) {
+        if (! X11::getTextProperty(_window, XA_WM_NAME, title)) {
             return;
         }
     }
@@ -1585,9 +1585,7 @@ Client::getEwmhStates(NetWMStates &win_states)
 {
     int num = 0;
     Atom *states;
-    states = (Atom*)
-             AtomUtil::getEwmhPropData(_window, X11::getAtom(STATE),
-                                       XA_ATOM, num);
+    states = (Atom*) X11::getEwmhPropData(_window, STATE, XA_ATOM, num);
 
     if (states) {
         for (int i = 0; i < num; ++i) {
@@ -1679,7 +1677,7 @@ Client::updateWinType(bool set)
     Atom *atoms = 0;
 
     _window_type = WINDOW_TYPE;
-    atoms = (Atom*) AtomUtil::getEwmhPropData(_window, X11::getAtom(WINDOW_TYPE), XA_ATOM, items);
+    atoms = (Atom*) X11::getEwmhPropData(_window, WINDOW_TYPE, XA_ATOM, items);
     if (atoms) {
         for (int i = 0; _window_type == WINDOW_TYPE && i < items; ++i) {
             if (atoms[i] == X11::getAtom(WINDOW_TYPE_DESKTOP)) {
@@ -1828,9 +1826,8 @@ Client::getStrutHint(void)
     removeStrutHint();
 
     int num = 0;
-    long *strut = static_cast<long*>(AtomUtil::getEwmhPropData(_window,
-                                                               X11::getAtom(NET_WM_STRUT),
-                                                               XA_CARDINAL, num));
+    long *strut = static_cast<long*>(X11::getEwmhPropData(_window, NET_WM_STRUT,
+                                                          XA_CARDINAL, num));
     if (strut) {
         _strut = new Strut();
         *_strut = strut;

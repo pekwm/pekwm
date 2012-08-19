@@ -283,7 +283,8 @@ public:
 
     static bool getProperty(Window win, AtomName aname, Atom type, ulong expected,
                      uchar **data, ulong *actual);
-
+    static bool getTextProperty(Window win, Atom atom, std::string &value);
+    static void *getEwmhPropData(Window win, AtomName prop, Atom type, int &num);
     inline static void unsetProperty(Window win, AtomName aname) {
         XDeleteProperty(_dpy, win, _atoms[aname]);
     }

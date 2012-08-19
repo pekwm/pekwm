@@ -704,6 +704,50 @@ X11::getProperty(Window win, AtomName aname, Atom type,
     return (*data != 0);
 }
 
+bool
+X11::getTextProperty(Window win, Atom atom, std::string &value)
+{
+    // Read text property, return if it fails.
+    XTextProperty text_property;
+    if (! XGetTextProperty(_dpy, win, &text_property, atom)
+        || ! text_property.value || ! text_property.nitems) {
+        return false;
+    }
+
+    if (text_property.encoding == XA_STRING) {
+        value = reinterpret_cast<const char*>(text_property.value);
+    } else {
+        char **mb_list;
+        int num;
+
+        XmbTextPropertyToTextList(_dpy, &text_property, &mb_list, &num);
+        if (mb_list && num > 0) {
+            value = *mb_list;
+            XFreeStringList(mb_list);
+        }
+    }
+
+    XFree(text_property.value);
+
+    return true;
+}
+
+//! @brief
+void*
+X11::getEwmhPropData(Window win, AtomName prop, Atom type, int &num)
+{
+    Atom type_ret;
+    int format_ret;
+    ulong items_ret, after_ret;
+    uchar *prop_data = 0;
+
+    XGetWindowProperty(_dpy, win, _atoms[prop], 0, 0x7fffffff,
+                       False, type, &type_ret, &format_ret, &items_ret,
+                       &after_ret, &prop_data);
+    num = items_ret;
+    return prop_data;
+}
+
 void
 X11::getMousePosition(int &x, int &y)
 {
