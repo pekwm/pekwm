@@ -65,7 +65,7 @@ HintWO::HintWO(Window root, bool replace) throw (std::string&)
     XChangeWindowAttributes(X11::getDpy(), _window, CWEventMask|CWOverrideRedirect, &attr);
 
     // Set hints not being updated
-    AtomUtil::setString(_window, X11::getAtom(NET_WM_NAME), WM_NAME);
+    X11::setString(_window, NET_WM_NAME, WM_NAME);
     X11::setWindow(_window, NET_SUPPORTING_WM_CHECK, _window);
 
     if (! claimDisplay(replace)) {
@@ -237,7 +237,7 @@ RootWO::RootWO(Window root)
     // Set hits on the hint window, these are not updated so they are
     // set in the constructor.
     X11::setLong(_window, NET_WM_PID, static_cast<long>(getpid()));
-    AtomUtil::setString(_window, X11::getAtom(WM_CLIENT_MACHINE), Util::getHostname());
+    X11::setString(_window, WM_CLIENT_MACHINE, Util::getHostname());
 
     X11::setWindow(_window, NET_SUPPORTING_WM_CHECK, HintWO::instance()->getWindow());
     X11::setEwmhAtomsSupport(_window);
@@ -383,8 +383,8 @@ RootWO::setEwmhDesktopNames(void)
     Config::instance()->getDesktopNamesUTF8(&desktopnames, &length);
 
     if (desktopnames) {
-        AtomUtil::setUtf8StringArray(X11::getRoot(),
-                                     X11::getAtom(NET_DESKTOP_NAMES), desktopnames, length);
+        X11::setUtf8StringArray(X11::getRoot(), NET_DESKTOP_NAMES,
+                                desktopnames, length);
         delete [] desktopnames;
     }
 }

@@ -247,6 +247,40 @@ public:
                         PropModeReplace, reinterpret_cast<unsigned char*>(values), num);
     }
 
+    inline static bool getUtf8String(Window win, AtomName aname, std::string &value) {
+        unsigned char *data = 0;
+        if (AtomUtil::getProperty(win, _atoms[aname], _atoms[UTF8_STRING], 32, &data, 0)) {
+            value = std::string(reinterpret_cast<char*>(data));
+            XFree(data);
+            return true;
+        }
+        return false;
+    }
+
+    inline static void setUtf8String(Window win, AtomName aname, const std::string &value) {
+        XChangeProperty(_dpy, win, _atoms[aname], _atoms[UTF8_STRING], 8, PropModeReplace,
+                        reinterpret_cast<const uchar*>(value.c_str()), value.size());
+    }
+
+    inline static void setUtf8StringArray(Window win, AtomName aname, unsigned char *values, uint length) {
+        XChangeProperty(_dpy, win, _atoms[aname], _atoms[UTF8_STRING], 8, PropModeReplace, values, length);
+    }
+
+    inline static bool getString(Window win, AtomName aname, std::string &value) {
+        uchar *data = 0;
+        if (AtomUtil::getProperty(win, _atoms[aname], XA_STRING, 64L, &data, 0)) {
+            value = std::string((const char*) data);
+            XFree(data);
+            return true;
+        }
+        return false;
+    }
+
+    inline static void setString(Window win, AtomName aname, const std::string &value) {
+        XChangeProperty(_dpy, win, _atoms[aname], XA_STRING, 8, PropModeReplace,
+                        (uchar*)value.c_str(), value.size());
+    }
+
     inline static void unsetProperty(Window win, AtomName aname) {
         XDeleteProperty(_dpy, win, _atoms[aname]);
     }

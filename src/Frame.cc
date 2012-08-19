@@ -1743,10 +1743,8 @@ Frame::setStateTitle(StateAction sa, Client *client, const std::wstring &title)
     }
 
     // Set PEKWM_TITLE atom to preserve title on client between sessions.
-    AtomUtil::setString(client->getWindow(),
-                        X11::getAtom(PEKWM_TITLE),
-                        Util::to_mb_str(client->getTitle()->getUser()));
-
+    X11::setString(client->getWindow(), PEKWM_TITLE,
+                   Util::to_mb_str(client->getTitle()->getUser()));
 
     renderTitle();
 }

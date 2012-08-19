@@ -28,13 +28,6 @@ namespace AtomUtil {
     bool getProperty(Window win, Atom atom, Atom type,
                      ulong expected, uchar **data, ulong *actual);
 
-    bool getString(Window win, Atom atom, std::string &value);
-    void setString(Window win, Atom atom, const std::string &value);
-
-    bool getUtf8String(Window win, Atom atom, std::wstring &value);
-    void setUtf8String(Window win, Atom atom, const std::wstring &value);
-    void setUtf8StringArray(Window win, Atom atom, unsigned char *values, unsigned int length);
-
     bool getTextProperty(Window win, Atom atom, std::string &value);
 
     void *getEwmhPropData(Window win, Atom prop, Atom type, int &num);

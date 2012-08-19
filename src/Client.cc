@@ -861,7 +861,7 @@ Client::readClassRoleHints(void)
 
     // wm window role
     string role;
-    AtomUtil::getString(_window, X11::getAtom(WM_WINDOW_ROLE), role);
+    X11::getString(_window, WM_WINDOW_ROLE, role);
 
     _class_hint->h_role = Util::to_wide_str(role);
 }
@@ -966,7 +966,7 @@ Client::readPekwmHints(void)
     }
 
     // Get custom title
-    if (AtomUtil::getString(_window, X11::getAtom(PEKWM_TITLE), str)) {
+    if (X11::getString(_window, PEKWM_TITLE, str)) {
         _title.setUser(Util::to_wide_str(str));
     }
 
@@ -1163,25 +1163,24 @@ void
 Client::readName(void)
 {
     // Read title, bail out if it fails.
-    wstring title;
-    if (! AtomUtil::getUtf8String(_window, X11::getAtom(NET_WM_NAME), title)) {
-        string mb_title;
-        if (! AtomUtil::getTextProperty(_window, XA_WM_NAME, mb_title)) {
+    string title;
+    if (! X11::getUtf8String(_window, NET_WM_NAME, title)) {
+        if (! AtomUtil::getTextProperty(_window, XA_WM_NAME, title)) {
             return;
         }
-        title = Util::to_wide_str(mb_title);
     }
 
+    std::wstring wtitle = Util::to_wide_str(title);
     // Mirror it on the visible
     _title.setCustom(L"");
-    _title.setCount(titleFindID(title));
-    _title.setReal(title);
+    _title.setCount(titleFindID(wtitle));
+    _title.setReal(wtitle);
 
     // Apply title rules and find unique name, doesn't apply on
     // user-set titles
-    if (titleApplyRule(title)) {
-        _title.setCustom(title);
-        AtomUtil::setUtf8String(_window, X11::getAtom(NET_WM_VISIBLE_NAME), title);
+    if (titleApplyRule(wtitle)) {
+        _title.setCustom(wtitle);
+        X11::setUtf8String(_window, NET_WM_VISIBLE_NAME, Util::to_utf8_str(wtitle));
     } else {
         X11::unsetProperty(_window, NET_WM_VISIBLE_NAME);
     }
