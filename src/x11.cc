@@ -635,9 +635,9 @@ X11::getHeadInfo(uint head, Geometry &head_info)
 Geometry
 X11::getHeadGeometry(uint head)
 {
-  Geometry gm(_screen_gm);
-  getHeadInfo(head, gm);
-  return gm;
+    Geometry gm(_screen_gm);
+    getHeadInfo(head, gm);
+    return gm;
 }
 
 //! @brief Fill information about head and the strut.
@@ -665,6 +665,43 @@ X11::getHeadInfoWithEdge(uint num, Geometry &head)
 
     strut_val = (head.y + head.height == _screen_gm.height) ? std::max(_strut.bottom, strut.bottom) : strut.bottom;
     head.height -= strut_val;
+}
+
+bool
+X11::getProperty(Window win, AtomName aname, Atom type,
+            ulong expected, uchar **data, ulong *actual)
+{
+    Atom r_type;
+    int r_format, status;
+    ulong read = 0, left = 0;
+
+    *data = 0;
+    do {
+        if (*data) {
+            XFree(*data);
+            *data = 0;
+        }
+        expected += left;
+
+        status =
+            XGetWindowProperty(_dpy, win, _atoms[aname],
+                               0L, expected, False, type,
+                               &r_type, &r_format, &read, &left, data);
+
+        if (status != Success || type != r_type || read == 0) {
+            if (*data) {
+                XFree(*data);
+                *data = 0;
+            }
+            left = 0;
+        }
+    } while (left);
+
+    if (actual) {
+        *actual = read;
+    }
+
+    return (*data != 0);
 }
 
 void

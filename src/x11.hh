@@ -231,7 +231,7 @@ public:
 
     inline static bool getLong(Window win, AtomName aname, long &value) {
         uchar *udata = 0;
-        if (AtomUtil::getProperty(win, _atoms[aname], XA_CARDINAL, 1L, &udata, 0)) {
+        if (getProperty(win, aname, XA_CARDINAL, 1L, &udata, 0)) {
             value = *reinterpret_cast<long*>(udata);
             XFree(udata);
             return true;
@@ -249,7 +249,7 @@ public:
 
     inline static bool getUtf8String(Window win, AtomName aname, std::string &value) {
         unsigned char *data = 0;
-        if (AtomUtil::getProperty(win, _atoms[aname], _atoms[UTF8_STRING], 32, &data, 0)) {
+        if (getProperty(win, aname, _atoms[UTF8_STRING], 32, &data, 0)) {
             value = std::string(reinterpret_cast<char*>(data));
             XFree(data);
             return true;
@@ -268,7 +268,7 @@ public:
 
     inline static bool getString(Window win, AtomName aname, std::string &value) {
         uchar *data = 0;
-        if (AtomUtil::getProperty(win, _atoms[aname], XA_STRING, 64L, &data, 0)) {
+        if (getProperty(win, aname, XA_STRING, 64L, &data, 0)) {
             value = std::string((const char*) data);
             XFree(data);
             return true;
@@ -280,6 +280,9 @@ public:
         XChangeProperty(_dpy, win, _atoms[aname], XA_STRING, 8, PropModeReplace,
                         (uchar*)value.c_str(), value.size());
     }
+
+    static bool getProperty(Window win, AtomName aname, Atom type, ulong expected,
+                     uchar **data, ulong *actual);
 
     inline static void unsetProperty(Window win, AtomName aname) {
         XDeleteProperty(_dpy, win, _atoms[aname]);

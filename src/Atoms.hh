@@ -25,9 +25,6 @@ extern "C" {
 }
 
 namespace AtomUtil {
-    bool getProperty(Window win, Atom atom, Atom type,
-                     ulong expected, uchar **data, ulong *actual);
-
     bool getTextProperty(Window win, Atom atom, std::string &value);
 
     void *getEwmhPropData(Window win, Atom prop, Atom type, int &num);

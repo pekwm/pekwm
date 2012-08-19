@@ -362,10 +362,9 @@ RootWO::readEwmhDesktopNames(void)
 {
     uchar *data;
     ulong data_length;
-    if (AtomUtil::getProperty(X11::getRoot(),
-                              X11::getAtom(NET_DESKTOP_NAMES),
-                              X11::getAtom(UTF8_STRING),
-                              EXPECTED_DESKTOP_NAMES_LENGTH, &data, &data_length)) {
+    if (X11::getProperty(X11::getRoot(), NET_DESKTOP_NAMES,
+                         X11::getAtom(UTF8_STRING),
+                         EXPECTED_DESKTOP_NAMES_LENGTH, &data, &data_length)) {
         Config::instance()->setDesktopNamesUTF8(reinterpret_cast<char *>(data), data_length);
 
         XFree(data);
