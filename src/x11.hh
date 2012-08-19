@@ -220,6 +220,15 @@ public:
                         PropModeReplace, (uchar *) _atoms, UTF8_STRING+1);
     }
 
+    inline static void setWindow(Window win, AtomName aname, Window value) {
+        XChangeProperty(_dpy, win, _atoms[aname], XA_WINDOW, 32,
+                        PropModeReplace, (uchar *) &value, 1);
+    }
+    inline static void setWindows(Window win, AtomName aname, Window *values, int size) {
+        XChangeProperty(_dpy, win, _atoms[aname], XA_WINDOW, 32,
+                        PropModeReplace, (uchar *) values, size);
+    }
+
     inline static bool getLong(Window win, AtomName aname, long &value) {
         uchar *udata = 0;
         if (AtomUtil::getProperty(win, _atoms[aname], XA_CARDINAL, 1L, &udata, 0)) {

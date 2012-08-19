@@ -28,9 +28,6 @@ namespace AtomUtil {
     bool getProperty(Window win, Atom atom, Atom type,
                      ulong expected, uchar **data, ulong *actual);
 
-    void setWindow(Window win, Atom atom, Window value);
-    void setWindows(Window win, Atom atom, Window *values, int size);
-
     bool getString(Window win, Atom atom, std::string &value);
     void setString(Window win, Atom atom, const std::string &value);
 

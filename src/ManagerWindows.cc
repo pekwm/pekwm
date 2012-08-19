@@ -66,7 +66,7 @@ HintWO::HintWO(Window root, bool replace) throw (std::string&)
 
     // Set hints not being updated
     AtomUtil::setString(_window, X11::getAtom(NET_WM_NAME), WM_NAME);
-    AtomUtil::setWindow(_window, X11::getAtom(NET_SUPPORTING_WM_CHECK), _window);
+    X11::setWindow(_window, NET_SUPPORTING_WM_CHECK, _window);
 
     if (! claimDisplay(replace)) {
         throw string("unable to claim display");
@@ -239,7 +239,7 @@ RootWO::RootWO(Window root)
     X11::setLong(_window, NET_WM_PID, static_cast<long>(getpid()));
     AtomUtil::setString(_window, X11::getAtom(WM_CLIENT_MACHINE), Util::getHostname());
 
-    AtomUtil::setWindow(_window, X11::getAtom(NET_SUPPORTING_WM_CHECK), HintWO::instance()->getWindow());
+    X11::setWindow(_window, NET_SUPPORTING_WM_CHECK, HintWO::instance()->getWindow());
     X11::setEwmhAtomsSupport(_window);
     X11::setLong(_window, NET_NUMBER_OF_DESKTOPS, Config::instance()->getWorkspaces());
     X11::setLong(_window, NET_CURRENT_DESKTOP, 0);
@@ -351,7 +351,7 @@ RootWO::setEwmhWorkarea(const Geometry &workarea)
 void
 RootWO::setEwmhActiveWindow(Window win)
 {
-    AtomUtil::setWindow(X11::getRoot(), X11::getAtom(NET_ACTIVE_WINDOW), win);
+    X11::setWindow(X11::getRoot(), NET_ACTIVE_WINDOW, win);
 }
 
 /**

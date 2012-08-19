@@ -609,9 +609,7 @@ Workspaces::updateClientList(void)
     unsigned int num_windows;
     Window *windows = buildClientList(num_windows);
 
-    AtomUtil::setWindows(X11::getRoot(),
-                         X11::getAtom(NET_CLIENT_LIST),
-                         windows, num_windows);
+    X11::setWindows(X11::getRoot(), NET_CLIENT_LIST, windows, num_windows);
 
     delete [] windows;
 }
@@ -625,9 +623,7 @@ Workspaces::updateClientStackingList(void)
     unsigned int num_windows;
     Window *windows = buildClientList(num_windows);
 
-    AtomUtil::setWindows(X11::getRoot(),
-                         X11::getAtom(NET_CLIENT_LIST_STACKING),
-                         windows, num_windows);
+    X11::setWindows(X11::getRoot(), NET_CLIENT_LIST_STACKING, windows, num_windows);
 
     delete [] windows;
 }
