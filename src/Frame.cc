@@ -334,12 +334,10 @@ Frame::handleEnterEvent(XCrossingEvent *ev)
     ActionEvent *ae = 0;
     vector<ActionEvent> *al = 0;
 
-    if (ev->window == getTitleWindow()) {
+    if (ev->window == getTitleWindow() || findButton(ev->window)) {
         al = Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_TITLE_FRAME);
-
     } else if (ev->subwindow == _client->getWindow()) {
         al = Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_CHILD_FRAME);
-
     } else {
         uint pos = getBorderPosition(ev->window);
         if (pos != BORDER_NO_POS) {
