@@ -257,8 +257,8 @@ RootWO::RootWO(Window root)
 RootWO::~RootWO(void)
 {
     // Remove atoms, PID will not be valid on shutdown.
-    AtomUtil::unsetProperty(_window, X11::getAtom(NET_WM_PID));
-    AtomUtil::unsetProperty(_window, X11::getAtom(WM_CLIENT_MACHINE));
+    X11::unsetProperty(_window, NET_WM_PID);
+    X11::unsetProperty(_window, WM_CLIENT_MACHINE);
 
     _wo_map.erase(_window);
     woListRemove(this);

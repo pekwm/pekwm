@@ -247,6 +247,10 @@ public:
                         PropModeReplace, reinterpret_cast<unsigned char*>(values), num);
     }
 
+    inline static void unsetProperty(Window win, AtomName aname) {
+        XDeleteProperty(_dpy, win, _atoms[aname]);
+    }
+
     static void getMousePosition(int &x, int &y);
     static uint getButtonFromState(uint state);
 

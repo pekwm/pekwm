@@ -38,8 +38,6 @@ namespace AtomUtil {
     bool getTextProperty(Window win, Atom atom, std::string &value);
 
     void *getEwmhPropData(Window win, Atom prop, Atom type, int &num);
-
-    void unsetProperty(Window win, Atom prop);
 }
 
 #endif // _FONT_HH_

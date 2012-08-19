@@ -587,12 +587,12 @@ Client::handleUnmapEvent(XUnmapEvent *ev)
 
     // Extended Window Manager Hints 1.3 specifies that a window manager
     // should remove the _NET_WM_STATE property when a window is withdrawn.
-    AtomUtil::unsetProperty(_window, X11::getAtom(STATE));
+    X11::unsetProperty(_window, STATE);
 
     // Extended Window Manager Hints 1.3 specifies that a window manager
     // should remove the _NET_WM_DESKTOP property when a window is withdrawn.
     // (to allow legacy applications to reuse a withdrawn window)
-    AtomUtil::unsetProperty(_window, X11::getAtom(NET_WM_DESKTOP));
+    X11::unsetProperty(_window, NET_WM_DESKTOP);
 
 #ifdef DEBUG
     cerr << __FILE__ << "@" << __LINE__ << ": "
@@ -1183,7 +1183,7 @@ Client::readName(void)
         _title.setCustom(title);
         AtomUtil::setUtf8String(_window, X11::getAtom(NET_WM_VISIBLE_NAME), title);
     } else {
-        AtomUtil::unsetProperty(_window, X11::getAtom(NET_WM_VISIBLE_NAME));
+        X11::unsetProperty(_window, NET_WM_VISIBLE_NAME);
     }
 }
 

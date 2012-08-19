@@ -185,13 +185,4 @@ getEwmhPropData(Window win, Atom prop, Atom type, int &num)
     return prop_data;
 }
 
-/**
- * Remove property from window.
- */
-void
-unsetProperty(Window win, Atom prop)
-{
-    XDeleteProperty(X11::getDpy(), win, prop);
-}
-
 } // end namespace AtomUtil
