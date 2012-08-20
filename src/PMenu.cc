@@ -966,7 +966,7 @@ PMenu::selectItemNum(uint num)
 #ifdef DEBUG
         cerr << __FILE__ << "@" << __LINE__ << ": "
              << "PMenu(" << this << ")::selectItem(" << num << ")"
-             << " *** num > _item_list_size()[" << _item_list.size()
+             << " *** num > _items.size()[" << _items.size()
              << "]" << endl;
 #endif // DEBUG
         return;

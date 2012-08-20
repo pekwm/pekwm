@@ -338,7 +338,7 @@ X11::getColor(const std::string &color)
                          color.c_str(), entry->getColor(), &dummy) == 0) {
 #ifdef DEBUG
         cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "ColorHandler(" << this << ")::getColor(" << color << ")" << endl
+             << "X11::getColor(" << color << ")" << endl
              << " *** failed to alloc color: " << color << endl;
 #endif // DEBUG
         delete entry;
