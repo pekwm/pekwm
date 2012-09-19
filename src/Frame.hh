@@ -48,7 +48,9 @@ public:
     virtual ActionEvent *handleUnmapEvent(XUnmapEvent *ev);
     // END - PWinObj interface.
 
-    virtual void handleShapeEvent(XAnyEvent *ev);
+#ifdef HAVE_SHAPE
+    virtual void handleShapeEvent(XShapeEvent *ev);
+#endif
 
     // START - PDecor interface.
     virtual bool allowMove(void) const;

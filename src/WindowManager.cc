@@ -777,8 +777,13 @@ WindowManager::doEventLoop(void)
 
             default:
 #ifdef HAVE_SHAPE
-                if (X11::hasExtensionShape() && (ev.type == X11::getEventShape())) {
-                    handleShapeEvent(&ev.xany);
+                if (X11::hasExtensionShape() && ev.type == X11::getEventShape()) {
+                    XShapeEvent *sev = reinterpret_cast<XShapeEvent*>(&ev);
+                    X11::setLastEventTime(sev->time);
+                    Client *client = Client::findClient(sev->window);
+                    if (client && client->getParent()) {
+                        static_cast<Frame*>(client->getParent())->handleShapeEvent(sev);
+                    }
                 }
 #endif // HAVE_SHAPE
 #ifdef HAVE_XRANDR
@@ -1357,18 +1362,6 @@ WindowManager::handleExposeEvent(XExposeEvent *ev)
     }
 }
 
-
-//! @brief Handle shape events applying shape to clients
-void
-WindowManager::handleShapeEvent(XAnyEvent *ev)
-{
-#ifdef HAVE_SHAPE
-    Client *client = Client::findClient(ev->window);
-    if (client && client->getParent()) {
-        static_cast<Frame*>(client->getParent())->handleShapeEvent(ev);
-    }
-#endif // HAVE_SHAPE
-}
 
 #ifdef HAVE_XRANDR
 //! @brief Handles XRandr events

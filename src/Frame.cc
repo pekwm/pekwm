@@ -409,16 +409,16 @@ Frame::handleUnmapEvent(XUnmapEvent *ev)
 
 // END - PWinObj interface.
 
-void
-Frame::handleShapeEvent(XAnyEvent *ev)
-{
 #ifdef HAVE_SHAPE
+void
+Frame::handleShapeEvent(XShapeEvent *ev)
+{
     if (! _client || (ev->window != _client->getWindow())) {
         return;
     }
     _client->setShaped(setShape());
-#endif // HAVE_SHAPE
 }
+#endif // HAVE_SHAPE
 
 // START - PDecor interface.
 
