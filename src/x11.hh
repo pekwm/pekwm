@@ -344,9 +344,22 @@ public:
         return XChangeProperty(_dpy, win, prop, type, format, mode, data, ne);
     }
 
+    inline static int
+    getGeometry(Window win, unsigned *w, unsigned *h, unsigned *bw)
+    {
+        Window wn; int x, y; unsigned foo;
+        return XGetGeometry(_dpy, win, &wn, &x, &y, w, h, bw, &foo);
+    }
+
 #ifdef HAVE_SHAPE
-    inline static void shapeCombine(Window dst, int x, int y, Window src, int op) {
-        XShapeCombineShape(_dpy, dst, ShapeBounding, x, y, src, ShapeBounding, op);
+    inline static void shapeQuery(Window dst, int *bshaped) {
+        int foo; unsigned bar;
+        XShapeQueryExtents(_dpy, dst, bshaped, &foo, &foo, &bar, &bar,
+                           &foo, &foo, &foo, &bar, &bar);
+    }
+
+    inline static void shapeCombine(Window dst, int kind, int x, int y, Window src, int op) {
+        XShapeCombineShape(_dpy, dst, kind, x, y, src, kind, op);
     }
 
     inline static void shapeSetRect(Window dst, XRectangle *rect) {
@@ -359,8 +372,8 @@ public:
                                 ShapeIntersect, YXBanded);
     }
 
-    inline static void shapeSetMask(Window dst, Pixmap pix) {
-        XShapeCombineMask(_dpy, dst, ShapeBounding, 0, 0, pix, ShapeSet);
+    inline static void shapeSetMask(Window dst, int kind, Pixmap pix) {
+        XShapeCombineMask(_dpy, dst, kind, 0, 0, pix, ShapeSet);
     }
 
     inline static XRectangle *shapeGetRects(Window win, int *num) {

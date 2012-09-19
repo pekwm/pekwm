@@ -115,7 +115,7 @@ PDecor::Button::setState(ButtonState state)
         bool need_free;
         Pixmap shape = _data->getTexture(state)->getMask(0, 0, need_free);
         if (shape != None) {
-            X11::shapeSetMask(_window, shape);
+            X11::shapeSetMask(_window, ShapeBounding, shape);
             if (need_free) {
                 ScreenResources::instance()->getPixmapHandler()->returnPixmap(shape);
             }
@@ -1689,7 +1689,7 @@ PDecor::setBorderShape(void)
                                                                   do_free);
         if (pix != None) {
             _need_shape = true;
-            X11::shapeSetMask(_border_win[it->first], pix);
+            X11::shapeSetMask(_border_win[it->first], ShapeBounding, pix);
             if (do_free) {
                 ScreenResources::instance()->getPixmapHandler()->returnPixmap(pix);
             }
@@ -1977,8 +1977,9 @@ PDecor::applyBorderShape(void)
                                     0, 0, _gm.width, _gm.height, 0, 0, 0);
 
         if (_child && ! _shaded) {
-            X11::shapeCombine(shape, borderLeft(), borderTop() + getTitleHeight(),
-                               _child->getWindow(), ShapeSet);
+            X11::shapeCombine(shape, ShapeBounding,
+                              borderLeft(), borderTop() + getTitleHeight(),
+                              _child->getWindow(), ShapeSet);
         }
 
         // Apply border shape. Need to be carefull wheter or not to include it.
@@ -1987,40 +1988,43 @@ PDecor::applyBorderShape(void)
                 && ! (_need_client_shape)) { // Shaped clients should appear bordeless.
             // top
             if (borderTop() > 0) {
-                X11::shapeCombine(shape, 0, bt_off, _border_win[BORDER_TOP_LEFT],
-                                  ShapeUnion);
+                X11::shapeCombine(shape, ShapeBounding, 0, bt_off,
+                                  _border_win[BORDER_TOP_LEFT], ShapeUnion);
 
-                X11::shapeCombine(shape, borderTopLeft(), bt_off, _border_win[BORDER_TOP],
-                                  ShapeUnion);
+                X11::shapeCombine(shape, ShapeBounding, borderTopLeft(), bt_off,
+                                  _border_win[BORDER_TOP], ShapeUnion);
 
-                X11::shapeCombine(shape, _gm.width - borderTopRight(), bt_off,
-                                  _border_win[BORDER_TOP_RIGHT], ShapeUnion);
+                X11::shapeCombine(shape, ShapeBounding, _gm.width - borderTopRight(),
+                                  bt_off, _border_win[BORDER_TOP_RIGHT], ShapeUnion);
             }
 
             bool use_bt_off = bt_off || borderTop();
             // Left border
             if (borderLeft() > 0) {
-                X11::shapeCombine(shape, 0, 
+                X11::shapeCombine(shape, ShapeBounding, 0,
                                   use_bt_off ? bt_off + borderTopLeftHeight() : getTitleHeight(),
                                   _border_win[BORDER_LEFT], ShapeUnion);
             }
 
             // Right border
             if (borderRight() > 0) {
-                X11::shapeCombine(shape, _gm.width - borderRight(), 
+                X11::shapeCombine(shape, ShapeBounding, _gm.width - borderRight(),
                                   use_bt_off ? bt_off + borderTopRightHeight() : getTitleHeight(),
                                   _border_win[BORDER_RIGHT], ShapeUnion);
             }
 
             // bottom
             if (borderBottom() > 0) {
-                X11::shapeCombine(shape, 0, _gm.height - borderBottomLeftHeight(), 
+                X11::shapeCombine(shape, ShapeBounding,
+                                  0, _gm.height - borderBottomLeftHeight(),
                                   _border_win[BORDER_BOTTOM_LEFT], ShapeUnion);
 
-                X11::shapeCombine(shape, borderBottomLeft(), _gm.height - borderBottom(),
+                X11::shapeCombine(shape, ShapeBounding,
+                                  borderBottomLeft(), _gm.height - borderBottom(),
                                   _border_win[BORDER_BOTTOM], ShapeUnion);
 
-                X11::shapeCombine(shape, _gm.width - borderBottomRight(), 
+                X11::shapeCombine(shape, ShapeBounding,
+                                  _gm.width - borderBottomRight(),
                                   _gm.height - borderBottomRightHeight(),
                                   _border_win[BORDER_BOTTOM_RIGHT],
                                   ShapeUnion);
@@ -2028,7 +2032,7 @@ PDecor::applyBorderShape(void)
         }
         if (_titlebar) {
             // apply title shape
-            X11::shapeCombine(shape, _title_wo.getX(), _title_wo.getY(),
+            X11::shapeCombine(shape, ShapeBounding, _title_wo.getX(), _title_wo.getY(),
                               _title_wo.getWindow(), ShapeUnion);
         }
 
@@ -2038,7 +2042,7 @@ PDecor::applyBorderShape(void)
         X11::shapeIntersectRect(shape, &rect_square);
 
         // Apply the shape mask to the window
-        X11::shapeCombine(_window, 0, 0, shape, ShapeSet);
+        X11::shapeCombine(_window, ShapeBounding, 0, 0, shape, ShapeSet);
 
         XDestroyWindow(X11::getDpy(), shape);
     } else {
