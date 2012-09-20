@@ -575,6 +575,15 @@ Client::reparent(PWinObj *parent, int x, int y)
 }
 
 ActionEvent*
+Client::handleMapRequest(XMapRequestEvent *ev)
+{
+       if (_parent && dynamic_cast<PDecor *>(_parent)) {
+           dynamic_cast<PDecor*>(_parent)->deiconify();
+       }
+       return 0;
+}
+
+ActionEvent*
 Client::handleUnmapEvent(XUnmapEvent *ev)
 {
     if ((ev->window != ev->event) && (ev->send_event != true)) {
@@ -605,15 +614,6 @@ Client::handleUnmapEvent(XUnmapEvent *ev)
     delete this;
 
     return 0;
-}
-
-ActionEvent*
-Client::handleMapRequest(XMapRequestEvent *ev)
-{
-       if (_parent && dynamic_cast<PDecor *>(_parent)) {
-           dynamic_cast<PDecor*>(_parent)->deiconify();
-       }
-       return 0;
 }
 
 // END - PWinObj interface.
