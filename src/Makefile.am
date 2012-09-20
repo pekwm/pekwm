@@ -2,8 +2,14 @@ AUTOMAKE_OPTIONS = foreign
 
 CXXFLAGS = @CXXFLAGS@ -DSYSCONFDIR=\"$(sysconfdir)/pekwm\" -DDATADIR=\"$(datadir)\"
 
+if DEBUG_INFRASTRUCTURE
+debugsource =
+else
+debugsource =
+endif
+
 bin_PROGRAMS = pekwm
-pekwm_SOURCES = \
+pekwm_SOURCES = $(debugsource)\
 	Action.hh \
 	ActionHandler.cc ActionHandler.hh \
 	ActionMenu.cc ActionMenu.hh \
