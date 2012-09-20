@@ -17,6 +17,10 @@
 #include "CfgParser.hh"
 #include "Util.hh"
 
+extern "C" {
+#include <X11/Xutil.h>
+}
+
 #include <iostream>
 
 using std::cerr;
