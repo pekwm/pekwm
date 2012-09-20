@@ -130,6 +130,20 @@ public:
     void updateOpacity(void);
     void setOpaque(bool opaque);
  
+    //! Returns true if a custom region of kind @kind (ShapeBounding
+    //! or ShapeInput) was set via the shape extension for this window.
+    inline bool hasShapeRegion(int kind) const
+    {
+#ifdef HAVE_SHAPE
+        if (kind == ShapeBounding) {
+            return _shape_bounding;
+        } else if (kind == ShapeInput) {
+            return _shape_input;
+        }
+#endif
+        return false;
+    }
+
     // interface
     virtual void mapWindow(void);
     virtual void mapWindowRaised(void);
@@ -231,12 +245,14 @@ protected:
     Geometry _gm; //!< Geometry of PWinObj (always in absolute coordinates).
     uint _workspace; //!< Workspace PWinObj is on.
     unsigned int _layer; //!< Layer PWinObj is in.
-    bool _mapped; //!< Mapped state of PWinObj.
-    bool _iconified; //!< Iconified state of PWinObj.
-    bool _hidden; //!< Hidden state of PWinObj.
-    bool _focused; //!< Focused state of PWinObj.
-    bool _sticky; //!< Sticky state of PWinObj.
-    bool _focusable; //!< Focusable state of PWinObj.
+    bool _mapped:1; //!< Mapped state of PWinObj.
+    bool _iconified:1; //!< Iconified state of PWinObj.
+    bool _hidden:1; //!< Hidden state of PWinObj.
+    bool _focused:1; //!< Focused state of PWinObj.
+    bool _sticky:1; //!< Sticky state of PWinObj.
+    bool _focusable:1; //!< Focusable state of PWinObj.
+    bool _shape_bounding:1; //!< _window has a custom bounding region (shape)
+    bool _shape_input:1; //!< _window has a custom input region (shape)
 
     static PWinObj *_root_wo; //!< Static root PWinObj pointer.
     static PWinObj *_focused_wo; //!< Static focused PWinObj pointer.
