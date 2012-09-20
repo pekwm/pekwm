@@ -12,6 +12,7 @@
 
 #include "ActionHandler.hh"
 
+#include "Debug.hh"
 #include "PWinObj.hh"
 #include "PDecor.hh"
 #include "PMenu.hh"
@@ -363,6 +364,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 break;
             case ACTION_DEBUG:
 #ifdef DEBUG
+                Debug::doAction(it->getParamS());
 #endif
                 break;
             default:
