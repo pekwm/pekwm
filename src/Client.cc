@@ -65,7 +65,7 @@ Client::Client(Window new_client, bool is_new)
       _alive(false), _marked(false),
       _send_focus_message(false), _send_close_message(false),
       _wm_hints_input(true), _cfg_request_lock(false),
-      _shaped(false), _extended_net_name(false),
+      _extended_net_name(false),
       _demands_attention(false)
 {
     // PWinObj attributes, required by validate etc.
@@ -84,11 +84,31 @@ Client::Client(Window new_client, bool is_new)
     _title.setId(_id);
     _title.infoAdd(PDecor::TitleItem::INFO_ID);
 
-    if (X11::hasExtensionShape()) {
 #ifdef HAVE_SHAPE
+    if (X11::hasExtensionShape()) {
         XShapeSelectInput(X11::getDpy(), _window, ShapeNotifyMask);
-#endif // HAVE_SHAPE
+
+        int isShaped;
+        X11::shapeQuery(_window, &isShaped);
+        _shape_bounding = isShaped;
+
+        int num=0; int foo;
+        XRectangle *rect = XShapeGetRectangles(X11::getDpy(), _window, ShapeInput, &num, &foo);
+        if (rect) {
+            if (num == 1) {
+                unsigned w, h, bw;
+                X11::getGeometry(_window, &w, &h, &bw);
+                if (rect->x > 0 || rect->y > 0 || rect->width < w+bw
+                                || rect->height < h+bw) {
+                   _shape_input = true;
+                }
+            } else {
+                _shape_input = true;
+            }
+            XFree(rect);
+        }
     }
+#endif // HAVE_SHAPE
 
     XAddToSaveSet(X11::getDpy(), _window);
     XSetWindowBorderWidth(X11::getDpy(), _window, 0);
@@ -617,6 +637,24 @@ Client::handleUnmapEvent(XUnmapEvent *ev)
 }
 
 // END - PWinObj interface.
+
+#ifdef HAVE_SHAPE
+void
+Client::handleShapeEvent(XShapeEvent *ev)
+{
+    if (ev->kind == ShapeBounding) {
+        _shape_bounding = ev->shaped;
+    } else if (ev->kind == ShapeInput) {
+        _shape_input = ev->shaped;
+    } else {
+        return;
+    }
+
+    if (_parent) {
+        static_cast<Frame *>(_parent)->handleShapeEvent(ev);
+    }
+}
+#endif // HAVE_SHAPE
 
 // START - Observer interface
 

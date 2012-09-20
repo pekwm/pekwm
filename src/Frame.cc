@@ -413,10 +413,10 @@ Frame::handleUnmapEvent(XUnmapEvent *ev)
 void
 Frame::handleShapeEvent(XShapeEvent *ev)
 {
-    if (! _client || (ev->window != _client->getWindow())) {
+    if (! _client || ev->window != _client->getWindow()) {
         return;
     }
-    _client->setShaped(setShape());
+    applyBorderShape(ev->kind);
 }
 #endif // HAVE_SHAPE
 
@@ -505,11 +505,14 @@ Frame::activateChild(PWinObj *child)
     }
     PDecor::activateChild(child);
 
-    // setShape uses current active child, so we need to activate the
-    // child before setting shape
+#ifdef HAVE_SHAPE
+    // applyBorderShape() uses current active child, so we need to activate
+    // the child before setting shape
     if (X11::hasExtensionShape()) {
-        _client->setShaped(setShape());
+        applyBorderShape(ShapeBounding);
+        applyBorderShape(ShapeInput);
     }
+#endif // HAVE_SHAPE
 
     setOpacity(_client);
 
@@ -2113,7 +2116,7 @@ Frame::handleConfigureRequestGeometry(XConfigureRequestEvent *ev, Client *client
     if (! client->isCfgDeny(CFG_DENY_SIZE)
         && (ev->value_mask & (CWWidth|CWHeight))) {
         resizeChild(ev->width, ev->height);
-        _client->setShaped(setShape());
+        applyBorderShape();
         change_geometry = true;
     }
 

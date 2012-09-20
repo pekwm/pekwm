@@ -325,13 +325,18 @@ protected:
     virtual void renderButtons(void);
     virtual void renderBorder(void);
     virtual void setBorderShape(void); // shapes border corners
-    virtual void applyBorderShape(void); // applies shape onto window
 
     virtual void loadTheme(void) { } // called after loadDecor, render child
 
     virtual int resizeHorzStep(int diff) const { return diff; }
     virtual int resizeVertStep(int diff) const { return diff; }
     // END - PDecor interface.
+
+#ifdef HAVE_SHAPE
+    void applyBorderShape(int kind=ShapeBounding);
+#else
+    void applyBorderShape(int kind=0) {}
+#endif // HAVE_SHAPE
 
     void resizeTitle(void);
 
@@ -344,7 +349,6 @@ protected:
     void checkWOSnap(void);
     void checkEdgeSnap(void);
 
-    bool setShape(void);
     void alignChild(PWinObj *child);
     void drawOutline(const Geometry &gm);
 
@@ -438,7 +442,6 @@ private:
     // decor state
     bool _border, _titlebar, _shaded;
     bool _need_shape;
-    bool _need_client_shape;
     bool _dirty_resized; //!< Flag set when decor has been resized.
     uint _real_height;
 

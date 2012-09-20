@@ -193,7 +193,7 @@ PDecor::PDecor(Theme *theme,
       _maximized_vert(false), _maximized_horz(false),
       _fullscreen(false), _skip(0), _data(0), 
       _border(true), _titlebar(true), _shaded(false),
-      _need_shape(false), _need_client_shape(false),
+      _need_shape(false),
       _dirty_resized(true), _real_height(1),
       _title_wo(), _title_bg(None),
       _title_active(0), _titles_left(0), _titles_right(1)
@@ -1823,36 +1823,6 @@ PDecor::checkEdgeSnap(void)
 }
 
 
-//! @brief Set shapes of decor
-//! @return true if shape is on, else false.
-bool
-PDecor::setShape(void)
-{
-#ifdef HAVE_SHAPE
-    if (! _child) {
-        return false;
-    }
-
-    int num;
-    XRectangle *rect;
-
-    rect = X11::shapeGetRects(_child->getWindow(), &num);
-    // If there is more than one Rectangle it has an irregular shape.
-    _need_client_shape = (num > 1);
-
-    // Will set or unset shape depending on _need_shape and _need_client_shape.
-    applyBorderShape();
-
-    if (rect) {
-        XFree(rect);
-    }
-
-    return (num > 1);
-#else // !HAVE_SHAPE
-    return false;
-#endif // HAVE_SHAPE
-}
-
 /**
  * Move child into position with regards to title and border.
  */
@@ -1953,21 +1923,22 @@ PDecor::placeBorder(void)
     applyBorderShape();
 }
 
+#ifdef HAVE_SHAPE
 /**
  * Apply shaping on the window based on the shape of the client and
  * the borders.
  */
 void
-PDecor::applyBorderShape(void)
+PDecor::applyBorderShape(int kind)
 {
-#ifdef HAVE_SHAPE
+    bool client_shape = _child?_child->hasShapeRegion(kind):false;
     XRectangle rect_square;
     rect_square.x = 0;
     rect_square.y = 0;
     rect_square.width = _gm.width;
     rect_square.height = _gm.height;
 
-    if (_need_shape || _need_client_shape) {
+    if ((_need_shape && kind == ShapeBounding) || client_shape) {
         // if we have tab min == 0 then we have full width title and place the
         // border ontop, else we put the border under the title
         uint bt_off = (_data->getTitleWidthMin() > 0) ? getTitleHeight() : 0;
@@ -1977,7 +1948,7 @@ PDecor::applyBorderShape(void)
                                     0, 0, _gm.width, _gm.height, 0, 0, 0);
 
         if (_child && ! _shaded) {
-            X11::shapeCombine(shape, ShapeBounding,
+            X11::shapeCombine(shape, kind,
                               borderLeft(), borderTop() + getTitleHeight(),
                               _child->getWindow(), ShapeSet);
         }
@@ -1985,45 +1956,45 @@ PDecor::applyBorderShape(void)
         // Apply border shape. Need to be carefull wheter or not to include it.
         if (_border
                 && ! (_shaded && bt_off) // Shaded in non-full-width mode removes border.
-                && ! (_need_client_shape)) { // Shaped clients should appear bordeless.
+                && ! client_shape) { // Shaped clients should appear bordeless.
             // top
             if (borderTop() > 0) {
-                X11::shapeCombine(shape, ShapeBounding, 0, bt_off,
+                X11::shapeCombine(shape, kind, 0, bt_off,
                                   _border_win[BORDER_TOP_LEFT], ShapeUnion);
 
-                X11::shapeCombine(shape, ShapeBounding, borderTopLeft(), bt_off,
+                X11::shapeCombine(shape, kind, borderTopLeft(), bt_off,
                                   _border_win[BORDER_TOP], ShapeUnion);
 
-                X11::shapeCombine(shape, ShapeBounding, _gm.width - borderTopRight(),
+                X11::shapeCombine(shape, kind, _gm.width - borderTopRight(),
                                   bt_off, _border_win[BORDER_TOP_RIGHT], ShapeUnion);
             }
 
             bool use_bt_off = bt_off || borderTop();
             // Left border
             if (borderLeft() > 0) {
-                X11::shapeCombine(shape, ShapeBounding, 0,
+                X11::shapeCombine(shape, kind, 0,
                                   use_bt_off ? bt_off + borderTopLeftHeight() : getTitleHeight(),
                                   _border_win[BORDER_LEFT], ShapeUnion);
             }
 
             // Right border
             if (borderRight() > 0) {
-                X11::shapeCombine(shape, ShapeBounding, _gm.width - borderRight(),
+                X11::shapeCombine(shape, kind, _gm.width - borderRight(),
                                   use_bt_off ? bt_off + borderTopRightHeight() : getTitleHeight(),
                                   _border_win[BORDER_RIGHT], ShapeUnion);
             }
 
             // bottom
             if (borderBottom() > 0) {
-                X11::shapeCombine(shape, ShapeBounding,
+                X11::shapeCombine(shape, kind,
                                   0, _gm.height - borderBottomLeftHeight(),
                                   _border_win[BORDER_BOTTOM_LEFT], ShapeUnion);
 
-                X11::shapeCombine(shape, ShapeBounding,
+                X11::shapeCombine(shape, kind,
                                   borderBottomLeft(), _gm.height - borderBottom(),
                                   _border_win[BORDER_BOTTOM], ShapeUnion);
 
-                X11::shapeCombine(shape, ShapeBounding,
+                X11::shapeCombine(shape, kind,
                                   _gm.width - borderBottomRight(),
                                   _gm.height - borderBottomRightHeight(),
                                   _border_win[BORDER_BOTTOM_RIGHT],
@@ -2032,7 +2003,7 @@ PDecor::applyBorderShape(void)
         }
         if (_titlebar) {
             // apply title shape
-            X11::shapeCombine(shape, ShapeBounding, _title_wo.getX(), _title_wo.getY(),
+            X11::shapeCombine(shape, kind, _title_wo.getX(), _title_wo.getY(),
                               _title_wo.getWindow(), ShapeUnion);
         }
 
@@ -2042,16 +2013,15 @@ PDecor::applyBorderShape(void)
         X11::shapeIntersectRect(shape, &rect_square);
 
         // Apply the shape mask to the window
-        X11::shapeCombine(_window, ShapeBounding, 0, 0, shape, ShapeSet);
+        X11::shapeCombine(_window, kind, 0, 0, shape, ShapeSet);
 
         XDestroyWindow(X11::getDpy(), shape);
     } else {
-        // No shaping is required, apply a square shape to remove
-        // possible stale shaping.
-        X11::shapeSetRect(_window, &rect_square);
+        // Reinstate default region
+        X11::shapeSetMask(_window, kind, None);
     }
-#endif // HAVE_SHAPE
 }
+#endif // HAVE_SHAPE
 
 //! @brief Restacks child, title and border windows.
 void

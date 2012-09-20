@@ -781,8 +781,8 @@ WindowManager::doEventLoop(void)
                     XShapeEvent *sev = reinterpret_cast<XShapeEvent*>(&ev);
                     X11::setLastEventTime(sev->time);
                     Client *client = Client::findClient(sev->window);
-                    if (client && client->getParent()) {
-                        static_cast<Frame*>(client->getParent())->handleShapeEvent(sev);
+                    if (client) {
+                        client->handleShapeEvent(sev);
                     }
                 }
 #endif // HAVE_SHAPE

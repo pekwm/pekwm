@@ -109,6 +109,10 @@ public: // Public Member Functions
     virtual ActionEvent *handleUnmapEvent(XUnmapEvent *ev);
     // END - PWinObj interface.
 
+#ifdef HAVE_SHAPE
+    void handleShapeEvent(XShapeEvent *);
+#endif // HAVE_SHAPE
+
     // START - Observer interface.
     virtual void notify(Observable *observable, Observation *observation);
     // END - Observer interface.
@@ -163,7 +167,6 @@ public: // Public Member Functions
 
     inline bool hasTitlebar(void) const { return (_state.decor&DECOR_TITLEBAR); }
     inline bool hasBorder(void) const { return (_state.decor&DECOR_BORDER); }
-    inline bool isShaped(void) const { return _shaped; }
     inline bool hasStrut(void) const { return (_strut); }
     Strut *getStrut(void) const { return _strut; }
     inline bool demandsAttention(void) const { return _demands_attention; }
@@ -244,11 +247,6 @@ public: // Public Member Functions
         } else {
             _state.decor &= ~DECOR_BORDER;
         }
-    }
-
-    /** Set shaped flag on Client. */
-    inline void setShaped(bool shaped) {
-        _shaped = shaped;
     }
 
     inline void setDemandsAttention(bool attention) {
@@ -363,7 +361,6 @@ private: // Private Member Variables
     bool _alive, _marked;
     bool _send_focus_message, _send_close_message, _wm_hints_input;
     bool _cfg_request_lock;
-    bool _shaped;
     bool _extended_net_name;
     bool _demands_attention; /**< If true, the client requires attention from the user. */
 
