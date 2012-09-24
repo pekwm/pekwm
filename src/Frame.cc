@@ -1590,7 +1590,8 @@ Frame::setStateFullscreen(StateAction sa)
     moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
 
     // Re-stack window if fullscreen is above other windows.
-    if (Config::instance()->isFullscreenAbove()) {
+    if (Config::instance()->isFullscreenAbove()
+            && _client->getLayer() != LAYER_DESKTOP) {
         setLayer(_fullscreen ? LAYER_ABOVE_DOCK : _non_fullscreen_layer);
         raise();
     }
