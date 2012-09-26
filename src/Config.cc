@@ -1331,6 +1331,7 @@ Config::parseInputDialogActions(const std::string &actions, ActionEvent &ae)
     vector<string> tok;
     vector<string>::iterator it;
     Action action;
+    string::size_type first, last;
 
     // reset the action event
     ae.action_list.clear();
@@ -1338,6 +1339,11 @@ Config::parseInputDialogActions(const std::string &actions, ActionEvent &ae)
     // chop the string up separating the actions
     if (Util::splitString(actions, tok, ";")) {
         for (it = tok.begin(); it != tok.end(); ++it) {
+            first = (*it).find_first_not_of(" \t\n");
+            if (first == string::npos)
+                continue;
+            last = (*it).find_last_not_of(" \t\n");
+            (*it) = (*it).substr(first, last-first+1);
             if (parseInputDialogAction(*it, action)) {
                 ae.action_list.push_back(action);
                 action.clear();
