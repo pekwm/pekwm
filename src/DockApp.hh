@@ -23,7 +23,7 @@ class PWinObj;
 class DockApp : public PWinObj
 {
 public:
-    DockApp(Theme *theme, Window win);
+    DockApp(Window win);
     ~DockApp(void);
 
     // START - PWinObj interface.
@@ -67,9 +67,6 @@ private:
 
     void readClassHint(void);
     void readAutoProperties(void);
-
-private:
-    Theme *_theme;
 
     Window _dockapp_window;
     Window _client_window, _icon_window;

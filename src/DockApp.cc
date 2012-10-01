@@ -19,6 +19,7 @@
 #include "Theme.hh"
 #include "PixmapHandler.hh"
 #include "AutoProperties.hh"
+#include "WindowManager.hh"
 
 extern "C" {
 #include <X11/Xutil.h>
@@ -34,9 +35,8 @@ const uint DOCKAPP_DEFAULT_SIDE = 64;
 const uint DOCKAPP_BORDER_WIDTH = 2;
 
 //! @brief DockApp constructor
-DockApp::DockApp(Theme *t, Window win) :
+DockApp::DockApp(Window win) :
         PWinObj(),
-        _theme(t),
         _dockapp_window(win),
         _client_window(win), _icon_window(None),
         _position(0), _background(None),
@@ -225,7 +225,7 @@ DockApp::repaint(void)
     pm->returnPixmap(_background);
     _background = pm->getPixmap(_gm.width, _gm.height, X11::getDepth());
 
-    _theme->getHarbourData()->getTexture()->render(_background, 0, 0, _gm.width, _gm.height);
+    WindowManager::instance()->getTheme()->getHarbourData()->getTexture()->render(_background, 0, 0, _gm.width, _gm.height);
 
     XSetWindowBackgroundPixmap(X11::getDpy(), _window, _background);
     XClearWindow(X11::getDpy(), _window);
