@@ -880,11 +880,9 @@ Theme::HarbourData::check(void)
 
 //! @brief Theme constructor
 Theme::Theme(void)
-    : _image_handler(0),
-      _is_loaded(false), _invert_gc(None)
+    : _is_loaded(false), _invert_gc(None)
 {
-    // image handler
-    _image_handler = new ImageHandler();
+    new ImageHandler();
 
     // Map between theme sections and ThemeData structures.
     _section_data_map["MENU"] = &_menu_data;
@@ -915,7 +913,7 @@ Theme::~Theme(void)
 
     XFreeGC(X11::getDpy(), _invert_gc);
 
-    delete _image_handler;
+    delete ImageHandler::instance();
 }
 
 /**
@@ -967,8 +965,8 @@ Theme::load(const std::string &dir)
     }
 
     // Set image basedir.
-    _image_handler->path_clear();
-    _image_handler->path_push_back(_theme_dir);
+    ImageHandler::instance()->path_clear();
+    ImageHandler::instance()->path_push_back(_theme_dir);
 
     // Load decor data.
     CfgParser::Entry *section = theme.get_entry_root()->find_section("PDECOR");

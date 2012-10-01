@@ -364,8 +364,6 @@ public:
 private:
     void loadThemeRequire(CfgParser &theme_cfg, std::string &file);
 
-    ImageHandler *_image_handler;
-
     std::map<std::string, Theme::ThemeData*> _section_data_map; /**< Map between section names and data. */
 
     std::string _theme_dir; /**< Path to theme directory. */
