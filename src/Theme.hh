@@ -50,7 +50,9 @@ public:
         PDecorButtonData(void);
         virtual ~PDecorButtonData(void);
 
-        //! @brief Returns wheter the button is positioned relative to the left title edge.
+        //! @brief Returns whether the shape (derived from the alpha channel) should be set.
+        inline bool setShape(void) const { return _shape; }
+        //! @brief Returns whether the button is positioned relative to the left title edge.
         inline bool isLeft(void) const { return _left; }
         //! @brief Returns width of button.
         inline uint getWidth(void) const { return _width; }
@@ -78,7 +80,7 @@ public:
         vector<ActionEvent> _aes;
         PTexture *_texture[BUTTON_STATE_NO];
 
-        bool _left;
+        bool _shape:1, _left:1;
         uint _width, _height;
     };
 

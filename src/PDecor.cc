@@ -106,17 +106,19 @@ PDecor::Button::setState(ButtonState state)
         texture->render(_bg, 0, 0, _gm.width, _gm.height);
 
 #ifdef HAVE_SHAPE
-        // Get shape mask
-        bool need_free;
-        Pixmap shape = _data->getTexture(state)->getMask(0, 0, need_free);
-        if (shape != None) {
-            X11::shapeSetMask(_window, ShapeBounding, shape);
-            if (need_free) {
-                ScreenResources::instance()->getPixmapHandler()->returnPixmap(shape);
+        if (_data->setShape()) {
+            // Get shape mask
+            bool need_free;
+            Pixmap shape = _data->getTexture(state)->getMask(0, 0, need_free);
+            if (shape != None) {
+                X11::shapeSetMask(_window, ShapeBounding, shape);
+                if (need_free) {
+                    ScreenResources::instance()->getPixmapHandler()->returnPixmap(shape);
+                }
+            } else {
+                XRectangle rect = {0 /* x */, 0 /* y */, _gm.width, _gm.height };
+                X11::shapeSetRect(_window, &rect);
             }
-        } else {
-            XRectangle rect = {0 /* x */, 0 /* y */, _gm.width, _gm.height };
-            X11::shapeSetRect(_window, &rect);
         }
 #endif // HAVE_SHAPE
         clear();

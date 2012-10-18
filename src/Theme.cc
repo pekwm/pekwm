@@ -36,7 +36,7 @@ using std::map;
 
 //! @brief Theme::PDecorButtonData constructor.
 Theme::PDecorButtonData::PDecorButtonData(void)
-    : ThemeData(),
+    : ThemeData(), _shape(true),
       _left(false), _width(1), _height(1)
 {
     for (uint i = 0; i < BUTTON_STATE_NO; ++i) {
@@ -77,6 +77,11 @@ Theme::PDecorButtonData::load(CfgParser::Entry *section)
     if (_aes.size() > 0) {
         TextureHandler *th = TextureHandler::instance();
         CfgParser::Entry *value;
+
+        value = section->find_entry("SETSHAPE");
+        if (value) {
+            _shape = Util::isTrue(value->get_value());
+        }
 
         value = section->find_entry("FOCUSED");
         if (value) {
