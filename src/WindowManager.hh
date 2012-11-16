@@ -25,12 +25,6 @@
 #include <algorithm>
 #include <map>
 
-#ifdef HAVE_XRANDR
-extern "C" {
-#include <X11/extensions/Xrandr.h>
-}
-#endif // HAVE_XRANDR
-
 class ActionHandler;
 class AutoProperties;
 class Config;
@@ -188,12 +182,6 @@ private:
     void handleLeaveNotify(XCrossingEvent *ev);
     void handleFocusInEvent(XFocusChangeEvent *ev);
     void handleFocusOutEvent(XFocusChangeEvent *ev);
-
-#ifdef HAVE_XRANDR
-    void handleXRandrEvent(XRRNotifyEvent *ev);
-    void handleXRandrScreenChangeEvent(XRRScreenChangeNotifyEvent *ev);
-    void handleXRandrCrtcChangeEvent(XRRCrtcChangeNotifyEvent *ev);
-#endif // HAVE_XRANDR
 
     void readDesktopNamesHint(void);
 

@@ -342,7 +342,7 @@ WindowManager::setupDisplay(bool replace)
                   _screen_resources->getCursor(ScreenResources::CURSOR_ARROW));
 
 #ifdef HAVE_XRANDR
-    XRRSelectInput(dpy, X11::getRoot(), RRScreenChangeNotifyMask|RRCrtcChangeNotifyMask);
+    XRRSelectInput(dpy, X11::getRoot(), RRScreenChangeNotifyMask);
 #endif // HAVE_XRANDR
 
     _keygrabber = new KeyGrabber;
@@ -787,8 +787,21 @@ WindowManager::doEventLoop(void)
                 }
 #endif // HAVE_SHAPE
 #ifdef HAVE_XRANDR
-                if (X11::hasExtensionXRandr() && (ev.type == X11::getEventXRandr())) {
-                    handleXRandrEvent(reinterpret_cast<XRRNotifyEvent*>(&ev));
+                if (X11::hasExtensionXRandr()) {
+                    if (ev.type == X11::getEventXRandr() + RRScreenChangeNotify) {
+                        XRRScreenChangeNotifyEvent *scr_ev =
+                                reinterpret_cast<XRRScreenChangeNotifyEvent*>(&ev);
+
+                        X11::updateGeometry(scr_ev->width, scr_ev->height);
+                        _harbour->updateGeometry();
+                        screenEdgeResize();
+
+                        // Make sure windows are visible after resize
+                        vector<PDecor*>::const_iterator it(PDecor::pdecor_begin());
+                        for (; it != PDecor::pdecor_end(); ++it) {
+                            Workspaces::placeWoInsideScreen(*it);
+                        }
+                    }
                 }
 #endif // HAVE_XRANDR
                 break;
@@ -1361,58 +1374,6 @@ WindowManager::handleExposeEvent(XExposeEvent *ev)
         _action_handler->handleAction(ap);
     }
 }
-
-
-#ifdef HAVE_XRANDR
-//! @brief Handles XRandr events
-//! @param ev XRRNotifyEvent to handle.
-void
-WindowManager::handleXRandrEvent(XRRNotifyEvent *ev)
-{
-    if (ev->subtype == RRNotify_CrtcChange) {
-        handleXRandrCrtcChangeEvent(reinterpret_cast<XRRCrtcChangeNotifyEvent*>(ev));
-    } else {
-        handleXRandrScreenChangeEvent(reinterpret_cast<XRRScreenChangeNotifyEvent*>(ev));
-    }
-}
-
-/**
- * Handle screen change event.
- *
- * Reads the screen geometry and head information all over, updates
- * the screen edge and harbour.
- *
- * @param ev XRRScreenChangeNotifyEvent event to handle.
- */
-void
-WindowManager::handleXRandrScreenChangeEvent(XRRScreenChangeNotifyEvent *ev)
-{
-#ifdef DEBUG
-    cerr << __FILE__ << "@" << __LINE__ << ": WindowManager::handleXRandrScreenChangeEvent()" << endl;
-#endif // DEBUG
-
-    X11::updateGeometry(ev->width, ev->height);
-    _harbour->updateGeometry();
-    screenEdgeResize();
-
-    // Make sure windows are visible after resize
-    vector<PDecor*>::const_iterator it(PDecor::pdecor_begin());
-    for (; it != PDecor::pdecor_end(); ++it) {
-        Workspaces::placeWoInsideScreen(*it);
-    }
-}
-
-//! @brief Handle crtc change event, does nothing.
-//! @param ev XRRCrtcChangeNotifyEvent event to handle.
-void
-WindowManager::handleXRandrCrtcChangeEvent(XRRCrtcChangeNotifyEvent *ev)
-{
-#ifdef DEBUG
-    cerr << __FILE__ << "@" << __LINE__ << ": WindowManager::handleXRandrCrtcChangeEvent()" << endl;
-#endif // DEBUG
-}
-
-#endif // HAVE_XRANDR
 
 // Event handling routines stop ============================================
 
