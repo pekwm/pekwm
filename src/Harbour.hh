@@ -13,19 +13,15 @@
 
 #include "pekwm.hh"
 
-class Theme;
-class Workspaces;
 class DockApp;
 class Strut;
-class BaseMenu;
-class HarbourMenu;
 
 #include "Action.hh"
 
 class Harbour
 {
 public:
-    Harbour(Theme *t);
+    Harbour(void);
     ~Harbour(void);
 
     void addDockApp(DockApp* da);
@@ -34,8 +30,6 @@ public:
 
     DockApp* findDockApp(Window win);
     DockApp* findDockAppFromFrame(Window win);
-
-    HarbourMenu* getHarbourMenu(void) { return _harbour_menu; }
 
     inline uint getSize(void) const { return _size; }
 
@@ -64,12 +58,7 @@ private:
 
     void updateStrutSize(void);
 
-private:
-    Theme *_theme;
-
     vector<DockApp*> _dapps;
-    HarbourMenu *_harbour_menu;
-
     bool _hidden;
     uint _size;
     Strut *_strut;

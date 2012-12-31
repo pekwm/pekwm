@@ -39,7 +39,6 @@
 #include "KeyGrabber.hh"
 #include "MenuHandler.hh"
 #include "Harbour.hh"
-#include "HarbourMenu.hh"
 #include "DockApp.hh"
 #include "CmdDialog.hh"
 #include "SearchDialog.hh"
@@ -329,7 +328,7 @@ WindowManager::setupDisplay(bool replace)
     Workspaces::setSize(_config->getWorkspaces());
     Workspaces::setPerRow(_config->getWorkspacesPerRow());
 
-    _harbour = new Harbour(_theme);
+    _harbour = new Harbour;
 
     MenuHandler::createMenus(_theme);
 
@@ -526,8 +525,6 @@ WindowManager::doReload(void)
     doReloadAutoproperties();
 
     MenuHandler::reloadMenus();
-    // Special case for HARBOUR menu which is not included in the menu map
-    _harbour->getHarbourMenu()->reload(static_cast<CfgParser::Entry*>(0));
     doReloadHarbour();
 
     _root_wo->setEwmhDesktopNames();

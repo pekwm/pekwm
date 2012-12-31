@@ -20,7 +20,6 @@
 #include "AutoProperties.hh"
 #include "PDecor.hh"
 #include "PMenu.hh"
-#include "HarbourMenu.hh"
 
 #include <algorithm>
 #include <functional>
@@ -34,16 +33,13 @@ using std::endl;
 #endif // DEBUG
 
 //! @brief Harbour constructor
-Harbour::Harbour(Theme *t) :
-        _theme(t),
-        _harbour_menu(0),
+Harbour::Harbour(void) :
         _hidden(false), _size(0), _strut(0),
         _last_button_x(0), _last_button_y(0)
 {
     _strut = new Strut();
     X11::addStrut(_strut);
     _strut->head = Config::instance()->getHarbourHead();
-    _harbour_menu = new HarbourMenu(_theme, this);
 }
 
 //! @brief Harbour destructor
@@ -53,7 +49,6 @@ Harbour::~Harbour(void)
 
     X11::removeStrut(_strut);
     delete _strut;
-    delete _harbour_menu;
 }
 
 //! @brief Adds a DockApp to the Harbour
@@ -299,20 +294,6 @@ Harbour::handleButtonEvent(XButtonEvent* ev, DockApp* da)
     
     _last_button_x = ev->x;
     _last_button_y = ev->y;
-
-    // FIXME: Make configurable
-    if (ev->type == ButtonPress) {
-        if (ev->button == BUTTON3) {
-            if (_harbour_menu->isMapped()) {
-                _harbour_menu->unmapWindow();
-            } else {
-                _harbour_menu->setDockApp(da);
-                _harbour_menu->mapUnderMouse();
-            }
-        } else if (_harbour_menu->isMapped()) {
-            _harbour_menu->unmapWindow();
-        }
-    }
 }
 
 //! @brief Initiates moving of a DockApp based on info from a XMotionEvent.
