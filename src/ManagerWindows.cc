@@ -243,7 +243,9 @@ RootWO::RootWO(Window root)
     X11::setLong(_window, NET_NUMBER_OF_DESKTOPS, Config::instance()->getWorkspaces());
     X11::setLong(_window, NET_CURRENT_DESKTOP, 0);
 
-    long desktop_geometry[2] = { _gm.width, _gm.height };
+    long desktop_geometry[2];
+    desktop_geometry[0] = _gm.width;
+    desktop_geometry[1] = _gm.height;
     X11::setLongs(_window, NET_DESKTOP_GEOMETRY, desktop_geometry, 2);
 
     woListAdd(this);
@@ -338,7 +340,9 @@ RootWO::handleLeaveEvent(XCrossingEvent *ev)
 void
 RootWO::setEwmhWorkarea(const Geometry &workarea)
 {
-    long workarea_array[4] = { workarea.x, workarea.y, workarea.width, workarea.height };
+    long workarea_array[4] = { workarea.x, workarea.y, 0, 0 };
+    workarea_array[2] = workarea.width;
+    workarea_array[3] = workarea.height;
     X11::setLongs(_window, NET_WORKAREA, workarea_array, 4);
 }
 
