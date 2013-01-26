@@ -1360,6 +1360,34 @@ Frame::recalcResizeDrag(int nx, int ny, bool left, bool top)
     _gm.y = top ? (_click_y - _gm.height) : _click_y;
 }
 
+void
+Frame::moveToHead(int head_nr)
+{
+    int curr_head_nr = getNearestHead();
+    if (curr_head_nr == head_nr || head_nr >= X11::getNumHeads()) {
+        return;
+    }
+
+    Geometry old_gm, new_gm;
+    X11::getHeadInfoWithEdge(curr_head_nr, old_gm);
+    X11::getHeadInfoWithEdge(head_nr, new_gm);
+
+    // Ensure the window fits in the new head.
+    _gm.x = new_gm.x + (_gm.x - old_gm.x);
+    _gm.y = new_gm.y + (_gm.y - old_gm.y);
+    _gm.width = std::min(_gm.width, new_gm.width);
+    _gm.height = std::min(_gm.height, new_gm.height);
+
+    if ((_gm.x + _gm.width) > (new_gm.x + new_gm.width)) {
+        _gm.x = new_gm.x + new_gm.width - _gm.width;
+    }
+    if ((_gm.y + _gm.height) > (new_gm.y + new_gm.height)) {
+        _gm.y = new_gm.y + new_gm.height - _gm.height;
+    }
+
+    moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
+}
+
 //! @brief Moves the Frame to the screen edge ori ( considering struts )
 void
 Frame::moveToEdge(OrientationType ori)

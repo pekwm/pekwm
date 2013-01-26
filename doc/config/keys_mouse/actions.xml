@@ -419,6 +419,15 @@
         </listitem>
       </varlistentry>
       <varlistentry>
+        <term>MoveToHead (int)</term>
+        <listitem>
+          <para>
+            Moves the frame to the same relative position on another head.
+            The window is shrinked to fit if it is larger than the new head.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
         <term>MoveToEdge (string)</term>
         <listitem>
           <para>

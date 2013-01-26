@@ -103,6 +103,7 @@ public:
     void setGeometry(const Geometry &geometry, int gm_mask, int head=-1);
 
     void growDirection(uint direction);
+    void moveToHead(int head_nr);
     void moveToEdge(OrientationType ori);
 
     void updateInactiveChildInfo(void);

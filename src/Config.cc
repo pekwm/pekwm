@@ -149,6 +149,7 @@ Config::Config(void) :
     _action_map["MoveResize"] = pair<ActionType, uint>(ACTION_MOVE_RESIZE, KEYGRABBER_OK);
     _action_map["GroupingDrag"] = pair<ActionType, uint>(ACTION_GROUPING_DRAG, FRAME_OK|CLIENT_OK);
     _action_map["WarpToWorkspace"] = pair<ActionType, uint>(ACTION_WARP_TO_WORKSPACE, SCREEN_EDGE_OK);
+    _action_map["MoveToHead"] = pair<ActionType, uint>(ACTION_MOVE_TO_HEAD, FRAME_MASK);
     _action_map["MoveToEdge"] = pair<ActionType, uint>(ACTION_MOVE_TO_EDGE, KEYGRABBER_OK);
     _action_map["NextFrame"] = pair<ActionType, uint>(ACTION_NEXT_FRAME, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
     _action_map["PrevFrame"] = pair<ActionType, uint>(ACTION_PREV_FRAME, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
@@ -1000,6 +1001,7 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
                 case ACTION_ACTIVATE_CLIENT_REL:
                 case ACTION_MOVE_CLIENT_REL:
                 case ACTION_GOTO_CLIENT_ID:
+                case ACTION_MOVE_TO_HEAD:
                     action.setParamI(0, strtol(tok[1].c_str(), 0, 10));
                     break;
                 case ACTION_SET:
