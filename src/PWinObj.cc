@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <iostream>
 
+#include "Debug.hh"
 #include "PWinObj.hh"
 
 using std::cerr;
@@ -192,12 +193,7 @@ void
 PWinObj::moveResize(int x, int y, uint width, uint height)
 {
     if (! width || ! height) {
-#ifdef DEBUG
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "PWinObj(" << this << ")::moveResize(" << width << "," << height
-             << ")" << endl << " *** invalid geometry, _window = "
-             << _window << endl;
-#endif // DEBUG
+        WARN("Invalid geometry, width/height not set");
         return;
     }
 

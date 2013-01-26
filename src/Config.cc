@@ -136,6 +136,7 @@ Config::Config(void) :
     _action_map["Close"] = pair<ActionType, uint>(ACTION_CLOSE, FRAME_MASK);
     _action_map["CloseFrame"] = pair<ActionType, uint>(ACTION_CLOSE_FRAME, FRAME_MASK);
     _action_map["Kill"] = pair<ActionType, uint>(ACTION_KILL, FRAME_MASK);
+    _action_map["SetGeometry"] = pair<ActionType, uint>(ACTION_SET_GEOMETRY, FRAME_MASK);
     _action_map["Raise"] = pair<ActionType, uint>(ACTION_RAISE, FRAME_MASK);
     _action_map["Lower"] = pair<ActionType, uint>(ACTION_LOWER, FRAME_MASK);
     _action_map["ActivateOrRaise"] = pair<ActionType, uint>(ACTION_ACTIVATE_OR_RAISE, FRAME_MASK);
@@ -983,6 +984,7 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
                 case ACTION_SEND_KEY:
                 case ACTION_MENU_DYN:
                 case ACTION_DEBUG:
+                case ACTION_SET_GEOMETRY:
                     action.setParamS(tok[1]);
                     break;
                 case ACTION_ACTIVATE_CLIENT_REL:

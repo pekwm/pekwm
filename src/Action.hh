@@ -62,7 +62,7 @@ enum ActionType {
     ACTION_RAISE, ACTION_LOWER,
     ACTION_ACTIVATE_OR_RAISE,
     ACTION_CLOSE, ACTION_CLOSE_FRAME, ACTION_KILL,
-    ACTION_MOVE_TO_EDGE,
+    ACTION_SET_GEOMETRY, ACTION_MOVE_TO_EDGE,
     ACTION_NEXT_FRAME, ACTION_NEXT_FRAME_MRU,
     ACTION_PREV_FRAME, ACTION_PREV_FRAME_MRU,
     ACTION_FOCUS_DIRECTIONAL,
@@ -72,7 +72,7 @@ enum ActionType {
     ACTION_SEND_TO_WORKSPACE, ACTION_GOTO_WORKSPACE,
     ACTION_WARP_TO_WORKSPACE,
     ACTION_SHOW_MENU, ACTION_HIDE_ALL_MENUS,
-    ACTION_DETACH,	ACTION_ATTACH_MARKED,
+    ACTION_DETACH, ACTION_ATTACH_MARKED,
     ACTION_ATTACH_CLIENT_IN_NEXT_FRAME, ACTION_ATTACH_CLIENT_IN_PREV_FRAME,
     ACTION_ATTACH_FRAME_IN_NEXT_FRAME, ACTION_ATTACH_FRAME_IN_PREV_FRAME,
 
@@ -157,14 +157,15 @@ namespace ActionUtil {
 
 class Action {
 public:
-    Action(void) : _action(ACTION_UNSET)
+    Action(void)
     { 
-        _param_i[0] = _param_i[1] = _param_i[2] = 0;
+        clear();
     }
     
-    Action(uint action) : _action(action)
+    Action(uint action)
     {
-        _param_i[0] = _param_i[1] = _param_i[2] = 0;
+        clear();
+        _action = action;
     }
     ~Action(void)
     {
@@ -180,8 +181,9 @@ public:
 
     inline void clear()
     {
-        _action = ACTION_UNSET; _param_s.clear();
-        _param_i[0] = _param_i[1] = _param_i[2] = 0;
+        _action = ACTION_UNSET;
+        _param_s.clear();
+        memset(_param_i, '\0', sizeof(_param_i));
     }
 private:
     uint _action;

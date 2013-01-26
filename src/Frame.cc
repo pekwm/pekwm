@@ -817,7 +817,6 @@ Frame::findFrameFromID(uint id)
     return 0;
 }
 
-//! @brief
 void
 Frame::setupAPGeometry(Client *client, AutoProperty *ap)
 {
@@ -826,7 +825,7 @@ Frame::setupAPGeometry(Client *client, AutoProperty *ap)
     // get client geometry
     if (ap->isMask(AP_CLIENT_GEOMETRY)) {
         Geometry gm(client->_gm);
-        applyAPGeometry(gm, ap->client_gm, ap->client_gm_mask);
+        applyGeometry(gm, ap->client_gm, ap->client_gm_mask);
 
         if (ap->client_gm_mask&(XValue|YValue)) {
             moveChild(gm.x, gm.y);
@@ -838,22 +837,16 @@ Frame::setupAPGeometry(Client *client, AutoProperty *ap)
 
     // get frame geometry
     if (ap->isMask(AP_FRAME_GEOMETRY)) {
-        applyAPGeometry(_gm, ap->frame_gm, ap->frame_gm_mask);
-        if (ap->frame_gm_mask&(XValue|YValue)) {
-            move(_gm.x, _gm.y);
-        }
-        if (ap->frame_gm_mask&(WidthValue|HeightValue)) {
-            resize(_gm.width, _gm.height);
-        }
+        setGeometry(ap->frame_gm, ap->frame_gm_mask);
     }
 }
 
-//! @brief Apply autoproperties geometry.
+//! @brief Apply geometry.
 //! @param gm Geometry to modify.
 //! @param ap_gm Geometry to get values from.
 //! @param mask Geometry mask.
 void
-Frame::applyAPGeometry(Geometry &gm, const Geometry &ap_gm, int mask)
+Frame::applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask)
 {
     // Read size before position so negative position works, if size is
     // < 1 consider it to be full screen size.
@@ -1808,7 +1801,26 @@ Frame::getMaxBounds(int &max_x,int &max_r, int &max_y, int &max_b)
     }
 }
 
-//! @brief
+void
+Frame::setGeometry(const std::string geometry)
+{
+    Geometry gm;
+    int mask = XParseGeometry(geometry.c_str(), &gm.x, &gm.y, &gm.width, &gm.height);
+    setGeometry(gm, mask);
+}
+ 
+void
+Frame::setGeometry(const Geometry &geometry, int gm_mask)
+{
+    applyGeometry(_gm, geometry, gm_mask);
+    if (gm_mask&(XValue|YValue)) {
+        move(_gm.x, _gm.y);
+    }
+    if (gm_mask&(WidthValue|HeightValue)) {
+        resize(_gm.width, _gm.height);
+    }
+}
+
 void
 Frame::growDirection(uint direction)
 {

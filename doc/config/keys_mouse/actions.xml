@@ -269,6 +269,15 @@
         </listitem>
       </varlistentry>
       <varlistentry>
+        <term>SetGeometry (string)</term>
+        <listitem>
+          <para>
+            Sets the geometry of a Frame. Parameter is a geometry
+            string that XParseGeometry can parse.
+          </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
         <term>Raise (bool)</term>
         <listitem>
           <para>
