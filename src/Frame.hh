@@ -99,8 +99,8 @@ public:
 
     inline const ClassHint* getClassHint(void) const { return _class_hint; }
 
-    void setGeometry(const std::string geometry);
-    void setGeometry(const Geometry &geometry, int gm_mask);
+    void setGeometry(const std::string geometry, int head=-1);
+    void setGeometry(const Geometry &geometry, int gm_mask, int head=-1);
 
     void growDirection(uint direction);
     void moveToEdge(OrientationType ori);
@@ -175,6 +175,7 @@ private:
 
     void setupAPGeometry(Client *client, AutoProperty *ap);
     void applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask);
+    void applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask, const Geometry &screen_gm);
 
     void setActiveTitle(void);
 

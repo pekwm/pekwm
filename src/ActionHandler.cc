@@ -149,7 +149,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 client->kill();
                 break;
             case ACTION_SET_GEOMETRY:
-                frame->setGeometry(it->getParamS());
+                frame->setGeometry(it->getParamS(), it->getParamI(0));
                 break;
             case ACTION_RAISE:
                 if (it->getParamI(0)) {

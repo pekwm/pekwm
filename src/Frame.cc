@@ -841,18 +841,25 @@ Frame::setupAPGeometry(Client *client, AutoProperty *ap)
     }
 }
 
+void
+Frame::applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask)
+{
+    applyGeometry(gm, ap_gm, mask, X11::getScreenGeometry());
+}
+
 //! @brief Apply geometry.
 //! @param gm Geometry to modify.
 //! @param ap_gm Geometry to get values from.
 //! @param mask Geometry mask.
+//! @param screen_gm Geometry of the screen/head for position.
 void
-Frame::applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask)
+Frame::applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask, const Geometry &screen_gm)
 {
     // Read size before position so negative position works, if size is
     // < 1 consider it to be full screen size.
     if (mask&WidthValue) {
         if (ap_gm.width < 1) {
-            gm.width = X11::getWidth();
+            gm.width = screen_gm.width;
         } else {
             gm.width = ap_gm.width;
         }
@@ -860,6 +867,7 @@ Frame::applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask)
     
     if (mask&HeightValue) {
         if (ap_gm.height < 1) {
+            gm.height = screen_gm.height;
         } else {
             gm.height = ap_gm.height;
         }
@@ -867,15 +875,15 @@ Frame::applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask)
 
     // Read position
     if (mask&XValue) {
-        gm.x = ap_gm.x;
+        gm.x = screen_gm.x + ap_gm.x;
         if (mask&XNegative) {
-            gm.x += X11::getWidth() - gm.width;
+            gm.x += screen_gm.width - gm.width;
         }
     }
     if (mask&YValue) {
-        gm.y = ap_gm.y;
+        gm.y = screen_gm.y + ap_gm.y;
         if (mask&YNegative) {
-            gm.y += X11::getHeight() - gm.height;
+            gm.y += screen_gm.height - gm.height;
         }
     }
 }
@@ -1802,17 +1810,24 @@ Frame::getMaxBounds(int &max_x,int &max_r, int &max_y, int &max_b)
 }
 
 void
-Frame::setGeometry(const std::string geometry)
+Frame::setGeometry(const std::string geometry, int head)
 {
     Geometry gm;
     int mask = XParseGeometry(geometry.c_str(), &gm.x, &gm.y, &gm.width, &gm.height);
-    setGeometry(gm, mask);
+    setGeometry(gm, mask, head);
 }
  
 void
-Frame::setGeometry(const Geometry &geometry, int gm_mask)
+Frame::setGeometry(const Geometry &geometry, int gm_mask, int head)
 {
-    applyGeometry(_gm, geometry, gm_mask);
+    Geometry screen_gm;
+    if (head == -1) {
+        screen_gm = X11::getScreenGeometry();
+    } else {
+        screen_gm = X11::getHeadGeometry(head);
+    }
+
+    applyGeometry(_gm, geometry, gm_mask, screen_gm);
     if (gm_mask&(XValue|YValue)) {
         move(_gm.x, _gm.y);
     }

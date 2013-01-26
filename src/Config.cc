@@ -984,8 +984,18 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
                 case ACTION_SEND_KEY:
                 case ACTION_MENU_DYN:
                 case ACTION_DEBUG:
-                case ACTION_SET_GEOMETRY:
                     action.setParamS(tok[1]);
+                    break;
+                case ACTION_SET_GEOMETRY:
+                    // Add optional head parameter, -1 means screen.
+                    Util::splitString(tok[1], tok, " \t", 2);
+                    if (tok.size() == 4) {
+                        action.setParamS(tok[2]);
+                        action.setParamI(0, strtol(tok[3].c_str(), 0, 10));
+                    } else {
+                        action.setParamS(tok[1]);
+                        action.setParamI(0, -1);
+                    }
                     break;
                 case ACTION_ACTIVATE_CLIENT_REL:
                 case ACTION_MOVE_CLIENT_REL:
