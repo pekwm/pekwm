@@ -28,20 +28,25 @@ DPFX=docs
 
 LOGDIR="${CURDIR}/logs"
 
+# CentOS 6.3
+DBDIR="/usr/share/sgml/docbook/dsssl-stylesheets-1.79/"
+DBX="${DBDIR}/dtds/decls/xml.dcl"
+DBV="/usr/share/sgml/docbook/xml-dtd-4.3-1.0-30.1/docbookx.dtd"
+
 # Fedora 11
 # DBDIR="/usr/share/sgml/docbook/dsssl-stylesheets-1.79/"
 # DBX="${DBDIR}/dtds/decls/xml.dcl"
 # DBV="/usr/share/sgml/docbook/xml-dtd-4.3-1.0-46.fc11/docbookx.dtd"
 
 # Ubuntu Hardy/Intrepid
-#DBDIR="/usr/share/sgml/docbook/stylesheet/dsssl/modular"
-#DBX="/usr/share/sgml/declaration/xml.dcl"
-#DBV="/usr/share/xml/docbook/schema/dtd/4.3/docbookx.dtd"
+# DBDIR="/usr/share/sgml/docbook/stylesheet/dsssl/modular"
+# DBX="/usr/share/sgml/declaration/xml.dcl"
+# DBV="/usr/share/xml/docbook/schema/dtd/4.3/docbookx.dtd"
 
 # FreeBSD 9
-DBDIR="/usr/local/share/sgml/docbook/dsssl/modular"
-DBV="/usr/local/share/xml/docbook/4.3/docbookx.dtd"
-DBX="/usr/local/share/sgml/docbook/dsssl/modular/dtds/decls/xml.dcl"
+# DBDIR="/usr/local/share/sgml/docbook/dsssl/modular"
+# DBV="/usr/local/share/xml/docbook/4.3/docbookx.dtd"
+# DBX="/usr/local/share/sgml/docbook/dsssl/modular/dtds/decls/xml.dcl"
 
 # NetBSD 5
 # DBDIR="/usr/pkg/share/sgml/docbook/dsssl/modular"
