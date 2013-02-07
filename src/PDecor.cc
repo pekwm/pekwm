@@ -322,10 +322,8 @@ PDecor::~PDecor(void)
 {
     _pdecors.erase(std::remove(_pdecors.begin(), _pdecors.end(), this), _pdecors.end());
 
-    if (_children.size() > 0) {
-        while (_children.size() != 0) {
-            removeChild(_children.back(), false); // Don't call delete this.
-        }
+    while (! _children.empty()) {
+        removeChild(_children.back(), false); // Don't call delete this.
     }
 
     // Make things look smoother, buttons will be noticed as deleted
@@ -945,8 +943,9 @@ PDecor::findButton(Window win)
 PWinObj*
 PDecor::getChildFromPos(int x)
 {
-    if (! _children.size() || _children.size() != _titles.size())
+    if (_children.empty() || _children.size() != _titles.size()) {
         return 0;
+    }
     if (_children.size() == 1)
         return _children.front();
 
@@ -1090,7 +1089,7 @@ PDecor::removeChild(PWinObj *child, bool do_delete)
 
     it = _children.erase(it);
 
-    if (_children.size() > 0) {
+    if (! _children.empty()) {
         if (_child == child) {
             if (it == _children.end()) {
                 --it;
@@ -1182,7 +1181,7 @@ PDecor::moveChildRel(int off)
     }
 
     if (idx == size) {
-        if (! _children.size()) {
+        if (_children.empty()) {
             ERR("_children is empty! off == " << off << " Please report.");
             return;
         }
