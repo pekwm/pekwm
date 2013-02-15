@@ -252,6 +252,11 @@ Frame::setWorkspace(unsigned int workspace)
     // Duplicate the behavior done in PDecor::setWorkspace to have a sane
     // value on _workspace and not NET_WM_STICKY_WINDOW.
     if (workspace != NET_WM_STICKY_WINDOW) {
+        // Check for DisallowedActions="SetWorkspace".
+        if (_client && ! _client->allowChangeWorkspace()) {
+            return;
+        }
+
         // First we set the workspace, then load autoproperties for possible
         // overrun of workspace and then set the workspace.
         _workspace = workspace;
@@ -592,6 +597,12 @@ void
 Frame::setShaded(StateAction sa)
 {
     bool shaded = isShaded();
+
+    // Check for DisallowedActions="Shade"
+    if (_client && ! _client->allowShade()) {
+        sa = STATE_UNSET;
+    }
+
     PDecor::setShaded(sa);
     if (shaded != isShaded()) {
         _client->setShade(isShaded());
@@ -1583,6 +1594,11 @@ Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
 void
 Frame::setStateFullscreen(StateAction sa)
 {
+    // Check for DisallowedActions="Fullscreen".
+    if (_client && ! _client->allowFullscreen()) {
+        sa = STATE_UNSET;
+    }
+
     if (! ActionUtil::needToggle(sa, _fullscreen)) {
         return;
     }
@@ -1635,6 +1651,11 @@ Frame::setStateFullscreen(StateAction sa)
 void
 Frame::setStateSticky(StateAction sa)
 {
+    // Check for DisallowedActions="Stick".
+    if (_client && ! _client->allowStick()) {
+        sa = STATE_UNSET;
+    }
+
     if (ActionUtil::needToggle(sa, _sticky)) {
         stick();
     }
@@ -1707,6 +1728,11 @@ Frame::setStateDecorTitlebar(StateAction sa)
 void
 Frame::setStateIconified(StateAction sa)
 {
+    // Check for DisallowedActions="Iconify".
+    if (_client && ! _client->allowIconify()) {
+        sa = STATE_UNSET;
+    }
+
     if (! ActionUtil::needToggle(sa, _iconified)) {
         return;
     }

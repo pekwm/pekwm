@@ -192,13 +192,13 @@ public: // Public Member Functions
 
     inline bool allowMove(void) const { return _actions.move; }
     inline bool allowResize(void) const { return _actions.resize; }
-    inline bool allowMinimize(void) const { return _actions.minimize; }
+    inline bool allowIconify(void) const { return _actions.iconify; }
     inline bool allowShade(void) const { return _actions.shade; }
     inline bool allowStick(void) const { return _actions.stick; }
     inline bool allowMaximizeHorz(void) const { return _actions.maximize_horz; }
     inline bool allowMaximizeVert(void) const { return _actions.maximize_vert; }
     inline bool allowFullscreen(void) const { return _actions.fullscreen; }
-    inline bool allowChangeDesktop(void) const { return _actions.change_desktop; }
+    inline bool allowChangeWorkspace(void) const { return _actions.change_ws; }
     inline bool allowClose(void) const { return _actions.close; }
 
     inline bool isAlive(void) const { return _alive; }
@@ -385,22 +385,22 @@ private: // Private Member Variables
 
     class Actions {
     public:
-        Actions(void) : move(true), resize(true), minimize(true),
+        Actions(void) : move(true), resize(true), iconify(true),
                 shade(true), stick(true), maximize_horz(true),
                 maximize_vert(true), fullscreen(true),
-        change_desktop(true), close(true) { }
+                change_ws(true), close(true) { }
         ~Actions(void) { }
 
-        bool move;
-        bool resize;
-        bool minimize; // iconify
-        bool shade;
-        bool stick;
-        bool maximize_horz;
-        bool maximize_vert;
-        bool fullscreen;
-        bool change_desktop; // workspace
-        bool close;
+        bool move:1;
+        bool resize:1;
+        bool iconify:1; // iconify
+        bool shade:1;
+        bool stick:1;
+        bool maximize_horz:1;
+        bool maximize_vert:1;
+        bool fullscreen:1;
+        bool change_ws:1; // workspace
+        bool close:1;
     } _actions;
 
     static vector<Client*> _clients; //!< Vector of all Clients.

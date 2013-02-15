@@ -962,7 +962,7 @@ Client::readMwmHints(void)
 
             _actions.resize   = (mwm_hints->functions&MWM_FUNC_RESIZE)  ? state : ! state;
             _actions.move     = (mwm_hints->functions&MWM_FUNC_MOVE)    ? state : ! state;
-            _actions.minimize = (mwm_hints->functions&MWM_FUNC_ICONIFY) ? state : ! state;
+            _actions.iconify  = (mwm_hints->functions&MWM_FUNC_ICONIFY) ? state : ! state;
             _actions.close    = (mwm_hints->functions&MWM_FUNC_CLOSE)   ? state : ! state;
             _actions.maximize_vert = (mwm_hints->functions&MWM_FUNC_MAXIMIZE) ? state : ! state;
             _actions.maximize_horz = (mwm_hints->functions&MWM_FUNC_MAXIMIZE) ? state : ! state;
@@ -1116,8 +1116,8 @@ Client::applyActionAccessMask(uint mask, bool value)
     if (mask & ACTION_ACCESS_RESIZE) {
         _actions.resize = value;
     }
-    if (mask & ACTION_ACCESS_MINIMIZE) {
-        _actions.minimize = value;
+    if (mask & ACTION_ACCESS_ICONIFY) {
+        _actions.iconify = value;
     }
     if (mask & ACTION_ACCESS_SHADE) {
         _actions.shade = value;
@@ -1135,7 +1135,7 @@ Client::applyActionAccessMask(uint mask, bool value)
         _actions.fullscreen = value;
     }
     if (mask & ACTION_ACCESS_CHANGE_DESKTOP) {
-        _actions.change_desktop = value;
+        _actions.change_ws = value;
     }
     if (mask & ACTION_ACCESS_CLOSE) {
         _actions.close = value;
@@ -1428,6 +1428,11 @@ Client::setSkip(uint skip)
 void
 Client::close(void)
 {
+    // Check for DisallowedActions="Close".
+    if (! allowClose()) {
+        return;
+    }
+
     if (_send_close_message) {
         X11::sendEvent(_window, X11::getAtom(WM_PROTOCOLS), NoEventMask,
                      X11::getAtom(WM_DELETE_WINDOW), CurrentTime);

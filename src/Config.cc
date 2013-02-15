@@ -182,7 +182,7 @@ Config::Config(void) :
     _action_access_mask_map[""] = ACTION_ACCESS_NO;
     _action_access_mask_map["MOVE"] = ACTION_ACCESS_MOVE;
     _action_access_mask_map["RESIZE"] = ACTION_ACCESS_RESIZE;
-    _action_access_mask_map["ICONIFY"] = ACTION_ACCESS_MINIMIZE;
+    _action_access_mask_map["ICONIFY"] = ACTION_ACCESS_ICONIFY;
     _action_access_mask_map["SHADE"] = ACTION_ACCESS_SHADE;
     _action_access_mask_map["STICK"] = ACTION_ACCESS_STICK;
     _action_access_mask_map["MAXIMIZEHORIZONTAL"] = ACTION_ACCESS_MAXIMIZE_HORZ;
