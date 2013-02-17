@@ -272,11 +272,11 @@
         <term>SetGeometry (string int)</term>
         <listitem>
           <para>
-            Sets the geometry of a Frame. Takes two options, first
-            one is is a geometry string that XParseGeometry can
-            parse. Int default to -1 meaning geometry is relative to
-            the whole screen, else it is the head number geometry
-            shoudl be relative to.
+            Sets the geometry of a frame.
+            The first option is a geometry string that XParseGeometry can
+            parse. The second one specifies the head number that geometry
+            should be relative to. It defaults to -1 which means the
+            geometry is relative to the whole screen.
           </para>
         </listitem>
       </varlistentry>
