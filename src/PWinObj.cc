@@ -263,7 +263,7 @@ PWinObj::giveInputFocus(void)
         return;
     }
 
-    XSetInputFocus(X11::getDpy(), _window, RevertToPointerRoot, CurrentTime);
+    X11::setInputFocus(_window);
 }
 
 //! @brief Reparents and sets _parent member

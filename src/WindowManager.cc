@@ -280,7 +280,7 @@ WindowManager::cleanup(void)
     }
 
     XInstallColormap(X11::getDpy(), X11::getColormap());
-    XSetInputFocus(X11::getDpy(), PointerRoot, RevertToPointerRoot, CurrentTime);
+    X11::setInputFocus(PointerRoot);
 }
 
 /**

@@ -358,6 +358,10 @@ public:
         return XSelectInput(_dpy, w, mask);
     }
 
+    inline static void setInputFocus(Window w) {
+        XSetInputFocus(_dpy, w, RevertToPointerRoot, CurrentTime);
+    }
+
     static int sendEvent(Window win, Atom atom, long mask,
                          long v1=0l, long v2=0l, long v3=0l,
                          long v4=0l, long v5=0l);
