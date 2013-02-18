@@ -990,7 +990,7 @@ ActionHandler::gotoClient(Client *client)
 }
 
 /**
- * Initilalize XEvent for sending KeyPress/KeyRelease events.
+ * Initialize XEvent for sending KeyPress/KeyRelease events.
  *
  * @param ev Reference to event.
  * @param wo PWinObj key event is aimed for.
