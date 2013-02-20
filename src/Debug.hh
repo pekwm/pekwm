@@ -44,7 +44,7 @@ public:
     }
     static void addInfo(const std::string s) { addLog(_msg_info + s); }
     static void addWarn(const std::string s) { addLog(_msg_warn + s); }
-    static void addErr(const std::string s) { addLog(_msg_err + s); }
+    static void addErr(const std::string s)  { addLog(_msg_err + s); }
 
 private:
     static std::ofstream _log;
@@ -55,14 +55,17 @@ private:
 
 class DebugInfoObj : public std::stringstream {
 public:
+    DebugInfoObj() { *this << std::showbase << std::hex; }
     virtual ~DebugInfoObj() { Debug::addInfo(str()); }
 };
 class DebugWarnObj : public std::stringstream {
 public:
+    DebugWarnObj() { *this << std::showbase << std::hex; }
     virtual ~DebugWarnObj() { Debug::addWarn(str()); }
 };
 class DebugErrObj : public std::stringstream {
 public:
+    DebugErrObj() { *this << std::showbase << std::hex; }
     virtual ~DebugErrObj() { Debug::addErr(str()); }
 };
 
