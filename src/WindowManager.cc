@@ -172,6 +172,11 @@ WindowManager::WindowManager(const std::string &command_line,
         _startup(false), _shutdown(false), _reload(false),
         _allow_grouping(true), _hint_wo(0), _root_wo(0)
 {
+    _screen_edges[0] = 0;
+    _screen_edges[1] = 0;
+    _screen_edges[2] = 0;
+    _screen_edges[3] = 0;
+
     struct sigaction act;
 
     // Set up the signal handlers.
