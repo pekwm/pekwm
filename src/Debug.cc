@@ -11,6 +11,10 @@
 #include "Util.hh"
 
 #include <cstdlib>
+#if defined(__GLIBCXX__) || defined(__GLIBCPP__)
+#include <execinfo.h>
+#include <cxxabi.h>
+#endif
 
 /**
  * Debug Commands:
@@ -85,6 +89,57 @@ void Debug::doAction(const std::string &cmd) {
     }
 }
 
+#if defined(__GLIBCXX__) || defined(__GLIBCPP__)
+static
+const char *demangle_cpp(const char *str, char **dest, size_t *len)
+{
+    int status=1;
+    char *begin = strchr(str, '('), *end;
+    if (begin && *(++begin) && *begin != '+') {
+        end = strchr(begin, '+');
+        if (end) {
+            char buf[end-begin+1];
+            memcpy(buf, begin, end-begin);
+            buf[end-begin] = 0;
+            *dest = abi::__cxa_demangle(buf, *dest, len, &status);
+        }
+    }
+    return status?str:*dest;
+}
+
+void Debug::logBacktrace(DebugBTObj &dobj) {
+    void *btbuffer[100];
+    char *name=0, **str=0;
+    size_t len=0;
+    int size = backtrace(btbuffer, 100);
+
+    if (! size) {
+        dobj << "Generating backtrace failed!";
+        return;
+    }
+
+    str = backtrace_symbols(btbuffer, size);
+
+    if (! str) {
+        dobj << "Translating backtrace failed!";
+        return;
+    }
+
+    // The first entry is always Debug::logBacktrace(),
+    // so we begin with i=1.
+    for (int i=1; i<size; ++i) {
+        dobj << "\t" << demangle_cpp(str[i], &name, &len) << '\n';
+    }
+
+    free(name);
+    free(str);
+}
+#else
+void Debug::logBacktrace(DebugInfoObj &dobj) {
+    dobj << "Backtrace works only with glibc.\n";
+}
+#endif
+
 bool Debug::enable_cerr = true;
 bool Debug::enable_logfile = false;
 std::ofstream Debug::_log("/dev/null");
@@ -93,4 +148,5 @@ std::vector<std::string>::size_type Debug::_max_msgs = 32;
 const std::string Debug::_msg_info(" *INFO* ");
 const std::string Debug::_msg_warn(" *WARNING* ");
 const std::string Debug::_msg_err(" *ERROR* ");
+const std::string Debug::_msg_bt(" *BACKTRACE* ");
 unsigned int DebugFuncCall::_depth=0;
