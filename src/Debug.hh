@@ -15,7 +15,8 @@
 
 #include <iostream>
 
-#define ___PEKDEBUG_START __PRETTY_FUNCTION__ << '@' << __LINE__ << ":\n\t"
+#define ___PEKDEBUG_START __PRETTY_FUNCTION__ << '@' << __LINE__ \
+                          << ":\n\t" << std::showbase << std::hex
 
 #ifdef DEBUG
 #include <fstream>
@@ -60,22 +61,18 @@ private:
 
 class DebugInfoObj : public std::stringstream {
 public:
-    DebugInfoObj() { *this << std::showbase << std::hex; }
     virtual ~DebugInfoObj() { Debug::addInfo(str()); }
 };
 class DebugWarnObj : public std::stringstream {
 public:
-    DebugWarnObj() { *this << std::showbase << std::hex; }
     virtual ~DebugWarnObj() { Debug::addWarn(str()); }
 };
 class DebugErrObj : public std::stringstream {
 public:
-    DebugErrObj() { *this << std::showbase << std::hex; }
     virtual ~DebugErrObj() { Debug::addErr(str()); }
 };
 class DebugBTObj : public std::stringstream {
 public:
-    DebugBTObj() { *this << std::showbase << std::hex; }
     virtual ~DebugBTObj() { Debug::addBT(str()); }
 };
 
@@ -103,8 +100,8 @@ private:
 #define WARN(M) do { DebugWarnObj dobj; dobj << ___PEKDEBUG_START << M; } while (0)
 #define ERR(M) do { DebugErrObj dobj; dobj << ___PEKDEBUG_START << M; } while (0)
 #define ERR_IF(C, M) do { if (C) { DebugErrObj dobj; dobj << ___PEKDEBUG_START << M; } } while (0)
-#define BACKTRACEM(M) do { DebugBTObj dobj; dobj << __FILE__ << '@' << __LINE__ << ": " << M << '\n'; \
-                           Debug::logBacktrace(dobj); } while (0)
+#define BACKTRACEM(M) do { DebugBTObj dobj; dobj << __FILE__ << '@' << __LINE__ << ": " << std::hex \
+                           << std::showbase << M << '\n'; Debug::logBacktrace(dobj); } while (0)
 #define BACKTRACE() BACKTRACEM("\n")
 
 #else
