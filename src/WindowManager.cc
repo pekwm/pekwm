@@ -768,7 +768,6 @@ WindowManager::doEventLoop(void)
                 handleFocusInEvent(&ev.xfocus);
                 break;
             case FocusOut:
-                handleFocusOutEvent(&ev.xfocus);
                 break;
 
             case SelectionClear:
@@ -1270,15 +1269,6 @@ WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
             }
         }
     }
-}
-
-//! @brief Handles FocusOut Events.
-void
-WindowManager::handleFocusOutEvent(XFocusChangeEvent *ev)
-{
-    // Get the last focus in event, no need to go through them all.
-    while (X11::checkTypedEvent(FocusOut, (XEvent *) ev))
-        ;
 }
 
 /**

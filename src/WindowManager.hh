@@ -181,7 +181,6 @@ private:
     void handleEnterNotify(XCrossingEvent *ev);
     void handleLeaveNotify(XCrossingEvent *ev);
     void handleFocusInEvent(XFocusChangeEvent *ev);
-    void handleFocusOutEvent(XFocusChangeEvent *ev);
 
     void readDesktopNamesHint(void);
 
