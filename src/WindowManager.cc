@@ -1210,7 +1210,10 @@ WindowManager::handleLeaveNotify(XCrossingEvent *ev)
 void
 WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
 {
-    if ((ev->mode == NotifyGrab) || (ev->mode == NotifyUngrab)) {
+    if (ev->mode == NotifyGrab
+        || ev->mode == NotifyUngrab
+        || ev->detail == NotifyVirtual
+        || ev->detail == NotifyNonlinearVirtual) {
         return;
     }
 
