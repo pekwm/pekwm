@@ -977,6 +977,7 @@ ActionHandler::gotoClient(Client *client)
     if (! frame->isSticky()
         && (frame->getWorkspace() != Workspaces::getActive())) {
         Workspaces::setWorkspace(frame->getWorkspace(), false);
+        WindowManager::instance()->addToMRUFront(frame);
     }
 
     if (! frame->isMapped()) {
