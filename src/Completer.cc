@@ -251,7 +251,7 @@ ActionCompleterMethod::State
 ActionCompleterMethod::find_state(CompletionState &completion_state)
 {
     if (completion_state.word_begin != 0) {
-        for (int i = 0; i < sizeof(STATE_MATCHES)/sizeof(StateMatch); ++i) {
+        for (unsigned i = 0; i < sizeof(STATE_MATCHES)/sizeof(StateMatch); ++i) {
             if (STATE_MATCHES[i].is_state(completion_state.part_lower, completion_state.part_begin)) {
                 return STATE_MATCHES[i].get_state();
             }
