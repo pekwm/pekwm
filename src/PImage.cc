@@ -314,7 +314,7 @@ PImage::drawAlphaFixed(Drawable dest, int x, int y, uint width, uint height, uch
     }
 
     // Get mask from visual
-    Visual *visual = X11::getVisual()->getXVisual();
+    Visual *visual = X11::getVisual();
     dest_image->red_mask = visual->red_mask;
     dest_image->green_mask = visual->green_mask;
     dest_image->blue_mask = visual->blue_mask;
@@ -423,7 +423,7 @@ PImage::createMask(uchar *data, uint width, uint height)
 
     // Create XImage
     XImage *ximage;
-    ximage = XCreateImage(X11::getDpy(), X11::getVisual()->getXVisual(),
+    ximage = XCreateImage(X11::getDpy(), X11::getVisual(),
                           1, ZPixmap, 0, 0, width, height, 32, 0);
     if (! ximage) {
         cerr << " *** WARNING: unable to create XImage!" << endl;
@@ -470,7 +470,7 @@ PImage::createXImage(uchar *data, uint width, uint height)
 {
     // Create XImage
     XImage *ximage;
-    ximage = XCreateImage(X11::getDpy(), X11::getVisual()->getXVisual(),
+    ximage = XCreateImage(X11::getDpy(), X11::getVisual(),
                           X11::getDepth(), ZPixmap, 0, 0,
                           width, height, 32, 0);
     if (! ximage) {

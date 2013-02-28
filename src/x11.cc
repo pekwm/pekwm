@@ -175,39 +175,6 @@ private:
     uint _ref;
 };
 
-//! @brief X11::Visual constructor.
-//! @param x_visual X Visual to wrap.
-X11::PVisual::PVisual(Visual *x_visual) : _x_visual(x_visual),
-        _r_shift(0), _r_prec(0),
-        _g_shift(0), _g_prec(0),
-        _b_shift(0), _b_prec(0)
-{
-    getShiftPrecFromMask(_x_visual->red_mask, _r_shift, _r_prec);
-    getShiftPrecFromMask(_x_visual->green_mask, _g_shift, _g_prec);
-    getShiftPrecFromMask(_x_visual->blue_mask, _b_shift, _b_prec);
-}
-
-//! @brief X11::Visual destructor.
-X11::PVisual::~PVisual(void)
-{
-}
-
-//! @brief Gets shift and prec from mask.
-//! @param mask red,green,blue mask of Visual.
-//! @param shift Set to the shift of mask.
-//! @param prec Set to the prec of mask.
-void
-X11::PVisual::getShiftPrecFromMask(ulong mask, int &shift, int &prec)
-{
-    for (shift = 0; ! (mask&0x1); ++shift) {
-        mask >>= 1;
-    }
-    
-    for (prec = 0; (mask&0x1); ++prec) {
-        mask >>= 1;
-    }
-}
-
 //! @brief X11 constructor
 void
 X11::init(Display *dpy, bool honour_randr)
@@ -229,7 +196,7 @@ X11::init(Display *dpy, bool honour_randr)
     _root = RootWindow(_dpy, _screen);
 
     _depth = DefaultDepth(_dpy, _screen);
-    _visual = new X11::PVisual(DefaultVisual(_dpy, _screen));
+    _visual = DefaultVisual(_dpy, _screen);
     _colormap = DefaultColormap(_dpy, _screen);
     _modifier_map = XGetModifierMapping(_dpy);
 
@@ -296,8 +263,6 @@ X11::destruct(void) {
                     pixels, _colours.size(), 0);
         delete [] pixels;
     }
-
-    delete _visual;
 
     if (_modifier_map) {
         XFreeModifiermap(_modifier_map);
@@ -1014,7 +979,7 @@ int X11::_screen = -1;
 int X11::_depth = -1;
 Geometry X11::_screen_gm;
 Window X11::_root = None;
-X11::PVisual *X11::_visual;
+Visual *X11::_visual = 0;
 Colormap X11::_colormap = None;
 XModifierKeymap *X11::_modifier_map;
 bool X11::_has_extension_shape = false;

@@ -84,36 +84,6 @@ class X11
     static const unsigned KbdLayoutMask2 = 1<<14;
 
 public:
-    //! @brief Visual wrapper class.
-    class PVisual {
-    public:
-        PVisual(Visual *x_visual);
-        ~PVisual(void);
-
-        //! @brief Returns pointer to X Visual.
-        inline Visual *getXVisual(void) { return _x_visual; }
-
-        inline int getRShift(void) const { return _r_shift; }
-        inline int getRPrec(void) const { return _r_prec; }
-        inline int getGShift(void) const { return _g_shift; }
-        inline int getGPrec(void) const { return _g_prec; }
-        inline int getBShift(void) const { return _b_shift; }
-        inline int getBPrec(void) const { return _b_prec; }
-
-    private:
-        void getShiftPrecFromMask(ulong mask, int &shift, int &prec);
-
-    private:
-        Visual *_x_visual; //!< Pointer to X Visual.
-
-        int _r_shift; //!< Red shift, alternative red_mask representation.
-        int _r_prec; //!< Red prec, alternative red_mask representation.
-        int _g_shift; //!< Green shift, alternative green_mask representation.
-        int _g_prec; //!< Green prec, alternative green_mask representation.
-        int _b_shift; //!< Blue shift, alternative blue_mask representation.
-        int _b_prec; //!< Blue prec, alternative blue_mask representation.
-    };
-
     static void init(Display *dpy, bool honour_randr = true);
     static void destruct(void);
 
@@ -126,7 +96,7 @@ public:
     inline static uint getHeight(void) { return _screen_gm.height; }
 
     inline static int getDepth(void) { return _depth; }
-    inline static X11::PVisual *getVisual(void) { return _visual; }
+    inline static Visual *getVisual(void) { return _visual; }
     inline static GC getGC(void) { return DefaultGC(_dpy, _screen); }
     inline static Colormap getColormap(void) { return _colormap; }
 
@@ -434,7 +404,7 @@ private:
     static Geometry _screen_gm; /**< Screen geometry, no head information. */
 
     static Window _root;
-    static X11::PVisual *_visual;
+    static Visual *_visual;
     static Colormap _colormap;
     static XModifierKeymap *_modifier_map; /**< Key to modifier mappings. */
 

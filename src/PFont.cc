@@ -460,7 +460,7 @@ PFontXft::PFontXft(void)
 {
     _type = FONT_TYPE_XFT;
     _draw = XftDrawCreate(X11::getDpy(), X11::getRoot(),
-                          X11::getVisual()->getXVisual(), X11::getColormap());
+                          X11::getVisual(), X11::getColormap());
 }
 
 //! @brief PFontXft destructor
@@ -471,13 +471,13 @@ PFontXft::~PFontXft(void)
     XftDrawDestroy(_draw);
 
     if (_cl_fg) {
-        XftColorFree(X11::getDpy(), X11::getVisual()->getXVisual(),
+        XftColorFree(X11::getDpy(), X11::getVisual(),
                      X11::getColormap(), _cl_fg);
         delete _cl_fg;
     }
     
     if (_cl_bg) {
-        XftColorFree(X11::getDpy(), X11::getVisual()->getXVisual(),
+        XftColorFree(X11::getDpy(), X11::getVisual(),
                      X11::getColormap(), _cl_bg);
         delete _cl_bg;
     }
@@ -575,13 +575,13 @@ void
 PFontXft::setColor(PFont::Color *color)
 {
     if (_cl_fg) {
-        XftColorFree(X11::getDpy(), X11::getVisual()->getXVisual(),
+        XftColorFree(X11::getDpy(), X11::getVisual(),
                      X11::getColormap(), _cl_fg);
         delete _cl_fg;
         _cl_fg = 0;
     }
     if (_cl_bg) {
-        XftColorFree(X11::getDpy(), X11::getVisual()->getXVisual(),
+        XftColorFree(X11::getDpy(), X11::getVisual(),
                      X11::getColormap(), _cl_bg);
         delete _cl_bg;
         _cl_bg = 0;
@@ -595,7 +595,7 @@ PFontXft::setColor(PFont::Color *color)
 
         _cl_fg = new XftColor;
 
-        XftColorAllocValue(X11::getDpy(), X11::getVisual()->getXVisual(),
+        XftColorAllocValue(X11::getDpy(), X11::getVisual(),
                            X11::getColormap(), &_xrender_color, _cl_fg);
     }
 
@@ -607,7 +607,7 @@ PFontXft::setColor(PFont::Color *color)
 
         _cl_bg = new XftColor;
 
-        XftColorAllocValue(X11::getDpy(), X11::getVisual()->getXVisual(),
+        XftColorAllocValue(X11::getDpy(), X11::getVisual(),
                            X11::getColormap(), &_xrender_color, _cl_bg);
     }
 }

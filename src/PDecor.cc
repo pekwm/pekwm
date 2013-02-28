@@ -211,7 +211,7 @@ PDecor::PDecor(Theme *theme,
     createParentWindow(window_params);
     if (window_params.mask & CWColormap) {
         window_params.depth = X11::getDepth();
-        window_params.visual = X11::getVisual()->getXVisual();
+        window_params.visual = X11::getVisual();
         window_params.attr.colormap = X11::getColormap();
     }
     createTitle(window_params);
