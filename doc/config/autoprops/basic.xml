@@ -106,7 +106,7 @@ Property = "^gaim,^Gaim" {
     That looked cryptic. Worry not. Basically, a Position number of 0
     means the application will be placed in the middle. If the number
     is positive, the application will be placed before the
-    zero-positioned applications. If the number is negative, they
+    zero-positioned applications. If the number is negative, the
     applications will be placed after the zero-position ones. So the
     positive numbered show up first in your harbour, then the zero
     numbered, and after the zeros come the negatively numbered
@@ -211,19 +211,12 @@ Harbour {
         are ! for inverting the match and i for case insensitive
         matches.
 
-        Regular Expression syntax is a little bit beyond the scope of
-	this documentation. There's a really basic tutorial at
-	<ulink url="http://www.living-source.com/user/adi/regexp/regexp_tutorial.html">http://www.living-source.com/user/adi/regexp/regexp_tutorial.html</ulink>,
-	And a slightly more advanced one at
-        <ulink url="http://www.zytrax.com/tech/web/regex.htm">http://www.zytrax.com/tech/web/regex.htm</ulink>.
-	You might also want to look at
-        <ulink url="http://www.regularexpressions.info/">http://www.regularexpressions.info/</ulink>
-	I found these on google, using the search phrase
-	"regular.expression.tutorial". You can probably use that
-	search term or modify it to find some others.
+        Explaining the syntax of regular expressions goes beyond the scope of
+        this documentation. You might want to look at
+        <ulink url="http://www.regularexpressions.info/">http://www.regularexpressions.info/</ulink> or
+        <ulink url="http://en.wikipedia.org/wiki/Regular_expressions">http://en.wikipedia.org/wiki/Regular_expressions</ulink>.
       </para>
     </formalpara>
   </note>
-
 </simplesect>
 
