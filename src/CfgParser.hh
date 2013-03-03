@@ -127,7 +127,7 @@ public:
 private:
     void parse_source_new(const std::string &name, CfgParserSource::Type type);
     bool parse_name(std::string &buf);
-    void parse_value(CfgParserSource *source, std::string &value);
+    void parse_value(std::string &value);
     void parse_entry_finish(std::string &buf, std::string &value);
     void parse_entry_finish_standard(std::string &buf, std::string &value);
     void parse_entry_finish_template(std::string &name);
@@ -142,7 +142,7 @@ private:
     void variable_expand(std::string &var);
     bool variable_expand_name(std::string &var,
                               std::string::size_type begin, std::string::size_type &end);
-private:
+
     CfgParserSource *_source;
 
     TimeFiles _cfg_files;

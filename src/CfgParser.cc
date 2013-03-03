@@ -402,7 +402,7 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwr
                 break;
             case '=':
                 value.clear();
-                parse_value(_source, value);
+                parse_value(value);
                 break;
             case '#':
                 parse_comment_line(_source);
@@ -523,26 +523,26 @@ CfgParser::parse_name(std::string &buf)
     return true;
 }
 
-//! @brief Parses from = to end of " pair.
+//! @brief Parses _source after = to end of " pair.
 void
-CfgParser::parse_value(CfgParserSource *source, std::string &value)
+CfgParser::parse_value(std::string &value)
 {
     // We expect to get a " after the =, however we ignore anything else.
     int c;
-    while ((c = source->getc()) != EOF && c != '"')
+    while ((c = _source->getc()) != EOF && c != '"')
          ;
 
-    // Check if we got to a " or found EOF first.
+    // Check if we got EOF before getting a quotation mark.
     if (c == EOF) {
         cerr << "Reached EOF before opening \" in value." << endl;
         return;
     }
 
     // Parse until next ", and escape characters after \.
-    while ((c = source->getc()) != EOF && c != '"') {
+    while ((c = _source->getc()) != EOF && c != '"') {
         // Escape character after \, if newline drop it.
         if (c == '\\') {
-            c = source->getc();
+            c = _source->getc();
             if (c == '\n' || c == EOF) {
                 continue;
             }
