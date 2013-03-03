@@ -238,7 +238,7 @@ private:
 
     void loadRequire(CfgParser &a_cfg, std::string &file);
 
-    bool parsePropertyMatch(const std::string &str, Property *prop, bool extended = true);
+    bool parsePropertyMatch(const std::string &str, Property *prop);
     void parsePropertyApplyOn(const std::string &apply_on, Property *prop);
     bool parseRegexpOrWarning(RegexString &regex, const std::string regex_str, const std::string &name);
     bool parseProperty(CfgParser::Entry *section, Property *prop);

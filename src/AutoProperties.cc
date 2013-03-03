@@ -281,17 +281,16 @@ AutoProperties::parseRegexpOrWarning(RegexString &regex, const std::string regex
 //! @brief Parses a property match rule
 //! @param str String to parse.
 //! @param prop Property to place result in.
-//! @param extended Extended syntax including role and title in the name, defaults to true.
 //! @return true on success, else false.
 bool
-AutoProperties::parsePropertyMatch(const std::string &str, Property *prop, bool extended)
+AutoProperties::parsePropertyMatch(const std::string &str, Property *prop)
 {
     bool status = false;
 
     // Format of property matches are regexp,regexp . Split up in class
     // and role regexps.
     vector<string> tokens;
-    Util::splitString(str, tokens, ",", extended ? 5 : 2, true);
+    Util::splitString(str, tokens, ",", _extended ? 5 : 2, true);
 
     if (tokens.size() >= 2) {
         // Make sure one of the two regexps compiles
@@ -300,7 +299,7 @@ AutoProperties::parsePropertyMatch(const std::string &str, Property *prop, bool 
     }
 
     // Parse extended part of regexp, role, title and apply on
-    if (status && extended) {
+    if (status && _extended) {
         if (status && tokens.size() > 2) {
             status = parseRegexpOrWarning(prop->getRole(), tokens[2], "role");
         }
@@ -366,7 +365,7 @@ AutoProperties::parseAutoProperty(CfgParser::Entry *section, vector<uint> *ws)
     }
 
     AutoProperty* property = new AutoProperty();
-    parsePropertyMatch(section->get_value(), property, _extended);
+    parsePropertyMatch(section->get_value(), property);
 
     if (parseProperty(section, property)) {
         parseAutoPropertyValue(section, property, ws);
@@ -436,7 +435,7 @@ AutoProperties::parseTitleProperty(CfgParser::Entry *section)
         }
 
         title_property = new TitleProperty();
-        parsePropertyMatch(title_section->get_value(), title_property, _extended);
+        parsePropertyMatch(title_section->get_value(), title_property);
         if (parseProperty(title_section, title_property)) {
             CfgParser::Entry *value = title_section->find_entry("RULE");
             if (value && title_property->getTitleRule().parse_ed_s(Util::to_wide_str(value->get_value()))) {
@@ -470,7 +469,7 @@ AutoProperties::parseDecorProperty(CfgParser::Entry *section)
         }
 
         decor_property = new DecorProperty();
-        parsePropertyMatch(decor_section->get_value (), decor_property, _extended);
+        parsePropertyMatch(decor_section->get_value (), decor_property);
         if (parseProperty(decor_section, decor_property)) {
             CfgParser::Entry *value = decor_section->find_entry("DECOR");
             if (value) {
@@ -509,7 +508,7 @@ AutoProperties::parseDockAppProperty(CfgParser::Entry *section)
         }
 
         dock_property = new DockAppProperty();
-        parsePropertyMatch(dock_section->get_value(), dock_property, _extended);
+        parsePropertyMatch(dock_section->get_value(), dock_property);
         if (parseProperty(dock_section, dock_property)) {
             CfgParser::Entry *value = dock_section->find_entry("POSITION");
             if (value) {
