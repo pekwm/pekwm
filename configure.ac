@@ -237,6 +237,9 @@ AC_LINK_IFELSE(
   AC_MSG_RESULT(no)
 )
 
+dnl Check for required Xlib headers
+AC_CHECK_HEADERS([X11/Xutil.h], , AC_MSG_ERROR([Could not find X11/Xutil.h header file]))
+
 dnl Check for XkbKeycodeToKeysym replacing XKeycodeToKeysym
 AC_CHECK_HEADERS([X11/XKBlib.h])
 
