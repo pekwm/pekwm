@@ -104,6 +104,7 @@ public:
     //! @brief Returns height of PWinObj:
     inline uint getHeight(void) const { return _gm.height; }
 
+    uint getHead(void);
     //! @brief Returns workspace PWinObj is on.
     inline uint getWorkspace(void) const { return _workspace; }
     /** @brief Returns layer PWinObj is in. */

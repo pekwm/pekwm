@@ -152,6 +152,15 @@ PWinObj::stick(void)
     _sticky = !_sticky;
 }
 
+//! @brief Returns head PWinObj is on.
+uint
+PWinObj::getHead(void)
+{
+    int x = _gm.x + (_gm.width / 2);
+    int y = _gm.y + (_gm.height / 2);
+    return X11::getNearestHead(x, y);
+}
+
 //! @brief Moves the window and updates _gm.
 //! @param x X position
 //! @param y Y position
