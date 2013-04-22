@@ -146,7 +146,6 @@ PMenu::unmapWindow(void)
     PDecor::unmapWindow();
 }
 
-//! @brief
 void
 PMenu::setFocused(bool focused)
 {
@@ -155,10 +154,13 @@ PMenu::setFocused(bool focused)
 
         _menu_wo->setBackgroundPixmap(_focused ? _menu_bg_fo : _menu_bg_un);
         _menu_wo->clear();
-        if (_item_curr != _items.size()) {
-            vector<PMenu::Item*>::const_iterator item(_items.begin() + _item_curr);
-            _item_curr = _items.size(); // Force selectItem(item) to redraw
-            selectItem(item);
+
+        if (_items.size() > 0) {
+            if (_item_curr != _items.size()) {
+                vector<PMenu::Item*>::const_iterator item(_items.begin() + _item_curr);
+                _item_curr = _items.size(); // Force selectItem(item) to redraw
+                selectItem(item);
+            }
         }
     }
 }
@@ -353,14 +355,14 @@ PMenu::buildMenu(void)
     // calculate geometry, if to enable scrolling etc
     buildMenuCalculate();
 
-    // not necessary to do this if we don't have any visible items
-    if (_size > 0) {
-        // place menu items
-        buildMenuPlace();
+    // Did not rebuild the menu if no menu entries was visible, however
+    // to remove the previous menu this is done now.
 
-        // render items on the menu
-        buildMenuRender();
-    }
+    // place menu items
+    buildMenuPlace();
+
+    // render items on the menu
+    buildMenuRender();
 }
 
 //! @brief Calculates how much space and how many rows/cols will be needed
@@ -378,10 +380,6 @@ PMenu::buildMenuCalculate(void)
         } else if ((*it)->getType() == PMenu::Item::MENU_ITEM_SEPARATOR) {
             ++sep;
         }
-    }
-
-    if (_size == 0) {
-        return;
     }
 
     unsigned int width = 1, height = 1;
@@ -686,6 +684,10 @@ PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
 void
 PMenu::selectItem(vector<PMenu::Item*>::const_iterator item, bool unmap_submenu)
 {
+    if (! _items.size()) {
+        return;
+    }
+
     if (_item_curr < _items.size() && _items[_item_curr] == *item) {
         return;
     }
