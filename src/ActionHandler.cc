@@ -37,11 +37,6 @@
 
 #include <memory>
 
-#ifdef DEBUG
-#include <iostream>
-using std::cerr;
-using std::endl;
-#endif // DEBUG
 using std::auto_ptr;
 using std::string;
 using std::find;
@@ -369,9 +364,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 WindowManager::instance()->getWorkspaceIndicator()->unmapWindow();
                 break;
             case ACTION_DEBUG:
-#ifdef DEBUG
                 Debug::doAction(it->getParamS());
-#endif
                 break;
             default:
                 matched = false;
@@ -965,11 +958,7 @@ ActionHandler::gotoClient(Client *client)
 {
     Frame *frame = dynamic_cast<Frame*>(client->getParent());
     if (! frame) {
-#ifdef DEBUG
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "ActionHandler(" << this << ")::gotoClient(" << client << ")"
-             << endl << " *** parent is not a Frame!" << endl;
-#endif // DEBUG
+        WARN("parent is not a Frame");
         return;
     }
 

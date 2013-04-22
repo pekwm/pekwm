@@ -40,7 +40,7 @@ void Debug::doAction(const std::string &cmd) {
         if (args[0] == "dump") {
             if (! _log.is_open())
                 return;
-            _log << "--- DUMBING LOG ---" << std::endl;
+            _log << "--- DUMPING LOG ---" << std::endl;
             for (unsigned i=0; i < _msgs.size(); ++i) {
                 _log << i << ".) " << _msgs[i] << std::endl;
             }
@@ -94,7 +94,7 @@ static
 const char *demangle_cpp(const char *str, char **dest, size_t *len)
 {
     int status=1;
-    char *begin = strchr(str, '('), *end;
+    char *begin = const_cast<char*>(strchr(str, '(')), *end;
     if (begin && *(++begin) && *begin != '+') {
         end = strchr(begin, '+');
         if (end) {

@@ -2,14 +2,8 @@ AUTOMAKE_OPTIONS = foreign
 
 CXXFLAGS = @CXXFLAGS@ -DSYSCONFDIR=\"$(sysconfdir)/pekwm\" -DDATADIR=\"$(datadir)\"
 
-if DEBUG_INFRASTRUCTURE
-debugsource = Debug.cc
-else
-debugsource =
-endif
-
 bin_PROGRAMS = pekwm
-pekwm_SOURCES = $(debugsource)\
+pekwm_SOURCES = \
 	Action.hh \
 	ActionHandler.cc ActionHandler.hh \
 	ActionMenu.cc ActionMenu.hh \
@@ -22,7 +16,7 @@ pekwm_SOURCES = $(debugsource)\
 	Client.cc Client.hh \
 	CmdDialog.cc CmdDialog.hh \
 	Config.cc Config.hh \
-	Debug.hh \
+	Debug.cc Debug.hh \
 	DockApp.cc DockApp.hh \
 	Exception.hh \
 	Frame.cc Frame.hh \

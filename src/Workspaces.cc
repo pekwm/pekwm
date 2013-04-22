@@ -10,6 +10,7 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
+#include "Debug.hh"
 #include "Workspaces.hh"
 #include "ParseUtil.hh"
 #include "Config.hh"

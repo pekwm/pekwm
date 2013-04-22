@@ -258,7 +258,6 @@ if test "x$enable_debug" = "xyes"; then
 else
 	AC_MSG_RESULT([no])
 fi
-AM_CONDITIONAL([DEBUG_INFRASTRUCTURE], [test x"$enable_debug" = "xyes"])
 
 dnl Check wheter to use strict warnings
 AC_MSG_CHECKING([whether to use strict compile-time warnings])
