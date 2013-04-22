@@ -109,13 +109,17 @@ private:
     static std::wstring getWorkspaceName(uint num);
 
     // placement
-    static bool placeSmart(PWinObj* wo);
-    static bool placeMouseNotUnder(PWinObj *wo);
-    static bool placeMouseCentered(PWinObj *wo);
-    static bool placeMouseTopLeft(PWinObj *wo);
-    static bool placeCenteredOnParent(PWinObj *wo, Window parent);
+    static bool placeWo(PWinObj *wo, uint head_num, Window parent);
+    static bool placeWoOnHead(enum PlacementModel model, PWinObj *wo, const Geometry &head, Window parent);
+    static bool placeSmart(PWinObj *wo, const Geometry &head);
+    static bool placeMouseNotUnder(PWinObj *wo, const Geometry &head);
+    static bool placeMouseCentered(PWinObj *wo, const Geometry &head);
+    static bool placeMouseTopLeft(PWinObj *wo, const Geometry &head);
+    static bool placeCenteredOnParent(PWinObj *wo, const Geometry &head, Window parent);
+    static bool placeHeadTR(PWinObj *wo, const Geometry &head, Window parent);
 
     // placement helpers
+    static bool isFullScreen(uint head_num);
     static PWinObj* isEmptySpace(int x, int y, const PWinObj *wo);
 
     static uint _active; /**< Current active workspace. */
