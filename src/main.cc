@@ -126,17 +126,23 @@ main(int argc, char **argv)
     WindowManager *wm = WindowManager::start(command_line, config_file, replace);
 
     if (wm) {
-        wm->doEventLoop();
+        try {
+            wm->doEventLoop();
 
-        // see if we wanted to restart
-        if (WindowManager::instance()->getRestartCommand().size() > 0) {
-            string command = WindowManager::instance()->getRestartCommand();
+            // see if we wanted to restart
+            if (WindowManager::instance()->getRestartCommand().size() > 0) {
+                string command = WindowManager::instance()->getRestartCommand();
 
-            // cleanup before restarting
-            WindowManager::destroy();
-            Util::iconv_deinit();
+                // cleanup before restarting
+                WindowManager::destroy();
+                Util::iconv_deinit();
 
-            execlp("/bin/sh", "sh" , "-c", command.c_str(), (char*) 0);
+                execlp("/bin/sh", "sh" , "-c", command.c_str(), (char*) 0);
+            }
+        } catch (std::exception& ex) {
+            cerr << "exception occurred: " << ex.what() << endl;
+        } catch (string& ex) {
+            cerr << "unexpected error occured: " << ex << endl;
         }
         WindowManager::destroy();
     }
