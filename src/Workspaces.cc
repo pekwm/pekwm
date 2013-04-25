@@ -913,7 +913,7 @@ Workspaces::isFullScreen(uint head_num)
 {
     vector<PWinObj*>::const_iterator it(_wobjs.begin());
     for (; it != _wobjs.end(); ++it) {
-        if ((*it)->getType() == PWinObj::WO_FRAME) {
+        if ((*it)->isMapped() && (*it)->getType() == PWinObj::WO_FRAME) {
             Client *client = static_cast<Frame*>((*it))->getActiveClient();
             if (client && client->isFullscreen() && client->getHead() == head_num) {
                 return true;
