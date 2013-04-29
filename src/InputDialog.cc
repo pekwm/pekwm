@@ -1,6 +1,6 @@
 //
-// CmdDialog.hh for pekwm
-// Copyright © 2009 Claes Nästén <me@pekdon.net>
+// InputDialog.cc for pekwm
+// Copyright © 2009-2013 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -52,7 +52,7 @@ InputDialog::InputDialog(Theme *theme, const std::wstring &title)
     titleSetActive(0);
     setTitle(title);
 
-    _text_wo = new PWinObj;
+    _text_wo = new PWinObj(true);
     XSetWindowAttributes attr;
     attr.override_redirect = false;
     attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
@@ -152,9 +152,10 @@ InputDialog::handleButtonPress(XButtonEvent *ev)
 ActionEvent*
 InputDialog::handleKeyPress(XKeyEvent *ev)
 {
+    bool matched;
     ActionEvent *c_ae, *ae = 0;
 
-    if ( (c_ae = KeyGrabber::instance()->findAction(ev, _type)) ) {
+    if ( (c_ae = KeyGrabber::instance()->findAction(ev, _type, &matched)) ) {
         vector<Action>::iterator it(c_ae->action_list.begin());
         for (; it != c_ae->action_list.end(); ++it) {
             switch (it->getAction()) {

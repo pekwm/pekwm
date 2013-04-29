@@ -1,6 +1,6 @@
 //
 // Dockapp.cc for pekwm
-// Copyright © 2003-2015 the pekwm development team
+// Copyright © 2003-2016 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -23,18 +23,12 @@ extern "C" {
 #include <X11/Xutil.h>
 }
 
-#ifdef DEBUG
-#include <iostream>
-using std::cerr;
-using std::endl;
-#endif // DEBUG
-
 const uint DOCKAPP_DEFAULT_SIDE = 64;
 const uint DOCKAPP_BORDER_WIDTH = 2;
 
 //! @brief DockApp constructor
 DockApp::DockApp(Window win) :
-        PWinObj(),
+        PWinObj(false),
         _dockapp_window(win),
         _client_window(win), _icon_window(None),
         _position(0), _background(None),

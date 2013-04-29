@@ -1,6 +1,6 @@
 //
 // WindowManager.cc for pekwm
-// Copyright © 2002-2015 the pekwm development team
+// Copyright © 2002-2016 the pekwm development team
 //
 // windowmanager.cc for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
@@ -12,6 +12,7 @@
 
 #include "config.h"
 
+#include "Debug.hh"
 #include "PWinObj.hh"
 #include "PDecor.hh"
 #include "Frame.hh"
@@ -389,31 +390,8 @@ WindowManager::scanWindows(void)
 
     Client *client;
     for (it = win_list.begin(); it != win_list.end(); ++it) {
-        if (*it == None) {
-            continue;
-        }
-        
-        XWindowAttributes attr;
-        XGetWindowAttributes(X11::getDpy(), *it, &attr);
-        if (! attr.override_redirect && attr.map_state != IsUnmapped) {
-            XWMHints *wm_hints = XGetWMHints(X11::getDpy(), *it);
-            if (wm_hints) {
-                if ((wm_hints->flags&StateHint) &&
-                        (wm_hints->initial_state == WithdrawnState)) {
-                    _harbour->addDockApp(new DockApp(*it));
-                } else {
-                    client = new Client(*it);
-                    if (! client->isAlive()) {
-                        delete client;
-                    }
-
-                }
-                XFree(wm_hints);
-            } else {
-                client = new Client(*it);
-                if (! client->isAlive())
-                    delete client;
-            }
+        if (*it != None) {
+            createClient(*it, false);
         }
     }
 
@@ -812,10 +790,15 @@ WindowManager::showWSIndicator(void) const
 void
 WindowManager::handleKeyEvent(XKeyEvent *ev)
 {
+    bool matched;
     ActionEvent *ae = 0;
     PWinObj *wo, *wo_orig;
     wo = wo_orig = PWinObj::getFocusedPWinObj();
     PWinObj::Type type = (wo) ? wo->getType() : PWinObj::WO_SCREEN_ROOT;
+
+    if (wo && wo->getWindow() == ev->window) {
+        wo->setLastActivity(ev->time);
+    }
 
     switch (type) {
     case PWinObj::WO_CLIENT:
@@ -823,7 +806,7 @@ WindowManager::handleKeyEvent(XKeyEvent *ev)
     case PWinObj::WO_SCREEN_ROOT:
     case PWinObj::WO_MENU:
         if (ev->type == KeyPress) {
-            ae = _keygrabber->findAction(ev, type);
+            ae = _keygrabber->findAction(ev, type, &matched);
         }
         break;
     case PWinObj::WO_CMD_DIALOG:
@@ -846,37 +829,46 @@ WindowManager::handleKeyEvent(XKeyEvent *ev)
         break;
     }
 
-    if (ae) {
-        // HACK: Always close CmdDialog and SearchDialog before actions
-        if (wo_orig
-            && (wo_orig->getType() == PWinObj::WO_CMD_DIALOG
-                || wo_orig->getType() == PWinObj::WO_SEARCH_DIALOG)) {
-            ::Action close_action;
-            ActionEvent close_ae;
-            
-            close_ae.action_list.push_back(close_action);
-            close_ae.action_list.back().setAction(ACTION_CLOSE);
+    handleKeyEventAction(ev, ae, wo, wo_orig);
 
-            ActionPerformed close_ap(wo_orig, close_ae);
-            _action_handler->handleAction(close_ap);
-        }
-
-        ActionPerformed ap(wo, *ae);
-        ap.type = ev->type;
-        ap.event.key = ev;
-        _action_handler->handleAction(ap);
-    }
-
-    // flush Enter events caused by keygrabbing
-    XEvent e;
-    while (X11::checkTypedEvent(EnterNotify, &e)) {
-        if (! e.xcrossing.send_event) {
-            X11::setLastEventTime(e.xcrossing.time);
+    // Flush Enter events caused by keygrabbing
+    if (matched) {
+        XEvent e;
+        while (X11::checkTypedEvent(EnterNotify, &e)) {
+            if (! e.xcrossing.send_event) {
+                X11::setLastEventTime(e.xcrossing.time);
+            }
         }
     }
 }
 
-//! @brief
+void
+WindowManager::handleKeyEventAction(XKeyEvent *ev, ActionEvent *ae, PWinObj *wo, PWinObj *wo_orig)
+{
+    if (!ae) {
+        return;
+    }
+
+    // HACK: Always close CmdDialog and SearchDialog before actions
+    if (wo_orig
+        && (wo_orig->getType() == PWinObj::WO_CMD_DIALOG
+            || wo_orig->getType() == PWinObj::WO_SEARCH_DIALOG)) {
+        ::Action close_action;
+        ActionEvent close_ae;
+            
+        close_ae.action_list.push_back(close_action);
+        close_ae.action_list.back().setAction(ACTION_CLOSE);
+
+        ActionPerformed close_ap(wo_orig, close_ae);
+        _action_handler->handleAction(close_ap);
+    }
+
+    ActionPerformed ap(wo, *ae);
+    ap.type = ev->type;
+    ap.event.key = ev;
+    _action_handler->handleAction(ap);
+}
+
 void
 WindowManager::handleButtonPressEvent(XButtonEvent *ev)
 {
@@ -892,6 +884,9 @@ WindowManager::handleButtonPressEvent(XButtonEvent *ev)
 
     wo = PWinObj::findPWinObj(ev->window);
     if (wo) {
+        // Update all objects (and again if child found)
+        wo->setLastActivity(ev->time);
+
         ae = wo->handleButtonPress(ev);
 
         if (wo->getType() == PWinObj::WO_FRAME) {
@@ -899,10 +894,14 @@ WindowManager::handleButtonPressEvent(XButtonEvent *ev)
             // the client clicked on, doesn't apply when subwindow is set (meaning
             // a titlebar button beeing pressed)
             if ((ev->subwindow == None)
-                    && (ev->window == static_cast<Frame*>(wo)->getTitleWindow())) {
+                && (ev->window == static_cast<Frame*>(wo)->getTitleWindow())) {
                 wo = static_cast<Frame*>(wo)->getChildFromPos(ev->x);
             } else {
                 wo = static_cast<Frame*>(wo)->getActiveChild();
+            }
+
+            if (wo != 0) {
+                wo->setLastActivity(ev->time);
             }
         }
     }
@@ -921,7 +920,6 @@ WindowManager::handleButtonPressEvent(XButtonEvent *ev)
     }
 }
 
-//! @brief
 void
 WindowManager::handleButtonReleaseEvent(XButtonEvent *ev)
 {
@@ -1047,7 +1045,6 @@ WindowManager::handleMotionEvent(XMotionEvent *ev)
     }
 }
 
-//! @brief
 void
 WindowManager::handleMapRequestEvent(XMapRequestEvent *ev)
 {
@@ -1056,25 +1053,7 @@ WindowManager::handleMapRequestEvent(XMapRequestEvent *ev)
     if (wo) {
         wo->handleMapRequest(ev);
     } else {
-        XWindowAttributes attr;
-        XGetWindowAttributes(X11::getDpy(), ev->window, &attr);
-        if (! attr.override_redirect) {
-            // We need to figure out whether or not this is a dockapp.
-            XWMHints *wm_hints = XGetWMHints(X11::getDpy(), ev->window);
-            if (wm_hints) {
-                if ((wm_hints->flags&StateHint) &&
-                        (wm_hints->initial_state == WithdrawnState)) {
-                    _harbour->addDockApp(new DockApp(ev->window));
-                    XFree(wm_hints);
-                    return;
-                }
-                XFree(wm_hints);
-            }
-            Client *client = new Client(ev->window, true);
-            if (! client->isAlive()) {
-                delete client;
-            }
-        }
+        createClient(ev->window, true);
     }
 }
 
@@ -1433,6 +1412,64 @@ WindowManager::familyRaiseLower(Client *client, bool raise)
             }
         }
     }
+}
+
+Client*
+WindowManager::createClient(Window window, bool is_new)
+{
+    Client *client = 0;
+    ClientInitConfig initConfig;
+
+    XWindowAttributes attr;
+    XGetWindowAttributes(X11::getDpy(), window, &attr);
+    if (! attr.override_redirect && (is_new || attr.map_state != IsUnmapped)) {
+        // We need to figure out whether or not this is a dockapp.
+        XWMHints *wm_hints = XGetWMHints(X11::getDpy(), window);
+        if (wm_hints) {
+            if ((wm_hints->flags&StateHint) && (wm_hints->initial_state == WithdrawnState)) {
+                _harbour->addDockApp(new DockApp(window));
+            } else {
+                client = new Client(window, initConfig, is_new);
+            }
+            XFree(wm_hints);
+        } else {
+            client = new Client(window, initConfig, is_new);
+        }
+    }
+
+    if (client) {
+        if (client->isAlive()) {
+            if (initConfig.parent_is_new) {
+                Workspaces::insert(client->getParent(), true);
+            }
+
+            // Make sure the window is mapped, this is done after it has been
+            // added to the decor/frame as otherwise IsViewable state won't
+            // be correct and we don't know whether or not to place the window
+            if (initConfig.map) {
+                client->mapWindow();
+            }
+
+            // Focus was requested by the configuration, look out for
+            // focus stealing.
+            if (initConfig.focus) {
+                PWinObj *wo = PWinObj::getFocusedPWinObj();
+                Time time_protect = static_cast<Time>(Config::instance()->getFocusStealProtect());
+
+                if (wo && wo->isMapped() && wo->isKeyboardInput()
+                    && time_protect && time_protect >= (X11::getLastEventTime() - wo->getLastActivity())) {
+                    // WO exists, is mapped, time protect is active and within it's limits.
+                } else {
+                    client->getParent()->giveInputFocus();
+                }
+            }
+        } else{
+            delete client;
+            client = 0;
+        }
+    }
+
+    return client;
 }
 
 /**

@@ -51,8 +51,8 @@ public:
         //! @brief Adds action to Key vector.
         inline void addAction(const ActionEvent &key) { _keys.push_back(key); }
 
-        Chain *findChain(XKeyEvent *ev);
-        ActionEvent *findAction(XKeyEvent *ev);
+        Chain *findChain(XKeyEvent *ev, bool *matched);
+        ActionEvent *findAction(XKeyEvent *ev, bool *matched);
 
     private:
         uint _mod, _key;
@@ -71,7 +71,7 @@ public:
     void grabKeys(Window win);
     void ungrabKeys(Window win);
 
-    ActionEvent *findAction(XKeyEvent *ev, PWinObj::Type type);
+    ActionEvent *findAction(XKeyEvent *ev, PWinObj::Type type, bool *matched);
     ActionEvent *findMoveResizeAction(XKeyEvent *ev);
 
 private:
@@ -82,7 +82,7 @@ private:
     void parseInputDialogChain(CfgParser::Entry *section, KeyGrabber::Chain *chain);
     void parseMenuChain(CfgParser::Entry *section, KeyGrabber::Chain *chain);
 
-    ActionEvent *findAction(XKeyEvent *ev, KeyGrabber::Chain *chain);
+    ActionEvent *findAction(XKeyEvent *ev, KeyGrabber::Chain *chain, bool *matched);
 
     TimeFiles _cfg_files;
 

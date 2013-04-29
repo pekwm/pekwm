@@ -52,11 +52,13 @@ using std::string;
 using std::vector;
 using std::wstring;
 
+const long Client::_clientEventMask = \
+    PropertyChangeMask|StructureNotifyMask|FocusChangeMask|KeyPressMask;
 vector<Client*> Client::_clients;
 vector<uint> Client::_clientids;
 
-Client::Client(Window new_client, bool is_new)
-    : PWinObj(),
+Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
+    : PWinObj(true),
       _id(0), _size(0),
       _transient_for(0), _strut(0), _icon(0),
       _pid(0), _is_remote(false), _class_hint(0),
@@ -137,7 +139,7 @@ Client::Client(Window new_client, bool is_new)
     // so that Frame's state can match the state of the Client.
     setInitialState();
 
-    findOrCreateFrame(ap);
+    initConfig.parent_is_new = findOrCreateFrame(ap);
 
     // Grab keybindings and mousebutton actions
     KeyGrabber::instance()->grabKeys(_window);
@@ -148,7 +150,7 @@ Client::Client(Window new_client, bool is_new)
 
     X11::ungrabServer(true);
 
-    setMappedStateAndFocus(is_new, ap);
+    setClientInitConfig(initConfig, is_new, ap);
 
     _alive = true;
 
@@ -256,10 +258,14 @@ Client::getAndUpdateWindowAttributes(void)
 /**
  * Find frame for client based on tagging, hints and
  * autoproperties. Create a new one if not found and add the client.
+ *
+ * \return true if a new find was created.
  */
-void
+bool
 Client::findOrCreateFrame(AutoProperty *autoproperty)
 {
+    bool parent_is_new = false;
+
     if (! _parent) {
         findTaggedFrame();
     }
@@ -278,8 +284,11 @@ Client::findOrCreateFrame(AutoProperty *autoproperty)
 
     // if we don't have a frame already, create a new one
     if (! _parent) {
+        parent_is_new = true;
         _parent = new Frame(this, autoproperty);
     }
+
+    return parent_is_new;
 }
 
 /**
@@ -381,14 +390,10 @@ Client::setInitialState(void)
  * Ensure the Client is (un) mapped and give input focus if requested.
  */
 void
-Client::setMappedStateAndFocus(bool is_new, AutoProperty *autoproperty)
+Client::setClientInitConfig(ClientInitConfig &initConfig, bool is_new, AutoProperty *autoproperty)
 {
-    // Make sure the window is mapped, this is done after it has been
-    // added to the decor/frame as otherwise IsViewable state won't
-    // be correct and we don't know whether or not to place the window
-    if (! _iconified && _parent->isMapped()) {
-        PWinObj::mapWindow();
-    }
+    initConfig.map = (! _iconified && _parent->isMapped());
+    initConfig.focus = false;
 
     // Let us hear what autoproperties has to say about focusing
     bool do_focus = is_new ? Config::instance()->isFocusNew() : false;
@@ -400,12 +405,10 @@ Client::setMappedStateAndFocus(bool is_new, AutoProperty *autoproperty)
     if (_parent->isMapped()) {
         // Ordinary focus
         if (do_focus) {
-            _parent->giveInputFocus();
-
-            // Check if we are transient, and if we want to focus
-        } else if (_transient_for && _transient_for->isFocused()
-                                  && Config::instance()->isFocusNewChild()) {
-            _parent->giveInputFocus();
+            initConfig.focus = true;
+        // Check if we are transient, and if we want to focus
+        } else if (_transient_for && _transient_for->isFocused() && Config::instance()->isFocusNewChild()) {
+            initConfig.focus = true;
         }
     }
 }
@@ -453,8 +456,7 @@ Client::mapWindow(void)
 
     X11::selectInput(_window, NoEventMask);
     PWinObj::mapWindow();
-    X11::selectInput(_window,
-                     PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
+    X11::selectInput(_window, _clientEventMask);
 }
 
 
@@ -474,8 +476,7 @@ Client::unmapWindow(void)
 
     X11::selectInput(_window, NoEventMask);
     PWinObj::unmapWindow();
-    X11::selectInput(_window,
-                         PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
+    X11::selectInput(_window, _clientEventMask);
 }
 
 //! @brief Iconifies the client and adds it to the iconmenu

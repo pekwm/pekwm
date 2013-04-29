@@ -28,6 +28,7 @@ Screen {
     ShowWorkspaceIndicator = "500"
     PlaceNew = "True"
     FocusNew = "True"
+    FocusStealProtect = "0"
 
     ReportAllClients = "False"
 

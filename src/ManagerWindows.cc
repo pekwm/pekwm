@@ -1,6 +1,6 @@
 //
 // ManagerWindows.cc for pekwm
-// Copyright © 2009 Claes Nästén <me@pekdon.net>
+// Copyright © 2009-2013 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -41,7 +41,7 @@ const unsigned long RootWO::EXPECTED_DESKTOP_NAMES_LENGTH = 256;
  * protocols.
  */
 HintWO::HintWO(Window root, bool replace) throw (std::string&)
-    : PWinObj()
+    : PWinObj(false)
 {
     if (_instance) {
         throw string("trying to create HintWO which is already created.");
@@ -207,7 +207,7 @@ HintWO::claimDisplayOwner(Window session_atom, Time timestamp)
  * Root window constructor, reads geometry and sets basic atoms.
  */
 RootWO::RootWO(Window root)
-    : PWinObj()
+    : PWinObj(false)
 {
     _type = WO_SCREEN_ROOT;
     setLayer(LAYER_NONE);
@@ -411,7 +411,7 @@ RootWO::setEwmhDesktopLayout(void)
  * window.
  */
 EdgeWO::EdgeWO(Window root, EdgeType edge, bool set_strut)
-    : PWinObj(),
+    : PWinObj(false),
       _edge(edge)
 {
     _type = WO_SCREEN_EDGE;
