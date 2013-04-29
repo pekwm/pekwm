@@ -1,6 +1,6 @@
 //
 // Config.hh for pekwm
-// Copyright © 2002-2009 Claes Nasten <me@pekdon.net>
+// Copyright © 2002-2013 Claes Nasten <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -148,6 +148,7 @@ public:
     inline bool isPlaceNew(void) const { return _screen_place_new; }
     inline bool isFocusNew(void) const { return _screen_focus_new; }
     inline bool isFocusNewChild(void) const { return _screen_focus_new_child; }
+    inline uint getFocusStealProtect(void) const { return _screen_focus_steal_protect; }
     inline bool isHonourRandr(void) const { return _screen_honour_randr; }
     inline bool isHonourAspectRatio(void) const { return _screen_honour_aspectratio; }
 
@@ -297,6 +298,7 @@ private:
     int _screen_workspace_indicator_scale; //!< Scale of the workspace indicator head
     uint _screen_workspace_indicator_opacity;
     bool _screen_place_new, _screen_focus_new, _screen_focus_new_child;
+    uint _screen_focus_steal_protect; /**< Number of seconds to protect against focus stealing. */
     bool _screen_honour_randr; /**< Boolean flag if randr information should be honoured. */
     bool _screen_honour_aspectratio; /**< if true, pekwm keeps aspect ratio (XSizeHint) */
     bool _screen_placement_row, _screen_placement_ltr, _screen_placement_ttb;

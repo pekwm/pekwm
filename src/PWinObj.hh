@@ -86,6 +86,10 @@ public:
     inline void setParent(PWinObj *wo) { _parent = wo; }
     //! @brief Returns type of PWinObj.
     inline Type getType(void) const { return _type; }
+    //! @brief Returns the last activity time for this window
+    inline Time getLastActivity(void) const { return _lastActivity; }
+    //! @brief Sets the last activity time for this window.
+    inline void setLastActivity(Time lastActivity) { _lastActivity = lastActivity; }
 
     void addChildWindow(Window win);
     void removeChildWindow(Window win);
@@ -232,6 +236,7 @@ protected:
     PWinObj *_parent; //!< Parent PWinObj.
 
     Type _type; //!< Type of PWinObj.
+    Time _lastActivity; //!< Last time PWinObj received input.
 
     // Opacity information
     class Opacity {

@@ -43,6 +43,13 @@ public:
     const enum Layer layer; /**< Layer client changed to. */
 };
 
+class ClientInitConfig {
+public:
+    bool map;
+    bool focus;
+    bool focus_parent;
+};
+
 class Client : public PWinObj, public Observer
 {
     // FIXME: This relationship should end as soon as possible, but I need to
@@ -78,7 +85,7 @@ public: // Public Member Functions
         MWM_DECOR_MAXIMIZE = (1L << 6)
     };
 
-    Client(Window new_client, bool is_new = false);
+    Client(Window new_client, ClientInitConfig &initConfig, bool is_new = false);
     virtual ~Client(void);
 
     // START - PWinObj interface.
@@ -303,7 +310,7 @@ private:
     bool findAutoGroupFrame(AutoProperty *autoproperty);
 
     void setInitialState(void);
-    void setMappedStateAndFocus(bool is_new, AutoProperty *autoproperty);
+    void setClientInitConfig(ClientInitConfig &initConfig, bool is_new, AutoProperty *autoproperty);
 
     bool titleApplyRule(std::wstring &wtitle);
     uint titleFindID(std::wstring &wtitle);
@@ -402,6 +409,8 @@ private: // Private Member Variables
         bool change_ws:1; // workspace
         bool close:1;
     } _actions;
+
+    static const long _clientEventMask;
 
     static vector<Client*> _clients; //!< Vector of all Clients.
     static vector<uint> _clientids; //!< Vector of free Client IDs.

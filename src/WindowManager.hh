@@ -182,10 +182,14 @@ private:
     void handleLeaveNotify(XCrossingEvent *ev);
     void handleFocusInEvent(XFocusChangeEvent *ev);
 
+    void handleKeyEventAction(XKeyEvent *ev, ActionEvent *ae, PWinObj *wo, PWinObj *wo_orig);
+
     void readDesktopNamesHint(void);
 
     // private methods for the hints
     void initHints(void);
+
+    Client *createClient(Window window, bool is_new);
 
     bool findGroupMatchProperty(Frame *frame, AutoProperty *property);
     Frame *findGroupMatch(AutoProperty *property);
