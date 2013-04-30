@@ -140,7 +140,7 @@ Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
     // so that Frame's state can match the state of the Client.
     setInitialState();
 
-    findOrCreateFrame(ap);
+    initConfig.parent_is_new = findOrCreateFrame(ap);
 
     // Grab keybindings and mousebutton actions
     KeyGrabber::instance()->grabKeys(_window);
@@ -259,10 +259,14 @@ Client::getAndUpdateWindowAttributes(void)
 /**
  * Find frame for client based on tagging, hints and
  * autoproperties. Create a new one if not found and add the client.
+ *
+ * \return true if a new find was created.
  */
-void
+bool
 Client::findOrCreateFrame(AutoProperty *autoproperty)
 {
+    bool parent_is_new = false;
+
     if (! _parent) {
         findTaggedFrame();
     }
@@ -281,8 +285,11 @@ Client::findOrCreateFrame(AutoProperty *autoproperty)
 
     // if we don't have a frame already, create a new one
     if (! _parent) {
+        parent_is_new = true;
         _parent = new Frame(this, autoproperty);
     }
+
+    return parent_is_new;
 }
 
 /**

@@ -1,6 +1,6 @@
 //
 // WindowManager.cc for pekwm
-// Copyright © 2002-2009 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2002-2013 Claes Nästén <me@pekdon.net>
 //
 // windowmanager.cc for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
@@ -1443,6 +1443,10 @@ WindowManager::createClient(Window window, bool is_new)
 
     if (client) {
         if (client->isAlive()) {
+            if (initConfig.parent_is_new) {
+                Workspaces::insert(client->getParent(), true);
+            }
+
             // Make sure the window is mapped, this is done after it has been
             // added to the decor/frame as otherwise IsViewable state won't
             // be correct and we don't know whether or not to place the window
@@ -1456,7 +1460,9 @@ WindowManager::createClient(Window window, bool is_new)
                 PWinObj *wo = PWinObj::getFocusedPWinObj();
                 Time time_protect = static_cast<Time>(Config::instance()->getFocusStealProtect());
 
-                if (! wo || ! time_protect || (X11::getLastEventTime() - wo->getLastActivity()) > time_protect) {
+                if (! wo
+                    || ! time_protect
+                    || (X11::getLastEventTime() - wo->getLastActivity()) > time_protect) {
                     client->getParent()->giveInputFocus();
                 }
             }
