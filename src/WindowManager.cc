@@ -1454,10 +1454,9 @@ WindowManager::createClient(Window window, bool is_new)
             // focus stealing.
             if (initConfig.focus) {
                 PWinObj *wo = PWinObj::getFocusedPWinObj();
-                Time time_passed = X11::getLastEventTime() - wo->getLastActivity();
                 Time time_protect = static_cast<Time>(Config::instance()->getFocusStealProtect());
 
-                if (! wo || ! time_protect || time_passed > time_protect) {
+                if (! wo || ! time_protect || (X11::getLastEventTime() - wo->getLastActivity()) > time_protect) {
                     client->getParent()->giveInputFocus();
                 }
             }
