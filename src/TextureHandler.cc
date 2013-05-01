@@ -157,7 +157,7 @@ TextureHandler::parse(const std::string &texture)
             ptexture = parseSolidRaised(tok);
             break;
         case PTexture::TYPE_IMAGE:
-            ptexture = new PTextureImage(tok[1]);
+            ptexture = new PTextureImage(tok[0]);
             break;
         case PTexture::TYPE_NO:
         default:
