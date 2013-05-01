@@ -371,7 +371,6 @@ WindowManager::scanWindows(void)
     
     uint num_wins;
     Window d_win1, d_win2, *wins;
-    XWindowAttributes attr;
 
     // Lets create a list of windows on the display
     XQueryTree(X11::getDpy(), X11::getRoot(),
@@ -401,7 +400,6 @@ WindowManager::scanWindows(void)
         }
     }
 
-    Client *client;
     for (it = win_list.begin(); it != win_list.end(); ++it) {
         if (*it != None) {
             createClient(*it, false);
@@ -420,7 +418,7 @@ WindowManager::scanWindows(void)
     // not be correct.
     vector<Client*>::const_iterator it_client = Client::client_begin();
     for (; it_client != Client::client_end(); ++it_client) {
-        if ((*it_client)->isTransient() && ! (*it_client)->getTransientClient()) {
+        if ((*it_client)->isTransient() && ! (*it_client)->getTransientForClient()) {
             (*it_client)->findAndRaiseIfTransient();
         }
     }
@@ -1385,12 +1383,12 @@ WindowManager::familyRaiseLower(Client *client, bool raise)
 {
     Client *parent;
     Window win_search;
-    if (! client->getTransientClient()) {
+    if (! client->getTransientForClient()) {
         parent = client;
         win_search = client->getWindow();
     } else {
-        parent = client->getTransientClient();
-        win_search = client->getTransientClientWindow();
+        parent = client->getTransientForClient();
+        win_search = client->getTransientForClientWindow();
     }
 
     vector<Client*> client_list;

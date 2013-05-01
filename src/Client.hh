@@ -148,11 +148,11 @@ public: // Public Member Functions
         return _clients.rend();
     }
 
-    unsigned int transient_size(void) { return _transient_clients.size(); }
+    unsigned int transient_size(void) { return _transients.size(); }
     vector<Client*>::const_iterator transient_begin(void) {
-        return _transient_clients.begin(); }
+        return _transients.begin(); }
     vector<Client*>::const_iterator transient_end(void) {
-        return _transient_clients.end(); }
+        return _transients.end(); }
     // END - Iterators
 
     bool validate(void);
@@ -163,9 +163,9 @@ public: // Public Member Functions
 
     inline const ClassHint* getClassHint(void) const { return _class_hint; }
 
-    bool isTransient(void) const { return _transient_window != None; }
-    Client *getTransientClient(void) const { return _transient; }
-    Window getTransientClientWindow(void) const { return _transient_window; }
+    bool isTransient(void) const { return _transient_for_window != None; }
+    Client *getTransientForClient(void) const { return _transient_for; }
+    Window getTransientForClientWindow(void) const { return _transient_for_window; }
     void findAndRaiseIfTransient(void);
 
     inline XSizeHints* getXSizeHints(void) const { return _size; }
@@ -290,6 +290,7 @@ public: // Public Member Functions
     void getWMNormalHints(void);
     void getWMProtocols(void);
     void getTransientForHint(void);
+    void updateParentLayerAndRaiseIfActive(void);
     void getStrutHint(void);
     void readName(void);
     void removeStrutHint(void);
@@ -351,9 +352,9 @@ private: // Private Member Variables
     XSizeHints *_size;
     Colormap _cmap;
 
-    Client *_transient; /**< Client for which this client is transient for */
-    Window _transient_window;
-    vector<Client*> _transient_clients; /**< Vector of transient clients. */
+    Client *_transient_for; /**< Client for which this client is transient for */
+    Window _transient_for_window;
+    vector<Client*> _transients; /**< Vector of transient clients. */
 
     Strut *_strut;
 

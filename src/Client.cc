@@ -1,6 +1,6 @@
 //
 // Client.cc for pekwm
-// Copyright © 2002-2009 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2002-2013 Claes Nästén <me@pekdon.net>
 //
 // client.cc for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
@@ -28,6 +28,7 @@ extern "C" {
 }
 
 #include "Compat.hh" // setenv, unsetenv
+#include "Debug.hh"
 #include "PWinObj.hh"
 #include "PDecor.hh" // PDecor::TitleItem
 #include "Client.hh"
@@ -61,7 +62,7 @@ vector<uint> Client::_clientids;
 Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
     : PWinObj(),
       _id(0), _size(0),
-      _transient(None), _strut(0), _icon(0),
+      _transient_for(0), _strut(0), _icon(0),
       _pid(0), _is_remote(false), _class_hint(0),
       _window_type(WINDOW_TYPE_NORMAL),
       _alive(false), _marked(false),
@@ -167,10 +168,10 @@ Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
 Client::~Client(void)
 {
     // Remove from lists
-    if (_transient) {
-        vector<Client *> &tc(_transient->_transient_clients);
+    if (_transient_for) {
+        vector<Client *> &tc(_transient_for->_transients);
         tc.erase(std::remove(tc.begin(), tc.end(), this), tc.end());
-        _transient->removeObserver(this);
+        _transient_for->removeObserver(this);
     }
     _wo_map.erase(_window);
     woListRemove(this);
@@ -188,9 +189,9 @@ Client::~Client(void)
     }
 
     // Focus the parent if we had focus before
-    if (focus && _transient) {
-        Frame *trans_frame = static_cast<Frame*>(_transient->getParent());
-        if (trans_frame->getActiveChild() == _transient) {
+    if (focus && _transient_for) {
+        Frame *trans_frame = static_cast<Frame*>(_transient_for->getParent());
+        if (trans_frame->getActiveChild() == _transient_for) {
             trans_frame->giveInputFocus();
         }
     }
@@ -408,7 +409,7 @@ Client::setClientInitConfig(ClientInitConfig &initConfig, bool is_new, AutoPrope
         if (do_focus) {
             initConfig.focus = true;
         // Check if we are transient, and if we want to focus
-        } else if (_transient && _transient->isFocused() && Config::instance()->isFocusNewChild()) {
+        } else if (_transient_for && _transient_for->isFocused() && Config::instance()->isFocusNewChild()) {
             initConfig.focus = true;
         }
     }
@@ -421,16 +422,15 @@ Client::setClientInitConfig(ClientInitConfig &initConfig, bool is_new, AutoPrope
 void
 Client::findAndRaiseIfTransient(void)
 {
-    if (_transient_window != None && ! _transient) {
+    if (_transient_for_window != None && ! _transient_for) {
         getTransientForHint();
     }
 
-    if (_transient) {
-        Frame *frame = static_cast<Frame*>(getParent());
-        Frame *frame_transient = static_cast<Frame*>(_transient->getParent());
-        if (frame->getActiveChild() == this) {
-            Workspaces::stack(this, frame_transient->getWindow(), true);
-        }
+    if (_transient_for) {
+        // Set layer to be ontop of parent
+        setLayer(_transient_for->getLayer() + 1);
+
+        updateParentLayerAndRaiseIfActive();
     }
 }
 
@@ -450,7 +450,7 @@ Client::mapWindow(void)
         updateEwmhStates();
     }
 
-    if(! _transient) {
+    if(! _transient_for) {
         // Unmap our transient windows if we have any
         mapOrUnmapTransients(_window, false);
     }
@@ -489,7 +489,7 @@ Client::iconify(void)
     }
 
     _iconified = true;
-    if (! _transient) {
+    if (! _transient_for) {
         mapOrUnmapTransients(_window, true);
     }
 
@@ -666,22 +666,15 @@ Client::notify(Observable *observable, Observation *observation)
         LayerObservation *layer_observation = dynamic_cast<LayerObservation*>(observation);
         if (layer_observation) {
             setLayer(layer_observation->layer + 1);
-
-            Frame *frame = static_cast<Frame*>(getParent());
-            if (frame->getActiveChild() == this) {
-                frame->setLayer(layer_observation->layer + 1);
-                frame->raise();
-            }
+            updateParentLayerAndRaiseIfActive();
         }
     } else {
         Client *client = static_cast<Client*>(observable);
-        if (client == _transient) {
-            _transient = 0;
+        if (client == _transient_for) {
+            _transient_for = 0;
         } else {
-            _transient_clients.erase(std::remove(_transient_clients.begin(),
-                                                 _transient_clients.end(),
-                                                 this),
-                                     _transient_clients.end());
+            _transients.erase(std::remove(_transients.begin(), _transients.end(), this),
+                              _transients.end());
         }
     }
 }
@@ -770,7 +763,7 @@ Client::findFamilyFromWindow(vector<Client*> &client_list, Window win)
 {
     vector<Client*>::const_iterator it(Client::client_begin());
     for (; it != Client::client_end(); ++it) {
-        if ((*it)->getTransientClientWindow() == win) {
+        if ((*it)->getTransientForClientWindow() == win) {
             client_list.push_back(*it);
         }
     }
@@ -1846,16 +1839,29 @@ Client::getWMProtocols(void)
 void
 Client::getTransientForHint(void)
 {
-    if (! _transient) {
-        XGetTransientForHint(X11::getDpy(), _window, &_transient_window);
+    if (_transient_for) {
+        return;
+    }
 
-        if (_transient_window != None) {
-            _transient = findClientFromWindow(_transient_window);
-            if (_transient) {
-               _transient->_transient_clients.push_back(this);
-               _transient->addObserver(this);
-            }
+    XGetTransientForHint(X11::getDpy(), _window, &_transient_for_window);
+
+    if (_transient_for_window != None) {
+        _transient_for = findClientFromWindow(_transient_for_window);
+        if (_transient_for) {
+            // Observe for changes
+            _transient_for->_transients.push_back(this);
+            _transient_for->addObserver(this);
         }
+    }
+}
+
+void
+Client::updateParentLayerAndRaiseIfActive(void)
+{
+    Frame *frame = static_cast<Frame*>(getParent());
+    if (frame->getActiveChild() == this) {
+        frame->setLayer(getLayer());
+        frame->raise();
     }
 }
 

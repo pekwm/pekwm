@@ -635,12 +635,12 @@ void
 Workspaces::placeWo(PWinObj *wo, Window parent)
 {
     Geometry head_curr;
-    uint head_num_curr = X11::getCurrHead();
+    int head_num_curr = X11::getCurrHead();
 
     bool placed = placeWo(wo, head_num_curr, parent);
     if (! placed) {
         // Placement failed on current head, try to fit it on another head. 
-        for (uint i = 0; !placed && i < X11::getNumHeads(); ++i) {
+        for (int i = 0; !placed && i < X11::getNumHeads(); ++i) {
             if (i != head_num_curr) {
                 placed = placeWo(wo, head_num_curr, parent);
             }
@@ -653,7 +653,7 @@ Workspaces::placeWo(PWinObj *wo, Window parent)
                 X11::getHeadInfoWithEdge(head_num_curr, head);
                 placed = placeHeadTR(wo, head, parent);
             } else {
-                for (uint i = 0; !placed && i < X11::getNumHeads(); ++i) {
+                for (int i = 0; !placed && i < X11::getNumHeads(); ++i) {
                     if (i != head_num_curr && !isFullScreen(i)) {
                         // No fullscreen window on this head
                         X11::getHeadInfoWithEdge(i, head);

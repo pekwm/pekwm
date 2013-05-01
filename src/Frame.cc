@@ -135,7 +135,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
 
     // still need a position?
     if (place) {
-        Workspaces::placeWo(this, client->getTransientClientWindow());
+        Workspaces::placeWo(this, client->getTransientForClientWindow());
     }
 
     _old_gm = _gm;
@@ -231,17 +231,6 @@ void
 Frame::raise(void)
 {
     PDecor::raise();
-
-    if (_client->transient_size()) {
-        Frame *frame;
-        vector<Client*>::const_iterator it(_client->transient_begin());
-        for (; it != _client->transient_end(); ++it) {
-            frame = static_cast<Frame*>((*it)->getParent());
-            if (frame != this && frame->getActiveClient() == *it) {
-                frame->raise();
-            }
-        }
-    }
 }
 
 //! @brief Sets workspace on frame, wrapper to allow autoproperty loading
@@ -272,9 +261,10 @@ Frame::setLayer(unsigned int layer)
     PDecor::setLayer(layer);
 
     if (_client) {
-        LayerObservation *observation = new LayerObservation(Layer(layer));
-        _client->notifyObservers(observation);
-        delete observation;
+        _client->setLayer(layer);
+
+        LayerObservation observation(static_cast<Layer>(layer));
+        _client->notifyObservers(&observation);
     }
 }
 
@@ -1638,8 +1628,7 @@ Frame::setStateFullscreen(StateAction sa)
     moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
 
     // Re-stack window if fullscreen is above other windows.
-    if (Config::instance()->isFullscreenAbove()
-            && _client->getLayer() != LAYER_DESKTOP) {
+    if (Config::instance()->isFullscreenAbove() && _client->getLayer() != LAYER_DESKTOP) {
         setLayer(_fullscreen ? LAYER_ABOVE_DOCK : _non_fullscreen_layer);
         raise();
     }
