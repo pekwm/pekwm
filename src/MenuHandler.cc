@@ -142,14 +142,16 @@ MenuHandler::reloadMenus(void)
 
     // Update, delete standalone root menus, load decors on others
     map<string, PMenu*>::iterator it(_menu_map.begin());
-    for (; it != _menu_map.end(); ++it) {
+    while (it != _menu_map.end()) {
         if (it->second->getMenuType() == ROOTMENU_STANDALONE_TYPE) {
             delete it->second;
-            _menu_map.erase(it);
+            _menu_map.erase(it++);
+            continue;
         } else if (cfg_ok) {
             // Only reload the menu if we got a ok configuration
             it->second->reload(root->find_section(it->second->getName()));
         }
+        ++it;
     }
 
     // Update standalone root menus (name != ROOTMENU)
