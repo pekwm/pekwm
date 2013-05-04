@@ -115,29 +115,31 @@ public:
     }
   }
 
-  /**
-   * Fill events list with TimedEvent that has timed out.
-   */
-  unsigned int getTimedOut(timed_event_list &events) {
-    struct timeval now;
-    if (gettimeofday(&now, 0) == -1) {
-      return 0; // FIXME: raise exception?
-    }    
+    /**
+     * Fill events list with TimedEvent that has timed out.
+     */
+    unsigned int getTimedOut(timed_event_list &events) {
+        struct timeval now;
+        if (gettimeofday(&now, 0) == -1) {
+            return 0; // FIXME: raise exception?
+        }
 
-    timed_event_list_it it(_events.begin());
-    for (; it != _events.end(); ++it) {
-      if (*(*it) < now) {
-        events.push_back(*it);
-        it = --_events.erase(it);
-      }
+        timed_event_list_it it(_events.begin());
+        while (it != _events.end()) {
+            if (*(*it) < now) {
+                events.push_back(*it);
+                it = _events.erase(it);
+            } else {
+                ++it;
+            }
+        }
+
+        if (events.size() > 0) {
+            updateTimer();
+        }
+
+        return events.size();
     }
-
-    if (events.size() > 0) {
-      updateTimer();
-    }
-
-    return events.size();
-  }
 
 private:
   /**
