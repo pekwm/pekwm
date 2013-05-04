@@ -26,37 +26,8 @@
 using std::map;
 using std::string;
 
-/**
- * List of reserved names of built-in menus.
- */
-const char *MenuHandler::MENU_NAMES_RESERVED[] = {
-    "ATTACHCLIENTINFRAME",
-    "ATTACHCLIENT",
-    "ATTACHFRAMEINFRAME",
-    "ATTACHFRAME",
-    "GOTOCLIENT",
-    "GOTO",
-    "ICON",
-    "ROOTMENU",
-    "ROOT", // To avoid name conflict, ROOTMENU -> ROOT
-    "WINDOWMENU",
-    "WINDOW" // To avoid name conflict, WINDOWMENU -> WINDOW
-};
-
-const unsigned int MenuHandler::MENU_NAMES_RESERVED_COUNT =
-    sizeof(MenuHandler::MENU_NAMES_RESERVED)
-    / sizeof(MenuHandler::MENU_NAMES_RESERVED[0]);
-
 TimeFiles MenuHandler::_cfg_files;
 std::map<std::string, PMenu*> MenuHandler::_menu_map;
-
-/**
- * Comparsion for binary search
- */
-bool
-str_comparator(const string &lhs, const string &rhs) {
-    return strcasecmp(lhs.c_str(), rhs.c_str()) < 0;
-}
 
 /**
  * Creates reserved menus and populates _menu_map
@@ -94,9 +65,6 @@ MenuHandler::createMenus(Theme *theme)
     menu = new ActionMenu(WINDOWMENU_TYPE, L"", "WindowMenu");
     _menu_map["WINDOW"] = menu;
 
-    // As the previous step is done manually, make sure it's done correct.
-    assert(_menu_map.size() == (MENU_NAMES_RESERVED_COUNT - 2));
-
     createMenusLoadConfiguration();
 }
 
@@ -109,7 +77,7 @@ MenuHandler::createMenusLoadConfiguration(void)
     // Load configuration, pass specific section to loading
     CfgParser menu_cfg;
     if (menu_cfg.parse(Config::instance()->getMenuFile())
-        || menu_cfg.parse (string(SYSCONFDIR "/menu"))) {
+        || menu_cfg.parse(string(SYSCONFDIR "/menu"))) {
         _cfg_files = menu_cfg.getCfgFiles();
         CfgParser::Entry *root_entry = menu_cfg.get_entry_root();
 
@@ -190,21 +158,20 @@ void
 MenuHandler::reloadStandaloneMenus(CfgParser::Entry *section)
 {
     // Temporary name, as names are stored uppercase
-    string menu_name, menu_name_upper;
+    string menu_name_upper;
 
     // Go through all but reserved section names and create menus
     CfgParser::iterator it(section->begin());
     for (; it != section->end(); ++it) {
         // Uppercase name
-        menu_name = (*it)->get_name();
-        menu_name_upper = menu_name;
+        menu_name_upper = (*it)->get_name();
         Util::to_upper(menu_name_upper);
 
-        // Create new menus, if the name is not reserved and not used
-        if (! isReservedName(menu_name_upper) && ! getMenu(menu_name_upper)) {
+        // Create new menu if the name is not used
+        if (! getMenu(menu_name_upper)) {
             // Create, parse and add to map
             PMenu *menu = new ActionMenu(ROOTMENU_STANDALONE_TYPE,
-                                         L"", menu_name);
+                                         L"", (*it)->get_name());
             menu->reload((*it)->get_section());
             _menu_map[menu_name_upper] = menu;
         }
@@ -223,15 +190,3 @@ MenuHandler::deleteMenus(void)
     }
     _menu_map.clear();
 }
-
-/**
- * Check if name is reserved, return true if it is.
- */
-bool
-MenuHandler::isReservedName(const std::string &name)
-{
-    return binary_search(MENU_NAMES_RESERVED,
-                         MENU_NAMES_RESERVED + MENU_NAMES_RESERVED_COUNT,
-                         name, str_comparator);
-}
-

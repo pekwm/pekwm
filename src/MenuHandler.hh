@@ -52,17 +52,11 @@ public:
 
 private:
     static bool loadMenuConfig(const std::string &menu_file, CfgParser &menu_cfg);
-
     static void createMenusLoadConfiguration(void);
-
     static void reloadStandaloneMenus(CfgParser::Entry *section);
-
-    static bool isReservedName(const std::string &name);
 
     static TimeFiles _cfg_files;
     static std::map<std::string, PMenu*> _menu_map; /**< Map from menu name to menu */
-    static const char *MENU_NAMES_RESERVED[];
-    static const unsigned int MENU_NAMES_RESERVED_COUNT;
 };
 
 #endif // _MENUHANDLER_HH_
