@@ -642,7 +642,7 @@ Workspaces::placeWo(PWinObj *wo, Window parent)
         // Placement failed on current head, try to fit it on another head. 
         for (int i = 0; !placed && i < X11::getNumHeads(); ++i) {
             if (i != head_num_curr) {
-                placed = placeWo(wo, head_num_curr, parent);
+                placed = placeWo(wo, i, parent);
             }
         }
 
