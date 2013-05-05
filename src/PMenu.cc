@@ -65,6 +65,7 @@ PMenu::PMenu(Theme *theme, const std::wstring &title,
     : PDecor(theme, decor_name),
       _name(name),
       _menu_parent(0), _class_hint(L"pekwm", L"Menu", L"", L"", L""),
+      _item_curr(0),
       _menu_wo(0),
       _menu_bg_fo(None), _menu_bg_un(None), _menu_bg_se(None),
       _menu_width(0),
@@ -73,8 +74,6 @@ PMenu::PMenu(Theme *theme, const std::wstring &title,
       _separator_height(0),
       _rows(0), _cols(0), _scroll(false), _has_submenu(false)
 {
-    _item_curr = 0;
-
     // PWinObj attributes
     _type = PWinObj::WO_MENU;
     setLayer(LAYER_MENU);
@@ -155,7 +154,7 @@ PMenu::setFocused(bool focused)
 
         _menu_wo->setBackgroundPixmap(_focused ? _menu_bg_fo : _menu_bg_un);
         _menu_wo->clear();
-        if (_item_curr != _items.size()) {
+        if (_item_curr < _items.size()) {
             vector<PMenu::Item*>::const_iterator item(_items.begin() + _item_curr);
             _item_curr = _items.size(); // Force selectItem(item) to redraw
             selectItem(item);
@@ -380,16 +379,12 @@ PMenu::buildMenuCalculate(void)
         }
     }
 
-    if (_size == 0) {
-        return;
-    }
-
     unsigned int width = 1, height = 1;
     buildMenuCalculateMaxWidth(width, height);
 
     // FIXME: Remove extra padding from calculation
     if (_menu_width) {
-      _item_width_max = _menu_width;
+        _item_width_max = _menu_width;
     }
 
     // This is the available width for drawing text on, the rest is reserved
