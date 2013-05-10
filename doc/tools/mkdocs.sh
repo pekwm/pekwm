@@ -66,12 +66,6 @@ fi
 DBP="${DBDIR}/print/plain.dsl"
 DBC="${DBDIR}/html/pekwm.dsl"
 
-# OpenJade configuration
-SP_CHARSET_FIXED="0"
-SP_BCTF="utf-8"
-
-export SP_CHARSET_FIXED SP_BCTF
-
 ## Print error message and exit
 function print_error() {
     echo "ERROR: $@"
@@ -154,7 +148,7 @@ function mk_rtf() {
     mkdir -p ${LOGDIR} || print_error "unable to create directory ${LOGDIR}"
     mkdir -p ${RTFDIR} || print_error "unable to create directory ${RTFDIR}"
 
-    ${OPENJADE} -t rtf -d ${DBP} ${DBX} index.xml >${LOGDIR}/rtf.log 2>${LOGDIR}/rtf.err
+    ${OPENJADE} -t rtf -b utf-8 -d ${DBP} ${DBX} index.xml >${LOGDIR}/rtf.log 2>${LOGDIR}/rtf.err
     if test ${?} -gt 0; then
 	print_error "rtf generation failed! see rtf logs!"
     fi
@@ -178,7 +172,7 @@ function mk_html_singlefile() {
     mkdir -p ${LOGDIR} || print_error "unable to create directory ${LOGDIR}"
     mkdir -p ${NOCHDIR} || print_error "unable to create directory ${NOCHDIR}"
 
-    ${OPENJADE} -t xml -V nochunks -d ${DBC} ${DBX} ${CURDIR}/index.xml \
+    ${OPENJADE} -t xml -b utf-8 -V nochunks -d ${DBC} ${DBX} ${CURDIR}/index.xml \
         > ${NOCHDIR}/${DOCSNAME}.html 2>${LOGDIR}/html-singlefile.log
     if test ${?} -gt 0; then
 	print_error "html generation failed! see html-singlefile logs!"
@@ -216,7 +210,7 @@ function mk_html_multifile() {
 
     ( cd ${HTMLDIR} && \
 	mkdir -p ${DIRS} && \
-	${OPENJADE} -t xml -d ${DBC} ${DBX} ${CURDIR}/index.xml ) \
+	${OPENJADE} -t xml -b utf-8 -d ${DBC} ${DBX} ${CURDIR}/index.xml ) \
         >${LOGDIR}/html-multifile.log 2>${LOGDIR}/html-multifile.err
     if test ${?} -gt 0; then
 	print_error "html generation failed! see html-multifile logs!"
@@ -271,7 +265,7 @@ function mk_pdf() {
 
     # Step 1, generate TeX
     print_status "starting tex generation"
-    ${OPENJADE} -t tex -o ${PDFDIR}/index.tex -d ${DBP} ${DBX} ${CURDIR}/index.xml \
+    ${OPENJADE} -t tex -b utf-8 -o ${PDFDIR}/index.tex -d ${DBP} ${DBX} ${CURDIR}/index.xml \
         >${LOGDIR}/pdf-tex.log 2>${LOGDIR}/pdf-tex.err
     if test ${?} -gt 0; then
 	print_error "tex generation failed! see pdf logs!"
