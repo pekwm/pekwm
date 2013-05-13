@@ -15,6 +15,7 @@
 
 #include "pekwm.hh"
 #include "Action.hh"
+#include "InputDialog.hh"
 
 #include <string>
 #include <map>
@@ -55,6 +56,7 @@ private:
     bool actionSendKey(PWinObj *wo, const std::string &key_str);
     static void actionSetOpacity(PWinObj *client, PWinObj *frame, uint focus, uint unfocus);
     void actionShowMenu(const std::string &name, bool stick, uint e_type, PWinObj *wo_ref);
+    void actionShowInputDialog(InputDialog *dialog, const std::string &initial, Frame *frame, PWinObj *wo);
 
     // action helpers
     Client *findClientFromTitle(const std::wstring &title);

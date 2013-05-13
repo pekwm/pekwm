@@ -346,19 +346,10 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 WindowManager::instance()->shutdown();
                 break;
             case ACTION_SHOW_CMD_DIALOG:
-                if (WindowManager::instance()->getCmdDialog()->isMapped()) {
-                    WindowManager::instance()->getCmdDialog()->unmapWindow();
-                } else {
-                    WindowManager::instance()->getCmdDialog()->mapCentered(it->getParamS(), true,
-                                                     frame ? frame : wo);
-                }
+                actionShowInputDialog(WindowManager::instance()->getCmdDialog(), it->getParamS(), frame, wo);
                 break;
             case ACTION_SHOW_SEARCH_DIALOG:
-                if (WindowManager::instance()->getSearchDialog()->isMapped()) {
-                    WindowManager::instance()->getSearchDialog()->unmapWindow();
-                } else {
-                    WindowManager::instance()->getSearchDialog()->mapCentered(it->getParamS(), true, frame ? frame : wo);
-                } 
+                actionShowInputDialog(WindowManager::instance()->getSearchDialog(), it->getParamS(), frame, wo);
                 break;
             case ACTION_HIDE_WORKSPACE_INDICATOR:
                 WindowManager::instance()->getWorkspaceIndicator()->unmapWindow();
@@ -882,6 +873,25 @@ ActionHandler::actionShowMenu(const std::string &name, bool stick,
                 menu->selectItemNum(0);
             }
         }
+    }
+}
+
+void
+ActionHandler::actionShowInputDialog(InputDialog *dialog,
+                                     const std::string &initial, Frame *frame, PWinObj *wo)
+{
+    if (dialog->isMapped()) {
+        dialog->unmapWindow();
+    } else {
+        Geometry gm;
+        if (frame) {
+            frame->getGeometry(gm);
+        } else {
+            uint head = X11::getCurrHead();
+            X11::getHeadInfo(head, gm);
+        }
+
+        dialog->mapCentered(initial, gm, frame ? frame : wo);
     }
 }
 

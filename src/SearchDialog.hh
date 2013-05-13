@@ -40,7 +40,7 @@ protected:
     virtual void histNext(void);
     virtual void histPrev(void);
 
-    virtual void updateSize(void);
+    virtual void updateSize(const Geometry &head);
 
 private:
     uint findClients(const std::wstring &search);

@@ -129,10 +129,10 @@ CmdDialog::complete(void)
  * Map CmdDialog centered on wo_ref is specified, else _wo_ref.
  */
 void
-CmdDialog::mapCentered(const std::string &buf, bool focus, PWinObj *wo_ref)
+CmdDialog::mapCentered(const std::string &buf, const Geometry &geom, PWinObj *wo_ref)
 {
     if (wo_ref != 0) {
         setWORef(wo_ref);
     }
-    InputDialog::mapCentered(buf, focus, wo_ref);
+    InputDialog::mapCentered(buf, geom, wo_ref);
 }

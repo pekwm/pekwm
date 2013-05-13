@@ -247,11 +247,10 @@ InputDialog::handleExposeEvent(XExposeEvent *ev)
  * Maps the InputDialog center on the PWinObj it executes actions on.
  *
  * @param buf Buffer content.
- * @param focus Give input focus if true.
  * @param wo_ref PWinObj reference, defaults to 0 which does not update.
  */
 void
-InputDialog::mapCentered(const std::string &buf, bool focus, PWinObj *wo_ref)
+InputDialog::mapCentered(const std::string &buf, const Geometry &gm, PWinObj *wo_ref)
 {
     // Setup data
     _hist_it = _history.end();
@@ -260,40 +259,31 @@ InputDialog::mapCentered(const std::string &buf, bool focus, PWinObj *wo_ref)
     _pos = _buf.size();
     bufChanged();
 
-    // Update position
-    moveCentered(wo_ref);
+    Geometry head;
+    uint head_nr = X11::getNearestHead(gm.x + (gm.width / 2), gm.y + (gm.height / 2));
+    X11::getHeadInfo(head_nr, head);
+
+    // Update size (before, as we center) and position
+    updateSize(head);
+    moveCentered(head, gm);
 
     // Map and render
     PDecor::mapWindowRaised();
     render();
 
-    // Give input focus if requested
-    if (focus) {
-        giveInputFocus();
-    }
+    giveInputFocus();
 }
 
 /**
- * Moves to center of wo.
+ * Moves to center of geometry.
  *
- * @param wo PWinObj to center on.
+ * @param gm Geometry to center on.
  */
 void
-InputDialog::moveCentered(PWinObj *wo)
+InputDialog::moveCentered(const Geometry &head, const Geometry &gm)
 {
-    // Fallback wo on root.
-    if (! wo) {
-        wo = PWinObj::getRootPWinObj();
-    }
-
-    // Make sure position is inside head.
-    Geometry head;
-    uint head_nr = X11::getNearestHead(wo->getX() + (wo->getWidth() / 2),
-                                                     wo->getY() + (wo->getHeight() / 2));
-    X11::getHeadInfo(head_nr, head);
-
     // Make sure X is inside head.
-    int new_x = wo->getX() + (static_cast<int>(wo->getWidth()) - static_cast<int>(_gm.width)) / 2;
+    int new_x = gm.x + (static_cast<int>(gm.width) - static_cast<int>(_gm.width)) / 2;
     if (new_x < head.x) {
         new_x = head.x;
     } else if ((new_x + _gm.width) > (head.x + head.width)) {
@@ -301,7 +291,7 @@ InputDialog::moveCentered(PWinObj *wo)
     }
 
     // Make sure Y is inside head.
-    int new_y = wo->getY() + (static_cast<int>(wo->getHeight()) - static_cast<int>(_gm.height)) / 2;
+    int new_y = gm.y + (static_cast<int>(gm.height) - static_cast<int>(_gm.height)) / 2;
     if (new_y < head.y) {
         new_y = head.y;
     } else if ((new_y + _gm.height) > (head.y + head.height)) {
@@ -328,9 +318,12 @@ void
 InputDialog::mapWindow(void)
 {
     if (! _mapped) {
+        Geometry head;
+        X11::getHeadInfo(getHead(), head);
+
         // Correct size for current head before mapping
-        updateSize();
-    
+        updateSize(head);
+
         PDecor::mapWindow();
         render();
     }
@@ -342,8 +335,11 @@ InputDialog::mapWindow(void)
 void
 InputDialog::loadTheme(void)
 {
+    Geometry head;
+    X11::getHeadInfo(getHead(), head);
+
     _data = _theme->getCmdDialogData();
-    updateSize();
+    updateSize(head);
     updatePixmapSize();
 }
 
@@ -575,13 +571,13 @@ InputDialog::histPrev(void)
  * Update command dialog size for view on current head.
  */
 void
-InputDialog::updateSize(void)
+InputDialog::updateSize(const Geometry &head)
 {
     // Resize the child window and update the size depending.
     uint old_width = _gm.width;
 
     unsigned int width, height;
-    getInputSize(width, height);
+    getInputSize(head, width, height);
     resizeChild(width, height);
 
     // If size was updated, replace the texture and recalculate display
@@ -615,11 +611,8 @@ InputDialog::updatePixmapSize(void)
  * @param height Fill in height.
  */
 void
-InputDialog::getInputSize(unsigned int &width, unsigned int &height)
+InputDialog::getInputSize(const Geometry &head, unsigned int &width, unsigned int &height)
 {
-    Geometry head;
-    X11::getHeadInfo(X11::getNearestHead(_gm.x, _gm.y), head);
-
     width = head.width / 3;
     height = _data->getFont()->getHeight() + _data->getPad(PAD_UP) + _data->getPad(PAD_DOWN);
 }

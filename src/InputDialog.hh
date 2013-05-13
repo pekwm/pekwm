@@ -48,8 +48,8 @@ public:
 
     static void reloadKeysymMap(void);
 
-    virtual void mapCentered(const std::string &buf, bool focus, PWinObj *wo_ref=0);
-    virtual void moveCentered(PWinObj *wo);
+    virtual void mapCentered(const std::string &buf, const Geometry &gm, PWinObj *wo_ref=0);
+    virtual void moveCentered(const Geometry &head, const Geometry &gm);
 
 protected:
     virtual ActionEvent *close(void);
@@ -69,10 +69,10 @@ protected:
     virtual void histNext(void);
     virtual void histPrev(void);
 
-    virtual void updateSize(void);
+    virtual void updateSize(const Geometry &head);
     virtual void updatePixmapSize(void);
 
-    void getInputSize(unsigned int &width, unsigned int &height);
+    void getInputSize(const Geometry &head, unsigned int &width, unsigned int &height);
 
     Theme::TextDialogData *_data;
 

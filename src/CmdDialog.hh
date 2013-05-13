@@ -30,7 +30,7 @@ public:
 
     void unmapWindow(void);
 
-    virtual void mapCentered(const std::string &buf, bool focus, PWinObj *wo_ref);
+    virtual void mapCentered(const std::string &buf, const Geometry &geom, PWinObj *wo_ref);
 
 private:
     void render(void);

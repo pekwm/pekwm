@@ -105,9 +105,9 @@ SearchDialog::histPrev(void)
  * Update size making sure result menu fits.
  */
 void
-SearchDialog::updateSize(void)
+SearchDialog::updateSize(const Geometry &head)
 {
-    InputDialog::updateSize();
+    InputDialog::updateSize(head);
     _result_menu->setMenuWidth(_text_wo->getWidth());
 }
 
@@ -150,8 +150,11 @@ SearchDialog::findClients(const std::wstring &search)
     // Rebuild menu and make room for it
     _result_menu->buildMenu();
 
+    Geometry head;
+    X11::getHeadInfo(getHead(), head);
+
     unsigned int width, height;
-    getInputSize(width, height);
+    getInputSize(head, width, height);
 
     if (_result_menu->size()) {
         resizeChild(_text_wo->getWidth(), height + _result_menu->getHeight());
