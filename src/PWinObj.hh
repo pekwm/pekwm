@@ -104,6 +104,9 @@ public:
     //! @brief Returns height of PWinObj:
     inline uint getHeight(void) const { return _gm.height; }
 
+    //! @brief Sets gm to geometry of window.
+    inline void getGeometry(Geometry &gm) const { gm = _gm; }
+
     uint getHead(void);
     //! @brief Returns workspace PWinObj is on.
     inline uint getWorkspace(void) const { return _workspace; }
