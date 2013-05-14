@@ -98,10 +98,11 @@ const char *demangle_cpp(const char *str, char **dest, size_t *len)
     if (begin && *(++begin) && *begin != '+') {
         end = strchr(begin, '+');
         if (end) {
-            char buf[end-begin+1];
+            char *buf = new char[end-begin+1];
             memcpy(buf, begin, end-begin);
             buf[end-begin] = 0;
             *dest = abi::__cxa_demangle(buf, *dest, len, &status);
+            delete[] buf;
         }
     }
     return status?str:*dest;
