@@ -1458,9 +1458,10 @@ WindowManager::createClient(Window window, bool is_new)
                 PWinObj *wo = PWinObj::getFocusedPWinObj();
                 Time time_protect = static_cast<Time>(Config::instance()->getFocusStealProtect());
 
-                if (! wo
-                    || ! time_protect
-                    || (X11::getLastEventTime() - wo->getLastActivity()) > time_protect) {
+                if (wo && wo->isMapped() && wo->isKeyboardInput()
+                    && time_protect && time_protect >= (X11::getLastEventTime() - wo->getLastActivity())) {
+                    // WO exists, is mapped, time protect is active and within it's limits.
+                } else {
                     client->getParent()->giveInputFocus();
                 }
             }
