@@ -1,13 +1,16 @@
 //
 // StatusWindow.cc for pekwm
-// Copyright (C) 2004-2009 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2004-2013 Claes Nasten <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
+#ifdef HAVE_CONFIG_H
+#include "config.h"
+#endif // HAVE_CONFIG_H
 
+#include "Debug.hh"
 #include "PWinObj.hh"
 #include "PDecor.hh"
 #include "StatusWindow.hh"
@@ -20,12 +23,6 @@
 
 #include <algorithm>
 
-#ifdef DEBUG
-#include <iostream>
-using std::cerr;
-using std::endl;
-#endif // DEBUG
-
 StatusWindow *StatusWindow::_instance = 0;
 
 //! @brief StatusWindow constructor
@@ -34,11 +31,7 @@ StatusWindow::StatusWindow(Theme *theme)
       _bg(None)
 {
     if (_instance) {
-#ifdef DEBUG
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "StatusWindow(" << this << ")::StatusWindow()" << endl
-             << " *** _instance already set: " << _instance << endl;
-#endif // DEBUG
+        ERR("_instance already set: " << _instance);
     }
     _instance = this;
 
@@ -51,7 +44,7 @@ StatusWindow::StatusWindow(Theme *theme)
     XSetWindowAttributes attr;
     attr.event_mask = None;
 
-    _status_wo = new PWinObj;
+    _status_wo = new PWinObj(false);
     _status_wo->setWindow(XCreateWindow(X11::getDpy(), _window,
                                         0, 0, 1, 1, 0,
                                         CopyFromParent, CopyFromParent, CopyFromParent,
