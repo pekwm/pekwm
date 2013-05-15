@@ -257,7 +257,7 @@ WindowManager::cleanup(void)
     // the PWinObj list from the Workspaces and put all Frames into our own
     // list, then we delete the frames in order.
     vector<Frame*> frame_list;
-    vector<PWinObj*>::iterator it_w(Workspaces::begin());
+    Workspaces::iterator it_w(Workspaces::begin());
     for (; it_w != Workspaces::end(); ++it_w) {
         if ((*it_w)->getType() == PWinObj::WO_FRAME) {
             frame_list.push_back(static_cast<Frame*>(*it_w));

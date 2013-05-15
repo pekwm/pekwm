@@ -33,7 +33,6 @@ extern "C" {
 #include <X11/Xatom.h> // for XA_WINDOW
 }
 
-using std::vector;
 using std::string;
 using std::find;
 using std::wostringstream;
@@ -92,7 +91,7 @@ Workspaces::setSize(uint number)
 
     // We have more workspaces than we want, lets remove the last ones
     if (before > number) {
-        vector<PWinObj*>::const_iterator it(_wobjs.begin());
+        const_iterator it(_wobjs.begin());
         for (; it != _wobjs.end(); ++it) {
             if ((*it)->getWorkspace() > (number - 1))
                 (*it)->setWorkspace(number - 1);
@@ -316,7 +315,7 @@ Workspaces::warpToWorkspace(uint num, int dir)
 void
 Workspaces::insert(PWinObj *wo, bool raise)
 {
-    vector<PWinObj*>::iterator it(_wobjs.begin()), position(_wobjs.end());
+    iterator it(_wobjs.begin()), position(_wobjs.end());
     for (; it != _wobjs.end() && position == _wobjs.end(); ++it) {
         if (raise) {
             // If raising, make sure the inserted wo gets below the first
@@ -332,6 +331,7 @@ Workspaces::insert(PWinObj *wo, bool raise)
         }
     }
 
+    // Updated the main window
     position = _wobjs.insert(position, wo);
 
     if (++position == _wobjs.end()) {
@@ -345,7 +345,7 @@ Workspaces::insert(PWinObj *wo, bool raise)
 void
 Workspaces::remove(PWinObj* wo)
 {
-    vector<PWinObj*>::iterator it_wo(_wobjs.begin());
+    iterator it_wo(_wobjs.begin());
     for (;it_wo != _wobjs.end();) {
         if (wo == *it_wo) {
             it_wo = _wobjs.erase(it_wo);
@@ -367,7 +367,7 @@ Workspaces::remove(PWinObj* wo)
 void
 Workspaces::hideAll(uint workspace)
 {
-    vector<PWinObj*>::const_iterator it(_wobjs.begin());
+    const_iterator it(_wobjs.begin());
     for (; it != _wobjs.end(); ++it) {
         if (! ((*it)->isSticky()) && ! ((*it)->isHidden()) &&
                 ((*it)->getWorkspace() == workspace)) {
@@ -380,7 +380,7 @@ Workspaces::hideAll(uint workspace)
 void
 Workspaces::unhideAll(uint workspace, bool focus)
 {
-    vector<PWinObj*>::const_iterator it(_wobjs.begin());
+    const_iterator it(_wobjs.begin());
     for (; it != _wobjs.end(); ++it) {
         if (! (*it)->isMapped() && ! (*it)->isIconified() && ! (*it)->isHidden()
                 && ((*it)->getWorkspace() == workspace)) {
@@ -432,7 +432,7 @@ Workspaces::unhideAll(uint workspace, bool focus)
 void
 Workspaces::raise(PWinObj* wo)
 {
-    vector<PWinObj*>::iterator it(find(_wobjs.begin(), _wobjs.end(), wo));
+    iterator it(find(_wobjs.begin(), _wobjs.end(), wo));
 
     if (it == _wobjs.end()) { // no Frame to raise.
         return;
@@ -446,7 +446,7 @@ Workspaces::raise(PWinObj* wo)
 void
 Workspaces::lower(PWinObj* wo)
 {
-    vector<PWinObj*>::iterator it(find(_wobjs.begin(), _wobjs.end(), wo));
+    iterator it(find(_wobjs.begin(), _wobjs.end(), wo));
 
     if (it == _wobjs.end()) // no Frame to raise.
         return;
@@ -463,11 +463,11 @@ Workspaces::lower(PWinObj* wo)
 void
 Workspaces::stack(PWinObj* wo, Window win, bool above, bool restack)
 {
-    vector<PWinObj*>::iterator old_pos(find(_wobjs.begin(), _wobjs.end(), wo));
+    iterator old_pos(find(_wobjs.begin(), _wobjs.end(), wo));
 
     if (old_pos != _wobjs.end()) {
         old_pos = _wobjs.erase(old_pos);
-        vector<PWinObj*>::iterator it(_wobjs.begin());
+        iterator it(_wobjs.begin());
         for (; it != _wobjs.end(); ++it) {
             if (win == (*it)->getWindow()) {
                 if (above) {
@@ -513,9 +513,12 @@ Workspaces::setLastFocused(uint workspace, PWinObj* wo)
     _workspace_list[workspace]->setLastFocused(wo);
 }
 
-//! @brief Helper function to stack a window below another
-//! @param win_over Window to place win_under under
-//! @param win_under Window to place under win_over
+/**
+ * Helper function to stack a window below another
+ *
+ * \param win_over Window to place win_under under
+ * \param win_under Window to place under win_over
+ */
 void
 Workspaces::stackWinUnderWin(Window over, Window under)
 {
@@ -545,7 +548,7 @@ Workspaces::getWorkspaceName(uint num)
 PWinObj*
 Workspaces::getTopWO(uint type_mask)
 {
-    vector<PWinObj*>::const_reverse_iterator r_it = _wobjs.rbegin();
+    const_reverse_iterator r_it = _wobjs.rbegin();
     for (; r_it != _wobjs.rend(); ++r_it) {
         if ((*r_it)->isMapped()
                 && (*r_it)->isFocusable()
@@ -567,7 +570,8 @@ Workspaces::buildClientList(unsigned int &num_windows)
     Client *client, *client_active;
 
     vector<Window> windows;
-    vector<PWinObj*>::const_iterator it_f, it_c;
+    iterator it_f;
+    const_iterator it_c;
     for (it_f = _wobjs.begin(); it_f != _wobjs.end(); ++it_f) {
         if ((*it_f)->getType() != PWinObj::WO_FRAME) {
             continue;
@@ -905,7 +909,7 @@ Workspaces::isEmptySpace(int x, int y, const PWinObj* wo)
     }
 
     // say that it's placed, now check if we are wrong!
-    vector<PWinObj*>::const_iterator it(_wobjs.begin());
+    const_iterator it(_wobjs.begin());
     for (; it != _wobjs.end(); ++it) {
         // Skip ourselves, non-mapped and desktop objects. Iconified means
         // skip placement.
@@ -963,7 +967,7 @@ Workspaces::findDirectional(PWinObj *wo, DirectionType dir, uint skip)
     S.y = wo->getY()+wo->getHeight()/2;
     S.wo = N.wo = wo;
 
-    vector<PWinObj*>::const_iterator it(_wobjs.begin());
+    const_iterator it(_wobjs.begin());
     for (; it != _wobjs.end(); ++it) {
         T.wo = *it;
         if (wo == T.wo) {

@@ -44,13 +44,18 @@ public:
         PWinObj *_last_focused;
     };
 
+    typedef std::vector<PWinObj*>::iterator iterator;
+    typedef std::vector<PWinObj*>::const_iterator const_iterator;
+    typedef std::vector<PWinObj*>::reverse_iterator reverse_iterator;
+    typedef std::vector<PWinObj*>::const_reverse_iterator const_reverse_iterator;
+
     static void free(void);
 
     static inline uint size(void) { return _workspace_list.size(); }
-    static inline vector<PWinObj*>::iterator begin(void) { return _wobjs.begin(); }
-    static inline vector<PWinObj*>::iterator end(void) { return _wobjs.end(); }
-    static inline vector<PWinObj*>::reverse_iterator rbegin(void) { return _wobjs.rbegin(); }
-    static inline vector<PWinObj*>::reverse_iterator rend(void) { return _wobjs.rend(); }
+    static inline iterator begin(void) { return _wobjs.begin(); }
+    static inline iterator end(void) { return _wobjs.end(); }
+    static inline reverse_iterator rbegin(void) { return _wobjs.rbegin(); }
+    static inline reverse_iterator rend(void) { return _wobjs.rend(); }
 
     static vector<Workspace*>::iterator ws_begin(void) { return _workspace_list.begin(); }
     static vector<Workspace*>::iterator ws_end(void) { return _workspace_list.end(); }
