@@ -634,35 +634,46 @@ Workspaces::updateClientStackingList(void)
 void
 Workspaces::placeWo(PWinObj *wo, Window parent)
 {
-    Geometry head_curr;
-    int head_num_curr = X11::getCurrHead();
+    Geometry head;
+    int i, head_nr = X11::getCurrHead();
+    vector<bool> fsHead(X11::getNumHeads(), false);
 
-    bool placed = placeWo(wo, head_num_curr, parent);
-    if (! placed) {
-        // Placement failed on current head, try to fit it on another head. 
-        for (int i = 0; !placed && i < X11::getNumHeads(); ++i) {
-            if (i != head_num_curr) {
-                placed = placeWo(wo, i, parent);
-            }
-        }
-
-        // Still not placed, look out for fullscreen heads before final decision.
-        if (! placed) {
-            Geometry head;
-            if (! isFullScreen(head_num_curr)) {
-                X11::getHeadInfoWithEdge(head_num_curr, head);
-                placed = placeHeadTR(wo, head, parent);
-            } else {
-                for (int i = 0; !placed && i < X11::getNumHeads(); ++i) {
-                    if (i != head_num_curr && !isFullScreen(i)) {
-                        // No fullscreen window on this head
-                        X11::getHeadInfoWithEdge(i, head);
-                        placed = placeHeadTR(wo, head, parent);
-                    }
-                }
+    // Collect the information which head has a fullscreen window.
+    // To be conservative for now we ignore fullscreen windows on
+    // the desktop or normal layer, because it might be a file
+    // manager in desktop mode, for example.
+    vector<PWinObj*>::const_iterator it(_wobjs.begin()), end(_wobjs.end());
+    for (; it != end; ++it) {
+        if ((*it)->isMapped() && (*it)->getType() == PWinObj::WO_FRAME) {
+            Client *client = static_cast<Frame*>((*it))->getActiveClient();
+            if (client && client->isFullscreen()
+                       && client->getLayer()>LAYER_NORMAL) {
+                fsHead[client->getHead()] = true;
             }
         }
     }
+
+    // Try to place the window
+    i = head_nr;
+    do {
+        if (! fsHead[i] && placeWo(wo, i, parent)) {
+            return;
+        }
+        i = (i+1)%X11::getNumHeads();
+    } while (i != head_nr);
+
+    // We failed to place the window, so put it in the top-left
+    // corner but still try to avoid a head with fullscreen window on.
+    i = head_nr;
+    do {
+        if (! fsHead[i]) {
+            break;
+        }
+        i = (i+1)%X11::getNumHeads();
+    } while (i != head_nr);
+
+    X11::getHeadInfoWithEdge(i, head);
+    wo->move(head.x, head.y);
 }
 
 /**
@@ -691,47 +702,32 @@ Workspaces::placeWoInsideScreen(PWinObj *wo)
 bool
 Workspaces::placeWo(PWinObj *wo, uint head_num, Window parent)
 {
-    // No point in trying to place on fullscreen
-    if (isFullScreen(head_num)) {
-        return false;
-    }
-
     bool placed = false;
     Geometry head;
     X11::getHeadInfoWithEdge(head_num, head);
 
     vector<uint>::const_iterator it(Config::instance()->getPlacementModelBegin());
     for (; !placed && it != Config::instance()->getPlacementModelEnd(); ++it) {
-        placed = placeWoOnHead(static_cast<enum PlacementModel>(*it), wo, head, parent);
-    }
-
-    return placed;
-}
-
-bool
-Workspaces::placeWoOnHead(enum PlacementModel model, PWinObj *wo, const Geometry &head, Window parent)
-{
-    bool placed;
-
-    switch (model) {
-    case PLACE_SMART:
-        placed = placeSmart(wo, head);
-        break;
-    case PLACE_MOUSE_NOT_UNDER:
-        placed = placeMouseNotUnder(wo, head);
-        break;
-    case PLACE_MOUSE_CENTERED:
-        placed = placeMouseCentered(wo, head);
-        break;
-    case PLACE_MOUSE_TOP_LEFT:
-        placed = placeMouseTopLeft(wo, head);
-        break;
-    case PLACE_CENTERED_ON_PARENT:
-        placed = placeCenteredOnParent(wo, head, parent);
-        break;
-    default:
-        placed = false;
-        break;
+        switch (static_cast<enum PlacementModel>(*it)) {
+        case PLACE_SMART:
+            placed = placeSmart(wo, head);
+            break;
+        case PLACE_MOUSE_NOT_UNDER:
+            placed = placeMouseNotUnder(wo, head);
+            break;
+        case PLACE_MOUSE_CENTERED:
+            placed = placeMouseCentered(wo);
+            break;
+        case PLACE_MOUSE_TOP_LEFT:
+            placed = placeMouseTopLeft(wo);
+            break;
+        case PLACE_CENTERED_ON_PARENT:
+            placed = placeCenteredOnParent(wo, parent);
+            break;
+        default:
+            placed = false;
+            break;
+        }
     }
 
     return placed;
@@ -852,7 +848,7 @@ Workspaces::placeMouseNotUnder(PWinObj *wo, const Geometry &head)
 
 //! @brief Places the client centered under the mouse
 bool
-Workspaces::placeMouseCentered(PWinObj *wo, const Geometry &head)
+Workspaces::placeMouseCentered(PWinObj *wo)
 {
     int mouse_x, mouse_y;
     X11::getMousePosition(mouse_x, mouse_y);
@@ -870,7 +866,7 @@ Workspaces::placeMouseCentered(PWinObj *wo, const Geometry &head)
 
 //! @brief Places the client like the menu gets placed
 bool
-Workspaces::placeMouseTopLeft(PWinObj *wo, const Geometry &head)
+Workspaces::placeMouseTopLeft(PWinObj *wo)
 {
     int mouse_x, mouse_y;
     X11::getMousePosition(mouse_x, mouse_y);
@@ -885,7 +881,7 @@ Workspaces::placeMouseTopLeft(PWinObj *wo, const Geometry &head)
 
 //! @brief Places centerd on the window parent
 bool
-Workspaces::placeCenteredOnParent(PWinObj *wo, const Geometry &head, Window parent)
+Workspaces::placeCenteredOnParent(PWinObj *wo, Window parent)
 {
     if (parent == None) {
         return false;
@@ -898,28 +894,6 @@ Workspaces::placeCenteredOnParent(PWinObj *wo, const Geometry &head, Window pare
         return true;
     }
 
-    return false;
-}
-
-bool
-Workspaces::placeHeadTR(PWinObj *wo, const Geometry &head, Window parent)
-{
-    wo->move(head.x, head.y);
-    return true;
-}
-
-bool
-Workspaces::isFullScreen(uint head_num)
-{
-    vector<PWinObj*>::const_iterator it(_wobjs.begin());
-    for (; it != _wobjs.end(); ++it) {
-        if ((*it)->isMapped() && (*it)->getType() == PWinObj::WO_FRAME) {
-            Client *client = static_cast<Frame*>((*it))->getActiveClient();
-            if (client && client->isFullscreen() && client->getHead() == head_num) {
-                return true;
-            }
-        }
-    }
     return false;
 }
 
@@ -944,7 +918,7 @@ Workspaces::isEmptySpace(int x, int y, const PWinObj* wo)
         // automatically fail.
         if ((*it)->getType() == PWinObj::WO_FRAME) {
             Client *client = static_cast<Frame*>((*it))->getActiveClient();
-            if (client && (client->isMaximizedVert() && client->isMaximizedHorz())) {
+            if (client && client->isMaximizedVert() && client->isMaximizedHorz()) {
                 continue;
             }
         }
