@@ -316,19 +316,26 @@ void
 Workspaces::insert(PWinObj *wo, bool raise)
 {
     PWinObj *top_obj = 0;
+    Frame *frame, *wo_frame = dynamic_cast<Frame*>(wo);
+    iterator it;
 
-    iterator it(_wobjs.begin());
-    for (; it != _wobjs.end(); ++it) {
-        if (raise) {
-            // If raising, make sure the inserted wo gets below the first
-            // window in the next layer.
-            if ((*it)->getLayer() > wo->getLayer()) {
-                top_obj = *it;
-                break;
-            }
-        } else {
-            // If lowering, put the window below the first window with the same level.
-            if (wo->getLayer() <= (*it)->getLayer()) {
+    if (! raise && wo_frame && wo_frame->getTransFor()
+                && wo_frame->getTransFor()->getLayer() == wo_frame->getLayer()) {
+        // Lower only to the top of the transient_for window.
+        it = ++find(_wobjs.begin(), _wobjs.end(), wo_frame->getTransFor()->getParent());
+        top_obj = it!=_wobjs.end()?*it:0; // I think it==_wobjs.end() can't happen
+    } else {
+        it = _wobjs.begin();
+        for (; it != _wobjs.end(); ++it) {
+            if (raise) {
+                // If raising, make sure the inserted wo gets below the first
+                // window in the next layer.
+                if ((*it)->getLayer() > wo->getLayer()) {
+                    top_obj = *it;
+                    break;
+                }
+            } else if (wo->getLayer() <= (*it)->getLayer()) {
+                // If lowering, put the window below the first window with the same level.
                 top_obj = *it;
                 break;
             }
@@ -341,9 +348,7 @@ Workspaces::insert(PWinObj *wo, bool raise)
     winstack.reserve(3);
     winstack.push_back(wo);
 
-    Frame *wo_frame = dynamic_cast<Frame*>(wo);
     if (wo_frame && wo_frame->hasTrans()) {
-        Frame *frame;
         vector<Client*>::const_iterator t_it;
         for (it = _wobjs.begin(); *it != wo;) {
             if ((frame = dynamic_cast<Frame*>(*it))) {
