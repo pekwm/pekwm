@@ -30,7 +30,7 @@ map<Window, PWinObj*> PWinObj::_wo_map = map<Window, PWinObj*>();
 //! @brief PWinObj constructor.
 PWinObj::PWinObj(void)
     : _window(None),
-      _parent(0), _type(WO_NO_TYPE), _lastActivity(X11::getLastEventTime()),
+      _parent(0), _type(WO_NO_TYPE),
       _opaque(true), _workspace(0), _layer(LAYER_NORMAL),
       _mapped(false), _iconified(false), 
       _hidden(false), _focused(false), _sticky(false),

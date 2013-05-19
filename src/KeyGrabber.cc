@@ -56,7 +56,7 @@ KeyGrabber::Chain::unload(void)
 
 //! @brief Searches the _chains list for an action
 KeyGrabber::Chain*
-KeyGrabber::Chain::findChain(XKeyEvent *ev, bool *matched)
+KeyGrabber::Chain::findChain(XKeyEvent *ev)
 {
     vector<KeyGrabber::Chain*>::iterator it(_chains.begin());
 
@@ -72,14 +72,13 @@ KeyGrabber::Chain::findChain(XKeyEvent *ev, bool *matched)
 
 //! @brief Searches the _keys list for an action
 ActionEvent*
-KeyGrabber::Chain::findAction(XKeyEvent *ev, bool *matched)
+KeyGrabber::Chain::findAction(XKeyEvent *ev)
 {
     vector<ActionEvent>::iterator it(_keys.begin());
 
     for (; it != _keys.end(); ++it) {
-        if ((it->mod == MOD_ANY || it->mod == ev->state)
-            && (it->sym == 0 || it->sym == ev->keycode)) {
-            *matched = true;
+        if (((it->mod == MOD_ANY) || (it->mod == ev->state)) &&
+                ((it->sym == 0) || (it->sym == ev->keycode))) {
             return &*it;
         }
     }
@@ -321,7 +320,7 @@ KeyGrabber::ungrabKeys(Window win)
 //! @brief Tries to match the XKeyEvent to an usefull action and return it
 //! @param ev XKeyEvent to match.
 ActionEvent*
-KeyGrabber::findAction(XKeyEvent *ev, KeyGrabber::Chain *chain, bool *matched)
+KeyGrabber::findAction(XKeyEvent *ev, KeyGrabber::Chain *chain)
 {
     if (! ev) {
         return 0;
@@ -330,33 +329,29 @@ KeyGrabber::findAction(XKeyEvent *ev, KeyGrabber::Chain *chain, bool *matched)
     X11::stripStateModifiers(&ev->state);
 
     ActionEvent *action = 0;
-    KeyGrabber::Chain *sub_chain = _global_chain.findChain(ev, matched);
-    if (sub_chain) {
-        *matched = true;
+    KeyGrabber::Chain *sub_chain = _global_chain.findChain(ev);
+    if (sub_chain && X11::grabKeyboard(X11::getRoot())) {
+        XEvent c_ev;
+        KeyGrabber::Chain *last_chain;
+        bool exit = false;
 
-        if (X11::grabKeyboard(X11::getRoot())) {
-            XEvent c_ev;
-            KeyGrabber::Chain *last_chain;
-            bool exit = false;
+        while (! exit) {
+            XMaskEvent(X11::getDpy(), KeyPressMask, &c_ev);
+            X11::stripStateModifiers(&c_ev.xkey.state);
 
-            while (! exit) {
-                XMaskEvent(X11::getDpy(), KeyPressMask, &c_ev);
-                X11::stripStateModifiers(&c_ev.xkey.state);
-
-                if (IsModifierKey(X11::getKeysymFromKeycode(c_ev.xkey.keycode))) {
-                    // do nothing
-                } else  if ((last_chain = sub_chain->findChain(&c_ev.xkey, matched))) {
-                    sub_chain = last_chain;
-                } else {
-                    action = sub_chain->findAction(&c_ev.xkey, matched);
-                    exit = true;
-                }
+            if (IsModifierKey(X11::getKeysymFromKeycode(c_ev.xkey.keycode))) {
+                // do nothing
+            } else  if ((last_chain = sub_chain->findChain(&c_ev.xkey))) {
+                sub_chain = last_chain;
+            } else {
+                action = sub_chain->findAction(&c_ev.xkey);
+                exit = true;
             }
-
-            X11::ungrabKeyboard();
         }
+
+        X11::ungrabKeyboard();
     } else {
-        action = chain->findAction(ev, matched);
+        action = chain->findAction(ev);
     }
 
     return action;
@@ -364,22 +359,20 @@ KeyGrabber::findAction(XKeyEvent *ev, KeyGrabber::Chain *chain, bool *matched)
 
 //! @brief Finds action matching ev, continues chain if needed
 ActionEvent*
-KeyGrabber::findAction(XKeyEvent *ev, PWinObj::Type type, bool *matched)
+KeyGrabber::findAction(XKeyEvent *ev, PWinObj::Type type)
 {
     ActionEvent *ae = 0;
 
-    *matched = false;
-
     if (type == PWinObj::WO_MENU) {
-        ae = findAction(ev, &_menu_chain, matched);
+        ae = findAction(ev, &_menu_chain);
     }
     if (type == PWinObj::WO_CMD_DIALOG || type == PWinObj::WO_SEARCH_DIALOG) {
-        ae = findAction(ev, &_input_dialog_chain, matched);
+        ae = findAction(ev, &_input_dialog_chain);
     }
 
     // no action the menu list, try the global list
     if (! ae) {
-        ae = findAction(ev, &_global_chain, matched);
+        ae = findAction(ev, &_global_chain);
     }
 
     return ae;
@@ -389,6 +382,5 @@ KeyGrabber::findAction(XKeyEvent *ev, PWinObj::Type type, bool *matched)
 ActionEvent*
 KeyGrabber::findMoveResizeAction(XKeyEvent *ev)
 {
-    bool matched;
-    return findAction(ev, &_moveresize_chain, &matched);
+    return findAction(ev, &_moveresize_chain);
 }

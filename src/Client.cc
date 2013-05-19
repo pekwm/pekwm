@@ -54,12 +54,10 @@ using std::string;
 using std::vector;
 using std::wstring;
 
-const long Client::_clientEventMask = \
-    PropertyChangeMask|StructureNotifyMask|FocusChangeMask|KeyPressMask;
 vector<Client*> Client::_clients;
 vector<uint> Client::_clientids;
 
-Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
+Client::Client(Window new_client, bool is_new)
     : PWinObj(),
       _id(0), _size(0),
       _transient_for(0), _strut(0), _icon(0),
@@ -152,7 +150,7 @@ Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
 
     X11::ungrabServer(true);
 
-    setClientInitConfig(initConfig, is_new, ap);
+    setMappedStateAndFocus(is_new, ap);
 
     _alive = true;
 
@@ -385,10 +383,14 @@ Client::setInitialState(void)
  * Ensure the Client is (un) mapped and give input focus if requested.
  */
 void
-Client::setClientInitConfig(ClientInitConfig &initConfig, bool is_new, AutoProperty *autoproperty)
+Client::setMappedStateAndFocus(bool is_new, AutoProperty *autoproperty)
 {
-    initConfig.map = (! _iconified && _parent->isMapped());
-    initConfig.focus = false;
+    // Make sure the window is mapped, this is done after it has been
+    // added to the decor/frame as otherwise IsViewable state won't
+    // be correct and we don't know whether or not to place the window
+    if (! _iconified && _parent->isMapped()) {
+        PWinObj::mapWindow();
+    }
 
     // Let us hear what autoproperties has to say about focusing
     bool do_focus = is_new ? Config::instance()->isFocusNew() : false;
@@ -400,10 +402,12 @@ Client::setClientInitConfig(ClientInitConfig &initConfig, bool is_new, AutoPrope
     if (_parent->isMapped()) {
         // Ordinary focus
         if (do_focus) {
-            initConfig.focus = true;
-        // Check if we are transient, and if we want to focus
-        } else if (_transient_for && _transient_for->isFocused() && Config::instance()->isFocusNewChild()) {
-            initConfig.focus = true;
+            _parent->giveInputFocus();
+
+            // Check if we are transient, and if we want to focus
+        } else if (_transient_for && _transient_for->isFocused()
+                                  && Config::instance()->isFocusNewChild()) {
+            _parent->giveInputFocus();
         }
     }
 }
@@ -450,7 +454,8 @@ Client::mapWindow(void)
 
     X11::selectInput(_window, NoEventMask);
     PWinObj::mapWindow();
-    X11::selectInput(_window, _clientEventMask);
+    X11::selectInput(_window,
+                     PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
 }
 
 
@@ -470,7 +475,8 @@ Client::unmapWindow(void)
 
     X11::selectInput(_window, NoEventMask);
     PWinObj::unmapWindow();
-    X11::selectInput(_window, _clientEventMask);
+    X11::selectInput(_window,
+                         PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
 }
 
 //! @brief Iconifies the client and adds it to the iconmenu

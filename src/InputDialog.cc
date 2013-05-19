@@ -156,10 +156,9 @@ InputDialog::handleButtonPress(XButtonEvent *ev)
 ActionEvent*
 InputDialog::handleKeyPress(XKeyEvent *ev)
 {
-    bool matched;
     ActionEvent *c_ae, *ae = 0;
 
-    if ( (c_ae = KeyGrabber::instance()->findAction(ev, _type, &matched)) ) {
+    if ( (c_ae = KeyGrabber::instance()->findAction(ev, _type)) ) {
         vector<Action>::iterator it(c_ae->action_list.begin());
         for (; it != c_ae->action_list.end(); ++it) {
             switch (it->getAction()) {

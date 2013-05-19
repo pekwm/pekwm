@@ -94,7 +94,7 @@ Config::Config(void) :
         _screen_show_workspace_indicator(500), _screen_workspace_indicator_scale(16),
         _screen_workspace_indicator_opacity(EWMH_OPAQUE_WINDOW),
         _screen_place_new(true), _screen_focus_new(false),
-        _screen_focus_new_child(true), _screen_focus_steal_protect(0), _screen_honour_randr(true),
+        _screen_focus_new_child(true), _screen_honour_randr(true),
         _screen_honour_aspectratio(true),
         _screen_placement_row(false),
         _screen_placement_ltr(true), _screen_placement_ttb(true),
@@ -603,7 +603,6 @@ Config::loadScreen(CfgParser::Entry *section)
     keys.push_back(new CfgParserKeyBool("PLACENEW", _screen_place_new));
     keys.push_back(new CfgParserKeyBool("FOCUSNEW", _screen_focus_new));
     keys.push_back(new CfgParserKeyBool("FOCUSNEWCHILD", _screen_focus_new_child, true));
-    keys.push_back(new CfgParserKeyNumeric<uint>("FOCUSSTEALPROTECT", _screen_focus_steal_protect, 0));
     keys.push_back(new CfgParserKeyBool("HONOURRANDR", _screen_honour_randr, true));
     keys.push_back(new CfgParserKeyBool("HONOURASPECTRATIO", _screen_honour_aspectratio, true));
     keys.push_back(new CfgParserKeyBool("REPORTALLCLIENTS", _screen_report_all_clients, false));
