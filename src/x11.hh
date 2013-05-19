@@ -320,6 +320,15 @@ public:
         XUngrabButton(_dpy, AnyButton, AnyModifier, win);
     }
 
+    /**
+     * Wrapper for XRestackWindows, windows go in top-to-bottom order.
+     */
+    inline static void stackWindows(Window *wins, unsigned len) {
+        if (len > 1) {
+            XRestackWindows(_dpy, wins, len);
+        }
+    }
+
     inline static bool checkTypedEvent(int type, XEvent *ev) {
         return XCheckTypedEvent(_dpy, type, ev);
     }
