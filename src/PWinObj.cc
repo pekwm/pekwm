@@ -1,6 +1,6 @@
 //
 // PWinObj.cc for pekwm
-// Copyright © 2003-20013 Claes Nästen <me@pekdon.net>
+// Copyright © 2003-2009 Claes Nästen <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -28,15 +28,14 @@ vector<PWinObj*> PWinObj::_wo_list = vector<PWinObj*>();
 map<Window, PWinObj*> PWinObj::_wo_map = map<Window, PWinObj*>();
 
 //! @brief PWinObj constructor.
-PWinObj::PWinObj(bool keyboard_input)
+PWinObj::PWinObj(void)
     : _window(None),
       _parent(0), _type(WO_NO_TYPE), _lastActivity(X11::getLastEventTime()),
       _opaque(true), _workspace(0), _layer(LAYER_NORMAL),
       _mapped(false), _iconified(false), 
       _hidden(false), _focused(false), _sticky(false),
       _focusable(true),
-      _shape_bounding(false), _shape_input(false),
-      _keyboard_input(keyboard_input)
+      _shape_bounding(false), _shape_input(false)
 {
 }
 
@@ -179,7 +178,12 @@ void
 PWinObj::resize(uint width, uint height)
 {
     if (! width || ! height) {
-        WARN("width " << width << " height " << height << ", invalid geometry");
+#ifdef DEBUG
+        cerr << __FILE__ << "@" << __LINE__ << ": "
+             << "PWinObj(" << this << ")::resize(" << width << "," << height
+             << ")" << endl << " *** invalid geometry, _window = "
+             << _window << endl;
+#endif // DEBUG
         return;
     }
 
@@ -259,7 +263,12 @@ void
 PWinObj::giveInputFocus(void)
 {
     if (! _mapped  || ! _focusable) {
-        WARN("trying to focus non focusable window. mapped " << _mapped << " focusable " << _focusable);
+#ifdef DEBUG
+        cerr << __FILE__ << "@" << __LINE__ << ": "
+             << "PWinObj(" << this << ")::giveInputFocus()" << endl
+             << " *** non focusable window."
+             << " mapped: " << _mapped  << " focusable: " << _focusable << endl;
+#endif // DEBUG
         return;
     }
 

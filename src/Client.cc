@@ -60,7 +60,7 @@ vector<Client*> Client::_clients;
 vector<uint> Client::_clientids;
 
 Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
-    : PWinObj(true),
+    : PWinObj(),
       _id(0), _size(0),
       _transient_for(0), _strut(0), _icon(0),
       _pid(0), _is_remote(false), _class_hint(0),

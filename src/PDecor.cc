@@ -1,6 +1,6 @@
 //
 // PDecor.cc for pekwm
-// Copyright © 2004-2013 Claes Nästén <me@pekdon.net>
+// Copyright © 2004-2009 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -45,7 +45,7 @@ using std::vector;
 
 //! @brief PDecor::Button constructor
 PDecor::Button::Button(PWinObj *parent, Theme::PDecorButtonData *data, uint width, uint height)
-  : PWinObj(true),
+  : PWinObj(),
     _data(data), _state(BUTTON_STATE_UNFOCUSED),
     _left(_data->isLeft())
 {
@@ -178,7 +178,7 @@ vector<PDecor*> PDecor::_pdecors;
 //! @param decor_name String, if not DEFAULT_DECOR_NAME sets _decor_name_override
 PDecor::PDecor(Theme *theme,
                const std::string decor_name, const Window child_window)
-    : PWinObj(true),
+    : PWinObj(),
       _theme(theme),_decor_name(decor_name),
       _child(0), _button(0), _button_press_win(None),
       _pointer_x(0), _pointer_y(0),
@@ -192,7 +192,7 @@ PDecor::PDecor(Theme *theme,
       _border(true), _titlebar(true), _shaded(false),
       _need_shape(false),
       _dirty_resized(true), _real_height(1),
-      _title_wo(true), _title_bg(None),
+      _title_wo(), _title_bg(None),
       _title_active(0), _titles_left(0), _titles_right(1)
 {
     if (_decor_name != PDecor::DEFAULT_DECOR_NAME) {

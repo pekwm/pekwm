@@ -1,6 +1,6 @@
 //
 // PWinObj.hh for pekwm
-// Copyright © 2003-2013 Claes Nästen <me@pekdon.net>
+// Copyright © 2003-2009 Claes Nästen <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -41,7 +41,7 @@ public:
         WO_NO_TYPE = 0 //!< No type.
     };
 
-    PWinObj(bool keyboard_input);
+    PWinObj(void);
     virtual ~PWinObj(void);
 
     //! @brief Returns the focused PWinObj.
@@ -126,8 +126,6 @@ public:
     inline bool isSticky(void) const { return _sticky; }
     //! @brief Returns Focusable state of PWinObj.
     inline bool isFocusable(void) const { return _focusable; }
-    //! @brief Returns true if the PWinObj is interested in keyboard input
-    inline bool isKeyboardInput(void) const { return _keyboard_input; }
 
     //! @brief Returns transparency state of PWinObj
     inline bool isOpaque(void) const { return _opaque; }
@@ -262,7 +260,6 @@ protected:
     bool _focusable:1; //!< Focusable state of PWinObj.
     bool _shape_bounding:1; //!< _window has a custom bounding region (shape)
     bool _shape_input:1; //!< _window has a custom input region (shape)
-    bool _keyboard_input:1; //!< PWinObj is consuming keyboard input.
 
     static PWinObj *_root_wo; //!< Static root PWinObj pointer.
     static PWinObj *_focused_wo; //!< Static focused PWinObj pointer.

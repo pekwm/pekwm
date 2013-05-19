@@ -1,6 +1,6 @@
 //
 // WorkspaceIndicator.hh for pekwm
-// Copyright © 2009-2013 Claes Nästén <me@pekdon.net>
+// Copyright © 2009 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -19,13 +19,15 @@
 #include "WorkspaceIndicator.hh"
 #include "x11.hh"
 
+using std::cerr;
+using std::endl;
 using std::vector;
 
 /**
  * Display constructor
  */
 WorkspaceIndicator::Display::Display(PWinObj *parent, Theme *theme)
-  : PWinObj(false),
+  : PWinObj(),
     _theme(theme), _pixmap(None)
 {
     _parent = parent;

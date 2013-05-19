@@ -1,6 +1,6 @@
 //
 // PMenu.cc for pekwm
-// Copyright © 2004-2013 Claes Nästén <me@pekdon.net>
+// Copyright © 2004-2009 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -10,7 +10,6 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#include "Debug.hh"
 #include "PWinObj.hh"
 #include "PDecor.hh"
 #include "PFont.hh"
@@ -29,6 +28,12 @@
 
 #include <algorithm>
 #include <cstdlib>
+
+#ifdef DEBUG
+#include <iostream>
+using std::cerr;
+using std::endl;
+#endif // DEBUG
 
 using std::map;
 using std::string;
@@ -75,7 +80,7 @@ PMenu::PMenu(Theme *theme, const std::wstring &title,
     _hidden = true; // don't care about it when changing worskpace etc
 
     // create menu content child
-    _menu_wo = new PWinObj(false);
+    _menu_wo = new PWinObj;
     XSetWindowAttributes attr;
     attr.override_redirect = True;
     attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
@@ -828,7 +833,11 @@ void
 PMenu::remove(PMenu::Item *item)
 {
     if (! item) {
-        WARN("trying to remove null item");
+#ifdef DEBUG
+        cerr << __FILE__ << "@" << __LINE__ << ": "
+             << "PMenu(" << this << ")::remove(" << item << ")" << endl
+             << " *** item == 0" << endl;
+#endif // DEBUG
         return;
     }
 
@@ -949,7 +958,12 @@ void
 PMenu::selectItemNum(uint num)
 {
     if (num >= _items.size()) {
-        WARN("trying to select non existing item number " << num << ", size " << _items.size());
+#ifdef DEBUG
+        cerr << __FILE__ << "@" << __LINE__ << ": "
+             << "PMenu(" << this << ")::selectItem(" << num << ")"
+             << " *** num > _items.size()[" << _items.size()
+             << "]" << endl;
+#endif // DEBUG
         return;
     }
 
@@ -961,7 +975,11 @@ void
 PMenu::selectItemRel(int off)
 {
     if (off == 0) {
-        WARN("trying to select non existing relative (current) item number");
+#ifdef DEBUG
+        cerr << __FILE__ << "@" << __LINE__ << ": "
+             << "PMenu(" << this << ")::selectItemRel(" << off << ")"
+             << " *** off == 0" << endl;
+#endif // DEBUG
         return;
     }
 

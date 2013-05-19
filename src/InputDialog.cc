@@ -1,6 +1,6 @@
 //
-// InputDialog.cc for pekwm
-// Copyright © 2009-2013 Claes Nästén <me@pekdon.net>
+// CmdDialog.hh for pekwm
+// Copyright © 2009 Claes Nästén <me@pekdon.net>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -56,7 +56,7 @@ InputDialog::InputDialog(Theme *theme, const std::wstring &title)
     titleSetActive(0);
     setTitle(title);
 
-    _text_wo = new PWinObj(true);
+    _text_wo = new PWinObj;
     XSetWindowAttributes attr;
     attr.override_redirect = false;
     attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
