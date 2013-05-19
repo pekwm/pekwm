@@ -424,10 +424,11 @@ Client::findAndRaiseIfTransient(void)
     }
 
     if (_transient_for) {
-        // Set layer to be ontop of parent
-        setLayer(_transient_for->getLayer() + 1);
-
-        updateParentLayerAndRaiseIfActive();
+        // Ensure layer is at least as high as the parent
+        if (_transient_for->getLayer() > getLayer()) {
+            setLayer(_transient_for->getLayer());
+            updateParentLayerAndRaiseIfActive();
+        }
     }
 }
 
@@ -663,8 +664,8 @@ Client::notify(Observable *observable, Observation *observation)
 {
     if (observation) {
         LayerObservation *layer_observation = dynamic_cast<LayerObservation*>(observation);
-        if (layer_observation) {
-            setLayer(layer_observation->layer + 1);
+        if (layer_observation && layer_observation->layer > getLayer()) {
+            setLayer(layer_observation->layer);
             updateParentLayerAndRaiseIfActive();
         }
     } else {
