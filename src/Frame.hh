@@ -90,6 +90,9 @@ public:
         return _frames.rend();
     }
 
+    Client *getTransFor(void) const {
+        return _client?_client->getTransientForClient():0;
+    }
     bool hasTrans(void) const {
         return _client && _client->hasTransients();
     }
