@@ -16,13 +16,12 @@
 #include "pekwm.hh"
 #include "Action.hh"
 #include "PDecor.hh"
+#include "Client.hh"
 
 class PWinObj;
 class Strut;
 class ClassHint;
 class AutoProperty;
-
-class Client;
 
 #include <string>
 
@@ -89,6 +88,18 @@ public:
     }
     static vector<Frame*>::const_reverse_iterator frame_rend(void) {
         return _frames.rend();
+    }
+
+    bool hasTrans(void) const {
+        return _client && _client->hasTransients();
+    }
+    // Call getTransBegin() only (!) if hasTrans() == true.
+    vector<Client*>::const_iterator getTransBegin(void) const {
+        return _client->getTransientsBegin();
+    }
+    // Call getTransEnd() only (!) if hasTrans() == true.
+    vector<Client*>::const_iterator getTransEnd(void) const {
+        return _client->getTransientsEnd();
     }
     // END - Iterator
 
