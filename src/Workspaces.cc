@@ -308,37 +308,74 @@ Workspaces::warpToWorkspace(uint num, int dir)
 }
 
 /**
- * Adds a PWinObj to the stacking list.
+ * Adds a PWinObj to the stacking list. Assumes that wo is not in _wobjs already.
  * @param wo PWinObj to insert
  * @param raise Whether to insert at the bottom or top of the layer (defaults to true).
  */
 void
 Workspaces::insert(PWinObj *wo, bool raise)
 {
-    iterator it(_wobjs.begin()), position(_wobjs.end());
-    for (; it != _wobjs.end() && position == _wobjs.end(); ++it) {
+    PWinObj *top_obj = 0;
+
+    iterator it(_wobjs.begin());
+    for (; it != _wobjs.end(); ++it) {
         if (raise) {
             // If raising, make sure the inserted wo gets below the first
             // window in the next layer.
             if ((*it)->getLayer() > wo->getLayer()) {
-                position = it;
+                top_obj = *it;
+                break;
             }
         } else {
             // If lowering, put the window below the first window with the same level.
             if (wo->getLayer() <= (*it)->getLayer()) {
-                position = it;
+                top_obj = *it;
+                break;
             }
         }
     }
 
-    // Updated the main window
-    position = _wobjs.insert(position, wo);
+    _wobjs.insert(it, wo);
 
-    if (++position == _wobjs.end()) {
-        XRaiseWindow(X11::getDpy(), wo->getWindow());
-    } else {
-        stackWinUnderWin((*position)->getWindow(), wo->getWindow());
+    vector<PWinObj*> winstack;
+    winstack.reserve(3);
+    winstack.push_back(wo);
+
+    Frame *wo_frame = dynamic_cast<Frame*>(wo);
+    if (wo_frame && wo_frame->hasTrans()) {
+        Frame *frame;
+        vector<Client*>::const_iterator t_it;
+        for (it = _wobjs.begin(); *it != wo;) {
+            if ((frame = dynamic_cast<Frame*>(*it))) {
+                t_it = find(wo_frame->getTransBegin(), wo_frame->getTransEnd(),
+                            frame->getActiveClient());
+                if (t_it != wo_frame->getTransEnd()) {
+                    winstack.push_back(frame);
+                    it = _wobjs.erase(it);
+                    continue;
+                }
+            }
+            ++it;
+        }
+
+        it = ++find(_wobjs.begin(), _wobjs.end(), wo);
+        _wobjs.insert(it, winstack.begin()+1, winstack.end());
     }
+
+    if (top_obj) {
+        winstack.push_back(top_obj);
+    } else {
+        XRaiseWindow(X11::getDpy(), winstack.back()->getWindow());
+    }
+
+    const unsigned size = winstack.size();
+    Window *wins = new Window[size];
+    vector<PWinObj*>::const_iterator wit(winstack.end());
+    for (unsigned i=0; i<size; ++i) {
+        wins[i] = (*--wit)->getWindow();
+    }
+    X11::stackWindows(wins, size);
+    delete [] wins;
 }
 
 //! @brief Removes a PWinObj from the stacking list.
