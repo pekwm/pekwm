@@ -45,10 +45,9 @@ public:
 
 class ClientInitConfig {
 public:
+    bool map;
     bool focus;
     bool focus_parent;
-    bool map;
-    bool parent_is_new;
 };
 
 class Client : public PWinObj, public Observer
@@ -306,7 +305,7 @@ public: // Public Member Functions
 private:
     bool getAndUpdateWindowAttributes(void);
 
-    bool findOrCreateFrame(AutoProperty *autoproperty);
+    void findOrCreateFrame(AutoProperty *autoproperty);
     bool findTaggedFrame(void);
     bool findPreviousFrame(void);
     bool findAutoGroupFrame(AutoProperty *autoproperty);

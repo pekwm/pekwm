@@ -155,6 +155,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
     // be able to skip an extra updateClientList
     _frames.push_back(this);
     WindowManager::instance()->addToMRUBack(this);
+    Workspaces::insert(this);
 
     activateChild(client);
 
@@ -969,9 +970,7 @@ Frame::detachClient(Client *client)
         removeChild(client);
 
         client->move(_gm.x, _gm.y + borderTop());
-
         Frame *frame = new Frame(client, 0);
-        Workspaces::insert(frame);
 
         client->setParent(frame);
         client->setWorkspace(Workspaces::getActive());
@@ -1112,8 +1111,6 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: r
                 client->move(e.xmotion.x_root, e.xmotion.y_root);
 
                 Frame *frame = new Frame(client, 0);
-                Workspaces::insert(frame);
-
                 client->setParent(frame);
 
                 // make sure the client ends up on the current workspace
