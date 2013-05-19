@@ -140,11 +140,13 @@ public: // Public Member Functions
         return _clients.rend();
     }
 
-    unsigned int transient_size(void) { return _transients.size(); }
-    vector<Client*>::const_iterator transient_begin(void) {
-        return _transients.begin(); }
-    vector<Client*>::const_iterator transient_end(void) {
-        return _transients.end(); }
+    bool hasTransients() const { return ! _transients.empty(); }
+    vector<Client*>::const_iterator getTransientsBegin(void) const {
+        return _transients.begin();
+    }
+    vector<Client*>::const_iterator getTransientsEnd(void) const {
+        return _transients.end();
+    }
     // END - Iterators
 
     bool validate(void);
