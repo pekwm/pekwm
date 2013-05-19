@@ -257,7 +257,7 @@ Frame::setWorkspace(unsigned int workspace)
 }
 
 void
-Frame::setLayer(unsigned int layer)
+Frame::setLayer(Layer layer)
 {
     PDecor::setLayer(layer);
 

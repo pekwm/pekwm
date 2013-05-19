@@ -38,7 +38,7 @@ public:
 
     virtual void raise(void);
     virtual void setWorkspace(unsigned int workspace);
-    virtual void setLayer(unsigned int layer);
+    virtual void setLayer(Layer layer);
 
     virtual ActionEvent *handleMotionEvent(XMotionEvent *ev);
     virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev);
@@ -194,7 +194,7 @@ private:
     // frame information used when maximizing / going fullscreen
     Geometry _old_gm; // FIXME: move to PDecor?
     uint _non_fullscreen_decor_state; // FIXME: move to PDecor?
-    uint _non_fullscreen_layer;
+    Layer _non_fullscreen_layer;
 
     uint _attention; // Number of clients that demand attention
 

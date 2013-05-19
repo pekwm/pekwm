@@ -223,7 +223,7 @@ PWinObj::setWorkspace(uint workspace)
 
 //! @brief Only sets _layer to layer.
 void
-PWinObj::setLayer(uint layer)
+PWinObj::setLayer(Layer layer)
 {
     _layer = layer;
 }

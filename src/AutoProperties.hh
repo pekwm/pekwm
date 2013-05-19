@@ -152,7 +152,8 @@ public:
     bool maximized_vertical, maximized_horizontal, fullscreen;
     bool border, titlebar;
     bool focusable, place_new, focus_new;
-    uint workspace, layer, skip, cfg_deny;
+    uint workspace, skip, cfg_deny;
+    Layer layer;
     uint focus_opacity, unfocus_opacity;
     uint allowed_actions, disallowed_actions;
 

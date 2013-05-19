@@ -108,7 +108,7 @@ public:
     //! @brief Returns workspace PWinObj is on.
     inline uint getWorkspace(void) const { return _workspace; }
     /** @brief Returns layer PWinObj is in. */
-    inline unsigned int getLayer(void) const { return _layer; }
+    inline Layer getLayer(void) const { return _layer; }
 
     //! @brief Returns mapped state of PWinObj.
     inline bool isMapped(void) const { return _mapped; }
@@ -162,7 +162,7 @@ public:
     virtual void lower(void) { XLowerWindow(X11::getDpy(), _window); }
 
     virtual void setWorkspace(uint workspace);
-    virtual void setLayer(uint layer);
+    virtual void setLayer(Layer layer);
     virtual void setFocused(bool focused);
     virtual void setSticky(bool sticky);
 
@@ -246,7 +246,7 @@ protected:
 
     Geometry _gm; //!< Geometry of PWinObj (always in absolute coordinates).
     uint _workspace; //!< Workspace PWinObj is on.
-    unsigned int _layer; //!< Layer PWinObj is in.
+    Layer _layer; //!< Layer PWinObj is in.
     bool _mapped:1; //!< Mapped state of PWinObj.
     bool _iconified:1; //!< Iconified state of PWinObj.
     bool _hidden:1; //!< Hidden state of PWinObj.

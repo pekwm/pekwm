@@ -170,7 +170,8 @@ Harbour::restack(void)
 
         X11::addStrut(_strut);
     }
-    uint l = Config::instance()->isHarbourOntop() ? LAYER_DOCK : LAYER_DESKTOP;
+
+    Layer l = Config::instance()->isHarbourOntop() ? LAYER_DOCK : LAYER_DESKTOP;
 
     vector<DockApp*>::const_iterator it(_dapps.begin());
     for (; it != _dapps.end(); ++it) {
