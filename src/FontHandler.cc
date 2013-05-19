@@ -161,7 +161,7 @@ void
 FontHandler::returnFont(PFont *font)
 {
     vector<HandlerEntry<PFont*> >::iterator it(_fonts.begin());
-    for (; it != _fonts.begin(); ++it) {
+    for (; it != _fonts.end(); ++it) {
         if (it->getData() == font) {
             it->decRef();
             if (! it->getRef()) {
@@ -214,7 +214,7 @@ void
 FontHandler::returnColor(PFont::Color *color)
 {
     vector<HandlerEntry<PFont::Color*> >::iterator it(_colours.begin());
-    for (; it != _colours.begin(); ++it) {
+    for (; it != _colours.end(); ++it) {
         if (it->getData() == color) {
             it->decRef();
             if (! it->getRef()) {
