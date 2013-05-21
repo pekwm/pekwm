@@ -94,7 +94,7 @@ static
 const char *demangle_cpp(const char *str, char **dest, size_t *len)
 {
     int status=1;
-    char *begin = const_cast<char*>(strchr(str, '(')), *end;
+    const char *begin = strchr(str, '('), *end;
     if (begin && *(++begin) && *begin != '+') {
         end = strchr(begin, '+');
         if (end) {

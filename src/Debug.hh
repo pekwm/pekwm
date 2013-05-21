@@ -1,6 +1,6 @@
 //
 // Debug.hh for pekwm
-// Copyright © 2012 Andreas Schlick <ioerror{@}lavabit{.}com>
+// Copyright © 2012-2013 Andreas Schlick <ioerror{@}lavabit{.}com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -18,6 +18,7 @@
 #define ___PEKDEBUG_START __PRETTY_FUNCTION__ << '@' << __LINE__ \
                           << ":\n\t" << std::showbase << std::hex
 
+#ifdef DEBUG
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -103,4 +104,16 @@ private:
                            << std::showbase << M << '\n'; Debug::logBacktrace(dobj); } while (0)
 #define BACKTRACE() BACKTRACEM("\n")
 
-#endif /* _PEKWM_DEBUG_HH_ */
+#else
+#define LOG_CALL() do { (void)0; } while (0)
+#define LOG(M) do { (void)0; } while (0)
+#define LOG_IF(C,M) do { (void)0; } while (0)
+#define LOG_IFE(C, M1, M2) do { (void)0; } while (0)
+#define WARN(M) do { std::cerr << " *WARNING* " << ___PEKDEBUG_START << M << std::endl; } while (0)
+#define ERR(M) do { std::cerr << " *ERROR* " << ___PEKDEBUG_START << M << std::endl; } while (0)
+#define ERR_IF(C, M) do { if (C) { std::cerr << " *ERROR* " << ___PEKDEBUG_START << M << std::endl; } } while (0)
+#define BACKTRACEM(M) do { (void)0; } while (0)
+#define BACKTRACE() do { (void)0; } while (0)
+#endif // DEBUG
+
+#endif // _PEKWM_DEBUG_HH_

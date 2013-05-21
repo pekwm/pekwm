@@ -364,7 +364,9 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 WindowManager::instance()->getWorkspaceIndicator()->unmapWindow();
                 break;
             case ACTION_DEBUG:
+#ifdef DEBUG
                 Debug::doAction(it->getParamS());
+#endif
                 break;
             default:
                 matched = false;
