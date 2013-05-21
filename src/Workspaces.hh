@@ -108,8 +108,6 @@ private:
     static Window *buildClientList(unsigned int &num_windows);
     static bool warpToWorkspace(uint num, int dir);
 
-    static void stackWinUnderWin(Window over, Window under);
-
     static std::wstring getWorkspaceName(uint num);
 
     // placement

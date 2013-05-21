@@ -518,23 +518,6 @@ Workspaces::setLastFocused(uint workspace, PWinObj* wo)
     _workspace_list[workspace]->setLastFocused(wo);
 }
 
-/**
- * Helper function to stack a window below another
- *
- * \param win_over Window to place win_under under
- * \param win_under Window to place under win_over
- */
-void
-Workspaces::stackWinUnderWin(Window over, Window under)
-{
-    if (over == under) {
-        return;
-    }
-
-    Window windows[2] = { over, under };
-    XRestackWindows(X11::getDpy(), windows, 2);
-}
-
 //! @brief Create name for workspace num
 wstring
 Workspaces::getWorkspaceName(uint num)
