@@ -2130,36 +2130,20 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
     handleConfigureRequestGeometry(ev, client);
 
     // update the stacking
-    if (! client->isCfgDeny(CFG_DENY_STACKING)) {
-        if (ev->value_mask&CWStackMode) {
-            if (ev->value_mask&CWSibling) {
-                switch(ev->detail) {
-                case Above:
-                    Workspaces::stack(this, ev->above, true);
-                    break;
-                case Below:
-                    Workspaces::stack(this, ev->above, false);
-                    break;
-                case TopIf:
-                case BottomIf:
-                    // FIXME: What does occlude mean?
-                    break;
-                }
-            } else {
-                switch(ev->detail) { // FIXME: Is this broken?
-                case Above:
-                    raise();
-                    break;
-                case Below:
-                    lower();
-                    break;
-                case TopIf:
-                case BottomIf:
-                    // FIXME: Why does the manual say that it should care about siblings
-                    // even if we don't have any specified?
-                    break;
-                }
-            }
+    if (! client->isCfgDeny(CFG_DENY_STACKING) && ev->value_mask&CWStackMode) {
+        // ev->value_mask&CWSibling should not happen
+        switch(ev->detail) { // FIXME: Is this broken?
+        case Above:
+            raise();
+            break;
+        case Below:
+            lower();
+            break;
+        case TopIf:
+        case BottomIf:
+            // FIXME: Why does the manual say that it should care about siblings
+            // even if we don't have any specified?
+            break;
         }
     }
 }
