@@ -48,23 +48,6 @@ PWinObj::~PWinObj(void)
     notifyObservers(0);
 }
 
-//! @brief Associates Window with PWinObj
-void
-PWinObj::addChildWindow(Window win)
-{
-    _wo_map[win] = this;
-}
-
-//! @brief Removes association of Window with PWinObj
-void
-PWinObj::removeChildWindow(Window win)
-{
-    map<Window, PWinObj*>::iterator it(_wo_map.find(win));
-    if (it != _wo_map.end()) {
-        _wo_map.erase(it);
-    }
-}
-
 //! @brief Sets the desired opacity values for focused/unfocused states
 void
 PWinObj::setOpacity(uint focused, uint unfocused, bool enabled)

@@ -87,8 +87,8 @@ public:
     //! @brief Returns type of PWinObj.
     inline Type getType(void) const { return _type; }
 
-    void addChildWindow(Window win);
-    void removeChildWindow(Window win);
+    inline void addChildWindow(Window win) { _wo_map[win] = this; }
+    inline void removeChildWindow(Window win) { _wo_map.erase(win); }
 
     //! @brief Returns x coordinate of PWinObj.
     inline int getX(void) const { return _gm.x; }
