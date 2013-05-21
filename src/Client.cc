@@ -1846,6 +1846,12 @@ Client::getTransientForHint(void)
     XGetTransientForHint(X11::getDpy(), _window, &_transient_for_window);
 
     if (_transient_for_window != None) {
+        if (_transient_for_window == _window) {
+            ERR("Client set transient hint for itself.");
+            _transient_for_window = None;
+            return;
+        }
+
         _transient_for = findClientFromWindow(_transient_for_window);
         if (_transient_for) {
             // Observe for changes
