@@ -35,7 +35,6 @@ public:
     virtual void iconify(void);
     virtual void stick(void);
 
-    virtual void raise(void);
     virtual void setWorkspace(unsigned int workspace);
     virtual void setLayer(Layer layer);
 

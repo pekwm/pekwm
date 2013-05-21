@@ -228,12 +228,6 @@ Frame::stick(void)
     PDecor::setWorkspace(Workspaces::getActive());
 }
 
-void
-Frame::raise(void)
-{
-    PDecor::raise();
-}
-
 //! @brief Sets workspace on frame, wrapper to allow autoproperty loading
 void
 Frame::setWorkspace(unsigned int workspace)
