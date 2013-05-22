@@ -78,6 +78,10 @@ RootMenu = "Pekwm" {
 
 	Separator {}
 
+	Entry = "Take screenshot" { Actions = "Exec $_PEKWM_SCRIPT_PATH/pekwm_screenshot.sh" }
+
+	Separator {}
+
 	Submenu = "Go to" {
 		SubMenu = "Workspace" {
 			# Create goto menu once per pekwm config reload. The fast way that
@@ -91,6 +95,7 @@ RootMenu = "Pekwm" {
 		}
 		Entry = "Window.." { Actions = "ShowMenu GotoClient True" }
 	}
+
 	Submenu = "Pekwm" {
 		Submenu = "Themes" {
 			Entry { Actions = "Dynamic $_PEKWM_SCRIPT_PATH/pekwm_themeset.sh $_PEKWM_THEME_PATH" }

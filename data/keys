@@ -67,6 +67,7 @@ Global {
 	KeyPress = "Mod4 Shift I" { Actions = "ShowMenu Icon" }
 	KeyPress = "Mod4 X" { Actions = "HideAllMenus" }
 	# External Commands
+	KeyPress = "Mod1 Print" { Actions = "Exec $_PEKWM_SCRIPT_PATH/pekwm_screenshot.sh" }
 	KeyPress = "Mod4 E" { Actions = "Exec $TERM" }
 	# Pekwm control
 	KeyPress = "Ctrl Mod1 Delete" { Actions = "Reload" }
