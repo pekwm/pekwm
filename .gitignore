@@ -21,6 +21,10 @@ src/pekwm
 data/scripts/pekwm_themeset.sh
 data/scripts/pekwm_ws_menu.sh
 
+doc/fin/
+doc/index.xml
+doc/logs/
+
 *.o
 *.a
 *~
