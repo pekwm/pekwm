@@ -64,8 +64,6 @@ public:
     void restart(std::string command = "");
     //! @brief Sets shutdown status, will shutdown from main loop.
     void shutdown(void) { _shutdown = true; }
-    /**< Return shutdown flag, set to tru to shutdown window manager. */
-    bool *getShutdownFlag(void) { return &_shutdown; }
 
     // get "base" classes
     inline Config *getConfig(void) const { return _config; }
