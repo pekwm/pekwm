@@ -73,7 +73,6 @@ int
 main(int argc, char **argv)
 {
     string config_file;
-    string command_line;
     bool replace = false;
 
     setlocale(LC_CTYPE, "");
@@ -82,11 +81,6 @@ main(int argc, char **argv)
     setenv("PEKWM_ETC_PATH", SYSCONFDIR, 1);
     setenv("PEKWM_SCRIPT_PATH", DATADIR "/pekwm/scripts", 1);
     setenv("PEKWM_THEME_PATH", DATADIR "/pekwm/themes", 1);
-
-    // build commandline
-    for (int i = 0; i < argc; ++i) {
-        command_line = command_line + argv[i] + " ";
-    }
 
     // get the args and test for different options
     for (int i = 1; i < argc; ++i)	{
@@ -123,21 +117,26 @@ main(int argc, char **argv)
     Info::printInfo();
 #endif // DEBUG
 
-    WindowManager *wm = WindowManager::start(command_line, config_file, replace);
+    WindowManager *wm = WindowManager::start(config_file, replace);
 
     if (wm) {
         try {
             wm->doEventLoop();
 
             // see if we wanted to restart
-            if (WindowManager::instance()->getRestartCommand().size() > 0) {
+            if (WindowManager::instance()->shallRestart()) {
                 string command = WindowManager::instance()->getRestartCommand();
 
                 // cleanup before restarting
                 WindowManager::destroy();
                 Util::iconv_deinit();
 
-                execlp("/bin/sh", "sh" , "-c", command.c_str(), (char*) 0);
+                if (command.empty()) {
+                    execvp(argv[0], argv);
+                } else {
+                    command = "exec " + command;
+                    execl("/bin/sh", "sh" , "-c", command.c_str(), (char*) 0);
+                }
             }
         } catch (std::exception& ex) {
             cerr << "exception occurred: " << ex.what() << endl;

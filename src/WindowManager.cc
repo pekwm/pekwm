@@ -116,15 +116,14 @@ extern "C" {
  * Create window manager instance and run main routine.
  */
 WindowManager*
-WindowManager::start(const std::string &command_line,
-                     const std::string &config_file, bool replace)
+WindowManager::start(const std::string &config_file, bool replace)
 {
     if (_instance) {
         delete _instance;
     }
 
     // Setup window manager
-    _instance = new WindowManager(command_line, config_file);
+    _instance = new WindowManager(config_file);
 
     if (_instance->setupDisplay(replace)) {
         _instance->scanWindows();
@@ -156,9 +155,7 @@ WindowManager::destroy(void)
 }
 
 //! @brief Constructor for WindowManager class
-WindowManager::WindowManager(const std::string &command_line,
-                             const std::string &config_file)
-        :
+WindowManager::WindowManager(const std::string &config_file) :
         _screen_resources(0),
         _keygrabber(0),
         _config(0),
@@ -168,8 +165,8 @@ WindowManager::WindowManager(const std::string &command_line,
         _harbour(0),
         _cmd_dialog(0), _search_dialog(0),
         _status_window(0), _workspace_indicator(0),
-        _command_line(command_line),
-        _startup(false), _shutdown(false), _reload(false),
+        _startup(false), _shutdown(false),
+        _reload(false), _restart(false),
         _allow_grouping(true), _hint_wo(0), _root_wo(0)
 {
     _screen_edges[0] = 0;
@@ -668,10 +665,10 @@ WindowManager::doReloadHarbour(void)
 void
 WindowManager::restart(std::string command)
 {
-    if (command.size() == 0) {
-        command = _command_line;
+    if (! command.empty()) {
+        _restart_command = command;
     }
-    _restart_command = command;
+    _restart = true;
     _shutdown = true;
 }
 

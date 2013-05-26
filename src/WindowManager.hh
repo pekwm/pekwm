@@ -52,8 +52,7 @@ class Harbour;
 class WindowManager
 {
 public:
-    static WindowManager *start(const std::string &command_line,
-                                const std::string &config_file, bool replace);
+    static WindowManager *start(const std::string &config_file, bool replace);
     static void destroy(void);
     inline static WindowManager *instance(void) { return _instance; }
 
@@ -76,6 +75,7 @@ public:
     inline KeyGrabber *getKeyGrabber(void) const { return _keygrabber; }
     inline Harbour *getHarbour(void) const { return _harbour; }
 
+    inline bool shallRestart(void) const { return _restart; }
     inline const std::string &getRestartCommand(void) const { return _restart_command; }
     inline bool isStartup(void) const { return _startup; }
 
@@ -138,8 +138,7 @@ public:
     void handleButtonReleaseEvent(XButtonEvent *ev);
 
 private:
-    WindowManager(const std::string &command_line,
-                  const std::string &config_file);
+    WindowManager(const std::string &config_file);
     WindowManager(const WindowManager &); // not implemented to ensure singleton
     ~WindowManager(void);
     
@@ -206,10 +205,11 @@ private:
 
     Timer<ActionPerformed> _timer_action;
 
-    std::string _command_line, _restart_command;
     bool _startup; //!< Indicates startup status.
     bool _shutdown; //!< Set to wheter we want to shutdown.
     bool _reload; //!< Set to wheter we want to reload.
+    bool _restart;
+    std::string _restart_command;
 
     vector<Frame *> _mru; // The most recently used frame is kept at the front.
 
