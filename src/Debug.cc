@@ -11,10 +11,10 @@
 #include "Util.hh"
 
 #include <cstdlib>
-#if defined(__GLIBCXX__) || defined(__GLIBCPP__)
+#if defined(__GLIBC__) && defined(__GLIBCXX__)
 #include <execinfo.h>
 #include <cxxabi.h>
-#endif
+#endif // __GLIBC__ && __GLIBCXX__
 
 /**
  * Debug Commands:
@@ -89,7 +89,7 @@ void Debug::doAction(const std::string &cmd) {
     }
 }
 
-#if defined(__GLIBCXX__) || defined(__GLIBCPP__)
+#if defined(__GLIBC__) && defined(__GLIBCXX__)
 static
 const char *demangle_cpp(const char *str, char **dest, size_t *len)
 {
@@ -135,11 +135,11 @@ void Debug::logBacktrace(DebugBTObj &dobj) {
     free(name);
     free(str);
 }
-#else
-void Debug::logBacktrace(DebugInfoObj &dobj) {
+#else // ! __GLIBC__ && __GLIBCXX__
+void Debug::logBacktrace(DebugBTObj &dobj) {
     dobj << "Backtrace works only with glibc.\n";
 }
-#endif
+#endif // __GLIBC__ && __GLIBCXX__
 
 bool Debug::enable_cerr = true;
 bool Debug::enable_logfile = false;
