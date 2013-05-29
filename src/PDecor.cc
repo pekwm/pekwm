@@ -116,7 +116,7 @@ PDecor::Button::setState(ButtonState state)
                     ScreenResources::instance()->getPixmapHandler()->returnPixmap(shape);
                 }
             } else {
-                XRectangle rect = {0 /* x */, 0 /* y */, _gm.width, _gm.height };
+                XRectangle rect = {0 /* x */, 0 /* y */, static_cast<short uint>(_gm.width), static_cast<short uint>(_gm.height) };
                 X11::shapeSetRect(_window, &rect);
             }
         }
