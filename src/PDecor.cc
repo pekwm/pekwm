@@ -183,7 +183,7 @@ PDecor::PDecor(Theme *theme,
       _child(0), _button(0), _button_press_win(None),
       _pointer_x(0), _pointer_y(0),
       _click_x(0), _click_y(0),
-      _decor_cfg_keep_empty(false), _decor_cfg_child_move_overloaded(false),
+      _decor_cfg_child_move_overloaded(false),
       _decor_cfg_bpr_replay_pointer(false),
       _decor_cfg_bpr_al_child(MOUSE_ACTION_LIST_CHILD_OTHER),
       _decor_cfg_bpr_al_title(MOUSE_ACTION_LIST_TITLE_OTHER),
@@ -1098,9 +1098,6 @@ PDecor::removeChild(PWinObj *child, bool do_delete)
             activateChild(*it);
         }
 
-        updatedChildOrder();
-
-    } else if (_decor_cfg_keep_empty) {
         updatedChildOrder();
 
     } else if (do_delete) {

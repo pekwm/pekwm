@@ -414,7 +414,6 @@ protected:
     int _click_y; //!< Last click y window position.
 
     // how the decor should behave
-    bool _decor_cfg_keep_empty; //!< Boolean to configure allowing empty PDecors.
     bool _decor_cfg_child_move_overloaded; //!< Boolean to set wheter ::move is overloaded.
 
     // button{press,release} handling cfg
