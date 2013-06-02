@@ -319,6 +319,7 @@ public:
     }
 
     void deiconify(void);
+
 protected:
     // START - PDecor interface.
     virtual void renderTitle(void);
@@ -398,8 +399,8 @@ private:
 
 protected:
     Theme *_theme; //!< Pointer to Theme used by PDecor.
-    std::string _decor_name; /**< Name of decoration used. */
-    std::string _decor_name_override; /**< Overridden decoration name. */
+    std::string _decor_name; //!< Name of the active decoration
+    std::string _decor_name_saved; //!< Original decor name if it is temp. overridden
 
     PWinObj *_child; //!< Pointer to active child in PDecor.
     vector<PWinObj*> _children; //!< List of children in PDecor.

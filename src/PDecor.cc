@@ -175,7 +175,7 @@ vector<PDecor*> PDecor::_pdecors;
 //! @brief PDecor constructor
 //! @param dpy Display
 //! @param theme Theme
-//! @param decor_name String, if not DEFAULT_DECOR_NAME sets _decor_name_override
+//! @param decor_name String, if not DEFAULT_DECOR_NAME sets _decor_name_saved
 PDecor::PDecor(Theme *theme,
                const std::string decor_name, const Window child_window)
     : PWinObj(),
@@ -196,7 +196,7 @@ PDecor::PDecor(Theme *theme,
       _title_active(0), _titles_left(0), _titles_right(1)
 {
     if (_decor_name != PDecor::DEFAULT_DECOR_NAME) {
-        _decor_name_override = _decor_name;
+        _decor_name_saved = _decor_name;
     }
 
     // we be reset in loadDecor later on, inlines using the _data used before
@@ -820,22 +820,21 @@ PDecor::addDecor(PDecor *decor)
 }
 
 //! @brief Sets preferred decor_name
-//! @return True on change, False if unchanged
+//! @return True on decor change, False if decor unchanged
 bool
 PDecor::setDecor(const std::string &name)
 {
-    string new_name(_decor_name_override);
-    if (new_name.size() == 0) {
-        new_name = name;
-    }
-
-    if (_decor_name == new_name) {
+    if (! _decor_name_saved.empty()) {
+        _decor_name_saved = name;
         return false;
     }
 
-    _decor_name = new_name;
-    loadDecor();
+    if (_decor_name == name) {
+        return false;
+    }
 
+    _decor_name = name;
+    loadDecor();
     return true;
 }
 
@@ -843,15 +842,19 @@ PDecor::setDecor(const std::string &name)
 void
 PDecor::setDecorOverride(StateAction sa, const std::string &name)
 {
-    if ((sa == STATE_SET) ||
-            ((sa == STATE_TOGGLE) && (_decor_name_override.size() == 0))) {
-        _decor_name_override = name;
-        setDecor("");
-
-    } else if ((sa == STATE_UNSET) ||
-               ((sa == STATE_TOGGLE) && (_decor_name_override.size() > 0))) {
-        _decor_name_override = ""; // .clear() doesn't work with old g++
-        updateDecorName();
+    if (sa == STATE_SET ||
+            (sa == STATE_TOGGLE && _decor_name_saved.empty())) {
+        if (_decor_name_saved.empty()) {
+            _decor_name_saved = _decor_name;
+        }
+        if (_decor_name != name) {
+            _decor_name = name;
+            loadDecor();
+        }
+    } else if (! _decor_name_saved.empty()) {
+        _decor_name = _decor_name_saved;
+        _decor_name_saved.clear();
+        loadDecor();
     }
 }
 
@@ -2033,12 +2036,10 @@ PDecor::restackBorder(void)
 bool
 PDecor::updateDecorName(void)
 {
-    string name;
+    string name = DEFAULT_DECOR_NAME_BORDERLESS;
 
     if (_titlebar && _border) {
         name = PDecor::DEFAULT_DECOR_NAME;
-    } else if (_titlebar) {
-        name = PDecor::DEFAULT_DECOR_NAME_BORDERLESS;
     } else if (_border) {
         name = PDecor::DEFAULT_DECOR_NAME_TITLEBARLESS;
     }
