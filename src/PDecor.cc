@@ -1530,7 +1530,6 @@ PDecor::renderTitle(void)
         calcTabsWidth();
     }
 
-    PFont *font = getFont(getFocusedState(false));
     PTexture *t_sep = _data->getTextureSeparator(getFocusedState(false));
     PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
 
@@ -1545,6 +1544,7 @@ PDecor::renderTitle(void)
     _data->getTextureMain(getFocusedState(false))->render(_title_bg, 0, 0,
                                                           _title_wo.getWidth(), _title_wo.getHeight());
 
+    PFont *font;
     bool sel; // Current tab selected flag
     uint x = _titles_left; // Position
     uint pad_horiz =  _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT); // Amount of horizontal padding
