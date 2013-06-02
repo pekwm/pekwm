@@ -1065,18 +1065,14 @@ WindowManager::handleMapRequestEvent(XMapRequestEvent *ev)
                 if ((wm_hints->flags&StateHint) &&
                         (wm_hints->initial_state == WithdrawnState)) {
                     _harbour->addDockApp(new DockApp(ev->window));
-                } else {
-                    Client *client = new Client(ev->window, true);
-                    if (! client->isAlive()) {
-                        delete client;
-                    }
+                    XFree(wm_hints);
+                    return;
                 }
                 XFree(wm_hints);
-            } else {
-                Client *client = new Client(ev->window, true);
-                if (! client->isAlive()) {
-                    delete client;
-                }
+            }
+            Client *client = new Client(ev->window, true);
+            if (! client->isAlive()) {
+                delete client;
             }
         }
     }
