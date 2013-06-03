@@ -136,11 +136,6 @@ public:
     void setStateMarked(StateAction sa, Client *client);
     void setStateOpaque(StateAction sa);
 
-    void removeAttention(void) {
-        if (! --_attention)
-            setDecor(getClientDecorName(_client));
-    }
-
     void close(void);
 
     void readAutoprops(ApplyOn type = APPLY_ON_RELOAD);
@@ -208,8 +203,6 @@ private:
     Geometry _old_gm; // FIXME: move to PDecor?
     uint _non_fullscreen_decor_state; // FIXME: move to PDecor?
     Layer _non_fullscreen_layer;
-
-    uint _attention; // Number of clients that demand attention
 
     static vector<Frame*> _frames; //!< Vector of all Frames.
     static vector<uint> _frameid_list; //!< Vector of free Frame IDs.

@@ -573,7 +573,7 @@ Client::giveInputFocus(void)
     Frame *frame;
     if (demandsAttention() && (frame = static_cast<Frame *>(_parent))) {
         setDemandsAttention(false);
-        frame->removeAttention();
+        frame->decrAttention();
     }
 
     if (_wm_hints_input) {

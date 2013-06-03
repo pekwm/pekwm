@@ -264,6 +264,10 @@ public:
     void setBorder(StateAction sa);
     void setTitlebar(StateAction sa);
 
+    bool demandAttention(void) const { return _attention > 0; }
+    void incrAttention(void) { ++_attention; }
+    void decrAttention(void) { if (_attention > 0 && --_attention == 0) { updateDecorName(); } }
+
     // decor element sizes
     uint getTitleHeight(void) const;
 
@@ -441,6 +445,7 @@ private:
 
     // decor state
     bool _border, _titlebar, _shaded;
+    uint _attention; // Number of children that demand attention
     bool _need_shape;
     bool _dirty_resized; //!< Flag set when decor has been resized.
     uint _real_height;

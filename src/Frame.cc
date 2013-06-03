@@ -51,8 +51,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
     : PDecor(WindowManager::instance()->getTheme(),
              Frame::getClientDecorName(client), client->getWindow()),
       _id(0), _client(0), _class_hint(0),
-      _non_fullscreen_decor_state(0), _non_fullscreen_layer(LAYER_NORMAL),
-      _attention(0)
+      _non_fullscreen_decor_state(0), _non_fullscreen_layer(LAYER_NORMAL)
 {
     // PWinObj attributes
     _type = WO_FRAME;
@@ -432,8 +431,9 @@ Frame::addChild(PWinObj *child, vector<PWinObj*>::iterator *it)
     child->lower();
 
     Client *client = dynamic_cast<Client*>(child);
-    if (client && client->demandsAttention())
-        ++_attention;
+    if (client && client->demandsAttention()) {
+        incrAttention();
+    }
 }
 
 /**
@@ -460,7 +460,7 @@ void
 Frame::removeChild(PWinObj *child, bool do_delete)
 {
     if (static_cast<Client *>(child)->demandsAttention()) {
-        --_attention;
+        decrAttention();
     }
     PDecor::removeChild(child, do_delete);
 }
@@ -483,7 +483,7 @@ Frame::activateChild(PWinObj *child)
     _client = static_cast<Client*>(child);
     if (_client->demandsAttention()) {
         _client->setDemandsAttention(false);
-        --_attention;
+        decrAttention();
     }
     PDecor::activateChild(child);
 
@@ -569,9 +569,7 @@ Frame::giveInputFocus(void)
 {
     if (_client->demandsAttention()) {
         _client->setDemandsAttention(false);
-        if (! --_attention) {
-            setDecor(getClientDecorName(_client));
-        }
+        decrAttention();
     }
     PDecor::giveInputFocus();
 }
@@ -2302,8 +2300,11 @@ Frame::handleStateAtom(StateAction sa, Atom atom, Client *client)
         bool nstate = (sa == STATE_SET || (sa == STATE_TOGGLE && ! ostate));
         client->setDemandsAttention(nstate);
         if (ostate != nstate) {
-            _attention += !!nstate - !!ostate;
-            setDecor(_attention?DEFAULT_DECOR_NAME_ATTENTION:getClientDecorName(_client));
+            if (ostate) {
+                decrAttention();
+            } else {
+                incrAttention();
+            }
         }
         break;
     }
@@ -2370,12 +2371,15 @@ Frame::handlePropertyChange(XPropertyEvent *ev, Client *client)
     } else if (ev->atom == XA_WM_TRANSIENT_FOR) {
         client->getTransientForHint();
     } else if (ev->atom == X11::getAtom(WM_HINTS)) {
-        bool nstate, ostate = client->demandsAttention();
+        bool ostate = client->demandsAttention();
         client->getWMHints();
-        nstate = client->demandsAttention();
+        bool nstate = client->demandsAttention();
         if (ostate != nstate) {
-            _attention += !!nstate - !!ostate;
-            setDecor(_attention?DEFAULT_DECOR_NAME_ATTENTION:getClientDecorName(_client));
+            if (ostate) {
+                decrAttention();
+            } else {
+                incrAttention();
+            }
         }
     }
 }
@@ -2391,7 +2395,7 @@ Frame::handleTitleChange(Client *client)
     client->readName();
 
     bool require_render = true;
-    if (client == _client && ! _attention) {
+    if (client == _client && ! demandAttention()) {
         string new_decor_name(getClientDecorName(client));
         if (new_decor_name != _decor_name) {
             require_render = ! setDecor(new_decor_name);
