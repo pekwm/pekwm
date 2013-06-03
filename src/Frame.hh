@@ -161,6 +161,8 @@ protected:
     // BEGIN - PDecor interface
     virtual int resizeHorzStep(int diff) const;
     virtual int resizeVertStep(int diff) const;
+
+    std::string getDecorName(void);
     // END - PDecor interface
 
 private:
@@ -191,7 +193,8 @@ private:
     static uint findFrameID(void);
     static void returnFrameID(uint id);
 
-    static std::string getClientDecorName(Client *client);
+    static std::string getDecorName(Client *client);
+    static std::string getDecorNameForClient(Client *client);
 
 private:
     uint _id; // unique id of the frame

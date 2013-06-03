@@ -1004,8 +1004,9 @@ PDecor::setBorder(StateAction sa)
     }
 
     restackBorder();
-    if (! updateDecorName() && _child)
+    if (! updateDecor() && _child) {
         resizeChild(_child->getWidth(), _child->getHeight());
+    }
 }
 
 //! @brief Sets titlebar state of the decor
@@ -1026,7 +1027,7 @@ PDecor::setTitlebar(StateAction sa)
     }
 
     // If updateDecorName returns true, it already loaded decor stuff for us.
-    if (! updateDecorName() && _child) {
+    if (! updateDecor() && _child) {
         alignChild(_child);
         resizeChild(_child->getWidth(), _child->getHeight());
     }
@@ -2031,20 +2032,20 @@ PDecor::restackBorder(void)
     XRestackWindows(X11::getDpy(), windows, BORDER_NO_POS + extra);
 }
 
-//! @brief  Updates _decor_name to represent decor state
-//! @return true if decor was changed
-bool
-PDecor::updateDecorName(void)
+/**
+ * Returns the name of the decor for the current titlebar/border state.
+ */
+const std::string&
+PDecor::getDecorNameForState(bool titlebar, bool border, bool demand_attention)
 {
-    string name = DEFAULT_DECOR_NAME_BORDERLESS;
-
-    if (_titlebar && _border) {
-        name = PDecor::DEFAULT_DECOR_NAME;
-    } else if (_border) {
-        name = PDecor::DEFAULT_DECOR_NAME_TITLEBARLESS;
+    if (demand_attention) {
+        return DEFAULT_DECOR_NAME_ATTENTION;
+    } else if (titlebar && border) {
+        return DEFAULT_DECOR_NAME;
+    } else if (border) {
+        return DEFAULT_DECOR_NAME_TITLEBARLESS;
     }
-
-    return setDecor(name);
+    return DEFAULT_DECOR_NAME_BORDERLESS;
 }
 
 /**

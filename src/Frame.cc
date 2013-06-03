@@ -49,7 +49,7 @@ bool Frame::_tag_behind = false;
 //! @brief Frame constructor
 Frame::Frame(Client *client, AutoProperty *ap)
     : PDecor(WindowManager::instance()->getTheme(),
-             Frame::getClientDecorName(client), client->getWindow()),
+             Frame::getDecorName(client), client->getWindow()),
       _id(0), _client(0), _class_hint(0),
       _non_fullscreen_decor_state(0), _non_fullscreen_layer(LAYER_NORMAL)
 {
@@ -672,7 +672,61 @@ Frame::resizeVertStep(int diff) const
     return diff_ret;
 }
 
+/**
+ * Return decor name for the current client or attention decor if
+ * Frame has client which demands attention.
+ */
+std::string
+Frame::getDecorName(void)
+{
+    string name;
+    if (! demandAttention()) {
+        name = getDecorNameForClient(_client);
+    }
+    return name.size() ? name : PDecor::getDecorName();
+}
+
 // END - PDecor interface.
+
+/**
+ * Get decor name for specified client, used in the constructor where
+ * no _client has been set and a decor name should be returned.
+ */
+std::string
+Frame::getDecorName(Client *client)
+{
+    string name = getDecorNameForClient(client);
+    return name.size() ? name : getDecorNameForState(true, true, false);
+}
+
+/**
+ * Return decor name matching clients property, defaults to name of decor
+ * matching titlebar/border state.
+ */
+std::string
+Frame::getDecorNameForClient(Client *client)
+{
+    if (! client) {
+        return "";
+    }
+
+    AutoProperty *ap = WindowManager::instance()->getAutoProperties()->findAutoProperty(client->getClassHint());
+    if (ap && ap->isMask(AP_DECOR)) {
+        return ap->frame_decor;
+    }
+
+    ap = WindowManager::instance()->getAutoProperties()->findWindowTypeProperty(client->getWinType());
+    if (ap && ap->isMask(AP_DECOR)) {
+        return ap->frame_decor;
+    }
+
+    DecorProperty *dp = WindowManager::instance()->getAutoProperties()->findDecorProperty(client->getClassHint());
+    if (dp) {
+        return dp->getName();
+    }
+
+    return "";
+}
 
 //! @brief Sets _PEKWM_FRAME_ID on all children in the frame
 void
@@ -909,34 +963,6 @@ Frame::returnFrameID(uint id)
     for (; it != _frameid_list.end() && id < *it; ++it)
         ;
     _frameid_list.insert(it, id);
-}
-
-/**
- * Return decor name matching clients property, defaults to
- * PDecor::DEFAULT_DECOR_NAME
- */
-std::string
-Frame::getClientDecorName(Client *client)
-{
-    DecorProperty *dp;
-    AutoProperty *ap;
-
-    ap = WindowManager::instance()->getAutoProperties()->findAutoProperty(client->getClassHint());
-    if (ap && ap->isMask(AP_DECOR)) {
-        return ap->frame_decor;
-    }
-
-    ap = WindowManager::instance()->getAutoProperties()->findWindowTypeProperty(client->getWinType());
-    if (ap && ap->isMask(AP_DECOR)) {
-        return ap->frame_decor;
-    }
-
-    dp = WindowManager::instance()->getAutoProperties()->findDecorProperty(client->getClassHint());
-    if (dp) {
-        return dp->getName();
-    }
-
-    return PDecor::DEFAULT_DECOR_NAME;
 }
 
 //! @brief Resets Frame IDs.
@@ -2394,16 +2420,9 @@ Frame::handleTitleChange(Client *client)
     // Update title
     client->readName();
 
-    bool require_render = true;
-    if (client == _client && ! demandAttention()) {
-        string new_decor_name(getClientDecorName(client));
-        if (new_decor_name != _decor_name) {
-            require_render = ! setDecor(new_decor_name);
-        }
-    }
-
-    // Render title if decoration was not updated
-    if (require_render) {
+    if (client != _client || ! updateDecor()) {
+        // Render title as either the title changed was not the active
+        // title or the name change did not cause the decor to change.
         renderTitle();
     }
 }

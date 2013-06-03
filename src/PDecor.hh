@@ -175,6 +175,8 @@ public:
 
     virtual void setShaded(StateAction sa);
     virtual void setSkip(uint skip);
+
+    virtual std::string getDecorName(void) { return getDecorNameForState(_titlebar, _border, demandAttention()); }
     // END - PDecor interface.
 
     static vector<PDecor*>::const_iterator pdecor_begin(void) { return _pdecors.begin(); }
@@ -187,6 +189,12 @@ public:
     bool setDecor(const std::string &name);
     void setDecorOverride(StateAction sa, const std::string &name);
     void loadDecor(void);
+
+    /**
+     * Updates _decor_name to represent decor state
+     * \return true if decor was changed
+     */
+    bool updateDecor(void) { return setDecor(getDecorName()); }
 
     //! @brief Returns title Window.
     inline Window getTitleWindow(void) const { return _title_wo.getWindow(); }
@@ -266,7 +274,7 @@ public:
 
     bool demandAttention(void) const { return _attention > 0; }
     void incrAttention(void) { ++_attention; }
-    void decrAttention(void) { if (_attention > 0 && --_attention == 0) { updateDecorName(); } }
+    void decrAttention(void) { if (_attention > 0 && --_attention == 0) { updateDecor(); } }
 
     // decor element sizes
     uint getTitleHeight(void) const;
@@ -365,6 +373,8 @@ protected:
         }
     }
 
+    static const std::string &getDecorNameForState(bool titlebar, bool border, bool demand_attention);
+
 private:
     void getParentWindowAttributes(CreateWindowParams &params,
                                    Window child_window);
@@ -388,8 +398,6 @@ private:
     void placeBorder(void);
     void shapeBorder(void);
     void restackBorder(void); // shaded, borderless, no border visible
-
-    bool updateDecorName(void);
 
     void getBorderSize(BorderPosition pos, uint &width, uint &height);
 
