@@ -270,9 +270,9 @@ public:
     void setBorder(StateAction sa);
     void setTitlebar(StateAction sa);
 
-    bool demandAttention(void) const { return _attention > 0; }
+    bool demandAttention(void) const { return _attention; }
     void incrAttention(void) { ++_attention; }
-    void decrAttention(void) { if (_attention > 0 && --_attention == 0) { updateDecor(); } }
+    void decrAttention(void) { if (_attention && ! --_attention) { updateDecor(); } }
 
     // decor element sizes
     uint getTitleHeight(void) const;
