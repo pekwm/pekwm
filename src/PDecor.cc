@@ -819,11 +819,11 @@ PDecor::addDecor(PDecor *decor)
     delete decor;
 }
 
-//! @brief Sets preferred decor_name
 //! @return True on decor change, False if decor unchanged
 bool
-PDecor::setDecor(const std::string &name)
+PDecor::updateDecor(void)
 {
+    string name = getDecorName();
     if (! _decor_name_saved.empty()) {
         _decor_name_saved = name;
         return false;

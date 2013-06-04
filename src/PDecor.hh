@@ -186,15 +186,13 @@ public:
 
     void addDecor(PDecor *decor);
 
-    bool setDecor(const std::string &name);
-    void setDecorOverride(StateAction sa, const std::string &name);
-    void loadDecor(void);
-
     /**
      * Updates _decor_name to represent decor state
      * \return true if decor was changed
      */
-    bool updateDecor(void) { return setDecor(getDecorName()); }
+    bool updateDecor(void);
+    void setDecorOverride(StateAction sa, const std::string &name);
+    void loadDecor(void);
 
     //! @brief Returns title Window.
     inline Window getTitleWindow(void) const { return _title_wo.getWindow(); }
