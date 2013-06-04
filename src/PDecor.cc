@@ -1502,6 +1502,22 @@ PDecor::setSkip(uint skip)
     _skip = skip;
 }
 
+/**
+ * Returns the name of the decor for the current titlebar/border state.
+ */
+std::string
+PDecor::getDecorName(void)
+{
+    if (_attention) {
+        return DEFAULT_DECOR_NAME_ATTENTION;
+    } else if (_titlebar && _border) {
+        return DEFAULT_DECOR_NAME;
+    } else if (_border) {
+        return DEFAULT_DECOR_NAME_TITLEBARLESS;
+    }
+    return DEFAULT_DECOR_NAME_BORDERLESS;
+}
+
 //! @brief Remove iconified state.
 void PDecor::deiconify(void) {
     if (_iconified) {
@@ -2033,22 +2049,6 @@ PDecor::restackBorder(void)
     // Raise the top window so actual restacking is done.
     XRaiseWindow(X11::getDpy(), windows[0]);
     XRestackWindows(X11::getDpy(), windows, BORDER_NO_POS + extra);
-}
-
-/**
- * Returns the name of the decor for the current titlebar/border state.
- */
-const std::string&
-PDecor::getDecorNameForState(bool titlebar, bool border, bool demand_attention)
-{
-    if (demand_attention) {
-        return DEFAULT_DECOR_NAME_ATTENTION;
-    } else if (titlebar && border) {
-        return DEFAULT_DECOR_NAME;
-    } else if (border) {
-        return DEFAULT_DECOR_NAME_TITLEBARLESS;
-    }
-    return DEFAULT_DECOR_NAME_BORDERLESS;
 }
 
 /**

@@ -176,7 +176,7 @@ public:
     virtual void setShaded(StateAction sa);
     virtual void setSkip(uint skip);
 
-    virtual std::string getDecorName(void) { return getDecorNameForState(_titlebar, _border, demandAttention()); }
+    virtual std::string getDecorName(void);
     // END - PDecor interface.
 
     static vector<PDecor*>::const_iterator pdecor_begin(void) { return _pdecors.begin(); }
@@ -370,8 +370,6 @@ protected:
             return (_focused) ? FOCUSED_STATE_FOCUSED : FOCUSED_STATE_UNFOCUSED;
         }
     }
-
-    static const std::string &getDecorNameForState(bool titlebar, bool border, bool demand_attention);
 
 private:
     void getParentWindowAttributes(CreateWindowParams &params,
