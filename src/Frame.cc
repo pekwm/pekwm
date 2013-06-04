@@ -2123,7 +2123,8 @@ Frame::handleConfigureRequestGeometry(XConfigureRequestEvent *ev, Client *client
         return;
     }
 
-    if (isRequestGeometryFullscreen(ev, client)) {
+    if (Config::instance()->isFullscreenDetect() && isRequestGeometryFullscreen(ev, client)) {
+        setStateFullscreen(STATE_SET);
         client->configureRequestSend();
         return;
     }
@@ -2156,26 +2157,23 @@ Frame::handleConfigureRequestGeometry(XConfigureRequestEvent *ev, Client *client
 bool
 Frame::isRequestGeometryFullscreen(XConfigureRequestEvent *ev, Client *client)
 {
-    bool is_fullscreen = false;
-    if (! client->isCfgDeny(CFG_DENY_SIZE)
-        && ! client->isCfgDeny(CFG_DENY_POSITION)) {
-        int nearest_head = X11::getNearestHead(ev->x, ev->y);
-        Geometry gm_request(ev->x, ev->y, ev->width, ev->height);
-        Geometry gm_screen(X11::getScreenGeometry());
-        Geometry gm_head(X11::getHeadGeometry(nearest_head));
+    if (client->isCfgDeny(CFG_DENY_SIZE) || client->isCfgDeny(CFG_DENY_POSITION)) {
+        return false;
+    }
 
+    int nearest_head = X11::getNearestHead(ev->x, ev->y);
+    Geometry gm_request(ev->x, ev->y, ev->width, ev->height);
+    Geometry gm_screen(X11::getScreenGeometry());
+    Geometry gm_head(X11::getHeadGeometry(nearest_head));
+
+    bool is_fullscreen = false;
+    if (gm_request == gm_screen || gm_request == gm_head) {
+        is_fullscreen = true;
+    } else {
+        downSize(gm_screen, true, true);
+        downSize(gm_head, true, true);
         if (gm_request == gm_screen || gm_request == gm_head) {
             is_fullscreen = true;
-        } else {
-            downSize(gm_screen, true, true);
-            downSize(gm_head, true, true);
-            if (gm_request == gm_screen || gm_request == gm_head) {
-                is_fullscreen = true;
-            }
-        }
-
-        if (is_fullscreen && Config::instance()->isFullscreenDetect()) {
-            setStateFullscreen(STATE_SET);
         }
     }
     return is_fullscreen;
