@@ -195,6 +195,9 @@ PDecor::PDecor(Theme *theme,
       _title_wo(), _title_bg(None),
       _title_active(0), _titles_left(0), _titles_right(1)
 {
+    if (_decor_name.empty()) {
+        _decor_name = getDecorName();
+    }
     if (_decor_name != PDecor::DEFAULT_DECOR_NAME) {
         _decor_name_saved = _decor_name;
     }

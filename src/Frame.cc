@@ -49,7 +49,7 @@ bool Frame::_tag_behind = false;
 //! @brief Frame constructor
 Frame::Frame(Client *client, AutoProperty *ap)
     : PDecor(WindowManager::instance()->getTheme(),
-             Frame::getDecorName(client), client->getWindow()),
+             client->getAPDecorName(), client->getWindow()),
       _id(0), _client(client), _class_hint(0),
       _non_fullscreen_decor_state(0), _non_fullscreen_layer(LAYER_NORMAL)
 {
@@ -689,17 +689,6 @@ Frame::getDecorName(void)
 }
 
 // END - PDecor interface.
-
-/**
- * Get decor name for specified client, used in the constructor where
- * no _client has been set and a decor name should be returned.
- */
-std::string
-Frame::getDecorName(Client *client)
-{
-    string name = client->getAPDecorName();
-    return name.empty() ? getDecorNameForState(true, true, false) : name;
-}
 
 //! @brief Sets _PEKWM_FRAME_ID on all children in the frame
 void

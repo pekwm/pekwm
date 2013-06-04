@@ -193,8 +193,6 @@ private:
     static uint findFrameID(void);
     static void returnFrameID(uint id);
 
-    static std::string getDecorName(Client *client);
-
 private:
     uint _id; // unique id of the frame
 
