@@ -121,7 +121,7 @@ public:
     };
 
     PDecor(Theme *theme,
-           const std::string decor_name = DEFAULT_DECOR_NAME,
+           const std::string &decor_name = DEFAULT_DECOR_NAME,
            const Window child_window = None);
     virtual ~PDecor(void);
 

@@ -177,9 +177,9 @@ vector<PDecor*> PDecor::_pdecors;
 //! @param theme Theme
 //! @param decor_name String, if not DEFAULT_DECOR_NAME sets _decor_name_saved
 PDecor::PDecor(Theme *theme,
-               const std::string decor_name, const Window child_window)
+               const std::string &decor_name, const Window child_window)
     : PWinObj(),
-      _theme(theme),_decor_name(decor_name),
+      _theme(theme), _decor_name(decor_name),
       _child(0), _button(0), _button_press_win(None),
       _pointer_x(0), _pointer_y(0),
       _click_x(0), _click_y(0),
