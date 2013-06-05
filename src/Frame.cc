@@ -50,7 +50,7 @@ bool Frame::_tag_behind = false;
 Frame::Frame(Client *client, AutoProperty *ap)
     : PDecor(WindowManager::instance()->getTheme(),
              Frame::getDecorName(client), client->getWindow()),
-      _id(0), _client(0), _class_hint(0),
+      _id(0), _client(client), _class_hint(0),
       _non_fullscreen_decor_state(0), _non_fullscreen_layer(LAYER_NORMAL)
 {
     // PWinObj attributes
@@ -254,10 +254,10 @@ Frame::setLayer(Layer layer)
 {
     PDecor::setLayer(layer);
 
-    if (_client) {
+    if (_client->getLayer() != layer) {
         _client->setLayer(layer);
 
-        LayerObservation observation(static_cast<Layer>(layer));
+        LayerObservation observation(layer);
         _client->notifyObservers(&observation);
     }
 }
