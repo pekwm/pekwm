@@ -1418,6 +1418,28 @@ Client::setSkip(uint skip)
     X11::setLong(_window, PEKWM_FRAME_SKIP, _state.skip);
 }
 
+std::string
+Client::getAPDecorName(void)
+{
+    WindowManager *wm = WindowManager::instance(); // for convenience
+    AutoProperty *ap = wm->getAutoProperties()->findAutoProperty(getClassHint());
+    if (ap && ap->isMask(AP_DECOR)) {
+        return ap->frame_decor;
+    }
+
+    ap = wm->getAutoProperties()->findWindowTypeProperty(getWinType());
+    if (ap && ap->isMask(AP_DECOR)) {
+        return ap->frame_decor;
+    }
+
+    DecorProperty *dp = wm->getAutoProperties()->findDecorProperty(getClassHint());
+    if (dp) {
+        return dp->getName();
+    }
+
+    return "";
+}
+
 //! @brief Sends an WM_DELETE message to the client, else kills it.
 void
 Client::close(void)

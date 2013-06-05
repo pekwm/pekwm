@@ -679,11 +679,13 @@ Frame::resizeVertStep(int diff) const
 std::string
 Frame::getDecorName(void)
 {
-    string name;
     if (! demandAttention()) {
-        name = getDecorNameForClient(_client);
+        string name = _client->getAPDecorName();
+        if (! name.empty()) {
+            return name;
+        }
     }
-    return name.size() ? name : PDecor::getDecorName();
+    return PDecor::getDecorName();
 }
 
 // END - PDecor interface.
@@ -695,37 +697,8 @@ Frame::getDecorName(void)
 std::string
 Frame::getDecorName(Client *client)
 {
-    string name = getDecorNameForClient(client);
-    return name.size() ? name : getDecorNameForState(true, true, false);
-}
-
-/**
- * Return decor name matching clients property, defaults to name of decor
- * matching titlebar/border state.
- */
-std::string
-Frame::getDecorNameForClient(Client *client)
-{
-    if (! client) {
-        return "";
-    }
-
-    AutoProperty *ap = WindowManager::instance()->getAutoProperties()->findAutoProperty(client->getClassHint());
-    if (ap && ap->isMask(AP_DECOR)) {
-        return ap->frame_decor;
-    }
-
-    ap = WindowManager::instance()->getAutoProperties()->findWindowTypeProperty(client->getWinType());
-    if (ap && ap->isMask(AP_DECOR)) {
-        return ap->frame_decor;
-    }
-
-    DecorProperty *dp = WindowManager::instance()->getAutoProperties()->findDecorProperty(client->getClassHint());
-    if (dp) {
-        return dp->getName();
-    }
-
-    return "";
+    string name = client->getAPDecorName();
+    return name.empty() ? getDecorNameForState(true, true, false) : name;
 }
 
 //! @brief Sets _PEKWM_FRAME_ID on all children in the frame

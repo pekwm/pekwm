@@ -255,6 +255,8 @@ public: // Public Member Functions
         _demands_attention = attention;
     }
 
+    std::string getAPDecorName(void);
+
     void close(void);
     void kill(void);
 
