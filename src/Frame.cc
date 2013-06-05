@@ -235,7 +235,7 @@ Frame::setWorkspace(unsigned int workspace)
     // value on _workspace and not NET_WM_STICKY_WINDOW.
     if (workspace != NET_WM_STICKY_WINDOW) {
         // Check for DisallowedActions="SetWorkspace".
-        if (_client && ! _client->allowChangeWorkspace()) {
+        if (! _client->allowChangeWorkspace()) {
             return;
         }
 
@@ -360,11 +360,11 @@ Frame::handleLeaveEvent(XCrossingEvent *ev)
 ActionEvent*
 Frame::handleMapRequest(XMapRequestEvent *ev)
 {
-    if (! _client || (ev->window != _client->getWindow())) {
+    if (ev->window != _client->getWindow()) {
         return 0;
     }
 
-    if (! _sticky && (_workspace != Workspaces::getActive())) {
+    if (! _sticky && _workspace != Workspaces::getActive()) {
         LOG("Ignoring MapRequest, not on current workspace!");
         return 0;
     }
@@ -394,7 +394,7 @@ Frame::handleUnmapEvent(XUnmapEvent *ev)
 void
 Frame::handleShapeEvent(XShapeEvent *ev)
 {
-    if (! _client || ev->window != _client->getWindow()) {
+    if (ev->window != _client->getWindow()) {
         return;
     }
     applyBorderShape(ev->kind);
@@ -406,7 +406,7 @@ Frame::handleShapeEvent(XShapeEvent *ev)
 bool
 Frame::allowMove(void) const
 {
-    return _client ? _client->allowMove() : true;
+    return _client->allowMove();
 }
 
 /**
@@ -476,7 +476,7 @@ Frame::activateChild(PWinObj *child)
     // decoration from DEFAULT to REMOTE or WARNING
 
     // Sync the frame state with the client only if we already had a client
-    if (_client && _client != child) {
+    if (_client != child) {
         applyState(static_cast<Client*>(child));
     }
 
@@ -555,12 +555,7 @@ void
 Frame::getDecorInfo(wchar_t *buf, uint size)
 {
     uint width, height;
-    if (_client) {
-        calcSizeInCells(width, height);
-    } else {
-        width = _gm.width;
-        height = _gm.height;
-    }
+    calcSizeInCells(width, height);
     swprintf(buf, size, L"%d+%d+%d+%d", width, height, _gm.x, _gm.y);
 }
 
@@ -581,7 +576,7 @@ Frame::setShaded(StateAction sa)
     bool shaded = isShaded();
 
     // Check for DisallowedActions="Shade"
-    if (_client && ! _client->allowShade()) {
+    if (! _client->allowShade()) {
         sa = STATE_UNSET;
     }
 
@@ -596,10 +591,6 @@ Frame::setShaded(StateAction sa)
 int
 Frame::resizeHorzStep(int diff) const
 {
-    if (! _client) {
-        return diff;
-    }
-
     int diff_ret = 0;
     uint min = _gm.width - getChildWidth();
     if (min == 0) { // borderless windows, we don't want X errors
@@ -636,10 +627,6 @@ Frame::resizeHorzStep(int diff) const
 int
 Frame::resizeVertStep(int diff) const
 {
-    if (! _client) {
-        return diff;
-    }
-
     int diff_ret = 0;
     uint min = _gm.height - getChildHeight();
     if (min == 0) { // borderless windows, we don't want X errors
@@ -782,11 +769,7 @@ void
 Frame::setSkip(uint skip)
 {
     PDecor::setSkip(skip);
-
-    // Propagate changes on client as well
-    if (_client) {
-        _client->setSkip(skip);
-    }
+    _client->setSkip(skip);
 }
 
 //! @brief Find Frame with Window
@@ -1440,10 +1423,6 @@ Frame::moveToEdge(OrientationType ori)
 void
 Frame::updateInactiveChildInfo(void)
 {
-    if (! _client) {
-        return;
-    }
-    
     vector<PWinObj*>::const_iterator it(_children.begin());
     for (; it != _children.end(); ++it) {
         if (*it != _client) {
@@ -1565,7 +1544,7 @@ void
 Frame::setStateFullscreen(StateAction sa)
 {
     // Check for DisallowedActions="Fullscreen".
-    if (_client && ! _client->allowFullscreen()) {
+    if (! _client->allowFullscreen()) {
         sa = STATE_UNSET;
     }
 
@@ -1621,7 +1600,7 @@ void
 Frame::setStateSticky(StateAction sa)
 {
     // Check for DisallowedActions="Stick".
-    if (_client && ! _client->allowStick()) {
+    if (! _client->allowStick()) {
         sa = STATE_UNSET;
     }
 
@@ -1698,7 +1677,7 @@ void
 Frame::setStateIconified(StateAction sa)
 {
     // Check for DisallowedActions="Iconify".
-    if (_client && ! _client->allowIconify()) {
+    if (! _client->allowIconify()) {
         sa = STATE_UNSET;
     }
 
