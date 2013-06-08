@@ -281,6 +281,15 @@ public:
     void doMove(int x_root, int y_root);
     void doKeyboardMoveResize(void);
 
+    // Only moveResize if any of the arguments is different than the current geometry.
+    void checkMoveResize(int x, int y, uint width, uint height) {
+        if (x != _gm.x || _gm.y != y || _gm.width != width || _gm.height != height) {
+            moveResize(x, y, width, height);
+        }
+    }
+
+    bool isFullscreen(void) const { return _fullscreen; }
+
     //! @brief Returns border position Window win is at.
     inline BorderPosition getBorderPosition(Window win) const {
         for (uint i = 0; i < BORDER_NO_POS; ++i) {
