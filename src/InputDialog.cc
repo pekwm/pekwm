@@ -360,18 +360,17 @@ InputDialog::render(void)
 {
     _text_wo->clear();
 
+    uint pos = _data->getPad(PAD_LEFT);
+    const wchar_t *buf = _buf.c_str() + _buf_off;
+
     // draw buf content
     _data->getFont()->setColor(_data->getColor());
-
-    _data->getFont()->draw(_text_wo->getWindow(), _data->getPad(PAD_LEFT), _data->getPad(PAD_UP),
-                          _buf.c_str() + _buf_off, _buf_chars);
+    _data->getFont()->draw(_text_wo->getWindow(), pos, _data->getPad(PAD_UP), buf, _buf_chars);
 
     // draw cursor
-    uint pos = _data->getPad(PAD_LEFT);
     if (_pos > 0) {
-        pos = _data->getFont()->getWidth(_buf.c_str() + _buf_off,  _pos - _buf_off) + 1;
+        pos += _data->getFont()->getWidth(buf,  _pos - _buf_off) + 1;
     }
-
     _data->getFont()->draw(_text_wo->getWindow(), pos, _data->getPad(PAD_UP), L"|");
 }
 
