@@ -169,6 +169,7 @@ const string PDecor::DEFAULT_DECOR_NAME = string("DEFAULT");
 const string PDecor::DEFAULT_DECOR_NAME_BORDERLESS = string("BORDERLESS");
 const string PDecor::DEFAULT_DECOR_NAME_TITLEBARLESS = string("TITLEBARLESS");
 const string PDecor::DEFAULT_DECOR_NAME_ATTENTION = string("ATTENTION");
+const string PDecor::DEFAULT_DECOR_NAME_TILING = string("TILING");
 
 vector<PDecor*> PDecor::_pdecors;
 
