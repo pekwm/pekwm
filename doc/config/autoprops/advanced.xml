@@ -201,6 +201,11 @@
 		  typically done by panels and the like)
                 </para>
               </listitem>
+              <listitem>
+                <para>
+                  "Tiling" (Tiling layouters should leave this window floating)
+                </para>
+              </listitem>
             </itemizedlist>
           </para>
         </listitem>

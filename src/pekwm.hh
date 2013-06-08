@@ -321,6 +321,8 @@ enum CfgDeny {
 
     CFG_DENY_STRUT = (1L << 10), //! _NET_WM_STRUT_HINT registration.
 
+    CFG_DENY_TILING = (1L << 11), //! Deny tiling layouter to move this window
+
     CFG_DENY_NO = 0 //! No deny.
 };
 

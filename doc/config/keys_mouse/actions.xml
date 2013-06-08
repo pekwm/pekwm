@@ -148,16 +148,17 @@
             When things to be done to this window requested by the
             client program should be denied, string is one of:
             <itemizedlist>
+              <listitem><para>above (don't let client place window above other windows)</para></listitem>
+              <listitem><para>activewindow (don't let client give input focus)</para></listitem>
+              <listitem><para>below (don't let client place window below other windows)</para></listitem>
+              <listitem><para>fullscreen (don't let client set window fullscreen mode)</para></listitem>
+              <listitem><para>hidden (don't let client hide window)</para></listitem>
+              <listitem><para>maximizedhorz (don't let client maximize window horizontally)</para></listitem>
+              <listitem><para>maximizedvert (don't let client maximize a window vertically)</para></listitem>
               <listitem><para>position (don't let the client move the window)</para></listitem>
               <listitem><para>size (don't let the client resize the window)</para></listitem>
               <listitem><para>stacking (don't allow the client to raise or lower the window)</para></listitem>
-              <listitem><para>activewindow (don't let client give input focus)</para></listitem>
-              <listitem><para>maximizedvert (don't let client maximize a window vertically)</para></listitem>
-              <listitem><para>maximizedhorz (don't let client maximize window horizontally)</para></listitem>
-              <listitem><para>hidden (don't let client hide window)</para></listitem>
-              <listitem><para>fullscreen (don't let client set window fullscreen mode)</para></listitem>
-              <listitem><para>above (don't let client place window above other windows)</para></listitem>
-              <listitem><para>below (don't let client place window below other windows)</para></listitem>
+              <listitem><para>tiling (Tiling layouters should leave this window floating)</para></listitem>
             </itemizedlist>
           </para>
         </listitem>
