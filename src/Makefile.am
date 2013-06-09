@@ -62,6 +62,7 @@ pekwm_SOURCES = $(debugsource)\
 	Util.cc Util.hh \
 	WORefMenu.cc WORefMenu.hh \
 	WindowManager.cc WindowManager.hh \
+	WinLayouter.cc \
 	Workspaces.cc Workspaces.hh \
 	WorkspaceIndicator.cc WorkspaceIndicator.hh \
 	x11.cc x11.hh \
