@@ -228,19 +228,6 @@ private:
     }
 };
 
-bool
-WinLayouter::placeOnParent(Frame *wo, Window parent)
-{
-    PWinObj *wo_s = PWinObj::findPWinObj(parent);
-    if (wo_s) {
-        wo->move(wo_s->getX() + wo_s->getWidth() / 2 - wo->getWidth() / 2,
-                 wo_s->getY() + wo_s->getHeight() / 2 - wo->getHeight() / 2);
-        return true;
-    }
-
-    return false;
-}
-
 void
 WinLayouter::layout(Frame *frame, Window parent)
 {
@@ -303,6 +290,84 @@ WinLayouter::layout(Frame *frame, Window parent)
     } while (i != head_nr);
     X11::getHeadInfoWithEdge(i, _gm);
     frame->move(_gm.x, _gm.y);
+}
+
+void
+WinLayouter::setOption(vector<string> &opt, Frame *frame)
+{
+    vector<string>::size_type nropts = opt.size();
+
+    // If frame == 0 (perhaps SetPlacementOption was called by a menu entry),
+    // try to get a frame.
+    if (! frame) {
+        if (! (frame = dynamic_cast<Frame*>(PWinObj::getFocusedPWinObj()))) {
+            vector<Frame *>::const_iterator it = WindowManager::instance()->mru_begin();
+            vector<Frame *>::const_iterator end = WindowManager::instance()->mru_begin();
+            for (; it != end; ++it) {
+                if ((*it)->isMapped()) {
+                    frame = *it;
+                    break;
+                }
+            }
+            if (! frame) {
+                return;
+            }
+        }
+    }
+
+    if (! strcasecmp(opt[0].c_str(), "switchgeometry")) {
+        Frame *last = frame;
+        vector<Frame*>::const_iterator it, end;
+
+        if (nropts > 1 && Util::isTrue(opt[1])) {
+            it = WindowManager::instance()->mru_begin();
+            end = WindowManager::instance()->mru_end();
+            for (; it != end; ++it) {
+                last = *it;
+                if (last != frame && last->isMapped() && ! last->isShaded()) {
+                    break;
+                }
+            }
+        } else {
+            end = Frame::frame_end();
+            it = find(Frame::frame_begin(), end, frame);
+
+            do {
+                if (++it == end)
+                    it = Frame::frame_begin();
+                last = *it;
+            } while (last != frame && (!last->isMapped() || last->isShaded()));
+        }
+
+        if (it != end && last != frame) {
+            int x = frame->getX();
+            int y = frame->getY();
+            uint w = frame->getWidth();
+            uint h = frame->getHeight();
+
+            frame->moveResize(last->getX(), last->getY(),
+                              last->getWidth(), last->getHeight());
+            last->moveResize(x, y, w, h);
+
+            if (nropts > 2 && Util::isTrue(opt[2])) {
+                last->raise();
+                last->giveInputFocus();
+            }
+        }
+    }
+}
+
+bool
+WinLayouter::placeOnParent(Frame *wo, Window parent)
+{
+    PWinObj *wo_s = PWinObj::findPWinObj(parent);
+    if (wo_s) {
+        wo->move(wo_s->getX() + wo_s->getWidth() / 2 - wo->getWidth() / 2,
+                 wo_s->getY() + wo_s->getHeight() / 2 - wo->getHeight() / 2);
+        return true;
+    }
+
+    return false;
 }
 
 int WinLayouter::_ptr_x;

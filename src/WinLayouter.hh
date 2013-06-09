@@ -22,7 +22,7 @@ public:
     bool isTiling(void) const { return _tiling; }
 
     void layout(Frame *f, Window parent);
-    virtual void setOption(std::vector<std::string> &, Frame *) {}
+    virtual void setOption(std::vector<std::string> &, Frame *);
 
 protected:
     // temp. variables that get filled in by layout() (if !_tiling).
