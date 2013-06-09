@@ -209,7 +209,6 @@ WindowManager::~WindowManager(void)
     delete _action_handler;
     delete _autoproperties;
     delete _keygrabber;
-    Workspaces::free();
     delete _config;
     delete _theme;
     delete _font_handler;

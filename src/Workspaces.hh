@@ -25,19 +25,22 @@ class FrameWidget;
 
 class Workspace {
 public:
-    Workspace(const std::wstring &name, uint number);
+    Workspace() : _name(), _last_focused(0) { }
+    Workspace(const Workspace &w) : _name(w._name),
+          _last_focused(w._last_focused)
+    {
+    }
     ~Workspace(void);
+    Workspace &operator=(const Workspace &w);
 
-    inline std::wstring &getName(void) { return _name; }
-    void setName(const std::wstring &name) { _name = name; }
-    inline uint getNumber(void) { return _number; }
-    inline PWinObj* getLastFocused(void) { return _last_focused; }
+    inline const std::wstring &getName(void) const { return _name; }
+    inline void setName(const std::wstring &name) { _name = name; }
 
+    inline PWinObj* getLastFocused(void) const { return _last_focused; }
     inline void setLastFocused(PWinObj* wo) { _last_focused = wo; }
 
 private:
     std::wstring _name;
-    uint _number;
 
     PWinObj *_last_focused;
 };
@@ -49,17 +52,12 @@ public:
     typedef std::vector<PWinObj*>::reverse_iterator reverse_iterator;
     typedef std::vector<PWinObj*>::const_reverse_iterator const_reverse_iterator;
 
-    static void free(void);
-
-    static inline uint size(void) { return _workspace_list.size(); }
     static inline iterator begin(void) { return _wobjs.begin(); }
     static inline iterator end(void) { return _wobjs.end(); }
     static inline reverse_iterator rbegin(void) { return _wobjs.rbegin(); }
     static inline reverse_iterator rend(void) { return _wobjs.rend(); }
 
-    static vector<Workspace*>::iterator ws_begin(void) { return _workspace_list.begin(); }
-    static vector<Workspace*>::iterator ws_end(void) { return _workspace_list.end(); }
-
+    static inline uint size(void) { return _workspaces.size(); }
     static inline uint getActive(void) { return _active; }
     static inline uint getPrevious(void) { return _previous; }
     static uint getRow(int active = -1) {
@@ -80,8 +78,8 @@ public:
     static void setWorkspace(uint num, bool focus);
     static bool gotoWorkspace(uint direction, bool warp);
 
-    static Workspace *getActiveWorkspace(void) {
-        return _workspace_list[_active];
+    static Workspace &getActWorkspace(void) {
+        return _workspaces[_active];
     }
 
     static void insert(PWinObj* wo, bool raise = true);
@@ -126,7 +124,7 @@ private:
     static uint _per_row; /**< Workspaces per row in layout. */
 
     static vector<PWinObj*> _wobjs;
-    static vector<Workspace*> _workspace_list;
+    static vector<Workspace> _workspaces;
 };
 
 #endif // _WORKSPACES_HH_

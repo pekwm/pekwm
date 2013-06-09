@@ -94,8 +94,8 @@ WorkspaceIndicator::Display::render(void)
 
     data.font->setColor(data.font_color);
     data.font->draw(_pixmap, data.edge_padding, _gm.height - data.edge_padding - data.font->getHeight(),
-                     Workspaces::getActiveWorkspace()->getName(),
-                     0 /* max_chars */, _gm.width - data.edge_padding * 2 /* max_width */);
+                    Workspaces::getActWorkspace().getName(),
+                    0 /* max_chars */, _gm.width - data.edge_padding * 2 /* max_width */);
 
     // Refresh
     setBackgroundPixmap(_pixmap);
@@ -125,18 +125,17 @@ WorkspaceIndicator::Display::renderWorkspaces(int x, int y, uint width, uint hei
     uint x_pos = x;
     uint y_pos = y;
 
-    vector<Workspace*>::iterator it(Workspaces::ws_begin());
-
-    for (uint row = 0; it != Workspaces::ws_end(); ++it) {
+    vector<Workspace>::size_type i=0;
+    for (uint row = 0; i < Workspaces::size(); ++i) {
         // Check for next row
-        if (Workspaces::getRow((*it)->getNumber()) > row) {
-            row = Workspaces::getRow((*it)->getNumber());
+        if (Workspaces::getRow(i) > row) {
+            row = Workspaces::getRow(i);
 
             x_pos = x;
             y_pos += ws_height + data.workspace_padding;
         }
 
-        if ((*it)->getNumber() == Workspaces::getActive()) {
+        if (i == Workspaces::getActive()) {
             data.texture_workspace_act->render(_pixmap, x_pos, y_pos, ws_width, ws_height);
         } else {
             data.texture_workspace->render(_pixmap, x_pos, y_pos, ws_width, ws_height);

@@ -40,15 +40,17 @@ using std::wstring;
 using std::cerr;
 using std::endl;
 
-// Workspaces::Workspace
-
-Workspace::Workspace(const std::wstring &name, uint number)
-  : _name(name), _number(number), _last_focused(0)
-{
-}
+// Workspace
 
 Workspace::~Workspace(void)
 {
+}
+
+Workspace &Workspace::operator=(const Workspace &w)
+{
+    _name = w._name;
+    _last_focused = w._last_focused;
+    return *this;
 }
 
 // Workspaces
@@ -57,17 +59,7 @@ uint Workspaces::_active;
 uint Workspaces::_previous;
 uint Workspaces::_per_row;
 vector<PWinObj*> Workspaces::_wobjs;
-vector<Workspace *> Workspaces::_workspace_list;
-
-//! @brief Workspaces destructor
-void
-Workspaces::free(void)
-{
-    vector<Workspace*>::iterator it(_workspace_list.begin());
-    for (; it != _workspace_list.end(); ++it) {
-        delete *it;
-    }
-}
+vector<Workspace> Workspaces::_workspaces;
 
 //! @brief Sets total amount of workspaces to number
 void
@@ -77,11 +69,11 @@ Workspaces::setSize(uint number)
         number = 1;
     }
 
-    if (number == _workspace_list.size()) {
+    if (number == _workspaces.size()) {
         return; // no need to change number of workspaces to the current number
     }
 
-    uint before = _workspace_list.size();
+    uint before = _workspaces.size();
     if (_active >= number) {
         _active = number - 1;
     }
@@ -89,24 +81,10 @@ Workspaces::setSize(uint number)
         _previous = number - 1;
     }
 
-    // We have more workspaces than we want, lets remove the last ones
-    if (before > number) {
-        const_iterator it(_wobjs.begin());
-        for (; it != _wobjs.end(); ++it) {
-            if ((*it)->getWorkspace() > (number - 1))
-                (*it)->setWorkspace(number - 1);
-        }
+    _workspaces.resize(number);
 
-        for (uint i = before - 1; i >= number; --i) {
-            delete _workspace_list[i];
-        }
-
-        _workspace_list.resize(number, 0);
-
-    } else { // We need more workspaces, lets create some
-        for (uint i = before; i < number; ++i) {
-            _workspace_list.push_back(new Workspace(getWorkspaceName(i), i));
-        }
+    for (uint i = before; i < number; ++i) {
+        _workspaces[i].setName(getWorkspaceName(i));
     }
 
     // Tell the rest of the world how many workspaces we have.
@@ -128,9 +106,9 @@ Workspaces::setSize(uint number)
 void
 Workspaces::setNames(void)
 {
-    vector<Workspace*>::iterator it(_workspace_list.begin());
-    for (; it != _workspace_list.end(); ++it) {
-        (*it)->setName(Config::instance()->getWorkspaceName((*it)->getNumber()));
+    vector<Workspace>::size_type i=0, size=_workspaces.size();
+    for (; i<size; ++i) {
+        _workspaces[i].setName(Config::instance()->getWorkspaceName(i));
     }
 }
 
@@ -140,7 +118,7 @@ Workspaces::setNames(void)
 void
 Workspaces::setWorkspace(uint num, bool focus)
 {
-    if ((num == _active) || ( num >= _workspace_list.size())) {
+    if (num == _active || num >= _workspaces.size()) {
         return;
     }
 
@@ -225,7 +203,7 @@ Workspaces::gotoWorkspace(uint direction, bool warp)
         workspace = _active - per_row;
       } else if (direction == WORKSPACE_PREV_V) {
         // Bottom left
-        workspace = _workspace_list.size() - per_row;
+        workspace = _workspaces.size() - per_row;
         // Add column
         workspace += _active - cur_row * per_row;
       } else {
@@ -234,16 +212,16 @@ Workspaces::gotoWorkspace(uint direction, bool warp)
       break;
     case WORKSPACE_NEXT_V:
     case WORKSPACE_DOWN:
-      dir = -2;
+        dir = -2;
 
-      if ((_active + per_row) < _workspace_list.size()) {
-        workspace = _active + per_row;
-      } else if (direction == WORKSPACE_NEXT_V) {
-        workspace = _active - cur_row * per_row;
-      } else {
-        switched = false;
-      }
-      break;
+        if (_active + per_row < _workspaces.size()) {
+            workspace = _active + per_row;
+        } else if (direction == WORKSPACE_NEXT_V) {
+            workspace = _active - cur_row * per_row;
+        } else {
+            switched = false;
+        }
+        break;
     case WORKSPACE_LAST:
         workspace = _previous;
         if (_active == workspace) {
@@ -273,7 +251,7 @@ Workspaces::gotoWorkspace(uint direction, bool warp)
 bool
 Workspaces::warpToWorkspace(uint num, int dir)
 {
-    if ((num == _active) || ( num >= _workspace_list.size())) {
+    if (num == _active || num >= _workspaces.size()) {
         return false;
     }
 
@@ -397,10 +375,10 @@ Workspaces::remove(PWinObj* wo)
     }
 
     // remove from last focused
-    vector<Workspace*>::iterator it(_workspace_list.begin());
-    for (; it != _workspace_list.end(); ++it) {
-        if (wo == (*it)->getLastFocused()) {
-            (*it)->setLastFocused(0);
+    vector<Workspace>::iterator it(_workspaces.begin());
+    for (; it != _workspaces.end(); ++it) {
+        if (wo == (*it).getLastFocused()) {
+            (*it).setLastFocused(0);
         }
     }
 }
@@ -433,7 +411,7 @@ Workspaces::unhideAll(uint workspace, bool focus)
     // Try to focus last focused window and if that fails we get the top-most
     // Frame if any and give it focus.
     if (focus) {
-        PWinObj *wo = _workspace_list[workspace]->getLastFocused();
+        PWinObj *wo = _workspaces[workspace].getLastFocused();
         if (! wo || ! PWinObj::windowObjectExists(wo)) {
             wo = getTopWO(PWinObj::WO_FRAME);
         }
@@ -501,21 +479,21 @@ Workspaces::lower(PWinObj* wo)
 PWinObj*
 Workspaces::getLastFocused(uint workspace)
 {
-    if (workspace >= _workspace_list.size()) {
+    if (workspace >= _workspaces.size()) {
         return 0;
     }
-    return _workspace_list[workspace]->getLastFocused();
+    return _workspaces[workspace].getLastFocused();
 }
 
 //! @brief
 void
 Workspaces::setLastFocused(uint workspace, PWinObj* wo)
 {
-    if (workspace >= _workspace_list.size()) {
+    if (workspace >= _workspaces.size()) {
         return;
     }
     
-    _workspace_list[workspace]->setLastFocused(wo);
+    _workspaces[workspace].setLastFocused(wo);
 }
 
 //! @brief Create name for workspace num
