@@ -133,22 +133,22 @@ Esetroot -s mybackground.png &amp;</screen>
     </para>
 
     <para>
-      <emphasis>Check the ChangeLog</emphasis> - If something
-      configurable wise has been changed, it has also been documented
-      in the <filename>ChangeLog</filename>.  This is a helpful
-      resource when you want to convert your old configuration files
-      to a newer configuration format.
+      <emphasis>Check the wiki</emphasis> - If something
+      configurable wise has been changed, it has been documented
+      on the wiki page for the release. You can find the wiki on
+      pekwm's homepage. This is a helpful resource when you want
+      to convert your old configuration files to a newer
+      configuration format.
     </para>
 
     <para>
       <emphasis>Look under the source trees <filename>data/</filename>
       directory for reference</emphasis> - If you can't find info
       about a new feature or for some reason you don't understand the
-      brief explanation in the <filename>ChangeLog</filename>, there
-      is a <filename>data/</filename> directory in the source package
-      of pekwm that has example configuration files (that act as the
-      default configs on a new install). Chances are you'll find help
-      from there.
+      brief explanation on the wiki, there is a <filename>data/</filename>
+      directory in the source package of pekwm that has example
+      configuration files (these act as the default configuration on a
+      new install). Chances are you'll find help from there.
     </para>
 
     <para>
