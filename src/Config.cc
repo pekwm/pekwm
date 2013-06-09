@@ -1486,7 +1486,7 @@ Config::getMouseButton(const std::string &button)
 {
     uint btn;
 
-    if (button.size() == 1) { // it's a button
+    if (button.size() == 1 || button.size() == 2) { // it's a button
         btn = unsigned(strtol(button.c_str(), 0, 10));
     } else if (strcasecmp(button.c_str(), "ANY") == 0) { // any button
         btn = BUTTON_ANY;
