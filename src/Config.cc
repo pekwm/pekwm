@@ -99,9 +99,10 @@ Config::Config(void) :
         _screen_placement_row(false),
         _screen_placement_ltr(true), _screen_placement_ttb(true),
         _screen_placement_offset_x(0), _screen_placement_offset_y(0),
+        _place_trans_parent(true),
         _screen_client_unique_name(true),
         _screen_client_unique_name_pre(" #"), _screen_client_unique_name_post(""),
-	_screen_report_all_clients(false),
+        _screen_report_all_clients(false),
         _menu_select_mask(0), _menu_enter_mask(0), _menu_exec_mask(0),
         _menu_display_icons(true),
         _menu_focus_opacity(EWMH_OPAQUE_WINDOW),
@@ -680,6 +681,11 @@ Config::loadScreen(CfgParser::Entry *section)
             for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
             keys.clear();
         }
+
+        keys.push_back(new CfgParserKeyBool("TRANSIENTONPARENT", _place_trans_parent, true));
+        sub->parse_key_values(keys.begin(), keys.end());
+        for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+        keys.clear();
     }
 
     // Fallback value

@@ -151,6 +151,7 @@ public:
     inline bool isHonourRandr(void) const { return _screen_honour_randr; }
     inline bool isHonourAspectRatio(void) const { return _screen_honour_aspectratio; }
 
+    inline bool placeTransOnParent(void) const { return _place_trans_parent; }
     inline vector<uint>::const_iterator getPlacementModelBegin(void) { return _screen_placementmodels.begin(); }
     inline vector<uint>::const_iterator getPlacementModelEnd(void) { return _screen_placementmodels.end(); }
 
@@ -302,6 +303,7 @@ private:
     bool _screen_placement_row, _screen_placement_ltr, _screen_placement_ttb;
     int _screen_placement_offset_x, _screen_placement_offset_y;
     vector<uint> _screen_placementmodels;
+    bool _place_trans_parent;
     bool _screen_client_unique_name;
     std::string _screen_client_unique_name_pre, _screen_client_unique_name_post;
     bool _screen_report_all_clients;

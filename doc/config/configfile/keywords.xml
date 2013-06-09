@@ -233,6 +233,12 @@
       <title>Config File Elements under the Placement-subsection of the Screen-section:</title>
 
       <varlistentry>
+        <term>TransientOnParent (bool)</term>
+        <listitem>
+          <para>Set to true if you want the transient windows to be mappend on their "parent" window (tiling layouters might ignore this option).</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
         <term>Model (string)</term>
 
 	<listitem>
