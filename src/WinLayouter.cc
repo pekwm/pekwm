@@ -250,7 +250,26 @@ Workspaces::placeCenteredOnParent(PWinObj *wo, Window parent)
     return false;
 }
 
+void
+WinLayouter::layout(Frame *frame, Window parent)
+{
+    if (frame) {
+        frame->updateDecor();
+    }
+
+    if (_tiling) {
+        layout_impl(frame);
+        return;
+    }
+}
+
 int WinLayouter::_ptr_x;
 int WinLayouter::_ptr_y;
 Geometry WinLayouter::_gm;
 
+WinLayouter *WinLayouterFactory(std::string l) {
+    Util::to_upper(l);
+    const char *str = l.c_str();
+
+    return 0;
+}

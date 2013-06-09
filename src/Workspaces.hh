@@ -13,22 +13,21 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
-#include "pekwm.hh"
-
 #include <string>
 
-class Strut;
-class EwmhAtoms;
+#include "pekwm.hh"
+#include "WinLayouter.hh"
+
 class PWinObj;
 class Frame;
-class FrameWidget;
 
 class Workspace {
 public:
-    Workspace() : _name(), _last_focused(0) { }
-    Workspace(const Workspace &w) : _name(w._name),
+    Workspace() : _name(), _layouter(0), _last_focused(0) { }
+    Workspace(const Workspace &w) : _name(w._name), _layouter(w._layouter),
           _last_focused(w._last_focused)
     {
+        w._layouter = 0;
     }
     ~Workspace(void);
     Workspace &operator=(const Workspace &w);
@@ -36,13 +35,21 @@ public:
     inline const std::wstring &getName(void) const { return _name; }
     inline void setName(const std::wstring &name) { _name = name; }
 
+    inline WinLayouter *getLayouter(void) const {
+        return _layouter?_layouter:_default_layouter;
+    }
+    void setLayouter(WinLayouter *);
+    static void setDefaultLayouter(const std::string &);
+
     inline PWinObj* getLastFocused(void) const { return _last_focused; }
     inline void setLastFocused(PWinObj* wo) { _last_focused = wo; }
 
 private:
     std::wstring _name;
-
+    mutable WinLayouter *_layouter; // evil hack, will change with C++11
     PWinObj *_last_focused;
+
+    static WinLayouter *_default_layouter;
 };
 
 class Workspaces {
@@ -81,6 +88,12 @@ public:
     static Workspace &getActWorkspace(void) {
         return _workspaces[_active];
     }
+
+    static void layout(Frame *f=0, Window parent=None) {
+        _workspaces[_active].getLayouter()->layout(f, parent);
+    }
+    static void layoutOnce(const std::string &layouter);
+    static void setLayouter(uint workspace, const std::string &layouter);
 
     static void insert(PWinObj* wo, bool raise = true);
     static void remove(PWinObj* wo);

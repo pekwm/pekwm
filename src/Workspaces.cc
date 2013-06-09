@@ -19,6 +19,7 @@
 #include "Frame.hh"
 #include "Client.hh" // For isSkip()
 #include "WindowManager.hh"
+#include "WinLayouter.hh"
 #include "WorkspaceIndicator.hh"
 #include "x11.hh"
 
@@ -44,13 +45,34 @@ using std::endl;
 
 Workspace::~Workspace(void)
 {
+    delete _layouter;
 }
 
 Workspace &Workspace::operator=(const Workspace &w)
 {
     _name = w._name;
+    delete _layouter;
+    _layouter = w._layouter;
+    w._layouter = 0;
     _last_focused = w._last_focused;
     return *this;
+}
+
+void
+Workspace::setLayouter(WinLayouter *wl)
+{
+    delete _layouter;
+    _layouter = wl;
+}
+
+void
+Workspace::setDefaultLayouter(const std::string &layo)
+{
+    WinLayouter *wl = WinLayouterFactory(layo);
+    if (wl) {
+        delete _default_layouter;
+        _default_layouter = wl;
+    }
 }
 
 // Workspaces
@@ -60,6 +82,7 @@ uint Workspaces::_previous;
 uint Workspaces::_per_row;
 vector<PWinObj*> Workspaces::_wobjs;
 vector<Workspace> Workspaces::_workspaces;
+WinLayouter *Workspace::_default_layouter = WinLayouterFactory("SMART");
 
 //! @brief Sets total amount of workspaces to number
 void
@@ -283,6 +306,24 @@ Workspaces::warpToWorkspace(uint num, int dir)
     setWorkspace(num, true);
 
     return true;
+}
+
+void
+Workspaces::layoutOnce(const std::string &layouter)
+{
+    if (WinLayouter *wl = WinLayouterFactory(layouter)) {
+        wl->layout(0, false);
+        delete wl;
+    }
+}
+
+void
+Workspaces::setLayouter(uint ws, const std::string &layouter)
+{
+    if (ws >= _workspaces.size()) {
+        _workspaces.resize(ws+1);
+    }
+    _workspaces[ws].setLayouter(WinLayouterFactory(layouter));
 }
 
 /**
