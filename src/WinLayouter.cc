@@ -8,6 +8,7 @@
 
 #include "pekwm.hh"
 #include "WinLayouter.hh"
+#include "LayouterTiling.hh"
 
 #include "Client.hh"
 #include "Frame.hh"
@@ -389,6 +390,33 @@ WinLayouter *WinLayouterFactory(std::string l) {
     }
     if (! strcmp(str, "MOUSETOPLEFT")) {
         return new LayouterMouseTopLeft;
+    }
+    if (! strncmp("TILE_", str, 5)) {
+        str += 5;
+        if (! strcmp("BOXED", str)) {
+            return new LayouterBoxed(false);
+        }
+        if (! strcmp("CENTERONE", str)) {
+            return new LayouterBoxed(true);
+        }
+        if (! strcmp("DWINDLE", str)) {
+            return new LayouterDwindle;
+        }
+        if (! strcmp("FIBONACCI", str)) {
+            return new LayouterFibonacci;
+        }
+        if (! strcmp("HORIZ", str)) {
+            return new LayouterLayers(true);
+        }
+        if (! strcmp("STACKED", str)) {
+            return new LayouterStacked;
+        }
+        if (! strcmp("TRIPLE", str)) {
+            return new LayouterTriple;
+        }
+        if (! strcmp("VERT", str)) {
+            return new LayouterLayers(false);
+        }
     }
 
     return 0;

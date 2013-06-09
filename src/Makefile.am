@@ -33,6 +33,7 @@ pekwm_SOURCES = $(debugsource)\
 	ImageHandler.cc ImageHandler.hh \
 	InputDialog.cc InputDialog.hh \
 	KeyGrabber.cc KeyGrabber.hh \
+	LayouterTiling.cc LayouterTiling.hh \
 	ManagerWindows.cc ManagerWindows.hh \
 	MenuHandler.cc MenuHandler.hh \
 	Observer.hh \
