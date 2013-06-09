@@ -1509,11 +1509,16 @@ PDecor::setSkip(uint skip)
 std::string
 PDecor::getDecorName(void)
 {
+    if (Workspaces::isTiling(_workspace) && allowTiling()) {
+        return DEFAULT_DECOR_NAME_TILING;
+    }
     if (_attention) {
         return DEFAULT_DECOR_NAME_ATTENTION;
-    } else if (_titlebar && _border) {
+    }
+    if (_titlebar && _border) {
         return DEFAULT_DECOR_NAME;
-    } else if (_border) {
+    }
+    if (_border) {
         return DEFAULT_DECOR_NAME_TITLEBARLESS;
     }
     return DEFAULT_DECOR_NAME_BORDERLESS;

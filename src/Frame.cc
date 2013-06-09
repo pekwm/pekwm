@@ -225,6 +225,8 @@ Frame::stick(void)
 
     // make sure it's visible/hidden
     PDecor::setWorkspace(Workspaces::getActive());
+    Workspaces::layoutIfTiling();
+    updateDecor();
 }
 
 //! @brief Sets workspace on frame, wrapper to allow autoproperty loading
@@ -247,6 +249,7 @@ Frame::setWorkspace(unsigned int workspace)
     }
 
     PDecor::setWorkspace(workspace);
+    updateDecor();
 }
 
 void
