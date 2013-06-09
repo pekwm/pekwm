@@ -639,54 +639,6 @@ Workspaces::updateClientStackingList(void)
     delete [] windows;
 }
 
-// PLACEMENT ROUTINES
-
-//! @brief Tries to place the Wo.
-void
-Workspaces::placeWo(PWinObj *wo, Window parent)
-{
-    Geometry head;
-    int i, head_nr = X11::getCurrHead();
-    vector<bool> fsHead(X11::getNumHeads(), false);
-
-    // Collect the information which head has a fullscreen window.
-    // To be conservative for now we ignore fullscreen windows on
-    // the desktop or normal layer, because it might be a file
-    // manager in desktop mode, for example.
-    vector<PWinObj*>::const_iterator it(_wobjs.begin()), end(_wobjs.end());
-    for (; it != end; ++it) {
-        if ((*it)->isMapped() && (*it)->getType() == PWinObj::WO_FRAME) {
-            Client *client = static_cast<Frame*>((*it))->getActiveClient();
-            if (client && client->isFullscreen()
-                       && client->getLayer()>LAYER_NORMAL) {
-                fsHead[client->getHead()] = true;
-            }
-        }
-    }
-
-    // Try to place the window
-    i = head_nr;
-    do {
-        if (! fsHead[i] && placeWo(wo, i, parent)) {
-            return;
-        }
-        i = (i+1)%X11::getNumHeads();
-    } while (i != head_nr);
-
-    // We failed to place the window, so put it in the top-left
-    // corner but still try to avoid a head with fullscreen window on.
-    i = head_nr;
-    do {
-        if (! fsHead[i]) {
-            break;
-        }
-        i = (i+1)%X11::getNumHeads();
-    } while (i != head_nr);
-
-    X11::getHeadInfoWithEdge(i, head);
-    wo->move(head.x, head.y);
-}
-
 /**
  * Make sure window is inside screen boundaries.
  */

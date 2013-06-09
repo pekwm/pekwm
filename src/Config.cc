@@ -14,6 +14,7 @@
 
 #include "Compat.hh"
 #include "Util.hh"
+#include "Workspaces.hh"
 #include "x11.hh" // for DPY in keyconfig code
 
 #include <iostream>
@@ -656,13 +657,16 @@ Config::loadScreen(CfgParser::Entry *section)
     if (sub) {
         value = sub->find_entry("MODEL");
         if (value) {
-            _screen_placementmodels.clear();
+            Workspace::setDefaultLayouter(value->get_value());
+        }
 
-            vector<string> models;
-            if (Util::splitString(value->get_value(), models, " \t")) {
-                vector<string>::iterator it(models.begin());
-                for (; it != models.end(); ++it)
-                    _screen_placementmodels.push_back(ParseUtil::getValue<PlacementModel>(*it, _placement_map));
+        value = sub->find_entry("WORKSPACEPLACEMENTS");
+        if (value) {
+            vs.clear();
+            if (Util::splitString(value->get_value(), vs, ";", 0, true)) {
+                for (uint i = 0; i < vs.size(); ++i) {
+                    Workspaces::setLayouter(i, vs[i]);
+                }
             }
         }
 
@@ -686,11 +690,6 @@ Config::loadScreen(CfgParser::Entry *section)
         sub->parse_key_values(keys.begin(), keys.end());
         for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
         keys.clear();
-    }
-
-    // Fallback value
-    if (! _screen_placementmodels.size()) {
-        _screen_placementmodels.push_back(PLACE_MOUSE_CENTERED);
     }
 
     sub = section->find_section("UNIQUENAMES");

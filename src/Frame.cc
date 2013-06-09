@@ -134,7 +134,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
 
     // still need a position?
     if (place) {
-        Workspaces::placeWo(this, client->getTransientForClientWindow());
+        Workspaces::layout(this, client->getTransientForClientWindow());
     }
 
     _old_gm = _gm;

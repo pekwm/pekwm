@@ -49,7 +49,9 @@ Screen {
 	DoubleClickTime = "250"
 
 	Placement {
-		Model = "CenteredOnParent Smart MouseCentered"
+		Model = "Smart"
+		WorkspacePlacements = "Smart;MouseCentered"
+		TransientOnParent = "True"
 		Smart {
 			Row = "False"
 			TopToBottom = "True"

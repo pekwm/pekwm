@@ -110,7 +110,6 @@ public:
     static PWinObj* getTopWO(uint type_mask);
     static void updateClientList(void);
     static void updateClientStackingList(void);
-    static void placeWo(PWinObj *wo, Window parent);
     static void placeWoInsideScreen(PWinObj *wo);
 
     static PWinObj *findDirectional(PWinObj *wo, DirectionType dir, uint skip = 0);
@@ -120,17 +119,6 @@ private:
     static bool warpToWorkspace(uint num, int dir);
 
     static std::wstring getWorkspaceName(uint num);
-
-    // placement
-    static bool placeWo(PWinObj *wo, uint head_num, Window parent);
-    static bool placeSmart(PWinObj *wo, const Geometry &head);
-    static bool placeMouseNotUnder(PWinObj *wo, const Geometry &head);
-    static bool placeMouseCentered(PWinObj *wo);
-    static bool placeMouseTopLeft(PWinObj *wo);
-    static bool placeCenteredOnParent(PWinObj *wo, Window parent);
-
-    // placement helpers
-    static PWinObj* isEmptySpace(int x, int y, const PWinObj *wo);
 
     static uint _active; /**< Current active workspace. */
     static uint _previous; /**< Previous workspace. */

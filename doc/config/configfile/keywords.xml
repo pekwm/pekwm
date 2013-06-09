@@ -240,27 +240,32 @@
       </varlistentry>
       <varlistentry>
         <term>Model (string)</term>
-
-	<listitem>
+        <listitem>
           <para>
             <itemizedlist>
-	      <listitem>
+              <listitem>
                 <para>Smart - Tries to place windows where no other window is present</para>
               </listitem>
-	      <listitem>
+              <listitem>
                 <para>MouseCentered - Places the center of the window underneath the current mouse pointer position</para>
               </listitem>
-	      <listitem>
+              <listitem>
                 <para>MouseTopLeft - Places the top-left corner of the window under the pointer</para>
               </listitem>
-	      <listitem>
+              <listitem>
                 <para>MouseNotUnder - Places windows on screen corners avoiding the current mouse cursor position.</para>
               </listitem>
-	      <listitem>
+              <listitem>
                 <para>CenteredOnParent - Places transient windows at center of their parent window.</para>
               </listitem>
-	    </itemizedlist>
-          </para>
+              </itemizedlist>
+           </para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
+        <term>WorkspacePlacements (string)</term>
+        <listitem>
+          <para>List of placement models for the workspaces separated by ;. For an explanation of the allowed options see "Model" above.</para>
         </listitem>
       </varlistentry>
     </variablelist>
