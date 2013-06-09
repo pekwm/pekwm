@@ -193,13 +193,6 @@ Config::Config(void) :
     _action_access_mask_map["SETWORKSPACE"] = ACTION_ACCESS_CHANGE_DESKTOP;
     _action_access_mask_map["CLOSE"] = ACTION_ACCESS_CLOSE;
 
-    _placement_map[""] = PLACE_NO;
-    _placement_map["SMART"] = PLACE_SMART;
-    _placement_map["MOUSENOTUNDER"] = PLACE_MOUSE_NOT_UNDER;
-    _placement_map["MOUSECENTERED"] = PLACE_MOUSE_CENTERED;
-    _placement_map["MOUSETOPLEFT"] = PLACE_MOUSE_TOP_LEFT;
-    _placement_map["CENTEREDONPARENT"] = PLACE_CENTERED_ON_PARENT;
-
     _edge_map[""] = NO_EDGE;
     _edge_map["TOPLEFT"] = TOP_LEFT;
     _edge_map["TOPEDGE"] = TOP_EDGE;

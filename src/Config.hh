@@ -152,8 +152,6 @@ public:
     inline bool isHonourAspectRatio(void) const { return _screen_honour_aspectratio; }
 
     inline bool placeTransOnParent(void) const { return _place_trans_parent; }
-    inline vector<uint>::const_iterator getPlacementModelBegin(void) { return _screen_placementmodels.begin(); }
-    inline vector<uint>::const_iterator getPlacementModelEnd(void) { return _screen_placementmodels.end(); }
 
     inline bool getPlacementRow(void) const { return _screen_placement_row; }
     inline bool getPlacementLtR(void) const { return _screen_placement_ltr; }
@@ -302,7 +300,6 @@ private:
     bool _screen_honour_aspectratio; /**< if true, pekwm keeps aspect ratio (XSizeHint) */
     bool _screen_placement_row, _screen_placement_ltr, _screen_placement_ttb;
     int _screen_placement_offset_x, _screen_placement_offset_y;
-    vector<uint> _screen_placementmodels;
     bool _place_trans_parent;
     bool _screen_client_unique_name;
     std::string _screen_client_unique_name_pre, _screen_client_unique_name_post;
@@ -331,7 +328,6 @@ private:
 
     std::map<ParseUtil::Entry, std::pair<ActionType, uint> > _action_map;
     std::map<ParseUtil::Entry, ActionAccessMask> _action_access_mask_map;
-    std::map<ParseUtil::Entry, PlacementModel> _placement_map;
     std::map<ParseUtil::Entry, OrientationType> _edge_map;
     std::map<ParseUtil::Entry, Raise> _raise_map;
     std::map<ParseUtil::Entry, Skip> _skip_map;
