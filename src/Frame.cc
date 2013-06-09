@@ -1448,6 +1448,10 @@ Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
     setShaded(STATE_UNSET);
     setStateFullscreen(STATE_UNSET);
 
+    if (Workspaces::isTiling(_workspace) && allowTiling()) {
+        return;
+    }
+
     // make sure the two states are in sync if toggling
     if ((horz == vert) && (sa == STATE_TOGGLE)) {
         if (_maximized_horz != _maximized_vert) {
@@ -2117,6 +2121,10 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
 void
 Frame::handleConfigureRequestGeometry(XConfigureRequestEvent *ev, Client *client)
 {
+    if (Workspaces::isTiling(_workspace) && allowTiling()) {
+        return;
+    }
+
     if (isRequestGeometryFullscreen(ev, client)) {
         client->configureRequestSend();
         return;

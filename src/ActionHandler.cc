@@ -119,20 +119,28 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 gotoClient(client);
                 break;
             case ACTION_MAXFILL:
-                frame->setStateMaximized(STATE_SET,
-                                         it->getParamI(0), it->getParamI(1), true);
+                if (! Workspaces::isTiling(frame->getWorkspace()) || ! frame->allowTiling()) {
+                    frame->setStateMaximized(STATE_SET,
+                                             it->getParamI(0), it->getParamI(1), true);
+                }
                 break;
             case ACTION_GROW_DIRECTION:
-                frame->growDirection(it->getParamI(0));
+                if (! Workspaces::isTiling(frame->getWorkspace()) || ! frame->allowTiling()) {
+                    frame->growDirection(it->getParamI(0));
+                }
                 break;
             case ACTION_RESIZE:
-                if (ap.type == MotionNotify && ! it->getParamI(0))
-                    frame->doResize(ap.event.motion);
-                else
-                    frame->doResize( BorderPosition(it->getParamI(0)-1) );
+                if (! Workspaces::isTiling(frame->getWorkspace()) || ! frame->allowTiling()) {
+                    if (ap.type == MotionNotify && ! it->getParamI(0))
+                        frame->doResize(ap.event.motion);
+                    else
+                        frame->doResize(BorderPosition(it->getParamI(0)-1));
+                }
                 break;
             case ACTION_MOVE_RESIZE:
-                frame->doKeyboardMoveResize();
+                if (! Workspaces::isTiling(frame->getWorkspace()) || ! frame->allowTiling()) {
+                    frame->doKeyboardMoveResize();
+                }
                 break;
             case ACTION_CLOSE:
                 client->close();
