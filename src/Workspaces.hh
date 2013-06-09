@@ -94,6 +94,16 @@ public:
     }
     static void layoutOnce(const std::string &layouter);
     static void setLayouter(uint workspace, const std::string &layouter);
+    static bool isTiling(void) { return isTiling(_active); }
+    static bool isTiling(uint ws) {
+        return ws < _workspaces.size()?_workspaces[ws].getLayouter()->isTiling():false;
+    }
+
+    static void layoutIfTiling(Frame *f=0) {
+        if (isTiling(_active)) {
+            layout(f);
+        }
+    }
 
     static void insert(PWinObj* wo, bool raise = true);
     static void remove(PWinObj* wo);
