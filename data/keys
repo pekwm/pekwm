@@ -245,6 +245,8 @@ Global {
 		Keypress = "F" { Actions = "Toggle Skip FocusToggle" }
 		Keypress = "S" { Actions = "Toggle Skip Snap" }
 	}
+
+    KeyPress = "Mod4 Space" { Actions = "SetPlacementOption SwitchGeometry 1" }
 }
 
 # Keys when MoveResize is active

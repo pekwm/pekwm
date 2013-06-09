@@ -220,6 +220,9 @@ ActionHandler::handleAction(const ActionPerformed &ap)
             case ACTION_SET_OPACITY:
                 actionSetOpacity(client, frame, it->getParamI(0), it->getParamI(1));
                 break;
+            case ACTION_SET_LAYOUTER_OPTION:
+                Workspaces::setLayouterOption(it->getParamS(), frame);
+                break;
             default:
                 matched = false;
                 break;
@@ -361,6 +364,16 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 break;
             case ACTION_HIDE_WORKSPACE_INDICATOR:
                 WindowManager::instance()->getWorkspaceIndicator()->unmapWindow();
+                break;
+            case ACTION_LAYOUT_ONCE:
+                Workspaces::layoutOnce(it->getParamS());
+                break;
+            case ACTION_SET_LAYOUTER:
+                Workspaces::setLayouter(Workspaces::getActive(), it->getParamS());
+                Workspaces::layout();
+                break;
+            case ACTION_SET_LAYOUTER_OPTION:
+                Workspaces::setLayouterOption(it->getParamS(), 0);
                 break;
             case ACTION_DEBUG:
 #ifdef DEBUG

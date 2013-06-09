@@ -179,6 +179,9 @@ Config::Config(void) :
     _action_map["Dynamic"] = pair<ActionType, uint>(ACTION_MENU_DYN, ROOTMENU_OK|WINDOWMENU_OK);
     _action_map["SendKey"] = pair<ActionType, uint>(ACTION_SEND_KEY, ANY_MASK);
     _action_map["SetOpacity"] = pair<ActionType, uint>(ACTION_SET_OPACITY, FRAME_MASK);
+    _action_map["LayoutOnce"] = pair<ActionType, uint>(ACTION_LAYOUT_ONCE, ANY_MASK);
+    _action_map["SetLayouter"] = pair<ActionType, uint>(ACTION_SET_LAYOUTER, ANY_MASK);
+    _action_map["SetLayouterOption"] = pair<ActionType, uint>(ACTION_SET_LAYOUTER_OPTION, ANY_MASK);
     _action_map["Debug"] = pair<ActionType, uint>(ACTION_DEBUG, ANY_MASK);
 
     _action_access_mask_map[""] = ACTION_ACCESS_NO;
@@ -983,6 +986,9 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
                 case ACTION_SHOW_SEARCH_DIALOG:
                 case ACTION_SEND_KEY:
                 case ACTION_MENU_DYN:
+                case ACTION_LAYOUT_ONCE:
+                case ACTION_SET_LAYOUTER:
+                case ACTION_SET_LAYOUTER_OPTION:
                 case ACTION_DEBUG:
                     action.setParamS(tok[1]);
                     break;

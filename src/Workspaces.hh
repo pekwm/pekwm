@@ -94,6 +94,7 @@ public:
     }
     static void layoutOnce(const std::string &layouter);
     static void setLayouter(uint workspace, const std::string &layouter);
+    static void setLayouterOption(const std::string &option, Frame *);
     static bool isTiling(void) { return isTiling(_active); }
     static bool isTiling(uint ws) {
         return ws < _workspaces.size()?_workspaces[ws].getLayouter()->isTiling():false;

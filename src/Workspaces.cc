@@ -341,6 +341,17 @@ Workspaces::setLayouter(uint ws, const std::string &layouter)
     }
 }
 
+void
+Workspaces::setLayouterOption(const std::string &opt, Frame *f)
+{
+    vector<std::string> opts;
+    Util::splitString(opt, opts, " \t");
+
+    if (! opts.empty()) {
+        _workspaces[_active].getLayouter()->setOption(opts, f);
+    }
+}
+
 /**
  * Adds a PWinObj to the stacking list. Assumes that wo is not in _wobjs already.
  * @param wo PWinObj to insert
