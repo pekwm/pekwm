@@ -603,7 +603,7 @@ ActionHandler::actionSendToWorkspace(PDecor *decor, int direction)
         row_min = Workspaces::getRowMin(),
         row_max = Workspaces::getRowMax();
 
-    switch (direction) {
+    switch (static_cast<WorkspaceChangeType>(direction)) {
     case WORKSPACE_LEFT:
     case WORKSPACE_PREV:
         if (cur_act > row_min) {
