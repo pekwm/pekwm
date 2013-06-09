@@ -7,6 +7,8 @@
 //
 
 #include "pekwm.hh"
+#include "WinLayouter.hh"
+
 #include "Client.hh"
 #include "Frame.hh"
 #include "Workspaces.hh"
@@ -247,4 +249,8 @@ Workspaces::placeCenteredOnParent(PWinObj *wo, Window parent)
 
     return false;
 }
+
+int WinLayouter::_ptr_x;
+int WinLayouter::_ptr_y;
+Geometry WinLayouter::_gm;
 
