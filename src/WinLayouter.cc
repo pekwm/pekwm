@@ -98,30 +98,25 @@ private:
         uint wo_width = wo->getWidth() + Config::instance()->getPlacementOffsetX();
         uint wo_height = wo->getHeight() + Config::instance()->getPlacementOffsetY();
 
-        Geometry head;
-        X11::getHeadInfoWithEdge(X11::getCurrHead(), head);
-
-        start_x = (Config::instance()->getPlacementLtR())
-                  ? (head.x)
-                  : (head.x + head.width - wo_width);
-        start_y = (Config::instance()->getPlacementTtB())
-                  ? (head.y)
-                  : (head.y + head.height - wo_height);
+        start_x = Config::instance()->getPlacementLtR() ?
+                  _gm.x : _gm.x + _gm.width - wo_width;
+        start_y = Config::instance()->getPlacementTtB() ?
+                  _gm.y : _gm.y + _gm.height - wo_height;
 
         if (Config::instance()->getPlacementRow()) { // row placement
             test_y = start_y;
             while (! placed && (Config::instance()->getPlacementTtB()
-                               ? ((test_y + wo_height) <= (head.y + head.height))
-                               : (test_y >= head.y))) {
+                               ? test_y + wo_height <= _gm.y + _gm.height
+                               : test_y >= _gm.y)) {
                 test_x = start_x;
                 while (! placed && (Config::instance()->getPlacementLtR()
-                                   ? ((test_x + wo_width) <= (head.x + head.width))
-                                   : (test_x >= head.x))) {
+                                    ? test_x + wo_width <= _gm.x + _gm.width
+                                    : test_x >= _gm.x)) {
                     // see if we can place the window here
                     if ((wo_e = isEmptySpace(test_x, test_y, wo, wvec))) {
                         placed = false;
-                        test_x = Config::instance()->getPlacementLtR()
-                                 ? (wo_e->getX() + wo_e->getWidth()) : (wo_e->getX() - wo_width);
+                        test_x = Config::instance()->getPlacementLtR() ?
+                                 wo_e->getX() + wo_e->getWidth() : wo_e->getX() - wo_width;
                     } else {
                         placed = true;
                         wo->move(test_x + offset_x, test_y + offset_y);
@@ -132,17 +127,17 @@ private:
         } else { // column placement
             test_x = start_x;
             while (! placed && (Config::instance()->getPlacementLtR()
-                               ? ((test_x + wo_width) <= (head.x + head.width))
-                               : (test_x >= head.x))) {
+                                ? test_x + wo_width <= _gm.x + _gm.width
+                                : test_x >= _gm.x)) {
                 test_y = start_y;
                 while (! placed && (Config::instance()->getPlacementTtB()
-                                   ? ((test_y + wo_height) <= (head.y + head.height))
-                                   : (test_y >= head.y))) {
+                                    ? test_y + wo_height <= _gm.y + _gm.height
+                                    : test_y >= _gm.y)) {
                     // see if we can place the window here
                     if ((wo_e = isEmptySpace(test_x, test_y, wo, wvec))) {
                         placed = false;
-                        test_y = Config::instance()->getPlacementTtB()
-                                 ? (wo_e->getY() + wo_e->getHeight()) : (wo_e->getY() - wo_height);
+                        test_y = Config::instance()->getPlacementTtB() ?
+                                 wo_e->getY() + wo_e->getHeight() : wo_e->getY() - wo_height;
                     } else {
                         placed = true;
                         wo->move(test_x + offset_x, test_y + offset_y);
@@ -167,34 +162,28 @@ public:
             return true;
         }
 
-        Geometry head;
-        int mouse_x, mouse_y;
-
-        X11::getHeadInfoWithEdge(X11::getCurrHead(), head);
-        X11::getMousePosition(mouse_x, mouse_y);
-
         // compensate for head offset
-        mouse_x -= head.x;
-        mouse_y -= head.y;
+        _ptr_x -= _gm.x;
+        _ptr_y -= _gm.y;
 
         // divide the screen into four rectangles using the pointer as divider
-        if ((wo->getWidth() < unsigned(mouse_x)) && (wo->getHeight() < head.height)) {
-            wo->move(head.x, head.y);
+        if (wo->getWidth() < unsigned(_ptr_x) && wo->getHeight() < _gm.height) {
+            wo->move(_gm.x, _gm.y);
             return true;
         }
 
-        if ((wo->getWidth() < head.width) && (wo->getHeight() < unsigned(mouse_y))) {
-            wo->move(head.x + head.width - wo->getWidth(), head.y);
+        if (wo->getWidth() < _gm.width && wo->getHeight() < unsigned(_ptr_y)) {
+            wo->move(_gm.x + _gm.width - wo->getWidth(), _gm.y);
             return true;
         }
 
-        if ((wo->getWidth() < (head.width - mouse_x)) && (wo->getHeight() < head.height)) {
-            wo->move(head.x + head.width - wo->getWidth(), head.y + head.height - wo->getHeight());
+        if (wo->getWidth() < _gm.width - _ptr_x && wo->getHeight() < _gm.height) {
+            wo->move(_gm.x + _gm.width - wo->getWidth(), _gm.y + _gm.height - wo->getHeight());
             return true;
         }
 
-        if ((wo->getWidth() < head.width) && (wo->getHeight() < (head.height - mouse_y))) {
-            wo->move(head.x, head.y + head.height - wo->getHeight());
+        if (wo->getWidth() < _gm.width && wo->getHeight() < _gm.height - _ptr_y) {
+            wo->move(_gm.x, _gm.y + _gm.height - wo->getHeight());
             return true;
         }
         return false;
@@ -211,9 +200,7 @@ private:
     virtual bool layout_impl(Frame *wo)
     {
         if (wo) {
-            int mouse_x, mouse_y;
-            X11::getMousePosition(mouse_x, mouse_y);
-            Geometry gm(mouse_x - (wo->getWidth() / 2), mouse_y - (wo->getHeight() / 2),
+            Geometry gm(_ptr_x - (wo->getWidth() / 2), _ptr_y - (wo->getHeight() / 2),
                         wo->getWidth(), wo->getHeight());
 
             // make sure it's within the screen's border
@@ -233,9 +220,7 @@ private:
     virtual bool layout_impl(Frame *wo)
     {
         if (wo) {
-            int mouse_x, mouse_y;
-            X11::getMousePosition(mouse_x, mouse_y);
-            Geometry gm(mouse_x, mouse_y, wo->getWidth(), wo->getHeight());
+            Geometry gm(_ptr_x, _ptr_y, wo->getWidth(), wo->getHeight());
             X11::placeInsideScreen(gm); // make sure it's within the screen's border
             wo->move(gm.x, gm.y);
         }
@@ -274,14 +259,15 @@ WinLayouter::layout(Frame *frame, Window parent)
         return;
     }
 
-    int head_nr = X11::getCurrHead();
-    Geometry _gm;
-    vector<bool> fsHead(X11::getNumHeads(), false);
+    X11::getMousePosition(_ptr_x, _ptr_y);
+    int head_nr = X11::getNearestHead(_ptr_x, _ptr_y);
+    X11::getHeadInfoWithEdge(head_nr, _gm);
 
     // Collect the information which head has a fullscreen window.
     // To be conservative for now we ignore fullscreen windows on
     // the desktop or normal layer, because it might be a file
     // manager in desktop mode, for example.
+    vector<bool> fsHead(X11::getNumHeads(), false);
     Workspaces::const_iterator it(Workspaces::begin()),
                               end(Workspaces::end());
     for (; it != end; ++it) {
