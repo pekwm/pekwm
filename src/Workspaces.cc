@@ -42,12 +42,12 @@ using std::endl;
 
 // Workspaces::Workspace
 
-Workspaces::Workspace::Workspace(const std::wstring &name, uint number)
+Workspace::Workspace(const std::wstring &name, uint number)
   : _name(name), _number(number), _last_focused(0)
 {
 }
 
-Workspaces::Workspace::~Workspace(void)
+Workspace::~Workspace(void)
 {
 }
 
@@ -57,7 +57,7 @@ uint Workspaces::_active;
 uint Workspaces::_previous;
 uint Workspaces::_per_row;
 vector<PWinObj*> Workspaces::_wobjs;
-vector<Workspaces::Workspace *> Workspaces::_workspace_list;
+vector<Workspace *> Workspaces::_workspace_list;
 
 //! @brief Workspaces destructor
 void

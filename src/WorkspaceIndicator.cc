@@ -125,7 +125,7 @@ WorkspaceIndicator::Display::renderWorkspaces(int x, int y, uint width, uint hei
     uint x_pos = x;
     uint y_pos = y;
 
-    vector<Workspaces::Workspace*>::iterator it(Workspaces::ws_begin());
+    vector<Workspace*>::iterator it(Workspaces::ws_begin());
 
     for (uint row = 0; it != Workspaces::ws_end(); ++it) {
         // Check for next row

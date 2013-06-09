@@ -23,27 +23,27 @@ class PWinObj;
 class Frame;
 class FrameWidget;
 
+class Workspace {
+public:
+    Workspace(const std::wstring &name, uint number);
+    ~Workspace(void);
+
+    inline std::wstring &getName(void) { return _name; }
+    void setName(const std::wstring &name) { _name = name; }
+    inline uint getNumber(void) { return _number; }
+    inline PWinObj* getLastFocused(void) { return _last_focused; }
+
+    inline void setLastFocused(PWinObj* wo) { _last_focused = wo; }
+
+private:
+    std::wstring _name;
+    uint _number;
+
+    PWinObj *_last_focused;
+};
+
 class Workspaces {
 public:
-    class Workspace {
-    public:
-        Workspace(const std::wstring &name, uint number);
-        ~Workspace(void);
-
-        inline std::wstring &getName(void) { return _name; }
-        void setName(const std::wstring &name) { _name = name; }
-        inline uint getNumber(void) { return _number; }
-        inline PWinObj* getLastFocused(void) { return _last_focused; }
-
-        inline void setLastFocused(PWinObj* wo) { _last_focused = wo; }
-
-    private:
-        std::wstring _name;
-        uint _number;
-
-        PWinObj *_last_focused;
-    };
-
     typedef std::vector<PWinObj*>::iterator iterator;
     typedef std::vector<PWinObj*>::const_iterator const_iterator;
     typedef std::vector<PWinObj*>::reverse_iterator reverse_iterator;
