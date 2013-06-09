@@ -202,13 +202,12 @@ CfgParser::Entry::find_section(const std::string &name, const char *value)
 
 //! @brief Sets and validates data specified by key list.
 void
-CfgParser::Entry::parse_key_values(std::vector<CfgParserKey*>::const_iterator begin,
+CfgParser::Entry::parse_key_values(std::vector<CfgParserKey*>::const_iterator it,
                                    std::vector<CfgParserKey*>::const_iterator end)
 {
     CfgParser::Entry *value;
-    vector<CfgParserKey*>::const_iterator it;
 
-    for (it = begin; it != end; ++it) {
+    for (; it != end; ++it) {
         value = find_entry((*it)->get_name());
         if (value) {
             try {
