@@ -4,10 +4,10 @@
 #
 
 # Applications, tidy is disabled as it fails on many platforms.
-OPENJADE=$(which openjade)
-PDFJADETEX=$(which pdfjadetex)
-TIDY=$(which tidy-disabled)
-ZIP=$(which zip)
+OPENJADE=$(which openjade 2>/dev/null)
+PDFJADETEX=$(which pdfjadetex 2>/dev/null)
+TIDY=$(which tidy-disabled 2>/dev/null)
+ZIP=$(which zip 2>/dev/null)
 
 # Paths
 DOCSNAME=pekwm-doc
@@ -28,8 +28,8 @@ DPFX=docs
 
 LOGDIR="${CURDIR}/logs"
 
-# CentOS 6.3
-if grep 'release 6' /etc/redhat-release >/dev/null 2>&1; then
+# CentOS 5.9
+if grep 'release 5' /etc/redhat-release >/dev/null 2>&1; then
   DBDIR="/usr/share/sgml/docbook/dsssl-stylesheets-1.79/"
   DBX="${DBDIR}/dtds/decls/xml.dcl"
   DBV="/usr/share/sgml/docbook/xml-dtd-4.3-1.0-30.1/docbookx.dtd"
