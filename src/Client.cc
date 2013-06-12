@@ -1464,24 +1464,6 @@ Client::kill(void)
     XKillClient(X11::getDpy(), _window);
 }
 
-//! @brief Sets the position based on P or U position.
-//! @return Returns true on success, else false.
-bool
-Client::setPUPosition(void)
-{
-    if ((_size->flags&PPosition) || (_size->flags&USPosition)) {
-        if (_gm.x == 0) {
-            _gm.x = _size->x;
-        }
-        if (_gm.y == 0) {
-            _gm.y = _size->y;
-        }
-        return true;
-    }
-    return false;
-}
-
-
 //! @brief Get the closest size confirming to the aspect ratio and ResizeInc (if applicable)
 //! @param r_w Pointer to put the new width in
 //! @param r_h Pointer to put the new height in

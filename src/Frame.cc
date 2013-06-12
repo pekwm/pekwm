@@ -104,12 +104,9 @@ Frame::Frame(Client *client, AutoProperty *ap)
 
     // setup position
     bool place = false;
-    if (client->isViewable() || client->isPlaced()) {
+    if (client->isViewable() || client->isPlaced()
+          || (client->cameWithPosition() && ! client->isCfgDeny(CFG_DENY_POSITION))) {
         moveChild(client->getX(), client->getY());
-    } else if (client->setPUPosition()) {
-        int x, y;
-        calcGravityPosition(client->getXSizeHints()->win_gravity, client->getX(), client->getY(), x, y);
-        move(x, y);
     } else {
         place = Config::instance()->isPlaceNew();
     }

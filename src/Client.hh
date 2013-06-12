@@ -165,7 +165,7 @@ public: // Public Member Functions
     inline XSizeHints* getXSizeHints(void) const { return _size; }
 
     bool isViewable(void);
-    bool setPUPosition(void);
+    bool cameWithPosition(void) { return _size->flags & (PPosition|USPosition); }
 
     inline bool hasTitlebar(void) const { return (_state.decor&DECOR_TITLEBAR); }
     inline bool hasBorder(void) const { return (_state.decor&DECOR_BORDER); }
