@@ -1268,7 +1268,7 @@ PDecor::doMove(int x_root, int y_root)
 
             if (! outline && _gm != last_gm) {
                 last_gm = _gm;
-                move(_gm.x, _gm.y);
+                XMoveWindow(X11::getDpy(), _window, _gm.x, _gm.y);
             }
 
             edge = doMoveEdgeFind(e.xmotion.x_root, e.xmotion.y_root);
@@ -1287,6 +1287,8 @@ PDecor::doMove(int x_root, int y_root)
             break;
         }
     }
+
+    move(_gm.x, _gm.y); // update child
 
     if (Config::instance()->isShowStatusWindow()) {
         sw->unmapWindow();
