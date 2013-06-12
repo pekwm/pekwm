@@ -536,11 +536,6 @@ X11::getNearestHead(int x, int y)
                 }
             }
 
-#ifdef DEBUG
-            cerr << __FILE__ << "@" << __LINE__ << ": X11::getNearestHead( " << x << "," << y << ") "
-                 << "head boundaries " << head_t << "," << head_b << "," << head_l << "," << head_r << " "
-                 << "distance " << distance << " min_distance " << min_distance << endl;
-#endif // DEBUG
 
             if(distance < min_distance) {
                 min_distance = distance;
@@ -564,10 +559,6 @@ X11::getCurrHead(void)
         int x = 0, y = 0;
         getMousePosition(x, y);
         head = getNearestHead(x, y);
-#ifdef DEBUG
-        cerr << __FILE__ << "@" << __LINE__ << ": X11::getCurrHead() got head "
-             << head << " from mouse position " << x << "," << y << endl;
-#endif // DEBUG
     }
 
     return head;
@@ -889,13 +880,7 @@ X11::initHeadsRandr(void)
 
         if (output->crtc) {
             XRRCrtcInfo *crtc = XRRGetCrtcInfo(_dpy, resources, output->crtc);
-
             _heads.push_back(Head(crtc->x, crtc->y, crtc->width, crtc->height));
-#ifdef DEBUG
-            cerr << __FILE__ << "@" << __LINE__ << ": X11::initHeadsRandr() added head "
-                << crtc->x << "," << crtc->y << "," << crtc->width << "," << crtc->height << endl;
-#endif // DEBUG
-
             XRRFreeCrtcInfo (crtc);
         }
 
