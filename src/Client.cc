@@ -611,6 +611,9 @@ Client::handleUnmapEvent(XUnmapEvent *ev)
         return 0;
     }
 
+    // The window might not exist any more, so just ignore the errors.
+    setXErrorsIgnore(true);
+
     // ICCCM 4.1.4 advices the window manager to trigger the transition to
     // Withdrawn state on real and synthetic UnmapNotify events.
     setWmState(WithdrawnState);
@@ -624,16 +627,11 @@ Client::handleUnmapEvent(XUnmapEvent *ev)
     // (to allow legacy applications to reuse a withdrawn window)
     X11::unsetProperty(_window, NET_WM_DESKTOP);
 
-#ifdef DEBUG
-    cerr << __FILE__ << "@" << __LINE__ << ": "
-         << "Client(" << this << ")::handleUnmapEvent(" << ev << ")" << endl
-         << " *** unmapping client, window: " << _window << endl;
-#endif // DEBUG
-
     // FIXME: Listen mask should change as this doesn't work?
     _alive = false;
     delete this;
 
+    setXErrorsIgnore(false);
     return 0;
 }
 
