@@ -14,6 +14,7 @@
 #include "config.h"
 #endif // HAVE_CONFIG_H
 
+#include "Debug.hh"
 #include "PWinObj.hh"
 #include "PDecor.hh"
 #include "Client.hh"
@@ -25,16 +26,18 @@
 #include <iostream>
 #include <string>
 #include <cstring>
+#include <stdexcept>
+#include <locale>
 
 extern "C" {
 #include <unistd.h> // execlp
-#include <locale.h>
 }
 
 using std::cout;
 using std::cerr;
 using std::endl;
 using std::string;
+using std::locale;
 
 namespace Info {
 
@@ -75,7 +78,14 @@ main(int argc, char **argv)
     string config_file;
     bool replace = false;
 
-    setlocale(LC_CTYPE, "");
+    try {
+        locale::global(locale(""));
+    } catch (const std::runtime_error &e) {
+        ERR("The environment variables specify an unknown locale - "
+            "falling back to default \"C\". This is not a bug in PekWM.");
+        locale::global(locale("C"));
+    }
+
     Util::iconv_init();
 
     setenv("PEKWM_ETC_PATH", SYSCONFDIR, 1);
