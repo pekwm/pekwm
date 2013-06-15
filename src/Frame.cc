@@ -2124,7 +2124,9 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
 void
 Frame::handleConfigureRequestGeometry(XConfigureRequestEvent *ev)
 {
-    if (Config::instance()->isFullscreenDetect() && isRequestGeometryFullscreen(ev)) {
+    if (Config::instance()->isFullscreenDetect()
+          && (ev->value_mask&(CWX|CWY|CWWidth|CWHeight)) == (CWX|CWY|CWWidth|CWHeight)
+          && isRequestGeometryFullscreen(ev)) {
         setStateFullscreen(STATE_SET);
         _client->configureRequestSend();
         return;
