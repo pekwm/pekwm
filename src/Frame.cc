@@ -2089,9 +2089,9 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
         return; // only handle the active client's events
     }
 
-    // Handled geometry, this is handled seperatley due to fullscreen
+    // Handled geometry, this is handled separately due to fullscreen
     // detection
-    handleConfigureRequestGeometry(ev, client);
+    handleConfigureRequestGeometry(ev);
 
     // update the stacking
     if (! client->isCfgDeny(CFG_DENY_STACKING) && ev->value_mask&CWStackMode) {
@@ -2113,31 +2113,31 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
 }
 
 /**
- * Handle size and position part of configure request, detects
+ * Handle size and position part of the configure request for _client, detects
  * fullscreen mode if detection is enabled.
  */
 void
-Frame::handleConfigureRequestGeometry(XConfigureRequestEvent *ev, Client *client)
+Frame::handleConfigureRequestGeometry(XConfigureRequestEvent *ev)
 {
     if (Workspaces::isTiling(_workspace) && allowTiling()) {
         return;
     }
 
-    if (Config::instance()->isFullscreenDetect() && isRequestGeometryFullscreen(ev, client)) {
+    if (Config::instance()->isFullscreenDetect() && isRequestGeometryFullscreen(ev)) {
         setStateFullscreen(STATE_SET);
-        client->configureRequestSend();
+        _client->configureRequestSend();
         return;
     }
 
     bool change_geometry = false;
-    if (! client->isCfgDeny(CFG_DENY_SIZE)
+    if (! _client->isCfgDeny(CFG_DENY_SIZE)
         && (ev->value_mask & (CWWidth|CWHeight))) {
         resizeChild(ev->width, ev->height);
         applyBorderShape();
         change_geometry = true;
     }
 
-    if (! client->isCfgDeny(CFG_DENY_POSITION)
+    if (! _client->isCfgDeny(CFG_DENY_POSITION)
         && (ev->value_mask & (CWX|CWY)) ) {
         calcGravityPosition(_client->getXSizeHints()->win_gravity,
                             ev->x, ev->y, _gm.x, _gm.y);
@@ -2155,9 +2155,9 @@ Frame::handleConfigureRequestGeometry(XConfigureRequestEvent *ev, Client *client
  * Check if requested size if "fullscreen"
  */
 bool
-Frame::isRequestGeometryFullscreen(XConfigureRequestEvent *ev, Client *client)
+Frame::isRequestGeometryFullscreen(XConfigureRequestEvent *ev)
 {
-    if (client->isCfgDeny(CFG_DENY_SIZE) || client->isCfgDeny(CFG_DENY_POSITION)) {
+    if (_client->isCfgDeny(CFG_DENY_SIZE) || _client->isCfgDeny(CFG_DENY_POSITION)) {
         return false;
     }
 

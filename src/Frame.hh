@@ -173,8 +173,8 @@ private:
     static StateAction getStateActionFromMessage(XClientMessageEvent *ev);
     void handleStateAtom(StateAction sa, Atom atom, Client *client);
     void handleCurrentClientStateAtom(StateAction sa, Atom atom, Client *client);
-    void handleConfigureRequestGeometry(XConfigureRequestEvent *ev, Client *client);
-    bool isRequestGeometryFullscreen(XConfigureRequestEvent *ev, Client *client);
+    void handleConfigureRequestGeometry(XConfigureRequestEvent *ev);
+    bool isRequestGeometryFullscreen(XConfigureRequestEvent *ev);
 
     void recalcResizeDrag(int nx, int ny, bool left, bool top);
     void getMaxBounds(int &max_x,int &max_r, int &max_y, int &max_b);
