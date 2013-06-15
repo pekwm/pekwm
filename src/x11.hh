@@ -285,23 +285,26 @@ public:
     //! @brief Makes sure the Geometry is inside the screen.
     static
     void placeInsideScreen(Geometry &gm, bool withoutedge=false) {
+        uint head_nr = getNearestHead(gm.x, gm.y);
         Geometry head;
         if (withoutedge) {
-            getHeadInfo(getCurrHead(), head);
+            getHeadInfo(head_nr, head);
         } else {
-            getHeadInfoWithEdge(getCurrHead(), head);
+            getHeadInfoWithEdge(head_nr, head);
         }
 
-        if (gm.x < head.x) {
-            gm.x = head.x;
-        } else if ((gm.x + gm.width) > (head.x + head.width)) {
+        if (gm.x + gm.width > head.x + head.width) {
             gm.x = head.x + head.width - gm.width;
         }
+        if (gm.x < head.x) {
+            gm.x = head.x;
+        }
 
+        if (gm.y + gm.height > head.y + head.height) {
+            gm.y = head.y + head.height - gm.height;
+        }
         if (gm.y < head.y) {
             gm.y = head.y;
-        } else if ((gm.y + gm.height) > (head.y + head.height)) {
-            gm.y = head.y + head.height - gm.height;
         }
     }
 
