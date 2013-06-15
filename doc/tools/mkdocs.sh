@@ -28,11 +28,20 @@ DPFX=docs
 
 LOGDIR="${CURDIR}/logs"
 
+# CentOS
+#
+# yum install docbook-dtds docbook-style-dsssl
+#
+
 # CentOS 5.9
 if grep 'release 5' /etc/redhat-release >/dev/null 2>&1; then
   DBDIR="/usr/share/sgml/docbook/dsssl-stylesheets-1.79/"
   DBX="${DBDIR}/dtds/decls/xml.dcl"
   DBV="/usr/share/sgml/docbook/xml-dtd-4.3-1.0-30.1/docbookx.dtd"
+elif grep 'release 6' /etc/redhat-release >/dev/null 2>&1; then
+  DBDIR="/usr/share/sgml/docbook/dsssl-stylesheets-1.79/"
+  DBX="${DBDIR}/dtds/decls/xml.dcl"
+  DBV="/usr/share/sgml/docbook/xml-dtd-4.3-1.0-51.el6/docbookx.dtd"
 elif test -f /etc/os-release; then
   . /etc/os-release
 
