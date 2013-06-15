@@ -173,7 +173,6 @@ private:
     static StateAction getStateActionFromMessage(XClientMessageEvent *ev);
     void handleStateAtom(StateAction sa, Atom atom, Client *client);
     void handleCurrentClientStateAtom(StateAction sa, Atom atom, Client *client);
-    void handleConfigureRequestGeometry(XConfigureRequestEvent *ev);
     bool isRequestGeometryFullscreen(XConfigureRequestEvent *ev);
 
     void recalcResizeDrag(int nx, int ny, bool left, bool top);

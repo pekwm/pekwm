@@ -2071,60 +2071,39 @@ Frame::downSize(Geometry &gm, bool keep_x, bool keep_y)
 // Below this Client message handling is done
 
 //! @brief Handle XConfgiureRequestEvents
-//! @todo Should we send a ConfigureRequest back to the Client if ignoring?
 void
 Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
 {
     if (client != _client) {
+        _client->configureRequestSend();
         return; // only handle the active client's events
     }
 
-    // Handled geometry, this is handled separately due to fullscreen
-    // detection
-    if (ev->value_mask & (CWX|CWY|CWWidth|CWHeight)
-          && ! (Workspaces::isTiling(_workspace) && allowTiling())) {
-        handleConfigureRequestGeometry(ev);
-    }
-
-    // update the stacking
+    // Update the stacking (ev->value_mask&CWSibling should not happen)
     if (! client->isCfgDeny(CFG_DENY_STACKING) && ev->value_mask&CWStackMode) {
-        // ev->value_mask&CWSibling should not happen
-        switch(ev->detail) { // FIXME: Is this broken?
-        case Above:
+        if (ev->detail == Above) {
             raise();
-            break;
-        case Below:
+        } else if (ev->detail == Below) {
             lower();
-            break;
-        case TopIf:
-        case BottomIf:
-            // FIXME: Why does the manual say that it should care about siblings
-            // even if we don't have any specified?
-            break;
-        }
+        } // ignore TopIf, BottomIf, Opposite - PekWM is a reparenting WM
     }
-}
 
-/**
- * Handle size and position part of the configure request for _client, detects
- * fullscreen mode if detection is enabled.
- *
- * Pre: !tiling && (ev->value_mask & (CWX|CWY|CWWidth|CWHeight))
- */
-void
-Frame::handleConfigureRequestGeometry(XConfigureRequestEvent *ev)
-{
-    bool chg_size = ! _client->isCfgDeny(CFG_DENY_SIZE) && (ev->value_mask & (CWWidth|CWHeight));
-    bool chg_pos  = ! _client->isCfgDeny(CFG_DENY_POSITION) && (ev->value_mask & (CWX|CWY));
-    if (! (chg_size || chg_pos)) {
+    // Update the geometry if requested
+    bool chg_size = ! _client->isCfgDeny(CFG_DENY_SIZE) && (ev->value_mask&(CWWidth|CWHeight));
+    bool chg_pos  = ! _client->isCfgDeny(CFG_DENY_POSITION) && (ev->value_mask&(CWX|CWY));
+    if (! (chg_size || chg_pos) || (Workspaces::isTiling(_workspace) && allowTiling())) {
+        _client->configureRequestSend();
         return;
     }
 
     if (Config::instance()->isFullscreenDetect()
           && (ev->value_mask&(CWX|CWY|CWWidth|CWHeight)) == (CWX|CWY|CWWidth|CWHeight)
           && isRequestGeometryFullscreen(ev)) {
-        setStateFullscreen(STATE_SET);
-        _client->configureRequestSend();
+        if (isFullscreen()) {
+            _client->configureRequestSend();
+        } else {
+            setStateFullscreen(STATE_SET);
+        }
         return;
     }
 
