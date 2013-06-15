@@ -2091,7 +2091,10 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
 
     // Handled geometry, this is handled separately due to fullscreen
     // detection
-    handleConfigureRequestGeometry(ev);
+    if (ev->value_mask & (CWX|CWY|CWWidth|CWHeight)
+          && ! (Workspaces::isTiling(_workspace) && allowTiling())) {
+        handleConfigureRequestGeometry(ev);
+    }
 
     // update the stacking
     if (! client->isCfgDeny(CFG_DENY_STACKING) && ev->value_mask&CWStackMode) {
@@ -2115,14 +2118,12 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
 /**
  * Handle size and position part of the configure request for _client, detects
  * fullscreen mode if detection is enabled.
+ *
+ * Pre: !tiling && (ev->value_mask & (CWX|CWY|CWWidth|CWHeight))
  */
 void
 Frame::handleConfigureRequestGeometry(XConfigureRequestEvent *ev)
 {
-    if (Workspaces::isTiling(_workspace) && allowTiling()) {
-        return;
-    }
-
     if (Config::instance()->isFullscreenDetect() && isRequestGeometryFullscreen(ev)) {
         setStateFullscreen(STATE_SET);
         _client->configureRequestSend();
