@@ -179,7 +179,7 @@ private:
     void recalcResizeDrag(int nx, int ny, bool left, bool top);
     void getMaxBounds(int &max_x,int &max_r, int &max_y, int &max_b);
     void calcSizeInCells(uint &width, uint &height);
-    void calcGravityPosition(int gravity, int x, int y, int &g_x, int &g_y);
+    void setGravityPosition(int gravity, int &x, int &y, int diff_w, int diff_h);
     void downSize(Geometry &gm, bool keep_x, bool keep_y);
 
     void handleTitleChange(Client *client);

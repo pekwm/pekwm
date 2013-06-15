@@ -1992,57 +1992,47 @@ Frame::calcSizeInCells(uint &width, uint &height)
     }
 }
 
-//! @brief Calculates position based on current gravity
 void
-Frame::calcGravityPosition(int gravity, int x, int y, int &g_x, int &g_y)
+Frame::setGravityPosition(int gravity, int &x, int &y, int w, int h)
 {
     switch (gravity) {
-    case NorthEastGravity: // outside border corner
-        g_x = x - _gm.x;
-        g_y = y;
+    case NorthWestGravity:
         break;
-    case SouthWestGravity: // outside border corner
-        g_x = x;
-        g_y = y - _gm.y;
+    case NorthGravity:
+        x = x - w/2;
         break;
-    case SouthEastGravity: // outside border corner
-        g_x = x - _gm.x;
-        g_y = y - _gm.y;
+    case NorthEastGravity:
+        x = x - w;
         break;
-
-    case NorthGravity: // outside border center
-        g_x = x - (_gm.x / 2);
-        g_y = y;
+    case WestGravity:
+        y = y - h/2;
         break;
-    case SouthGravity: // outside border center
-        g_x = x - (_gm.x / 2);
-        g_y = y - _gm.y;
+    case CenterGravity:
+        x = x - w/2;
+        y = y - h/2;
         break;
-    case WestGravity: // outside border center
-        g_x = x;
-        g_y = y - (_gm.y / 2);
+    case EastGravity:
+        x = x - w;
+        y = y - h/2;
         break;
-    case EastGravity: // outside border center
-        g_x = x - _gm.x;
-        g_y = y - (_gm.y / 2);
+    case SouthWestGravity:
+        y = y - h;
         break;
-
-    case CenterGravity: // center of window
-        g_x = x - (_gm.x / 2);
-        g_y = y - (_gm.y / 2);
+    case SouthGravity:
+        x = x - w/2;
+        y = y - h;
         break;
-    case StaticGravity: // client top left
-        g_x = x - (_gm.width - getChildWidth());
-        g_y = y - (_gm.height - getChildHeight());
+    case SouthEastGravity:
+        x = x - w;
+        y = y - h;
         break;
-    case NorthWestGravity: // outside border corner
+    case StaticGravity:
+        // FIXME: What should we do here?
+        break;
     default:
-        g_x = x;
-        g_y = y;
         break;
     }
 }
-
 /**
  * Makes gm conform to _clients width and height inc.
  */
@@ -2124,6 +2114,12 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
 void
 Frame::handleConfigureRequestGeometry(XConfigureRequestEvent *ev)
 {
+    bool chg_size = ! _client->isCfgDeny(CFG_DENY_SIZE) && (ev->value_mask & (CWWidth|CWHeight));
+    bool chg_pos  = ! _client->isCfgDeny(CFG_DENY_POSITION) && (ev->value_mask & (CWX|CWY));
+    if (! (chg_size || chg_pos)) {
+        return;
+    }
+
     if (Config::instance()->isFullscreenDetect()
           && (ev->value_mask&(CWX|CWY|CWWidth|CWHeight)) == (CWX|CWY|CWWidth|CWHeight)
           && isRequestGeometryFullscreen(ev)) {
@@ -2132,26 +2128,34 @@ Frame::handleConfigureRequestGeometry(XConfigureRequestEvent *ev)
         return;
     }
 
-    bool change_geometry = false;
-    if (! _client->isCfgDeny(CFG_DENY_SIZE)
-        && (ev->value_mask & (CWWidth|CWHeight))) {
-        resizeChild(ev->width, ev->height);
-        applyBorderShape();
-        change_geometry = true;
+    Geometry gm = _gm;
+
+    if (chg_size) {
+        int diff_w = ev->width - gm.width + borderLeft() + borderRight();
+        gm.width += diff_w;
+        int diff_h = ev->height - gm.height + borderTop() + borderBottom() + getTitleHeight();
+        gm.height += diff_h;
+
+        if (!chg_pos) {
+            setGravityPosition(_client->getXSizeHints()->win_gravity,
+                               gm.x, gm.y, diff_w, diff_h);
+        }
     }
 
-    if (! _client->isCfgDeny(CFG_DENY_POSITION)
-        && (ev->value_mask & (CWX|CWY)) ) {
-        calcGravityPosition(_client->getXSizeHints()->win_gravity,
-                            ev->x, ev->y, _gm.x, _gm.y);
-        move(_gm.x, _gm.y);
-        change_geometry = true;
+    if (chg_pos) {
+        gm.x = ev->x - borderLeft();
+        gm.y = ev->y - borderTop() - getTitleHeight();
     }
 
-    // Remove fullscreen state if client changes it size
-    if (change_geometry && Config::instance()->isFullscreenDetect()) {
+    X11::placeInsideScreen(gm);
+
+    if (Config::instance()->isFullscreenDetect() && isFullscreen()) {
+        _old_gm = gm;
         setStateFullscreen(STATE_UNSET);
+        return;
     }
+
+    moveResize(gm.x, gm.y, gm.width, gm.height);
 }
 
 /**
@@ -2195,7 +2199,7 @@ Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
             // Active child if it's not the active child
             if (client != _client) {
                 activateChild(client);
-	        }
+            }
 
             // If we aren't mapped we check if we make sure we're on the right
             // workspace and then map the window.
