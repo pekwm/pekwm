@@ -36,7 +36,6 @@ private:
     void unloadTheme(void);
 
     void render(void);
-    void center(Geometry *gm = 0);
 
 private:
     PWinObj *_status_wo;

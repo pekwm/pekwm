@@ -105,7 +105,13 @@ StatusWindow::draw(const std::wstring &text, bool do_center, Geometry *gm)
     }
 
     if (do_center) {
-        center(gm);
+        Geometry head;
+        if (! gm) {
+            X11::getHeadInfo(X11::getCurrHead(), head);
+            gm = &head;
+        }
+
+        move(gm->x + (gm->width - _gm.width) / 2, gm->y + (gm->height - _gm.height) / 2);
     }
 
     font->setColor(_theme->getStatusData()->getColor());
@@ -143,17 +149,4 @@ StatusWindow::render(void)
 
     _status_wo->setBackgroundPixmap(_bg);
     _status_wo->clear();
-}
-
-//! @brief Centers the StatusWindow on the current head/screen
-void
-StatusWindow::center(Geometry *gm)
-{
-    Geometry head;
-    if (! gm) {
-        X11::getHeadInfo(X11::getCurrHead(), head);
-        gm = &head;
-    }
-
-    move(gm->x + (gm->width - _gm.width) / 2, gm->y + (gm->height - _gm.height) / 2);
 }
