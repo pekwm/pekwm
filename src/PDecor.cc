@@ -245,26 +245,16 @@ PDecor::getParentWindowAttributes(CreateWindowParams &params,
     params.attr.background_pixel = 0;
 
     if (child_window != None) {
-        getChildWindowAttributes(params, child_window);
-    }
-}
-
-/**
- * Get window attributes from child window
- */
-void
-PDecor::getChildWindowAttributes(CreateWindowParams &params,
-                                 Window child_window)
-{
-    XWindowAttributes attr;
-    Status status =  XGetWindowAttributes(X11::getDpy(), child_window, &attr);
-    if (status != BadDrawable && status != BadWindow && attr.depth == 32) {
-        params.mask |= CWColormap;
-        params.depth = attr.depth;
-        params.visual = attr.visual;
-        params.attr.colormap = XCreateColormap(X11::getDpy(),
-                                               X11::getRoot(),
-                                               params.visual, AllocNone);
+        XWindowAttributes attr;
+        Status status = XGetWindowAttributes(X11::getDpy(), child_window, &attr);
+        if (status != BadDrawable && status != BadWindow && attr.depth == 32) {
+            params.mask |= CWColormap;
+            params.depth = attr.depth;
+            params.visual = attr.visual;
+            params.attr.colormap = XCreateColormap(X11::getDpy(),
+                                                   X11::getRoot(),
+                                                   params.visual, AllocNone);
+        }
     }
 }
 

@@ -384,8 +384,6 @@ protected:
 private:
     void getParentWindowAttributes(CreateWindowParams &params,
                                    Window child_window);
-    void getChildWindowAttributes(CreateWindowParams &params,
-                                  Window child_window);
     void createParentWindow(CreateWindowParams &params);
     void createTitle(CreateWindowParams &params);
     void createBorder(CreateWindowParams &params);
