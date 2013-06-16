@@ -234,12 +234,13 @@ PDecor::createParentWindow(CreateWindowParams &params, Window child_window)
     params.depth = CopyFromParent;
     params.visual = CopyFromParent;
     params.attr.override_redirect = True;
-    params.attr.border_pixel = 0;
-    params.attr.background_pixel = 0;
+    params.attr.border_pixel = X11::getBlackPixel();
+    params.attr.background_pixel = X11::getBlackPixel();
 
     if (child_window != None) {
         XWindowAttributes attr;
         if (X11::getWindowAttributes(child_window, &attr)
+              && 32 != X11::getDepth()
               && attr.depth == 32) {
             params.mask |= CWColormap;
             params.depth = attr.depth;
@@ -258,6 +259,7 @@ PDecor::createParentWindow(CreateWindowParams &params, Window child_window)
                             params.mask, &params.attr);
 
     if (params.mask & CWColormap) {
+        XFreeColormap(X11::getDpy(), params.attr.colormap);
         params.depth = X11::getDepth();
         params.visual = X11::getVisual();
         params.attr.colormap = X11::getColormap();
