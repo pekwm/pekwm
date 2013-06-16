@@ -211,8 +211,7 @@ PDecor::PDecor(Theme *theme,
     }
 
     CreateWindowParams window_params;
-    getParentWindowAttributes(window_params, child_window);
-    createParentWindow(window_params);
+    createParentWindow(window_params, child_window);
     if (window_params.mask & CWColormap) {
         window_params.depth = X11::getDepth();
         window_params.visual = X11::getVisual();
@@ -234,8 +233,7 @@ PDecor::PDecor(Theme *theme,
  * Create window attributes
  */
 void
-PDecor::getParentWindowAttributes(CreateWindowParams &params,
-                                  Window child_window)
+PDecor::createParentWindow(CreateWindowParams &params, Window child_window)
 {
     params.mask = CWOverrideRedirect|CWEventMask|CWBorderPixel|CWBackPixel;
     params.depth = CopyFromParent;
@@ -256,14 +254,6 @@ PDecor::getParentWindowAttributes(CreateWindowParams &params,
                                                    params.visual, AllocNone);
         }
     }
-}
-
-/**
- * Create container window.
- */
-void
-PDecor::createParentWindow(CreateWindowParams &params)
-{
     params.attr.event_mask = ButtonPressMask|ButtonReleaseMask|
         ButtonMotionMask|EnterWindowMask|SubstructureRedirectMask|
         SubstructureNotifyMask;
