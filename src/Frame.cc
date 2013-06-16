@@ -1186,15 +1186,12 @@ Frame::doResize(bool left, bool x, bool top, bool y)
     int pointer_x = _gm.x, pointer_y = _gm.y;
     X11::getMousePosition(pointer_x, pointer_y);
 
-    wchar_t buf[128];
-    getDecorInfo(buf, 128);
-
     bool center_on_root = Config::instance()->isShowStatusWindowOnRoot();
     StatusWindow *sw = StatusWindow::instance();
     if (Config::instance()->isShowStatusWindow()) {
-        sw->draw(buf, true, center_on_root ? 0 : &_gm);
+        sw->drawGeometry(_gm, center_on_root);
         sw->mapWindowRaised();
-        sw->draw(buf, true, center_on_root ? 0 : &_gm);
+        sw->drawGeometry(_gm, center_on_root);
     }
 
     bool outline = ! Config::instance()->getOpaqueResize();
@@ -1230,9 +1227,8 @@ Frame::doResize(bool left, bool x, bool top, bool y)
 
             recalcResizeDrag(new_x, new_y, left, top);
 
-            getDecorInfo(buf, 128);
             if (Config::instance()->isShowStatusWindow()) {
-                sw->draw(buf, true, center_on_root ? 0 : &_gm);
+                sw->drawGeometry(_gm, center_on_root);
             }
 
             // only updated when needed when in opaque mode

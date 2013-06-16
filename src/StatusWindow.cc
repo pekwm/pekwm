@@ -84,11 +84,8 @@ StatusWindow::~StatusWindow(void)
     _instance = 0;
 }
 
-//! @brief Resizes window to fit the text and renders text
-//! @param text Text to draw in StatusWindow
-//! @param do_center Center the StatusWindow on screen. Defaults to false.
 void
-StatusWindow::draw(const std::wstring &text, bool do_center, Geometry *gm)
+StatusWindow::draw(const std::wstring &text, bool center, const Geometry *gm)
 {
     uint width, height;
     PFont *font = _theme->getStatusData()->getFont(); // convenience
@@ -104,7 +101,7 @@ StatusWindow::draw(const std::wstring &text, bool do_center, Geometry *gm)
         render();
     }
 
-    if (do_center) {
+    if (center) {
         Geometry head;
         if (! gm) {
             X11::getHeadInfo(X11::getCurrHead(), head);
