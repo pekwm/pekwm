@@ -2143,7 +2143,8 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
 bool
 Frame::isRequestGeometryFullscreen(XConfigureRequestEvent *ev)
 {
-    if (_client->isCfgDeny(CFG_DENY_SIZE) || _client->isCfgDeny(CFG_DENY_POSITION)) {
+    if (_client->isCfgDeny(CFG_DENY_SIZE) || _client->isCfgDeny(CFG_DENY_POSITION)
+          || ! _client->allowFullscreen()) {
         return false;
     }
 
