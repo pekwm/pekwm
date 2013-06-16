@@ -212,11 +212,6 @@ PDecor::PDecor(Theme *theme,
 
     CreateWindowParams window_params;
     createParentWindow(window_params, child_window);
-    if (window_params.mask & CWColormap) {
-        window_params.depth = X11::getDepth();
-        window_params.visual = X11::getVisual();
-        window_params.attr.colormap = X11::getColormap();
-    }
     createTitle(window_params);
     createBorder(window_params);
 
@@ -261,6 +256,12 @@ PDecor::createParentWindow(CreateWindowParams &params, Window child_window)
                             _gm.x, _gm.y, _gm.width, _gm.height, 0,
                             params.depth, InputOutput, params.visual,
                             params.mask, &params.attr);
+
+    if (params.mask & CWColormap) {
+        params.depth = X11::getDepth();
+        params.visual = X11::getVisual();
+        params.attr.colormap = X11::getColormap();
+    }
 }
 
 /**
