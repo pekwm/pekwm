@@ -246,8 +246,8 @@ PDecor::getParentWindowAttributes(CreateWindowParams &params,
 
     if (child_window != None) {
         XWindowAttributes attr;
-        Status status = XGetWindowAttributes(X11::getDpy(), child_window, &attr);
-        if (status != BadDrawable && status != BadWindow && attr.depth == 32) {
+        if (X11::getWindowAttributes(child_window, &attr)
+              && attr.depth == 32) {
             params.mask |= CWColormap;
             params.depth = attr.depth;
             params.visual = attr.visual;

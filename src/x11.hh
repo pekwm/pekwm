@@ -362,6 +362,11 @@ public:
         return XGetGeometry(_dpy, win, &wn, &x, &y, w, h, bw, &foo);
     }
 
+    inline static bool
+    getWindowAttributes(Window win, XWindowAttributes *wa) {
+        return XGetWindowAttributes(_dpy, win, wa);
+    }
+
 #ifdef HAVE_SHAPE
     inline static void shapeQuery(Window dst, int *bshaped) {
         int foo; unsigned bar;
