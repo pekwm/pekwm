@@ -26,10 +26,11 @@
 #include <iostream>
 #include <string>
 #include <cstring>
+#include <stdexcept>
+#include <locale>
 
 extern "C" {
 #include <unistd.h> // execlp
-#include <locale.h>
 }
 
 using std::cout;
@@ -77,14 +78,14 @@ main(int argc, char **argv)
     string config_file;
     bool replace = false;
 
-    // Set LC_CTYPE before initializing iconv, used locale::global
-    // here did not behave properly under FreeBSD 9.1
-    char *locale = setlocale(LC_CTYPE, "");
-    if (locale == NULL) {
+    try {
+        locale::global(locale(""));
+    } catch (const std::runtime_error &e) {
         ERR("The environment variables specify an unknown locale - "
             "falling back to default \"C\". This is not a bug in PekWM.");
-        setlocale(LC_CTYPE, "C");
+        locale::global(locale("C"));
     }
+
     Util::iconv_init();
 
     setenv("PEKWM_ETC_PATH", SYSCONFDIR, 1);
