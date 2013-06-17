@@ -282,6 +282,22 @@ public:
 
     // helper functions
 
+    inline static
+    void keepVisible(Geometry &gm) {
+        if (gm.x > static_cast<int>(getWidth()) - 3) {
+            gm.x = getWidth() - 3;
+        }
+        if (gm.x + static_cast<int>(gm.width) < 3) {
+            gm.x = 3 - gm.width;
+        }
+        if (gm.y > static_cast<int>(getHeight()) - 3) {
+            gm.y = getHeight() - 3;
+        }
+        if (gm.y + static_cast<int>(gm.height) < 3) {
+            gm.y = 3 - gm.height;
+        }
+    }
+
     //! @brief Makes sure the Geometry is inside the screen.
     static
     void placeInsideScreen(Geometry &gm, bool withoutedge=false) {

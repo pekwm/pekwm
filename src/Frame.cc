@@ -2122,7 +2122,7 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
         gm.y = ev->y - borderTop() - getTitleHeight();
     }
 
-    X11::placeInsideScreen(gm);
+    X11::keepVisible(gm);
 
     if (Config::instance()->isFullscreenDetect() && isFullscreen()) {
         _old_gm = gm;
