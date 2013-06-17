@@ -33,7 +33,6 @@ PFont::PFont(void) :
     _height(0), _ascent(0), _descent(0),
     _offset_x(0), _offset_y(0), _justify(FONT_JUSTIFY_LEFT)
 {
-    _type = FONT_TYPE_NO;
 }
 
 //! @brief PFont destructor
@@ -193,7 +192,6 @@ PFontX11::PFontX11(void)
     : PFont(),
       _font(0), _gc_fg(None), _gc_bg(None)
 {
-    _type = FONT_TYPE_X11;
 }
 
 //! @brief PFontX11 destructor
@@ -319,7 +317,6 @@ PFontXmb::PFontXmb(void)
   : PFont(),
     _fontset(0), _gc_fg(None), _gc_bg(None)
 {
-    _type = FONT_TYPE_XMB;
 }
 
 //! @brief PFontXmb destructor
@@ -458,7 +455,6 @@ PFontXft::PFontXft(void)
     : PFont(),
       _draw(0), _font(0), _cl_fg(0), _cl_bg(0)
 {
-    _type = FONT_TYPE_XFT;
     _draw = XftDrawCreate(X11::getDpy(), X11::getRoot(),
                           X11::getVisual(), X11::getColormap());
 }

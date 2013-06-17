@@ -68,7 +68,6 @@ public:
     PFont(void);
     virtual ~PFont(void);
 
-    inline Type getType(void) const { return _type; }
     inline uint getJustify(void) const { return _justify; }
 
     inline void setJustify(uint j) { _justify = j; }
@@ -103,8 +102,6 @@ private:
                         uint chars, bool fg) { }
 
 protected:
-    Type _type;
-    
     uint _height, _ascent, _descent;
     uint _offset_x, _offset_y, _justify;
     
