@@ -64,7 +64,7 @@ HintWO::HintWO(Window root, bool replace) throw (std::string&)
     XChangeWindowAttributes(X11::getDpy(), _window, CWEventMask|CWOverrideRedirect, &attr);
 
     // Set hints not being updated
-    X11::setString(_window, NET_WM_NAME, WM_NAME);
+    X11::setUtf8String(_window, NET_WM_NAME, WM_NAME);
     X11::setWindow(_window, NET_SUPPORTING_WM_CHECK, _window);
 
     if (! claimDisplay(replace)) {
