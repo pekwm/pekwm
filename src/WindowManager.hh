@@ -128,9 +128,7 @@ public:
     WorkspaceIndicator *getWorkspaceIndicator(void) { return _workspace_indicator; }
 
     // Extended Window Manager hints function prototypes
-    void setEwmhSupported(void);
     void setEwmhActiveWindow(Window w);
-    void setDesktopNames(void);
 
     // public event handlers used when doing grabbed actions
     void handleKeyEvent(XKeyEvent *ev);
