@@ -2323,6 +2323,12 @@ Frame::handlePropertyChange(XPropertyEvent *ev, Client *client)
         client->getStrutHint();
     } else if (ev->atom == X11::getAtom(NET_WM_NAME) || ev->atom == XA_WM_NAME) {
         handleTitleChange(client);
+    } else if (ev->atom == X11::getAtom(MOTIF_WM_HINTS)) {
+        client->readMwmHints();
+        if (! isFullscreen() && _client == client) {
+            setBorder(_client->hasBorder()?STATE_SET:STATE_UNSET);
+            setTitlebar(_client->hasTitlebar()?STATE_SET:STATE_UNSET);
+        }
     } else if (ev->atom == XA_WM_NORMAL_HINTS) {
         client->getWMNormalHints();
     } else if (ev->atom == XA_WM_TRANSIENT_FOR) {

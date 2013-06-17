@@ -961,20 +961,22 @@ Client::readMwmHints(void)
         }
 
         // Check decoration flags
-        if (mwm_hints->flags & MWM_HINTS_DECORATIONS
-            && ! (mwm_hints->decorations & MWM_DECOR_ALL)) {
-          if (! (mwm_hints->decorations & MWM_DECOR_TITLE)) {
-            setTitlebar(false);
-          }
-          if (! (mwm_hints->decorations & MWM_DECOR_BORDER)) {
-            setBorder(false);
-          }
-
-          // Do not handle HANDLE, MENU, ICONFIY or MAXIMIZE. Maybe
-          // one should set the allowed actions for the client based
-          // on this but that might be annoying so ignoring these.
+        if (mwm_hints->flags & MWM_HINTS_DECORATIONS) {
+            if (mwm_hints->decorations & MWM_DECOR_ALL) {
+                setTitlebar(true);
+                setBorder(true);
+            } else {
+                if (! (mwm_hints->decorations & MWM_DECOR_TITLE)) {
+                    setTitlebar(false);
+                }
+                if (! (mwm_hints->decorations & MWM_DECOR_BORDER)) {
+                    setBorder(false);
+                }
+                // Do not handle HANDLE, MENU, ICONFIY or MAXIMIZE. Maybe
+                // one should set the allowed actions for the client based
+                // on this but that might be annoying so ignoring these.
+            }
         }
-
         XFree(mwm_hints);
     }
 }
