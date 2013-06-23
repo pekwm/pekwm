@@ -13,6 +13,7 @@ AC_PROG_SED
 PKG_PROG_PKG_CONFIG
 
 AC_LANG([C++])
+AX_CXX_COMPILE_STDCXX_11([noext],[mandatory])
 
 dnl Check for /usr/xpg4/bin/sh and use that in scripts if it does
 dnl exist, Solaris /bin/sh does feel like behaving with the standard
