@@ -65,30 +65,30 @@ public:
         vector<CfgParser::Entry*>::const_iterator end(void) { return _entries.end(); }
 
         //! @brief Returns the name.
-        const std::string &get_name(void) const { return _name; }
+        const std::string &getName(void) const { return _name; }
         //! @brief Returns the value.
-        const std::string &get_value(void) const { return _value; }
+        const std::string &getValue(void) const { return _value; }
         //! @brief Returns the linenumber in the source this was parsed.
-        int get_line(void) const { return _line; }
+        int getLine(void) const { return _line; }
         //! @brief Returns the name of the source this was parsed.
-        const std::string &get_source_name(void) const { return _source_name; }
+        const std::string &getSourceName(void) const { return _source_name; }
 
-        Entry *add_entry(Entry *entry, bool overwrite=false);
-        Entry *add_entry(const std::string &source_name, int line,
-                         const std::string &name, const std::string &value,
-                         CfgParser::Entry *section=0, bool overwrite=false);
+        Entry *addEntry(Entry *entry, bool overwrite=false);
+        Entry *addEntry(const std::string &source_name, int line,
+                        const std::string &name, const std::string &value,
+                        CfgParser::Entry *section=0, bool overwrite=false);
 
         //! @brief Returns the sub section.
-        Entry *get_section(void) { return _section; }
-        Entry *set_section(Entry *section, bool overwrite=false);
+        Entry *getSection(void) { return _section; }
+        Entry *setSection(Entry *section, bool overwrite=false);
 
-        Entry *find_entry(const std::string &name, bool include_sections=false, const char *value=0);
-        Entry *find_section(const std::string &name, const char *value=0);
-        void parse_key_values(vector<CfgParserKey*>::const_iterator begin,
-                              vector<CfgParserKey*>::const_iterator end);
+        Entry *findEntry(const std::string &name, bool include_sections=false, const char *value=0);
+        Entry *findSection(const std::string &name, const char *value=0);
+        void parseKeyValues(vector<CfgParserKey*>::const_iterator begin,
+                            vector<CfgParserKey*>::const_iterator end);
 
         void print(uint level = 0);
-        void copy_tree_into(CfgParser::Entry *from, bool overwrite=false);
+        void copyTreeInto(CfgParser::Entry *from, bool overwrite=false);
 
         //! @brief Matches Entry name agains op_rhs.
         bool operator==(const char *rhs) {
@@ -116,9 +116,9 @@ public:
     TimeFiles getCfgFiles(void) const { return _cfg_files; }
 
     //! @brief Returns the root Entry node.
-    Entry *get_entry_root(void) { return _root_entry; }
+    Entry *getEntryRoot(void) { return _root_entry; }
     /** Return true if data parsed included dynamic content such as from COMMAND. */
-    bool is_dynamic_content(void) { return _is_dynamic_content; }
+    bool isDynamicContent(void) { return _is_dynamic_content; }
 
     void clear(bool realloc = true);
     bool parse(const std::string &src, CfgParserSource::Type type = CfgParserSource::SOURCE_FILE,

@@ -102,14 +102,14 @@ CfgParser::Entry::~Entry(void)
  * Append Entry to the end of Entry list at current depth.
  */
 CfgParser::Entry*
-CfgParser::Entry::add_entry(CfgParser::Entry *entry, bool overwrite)
+CfgParser::Entry::addEntry(CfgParser::Entry *entry, bool overwrite)
 {
     CfgParser::Entry *entry_search = 0;
     if (overwrite) {
-        if (entry->get_section()) {
-            entry_search = find_entry(entry->get_name(), true, entry->get_section()->get_value().c_str());
+        if (entry->getSection()) {
+            entry_search = findEntry(entry->getName(), true, entry->getSection()->getValue().c_str());
         } else {
-            entry_search = find_entry(entry->get_name(), false);
+            entry_search = findEntry(entry->getName(), false);
         }
     }
 
@@ -117,10 +117,10 @@ CfgParser::Entry::add_entry(CfgParser::Entry *entry, bool overwrite)
     // configuration syntax overwriting of section is only allowed
     // when the value is the same.
     if (entry_search
-        && (! entry_search->get_section()
-            || strcasecmp(entry->get_value().c_str(), entry_search->get_value().c_str()) == 0)) { 
-        entry_search->_value = entry->get_value();
-        entry_search->set_section(entry->get_section(), overwrite);
+        && (! entry_search->getSection()
+            || strcasecmp(entry->getValue().c_str(), entry_search->getValue().c_str()) == 0)) { 
+        entry_search->_value = entry->getValue();
+        entry_search->setSection(entry->getSection(), overwrite);
 
         // Clear resources used by entry
         entry->_section = 0;
@@ -135,22 +135,22 @@ CfgParser::Entry::add_entry(CfgParser::Entry *entry, bool overwrite)
 
 //! @brief Adds Entry to the end of Entry list at current depth.
 CfgParser::Entry*
-CfgParser::Entry::add_entry(const std::string &source_name, int line,
-                            const std::string &name, const std::string &value,
-                            CfgParser::Entry *section, bool overwrite)
+CfgParser::Entry::addEntry(const std::string &source_name, int line,
+                           const std::string &name, const std::string &value,
+                           CfgParser::Entry *section, bool overwrite)
 {
-    return add_entry(new Entry(source_name, line, name, value, section), overwrite);
+    return addEntry(new Entry(source_name, line, name, value, section), overwrite);
 }
 
 /**
  * Set section, copy section entires over if overwrite.
  */
 CfgParser::Entry*
-CfgParser::Entry::set_section(CfgParser::Entry *section, bool overwrite)
+CfgParser::Entry::setSection(CfgParser::Entry *section, bool overwrite)
 {
     if (_section) {
         if (overwrite) {
-            _section->copy_tree_into(section, overwrite);
+            _section->copyTreeInto(section, overwrite);
             delete section;
         } else {
             delete _section;
@@ -166,16 +166,16 @@ CfgParser::Entry::set_section(CfgParser::Entry *section, bool overwrite)
 //! @brief Gets next entry without subsection matching the name name.
 //! @param name Name of Entry to look for.
 CfgParser::Entry*
-CfgParser::Entry::find_entry(const std::string &name, bool include_sections, const char *value)
+CfgParser::Entry::findEntry(const std::string &name, bool include_sections, const char *value)
 {
     CfgParser::Entry *value_check;
     vector<CfgParser::Entry*>::iterator it(_entries.begin());
     for (; it != _entries.end(); ++it) {
-        value_check = include_sections ? (*it)->get_section() : (*it);
+        value_check = include_sections ? (*it)->getSection() : (*it);
 
         if (*(*it) == name.c_str()
-            && (! (*it)->get_section() || include_sections)
-            && (! value || (value_check && value_check->get_value() == value))) {
+            && (! (*it)->getSection() || include_sections)
+            && (! value || (value_check && value_check->getValue() == value))) {
             return *it;
         }
     }
@@ -186,13 +186,13 @@ CfgParser::Entry::find_entry(const std::string &name, bool include_sections, con
 //! @brief Gets the next entry with subsection matchin the name name.
 //! @param name Name of Entry to look for.
 CfgParser::Entry*
-CfgParser::Entry::find_section(const std::string &name, const char *value)
+CfgParser::Entry::findSection(const std::string &name, const char *value)
 {
     vector<CfgParser::Entry*>::iterator it(_entries.begin());
     for (; it != _entries.end(); ++it) {
-        if ((*it)->get_section() && *(*it) == name.c_str()
-            && (! value || (*it)->get_section()->get_value() == value)) {
-            return (*it)->get_section();
+        if ((*it)->getSection() && *(*it) == name.c_str()
+            && (! value || (*it)->getSection()->getValue() == value)) {
+            return (*it)->getSection();
         }
     }
 
@@ -202,16 +202,16 @@ CfgParser::Entry::find_section(const std::string &name, const char *value)
 
 //! @brief Sets and validates data specified by key list.
 void
-CfgParser::Entry::parse_key_values(std::vector<CfgParserKey*>::const_iterator it,
-                                   std::vector<CfgParserKey*>::const_iterator end)
+CfgParser::Entry::parseKeyValues(std::vector<CfgParserKey*>::const_iterator it,
+                                 std::vector<CfgParserKey*>::const_iterator end)
 {
     CfgParser::Entry *value;
 
     for (; it != end; ++it) {
-        value = find_entry((*it)->getName());
+        value = findEntry((*it)->getName());
         if (value) {
             try {
-                (*it)->parseValue(value->get_value());
+                (*it)->parseValue(value->getValue());
 
             } catch (string &ex) {
                 cerr << " *** WARNING " << ex << endl << "  " << *value << endl;
@@ -229,17 +229,17 @@ CfgParser::Entry::print(uint level)
     for (uint i = 0; i < level; ++i) {
         cerr << " ";
     }
-    cerr << " * " << get_name() << "=" << get_value() << endl;
+    cerr << " * " << getName() << "=" << getValue() << endl;
 
     CfgParser::iterator it(begin());
     for (; it != end(); ++it) {
-        if ((*it)->get_section()) {
-            (*it)->get_section()->print(level + 1);
+        if ((*it)->getSection()) {
+            (*it)->getSection()->print(level + 1);
         } else {
             for (uint i = 0; i < level; ++i) {
                 cerr << " ";
             }
-            cerr << "   - " << get_name() << "=" << get_value() << endl;
+            cerr << "   - " << getName() << "=" << getValue() << endl;
         }
     }
 }
@@ -249,14 +249,14 @@ CfgParser::Entry::print(uint level)
  * true.
  */
 void
-CfgParser::Entry::copy_tree_into(CfgParser::Entry *from, bool overwrite)
+CfgParser::Entry::copyTreeInto(CfgParser::Entry *from, bool overwrite)
 {
     // Copy section
-    if (from->get_section()) {
+    if (from->getSection()) {
         if (_section) {
-            _section->copy_tree_into(from->get_section(), overwrite);
+            _section->copyTreeInto(from->getSection(), overwrite);
         } else {
-            _section = new Entry(*(from->get_section()));
+            _section = new Entry(*(from->getSection()));
         }
     }
 
@@ -264,12 +264,12 @@ CfgParser::Entry::copy_tree_into(CfgParser::Entry *from, bool overwrite)
     CfgParser::iterator it(from->begin());
     for (; it != from->end(); ++it) {
         CfgParser::Entry *entry_section = 0;
-        if ((*it)->get_section()) {
-            entry_section = new Entry(*((*it)->get_section()));
+        if ((*it)->getSection()) {
+            entry_section = new Entry(*((*it)->getSection()));
         }
         
-        add_entry((*it)->get_source_name(), (*it)->get_line(), (*it)->get_name(), (*it)->get_value(),
-                  entry_section, true);
+        addEntry((*it)->getSourceName(), (*it)->getLine(), (*it)->getName(), (*it)->getValue(),
+                 entry_section, true);
     }
 }
 
@@ -277,8 +277,8 @@ CfgParser::Entry::copy_tree_into(CfgParser::Entry *from, bool overwrite)
 std::ostream&
 operator<<(std::ostream &stream, const CfgParser::Entry &entry)
 {
-    stream << entry.get_source_name() << "@" << entry.get_line()
-           << " " << entry.get_name() << " = " << entry.get_value();
+    stream << entry.getSourceName() << "@" << entry.getLine()
+           << " " << entry.getName() << " = " << entry.getValue();
     return stream;
 }
 
@@ -591,7 +591,7 @@ CfgParser::parse_entry_finish_standard(std::string &buf, std::string &value)
             } else if (buf == "COMMAND") {
                 parse_source_new(value, CfgParserSource::SOURCE_COMMAND);
             } else {
-                _section->add_entry(_source->getName(), _source->getLine(), buf, value, 0, _overwrite);
+                _section->addEntry(_source->getName(), _source->getLine(), buf, value, 0, _overwrite);
             }
         }
     } else {
@@ -614,7 +614,7 @@ CfgParser::parse_entry_finish_template(std::string &name)
         return;
     }
 
-    _section->copy_tree_into(it->second);
+    _section->copyTreeInto(it->second);
 }
 
 //! @brief Creates new Section on {
@@ -640,9 +640,9 @@ CfgParser::parse_section_finish(std::string &buf, std::string &value)
         // Add parent section, get section from parent section as it
         // can be different from the newly created if it is not
         // overwritten.
-        CfgParser::Entry *parent = _section->add_entry(_source->getName(), _source->getLine(),
-                                                       buf, value, section, _overwrite);
-        section = parent->get_section();
+        CfgParser::Entry *parent = _section->addEntry(_source->getName(), _source->getLine(),
+                                                      buf, value, section, _overwrite);
+        section = parent->getSection();
     }
 
     // Set current Entry to newly created Section.

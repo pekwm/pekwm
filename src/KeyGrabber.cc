@@ -131,7 +131,7 @@ KeyGrabber::load(const std::string &file, bool force)
         }
     }
 
-    if (key_cfg.is_dynamic_content()) {
+    if (key_cfg.isDynamicContent()) {
         _cfg_files.clear();
     } else {
         _cfg_files = key_cfg.getCfgFiles();
@@ -139,13 +139,13 @@ KeyGrabber::load(const std::string &file, bool force)
 
     CfgParser::Entry *section;
 
-    section = key_cfg.get_entry_root()->find_section("GLOBAL");
+    section = key_cfg.getEntryRoot()->findSection("GLOBAL");
     if (section) {
         _global_chain.unload();
         parseGlobalChain(section, &_global_chain);
     }
 
-    section = key_cfg.get_entry_root ()->find_section("MOVERESIZE");
+    section = key_cfg.getEntryRoot ()->findSection("MOVERESIZE");
     if (section) {
         _moveresize_chain.unload ();
         parseMoveResizeChain (section, &_moveresize_chain);
@@ -154,9 +154,9 @@ KeyGrabber::load(const std::string &file, bool force)
     // Previously there was only a CmdDialog section, however the text
     // handling parts have been moved into InputDialog but to keep
     // compatibility this check exists.
-    section = key_cfg.get_entry_root()->find_section("INPUTDIALOG");
+    section = key_cfg.getEntryRoot()->findSection("INPUTDIALOG");
     if (! section) {
-        section = key_cfg.get_entry_root()->find_section("CMDDIALOG");
+        section = key_cfg.getEntryRoot()->findSection("CMDDIALOG");
     }
 
     if (section) {
@@ -164,7 +164,7 @@ KeyGrabber::load(const std::string &file, bool force)
         parseInputDialogChain (section, &_input_dialog_chain);
     }
 
-    section = key_cfg.get_entry_root ()->find_section("MENU");
+    section = key_cfg.getEntryRoot ()->findSection("MENU");
     if (section) {
         _menu_chain.unload();
         parseMenuChain(section, &_menu_chain);
@@ -182,11 +182,11 @@ KeyGrabber::parseGlobalChain(CfgParser::Entry *section, KeyGrabber::Chain *chain
 
     CfgParser::iterator it(section->begin());
     for (; it != section->end(); ++it) {
-        if ((*it)->get_section() && *(*it) == "CHAIN") {
+        if ((*it)->getSection() && *(*it) == "CHAIN") {
             // Figure out mod and key, create a new chain.
-            if (Config::instance()->parseKey((*it)->get_value(), mod, key)) {
+            if (Config::instance()->parseKey((*it)->getValue(), mod, key)) {
                 KeyGrabber::Chain *sub_chain = new KeyGrabber::Chain(mod, key);
-                parseGlobalChain((*it)->get_section(), sub_chain);
+                parseGlobalChain((*it)->getSection(), sub_chain);
                 chain->addChain(sub_chain);
             }
         } else if (Config::instance()->parseActionEvent((*it), ae, KEYGRABBER_OK, false)) {
@@ -204,11 +204,11 @@ KeyGrabber::parseMoveResizeChain(CfgParser::Entry *section, KeyGrabber::Chain *c
 
     CfgParser::iterator it(section->begin());
     for (; it != section->end(); ++it) {
-        if ((*it)->get_section() && *(*it) == "CHAIN") {
+        if ((*it)->getSection() && *(*it) == "CHAIN") {
             // Figure out mod and key, create a new chain.
-            if (Config::instance()->parseKey((*it)->get_value(), mod, key)) {
+            if (Config::instance()->parseKey((*it)->getValue(), mod, key)) {
                 KeyGrabber::Chain *sub_chain = new KeyGrabber::Chain(mod, key);
-                parseMoveResizeChain((*it)->get_section(), sub_chain);
+                parseMoveResizeChain((*it)->getSection(), sub_chain);
                 chain->addChain(sub_chain);
             }
         } else if (Config::instance()->parseMoveResizeEvent((*it), ae)) {
@@ -226,11 +226,11 @@ KeyGrabber::parseInputDialogChain(CfgParser::Entry *section, KeyGrabber::Chain *
 
     CfgParser::iterator it(section->begin());
     for (; it != section->end(); ++it) {
-        if ((*it)->get_section() && *(*it) == "CHAIN") {
+        if ((*it)->getSection() && *(*it) == "CHAIN") {
             // Figure out mod and key, create a new chain.
-            if (Config::instance()->parseKey((*it)->get_value(), mod, key)) {
+            if (Config::instance()->parseKey((*it)->getValue(), mod, key)) {
                 KeyGrabber::Chain *sub_chain = new KeyGrabber::Chain(mod, key);
-                parseInputDialogChain((*it)->get_section(), sub_chain);
+                parseInputDialogChain((*it)->getSection(), sub_chain);
                 chain->addChain(sub_chain);
             }
         } else if (Config::instance()->parseInputDialogEvent((*it), ae)) {
@@ -248,11 +248,11 @@ KeyGrabber::parseMenuChain(CfgParser::Entry *section, KeyGrabber::Chain *chain)
 
     CfgParser::iterator it(section->begin());
     for (; it != section->end(); ++it) {
-        if ((*it)->get_section() && *(*it) == "CHAIN") {
+        if ((*it)->getSection() && *(*it) == "CHAIN") {
             // Figure out mod and key, create a new chain.
-            if (Config::instance()->parseKey((*it)->get_value(), mod, key)) {
+            if (Config::instance()->parseKey((*it)->getValue(), mod, key)) {
                 KeyGrabber::Chain *sub_chain = new KeyGrabber::Chain (mod, key);
-                parseGlobalChain((*it)->get_section(), sub_chain);
+                parseGlobalChain((*it)->getSection(), sub_chain);
                 chain->addChain(sub_chain);
             }
         } else if (Config::instance()->parseMenuEvent((*it), ae)) {

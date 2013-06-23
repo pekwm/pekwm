@@ -78,33 +78,33 @@ Theme::PDecorButtonData::load(CfgParser::Entry *section)
         TextureHandler *th = TextureHandler::instance();
         CfgParser::Entry *value;
 
-        value = section->find_entry("SETSHAPE");
+        value = section->findEntry("SETSHAPE");
         if (value) {
-            _shape = Util::isTrue(value->get_value());
+            _shape = Util::isTrue(value->getValue());
         }
 
-        value = section->find_entry("FOCUSED");
+        value = section->findEntry("FOCUSED");
         if (value) {
-            _texture[BUTTON_STATE_FOCUSED] = th->getTexture(value->get_value());
+            _texture[BUTTON_STATE_FOCUSED] = th->getTexture(value->getValue());
         }
         
-        value = section->find_entry("UNFOCUSED");
+        value = section->findEntry("UNFOCUSED");
         if (value) {
-            _texture[BUTTON_STATE_UNFOCUSED] = th->getTexture(value->get_value());
+            _texture[BUTTON_STATE_UNFOCUSED] = th->getTexture(value->getValue());
         }
         
-        value = section->find_entry("PRESSED");
+        value = section->findEntry("PRESSED");
         if (value) {
-            _texture[BUTTON_STATE_PRESSED] = th->getTexture(value->get_value());
+            _texture[BUTTON_STATE_PRESSED] = th->getTexture(value->getValue());
         }
 
         // HOOVER has been kept around due to backwards compatibility.
-        value = section->find_entry("HOVER");
+        value = section->findEntry("HOVER");
         if (! value) {
-            value = section->find_entry("HOOVER");
+            value = section->findEntry("HOOVER");
         }
         if (value) {
-            _texture[BUTTON_STATE_HOVER] = th->getTexture(value->get_value());
+            _texture[BUTTON_STATE_HOVER] = th->getTexture(value->getValue());
         }
         
         check();
@@ -211,13 +211,13 @@ Theme::PDecorData::load(CfgParser::Entry *section)
 
     CfgParser::Entry *value;
 
-    _name = section->get_value();
+    _name = section->getValue();
     if (! _name.size()) {
         cerr << " *** WARNING: no name identifying decor" << endl;
         return false;
     }
 
-    CfgParser::Entry *title_section = section->find_section("TITLE");
+    CfgParser::Entry *title_section = section->findSection("TITLE");
     if (! title_section) {
         cerr << " *** WARNING: no title section in decor: " << _name << endl;
         return false;
@@ -239,7 +239,7 @@ Theme::PDecorData::load(CfgParser::Entry *section)
     keys.push_back(new CfgParserKeyString("UNFOCUSED", value_unfocused, "Empty", th->getLengthMin ()));
 
     // Free up resources
-    title_section->parse_key_values(keys.begin(), keys.end());
+    title_section->parseKeyValues(keys.begin(), keys.end());
 
     for_each (keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
     keys.clear();
@@ -252,23 +252,23 @@ Theme::PDecorData::load(CfgParser::Entry *section)
             _pad[i] = strtol(tok[i].c_str (), 0, 10);
     }
 
-    CfgParser::Entry *tab_section = title_section->find_section("TAB");
+    CfgParser::Entry *tab_section = title_section->findSection("TAB");
     if (tab_section) {
         for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
-            value = tab_section->find_entry(_fs_map[FocusedState (i)]);
+            value = tab_section->findEntry(_fs_map[FocusedState (i)]);
             if (value) {
-                _texture_tab[i] = th->getTexture(value->get_value ());
+                _texture_tab[i] = th->getTexture(value->getValue());
             }
         }
     }
 
-    CfgParser::Entry *separator_section = title_section->find_section ("SEPARATOR");
+    CfgParser::Entry *separator_section = title_section->findSection("SEPARATOR");
     if (separator_section) {
         keys.push_back(new CfgParserKeyString("FOCUSED", value_focused, "Empty", th->getLengthMin()));
         keys.push_back(new CfgParserKeyString("UNFOCUSED", value_unfocused, "Empty", th->getLengthMin()));
 
         // Parse data
-        separator_section->parse_key_values(keys.begin(), keys.end());
+        separator_section->parseKeyValues(keys.begin(), keys.end());
 
         // Free up resources
         for_each (keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
@@ -280,30 +280,30 @@ Theme::PDecorData::load(CfgParser::Entry *section)
     }
 
 
-    CfgParser::Entry *font_section = title_section->find_section ("FONT");
+    CfgParser::Entry *font_section = title_section->findSection("FONT");
     if (font_section) {
         for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
-            value = font_section->find_entry(_fs_map[FocusedState(i)]);
+            value = font_section->findEntry(_fs_map[FocusedState(i)]);
             if (value) {
-                _font[i] = FontHandler::instance()->getFont(value->get_value ());
+                _font[i] = FontHandler::instance()->getFont(value->getValue());
             }
         }
     } else {
         cerr << " *** WARNING: no font section in decor: " << _name << endl;
     }
 
-    CfgParser::Entry *fontcolor_section = title_section->find_section ("FONTCOLOR");
+    CfgParser::Entry *fontcolor_section = title_section->findSection("FONTCOLOR");
     if (fontcolor_section) {
         for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
-            value = fontcolor_section->find_entry (_fs_map[FocusedState(i)]);
+            value = fontcolor_section->findEntry(_fs_map[FocusedState(i)]);
             if (value) {
-                _font_color[i] = FontHandler::instance()->getColor(value->get_value ());
+                _font_color[i] = FontHandler::instance()->getColor(value->getValue());
             }
         }
     }
 
-    loadButtons (title_section->find_section("BUTTONS"));
-    loadBorder (title_section->find_section("BORDER"));
+    loadButtons(title_section->findSection("BUTTONS"));
+    loadBorder(title_section->findSection("BORDER"));
 
     check();
 
@@ -373,24 +373,24 @@ Theme::PDecorData::loadBorder(CfgParser::Entry *section)
 
     CfgParser::Entry *sub, *value;
 
-    sub = section->find_section ("FOCUSED");
+    sub = section->findSection("FOCUSED");
     if (sub) {
         for (uint i = 0; i < BORDER_NO_POS; ++i) {
-            value = sub->find_entry (_border_map[BorderPosition (i)]);
+            value = sub->findEntry(_border_map[BorderPosition (i)]);
             if (value) {
                 _texture_border[FOCUSED_STATE_FOCUSED][i] =
-                    th->getTexture (value->get_value ());
+                    th->getTexture(value->getValue());
             }
         }
     }
 
-    sub = section->find_section ("UNFOCUSED");
+    sub = section->findSection("UNFOCUSED");
     if (sub) {
         for (uint i = 0; i < BORDER_NO_POS; ++i) {
-            value = sub->find_entry (_border_map[BorderPosition (i)]);
+            value = sub->findEntry(_border_map[BorderPosition (i)]);
             if (value) {
                 _texture_border[FOCUSED_STATE_UNFOCUSED][i] =
-                    th->getTexture (value->get_value ());
+                    th->getTexture(value->getValue());
             }
         }
     }
@@ -406,12 +406,12 @@ Theme::PDecorData::loadButtons(CfgParser::Entry *section)
 
     CfgParser::iterator it(section->begin());
     for (; it != section->end(); ++it) {
-        if (! (*it)->get_section()) {
+        if (! (*it)->getSection()) {
             continue;
         }
 
         Theme::PDecorButtonData *btn = new Theme::PDecorButtonData();
-        if (btn->load((*it)->get_section())) {
+        if (btn->load((*it)->getSection())) {
             _buttons.push_back(btn);
         } else {
             delete btn;
@@ -520,27 +520,27 @@ bool
 Theme::PMenuData::load(CfgParser::Entry *section)
 {
     CfgParser::Entry *value;
-    value = section->find_entry ("PAD");
+    value = section->findEntry("PAD");
     if (value) {
         vector<string> tok;
-        if (Util::splitString (value->get_value (), tok, " \t", 4) == 4) {
+        if (Util::splitString (value->getValue(), tok, " \t", 4) == 4) {
             for (int i = 0; i < PAD_NO; ++i) {
                 _pad[i] = strtol (tok[i].c_str(), 0, 10);
             }
         }
     }
 
-    value = section->find_section ("FOCUSED");
+    value = section->findSection("FOCUSED");
     if (value) {
         loadState(value, OBJECT_STATE_FOCUSED);
     }
     
-    value = section->find_section ("UNFOCUSED");
+    value = section->findSection("UNFOCUSED");
     if (value) {
         loadState(value, OBJECT_STATE_UNFOCUSED);
     }
     
-    value = section->find_section ("SELECTED");
+    value = section->findSection("SELECTED");
     if (value) {
         loadState(value, OBJECT_STATE_SELECTED);
     }
@@ -620,7 +620,7 @@ Theme::PMenuData::loadState (CfgParser::Entry *section, ObjectState state)
         keys.push_back(new CfgParserKeyString("SEPARATOR", value_separator, "Solid #000000"));
     }
 
-    section->parse_key_values(keys.begin(), keys.end());
+    section->parseKeyValues(keys.begin(), keys.end());
 
     for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 
@@ -668,7 +668,7 @@ Theme::TextDialogData::load(CfgParser::Entry *section)
     keys.push_back(new CfgParserKeyString("TEXTURE", value_texture, "Solid #ffffff"));
     keys.push_back(new CfgParserKeyString("PAD", value_pad, "0 0 0 0", 7));
 
-    section->parse_key_values(keys.begin(), keys.end());
+    section->parseKeyValues(keys.begin(), keys.end());
 
     for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 
@@ -758,7 +758,7 @@ Theme::WorkspaceIndicatorData::load(CfgParser::Entry *section)
     keys.push_back(new CfgParserKeyNumeric<int>("EDGEPADDING", edge_padding, 5, 0));
     keys.push_back(new CfgParserKeyNumeric<int>("WORKSPACEPADDING", workspace_padding, 2, 0));
 
-    section->parse_key_values(keys.begin(), keys.end());
+    section->parseKeyValues(keys.begin(), keys.end());
     for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 
     font = FontHandler::instance()->getFont(value_font);
@@ -846,9 +846,9 @@ Theme::HarbourData::load(CfgParser::Entry *section)
 {
     CfgParser::Entry *value;
 
-    value = section->find_entry ("TEXTURE");
+    value = section->findEntry("TEXTURE");
     if (value) {
-        _texture = TextureHandler::instance()->getTexture (value->get_value());
+        _texture = TextureHandler::instance()->getTexture(value->getValue());
     }
 
     check();
@@ -961,7 +961,7 @@ Theme::load(const std::string &dir)
 
     // Setup quirks and requirements before parsing.
     if (theme_ok) {
-        if (theme.is_dynamic_content()) {
+        if (theme.isDynamicContent()) {
             _cfg_files.clear();
         } else {
             _cfg_files = theme.getCfgFiles();
@@ -974,12 +974,12 @@ Theme::load(const std::string &dir)
     ImageHandler::instance()->path_push_back(_theme_dir);
 
     // Load decor data.
-    CfgParser::Entry *section = theme.get_entry_root()->find_section("PDECOR");
+    CfgParser::Entry *section = theme.getEntryRoot()->findSection("PDECOR");
     if (section) {
         CfgParser::iterator it(section->begin());
         for (; it != section->end(); ++it) {
             Theme::PDecorData *data = new Theme::PDecorData();
-            if (data->load((*it)->get_section())) {
+            if (data->load((*it)->getSection())) {
                 _pdecordata_map[data->getName()] = data;
             } else {
                 delete data;
@@ -997,7 +997,7 @@ Theme::load(const std::string &dir)
 
     map<string, ThemeData*>::iterator it(_section_data_map.begin());
     for (; it != _section_data_map.end(); ++it) {
-        section = theme.get_entry_root()->find_section(it->first);
+        section = theme.getEntryRoot()->findSection(it->first);
         if (section) {
             it->second->load(section);
         } else {
@@ -1020,13 +1020,13 @@ Theme::loadThemeRequire(CfgParser &theme_cfg, std::string &file)
     CfgParser::Entry *section;
 
     // Look for requires section,
-    section = theme_cfg.get_entry_root()->find_section("REQUIRE");
+    section = theme_cfg.getEntryRoot()->findSection("REQUIRE");
     if (section) {
         vector<CfgParserKey*> keys;
         bool value_templates;
 
         keys.push_back(new CfgParserKeyBool("TEMPLATES", value_templates, false));
-        section->parse_key_values(keys.begin(), keys.end());
+        section->parseKeyValues(keys.begin(), keys.end());
         for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 
         // Re-load configuration with templates enabled.

@@ -192,8 +192,8 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
         return;
     }
 
-    if (section->get_value().size()) {
-        wstring title(Util::to_wide_str(section->get_value()));
+    if (section->getValue().size()) {
+        wstring title(Util::to_wide_str(section->getValue()));
         setTitle(title);
         _title_base = title;
     }
@@ -210,16 +210,16 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
         item = 0;
 
         if (*(*it) == "SUBMENU") {
-            CfgParser::Entry *sub_section = (*it)->get_section();
+            CfgParser::Entry *sub_section = (*it)->getSection();
             if (sub_section) {
-                icon = getIcon(sub_section->find_entry("ICON"));
+                icon = getIcon(sub_section->findEntry("ICON"));
 
-                submenu = new ActionMenu(_menu_type, Util::to_wide_str((*it)->get_value()), (*it)->get_value());
+                submenu = new ActionMenu(_menu_type, Util::to_wide_str((*it)->getValue()), (*it)->getValue());
                 submenu->_menu_parent = this;
                 submenu->parse(sub_section, parent);
                 submenu->buildMenu();
 
-                item = new PMenu::Item(Util::to_wide_str(sub_section->get_value()), submenu, icon);
+                item = new PMenu::Item(Util::to_wide_str(sub_section->getValue()), submenu, icon);
                 item->setCreator(parent);
             } else {
                 cerr << " *** WARNING: submenu entry does not contain any section." << endl;
@@ -231,15 +231,15 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
             item->setCreator(parent);
 
         } else {
-            CfgParser::Entry *sub_section = (*it)->get_section();
+            CfgParser::Entry *sub_section = (*it)->getSection();
             if (sub_section) {
                 // Inside of the Entry = "foo" { ... } section, here
                 // Actions and Icon are the valid options.
-                value = sub_section->find_entry("ACTIONS");
-                if (value && Config::instance()->parseActions(value->get_value(), ae, _action_ok)) {
-                    icon = getIcon(sub_section->find_entry("ICON"));
+                value = sub_section->findEntry("ACTIONS");
+                if (value && Config::instance()->parseActions(value->getValue(), ae, _action_ok)) {
+                    icon = getIcon(sub_section->findEntry("ICON"));
 
-                    item = new PMenu::Item(Util::to_wide_str(sub_section->get_value()), 0, icon);
+                    item = new PMenu::Item(Util::to_wide_str(sub_section->getValue()), 0, icon);
                     item->setCreator(parent);
                     item->setAE(ae);
 
@@ -268,7 +268,7 @@ PTexture*
 ActionMenu::getIcon(CfgParser::Entry *value)
 {
     // Skip blank icons
-    if (! value || ! value->get_value().size()) {
+    if (! value || ! value->getValue().size()) {
         return 0;
     }
 
@@ -276,9 +276,9 @@ ActionMenu::getIcon(CfgParser::Entry *value)
 
     // Try to load the icon as a complete texture specification, if
     // that fails load is an scaled image.
-    icon = TextureHandler::instance()->getTexture(value->get_value());
+    icon = TextureHandler::instance()->getTexture(value->getValue());
     if (! icon) {
-        icon = TextureHandler::instance()->getTexture("IMAGE " + value->get_value() + "#SCALED");
+        icon = TextureHandler::instance()->getTexture("IMAGE " + value->getValue() + "#SCALED");
     }
 
     return icon;
@@ -315,7 +315,7 @@ ActionMenu::rebuildDynamic(void)
             if (dynamic.parse((*it)->getAE().action_list.front().getParamS(),
                               CfgParserSource::SOURCE_COMMAND)) {
                 _has_dynamic = true;
-                parse(dynamic.get_entry_root()->find_section("DYNAMIC"), *it);
+                parse(dynamic.getEntryRoot()->findSection("DYNAMIC"), *it);
             }
 
             it = find(_items.begin(), _items.end(), item);

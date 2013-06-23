@@ -79,16 +79,16 @@ MenuHandler::createMenusLoadConfiguration(void)
     if (menu_cfg.parse(Config::instance()->getMenuFile())
         || menu_cfg.parse(string(SYSCONFDIR "/menu"))) {
         _cfg_files = menu_cfg.getCfgFiles();
-        CfgParser::Entry *root_entry = menu_cfg.get_entry_root();
+        CfgParser::Entry *root_entry = menu_cfg.getEntryRoot();
 
         // Load standard menus
         map<string, PMenu*>::iterator it = _menu_map.begin();
         for (; it != _menu_map.end(); ++it) {
-            it->second->reload(root_entry->find_section(it->second->getName()));
+            it->second->reload(root_entry->findSection(it->second->getName()));
         }
 
         // Load standalone menus
-        reloadStandaloneMenus(menu_cfg.get_entry_root());
+        reloadStandaloneMenus(menu_cfg.getEntryRoot());
     }
 }
 
@@ -106,7 +106,7 @@ MenuHandler::reloadMenus(void)
 
     CfgParser cfg;
     bool cfg_ok = loadMenuConfig(menu_file, cfg);
-    CfgParser::Entry *root = cfg.get_entry_root();
+    CfgParser::Entry *root = cfg.getEntryRoot();
 
     // Update, delete standalone root menus, load decors on others
     map<string, PMenu*>::iterator it(_menu_map.begin());
@@ -117,7 +117,7 @@ MenuHandler::reloadMenus(void)
             continue;
         } else if (cfg_ok) {
             // Only reload the menu if we got a ok configuration
-            it->second->reload(root->find_section(it->second->getName()));
+            it->second->reload(root->findSection(it->second->getName()));
         }
         ++it;
     }
@@ -142,7 +142,7 @@ MenuHandler::loadMenuConfig(const std::string &menu_file, CfgParser &menu_cfg)
 
     // Make sure menu is reloaded next time as content is dynamically
     // generated from the configuration file.
-    if (! cfg_ok || menu_cfg.is_dynamic_content()) {
+    if (! cfg_ok || menu_cfg.isDynamicContent()) {
         _cfg_files.clear();
     } else {
         _cfg_files = menu_cfg.getCfgFiles();
@@ -164,15 +164,15 @@ MenuHandler::reloadStandaloneMenus(CfgParser::Entry *section)
     CfgParser::iterator it(section->begin());
     for (; it != section->end(); ++it) {
         // Uppercase name
-        menu_name_upper = (*it)->get_name();
+        menu_name_upper = (*it)->getName();
         Util::to_upper(menu_name_upper);
 
         // Create new menu if the name is not used
         if (! getMenu(menu_name_upper)) {
             // Create, parse and add to map
             PMenu *menu = new ActionMenu(ROOTMENU_STANDALONE_TYPE,
-                                         L"", (*it)->get_name());
-            menu->reload((*it)->get_section());
+                                         L"", (*it)->getName());
+            menu->reload((*it)->getSection());
             _menu_map[menu_name_upper] = menu;
         }
     }
