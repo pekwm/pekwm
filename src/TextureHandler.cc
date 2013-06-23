@@ -158,6 +158,10 @@ TextureHandler::parse(const std::string &texture)
             break;
         case PTexture::TYPE_IMAGE:
             ptexture = new PTextureImage(texture.substr(6)); // 6==strlen("IMAGE ")
+            if (! ptexture->isOk()) {
+                string::size_type pos = texture.find_first_not_of(" \t", 6);
+                static_cast<PTextureImage*>(ptexture)->setImage(texture.substr(pos));
+            }
             break;
         case PTexture::TYPE_NO:
         default:
