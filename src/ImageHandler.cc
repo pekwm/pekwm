@@ -84,10 +84,10 @@ ImageHandler::getImage(const std::string &file)
     ImageType image_type = IMAGE_TYPE_TILED;
 
     // Split image in path # type parts.
-    vector<string> tok;
-    if ((Util::splitString(file, tok, "#", 2, true)) == 2) {
-        real_file = tok[0];
-        image_type = ParseUtil::getValue<ImageType>(tok[1], _image_type_map);
+    string::size_type pos = file.rfind('#');
+    if (string::npos != pos) {
+        real_file = file.substr(0, pos);
+        image_type = ParseUtil::getValue<ImageType>(file.substr(pos+1), _image_type_map);
     }
 
     // Load the image, try load paths if not an absolute image path
