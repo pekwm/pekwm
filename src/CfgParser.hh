@@ -125,23 +125,23 @@ public:
                bool overwrite = false);
 
 private:
-    void parse_source_new(const std::string &name, CfgParserSource::Type type);
-    bool parse_name(std::string &buf);
-    void parse_value(std::string &value);
-    void parse_entry_finish(std::string &buf, std::string &value);
-    void parse_entry_finish_standard(std::string &buf, std::string &value);
-    void parse_entry_finish_template(std::string &name);
-    void parse_section_finish(std::string &buf, std::string &value);
-    void parse_comment_line(CfgParserSource *source);
-    void parse_comment_c(CfgParserSource *source);
-    char parse_skip_blank(CfgParserSource *source);
+    void parseSourceNew(const std::string &name, CfgParserSource::Type type);
+    bool parseName(std::string &buf);
+    void parseValue(std::string &value);
+    void parseEntryFinish(std::string &buf, std::string &value);
+    void parseEntryFinishStandard(std::string &buf, std::string &value);
+    void parseEntryFinishTemplate(std::string &name);
+    void parseSectionFinish(std::string &buf, std::string &value);
+    void parseCommentLine(CfgParserSource *source);
+    void parseCommentC(CfgParserSource *source);
+    char parseSkipBlank(CfgParserSource *source);
 
-    CfgParserSource *source_new(const std::string &name, CfgParserSource::Type type);
+    CfgParserSource *sourceNew(const std::string &name, CfgParserSource::Type type);
 
-    void variable_define(const std::string &name, const std::string &value);
-    void variable_expand(std::string &var);
-    bool variable_expand_name(std::string &var,
-                              std::string::size_type begin, std::string::size_type &end);
+    void variableDefine(const std::string &name, const std::string &value);
+    void variableExpand(std::string &var);
+    bool variableExpandName(std::string &var,
+                            std::string::size_type begin, std::string::size_type &end);
 
     CfgParserSource *_source;
 

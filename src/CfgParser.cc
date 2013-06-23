@@ -351,7 +351,7 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwr
     buf.reserve(PARSE_BUF_SIZE);
 
     // Open initial source.
-    parse_source_new(src, type);
+    parseSourceNew(src, type);
     if (_sources.size() == 0) {
         return false;
     }
@@ -369,17 +369,17 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwr
                 // To be able to handle entry ends AND { after \n a check
                 // to see what comes after the newline is done. If { appears
                 // we continue as nothing happened else we finish the entry.
-                next = parse_skip_blank(_source);
+                next = parseSkipBlank(_source);
                 if (next != '{') {
-                    parse_entry_finish(buf, value);
+                    parseEntryFinish(buf, value);
                 }
                 break;
             case ';':
-                parse_entry_finish(buf, value);
+                parseEntryFinish(buf, value);
                 break;
             case '{':
-                if (parse_name(buf)) {
-                    parse_section_finish(buf, value);
+                if (parseName(buf)) {
+                    parseSectionFinish(buf, value);
                 } else {
                     cerr << "Ignoring section as name is empty." << endl;
                 }
@@ -388,8 +388,8 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwr
                 break;
             case '}':
                 if (_sections.size() > 0) {
-                    if (buf.size() && parse_name(buf)) {
-                        parse_entry_finish(buf, value);
+                    if (buf.size() && parseName(buf)) {
+                        parseEntryFinish(buf, value);
                         buf.clear();
                         value.clear();
                     }
@@ -401,17 +401,17 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwr
                 break;
             case '=':
                 value.clear();
-                parse_value(value);
+                parseValue(value);
                 break;
             case '#':
-                parse_comment_line(_source);
+                parseCommentLine(_source);
                 break;
             case '/':
                 next = _source->getc();
                 if (next == '/') {
-                    parse_comment_line(_source);
+                    parseCommentLine(_source);
                 } else if (next == '*') {
-                    parse_comment_c(_source);
+                    parseCommentC(_source);
                 } else {
                     buf += c;
                     _source->ungetc(next);
@@ -435,7 +435,7 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwr
     }
 
     if (buf.size()) {
-        parse_entry_finish(buf, value);
+        parseEntryFinish(buf, value);
     }
 
     return true;
@@ -443,13 +443,13 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwr
 
 //! @brief Creates and opens new CfgParserSource.
 void
-CfgParser::parse_source_new(const std::string &name_orig, CfgParserSource::Type type)
+CfgParser::parseSourceNew(const std::string &name_orig, CfgParserSource::Type type)
 {
     int done = 0;
     string name(name_orig);
 
     do {
-        CfgParserSource *source = source_new(name, type);
+        CfgParserSource *source = sourceNew(name, type);
         assert(source);
 
         // Open and set as active, delete if fails.
@@ -494,7 +494,7 @@ CfgParser::parse_source_new(const std::string &name_orig, CfgParserSource::Type 
 
 //! @brief Parses from beginning to first blank.
 bool
-CfgParser::parse_name(std::string &buf)
+CfgParser::parseName(std::string &buf)
 {
     if (! buf.size()) {
         cerr << "Unable to parse empty name." << endl;
@@ -524,7 +524,7 @@ CfgParser::parse_name(std::string &buf)
 
 //! @brief Parses _source after = to end of " pair.
 void
-CfgParser::parse_value(std::string &value)
+CfgParser::parseValue(std::string &value)
 {
     // We expect to get a " after the =, however we ignore anything else.
     int c;
@@ -553,7 +553,7 @@ CfgParser::parse_value(std::string &value)
         cerr << "Reached EOF before closing \" in value." << endl;
     }
 
-    // If the value is empty, parse_entry_finish() might later just skip
+    // If the value is empty, parseEntryFinish() might later just skip
     // the complete entry. To allow empty config options we add a dummy space.
     if (!value.size()) {
     	value = " ";
@@ -562,14 +562,14 @@ CfgParser::parse_value(std::string &value)
 
 //! @brief Parses entry (name + value) and executes command accordingly.
 void
-CfgParser::parse_entry_finish(std::string &buf, std::string &value)
+CfgParser::parseEntryFinish(std::string &buf, std::string &value)
 {
     if (value.size()) {
-        parse_entry_finish_standard(buf, value);
+        parseEntryFinishStandard(buf, value);
     } else {
         // Template handling, expand or define template.
-        if (buf.size() && parse_name(buf) && buf[0] == '@') {
-            parse_entry_finish_template(buf);
+        if (buf.size() && parseName(buf) && buf[0] == '@') {
+            parseEntryFinishTemplate(buf);
         }
         buf.clear();
     }
@@ -578,18 +578,18 @@ CfgParser::parse_entry_finish(std::string &buf, std::string &value)
  * Finish standard entry.
  */
 void
-CfgParser::parse_entry_finish_standard(std::string &buf, std::string &value)
+CfgParser::parseEntryFinishStandard(std::string &buf, std::string &value)
 {
-    if (parse_name(buf)) {
+    if (parseName(buf)) {
         if (buf[0] == '$') {
-            variable_define(buf, value);
+            variableDefine(buf, value);
         } else  {
-            variable_expand(value);
+            variableExpand(value);
 
             if (buf == "INCLUDE")  {
-                parse_source_new(value, CfgParserSource::SOURCE_FILE);
+                parseSourceNew(value, CfgParserSource::SOURCE_FILE);
             } else if (buf == "COMMAND") {
-                parse_source_new(value, CfgParserSource::SOURCE_COMMAND);
+                parseSourceNew(value, CfgParserSource::SOURCE_COMMAND);
             } else {
                 _section->addEntry(_source->getName(), _source->getLine(), buf, value, 0, _overwrite);
             }
@@ -606,7 +606,7 @@ CfgParser::parse_entry_finish_standard(std::string &buf, std::string &value)
  * Finish template entry, copy data into current section.
  */
 void
-CfgParser::parse_entry_finish_template(std::string &name)
+CfgParser::parseEntryFinishTemplate(std::string &name)
 {
     map<string, CfgParser::Entry*>::iterator it(_section_map.find(name.c_str() + 1));
     if (it == _section_map.end()) {
@@ -619,7 +619,7 @@ CfgParser::parse_entry_finish_template(std::string &name)
 
 //! @brief Creates new Section on {
 void
-CfgParser::parse_section_finish(std::string &buf, std::string &value)
+CfgParser::parseSectionFinish(std::string &buf, std::string &value)
 {
     // Create Entry representing Section
     Entry *section = 0;
@@ -652,7 +652,7 @@ CfgParser::parse_section_finish(std::string &buf, std::string &value)
 
 //! @brief Parses Source until end of line discarding input.
 void
-CfgParser::parse_comment_line(CfgParserSource *source)
+CfgParser::parseCommentLine(CfgParserSource *source)
 {
     int c;
     while (((c = source->getc()) != EOF) && (c != '\n'))
@@ -666,7 +666,7 @@ CfgParser::parse_comment_line(CfgParserSource *source)
 
 //! @brief Parses Source until */ is found.
 void
-CfgParser::parse_comment_c(CfgParserSource *source)
+CfgParser::parseCommentC(CfgParserSource *source)
 {
     int c;
     while ((c = source->getc()) != EOF) {
@@ -686,7 +686,7 @@ CfgParser::parse_comment_c(CfgParserSource *source)
 
 //! @brief Parses Source until next non whitespace char is found.
 char
-CfgParser::parse_skip_blank(CfgParserSource *source)
+CfgParser::parseSkipBlank(CfgParserSource *source)
 {
     int c;
     while (((c = source->getc()) != EOF) && isspace(c))
@@ -699,7 +699,7 @@ CfgParser::parse_skip_blank(CfgParserSource *source)
 
 //! @brief Creates a CfgParserSource of type type.
 CfgParserSource*
-CfgParser::source_new(const std::string &name, CfgParserSource::Type type)
+CfgParser::sourceNew(const std::string &name, CfgParserSource::Type type)
 {
     CfgParserSource *source = 0;
 
@@ -722,7 +722,7 @@ CfgParser::source_new(const std::string &name, CfgParserSource::Type type)
 
 //! @brief Defines a variable in the _var_map/setenv.
 void
-CfgParser::variable_define(const std::string &name, const std::string &value)
+CfgParser::variableDefine(const std::string &name, const std::string &value)
 {
     _var_map[name] = value;
 
@@ -734,7 +734,7 @@ CfgParser::variable_define(const std::string &name, const std::string &value)
 
 //! @brief Expands all $ variables in a string.
 void
-CfgParser::variable_expand(std::string &var)
+CfgParser::variableExpand(std::string &var)
 {
     bool did_expand;
 
@@ -757,14 +757,14 @@ CfgParser::variable_expand(std::string &var)
                 }
             }
 
-            did_expand = variable_expand_name(var, begin, end) || did_expand;
+            did_expand = variableExpandName(var, begin, end) || did_expand;
         }
     } while (did_expand);
 }
 
 bool
-CfgParser::variable_expand_name(std::string &var,
-                                string::size_type begin, string::size_type &end)
+CfgParser::variableExpandName(std::string &var,
+                              string::size_type begin, string::size_type &end)
 {
     bool did_expand = false;
     string var_name(var.substr(begin, end - begin));
