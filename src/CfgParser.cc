@@ -359,7 +359,7 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwr
     int c, next;
     while (_sources.size()) {
         _source = _sources.back();
-        if (_source->is_dynamic()) {
+        if (_source->isDynamic()) {
             _is_dynamic_content = true;
         }
 
@@ -591,7 +591,7 @@ CfgParser::parse_entry_finish_standard(std::string &buf, std::string &value)
             } else if (buf == "COMMAND") {
                 parse_source_new(value, CfgParserSource::SOURCE_COMMAND);
             } else {
-                _section->add_entry(_source->get_name(), _source->get_line(), buf, value, 0, _overwrite);
+                _section->add_entry(_source->getName(), _source->getLine(), buf, value, 0, _overwrite);
             }
         }
     } else {
@@ -631,16 +631,16 @@ CfgParser::parse_section_finish(std::string &buf, std::string &value)
             _section_map.erase(it);
         }
 
-        section = new Entry(_source->get_name(), _source->get_line(), buf, value);
+        section = new Entry(_source->getName(), _source->getLine(), buf, value);
         _section_map[value] = section;
     } else {
         // Create Entry for sub-section.
-        section = new Entry(_source->get_name(), _source->get_line(), buf, value);
+        section = new Entry(_source->getName(), _source->getLine(), buf, value);
 
         // Add parent section, get section from parent section as it
         // can be different from the newly created if it is not
         // overwritten.
-        CfgParser::Entry *parent = _section->add_entry(_source->get_name(), _source->get_line(),
+        CfgParser::Entry *parent = _section->add_entry(_source->getName(), _source->getLine(),
                                                        buf, value, section, _overwrite);
         section = parent->get_section();
     }

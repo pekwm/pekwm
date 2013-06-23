@@ -24,11 +24,13 @@ extern "C" {
 class CfgParserSource
 {
 public:
-    //! @brief Source type description.
+    /**
+     * Source type description.
+     */
     enum Type {
-        SOURCE_FILE, //!< Source from filesystem accesible file.
-        SOURCE_COMMAND, //!< Source from command output.
-        SOURCE_VIRTUAL //!< Source base type.
+        SOURCE_FILE, /**< Source from filesystem accesible file. */
+        SOURCE_COMMAND, /**< Source from command output. */
+        SOURCE_VIRTUAL /**< Source base type. */
     };
 
     /**
@@ -61,13 +63,13 @@ public:
     }
 
     /**< Return name of source. */
-    const std::string &get_name(void) const { return _name; }
+    const std::string &getName(void) const { return _name; }
     /**< return type of source. */
-    CfgParserSource::Type get_type(void)  const { return _type; }
+    CfgParserSource::Type getType(void)  const { return _type; }
     /**< Get current line from source. */
-    unsigned int get_line(void) const { return _line; }
+    unsigned int getLine(void) const { return _line; }
     /**< Return true if current source is dynamic. */
-    bool is_dynamic(void) const { return _is_dynamic; }
+    bool isDynamic(void) const { return _is_dynamic; }
 
     virtual bool open(void) throw (std::string&) { return false; }
     virtual void close(void) throw (std::string&) { }
