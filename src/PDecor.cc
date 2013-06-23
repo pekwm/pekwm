@@ -1280,6 +1280,7 @@ PDecor::doMove(int x_root, int y_root)
     }
 
     X11::ungrabPointer();
+    Workspaces::layoutIfTiling();
 }
 
 //! @brief Matches cordinates against screen edge
