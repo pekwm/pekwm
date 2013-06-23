@@ -23,7 +23,7 @@ using std::numeric_limits;
 //! @param value Value to parse.
 //! @return true on success, else false and _br_set set to _b_default.
 void
-CfgParserKeyBool::parse_value(const std::string &value)
+CfgParserKeyBool::parseValue(const std::string &value)
     throw (std::string&)
 {
     if ((value == "1") || ! strcasecmp(value.c_str(), "TRUE")) {
@@ -40,7 +40,7 @@ CfgParserKeyBool::parse_value(const std::string &value)
 //! @param value Value to parse.
 //! @return true on success, else false and _set set to _default.
 void
-CfgParserKeyString::parse_value(const std::string &value)
+CfgParserKeyString::parseValue(const std::string &value)
     throw (std::string&)
 {
     _set = value;
@@ -61,7 +61,7 @@ CfgParserKeyString::parse_value(const std::string &value)
 //! @param value Value to parse.
 //! @return true on success, else false and _set set to _default.
 void
-CfgParserKeyPath::parse_value(const std::string &value)
+CfgParserKeyPath::parseValue(const std::string &value)
     throw (std::string&)
 {
     if (value.size()) {

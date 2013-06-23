@@ -208,10 +208,10 @@ CfgParser::Entry::parse_key_values(std::vector<CfgParserKey*>::const_iterator it
     CfgParser::Entry *value;
 
     for (; it != end; ++it) {
-        value = find_entry((*it)->get_name());
+        value = find_entry((*it)->getName());
         if (value) {
             try {
-                (*it)->parse_value(value->get_value());
+                (*it)->parseValue(value->get_value());
 
             } catch (string &ex) {
                 cerr << " *** WARNING " << ex << endl << "  " << *value << endl;
