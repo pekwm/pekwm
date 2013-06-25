@@ -40,7 +40,7 @@ detect_command()
 
     is_in_path "xwd" && is_in_path "xwdtopnm" && is_in_path "pnmtopng"
     if test $? -eq 0; then
-        command="xwd_netpbm"
+        command="netpbm"
         return
     fi
 }
@@ -49,7 +49,7 @@ usage()
 {
     echo "usage: pekwm_screenshot.sh [-c scrot|netpbm|magick] [-d delay] [-o output.png]"
     echo ""
-    echo "    -c scrot|netbpm|magick (defaults to autodetect)"
+    echo "    -c scrot|netpbm|magick (defaults to autodetect)"
     echo "       Command to use when creating screenshot."
     echo "    -d seconds (defaults to 0)"
     echo "       Number of seconds to wait before taking screenshot"
@@ -63,13 +63,18 @@ usage()
 
 usage_command()
 {
-    echo "Unable to find any supported commands for taking screenshots"
+    if test -z "$command"; then
+        echo "Unable to find any supported commands for taking screenshots"
+    else
+        echo "Unsupported screenshot command $command"
+    fi
+
     echo ""
-    echo "Supported commands are:"
+    echo "Supported screenshot commands are:"
     echo ""
     echo "  * scrot, http://linuxbrit.co.uk/software/"
     echo "  * imagemagick, http://www.imagemagick.org/"
-    echo "  * xwd + netbpm, http://netpbm.sourceforge.net/"
+    echo "  * netpbm (+ xwd), http://netpbm.sourceforge.net/"
     echo ""
     exit 1
 }
@@ -129,11 +134,11 @@ main()
         magick)
             screenshot_imagemagick $output
             ;;
-        xwd_netpbm)
+        netpbm)
             screenshot_xwd_netpbm $output
             ;;
         *)
-            usage
+            usage_command
             ;;
     esac
 
