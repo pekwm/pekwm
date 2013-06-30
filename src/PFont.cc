@@ -162,6 +162,11 @@ PFont::trimMiddle(std::wstring &text, uint max_width)
     }
 }
 
+void
+PFont::setTrimString(const std::string &text) {
+    _trim_string = Util::to_wide_str(text);
+}
+
 //! @brief Justifies the string based on _justify property of the Font
 uint
 PFont::justify(const std::wstring &text, uint max_width,

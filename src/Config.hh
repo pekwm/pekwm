@@ -133,7 +133,6 @@ public:
     inline int getScreenEdgeSize(EdgeType edge) const { return _screen_edge_sizes[edge]; }
     inline bool getScreenEdgeIndent(void) const { return _screen_edge_indent; }
     inline int getDoubleClickTime(void) const { return _screen_doubleclicktime; }
-    inline const std::wstring &getTrimTitle(void) const { return _screen_trim_title; }
 
     inline bool isFullscreenAbove(void) const { return _screen_fullscreen_above; }
     inline bool isFullscreenDetect(void) const { return _screen_fullscreen_detect; }
@@ -285,7 +284,6 @@ private:
     vector<int> _screen_edge_sizes;
     bool _screen_edge_indent;
     int _screen_doubleclicktime;
-    std::wstring _screen_trim_title;
     bool _screen_fullscreen_above; //!< Flag to make fullscreen go above all windows. */
     bool _screen_fullscreen_detect; /**< Flag to make configure request fullscreen detection. */
     bool _screen_showframelist;

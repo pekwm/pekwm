@@ -81,7 +81,7 @@ public:
     void trimEnd(std::wstring &text, uint max_width);
     void trimMiddle(std::wstring &text, uint max_width);
 
-    static void setTrimString(const std::wstring &trim) { _trim_string = trim; }
+    static void setTrimString(const std::string &trim);
 
     uint justify(const std::wstring &text, uint max_width,
                  uint padding, uint chars);

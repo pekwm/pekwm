@@ -316,9 +316,6 @@ WindowManager::setupDisplay(bool replace)
     _texture_handler = new TextureHandler();
     _action_handler = new ActionHandler();
 
-    // Setup the font trimming
-    PFont::setTrimString(_config->getTrimTitle());
-
     // load colors, fonts
     _screen_resources = new ScreenResources();
     _theme = new Theme;
@@ -556,9 +553,6 @@ WindowManager::doReloadConfig(void)
 
     // Flush pixmap cache and set size
     _screen_resources->getPixmapHandler()->setCacheSize(_config->getScreenPixmapCacheSize());
-
-    // Set the font title trim before reloading the themes
-    PFont::setTrimString(_config->getTrimTitle());
 
     // Update the ClientUniqueNames if needed
     if ((old_client_unique_name != _config->getClientUniqueName()) ||

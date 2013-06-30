@@ -13,6 +13,7 @@
 #include "Config.hh"
 
 #include "Compat.hh"
+#include "PFont.hh"
 #include "Util.hh"
 #include "Workspaces.hh"
 #include "x11.hh" // for DPY in keyconfig code
@@ -613,8 +614,7 @@ Config::loadScreen(CfgParser::Entry *section)
     for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
     keys.clear();
 
-    // Convert input data
-    _screen_trim_title = Util::to_wide_str(trim_title);
+    PFont::setTrimString(trim_title);
 
     // Convert opacity from percent to absolute value
     CONV_OPACITY(_screen_workspace_indicator_opacity);
