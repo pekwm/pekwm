@@ -15,6 +15,7 @@
 
 #include "x11.hh"
 #include "Config.hh"
+#include "MenuHandler.hh"
 #include "PWinObj.hh"
 #include "PFont.hh"
 #include "PTexture.hh"
@@ -1008,6 +1009,7 @@ Theme::load(const std::string &dir)
 
     _is_loaded = true;
 
+    MenuHandler::forceReload();
     return true;
 }
 
