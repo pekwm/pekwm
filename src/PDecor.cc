@@ -192,8 +192,8 @@ PDecor::PDecor(Theme *theme,
       _fullscreen(false), _skip(0), _data(0), 
       _border(true), _titlebar(true), _shaded(false), _attention(0),
       _need_shape(false),
-      _dirty_resized(true), _real_height(1),
-      _title_wo(), _title_bg(None),
+      _real_height(1),
+      _title_wo(),
       _title_active(0), _titles_left(0), _titles_right(1)
 {
     if (_decor_name.empty()) {
@@ -299,7 +299,6 @@ PDecor::createBorder(CreateWindowParams &params)
             XCreateWindow(X11::getDpy(), _window, -1, -1, 1, 1, 0,
                           params.depth, InputOutput, params.visual,
                           params.mask|CWCursor, &params.attr);
-        _border_pos_map[BorderPosition(i)] = None;
         addChildWindow(_border_win[i]);
     }
 }
@@ -320,15 +319,6 @@ PDecor::~PDecor(void)
 
     // free buttons
     unloadDecor();
-
-    // free border pixmaps
-    map<BorderPosition, Pixmap>::iterator it(_border_pos_map.begin());
-    for (; it != _border_pos_map.end(); ++it) {
-        if (it->second != None) {
-            ScreenResources::instance()->getPixmapHandler()->returnPixmap(it->second);
-        }
-    }
-    ScreenResources::instance()->getPixmapHandler()->returnPixmap(_title_bg);
 
     removeChildWindow(_title_wo.getWindow());
     XDestroyWindow(X11::getDpy(), _title_wo.getWindow());
@@ -420,9 +410,6 @@ PDecor::resize(uint width, uint height)
     resizeTitle();
     placeBorder();
 
-    // render title and border
-    _dirty_resized = true;
-
     // Set and apply shape on window, all parts of the border can now
     // be shaped.
     setBorderShape();
@@ -430,8 +417,6 @@ PDecor::resize(uint width, uint height)
 
     renderTitle();
     renderBorder();
-
-    _dirty_resized = false;
 }
 
 //! @brief Move and resize window.
@@ -471,17 +456,12 @@ PDecor::moveResize(int x, int y, uint width, uint height)
     resizeTitle();
     placeBorder();
 
-    // render title and border
-    _dirty_resized = true;
-
     // Apply shape on window, all parts of the border can now be shaped.
     setBorderShape();
     applyBorderShape();
 
     renderTitle();
     renderBorder();
-
-    _dirty_resized = false;
 }
 
 //! @brief
@@ -885,10 +865,8 @@ PDecor::loadDecor(void)
     }
 
     // Make sure it gets rendered correctly.
-    _dirty_resized = true;
     _focused = ! _focused;
     setFocused(! _focused);
-    _dirty_resized = false;
 
     // Update the dimension of the frame.
     if (_child) {
@@ -1520,16 +1498,9 @@ PDecor::renderTitle(void)
         return;
     }
 
-    bool force_update = false;
     if (_data->getTitleWidthMin()) {
-        uint width_before = _title_wo.getWidth();
-
         resizeTitle();
         applyBorderShape(); // update title shape
-
-        if (width_before != _title_wo.getWidth()) {
-            force_update = true;
-        }
     } else {
         calcTabsWidth();
     }
@@ -1537,15 +1508,9 @@ PDecor::renderTitle(void)
     PTexture *t_sep = _data->getTextureSeparator(getFocusedState(false));
     PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
 
-    // Get new title pixmap
-    if (_dirty_resized || force_update) {
-        pm->returnPixmap(_title_bg);
-        _title_bg = pm->getPixmap(_title_wo.getWidth(), _title_wo.getHeight(), X11::getDepth());
-        _title_wo.setBackgroundPixmap(_title_bg);
-    }
-
+    Pixmap title_bg = pm->getPixmap(_title_wo.getWidth(), _title_wo.getHeight(), X11::getDepth());
     // Render main background on pixmap
-    _data->getTextureMain(getFocusedState(false))->render(_title_bg, 0, 0,
+    _data->getTextureMain(getFocusedState(false))->render(title_bg, 0, 0,
                                                           _title_wo.getWidth(), _title_wo.getHeight());
 
     PFont *font;
@@ -1558,7 +1523,7 @@ PDecor::renderTitle(void)
         sel = (_title_active == i);
 
         // render tab
-        _data->getTextureTab(getFocusedState(sel))->render(_title_bg, x, 0,
+        _data->getTextureTab(getFocusedState(sel))->render(title_bg, x, 0,
                                                            _titles[i]->getWidth(),
                                                            _title_wo.getHeight());
 
@@ -1570,7 +1535,7 @@ PDecor::renderTitle(void)
             trim = PFont::FONT_TRIM_END;
         }
 
-        font->draw(_title_bg,
+        font->draw(title_bg,
                    x + _data->getPad(PAD_LEFT), // X position
                    _data->getPad(PAD_UP), // Y position
                    _titles[i]->getVisible(), 0, // Text and max chars
@@ -1582,12 +1547,14 @@ PDecor::renderTitle(void)
 
         // draw separator
         if (size > 1 && i < size - 1) {
-            t_sep->render(_title_bg, x, 0, 0, 0);
+            t_sep->render(title_bg, x, 0, 0, 0);
             x += t_sep->getWidth();
         }
     }
 
+    _title_wo.setBackgroundPixmap(title_bg);
     _title_wo.clear();
+    pm->returnPixmap(title_bg);
 }
 
 //! @brief
@@ -1608,46 +1575,33 @@ PDecor::renderBorder(void)
         return;
     }
 
-    map<BorderPosition, Pixmap>::iterator it;
     PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
-
-    // Return pixmaps used for the border
-    if (_dirty_resized) {
-        for (it = _border_pos_map.begin(); it != _border_pos_map.end(); ++it) {
-            pm->returnPixmap(it->second);
-            it->second = None;
-        }
-    }
 
     PTexture *tex;
     FocusedState state = getFocusedState(false);
     uint width, height;
+    Pixmap pix = None;
 
-    for (it = _border_pos_map.begin(); it != _border_pos_map.end(); ++it) {
-        tex = _data->getBorderTexture(state, it->first);
+    for (int i=0; i < BORDER_NO_POS; ++i) {
+        tex = _data->getBorderTexture(state, static_cast<BorderPosition>(i));
 
         // Solid texture, get the color and set as bg, no need to render pixmap
         if (tex->getType() == PTexture::TYPE_SOLID) {
-            XSetWindowBackground(X11::getDpy(), _border_win[it->first],
+            XSetWindowBackground(X11::getDpy(), _border_win[i],
                                  static_cast<PTextureSolid*>(tex)->getColor()->pixel);
-
         } else {
             // not a solid texture, get pixmap, render, set as bg
-            getBorderSize(it->first, width, height);
+            getBorderSize(static_cast<BorderPosition>(i), width, height);
 
-            if ((width > 0) && (height > 0)) {
-                if (_dirty_resized) {
-                    it->second = pm->getPixmap(width, height,
-                                               X11::getDepth());
-                    XSetWindowBackgroundPixmap(X11::getDpy(), _border_win[it->first],
-                                               it->second);
-                }
-
-                tex->render(it->second, 0, 0, width, height);
+            if (width > 0 && height > 0) {
+                pix = pm->getPixmap(width, height, X11::getDepth());
+                tex->render(pix, 0, 0, width, height);
+                XSetWindowBackgroundPixmap(X11::getDpy(), _border_win[i], pix);
+                pm->returnPixmap(pix);
             }
         }
 
-        XClearWindow(X11::getDpy(), _border_win[it->first]);
+        XClearWindow(X11::getDpy(), _border_win[i]);
     }
 }
 
@@ -1659,28 +1613,28 @@ PDecor::setBorderShape(void)
     Pixmap pix;
     bool do_free;
     unsigned int width, height;
+    PTexture *tex;
     FocusedState state = getFocusedState(false);
 
     XRectangle rect = {0, 0, 0, 0};
 
-    map<BorderPosition, Pixmap>::iterator it(_border_pos_map.begin());
-    for (; it != _border_pos_map.end(); ++it) {
+    for (int i=0; i < BORDER_NO_POS; ++i) {
         // Get the size of the border at position
-        getBorderSize(it->first, width, height);
+        getBorderSize(static_cast<BorderPosition>(i), width, height);
 
-        // Get shape pixmap
-        pix =  _data->getBorderTexture(state, it->first)->getMask(width, height,
-                                                                  do_free);
+        tex = _data->getBorderTexture(state, static_cast<BorderPosition>(i));
+        pix = tex->getMask(width, height, do_free);
+
         if (pix != None) {
             _need_shape = true;
-            X11::shapeSetMask(_border_win[it->first], ShapeBounding, pix);
+            X11::shapeSetMask(_border_win[i], ShapeBounding, pix);
             if (do_free) {
                 ScreenResources::instance()->getPixmapHandler()->returnPixmap(pix);
             }
         } else {
             rect.width = width;
             rect.height = height;
-            X11::shapeSetRect(_border_win[it->first], &rect);
+            X11::shapeSetRect(_border_win[i], &rect);
         }
     }
 #endif // HAVE_SHAPE

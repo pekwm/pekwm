@@ -449,7 +449,6 @@ protected:
     uint _skip;
 
     Window _border_win[BORDER_NO_POS]; /** Array of border windows. */
-    std::map<BorderPosition, Pixmap> _border_pos_map;
 
 private:
     Theme::PDecorData *_data;
@@ -458,13 +457,10 @@ private:
     bool _border, _titlebar, _shaded;
     uint _attention; // Number of children that demand attention
     bool _need_shape;
-    bool _dirty_resized; //!< Flag set when decor has been resized.
     uint _real_height;
 
     PWinObj _title_wo;
     vector<PDecor::Button*> _buttons;
-
-    Pixmap _title_bg;
 
     // variable decor data
     uint _title_active;
