@@ -45,6 +45,7 @@ public:
     time_t mtime;
     std::vector<std::string> files;
 
+    void forceReload(void) { mtime = 0; }
     bool requireReload(const std::string &file);
     void clear() { files.clear(); mtime = 0; }
 };

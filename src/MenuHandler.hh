@@ -47,6 +47,7 @@ public:
             it->second->unmapAll();
         }
     }
+    static void forceReload(void) { _cfg_files.forceReload(); }
     static void reloadMenus(void);
     static void deleteMenus(void);
 
