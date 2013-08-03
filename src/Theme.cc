@@ -235,8 +235,8 @@ Theme::PDecorData::load(CfgParser::Entry *section)
     keys.push_back(new CfgParserKeyBool("WIDTHSYMETRIC", _title_width_symetric));
     keys.push_back(new CfgParserKeyBool("HEIGHTADAPT", _title_height_adapt));
     keys.push_back(new CfgParserKeyString("PAD", value_pad, "0 0 0 0", 7));
-    keys.push_back(new CfgParserKeyString("FOCUSED", value_focused, "Empty", th->getLengthMin ()));
-    keys.push_back(new CfgParserKeyString("UNFOCUSED", value_unfocused, "Empty", th->getLengthMin ()));
+    keys.push_back(new CfgParserKeyString("FOCUSED", value_focused, "Empty", th->getLengthMin()));
+    keys.push_back(new CfgParserKeyString("UNFOCUSED", value_unfocused, "Empty", th->getLengthMin()));
 
     // Free up resources
     title_section->parseKeyValues(keys.begin(), keys.end());
@@ -249,13 +249,13 @@ Theme::PDecorData::load(CfgParser::Entry *section)
     _texture_main[FOCUSED_STATE_UNFOCUSED] = th->getTexture(value_unfocused);
     if (Util::splitString(value_pad, tok, " \t", 4) == 4) {
         for (uint i = 0; i < PAD_NO; ++i)
-            _pad[i] = strtol(tok[i].c_str (), 0, 10);
+            _pad[i] = strtol(tok[i].c_str(), 0, 10);
     }
 
     CfgParser::Entry *tab_section = title_section->findSection("TAB");
     if (tab_section) {
         for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
-            value = tab_section->findEntry(_fs_map[FocusedState (i)]);
+            value = tab_section->findEntry(_fs_map[FocusedState(i)]);
             if (value) {
                 _texture_tab[i] = th->getTexture(value->getValue());
             }
@@ -271,7 +271,7 @@ Theme::PDecorData::load(CfgParser::Entry *section)
         separator_section->parseKeyValues(keys.begin(), keys.end());
 
         // Free up resources
-        for_each (keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+        for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
         keys.clear();
 
         // Handle parsed data.
@@ -605,17 +605,17 @@ Theme::PMenuData::check(void)
 
 //! @brief
 void
-Theme::PMenuData::loadState (CfgParser::Entry *section, ObjectState state)
+Theme::PMenuData::loadState(CfgParser::Entry *section, ObjectState state)
 {
     vector<CfgParserKey*> keys;
     string value_font, value_background, value_item;
     string value_text, value_arrow, value_separator;
 
-    keys.push_back(new CfgParserKeyString ("FONT", value_font));
-    keys.push_back(new CfgParserKeyString ("BACKGROUND", value_background, "Solid #ffffff"));
-    keys.push_back(new CfgParserKeyString ("ITEM", value_item, "Solid #ffffff"));
-    keys.push_back(new CfgParserKeyString ("TEXT", value_text, "Solid #000000"));
-    keys.push_back(new CfgParserKeyString ("ARROW", value_arrow, "Solid #000000"));
+    keys.push_back(new CfgParserKeyString("FONT", value_font));
+    keys.push_back(new CfgParserKeyString("BACKGROUND", value_background, "Solid #ffffff"));
+    keys.push_back(new CfgParserKeyString("ITEM", value_item, "Solid #ffffff"));
+    keys.push_back(new CfgParserKeyString("TEXT", value_text, "Solid #000000"));
+    keys.push_back(new CfgParserKeyString("ARROW", value_arrow, "Solid #000000"));
     if (state < OBJECT_STATE_SELECTED) {
         keys.push_back(new CfgParserKeyString("SEPARATOR", value_separator, "Solid #000000"));
     }
@@ -624,14 +624,14 @@ Theme::PMenuData::loadState (CfgParser::Entry *section, ObjectState state)
 
     for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 
-    TextureHandler *th = TextureHandler::instance ();
+    TextureHandler *th = TextureHandler::instance();
 
     // Handle parsed data.
-    _font[state] = FontHandler::instance ()->getFont (value_font);
-    _tex_menu[state] = th->getTexture (value_background);
-    _tex_item[state] = th->getTexture (value_item);
-    _color[state] = FontHandler::instance ()->getColor (value_text);
-    _tex_arrow[state] = th->getTexture (value_arrow);
+    _font[state] = FontHandler::instance()->getFont(value_font);
+    _tex_menu[state] = th->getTexture(value_background);
+    _tex_item[state] = th->getTexture(value_item);
+    _color[state] = FontHandler::instance()->getColor(value_text);
+    _tex_arrow[state] = th->getTexture(value_arrow);
     if (state < OBJECT_STATE_SELECTED) {
         _tex_sep[state] = th->getTexture(value_separator);
     }
@@ -673,9 +673,9 @@ Theme::TextDialogData::load(CfgParser::Entry *section)
     for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 
     // Handle parsed data.
-    _font = FontHandler::instance ()->getFont (value_font);
-    _color = FontHandler::instance ()->getColor (value_text);
-    _tex = TextureHandler::instance ()->getTexture (value_texture);
+    _font = FontHandler::instance()->getFont(value_font);
+    _color = FontHandler::instance()->getColor(value_text);
+    _tex = TextureHandler::instance()->getTexture(value_texture);
 
     vector<string> tok;
     if (Util::splitString(value_pad, tok, " \t", 4) == 4) {
