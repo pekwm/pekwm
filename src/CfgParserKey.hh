@@ -1,5 +1,5 @@
 //
-// Copyright © 2005-2009 Claes Nästén <me@pekdon.net>
+// Copyright © 2005-2013 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -14,15 +14,6 @@
 
 #include "Util.hh"
 
-//! @brief CfgParserKey value type.
-enum CfgParserKeyType {
-    KEY_SECTION, //!< Subsection.
-    KEY_BOOL, //!< Boolean value.
-    KEY_NUMERIC, //!< Integer value.
-    KEY_STRING, //!< String value.
-    KEY_PATH //!< Path value.
-};
-
 //! @brief CfgParserKey base class.
 class CfgParserKey {
 public:
@@ -33,14 +24,11 @@ public:
 
     //! @brief Returns Key name.
     const char *getName(void) const { return _name; }
-    //! @brief Returns Key type.
-    CfgParserKeyType getType(void) const { return _type; }
 
     //! @brief Parses value and sets Key value.
     virtual void parseValue(const std::string &) throw (std::string&) { }
 
 protected:
-    CfgParserKeyType _type; //!< Key type.
     const char *_name; //!< Key name.
 };
 
@@ -67,7 +55,6 @@ public:
           _set(set), _default(default_val),
           _value_min(value_min), _value_max(value_max)
     {
-        _type = KEY_NUMERIC;
     }
 
     /**
@@ -126,7 +113,6 @@ public:
         : CfgParserKey(name),
           _set(set), _default(default_val)
     {
-        _type = KEY_BOOL;
     }
     //! @brief CfgParserKeyBool destructor.
     virtual ~CfgParserKeyBool(void) { }
@@ -144,13 +130,10 @@ public:
     //! @brief CfgParserKeyString constructor.
     CfgParserKeyString(const char *name,
                        std::string &set, const std::string default_val = "",
-                       const int length_min = std::numeric_limits<int>::min(),
-                       const int length_max = std::numeric_limits<int>::max())
-        : CfgParserKey(name),
-          _set(set), _default(default_val),
-          _length_min(length_min), _length_max(length_max)
+                       const std::string::size_type length_min = 0)
+        : CfgParserKey(name), _set(set), _length_min(length_min)
     {
-        _type = KEY_STRING;
+        _set = default_val;
     }
     //! @brief CfgParserKeyString destructor.
     virtual ~CfgParserKeyString(void) { }
@@ -159,9 +142,7 @@ public:
 
 private:
     std::string &_set; //!< Reference to store parsed value in.
-    const std::string _default; //!< Default value.
-    const int _length_min; //!< Minimum lenght of string.
-    const int _length_max; //!< Maximum length of string.
+    const std::string::size_type _length_min; //!< Minimum length of string.
 };
 
 //! @brief CfgParser Key path parser.
@@ -173,8 +154,7 @@ public:
         : CfgParserKey(name),
           _set(set), _default(default_val)
     {
-        _type = KEY_PATH;
-	Util::expandFileName(_default);
+        Util::expandFileName(_default);
     }
     //! @brief CfgParserKeyPath destructor.
     virtual ~CfgParserKeyPath(void) { }

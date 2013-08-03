@@ -43,18 +43,11 @@ void
 CfgParserKeyString::parseValue(const std::string &value)
     throw (std::string&)
 {
+    if (value.size() < _length_min) {
+        throw string("string too short, min length "
+                     + Util::to_string<std::string::size_type>(_length_min));
+    }
     _set = value;
-
-    if ((_length_min != numeric_limits<int>::min())
-        && (static_cast<int>(_set.size()) < _length_min)) {
-        _set = _default;
-        throw string("string too short, min length " + Util::to_string<int>(_length_min));
-    }
-    if ((_length_max != numeric_limits<int>::max())
-        && (static_cast<int>(_set.size()) > _length_max))  {
-        _set = _default;
-        throw string("string too long, max length " + Util::to_string<int>(_length_max));
-    }
 }
 
 //! @brief Parses value and sets _set.
