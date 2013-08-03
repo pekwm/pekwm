@@ -1,6 +1,6 @@
 //
 // Theme.cc for pekwm
-// Copyright © 2003-2009 Claes Nasten <me@pekdon.net>
+// Copyright © 2003-2013 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -13,6 +13,7 @@
 #include "ParseUtil.hh"
 #include "Theme.hh"
 
+#include "Debug.hh"
 #include "x11.hh"
 #include "Config.hh"
 #include "MenuHandler.hh"
@@ -37,8 +38,7 @@ using std::map;
 
 //! @brief Theme::PDecorButtonData constructor.
 Theme::PDecorButtonData::PDecorButtonData(void)
-    : ThemeData(), _shape(true),
-      _left(false), _width(1), _height(1)
+    : _shape(true), _left(false), _width(1), _height(1)
 {
     for (uint i = 0; i < BUTTON_STATE_NO; ++i) {
         _texture[i] = 0;
@@ -147,8 +147,7 @@ map<BorderPosition, string> Theme::PDecorData::_border_map = map<BorderPosition,
 
 //! @brief Theme::PDecorData constructor.
 Theme::PDecorData::PDecorData(const char *name)
-    : ThemeData(),
-      _title_height(0), _title_width_min(0), _title_width_max(100),
+    : _title_height(0), _title_width_min(0), _title_width_max(100),
       _title_width_symetric(true), _title_height_adapt(false)
 {
     if (name) {
@@ -207,6 +206,7 @@ bool
 Theme::PDecorData::load(CfgParser::Entry *section)
 {
     if (! section) {
+        check();
         return false;
     }
 
@@ -290,7 +290,7 @@ Theme::PDecorData::load(CfgParser::Entry *section)
             }
         }
     } else {
-        cerr << " *** WARNING: no font section in decor: " << _name << endl;
+        WARN("no font section in decor: " << _name);
     }
 
     CfgParser::Entry *fontcolor_section = title_section->findSection("FONTCOLOR");
@@ -352,7 +352,7 @@ Theme::PDecorData::check(void)
 {
     // check values
     if (_title_width_max > 100) {
-        cerr << " *** WARNING: " << _name << " WIDTHMAX > 100" << endl;
+        WARN(_name << " WIDTHMAX > 100");
         _title_width_max = 100;
     }
 
@@ -426,20 +426,17 @@ Theme::PDecorData::checkTextures(void)
 {
     for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
         if (! _texture_tab[i]) {
-            cerr << " *** WARNING: " << _name << " missing tab texture state "
-                 << _fs_map[FocusedState(i)] << endl;
+            WARN(_name << " missing tab texture state " << _fs_map[FocusedState(i)]);
             _texture_tab[i] = TextureHandler::instance()->getTexture("EMPTY");
         }
     }
     for (uint i = 0; i < FOCUSED_STATE_FOCUSED_SELECTED; ++i) {
         if (! _texture_main[i]) {
-            cerr << " *** WARNING: " << _name << " missing main texture state "
-                 << _fs_map[FocusedState(i)] << endl;
+            WARN(_name << " missing main texture state " << _fs_map[FocusedState(i)]);
             _texture_main[i] = TextureHandler::instance()->getTexture("EMPTY");
         }
         if (! _texture_separator[i]) {
-            cerr << " *** WARNING: " << _name << " missing tab texture state "
-                 << _fs_map[FocusedState(i)] << endl;
+            WARN(_name << " missing tab texture state " << _fs_map[FocusedState(i)]);
             _texture_separator[i] = TextureHandler::instance()->getTexture("EMPTY");
         }
     }
@@ -452,8 +449,7 @@ Theme::PDecorData::checkFonts(void)
     // the only font that's "obligatory" is the standard focused font,
     // others are only used if availible so we only check the focused font.
     if (! _font[FOCUSED_STATE_FOCUSED]) {
-        cerr << " *** WARNING: " << _name << " missing font state "
-             << _fs_map[FOCUSED_STATE_FOCUSED] << endl;
+        WARN(_name << " missing font state " << _fs_map[FOCUSED_STATE_FOCUSED]);
         _font[FOCUSED_STATE_FOCUSED] = FontHandler::instance()->getFont("");
     }
 }
@@ -465,9 +461,9 @@ Theme::PDecorData::checkBorder(void)
     for (uint state = FOCUSED_STATE_FOCUSED; state < FOCUSED_STATE_FOCUSED_SELECTED; ++state) {
         for (uint i = 0; i < BORDER_NO_POS; ++i) {
             if (! _texture_border[state][i]) {
-                cerr << " *** WARNING: " << _name << " missing border texture "
+                WARN(_name << " missing border texture "
                      << _border_map[BorderPosition(i)] << " "
-                     << _fs_map[FocusedState(state)] << endl;
+                     << _fs_map[FocusedState(state)]);
                 _texture_border[state][i] =
                     TextureHandler::instance()->getTexture("EMPTY");
             }
@@ -481,8 +477,7 @@ Theme::PDecorData::checkColors(void)
 {
     for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
         if (! _font_color[i]) {
-            cerr << " *** WARNING: " << _name << " missing font color state "
-                 << _fs_map[FocusedState(i)] << endl;
+            WARN(_name << " missing font color state " << _fs_map[FocusedState(i)]);
             _font_color[i] = FontHandler::instance()->getColor("#000000");
         }
     }
@@ -492,7 +487,6 @@ Theme::PDecorData::checkColors(void)
 
 //! @brief PMenuData constructor
 Theme::PMenuData::PMenuData(void)
-    : ThemeData()
 {
     for (uint i = 0; i <= OBJECT_STATE_NO; ++i) {
         _font[i] = 0;
@@ -520,6 +514,11 @@ Theme::PMenuData::~PMenuData(void)
 bool
 Theme::PMenuData::load(CfgParser::Entry *section)
 {
+    if (! section) {
+        check();
+        return false;
+    }
+
     CfgParser::Entry *value;
     value = section->findEntry("PAD");
     if (value) {
@@ -557,15 +556,18 @@ Theme::PMenuData::unload(void)
 {
     for (uint i = 0; i <= OBJECT_STATE_NO; ++i) {
         FontHandler::instance()->returnFont(_font[i]);
-        FontHandler::instance()->returnColor(_color[i]);
-        TextureHandler::instance()->returnTexture(_tex_menu[i]);
-        TextureHandler::instance()->returnTexture(_tex_item[i]);
-        TextureHandler::instance()->returnTexture(_tex_arrow[i]);
-
         _font[i] = 0;
+
+        FontHandler::instance()->returnColor(_color[i]);
         _color[i] = 0;
+
+        TextureHandler::instance()->returnTexture(_tex_menu[i]);
         _tex_menu[i] = 0;
+
+        TextureHandler::instance()->returnTexture(_tex_item[i]);
         _tex_item[i] = 0;
+
+        TextureHandler::instance()->returnTexture(_tex_arrow[i]);
         _tex_arrow[i] = 0;
     }
 
@@ -642,8 +644,7 @@ Theme::PMenuData::loadState(CfgParser::Entry *section, ObjectState state)
 
 //! @brief TextDialogData constructor.
 Theme::TextDialogData::TextDialogData(void)
-    : ThemeData(),
-      _font(0), _color(0), _tex(0)
+    : _font(0), _color(0), _tex(0)
 {
     for (uint i = 0; i < PAD_NO; ++i) {
         _pad[i] = 0;
@@ -661,6 +662,11 @@ Theme::TextDialogData::~TextDialogData(void)
 bool
 Theme::TextDialogData::load(CfgParser::Entry *section)
 {
+    if (! section) {
+        check();
+        return false;
+    }
+
     vector<CfgParserKey*> keys;
     string value_font, value_text, value_texture, value_pad;
 
@@ -725,8 +731,7 @@ Theme::TextDialogData::check(void)
  * WorkspaceIndicatorData constructor
  */
 Theme::WorkspaceIndicatorData::WorkspaceIndicatorData(void)
-    : ThemeData(),
-      font(0), font_color(0), texture_background(0),
+    : font(0), font_color(0), texture_background(0),
       texture_workspace(0), texture_workspace_act(0),
       edge_padding(0), workspace_padding(0)
 {
@@ -746,6 +751,11 @@ Theme::WorkspaceIndicatorData::~WorkspaceIndicatorData(void)
 bool
 Theme::WorkspaceIndicatorData::load(CfgParser::Entry *section)
 {
+    if (! section) {
+        check();
+        return false;
+    }
+
     vector<CfgParserKey*> keys;
 
     string value_font, value_color, value_tex_bg;
@@ -824,9 +834,7 @@ Theme::WorkspaceIndicatorData::check(void)
 /**
  * HarbourData constructor.
  */
-Theme::HarbourData::HarbourData(void)
-    : ThemeData(),
-      _texture(0)
+Theme::HarbourData::HarbourData(void) : _texture(0)
 {
 }
 
@@ -845,6 +853,11 @@ Theme::HarbourData::~HarbourData(void)
 bool
 Theme::HarbourData::load(CfgParser::Entry *section)
 {
+    if (! section) {
+        check();
+        return false;
+    }
+
     CfgParser::Entry *value;
 
     value = section->findEntry("TEXTURE");
@@ -885,17 +898,9 @@ Theme::HarbourData::check(void)
 // Theme
 
 //! @brief Theme constructor
-Theme::Theme(void)
-    : _is_loaded(false), _invert_gc(None)
+Theme::Theme(void) : _is_loaded(false), _invert_gc(None)
 {
     new ImageHandler();
-
-    // Map between theme sections and ThemeData structures.
-    _section_data_map["MENU"] = &_menu_data;
-    _section_data_map["STATUS"] = &_status_data;
-    _section_data_map["CMDDIALOG"] = &_cmd_d_data;
-    _section_data_map["WORKSPACEINDICATOR"] = &_workspace_indicator_data;
-    _section_data_map["HARBOUR"] = &_harbour_data;
 
     // window gc's
     XGCValues gv;
@@ -990,21 +995,30 @@ Theme::load(const std::string &dir)
 
     if (! getPDecorData("DEFAULT")) {
         // Create DEFAULT decor, let check fill it up with empty but non-null data.
-        cerr << " *** WARNING: theme doesn't contain any DEFAULT decor." << endl;
+        WARN("Theme doesn't contain any DEFAULT decor.");
         Theme::PDecorData *decor_data = new Theme::PDecorData("DEFAULT");
         decor_data->check();
         _pdecordata_map["DEFAULT"] = decor_data;
     }
 
-    map<string, ThemeData*>::iterator it(_section_data_map.begin());
-    for (; it != _section_data_map.end(); ++it) {
-        section = theme.getEntryRoot()->findSection(it->first);
-        if (section) {
-            it->second->load(section);
-        } else {
-            cerr << " *** WARNING: missing " << it->first << " section!" << endl;
-            it->second->check();
-        }
+    if (! _menu_data.load(theme.getEntryRoot()->findSection("MENU"))) {
+        WARN("Missing or malformed \"MENU\" section!");
+    }
+
+    if (! _status_data.load(theme.getEntryRoot()->findSection("STATUS"))) {
+        WARN("Missing \"STATUS\" section!");
+    }
+
+    if (! _cmd_d_data.load(theme.getEntryRoot()->findSection("CMDDIALOG"))) {
+        WARN("Missing \"CMDDIALOG\" section!");
+    }
+
+    if (! _ws_indicator_data.load(theme.getEntryRoot()->findSection("WORKSPACEINDICATOR"))) {
+        WARN("Missing \"WORKSPACEINDICATOR\" section!");
+    }
+
+    if (! _harbour_data.load(theme.getEntryRoot()->findSection("HARBOUR"))) {
+        WARN("Missing \"HARBOUR\" section!");
     }
 
     _is_loaded = true;
@@ -1053,10 +1067,11 @@ Theme::unload(void)
     _pdecordata_map.clear();
 
     // Unload theme data
-    map<string, Theme::ThemeData*>::iterator d_it(_section_data_map.begin());
-    for (; d_it != _section_data_map.end(); ++d_it) {
-        d_it->second->unload();
-    }
+    _menu_data.unload();
+    _status_data.unload();
+    _cmd_d_data.unload();
+    _ws_indicator_data.unload();
+    _harbour_data.unload();
 
     _is_loaded = false;
 }
