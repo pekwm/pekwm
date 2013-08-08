@@ -280,6 +280,7 @@ PDecor::createTitle(CreateWindowParams &params)
                                  params.mask, &params.attr);
     _title_wo.setWindow(title);
     addChildWindow(_title_wo.getWindow());
+    _title_wo.mapWindow();
 }
 
 /**
