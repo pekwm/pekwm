@@ -1196,13 +1196,15 @@ Client::readName(void)
 {
     // Read title, bail out if it fails.
     string title;
-    if (! X11::getUtf8String(_window, NET_WM_NAME, title)) {
-        if (! X11::getTextProperty(_window, XA_WM_NAME, title)) {
-            return;
-        }
+    std::wstring wtitle;
+    if (X11::getUtf8String(_window, NET_WM_NAME, title)) {
+        wtitle = Util::from_utf8_str(title);
+    } else if (X11::getTextProperty(_window, XA_WM_NAME, title)) {
+        wtitle = Util::to_wide_str(title);
+    } else {
+        return;
     }
 
-    std::wstring wtitle = Util::to_wide_str(title);
     // Mirror it on the visible
     _title.setCustom(L"");
     _title.setCount(titleFindID(wtitle));
