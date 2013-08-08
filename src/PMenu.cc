@@ -293,13 +293,10 @@ PMenu::handleLeaveEvent(XCrossingEvent *ev)
 
 // START - PDecor interface.
 
-/**
- * Load menu theme after border has been updated.
- */
 void
 PMenu::loadTheme(void)
 {
-    buildMenuRender();
+    buildMenu();
 }
 
 // END - PDecor interface.
