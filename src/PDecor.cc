@@ -850,6 +850,12 @@ PDecor::loadDecor(void)
         addChildWindow(_buttons.back()->getWindow());
     }
 
+    if (! _data->getTitleHeight() && ! _data->isTitleHeightAdapt()) {
+        _title_wo.unmapWindow();
+    } else {
+        _title_wo.mapWindow();
+    }
+
     // Update title position.
     if (_data->getTitleWidthMin() == 0) {
         _title_wo.move(borderTopLeft(), borderTop());

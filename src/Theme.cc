@@ -146,7 +146,7 @@ map<BorderPosition, string> Theme::PDecorData::_border_map = map<BorderPosition,
 
 //! @brief Theme::PDecorData constructor.
 Theme::PDecorData::PDecorData(const char *name)
-    : _title_height(0), _title_width_min(0), _title_width_max(100),
+    : _title_height(10), _title_width_min(0), _title_width_max(100),
       _title_width_symetric(true), _title_height_adapt(false)
 {
     if (name) {
