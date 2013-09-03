@@ -69,6 +69,7 @@ public:
     void setEwmhActiveWindow(Window win);
     void readEwmhDesktopNames(void);
     void setEwmhDesktopNames(void);
+    void setEwmhDesktopLayout(void);
 
 private:
     static const unsigned long EVENT_MASK; /**< Root window event mask. */

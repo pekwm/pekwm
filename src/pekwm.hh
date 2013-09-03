@@ -157,6 +157,24 @@ enum AtomName {
     MAX_NR_ATOMS
 };
 
+/**
+ * _NET_WM_DESKTOP_LAYOUT orientation.
+ */
+enum NetWmOrientation {
+    NET_WM_ORIENTATION_HORZ = 0,
+    NET_WM_ORIENTATION_VERT = 1
+};
+
+/**
+ * _NET_WM_DESKTOP_LAYOUT starting order.
+ */
+enum NetWmStartingOrder {
+    NET_WM_TOPLEFT = 0,
+    NET_WM_TOPRIGHT = 1,
+    NET_WM_BOTTOMRIGHT = 2,
+    NET_WM_BOTTOMLEFT = 3
+};
+
 enum Layer {
     LAYER_DESKTOP,
     LAYER_BELOW,

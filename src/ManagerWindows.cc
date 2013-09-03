@@ -13,6 +13,7 @@
 #include "Config.hh"
 #include "ActionHandler.hh"
 #include "ManagerWindows.hh"
+#include "Workspaces.hh"
 #include "Util.hh"
 
 #include <string>
@@ -391,6 +392,18 @@ RootWO::setEwmhDesktopNames(void)
     }
 }
 
+/**
+ * Update _NET_DESKTOP_LAYOUT property on the root window.
+ */
+void
+RootWO::setEwmhDesktopLayout(void)
+{
+    // This property is defined to be set by the pager, however, as pekwm
+    // displays a "pager" when changing workspaces and other applications
+    // might want to read this information set it anyway.
+    long desktop_layout[] = { NET_WM_ORIENTATION_HORZ, Workspaces::getPerRow(), Workspaces::getRows(), NET_WM_TOPLEFT };
+    X11::setLongs(X11::getRoot(), NET_DESKTOP_LAYOUT, desktop_layout, sizeof(desktop_layout)/sizeof(desktop_layout[0]));
+}
 
 /**
  * Edge window constructor, create window, setup strut and register

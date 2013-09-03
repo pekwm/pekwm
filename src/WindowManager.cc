@@ -128,7 +128,9 @@ WindowManager::start(const std::string &config_file, bool replace)
     if (_instance->setupDisplay(replace)) {
         _instance->scanWindows();
         Frame::resetFrameIDs();
-        static_cast<RootWO*>(PWinObj::getRootPWinObj())->setEwmhDesktopNames();
+
+        _instance->_root_wo->setEwmhDesktopNames();
+        _instance->_root_wo->setEwmhDesktopLayout();
     
         // add all frames to the MRU list
         _instance->_mru.resize(Frame::frame_size());
@@ -526,6 +528,7 @@ WindowManager::doReload(void)
     doReloadHarbour();
 
     _root_wo->setEwmhDesktopNames();
+    _root_wo->setEwmhDesktopLayout();
 
     _reload = false;
 }
