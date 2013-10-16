@@ -958,7 +958,8 @@ Frame::fixGeometry(void)
     // fix size
     if (_gm.width > head.width) {
         _gm.width = head.width;
-    } if (_gm.height > head.height) {
+    }
+    if (_gm.height > head.height) {
         _gm.height = head.height;
     }
 
