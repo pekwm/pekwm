@@ -2118,8 +2118,8 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
     }
 
     if (chg_pos) {
-        gm.x = ev->x - borderLeft();
-        gm.y = ev->y - borderTop() - getTitleHeight();
+        gm.x = ev->x;
+        gm.y = ev->y;
     }
 
     X11::keepVisible(gm);
