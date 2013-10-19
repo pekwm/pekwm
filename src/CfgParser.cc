@@ -6,13 +6,11 @@
 //
 
 #include "CfgParser.hh"
+#include "Debug.hh"
 #include "Compat.hh"
 #include "Util.hh"
 
 #include <algorithm>
-#include <iostream>
-#include <memory>
-#include <cassert>
 #include <cstring>
 
 #include <sys/types.h>
@@ -214,7 +212,7 @@ CfgParser::Entry::parseKeyValues(std::vector<CfgParserKey*>::const_iterator it,
                 (*it)->parseValue(value->getValue());
 
             } catch (string &ex) {
-                cerr << " *** WARNING " << ex << endl << "  " << *value << endl;
+                WARN("Exception: " << ex << " - " << *value);
             }
         }
     }
@@ -381,7 +379,7 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwr
                 if (parseName(buf)) {
                     parseSectionFinish(buf, value);
                 } else {
-                    cerr << "Ignoring section as name is empty." << endl;
+                    LOG("Ignoring section as name is empty.");
                 }
                 buf.clear();
                 value.clear();
@@ -396,7 +394,7 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwr
                     _section = _sections.back();
                     _sections.pop_back();
                 } else {
-                    cerr << "Extra } character found, ignoring." << endl;
+                    LOG("Extra } character found, ignoring.");
                 }
                 break;
             case '=':
@@ -427,7 +425,7 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwr
             _source->close();
 
         } catch (string &ex) {
-            cerr << ex << endl;
+            LOG("Exception: " << ex);
         }
         delete _source;
         _sources.pop_back();
@@ -450,7 +448,7 @@ CfgParser::parseSourceNew(const std::string &name_orig, CfgParserSource::Type ty
 
     do {
         CfgParserSource *source = sourceNew(name, type);
-        assert(source);
+        ERR_IF(!source, "source == 0");
 
         // Open and set as active, delete if fails.
         try {
@@ -477,7 +475,7 @@ CfgParser::parseSourceNew(const std::string &name_orig, CfgParserSource::Type ty
 
             // Display error message on second try
             if (done) {
-                cerr << ex << endl;
+                LOG("Exception: " << ex);
             }
 
             // If the open fails and we are trying to open a file, try
@@ -497,7 +495,7 @@ bool
 CfgParser::parseName(std::string &buf)
 {
     if (! buf.size()) {
-        cerr << "Unable to parse empty name." << endl;
+        LOG("Unable to parse empty name.");
         return false;
     }
 
@@ -533,7 +531,7 @@ CfgParser::parseValue(std::string &value)
 
     // Check if we got EOF before getting a quotation mark.
     if (c == EOF) {
-        cerr << "Reached EOF before opening \" in value." << endl;
+        LOG("Reached EOF before opening \" in value.");
         return;
     }
 
@@ -549,9 +547,7 @@ CfgParser::parseValue(std::string &value)
         value += c;
     }
 
-    if (c == EOF) {
-        cerr << "Reached EOF before closing \" in value." << endl;
-    }
+    LOG_IF(c == EOF, "Reached EOF before closing \" in value.");
 
     // If the value is empty, parseEntryFinish() might later just skip
     // the complete entry. To allow empty config options we add a dummy space.
@@ -595,7 +591,7 @@ CfgParser::parseEntryFinishStandard(std::string &buf, std::string &value)
             }
         }
     } else {
-        cerr << "Dropping entry with empty name." << endl;
+        LOG("Dropping entry with empty name.");
     }
 
     value.clear();
@@ -610,7 +606,7 @@ CfgParser::parseEntryFinishTemplate(std::string &name)
 {
     map<string, CfgParser::Entry*>::iterator it(_section_map.find(name.c_str() + 1));
     if (it == _section_map.end()) {
-        cerr << " *** WARNING: No such template " << name << endl;
+        WARN("No such template " << name);
         return;
     }
 
@@ -679,9 +675,7 @@ CfgParser::parseCommentC(CfgParserSource *source)
         }
     }
 
-    if (c == EOF)  {
-        cerr << "Reached EOF before closing */ in comment." << endl;
-    }
+    LOG_IF(c == EOF, "Reached EOF before closing */ in comment.");
 }
 
 //! @brief Parses Source until next non whitespace char is found.
@@ -778,7 +772,7 @@ CfgParser::variableExpandName(std::string &var,
             end = begin + strlen(value);
             did_expand = true;
         } else {
-            cerr << "Trying to use undefined environment variable: " << var_name << endl;;
+            LOG("Trying to use undefined environment variable: " << var_name);
         }
     } else {
         map<string, string>::iterator it(_var_map.find(var_name));
@@ -787,7 +781,7 @@ CfgParser::variableExpandName(std::string &var,
             end = begin + it->second.size();
             did_expand = true;
         } else  {
-            cerr << "Trying to use undefined variable: " << var_name << endl;
+            LOG("Trying to use undefined variable: " << var_name);
         }
     }
 
