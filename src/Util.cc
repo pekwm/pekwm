@@ -57,8 +57,8 @@ namespace Util {
 #endif // HOST_NAME_MAX
 
 static iconv_t do_iconv_open(const char **from_names, const char **to_names);
-static size_t do_iconv (iconv_t ic, const char **inp, size_t *in_bytes,
-                        char **outp, size_t *out_bytes);
+static size_t do_iconv(iconv_t ic, const char **inp, size_t *in_bytes,
+                       char **outp, size_t *out_bytes);
 
 // Initializers, members used for shared buffer
 unsigned int WIDE_STRING_COUNT = 0;
@@ -295,10 +295,10 @@ splitString(const std::string str, std::vector<std::string> &toks, const char *s
     string::size_type s, e;
 
     s = str.find_first_not_of(" \t\n");
-    for (uint i = 0; ((i < max) || (max == 0)) && (s != string::npos); ++i) {
+    for (uint i = 0; (max == 0 || i < max) && s != string::npos; ++i) {
         e = str.find_first_of(sep, s);
 
-        if ((e != string::npos) && (i < (max - 1))) {
+        if (e != string::npos && i < max - 1) {
             toks.push_back(str.substr(s, e - s));
         } else if (s < str.size()) {
             toks.push_back(str.substr(s, str.size() - s));
@@ -375,7 +375,7 @@ do_iconv_open(const char **from_names, const char **to_names)
     // conversion handle.
     for (unsigned int i = 0; from_names[i]; ++i) {
         for (unsigned int j = 0; to_names[j]; ++j) {
-            ic = iconv_open (to_names[j], from_names[i]);
+            ic = iconv_open(to_names[j], from_names[i]);
             if (ic != reinterpret_cast<iconv_t>(-1)) {
 #ifdef HAVE_ICONVCTL
                 int int_value_one = 1;
@@ -397,8 +397,8 @@ do_iconv_open(const char **from_names, const char **to_names)
 //! @param out_bytes Output bytes.
 //! @return number of bytes converted irreversible or -1 on error.
 size_t 
-do_iconv (iconv_t ic, const char **inp, size_t *in_bytes,
-          char **outp, size_t *out_bytes)
+do_iconv(iconv_t ic, const char **inp, size_t *in_bytes,
+         char **outp, size_t *out_bytes)
 {
 #ifdef ICONV_CONST
     return iconv(ic, inp, in_bytes, outp, out_bytes);
@@ -409,14 +409,14 @@ do_iconv (iconv_t ic, const char **inp, size_t *in_bytes,
 
 //! @brief Init iconv conversion.
 void
-iconv_init (void)
+iconv_init(void)
 {
     // Cleanup previous init if any, being paranoid.
-    iconv_deinit ();
+    iconv_deinit();
 
     // Raise exception if this fails
-    IC_TO_WC = do_iconv_open (ICONV_UTF8_NAMES, ICONV_WC_NAMES);
-    IC_TO_UTF8 = do_iconv_open (ICONV_WC_NAMES, ICONV_UTF8_NAMES);
+    IC_TO_WC = do_iconv_open(ICONV_UTF8_NAMES, ICONV_WC_NAMES);
+    IC_TO_UTF8 = do_iconv_open(ICONV_WC_NAMES, ICONV_UTF8_NAMES);
 
     // Equal mean
     if (IC_TO_WC != reinterpret_cast<iconv_t>(-1)
@@ -429,15 +429,15 @@ iconv_init (void)
 
 //! @brief Deinit iconv conversion.
 void
-iconv_deinit (void)
+iconv_deinit(void)
 {
     // Cleanup resources
     if (IC_TO_WC != reinterpret_cast<iconv_t>(-1)) {
-        iconv_close (IC_TO_WC);
+        iconv_close(IC_TO_WC);
     }
     
     if (IC_TO_UTF8 != reinterpret_cast<iconv_t>(-1)) {
-        iconv_close (IC_TO_UTF8);
+        iconv_close(IC_TO_UTF8);
     }
   
     if (ICONV_BUF) {
@@ -454,7 +454,7 @@ iconv_deinit (void)
 //! @brief Validate buffer size, grow if required.
 //! @param size Required size.
 void
-iconv_buf_grow (size_t size)
+iconv_buf_grow(size_t size)
 {
     if (ICONV_BUF_LEN < size) {
         // Free resources, if any.
@@ -478,7 +478,7 @@ to_utf8_str(const std::wstring &str)
     string utf8_str;
 
     // Calculate length
-    size_t in_bytes = str.size() * sizeof (wchar_t);
+    size_t in_bytes = str.size() * sizeof(wchar_t);
     size_t out_bytes = str.size() * UTF8_MAX_BYTES + 1;
 
     iconv_buf_grow(out_bytes);
@@ -486,19 +486,17 @@ to_utf8_str(const std::wstring &str)
     // Convert
     const char *inp = reinterpret_cast<const char*>(str.c_str());
     char *outp = ICONV_BUF;
-    size_t len = do_iconv (IC_TO_UTF8, &inp, &in_bytes, &outp, &out_bytes);
+    size_t len = do_iconv(IC_TO_UTF8, &inp, &in_bytes, &outp, &out_bytes);
     if (len != static_cast<size_t>(-1)) {
         // Terminate string and cache result
         *outp = '\0';
-
         utf8_str = ICONV_BUF;
-
     } else {
         cerr << " *** WARNING: to_utf8_str, failed with error "
-            << strerror (errno) << endl;
-	utf8_str = ICONV_UTF8_INVALID_STR;
+             << strerror(errno) << endl;
+        utf8_str = ICONV_UTF8_INVALID_STR;
     }
-    
+
     return utf8_str;
 }
 
