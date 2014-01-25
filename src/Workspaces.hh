@@ -125,6 +125,8 @@ public:
 
     static PWinObj *findDirectional(PWinObj *wo, DirectionType dir, uint skip = 0);
 
+    static void fixStacking(PWinObj *);
+
 private:
     static Window *buildClientList(unsigned int &num_windows);
     static bool warpToWorkspace(uint num, int dir);

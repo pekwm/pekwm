@@ -720,13 +720,16 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off,
     while (cycling) {
         if (fo_wo) {
             fo_wo->setFocused(true);
-            if (Raise(raise) == ALWAYS_RAISE) {
+            if (raise == ALWAYS_RAISE) {
                 // Make sure it's not iconified if raise is on.
                 if (fo_wo->isIconified()) {
                     was_iconified = true;
                     fo_wo->mapWindow();
                 }
                 fo_wo->raise();
+            } else if (raise == TEMP_RAISE) {
+                XRaiseWindow(X11::getDpy(), fo_wo->getWindow());
+                XRaiseWindow(X11::getDpy(), menu->getWindow());
             }
         }
 
@@ -734,6 +737,9 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off,
         if (ev.type == KeyPress) {
             if (ev.xkey.keycode == button) {
                 if (fo_wo) {
+                    if (raise == TEMP_RAISE) {
+                        Workspaces::fixStacking(fo_wo);
+                    }
                     // Restore iconified state
                     if (was_iconified) {
                         was_iconified = false;
@@ -761,6 +767,11 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off,
 
     // Got something to focus
     if (fo_wo) {
+        if (raise == TEMP_RAISE) {
+            fo_wo->raise();
+            fo_wo->setFocused(true);
+        }
+
         // De-iconify if iconified, user probably wants this
         if (fo_wo->isIconified()) {
             // If the window was iconfied, and sticky

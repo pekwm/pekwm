@@ -309,6 +309,24 @@ Workspaces::warpToWorkspace(uint num, int dir)
 }
 
 void
+Workspaces::fixStacking(PWinObj *pwo)
+{
+    Window winlist[2];
+    const_iterator it = find(_wobjs.begin(), _wobjs.end(), pwo);
+    if (it == _wobjs.end()) {
+        return;
+    }
+
+    if (++it == _wobjs.end()) {
+        XRaiseWindow(X11::getDpy(), pwo->getWindow());
+    } else {
+        winlist[0] = (*it)->getWindow();
+        winlist[1] = pwo->getWindow();
+        XRestackWindows(X11::getDpy(), winlist, 2);
+    }
+}
+
+void
 Workspaces::layoutOnce(const std::string &layouter)
 {
     if (WinLayouter *wl = WinLayouterFactory(layouter)) {

@@ -455,24 +455,26 @@
         <listitem>
           <para>
             Focuses the next frame. String is one of:
-	    <itemizedlist>
-	      <listitem><para>alwaysraise - raise windows while toggling them</para></listitem>
-	      <listitem><para>endraise - raise the selected client</para></listitem>
-	      <listitem><para>neverraise - do not raise the selected client (unless it's iconified)</para></listitem>
-	    </itemizedlist>If boolean is true, also goes thru iconified windows. Defaults to false.
-	  </para>
+            <itemizedlist>
+              <listitem><para>alwaysraise - raise windows while toggling them</para></listitem>
+              <listitem><para>endraise - raise the selected client</para></listitem>
+              <listitem><para>neverraise - do not raise the selected client (unless it's iconified)</para></listitem>
+              <listitem><para>tempraise - raise the selected client but keep the order of the other windows</para></listitem>
+            </itemizedlist>If boolean is true, also goes thru iconified windows. Defaults to false.
+          </para>
         </listitem>
       </varlistentry>
       <varlistentry>
         <term>PrevFrame (string boolean)</term>
         <listitem>
           <para>Focuses the previous frame. String is:
-	    <itemizedlist>
-	      <listitem><para>alwaysraise - raise windows while toggling them</para></listitem>
-	      <listitem><para>endraise - raise the selected client</para></listitem>
-	      <listitem><para>neverraise - do not raise the selected client (unless it's iconified)</para></listitem>
-	    </itemizedlist>If boolean is true, also goes thru iconified windows. Defaults to false.
-	  </para>
+            <itemizedlist>
+              <listitem><para>alwaysraise - raise windows while toggling them</para></listitem>
+              <listitem><para>endraise - raise the selected client</para></listitem>
+              <listitem><para>neverraise - do not raise the selected client (unless it's iconified)</para></listitem>
+              <listitem><para>tempraise - raise the selected client but keep the order of the other windows</para></listitem>
+            </itemizedlist>If boolean is true, also goes thru iconified windows. Defaults to false.
+          </para>
         </listitem>
       </varlistentry>
       <varlistentry>
@@ -484,6 +486,7 @@
               <listitem><para>alwaysraise - raise windows while toggling them</para></listitem>
               <listitem><para>endraise - raise the selected client</para></listitem>
               <listitem><para>neverraise - do not raise the selected client (unless it's iconified)</para></listitem>
+              <listitem><para>tempraise - raise the selected client but keep the order of the other windows</para></listitem>
             </itemizedlist>
             If boolean is true, also goes thru iconified windows. Defaults to false.
           </para>
@@ -498,6 +501,7 @@
               <listitem><para>alwaysraise - raise windows while toggling them</para></listitem>
               <listitem><para>endraise - raise the selected client</para></listitem>
               <listitem><para>neverraise - do not raise the selected client (unless it's iconified)</para></listitem>
+              <listitem><para>tempraise - raise the selected client but keep the order of the other windows</para></listitem>
             </itemizedlist>
             If boolean is true, also goes thru iconified windows. Defaults to false.
           </para>

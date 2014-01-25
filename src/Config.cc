@@ -216,6 +216,7 @@ Config::Config(void) :
     _raise_map["ALWAYSRAISE"] = ALWAYS_RAISE;
     _raise_map["ENDRAISE"] = END_RAISE;
     _raise_map["NEVERRAISE"] = NEVER_RAISE;
+    _raise_map["TEMPRAISE"] = TEMP_RAISE;
 
     _skip_map[""] = SKIP_NONE;
     _skip_map["MENUS"] = SKIP_MENUS;
