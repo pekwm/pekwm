@@ -786,7 +786,12 @@ WindowManager::doEventLoop(void)
                         XRRScreenChangeNotifyEvent *scr_ev =
                                 reinterpret_cast<XRRScreenChangeNotifyEvent*>(&ev);
 
-                        X11::updateGeometry(scr_ev->width, scr_ev->height);
+                        if (scr_ev->rotation == RR_Rotate_90 || scr_ev->rotation == RR_Rotate_270) {
+                            X11::updateGeometry(scr_ev->height, scr_ev->width);
+                        } else {
+                            X11::updateGeometry(scr_ev->width, scr_ev->height);
+                        }
+
                         _harbour->updateGeometry();
                         screenEdgeResize();
 
