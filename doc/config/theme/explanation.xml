@@ -111,7 +111,7 @@
 			<itemizedlist>
 			  <listitem>
 				  <para><emphasis role="bold">#fixed</emphasis></para>
-				  <para>Image is fixed size. Default if omitted.</para>
+				  <para>Image is fixed size.</para>
 			  </listitem>
 			  <listitem>
 				  <para><emphasis role="bold">#scaled</emphasis></para>
@@ -119,7 +119,8 @@
 			  </listitem>
 			  <listitem>
 				  <para><emphasis role="bold">#tiled</emphasis></para>
-				  <para>Image will be repeated as many times as needed to fill the area it's defined for.</para>
+				  <para>Image will be repeated as many times as needed to fill the area it's defined for.
+				        This is the default if no option is specified.</para>
 			  </listitem>
 			</itemizedlist>
 		      </para>
