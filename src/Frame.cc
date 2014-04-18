@@ -2202,6 +2202,43 @@ Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
         if (client == _client) {
             iconify();
         }
+    } else if (ev->message_type == X11::getAtom(NET_WM_MOVERESIZE) && ev->format == 32) {
+        if (Workspaces::isTiling(getWorkspace()) && allowTiling()) {
+            return;
+        }
+        switch (ev->data.l[2]) {
+        case NET_WM_MOVERESIZE_SIZE_TOPLEFT:
+            doResize(true, true, true, true);
+            break;
+        case NET_WM_MOVERESIZE_SIZE_TOP:
+            doResize(false, false, true, true);
+            break;
+        case NET_WM_MOVERESIZE_SIZE_TOPRIGHT:
+            doResize(false, true, true, true);
+            break;
+        case NET_WM_MOVERESIZE_SIZE_RIGHT:
+            doResize(false, true, false, false);
+            break;
+        case NET_WM_MOVERESIZE_SIZE_BOTTOMRIGHT:
+            doResize(false, true, false, true);
+            break;
+        case NET_WM_MOVERESIZE_SIZE_BOTTOM:
+            doResize(false, false, false, true);
+            break;
+        case NET_WM_MOVERESIZE_SIZE_BOTTOMLEFT:
+            doResize(true, true, false, true);
+            break;
+        case NET_WM_MOVERESIZE_SIZE_LEFT:
+            doResize(true, true, false, false);
+            break;
+        case NET_WM_MOVERESIZE_MOVE:
+            doMove(ev->data.l[0], ev->data.l[1]);
+            break;
+        case NET_WM_MOVERESIZE_SIZE_KEYBOARD:
+        case NET_WM_MOVERESIZE_MOVE_KEYBOARD:
+            doKeyboardMoveResize();
+            break;
+        }
     }
 }
 
