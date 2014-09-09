@@ -81,7 +81,11 @@ int main ()
         char *outptr = buf;
         size_t outbytesleft = sizeof (buf);
         size_t res = iconv (cd_utf8_to_88591,
+#ifdef ICONV_CONST
+                            &inptr, &inbytesleft,
+#else
                             (char **) &inptr, &inbytesleft,
+#endif
                             &outptr, &outbytesleft);
         if (res == 0)
           return 1;
@@ -100,7 +104,11 @@ int main ()
         char *outptr = buf;
         size_t outbytesleft = sizeof (buf);
         size_t res = iconv (cd_88591_to_utf8,
+#ifdef ICONV_CONST
+                            &inptr, &inbytesleft,
+#else
                             (char **) &inptr, &inbytesleft,
+#endif
                             &outptr, &outbytesleft);
         if ((int)res > 0)
           return 1;
@@ -151,10 +159,8 @@ int main ()
   AC_SUBST(LTLIBICONV)
 ])
 
-AC_DEFUN([AM_ICONV],
+AC_DEFUN([AM_ICONV_CONST],
 [
-  AM_ICONV_LINK
-  if test "$am_cv_func_iconv" = yes; then
     AC_MSG_CHECKING([for iconv declaration])
     AC_CACHE_VAL(am_cv_proto_iconv, [
       AC_TRY_COMPILE([
@@ -178,7 +184,13 @@ size_t iconv();
       AC_DEFINE_UNQUOTED(ICONV_CONST, 1,
         [Define as const if the declaration of iconv() needs const.])
     fi
-  fi
+])
+
+AC_DEFUN([AM_ICONV],
+[
+  AM_ICONV_CONST
+  AM_ICONV_LINK
+
 ])
 
 
