@@ -165,8 +165,8 @@
 			    <term>fontstring</term>
                             <listitem>
 			      <para>Defines a font. Chopped to parts by # marks.
-				First the font name, then the text orientation, then shadow offsets,
-				then font type if not traditional x font. Some fields can be omitted.</para>
+				First the font type (XFT or X11), then the font name, then the text
+				orientation, then shadow offsets. Some fields can be omitted.</para>
 			      <para>example: "XFT#Verdana:size=10#Left#1 1"
 				example: "-misc-fixed-*-*-*-*-14-*-*-*-*-*-*-1#Center#1 1"</para>
 			    </listitem>
