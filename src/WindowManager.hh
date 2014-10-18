@@ -102,7 +102,6 @@ public:
         _mru.erase(std::remove(_mru.begin(), _mru.end(), frame), _mru.end());
     }
 
-    PWinObj *findPWinObj(Window win);
     void familyRaiseLower(Client *client, bool raise);
 
     Frame* findGroup(AutoProperty *property);
