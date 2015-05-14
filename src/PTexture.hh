@@ -6,7 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
+#include "config.h"
 
 #ifndef _PTEXTURE_HH_
 #define _PTEXTURE_HH_

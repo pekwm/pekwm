@@ -6,7 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
+#include "config.h"
 
 #ifndef _HANDLER_HH_
 #define _HANDLER_HH_

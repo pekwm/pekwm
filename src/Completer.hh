@@ -9,9 +9,7 @@
 #ifndef _COMPLETER_HH_
 #define _COMPLETER_HH_
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif // HAVE_CONFIG_H
 
 #include <vector>
 #include <string>

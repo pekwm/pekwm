@@ -8,9 +8,7 @@
 #ifndef _MENUHANDLER_HH_
 #define _MENUHANDLER_HH_
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif // HAVE_CONFIG_H
 
 #include <map>
 #include <string>

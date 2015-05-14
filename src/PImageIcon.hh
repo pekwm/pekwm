@@ -9,9 +9,7 @@
 #ifndef _PIMAGE_NATIVE_ICON_HH_
 #define _PIMAGE_NATIVE_ICON_HH_
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif // HAVE_CONFIG_H
 
 #include "PImage.hh"
 

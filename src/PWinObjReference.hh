@@ -9,9 +9,7 @@
 #ifndef _PWIN_OBJ_REFERENCE_HH_
 #define _PWIN_OBJ_REFERENCE_HH_
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif // HAVE_CONFIG_H
 
 #include "PWinObj.hh"
 #include "Observer.hh"

@@ -9,9 +9,7 @@
 #ifndef _CMD_DIALOG_HH_
 #define _CMD_DIALOG_HH_
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif // HAVE_CONFIG_H
 
 #include "Action.hh"
 #include "Completer.hh"

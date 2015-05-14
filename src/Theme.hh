@@ -9,9 +9,7 @@
 #ifndef _THEME_HH_
 #define _THEME_HH_
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif // HAVE_CONFIG_H
 
 #include "pekwm.hh"
 

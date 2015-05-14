@@ -9,9 +9,7 @@
 #ifndef _REGEX_STRING_HH_
 #define _REGEX_STRING_HH_
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif // HAVE_CONFIG_H
 
 #include <string>
 #include <vector>

@@ -6,12 +6,10 @@
 // See the LICENSE file for more information.
 //
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif // HAVE_CONFIG_H
-
 #ifndef _PIMAGE_HH_
 #define _PIMAGE_HH_
+
+#include "config.h"
 
 #include "pekwm.hh"
 #include "PImageLoader.hh"

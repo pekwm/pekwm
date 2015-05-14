@@ -9,9 +9,7 @@
 #ifndef _PDECOR_HH_
 #define _PDECOR_HH_
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif // HAVE_CONFIG_H
 
 #include "Config.hh"
 #include "PWinObj.hh"

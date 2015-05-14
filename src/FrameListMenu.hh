@@ -9,9 +9,7 @@
 #ifndef _FRAMELISTMENU_HH_
 #define _FRAMELISTMENU_HH_
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif // HAVE_CONFIG_H
 
 #include "pekwm.hh"
 #include "PMenu.hh"

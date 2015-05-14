@@ -10,9 +10,7 @@
 #ifndef _STATUS_WINDOW_HH_
 #define _STATUS_WINDOW_HH_
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif // HAVE_CONFIG_H
 
 #include <stdio.h>
 #include <wchar.h>

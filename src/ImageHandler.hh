@@ -6,12 +6,10 @@
 // See the LICENSE file for more information.
 //
 
-#ifdef HAVE_CONFIG_H
-#include "config.h"
-#endif // HAVE_CONFIG_H
-
 #ifndef _IMAGE_HANDLER_HH_
 #define _IMAGE_HANDLER_HH_
+
+#include "config.h"
 
 #include "Handler.hh"
 #include "ParseUtil.hh"

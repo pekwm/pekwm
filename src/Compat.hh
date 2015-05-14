@@ -9,9 +9,7 @@
 #ifndef _COMPAT_HH_
 #define _COMPAT_HH_
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif // HAVE_CONFIG_H
 
 #include <cwchar>
 #include <cstddef>

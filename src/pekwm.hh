@@ -13,9 +13,7 @@
 #ifndef _PEKWM_HH_
 #define _PEKWM_HH_
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif // HAVE_CONFIG_H
 
 #include <vector>
 using std::vector;

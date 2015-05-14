@@ -9,9 +9,7 @@
 #ifndef _TEXTURE_HANDLER_HH_
 #define _TEXTURE_HANDLER_HH_
 
-#ifdef HAVE_CONFIG_H
 #include "config.h"
-#endif // HAVE_CONFIG_H
 
 #include "ParseUtil.hh"
 

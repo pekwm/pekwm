@@ -6,7 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#include "../config.h"
+#include "config.h"
 
 #include "PWinObj.hh"
 #include "PDecor.hh"
