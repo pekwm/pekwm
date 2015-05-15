@@ -9,7 +9,7 @@ EXTRA_DIST = pekwm_ws_menu.sh.in pekwm_themeset.sh.in pekwm_screenshot.sh
 all-local: $(scripts_SCRIPTS)
 
 %.sh:	%.sh.in
-	@SED@ -e 's:<SH>:$(SH):g' -e 's:<SED>:$(SED):g' $< > $@
+	@SED@ -e 's:\@SH\@:$(SH):g' -e 's:\@SED\@:$(SED):g' $< > $@
 
 $(scripts_SCRIPTS):
 
