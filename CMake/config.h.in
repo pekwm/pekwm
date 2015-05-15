@@ -1,0 +1,23 @@
+#ifndef _CONFIG_H_
+#define _CONFIG_H_
+
+#cmakedefine DEBUG
+
+#cmakedefine HAVE_SWPRINTF
+#cmakedefine HAVE_SETENV
+#cmakedefine HAVE_UNSETENV
+#cmakedefine HAVE_TIMERSUB
+
+#cmakedefine HAVE_SHAPE
+#cmakedefine HAVE_XINERAMA
+#cmakedefine HAVE_XFT
+#cmakedefine HAVE_XRANDR
+
+#cmakedefine HAVE_IMAGE_PNG
+#cmakedefine HAVE_IMAGE_JPEG
+#cmakedefine HAVE_IMAGE_XPM
+
+#cmakedefine HAVE_ICONVCTL
+#cmakedefine ICONV_CONST
+
+#endif // _CONFIG_H_
