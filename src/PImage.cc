@@ -1,6 +1,6 @@
 //
 // PImage.cc for pekwm
-// Copyright © 2005-2009 Claes Nästén <me@pekdon.net>
+// Copyright © 2005-2015 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -13,7 +13,6 @@
 #include "PImage.hh"
 #include "x11.hh"
 #include "ScreenResources.hh"
-#include "PixmapHandler.hh"
 #include "Util.hh"
 
 #include <iostream>
@@ -87,10 +86,10 @@ PImage::unload(void)
         _data = 0;
     }
     if (_pixmap) {
-        ScreenResources::instance()->getPixmapHandler()->returnPixmap(_pixmap);
+        X11::freePixmap(_pixmap);
     }
     if (_mask) {
-        ScreenResources::instance()->getPixmapHandler()->returnPixmap(_mask);
+        X11::freePixmap(_mask);
     }
 
     _pixmap = None;
@@ -273,7 +272,7 @@ PImage::drawScaled(Drawable dest, int x, int y, uint width, uint height)
         if (pix) {
             XCopyArea(X11::getDpy(), pix, dest, X11::getGC(),
                       0, 0, width, height, x, y);
-            ScreenResources::instance()->getPixmapHandler()->returnPixmap(pix);
+            X11::freePixmap(pix);
         }
 
         delete [] scaled_data;
@@ -395,9 +394,7 @@ PImage::createPixmap(uchar *data, uint width, uint height)
 
     ximage = createXImage(data, width, height);
     if (ximage) {
-        pix = ScreenResources::instance()->getPixmapHandler()->getPixmap(width,
-                height, X11::getDepth());
-
+        pix = X11::createPixmap(width, height);
         XPutImage(X11::getDpy(), pix, X11::getGC(), ximage,
                   0, 0, 0, 0, width, height);
 
@@ -446,10 +443,7 @@ PImage::createMask(uchar *data, uint width, uint height)
         }
     }
 
-    // Create Pixmap
-    Pixmap pix;
-    pix = ScreenResources::instance()->getPixmapHandler()->getPixmap(width, height, 1);
-
+    Pixmap pix{X11::createPixmapMask(width, height)};
     GC gc = XCreateGC(X11::getDpy(), pix, 0, 0);
     XPutImage(X11::getDpy(), pix, gc, ximage, 0, 0, 0, 0, width, height);
     XFreeGC(X11::getDpy(), gc);

@@ -38,7 +38,6 @@ Screen {
     HonourAspectRatio = "True"
     EdgeSize = "1 1 1 1"
     EdgeIndent = "False"
-    PixmapCacheSize = "20"
     DoubleClickTime = "250"
 
     Placement {

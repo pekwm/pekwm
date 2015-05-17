@@ -1,6 +1,6 @@
 //
 // Config.cc for pekwm
-// Copyright © 2002-2009 Claes Nästén <me@pekdon.net>
+// Copyright © 2002-2015 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -85,7 +85,7 @@ Config::Config(void) :
         _moveresize_edgeattract(0), _moveresize_edgeresist(0),
         _moveresize_woattract(0), _moveresize_woresist(0),
         _moveresize_opaquemove(0), _moveresize_opaqueresize(0),
-        _screen_workspaces(4), _screen_pixmap_cache_size(20),
+        _screen_workspaces(4),
         _screen_workspaces_per_row(0), _screen_workspace_name_default(L"Workspace"),
         _screen_edge_indent(false),
         _screen_doubleclicktime(250), _screen_fullscreen_above(true),
@@ -582,7 +582,6 @@ Config::loadScreen(CfgParser::Entry *section)
 
     vector<CfgParserKey*> keys;
     keys.push_back(new CfgParserKeyNumeric<int>("WORKSPACES", _screen_workspaces, 4, 1));
-    keys.push_back(new CfgParserKeyNumeric<int>("PIXMAPCACHESIZE", _screen_pixmap_cache_size));
     keys.push_back(new CfgParserKeyNumeric<int>("WORKSPACESPERROW", _screen_workspaces_per_row, 0, 0));
     keys.push_back(new CfgParserKeyString("WORKSPACENAMES", workspace_names));
     keys.push_back(new CfgParserKeyString("EDGESIZE", edge_size));

@@ -1,6 +1,6 @@
 //
 // Dockapp.cc for pekwm
-// Copyright (C) 2003-2009 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2003-2015 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -17,7 +17,6 @@
 #include "PDecor.hh"
 #include "ScreenResources.hh"
 #include "Theme.hh"
-#include "PixmapHandler.hh"
 #include "AutoProperties.hh"
 #include "WindowManager.hh"
 
@@ -137,8 +136,7 @@ DockApp::~DockApp(void)
         X11::ungrabServer(false);
     }
 
-    // clean up
-    ScreenResources::instance()->getPixmapHandler()->returnPixmap(_background);
+    X11::freePixmap(_background);
     XDestroyWindow(X11::getDpy(), _window);
 }
 
@@ -220,10 +218,8 @@ DockApp::loadTheme(void)
 void
 DockApp::repaint(void)
 {
-    PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
-
-    pm->returnPixmap(_background);
-    _background = pm->getPixmap(_gm.width, _gm.height, X11::getDepth());
+    X11::freePixmap(_background);
+    _background = X11::createPixmap(_gm.width, _gm.height);
 
     WindowManager::instance()->getTheme()->getHarbourData()->getTexture()->render(_background, 0, 0, _gm.width, _gm.height);
 

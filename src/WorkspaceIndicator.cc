@@ -1,6 +1,6 @@
 //
 // WorkspaceIndicator.hh for pekwm
-// Copyright © 2009 Claes Nästén <me@pekdon.net>
+// Copyright © 2009-2015 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -13,7 +13,6 @@
 #include <iostream>
 
 #include "Config.hh"
-#include "PixmapHandler.hh"
 #include "ScreenResources.hh"
 #include "Workspaces.hh"
 #include "WorkspaceIndicator.hh"
@@ -49,7 +48,7 @@ WorkspaceIndicator::Display::Display(PWinObj *parent, Theme *theme)
 WorkspaceIndicator::Display::~Display(void)
 {
     XDestroyWindow(X11::getDpy(), _window);
-    ScreenResources::instance()->getPixmapHandler()->returnPixmap(_pixmap);
+    X11::freePixmap(_pixmap);
 }
 
 /**
@@ -79,9 +78,8 @@ WorkspaceIndicator::Display::render(void)
     Theme::WorkspaceIndicatorData &data(_theme->getWorkspaceIndicatorData());
 
     // Make sure pixmap has correct size
-    ScreenResources::instance()->getPixmapHandler()->returnPixmap(_pixmap);
-    _pixmap = ScreenResources::instance()->getPixmapHandler()->getPixmap(_gm.width, _gm.height,
-                                                                        X11::getDepth());
+    X11::freePixmap(_pixmap);
+    _pixmap = X11::createPixmap(_gm.width, _gm.height);
 
     // Render background
     data.texture_background->render(_pixmap, 0, 0, _gm.width, _gm.height);

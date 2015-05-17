@@ -1,6 +1,6 @@
 //
 // ScreenResources.hh for pekwm
-// Copyright (C) 2009 Claes Nasten <pekdon{@}pekdon{.}net>
+// Copyright © 2009-2015 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -18,8 +18,6 @@ extern "C" {
 }
 
 #include <map>
-
-class PixmapHandler;
 
 class ScreenResources {
 public:
@@ -43,11 +41,9 @@ public:
     static inline ScreenResources *instance(void) { return _instance; }
 
     inline Cursor getCursor(ScreenResources::CursorType type) { return _cursor_map[type]; }
-    inline PixmapHandler *getPixmapHandler(void) { return _pixmap_handler; }
 
 private:
     std::map<CursorType, Cursor> _cursor_map;
-    PixmapHandler *_pixmap_handler;
 
     static ScreenResources *_instance;
 };

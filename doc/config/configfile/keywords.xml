@@ -216,12 +216,6 @@
         </listitem>
       </varlistentry>
       <varlistentry>
-        <term>PixmapCacheSize (int)</term>
-        <listitem>
-          <para>Determines how many unused pixmaps are stored on the image cache for future use.</para>
-        </listitem>
-      </varlistentry>
-      <varlistentry>
         <term>DoubleClicktime (int)</term>
         <listitem>
           <para>Time, in milliseconds, between clicks to be counted as a doubleclick.</para>

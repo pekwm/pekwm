@@ -51,7 +51,6 @@ pekwm_SOURCES = $(debugsource)\
 	PImageLoaderJpeg.cc PImageLoaderJpeg.hh \
 	PImageLoaderPng.cc PImageLoaderPng.hh \
 	PImageLoaderXpm.cc PImageLoaderXpm.hh \
-	PixmapHandler.cc PixmapHandler.hh \
 	RegexString.cc RegexString.hh \
 	ParseUtil.hh \
 	ScreenResources.cc ScreenResources.hh \

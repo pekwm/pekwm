@@ -13,7 +13,6 @@
 #include "StatusWindow.hh"
 #include "x11.hh"
 #include "PTexture.hh"
-#include "PixmapHandler.hh"
 #include "ScreenResources.hh"
 #include "Theme.hh"
 #include "Workspaces.hh"
@@ -130,18 +129,15 @@ StatusWindow::loadTheme(void)
 void
 StatusWindow::unloadTheme(void)
 {
-    ScreenResources::instance()->getPixmapHandler()->returnPixmap(_bg);
+    X11::freePixmap(_bg);
 }
 
 //! @brief Renders and sets background
 void
 StatusWindow::render(void)
 {
-    PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
-    pm->returnPixmap(_bg);
-    _bg = pm->getPixmap(_status_wo->getWidth(), _status_wo->getHeight(),
-                        X11::getDepth());
-
+    X11::freePixmap(_bg);
+    _bg = X11::createPixmap(_status_wo->getWidth(), _status_wo->getHeight());
     _theme->getStatusData()->getTexture()->render(_bg, 0, 0, _status_wo->getWidth(), _status_wo->getHeight());
 
     _status_wo->setBackgroundPixmap(_bg);

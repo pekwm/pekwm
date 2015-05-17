@@ -1,6 +1,6 @@
 //
 // WindowManager.cc for pekwm
-// Copyright © 2002-2009 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2002-2015 the pekwm development team
 //
 // windowmanager.cc for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
@@ -28,7 +28,6 @@
 #include "PFont.hh"
 #include "PTexture.hh"
 #include "FontHandler.hh"
-#include "PixmapHandler.hh"
 #include "TextureHandler.hh"
 #include "Workspaces.hh"
 #include "Util.hh"
@@ -553,9 +552,6 @@ WindowManager::doReloadConfig(void)
     Workspaces::setSize(_config->getWorkspaces());
     Workspaces::setPerRow(_config->getWorkspacesPerRow());
     Workspaces::setNames();
-
-    // Flush pixmap cache and set size
-    _screen_resources->getPixmapHandler()->setCacheSize(_config->getScreenPixmapCacheSize());
 
     // Update the ClientUniqueNames if needed
     if ((old_client_unique_name != _config->getClientUniqueName()) ||

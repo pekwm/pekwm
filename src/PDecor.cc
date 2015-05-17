@@ -1,6 +1,6 @@
 //
 // PDecor.cc for pekwm
-// Copyright © 2004-2009 Claes Nästén <me@pekdon.net>
+// Copyright © 2004-2015 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -33,7 +33,6 @@ extern "C" {
 #include "StatusWindow.hh"
 #include "KeyGrabber.hh"
 #include "Theme.hh"
-#include "PixmapHandler.hh"
 #include "Workspaces.hh"
 
 using std::find;
@@ -63,7 +62,7 @@ PDecor::Button::Button(PWinObj *parent, Theme::PDecorButtonData *data, uint widt
                       CopyFromParent, InputOutput, CopyFromParent,
                       CWEventMask|CWOverrideRedirect, &attr);
 
-    _bg = ScreenResources::instance()->getPixmapHandler()->getPixmap(_gm.width, _gm.height, X11::getDepth());
+    _bg = X11::createPixmap(_gm.width, _gm.height);
 
     setBackgroundPixmap(_bg);
     setState(_state);
@@ -73,7 +72,7 @@ PDecor::Button::Button(PWinObj *parent, Theme::PDecorButtonData *data, uint widt
 PDecor::Button::~Button(void)
 {
     XDestroyWindow(X11::getDpy(), _window);
-    ScreenResources::instance()->getPixmapHandler()->returnPixmap(_bg);
+    X11::freePixmap(_bg);
 }
 
 //! @brief Searches the PDecorButtonData for an action matching ev
@@ -113,7 +112,7 @@ PDecor::Button::setState(ButtonState state)
             if (shape != None) {
                 X11::shapeSetMask(_window, ShapeBounding, shape);
                 if (need_free) {
-                    ScreenResources::instance()->getPixmapHandler()->returnPixmap(shape);
+                    X11::freePixmap(shape);
                 }
             } else {
                 XRectangle rect = {0 /* x */, 0 /* y */, static_cast<short uint>(_gm.width), static_cast<short uint>(_gm.height) };
@@ -1513,9 +1512,7 @@ PDecor::renderTitle(void)
     }
 
     PTexture *t_sep = _data->getTextureSeparator(getFocusedState(false));
-    PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
-
-    Pixmap title_bg = pm->getPixmap(_title_wo.getWidth(), _title_wo.getHeight(), X11::getDepth());
+    Pixmap title_bg = X11::createPixmap(_title_wo.getWidth(), _title_wo.getHeight());
     // Render main background on pixmap
     _data->getTextureMain(getFocusedState(false))->render(title_bg, 0, 0,
                                                           _title_wo.getWidth(), _title_wo.getHeight());
@@ -1561,7 +1558,7 @@ PDecor::renderTitle(void)
 
     _title_wo.setBackgroundPixmap(title_bg);
     _title_wo.clear();
-    pm->returnPixmap(title_bg);
+    X11::freePixmap(title_bg);
 }
 
 //! @brief
@@ -1582,8 +1579,6 @@ PDecor::renderBorder(void)
         return;
     }
 
-    PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
-
     PTexture *tex;
     FocusedState state = getFocusedState(false);
     uint width, height;
@@ -1601,10 +1596,10 @@ PDecor::renderBorder(void)
             getBorderSize(static_cast<BorderPosition>(i), width, height);
 
             if (width > 0 && height > 0) {
-                pix = pm->getPixmap(width, height, X11::getDepth());
+                pix = X11::createPixmap(width, height);
                 tex->render(pix, 0, 0, width, height);
                 XSetWindowBackgroundPixmap(X11::getDpy(), _border_win[i], pix);
-                pm->returnPixmap(pix);
+                X11::freePixmap(pix);
             }
         }
 
@@ -1636,7 +1631,7 @@ PDecor::setBorderShape(void)
             _need_shape = true;
             X11::shapeSetMask(_border_win[i], ShapeBounding, pix);
             if (do_free) {
-                ScreenResources::instance()->getPixmapHandler()->returnPixmap(pix);
+                X11::freePixmap(pix);
             }
         } else {
             rect.width = width;

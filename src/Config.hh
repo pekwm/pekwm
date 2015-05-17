@@ -1,6 +1,6 @@
 //
 // Config.hh for pekwm
-// Copyright © 2002-2009 Claes Nasten <me@pekdon.net>
+// Copyright © 2002-2015 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -121,7 +121,6 @@ public:
 
     // Screen
     inline int getWorkspaces(void) const { return _screen_workspaces; }
-    inline int getScreenPixmapCacheSize(void) const { return _screen_pixmap_cache_size; }
     inline int getWorkspacesPerRow(void) const { return _screen_workspaces_per_row; }
     void getDesktopNamesUTF8(uchar **names, uint *length) const;
     const std::wstring &getWorkspaceName(uint num) const {
@@ -277,7 +276,7 @@ private:
     bool _moveresize_opaquemove, _moveresize_opaqueresize;
 
     // screen
-    int _screen_workspaces, _screen_pixmap_cache_size;
+    int _screen_workspaces;
     int _screen_workspaces_per_row;
     vector<std::wstring> _screen_workspace_names;
     std::wstring _screen_workspace_name_default;

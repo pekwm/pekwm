@@ -18,7 +18,6 @@
 #include "InputDialog.hh"
 #include "KeyGrabber.hh"
 #include "x11.hh"
-#include "PixmapHandler.hh"
 #include "ScreenResources.hh"
 #include "Workspaces.hh"
 
@@ -349,7 +348,7 @@ InputDialog::loadTheme(void)
 void
 InputDialog::unloadTheme(void)
 {
-    ScreenResources::instance()->getPixmapHandler()->returnPixmap(_pixmap_bg);
+    X11::freePixmap(_pixmap_bg);
 }
 
 /**
@@ -594,10 +593,8 @@ void
 InputDialog::updatePixmapSize(void)
 {
     // Get new pixmap and render texture
-    PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
-    pm->returnPixmap(_pixmap_bg);
-    _pixmap_bg = pm->getPixmap(_text_wo->getWidth(), _text_wo->getHeight(), X11::getDepth());
-
+    X11::freePixmap(_pixmap_bg);
+    _pixmap_bg = X11::createPixmap(_text_wo->getWidth(), _text_wo->getHeight());
     _data->getTexture()->render(_pixmap_bg, 0, 0, _text_wo->getWidth(), _text_wo->getHeight());
     _text_wo->setBackgroundPixmap(_pixmap_bg);
     _text_wo->clear();

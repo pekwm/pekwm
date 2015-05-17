@@ -1,6 +1,6 @@
 //
 // x11.hh for pekwm
-// Copyright © 2003-2012 Claes Nästén <me{@}pekdon{.}net>
+// Copyright © 2003-2015 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -381,6 +381,21 @@ public:
     inline static bool
     getWindowAttributes(Window win, XWindowAttributes *wa) {
         return XGetWindowAttributes(_dpy, win, wa);
+    }
+
+    inline static Pixmap
+    createPixmapMask(unsigned w, unsigned h) {
+        return XCreatePixmap(_dpy, _root, w, h, 1);
+    }
+
+    inline static Pixmap
+    createPixmap(unsigned w, unsigned h) {
+        return XCreatePixmap(_dpy, _root, w, h, _depth);
+    }
+
+    inline static void
+    freePixmap(Pixmap pixmap) {
+        XFreePixmap(_dpy, pixmap);
     }
 
 #ifdef HAVE_SHAPE

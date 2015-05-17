@@ -1,6 +1,6 @@
 //
 // PMenu.cc for pekwm
-// Copyright © 2004-2009 Claes Nästén <me@pekdon.net>
+// Copyright © 2004-2015 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -21,7 +21,6 @@
 #include "ScreenResources.hh"
 #include "TextureHandler.hh"
 #include "Theme.hh"
-#include "PixmapHandler.hh"
 #include "Workspaces.hh"
 #include "AutoProperties.hh"
 #include "x11.hh"
@@ -128,9 +127,9 @@ PMenu::~PMenu(void)
         delete *it;
     }
 
-    ScreenResources::instance()->getPixmapHandler()->returnPixmap(_menu_bg_fo);
-    ScreenResources::instance()->getPixmapHandler()->returnPixmap(_menu_bg_un);
-    ScreenResources::instance()->getPixmapHandler()->returnPixmap(_menu_bg_se);
+    X11::freePixmap(_menu_bg_fo);
+    X11::freePixmap(_menu_bg_un);
+    X11::freePixmap(_menu_bg_se);
 }
 
 // START - PWinObj interface.
@@ -581,12 +580,9 @@ PMenu::buildMenuRender(void)
 void
 PMenu::buildMenuRenderState(Pixmap &pix, ObjectState state)
 {
-    PixmapHandler *pm = ScreenResources::instance()->getPixmapHandler();
-
     // get a fresh pixmap for the menu
-    pm->returnPixmap(pix);
-    pix = pm->getPixmap(getChildWidth(), getChildHeight(),
-                        X11::getDepth());
+    X11::freePixmap(pix);
+    pix = X11::createPixmap(getChildWidth(), getChildHeight());
 
     PTexture *tex;
     PFont *font;

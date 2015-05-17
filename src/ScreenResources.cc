@@ -12,7 +12,6 @@
 #include "ScreenResources.hh"
 #include "x11.hh"
 #include "Config.hh"
-#include "PixmapHandler.hh"
 
 extern "C" {
 #include <X11/cursorfont.h>
@@ -30,7 +29,6 @@ ScreenResources *ScreenResources::_instance = 0;
 
 //! @brief ScreenResources constructor
 ScreenResources::ScreenResources(void)
-    : _pixmap_handler(0)
 {
     if (_instance) {
 #ifdef DEBUG
@@ -58,9 +56,6 @@ ScreenResources::ScreenResources(void)
     _cursor_map[CURSOR_ARROW] = XCreateFontCursor(dpy, XC_left_ptr);
     _cursor_map[CURSOR_MOVE] =  XCreateFontCursor(dpy, XC_fleur);
     _cursor_map[CURSOR_RESIZE] = XCreateFontCursor(dpy, XC_plus);
-
-    _pixmap_handler =
-        new PixmapHandler(Config::instance()->getScreenPixmapCacheSize());
 }
 
 //! @brief ScreenResources destructor
@@ -69,10 +64,6 @@ ScreenResources::~ScreenResources(void)
     map<CursorType, Cursor>::iterator c_it(_cursor_map.begin());
     for (; c_it != _cursor_map.end(); ++c_it) {
         XFreeCursor(X11::getDpy(), c_it->second);
-    }
-
-    if (_pixmap_handler) {
-        delete _pixmap_handler;
     }
 
     _instance = 0;

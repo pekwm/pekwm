@@ -1,6 +1,6 @@
 //
 // CmdDialog.cc for pekwm
-// Copyright © 2004-2009 Claes Nästén <me@pekdon.net>
+// Copyright © 2004-2015 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -24,7 +24,6 @@ extern "C" {
 #include "PDecor.hh"
 #include "CmdDialog.hh"
 #include "Config.hh"
-#include "PixmapHandler.hh"
 #include "KeyGrabber.hh"
 #include "ScreenResources.hh"
 #include "Workspaces.hh"
