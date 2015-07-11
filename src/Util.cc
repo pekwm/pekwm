@@ -19,6 +19,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cwchar>
+#include <iterator>
 
 extern "C" {
 #include <iconv.h>
@@ -31,6 +32,8 @@ extern "C" {
 
 #include "Util.hh"
 
+using std::back_inserter;
+using std::copy;
 using std::cerr;
 using std::endl;
 using std::ostringstream;
@@ -281,41 +284,50 @@ expandFileName(std::string &file)
 //! @param sep Separators to use when splitting string
 //! @param max Maximum number of elements to put into vals (optional)
 //! @param include_empty Include empty elements, defaults to false.
+//! @param escape Escape character (optional)
 //! @return Number of tokens inserted into vals
 uint
-splitString(const std::string str, std::vector<std::string> &toks, const char *sep, uint max, bool include_empty)
+splitString(const string str, vector<string> &toks, const char *sep, uint max, bool include_empty, char escape)
 {
-    if (str.size() < 1) {
+    string::size_type start = str.find_first_not_of(" \t\n");
+    if (str.size() == 0 || start == string::npos) {
         return 0;
     }
 
-    uint n = toks.size();
-    string::size_type s, e;
+    string token;
+    token.reserve(str.size());
+    bool in_escape = false;
+    int num_tokens = 1;
 
-    s = str.find_first_not_of(" \t\n");
-    for (uint i = 0; (max == 0 || i < max) && s != string::npos; ++i) {
-        e = str.find_first_of(sep, s);
-
-        if (e != string::npos && i < max - 1) {
-            toks.push_back(str.substr(s, e - s));
-        } else if (s < str.size()) {
-            toks.push_back(str.substr(s, str.size() - s));
-            break;
-        } else {
-            break;
-        }
-
-        if (include_empty) {
-            s = str.find_first_of(sep, e + 1);
-            if (s != (e + 1)) {
-                s = str.find_first_not_of(sep, e);
+    auto it = str.begin() + start;
+    for (; it != str.cend() && (max == 0 || num_tokens < max); ++it) {
+        if (in_escape) {
+            token += *it;
+            in_escape = false;
+        } else if (*it == escape) {
+            in_escape = true;
+        } else if (strchr(sep, *it) != 0) {
+            if (token.size() > 0 || include_empty) {
+                toks.push_back(token);
+                ++num_tokens;
             }
+            token.clear();
         } else {
-            s = str.find_first_not_of(sep, e);
+            token += *it;
         }
     }
 
-    return (toks.size() - n);
+    // Get the last token (if any)
+    if (it != str.cend()) {
+        copy(it, str.cend(), back_inserter(token));
+    }
+
+    if (token.size() > 0 || include_empty) {
+        toks.push_back(token);
+        ++num_tokens;
+    }
+
+    return num_tokens - 1;
 }
 
 //! @brief Converts wide-character string to multibyte version

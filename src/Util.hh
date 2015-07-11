@@ -53,7 +53,7 @@ namespace Util {
     std::string getFileExt(const std::string &file);
     std::string getDir(const std::string &file);
     void expandFileName(std::string &file);
-    uint splitString(const std::string str, vector<std::string> &vals, const char *sep, uint max = 0, bool include_empty = false);
+    uint splitString(const std::string str, vector<std::string> &vals, const char *sep, uint max = 0, bool include_empty = false, char escape = '\0');
 
     template<class T> std::string to_string(T t) {
         std::ostringstream oss;

@@ -1205,7 +1205,7 @@ Config::parseActions(const std::string &action_string, ActionEvent &ae, uint mas
     ae.action_list.clear();
 
     // chop the string up separating the actions
-    if (Util::splitString(action_string, tok, ";")) {
+    if (Util::splitString(action_string, tok, ";", 0, false, '\\')) {
         for (it = tok.begin(); it != tok.end(); ++it) {
             if (parseAction(*it, action, mask)) {
                 ae.action_list.push_back(action);
@@ -1444,7 +1444,7 @@ Config::parseMenuActions(const std::string &actions, ActionEvent &ae)
     ae.action_list.clear();
 
     // chop the string up separating the actions
-    if (Util::splitString(actions, tok, ";")) {
+    if (Util::splitString(actions, tok, ";", 0, false, '\\')) {
         for (it = tok.begin(); it != tok.end(); ++it) {
             if (parseMenuAction(*it, action)) {
                 ae.action_list.push_back(action);
