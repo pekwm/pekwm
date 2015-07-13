@@ -363,6 +363,7 @@ PFontXmb::load(const std::string &font_name)
         for (int i = 0; i < missing_count; ++i) {
             cerr <<  "PFontXmb::load(): Missing charset" <<  missing_list[i] << endl;
         }
+        XFreeStringList(missing_list);
 
         _ascent = _descent = 0;
 
@@ -393,6 +394,15 @@ PFontXmb::unload(void)
     if (_fontset) {
         XFreeFontSet(X11::getDpy(), _fontset);
         _fontset = 0;
+    }
+
+    if (_gc_fg != None) {
+        XFreeGC(X11::getDpy(), _gc_fg);
+        _gc_fg = None;
+    }
+    if (_gc_bg != None) {
+        XFreeGC(X11::getDpy(), _gc_bg);
+        _gc_bg = None;
     }
 }
 
