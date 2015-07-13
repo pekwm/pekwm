@@ -156,7 +156,7 @@ PImageLoaderPng::load(const std::string &file, uint &width, uint &height,
 
     if (alpha) {
         uchar *p = data + 3, *end = data + data_size;
-        for (; p != end && ! use_alpha; p += 4) {
+        for (; p < end && ! use_alpha; p += 4) {
             if (*p != 255) {
                 use_alpha = true;
             }
