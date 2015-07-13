@@ -49,6 +49,7 @@
 
 extern "C" {
 #include <signal.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
@@ -332,7 +333,7 @@ WindowManager::setupDisplay(bool replace)
     _cmd_dialog = new CmdDialog(_theme);
     _search_dialog = new SearchDialog(_theme);
     _status_window = new StatusWindow(_theme);
-    _workspace_indicator = new WorkspaceIndicator(_theme, _timer_action);
+    _workspace_indicator = new WorkspaceIndicator{_theme};
 
     XDefineCursor(dpy, X11::getRoot(),
                   _screen_resources->getCursor(ScreenResources::CURSOR_ARROW));
@@ -668,20 +669,12 @@ void
 WindowManager::doEventLoop(void)
 {
     XEvent ev;
-    Timer<ActionPerformed>::timed_event_list events;
 
     while (! _shutdown && ! is_signal_int_term) {
         // Handle timeouts
         if (is_signal_alrm) {
             is_signal_alrm = false;
-
-            if (_timer_action.getTimedOut(events)) {
-                Timer<ActionPerformed>::timed_event_list_it it(events.begin());
-                for (; it != events.end(); ++it) {
-                    _action_handler->handleAction((*it)->data);
-                }
-                events.clear();
-            }
+            _workspace_indicator->unmapWindow();
         }
 
         // Reload if requested
@@ -800,6 +793,23 @@ WindowManager::doEventLoop(void)
                 break;
             }
         }
+    }
+}
+
+void
+WindowManager::showWSIndicator(void) const
+{
+    auto timeout = Config::instance()->getShowWorkspaceIndicator();
+    if (timeout > 0) {
+        _workspace_indicator->render();
+        _workspace_indicator->mapWindowRaised();
+
+        struct itimerval value;
+        timerclear(&value.it_value);
+        timerclear(&value.it_interval);
+        value.it_value.tv_sec += timeout / 1000;
+        value.it_value.tv_usec += (timeout % 1000) * 1000;
+        setitimer(ITIMER_REAL, &value, 0);
     }
 }
 

@@ -1,6 +1,6 @@
 //
 // WorkspaceIndicator.hh for pekwm
-// Copyright © 2009 Claes Nästén <me@pekdon.net>
+// Copyright © 2009-2015 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -16,7 +16,6 @@
 #include "PWinObj.hh"
 #include "PDecor.hh"
 #include "Theme.hh"
-#include "Timer.hh"
 
 /**
  * Workspace indicator rendering a simple window with workspace layout
@@ -25,42 +24,36 @@
 class WorkspaceIndicator : public PDecor
 {
 public:
-  /**
-   * Display class rendering workspace layout in WorkspaceIndicator.
-   */
-  class Display : public PWinObj {
-  public:
-    Display(PWinObj *parent, Theme *theme);
-    virtual ~Display(void);
+    /**
+     * Display class rendering workspace layout in WorkspaceIndicator.
+     */
+    class Display : public PWinObj {
+    public:
+        Display(PWinObj *parent, Theme *theme);
+        virtual ~Display(void);
 
-    virtual bool getSizeRequest(Geometry &request);
+        virtual bool getSizeRequest(Geometry &request);
+        void render(void);
+
+    private:
+        void renderWorkspaces(int x, int y, uint width, uint height);
+
+        uint getPaddingHorizontal(void);
+        uint getPaddingVertical(void);
+
+        Theme *_theme;
+        Pixmap _pixmap; //!< Pixmap holding rendered workspace view
+    };
+
+    WorkspaceIndicator(Theme *theme);
+    virtual ~WorkspaceIndicator(void);
 
     void render(void);
-
-  private:
-    void renderWorkspaces(int x, int y, uint width, uint height);
-
-    uint getPaddingHorizontal(void);
-    uint getPaddingVertical(void);
-
-  private:
-    Theme *_theme;
-    Pixmap _pixmap; //!< Pixmap holding rendered workspace view
-  };
-
-  WorkspaceIndicator(Theme *theme, Timer<ActionPerformed> &timer);
-  virtual ~WorkspaceIndicator(void);
-
-  void render(void);
-  void updateHideTimer(uint timeout);
+    void updateHideTimer(uint timeout);
 
 private:
-  Timer<ActionPerformed> &_timer; //!< Timer used to add unmap events to
-
-  Display _display_wo; //!< Display winobj handling rendering of workspace status
-  PDecor::TitleItem _title; //!< Title item added to the decor
-  Timer<ActionPerformed>::timed_event_list_entry _timer_hide; //!< Timeout for hiding workspace indicator
-  ActionEvent _action_hide; //!< ActionEvent for hiding the workspace indicator used in timer
+    Display _display_wo; //!< Display winobj handling rendering of workspace status
+    PDecor::TitleItem _title; //!< Title item added to the decor
 };
 
 #endif // _WORKSPACE_INDICATOR_HH_

@@ -17,7 +17,6 @@
 
 #include "pekwm.hh"
 #include "Action.hh"
-#include "Timer.hh"
 #include "ManagerWindows.hh"
 
 #include <algorithm>
@@ -124,8 +123,7 @@ public:
     inline StatusWindow *getStatusWindow(void) { return _status_window; }
     WorkspaceIndicator *getWorkspaceIndicator(void) { return _workspace_indicator; }
 
-    // Extended Window Manager hints function prototypes
-    void setEwmhActiveWindow(Window w);
+    void showWSIndicator(void) const;
 
     // public event handlers used when doing grabbed actions
     void handleKeyEvent(XKeyEvent *ev);
@@ -197,8 +195,6 @@ private:
     StatusWindow *_status_window;
 
     WorkspaceIndicator *_workspace_indicator; //!< Window popping up when switching workspace
-
-    Timer<ActionPerformed> _timer_action;
 
     bool _startup; //!< Indicates startup status.
     bool _shutdown; //!< Set to wheter we want to shutdown.

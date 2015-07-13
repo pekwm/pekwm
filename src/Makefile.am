@@ -58,7 +58,7 @@ pekwm_SOURCES = $(debugsource)\
 	SearchDialog.cc SearchDialog.hh \
 	Theme.cc Theme.hh \
 	TextureHandler.cc TextureHandler.hh \
-	Timer.hh Types.hh \
+	Types.hh \
 	Util.cc Util.hh \
 	WORefMenu.cc WORefMenu.hh \
 	WindowManager.cc WindowManager.hh \

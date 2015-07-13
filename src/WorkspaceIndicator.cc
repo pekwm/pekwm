@@ -1,5 +1,5 @@
 //
-// WorkspaceIndicator.hh for pekwm
+// WorkspaceIndicator.cc for pekwm
 // Copyright © 2009-2015 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -167,17 +167,12 @@ WorkspaceIndicator::Display::getPaddingVertical(void)
 /**
  * WorkspaceIndicator constructor
  */
-WorkspaceIndicator::WorkspaceIndicator(Theme *theme, Timer<ActionPerformed> &timer)
-  : PDecor(theme, "WORKSPACEINDICATOR"),
-    _timer(timer), _display_wo(this, theme),
-    _timer_hide(0)
+WorkspaceIndicator::WorkspaceIndicator(Theme *theme)
+  : PDecor{theme, "WORKSPACEINDICATOR"}, _display_wo{this, theme}
 {
     _type = PWinObj::WO_WORKSPACE_INDICATOR;
     setLayer(LAYER_NONE); // Make sure this goes on top of everything
     _hidden = true; // Do not include in workspace handling etc
-
-    // Add hide action to timer action
-    _action_hide.action_list.push_back(Action(ACTION_HIDE_WORKSPACE_INDICATOR));
 
     // Add title
     titleAdd(&_title);
@@ -231,17 +226,4 @@ WorkspaceIndicator::render(void)
 
     // Render workspaces
     _display_wo.render();
-}
-
-/**
- * Remove previous timer and add new hide timer for timeout seconds in
- * the future.
- */
-void
-WorkspaceIndicator::updateHideTimer(uint timeout)
-{
-    if (_timer_hide) {
-        _timer.remove(_timer_hide);
-    }
-    _timer_hide = _timer.add(timeout, ActionPerformed(this, _action_hide));
 }

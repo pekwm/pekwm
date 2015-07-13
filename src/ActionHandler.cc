@@ -360,9 +360,6 @@ ActionHandler::handleAction(const ActionPerformed &ap)
             case ACTION_SHOW_SEARCH_DIALOG:
                 actionShowInputDialog(WindowManager::instance()->getSearchDialog(), it->getParamS(), frame, wo);
                 break;
-            case ACTION_HIDE_WORKSPACE_INDICATOR:
-                WindowManager::instance()->getWorkspaceIndicator()->unmapWindow();
-                break;
             case ACTION_LAYOUT_ONCE:
                 Workspaces::layoutOnce(it->getParamS());
                 break;

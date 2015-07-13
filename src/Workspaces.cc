@@ -171,12 +171,7 @@ Workspaces::setWorkspace(uint num, bool focus)
 
     X11::ungrabServer(true);
 
-    // Show workspace indicator if requested
-    if (Config::instance()->getShowWorkspaceIndicator() > 0) {
-        WindowManager::instance()->getWorkspaceIndicator()->render();
-        WindowManager::instance()->getWorkspaceIndicator()->mapWindowRaised();
-        WindowManager::instance()->getWorkspaceIndicator()->updateHideTimer(Config::instance()->getShowWorkspaceIndicator());
-    }
+    WindowManager::instance()->showWSIndicator();
 }
 
 //! @brief
