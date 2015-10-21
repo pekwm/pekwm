@@ -16,4 +16,4 @@ install(FILES
   mouse_sloppy
   start
   vars
-  DESTINATION share/pekwm/)
+  DESTINATION etc/pekwm/)

@@ -7,6 +7,7 @@
 #  ICONV_CONST - the second argument for iconv() is const
 #  HAVE_ICONVCTL - iconvctl is available
 # 
+include(CheckFunctionExists)
 include(CheckCXXSourceCompiles)
 
 IF (ICONV_INCLUDE_DIR AND ICONV_LIBRARIES)

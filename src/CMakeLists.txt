@@ -51,8 +51,8 @@ set(pekwm_SOURCES
   WorkspaceIndicator.cc
   x11.cc
   main.cc)
-set(pekwm_INCLUDE_DIRS ${PROJECT_BINARY_DIR}/src ${X11_INCLUDE_DIR})
-set(pekwm_LIBRARIES ${X11_LIBRARIES})
+set(pekwm_INCLUDE_DIRS ${PROJECT_BINARY_DIR}/src ${ICONV_INCLUDE_DIR} ${X11_INCLUDE_DIR})
+set(pekwm_LIBRARIES ${ICONV_LIBRARIES} ${X11_LIBRARIES})
 
 if (DEBUG)
   set(pekwm_SOURCES ${pekwm_SOURCES} Debug.cc)
