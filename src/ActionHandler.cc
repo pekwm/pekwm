@@ -35,7 +35,6 @@
 
 #include <memory>
 
-using std::auto_ptr;
 using std::string;
 using std::find;
 using std::map;
@@ -666,8 +665,7 @@ void
 ActionHandler::actionFocusToggle(uint button, uint raise, int off,
                                  bool show_iconified, bool mru)
 {
-    PMenu *p_menu = createNextPrevMenu(show_iconified, mru);
-    auto_ptr<PMenu> menu(p_menu);
+    std::unique_ptr<PMenu> menu{createNextPrevMenu(show_iconified, mru)};
 
     // no clients in the list
     if (menu->size() == 0) {
