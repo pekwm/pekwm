@@ -53,7 +53,6 @@ pekwm_SOURCES = $(debugsource)\
 	PImageLoaderXpm.cc PImageLoaderXpm.hh \
 	RegexString.cc RegexString.hh \
 	ParseUtil.hh \
-	ScreenResources.cc ScreenResources.hh \
 	StatusWindow.cc StatusWindow.hh \
 	SearchDialog.cc SearchDialog.hh \
 	Theme.cc Theme.hh \

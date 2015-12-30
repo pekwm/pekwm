@@ -16,7 +16,6 @@
 #include "InputDialog.hh"
 #include "KeyGrabber.hh"
 #include "x11.hh"
-#include "ScreenResources.hh"
 #include "Workspaces.hh"
 
 extern "C" {

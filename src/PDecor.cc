@@ -27,7 +27,6 @@ extern "C" {
 #include "PTexture.hh"
 #include "PTexturePlain.hh" // PTextureSolid
 #include "ActionHandler.hh"
-#include "ScreenResources.hh"
 #include "StatusWindow.hh"
 #include "KeyGrabber.hh"
 #include "Theme.hh"
@@ -289,9 +288,8 @@ PDecor::createBorder(CreateWindowParams &params)
     params.attr.event_mask = ButtonPressMask|ButtonReleaseMask|
         ButtonMotionMask|EnterWindowMask;
 
-    ScreenResources *sr = ScreenResources::instance();
     for (uint i = 0; i < BORDER_NO_POS; ++i) {
-        params.attr.cursor = sr->getCursor(ScreenResources::CursorType(i));
+        params.attr.cursor = X11::getCursor(CursorType(i));
 
         _border_win[i] =
             XCreateWindow(X11::getDpy(), _window, -1, -1, 1, 1, 0,
@@ -1181,8 +1179,7 @@ PDecor::doMove(int x_root, int y_root)
 
     StatusWindow *sw = StatusWindow::instance(); // convenience
 
-    if (! X11::grabPointer(X11::getRoot(), ButtonMotionMask|ButtonReleaseMask,
-                         ScreenResources::instance()->getCursor(ScreenResources::CURSOR_MOVE))) {
+    if (! X11::grabPointer(X11::getRoot(), ButtonMotionMask|ButtonReleaseMask, CURSOR_MOVE)) {
         return;
     }
 
@@ -1313,8 +1310,7 @@ PDecor::doKeyboardMoveResize(void)
 {
     StatusWindow *sw = StatusWindow::instance(); // convenience
 
-    if (! X11::grabPointer(X11::getRoot(), NoEventMask,
-                         ScreenResources::instance()->getCursor(ScreenResources::CURSOR_MOVE))) {
+    if (! X11::grabPointer(X11::getRoot(), NoEventMask, CURSOR_MOVE)) {
         return;
     }
     if (! X11::grabKeyboard(X11::getRoot())) {

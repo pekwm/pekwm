@@ -1,6 +1,6 @@
 //
 // X11.cc for pekwm
-// Copyright © 2003-2011 Claes Nästén <me@pekdon.net>
+// Copyright © 2009-2015 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -21,6 +21,7 @@ using std::numeric_limits;
 extern "C" {
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <X11/cursorfont.h>
 #ifdef HAVE_SHAPE
 #include <X11/extensions/shape.h>
 #endif // HAVE_SHAPE
@@ -41,6 +42,7 @@ unsigned int xerrors_count = 0;
 
 #include "x11.hh"
 // FIXME: Remove when strut handling is moved away from here.
+#include "Debug.hh"
 #include "PWinObj.hh"
 #include "ManagerWindows.hh"
 
@@ -202,6 +204,23 @@ X11::init(Display *dpy, bool honour_randr)
     _screen_gm.width = WidthOfScreen(ScreenOfDisplay(_dpy, _screen));
     _screen_gm.height = HeightOfScreen(ScreenOfDisplay(_dpy, _screen));
 
+    // create resize cursors
+    _cursor_map[CURSOR_TOP_LEFT] = XCreateFontCursor(_dpy, XC_top_left_corner);
+    _cursor_map[CURSOR_TOP] = XCreateFontCursor(_dpy, XC_top_side);
+    _cursor_map[CURSOR_TOP_RIGHT] = XCreateFontCursor(_dpy, XC_top_right_corner);
+    _cursor_map[CURSOR_LEFT] = XCreateFontCursor(_dpy, XC_left_side);
+    _cursor_map[CURSOR_RIGHT] = XCreateFontCursor(_dpy, XC_right_side);
+    _cursor_map[CURSOR_BOTTOM_LEFT] =
+        XCreateFontCursor(_dpy, XC_bottom_left_corner);
+    _cursor_map[CURSOR_BOTTOM] = XCreateFontCursor(_dpy, XC_bottom_side);
+    _cursor_map[CURSOR_BOTTOM_RIGHT] =
+        XCreateFontCursor(_dpy, XC_bottom_right_corner);
+    // create other cursors
+    _cursor_map[CURSOR_ARROW] = XCreateFontCursor(_dpy, XC_left_ptr);
+    _cursor_map[CURSOR_MOVE]  = XCreateFontCursor(_dpy, XC_fleur);
+    _cursor_map[CURSOR_RESIZE] = XCreateFontCursor(_dpy, XC_plus);
+    _cursor_map[CURSOR_NONE] = None;
+
 #ifdef HAVE_SHAPE
     {
         int dummy_error;
@@ -265,6 +284,10 @@ X11::destruct(void) {
 
     if (_modifier_map) {
         XFreeModifiermap(_modifier_map);
+    }
+
+    for (const auto &cursor : _cursor_map) {
+        XFreeCursor(_dpy, cursor);
     }
 
     // Under certain circumstances trying to restart pekwm can cause it to
@@ -433,18 +456,14 @@ X11::ungrabKeyboard(void)
 
 //! @brief Grabs the pointer
 bool
-X11::grabPointer(Window win, uint event_mask, Cursor cursor)
+X11::grabPointer(Window win, uint event_mask, CursorType cursor_type)
 {
     if (XGrabPointer(_dpy, win, false, event_mask, GrabModeAsync, GrabModeAsync,
-                     None, cursor, CurrentTime) == GrabSuccess) {
+                     None, _cursor_map[cursor_type], CurrentTime) == GrabSuccess) {
         return true;
     }
-#ifdef DEBUG
-    cerr << __FILE__ << "@" << __LINE__ << ": "
-         << "X11()::grabPointer(" << win << ","
-         << event_mask << "," << cursor << ")" << endl
-         << " *** unable to grab pointer." << endl;
-#endif // DEBUG
+    LOG("X11()::grabPointer(" << win << "," << event_mask << "," << cursor_type <<
+        ") *** unable to grab pointer.");
     return false;
 }
 
@@ -983,3 +1002,4 @@ Strut X11::_strut;
 vector<Strut*> X11::_struts;
 vector<X11::ColorEntry*> X11::_colours;
 XColor X11::_xc_default;
+std::array<Cursor, MAX_NR_CURSOR> X11::_cursor_map;

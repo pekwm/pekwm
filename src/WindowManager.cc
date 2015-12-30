@@ -18,7 +18,6 @@
 #include "Client.hh"
 #include "WindowManager.hh"
 
-#include "ScreenResources.hh"
 #include "ActionHandler.hh"
 #include "AutoProperties.hh"
 #include "Config.hh"
@@ -156,7 +155,6 @@ WindowManager::destroy(void)
 
 //! @brief Constructor for WindowManager class
 WindowManager::WindowManager(const std::string &config_file) :
-        _screen_resources(0),
         _keygrabber(0),
         _config(0),
         _font_handler(0), _texture_handler(0),
@@ -213,7 +211,6 @@ WindowManager::~WindowManager(void)
     delete _theme;
     delete _font_handler;
     delete _texture_handler;
-    delete _screen_resources;
 
     X11::destruct();
 }
@@ -317,7 +314,6 @@ WindowManager::setupDisplay(bool replace)
     _action_handler = new ActionHandler();
 
     // load colors, fonts
-    _screen_resources = new ScreenResources();
     _theme = new Theme;
 
     _autoproperties = new AutoProperties();
@@ -335,8 +331,7 @@ WindowManager::setupDisplay(bool replace)
     _status_window = new StatusWindow(_theme);
     _workspace_indicator = new WorkspaceIndicator{_theme};
 
-    XDefineCursor(dpy, X11::getRoot(),
-                  _screen_resources->getCursor(ScreenResources::CURSOR_ARROW));
+    XDefineCursor(dpy, X11::getRoot(), X11::getCursor(CURSOR_ARROW));
 
 #ifdef HAVE_XRANDR
     XRRSelectInput(dpy, X11::getRoot(), RRScreenChangeNotifyMask);

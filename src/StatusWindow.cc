@@ -13,7 +13,6 @@
 #include "StatusWindow.hh"
 #include "x11.hh"
 #include "PTexture.hh"
-#include "ScreenResources.hh"
 #include "Theme.hh"
 #include "Workspaces.hh"
 

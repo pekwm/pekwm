@@ -15,7 +15,6 @@
 #include "x11.hh"
 #include "PTexture.hh"
 #include "PDecor.hh"
-#include "ScreenResources.hh"
 #include "Theme.hh"
 #include "AutoProperties.hh"
 #include "WindowManager.hh"

@@ -28,7 +28,6 @@ extern "C" {
 #include "ActionHandler.hh"
 #include "AutoProperties.hh"
 #include "Client.hh"
-#include "ScreenResources.hh"
 #include "StatusWindow.hh"
 #include "Workspaces.hh"
 #include "WindowManager.hh"
@@ -996,8 +995,8 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: r
     }
 
     bool status = X11::grabPointer(X11::getRoot(),
-                                       ButtonReleaseMask|PointerMotionMask,
-                                       None);
+                                   ButtonReleaseMask|PointerMotionMask,
+                                   CURSOR_NONE);
     if (status != true) {
         return;
     }
@@ -1160,7 +1159,7 @@ Frame::doResize(bool left, bool x, bool top, bool y)
     }
 
     if (! X11::grabPointer(X11::getRoot(), ButtonMotionMask|ButtonReleaseMask,
-                            ScreenResources::instance()->getCursor(ScreenResources::CURSOR_RESIZE))) {
+                           CURSOR_RESIZE)) {
         return;
     }
 

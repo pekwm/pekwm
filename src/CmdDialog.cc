@@ -23,7 +23,6 @@ extern "C" {
 #include "CmdDialog.hh"
 #include "Config.hh"
 #include "KeyGrabber.hh"
-#include "ScreenResources.hh"
 #include "Workspaces.hh"
 
 using std::cerr;

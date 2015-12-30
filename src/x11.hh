@@ -14,6 +14,7 @@
 #include "pekwm.hh"
 
 #include <string>
+#include <array>
 
 extern "C" {
 #include <X11/Xlib.h>
@@ -132,12 +133,14 @@ public:
     inline static bool hasExtensionXRandr(void) { return _has_extension_xrandr; }
     inline static int getEventXRandr(void) { return _event_xrandr; }
 
+    inline static Cursor getCursor(CursorType type) { return _cursor_map[type]; }
+
     static bool getNextEvent(XEvent &ev);
     static bool grabServer(void);
     static bool ungrabServer(bool sync);
     static bool grabKeyboard(Window win);
     static bool ungrabKeyboard(void);
-    static bool grabPointer(Window win, uint event_mask, Cursor cursor);
+    static bool grabPointer(Window win, uint event_mask, CursorType);
     static bool ungrabPointer(void);
 
     static uint getNearestHead(int x, int y);
@@ -479,6 +482,8 @@ private:
 
     static Strut _strut;
     static vector<Strut*> _struts;
+
+    static std::array<Cursor, MAX_NR_CURSOR> _cursor_map;
 
     class ColorEntry;
     static std::vector<ColorEntry *> _colours;

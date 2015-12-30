@@ -10,7 +10,6 @@
 
 #include "PImage.hh"
 #include "x11.hh"
-#include "ScreenResources.hh"
 #include "Util.hh"
 
 #include <iostream>

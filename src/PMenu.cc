@@ -16,7 +16,6 @@
 #include "PTexturePlain.hh"
 #include "ActionHandler.hh"
 #include "Config.hh"
-#include "ScreenResources.hh"
 #include "TextureHandler.hh"
 #include "Theme.hh"
 #include "Workspaces.hh"

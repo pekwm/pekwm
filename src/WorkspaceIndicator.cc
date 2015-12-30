@@ -11,7 +11,6 @@
 #include <iostream>
 
 #include "Config.hh"
-#include "ScreenResources.hh"
 #include "Workspaces.hh"
 #include "WorkspaceIndicator.hh"
 #include "x11.hh"

@@ -181,7 +181,6 @@ private:
     Frame *findGroupMatch(AutoProperty *property);
 
 private:
-    ScreenResources *_screen_resources;
     KeyGrabber *_keygrabber;
     Config *_config;
     FontHandler *_font_handler;
