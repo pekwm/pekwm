@@ -297,9 +297,9 @@ splitString(const string str, vector<string> &toks, const char *sep, uint max, b
     string token;
     token.reserve(str.size());
     bool in_escape = false;
-    int num_tokens = 1;
+    uint num_tokens = 1;
 
-    auto it = str.begin() + start;
+    auto it = str.cbegin() + start;
     for (; it != str.cend() && (max == 0 || num_tokens < max); ++it) {
         if (in_escape) {
             token += *it;
