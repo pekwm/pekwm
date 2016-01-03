@@ -38,7 +38,6 @@ set(pekwm_SOURCES
   PImage.cc
   PImageIcon.cc
   RegexString.cc
-  ScreenResources.cc
   StatusWindow.cc
   SearchDialog.cc
   Theme.cc
