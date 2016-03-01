@@ -906,6 +906,15 @@
         </listitem>
       </varlistentry>
       <varlistentry>
+        <term>GotoItem (int)</term>
+        <listitem>
+          <para>
+            Goes to item number int. First item in menu is 1.
+          </para>
+          <para>Menu-specific keybinding</para>
+        </listitem>
+      </varlistentry>
+      <varlistentry>
         <term>Select</term>
         <listitem>
           <para>

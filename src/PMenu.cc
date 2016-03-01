@@ -948,12 +948,6 @@ void
 PMenu::selectItemNum(uint num)
 {
     if (num >= _items.size()) {
-#ifdef DEBUG
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "PMenu(" << this << ")::selectItem(" << num << ")"
-             << " *** num > _items.size()[" << _items.size()
-             << "]" << endl;
-#endif // DEBUG
         return;
     }
 

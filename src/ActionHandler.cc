@@ -237,6 +237,9 @@ ActionHandler::handleAction(const ActionPerformed &ap)
             case ACTION_MENU_PREV:
                 menu->selectPrevItem();
                 break;
+            case ACTION_MENU_GOTO:
+                menu->selectItemNum(it->getParamI(0));
+                break;
             case ACTION_MENU_SELECT:
                 menu->exec(menu->getItemCurr());
 
