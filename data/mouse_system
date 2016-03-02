@@ -149,6 +149,12 @@ Root {
 	ButtonRelease = "Shift 5" { Actions = "GoToWorkspace Down" }
 	ButtonRelease = "Mod1 Shift 4" { Actions = "GoToWorkspace NextV" }
 	ButtonRelease = "Mod1 Shift 5" { Actions = "GoToWorkspace PrevV" }
+	# "Number" movement
+	ButtonRelease = "Mod4 4" { Actions = "GoToWorkspace RightN" }
+	ButtonRelease = "Mod4 5" { Actions = "GoToWorkspace LeftN" }
+	ButtonRelease = "Mod4 Shift 4" { Actions = "GoToWorkspace NextN" }
+	ButtonRelease = "Mod4 Shift 5" { Actions = "GoToWorkspace PrevN" }
+
 	ButtonRelease = "1" { Actions = "HideAllMenus" }
 }
 

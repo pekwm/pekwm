@@ -24,6 +24,8 @@ Global {
 	KeyPress = "Ctrl Mod1 Right" { Actions = "GotoWorkspace Right" }
 	KeyPress = "Ctrl Mod1 Up" { Actions = "GotoWorkspace Up" }
 	KeyPress = "Ctrl Mod1 Down" { Actions = "GotoWorkspace Down" }
+	KeyPress = "Ctrl Mod4 Shift Left" { Actions = "GotoWorkspace LeftN" }
+	KeyPress = "Ctrl Mod4 Shift Right" { Actions = "GotoWorkspace RightN" }
 	KeyPress = "Mod4 1" { Actions = "GotoWorkspace 1" }
 	KeyPress = "Mod4 2" { Actions = "GotoWorkspace 2" }
 	KeyPress = "Mod4 3" { Actions = "GotoWorkspace 3" }

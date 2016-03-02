@@ -265,9 +265,13 @@ Config::Config(void) :
 
     _workspace_change_map[""] = WORKSPACE_NO;
     _workspace_change_map["LEFT"] = WORKSPACE_LEFT;
+    _workspace_change_map["LEFTN"] = WORKSPACE_LEFT_N;
     _workspace_change_map["PREV"] = WORKSPACE_PREV;
+    _workspace_change_map["PREVN"] = WORKSPACE_PREV_N;
     _workspace_change_map["RIGHT"] = WORKSPACE_RIGHT;
+    _workspace_change_map["RIGHTN"] = WORKSPACE_RIGHT_N;
     _workspace_change_map["NEXT"] = WORKSPACE_NEXT;
+    _workspace_change_map["NEXTN"] = WORKSPACE_NEXT_N;
     _workspace_change_map["PREVV"] = WORKSPACE_PREV_V;
     _workspace_change_map["UP"] = WORKSPACE_UP;
     _workspace_change_map["NEXTV"] = WORKSPACE_NEXT_V;
@@ -342,6 +346,7 @@ Config::Config(void) :
     _menu_action_map[""] = ACTION_MENU_NEXT;
     _menu_action_map["NEXTITEM"] = ACTION_MENU_NEXT;
     _menu_action_map["PREVITEM"] = ACTION_MENU_PREV;
+    _menu_action_map["GOTOITEM"] = ACTION_MENU_GOTO;
     _menu_action_map["SELECT"] = ACTION_MENU_SELECT;
     _menu_action_map["ENTERSUBMENU"] = ACTION_MENU_ENTER_SUBMENU;
     _menu_action_map["LEAVESUBMENU"] = ACTION_MENU_LEAVE_SUBMENU;
@@ -1424,8 +1429,19 @@ Config::parseMenuAction(const std::string &action_string, Action &action)
     // chop the string up separating the actions
     if (Util::splitString(action_string, tok, " \t", 2)) {
         action.setAction(ParseUtil::getValue<ActionType>(tok[0], _menu_action_map));
-        if (action.getAction() != ACTION_NO) {
-            return true;
+
+        switch (action.getAction()) {
+        case ACTION_MENU_GOTO:
+            if (tok.size() == 2) {
+                action.setParamI(0, strtol(tok[1].c_str(), 0, 10) - 1);
+                return true;
+            }
+            return false;
+        default:
+            if (action.getAction() == ACTION_NO) {
+                cerr << "UNKNOWN ACTION " << tok[0] << endl;
+            }
+            return action.getAction() != ACTION_NO;
         }
     }
 

@@ -632,24 +632,46 @@
             <itemizedlist>
               <listitem>
                 <para>
-                  left - go to the previous workspace
+                  left - go to the previous workspace on current row.
                 </para>
               </listitem>
               <listitem>
                 <para>
-                  prev - go to the previous workspace, if on first
-                  workspace, wrap to the last one.
+                  prev - go to the previous workspace on current row, if on first
+                  workspace, wrap to the last one on current row.
                 </para>
               </listitem>
               <listitem>
                 <para>
-                  right - go to the next workspace
+                  right - go to the next workspace on current row.
                 </para>
               </listitem>
               <listitem>
                 <para>
-                  next - go to the next workspace, if on last
-	          workspace, wrap to the first one.
+                  next - go to the next workspace on current row, if on last
+                  workspace, wrap to the first one on current row.
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  leftn - go to the previous workspace.
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  prevn - go to the previous workspace, if on first
+                  workspace, wrap to the last.
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  rightn - go to the next workspace.
+                </para>
+              </listitem>
+              <listitem>
+                <para>
+                  nextn - go to the next workspace, if on last
+                  workspace, wrap to the first.
                 </para>
               </listitem>
               <listitem>

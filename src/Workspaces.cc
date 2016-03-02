@@ -199,6 +199,18 @@ Workspaces::gotoWorkspace(uint direction, bool warp)
           switched = false;
         }
         break;
+    case WORKSPACE_PREV_N:
+    case WORKSPACE_LEFT_N:
+        dir = 1;
+
+        if (_active > 0) {
+            workspace = _active - 1;
+        } else if (direction == WORKSPACE_PREV_N) {
+            workspace = _workspaces.size() - 1;
+        } else {
+            switched = false;
+        }
+        break;
     case WORKSPACE_NEXT:
     case WORKSPACE_RIGHT:
         dir = 2;
@@ -207,6 +219,18 @@ Workspaces::gotoWorkspace(uint direction, bool warp)
             workspace = _active + 1;
         } else if (direction == WORKSPACE_NEXT) {
             workspace = row_min;
+        } else {
+            switched = false;
+        }
+        break;
+    case WORKSPACE_NEXT_N:
+    case WORKSPACE_RIGHT_N:
+        dir = 2;
+
+        if (_active < (_workspaces.size() - 1)) {
+            workspace = _active + 1;
+        } else if (direction == WORKSPACE_NEXT_N) {
+            workspace = 0;
         } else {
             switched = false;
         }
