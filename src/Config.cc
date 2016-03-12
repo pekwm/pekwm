@@ -346,7 +346,6 @@ Config::Config(void) :
     _menu_action_map[""] = ACTION_MENU_NEXT;
     _menu_action_map["NEXTITEM"] = ACTION_MENU_NEXT;
     _menu_action_map["PREVITEM"] = ACTION_MENU_PREV;
-    _menu_action_map["GOTOITEM"] = ACTION_MENU_GOTO;
     _menu_action_map["SELECT"] = ACTION_MENU_SELECT;
     _menu_action_map["ENTERSUBMENU"] = ACTION_MENU_ENTER_SUBMENU;
     _menu_action_map["LEAVESUBMENU"] = ACTION_MENU_LEAVE_SUBMENU;
@@ -1429,19 +1428,8 @@ Config::parseMenuAction(const std::string &action_string, Action &action)
     // chop the string up separating the actions
     if (Util::splitString(action_string, tok, " \t", 2)) {
         action.setAction(ParseUtil::getValue<ActionType>(tok[0], _menu_action_map));
-
-        switch (action.getAction()) {
-        case ACTION_MENU_GOTO:
-            if (tok.size() == 2) {
-                action.setParamI(0, strtol(tok[1].c_str(), 0, 10) - 1);
-                return true;
-            }
-            return false;
-        default:
-            if (action.getAction() == ACTION_NO) {
-                cerr << "UNKNOWN ACTION " << tok[0] << endl;
-            }
-            return action.getAction() != ACTION_NO;
+        if (action.getAction() != ACTION_NO) {
+            return true;
         }
     }
 
