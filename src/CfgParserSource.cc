@@ -36,7 +36,7 @@ CfgParserSourceFile::open(void)
     throw (std::string&)
 {
     if (_file) {
-        throw string("TRYING TO OPEN ALLREADY OPEN SOURCE");
+        throw string("TRYING TO OPEN ALREADY OPEN SOURCE");
     }
 
     _file = fopen(_name.c_str(), "r");

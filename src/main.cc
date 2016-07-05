@@ -150,7 +150,7 @@ main(int argc, char **argv)
         } catch (std::exception& ex) {
             cerr << "exception occurred: " << ex.what() << endl;
         } catch (string& ex) {
-            cerr << "unexpected error occured: " << ex << endl;
+            cerr << "unexpected error occurred: " << ex << endl;
         }
         WindowManager::destroy();
     }
