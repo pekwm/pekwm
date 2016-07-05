@@ -280,7 +280,6 @@ fi
 dnl define build info
 EVO=`date`
 AC_DEFINE_UNQUOTED(FEATURES, "$FEATURES", [Build info, do not touch])
-AC_DEFINE_UNQUOTED(EXTRA_VERSION_INFO, " Built on $EVO", [Build info, do not touch])
 
 dnl create the makefiles
 AC_OUTPUT(Makefile

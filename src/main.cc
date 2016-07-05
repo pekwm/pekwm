@@ -44,7 +44,7 @@ namespace Info {
 void
 printVersion(void)
 {
-    cout << "pekwm: version " << VERSION << EXTRA_VERSION_INFO << endl;
+    cout << "pekwm: version " << VERSION << endl;
 }
 
 //! @brief Prints version and availible options
