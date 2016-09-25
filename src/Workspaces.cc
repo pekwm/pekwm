@@ -740,9 +740,9 @@ Workspaces::findDirectional(PWinObj *wo, DirectionType dir, uint skip)
 
     PWinObj *found_wo = 0;
 
-    uint score = 0, score_min;
+    uint score, score_min;
     int wo_main, wo_sec;
-    int diff_main = 0;
+    int diff_main, diff_pos;
 
 #ifdef HAVE_LIMITS
     score_min = numeric_limits<uint>::max();
@@ -775,15 +775,19 @@ Workspaces::findDirectional(PWinObj *wo, DirectionType dir, uint skip)
         switch (dir) {
         case DIRECTION_UP:
             diff_main = wo_main - ((*it)->getY() + (*it)->getHeight() / 2);
+            diff_pos = wo->getY() - (*it)->getY();
             break;
         case DIRECTION_DOWN:
             diff_main = ((*it)->getY() + (*it)->getHeight() / 2) - wo_main;
+            diff_pos = (*it)->getBY() - wo->getBY();
             break;
         case DIRECTION_LEFT:
             diff_main = wo_main - ((*it)->getX() + (*it)->getWidth() / 2);
+            diff_pos = wo->getX() - (*it)->getX();
             break;
         case DIRECTION_RIGHT:
             diff_main = ((*it)->getX() + (*it)->getWidth() / 2) - wo_main;
+            diff_pos = (*it)->getRX() - wo->getRX();
             break;
         default:
             return 0; // no direction to search
@@ -791,6 +795,8 @@ Workspaces::findDirectional(PWinObj *wo, DirectionType dir, uint skip)
 
         if (diff_main < 0) {
             continue; // wrong direction
+        } else if (diff_pos <= 0) {
+            continue; // no difference in direction
         }
 
         score = diff_main;
