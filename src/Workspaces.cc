@@ -733,75 +733,90 @@ Workspaces::placeWoInsideScreen(PWinObj *wo)
 PWinObj*
 Workspaces::findDirectional(PWinObj *wo, DirectionType dir, uint skip)
 {
-    struct Triplet {
-        Triplet() : x(0), y(0), wo(0) { }
-        int x, y;
-        PWinObj *wo;
-        bool lessX(const Triplet &p) {
-            return x<p.x || (x==p.x && y<p.y) || (x==p.x && y==p.y && wo < p.wo);
-        }
-        bool lessY(const Triplet &p) {
-            return y<p.y || (y==p.y && x<p.x) || (x==p.x && y==p.y && wo < p.wo);
-        }
-    } S, T, N; // Start, Temp, Next
-
     // search from the frame not client, if client
     if (wo->getType() == PWinObj::WO_CLIENT) {
         wo = static_cast<Client*>(wo)->getParent();
     }
 
-    S.x = wo->getX()+wo->getWidth()/2;
-    S.y = wo->getY()+wo->getHeight()/2;
-    S.wo = N.wo = wo;
+    PWinObj *found_wo = 0;
+
+    uint score = 0, score_min;
+    int wo_main, wo_sec;
+    int diff_main = 0;
+
+#ifdef HAVE_LIMITS
+    score_min = numeric_limits<uint>::max();
+#else // !HAVE_LIMITS
+    score_min = ~0;
+#endif // HAVE_LIMITS
+
+    // init wo variables
+    if ((dir == DIRECTION_UP) || (dir == DIRECTION_DOWN)) {
+        wo_main = wo->getY() + wo->getHeight() / 2;
+        wo_sec = wo->getX() + wo->getWidth() / 2;
+    } else {
+        wo_main = wo->getX() + wo->getWidth() / 2;
+        wo_sec = wo->getY() + wo->getHeight() / 2;
+    }
 
     const_iterator it(_wobjs.begin());
     for (; it != _wobjs.end(); ++it) {
-        T.wo = *it;
-        if (wo == T.wo) {
-            continue;
+        if ((wo == (*it)) || ! ((*it)->isMapped())) {
+            continue; // skip ourselves and unmapped wo's
         }
-        if (T.wo->getType() != PWinObj::WO_FRAME ||
-                static_cast<Frame*>(T.wo)->isSkip(skip) ||
-                ! T.wo->isMapped()) {
+        if (((*it)->getType() != PWinObj::WO_FRAME) ||
+                static_cast<Frame*>(*it)->isSkip(skip)) {
             continue; // only include frames and not having skip set
         }
-        T.x = T.wo->getX()+T.wo->getWidth()/2;
-        T.y = T.wo->getY()+T.wo->getHeight()/2;
 
-        if (N.wo == S.wo) {
-            N = T;
-            continue;
-        }
-
+        // check main direction, making sure it's at the right side
+        // we check against the middle of the window as it gives a saner feeling
+        // than the edges IMHO
         switch (dir) {
         case DIRECTION_UP:
-            if ( (N.lessY(S) && T.lessY(S) && N.lessY(T)) ||
-                 (!N.lessY(S) && (T.lessY(S) || N.lessY(T))) ) {
-                N = T;
-            }
+            diff_main = wo_main - ((*it)->getY() + (*it)->getHeight() / 2);
             break;
         case DIRECTION_DOWN:
-            if ( (S.lessY(N) && S.lessY(T) && T.lessY(N)) ||
-                 (!S.lessY(N) && (S.lessY(T) || T.lessY(N))) ) {
-                N = T;
-            }
+            diff_main = ((*it)->getY() + (*it)->getHeight() / 2) - wo_main;
             break;
         case DIRECTION_LEFT:
-            if ( (N.lessX(S) && T.lessX(S) && N.lessX(T)) ||
-                 (!N.lessX(S) && (T.lessX(S) || N.lessX(T))) ) {
-                N = T;
-            }
+            diff_main = wo_main - ((*it)->getX() + (*it)->getWidth() / 2);
             break;
         case DIRECTION_RIGHT:
-            if ( (S.lessX(N) && S.lessX(T) && T.lessX(N)) ||
-                 (!S.lessX(N) && (S.lessX(T) || T.lessX(N))) ) {
-                N = T;
-            }
+            diff_main = ((*it)->getX() + (*it)->getWidth() / 2) - wo_main;
             break;
         default:
-            break;
+            return 0; // no direction to search
+        }
+
+        if (diff_main < 0) {
+            continue; // wrong direction
+        }
+
+        score = diff_main;
+
+        if ((dir == DIRECTION_UP) || (dir == DIRECTION_DOWN)) {
+            if ((wo_sec < (*it)->getX()) || (wo_sec > (*it)->getRX())) {
+                score += X11::getHeight() / 2;
+            }
+            score += abs (static_cast<long> (wo_sec - ((*it)->getX ()
+                                             + (*it)->getWidth () / 2)));
+
+        } else {
+            if ((wo_sec < (*it)->getY()) || (wo_sec > (*it)->getBY())) {
+                score += X11::getWidth() / 2;
+            }
+
+            score += abs (static_cast<long> (wo_sec - ((*it)->getY ()
+                                             + (*it)->getHeight () / 2)));
+        }
+
+        if (score < score_min) {
+            found_wo = *it;
+            score_min = score;
         }
     }
-    return N.wo;
+
+    return found_wo;
 }
 
