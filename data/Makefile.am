@@ -6,7 +6,8 @@ EXTRA_DIST = autoproperties autoproperties_typerules \
 	config config_system \
 	keys menu \
 	mouse mouse_system mouse_click mouse_sloppy \
-	start vars
+	start vars \
+	CMakeLists.txt
 cfgdatadir = $(sysconfdir)/pekwm
 cfgdata_DATA = autoproperties autoproperties_typerules \
 	config config_system \

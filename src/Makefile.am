@@ -1,6 +1,7 @@
 AUTOMAKE_OPTIONS = foreign
 
 CXXFLAGS = @CXXFLAGS@ -DSYSCONFDIR=\"$(sysconfdir)/pekwm\" -DDATADIR=\"$(datadir)\"
+EXTRA_DIST = CMakeLists.txt
 
 if DEBUG_INFRASTRUCTURE
 debugsource = Debug.cc

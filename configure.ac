@@ -292,7 +292,9 @@ AC_OUTPUT(Makefile
           data/scripts/Makefile
           doc/Makefile
           contrib/Makefile
-          contrib/lobo/Makefile)
+          contrib/lobo/Makefile
+          CMake/Makefile
+          CMake/Modules/Makefile)
 
 dnl print results
 AC_MSG_RESULT([*])
