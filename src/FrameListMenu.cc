@@ -263,6 +263,7 @@ FrameListMenu::handleIconmenu(Client *client)
 
     frame->raise();
     frame->mapWindow();
+    frame->giveInputFocus();
 }
 
 //! @brief Handles attach*menu presses
