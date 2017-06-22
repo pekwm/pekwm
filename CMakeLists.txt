@@ -7,11 +7,8 @@ include(CheckCXXCompilerFlag)
 project(pekwm)
 set(pekwm_VERSION_MAJOR 0)
 set(pekwm_VERSION_MINOR 1)
-set(pekwm_VERSION_PATCH 17)
+set(pekwm_VERSION_PATCH 18-rc1)
 set(pekwm_VERSION "${pekwm_VERSION_MAJOR}.${pekwm_VERSION_MINOR}.${pekwm_VERSION_PATCH}")
-
-string(TIMESTAMP build_date)
-set(pekwm_EXTRA_VERSION_INFO " Built on ${build_date}")
 
 # Check for C++11
 check_cxx_compiler_flag(-std=c++11 HAS_CXX11)
@@ -95,7 +92,6 @@ if (PEDANTIC)
 endif (PEDANTIC)
 
 add_definitions(-DVERSION="${pekwm_VERSION}"
-  -DEXTRA_VERSION_INFO="${pekwm_EXTRA_VERSION_INFO}"
   -DFEATURES="${pekwm_FEATURES}"
   -DDATADIR="${CMAKE_INSTALL_PREFIX}/share"
   -DSYSCONFDIR="${CMAKE_INSTALL_PREFIX}/etc/pekwm")

@@ -100,8 +100,8 @@ target_include_directories(pekwm PUBLIC ${pekwm_INCLUDE_DIRS})
 target_link_libraries(pekwm ${pekwm_LIBRARIES})
 
 # Use when CMake 3.1 is available/required
-#set_target_properties(pekwm PROPERTIES
-#  CXX_STANDARD 11
-#  CXX_STANDARD_REQUIRED ON)
+set_target_properties(pekwm PROPERTIES
+  CXX_STANDARD 11
+  CXX_STANDARD_REQUIRED ON)
 
 install(TARGETS pekwm DESTINATION bin)
