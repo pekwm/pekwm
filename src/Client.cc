@@ -1784,14 +1784,14 @@ Client::getWMNormalHints(void)
 
     // let's do some sanity checking
     if (_size->flags & PBaseSize) {
-        if (_size->base_width<0 || _size->base_height<0) {
+        if (_size->base_width < 1 || _size->base_height < 1) {
             _size->base_width = _size->base_height = 0;
             _size->flags &= ~PBaseSize;
         }
     }
     if (_size->flags & PAspect) {
-        if (_size->min_aspect.x < 0 || _size->min_aspect.y < 0 ||
-            _size->max_aspect.x < 0 || _size->max_aspect.y < 0) {
+        if (_size->min_aspect.x < 1 || _size->min_aspect.y < 1 ||
+            _size->max_aspect.x < 1 || _size->max_aspect.y < 1) {
 
             _size->min_aspect.x = _size->min_aspect.y = 0;
             _size->max_aspect.x = _size->max_aspect.y = 0;
@@ -1799,15 +1799,15 @@ Client::getWMNormalHints(void)
         }
     }
     if (_size->flags & PResizeInc) {
-        if (_size->width_inc <= 0 || _size->height_inc <= 0) {
+        if (_size->width_inc < 1 || _size->height_inc < 1) {
             _size->width_inc = 0;
             _size->height_inc = 0;
-            _size->flags &= ~PBaseSize;
+            _size->flags &= ~PResizeInc;
         }
     }
 
     if (_size->flags & PMaxSize) {
-        if (_size->max_width <= 0 || _size->max_height <= 0 ||
+        if (_size->max_width < 1 || _size->max_height < 1 ||
             ((_size->flags & PMinSize) &&
                 (_size->max_width < _size->min_width ||
                  _size->max_height < _size->min_height) )) {
