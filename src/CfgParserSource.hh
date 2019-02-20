@@ -71,8 +71,8 @@ public:
     /**< Return true if current source is dynamic. */
     bool isDynamic(void) const { return _is_dynamic; }
 
-    virtual bool open(void) throw (std::string&) { return false; }
-    virtual void close(void) throw (std::string&) { }
+    virtual bool open(void) { return false; }
+    virtual void close(void) { }
 
 protected:
     std::FILE *_file; /**< FILE object source is reading from. */
@@ -96,8 +96,8 @@ public:
     }
     virtual ~CfgParserSourceFile (void) { }
 
-    virtual bool open(void) throw (std::string&);
-    virtual void close(void) throw (std::string&);
+    virtual bool open(void);
+    virtual void close(void);
 };
 
 /**
@@ -115,8 +115,8 @@ public:
     }
     virtual ~CfgParserSourceCommand(void) { }
 
-    virtual bool open(void) throw (std::string&);
-    virtual void close(void) throw (std::string&);
+    virtual bool open(void);
+    virtual void close(void);
 
 private:
     pid_t _pid; /**< Process id of command generating output. */

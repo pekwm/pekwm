@@ -388,7 +388,6 @@ WindowManager::scanWindows(void)
         }
     }
 
-    Client *client;
     for (it = win_list.begin(); it != win_list.end(); ++it) {
         if (*it != None) {
             createClient(*it, false);
@@ -790,7 +789,7 @@ WindowManager::showWSIndicator(void) const
 void
 WindowManager::handleKeyEvent(XKeyEvent *ev)
 {
-    bool matched;
+    bool matched = false;
     ActionEvent *ae = 0;
     PWinObj *wo, *wo_orig;
     wo = wo_orig = PWinObj::getFocusedPWinObj();

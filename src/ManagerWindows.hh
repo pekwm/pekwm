@@ -23,7 +23,7 @@
 class HintWO : public PWinObj
 {
 public:
-    HintWO(Window root, bool replace) throw (std::string&);
+    HintWO(Window root, bool replace);
     virtual ~HintWO(void);
 
     inline static HintWO *instance(void) { return _instance; }

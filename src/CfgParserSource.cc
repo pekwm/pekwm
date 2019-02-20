@@ -33,7 +33,6 @@ unsigned int CfgParserSourceCommand::_sigaction_counter = 0;
  */
 bool
 CfgParserSourceFile::open(void)
-    throw (std::string&)
 {
     if (_file) {
         throw string("TRYING TO OPEN ALREADY OPEN SOURCE");
@@ -49,7 +48,6 @@ CfgParserSourceFile::open(void)
 
 void
 CfgParserSourceFile::close(void)
-    throw (std::string&)
 {
     if (! _file) {
         throw string("trying to close already closed source");
@@ -64,7 +62,6 @@ CfgParserSourceFile::close(void)
  */
 bool
 CfgParserSourceCommand::open(void)
-    throw (std::string&)
 {
     int fd[2];
     int status;
@@ -118,7 +115,6 @@ CfgParserSourceCommand::open(void)
  */
 void
 CfgParserSourceCommand::close(void)
-    throw (std::string&)
 {
     if (_sigaction_counter < 1) {
         return;

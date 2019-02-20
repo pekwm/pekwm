@@ -30,7 +30,7 @@ vector<PImageLoader*> PImage::_loaders;
  * @param dpy Display image is valid on.
  * @param path Path to image file, if specified this is loaded.
  */
-PImage::PImage(const std::string &path) throw(LoadException&)
+PImage::PImage(const std::string &path)
     : _type(IMAGE_TYPE_NO), _pixmap(None), _mask(None), _width(0), _height(0),
       _data(0), _has_alpha(false), _use_alpha(false)
 {
