@@ -2382,6 +2382,8 @@ Frame::handlePropertyChange(XPropertyEvent *ev, Client *client)
                 incrAttention();
             }
         }
+    } else if (ev->atom == X11::getAtom(WM_PROTOCOLS)) {
+      client->getWMProtocols();
     }
 }
 
