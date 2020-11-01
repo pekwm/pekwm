@@ -1593,7 +1593,7 @@ Config::copyConfigFiles(void)
         if (! cfg_dir_ok) {
             if (! (stat_buf.st_mode&S_IWOTH) || ! (stat_buf.st_mode&(S_IXOTH))) {
                 cerr << "You don't have the rights to add files to the: " << cfg_dir
-                << " directory! Therefor I can't copy the config files!" << endl;
+                << " directory! Therefore I can't copy the config files!" << endl;
                 return;
             }
         }
