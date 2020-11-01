@@ -7,7 +7,7 @@ include(CheckCXXCompilerFlag)
 project(pekwm)
 set(pekwm_VERSION_MAJOR 0)
 set(pekwm_VERSION_MINOR 1)
-set(pekwm_VERSION_PATCH 18-rc1)
+set(pekwm_VERSION_PATCH 18)
 set(pekwm_VERSION "${pekwm_VERSION_MAJOR}.${pekwm_VERSION_MINOR}.${pekwm_VERSION_PATCH}")
 
 # Check for C++11

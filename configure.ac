@@ -1,7 +1,7 @@
 m4_pattern_allow(AM_CONFIG_HEADERS)
 
 dnl init autotools
-AC_INIT(pekwm, 0.1.18-rc1)
+AC_INIT(pekwm, 0.1.18)
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 AC_CONFIG_HEADERS(config.h)
