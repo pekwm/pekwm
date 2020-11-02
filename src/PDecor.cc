@@ -10,7 +10,6 @@
 
 #include <functional>
 #include <algorithm>
-using std::mem_fun;
 
 extern "C" {
 #include <X11/Xlib.h>
@@ -334,7 +333,7 @@ PDecor::mapWindow(void)
     if (! _mapped) {
         PWinObj::mapWindow();
         for_each(_children.begin(), _children.end(),
-                 mem_fun(&PWinObj::mapWindow));
+                 std::mem_fn(&PWinObj::mapWindow));
     }
 }
 
@@ -358,10 +357,10 @@ PDecor::unmapWindow(void)
     if (_mapped) {
         if (_iconified) {
             for_each(_children.begin(), _children.end(),
-                     mem_fun(&PWinObj::iconify));
+                     std::mem_fn(&PWinObj::iconify));
         } else {
             for_each(_children.begin(), _children.end(),
-                     mem_fun(&PWinObj::unmapWindow));
+                     std::mem_fn(&PWinObj::unmapWindow));
         }
         PWinObj::unmapWindow();
     }

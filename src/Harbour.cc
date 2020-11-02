@@ -22,7 +22,6 @@
 #include <algorithm>
 #include <functional>
 
-using std::mem_fun;
 using std::find;
 #ifdef DEBUG
 #include <iostream>
@@ -202,7 +201,7 @@ Harbour::rearrange(void)
 void
 Harbour::loadTheme(void)
 {
-    for_each(_dapps.begin(), _dapps.end(), mem_fun(&DockApp::loadTheme));
+    for_each(_dapps.begin(), _dapps.end(), std::mem_fn(&DockApp::loadTheme));
 }
 
 //! @brief Updates the harbour max size variable.
@@ -247,10 +246,12 @@ Harbour::setStateHidden(StateAction sa)
 
     if (_hidden) {
         // Show if currently hidden.
-        for_each(_dapps.begin(), _dapps.end(), mem_fun(&DockApp::mapWindow));
+        for_each(_dapps.begin(), _dapps.end(),
+                 std::mem_fn(&DockApp::mapWindow));
     } else {
         // Hide if currently visible.
-        for_each(_dapps.begin(), _dapps.end(), mem_fun(&DockApp::unmapWindow));
+        for_each(_dapps.begin(), _dapps.end(),
+                 std::mem_fn(&DockApp::unmapWindow));
     }
 
     _hidden = !_hidden;

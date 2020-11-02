@@ -67,7 +67,6 @@ using std::cerr;
 using std::endl;
 using std::find;
 using std::map;
-using std::mem_fun;
 using std::string;
 using std::vector;
 using std::wstring;
@@ -528,7 +527,8 @@ WindowManager::doReloadConfig(void)
     if ((old_client_unique_name != _config->getClientUniqueName()) ||
         (old_client_unique_name_pre != _config->getClientUniqueNamePre()) ||
         (old_client_unique_name_post != _config->getClientUniqueNamePost())) {
-        for_each(Client::client_begin(), Client::client_end(), mem_fun(&Client::readName));
+        for_each(Client::client_begin(), Client::client_end(),
+                 std::mem_fn(&Client::readName));
     }
 
     // Resize the screen edge
@@ -550,7 +550,8 @@ WindowManager::doReloadTheme(void)
     }
 
     // Reload the themes on all decors
-    for_each(PDecor::pdecor_begin(), PDecor::pdecor_end(), mem_fun(&PDecor::loadDecor));
+    for_each(PDecor::pdecor_begin(), PDecor::pdecor_end(),
+             std::mem_fn(&PDecor::loadDecor));
 }
 
 /**
@@ -563,7 +564,8 @@ WindowManager::doReloadMouse(void)
         return;
     }
 
-    for_each(Client::client_begin(), Client::client_end(), mem_fun(&Client::grabButtons));
+    for_each(Client::client_begin(), Client::client_end(),
+             std::mem_fn(&Client::grabButtons));
 }
 
 /**
