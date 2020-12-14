@@ -25,7 +25,6 @@ set(pekwm_SOURCES
   ImageHandler.cc
   InputDialog.cc
   KeyGrabber.cc
-  LayouterTiling.cc
   ManagerWindows.cc
   MenuHandler.cc
   Observable.cc

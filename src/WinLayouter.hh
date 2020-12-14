@@ -16,22 +16,18 @@ class Frame;
 
 class WinLayouter {
 public:
-    WinLayouter(bool tiling) : _tiling(tiling) {}
+    WinLayouter() {}
     virtual ~WinLayouter() {}
 
-    bool isTiling(void) const { return _tiling; }
-
     void layout(Frame *f, Window parent);
-    virtual void setOption(std::vector<std::string> &, Frame *);
 
 protected:
-    // temp. variables that get filled in by layout() (if !_tiling).
+    // temp. variables that get filled in by layout()
     static int _ptr_x, _ptr_y; // mouse pointer coordinates
     static Geometry _gm; // geometry of the head
 
 private:
     bool placeOnParent(Frame *f, Window parent);
-    bool _tiling;
 
     virtual bool layout_impl(Frame *f)=0;
 };

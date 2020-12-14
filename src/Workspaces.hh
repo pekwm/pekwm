@@ -36,7 +36,6 @@ public:
     inline WinLayouter *getLayouter(void) const {
         return _layouter?_layouter:_default_layouter;
     }
-    void setLayouter(WinLayouter *);
     static void setDefaultLayouter(const std::string &);
 
     inline PWinObj* getLastFocused(void) const { return _last_focused; }
@@ -89,19 +88,6 @@ public:
 
     static void layout(Frame *f=0, Window parent=None) {
         _workspaces[_active].getLayouter()->layout(f, parent);
-    }
-    static void layoutOnce(const std::string &layouter);
-    static void setLayouter(uint workspace, const std::string &layouter);
-    static void setLayouterOption(const std::string &option, Frame *);
-    static bool isTiling(void) { return isTiling(_active); }
-    static bool isTiling(uint ws) {
-        return ws < _workspaces.size()?_workspaces[ws].getLayouter()->isTiling():false;
-    }
-
-    static void layoutIfTiling(Frame *f=0) {
-        if (isTiling(_active)) {
-            layout(f);
-        }
     }
 
     static void insert(PWinObj* wo, bool raise = true);

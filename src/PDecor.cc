@@ -164,7 +164,6 @@ const string PDecor::DEFAULT_DECOR_NAME = string("DEFAULT");
 const string PDecor::DEFAULT_DECOR_NAME_BORDERLESS = string("BORDERLESS");
 const string PDecor::DEFAULT_DECOR_NAME_TITLEBARLESS = string("TITLEBARLESS");
 const string PDecor::DEFAULT_DECOR_NAME_ATTENTION = string("ATTENTION");
-const string PDecor::DEFAULT_DECOR_NAME_TILING = string("TILING");
 
 vector<PDecor*> PDecor::_pdecors;
 
@@ -1258,7 +1257,6 @@ PDecor::doMove(int x_root, int y_root)
     }
 
     X11::ungrabPointer();
-    Workspaces::layoutIfTiling();
 }
 
 //! @brief Matches cordinates against screen edge
@@ -1464,9 +1462,6 @@ PDecor::setSkip(uint skip)
 std::string
 PDecor::getDecorName(void)
 {
-    if (Workspaces::isTiling(_workspace) && allowTiling()) {
-        return DEFAULT_DECOR_NAME_TILING;
-    }
     if (_attention) {
         return DEFAULT_DECOR_NAME_ATTENTION;
     }

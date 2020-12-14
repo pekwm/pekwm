@@ -116,28 +116,21 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 gotoClient(client);
                 break;
             case ACTION_MAXFILL:
-                if (! Workspaces::isTiling(frame->getWorkspace()) || ! frame->allowTiling()) {
-                    frame->setStateMaximized(STATE_SET,
-                                             it->getParamI(0), it->getParamI(1), true);
-                }
+                frame->setStateMaximized(STATE_SET,
+                                         it->getParamI(0), it->getParamI(1), true);
                 break;
             case ACTION_GROW_DIRECTION:
-                if (! Workspaces::isTiling(frame->getWorkspace()) || ! frame->allowTiling()) {
-                    frame->growDirection(it->getParamI(0));
-                }
+                frame->growDirection(it->getParamI(0));
                 break;
             case ACTION_RESIZE:
-                if (! Workspaces::isTiling(frame->getWorkspace()) || ! frame->allowTiling()) {
-                    if (ap.type == MotionNotify && ! it->getParamI(0))
-                        frame->doResize(ap.event.motion);
-                    else
-                        frame->doResize(BorderPosition(it->getParamI(0)-1));
+                if (ap.type == MotionNotify && ! it->getParamI(0)) {
+                    frame->doResize(ap.event.motion);
+                } else {
+                    frame->doResize(BorderPosition(it->getParamI(0)-1));
                 }
                 break;
             case ACTION_MOVE_RESIZE:
-                if (! Workspaces::isTiling(frame->getWorkspace()) || ! frame->allowTiling()) {
-                    frame->doKeyboardMoveResize();
-                }
+                frame->doKeyboardMoveResize();
                 break;
             case ACTION_CLOSE:
                 client->close();
@@ -216,9 +209,6 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 break;
             case ACTION_SET_OPACITY:
                 actionSetOpacity(client, frame, it->getParamI(0), it->getParamI(1));
-                break;
-            case ACTION_SET_LAYOUTER_OPTION:
-                Workspaces::setLayouterOption(it->getParamS(), frame);
                 break;
             default:
                 matched = false;
@@ -361,16 +351,6 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 break;
             case ACTION_SHOW_SEARCH_DIALOG:
                 actionShowInputDialog(WindowManager::instance()->getSearchDialog(), it->getParamS(), frame, wo);
-                break;
-            case ACTION_LAYOUT_ONCE:
-                Workspaces::layoutOnce(it->getParamS());
-                break;
-            case ACTION_SET_LAYOUTER:
-                Workspaces::setLayouter(Workspaces::getActive(), it->getParamS());
-                Workspaces::layout();
-                break;
-            case ACTION_SET_LAYOUTER_OPTION:
-                Workspaces::setLayouterOption(it->getParamS(), 0);
                 break;
             case ACTION_DEBUG:
 #ifdef DEBUG

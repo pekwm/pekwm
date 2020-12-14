@@ -8,7 +8,6 @@
 
 #include "pekwm.hh"
 #include "WinLayouter.hh"
-#include "LayouterTiling.hh"
 
 #include "Client.hh"
 #include "Frame.hh"
@@ -71,7 +70,7 @@ isEmptySpace(int x, int y, const PWinObj* wo, vector<PWinObj*> &wvec)
 //! @todo What should we do about Xinerama as when we don't have it enabled we care about the struts.
 class LayouterSmart : public WinLayouter {
 public:
-    LayouterSmart() : WinLayouter(false) {}
+    LayouterSmart() : WinLayouter() {}
     virtual ~LayouterSmart() {}
 
 private:
@@ -154,7 +153,7 @@ private:
 //! @brief Places the wo in a corner of the screen not under the pointer
 class LayouterMouseNotUnder : public WinLayouter {
 public:
-    LayouterMouseNotUnder() : WinLayouter(false) {}
+    LayouterMouseNotUnder() : WinLayouter() {}
     virtual ~LayouterMouseNotUnder() {}
 
     virtual bool layout_impl(Frame *wo)
@@ -194,7 +193,7 @@ public:
 //! @brief Places the client centered under the mouse
 class LayouterMouseCentred : public WinLayouter {
 public:
-    LayouterMouseCentred() : WinLayouter(false) {}
+    LayouterMouseCentred() : WinLayouter() {}
     ~LayouterMouseCentred() {}
 
 private:
@@ -215,7 +214,7 @@ private:
 //! @brief Places the client like the menu gets placed
 class LayouterMouseTopLeft : public WinLayouter {
 public:
-    LayouterMouseTopLeft() : WinLayouter(false) {}
+    LayouterMouseTopLeft() : WinLayouter() {}
 
 private:
     virtual bool layout_impl(Frame *wo)
@@ -234,11 +233,6 @@ WinLayouter::layout(Frame *frame, Window parent)
 {
     if (frame) {
         frame->updateDecor();
-    }
-
-    if (_tiling) {
-        layout_impl(frame);
-        return;
     }
 
     if (frame && parent != None
@@ -293,71 +287,6 @@ WinLayouter::layout(Frame *frame, Window parent)
     frame->move(_gm.x, _gm.y);
 }
 
-void
-WinLayouter::setOption(vector<string> &opt, Frame *frame)
-{
-    vector<string>::size_type nropts = opt.size();
-
-    // If frame == 0 (perhaps SetPlacementOption was called by a menu entry),
-    // try to get a frame.
-    if (! frame) {
-        if (! (frame = dynamic_cast<Frame*>(PWinObj::getFocusedPWinObj()))) {
-            vector<Frame *>::const_iterator it = WindowManager::instance()->mru_begin();
-            vector<Frame *>::const_iterator end = WindowManager::instance()->mru_begin();
-            for (; it != end; ++it) {
-                if ((*it)->isMapped()) {
-                    frame = *it;
-                    break;
-                }
-            }
-            if (! frame) {
-                return;
-            }
-        }
-    }
-
-    if (! strcasecmp(opt[0].c_str(), "switchgeometry")) {
-        Frame *last = frame;
-        vector<Frame*>::const_iterator it, end;
-
-        if (nropts > 1 && Util::isTrue(opt[1])) {
-            it = WindowManager::instance()->mru_begin();
-            end = WindowManager::instance()->mru_end();
-            for (; it != end; ++it) {
-                last = *it;
-                if (last != frame && last->isMapped() && ! last->isShaded()) {
-                    break;
-                }
-            }
-        } else {
-            end = Frame::frame_end();
-            it = find(Frame::frame_begin(), end, frame);
-
-            do {
-                if (++it == end)
-                    it = Frame::frame_begin();
-                last = *it;
-            } while (last != frame && (!last->isMapped() || last->isShaded()));
-        }
-
-        if (it != end && last != frame) {
-            int x = frame->getX();
-            int y = frame->getY();
-            uint w = frame->getWidth();
-            uint h = frame->getHeight();
-
-            frame->moveResize(last->getX(), last->getY(),
-                              last->getWidth(), last->getHeight());
-            last->moveResize(x, y, w, h);
-
-            if (nropts > 2 && Util::isTrue(opt[2])) {
-                last->raise();
-                last->giveInputFocus();
-            }
-        }
-    }
-}
-
 bool
 WinLayouter::placeOnParent(Frame *wo, Window parent)
 {
@@ -391,33 +320,5 @@ WinLayouter *WinLayouterFactory(std::string l) {
     if (! strcmp(str, "MOUSETOPLEFT")) {
         return new LayouterMouseTopLeft;
     }
-    if (! strncmp("TILE_", str, 5)) {
-        str += 5;
-        if (! strcmp("BOXED", str)) {
-            return new LayouterBoxed(false);
-        }
-        if (! strcmp("CENTERONE", str)) {
-            return new LayouterBoxed(true);
-        }
-        if (! strcmp("DWINDLE", str)) {
-            return new LayouterDwindle;
-        }
-        if (! strcmp("FIBONACCI", str)) {
-            return new LayouterFibonacci;
-        }
-        if (! strcmp("HORIZ", str)) {
-            return new LayouterLayers(true);
-        }
-        if (! strcmp("STACKED", str)) {
-            return new LayouterStacked;
-        }
-        if (! strcmp("TRIPLE", str)) {
-            return new LayouterTriple;
-        }
-        if (! strcmp("VERT", str)) {
-            return new LayouterLayers(false);
-        }
-    }
-
     return 0;
 }

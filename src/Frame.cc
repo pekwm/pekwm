@@ -219,7 +219,6 @@ Frame::stick(void)
 
     // make sure it's visible/hidden
     PDecor::setWorkspace(Workspaces::getActive());
-    Workspaces::layoutIfTiling();
     updateDecor();
 }
 
@@ -1443,10 +1442,6 @@ Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
     setShaded(STATE_UNSET);
     setStateFullscreen(STATE_UNSET);
 
-    if (Workspaces::isTiling(_workspace) && allowTiling()) {
-        return;
-    }
-
     // make sure the two states are in sync if toggling
     if ((horz == vert) && (sa == STATE_TOGGLE)) {
         if (_maximized_horz != _maximized_vert) {
@@ -2088,7 +2083,7 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
     // Update the geometry if requested
     bool chg_size = ! _client->isCfgDeny(CFG_DENY_SIZE) && (ev->value_mask&(CWWidth|CWHeight));
     bool chg_pos  = ! _client->isCfgDeny(CFG_DENY_POSITION) && (ev->value_mask&(CWX|CWY));
-    if (! (chg_size || chg_pos) || (Workspaces::isTiling(_workspace) && allowTiling())) {
+    if (! (chg_size || chg_pos)) {
         _client->configureRequestSend();
         return;
     }
@@ -2203,9 +2198,6 @@ Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
             iconify();
         }
     } else if (ev->message_type == X11::getAtom(NET_WM_MOVERESIZE) && ev->format == 32) {
-        if (Workspaces::isTiling(getWorkspace()) && allowTiling()) {
-            return;
-        }
         switch (ev->data.l[2]) {
         case NET_WM_MOVERESIZE_SIZE_TOPLEFT:
             doResize(true, true, true, true);

@@ -1093,7 +1093,6 @@ WindowManager::handleUnmapEvent(XUnmapEvent *ev)
         && ! PWinObj::getFocusedPWinObj()) {
         findWOAndFocus(wo_search);
     }
-    Workspaces::layoutIfTiling();
 }
 
 void

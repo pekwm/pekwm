@@ -178,9 +178,6 @@ Config::Config(void) :
     _action_map["Dynamic"] = pair<ActionType, uint>(ACTION_MENU_DYN, ROOTMENU_OK|WINDOWMENU_OK);
     _action_map["SendKey"] = pair<ActionType, uint>(ACTION_SEND_KEY, ANY_MASK);
     _action_map["SetOpacity"] = pair<ActionType, uint>(ACTION_SET_OPACITY, FRAME_MASK);
-    _action_map["LayoutOnce"] = pair<ActionType, uint>(ACTION_LAYOUT_ONCE, ANY_MASK);
-    _action_map["SetLayouter"] = pair<ActionType, uint>(ACTION_SET_LAYOUTER, ANY_MASK);
-    _action_map["SetLayouterOption"] = pair<ActionType, uint>(ACTION_SET_LAYOUTER_OPTION, ANY_MASK);
     _action_map["Debug"] = pair<ActionType, uint>(ACTION_DEBUG, ANY_MASK);
 
     _action_access_mask_map[""] = ACTION_ACCESS_NO;
@@ -341,7 +338,6 @@ Config::Config(void) :
     _cfg_deny_map["ABOVE"] = CFG_DENY_STATE_ABOVE;
     _cfg_deny_map["BELOW"] = CFG_DENY_STATE_BELOW;
     _cfg_deny_map["STRUT"] = CFG_DENY_STRUT;
-    _cfg_deny_map["TILING"] = CFG_DENY_TILING;
 
     _menu_action_map[""] = ACTION_MENU_NEXT;
     _menu_action_map["NEXTITEM"] = ACTION_MENU_NEXT;
@@ -657,16 +653,6 @@ Config::loadScreen(CfgParser::Entry *section)
         value = sub->findEntry("MODEL");
         if (value) {
             Workspace::setDefaultLayouter(value->getValue());
-        }
-
-        value = sub->findEntry("WORKSPACEPLACEMENTS");
-        if (value) {
-            vs.clear();
-            if (Util::splitString(value->getValue(), vs, ";", 0, true)) {
-                for (uint i = 0; i < vs.size(); ++i) {
-                    Workspaces::setLayouter(i, vs[i]);
-                }
-            }
         }
 
         CfgParser::Entry *sub_2 = sub->findSection("SMART");
@@ -989,9 +975,6 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
                 case ACTION_SHOW_SEARCH_DIALOG:
                 case ACTION_SEND_KEY:
                 case ACTION_MENU_DYN:
-                case ACTION_LAYOUT_ONCE:
-                case ACTION_SET_LAYOUTER:
-                case ACTION_SET_LAYOUTER_OPTION:
                 case ACTION_DEBUG:
                     action.setParamS(tok[1]);
                     break;

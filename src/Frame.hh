@@ -58,9 +58,6 @@ public:
     virtual void updatedChildOrder(void);
     virtual void updatedActiveChild(void);
 
-    virtual bool allowTiling(void) {
-        return ! (isSticky() || _client->isCfgDeny(CFG_DENY_TILING));
-    }
     virtual void getDecorInfo(wchar_t *buf, uint size);
 
     virtual void giveInputFocus(void);

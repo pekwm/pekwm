@@ -57,13 +57,6 @@ Workspace &Workspace::operator=(const Workspace &w)
 }
 
 void
-Workspace::setLayouter(WinLayouter *wl)
-{
-    delete _layouter;
-    _layouter = wl;
-}
-
-void
 Workspace::setDefaultLayouter(const std::string &layo)
 {
     WinLayouter *wl = WinLayouterFactory(layo);
@@ -340,50 +333,6 @@ Workspaces::fixStacking(PWinObj *pwo)
         winlist[0] = (*it)->getWindow();
         winlist[1] = pwo->getWindow();
         XRestackWindows(X11::getDpy(), winlist, 2);
-    }
-}
-
-void
-Workspaces::layoutOnce(const std::string &layouter)
-{
-    if (WinLayouter *wl = WinLayouterFactory(layouter)) {
-        wl->layout(0, false);
-        delete wl;
-    }
-}
-
-void
-Workspaces::setLayouter(uint ws, const std::string &layouter)
-{
-    if (ws >= _workspaces.size()) {
-        _workspaces.resize(ws+1);
-    }
-    bool tiling = _workspaces[ws].getLayouter()->isTiling();
-    _workspaces[ws].setLayouter(WinLayouterFactory(layouter));
-    if (ws == _active) {
-        bool newTiling = _workspaces[ws].getLayouter()->isTiling();
-        if (newTiling != tiling) {
-            Frame *frame;
-            const_iterator it = _wobjs.begin();
-            const_iterator end = _wobjs.end();
-            for (; it!=end; ++it) {
-                if ((frame = dynamic_cast<Frame*>(*it)) && frame->isMapped()) {
-                    frame->updateDecor();
-                }
-            }
-        }
-        layoutIfTiling();
-    }
-}
-
-void
-Workspaces::setLayouterOption(const std::string &opt, Frame *f)
-{
-    vector<std::string> opts;
-    Util::splitString(opt, opts, " \t");
-
-    if (! opts.empty()) {
-        _workspaces[_active].getLayouter()->setOption(opts, f);
     }
 }
 

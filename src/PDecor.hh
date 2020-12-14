@@ -438,7 +438,6 @@ protected:
     static const std::string DEFAULT_DECOR_NAME_BORDERLESS; //!< Default decor name in borderless state.
     static const std::string DEFAULT_DECOR_NAME_TITLEBARLESS; //!< Default decor name in titlebarless state.
     static const std::string DEFAULT_DECOR_NAME_ATTENTION; //!< Default decor name for demands attention state.
-    static const std::string DEFAULT_DECOR_NAME_TILING; //!< Default decor name for tiling workspaces.
 
     // state switches, commonly not used by all decors
     bool _maximized_vert;
