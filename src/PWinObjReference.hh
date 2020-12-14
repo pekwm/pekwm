@@ -1,6 +1,6 @@
 //
 // PWinObjReference.hh for pekwm
-// Copyright © 2009 Claes Nästen <me@pekdon.net>
+// Copyright (C) 2009-2020 Claes Nästen <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.

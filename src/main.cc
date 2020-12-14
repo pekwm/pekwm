@@ -1,6 +1,6 @@
 //
 // main.cc for pekwm
-// Copyright © 2003-2009 Claes Nästén <me@pekdon.net>
+// Copyright (C) 2003-2020 Claes Nästén <pekdon@gmail.com>
 //
 // main.cc for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>

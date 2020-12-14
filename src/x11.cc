@@ -1,6 +1,6 @@
 //
-// X11.cc for pekwm
-// Copyright © 2009-2015 the pekwm development team
+// x11.cc for pekwm
+// Copyright (C) 2009-2020 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.

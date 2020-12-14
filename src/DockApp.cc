@@ -1,6 +1,6 @@
 //
-// Dockapp.cc for pekwm
-// Copyright © 2003-2016 the pekwm development team
+// DockApp.cc for pekwm
+// Copyright (C) 2003-2020 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.

@@ -9,7 +9,7 @@
 <!-- Generally used entities go here -->
 
 <!ENTITY program-author "Claes N&auml;st&eacute;n">
-<!ENTITY program-author-email "me@pekdon.net">
+<!ENTITY program-author-email "pekdon@gmail.com">
 <!ENTITY program-author-nick "pekdon">
 
 <!ENTITY docs-manager "Jyri Jokinen">

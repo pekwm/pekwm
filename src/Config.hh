@@ -1,6 +1,6 @@
 //
 // Config.hh for pekwm
-// Copyright © 2002-2016 the pekwm development team
+// Copyright (C) 2002-2016 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.

@@ -1,6 +1,6 @@
 //
 // Theme.cc for pekwm
-// Copyright © 2003-2013 the pekwm development team
+// Copyright (C) 2003-2020 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.

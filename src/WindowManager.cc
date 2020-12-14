@@ -1,6 +1,6 @@
 //
 // WindowManager.cc for pekwm
-// Copyright © 2002-2016 the pekwm development team
+// Copyright (C) 2002-2020 the pekwm development team
 //
 // windowmanager.cc for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>

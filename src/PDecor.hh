@@ -1,6 +1,6 @@
 //
 // PDecor.hh for pekwm
-// Copyright © 2004-2013 Claes Nästén <me@pekdon.net>
+// Copyright (C) 2004-2020 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
