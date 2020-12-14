@@ -23,7 +23,6 @@ endif (HAS_CXX11)
 find_package(X11 REQUIRED)
 find_package(Iconv REQUIRED)
 find_package(Freetype)
-find_package(JPEG)
 find_package(PNG)
 
 # Look for platform specific methods
@@ -66,11 +65,6 @@ if (PNG_FOUND)
   set(pekwm_FEATURES "${pekwm_FEATURES} image-png")
   set(HAVE_IMAGE_PNG 1)
 endif (PNG_FOUND)
-
-if (JPEG_FOUND)
-  set(pekwm_FEATURES "${pekwm_FEATURES} image-jpeg")
-  set(HAVE_IMAGE_JPEG 1)
-endif (JPEG_FOUND)
 
 if (X11_Xpm_FOUND)
   set(pekwm_FEATURES "${pekwm_FEATURES} image-xpm")

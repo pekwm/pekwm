@@ -72,12 +72,6 @@ if (X11_Xft_FOUND AND FREETYPE_FOUND)
   set(pekwm_LIBRARIES ${pekwm_LIBRARIES} ${X11_Xft_LIB} ${FREETYPE_LIBRARIES})
 endif (X11_Xft_FOUND AND FREETYPE_FOUND)
 
-if (JPEG_FOUND)
-  set(pekwm_SOURCES ${pekwm_SOURCES} PImageLoaderJpeg.cc)
-  set(pekwm_INCLUDE_DIRS ${pekwm_INCLUDE_DIRS} ${JPEG_INCLUDE_DIR})
-  set(pekwm_LIBRARIES ${pekwm_LIBRARIES} ${JPEG_LIBRARY})
-endif (JPEG_FOUND)
-
 if (PNG_FOUND)
   set(pekwm_SOURCES ${pekwm_SOURCES} PImageLoaderPng.cc)
   set(pekwm_INCLUDE_DIRS ${pekwm_INCLUDE_DIRS} ${PNG_INCLUDE_DIR})

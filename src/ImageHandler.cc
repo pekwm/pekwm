@@ -13,7 +13,6 @@
 #include "Config.hh"
 #include "PImage.hh"
 #include "ImageHandler.hh"
-#include "PImageLoaderJpeg.hh"
 #include "PImageLoaderPng.hh"
 #include "PImageLoaderXpm.hh"
 #include "Util.hh"
@@ -43,9 +42,6 @@ ImageHandler::ImageHandler(void)
     _image_type_map["SCALED"] = IMAGE_TYPE_SCALED;
     _image_type_map["FIXED"] = IMAGE_TYPE_FIXED;
 
-#ifdef HAVE_IMAGE_JPEG
-    PImage::loaderAdd(new PImageLoaderJpeg());
-#endif // HAVE_IMAGE_JPEG
 #ifdef HAVE_IMAGE_PNG
     PImage::loaderAdd(new PImageLoaderPng());
 #endif // HAVE_IMAGE_PNG
