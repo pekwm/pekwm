@@ -1185,10 +1185,13 @@ PDecor::doMove(int x_root, int y_root)
         X11::grabServer();
     }
 
+    wchar_t buf[128];
+    getDecorInfo(buf, 128);
+
     if (Config::instance()->isShowStatusWindow()) {
-        sw->drawGeometry(_gm, center_on_root);
+        sw->draw(buf, true, center_on_root ? 0 : &_gm);
         sw->mapWindowRaised();
-        sw->drawGeometry(_gm, center_on_root);
+        sw->draw(buf, true, center_on_root ? 0 : &_gm);
     }
 
     Geometry last_gm(_gm);
@@ -1224,8 +1227,9 @@ PDecor::doMove(int x_root, int y_root)
                 doMoveEdgeAction(&e.xmotion, edge);
             }
 
+            getDecorInfo(buf, 128);
             if (Config::instance()->isShowStatusWindow()) {
-                sw->drawGeometry(_gm, center_on_root);
+                sw->draw(buf, true, center_on_root ? 0 : &_gm);
             }
 
             break;
@@ -1312,11 +1316,14 @@ PDecor::doKeyboardMoveResize(void)
     ActionEvent *ae;
     vector<Action>::iterator it;
 
+    wchar_t buf[128];
+    getDecorInfo(buf, 128);
+
     bool center_on_root = Config::instance()->isShowStatusWindowOnRoot();    
     if (Config::instance()->isShowStatusWindow()) {
-        sw->drawGeometry(_gm, center_on_root);
+        sw->draw(buf, true, center_on_root ? 0 : &_gm);
         sw->mapWindowRaised();
-        sw->drawGeometry(_gm, center_on_root);
+        sw->draw(buf, true, center_on_root ? 0 : &_gm);
     }
 
     if (outline) {
@@ -1391,8 +1398,9 @@ PDecor::doKeyboardMoveResize(void)
                     break;
                 }
 
+                getDecorInfo(buf, 128);
                 if (Config::instance()->isShowStatusWindow()) {
-                    sw->drawGeometry(_gm, center_on_root);
+                    sw->draw(buf, true, center_on_root ? 0 : &_gm);
                 }
             }
         }

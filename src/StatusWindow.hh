@@ -12,9 +12,6 @@
 
 #include "config.h"
 
-#include <stdio.h>
-#include <wchar.h>
-
 #include "pekwm.hh"
 
 class PDecor;
@@ -28,12 +25,7 @@ public:
     //! @brief Returns the StatusWindow instance pointer.
     static StatusWindow *instance(void) { return _instance; }
 
-    void drawGeometry(const Geometry &gm, bool center_root) {
-        wchar_t buf[128];
-        swprintf(buf, 128, L"%dx%d+%d+%d", gm.width, gm.height, gm.x, gm.y);
-        draw(buf, true, center_root?0:&gm);
-    }
-    void draw(const std::wstring &text, bool center=false, const Geometry *gm = 0);
+    void draw(const std::wstring &text, bool do_center = false, Geometry *gm = 0);
 
 private:
     // BEGIN - PDecor interface
