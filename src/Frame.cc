@@ -303,7 +303,6 @@ Frame::handleMotionEvent(XMotionEvent *ev)
     return ae;
 }
 
-//! @brief
 ActionEvent*
 Frame::handleEnterEvent(XCrossingEvent *ev)
 {
@@ -332,7 +331,6 @@ Frame::handleEnterEvent(XCrossingEvent *ev)
     return ae;
 }
 
-//! @brief
 ActionEvent*
 Frame::handleLeaveEvent(XCrossingEvent *ev)
 {
@@ -546,7 +544,6 @@ Frame::updatedActiveChild(void)
     renderTitle();
 }
 
-//! @brief
 void
 Frame::getDecorInfo(wchar_t *buf, uint size)
 {
@@ -565,7 +562,6 @@ Frame::giveInputFocus(void)
     PDecor::giveInputFocus();
 }
 
-//! @brief
 void
 Frame::setShaded(StateAction sa)
 {
@@ -583,7 +579,6 @@ Frame::setShaded(StateAction sa)
     }
 }
 
-//! @brief
 int
 Frame::resizeHorzStep(int diff) const
 {
@@ -619,7 +614,6 @@ Frame::resizeHorzStep(int diff) const
     return diff_ret;
 }
 
-//! @brief
 int
 Frame::resizeVertStep(int diff) const
 {
@@ -1592,7 +1586,6 @@ Frame::setStateFullscreen(StateAction sa)
     _client->updateEwmhStates();
 }
 
-//! @brief
 void
 Frame::setStateSticky(StateAction sa)
 {
@@ -1669,7 +1662,6 @@ Frame::setStateDecorTitlebar(StateAction sa)
     }
 }
 
-//! @brief
 void
 Frame::setStateIconified(StateAction sa)
 {
@@ -1702,7 +1694,6 @@ Frame::setStateTagged(StateAction sa, bool behind)
     }
 }
 
-//! @brief
 void
 Frame::setStateSkip(StateAction sa, uint skip)
 {
@@ -1770,7 +1761,6 @@ Frame::setStateOpaque(StateAction sa)
 }
 // STATE actions end
 
-//! @brief
 void
 Frame::getMaxBounds(int &max_x,int &max_r, int &max_y, int &max_b)
 {
@@ -2335,7 +2325,6 @@ Frame::handleCurrentClientStateAtom(StateAction sa, Atom atom, Client *client)
     }
 }
 
-//! @brief
 void
 Frame::handlePropertyChange(XPropertyEvent *ev, Client *client)
 {

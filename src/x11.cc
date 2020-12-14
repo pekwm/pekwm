@@ -706,7 +706,6 @@ X11::getTextProperty(Window win, Atom atom, std::string &value)
     return true;
 }
 
-//! @brief
 void*
 X11::getEwmhPropData(Window win, AtomName prop, Atom type, int &num)
 {

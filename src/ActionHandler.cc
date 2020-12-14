@@ -624,7 +624,6 @@ ActionHandler::actionSendToWorkspace(PDecor *decor, int direction)
     }
 }
 
-//! @brief
 void
 ActionHandler::actionWarpToWorkspace(PDecor *decor, uint direction)
 {

@@ -536,7 +536,6 @@ Harbour::placeDockAppInsideScreen(DockApp *da)
     }
 }
 
-//! @brief
 void
 Harbour::getPlaceStartPosition(DockApp *da, int &x, int &y, bool &inc_x)
 {

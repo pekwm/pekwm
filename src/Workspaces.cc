@@ -167,7 +167,6 @@ Workspaces::setWorkspace(uint num, bool focus)
     WindowManager::instance()->showWSIndicator();
 }
 
-//! @brief
 bool
 Workspaces::gotoWorkspace(uint direction, bool warp)
 {
@@ -280,7 +279,6 @@ Workspaces::gotoWorkspace(uint direction, bool warp)
     return switched;
 }
 
-//! @brief
 bool
 Workspaces::warpToWorkspace(uint num, int dir)
 {
@@ -529,7 +527,6 @@ Workspaces::lower(PWinObj* wo)
     insert(wo, false); // reposition and restack
 }
 
-//! @brief
 PWinObj*
 Workspaces::getLastFocused(uint workspace)
 {
@@ -539,7 +536,6 @@ Workspaces::getLastFocused(uint workspace)
     return _workspaces[workspace].getLastFocused();
 }
 
-//! @brief
 void
 Workspaces::setLastFocused(uint workspace, PWinObj* wo)
 {
@@ -675,7 +671,6 @@ Workspaces::placeWoInsideScreen(PWinObj *wo)
     }
 }
 
-//! @brief
 //! @param wo PWinObj to originate from when searching
 //! @param dir Direction to search
 //! @param skip Bitmask for skipping window objects, defaults to 0

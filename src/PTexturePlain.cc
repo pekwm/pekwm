@@ -242,7 +242,6 @@ PTextureImage::render(Drawable draw, int x, int y, uint width, uint height)
     _image->draw(draw, x, y, width, height);
 }
 
-//! @brief
 Pixmap
 PTextureImage::getMask(uint width, uint height, bool &do_free)
 {

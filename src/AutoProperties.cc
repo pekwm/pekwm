@@ -825,7 +825,6 @@ AutoProperties::findTitleProperty(const ClassHint* class_hint)
     return static_cast<TitleProperty*>(findProperty(class_hint, &_title_prop_list, -1, APPLY_ON_ALWAYS));
 }
 
-//! @brief
 DecorProperty*
 AutoProperties::findDecorProperty(const ClassHint* class_hint)
 {

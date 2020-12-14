@@ -835,7 +835,6 @@ Config::loadHarbour(CfgParser::Entry *section)
     }
 }
 
-//! @brief
 ActionType
 Config::getAction(const std::string &name, uint mask)
 {
@@ -854,7 +853,6 @@ Config::getActionAccessMask(const std::string &name)
     return mask;
 }
 
-//! @brief
 bool
 Config::parseKey(const std::string &key_string, uint &mod, uint &key)
 {
@@ -1122,7 +1120,6 @@ Config::parseActionAccessMask(const std::string &action_mask, uint &mask)
     return true;
 }
 
-//! @brief
 bool
 Config::parseActionState(Action &action, const std::string &as_action)
 {
@@ -1181,7 +1178,6 @@ Config::parseActionState(Action &action, const std::string &as_action)
     return false;
 }
 
-//! @brief
 bool
 Config::parseActions(const std::string &action_string, ActionEvent &ae, uint mask)
 {
@@ -1207,7 +1203,6 @@ Config::parseActions(const std::string &action_string, ActionEvent &ae, uint mas
     return false;
 }
 
-//! @brief
 bool
 Config::parseActionEvent(CfgParser::Entry *section, ActionEvent &ae, uint mask, bool button)
 {
@@ -1242,7 +1237,6 @@ Config::parseActionEvent(CfgParser::Entry *section, ActionEvent &ae, uint mask, 
     return false;
 }
 
-//! @brief
 bool
 Config::parseMoveResizeAction(const std::string &action_string, Action &action)
 {
@@ -1275,7 +1269,6 @@ Config::parseMoveResizeAction(const std::string &action_string, Action &action)
     return false;
 }
 
-//! @brief
 bool
 Config::parseMoveResizeActions(const std::string &action_string, ActionEvent& ae)
 {
@@ -1321,7 +1314,6 @@ Config::parseMoveResizeEvent(CfgParser::Entry *section, ActionEvent& ae)
     return false;
 }
 
-//! @brief
 bool
 Config::parseInputDialogAction(const std::string &val, Action &action)
 {
@@ -1329,7 +1321,6 @@ Config::parseInputDialogAction(const std::string &val, Action &action)
     return (action.getAction() != INPUT_NO_ACTION);
 }
 
-//! @brief
 bool
 Config::parseInputDialogActions(const std::string &actions, ActionEvent &ae)
 {
@@ -1403,7 +1394,6 @@ Config::getMenuMask(const std::string &mask)
     return mask_return;
 }
 
-//! @brief
 bool
 Config::parseMenuAction(const std::string &action_string, Action &action)
 {
@@ -1420,7 +1410,6 @@ Config::parseMenuAction(const std::string &action_string, Action &action)
     return false;
 }
 
-//! @brief
 bool
 Config::parseMenuActions(const std::string &actions, ActionEvent &ae)
 {
@@ -1466,7 +1455,6 @@ Config::parseMenuEvent(CfgParser::Entry *section, ActionEvent& ae)
     return false;
 }
 
-//! @brief
 uint
 Config::getMouseButton(const std::string &button)
 {

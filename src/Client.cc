@@ -1621,7 +1621,6 @@ Client::handleColormapChange(XColormapEvent *e)
     }
 }
 
-//! @brief
 bool
 Client::getEwmhStates(NetWMStates &win_states)
 {
@@ -1818,7 +1817,6 @@ Client::getWMNormalHints(void)
     }
 }
 
-//! @brief
 void
 Client::getWMProtocols(void)
 {

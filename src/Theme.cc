@@ -603,7 +603,6 @@ Theme::PMenuData::check(void)
     }
 }
 
-//! @brief
 void
 Theme::PMenuData::loadState(CfgParser::Entry *section, ObjectState state)
 {

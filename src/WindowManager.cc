@@ -439,7 +439,6 @@ WindowManager::screenEdgeCreate(void)
     screenEdgeResize();
 }
 
-//! @brief
 void
 WindowManager::screenEdgeResize(void)
 {
@@ -1058,7 +1057,6 @@ WindowManager::handleMapRequestEvent(XMapRequestEvent *ev)
     }
 }
 
-//! @brief
 void
 WindowManager::handleUnmapEvent(XUnmapEvent *ev)
 {

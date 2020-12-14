@@ -458,7 +458,6 @@ PDecor::moveResize(int x, int y, uint width, uint height)
     renderBorder();
 }
 
-//! @brief
 void
 PDecor::resizeTitle(void)
 {
@@ -487,7 +486,6 @@ PDecor::lower(void)
     Workspaces::updateClientStackingList();
 }
 
-//! @brief
 void
 PDecor::setFocused(bool focused)
 {
@@ -503,7 +501,6 @@ PDecor::setFocused(bool focused)
     }
 }
 
-//! @brief
 void
 PDecor::setWorkspace(uint workspace)
 {
@@ -717,7 +714,6 @@ PDecor::handleButtonReleaseButton(XButtonEvent *ev, PDecor::Button *button)
     return ae;
 }
 
-//! @brief
 ActionEvent*
 PDecor::handleMotionEvent(XMotionEvent *ev)
 {
@@ -893,7 +889,6 @@ PDecor::unloadDecor(void)
     _buttons.clear();
 }
 
-//! @brief
 PDecor::Button*
 PDecor::findButton(Window win)
 {
@@ -907,7 +902,6 @@ PDecor::findButton(Window win)
     return 0;
 }
 
-//! @brief
 PWinObj*
 PDecor::getChildFromPos(int x)
 {
@@ -1091,14 +1085,12 @@ PDecor::activateChild(PWinObj *child)
     updatedChildOrder();
 }
 
-//! @brief
 void
 PDecor::getDecorInfo(wchar_t *buf, uint size)
 {
     swprintf(buf, size, L"%dx%d+%d+%d", _gm.width, _gm.height, _gm.x, _gm.y);
 }
 
-//! @brief
 void
 PDecor::activateChildNum(uint num)
 {
@@ -1111,7 +1103,6 @@ PDecor::activateChildNum(uint num)
     activateChild(_children[num]);
 }
 
-//! @brief
 void
 PDecor::activateChildRel(int off)
 {
@@ -1549,7 +1540,6 @@ PDecor::renderTitle(void)
     X11::freePixmap(title_bg);
 }
 
-//! @brief
 void
 PDecor::renderButtons(void)
 {
@@ -1637,7 +1627,6 @@ PDecor::getNearestHead(void)
     return X11::getNearestHead(_gm.x + (_gm.width / 2), _gm.y + (_gm.height / 2));
 }
 
-//! @brief
 void
 PDecor::checkSnap(void)
 {
@@ -1664,7 +1653,6 @@ isBetween(int x1, int x2, int t1, int t2)
     return false;
 }
 
-//! @brief
 //! @todo PDecor/PWinObj doesn't have _skip property
 void
 PDecor::checkWOSnap(void)

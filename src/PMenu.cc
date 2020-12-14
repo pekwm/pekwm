@@ -136,7 +136,6 @@ PMenu::unmapWindow(void)
     PDecor::unmapWindow();
 }
 
-//! @brief
 void
 PMenu::setFocused(bool focused)
 {
@@ -163,7 +162,6 @@ PMenu::setFocusable(bool focusable)
     _menu_wo->setFocusable(focusable);
 }
 
-//! @brief
 ActionEvent*
 PMenu::handleButtonPress(XButtonEvent *ev)
 {
@@ -255,7 +253,6 @@ PMenu::handleMotionEvent(XMotionEvent *ev)
     }
 }
 
-//! @brief
 ActionEvent*
 PMenu::handleEnterEvent(XCrossingEvent *ev)
 {
@@ -267,7 +264,6 @@ PMenu::handleEnterEvent(XCrossingEvent *ev)
     }
 }
 
-//! @brief
 ActionEvent*
 PMenu::handleLeaveEvent(XCrossingEvent *ev)
 {
