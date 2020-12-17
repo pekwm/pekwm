@@ -1,4 +1,19 @@
 INSTALL
 =======
 
-Visit http://www.pekwm.org/ for help on installing pekwm. 
+If you want to install pekwm from source, follow these steps:
+
+1. Get the sources:
+
+    git clone https://github.com/pekdon/pekwm.git
+
+2. Build with cmake:
+
+    cd pekwm
+    mkdir build && cd build
+    cmake ..
+    make
+
+3. Install as root:
+
+    make install
