@@ -847,7 +847,7 @@ PDecor::loadDecor(void)
 
     // Update title position.
     if (_data->getTitleWidthMin() == 0) {
-        _title_wo.move(borderTopLeft(), borderTop());
+        _title_wo.move(borderTop(), borderTop());
         _need_shape = false;
     } else {
         _title_wo.move(0, 0);
@@ -2046,8 +2046,8 @@ PDecor::calcTitleWidth(void)
 
     if (_data->getTitleWidthMin() == 0) {
         width = _gm.width;
-        if (width > (borderTopLeft() + borderTopRight())) {
-            width -= borderTopLeft() + borderTopRight();
+        if (borderTop() && (width > (borderLeft() + borderRight()))) {
+            width -= borderLeft() + borderRight();
         }
 
     } else {
