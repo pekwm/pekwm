@@ -977,15 +977,7 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
                     action.setParamS(tok[1]);
                     break;
                 case ACTION_SET_GEOMETRY:
-                    // Add optional head parameter, -1 means screen.
-                    Util::splitString(tok[1], tok, " \t", 2);
-                    if (tok.size() == 4) {
-                        action.setParamS(tok[2]);
-                        action.setParamI(0, strtol(tok[3].c_str(), 0, 10));
-                    } else {
-                        action.setParamS(tok[1]);
-                        action.setParamI(0, -1);
-                    }
+                    parseActionSetGeometry(action, tok[1]);
                     break;
                 case ACTION_ACTIVATE_CLIENT_REL:
                 case ACTION_MOVE_CLIENT_REL:
@@ -1857,3 +1849,40 @@ Config::parseOpacity(const std::string value, uint &focused, uint &unfocused)
     return true;
 }
 
+/**
+ * Parse SetGeometry action parameters.
+ *
+ * SetGeometry 1x+0+0 [(screen|current|0-9) [HonourStrut]]
+ */
+void
+Config::parseActionSetGeometry(Action& action, const std::string &str)
+{
+    std::vector<std::string> tok;
+
+    if (! Util::splitString(str, tok, " \t", 3)) {
+        return;
+    }
+
+    // geometry
+    action.setParamS(tok[0]);
+
+    // screen, current head or head number
+    if (tok.size() > 1) {
+        if (strcasecmp(tok[1].c_str(), "SCREEN") == 0) {
+            action.setParamI(0, -1);
+        } else if (strcasecmp(tok[1].c_str(), "CURRENT") == 0) {
+            action.setParamI(0, -2);
+        } else {
+            action.setParamI(0, strtol(tok[1].c_str(), 0, 10));
+        }
+    } else {
+        action.setParamI(0, -1);
+    }
+
+    // honour strut option
+    if (tok.size() > 2) {
+        action.setParamI(1, strcasecmp(tok[2].c_str(), "HONOURSTRUT") ? 0 : 1);
+    } else {
+        action.setParamI(1, 0);
+    }
+}

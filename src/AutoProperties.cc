@@ -14,6 +14,7 @@
 #include "AutoProperties.hh"
 #include "Config.hh"
 #include "Util.hh"
+#include "x11.hh"
 
 using std::cerr;
 using std::endl;
@@ -579,10 +580,7 @@ AutoProperties::setDefaultTypeProperties(void)
     if (! findWindowTypeProperty(WINDOW_TYPE_DESKTOP)) {
         AutoProperty *prop = new AutoProperty();
         prop->maskAdd(AP_CLIENT_GEOMETRY);
-        prop->client_gm_mask =
-                XParseGeometry("0x0+0+0",
-                     &prop->client_gm.x, &prop->client_gm.y,
-                     &prop->client_gm.width, &prop->client_gm.height);
+        prop->client_gm_mask = X11::parseGeometry("0x0+0+0", prop->client_gm);
         prop->maskAdd(AP_STICKY);
         prop->sticky = true;
         prop->maskAdd(AP_TITLEBAR);
@@ -733,16 +731,12 @@ AutoProperties::parseAutoPropertyValue(CfgParser::Entry *section, AutoProperty *
         case AP_FRAME_GEOMETRY:
             prop->maskAdd(AP_FRAME_GEOMETRY);
             prop->frame_gm_mask =
-                XParseGeometry((char*) (*it)->getValue().c_str(),
-                             &prop->frame_gm.x, &prop->frame_gm.y,
-                             &prop->frame_gm.width, &prop->frame_gm.height);
+                X11::parseGeometry((*it)->getValue(), prop->frame_gm);
             break;
         case AP_CLIENT_GEOMETRY:
             prop->maskAdd(AP_CLIENT_GEOMETRY);
             prop->client_gm_mask =
-                XParseGeometry((char*) (*it)->getValue().c_str(),
-                       &prop->client_gm.x, &prop->client_gm.y,
-                       &prop->client_gm.width, &prop->client_gm.height);
+                X11::parseGeometry((*it)->getValue(), prop->client_gm);
             break;
         case AP_LAYER:            
             prop->layer = Config::instance()->getLayer((*it)->getValue());

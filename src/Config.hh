@@ -243,6 +243,9 @@ public:
 
     static bool parseOpacity(const std::string value, uint &focused, uint &unfocused);
 
+protected:
+    static void parseActionSetGeometry(Action& action, const std::string &str);
+
 private:
     bool tryHardLoadConfig(CfgParser &cfg, std::string &file);
     void copyConfigFiles(void);
