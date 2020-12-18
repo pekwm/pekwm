@@ -102,7 +102,8 @@ Frame::Frame(Client *client, AutoProperty *ap)
     // setup position
     bool place = false;
     if (client->isViewable() || client->isPlaced()
-          || (client->cameWithPosition() && ! client->isCfgDeny(CFG_DENY_POSITION))) {
+          || (client->cameWithPosition()
+              && ! client->isCfgDeny(CFG_DENY_POSITION))) {
         moveChild(client->getX(), client->getY());
     } else {
         place = Config::instance()->isPlaceNew();
@@ -116,7 +117,8 @@ Frame::Frame(Client *client, AutoProperty *ap)
 
             setupAPGeometry(client, ap);
 
-            if (ap->frame_gm_mask&(XValue|YValue) || ap->client_gm_mask&(XValue|YValue)) {
+            if (ap->frame_gm_mask&(X_VALUE|Y_VALUE)
+                || ap->client_gm_mask&(X_VALUE|Y_VALUE)) {
                 place = false;
             }
         }
@@ -809,17 +811,18 @@ Frame::setupAPGeometry(Client *client, AutoProperty *ap)
         Geometry gm(client->_gm);
         applyGeometry(gm, ap->client_gm, ap->client_gm_mask);
 
-        if (ap->client_gm_mask&(XValue|YValue)) {
+        if (ap->client_gm_mask&(X_VALUE|Y_VALUE)) {
             moveChild(gm.x, gm.y);
         }
-        if(ap->client_gm_mask&(WidthValue|HeightValue)) {
+        if(ap->client_gm_mask&(WIDTH_VALUE|HEIGHT_VALUE)) {
             resizeChild(gm.width, gm.height);
         }
     }
 
     // get frame geometry
     if (ap->isMask(AP_FRAME_GEOMETRY)) {
-        setGeometry(ap->frame_gm, ap->frame_gm_mask);
+        Geometry screen_gm = X11::getScreenGeometry();
+        setGeometry(ap->frame_gm, ap->frame_gm_mask, screen_gm);
     }
 }
 
@@ -839,16 +842,20 @@ Frame::applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask, const Geomet
 {
     // Read size before position so negative position works, if size is
     // < 1 consider it to be full screen size.
-    if (mask&WidthValue) {
-        if (ap_gm.width < 1) {
+    if (mask & WIDTH_VALUE) {
+        if (mask & WIDTH_PERCENT) {
+            gm.width = int(screen_gm.width * (float(ap_gm.width) / 100));
+        } else if (ap_gm.width < 1) {
             gm.width = screen_gm.width;
         } else {
             gm.width = ap_gm.width;
         }
     }
-    
-    if (mask&HeightValue) {
-        if (ap_gm.height < 1) {
+
+    if (mask & HEIGHT_VALUE) {
+        if (mask & HEIGHT_PERCENT) {
+            gm.height = int(screen_gm.height * (float(ap_gm.height) / 100));
+        } else if (ap_gm.height < 1) {
             gm.height = screen_gm.height;
         } else {
             gm.height = ap_gm.height;
@@ -856,15 +863,25 @@ Frame::applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask, const Geomet
     }
 
     // Read position
-    if (mask&XValue) {
-        gm.x = screen_gm.x + ap_gm.x;
-        if (mask&XNegative) {
+    if (mask & X_VALUE) {
+        if (mask & X_PERCENT) {
+            gm.x = int(screen_gm.width * (float(ap_gm.x) / 100));
+        } else {
+            gm.x = screen_gm.x + ap_gm.x;
+        }
+
+        if (mask & X_NEGATIVE) {
             gm.x += screen_gm.width - gm.width;
         }
     }
-    if (mask&YValue) {
-        gm.y = screen_gm.y + ap_gm.y;
-        if (mask&YNegative) {
+    if (mask & Y_VALUE) {
+        if (mask & Y_PERCENT) {
+            gm.y = int(screen_gm.height * (float(ap_gm.y) / 100));
+        } else {
+            gm.y = screen_gm.y + ap_gm.y;
+        }
+
+        if (mask & Y_NEGATIVE) {
             gm.y += screen_gm.height - gm.height;
         }
     }
@@ -1803,28 +1820,38 @@ Frame::getMaxBounds(int &max_x,int &max_r, int &max_y, int &max_b)
 }
 
 void
-Frame::setGeometry(const std::string geometry, int head)
+Frame::setGeometry(const std::string geometry, int head, bool honour_strut)
 {
     Geometry gm;
-    int mask = XParseGeometry(geometry.c_str(), &gm.x, &gm.y, &gm.width, &gm.height);
-    setGeometry(gm, mask, head);
-}
- 
-void
-Frame::setGeometry(const Geometry &geometry, int gm_mask, int head)
-{
-    Geometry screen_gm;
-    if (head == -1) {
-        screen_gm = X11::getScreenGeometry();
-    } else {
-        screen_gm = X11::getHeadGeometry(head);
+    int mask = X11::parseGeometry(geometry.c_str(), gm);
+    if (! mask) {
+        return;
     }
 
+    Geometry screen_gm = X11::getScreenGeometry();
+    if (head != -1) {
+        if (head == -2) {
+            head = getNearestHead();
+        }
+
+        if (honour_strut) {
+            X11::getHeadInfoWithEdge(head, screen_gm);
+        } else {
+            screen_gm = X11::getHeadGeometry(head);
+        }
+    }
+
+    setGeometry(gm, mask, screen_gm);
+}
+
+void
+Frame::setGeometry(const Geometry &geometry, int gm_mask, const Geometry &screen_gm)
+{
     applyGeometry(_gm, geometry, gm_mask, screen_gm);
-    if (gm_mask&(XValue|YValue)) {
+    if (gm_mask&(X_VALUE|Y_VALUE)) {
         move(_gm.x, _gm.y);
     }
-    if (gm_mask&(WidthValue|HeightValue)) {
+    if (gm_mask&(WIDTH_VALUE|HEIGHT_VALUE)) {
         resize(_gm.width, _gm.height);
     }
 }

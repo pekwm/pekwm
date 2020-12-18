@@ -38,6 +38,24 @@ extern unsigned int xerrors_count; /**< Number of X errors occured. */
 }
 
 /**
+ * Bitmask values for parseGeometry result.
+ */
+enum XGeometryMask {
+    NO_VALUE = 0,
+    X_VALUE = 1 << 0,
+    Y_VALUE = 1 << 1,
+    WIDTH_VALUE = 1 << 2,
+    HEIGHT_VALUE = 1 << 3,
+    ALL_VALUES = 1 << 4,
+    X_NEGATIVE = 1 << 5,
+    Y_NEGATIVE = 1 << 6,
+    X_PERCENT = 1 << 7,
+    Y_PERCENT = 1 << 8,
+    WIDTH_PERCENT = 1 << 9,
+    HEIGHT_PERCENT = 1 << 10
+};
+
+/**
  * Class holding information about screen edge allocation.
  */
 class Strut {
@@ -283,6 +301,8 @@ public:
 
     // helper functions
 
+    static int parseGeometry(const std::string& str, Geometry& gm);
+
     inline static
     void keepVisible(Geometry &gm) {
         if (gm.x > static_cast<int>(getWidth()) - 3) {
@@ -430,6 +450,9 @@ public:
     }
 #endif
 
+protected:
+    static int parseGeometryVal(const char *c_str, const char *e_end, int &val_ret);
+
 private:
     // squared distance because computing with sqrt is expensive
 
@@ -443,6 +466,8 @@ private:
     static void initHeads(void);
     static void initHeadsRandr(void);
     static void initHeadsXinerama(void);
+
+private:
 
     static Display *_dpy;
     static bool _honour_randr; /**< Boolean flag if randr should be honoured. */
@@ -470,7 +495,7 @@ private:
     static bool _has_extension_xrandr;
     static int _event_xrandr;
 
-    static vector<Head> _heads; //! Array of head information
+    static std::vector<Head> _heads; //! Array of head information
     static uint _last_head; //! Last accessed head
 
     static uint _server_grabs;
@@ -481,7 +506,7 @@ private:
     static Time _last_click_time[BUTTON_NO - 1];
 
     static Strut _strut;
-    static vector<Strut*> _struts;
+    static std::vector<Strut*> _struts;
 
     static std::array<Cursor, MAX_NR_CURSOR> _cursor_map;
 

@@ -610,7 +610,9 @@ Geometry
 X11::getHeadGeometry(uint head)
 {
     Geometry gm(_screen_gm);
-    getHeadInfo(head, gm);
+    if (head > -1) {
+        getHeadInfo(head, gm);
+    }
     return gm;
 }
 
@@ -973,6 +975,91 @@ X11::getKeysymFromKeycode(KeyCode keycode)
         return XKeycodeToKeysym(_dpy, keycode, 0);
 }
 #pragma GCC diagnostic pop
+
+/**
+ * Parse string and set on geometry, same format as XParseGeometry
+ * however both size and position can be given in percent.
+ *
+ * Format: [=][<width>{xX}<height>][{+-}<xoffset>{+-}<yoffset>]
+ */
+int
+X11::parseGeometry(const std::string& str, Geometry& gm)
+{
+    int mask = 0;
+    if (str.size() < 3) {
+        // no valid geometry can fit in less than 3 characters.
+        return mask;
+    }
+
+    // skip initial = if given
+    const char *cstr = str.c_str();
+    std::string::size_type s_start = str[0] == '=' ? 1 : 0;
+    std::string::size_type s_end = str.find_first_of("+-", s_start);
+
+    int ret;
+    if (s_end == std::string::npos) {
+        s_end = str.size();
+    } else {
+        // position
+        std::string::size_type y_start = str.find_first_of("+-", s_end + 1);
+        if ((ret = parseGeometryVal(cstr + s_end + 1, cstr + y_start, gm.x)) > 0) {
+            mask |= X_VALUE;
+            if (str[s_end] == '-') {
+                mask |= X_NEGATIVE;
+            }
+            if (ret == 2) {
+                mask |= X_PERCENT;
+            }
+        }
+        if ((ret = parseGeometryVal(cstr + y_start + 1, cstr + str.size(), gm.y)) > 0) {
+            mask |= Y_VALUE;
+            if (str[y_start] == '-') {
+                mask |= Y_NEGATIVE;
+            }
+            if (ret == 2) {
+                mask |= Y_PERCENT;
+            }
+        }
+    }
+
+    if (s_end > s_start) {
+        // size
+        int width, height;
+        std::string::size_type h_start = str.find_first_of("xX", s_start);
+        if ((ret = parseGeometryVal(cstr + s_start, cstr + h_start, width)) > 0
+            && width > 0) {
+            gm.width = width;
+            mask |= WIDTH_VALUE;
+            if (ret == 2) {
+                mask |= WIDTH_PERCENT;
+            }
+        }
+        if ((ret = parseGeometryVal(cstr + h_start + 1, cstr + s_end, height)) > 0
+            && height > 0) {
+            gm.height = height;
+            mask |= HEIGHT_VALUE;
+            if (ret == 2) {
+                mask |= HEIGHT_PERCENT;
+            }
+        }
+    }
+
+    return mask;
+}
+
+int
+X11::parseGeometryVal(const char *cstr, const char *e_end, int &val)
+{
+    char *end = 0;
+    val = strtoll(cstr, &end, 10);
+    if (*end == '%') {
+        if (val < 0 || val > 100) {
+            return 0;
+        }
+        return 2;
+    }
+    return end == e_end ? 1 : 0;
+}
 
 Display *X11::_dpy;
 bool X11::_honour_randr = false;

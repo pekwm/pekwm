@@ -110,8 +110,8 @@ public:
 
     inline const ClassHint* getClassHint(void) const { return _class_hint; }
 
-    void setGeometry(const std::string geometry, int head=-1);
-    void setGeometry(const Geometry &geometry, int gm_mask, int head=-1);
+    void setGeometry(const std::string geometry, int head=-1, bool honour_strut=false);
+    void setGeometry(const Geometry &geometry, int gm_mask, const Geometry &head);
 
     void growDirection(uint direction);
     void moveToHead(int head_nr);
@@ -163,6 +163,9 @@ protected:
     std::string getDecorName(void);
     // END - PDecor interface
 
+    static void applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask);
+    static void applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask, const Geometry &screen_gm);
+
 private:
     void handleClientStateMessage(XClientMessageEvent *ev, Client *client);
     static StateAction getStateActionFromMessage(XClientMessageEvent *ev);
@@ -182,8 +185,6 @@ private:
     void applyState(Client *cl);
 
     void setupAPGeometry(Client *client, AutoProperty *ap);
-    void applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask);
-    void applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask, const Geometry &screen_gm);
 
     void setActiveTitle(void);
 
