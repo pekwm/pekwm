@@ -6,6 +6,7 @@ configure_file(${CMAKE_SOURCE_DIR}/CMake/config.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
 set(libpekwm_SOURCES
+  Action.cc
   ActionHandler.cc
   ActionMenu.cc
   AutoProperties.cc
