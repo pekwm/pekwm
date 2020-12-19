@@ -11,6 +11,7 @@
 
 #include "config.h"
 
+#include "x11.hh"
 #include "Types.hh"
 
 #include <vector>
@@ -153,39 +154,63 @@ namespace ActionUtil {
 
 class Action {
 public:
-    Action(void)
-    { 
-        clear();
+    Action()
+        : _action(ACTION_UNSET)
+    {
     }
-    
+
     Action(uint action)
     {
-        clear();
         _action = action;
     }
+
     ~Action(void)
     {
     }
 
     inline uint getAction(void) const { return _action; }
-    inline int getParamI(uint n) const { return _param_i[(n < 3) ? n : 0]; }
-    inline const std::string &getParamS(void) const { return _param_s; }
+    inline int getParamI() const {
+        return getParamI(0);
+    }
+    inline int getParamI(uint n) const {
+        return n < _i.size() ? _i[n] : 0;
+    }
+    inline const std::string &getParamS(void) const {
+        return getParamS(0);
+    }
+    inline const std::string &getParamS(uint n) const {
+        return n < _s.size() ? _s[n] : _empty_string;
+    }
 
     inline void setAction(uint action) { _action = action; }
-    inline void setParamI(uint n, int param) { _param_i[(n < 3) ? n : 0] = param; }
-    inline void setParamS(const std::string param) { _param_s = param; }
+    inline void setParamI(uint n, int param) {
+        while (n >= _i.size()) {
+            _i.push_back(0);
+        }
+        _i[n] = param;
+    }
+    inline void setParamS(const std::string param) {
+        setParamS(0, param);
+    }
+    inline void setParamS(uint n, const std::string param) {
+        while (n >= _s.size()) {
+            _s.push_back("");
+        }
+        _s[n] = param;
+    }
 
     inline void clear()
     {
         _action = ACTION_UNSET;
-        _param_s.clear();
-        memset(_param_i, '\0', sizeof(_param_i));
+        _i.clear();
+        _s.clear();
     }
 private:
     uint _action;
+    std::vector<int> _i;
+    std::vector<std::string> _s;
 
-    int _param_i[3];
-    std::string _param_s;
+    static std::string _empty_string;
 };
 
 class ActionEvent {
