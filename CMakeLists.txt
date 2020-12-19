@@ -44,6 +44,7 @@ find_program(SH sh /usr/xpg4/bin/sh /bin/sh /usr/xpg4/bin)
 # Optons
 option(DEBUG "include verbose debugging code")
 option(PEDANTIC "turn on strict compile-time warnings")
+option(TESTS "include tests")
 
 # Compilation
 if (X11_Xshape_FOUND)
@@ -97,3 +98,8 @@ add_subdirectory(contrib)
 add_subdirectory(data)
 add_subdirectory(doc)
 add_subdirectory(src)
+
+if (TESTS)
+   enable_testing()
+   add_subdirectory(test)
+endif (TESTS)
