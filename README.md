@@ -8,10 +8,10 @@ including window grouping (similar to ion, pwm, or fluxbox), auto
 properties, xinerama and keygrabber that supports keychains, and much
 more.
 
-For more information visit http://www.pekwm.org/
+For more information visit https://github.com/pekdon/pekwm/
 
-INSTALL
-=======
+Quick Installation
+==================
 
 If you want to install pekwm from source, follow these steps:
 
@@ -35,3 +35,9 @@ make
 ```
 make install
 ```
+
+Manual
+======
+
+See the [Manual](doc/index.md) for more information on how to use and
+configure pekwm.
