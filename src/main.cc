@@ -32,19 +32,13 @@ extern "C" {
 #include <locale.h>
 }
 
-using std::cout;
-using std::cerr;
-using std::endl;
-using std::string;
-using std::locale;
-
 namespace Info {
 
 //! @brief Prints version
 void
 printVersion(void)
 {
-    cout << "pekwm: version " << VERSION << endl;
+    std::cout << "pekwm: version " << VERSION << std::endl;
 }
 
 //! @brief Prints version and availible options
@@ -52,12 +46,12 @@ void
 printUsage(void)
 {
     printVersion();
-    cout << " --help       show this info." << endl;
-    cout << " --version    show version info" << endl;
-    cout << " --info       extended info. Use for bug reports." << endl;
-    cout << " --display    display to connect to" << endl;
-    cout << " --config     alternative config file" << endl;
-    cout << " --replace    replace running window manager" << endl;
+    std::cout << " --help       show this info." << std::endl;
+    std::cout << " --version    show version info" << std::endl;
+    std::cout << " --info       extended info. Use for bug reports." << std::endl;
+    std::cout << " --display    display to connect to" << std::endl;
+    std::cout << " --config     alternative config file" << std::endl;
+    std::cout << " --replace    replace running window manager" << std::endl;
 }
 
 //! @brief Prints version and build-time options
@@ -65,7 +59,7 @@ void
 printInfo(void)
 {
     printVersion();
-    cout << "features: " << FEATURES << endl;
+    std::cout << "features: " << FEATURES << std::endl;
 }
 
 } // end namespace Info
@@ -74,11 +68,11 @@ printInfo(void)
 int
 main(int argc, char **argv)
 {
-    string config_file;
+    std::string config_file;
     bool replace = false;
 
     try {
-        locale::global(locale(""));
+        std::locale::global(std::locale(""));
     } catch (const std::runtime_error &e) {
         ERR("The environment variables specify an unknown C++ locale - "
             "falling back to C's setlocale().");
@@ -117,12 +111,12 @@ main(int argc, char **argv)
         if (getenv("PEKWM_CONFIG_FILE") && strlen(getenv("PEKWM_CONFIG_FILE"))) {
             config_file = getenv("PEKWM_CONFIG_FILE");
         } else {
-            config_file = string(getenv("HOME")) + string("/.pekwm/config");
+            config_file = std::string(getenv("HOME")) + "/.pekwm/config";
         }
     }
 
 #ifdef DEBUG
-    cout << "Starting pekwm. Use this information in bug reports:" << endl;
+    std::cout << "Starting pekwm. Use this information in bug reports:" << std::endl;
     Info::printInfo();
 #endif // DEBUG
 
@@ -134,7 +128,7 @@ main(int argc, char **argv)
 
             // see if we wanted to restart
             if (WindowManager::instance()->shallRestart()) {
-                string command = WindowManager::instance()->getRestartCommand();
+                std::string command = WindowManager::instance()->getRestartCommand();
 
                 // cleanup before restarting
                 WindowManager::destroy();
@@ -148,9 +142,9 @@ main(int argc, char **argv)
                 }
             }
         } catch (std::exception& ex) {
-            cerr << "exception occurred: " << ex.what() << endl;
-        } catch (string& ex) {
-            cerr << "unexpected error occurred: " << ex << endl;
+            std::cerr << "exception occurred: " << ex.what() << std::endl;
+        } catch (std::string& ex) {
+            std::cerr << "unexpected error occurred: " << ex << std::endl;
         }
         WindowManager::destroy();
     }
