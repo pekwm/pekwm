@@ -9,3 +9,29 @@ properties, xinerama and keygrabber that supports keychains, and much
 more.
 
 For more information visit http://www.pekwm.org/
+
+INSTALL
+=======
+
+If you want to install pekwm from source, follow these steps:
+
+1. Get the sources:
+
+```
+git clone https://github.com/pekdon/pekwm.git
+```
+
+2. Build with cmake:
+
+```
+cd pekwm
+mkdir build && cd build
+cmake ..
+make
+```
+
+3. Install as root:
+
+```
+make install
+```
