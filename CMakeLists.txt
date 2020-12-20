@@ -22,8 +22,6 @@ endif (HAS_CXX11)
 # Look for dependencies
 find_package(X11 REQUIRED)
 find_package(Iconv REQUIRED)
-find_package(Freetype)
-find_package(PNG)
 
 # Look for platform specific methods
 check_function_exists(swprintf HAVE_SWPRINTF)
@@ -42,40 +40,55 @@ endif (GSED)
 find_program(SH sh /usr/xpg4/bin/sh /bin/sh /usr/xpg4/bin)
 
 # Optons
-option(DEBUG "include verbose debugging code")
-option(PEDANTIC "turn on strict compile-time warnings")
-option(TESTS "include tests")
+option(ENABLE_SHAPE "include support for Xshape" ON)
+option(ENABLE_XINERAMA "include support for Xinerama" ON)
+option(ENABLE_RANDR "include support for Xrandr" ON)
+option(ENABLE_XFT "include support for Xft fonts" ON)
+option(ENABLE_IMAGE_XPM "include support for XPM images" ON)
+option(ENABLE_IMAGE_PNG "include support for PNG images" ON)
+
+option(DEBUG "include verbose debugging code" OFF)
+option(PEDANTIC "turn on strict compile-time warnings" OFF)
+option(TESTS "include tests" OFF)
+
+if (ENABLE_XFT)
+  find_package(Freetype)
+endif (ENABLE_XFT)
+
+if (ENABLE_IMAGE_PNG)
+  find_package(PNG)
+endif (ENABLE_IMAGE_PNG)
 
 # Compilation
-if (X11_Xshape_FOUND)
+if (ENABLE_SHAPE AND X11_Xshape_FOUND)
   set(pekwm_FEATURES "${pekwm_FEATURES} XShape")
   set(HAVE_SHAPE 1)
-endif (X11_Xshape_FOUND)
+endif (ENABLE_SHAPE AND X11_Xshape_FOUND)
 
-if (X11_Xinerama_FOUND)
+if (ENABLE_XINERAMA AND X11_Xinerama_FOUND)
   set(pekwm_FEATURES "${pekwm_FEATURES} Xinerama")
   set(HAVE_XINERAMA 1)
-endif (X11_Xinerama_FOUND)
+endif (ENABLE_XINERAMA AND X11_Xinerama_FOUND)
 
-if (X11_Xft_FOUND AND FREETYPE_FOUND)
+if (ENABLE_XFT AND X11_Xft_FOUND AND FREETYPE_FOUND)
   set(pekwm_FEATURES "${pekwm_FEATURES} Xft")
   set(HAVE_XFT 1)
-endif (X11_Xft_FOUND AND FREETYPE_FOUND)
+endif (ENABLE_XFT AND X11_Xft_FOUND AND FREETYPE_FOUND)
 
-if (PNG_FOUND)
+if (ENABLE_IMAGE_PNG AND PNG_FOUND)
   set(pekwm_FEATURES "${pekwm_FEATURES} image-png")
   set(HAVE_IMAGE_PNG 1)
-endif (PNG_FOUND)
+endif (ENABLE_IMAGE_PNG AND PNG_FOUND)
 
-if (X11_Xpm_FOUND)
+if (ENABLE_IMAGE_XPM AND X11_Xpm_FOUND)
   set(pekwm_FEATURES "${pekwm_FEATURES} image-xpm")
   set(HAVE_IMAGE_XPM 1)
-endif (X11_Xpm_FOUND)
+endif (ENABLE_IMAGE_XPM AND X11_Xpm_FOUND)
 
-if (X11_Xrandr_FOUND)
+if (ENABLE_RANDR AND X11_Xrandr_FOUND)
   set(pekwm_FEATURES "${pekwm_FEATURES} Xrandr")
   set(HAVE_XRANDR 1)
-endif (X11_Xrandr_FOUND)
+endif (ENABLE_RANDR AND X11_Xrandr_FOUND)
 
 if (DEBUG)
   set(pekwm_FEATURES "${pekwm_FEATURES} debug")
