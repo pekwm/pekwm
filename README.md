@@ -39,5 +39,5 @@ make install
 Manual
 ======
 
-See the [Manual](doc/index.md) for more information on how to use and
+See the [Manual](doc/README.md) for more information on how to use and
 configure pekwm.
