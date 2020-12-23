@@ -186,7 +186,8 @@ private:
 
     void setupAPGeometry(Client *client, AutoProperty *ap);
 
-    void setActiveTitle(void);
+    void workspacesInsert();
+    void workspacesRemove();
 
     static uint findFrameID(void);
     static void returnFrameID(uint id);
