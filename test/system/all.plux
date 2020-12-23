@@ -15,11 +15,13 @@ in one go.
     !$BIN_DIR/pekwm --display $DISPLAY --config ./pekwm.config
     ?using configuration at ./pekwm.config
     ?failed to open file ./pekwm.config
+    !$_CTRL_C_
     ?SH-PROMPT:
 
     !env PEKWM_CONFIG_FILE=./pekwm.env.config $BIN_DIR/pekwm --display $DISPLAY
     ?using configuration at ./pekwm.env.config
     ?failed to open file ./pekwm.env.config
+    !$_CTRL_C_
     ?SH-PROMPT:
 
     # test without home set, supposed to fail
@@ -28,11 +30,45 @@ in one go.
     ?SH-PROMPT:
 [endfunction]
 
+[function test_update_client_list]
+    [shell test_update_client_list]
+        [log test_update_client_list]
+        ?SH-PROMPT:
+        !env DISPLAY=$DISPLAY $TEST_DIR/test_update_client_list
+        ?BEGIN WINDOWS
+        ?END WINDOWS
+        ?PROGRESS: wait for PropertyNotify
+
+    [shell test_client]
+        !env DISPLAY=$DISPLAY $TEST_DIR/test_client
+        ?Window ([0-9]+)
+        [global window=$1]
+        [log started test client $window]
+
+    [shell test_update_client_list]
+        ?BEGIN WINDOWS
+        ?Window $window
+        ?END WINDOWS
+        -Window $window
+
+    [shell test_client]
+        !$_CTRL_C_
+        ?SH-PROMPT:
+
+    [shell test_update_client_list]
+        ?BEGIN WINDOWS
+        ?END WINDOWS
+        -
+[endfunction]
+
 [shell Xvfb]
     [log starting Xvfb]
     !Xvfb -displayfd 1 $DISPLAY 2>/dev/null
     ?null
     ?1
+
+[shell test]
+    [call test_config_path]
 
 [shell pekwm]
     [log starting pekwm]
@@ -40,4 +76,4 @@ in one go.
     ?Enter event loop.
 
 [shell test]
-    [call test_config_path]
+    [call test_update_client_list]

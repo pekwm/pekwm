@@ -73,3 +73,5 @@ set_target_properties(test_x11 PROPERTIES
   CXX_STANDARD_REQUIRED ON)
 target_include_directories(test_x11 PUBLIC ${common_INCLUDE_DIRS})
 target_link_libraries(test_x11 libpekwm ${common_LIBRARIES})
+
+add_subdirectory(system)

@@ -180,7 +180,6 @@ Frame::~Frame(void)
     _wo_map.erase(_window);
     woListRemove(this);
     _frames.erase(std::remove(_frames.begin(), _frames.end(), this), _frames.end());
-    Workspaces::remove(this);
     WindowManager::instance()->removeFromFrameList(this);
     if (_tag_frame == this) {
         _tag_frame = 0;
@@ -192,8 +191,7 @@ Frame::~Frame(void)
         delete _class_hint;
     }
 
-    Workspaces::updateClientList();
-    Workspaces::updateClientStackingList();
+    workspacesRemove();
 }
 
 // START - PWinObj interface.
@@ -500,9 +498,6 @@ Frame::activateChild(PWinObj *child)
     
     // Reload decor rules if needed.
     handleTitleChange(_client);
-
-    Workspaces::updateClientList();
-    Workspaces::updateClientStackingList();
 }
 
 /**
@@ -942,7 +937,7 @@ Frame::detachClient(Client *client)
         client->move(_gm.x, _gm.y + borderTop());
 
         Frame *frame = new Frame(client, 0);
-        Workspaces::insert(frame);
+        frame->workspacesInsert();
 
         client->setParent(frame);
         client->setWorkspace(Workspaces::getActive());
@@ -1084,12 +1079,10 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: r
                 client->move(e.xmotion.x_root, e.xmotion.y_root);
 
                 Frame *frame = new Frame(client, 0);
-                Workspaces::insert(frame);
-
                 client->setParent(frame);
-
                 // make sure the client ends up on the current workspace
                 client->setWorkspace(Workspaces::getActive());
+                frame->workspacesInsert();
 
                 // make sure it get's focus
                 setFocused(false);
@@ -2414,4 +2407,26 @@ Frame::handleTitleChange(Client *client)
         // title or the name change did not cause the decor to change.
         renderTitle();
     }
+}
+
+/**
+ * Insert Frame into Workspaces and ensure client list is updated.
+ */
+void
+Frame::workspacesInsert()
+{
+    Workspaces::insert(this);
+    Workspaces::updateClientList();
+    Workspaces::updateClientStackingList();
+}
+
+/**
+ * Remove Frame from Workspaces and ensure client list is updated.
+ */
+void
+Frame::workspacesRemove()
+{
+    Workspaces::remove(this);
+    Workspaces::updateClientList();
+    Workspaces::updateClientStackingList();
 }

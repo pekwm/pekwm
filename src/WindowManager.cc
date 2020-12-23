@@ -1439,6 +1439,8 @@ WindowManager::createClient(Window window, bool is_new)
         if (client->isAlive()) {
             if (initConfig.parent_is_new) {
                 Workspaces::insert(client->getParent(), true);
+                Workspaces::updateClientList();
+                Workspaces::updateClientStackingList();
             }
 
             // Make sure the window is mapped, this is done after it has been

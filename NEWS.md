@@ -1,6 +1,11 @@
 pekwm-0.2.0
 ===========
 
+Bug fixes
+---------
+
+* **#7 new windows fail to appear on fbpanel taskbar and pager**, regression introduced in 0.1.18.
+
 New
 ---
 
