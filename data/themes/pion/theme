@@ -1,7 +1,5 @@
-# 
-# pekwm theme for ordinary and tiling mode, based on pwm_brownsteel
-# and ion_cleanice themes modelled after PWM and ION themes.
-#
+# pekwm theme based on pwm_brownsteel and ion_cleanice themes
+# modelled after PWM and ION themes.
 
 $FONT = "XFT#Sans:size=9#Left"
 $FONT_TITLE = "XFT#Sans:size=9#Center"
@@ -111,21 +109,6 @@ PDecor {
       WidthMin = "150"
       WidthMax = "95"
       WidthSymetric = "true"
-
-      Tab {
-        Focused = "SolidRaised #586468 #f8fcf8 #f8fcf8 0 0 1x1"
-        FocusedSelected = "SolidRaised #889898 #f8fcf8 0 0 1x1"
-        Unfocused = "SolidRaised #505c70 #b8bcb8 #b8bcb8  0 0 1x1"
-        UnfocusedSelected = "SolidRaised #283038 #b8bcb8 #b8bcb8 0 0 1x1"
-      }
-    }
-  }
-
-  Decor = "Tiling" {
-    Title {
-      @BaseDecor
-
-      Pad = "2 0 2 0"
 
       Tab {
         Focused = "SolidRaised #586468 #f8fcf8 #f8fcf8 0 0 1x1"

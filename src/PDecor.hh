@@ -169,7 +169,6 @@ public:
     virtual void updatedChildOrder(void) { }
     virtual void updatedActiveChild(void) { }
 
-    virtual bool allowTiling(void) { return ! isSticky(); }
     virtual void getDecorInfo(wchar_t *buf, uint size);
 
     virtual void setShaded(StateAction sa);
