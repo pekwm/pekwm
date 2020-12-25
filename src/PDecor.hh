@@ -311,7 +311,11 @@ protected:
     virtual void renderBorder(void);
     virtual void setBorderShape(void); // shapes border corners
 
-    virtual void loadTheme(void) { } // called after loadDecor, render child
+    // called after loadDecor, render child
+    virtual void loadTheme(void) { }
+    // called after decor change (theme change, decor type change,
+    // border state etc)
+    virtual void decorUpdated(void) { }
 
     virtual int resizeHorzStep(int diff) const { return diff; }
     virtual int resizeVertStep(int diff) const { return diff; }

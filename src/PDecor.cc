@@ -903,6 +903,8 @@ PDecor::loadDecor(void)
 
     // Child theme change.
     loadTheme();
+    // notify on decor change.
+    decorUpdated();
 }
 
 void
@@ -1003,8 +1005,14 @@ PDecor::setBorder(StateAction sa)
     }
 
     restackBorder();
-    if (! updateDecor() && _child) {
-        resizeChild(_child->getWidth(), _child->getHeight());
+    if (updateDecor()) {
+        // updateDecorName returns true, decor already loaded no need
+        // to notify decorUpdated
+    } else {
+        if (_child) {
+            resizeChild(_child->getWidth(), _child->getHeight());
+        }
+        decorUpdated();
     }
 }
 
@@ -1025,10 +1033,15 @@ PDecor::setTitlebar(StateAction sa)
         _titlebar = false;
     }
 
-    // If updateDecorName returns true, it already loaded decor stuff for us.
-    if (! updateDecor() && _child) {
-        alignChild(_child);
-        resizeChild(_child->getWidth(), _child->getHeight());
+    if (updateDecor()) {
+        // updateDecorName returns true, decor already loaded no need
+        // to notify decorUpdated
+    } else {
+        if (_child) {
+            alignChild(_child);
+            resizeChild(_child->getWidth(), _child->getHeight());
+        }
+        decorUpdated();
     }
 }
 

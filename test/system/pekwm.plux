@@ -189,6 +189,41 @@ in one go.
         ?SH-PROMPT:
 [endfunction]
 
+[function test_net_request_frame_extents]
+    [shell test_net_request_frame_extents]
+        -ERROR
+        [call init-shell]
+        [log test_net_request_frame_extents]
+        !$TEST_DIR/test_net_request_frame_extents
+        ?PROGRESS: send _NET_REQUEST_FRAME_EXTENTS
+        ?PROGRESS: wait for PropertyNotify
+        ?PROGRESS: read _NET_FRAME_EXTENTS
+        ?PROGRESS: type_ret 6 format_ret 32 items_ret 4 after_ret 0
+        ?OK: extents left [1-9][0-9]* right [1-9][0-9]* top [1-9][0-9]* bottom [1-9][0-9]*
+        ?SH-PROMPT:
+        !$TEST_DIR/test_net_request_frame_extents on off
+        ?PROGRESS: send _NET_REQUEST_FRAME_EXTENTS
+        ?PROGRESS: wait for PropertyNotify
+        ?PROGRESS: read _NET_FRAME_EXTENTS
+        ?PROGRESS: type_ret 6 format_ret 32 items_ret 4 after_ret 0
+        ?OK: extents left 0 right 0 top [1-9][0-9]* bottom 0
+        ?SH-PROMPT:
+        !$TEST_DIR/test_net_request_frame_extents off on
+        ?PROGRESS: send _NET_REQUEST_FRAME_EXTENTS
+        ?PROGRESS: wait for PropertyNotify
+        ?PROGRESS: read _NET_FRAME_EXTENTS
+        ?PROGRESS: type_ret 6 format_ret 32 items_ret 4 after_ret 0
+        ?OK: extents left [1-9][0-9]* right [1-9][0-9]* top [1-9][0-9]* bottom [1-9][0-9]*
+        ?SH-PROMPT:
+        !$TEST_DIR/test_net_request_frame_extents off off
+        ?PROGRESS: send _NET_REQUEST_FRAME_EXTENTS
+        ?PROGRESS: wait for PropertyNotify
+        ?PROGRESS: read _NET_FRAME_EXTENTS
+        ?PROGRESS: type_ret 6 format_ret 32 items_ret 4 after_ret 0
+        ?OK: extents left 0 right 0 top 0 bottom 0
+        ?SH-PROMPT:
+[endfunction]
+
 [shell Xvfb]
     [call init-shell]
     [log starting Xvfb]
@@ -206,6 +241,7 @@ in one go.
     [call init-shell]
     [call test_cfg_deny_resize_inc]
     [call test_warp_pointer]
+    [call test_net_request_frame_extents]
     [call test_update_client_list_report_all]
 
 [shell pekwm]

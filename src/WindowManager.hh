@@ -101,6 +101,7 @@ private:
 
     void handleConfigureRequestEvent(XConfigureRequestEvent *ev);
     void handleClientMessageEvent(XClientMessageEvent *ev);
+    void handleNetRequestFrameExtents(Window win);
 
     void handleColormapEvent(XColormapEvent *ev);
     void handlePropertyEvent(XPropertyEvent *ev);

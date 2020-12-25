@@ -77,6 +77,8 @@ public:
         return _strut;
     }
 
+    void handlePropertyChange(XPropertyEvent *ev);
+
     void setEwmhWorkarea(const Geometry &workarea);
     void setEwmhActiveWindow(Window win);
     void readEwmhDesktopNames(void);

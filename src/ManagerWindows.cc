@@ -471,6 +471,19 @@ RootWO::updateStrut(void)
 }
 
 /**
+ * Handling of XPropertyEvent on the Root window. Entry point for EWMH
+ * message handling.
+ */
+void
+RootWO::handlePropertyChange(XPropertyEvent *ev)
+{
+    if (ev->atom == X11::getAtom(NET_DESKTOP_NAMES)) {
+        readEwmhDesktopNames();
+        Workspaces::setNames();
+    }
+}
+
+/**
  * Update _NET_WORKAREA property.
  *
  * @param workarea Geometry with work area.

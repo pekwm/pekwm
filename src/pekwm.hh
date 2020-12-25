@@ -36,6 +36,7 @@ extern "C" {
 
 // enums
 
+
 /**
  * _NET_WM_DESKTOP_LAYOUT orientation.
  */

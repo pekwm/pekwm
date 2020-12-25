@@ -29,6 +29,7 @@
 #include "TextureHandler.hh"
 #include "Workspaces.hh"
 #include "Util.hh"
+#include "X11Util.hh"
 #include "x11.hh"
 
 #include "RegexString.hh"
@@ -1329,6 +1330,8 @@ WindowManager::handleClientMessageEvent(XClientMessageEvent *ev)
                 }
             }
         }
+    } else if (ev->message_type == X11::getAtom(NET_REQUEST_FRAME_EXTENTS)) {
+        handleNetRequestFrameExtents(ev->window);
     } else {
         auto client = Client::findClientFromWindow(ev->window);
         if (client) {
@@ -1341,6 +1344,39 @@ WindowManager::handleClientMessageEvent(XClientMessageEvent *ev)
                 pekwm::actionHandler()->handleAction(ap);
             }
         }
+    }
+}
+
+void
+WindowManager::handleNetRequestFrameExtents(Window win)
+{
+    ThemeState *state;
+    MwmThemeState mwm_state;
+    auto client = Client::findClientFromWindow(win);
+    if (client == nullptr) {
+        MwmHints hints = {0};
+        X11Util::readMwmHints(win, hints);
+        mwm_state.setHints(hints);
+        state = &mwm_state;
+    } else {
+        state = static_cast<Frame*>(client->getParent());
+    }
+
+    // _NET_REQUEST_FRAME_EXTENTS is not a required to be correct,
+    // autoproperties and such are ignored and also the decor type.
+    auto data = pekwm::theme()->getPDecorData("DEFAULT");
+    if (data) {
+        ThemeGm theme_gm(data);
+
+        long extents[4];
+        extents[0] = theme_gm.bdLeft(state);
+        extents[1] = theme_gm.bdRight(state);
+        extents[2] = theme_gm.bdTop(state) + theme_gm.titleHeight(state);
+        extents[3] = theme_gm.bdBottom(state);
+        TRACE("setting _NET_FRAME_EXTENTS (" << extents[0] << " "
+              << extents[1] << " " << extents[2] << " " << extents[3]
+              << ") on " << win);
+        X11::setLongs(win, NET_FRAME_EXTENTS, extents, 4);
     }
 }
 
@@ -1360,16 +1396,10 @@ void
 WindowManager::handlePropertyEvent(XPropertyEvent *ev)
 {
     if (ev->window == X11::getRoot()) {
-        if (ev->atom == X11::getAtom(NET_DESKTOP_NAMES)) {
-            pekwm::rootWo()->readEwmhDesktopNames();
-            Workspaces::setNames();
-        }
-
-        return;
+        return pekwm::rootWo()->handlePropertyChange(ev);
     }
 
     Client *client = Client::findClientFromWindow(ev->window);
-
     if (client) {
         ((Frame*) client->getParent())->handlePropertyChange(ev, client);
     }

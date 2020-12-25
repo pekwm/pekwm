@@ -53,11 +53,13 @@ enum AtomName {
     NET_DESKTOP_LAYOUT, NET_SUPPORTING_WM_CHECK,
     NET_CLOSE_WINDOW,
     NET_WM_MOVERESIZE,
+    NET_REQUEST_FRAME_EXTENTS,
     NET_WM_NAME, NET_WM_VISIBLE_NAME,
     NET_WM_ICON_NAME, NET_WM_VISIBLE_ICON_NAME,
     NET_WM_ICON, NET_WM_DESKTOP,
     NET_WM_STRUT, NET_WM_PID,
     NET_WM_USER_TIME,
+    NET_FRAME_EXTENTS,
     NET_WM_WINDOW_OPACITY,
 
     WINDOW_TYPE,
@@ -238,6 +240,17 @@ public:
     Strut(long l=0, long r=0, long t=0, long b=0, int nhead=-1)
         : left(l), right(r), top(t), bottom(b), head(nhead) { };
     ~Strut(void) { };
+
+    bool isSet() const {
+        return left != 0 || right != 0 || top != 0 || bottom != 0;
+    }
+    void clear() {
+        left = 0;
+        right = 0;
+        top = 0;
+        bottom = 0;
+    }
+
 public: // member variables
     long left; /**< Pixels allocated on the left of the head. */
     long right; /**<Pixels allocated on the right of the head. */

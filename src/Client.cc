@@ -931,42 +931,45 @@ Client::readEwmhHints(void)
     getStrutHint();
 }
 
-//! @brief Loads the Clients state from MWM atoms.
+/**
+ * Loads the Clients state from MWM atoms.
+ */
 void
 Client::readMwmHints(void)
 {
-    MwmHints *mwm_hints = getMwmHints(_window);
+    MwmHints mwm_hints;
+    if (! X11Util::readMwmHints(_window, mwm_hints)) {
+        return;
+    }
 
-    if (mwm_hints) {
-        if (mwm_hints->flags&MWM_HINTS_FUNCTIONS) {
-            bool state = ! (mwm_hints->functions&MWM_FUNC_ALL);
+    if (mwm_hints.flags&MWM_HINTS_FUNCTIONS) {
+        bool state = ! (mwm_hints.functions&MWM_FUNC_ALL);
+#define IS_MWM_FUNC(flag) (mwm_hints.functions&(flag)) ? state : !state;
+        _actions.resize = IS_MWM_FUNC(MWM_FUNC_RESIZE);
+        _actions.move = IS_MWM_FUNC(MWM_FUNC_MOVE);
+        _actions.iconify = IS_MWM_FUNC(MWM_FUNC_ICONIFY);
+        _actions.close = IS_MWM_FUNC(MWM_FUNC_CLOSE);
+        _actions.maximize_vert = IS_MWM_FUNC(MWM_FUNC_MAXIMIZE);
+        _actions.maximize_horz = IS_MWM_FUNC(MWM_FUNC_MAXIMIZE);
+#undef IS_MWM_FUNC
+    }
 
-            _actions.resize   = (mwm_hints->functions&MWM_FUNC_RESIZE)  ? state : ! state;
-            _actions.move     = (mwm_hints->functions&MWM_FUNC_MOVE)    ? state : ! state;
-            _actions.iconify  = (mwm_hints->functions&MWM_FUNC_ICONIFY) ? state : ! state;
-            _actions.close    = (mwm_hints->functions&MWM_FUNC_CLOSE)   ? state : ! state;
-            _actions.maximize_vert = (mwm_hints->functions&MWM_FUNC_MAXIMIZE) ? state : ! state;
-            _actions.maximize_horz = (mwm_hints->functions&MWM_FUNC_MAXIMIZE) ? state : ! state;
-        }
-
-        // Check decoration flags
-        if (mwm_hints->flags & MWM_HINTS_DECORATIONS) {
-            if (mwm_hints->decorations & MWM_DECOR_ALL) {
-                setTitlebar(true);
-                setBorder(true);
-            } else {
-                if (! (mwm_hints->decorations & MWM_DECOR_TITLE)) {
-                    setTitlebar(false);
-                }
-                if (! (mwm_hints->decorations & MWM_DECOR_BORDER)) {
-                    setBorder(false);
-                }
-                // Do not handle HANDLE, MENU, ICONFIY or MAXIMIZE. Maybe
-                // one should set the allowed actions for the client based
-                // on this but that might be annoying so ignoring these.
+    // Check decoration flags
+    if (mwm_hints.flags & MWM_HINTS_DECORATIONS) {
+        if (mwm_hints.decorations & MWM_DECOR_ALL) {
+            setTitlebar(true);
+            setBorder(true);
+        } else {
+            if (! (mwm_hints.decorations & MWM_DECOR_TITLE)) {
+                setTitlebar(false);
             }
+            if (! (mwm_hints.decorations & MWM_DECOR_BORDER)) {
+                setBorder(false);
+            }
+            // Do not handle HANDLE, MENU, ICONFIY or MAXIMIZE. Maybe
+            // one should set the allowed actions for the client based
+            // on this but that might be annoying so ignoring these.
         }
-        X11::free(mwm_hints);
     }
 }
 
@@ -1561,36 +1564,6 @@ Client::getIncSize(const XSizeHints& size,
     *r_w = w;
     *r_h = h;
     return false;
-}
-
-//! @brief Gets a MwmHint structure from a window. Doesn't free memory.
-Client::MwmHints*
-Client::getMwmHints(Window win)
-{
-    Atom real_type; int real_format;
-    ulong items_read, items_left;
-    MwmHints *data = 0;
-    uchar *udata;
-
-    Atom hints_atom = X11::getAtom(MOTIF_WM_HINTS);
-
-    int status = XGetWindowProperty(X11::getDpy(), win, hints_atom, 0L, 20L, False, hints_atom,
-                                    &real_type, &real_format, &items_read, &items_left, &udata);
-
-    if (status == Success) {
-        if (items_read < MWM_HINTS_NUM) {
-            X11::free(udata);
-            udata = 0;
-        }
-    } else {
-        udata = 0;
-    }
-
-    if (udata) {
-        data = reinterpret_cast<MwmHints*>(udata);
-    }
-
-    return data;
 }
 
 // This happens when a window is iconified and destroys itself. An

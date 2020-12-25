@@ -44,6 +44,29 @@ namespace X11Util {
     }
 
     /**
+     * Reads MWM hints from a client.
+     *
+     * @return true if the hint was read succesfully.
+     */
+    bool
+    readMwmHints(Window win, MwmHints &hints)
+    {
+        Atom atom = X11::getAtom(MOTIF_WM_HINTS);
+        uchar *data;
+        ulong items_read;
+        if (! X11::getProperty(win, atom, atom, 20L, &data, &items_read)) {
+            return false;
+        }
+
+        if (items_read >= MWM_HINTS_NUM) {
+            hints = *reinterpret_cast<MwmHints*>(data);
+        }
+
+        X11::free(data);
+        return items_read >= MWM_HINTS_NUM;
+    }
+
+    /**
      * Read EWMH state atoms on window.
      */
     bool

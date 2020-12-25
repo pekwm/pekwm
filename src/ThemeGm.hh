@@ -10,6 +10,7 @@
 
 #include "Theme.hh"
 #include "PTexturePlain.hh"
+#include "X11Util.hh"
 
 class ThemeState {
 public:
@@ -17,6 +18,38 @@ public:
     virtual bool hasTitlebar(void) const = 0;
     virtual bool isShaded(void) const = 0;
     virtual FocusedState getFocusedState(bool selected) const = 0;
+};
+
+/**
+ * Theme state based on MWM hints.
+ */
+class MwmThemeState : public ThemeState {
+public:
+    void setHints(const MwmHints &hints) { _hints = hints; }
+
+    virtual bool hasBorder(void) const override {
+        if (_hints.flags & MWM_HINTS_DECORATIONS) {
+            return _hints.decorations & (MWM_DECOR_ALL | MWM_DECOR_BORDER);
+        } else {
+            return true;
+        }
+    }
+    virtual bool hasTitlebar(void) const override {
+        if (_hints.flags & MWM_HINTS_DECORATIONS) {
+            return _hints.decorations & (MWM_DECOR_ALL | MWM_DECOR_TITLE);
+        } else {
+            return true;
+        }
+    }
+    virtual bool isShaded(void) const override {
+        return false;
+    }
+    virtual FocusedState getFocusedState(bool selected) const override {
+        return FOCUSED_STATE_FOCUSED;
+    }
+
+private:
+    MwmHints _hints;
 };
 
 class ThemeGm {
@@ -35,7 +68,7 @@ public:
         return bdLeft(state) + bdRight(state);
     }
     uint decorHeight(const ThemeState *state) const {
-        return bdTop(state) + bdBottom(state) + titleHeight(state);
+       return bdTop(state) + bdBottom(state) + titleHeight(state);
     }
 
     /** Returns font used at FocusedState state. */
