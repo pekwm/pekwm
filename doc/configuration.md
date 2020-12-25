@@ -318,7 +318,7 @@ all values should be placed inside quotes.
 
 | Keyword             | Type    | Description                                                                                                                       |
 |---------------------|---------|-----------------------------------------------------------------------------------------------------------------------------------|
-| TransientOnParent   | boolean | Set to true if you want the transient windows to be mappend on their "parent" window (tiling layouters might ignore this option). |
+| TransientOnParent   | boolean | Set to true if you want the transient windows to be mappend on their "parent" window. |
 | Model               | string  | Default placement model, one of the below Placement Models.                                                                       |
 | WorkspacePlacements | string  | List of placement models for the workspaces separated by ;. For an explanation of the allowed options see "Model" above.          |
 
