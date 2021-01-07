@@ -132,7 +132,7 @@ a **$**, global variables with **$\_**.
 ```
 # examples of how to set both type of variables
 $INTERNAL = "this is an internal variable"
-$\_GLOBAL = "this is a global variable"
+$_GLOBAL = "this is a global variable"
 
 # examples of how to read both type of variables
 RootMenu = "Menu" {
@@ -291,7 +291,7 @@ all values should be placed inside quotes.
 |--------------------------------|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | Workspaces                     | int             | Number of workspaces enabled.                                                                                                                                             |
 | WorkspacesPerRow               | int             | Number of workspaces on each row. Value < 1 fits all workspaces on a single row.                                                                                          |
-| WorkspaceNames                 | string          | List of names for workspaces separated by ;.                                                                                                                              |
+| WorkspaceNames                 | string          | List of names for workspaces separated by semicolon.                                                                                                                              |
 | ShowFrameList                  | boolean         | Controls whether a list of all available frames on the workspace is displayed during the NextFrame/PrevFrame actions.                                                     |
 | ShowStatusWindow               | boolean         | Controls whether a size/position info window is shown when moving or resizing windows.                                                                                    |
 | ShowStatusWindowCenteredOnRoot | boolean         | Controls whether a size/position info window is shown centered on the current head or the current window.                                                                 |
@@ -320,7 +320,7 @@ all values should be placed inside quotes.
 |---------------------|---------|-----------------------------------------------------------------------------------------------------------------------------------|
 | TransientOnParent   | boolean | Set to true if you want the transient windows to be mappend on their "parent" window. |
 | Model               | string  | Default placement model, one of the below Placement Models.                                                                       |
-| WorkspacePlacements | string  | List of placement models for the workspaces separated by ;. For an explanation of the allowed options see "Model" above.          |
+| WorkspacePlacements | string  | List of placement models for the workspaces separated by semicolon. For an explanation of the allowed options see "Model" above.  |
 
 Placement Models:
 
