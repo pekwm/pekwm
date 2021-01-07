@@ -610,9 +610,7 @@ Geometry
 X11::getHeadGeometry(uint head)
 {
     Geometry gm(_screen_gm);
-    if (head > -1) {
-        getHeadInfo(head, gm);
-    }
+    getHeadInfo(head, gm);
     return gm;
 }
 
