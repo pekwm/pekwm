@@ -484,7 +484,7 @@ name (see [Custom Menus](configuration.md#custom-menus)):
 Bool is true for sticky menus, false for click to vanish. Defaults to
 false.
 
-** HideAllMenus**
+**HideAllMenus**
 
 Closes all pekwm menus.
 

@@ -155,13 +155,8 @@ the version (**/usr/local/bin/pekwm --version**).
 ### Can I turn off this sloppy focus crap?
 
 Yes. You can. You need to make all enter and leave events not affect
-the focus of frames, borders, clients. Simply, just comment out all
-the Enter lines that use the action Focus in _~/.pekwm/mouse_.
-
-The default _~/.pekwm/mouse_ configuration file has helpful "# Remove
-the following line if you want to use click to focus." notes in it to
-make this easier. Just search for such lines and remove or comment out
-the line (using a # in front of the line) next to the message.
+the focus of frames, borders, clients. See the comments above the
+`$CLIENT_CLICK = "Focus"` line in _~/.pekwm/mouse_.
 
 See [Mouse Bindings](actions.md#keys-and-mouse) for more info on the
 mouse configuration file.
@@ -386,5 +381,10 @@ Screen {
 ```
 
 ***
+
+### Mouse scrolling does not work with GTK3 applications?
+
+You need to set the environment variable `GDK_CORE_DEVICE_EVENTS` to
+1.
 
 [< Previous (Themes)](themes.md) - [(Development) Next >](development.md)
