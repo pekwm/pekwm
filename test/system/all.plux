@@ -1,0 +1,43 @@
+[doc]
+Run system tests using Xvfb
+
+Start a single Xvfb and pekwm session and run all pekwm system tests
+in one go.
+[enddoc]
+
+[global BIN_DIR=../../build/src]
+[global TEST_DIR=../../build/test/system]
+[global DISPLAY=:1]
+
+# test possible ways of setting the configuration file used by pekwm
+[function test_config_path]
+    [log test_config_path]
+    !$BIN_DIR/pekwm --display $DISPLAY --config ./pekwm.config
+    ?using configuration at ./pekwm.config
+    ?failed to open file ./pekwm.config
+    ?SH-PROMPT:
+
+    !env PEKWM_CONFIG_FILE=./pekwm.env.config $BIN_DIR/pekwm --display $DISPLAY
+    ?using configuration at ./pekwm.env.config
+    ?failed to open file ./pekwm.env.config
+    ?SH-PROMPT:
+
+    # test without home set, supposed to fail
+    !env -i $BIN_DIR/pekwm --display $DISPLAY
+    ???failed to get configuration file path, $HOME not set.
+    ?SH-PROMPT:
+[endfunction]
+
+[shell Xvfb]
+    [log starting Xvfb]
+    !Xvfb -displayfd 1 $DISPLAY 2>/dev/null
+    ?null
+    ?1
+
+[shell pekwm]
+    [log starting pekwm]
+    !$BIN_DIR/pekwm --display $DISPLAY
+    ?Enter event loop.
+
+[shell test]
+    [call test_config_path]

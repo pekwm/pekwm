@@ -291,7 +291,7 @@ WindowManager::setupDisplay(bool replace)
     if (! dpy) {
         cerr << "Can not open display!" << endl
              << "Your DISPLAY variable currently is set to: "
-             << getenv("DISPLAY") << endl;
+             << Util::getEnv("DISPLAY") << endl;
         exit(1);
     }
 
