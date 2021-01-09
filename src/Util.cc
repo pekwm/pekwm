@@ -78,6 +78,15 @@ const wchar_t *ICONV_WIDE_INVALID_STR = L"<INVALID>";
 // Constants, maximum number of bytes a single UTF-8 character can use.
 const size_t UTF8_MAX_BYTES = 6;
 
+/**
+ * Return environment variabel as string.
+ */
+std::string getEnv(const std::string& key)
+{
+    auto val = getenv(key.c_str());
+    return val ? val : "";
+}
+
 //! @brief Fork and execute command with /bin/sh and execlp
 void
 forkExec(std::string command)
@@ -267,7 +276,7 @@ expandFileName(std::string &file)
 {
     if (file.size() > 0) {
         if (file[0] == '~') {
-            file.replace(0, 1, getenv("HOME"));
+            file.replace(0, 1, getEnv("HOME"));
         }
     }
 }

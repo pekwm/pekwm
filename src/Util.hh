@@ -39,6 +39,8 @@ namespace String {
 
 //! @brief Namespace Util used for various small file/string tasks.
 namespace Util {
+    std::string getEnv(const std::string& key);
+
     void forkExec(std::string command);
     std::string getHostname(void);
 

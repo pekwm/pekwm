@@ -122,7 +122,7 @@ public:
         _path_list.clear();
 
         vector<string> path_parts;
-        Util::splitString(getenv("PATH") ? getenv("PATH") : "", path_parts, ":");
+        Util::splitString(Util::getEnv("PATH"), path_parts, ":");
 
         vector<string>::iterator it(path_parts.begin());
         for (; it != path_parts.end(); ++it) {

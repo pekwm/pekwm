@@ -34,43 +34,49 @@ extern "C" {
 
 namespace Info {
 
-//! @brief Prints version
-void
-printVersion(void)
-{
-    std::cout << "pekwm: version " << VERSION << std::endl;
-}
+    /**
+     * Prints version
+     */
+    void
+    printVersion(void)
+    {
+        std::cout << "pekwm: version " << VERSION << std::endl;
+    }
 
-//! @brief Prints version and availible options
-void
-printUsage(void)
-{
-    printVersion();
-    std::cout << " --help       show this info." << std::endl;
-    std::cout << " --version    show version info" << std::endl;
-    std::cout << " --info       extended info. Use for bug reports." << std::endl;
-    std::cout << " --display    display to connect to" << std::endl;
-    std::cout << " --config     alternative config file" << std::endl;
-    std::cout << " --replace    replace running window manager" << std::endl;
-}
+    /**
+     * Prints version and availible options
+     */
+    void
+    printUsage(void)
+    {
+        printVersion();
+        std::cout
+            << " --help     show this info." << std::endl
+            << " --version  show version info" << std::endl
+            << " --info     extended info. Use for bug reports." << std::endl
+            << " --display  display to connect to" << std::endl
+            << " --config   alternative config file" << std::endl
+            << " --replace  replace running window manager" << std::endl;
+    }
 
-//! @brief Prints version and build-time options
-void
-printInfo(void)
-{
-    printVersion();
-    std::cout << "features: " << FEATURES << std::endl;
-}
+    /**
+     * Prints version and build-time options
+     */
+    void
+    printInfo(void)
+    {
+        printVersion();
+        std::cout << "features: " << FEATURES << std::endl;
+    }
 
 } // end namespace Info
 
-//! @brief Main function of pekwm
+/**
+ * Main function of pekwm
+ */
 int
 main(int argc, char **argv)
 {
-    std::string config_file;
-    bool replace = false;
-
     try {
         std::locale::global(std::locale(""));
     } catch (const std::runtime_error &e) {
@@ -86,6 +92,8 @@ main(int argc, char **argv)
     setenv("PEKWM_THEME_PATH", DATADIR "/pekwm/themes", 1);
 
     // get the args and test for different options
+    std::string config_file;
+    bool replace = false;
     for (int i = 1; i < argc; ++i)	{
         if ((strcmp("--display", argv[i]) == 0) && ((i + 1) < argc)) {
             setenv("DISPLAY", argv[++i], 1);
@@ -108,27 +116,37 @@ main(int argc, char **argv)
     // Get configuration file if none was specified as a parameter,
     // default to reading environment, if not set get ~/.pekwm/config
     if (config_file.size() == 0) {
-        if (getenv("PEKWM_CONFIG_FILE") && strlen(getenv("PEKWM_CONFIG_FILE"))) {
-            config_file = getenv("PEKWM_CONFIG_FILE");
-        } else {
-            config_file = std::string(getenv("HOME")) + "/.pekwm/config";
+        config_file = Util::getEnv("PEKWM_CONFIG_FILE");
+        if (config_file.size() == 0) {
+            auto home = Util::getEnv("HOME");
+            if (home.size() == 0) {
+                std::cerr << "failed to get configuration file path, "
+                          << "$HOME not set." << std::endl;
+                exit(1);
+            }
+            config_file = home + "/.pekwm/config";
         }
     }
 
 #ifdef DEBUG
-    std::cout << "Starting pekwm. Use this information in bug reports:" << std::endl;
+    std::cout << "Starting pekwm. Use this information in bug reports:"
+              << std::endl;
     Info::printInfo();
+    std::cout << "using configuration at " << config_file << std::endl;
 #endif // DEBUG
 
-    WindowManager *wm = WindowManager::start(config_file, replace);
+    auto wm = WindowManager::start(config_file, replace);
 
     if (wm) {
         try {
+#ifdef DEBUG
+            std::cout << "Enter event loop." << std::endl;
+#endif // DEBUG
             wm->doEventLoop();
 
             // see if we wanted to restart
             if (WindowManager::instance()->shallRestart()) {
-                std::string command = WindowManager::instance()->getRestartCommand();
+                auto command = WindowManager::instance()->getRestartCommand();
 
                 // cleanup before restarting
                 WindowManager::destroy();

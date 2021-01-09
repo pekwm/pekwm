@@ -37,7 +37,6 @@ using std::pair;
 using std::ifstream;
 using std::ofstream;
 using std::strtol;
-using std::getenv;
 
 Config* Config::_instance = 0;
 
@@ -471,8 +470,8 @@ Config::load(const std::string &config_file)
     }
 
     // Update PEKWM_CONFIG_FILE environment if needed (to reflect active file)
-    char *cfg_env = getenv("PEKWM_CONFIG_FILE");
-    if (! cfg_env || (strcmp(cfg_env, _config_file.c_str()) != 0)) {
+    auto cfg_env = Util::getEnv("PEKWM_CONFIG_FILE");
+    if (cfg_env.size() == 0 || _config_file.compare(cfg_env) != 0) {
         setenv("PEKWM_CONFIG_FILE", _config_file.c_str(), 1);
     }
 
@@ -1487,7 +1486,7 @@ Config::tryHardLoadConfig(CfgParser &cfg, std::string &file)
 
     // Try loading ~/.pekwm/config
     if (! success) {
-        file = string(getenv("HOME")) + string("/.pekwm/config");
+        file = Util::getEnv("HOME") + "/.pekwm/config";
         success = cfg.parse(file, CfgParserSource::SOURCE_FILE, true);
 
         // Copy cfg files to ~/.pekwm and try loading ~/.pekwm/config again.
@@ -1510,7 +1509,7 @@ Config::tryHardLoadConfig(CfgParser &cfg, std::string &file)
 void
 Config::copyConfigFiles(void)
 {
-    string cfg_dir = getenv("HOME") + string("/.pekwm");
+    string cfg_dir = Util::getEnv("HOME") + "/.pekwm";
 
     string cfg_file = cfg_dir + string("/config");
     string keys_file = cfg_dir + string("/keys");
