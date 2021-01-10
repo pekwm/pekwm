@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.5)
 
 file(GLOB default_png_files "${CMAKE_CURRENT_SOURCE_DIR}/*.png")
 

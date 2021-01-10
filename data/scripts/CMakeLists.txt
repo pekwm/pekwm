@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.5)
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/pekwm_themeset.sh.in
   ${CMAKE_CURRENT_BINARY_DIR}/pekwm_themeset.sh @ONLY)
