@@ -91,7 +91,19 @@ CmdDialog::exec(void)
     return &_ae;
 }
 
-//! @brief Unmaps window, overloaded to clear buffer.
+/**
+ * Map window, overloaded to refresh completions.
+ */
+void
+CmdDialog::mapWindow(void)
+{
+    InputDialog::mapWindow();
+    _completer.refresh();
+}
+
+/**
+ * Unmaps window, overloaded to clear buffer and unset reference.
+ */
 void
 CmdDialog::unmapWindow(void)
 {
@@ -99,6 +111,7 @@ CmdDialog::unmapWindow(void)
         InputDialog::unmapWindow();
         setWORef(0);
         bufClear();
+        _completer.clear();
     }
 }
 
