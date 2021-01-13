@@ -1,3 +1,5 @@
+![pekwm logo](pekwm_logo.svg)
+
 README
 ======
 
