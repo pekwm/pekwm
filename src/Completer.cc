@@ -70,6 +70,8 @@ public:
     virtual unsigned int complete(CompletionState &completion_state) { return 0; }
     /** Refresh completion list. */
     virtual void refresh(void)=0;
+    /** Clear completion list. */
+    virtual void clear(void)=0;
 
 protected:
     /**
@@ -118,8 +120,7 @@ public:
     }
 
     void refresh(void) {
-        // Clear out previous data
-        _path_list.clear();
+        clear();
 
         vector<string> path_parts;
         Util::splitString(Util::getEnv("PATH"), path_parts, ":");
@@ -135,6 +136,10 @@ public:
 
         std::unique(_path_list.begin(), _path_list.end());
         std::sort(_path_list.begin(), _path_list.end());
+    }
+
+    void clear(void) {
+        _path_list.clear();
     }
 
 private:
@@ -225,6 +230,8 @@ public:
         completions_list_from_name_list(MenuHandler::getMenuNames(), _menu_list);
     }
 
+    void clear(void) { }
+
 private:
     State find_state(CompletionState &completion_state);
     size_t find_state_word_start(const std::wstring &str);
@@ -269,6 +276,24 @@ Completer::~Completer(void)
 {
     delete _completer_action;
     delete _completer_path;
+}
+
+/**
+ * Refresh completions.
+ */
+void
+Completer::refresh()
+{
+    _completer_path->refresh();
+}
+
+/**
+ * Clear data used by completions.
+ */
+void
+Completer::clear()
+{
+    _completer_path->clear();
 }
 
 /**

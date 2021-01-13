@@ -13,6 +13,10 @@ New
 Updated
 -------
 
+**CmdDialog** no longer cache the list of available commands reducing
+memory consumption and speeding up start at the cost of slower mapping
+of the CmdDialog.
+
 **SetGeometry** now support specifying size and position in % of the
 screen or active head.
 

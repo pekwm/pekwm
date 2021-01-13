@@ -26,6 +26,9 @@ public:
     CmdDialog(Theme *theme);
     virtual ~CmdDialog(void);
 
+    // BEGIN - PWinObj interface
+    virtual void mapWindow(void);
+    // END - PWinObj interface
     void unmapWindow(void);
 
     virtual void mapCentered(const std::string &buf, const Geometry &geom, PWinObj *wo_ref);

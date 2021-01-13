@@ -48,6 +48,9 @@ public:
     /** Completer destructor. */
     ~Completer(void);
 
+    void refresh();
+    void clear();
+
     complete_list find_completions(const std::wstring &str, unsigned int pos);
     std::wstring do_complete(const std::wstring &str, unsigned int &pos,
                              complete_list &completions, complete_it &it);
