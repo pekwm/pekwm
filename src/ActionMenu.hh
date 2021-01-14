@@ -26,7 +26,7 @@ class ActionHandler;
 class ActionMenu : public WORefMenu
 {
 public:
-    ActionMenu(MenuType type,
+    ActionMenu(MenuType type, ActionHandler *act,
                const std::wstring &title, const std::string &name,
                const std::string &decor_name = "MENU");
     virtual ~ActionMenu(void);

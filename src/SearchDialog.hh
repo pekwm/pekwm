@@ -14,7 +14,6 @@
 #include "pekwm.hh"
 
 #include "InputDialog.hh"
-#include "Theme.hh"
 #include "PMenu.hh"
 
 #include <string>
@@ -25,7 +24,7 @@
  */
 class SearchDialog : public InputDialog {
 public:
-    SearchDialog(Theme *theme);
+    SearchDialog();
     virtual ~SearchDialog(void);
 
     void unmapWindow(void);

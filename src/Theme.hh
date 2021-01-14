@@ -1,3 +1,5 @@
+
+
 //
 // Theme.hh for pekwm
 // Copyright (C) 2003-2020 Claes Nästén <pekdon@gmail.com>
@@ -25,6 +27,7 @@ class ImageHandler;
 
 #include <string>
 #include <map>
+#include <vector>
 
 //! @brief Theme data parser and container.
 class Theme
@@ -63,7 +66,9 @@ public:
         void check(void);
 
     private:
-        vector<ActionEvent> _aes;
+        bool _loaded;
+
+        std::vector<ActionEvent> _aes;
         PTexture *_texture[BUTTON_STATE_NO];
 
         bool _shape:1, _left:1;
@@ -161,6 +166,7 @@ public:
         void checkColors(void);
 
     private:
+        bool _loaded;
         std::string _name;
 
         // size, padding etc
@@ -228,6 +234,8 @@ public:
         void loadState(CfgParser::Entry *cs, ObjectState state);
 
     private:
+        bool _loaded;
+
         PFont *_font[OBJECT_STATE_NO + 1];
         PFont::Color *_color[OBJECT_STATE_NO + 1];
         PTexture *_tex_menu[OBJECT_STATE_NO + 1];
@@ -260,6 +268,8 @@ public:
         void check(void);
 
     private:
+        bool _loaded;
+
         PFont *_font;
         PFont::Color *_color;
         PTexture *_tex;
@@ -278,6 +288,9 @@ public:
         bool load(CfgParser::Entry *section);
         void unload(void);
         void check(void);
+
+    private:
+        bool _loaded;
 
     public:
         PFont *font;
@@ -304,7 +317,9 @@ public:
         void unload(void);
         void check(void);
     private:
-        PTexture *_texture; /**< Texture for rendering dockapps in the harbour. */
+        bool _loaded;
+        /**< Texture for rendering dockapps in the harbour. */
+        PTexture *_texture;
     };
 
     inline Theme::HarbourData *getHarbourData(void) { return &_harbour_data; }
@@ -312,22 +327,26 @@ public:
     Theme(void);
     ~Theme(void);
 
+    static Theme* instance() { return _instance; }
+
+    void init();
+    void cleanup();
+
     bool load(const std::string &dir);
     void unload(void);
 
     inline const GC &getInvertGC(void) const { return _invert_gc; }
 
-    inline std::map<std::string, Theme::PDecorData*>::const_iterator decor_begin(void) { return _pdecordata_map.begin(); }
-    inline std::map<std::string, Theme::PDecorData*>::const_iterator decor_end(void) { return _pdecordata_map.end(); }
+    std::map<std::string, Theme::PDecorData*>::const_iterator decor_begin(void) { return _pdecordata_map.begin(); }
+    std::map<std::string, Theme::PDecorData*>::const_iterator decor_end(void) { return _pdecordata_map.end(); }
 
     /**
      * Find PDecorData based on name.
      */
     Theme::PDecorData *getPDecorData(const std::string &name) {
-        std::map<std::string, Theme::PDecorData*>::iterator it = _pdecordata_map.begin();
-        for (; it != _pdecordata_map.end(); ++it) {
-            if (strcasecmp(it->first.c_str(), name.c_str()) == 0) {
-                return it->second;
+        for (auto it : _pdecordata_map) {
+            if (strcasecmp(it.first.c_str(), name.c_str()) == 0) {
+                return it.second;
             }
         }
 
@@ -357,7 +376,8 @@ private:
     std::string _theme_dir; /**< Path to theme directory. */
     TimeFiles _cfg_files;
 
-    bool _is_loaded;
+    bool _init;
+    bool _loaded;
 
     // gc
     GC _invert_gc;
@@ -373,6 +393,8 @@ private:
     // status window
     TextDialogData _status_data, _cmd_d_data;
     WorkspaceIndicatorData _ws_indicator_data;
+
+    static Theme* _instance;
 };
 
 #endif // _THEME_HH_

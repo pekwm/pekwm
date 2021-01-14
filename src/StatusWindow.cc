@@ -22,8 +22,8 @@
 StatusWindow *StatusWindow::_instance = 0;
 
 //! @brief StatusWindow constructor
-StatusWindow::StatusWindow(Theme *theme)
-    : PDecor(theme, "STATUSWINDOW"),
+StatusWindow::StatusWindow()
+    : PDecor("STATUSWINDOW"),
       _bg(None)
 {
     if (_instance) {
@@ -80,13 +80,14 @@ void
 StatusWindow::draw(const std::wstring &text, bool do_center, Geometry *gm)
 {
     uint width, height;
-    PFont *font = _theme->getStatusData()->getFont(); // convenience
+    auto sd = Theme::instance()->getStatusData();
+    PFont *font = sd->getFont();
 
     width = font->getWidth(text.c_str()) + 10;
     width = width - (width % 10);
     height = font->getHeight()
-             + _theme->getStatusData()->getPad(PAD_UP)
-             + _theme->getStatusData()->getPad(PAD_DOWN);
+             + sd->getPad(PAD_UP)
+             + sd->getPad(PAD_DOWN);
 
     if ((width != getChildWidth()) || (height != getChildHeight())) {
         resizeChild(width, height);
@@ -103,11 +104,11 @@ StatusWindow::draw(const std::wstring &text, bool do_center, Geometry *gm)
         move(gm->x + (gm->width - _gm.width) / 2, gm->y + (gm->height - _gm.height) / 2);
     }
 
-    font->setColor(_theme->getStatusData()->getColor());
+    font->setColor(sd->getColor());
     _status_wo->clear();
     font->draw(_status_wo->getWindow(),
                (width - font->getWidth(text.c_str())) / 2,
-               _theme->getStatusData()->getPad(PAD_UP),
+               sd->getPad(PAD_UP),
                text.c_str());
 }
 
@@ -131,7 +132,9 @@ StatusWindow::render(void)
 {
     X11::freePixmap(_bg);
     _bg = X11::createPixmap(_status_wo->getWidth(), _status_wo->getHeight());
-    _theme->getStatusData()->getTexture()->render(_bg, 0, 0, _status_wo->getWidth(), _status_wo->getHeight());
+    auto sd = Theme::instance()->getStatusData();
+    sd->getTexture()->render(_bg, 0, 0,
+                             _status_wo->getWidth(), _status_wo->getHeight());
 
     _status_wo->setBackgroundPixmap(_bg);
     _status_wo->clear();

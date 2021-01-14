@@ -14,7 +14,6 @@
 #include "Action.hh"
 #include "Completer.hh"
 #include "InputDialog.hh"
-#include "Theme.hh"
 
 #include <list>
 #include <string>
@@ -23,7 +22,7 @@
 class CmdDialog : public InputDialog
 {
 public:
-    CmdDialog(Theme *theme);
+    CmdDialog();
     virtual ~CmdDialog(void);
 
     // BEGIN - PWinObj interface

@@ -128,11 +128,12 @@ WindowManager::start(const std::string &config_file, bool replace)
 
         _instance->_root_wo->setEwmhDesktopNames();
         _instance->_root_wo->setEwmhDesktopLayout();
-    
+
         // add all frames to the MRU list
-        _instance->_mru.resize(Frame::frame_size());
-        copy(Frame::frame_begin(), Frame::frame_end(),
-             _instance->_mru.begin());
+        auto it = Frame::frame_begin();
+        for (; it != Frame::frame_end(); ++it) {
+            Workspaces::addToMRUBack(*it);
+        }
 
         _instance->execStartFile();
     } else {
@@ -157,16 +158,19 @@ WindowManager::destroy(void)
 WindowManager::WindowManager(const std::string &config_file) :
         _keygrabber(0),
         _config(0),
-        _font_handler(0), _texture_handler(0),
-        _theme(0), _action_handler(0),
-        _autoproperties(0),
+        _action_handler(0),
         _harbour(0),
-        _cmd_dialog(0), _search_dialog(0),
-        _status_window(0), _workspace_indicator(0),
-        _startup(false), _shutdown(false),
-        _reload(false), _restart(false),
-        _allow_grouping(true), _hint_wo(0), _root_wo(0)
+        _cmd_dialog(0),
+        _search_dialog(0),
+        _status_window(0),
+        _shutdown(false),
+        _reload(false),
+        _restart(false),
+        _hint_wo(0),
+        _root_wo(0)
 {
+    pekwm::setIsStartup(false),
+
     _screen_edges[0] = 0;
     _screen_edges[1] = 0;
     _screen_edges[2] = 0;
@@ -199,18 +203,15 @@ WindowManager::~WindowManager(void)
     delete _cmd_dialog;
     delete _search_dialog;
     delete _status_window;
-    delete _workspace_indicator;
     MenuHandler::deleteMenus();
     delete _harbour;
     delete _root_wo;
     delete _hint_wo;
     delete _action_handler;
-    delete _autoproperties;
     delete _keygrabber;
     delete _config;
-    delete _theme;
-    delete _font_handler;
-    delete _texture_handler;
+
+    Workspaces::cleanup();
 
     X11::destruct();
 }
@@ -309,27 +310,21 @@ WindowManager::setupDisplay(bool replace)
     _root_wo = new RootWO(X11::getRoot());
     PWinObj::setRootPWinObj(_root_wo);
 
-    _font_handler = new FontHandler();
-    _texture_handler = new TextureHandler();
     _action_handler = new ActionHandler();
+    Theme::instance()->init();
+    AutoProperties::instance()->load();
 
-    // load colors, fonts
-    _theme = new Theme;
-
-    _autoproperties = new AutoProperties();
-    _autoproperties->load();
-
+    Workspaces::init();
     Workspaces::setSize(_config->getWorkspaces());
     Workspaces::setPerRow(_config->getWorkspacesPerRow());
 
     _harbour = new Harbour;
 
-    MenuHandler::createMenus(_theme);
+    MenuHandler::createMenus(_action_handler);
 
-    _cmd_dialog = new CmdDialog(_theme);
-    _search_dialog = new SearchDialog(_theme);
-    _status_window = new StatusWindow(_theme);
-    _workspace_indicator = new WorkspaceIndicator{_theme};
+    _cmd_dialog = new CmdDialog();
+    _search_dialog = new SearchDialog();
+    _status_window = new StatusWindow();
 
     XDefineCursor(dpy, X11::getRoot(), X11::getCursor(CURSOR_ARROW));
 
@@ -352,7 +347,8 @@ WindowManager::setupDisplay(bool replace)
 void
 WindowManager::scanWindows(void)
 {
-    if (_startup) { // only done once when we start
+    // only done once when we start
+    if (pekwm::isStartup()) {
         return;
     }
     
@@ -411,9 +407,9 @@ WindowManager::scanWindows(void)
     }
 
     // We won't be needing these anymore until next restart
-    _autoproperties->removeApplyOnStart();
+    AutoProperties::instance()->removeApplyOnStart();
 
-    _startup = true;
+    pekwm::setIsStartup(true);
 }
 
 //! @brief Creates and places screen edge
@@ -492,7 +488,7 @@ WindowManager::doReload(void)
     doReloadKeygrabber();
     doReloadAutoproperties();
 
-    MenuHandler::reloadMenus();
+    MenuHandler::reloadMenus(_action_handler);
     doReloadHarbour();
 
     _root_wo->setEwmhDesktopNames();
@@ -544,7 +540,7 @@ void
 WindowManager::doReloadTheme(void)
 {
     // Reload the theme
-    if (! _theme->load(_config->getThemeFile())) {
+    if (! Theme::instance()->load(_config->getThemeFile())) {
         return;
     }
 
@@ -596,7 +592,7 @@ WindowManager::doReloadKeygrabber(bool force)
 void
 WindowManager::doReloadAutoproperties(void)
 {
-    if (! _autoproperties->load()) {
+    if (! AutoProperties::instance()->load()) {
         return;
     }
 
@@ -647,7 +643,7 @@ WindowManager::doEventLoop(void)
         // Handle timeouts
         if (is_signal_alrm) {
             is_signal_alrm = false;
-            _workspace_indicator->unmapWindow();
+            Workspaces::hideWorkspaceIndicator();
         }
 
         // Reload if requested
@@ -766,23 +762,6 @@ WindowManager::doEventLoop(void)
                 break;
             }
         }
-    }
-}
-
-void
-WindowManager::showWSIndicator(void) const
-{
-    auto timeout = Config::instance()->getShowWorkspaceIndicator();
-    if (timeout > 0) {
-        _workspace_indicator->render();
-        _workspace_indicator->mapWindowRaised();
-
-        struct itimerval value;
-        timerclear(&value.it_value);
-        timerclear(&value.it_interval);
-        value.it_value.tv_sec += timeout / 1000;
-        value.it_value.tv_usec += (timeout % 1000) * 1000;
-        setitimer(ITIMER_REAL, &value, 0);
     }
 }
 
@@ -1234,7 +1213,8 @@ WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
 
                 // update the MRU list (except for skip focus windows, see #297)
                 if (! static_cast<Client*>(wo)->isSkip(SKIP_FOCUS_TOGGLE)) {
-                    addToMRUFront(static_cast<Frame*>(wo->getParent()));
+                    auto frame = static_cast<Frame*>(wo->getParent());
+                    Workspaces::addToMRUFront(frame);
                 }
             } else {
                 wo->setFocused(true);
@@ -1355,8 +1335,8 @@ WindowManager::findWOAndFocus(PWinObj *search)
 
     // search window object didn't exist, go through the MRU list
     if (! focus) {
-        vector<Frame *>::const_iterator f_it = _mru.begin();
-        for (; ! focus && f_it != _mru.end(); ++f_it) {
+        auto f_it = Workspaces::mru_begin();
+        for (; ! focus && f_it != Workspaces::mru_end(); ++f_it) {
             if ((*f_it)->isMapped() && (*f_it)->isFocusable()) {
                 focus = *f_it;
             }
@@ -1470,88 +1450,6 @@ WindowManager::createClient(Window window, bool is_new)
     }
 
     return client;
-}
-
-/**
- * Match Frame against autoproperty.
- */
-bool
-WindowManager::findGroupMatchProperty(Frame *frame, AutoProperty *property)
-{
-    if ((property->group_global
-         || (property->isMask(AP_WORKSPACE)
-             ? (frame->getWorkspace() == property->workspace
-                && ! frame->isIconified())
-             : frame->isMapped()))
-        && (property->group_size == 0
-            || signed(frame->size()) < property->group_size)
-        && (((frame->getClassHint()->group.size() > 0)
-             ? (frame->getClassHint()->group == property->group_name) : false)
-            || AutoProperties::matchAutoClass(*frame->getClassHint(),
-                                              static_cast<Property*>(property)))) {
-        return true;
-    }
-    return false;
-}
-
-/**
- * Tries to find a Frame to autogroup with. This is called recursively
- * if workspace specific matching is on to avoid conflicts with the
- * global property.
- */
-Frame*
-WindowManager::findGroup(AutoProperty *property)
-{
-    if (! _allow_grouping) {
-        return 0;
-    }
-
-    Frame *frame = 0;
-    if (property->group_global && property->isMask(AP_WORKSPACE)) {
-        bool group_global_orig = property->group_global;
-        property->group_global= false;
-        frame = findGroup(property);
-        property->group_global= group_global_orig;
-    }
-
-    if (! frame) {
-        frame = findGroupMatch(property);
-    }
-
-    return frame;
-}
-
-/**
- * Do matching against Frames searching for a suitable Frame for
- * grouping.
- */
-Frame*
-WindowManager::findGroupMatch(AutoProperty *property)
-{
-    Frame *frame = 0;
-
-    // Matching against the focused window first if requested
-    if (property->group_focused_first
-        && PWinObj::isFocusedPWinObj(PWinObj::WO_CLIENT)) {
-        Frame *fo_frame =
-            static_cast<Frame*>(PWinObj::getFocusedPWinObj()->getParent());
-        if (findGroupMatchProperty(fo_frame, property)) {
-            frame = fo_frame;
-        }
-    }
-
-    // Moving on to the rest of the frames.
-    if (! frame) {
-        vector<Frame*>::const_iterator it(Frame::frame_begin());
-        for (; it != Frame::frame_end(); ++it) {
-            if (findGroupMatchProperty(*it, property)) {
-                frame = *it;
-                break;
-            }
-        }
-    }
-
-    return frame;
 }
 
 //! @brief Attaches all marked clients to frame

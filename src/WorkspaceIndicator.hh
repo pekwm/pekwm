@@ -15,7 +15,6 @@
 
 #include "PWinObj.hh"
 #include "PDecor.hh"
-#include "Theme.hh"
 
 /**
  * Workspace indicator rendering a simple window with workspace layout
@@ -29,7 +28,7 @@ public:
      */
     class Display : public PWinObj {
     public:
-        Display(PWinObj *parent, Theme *theme);
+        Display(PWinObj *parent);
         virtual ~Display(void);
 
         virtual bool getSizeRequest(Geometry &request);
@@ -41,11 +40,10 @@ public:
         uint getPaddingHorizontal(void);
         uint getPaddingVertical(void);
 
-        Theme *_theme;
         Pixmap _pixmap; //!< Pixmap holding rendered workspace view
     };
 
-    WorkspaceIndicator(Theme *theme);
+    WorkspaceIndicator();
     virtual ~WorkspaceIndicator(void);
 
     void render(void);

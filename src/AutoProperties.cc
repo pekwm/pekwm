@@ -16,29 +16,15 @@
 #include "Util.hh"
 #include "x11.hh"
 
-using std::cerr;
-using std::endl;
-using std::find;
-using std::map;
-using std::string;
-using std::strtol;
-
-AutoProperties *AutoProperties::_instance = 0;
+static AutoProperties autoproperties_instance;
+AutoProperties *AutoProperties::_instance = &autoproperties_instance;
 
 //! @brief Constructor for AutoProperties class
 AutoProperties::AutoProperties(void)
-    : _extended(false), _harbour_sort(false),
+    : _extended(false),
+      _harbour_sort(false),
       _apply_on_start(true)
 {
-#ifdef DEBUG
-    if (_instance) {
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "AutoProperties(" << this << ")::AutoProperties()" << endl
-             << " *** _instance already set: " << _instance << endl;
-    }
-#endif // DEBUG
-    _instance = this;
-
     // fill parsing maps
     _apply_on_map[""] = APPLY_ON_ALWAYS;
     _apply_on_map["START"] = APPLY_ON_START;
@@ -97,14 +83,13 @@ AutoProperties::AutoProperties(void)
 AutoProperties::~AutoProperties(void)
 {
     unload();
-    _instance = 0;
 }
 
 //! @brief Loads the autoprop config file.
 bool
 AutoProperties::load(void)
 {
-    string cfg_file(Config::instance()->getAutoPropsFile());
+    std::string cfg_file(Config::instance()->getAutoPropsFile());
     if (! _cfg_files.requireReload(cfg_file)) {
         return false;
     }
@@ -133,11 +118,11 @@ AutoProperties::load(void)
     // reset values
     _apply_on_start = true;
 
-    vector<string> tokens;
-    vector<string>::iterator token_it;
-    vector<uint> workspaces;
+    std::vector<std::string> tokens;
+    std::vector<std::string>::iterator token_it;
+    std::vector<uint> workspaces;
 
-    CfgParser::iterator it(a_cfg.getEntryRoot()->begin());
+    auto it(a_cfg.getEntryRoot()->begin());
     for (; it != a_cfg.getEntryRoot()->end(); ++it) {
         if (*(*it) == "PROPERTY") {
             parseAutoProperty(*it, 0);
@@ -178,12 +163,10 @@ AutoProperties::load(void)
 void
 AutoProperties::loadRequire(CfgParser &a_cfg, std::string &file)
 {
-    CfgParser::Entry *section;
-
-    // Look for requires section, 
-    section = a_cfg.getEntryRoot()->findSection("REQUIRE");
+    // Look for requires section,
+    auto section = a_cfg.getEntryRoot()->findSection("REQUIRE");
     if (section) {
-        vector<CfgParserKey*> keys;
+        std::vector<CfgParserKey*> keys;
 
         keys.push_back(new CfgParserKeyBool("TEMPLATES", _extended, false));
         section->parseKeyValues(keys.begin(), keys.end());
@@ -203,36 +186,33 @@ AutoProperties::loadRequire(CfgParser &a_cfg, std::string &file)
 void
 AutoProperties::unload(void)
 {
-    vector<Property*>::iterator it;
-
     // remove auto properties
-    for (it = _prop_list.begin(); it != _prop_list.end(); ++it) {
-        delete *it;
+    for (auto it : _prop_list) {
+        delete it;
     }
     _prop_list.clear();
 
     // remove title properties
-    for (it = _title_prop_list.begin(); it != _title_prop_list.end(); ++it) {
-        delete *it;
+    for (auto it : _title_prop_list) {
+        delete it;
     }
     _title_prop_list.clear();
 
     // remove decor properties
-    for (it = _decor_prop_list.begin(); it != _decor_prop_list.end(); ++it) {
-        delete *it;
+    for (auto it : _decor_prop_list) {
+        delete it;
     }
     _decor_prop_list.clear();
 
     // remove dock app properties
-    for (it = _dock_app_prop_list.begin(); it != _dock_app_prop_list.end(); ++it) {
-        delete *it;
+    for (auto it : _dock_app_prop_list) {
+        delete it;
     }
     _dock_app_prop_list.clear();
 
     // remove type properties
-    map<AtomName, AutoProperty*>::iterator m_it(_window_type_prop_map.begin());
-    for (; m_it != _window_type_prop_map.end(); ++m_it) {
-        delete m_it->second;
+    for (auto it : _window_type_prop_map) {
+        delete it.second;
     }
     _window_type_prop_map.clear();
 }
@@ -240,22 +220,21 @@ AutoProperties::unload(void)
 //! @brief Finds a property from the prop_list
 Property*
 AutoProperties::findProperty(const ClassHint* class_hint,
-                             vector<Property*>* prop_list, uint ws, ApplyOn type)
+                             std::vector<Property*>* prop_list,
+                             uint ws, ApplyOn type)
 {
     // Allready remove apply on start
     if (! _apply_on_start && (type == APPLY_ON_START))
         return 0;
 
-    vector<Property*>::const_iterator it(prop_list->begin());
-    vector<Property*>::const_iterator end(prop_list->end());
     // start searching for a suitable property
-    for (; it != end; ++it) {
+    for (auto it : *prop_list) {
         // see if the type matches, if we have one
-        if ((type != APPLY_ON_ALWAYS) && ! (*it)->isApplyOn(type))
+        if ((type != APPLY_ON_ALWAYS) && ! it->isApplyOn(type))
             continue;
 
-        if (matchAutoClass(*class_hint, *it)) {
-            return (*it)->applyOnWs(ws)?*it:0;
+        if (matchAutoClass(*class_hint, it)) {
+            return it->applyOnWs(ws) ?it : 0;
         }
     }
 
@@ -267,12 +246,15 @@ AutoProperties::findProperty(const ClassHint* class_hint,
  * it fails.
  */
 bool
-AutoProperties::parseRegexpOrWarning(RegexString &regex, const std::string regex_str, const std::string &name)
+AutoProperties::parseRegexpOrWarning(RegexString &regex,
+                                     const std::string regex_str,
+                                     const std::string &name)
 {
     if (! regex_str.size() || regex.parse_match(Util::to_wide_str(regex_str))) {
         return true;
     } else {
-        cerr << " *** WARNING: invalid regexp " << regex_str << " for autoproperty " << name << endl;
+        std::cerr << " *** WARNING: invalid regexp " << regex_str
+                  << " for autoproperty " << name << std::endl;
         return false;
     }
 }
@@ -288,13 +270,14 @@ AutoProperties::parsePropertyMatch(const std::string &str, Property *prop)
 
     // Format of property matches are regexp,regexp . Split up in class
     // and role regexps.
-    vector<string> tokens;
+    std::vector<std::string> tokens;
     Util::splitString(str, tokens, ",", _extended ? 5 : 2, true);
 
     if (tokens.size() >= 2) {
         // Make sure one of the two regexps compiles
         status = parseRegexpOrWarning(prop->getHintName(), tokens[0], "name");
-        status = status && parseRegexpOrWarning(prop->getHintClass(), tokens[1], "class");
+        status = status
+            && parseRegexpOrWarning(prop->getHintClass(), tokens[1], "class");
     }
 
     // Parse extended part of regexp, role, title and apply on
@@ -317,10 +300,8 @@ AutoProperties::parsePropertyMatch(const std::string &str, Property *prop)
 bool
 AutoProperties::parseProperty(CfgParser::Entry *section, Property *prop)
 {
-    CfgParser::Entry *value;
-
     // Get extra matching info.
-    value = section->findEntry("TITLE");
+    auto value = section->findEntry("TITLE");
     if (value) {
         parseRegexpOrWarning(prop->getTitle(), value->getValue(), "title");
     }
@@ -342,20 +323,23 @@ AutoProperties::parseProperty(CfgParser::Entry *section, Property *prop)
  * Parse property apply on.
  */
 void
-AutoProperties::parsePropertyApplyOn(const std::string &apply_on, Property *prop)
+AutoProperties::parsePropertyApplyOn(const std::string &apply_on,
+                                     Property *prop)
 {
-    vector<string> tokens;
+    std::vector<std::string> tokens;
     if (Util::splitString(apply_on, tokens, " \t", 5)) {
-        vector<string>::iterator it(tokens.begin());
+        auto it(tokens.begin());
         for (; it != tokens.end(); ++it) {
-            prop->applyAdd(static_cast<unsigned int>(ParseUtil::getValue<ApplyOn>(*it, _apply_on_map)));
+            int num = ParseUtil::getValue<ApplyOn>(*it, _apply_on_map);
+            prop->applyAdd(static_cast<unsigned int>(num));
         }
     }
 }
 
 //! @brief Parses AutopProperty
 void
-AutoProperties::parseAutoProperty(CfgParser::Entry *section, vector<uint> *ws)
+AutoProperties::parseAutoProperty(CfgParser::Entry *section,
+                                  std::vector<uint> *ws)
 {
     // Get sub section
     section = section->getSection();
@@ -376,7 +360,8 @@ AutoProperties::parseAutoProperty(CfgParser::Entry *section, vector<uint> *ws)
 
 //! @brief Parses a Group section of the AutoProps
 void
-AutoProperties::parseAutoGroup(CfgParser::Entry *section, AutoProperty* property)
+AutoProperties::parseAutoGroup(CfgParser::Entry *section,
+                               AutoProperty* property)
 {
     if (! section) {
         return;
@@ -385,12 +370,13 @@ AutoProperties::parseAutoGroup(CfgParser::Entry *section, AutoProperty* property
     if (section->getValue().size()) {
         property->group_name = Util::to_wide_str(section->getValue());
     }
-    
+
     PropertyType property_type;
 
-    CfgParser::iterator it(section->begin());
+    auto it(section->begin());
     for (; it != section->end(); ++it) {
-        property_type = ParseUtil::getValue<PropertyType>((*it)->getName(), _group_property_map);
+        property_type = ParseUtil::getValue<PropertyType>((*it)->getName(),
+                                                          _group_property_map);
 
         switch (property_type) {
         case AP_GROUP_SIZE:
@@ -426,7 +412,7 @@ AutoProperties::parseTitleProperty(CfgParser::Entry *section)
     TitleProperty *title_property;
     CfgParser::Entry *title_section;
 
-    CfgParser::iterator it(section->begin());
+    auto it(section->begin());
     for (; it != section->end(); ++it) {
         title_section = (*it)->getSection();
         if (! title_section) {
@@ -436,8 +422,9 @@ AutoProperties::parseTitleProperty(CfgParser::Entry *section)
         title_property = new TitleProperty();
         parsePropertyMatch(title_section->getValue(), title_property);
         if (parseProperty(title_section, title_property)) {
-            CfgParser::Entry *value = title_section->findEntry("RULE");
-            if (value && title_property->getTitleRule().parse_ed_s(Util::to_wide_str(value->getValue()))) {
+            auto value = title_section->findEntry("RULE");
+            auto wstr = Util::to_wide_str(value->getValue());
+            if (value && title_property->getTitleRule().parse_ed_s(wstr)) {
                 _title_prop_list.push_back(title_property);
                 title_property = 0;
             }
@@ -460,7 +447,7 @@ AutoProperties::parseDecorProperty(CfgParser::Entry *section)
     DecorProperty *decor_property;
     CfgParser::Entry *decor_section;
 
-    CfgParser::iterator it(section->begin());
+    auto it(section->begin());
     for (; it != section->end(); ++it) {
         decor_section = (*it)->getSection ();
         if (! decor_section) {
@@ -499,7 +486,7 @@ AutoProperties::parseDockAppProperty(CfgParser::Entry *section)
     DockAppProperty *dock_property;
     CfgParser::Entry *dock_section;
 
-    CfgParser::iterator it(section->begin());
+    auto it(section->begin());
     for (; it != section->end(); ++it) {
         dock_section = (*it)->getSection();
         if (! dock_section) {
@@ -537,10 +524,10 @@ AutoProperties::parseTypeProperty(CfgParser::Entry *section)
     AtomName atom;
     AutoProperty *type_property;
     CfgParser::Entry *type_section;
-    map<AtomName, AutoProperty*>::iterator atom_it;
+    std::map<AtomName, AutoProperty*>::iterator atom_it;
 
     // Look for all type properties
-    CfgParser::iterator it(section->begin());
+    auto it(section->begin());
     for (; it != section->end(); ++it) {
         type_section = (*it)->getSection();
         if (! type_section) {
@@ -549,20 +536,24 @@ AutoProperties::parseTypeProperty(CfgParser::Entry *section)
 
         // Create new property and try to parse
         type_property = new AutoProperty();
-        atom = ParseUtil::getValue<AtomName>(type_section->getValue(), _window_type_map);
+        atom = ParseUtil::getValue<AtomName>(type_section->getValue(),
+                                             _window_type_map);
         if (atom == WINDOW_TYPE) {
-            cerr << " *** WARNING: unknown type " << type_section->getValue() << " for autoproperty." << endl;
+            std::cerr << " *** WARNING: unknown type "
+                      << type_section->getValue()
+                      << " for autoproperty." << std::endl;
         }
 
         if (atom != WINDOW_TYPE && parseProperty(type_section, type_property)) {
             // Parse of match ok, parse values
             parseAutoPropertyValue(type_section, type_property, 0);
-      
+
             // Add to list, make sure it does not exist already
             atom_it = _window_type_prop_map.find(atom);
             if (atom_it != _window_type_prop_map.end()) {
-                cerr << " *** WARNING: multiple type autoproperties for type "
-                     << type_section->getValue() << endl;
+                std::cerr
+                    << " *** WARNING: multiple type autoproperties for type "
+                    << type_section->getValue() << std::endl;
                 delete atom_it->second;
             }
             _window_type_prop_map[atom] = type_property;
@@ -676,7 +667,9 @@ AutoProperties::setDefaultTypeProperties(void)
 //! @param prop Property to store result in.
 //! @param ws List of workspaces to apply property on.
 void
-AutoProperties::parseAutoPropertyValue(CfgParser::Entry *section, AutoProperty *prop, vector<uint> *ws)
+AutoProperties::parseAutoPropertyValue(CfgParser::Entry *section,
+                                       AutoProperty *prop,
+                                       std::vector<uint> *ws)
 {
     // Copy workspaces, if any
     if (ws) {
@@ -690,14 +683,15 @@ AutoProperties::parseAutoPropertyValue(CfgParser::Entry *section, AutoProperty *
     }
 
     // start parsing of values
-    string name, value;
-    vector<string> tokens;
-    vector<string>::iterator token_it;
+    std::string name, value;
+    std::vector<std::string> tokens;
+    std::vector<std::string>::iterator token_it;
     PropertyType property_type;
 
-    CfgParser::iterator it(section->begin());    
+    auto it(section->begin());
     for (; it != section->end(); ++it) {
-        property_type = ParseUtil::getValue<PropertyType>((*it)->getName(), _property_map);
+        property_type = ParseUtil::getValue<PropertyType>((*it)->getName(),
+                                                          _property_map);
 
         switch (property_type) {
         case AP_STICKY:
@@ -838,7 +832,7 @@ AutoProperty*
 AutoProperties::findWindowTypeProperty(AtomName atom)
 {
     AutoProperty *prop = 0;
-    map<AtomName, AutoProperty*>::iterator it(_window_type_prop_map.find(atom));
+    auto it(_window_type_prop_map.find(atom));
     if (it != _window_type_prop_map.end()) {
         prop = it->second;
     }
@@ -850,7 +844,7 @@ AutoProperties::findWindowTypeProperty(AtomName atom)
 void
 AutoProperties::removeApplyOnStart(void)
 {
-    vector<Property*>::iterator it(_prop_list.begin());
+    auto it(_prop_list.begin());
     for (; it != _prop_list.end(); ++it) {
         if ((*it)->isApplyOn(APPLY_ON_START)) {
             (*it)->applyRemove(APPLY_ON_START);

@@ -30,20 +30,15 @@ extern "C" {
 #include "PWinObj.hh"
 #include "PDecor.hh" // PDecor::TitleItem
 #include "Client.hh"
+#include "ClientMgr.hh"
 #include "x11.hh"
 #include "Config.hh"
 #include "KeyGrabber.hh"
-#include "Theme.hh"
 #include "AutoProperties.hh"
 #include "Frame.hh"
 #include "Workspaces.hh"
-#include "WindowManager.hh"
-#include "PTexturePlain.hh"
 #include "PImageIcon.hh"
 #include "TextureHandler.hh"
-
-#include "PMenu.hh"
-#include "WORefMenu.hh"
 
 using std::cerr;
 using std::endl;
@@ -130,9 +125,7 @@ Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
     // avoid auto-grouping to be to greedy.
     getTransientForHint();
 
-    AutoProperty *ap = readAutoprops(WindowManager::instance()->isStartup()
-                                     ? APPLY_ON_NEW : APPLY_ON_START);
-
+    auto ap = readAutoprops(pekwm::isStartup() ? APPLY_ON_NEW : APPLY_ON_START);
     readHints();
 
     // We need to set the state before acquiring a frame,
@@ -297,7 +290,7 @@ Client::findOrCreateFrame(AutoProperty *autoproperty)
 bool
 Client::findTaggedFrame(void)
 {
-    if (! WindowManager::instance()->isStartup()) {
+    if (! pekwm::isStartup()) {
         return false;
     }
 
@@ -321,7 +314,7 @@ Client::findTaggedFrame(void)
 bool
 Client::findPreviousFrame(void)
 {
-    if (WindowManager::instance()->isStartup()) {
+    if (pekwm::isStartup()) {
         return false;
     }
 
@@ -350,7 +343,7 @@ Client::findAutoGroupFrame(AutoProperty *autoproperty)
         return false;
     }
 
-    Frame* frame = WindowManager::instance()->findGroup(autoproperty);
+    auto frame = ClientMgr::findGroup(autoproperty);
     if (frame) {
         frame->addChild(this);
 
@@ -1422,18 +1415,18 @@ Client::setSkip(uint skip)
 std::string
 Client::getAPDecorName(void)
 {
-    WindowManager *wm = WindowManager::instance(); // for convenience
-    AutoProperty *ap = wm->getAutoProperties()->findAutoProperty(getClassHint());
+    auto props = AutoProperties::instance();
+    auto ap = props->findAutoProperty(getClassHint());
     if (ap && ap->isMask(AP_DECOR)) {
         return ap->frame_decor;
     }
 
-    ap = wm->getAutoProperties()->findWindowTypeProperty(getWinType());
+    ap = props->findWindowTypeProperty(getWinType());
     if (ap && ap->isMask(AP_DECOR)) {
         return ap->frame_decor;
     }
 
-    DecorProperty *dp = wm->getAutoProperties()->findDecorProperty(getClassHint());
+    auto dp = props->findDecorProperty(getClassHint());
     if (dp) {
         return dp->getName();
     }

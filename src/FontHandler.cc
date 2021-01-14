@@ -20,19 +20,12 @@ using std::endl;
 using std::map;
 using std::string;
 
-FontHandler* FontHandler::_instance = 0;
+FontHandler font_handler_instance;
+FontHandler* FontHandler::_instance = &font_handler_instance;
 
 //! @brief FontHandler constructor
 FontHandler::FontHandler(void)
 {
-#ifdef DEBUG
-    if (_instance) {
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-            << "FontHandler(" << this << ")::FontHandler()"
-            << endl << " *** _instance already set" << endl;
-    }
-#endif // DEBUG
-  
     if (_map_justify.size() == 0) {
         _map_justify[""] = FONT_JUSTIFY_NO;
         _map_justify["LEFT"] = FONT_JUSTIFY_LEFT;
@@ -46,8 +39,6 @@ FontHandler::FontHandler(void)
         _map_type["XFT"] = PFont::FONT_TYPE_XFT;
         _map_type["XMB"] = PFont::FONT_TYPE_XMB;
     }
-
-    _instance = this;
 }
 
 //! @brief FontHandler destructor

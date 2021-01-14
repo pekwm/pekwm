@@ -20,9 +20,9 @@ using std::vector;
 /**
  * Display constructor
  */
-WorkspaceIndicator::Display::Display(PWinObj *parent, Theme *theme)
+WorkspaceIndicator::Display::Display(PWinObj *parent)
   : PWinObj(false),
-    _theme(theme), _pixmap(None)
+    _pixmap(None)
 {
     _parent = parent;
     // Do not give the indicator focus, it doesn't handle input
@@ -56,7 +56,8 @@ WorkspaceIndicator::Display::getSizeRequest(Geometry &gm)
     uint head_nr = X11::getNearestHead(_parent->getX(), _parent->getY());
     X11::getHeadInfo(head_nr, head);
 
-    uint head_size = std::min(head.width, head.height) / Config::instance()->getWorkspaceIndicatorScale();
+    uint head_size = std::min(head.width, head.height)
+        / Config::instance()->getWorkspaceIndicatorScale();
     gm.x = gm.y = 0;
     gm.width = head_size * Workspaces::getPerRow() + getPaddingHorizontal();
     gm.height = head_size * Workspaces::getRows() + getPaddingVertical();
@@ -70,7 +71,7 @@ WorkspaceIndicator::Display::getSizeRequest(Geometry &gm)
 void
 WorkspaceIndicator::Display::render(void)
 {
-    Theme::WorkspaceIndicatorData &data(_theme->getWorkspaceIndicatorData());
+    auto data = Theme::instance()->getWorkspaceIndicatorData();
 
     // Make sure pixmap has correct size
     X11::freePixmap(_pixmap);
@@ -86,9 +87,12 @@ WorkspaceIndicator::Display::render(void)
                      _gm.height - getPaddingVertical());
 
     data.font->setColor(data.font_color);
-    data.font->draw(_pixmap, data.edge_padding, _gm.height - data.edge_padding - data.font->getHeight(),
+    data.font->draw(_pixmap,
+                    data.edge_padding,
+                    _gm.height - data.edge_padding - data.font->getHeight(),
                     Workspaces::getActWorkspace().getName(),
-                    0 /* max_chars */, _gm.width - data.edge_padding * 2 /* max_width */);
+                    0 /* max_chars */,
+                    _gm.width - data.edge_padding * 2 /* max_width */);
 
     // Refresh
     setBackgroundPixmap(_pixmap);
@@ -104,9 +108,10 @@ WorkspaceIndicator::Display::render(void)
  * @param height Allowed height to use
  */
 void
-WorkspaceIndicator::Display::renderWorkspaces(int x, int y, uint width, uint height)
+WorkspaceIndicator::Display::renderWorkspaces(int x, int y,
+                                              uint width, uint height)
 {
-    Theme::WorkspaceIndicatorData &data(_theme->getWorkspaceIndicatorData());
+    auto data = Theme::instance()->getWorkspaceIndicatorData();
 
     uint per_row = Workspaces::getPerRow();
     uint rows = Workspaces::getRows();
@@ -128,11 +133,9 @@ WorkspaceIndicator::Display::renderWorkspaces(int x, int y, uint width, uint hei
             y_pos += ws_height + data.workspace_padding;
         }
 
-        if (i == Workspaces::getActive()) {
-            data.texture_workspace_act->render(_pixmap, x_pos, y_pos, ws_width, ws_height);
-        } else {
-            data.texture_workspace->render(_pixmap, x_pos, y_pos, ws_width, ws_height);
-        }
+        auto tex = i == Workspaces::getActive()
+            ? data.texture_workspace_act : data.texture_workspace;
+        tex->render(_pixmap, x_pos, y_pos, ws_width, ws_height);
 
         x_pos += ws_width + data.workspace_padding;
     }
@@ -144,9 +147,9 @@ WorkspaceIndicator::Display::renderWorkspaces(int x, int y, uint width, uint hei
 uint
 WorkspaceIndicator::Display::getPaddingHorizontal(void)
 {
-    Theme::WorkspaceIndicatorData &data(_theme->getWorkspaceIndicatorData());
-
-    return (data.edge_padding * 2 + data.workspace_padding * (Workspaces::getPerRow() - 1));
+    auto data = Theme::instance()->getWorkspaceIndicatorData();
+    return (data.edge_padding * 2 + data.workspace_padding
+            * (Workspaces::getPerRow() - 1));
 }
 
 /**
@@ -155,8 +158,7 @@ WorkspaceIndicator::Display::getPaddingHorizontal(void)
 uint
 WorkspaceIndicator::Display::getPaddingVertical(void)
 {
-    Theme::WorkspaceIndicatorData &data(_theme->getWorkspaceIndicatorData());
-
+    auto data = Theme::instance()->getWorkspaceIndicatorData();
     return (data.edge_padding * 3 + data.font->getHeight()
             + data.workspace_padding * (Workspaces::getRows() - 1));
 }
@@ -164,8 +166,9 @@ WorkspaceIndicator::Display::getPaddingVertical(void)
 /**
  * WorkspaceIndicator constructor
  */
-WorkspaceIndicator::WorkspaceIndicator(Theme *theme)
-  : PDecor{theme, "WORKSPACEINDICATOR"}, _display_wo{this, theme}
+WorkspaceIndicator::WorkspaceIndicator()
+    : PDecor("WORKSPACEINDICATOR"),
+      _display_wo(this)
 {
     _type = PWinObj::WO_WORKSPACE_INDICATOR;
     setLayer(LAYER_NONE); // Make sure this goes on top of everything

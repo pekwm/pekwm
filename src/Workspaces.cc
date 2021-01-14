@@ -16,7 +16,6 @@
 #include "PDecor.hh"
 #include "Frame.hh"
 #include "Client.hh" // For isSkip()
-#include "WindowManager.hh"
 #include "WinLayouter.hh"
 #include "WorkspaceIndicator.hh"
 #include "x11.hh"
@@ -29,15 +28,11 @@ using std::numeric_limits;
 #endif // HAVE_LIMITS
 
 extern "C" {
+#include <signal.h>
+#include <sys/time.h>
+
 #include <X11/Xatom.h> // for XA_WINDOW
 }
-
-using std::string;
-using std::find;
-using std::wostringstream;
-using std::wstring;
-using std::cerr;
-using std::endl;
 
 // Workspace
 
@@ -71,9 +66,24 @@ Workspace::setDefaultLayouter(const std::string &layo)
 uint Workspaces::_active;
 uint Workspaces::_previous;
 uint Workspaces::_per_row;
-vector<PWinObj*> Workspaces::_wobjs;
-vector<Workspace> Workspaces::_workspaces;
+std::vector<PWinObj*> Workspaces::_wobjs;
+std::vector<Workspace> Workspaces::_workspaces;
+std::vector<Frame*> Workspaces::_mru;
+WorkspaceIndicator* Workspaces::_workspace_indicator = nullptr;
+
 WinLayouter *Workspace::_default_layouter = WinLayouterFactory("SMART");
+
+void
+Workspaces::init()
+{
+    _workspace_indicator = new WorkspaceIndicator();
+}
+
+void
+Workspaces::cleanup()
+{
+    delete _workspace_indicator;
+}
 
 //! @brief Sets total amount of workspaces to number
 void
@@ -164,7 +174,30 @@ Workspaces::setWorkspace(uint num, bool focus)
 
     X11::ungrabServer(true);
 
-    WindowManager::instance()->showWSIndicator();
+    showWorkspaceIndicator();
+}
+
+void
+Workspaces::showWorkspaceIndicator(void)
+{
+    auto timeout = Config::instance()->getShowWorkspaceIndicator();
+    if (timeout > 0) {
+        _workspace_indicator->render();
+        _workspace_indicator->mapWindowRaised();
+
+        struct itimerval value;
+        timerclear(&value.it_value);
+        timerclear(&value.it_interval);
+        value.it_value.tv_sec += timeout / 1000;
+        value.it_value.tv_usec += (timeout % 1000) * 1000;
+        setitimer(ITIMER_REAL, &value, 0);
+    }
+}
+
+void
+Workspaces::hideWorkspaceIndicator(void)
+{
+    _workspace_indicator->unmapWindow();
 }
 
 bool
@@ -487,8 +520,8 @@ Workspaces::unhideAll(uint workspace, bool focus)
 
             // update the MRU list
             if (wo->getType() == PWinObj::WO_CLIENT) {
-                Frame *frame = static_cast<Frame*>(wo->getParent());
-                WindowManager::instance()->addToMRUFront(frame);
+                auto frame = static_cast<Frame*>(wo->getParent());
+                addToMRUFront(frame);
             }
         }
 
@@ -542,19 +575,17 @@ Workspaces::setLastFocused(uint workspace, PWinObj* wo)
     if (workspace >= _workspaces.size()) {
         return;
     }
-    
     _workspaces[workspace].setLastFocused(wo);
 }
 
 //! @brief Create name for workspace num
-wstring
+std::wstring
 Workspaces::getWorkspaceName(uint num)
 {
-    wostringstream buf;
+    std::wostringstream buf;
     buf << num + 1;
     buf << L": ";
     buf << Config::instance()->getWorkspaceName(num);
-    
     return buf.str();
 }
 

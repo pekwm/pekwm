@@ -12,7 +12,6 @@
 #include "Client.hh"
 #include "Frame.hh"
 #include "Util.hh"
-#include "WindowManager.hh"
 #include "Workspaces.hh"
 #include "x11.hh"
 

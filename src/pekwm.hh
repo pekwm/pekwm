@@ -373,5 +373,10 @@ enum CfgDeny {
     CFG_DENY_NO = 0 //! No deny.
 };
 
+namespace pekwm
+{
+    bool isStartup();
+    void setIsStartup(bool is_startup);
+}
 
 #endif // _PEKWM_HH_

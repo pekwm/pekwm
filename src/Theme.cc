@@ -31,11 +31,18 @@ using std::string;
 using std::vector;
 using std::map;
 
+static Theme theme_instance;
+Theme* Theme::_instance = &theme_instance;
+
 // Theme::PDecorButtonData
 
 //! @brief Theme::PDecorButtonData constructor.
 Theme::PDecorButtonData::PDecorButtonData(void)
-    : _shape(true), _left(false), _width(1), _height(1)
+    : _loaded(false),
+      _shape(true),
+      _left(false),
+      _width(1),
+      _height(1)
 {
     for (uint i = 0; i < BUTTON_STATE_NO; ++i) {
         _texture[i] = 0;
@@ -45,7 +52,9 @@ Theme::PDecorButtonData::PDecorButtonData(void)
 //! @brief Theme::PDecorButtonData destructor.
 Theme::PDecorButtonData::~PDecorButtonData(void)
 {
-    unload();
+    if (_loaded) {
+        unload();
+    }
 }
 
 //! @brief Parses CfgParser::Entry section, loads and verifies data.
@@ -61,6 +70,7 @@ Theme::PDecorButtonData::load(CfgParser::Entry *section)
     } else {
         return false;
     }
+    _loaded = true;
 
     // Get actions.
     ActionEvent ae;
@@ -121,6 +131,7 @@ Theme::PDecorButtonData::unload(void)
         TextureHandler::instance()->returnTexture(_texture[i]);
         _texture[i] = 0;
     }
+    _loaded = false;
 }
 
 //! @brief Verifies and makes sure no 0 textures exists.
@@ -144,8 +155,12 @@ map<BorderPosition, string> Theme::PDecorData::_border_map = map<BorderPosition,
 
 //! @brief Theme::PDecorData constructor.
 Theme::PDecorData::PDecorData(const char *name)
-    : _title_height(10), _title_width_min(0), _title_width_max(100),
-      _title_width_symetric(true), _title_height_adapt(false)
+    : _loaded(false),
+      _title_height(10),
+      _title_width_min(0),
+      _title_width_max(100),
+      _title_width_symetric(true),
+      _title_height_adapt(false)
 {
     if (name) {
         _name = name;
@@ -193,7 +208,9 @@ Theme::PDecorData::PDecorData(const char *name)
 //! @brief Theme::PDecorData destructor.
 Theme::PDecorData::~PDecorData(void)
 {
-    unload();
+    if (_loaded) {
+        unload();
+    }
 }
 
 //! @brief Parses CfgParser::Entry section, loads and verifies data.
@@ -207,19 +224,19 @@ Theme::PDecorData::load(CfgParser::Entry *section)
         return false;
     }
 
-    CfgParser::Entry *value;
-
     _name = section->getValue();
     if (! _name.size()) {
-        cerr << " *** WARNING: no name identifying decor" << endl;
+        std::cerr << " *** WARNING: no name identifying decor" << std::endl;
         return false;
     }
 
     CfgParser::Entry *title_section = section->findSection("TITLE");
     if (! title_section) {
-        cerr << " *** WARNING: no title section in decor: " << _name << endl;
+        std::cerr << " *** WARNING: no title section in decor: " << _name
+                  << std::endl;
         return false;
     }
+    _loaded = true;
 
     TextureHandler *th = TextureHandler::instance(); // convenience
 
@@ -250,17 +267,17 @@ Theme::PDecorData::load(CfgParser::Entry *section)
             _pad[i] = strtol(tok[i].c_str(), 0, 10);
     }
 
-    CfgParser::Entry *tab_section = title_section->findSection("TAB");
+    auto tab_section = title_section->findSection("TAB");
     if (tab_section) {
         for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
-            value = tab_section->findEntry(_fs_map[FocusedState(i)]);
+            auto value = tab_section->findEntry(_fs_map[FocusedState(i)]);
             if (value) {
                 _texture_tab[i] = th->getTexture(value->getValue());
             }
         }
     }
 
-    CfgParser::Entry *separator_section = title_section->findSection("SEPARATOR");
+    auto separator_section = title_section->findSection("SEPARATOR");
     if (separator_section) {
         keys.push_back(new CfgParserKeyString("FOCUSED", value_focused, "Empty", th->getLengthMin()));
         keys.push_back(new CfgParserKeyString("UNFOCUSED", value_unfocused, "Empty", th->getLengthMin()));
@@ -278,10 +295,10 @@ Theme::PDecorData::load(CfgParser::Entry *section)
     }
 
 
-    CfgParser::Entry *font_section = title_section->findSection("FONT");
+    auto font_section = title_section->findSection("FONT");
     if (font_section) {
         for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
-            value = font_section->findEntry(_fs_map[FocusedState(i)]);
+            auto value = font_section->findEntry(_fs_map[FocusedState(i)]);
             if (value) {
                 _font[i] = FontHandler::instance()->getFont(value->getValue());
             }
@@ -290,10 +307,10 @@ Theme::PDecorData::load(CfgParser::Entry *section)
         WARN("no font section in decor: " << _name);
     }
 
-    CfgParser::Entry *fontcolor_section = title_section->findSection("FONTCOLOR");
+    auto fontcolor_section = title_section->findSection("FONTCOLOR");
     if (fontcolor_section) {
         for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
-            value = fontcolor_section->findEntry(_fs_map[FocusedState(i)]);
+            auto value = fontcolor_section->findEntry(_fs_map[FocusedState(i)]);
             if (value) {
                 _font_color[i] = FontHandler::instance()->getColor(value->getValue());
             }
@@ -341,6 +358,8 @@ Theme::PDecorData::unload(void)
         delete *it;
     }
     _buttons.clear();
+
+    _loaded = false;
 }
 
 //! @brief Checks data properties, prints warning and tries to fix.
@@ -503,7 +522,9 @@ Theme::PMenuData::PMenuData(void)
 //! @brief PMenuData destructor
 Theme::PMenuData::~PMenuData(void)
 {
-    unload();
+    if (_loaded) {
+        unload();
+    }
 }
 
 //! @brief Parses CfgParser::Entry section, loads and verifies data.
@@ -650,7 +671,9 @@ Theme::TextDialogData::TextDialogData(void)
 //! @brief TextDialogData destructor.
 Theme::TextDialogData::~TextDialogData(void)
 {
-    unload();
+    if (_loaded) {
+        unload();
+    }
 }
 
 //! @brief Parses CfgParser::Entry section, loads and verifies data.
@@ -727,9 +750,14 @@ Theme::TextDialogData::check(void)
  * WorkspaceIndicatorData constructor
  */
 Theme::WorkspaceIndicatorData::WorkspaceIndicatorData(void)
-    : font(0), font_color(0), texture_background(0),
-      texture_workspace(0), texture_workspace_act(0),
-      edge_padding(0), workspace_padding(0)
+    : _loaded(false),
+      font(0),
+      font_color(0),
+      texture_background(0),
+      texture_workspace(0),
+      texture_workspace_act(0),
+      edge_padding(0),
+      workspace_padding(0)
 {
 }
 
@@ -738,7 +766,9 @@ Theme::WorkspaceIndicatorData::WorkspaceIndicatorData(void)
  */
 Theme::WorkspaceIndicatorData::~WorkspaceIndicatorData(void)
 {
-    unload();
+    if (_loaded) {
+        unload();
+    }
 }
 
 /**
@@ -809,19 +839,15 @@ Theme::WorkspaceIndicatorData::check(void)
     if (! font) {
         font = FontHandler::instance()->getFont("Sans#Center#XFT");
     }
-    
     if (! font_color) {
         font_color = FontHandler::instance()->getColor("#000000");
     }
-    
     if (! texture_background) {
         texture_background = TextureHandler::instance()->getTexture("Solid #ffffff");
     }
-    
     if (! texture_workspace) {
         texture_workspace = TextureHandler::instance()->getTexture("Solid #cccccc");
     }
-    
     if (! texture_workspace_act) {
         texture_workspace_act = TextureHandler::instance()->getTexture("Solid #aaaaaa");
     }
@@ -830,7 +856,9 @@ Theme::WorkspaceIndicatorData::check(void)
 /**
  * HarbourData constructor.
  */
-Theme::HarbourData::HarbourData(void) : _texture(0)
+Theme::HarbourData::HarbourData(void)
+    : _loaded(false),
+      _texture(0)
 {
 }
 
@@ -839,7 +867,9 @@ Theme::HarbourData::HarbourData(void) : _texture(0)
  */
 Theme::HarbourData::~HarbourData(void)
 {
-    unload();
+    if (_loaded) {
+        unload();
+    }
 }
 
 /**
@@ -894,9 +924,29 @@ Theme::HarbourData::check(void)
 // Theme
 
 //! @brief Theme constructor
-Theme::Theme(void) : _is_loaded(false), _invert_gc(None)
+Theme::Theme(void)
+    : _init(false),
+      _loaded(false),
+      _invert_gc(None)
 {
-    new ImageHandler();
+}
+
+//! @brief Theme destructor
+Theme::~Theme(void)
+{
+    if (_init) {
+        unload();
+        XFreeGC(X11::getDpy(), _invert_gc);
+    }
+}
+
+void
+Theme::init()
+{
+    if (_init) {
+        return;
+    }
+    _init = true;
 
     // window gc's
     XGCValues gv;
@@ -907,20 +957,8 @@ Theme::Theme(void) : _is_loaded(false), _invert_gc(None)
                            GCFunction|GCSubwindowMode|GCLineWidth, &gv);
 
     X11::grabServer();
-
     load(Config::instance()->getThemeFile());
-
     X11::ungrabServer(true);
-}
-
-//! @brief Theme destructor
-Theme::~Theme(void)
-{
-    unload(); // should clean things up
-
-    XFreeGC(X11::getDpy(), _invert_gc);
-
-    delete ImageHandler::instance();
 }
 
 /**
@@ -939,7 +977,7 @@ Theme::load(const std::string &dir)
         return false;
     }
 
-    if (_is_loaded) {
+    if (_loaded) {
         unload();
     }
 
@@ -1017,7 +1055,7 @@ Theme::load(const std::string &dir)
         WARN("Missing \"HARBOUR\" section!");
     }
 
-    _is_loaded = true;
+    _loaded = true;
 
     return true;
 }
@@ -1068,5 +1106,5 @@ Theme::unload(void)
     _ws_indicator_data.unload();
     _harbour_data.unload();
 
-    _is_loaded = false;
+    _loaded = false;
 }

@@ -21,21 +21,13 @@ using std::cerr;
 using std::endl;
 using std::string;
 
-ImageHandler *ImageHandler::_instance = 0;
+ImageHandler s_instance;
+ImageHandler *ImageHandler::_instance = &s_instance;
 
 //! @brief ImageHandler constructor
 ImageHandler::ImageHandler(void)
     : _free_on_return(false)
 {
-#ifdef DEBUG
-    if (_instance) {
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "ImageHandler(" << this << ")::ImageHandler() *** _instance already set: "
-             << _instance << endl;
-    }
-#endif // DEBUG
-    _instance = this;
-
     // setup parsing maps
     _image_type_map[""] = IMAGE_TYPE_NO;
     _image_type_map["TILED"] = IMAGE_TYPE_TILED;

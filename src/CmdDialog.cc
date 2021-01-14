@@ -19,25 +19,16 @@ extern "C" {
 }
 
 #include "PWinObj.hh"
-#include "PDecor.hh"
 #include "CmdDialog.hh"
 #include "Config.hh"
-#include "KeyGrabber.hh"
-#include "Workspaces.hh"
-
-using std::cerr;
-using std::endl;
-using std::list;
-using std::string;
-using std::wstring;
 
 /**
  * CmdDialog constructor, init and load history file.
  *
  * @todo Make size configurable.
  */
-CmdDialog::CmdDialog(Theme *theme)
-  : InputDialog(theme, L"Enter command"), _exec_count(0)
+CmdDialog::CmdDialog()
+  : InputDialog(L"Enter command"), _exec_count(0)
 {
     _type = PWinObj::WO_CMD_DIALOG;
 
@@ -82,7 +73,7 @@ CmdDialog::exec(void)
     
     // Check if it's a valid Action, if not we assume it's a command and try
     // to execute it.
-    string buf_mb(Util::to_mb_str(_buf));
+    auto buf_mb(Util::to_mb_str(_buf));
     if (! Config::instance()->parseAction(buf_mb, _ae.action_list.back(), KEYGRABBER_OK)) {
         _ae.action_list.back().setAction(ACTION_EXEC);
         _ae.action_list.back().setParamS(buf_mb);

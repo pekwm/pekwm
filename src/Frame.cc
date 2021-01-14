@@ -28,9 +28,9 @@ extern "C" {
 #include "ActionHandler.hh"
 #include "AutoProperties.hh"
 #include "Client.hh"
+#include "ClientMgr.hh"
 #include "StatusWindow.hh"
 #include "Workspaces.hh"
-#include "WindowManager.hh"
 #include "KeyGrabber.hh"
 #include "Theme.hh"
 
@@ -45,8 +45,7 @@ bool Frame::_tag_behind = false;
 
 //! @brief Frame constructor
 Frame::Frame(Client *client, AutoProperty *ap)
-    : PDecor(WindowManager::instance()->getTheme(),
-             client->getAPDecorName(), client->getWindow()),
+    : PDecor(client->getAPDecorName(), client->getWindow()),
       _id(0), _client(client), _class_hint(0),
       _non_fullscreen_decor_state(0), _non_fullscreen_layer(LAYER_NORMAL)
 {
@@ -66,7 +65,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
     }
 
     // get unique id of the frame, if the client didn't have an id
-    if (! WindowManager::instance()->isStartup()) {
+    if (! pekwm::isStartup()) {
         long id;
         if (X11::getLong(client->getWindow(), PEKWM_FRAME_ID, id)) {
             _id = id;
@@ -143,7 +142,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
     // I add these to the list before I insert the client into the frame to
     // be able to skip an extra updateClientList
     _frames.push_back(this);
-    WindowManager::instance()->addToMRUBack(this);
+    Workspaces::addToMRUBack(this);
 
     activateChild(client);
 
@@ -180,7 +179,7 @@ Frame::~Frame(void)
     _wo_map.erase(_window);
     woListRemove(this);
     _frames.erase(std::remove(_frames.begin(), _frames.end(), this), _frames.end());
-    WindowManager::instance()->removeFromFrameList(this);
+    Workspaces::removeFromMRU(this);
     if (_tag_frame == this) {
         _tag_frame = 0;
     }
@@ -1035,7 +1034,7 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: r
             Client *search = 0;
 
             // only group if we have grouping turned on
-            if (WindowManager::instance()->isAllowGrouping()) {
+            if (ClientMgr::isAllowGrouping()) {
                 int x, y;
                 Window win;
 
