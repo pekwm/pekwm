@@ -31,62 +31,61 @@ std::map<std::string, PMenu*> MenuHandler::_menu_map;
  * Creates reserved menus and populates _menu_map
  */
 void
-MenuHandler::createMenus(Theme *theme)
+MenuHandler::createMenus(ActionHandler *act)
 {
     PMenu *menu = 0;
 
-    menu = new FrameListMenu(theme, ATTACH_CLIENT_IN_FRAME_TYPE,
+    menu = new FrameListMenu(ATTACH_CLIENT_IN_FRAME_TYPE,
                              L"Attach Client In Frame",
                              "AttachClientInFrame");
     _menu_map["ATTACHCLIENTINFRAME"] = menu;
-     menu = new FrameListMenu(theme, ATTACH_CLIENT_TYPE,
+     menu = new FrameListMenu(ATTACH_CLIENT_TYPE,
                               L"Attach Client", "AttachClient");
     _menu_map["ATTACHCLIENT"] = menu;
-     menu = new FrameListMenu(theme, ATTACH_FRAME_IN_FRAME_TYPE,
+     menu = new FrameListMenu(ATTACH_FRAME_IN_FRAME_TYPE,
                               L"Attach Frame In Frame",
                               "AttachFrameInFrame");
     _menu_map["ATTACHFRAMEINFRAME"] = menu;
-    menu = new FrameListMenu(theme, ATTACH_FRAME_TYPE,
+    menu = new FrameListMenu(ATTACH_FRAME_TYPE,
                              L"Attach Frame", "AttachFrame");
     _menu_map["ATTACHFRAME"] = menu;
-    menu = new FrameListMenu(theme, GOTOCLIENTMENU_TYPE,
+    menu = new FrameListMenu(GOTOCLIENTMENU_TYPE,
                              L"Focus Client", "GotoClient");
     _menu_map["GOTOCLIENT"] = menu;
-    menu = new FrameListMenu(theme, GOTOMENU_TYPE,
+    menu = new FrameListMenu(GOTOMENU_TYPE,
                              L"Focus Frame", "Goto");
     _menu_map["GOTO"] = menu;
-    menu = new FrameListMenu(theme, ICONMENU_TYPE,
+    menu = new FrameListMenu(ICONMENU_TYPE,
                              L"Focus Iconified Frame", "Icon");
     _menu_map["ICON"] = menu;
-    menu =  new ActionMenu(ROOTMENU_TYPE, L"", "RootMenu");
+    menu =  new ActionMenu(ROOTMENU_TYPE, act, L"", "RootMenu");
     _menu_map["ROOT"] = menu;
-    menu = new ActionMenu(WINDOWMENU_TYPE, L"", "WindowMenu");
+    menu = new ActionMenu(WINDOWMENU_TYPE, act, L"", "WindowMenu");
     _menu_map["WINDOW"] = menu;
 
-    createMenusLoadConfiguration();
+    createMenusLoadConfiguration(act);
 }
 
 /**
  * Initial load of menu configuration.
  */
 void
-MenuHandler::createMenusLoadConfiguration(void)
+MenuHandler::createMenusLoadConfiguration(ActionHandler *act)
 {
     // Load configuration, pass specific section to loading
     CfgParser menu_cfg;
     if (menu_cfg.parse(Config::instance()->getMenuFile())
         || menu_cfg.parse(string(SYSCONFDIR "/menu"))) {
         _cfg_files = menu_cfg.getCfgFiles();
-        CfgParser::Entry *root_entry = menu_cfg.getEntryRoot();
+        auto root_entry = menu_cfg.getEntryRoot();
 
         // Load standard menus
-        map<string, PMenu*>::iterator it = _menu_map.begin();
-        for (; it != _menu_map.end(); ++it) {
-            it->second->reload(root_entry->findSection(it->second->getName()));
+        for (auto it : _menu_map) {
+            it.second->reload(root_entry->findSection(it.second->getName()));
         }
 
         // Load standalone menus
-        reloadStandaloneMenus(menu_cfg.getEntryRoot());
+        reloadStandaloneMenus(act, menu_cfg.getEntryRoot());
     }
 }
 
@@ -95,7 +94,7 @@ MenuHandler::createMenusLoadConfiguration(void)
  * updated since last load.
  */
 void
-MenuHandler::reloadMenus(void)
+MenuHandler::reloadMenus(ActionHandler *act)
 {
     string menu_file(Config::instance()->getMenuFile());
     if (! _cfg_files.requireReload(menu_file)) {
@@ -121,7 +120,7 @@ MenuHandler::reloadMenus(void)
     }
 
     // Update standalone root menus (name != ROOTMENU)
-    reloadStandaloneMenus(root);
+    reloadStandaloneMenus(act, root);
 }
 
 /**
@@ -153,7 +152,8 @@ MenuHandler::loadMenuConfig(const std::string &menu_file, CfgParser &menu_cfg)
  * Updates standalone root menus
  */
 void
-MenuHandler::reloadStandaloneMenus(CfgParser::Entry *section)
+MenuHandler::reloadStandaloneMenus(ActionHandler *act,
+                                   CfgParser::Entry *section)
 {
     // Temporary name, as names are stored uppercase
     string menu_name_upper;
@@ -168,8 +168,8 @@ MenuHandler::reloadStandaloneMenus(CfgParser::Entry *section)
         // Create new menu if the name is not used
         if (! getMenu(menu_name_upper)) {
             // Create, parse and add to map
-            PMenu *menu = new ActionMenu(ROOTMENU_STANDALONE_TYPE,
-                                         L"", (*it)->getName());
+            auto menu = new ActionMenu(ROOTMENU_STANDALONE_TYPE, act,
+                                       L"", (*it)->getName());
             menu->reload((*it)->getSection());
             _menu_map[menu_name_upper] = menu;
         }

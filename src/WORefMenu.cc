@@ -23,9 +23,9 @@ using std::wstring;
 //! @param title Title of menu
 //! @param name Name of menu
 //! @param decor_name Name of decor, defaults to MENU
-WORefMenu::WORefMenu(Theme *theme, const std::wstring &title,
+WORefMenu::WORefMenu(const std::wstring &title,
                      const std::string &name, const std::string &decor_name)
-    : PMenu(theme, title, name, decor_name), PWinObjReference(0),
+    : PMenu(title, name, decor_name), PWinObjReference(0),
       _title_base(title),
       _title_pre(L" ["), _title_post(L"]")
 {

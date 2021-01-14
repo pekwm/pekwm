@@ -17,7 +17,6 @@
 #include "PDecor.hh"
 #include "Theme.hh"
 #include "AutoProperties.hh"
-#include "WindowManager.hh"
 
 extern "C" {
 #include <X11/Xutil.h>
@@ -214,7 +213,8 @@ DockApp::repaint(void)
     X11::freePixmap(_background);
     _background = X11::createPixmap(_gm.width, _gm.height);
 
-    WindowManager::instance()->getTheme()->getHarbourData()->getTexture()->render(_background, 0, 0, _gm.width, _gm.height);
+    auto hd = Theme::instance()->getHarbourData();
+    hd->getTexture()->render(_background, 0, 0, _gm.width, _gm.height);
 
     XSetWindowBackgroundPixmap(X11::getDpy(), _window, _background);
     XClearWindow(X11::getDpy(), _window);

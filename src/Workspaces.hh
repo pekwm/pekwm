@@ -15,6 +15,7 @@
 
 #include "pekwm.hh"
 #include "WinLayouter.hh"
+#include "WorkspaceIndicator.hh"
 
 class PWinObj;
 class Frame;
@@ -55,6 +56,9 @@ public:
     typedef std::vector<PWinObj*>::const_iterator const_iterator;
     typedef std::vector<PWinObj*>::reverse_iterator reverse_iterator;
     typedef std::vector<PWinObj*>::const_reverse_iterator const_reverse_iterator;
+
+    static void init();
+    static void cleanup();
 
     static inline iterator begin(void) { return _wobjs.begin(); }
     static inline iterator end(void) { return _wobjs.end(); }
@@ -111,6 +115,32 @@ public:
 
     static void fixStacking(PWinObj *);
 
+    static void showWorkspaceIndicator(void);
+    static void hideWorkspaceIndicator(void);
+
+    // list iterators
+    static std::vector<Frame*>::iterator mru_begin(void) { return _mru.begin(); }
+    static std::vector<Frame*>::iterator mru_end(void) { return _mru.end(); }
+
+    // adds
+    static void addToMRUFront(Frame *frame) {
+        if (frame) {
+            _mru.erase(std::remove(_mru.begin(), _mru.end(), frame), _mru.end());
+            _mru.insert(_mru.begin(), frame);
+        }
+    }
+
+    static void addToMRUBack(Frame *frame) {
+        if (frame) {
+            _mru.erase(std::remove(_mru.begin(), _mru.end(), frame), _mru.end());
+            _mru.push_back(frame);
+        }
+    }
+
+    static void removeFromMRU(Frame *frame) {
+        _mru.erase(std::remove(_mru.begin(), _mru.end(), frame), _mru.end());
+    }
+
 private:
     static Window *buildClientList(unsigned int &num_windows);
     static bool warpToWorkspace(uint num, int dir);
@@ -121,8 +151,13 @@ private:
     static uint _previous; /**< Previous workspace. */
     static uint _per_row; /**< Workspaces per row in layout. */
 
-    static vector<PWinObj*> _wobjs;
-    static vector<Workspace> _workspaces;
+    /** Window popping up when switching workspace */
+    static WorkspaceIndicator *_workspace_indicator;
+
+    static std::vector<PWinObj*> _wobjs;
+    /** The most recently used frame is kept at the front. */
+    static std::vector<Frame*> _mru;
+    static std::vector<Workspace> _workspaces;
 };
 
 #endif // _WORKSPACES_HH_

@@ -31,9 +31,9 @@ map<KeySym, wchar_t> InputDialog::_keysym_map;
 /**
  * InputDialog constructor.
  */
-InputDialog::InputDialog(Theme *theme, const std::wstring &title)
-    : PDecor(theme, "INPUTDIALOG"), PWinObjReference(0),
-      _data(theme->getCmdDialogData()),
+InputDialog::InputDialog(const std::wstring &title)
+    : PDecor("INPUTDIALOG"), PWinObjReference(0),
+      _data(Theme::instance()->getCmdDialogData()),
       _pixmap_bg(None), _pos(0), _buf_off(0), _buf_chars(0)
 {
     // PWinObj attributes
@@ -335,7 +335,7 @@ InputDialog::loadTheme(void)
     Geometry head;
     X11::getHeadInfo(getHead(), head);
 
-    _data = _theme->getCmdDialogData();
+    _data = Theme::instance()->getCmdDialogData();
     updateSize(head);
     updatePixmapSize();
 }

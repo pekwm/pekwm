@@ -24,7 +24,6 @@
 #include "ActionHandler.hh"
 #include "Client.hh"
 #include "Frame.hh"
-#include "WindowManager.hh"
 #include "Util.hh"
 
 using std::cerr;
@@ -38,11 +37,11 @@ using std::wstring;
 //! @param title Title of menu
 //! @param name Name of the menu, empty for dynamic else should be unique
 //! @param decor_name Name of decor to use, defaults to MENU.
-ActionMenu::ActionMenu(MenuType type,
+ActionMenu::ActionMenu(MenuType type, ActionHandler *act,
                        const std::wstring &title, const std::string &name,
                        const std::string &decor_name) :
-    WORefMenu(WindowManager::instance()->getTheme(), title, name, decor_name),
-    _act(WindowManager::instance()->getActionHandler()),
+    WORefMenu(title, name, decor_name),
+    _act(act),
     _has_dynamic(false)
 {
     // when creating dynamic submenus, this needs to be initialized as
@@ -212,7 +211,9 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
             if (sub_section) {
                 icon = getIcon(sub_section->findEntry("ICON"));
 
-                submenu = new ActionMenu(_menu_type, Util::to_wide_str((*it)->getValue()), (*it)->getValue());
+                auto title = (*it)->getValue();
+                auto wtitle = Util::to_wide_str(title);
+                submenu = new ActionMenu(_menu_type, _act, wtitle, title);
                 submenu->_menu_parent = this;
                 submenu->parse(sub_section, parent);
                 submenu->buildMenu();

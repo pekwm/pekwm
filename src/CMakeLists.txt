@@ -16,6 +16,7 @@ set(libpekwm_SOURCES
   Compat.cc
   Completer.cc
   Client.cc
+  ClientMgr.cc
   CmdDialog.cc
   Config.cc
   DockApp.cc
@@ -48,6 +49,7 @@ set(libpekwm_SOURCES
   WinLayouter.cc
   Workspaces.cc
   WorkspaceIndicator.cc
+  pekwm.cc
   x11.cc)
 set(common_INCLUDE_DIRS ${PROJECT_BINARY_DIR}/src ${ICONV_INCLUDE_DIR} ${X11_INCLUDE_DIR})
 set(common_LIBRARIES ${ICONV_LIBRARIES} ${X11_LIBRARIES})

@@ -17,13 +17,11 @@
 
 class PWinObj;
 class PMenu;
-class Theme;
 
 class WORefMenu : public PMenu, public PWinObjReference
 {
 public:
-    WORefMenu(Theme *theme,
-              const std::wstring &title, const std::string &name,
+    WORefMenu(const std::wstring &title, const std::string &name,
               const std::string &decor_name = "MENU");
     virtual ~WORefMenu(void);
 
@@ -33,7 +31,8 @@ public:
 
 protected:
     std::wstring _title_base;
-    std::wstring _title_pre, _title_post;
+    std::wstring _title_pre;
+    std::wstring _title_post;
 };
 
 #endif // _WOREFMENU_HH_

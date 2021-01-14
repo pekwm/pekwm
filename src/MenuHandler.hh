@@ -14,7 +14,9 @@
 #include <string>
 
 #include "PMenu.hh"
+
 class Theme;
+class ActionHandler;
 
 /**
  * Menu manager, creates, reloads and delete menus.
@@ -38,20 +40,20 @@ public:
         return menu_names;
     }
 
-    static void createMenus(Theme *);
+    static void createMenus(ActionHandler *act);
     static void hideAllMenus(void) {
         std::map<std::string, PMenu*>::iterator it(_menu_map.begin());
         for (; it != _menu_map.end(); ++it) {
             it->second->unmapAll();
         }
     }
-    static void reloadMenus(void);
+    static void reloadMenus(ActionHandler *act);
     static void deleteMenus(void);
 
 private:
     static bool loadMenuConfig(const std::string &menu_file, CfgParser &menu_cfg);
-    static void createMenusLoadConfiguration(void);
-    static void reloadStandaloneMenus(CfgParser::Entry *section);
+    static void createMenusLoadConfiguration(ActionHandler *act);
+    static void reloadStandaloneMenus(ActionHandler *act, CfgParser::Entry *section);
 
     static TimeFiles _cfg_files;
     static std::map<std::string, PMenu*> _menu_map; /**< Map from menu name to menu */

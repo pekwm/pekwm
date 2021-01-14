@@ -118,8 +118,7 @@ public:
         uint _width;
     };
 
-    PDecor(Theme *theme,
-           const std::string &decor_name = DEFAULT_DECOR_NAME,
+    PDecor(const std::string &decor_name = DEFAULT_DECOR_NAME,
            const Window child_window = None);
     virtual ~PDecor(void);
 
@@ -409,7 +408,6 @@ private:
     void calcTabsWidthAsymetricShrink(uint width_avail, uint tab_width);
 
 protected:
-    Theme *_theme; //!< Pointer to Theme used by PDecor.
     std::string _decor_name; //!< Name of the active decoration
     std::string _decor_name_saved; //!< Original decor name if it is temp. overridden
 

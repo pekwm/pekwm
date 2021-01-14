@@ -51,9 +51,9 @@ PMenu::Item::~Item(void)
 map<Window,PMenu*> PMenu::_menu_map = map<Window,PMenu*>();
 
 //! @brief Constructor for PMenu class
-PMenu::PMenu(Theme *theme, const std::wstring &title,
+PMenu::PMenu(const std::wstring &title,
              const std::string &name, const std::string decor_name)
-    : PDecor(theme, decor_name),
+    : PDecor(decor_name),
       _name(name),
       _menu_parent(0), _class_hint(L"pekwm", L"Menu", L"", L"", L""),
       _item_curr(0),
@@ -376,8 +376,9 @@ PMenu::buildMenuCalculate(void)
     _item_width_max_avail = _item_width_max;
 
     // Continue add padding etc.
-    _item_width_max += _theme->getMenuData()->getPad(PAD_LEFT)
-        + _theme->getMenuData()->getPad(PAD_RIGHT);
+    auto md = Theme::instance()->getMenuData();
+    _item_width_max += md->getPad(PAD_LEFT)
+        + md->getPad(PAD_RIGHT);
     if (Config::instance()->isDisplayMenuIcons()) {
         _item_width_max += _icon_width;
     }
@@ -385,8 +386,8 @@ PMenu::buildMenuCalculate(void)
     // If we have any submenus, increase the maximum width with arrow width +
     // right pad as we are going to pad the arrow from the text too.
     if (_has_submenu) {
-        _item_width_max += _theme->getMenuData()->getPad(PAD_RIGHT)
-            + _theme->getMenuData()->getTextureArrow(OBJECT_STATE_FOCUSED)->getWidth();
+        _item_width_max += md->getPad(PAD_RIGHT)
+            + md->getTextureArrow(OBJECT_STATE_FOCUSED)->getWidth();
     }
 
     // Remove padding etc from avail and item width.
@@ -397,10 +398,10 @@ PMenu::buildMenuCalculate(void)
     }
 
     // Calculate item height
-    _item_height = std::max(_theme->getMenuData()->getFont(OBJECT_STATE_FOCUSED)->getHeight(), _icon_height)
-      + _theme->getMenuData()->getPad(PAD_UP)
-      + _theme->getMenuData()->getPad(PAD_DOWN);
-    _separator_height = _theme->getMenuData()->getTextureSeparator(OBJECT_STATE_FOCUSED)->getHeight();
+    _item_height = std::max(md->getFont(OBJECT_STATE_FOCUSED)->getHeight(), _icon_height)
+      + md->getPad(PAD_UP)
+      + md->getPad(PAD_DOWN);
+    _separator_height = md->getTextureSeparator(OBJECT_STATE_FOCUSED)->getHeight();
 
     height = (_item_height * _size) + (_separator_height * sep);
 
@@ -450,7 +451,8 @@ PMenu::buildMenuCalculateMaxWidth(unsigned int &width, unsigned int &height)
           }
         }
 
-        width = _theme->getMenuData()->getFont(OBJECT_STATE_FOCUSED)->getWidth((*it)->getName().c_str());
+        auto md = Theme::instance()->getMenuData();
+        width = md->getFont(OBJECT_STATE_FOCUSED)->getWidth((*it)->getName().c_str());
         if (width > _item_width_max) {
             _item_width_max = width;
         }
@@ -572,14 +574,11 @@ PMenu::buildMenuRenderState(Pixmap &pix, ObjectState state)
     X11::freePixmap(pix);
     pix = X11::createPixmap(getChildWidth(), getChildHeight());
 
-    PTexture *tex;
-    PFont *font;
-
-    tex = _theme->getMenuData()->getTextureMenu(state);
+    auto md = Theme::instance()->getMenuData();
+    auto tex = md->getTextureMenu(state);
     tex->render(pix, 0, 0, getChildWidth(), getChildHeight());
-
-    font = _theme->getMenuData()->getFont(state);
-    font->setColor(_theme->getMenuData()->getColor(state));
+    auto font = md->getFont(state);
+    font->setColor(md->getColor(state));
 
     vector<PMenu::Item*>::const_iterator it(_items.begin());
     for (; it != _items.end(); ++it) {
@@ -593,11 +592,10 @@ PMenu::buildMenuRenderState(Pixmap &pix, ObjectState state)
 void
 PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
 {
-    PTexture *tex;
-    Theme::PMenuData *md = _theme->getMenuData();
+    auto md = Theme::instance()->getMenuData();
 
     if (item->getType() == PMenu::Item::MENU_ITEM_NORMAL) {
-        tex = md->getTextureItem(state);
+        auto tex = md->getTextureItem(state);
         tex->render(pix, item->getX(), item->getY(), _item_width_max, _item_height);
 
         uint start_x, start_y, icon_width, icon_height;
@@ -646,7 +644,7 @@ PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
 
     } else if ((item->getType() == PMenu::Item::MENU_ITEM_SEPARATOR) &&
                (state < OBJECT_STATE_SELECTED)) {
-        tex = md->getTextureSeparator(state);
+        auto tex = md->getTextureSeparator(state);
         tex->render(pix, item->getX(), item->getY(), _item_width_max, _separator_height);
     }
 }

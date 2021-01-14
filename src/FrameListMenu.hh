@@ -26,8 +26,7 @@ class Client;
 class FrameListMenu : public WORefMenu
 {
 public:
-    FrameListMenu(Theme *theme,
-                  MenuType type,
+    FrameListMenu(MenuType type,
                   const std::wstring &title, const std::string &name,
                   const std::string &decor_name = "MENU");
     virtual ~FrameListMenu(void);

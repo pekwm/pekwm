@@ -26,7 +26,7 @@ extern "C" {
  */
 class InputDialog : public PDecor, public PWinObjReference {
 public:
-    InputDialog(Theme *theme, const std::wstring &title);
+    InputDialog(const std::wstring &title);
     virtual ~InputDialog(void);
 
     // BEGIN - PWinObj interface

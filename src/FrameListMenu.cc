@@ -23,7 +23,6 @@
 #include "Client.hh"
 #include "Frame.hh"
 #include "Workspaces.hh"
-#include "WindowManager.hh"
 
 using std::cerr;
 using std::endl;
@@ -38,11 +37,10 @@ using std::wstring;
 //! @param title Title of menu.
 //! @param name Name of menu
 //! @param decor_name Decor name, defaults to MENU
-FrameListMenu::FrameListMenu(Theme *theme,
-                             MenuType type,
+FrameListMenu::FrameListMenu(MenuType type,
                              const std::wstring &title, const std::string &name,
                              const std::string &decor_name)
-    : WORefMenu(theme, title, name, decor_name)
+    : WORefMenu(title, name, decor_name)
 {
     _menu_type = type;
 }

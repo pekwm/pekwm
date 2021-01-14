@@ -19,7 +19,7 @@ class PDecor;
 //! @brief Status display window.
 class StatusWindow : public PDecor {
 public:
-    StatusWindow(Theme *theme);
+    StatusWindow();
     virtual ~StatusWindow(void);
 
     //! @brief Returns the StatusWindow instance pointer.

@@ -51,8 +51,8 @@ public:
     ~TextureHandler(void);
 
     static TextureHandler *instance(void) { return _instance; }
-    static int getLengthMin(void) { return LENGTH_MIN; }
 
+    int getLengthMin(void) { return _length_min; }
     PTexture *getTexture(const std::string &texture);
     PTexture *referenceTexture(PTexture *texture);
     void returnTexture(PTexture *texture);
@@ -66,8 +66,10 @@ private:
 
 private:
     static TextureHandler *_instance;
-    static std::map<ParseUtil::Entry, PTexture::Type> _parse_map;
-    static const int LENGTH_MIN; //!< Minimum texture name length.
+
+    std::map<ParseUtil::Entry, PTexture::Type> _parse_map;
+    /** Minimum texture name length. */
+    const int _length_min;
 
     std::vector<TextureHandler::Entry*> _textures;
 };

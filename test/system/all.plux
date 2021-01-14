@@ -77,3 +77,7 @@ in one go.
 
 [shell test]
     [call test_update_client_list]
+
+[shell Xvfb]
+    !$_CTRL_C_
+    ?SH-PROMPT:

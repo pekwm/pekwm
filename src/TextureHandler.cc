@@ -16,29 +16,13 @@
 
 #include <iostream>
 
-using std::vector;
-using std::map;
-using std::string;
-using std::cerr;
-using std::endl;
-
-TextureHandler* TextureHandler::_instance = 0;
-map<ParseUtil::Entry, PTexture::Type> TextureHandler::_parse_map = map<ParseUtil::Entry, PTexture::Type>();
-
-const int TextureHandler::LENGTH_MIN = 5;
+TextureHandler texture_handler_instance;
+TextureHandler* TextureHandler::_instance = &texture_handler_instance;
 
 //! @brief TextureHandler constructor
 TextureHandler::TextureHandler(void)
+    : _length_min(5)
 {
-#ifdef DEBUG
-    if (_instance) {
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "TextureHandler(" << this << ")::TextureHandler()"
-             << " *** _instance already set: " << _instance << endl;
-    }
-#endif // DEBUG
-    _instance = this;
-
     // fill parse map with values
     _parse_map[""] = PTexture::TYPE_NO;
     _parse_map["SOLID"] = PTexture::TYPE_SOLID;
@@ -58,8 +42,7 @@ PTexture*
 TextureHandler::getTexture(const std::string &texture)
 {
     // check for already existing entry
-    vector<TextureHandler::Entry*>::const_iterator it(_textures.begin());
-
+    auto it(_textures.begin());
     for (; it != _textures.end(); ++it) {
         if (*(*it) == texture) {
             (*it)->incRef();
@@ -68,13 +51,11 @@ TextureHandler::getTexture(const std::string &texture)
     }
 
     // parse texture
-    PTexture *ptexture = parse(texture);
-
+    auto ptexture = parse(texture);
     if (ptexture) {
         // create new entry
-        TextureHandler::Entry *entry = new TextureHandler::Entry(texture, ptexture);
+        auto entry = new TextureHandler::Entry(texture, ptexture);
         entry->incRef();
-
         _textures.push_back(entry);
     }
 
@@ -87,8 +68,7 @@ PTexture*
 TextureHandler::referenceTexture(PTexture *texture)
 {
     // Check for already existing entry
-    vector<TextureHandler::Entry*>::const_iterator it(_textures.begin());
-
+    auto it(_textures.begin());
     for (; it != _textures.end(); ++it) {
         if ((*it)->getTexture() == texture) {
             (*it)->incRef();
@@ -97,9 +77,8 @@ TextureHandler::referenceTexture(PTexture *texture)
     }
 
     // Create new entry
-    TextureHandler::Entry *entry = new TextureHandler::Entry("", texture);
+    auto entry = new TextureHandler::Entry("", texture);
     entry->incRef();
-
     _textures.push_back(entry);
 
     return texture;
@@ -111,7 +90,7 @@ TextureHandler::returnTexture(PTexture *texture)
 {
     bool found = false;
 
-    vector<TextureHandler::Entry*>::iterator it(_textures.begin());
+    auto it(_textures.begin());
     for (; it != _textures.end(); ++it) {
         if ((*it)->getTexture() == texture) {
             found = true;
@@ -135,7 +114,7 @@ PTexture*
 TextureHandler::parse(const std::string &texture)
 {
     PTexture *ptexture = 0;
-    vector<string> tok;
+    std::vector<std::string> tok;
 
     PTexture::Type type;
     if (Util::splitString(texture, tok, " \t")) {
@@ -155,10 +134,12 @@ TextureHandler::parse(const std::string &texture)
             ptexture = parseSolidRaised(tok);
             break;
         case PTexture::TYPE_IMAGE:
-            ptexture = new PTextureImage(texture.substr(6)); // 6==strlen("IMAGE ")
+            // 6==strlen("IMAGE ")
+            ptexture = new PTextureImage(texture.substr(6));
             if (! ptexture->isOk()) {
-                string::size_type pos = texture.find_first_not_of(" \t", 6);
-                static_cast<PTextureImage*>(ptexture)->setImage(texture.substr(pos));
+                auto image = static_cast<PTextureImage*>(ptexture);
+                auto pos = texture.find_first_not_of(" \t", 6);
+                image->setImage(texture.substr(pos));
             }
             break;
         case PTexture::TYPE_NO:
@@ -184,7 +165,8 @@ PTexture*
 TextureHandler::parseSolid(std::vector<std::string> &tok)
 {
     if (tok.size() < 1) {
-        cerr << "*** WARNING: not enough parameters to texture Solid" << endl;
+        std::cerr << "*** WARNING: not enough parameters to texture Solid"
+                  << std::endl;
         return 0;
     }
 
@@ -204,7 +186,8 @@ PTexture*
 TextureHandler::parseSolidRaised(std::vector<std::string> &tok)
 {
     if (tok.size() < 3) {
-        cerr << "*** WARNING: not enough parameters to texture SolidRaised" << endl;
+        std::cerr << "*** WARNING: not enough parameters to texture SolidRaised"
+                  << std::endl;
         return 0;
     }
 
@@ -236,7 +219,7 @@ TextureHandler::parseSolidRaised(std::vector<std::string> &tok)
 void
 TextureHandler::parseSize(PTexture *tex, const std::string &size)
 {
-    vector<string> tok;
+    std::vector<std::string> tok;
     if ((Util::splitString(size, tok, "x", 2, true)) == 2) {
         tex->setWidth(strtol(tok[0].c_str(), 0, 10));
         tex->setHeight(strtol(tok[1].c_str(), 0, 10));

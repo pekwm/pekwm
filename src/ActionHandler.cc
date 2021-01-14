@@ -17,6 +17,7 @@
 #include "x11.hh"
 #include "Frame.hh"
 #include "Client.hh"
+#include "ClientMgr.hh"
 #include "Config.hh"
 #include "CmdDialog.hh"
 #include "SearchDialog.hh"
@@ -483,7 +484,7 @@ ActionHandler::handleStateAction(const Action &action, PWinObj *wo,
             WindowManager::instance()->getHarbour()->setStateHidden(sa);
             break;
         case ACTION_STATE_GLOBAL_GROUPING:
-            WindowManager::instance()->setStateGlobalGrouping(sa);
+            ClientMgr::setStateGlobalGrouping(sa);
             break;
         default:
             matched = false;
@@ -908,20 +909,16 @@ ActionHandler::actionShowInputDialog(InputDialog *dialog,
 PMenu*
 ActionHandler::createNextPrevMenu(bool show_iconified, bool mru)
 {
-    Frame *fr;
-    ActionEvent ae; // empty ae, used when inserting
-    PMenu *menu =
-        new PMenu(WindowManager::instance()->getTheme(),
-                  mru?L"MRU Windows":L"Windows",
-                  "" /* Empty name*/);
+    auto menu = new PMenu(mru ? L"MRU Windows" : L"Windows", "" /* name*/);
 
-    vector<Frame*>::const_iterator itr = mru?WindowManager::instance()->mru_begin():Frame::frame_begin();
-    vector<Frame*>::const_iterator end = mru?WindowManager::instance()->mru_end():Frame::frame_end();
-    for (; itr != end; ++itr) {
-        fr = *itr;
-        if (createMenuInclude(fr, show_iconified)) {
-            menu->insert(static_cast<Client*>(fr->getActiveChild())->getTitle()->getVisible(),
-                         ae, fr, static_cast<Client*>(fr->getActiveChild())->getIcon());
+    auto it = mru ? Workspaces::mru_begin() : Frame::frame_begin();
+    auto end = mru ? Workspaces::mru_end() : Frame::frame_end();
+    for (; it != end; ++it) {
+        auto frame = *it;
+        if (createMenuInclude(frame, show_iconified)) {
+            auto client = static_cast<Client*>(frame->getActiveChild());
+            menu->insert(client->getTitle()->getVisible(), ActionEvent(), frame,
+                         client->getIcon());
         }
     }
 
@@ -985,7 +982,7 @@ ActionHandler::gotoClient(Client *client)
     if (! frame->isSticky()
         && (frame->getWorkspace() != Workspaces::getActive())) {
         Workspaces::setWorkspace(frame->getWorkspace(), false);
-        WindowManager::instance()->addToMRUFront(frame);
+        Workspaces::addToMRUFront(frame);
     }
 
     if (! frame->isMapped()) {

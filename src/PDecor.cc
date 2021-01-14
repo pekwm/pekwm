@@ -169,12 +169,10 @@ vector<PDecor*> PDecor::_pdecors;
 
 //! @brief PDecor constructor
 //! @param dpy Display
-//! @param theme Theme
 //! @param decor_name String, if not DEFAULT_DECOR_NAME sets _decor_name_saved
-PDecor::PDecor(Theme *theme,
-               const std::string &decor_name, const Window child_window)
+PDecor::PDecor(const std::string &decor_name, const Window child_window)
     : PWinObj(true),
-      _theme(theme), _decor_name(decor_name),
+      _decor_name(decor_name),
       _child(0), _button(0), _button_press_win(None),
       _pointer_x(0), _pointer_y(0),
       _click_x(0), _click_y(0),
@@ -199,9 +197,9 @@ PDecor::PDecor(Theme *theme,
 
     // we be reset in loadDecor later on, inlines using the _data used before
     // loadDecor needs this though
-    _data = _theme->getPDecorData(_decor_name);
+    _data = Theme::instance()->getPDecorData(_decor_name);
     if (! _data) {
-        _data = _theme->getPDecorData(DEFAULT_DECOR_NAME);
+        _data = Theme::instance()->getPDecorData(DEFAULT_DECOR_NAME);
     }
 
     CreateWindowParams window_params;
@@ -822,9 +820,9 @@ PDecor::loadDecor(void)
     unloadDecor();
 
     // Get decordata with name.
-    _data = _theme->getPDecorData(_decor_name);
+    _data = Theme::instance()->getPDecorData(_decor_name);
     if (! _data) {
-        _data = _theme->getPDecorData(DEFAULT_DECOR_NAME);
+        _data = Theme::instance()->getPDecorData(DEFAULT_DECOR_NAME);
     }
     LOG_IF(!_data, "_data == 0");
 
@@ -1763,7 +1761,7 @@ void
 PDecor::drawOutline(const Geometry &gm)
 {
     XDrawRectangle(X11::getDpy(), X11::getRoot(),
-                   _theme->getInvertGC(),
+                   Theme::instance()->getInvertGC(),
                    gm.x, gm.y, gm.width,
                    _shaded ? _gm.height : gm.height);
 }

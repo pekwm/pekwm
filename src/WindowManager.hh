@@ -23,11 +23,9 @@
 #include <map>
 
 class ActionHandler;
-class AutoProperties;
 class Config;
 class FontHandler;
 class TextureHandler;
-class Theme;
 class Workspaces;
 
 class ScreenResources;
@@ -41,7 +39,6 @@ class AutoProperty; // for findGroup
 class CmdDialog;
 class SearchDialog;
 class StatusWindow;
-class WorkspaceIndicator;
 
 class KeyGrabber;
 class Harbour;
@@ -63,52 +60,15 @@ public:
 
     // get "base" classes
     inline Config *getConfig(void) const { return _config; }
-    inline Theme *getTheme(void) const { return _theme; }
     inline ActionHandler *getActionHandler(void)
     const { return _action_handler; }
-    inline AutoProperties* getAutoProperties(void) const {
-        return _autoproperties;
-    }
     inline KeyGrabber *getKeyGrabber(void) const { return _keygrabber; }
     inline Harbour *getHarbour(void) const { return _harbour; }
 
     inline bool shallRestart(void) const { return _restart; }
     inline const std::string &getRestartCommand(void) const { return _restart_command; }
-    inline bool isStartup(void) const { return _startup; }
-
-    // list iterators
-    inline vector<Frame*>::iterator mru_begin(void) { return _mru.begin(); }
-    inline vector<Frame*>::iterator mru_end(void) { return _mru.end(); }
-
-    // adds
-    inline void addToMRUFront(Frame *frame) {
-        if (frame) {
-            _mru.erase(std::remove(_mru.begin(), _mru.end(), frame), _mru.end());
-            _mru.insert(_mru.begin(), frame);
-        }
-    }
-
-    inline void addToMRUBack(Frame *frame) {
-        if (frame) {
-            _mru.erase(std::remove(_mru.begin(), _mru.end(), frame), _mru.end());
-            _mru.push_back(frame);
-        }
-    }
-
-    void removeFromFrameList(Frame *frame) {
-        _mru.erase(std::remove(_mru.begin(), _mru.end(), frame), _mru.end());
-    }
 
     void familyRaiseLower(Client *client, bool raise);
-
-    Frame* findGroup(AutoProperty *property);
-
-    inline bool isAllowGrouping(void) const { return _allow_grouping; }
-    inline void setStateGlobalGrouping(StateAction sa) {
-        if (ActionUtil::needToggle(sa, _allow_grouping)) {
-            _allow_grouping = !_allow_grouping;
-        }
-    }
 
     void attachMarked(Frame *frame);
     void attachInNextPrevFrame(Client* client, bool frame, bool next);
@@ -121,9 +81,6 @@ public:
     inline CmdDialog *getCmdDialog(void) { return _cmd_dialog; }
     inline SearchDialog *getSearchDialog(void) { return _search_dialog; }
     inline StatusWindow *getStatusWindow(void) { return _status_window; }
-    WorkspaceIndicator *getWorkspaceIndicator(void) { return _workspace_indicator; }
-
-    void showWSIndicator(void) const;
 
     // public event handlers used when doing grabbed actions
     void handleKeyEvent(XKeyEvent *ev);
@@ -181,33 +138,19 @@ private:
 
     Client *createClient(Window window, bool is_new);
 
-    bool findGroupMatchProperty(Frame *frame, AutoProperty *property);
-    Frame *findGroupMatch(AutoProperty *property);
-
 private:
     KeyGrabber *_keygrabber;
     Config *_config;
-    FontHandler *_font_handler;
-    TextureHandler *_texture_handler;
-    Theme *_theme;
     ActionHandler *_action_handler;
-    AutoProperties *_autoproperties;
     Harbour *_harbour;
     CmdDialog *_cmd_dialog;
     SearchDialog *_search_dialog;
     StatusWindow *_status_window;
 
-    WorkspaceIndicator *_workspace_indicator; //!< Window popping up when switching workspace
-
-    bool _startup; //!< Indicates startup status.
     bool _shutdown; //!< Set to wheter we want to shutdown.
     bool _reload; //!< Set to wheter we want to reload.
     bool _restart;
     std::string _restart_command;
-
-    vector<Frame *> _mru; // The most recently used frame is kept at the front.
-
-    bool _allow_grouping; //<! Flag turning grouping on/off.
 
     EdgeWO *_screen_edges[4];
     HintWO *_hint_wo; /**< Hint window object, communicates EWMH hints. */
