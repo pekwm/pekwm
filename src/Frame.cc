@@ -34,11 +34,8 @@ extern "C" {
 #include "KeyGrabber.hh"
 #include "Theme.hh"
 
-using std::string;
-using std::wstring;
-
-vector<Frame*> Frame::_frames;
-vector<uint> Frame::_frameid_list;
+std::vector<Frame*> Frame::_frames;
+std::vector<uint> Frame::_frameid_list;
 
 Frame* Frame::_tag_frame = 0;
 bool Frame::_tag_behind = false;
@@ -280,21 +277,23 @@ Frame::handleMotionEvent(XMotionEvent *ev)
     } else {
         uint pos = getBorderPosition(ev->subwindow);
 
-        // If ev->subwindow wasn't one of the border windows, perhaps ev->window is.
+        // If ev->subwindow wasn't one of the border windows, perhaps
+        // ev->window is.
         if (pos == BORDER_NO_POS) {
             pos = getBorderPosition(ev->window);
         }
-        
         if (pos != BORDER_NO_POS) {
-            vector<ActionEvent> *bl = Config::instance()->getBorderListFromPosition(pos);
-            ae = ActionHandler::findMouseAction(button, ev->state, MOUSE_EVENT_MOTION, bl);
+            auto *bl = Config::instance()->getBorderListFromPosition(pos);
+            ae = ActionHandler::findMouseAction(button, ev->state,
+                                                MOUSE_EVENT_MOTION, bl);
         }
     }
 
     // check motion threshold
     if (ae && (ae->threshold > 0)) {
         if (! ActionHandler::checkAEThreshold(ev->x_root, ev->y_root,
-                                             _pointer_x, _pointer_y, ae->threshold)) {
+                                             _pointer_x, _pointer_y,
+                                              ae->threshold)) {
             ae = 0;
         }
     }
@@ -310,16 +309,17 @@ Frame::handleEnterEvent(XCrossingEvent *ev)
     PDecor::handleEnterEvent(ev);
 
     ActionEvent *ae = 0;
-    vector<ActionEvent> *al = 0;
+    std::vector<ActionEvent> *al = 0;
+    auto cfg = Config::instance();
 
     if (ev->window == getTitleWindow() || findButton(ev->window)) {
-        al = Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_TITLE_FRAME);
+        al = cfg->getMouseActionList(MOUSE_ACTION_LIST_TITLE_FRAME);
     } else if (ev->subwindow == _client->getWindow()) {
-        al = Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_CHILD_FRAME);
+        al = cfg->getMouseActionList(MOUSE_ACTION_LIST_CHILD_FRAME);
     } else {
         uint pos = getBorderPosition(ev->window);
         if (pos != BORDER_NO_POS) {
-            al = Config::instance()->getBorderListFromPosition(pos);
+            al = cfg->getBorderListFromPosition(pos);
         }
     }
 
@@ -370,10 +370,9 @@ Frame::handleMapRequest(XMapRequestEvent *ev)
 ActionEvent*
 Frame::handleUnmapEvent(XUnmapEvent *ev)
 {
-    vector<PWinObj*>::const_iterator it(_children.begin());
-    for (; it != _children.end(); ++it) {
-        if (*(*it) == ev->window) {
-            (*it)->handleUnmapEvent(ev);
+    for (auto it : _children) {
+        if (*it == ev->window) {
+            it->handleUnmapEvent(ev);
             break;
         }
     }
@@ -417,7 +416,7 @@ Frame::getActiveClient(void)
 
 //! @brief Adds child to the frame.
 void
-Frame::addChild(PWinObj *child, vector<PWinObj*>::iterator *it)
+Frame::addChild(PWinObj *child, std::vector<PWinObj*>::iterator *it)
 {
     PDecor::addChild(child, it);
     X11::setLong(child->getWindow(), PEKWM_FRAME_ID, _id);
@@ -436,8 +435,7 @@ void
 Frame::addChildOrdered(Client *child)
 {
     Client *client;
-    
-    vector<PWinObj*>::iterator it(_children.begin());
+    auto it(_children.begin());
     for (; it != _children.end(); ++it) {
         client = static_cast<Client*>(*it);
         if (child->getInitialFrameOrder() < client->getInitialFrameOrder()) {
@@ -509,7 +507,7 @@ Frame::updatedChildOrder(void)
     titleClear();
 
     Client *client;
-    vector<PWinObj*>::const_iterator it(_children.begin());
+    auto it(_children.begin());
     for (long num = 0; it != _children.end(); ++num, ++it) {
         client = static_cast<Client*>(*it);
         client->setPekwmFrameOrder(num);
@@ -653,7 +651,7 @@ std::string
 Frame::getDecorName(void)
 {
     if (! demandAttention()) {
-        string name = _client->getAPDecorName();
+        auto name = _client->getAPDecorName();
         if (! name.empty()) {
             return name;
         }
@@ -668,10 +666,8 @@ void
 Frame::setId(uint id)
 {
     _id = id;
-
-    vector<PWinObj*>::const_iterator it(_children.begin());
-    for (; it != _children.end(); ++it) {
-        X11::setLong((*it)->getWindow(), PEKWM_FRAME_ID, id);
+    for (auto it : _children) {
+        X11::setLong(it->getWindow(), PEKWM_FRAME_ID, id);
     }
 }
 
@@ -769,13 +765,11 @@ Frame::findFrameFromWindow(Window win)
         return 0;
     }
 
-    vector<Frame*>::const_iterator it(_frames.begin());
-    for(; it !=_frames.end(); ++it) {
-        if (win == (*it)->getWindow()) { // operator == does more than that
-            return (*it);
+    for (auto it : _frames) {
+        if (win == it->getWindow()) { // operator == does more than that
+            return it;
         }
     }
-
     return 0;
 }
 
@@ -785,13 +779,11 @@ Frame::findFrameFromWindow(Window win)
 Frame*
 Frame::findFrameFromID(uint id)
 {
-    vector<Frame*>::const_iterator it(_frames.begin());
-    for (; it != _frames.end(); ++it) {
-        if ((*it)->getId() == id) {
-            return (*it);
+    for (auto it : _frames) {
+        if (it->getId() == id) {
+            return it;
         }
     }
-
     return 0;
 }
 
@@ -905,7 +897,7 @@ Frame::findFrameID(void)
 void
 Frame::returnFrameID(uint id)
 {
-    vector<uint>::iterator it(_frameid_list.begin());
+    auto it(_frameid_list.begin());
     for (; it != _frameid_list.end() && id < *it; ++it)
         ;
     _frameid_list.insert(it, id);
@@ -915,7 +907,7 @@ Frame::returnFrameID(uint id)
 void
 Frame::resetFrameIDs(void)
 {
-    vector<Frame*>::const_iterator it(_frames.begin());
+    auto it(_frames.begin());
     for (uint id = 1; it != _frames.end(); ++id, ++it) {
         (*it)->setId(id);
     }
@@ -992,7 +984,7 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: r
     o_x = ev ? ev->x_root : 0;
     o_y = ev ? ev->y_root : 0;
 
-    wstring name(L"Grouping ");
+    std::wstring name(L"Grouping ");
     if (client->getTitle()->getVisible().size() > 0) {
         name += client->getTitle()->getVisible();
     } else {
@@ -1427,11 +1419,10 @@ Frame::moveToEdge(OrientationType ori)
 void
 Frame::updateInactiveChildInfo(void)
 {
-    vector<PWinObj*>::const_iterator it(_children.begin());
-    for (; it != _children.end(); ++it) {
-        if (*it != _client) {
-            applyState(static_cast<Client*>(*it));
-            (*it)->resize(getChildWidth(), getChildHeight());
+    for (auto it : _children) {
+        if (it != _client) {
+            applyState(static_cast<Client*>(it));
+            it->resize(getChildWidth(), getChildHeight());
         }
     }
 }
@@ -1783,16 +1774,15 @@ Frame::getMaxBounds(int &max_x,int &max_r, int &max_y, int &max_b)
     f_r = getRX();
     f_b = getBY();
 
-    vector<Frame*>::const_iterator it = _frames.begin();
-    for (; it != _frames.end(); ++it) {
-        if (! (*it)->isMapped()) {
+    for (auto it : _frames) {
+        if (! it->isMapped()) {
             continue;
         }
 
-        x = (*it)->getX();
-        y = (*it)->getY();
-        r = (*it)->getRX();
-        b = (*it)->getBY();
+        x = it->getX();
+        y = it->getY();
+        r = it->getRX();
+        b = it->getBY();
 
         // update max borders when other frame border lies between
         // this border and prior max border (originally screen/head edge)
@@ -1882,9 +1872,8 @@ Frame::growDirection(uint direction)
 void
 Frame::close(void)
 {
-    vector<PWinObj*>::const_iterator it(_children.begin());
-    for (; it != _children.end(); ++it) {
-        static_cast<Client*>(*it)->close();
+    for (auto it : _children) {
+        static_cast<Client*>(it)->close();
     }
 }
 

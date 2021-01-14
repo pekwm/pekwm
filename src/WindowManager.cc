@@ -62,15 +62,6 @@ extern "C" {
 #endif // HAVE_XRANDR
 }
 
-using std::cout;
-using std::cerr;
-using std::endl;
-using std::find;
-using std::map;
-using std::string;
-using std::vector;
-using std::wstring;
-
 // Static initializers
 WindowManager *WindowManager::_instance = 0;
 
@@ -220,7 +211,7 @@ WindowManager::~WindowManager(void)
 void
 WindowManager::execStartFile(void)
 {
-    string start_file(_config->getStartFile());
+    std::string start_file(_config->getStartFile());
 
     bool exec = Util::isExecutable(start_file);
     if (! exec) {
@@ -238,7 +229,7 @@ void
 WindowManager::cleanup(void)
 {
     // update all nonactive clients properties
-    vector<Frame*>::const_iterator it_f(Frame::frame_begin());
+    auto it_f(Frame::frame_begin());
     for (; it_f != Frame::frame_end(); ++it_f) {
         (*it_f)->updateInactiveChildInfo();
     }
@@ -250,7 +241,7 @@ WindowManager::cleanup(void)
     // To preserve stacking order when destroying the frames, we go through
     // the PWinObj list from the Workspaces and put all Frames into our own
     // list, then we delete the frames in order.
-    vector<Frame*> frame_list;
+    std::vector<Frame*> frame_list;
     Workspaces::iterator it_w(Workspaces::begin());
     for (; it_w != Workspaces::end(); ++it_w) {
         if ((*it_w)->getType() == PWinObj::WO_FRAME) {
@@ -290,9 +281,9 @@ WindowManager::setupDisplay(bool replace)
 {
     Display *dpy = XOpenDisplay(0);
     if (! dpy) {
-        cerr << "Can not open display!" << endl
-             << "Your DISPLAY variable currently is set to: "
-             << Util::getEnv("DISPLAY") << endl;
+        std::cerr << "Can not open display!" << std::endl
+                  << "Your DISPLAY variable currently is set to: "
+                  << Util::getEnv("DISPLAY") << std::endl;
         exit(1);
     }
 
@@ -302,7 +293,7 @@ WindowManager::setupDisplay(bool replace)
     try {
         // Create hint window _before_ root window.
         _hint_wo = new HintWO(X11::getRoot(), replace);
-    } catch (string &ex) {
+    } catch (std::string &ex) {
         return false;
     }
 
@@ -358,10 +349,10 @@ WindowManager::scanWindows(void)
     // Lets create a list of windows on the display
     XQueryTree(X11::getDpy(), X11::getRoot(),
                &d_win1, &d_win2, &wins, &num_wins);
-    vector<Window> win_list(wins, wins + num_wins);
+    std::vector<Window> win_list(wins, wins + num_wins);
     XFree(wins);
 
-    vector<Window>::iterator it(win_list.begin());
+    auto it(win_list.begin());
 
     // We filter out all windows with the the IconWindowHint
     // set not pointing to themselves, making DockApps
@@ -375,7 +366,8 @@ WindowManager::scanWindows(void)
         if (wm_hints) {
             if ((wm_hints->flags&IconWindowHint) &&
                     (wm_hints->icon_window != *it)) {
-                vector<Window>::iterator i_it(find(win_list.begin(), win_list.end(), wm_hints->icon_window));
+                auto i_it(find(win_list.begin(), win_list.end(),
+                               wm_hints->icon_window));
                 if (i_it != win_list.end())
                     *i_it = None;
             }
@@ -399,7 +391,7 @@ WindowManager::scanWindows(void)
 
     // Try to find transients for all clients, on restarts ordering might
     // not be correct.
-    vector<Client*>::const_iterator it_client = Client::client_begin();
+    auto it_client = Client::client_begin();
     for (; it_client != Client::client_end(); ++it_client) {
         if ((*it_client)->isTransient() && ! (*it_client)->getTransientForClient()) {
             (*it_client)->findAndRaiseIfTransient();
@@ -505,8 +497,8 @@ WindowManager::doReloadConfig(void)
 {
     // If any of these changes, re-fetch of all names is required
     bool old_client_unique_name = _config->getClientUniqueName();
-    string old_client_unique_name_pre = _config->getClientUniqueNamePre();
-    string old_client_unique_name_post = _config->getClientUniqueNamePost();
+    auto old_client_unique_name_pre = _config->getClientUniqueNamePre();
+    auto old_client_unique_name_post = _config->getClientUniqueNamePost();
 
     // Reload configuration
     if (! _config->load(_config->getConfigFile())) {
@@ -578,7 +570,7 @@ WindowManager::doReloadKeygrabber(bool force)
     _keygrabber->grabKeys(X11::getRoot());
 
     // Regrab keys and buttons
-    vector<Client*>::const_iterator c_it(Client::client_begin());
+    auto c_it(Client::client_begin());
     for (; c_it != Client::client_end(); ++c_it) {
         (*c_it)->grabButtons();
         _keygrabber->ungrabKeys((*c_it)->getWindow());
@@ -598,12 +590,12 @@ WindowManager::doReloadAutoproperties(void)
 
     // NOTE: we need to load autoproperties after decor have been updated
     // as otherwise old theme data pointer will be used and sig 11 pekwm.
-    vector<Client*>::const_iterator it_c(Client::client_begin());
+    auto it_c(Client::client_begin());
     for (; it_c != Client::client_end(); ++it_c) {
         (*it_c)->readAutoprops(APPLY_ON_RELOAD);
     }
 
-    vector<Frame*>::const_iterator it_f(Frame::frame_begin());
+    auto it_f(Frame::frame_begin());
     for (; it_f != Frame::frame_end(); ++it_f) {
         (*it_f)->readAutoprops(APPLY_ON_RELOAD);
     }
@@ -721,13 +713,15 @@ WindowManager::doEventLoop(void)
 
             case SelectionClear:
                 // Another window
-                cerr << " *** INFO: Being replaced by another WM" << endl;
+                std::cerr << " *** INFO: Being replaced by another WM"
+                          << std::endl;
                 _shutdown = true;
                 break;
 
             default:
 #ifdef HAVE_SHAPE
-                if (X11::hasExtensionShape() && ev.type == X11::getEventShape()) {
+                if (X11::hasExtensionShape()
+                    && ev.type == X11::getEventShape()) {
                     XShapeEvent *sev = reinterpret_cast<XShapeEvent*>(&ev);
                     X11::setLastEventTime(sev->time);
                     Client *client = Client::findClient(sev->window);
@@ -752,7 +746,7 @@ WindowManager::doEventLoop(void)
                         screenEdgeResize();
 
                         // Make sure windows are visible after resize
-                        vector<PDecor*>::const_iterator it(PDecor::pdecor_begin());
+                        auto it(PDecor::pdecor_begin());
                         for (; it != PDecor::pdecor_end(); ++it) {
                             Workspaces::placeWoInsideScreen(*it);
                         }
@@ -1367,7 +1361,7 @@ WindowManager::familyRaiseLower(Client *client, bool raise)
         win_search = client->getTransientForClientWindow();
     }
 
-    vector<Client*> client_list;
+    std::vector<Client*> client_list;
     Client::findFamilyFromWindow(client_list, win_search);
 
     if (parent) { // make sure parent gets underneath the children
@@ -1379,7 +1373,7 @@ WindowManager::familyRaiseLower(Client *client, bool raise)
     }
 
     Frame *frame;
-    vector<Client*>::const_iterator it(client_list.begin());
+    auto it(client_list.begin());
     for (; it != client_list.end(); ++it) {
         frame = dynamic_cast<Frame*>((*it)->getParent());
         if (frame) {
@@ -1456,7 +1450,7 @@ WindowManager::createClient(Window window, bool is_new)
 void
 WindowManager::attachMarked(Frame *frame)
 {
-    vector<Client*>::const_iterator it(Client::client_begin());
+    auto it(Client::client_begin());
     for (; it != Client::client_end(); ++it) {
         if ((*it)->isMarked()) {
             if ((*it)->getParent() != frame) {
@@ -1512,10 +1506,9 @@ WindowManager::getNextFrame(Frame* frame, bool mapped, uint mask)
     }
 
     Frame *next_frame = 0;
-    vector<Frame*>::const_iterator f_it(find(Frame::frame_begin(), Frame::frame_end(), frame));
-
+    auto f_it(find(Frame::frame_begin(), Frame::frame_end(), frame));
     if (f_it != Frame::frame_end()) {
-        vector<Frame*>::const_iterator n_it(f_it);
+        auto n_it(f_it);
 
         if (++n_it == Frame::frame_end()) {
             n_it = Frame::frame_begin();
@@ -1547,10 +1540,9 @@ WindowManager::getPrevFrame(Frame* frame, bool mapped, uint mask)
     }
 
     Frame *next_frame = 0;
-    vector<Frame*>::const_iterator f_it(find(Frame::frame_begin(), Frame::frame_end(), frame));
-
+    auto f_it(find(Frame::frame_begin(), Frame::frame_end(), frame));
     if (f_it != Frame::frame_end()) {
-        vector<Frame*>::const_iterator n_it(f_it);
+        auto n_it(f_it);
 
         if (n_it == Frame::frame_begin()) {
             n_it = --Frame::frame_end();

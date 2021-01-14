@@ -44,12 +44,15 @@ public:
 private:
     PImage *getImageFromPath(const std::string &file);
 
-    vector<std::string> _search_path; /**< List of directories to search. */
-    vector<HandlerEntry<PImage*> > _images; /**< List of loaded images. */
+     /** List of directories to search. */
+    std::vector<std::string> _search_path;
+     /** List of loaded images. */
+    std::vector<HandlerEntry<PImage*> > _images;
 
     bool _free_on_return; /**< If true, images are deleted when returned. */
 
-    std::map<ParseUtil::Entry, ImageType> _image_type_map; /**< Type name to type enum map. */
+     /**< Type name to type enum map. */
+    std::map<ParseUtil::Entry, ImageType> _image_type_map;
 
     static ImageHandler *_instance; /**< Singleton instance pointer. */
 };

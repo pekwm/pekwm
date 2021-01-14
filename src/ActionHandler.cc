@@ -36,10 +36,6 @@
 
 #include <memory>
 
-using std::string;
-using std::find;
-using std::map;
-
 ActionHandler *ActionHandler::_instance = 0;
 
 //! @brief ActionHandler constructor
@@ -72,7 +68,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
     bool matched = false;
 
     // go through the list of actions and execute them
-    vector<Action>::const_iterator it = ap.ae.action_list.begin();
+    auto it = ap.ae.action_list.begin();
     for (; it != ap.ae.action_list.end(); ++it, matched = false) {
         // Determine what type if any of the window object that is focused
         // and check if it is still alive.
@@ -506,7 +502,8 @@ ActionHandler::checkAEThreshold(int x, int y, int x_t, int y_t, uint t)
 
 //! @brief Searches the actions list for an matching event
 ActionEvent*
-ActionHandler::findMouseAction(uint button, uint state, MouseEventType type, vector<ActionEvent> *actions)
+ActionHandler::findMouseAction(uint button, uint state, MouseEventType type,
+                               std::vector<ActionEvent> *actions)
 {
     if (! actions) {
         return 0;
@@ -515,7 +512,7 @@ ActionHandler::findMouseAction(uint button, uint state, MouseEventType type, vec
     X11::stripStateModifiers(&state);
     X11::stripButtonModifiers(&state);
 
-    vector<ActionEvent>::iterator it(actions->begin());
+    auto it(actions->begin());
     for (; it != actions->end(); ++it) {
         if ((it->type == unsigned(type))
             && ((it->mod == MOD_ANY) || (it->mod == state))
@@ -665,7 +662,7 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off,
     if (PWinObj::isFocusedPWinObj(PWinObj::WO_CLIENT)) {
         fo_wo = PWinObj::getFocusedPWinObj()->getParent();
 
-        vector<PMenu::Item*>::const_iterator it(menu->m_begin());
+        auto it(menu->m_begin());
         for (; it != menu->m_end(); ++it) {
             if ((*it)->getWORef() == fo_wo) {
                 menu->selectItem(it);
@@ -802,12 +799,11 @@ ActionHandler::actionSendKey(PWinObj *wo, const std::string &key_str)
     initSendKeyEvent(ev, wo);
 
     // Press state modifiers
-    map<uint, uint>::iterator it;
-    for (it = _state_to_keycode.begin(); it != _state_to_keycode.end(); ++it) {
-        if (mod & it->first) {
-            ev.xkey.keycode = it->second;
+    for (auto it : _state_to_keycode) {
+        if (mod & it.first) {
+            ev.xkey.keycode = it.second;
             XSendEvent(X11::getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
-            ev.xkey.state |= it->first;
+            ev.xkey.state |= it.first;
         }
     }
 
@@ -818,11 +814,11 @@ ActionHandler::actionSendKey(PWinObj *wo, const std::string &key_str)
     XSendEvent(X11::getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
 
     // Release state modifiers
-    for (it = _state_to_keycode.begin(); it != _state_to_keycode.end(); ++it) {
-        if (mod & it->first) {
-            ev.xkey.keycode = it->second;
+    for (auto it : _state_to_keycode) {
+        if (mod & it.first) {
+            ev.xkey.keycode = it.second;
             XSendEvent(X11::getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
-            ev.xkey.state &= ~it->first;
+            ev.xkey.state &= ~it.first;
         }
     }
 
@@ -936,16 +932,15 @@ ActionHandler::createMenuInclude(Frame *frame, bool show_iconified)
     // it's iconified. Also make sure it's possible to give it focus
     // and should not be skipped. The condition is rather complex, so
     // we split it up for readability.
-    
+
     // focw == frame on current workspace
-    bool focw = frame->isSticky() || frame->getWorkspace() == Workspaces::getActive();
-    
+    bool focw = frame->isSticky()
+        || frame->getWorkspace() == Workspaces::getActive();
     // ibs == iconified but should be shown
     bool ibs = show_iconified && frame->isIconified() && focw;
-    
-    // mos == mapped or shown nonetheless 
+    // mos == mapped or shown nonetheless
     bool mos = frame->isMapped() || ibs;
-    
+
     return ! frame->isSkip(SKIP_FOCUS_TOGGLE) && frame->isFocusable() && mos;
 }
 
@@ -956,7 +951,7 @@ ActionHandler::findClientFromTitle(const std::wstring &or_title)
     RegexString o_rs;
 
     if (o_rs.parse_match(or_title, true)) {
-        vector<Client*>::const_iterator it(Client::client_begin());
+        auto it(Client::client_begin());
         for (; it != Client::client_end(); ++it) {
             if (o_rs == (*it)->getTitle()->getVisible()) {
                 return (*it);

@@ -11,12 +11,6 @@
 #include <iostream>
 #include <cstdlib>
 
-using std::string;
-using std::cerr;
-using std::endl;
-using std::numeric_limits;
-
-
 //! @brief Parses value and sets _br_set.
 //! Boolean true is represented either by case insensitive true or 1.
 //! Boolean false is represented either by case insensitive false or 0.
@@ -31,7 +25,7 @@ CfgParserKeyBool::parseValue(const std::string &value)
         _set = false;
     } else  {
         _set = _default;
-        throw string("not bool value");
+        throw std::string("not bool value");
     }
 }
 
@@ -42,8 +36,9 @@ void
 CfgParserKeyString::parseValue(const std::string &value)
 {
     if (value.size() < _length_min) {
-        throw string("string too short, min length "
-                     + Util::to_string<std::string::size_type>(_length_min));
+        auto msg = "string too short, min length "
+            + std::to_string(_length_min);
+        throw msg;
     }
     _set = value;
 }
@@ -59,6 +54,6 @@ CfgParserKeyPath::parseValue(const std::string &value)
         Util::expandFileName(_set);
     } else {
         _set = _default;
-        throw string("path too short");
+        throw std::string("path too short");
     }
 }

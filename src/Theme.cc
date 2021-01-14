@@ -25,12 +25,6 @@
 #include <iostream>
 #include <cstdlib>
 
-using std::cerr;
-using std::endl;
-using std::string;
-using std::vector;
-using std::map;
-
 static Theme theme_instance;
 Theme* Theme::_instance = &theme_instance;
 
@@ -150,8 +144,10 @@ Theme::PDecorButtonData::check(void)
 
 // Theme::PDecorData
 
-map<FocusedState, string> Theme::PDecorData::_fs_map = map<FocusedState, string>();
-map<BorderPosition, string> Theme::PDecorData::_border_map = map<BorderPosition, string>();
+std::map<FocusedState, std::string> Theme::PDecorData::_fs_map =
+    std::map<FocusedState, std::string>();
+std::map<BorderPosition, std::string> Theme::PDecorData::_border_map =
+    std::map<BorderPosition, std::string>();
 
 //! @brief Theme::PDecorData constructor.
 Theme::PDecorData::PDecorData(const char *name)
@@ -240,18 +236,24 @@ Theme::PDecorData::load(CfgParser::Entry *section)
 
     TextureHandler *th = TextureHandler::instance(); // convenience
 
-    vector<string> tok;
-    vector<CfgParserKey*> keys;
-    string value_pad, value_focused, value_unfocused;
+    std::vector<std::string> tok;
+    std::vector<CfgParserKey*> keys;
+    std::string value_pad, value_focused, value_unfocused;
 
-    keys.push_back(new CfgParserKeyNumeric<int>("HEIGHT", _title_height, 10, 0));
-    keys.push_back(new CfgParserKeyNumeric<int>("WIDTHMIN", _title_width_min, 0));
-    keys.push_back(new CfgParserKeyNumeric<int>("WIDTHMAX", _title_width_max, 100, 0, 100));
-    keys.push_back(new CfgParserKeyBool("WIDTHSYMETRIC", _title_width_symetric));
+    keys.push_back(new CfgParserKeyNumeric<int>("HEIGHT",
+                                                _title_height, 10, 0));
+    keys.push_back(new CfgParserKeyNumeric<int>("WIDTHMIN",
+                                                _title_width_min, 0));
+    keys.push_back(new CfgParserKeyNumeric<int>("WIDTHMAX",
+                                                _title_width_max, 100, 0, 100));
+    keys.push_back(new CfgParserKeyBool("WIDTHSYMETRIC",
+                                        _title_width_symetric));
     keys.push_back(new CfgParserKeyBool("HEIGHTADAPT", _title_height_adapt));
     keys.push_back(new CfgParserKeyString("PAD", value_pad, "0 0 0 0", 7));
-    keys.push_back(new CfgParserKeyString("FOCUSED", value_focused, "Empty", th->getLengthMin()));
-    keys.push_back(new CfgParserKeyString("UNFOCUSED", value_unfocused, "Empty", th->getLengthMin()));
+    keys.push_back(new CfgParserKeyString("FOCUSED", value_focused,
+                                          "Empty", th->getLengthMin()));
+    keys.push_back(new CfgParserKeyString("UNFOCUSED", value_unfocused,
+                                          "Empty", th->getLengthMin()));
 
     // Free up resources
     title_section->parseKeyValues(keys.begin(), keys.end());
@@ -353,9 +355,8 @@ Theme::PDecorData::unload(void)
         }
     }
 
-    vector<Theme::PDecorButtonData*>::const_iterator it(_buttons.begin());
-    for (; it != _buttons.end(); ++it) {
-        delete *it;
+    for (auto it : _buttons) {
+        delete it;
     }
     _buttons.clear();
 
@@ -540,7 +541,7 @@ Theme::PMenuData::load(CfgParser::Entry *section)
     CfgParser::Entry *value;
     value = section->findEntry("PAD");
     if (value) {
-        vector<string> tok;
+        std::vector<std::string> tok;
         if (Util::splitString (value->getValue(), tok, " \t", 4) == 4) {
             for (int i = 0; i < PAD_NO; ++i) {
                 _pad[i] = strtol (tok[i].c_str(), 0, 10);
@@ -627,9 +628,9 @@ Theme::PMenuData::check(void)
 void
 Theme::PMenuData::loadState(CfgParser::Entry *section, ObjectState state)
 {
-    vector<CfgParserKey*> keys;
-    string value_font, value_background, value_item;
-    string value_text, value_arrow, value_separator;
+    std::vector<CfgParserKey*> keys;
+    std::string value_font, value_background, value_item;
+    std::string value_text, value_arrow, value_separator;
 
     keys.push_back(new CfgParserKeyString("FONT", value_font));
     keys.push_back(new CfgParserKeyString("BACKGROUND", value_background, "Solid #ffffff"));
@@ -686,8 +687,8 @@ Theme::TextDialogData::load(CfgParser::Entry *section)
         return false;
     }
 
-    vector<CfgParserKey*> keys;
-    string value_font, value_text, value_texture, value_pad;
+    std::vector<CfgParserKey*> keys;
+    std::string value_font, value_text, value_texture, value_pad;
 
     keys.push_back(new CfgParserKeyString("FONT", value_font));
     keys.push_back(new CfgParserKeyString("TEXT", value_text, "#000000"));
@@ -703,7 +704,7 @@ Theme::TextDialogData::load(CfgParser::Entry *section)
     _color = FontHandler::instance()->getColor(value_text);
     _tex = TextureHandler::instance()->getTexture(value_texture);
 
-    vector<string> tok;
+    std::vector<std::string> tok;
     if (Util::splitString(value_pad, tok, " \t", 4) == 4) {
         for (uint i = 0; i < PAD_NO; ++i) {
             _pad[i] = strtol(tok[i].c_str(), 0, 10);
@@ -782,10 +783,10 @@ Theme::WorkspaceIndicatorData::load(CfgParser::Entry *section)
         return false;
     }
 
-    vector<CfgParserKey*> keys;
+    std::vector<CfgParserKey*> keys;
 
-    string value_font, value_color, value_tex_bg;
-    string value_tex_ws, value_tex_ws_act;
+    std::string value_font, value_color, value_tex_bg;
+    std::string value_tex_ws, value_tex_ws_act;
 
     keys.push_back(new CfgParserKeyString("FONT", value_font));
     keys.push_back(new CfgParserKeyString("TEXT", value_color));
@@ -967,11 +968,11 @@ Theme::init()
 bool
 Theme::load(const std::string &dir)
 {
-    string norm_dir(dir);
+    std::string norm_dir(dir);
     if (dir.size() && dir.at(dir.size() - 1) != '/') {
         norm_dir.append("/");
     }
-    string theme_file(norm_dir + string("theme"));
+    std::string theme_file(norm_dir + "theme");
 
     if (! _cfg_files.requireReload(theme_file)) {
         return false;
@@ -983,7 +984,8 @@ Theme::load(const std::string &dir)
 
     _theme_dir = norm_dir;
     if (! _theme_dir.size()) {
-        cerr << " *** WARNING: empty theme directory name, using default." << endl;
+        std::cerr << " *** WARNING: empty theme directory name, using default."
+                  << std::endl;
         _theme_dir = DATADIR "/pekwm/themes/default/";
     }
 
@@ -992,9 +994,10 @@ Theme::load(const std::string &dir)
 
     if (! theme.parse(theme_file)) {
         _theme_dir = DATADIR "/pekwm/themes/default/";
-        theme_file = _theme_dir + string("theme");
+        theme_file = _theme_dir + std::string("theme");
         if (! theme.parse(theme_file)) {
-            cerr << " *** WARNING: couldn't load " << _theme_dir << " or default theme." << endl;
+            std::cerr << " *** WARNING: couldn't load " << _theme_dir
+                      << " or default theme." << std::endl;
             theme_ok = false;
         }
     }
@@ -1071,7 +1074,7 @@ Theme::loadThemeRequire(CfgParser &theme_cfg, std::string &file)
     // Look for requires section,
     section = theme_cfg.getEntryRoot()->findSection("REQUIRE");
     if (section) {
-        vector<CfgParserKey*> keys;
+        std::vector<CfgParserKey*> keys;
         bool value_templates;
 
         keys.push_back(new CfgParserKeyBool("TEMPLATES", value_templates, false));
@@ -1093,9 +1096,8 @@ void
 Theme::unload(void)
 {
     // Unload decors
-    map<string, Theme::PDecorData*>::iterator p_it(_pdecordata_map.begin());
-    for (; p_it != _pdecordata_map.end(); ++p_it) {
-        delete p_it->second;
+    for (auto it : _pdecordata_map) {
+        delete it.second;
     }
     _pdecordata_map.clear();
 

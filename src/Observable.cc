@@ -13,16 +13,14 @@
 #include "Observable.hh"
 #include "Observer.hh"
 
-using std::vector;
-
 /**
  * Notify all observers.
  */
 void
 Observable::notifyObservers(Observation *observation)
 {
-    vector<Observer*>::const_iterator it(_observers.begin());
-    vector<Observer*>::const_iterator end(_observers.end());
+    auto it(_observers.begin());
+    auto end(_observers.end());
     for (; it != end; ++it) {
         (*it)->notify(this, observation);
     }

@@ -13,9 +13,6 @@
 #include "PImageIcon.hh"
 #include "x11.hh"
 
-using std::cerr;
-using std::endl;
-
 //! @brief PImageIcon constructor.
 //! @param dpy Display to load icon from.
 PImageIcon::PImageIcon()

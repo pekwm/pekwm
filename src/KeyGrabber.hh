@@ -42,9 +42,9 @@ public:
         inline uint getKey(void) const { return _key; }
 
         //! @brief Returns vector of Chains that follows.
-        inline const vector<Chain*> &getChains(void) const { return _chains; }
+        const std::vector<Chain*> &getChains(void) const { return _chains; }
         //! @brief Returns vector of Keys in chain.
-        inline const vector<ActionEvent> &getKeys(void) const { return _keys; }
+        const std::vector<ActionEvent> &getKeys(void) const { return _keys; }
 
         //! @brief Adds chain to Chain vector.
         inline void addChain(Chain *chain) { _chains.push_back(chain); }
@@ -57,8 +57,8 @@ public:
     private:
         uint _mod, _key;
 
-        vector<Chain*> _chains;
-        vector<ActionEvent> _keys;
+        std::vector<Chain*> _chains;
+        std::vector<ActionEvent> _keys;
     };
 
     KeyGrabber(void);

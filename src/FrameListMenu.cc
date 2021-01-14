@@ -24,13 +24,6 @@
 #include "Frame.hh"
 #include "Workspaces.hh"
 
-using std::cerr;
-using std::endl;
-using std::list;
-using std::string;
-using std::vector;
-using std::wstring;
-
 //! @brief FrameListMenu constructor.
 //! @param theme Pointer to Theme
 //! @param type Type of menu.
@@ -108,7 +101,7 @@ FrameListMenu::updateFrameListMenu(void)
     removeAll();
 
     wchar_t buf[16];
-    wstring name;
+    std::wstring name;
 
     // need to add an action, otherwise it looks as if we don't have anything
     // to exec and thus it doesn't get handled.
@@ -127,7 +120,7 @@ FrameListMenu::updateFrameListMenu(void)
     // if we have 1 workspace, we won't put an workspace indicator
     buf[0] = '\0';
 
-    vector<Frame*>::const_iterator it;
+    std::vector<Frame*>::const_iterator it;
     for (uint i = 0; i < Workspaces::size(); ++i) {
         if (Workspaces::size() > 1) {
             swprintf(buf, 16, L"<%d> ", i + 1);
@@ -192,7 +185,7 @@ FrameListMenu::buildName(Frame* frame, std::wstring &name)
 void
 FrameListMenu::buildFrameNames(Frame *frame, std::wstring &pre_name)
 {
-    wstring name, status_name;
+    std::wstring name, status_name;
 
     // need to add an action, otherwise it looks as if we don't have anything
     // to exec and thus it doesn't get handled.
@@ -202,7 +195,7 @@ FrameListMenu::buildFrameNames(Frame *frame, std::wstring &pre_name)
 
     buildName(frame, status_name); // add states to the name
 
-    vector<PWinObj*>::const_iterator it(frame->begin());
+    auto it = frame->begin();
     for (; it != frame->end(); ++it) {
         name = pre_name;
         name.append(status_name);
@@ -216,7 +209,7 @@ FrameListMenu::buildFrameNames(Frame *frame, std::wstring &pre_name)
     }
 
     // add separator
-    PMenu::Item *item = new PMenu::Item(L"");
+    auto item = new PMenu::Item(L"");
     item->setType(PMenu::Item::MENU_ITEM_SEPARATOR);
     insert(item);
 }

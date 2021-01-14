@@ -15,10 +15,8 @@
 #include "Workspaces.hh"
 #include "x11.hh"
 
-using std::string;
-
 static PWinObj*
-isEmptySpace(int x, int y, const PWinObj* wo, vector<PWinObj*> &wvec)
+isEmptySpace(int x, int y, const PWinObj* wo, std::vector<PWinObj*> &wvec)
 {
     if (! wo) {
         return 0;
@@ -26,8 +24,8 @@ isEmptySpace(int x, int y, const PWinObj* wo, vector<PWinObj*> &wvec)
 
     if (wvec.empty()) {
         // say that it's placed, now check if we are wrong!
-        vector<PWinObj*>::iterator it(Workspaces::begin());
-        vector<PWinObj*>::iterator end(Workspaces::end());
+        auto it(Workspaces::begin());
+        auto end(Workspaces::end());
         for (; it != end; ++it) {
             // Skip ourselves, non-mapped and desktop objects. Iconified means
             // skip placement.
@@ -81,7 +79,7 @@ private:
 
         PWinObj *wo_e;
         bool placed = false;
-        vector<PWinObj*> wvec;
+        std::vector<PWinObj*> wvec;
 
         int step_x = (Config::instance()->getPlacementLtR()) ? 1 : -1;
         int step_y = (Config::instance()->getPlacementTtB()) ? 1 : -1;
@@ -248,7 +246,7 @@ WinLayouter::layout(Frame *frame, Window parent)
     // To be conservative for now we ignore fullscreen windows on
     // the desktop or normal layer, because it might be a file
     // manager in desktop mode, for example.
-    vector<bool> fsHead(X11::getNumHeads(), false);
+    std::vector<bool> fsHead(X11::getNumHeads(), false);
     Workspaces::const_iterator it(Workspaces::begin()),
                               end(Workspaces::end());
     for (; it != end; ++it) {

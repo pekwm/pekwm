@@ -31,11 +31,10 @@ public:
     /**
      * Return list with names of loaded menus.
      */
-    static vector<std::string> getMenuNames(void) {
-        vector<std::string> menu_names;
-        std::map<std::string, PMenu*>::iterator it(_menu_map.begin());
-        for (; it != _menu_map.end(); ++it) {
-            menu_names.push_back(it->second->getName());
+    static std::vector<std::string> getMenuNames(void) {
+        std::vector<std::string> menu_names;
+        for (auto it : _menu_map) {
+            menu_names.push_back(it.second->getName());
         }
         return menu_names;
     }

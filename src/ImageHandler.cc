@@ -17,10 +17,6 @@
 #include "PImageLoaderXpm.hh"
 #include "Util.hh"
 
-using std::cerr;
-using std::endl;
-using std::string;
-
 ImageHandler s_instance;
 ImageHandler *ImageHandler::_instance = &s_instance;
 
@@ -46,10 +42,12 @@ ImageHandler::ImageHandler(void)
 ImageHandler::~ImageHandler(void)
 {
     if (_images.size()) {
-        cerr << " *** WARNING: ImageHandler not empty, " << _images.size() << " entries left:" << endl;
+        std::cerr << " *** WARNING: ImageHandler not empty, " << _images.size()
+                  << " entries left:" << std::endl;
 
         while (_images.size()) {
-            cerr << "              * " << _images.back().getName() << endl;
+            std::cerr << "              * " << _images.back().getName()
+                      << std::endl;
             delete _images.back().getData();
             _images.pop_back();
         }
@@ -66,12 +64,12 @@ ImageHandler::getImage(const std::string &file)
         return 0;
     }
 
-    string real_file(file);
+    std::string real_file(file);
     ImageType image_type = IMAGE_TYPE_TILED;
 
     // Split image in path # type parts.
-    string::size_type pos = file.rfind('#');
-    if (string::npos != pos) {
+    auto pos = file.rfind('#');
+    if (std::string::npos != pos) {
         real_file = file.substr(0, pos);
         image_type = ParseUtil::getValue<ImageType>(file.substr(pos+1), _image_type_map);
     }
@@ -82,7 +80,7 @@ ImageHandler::getImage(const std::string &file)
     if (real_file[0] == '/') {
         image = getImageFromPath(real_file);
     } else {
-        vector<string>::const_reverse_iterator it(_search_path.rbegin());
+        auto it(_search_path.rbegin());
         for (; ! image && it != _search_path.rend(); ++it) {
             image = getImageFromPath(*it + real_file);
         }
@@ -106,11 +104,10 @@ PImage*
 ImageHandler::getImageFromPath(const std::string &file)
 {
     // Check cache for entry.
-    vector<HandlerEntry<PImage*> >::iterator it(_images.begin());
-    for (; it != _images.end(); ++it) {
-        if (*it == file) {
-            it->incRef();
-            return it->getData();
+    for (auto it : _images) {
+        if (it == file) {
+            it.incRef();
+            return it.getData();
         }
     }
 
@@ -139,7 +136,7 @@ ImageHandler::returnImage(PImage *image)
 {
     bool found = false;
 
-    vector<HandlerEntry<PImage*> >::iterator it(_images.begin());
+    auto it(_images.begin());
     for (; it != _images.end(); ++it) {
         if (it->getData() == image) {
             found = true;
@@ -162,7 +159,7 @@ ImageHandler::returnImage(PImage *image)
 void
 ImageHandler::freeUnref(void)
 {
-    vector<HandlerEntry<PImage*> >::iterator it(_images.begin());
+    auto it(_images.begin());
     while (it != _images.end()) {
         if (it->getRef() == 0) {
             delete it->getData();

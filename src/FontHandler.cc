@@ -15,11 +15,6 @@
 #include "x11.hh"
 #include "Util.hh"
 
-using std::cerr;
-using std::endl;
-using std::map;
-using std::string;
-
 FontHandler font_handler_instance;
 FontHandler* FontHandler::_instance = &font_handler_instance;
 
@@ -32,7 +27,6 @@ FontHandler::FontHandler(void)
         _map_justify["CENTER"] = FONT_JUSTIFY_CENTER;
         _map_justify["RIGHT"] = FONT_JUSTIFY_RIGHT;
     }
-    
     if (_map_type.size() == 0) {
         _map_type[""] = PFont::FONT_TYPE_NO;
         _map_type["X11"] = PFont::FONT_TYPE_X11;
@@ -44,14 +38,12 @@ FontHandler::FontHandler(void)
 //! @brief FontHandler destructor
 FontHandler::~FontHandler(void)
 {
-    vector<HandlerEntry<PFont*> >::iterator it_f(_fonts.begin());
-    for (; it_f != _fonts.end(); ++it_f) {
-        delete it_f->getData();
+    for (auto it : _fonts) {
+        delete it.getData();
     }
 
-    vector<HandlerEntry<PFont::Color*> >::iterator it_c(_colours.begin());
-    for (; it_c != _colours.end(); ++it_c) {
-        delete it_c->getData();
+    for (auto it : _colours) {
+        delete it.getData();
     }
 }
 
@@ -65,19 +57,18 @@ PFont*
 FontHandler::getFont(const std::string &font)
 {
     // Check cache
-    vector<HandlerEntry<PFont*> >::iterator it(_fonts.begin());
-    for (; it != _fonts.end(); ++it) {
-        if (*it == font) {
-            it->incRef();
-            return it->getData();
+    for (auto it : _fonts) {
+        if (it == font) {
+            it.incRef();
+            return it.getData();
         }
     }
 
     // create new
     PFont *pfont = 0;
 
-    vector<string> tok;
-    vector<string>::iterator tok_it; // old gcc doesn't like --tok.end()
+    std::vector<std::string> tok;
+    std::vector<std::string>::iterator tok_it;
     if ((Util::splitString(font, tok, "#", 0, true)) > 1) {
         // Try getting the font type from the first paramter, if that
         // doesn't work fall back to the last. This is to backwards
@@ -114,10 +105,10 @@ FontHandler::getFont(const std::string &font)
         tok.erase(tok.begin());
 
         // fields left for justify and offset
-        vector<string>::iterator s_it(tok.begin());
+        auto s_it(tok.begin());
         for (; s_it != tok.end(); ++s_it) {
             if (isdigit((*s_it)[0])) { // number
-                vector<string> tok_2;
+                std::vector<std::string> tok_2;
                 if (Util::splitString(*s_it, tok_2, " \t", 2) == 2) {
                     pfont->setOffset(strtol(tok_2[0].c_str(), 0, 10),
                            strtol(tok_2[1].c_str(), 0, 10));
@@ -149,7 +140,7 @@ FontHandler::getFont(const std::string &font)
 void
 FontHandler::returnFont(PFont *font)
 {
-    vector<HandlerEntry<PFont*> >::iterator it(_fonts.begin());
+    auto it = _fonts.begin();
     for (; it != _fonts.end(); ++it) {
         if (it->getData() == font) {
             it->decRef();
@@ -167,11 +158,10 @@ PFont::Color*
 FontHandler::getColor(const std::string &color)
 {
     // check cache
-    vector<HandlerEntry<PFont::Color*> >::iterator it(_colours.begin());
-    for (; it != _colours.end(); ++it) {
-        if (*it == color) {
-            it->incRef();
-            return it->getData();
+    for (auto it : _colours) {
+        if (it == color) {
+            it.incRef();
+            return it.getData();
         }
     }
 
@@ -179,7 +169,7 @@ FontHandler::getColor(const std::string &color)
     PFont::Color *font_color = new PFont::Color();
     font_color->setHasFg(true);
 
-    vector<string> tok;
+    std::vector<std::string> tok;
     if (Util::splitString(color, tok, " \t", 2) == 2) {
         loadColor(tok[0], font_color, true);
         loadColor(tok[1], font_color, false);
@@ -202,7 +192,7 @@ FontHandler::getColor(const std::string &color)
 void
 FontHandler::returnColor(PFont::Color *color)
 {
-    vector<HandlerEntry<PFont::Color*> >::iterator it(_colours.begin());
+    auto it(_colours.begin());
     for (; it != _colours.end(); ++it) {
         if (it->getData() == color) {
             it->decRef();
@@ -217,15 +207,17 @@ FontHandler::returnColor(PFont::Color *color)
 
 //! @brief Helper loader of font colors ( main and offset color )
 void
-FontHandler::loadColor(const std::string &color, PFont::Color *font_color, bool fg)
+FontHandler::loadColor(const std::string &color, PFont::Color *font_color,
+                       bool fg)
 {
     XColor *xc;
 
-    vector<string> tok;
+    std::vector<std::string> tok;
     if (Util::splitString(color, tok, ",", 2, true) == 2) {
         uint alpha = static_cast<uint>(strtol(tok[1].c_str(), 0, 10));
         if (alpha > 100) {
-            cerr << " *** WARNING: Alpha for font color greater than 100%" << endl;
+            std::cerr << " *** WARNING: Alpha for font color greater than 100%"
+                      << std::endl;
             alpha = 100;
         }
 

@@ -53,11 +53,11 @@ public:
             return _texture[(state != BUTTON_STATE_NO) ? state : 0];
         }
         //! @brief Returns iterator to the first ActionEvent.
-        inline vector<ActionEvent>::iterator begin(void) {
+        std::vector<ActionEvent>::iterator begin(void) {
             return _aes.begin();
         }
         //! @brief Return iterator to the last+1 ActionEvent.
-        inline vector<ActionEvent>::iterator end(void) {
+        std::vector<ActionEvent>::iterator end(void) {
             return _aes.end();
         }
 
@@ -144,11 +144,11 @@ public:
         // button
 
         //! @brief Return iterator to the first Theme::PDecorButtonData.
-        inline vector<Theme::PDecorButtonData*>::const_iterator buttonBegin(void) {
+        std::vector<Theme::PDecorButtonData*>::const_iterator buttonBegin(void) {
             return _buttons.begin();
         }
         //! @brief Return iterator to the last+1 Theme::PDecorButtonData.
-        inline vector<Theme::PDecorButtonData*>::const_iterator buttonEnd(void) {
+        std::vector<Theme::PDecorButtonData*>::const_iterator buttonEnd(void) {
             return _buttons.end();
         }
 
@@ -188,7 +188,7 @@ public:
         // border
         PTexture *_texture_border[FOCUSED_STATE_FOCUSED_SELECTED][BORDER_NO_POS];
 
-        vector<Theme::PDecorButtonData*> _buttons;
+        std::vector<Theme::PDecorButtonData*> _buttons;
 
         static std::map<FocusedState, std::string> _fs_map;
         static std::map<BorderPosition, std::string> _border_map;

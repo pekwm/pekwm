@@ -127,30 +127,31 @@ public: // Public Member Functions
     static Client *findClientFromWindow(Window win);
     static Client *findClientFromHint(const ClassHint *class_hint);
     static Client *findClientFromID(uint id);
-    static void findFamilyFromWindow(vector<Client*> &client_list, Window win);
+    static void findFamilyFromWindow(std::vector<Client*> &client_list,
+                                     Window win);
 
     static void mapOrUnmapTransients(Window win, bool hide);
 
     // START - Iterators
     static uint client_size(void) { return _clients.size(); }
-    static vector<Client*>::const_iterator client_begin(void) {
+    static std::vector<Client*>::const_iterator client_begin(void) {
         return _clients.begin();
     }
-    static vector<Client*>::const_iterator client_end(void) {
+    static std::vector<Client*>::const_iterator client_end(void) {
         return _clients.end();
     }
-    static vector<Client*>::const_reverse_iterator client_rbegin(void) {
+    static std::vector<Client*>::const_reverse_iterator client_rbegin(void) {
         return _clients.rbegin();
     }
-    static vector<Client*>::const_reverse_iterator client_rend(void) {
+    static std::vector<Client*>::const_reverse_iterator client_rend(void) {
         return _clients.rend();
     }
 
     bool hasTransients() const { return ! _transients.empty(); }
-    vector<Client*>::const_iterator getTransientsBegin(void) const {
+    std::vector<Client*>::const_iterator getTransientsBegin(void) const {
         return _transients.begin();
     }
-    vector<Client*>::const_iterator getTransientsEnd(void) const {
+    std::vector<Client*>::const_iterator getTransientsEnd(void) const {
         return _transients.end();
     }
     // END - Iterators
@@ -354,17 +355,19 @@ private: // Private Member Variables
     XSizeHints *_size;
     Colormap _cmap;
 
-    Client *_transient_for; /**< Client for which this client is transient for */
+    /** Client for which this client is transient for */
+    Client *_transient_for;
     Window _transient_for_window;
-    vector<Client*> _transients; /**< Vector of transient clients. */
+    std::vector<Client*> _transients; /**< Vector of transient clients. */
 
     Strut *_strut;
 
     PDecor::TitleItem _title; /**< Name of the client. */
     PTextureImage *_icon;
-    
-    long _pid; /**< _NET_WM_PID of the client, only valid if is_remote is false. */
-    bool _is_remote; /**< Boolean flag  */
+
+    /** _NET_WM_PID of the client, only valid if is_remote is false. */
+    long _pid;
+    bool _is_remote;
 
     ClassHint *_class_hint;
     AtomName _window_type; /**< _NET_WM_WINDOW_TYPE */
@@ -416,8 +419,8 @@ private: // Private Member Variables
 
     static const long _clientEventMask;
 
-    static vector<Client*> _clients; //!< Vector of all Clients.
-    static vector<uint> _clientids; //!< Vector of free Client IDs.
+    static std::vector<Client*> _clients; //!< Vector of all Clients.
+    static std::vector<uint> _clientids; //!< Vector of free Client IDs.
 };
 
 #endif // _CLIENT_HH_

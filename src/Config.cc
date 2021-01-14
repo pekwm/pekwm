@@ -27,16 +27,7 @@ extern "C" {
 #include <sys/stat.h>
 }
 
-using std::cerr;
-using std::endl;
-using std::string;
-using std::wstring;
-using std::map;
-using std::vector;
-using std::pair;
-using std::ifstream;
-using std::ofstream;
-using std::strtol;
+typedef std::pair<ActionType, uint> action_pair;
 
 Config* Config::_instance = 0;
 
@@ -64,7 +55,7 @@ bool
 SizeLimits::parseLimit(const std::string &limit, unsigned int &min, unsigned int &max)
 {
     bool status = false;
-    vector<string> tokens;
+    std::vector<std::string> tokens;
     if ((Util::splitString(limit, tokens, "x", 2, true)) == 2) {
         min = strtol(tokens[0].c_str(), 0, 10);
         max = strtol(tokens[1].c_str(), 0, 10);
@@ -114,7 +105,7 @@ Config::Config(void) :
         _harbour_opacity(EWMH_OPAQUE_WINDOW)
 {
     if (_instance) {
-        throw string("Config, trying to create multiple instances");
+        throw std::string("Config, trying to create multiple instances");
     }
     _instance = this;
 
@@ -123,61 +114,61 @@ Config::Config(void) :
     }
 
     // fill parsing maps
-    _action_map[""] = pair<ActionType, uint>(ACTION_NO, 0);
-    _action_map["Focus"] = pair<ActionType, uint>(ACTION_FOCUS, ANY_MASK);
-    _action_map["UnFocus"] = pair<ActionType, uint>(ACTION_UNFOCUS, ANY_MASK);
+    _action_map[""] = action_pair(ACTION_NO, 0);
+    _action_map["Focus"] = action_pair(ACTION_FOCUS, ANY_MASK);
+    _action_map["UnFocus"] = action_pair(ACTION_UNFOCUS, ANY_MASK);
 
-    _action_map["Set"] = pair<ActionType, uint>(ACTION_SET, ANY_MASK);
-    _action_map["Unset"] = pair<ActionType, uint>(ACTION_UNSET, ANY_MASK);
-    _action_map["Toggle"] = pair<ActionType, uint>(ACTION_TOGGLE, ANY_MASK);
+    _action_map["Set"] = action_pair(ACTION_SET, ANY_MASK);
+    _action_map["Unset"] = action_pair(ACTION_UNSET, ANY_MASK);
+    _action_map["Toggle"] = action_pair(ACTION_TOGGLE, ANY_MASK);
 
-    _action_map["MaxFill"] = pair<ActionType, uint>(ACTION_MAXFILL, FRAME_MASK);
-    _action_map["GrowDirection"] = pair<ActionType, uint>(ACTION_GROW_DIRECTION, FRAME_MASK);
-    _action_map["Close"] = pair<ActionType, uint>(ACTION_CLOSE, FRAME_MASK);
-    _action_map["CloseFrame"] = pair<ActionType, uint>(ACTION_CLOSE_FRAME, FRAME_MASK);
-    _action_map["Kill"] = pair<ActionType, uint>(ACTION_KILL, FRAME_MASK);
-    _action_map["SetGeometry"] = pair<ActionType, uint>(ACTION_SET_GEOMETRY, FRAME_MASK);
-    _action_map["Raise"] = pair<ActionType, uint>(ACTION_RAISE, FRAME_MASK);
-    _action_map["Lower"] = pair<ActionType, uint>(ACTION_LOWER, FRAME_MASK);
-    _action_map["ActivateOrRaise"] = pair<ActionType, uint>(ACTION_ACTIVATE_OR_RAISE, FRAME_MASK);
-    _action_map["ActivateClientRel"] = pair<ActionType, uint>(ACTION_ACTIVATE_CLIENT_REL, FRAME_MASK);
-    _action_map["MoveClientRel"] = pair<ActionType, uint>(ACTION_MOVE_CLIENT_REL, FRAME_MASK);
-    _action_map["ActivateClient"] = pair<ActionType, uint>(ACTION_ACTIVATE_CLIENT, FRAME_MASK);
-    _action_map["ActivateClientNum"] = pair<ActionType, uint>(ACTION_ACTIVATE_CLIENT_NUM, KEYGRABBER_OK);
-    _action_map["Resize"] = pair<ActionType, uint>(ACTION_RESIZE, BUTTONCLICK_OK|CLIENT_OK|FRAME_OK|FRAME_BORDER_OK);
-    _action_map["Move"] = pair<ActionType, uint>(ACTION_MOVE, FRAME_OK|FRAME_BORDER_OK|CLIENT_OK);
-    _action_map["MoveResize"] = pair<ActionType, uint>(ACTION_MOVE_RESIZE, KEYGRABBER_OK);
-    _action_map["GroupingDrag"] = pair<ActionType, uint>(ACTION_GROUPING_DRAG, FRAME_OK|CLIENT_OK);
-    _action_map["WarpToWorkspace"] = pair<ActionType, uint>(ACTION_WARP_TO_WORKSPACE, SCREEN_EDGE_OK);
-    _action_map["MoveToHead"] = pair<ActionType, uint>(ACTION_MOVE_TO_HEAD, FRAME_MASK);
-    _action_map["MoveToEdge"] = pair<ActionType, uint>(ACTION_MOVE_TO_EDGE, KEYGRABBER_OK);
-    _action_map["NextFrame"] = pair<ActionType, uint>(ACTION_NEXT_FRAME, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
-    _action_map["PrevFrame"] = pair<ActionType, uint>(ACTION_PREV_FRAME, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
-    _action_map["NextFrameMRU"] = pair<ActionType, uint>(ACTION_NEXT_FRAME_MRU, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
-    _action_map["PrevFrameMRU"] = pair<ActionType, uint>(ACTION_PREV_FRAME_MRU, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
-    _action_map["FocusDirectional"] = pair<ActionType, uint>(ACTION_FOCUS_DIRECTIONAL, FRAME_MASK);
-    _action_map["AttachMarked"] = pair<ActionType, uint>(ACTION_ATTACH_MARKED, FRAME_MASK);
-    _action_map["AttachClientInNextFrame"] = pair<ActionType, uint>(ACTION_ATTACH_CLIENT_IN_NEXT_FRAME, FRAME_MASK);
-    _action_map["AttachClientInPrevFrame"] = pair<ActionType, uint>(ACTION_ATTACH_CLIENT_IN_PREV_FRAME, FRAME_MASK);
-    _action_map["FindClient"] = pair<ActionType, uint>(ACTION_FIND_CLIENT, ANY_MASK);
-    _action_map["GotoClientID"] = pair<ActionType, uint>(ACTION_GOTO_CLIENT_ID, ANY_MASK);
-    _action_map["Detach"] = pair<ActionType, uint>(ACTION_DETACH, FRAME_MASK);
-    _action_map["SendToWorkspace"] = pair<ActionType, uint>(ACTION_SEND_TO_WORKSPACE, ANY_MASK);
-    _action_map["GoToWorkspace"] = pair<ActionType, uint>(ACTION_GOTO_WORKSPACE, ANY_MASK );
-    _action_map["Exec"] = pair<ActionType, uint>(ACTION_EXEC, FRAME_MASK|ROOTMENU_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
-    _action_map["Reload"] = pair<ActionType, uint>(ACTION_RELOAD, KEYGRABBER_OK|ROOTMENU_OK);
-    _action_map["Restart"] = pair<ActionType, uint>(ACTION_RESTART, KEYGRABBER_OK|ROOTMENU_OK);
-    _action_map["RestartOther"] = pair<ActionType, uint>(ACTION_RESTART_OTHER, KEYGRABBER_OK|ROOTMENU_OK);
-    _action_map["Exit"] = pair<ActionType, uint>(ACTION_EXIT, KEYGRABBER_OK|ROOTMENU_OK);
-    _action_map["ShowCmdDialog"] = pair<ActionType, uint>(ACTION_SHOW_CMD_DIALOG, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK|ROOTMENU_OK|WINDOWMENU_OK);
-    _action_map["ShowSearchDialog"] = pair<ActionType, uint>(ACTION_SHOW_SEARCH_DIALOG, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK|ROOTMENU_OK|WINDOWMENU_OK);
-    _action_map["ShowMenu"] = pair<ActionType, uint>(ACTION_SHOW_MENU, FRAME_MASK|ROOTCLICK_OK|SCREEN_EDGE_OK|ROOTMENU_OK|WINDOWMENU_OK);
-    _action_map["HideAllMenus"] = pair<ActionType, uint>(ACTION_HIDE_ALL_MENUS, FRAME_MASK|ROOTCLICK_OK|SCREEN_EDGE_OK);
-    _action_map["SubMenu"] = pair<ActionType, uint>(ACTION_MENU_SUB, ROOTMENU_OK|WINDOWMENU_OK);
-    _action_map["Dynamic"] = pair<ActionType, uint>(ACTION_MENU_DYN, ROOTMENU_OK|WINDOWMENU_OK);
-    _action_map["SendKey"] = pair<ActionType, uint>(ACTION_SEND_KEY, ANY_MASK);
-    _action_map["SetOpacity"] = pair<ActionType, uint>(ACTION_SET_OPACITY, FRAME_MASK);
-    _action_map["Debug"] = pair<ActionType, uint>(ACTION_DEBUG, ANY_MASK);
+    _action_map["MaxFill"] = action_pair(ACTION_MAXFILL, FRAME_MASK);
+    _action_map["GrowDirection"] = action_pair(ACTION_GROW_DIRECTION, FRAME_MASK);
+    _action_map["Close"] = action_pair(ACTION_CLOSE, FRAME_MASK);
+    _action_map["CloseFrame"] = action_pair(ACTION_CLOSE_FRAME, FRAME_MASK);
+    _action_map["Kill"] = action_pair(ACTION_KILL, FRAME_MASK);
+    _action_map["SetGeometry"] = action_pair(ACTION_SET_GEOMETRY, FRAME_MASK);
+    _action_map["Raise"] = action_pair(ACTION_RAISE, FRAME_MASK);
+    _action_map["Lower"] = action_pair(ACTION_LOWER, FRAME_MASK);
+    _action_map["ActivateOrRaise"] = action_pair(ACTION_ACTIVATE_OR_RAISE, FRAME_MASK);
+    _action_map["ActivateClientRel"] = action_pair(ACTION_ACTIVATE_CLIENT_REL, FRAME_MASK);
+    _action_map["MoveClientRel"] = action_pair(ACTION_MOVE_CLIENT_REL, FRAME_MASK);
+    _action_map["ActivateClient"] = action_pair(ACTION_ACTIVATE_CLIENT, FRAME_MASK);
+    _action_map["ActivateClientNum"] = action_pair(ACTION_ACTIVATE_CLIENT_NUM, KEYGRABBER_OK);
+    _action_map["Resize"] = action_pair(ACTION_RESIZE, BUTTONCLICK_OK|CLIENT_OK|FRAME_OK|FRAME_BORDER_OK);
+    _action_map["Move"] = action_pair(ACTION_MOVE, FRAME_OK|FRAME_BORDER_OK|CLIENT_OK);
+    _action_map["MoveResize"] = action_pair(ACTION_MOVE_RESIZE, KEYGRABBER_OK);
+    _action_map["GroupingDrag"] = action_pair(ACTION_GROUPING_DRAG, FRAME_OK|CLIENT_OK);
+    _action_map["WarpToWorkspace"] = action_pair(ACTION_WARP_TO_WORKSPACE, SCREEN_EDGE_OK);
+    _action_map["MoveToHead"] = action_pair(ACTION_MOVE_TO_HEAD, FRAME_MASK);
+    _action_map["MoveToEdge"] = action_pair(ACTION_MOVE_TO_EDGE, KEYGRABBER_OK);
+    _action_map["NextFrame"] = action_pair(ACTION_NEXT_FRAME, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
+    _action_map["PrevFrame"] = action_pair(ACTION_PREV_FRAME, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
+    _action_map["NextFrameMRU"] = action_pair(ACTION_NEXT_FRAME_MRU, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
+    _action_map["PrevFrameMRU"] = action_pair(ACTION_PREV_FRAME_MRU, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
+    _action_map["FocusDirectional"] = action_pair(ACTION_FOCUS_DIRECTIONAL, FRAME_MASK);
+    _action_map["AttachMarked"] = action_pair(ACTION_ATTACH_MARKED, FRAME_MASK);
+    _action_map["AttachClientInNextFrame"] = action_pair(ACTION_ATTACH_CLIENT_IN_NEXT_FRAME, FRAME_MASK);
+    _action_map["AttachClientInPrevFrame"] = action_pair(ACTION_ATTACH_CLIENT_IN_PREV_FRAME, FRAME_MASK);
+    _action_map["FindClient"] = action_pair(ACTION_FIND_CLIENT, ANY_MASK);
+    _action_map["GotoClientID"] = action_pair(ACTION_GOTO_CLIENT_ID, ANY_MASK);
+    _action_map["Detach"] = action_pair(ACTION_DETACH, FRAME_MASK);
+    _action_map["SendToWorkspace"] = action_pair(ACTION_SEND_TO_WORKSPACE, ANY_MASK);
+    _action_map["GoToWorkspace"] = action_pair(ACTION_GOTO_WORKSPACE, ANY_MASK );
+    _action_map["Exec"] = action_pair(ACTION_EXEC, FRAME_MASK|ROOTMENU_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
+    _action_map["Reload"] = action_pair(ACTION_RELOAD, KEYGRABBER_OK|ROOTMENU_OK);
+    _action_map["Restart"] = action_pair(ACTION_RESTART, KEYGRABBER_OK|ROOTMENU_OK);
+    _action_map["RestartOther"] = action_pair(ACTION_RESTART_OTHER, KEYGRABBER_OK|ROOTMENU_OK);
+    _action_map["Exit"] = action_pair(ACTION_EXIT, KEYGRABBER_OK|ROOTMENU_OK);
+    _action_map["ShowCmdDialog"] = action_pair(ACTION_SHOW_CMD_DIALOG, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK|ROOTMENU_OK|WINDOWMENU_OK);
+    _action_map["ShowSearchDialog"] = action_pair(ACTION_SHOW_SEARCH_DIALOG, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK|ROOTMENU_OK|WINDOWMENU_OK);
+    _action_map["ShowMenu"] = action_pair(ACTION_SHOW_MENU, FRAME_MASK|ROOTCLICK_OK|SCREEN_EDGE_OK|ROOTMENU_OK|WINDOWMENU_OK);
+    _action_map["HideAllMenus"] = action_pair(ACTION_HIDE_ALL_MENUS, FRAME_MASK|ROOTCLICK_OK|SCREEN_EDGE_OK);
+    _action_map["SubMenu"] = action_pair(ACTION_MENU_SUB, ROOTMENU_OK|WINDOWMENU_OK);
+    _action_map["Dynamic"] = action_pair(ACTION_MENU_DYN, ROOTMENU_OK|WINDOWMENU_OK);
+    _action_map["SendKey"] = action_pair(ACTION_SEND_KEY, ANY_MASK);
+    _action_map["SetOpacity"] = action_pair(ACTION_SET_OPACITY, FRAME_MASK);
+    _action_map["Debug"] = action_pair(ACTION_DEBUG, ANY_MASK);
 
     _action_access_mask_map[""] = ACTION_ACCESS_NO;
     _action_access_mask_map["MOVE"] = ACTION_ACCESS_MOVE;
@@ -359,27 +350,39 @@ Config::Config(void) :
     _harbour_orientation_map["RIGHTTOLEFT"] = BOTTOM_TO_TOP;
 
     // fill the mouse action map
-    _mouse_action_map[MOUSE_ACTION_LIST_TITLE_FRAME] = new vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_TITLE_OTHER] = new vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_CHILD_FRAME] = new vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_CHILD_OTHER] = new vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_ROOT] = new vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_MENU] = new vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_OTHER] = new vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_TITLE_FRAME] =
+        new std::vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_TITLE_OTHER] =
+        new std::vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_CHILD_FRAME] =
+        new std::vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_CHILD_OTHER] =
+        new std::vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_ROOT] = new std::vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_MENU] = new std::vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_OTHER] = new std::vector<ActionEvent>;
 
-    _mouse_action_map[MOUSE_ACTION_LIST_EDGE_T] = new vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_EDGE_B] = new vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_EDGE_L] = new vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_EDGE_R] = new vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_EDGE_T] = new std::vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_EDGE_B] = new std::vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_EDGE_L] = new std::vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_EDGE_R] = new std::vector<ActionEvent>;
 
-    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_TL] = new vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_T] = new vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_TR] = new vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_L] = new vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_R] = new vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_BL] = new vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_B] = new vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_BR] = new vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_TL] =
+        new std::vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_T] =
+        new std::vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_TR] =
+        new std::vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_L] =
+        new std::vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_R] =
+        new std::vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_BL] =
+        new std::vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_B] =
+        new std::vector<ActionEvent>;
+    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_BR] =
+        new std::vector<ActionEvent>;
 }
 
 //! @brief Destructor for Config class
@@ -387,17 +390,18 @@ Config::~Config(void)
 {
     _instance = 0;
 
-    map<MouseActionListName, vector<ActionEvent>* >::iterator it;
-    for (it = _mouse_action_map.begin(); it != _mouse_action_map.end(); ++it) {
-        delete it->second;
+    for (auto it : _mouse_action_map) {
+        delete it.second;
     }
 }
 
 /**
  * Returns an array of NULL-terminated desktop names in UTF-8.
  *
- * @param names *names will be set to an array of desktop names or 0. The caller has to delete [] *names
- * @param length *length will be set to the complete length of array *names points to or 0.
+ * @param names *names will be set to an array of desktop names or 0. The caller has
+ *        to delete [] *names
+ * @param length *length will be set to the complete length of array *names points
+ *        to or 0.
  */
 void
 Config::getDesktopNamesUTF8(uchar **names, uint *length) const
@@ -409,10 +413,9 @@ Config::getDesktopNamesUTF8(uchar **names, uint *length) const
     }
 
     // Convert strings to UTF-8 and calculate total length
-    string utf8_names;
-    vector<wstring>::const_iterator it(_screen_workspace_names.begin());
-    for (; it != _screen_workspace_names.end(); ++it) {
-        string utf8_name(Util::to_utf8_str(*it));
+    std::string utf8_names;
+    for (auto it : _screen_workspace_names) {
+        std::string utf8_name(Util::to_utf8_str(it));
         utf8_names.append(utf8_name.c_str(), utf8_name.size() + 1);
     }
 
@@ -424,7 +427,8 @@ Config::getDesktopNamesUTF8(uchar **names, uint *length) const
 /**
  * Sets the desktop names.
  *
- * @param names names is expected to point to an array of NULL-terminated utf8-strings.
+ * @param names names is expected to point to an array of NULL-terminated
+ *        utf8-strings.
  * @param length The length of the array "names".
  */
 void
@@ -465,7 +469,8 @@ Config::load(const std::string &config_file)
     }
 
     if (! success) {
-        cerr << " *** WARNING: unable to load configuration files!" << endl;
+        std::cerr << " *** WARNING: unable to load configuration files!"
+                  << std::endl;
         return false;
     }
 
@@ -475,7 +480,7 @@ Config::load(const std::string &config_file)
         setenv("PEKWM_CONFIG_FILE", _config_file.c_str(), 1);
     }
 
-    string o_file_mouse; // temporary filepath for mouseconfig
+    std::string o_file_mouse; // temporary filepath for mouseconfig
 
     CfgParser::Entry *section;
 
@@ -524,14 +529,21 @@ Config::loadFiles(CfgParser::Entry *section)
         return;
     }
 
-    vector<CfgParserKey*> keys;
-    keys.push_back(new CfgParserKeyPath("KEYS", _files_keys, SYSCONFDIR "/keys"));
-    keys.push_back(new CfgParserKeyPath("MOUSE", _files_mouse, SYSCONFDIR "/mouse"));
-    keys.push_back(new CfgParserKeyPath("MENU", _files_menu, SYSCONFDIR "/menu"));
-    keys.push_back(new CfgParserKeyPath("START", _files_start, SYSCONFDIR "/start"));
-    keys.push_back(new CfgParserKeyPath("AUTOPROPS", _files_autoprops, SYSCONFDIR "/autoproperties"));
-    keys.push_back(new CfgParserKeyPath("THEME", _files_theme, DATADIR "/pekwm/themes/default/theme"));
-    keys.push_back(new CfgParserKeyPath("ICONS", _files_icon_path, DATADIR "/pekwm/icons"));
+    std::vector<CfgParserKey*> keys;
+    keys.push_back(new CfgParserKeyPath("KEYS", _files_keys,
+                                        SYSCONFDIR "/keys"));
+    keys.push_back(new CfgParserKeyPath("MOUSE", _files_mouse,
+                                        SYSCONFDIR "/mouse"));
+    keys.push_back(new CfgParserKeyPath("MENU", _files_menu,
+                                        SYSCONFDIR "/menu"));
+    keys.push_back(new CfgParserKeyPath("START", _files_start,
+                                        SYSCONFDIR "/start"));
+    keys.push_back(new CfgParserKeyPath("AUTOPROPS", _files_autoprops,
+                                        SYSCONFDIR "/autoproperties"));
+    keys.push_back(new CfgParserKeyPath("THEME", _files_theme,
+                                        DATADIR "/pekwm/themes/default/theme"));
+    keys.push_back(new CfgParserKeyPath("ICONS", _files_icon_path,
+                                        DATADIR "/pekwm/icons"));
 
     // Parse
     section->parseKeyValues(keys.begin(), keys.end());
@@ -549,13 +561,19 @@ Config::loadMoveResize(CfgParser::Entry *section)
         return;
     }
 
-    vector<CfgParserKey*> keys;
-    keys.push_back(new CfgParserKeyNumeric<int>("EDGEATTRACT", _moveresize_edgeattract, 0, 0));
-    keys.push_back(new CfgParserKeyNumeric<int>("EDGERESIST", _moveresize_edgeresist, 0, 0));
-    keys.push_back(new CfgParserKeyNumeric<int>("WINDOWATTRACT",_moveresize_woattract, 0, 0));
-    keys.push_back(new CfgParserKeyNumeric<int>("WINDOWRESIST", _moveresize_woresist, 0, 0));
-    keys.push_back(new CfgParserKeyBool("OPAQUEMOVE", _moveresize_opaquemove));
-    keys.push_back(new CfgParserKeyBool("OPAQUERESIZE", _moveresize_opaqueresize));
+    std::vector<CfgParserKey*> keys;
+    keys.push_back(new CfgParserKeyNumeric<int>("EDGEATTRACT",
+                                                _moveresize_edgeattract, 0, 0));
+    keys.push_back(new CfgParserKeyNumeric<int>("EDGERESIST",
+                                                _moveresize_edgeresist, 0, 0));
+    keys.push_back(new CfgParserKeyNumeric<int>("WINDOWATTRACT",
+                                                _moveresize_woattract, 0, 0));
+    keys.push_back(new CfgParserKeyNumeric<int>("WINDOWRESIST",
+                                                _moveresize_woresist, 0, 0));
+    keys.push_back(new CfgParserKeyBool("OPAQUEMOVE",
+                                        _moveresize_opaquemove));
+    keys.push_back(new CfgParserKeyBool("OPAQUERESIZE",
+                                        _moveresize_opaqueresize));
 
     // Parse data
     section->parseKeyValues(keys.begin(), keys.end());
@@ -574,36 +592,57 @@ Config::loadScreen(CfgParser::Entry *section)
     }
 
     // Parse data
-    string edge_size, workspace_names, trim_title;
+    std::string edge_size, workspace_names, trim_title;
     CfgParser::Entry *value;
 
-    vector<CfgParserKey*> keys;
-    keys.push_back(new CfgParserKeyNumeric<int>("WORKSPACES", _screen_workspaces, 4, 1));
-    keys.push_back(new CfgParserKeyNumeric<int>("WORKSPACESPERROW", _screen_workspaces_per_row, 0, 0));
+    std::vector<CfgParserKey*> keys;
+    keys.push_back(new CfgParserKeyNumeric<int>("WORKSPACES",
+                                                _screen_workspaces, 4, 1));
+    keys.push_back(new CfgParserKeyNumeric<int>("WORKSPACESPERROW",
+                                                _screen_workspaces_per_row,
+                                                0, 0));
     keys.push_back(new CfgParserKeyString("WORKSPACENAMES", workspace_names));
     keys.push_back(new CfgParserKeyString("EDGESIZE", edge_size));
     keys.push_back(new CfgParserKeyBool("EDGEINDENT", _screen_edge_indent));
-    keys.push_back(new CfgParserKeyNumeric<int>("DOUBLECLICKTIME", _screen_doubleclicktime, 250, 0));
+    keys.push_back(new CfgParserKeyNumeric<int>("DOUBLECLICKTIME",
+                                                _screen_doubleclicktime,
+                                                250, 0));
     keys.push_back(new CfgParserKeyString("TRIMTITLE", trim_title));
-    keys.push_back(new CfgParserKeyBool("FULLSCREENABOVE", _screen_fullscreen_above, true));
-    keys.push_back(new CfgParserKeyBool("FULLSCREENDETECT", _screen_fullscreen_detect, true));
-    keys.push_back(new CfgParserKeyBool("SHOWFRAMELIST", _screen_showframelist));
-    keys.push_back(new CfgParserKeyBool("SHOWSTATUSWINDOW", _screen_show_status_window));
-    keys.push_back(new CfgParserKeyBool("SHOWSTATUSWINDOWCENTEREDONROOT", _screen_show_status_window_on_root, false));
-    keys.push_back(new CfgParserKeyBool("SHOWCLIENTID", _screen_show_client_id));
+    keys.push_back(new CfgParserKeyBool("FULLSCREENABOVE",
+                                        _screen_fullscreen_above, true));
+    keys.push_back(new CfgParserKeyBool("FULLSCREENDETECT",
+                                        _screen_fullscreen_detect, true));
+    keys.push_back(new CfgParserKeyBool("SHOWFRAMELIST",
+                                        _screen_showframelist));
+    keys.push_back(new CfgParserKeyBool("SHOWSTATUSWINDOW",
+                                        _screen_show_status_window));
+    keys.push_back(new CfgParserKeyBool("SHOWSTATUSWINDOWCENTEREDONROOT",
+                                        _screen_show_status_window_on_root,
+                                        false));
+    keys.push_back(new CfgParserKeyBool("SHOWCLIENTID",
+                                        _screen_show_client_id));
     keys.push_back(new CfgParserKeyNumeric<int>("SHOWWORKSPACEINDICATOR",
-                                           _screen_show_workspace_indicator, 500, 0));
+                                              _screen_show_workspace_indicator,
+                                                500, 0));
     keys.push_back(new CfgParserKeyNumeric<int>("WORKSPACEINDICATORSCALE",
-                                           _screen_workspace_indicator_scale, 16, 2)); 
+                                             _screen_workspace_indicator_scale,
+                                                16, 2));
     keys.push_back(new CfgParserKeyNumeric<uint>("WORKSPACEINDICATOROPACITY",
-                                           _screen_workspace_indicator_opacity, 100, 0, 100));
+                                          _screen_workspace_indicator_opacity,
+                                                 100, 0, 100));
     keys.push_back(new CfgParserKeyBool("PLACENEW", _screen_place_new));
     keys.push_back(new CfgParserKeyBool("FOCUSNEW", _screen_focus_new));
-    keys.push_back(new CfgParserKeyBool("FOCUSNEWCHILD", _screen_focus_new_child, true));
-    keys.push_back(new CfgParserKeyNumeric<uint>("FOCUSSTEALPROTECT", _screen_focus_steal_protect, 0));
-    keys.push_back(new CfgParserKeyBool("HONOURRANDR", _screen_honour_randr, true));
-    keys.push_back(new CfgParserKeyBool("HONOURASPECTRATIO", _screen_honour_aspectratio, true));
-    keys.push_back(new CfgParserKeyBool("REPORTALLCLIENTS", _screen_report_all_clients, false));
+    keys.push_back(new CfgParserKeyBool("FOCUSNEWCHILD",
+                                        _screen_focus_new_child, true));
+    keys.push_back(new CfgParserKeyNumeric<uint>("FOCUSSTEALPROTECT",
+                                                 _screen_focus_steal_protect,
+                                                 0));
+    keys.push_back(new CfgParserKeyBool("HONOURRANDR",
+                                        _screen_honour_randr, true));
+    keys.push_back(new CfgParserKeyBool("HONOURASPECTRATIO",
+                                        _screen_honour_aspectratio, true));
+    keys.push_back(new CfgParserKeyBool("REPORTALLCLIENTS",
+                                        _screen_report_all_clients, false));
 
     // Parse data
     section->parseKeyValues(keys.begin(), keys.end());
@@ -620,10 +659,10 @@ Config::loadScreen(CfgParser::Entry *section)
     int edge_size_all = 0;
     _screen_edge_sizes.clear();
     if (edge_size.size()) {
-        vector<string> sizes;
+        std::vector<std::string> sizes;
         if (Util::splitString(edge_size, sizes, " \t", 4) == 4) {
-            for (vector<string>::iterator it(sizes.begin()); it != sizes.end(); ++it) {
-                _screen_edge_sizes.push_back(strtol(it->c_str(), 0, 10));
+            for (auto it : sizes) {
+                _screen_edge_sizes.push_back(strtol(it.c_str(), 0, 10));
             }
         } else {
             edge_size_all = strtol(edge_size.c_str(), 0, 10);
@@ -639,15 +678,14 @@ Config::loadScreen(CfgParser::Entry *section)
     // Workspace names
     _screen_workspace_names.clear();
 
-    vector<string> vs;
+    std::vector<std::string> vs;
     if (Util::splitString(workspace_names, vs, ";", 0, true)) {
-        vector<string>::iterator vs_it(vs.begin());
-        for (; vs_it != vs.end(); ++vs_it) {
-            _screen_workspace_names.push_back(Util::to_wide_str(*vs_it));
+        for (auto vs_it : vs) {
+            _screen_workspace_names.push_back(Util::to_wide_str(vs_it));
         }
     }
 
-    CfgParser::Entry *sub = section->findSection("PLACEMENT");
+    auto sub = section->findSection("PLACEMENT");
     if (sub) {
         value = sub->findEntry("MODEL");
         if (value) {
@@ -700,15 +738,22 @@ Config::loadMenu(CfgParser::Entry *section)
         return;
     }
 
-    vector<CfgParserKey*> keys;
-    string value_select, value_enter, value_exec;
+    std::vector<CfgParserKey*> keys;
+    std::string value_select, value_enter, value_exec;
 
     keys.push_back(new CfgParserKeyString("SELECT", value_select, "MOTION", 0));
-    keys.push_back(new CfgParserKeyString("ENTER", value_enter, "BUTTONPRESS", 0));
-    keys.push_back(new CfgParserKeyString("EXEC", value_exec, "BUTTONRELEASE", 0));
-    keys.push_back(new CfgParserKeyBool("DISPLAYICONS", _menu_display_icons, true));
-    keys.push_back(new CfgParserKeyNumeric<uint>("FOCUSOPACITY", _menu_focus_opacity, 100, 0, 100));
-    keys.push_back(new CfgParserKeyNumeric<uint>("UNFOCUSOPACITY", _menu_unfocus_opacity, 100, 0, 100));
+    keys.push_back(new CfgParserKeyString("ENTER", value_enter,
+                                          "BUTTONPRESS", 0));
+    keys.push_back(new CfgParserKeyString("EXEC", value_exec,
+                                          "BUTTONRELEASE", 0));
+    keys.push_back(new CfgParserKeyBool("DISPLAYICONS", _menu_display_icons,
+                                        true));
+    keys.push_back(new CfgParserKeyNumeric<uint>("FOCUSOPACITY",
+                                                 _menu_focus_opacity,
+                                                 100, 0, 100));
+    keys.push_back(new CfgParserKeyNumeric<uint>("UNFOCUSOPACITY",
+                                                 _menu_unfocus_opacity,
+                                                 100, 0, 100));
 
     // Parse data
     section->parseKeyValues(keys.begin(), keys.end());
@@ -744,8 +789,8 @@ Config::loadMenuIcons(CfgParser::Entry *section)
         return;
     }
 
-    vector<CfgParserKey*> keys;
-    string minimum, maximum;
+    std::vector<CfgParserKey*> keys;
+    std::string minimum, maximum;
 
     keys.push_back(new CfgParserKeyString("MINIMUM", minimum, "16x16", 3));
     keys.push_back(new CfgParserKeyString("MAXIMUM", maximum, "16x16", 3));
@@ -771,12 +816,19 @@ Config::loadCmdDialog(CfgParser::Entry *section)
         return;
     }
 
-    vector<CfgParserKey*> keys;
+    std::vector<CfgParserKey*> keys;
 
-    keys.push_back(new CfgParserKeyBool("HISTORYUNIQUE", _cmd_dialog_history_unique));
-    keys.push_back(new CfgParserKeyNumeric<int>("HISTORYSIZE", _cmd_dialog_history_size, 1024, 1));
-    keys.push_back(new CfgParserKeyPath("HISTORYFILE", _cmd_dialog_history_file, "~/.pekwm/history"));
-    keys.push_back(new CfgParserKeyNumeric<int>("HISTORYSAVEINTERVAL", _cmd_dialog_history_save_interval, 16, 0));
+    keys.push_back(new CfgParserKeyBool("HISTORYUNIQUE",
+                                        _cmd_dialog_history_unique));
+    keys.push_back(new CfgParserKeyNumeric<int>("HISTORYSIZE",
+                                                _cmd_dialog_history_size,
+                                                1024, 1));
+    keys.push_back(new CfgParserKeyPath("HISTORYFILE",
+                                        _cmd_dialog_history_file,
+                                        "~/.pekwm/history"));
+    keys.push_back(new CfgParserKeyNumeric<int>("HISTORYSAVEINTERVAL",
+                                              _cmd_dialog_history_save_interval,
+                                                16, 0));
 
     section->parseKeyValues(keys.begin(), keys.end());
 
@@ -791,15 +843,21 @@ Config::loadHarbour(CfgParser::Entry *section)
         return;
     }
 
-    vector<CfgParserKey*> keys;
-    string value_placement, value_orientation;
+    std::vector<CfgParserKey*> keys;
+    std::string value_placement, value_orientation;
 
     keys.push_back(new CfgParserKeyBool("ONTOP", _harbour_ontop, true));
-    keys.push_back(new CfgParserKeyBool("MAXIMIZEOVER", _harbour_maximize_over, false));
-    keys.push_back(new CfgParserKeyNumeric<int>("HEAD", _harbour_head_nr, 0, 0));
-    keys.push_back(new CfgParserKeyString("PLACEMENT", value_placement, "RIGHT", 0));
-    keys.push_back(new CfgParserKeyString("ORIENTATION", value_orientation, "TOPTOBOTTOM", 0));
-    keys.push_back(new CfgParserKeyNumeric<uint>("OPACITY", _harbour_opacity, 100, 0, 100));
+    keys.push_back(new CfgParserKeyBool("MAXIMIZEOVER",
+                                        _harbour_maximize_over, false));
+    keys.push_back(new CfgParserKeyNumeric<int>("HEAD",
+                                                _harbour_head_nr, 0, 0));
+    keys.push_back(new CfgParserKeyString("PLACEMENT",
+                                          value_placement, "RIGHT", 0));
+    keys.push_back(new CfgParserKeyString("ORIENTATION",
+                                          value_orientation, "TOPTOBOTTOM", 0));
+    keys.push_back(new CfgParserKeyNumeric<uint>("OPACITY",
+                                                 _harbour_opacity,
+                                                 100, 0, 100));
 
     // Parse data
     section->parseKeyValues(keys.begin(), keys.end());
@@ -811,8 +869,12 @@ Config::loadHarbour(CfgParser::Entry *section)
     // Convert opacity from percent to absolute value
     CONV_OPACITY(_harbour_opacity);
 
-    _harbour_placement = ParseUtil::getValue<HarbourPlacement>(value_placement, _harbour_placement_map);
-    _harbour_orientation = ParseUtil::getValue<Orientation>(value_orientation, _harbour_orientation_map);
+    _harbour_placement =
+        ParseUtil::getValue<HarbourPlacement>(value_placement,
+                                              _harbour_placement_map);
+    _harbour_orientation =
+        ParseUtil::getValue<Orientation>(value_orientation,
+                                         _harbour_orientation_map);
     if (_harbour_placement == NO_HARBOUR_PLACEMENT) {
         _harbour_placement = RIGHT;
     }
@@ -822,8 +884,10 @@ Config::loadHarbour(CfgParser::Entry *section)
 
     CfgParser::Entry *sub = section->findSection("DOCKAPP");
     if (sub) {
-        keys.push_back(new CfgParserKeyNumeric<int>("SIDEMIN", _harbour_da_min_s, 64, 0));
-        keys.push_back(new CfgParserKeyNumeric<int>("SIDEMAX", _harbour_da_max_s, 64, 0));
+        keys.push_back(new CfgParserKeyNumeric<int>("SIDEMIN",
+                                                    _harbour_da_min_s, 64, 0));
+        keys.push_back(new CfgParserKeyNumeric<int>("SIDEMAX",
+                                                    _harbour_da_max_s, 64, 0));
 
         // Parse data
         sub->parseKeyValues(keys.begin(), keys.end());
@@ -837,8 +901,7 @@ Config::loadHarbour(CfgParser::Entry *section)
 ActionType
 Config::getAction(const std::string &name, uint mask)
 {
-    pair<ActionType, uint> val(ParseUtil::getValue<pair<ActionType, uint> >(name, _action_map));
-
+    auto val = ParseUtil::getValue<action_pair>(name, _action_map);
     if ((val.first != ACTION_NO) && (val.second&mask)) {
         return val.first;
     }
@@ -856,8 +919,8 @@ bool
 Config::parseKey(const std::string &key_string, uint &mod, uint &key)
 {
     // used for parsing
-    vector<string> tok;
-    vector<string>::iterator it;
+    std::vector<std::string> tok;
+    std::vector<std::string>::iterator it;
 
     uint num;
 
@@ -878,7 +941,7 @@ Config::parseKey(const std::string &key_string, uint &mod, uint &key)
             // uppercase and at last we try a complete uppercase string. If all
             // fails, we print a warning and return false.
             if (keysym == NoSymbol) {
-                string str = tok[num];
+                std::string str = tok[num];
                 Util::to_lower(str);
                 keysym = XStringToKeysym(str.c_str());
                 if (keysym == NoSymbol) {
@@ -888,7 +951,8 @@ Config::parseKey(const std::string &key_string, uint &mod, uint &key)
                         Util::to_upper(str);
                         keysym = XStringToKeysym(str.c_str());
                         if (keysym == NoSymbol) {
-                            cerr << " *** WARNING: Couldn't find keysym for " << tok[num] << endl;
+                            std::cerr << " *** WARNING: Couldn't find keysym "
+                                      << "for " << tok[num] << std::endl;
                             return false;
                         }
                     }
@@ -918,8 +982,8 @@ bool
 Config::parseButton(const std::string &button_string, uint &mod, uint &button)
 {
     // used for parsing
-    vector<string> tok;
-    vector<string>::iterator it;
+    std::vector<std::string> tok;
+    std::vector<std::string>::iterator it;
 
     // chop the string up separating mods and the end key/button
     if (Util::splitString(button_string, tok, " \t")) {
@@ -957,7 +1021,7 @@ Config::parseButton(const std::string &button_string, uint &mod, uint &button)
 bool
 Config::parseAction(const std::string &action_string, Action &action, uint mask)
 {
-    vector<string> tok;
+    std::vector<std::string> tok;
 
     // chop the string up separating the action and parameters
     if (Util::splitString(action_string, tok, " \t", 2)) {
@@ -994,16 +1058,20 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
                         action.setParamI(0, Util::isTrue(tok[tok.size() - 2]));
                         action.setParamI(1, Util::isTrue(tok[tok.size() - 1]));
                     } else {
-                        cerr << "*** WARNING: Missing argument to MaxFill." << endl;
+                        std::cerr << "*** WARNING: Missing argument to MaxFill."
+                                  << std::endl;
                     }
                     break;
                 case ACTION_GROW_DIRECTION:
-                    action.setParamI(0, ParseUtil::getValue<DirectionType>(tok[1], _direction_map));
+                    action.setParamI(0,
+                                     ParseUtil::getValue<DirectionType>(tok[1],
+                                                               _direction_map));
                     break;
                 case ACTION_ACTIVATE_CLIENT_NUM:
                     action.setParamI(0, strtol(tok[1].c_str(), 0, 10) - 1);
                     if (action.getParamI(0) < 0) {
-                        cerr << "*** WARNING: Negative number to ActivateClientNum." << endl;
+                        std::cerr << "*** WARNING: Negative number to "
+                                  << "ActivateClientNum." << std::endl;
                         action.setParamI(0, 0);
                     }
                     break;
@@ -1100,11 +1168,10 @@ Config::parseActionAccessMask(const std::string &action_mask, uint &mask)
 {
     mask = ACTION_ACCESS_NO;
 
-    vector<string> tok;
+    std::vector<std::string> tok;
     if (Util::splitString(action_mask, tok, " \t")) {
-        vector<string>::iterator it(tok.begin());
-        for (; it != tok.end(); ++it) {
-            mask |= getActionAccessMask(*it);
+        for (auto it : tok) {
+            mask |= getActionAccessMask(it);
         }
     }
 
@@ -1114,14 +1181,14 @@ Config::parseActionAccessMask(const std::string &action_mask, uint &mask)
 bool
 Config::parseActionState(Action &action, const std::string &as_action)
 {
-    vector<string> tok;
+    std::vector<std::string> tok;
 
     // chop the string up separating the action and parameters
     if (Util::splitString(as_action, tok, " \t", 2)) {
         action.setParamI(0, ParseUtil::getValue<ActionStateType>(tok[0], _action_state_map));
         if (action.getParamI(0) != ACTION_STATE_NO) {
             if (tok.size() == 2) { // we got enough tok for a parameter
-                string directions;
+                std::string directions;
 
                 switch (action.getParamI(0)) {
                 case ACTION_STATE_MAXIMIZED:
@@ -1133,7 +1200,8 @@ Config::parseActionState(Action &action, const std::string &as_action)
                         action.setParamI(1, Util::isTrue(tok[2]));
                         action.setParamI(2, Util::isTrue(tok[3]));
                     } else {
-                        cerr << "*** WARNING: Missing argument to Maximized." << endl;
+                        std::cerr << "*** WARNING: Missing argument to "
+                                  << "Maximized." << std::endl;
                     }
                     break;
                 case ACTION_STATE_TAGGED:
@@ -1172,8 +1240,8 @@ Config::parseActionState(Action &action, const std::string &as_action)
 bool
 Config::parseActions(const std::string &action_string, ActionEvent &ae, uint mask)
 {
-    vector<string> tok;
-    vector<string>::iterator it;
+    std::vector<std::string> tok;
+    std::vector<std::string>::iterator it;
     Action action;
 
     // reset the action event
@@ -1206,7 +1274,7 @@ Config::parseActionEvent(CfgParser::Entry *section, ActionEvent &ae, uint mask, 
         return false;
     }
 
-    string str_button = section->getValue();
+    std::string str_button = section->getValue();
     if (! str_button.size()) {
         if ((ae.type == MOUSE_EVENT_ENTER) || (ae.type == MOUSE_EVENT_LEAVE)) {
             str_button = "1";
@@ -1231,7 +1299,7 @@ Config::parseActionEvent(CfgParser::Entry *section, ActionEvent &ae, uint mask, 
 bool
 Config::parseMoveResizeAction(const std::string &action_string, Action &action)
 {
-    vector<string> tok;
+    std::vector<std::string> tok;
 
     // Chop the string up separating the actions.
     if (Util::splitString(action_string, tok, " \t", 2)) {
@@ -1263,8 +1331,8 @@ Config::parseMoveResizeAction(const std::string &action_string, Action &action)
 bool
 Config::parseMoveResizeActions(const std::string &action_string, ActionEvent& ae)
 {
-    vector<string> tok;
-    vector<string>::iterator it;
+    std::vector<std::string> tok;
+    std::vector<std::string>::iterator it;
     Action action;
 
     // reset the action event
@@ -1315,10 +1383,10 @@ Config::parseInputDialogAction(const std::string &val, Action &action)
 bool
 Config::parseInputDialogActions(const std::string &actions, ActionEvent &ae)
 {
-    vector<string> tok;
-    vector<string>::iterator it;
+    std::vector<std::string> tok;
+    std::vector<std::string>::iterator it;
     Action action;
-    string::size_type first, last;
+    std::string::size_type first, last;
 
     // reset the action event
     ae.action_list.clear();
@@ -1327,7 +1395,7 @@ Config::parseInputDialogActions(const std::string &actions, ActionEvent &ae)
     if (Util::splitString(actions, tok, ";")) {
         for (it = tok.begin(); it != tok.end(); ++it) {
             first = (*it).find_first_not_of(" \t\n");
-            if (first == string::npos)
+            if (first == std::string::npos)
                 continue;
             last = (*it).find_last_not_of(" \t\n");
             (*it) = (*it).substr(first, last-first+1);
@@ -1372,12 +1440,11 @@ Config::getMenuMask(const std::string &mask)
 {
     uint mask_return = 0, val;
 
-    vector<string> tok;
+    std::vector<std::string> tok;
     Util::splitString(mask, tok, " \t");
 
-    vector<string>::iterator it(tok.begin());
-    for (; it != tok.end(); ++it) {
-        val = ParseUtil::getValue<MouseEventType>(*it, _mouse_event_map);
+    for (auto it : tok) {
+        val = ParseUtil::getValue<MouseEventType>(it, _mouse_event_map);
         if (val != MOUSE_EVENT_NO) {
             mask_return |= val;
         }
@@ -1388,7 +1455,7 @@ Config::getMenuMask(const std::string &mask)
 bool
 Config::parseMenuAction(const std::string &action_string, Action &action)
 {
-    vector<string> tok;
+    std::vector<std::string> tok;
 
     // chop the string up separating the actions
     if (Util::splitString(action_string, tok, " \t", 2)) {
@@ -1404,8 +1471,8 @@ Config::parseMenuAction(const std::string &action_string, Action &action)
 bool
 Config::parseMenuActions(const std::string &actions, ActionEvent &ae)
 {
-    vector<string> tok;
-    vector<string>::iterator it;
+    std::vector<std::string> tok;
+    std::vector<std::string>::iterator it;
     Action action;
 
     // reset the action event
@@ -1498,7 +1565,7 @@ Config::tryHardLoadConfig(CfgParser &cfg, std::string &file)
 
     // Try loading system configuration files.
     if (! success) {
-        file = string(SYSCONFDIR "/config");
+        file = std::string(SYSCONFDIR "/config");
         success = cfg.parse(file, CfgParserSource::SOURCE_FILE, true);
     }
 
@@ -1509,16 +1576,16 @@ Config::tryHardLoadConfig(CfgParser &cfg, std::string &file)
 void
 Config::copyConfigFiles(void)
 {
-    string cfg_dir = Util::getEnv("HOME") + "/.pekwm";
+    std::string cfg_dir = Util::getEnv("HOME") + "/.pekwm";
 
-    string cfg_file = cfg_dir + string("/config");
-    string keys_file = cfg_dir + string("/keys");
-    string mouse_file = cfg_dir + string("/mouse");
-    string menu_file = cfg_dir + string("/menu");
-    string autoprops_file = cfg_dir + string("/autoproperties");
-    string start_file = cfg_dir + string("/start");
-    string vars_file = cfg_dir + string("/vars");
-    string themes_dir = cfg_dir + string("/themes");
+    std::string cfg_file = cfg_dir + std::string("/config");
+    std::string keys_file = cfg_dir + std::string("/keys");
+    std::string mouse_file = cfg_dir + std::string("/mouse");
+    std::string menu_file = cfg_dir + std::string("/menu");
+    std::string autoprops_file = cfg_dir + std::string("/autoproperties");
+    std::string start_file = cfg_dir + std::string("/start");
+    std::string vars_file = cfg_dir + std::string("/vars");
+    std::string themes_dir = cfg_dir + std::string("/themes");
 
     bool cp_config, cp_keys, cp_mouse, cp_menu;
     bool cp_autoprops, cp_start, cp_vars;
@@ -1531,8 +1598,9 @@ Config::copyConfigFiles(void)
     if (stat(cfg_dir.c_str(), &stat_buf) == 0) {
         // is it a dir or file?
         if (! S_ISDIR(stat_buf.st_mode)) {
-            cerr << cfg_dir << " already exists and isn't a directory" << endl
-                 << "Can't copy config files !" << endl;
+            std::cerr << cfg_dir << " already exists and isn't a directory"
+                      << std::endl
+                      << "Can't copy config files !" << std::endl;
             return;
         }
 
@@ -1554,8 +1622,10 @@ Config::copyConfigFiles(void)
 
         if (! cfg_dir_ok) {
             if (! (stat_buf.st_mode&S_IWOTH) || ! (stat_buf.st_mode&(S_IXOTH))) {
-                cerr << "You don't have the rights to add files to the: " << cfg_dir
-                << " directory! Therefore I can't copy the config files!" << endl;
+                std::cerr << "You don't have the rights to add files to the: "
+                          << cfg_dir
+                          << " directory! Therefore I can't copy the config "
+                          << "files!" << std::endl;
                 return;
             }
         }
@@ -1581,8 +1651,9 @@ Config::copyConfigFiles(void)
         }
     } else { // we didn't have a ~/.pekwm directory already, lets create one
         if (mkdir(cfg_dir.c_str(), 0700)) {
-            cerr << "Can't create " << cfg_dir << " directory!" << endl;
-            cerr << "Can't copy config files !" << endl;
+            std::cerr << "Can't create " << cfg_dir << " directory!"
+                      << std::endl;
+            std::cerr << "Can't copy config files !" << std::endl;
             return;
         }
 
@@ -1641,9 +1712,8 @@ Config::loadMouseConfig(const std::string &mouse_file)
     }
 
     // Make sure old actions get unloaded.
-    map<MouseActionListName, vector<ActionEvent>* >::iterator it;
-    for (it = _mouse_action_map.begin(); it != _mouse_action_map.end(); ++it) {
-        it->second->clear();
+    for (auto it : _mouse_action_map) {
+        it.second->clear();
     }
 
     CfgParser::Entry *section;
@@ -1706,7 +1776,7 @@ Config::loadMouseConfig(const std::string &mouse_file)
 
 //! @brief Parses mouse config section, like FRAME
 void
-Config::parseButtons(CfgParser::Entry *section, vector<ActionEvent>* mouse_list, ActionOk action_ok)
+Config::parseButtons(CfgParser::Entry *section, std::vector<ActionEvent>* mouse_list, ActionOk action_ok)
 {
     if (! section || ! mouse_list) {
         return;
@@ -1744,10 +1814,10 @@ Config::parseButtons(CfgParser::Entry *section, vector<ActionEvent>* mouse_list,
 
 // frame border configuration
 
-vector<ActionEvent>*
+std::vector<ActionEvent>*
 Config::getBorderListFromPosition(uint pos)
 {
-    vector<ActionEvent> *ret = 0;
+    std::vector<ActionEvent> *ret = 0;
 
     switch (pos) {
     case BORDER_TOP_LEFT:
@@ -1779,10 +1849,10 @@ Config::getBorderListFromPosition(uint pos)
     return ret;
 }
 
-vector<ActionEvent>*
+std::vector<ActionEvent>*
 Config::getEdgeListFromPosition(uint pos)
 {
-    vector<ActionEvent> *ret = 0;
+    std::vector<ActionEvent> *ret = 0;
 
     switch (pos) {
     case SCREEN_EDGE_TOP:
@@ -1808,11 +1878,12 @@ int
 Config::parseWorkspaceNumber(const std::string &workspace)
 {
     // Get workspace looking for relative numbers
-    uint num = ParseUtil::getValue<WorkspaceChangeType>(workspace, _workspace_change_map);
+    uint num = ParseUtil::getValue<WorkspaceChangeType>(workspace,
+                                                        _workspace_change_map);
 
     if (num == WORKSPACE_NO) {
         // Workspace isn't relative, check for 2x2 and ordinary specification
-        vector<string> tok;
+        std::vector<std::string> tok;
         if (Util::splitString(workspace, tok, "x", 2, true) == 2) {
             uint row = strtol(tok[0].c_str(), 0, 10) - 1;
             uint col = strtol(tok[1].c_str(), 0, 10) - 1;
@@ -1831,7 +1902,7 @@ Config::parseWorkspaceNumber(const std::string &workspace)
 bool
 Config::parseOpacity(const std::string value, uint &focused, uint &unfocused)
 {
-    std::vector<string> tokens;
+    std::vector<std::string> tokens;
     switch ((Util::splitString(value, tokens, " ,", 2))) {
     case 2:
         focused = std::atoi(tokens.at(0).c_str());

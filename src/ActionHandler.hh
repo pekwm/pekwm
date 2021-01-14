@@ -35,13 +35,15 @@ public:
     void handleAction(const ActionPerformed &ap);
 
     static bool checkAEThreshold(int x, int y, int x_t, int y_t, uint t);
-    static ActionEvent *findMouseAction(uint button, uint mod, MouseEventType type,
-                                        vector<ActionEvent> *actions);
-    
+    static ActionEvent *findMouseAction(uint button, uint mod,
+                                        MouseEventType type,
+                                        std::vector<ActionEvent> *actions);
+
 private:
     void lookupWindowObjects(PWinObj **wo, Client **client, Frame **frame,
                              PMenu **menu, PDecor **decor);
-    void handleStateAction(const Action &action, PWinObj *wo, Client *client, Frame *frame);
+    void handleStateAction(const Action &action, PWinObj *wo,
+                           Client *client, Frame *frame);
 
     void actionExec(Client *client, const std::string &command);
     void actionFindClient(const std::wstring &title);
