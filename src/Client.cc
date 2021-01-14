@@ -40,17 +40,10 @@ extern "C" {
 #include "PImageIcon.hh"
 #include "TextureHandler.hh"
 
-using std::cerr;
-using std::endl;
-using std::find;
-using std::string;
-using std::vector;
-using std::wstring;
-
 const long Client::_clientEventMask = \
     PropertyChangeMask|StructureNotifyMask|FocusChangeMask|KeyPressMask;
-vector<Client*> Client::_clients;
-vector<uint> Client::_clientids;
+std::vector<Client*> Client::_clients;
+std::vector<uint> Client::_clientids;
 
 Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
     : PWinObj(true),
@@ -160,7 +153,7 @@ Client::~Client(void)
 {
     // Remove from lists
     if (_transient_for) {
-        vector<Client *> &tc(_transient_for->_transients);
+        std::vector<Client*> &tc(_transient_for->_transients);
         tc.erase(std::remove(tc.begin(), tc.end(), this), tc.end());
         _transient_for->removeObserver(this);
     }
@@ -682,11 +675,10 @@ Client::findClient(Window win)
         return 0;
     }
 
-    vector<Client*>::const_iterator it(_clients.begin());
-    for (; it != _clients.end(); ++it) {
-        if (win == (*it)->getWindow()
-            || ((*it)->getParent() && (*((*it)->getParent()) == win))) {
-            return (*it);
+    for (auto it : _clients) {
+        if (win == it->getWindow()
+            || (it->getParent() && (*(it->getParent()) == win))) {
+            return it;
         }
     }
 
@@ -703,10 +695,9 @@ Client::findClientFromWindow(Window win)
         return 0;
     }
 
-    vector<Client*>::const_iterator it(_clients.begin());
-    for(; it != _clients.end(); ++it) {
-        if (win == (*it)->getWindow()) {
-            return (*it);
+    for (auto it : _clients) {
+        if (win == it->getWindow()) {
+            return it;
         }
     }
 
@@ -719,10 +710,9 @@ Client::findClientFromWindow(Window win)
 Client*
 Client::findClientFromHint(const ClassHint *class_hint)
 {
-    vector<Client*>::const_iterator it(_clients.begin());
-    for (; it != _clients.end(); ++it) {
-        if (*class_hint == *(*it)->getClassHint()) {
-            return *it;
+    for (auto it : _clients) {
+        if (*class_hint == *it->getClassHint()) {
+            return it;
         }
     }
 
@@ -735,10 +725,9 @@ Client::findClientFromHint(const ClassHint *class_hint)
 Client*
 Client::findClientFromID(uint id)
 {
-    vector<Client*>::const_iterator it(_clients.begin());
-    for (; it != _clients.end(); ++it) {
-        if ((*it)->getClientID() == id) {
-            return *it;
+    for (auto it : _clients) {
+        if (it->getClientID() == id) {
+            return it;
         }
     }
 
@@ -749,12 +738,11 @@ Client::findClientFromID(uint id)
  * Insert all clients with the transient for set to win.
  */
 void
-Client::findFamilyFromWindow(vector<Client*> &client_list, Window win)
+Client::findFamilyFromWindow(std::vector<Client*> &client_list, Window win)
 {
-    vector<Client*>::const_iterator it(Client::client_begin());
-    for (; it != Client::client_end(); ++it) {
-        if ((*it)->getTransientForClientWindow() == win) {
-            client_list.push_back(*it);
+    for (auto it : _clients) {
+        if (it->getTransientForClientWindow() == win) {
+            client_list.push_back(it);
         }
     }
 }
@@ -766,16 +754,15 @@ Client::findFamilyFromWindow(vector<Client*> &client_list, Window win)
 void
 Client::mapOrUnmapTransients(Window win, bool hide)
 {
-    vector<Client*> client_list;
+    std::vector<Client*> client_list;
     findFamilyFromWindow(client_list, win);
 
-    vector<Client*>::const_iterator it(client_list.begin());
-    for (; it != client_list.end(); ++it) {
-        if (static_cast<Frame*>((*it)->getParent())->getActiveChild() == *it) {
+    for (auto it : client_list) {
+        if (static_cast<Frame*>(it->getParent())->getActiveChild() == it) {
             if (hide) {
-                (*it)->getParent()->iconify();
+                it->getParent()->iconify();
             } else {
-                (*it)->getParent()->mapWindow();
+                it->getParent()->mapWindow();
             }
         }
     }
@@ -814,21 +801,22 @@ Client::grabButtons(void)
     // Make sure we don't have any buttons grabbed.
     X11::ungrabButton(_window);
 
-    vector<ActionEvent> *actions = Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_CHILD_FRAME);
-    vector<ActionEvent>::const_iterator it(actions->begin());
-    for (; it != actions->end(); ++it) {
-        if ((it->type == MOUSE_EVENT_PRESS) || (it->type == MOUSE_EVENT_RELEASE)) {
+    auto actions =
+        Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_CHILD_FRAME);
+    for (auto it : *actions) {
+        if ((it.type == MOUSE_EVENT_PRESS)
+            || (it.type == MOUSE_EVENT_RELEASE)) {
             // No need to grab mod less events, replied with the frame
-            if ((it->mod == 0) || (it->mod == MOD_ANY)) {
+            if ((it.mod == 0) || (it.mod == MOD_ANY)) {
                 continue;
             }
 
-            grabButton(it->sym, it->mod,
+            grabButton(it.sym, it.mod,
                        ButtonPressMask|ButtonReleaseMask,
                        _window);
-        } else if (it->type == MOUSE_EVENT_MOTION) {
+        } else if (it.type == MOUSE_EVENT_MOTION) {
             // FIXME: Add support for MOD_ANY
-            grabButton(it->sym, it->mod,
+            grabButton(it.sym, it.mod,
                        ButtonPressMask|ButtonReleaseMask|ButtonMotionMask,
                        _window);
         }
@@ -882,7 +870,7 @@ Client::readClassRoleHints(void)
     }
 
     // wm window role
-    string role;
+    std::string role;
     X11::getString(_window, WM_WINDOW_ROLE, role);
 
     _class_hint->h_role = Util::to_wide_str(role);
@@ -978,7 +966,7 @@ void
 Client::readPekwmHints(void)
 {
     long value;
-    string str;
+    std::string str;
 
     // Get decor state
     if (X11::getLong(_window, PEKWM_FRAME_DECOR, value)) {
@@ -1144,7 +1132,7 @@ Client::readClientPid(void)
 void
 Client::readClientRemote(void)
 {
-    string client_machine;
+    std::string client_machine;
     if (X11::getTextProperty(_window, XA_WM_CLIENT_MACHINE, client_machine)) {
         _is_remote = Util::getHostname() != client_machine;
     }
@@ -1174,7 +1162,7 @@ Client::findClientID(void)
 void
 Client::returnClientID(uint id)
 {
-    vector<uint>::iterator it(_clientids.begin());
+    auto it(_clientids.begin());
     for (; it != _clientids.end() && id < *it; ++it)
         ;
     _clientids.insert(it, id);
@@ -1187,7 +1175,7 @@ void
 Client::readName(void)
 {
     // Read title, bail out if it fails.
-    string title;
+    std::string title;
     std::wstring wtitle;
     if (X11::getUtf8String(_window, NET_WM_NAME, title)) {
         wtitle = Util::from_utf8_str(title);
@@ -1240,13 +1228,12 @@ Client::titleFindID(std::wstring &title)
     }
 
     uint id_found = 0;
-    vector<uint> ids_used;
+    std::vector<uint> ids_used;
 
-    vector<Client*>::const_iterator it = _clients.begin();
-    for (; it != _clients.end(); ++it) {
-        if (*it != this) {
-            if ((*it)->getTitle()->getReal() == title) {
-                ids_used.push_back((*it)->getTitle()->getCount());
+    for (auto it : _clients) {
+        if (it != this) {
+            if (it->getTitle()->getReal() == title) {
+                ids_used.push_back(it->getTitle()->getCount());
             }
         }
     }
@@ -1255,7 +1242,7 @@ Client::titleFindID(std::wstring &title)
     if (ids_used.size() > 0) {
         std::sort(ids_used.begin(), ids_used.end());
 
-        vector<uint>::const_iterator ui_it(ids_used.begin());
+        auto ui_it(ids_used.begin());
         for (uint i = 0; ui_it != ids_used.end(); ++i, ++ui_it) {
             if (i < *ui_it) {
                 id_found = i;
@@ -1668,7 +1655,7 @@ Client::getEwmhStates(NetWMStates &win_states)
 void
 Client::updateEwmhStates(void)
 {
-    vector<Atom> states;
+    std::vector<Atom> states;
 
     if (false) // we don't yet support modal state
         states.push_back(X11::getAtom(STATE_MODAL));

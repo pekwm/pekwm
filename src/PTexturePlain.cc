@@ -14,8 +14,6 @@
 #include "ImageHandler.hh"
 #include "x11.hh"
 
-using std::string;
-
 // PTextureSolid
 
 //! @brief PTextureSolid constructor

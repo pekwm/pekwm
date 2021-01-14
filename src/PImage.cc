@@ -18,11 +18,7 @@ extern "C" {
 #include <X11/Xutil.h>
 }
 
-using std::cerr;
-using std::endl;
-using std::string;
-
-vector<PImageLoader*> PImage::_loaders;
+std::vector<PImageLoader*> PImage::_loaders;
 
 /**
  * PImage constructor, loads image if one is specified.
@@ -53,16 +49,16 @@ PImage::~PImage(void)
 bool
 PImage::load(const std::string &file)
 {
-    string ext(Util::getFileExt(file));
+    std::string ext(Util::getFileExt(file));
     if (! ext.size()) {
-        cerr << " *** WARNING: no file extension on " << file << "!" << endl;
+        std::cerr << " *** WARNING: no file extension on " << file << "!"
+                  << std::endl;
         return false;
     }
 
-    vector<PImageLoader*>::const_iterator it(_loaders.begin());
-    for (; it != _loaders.end(); ++it) {
-        if (! strcasecmp((*it)->getExt(), ext.c_str())) {
-            _data = (*it)->load(file, _width, _height, _has_alpha, _use_alpha);
+    for (auto it : _loaders) {
+        if (! strcasecmp(it->getExt(), ext.c_str())) {
+            _data = it->load(file, _width, _height, _has_alpha, _use_alpha);
             if (_data) {
                 _pixmap = createPixmap(_data, _width, _height);
                 _mask = createMask(_data, _width, _height);
@@ -305,7 +301,8 @@ PImage::drawAlphaFixed(Drawable dest, int x, int y, uint width, uint height, uch
     XImage *dest_image = XGetImage(X11::getDpy(), dest,
                                    x, y, width, height, AllPlanes, ZPixmap);
     if (! dest_image) {
-        cerr << " *** ERROR: failed to get image for destination." << endl;
+        std::cerr << " *** ERROR: failed to get image for destination."
+                  << std::endl;
         return;
     }
 
@@ -420,7 +417,8 @@ PImage::createMask(uchar *data, uint width, uint height)
     ximage = XCreateImage(X11::getDpy(), X11::getVisual(),
                           1, ZPixmap, 0, 0, width, height, 32, 0);
     if (! ximage) {
-        cerr << " *** WARNING: unable to create XImage!" << endl;
+        std::cerr << " *** WARNING: unable to create XImage!"
+                  << std::endl;
         return None;
     }
 
@@ -465,7 +463,8 @@ PImage::createXImage(uchar *data, uint width, uint height)
                           X11::getDepth(), ZPixmap, 0, 0,
                           width, height, 32, 0);
     if (! ximage) {
-        cerr << " *** WARNING: unable to create XImage!" << endl;
+        std::cerr << " *** WARNING: unable to create XImage!"
+                  << std::endl;
         return 0;
     }
 

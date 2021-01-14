@@ -67,8 +67,7 @@ public:
     //! @param wo PWinObj to search for.
     //! @return true if found, else false.
     static inline bool windowObjectExists(PWinObj *wo) {
-        vector<PWinObj*>::iterator it =
-            std::find(_wo_list.begin(), _wo_list.end(), wo);
+        auto it = std::find(_wo_list.begin(), _wo_list.end(), wo);
         if (it != _wo_list.end())
             return true;
         return false;
@@ -267,7 +266,7 @@ protected:
 
     static PWinObj *_root_wo; //!< Static root PWinObj pointer.
     static PWinObj *_focused_wo; //!< Static focused PWinObj pointer.
-    static vector<PWinObj*> _wo_list; //!< List of PWinObjs.
+    static std::vector<PWinObj*> _wo_list; //!< List of PWinObjs.
     static std::map<Window, PWinObj*> _wo_map; //!< Mapping of Window to PWinObj
 };
 

@@ -109,8 +109,12 @@ public:
     void buildMenu(void);
 
     inline uint size(void) const { return _items.size(); }
-    inline vector<PMenu::Item*>::const_iterator m_begin(void) { return _items.begin(); }
-    inline vector<PMenu::Item*>::const_iterator m_end(void) { return _items.end(); }
+    std::vector<PMenu::Item*>::const_iterator m_begin(void) {
+        return _items.begin();
+    }
+    std::vector<PMenu::Item*>::const_iterator m_end(void) {
+        return _items.end();
+    }
 
     inline MenuType getMenuType(void) const { return _menu_type; }
 
@@ -124,7 +128,8 @@ public:
     void gotoParentMenu(void);
 
     void select(PMenu::Item *item, bool unmap_submenu = true);
-    void selectItem(vector<PMenu::Item*>::const_iterator item, bool unmap_submenu = true);
+    void selectItem(std::vector<PMenu::Item*>::const_iterator item,
+                    bool unmap_submenu = true);
     void deselectItem(bool unmap_submenu = true);
     void selectItemNum(uint num);
     void selectItemRel(int off);
@@ -146,7 +151,7 @@ private:
 
     PMenu::Item *findItem(int x, int y);
     void makeInsideScreen(int x, int y);
-	
+
     void applyTitleRules(const std::wstring &title);
 
 protected:
@@ -157,8 +162,8 @@ protected:
     ClassHint _class_hint; /**< Class information for menu. */
 
     // menu content data
-    vector<PMenu::Item*> _items;
-    vector<PMenu::Item*>::size_type _item_curr;
+    std::vector<PMenu::Item*> _items;
+    std::vector<PMenu::Item*>::size_type _item_curr;
 
 private:
     static std::map<Window, PMenu*> _menu_map;

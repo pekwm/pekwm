@@ -147,7 +147,7 @@ protected:
     bool _use_alpha; //!< Wheter image has alpha < 100%
 
 private:
-    static vector<PImageLoader*> _loaders; //!< List of loaders.
+    static std::vector<PImageLoader*> _loaders; //!< List of loaders.
 };
 
 #endif // _PIMAGE_HH_

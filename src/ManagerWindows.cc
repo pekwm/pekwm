@@ -20,12 +20,8 @@ extern "C" {
 #include <unistd.h>
 }
 
-using std::cerr;
-using std::endl;
-using std::string;
-
 // Static initializers
-const string HintWO::WM_NAME = string("pekwm");
+const std::string HintWO::WM_NAME = std::string("pekwm");
 HintWO *HintWO::_instance = 0;
 const unsigned int HintWO::DISPLAY_WAIT = 10;
 
@@ -44,7 +40,7 @@ HintWO::HintWO(Window root, bool replace)
     : PWinObj(false)
 {
     if (_instance) {
-        throw string("trying to create HintWO which is already created.");
+        throw std::string("trying to create HintWO which is already created.");
     }
     _instance = this;
 
@@ -67,7 +63,7 @@ HintWO::HintWO(Window root, bool replace)
     X11::setWindow(_window, NET_SUPPORTING_WM_CHECK, _window);
 
     if (! claimDisplay(replace)) {
-        throw string("unable to claim display");
+        throw std::string("unable to claim display");
     }
 }
 
@@ -111,13 +107,15 @@ HintWO::claimDisplay(bool replace)
     bool status = true;
 
     // Get atom for the current screen and it's owner
-    string session_name("WM_S" + Util::to_string<int>(DefaultScreen(X11::getDpy())));
+    std::string session_name("WM_S"
+                             + std::to_string(DefaultScreen(X11::getDpy())));
     Atom session_atom = XInternAtom(X11::getDpy(), session_name.c_str(), false);
     Window session_owner = XGetSelectionOwner(X11::getDpy(), session_atom);
 
     if (session_owner && session_owner != _window) {
         if (! replace) {
-            cerr << " *** WARNING: window manager already running." << endl;
+            std::cerr << " *** WARNING: window manager already running."
+                      << std::endl;
             return false;
         }
 
@@ -147,8 +145,9 @@ HintWO::claimDisplay(bool replace)
             }
         }
     } else {
-      cerr << "pekwm: unable to replace current window manager." << endl;
-      status = false;
+        std::cerr << "pekwm: unable to replace current window manager."
+                  << std::endl;
+        status = false;
     }
 
     return status;
@@ -164,7 +163,8 @@ HintWO::claimDisplayWait(Window session_owner)
 {
     XEvent event;
 
-    cerr << " *** INFO: waiting for previous window manager to exit. " << endl;
+    std::cerr << " *** INFO: waiting for previous window manager to exit. "
+              << std::endl;
 
     for (uint waited = 0; waited < HintWO::DISPLAY_WAIT; ++waited) {
         if (XCheckWindowEvent(X11::getDpy(), session_owner, StructureNotifyMask, &event)
@@ -175,7 +175,8 @@ HintWO::claimDisplayWait(Window session_owner)
         sleep(1);
     }
 
-    cerr << " *** INFO: previous window manager did not exit. " << endl;
+    std::cerr << " *** INFO: previous window manager did not exit. "
+              << std::endl;
 
     return false;
 }
@@ -228,7 +229,8 @@ RootWO::RootWO(Window root)
     XSync(X11::getDpy(), false);
     setXErrorsIgnore(false);
     if (errors_before != xerrors_count) {
-        cerr << "pekwm: root window unavailable, can't start!" << endl;
+        std::cerr << "pekwm: root window unavailable, can't start!"
+                  << std::endl;
         exit(1);
     }
 

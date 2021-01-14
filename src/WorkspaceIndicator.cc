@@ -15,8 +15,6 @@
 #include "WorkspaceIndicator.hh"
 #include "x11.hh"
 
-using std::vector;
-
 /**
  * Display constructor
  */
@@ -123,7 +121,7 @@ WorkspaceIndicator::Display::renderWorkspaces(int x, int y,
     uint x_pos = x;
     uint y_pos = y;
 
-    vector<Workspace>::size_type i=0;
+    std::vector<Workspace>::size_type i=0;
     for (uint row = 0; i < Workspaces::size(); ++i) {
         // Check for next row
         if (Workspaces::getRow(i) > row) {

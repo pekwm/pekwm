@@ -16,7 +16,6 @@
 #include "config.h"
 
 #include <vector>
-using std::vector;
 
 #include "Compat.hh"
 #include "Types.hh"

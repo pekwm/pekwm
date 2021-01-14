@@ -22,11 +22,7 @@ extern "C" {
 #include <X11/Xutil.h>
 }
 
-using std::map;
-using std::wstring;
-using std::iswprint;
-
-map<KeySym, wchar_t> InputDialog::_keysym_map;
+std::map<KeySym, wchar_t> InputDialog::_keysym_map;
 
 /**
  * InputDialog constructor.
@@ -156,7 +152,7 @@ InputDialog::handleKeyPress(XKeyEvent *ev)
     ActionEvent *c_ae, *ae = 0;
 
     if ( (c_ae = KeyGrabber::instance()->findAction(ev, _type, &matched)) ) {
-        vector<Action>::iterator it(c_ae->action_list.begin());
+        auto it(c_ae->action_list.begin());
         for (; it != c_ae->action_list.end(); ++it) {
             switch (it->getAction()) {
             case INPUT_INSERT:
@@ -434,7 +430,7 @@ InputDialog::bufAdd(XKeyEvent *ev)
         _buf.insert(_buf.begin() + _pos++, _keysym_map[keysym]);
     } else {
         // Add wide string to buffer counting position
-        wstring buf_ret(Util::to_wide_str(c_return));
+        std::wstring buf_ret(Util::to_wide_str(c_return));
         for (unsigned int i = 0; i < buf_ret.size(); ++i) {
             if (iswprint(buf_ret[i])) {
                 _buf.insert(_buf.begin() + _pos++, buf_ret[i]);
@@ -614,7 +610,7 @@ InputDialog::getInputSize(const Geometry &head, unsigned int &width, unsigned in
 void
 InputDialog::addHistoryUnique(const std::wstring &entry)
 {
-    vector<wstring>::iterator it(find(_history.begin(), _history.end(), entry));
+    auto it(find(_history.begin(), _history.end(), entry));
     if (it != _history.end()) {
         _history.erase(it);
     }
@@ -644,9 +640,8 @@ InputDialog::saveHistory(const std::string &path)
 {
     std::ofstream ofile(path.c_str());
     if (ofile.is_open()) {
-        vector<wstring>::iterator it(_history.begin());
-        for (; it != _history.end(); ++it) {
-            ofile << Util::to_utf8_str(*it) << "\n";
+        for (auto it : _history) {
+            ofile << Util::to_utf8_str(it) << "\n";
         }
         ofile.close();
     }

@@ -15,13 +15,7 @@
 #include "x11.hh"
 #include "Util.hh"
 
-using std::cerr;
-using std::endl;
-using std::string;
-using std::vector;
-using std::wstring;
-
-wstring PFont::_trim_string = wstring();
+std::wstring PFont::_trim_string = std::wstring();
 const char *FALLBACK_FONT = "fixed";
 
 // PFont
@@ -56,7 +50,7 @@ PFont::draw(Drawable dest, int x, int y, const std::wstring &text,
     }
 
     uint offset = x, chars = max_chars;
-    wstring real_text(text);
+    std::wstring real_text(text);
 
     if (max_width > 0) {
         // If max width set, make sure text fits in max_width pixels.
@@ -119,7 +113,7 @@ PFont::trimMiddle(std::wstring &text, uint max_width)
                             _trim_string.size() / 2 + _trim_string.size() % 2);
 
     uint pos = 0;
-    wstring dest;
+    std::wstring dest;
 
     // If the trim string is too large, do nothing and let trimEnd handle this.
     if (max_side <= sep_width) {
@@ -140,7 +134,7 @@ PFont::trimMiddle(std::wstring &text, uint max_width)
     // get numbers of chars after ...
     if (pos < text.size()) {
         for (uint i = pos; i < text.size(); ++i) {
-            wstring second_part(text.substr(i, text.size() - i));
+            std::wstring second_part(text.substr(i, text.size() - i));
             if (getWidth(second_part, 0) < max_side) {
                 dest.insert(dest.size(), second_part);
                 break;
@@ -253,7 +247,7 @@ PFontX11::unload(void)
 
 //! @brief Gets the width the text would take using this font
 uint
-PFontX11::getWidth(const wstring &text, uint max_chars)
+PFontX11::getWidth(const std::wstring &text, uint max_chars)
 {
     if (! text.size()) {
         return 0;
@@ -268,7 +262,7 @@ PFontX11::getWidth(const wstring &text, uint max_chars)
     uint width = 0;
     if (_font) {
         // No UTF8 support, convert to locale encoding.
-        string mb_text(Util::to_mb_str(text.substr(0, max_chars)));
+        std::string mb_text(Util::to_mb_str(text.substr(0, max_chars)));
         width = XTextWidth(_font, mb_text.c_str(), mb_text.size());
     }
 
@@ -286,7 +280,7 @@ PFontX11::drawText(Drawable dest, int x, int y,
     GC gc = fg ? _gc_fg : _gc_bg;
 
     if (_font && (gc != None)) {
-        string mb_text;
+        std::string mb_text;
         if (chars != 0) {
             mb_text = Util::to_mb_str(text.substr(0, chars));
         } else {
@@ -334,9 +328,9 @@ PFontXmb::load(const std::string &font_name)
 {
     unload();
 
-    string basename(font_name);
+    std::string basename(font_name);
     size_t pos = font_name.rfind(",*");
-    if (pos == string::npos || pos != (font_name.size() - 2)) {
+    if (pos == std::string::npos || pos != (font_name.size() - 2)) {
         basename.append(",*");
     }
 
@@ -355,13 +349,16 @@ PFontXmb::load(const std::string &font_name)
 
     _fontset = XCreateFontSet(X11::getDpy(), basename.c_str(), &missing_list, &missing_count, &def_string);
     if (! _fontset) {
-        cerr << "PFontXmb::load(): Failed to create fontset for " << font_name << endl;
-        _fontset = XCreateFontSet(X11::getDpy(), DEFAULT_FONTSET, &missing_list, &missing_count, &def_string);
+        std::cerr << "PFontXmb::load(): Failed to create fontset for " << font_name
+                  << std::endl;
+        _fontset = XCreateFontSet(X11::getDpy(), DEFAULT_FONTSET,
+                                  &missing_list, &missing_count, &def_string);
     }
 
     if (_fontset) {
         for (int i = 0; i < missing_count; ++i) {
-            cerr <<  "PFontXmb::load(): Missing charset" <<  missing_list[i] << endl;
+            std::cerr <<  "PFontXmb::load(): Missing charset"
+                      <<  missing_list[i] << std::endl;
         }
         XFreeStringList(missing_list);
 
@@ -541,7 +538,7 @@ PFontXft::getWidth(const std::wstring &text, uint max_chars)
 
     uint width = 0;
     if (_font) {
-        string utf8_text(Util::to_utf8_str(text.substr(0, max_chars)));
+        std::string utf8_text(Util::to_utf8_str(text.substr(0, max_chars)));
 
         XGlyphInfo extents;
         XftTextExtentsUtf8(X11::getDpy(), _font,
@@ -565,7 +562,7 @@ PFontXft::drawText(Drawable dest, int x, int y,
     XftColor *cl = fg ? _cl_fg : _cl_bg;
 
     if (_font && cl) {
-        string utf8_text;
+        std::string utf8_text;
         if (chars != 0) {
             utf8_text = Util::to_utf8_str(text.substr(0, chars));
         } else {

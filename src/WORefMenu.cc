@@ -15,9 +15,6 @@
 
 #include "Client.hh"
 
-using std::string;
-using std::wstring;
-
 //! @brief WORefMenu constructor
 //! @param theme Pointer to Theme
 //! @param title Title of menu
@@ -53,7 +50,7 @@ WORefMenu::setWORef(PWinObj *wo_ref)
 {
     PWinObjReference::setWORef(wo_ref);
 
-    wstring title(_title_base);
+    std::wstring title(_title_base);
 
     // if of client type, add the clients named to the title
     if (wo_ref && (wo_ref->getType() == PWinObj::WO_CLIENT)) {

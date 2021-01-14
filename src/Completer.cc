@@ -26,14 +26,7 @@ extern "C" {
 #include "PWinObj.hh"
 #include "MenuHandler.hh"
 
-using std::copy;
-using std::cerr;
-using std::wcerr;
-using std::endl;
-using std::vector;
-using std::string;
-using std::wstring;
-using std::pair;
+typedef std::pair<std::wstring, std::wstring> comp_pair;
 
 /**
  * Build completions_list from a container of strings.
@@ -45,10 +38,10 @@ completions_list_from_name_list(T name_list, completions_list &completions_list)
     completions_list.clear();
     typename T::const_iterator it(name_list.begin());
     for (; it != name_list.end(); ++it) {
-        wstring name(Util::to_wide_str(*it));
-        wstring name_lower(name);
+        auto name(Util::to_wide_str(*it));
+        auto name_lower(name);
         Util::to_lower(name_lower);
-        completions_list.push_back(pair<wstring, wstring>(name_lower, name));
+        completions_list.push_back(comp_pair(name_lower, name));
     }
     std::unique(completions_list.begin(), completions_list.end());
     std::sort(completions_list.begin(), completions_list.end());
@@ -67,7 +60,9 @@ public:
     virtual ~CompleterMethod(void) { }
 
     /** Find completions for string. */
-    virtual unsigned int complete(CompletionState &completion_state) { return 0; }
+    virtual unsigned int complete(CompletionState &completion_state) {
+        return 0;
+    }
     /** Refresh completion list. */
     virtual void refresh(void)=0;
     /** Clear completion list. */
@@ -122,14 +117,13 @@ public:
     void refresh(void) {
         clear();
 
-        vector<string> path_parts;
+        std::vector<std::string> path_parts;
         Util::splitString(Util::getEnv("PATH"), path_parts, ":");
 
-        vector<string>::iterator it(path_parts.begin());
-        for (; it != path_parts.end(); ++it) {
-            DIR *dh = opendir(it->c_str());
+        for (auto it : path_parts) {
+            DIR *dh = opendir(it.c_str());
             if (dh) {
-                refresh_path(dh, Util::to_wide_str(*it));
+                refresh_path(dh, Util::to_wide_str(it));
                 closedir(dh);
             }
         }
@@ -152,10 +146,10 @@ private:
                 continue;
             }
 
-            wstring name(Util::to_wide_str(entry->d_name));
-            _path_list.push_back(pair<wstring, wstring>(name, name));
-            _path_list.push_back(pair<wstring, wstring>(path + L"/" + name,
-                                                        path + L"/" + name));
+            auto name(Util::to_wide_str(entry->d_name));
+            _path_list.push_back(comp_pair(name, name));
+            _path_list.push_back(comp_pair(path + L"/" + name,
+                                           path + L"/" + name));
         }
     }
 
@@ -191,9 +185,10 @@ public:
 
         State get_state(void) { return _state; }
         //! Check if str matches state prefix.
-        bool is_state(const wstring &str, size_t pos) {
-            return (str.size() - pos < _prefix_len) ?
-                   false : ! str.compare(pos, _prefix_len, _prefix, _prefix_len);
+        bool is_state(const std::wstring &str, size_t pos) {
+            return (str.size() - pos < _prefix_len)
+                ? false
+                : ! str.compare(pos, _prefix_len, _prefix, _prefix_len);
         }
     private:
         const wchar_t *_prefix; /**< Matching prefix */
@@ -300,17 +295,19 @@ Completer::clear()
  * Find completions for string with the cursor at position.
  */
 complete_list
-Completer::find_completions(const wstring &str, unsigned int pos)
+Completer::find_completions(const std::wstring &str, unsigned int pos)
 {
     // Get current part of str, if it is empty return no completions.
     CompletionState state;
-    state.part = state.part_lower = get_part(str, pos, state.part_begin, state.part_end);
+    state.part = state.part_lower =
+        get_part(str, pos, state.part_begin, state.part_end);
     if (! state.part.size()) {
         return state.completions;
     }
 
     // Get word at position, the one that will be completed
-    state.word = state.word_lower = get_word_at_position(str, pos, state.word_begin, state.word_end);
+    state.word = state.word_lower =
+        get_word_at_position(str, pos, state.word_begin, state.word_end);
 
     Util::to_lower(state.part_lower);
     Util::to_lower(state.word_lower);
@@ -329,8 +326,8 @@ Completer::find_completions(const wstring &str, unsigned int pos)
  * @param pos Cursor position in string.
  * @return Completed string.
  */
-wstring
-Completer::do_complete(const wstring &str, unsigned int &pos,
+std::wstring
+Completer::do_complete(const std::wstring &str, unsigned int &pos,
                        complete_list &completions, complete_it &it)
 {
     // Do not perform completion if there is nothing to complete
@@ -347,10 +344,10 @@ Completer::do_complete(const wstring &str, unsigned int &pos,
 
     // Get current word, this is the one being replaced
     size_t word_begin, word_end;
-    wstring word(get_word_at_position(str, pos, word_begin, word_end));
+    std::wstring word(get_word_at_position(str, pos, word_begin, word_end));
 
     // Replace the current word
-    wstring completed(str);
+    std::wstring completed(str);
     completed.replace(word_begin, word_end - word_begin, *it);
 
     // Update position
@@ -372,15 +369,18 @@ Completer::do_complete(const wstring &str, unsigned int &pos,
  * @param part_end
  * @return Current part of string.
  */
-wstring
-Completer::get_part(const wstring &str, unsigned int pos, size_t &part_begin, size_t &part_end)
+std::wstring
+Completer::get_part(const std::wstring &str, unsigned int pos,
+                    size_t &part_begin, size_t &part_end)
 {
     // Get beginning and end of string, add 1 for removal of separator
     part_begin = String::safe_position(str.find_last_of(L";", pos), 0, 1);
     part_end = String::safe_position(str.find_first_of(L";", pos), str.size());
 
     // Strip spaces from the beginning of the string
-    part_begin = String::safe_position(str.find_first_not_of(L" \t", part_begin), part_end);
+    part_begin =
+        String::safe_position(str.find_first_not_of(L" \t", part_begin),
+                              part_end);
 
     return str.substr(part_begin, part_end - part_begin);
 }
@@ -388,12 +388,14 @@ Completer::get_part(const wstring &str, unsigned int pos, size_t &part_begin, si
 /**
  * Get word at position.
  */
-wstring
-Completer::get_word_at_position(const wstring &str, unsigned int pos, size_t &word_begin, size_t &word_end)
+std::wstring
+Completer::get_word_at_position(const std::wstring &str, unsigned int pos,
+                                size_t &word_begin, size_t &word_end)
 {
     // Get beginning and end of string, add 1 for removal of separator
     word_begin = String::safe_position(str.find_last_of(L" \t", pos), 0, 1);
-    word_end = String::safe_position(str.find_first_of(L" \t", pos), str.size());
+    word_end =
+        String::safe_position(str.find_first_of(L" \t", pos), str.size());
 
-    return str.substr(word_begin, word_end - word_begin);    
+    return str.substr(word_begin, word_end - word_begin);
 }

@@ -30,7 +30,7 @@
  *
  */
 void Debug::doAction(const std::string &cmd) {
-    vector<std::string> args;
+    std::vector<std::string> args;
 
     uint nr = Util::splitString(cmd, args, " \t");
     if (nr)

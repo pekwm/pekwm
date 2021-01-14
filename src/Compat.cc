@@ -22,9 +22,6 @@ extern "C" {
 #include <errno.h>
 #endif // ! HAVE_UNSETENV
 
-using std::string;
-using std::wstring;
-
 #ifndef HAVE_SWPRINTF
 /**< Message displayed when %ls formatting is attempted. */
 static const wchar_t *SWPRINTF_LS_NOT_SUPPORTED = L"%ls format string not supported";

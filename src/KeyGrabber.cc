@@ -21,16 +21,12 @@ extern "C" {
 
 #include <iostream>
 
-using std::cerr;
-using std::endl;
-using std::string;
-using std::find;
-
 KeyGrabber* KeyGrabber::_instance = 0;
 
 //! @brief Constructor for Chain class
-KeyGrabber::Chain::Chain(uint mod, uint key) :
-        _mod(mod), _key(key)
+KeyGrabber::Chain::Chain(uint mod, uint key)
+    : _mod(mod),
+      _key(key)
 {
 }
 
@@ -44,9 +40,8 @@ KeyGrabber::Chain::~Chain(void)
 void
 KeyGrabber::Chain::unload(void)
 {
-    vector<KeyGrabber::Chain*>::iterator it(_chains.begin());
-    for (; it != _chains.end(); ++it) {
-        delete *it;
+    for (auto it : _chains) {
+        delete it;
     }
     _chains.clear();
     _keys.clear();
@@ -56,15 +51,12 @@ KeyGrabber::Chain::unload(void)
 KeyGrabber::Chain*
 KeyGrabber::Chain::findChain(XKeyEvent *ev, bool *matched)
 {
-    vector<KeyGrabber::Chain*>::iterator it(_chains.begin());
-
-    for (; it != _chains.end(); ++it) {
-        if ((((*it)->getMod() == MOD_ANY) || ((*it)->getMod() == ev->state)) &&
-                (((*it)->getKey() == 0) || ((*it)->getKey() == ev->keycode))) {
-            return *it;
+    for (auto it : _chains) {
+        if (((it->getMod() == MOD_ANY) || (it->getMod() == ev->state)) &&
+                ((it->getKey() == 0) || (it->getKey() == ev->keycode))) {
+            return it;
         }
     }
-
     return 0;
 }
 
@@ -72,8 +64,7 @@ KeyGrabber::Chain::findChain(XKeyEvent *ev, bool *matched)
 ActionEvent*
 KeyGrabber::Chain::findAction(XKeyEvent *ev, bool *matched)
 {
-    vector<ActionEvent>::iterator it(_keys.begin());
-
+    auto it = _keys.begin();
     for (; it != _keys.end(); ++it) {
         if ((it->mod == MOD_ANY || it->mod == ev->state)
             && (it->sym == 0 || it->sym == ev->keycode)) {
@@ -93,9 +84,9 @@ KeyGrabber::KeyGrabber(void)
 {
 #ifdef DEBUG
     if (_instance) {
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "KeyGrabber(" << this << ")::KeyGrabber()" << endl
-             << " *** _instance already set: " << _instance << endl;
+        std::cerr << __FILE__ << "@" << __LINE__ << ": "
+                  << "KeyGrabber(" << this << ")::KeyGrabber()" << std::endl
+                  << " *** _instance already set: " << _instance << std::endl;
     }
 #endif // DEBUG
     _instance = this;
@@ -124,8 +115,8 @@ KeyGrabber::load(const std::string &file, bool force)
     if (! key_cfg.parse(file, CfgParserSource::SOURCE_FILE)) {
         _cfg_files.clear();
         if (! key_cfg.parse(SYSCONFDIR "/keys", CfgParserSource::SOURCE_FILE, true)) {
-            cerr << __FILE__ << "@" << __LINE__ << "Error: no keyfile at " << file
-                 << " or " << SYSCONFDIR "/keys" << endl;
+            std::cerr << __FILE__ << "@" << __LINE__ << "Error: no keyfile at "
+                      << file << " or " << SYSCONFDIR "/keys" << std::endl;
             return false;
         }
     }
@@ -179,7 +170,7 @@ KeyGrabber::parseGlobalChain(CfgParser::Entry *section, KeyGrabber::Chain *chain
     ActionEvent ae;
     uint key, mod;
 
-    CfgParser::iterator it(section->begin());
+    auto it(section->begin());
     for (; it != section->end(); ++it) {
         if ((*it)->getSection() && *(*it) == "CHAIN") {
             // Figure out mod and key, create a new chain.
@@ -265,15 +256,15 @@ KeyGrabber::parseMenuChain(CfgParser::Entry *section, KeyGrabber::Chain *chain)
 void
 KeyGrabber::grabKeys(Window win)
 {
-    const vector<KeyGrabber::Chain*> &chains(_global_chain.getChains());
-    vector<KeyGrabber::Chain*>::const_iterator c_it = chains.begin();
-    for (; c_it != chains.end(); ++c_it)
-        grabKey(win, (*c_it)->getMod(), (*c_it)->getKey());
+    auto chains = _global_chain.getChains();
+    for (auto c_it : chains) {
+        grabKey(win, c_it->getMod(), c_it->getKey());
+    }
 
-    const vector<ActionEvent> &keys(_global_chain.getKeys());
-    vector<ActionEvent>::const_iterator k_it = keys.begin();
-    for (; k_it != keys.end(); ++k_it)
-        grabKey(win, k_it->mod, k_it->sym);
+    auto keys = _global_chain.getKeys();
+    for (auto k_it : keys) {
+        grabKey(win, k_it.mod, k_it.sym);
+    }
 }
 
 //! @brief Grabs a key with state on Window win with "all possible" modifiers.

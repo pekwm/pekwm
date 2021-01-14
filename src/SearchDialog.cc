@@ -16,11 +16,6 @@
 #include <iostream>
 #include <list>
 
-using std::cerr;
-using std::endl;
-using std::list;
-using std::wcerr;
-
 /**
  * SearchDialog constructor.
  */
@@ -131,8 +126,8 @@ SearchDialog::findClients(const std::wstring &search)
             return 0;
         }
 
-        vector<Client*> matches;
-        vector<Client*>::const_iterator it(Client::client_begin());
+        std::vector<Client*> matches;
+        auto it(Client::client_begin());
         for (; it != Client::client_end(); ++it) {
             if ((*it)->isFocusable()  && ! (*it)->isSkip(SKIP_FOCUS_TOGGLE)
                  && search_re == (*it)->getTitle()->getReal()) {

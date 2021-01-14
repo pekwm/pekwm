@@ -51,7 +51,8 @@ public:
     // START - PDecor interface.
     virtual bool allowMove(void) const;
 
-    virtual void addChild(PWinObj *child, vector<PWinObj*>::iterator *it = 0);
+    virtual void addChild(PWinObj *child,
+                          std::vector<PWinObj*>::iterator *it = 0);
     virtual void removeChild(PWinObj *child, bool do_delete = true);
     virtual void activateChild(PWinObj *child);
 
@@ -74,16 +75,16 @@ public:
 
     // START - Iterators
     static uint frame_size(void) { return _frames.size(); }
-    static vector<Frame*>::const_iterator frame_begin(void) {
+    static std::vector<Frame*>::const_iterator frame_begin(void) {
         return _frames.begin();
     }
-    static vector<Frame*>::const_iterator frame_end(void) {
+    static std::vector<Frame*>::const_iterator frame_end(void) {
         return _frames.end();
     }
-    static vector<Frame*>::const_reverse_iterator frame_rbegin(void) {
+    static std::vector<Frame*>::const_reverse_iterator frame_rbegin(void) {
         return _frames.rbegin();
     }
-    static vector<Frame*>::const_reverse_iterator frame_rend(void) {
+    static std::vector<Frame*>::const_reverse_iterator frame_rend(void) {
         return _frames.rend();
     }
 
@@ -94,11 +95,11 @@ public:
         return _client && _client->hasTransients();
     }
     // Call getTransBegin() only (!) if hasTrans() == true.
-    vector<Client*>::const_iterator getTransBegin(void) const {
+    std::vector<Client*>::const_iterator getTransBegin(void) const {
         return _client->getTransientsBegin();
     }
     // Call getTransEnd() only (!) if hasTrans() == true.
-    vector<Client*>::const_iterator getTransEnd(void) const {
+    std::vector<Client*>::const_iterator getTransEnd(void) const {
         return _client->getTransientsEnd();
     }
     // END - Iterator
@@ -203,8 +204,8 @@ private:
     uint _non_fullscreen_decor_state; // FIXME: move to PDecor?
     Layer _non_fullscreen_layer;
 
-    static vector<Frame*> _frames; //!< Vector of all Frames.
-    static vector<uint> _frameid_list; //!< Vector of free Frame IDs.
+    static std::vector<Frame*> _frames; //!< Vector of all Frames.
+    static std::vector<uint> _frameid_list; //!< Vector of free Frame IDs.
 
     // Tagging, static as only one Frame can be tagged
     static Frame *_tag_frame; //!< Pointer to tagged frame.

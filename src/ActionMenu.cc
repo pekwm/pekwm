@@ -26,12 +26,6 @@
 #include "Frame.hh"
 #include "Util.hh"
 
-using std::cerr;
-using std::endl;
-using std::find;
-using std::string;
-using std::wstring;
-
 //! @brief ActionMenu constructor
 //! @param type Type of menu
 //! @param title Title of menu
@@ -190,7 +184,7 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
     }
 
     if (section->getValue().size()) {
-        wstring title(Util::to_wide_str(section->getValue()));
+        auto title(Util::to_wide_str(section->getValue()));
         setTitle(title);
         _title_base = title;
     }
@@ -202,7 +196,7 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
     PMenu::Item *item = 0;
     PTexture *icon = 0;
 
-    CfgParser::iterator it(section->begin());
+    auto it(section->begin());
     for (; it != section->end(); ++it) {
         item = 0;
 
@@ -218,10 +212,12 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
                 submenu->parse(sub_section, parent);
                 submenu->buildMenu();
 
-                item = new PMenu::Item(Util::to_wide_str(sub_section->getValue()), submenu, icon);
+                auto wsub_title = Util::to_wide_str(sub_section->getValue());
+                item = new PMenu::Item(wsub_title, submenu, icon);
                 item->setCreator(parent);
             } else {
-                cerr << " *** WARNING: submenu entry does not contain any section." << endl;
+                std::cerr << " *** WARNING: submenu entry does not contain "
+                          << "any section." << std::endl;
             }
         } else if (*(*it) == "SEPARATOR") {
             // No icon support on separators.
@@ -299,12 +295,13 @@ ActionMenu::rebuildDynamic(void)
     Client::setClientEnvironment(client);
 
     // Setup icon path before parsing.
-    ImageHandler::instance()->path_push_back(Config::instance()->getSystemIconPath());
+    ImageHandler::instance()
+        ->path_push_back(Config::instance()->getSystemIconPath());
     ImageHandler::instance()->path_push_back(Config::instance()->getIconPath());
 
-    PMenu::Item* item = 0;
-    vector<PMenu::Item*>::iterator it;
-    for (it = _items.begin(); it != _items.end(); ++it) {
+    PMenu::Item* item = nullptr;
+    auto it = _items.begin();
+    for (; it != _items.end(); ++it) {
         if ((*it)->getAE().isOnlyAction(ACTION_MENU_DYN)) {
             _insert_at = it - _items.begin();
 
@@ -333,17 +330,17 @@ ActionMenu::removeDynamic(void)
 {
     std::set<PMenu::Item *> dynlist;
 
-    vector<PMenu::Item*>::iterator it(_items.begin());
-    for (; it != _items.end(); ++it) {
-        if ((*it)->getType() == PMenu::Item::MENU_ITEM_HIDDEN) {
-            dynlist.insert(*it);
+    for (auto it : _items) {
+        if (it->getType() == PMenu::Item::MENU_ITEM_HIDDEN) {
+            dynlist.insert(it);
         }
     }
 
-    it = _items.begin();
+    auto it = _items.begin();
     for (; it != _items.end();) {
         if (dynlist.find((*it)->getCreator()) != dynlist.end()) {
-            if ((*it)->getWORef() && ((*it)->getWORef()->getType() == WO_MENU)) {
+            if ((*it)->getWORef()
+                && ((*it)->getWORef()->getType() == WO_MENU)) {
                 delete (*it)->getWORef();
             }
             delete (*it);

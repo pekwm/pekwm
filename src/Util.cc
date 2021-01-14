@@ -32,25 +32,6 @@ extern "C" {
 
 #include "Util.hh"
 
-using std::back_inserter;
-using std::copy;
-using std::cerr;
-using std::endl;
-using std::ostringstream;
-using std::string;
-using std::transform;
-using std::vector;
-using std::wstring;
-using std::ifstream;
-using std::ofstream;
-using std::find;
-using std::map;
-using std::getenv;
-using std::wcstombs;
-using std::wmemset;
-using std::mbstowcs;
-using std::exit;
-
 namespace Util {
 
 #ifndef HOST_NAME_MAX
@@ -93,8 +74,8 @@ forkExec(std::string command)
 {
     if (command.length() == 0) {
 #ifdef DEBUG
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "Util::forkExec() *** command length == 0" << endl;
+        std::cerr << __FILE__ << "@" << __LINE__ << ": "
+                  << "Util::forkExec() *** command length == 0" << std::endl;
 #endif // DEBUG
         return;
     }
@@ -104,12 +85,14 @@ forkExec(std::string command)
     case 0:
         setsid();
         execlp("/bin/sh", "sh", "-c", command.c_str(), (char *) 0);
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "Util::forkExec(" << command << ") execlp failed." << endl;
+        std::cerr << __FILE__ << "@" << __LINE__ << ": "
+                  << "Util::forkExec(" << command << ") execlp failed."
+                  << std::endl;
         exit(1);
     case -1:
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "Util::forkExec(" << command << ") fork failed." << endl;
+        std::cerr << __FILE__ << "@" << __LINE__ << ": "
+                  << "Util::forkExec(" << command << ") fork failed."
+                  << std::endl;
     }
 }
 
@@ -120,7 +103,7 @@ forkExec(std::string command)
 std::string
 getHostname(void)
 {
-    string hostname;
+    std::string hostname;
 
     // Set WM_CLIENT_MACHINE
     char hostname_buf[HOST_NAME_MAX + 1];
@@ -155,8 +138,9 @@ isExecutable(const std::string &file)
 {
     if (file.size() == 0) {
 #ifdef DEBUG
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "Util::isExecutable() *** file length == 0" << endl;
+        std::cerr << __FILE__ << "@" << __LINE__ << ": "
+                  << "Util::isExecutable() *** file length == 0"
+                  << std::endl;
 #endif // DEBUG
         return false;
     }
@@ -206,17 +190,17 @@ copyTextFile(const std::string &from, const std::string &to)
         return false;
     }
 
-    ifstream stream_from(from.c_str());
+    std::ifstream stream_from(from.c_str());
     if (! stream_from.good()) {
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "Can't copy: " << from << " to: " << to << endl;
+        std::cerr << __FILE__ << "@" << __LINE__ << ": "
+                  << "Can't copy: " << from << " to: " << to << std::endl;
         return false;
     }
 
-    ofstream stream_to(to.c_str());
+    std::ofstream stream_to(to.c_str());
     if (! stream_to.good()) {
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "Can't copy: " << from << " to: " << to << endl;
+        std::cerr << __FILE__ << "@" << __LINE__ << ": "
+                  << "Can't copy: " << from << " to: " << to << std::endl;
         return false;
     }
 
@@ -228,10 +212,10 @@ copyTextFile(const std::string &from, const std::string &to)
 /**
  * Get name of the current user.
  */
-string
+std::string
 getUserName(void)
 {
-    // Try to lookup current user with 
+    // Try to lookup current user with
     struct passwd *entry = getpwuid(geteuid());
 
     if (entry && entry->pw_name) {
@@ -250,11 +234,11 @@ getUserName(void)
 std::string
 getFileExt(const std::string &file)
 {
-    string::size_type pos = file.find_last_of('.');
-    if ((pos != string::npos) && (pos < file.size())) {
+    std::string::size_type pos = file.find_last_of('.');
+    if ((pos != std::string::npos) && (pos < file.size())) {
         return file.substr(pos + 1, file.size() - pos - 1);
     } else {
-        return string("");
+        return std::string("");
     }
 }
 
@@ -262,11 +246,11 @@ getFileExt(const std::string &file)
 std::string
 getDir(const std::string &file)
 {
-    string::size_type pos = file.find_last_of('/');
-    if ((pos != string::npos) && (pos < file.size())) {
+    std::string::size_type pos = file.find_last_of('/');
+    if ((pos != std::string::npos) && (pos < file.size())) {
         return file.substr(0, pos);
     } else {
-        return string("");
+        return std::string("");
     }
 }
 
@@ -296,14 +280,15 @@ expandFileName(std::string &file)
 //! @param escape Escape character (optional)
 //! @return Number of tokens inserted into vals
 uint
-splitString(const string str, vector<string> &toks, const char *sep, uint max, bool include_empty, char escape)
+splitString(const std::string str, std::vector<std::string> &toks,
+            const char *sep, uint max, bool include_empty, char escape)
 {
-    string::size_type start = str.find_first_not_of(" \t\n");
-    if (str.size() == 0 || start == string::npos) {
+    auto start = str.find_first_not_of(" \t\n");
+    if (str.size() == 0 || start == std::string::npos) {
         return 0;
     }
 
-    string token;
+    std::string token;
     token.reserve(str.size());
     bool in_escape = false;
     uint num_tokens = 1;
@@ -351,9 +336,10 @@ to_mb_str(const std::wstring &str)
 
     ret = wcstombs(buf, str.c_str(), num);
     if (ret == static_cast<size_t>(-1)) {
-        cerr << " *** WARNING: failed to convert wide string to multibyte string" << endl;
+        std::cerr << " *** WARNING: failed to convert wide string to multibyte "
+                  << "string" << std::endl;
     }
-    string ret_str(buf);
+    std::string ret_str(buf);
 
     delete [] buf;
 
@@ -372,9 +358,10 @@ to_wide_str(const std::string &str)
 
     ret = mbstowcs(buf, str.c_str(), num);
     if (ret == static_cast<size_t>(-1)) {
-        cerr << " *** WARNING: failed to convert multibyte string to wide string" << endl;
+        std::cerr << " *** WARNING: failed to convert multibyte string to "
+                  << "wide string" << std::endl;
     }
-    wstring ret_str(buf);
+    std::wstring ret_str(buf);
 
     delete [] buf;
 
@@ -494,7 +481,7 @@ iconv_buf_grow(size_t size)
 std::string
 to_utf8_str(const std::wstring &str)
 {
-    string utf8_str;
+    std::string utf8_str;
 
     // Calculate length
     size_t in_bytes = str.size() * sizeof(wchar_t);
@@ -511,8 +498,8 @@ to_utf8_str(const std::wstring &str)
         *outp = '\0';
         utf8_str = ICONV_BUF;
     } else {
-        cerr << " *** WARNING: to_utf8_str, failed with error "
-             << strerror(errno) << endl;
+        std::cerr << " *** WARNING: to_utf8_str, failed with error "
+                  << strerror(errno) << std::endl;
         utf8_str = ICONV_UTF8_INVALID_STR;
     }
 
@@ -525,7 +512,7 @@ to_utf8_str(const std::wstring &str)
 std::wstring
 from_utf8_str(const std::string &str)
 {
-    wstring wide_str;
+    std::wstring wide_str;
 
     // Calculate length
     size_t in_bytes = str.size();
@@ -543,8 +530,8 @@ from_utf8_str(const std::string &str)
 
         wide_str = reinterpret_cast<wchar_t*>(ICONV_BUF);
     } else {
-        cerr << " *** WARNING: from_utf8_str, failed on string \""
-             << str << "\"." << endl;
+        std::cerr << " *** WARNING: from_utf8_str, failed on string \""
+                  << str << "\"." << std::endl;
         wide_str = ICONV_WIDE_INVALID_STR;
     }
 
@@ -552,4 +539,3 @@ from_utf8_str(const std::string &str)
 }
 
 } // end namespace Util.
-

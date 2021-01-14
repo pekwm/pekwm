@@ -78,23 +78,21 @@ public:
     inline const std::string &getConfigFile(void) const { return _config_file; }
 
     /** Return vector with available keyboard actions names. */
-    vector<std::string> getActionNameList(void) {
-        vector<std::string> action_names;
-        std::map<ParseUtil::Entry, std::pair<ActionType, uint> >::iterator it;
-        for (it = _action_map.begin(); it != _action_map.end(); ++it) {
-            if (it->second.second&KEYGRABBER_OK) {
-                action_names.push_back(it->first.get_text());
+    std::vector<std::string> getActionNameList(void) {
+        std::vector<std::string> action_names;
+        for (auto it : _action_map) {
+            if (it.second.second&KEYGRABBER_OK) {
+                action_names.push_back(it.first.get_text());
             }
         }
         return action_names;
     }
 
     /** Return vector with available state action names. */
-    vector<std::string> getStateNameList(void) {
-        vector<std::string> state_names;
-        std::map<ParseUtil::Entry, ActionStateType>::iterator it;
-        for (it = _action_state_map.begin(); it != _action_state_map.end(); ++it) {
-            state_names.push_back(it->first.get_text());
+    std::vector<std::string> getStateNameList(void) {
+        std::vector<std::string> state_names;
+        for (auto it : _action_state_map) {
+            state_names.push_back(it.first.get_text());
         }
         return state_names;
     }
@@ -186,12 +184,12 @@ public:
     inline uint getHarbourOrientation(void) const { return _harbour_orientation; }
     inline uint getHarbourOpacity(void) const { return _harbour_opacity; }
 
-    inline vector<ActionEvent> *getMouseActionList(MouseActionListName name) {
+    std::vector<ActionEvent> *getMouseActionList(MouseActionListName name) {
         return _mouse_action_map[name];
     }
 
-    vector<ActionEvent> *getBorderListFromPosition(uint pos);
-    vector<ActionEvent> *getEdgeListFromPosition(uint pos);
+    std::vector<ActionEvent> *getBorderListFromPosition(uint pos);
+    std::vector<ActionEvent> *getEdgeListFromPosition(uint pos);
 
     // map parsing
     ActionType getAction(const std::string &name, uint mask);
@@ -258,7 +256,9 @@ private:
     void loadCmdDialog(CfgParser::Entry *section);
     void loadHarbour(CfgParser::Entry *section);
 
-    void parseButtons(CfgParser::Entry *section, vector<ActionEvent>* mouse_list, ActionOk action_ok);
+    void parseButtons(CfgParser::Entry *section,
+                      std::vector<ActionEvent>* mouse_list,
+                      ActionOk action_ok);
 
     int parseWorkspaceNumber(const std::string &workspace);
 
@@ -280,13 +280,15 @@ private:
     // screen
     int _screen_workspaces;
     int _screen_workspaces_per_row;
-    vector<std::wstring> _screen_workspace_names;
+    std::vector<std::wstring> _screen_workspace_names;
     std::wstring _screen_workspace_name_default;
-    vector<int> _screen_edge_sizes;
+    std::vector<int> _screen_edge_sizes;
     bool _screen_edge_indent;
     int _screen_doubleclicktime;
-    bool _screen_fullscreen_above; //!< Flag to make fullscreen go above all windows. */
-    bool _screen_fullscreen_detect; /**< Flag to make configure request fullscreen detection. */
+    /** Flag to make fullscreen go above all windows. */
+    bool _screen_fullscreen_above;
+    /** Flag to make configure request fullscreen detection. */
+    bool _screen_fullscreen_detect;
     bool _screen_showframelist;
     bool _screen_show_status_window;
     bool _screen_show_status_window_on_root; /**< If true, center status window relative to current head. */
@@ -324,7 +326,7 @@ private:
     int _harbour_head_nr;
     uint _harbour_opacity;
 
-    std::map<MouseActionListName, vector<ActionEvent>* > _mouse_action_map;
+    std::map<MouseActionListName, std::vector<ActionEvent>* > _mouse_action_map;
 
     std::map<ParseUtil::Entry, std::pair<ActionType, uint> > _action_map;
     std::map<ParseUtil::Entry, ActionAccessMask> _action_access_mask_map;

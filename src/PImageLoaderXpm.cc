@@ -17,12 +17,6 @@
 #include <cstring>
 #include <cstdio>
 
-using std::cerr;
-using std::endl;
-using std::string;
-using std::sscanf;
-using std::strlen;
-
 const uint PImageLoaderXpm::CHANNELS = 4;
 const uint PImageLoaderXpm::ALPHA_SOLID = 255;
 const uint PImageLoaderXpm::ALPHA_TRANSPARENT = 0;
@@ -53,13 +47,19 @@ PImageLoaderXpm::load(const std::string &file, uint &width, uint &height,
     XpmInfo xpm_info;
 
     // Read XPM to XpmImage format.
-    if (XpmReadFileToXpmImage((char*) file.c_str(), &xpm_image, &xpm_info) != Success) {
-        cerr << " *** WARNING: " << file << " not a valid XPM file!" << endl;
+    if (XpmReadFileToXpmImage((char*) file.c_str(),
+                              &xpm_image, &xpm_info) != Success) {
+        std::cerr << " *** WARNING: " << file << " not a valid XPM file!"
+                  << std::endl;
         return 0;
     }
 
-    if (! xpm_image.ncolors || ! xpm_image.data || ! xpm_image.width || ! xpm_image.height) {
-        cerr << " *** WARNING: " << file << " invalid file information!" << endl;
+    if (! xpm_image.ncolors
+        || ! xpm_image.data
+        || ! xpm_image.width
+        || ! xpm_image.height) {
+        std::cerr << " *** WARNING: " << file << " invalid file information!"
+                  << std::endl;
         return 0;
     }
 
@@ -143,7 +143,8 @@ PImageLoaderXpm::createXpmToRgbaTable(XpmImage *xpm_image)
                     *dest++ = c_tmp;
                 } else {
                     *dest++ = 0;
-                    cerr << " *** WARNING: " << c_buf << " invalid color value!" << endl;
+                    std::cerr << " *** WARNING: " << c_buf
+                              << " invalid color value!" << std::endl;
                 }
             }
             *dest++ = ALPHA_SOLID;

@@ -19,13 +19,6 @@ extern "C" {
 #include <unistd.h>
 }
 
-using std::cerr;
-using std::endl;
-using std::string;
-using std::fopen;
-using std::fclose;
-using std::exit;
-
 unsigned int CfgParserSourceCommand::_sigaction_counter = 0;
 
 /**
@@ -35,12 +28,12 @@ bool
 CfgParserSourceFile::open(void)
 {
     if (_file) {
-        throw string("TRYING TO OPEN ALREADY OPEN SOURCE");
+        throw std::string("TRYING TO OPEN ALREADY OPEN SOURCE");
     }
 
     _file = fopen(_name.c_str(), "r");
     if (! _file) {
-        throw string("failed to open file " + _name);
+        throw std::string("failed to open file " + _name);
     }
 
     return true;
@@ -50,7 +43,7 @@ void
 CfgParserSourceFile::close(void)
 {
     if (! _file) {
-        throw string("trying to close already closed source");
+        throw std::string("trying to close already closed source");
     }
 
     fclose(_file);
@@ -137,6 +130,6 @@ CfgParserSourceCommand::close(void)
 
     // Wait failed, throw error
     if (status == -1) {
-        throw string("failed to wait for pid " + Util::to_string<int>(_pid));
+        auto msg = "failed to wait for pid " + std::to_string(_pid);
     }
 }

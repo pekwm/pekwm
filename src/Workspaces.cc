@@ -24,7 +24,6 @@
 #include <sstream>
 #ifdef HAVE_LIMITS
 #include <limits>
-using std::numeric_limits;
 #endif // HAVE_LIMITS
 
 extern "C" {
@@ -130,7 +129,7 @@ Workspaces::setSize(uint number)
 void
 Workspaces::setNames(void)
 {
-    vector<Workspace>::size_type i=0, size=_workspaces.size();
+    std::vector<Workspace>::size_type i=0, size=_workspaces.size();
     for (; i<size; ++i) {
         _workspaces[i].setName(Config::instance()->getWorkspaceName(i));
     }
@@ -404,12 +403,12 @@ Workspaces::insert(PWinObj *wo, bool raise)
 
     _wobjs.insert(it, wo);
 
-    vector<PWinObj*> winstack;
+    std::vector<PWinObj*> winstack;
     winstack.reserve(3);
     winstack.push_back(wo);
 
     if (wo_frame && wo_frame->hasTrans()) {
-        vector<Client*>::const_iterator t_it;
+        std::vector<Client*>::const_iterator t_it;
         for (it = _wobjs.begin(); *it != wo;) {
             if ((frame = dynamic_cast<Frame*>(*it))) {
                 t_it = find(wo_frame->getTransBegin(), wo_frame->getTransEnd(),
@@ -435,7 +434,7 @@ Workspaces::insert(PWinObj *wo, bool raise)
 
     const unsigned size = winstack.size();
     Window *wins = new Window[size];
-    vector<PWinObj*>::const_iterator wit(winstack.end());
+    auto wit(winstack.end());
     for (unsigned i=0; i<size; ++i) {
         wins[i] = (*--wit)->getWindow();
     }
@@ -457,10 +456,9 @@ Workspaces::remove(PWinObj* wo)
     }
 
     // remove from last focused
-    vector<Workspace>::iterator it(_workspaces.begin());
-    for (; it != _workspaces.end(); ++it) {
-        if (wo == (*it).getLastFocused()) {
-            (*it).setLastFocused(0);
+    for (auto it : _workspaces) {
+        if (wo == it.getLastFocused()) {
+            it.setLastFocused(0);
         }
     }
 }
@@ -616,7 +614,7 @@ Workspaces::buildClientList(unsigned int &num_windows)
     Frame *frame;
     Client *client, *client_active;
 
-    vector<Window> windows;
+    std::vector<Window> windows;
     iterator it_f;
     const_iterator it_c;
     for (it_f = _wobjs.begin(); it_f != _wobjs.end(); ++it_f) {

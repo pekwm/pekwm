@@ -26,11 +26,6 @@
 #include <algorithm>
 #include <cstdlib>
 
-using std::map;
-using std::string;
-using std::wstring;
-using std::find;
-
 PMenu::Item::Item(const std::wstring &name, PWinObj *wo_ref, PTexture *icon)
     : PWinObjReference(wo_ref),
       _x(0), _y(0), _name(name), 
@@ -48,7 +43,7 @@ PMenu::Item::~Item(void)
     }
 }
 
-map<Window,PMenu*> PMenu::_menu_map = map<Window,PMenu*>();
+std::map<Window,PMenu*> PMenu::_menu_map = std::map<Window,PMenu*>();
 
 //! @brief Constructor for PMenu class
 PMenu::PMenu(const std::wstring &title,
@@ -114,9 +109,8 @@ PMenu::~PMenu(void)
         delete _menu_wo;
     }
 
-    vector<PMenu::Item*>::const_iterator it(_items.begin());
-    for (; it != _items.end(); ++it) {
-        delete *it;
+    for (auto it : _items) {
+        delete it;
     }
 
     X11::freePixmap(_menu_bg_fo);
@@ -145,7 +139,7 @@ PMenu::setFocused(bool focused)
         _menu_wo->setBackgroundPixmap(_focused ? _menu_bg_fo : _menu_bg_un);
         _menu_wo->clear();
         if (_item_curr < _items.size()) {
-            vector<PMenu::Item*>::const_iterator item(_items.begin() + _item_curr);
+            auto item(_items.begin() + _item_curr);
             _item_curr = _items.size(); // Force selectItem(item) to redraw
             selectItem(item);
         }
@@ -354,7 +348,7 @@ PMenu::buildMenuCalculate(void)
 
     // Get how many visible objects we have
     unsigned int sep = 0;
-    vector<PMenu::Item*>::const_iterator it(_items.begin());
+    auto it(_items.begin());
     for (_size = 0; it != _items.end(); ++it) {
         if ((*it)->getType() == PMenu::Item::MENU_ITEM_NORMAL) {
             ++_size;
@@ -428,31 +422,30 @@ PMenu::buildMenuCalculateMaxWidth(unsigned int &width, unsigned int &height)
     _item_width_max = 1;
     _icon_width = _icon_height = 0;
 
-    vector<PMenu::Item*>::const_iterator it(_items.begin());
-    for (; it != _items.end(); ++it) {
+    for (auto it : _items) {
         // Only include standard items
-        if ((*it)->getType() != PMenu::Item::MENU_ITEM_NORMAL) {
+        if (it->getType() != PMenu::Item::MENU_ITEM_NORMAL) {
             continue;
         }
 
         // Check if we have a submenu item
-        if (! _has_submenu && (*it)->getWORef() &&
-            ((*it)->getWORef()->getType() == PWinObj::WO_MENU)) {
+        if (! _has_submenu && it->getWORef() &&
+            (it->getWORef()->getType() == PWinObj::WO_MENU)) {
           _has_submenu = true;
         }
 
         // Get icon height if any
-        if ((*it)->getIcon()) {
-          if ((*it)->getIcon()->getWidth() > _icon_width) {
-            _icon_width = (*it)->getIcon()->getWidth();
+        if (it->getIcon()) {
+          if (it->getIcon()->getWidth() > _icon_width) {
+            _icon_width = it->getIcon()->getWidth();
           }
-          if ((*it)->getIcon()->getHeight() > _icon_height) {
-            _icon_height = (*it)->getIcon()->getHeight();
+          if (it->getIcon()->getHeight() > _icon_height) {
+            _icon_height = it->getIcon()->getHeight();
           }
         }
 
         auto md = Theme::instance()->getMenuData();
-        width = md->getFont(OBJECT_STATE_FOCUSED)->getWidth((*it)->getName().c_str());
+        width = md->getFont(OBJECT_STATE_FOCUSED)->getWidth(it->getName().c_str());
         if (width > _item_width_max) {
             _item_width_max = width;
         }
@@ -500,8 +493,8 @@ PMenu::buildMenuCalculateColumns(unsigned int &width, unsigned int &height)
     if (_cols > 1) {
         uint i, j, row_height;
         height = 0;
-       
-        vector<PMenu::Item*>::const_iterator it(_items.begin());
+
+        auto it(_items.begin());
         for (i = 0, it = _items.begin(); i < _cols; ++i) {
             row_height = 0;
             for (j = 0; j < _rows && it != _items.end(); ++it, ++j) {
@@ -514,7 +507,7 @@ PMenu::buildMenuCalculateColumns(unsigned int &width, unsigned int &height)
                     break;
                 case PMenu::Item::MENU_ITEM_HIDDEN:
                 default:
-                	break;
+                    break;
                 }
             }
 
@@ -530,7 +523,7 @@ void
 PMenu::buildMenuPlace(void)
 {
     uint x, y;
-    vector<PMenu::Item*>::const_iterator it;
+    std::vector<PMenu::Item*>::const_iterator it;
 
     x = 0;
     it = _items.begin();
@@ -580,10 +573,9 @@ PMenu::buildMenuRenderState(Pixmap &pix, ObjectState state)
     auto font = md->getFont(state);
     font->setColor(md->getColor(state));
 
-    vector<PMenu::Item*>::const_iterator it(_items.begin());
-    for (; it != _items.end(); ++it) {
-        if ((*it)->getType() != PMenu::Item::MENU_ITEM_HIDDEN) {
-            buildMenuRenderItem(pix, state, *it);
+    for (auto it : _items) {
+        if (it->getType() != PMenu::Item::MENU_ITEM_HIDDEN) {
+            buildMenuRenderItem(pix, state, it);
         }
     }
 }
@@ -658,7 +650,8 @@ PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
 //! @param item Item to select
 //! @param unmap_submenu Defaults to true
 void
-PMenu::selectItem(vector<PMenu::Item*>::const_iterator item, bool unmap_submenu)
+PMenu::selectItem(std::vector<PMenu::Item*>::const_iterator item,
+                  bool unmap_submenu)
 {
     if (_item_curr < _items.size() && _items[_item_curr] == *item) {
         return;
@@ -701,7 +694,7 @@ PMenu::selectNextItem(void)
         return;
     }
 
-    vector<PMenu::Item*>::const_iterator item(_items.begin() + (_item_curr<_items.size()?_item_curr:0));
+    auto item(_items.begin() + (_item_curr<_items.size()?_item_curr:0));
 
     // no item selected, select the first item
     if (item == _items.end()) {
@@ -732,7 +725,7 @@ PMenu::selectPrevItem(void)
         return;
     }
 
-    vector<PMenu::Item*>::const_iterator item(_items.begin() + (_item_curr<_items.size()?_item_curr:0));
+    auto item(_items.begin() + (_item_curr<_items.size()?_item_curr:0));
 
     // no item selected, select the last item OR
     // we're at the beginning and need to wrap to the end
@@ -771,7 +764,7 @@ PMenu::applyTitleRules(const std::wstring &title)
     TitleProperty *data = AutoProperties::instance()->findTitleProperty(&_class_hint);
 
     if (data) {
-        wstring new_title(title);
+        std::wstring new_title(title);
         if (data->getTitleRule().ed_s(new_title)) {
             _title.setCustom(new_title);
         }
@@ -828,9 +821,8 @@ PMenu::remove(PMenu::Item *item)
 void
 PMenu::removeAll(void)
 {
-    vector<PMenu::Item*>::const_iterator it(_items.begin());
-    for (; it != _items.end(); ++it) {
-        delete *it;
+    for (auto it : _items) {
+        delete it;
     }
     _items.clear();
     _item_curr = 0;
@@ -884,13 +876,12 @@ PMenu::mapSubmenu(PMenu *menu, bool focus)
 void
 PMenu::unmapSubmenus(void)
 {
-    vector<PMenu::Item*>::iterator it(_items.begin());
-    for (; it != _items.end(); ++it) {
-        if ((*it)->getWORef() && (*it)->getWORef()->getType() == PWinObj::WO_MENU) {
+    for (auto it : _items) {
+        if (it->getWORef() && it->getWORef()->getType() == PWinObj::WO_MENU) {
             // Sub-menus will be deleted when unmapping this, so no need
             // to continue.
-            static_cast<PMenu*>((*it)->getWORef())->unmapSubmenus();
-            (*it)->getWORef()->unmapWindow();
+            static_cast<PMenu*>(it->getWORef())->unmapSubmenus();
+            it->getWORef()->unmapWindow();
         }
     }
 }
@@ -949,7 +940,7 @@ PMenu::selectItemRel(int off)
     }
 
     // if no selected item, use first
-    vector<PMenu::Item*>::const_iterator it(_items.begin() + (_item_curr < _items.size()?_item_curr:0));
+    auto it(_items.begin() + (_item_curr < _items.size()?_item_curr:0));
 
     int dir = (off > 0) ? 1 : -1;
     off = abs(off);
@@ -1000,12 +991,13 @@ PMenu::checkItemWORef(PMenu::Item *item)
 PMenu::Item*
 PMenu::findItem(int x, int y)
 {
-    vector<PMenu::Item*>::const_iterator it(_items.begin());
-    for (; it != _items.end(); ++it) {
-        if (((*it)->getType() == PMenu::Item::MENU_ITEM_NORMAL) &&
-                (x >= (*it)->getX()) && (x <= signed((*it)->getX() + _item_width_max)) &&
-                (y >= (*it)->getY()) && (y <= signed((*it)->getY() + _item_height))) {
-            return *it;
+    for (auto it : _items) {
+        if ((it->getType() == PMenu::Item::MENU_ITEM_NORMAL) &&
+            (x >= it->getX())
+            && (x <= signed(it->getX() + _item_width_max)) &&
+            (y >= it->getY())
+            && (y <= signed(it->getY() + _item_height))) {
+            return it;
         }
     }
     return 0;

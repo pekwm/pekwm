@@ -58,7 +58,7 @@ private:
 
     void updateStrutSize(void);
 
-    vector<DockApp*> _dapps;
+    std::vector<DockApp*> _dapps;
     bool _hidden;
     uint _size;
     Strut *_strut;

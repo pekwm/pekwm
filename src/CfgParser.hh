@@ -59,8 +59,12 @@ public:
         Entry(const Entry &entry);
         ~Entry(void);
 
-        vector<CfgParser::Entry*>::const_iterator begin(void) { return _entries.begin(); }
-        vector<CfgParser::Entry*>::const_iterator end(void) { return _entries.end(); }
+        std::vector<CfgParser::Entry*>::const_iterator begin(void) {
+            return _entries.begin();
+        }
+        std::vector<CfgParser::Entry*>::const_iterator end(void) {
+            return _entries.end();
+        }
 
         //! @brief Returns the name.
         const std::string &getName(void) const { return _name; }
@@ -80,10 +84,11 @@ public:
         Entry *getSection(void) { return _section; }
         Entry *setSection(Entry *section, bool overwrite=false);
 
-        Entry *findEntry(const std::string &name, bool include_sections=false, const char *value=0);
+        Entry *findEntry(const std::string &name, bool include_sections=false,
+                         const char *value=0);
         Entry *findSection(const std::string &name, const char *value=0);
-        void parseKeyValues(vector<CfgParserKey*>::const_iterator begin,
-                            vector<CfgParserKey*>::const_iterator end);
+        void parseKeyValues(std::vector<CfgParserKey*>::const_iterator begin,
+                            std::vector<CfgParserKey*>::const_iterator end);
 
         void print(uint level = 0);
         void copyTreeInto(CfgParser::Entry *from, bool overwrite=false);
@@ -95,7 +100,8 @@ public:
         friend std::ostream &operator<<(std::ostream &stream, const CfgParser::Entry &entry);
 
     private:
-        vector<CfgParser::Entry*> _entries; /**< List of entries in section. */
+        /** List of entries in section. */
+        std::vector<CfgParser::Entry*> _entries;
         Entry *_section; /**< Sub-section of node. */
 
         std::string _name; /**< Name of node. */
@@ -145,16 +151,22 @@ private:
 
     TimeFiles _cfg_files;
 
-    vector<CfgParserSource*> _sources; //!< Vector of sources, for recursive parsing.
-    vector<std::string> _source_names; //!< Vector of source names, to keep track of current source.
-    std::set<std::string> _source_name_set; //!< Set of source names, source of memory usage on long-going CfgParser objects.
-    vector<Entry*> _sections; //!< for recursive parsing.
+    /** Vector of sources, for recursive parsing. */
+    std::vector<CfgParserSource*> _sources;
+    /** Vector of source names, to keep track of current source. */
+    std::vector<std::string> _source_names;
+    /** Set of source names, source of memory usage on long-going
+        CfgParser objects. */
+    std::set<std::string> _source_name_set;
+    std::vector<Entry*> _sections; //!< for recursive parsing.
 
     std::map<std::string, std::string> _var_map; //!< Map of $VARS
-    std::map<std::string, CfgParser::Entry*> _section_map; //!< Map of Define = ... sections
+    /**  Map of Define = ... sections */
+    std::map<std::string, CfgParser::Entry*> _section_map;
 
     Entry *_root_entry; /**< Root Entry. */
-    bool _is_dynamic_content; /**< If true, parsed data included command or similar. */
+    /** If true, parsed data included command or similar. */
+    bool _is_dynamic_content;
     Entry *_section; /**< Current section. */
     bool _overwrite; /**< Overwrite elements when appending. */
 

@@ -15,7 +15,6 @@
 
 #ifdef HAVE_LIMITS
 #include <limits>
-using std::numeric_limits;
 #endif // HAVE_LIMITS
 
 extern "C" {
@@ -46,17 +45,13 @@ unsigned int xerrors_count = 0;
 #include "PWinObj.hh"
 #include "ManagerWindows.hh"
 
-using std::cerr;
-using std::endl;
-using std::vector;
-using std::string;
-using std::memset; // required for FD_ZERO
-
 const uint X11::MODIFIER_TO_MASK[] = {
     ShiftMask, LockMask, ControlMask,
     Mod1Mask, Mod2Mask, Mod3Mask, Mod4Mask, Mod5Mask
 };
-const uint X11::MODIFIER_TO_MASK_NUM = sizeof(X11::MODIFIER_TO_MASK) / sizeof(X11::MODIFIER_TO_MASK[0]);
+const uint X11::MODIFIER_TO_MASK_NUM =
+    sizeof(X11::MODIFIER_TO_MASK) /
+    sizeof(X11::MODIFIER_TO_MASK[0]);
 Atom X11::_atoms[MAX_NR_ATOMS];
 
 extern "C" {
@@ -75,7 +70,8 @@ extern "C" {
 
         char error_buf[256];
         XGetErrorText(dpy, ev->error_code, error_buf, 256);
-        cerr << "XError: " << error_buf << " id: " << ev->resourceid << endl;
+        std::cerr << "XError: " << error_buf << " id: " << ev->resourceid
+                  << std::endl;
 #endif // DEBUG
 
         return 0;
@@ -181,7 +177,7 @@ void
 X11::init(Display *dpy, bool honour_randr)
 {
     if (_dpy) {
-        throw string("X11, trying to create multiple instances");
+        throw std::string("X11, trying to create multiple instances");
     }
 
     _honour_randr = honour_randr;
@@ -303,7 +299,7 @@ XColor *
 X11::getColor(const std::string &color)
 {
     // check for already existing entry
-    vector<ColorEntry*>::const_iterator it(_colours.begin());
+    auto it(_colours.begin());
 
     if (strcasecmp(color.c_str(), "EMPTY") == 0) {
         return &_xc_default;
@@ -324,9 +320,9 @@ X11::getColor(const std::string &color)
     if (XAllocNamedColor(_dpy, X11::getColormap(),
                          color.c_str(), entry->getColor(), &dummy) == 0) {
 #ifdef DEBUG
-        cerr << __FILE__ << "@" << __LINE__ << ": "
-             << "X11::getColor(" << color << ")" << endl
-             << " *** failed to alloc color: " << color << endl;
+        std::cerr << __FILE__ << "@" << __LINE__ << ": "
+                  << "X11::getColor(" << color << ")" << std::endl
+                  << " *** failed to alloc color: " << color << std::endl;
 #endif // DEBUG
         delete entry;
         entry = 0;
@@ -347,8 +343,7 @@ X11::returnColor(XColor *xc)
         return;
     }
 
-    vector<ColorEntry*>::iterator it(_colours.begin());
-
+    auto it(_colours.begin());
     for (; it != _colours.end(); ++it) {
         if ((*it)->getColor() == xc) {
             (*it)->decRef();
@@ -439,9 +434,9 @@ X11::grabKeyboard(Window win)
         return true;
     }
 #ifdef DEBUG
-    cerr << __FILE__ << "@" << __LINE__ << ": "
-         << "X11()::grabKeyboard(" << win << ")" << endl
-         << " *** unable to grab keyboard." << endl;
+    std::cerr << __FILE__ << "@" << __LINE__ << ": "
+              << "X11()::grabKeyboard(" << win << ")" << std::endl
+              << " *** unable to grab keyboard." << std::endl;
 #endif // DEBUG
     return false;
 }
@@ -597,7 +592,8 @@ X11::getHeadInfo(uint head, Geometry &head_info)
         return true;
     } else {
 #ifdef DEBUG
-        cerr << __FILE__ << "@" << __LINE__ << ": Head: " << head << " doesn't exist!" << endl;
+        std::cerr << __FILE__ << "@" << __LINE__ << ": Head: " << head
+                  << " doesn't exist!" << std::endl;
 #endif // DEBUG
         return false;
     }
@@ -765,7 +761,7 @@ void
 X11::removeStrut(Strut *strut)
 {
     assert(strut);
-    vector<Strut *>::iterator it(find(_struts.begin(), _struts.end(), strut));
+    auto it(find(_struts.begin(), _struts.end(), strut));
     if (it != _struts.end())
         _struts.erase(it);
 
@@ -782,34 +778,34 @@ X11::updateStrut(void)
     _strut.top = 0;
     _strut.bottom = 0;
 
-    for (vector<Head>::iterator it(_heads.begin()); it != _heads.end(); ++it) {
-        it->strut.left = 0;
-        it->strut.right = 0;
-        it->strut.top = 0;
-        it->strut.bottom = 0;
+    for (auto it : _heads) {
+        it.strut.left = 0;
+        it.strut.right = 0;
+        it.strut.top = 0;
+        it.strut.bottom = 0;
     }
 
     Strut *strut;
-    for(vector<Strut*>::iterator it(_struts.begin()); it != _struts.end(); ++it) {
-        if ((*it)->head < 0) {
+    for(auto it : _struts) {
+        if (it->head < 0) {
             strut = &_strut;
-        } else if (static_cast<uint>((*it)->head) < _heads.size()) {
-            strut = &(_heads[(*it)->head].strut);
+        } else if (static_cast<uint>(it->head) < _heads.size()) {
+            strut = &(_heads[it->head].strut);
         } else {
             continue;
         }
 
-        if (strut->left < (*it)->left) {
-            strut->left = (*it)->left;
+        if (strut->left < it->left) {
+            strut->left = it->left;
         }
-        if (strut->right < (*it)->right) {
-            strut->right = (*it)->right;
+        if (strut->right < it->right) {
+            strut->right = it->right;
         }
-        if (strut->top < (*it)->top) {
-            strut->top = (*it)->top;
+        if (strut->top < it->top) {
+            strut->top = it->top;
         }
-        if (strut->bottom < (*it)->bottom) {
-          strut->bottom = (*it)->bottom;
+        if (strut->bottom < it->bottom) {
+          strut->bottom = it->bottom;
         }
     }
 
@@ -1083,7 +1079,7 @@ Time X11::_last_event_time;
 Window X11::_last_click_id = None;
 Time X11::_last_click_time[BUTTON_NO - 1];
 Strut X11::_strut;
-vector<Strut*> X11::_struts;
-vector<X11::ColorEntry*> X11::_colours;
+std::vector<Strut*> X11::_struts;
+std::vector<X11::ColorEntry*> X11::_colours;
 XColor X11::_xc_default;
 std::array<Cursor, MAX_NR_CURSOR> X11::_cursor_map;

@@ -161,7 +161,8 @@ public:
     // START - PDecor interface.
     virtual bool allowMove(void) const { return true; }
 
-    virtual void addChild(PWinObj *child, vector<PWinObj*>::iterator *it = 0);
+    virtual void addChild(PWinObj *child,
+                          std::vector<PWinObj*>::iterator *it = 0);
     virtual void removeChild(PWinObj *child, bool do_delete = true);
     virtual void activateChild(PWinObj *child);
 
@@ -176,8 +177,12 @@ public:
     virtual std::string getDecorName(void);
     // END - PDecor interface.
 
-    static vector<PDecor*>::const_iterator pdecor_begin(void) { return _pdecors.begin(); }
-    static vector<PDecor*>::const_iterator pdecor_end(void) { return _pdecors.end(); }
+    static std::vector<PDecor*>::const_iterator pdecor_begin(void) {
+        return _pdecors.begin();
+    }
+    static std::vector<PDecor*>::const_iterator pdecor_end(void) {
+        return _pdecors.end();
+    }
 
     inline bool isSkip(uint skip) const { return (_skip&skip); }
 
@@ -229,9 +234,13 @@ public:
     //! @brief Returns number of children in PDecor.
     inline uint size(void) const { return _children.size(); }
     //! @brief Returns iterator to the first child in PDecor.
-    inline vector<PWinObj*>::const_iterator begin(void) { return _children.begin(); }
+    std::vector<PWinObj*>::const_iterator begin(void) {
+        return _children.begin();
+    }
     //! @brief Returns iterator to the last+1 child in PDecor.
-    inline vector<PWinObj*>::const_iterator end(void) { return _children.end(); }
+    std::vector<PWinObj*>::const_iterator end(void) {
+        return _children.end();
+    }
 
     //! @brief Returns pointer to active PWinObj.
     inline PWinObj *getActiveChild(void) { return _child; }
@@ -412,7 +421,7 @@ protected:
     std::string _decor_name_saved; //!< Original decor name if it is temp. overridden
 
     PWinObj *_child; //!< Pointer to active child in PDecor.
-    vector<PWinObj*> _children; //!< List of children in PDecor.
+    std::vector<PWinObj*> _children; //!< List of children in PDecor.
 
     PDecor::Button *_button; /**< Active title button in PDecor. */
     Window _button_press_win; /**< Active border window, for button release handling. */
@@ -454,14 +463,14 @@ private:
     uint _real_height;
 
     PWinObj _title_wo;
-    vector<PDecor::Button*> _buttons;
+    std::vector<PDecor::Button*> _buttons;
 
     // variable decor data
     uint _title_active;
-    vector<PDecor::TitleItem*> _titles;
+    std::vector<PDecor::TitleItem*> _titles;
     uint _titles_left, _titles_right; // area where to put titles
 
-    static vector<PDecor*> _pdecors; /**< List of all PDecors */
+    static std::vector<PDecor*> _pdecors; /**< List of all PDecors */
 };
 
 #endif // _PDECOR_HH_

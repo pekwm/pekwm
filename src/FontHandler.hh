@@ -38,8 +38,8 @@ private:
     void freeColor(PFont::Color *font_color);
 
 private:
-    vector<HandlerEntry<PFont*> > _fonts;
-    vector<HandlerEntry<PFont::Color*> > _colours;
+    std::vector<HandlerEntry<PFont*> > _fonts;
+    std::vector<HandlerEntry<PFont::Color*> > _colours;
 
     std::map<ParseUtil::Entry, PFont::Type> _map_type;
     std::map<ParseUtil::Entry, FontJustify> _map_justify;

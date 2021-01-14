@@ -21,9 +21,6 @@
 #include "ActionMenu.hh"
 #include "FrameListMenu.hh"
 
-using std::map;
-using std::string;
-
 TimeFiles MenuHandler::_cfg_files;
 std::map<std::string, PMenu*> MenuHandler::_menu_map;
 
@@ -75,7 +72,7 @@ MenuHandler::createMenusLoadConfiguration(ActionHandler *act)
     // Load configuration, pass specific section to loading
     CfgParser menu_cfg;
     if (menu_cfg.parse(Config::instance()->getMenuFile())
-        || menu_cfg.parse(string(SYSCONFDIR "/menu"))) {
+        || menu_cfg.parse(std::string(SYSCONFDIR "/menu"))) {
         _cfg_files = menu_cfg.getCfgFiles();
         auto root_entry = menu_cfg.getEntryRoot();
 
@@ -96,7 +93,7 @@ MenuHandler::createMenusLoadConfiguration(ActionHandler *act)
 void
 MenuHandler::reloadMenus(ActionHandler *act)
 {
-    string menu_file(Config::instance()->getMenuFile());
+    std::string menu_file(Config::instance()->getMenuFile());
     if (! _cfg_files.requireReload(menu_file)) {
         return;
     }
@@ -106,7 +103,7 @@ MenuHandler::reloadMenus(ActionHandler *act)
     CfgParser::Entry *root = cfg.getEntryRoot();
 
     // Update, delete standalone root menus, load decors on others
-    map<string, PMenu*>::iterator it(_menu_map.begin());
+    auto it(_menu_map.begin());
     while (it != _menu_map.end()) {
         if (it->second->getMenuType() == ROOTMENU_STANDALONE_TYPE) {
             delete it->second;
@@ -132,7 +129,7 @@ MenuHandler::loadMenuConfig(const std::string &menu_file, CfgParser &menu_cfg)
     bool cfg_ok = true;
 
     if (! menu_cfg.parse(menu_file)) {
-        if (! menu_cfg.parse(string(SYSCONFDIR "/menu"))) {
+        if (! menu_cfg.parse(std::string(SYSCONFDIR "/menu"))) {
             cfg_ok = false;
         }
     }
@@ -156,7 +153,7 @@ MenuHandler::reloadStandaloneMenus(ActionHandler *act,
                                    CfgParser::Entry *section)
 {
     // Temporary name, as names are stored uppercase
-    string menu_name_upper;
+    std::string menu_name_upper;
 
     // Go through all but reserved section names and create menus
     CfgParser::iterator it(section->begin());
@@ -182,9 +179,8 @@ MenuHandler::reloadStandaloneMenus(ActionHandler *act,
 void
 MenuHandler::deleteMenus(void)
 {
-    map<std::string, PMenu*>::iterator it(_menu_map.begin());
-    for (; it != _menu_map.end(); ++it) {
-        delete it->second;
+    for (auto it : _menu_map) {
+        delete it.second;
     }
     _menu_map.clear();
 }

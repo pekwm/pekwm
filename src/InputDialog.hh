@@ -91,8 +91,8 @@ protected:
 
     // history
     std::wstring _hist_new; // the one we started editing on
-    vector<std::wstring> _history;
-    vector<std::wstring>::iterator _hist_it;
+    std::vector<std::wstring> _history;
+    std::vector<std::wstring>::iterator _hist_it;
     void addHistoryUnique(const std::wstring &);
     void loadHistory(const std::string &file);
     void saveHistory(const std::string &file);

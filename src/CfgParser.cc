@@ -22,21 +22,14 @@ enum {
     PARSE_BUF_SIZE = 1024
 };
 
-using std::cerr;
-using std::endl;
-using std::vector;
-using std::map;
-using std::set;
-using std::string;
-
-const string CfgParser::_root_source_name = string("");
+const std::string CfgParser::_root_source_name = std::string("");
 const char *CP_PARSE_BLANKS = " \t\n";
 
 bool
 TimeFiles::requireReload(const std::string &file)
 {
     // Check for the file, signal reload if not previously loaded.
-    vector<std::string>::const_iterator it(find(files.begin(), files.end(), file));
+    auto it(find(files.begin(), files.end(), file));
     if (it == files.end()) {
         return true;
     }
@@ -76,9 +69,8 @@ CfgParser::Entry::Entry(const CfgParser::Entry &entry)
       _name(entry._name), _value(entry._value),
       _line(entry._line), _source_name(entry._source_name)
 {
-    vector<CfgParser::Entry*>::const_iterator it(entry._entries.begin());
-    for (; it != entry._entries.end(); ++it) {
-        _entries.push_back(new Entry(*(*it)));
+    for (auto it : entry._entries) {
+        _entries.push_back(new Entry(*it));
     }
     if (entry._section) {
         _section = new Entry(*entry._section);
@@ -167,14 +159,13 @@ CfgParser::Entry*
 CfgParser::Entry::findEntry(const std::string &name, bool include_sections, const char *value)
 {
     CfgParser::Entry *value_check;
-    vector<CfgParser::Entry*>::iterator it(_entries.begin());
-    for (; it != _entries.end(); ++it) {
-        value_check = include_sections ? (*it)->getSection() : (*it);
+    for (auto it : _entries) {
+        value_check = include_sections ? it->getSection() : it;
 
-        if (*(*it) == name.c_str()
-            && (! (*it)->getSection() || include_sections)
+        if (*it == name.c_str()
+            && (! it->getSection() || include_sections)
             && (! value || (value_check && value_check->getValue() == value))) {
-            return *it;
+            return it;
         }
     }
 
@@ -186,11 +177,10 @@ CfgParser::Entry::findEntry(const std::string &name, bool include_sections, cons
 CfgParser::Entry*
 CfgParser::Entry::findSection(const std::string &name, const char *value)
 {
-    vector<CfgParser::Entry*>::iterator it(_entries.begin());
-    for (; it != _entries.end(); ++it) {
-        if ((*it)->getSection() && *(*it) == name.c_str()
-            && (! value || (*it)->getSection()->getValue() == value)) {
-            return (*it)->getSection();
+    for (auto it : _entries) {
+        if (it->getSection() && *it == name.c_str()
+            && (! value || it->getSection()->getValue() == value)) {
+            return it->getSection();
         }
     }
 
@@ -211,7 +201,7 @@ CfgParser::Entry::parseKeyValues(std::vector<CfgParserKey*>::const_iterator it,
             try {
                 (*it)->parseValue(value->getValue());
 
-            } catch (string &ex) {
+            } catch (std::string &ex) {
                 WARN("Exception: " << ex << " - " << *value);
             }
         }
@@ -225,9 +215,9 @@ void
 CfgParser::Entry::print(uint level)
 {
     for (uint i = 0; i < level; ++i) {
-        cerr << " ";
+        std::cerr << " ";
     }
-    cerr << " * " << getName() << "=" << getValue() << endl;
+    std::cerr << " * " << getName() << "=" << getValue() << std::endl;
 
     CfgParser::iterator it(begin());
     for (; it != end(); ++it) {
@@ -235,9 +225,9 @@ CfgParser::Entry::print(uint level)
             (*it)->getSection()->print(level + 1);
         } else {
             for (uint i = 0; i < level; ++i) {
-                cerr << " ";
+                std::cerr << " ";
             }
-            cerr << "   - " << getName() << "=" << getValue() << endl;
+            std::cerr << "   - " << getName() << "=" << getValue() << std::endl;
         }
     }
 }
@@ -324,9 +314,8 @@ CfgParser::clear(bool realloc)
     _var_map.clear();
 
     // Remove sections
-    map<string, CfgParser::Entry*>::iterator it(_section_map.begin());
-    for (; it != _section_map.end(); ++it) {
-        delete it->second;
+    for (auto it : _section_map) {
+        delete it.second;
     }
     _section_map.clear();
 }
@@ -345,7 +334,7 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwr
     _overwrite = overwrite;
 
     // Init parse buffer and reserve memory.
-    string buf, value;
+    std::string buf, value;
     buf.reserve(PARSE_BUF_SIZE);
 
     // Open initial source.
@@ -424,7 +413,7 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwr
         try {
             _source->close();
 
-        } catch (string &ex) {
+        } catch (std::string &ex) {
             LOG("Exception: " << ex);
         }
         delete _source;
@@ -441,10 +430,11 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwr
 
 //! @brief Creates and opens new CfgParserSource.
 void
-CfgParser::parseSourceNew(const std::string &name_orig, CfgParserSource::Type type)
+CfgParser::parseSourceNew(const std::string &name_orig,
+                          CfgParserSource::Type type)
 {
     int done = 0;
-    string name(name_orig);
+    std::string name(name_orig);
 
     do {
         CfgParserSource *source = sourceNew(name, type);
@@ -467,7 +457,7 @@ CfgParser::parseSourceNew(const std::string &name_orig, CfgParserSource::Type ty
             _sources.push_back(_source);
             done = 1;
 
-        } catch (string &ex) {
+        } catch (std::string &ex) {
             delete source;
             // Previously added in source_new
             _source_names.pop_back();
@@ -500,16 +490,15 @@ CfgParser::parseName(std::string &buf)
     }
 
     // Identify name.
-    string::size_type begin, end;
-    begin = buf.find_first_not_of(CP_PARSE_BLANKS);
-    if (begin == string::npos) {
+    auto begin = buf.find_first_not_of(CP_PARSE_BLANKS);
+    if (begin == std::string::npos) {
         return false;
     }
-    end = buf.find_first_of(CP_PARSE_BLANKS, begin);
+    auto end = buf.find_first_of(CP_PARSE_BLANKS, begin);
 
     // Check if there is any garbage after the value.
-    if (end != string::npos) {
-        if (buf.find_first_not_of(CP_PARSE_BLANKS, end) != string::npos) {
+    if (end != std::string::npos) {
+        if (buf.find_first_not_of(CP_PARSE_BLANKS, end) != std::string::npos) {
             // Pass, do notihng
         }
     }
@@ -604,7 +593,7 @@ CfgParser::parseEntryFinishStandard(std::string &buf, std::string &value)
 void
 CfgParser::parseEntryFinishTemplate(std::string &name)
 {
-    map<string, CfgParser::Entry*>::iterator it(_section_map.find(name.c_str() + 1));
+    auto it(_section_map.find(name.c_str() + 1));
     if (it == _section_map.end()) {
         WARN("No such template " << name);
         return;
@@ -620,8 +609,8 @@ CfgParser::parseSectionFinish(std::string &buf, std::string &value)
     // Create Entry representing Section
     Entry *section = 0;
     if (buf.size() == 6 && strcasecmp(buf.c_str(), "DEFINE") == 0) {
-        // Look for define section, started with Define = "Name" { 
-        map<string, CfgParser::Entry*>::iterator it(_section_map.find(value));
+        // Look for define section, started with Define = "Name" {
+        auto it(_section_map.find(value));
         if (it != _section_map.end()) {
             delete it->second;
             _section_map.erase(it);
@@ -735,8 +724,8 @@ CfgParser::variableExpand(std::string &var)
     do {
         did_expand = false;
 
-        string::size_type begin = 0, end = 0;
-        while ((begin = var.find_first_of('$', end)) != string::npos) {
+        std::string::size_type begin = 0, end = 0;
+        while ((begin = var.find_first_of('$', end)) != std::string::npos) {
             end = begin + 1;
 
             // Skip escaped \$
@@ -758,10 +747,11 @@ CfgParser::variableExpand(std::string &var)
 
 bool
 CfgParser::variableExpandName(std::string &var,
-                              string::size_type begin, string::size_type &end)
+                              std::string::size_type begin,
+                              std::string::size_type &end)
 {
     bool did_expand = false;
-    string var_name(var.substr(begin, end - begin));
+    std::string var_name(var.substr(begin, end - begin));
 
     // If the variable starts with _ it is considered an environment
     // variable, use getenv to see if it is available
@@ -775,7 +765,7 @@ CfgParser::variableExpandName(std::string &var,
             LOG("Trying to use undefined environment variable: " << var_name);
         }
     } else {
-        map<string, string>::iterator it(_var_map.find(var_name));
+        auto it(_var_map.find(var_name));
         if (it != _var_map.end()) {
             var.replace(begin, end - begin, it->second);
             end = begin + it->second.size();

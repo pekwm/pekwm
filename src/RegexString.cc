@@ -14,13 +14,6 @@
 #include "RegexString.hh"
 #include "Util.hh"
 
-using std::vector;
-using std::cerr;
-using std::endl;
-using std::string;
-using std::wstring;
-using std::strtol;
-
 const char RegexString::SEPARATOR = '/';
 
 //! @brief RegexString constructor.
@@ -50,7 +43,7 @@ RegexString::ed_s(std::wstring &str)
         return false;
     }
 
-    string mb_str(Util::to_mb_str(str));
+    std::string mb_str(Util::to_mb_str(str));
 
     const char *c_str = mb_str.c_str();
     regmatch_t *matches = new regmatch_t[_ref_max];
@@ -61,17 +54,17 @@ RegexString::ed_s(std::wstring &str)
         return false;
     }
 
-    string result;
+    std::string result;
     uint ref, size;
 
-    vector<RegexString::Part>::iterator it(_refs.begin());
+    auto it(_refs.begin());
     for (; it != _refs.end(); ++it) {
         if (it->get_reference() >= 0) {
             ref = it->get_reference();
 
             if (matches[ref].rm_so != -1) {
                 size = matches[ref].rm_eo - matches[ref].rm_so;
-                result.append(string(c_str + matches[ref].rm_so, size));
+                result.append(std::string(c_str + matches[ref].rm_so, size));
             }
         } else {
             result.append(Util::to_mb_str(it->get_string()));
@@ -100,18 +93,18 @@ RegexString::parse_match(const std::wstring &match, bool full)
 
     if (match.size()) {
         int flags = REG_EXTENDED;
-        string expression;
-        wstring expression_str;
+        std::string expression;
+        std::wstring expression_str;
 
         // Full regular expression syntax, parse out flags etc
-        string::size_type pos;
+        std::string::size_type pos;
         if (match[0] == SEPARATOR
-            && (pos = match.find_last_of(SEPARATOR)) != string::npos) {
+            && (pos = match.find_last_of(SEPARATOR)) != std::string::npos) {
             // Main expression
             expression_str = match.substr(1, pos - 1);
 
             // Expression flags
-            for (string::size_type i = pos + 1; i < match.size(); ++i) {
+            for (std::string::size_type i = pos + 1; i < match.size(); ++i) {
                 switch (match[i]) {
                 case 'i':
                     flags |= REG_ICASE;
@@ -120,7 +113,8 @@ RegexString::parse_match(const std::wstring &match, bool full)
                     _reg_inverted = true;
                     break;
                 default:
-                    cerr << "Invalid flag \"" << match[i] << "\" for regular expression." << endl;
+                    std::cerr << "Invalid flag \"" << match[i]
+                              << "\" for regular expression." << std::endl;
                     break;
                 }
             }
@@ -128,7 +122,8 @@ RegexString::parse_match(const std::wstring &match, bool full)
             expression = Util::to_mb_str(expression_str);
         } else {
             if (full) {
-                cerr << "Invalid format of regular expression, missing separator " << SEPARATOR << endl;
+                std::cerr << "Invalid format of regular expression, "
+                          << "missing separator " << SEPARATOR << std::endl;
             }
             expression = Util::to_mb_str(match);
         }
@@ -150,11 +145,11 @@ RegexString::parse_replace(const std::wstring &replace)
 {
     _ref_max = 0;
 
-    wstring part;
-    wstring::size_type begin = 0, end = 0, last = 0;
+    std::wstring part;
+    std::wstring::size_type begin = 0, end = 0, last = 0;
 
     // Go through the string and split at \num points
-    while ((end = replace.find_first_of('\\', begin)) != string::npos) {
+    while ((end = replace.find_first_of('\\', begin)) != std::string::npos) {
         // Store string between references.
         if (end > last) {
             part = replace.substr(last, end - last);
@@ -200,7 +195,7 @@ RegexString::parse_ed_s(const std::wstring &ed_s)
     }
 
     wchar_t c_delimeter = ed_s[0];
-    string::size_type middle, end;
+    std::string::size_type middle, end;
 
     // Middle.
     for (middle = 1; middle < ed_s.size(); middle++) {
@@ -216,7 +211,7 @@ RegexString::parse_ed_s(const std::wstring &ed_s)
         }
     }
 
-    wstring match, replace;
+    std::wstring match, replace;
     match = ed_s.substr(1, middle - 1);
     replace = ed_s.substr(middle + 1, end - middle - 1);
 
@@ -234,7 +229,7 @@ RegexString::operator==(const std::wstring &rhs)
         return false;
     }
 
-    string mb_rhs(Util::to_mb_str(rhs));
+    std::string mb_rhs(Util::to_mb_str(rhs));
     bool match = ! regexec(&_regex, mb_rhs.c_str(), 0, 0, 0);
 
     return _reg_inverted ? ! match : match;

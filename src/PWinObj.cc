@@ -14,23 +14,17 @@
 #include "Debug.hh"
 #include "PWinObj.hh"
 
-using std::cerr;
-using std::endl;
-using std::find;
-using std::vector;
-using std::map;
-
 PWinObj* PWinObj::_focused_wo = (PWinObj*) 0;
 PWinObj* PWinObj::_root_wo = (PWinObj*) 0;
-vector<PWinObj*> PWinObj::_wo_list = vector<PWinObj*>();
-map<Window, PWinObj*> PWinObj::_wo_map = map<Window, PWinObj*>();
+std::vector<PWinObj*> PWinObj::_wo_list = std::vector<PWinObj*>();
+std::map<Window, PWinObj*> PWinObj::_wo_map = std::map<Window, PWinObj*>();
 
 //! @brief PWinObj constructor.
 PWinObj::PWinObj(bool keyboard_input)
     : _window(None),
       _parent(0), _type(WO_NO_TYPE), _lastActivity(X11::getLastEventTime()),
       _opaque(true), _workspace(0), _layer(LAYER_NORMAL),
-      _mapped(false), _iconified(false), 
+      _mapped(false), _iconified(false),
       _hidden(false), _focused(false), _sticky(false),
       _focusable(true),
       _shape_bounding(false), _shape_input(false),
@@ -275,7 +269,7 @@ PWinObj::woListAdd(PWinObj *wo)
 void
 PWinObj::woListRemove(PWinObj *wo)
 {
-    vector<PWinObj*>::iterator it(find(_wo_list.begin(), _wo_list.end(), wo));
+    auto it(find(_wo_list.begin(), _wo_list.end(), wo));
     if (it != _wo_list.end()) {
         _wo_list.erase(it);
     }

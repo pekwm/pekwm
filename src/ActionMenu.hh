@@ -57,9 +57,10 @@ private:
     ActionHandler *_act;
 
     ActionOk _action_ok;
-    vector<PMenu::Item*>::size_type _insert_at;
+    std::vector<PMenu::Item*>::size_type _insert_at;
 
-    bool _has_dynamic; /**< Set to true if any of the entries in the menu is dynamic. */
+    /** Set to true if any of the entries in the menu is dynamic. */
+    bool _has_dynamic;
 };
 
 #endif // _ACTIONMENU_HH_
