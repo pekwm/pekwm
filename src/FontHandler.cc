@@ -68,12 +68,11 @@ FontHandler::getFont(const std::string &font)
     PFont *pfont = 0;
 
     std::vector<std::string> tok;
-    std::vector<std::string>::iterator tok_it;
     if ((Util::splitString(font, tok, "#", 0, true)) > 1) {
         // Try getting the font type from the first paramter, if that
         // doesn't work fall back to the last. This is to backwards
         // compatible.
-        tok_it = tok.begin();
+        auto tok_it = tok.begin();
         uint type = ParseUtil::getValue<PFont::Type>(*tok_it, _map_type);
         if (type == PFont::FONT_TYPE_NO) {
             tok_it = tok.end() - 1;

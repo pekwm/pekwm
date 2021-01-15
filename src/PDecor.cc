@@ -1303,7 +1303,6 @@ PDecor::doKeyboardMoveResize(void)
     bool outline = (! Config::instance()->getOpaqueMove() ||
                     ! Config::instance()->getOpaqueResize());
     ActionEvent *ae;
-    std::vector<Action>::iterator it;
 
     wchar_t buf[128];
     getDecorInfo(buf, 128);
@@ -1331,7 +1330,8 @@ PDecor::doKeyboardMoveResize(void)
         }
 
         if ((ae = KeyGrabber::instance()->findMoveResizeAction(&e.xkey)) != 0) {
-            for (it = ae->action_list.begin(); it != ae->action_list.end(); ++it) {
+            auto it = ae->action_list.begin();
+            for (; it != ae->action_list.end(); ++it) {
                 switch (it->getAction()) {
                 case MOVE_HORIZONTAL:
                     _gm.x += it->getParamI(0);

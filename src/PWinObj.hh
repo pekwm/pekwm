@@ -58,8 +58,8 @@ public:
     //! @brief Searches for the PWinObj matching Window win.
     //! @param win Window to match PWinObjs against.
     //! @return PWinObj pointer on match, else 0.
-    static inline PWinObj *findPWinObj(Window win) {
-        std::map<Window, PWinObj*>::iterator it(_wo_map.find(win));
+    static PWinObj *findPWinObj(Window win) {
+        auto it(_wo_map.find(win));
         return (it != _wo_map.end()) ? it->second : 0;
     }
 
