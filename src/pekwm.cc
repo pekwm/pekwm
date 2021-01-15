@@ -1,160 +1,170 @@
 //
 // pekwm.cc for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2021 Claes Nästén <pekdon@gmail.com>
+//
+// main.cc for aewm++
+// Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
+// http://sapphire.sourceforge.net/
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "pekwm.hh"
+#include "config.h"
 
-#include "ActionHandler.hh"
-#include "AutoProperties.hh"
-#include "Config.hh"
-#include "FontHandler.hh"
-#include "Harbour.hh"
-#include "ImageHandler.hh"
-#include "ManagerWindows.hh"
-#include "KeyGrabber.hh"
-#include "StatusWindow.hh"
-#include "TextureHandler.hh"
-#include "Theme.hh"
+#include "Debug.hh"
+#include "Compat.hh"
+#include "WindowManager.hh"
+#include "Util.hh"
 
-static bool s_is_startup = true;
+#include <iostream>
+#include <string>
+#include <cstring>
+#include <stdexcept>
+#include <locale>
 
-static ActionHandler* _action_handler = nullptr;
-static AutoProperties* _auto_properties = nullptr;
-static Config* _config = nullptr;
-static FontHandler* _font_handler = nullptr;
-static Harbour* _harbour = nullptr;
-static HintWO* _hint_wo = nullptr;
-static ImageHandler* _image_handler = nullptr;
-static KeyGrabber* _key_grabber = nullptr;
-static RootWO* _root_wo = nullptr;
-static StatusWindow* _status_window = nullptr;
-static TextureHandler* _texture_handler = nullptr;
-static Theme* _theme = nullptr;
+extern "C" {
+#include <unistd.h> // execlp
+#include <locale.h>
+}
 
-namespace pekwm
+namespace Info {
+
+    /**
+     * Prints version
+     */
+    void
+    printVersion(void)
+    {
+        std::cout << "pekwm: version " << VERSION << std::endl;
+    }
+
+    /**
+     * Prints version and availible options
+     */
+    void
+    printUsage(void)
+    {
+        printVersion();
+        std::cout
+            << " --help     show this info." << std::endl
+            << " --version  show version info" << std::endl
+            << " --info     extended info. Use for bug reports." << std::endl
+            << " --display  display to connect to" << std::endl
+            << " --config   alternative config file" << std::endl
+            << " --replace  replace running window manager" << std::endl;
+    }
+
+    /**
+     * Prints version and build-time options
+     */
+    void
+    printInfo(void)
+    {
+        printVersion();
+        std::cout << "features: " << FEATURES << std::endl;
+    }
+
+} // end namespace Info
+
+/**
+ * Main function of pekwm
+ */
+int
+main(int argc, char **argv)
 {
-    void init(WindowManager* wm, Display* dpy, const std::string& config_file)
-    {
-        _config = new Config();
-        _config->load(config_file);
-        _config->loadMouseConfig(_config->getMouseConfigFile());
-
-        X11::init(dpy, _config->isHonourRandr());
-
-        _hint_wo = new HintWO(X11::getRoot());
-        // Create root PWinObj
-        _root_wo = new RootWO(X11::getRoot(), _hint_wo);
-        PWinObj::setRootPWinObj(_root_wo);
-
-        _auto_properties = new AutoProperties();
-        _auto_properties->load();
-        _key_grabber = new KeyGrabber();
-        _key_grabber->load(_config->getKeyFile());
-        _key_grabber->grabKeys(X11::getRoot());
-
-        _font_handler = new FontHandler();
-        _image_handler = new ImageHandler();
-        _texture_handler = new TextureHandler();
-        _theme = new Theme(_font_handler, _image_handler, _texture_handler);
-
-        _harbour = new Harbour(_config, _auto_properties, _root_wo);
-        _status_window = new StatusWindow(_theme);
-
-        _action_handler = new ActionHandler(wm);
+    try {
+        std::locale::global(std::locale(""));
+    } catch (const std::runtime_error &e) {
+        ERR("The environment variables specify an unknown C++ locale - "
+            "falling back to C's setlocale().");
+        setlocale(LC_ALL, "");
     }
 
-    void cleanup()
-    {
-        delete _action_handler;
-        delete _harbour;
-        delete _status_window;
-        delete _theme;
-        delete _texture_handler;
-        delete _image_handler;
-        delete _font_handler;
-        delete _key_grabber;
-        delete _auto_properties;
+    Util::iconv_init();
 
-        delete _root_wo;
-        PWinObj::setRootPWinObj(nullptr);
-        delete _hint_wo;
+    setenv("PEKWM_ETC_PATH", SYSCONFDIR, 1);
+    setenv("PEKWM_SCRIPT_PATH", DATADIR "/pekwm/scripts", 1);
+    setenv("PEKWM_THEME_PATH", DATADIR "/pekwm/themes", 1);
 
-        X11::destruct();
-
-        delete _config;
+    // get the args and test for different options
+    std::string config_file;
+    bool replace = false;
+    for (int i = 1; i < argc; ++i)	{
+        if ((strcmp("--display", argv[i]) == 0) && ((i + 1) < argc)) {
+            setenv("DISPLAY", argv[++i], 1);
+        } else if ((strcmp("--config", argv[i]) == 0) && ((i + 1) < argc)) {
+            config_file = argv[++i];
+        } else if (strcmp("--replace", argv[i]) == 0) {
+            replace = true;
+        } else if (strcmp("--version", argv[i]) == 0) {
+            Info::printVersion();
+            exit(0);
+        } else if (strcmp("--info", argv[i]) == 0) {
+            Info::printInfo();
+            exit(0);
+        } else {
+            Info::printUsage();
+            exit(0);
+        }
     }
 
-    ActionHandler* actionHandler()
-    {
-        return _action_handler;
+    // Get configuration file if none was specified as a parameter,
+    // default to reading environment, if not set get ~/.pekwm/config
+    if (config_file.size() == 0) {
+        config_file = Util::getEnv("PEKWM_CONFIG_FILE");
+        if (config_file.size() == 0) {
+            auto home = Util::getEnv("HOME");
+            if (home.size() == 0) {
+                std::cerr << "failed to get configuration file path, "
+                          << "$HOME not set." << std::endl;
+                exit(1);
+            }
+            config_file = home + "/.pekwm/config";
+        }
     }
 
-    AutoProperties* autoProperties()
-    {
-        return _auto_properties;
+#ifdef DEBUG
+    std::cout << "Starting pekwm. Use this information in bug reports:"
+              << std::endl;
+    Info::printInfo();
+    std::cout << "using configuration at " << config_file << std::endl;
+#endif // DEBUG
+
+    auto wm = WindowManager::start(config_file, replace);
+    if (wm) {
+        try {
+#ifdef DEBUG
+            std::cout << "Enter event loop." << std::endl;
+#endif // DEBUG
+            wm->doEventLoop();
+
+            // see if we wanted to restart
+            if (wm->shallRestart()) {
+                auto command = wm->getRestartCommand();
+
+                // cleanup before restarting
+                delete wm;
+                pekwm::cleanup();
+                Util::iconv_deinit();
+
+                if (command.empty()) {
+                    execvp(argv[0], argv);
+                } else {
+                    command = "exec " + command;
+                    execl("/bin/sh", "sh" , "-c", command.c_str(), (char*) 0);
+                }
+            }
+        } catch (std::exception& ex) {
+            std::cerr << "exception occurred: " << ex.what() << std::endl;
+        } catch (std::string& ex) {
+            std::cerr << "unexpected error occurred: " << ex << std::endl;
+        }
+        delete wm;
     }
 
-    Config* config()
-    {
-        return _config;
-    }
+    // Cleanup
+    Util::iconv_deinit();
 
-    FontHandler* fontHandler()
-    {
-        return _font_handler;
-    }
-
-    Harbour* harbour()
-    {
-        return _harbour;
-    }
-
-    HintWO* hintWo()
-    {
-        return _hint_wo;
-    }
-
-    RootWO* rootWo()
-    {
-        return _root_wo;
-    }
-
-    ImageHandler* imageHandler()
-    {
-        return _image_handler;
-    }
-
-    KeyGrabber* keyGrabber()
-    {
-        return _key_grabber;
-    }
-
-    StatusWindow* statusWindow()
-    {
-        return _status_window;
-    }
-
-    TextureHandler* textureHandler()
-    {
-        return _texture_handler;
-    }
-
-    Theme* theme()
-    {
-        return _theme;
-    }
-
-    bool isStartup()
-    {
-        return s_is_startup;
-    }
-
-    void setIsStartup(bool is_startup)
-    {
-        s_is_startup = is_startup;
-    }
+    return 0;
 }
