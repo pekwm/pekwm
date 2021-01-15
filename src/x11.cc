@@ -259,8 +259,10 @@ X11::init(Display *dpy, bool honour_randr)
     _xc_default.red = _xc_default.green = _xc_default.blue = 0;
 
     assert(sizeof(atomnames)/sizeof(char*) == MAX_NR_ATOMS);
-    if (! XInternAtoms(_dpy, const_cast<char**>(atomnames), MAX_NR_ATOMS, 0, _atoms)) {
-        std::cerr << "Error: XInternAtoms didn't return all requested atoms." << std::endl;
+    if (! XInternAtoms(_dpy, const_cast<char**>(atomnames), MAX_NR_ATOMS,
+                       0, _atoms)) {
+        std::cerr << "Error: XInternAtoms didn't return all requested atoms."
+                  << std::endl;
     }
 }
 

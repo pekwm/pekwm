@@ -32,14 +32,14 @@ PMenu::Item::Item(const std::wstring &name, PWinObj *wo_ref, PTexture *icon)
       _type(MENU_ITEM_NORMAL), _icon(icon), _creator(0)
 {
     if (_icon) {
-        TextureHandler::instance()->referenceTexture(_icon);
+        pekwm::textureHandler()->referenceTexture(_icon);
     }
 }
 
 PMenu::Item::~Item(void)
 {
     if (_icon) {
-        TextureHandler::instance()->returnTexture(_icon);
+        pekwm::textureHandler()->returnTexture(_icon);
     }
 }
 
@@ -89,8 +89,8 @@ PMenu::PMenu(const std::wstring &title,
     _menu_map[_window] = this; // add to menu map
     woListAdd(this);
     _wo_map[_window] = this;
-    setOpacity(Config::instance()->getMenuFocusOpacity(),
-               Config::instance()->getMenuUnfocusOpacity());
+    setOpacity(pekwm::config()->getMenuFocusOpacity(),
+               pekwm::config()->getMenuUnfocusOpacity());
 }
 
 //! @brief Destructor for PMenu class
@@ -168,7 +168,7 @@ PMenu::handleButtonPress(XButtonEvent *ev)
 
         return ActionHandler::findMouseAction(ev->button, ev->state,
                                               MOUSE_EVENT_PRESS,
-                                              Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_MENU));
+                                              pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU));
     } else {
         return PDecor::handleButtonPress(ev);
     }
@@ -191,7 +191,7 @@ PMenu::handleButtonRelease(XButtonEvent *ev)
 
         // first we check if it's a double click
         if (X11::isDoubleClick(ev->window, ev->button - 1, ev->time,
-                                               Config::instance()->getDoubleClickTime())) {
+                                               pekwm::config()->getDoubleClickTime())) {
             X11::setLastClickID(ev->window);
             X11::setLastClickTime(ev->button - 1, 0);
 
@@ -205,7 +205,7 @@ PMenu::handleButtonRelease(XButtonEvent *ev)
         handleItemEvent(mb, ev->x, ev->y);
 
         return ActionHandler::findMouseAction(ev->button, ev->state, mb,
-                                              Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_MENU));
+                                              pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU));
     } else {
         return PDecor::handleButtonRelease(ev);
     }
@@ -232,7 +232,7 @@ PMenu::handleMotionEvent(XMotionEvent *ev)
         ActionEvent *ae;
         X11::stripButtonModifiers(&ev->state);
         ae = ActionHandler::findMouseAction(button, ev->state, MOUSE_EVENT_MOTION,
-                                            Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_MENU));
+                                            pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU));
 
         // check motion threshold
         if (ae && (ae->threshold > 0)) {
@@ -252,7 +252,7 @@ PMenu::handleEnterEvent(XCrossingEvent *ev)
 {
     if (*_menu_wo == ev->window) {
         return ActionHandler::findMouseAction(BUTTON_ANY, ev->state, MOUSE_EVENT_ENTER,
-                                              Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_MENU));
+                                              pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU));
     } else {
         return PDecor::handleEnterEvent(ev);
     }
@@ -264,7 +264,7 @@ PMenu::handleLeaveEvent(XCrossingEvent *ev)
     if (*_menu_wo == ev->window) {
         return ActionHandler::findMouseAction(BUTTON_ANY, ev->state,
                                               MOUSE_EVENT_LEAVE,
-                                              Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_MENU));
+                                              pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU));
     } else {
         return PDecor::handleLeaveEvent(ev);
     }
@@ -296,11 +296,11 @@ PMenu::handleItemEvent(MouseEventType type, int x, int y)
 
     // Unmap submenu if we enter them on the same event as selecting.
     if ((_item_curr >= _items.size() || item != _items[_item_curr])
-        && Config::instance()->isMenuSelectOn(type)) {
-        select(item, Config::instance()->isMenuEnterOn(type));
+        && pekwm::config()->isMenuSelectOn(type)) {
+        select(item, pekwm::config()->isMenuEnterOn(type));
     }
 
-    if (Config::instance()->isMenuEnterOn(type)) {
+    if (pekwm::config()->isMenuEnterOn(type)) {
         if (item->getWORef()
             && (item->getWORef()->getType() == PWinObj::WO_MENU)) {
             // Special case for motion, would flicker like crazy if we didn't check
@@ -318,7 +318,7 @@ PMenu::handleItemEvent(MouseEventType type, int x, int y)
     }
 
     // Submenus don't have any actions, so we don't exec ( and close them )
-    if (item->getAE().action_list.size() && Config::instance()->isMenuExecOn(type)) {
+    if (item->getAE().action_list.size() && pekwm::config()->isMenuExecOn(type)) {
         exec(item);
     }
 }
@@ -370,10 +370,10 @@ PMenu::buildMenuCalculate(void)
     _item_width_max_avail = _item_width_max;
 
     // Continue add padding etc.
-    auto md = Theme::instance()->getMenuData();
+    auto md = pekwm::theme()->getMenuData();
     _item_width_max += md->getPad(PAD_LEFT)
         + md->getPad(PAD_RIGHT);
-    if (Config::instance()->isDisplayMenuIcons()) {
+    if (pekwm::config()->isDisplayMenuIcons()) {
         _item_width_max += _icon_width;
     }
 
@@ -444,7 +444,7 @@ PMenu::buildMenuCalculateMaxWidth(unsigned int &width, unsigned int &height)
           }
         }
 
-        auto md = Theme::instance()->getMenuData();
+        auto md = pekwm::theme()->getMenuData();
         width = md->getFont(OBJECT_STATE_FOCUSED)->getWidth(it->getName().c_str());
         if (width > _item_width_max) {
             _item_width_max = width;
@@ -455,11 +455,11 @@ PMenu::buildMenuCalculateMaxWidth(unsigned int &width, unsigned int &height)
     // Make sure icon width and height are not larger than configured.
     if (_icon_width) {
         _icon_width = Util::between<uint>(_icon_width,
-                                          Config::instance()->getMenuIconLimit(_icon_width, WIDTH_MIN, _name),
-                                          Config::instance()->getMenuIconLimit(_icon_width, WIDTH_MAX, _name));
+                                          pekwm::config()->getMenuIconLimit(_icon_width, WIDTH_MIN, _name),
+                                          pekwm::config()->getMenuIconLimit(_icon_width, WIDTH_MAX, _name));
         _icon_height = Util::between<uint>(_icon_height,
-                                           Config::instance()->getMenuIconLimit(_icon_height, HEIGHT_MIN, _name),
-                                           Config::instance()->getMenuIconLimit(_icon_height, HEIGHT_MAX, _name));
+                                           pekwm::config()->getMenuIconLimit(_icon_height, HEIGHT_MIN, _name),
+                                           pekwm::config()->getMenuIconLimit(_icon_height, HEIGHT_MAX, _name));
     }
 }
 
@@ -567,7 +567,7 @@ PMenu::buildMenuRenderState(Pixmap &pix, ObjectState state)
     X11::freePixmap(pix);
     pix = X11::createPixmap(getChildWidth(), getChildHeight());
 
-    auto md = Theme::instance()->getMenuData();
+    auto md = pekwm::theme()->getMenuData();
     auto tex = md->getTextureMenu(state);
     tex->render(pix, 0, 0, getChildWidth(), getChildHeight());
     auto font = md->getFont(state);
@@ -584,7 +584,7 @@ PMenu::buildMenuRenderState(Pixmap &pix, ObjectState state)
 void
 PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
 {
-    auto md = Theme::instance()->getMenuData();
+    auto md = pekwm::theme()->getMenuData();
 
     if (item->getType() == PMenu::Item::MENU_ITEM_NORMAL) {
         auto tex = md->getTextureItem(state);
@@ -592,14 +592,14 @@ PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
 
         uint start_x, start_y, icon_width, icon_height;
         // If entry has an icon, draw it
-        if (item->getIcon() && Config::instance()->isDisplayMenuIcons()) {
+        if (item->getIcon() && pekwm::config()->isDisplayMenuIcons()) {
             icon_width = Util::between<uint>(item->getIcon()->getWidth(),
-                                             Config::instance()->getMenuIconLimit(_icon_width, WIDTH_MIN, _name),
-                                             Config::instance()->getMenuIconLimit(_icon_width, WIDTH_MAX, _name));
+                                             pekwm::config()->getMenuIconLimit(_icon_width, WIDTH_MIN, _name),
+                                             pekwm::config()->getMenuIconLimit(_icon_width, WIDTH_MAX, _name));
             
             icon_height = Util::between<uint>(item->getIcon()->getHeight(),
-                                              Config::instance()->getMenuIconLimit(_icon_height, HEIGHT_MIN, _name),
-                                              Config::instance()->getMenuIconLimit(_icon_height, HEIGHT_MAX, _name));
+                                              pekwm::config()->getMenuIconLimit(_icon_height, HEIGHT_MIN, _name),
+                                              pekwm::config()->getMenuIconLimit(_icon_height, HEIGHT_MAX, _name));
 
             start_x = item->getX() + md->getPad(PAD_LEFT) + (_icon_width - icon_width) / 2;
             start_y = item->getY() + (_item_height - icon_height) / 2;
@@ -624,7 +624,7 @@ PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
         PFont *font = md->getFont(state);
         start_x = item->getX() + md->getPad(PAD_LEFT);
         // Add icon width to starting x position if frame icons are enabled.
-        if (Config::instance()->isDisplayMenuIcons()) {
+        if (pekwm::config()->isDisplayMenuIcons()) {
             start_x += _icon_width;
         }
 		
@@ -761,7 +761,7 @@ void
 PMenu::applyTitleRules(const std::wstring &title)
 {
     _class_hint.title = title;
-    TitleProperty *data = AutoProperties::instance()->findTitleProperty(&_class_hint);
+    auto data = pekwm::autoProperties()->findTitleProperty(&_class_hint);
 
     if (data) {
         std::wstring new_title(title);

@@ -136,7 +136,6 @@ main(int argc, char **argv)
 #endif // DEBUG
 
     auto wm = WindowManager::start(config_file, replace);
-
     if (wm) {
         try {
 #ifdef DEBUG
@@ -145,11 +144,12 @@ main(int argc, char **argv)
             wm->doEventLoop();
 
             // see if we wanted to restart
-            if (WindowManager::instance()->shallRestart()) {
-                auto command = WindowManager::instance()->getRestartCommand();
+            if (wm->shallRestart()) {
+                auto command = wm->getRestartCommand();
 
                 // cleanup before restarting
-                WindowManager::destroy();
+                delete wm;
+                pekwm::cleanup();
                 Util::iconv_deinit();
 
                 if (command.empty()) {
@@ -164,7 +164,7 @@ main(int argc, char **argv)
         } catch (std::string& ex) {
             std::cerr << "unexpected error occurred: " << ex << std::endl;
         }
-        WindowManager::destroy();
+        delete wm;
     }
 
     // Cleanup

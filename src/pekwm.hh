@@ -15,6 +15,7 @@
 
 #include "config.h"
 
+#include <string>
 #include <vector>
 
 #include "Compat.hh"
@@ -372,8 +373,13 @@ enum CfgDeny {
     CFG_DENY_NO = 0 //! No deny.
 };
 
+class WindowManager;
+
 namespace pekwm
 {
+    void init(WindowManager* wm, Display* dpy, const std::string& config_file);
+    void cleanup();
+
     bool isStartup();
     void setIsStartup(bool is_startup);
 }

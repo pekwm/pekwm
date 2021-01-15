@@ -71,7 +71,7 @@ MenuHandler::createMenusLoadConfiguration(ActionHandler *act)
 {
     // Load configuration, pass specific section to loading
     CfgParser menu_cfg;
-    if (menu_cfg.parse(Config::instance()->getMenuFile())
+    if (menu_cfg.parse(pekwm::config()->getMenuFile())
         || menu_cfg.parse(std::string(SYSCONFDIR "/menu"))) {
         _cfg_files = menu_cfg.getCfgFiles();
         auto root_entry = menu_cfg.getEntryRoot();
@@ -93,7 +93,7 @@ MenuHandler::createMenusLoadConfiguration(ActionHandler *act)
 void
 MenuHandler::reloadMenus(ActionHandler *act)
 {
-    std::string menu_file(Config::instance()->getMenuFile());
+    std::string menu_file(pekwm::config()->getMenuFile());
     if (! _cfg_files.requireReload(menu_file)) {
         return;
     }

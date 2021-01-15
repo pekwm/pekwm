@@ -29,7 +29,7 @@ std::map<KeySym, wchar_t> InputDialog::_keysym_map;
  */
 InputDialog::InputDialog(const std::wstring &title)
     : PDecor("INPUTDIALOG"), PWinObjReference(0),
-      _data(Theme::instance()->getCmdDialogData()),
+      _data(pekwm::theme()->getCmdDialogData()),
       _pixmap_bg(None), _pos(0), _buf_off(0), _buf_chars(0)
 {
     // PWinObj attributes
@@ -151,7 +151,7 @@ InputDialog::handleKeyPress(XKeyEvent *ev)
     bool matched;
     ActionEvent *c_ae, *ae = 0;
 
-    if ( (c_ae = KeyGrabber::instance()->findAction(ev, _type, &matched)) ) {
+    if ((c_ae = pekwm::keyGrabber()->findAction(ev, _type, &matched))) {
         auto it(c_ae->action_list.begin());
         for (; it != c_ae->action_list.end(); ++it) {
             switch (it->getAction()) {
@@ -331,7 +331,7 @@ InputDialog::loadTheme(void)
     Geometry head;
     X11::getHeadInfo(getHead(), head);
 
-    _data = Theme::instance()->getCmdDialogData();
+    _data = pekwm::theme()->getCmdDialogData();
     updateSize(head);
     updatePixmapSize();
 }

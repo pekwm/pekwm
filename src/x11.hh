@@ -82,7 +82,13 @@ public: // member variables
 //! Output head, used to share same code with Xinerama and RandR
 class Head {
 public:
-    Head(int nx, int ny, uint nwidth, uint nheight) : x(nx), y(ny), width(nwidth), height(nheight) { };
+    Head(int nx, int ny, uint nwidth, uint nheight)
+        : x(nx),
+          y(ny),
+          width(nwidth),
+          height(nheight)
+    {
+    };
 
 public:
     int x;

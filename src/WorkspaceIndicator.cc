@@ -55,7 +55,7 @@ WorkspaceIndicator::Display::getSizeRequest(Geometry &gm)
     X11::getHeadInfo(head_nr, head);
 
     uint head_size = std::min(head.width, head.height)
-        / Config::instance()->getWorkspaceIndicatorScale();
+        / pekwm::config()->getWorkspaceIndicatorScale();
     gm.x = gm.y = 0;
     gm.width = head_size * Workspaces::getPerRow() + getPaddingHorizontal();
     gm.height = head_size * Workspaces::getRows() + getPaddingVertical();
@@ -69,7 +69,7 @@ WorkspaceIndicator::Display::getSizeRequest(Geometry &gm)
 void
 WorkspaceIndicator::Display::render(void)
 {
-    auto data = Theme::instance()->getWorkspaceIndicatorData();
+    auto data = pekwm::theme()->getWorkspaceIndicatorData();
 
     // Make sure pixmap has correct size
     X11::freePixmap(_pixmap);
@@ -109,7 +109,7 @@ void
 WorkspaceIndicator::Display::renderWorkspaces(int x, int y,
                                               uint width, uint height)
 {
-    auto data = Theme::instance()->getWorkspaceIndicatorData();
+    auto data = pekwm::theme()->getWorkspaceIndicatorData();
 
     uint per_row = Workspaces::getPerRow();
     uint rows = Workspaces::getRows();
@@ -145,7 +145,7 @@ WorkspaceIndicator::Display::renderWorkspaces(int x, int y,
 uint
 WorkspaceIndicator::Display::getPaddingHorizontal(void)
 {
-    auto data = Theme::instance()->getWorkspaceIndicatorData();
+    auto data = pekwm::theme()->getWorkspaceIndicatorData();
     return (data.edge_padding * 2 + data.workspace_padding
             * (Workspaces::getPerRow() - 1));
 }
@@ -156,7 +156,7 @@ WorkspaceIndicator::Display::getPaddingHorizontal(void)
 uint
 WorkspaceIndicator::Display::getPaddingVertical(void)
 {
-    auto data = Theme::instance()->getWorkspaceIndicatorData();
+    auto data = pekwm::theme()->getWorkspaceIndicatorData();
     return (data.edge_padding * 3 + data.font->getHeight()
             + data.workspace_padding * (Workspaces::getRows() - 1));
 }
@@ -190,7 +190,7 @@ WorkspaceIndicator::WorkspaceIndicator()
     woListAdd(this);
     _wo_map[_window] = this;
 
-    setOpacity(Config::instance()->getWorkspaceIndicatorOpacity());
+    setOpacity(pekwm::config()->getWorkspaceIndicatorOpacity());
 }
 
 /**

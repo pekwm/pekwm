@@ -15,9 +15,6 @@
 #include "x11.hh"
 #include "Util.hh"
 
-FontHandler font_handler_instance;
-FontHandler* FontHandler::_instance = &font_handler_instance;
-
 //! @brief FontHandler constructor
 FontHandler::FontHandler(void)
 {

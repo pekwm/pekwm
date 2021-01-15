@@ -70,8 +70,6 @@ public:
     Config(void);
     ~Config(void);
 
-    static Config* instance(void) { return _instance; }
-
     bool load(const std::string &config_file);
     bool loadMouseConfig(const std::string &mouse_file);
 
@@ -346,8 +344,11 @@ private:
     std::map<ParseUtil::Entry, ActionType> _menu_action_map;
     std::map<ParseUtil::Entry, HarbourPlacement> _harbour_placement_map;
     std::map<ParseUtil::Entry, Orientation> _harbour_orientation_map;
+};
 
-    static Config *_instance; /**< Singleton Config pointer. */
+namespace pekwm
+{
+    Config* config();
 };
 
 #endif // _CONFIG_HH_

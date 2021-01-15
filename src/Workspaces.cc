@@ -131,7 +131,7 @@ Workspaces::setNames(void)
 {
     std::vector<Workspace>::size_type i=0, size=_workspaces.size();
     for (; i<size; ++i) {
-        _workspaces[i].setName(Config::instance()->getWorkspaceName(i));
+        _workspaces[i].setName(pekwm::config()->getWorkspaceName(i));
     }
 }
 
@@ -179,7 +179,7 @@ Workspaces::setWorkspace(uint num, bool focus)
 void
 Workspaces::showWorkspaceIndicator(void)
 {
-    auto timeout = Config::instance()->getShowWorkspaceIndicator();
+    auto timeout = pekwm::config()->getShowWorkspaceIndicator();
     if (timeout > 0) {
         _workspace_indicator->render();
         _workspace_indicator->mapWindowRaised();
@@ -207,7 +207,7 @@ Workspaces::gotoWorkspace(uint direction, bool warp)
     // Using a bool flag to detect changes due to special workspaces such
     // as PREV
     bool switched = true;
-    uint per_row = Config::instance()->getWorkspacesPerRow();
+    uint per_row = pekwm::config()->getWorkspacesPerRow();
 
     uint cur_row = getRow(), row_min = getRowMin(), row_max = getRowMax();
     switch (direction) {
@@ -324,16 +324,16 @@ Workspaces::warpToWorkspace(uint num, int dir)
     if (dir != 0) {
       switch(dir) {
       case 1:
-        x = X11::getWidth() - std::max(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_LEFT) + 2, 2);
+        x = X11::getWidth() - std::max(pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_LEFT) + 2, 2);
         break;
       case 2:
-        x = std::max(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_RIGHT) * 2, 2);
+        x = std::max(pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_RIGHT) * 2, 2);
         break;
       case -1:
-        y = X11::getHeight() - std::max(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_BOTTOM) + 2, 2);
+        y = X11::getHeight() - std::max(pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_BOTTOM) + 2, 2);
         break;
       case -2:
-        y = std::max(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_TOP) + 2, 2);
+        y = std::max(pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_TOP) + 2, 2);
         break;
       }
 
@@ -583,7 +583,7 @@ Workspaces::getWorkspaceName(uint num)
     std::wostringstream buf;
     buf << num + 1;
     buf << L": ";
-    buf << Config::instance()->getWorkspaceName(num);
+    buf << pekwm::config()->getWorkspaceName(num);
     return buf.str();
 }
 
@@ -625,7 +625,7 @@ Workspaces::buildClientList(unsigned int &num_windows)
         frame = static_cast<Frame*>(*it_f);
         client_active = frame->getActiveClient();
 
-        if (Config::instance()->isReportAllClients()) {
+        if (pekwm::config()->isReportAllClients()) {
             for (it_c = frame->begin(); it_c != frame->end(); ++it_c) {
                 client = dynamic_cast<Client*>(*it_c);
                 if (client && ! client->isSkip(SKIP_TASKBAR)

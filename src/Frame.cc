@@ -102,7 +102,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
               && ! client->isCfgDeny(CFG_DENY_POSITION))) {
         moveChild(client->getX(), client->getY());
     } else {
-        place = Config::instance()->isPlaceNew();
+        place = pekwm::config()->isPlaceNew();
     }
 
     // override both position and size with autoproperties
@@ -270,10 +270,10 @@ Frame::handleMotionEvent(XMotionEvent *ev)
 
     if (ev->window == getTitleWindow()) {
         ae = ActionHandler::findMouseAction(button, ev->state, MOUSE_EVENT_MOTION,
-                                            Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_TITLE_FRAME));
+                                            pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_TITLE_FRAME));
     } else if (ev->window == _client->getWindow()) {
         ae = ActionHandler::findMouseAction(button, ev->state, MOUSE_EVENT_MOTION,
-                                            Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_CHILD_FRAME));
+                                            pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_CHILD_FRAME));
     } else {
         uint pos = getBorderPosition(ev->subwindow);
 
@@ -283,7 +283,7 @@ Frame::handleMotionEvent(XMotionEvent *ev)
             pos = getBorderPosition(ev->window);
         }
         if (pos != BORDER_NO_POS) {
-            auto *bl = Config::instance()->getBorderListFromPosition(pos);
+            auto *bl = pekwm::config()->getBorderListFromPosition(pos);
             ae = ActionHandler::findMouseAction(button, ev->state,
                                                 MOUSE_EVENT_MOTION, bl);
         }
@@ -310,7 +310,7 @@ Frame::handleEnterEvent(XCrossingEvent *ev)
 
     ActionEvent *ae = 0;
     std::vector<ActionEvent> *al = 0;
-    auto cfg = Config::instance();
+    auto cfg = pekwm::config();
 
     if (ev->window == getTitleWindow() || findButton(ev->window)) {
         al = cfg->getMouseActionList(MOUSE_ACTION_LIST_TITLE_FRAME);
@@ -345,7 +345,7 @@ Frame::handleLeaveEvent(XCrossingEvent *ev)
     }
 
     ae = ActionHandler::findMouseAction(BUTTON_ANY, ev->state, MOUSE_EVENT_LEAVE,
-                                        Config::instance()->getMouseActionList(ln));
+                                        pekwm::config()->getMouseActionList(ln));
 
     return ae;
 }
@@ -998,7 +998,7 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: r
         return;
     }
 
-    StatusWindow *sw = StatusWindow::instance();
+    StatusWindow *sw = pekwm::statusWindow();
 
     sw->draw(name); // resize window and render bg
     sw->move(o_x, o_y);
@@ -1184,15 +1184,15 @@ Frame::doResize(bool left, bool x, bool top, bool y)
     wchar_t buf[128];
     getDecorInfo(buf, 128);
 
-    bool center_on_root = Config::instance()->isShowStatusWindowOnRoot();
-    StatusWindow *sw = StatusWindow::instance();
-    if (Config::instance()->isShowStatusWindow()) {
+    bool center_on_root = pekwm::config()->isShowStatusWindowOnRoot();
+    StatusWindow *sw = pekwm::statusWindow();
+    if (pekwm::config()->isShowStatusWindow()) {
         sw->draw(buf, true, center_on_root ? 0 : &_gm);
         sw->mapWindowRaised();
         sw->draw(buf, true, center_on_root ? 0 : &_gm);
     }
 
-    bool outline = ! Config::instance()->getOpaqueResize();
+    bool outline = ! pekwm::config()->getOpaqueResize();
 
     // grab server, we don't want invert traces
     if (outline) {
@@ -1226,7 +1226,7 @@ Frame::doResize(bool left, bool x, bool top, bool y)
             recalcResizeDrag(new_x, new_y, left, top);
 
             getDecorInfo(buf, 128);
-            if (Config::instance()->isShowStatusWindow()) {
+            if (pekwm::config()->isShowStatusWindow()) {
                 sw->draw(buf, true, center_on_root ? 0 : &_gm);
             }
 
@@ -1245,7 +1245,7 @@ Frame::doResize(bool left, bool x, bool top, bool y)
         }
     }
 
-    if (Config::instance()->isShowStatusWindow()) {
+    if (pekwm::config()->isShowStatusWindow()) {
         sw->unmapWindow();
     }
 
@@ -1579,7 +1579,7 @@ Frame::setStateFullscreen(StateAction sa)
     moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
 
     // Re-stack window if fullscreen is above other windows.
-    if (Config::instance()->isFullscreenAbove() && _client->getLayer() != LAYER_DESKTOP) {
+    if (pekwm::config()->isFullscreenAbove() && _client->getLayer() != LAYER_DESKTOP) {
         setLayer(_fullscreen ? LAYER_ABOVE_DOCK : _non_fullscreen_layer);
         raise();
     }
@@ -1886,8 +1886,9 @@ Frame::readAutoprops(ApplyOn type)
         return;
 
     _class_hint->title = _client->getTitle()->getReal();
-    AutoProperty *data =
-        AutoProperties::instance()->findAutoProperty(_class_hint, _workspace, type);
+    auto data =
+        pekwm::autoProperties()->findAutoProperty(_class_hint,
+                                                  _workspace, type);
     _class_hint->title = L"";
 
     if (! data) {
@@ -2090,7 +2091,7 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
         return;
     }
 
-    if (Config::instance()->isFullscreenDetect()
+    if (pekwm::config()->isFullscreenDetect()
           && (ev->value_mask&(CWX|CWY|CWWidth|CWHeight)) == (CWX|CWY|CWWidth|CWHeight)
           && isRequestGeometryFullscreen(ev)) {
         if (isFullscreen()) {
@@ -2122,7 +2123,7 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
 
     X11::keepVisible(gm);
 
-    if (Config::instance()->isFullscreenDetect() && isFullscreen()) {
+    if (pekwm::config()->isFullscreenDetect() && isFullscreen()) {
         _old_gm = gm;
         setStateFullscreen(STATE_UNSET);
         return;

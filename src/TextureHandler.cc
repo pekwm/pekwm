@@ -16,9 +16,6 @@
 
 #include <iostream>
 
-TextureHandler texture_handler_instance;
-TextureHandler* TextureHandler::_instance = &texture_handler_instance;
-
 //! @brief TextureHandler constructor
 TextureHandler::TextureHandler(void)
     : _length_min(5)
@@ -34,7 +31,6 @@ TextureHandler::TextureHandler(void)
 //! @brief TextureHandler destructor
 TextureHandler::~TextureHandler(void)
 {
-    _instance = 0;
 }
 
 //! @brief Gets or creates a PTexture

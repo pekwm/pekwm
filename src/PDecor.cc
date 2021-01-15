@@ -124,10 +124,10 @@ PDecor::TitleItem::updateVisible(void) {
 
     // Add client info to title
     if ((_info != 0)
-        && ((_info != INFO_ID) || Config::instance()->isShowClientID())) {
+        && ((_info != INFO_ID) || pekwm::config()->isShowClientID())) {
         _visible.append(L"[");
 
-        if (infoIs(INFO_ID) && Config::instance()->isShowClientID()) {
+        if (infoIs(INFO_ID) && pekwm::config()->isShowClientID()) {
             _visible.append(Util::to_wide_str(Util::to_string<uint>(_id)));
         }
         if (infoIs(INFO_MARKED)) {
@@ -148,9 +148,9 @@ PDecor::TitleItem::updateVisible(void) {
 
     // Add client number to title
     if (_count > 0) {
-      _visible.append(Util::to_wide_str(Config::instance()->getClientUniqueNamePre()));
+      _visible.append(Util::to_wide_str(pekwm::config()->getClientUniqueNamePre()));
       _visible.append(Util::to_wide_str(Util::to_string(_count)));
-      _visible.append(Util::to_wide_str(Config::instance()->getClientUniqueNamePost()));
+      _visible.append(Util::to_wide_str(pekwm::config()->getClientUniqueNamePost()));
     }
 }
 
@@ -193,9 +193,9 @@ PDecor::PDecor(const std::string &decor_name, const Window child_window)
 
     // we be reset in loadDecor later on, inlines using the _data used before
     // loadDecor needs this though
-    _data = Theme::instance()->getPDecorData(_decor_name);
+    _data = pekwm::theme()->getPDecorData(_decor_name);
     if (! _data) {
-        _data = Theme::instance()->getPDecorData(DEFAULT_DECOR_NAME);
+        _data = pekwm::theme()->getPDecorData(DEFAULT_DECOR_NAME);
     }
 
     CreateWindowParams window_params;
@@ -569,19 +569,19 @@ PDecor::handleButtonPress(XButtonEvent *ev)
             // because if we don't care about the modifier we'll get two actions
             // performed when using modifiers.
             _button_press_win = _child->getWindow();
-            actions = Config::instance()->getMouseActionList(_decor_cfg_bpr_al_child);
+            actions = pekwm::config()->getMouseActionList(_decor_cfg_bpr_al_child);
             
         } else if (_title_wo == ev->window) {
             // Clicks on the decor title
             _button_press_win = ev->window;
-            actions = Config::instance()->getMouseActionList(_decor_cfg_bpr_al_title);
+            actions = pekwm::config()->getMouseActionList(_decor_cfg_bpr_al_title);
             
         } else {
             // Clicks on the decor border, default case. Try both window and sub-window.
             uint pos = getBorderPosition(ev->window);
             if (pos != BORDER_NO_POS) {
                 _button_press_win = ev->window;
-                actions = Config::instance()->getBorderListFromPosition(pos);
+                actions = pekwm::config()->getBorderListFromPosition(pos);
             }
         }
     }
@@ -647,14 +647,14 @@ PDecor::handleButtonRelease(XButtonEvent *ev)
             // because if we don't care about the modifier we'll get two actions
             // performed when using modifiers.
             if (_button_press_win == _child->getWindow()) {
-                actions = Config::instance()->getMouseActionList(_decor_cfg_bpr_al_child);
+                actions = pekwm::config()->getMouseActionList(_decor_cfg_bpr_al_child);
             }
 
         } else if (_title_wo == ev->window) {
             if (_button_press_win == ev->window) {
                 // Handle clicks on the decor title, checking double clicks first.
                 if (X11::isDoubleClick(ev->window, ev->button - 1, ev->time,
-                                                       Config::instance()->getDoubleClickTime())) {
+                                                       pekwm::config()->getDoubleClickTime())) {
                     X11::setLastClickID(ev->window);
                     X11::setLastClickTime(ev->button - 1, 0);
                     mb = MOUSE_EVENT_DOUBLE;
@@ -663,13 +663,13 @@ PDecor::handleButtonRelease(XButtonEvent *ev)
                     X11::setLastClickTime(ev->button - 1, ev->time);
                 }
 
-                actions = Config::instance()->getMouseActionList(_decor_cfg_bpr_al_title);
+                actions = pekwm::config()->getMouseActionList(_decor_cfg_bpr_al_title);
             }
         } else {
             // Clicks on the decor border, check subwindow then window.
             uint pos = getBorderPosition(ev->window);
             if (pos != BORDER_NO_POS && (_button_press_win == ev->window)) {
-                actions = Config::instance()->getBorderListFromPosition(pos);
+                actions = pekwm::config()->getBorderListFromPosition(pos);
             }
         }
     }
@@ -713,7 +713,7 @@ PDecor::handleMotionEvent(XMotionEvent *ev)
     uint button = X11::getButtonFromState(ev->state);
     return ActionHandler::findMouseAction(button, ev->state,
                                           MOUSE_EVENT_MOTION,
-                                          Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_OTHER));
+                                          pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_OTHER));
 }
 
 /**
@@ -729,7 +729,7 @@ PDecor::handleEnterEvent(XCrossingEvent *ev)
     }
 
     return ActionHandler::findMouseAction(BUTTON_ANY, ev->state, MOUSE_EVENT_ENTER,
-                                          Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_OTHER));
+                                          pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_OTHER));
 }
 
 /**
@@ -745,7 +745,7 @@ PDecor::handleLeaveEvent(XCrossingEvent *ev)
     }
 
     return ActionHandler::findMouseAction(BUTTON_ANY, ev->state, MOUSE_EVENT_LEAVE,
-                                          Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_OTHER));
+                                          pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_OTHER));
 }
 
 // END - PWinObj interface.
@@ -815,9 +815,9 @@ PDecor::loadDecor(void)
     unloadDecor();
 
     // Get decordata with name.
-    _data = Theme::instance()->getPDecorData(_decor_name);
+    _data = pekwm::theme()->getPDecorData(_decor_name);
     if (! _data) {
-        _data = Theme::instance()->getPDecorData(DEFAULT_DECOR_NAME);
+        _data = pekwm::theme()->getPDecorData(DEFAULT_DECOR_NAME);
     }
     LOG_IF(!_data, "_data == 0");
 
@@ -1155,9 +1155,9 @@ PDecor::doMove(int x_root, int y_root)
         return;
     }
 
-    StatusWindow *sw = StatusWindow::instance(); // convenience
-
-    if (! X11::grabPointer(X11::getRoot(), ButtonMotionMask|ButtonReleaseMask, CURSOR_MOVE)) {
+    auto sw = pekwm::statusWindow();
+    if (! X11::grabPointer(X11::getRoot(), ButtonMotionMask|ButtonReleaseMask,
+                           CURSOR_MOVE)) {
         return;
     }
 
@@ -1165,8 +1165,8 @@ PDecor::doMove(int x_root, int y_root)
     int x = x_root - _gm.x;
     int y = y_root - _gm.y;
 
-    bool outline = ! Config::instance()->getOpaqueMove();
-    bool center_on_root = Config::instance()->isShowStatusWindowOnRoot();
+    bool outline = ! pekwm::config()->getOpaqueMove();
+    bool center_on_root = pekwm::config()->isShowStatusWindowOnRoot();
     EdgeType edge;
 
     // grab server, we don't want invert traces
@@ -1177,7 +1177,7 @@ PDecor::doMove(int x_root, int y_root)
     wchar_t buf[128];
     getDecorInfo(buf, 128);
 
-    if (Config::instance()->isShowStatusWindow()) {
+    if (pekwm::config()->isShowStatusWindow()) {
         sw->draw(buf, true, center_on_root ? 0 : &_gm);
         sw->mapWindowRaised();
         sw->draw(buf, true, center_on_root ? 0 : &_gm);
@@ -1217,7 +1217,7 @@ PDecor::doMove(int x_root, int y_root)
             }
 
             getDecorInfo(buf, 128);
-            if (Config::instance()->isShowStatusWindow()) {
+            if (pekwm::config()->isShowStatusWindow()) {
                 sw->draw(buf, true, center_on_root ? 0 : &_gm);
             }
 
@@ -1230,7 +1230,7 @@ PDecor::doMove(int x_root, int y_root)
 
     move(_gm.x, _gm.y); // update child
 
-    if (Config::instance()->isShowStatusWindow()) {
+    if (pekwm::config()->isShowStatusWindow()) {
         sw->unmapWindow();
     }
 
@@ -1248,15 +1248,15 @@ EdgeType
 PDecor::doMoveEdgeFind(int x, int y)
 {
     EdgeType edge = SCREEN_EDGE_NO;
-    if (x <= signed(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_LEFT))) {
+    if (x <= signed(pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_LEFT))) {
         edge = SCREEN_EDGE_LEFT;
     } else if (x >= signed(X11::getWidth() -
-                           Config::instance()->getScreenEdgeSize(SCREEN_EDGE_RIGHT))) {
+                           pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_RIGHT))) {
         edge = SCREEN_EDGE_RIGHT;
-    } else if (y <= signed(Config::instance()->getScreenEdgeSize(SCREEN_EDGE_TOP))) {
+    } else if (y <= signed(pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_TOP))) {
         edge = SCREEN_EDGE_TOP;
     } else if (y >= signed(X11::getHeight() -
-                           Config::instance()->getScreenEdgeSize(SCREEN_EDGE_BOTTOM))) {
+                           pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_BOTTOM))) {
         edge = SCREEN_EDGE_BOTTOM;
     }
 
@@ -1272,14 +1272,14 @@ PDecor::doMoveEdgeAction(XMotionEvent *ev, EdgeType edge)
     uint button = X11::getButtonFromState(ev->state);
     ae = ActionHandler::findMouseAction(button, ev->state,
                                         MOUSE_EVENT_ENTER_MOVING,
-                                        Config::instance()->getEdgeListFromPosition(edge));
+                                        pekwm::config()->getEdgeListFromPosition(edge));
 
     if (ae) {
         ActionPerformed ap(this, *ae);
         ap.type = ev->type;
         ap.event.motion = ev;
 
-        ActionHandler::instance()->handleAction(ap);
+        pekwm::actionHandler()->handleAction(ap);
     }
 }
 
@@ -1289,8 +1289,7 @@ PDecor::doMoveEdgeAction(XMotionEvent *ev, EdgeType edge)
 void
 PDecor::doKeyboardMoveResize(void)
 {
-    StatusWindow *sw = StatusWindow::instance(); // convenience
-
+    auto sw = pekwm::statusWindow();
     if (! X11::grabPointer(X11::getRoot(), NoEventMask, CURSOR_MOVE)) {
         return;
     }
@@ -1300,15 +1299,15 @@ PDecor::doKeyboardMoveResize(void)
     }
 
     Geometry old_gm = _gm; // backup geometry if we cancel
-    bool outline = (! Config::instance()->getOpaqueMove() ||
-                    ! Config::instance()->getOpaqueResize());
+    bool outline = (! pekwm::config()->getOpaqueMove() ||
+                    ! pekwm::config()->getOpaqueResize());
     ActionEvent *ae;
 
     wchar_t buf[128];
     getDecorInfo(buf, 128);
 
-    bool center_on_root = Config::instance()->isShowStatusWindowOnRoot();
-    if (Config::instance()->isShowStatusWindow()) {
+    bool center_on_root = pekwm::config()->isShowStatusWindowOnRoot();
+    if (pekwm::config()->isShowStatusWindow()) {
         sw->draw(buf, true, center_on_root ? 0 : &_gm);
         sw->mapWindowRaised();
         sw->draw(buf, true, center_on_root ? 0 : &_gm);
@@ -1329,7 +1328,7 @@ PDecor::doKeyboardMoveResize(void)
             drawOutline(_gm); // clear
         }
 
-        if ((ae = KeyGrabber::instance()->findMoveResizeAction(&e.xkey)) != 0) {
+        if ((ae = pekwm::keyGrabber()->findMoveResizeAction(&e.xkey)) != 0) {
             auto it = ae->action_list.begin();
             for (; it != ae->action_list.end(); ++it) {
                 switch (it->getAction()) {
@@ -1388,14 +1387,14 @@ PDecor::doKeyboardMoveResize(void)
                 }
 
                 getDecorInfo(buf, 128);
-                if (Config::instance()->isShowStatusWindow()) {
+                if (pekwm::config()->isShowStatusWindow()) {
                     sw->draw(buf, true, center_on_root ? 0 : &_gm);
                 }
             }
         }
     }
 
-    if (Config::instance()->isShowStatusWindow()) {
+    if (pekwm::config()->isShowStatusWindow()) {
         sw->unmapWindow();
     }
 
@@ -1626,12 +1625,12 @@ PDecor::getNearestHead(void)
 void
 PDecor::checkSnap(void)
 {
-    if ((Config::instance()->getWOAttract() > 0) ||
-            (Config::instance()->getWOResist() > 0)) {
+    if ((pekwm::config()->getWOAttract() > 0) ||
+            (pekwm::config()->getWOResist() > 0)) {
         checkWOSnap();
     }
-    if ((Config::instance()->getEdgeAttract() > 0) ||
-            (Config::instance()->getEdgeResist() > 0)) {
+    if ((pekwm::config()->getEdgeAttract() > 0) ||
+            (pekwm::config()->getEdgeResist() > 0)) {
         checkEdgeSnap();
     }
 }
@@ -1659,8 +1658,8 @@ PDecor::checkWOSnap(void)
     int x = getRX();
     int y = getBY();
 
-    int attract = Config::instance()->getWOAttract();
-    int resist = Config::instance()->getWOResist();
+    int attract = pekwm::config()->getWOAttract();
+    int resist = pekwm::config()->getWOResist();
 
     bool snapped;
 
@@ -1717,8 +1716,8 @@ PDecor::checkWOSnap(void)
 void
 PDecor::checkEdgeSnap(void)
 {
-    int attract = Config::instance()->getEdgeAttract();
-    int resist = Config::instance()->getEdgeResist();
+    int attract = pekwm::config()->getEdgeAttract();
+    int resist = pekwm::config()->getEdgeResist();
 
     Geometry head;
     X11::getHeadInfoWithEdge(X11::getNearestHead(_gm.x, _gm.y), head);
@@ -1754,7 +1753,7 @@ void
 PDecor::drawOutline(const Geometry &gm)
 {
     XDrawRectangle(X11::getDpy(), X11::getRoot(),
-                   Theme::instance()->getInvertGC(),
+                   pekwm::theme()->getInvertGC(),
                    gm.x, gm.y, gm.width,
                    _shaded ? _gm.height : gm.height);
 }

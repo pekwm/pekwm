@@ -14,18 +14,17 @@
 
 #include "pekwm.hh"
 
+class Theme;
 class PDecor;
 
 //! @brief Status display window.
 class StatusWindow : public PDecor {
 public:
-    StatusWindow();
+    StatusWindow(Theme* theme);
     virtual ~StatusWindow(void);
 
-    //! @brief Returns the StatusWindow instance pointer.
-    static StatusWindow *instance(void) { return _instance; }
-
-    void draw(const std::wstring &text, bool do_center = false, Geometry *gm = 0);
+    void draw(const std::wstring &text, bool do_center = false,
+              Geometry *gm = 0);
 
 private:
     // BEGIN - PDecor interface
@@ -36,10 +35,14 @@ private:
     void render(void);
 
 private:
+    Theme* _theme;
     PWinObj *_status_wo;
     Pixmap _bg;
+};
 
-    static StatusWindow *_instance;
+namespace pekwm
+{
+    StatusWindow* statusWindow();
 };
 
 #endif // _STATUS_WINDOW_HH_

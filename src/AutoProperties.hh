@@ -212,8 +212,6 @@ public:
     AutoProperties(void);
     ~AutoProperties(void);
 
-    static inline AutoProperties *instance(void) { return _instance; }
-
     AutoProperty* findAutoProperty(const ClassHint* class_hintbb,
                                    int ws = -1, ApplyOn type = APPLY_ON_ALWAYS);
     TitleProperty* findTitleProperty(const ClassHint* class_hint);
@@ -270,8 +268,11 @@ private:
     std::map<ParseUtil::Entry, PropertyType> _property_map;
     std::map<ParseUtil::Entry, PropertyType> _group_property_map;
     std::map<ParseUtil::Entry, AtomName> _window_type_map;
+};
 
-    static AutoProperties *_instance;
+namespace pekwm
+{
+    AutoProperties* autoProperties();
 };
 
 #endif // _AUTOPROPS_HH_

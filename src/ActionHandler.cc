@@ -36,13 +36,10 @@
 
 #include <memory>
 
-ActionHandler *ActionHandler::_instance = 0;
-
 //! @brief ActionHandler constructor
-ActionHandler::ActionHandler(void)
+ActionHandler::ActionHandler(WindowManager *wm)
+    : _wm(wm)
 {
-    _instance = this;
-
     // Initialize state_to_keycode map
     for (uint i = 0; i < X11::MODIFIER_TO_MASK_NUM; ++i) {
         uint modifier = X11::MODIFIER_TO_MASK[i];
@@ -53,7 +50,6 @@ ActionHandler::ActionHandler(void)
 //! @brief ActionHandler destructor
 ActionHandler::~ActionHandler(void)
 {
-    _instance = 0;
 }
 
 //! @brief Executes an ActionPerformed event.
@@ -143,14 +139,14 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 break;
             case ACTION_RAISE:
                 if (it->getParamI(0)) {
-                    WindowManager::instance()->familyRaiseLower(client, true);
+                    _wm->familyRaiseLower(client, true);
                 } else {
                     frame->raise();
                 }
                 break;
             case ACTION_LOWER:
                 if (it->getParamI(0)) {
-                    WindowManager::instance()->familyRaiseLower(client, false);
+                    _wm->familyRaiseLower(client, false);
                 } else {
                     frame->lower();
                 }
@@ -190,19 +186,19 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 frame->detachClient(client);
                 break;
             case ACTION_ATTACH_MARKED:
-                WindowManager::instance()->attachMarked(frame);
+                _wm->attachMarked(frame);
                 break;
             case ACTION_ATTACH_CLIENT_IN_NEXT_FRAME:
-                WindowManager::instance()->attachInNextPrevFrame(client, false, true);
+                _wm->attachInNextPrevFrame(client, false, true);
                 break;
             case ACTION_ATTACH_CLIENT_IN_PREV_FRAME:
-                WindowManager::instance()->attachInNextPrevFrame(client, false, false);
+                _wm->attachInNextPrevFrame(client, false, false);
                 break;
             case ACTION_ATTACH_FRAME_IN_NEXT_FRAME:
-                WindowManager::instance()->attachInNextPrevFrame(client, true, true);
+                _wm->attachInNextPrevFrame(client, true, true);
                 break;
             case ACTION_ATTACH_FRAME_IN_PREV_FRAME:
-                WindowManager::instance()->attachInNextPrevFrame(client, true, false);
+                _wm->attachInNextPrevFrame(client, true, false);
                 break;
             case ACTION_SET_OPACITY:
                 actionSetOpacity(client, frame, it->getParamI(0), it->getParamI(1));
@@ -246,7 +242,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 break;
             case ACTION_CLOSE:
                 menu->unmapAll();
-                WindowManager::instance()->findWOAndFocus(0);
+                _wm->findWOAndFocus(0);
                 break;
             default:
                 matched = false;
@@ -271,7 +267,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 decor->unmapWindow();
                 if (decor->getType() == PWinObj::WO_CMD_DIALOG
                     || decor->getType() == PWinObj::WO_SEARCH_DIALOG) {
-                    WindowManager::instance()->findWOAndFocus(0);
+                    _wm->findWOAndFocus(0);
                 }
                 break;
             case ACTION_WARP_TO_WORKSPACE:
@@ -331,23 +327,23 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 MenuHandler::hideAllMenus();
                 break;
             case ACTION_RELOAD:
-                WindowManager::instance()->reload();
+                _wm->reload();
                 break;
             case ACTION_RESTART:
-                WindowManager::instance()->restart();
+                _wm->restart();
                 break;
             case ACTION_RESTART_OTHER:
                 if (it->getParamS().size())
-                    WindowManager::instance()->restart(it->getParamS());
+                    _wm->restart(it->getParamS());
                 break;
             case ACTION_EXIT:
-                WindowManager::instance()->shutdown();
+                _wm->shutdown();
                 break;
             case ACTION_SHOW_CMD_DIALOG:
-                actionShowInputDialog(WindowManager::instance()->getCmdDialog(), it->getParamS(), frame, wo);
+                actionShowInputDialog(_wm->getCmdDialog(), it->getParamS(), frame, wo);
                 break;
             case ACTION_SHOW_SEARCH_DIALOG:
-                actionShowInputDialog(WindowManager::instance()->getSearchDialog(), it->getParamS(), frame, wo);
+                actionShowInputDialog(_wm->getSearchDialog(), it->getParamS(), frame, wo);
                 break;
             case ACTION_DEBUG:
 #ifdef DEBUG
@@ -477,7 +473,7 @@ ActionHandler::handleStateAction(const Action &action, PWinObj *wo,
         matched = true;
         switch (action.getParamI(0)) {
         case ACTION_STATE_HARBOUR_HIDDEN:
-            WindowManager::instance()->getHarbour()->setStateHidden(sa);
+            _wm->getHarbour()->setStateHidden(sa);
             break;
         case ACTION_STATE_GLOBAL_GROUPING:
             ClientMgr::setStateGlobalGrouping(sa);
@@ -672,7 +668,7 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off,
         fo_wo->setFocused(false);
     }
 
-    if (Config::instance()->getShowFrameList()) {
+    if (pekwm::config()->getShowFrameList()) {
         menu->buildMenu();
 
         Geometry head;
@@ -791,7 +787,7 @@ bool
 ActionHandler::actionSendKey(PWinObj *wo, const std::string &key_str)
 {
     uint mod, key;
-    if (! Config::instance()->parseKey(key_str, mod, key)) {
+    if (! pekwm::config()->parseKey(key_str, mod, key)) {
         return false;
     }
 

@@ -26,8 +26,6 @@ public:
     HintWO(Window root, bool replace);
     virtual ~HintWO(void);
 
-    inline static HintWO *instance(void) { return _instance; }
-
 private:
     Time getTime(void);
     bool claimDisplay(bool replace);
@@ -35,9 +33,10 @@ private:
     void claimDisplayOwner(Window session_atom, Time timestamp);
 
 private:
-    static const std::string WM_NAME; /**< Name of the window manager, that is pekwm. */
-    static HintWO *_instance; /**< Singleton HintWO pointer. */
-    static const unsigned int DISPLAY_WAIT; /**< Max wait time for previous WM. */
+    /** Name of the window manager, that is pekwm. */
+    static const std::string WM_NAME;
+    /** Max wait time for previous WM. */
+    static const unsigned int DISPLAY_WAIT;
 };
 
 /**
@@ -47,7 +46,7 @@ private:
 class RootWO : public PWinObj
 {
 public:
-    RootWO(Window root);
+    RootWO(Window root, HintWO *hint_wo);
     virtual ~RootWO(void);
 
     /** Resize root window, does no actual resizing but updates the
@@ -70,8 +69,12 @@ public:
     void setEwmhDesktopLayout(void);
 
 private:
-    static const unsigned long EVENT_MASK; /**< Root window event mask. */
-    static const unsigned long EXPECTED_DESKTOP_NAMES_LENGTH; /**< Expected length of desktop hint. */
+    HintWO *_hint_wo;
+
+    /** Root window event mask. */
+    static const unsigned long EVENT_MASK;
+    /** Expected length of desktop hint. */
+    static const unsigned long EXPECTED_DESKTOP_NAMES_LENGTH;
 };
 
 /**

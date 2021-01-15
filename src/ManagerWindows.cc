@@ -22,7 +22,6 @@ extern "C" {
 
 // Static initializers
 const std::string HintWO::WM_NAME = std::string("pekwm");
-HintWO *HintWO::_instance = 0;
 const unsigned int HintWO::DISPLAY_WAIT = 10;
 
 const unsigned long RootWO::EVENT_MASK =
@@ -39,11 +38,6 @@ const unsigned long RootWO::EXPECTED_DESKTOP_NAMES_LENGTH = 256;
 HintWO::HintWO(Window root, bool replace)
     : PWinObj(false)
 {
-    if (_instance) {
-        throw std::string("trying to create HintWO which is already created.");
-    }
-    _instance = this;
-
     _type = WO_SCREEN_HINT;
     setLayer(LAYER_NONE);
     _sticky = true; // Hack, do not map/unmap this window
@@ -73,7 +67,6 @@ HintWO::HintWO(Window root, bool replace)
 HintWO::~HintWO(void)
 {
     XDestroyWindow(X11::getDpy(), _window);
-    _instance = 0;
 }
 
 /**
@@ -89,7 +82,7 @@ HintWO::getTime(void)
 
     // Generate event on ourselves
     XChangeProperty(X11::getDpy(), _window,
-		    X11::getAtom(WM_CLASS), X11::getAtom(STRING),
+                    X11::getAtom(WM_CLASS), X11::getAtom(STRING),
                     8, PropModeAppend, 0, 0);
     XWindowEvent(X11::getDpy(), _window, PropertyChangeMask, &event);
 
@@ -207,8 +200,9 @@ HintWO::claimDisplayOwner(Window session_atom, Time timestamp)
 /**
  * Root window constructor, reads geometry and sets basic atoms.
  */
-RootWO::RootWO(Window root)
-    : PWinObj(false)
+RootWO::RootWO(Window root, HintWO *hint_wo)
+    : PWinObj(false),
+      _hint_wo(hint_wo)
 {
     _type = WO_SCREEN_ROOT;
     setLayer(LAYER_NONE);
@@ -239,9 +233,10 @@ RootWO::RootWO(Window root)
     X11::setLong(_window, NET_WM_PID, static_cast<long>(getpid()));
     X11::setString(_window, WM_CLIENT_MACHINE, Util::getHostname());
 
-    X11::setWindow(_window, NET_SUPPORTING_WM_CHECK, HintWO::instance()->getWindow());
+    X11::setWindow(_window, NET_SUPPORTING_WM_CHECK, _hint_wo->getWindow());
     X11::setEwmhAtomsSupport(_window);
-    X11::setLong(_window, NET_NUMBER_OF_DESKTOPS, Config::instance()->getWorkspaces());
+    X11::setLong(_window, NET_NUMBER_OF_DESKTOPS,
+                 pekwm::config()->getWorkspaces());
     X11::setLong(_window, NET_CURRENT_DESKTOP, 0);
 
     long desktop_geometry[2];
@@ -273,7 +268,7 @@ ActionEvent*
 RootWO::handleButtonPress(XButtonEvent *ev)
 {
     return ActionHandler::findMouseAction(ev->button, ev->state, MOUSE_EVENT_PRESS,
-                                          Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
+                                          pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
 }
 
 /**
@@ -286,7 +281,7 @@ RootWO::handleButtonRelease(XButtonEvent *ev)
 
     // first we check if it's a double click
     if (X11::isDoubleClick(ev->window, ev->button - 1, ev->time,
-                                           Config::instance()->getDoubleClickTime())) {
+                                           pekwm::config()->getDoubleClickTime())) {
         X11::setLastClickID(ev->window);
         X11::setLastClickTime(ev->button - 1, 0);
 
@@ -298,7 +293,7 @@ RootWO::handleButtonRelease(XButtonEvent *ev)
     }
 
     return ActionHandler::findMouseAction(ev->button, ev->state, mb,
-                                          Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
+                                          pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
 }
 
 /**
@@ -310,7 +305,7 @@ RootWO::handleMotionEvent(XMotionEvent *ev)
     unsigned int button = X11::getButtonFromState(ev->state);
 
     return ActionHandler::findMouseAction(button, ev->state, MOUSE_EVENT_MOTION,
-                                          Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
+                                          pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
 }
 
 /**
@@ -320,7 +315,7 @@ ActionEvent*
 RootWO::handleEnterEvent(XCrossingEvent *ev)
 {
     return ActionHandler::findMouseAction(BUTTON_ANY, ev->state, MOUSE_EVENT_ENTER,
-                                          Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
+                                          pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
 }
 
 /**
@@ -330,7 +325,7 @@ ActionEvent*
 RootWO::handleLeaveEvent(XCrossingEvent *ev)
 {
     return ActionHandler::findMouseAction(BUTTON_ANY, ev->state, MOUSE_EVENT_LEAVE,
-                                          Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
+                                          pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
 }
 
 /**
@@ -369,7 +364,7 @@ RootWO::readEwmhDesktopNames(void)
     if (X11::getProperty(X11::getRoot(), NET_DESKTOP_NAMES,
                          X11::getAtom(UTF8_STRING),
                          EXPECTED_DESKTOP_NAMES_LENGTH, &data, &data_length)) {
-        Config::instance()->setDesktopNamesUTF8(reinterpret_cast<char *>(data), data_length);
+        pekwm::config()->setDesktopNamesUTF8(reinterpret_cast<char *>(data), data_length);
 
         XFree(data);
     }
@@ -383,7 +378,7 @@ RootWO::setEwmhDesktopNames(void)
 {
     unsigned char *desktopnames = 0;
     unsigned int length = 0;
-    Config::instance()->getDesktopNamesUTF8(&desktopnames, &length);
+    pekwm::config()->getDesktopNamesUTF8(&desktopnames, &length);
 
     if (desktopnames) {
         X11::setUtf8StringArray(X11::getRoot(), NET_DESKTOP_NAMES,
@@ -505,7 +500,7 @@ ActionEvent*
 EdgeWO::handleEnterEvent(XCrossingEvent *ev)
 {
     return ActionHandler::findMouseAction(BUTTON_ANY, ev->state, MOUSE_EVENT_ENTER,
-                                          Config::instance()->getEdgeListFromPosition(_edge));
+                                          pekwm::config()->getEdgeListFromPosition(_edge));
 }
 
 /**
@@ -515,7 +510,7 @@ ActionEvent*
 EdgeWO::handleButtonPress(XButtonEvent *ev)
 {
     return ActionHandler::findMouseAction(ev->button, ev->state, MOUSE_EVENT_PRESS,
-                                          Config::instance()->getEdgeListFromPosition(_edge));
+                                          pekwm::config()->getEdgeListFromPosition(_edge));
 }
 
 /**
@@ -535,7 +530,7 @@ EdgeWO::handleButtonRelease(XButtonEvent *ev)
 
     // first we check if it's a double click
     if (X11::isDoubleClick(ev->window, ev->button - 1, ev->time,
-                                           Config::instance()->getDoubleClickTime())) {
+                                           pekwm::config()->getDoubleClickTime())) {
         X11::setLastClickID(ev->window);
         X11::setLastClickTime(ev->button - 1, 0);
 
@@ -546,5 +541,5 @@ EdgeWO::handleButtonRelease(XButtonEvent *ev)
     }
 
     return ActionHandler::findMouseAction(ev->button, ev->state, mb,
-                                          Config::instance()->getEdgeListFromPosition(_edge));
+                                          pekwm::config()->getEdgeListFromPosition(_edge));
 }
