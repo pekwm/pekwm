@@ -135,7 +135,8 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 client->kill();
                 break;
             case ACTION_SET_GEOMETRY:
-                frame->setGeometry(it->getParamS(), it->getParamI(0), it->getParamI(1) == 1);
+                frame->setGeometry(it->getParamS(),
+                                   it->getParamI(0), it->getParamI(1) == 1);
                 break;
             case ACTION_RAISE:
                 if (it->getParamI(0)) {
@@ -308,7 +309,9 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 // Events caused by a motion event ( dragging frame to
                 // the edge ) or enter event ( moving the pointer to
                 // the edge ) should warp the pointer.
-                actionGotoWorkspace(it->getParamI(0), (ap.type == MotionNotify) || (ap.type == EnterNotify));
+                actionGotoWorkspace(it->getParamI(0),
+                                    (ap.type == MotionNotify)
+                                    || (ap.type == EnterNotify));
                 break;
             case ACTION_FIND_CLIENT:
                 actionFindClient(Util::to_wide_str(it->getParamS()));
@@ -340,10 +343,12 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 _wm->shutdown();
                 break;
             case ACTION_SHOW_CMD_DIALOG:
-                actionShowInputDialog(_wm->getCmdDialog(), it->getParamS(), frame, wo);
+                actionShowInputDialog(&_cmd_dialog, it->getParamS(),
+                                      frame, wo);
                 break;
             case ACTION_SHOW_SEARCH_DIALOG:
-                actionShowInputDialog(_wm->getSearchDialog(), it->getParamS(), frame, wo);
+                actionShowInputDialog(&_search_dialog, it->getParamS(),
+                                      frame, wo);
                 break;
             case ACTION_DEBUG:
 #ifdef DEBUG
@@ -473,7 +478,7 @@ ActionHandler::handleStateAction(const Action &action, PWinObj *wo,
         matched = true;
         switch (action.getParamI(0)) {
         case ACTION_STATE_HARBOUR_HIDDEN:
-            _wm->getHarbour()->setStateHidden(sa);
+            pekwm::harbour()->setStateHidden(sa);
             break;
         case ACTION_STATE_GLOBAL_GROUPING:
             ClientMgr::setStateGlobalGrouping(sa);

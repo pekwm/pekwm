@@ -26,6 +26,7 @@ extern "C" {
 #include "PTexture.hh"
 #include "PTexturePlain.hh" // PTextureSolid
 #include "ActionHandler.hh"
+#include "ManagerWindows.hh"
 #include "StatusWindow.hh"
 #include "KeyGrabber.hh"
 #include "Theme.hh"
@@ -1720,7 +1721,8 @@ PDecor::checkEdgeSnap(void)
     int resist = pekwm::config()->getEdgeResist();
 
     Geometry head;
-    X11::getHeadInfoWithEdge(X11::getNearestHead(_gm.x, _gm.y), head);
+    pekwm::rootWo()->getHeadInfoWithEdge(X11::getNearestHead(_gm.x, _gm.y),
+                                         head);
 
     if ((_gm.x >= (head.x - resist)) && (_gm.x <= (head.x + attract))) {
         _gm.x = head.x;

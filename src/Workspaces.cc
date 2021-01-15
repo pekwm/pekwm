@@ -16,6 +16,7 @@
 #include "PDecor.hh"
 #include "Frame.hh"
 #include "Client.hh" // For isSkip()
+#include "ManagerWindows.hh"
 #include "WinLayouter.hh"
 #include "WorkspaceIndicator.hh"
 #include "x11.hh"
@@ -694,7 +695,7 @@ Workspaces::placeWoInsideScreen(PWinObj *wo)
         }
     }
 
-    X11::placeInsideScreen(gm_after, strut);
+    pekwm::rootWo()->placeInsideScreen(gm_after, strut);
     if (gm_before != gm_after) {
         wo->move(gm_after.x, gm_after.y);
     }

@@ -13,7 +13,8 @@
 
 #include "pekwm.hh"
 #include "Action.hh"
-#include "InputDialog.hh"
+#include "CmdDialog.hh"
+#include "SearchDialog.hh"
 
 #include <string>
 #include <map>
@@ -23,6 +24,8 @@ class Frame;
 class PWinObj;
 class PDecor;
 class PMenu;
+class CmdDialog;
+class SearchDialog;
 class WindowManager;
 
 class ActionHandler
@@ -68,6 +71,8 @@ private:
 
 private:
     WindowManager *_wm;
+    CmdDialog _cmd_dialog;
+    SearchDialog _search_dialog;
 
     /** Map translating state modifiers to keycode. */
     std::map<uint, uint> _state_to_keycode;

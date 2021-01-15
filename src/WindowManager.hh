@@ -57,9 +57,6 @@ public:
     //! @brief Sets shutdown status, will shutdown from main loop.
     void shutdown(void) { _shutdown = true; }
 
-    // get "base" classes
-    inline Harbour *getHarbour(void) const { return _harbour; }
-
     inline bool shallRestart(void) const { return _restart; }
     inline const std::string &getRestartCommand(void) const {
         return _restart_command;
@@ -74,9 +71,6 @@ public:
     Frame* getPrevFrame(Frame* frame, bool mapped, uint mask = 0);
 
     void findWOAndFocus(PWinObj *wo);
-
-    inline CmdDialog *getCmdDialog(void) { return _cmd_dialog; }
-    inline SearchDialog *getSearchDialog(void) { return _search_dialog; }
 
     // public event handlers used when doing grabbed actions
     void handleKeyEvent(XKeyEvent *ev);
@@ -133,18 +127,12 @@ private:
     Client *createClient(Window window, bool is_new);
 
 private:
-    Harbour *_harbour;
-    CmdDialog *_cmd_dialog;
-    SearchDialog *_search_dialog;
-
     bool _shutdown; //!< Set to wheter we want to shutdown.
     bool _reload; //!< Set to wheter we want to reload.
     bool _restart;
     std::string _restart_command;
 
     EdgeWO *_screen_edges[4];
-    HintWO *_hint_wo; /**< Hint window object, communicates EWMH hints. */
-    RootWO *_root_wo; /**< Root window object, wrapper for root window. */
 };
 
 #endif // _WINDOWMANAGER_HH_

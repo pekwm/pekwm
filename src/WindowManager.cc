@@ -121,8 +121,8 @@ WindowManager::start(const std::string &config_file, bool replace)
         wm->scanWindows();
         Frame::resetFrameIDs();
 
-        wm->_root_wo->setEwmhDesktopNames();
-        wm->_root_wo->setEwmhDesktopLayout();
+        pekwm::rootWo()->setEwmhDesktopNames();
+        pekwm::rootWo()->setEwmhDesktopLayout();
 
         // add all frames to the MRU list
         auto it = Frame::frame_begin();
@@ -144,14 +144,9 @@ WindowManager::start(const std::string &config_file, bool replace)
 
 //! @brief Constructor for WindowManager class
 WindowManager::WindowManager()
-    : _harbour(0),
-      _cmd_dialog(0),
-      _search_dialog(0),
-      _shutdown(false),
+    : _shutdown(false),
       _reload(false),
-      _restart(false),
-      _hint_wo(0),
-      _root_wo(0)
+      _restart(false)
 {
     pekwm::setIsStartup(false),
 
@@ -179,13 +174,7 @@ WindowManager::~WindowManager(void)
 {
     cleanup();
 
-    delete _cmd_dialog;
-    delete _search_dialog;
     MenuHandler::deleteMenus();
-    delete _harbour;
-    delete _root_wo;
-    delete _hint_wo;
-
     Workspaces::cleanup();
 }
 
@@ -216,9 +205,7 @@ WindowManager::cleanup(void)
         (*it_f)->updateInactiveChildInfo();
     }
 
-    if (_harbour) {
-        _harbour->removeAllDockApps();
-    }
+    pekwm::harbour()->removeAllDockApps();
 
     // To preserve stacking order when destroying the frames, we go through
     // the PWinObj list from the Workspaces and put all Frames into our own
@@ -259,16 +246,9 @@ WindowManager::cleanup(void)
 bool
 WindowManager::setupDisplay(Display* dpy, bool replace)
 {
-    try {
-        // Create hint window _before_ root window.
-        _hint_wo = new HintWO(X11::getRoot(), replace);
-    } catch (std::string &ex) {
+    if (! pekwm::hintWo()->claimDisplay(replace)) {
         return false;
     }
-
-    // Create root PWinObj
-    _root_wo = new RootWO(X11::getRoot(), _hint_wo);
-    PWinObj::setRootPWinObj(_root_wo);
 
     pekwm::autoProperties()->load();
 
@@ -276,12 +256,7 @@ WindowManager::setupDisplay(Display* dpy, bool replace)
     Workspaces::setSize(pekwm::config()->getWorkspaces());
     Workspaces::setPerRow(pekwm::config()->getWorkspacesPerRow());
 
-    _harbour = new Harbour;
-
     MenuHandler::createMenus(pekwm::actionHandler());
-
-    _cmd_dialog = new CmdDialog();
-    _search_dialog = new SearchDialog();
 
     XDefineCursor(dpy, X11::getRoot(), X11::getCursor(CURSOR_ARROW));
 
@@ -348,7 +323,7 @@ WindowManager::scanWindows(void)
     if (wo && wo->isMapped()) {
         wo->giveInputFocus();
     } else {
-        _root_wo->giveInputFocus();
+        pekwm::rootWo()->giveInputFocus();
     }
 
     // Try to find transients for all clients, on restarts ordering might
@@ -372,14 +347,20 @@ WindowManager::screenEdgeCreate(void)
 {
     bool indent = pekwm::config()->getScreenEdgeIndent();
 
-    _screen_edges[0] = new EdgeWO(X11::getRoot(), SCREEN_EDGE_LEFT,
-                                  indent && (pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_LEFT) > 0));
-    _screen_edges[1] = new EdgeWO(X11::getRoot(), SCREEN_EDGE_RIGHT,
-                                  indent && (pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_RIGHT) > 0));
-    _screen_edges[2] = new EdgeWO(X11::getRoot(), SCREEN_EDGE_TOP,
-                                  indent && (pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_TOP) > 0));
-    _screen_edges[3] = new EdgeWO(X11::getRoot(), SCREEN_EDGE_BOTTOM,
-                                  indent && (pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_BOTTOM) > 0));
+    auto cfg = pekwm::config();
+    auto root_wo = pekwm::rootWo();
+    _screen_edges[0] =
+        new EdgeWO(root_wo, SCREEN_EDGE_LEFT,
+                   indent && (cfg->getScreenEdgeSize(SCREEN_EDGE_LEFT) > 0));
+    _screen_edges[1] =
+        new EdgeWO(root_wo, SCREEN_EDGE_RIGHT,
+                   indent && (cfg->getScreenEdgeSize(SCREEN_EDGE_RIGHT) > 0));
+    _screen_edges[2] =
+        new EdgeWO(root_wo, SCREEN_EDGE_TOP,
+                   indent && (cfg->getScreenEdgeSize(SCREEN_EDGE_TOP) > 0));
+    _screen_edges[3] =
+        new EdgeWO(root_wo, SCREEN_EDGE_BOTTOM,
+                   indent && (cfg->getScreenEdgeSize(SCREEN_EDGE_BOTTOM) > 0));
 
     // make sure the edge stays ontop
     for (int i=0; i < 4; ++i) {
@@ -392,29 +373,34 @@ WindowManager::screenEdgeCreate(void)
 void
 WindowManager::screenEdgeResize(void)
 {
-    uint l_size = std::max(pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_LEFT), 1);
-    uint r_size = std::max(pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_RIGHT), 1);
-    uint t_size = std::max(pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_TOP), 1);
-    uint b_size = std::max(pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_BOTTOM), 1);
+    auto cfg = pekwm::config();
+    uint l_size = std::max(cfg->getScreenEdgeSize(SCREEN_EDGE_LEFT), 1);
+    uint r_size = std::max(cfg->getScreenEdgeSize(SCREEN_EDGE_RIGHT), 1);
+    uint t_size = std::max(cfg->getScreenEdgeSize(SCREEN_EDGE_TOP), 1);
+    uint b_size = std::max(cfg->getScreenEdgeSize(SCREEN_EDGE_BOTTOM), 1);
 
     // Left edge
-    _screen_edges[0]->moveResize(0, 0, l_size, X11::getHeight());
+    _screen_edges[0]->moveResize(0, 0,
+                                 l_size, X11::getHeight());
 
     // Right edge
-    _screen_edges[1]->moveResize(X11::getWidth() - r_size, 0, r_size, X11::getHeight());
+    _screen_edges[1]->moveResize(X11::getWidth() - r_size, 0,
+                                 r_size, X11::getHeight());
 
     // Top edge
-    _screen_edges[2]->moveResize(l_size, 0, X11::getWidth() - l_size - r_size, t_size);
+    _screen_edges[2]->moveResize(l_size, 0,
+                                 X11::getWidth() - l_size - r_size, t_size);
 
     // Bottom edge
-    _screen_edges[3]->moveResize(l_size, X11::getHeight() - b_size, X11::getWidth() - l_size - r_size, b_size);
+    _screen_edges[3]->moveResize(l_size, X11::getHeight() - b_size,
+                                 X11::getWidth() - l_size - r_size, b_size);
 
-    for (int i=0; i<4; ++i) {
-        _screen_edges[i]->configureStrut(pekwm::config()->getScreenEdgeIndent()
-                        && pekwm::config()->getScreenEdgeSize(_screen_edges[i]->getEdge()) > 0);
+    for (int i = 0; i < 4; ++i) {
+        _screen_edges[i]->configureStrut(cfg->getScreenEdgeIndent()
+                                         && cfg->getScreenEdgeSize(_screen_edges[i]->getEdge()) > 0);
     }
 
-    X11::updateStrut();
+    pekwm::rootWo()->updateStrut();
 }
 
 void
@@ -445,8 +431,8 @@ WindowManager::doReload(void)
     MenuHandler::reloadMenus(pekwm::actionHandler());
     doReloadHarbour();
 
-    _root_wo->setEwmhDesktopNames();
-    _root_wo->setEwmhDesktopLayout();
+    pekwm::rootWo()->setEwmhDesktopNames();
+    pekwm::rootWo()->setEwmhDesktopLayout();
 
     _reload = false;
 }
@@ -484,7 +470,7 @@ WindowManager::doReloadConfig(void)
     screenEdgeResize();
     screenEdgeMapUnmap();
 
-    X11::updateStrut();
+    pekwm::rootWo()->updateStrut();
 }
 
 /**
@@ -569,10 +555,10 @@ WindowManager::doReloadAutoproperties(void)
 void
 WindowManager::doReloadHarbour(void)
 {
-    _harbour->loadTheme();
-    _harbour->rearrange();
-    _harbour->restack();
-    _harbour->updateHarbourSize();
+    pekwm::harbour()->loadTheme();
+    pekwm::harbour()->rearrange();
+    pekwm::harbour()->restack();
+    pekwm::harbour()->updateHarbourSize();
 }
 
 //! @brief Exit pekwm and restart with the command command
@@ -698,13 +684,16 @@ WindowManager::doEventLoop(void)
                         XRRScreenChangeNotifyEvent *scr_ev =
                                 reinterpret_cast<XRRScreenChangeNotifyEvent*>(&ev);
 
-                        if (scr_ev->rotation == RR_Rotate_90 || scr_ev->rotation == RR_Rotate_270) {
-                            X11::updateGeometry(scr_ev->height, scr_ev->width);
+                        if  (scr_ev->rotation == RR_Rotate_90
+                            || scr_ev->rotation == RR_Rotate_270) {
+                            pekwm::rootWo()->updateGeometry(scr_ev->height,
+                                                            scr_ev->width);
                         } else {
-                            X11::updateGeometry(scr_ev->width, scr_ev->height);
+                            pekwm::rootWo()->updateGeometry(scr_ev->width,
+                                                            scr_ev->height);
                         }
 
-                        _harbour->updateGeometry();
+                        pekwm::harbour()->updateGeometry();
                         screenEdgeResize();
 
                         // Make sure windows are visible after resize
@@ -790,7 +779,7 @@ WindowManager::handleKeyEventAction(XKeyEvent *ev, ActionEvent *ae, PWinObj *wo,
             || wo_orig->getType() == PWinObj::WO_SEARCH_DIALOG)) {
         ::Action close_action;
         ActionEvent close_ae;
-            
+
         close_ae.action_list.push_back(close_action);
         close_ae.action_list.back().setAction(ACTION_CLOSE);
 
@@ -848,9 +837,9 @@ WindowManager::handleButtonPressEvent(XButtonEvent *ev)
 
         pekwm::actionHandler()->handleAction(ap);
     } else {
-        DockApp *da = _harbour->findDockAppFromFrame(ev->window);
+        auto da = pekwm::harbour()->findDockAppFromFrame(ev->window);
         if (da) {
-            _harbour->handleButtonEvent(ev, da);
+            pekwm::harbour()->handleButtonEvent(ev, da);
         }
     }
 }
@@ -867,7 +856,7 @@ WindowManager::handleButtonReleaseEvent(XButtonEvent *ev)
 
     ActionEvent *ae = 0;
     PWinObj *wo = PWinObj::findPWinObj(ev->window);
-    if (wo == _root_wo && ev->subwindow != None) {
+    if (wo == pekwm::rootWo() && ev->subwindow != None) {
         wo = PWinObj::findPWinObj(ev->subwindow);
     }
 
@@ -896,9 +885,9 @@ WindowManager::handleButtonReleaseEvent(XButtonEvent *ev)
             pekwm::actionHandler()->handleAction(ap);
         }
     } else {
-        DockApp *da = _harbour->findDockAppFromFrame(ev->window);
+        auto da = pekwm::harbour()->findDockAppFromFrame(ev->window);
         if (da) {
-            _harbour->handleButtonEvent(ev, da);
+            pekwm::harbour()->handleButtonEvent(ev, da);
         }
     }
 }
@@ -912,9 +901,9 @@ WindowManager::handleConfigureRequestEvent(XConfigureRequestEvent *ev)
         ((Frame*) client->getParent())->handleConfigureRequest(ev, client);
 
     } else {
-        DockApp *da = _harbour->findDockApp(ev->window);
+        auto da = pekwm::harbour()->findDockApp(ev->window);
         if (da) {
-            _harbour->handleConfigureRequestEvent(ev, da);
+            pekwm::harbour()->handleConfigureRequestEvent(ev, da);
         } else {
             // Since this window isn't yet a client lets delegate
             // the configure request back to the window so it can use it.
@@ -942,7 +931,7 @@ WindowManager::handleMotionEvent(XMotionEvent *ev)
 {
     ActionEvent *ae = 0;
     PWinObj *wo = PWinObj::findPWinObj(ev->window);
-    if (wo == _root_wo && ev->subwindow != None) {
+    if (wo == pekwm::rootWo() && ev->subwindow != None) {
         wo = PWinObj::findPWinObj(ev->subwindow);
     }
 
@@ -973,9 +962,9 @@ WindowManager::handleMotionEvent(XMotionEvent *ev)
             pekwm::actionHandler()->handleAction(ap);
         }
     } else {
-        DockApp *da = _harbour->findDockAppFromFrame(ev->window);
+        auto da = pekwm::harbour()->findDockAppFromFrame(ev->window);
         if (da) {
-            _harbour->handleMotionNotifyEvent(ev, da);
+            pekwm::harbour()->handleMotionNotifyEvent(ev, da);
         }
     }
 }
@@ -1012,15 +1001,15 @@ WindowManager::handleUnmapEvent(XUnmapEvent *ev)
             PWinObj::setFocusedPWinObj(0);
         }
     } else {
-        DockApp *da = _harbour->findDockApp(ev->window);
+        auto da = pekwm::harbour()->findDockApp(ev->window);
         if (da) {
             if (ev->window == ev->event) {
-                _harbour->removeDockApp(da);
+                pekwm::harbour()->removeDockApp(da);
             }
         }
     }
 
-    if (wo_type != PWinObj::WO_MENU 
+    if (wo_type != PWinObj::WO_MENU
         && wo_type != PWinObj::WO_CMD_DIALOG
         && wo_type != PWinObj::WO_SEARCH_DIALOG
         && ! PWinObj::getFocusedPWinObj()) {
@@ -1041,10 +1030,10 @@ WindowManager::handleDestroyWindowEvent(XDestroyWindowEvent *ev)
             findWOAndFocus(wo_search);
         }
     } else {
-        DockApp *da = _harbour->findDockApp(ev->window);
+        auto da = pekwm::harbour()->findDockApp(ev->window);
         if (da) {
             da->setAlive(false);
-            _harbour->removeDockApp(da);
+            pekwm::harbour()->removeDockApp(da);
         }
     }
 }
@@ -1165,7 +1154,7 @@ WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
 
             if (wo->getType() == PWinObj::WO_CLIENT) {
                 wo->getParent()->setFocused(true);
-                _root_wo->setEwmhActiveWindow(wo->getWindow());
+                pekwm::rootWo()->setEwmhActiveWindow(wo->getWindow());
 
                 // update the MRU list (except for skip focus windows, see #297)
                 if (! static_cast<Client*>(wo)->isSkip(SKIP_FOCUS_TOGGLE)) {
@@ -1174,7 +1163,7 @@ WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
                 }
             } else {
                 wo->setFocused(true);
-                _root_wo->setEwmhActiveWindow(None);
+                pekwm::rootWo()->setEwmhActiveWindow(None);
             }
         }
     }
@@ -1231,7 +1220,7 @@ WindowManager::handlePropertyEvent(XPropertyEvent *ev)
 {
     if (ev->window == X11::getRoot()) {
         if (ev->atom == X11::getAtom(NET_DESKTOP_NAMES)) {
-            _root_wo->readEwmhDesktopNames();
+            pekwm::rootWo()->readEwmhDesktopNames();
             Workspaces::setNames();
         }
 
@@ -1302,8 +1291,8 @@ WindowManager::findWOAndFocus(PWinObj *search)
     if (focus) {
         focus->giveInputFocus();
     }  else if (! PWinObj::getFocusedPWinObj()) {
-        _root_wo->giveInputFocus();
-        _root_wo->setEwmhActiveWindow(None);
+        pekwm::rootWo()->giveInputFocus();
+        pekwm::rootWo()->setEwmhActiveWindow(None);
     }
 }
 
@@ -1360,8 +1349,9 @@ WindowManager::createClient(Window window, bool is_new)
         // We need to figure out whether or not this is a dockapp.
         XWMHints *wm_hints = XGetWMHints(X11::getDpy(), window);
         if (wm_hints) {
-            if ((wm_hints->flags&StateHint) && (wm_hints->initial_state == WithdrawnState)) {
-                _harbour->addDockApp(new DockApp(window));
+            if ((wm_hints->flags&StateHint)
+                && (wm_hints->initial_state == WithdrawnState)) {
+                pekwm::harbour()->addDockApp(new DockApp(window));
             } else {
                 client = new Client(window, initConfig, is_new);
             }

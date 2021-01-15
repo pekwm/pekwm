@@ -39,6 +39,7 @@ extern "C" {
 #include "Workspaces.hh"
 #include "PImageIcon.hh"
 #include "TextureHandler.hh"
+#include "ManagerWindows.hh"
 
 const long Client::_clientEventMask = \
     PropertyChangeMask|StructureNotifyMask|FocusChangeMask|KeyPressMask;
@@ -1873,9 +1874,8 @@ Client::getStrutHint(void)
         _strut = new Strut();
         *_strut = strut;
         XFree(strut);
-        
         if (! isCfgDeny(CFG_DENY_STRUT)) {
-            X11::addStrut(_strut);
+            pekwm::rootWo()->addStrut(_strut);
         }
     }
 }
@@ -1889,7 +1889,7 @@ Client::removeStrutHint(void)
 {
     if ( _strut) {
         if (! isCfgDeny(CFG_DENY_STRUT)) {
-            X11::removeStrut(_strut);
+            pekwm::rootWo()->removeStrut(_strut);
         }
         delete _strut;
         _strut = 0;

@@ -35,7 +35,7 @@ const unsigned long RootWO::EXPECTED_DESKTOP_NAMES_LENGTH = 256;
  * Hint window constructor, creates window and sets supported
  * protocols.
  */
-HintWO::HintWO(Window root, bool replace)
+HintWO::HintWO(Window root)
     : PWinObj(false)
 {
     _type = WO_SCREEN_HINT;
@@ -44,21 +44,19 @@ HintWO::HintWO(Window root, bool replace)
     _iconified = true; // Hack, to be ignored when placing
 
     // Create window
-    _window = XCreateSimpleWindow(X11::getDpy(), root, -200, -200, 5, 5, 0, 0, 0);
+    _window = XCreateSimpleWindow(X11::getDpy(), root,
+                                  -200, -200, 5, 5, 0, 0, 0);
 
     // Remove override redirect from window
     XSetWindowAttributes attr;
     attr.override_redirect = True;
     attr.event_mask = PropertyChangeMask;
-    XChangeWindowAttributes(X11::getDpy(), _window, CWEventMask|CWOverrideRedirect, &attr);
+    XChangeWindowAttributes(X11::getDpy(), _window,
+                            CWEventMask|CWOverrideRedirect, &attr);
 
     // Set hints not being updated
     X11::setUtf8String(_window, NET_WM_NAME, WM_NAME);
     X11::setWindow(_window, NET_SUPPORTING_WM_CHECK, _window);
-
-    if (! claimDisplay(replace)) {
-        throw std::string("unable to claim display");
-    }
 }
 
 /**
@@ -212,7 +210,6 @@ RootWO::RootWO(Window root, HintWO *hint_wo)
     _gm.width = X11::getWidth();
     _gm.height = X11::getHeight();
 
-
     XSync(X11::getDpy(), false);
     setXErrorsIgnore(true);
     uint errors_before = xerrors_count;
@@ -246,6 +243,8 @@ RootWO::RootWO(Window root, HintWO *hint_wo)
 
     woListAdd(this);
     _wo_map[_window] = this;
+
+    initStrutHead();
 }
 
 /**
@@ -281,7 +280,7 @@ RootWO::handleButtonRelease(XButtonEvent *ev)
 
     // first we check if it's a double click
     if (X11::isDoubleClick(ev->window, ev->button - 1, ev->time,
-                                           pekwm::config()->getDoubleClickTime())) {
+                           pekwm::config()->getDoubleClickTime())) {
         X11::setLastClickID(ev->window);
         X11::setLastClickTime(ev->button - 1, 0);
 
@@ -326,6 +325,149 @@ RootWO::handleLeaveEvent(XCrossingEvent *ev)
 {
     return ActionHandler::findMouseAction(BUTTON_ANY, ev->state, MOUSE_EVENT_LEAVE,
                                           pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
+}
+
+
+/**
+ * Makes sure the Geometry is inside the screen.
+ */
+void
+RootWO::placeInsideScreen(Geometry& gm, bool without_edge)
+{
+    uint head_nr = X11::getNearestHead(gm.x, gm.y);
+    Geometry head;
+    if (without_edge) {
+        X11::getHeadInfo(head_nr, head);
+    } else {
+        getHeadInfoWithEdge(head_nr, head);
+    }
+
+    if (gm.x + gm.width > head.x + head.width) {
+        gm.x = head.x + head.width - gm.width;
+    }
+    if (gm.x < head.x) {
+        gm.x = head.x;
+    }
+
+    if (gm.y + gm.height > head.y + head.height) {
+        gm.y = head.y + head.height - gm.height;
+    }
+    if (gm.y < head.y) {
+        gm.y = head.y;
+    }
+}
+
+/**
+ * Fill information about head and the strut.
+ */
+void
+RootWO::getHeadInfoWithEdge(uint num, Geometry &head)
+{
+    if (! X11::getHeadInfo(num, head)) {
+        return;
+    }
+
+    int strut_val;
+    auto strut = _strut_head[num];
+
+    // Remove the strut area from the head info
+    strut_val = (head.x == 0) ? std::max(_strut.left, strut.left) : strut.left;
+    head.x += strut_val;
+    head.width -= strut_val;
+
+    strut_val = ((head.x + head.width) == _gm.width)
+        ? std::max(_strut.right, strut.right) : strut.right;
+    head.width -= strut_val;
+
+    strut_val = (head.y == 0) ? std::max(_strut.top, strut.top) : strut.top;
+    head.y += strut_val;
+    head.height -= strut_val;
+
+    strut_val = (head.y + head.height == _gm.height)
+        ? std::max(_strut.bottom, strut.bottom) : strut.bottom;
+    head.height -= strut_val;
+}
+
+
+void
+RootWO::updateGeometry(uint width, uint height)
+{
+    if (! X11::updateGeometry(width, height)) {
+        return;
+    }
+
+    initStrutHead();
+
+    resize(width, height);
+    updateStrut();
+}
+
+//! @brief Adds a strut to the strut list, updating max strut sizes
+void
+RootWO::addStrut(Strut *strut)
+{
+    _struts.push_back(strut);
+    updateStrut();
+}
+
+//! @brief Removes a strut from the strut list
+void
+RootWO::removeStrut(Strut *strut)
+{
+    auto it(find(_struts.begin(), _struts.end(), strut));
+    if (it != _struts.end()) {
+        _struts.erase(it);
+    }
+    updateStrut();
+}
+
+//! @brief Updates strut max size.
+void
+RootWO::updateStrut(void)
+{
+    // Reset strut data.
+    _strut.left = 0;
+    _strut.right = 0;
+    _strut.top = 0;
+    _strut.bottom = 0;
+
+    for (auto it : _strut_head) {
+        it.left = 0;
+        it.right = 0;
+        it.top = 0;
+        it.bottom = 0;
+    }
+
+    Strut *strut;
+    for(auto it : _struts) {
+        if (it->head < 0) {
+            strut = &_strut;
+        } else if (static_cast<uint>(it->head) < _strut_head.size()) {
+            strut = &(_strut_head[it->head]);
+        } else {
+            continue;
+        }
+
+        if (strut->left < it->left) {
+            strut->left = it->left;
+        }
+        if (strut->right < it->right) {
+            strut->right = it->right;
+        }
+        if (strut->top < it->top) {
+            strut->top = it->top;
+        }
+        if (strut->bottom < it->bottom) {
+          strut->bottom = it->bottom;
+        }
+    }
+
+    // Update hints on the root window
+    Geometry workarea(_strut.left, _strut.top,
+                      _gm.width - _strut.left - _strut.right,
+                      _gm.height - _strut.top - _strut.bottom);
+
+    setEwmhWorkarea(workarea);
 }
 
 /**
@@ -407,8 +549,9 @@ RootWO::setEwmhDesktopLayout(void)
  * Edge window constructor, create window, setup strut and register
  * window.
  */
-EdgeWO::EdgeWO(Window root, EdgeType edge, bool set_strut)
+EdgeWO::EdgeWO(RootWO* root_wo, EdgeType edge, bool set_strut)
     : PWinObj(false),
+      _root_wo(root_wo),
       _edge(edge)
 {
     _type = WO_SCREEN_EDGE;
@@ -419,13 +562,16 @@ EdgeWO::EdgeWO(Window root, EdgeType edge, bool set_strut)
 
     XSetWindowAttributes sattr;
     sattr.override_redirect = True;
-    sattr.event_mask = EnterWindowMask|LeaveWindowMask|ButtonPressMask|ButtonReleaseMask;
+    sattr.event_mask =
+        EnterWindowMask|LeaveWindowMask|ButtonPressMask|ButtonReleaseMask;
 
-    _window = XCreateWindow(X11::getDpy(), root, 0, 0, 1, 1, 0, CopyFromParent, InputOnly, CopyFromParent,
+    _window = XCreateWindow(X11::getDpy(), root_wo->getWindow(),
+                            0, 0, 1, 1, 0,
+                            CopyFromParent, InputOnly, CopyFromParent,
                             CWOverrideRedirect|CWEventMask, &sattr);
 
     configureStrut(set_strut);
-    X11::addStrut(&_strut);
+    _root_wo->addStrut(&_strut);
 
     woListAdd(this);
     _wo_map[_window] = this;
@@ -436,7 +582,7 @@ EdgeWO::EdgeWO(Window root, EdgeType edge, bool set_strut)
  */
 EdgeWO::~EdgeWO(void)
 {
-    X11::removeStrut(&_strut);
+    _root_wo->removeStrut(&_strut);
     _wo_map.erase(_window);
     woListRemove(this);
 
@@ -521,16 +667,18 @@ EdgeWO::handleButtonRelease(XButtonEvent *ev)
 {
     // Make sure the release is on the actual window. This probably
     // could be done smarter.
-    if (ev->x_root < _gm.x || ev->x_root > static_cast<int>(_gm.x + _gm.width)
-        || ev->y_root < _gm.y || ev->y_root > static_cast<int>(_gm.y + _gm.height)) {
+    if (ev->x_root < _gm.x
+        || ev->x_root > static_cast<int>(_gm.x + _gm.width)
+        || ev->y_root < _gm.y
+        || ev->y_root > static_cast<int>(_gm.y + _gm.height)) {
         return 0;
     }
 
-    MouseEventType mb = MOUSE_EVENT_RELEASE;
+    auto mb = MOUSE_EVENT_RELEASE;
 
     // first we check if it's a double click
     if (X11::isDoubleClick(ev->window, ev->button - 1, ev->time,
-                                           pekwm::config()->getDoubleClickTime())) {
+                           pekwm::config()->getDoubleClickTime())) {
         X11::setLastClickID(ev->window);
         X11::setLastClickTime(ev->button - 1, 0);
 
@@ -542,4 +690,13 @@ EdgeWO::handleButtonRelease(XButtonEvent *ev)
 
     return ActionHandler::findMouseAction(ev->button, ev->state, mb,
                                           pekwm::config()->getEdgeListFromPosition(_edge));
+}
+
+void
+RootWO::initStrutHead()
+{
+    _strut_head.clear();
+    for (int i = 0; i < X11::getNumHeads(); i++) {
+        _strut_head.push_back(Strut());
+    }
 }

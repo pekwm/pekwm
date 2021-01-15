@@ -95,14 +95,13 @@ public:
     int y;
     uint width;
     uint height;
-
-    Strut strut;
 };
 
 //! @brief Display information class.
 class X11
 {
-    //! Bits 1-15 are modifier masks, but bits 13 and 14 aren't named in X11/X.h.
+    /** Bits 1-15 are modifier masks, but bits 13 and 14 aren't
+        named in X11/X.h. */
     static const unsigned KbdLayoutMask1 = 1<<13;
     static const unsigned KbdLayoutMask2 = 1<<14;
 
@@ -152,7 +151,7 @@ public:
     inline static bool hasExtensionShape(void) { return _has_extension_shape; }
     inline static int getEventShape(void) { return _event_shape; }
 
-    static void updateGeometry(uint width, uint height);
+    static bool updateGeometry(uint width, uint height);
 
     inline static bool hasExtensionXRandr(void) { return _has_extension_xrandr; }
     inline static int getEventXRandr(void) { return _event_xrandr; }
@@ -171,7 +170,6 @@ public:
     static uint getCurrHead(void);
     static bool getHeadInfo(uint head, Geometry &head_info);
     static Geometry getHeadGeometry(uint head);
-    static void getHeadInfoWithEdge(uint head, Geometry &head_info);
     inline static int getNumHeads(void) { return _heads.size(); }
 
     inline static Time getLastEventTime(void) { return _last_event_time; }
@@ -286,11 +284,6 @@ public:
     static void getMousePosition(int &x, int &y);
     static uint getButtonFromState(uint state);
 
-    static void addStrut(Strut *strut);
-    static void removeStrut(Strut *rem_strut);
-    static void updateStrut(void);
-    inline static Strut *getStrut(void) { return &_strut; }
-
     static uint getMaskFromKeycode(KeyCode keycode);
     static KeyCode getKeycodeFromMask(uint mask);
     static KeySym getKeysymFromKeycode(KeyCode keycode);
@@ -322,32 +315,6 @@ public:
         }
         if (gm.y + static_cast<int>(gm.height) < 3) {
             gm.y = 3 - gm.height;
-        }
-    }
-
-    //! @brief Makes sure the Geometry is inside the screen.
-    static
-    void placeInsideScreen(Geometry &gm, bool withoutedge=false) {
-        uint head_nr = getNearestHead(gm.x, gm.y);
-        Geometry head;
-        if (withoutedge) {
-            getHeadInfo(head_nr, head);
-        } else {
-            getHeadInfoWithEdge(head_nr, head);
-        }
-
-        if (gm.x + gm.width > head.x + head.width) {
-            gm.x = head.x + head.width - gm.width;
-        }
-        if (gm.x < head.x) {
-            gm.x = head.x;
-        }
-
-        if (gm.y + gm.height > head.y + head.height) {
-            gm.y = head.y + head.height - gm.height;
-        }
-        if (gm.y < head.y) {
-            gm.y = head.y;
         }
     }
 
@@ -510,9 +477,6 @@ private:
     // information for dobule clicks
     static Window _last_click_id;
     static Time _last_click_time[BUTTON_NO - 1];
-
-    static Strut _strut;
-    static std::vector<Strut*> _struts;
 
     static std::array<Cursor, MAX_NR_CURSOR> _cursor_map;
 

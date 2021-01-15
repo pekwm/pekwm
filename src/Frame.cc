@@ -29,6 +29,7 @@ extern "C" {
 #include "AutoProperties.hh"
 #include "Client.hh"
 #include "ClientMgr.hh"
+#include "ManagerWindows.hh"
 #include "StatusWindow.hh"
 #include "Workspaces.hh"
 #include "KeyGrabber.hh"
@@ -942,10 +943,11 @@ bool
 Frame::fixGeometry(void)
 {
     Geometry head, before;
-    if (_fullscreen)
+    if (_fullscreen) {
         X11::getHeadInfo(getNearestHead(), head);
-    else
-        X11::getHeadInfoWithEdge(getNearestHead(), head);
+    } else {
+        pekwm::rootWo()->getHeadInfoWithEdge(getNearestHead(), head);
+    }
 
     before = _gm;
 
@@ -1329,8 +1331,8 @@ Frame::moveToHead(int head_nr)
     }
 
     Geometry old_gm, new_gm;
-    X11::getHeadInfoWithEdge(curr_head_nr, old_gm);
-    X11::getHeadInfoWithEdge(head_nr, new_gm);
+    pekwm::rootWo()->getHeadInfoWithEdge(curr_head_nr, old_gm);
+    pekwm::rootWo()->getHeadInfoWithEdge(head_nr, new_gm);
 
     // Ensure the window fits in the new head.
     _gm.x = new_gm.x + (_gm.x - old_gm.x);
@@ -1357,7 +1359,7 @@ Frame::moveToEdge(OrientationType ori)
 
     head_nr = getNearestHead();
     X11::getHeadInfo(head_nr, real_head);
-    X11::getHeadInfoWithEdge(head_nr, head);
+    pekwm::rootWo()->getHeadInfoWithEdge(head_nr, head);
 
     switch (ori) {
     case TOP_LEFT:
@@ -1451,7 +1453,7 @@ Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
     XSizeHints *size_hint = _client->getXSizeHints(); // convenience
 
     Geometry head;
-    X11::getHeadInfoWithEdge(getNearestHead(), head);
+    pekwm::rootWo()->getHeadInfoWithEdge(getNearestHead(), head);
 
     int max_x, max_r, max_y, max_b;
     max_x = head.x;
@@ -1817,7 +1819,7 @@ Frame::setGeometry(const std::string geometry, int head, bool honour_strut)
         }
 
         if (honour_strut) {
-            X11::getHeadInfoWithEdge(head, screen_gm);
+            pekwm::rootWo()->getHeadInfoWithEdge(head, screen_gm);
         } else {
             screen_gm = X11::getHeadGeometry(head);
         }
@@ -1842,7 +1844,7 @@ void
 Frame::growDirection(uint direction)
 {
     Geometry head;
-    X11::getHeadInfoWithEdge(getNearestHead(), head);
+    pekwm::rootWo()->getHeadInfoWithEdge(getNearestHead(), head);
 
     switch (direction) {
     case DIRECTION_UP:
