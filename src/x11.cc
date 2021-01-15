@@ -40,10 +40,7 @@ unsigned int xerrors_count = 0;
 }
 
 #include "x11.hh"
-// FIXME: Remove when strut handling is moved away from here.
 #include "Debug.hh"
-#include "PWinObj.hh"
-#include "ManagerWindows.hh"
 
 const uint X11::MODIFIER_TO_MASK[] = {
     ShiftMask, LockMask, ControlMask,
@@ -473,12 +470,12 @@ X11::ungrabPointer(void)
 }
 
 //! @brief Refetches the root-window size.
-void
+bool
 X11::updateGeometry(uint width, uint height)
 {
 #ifdef HAVE_XRANDR
   if (! _honour_randr || ! _has_extension_xrandr) {
-    return;
+    return false;
   }
 
   // The screen has changed geometry in some way. To handle this the
@@ -488,9 +485,9 @@ X11::updateGeometry(uint width, uint height)
 
   _screen_gm.width = width;
   _screen_gm.height = height;
-  PWinObj::getRootPWinObj()->resize(width, height);
-
-  updateStrut();
+  return true;
+#else // ! HAVE_XRANDR
+  return false;
 #endif // HAVE_XRANDR
 }
 
@@ -612,33 +609,6 @@ X11::getHeadGeometry(uint head)
     return gm;
 }
 
-//! @brief Fill information about head and the strut.
-void
-X11::getHeadInfoWithEdge(uint num, Geometry &head)
-{
-    if (! getHeadInfo(num, head)) {
-        return;
-    }
-
-    int strut_val;
-    Strut strut(_heads[num].strut); // Convenience
-
-    // Remove the strut area from the head info
-    strut_val = (head.x == 0) ? std::max(_strut.left, strut.left) : strut.left;
-    head.x += strut_val;
-    head.width -= strut_val;  
-
-    strut_val = ((head.x + head.width) == _screen_gm.width) ? std::max(_strut.right, strut.right) : strut.right;
-    head.width -= strut_val;
-
-    strut_val = (head.y == 0) ? std::max(_strut.top, strut.top) : strut.top;
-    head.y += strut_val;
-    head.height -= strut_val;
-
-    strut_val = (head.y + head.height == _screen_gm.height) ? std::max(_strut.bottom, strut.bottom) : strut.bottom;
-    head.height -= strut_val;
-}
-
 bool
 X11::getProperty(Window win, AtomName aname, Atom type,
             ulong expected, uchar **data, ulong *actual)
@@ -748,76 +718,6 @@ X11::getButtonFromState(uint state)
     return button;
 }
 
-//! @brief Adds a strut to the strut list, updating max strut sizes
-void
-X11::addStrut(Strut *strut)
-{
-    assert(strut);
-    _struts.push_back(strut);
-
-    updateStrut();
-}
-
-//! @brief Removes a strut from the strut list
-void
-X11::removeStrut(Strut *strut)
-{
-    assert(strut);
-    auto it(find(_struts.begin(), _struts.end(), strut));
-    if (it != _struts.end())
-        _struts.erase(it);
-
-    updateStrut();
-}
-
-//! @brief Updates strut max size.
-void
-X11::updateStrut(void)
-{
-    // Reset strut data.
-    _strut.left = 0;
-    _strut.right = 0;
-    _strut.top = 0;
-    _strut.bottom = 0;
-
-    for (auto it : _heads) {
-        it.strut.left = 0;
-        it.strut.right = 0;
-        it.strut.top = 0;
-        it.strut.bottom = 0;
-    }
-
-    Strut *strut;
-    for(auto it : _struts) {
-        if (it->head < 0) {
-            strut = &_strut;
-        } else if (static_cast<uint>(it->head) < _heads.size()) {
-            strut = &(_heads[it->head].strut);
-        } else {
-            continue;
-        }
-
-        if (strut->left < it->left) {
-            strut->left = it->left;
-        }
-        if (strut->right < it->right) {
-            strut->right = it->right;
-        }
-        if (strut->top < it->top) {
-            strut->top = it->top;
-        }
-        if (strut->bottom < it->bottom) {
-          strut->bottom = it->bottom;
-        }
-    }
-
-    // Update hints on the root window
-    Geometry workarea(_strut.left, _strut.top,
-                      _screen_gm.width - _strut.left - _strut.right, _screen_gm.height - _strut.top - _strut.bottom);
-
-    static_cast<RootWO*>(PWinObj::getRootPWinObj())->setEwmhWorkarea(workarea);
-}
-
 int
 X11::sendEvent(Window win, Atom atom, long mask,
                    long v1, long v2, long v3, long v4, long v5)
@@ -891,14 +791,12 @@ X11::initHeadsRandr(void)
     }
 
     for (int i = 0; i < resources->noutput; ++i) {
-        XRROutputInfo *output = XRRGetOutputInfo(_dpy, resources, resources->outputs[i]);
-
+        auto output = XRRGetOutputInfo(_dpy, resources, resources->outputs[i]);
         if (output->crtc) {
-            XRRCrtcInfo *crtc = XRRGetCrtcInfo(_dpy, resources, output->crtc);
+            auto crtc = XRRGetCrtcInfo(_dpy, resources, output->crtc);
             _heads.push_back(Head(crtc->x, crtc->y, crtc->width, crtc->height));
             XRRFreeCrtcInfo (crtc);
         }
-
         XRRFreeOutputInfo (output);
     }
 
@@ -1080,8 +978,6 @@ uint X11::_server_grabs;
 Time X11::_last_event_time;
 Window X11::_last_click_id = None;
 Time X11::_last_click_time[BUTTON_NO - 1];
-Strut X11::_strut;
-std::vector<Strut*> X11::_struts;
 std::vector<X11::ColorEntry*> X11::_colours;
 XColor X11::_xc_default;
 std::array<Cursor, MAX_NR_CURSOR> X11::_cursor_map;

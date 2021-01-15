@@ -23,12 +23,13 @@
 class HintWO : public PWinObj
 {
 public:
-    HintWO(Window root, bool replace);
+    HintWO(Window root);
     virtual ~HintWO(void);
+
+    bool claimDisplay(bool replace);
 
 private:
     Time getTime(void);
-    bool claimDisplay(bool replace);
     bool claimDisplayWait(Window session_owner);
     void claimDisplayOwner(Window session_atom, Time timestamp);
 
@@ -62,6 +63,15 @@ public:
     virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev);
     virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev);
 
+    void placeInsideScreen(Geometry &gm, bool without_edge=false);
+    void getHeadInfoWithEdge(uint num, Geometry& head);
+
+    void updateGeometry(uint width, uint height);
+    void addStrut(Strut *strut);
+    void removeStrut(Strut *rem_strut);
+    void updateStrut(void);
+    const Strut& getStrut(void) { return _strut; }
+
     void setEwmhWorkarea(const Geometry &workarea);
     void setEwmhActiveWindow(Window win);
     void readEwmhDesktopNames(void);
@@ -69,7 +79,14 @@ public:
     void setEwmhDesktopLayout(void);
 
 private:
+    void initStrutHead();
+
+private:
     HintWO *_hint_wo;
+
+    Strut _strut;
+    std::vector<Strut> _strut_head;
+    std::vector<Strut*> _struts;
 
     /** Root window event mask. */
     static const unsigned long EVENT_MASK;
@@ -84,7 +101,7 @@ private:
 class EdgeWO : public PWinObj
 {
 public:
-    EdgeWO(Window root, EdgeType edge, bool set_strut);
+    EdgeWO(RootWO *root_wo, EdgeType edge, bool set_strut);
     virtual ~EdgeWO(void);
 
     void configureStrut(bool set_strut);
@@ -98,8 +115,15 @@ public:
     inline EdgeType getEdge(void) const { return _edge; }
 
 private:
+    RootWO* _root_wo;
     EdgeType _edge; /**< Edge position. */
     Strut _strut; /*< Strut for reserving screen edge space. */
 };
+
+namespace pekwm
+{
+    HintWO* hintWo();
+    RootWO* rootWo();
+}
 
 #endif // _MANAGER_WINDOWS_H_

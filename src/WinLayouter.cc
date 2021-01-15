@@ -12,6 +12,7 @@
 #include "Client.hh"
 #include "Frame.hh"
 #include "Util.hh"
+#include "ManagerWindows.hh"
 #include "Workspaces.hh"
 #include "x11.hh"
 
@@ -201,7 +202,7 @@ private:
                         wo->getWidth(), wo->getHeight());
 
             // make sure it's within the screen's border
-            X11::placeInsideScreen(gm);
+            pekwm::rootWo()->placeInsideScreen(gm);
             wo->move(gm.x, gm.y);
         }
         return true;
@@ -218,7 +219,7 @@ private:
     {
         if (wo) {
             Geometry gm(_ptr_x, _ptr_y, wo->getWidth(), wo->getHeight());
-            X11::placeInsideScreen(gm); // make sure it's within the screen's border
+            pekwm::rootWo()->placeInsideScreen(gm);
             wo->move(gm.x, gm.y);
         }
         return true;
@@ -240,7 +241,7 @@ WinLayouter::layout(Frame *frame, Window parent)
 
     X11::getMousePosition(_ptr_x, _ptr_y);
     int head_nr = X11::getNearestHead(_ptr_x, _ptr_y);
-    X11::getHeadInfoWithEdge(head_nr, _gm);
+    pekwm::rootWo()->getHeadInfoWithEdge(head_nr, _gm);
 
     // Collect the information which head has a fullscreen window.
     // To be conservative for now we ignore fullscreen windows on
@@ -263,7 +264,7 @@ WinLayouter::layout(Frame *frame, Window parent)
     int i = head_nr;
     do {
         if (! fsHead[i]) {
-            X11::getHeadInfoWithEdge(i, _gm);
+            pekwm::rootWo()->getHeadInfoWithEdge(i, _gm);
             if (layout_impl(frame)) {
                 return;
             }
@@ -280,7 +281,7 @@ WinLayouter::layout(Frame *frame, Window parent)
         }
         i = (i+1)%X11::getNumHeads();
     } while (i != head_nr);
-    X11::getHeadInfoWithEdge(i, _gm);
+    pekwm::rootWo()->getHeadInfoWithEdge(i, _gm);
     frame->move(_gm.x, _gm.y);
 }
 

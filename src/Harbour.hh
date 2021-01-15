@@ -13,7 +13,10 @@
 
 #include "pekwm.hh"
 
+class AutoProperties;
+class Config;
 class DockApp;
+class RootWO;
 class Strut;
 
 #include "Action.hh"
@@ -21,7 +24,7 @@ class Strut;
 class Harbour
 {
 public:
-    Harbour(void);
+    Harbour(Config* cfg, AutoProperties* ap, RootWO *root_wo);
     ~Harbour(void);
 
     void addDockApp(DockApp* da);
@@ -58,11 +61,21 @@ private:
 
     void updateStrutSize(void);
 
+private:
+    Config* _cfg;
+    AutoProperties* _ap;
+    RootWO *_root_wo;
+
     std::vector<DockApp*> _dapps;
     bool _hidden;
     uint _size;
     Strut *_strut;
     int _last_button_x, _last_button_y;
+};
+
+namespace pekwm
+{
+    Harbour* harbour();
 };
 
 #endif // _HARBOUR_HH_
