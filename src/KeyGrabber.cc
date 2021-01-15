@@ -21,8 +21,6 @@ extern "C" {
 
 #include <iostream>
 
-KeyGrabber* KeyGrabber::_instance = 0;
-
 //! @brief Constructor for Chain class
 KeyGrabber::Chain::Chain(uint mod, uint key)
     : _mod(mod),
@@ -82,15 +80,6 @@ KeyGrabber::KeyGrabber(void)
       _global_chain(0, 0), _moveresize_chain(0, 0),
       _input_dialog_chain(0, 0)
 {
-#ifdef DEBUG
-    if (_instance) {
-        std::cerr << __FILE__ << "@" << __LINE__ << ": "
-                  << "KeyGrabber(" << this << ")::KeyGrabber()" << std::endl
-                  << " *** _instance already set: " << _instance << std::endl;
-    }
-#endif // DEBUG
-    _instance = this;
-
     _num_lock = X11::getNumLock();
     _scroll_lock = X11::getScrollLock();
 }
@@ -98,7 +87,6 @@ KeyGrabber::KeyGrabber(void)
 //! @brief Destructor for KeyGrabber class
 KeyGrabber::~KeyGrabber(void)
 {
-    _instance = 0;
 }
 
 //! @brief Parses the "KeyFile" and inserts into _global_keys.
@@ -174,12 +162,12 @@ KeyGrabber::parseGlobalChain(CfgParser::Entry *section, KeyGrabber::Chain *chain
     for (; it != section->end(); ++it) {
         if ((*it)->getSection() && *(*it) == "CHAIN") {
             // Figure out mod and key, create a new chain.
-            if (Config::instance()->parseKey((*it)->getValue(), mod, key)) {
+            if (pekwm::config()->parseKey((*it)->getValue(), mod, key)) {
                 KeyGrabber::Chain *sub_chain = new KeyGrabber::Chain(mod, key);
                 parseGlobalChain((*it)->getSection(), sub_chain);
                 chain->addChain(sub_chain);
             }
-        } else if (Config::instance()->parseActionEvent((*it), ae, KEYGRABBER_OK, false)) {
+        } else if (pekwm::config()->parseActionEvent((*it), ae, KEYGRABBER_OK, false)) {
             chain->addAction(ae);
         }
     }
@@ -196,12 +184,12 @@ KeyGrabber::parseMoveResizeChain(CfgParser::Entry *section, KeyGrabber::Chain *c
     for (; it != section->end(); ++it) {
         if ((*it)->getSection() && *(*it) == "CHAIN") {
             // Figure out mod and key, create a new chain.
-            if (Config::instance()->parseKey((*it)->getValue(), mod, key)) {
+            if (pekwm::config()->parseKey((*it)->getValue(), mod, key)) {
                 KeyGrabber::Chain *sub_chain = new KeyGrabber::Chain(mod, key);
                 parseMoveResizeChain((*it)->getSection(), sub_chain);
                 chain->addChain(sub_chain);
             }
-        } else if (Config::instance()->parseMoveResizeEvent((*it), ae)) {
+        } else if (pekwm::config()->parseMoveResizeEvent((*it), ae)) {
             chain->addAction(ae);
         }
     }
@@ -218,12 +206,12 @@ KeyGrabber::parseInputDialogChain(CfgParser::Entry *section, KeyGrabber::Chain *
     for (; it != section->end(); ++it) {
         if ((*it)->getSection() && *(*it) == "CHAIN") {
             // Figure out mod and key, create a new chain.
-            if (Config::instance()->parseKey((*it)->getValue(), mod, key)) {
+            if (pekwm::config()->parseKey((*it)->getValue(), mod, key)) {
                 KeyGrabber::Chain *sub_chain = new KeyGrabber::Chain(mod, key);
                 parseInputDialogChain((*it)->getSection(), sub_chain);
                 chain->addChain(sub_chain);
             }
-        } else if (Config::instance()->parseInputDialogEvent((*it), ae)) {
+        } else if (pekwm::config()->parseInputDialogEvent((*it), ae)) {
             chain->addAction(ae);
         }
     }
@@ -240,12 +228,12 @@ KeyGrabber::parseMenuChain(CfgParser::Entry *section, KeyGrabber::Chain *chain)
     for (; it != section->end(); ++it) {
         if ((*it)->getSection() && *(*it) == "CHAIN") {
             // Figure out mod and key, create a new chain.
-            if (Config::instance()->parseKey((*it)->getValue(), mod, key)) {
+            if (pekwm::config()->parseKey((*it)->getValue(), mod, key)) {
                 KeyGrabber::Chain *sub_chain = new KeyGrabber::Chain (mod, key);
                 parseGlobalChain((*it)->getSection(), sub_chain);
                 chain->addChain(sub_chain);
             }
-        } else if (Config::instance()->parseMenuEvent((*it), ae)) {
+        } else if (pekwm::config()->parseMenuEvent((*it), ae)) {
             chain->addAction(ae);
         }
     }

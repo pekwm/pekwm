@@ -81,38 +81,38 @@ private:
         bool placed = false;
         std::vector<PWinObj*> wvec;
 
-        int step_x = (Config::instance()->getPlacementLtR()) ? 1 : -1;
-        int step_y = (Config::instance()->getPlacementTtB()) ? 1 : -1;
-        int offset_x = (Config::instance()->getPlacementLtR())
-                       ? Config::instance()->getPlacementOffsetX()
-                       : -Config::instance()->getPlacementOffsetX();
-        int offset_y = (Config::instance()->getPlacementTtB())
-                       ? Config::instance()->getPlacementOffsetY()
-                       : -Config::instance()->getPlacementOffsetY();
+        int step_x = (pekwm::config()->getPlacementLtR()) ? 1 : -1;
+        int step_y = (pekwm::config()->getPlacementTtB()) ? 1 : -1;
+        int offset_x = (pekwm::config()->getPlacementLtR())
+                       ? pekwm::config()->getPlacementOffsetX()
+                       : -pekwm::config()->getPlacementOffsetX();
+        int offset_y = (pekwm::config()->getPlacementTtB())
+                       ? pekwm::config()->getPlacementOffsetY()
+                       : -pekwm::config()->getPlacementOffsetY();
         int start_x, start_y, test_x = 0, test_y = 0;
 
         // Wrap these up, to get proper checking of space.
-        uint wo_width = wo->getWidth() + Config::instance()->getPlacementOffsetX();
-        uint wo_height = wo->getHeight() + Config::instance()->getPlacementOffsetY();
+        uint wo_width = wo->getWidth() + pekwm::config()->getPlacementOffsetX();
+        uint wo_height = wo->getHeight() + pekwm::config()->getPlacementOffsetY();
 
-        start_x = Config::instance()->getPlacementLtR() ?
+        start_x = pekwm::config()->getPlacementLtR() ?
                   _gm.x : _gm.x + _gm.width - wo_width;
-        start_y = Config::instance()->getPlacementTtB() ?
+        start_y = pekwm::config()->getPlacementTtB() ?
                   _gm.y : _gm.y + _gm.height - wo_height;
 
-        if (Config::instance()->getPlacementRow()) { // row placement
+        if (pekwm::config()->getPlacementRow()) { // row placement
             test_y = start_y;
-            while (! placed && (Config::instance()->getPlacementTtB()
+            while (! placed && (pekwm::config()->getPlacementTtB()
                                ? test_y + wo_height <= _gm.y + _gm.height
                                : test_y >= _gm.y)) {
                 test_x = start_x;
-                while (! placed && (Config::instance()->getPlacementLtR()
+                while (! placed && (pekwm::config()->getPlacementLtR()
                                     ? test_x + wo_width <= _gm.x + _gm.width
                                     : test_x >= _gm.x)) {
                     // see if we can place the window here
                     if ((wo_e = isEmptySpace(test_x, test_y, wo, wvec))) {
                         placed = false;
-                        test_x = Config::instance()->getPlacementLtR() ?
+                        test_x = pekwm::config()->getPlacementLtR() ?
                                  wo_e->getX() + wo_e->getWidth() : wo_e->getX() - wo_width;
                     } else {
                         placed = true;
@@ -123,17 +123,17 @@ private:
             }
         } else { // column placement
             test_x = start_x;
-            while (! placed && (Config::instance()->getPlacementLtR()
+            while (! placed && (pekwm::config()->getPlacementLtR()
                                 ? test_x + wo_width <= _gm.x + _gm.width
                                 : test_x >= _gm.x)) {
                 test_y = start_y;
-                while (! placed && (Config::instance()->getPlacementTtB()
+                while (! placed && (pekwm::config()->getPlacementTtB()
                                     ? test_y + wo_height <= _gm.y + _gm.height
                                     : test_y >= _gm.y)) {
                     // see if we can place the window here
                     if ((wo_e = isEmptySpace(test_x, test_y, wo, wvec))) {
                         placed = false;
-                        test_y = Config::instance()->getPlacementTtB() ?
+                        test_y = pekwm::config()->getPlacementTtB() ?
                                  wo_e->getY() + wo_e->getHeight() : wo_e->getY() - wo_height;
                     } else {
                         placed = true;
@@ -233,7 +233,7 @@ WinLayouter::layout(Frame *frame, Window parent)
     }
 
     if (frame && parent != None
-              && Config::instance()->placeTransOnParent()
+              && pekwm::config()->placeTransOnParent()
               && placeOnParent(frame, parent)) {
         return;
     }

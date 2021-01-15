@@ -33,7 +33,7 @@ DockApp::DockApp(Window win) :
         _position(0), _background(None),
         _is_alive(true)
 {
-    Config *cfg = Config::instance();
+    Config *cfg = pekwm::config();
 
     // PWinObj attributes.
     _type = WO_DOCKAPP;
@@ -213,7 +213,7 @@ DockApp::repaint(void)
     X11::freePixmap(_background);
     _background = X11::createPixmap(_gm.width, _gm.height);
 
-    auto hd = Theme::instance()->getHarbourData();
+    auto hd = pekwm::theme()->getHarbourData();
     hd->getTexture()->render(_background, 0, 0, _gm.width, _gm.height);
 
     XSetWindowBackgroundPixmap(X11::getDpy(), _window, _background);
@@ -240,7 +240,7 @@ DockApp::updateSize(void)
 void
 DockApp::validateSize(void)
 {
-    Config *cfg = Config::instance(); // convenience
+    Config *cfg = pekwm::config(); // convenience
 
     if (cfg->getHarbourDAMinSide() > 0) {
         if (_gm.width < static_cast<uint>(cfg->getHarbourDAMinSide())) {
@@ -278,8 +278,8 @@ DockApp::readClassHint(void)
 void
 DockApp::readAutoProperties(void)
 {
-    DockAppProperty *prop =
-        AutoProperties::instance()->findDockAppProperty(&_class_hint);
+    auto prop =
+        pekwm::autoProperties()->findDockAppProperty(&_class_hint);
     if (prop) {
         _position = prop->getPosition();
     }

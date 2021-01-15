@@ -24,9 +24,6 @@ public:
     FontHandler(void);
     ~FontHandler(void);
 
-    //! @brief Returns the FontHandler instance pointer.
-    static inline FontHandler *instance(void) { return _instance; }
-
     PFont *getFont(const std::string &font);
     void returnFont(PFont *font);
 
@@ -43,9 +40,11 @@ private:
 
     std::map<ParseUtil::Entry, PFont::Type> _map_type;
     std::map<ParseUtil::Entry, FontJustify> _map_justify;
+};
 
-    //! @brief Pointer to FontHandler instance, should only be one.
-    static FontHandler *_instance;
+namespace pekwm
+{
+    FontHandler* fontHandler();
 };
 
 #endif // _FONT_HANDLER_HH_

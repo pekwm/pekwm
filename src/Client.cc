@@ -128,7 +128,7 @@ Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
     initConfig.parent_is_new = findOrCreateFrame(ap);
 
     // Grab keybindings and mousebutton actions
-    KeyGrabber::instance()->grabKeys(_window);
+    pekwm::keyGrabber()->grabKeys(_window);
     grabButtons();
 
     // Tell the world about our state
@@ -184,7 +184,7 @@ Client::~Client(void)
     // except when we exit pekwm
     if (_alive) {
         X11::ungrabButton(_window);
-        KeyGrabber::instance()->ungrabKeys(_window);
+        pekwm::keyGrabber()->ungrabKeys(_window);
         XRemoveFromSaveSet(X11::getDpy(), _window);
         PWinObj::mapWindow();
     }
@@ -201,7 +201,7 @@ Client::~Client(void)
     }
 
     if (_icon) {
-        TextureHandler::instance()->returnTexture(_icon);
+        pekwm::textureHandler()->returnTexture(_icon);
         _icon = 0;
     }
 
@@ -382,7 +382,7 @@ Client::setClientInitConfig(ClientInitConfig &initConfig, bool is_new, AutoPrope
     initConfig.focus = false;
 
     // Let us hear what autoproperties has to say about focusing
-    bool do_focus = is_new ? Config::instance()->isFocusNew() : false;
+    bool do_focus = is_new ? pekwm::config()->isFocusNew() : false;
     if (is_new && autoproperty && autoproperty->isMask(AP_FOCUS_NEW)) {
         do_focus = autoproperty->focus_new;
     }
@@ -393,7 +393,7 @@ Client::setClientInitConfig(ClientInitConfig &initConfig, bool is_new, AutoPrope
         if (do_focus) {
             initConfig.focus = true;
         // Check if we are transient, and if we want to focus
-        } else if (_transient_for && _transient_for->isFocused() && Config::instance()->isFocusNewChild()) {
+        } else if (_transient_for && _transient_for->isFocused() && pekwm::config()->isFocusNewChild()) {
             initConfig.focus = true;
         }
     }
@@ -802,7 +802,7 @@ Client::grabButtons(void)
     X11::ungrabButton(_window);
 
     auto actions =
-        Config::instance()->getMouseActionList(MOUSE_ACTION_LIST_CHILD_FRAME);
+        pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_CHILD_FRAME);
     for (auto it : *actions) {
         if ((it.type == MOUSE_EVENT_PRESS)
             || (it.type == MOUSE_EVENT_RELEASE)) {
@@ -893,7 +893,8 @@ Client::readEwmhHints(void)
     updateWinType(true);
 
     // Apply autoproperties for window type
-    AutoProperty *auto_property = AutoProperties::instance()->findWindowTypeProperty(_window_type);
+    auto auto_property =
+        pekwm::autoProperties()->findWindowTypeProperty(_window_type);
     if (auto_property) {
         applyAutoprops(auto_property);
     }
@@ -993,7 +994,7 @@ Client::readIcon(void)
     if (image->loadFromWindow(_window)) {
         if (! _icon) {
             _icon = new PTextureImage;
-            TextureHandler::instance()->referenceTexture(_icon);
+            pekwm::textureHandler()->referenceTexture(_icon);
         }
 
         _icon->setImage(image);
@@ -1003,7 +1004,7 @@ Client::readIcon(void)
         }
 
         if (_icon) {
-            TextureHandler::instance()->returnTexture(_icon);
+            pekwm::textureHandler()->returnTexture(_icon);
             _icon = 0;
         }
     }
@@ -1015,8 +1016,10 @@ Client::readIcon(void)
 AutoProperty*
 Client::readAutoprops(ApplyOn type)
 {
-    AutoProperty *data =
-        AutoProperties::instance()->findAutoProperty(_class_hint, Workspaces::getActive(), type);
+    auto data =
+        pekwm::autoProperties()->findAutoProperty(_class_hint,
+                                                  Workspaces::getActive(),
+                                                  type);
 
     if (data) {
         // Make sure transient state matches
@@ -1207,8 +1210,7 @@ bool
 Client::titleApplyRule(std::wstring &title)
 {
     _class_hint->title = title;
-    TitleProperty *data = AutoProperties::instance()->findTitleProperty(_class_hint);
-
+    auto data = pekwm::autoProperties()->findTitleProperty(_class_hint);
     if (data) {
         return data->getTitleRule().ed_s(title);
     } else {
@@ -1223,7 +1225,7 @@ uint
 Client::titleFindID(std::wstring &title)
 {
     // Do not search for unique IDs if it is not enabled.
-    if (! Config::instance()->getClientUniqueName()) {
+    if (! pekwm::config()->getClientUniqueName()) {
         return 0;
     }
 
@@ -1402,7 +1404,7 @@ Client::setSkip(uint skip)
 std::string
 Client::getAPDecorName(void)
 {
-    auto props = AutoProperties::instance();
+    auto props = pekwm::autoProperties();
     auto ap = props->findAutoProperty(getClassHint());
     if (ap && ap->isMask(AP_DECOR)) {
         return ap->frame_decor;
@@ -1455,7 +1457,7 @@ bool
 Client::getAspectSize(uint *r_w, uint *r_h, uint w, uint h)
 {
     // see ICCCM 4.1.2.3 for PAspect and {min,max}_aspect
-    if (_size->flags & PAspect && Config::instance()->isHonourAspectRatio()) {
+    if (_size->flags & PAspect && pekwm::config()->isHonourAspectRatio()) {
         // shorthand
         const uint amin_x = _size->min_aspect.x;
         const uint amin_y = _size->min_aspect.y;

@@ -33,7 +33,7 @@ Harbour::Harbour(void) :
 {
     _strut = new Strut();
     X11::addStrut(_strut);
-    _strut->head = Config::instance()->getHarbourHead();
+    _strut->head = pekwm::config()->getHarbourHead();
 }
 
 //! @brief Harbour destructor
@@ -55,7 +55,7 @@ Harbour::addDockApp(DockApp *da)
     }
 
     // add to the list
-    if (AutoProperties::instance()->isHarbourSort()) {
+    if (pekwm::autoProperties()->isHarbourSort()) {
         insertDockAppSorted(da);
         placeDockAppsSorted(); // place in sorted way
     } else {
@@ -63,14 +63,14 @@ Harbour::addDockApp(DockApp *da)
         placeDockApp(da); // place it in a empty space
     }
 
-    da->setLayer(Config::instance()->isHarbourOntop() ? LAYER_DOCK : LAYER_DESKTOP);
+    da->setLayer(pekwm::config()->isHarbourOntop() ? LAYER_DOCK : LAYER_DESKTOP);
     Workspaces::insert(da); // add the dockapp to the stacking list
 
     if (! da->isMapped()) { // make sure it's visible
         da->mapWindow();
     }
 
-    da->setOpacity(Config::instance()->getHarbourOpacity());
+    da->setOpacity(pekwm::config()->getHarbourOpacity());
     updateHarbourSize();
 }
 
@@ -88,7 +88,7 @@ Harbour::removeDockApp(DockApp *da)
         Workspaces::remove(da); // remove the dockapp to the stacking list
         delete da;
 
-        if (AutoProperties::instance()->isHarbourSort()) {
+        if (pekwm::autoProperties()->isHarbourSort()) {
             placeDockAppsSorted();
         }
     }
@@ -151,18 +151,18 @@ void
 Harbour::restack(void)
 {
     X11::removeStrut(_strut);
-    if (Config::instance()->isHarbourOntop() ||
-            ! Config::instance()->isHarbourMaximizeOver()) {
+    if (pekwm::config()->isHarbourOntop() ||
+            ! pekwm::config()->isHarbourMaximizeOver()) {
 
         X11::addStrut(_strut);
     }
 
-    Layer l = Config::instance()->isHarbourOntop() ? LAYER_DOCK : LAYER_DESKTOP;
+    Layer l = pekwm::config()->isHarbourOntop() ? LAYER_DOCK : LAYER_DESKTOP;
 
     for (auto it : _dapps) {
         it->setLayer(l);
 
-        if (Config::instance()->isHarbourOntop()) {
+        if (pekwm::config()->isHarbourOntop()) {
             Workspaces::raise(it);
         } else {
             Workspaces::lower(it);
@@ -174,9 +174,9 @@ Harbour::restack(void)
 void
 Harbour::rearrange(void)
 {
-    _strut->head = Config::instance()->getHarbourHead();
+    _strut->head = pekwm::config()->getHarbourHead();
 
-    if (AutoProperties::instance()->isHarbourSort()) {
+    if (pekwm::autoProperties()->isHarbourSort()) {
         placeDockAppsSorted();
     } else {
         for (auto it : _dapps) {
@@ -199,7 +199,7 @@ Harbour::updateHarbourSize(void)
     _size = 0;
 
     for (auto it : _dapps) {
-        switch (Config::instance()->getHarbourPlacement())
+        switch (pekwm::config()->getHarbourPlacement())
         {
         case TOP:
         case BOTTOM:
@@ -250,8 +250,8 @@ Harbour::updateStrutSize(void)
 {
     _strut->left = _strut->right = _strut->top = _strut->bottom = 0;
 
-    if (! Config::instance()->isHarbourMaximizeOver() && ! _hidden) {
-        switch (Config::instance()->getHarbourPlacement()) {
+    if (! pekwm::config()->isHarbourMaximizeOver() && ! _hidden) {
+        switch (pekwm::config()->getHarbourPlacement()) {
         case TOP:
             _strut->top = _size;
             break;
@@ -293,9 +293,9 @@ Harbour::handleMotionNotifyEvent(XMotionEvent* ev, DockApp* da)
     Geometry head;
     int x = 0, y = 0;
 
-    X11::getHeadInfo(Config::instance()->getHarbourHead(), head);
+    X11::getHeadInfo(pekwm::config()->getHarbourHead(), head);
 
-    switch(Config::instance()->getHarbourPlacement()) {
+    switch(pekwm::config()->getHarbourPlacement()) {
     case TOP:
     case BOTTOM:
         x = ev->x_root - _last_button_x;
@@ -356,13 +356,13 @@ Harbour::placeDockApp(DockApp *da)
     if (! da || ! _dapps.size())
         return;
 
-    bool right = (Config::instance()->getHarbourOrientation() == BOTTOM_TO_TOP);
+    bool right = (pekwm::config()->getHarbourOrientation() == BOTTOM_TO_TOP);
 
     int test, x = 0, y = 0;
     bool placed = false, increase = false, x_place = false;
 
     Geometry head;
-    X11::getHeadInfo(Config::instance()->getHarbourHead(), head);
+    X11::getHeadInfo(pekwm::config()->getHarbourHead(), head);
 
     getPlaceStartPosition (da, x, y, x_place);
     if (right) {
@@ -450,7 +450,7 @@ Harbour::placeDockAppsSorted(void)
     // place the dockapps
     int x, y, x_real, y_real;
     bool inc_x = false;
-    bool right = (Config::instance()->getHarbourOrientation() == BOTTOM_TO_TOP);
+    bool right = (pekwm::config()->getHarbourOrientation() == BOTTOM_TO_TOP);
 
     getPlaceStartPosition(_dapps.front (), x_real, y_real, inc_x);
 
@@ -485,8 +485,8 @@ void
 Harbour::placeDockAppInsideScreen(DockApp *da)
 {
     Geometry head;
-    X11::getHeadInfo(Config::instance()->getHarbourHead(), head);
-    uint pos = Config::instance()->getHarbourPlacement();
+    X11::getHeadInfo(pekwm::config()->getHarbourHead(), head);
+    uint pos = pekwm::config()->getHarbourPlacement();
 
     // top or bottom placement
     if ((pos == TOP) || (pos == BOTTOM)) {
@@ -530,10 +530,10 @@ Harbour::getPlaceStartPosition(DockApp *da, int &x, int &y, bool &inc_x)
     }
     
     Geometry head;
-    X11::getHeadInfo(Config::instance()->getHarbourHead(), head);
-    bool right = (Config::instance()->getHarbourOrientation() == BOTTOM_TO_TOP);
+    X11::getHeadInfo(pekwm::config()->getHarbourHead(), head);
+    bool right = (pekwm::config()->getHarbourOrientation() == BOTTOM_TO_TOP);
 
-    switch (Config::instance()->getHarbourPlacement()) {
+    switch (pekwm::config()->getHarbourPlacement()) {
     case TOP:
         inc_x = true;
         x = right ? head.x + head.width : head.x;

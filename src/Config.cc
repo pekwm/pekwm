@@ -29,8 +29,6 @@ extern "C" {
 
 typedef std::pair<ActionType, uint> action_pair;
 
-Config* Config::_instance = 0;
-
 const int FRAME_MASK =
     FRAME_OK|FRAME_BORDER_OK|CLIENT_OK|WINDOWMENU_OK|
     KEYGRABBER_OK|BUTTONCLICK_OK;
@@ -104,11 +102,6 @@ Config::Config(void) :
         _harbour_placement(TOP), _harbour_orientation(TOP_TO_BOTTOM), _harbour_head_nr(0),
         _harbour_opacity(EWMH_OPAQUE_WINDOW)
 {
-    if (_instance) {
-        throw std::string("Config, trying to create multiple instances");
-    }
-    _instance = this;
-
     for (uint i = 0; i <= SCREEN_EDGE_NO; ++i) {
         _screen_edge_sizes.push_back(0);
     }
@@ -388,8 +381,6 @@ Config::Config(void) :
 //! @brief Destructor for Config class
 Config::~Config(void)
 {
-    _instance = 0;
-
     for (auto it : _mouse_action_map) {
         delete it.second;
     }

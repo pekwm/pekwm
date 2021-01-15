@@ -47,8 +47,7 @@ class WindowManager
 {
 public:
     static WindowManager *start(const std::string &config_file, bool replace);
-    static void destroy(void);
-    inline static WindowManager *instance(void) { return _instance; }
+    ~WindowManager();
 
     void doEventLoop(void);
 
@@ -59,14 +58,12 @@ public:
     void shutdown(void) { _shutdown = true; }
 
     // get "base" classes
-    inline Config *getConfig(void) const { return _config; }
-    inline ActionHandler *getActionHandler(void)
-    const { return _action_handler; }
-    inline KeyGrabber *getKeyGrabber(void) const { return _keygrabber; }
     inline Harbour *getHarbour(void) const { return _harbour; }
 
     inline bool shallRestart(void) const { return _restart; }
-    inline const std::string &getRestartCommand(void) const { return _restart_command; }
+    inline const std::string &getRestartCommand(void) const {
+        return _restart_command;
+    }
 
     void familyRaiseLower(Client *client, bool raise);
 
@@ -80,7 +77,6 @@ public:
 
     inline CmdDialog *getCmdDialog(void) { return _cmd_dialog; }
     inline SearchDialog *getSearchDialog(void) { return _search_dialog; }
-    inline StatusWindow *getStatusWindow(void) { return _status_window; }
 
     // public event handlers used when doing grabbed actions
     void handleKeyEvent(XKeyEvent *ev);
@@ -88,11 +84,9 @@ public:
     void handleButtonReleaseEvent(XButtonEvent *ev);
 
 private:
-    WindowManager(const std::string &config_file);
-    WindowManager(const WindowManager &); // not implemented to ensure singleton
-    ~WindowManager(void);
-    
-    bool setupDisplay(bool replace);
+    WindowManager();
+
+    bool setupDisplay(Display* dpy, bool replace);
     void scanWindows(void);
     void execStartFile(void);
 
@@ -139,13 +133,9 @@ private:
     Client *createClient(Window window, bool is_new);
 
 private:
-    KeyGrabber *_keygrabber;
-    Config *_config;
-    ActionHandler *_action_handler;
     Harbour *_harbour;
     CmdDialog *_cmd_dialog;
     SearchDialog *_search_dialog;
-    StatusWindow *_status_window;
 
     bool _shutdown; //!< Set to wheter we want to shutdown.
     bool _reload; //!< Set to wheter we want to reload.
@@ -155,9 +145,6 @@ private:
     EdgeWO *_screen_edges[4];
     HintWO *_hint_wo; /**< Hint window object, communicates EWMH hints. */
     RootWO *_root_wo; /**< Root window object, wrapper for root window. */
-
-    // pointer for singleton pattern
-    static WindowManager *_instance;
 };
 
 #endif // _WINDOWMANAGER_HH_

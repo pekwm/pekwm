@@ -26,11 +26,10 @@ public:
     ImageHandler(void);
     ~ImageHandler(void);
 
-    //! @brief Returns the ImageHandler instance pointer.
-    static inline ImageHandler *instance(void) { return _instance; }
-
     /** Add path entry to the search path. */
-    void path_push_back(const std::string &path) { _search_path.push_back(path); }
+    void path_push_back(const std::string &path) {
+        _search_path.push_back(path);
+    }
     /** Remove newest entry in the search path. */
     void path_pop_back(void) { _search_path.pop_back(); }
     /** Remove all entries from the search path. */
@@ -53,8 +52,11 @@ private:
 
      /**< Type name to type enum map. */
     std::map<ParseUtil::Entry, ImageType> _image_type_map;
+};
 
-    static ImageHandler *_instance; /**< Singleton instance pointer. */
+namespace pekwm
+{
+    ImageHandler* imageHandler();
 };
 
 #endif // _IMAGE_HANDLER_HH_

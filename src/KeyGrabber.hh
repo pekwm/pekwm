@@ -64,9 +64,6 @@ public:
     KeyGrabber(void);
     ~KeyGrabber(void);
 
-    //! @brief Returns the KeyGrabber instance pointer.
-    static KeyGrabber *instance(void) { return _instance; }
-
     bool load(const std::string &file, bool force=false);
     void grabKeys(Window win);
     void ungrabKeys(Window win);
@@ -93,8 +90,11 @@ private:
 
     uint _num_lock;
     uint _scroll_lock;
+};
 
-    static KeyGrabber *_instance;
+namespace pekwm
+{
+    KeyGrabber* keyGrabber();
 };
 
 #endif // _KEYGRABBER_HH_

@@ -16,9 +16,6 @@
 #include "Util.hh"
 #include "x11.hh"
 
-static AutoProperties autoproperties_instance;
-AutoProperties *AutoProperties::_instance = &autoproperties_instance;
-
 //! @brief Constructor for AutoProperties class
 AutoProperties::AutoProperties(void)
     : _extended(false),
@@ -89,7 +86,7 @@ AutoProperties::~AutoProperties(void)
 bool
 AutoProperties::load(void)
 {
-    std::string cfg_file(Config::instance()->getAutoPropsFile());
+    std::string cfg_file(pekwm::config()->getAutoPropsFile());
     if (! _cfg_files.requireReload(cfg_file)) {
         return false;
     }
@@ -730,8 +727,8 @@ AutoProperties::parseAutoPropertyValue(CfgParser::Entry *section,
             prop->client_gm_mask =
                 X11::parseGeometry((*it)->getValue(), prop->client_gm);
             break;
-        case AP_LAYER:            
-            prop->layer = Config::instance()->getLayer((*it)->getValue());
+        case AP_LAYER:
+            prop->layer = pekwm::config()->getLayer((*it)->getValue());
             if (prop->layer != LAYER_NONE) {
                 prop->maskAdd(AP_LAYER);
             }
@@ -745,7 +742,7 @@ AutoProperties::parseAutoPropertyValue(CfgParser::Entry *section,
             tokens.clear();
             if ((Util::splitString((*it)->getValue(), tokens, " \t"))) {
                 for (auto it : tokens) {
-                    prop->skip |= Config::instance()->getSkip(it);
+                    prop->skip |= pekwm::config()->getSkip(it);
                 }
             }
             break;
@@ -770,21 +767,24 @@ AutoProperties::parseAutoPropertyValue(CfgParser::Entry *section,
             tokens.clear();
             if ((Util::splitString((*it)->getValue(), tokens, " \t"))) {
                 for (auto it : tokens) {
-                    prop->cfg_deny |= Config::instance()->getCfgDeny(it);
+                    prop->cfg_deny |= pekwm::config()->getCfgDeny(it);
                 }
             }
             break;
         case AP_ALLOWED_ACTIONS:
             prop->maskAdd(AP_ALLOWED_ACTIONS);
-            Config::instance()->parseActionAccessMask((*it)->getValue(), prop->allowed_actions);
+            pekwm::config()->parseActionAccessMask((*it)->getValue(),
+                                                   prop->allowed_actions);
             break;
         case AP_DISALLOWED_ACTIONS:
             prop->maskAdd(AP_DISALLOWED_ACTIONS);
-            Config::instance()->parseActionAccessMask((*it)->getValue(), prop->disallowed_actions);
+            pekwm::config()->parseActionAccessMask((*it)->getValue(),
+                                                   prop->disallowed_actions);
             break;
         case AP_OPACITY:
             prop->maskAdd(AP_OPACITY);
-            Config::parseOpacity((*it)->getValue(), prop->focus_opacity, prop->unfocus_opacity);
+            Config::parseOpacity((*it)->getValue(),
+                                 prop->focus_opacity, prop->unfocus_opacity);
             break;
         case AP_DECOR:
             prop->maskAdd(AP_DECOR);

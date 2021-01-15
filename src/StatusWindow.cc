@@ -19,19 +19,13 @@
 
 #include <algorithm>
 
-StatusWindow *StatusWindow::_instance = 0;
-
 //! @brief StatusWindow constructor
-StatusWindow::StatusWindow()
+StatusWindow::StatusWindow(Theme* theme)
     : PDecor("STATUSWINDOW"),
+      _theme(theme),
+      _status_wo(new PWinObj(false)),
       _bg(None)
 {
-    if (_instance) {
-        ERR("_instance already set: " << _instance);
-    }
-    _instance = this;
-
-
     // PWinObj attributes
     _type = PWinObj::WO_STATUS;
     setLayer(LAYER_NONE); // hack, goes over LAYER_MENU
@@ -69,8 +63,6 @@ StatusWindow::~StatusWindow(void)
     delete _status_wo;
 
     unloadTheme();
-
-    _instance = 0;
 }
 
 //! @brief Resizes window to fit the text and renders text
@@ -80,7 +72,7 @@ void
 StatusWindow::draw(const std::wstring &text, bool do_center, Geometry *gm)
 {
     uint width, height;
-    auto sd = Theme::instance()->getStatusData();
+    auto sd = pekwm::theme()->getStatusData();
     PFont *font = sd->getFont();
 
     width = font->getWidth(text.c_str()) + 10;
@@ -132,7 +124,7 @@ StatusWindow::render(void)
 {
     X11::freePixmap(_bg);
     _bg = X11::createPixmap(_status_wo->getWidth(), _status_wo->getHeight());
-    auto sd = Theme::instance()->getStatusData();
+    auto sd = pekwm::theme()->getStatusData();
     sd->getTexture()->render(_bg, 0, 0,
                              _status_wo->getWidth(), _status_wo->getHeight());
 

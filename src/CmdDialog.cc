@@ -32,8 +32,8 @@ CmdDialog::CmdDialog()
 {
     _type = PWinObj::WO_CMD_DIALOG;
 
-    if (Config::instance()->getCmdDialogHistoryFile().size() > 0) {
-        loadHistory(Config::instance()->getCmdDialogHistoryFile());
+    if (pekwm::config()->getCmdDialogHistoryFile().size() > 0) {
+        loadHistory(pekwm::config()->getCmdDialogHistoryFile());
     }
 }
 
@@ -42,8 +42,8 @@ CmdDialog::CmdDialog()
  */
 CmdDialog::~CmdDialog(void)
 {
-    if (Config::instance()->getCmdDialogHistoryFile().size() > 0) {
-        saveHistory(Config::instance()->getCmdDialogHistoryFile());
+    if (pekwm::config()->getCmdDialogHistoryFile().size() > 0) {
+        saveHistory(pekwm::config()->getCmdDialogHistoryFile());
     }
 }
 
@@ -54,27 +54,27 @@ ActionEvent*
 CmdDialog::exec(void)
 {
     // Update history
-    if (Config::instance()->isCmdDialogHistoryUnique()) {
+    if (pekwm::config()->isCmdDialogHistoryUnique()) {
         addHistoryUnique(_buf);
     } else {
         _history.push_back(_buf);
     }
-    if (_history.size() > static_cast<uint>(Config::instance()->getCmdDialogHistorySize())) {
+    if (_history.size() > static_cast<uint>(pekwm::config()->getCmdDialogHistorySize())) {
         _history.erase(_history.begin());
     }
 
     // Persist changes
-    if (Config::instance()->getCmdDialogHistorySaveInterval() > 0
-        && Config::instance()->getCmdDialogHistoryFile().size() > 0
-        && ++_exec_count > Config::instance()->getCmdDialogHistorySaveInterval()) {
-        saveHistory(Config::instance()->getCmdDialogHistoryFile());
+    if (pekwm::config()->getCmdDialogHistorySaveInterval() > 0
+        && pekwm::config()->getCmdDialogHistoryFile().size() > 0
+        && ++_exec_count > pekwm::config()->getCmdDialogHistorySaveInterval()) {
+        saveHistory(pekwm::config()->getCmdDialogHistoryFile());
         _exec_count = 0;
     }
     
     // Check if it's a valid Action, if not we assume it's a command and try
     // to execute it.
     auto buf_mb(Util::to_mb_str(_buf));
-    if (! Config::instance()->parseAction(buf_mb, _ae.action_list.back(), KEYGRABBER_OK)) {
+    if (! pekwm::config()->parseAction(buf_mb, _ae.action_list.back(), KEYGRABBER_OK)) {
         _ae.action_list.back().setAction(ACTION_EXEC);
         _ae.action_list.back().setParamS(buf_mb);
     }

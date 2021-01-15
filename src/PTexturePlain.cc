@@ -262,7 +262,7 @@ bool
 PTextureImage::setImage(const std::string &image)
 {
     unsetImage();
-    _image = ImageHandler::instance()->getImage(image);
+    _image = pekwm::imageHandler()->getImage(image);
     if (_image) {
         _width = _image->getWidth();
         _height = _image->getHeight();
@@ -277,10 +277,9 @@ PTextureImage::setImage(const std::string &image)
 void
 PTextureImage::unsetImage(void)
 {
-    ImageHandler::instance()->returnImage(_image);
+    pekwm::imageHandler()->returnImage(_image);
     _image = 0;
     _width = 1;
     _height = 1;
     _ok = false;
 }
-

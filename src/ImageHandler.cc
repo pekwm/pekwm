@@ -17,9 +17,6 @@
 #include "PImageLoaderXpm.hh"
 #include "Util.hh"
 
-ImageHandler s_instance;
-ImageHandler *ImageHandler::_instance = &s_instance;
-
 //! @brief ImageHandler constructor
 ImageHandler::ImageHandler(void)
     : _free_on_return(false)

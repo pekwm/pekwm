@@ -218,11 +218,12 @@ public:
 
     //! Build list of completions from available actions.
     virtual void refresh(void) {
-        completions_list_from_name_list(Config::instance()->getActionNameList(),
+        completions_list_from_name_list(pekwm::config()->getActionNameList(),
                                         _action_list);
-        completions_list_from_name_list(Config::instance()->getStateNameList(),
+        completions_list_from_name_list(pekwm::config()->getStateNameList(),
                                         _state_list);
-        completions_list_from_name_list(MenuHandler::getMenuNames(), _menu_list);
+        completions_list_from_name_list(MenuHandler::getMenuNames(),
+                                        _menu_list);
     }
 
     void clear(void) { }

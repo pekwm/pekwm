@@ -50,8 +50,6 @@ public:
     TextureHandler(void);
     ~TextureHandler(void);
 
-    static TextureHandler *instance(void) { return _instance; }
-
     int getLengthMin(void) { return _length_min; }
     PTexture *getTexture(const std::string &texture);
     PTexture *referenceTexture(PTexture *texture);
@@ -65,13 +63,16 @@ private:
     void parseSize(PTexture *tex, const std::string &size);
 
 private:
-    static TextureHandler *_instance;
-
     std::map<ParseUtil::Entry, PTexture::Type> _parse_map;
     /** Minimum texture name length. */
     const int _length_min;
 
     std::vector<TextureHandler::Entry*> _textures;
+};
+
+namespace pekwm
+{
+    TextureHandler* textureHandler();
 };
 
 #endif // _TEXTURE_HANDLER_HH_

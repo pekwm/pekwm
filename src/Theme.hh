@@ -23,7 +23,9 @@
 class PTexture;
 class Button;
 class ButtonData;
+class FontHandler;
 class ImageHandler;
+class TextureHandler;
 
 #include <string>
 #include <map>
@@ -36,7 +38,7 @@ public:
     //! @brief Theme data parser and container for PDecor::Button
     class PDecorButtonData {
     public:
-        PDecorButtonData(void);
+        PDecorButtonData(TextureHandler* th);
         ~PDecorButtonData(void);
 
         //! @brief Returns whether the shape (derived from the alpha channel) should be set.
@@ -66,6 +68,7 @@ public:
         void check(void);
 
     private:
+        TextureHandler* _th;
         bool _loaded;
 
         std::vector<ActionEvent> _aes;
@@ -78,7 +81,7 @@ public:
     //! @brief PDecor theme data container and parser.
     class PDecorData {
     public:
-        PDecorData(const char *name=0);
+        PDecorData(FontHandler* fh, TextureHandler* th, const char *name=0);
         ~PDecorData(void);
 
         //! @brief Returns decor name.
@@ -166,6 +169,9 @@ public:
         void checkColors(void);
 
     private:
+        FontHandler* _fh;
+        TextureHandler* _th;
+
         bool _loaded;
         std::string _name;
 
@@ -197,7 +203,7 @@ public:
     //! @brief PMenu theme data container and parser.
     class PMenuData {
     public:
-        PMenuData(void);
+        PMenuData(FontHandler* fh, TextureHandler* th);
         ~PMenuData(void);
 
         //! @brief Returns PFont used in ObjectState state.
@@ -234,6 +240,8 @@ public:
         void loadState(CfgParser::Entry *cs, ObjectState state);
 
     private:
+        FontHandler* _fh;
+        TextureHandler* _th;
         bool _loaded;
 
         PFont *_font[OBJECT_STATE_NO + 1];
@@ -249,7 +257,7 @@ public:
     //! @brief CmdDialog/StatusWindow theme data container and parser.
     class TextDialogData {
     public:
-        TextDialogData(void);
+        TextDialogData(FontHandler* fh, TextureHandler* th);
         ~TextDialogData(void);
 
         //! @brief Returns PFont.
@@ -268,6 +276,8 @@ public:
         void check(void);
 
     private:
+        FontHandler* _fh;
+        TextureHandler* _th;
         bool _loaded;
 
         PFont *_font;
@@ -282,7 +292,7 @@ public:
       */
     class WorkspaceIndicatorData {
     public:
-        WorkspaceIndicatorData(void);
+        WorkspaceIndicatorData(FontHandler* fh, TextureHandler *th);
         ~WorkspaceIndicatorData(void);
 
         bool load(CfgParser::Entry *section);
@@ -290,6 +300,8 @@ public:
         void check(void);
 
     private:
+        FontHandler* _fh;
+        TextureHandler* _th;
         bool _loaded;
 
     public:
@@ -308,7 +320,7 @@ public:
       */
     class HarbourData {
     public:
-        HarbourData(void);
+        HarbourData(TextureHandler* th);
         ~HarbourData(void);
 
         inline PTexture *getTexture(void) const { return _texture; }
@@ -317,6 +329,8 @@ public:
         void unload(void);
         void check(void);
     private:
+        TextureHandler* _th;
+
         bool _loaded;
         /**< Texture for rendering dockapps in the harbour. */
         PTexture *_texture;
@@ -324,21 +338,20 @@ public:
 
     inline Theme::HarbourData *getHarbourData(void) { return &_harbour_data; }
 
-    Theme(void);
+    Theme(FontHandler *fh, ImageHandler *ih, TextureHandler *th);
     ~Theme(void);
-
-    static Theme* instance() { return _instance; }
-
-    void init();
-    void cleanup();
 
     bool load(const std::string &dir);
     void unload(void);
 
     inline const GC &getInvertGC(void) const { return _invert_gc; }
 
-    std::map<std::string, Theme::PDecorData*>::const_iterator decor_begin(void) { return _pdecordata_map.begin(); }
-    std::map<std::string, Theme::PDecorData*>::const_iterator decor_end(void) { return _pdecordata_map.end(); }
+    std::map<std::string, Theme::PDecorData*>::const_iterator decor_begin(void) {
+        return _pdecordata_map.begin();
+    }
+    std::map<std::string, Theme::PDecorData*>::const_iterator decor_end(void) {
+        return _pdecordata_map.end();
+    }
 
     /**
      * Find PDecorData based on name.
@@ -373,10 +386,14 @@ public:
 private:
     void loadThemeRequire(CfgParser &theme_cfg, std::string &file);
 
+private:
+    FontHandler* _fh;
+    ImageHandler* _ih;
+    TextureHandler* _th;
+
     std::string _theme_dir; /**< Path to theme directory. */
     TimeFiles _cfg_files;
 
-    bool _init;
     bool _loaded;
 
     // gc
@@ -386,15 +403,19 @@ private:
     std::map<std::string, Theme::PDecorData*> _pdecordata_map;
 
     // menu
-    Theme::PMenuData _menu_data;
-
-    HarbourData _harbour_data; /**< Data for styling harbour. */
+    PMenuData _menu_data;
+    /** Data for styling harbour. */
+    HarbourData _harbour_data;
 
     // status window
-    TextDialogData _status_data, _cmd_d_data;
+    TextDialogData _status_data;
+    TextDialogData _cmd_d_data;
     WorkspaceIndicatorData _ws_indicator_data;
+};
 
-    static Theme* _instance;
+namespace pekwm
+{
+    Theme* theme();
 };
 
 #endif // _THEME_HH_

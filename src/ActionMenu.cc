@@ -118,12 +118,12 @@ ActionMenu::reload(CfgParser::Entry *section)
     removeAll();
 
     // Parse section (if any)
-    ImageHandler::instance()->path_push_back(Config::instance()->getSystemIconPath());
-    ImageHandler::instance()->path_push_back(Config::instance()->getIconPath());
+    pekwm::imageHandler()->path_push_back(pekwm::config()->getSystemIconPath());
+    pekwm::imageHandler()->path_push_back(pekwm::config()->getIconPath());
     _insert_at = 0;
     parse(section);
-    ImageHandler::instance()->path_pop_back();
-    ImageHandler::instance()->path_pop_back();
+    pekwm::imageHandler()->path_pop_back();
+    pekwm::imageHandler()->path_pop_back();
 
     // Build menu from parsed content
     buildMenu();
@@ -152,7 +152,7 @@ ActionMenu::remove(PMenu::Item *item)
     }
 
     if (item->getIcon()) {
-        TextureHandler::instance()->returnTexture(item->getIcon());
+        pekwm::textureHandler()->returnTexture(item->getIcon());
     }
 
     if (item->getWORef() && (item->getWORef()->getType() == WO_MENU)) {
@@ -231,7 +231,7 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
                 // Inside of the Entry = "foo" { ... } section, here
                 // Actions and Icon are the valid options.
                 value = sub_section->findEntry("ACTIONS");
-                if (value && Config::instance()->parseActions(value->getValue(), ae, _action_ok)) {
+                if (value && pekwm::config()->parseActions(value->getValue(), ae, _action_ok)) {
                     icon = getIcon(sub_section->findEntry("ICON"));
 
                     item = new PMenu::Item(Util::to_wide_str(sub_section->getValue()), 0, icon);
@@ -271,9 +271,10 @@ ActionMenu::getIcon(CfgParser::Entry *value)
 
     // Try to load the icon as a complete texture specification, if
     // that fails load is an scaled image.
-    icon = TextureHandler::instance()->getTexture(value->getValue());
+    icon = pekwm::textureHandler()->getTexture(value->getValue());
     if (! icon) {
-        icon = TextureHandler::instance()->getTexture("IMAGE " + value->getValue() + "#SCALED");
+        icon = pekwm::textureHandler()->getTexture("IMAGE " + value->getValue()
+                                                   + "#SCALED");
     }
 
     return icon;
@@ -295,9 +296,9 @@ ActionMenu::rebuildDynamic(void)
     Client::setClientEnvironment(client);
 
     // Setup icon path before parsing.
-    ImageHandler::instance()
-        ->path_push_back(Config::instance()->getSystemIconPath());
-    ImageHandler::instance()->path_push_back(Config::instance()->getIconPath());
+    pekwm::imageHandler()
+        ->path_push_back(pekwm::config()->getSystemIconPath());
+    pekwm::imageHandler()->path_push_back(pekwm::config()->getIconPath());
 
     PMenu::Item* item = nullptr;
     auto it = _items.begin();
@@ -320,8 +321,8 @@ ActionMenu::rebuildDynamic(void)
     _insert_at = _items.size();
 
     // Cleanup icon path
-    ImageHandler::instance()->path_pop_back();
-    ImageHandler::instance()->path_pop_back();
+    pekwm::imageHandler()->path_pop_back();
+    pekwm::imageHandler()->path_pop_back();
 }
 
 //! @brief Remove all entries from the menu created by dynamic entries.

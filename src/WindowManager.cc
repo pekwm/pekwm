@@ -62,9 +62,6 @@ extern "C" {
 #endif // HAVE_XRANDR
 }
 
-// Static initializers
-WindowManager *WindowManager::_instance = 0;
-
 extern "C" {
 
     static bool is_signal_hup = false;
@@ -94,7 +91,7 @@ extern "C" {
             break;
         }
     }
-    
+
 } // extern "C"
 
 
@@ -106,19 +103,26 @@ extern "C" {
 WindowManager*
 WindowManager::start(const std::string &config_file, bool replace)
 {
-    if (_instance) {
-        delete _instance;
+    // Setup window manager
+    auto wm = new WindowManager();
+
+    auto dpy = XOpenDisplay(0);
+    if (! dpy) {
+        std::cerr << "Can not open display!" << std::endl
+                  << "Your DISPLAY variable currently is set to: "
+                  << Util::getEnv("DISPLAY") << std::endl;
+        delete wm;
+        exit(1);
     }
 
-    // Setup window manager
-    _instance = new WindowManager(config_file);
+    pekwm::init(wm, dpy, config_file);
 
-    if (_instance->setupDisplay(replace)) {
-        _instance->scanWindows();
+    if (wm->setupDisplay(dpy, replace)) {
+        wm->scanWindows();
         Frame::resetFrameIDs();
 
-        _instance->_root_wo->setEwmhDesktopNames();
-        _instance->_root_wo->setEwmhDesktopLayout();
+        wm->_root_wo->setEwmhDesktopNames();
+        wm->_root_wo->setEwmhDesktopLayout();
 
         // add all frames to the MRU list
         auto it = Frame::frame_begin();
@@ -126,39 +130,28 @@ WindowManager::start(const std::string &config_file, bool replace)
             Workspaces::addToMRUBack(*it);
         }
 
-        _instance->execStartFile();
+        wm->execStartFile();
     } else {
-        delete _instance;
-        _instance = 0;
+        delete wm;
+        wm = nullptr;
+
+        // NOTE: action handler, referencing the wm is still existing
+        pekwm::cleanup();
     }
 
-    return _instance;
-}
-
-/**
- * Destroy current running window manager.
- */
-void
-WindowManager::destroy(void)
-{
-    delete _instance;
-    _instance = 0;
+    return wm;
 }
 
 //! @brief Constructor for WindowManager class
-WindowManager::WindowManager(const std::string &config_file) :
-        _keygrabber(0),
-        _config(0),
-        _action_handler(0),
-        _harbour(0),
-        _cmd_dialog(0),
-        _search_dialog(0),
-        _status_window(0),
-        _shutdown(false),
-        _reload(false),
-        _restart(false),
-        _hint_wo(0),
-        _root_wo(0)
+WindowManager::WindowManager()
+    : _harbour(0),
+      _cmd_dialog(0),
+      _search_dialog(0),
+      _shutdown(false),
+      _reload(false),
+      _restart(false),
+      _hint_wo(0),
+      _root_wo(0)
 {
     pekwm::setIsStartup(false),
 
@@ -179,11 +172,6 @@ WindowManager::WindowManager(const std::string &config_file) :
     sigaction(SIGHUP, &act, 0);
     sigaction(SIGCHLD, &act, 0);
     sigaction(SIGALRM, &act, 0);
-
-    // construct
-    _config = new Config();
-    _config->load(config_file);
-    _config->loadMouseConfig(_config->getMouseConfigFile());
 }
 
 //! @brief WindowManager destructor
@@ -193,25 +181,19 @@ WindowManager::~WindowManager(void)
 
     delete _cmd_dialog;
     delete _search_dialog;
-    delete _status_window;
     MenuHandler::deleteMenus();
     delete _harbour;
     delete _root_wo;
     delete _hint_wo;
-    delete _action_handler;
-    delete _keygrabber;
-    delete _config;
 
     Workspaces::cleanup();
-
-    X11::destruct();
 }
 
 //! @brief Checks if the start file is executable then execs it.
 void
 WindowManager::execStartFile(void)
 {
-    std::string start_file(_config->getStartFile());
+    std::string start_file(pekwm::config()->getStartFile());
 
     bool exec = Util::isExecutable(start_file);
     if (! exec) {
@@ -258,9 +240,7 @@ WindowManager::cleanup(void)
     while (Client::client_begin() != Client::client_end())
         delete *Client::client_begin();
 
-    if (_keygrabber) {
-        _keygrabber->ungrabKeys(X11::getRoot());
-    }
+    pekwm::keyGrabber()->ungrabKeys(X11::getRoot());
 
     // destroy screen edge
     for (int i=0; i < 4; ++i) {
@@ -277,19 +257,8 @@ WindowManager::cleanup(void)
  * Setup display and claim resources.
  */
 bool
-WindowManager::setupDisplay(bool replace)
+WindowManager::setupDisplay(Display* dpy, bool replace)
 {
-    Display *dpy = XOpenDisplay(0);
-    if (! dpy) {
-        std::cerr << "Can not open display!" << std::endl
-                  << "Your DISPLAY variable currently is set to: "
-                  << Util::getEnv("DISPLAY") << std::endl;
-        exit(1);
-    }
-
-    // Setup screen, init atoms and claim the display.
-    X11::init(dpy, _config->isHonourRandr());
-
     try {
         // Create hint window _before_ root window.
         _hint_wo = new HintWO(X11::getRoot(), replace);
@@ -298,34 +267,27 @@ WindowManager::setupDisplay(bool replace)
     }
 
     // Create root PWinObj
-    _root_wo = new RootWO(X11::getRoot());
+    _root_wo = new RootWO(X11::getRoot(), _hint_wo);
     PWinObj::setRootPWinObj(_root_wo);
 
-    _action_handler = new ActionHandler();
-    Theme::instance()->init();
-    AutoProperties::instance()->load();
+    pekwm::autoProperties()->load();
 
     Workspaces::init();
-    Workspaces::setSize(_config->getWorkspaces());
-    Workspaces::setPerRow(_config->getWorkspacesPerRow());
+    Workspaces::setSize(pekwm::config()->getWorkspaces());
+    Workspaces::setPerRow(pekwm::config()->getWorkspacesPerRow());
 
     _harbour = new Harbour;
 
-    MenuHandler::createMenus(_action_handler);
+    MenuHandler::createMenus(pekwm::actionHandler());
 
     _cmd_dialog = new CmdDialog();
     _search_dialog = new SearchDialog();
-    _status_window = new StatusWindow();
 
     XDefineCursor(dpy, X11::getRoot(), X11::getCursor(CURSOR_ARROW));
 
 #ifdef HAVE_XRANDR
     XRRSelectInput(dpy, X11::getRoot(), RRScreenChangeNotifyMask);
 #endif // HAVE_XRANDR
-
-    _keygrabber = new KeyGrabber;
-    _keygrabber->load(_config->getKeyFile());
-    _keygrabber->grabKeys(X11::getRoot());
 
     // Create screen edge windows
     screenEdgeCreate();
@@ -399,7 +361,7 @@ WindowManager::scanWindows(void)
     }
 
     // We won't be needing these anymore until next restart
-    AutoProperties::instance()->removeApplyOnStart();
+    pekwm::autoProperties()->removeApplyOnStart();
 
     pekwm::setIsStartup(true);
 }
@@ -408,16 +370,16 @@ WindowManager::scanWindows(void)
 void
 WindowManager::screenEdgeCreate(void)
 {
-    bool indent = Config::instance()->getScreenEdgeIndent();
+    bool indent = pekwm::config()->getScreenEdgeIndent();
 
     _screen_edges[0] = new EdgeWO(X11::getRoot(), SCREEN_EDGE_LEFT,
-                                  indent && (_config->getScreenEdgeSize(SCREEN_EDGE_LEFT) > 0));
+                                  indent && (pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_LEFT) > 0));
     _screen_edges[1] = new EdgeWO(X11::getRoot(), SCREEN_EDGE_RIGHT,
-                                  indent && (_config->getScreenEdgeSize(SCREEN_EDGE_RIGHT) > 0));
+                                  indent && (pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_RIGHT) > 0));
     _screen_edges[2] = new EdgeWO(X11::getRoot(), SCREEN_EDGE_TOP,
-                                  indent && (_config->getScreenEdgeSize(SCREEN_EDGE_TOP) > 0));
+                                  indent && (pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_TOP) > 0));
     _screen_edges[3] = new EdgeWO(X11::getRoot(), SCREEN_EDGE_BOTTOM,
-                                  indent && (_config->getScreenEdgeSize(SCREEN_EDGE_BOTTOM) > 0));
+                                  indent && (pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_BOTTOM) > 0));
 
     // make sure the edge stays ontop
     for (int i=0; i < 4; ++i) {
@@ -430,10 +392,10 @@ WindowManager::screenEdgeCreate(void)
 void
 WindowManager::screenEdgeResize(void)
 {
-    uint l_size = std::max(_config->getScreenEdgeSize(SCREEN_EDGE_LEFT), 1);
-    uint r_size = std::max(_config->getScreenEdgeSize(SCREEN_EDGE_RIGHT), 1);
-    uint t_size = std::max(_config->getScreenEdgeSize(SCREEN_EDGE_TOP), 1);
-    uint b_size = std::max(_config->getScreenEdgeSize(SCREEN_EDGE_BOTTOM), 1);
+    uint l_size = std::max(pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_LEFT), 1);
+    uint r_size = std::max(pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_RIGHT), 1);
+    uint t_size = std::max(pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_TOP), 1);
+    uint b_size = std::max(pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_BOTTOM), 1);
 
     // Left edge
     _screen_edges[0]->moveResize(0, 0, l_size, X11::getHeight());
@@ -448,8 +410,8 @@ WindowManager::screenEdgeResize(void)
     _screen_edges[3]->moveResize(l_size, X11::getHeight() - b_size, X11::getWidth() - l_size - r_size, b_size);
 
     for (int i=0; i<4; ++i) {
-        _screen_edges[i]->configureStrut(_config->getScreenEdgeIndent()
-                        && _config->getScreenEdgeSize(_screen_edges[i]->getEdge()) > 0);
+        _screen_edges[i]->configureStrut(pekwm::config()->getScreenEdgeIndent()
+                        && pekwm::config()->getScreenEdgeSize(_screen_edges[i]->getEdge()) > 0);
     }
 
     X11::updateStrut();
@@ -461,8 +423,8 @@ WindowManager::screenEdgeMapUnmap(void)
     EdgeWO* edge;
     for (int i=0; i<4; ++i) {
         edge = _screen_edges[i];
-        if (_config->getScreenEdgeSize(edge->getEdge()) > 0
-            && _config->getEdgeListFromPosition(edge->getEdge())->size() > 0) {
+        if (pekwm::config()->getScreenEdgeSize(edge->getEdge()) > 0
+            && pekwm::config()->getEdgeListFromPosition(edge->getEdge())->size() > 0) {
             edge->mapWindow();
         } else {
             edge->unmapWindow();
@@ -480,7 +442,7 @@ WindowManager::doReload(void)
     doReloadKeygrabber();
     doReloadAutoproperties();
 
-    MenuHandler::reloadMenus(_action_handler);
+    MenuHandler::reloadMenus(pekwm::actionHandler());
     doReloadHarbour();
 
     _root_wo->setEwmhDesktopNames();
@@ -496,24 +458,24 @@ void
 WindowManager::doReloadConfig(void)
 {
     // If any of these changes, re-fetch of all names is required
-    bool old_client_unique_name = _config->getClientUniqueName();
-    auto old_client_unique_name_pre = _config->getClientUniqueNamePre();
-    auto old_client_unique_name_post = _config->getClientUniqueNamePost();
+    bool old_client_unique_name = pekwm::config()->getClientUniqueName();
+    auto old_client_unique_name_pre = pekwm::config()->getClientUniqueNamePre();
+    auto old_client_unique_name_post = pekwm::config()->getClientUniqueNamePost();
 
     // Reload configuration
-    if (! _config->load(_config->getConfigFile())) {
+    if (! pekwm::config()->load(pekwm::config()->getConfigFile())) {
         return;
     }
 
     // Update what might have changed in the cfg touching the hints
-    Workspaces::setSize(_config->getWorkspaces());
-    Workspaces::setPerRow(_config->getWorkspacesPerRow());
+    Workspaces::setSize(pekwm::config()->getWorkspaces());
+    Workspaces::setPerRow(pekwm::config()->getWorkspacesPerRow());
     Workspaces::setNames();
 
     // Update the ClientUniqueNames if needed
-    if ((old_client_unique_name != _config->getClientUniqueName()) ||
-        (old_client_unique_name_pre != _config->getClientUniqueNamePre()) ||
-        (old_client_unique_name_post != _config->getClientUniqueNamePost())) {
+    if ((old_client_unique_name != pekwm::config()->getClientUniqueName()) ||
+        (old_client_unique_name_pre != pekwm::config()->getClientUniqueNamePre()) ||
+        (old_client_unique_name_post != pekwm::config()->getClientUniqueNamePost())) {
         for_each(Client::client_begin(), Client::client_end(),
                  std::mem_fn(&Client::readName));
     }
@@ -532,7 +494,7 @@ void
 WindowManager::doReloadTheme(void)
 {
     // Reload the theme
-    if (! Theme::instance()->load(_config->getThemeFile())) {
+    if (! pekwm::theme()->load(pekwm::config()->getThemeFile())) {
         return;
     }
 
@@ -547,7 +509,7 @@ WindowManager::doReloadTheme(void)
 void
 WindowManager::doReloadMouse(void)
 {
-    if (! _config->loadMouseConfig(_config->getMouseConfigFile())) {
+    if (! pekwm::config()->loadMouseConfig(pekwm::config()->getMouseConfigFile())) {
         return;
     }
 
@@ -562,19 +524,19 @@ void
 WindowManager::doReloadKeygrabber(bool force)
 {
     // Reload the keygrabber
-    if (! _keygrabber->load(_config->getKeyFile(), force)) {
+    if (! pekwm::keyGrabber()->load(pekwm::config()->getKeyFile(), force)) {
         return;
     }
 
-    _keygrabber->ungrabKeys(X11::getRoot());
-    _keygrabber->grabKeys(X11::getRoot());
+    pekwm::keyGrabber()->ungrabKeys(X11::getRoot());
+    pekwm::keyGrabber()->grabKeys(X11::getRoot());
 
     // Regrab keys and buttons
     auto c_it(Client::client_begin());
     for (; c_it != Client::client_end(); ++c_it) {
         (*c_it)->grabButtons();
-        _keygrabber->ungrabKeys((*c_it)->getWindow());
-        _keygrabber->grabKeys((*c_it)->getWindow());
+        pekwm::keyGrabber()->ungrabKeys((*c_it)->getWindow());
+        pekwm::keyGrabber()->grabKeys((*c_it)->getWindow());
     }
 }
 
@@ -584,7 +546,7 @@ WindowManager::doReloadKeygrabber(bool force)
 void
 WindowManager::doReloadAutoproperties(void)
 {
-    if (! AutoProperties::instance()->load()) {
+    if (! pekwm::autoProperties()->load()) {
         return;
     }
 
@@ -779,7 +741,7 @@ WindowManager::handleKeyEvent(XKeyEvent *ev)
     case PWinObj::WO_SCREEN_ROOT:
     case PWinObj::WO_MENU:
         if (ev->type == KeyPress) {
-            ae = _keygrabber->findAction(ev, type, &matched);
+            ae = pekwm::keyGrabber()->findAction(ev, type, &matched);
         }
         break;
     case PWinObj::WO_CMD_DIALOG:
@@ -833,13 +795,13 @@ WindowManager::handleKeyEventAction(XKeyEvent *ev, ActionEvent *ae, PWinObj *wo,
         close_ae.action_list.back().setAction(ACTION_CLOSE);
 
         ActionPerformed close_ap(wo_orig, close_ae);
-        _action_handler->handleAction(close_ap);
+        pekwm::actionHandler()->handleAction(close_ap);
     }
 
     ActionPerformed ap(wo, *ae);
     ap.type = ev->type;
     ap.event.key = ev;
-    _action_handler->handleAction(ap);
+    pekwm::actionHandler()->handleAction(ap);
 }
 
 void
@@ -884,7 +846,7 @@ WindowManager::handleButtonPressEvent(XButtonEvent *ev)
         ap.type = ev->type;
         ap.event.button = ev;
 
-        _action_handler->handleAction(ap);
+        pekwm::actionHandler()->handleAction(ap);
     } else {
         DockApp *da = _harbour->findDockAppFromFrame(ev->window);
         if (da) {
@@ -931,7 +893,7 @@ WindowManager::handleButtonReleaseEvent(XButtonEvent *ev)
             ap.type = ev->type;
             ap.event.button = ev;
 
-            _action_handler->handleAction(ap);
+            pekwm::actionHandler()->handleAction(ap);
         }
     } else {
         DockApp *da = _harbour->findDockAppFromFrame(ev->window);
@@ -1008,7 +970,7 @@ WindowManager::handleMotionEvent(XMotionEvent *ev)
             ap.type = ev->type;
             ap.event.motion = ev;
 
-            _action_handler->handleAction(ap);
+            pekwm::actionHandler()->handleAction(ap);
         }
     } else {
         DockApp *da = _harbour->findDockAppFromFrame(ev->window);
@@ -1116,7 +1078,7 @@ WindowManager::handleEnterNotify(XCrossingEvent *ev)
             ap.type = ev->type;
             ap.event.crossing = ev;
 
-            _action_handler->handleAction(ap);
+            pekwm::actionHandler()->handleAction(ap);
         }
     }
 }
@@ -1145,7 +1107,7 @@ WindowManager::handleLeaveNotify(XCrossingEvent *ev)
             ap.type = ev->type;
             ap.event.crossing = ev;
 
-            _action_handler->handleAction(ap);
+            pekwm::actionHandler()->handleAction(ap);
         }
     }
 }
@@ -1310,7 +1272,7 @@ WindowManager::handleExposeEvent(XExposeEvent *ev)
         ap.type = ev->type;
         ap.event.expose = ev;
 
-        _action_handler->handleAction(ap);
+        pekwm::actionHandler()->handleAction(ap);
     }
 }
 
@@ -1428,7 +1390,7 @@ WindowManager::createClient(Window window, bool is_new)
             // focus stealing.
             if (initConfig.focus) {
                 PWinObj *wo = PWinObj::getFocusedPWinObj();
-                Time time_protect = static_cast<Time>(Config::instance()->getFocusStealProtect());
+                Time time_protect = static_cast<Time>(pekwm::config()->getFocusStealProtect());
 
                 if (wo && wo->isMapped() && wo->isKeyboardInput()
                     && time_protect && time_protect >= (X11::getLastEventTime() - wo->getLastActivity())) {

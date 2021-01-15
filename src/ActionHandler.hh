@@ -23,14 +23,13 @@ class Frame;
 class PWinObj;
 class PDecor;
 class PMenu;
+class WindowManager;
 
 class ActionHandler
 {
 public:
-    ActionHandler(void);
+    ActionHandler(WindowManager *wm);
     ~ActionHandler(void);
-
-    static inline ActionHandler *instance(void) { return _instance; }
 
     void handleAction(const ActionPerformed &ap);
 
@@ -68,9 +67,15 @@ private:
     void initSendKeyEvent(XEvent &ev, PWinObj *wo);
 
 private:
-    std::map<uint, uint> _state_to_keycode; /**< Map translating state modifiers to keycode. */
+    WindowManager *_wm;
 
-    static ActionHandler *_instance; /**< Instance pointer for ActionHandler. */
+    /** Map translating state modifiers to keycode. */
+    std::map<uint, uint> _state_to_keycode;
 };
+
+namespace pekwm
+{
+    ActionHandler* actionHandler();
+}
 
 #endif // _ACTIONHANDLER_HH_
