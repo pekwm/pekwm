@@ -24,7 +24,7 @@ class ActionHandler;
 class MenuHandler {
 public:
     static PMenu *getMenu(const std::string &name) {
-        std::map<std::string, PMenu*>::iterator it = _menu_map.find(name);
+        auto it = _menu_map.find(name);
         return (it != _menu_map.end()) ? it->second : 0;
     }
 
@@ -41,9 +41,8 @@ public:
 
     static void createMenus(ActionHandler *act);
     static void hideAllMenus(void) {
-        std::map<std::string, PMenu*>::iterator it(_menu_map.begin());
-        for (; it != _menu_map.end(); ++it) {
-            it->second->unmapAll();
+        for (auto it : _menu_map) {
+            it.second->unmapAll();
         }
     }
     static void reloadMenus(ActionHandler *act);

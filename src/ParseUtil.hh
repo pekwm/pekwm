@@ -56,7 +56,7 @@ inline T
 getValue(const std::string &text,
          typename std::map<ParseUtil::Entry, T> &val)
 {
-    typename std::map<ParseUtil::Entry, T>::iterator it = val.find(text);
+    auto it = val.find(text);
     return (it != val.end()) ? it->second : val[""];
 }
 

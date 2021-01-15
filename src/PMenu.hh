@@ -84,8 +84,8 @@ public:
     virtual void loadTheme(void);
     // END - PDecor interface.
 
-    static inline PMenu *findMenu(Window win) {
-        std::map<Window, PMenu*>::iterator it = _menu_map.find(win);
+    static PMenu *findMenu(Window win) {
+        auto it = _menu_map.find(win);
         return (it != _menu_map.end()) ? it->second : 0;
     }
 

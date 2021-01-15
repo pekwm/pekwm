@@ -119,7 +119,6 @@ AutoProperties::load(void)
     _apply_on_start = true;
 
     std::vector<std::string> tokens;
-    std::vector<std::string>::iterator token_it;
     std::vector<uint> workspaces;
 
     auto it(a_cfg.getEntryRoot()->begin());
@@ -139,8 +138,9 @@ AutoProperties::load(void)
             tokens.clear();
             if (Util::splitString(workspace->getValue(), tokens, " \t")) {
                 workspaces.clear();
-                for (token_it = tokens.begin(); token_it != tokens.end(); ++token_it)
-                    workspaces.push_back(strtol(token_it->c_str(), 0, 10));
+                for (auto it : tokens) {
+                    workspaces.push_back(strtol(it.c_str(), 0, 10));
+                }
 
                 // Get all properties on for these workspaces.
                 CfgParser::iterator workspace_it(workspace->begin());
@@ -524,7 +524,6 @@ AutoProperties::parseTypeProperty(CfgParser::Entry *section)
     AtomName atom;
     AutoProperty *type_property;
     CfgParser::Entry *type_section;
-    std::map<AtomName, AutoProperty*>::iterator atom_it;
 
     // Look for all type properties
     auto it(section->begin());
@@ -549,7 +548,7 @@ AutoProperties::parseTypeProperty(CfgParser::Entry *section)
             parseAutoPropertyValue(type_section, type_property, 0);
 
             // Add to list, make sure it does not exist already
-            atom_it = _window_type_prop_map.find(atom);
+            auto atom_it = _window_type_prop_map.find(atom);
             if (atom_it != _window_type_prop_map.end()) {
                 std::cerr
                     << " *** WARNING: multiple type autoproperties for type "
@@ -685,7 +684,6 @@ AutoProperties::parseAutoPropertyValue(CfgParser::Entry *section,
     // start parsing of values
     std::string name, value;
     std::vector<std::string> tokens;
-    std::vector<std::string>::iterator token_it;
     PropertyType property_type;
 
     auto it(section->begin());
@@ -746,8 +744,8 @@ AutoProperties::parseAutoPropertyValue(CfgParser::Entry *section,
             prop->maskAdd(AP_SKIP);
             tokens.clear();
             if ((Util::splitString((*it)->getValue(), tokens, " \t"))) {
-                for (token_it = tokens.begin(); token_it != tokens.end(); ++token_it) {
-                    prop->skip |= Config::instance()->getSkip(*token_it);
+                for (auto it : tokens) {
+                    prop->skip |= Config::instance()->getSkip(it);
                 }
             }
             break;
@@ -771,8 +769,8 @@ AutoProperties::parseAutoPropertyValue(CfgParser::Entry *section,
             prop->maskAdd(AP_CFG_DENY);
             tokens.clear();
             if ((Util::splitString((*it)->getValue(), tokens, " \t"))) {
-                for (token_it = tokens.begin(); token_it != tokens.end(); ++token_it) {
-                    prop->cfg_deny |= Config::instance()->getCfgDeny(*token_it);
+                for (auto it : tokens) {
+                    prop->cfg_deny |= Config::instance()->getCfgDeny(it);
                 }
             }
             break;

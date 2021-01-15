@@ -920,7 +920,6 @@ Config::parseKey(const std::string &key_string, uint &mod, uint &key)
 {
     // used for parsing
     std::vector<std::string> tok;
-    std::vector<std::string>::iterator it;
 
     uint num;
 
@@ -967,8 +966,8 @@ Config::parseKey(const std::string &key_string, uint &mod, uint &key)
 
             // add the modifier
             mod = 0;
-            for (it = tok.begin(); it != tok.end(); ++it) {
-                mod |= getMod(*it);
+            for (auto it : tok) {
+                mod |= getMod(it);
             }
 
             return true;
@@ -983,7 +982,6 @@ Config::parseButton(const std::string &button_string, uint &mod, uint &button)
 {
     // used for parsing
     std::vector<std::string> tok;
-    std::vector<std::string>::iterator it;
 
     // chop the string up separating mods and the end key/button
     if (Util::splitString(button_string, tok, " \t")) {
@@ -996,8 +994,8 @@ Config::parseButton(const std::string &button_string, uint &mod, uint &button)
             mod = 0;
             uint tmp_mod;
 
-            for (it = tok.begin(); it != tok.end(); ++it) {
-                tmp_mod = getMod(*it);
+            for (auto it : tok) {
+                tmp_mod = getMod(it);
                 if (tmp_mod == MOD_ANY) {
                     mod = MOD_ANY;
                     break;
@@ -1241,7 +1239,6 @@ bool
 Config::parseActions(const std::string &action_string, ActionEvent &ae, uint mask)
 {
     std::vector<std::string> tok;
-    std::vector<std::string>::iterator it;
     Action action;
 
     // reset the action event
@@ -1249,8 +1246,8 @@ Config::parseActions(const std::string &action_string, ActionEvent &ae, uint mas
 
     // chop the string up separating the actions
     if (Util::splitString(action_string, tok, ";", 0, false, '\\')) {
-        for (it = tok.begin(); it != tok.end(); ++it) {
-            if (parseAction(*it, action, mask)) {
+        for (auto it : tok) {
+            if (parseAction(it, action, mask)) {
                 ae.action_list.push_back(action);
                 action.clear();
             }
@@ -1329,10 +1326,10 @@ Config::parseMoveResizeAction(const std::string &action_string, Action &action)
 }
 
 bool
-Config::parseMoveResizeActions(const std::string &action_string, ActionEvent& ae)
+Config::parseMoveResizeActions(const std::string &action_string,
+                               ActionEvent& ae)
 {
     std::vector<std::string> tok;
-    std::vector<std::string>::iterator it;
     Action action;
 
     // reset the action event
@@ -1340,8 +1337,8 @@ Config::parseMoveResizeActions(const std::string &action_string, ActionEvent& ae
 
     // chop the string up separating the actions
     if (Util::splitString(action_string, tok, ";")) {
-        for (it = tok.begin(); it != tok.end(); ++it) {
-            if (parseMoveResizeAction(*it, action)) {
+        for (auto it : tok) {
+            if (parseMoveResizeAction(it, action)) {
                 ae.action_list.push_back(action);
                 action.clear();
             }
@@ -1384,7 +1381,6 @@ bool
 Config::parseInputDialogActions(const std::string &actions, ActionEvent &ae)
 {
     std::vector<std::string> tok;
-    std::vector<std::string>::iterator it;
     Action action;
     std::string::size_type first, last;
 
@@ -1393,13 +1389,14 @@ Config::parseInputDialogActions(const std::string &actions, ActionEvent &ae)
 
     // chop the string up separating the actions
     if (Util::splitString(actions, tok, ";")) {
-        for (it = tok.begin(); it != tok.end(); ++it) {
-            first = (*it).find_first_not_of(" \t\n");
-            if (first == std::string::npos)
+        for (auto it : tok) {
+            first = it.find_first_not_of(" \t\n");
+            if (first == std::string::npos) {
                 continue;
-            last = (*it).find_last_not_of(" \t\n");
-            (*it) = (*it).substr(first, last-first+1);
-            if (parseInputDialogAction(*it, action)) {
+            }
+            last = it.find_last_not_of(" \t\n");
+            auto name = it.substr(first, last-first+1);
+            if (parseInputDialogAction(name, action)) {
                 ae.action_list.push_back(action);
                 action.clear();
             }
@@ -1472,7 +1469,6 @@ bool
 Config::parseMenuActions(const std::string &actions, ActionEvent &ae)
 {
     std::vector<std::string> tok;
-    std::vector<std::string>::iterator it;
     Action action;
 
     // reset the action event
@@ -1480,8 +1476,8 @@ Config::parseMenuActions(const std::string &actions, ActionEvent &ae)
 
     // chop the string up separating the actions
     if (Util::splitString(actions, tok, ";", 0, false, '\\')) {
-        for (it = tok.begin(); it != tok.end(); ++it) {
-            if (parseMenuAction(*it, action)) {
+        for (auto it : tok) {
+            if (parseMenuAction(it, action)) {
                 ae.action_list.push_back(action);
                 action.clear();
             }
