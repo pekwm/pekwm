@@ -23,6 +23,7 @@ set(libpekwm_SOURCES
   Frame.cc
   FontHandler.cc
   FrameListMenu.cc
+  Globals.cc
   Harbour.cc
   ImageHandler.cc
   InputDialog.cc
@@ -49,7 +50,6 @@ set(libpekwm_SOURCES
   WinLayouter.cc
   Workspaces.cc
   WorkspaceIndicator.cc
-  pekwm.cc
   x11.cc)
 set(common_INCLUDE_DIRS ${PROJECT_BINARY_DIR}/src ${ICONV_INCLUDE_DIR} ${X11_INCLUDE_DIR})
 set(common_LIBRARIES ${ICONV_LIBRARIES} ${X11_LIBRARIES})
@@ -97,7 +97,7 @@ set_target_properties(libpekwm PROPERTIES
   CXX_STANDARD 11
   CXX_STANDARD_REQUIRED ON)
 
-add_executable(pekwm main.cc)
+add_executable(pekwm pekwm.cc)
 target_include_directories(pekwm PUBLIC ${common_INCLUDE_DIRS})
 target_link_libraries(pekwm libpekwm ${common_LIBRARIES})
 
