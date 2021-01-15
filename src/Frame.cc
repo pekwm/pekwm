@@ -995,7 +995,7 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: r
 
     bool status = X11::grabPointer(X11::getRoot(),
                                    ButtonReleaseMask|PointerMotionMask,
-                                   CURSOR_NONE);
+                                   None);
     if (status != true) {
         return;
     }
