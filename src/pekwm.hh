@@ -241,8 +241,7 @@ enum CursorType {
     CURSOR_ARROW = BORDER_NO_POS,
     CURSOR_MOVE,
     CURSOR_RESIZE,
-    CURSOR_NONE,
-    MAX_NR_CURSOR
+    CURSOR_NONE
 };
 
 enum ButtonState {

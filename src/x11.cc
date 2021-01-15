@@ -212,7 +212,6 @@ X11::init(Display *dpy, bool honour_randr)
     _cursor_map[CURSOR_ARROW] = XCreateFontCursor(_dpy, XC_left_ptr);
     _cursor_map[CURSOR_MOVE]  = XCreateFontCursor(_dpy, XC_fleur);
     _cursor_map[CURSOR_RESIZE] = XCreateFontCursor(_dpy, XC_plus);
-    _cursor_map[CURSOR_NONE] = None;
 
 #ifdef HAVE_SHAPE
     {
@@ -980,4 +979,4 @@ Window X11::_last_click_id = None;
 Time X11::_last_click_time[BUTTON_NO - 1];
 std::vector<X11::ColorEntry*> X11::_colours;
 XColor X11::_xc_default;
-std::array<Cursor, MAX_NR_CURSOR> X11::_cursor_map;
+std::array<Cursor, CURSOR_NONE> X11::_cursor_map;

@@ -478,7 +478,7 @@ private:
     static Window _last_click_id;
     static Time _last_click_time[BUTTON_NO - 1];
 
-    static std::array<Cursor, MAX_NR_CURSOR> _cursor_map;
+    static std::array<Cursor, CURSOR_NONE> _cursor_map;
 
     class ColorEntry;
     static std::vector<ColorEntry *> _colours;
