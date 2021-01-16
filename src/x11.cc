@@ -1,6 +1,6 @@
 //
 // x11.cc for pekwm
-// Copyright (C) 2009-2020 the pekwm development team
+// Copyright (C) 2009-2021 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -125,6 +125,7 @@ static const char *atomnames[] = {
     "_PEKWM_FRAME_DECOR",
     "_PEKWM_FRAME_SKIP",
     "_PEKWM_TITLE",
+    "_PEKWM_BG_PID",
 
     // ICCCM atoms
     "WM_NAME",
@@ -141,7 +142,10 @@ static const char *atomnames[] = {
     "WM_CLIENT_MACHINE",
 
     // miscellaneous atoms
-    "_MOTIF_WM_HINTS"
+    "_MOTIF_WM_HINTS",
+
+    "_XROOTPMAP_ID",
+    "_XSETROOT_ID",
 };
 
 /**
@@ -449,14 +453,15 @@ X11::ungrabKeyboard(void)
 
 //! @brief Grabs the pointer
 bool
-X11::grabPointer(Window win, uint event_mask, CursorType cursor_type)
+X11::grabPointer(Window win, uint event_mask, CursorType type)
 {
+    auto cursor = type < _cursor_map.size() ? _cursor_map[type] : None;
     if (XGrabPointer(_dpy, win, false, event_mask, GrabModeAsync, GrabModeAsync,
-                     None, _cursor_map[cursor_type], CurrentTime) == GrabSuccess) {
+                     None, cursor, CurrentTime) == GrabSuccess) {
         return true;
     }
-    LOG("X11()::grabPointer(" << win << "," << event_mask << "," << cursor_type <<
-        ") *** unable to grab pointer.");
+    LOG("X11()::grabPointer(" << win << "," << event_mask << "," << type
+        << ") *** unable to grab pointer.");
     return false;
 }
 

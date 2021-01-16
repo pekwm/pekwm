@@ -22,6 +22,7 @@
 #include <iterator>
 
 extern "C" {
+#include <assert.h>
 #include <iconv.h>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -31,6 +32,13 @@ extern "C" {
 }
 
 #include "Util.hh"
+
+namespace String {
+    /** Get safe version of position */
+    size_t safe_position(size_t pos, size_t fallback, size_t add) {
+        return pos == std::wstring::npos ? fallback : (pos + add);
+    }
+}
 
 namespace Util {
 
@@ -68,7 +76,9 @@ std::string getEnv(const std::string& key)
     return val ? val : "";
 }
 
-//! @brief Fork and execute command with /bin/sh and execlp
+/**
+ * Fork and execute command with /bin/sh and execlp
+ */
 void
 forkExec(std::string command)
 {
@@ -93,6 +103,52 @@ forkExec(std::string command)
         std::cerr << __FILE__ << "@" << __LINE__ << ": "
                   << "Util::forkExec(" << command << ") fork failed."
                   << std::endl;
+    }
+}
+
+static void
+forkExecLog(const char* file, unsigned int line, const char *msg,
+            const std::vector<std::string>& args)
+{
+    std::cerr << file << "@" << line << ": "
+              << "Util::forkExec(";
+
+    auto it = args.begin();
+    for (; it != args.end(); ++it) {
+        if (it != args.begin()) {
+            std::cerr << " ";
+        }
+        std::cerr << *it;
+    }
+
+    std::cerr << ") " << msg << std::endl;
+}
+
+pid_t
+forkExec(const std::vector<std::string>& args)
+{
+    assert(! args.empty());
+
+    pid_t pid = fork();
+    switch (pid) {
+    case 0: {
+        int i = 0;
+        auto argv = new char*[args.size() + 1];
+        auto it = args.begin();
+        for (; it != args.end(); ++it) {
+            argv[i++] = const_cast<char*>(it->c_str());
+        }
+        argv[i] = nullptr;
+
+        setsid();
+        execv(argv[0], argv);
+        forkExecLog(__FILE__, __LINE__, "execv failed", args);
+        exit(1);
+    }
+    case -1:
+        forkExecLog(__FILE__, __LINE__, "fork failed", args);
+    default:
+        return pid;
     }
 }
 

@@ -1,6 +1,6 @@
 //
 // Util.hh for pekwm
-// Copyright (C) 2002-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2002-2021 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -30,10 +30,7 @@ extern "C" {
  * when working with strings.
  */
 namespace String {
-    /** Get safe version of position */
-    inline size_t safe_position(size_t pos, size_t fallback = 0, size_t add = 0) {
-        return pos == std::wstring::npos ? fallback : (pos + add);
-    }
+    size_t safe_position(size_t pos, size_t fallback = 0, size_t add = 0);
 }
 
 //! @brief Namespace Util used for various small file/string tasks.
@@ -41,6 +38,7 @@ namespace Util {
     std::string getEnv(const std::string& key);
 
     void forkExec(std::string command);
+    pid_t forkExec(const std::vector<std::string>& args);
     std::string getHostname(void);
 
     bool isFile(const std::string &file);

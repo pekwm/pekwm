@@ -1,6 +1,6 @@
 //
 // PImage.hh for pekwm
-// Copyright (C) 2007-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2007-2021 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -13,17 +13,21 @@
 #include "PImageIcon.hh"
 #include "x11.hh"
 
-//! @brief PImageIcon constructor.
-//! @param dpy Display to load icon from.
+/**
+ * PImageIcon constructor.
+ *
+ * @param dpy Display to load icon from.
+ */
 PImageIcon::PImageIcon()
   : PImage()
 {
     _type = IMAGE_TYPE_SCALED;
-    _has_alpha = true;
     _use_alpha = true;
 }
 
-//! @brief PImage destructor.
+/**
+ * PImage destructor.
+ */
 PImageIcon::~PImageIcon(void)
 {
 }
@@ -45,7 +49,6 @@ PImageIcon::loadFromWindow(Window win)
 
         XFree(udata);
     }
-
     return status;
 }
 
@@ -55,40 +58,38 @@ PImageIcon::loadFromWindow(Window win)
 bool
 PImageIcon::setImageFromData(uchar *udata, ulong actual)
 {
-    // Icon size successfully read, proceed with loading the actual icon data.
+    // Icon size successfully read, proceed with loading the actual
+    // icon data.
     long *from_data = reinterpret_cast<long*>(udata);
     uint width = from_data[0];
     uint height = from_data[1];
-    if (actual < (width * height + 2)) {
+    uint pixels = width * height;
+    if (actual < (pixels + 2)) {
         return false;
     }
 
     _width = width;
     _height = height;
 
-    _data = new uchar[_width * _height * 4];
-    convertARGBtoRGBA(_width * _height, from_data, _data);
-
+    _data = new uchar[pixels * 4];
+    convertToARGB(pixels, from_data, _data);
     _pixmap = createPixmap(_data, _width, _height);
     _mask =  createMask(_data, _width, _height);
 
     return true;
 }
 
-/**
- * Convert data, source data is ARGB one pixel per 32bit and
- * destination is RGBA in 4x8bit.
- */
 void
-PImageIcon::convertARGBtoRGBA(ulong size, long *from_data, uchar *to_data)
+PImageIcon::convertToARGB(ulong pixels, long *from_data, uchar *to_data)
 {
-    uchar *p = to_data;
+    long *src = from_data;
+    uchar *dst = to_data;
     int pixel;
-    for (ulong i = 2; i < size; i += 1) {
-        pixel = from_data[i]; // in case 64bit system drop the unneeded bits
-        *p++ = pixel >> 16 & 0xff;
-        *p++ = pixel >> 8 & 0xff;
-        *p++ = pixel & 0xff;
-        *p++ = pixel >> 24 & 0xff;
+    for (ulong i = 0; i < pixels; i += 1) {
+        pixel = *src++; // in case 64bit system drop the unneeded bits
+        *dst++ = pixel >> 24 & 0xff;
+        *dst++ = pixel >> 16 & 0xff;
+        *dst++ = pixel >> 8 & 0xff;
+        *dst++ = pixel & 0xff;
     }
 }

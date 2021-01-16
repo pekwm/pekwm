@@ -76,6 +76,6 @@ private:
 namespace pekwm
 {
     Harbour* harbour();
-};
+}
 
 #endif // _HARBOUR_HH_

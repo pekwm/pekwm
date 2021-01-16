@@ -226,7 +226,7 @@ public:
     }
     //! @brief Sets Window background pixmap.
     inline void setBackgroundPixmap(Pixmap pm) {
-        XSetWindowBackgroundPixmap(X11::getDpy(), _window, pm);
+        X11::setWindowBackgroundPixmap(_window, pm);
     }
 
 protected:

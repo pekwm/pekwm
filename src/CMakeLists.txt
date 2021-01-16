@@ -5,47 +5,51 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 configure_file(${CMAKE_SOURCE_DIR}/CMake/config.h.in
   ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 
-set(libpekwm_SOURCES
-  Action.cc
-  ActionHandler.cc
-  ActionMenu.cc
-  AutoProperties.cc
+set(util_SOURCES
   CfgParser.cc
   CfgParserKey.cc
   CfgParserSource.cc
   Compat.cc
+  Debug.cc
+  Observable.cc
+  RegexString.cc
+  Util.cc)
+
+set(texture_SOURCES
+  ImageHandler.cc
+  PImage.cc
+  PTexturePlain.cc
+  TextureHandler.cc)
+
+set(wm_SOURCES
+  Action.cc
+  ActionHandler.cc
+  ActionMenu.cc
+  AutoProperties.cc
   Completer.cc
   Client.cc
   ClientMgr.cc
   CmdDialog.cc
   Config.cc
-  Debug.cc
   DockApp.cc
   Frame.cc
   FontHandler.cc
   FrameListMenu.cc
   Globals.cc
   Harbour.cc
-  ImageHandler.cc
   InputDialog.cc
   KeyGrabber.cc
   ManagerWindows.cc
   MenuHandler.cc
-  Observable.cc
   PDecor.cc
   PFont.cc
   PMenu.cc
-  PTexturePlain.cc
   PWinObj.cc
   PWinObjReference.cc
-  PImage.cc
   PImageIcon.cc
-  RegexString.cc
   StatusWindow.cc
   SearchDialog.cc
   Theme.cc
-  TextureHandler.cc
-  Util.cc
   WORefMenu.cc
   WindowManager.cc
   WinLayouter.cc
@@ -70,14 +74,20 @@ if (ENABLE_XFT AND X11_Xft_FOUND AND FREETYPE_FOUND)
   set(common_LIBRARIES ${common_LIBRARIES} ${X11_Xft_LIB} ${FREETYPE_LIBRARIES})
 endif (ENABLE_XFT AND X11_Xft_FOUND AND FREETYPE_FOUND)
 
+if (ENABLE_IMAGE_JPEG AND JPEG_FOUND)
+  set(texture_SOURCES ${texture_SOURCES} PImageLoaderJpeg.cc)
+  set(common_INCLUDE_DIRS ${common_INCLUDE_DIRS} ${JPEG_INCLUDE_DIR})
+  set(common_LIBRARIES ${common_LIBRARIES} ${JPEG_LIBRARY})
+endif (ENABLE_IMAGE_JPEG AND JPEG_FOUND)
+
 if (ENABLE_IMAGE_PNG AND PNG_FOUND)
-  set(libpekwm_SOURCES ${libpekwm_SOURCES} PImageLoaderPng.cc)
+  set(texture_SOURCES ${texture_SOURCES} PImageLoaderPng.cc)
   set(common_INCLUDE_DIRS ${common_INCLUDE_DIRS} ${PNG_INCLUDE_DIR})
   set(common_LIBRARIES ${common_LIBRARIES} ${PNG_LIBRARY_RELEASE})
 endif (ENABLE_IMAGE_PNG AND PNG_FOUND)
 
 if (ENABLE_IMAGE_XPM AND X11_Xpm_FOUND)
-  set(libpekwm_SOURCES ${libpekwm_SOURCES} PImageLoaderXpm.cc)
+  set(texture_SOURCES ${texture_SOURCES} PImageLoaderXpm.cc)
   set(common_INCLUDE_DIRS ${common_INCLUDE_DIRS} ${X11_Xpm_INCLUDE_PATH})
   set(common_LIBRARIES ${common_LIBRARIES} ${X11_Xpm_LIB})
 endif (ENABLE_IMAGE_XPM AND X11_Xpm_FOUND)
@@ -87,19 +97,25 @@ if (ENABLE_RANDR AND X11_Xrandr_FOUND)
   set(common_LIBRARIES ${common_LIBRARIES} ${X11_Xrandr_LIB})
 endif (ENABLE_RANDR AND X11_Xrandr_FOUND)
 
-add_library(libpekwm STATIC ${libpekwm_SOURCES})
-target_include_directories(libpekwm PUBLIC ${common_INCLUDE_DIRS})
+add_library(util STATIC ${util_SOURCES})
+target_include_directories(util PUBLIC ${common_INCLUDE_DIRS})
 
-set_target_properties(libpekwm PROPERTIES
-  CXX_STANDARD 11
-  CXX_STANDARD_REQUIRED ON)
+add_library(texture STATIC ${texture_SOURCES})
+target_include_directories(texture PUBLIC ${common_INCLUDE_DIRS})
+
+add_library(wm STATIC ${wm_SOURCES})
+target_include_directories(wm PUBLIC ${common_INCLUDE_DIRS})
 
 add_executable(pekwm pekwm.cc)
 target_include_directories(pekwm PUBLIC ${common_INCLUDE_DIRS})
-target_link_libraries(pekwm libpekwm ${common_LIBRARIES})
-
-set_target_properties(pekwm PROPERTIES
-  CXX_STANDARD 11
-  CXX_STANDARD_REQUIRED ON)
+target_link_libraries(pekwm wm texture util ${common_LIBRARIES})
 
 install(TARGETS pekwm DESTINATION bin)
+
+add_executable(pekwm_bg
+  pekwm_bg.cc
+  x11.cc)
+target_include_directories(pekwm_bg PUBLIC ${common_INCLUDE_DIRS})
+target_link_libraries(pekwm_bg texture util ${common_LIBRARIES})
+
+install(TARGETS pekwm_bg DESTINATION bin)

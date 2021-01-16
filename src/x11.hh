@@ -13,8 +13,9 @@
 
 #include "pekwm.hh"
 
-#include <string>
 #include <array>
+#include <iostream>
+#include <string>
 
 extern "C" {
 #include <X11/Xlib.h>
@@ -163,7 +164,7 @@ public:
     static bool ungrabServer(bool sync);
     static bool grabKeyboard(Window win);
     static bool ungrabKeyboard(void);
-    static bool grabPointer(Window win, uint event_mask, CursorType);
+    static bool grabPointer(Window win, uint event_mask, CursorType cursor);
     static bool ungrabPointer(void);
 
     static uint getNearestHead(int x, int y);
@@ -230,8 +231,9 @@ public:
         }
         return false;
     }
-    inline static void setLong(Window win, AtomName aname, long value) {
-        XChangeProperty(_dpy, win, _atoms[aname], XA_CARDINAL, 32,
+    static void setLong(Window win, AtomName aname, long value,
+                        long format=XA_CARDINAL) {
+        XChangeProperty(_dpy, win, _atoms[aname], format, 32,
                         PropModeReplace, (uchar *) &value, 1);
     }
     inline static void setLongs(Window win, AtomName aname, long *values, int num) {
@@ -391,6 +393,11 @@ public:
     freePixmap(Pixmap pixmap) {
         XFreePixmap(_dpy, pixmap);
     }
+
+    static void setWindowBackgroundPixmap(Window window, Pixmap pixmap) {
+        XSetWindowBackgroundPixmap(_dpy, window, pixmap);
+    }
+    static void  clearWindow(Window window) { XClearWindow(_dpy, window); }
 
 #ifdef HAVE_SHAPE
     inline static void shapeQuery(Window dst, int *bshaped) {

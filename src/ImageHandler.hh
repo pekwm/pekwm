@@ -12,9 +12,11 @@
 #include "config.h"
 
 #include "Handler.hh"
+#include "PImage.hh"
 #include "ParseUtil.hh"
 
 #include <string>
+#include <vector>
 
 class PImage;
 
@@ -57,6 +59,6 @@ private:
 namespace pekwm
 {
     ImageHandler* imageHandler();
-};
+}
 
 #endif // _IMAGE_HANDLER_HH_

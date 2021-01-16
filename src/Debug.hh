@@ -52,6 +52,11 @@ private:
     static const std::string _msg_bt;
 };
 
+class DebugDbgObj : public std::stringstream {
+public:
+    virtual ~DebugDbgObj() { Debug::addInfo(str()); }
+};
+
 class DebugInfoObj : public std::stringstream {
 public:
     virtual ~DebugInfoObj() { Debug::addInfo(str()); }
@@ -69,6 +74,9 @@ public:
 
 #define ___PEKDEBUG_START __PRETTY_FUNCTION__ << '@' << __LINE__ \
     << ":\n\t" << std::showbase << std::hex
+
+#define DBG(M) \
+    do { DebugDbgObj dobj; dobj << ___PEKDEBUG_START << M; } while (0)
 
 #define LOG(M) \
     do { DebugInfoObj dobj; dobj << ___PEKDEBUG_START << M; } while (0)

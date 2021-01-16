@@ -135,6 +135,7 @@ enum AtomName {
     PEKWM_FRAME_DECOR,
     PEKWM_FRAME_SKIP,
     PEKWM_TITLE,
+    PEKWM_BG_PID,
 
     // ICCCM Atom Names
     WM_NAME,
@@ -152,6 +153,9 @@ enum AtomName {
 
     // List of non PEKWM, ICCCM and EWMH atoms.
     MOTIF_WM_HINTS,
+
+    XROOTPMAP_ID,
+    XSETROOT_ID,
 
     MAX_NR_ATOMS
 };

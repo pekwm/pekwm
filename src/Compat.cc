@@ -1,6 +1,6 @@
 //
 // Compat.cc for pekwm
-// Copyright (C) 2009-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2009-2021 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -11,20 +11,21 @@
 #include "Compat.hh"
 #include "Util.hh"
 
+#include <iostream>
 #include <string>
 #include <cstring>
+
 extern "C" {
+#include <errno.h>
 #include <stdarg.h>
+#include <unistd.h>
 #include <wchar.h>
 }
 
-#ifndef HAVE_UNSETENV
-#include <errno.h>
-#endif // ! HAVE_UNSETENV
-
 #ifndef HAVE_SWPRINTF
 /**< Message displayed when %ls formatting is attempted. */
-static const wchar_t *SWPRINTF_LS_NOT_SUPPORTED = L"%ls format string not supported";
+static const wchar_t *SWPRINTF_LS_NOT_SUPPORTED =
+    L"%ls format string not supported";
 
 /**
  * Compat swprintf, print formatted wide string.
@@ -41,7 +42,7 @@ namespace std {
     {
         size_t len;
         string mb_format(Util::to_mb_str(format));
-    
+
         // Look for wide string formatting, not yet implemented.
         if (mb_format.find("%ls") != string::npos) {
             len = std::min(wcslen(SWPRINTF_LS_NOT_SUPPORTED), maxlen - 1);
@@ -113,3 +114,40 @@ unsetenv(const char *name) {
     }
 }
 #endif // ! HAVE_UNSETENV
+
+#ifndef HAVE_DAEMON
+/**
+ * Compat daemon.
+ */
+int
+daemon(int nochdir, int noclose)
+{
+    pid_t pid = fork();
+    if (pid == -1) {
+        return -1;
+    } else if (pid == 0) {
+        pid_t session = setsid();
+        if (session == -1) {
+            std::cerr << "failed to setsid, aborting: " << strerror(errno)
+                      << std::endl;
+            exit(1);
+        }
+
+        if (! nochdir) {
+            if (chdir("/") == -1) {
+                std::cerr << "failed to change directory to /" << std::endl;
+            }
+        }
+        if (! noclose) {
+            close(0);
+            close(1);
+            close(2);
+        }
+
+    } else {
+        _exit(2);
+    }
+
+    return 0;
+}
+#endif // ! HAVE_DAEMON

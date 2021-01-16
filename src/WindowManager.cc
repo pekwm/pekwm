@@ -205,7 +205,9 @@ WindowManager::cleanup(void)
         (*it_f)->updateInactiveChildInfo();
     }
 
-    pekwm::harbour()->removeAllDockApps();
+    if (pekwm::harbour()) {
+        pekwm::harbour()->removeAllDockApps();
+    }
 
     // To preserve stacking order when destroying the frames, we go through
     // the PWinObj list from the Workspaces and put all Frames into our own
@@ -224,10 +226,13 @@ WindowManager::cleanup(void)
     }
 
     // Delete all Clients.
-    while (Client::client_begin() != Client::client_end())
+    while (Client::client_begin() != Client::client_end()) {
         delete *Client::client_begin();
+    }
 
-    pekwm::keyGrabber()->ungrabKeys(X11::getRoot());
+    if (pekwm::keyGrabber()) {
+        pekwm::keyGrabber()->ungrabKeys(X11::getRoot());
+    }
 
     // destroy screen edge
     for (int i=0; i < 4; ++i) {
@@ -236,8 +241,10 @@ WindowManager::cleanup(void)
         _screen_edges[i]=0;
     }
 
-    XInstallColormap(X11::getDpy(), X11::getColormap());
-    X11::setInputFocus(PointerRoot);
+    if (X11::getDpy()) {
+        XInstallColormap(X11::getDpy(), X11::getColormap());
+        X11::setInputFocus(PointerRoot);
+    }
 }
 
 /**

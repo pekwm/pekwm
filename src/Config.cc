@@ -587,6 +587,8 @@ Config::loadScreen(CfgParser::Entry *section)
     CfgParser::Entry *value;
 
     std::vector<CfgParserKey*> keys;
+    keys.push_back(new CfgParserKeyBool("THEMEBACKGROUND",
+                                        _screen_theme_background, true));
     keys.push_back(new CfgParserKeyNumeric<int>("WORKSPACES",
                                                 _screen_workspaces, 4, 1));
     keys.push_back(new CfgParserKeyNumeric<int>("WORKSPACESPERROW",
