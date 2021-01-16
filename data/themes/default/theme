@@ -11,6 +11,10 @@ Require {
   Templates = "True"
 }
 
+Background {
+  Texture = "Image pekwm_generated-1920x1080.png#scaled"
+}
+
 Define = "Border" {
   Focused {
     TopLeft = "Image top-left.png"

@@ -18,6 +18,9 @@ MoveResize {
 }
 
 Screen {
+    # Set to False to disable background setting from themes.
+    ThemeBackground = "True"
+
     Workspaces = "9"
     WorkspacesPerRow = "3"
     WorkspaceNames = "01;02;03;04;05;06;07;08;09"

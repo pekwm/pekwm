@@ -10,6 +10,10 @@ Require {
   Templates = "True"
 }
 
+Background {
+  Texture = "LinesHorz 25% #f27e3b #f27f2d #f3883c #f59c5c"
+}
+
 Define = "BaseDecor" {
   Height = "17"
   HeightAdapt = "True"

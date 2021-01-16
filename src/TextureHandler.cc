@@ -1,6 +1,6 @@
 //
 // TextureHandler.cc for pekwm
-// Copyright (C) 2004-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2004-2021 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -16,7 +16,6 @@
 
 #include <iostream>
 
-//! @brief TextureHandler constructor
 TextureHandler::TextureHandler(void)
     : _length_min(5)
 {
@@ -24,16 +23,19 @@ TextureHandler::TextureHandler(void)
     _parse_map[""] = PTexture::TYPE_NO;
     _parse_map["SOLID"] = PTexture::TYPE_SOLID;
     _parse_map["SOLIDRAISED"] = PTexture::TYPE_SOLID_RAISED;
+    _parse_map["LINESHORZ"] = PTexture::TYPE_LINES_HORZ;
+    _parse_map["LINESVERT"] = PTexture::TYPE_LINES_VERT;
     _parse_map["IMAGE"] = PTexture::TYPE_IMAGE;
     _parse_map["EMPTY"] = PTexture::TYPE_EMPTY;
 }
 
-//! @brief TextureHandler destructor
 TextureHandler::~TextureHandler(void)
 {
 }
 
-//! @brief Gets or creates a PTexture
+/**
+ * Gets or creates a PTexture
+ */
 PTexture*
 TextureHandler::getTexture(const std::string &texture)
 {
@@ -58,8 +60,11 @@ TextureHandler::getTexture(const std::string &texture)
     return ptexture;
 }
 
-//! @brief Add/Increment reference cont for texture.
-//! @return Pointer to texture referenced.
+/**
+ * Add/Increment reference cont for texture.
+ *
+ *  @return Pointer to texture referenced.
+ */
 PTexture*
 TextureHandler::referenceTexture(PTexture *texture)
 {
@@ -80,7 +85,9 @@ TextureHandler::referenceTexture(PTexture *texture)
     return texture;
 }
 
-//! @brief Returns a texture
+/**
+ * Return/free a texture.
+ */
 void
 TextureHandler::returnTexture(PTexture *texture)
 {
@@ -105,7 +112,9 @@ TextureHandler::returnTexture(PTexture *texture)
     }
 }
 
-//! @brief Parses the string, and creates a texture
+/**
+ * Parses the string, and creates a texture
+ */
 PTexture*
 TextureHandler::parse(const std::string &texture)
 {
@@ -121,13 +130,20 @@ TextureHandler::parse(const std::string &texture)
 
     // need at least type and parameter, except for EMPTY type
     if (tok.size() > 1) {
-        tok.erase(tok.begin()); // remove type
+        tok.erase(tok.begin());
+
         switch (type) {
         case PTexture::TYPE_SOLID:
             ptexture = parseSolid(tok);
             break;
         case PTexture::TYPE_SOLID_RAISED:
             ptexture = parseSolidRaised(tok);
+            break;
+        case PTexture::TYPE_LINES_HORZ:
+            ptexture = parseLines(true, tok);
+            break;
+        case PTexture::TYPE_LINES_VERT:
+            ptexture = parseLines(false, tok);
             break;
         case PTexture::TYPE_IMAGE:
             // 6==strlen("IMAGE ")
@@ -146,17 +162,19 @@ TextureHandler::parse(const std::string &texture)
         // If it fails to load, set clean resources and set it to 0.
         if (ptexture && ! ptexture->isOk()) {
             delete ptexture;
-            ptexture = 0;
+            ptexture = nullptr;
         }
 
     } else if (type == PTexture::TYPE_EMPTY) {
-        ptexture = new PTexture;
+        ptexture = new PTextureEmpty();
     }
 
     return ptexture;
 }
 
-//! @brief Parse and create PTextureSolid
+/**
+ * Parse and create PTextureSolid
+ */
 PTexture*
 TextureHandler::parseSolid(std::vector<std::string> &tok)
 {
@@ -177,7 +195,9 @@ TextureHandler::parseSolid(std::vector<std::string> &tok)
     return tex;
 }
 
-//! @brief Parse and create PTextureSolidRaised
+/**
+ * Parse and create PTextureSolidRaised
+ */
 PTexture*
 TextureHandler::parseSolidRaised(std::vector<std::string> &tok)
 {
@@ -211,7 +231,41 @@ TextureHandler::parseSolidRaised(std::vector<std::string> &tok)
     return tex;
 }
 
-//! @brief Parses size parameter, i.e. 10x20
+/**
+ * Parse and create PTextureLines
+ */
+PTexture*
+TextureHandler::parseLines(bool horz, std::vector<std::string> &tok)
+{
+    if (tok.size() < 2) {
+        std::cerr << "*** WARNING: not enough parameters to texture Lines"
+                  << std::endl;
+        return 0;
+    }
+
+    float line_size;
+    bool size_percent;
+    try {
+        if (tok[0].back() == '%') {
+            size_percent = true;
+            tok[0].erase(tok[0].end() - 1);
+            line_size = std::stof(tok[0]) / 100;
+        } else {
+            size_percent = false;
+            line_size = std::stoi(tok[0]);
+        }
+    } catch (const std::invalid_argument& ex) {
+        return nullptr;
+    }
+
+    tok.erase(tok.begin());
+
+    return new PTextureLines(line_size, size_percent, horz, tok);
+}
+
+/**
+ * Parses size parameter, i.e. 10x20
+ */
 void
 TextureHandler::parseSize(PTexture *tex, const std::string &size)
 {

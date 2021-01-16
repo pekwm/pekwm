@@ -41,9 +41,15 @@ public:
         PDecorButtonData(TextureHandler* th);
         ~PDecorButtonData(void);
 
-        //! @brief Returns whether the shape (derived from the alpha channel) should be set.
+        /**
+         * Returns whether the shape (derived from the alpha channel)
+         * should be set.
+         */
         inline bool setShape(void) const { return _shape; }
-        //! @brief Returns whether the button is positioned relative to the left title edge.
+        /**
+         * Returns whether the button is positioned relative to the
+         * left title edge.
+         */
         inline bool isLeft(void) const { return _left; }
         //! @brief Returns width of button.
         inline uint getWidth(void) const { return _width; }
@@ -104,8 +110,11 @@ public:
         inline bool isTitleWidthSymetric(void) const {
             return _title_width_symetric;
         }
-        //! @brief Returns wheter titlebar height should be relative the font height
-        inline bool isTitleHeightAdapt(void) const { return _title_height_adapt; }
+        /**
+         * Returns wheter titlebar height should be relative the font
+         * height
+         */
+        bool isTitleHeightAdapt(void) const { return _title_height_adapt; }
 
         // Title textures
 
@@ -138,20 +147,23 @@ public:
 
         // border
 
-        //! @brief Return border PTexture used in FocusedState state for pos.
-        inline PTexture *getBorderTexture(FocusedState state, BorderPosition pos) {
+        /**
+         * Return border PTexture used in FocusedState state for pos.
+         */
+        inline PTexture *getBorderTexture(FocusedState state,
+                                          BorderPosition pos) {
             return _texture_border[(state < FOCUSED_STATE_FOCUSED_SELECTED)
                                    ? state : 0][pos];
         }
 
         // button
 
-        //! @brief Return iterator to the first Theme::PDecorButtonData.
-        std::vector<Theme::PDecorButtonData*>::const_iterator buttonBegin(void) {
+        std::vector<Theme::PDecorButtonData*>::const_iterator
+        buttonBegin(void) {
             return _buttons.begin();
         }
-        //! @brief Return iterator to the last+1 Theme::PDecorButtonData.
-        std::vector<Theme::PDecorButtonData*>::const_iterator buttonEnd(void) {
+        std::vector<Theme::PDecorButtonData*>::const_iterator
+        buttonEnd(void) {
             return _buttons.end();
         }
 
@@ -208,8 +220,8 @@ public:
 
         //! @brief Returns PFont used in ObjectState state.
         inline PFont *getFont(ObjectState state) { return _font[state]; }
-        //! @brief Returns PFont::Color used in ObjectState state.
-        inline PFont::Color *getColor(ObjectState state) { return _color[state]; }
+        /** Returns PFont::Color used in ObjectState state. */
+        PFont::Color *getColor(ObjectState state) { return _color[state]; }
         //! @brief Returns menu PTexture used in ObjectState state.
         inline PTexture *getTextureMenu(ObjectState state) {
             return _tex_menu[state];
@@ -346,10 +358,12 @@ public:
 
     inline const GC &getInvertGC(void) const { return _invert_gc; }
 
-    std::map<std::string, Theme::PDecorData*>::const_iterator decor_begin(void) {
+    std::map<std::string, Theme::PDecorData*>::const_iterator
+    decor_begin(void) {
         return _pdecordata_map.begin();
     }
-    std::map<std::string, Theme::PDecorData*>::const_iterator decor_end(void) {
+    std::map<std::string, Theme::PDecorData*>::const_iterator
+    decor_end(void) {
         return _pdecordata_map.end();
     }
 
@@ -380,11 +394,15 @@ public:
     inline Theme::PMenuData *getMenuData(void) { return &_menu_data; }
 
     // status/cmd
-    inline Theme::TextDialogData *getStatusData(void) { return &_status_data; }
-    inline Theme::TextDialogData *getCmdDialogData(void) { return &_cmd_d_data; }
+    Theme::TextDialogData *getStatusData(void) { return &_status_data; }
+    Theme::TextDialogData *getCmdDialogData(void) { return &_cmd_d_data; }
 
 private:
     void loadThemeRequire(CfgParser &theme_cfg, std::string &file);
+    void loadBackground(CfgParser::Entry *section);
+
+    void startBackground(const std::string& texture);
+    void stopBackground(void);
 
 private:
     FontHandler* _fh;
@@ -392,12 +410,14 @@ private:
     TextureHandler* _th;
 
     std::string _theme_dir; /**< Path to theme directory. */
+    std::string _background;
     TimeFiles _cfg_files;
 
     bool _loaded;
 
     // gc
     GC _invert_gc;
+    pid_t _bg_pid;
 
     // frame decors
     std::map<std::string, Theme::PDecorData*> _pdecordata_map;
@@ -416,6 +436,6 @@ private:
 namespace pekwm
 {
     Theme* theme();
-};
+}
 
 #endif // _THEME_HH_

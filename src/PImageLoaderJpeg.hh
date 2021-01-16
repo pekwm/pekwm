@@ -1,17 +1,17 @@
 //
-// PImageLoaderPng.hh for pekwm
+// PImageLoaderJpeg.hh for pekwm
 // Copyright (C) 2005-2021 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#ifndef _PIMAGE_LOADER_PNG_HH_
-#define _PIMAGE_LOADER_PNG_HH_
+#ifndef _PIMAGE_LOADER_JPEG_HH_
+#define _PIMAGE_LOADER_JPEG_HH_
 
 #include "config.h"
 
-#ifdef HAVE_IMAGE_PNG
+#ifdef HAVE_IMAGE_JPEG
 
 #include "pekwm.hh"
 #include "PImageLoader.hh"
@@ -19,23 +19,18 @@
 #include <cstdio>
 
 /**
- * PNG Loader class.
+ * Jpeg Loader class.
  */
-class PImageLoaderPng : public PImageLoader
+class PImageLoaderJpeg : public PImageLoader
 {
 public:
-    PImageLoaderPng(void);
-    virtual ~PImageLoaderPng(void);
+    PImageLoaderJpeg(void);
+    virtual ~PImageLoaderJpeg(void);
 
     virtual uchar* load(const std::string &file, uint &width, uint &height,
                         bool &use_alpha) override;
-
-private:
-    bool checkSignature(std::FILE *fp);
-
-    static const int PNG_SIG_BYTES;
 };
 
-#endif // HAVE_IMAGE_PNG
+#endif // HAVE_IMAGE_JPEG
 
-#endif // _PIMAGE_LOADER_PNG_HH_
+#endif // _PIMAGE_LOADER_JPEG_HH_

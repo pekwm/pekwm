@@ -43,6 +43,6 @@ private:
 namespace pekwm
 {
     StatusWindow* statusWindow();
-};
+}
 
 #endif // _STATUS_WINDOW_HH_

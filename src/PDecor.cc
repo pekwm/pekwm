@@ -1572,7 +1572,7 @@ PDecor::renderBorder(void)
             if (width > 0 && height > 0) {
                 pix = X11::createPixmap(width, height);
                 tex->render(pix, 0, 0, width, height);
-                XSetWindowBackgroundPixmap(X11::getDpy(), _border_win[i], pix);
+                X11::setWindowBackgroundPixmap(_border_win[i], pix);
                 X11::freePixmap(pix);
             }
         }

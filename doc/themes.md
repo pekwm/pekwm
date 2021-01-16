@@ -102,10 +102,20 @@ set decor action. The list below includes names with special meaning:
 * _EMPTY_, No texture (transparent).
 * _SOLID colour size_, A solid colour texture of defined colour and size.
 * _SOLIDRAISED colour colour colour pixels pixels toggle toggle toggle toggle size_, A solid colour texture with a 3D look of defined colours, form and size. First colour defines the main fill colour, second the highlight colour used on the left and top parts of the texture, third the highlight colour on the bottom and right parts of the texture. First pixel amount defines how fart apart the 3D effects are from each other, second pixel amount is how thick the bordering will be (both pixels default to 1). The four toggles are used to tell which raised corners are to be drawn. This is useful for example when defining solidraised frame corner pieces. The order is Top, Bottom, Left, Right (not unlike that used in padding). As example: "True False True False" (or 1 0 1 0) could mean you want to draw the TopLeft piece of a solidraised window border. Size should explain itself, see above.
+* _LINESHORZ size color1 [color2...]_, Fill the area with horizontal "lines" of size. Size can be specified in pixels or percent of the area being filled with the texture.
+* _LINESVERT_size color1 [color2...]_, Fill the area with vertical "lines" of size. Size can be specified in pixels or percent of the area being filled with the texture.
 * _IMAGE imagename_, An image texture using the defined imagename
 
 Theme structure
 ---------------
+
+### Background
+
+Theme support for the root background. This option may not be honoured
+by pekwm if _ThemeBackground_ is set to false in the _Screen_ section
+of the configuration file.
+
+* _Texture (texture)_, Texture used to set the background. Each head is treated individually for scaled backgrounds.
 
 ### PDecor
 

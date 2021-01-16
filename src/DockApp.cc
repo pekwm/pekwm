@@ -216,8 +216,8 @@ DockApp::repaint(void)
     auto hd = pekwm::theme()->getHarbourData();
     hd->getTexture()->render(_background, 0, 0, _gm.width, _gm.height);
 
-    XSetWindowBackgroundPixmap(X11::getDpy(), _window, _background);
-    XClearWindow(X11::getDpy(), _window);
+    X11::setWindowBackgroundPixmap(_window, _background);
+    X11::clearWindow(_window);
 }
 
 //! @brief Validates geometry and centers the window

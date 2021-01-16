@@ -26,6 +26,7 @@ find_package(Iconv REQUIRED)
 check_function_exists(swprintf HAVE_SWPRINTF)
 check_function_exists(setenv HAVE_SETENV)
 check_function_exists(unsetenv HAVE_UNSETENV)
+check_function_exists(daemon HAVE_DAEMON)
 check_symbol_exists(timersub sys/time.h HAVE_TIMERSUB)
 
 # Look for platform specific tools
@@ -43,8 +44,9 @@ option(ENABLE_SHAPE "include support for Xshape" ON)
 option(ENABLE_XINERAMA "include support for Xinerama" ON)
 option(ENABLE_RANDR "include support for Xrandr" ON)
 option(ENABLE_XFT "include support for Xft fonts" ON)
-option(ENABLE_IMAGE_XPM "include support for XPM images" ON)
+option(ENABLE_IMAGE_JPEG "include support for JPEG images" ON)
 option(ENABLE_IMAGE_PNG "include support for PNG images" ON)
+option(ENABLE_IMAGE_XPM "include support for XPM images" ON)
 
 option(DEBUG "include verbose debugging code" OFF)
 option(PEDANTIC "turn on strict compile-time warnings" OFF)
@@ -53,6 +55,10 @@ option(TESTS "include tests" OFF)
 if (ENABLE_XFT)
   find_package(Freetype)
 endif (ENABLE_XFT)
+
+if (ENABLE_IMAGE_JPEG)
+  find_package(JPEG)
+endif (ENABLE_IMAGE_JPEG)
 
 if (ENABLE_IMAGE_PNG)
   find_package(PNG)
@@ -73,6 +79,11 @@ if (ENABLE_XFT AND X11_Xft_FOUND AND FREETYPE_FOUND)
   set(pekwm_FEATURES "${pekwm_FEATURES} Xft")
   set(HAVE_XFT 1)
 endif (ENABLE_XFT AND X11_Xft_FOUND AND FREETYPE_FOUND)
+
+if (ENABLE_IMAGE_JPEG AND JPEG_FOUND)
+  set(pekwm_FEATURES "${pekwm_FEATURES} image-jpeg")
+  set(HAVE_IMAGE_JPEG 1)
+endif (ENABLE_IMAGE_JPEG AND JPEG_FOUND)
 
 if (ENABLE_IMAGE_PNG AND PNG_FOUND)
   set(pekwm_FEATURES "${pekwm_FEATURES} image-png")
@@ -101,6 +112,7 @@ endif (PEDANTIC)
 
 add_definitions(-DVERSION="${pekwm_VERSION}"
   -DFEATURES="${pekwm_FEATURES}"
+  -DBINDIR="${CMAKE_INSTALL_PREFIX}/bin"
   -DDATADIR="${CMAKE_INSTALL_PREFIX}/share"
   -DSYSCONFDIR="${CMAKE_INSTALL_PREFIX}/etc/pekwm")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH True)

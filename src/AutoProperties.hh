@@ -273,6 +273,6 @@ private:
 namespace pekwm
 {
     AutoProperties* autoProperties();
-};
+}
 
 #endif // _AUTOPROPS_HH_

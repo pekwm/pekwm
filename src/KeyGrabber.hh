@@ -95,6 +95,6 @@ private:
 namespace pekwm
 {
     KeyGrabber* keyGrabber();
-};
+}
 
 #endif // _KEYGRABBER_HH_

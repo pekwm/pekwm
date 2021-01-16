@@ -45,6 +45,6 @@ private:
 namespace pekwm
 {
     FontHandler* fontHandler();
-};
+}
 
 #endif // _FONT_HANDLER_HH_

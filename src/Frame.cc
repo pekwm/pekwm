@@ -974,9 +974,13 @@ Frame::fixGeometry(void)
     return (_gm != before);
 }
 
-//! @brief Initiates grouping move, based on a XMotionEvent.
+/**
+ * Initiates grouping move, based on a XMotionEvent.
+ *
+ * @fixme rewrite
+ */
 void
-Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: rewrite
+Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind)
 {
     if (! client) {
         return;
@@ -995,7 +999,7 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind) // FIXME: r
 
     bool status = X11::grabPointer(X11::getRoot(),
                                    ButtonReleaseMask|PointerMotionMask,
-                                   None);
+                                   CURSOR_NONE);
     if (status != true) {
         return;
     }

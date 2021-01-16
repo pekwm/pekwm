@@ -1,6 +1,6 @@
 //
 // PTexturePlain.cc for pekwm
-// Copyright (C) 2004-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2004-2021 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -8,15 +8,18 @@
 
 #include "config.h"
 
+#include <iostream>
+
 #include "PTexture.hh"
 #include "PTexturePlain.hh"
 #include "PImage.hh"
 #include "ImageHandler.hh"
 #include "x11.hh"
 
+#include <iostream>
+
 // PTextureSolid
 
-//! @brief PTextureSolid constructor
 PTextureSolid::PTextureSolid(const std::string &color)
     : PTexture(),
       _xc(0)
@@ -31,7 +34,6 @@ PTextureSolid::PTextureSolid(const std::string &color)
     setColor(color);
 }
 
-//! @brief PTextureSolid destructor
 PTextureSolid::~PTextureSolid(void)
 {
     XFreeGC(X11::getDpy(), _gc);
@@ -41,7 +43,9 @@ PTextureSolid::~PTextureSolid(void)
 
 // BEGIN - PTexture interface.
 
-//! @brief Renders texture on drawable draw
+/**
+ * Render single color on draw.
+ */
 void
 PTextureSolid::render(Drawable draw, int x, int y, uint width, uint height)
 {
@@ -57,7 +61,9 @@ PTextureSolid::render(Drawable draw, int x, int y, uint width, uint height)
 
 // END - PTexture interface.
 
-//! @brief Loads color resources
+/**
+ * Load color resources
+ */
 bool
 PTextureSolid::setColor(const std::string &color)
 {
@@ -71,7 +77,9 @@ PTextureSolid::setColor(const std::string &color)
     return _ok;
 }
 
-//! @brief Frees color resources used by texture
+/**
+ * Frees color resources used by texture
+ */
 void
 PTextureSolid::unsetColor(void)
 {
@@ -85,13 +93,20 @@ PTextureSolid::unsetColor(void)
 
 // PTextureSolidRaised
 
-//! @brief PTextureSolidRaised constructor
-PTextureSolidRaised::PTextureSolidRaised(const std::string &base, const std::string &hi, const std::string &lo)
+PTextureSolidRaised::PTextureSolidRaised(const std::string &base,
+                                         const std::string &hi,
+                                         const std::string &lo)
     : PTexture(),
-      _xc_base(0), _xc_hi(0), _xc_lo(0),
-      _lw(1), _loff(0), _loff2(0),
-      _draw_top(true), _draw_bottom(true),
-      _draw_left(true), _draw_right(true)
+      _xc_base(0),
+      _xc_hi(0),
+      _xc_lo(0),
+      _lw(1),
+      _loff(0),
+      _loff2(0),
+      _draw_top(true),
+      _draw_bottom(true),
+      _draw_left(true),
+      _draw_right(true)
 {
     // PTexture attributes
     _type = PTexture::TYPE_SOLID_RAISED;
@@ -104,7 +119,6 @@ PTextureSolidRaised::PTextureSolidRaised(const std::string &base, const std::str
     setColor(base, hi, lo);
 }
 
-//! @brief PTextureSolidRasied destructor
 PTextureSolidRaised::~PTextureSolidRaised(void)
 {
     XFreeGC(X11::getDpy(), _gc);
@@ -114,9 +128,12 @@ PTextureSolidRaised::~PTextureSolidRaised(void)
 
 // START - PTexture interface.
 
-//! @brief Renders texture on drawable draw
+/**
+ * Renders a "raised" rectangle onto draw.
+ */
 void
-PTextureSolidRaised::render(Drawable draw, int x, int y, uint width, uint height)
+PTextureSolidRaised::render(Drawable draw,
+                            int x, int y, uint width, uint height)
 {
     if (width == 0) {
         width = _width;
@@ -160,7 +177,9 @@ PTextureSolidRaised::render(Drawable draw, int x, int y, uint width, uint height
 
 // END - PTexture interface.
 
-//! @brief Sets line width
+/**
+ * Sets line width
+ */
 void
 PTextureSolidRaised::setLineWidth(uint lw)
 {
@@ -175,9 +194,12 @@ PTextureSolidRaised::setLineWidth(uint lw)
     XChangeGC(X11::getDpy(), _gc, GCLineWidth, &gv);
 }
 
-//! @brief Loads color resources
+/**
+ * Loads color resources
+ */
 bool
-PTextureSolidRaised::setColor(const std::string &base, const std::string &hi, const std::string &lo)
+PTextureSolidRaised::setColor(const std::string &base,
+                              const std::string &hi, const std::string &lo)
 {
     unsetColor(); // unload used resources
 
@@ -190,7 +212,9 @@ PTextureSolidRaised::setColor(const std::string &base, const std::string &hi, co
     return _ok;
 }
 
-//! @brief Unloads color resources
+/**
+ * Free color resources
+ */
 void
 PTextureSolidRaised::unsetColor(void)
 {
@@ -203,9 +227,109 @@ PTextureSolidRaised::unsetColor(void)
     _xc_base = _xc_hi = _xc_lo = 0;
 }
 
+// PTextureLines
+
+PTextureLines::PTextureLines(float line_size, bool size_percent, bool horz,
+                             const std::vector<std::string> &colors)
+    : _line_size(line_size),
+      _size_percent(size_percent),
+      _horz(horz)
+{
+    _type = horz ? PTexture::TYPE_LINES_HORZ : PTexture::TYPE_LINES_VERT;
+    XGCValues gv;
+    gv.function = GXcopy;
+    _gc = XCreateGC(X11::getDpy(), X11::getRoot(), GCFunction, &gv);
+    setColors(colors);
+}
+
+PTextureLines::~PTextureLines()
+{
+    XFreeGC(X11::getDpy(), _gc);
+}
+
+void
+PTextureLines::render(Drawable draw, int x, int y, uint width, uint height)
+{
+    if (_horz) {
+        renderHorz(draw, x, y, width, height);
+    } else {
+        renderVert(draw, x, y, width, height);
+    }
+}
+
+void
+PTextureLines::renderHorz(Drawable draw, int x, int y, uint width, uint height)
+{
+    uint line_height;
+    if (_size_percent) {
+        line_height = static_cast<float>(height) * _line_size;
+    } else {
+        line_height = _line_size;
+    }
+
+    // ensure code does not get stuck never increasing pos
+    if (line_height < 1) {
+        line_height = 1;
+    }
+
+    uint pos = 0;
+    while (pos < height) {
+        for (auto it : _colors) {
+            XSetForeground(X11::getDpy(), _gc, it->pixel);
+            XFillRectangle(X11::getDpy(), draw, _gc,
+                           x, y + pos,
+                           width,
+                           std::min(line_height, height - pos));
+            pos += line_height;
+        }
+    }
+}
+
+void
+PTextureLines::renderVert(Drawable draw, int x, int y, uint width, uint height)
+{
+    uint line_width;
+    if (_size_percent) {
+        line_width = static_cast<float>(width) * _line_size;
+    } else {
+        line_width = _line_size;
+    }
+
+    uint pos = 0;
+    while (pos < width) {
+        for (auto it : _colors) {
+            XSetForeground(X11::getDpy(), _gc, it->pixel);
+            XFillRectangle(X11::getDpy(), draw, _gc,
+                           x + pos, y,
+                           std::min(line_width, width - pos),
+                           height);
+            pos += line_width;
+        }
+    }
+}
+
+void
+PTextureLines::setColors(const std::vector<std::string> &colors)
+{
+    unsetColors();
+
+    for (auto it : colors) {
+        _colors.push_back(X11::getColor(it));
+    }
+    _ok = ! _colors.empty();
+}
+
+void
+PTextureLines::unsetColors()
+{
+    for (auto it : _colors) {
+        X11::returnColor(it);
+    }
+    _colors.clear();
+}
+
 // PTextureImage
 
-//! @brief PTextureImage constructor
 PTextureImage::PTextureImage(void)
   : PTexture(),
     _image(0)
@@ -213,9 +337,7 @@ PTextureImage::PTextureImage(void)
   // PTexture attributes
   _type = PTexture::TYPE_IMAGE;
 }
-                                             
 
-//! @brief PTextureImage constructor
 PTextureImage::PTextureImage(const std::string &image)
     : PTexture(),
       _image(0)
@@ -226,14 +348,14 @@ PTextureImage::PTextureImage(const std::string &image)
     setImage(image);
 }
 
-//! @brief PTextureImage destructor
 PTextureImage::~PTextureImage(void)
 {
     unsetImage();
 }
 
-
-//! @brief Renders texture on drawable draw
+/**
+ * Renders image onto draw
+ */
 void
 PTextureImage::render(Drawable draw, int x, int y, uint width, uint height)
 {
@@ -246,7 +368,9 @@ PTextureImage::getMask(uint width, uint height, bool &do_free)
     return _image->getMask(do_free, width, height);
 }
 
-//! @brief Loads image resources
+/**
+ * Set image resource
+ */
 void
 PTextureImage::setImage(PImage *image)
 {
@@ -257,7 +381,9 @@ PTextureImage::setImage(PImage *image)
     _ok = true;
 }
 
-//! @brief Loads image resources
+/**
+ * Load image resource
+ */
 bool
 PTextureImage::setImage(const std::string &image)
 {
@@ -273,7 +399,9 @@ PTextureImage::setImage(const std::string &image)
     return _ok;
 }
 
-//! @brief Unloads image resources
+/**
+ * Free image resource
+ */
 void
 PTextureImage::unsetImage(void)
 {

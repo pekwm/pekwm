@@ -1,6 +1,6 @@
 //
 // TextureHandler.hh for pekwm
-// Copyright (C) 2005-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2005-2021 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -12,6 +12,7 @@
 #include "config.h"
 
 #include "ParseUtil.hh"
+#include "PTexture.hh"
 
 #include <string>
 #include <vector>
@@ -26,15 +27,22 @@ class TextureHandler {
 public:
     class Entry {
     public:
-        Entry(const std::string &name, PTexture *texture) : _name(name), _texture(texture), _ref(0) { }
-        ~Entry(void) { delete _texture; }
+        Entry(const std::string &name, PTexture *texture)
+            : _name(name),
+              _texture(texture),
+              _ref(0)
+        {
+        }
+        ~Entry(void)
+        {
+            delete _texture;
+        }
 
         PTexture *getTexture(void) { return _texture; }
 
         inline uint getRef(void) const { return _ref; }
         inline void incRef(void) { ++_ref; }
-        inline void decRef(void) { if (_ref > 0) { --_ref; }
-        }
+        inline void decRef(void) { if (_ref > 0) { --_ref; } }
 
         inline bool operator==(const std::string &name) {
             return (::strcasecmp(_name.c_str(), name.c_str()) == 0);
@@ -59,6 +67,7 @@ private:
     PTexture *parse(const std::string &texture);
     PTexture *parseSolid(std::vector<std::string> &tok);
     PTexture *parseSolidRaised(std::vector<std::string> &tok);
+    PTexture *parseLines(bool horz, std::vector<std::string> &tok);
 
     void parseSize(PTexture *tex, const std::string &size);
 
@@ -73,6 +82,6 @@ private:
 namespace pekwm
 {
     TextureHandler* textureHandler();
-};
+}
 
 #endif // _TEXTURE_HANDLER_HH_

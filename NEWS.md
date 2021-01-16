@@ -4,11 +4,31 @@ pekwm-0.2.0
 Bug fixes
 ---------
 
-* **#7 new windows fail to appear on fbpanel taskbar and pager**, regression introduced in 0.1.18.
+* **#7 new windows fail to appear on fbpanel taskbar and pager**,
+  regression introduced in 0.1.18.
 
 New
 ---
 
+**pekwm_bg** created, a background setting application integrated with
+pekwm themes. pekwm_bg supports all textures pekwm supports so it is
+possible to set solid colors, images and the new lines texture. Themes
+have been extended with a background keyword that makes pekwm set the
+background when the theme is loaded, images are loaded from the
+backgrounds folder inside the theme. Background loading can be
+disabled in the main configuraiton file.
+
+Example in _theme_:
+
+```
+    Background = "Image wallpaper.jpg#scaled"
+```
+
+Example in _config_:
+
+```
+    ThemeBackground = "False"
+```
 
 Updated
 -------
