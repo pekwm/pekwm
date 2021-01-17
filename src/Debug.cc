@@ -1,6 +1,7 @@
 //
 // Debug.cc for pekwm
-// Copyright © 2012 Andreas Schlick <ioerror{@}lavabit{.}com>
+// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2012 Andreas Schlick <ioerror@lavabit.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -11,10 +12,6 @@
 #include "Util.hh"
 
 #include <cstdlib>
-#if defined(__GLIBC__) && defined(__GLIBCXX__)
-#include <execinfo.h>
-#include <cxxabi.h>
-#endif // __GLIBC__ && __GLIBCXX__
 
 /**
  * Debug Commands:
@@ -29,12 +26,14 @@
  * maxmsgs <nr> - sets the maximum of stored messages (in RAM) to nr
  *
  */
-void Debug::doAction(const std::string &cmd) {
+void
+Debug::doAction(const std::string &cmd)
+{
     std::vector<std::string> args;
-
     uint nr = Util::splitString(cmd, args, " \t");
-    if (nr)
+    if (nr) {
         Util::to_lower(args[0]);
+    }
 
     if (nr == 1) {
         if (args[0] == "dump") {
@@ -45,12 +44,10 @@ void Debug::doAction(const std::string &cmd) {
                 _log << i << ".) " << _msgs[i] << std::endl;
             }
         } else if (args[0] == "maxmsgs") {
-            _log << "Currently are " << _max_msgs << " log entries stored." << std::endl;
+            _log << "Currently are " << _max_msgs << " log entries stored."
+                 << std::endl;
         }
-        return;
-    }
-
-    if (nr == 2) {
+    } else if (nr == 2) {
         if (args[0] == "enable") {
             if (args[1] == "logfile") {
                 enable_logfile = true;
@@ -79,67 +76,15 @@ void Debug::doAction(const std::string &cmd) {
             if (nr>=0) {
                 _max_msgs = nr;
                 if (_msgs.size() > _max_msgs) {
-                    _msgs.erase(_msgs.begin(), _msgs.begin() + _msgs.size() - _max_msgs);
+                    _msgs.erase(_msgs.begin(),
+                                _msgs.begin() + _msgs.size() - _max_msgs);
                 }
             } else {
                 WARN("Debug command \"maxmsgs\" called with wrong parameter.");
             }
         }
-        return;
     }
 }
-
-#if defined(__GLIBC__) && defined(__GLIBCXX__)
-static
-const char *demangle_cpp(const char *str, char **dest, size_t *len)
-{
-    int status=1;
-    const char *begin = strchr(str, '('), *end;
-    if (begin && *(++begin) && *begin != '+') {
-        end = strchr(begin, '+');
-        if (end) {
-            char *buf = new char[end-begin+1];
-            memcpy(buf, begin, end-begin);
-            buf[end-begin] = 0;
-            *dest = abi::__cxa_demangle(buf, *dest, len, &status);
-            delete[] buf;
-        }
-    }
-    return status?str:*dest;
-}
-
-void Debug::logBacktrace(DebugBTObj &dobj) {
-    void *btbuffer[100];
-    char *name=0, **str=0;
-    size_t len=0;
-    int size = backtrace(btbuffer, 100);
-
-    if (! size) {
-        dobj << "Generating backtrace failed!";
-        return;
-    }
-
-    str = backtrace_symbols(btbuffer, size);
-
-    if (! str) {
-        dobj << "Translating backtrace failed!";
-        return;
-    }
-
-    // The first entry is always Debug::logBacktrace(),
-    // so we begin with i=1.
-    for (int i=1; i<size; ++i) {
-        dobj << "\t" << demangle_cpp(str[i], &name, &len) << '\n';
-    }
-
-    free(name);
-    free(str);
-}
-#else // ! __GLIBC__ && __GLIBCXX__
-void Debug::logBacktrace(DebugBTObj &dobj) {
-    dobj << "Backtrace works only with glibc.\n";
-}
-#endif // __GLIBC__ && __GLIBCXX__
 
 bool Debug::enable_cerr = true;
 bool Debug::enable_logfile = false;
@@ -149,5 +94,3 @@ std::vector<std::string>::size_type Debug::_max_msgs = 32;
 const std::string Debug::_msg_info(" *INFO* ");
 const std::string Debug::_msg_warn(" *WARNING* ");
 const std::string Debug::_msg_err(" *ERROR* ");
-const std::string Debug::_msg_bt(" *BACKTRACE* ");
-unsigned int DebugFuncCall::_depth=0;

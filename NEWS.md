@@ -17,6 +17,10 @@ Updated
 memory consumption and speeding up start at the cost of slower mapping
 of the CmdDialog.
 
+**Debug** action is included even if not compiling with DEBUG=ON. The
+action allows for enabling and disabling of logging to file and
+standard output.
+
 **SetGeometry** now support specifying size and position in % of the
 screen or active head.
 

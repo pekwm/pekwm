@@ -19,6 +19,7 @@ set(libpekwm_SOURCES
   ClientMgr.cc
   CmdDialog.cc
   Config.cc
+  Debug.cc
   DockApp.cc
   Frame.cc
   FontHandler.cc
@@ -53,10 +54,6 @@ set(libpekwm_SOURCES
   x11.cc)
 set(common_INCLUDE_DIRS ${PROJECT_BINARY_DIR}/src ${ICONV_INCLUDE_DIR} ${X11_INCLUDE_DIR})
 set(common_LIBRARIES ${ICONV_LIBRARIES} ${X11_LIBRARIES})
-
-if (DEBUG)
-  set(libpekwm_SOURCES ${libpekwm_SOURCES} Debug.cc)
-endif (DEBUG)
 
 if (ENABLE_SHAPE AND X11_Xshape_FOUND)
   set(common_INCLUDE_DIRS ${common_INCLUDE_DIRS} ${X11_Xshape_INCLUDE_PATH})
