@@ -8,8 +8,7 @@
 
 #include "config.h"
 
-#include <iostream>
-
+#include "Debug.hh"
 #include "ImageHandler.hh"
 #include "PImage.hh"
 #include "PImageLoaderJpeg.hh"
@@ -42,12 +41,11 @@ ImageHandler::ImageHandler(void)
 ImageHandler::~ImageHandler(void)
 {
     if (_images.size()) {
-        std::cerr << " *** WARNING: ImageHandler not empty, " << _images.size()
-                  << " entries left:" << std::endl;
+        ERR("ImageHandler not empty on destruct, " << _images.size()
+              << " entries left");
 
         while (_images.size()) {
-            std::cerr << "              * " << _images.back().getName()
-                      << std::endl;
+            ERR("delete lost image " << _images.back().getName());
             delete _images.back().getData();
             _images.pop_back();
         }

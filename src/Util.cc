@@ -31,6 +31,7 @@ extern "C" {
 #include <errno.h>
 }
 
+#include "Debug.hh"
 #include "Util.hh"
 
 namespace String {
@@ -83,10 +84,7 @@ void
 forkExec(std::string command)
 {
     if (command.length() == 0) {
-#ifdef DEBUG
-        std::cerr << __FILE__ << "@" << __LINE__ << ": "
-                  << "Util::forkExec() *** command length == 0" << std::endl;
-#endif // DEBUG
+        ERR("command length == 0");
         return;
     }
 
@@ -95,33 +93,25 @@ forkExec(std::string command)
     case 0:
         setsid();
         execlp("/bin/sh", "sh", "-c", command.c_str(), (char *) 0);
-        std::cerr << __FILE__ << "@" << __LINE__ << ": "
-                  << "Util::forkExec(" << command << ") execlp failed."
-                  << std::endl;
+        ERR("execlp failed: " << strerror(errno));
         exit(1);
     case -1:
-        std::cerr << __FILE__ << "@" << __LINE__ << ": "
-                  << "Util::forkExec(" << command << ") fork failed."
-                  << std::endl;
+        ERR("fork failed: " << strerror(errno));
     }
 }
 
 static void
-forkExecLog(const char* file, unsigned int line, const char *msg,
+forkExecLog(const char* fun, int line, const char *msg,
             const std::vector<std::string>& args)
 {
-    std::cerr << file << "@" << line << ": "
-              << "Util::forkExec(";
-
+    DebugErrObj dobj;
+    dobj << _PEK_DEBUG_START(fun, line)
+         << " " << msg  << ": " << strerror(errno)
+         << ". args";
     auto it = args.begin();
     for (; it != args.end(); ++it) {
-        if (it != args.begin()) {
-            std::cerr << " ";
-        }
-        std::cerr << *it;
+        dobj << " " << *it;
     }
-
-    std::cerr << ") " << msg << std::endl;
 }
 
 pid_t
@@ -142,11 +132,11 @@ forkExec(const std::vector<std::string>& args)
 
         setsid();
         execv(argv[0], argv);
-        forkExecLog(__FILE__, __LINE__, "execv failed", args);
+        forkExecLog(__PRETTY_FUNCTION__, __LINE__, "execv failed", args);
         exit(1);
     }
     case -1:
-        forkExecLog(__FILE__, __LINE__, "fork failed", args);
+        forkExecLog(__PRETTY_FUNCTION__, __LINE__, "fork failed", args);
     default:
         return pid;
     }
@@ -193,11 +183,7 @@ bool
 isExecutable(const std::string &file)
 {
     if (file.size() == 0) {
-#ifdef DEBUG
-        std::cerr << __FILE__ << "@" << __LINE__ << ": "
-                  << "Util::isExecutable() *** file length == 0"
-                  << std::endl;
-#endif // DEBUG
+        ERR("file length == 0");
         return false;
     }
 
@@ -248,15 +234,13 @@ copyTextFile(const std::string &from, const std::string &to)
 
     std::ifstream stream_from(from.c_str());
     if (! stream_from.good()) {
-        std::cerr << __FILE__ << "@" << __LINE__ << ": "
-                  << "Can't copy: " << from << " to: " << to << std::endl;
+        USER_WARN("can not copy: " << from << " to: " << to);
         return false;
     }
 
     std::ofstream stream_to(to.c_str());
     if (! stream_to.good()) {
-        std::cerr << __FILE__ << "@" << __LINE__ << ": "
-                  << "Can't copy: " << from << " to: " << to << std::endl;
+        USER_WARN("can not copy: " << from << " to: " << to);
         return false;
     }
 
@@ -392,8 +376,7 @@ to_mb_str(const std::wstring &str)
 
     ret = wcstombs(buf, str.c_str(), num);
     if (ret == static_cast<size_t>(-1)) {
-        std::cerr << " *** WARNING: failed to convert wide string to multibyte "
-                  << "string" << std::endl;
+        USER_WARN("failed to convert wide string to multibyte string");
     }
     std::string ret_str(buf);
 
@@ -414,8 +397,7 @@ to_wide_str(const std::string &str)
 
     ret = mbstowcs(buf, str.c_str(), num);
     if (ret == static_cast<size_t>(-1)) {
-        std::cerr << " *** WARNING: failed to convert multibyte string to "
-                  << "wide string" << std::endl;
+        USER_WARN("failed to convert multibyte string to wide string");
     }
     std::wstring ret_str(buf);
 
@@ -554,8 +536,7 @@ to_utf8_str(const std::wstring &str)
         *outp = '\0';
         utf8_str = ICONV_BUF;
     } else {
-        std::cerr << " *** WARNING: to_utf8_str, failed with error "
-                  << strerror(errno) << std::endl;
+        USER_WARN("to_utf8_str, failed with error " << strerror(errno));
         utf8_str = ICONV_UTF8_INVALID_STR;
     }
 
@@ -586,8 +567,7 @@ from_utf8_str(const std::string &str)
 
         wide_str = reinterpret_cast<wchar_t*>(ICONV_BUF);
     } else {
-        std::cerr << " *** WARNING: from_utf8_str, failed on string \""
-                  << str << "\"." << std::endl;
+        USER_WARN("from_utf8_str, failed on string \"" << str << "\"");
         wide_str = ICONV_WIDE_INVALID_STR;
     }
 

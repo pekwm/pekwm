@@ -9,8 +9,8 @@
 #include "config.h"
 
 #include <cctype>
-#include <iostream>
 
+#include "Debug.hh"
 #include "FontHandler.hh"
 #include "x11.hh"
 #include "Util.hh"
@@ -212,8 +212,7 @@ FontHandler::loadColor(const std::string &color, PFont::Color *font_color,
     if (Util::splitString(color, tok, ",", 2, true) == 2) {
         uint alpha = static_cast<uint>(strtol(tok[1].c_str(), 0, 10));
         if (alpha > 100) {
-            std::cerr << " *** WARNING: Alpha for font color greater than 100%"
-                      << std::endl;
+            USER_WARN("alpha for font color greater than 100%");
             alpha = 100;
         }
 

@@ -8,11 +8,12 @@
 
 #include "config.h"
 
+#include "Debug.hh"
 #include "PTexture.hh"
-#include "TextureHandler.hh"
-#include "x11.hh"
 #include "PTexturePlain.hh"
+#include "TextureHandler.hh"
 #include "Util.hh"
+#include "x11.hh"
 
 #include <iostream>
 
@@ -179,8 +180,7 @@ PTexture*
 TextureHandler::parseSolid(std::vector<std::string> &tok)
 {
     if (tok.size() < 1) {
-        std::cerr << "*** WARNING: not enough parameters to texture Solid"
-                  << std::endl;
+        USER_WARN("missing parameter to texture Solid");
         return 0;
     }
 
@@ -202,8 +202,7 @@ PTexture*
 TextureHandler::parseSolidRaised(std::vector<std::string> &tok)
 {
     if (tok.size() < 3) {
-        std::cerr << "*** WARNING: not enough parameters to texture SolidRaised"
-                  << std::endl;
+        USER_WARN("not enough parameters to texture SolidRaised (3 required)");
         return 0;
     }
 
@@ -238,8 +237,7 @@ PTexture*
 TextureHandler::parseLines(bool horz, std::vector<std::string> &tok)
 {
     if (tok.size() < 2) {
-        std::cerr << "*** WARNING: not enough parameters to texture Lines"
-                  << std::endl;
+        USER_WARN("not enough parameters to texture SolidRaised (2 required)");
         return 0;
     }
 

@@ -10,10 +10,10 @@
 
 #ifdef HAVE_IMAGE_XPM
 
-#include "x11.hh"
+#include "Debug.hh"
 #include "PImageLoaderXpm.hh"
+#include "x11.hh"
 
-#include <iostream>
 #include <cstring>
 #include <cstdio>
 
@@ -57,8 +57,7 @@ PImageLoaderXpm::load(const std::string &file, uint &width, uint &height,
     XpmInfo xpm_info;
     if (XpmReadFileToXpmImage((char*) file.c_str(),
                               &xpm_image, &xpm_info) != Success) {
-        std::cerr << " *** WARNING: " << file << " not a valid XPM file!"
-                  << std::endl;
+        USER_WARN(file << " not a valid XPM file");
         return 0;
     }
 
@@ -66,8 +65,10 @@ PImageLoaderXpm::load(const std::string &file, uint &width, uint &height,
         || ! xpm_image.data
         || ! xpm_image.width
         || ! xpm_image.height) {
-        std::cerr << " *** WARNING: " << file << " invalid file information!"
-                  << std::endl;
+        USER_WARN(file << " invalid file information."
+                  << " ncolors: " << xpm_image.ncolors
+                  << " width: " << xpm_image.width
+                  << " height: " << xpm_image.height);
         return 0;
     }
 
@@ -147,8 +148,7 @@ PImageLoaderXpm::createXpmToArgbTable(XpmImage *xpm_image, bool &use_alpha)
                     *dest++ = c_tmp;
                 } else {
                     *dest++ = 0;
-                    std::cerr << " *** WARNING: " << c_buf
-                              << " invalid color value!" << std::endl;
+                    USER_WARN(c_buf << " invalid color value");
                 }
             }
         } else if (color && XParseColor(X11::getDpy(), X11::getColormap(),

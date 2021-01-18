@@ -8,12 +8,12 @@
 
 #include "config.h"
 
-#include "KeyGrabber.hh"
-
 #include "Config.hh"
-#include "x11.hh"
+#include "Debug.hh"
 #include "CfgParser.hh"
+#include "KeyGrabber.hh"
 #include "Util.hh"
+#include "x11.hh"
 
 extern "C" {
 #include <X11/Xutil.h>
@@ -102,9 +102,9 @@ KeyGrabber::load(const std::string &file, bool force)
     CfgParser key_cfg;
     if (! key_cfg.parse(file, CfgParserSource::SOURCE_FILE)) {
         _cfg_files.clear();
-        if (! key_cfg.parse(SYSCONFDIR "/keys", CfgParserSource::SOURCE_FILE, true)) {
-            std::cerr << __FILE__ << "@" << __LINE__ << "Error: no keyfile at "
-                      << file << " or " << SYSCONFDIR "/keys" << std::endl;
+        if (! key_cfg.parse(SYSCONFDIR "/keys", CfgParserSource::SOURCE_FILE,
+                            true)) {
+            ERR("no keyfile at " << file << " or " << SYSCONFDIR "/keys");
             return false;
         }
     }

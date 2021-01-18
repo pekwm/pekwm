@@ -9,10 +9,10 @@
 #include "config.h"
 
 #include <algorithm>
-#include <iostream>
 
 #include "AutoProperties.hh"
 #include "Config.hh"
+#include "Debug.hh"
 #include "Util.hh"
 #include "x11.hh"
 
@@ -250,8 +250,8 @@ AutoProperties::parseRegexpOrWarning(RegexString &regex,
     if (! regex_str.size() || regex.parse_match(Util::to_wide_str(regex_str))) {
         return true;
     } else {
-        std::cerr << " *** WARNING: invalid regexp " << regex_str
-                  << " for autoproperty " << name << std::endl;
+        USER_WARN("invalid regexp " << regex_str << " for autoproperty "
+                  << name);
         return false;
     }
 }
@@ -535,9 +535,8 @@ AutoProperties::parseTypeProperty(CfgParser::Entry *section)
         atom = ParseUtil::getValue<AtomName>(type_section->getValue(),
                                              _window_type_map);
         if (atom == WINDOW_TYPE) {
-            std::cerr << " *** WARNING: unknown type "
-                      << type_section->getValue()
-                      << " for autoproperty." << std::endl;
+            USER_WARN("unknown type " << type_section->getValue()
+                      << " for autoproperty");
         }
 
         if (atom != WINDOW_TYPE && parseProperty(type_section, type_property)) {
@@ -547,9 +546,8 @@ AutoProperties::parseTypeProperty(CfgParser::Entry *section)
             // Add to list, make sure it does not exist already
             auto atom_it = _window_type_prop_map.find(atom);
             if (atom_it != _window_type_prop_map.end()) {
-                std::cerr
-                    << " *** WARNING: multiple type autoproperties for type "
-                    << type_section->getValue() << std::endl;
+                USER_WARN("multiple type autoproperties for type "
+                          << type_section->getValue());
                 delete atom_it->second;
             }
             _window_type_prop_map[atom] = type_property;

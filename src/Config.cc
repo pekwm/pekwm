@@ -9,14 +9,13 @@
 #include "config.h"
 
 #include "Config.hh"
-
 #include "Compat.hh"
+#include "Debug.hh"
 #include "PFont.hh"
 #include "Util.hh"
 #include "Workspaces.hh"
 #include "x11.hh" // for DPY in keyconfig code
 
-#include <iostream>
 #include <fstream>
 
 #include <cstdlib>
@@ -460,8 +459,7 @@ Config::load(const std::string &config_file)
     }
 
     if (! success) {
-        std::cerr << " *** WARNING: unable to load configuration files!"
-                  << std::endl;
+        USER_WARN("unable to load configuration files");
         return false;
     }
 
@@ -943,8 +941,8 @@ Config::parseKey(const std::string &key_string, uint &mod, uint &key)
                         Util::to_upper(str);
                         keysym = XStringToKeysym(str.c_str());
                         if (keysym == NoSymbol) {
-                            std::cerr << " *** WARNING: Couldn't find keysym "
-                                      << "for " << tok[num] << std::endl;
+                            USER_WARN("could not find keysym for "
+                                      << tok[num]);
                             return false;
                         }
                     }
@@ -1049,8 +1047,7 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
                         action.setParamI(0, Util::isTrue(tok[tok.size() - 2]));
                         action.setParamI(1, Util::isTrue(tok[tok.size() - 1]));
                     } else {
-                        std::cerr << "*** WARNING: Missing argument to MaxFill."
-                                  << std::endl;
+                        USER_WARN("missing argument to MaxFill, 2 required");
                     }
                     break;
                 case ACTION_GROW_DIRECTION:
@@ -1061,8 +1058,7 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
                 case ACTION_ACTIVATE_CLIENT_NUM:
                     action.setParamI(0, strtol(tok[1].c_str(), 0, 10) - 1);
                     if (action.getParamI(0) < 0) {
-                        std::cerr << "*** WARNING: Negative number to "
-                                  << "ActivateClientNum." << std::endl;
+                        USER_WARN("negative number to ActivateClientNum");
                         action.setParamI(0, 0);
                     }
                     break;
@@ -1191,8 +1187,7 @@ Config::parseActionState(Action &action, const std::string &as_action)
                         action.setParamI(1, Util::isTrue(tok[2]));
                         action.setParamI(2, Util::isTrue(tok[3]));
                     } else {
-                        std::cerr << "*** WARNING: Missing argument to "
-                                  << "Maximized." << std::endl;
+                        USER_WARN("missing argument to Maximized, 2 required");
                     }
                     break;
                 case ACTION_STATE_TAGGED:
@@ -1587,9 +1582,8 @@ Config::copyConfigFiles(void)
     if (stat(cfg_dir.c_str(), &stat_buf) == 0) {
         // is it a dir or file?
         if (! S_ISDIR(stat_buf.st_mode)) {
-            std::cerr << cfg_dir << " already exists and isn't a directory"
-                      << std::endl
-                      << "Can't copy config files !" << std::endl;
+            USER_WARN(cfg_dir << " already exists and is not a directory."
+                      << " can not copy config files");
             return;
         }
 
@@ -1610,11 +1604,10 @@ Config::copyConfigFiles(void)
         }
 
         if (! cfg_dir_ok) {
-            if (! (stat_buf.st_mode&S_IWOTH) || ! (stat_buf.st_mode&(S_IXOTH))) {
-                std::cerr << "You don't have the rights to add files to the: "
-                          << cfg_dir
-                          << " directory! Therefore I can't copy the config "
-                          << "files!" << std::endl;
+            if (! (stat_buf.st_mode&S_IWOTH)
+                || ! (stat_buf.st_mode&(S_IXOTH))) {
+                USER_WARN("write access missing to " << cfg_dir << " directory."
+                          << " unable to copy the config files");
                 return;
             }
         }
@@ -1640,9 +1633,8 @@ Config::copyConfigFiles(void)
         }
     } else { // we didn't have a ~/.pekwm directory already, lets create one
         if (mkdir(cfg_dir.c_str(), 0700)) {
-            std::cerr << "Can't create " << cfg_dir << " directory!"
-                      << std::endl;
-            std::cerr << "Can't copy config files !" << std::endl;
+            USER_WARN("can not create the directory " << cfg_dir
+                      << ". can not copy config files");
             return;
         }
 

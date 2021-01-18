@@ -10,9 +10,8 @@
 
 #ifdef HAVE_IMAGE_PNG
 
+#include "Debug.hh"
 #include "PImageLoaderPng.hh"
-
-#include <iostream>
 
 extern "C" {
 #include <png.h>
@@ -82,14 +81,12 @@ PImageLoaderPng::load(const std::string &file, uint &width, uint &height,
 {
     auto fp = fopen(file.c_str(), "rb");
     if (! fp) {
-        std::cerr << " *** WARNING: unable to open " << file << " for reading!"
-                  << std::endl;
+        USER_WARN("failed to open " << file << " for reading");
         return 0;
     }
 
     if (! checkSignature(fp)) {
-        std::cerr << " *** WARNING: " << file << " not a PNG file!"
-                  << std::endl;
+        USER_WARN(file << " is not a PNG file");
         fclose(fp);
         return 0;
     }
@@ -97,16 +94,14 @@ PImageLoaderPng::load(const std::string &file, uint &width, uint &height,
     // Start PNG loading.
     auto png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
     if (! png_ptr) {
-        std::cerr << " *** ERROR: out of memory, png_create_read_struct failed!"
-                  << std::endl;
+        ERR("out of memory, png_create_read_struct failed");
         fclose(fp);
         return 0;
     }
 
     auto info_ptr = png_create_info_struct(png_ptr);
     if (! info_ptr) {
-        std::cerr << " *** ERROR: out of memory, png_create_info_struct failed!"
-                  << std::endl;
+        ERR("out of memory, png_create_info_struct failed");
         png_destroy_read_struct(&png_ptr, 0, 0);
         fclose(fp);
         return 0;

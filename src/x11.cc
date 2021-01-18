@@ -67,8 +67,7 @@ extern "C" {
 
         char error_buf[256];
         XGetErrorText(dpy, ev->error_code, error_buf, 256);
-        std::cerr << "XError: " << error_buf << " id: " << ev->resourceid
-                  << std::endl;
+        ERR("XError: " << error_buf << " id: " << ev->resourceid);
 #endif // DEBUG
 
         return 0;
@@ -261,8 +260,7 @@ X11::init(Display *dpy, bool honour_randr)
     assert(sizeof(atomnames)/sizeof(char*) == MAX_NR_ATOMS);
     if (! XInternAtoms(_dpy, const_cast<char**>(atomnames), MAX_NR_ATOMS,
                        0, _atoms)) {
-        std::cerr << "Error: XInternAtoms didn't return all requested atoms."
-                  << std::endl;
+        ERR("XInternAtoms did not return all requested atoms");
     }
 }
 
@@ -321,11 +319,7 @@ X11::getColor(const std::string &color)
     XColor dummy;
     if (XAllocNamedColor(_dpy, X11::getColormap(),
                          color.c_str(), entry->getColor(), &dummy) == 0) {
-#ifdef DEBUG
-        std::cerr << __FILE__ << "@" << __LINE__ << ": "
-                  << "X11::getColor(" << color << ")" << std::endl
-                  << " *** failed to alloc color: " << color << std::endl;
-#endif // DEBUG
+        ERR("failed to alloc color: " << color);
         delete entry;
         entry = 0;
     } else {
@@ -435,11 +429,7 @@ X11::grabKeyboard(Window win)
                       CurrentTime) == GrabSuccess) {
         return true;
     }
-#ifdef DEBUG
-    std::cerr << __FILE__ << "@" << __LINE__ << ": "
-              << "X11()::grabKeyboard(" << win << ")" << std::endl
-              << " *** unable to grab keyboard." << std::endl;
-#endif // DEBUG
+    ERR("failed to grab keyboard");
     return false;
 }
 
@@ -594,10 +584,7 @@ X11::getHeadInfo(uint head, Geometry &head_info)
         head_info.height = _heads[head].height;
         return true;
     } else {
-#ifdef DEBUG
-        std::cerr << __FILE__ << "@" << __LINE__ << ": Head: " << head
-                  << " doesn't exist!" << std::endl;
-#endif // DEBUG
+        ERR("head " << head << " does not exist");
         return false;
     }
 }

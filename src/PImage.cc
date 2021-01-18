@@ -8,11 +8,10 @@
 
 #include "config.h"
 
+#include "Debug.hh"
 #include "PImage.hh"
-#include "x11.hh"
 #include "Util.hh"
-
-#include <iostream>
+#include "x11.hh"
 
 extern "C" {
 #include <X11/Xutil.h>
@@ -121,8 +120,7 @@ PImage::load(const std::string &file)
 {
     std::string ext(Util::getFileExt(file));
     if (! ext.size()) {
-        std::cerr << " *** WARNING: no file extension on " << file << "!"
-                  << std::endl;
+        USER_WARN("no file extension on " << file);
         return false;
     }
 
@@ -385,8 +383,7 @@ PImage::drawAlphaFixed(Drawable dest, int x, int y, uint width, uint height,
     auto dest_image = XGetImage(X11::getDpy(), dest,
                                 x, y, width, height, AllPlanes, ZPixmap);
     if (! dest_image) {
-        std::cerr << " *** ERROR: failed to get image for destination."
-                  << std::endl;
+        ERR("failed to get image for destination " << dest);
         return;
     }
 
@@ -506,7 +503,7 @@ PImage::createMask(uchar* data, uint width, uint height)
     auto ximage = XCreateImage(X11::getDpy(), X11::getVisual(),
                                1, ZPixmap, 0, 0, width, height, 32, 0);
     if (! ximage) {
-        std::cerr << " *** WARNING: unable to create XImage!" << std::endl;
+        ERR("failed to create XImage " << width << "x" << height);
         return None;
     }
 
@@ -551,7 +548,7 @@ PImage::createXImage(uchar* data, uint width, uint height)
                                X11::getDepth(), ZPixmap, 0, 0,
                                width, height, 32, 0);
     if (! ximage) {
-        std::cerr << " *** WARNING: unable to create XImage!" << std::endl;
+        ERR("failed to create XImage " << width << "x" << height);
         return nullptr;
     }
 

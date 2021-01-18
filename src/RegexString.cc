@@ -11,6 +11,7 @@
 #include <iostream>
 #include <cstdlib>
 
+#include "Debug.hh"
 #include "RegexString.hh"
 #include "Util.hh"
 
@@ -113,8 +114,8 @@ RegexString::parse_match(const std::wstring &match, bool full)
                     _reg_inverted = true;
                     break;
                 default:
-                    std::cerr << "Invalid flag \"" << match[i]
-                              << "\" for regular expression." << std::endl;
+                    USER_WARN("invalid flag \"" << match[i]
+                              << "\" for regular expression");
                     break;
                 }
             }
@@ -122,8 +123,8 @@ RegexString::parse_match(const std::wstring &match, bool full)
             expression = Util::to_mb_str(expression_str);
         } else {
             if (full) {
-                std::cerr << "Invalid format of regular expression, "
-                          << "missing separator " << SEPARATOR << std::endl;
+                USER_WARN("invalid format of regular expression, "
+                          << "missing separator " << SEPARATOR);
             }
             expression = Util::to_mb_str(match);
         }

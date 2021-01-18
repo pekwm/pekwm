@@ -221,14 +221,13 @@ Theme::PDecorData::load(CfgParser::Entry *section)
 
     _name = section->getValue();
     if (! _name.size()) {
-        std::cerr << " *** WARNING: no name identifying decor" << std::endl;
+        USER_WARN("no name identifying decor");
         return false;
     }
 
     CfgParser::Entry *title_section = section->findSection("TITLE");
     if (! title_section) {
-        std::cerr << " *** WARNING: no title section in decor: " << _name
-                  << std::endl;
+        USER_WARN("no title section in decor: " << _name);
         return false;
     }
     _loaded = true;
@@ -995,8 +994,7 @@ Theme::load(const std::string &dir)
 
     _theme_dir = norm_dir;
     if (! _theme_dir.size()) {
-        std::cerr << " *** WARNING: empty theme directory name, using default."
-                  << std::endl;
+        USER_WARN("empty theme directory name, using default");
         _theme_dir = DATADIR "/pekwm/themes/default/";
     }
 
@@ -1007,8 +1005,7 @@ Theme::load(const std::string &dir)
         _theme_dir = DATADIR "/pekwm/themes/default/";
         theme_file = _theme_dir + std::string("theme");
         if (! theme.parse(theme_file)) {
-            std::cerr << " *** WARNING: couldn't load " << _theme_dir
-                      << " or default theme." << std::endl;
+            USER_WARN("unable to load " << _theme_dir << " or default theme");
             theme_ok = false;
         }
     }

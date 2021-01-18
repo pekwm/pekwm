@@ -72,25 +72,31 @@ public:
     virtual ~DebugErrObj() { Debug::addErr(str()); }
 };
 
-#define ___PEKDEBUG_START __PRETTY_FUNCTION__ << '@' << __LINE__ \
-    << ":\n\t" << std::showbase << std::hex
+#define _PEK_DEBUG_START(fun, line) \
+    fun << '@' << line << ":\n\t" << std::showbase << std::hex
+
+#define PEK_DEBUG_START \
+    _PEK_DEBUG_START( __PRETTY_FUNCTION__, __LINE__)
+
+#define USER_WARN(M) \
+    do { DebugWarnObj dobj; dobj << M; } while (0)
 
 #define DBG(M) \
-    do { DebugDbgObj dobj; dobj << ___PEKDEBUG_START << M; } while (0)
+    do { DebugDbgObj dobj; dobj << PEK_DEBUG_START << M; } while (0)
 
 #define LOG(M) \
-    do { DebugInfoObj dobj; dobj << ___PEKDEBUG_START << M; } while (0)
+    do { DebugInfoObj dobj; dobj << PEK_DEBUG_START << M; } while (0)
 #define LOG_IF(C, M) \
     do { \
-        if (C) { DebugInfoObj dobj; dobj << ___PEKDEBUG_START << M; } \
+        if (C) { DebugInfoObj dobj; dobj << PEK_DEBUG_START << M; } \
     } while (0)
 #define WARN(M) \
-    do { DebugWarnObj dobj; dobj << ___PEKDEBUG_START << M; } while (0)
+    do { DebugWarnObj dobj; dobj << PEK_DEBUG_START << M; } while (0)
 #define ERR(M) \
-    do { DebugErrObj dobj; dobj << ___PEKDEBUG_START << M; } while (0)
+    do { DebugErrObj dobj; dobj << PEK_DEBUG_START << M; } while (0)
 #define ERR_IF(C, M) \
     do { \
-        if (C) { DebugErrObj dobj; dobj << ___PEKDEBUG_START << M; } \
+        if (C) { DebugErrObj dobj; dobj << PEK_DEBUG_START << M; } \
     } while (0)
 
 #endif // _PEKWM_DEBUG_HH_

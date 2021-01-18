@@ -9,6 +9,7 @@
 #include "config.h"
 
 #include "Config.hh"
+#include "Debug.hh"
 #include "ActionHandler.hh"
 #include "ManagerWindows.hh"
 #include "Workspaces.hh"
@@ -105,8 +106,7 @@ HintWO::claimDisplay(bool replace)
 
     if (session_owner && session_owner != _window) {
         if (! replace) {
-            std::cerr << " *** WARNING: window manager already running."
-                      << std::endl;
+            LOG("window manager already running");
             return false;
         }
 
@@ -154,11 +154,11 @@ HintWO::claimDisplayWait(Window session_owner)
 {
     XEvent event;
 
-    std::cerr << " *** INFO: waiting for previous window manager to exit. "
-              << std::endl;
+    LOG("waiting for previous window manager to exit");
 
     for (uint waited = 0; waited < HintWO::DISPLAY_WAIT; ++waited) {
-        if (XCheckWindowEvent(X11::getDpy(), session_owner, StructureNotifyMask, &event)
+        if (XCheckWindowEvent(X11::getDpy(), session_owner,
+                              StructureNotifyMask, &event)
             && event.type == DestroyNotify) {
             return true;
         }
@@ -166,8 +166,7 @@ HintWO::claimDisplayWait(Window session_owner)
         sleep(1);
     }
 
-    std::cerr << " *** INFO: previous window manager did not exit. "
-              << std::endl;
+    LOG("previous window manager did not exit");
 
     return false;
 }

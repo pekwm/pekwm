@@ -9,9 +9,9 @@
 #include "config.h"
 
 #include <cstdio>
-#include <iostream>
 #include <set>
 
+#include "Debug.hh"
 #include "PWinObj.hh"
 #include "PDecor.hh"
 #include "PMenu.hh"
@@ -216,8 +216,7 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
                 item = new PMenu::Item(wsub_title, submenu, icon);
                 item->setCreator(parent);
             } else {
-                std::cerr << " *** WARNING: submenu entry does not contain "
-                          << "any section." << std::endl;
+                USER_WARN("submenu entry does not contain any section");
             }
         } else if (*(*it) == "SEPARATOR") {
             // No icon support on separators.

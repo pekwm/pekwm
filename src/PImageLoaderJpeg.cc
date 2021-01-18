@@ -10,9 +10,8 @@
 
 #ifdef HAVE_IMAGE_JPEG
 
+#include "Debug.hh"
 #include "PImageLoaderJpeg.hh"
-
-#include <iostream>
 
 extern "C" {
 #include <stdio.h>
@@ -20,7 +19,7 @@ extern "C" {
 }
 
 PImageLoaderJpeg::PImageLoaderJpeg(void)
-        : PImageLoader("JPG")
+    : PImageLoader("JPG")
 {
 }
 
@@ -43,8 +42,7 @@ PImageLoaderJpeg::load(const std::string &file, uint &width, uint &height,
 {
     auto fp= fopen(file.c_str(), "rb");
     if (! fp) {
-        std::cerr << " *** WARNING: unable to open " << file << " for reading!"
-                  << std::endl;
+        USER_WARN("failed to open " << file << " for reading");
         return 0;
     }
 

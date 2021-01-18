@@ -11,9 +11,10 @@
 #include <iostream>
 #include <cstring>
 
+#include "Debug.hh"
 #include "PFont.hh"
-#include "x11.hh"
 #include "Util.hh"
+#include "x11.hh"
 
 std::wstring PFont::_trim_string = std::wstring();
 const char *FALLBACK_FONT = "fixed";
@@ -347,18 +348,17 @@ PFontXmb::load(const std::string &font_name)
     char **missing_list, **font_names;
     int missing_count;
 
-    _fontset = XCreateFontSet(X11::getDpy(), basename.c_str(), &missing_list, &missing_count, &def_string);
+    _fontset = XCreateFontSet(X11::getDpy(), basename.c_str(),
+                              &missing_list, &missing_count, &def_string);
     if (! _fontset) {
-        std::cerr << "PFontXmb::load(): Failed to create fontset for " << font_name
-                  << std::endl;
+        USER_WARN("failed to create fontset for " << font_name);
         _fontset = XCreateFontSet(X11::getDpy(), DEFAULT_FONTSET,
                                   &missing_list, &missing_count, &def_string);
     }
 
     if (_fontset) {
         for (int i = 0; i < missing_count; ++i) {
-            std::cerr <<  "PFontXmb::load(): Missing charset"
-                      <<  missing_list[i] << std::endl;
+            USER_WARN(font_name << " missing charset " <<  missing_list[i]);
         }
         XFreeStringList(missing_list);
 

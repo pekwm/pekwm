@@ -668,8 +668,7 @@ WindowManager::doEventLoop(void)
 
             case SelectionClear:
                 // Another window
-                std::cerr << " *** INFO: Being replaced by another WM"
-                          << std::endl;
+                LOG("being replaced by another WM");
                 _shutdown = true;
                 break;
 
