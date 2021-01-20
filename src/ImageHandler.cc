@@ -105,10 +105,11 @@ PImage*
 ImageHandler::getImageFromPath(const std::string &file)
 {
     // Check cache for entry.
-    for (auto it : _images) {
-        if (it == file) {
-            it.incRef();
-            return it.getData();
+    auto it = _images.begin();
+    for (; it != _images.end(); ++it) {
+        if (*it == file) {
+            it->incRef();
+            return it->getData();
         }
     }
 

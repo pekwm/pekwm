@@ -405,8 +405,10 @@ PTextureImage::setImage(const std::string &image)
 void
 PTextureImage::unsetImage(void)
 {
-    pekwm::imageHandler()->returnImage(_image);
-    _image = 0;
+    if (_ok) {
+        pekwm::imageHandler()->returnImage(_image);
+    }
+    _image = nullptr;
     _width = 1;
     _height = 1;
     _ok = false;
