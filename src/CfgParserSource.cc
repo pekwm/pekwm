@@ -50,6 +50,36 @@ CfgParserSourceFile::close(void)
     _file = 0;
 }
 
+bool
+CfgParserSourceString::open(void)
+{
+    _pos = _data.begin();
+    return true;
+}
+
+void
+CfgParserSourceString::close(void)
+{
+    _pos = _data.end();
+}
+
+int
+CfgParserSourceString::getc(void)
+{
+    if (_pos == _data.end()) {
+        return EOF;
+    }
+    return CfgParserSource::getc(*_pos++);
+}
+
+void
+CfgParserSourceString::ungetc(int c)
+{
+    if (_pos != _data.begin()) {
+        CfgParserSource::ungetc(*_pos--);
+    }
+}
+
 /**
  * Run command and treat output as configuration source.
  */

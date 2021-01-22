@@ -1,8 +1,6 @@
-
-
 //
 // Theme.hh for pekwm
-// Copyright (C) 2003-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2021 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -353,7 +351,7 @@ public:
     Theme(FontHandler *fh, ImageHandler *ih, TextureHandler *th);
     ~Theme(void);
 
-    bool load(const std::string &dir);
+    bool load(const std::string &dir, const std::string &variant);
     void unload(void);
 
     inline const GC &getInvertGC(void) const { return _invert_gc; }
@@ -410,6 +408,7 @@ private:
     TextureHandler* _th;
 
     std::string _theme_dir; /**< Path to theme directory. */
+    std::string _theme_file;
     std::string _background;
     TimeFiles _cfg_files;
 

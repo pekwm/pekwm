@@ -97,7 +97,8 @@ CfgParser::Entry::addEntry(CfgParser::Entry *entry, bool overwrite)
     CfgParser::Entry *entry_search = 0;
     if (overwrite) {
         if (entry->getSection()) {
-            entry_search = findEntry(entry->getName(), true, entry->getSection()->getValue().c_str());
+            entry_search = findEntry(entry->getName(), true,
+                                     entry->getSection()->getValue().c_str());
         } else {
             entry_search = findEntry(entry->getName(), false);
         }
@@ -108,7 +109,8 @@ CfgParser::Entry::addEntry(CfgParser::Entry *entry, bool overwrite)
     // when the value is the same.
     if (entry_search
         && (! entry_search->getSection()
-            || strcasecmp(entry->getValue().c_str(), entry_search->getValue().c_str()) == 0)) { 
+            || strcasecmp(entry->getValue().c_str(),
+                          entry_search->getValue().c_str()) == 0)) {
         entry_search->_value = entry->getValue();
         entry_search->setSection(entry->getSection(), overwrite);
 
@@ -129,7 +131,8 @@ CfgParser::Entry::addEntry(const std::string &source_name, int line,
                            const std::string &name, const std::string &value,
                            CfgParser::Entry *section, bool overwrite)
 {
-    return addEntry(new Entry(source_name, line, name, value, section), overwrite);
+    return addEntry(new Entry(source_name, line, name, value, section),
+                    overwrite);
 }
 
 /**
@@ -156,7 +159,8 @@ CfgParser::Entry::setSection(CfgParser::Entry *section, bool overwrite)
 //! @brief Gets next entry without subsection matching the name name.
 //! @param name Name of Entry to look for.
 CfgParser::Entry*
-CfgParser::Entry::findEntry(const std::string &name, bool include_sections, const char *value)
+CfgParser::Entry::findEntry(const std::string &name, bool include_sections,
+                            const char *value)
 {
     CfgParser::Entry *value_check;
     for (auto it : _entries) {
@@ -255,9 +259,8 @@ CfgParser::Entry::copyTreeInto(CfgParser::Entry *from, bool overwrite)
         if ((*it)->getSection()) {
             entry_section = new Entry(*((*it)->getSection()));
         }
-        
-        addEntry((*it)->getSourceName(), (*it)->getLine(), (*it)->getName(), (*it)->getValue(),
-                 entry_section, true);
+        addEntry((*it)->getSourceName(), (*it)->getLine(), (*it)->getName(),
+                 (*it)->getValue(), entry_section, true);
     }
 }
 
@@ -289,7 +292,8 @@ CfgParser::~CfgParser(void)
  * Clear resources used by parser, end up in the same state as in
  * after construction.
  *
- * @param realloc If realloc is false, root_entry will be cleared as well rendering the parser useless. Defaults to true.
+ * @param realloc If realloc is false, root_entry will be cleared as
+ *        well rendering the parser useless. Defaults to true.
  */
 void
 CfgParser::clear(bool realloc)
@@ -328,7 +332,8 @@ CfgParser::clear(bool realloc)
  * @param overwrite Overwrite or append duplicate elements, defaults to false.
  */
 bool
-CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwrite)
+CfgParser::parse(const std::string &src, CfgParserSource::Type type,
+                 bool overwrite)
 {
     // Set overwrite
     _overwrite = overwrite;
@@ -342,6 +347,34 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwr
     if (_sources.size() == 0) {
         return false;
     }
+    return parse();
+}
+
+/**
+ * Parses source and fills root section with data.
+ *
+ * @param source Source.
+ * @param type Type of source, defaults to file.
+ * @param overwrite Overwrite or append duplicate elements, defaults to false.
+ */
+bool
+CfgParser::parse(CfgParserSource* source, bool overwrite)
+{
+    _overwrite = overwrite;
+    _source = source;
+    _sources.push_back(source);
+    _source_names.push_back(source->getName());
+    _source_name_set.insert(source->getName());
+    return parse();
+}
+
+
+bool
+CfgParser::parse()
+{
+    // Init parse buffer and reserve memory.
+    std::string buf, value;
+    buf.reserve(PARSE_BUF_SIZE);
 
     int c, next;
     while (_sources.size()) {
@@ -368,7 +401,7 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwr
                 if (parseName(buf)) {
                     parseSectionFinish(buf, value);
                 } else {
-                    LOG("Ignoring section as name is empty.");
+                    USER_WARN("Ignoring section as name is empty.");
                 }
                 buf.clear();
                 value.clear();
@@ -383,7 +416,7 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwr
                     _section = _sections.back();
                     _sections.pop_back();
                 } else {
-                    LOG("Extra } character found, ignoring.");
+                    USER_WARN("Extra } character found, ignoring.");
                 }
                 break;
             case '=':
@@ -412,17 +445,20 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type, bool overwr
 
         try {
             _source->close();
-
         } catch (std::string &ex) {
             LOG("Exception: " << ex);
         }
         delete _source;
         _sources.pop_back();
         _source_names.pop_back();
-    }
 
-    if (buf.size()) {
-        parseEntryFinish(buf, value);
+        // done inside of the loop to ensure COMMAND and INCLUDE
+        // statements without a new line at the end of the file will
+        // be used.
+        if (buf.size()) {
+            parseEntryFinish(buf, value);
+        }
+
     }
 
     return true;
@@ -437,7 +473,7 @@ CfgParser::parseSourceNew(const std::string &name_orig,
     std::string name(name_orig);
 
     do {
-        CfgParserSource *source = sourceNew(name, type);
+        auto source = sourceNew(name, type);
         ERR_IF(!source, "source == 0");
 
         // Open and set as active, delete if fails.
@@ -462,7 +498,6 @@ CfgParser::parseSourceNew(const std::string &name_orig,
             // Previously added in source_new
             _source_names.pop_back();
 
-
             // Display error message on second try
             if (done) {
                 LOG("Exception: " << ex);
@@ -485,7 +520,7 @@ bool
 CfgParser::parseName(std::string &buf)
 {
     if (! buf.size()) {
-        LOG("Unable to parse empty name.");
+        USER_WARN("Unable to parse empty name.");
         return false;
     }
 
@@ -520,7 +555,7 @@ CfgParser::parseValue(std::string &value)
 
     // Check if we got EOF before getting a quotation mark.
     if (c == EOF) {
-        LOG("Reached EOF before opening \" in value.");
+        USER_WARN("Reached EOF before opening \" in value.");
         return;
     }
 
@@ -541,7 +576,7 @@ CfgParser::parseValue(std::string &value)
     // If the value is empty, parseEntryFinish() might later just skip
     // the complete entry. To allow empty config options we add a dummy space.
     if (!value.size()) {
-    	value = " ";
+        value = " ";
     }
 }
 
@@ -576,11 +611,12 @@ CfgParser::parseEntryFinishStandard(std::string &buf, std::string &value)
             } else if (buf == "COMMAND") {
                 parseSourceNew(value, CfgParserSource::SOURCE_COMMAND);
             } else {
-                _section->addEntry(_source->getName(), _source->getLine(), buf, value, 0, _overwrite);
+                _section->addEntry(_source->getName(), _source->getLine(),
+                                   buf, value, 0, _overwrite);
             }
         }
     } else {
-        LOG("Dropping entry with empty name.");
+        USER_WARN("Dropping entry with empty name.");
     }
 
     value.clear();
@@ -625,8 +661,8 @@ CfgParser::parseSectionFinish(std::string &buf, std::string &value)
         // Add parent section, get section from parent section as it
         // can be different from the newly created if it is not
         // overwritten.
-        CfgParser::Entry *parent = _section->addEntry(_source->getName(), _source->getLine(),
-                                                      buf, value, section, _overwrite);
+        auto parent = _section->addEntry(_source->getName(), _source->getLine(),
+                                         buf, value, section, _overwrite);
         section = parent->getSection();
     }
 
@@ -658,7 +694,7 @@ CfgParser::parseCommentC(CfgParserSource *source)
         if (c == '*') {
             if ((c = source->getc()) == '/') {
                 break;
-        	} else if (c != EOF) {
+            } else if (c != EOF) {
                 source->ungetc(c);
             }
         }
@@ -762,7 +798,8 @@ CfgParser::variableExpandName(std::string &var,
             end = begin + strlen(value);
             did_expand = true;
         } else {
-            LOG("Trying to use undefined environment variable: " << var_name);
+            USER_WARN("Trying to use undefined environment variable: "
+                      << var_name);
         }
     } else {
         auto it(_var_map.find(var_name));
@@ -771,7 +808,7 @@ CfgParser::variableExpandName(std::string &var,
             end = begin + it->second.size();
             did_expand = true;
         } else  {
-            LOG("Trying to use undefined variable: " << var_name);
+            USER_WARN("Trying to use undefined variable: " << var_name);
         }
     }
 

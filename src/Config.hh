@@ -102,6 +102,9 @@ public:
     const std::string &getStartFile(void) const { return _files_start; }
     const std::string &getAutoPropsFile(void) const { return _files_autoprops; }
     const std::string &getThemeFile(void) const { return _files_theme; }
+    const std::string &getThemeVariant(void) const {
+        return _files_theme_variant;
+    }
     const std::string &getMouseConfigFile(void) const { return _files_mouse; }
     const std::string &getIconPath(void) const { return _files_icon_path; }
     const char *getSystemIconPath(void) const {
@@ -302,9 +305,13 @@ private:
     TimeFiles _cfg_files_mouse;
 
     // files
-    std::string _files_keys, _files_menu;
-    std::string _files_start, _files_autoprops;
-    std::string _files_theme, _files_mouse;
+    std::string _files_keys;
+    std::string _files_menu;
+    std::string _files_start;
+    std::string _files_autoprops;
+    std::string _files_theme;
+    std::string _files_theme_variant;
+    std::string _files_mouse;
     std::string _files_icon_path; /**< Path to user icon directory. */
 
     // moveresize

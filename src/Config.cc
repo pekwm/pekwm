@@ -1,6 +1,6 @@
 //
 // Config.cc for pekwm
-// Copyright (C) 2002-2015 the pekwm development team
+// Copyright (C) 2002-2021 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -531,6 +531,8 @@ Config::loadFiles(CfgParser::Entry *section)
                                         SYSCONFDIR "/autoproperties"));
     keys.push_back(new CfgParserKeyPath("THEME", _files_theme,
                                         DATADIR "/pekwm/themes/default/theme"));
+    keys.push_back(new CfgParserKeyString("THEMEVARIANT",
+                                          _files_theme_variant));
     keys.push_back(new CfgParserKeyPath("ICONS", _files_icon_path,
                                         DATADIR "/pekwm/icons"));
 

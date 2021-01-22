@@ -10,6 +10,11 @@ Bug fixes
 New
 ---
 
+**theme variants**, using the _ThemeVariant_ option in the Files
+section allows for specifying variants of themes. Theme variants are
+implemented by creating separate theme files in the theme directory
+named theme-VARIANT.
+
 **pekwm_bg** created, a background setting application integrated with
 pekwm themes. pekwm_bg supports all textures pekwm supports so it is
 possible to set solid colors, images and the new lines texture. Themes

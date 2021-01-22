@@ -119,16 +119,28 @@ public:
 
     TimeFiles getCfgFiles(void) const { return _cfg_files; }
 
-    //! @brief Returns the root Entry node.
+    /** Returns the root Entry node. */
     Entry *getEntryRoot(void) { return _root_entry; }
-    /** Return true if data parsed included dynamic content such as from COMMAND. */
+    /** Return true if data parsed included dynamic content such as
+        from COMMAND. */
     bool isDynamicContent(void) { return _is_dynamic_content; }
 
     void clear(bool realloc = true);
-    bool parse(const std::string &src, CfgParserSource::Type type = CfgParserSource::SOURCE_FILE,
+    bool parse(const std::string &src,
+               CfgParserSource::Type type = CfgParserSource::SOURCE_FILE,
                bool overwrite = false);
+    bool parse(CfgParserSource* source, bool overwrite = false);
+
+    std::string getVar(const std::string& key) const {
+        auto it = _var_map.find(key);
+        return it == _var_map.end() ? "" : it->second;
+    }
+    void setVar(const std::string& key, const std::string& val) {
+        _var_map[key] = val;
+    }
 
 private:
+    bool parse(void);
     void parseSourceNew(const std::string &name, CfgParserSource::Type type);
     bool parseName(std::string &buf);
     void parseValue(std::string &value);
@@ -140,12 +152,19 @@ private:
     void parseCommentC(CfgParserSource *source);
     char parseSkipBlank(CfgParserSource *source);
 
-    CfgParserSource *sourceNew(const std::string &name, CfgParserSource::Type type);
+    CfgParserSource *sourceNew(const std::string &name,
+                               CfgParserSource::Type type);
 
     void variableDefine(const std::string &name, const std::string &value);
     void variableExpand(std::string &var);
     bool variableExpandName(std::string &var,
-                            std::string::size_type begin, std::string::size_type &end);
+                            std::string::size_type begin,
+                            std::string::size_type &end);
+
+protected:
+    std::map<std::string, std::string> _var_map; //!< Map of $VARS
+
+private:
 
     CfgParserSource *_source;
 
@@ -160,7 +179,6 @@ private:
     std::set<std::string> _source_name_set;
     std::vector<Entry*> _sections; //!< for recursive parsing.
 
-    std::map<std::string, std::string> _var_map; //!< Map of $VARS
     /**  Map of Define = ... sections */
     std::map<std::string, CfgParser::Entry*> _section_map;
 

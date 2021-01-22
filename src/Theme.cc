@@ -961,7 +961,8 @@ Theme::Theme(FontHandler *fh, ImageHandler *ih, TextureHandler *th)
                            GCFunction|GCSubwindowMode|GCLineWidth, &gv);
 
     X11::grabServer();
-    load(pekwm::config()->getThemeFile());
+    load(pekwm::config()->getThemeFile(),
+         pekwm::config()->getThemeVariant());
     X11::ungrabServer(true);
 }
 
@@ -976,15 +977,25 @@ Theme::~Theme(void)
  * Re-loads theme if needed, clears up previously used resources.
  */
 bool
-Theme::load(const std::string &dir)
+Theme::load(const std::string &dir, const std::string &variant)
 {
     std::string norm_dir(dir);
-    if (dir.size() && dir.at(dir.size() - 1) != '/') {
-        norm_dir.append("/");
+    if (dir.size() && dir.at(dir.size() - 1) == '/') {
+        norm_dir.erase(norm_dir.end() - 1);
     }
-    std::string theme_file(norm_dir + "theme");
+    std::string theme_file(norm_dir + "/theme");
+    if (! variant.empty()) {
+        auto theme_file_variant = theme_file + "-" + variant;
+        if (Util::isFile(theme_file_variant)) {
+            theme_file = theme_file_variant;
+        } else {
+            DBG("theme variant " << variant << " does not exist");
+        }
+    }
 
-    if (! _cfg_files.requireReload(theme_file)) {
+    if (_theme_dir == norm_dir
+        && _theme_file == theme_file
+        && ! _cfg_files.requireReload(theme_file)) {
         return false;
     }
 
@@ -993,17 +1004,20 @@ Theme::load(const std::string &dir)
     }
 
     _theme_dir = norm_dir;
+    _theme_file = theme_file;
     if (! _theme_dir.size()) {
         USER_WARN("empty theme directory name, using default");
-        _theme_dir = DATADIR "/pekwm/themes/default/";
+        _theme_dir = DATADIR "/pekwm/themes/default";
+        _theme_file = _theme_dir + "/theme";
     }
 
     bool theme_ok = true;
     CfgParser theme;
-
+    theme.setVar("$THEME_DIR", _theme_dir);
     if (! theme.parse(theme_file)) {
-        _theme_dir = DATADIR "/pekwm/themes/default/";
-        theme_file = _theme_dir + std::string("theme");
+        _theme_dir = DATADIR "/pekwm/themes/default";
+        theme.setVar("$THEME_DIR", _theme_dir);
+        theme_file = _theme_dir + "/theme";
         if (! theme.parse(theme_file)) {
             USER_WARN("unable to load " << _theme_dir << " or default theme");
             theme_ok = false;
@@ -1023,7 +1037,7 @@ Theme::load(const std::string &dir)
 
     // Set image basedir.
     _ih->path_clear();
-    _ih->path_push_back(_theme_dir);
+    _ih->path_push_back(_theme_dir + "/");
 
     loadBackground(root->findSection("BACKGROUND"));
 
@@ -1098,6 +1112,7 @@ Theme::loadThemeRequire(CfgParser &theme_cfg, std::string &file)
         // Re-load configuration with templates enabled.
         if (value_templates) {
             theme_cfg.clear(true);
+            theme_cfg.setVar("$THEME_DIR", _theme_dir);
             theme_cfg.parse(file, CfgParserSource::SOURCE_FILE, true);
         }
     }

@@ -487,7 +487,8 @@ void
 WindowManager::doReloadTheme(void)
 {
     // Reload the theme
-    if (! pekwm::theme()->load(pekwm::config()->getThemeFile())) {
+    if (! pekwm::theme()->load(pekwm::config()->getThemeFile(),
+                               pekwm::config()->getThemeVariant())) {
         return;
     }
 
