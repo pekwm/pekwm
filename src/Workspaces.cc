@@ -112,11 +112,10 @@ Workspaces::setSize(uint number)
     }
 
     // Tell the rest of the world how many workspaces we have.
-    XChangeProperty(X11::getDpy(),
-                    X11::getRoot(),
-                    X11::getAtom(NET_NUMBER_OF_DESKTOPS),
-                    XA_CARDINAL, 32, PropModeReplace,
-                    (uchar *) &number, 1);
+    X11::changeProperty(X11::getRoot(),
+                        X11::getAtom(NET_NUMBER_OF_DESKTOPS),
+                        XA_CARDINAL, 32, PropModeReplace,
+                        (uchar *) &number, 1);
 
     // make sure we aren't on an non-existent workspace
     if (number <= _active) {
@@ -656,11 +655,9 @@ Workspaces::buildClientList(unsigned int &num_windows)
 void
 Workspaces::updateClientList(void)
 {
-    unsigned int num_windows;
-    Window *windows = buildClientList(num_windows);
-
-    X11::setWindows(X11::getRoot(), NET_CLIENT_LIST, windows, num_windows);
-
+    uint num;
+    auto windows = buildClientList(num);
+    X11::setWindows(X11::getRoot(), NET_CLIENT_LIST, windows, num);
     delete [] windows;
 }
 
@@ -670,11 +667,9 @@ Workspaces::updateClientList(void)
 void
 Workspaces::updateClientStackingList(void)
 {
-    unsigned int num_windows;
-    Window *windows = buildClientList(num_windows);
-
-    X11::setWindows(X11::getRoot(), NET_CLIENT_LIST_STACKING, windows, num_windows);
-
+    uint num;
+    auto windows = buildClientList(num);
+    X11::setWindows(X11::getRoot(), NET_CLIENT_LIST_STACKING, windows, num);
     delete [] windows;
 }
 

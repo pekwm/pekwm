@@ -110,26 +110,24 @@ public:
     static void init(Display *dpy, bool honour_randr = true);
     static void destruct(void);
 
-    inline static Display* getDpy(void) { return _dpy; }
-    inline static int getScreenNum(void) { return _screen; }
-    inline static Window getRoot(void) { return _root; }
+    static Display* getDpy(void) { return _dpy; }
+    static int getScreenNum(void) { return _screen; }
+    static Window getRoot(void) { return _root; }
 
-    inline static const Geometry &getScreenGeometry(void) { return _screen_gm; }
-    inline static uint getWidth(void)  { return _screen_gm.width; }
-    inline static uint getHeight(void) { return _screen_gm.height; }
+    static const Geometry &getScreenGeometry(void) { return _screen_gm; }
+    static uint getWidth(void)  { return _screen_gm.width; }
+    static uint getHeight(void) { return _screen_gm.height; }
 
-    inline static int getDepth(void) { return _depth; }
-    inline static Visual *getVisual(void) { return _visual; }
-    inline static GC getGC(void) { return DefaultGC(_dpy, _screen); }
-    inline static Colormap getColormap(void) { return _colormap; }
+    static int getDepth(void) { return _depth; }
+    static Visual *getVisual(void) { return _visual; }
+    static GC getGC(void) { return DefaultGC(_dpy, _screen); }
+    static Colormap getColormap(void) { return _colormap; }
 
     static XColor *getColor(const std::string &color);
     static void returnColor(XColor *xc);
 
-    inline static
-    ulong getWhitePixel(void) { return WhitePixel(_dpy, _screen); }
-    inline static 
-    ulong getBlackPixel(void) { return BlackPixel(_dpy, _screen); }
+    static ulong getWhitePixel(void) { return WhitePixel(_dpy, _screen); }
+    static ulong getBlackPixel(void) { return BlackPixel(_dpy, _screen); }
 
     /**
      * Remove state modifiers such as NumLock from state.
@@ -199,27 +197,28 @@ public:
         return false;
     }
 
-    inline static Atom getAtom(AtomName name) { return _atoms[name]; }
-    inline static void setAtom(Window win, AtomName aname, AtomName value) {
-        XChangeProperty(_dpy, win, _atoms[aname], XA_ATOM, 32,
-                        PropModeReplace, (uchar *) &_atoms[value], 1);
+    static Atom getAtom(AtomName name) { return _atoms[name]; }
+    static void setAtom(Window win, AtomName aname, AtomName value) {
+        changeProperty(win, _atoms[aname], XA_ATOM, 32,
+                       PropModeReplace, (uchar *) &_atoms[value], 1);
     }
-    inline static void setAtoms(Window win, AtomName aname, Atom *values, int size) {
-        XChangeProperty(_dpy, win, _atoms[aname], XA_ATOM, 32,
-                        PropModeReplace, (uchar *) values, size);
+    static void setAtoms(Window win, AtomName aname, Atom *values, int size) {
+        changeProperty(win, _atoms[aname], XA_ATOM, 32,
+                       PropModeReplace, (uchar *) values, size);
     }
-    inline static void setEwmhAtomsSupport(Window win) {
-        XChangeProperty(_dpy, win, _atoms[NET_SUPPORTED], XA_ATOM, 32,
-                        PropModeReplace, (uchar *) _atoms, UTF8_STRING+1);
+    static void setEwmhAtomsSupport(Window win) {
+        changeProperty(win, _atoms[NET_SUPPORTED], XA_ATOM, 32,
+                       PropModeReplace, (uchar *) _atoms, UTF8_STRING+1);
     }
 
-    inline static void setWindow(Window win, AtomName aname, Window value) {
-        XChangeProperty(_dpy, win, _atoms[aname], XA_WINDOW, 32,
-                        PropModeReplace, (uchar *) &value, 1);
+    static void setWindow(Window win, AtomName aname, Window value) {
+        changeProperty(win, _atoms[aname], XA_WINDOW, 32,
+                       PropModeReplace, (uchar *) &value, 1);
     }
-    inline static void setWindows(Window win, AtomName aname, Window *values, int size) {
-        XChangeProperty(_dpy, win, _atoms[aname], XA_WINDOW, 32,
-                        PropModeReplace, (uchar *) values, size);
+    static void setWindows(Window win, AtomName aname, Window *values,
+                           int size) {
+        changeProperty(win, _atoms[aname], XA_WINDOW, 32,
+                       PropModeReplace, (uchar *) values, size);
     }
 
     inline static bool getLong(Window win, AtomName aname, long &value) {
@@ -233,16 +232,16 @@ public:
     }
     static void setLong(Window win, AtomName aname, long value,
                         long format=XA_CARDINAL) {
-        XChangeProperty(_dpy, win, _atoms[aname], format, 32,
-                        PropModeReplace, (uchar *) &value, 1);
+        changeProperty(win, _atoms[aname], format, 32,
+                       PropModeReplace, (uchar *) &value, 1);
     }
-    inline static void setLongs(Window win, AtomName aname, long *values, int num) {
-        XChangeProperty(_dpy, win, _atoms[aname], XA_CARDINAL, 32,
-                        PropModeReplace, reinterpret_cast<unsigned char*>(values), num);
+    static void setLongs(Window win, AtomName aname, long *values, int num) {
+        changeProperty(win, _atoms[aname], XA_CARDINAL, 32, PropModeReplace,
+                       reinterpret_cast<uchar*>(values), num);
     }
 
-    inline static bool getUtf8String(Window win, AtomName aname, std::string &value) {
-        unsigned char *data = 0;
+    static bool getUtf8String(Window win, AtomName aname, std::string &value) {
+        uchar *data = 0;
         if (getProperty(win, aname, _atoms[UTF8_STRING], 32, &data, 0)) {
             value = std::string(reinterpret_cast<char*>(data));
             XFree(data);
@@ -251,16 +250,21 @@ public:
         return false;
     }
 
-    inline static void setUtf8String(Window win, AtomName aname, const std::string &value) {
-        XChangeProperty(_dpy, win, _atoms[aname], _atoms[UTF8_STRING], 8, PropModeReplace,
-                        reinterpret_cast<const uchar*>(value.c_str()), value.size());
+    static void setUtf8String(Window win, AtomName aname,
+                              const std::string &value) {
+        changeProperty(win, _atoms[aname], _atoms[UTF8_STRING], 8,
+                       PropModeReplace,
+                       reinterpret_cast<const uchar*>(value.c_str()),
+                       value.size());
     }
 
-    inline static void setUtf8StringArray(Window win, AtomName aname, unsigned char *values, uint length) {
-        XChangeProperty(_dpy, win, _atoms[aname], _atoms[UTF8_STRING], 8, PropModeReplace, values, length);
+    static void setUtf8StringArray(Window win, AtomName aname,
+                                   unsigned char *values, uint length) {
+        changeProperty(win, _atoms[aname], _atoms[UTF8_STRING], 8,
+                       PropModeReplace, values, length);
     }
 
-    inline static bool getString(Window win, AtomName aname, std::string &value) {
+    static bool getString(Window win, AtomName aname, std::string &value) {
         uchar *data = 0;
         if (getProperty(win, aname, XA_STRING, 64L, &data, 0)) {
             value = std::string((const char*) data);
@@ -270,17 +274,21 @@ public:
         return false;
     }
 
-    inline static void setString(Window win, AtomName aname, const std::string &value) {
-        XChangeProperty(_dpy, win, _atoms[aname], XA_STRING, 8, PropModeReplace,
-                        (uchar*)value.c_str(), value.size());
+    static void setString(Window win, AtomName aname,
+                          const std::string &value) {
+        changeProperty(win, _atoms[aname], XA_STRING, 8, PropModeReplace,
+                       (uchar*)value.c_str(), value.size());
     }
 
-    static bool getProperty(Window win, AtomName aname, Atom type, ulong expected,
-                     uchar **data, ulong *actual);
+    static bool getProperty(Window win, AtomName aname, Atom type,
+                            ulong expected, uchar **data, ulong *actual);
     static bool getTextProperty(Window win, Atom atom, std::string &value);
-    static void *getEwmhPropData(Window win, AtomName prop, Atom type, int &num);
-    inline static void unsetProperty(Window win, AtomName aname) {
-        XDeleteProperty(_dpy, win, _atoms[aname]);
+    static void *getEwmhPropData(Window win, AtomName prop,
+                                 Atom type, int &num);
+    static void unsetProperty(Window win, AtomName aname) {
+        if (_dpy) {
+            XDeleteProperty(_dpy, win, _atoms[aname]);
+        }
     }
 
     static void getMousePosition(int &x, int &y);
@@ -297,8 +305,10 @@ public:
             ;
     }
 
-    static const uint MODIFIER_TO_MASK[]; /**< Modifier from (XModifierKeymap) to mask table. */
-    static const uint MODIFIER_TO_MASK_NUM; /**< Number of entries in MODIFIER_TO_MASK. */
+    /** Modifier from (XModifierKeymap) to mask table. */
+    static const uint MODIFIER_TO_MASK[];
+    /** Number of entries in MODIFIER_TO_MASK. */
+    static const uint MODIFIER_TO_MASK_NUM;
 
     // helper functions
 
@@ -322,16 +332,22 @@ public:
 
     // X11 function wrappers
 
-    inline static void grabButton(unsigned b, unsigned int mod, Window win, 
-                                  unsigned mask, int mode=GrabModeAsync)
-    {
-        XGrabButton(_dpy, b, mod, win, true, mask, mode, GrabModeAsync, None, None);
+    static void destroyWindow(Window win) {
+        if (_dpy) {
+            XDestroyWindow(_dpy, win);
+        }
     }
 
-    inline static void mapWindow(Window w)   { XMapWindow(_dpy, w); }
-    inline static void unmapWindow(Window w) { XUnmapWindow(_dpy, w); }
+    static void grabButton(unsigned b, unsigned int mod, Window win,
+                           unsigned mask, int mode=GrabModeAsync) {
+        XGrabButton(_dpy, b, mod, win, true, mask, mode,
+                    GrabModeAsync, None, None);
+    }
 
-    inline static void ungrabButton(Window win) {
+    static void mapWindow(Window w) { if (_dpy) { XMapWindow(_dpy, w); } }
+    static void unmapWindow(Window w) { if (_dpy) { XUnmapWindow(_dpy, w); } }
+
+    static void ungrabButton(Window win) {
         XUngrabButton(_dpy, AnyButton, AnyModifier, win);
     }
 
@@ -360,38 +376,52 @@ public:
                          long v1=0l, long v2=0l, long v3=0l,
                          long v4=0l, long v5=0l);
 
-    inline static int
-    changeProperty(Window win, Atom prop, Atom type, int format,
-                   int mode, unsigned char *data, int ne)
+    static int changeProperty(Window win, Atom prop, Atom type, int format,
+                              int mode, const unsigned char *data, int num_e)
     {
-        return XChangeProperty(_dpy, win, prop, type, format, mode, data, ne);
+        if (_dpy) {
+            return XChangeProperty(_dpy, win, prop, type, format, mode,
+                                   data, num_e);
+        }
+        return BadImplementation;
     }
 
-    inline static int
-    getGeometry(Window win, unsigned *w, unsigned *h, unsigned *bw)
-    {
-        Window wn; int x, y; unsigned foo;
-        return XGetGeometry(_dpy, win, &wn, &x, &y, w, h, bw, &foo);
+    static int getGeometry(Window win, unsigned *w, unsigned *h, unsigned *bw) {
+        Window wn;
+        int x, y;
+        unsigned int depth_return;
+        if (_dpy) {
+            return XGetGeometry(_dpy, win, &wn, &x, &y,
+                                w, h, bw, &depth_return);
+        }
+        return BadImplementation;
     }
 
-    inline static bool
-    getWindowAttributes(Window win, XWindowAttributes *wa) {
-        return XGetWindowAttributes(_dpy, win, wa);
+    static bool getWindowAttributes(Window win, XWindowAttributes *wa) {
+        if (_dpy) {
+            return XGetWindowAttributes(_dpy, win, wa);
+        }
+        return BadImplementation;
     }
 
-    inline static Pixmap
-    createPixmapMask(unsigned w, unsigned h) {
-        return XCreatePixmap(_dpy, _root, w, h, 1);
+    static Pixmap createPixmapMask(unsigned w, unsigned h) {
+        if (_dpy) {
+            return XCreatePixmap(_dpy, _root, w, h, 1);
+        }
+        return None;
     }
 
-    inline static Pixmap
-    createPixmap(unsigned w, unsigned h) {
-        return XCreatePixmap(_dpy, _root, w, h, _depth);
+    static Pixmap createPixmap(unsigned w, unsigned h) {
+        if (_dpy) {
+            return XCreatePixmap(_dpy, _root, w, h, _depth);
+        }
+        return None;
     }
 
-    inline static void
-    freePixmap(Pixmap pixmap) {
-        XFreePixmap(_dpy, pixmap);
+    static void freePixmap(Pixmap pixmap) {
+        if (_dpy) {
+            XFreePixmap(_dpy, pixmap);
+        }
     }
 
     static void setWindowBackgroundPixmap(Window window, Pixmap pixmap) {
@@ -447,8 +477,11 @@ private:
     static void initHeadsRandr(void);
     static void initHeadsXinerama(void);
 
-private:
+protected:
+    X11(void) {}
+    ~X11(void) {}
 
+private:
     static Display *_dpy;
     static bool _honour_randr; /**< Boolean flag if randr should be honoured. */
     static int _fd;
@@ -492,9 +525,6 @@ private:
     static XColor _xc_default; // when allocating fails
 
     static Atom _atoms[MAX_NR_ATOMS];
-
-    X11(void) {}
-    ~X11(void) {}
 };
 
 #endif // _PEKWM_X11_HH_

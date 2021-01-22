@@ -11,8 +11,17 @@
 #include "test.hh"
 #include "x11.hh"
 
-class TestX11 : public X11 {
+class TestX11 : public X11,
+                public TestSuite {
 public:
+    TestX11()
+        : X11(),
+          TestSuite("X11")
+    {
+        register_test("parseGeometry", TestX11::testParseGeometry);
+        register_test("parseGeometryVal", TestX11::testParseGeometryVal);
+    }
+
     static void testParseGeometry(void) {
         assertParseGeometry("short", "",
                             Geometry(0, 0, 1, 1), 0);
@@ -23,9 +32,11 @@ public:
                             Geometry(0, 0, 20, 30), WIDTH_VALUE | HEIGHT_VALUE);
         assertParseGeometry("size", "30%x40%",
                             Geometry(0, 0, 30, 40),
-                            WIDTH_VALUE | WIDTH_PERCENT | HEIGHT_VALUE | HEIGHT_PERCENT);
+                            WIDTH_VALUE | WIDTH_PERCENT
+                            | HEIGHT_VALUE | HEIGHT_PERCENT);
         assertParseGeometry("position", "+30-40",
-                            Geometry(30, 40, 1, 1), X_VALUE | Y_VALUE | Y_NEGATIVE);
+                            Geometry(30, 40, 1, 1),
+                            X_VALUE | Y_VALUE | Y_NEGATIVE);
         assertParseGeometry("position %", "+50%+60%",
                             Geometry(50, 60, 1, 1),
                             X_VALUE | X_PERCENT | Y_VALUE | Y_PERCENT);
@@ -41,11 +52,11 @@ public:
     {
         Geometry gm;
         int mask = parseGeometry(str, gm);
-        ASSERT_EQUAL("parseGeometry", msg + " mask", e_mask, mask);
-        ASSERT_EQUAL("parseGeometry", msg + " x", e_gm.x, gm.x);
-        ASSERT_EQUAL("parseGeometry", msg + " y", e_gm.y, gm.y);
-        ASSERT_EQUAL("parseGeometry", msg + " width", e_gm.width, gm.width);
-        ASSERT_EQUAL("parseGeometry", msg + " height", e_gm.height, gm.height);
+        ASSERT_EQUAL(msg + " mask", e_mask, mask);
+        ASSERT_EQUAL(msg + " x", e_gm.x, gm.x);
+        ASSERT_EQUAL(msg + " y", e_gm.y, gm.y);
+        ASSERT_EQUAL(msg + " width", e_gm.width, gm.width);
+        ASSERT_EQUAL(msg + " height", e_gm.height, gm.height);
     }
 
     static void testParseGeometryVal(void) {
@@ -58,20 +69,14 @@ public:
                                        int e_ret, int e_val) {
         int ret, val;
         ret = parseGeometryVal(str.c_str(), str.c_str() + str.size(), val);
-        ASSERT_EQUAL("parseGeometryVal", msg + " ret", e_ret, ret);
-        ASSERT_EQUAL("parseGeometryVal", msg + " val", e_val, val);
+        ASSERT_EQUAL(msg + " ret", e_ret, ret);
+        ASSERT_EQUAL(msg + " val", e_val, val);
     }
 };
 
 int
 main(int argc, char *argv[])
 {
-    try {
-        TestX11::testParseGeometryVal();
-        TestX11::testParseGeometry();
-        return 0;
-    } catch (AssertFailed &ex) {
-        std::cerr << ex.file() << ":" << ex.line() << " " << ex.msg() << std::endl;
-        return 1;
-    }
+    TestX11 testX11;
+    TestSuite::main(argc, argv);
 }

@@ -157,6 +157,9 @@ public:
     static void resetFrameIDs(void);
 
 protected:
+    // used for testing
+    Frame(void);
+
     // BEGIN - PDecor interface
     virtual int resizeHorzStep(int diff) const;
     virtual int resizeVertStep(int diff) const;

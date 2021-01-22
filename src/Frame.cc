@@ -41,11 +41,24 @@ std::vector<uint> Frame::_frameid_list;
 Frame* Frame::_tag_frame = 0;
 bool Frame::_tag_behind = false;
 
-//! @brief Frame constructor
+
+Frame::Frame()
+    : PDecor(DEFAULT_DECOR_NAME, None, false),
+      _id(0),
+      _client(nullptr),
+      _class_hint(nullptr),
+      _non_fullscreen_decor_state(0),
+      _non_fullscreen_layer(LAYER_NORMAL)
+{
+}
+
 Frame::Frame(Client *client, AutoProperty *ap)
-    : PDecor(client->getAPDecorName(), client->getWindow()),
-      _id(0), _client(client), _class_hint(0),
-      _non_fullscreen_decor_state(0), _non_fullscreen_layer(LAYER_NORMAL)
+    : PDecor(client->getAPDecorName(), client->getWindow(), true),
+      _id(0),
+      _client(client),
+      _class_hint(nullptr),
+      _non_fullscreen_decor_state(0),
+      _non_fullscreen_layer(LAYER_NORMAL)
 {
     // PWinObj attributes
     _type = WO_FRAME;
@@ -170,13 +183,13 @@ Frame::Frame(Client *client, AutoProperty *ap)
     _old_gm = _gm;
 }
 
-//! @brief Frame destructor
 Frame::~Frame(void)
 {
     // remove from lists
     _wo_map.erase(_window);
     woListRemove(this);
-    _frames.erase(std::remove(_frames.begin(), _frames.end(), this), _frames.end());
+    _frames.erase(std::remove(_frames.begin(), _frames.end(), this),
+                  _frames.end());
     Workspaces::removeFromMRU(this);
     if (_tag_frame == this) {
         _tag_frame = 0;

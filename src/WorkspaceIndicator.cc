@@ -40,7 +40,7 @@ WorkspaceIndicator::Display::Display(PWinObj *parent)
  */
 WorkspaceIndicator::Display::~Display(void)
 {
-    XDestroyWindow(X11::getDpy(), _window);
+    X11::destroyWindow(_window);
     X11::freePixmap(_pixmap);
 }
 

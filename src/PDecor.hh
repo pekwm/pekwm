@@ -119,7 +119,8 @@ public:
     };
 
     PDecor(const std::string &decor_name = DEFAULT_DECOR_NAME,
-           const Window child_window = None);
+           const Window child_window = None,
+           bool init = true);
     virtual ~PDecor(void);
 
     // START - PWinObj interface.
@@ -387,6 +388,8 @@ protected:
     }
 
 private:
+    void init(Window child_window);
+
     void createParentWindow(CreateWindowParams &params, Window child_window);
     void createTitle(CreateWindowParams &params);
     void createBorder(CreateWindowParams &params);

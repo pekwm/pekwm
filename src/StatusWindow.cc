@@ -59,7 +59,7 @@ StatusWindow::~StatusWindow(void)
     _children.erase(std::remove(_children.begin(), _children.end(), _status_wo), _children.end());
 
     // free resources
-    XDestroyWindow(X11::getDpy(), _status_wo->getWindow());
+    X11::destroyWindow(_status_wo->getWindow());
     delete _status_wo;
 
     unloadTheme();

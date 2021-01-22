@@ -64,7 +64,7 @@ PDecor::Button::Button(PWinObj *parent, Theme::PDecorButtonData *data,
 //! @brief PDecor::Button destructor
 PDecor::Button::~Button(void)
 {
-    XDestroyWindow(X11::getDpy(), _window);
+    X11::destroyWindow(_window);
     X11::freePixmap(_bg);
 }
 
@@ -167,23 +167,45 @@ std::vector<PDecor*> PDecor::_pdecors;
 //! @brief PDecor constructor
 //! @param dpy Display
 //! @param decor_name String, if not DEFAULT_DECOR_NAME sets _decor_name_saved
-PDecor::PDecor(const std::string &decor_name, const Window child_window)
+PDecor::PDecor(const std::string &decor_name, const Window child_window,
+               bool init)
     : PWinObj(true),
       _decor_name(decor_name),
-      _child(0), _button(0), _button_press_win(None),
-      _pointer_x(0), _pointer_y(0),
-      _click_x(0), _click_y(0),
+      _child(0),
+      _button(0),
+      _button_press_win(None),
+      _pointer_x(0),
+      _pointer_y(0),
+      _click_x(0),
+      _click_y(0),
       _decor_cfg_child_move_overloaded(false),
       _decor_cfg_bpr_replay_pointer(false),
       _decor_cfg_bpr_al_child(MOUSE_ACTION_LIST_CHILD_OTHER),
       _decor_cfg_bpr_al_title(MOUSE_ACTION_LIST_TITLE_OTHER),
-      _maximized_vert(false), _maximized_horz(false),
-      _fullscreen(false), _skip(0), _data(0), 
-      _border(true), _titlebar(true), _shaded(false), _attention(0),
+      _maximized_vert(false),
+      _maximized_horz(false),
+      _fullscreen(false),
+      _skip(0),
+      _data(0),
+      _border(true),
+      _titlebar(true),
+      _shaded(false),
+      _attention(0),
       _need_shape(false),
       _real_height(1),
       _title_wo(true),
-      _title_active(0), _titles_left(0), _titles_right(1)
+      _title_active(0),
+      _titles_left(0),
+      _titles_right(1)
+{
+    if (init) {
+        this->init(child_window);
+    }
+    _pdecors.push_back(this);
+}
+
+void
+PDecor::init(Window child_window)
 {
     if (_decor_name.empty()) {
         _decor_name = getDecorName();
@@ -209,8 +231,6 @@ PDecor::PDecor(const std::string &decor_name, const Window child_window)
 
     // map title and border windows
     XMapSubwindows(X11::getDpy(), _window);
-
-    _pdecors.push_back(this);
 }
 
 /**
@@ -310,12 +330,12 @@ PDecor::~PDecor(void)
     unloadDecor();
 
     removeChildWindow(_title_wo.getWindow());
-    XDestroyWindow(X11::getDpy(), _title_wo.getWindow());
+    X11::destroyWindow(_title_wo.getWindow());
     for (uint i = 0; i < BORDER_NO_POS; ++i) {
         removeChildWindow(_border_win[i]);
-        XDestroyWindow(X11::getDpy(), _border_win[i]);
+        X11::destroyWindow(_border_win[i]);
     }
-    XDestroyWindow(X11::getDpy(), _window);
+    X11::destroyWindow(_window);
 }
 
 // START - PWinObj interface.
@@ -1930,7 +1950,7 @@ PDecor::applyBorderShape(int kind)
         // Apply the shape mask to the window
         X11::shapeCombine(_window, kind, 0, 0, shape, ShapeSet);
 
-        XDestroyWindow(X11::getDpy(), shape);
+        X11::destroyWindow(shape);
     } else {
         // Reinstate default region
         X11::shapeSetMask(_window, kind, None);

@@ -129,7 +129,7 @@ DockApp::~DockApp(void)
     }
 
     X11::freePixmap(_background);
-    XDestroyWindow(X11::getDpy(), _window);
+    X11::destroyWindow(_window);
 }
 
 // START - PWinObj interface.

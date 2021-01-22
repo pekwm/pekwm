@@ -11,58 +11,68 @@
 #include "test.hh"
 #include "Action.hh"
 
-class TestAction : public Action {
+class TestAction : public Action,
+                   public TestSuite {
 public:
+    TestAction()
+        : Action(),
+          TestSuite("Action")
+    {
+        register_test("construct", TestAction::testConstruct);
+        register_test("ParamI", TestAction::testParamI);
+        register_test("ParamS", TestAction::testParamS);
+    }
+
     static void testConstruct(void) {
         Action a;
-        ASSERT_EQUAL("construct", std::string("empty"),
+        ASSERT_EQUAL(std::string("empty"),
                      ACTION_UNSET, a.getAction());
         Action a1(ACTION_FOCUS);
-        ASSERT_EQUAL("construct", std::string("action"),
+        ASSERT_EQUAL(std::string("action"),
                      ACTION_FOCUS, a1.getAction());
     }
 
     static void testParamI(void) {
         Action a;
-        ASSERT_EQUAL("testParamI", std::string("not set"),
+        ASSERT_EQUAL(std::string("not set"),
                      0, a.getParamI(0));
 
         a.setParamI(0, 1);
-        ASSERT_EQUAL("testParamI", std::string("set/get first"),
+        ASSERT_EQUAL(std::string("set/get first"),
                      1, a.getParamI(0));
 
         a.setParamI(2, 3);
-        ASSERT_EQUAL("testParamI", std::string("gap"),
+        ASSERT_EQUAL(std::string("gap"),
                      1, a.getParamI(0));
-        ASSERT_EQUAL("testParamI", std::string("gap"),
+        ASSERT_EQUAL(std::string("gap"),
                      0, a.getParamI(1));
-        ASSERT_EQUAL("testParamI", std::string("gap"),
+        ASSERT_EQUAL(std::string("gap"),
                      3, a.getParamI(2));
 
         a.setParamI(1, 2);
-        ASSERT_EQUAL("testParamI", std::string("second"),
+        ASSERT_EQUAL(std::string("second"),
                      2, a.getParamI(1));
     }
 
     static void testParamS(void) {
         Action a;
-        ASSERT_EQUAL("testParamS", std::string("not set"),
+        ASSERT_EQUAL(std::string("not set"),
                      std::string(""), a.getParamS());
 
         a.setParamS("first");
-        ASSERT_EQUAL("testParamS", std::string("set/get first"),
+        ASSERT_EQUAL(std::string("set/get first"),
                      std::string("first"), a.getParamS());
 
         a.setParamS(2, "third");
-        ASSERT_EQUAL("testParamS", std::string("gap"),
+        ASSERT_EQUAL(std::string("gap"),
                      std::string("first"), a.getParamS(0));
-        ASSERT_EQUAL("testParamS", std::string("gap"),
+        ASSERT_EQUAL(std::string("gap"),
                      std::string(""), a.getParamS(1));
-        ASSERT_EQUAL("testParamS", std::string("gap"),
+        ASSERT_EQUAL(std::string("gap"),
                      std::string("third"), a.getParamS(2));
 
         a.setParamS(1, "second");
-        ASSERT_EQUAL("testParamS", std::string("second"),
+        ASSERT_EQUAL(std::string("second"),
                      std::string("second"), a.getParamS(1));
     }
 };
@@ -70,13 +80,6 @@ public:
 int
 main(int argc, char *argv[])
 {
-    try {
-        TestAction::testConstruct();
-        TestAction::testParamI();
-        TestAction::testParamS();
-        return 0;
-    } catch (AssertFailed &ex) {
-        std::cerr << ex.file() << ":" << ex.line() << " " << ex.msg() << std::endl;
-        return 1;
-    }
+    TestAction testAction;
+    return TestSuite::main(argc, argv);
 }

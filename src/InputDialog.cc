@@ -84,7 +84,7 @@ InputDialog::~InputDialog(void)
     if (_text_wo) {
         _children.erase(std::remove(_children.begin(), _children.end(), _text_wo), _children.end());
         removeChildWindow(_text_wo->getWindow());
-        XDestroyWindow(X11::getDpy(), _text_wo->getWindow());
+        X11::destroyWindow(_text_wo->getWindow());
         delete _text_wo;
     }
 

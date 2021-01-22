@@ -65,7 +65,7 @@ HintWO::HintWO(Window root)
  */
 HintWO::~HintWO(void)
 {
-    XDestroyWindow(X11::getDpy(), _window);
+    X11::destroyWindow(_window);
 }
 
 /**
@@ -80,9 +80,9 @@ HintWO::getTime(void)
     XEvent event;
 
     // Generate event on ourselves
-    XChangeProperty(X11::getDpy(), _window,
-                    X11::getAtom(WM_CLASS), X11::getAtom(STRING),
-                    8, PropModeAppend, 0, 0);
+    X11::changeProperty(_window,
+                        X11::getAtom(WM_CLASS), X11::getAtom(STRING),
+                        8, PropModeAppend, 0, 0);
     XWindowEvent(X11::getDpy(), _window, PropertyChangeMask, &event);
 
     return event.xproperty.time;
@@ -585,7 +585,7 @@ EdgeWO::~EdgeWO(void)
     _wo_map.erase(_window);
     woListRemove(this);
 
-    XDestroyWindow(X11::getDpy(), _window);
+    X11::destroyWindow(_window);
 }
 
 /**

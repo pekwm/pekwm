@@ -1271,10 +1271,10 @@ Client::setWmState(ulong state)
     data[0] = state;
     data[1] = None; // No Icon
 
-    XChangeProperty(X11::getDpy(), _window,
-                    X11::getAtom(WM_STATE),
-                    X11::getAtom(WM_STATE),
-                    32, PropModeReplace, (uchar*) data, 2);
+    X11::changeProperty(_window,
+                        X11::getAtom(WM_STATE),
+                        X11::getAtom(WM_STATE),
+                        32, PropModeReplace, (uchar*) data, 2);
 }
 
 // If we can't find a wm_state we're going to have to assume
@@ -1335,8 +1335,8 @@ void Client::sendTakeFocusMessage(void)
     if (_send_focus_message) {
         {
             XEvent ev;
-            XChangeProperty(X11::getDpy(), X11::getRoot(),
-                            XA_PRIMARY, XA_STRING, 8, PropModeAppend, 0, 0);
+            X11::changeProperty(X11::getRoot(),
+                                XA_PRIMARY, XA_STRING, 8, PropModeAppend, 0, 0);
             XWindowEvent(X11::getDpy(), X11::getRoot(),
                          PropertyChangeMask, &ev);
             X11::setLastEventTime(ev.xproperty.time);

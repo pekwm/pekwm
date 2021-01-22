@@ -11,19 +11,30 @@
 #include "test.hh"
 #include "Frame.hh"
 
-class TestFrame : public Frame {
+class TestFrame : public Frame,
+                  public TestSuite {
 public:
-    static void testApplyGeometry(void) {
+    TestFrame()
+        : Frame(),
+          TestSuite("Frame")
+    {
+        register_test("applyGeometry", TestFrame::testApplyGeometry);
+    }
+
+    static void testApplyGeometry(void)
+    {
         assertApplyGeometry("negative pos",
                             Geometry(), Geometry(-0, 102, 102, 102),
-                            X_VALUE | Y_VALUE | WIDTH_VALUE | HEIGHT_VALUE | X_NEGATIVE,
+                            X_VALUE | Y_VALUE | WIDTH_VALUE
+                            | HEIGHT_VALUE | X_NEGATIVE,
                             Geometry(0, 0, 1024, 768),
                             // expected
                             Geometry(922, 102, 102, 102));
 
         assertApplyGeometry("percent size",
                             Geometry(10, 10, 100, 100), Geometry(0, 0, 50, 50),
-                            WIDTH_VALUE | HEIGHT_VALUE | WIDTH_PERCENT | HEIGHT_PERCENT,
+                            WIDTH_VALUE | HEIGHT_VALUE
+                            | WIDTH_PERCENT | HEIGHT_PERCENT,
                             Geometry(0, 0, 500, 400),
                             // expected
                             Geometry(10, 10, 250, 200));
@@ -37,24 +48,21 @@ public:
     }
 
     static void assertApplyGeometry(std::string msg,
-                                    Geometry gm, const Geometry &apply_gm, int mask,
-                                    const Geometry &screen_gm, const Geometry &e_gm) {
+                                    Geometry gm,
+                                    const Geometry &apply_gm, int mask,
+                                    const Geometry &screen_gm,
+                                    const Geometry &e_gm) {
         applyGeometry(gm, apply_gm, mask, screen_gm);
-        ASSERT_EQUAL("applyGeometry", msg + " x", e_gm.x, gm.x);
-        ASSERT_EQUAL("applyGeometry", msg + " y", e_gm.y, gm.y);
-        ASSERT_EQUAL("applyGeometry", msg + " width", e_gm.width, gm.width);
-        ASSERT_EQUAL("applyGeometry", msg + " height", e_gm.height, gm.height);
+        ASSERT_EQUAL(msg + " x", e_gm.x, gm.x);
+        ASSERT_EQUAL(msg + " y", e_gm.y, gm.y);
+        ASSERT_EQUAL(msg + " width", e_gm.width, gm.width);
+        ASSERT_EQUAL(msg + " height", e_gm.height, gm.height);
     }
 };
 
 int
 main(int argc, char *argv[])
 {
-    try {
-        TestFrame::testApplyGeometry();
-        return 0;
-    } catch (AssertFailed &ex) {
-        std::cerr << ex.file() << ":" << ex.line() << " " << ex.msg() << std::endl;
-        return 1;
-    }
+    TestFrame testFrame;
+    TestSuite::main(argc, argv);
 }
