@@ -125,7 +125,7 @@ int main(int argc, char* argv[])
     const char* display = NULL;
     bool do_daemon = false;
     bool stop = false;
-    std::string load_dir(".");
+    std::string load_dir("./");
 
     static struct option opts[] = {
         {"display", required_argument, NULL, 'd'},
