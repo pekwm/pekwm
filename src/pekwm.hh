@@ -19,6 +19,7 @@
 #include <vector>
 
 #include "Compat.hh"
+#include "AppCtrl.hh"
 #include "Types.hh"
 #include "Exception.hh"
 
@@ -376,14 +377,12 @@ enum CfgDeny {
     CFG_DENY_NO = 0 //! No deny.
 };
 
-class WindowManager;
-
 namespace pekwm
 {
-    void init(WindowManager* wm, Display* dpy, const std::string& config_file);
-    void cleanup();
+    void init(AppCtrl* app_ctrl, Display* dpy, const std::string& config_file);
+    void cleanup(void);
 
-    bool isStartup();
+    bool isStartup(void);
     void setIsStartup(bool is_startup);
 }
 

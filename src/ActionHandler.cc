@@ -22,7 +22,6 @@
 #include "CmdDialog.hh"
 #include "SearchDialog.hh"
 #include "Workspaces.hh"
-#include "WindowManager.hh"
 #include "Util.hh"
 #include "RegexString.hh"
 #include "WorkspaceIndicator.hh"
@@ -36,9 +35,8 @@
 
 #include <memory>
 
-//! @brief ActionHandler constructor
-ActionHandler::ActionHandler(WindowManager *wm)
-    : _wm(wm)
+ActionHandler::ActionHandler(AppCtrl* app_ctrl)
+    : _app_ctrl(app_ctrl)
 {
     // Initialize state_to_keycode map
     for (uint i = 0; i < X11::MODIFIER_TO_MASK_NUM; ++i) {
@@ -140,14 +138,14 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 break;
             case ACTION_RAISE:
                 if (it->getParamI(0)) {
-                    _wm->familyRaiseLower(client, true);
+                    ClientMgr::familyRaiseLower(client, true);
                 } else {
                     frame->raise();
                 }
                 break;
             case ACTION_LOWER:
                 if (it->getParamI(0)) {
-                    _wm->familyRaiseLower(client, false);
+                    ClientMgr::familyRaiseLower(client, false);
                 } else {
                     frame->lower();
                 }
@@ -187,22 +185,23 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 frame->detachClient(client);
                 break;
             case ACTION_ATTACH_MARKED:
-                _wm->attachMarked(frame);
+                attachMarked(frame);
                 break;
             case ACTION_ATTACH_CLIENT_IN_NEXT_FRAME:
-                _wm->attachInNextPrevFrame(client, false, true);
+                attachInNextPrevFrame(client, false, true);
                 break;
             case ACTION_ATTACH_CLIENT_IN_PREV_FRAME:
-                _wm->attachInNextPrevFrame(client, false, false);
+                attachInNextPrevFrame(client, false, false);
                 break;
             case ACTION_ATTACH_FRAME_IN_NEXT_FRAME:
-                _wm->attachInNextPrevFrame(client, true, true);
+                attachInNextPrevFrame(client, true, true);
                 break;
             case ACTION_ATTACH_FRAME_IN_PREV_FRAME:
-                _wm->attachInNextPrevFrame(client, true, false);
+                attachInNextPrevFrame(client, true, false);
                 break;
             case ACTION_SET_OPACITY:
-                actionSetOpacity(client, frame, it->getParamI(0), it->getParamI(1));
+               actionSetOpacity(client, frame,
+                                 it->getParamI(0), it->getParamI(1));
                 break;
             default:
                 matched = false;
@@ -243,7 +242,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 break;
             case ACTION_CLOSE:
                 menu->unmapAll();
-                _wm->findWOAndFocus(0);
+                Workspaces::findWOAndFocus(nullptr);
                 break;
             default:
                 matched = false;
@@ -268,7 +267,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 decor->unmapWindow();
                 if (decor->getType() == PWinObj::WO_CMD_DIALOG
                     || decor->getType() == PWinObj::WO_SEARCH_DIALOG) {
-                    _wm->findWOAndFocus(0);
+                    Workspaces::findWOAndFocus(nullptr);
                 }
                 break;
             case ACTION_WARP_TO_WORKSPACE:
@@ -330,17 +329,17 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 MenuHandler::hideAllMenus();
                 break;
             case ACTION_RELOAD:
-                _wm->reload();
+                _app_ctrl->reload();
                 break;
             case ACTION_RESTART:
-                _wm->restart();
+                _app_ctrl->restart();
                 break;
             case ACTION_RESTART_OTHER:
                 if (it->getParamS().size())
-                    _wm->restart(it->getParamS());
+                    _app_ctrl->restart(it->getParamS());
                 break;
             case ACTION_EXIT:
-                _wm->shutdown();
+                _app_ctrl->shutdown();
                 break;
             case ACTION_SHOW_CMD_DIALOG:
                 actionShowInputDialog(&_cmd_dialog, it->getParamS(),
@@ -1011,4 +1010,55 @@ ActionHandler::initSendKeyEvent(XEvent &ev, PWinObj *wo)
     ev.xkey.same_screen = True;
     ev.xkey.type = KeyPress;
     ev.xkey.state = 0;
+}
+
+/**
+ * Attaches all marked clients to frame
+ */
+void
+ActionHandler::attachMarked(Frame *frame)
+{
+    auto it = Client::client_begin();
+    for (; it != Client::client_end(); ++it) {
+        if ((*it)->isMarked()) {
+            if ((*it)->getParent() != frame) {
+                auto parent = static_cast<Frame*>((*it)->getParent());
+                parent->removeChild(*it);
+                (*it)->setWorkspace(frame->getWorkspace());
+                frame->addChild(*it);
+            }
+            (*it)->setStateMarked(STATE_UNSET);
+        }
+    }
+}
+
+/**
+ * Attaches the Client/Frame into the Next/Prev Frame
+ */
+void
+ActionHandler::attachInNextPrevFrame(Client *client, bool frame, bool next)
+{
+    if (client == nullptr) {
+        return;
+    }
+
+    Frame *new_frame;
+    auto *parent = static_cast<Frame*>(client->getParent());
+    if (next) {
+        new_frame = Workspaces::getNextFrame(parent, true, SKIP_FOCUS_TOGGLE);
+    } else {
+        new_frame = Workspaces::getPrevFrame(parent, true, SKIP_FOCUS_TOGGLE);
+    }
+
+    if (new_frame) {
+        if (frame) {
+            new_frame->addDecor(parent);
+        } else {
+            parent->setFocused(false);
+            parent->removeChild(client);
+            new_frame->addChild(client);
+            new_frame->activateChild(client);
+            new_frame->giveInputFocus();
+        }
+    }
 }

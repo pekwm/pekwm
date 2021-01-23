@@ -94,3 +94,47 @@ ClientMgr::findGroupMatch(AutoProperty *property)
 
     return frame;
 }
+
+/**
+ * Raises the client and all window having transient relationship with
+ * it
+ *
+ * @param client Client part of the famliy
+ * @param raise If true, raise frames, else lowers them
+ */
+void
+ClientMgr::familyRaiseLower(Client *client, bool raise)
+{
+    Client *parent;
+    Window win_search;
+    if (! client->getTransientForClient()) {
+        parent = client;
+        win_search = client->getWindow();
+    } else {
+        parent = client->getTransientForClient();
+        win_search = client->getTransientForClientWindow();
+    }
+
+    std::vector<Client*> client_list;
+    Client::findFamilyFromWindow(client_list, win_search);
+
+    // make sure parent gets underneath the children
+    if (parent) {
+        if (raise) {
+            client_list.insert(client_list.begin(), parent);
+        } else {
+            client_list.push_back(parent);
+        }
+    }
+
+    for (auto it : client_list) {
+        auto frame = dynamic_cast<Frame*>(it->getParent());
+        if (frame) {
+            if (raise) {
+                frame->raise();
+            } else {
+                frame->lower();
+            }
+        }
+    }
+}

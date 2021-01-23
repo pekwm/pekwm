@@ -1,6 +1,6 @@
 //
 // WindowManager.cc for pekwm
-// Copyright (C) 2002-2020 the pekwm development team
+// Copyright (C) 2002-2021 the pekwm development team
 //
 // windowmanager.cc for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
@@ -569,7 +569,9 @@ WindowManager::doReloadHarbour(void)
     pekwm::harbour()->updateHarbourSize();
 }
 
-//! @brief Exit pekwm and restart with the command command
+/**
+ * Exit pekwm and restart with the command command
+ */
 void
 WindowManager::restart(std::string command)
 {
@@ -1020,7 +1022,7 @@ WindowManager::handleUnmapEvent(XUnmapEvent *ev)
         && wo_type != PWinObj::WO_CMD_DIALOG
         && wo_type != PWinObj::WO_SEARCH_DIALOG
         && ! PWinObj::getFocusedPWinObj()) {
-        findWOAndFocus(wo_search);
+        Workspaces::findWOAndFocus(wo_search);
     }
 }
 
@@ -1034,7 +1036,7 @@ WindowManager::handleDestroyWindowEvent(XDestroyWindowEvent *ev)
         client->handleDestroyEvent(ev);
 
         if (! PWinObj::getFocusedPWinObj()) {
-            findWOAndFocus(wo_search);
+            Workspaces::findWOAndFocus(wo_search);
         }
     } else {
         auto da = pekwm::harbour()->findDockApp(ev->window);
@@ -1127,7 +1129,7 @@ WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
         }
 
         if (! wo->isFocusable() || ! wo->isMapped()) {
-            findWOAndFocus(0);
+            Workspaces::findWOAndFocus(nullptr);
 
         } else if (wo != PWinObj::getFocusedPWinObj()) {
             // If it's a valid FocusIn event with accepatable target lets flush
@@ -1274,76 +1276,6 @@ WindowManager::handleExposeEvent(XExposeEvent *ev)
 
 // Event handling routines stop ============================================
 
-//! @brief Searches for a PWinObj to focus, and then gives it input focus
-void
-WindowManager::findWOAndFocus(PWinObj *search)
-{
-    PWinObj *focus = 0;
-
-    if (PWinObj::windowObjectExists(search) &&
-            (search->isMapped()) && (search->isFocusable()))  {
-        focus = search;
-    }
-
-    // search window object didn't exist, go through the MRU list
-    if (! focus) {
-        auto f_it = Workspaces::mru_begin();
-        for (; ! focus && f_it != Workspaces::mru_end(); ++f_it) {
-            if ((*f_it)->isMapped() && (*f_it)->isFocusable()) {
-                focus = *f_it;
-            }
-        }
-    }
-
-    if (focus) {
-        focus->giveInputFocus();
-    }  else if (! PWinObj::getFocusedPWinObj()) {
-        pekwm::rootWo()->giveInputFocus();
-        pekwm::rootWo()->setEwmhActiveWindow(None);
-    }
-}
-
-//! @brief Raises the client and all window having transient relationship with it
-//! @param client Client part of the famliy
-//! @param raise If true, raise frames, else lowers them
-void
-WindowManager::familyRaiseLower(Client *client, bool raise)
-{
-    Client *parent;
-    Window win_search;
-    if (! client->getTransientForClient()) {
-        parent = client;
-        win_search = client->getWindow();
-    } else {
-        parent = client->getTransientForClient();
-        win_search = client->getTransientForClientWindow();
-    }
-
-    std::vector<Client*> client_list;
-    Client::findFamilyFromWindow(client_list, win_search);
-
-    if (parent) { // make sure parent gets underneath the children
-        if (raise) {
-            client_list.insert(client_list.begin(), parent);
-        } else {
-            client_list.push_back(parent);
-        }
-    }
-
-    Frame *frame;
-    auto it(client_list.begin());
-    for (; it != client_list.end(); ++it) {
-        frame = dynamic_cast<Frame*>((*it)->getParent());
-        if (frame) {
-            if (raise) {
-                frame->raise();
-            } else {
-                frame->lower();
-            }
-        }
-    }
-}
-
 Client*
 WindowManager::createClient(Window window, bool is_new)
 {
@@ -1403,124 +1335,4 @@ WindowManager::createClient(Window window, bool is_new)
     }
 
     return client;
-}
-
-//! @brief Attaches all marked clients to frame
-void
-WindowManager::attachMarked(Frame *frame)
-{
-    auto it(Client::client_begin());
-    for (; it != Client::client_end(); ++it) {
-        if ((*it)->isMarked()) {
-            if ((*it)->getParent() != frame) {
-                ((Frame*) (*it)->getParent())->removeChild(*it);
-                (*it)->setWorkspace(frame->getWorkspace());
-                frame->addChild(*it);
-            }
-            (*it)->setStateMarked(STATE_UNSET);
-        }
-    }
-}
-
-//! @brief Attaches the Client/Frame into the Next/Prev Frame
-void
-WindowManager::attachInNextPrevFrame(Client *client, bool frame, bool next)
-{
-    if (! client)
-        return;
-
-    Frame *new_frame;
-
-    if (next) {
-        new_frame =
-            getNextFrame((Frame*) client->getParent(), true, SKIP_FOCUS_TOGGLE);
-    } else {
-        new_frame =
-            getPrevFrame((Frame*) client->getParent(), true, SKIP_FOCUS_TOGGLE);
-    }
-
-    if (new_frame) { // we found a frame
-        if (frame) {
-            new_frame->addDecor((Frame*) client->getParent());
-        } else {
-            client->getParent()->setFocused(false);
-            ((Frame*) client->getParent())->removeChild(client);
-            new_frame->addChild(client);
-            new_frame->activateChild(client);
-            new_frame->giveInputFocus();
-        }
-    }
-}
-
-//! @brief Finds the next frame in the list
-//!
-//! @param frame Frame to search from
-//! @param mapped Match only agains mapped frames
-//! @param mask Defaults to 0
-Frame*
-WindowManager::getNextFrame(Frame* frame, bool mapped, uint mask)
-{
-    if (! frame || (Frame::frame_size() < 2)) {
-        return 0;
-    }
-
-    Frame *next_frame = 0;
-    auto f_it(find(Frame::frame_begin(), Frame::frame_end(), frame));
-    if (f_it != Frame::frame_end()) {
-        auto n_it(f_it);
-
-        if (++n_it == Frame::frame_end()) {
-            n_it = Frame::frame_begin();
-        }
-
-        while (! next_frame && (n_it != f_it)) {
-            if (! (*n_it)->isSkip(mask) && (! mapped || (*n_it)->isMapped()))
-                next_frame =  (*n_it);
-
-            if (++n_it == Frame::frame_end()) {
-                n_it = Frame::frame_begin();
-            }
-        }
-    }
-
-    return next_frame;
-}
-
-//! @brief Finds the previous frame in the list
-//!
-//! @param frame Frame to search from
-//! @param mapped Match only agains mapped frames
-//! @param mask Defaults to 0
-Frame*
-WindowManager::getPrevFrame(Frame* frame, bool mapped, uint mask)
-{
-    if (! frame || (Frame::frame_size() < 2)) {
-        return 0;
-    }
-
-    Frame *next_frame = 0;
-    auto f_it(find(Frame::frame_begin(), Frame::frame_end(), frame));
-    if (f_it != Frame::frame_end()) {
-        auto n_it(f_it);
-
-        if (n_it == Frame::frame_begin()) {
-            n_it = --Frame::frame_end();
-        } else {
-            --n_it;
-        }
-
-        while (! next_frame && (n_it != f_it)) {
-            if (! (*n_it)->isSkip(mask) && (! mapped || (*n_it)->isMapped())) {
-                next_frame =  (*n_it);
-            }
-
-            if (n_it == Frame::frame_begin()) {
-                n_it = --Frame::frame_end();
-            } else {
-                --n_it;
-            }
-        }
-    }
-
-    return next_frame;
 }

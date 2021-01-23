@@ -696,9 +696,43 @@ Workspaces::placeWoInsideScreen(PWinObj *wo)
     }
 }
 
-//! @param wo PWinObj to originate from when searching
-//! @param dir Direction to search
-//! @param skip Bitmask for skipping window objects, defaults to 0
+/**
+ * Searches for a PWinObj to focus, and then gives it input focus
+ */
+void
+Workspaces::findWOAndFocus(PWinObj *search)
+{
+    PWinObj *focus = nullptr;
+    if (PWinObj::windowObjectExists(search)
+        && search->isMapped()
+        && search->isFocusable())  {
+        focus = search;
+    }
+
+    // search window object didn't exist, go through the MRU list
+    if (! focus) {
+        for (auto it : _mru) {
+            if (it->isMapped() && it->isFocusable()) {
+                focus = it;
+                break;
+            }
+        }
+    }
+
+    if (focus) {
+        focus->giveInputFocus();
+    }  else if (! PWinObj::getFocusedPWinObj()) {
+        pekwm::rootWo()->giveInputFocus();
+        pekwm::rootWo()->setEwmhActiveWindow(None);
+    }
+}
+
+/**
+ * wo PWinObj to originate from when searching
+ *
+ * @param dir Direction to search
+ * @param skip Bitmask for skipping window objects, defaults to 0
+ */
 PWinObj*
 Workspaces::findDirectional(PWinObj *wo, DirectionType dir, uint skip)
 {
@@ -795,3 +829,77 @@ Workspaces::findDirectional(PWinObj *wo, DirectionType dir, uint skip)
     return found_wo;
 }
 
+/**
+ * Finds the next frame in the list
+ *
+ * @param frame Frame to search from
+ * @param mapped Match only agains mapped frames
+ * @param mask Defaults to 0
+ */
+Frame*
+Workspaces::getNextFrame(Frame* frame, bool mapped, uint mask)
+{
+    if (! frame || (Frame::frame_size() < 2)) {
+        return nullptr;
+    }
+
+    Frame *next_frame = nullptr;
+    auto f_it = std::find(Frame::frame_begin(), Frame::frame_end(), frame);
+    if (f_it != Frame::frame_end()) {
+        auto n_it(f_it);
+        if (++n_it == Frame::frame_end()) {
+            n_it = Frame::frame_begin();
+        }
+
+        while (! next_frame && n_it != f_it) {
+            if (! (*n_it)->isSkip(mask) && (! mapped || (*n_it)->isMapped())) {
+                next_frame =  (*n_it);
+            }
+            if (++n_it == Frame::frame_end()) {
+                n_it = Frame::frame_begin();
+            }
+        }
+    }
+
+    return next_frame;
+}
+
+/**
+ * Finds the previous frame in the list
+ *
+ * @param frame Frame to search from
+ * @param mapped Match only agains mapped frames
+ * @param mask Defaults to 0
+ */
+Frame*
+Workspaces::getPrevFrame(Frame* frame, bool mapped, uint mask)
+{
+    if (! frame || Frame::frame_size() < 2) {
+        return nullptr;
+    }
+
+    Frame *prev_frame = nullptr;
+    auto f_it = std::find(Frame::frame_begin(), Frame::frame_end(), frame);
+    if (f_it != Frame::frame_end()) {
+        auto n_it(f_it);
+
+        if (n_it == Frame::frame_begin()) {
+            n_it = --Frame::frame_end();
+        } else {
+            --n_it;
+        }
+
+        while (! prev_frame && (n_it != f_it)) {
+            if (! (*n_it)->isSkip(mask) && (! mapped || (*n_it)->isMapped())) {
+                prev_frame =  (*n_it);
+            }
+            if (n_it == Frame::frame_begin()) {
+                n_it = --Frame::frame_end();
+            } else {
+                --n_it;
+            }
+        }
+    }
+
+    return prev_frame;
+}

@@ -111,7 +111,11 @@ public:
     static void updateClientStackingList(void);
     static void placeWoInsideScreen(PWinObj *wo);
 
-    static PWinObj *findDirectional(PWinObj *wo, DirectionType dir, uint skip = 0);
+    static void findWOAndFocus(PWinObj *search);
+    static PWinObj *findDirectional(PWinObj *wo,
+                                    DirectionType dir, uint skip = 0);
+    static Frame* getNextFrame(Frame* frame, bool mapped, uint mask = 0);
+    static Frame* getPrevFrame(Frame* frame, bool mapped, uint mask = 0);
 
     static void fixStacking(PWinObj *);
 
@@ -119,20 +123,26 @@ public:
     static void hideWorkspaceIndicator(void);
 
     // list iterators
-    static std::vector<Frame*>::iterator mru_begin(void) { return _mru.begin(); }
-    static std::vector<Frame*>::iterator mru_end(void) { return _mru.end(); }
+    static std::vector<Frame*>::iterator mru_begin(void) {
+        return _mru.begin();
+    }
+    static std::vector<Frame*>::iterator mru_end(void) {
+        return _mru.end();
+    }
 
     // adds
     static void addToMRUFront(Frame *frame) {
         if (frame) {
-            _mru.erase(std::remove(_mru.begin(), _mru.end(), frame), _mru.end());
+            _mru.erase(std::remove(_mru.begin(), _mru.end(), frame),
+                       _mru.end());
             _mru.insert(_mru.begin(), frame);
         }
     }
 
     static void addToMRUBack(Frame *frame) {
         if (frame) {
-            _mru.erase(std::remove(_mru.begin(), _mru.end(), frame), _mru.end());
+            _mru.erase(std::remove(_mru.begin(), _mru.end(), frame),
+                       _mru.end());
             _mru.push_back(frame);
         }
     }

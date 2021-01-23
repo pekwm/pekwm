@@ -18,7 +18,6 @@
 
 class ActionEvent;
 class PFont;
-class PWinObj;
 
 /**
  * Create window attributes.

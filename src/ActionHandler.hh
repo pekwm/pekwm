@@ -13,6 +13,7 @@
 
 #include "pekwm.hh"
 #include "Action.hh"
+#include "AppCtrl.hh"
 #include "CmdDialog.hh"
 #include "SearchDialog.hh"
 
@@ -21,17 +22,12 @@
 
 class Client;
 class Frame;
-class PWinObj;
-class PDecor;
 class PMenu;
-class CmdDialog;
-class SearchDialog;
-class WindowManager;
 
 class ActionHandler
 {
 public:
-    ActionHandler(WindowManager *wm);
+    ActionHandler(AppCtrl *app_ctrl);
     ~ActionHandler(void);
 
     void handleAction(const ActionPerformed &ap);
@@ -69,8 +65,11 @@ private:
 
     void initSendKeyEvent(XEvent &ev, PWinObj *wo);
 
+    void attachMarked(Frame *frame);
+    void attachInNextPrevFrame(Client *client, bool frame, bool next);
+
 private:
-    WindowManager *_wm;
+    AppCtrl* _app_ctrl;
     CmdDialog _cmd_dialog;
     SearchDialog _search_dialog;
 

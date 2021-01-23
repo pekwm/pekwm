@@ -267,7 +267,6 @@ public: // Public Member Functions
     void close(void);
     void kill(void);
 
-    // Event handlers below - Used by WindowManager
     void handleDestroyEvent(XDestroyWindowEvent *ev);
     void handleColormapChange(XColormapEvent *ev);
 

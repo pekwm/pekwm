@@ -17,6 +17,7 @@
 
 #include "pekwm.hh"
 #include "Action.hh"
+#include "AppCtrl.hh"
 #include "ManagerWindows.hh"
 
 #include <algorithm>
@@ -43,34 +44,25 @@ class StatusWindow;
 class KeyGrabber;
 class Harbour;
 
-class WindowManager
+class WindowManager : public AppCtrl
 {
 public:
     static WindowManager *start(const std::string &config_file, bool replace);
-    ~WindowManager();
+    virtual ~WindowManager();
 
     void doEventLoop(void);
 
-    //! @brief Sets reload status, will reload from main loop.
-    void reload(void) { _reload = true; }
-    void restart(std::string command = "");
-    //! @brief Sets shutdown status, will shutdown from main loop.
-    void shutdown(void) { _shutdown = true; }
+    // START - AppCtrl interface.
+    virtual void reload(void) override { _reload = true; }
+    virtual void restart(void) override { restart(""); }
+    virtual void restart(std::string command) override;
+    virtual void shutdown(void) { _shutdown = true; }
+    // END - AppCtrl interface.
 
     inline bool shallRestart(void) const { return _restart; }
     inline const std::string &getRestartCommand(void) const {
         return _restart_command;
     }
-
-    void familyRaiseLower(Client *client, bool raise);
-
-    void attachMarked(Frame *frame);
-    void attachInNextPrevFrame(Client* client, bool frame, bool next);
-
-    Frame* getNextFrame(Frame* frame, bool mapped, uint mask = 0);
-    Frame* getPrevFrame(Frame* frame, bool mapped, uint mask = 0);
-
-    void findWOAndFocus(PWinObj *wo);
 
     // public event handlers used when doing grabbed actions
     void handleKeyEvent(XKeyEvent *ev);

@@ -12,6 +12,7 @@
 #include "Action.hh"
 
 class AutoProperty;
+class Client;
 class Frame;
 
 class ClientMgr {
@@ -24,6 +25,8 @@ public:
             _allow_grouping = !_allow_grouping;
         }
     }
+
+    static void familyRaiseLower(Client *client, bool raise);
 
 private:
     static bool findGroupMatchProperty(Frame *frame, AutoProperty *property);
