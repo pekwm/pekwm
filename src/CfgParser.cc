@@ -373,6 +373,7 @@ bool
 CfgParser::parse()
 {
     // Init parse buffer and reserve memory.
+    bool have_value = false;
     std::string buf, value;
     buf.reserve(PARSE_BUF_SIZE);
 
@@ -391,11 +392,11 @@ CfgParser::parse()
                 // we continue as nothing happened else we finish the entry.
                 next = parseSkipBlank(_source);
                 if (next != '{') {
-                    parseEntryFinish(buf, value);
+                    parseEntryFinish(buf, value, have_value);
                 }
                 break;
             case ';':
-                parseEntryFinish(buf, value);
+                parseEntryFinish(buf, value, have_value);
                 break;
             case '{':
                 if (parseName(buf)) {
@@ -405,13 +406,15 @@ CfgParser::parse()
                 }
                 buf.clear();
                 value.clear();
+                have_value = false;
                 break;
             case '}':
                 if (_sections.size() > 0) {
                     if (buf.size() && parseName(buf)) {
-                        parseEntryFinish(buf, value);
+                        parseEntryFinish(buf, value, have_value);
                         buf.clear();
                         value.clear();
+                        have_value = false;
                     }
                     _section = _sections.back();
                     _sections.pop_back();
@@ -421,7 +424,7 @@ CfgParser::parse()
                 break;
             case '=':
                 value.clear();
-                parseValue(value);
+                have_value = parseValue(value);
                 break;
             case '#':
                 parseCommentLine(_source);
@@ -456,7 +459,7 @@ CfgParser::parse()
         // statements without a new line at the end of the file will
         // be used.
         if (buf.size()) {
-            parseEntryFinish(buf, value);
+            parseEntryFinish(buf, value, have_value);
         }
 
     }
@@ -544,19 +547,22 @@ CfgParser::parseName(std::string &buf)
     return true;
 }
 
-//! @brief Parses _source after = to end of " pair.
-void
+/**
+ * Parse _source after = to end of " pair.
+ */
+bool
 CfgParser::parseValue(std::string &value)
 {
-    // We expect to get a " after the =, however we ignore anything else.
+    // Expect to get a " after the =, ignore anything else.
     int c;
-    while ((c = _source->getc()) != EOF && c != '"')
+    while ((c = _source->getc()) != EOF && c != '"') {
          ;
+    }
 
-    // Check if we got EOF before getting a quotation mark.
+    // Check if EOF before getting a quotation mark.
     if (c == EOF) {
         USER_WARN("Reached EOF before opening \" in value.");
-        return;
+        return false;
     }
 
     // Parse until next ", and escape characters after \.
@@ -572,20 +578,18 @@ CfgParser::parseValue(std::string &value)
     }
 
     LOG_IF(c == EOF, "Reached EOF before closing \" in value.");
-
-    // If the value is empty, parseEntryFinish() might later just skip
-    // the complete entry. To allow empty config options we add a dummy space.
-    if (!value.size()) {
-        value = " ";
-    }
+    return c != EOF;
 }
 
-//! @brief Parses entry (name + value) and executes command accordingly.
+/**
+ * Parses entry (name + value) and executes command accordingly.
+ */
 void
-CfgParser::parseEntryFinish(std::string &buf, std::string &value)
+CfgParser::parseEntryFinish(std::string &buf, std::string &value,
+                            bool &have_value)
 {
-    if (value.size()) {
-        parseEntryFinishStandard(buf, value);
+    if (have_value) {
+        parseEntryFinishStandard(buf, value, have_value);
     } else {
         // Template handling, expand or define template.
         if (buf.size() && parseName(buf) && buf[0] == '@') {
@@ -598,7 +602,8 @@ CfgParser::parseEntryFinish(std::string &buf, std::string &value)
  * Finish standard entry.
  */
 void
-CfgParser::parseEntryFinishStandard(std::string &buf, std::string &value)
+CfgParser::parseEntryFinishStandard(std::string &buf, std::string &value,
+                                    bool &have_value)
 {
     if (parseName(buf)) {
         if (buf[0] == '$') {
@@ -620,6 +625,7 @@ CfgParser::parseEntryFinishStandard(std::string &buf, std::string &value)
     }
 
     value.clear();
+    have_value = false;
     buf.clear();
 }
 

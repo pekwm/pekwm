@@ -143,9 +143,11 @@ private:
     bool parse(void);
     void parseSourceNew(const std::string &name, CfgParserSource::Type type);
     bool parseName(std::string &buf);
-    void parseValue(std::string &value);
-    void parseEntryFinish(std::string &buf, std::string &value);
-    void parseEntryFinishStandard(std::string &buf, std::string &value);
+    bool parseValue(std::string &value);
+    void parseEntryFinish(std::string &buf, std::string &value,
+                          bool &have_value);
+    void parseEntryFinishStandard(std::string &buf, std::string &value,
+                                  bool &have_value);
     void parseEntryFinishTemplate(std::string &name);
     void parseSectionFinish(std::string &buf, std::string &value);
     void parseCommentLine(CfgParserSource *source);
