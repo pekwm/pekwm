@@ -939,7 +939,7 @@ Frame::detachClient(Client *client)
     if (_children.size() > 1) {
         removeChild(client);
 
-        client->move(_gm.x, _gm.y + borderTop());
+        client->move(_gm.x, _gm.y + bdTop(this));
 
         Frame *frame = new Frame(client, 0);
         frame->workspacesInsert();
@@ -1289,30 +1289,29 @@ Frame::doResize(bool left, bool x, bool top, bool y)
 void
 Frame::recalcResizeDrag(int nx, int ny, bool left, bool top)
 {
-    uint brdr_lr = borderLeft() + borderRight();
-    uint brdr_tb = borderTop() + borderBottom();
-
     if (left) {
-        if (nx >= signed(_click_x - brdr_lr))
-            nx = _click_x - brdr_lr - 1;
+        if (nx >= signed(_click_x - decorWidth(this)))
+            nx = _click_x - decorWidth(this) - 1;
     } else {
-        if (nx <= signed(_click_x + brdr_lr))
-            nx = _click_x + brdr_lr + 1;
+        if (nx <= signed(_click_x + decorWidth(this)))
+            nx = _click_x + decorWidth(this) + 1;
     }
 
     if (top) {
-        if (ny >= signed(_click_y - getTitleHeight() - brdr_tb))
-            ny = _click_y - getTitleHeight() - brdr_tb - 1;
+        if (ny >= signed(_click_y - decorHeight(this))) {
+            ny = _click_y - decorHeight(this) - 1;
+        }
     } else {
-        if (ny <= signed(_click_y + getTitleHeight() + brdr_tb))
-            ny = _click_y + getTitleHeight() + brdr_tb + 1;
+        if (ny <= signed(_click_y + decorHeight(this))) {
+            ny = _click_y + decorHeight(this) + 1;
+        }
     }
 
     uint width = left ? (_click_x - nx) : (nx - _click_x);
     uint height = top ? (_click_y - ny) : (ny - _click_y);
 
-    width -= brdr_lr;
-    height -= brdr_tb + getTitleHeight();
+    width -= decorWidth(this);
+    height -= decorHeight(this);
 
     _client->getAspectSize(&width, &height, width, height);
 
@@ -1332,8 +1331,8 @@ Frame::recalcResizeDrag(int nx, int ny, bool left, bool top)
             height = hints->max_height;
     }
 
-    _gm.width = width + brdr_lr;
-    _gm.height = height + getTitleHeight() + brdr_tb;
+    _gm.width = width + decorWidth(this);
+    _gm.height = height + decorHeight(this);
 
     _gm.x = left ? (_click_x - _gm.width) : _click_x;
     _gm.y = top ? (_click_y - _gm.height) : _click_y;
@@ -2124,9 +2123,9 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
     Geometry gm = _gm;
 
     if (chg_size) {
-        int diff_w = ev->width - gm.width + borderLeft() + borderRight();
+        int diff_w = ev->width - gm.width + decorWidth(this);
         gm.width += diff_w;
-        int diff_h = ev->height - gm.height + borderTop() + borderBottom() + getTitleHeight();
+        int diff_h = ev->height - gm.height + decorHeight(this);
         gm.height += diff_h;
 
         if (!chg_pos) {

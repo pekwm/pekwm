@@ -129,6 +129,24 @@ public:
     static ulong getWhitePixel(void) { return WhitePixel(_dpy, _screen); }
     static ulong getBlackPixel(void) { return BlackPixel(_dpy, _screen); }
 
+    static void moveWindow(Window win, int x, int y) {
+        if (_dpy) {
+            XMoveWindow(_dpy, win, x, y);
+        }
+    }
+    static void resizeWindow(Window win,
+                             unsigned int width, unsigned int height) {
+        if (_dpy) {
+            XResizeWindow(_dpy, win, width, height);
+        }
+    }
+    static void moveResizeWindow(Window win, int x, int y,
+                                 unsigned int width, unsigned int height) {
+        if (_dpy) {
+            XMoveResizeWindow(_dpy, win, x, y, width, height);
+        }
+    }
+
     /**
      * Remove state modifiers such as NumLock from state.
      */

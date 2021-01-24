@@ -13,8 +13,7 @@
 
 #include "Config.hh"
 #include "PWinObj.hh"
-#include "Theme.hh" // for Theme::FrameData inlines
-#include "PTexture.hh" // for border/image inlines
+#include "ThemeGm.hh"
 
 class ActionEvent;
 class PFont;
@@ -31,7 +30,9 @@ public:
 };
 
 //! @brief PWinObj container class with fancy decor.
-class PDecor : public PWinObj
+class PDecor : public PWinObj,
+               public ThemeGm,
+               public ThemeState
 {
 public:
     //! @brief Decor title button class.
@@ -216,17 +217,17 @@ public:
 
     //! @brief Returns width of child container.
     inline uint getChildWidth(void) const {
-        if ((borderLeft() + borderRight()) >= _gm.width) {
+        if ((bdLeft(this) + bdRight(this)) >= _gm.width) {
             return 1;
         }
-        return (_gm.width - borderLeft() - borderRight());
+        return (_gm.width - bdLeft(this) - bdRight(this));
     }
-    //! @brief Returns height of child container.
+    /** Returns height of child container. */
     inline uint getChildHeight(void) const {
-        if ((borderTop() + borderBottom() + getTitleHeight()) >= getRealHeight()) {
+        if (decorHeight(this) >= getRealHeight()) {
             return 1;
         }
-        return (getRealHeight() - borderTop() - borderBottom() - getTitleHeight());
+        return getRealHeight() - decorHeight(this);
     }
 
     // child list actions
@@ -267,21 +268,18 @@ public:
 
     // decor state
 
-    //! @brief Returns wheter we have a border or not.
-    inline bool hasBorder(void) const { return _border; }
-    //! @brief Returns wheter we have a titlebar or not.
-    inline bool hasTitlebar(void) const { return _titlebar; }
-    //! @brief Returns wheter we are shaded or not.
-    inline bool isShaded(void) const { return _shaded; }
+    /** Returns wheter we have a border or not. */
+    virtual bool hasBorder(void) const override { return _border; }
+    /** @brief Returns wheter we have a titlebar or not. */
+    virtual bool hasTitlebar(void) const override { return _titlebar; }
+    /** @brief Returns wheter we are shaded or not. */
+    virtual bool isShaded(void) const override { return _shaded; }
     void setBorder(StateAction sa);
     void setTitlebar(StateAction sa);
 
     bool demandAttention(void) const { return _attention; }
     void incrAttention(void) { ++_attention; }
     void decrAttention(void) { if (_attention && ! --_attention) { updateDecor(); } }
-
-    // decor element sizes
-    uint getTitleHeight(void) const;
 
     // common actions like doMove
     void doMove(int x_root, int y_root);
@@ -306,42 +304,6 @@ public:
         return BORDER_NO_POS;
 
     }
-    inline uint borderTop(void) const {
-        return (_border ? _data->getBorderTexture(getFocusedState(false), BORDER_TOP)->getHeight() : 0);
-    }
-    inline uint borderTopLeft(void) const {
-        return (_border ? _data->getBorderTexture(getFocusedState(false), BORDER_TOP_LEFT)->getWidth() : 0);
-    }
-    inline uint borderTopLeftHeight(void) const {
-        return (_border ? _data->getBorderTexture(getFocusedState(false), BORDER_TOP_LEFT)->getHeight() : 0);
-    }
-    inline uint borderTopRight(void) const {
-        return (_border ? _data->getBorderTexture(getFocusedState(false), BORDER_TOP_RIGHT)->getWidth() : 0);
-    }
-    inline uint	borderTopRightHeight(void) const {
-        return (_border ? _data->getBorderTexture(getFocusedState(false), BORDER_TOP_RIGHT)->getHeight() : 0);
-    }
-    inline uint	borderBottom(void) const {
-        return (_border ? _data->getBorderTexture(getFocusedState(false), BORDER_BOTTOM)->getHeight() : 0);
-    }
-    inline uint borderBottomLeft(void) const {
-        return (_border ? _data->getBorderTexture(getFocusedState(false), BORDER_BOTTOM_LEFT)->getWidth() : 0);
-    }
-    inline uint borderBottomLeftHeight(void) const {
-        return (_border ? _data->getBorderTexture(getFocusedState(false), BORDER_BOTTOM_LEFT)->getHeight() : 0);
-    }
-    inline uint borderBottomRight(void) const {
-        return (_border ? _data->getBorderTexture(getFocusedState(false), BORDER_BOTTOM_RIGHT)->getWidth() : 0);
-    }
-    inline uint borderBottomRightHeight(void) const {
-        return (_border ? _data->getBorderTexture(getFocusedState(false), BORDER_BOTTOM_RIGHT)->getHeight() : 0);
-    }
-    inline uint borderLeft(void) const {
-        return (_border ? _data->getBorderTexture(getFocusedState(false), BORDER_LEFT)->getWidth() : 0);
-    }
-    inline uint borderRight(void) const {
-        return (_border ? _data->getBorderTexture(getFocusedState(false), BORDER_RIGHT)->getWidth() : 0);
-    }
 
     void deiconify(void);
 
@@ -360,14 +322,14 @@ protected:
 
 #ifdef HAVE_SHAPE
     void applyBorderShape(int kind=ShapeBounding);
+    void applyBorderShapeNormal(int kind, bool client_shape);
+    void applyBorderShapeShaded(int kind);
+    void applyBorderShapeBorder(int kind, Window shape);
 #else
     void applyBorderShape(int kind=0) {}
 #endif // HAVE_SHAPE
 
     void resizeTitle(void);
-
-    //! @brief Returns font used at FocusedState state.
-    inline PFont *getFont(FocusedState state) const { return _data->getFont(state); }
 
     uint getNearestHead(void);
 
@@ -378,12 +340,13 @@ protected:
     void alignChild(PWinObj *child);
     void drawOutline(const Geometry &gm);
 
-    inline FocusedState getFocusedState(bool selected) const {
+    FocusedState getFocusedState(bool selected) const override {
         if (selected) {
-            return (_focused) ? FOCUSED_STATE_FOCUSED_SELECTED : FOCUSED_STATE_UNFOCUSED_SELECTED;
-        } else {
-            return (_focused) ? FOCUSED_STATE_FOCUSED : FOCUSED_STATE_UNFOCUSED;
+            return _focused
+                ? FOCUSED_STATE_FOCUSED_SELECTED
+                : FOCUSED_STATE_UNFOCUSED_SELECTED;
         }
+        return _focused ? FOCUSED_STATE_FOCUSED : FOCUSED_STATE_UNFOCUSED;
     }
 
 private:
@@ -393,6 +356,7 @@ private:
     void createTitle(CreateWindowParams &params);
     void createBorder(CreateWindowParams &params);
 
+    void setDataFromDecorName(const std::string &decor_name);
     void unloadDecor(void);
 
     ActionEvent *handleButtonPressButton(XButtonEvent *ev, PDecor::Button *button);
@@ -411,8 +375,11 @@ private:
     void getBorderSize(BorderPosition pos, uint &width, uint &height);
 
     uint calcTitleWidth(void);
+    uint calcTitleWidthDynamic(void);
     void calcTabsWidth(void);
-    void calcTabsGetAvailAndTabWidth(uint &width_avail, uint &tab_width, int &off);
+    void calcTabsGetAvailAndTabWidth(uint &width_avail,
+                                     uint &tab_width,
+                                     int &off);
     void calcTabsWidthSymetric(void);
     void calcTabsWidthAsymetric(void);
     void calcTabsWidthAsymetricGrow(uint width_avail, uint tab_width);

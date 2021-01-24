@@ -184,7 +184,7 @@ PMenu::handleButtonRelease(XButtonEvent *ev)
     if (_window == ev->subwindow) {
         ev->window = _menu_wo->getWindow();
         ev->x -= _gm.x;
-        ev->y -= _gm.y + getTitleHeight();
+        ev->y -= _gm.y + titleHeight(this);
     }
 
     if (*_menu_wo == ev->window) {
@@ -223,7 +223,7 @@ PMenu::handleMotionEvent(XMotionEvent *ev)
     if (_window == ev->subwindow) {
         ev->window = _menu_wo->getWindow();
         ev->x -= _gm.x;
-        ev->y -= _gm.y + getTitleHeight();
+        ev->y -= _gm.y + titleHeight(this);
     }
 
     if (*_menu_wo == ev->window) {
@@ -473,15 +473,15 @@ PMenu::buildMenuCalculateColumns(unsigned int &width, unsigned int &height)
 {
     // Check if the menu fits or is static width
     if (_menu_width
-        || (height + getTitleHeight()) <= X11::getHeight()) {
+        || (height + titleHeight(this)) <= X11::getHeight()) {
         _cols = 1;
         width = _menu_width ? _menu_width : _item_width_max;
         _rows = _size;
         return;
     }
 
-    _cols = height / (X11::getHeight() - getTitleHeight());
-    if ((height % (X11::getHeight() - getTitleHeight())) != 0) {
+    _cols = height / (X11::getHeight() - titleHeight(this));
+    if ((height % (X11::getHeight() - titleHeight(this))) != 0) {
         ++_cols;
     }
     _rows = _size / _cols;

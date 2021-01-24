@@ -170,6 +170,7 @@ std::vector<PDecor*> PDecor::_pdecors;
 PDecor::PDecor(const std::string &decor_name, const Window child_window,
                bool init)
     : PWinObj(true),
+      ThemeGm(nullptr),
       _decor_name(decor_name),
       _child(0),
       _button(0),
@@ -214,12 +215,7 @@ PDecor::init(Window child_window)
         _decor_name_saved = _decor_name;
     }
 
-    // we be reset in loadDecor later on, inlines using the _data used before
-    // loadDecor needs this though
-    _data = pekwm::theme()->getPDecorData(_decor_name);
-    if (! _data) {
-        _data = pekwm::theme()->getPDecorData(DEFAULT_DECOR_NAME);
-    }
+    setDataFromDecorName(_decor_name);
 
     CreateWindowParams window_params;
     createParentWindow(window_params, child_window);
@@ -284,7 +280,7 @@ PDecor::createTitle(CreateWindowParams &params)
     params.attr.event_mask = ButtonPressMask|ButtonReleaseMask|
         ButtonMotionMask|EnterWindowMask;
     Window title = XCreateWindow(X11::getDpy(), _window,
-                                 borderLeft(), borderTop(), 1, 1, 0,
+                                 bdLeft(this), bdTop(this), 1, 1, 0,
                                  params.depth, InputOutput, params.visual,
                                  params.mask, &params.attr);
     _title_wo.setWindow(title);
@@ -387,7 +383,7 @@ PDecor::move(int x, int y)
     // update real position
     PWinObj::move(x, y);
     if (_child && (_decor_cfg_child_move_overloaded)) {
-        _child->move(x + borderLeft(), y + borderTop() + getTitleHeight());
+        _child->move(x + bdLeft(this), y + bdTop(this) + titleHeight(this));
     }
 }
 
@@ -400,10 +396,10 @@ PDecor::resize(uint width, uint height)
     if (_shaded) {
         _real_height = height;
 
-        height = getTitleHeight();
+        height = titleHeight(this);
         // Shading in non full width title mode will make border go away
         if (! _data->getTitleWidthMin()) {
-            height += borderTop() + borderBottom();
+            height += bdTop(this) + bdBottom(this);
         }
     }
 
@@ -437,10 +433,10 @@ PDecor::moveResize(int x, int y, uint width, uint height)
     if (_shaded) {
         _real_height = height;
 
-        height = getTitleHeight();
+        height = titleHeight(this);
         // Shading in non full width title mode will make border go away
         if (! _data->getTitleWidthMin()) {
-            height += borderTop() + borderBottom();
+            height += bdTop(this) + bdBottom(this);
         }
     }
 
@@ -449,7 +445,7 @@ PDecor::moveResize(int x, int y, uint width, uint height)
     // Update size before moving and shaping the rest as shaping
     // depends on the child window
     if (_child) {
-        _child->moveResize(x + borderLeft(), y + borderTop() + getTitleHeight(),
+        _child->moveResize(x + bdLeft(this), y + bdTop(this) + titleHeight(this),
                           getChildWidth(), getChildHeight());
 
         // The client window may have its window gravity set to something different
@@ -476,8 +472,8 @@ PDecor::moveResize(int x, int y, uint width, uint height)
 void
 PDecor::resizeTitle(void)
 {
-    if (getTitleHeight()) { 
-       _title_wo.resize(calcTitleWidth(), getTitleHeight());
+    if (titleHeight(this)) {
+       _title_wo.resize(calcTitleWidth(), titleHeight(this));
         calcTabsWidth();
     }
 
@@ -834,19 +830,13 @@ void
 PDecor::loadDecor(void)
 {
     unloadDecor();
-
-    // Get decordata with name.
-    _data = pekwm::theme()->getPDecorData(_decor_name);
-    if (! _data) {
-        _data = pekwm::theme()->getPDecorData(DEFAULT_DECOR_NAME);
-    }
-    LOG_IF(!_data, "_data == 0");
+    setDataFromDecorName(_decor_name);
 
     // Load decor.
     auto b_it(_data->buttonBegin());
     for (; b_it != _data->buttonEnd(); ++b_it) {
-        uint width = std::max(static_cast<uint>(1), (*b_it)->getWidth() ? (*b_it)->getWidth() : getTitleHeight());
-        uint height = std::max(static_cast<uint>(1), (*b_it)->getHeight() ? (*b_it)->getHeight() : getTitleHeight());
+        uint width = std::max(static_cast<uint>(1), (*b_it)->getWidth() ? (*b_it)->getWidth() : titleHeight(this));
+        uint height = std::max(static_cast<uint>(1), (*b_it)->getHeight() ? (*b_it)->getHeight() : titleHeight(this));
 
         _buttons.push_back(new PDecor::Button(&_title_wo, *b_it, width, height));
         _buttons.back()->mapWindow();
@@ -861,7 +851,7 @@ PDecor::loadDecor(void)
 
     // Update title position.
     if (_data->getTitleWidthMin() == 0) {
-        _title_wo.move(borderTopLeft(), borderTop());
+        _title_wo.move(titleLeftOffset(this), bdTop(this));
         _need_shape = false;
     } else {
         _title_wo.move(0, 0);
@@ -884,6 +874,17 @@ PDecor::loadDecor(void)
 
     // Child theme change.
     loadTheme();
+}
+
+void
+PDecor::setDataFromDecorName(const std::string &decor_name)
+{
+    _data = pekwm::theme()->getPDecorData(_decor_name);
+    if (! _data) {
+        _data = pekwm::theme()->getPDecorData(DEFAULT_DECOR_NAME);
+    }
+    setData(_data);
+    LOG_IF(!_data, "_data == 0");
 }
 
 //! @brief Frees resources used by PDecor.
@@ -945,15 +946,15 @@ PDecor::getChildFromPos(int x)
 void
 PDecor::moveChild(int x, int y)
 {
-    move(x - borderLeft(), y - borderTop() - getTitleHeight());
+    move(x - bdLeft(this), y - bdTop(this) - titleHeight(this));
 }
 
 //! @brief Resizes the decor, giving width x height space for the child
 void
 PDecor::resizeChild(uint width, uint height)
 {
-    resize(width + borderLeft() + borderRight(),
-           height + borderTop() + borderBottom() + getTitleHeight());
+    resize(width + bdLeft(this) + bdRight(this),
+           height + bdTop(this) + bdBottom(this) + titleHeight(this));
 }
 
 //! @brief Sets border state of the decor
@@ -1002,27 +1003,11 @@ PDecor::setTitlebar(StateAction sa)
     }
 }
 
-//! @brief Calculate title height, 0 if titlebar is disabled.
-uint
-PDecor::getTitleHeight(void) const
-{
-    if (! _titlebar) {
-        return 0;
-    }
-
-    if (_data->isTitleHeightAdapt()) {
-        return getFont(getFocusedState(false))->getHeight()
-              + _data->getPad(PAD_UP) + _data->getPad(PAD_DOWN);
-    } else {
-        return _data->getTitleHeight();
-    }
-}
-
 //! @brief Adds a child to the decor, reparenting the window
 void
 PDecor::addChild(PWinObj *child, std::vector<PWinObj*>::iterator *it)
 {
-    child->reparent(this, borderLeft(), borderTop() + getTitleHeight());
+    child->reparent(this, bdLeft(this), bdTop(this) + titleHeight(this));
     if (it == 0) {
         _children.push_back(child);
     } else {
@@ -1050,8 +1035,8 @@ void
 PDecor::removeChild(PWinObj *child, bool do_delete)
 {
     child->reparent(PWinObj::getRootPWinObj(),
-                    _gm.x + borderLeft(),
-                    _gm.y + borderTop() + getTitleHeight());
+                    _gm.x + bdLeft(this),
+                    _gm.y + bdTop(this) + titleHeight(this));
 
     auto it(find(_children.begin(), _children.end(), child));
     if (it == _children.end()) {
@@ -1443,10 +1428,10 @@ PDecor::setShaded(StateAction sa)
         // full-width mode only)
     } else if (_titlebar || (_border && ! _data->getTitleWidthMin())) {
         _real_height = _gm.height;
-        _gm.height = getTitleHeight();
+        _gm.height = titleHeight(this);
         // shading in non full width title mode will make border go away
         if (! _data->getTitleWidthMin()) {
-            _gm.height += borderTop() + borderBottom();
+            _gm.height += bdTop(this) + bdBottom(this);
         }
         _shaded = true;
     }
@@ -1496,7 +1481,7 @@ void PDecor::deiconify(void) {
 void
 PDecor::renderTitle(void)
 {
-    if (! getTitleHeight()) {
+    if (! titleHeight(this)) {
         return;
     }
 
@@ -1766,7 +1751,7 @@ void
 PDecor::alignChild(PWinObj *child)
 {
     if (child) {
-        XMoveWindow(X11::getDpy(), child->getWindow(), borderLeft(), borderTop() + getTitleHeight());
+        XMoveWindow(X11::getDpy(), child->getWindow(), bdLeft(this), bdTop(this) + titleHeight(this));
     }
 }
 
@@ -1804,55 +1789,74 @@ PDecor::placeBorder(void)
 {
     // if we have tab min == 0 then we have full width title and place the
     // border ontop, else we put the border under the title
-    uint bt_off = (_data->getTitleWidthMin() > 0) ? getTitleHeight() : 0;
+    uint bt_off = (_data->getTitleWidthMin() > 0) ? titleHeight(this) : 0;
 
-    if (borderTop() > 0) {
-        XMoveResizeWindow(X11::getDpy(), _border_win[BORDER_TOP],
-                          borderTopLeft(), bt_off,
-                          _gm.width - borderTopLeft() - borderTopRight(), borderTop());
+    if (bdTop(this) > 0) {
+        X11::moveResizeWindow(_border_win[BORDER_TOP],
+                              bdTopLeft(this),
+                              bt_off,
+                              _gm.width - bdTopLeft(this) - bdTopRight(this),
+                              bdTop(this));
 
-        XMoveResizeWindow(X11::getDpy(), _border_win[BORDER_TOP_LEFT],
-                          0, bt_off,
-                          borderTopLeft(), borderTopLeftHeight());
-        XMoveResizeWindow(X11::getDpy(), _border_win[BORDER_TOP_RIGHT],
-                          _gm.width - borderTopRight(), bt_off,
-                          borderTopRight(), borderTopRightHeight());
+        X11::moveResizeWindow(_border_win[BORDER_TOP_LEFT],
+                              0, bt_off,
+                              bdTopLeft(this),
+                              bdTopLeftHeight(this));
+        X11::moveResizeWindow(_border_win[BORDER_TOP_RIGHT],
+                              _gm.width - bdTopRight(this),
+                              bt_off,
+                              bdTopRight(this),
+                              bdTopRightHeight(this));
 
-        if (borderLeft()) {
-            XMoveResizeWindow(X11::getDpy(), _border_win[BORDER_LEFT],
-                              0, borderTopLeftHeight() + bt_off,
-                              borderLeft(), _gm.height - borderTopLeftHeight() - borderBottomLeftHeight());
+        if (bdLeft(this)) {
+            X11::moveResizeWindow(_border_win[BORDER_LEFT],
+                                  0,
+                                  bdTopLeftHeight(this) + bt_off,
+                                  bdLeft(this),
+                                  _gm.height - bdTopLeftHeight(this) - bdBottomLeftHeight(this));
         }
 
-        if (borderRight()) {
-            XMoveResizeWindow(X11::getDpy(), _border_win[BORDER_RIGHT],
-                              _gm.width - borderRight(), borderTopRightHeight() + bt_off,
-                              borderRight(), _gm.height - borderTopRightHeight() - borderBottomRightHeight());
+        if (bdRight(this)) {
+            X11::moveResizeWindow(_border_win[BORDER_RIGHT],
+                                  _gm.width - bdRight(this),
+                                  bdTopRightHeight(this) + bt_off,
+                                  bdRight(this),
+                                  _gm.height - bdTopRightHeight(this) - bdBottomRightHeight(this));
         }
     } else {
-        if (borderLeft()) {
-            XMoveResizeWindow(X11::getDpy(), _border_win[BORDER_LEFT],
-                              0, getTitleHeight(),
-                              borderLeft(), _gm.height - getTitleHeight() - borderBottom());
+        if (bdLeft(this)) {
+            X11::moveResizeWindow(_border_win[BORDER_LEFT],
+                                  0,
+                                  titleHeight(this),
+                                  bdLeft(this),
+                                  _gm.height - titleHeight(this) - bdBottom(this));
         }
 
-        if (borderRight()) {
-            XMoveResizeWindow(X11::getDpy(), _border_win[BORDER_RIGHT],
-                              _gm.width - borderRight(), getTitleHeight(),
-                              borderRight(), _gm.height - getTitleHeight() - borderBottom());
+        if (bdRight(this)) {
+            X11::moveResizeWindow(_border_win[BORDER_RIGHT],
+                                  _gm.width - bdRight(this),
+                                  titleHeight(this),
+                                  bdRight(this),
+                                  _gm.height - titleHeight(this) - bdBottom(this));
         }
     }
 
-    if (borderBottom()) {
-        XMoveResizeWindow(X11::getDpy(), _border_win[BORDER_BOTTOM],
-                          borderBottomLeft(), _gm.height - borderBottom(),
-                          _gm.width - borderBottomLeft() - borderBottomRight(), borderBottom());
-        XMoveResizeWindow(X11::getDpy(), _border_win[BORDER_BOTTOM_LEFT],
-                          0, _gm.height - borderBottomLeftHeight(),
-                          borderBottomLeft(), borderBottomLeftHeight());
-        XMoveResizeWindow(X11::getDpy(), _border_win[BORDER_BOTTOM_RIGHT],
-                          _gm.width - borderBottomRight(), _gm.height - borderBottomRightHeight(),
-                          borderBottomRight(), borderBottomRightHeight());
+    if (bdBottom(this)) {
+        X11::moveResizeWindow(_border_win[BORDER_BOTTOM],
+                              bdBottomLeft(this),
+                              _gm.height - bdBottom(this),
+                              _gm.width - bdBottomLeft(this) - bdBottomRight(this),
+                              bdBottom(this));
+        X11::moveResizeWindow(_border_win[BORDER_BOTTOM_LEFT],
+                              0,
+                              _gm.height - bdBottomLeftHeight(this),
+                              bdBottomLeft(this),
+                              bdBottomLeftHeight(this));
+        X11::moveResizeWindow(_border_win[BORDER_BOTTOM_RIGHT],
+                              _gm.width - bdBottomRight(this),
+                              _gm.height - bdBottomRightHeight(this),
+                              bdBottomRight(this),
+                              bdBottomRightHeight(this));
     }
 
     applyBorderShape();
@@ -1866,94 +1870,122 @@ PDecor::placeBorder(void)
 void
 PDecor::applyBorderShape(int kind)
 {
-    bool client_shape = _child?_child->hasShapeRegion(kind):false;
-    XRectangle rect_square;
-    rect_square.x = 0;
-    rect_square.y = 0;
-    rect_square.width = _gm.width;
-    rect_square.height = _gm.height;
-
+    bool client_shape = _child ? _child->hasShapeRegion(kind) : false;
     if ((_need_shape && kind == ShapeBounding) || client_shape) {
-        // if we have tab min == 0 then we have full width title and place the
-        // border ontop, else we put the border under the title
-        uint bt_off = (_data->getTitleWidthMin() > 0) ? getTitleHeight() : 0;
-
-        Window shape;
-        shape = XCreateSimpleWindow(X11::getDpy(), X11::getRoot(),
-                                    0, 0, _gm.width, _gm.height, 0, 0, 0);
-
-        if (_child && ! _shaded) {
-            X11::shapeCombine(shape, kind,
-                              borderLeft(), borderTop() + getTitleHeight(),
-                              _child->getWindow(), ShapeSet);
+        if (_shaded) {
+            applyBorderShapeShaded(kind);
+        } else {
+            applyBorderShapeNormal(kind, client_shape);
         }
-
-        // Apply border shape. Need to be carefull wheter or not to include it.
-        if (_border
-                && ! (_shaded && bt_off) // Shaded in non-full-width mode removes border.
-                && ! client_shape) { // Shaped clients should appear bordeless.
-            // top
-            if (borderTop() > 0) {
-                X11::shapeCombine(shape, kind, 0, bt_off,
-                                  _border_win[BORDER_TOP_LEFT], ShapeUnion);
-
-                X11::shapeCombine(shape, kind, borderTopLeft(), bt_off,
-                                  _border_win[BORDER_TOP], ShapeUnion);
-
-                X11::shapeCombine(shape, kind, _gm.width - borderTopRight(),
-                                  bt_off, _border_win[BORDER_TOP_RIGHT], ShapeUnion);
-            }
-
-            bool use_bt_off = bt_off || borderTop();
-            // Left border
-            if (borderLeft() > 0) {
-                X11::shapeCombine(shape, kind, 0,
-                                  use_bt_off ? bt_off + borderTopLeftHeight() : getTitleHeight(),
-                                  _border_win[BORDER_LEFT], ShapeUnion);
-            }
-
-            // Right border
-            if (borderRight() > 0) {
-                X11::shapeCombine(shape, kind, _gm.width - borderRight(),
-                                  use_bt_off ? bt_off + borderTopRightHeight() : getTitleHeight(),
-                                  _border_win[BORDER_RIGHT], ShapeUnion);
-            }
-
-            // bottom
-            if (borderBottom() > 0) {
-                X11::shapeCombine(shape, kind,
-                                  0, _gm.height - borderBottomLeftHeight(),
-                                  _border_win[BORDER_BOTTOM_LEFT], ShapeUnion);
-
-                X11::shapeCombine(shape, kind,
-                                  borderBottomLeft(), _gm.height - borderBottom(),
-                                  _border_win[BORDER_BOTTOM], ShapeUnion);
-
-                X11::shapeCombine(shape, kind,
-                                  _gm.width - borderBottomRight(),
-                                  _gm.height - borderBottomRightHeight(),
-                                  _border_win[BORDER_BOTTOM_RIGHT],
-                                  ShapeUnion);
-            }
-        }
-        if (_titlebar) {
-            // apply title shape
-            X11::shapeCombine(shape, kind, _title_wo.getX(), _title_wo.getY(),
-                              _title_wo.getWindow(), ShapeUnion);
-        }
-
-        // The borders might extend beyond the window area (causing
-        // artifacts under xcompmgr), so we cut the shape down to the
-        // original window size.
-        X11::shapeIntersectRect(shape, &rect_square);
-
-        // Apply the shape mask to the window
-        X11::shapeCombine(_window, kind, 0, 0, shape, ShapeSet);
-
-        X11::destroyWindow(shape);
     } else {
         // Reinstate default region
         X11::shapeSetMask(_window, kind, None);
+    }
+}
+
+void
+PDecor::applyBorderShapeNormal(int kind, bool client_shape)
+{
+    auto shape = XCreateSimpleWindow(X11::getDpy(), X11::getRoot(),
+                                     0, 0, _gm.width, _gm.height,
+                                     0, 0, 0);
+    if (_child) {
+        X11::shapeCombine(shape, kind,
+                          bdLeft(this), bdTop(this) + titleHeight(this),
+                          _child->getWindow(), ShapeSet);
+    }
+
+    // Apply border shapek, shaped clients do not display a border
+    if (_border && ! client_shape) {
+        applyBorderShapeBorder(kind, shape);
+    }
+    if (_titlebar) {
+        X11::shapeCombine(shape, kind,
+                          _title_wo.getX(), _title_wo.getY(),
+                          _title_wo.getWindow(), ShapeUnion);
+    }
+
+    // The borders might extend beyond the window area
+    // (causing artifacts under xcompmgr), so we cut the shape
+    // down to the original window size.
+    XRectangle rect_square = {
+        0, 0,
+        static_cast<short unsigned>(_gm.width),
+        static_cast<short unsigned>(_gm.height)
+    };
+    X11::shapeIntersectRect(shape, &rect_square);
+
+    X11::shapeCombine(_window, kind, 0, 0, shape, ShapeSet);
+    X11::destroyWindow(shape);
+}
+
+void
+PDecor::applyBorderShapeShaded(int kind)
+{
+    Window shape;
+    if (_data->getTitleWidthMin()) {
+        shape =
+            XCreateSimpleWindow(X11::getDpy(), X11::getRoot(),
+                                0, 0,
+                                _title_wo.getWidth(), _title_wo.getHeight(),
+                                0, 0, 0);
+    } else {
+        shape =
+            XCreateSimpleWindow(X11::getDpy(), X11::getRoot(),
+                                0, 0, _gm.width, _gm.height, 0, 0, 0);
+        if (_border) {
+            applyBorderShapeBorder(kind, shape);
+        }
+    }
+
+    X11::shapeCombine(_window, kind, 0, 0, shape, ShapeSet);
+    X11::destroyWindow(shape);
+}
+
+void
+PDecor::applyBorderShapeBorder(int kind, Window shape)
+{
+    uint bd_top_offset = bdTopOffset(this);
+
+    if (bdTop(this) > 0) {
+        X11::shapeCombine(shape, kind, 0, bd_top_offset,
+                          _border_win[BORDER_TOP_LEFT], ShapeUnion);
+        X11::shapeCombine(shape, kind, bdTopLeft(this), bd_top_offset,
+                          _border_win[BORDER_TOP], ShapeUnion);
+        X11::shapeCombine(shape, kind,
+                          _gm.width - bdTopRight(this),
+                          bd_top_offset,
+                          _border_win[BORDER_TOP_RIGHT], ShapeUnion);
+    }
+
+    bool use_bt_off = bd_top_offset || bdTop(this);
+    if (bdLeft(this) > 0) {
+        X11::shapeCombine(shape, kind,
+                          0,
+                          use_bt_off ? bd_top_offset + bdTopLeftHeight(this)
+                                     : titleHeight(this),
+                          _border_win[BORDER_LEFT], ShapeUnion);
+    }
+
+    if (bdRight(this) > 0) {
+        X11::shapeCombine(shape, kind, _gm.width - bdRight(this),
+                          use_bt_off ? bd_top_offset + bdTopRightHeight(this)
+                                     : titleHeight(this),
+                          _border_win[BORDER_RIGHT], ShapeUnion);
+    }
+
+    if (bdBottom(this) > 0) {
+        X11::shapeCombine(shape, kind,
+                          0, _gm.height - bdBottomLeftHeight(this),
+                          _border_win[BORDER_BOTTOM_LEFT], ShapeUnion);
+        X11::shapeCombine(shape, kind,
+                          bdBottomLeft(this), _gm.height - bdBottom(this),
+                          _border_win[BORDER_BOTTOM], ShapeUnion);
+        X11::shapeCombine(shape, kind,
+                          _gm.width - bdBottomRight(this),
+                          _gm.height - bdBottomRightHeight(this),
+                          _border_win[BORDER_BOTTOM_RIGHT],
+                          ShapeUnion);
     }
 }
 #endif // HAVE_SHAPE
@@ -2007,16 +2039,16 @@ PDecor::getBorderSize(BorderPosition pos, uint &width, uint &height)
         height = _data->getBorderTexture(state, pos)->getHeight();
         break;
     case BORDER_TOP:
-        if ((borderTopLeft() + borderTopRight()) < _gm.width) {
-            width = _gm.width - borderTopLeft() - borderTopRight();
+        if ((bdTopLeft(this) + bdTopRight(this)) < _gm.width) {
+            width = _gm.width - bdTopLeft(this) - bdTopRight(this);
         } else {
             width = 1;
         }
         height = _data->getBorderTexture(state, pos)->getHeight();
         break;
     case BORDER_BOTTOM:
-        if ((borderBottomLeft() + borderBottomRight()) < _gm.width) {
-            width = _gm.width - borderBottomLeft() - borderBottomRight();
+        if ((bdBottomLeft(this) + bdBottomRight(this)) < _gm.width) {
+            width = _gm.width - bdBottomLeft(this) - bdBottomRight(this);
         } else {
             width = 1;
         }
@@ -2024,16 +2056,16 @@ PDecor::getBorderSize(BorderPosition pos, uint &width, uint &height)
         break;
     case BORDER_LEFT:
         width = _data->getBorderTexture(state, pos)->getWidth();
-        if ((borderTopLeftHeight() + borderBottomLeftHeight()) < _gm.height) {
-            height = _gm.height - borderTopLeftHeight() - borderBottomLeftHeight();
+        if ((bdTopLeftHeight(this) + bdBottomLeftHeight(this)) < _gm.height) {
+            height = _gm.height - bdTopLeftHeight(this) - bdBottomLeftHeight(this);
         } else {
             height = 1;
         }
         break;
     case BORDER_RIGHT:
         width = _data->getBorderTexture(state, pos)->getWidth();
-        if ((borderTopRightHeight() + borderBottomRightHeight()) < _gm.height) {
-            height = _gm.height - borderTopRightHeight() - borderBottomRightHeight();
+        if ((bdTopRightHeight(this) + bdBottomRightHeight(this)) < _gm.height) {
+            height = _gm.height - bdTopRightHeight(this) - bdBottomRightHeight(this);
         } else {
             height = 1;
         }
@@ -2053,54 +2085,59 @@ PDecor::getBorderSize(BorderPosition pos, uint &width, uint &height)
 uint
 PDecor::calcTitleWidth(void)
 {
-    uint width = 0;
+    if (_data->getTitleWidthMin() != 0) {
+        return calcTitleWidthDynamic();
+    }
 
-    if (_data->getTitleWidthMin() == 0) {
-        width = _gm.width;
-        if (width > (borderTopLeft() + borderTopRight())) {
-            width -= borderTopLeft() + borderTopRight();
+    uint width = _gm.width;
+    uint title_offsets = titleLeftOffset(this) + titleRightOffset(this);
+    if (width > title_offsets) {
+        width -= title_offsets;
+    }
+    return width;
+}
+
+uint
+PDecor::calcTitleWidthDynamic(void)
+{
+    uint width = 0;
+    uint width_max = 0;
+    // FIXME: what about selected tabs?
+    PFont *font = getFont(getFocusedState(false));
+
+    if (_data->isTitleWidthSymetric()) {
+        // Symetric mode, get max tab width, multiply with number of tabs
+        for (auto it : _titles ){
+            width = font->getWidth(it->getVisible());
+            if (width > width_max) {
+                width_max = width;
+            }
         }
+
+        width = width_max + _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT);
+        width *= _titles.size();
 
     } else {
-        uint width_max = 0;
-        // FIXME: what about selected tabs?
-        PFont *font = getFont(getFocusedState(false));
-
-        if (_data->isTitleWidthSymetric()) {
-            // Symetric mode, get max tab width, multiply with number of tabs
-            for (auto it : _titles ){
-                width = font->getWidth(it->getVisible());
-                if (width > width_max) {
-                    width_max = width;
-                }
-            }
-
-            width = width_max + _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT);
-            width *= _titles.size();
-
-        } else {
-            // Asymetric mode, get individual widths
-            for (auto it : _titles) {
-                width += font->getWidth(it->getVisible())
-                    + _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT);
-            }
-        }
-
-        // Add width of separators and buttons
-        width += (_titles.size() - 1)
-                 * _data->getTextureSeparator(getFocusedState(false))->getWidth();
-        width += _titles_left + _titles_right;
-
-        // Validate sizes, make sure it is not less than width min
-        // pixels and more than width max percent.
-        if (width < static_cast<uint>(_data->getTitleWidthMin())) {
-            width = _data->getTitleWidthMin();
-        }
-        if (width > (_gm.width * _data->getTitleWidthMax() / 100)) {
-            width = _gm.width * _data->getTitleWidthMax() / 100;
+        // Asymetric mode, get individual widths
+        for (auto it : _titles) {
+            width += font->getWidth(it->getVisible())
+                + _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT);
         }
     }
 
+    // Add width of separators and buttons
+    width += (_titles.size() - 1)
+        * _data->getTextureSeparator(getFocusedState(false))->getWidth();
+    width += _titles_left + _titles_right;
+
+    // Validate sizes, make sure it is not less than width min
+    // pixels and more than width max percent.
+    if (width < static_cast<uint>(_data->getTitleWidthMin())) {
+        width = _data->getTitleWidthMin();
+    }
+    if (width > (_gm.width * _data->getTitleWidthMax() / 100)) {
+        width = _gm.width * _data->getTitleWidthMax() / 100;
+    }
     return width;
 }
 

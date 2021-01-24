@@ -30,7 +30,9 @@ SearchDialog::SearchDialog()
 
     // Set up menu for displaying results
     _result_menu = new PMenu(L"", "");
-    _result_menu->reparent(this, borderLeft(), borderTop() + getTitleHeight() + _text_wo->getHeight());
+    _result_menu->reparent(this,
+                           bdLeft(this),
+                           bdTop(this) + titleHeight(this) + _text_wo->getHeight());
     _result_menu->setLayer(LAYER_DESKTOP); // Ignore when placing
     _result_menu->setSticky(STATE_SET);
     _result_menu->setBorder(STATE_UNSET);
