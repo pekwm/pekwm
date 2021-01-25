@@ -70,9 +70,9 @@ public:
     void handleButtonReleaseEvent(XButtonEvent *ev);
 
 private:
-    WindowManager();
+    WindowManager(void);
 
-    bool setupDisplay(Display* dpy, bool replace);
+    void setupDisplay(Display* dpy);
     void scanWindows(void);
     void execStartFile(void);
 

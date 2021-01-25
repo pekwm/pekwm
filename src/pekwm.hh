@@ -379,7 +379,8 @@ enum CfgDeny {
 
 namespace pekwm
 {
-    void init(AppCtrl* app_ctrl, Display* dpy, const std::string& config_file);
+    bool init(AppCtrl* app_ctrl, Display* dpy, const std::string& config_file,
+              bool replace);
     void cleanup(void);
 
     bool isStartup(void);

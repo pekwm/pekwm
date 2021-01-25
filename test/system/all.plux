@@ -30,6 +30,34 @@ in one go.
     ?SH-PROMPT:
 [endfunction]
 
+[function test_pekwm_replace]
+    [log test pekwm --replace]
+
+    [shell pekwm-1]
+        [log starting pekwm to be replaced]
+        !$BIN_DIR/pekwm --display $DISPLAY
+        ?Enter event loop.
+
+    [shell pekwm-2]
+        [log starting pekwm without --replace, should fail]
+        !$BIN_DIR/pekwm --display $DISPLAY
+        ?window manager already running
+        ?SH-PROMPT:
+
+        [log starting pekwm with --replace, replace first]
+        !$BIN_DIR/pekwm --display $DISPLAY --replace
+        ?waiting for previous window manager to exit
+        ?Enter event loop.
+
+    [shell pekwm-1]
+        ?being replaced by another WM
+        ?SH-PROMPT:
+
+    [shell pekwm-2]
+        !$_CTRL_C_
+        ?SH-PROMPT:
+[endfunction]
+
 [function test_update_client_list]
     [shell test_update_client_list]
         [log test_update_client_list]
@@ -62,13 +90,15 @@ in one go.
 [endfunction]
 
 [shell Xvfb]
+    ?SH-PROMPT:
     [log starting Xvfb]
-    !Xvfb -displayfd 1 $DISPLAY 2>/dev/null
-    ?null
+    -Fatal server error
+    !Xvfb -displayfd 1 $DISPLAY
     ?1
 
 [shell test]
     [call test_config_path]
+    [call test_pekwm_replace]
 
 [shell pekwm]
     [log starting pekwm]

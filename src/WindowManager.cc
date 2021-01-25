@@ -103,21 +103,22 @@ extern "C" {
 WindowManager*
 WindowManager::start(const std::string &config_file, bool replace)
 {
-    // Setup window manager
-    auto wm = new WindowManager();
-
     auto dpy = XOpenDisplay(0);
     if (! dpy) {
         std::cerr << "Can not open display!" << std::endl
                   << "Your DISPLAY variable currently is set to: "
                   << Util::getEnv("DISPLAY") << std::endl;
-        delete wm;
-        exit(1);
+        return nullptr;
     }
 
-    pekwm::init(wm, dpy, config_file);
+    // Setup window manager
+    auto wm = new WindowManager();
+    if (! pekwm::init(wm, dpy, config_file, replace)) {
+        delete wm;
+        wm = nullptr;
 
-    if (wm->setupDisplay(dpy, replace)) {
+    } else {
+        wm->setupDisplay(dpy);
         wm->scanWindows();
         Frame::resetFrameIDs();
 
@@ -131,12 +132,6 @@ WindowManager::start(const std::string &config_file, bool replace)
         }
 
         wm->execStartFile();
-    } else {
-        delete wm;
-        wm = nullptr;
-
-        // NOTE: action handler, referencing the wm is still existing
-        pekwm::cleanup();
     }
 
     return wm;
@@ -250,13 +245,9 @@ WindowManager::cleanup(void)
 /**
  * Setup display and claim resources.
  */
-bool
-WindowManager::setupDisplay(Display* dpy, bool replace)
+void
+WindowManager::setupDisplay(Display* dpy)
 {
-    if (! pekwm::hintWo()->claimDisplay(replace)) {
-        return false;
-    }
-
     pekwm::autoProperties()->load();
 
     Workspaces::init();
@@ -274,8 +265,6 @@ WindowManager::setupDisplay(Display* dpy, bool replace)
     // Create screen edge windows
     screenEdgeCreate();
     screenEdgeMapUnmap();
-
-    return true;
 }
 
 //! @brief Goes through the window and creates Clients/DockApps.
@@ -286,7 +275,7 @@ WindowManager::scanWindows(void)
     if (pekwm::isStartup()) {
         return;
     }
-    
+
     uint num_wins;
     Window d_win1, d_win2, *wins;
 

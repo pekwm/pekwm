@@ -131,6 +131,7 @@ main(int argc, char **argv)
     std::cout << "using configuration at " << config_file << std::endl;
 #endif // DEBUG
 
+    int ret = 1;
     auto wm = WindowManager::start(config_file, replace);
     if (wm) {
         try {
@@ -154,6 +155,8 @@ main(int argc, char **argv)
                     command = "exec " + command;
                     execl("/bin/sh", "sh" , "-c", command.c_str(), (char*) 0);
                 }
+            } else {
+                ret = 0;
             }
         } catch (std::exception& ex) {
             std::cerr << "exception occurred: " << ex.what() << std::endl;
@@ -166,5 +169,5 @@ main(int argc, char **argv)
     // Cleanup
     Util::iconv_deinit();
 
-    return 0;
+    return ret;
 }

@@ -37,7 +37,8 @@ static Theme* _theme = nullptr;
 
 namespace pekwm
 {
-    void init(AppCtrl* app_ctrl, Display* dpy, const std::string& config_file)
+    bool init(AppCtrl* app_ctrl, Display* dpy, const std::string& config_file,
+              bool replace)
     {
         _config = new Config();
         _config->load(config_file);
@@ -46,6 +47,13 @@ namespace pekwm
         X11::init(dpy, _config->isHonourRandr());
 
         _hint_wo = new HintWO(X11::getRoot());
+        if (! _hint_wo->claimDisplay(replace)) {
+            delete _config;
+            delete _hint_wo;
+            X11::destruct();
+            return false;
+        }
+
         // Create root PWinObj
         _root_wo = new RootWO(X11::getRoot(), _hint_wo);
         PWinObj::setRootPWinObj(_root_wo);
@@ -65,6 +73,8 @@ namespace pekwm
         _status_window = new StatusWindow(_theme);
 
         _action_handler = new ActionHandler(app_ctrl);
+
+        return true;
     }
 
     void cleanup()
