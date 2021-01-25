@@ -832,13 +832,17 @@ Frame::applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask)
     applyGeometry(gm, ap_gm, mask, X11::getScreenGeometry());
 }
 
-//! @brief Apply geometry.
-//! @param gm Geometry to modify.
-//! @param ap_gm Geometry to get values from.
-//! @param mask Geometry mask.
-//! @param screen_gm Geometry of the screen/head for position.
+/**
+ * Apply ap_gm on gm using screen_gm for percent/negative.
+ *
+ * @param gm Geometry to modify.
+ * @param ap_gm Geometry to get values from.
+ * @param mask Geometry mask.
+ * @param screen_gm Geometry of the screen/head for position.
+ */
 void
-Frame::applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask, const Geometry &screen_gm)
+Frame::applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask,
+                     const Geometry &screen_gm)
 {
     // Read size before position so negative position works, if size is
     // < 1 consider it to be full screen size.
@@ -866,23 +870,19 @@ Frame::applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask, const Geomet
     if (mask & X_VALUE) {
         if (mask & X_PERCENT) {
             gm.x = int(screen_gm.width * (float(ap_gm.x) / 100));
+        } else if (mask & X_NEGATIVE) {
+            gm.x = screen_gm.width - gm.width - ap_gm.x;
         } else {
             gm.x = screen_gm.x + ap_gm.x;
-        }
-
-        if (mask & X_NEGATIVE) {
-            gm.x += screen_gm.width - gm.width;
         }
     }
     if (mask & Y_VALUE) {
         if (mask & Y_PERCENT) {
             gm.y = int(screen_gm.height * (float(ap_gm.y) / 100));
+        } else if (mask & Y_NEGATIVE) {
+            gm.y = screen_gm.height - gm.height - ap_gm.y;
         } else {
             gm.y = screen_gm.y + ap_gm.y;
-        }
-
-        if (mask & Y_NEGATIVE) {
-            gm.y += screen_gm.height - gm.height;
         }
     }
 }

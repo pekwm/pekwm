@@ -23,13 +23,21 @@ public:
 
     static void testApplyGeometry(void)
     {
-        assertApplyGeometry("negative pos",
-                            Geometry(), Geometry(-0, 102, 102, 102),
+        assertApplyGeometry("negative X pos (50)",
+                            Geometry(), Geometry(50, 0, 102, 102),
                             X_VALUE | Y_VALUE | WIDTH_VALUE
                             | HEIGHT_VALUE | X_NEGATIVE,
                             Geometry(0, 0, 1024, 768),
                             // expected
-                            Geometry(922, 102, 102, 102));
+                            Geometry(1024 - 102 - 50, 0, 102, 102));
+
+        assertApplyGeometry("negative Y pos (100)",
+                            Geometry(), Geometry(0, 100, 102, 102),
+                            X_VALUE | Y_VALUE | WIDTH_VALUE
+                            | HEIGHT_VALUE | Y_NEGATIVE,
+                            Geometry(0, 0, 1024, 768),
+                            // expected
+                            Geometry(0, 768 - 102 - 100, 102, 102));
 
         assertApplyGeometry("percent size",
                             Geometry(10, 10, 100, 100), Geometry(0, 0, 50, 50),
