@@ -39,6 +39,56 @@ namespace String {
     size_t safe_position(size_t pos, size_t fallback, size_t add) {
         return pos == std::wstring::npos ? fallback : (pos + add);
     }
+
+    /**
+     * Split string into tokens similar to how a shell interprets
+     * escape and quote characets.
+     */
+    std::vector<std::string>
+    shell_split(const std::string& str)
+    {
+        bool in_tok = false;
+        bool in_escape = false;
+        char in_quote = 0;
+        std::vector<std::string> toks;
+
+        std::string tok;
+        for (auto c : str) {
+            if (! in_tok && ! isspace(c)) {
+                in_tok = true;
+            }
+
+            if (in_tok) {
+                if (in_escape) {
+                    tok.push_back(c);
+                    in_escape = false;
+                } else if (c == in_quote) {
+                    in_quote = 0;
+                    toks.push_back(tok);
+                    tok.clear();
+                    in_tok = false;
+                } else if (c == '\\') {
+                    in_escape = true;
+                } else if (in_quote) {
+                    tok.push_back(c);
+                } else if (c == '"' || c == '\'') {
+                    in_quote = c;
+                } else if (isspace(c)) {
+                    toks.push_back(tok);
+                    tok.clear();
+                    in_tok = false;
+                } else {
+                    tok.push_back(c);
+                }
+            }
+        }
+
+        if (in_tok && tok.size()) {
+            toks.push_back(tok);
+        }
+
+        return toks;
+    }
 }
 
 namespace Util {
@@ -131,8 +181,8 @@ forkExec(const std::vector<std::string>& args)
         argv[i] = nullptr;
 
         setsid();
-        execv(argv[0], argv);
-        forkExecLog(__PRETTY_FUNCTION__, __LINE__, "execv failed", args);
+        execvp(argv[0], argv);
+        forkExecLog(__PRETTY_FUNCTION__, __LINE__, "execvp failed", args);
         exit(1);
     }
     case -1:

@@ -147,7 +147,12 @@ Config::Config(void) :
     _action_map["Detach"] = action_pair(ACTION_DETACH, FRAME_MASK);
     _action_map["SendToWorkspace"] = action_pair(ACTION_SEND_TO_WORKSPACE, ANY_MASK);
     _action_map["GoToWorkspace"] = action_pair(ACTION_GOTO_WORKSPACE, ANY_MASK );
-    _action_map["Exec"] = action_pair(ACTION_EXEC, FRAME_MASK|ROOTMENU_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
+    _action_map["Exec"] =
+        action_pair(ACTION_EXEC,
+                    FRAME_MASK|ROOTMENU_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
+    _action_map["ShellExec"] =
+        action_pair(ACTION_SHELL_EXEC,
+                    FRAME_MASK|ROOTMENU_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
     _action_map["Reload"] = action_pair(ACTION_RELOAD, KEYGRABBER_OK|ROOTMENU_OK);
     _action_map["Restart"] = action_pair(ACTION_RESTART, KEYGRABBER_OK|ROOTMENU_OK);
     _action_map["RestartOther"] = action_pair(ACTION_RESTART_OTHER, KEYGRABBER_OK|ROOTMENU_OK);
@@ -1021,6 +1026,7 @@ Config::parseAction(const std::string &action_string, Action &action, uint mask)
             if (tok.size() == 2) { // we got enough tok for a parameter
                 switch (action.getAction()) {
                 case ACTION_EXEC:
+                case ACTION_SHELL_EXEC:
                 case ACTION_RESTART_OTHER:
                 case ACTION_FIND_CLIENT:
                 case ACTION_SHOW_CMD_DIALOG:

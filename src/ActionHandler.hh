@@ -43,7 +43,7 @@ private:
     void handleStateAction(const Action &action, PWinObj *wo,
                            Client *client, Frame *frame);
 
-    void actionExec(Client *client, const std::string &command);
+    void actionExec(Client *client, const std::string &command, bool use_shell);
     void actionFindClient(const std::wstring &title);
     void actionGotoClientID(uint id);
     void actionGotoWorkspace(uint workspace, bool warp);

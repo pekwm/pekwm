@@ -4,7 +4,7 @@
 INCLUDE = "vars"
 
 RootMenu = "Pekwm" {
-	Entry = "Terminal" { Actions = "Exec $TERM &" }
+	Entry = "Terminal" { Actions = "Exec $TERM" }
 	Entry = "Run.." { Actions = "ShowCmdDialog" }
 
 	Separator {}

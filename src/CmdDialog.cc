@@ -70,11 +70,12 @@ CmdDialog::exec(void)
         saveHistory(pekwm::config()->getCmdDialogHistoryFile());
         _exec_count = 0;
     }
-    
+
     // Check if it's a valid Action, if not we assume it's a command and try
     // to execute it.
     auto buf_mb(Util::to_mb_str(_buf));
-    if (! pekwm::config()->parseAction(buf_mb, _ae.action_list.back(), KEYGRABBER_OK)) {
+    if (! pekwm::config()->parseAction(buf_mb, _ae.action_list.back(),
+                                       KEYGRABBER_OK)) {
         _ae.action_list.back().setAction(ACTION_EXEC);
         _ae.action_list.back().setParamS(buf_mb);
     }

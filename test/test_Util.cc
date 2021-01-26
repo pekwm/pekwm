@@ -11,6 +11,34 @@
 #include "test.hh"
 #include "Util.hh"
 
+class TestString : public TestSuite {
+public:
+    TestString()
+        : TestSuite("String")
+    {
+        register_test("shell_split", TestString::testShellSplit);
+    }
+
+    static void testShellSplit(void) {
+        assertShellSplit("basic", "one two three", {"one", "two", "three"});
+        assertShellSplit("skip space", "1   2\t\t\t3 \t", {"1", "2", "3"});
+        assertShellSplit("single quote", "'o n e' '' three",
+                         {"o n e", "", "three"});
+        assertShellSplit("double quote", "one \"t w o '' \" three",
+                         {"one", "t w o '' ", "three"});
+    }
+
+    static void assertShellSplit(std::string msg, std::string str,
+                                  std::vector<std::string> expected) {
+        auto res = String::shell_split(str);
+        ASSERT_EQUAL(msg + " size", expected.size(), res.size());
+        for (uint i = 0; i < expected.size(); i++) {
+            ASSERT_EQUAL(msg + " res[" + std::to_string(i) + "]",
+                         expected[i], res[i]);
+        }
+    }
+};
+
 class TestUtil : public TestSuite {
 public:
     TestUtil()
@@ -47,6 +75,7 @@ public:
 int
 main(int argc, char *argv[])
 {
+    TestString testString;
     TestUtil testUtil;
     TestSuite::main(argc, argv);
 }

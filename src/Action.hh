@@ -1,6 +1,6 @@
 //
 // Action.hh for pekwm
-// Copyright (C) 2003-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2021 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -77,8 +77,12 @@ enum ActionType {
 
     ACTION_GOTO_CLIENT_ID, ACTION_FIND_CLIENT,
 
-    ACTION_EXEC, ACTION_RELOAD, ACTION_RESTART,
-    ACTION_RESTART_OTHER, ACTION_EXIT,
+    ACTION_EXEC,
+    ACTION_SHELL_EXEC,
+    ACTION_RELOAD,
+    ACTION_RESTART,
+    ACTION_RESTART_OTHER,
+    ACTION_EXIT,
 
     ACTION_MENU_NEXT, ACTION_MENU_PREV, ACTION_MENU_GOTO, ACTION_MENU_SELECT,
     ACTION_MENU_ENTER_SUBMENU, ACTION_MENU_LEAVE_SUBMENU,

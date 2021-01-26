@@ -46,6 +46,11 @@ of the CmdDialog.
 action allows for enabling and disabling of logging to file and
 standard output.
 
+**Exec** no longer use ``sh -c`` to run commands which will cause
+incompatabilites depending on _/bin/sh_ configuration, if shell
+variables have been used or the command ends with &. **ShellExec** has
+been added implementing the legacy behaviour.
+
 **SetGeometry** now support specifying size and position in % of the
 screen or active head.
 

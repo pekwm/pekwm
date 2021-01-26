@@ -31,6 +31,7 @@ extern "C" {
  */
 namespace String {
     size_t safe_position(size_t pos, size_t fallback = 0, size_t add = 0);
+    std::vector<std::string> shell_split(const std::string& str);
 }
 
 //! @brief Namespace Util used for various small file/string tasks.

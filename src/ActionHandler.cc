@@ -319,7 +319,10 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 actionGotoClientID(it->getParamI(0));
                 break;
             case ACTION_EXEC:
-                actionExec(client, it->getParamS());
+                actionExec(client, it->getParamS(), false);
+                break;
+            case ACTION_SHELL_EXEC:
+                actionExec(client, it->getParamS(), true);
                 break;
             case ACTION_SHOW_MENU:
                 actionShowMenu(it->getParamS(), it->getParamI(0),
@@ -528,11 +531,19 @@ ActionHandler::findMouseAction(uint button, uint state, MouseEventType type,
  * Execute action, setting client environment before (if any).
  */
 void
-ActionHandler::actionExec(Client *client, const std::string &command)
+ActionHandler::actionExec(Client *client, const std::string &command,
+                          bool use_shell)
 {
-    if (command.size()) {
-        Client::setClientEnvironment(client);
+    if (! command.size()) {
+        USER_WARN("empty Exec/ShellExec command");
+    }
+
+    Client::setClientEnvironment(client);
+    if (use_shell) {
         Util::forkExec(command);
+    } else {
+        auto args = String::shell_split(command);
+        Util::forkExec(args);
     }
 }
 
