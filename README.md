@@ -38,8 +38,13 @@ make
 make install
 ```
 
-Manual
-======
+Getting Started
+===============
 
 See the [Manual](doc/README.md) for more information on how to use and
 configure pekwm.
+
+For themes, go to the [pekwm themes](https://pekdon.github.io/pekwm-themes)
+site that is based on data from the
+[pekwm-theme-index](https://github.com/pekdon/pekwm-theme-index) where you
+can register your own themes for inclusion.
