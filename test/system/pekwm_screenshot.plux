@@ -1,0 +1,45 @@
+[doc]
+Run pekwm_screenshot tests using Xvfb
+
+Start a single Xvfb pekwm_screenshot system tests in one go.
+[enddoc]
+
+[global BIN_DIR=../../build/src]
+[global TEST_DIR=../../build/test/system]
+[global DISPLAY=:1]
+
+[shell Xvfb]
+    ?SH-PROMPT:
+    [log starting Xvfb]
+    -Fatal server error
+    !Xvfb -displayfd 1 $DISPLAY
+    ?1
+
+[shell pekwm_screenshot]
+    ?SH-PROMPT:
+    !export DISPLAY=$DISPLAY
+    ?SH-PROMPT:
+
+    [log test pekwm_screenshot (help)]
+    !$BIN_DIR/pekwm_screenshot -h
+    ?usage
+    ?SH-PROMPT:
+
+    [log test pekwm_screenshot (generated name)]
+    !$BIN_DIR/pekwm_screenshot
+    ?screenshot written to (pekwm_screenshot-.*\.png)
+    [local screenshot=$1]
+    ?SH-PROMPT:
+    !rm -f $screenshot
+    ?SH-PROMPT:
+
+    [log test pekwm_screenshot (specified name)]
+    !$BIN_DIR/pekwm_screenshot screenshot.png
+    ?screenshot written to screenshot.png
+    ?SH-PROMPT:
+    !rm -f screenshot.png
+    ?SH-PROMPT:
+
+[shell Xvfb]
+    !$_CTRL_C_
+    ?SH-PROMPT:

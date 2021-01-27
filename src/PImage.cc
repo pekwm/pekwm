@@ -85,7 +85,6 @@ std::vector<PImageLoader*> PImage::_loaders;
 /**
  * PImage constructor, loads image if one is specified.
  *
- * @param dpy Display image is valid on.
  * @param path Path to image file, if specified this is loaded.
  */
 PImage::PImage(const std::string &path)
@@ -100,6 +99,29 @@ PImage::PImage(const std::string &path)
     if (path.size()) {
         if (! load(path)) {
             throw LoadException(path.c_str());
+        }
+    }
+}
+
+/**
+ * Create PImage from XImage.
+ */
+PImage::PImage(XImage *image)
+    : _type(IMAGE_TYPE_FIXED),
+      _pixmap(None),
+      _mask(None),
+      _width(image->width),
+      _height(image->height),
+      _data(new uchar[image->width * image->height * 4]),
+      _use_alpha(false)
+{
+    uint dst = 0;
+    for (uint y = 0; y < _height; ++y) {
+        for (uint x = 0; x < _width; ++x) {
+            _data[dst] = 0; // A
+            getRgbFromPixel(image, XGetPixel(image, x, y),
+                            _data[dst + 1], _data[dst + 2], _data[dst + 3]);
+            dst += 4;
         }
     }
 }

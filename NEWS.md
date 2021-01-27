@@ -35,6 +35,9 @@ Example in _config_:
     ThemeBackground = "False"
 ```
 
+**pekwm_screenshot** created, simple screenshot taking application
+that outputs a PNG image.
+
 Updated
 -------
 

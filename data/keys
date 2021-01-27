@@ -229,7 +229,7 @@ Global {
 	Chain = "Ctrl Mod1 E" {
 		KeyPress = "E" { Actions = "Exec $TERM" }
 		KeyPress = "L" { Actions = "Exec xlock -mode blank" }
-		KeyPress = "S" { Actions = "Exec scrot" }
+		KeyPress = "S" { Actions = "Exec pekwm_screenshot" }
 		KeyPress = "C" { Actions = "ShowCmdDialog" }
 	}
 	# Wm actions

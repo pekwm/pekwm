@@ -119,3 +119,11 @@ target_include_directories(pekwm_bg PUBLIC ${common_INCLUDE_DIRS})
 target_link_libraries(pekwm_bg texture util ${common_LIBRARIES})
 
 install(TARGETS pekwm_bg DESTINATION bin)
+
+add_executable(pekwm_screenshot
+  pekwm_screenshot.cc
+  x11.cc)
+target_include_directories(pekwm_screenshot PUBLIC ${common_INCLUDE_DIRS})
+target_link_libraries(pekwm_screenshot texture util ${common_LIBRARIES})
+
+install(TARGETS pekwm_screenshot DESTINATION bin)

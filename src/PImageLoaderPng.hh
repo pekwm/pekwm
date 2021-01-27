@@ -28,6 +28,8 @@ public:
 
     virtual uchar* load(const std::string &file, uint &width, uint &height,
                         bool &use_alpha) override;
+    bool save(const std::string &file,
+              uchar *data, uint width, uint height);
 
 private:
     bool checkSignature(std::FILE *fp);

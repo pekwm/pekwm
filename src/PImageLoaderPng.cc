@@ -57,6 +57,22 @@ convertRgbToArgb(uchar* data_rgb, uint width, uint height)
     return data_argb;
 }
 
+uchar*
+convertArgbToRgb(uchar* data_argb, uint width, uint height)
+{
+    auto data_rgb = new uchar[width * height * 4];
+    int src = 0, dst = 0;
+    for (uint y = 0; y < height; ++y) {
+        for (uint x = 0; x < width; ++x) {
+            src++; // A
+            data_rgb[dst++] = data_argb[src++]; // R
+            data_rgb[dst++] = data_argb[src++]; // G
+            data_rgb[dst++] = data_argb[src++]; // B
+        }
+    }
+    return data_rgb;
+}
+
 PImageLoaderPng::PImageLoaderPng(void)
         : PImageLoader("PNG")
 {
@@ -126,8 +142,7 @@ PImageLoaderPng::load(const std::string &file, uint &width, uint &height,
     width = png_width;
     height = png_height;
 
-    // Setup read information, we want to make sure data get read in
-    // 16 bit RGB(A)
+    // Setup read information, read 24/32bit RGB/A
 
     // palette -> RGB mode
     if (color_type == PNG_COLOR_TYPE_PALETTE) {
@@ -187,6 +202,62 @@ PImageLoaderPng::load(const std::string &file, uint &width, uint &height,
     }
 
     return data;
+}
+
+bool
+PImageLoaderPng::save(const std::string& file,
+                      uchar *data, uint width, uint height)
+{
+    auto png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
+    if (! png_ptr) {
+        ERR("out of memory, png_create_write_struct failed");
+        return false;
+    }
+
+    auto info_ptr = png_create_info_struct(png_ptr);
+    if (! info_ptr) {
+        ERR("out of memory, png_create_info_struct failed");
+        png_destroy_write_struct(&png_ptr, 0);
+        return false;
+    }
+
+    // Setup png lib error handling
+    if (setjmp(png_jmpbuf(png_ptr))) {
+        png_destroy_write_struct(&png_ptr, &info_ptr);
+        return false;
+    }
+
+    auto fp = fopen(file.c_str(), "wb");
+    if (!fp) {
+        USER_WARN("failed to open " << file << " for writing");
+        png_destroy_write_struct(&png_ptr, &info_ptr);
+        return false;
+    }
+
+    png_init_io(png_ptr, fp);
+
+    // Setup write information, write 24bit RGB
+    png_set_IHDR(png_ptr, info_ptr, width, height, 8,
+                 PNG_COLOR_TYPE_RGB,
+                 PNG_INTERLACE_NONE,
+                 PNG_COMPRESSION_TYPE_DEFAULT,
+                 PNG_FILTER_TYPE_DEFAULT);
+
+    auto rgb_data = convertArgbToRgb(data, width, height);
+    png_write_info(png_ptr, info_ptr);
+    png_bytep row = rgb_data;
+    for (uint y = 0; y < height; y++) {
+        png_write_row(png_ptr, row);
+        row += width * 3;
+    }
+    png_write_end(png_ptr, NULL);
+
+    delete [] rgb_data;
+
+    png_destroy_write_struct(&png_ptr, &info_ptr);
+    fclose(fp);
+
+    return true;
 }
 
 /**

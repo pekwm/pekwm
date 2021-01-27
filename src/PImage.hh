@@ -20,6 +20,7 @@ class PImage {
 public:
     //! @brief PImage constructor.
     PImage(const std::string &path="");
+    PImage(XImage *image);
     //! @brief PImage destructor.
     virtual ~PImage(void);
 
@@ -40,6 +41,7 @@ public:
     //! @brief Sets type of image.
     inline void setType(ImageType type) { _type = type; }
 
+    inline uchar* getData(void) { return _data; }
     //! @brief Returns width of image.
     inline uint getWidth(void) const { return _width; }
     //! @brief Returns height of image.
