@@ -7,8 +7,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _PEKWM_DEBUG_HH_
-#define _PEKWM_DEBUG_HH_
+#pragma once
 
 #include "config.h"
 
@@ -98,5 +97,3 @@ public:
     do { \
         if (C) { DebugErrObj dobj; dobj << PEK_DEBUG_START << M; } \
     } while (0)
-
-#endif // _PEKWM_DEBUG_HH_

@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _OBSERVER_HH_
-#define _OBSERVER_HH_
+#pragma once
 
 #include "config.h"
 
@@ -19,7 +18,5 @@ public:
     Observer(void) { }
     virtual ~Observer(void) { }
 
-    virtual void notify(Observable *observable, Observation *observation) { }
+    virtual void notify(Observable *observable, Observation *observation) = 0;
 };
-
-#endif // _OBSERVER_HH_

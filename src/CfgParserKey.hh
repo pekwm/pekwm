@@ -5,8 +5,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _CFG_PARSER_KEY_HH_
-#define _CFG_PARSER_KEY_HH_
+#pragma once
 
 #include <string>
 #include <limits>
@@ -164,5 +163,3 @@ private:
     std::string &_set; //!< Reference to store parsed value in.
     std::string _default; //!< Default value.
 };
-
-#endif // _CFG_PARSER_KEY_HH_

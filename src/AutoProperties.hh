@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _AUTOPROPERTIES_HH_
-#define _AUTOPROPERTIES_HH_
+#pragma once
 
 #include "config.h"
 
@@ -62,8 +61,15 @@ class ClassHint {
 public:
     ClassHint(void) { }
     ClassHint(const std::wstring &n_h_name, const std::wstring &n_h_class,
-              const std::wstring &n_h_role, const std::wstring &n_title, const std::wstring &n_group)
-        : h_name(n_h_name), h_class(n_h_class), h_role(n_h_role), title(n_title), group(n_group) { }
+              const std::wstring &n_h_role, const std::wstring &n_title,
+              const std::wstring &n_group)
+        : h_name(n_h_name),
+          h_class(n_h_class),
+          h_role(n_h_role),
+          title(n_title),
+          group(n_group)
+    {
+    }
     ~ClassHint(void) { }
 
     inline ClassHint& operator = (const ClassHint& rhs) {
@@ -274,5 +280,3 @@ namespace pekwm
 {
     AutoProperties* autoProperties();
 }
-
-#endif // _AUTOPROPS_HH_

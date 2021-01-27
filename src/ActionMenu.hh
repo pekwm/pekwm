@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _ACTIONMENU_HH_
-#define _ACTIONMENU_HH_
+#pragma once
 
 #include "config.h"
 
@@ -62,5 +61,3 @@ private:
     /** Set to true if any of the entries in the menu is dynamic. */
     bool _has_dynamic;
 };
-
-#endif // _ACTIONMENU_HH_

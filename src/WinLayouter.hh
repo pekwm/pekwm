@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _WIN_LAYOUTER_HH_
-#define _WIN_LAYOUTER_HH_
+#pragma once
 
 #include <string>
 #include <vector>
@@ -33,5 +32,3 @@ private:
 };
 
 WinLayouter *WinLayouterFactory(std::string name);
-
-#endif // _WIN_LAYOUTER_HH_

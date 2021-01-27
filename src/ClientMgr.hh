@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _CLIENT_MGR_HH_
-#define _CLIENT_MGR_HH_
+#pragma once
 
 #include "Action.hh"
 
@@ -36,5 +35,3 @@ private:
     /** Global control used to disable grouping. */
     static bool _allow_grouping;
 };
-
-#endif // _CLIENT_MGR_HH_

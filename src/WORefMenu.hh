@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _WOREFMENU_HH_
-#define _WOREFMENU_HH_
+#pragma once
 
 #include "config.h"
 
@@ -34,5 +33,3 @@ protected:
     std::wstring _title_pre;
     std::wstring _title_post;
 };
-
-#endif // _WOREFMENU_HH_

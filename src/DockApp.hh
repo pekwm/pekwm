@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _DOCKAPP_HH_
-#define _DOCKAPP_HH_
+#pragma once
 
 #include "config.h"
 
@@ -40,7 +39,8 @@ public:
 
     //! @brief Matches win against DockApp client window(s).
     inline bool findDockApp(Window win) {
-        if ((win != None) && ((win == _client_window) || (win == _icon_window))) {
+        if ((win != None)
+            && ((win == _client_window) || (win == _icon_window))) {
             return true;
         }
         return false;
@@ -78,5 +78,3 @@ private:
 
     bool _is_alive;
 };
-
-#endif // _DOCKAPP_HH_

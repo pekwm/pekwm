@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _WORKSPACE_INDICATOR_HH_
-#define _WORKSPACE_INDICATOR_HH_
+#pragma once
 
 #include "config.h"
 
@@ -50,8 +49,7 @@ public:
     void updateHideTimer(uint timeout);
 
 private:
-    Display _display_wo; //!< Display winobj handling rendering of workspace status
+    /** Display winobj handling rendering of workspace status */
+    Display _display_wo;
     PDecor::TitleItem _title; //!< Title item added to the decor
 };
-
-#endif // _WORKSPACE_INDICATOR_HH_

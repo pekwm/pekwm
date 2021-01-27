@@ -5,8 +5,8 @@
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
-#ifndef _MENUHANDLER_HH_
-#define _MENUHANDLER_HH_
+
+#pragma once
 
 #include "config.h"
 
@@ -49,12 +49,13 @@ public:
     static void deleteMenus(void);
 
 private:
-    static bool loadMenuConfig(const std::string &menu_file, CfgParser &menu_cfg);
+    static bool loadMenuConfig(const std::string &menu_file,
+                               CfgParser &menu_cfg);
     static void createMenusLoadConfiguration(ActionHandler *act);
-    static void reloadStandaloneMenus(ActionHandler *act, CfgParser::Entry *section);
+    static void reloadStandaloneMenus(ActionHandler *act,
+                                      CfgParser::Entry *section);
 
     static TimeFiles _cfg_files;
-    static std::map<std::string, PMenu*> _menu_map; /**< Map from menu name to menu */
+    /** Map from menu name to menu */
+    static std::map<std::string, PMenu*> _menu_map;
 };
-
-#endif // _MENUHANDLER_HH_

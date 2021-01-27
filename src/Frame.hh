@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _FRAME_HH_
-#define _FRAME_HH_
+#pragma once
 
 #include "config.h"
 
@@ -46,7 +45,7 @@ public:
 
 #ifdef HAVE_SHAPE
     virtual void handleShapeEvent(XShapeEvent *ev);
-#endif
+#endif // HAVE_SHAPE
 
     // START - PDecor interface.
     virtual bool allowMove(void) const;
@@ -111,8 +110,10 @@ public:
 
     inline const ClassHint* getClassHint(void) const { return _class_hint; }
 
-    void setGeometry(const std::string geometry, int head=-1, bool honour_strut=false);
-    void setGeometry(const Geometry &geometry, int gm_mask, const Geometry &head);
+    void setGeometry(const std::string geometry, int head=-1,
+                     bool honour_strut=false);
+    void setGeometry(const Geometry &geometry, int gm_mask,
+                     const Geometry &head);
 
     void growDirection(uint direction);
     void moveToHead(int head_nr);
@@ -131,7 +132,8 @@ public:
     void setStateIconified(StateAction sa);
     void setStateTagged(StateAction sa, bool behind);
     void setStateSkip(StateAction sa, uint skip);
-    void setStateTitle(StateAction sa, Client *client, const std::wstring &title);
+    void setStateTitle(StateAction sa, Client *client,
+                       const std::wstring &title);
     void setStateMarked(StateAction sa, Client *client);
     void setStateOpaque(StateAction sa);
 
@@ -168,19 +170,22 @@ protected:
     // END - PDecor interface
 
     static void applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask);
-    static void applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask, const Geometry &screen_gm);
+    static void applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask,
+                              const Geometry &screen_gm);
 
 private:
     void handleClientStateMessage(XClientMessageEvent *ev, Client *client);
     static StateAction getStateActionFromMessage(XClientMessageEvent *ev);
     void handleStateAtom(StateAction sa, Atom atom, Client *client);
-    void handleCurrentClientStateAtom(StateAction sa, Atom atom, Client *client);
+    void handleCurrentClientStateAtom(StateAction sa, Atom atom,
+                                      Client *client);
     bool isRequestGeometryFullscreen(XConfigureRequestEvent *ev);
 
     void recalcResizeDrag(int nx, int ny, bool left, bool top);
     void getMaxBounds(int &max_x,int &max_r, int &max_y, int &max_b);
     void calcSizeInCells(uint &width, uint &height);
-    void setGravityPosition(int gravity, int &x, int &y, int diff_w, int diff_h);
+    void setGravityPosition(int gravity, int &x, int &y,
+                            int diff_w, int diff_h);
     void downSize(Geometry &gm, bool keep_x, bool keep_y);
 
     void handleTitleChange(Client *client);
@@ -219,5 +224,3 @@ private:
     static const int NET_WM_STATE_ADD = 1; // add/set property
     static const int NET_WM_STATE_TOGGLE = 2; // toggle property
 };
-
-#endif // _FRAME_HH_

@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _FRAMELISTMENU_HH_
-#define _FRAMELISTMENU_HH_
+#pragma once
 
 #include "config.h"
 
@@ -48,6 +47,3 @@ private:
     void handleIconmenu(Client *client);
     void handleAttach(Client *client_to, Client *client_from, bool frame);
 };
-
-#endif //  _FRAMELISTMENU_HH_
-

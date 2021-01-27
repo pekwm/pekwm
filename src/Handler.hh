@@ -6,10 +6,11 @@
 // See the LICENSE file for more information.
 //
 
+#pragma once
+
 #include "config.h"
 
-#ifndef _HANDLER_HH_
-#define _HANDLER_HH_
+#include "Types.hh"
 
 #include <string>
 #include <cstring>
@@ -40,5 +41,3 @@ private:
 
     T _data;
 };
-
-#endif // _HANDLER_HH_

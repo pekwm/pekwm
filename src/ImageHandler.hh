@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _IMAGE_HANDLER_HH_
-#define _IMAGE_HANDLER_HH_
+#pragma once
 
 #include "config.h"
 
@@ -60,5 +59,3 @@ namespace pekwm
 {
     ImageHandler* imageHandler();
 }
-
-#endif // _IMAGE_HANDLER_HH_

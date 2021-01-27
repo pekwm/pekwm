@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _PIMAGE_LOADER_HH_
-#define _PIMAGE_LOADER_HH_
+#pragma once
 
 #include "config.h"
 
@@ -40,5 +39,3 @@ public:
 private:
     const char *_ext;
 };
-
-#endif // _PIMAGE_LOADER_HH_

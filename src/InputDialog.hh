@@ -1,13 +1,12 @@
 //
-// CmdDialog.hh for pekwm
+// InputDialog.hh for pekwm
 // Copyright (C) 2009-2020 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#ifndef _INPUT_DIALOG_HH_
-#define _INPUT_DIALOG_HH_
+#pragma once
 
 #include "config.h"
 
@@ -46,7 +45,8 @@ public:
 
     static void reloadKeysymMap(void);
 
-    virtual void mapCentered(const std::string &buf, const Geometry &gm, PWinObj *wo_ref=0);
+    virtual void mapCentered(const std::string &buf, const Geometry &gm,
+                             PWinObj *wo_ref=0);
     virtual void moveCentered(const Geometry &head, const Geometry &gm);
 
 protected:
@@ -70,7 +70,7 @@ protected:
     virtual void updateSize(const Geometry &head);
     virtual void updatePixmapSize(void);
 
-    void getInputSize(const Geometry &head, unsigned int &width, unsigned int &height);
+    void getInputSize(const Geometry &head, uint &width, uint &height);
 
     Theme::TextDialogData *_data;
 
@@ -101,5 +101,3 @@ private:
     static void addKeysymToKeysymMap(KeySym keysym, wchar_t chr);
     static std::map<KeySym, wchar_t> _keysym_map;
 };
-
-#endif // _INPUT_DIALOG_HH_

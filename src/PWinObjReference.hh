@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _PWIN_OBJ_REFERENCE_HH_
-#define _PWIN_OBJ_REFERENCE_HH_
+#pragma once
 
 #include "config.h"
 
@@ -31,5 +30,3 @@ public:
 private:
     PWinObj *_wo_ref; /**< Window object reference. */
 };
-
-#endif // _PWIN_OBJ_REFERENCE_HH_

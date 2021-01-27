@@ -10,8 +10,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _WINDOWMANAGER_HH_
-#define _WINDOWMANAGER_HH_
+#pragma once
 
 #include "config.h"
 
@@ -109,7 +108,8 @@ private:
     void handleLeaveNotify(XCrossingEvent *ev);
     void handleFocusInEvent(XFocusChangeEvent *ev);
 
-    void handleKeyEventAction(XKeyEvent *ev, ActionEvent *ae, PWinObj *wo, PWinObj *wo_orig);
+    void handleKeyEventAction(XKeyEvent *ev, ActionEvent *ae, PWinObj *wo,
+                              PWinObj *wo_orig);
 
     void readDesktopNamesHint(void);
 
@@ -126,5 +126,3 @@ private:
 
     EdgeWO *_screen_edges[4];
 };
-
-#endif // _WINDOWMANAGER_HH_

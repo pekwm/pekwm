@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _PIMAGE_HH_
-#define _PIMAGE_HH_
+#pragma once
 
 #include "config.h"
 
@@ -87,5 +86,3 @@ protected:
 private:
     static std::vector<PImageLoader*> _loaders; //!< List of loaders.
 };
-
-#endif // _PIMAGE_HH_

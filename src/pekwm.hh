@@ -10,8 +10,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _PEKWM_HH_
-#define _PEKWM_HH_
+#pragma once
 
 #include "config.h"
 
@@ -303,7 +302,10 @@ enum Raise {
     ALWAYS_RAISE, END_RAISE, NEVER_RAISE, TEMP_RAISE, NO_RAISE
 };
 enum Orientation {
-    TOP_TO_BOTTOM = 1, LEFT_TO_RIGHT = 1,	BOTTOM_TO_TOP = 2, RIGHT_TO_LEFT = 2,
+    TOP_TO_BOTTOM = 1,
+    LEFT_TO_RIGHT = 1,
+    BOTTOM_TO_TOP = 2,
+    RIGHT_TO_LEFT = 2,
     NO_ORIENTATION = 0
 };
 enum MouseEventType {
@@ -314,7 +316,8 @@ enum MouseEventType {
     MOUSE_EVENT_ENTER = (1<<5),
     MOUSE_EVENT_LEAVE = (1<<6),
     MOUSE_EVENT_ENTER_MOVING = (1<<7),
-    MOUSE_EVENT_MOTION_PRESSED = (1<<8), /**< Motion event with button pressed. */
+    /** Motion event with button pressed. */
+    MOUSE_EVENT_MOTION_PRESSED = (1<<8),
     MOUSE_EVENT_NO = 0
 };
 enum ButtonNum {
@@ -365,8 +368,10 @@ enum CfgDeny {
 
     CFG_DENY_ACTIVE_WINDOW = (1L << 3), //!< _NET_ACTIVE_WINDOW deny.
 
-    CFG_DENY_STATE_MAXIMIZED_VERT = (1L << 4), //!< EWMH state maximized vert deny.
-    CFG_DENY_STATE_MAXIMIZED_HORZ = (1L << 5), //!< EWMH state maximized horz deny.
+    /** EWMH state maximized vert deny. */
+    CFG_DENY_STATE_MAXIMIZED_VERT = (1L << 4),
+    /** EWMH state maximized horz deny. */
+    CFG_DENY_STATE_MAXIMIZED_HORZ = (1L << 5),
     CFG_DENY_STATE_HIDDEN = (1L << 6), //!< EWMH state hidden deny.
     CFG_DENY_STATE_FULLSCREEN = (1L << 7), //!< EWMH state fullscreen deny.
     CFG_DENY_STATE_ABOVE = (1L << 8), //! EWMH state above deny.
@@ -386,5 +391,3 @@ namespace pekwm
     bool isStartup(void);
     void setIsStartup(bool is_startup);
 }
-
-#endif // _PEKWM_HH_

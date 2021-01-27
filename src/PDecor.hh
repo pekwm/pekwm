@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _PDECOR_HH_
-#define _PDECOR_HH_
+#pragma once
 
 #include "config.h"
 
@@ -38,15 +37,17 @@ public:
     //! @brief Decor title button class.
     class Button : public PWinObj {
     public:
-         Button(PWinObj *parent, Theme::PDecorButtonData *data, uint width, uint height);
+         Button(PWinObj *parent, Theme::PDecorButtonData *data,
+                uint width, uint height);
         ~Button(void);
 
         ActionEvent *findAction(XButtonEvent *ev);
         ButtonState getState(void) const { return _state; }
         void setState(ButtonState state);
 
-        //! @brief Returns wheter the button is positioned relative the left title edge.
-        inline bool isLeft(void) const { return _left; }
+        /** Returns wheter the button is positioned relative the left
+            title edge. */
+        bool isLeft(void) const { return _left; }
 
     private:
         Theme::PDecorButtonData *_data;
@@ -71,7 +72,7 @@ public:
         inline const std::wstring &getReal(void) const { return _real; }
         inline const std::wstring &getCustom(void) const { return _custom; }
         inline const std::wstring &getUser(void) const { return _user; }
- 
+
         inline uint getCount(void) const { return _count; }
         inline uint getId(void) const { return _id; }
         inline bool isUserSet(void) const { return (_user.size() > 0); }
@@ -106,7 +107,7 @@ public:
 
     private:
         std::wstring _visible; //!< Visible version of title
-      
+
         std::wstring _real; //!< Title from client
         std::wstring _custom; //!< Custom (title rule) set version of title
         std::wstring _user; //!< User set version of title
@@ -279,15 +280,21 @@ public:
 
     bool demandAttention(void) const { return _attention; }
     void incrAttention(void) { ++_attention; }
-    void decrAttention(void) { if (_attention && ! --_attention) { updateDecor(); } }
+    void decrAttention(void) {
+        if (_attention && ! --_attention) {
+            updateDecor();
+        }
+    }
 
     // common actions like doMove
     void doMove(int x_root, int y_root);
     void doKeyboardMoveResize(void);
 
-    // Only moveResize if any of the arguments is different than the current geometry.
+    // Only moveResize if any of the arguments is different than the
+    // current geometry.
     void checkMoveResize(int x, int y, uint width, uint height) {
-        if (x != _gm.x || _gm.y != y || _gm.width != width || _gm.height != height) {
+        if (x != _gm.x || _gm.y != y
+            || _gm.width != width || _gm.height != height) {
             moveResize(x, y, width, height);
         }
     }
@@ -359,9 +366,11 @@ private:
     void setDataFromDecorName(const std::string &decor_name);
     void unloadDecor(void);
 
-    ActionEvent *handleButtonPressButton(XButtonEvent *ev, PDecor::Button *button);
+    ActionEvent *handleButtonPressButton(XButtonEvent *ev,
+                                         PDecor::Button *button);
     ActionEvent *handleButtonPressBorder(XButtonEvent *ev);
-    ActionEvent *handleButtonReleaseButton(XButtonEvent *ev, PDecor::Button *button);
+    ActionEvent *handleButtonReleaseButton(XButtonEvent *ev,
+                                           PDecor::Button *button);
     ActionEvent *handleButtonReleaseBorder(XButtonEvent *ev);
 
     EdgeType doMoveEdgeFind(int x, int y);
@@ -387,13 +396,15 @@ private:
 
 protected:
     std::string _decor_name; //!< Name of the active decoration
-    std::string _decor_name_saved; //!< Original decor name if it is temp. overridden
+    /** Original decor name if it is temp. overridden */
+    std::string _decor_name_saved;
 
     PWinObj *_child; //!< Pointer to active child in PDecor.
     std::vector<PWinObj*> _children; //!< List of children in PDecor.
 
     PDecor::Button *_button; /**< Active title button in PDecor. */
-    Window _button_press_win; /**< Active border window, for button release handling. */
+    /** Active border window, for button release handling. */
+    Window _button_press_win;
 
     // used for treshold calculation
     int _pointer_x; //!< Last click x root position.
@@ -401,18 +412,24 @@ protected:
     int _click_x; //!< Last click x window position.
     int _click_y; //!< Last click y window position.
 
-    // how the decor should behave
-    bool _decor_cfg_child_move_overloaded; //!< Boolean to set wheter ::move is overloaded.
+    /** Boolean to set wheter ::move is overloaded. */
+    bool _decor_cfg_child_move_overloaded;
 
-    // button{press,release} handling cfg
-    bool _decor_cfg_bpr_replay_pointer; //!< Boolean to configure wheter to call XReplayPointer on clicks.
-    MouseActionListName _decor_cfg_bpr_al_child; //!< What list to search for child actions.
-    MouseActionListName _decor_cfg_bpr_al_title; //!< What list to search for title actions.
+    /** Boolean to configure wheter to call XReplayPointer on clicks. */
+    bool _decor_cfg_bpr_replay_pointer;
+    /** What list to search for child actions. */
+    MouseActionListName _decor_cfg_bpr_al_child;
+    /** What list to search for title actions. */
+    MouseActionListName _decor_cfg_bpr_al_title;
 
-    static const std::string DEFAULT_DECOR_NAME; //!< Default decor name in normal state.
-    static const std::string DEFAULT_DECOR_NAME_BORDERLESS; //!< Default decor name in borderless state.
-    static const std::string DEFAULT_DECOR_NAME_TITLEBARLESS; //!< Default decor name in titlebarless state.
-    static const std::string DEFAULT_DECOR_NAME_ATTENTION; //!< Default decor name for demands attention state.
+    /** Default decor name in normal state. */
+    static const std::string DEFAULT_DECOR_NAME;
+    /** Default decor name in borderless state. */
+    static const std::string DEFAULT_DECOR_NAME_BORDERLESS;
+    /** Default decor name in titlebarless state. */
+    static const std::string DEFAULT_DECOR_NAME_TITLEBARLESS;
+    /** Default decor name for demands attention state. */
+    static const std::string DEFAULT_DECOR_NAME_ATTENTION;
 
     // state switches, commonly not used by all decors
     bool _maximized_vert;
@@ -441,5 +458,3 @@ private:
 
     static std::vector<PDecor*> _pdecors; /**< List of all PDecors */
 };
-
-#endif // _PDECOR_HH_

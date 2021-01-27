@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _CMD_DIALOG_HH_
-#define _CMD_DIALOG_HH_
+#pragma once
 
 #include "config.h"
 
@@ -30,7 +29,8 @@ public:
     // END - PWinObj interface
     void unmapWindow(void);
 
-    virtual void mapCentered(const std::string &buf, const Geometry &geom, PWinObj *wo_ref);
+    virtual void mapCentered(const std::string &buf, const Geometry &geom,
+                             PWinObj *wo_ref);
 
 private:
     void render(void);
@@ -40,10 +40,10 @@ private:
 
 private:
     Completer _completer; /**< Completer used completing actions. */
-    complete_list _complete_list; /**< List of completions found by completer. */
+    /** List of completions found by completer. */
+    complete_list _complete_list;
     complete_it _complete_it; /**< Iterator used to step between completions. */
 
-    int _exec_count; /**< Number of CmdDialog has run exec since last history save. */ 
+    /** Number of CmdDialog has run exec since last history save. */
+    int _exec_count;
 };
-
-#endif // _CMD_DIALOG_HH_

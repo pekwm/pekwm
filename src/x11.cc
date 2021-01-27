@@ -887,7 +887,8 @@ X11::parseGeometry(const std::string& str, Geometry& gm)
     } else {
         // position
         std::string::size_type y_start = str.find_first_of("+-", s_end + 1);
-        if ((ret = parseGeometryVal(cstr + s_end + 1, cstr + y_start, gm.x)) > 0) {
+        if ((ret = parseGeometryVal(cstr + s_end + 1,
+                                    cstr + y_start, gm.x)) > 0) {
             mask |= X_VALUE;
             if (str[s_end] == '-') {
                 mask |= X_NEGATIVE;
@@ -896,7 +897,8 @@ X11::parseGeometry(const std::string& str, Geometry& gm)
                 mask |= X_PERCENT;
             }
         }
-        if ((ret = parseGeometryVal(cstr + y_start + 1, cstr + str.size(), gm.y)) > 0) {
+        if ((ret = parseGeometryVal(cstr + y_start + 1,
+                                    cstr + str.size(), gm.y)) > 0) {
             mask |= Y_VALUE;
             if (str[y_start] == '-') {
                 mask |= Y_NEGATIVE;
@@ -919,7 +921,8 @@ X11::parseGeometry(const std::string& str, Geometry& gm)
                 mask |= WIDTH_PERCENT;
             }
         }
-        if ((ret = parseGeometryVal(cstr + h_start + 1, cstr + s_end, height)) > 0
+        if ((ret = parseGeometryVal(cstr + h_start + 1,
+                                    cstr + s_end, height)) > 0
             && height > 0) {
             gm.height = height;
             mask |= HEIGHT_VALUE;

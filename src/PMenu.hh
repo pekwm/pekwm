@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _PMENU_HH_
-#define _PMENU_HH_
+#pragma once
 
 #include "config.h"
 
@@ -89,8 +88,10 @@ public:
         return (it != _menu_map.end()) ? it->second : 0;
     }
 
-    inline const std::string &getName(void) { return _name; }
-    inline PMenu::Item *getItemCurr(void) { return _item_curr<_items.size()?_items[_item_curr]:0; }
+    const std::string &getName(void) { return _name; }
+    PMenu::Item *getItemCurr(void) {
+        return _item_curr < _items.size() ? _items[_item_curr] : nullptr;
+    }
     void selectNextItem(void);
     void selectPrevItem(void);
 
@@ -99,7 +100,8 @@ public:
     void setMenuWidth(uint width) { _menu_width = width; }
 
     virtual void insert(PMenu::Item *item);
-    virtual void insert(const std::wstring &name, PWinObj *wo_ref = 0, PTexture *icon = 0);
+    virtual void insert(const std::wstring &name, PWinObj *wo_ref = 0,
+                        PTexture *icon = 0);
     virtual void insert(const std::wstring &name, const ActionEvent &ae,
                         PWinObj *wo_ref = 0, PTexture *icon = 0);
     virtual void remove(PMenu::Item *item);
@@ -186,5 +188,3 @@ private:
     bool _scroll;
     bool _has_submenu;
 };
-
-#endif // _PMENU_HH_

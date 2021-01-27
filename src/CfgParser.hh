@@ -19,8 +19,7 @@
 // }
 //
 
-#ifndef _CFG_PARSER_HH_
-#define _CFG_PARSER_HH_
+#pragma once
 
 #include "config.h"
 
@@ -192,5 +191,3 @@ private:
 
     static const std::string _root_source_name; //!< Root Entry Source Name.
 };
-
-#endif // _CFG_PARSER_HH_

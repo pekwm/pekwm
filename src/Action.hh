@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _ACTION_HH_
-#define _ACTION_HH_
+#pragma once
 
 #include "config.h"
 
@@ -234,8 +233,13 @@ public:
 
 class ActionPerformed {
 public:
-    ActionPerformed(PWinObj *w, const ActionEvent &a) : wo(w), ae(a), type(0) { }
-    ~ActionPerformed(void) { }
+    ActionPerformed(PWinObj *w, const ActionEvent &a)
+        : wo(w), ae(a), type(0)
+    {
+    }
+    ~ActionPerformed(void)
+    {
+    }
 
     PWinObj *wo;
     const ActionEvent &ae;
@@ -249,5 +253,3 @@ public:
         XExposeEvent *expose;
     } event;
 };
-
-#endif // _ACTION_HH_

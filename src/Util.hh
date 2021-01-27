@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _UTIL_HH_
-#define _UTIL_HH_
+#pragma once
 
 #include "config.h"
 
@@ -70,7 +69,8 @@ namespace Util {
      * @param str Reference to the string to convert
      */
     inline void to_upper(std::string &str) {
-        std::transform(str.begin(), str.end(), str.begin(), (int(*)(int)) std::toupper);
+        std::transform(str.begin(), str.end(), str.begin(),
+                       (int(*)(int)) std::toupper);
     }
 
     /**
@@ -79,7 +79,8 @@ namespace Util {
      * @param str Reference to the string to convert
      */
     inline void to_lower(std::string &str) {
-        std::transform(str.begin(), str.end(), str.begin(), (int(*)(int)) std::tolower);
+        std::transform(str.begin(), str.end(), str.begin(),
+                       (int(*)(int)) std::tolower);
     }
 
     /**
@@ -88,7 +89,8 @@ namespace Util {
      * @param str Reference to the string to convert
      */
     inline void to_upper(std::wstring &str) {
-        std::transform(str.begin(), str.end(), str.begin(), (int(*)(int)) std::towupper);
+        std::transform(str.begin(), str.end(), str.begin(),
+                       (int(*)(int)) std::towupper);
     }
 
 
@@ -98,7 +100,8 @@ namespace Util {
      * @param str Reference to the string to convert
      */
     inline void to_lower(std::wstring &str) {
-        std::transform(str.begin(), str.end(), str.begin(), (int(*)(int)) std::towlower);
+        std::transform(str.begin(), str.end(), str.begin(),
+                       (int(*)(int)) std::towlower);
     }
 
     std::string to_mb_str(const std::wstring &str);
@@ -148,5 +151,3 @@ namespace Util {
         void operator ()(T t) { delete t; }
     };
 }
-
-#endif // _UTIL_HH_

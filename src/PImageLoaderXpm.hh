@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _PIMAGE_LOADER_XPM_HH_
-#define _PIMAGE_LOADER_XPM_HH_
+#pragma once
 
 #include "config.h"
 
@@ -38,5 +37,3 @@ private:
 };
 
 #endif // HAVE_IMAGE_XPM
-
-#endif // _PIMAGE_LOADER_XPM_HH_

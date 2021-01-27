@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _PIMAGE_LOADER_JPEG_HH_
-#define _PIMAGE_LOADER_JPEG_HH_
+#pragma once
 
 #include "config.h"
 
@@ -32,5 +31,3 @@ public:
 };
 
 #endif // HAVE_IMAGE_JPEG
-
-#endif // _PIMAGE_LOADER_JPEG_HH_

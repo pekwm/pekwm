@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _TYPES_HH_
-#define _TYPES_HH_
+#pragma once
 
 extern "C" {
 #include <sys/types.h>
@@ -28,5 +27,3 @@ extern "C" {
 #ifndef uchar
 #define uchar unsigned char
 #endif // uchar
-
-#endif // _TYPES_HH_

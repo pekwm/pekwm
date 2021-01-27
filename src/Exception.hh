@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _EXCEPTION_H_
-#define _EXCEPTION_H_
+#pragma once
 
 #include "config.h"
 
@@ -26,5 +25,3 @@ public:
 private:
     const char *_resource; /**< Resource that failed to load. */
 };
-
-#endif // _EXCEPTION_H_

@@ -10,8 +10,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _CLIENT_HH_
-#define _CLIENT_HH_
+#pragma once
 
 #include "config.h"
 
@@ -84,7 +83,8 @@ public: // Public Member Functions
         MWM_DECOR_MAXIMIZE = (1L << 6)
     };
 
-    Client(Window new_client, ClientInitConfig &initConfig, bool is_new = false);
+    Client(Window new_client, ClientInitConfig &initConfig,
+           bool is_new = false);
     virtual ~Client(void);
 
     // START - PWinObj interface.
@@ -166,19 +166,23 @@ public: // Public Member Functions
 
     bool isTransient(void) const { return _transient_for_window != None; }
     Client *getTransientForClient(void) const { return _transient_for; }
-    Window getTransientForClientWindow(void) const { return _transient_for_window; }
+    Window getTransientForClientWindow(void) const {
+        return _transient_for_window;
+    }
     void findAndRaiseIfTransient(void);
 
     inline XSizeHints* getXSizeHints(void) const { return _size; }
 
     bool isViewable(void);
-    bool cameWithPosition(void) { return _size->flags & (PPosition|USPosition); }
+    bool cameWithPosition(void) {
+        return _size->flags & (PPosition|USPosition);
+    }
 
-    inline bool hasTitlebar(void) const { return (_state.decor&DECOR_TITLEBAR); }
-    inline bool hasBorder(void) const { return (_state.decor&DECOR_BORDER); }
-    inline bool hasStrut(void) const { return (_strut); }
+    bool hasTitlebar(void) const { return (_state.decor&DECOR_TITLEBAR); }
+    bool hasBorder(void) const { return (_state.decor&DECOR_BORDER); }
+    bool hasStrut(void) const { return (_strut); }
     Strut *getStrut(void) const { return _strut; }
-    inline bool demandsAttention(void) const { return _demands_attention; }
+    bool demandsAttention(void) const { return _demands_attention; }
 
     PTexture *getIcon(void) const { return _icon; }
 
@@ -188,30 +192,30 @@ public: // Public Member Functions
     bool isRemote(void) const { return _is_remote; }
 
     // State accessors
-    inline bool isMaximizedVert(void) const { return _state.maximized_vert; }
-    inline bool isMaximizedHorz(void) const { return _state.maximized_horz; }
-    inline bool isShaded(void) const { return _state.shaded; }
-    inline bool isFullscreen(void) const { return _state.fullscreen; }
-    inline bool isPlaced(void) const { return _state.placed; }
-    inline uint getInitialFrameOrder(void) const { return _state.initial_frame_order; }
-    inline uint getSkip(void) const { return _state.skip; }
-    inline bool isSkip(Skip skip) const { return (_state.skip&skip); }
-    inline uint getDecorState(void) const { return _state.decor; }
-    inline bool isCfgDeny(uint deny) { return (_state.cfg_deny&deny); }
+    bool isMaximizedVert(void) const { return _state.maximized_vert; }
+    bool isMaximizedHorz(void) const { return _state.maximized_horz; }
+    bool isShaded(void) const { return _state.shaded; }
+    bool isFullscreen(void) const { return _state.fullscreen; }
+    bool isPlaced(void) const { return _state.placed; }
+    uint getInitialFrameOrder(void) const { return _state.initial_frame_order; }
+    uint getSkip(void) const { return _state.skip; }
+    bool isSkip(Skip skip) const { return (_state.skip&skip); }
+    uint getDecorState(void) const { return _state.decor; }
+    bool isCfgDeny(uint deny) { return (_state.cfg_deny&deny); }
 
-    inline bool allowMove(void) const { return _actions.move; }
-    inline bool allowResize(void) const { return _actions.resize; }
-    inline bool allowIconify(void) const { return _actions.iconify; }
-    inline bool allowShade(void) const { return _actions.shade; }
-    inline bool allowStick(void) const { return _actions.stick; }
-    inline bool allowMaximizeHorz(void) const { return _actions.maximize_horz; }
-    inline bool allowMaximizeVert(void) const { return _actions.maximize_vert; }
-    inline bool allowFullscreen(void) const { return _actions.fullscreen; }
-    inline bool allowChangeWorkspace(void) const { return _actions.change_ws; }
-    inline bool allowClose(void) const { return _actions.close; }
+    bool allowMove(void) const { return _actions.move; }
+    bool allowResize(void) const { return _actions.resize; }
+    bool allowIconify(void) const { return _actions.iconify; }
+    bool allowShade(void) const { return _actions.shade; }
+    bool allowStick(void) const { return _actions.stick; }
+    bool allowMaximizeHorz(void) const { return _actions.maximize_horz; }
+    bool allowMaximizeVert(void) const { return _actions.maximize_vert; }
+    bool allowFullscreen(void) const { return _actions.fullscreen; }
+    bool allowChangeWorkspace(void) const { return _actions.change_ws; }
+    bool allowClose(void) const { return _actions.close; }
 
-    inline bool isAlive(void) const { return _alive; }
-    inline bool isMarked(void) const { return _marked; }
+    bool isAlive(void) const { return _alive; }
+    bool isMarked(void) const { return _marked; }
 
     // We have this public so that we can reload button actions.
     void grabButtons(void);
@@ -236,7 +240,8 @@ public: // Public Member Functions
     void setSkip(uint skip);
 
     inline void setStateSkip(StateAction sa, Skip skip) {
-        if ((isSkip(skip) && (sa == STATE_SET)) || (! isSkip(skip) && (sa == STATE_UNSET))) {
+        if ((isSkip(skip) && (sa == STATE_SET))
+            || (! isSkip(skip) && (sa == STATE_UNSET))) {
             return;
         }
         _state.skip ^= skip;
@@ -296,7 +301,7 @@ public: // Public Member Functions
     void getStrutHint(void);
     void readName(void);
     void removeStrutHint(void);
-    
+
     long getPekwmFrameOrder(void);
     void setPekwmFrameOrder(long num);
     bool getPekwmFrameActive(void);
@@ -314,7 +319,8 @@ private:
     bool findAutoGroupFrame(AutoProperty *autoproperty);
 
     void setInitialState(void);
-    void setClientInitConfig(ClientInitConfig &initConfig, bool is_new, AutoProperty *autoproperty);
+    void setClientInitConfig(ClientInitConfig &initConfig, bool is_new,
+                             AutoProperty *autoproperty);
 
     bool titleApplyRule(std::wstring &wtitle);
     uint titleFindID(std::wstring &wtitle);
@@ -375,15 +381,23 @@ private: // Private Member Variables
     bool _send_focus_message, _send_close_message, _wm_hints_input;
     bool _cfg_request_lock;
     bool _extended_net_name;
-    bool _demands_attention; /**< If true, the client requires attention from the user. */
+    /** If true, the client requires attention from the user. */
+    bool _demands_attention;
 
     class State {
     public:
         State(void)
-            : maximized_vert(false), maximized_horz(false), shaded(false), fullscreen(false),
-              placed(false), initial_frame_order(0),
-              skip(0), decor(DECOR_TITLEBAR|DECOR_BORDER),
-              cfg_deny(CFG_DENY_NO) { }
+            : maximized_vert(false),
+              maximized_horz(false),
+              shaded(false),
+              fullscreen(false),
+              placed(false),
+              initial_frame_order(0),
+              skip(0),
+              decor(DECOR_TITLEBAR|DECOR_BORDER),
+              cfg_deny(CFG_DENY_NO)
+        {
+        }
         ~State(void) { }
 
         bool maximized_vert, maximized_horz;
@@ -421,5 +435,3 @@ private: // Private Member Variables
     static std::vector<Client*> _clients; //!< Vector of all Clients.
     static std::vector<uint> _clientids; //!< Vector of free Client IDs.
 };
-
-#endif // _CLIENT_HH_

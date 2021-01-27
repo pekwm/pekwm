@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _PTEXTURE_PLAIN_HH_
-#define _PTEXTURE_PLAIN_HH_
+#pragma once
 
 #include "config.h"
 
@@ -146,5 +145,3 @@ public:
 private:
     PImage *_image;
 };
-
-#endif // _PTEXTURE_PLAIN_HH_

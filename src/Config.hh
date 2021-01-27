@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _CONFIG_HH_
-#define _CONFIG_HH_
+#pragma once
 
 #include "config.h"
 
@@ -407,5 +406,3 @@ namespace pekwm
 {
     Config* config();
 }
-
-#endif // _CONFIG_HH_

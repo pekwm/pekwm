@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _SEARCH_DIALOG_HH_
-#define _SEARCH_DIALOG_HH_
+#pragma once
 
 #include "config.h"
 
@@ -45,5 +44,3 @@ private:
     PMenu *_result_menu; /**< Menu for displaying results. */
     std::wstring _previous_search; /**< Buffer with previous search string. */
 };
-
-#endif // _SEARCH_DIALOG_HH_

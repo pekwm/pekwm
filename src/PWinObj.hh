@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _PWIN_OBJ_HH_
-#define _PWIN_OBJ_HH_
+#pragma once
 
 #include "config.h"
 
@@ -86,7 +85,9 @@ public:
     //! @brief Returns the last activity time for this window
     inline Time getLastActivity(void) const { return _lastActivity; }
     //! @brief Sets the last activity time for this window.
-    inline void setLastActivity(Time lastActivity) { _lastActivity = lastActivity; }
+    inline void setLastActivity(Time lastActivity) {
+        _lastActivity = lastActivity;
+    }
 
     inline void addChildWindow(Window win) { _wo_map[win] = this; }
     inline void removeChildWindow(Window win) { _wo_map.erase(win); }
@@ -133,10 +134,14 @@ public:
     inline bool isOpaque(void) const { return _opaque; }
     void setOpacity(uint focused, uint unfocused, bool enabled=true);
     inline void setOpacity(uint value) { setOpacity(value, value); }
-    inline void setOpacity(PWinObj *child) { setOpacity(child->_opacity.focused, child->_opacity.unfocused, !child->_opaque); }
+    inline void setOpacity(PWinObj *child) {
+        setOpacity(child->_opacity.focused,
+                   child->_opacity.unfocused,
+                   !child->_opaque);
+    }
     void updateOpacity(void);
     void setOpaque(bool opaque);
- 
+
     //! Returns true if a custom region of kind @kind (ShapeBounding
     //! or ShapeInput) was set via the shape extension for this window.
     inline bool hasShapeRegion(int kind) const
@@ -269,5 +274,3 @@ protected:
     static std::vector<PWinObj*> _wo_list; //!< List of PWinObjs.
     static std::map<Window, PWinObj*> _wo_map; //!< Mapping of Window to PWinObj
 };
-
-#endif // _PWIN_OBJ_HH_

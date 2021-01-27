@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _PIMAGE_ICON_HH_
-#define _PIMAGE_ICON_HH_
+#pragma once
 
 #include "config.h"
 
@@ -27,5 +26,3 @@ private:
     bool setImageFromData(uchar *data, ulong actual);
     void convertToARGB(ulong size, long *from_data, uchar *to_data);
 };
-
-#endif // _PIMAGE_ICON_HH_

@@ -6,10 +6,9 @@
 // See the LICENSE file for more information.
 //
 
-#include "config.h"
+#pragma once
 
-#ifndef _PTEXTURE_HH_
-#define _PTEXTURE_HH_
+#include "config.h"
 
 #include "pekwm.hh"
 
@@ -55,5 +54,3 @@ protected:
     uint _width, _height; // for images etc, 0 for infinite like in stretch
     PTexture::Type _type; // Type of texture
 };
-
-#endif // _PTEXTURE_HH_

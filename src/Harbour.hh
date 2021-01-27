@@ -6,10 +6,9 @@
 // See the LICENSE file for more information.
 //
 
-#include "config.h"
+#pragma once
 
-#ifndef _HARBOUR_HH_
-#define _HARBOUR_HH_
+#include "config.h"
 
 #include "pekwm.hh"
 
@@ -77,5 +76,3 @@ namespace pekwm
 {
     Harbour* harbour();
 }
-
-#endif // _HARBOUR_HH_

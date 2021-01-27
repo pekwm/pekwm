@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _COMPAT_HH_
-#define _COMPAT_HH_
+#pragma once
 
 #include "config.h"
 
@@ -47,5 +46,3 @@ int unsetenv(const char *name);
     }                                                                         \
   } while (0)
 #endif // HAVE_TIMERSUB
-
-#endif // _COMPAT_HH_

@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _COMPLETER_HH_
-#define _COMPLETER_HH_
+#pragma once
 
 #include "config.h"
 
@@ -64,5 +63,3 @@ private:
     CompleterMethod *_completer_action;
     CompleterMethod *_completer_path;
 };
-
-#endif // _COMPLETER_HH_

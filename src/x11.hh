@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _PEKWM_X11_HH_
-#define _PEKWM_X11_HH_
+#pragma once
 
 #include "config.h"
 
@@ -151,14 +150,16 @@ public:
      * Remove state modifiers such as NumLock from state.
      */
     static void stripStateModifiers(unsigned int *state) {
-        *state &= ~(_num_lock | _scroll_lock | LockMask | KbdLayoutMask1 | KbdLayoutMask2);
+        *state &= ~(_num_lock | _scroll_lock | LockMask |
+                    KbdLayoutMask1 | KbdLayoutMask2);
     }
 
-    /** 
+    /**
      * Remove button modifiers from state.
      */
     static void stripButtonModifiers(unsigned int *state) {
-        *state &= ~(Button1Mask | Button2Mask | Button3Mask | Button4Mask | Button5Mask);
+        *state &= ~(Button1Mask | Button2Mask | Button3Mask |
+                    Button4Mask | Button5Mask);
     }
 
     static void setLockKeys(void);
@@ -170,10 +171,10 @@ public:
 
     static bool updateGeometry(uint width, uint height);
 
-    inline static bool hasExtensionXRandr(void) { return _has_extension_xrandr; }
-    inline static int getEventXRandr(void) { return _event_xrandr; }
+    static bool hasExtensionXRandr(void) { return _has_extension_xrandr; }
+    static int getEventXRandr(void) { return _event_xrandr; }
 
-    inline static Cursor getCursor(CursorType type) { return _cursor_map[type]; }
+    static Cursor getCursor(CursorType type) { return _cursor_map[type]; }
 
     static bool getNextEvent(XEvent &ev);
     static bool grabServer(void);
@@ -207,9 +208,10 @@ public:
         }
     }
 
-    inline static bool isDoubleClick(Window id, uint button, Time time, Time dc_time) {
-        if ((_last_click_id == id) &&
-                ((time - getLastClickTime(button)) < dc_time)) {
+    inline static bool isDoubleClick(Window id, uint button,
+                                     Time time, Time dc_time) {
+        if ((_last_click_id == id)
+            && ((time - getLastClickTime(button)) < dc_time)) {
             return true;
         }
         return false;
@@ -454,7 +456,8 @@ public:
                            &foo, &foo, &foo, &bar, &bar);
     }
 
-    inline static void shapeCombine(Window dst, int kind, int x, int y, Window src, int op) {
+    static void shapeCombine(Window dst, int kind, int x, int y,
+                             Window src, int op) {
         XShapeCombineShape(_dpy, dst, kind, x, y, src, kind, op);
     }
 
@@ -476,10 +479,11 @@ public:
         int t;
         return XShapeGetRectangles(_dpy, win, ShapeBounding, num, &t);
     }
-#endif
+#endif // HAVE_SHAPE
 
 protected:
-    static int parseGeometryVal(const char *c_str, const char *e_end, int &val_ret);
+    static int parseGeometryVal(const char *c_str, const char *e_end,
+                                int &val_ret);
 
 private:
     // squared distance because computing with sqrt is expensive
@@ -489,7 +493,9 @@ private:
         return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
     }
     // gets the squared distance between 2 points with either x or y the same
-    inline static uint calcDistance(int p1, int p2) { return (p1 - p2) * (p1 - p2); }
+    inline static uint calcDistance(int p1, int p2) {
+        return (p1 - p2) * (p1 - p2);
+    }
 
     static void initHeads(void);
     static void initHeadsRandr(void);
@@ -544,5 +550,3 @@ private:
 
     static Atom _atoms[MAX_NR_ATOMS];
 };
-
-#endif // _PEKWM_X11_HH_

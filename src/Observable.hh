@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _OBSERVABLE_HH_
-#define _OBSERVABLE_HH_
+#pragma once
 
 #include <vector>
 
@@ -28,11 +27,9 @@ public:
 
     void notifyObservers(Observation *observation);
 
-    void addObserver(Observer *observer); 
-    void removeObserver(Observer *observer); 
+    void addObserver(Observer *observer);
+    void removeObserver(Observer *observer);
 
 private:
     std::vector<Observer*> _observers; /**< List of observers. */
 };
-
-#endif // _OBSERVABLE_HH_

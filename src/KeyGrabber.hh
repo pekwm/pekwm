@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _KEYGRABBER_HH_
-#define _KEYGRABBER_HH_
+#pragma once
 
 #include "config.h"
 
@@ -51,8 +50,8 @@ public:
         //! @brief Adds action to Key vector.
         inline void addAction(const ActionEvent &key) { _keys.push_back(key); }
 
-        Chain *findChain(XKeyEvent *ev, bool *matched);
-        ActionEvent *findAction(XKeyEvent *ev, bool *matched);
+        Chain *findChain(XKeyEvent *ev, bool &matched);
+        ActionEvent *findAction(XKeyEvent *ev, bool &matched);
 
     private:
         uint _mod, _key;
@@ -68,18 +67,21 @@ public:
     void grabKeys(Window win);
     void ungrabKeys(Window win);
 
-    ActionEvent *findAction(XKeyEvent *ev, PWinObj::Type type, bool *matched);
+    ActionEvent *findAction(XKeyEvent *ev, PWinObj::Type type, bool &matched);
     ActionEvent *findMoveResizeAction(XKeyEvent *ev);
 
 private:
     void grabKey(Window win, uint mod, uint key);
 
     void parseGlobalChain(CfgParser::Entry *section, KeyGrabber::Chain *chain);
-    void parseMoveResizeChain(CfgParser::Entry *section, KeyGrabber::Chain *chain);
-    void parseInputDialogChain(CfgParser::Entry *section, KeyGrabber::Chain *chain);
+    void parseMoveResizeChain(CfgParser::Entry *section,
+                              KeyGrabber::Chain *chain);
+    void parseInputDialogChain(CfgParser::Entry *section,
+                               KeyGrabber::Chain *chain);
     void parseMenuChain(CfgParser::Entry *section, KeyGrabber::Chain *chain);
 
-    ActionEvent *findAction(XKeyEvent *ev, KeyGrabber::Chain *chain, bool *matched);
+    ActionEvent *findAction(XKeyEvent *ev, KeyGrabber::Chain *chain,
+                            bool &matched);
 
     TimeFiles _cfg_files;
 
@@ -96,5 +98,3 @@ namespace pekwm
 {
     KeyGrabber* keyGrabber();
 }
-
-#endif // _KEYGRABBER_HH_

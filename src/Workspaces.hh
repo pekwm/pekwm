@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _WORKSPACES_HH_
-#define _WORKSPACES_HH_
+#pragma once
 
 #include "config.h"
 
@@ -55,7 +54,8 @@ public:
     typedef std::vector<PWinObj*>::iterator iterator;
     typedef std::vector<PWinObj*>::const_iterator const_iterator;
     typedef std::vector<PWinObj*>::reverse_iterator reverse_iterator;
-    typedef std::vector<PWinObj*>::const_reverse_iterator const_reverse_iterator;
+    typedef std::vector<PWinObj*>::const_reverse_iterator
+        const_reverse_iterator;
 
     static void init();
     static void cleanup();
@@ -72,11 +72,15 @@ public:
         if (active < 0) {
             active = _active;
         }
-        return _per_row ? (active / _per_row) : 0; 
+        return _per_row ? (active / _per_row) : 0;
     }
     static uint getRowMin(void) { return _per_row ? (getRow() * _per_row) : 0; }
-    static uint getRowMax(void) { return _per_row ? (getRowMin() + _per_row - 1) : size() - 1; }
-    static uint getRows(void) { return _per_row ? (size() / _per_row + (size() % _per_row ? 1 : 0)) : 1; }
+    static uint getRowMax(void) {
+        return _per_row ? (getRowMin() + _per_row - 1) : size() - 1;
+    }
+    static uint getRows(void) {
+        return _per_row ? (size() / _per_row + (size() % _per_row ? 1 : 0)) : 1;
+    }
     static uint getPerRow(void) { return _per_row ? _per_row : size(); }
 
     static void setSize(uint number);
@@ -169,5 +173,3 @@ private:
     static std::vector<Frame*> _mru;
     static std::vector<Workspace> _workspaces;
 };
-
-#endif // _WORKSPACES_HH_

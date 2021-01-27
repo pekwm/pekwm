@@ -6,9 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-
-#ifndef _STATUS_WINDOW_HH_
-#define _STATUS_WINDOW_HH_
+#pragma once
 
 #include "config.h"
 
@@ -44,5 +42,3 @@ namespace pekwm
 {
     StatusWindow* statusWindow();
 }
-
-#endif // _STATUS_WINDOW_HH_

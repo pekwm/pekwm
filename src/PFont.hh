@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _PFONT_HH_
-#define _PFONT_HH_
+#pragma once
 
 #include "config.h"
 
@@ -102,7 +101,7 @@ private:
 protected:
     uint _height, _ascent, _descent;
     uint _offset_x, _offset_y, _justify;
-    
+
     static std::wstring _trim_string;
 };
 
@@ -132,13 +131,13 @@ class PFontXmb : public PFont {
 public:
     PFontXmb(void);
     virtual ~PFontXmb(void);
-    
+
     // virtual interface
     virtual bool load(const std::string &name);
     virtual void unload(void);
-    
+
     virtual uint getWidth(const std::wstring &text, uint max_chars = 0);
-    
+
     virtual void setColor(PFont::Color *color);
 
 private:
@@ -155,13 +154,13 @@ class PFontXft : public PFont {
 public:
     PFontXft(void);
     virtual ~PFontXft(void);
-    
+
     // virtual interface
     virtual bool load(const std::string &font_name);
     virtual void unload(void);
-    
+
     virtual uint getWidth(const std::wstring &text, uint max_chars = 0);
-    
+
     virtual void setColor(PFont::Color *color);
 
 private:
@@ -171,9 +170,7 @@ private:
     XftDraw *_draw;
     XftFont *_font;
     XftColor *_cl_fg, *_cl_bg;
-    
+
     XRenderColor _xrender_color;
 };
 #endif // HAVE_XFT
-
-#endif // _PFONT_HH_

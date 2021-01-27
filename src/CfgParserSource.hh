@@ -5,8 +5,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _CFG_PARSER_SOURCE_HH_
-#define _CFG_PARSER_SOURCE_HH_
+#pragma once
 
 #include <string>
 #include <cstdio>
@@ -173,5 +172,3 @@ private:
     struct sigaction _sigaction; /**< sigaction for restore. */
     static unsigned int _sigaction_counter; /**< Counts open. */
 };
-
-#endif // _CFG_PARSER_SOURCE_HH_

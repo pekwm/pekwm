@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _PARSE_UTIL_HH_
-#define _PARSE_UTIL_HH_
+#pragma once
 
 #include "config.h"
 
@@ -61,5 +60,3 @@ getValue(const std::string &text,
 }
 
 }
-
-#endif // _PARSE_UTIL_HH_

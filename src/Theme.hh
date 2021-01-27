@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _THEME_HH_
-#define _THEME_HH_
+#pragma once
 
 #include "config.h"
 
@@ -436,5 +435,3 @@ namespace pekwm
 {
     Theme* theme();
 }
-
-#endif // _THEME_HH_

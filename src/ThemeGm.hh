@@ -1,5 +1,12 @@
-#ifndef _THEME_GM_HH_
-#define _THEME_GM_HH_
+//
+// ThemeGm.hh for pekwm
+// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+//
+// This program is licensed under the GNU GPL.
+// See the LICENSE file for more information.
+//
+
+#pragma once
 
 #include "Theme.hh"
 #include "PTexturePlain.hh"
@@ -136,5 +143,3 @@ private:
     Theme::PDecorData *_data;
     PTexture *_empty;
 };
-
-#endif // _PDECOR_GM_HH_

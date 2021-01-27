@@ -151,7 +151,7 @@ InputDialog::handleKeyPress(XKeyEvent *ev)
     bool matched;
     ActionEvent *c_ae, *ae = 0;
 
-    if ((c_ae = pekwm::keyGrabber()->findAction(ev, _type, &matched))) {
+    if ((c_ae = pekwm::keyGrabber()->findAction(ev, _type, matched))) {
         auto it(c_ae->action_list.begin());
         for (; it != c_ae->action_list.end(); ++it) {
             switch (it->getAction()) {

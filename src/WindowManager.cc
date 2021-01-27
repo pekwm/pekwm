@@ -728,7 +728,7 @@ WindowManager::handleKeyEvent(XKeyEvent *ev)
     case PWinObj::WO_SCREEN_ROOT:
     case PWinObj::WO_MENU:
         if (ev->type == KeyPress) {
-            ae = pekwm::keyGrabber()->findAction(ev, type, &matched);
+            ae = pekwm::keyGrabber()->findAction(ev, type, matched);
         }
         break;
     case PWinObj::WO_CMD_DIALOG:

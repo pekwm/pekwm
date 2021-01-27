@@ -6,8 +6,7 @@
 // See the LICENSE file for more information.
 //
 
-#ifndef _APP_CTRL_HH_
-#define _APP_CTRL_HH_
+#pragma once
 
 #include <string>
 
@@ -22,5 +21,3 @@ public:
     virtual void restart(std::string cmd) = 0;
     virtual void shutdown(void) = 0;
 };
-
-#endif // _APP_CTRL_HH_
