@@ -13,8 +13,6 @@
 
 #include "Debug.hh"
 #include "x11.hh"
-#include "Config.hh"
-#include "PWinObj.hh"
 #include "PFont.hh"
 #include "PTexture.hh"
 #include "FontHandler.hh"
@@ -868,6 +866,92 @@ Theme::WorkspaceIndicatorData::check(void)
     }
 }
 
+Theme::DialogData::DialogData(FontHandler* fh, TextureHandler* th)
+    : _fh(fh),
+      _th(th),
+      _loaded(false),
+      _background(nullptr),
+      _button_font(nullptr),
+      _button_color(nullptr),
+      _title_font(nullptr),
+      _title_color(nullptr),
+      _text_font(nullptr),
+      _text_color(nullptr)
+{
+    for (int i = 0; i < PAD_NO; i++) {
+        _pad[i] = 2;
+    }
+    memset(_button, 0, sizeof(_button));
+}
+
+Theme::DialogData::~DialogData(void)
+{
+    if (_loaded) {
+        unload();
+    }
+}
+
+bool
+Theme::DialogData::load(CfgParser::Entry *section)
+{
+    if (section == nullptr) {
+        check();
+    }
+    return false;
+}
+
+void
+Theme::DialogData::unload(void)
+{
+    _fh->returnColor(_text_color);
+    _fh->returnFont(_text_font);
+    _fh->returnColor(_button_color);
+    _fh->returnFont(_title_font);
+    for (int i = 0; i < BUTTON_STATE_NO; i++) {
+        _th->returnTexture(_button[i]);
+    }
+    _fh->returnColor(_button_color);
+    _fh->returnFont(_button_font);
+    _th->returnTexture(_background);
+}
+
+void
+Theme::DialogData::check(void)
+{
+    if (_background == nullptr) {
+        _background = _th->getTexture("Solid #ffffff");
+    }
+    if (_button_font == nullptr) {
+        _button_font = _fh->getFont("Sans:size=12#Center#XFT");
+    }
+    if (_button_color == nullptr) {
+        _button_color = _fh->getColor("#000000");
+    }
+    const char* button_textures[] = {
+        "SolidRaised #dddddd #aaaaaa #333333", // focused
+        "SolidRaised #cccccc #aaaaaa #333333", // unfocused
+        "SolidRaised #bbbbbb #aaaaaa #333333", // pressed
+        "SolidRaised #eeeeee #aaaaaa #333333" // hover
+    };
+    for (int i = 0; i < BUTTON_STATE_NO; i++) {
+        if (_button[i] == nullptr) {
+            _button[i] = _th->getTexture(button_textures[i]);
+        }
+    }
+    if (_title_font == nullptr) {
+        _title_font = _fh->getFont("Sans:size=14,weight:bold#XFT");
+    }
+    if (_title_color == nullptr) {
+        _button_color = _fh->getColor("#000000");
+    }
+    if (_text_font == nullptr) {
+        _text_font = _fh->getFont("Sans:size=12#XFT");
+    }
+    if (_text_color == nullptr) {
+        _text_color = _fh->getColor("#000000");
+    }
+}
+
 /**
  * HarbourData constructor.
  */
@@ -939,13 +1023,14 @@ Theme::HarbourData::check(void)
 // Theme
 
 //! @brief Theme constructor
-Theme::Theme(FontHandler *fh, ImageHandler *ih, TextureHandler *th)
+Theme::Theme(FontHandler *fh, ImageHandler *ih, TextureHandler *th,
+             const std::string& theme_file, const std::string &theme_variant)
     : _fh(fh),
       _ih(ih),
       _th(th),
       _loaded(false),
       _invert_gc(None),
-      _bg_pid(-1),
+      _dialog_data(fh, th),
       _menu_data(fh, th),
       _harbour_data(th),
       _status_data(fh, th),
@@ -961,8 +1046,7 @@ Theme::Theme(FontHandler *fh, ImageHandler *ih, TextureHandler *th)
                            GCFunction|GCSubwindowMode|GCLineWidth, &gv);
 
     X11::grabServer();
-    load(pekwm::config()->getThemeFile(),
-         pekwm::config()->getThemeVariant());
+    load(theme_file, theme_variant);
     X11::ungrabServer(true);
 }
 
@@ -1040,6 +1124,8 @@ Theme::load(const std::string &dir, const std::string &variant)
     _ih->path_push_back(_theme_dir + "/");
 
     loadBackground(root->findSection("BACKGROUND"));
+
+    _dialog_data.load(root->findSection("DIALOG"));
 
     // Load decor data.
     auto section = root->findSection("PDECOR");
@@ -1129,33 +1215,6 @@ Theme::loadBackground(CfgParser::Entry* section)
     keys.push_back(new CfgParserKeyString("TEXTURE", _background, ""));
     section->parseKeyValues(keys.begin(), keys.end());
     for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
-
-    if (! _background.empty()
-        && pekwm::config()->getThemeBackground()) {
-        startBackground(_background);
-    }
-}
-
-void
-Theme::startBackground(const std::string& texture)
-{
-    if (_bg_pid != -1) {
-        stopBackground();
-    }
-
-    std::vector<std::string> args =
-        {BINDIR "/pekwm_bg",
-         "--load-dir", _theme_dir + "/backgrounds",
-         texture};
-    _bg_pid = Util::forkExec(args);
-}
-
-void
-Theme::stopBackground(void)
-{
-    // SIGCHILD will take care of waiting for the child
-    kill(_bg_pid, SIGKILL);
-    _bg_pid = -1;
 }
 
 /**

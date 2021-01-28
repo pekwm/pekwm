@@ -18,7 +18,6 @@
 #include "ParseUtil.hh"
 
 class PTexture;
-class Button;
 class ButtonData;
 class FontHandler;
 class ImageHandler;
@@ -345,15 +344,71 @@ public:
         PTexture *_texture;
     };
 
-    inline Theme::HarbourData *getHarbourData(void) { return &_harbour_data; }
+    /**
+     * Data for pekwm_dialog
+     */
+    class DialogData {
+    public:
+        DialogData(FontHandler* fh, TextureHandler* th);
+        ~DialogData(void);
 
-    Theme(FontHandler *fh, ImageHandler *ih, TextureHandler *th);
+        PTexture* getBackground(void) const { return _background; }
+
+        PFont* getButtonFont(void) const { return _button_font; }
+        PFont::Color* getButtonColor(void) const { return _button_color; }
+        PTexture* getButton(ButtonState state) const {
+            return _button[state < BUTTON_STATE_NO ? state : 0];
+        }
+
+        PFont* getTitleFont(void) const { return _title_font; }
+        PFont::Color* getTitleColor(void) const { return _title_color; }
+
+        PFont* getTextFont(void) const { return _text_font; }
+        PFont::Color* getTextColor(void) const { return _text_color; }
+
+        uint getPad(PadType dir) const {
+            return _pad[dir < PAD_NO ? dir : 0];
+        }
+        uint padHorz(void) const {
+            return getPad(PAD_LEFT) + getPad(PAD_RIGHT);
+        }
+        uint padVert(void) const {
+            return getPad(PAD_UP) + getPad(PAD_DOWN);
+        }
+
+        bool load(CfgParser::Entry *section);
+        void unload(void);
+        void check(void);
+
+    private:
+        FontHandler* _fh;
+        TextureHandler* _th;
+        bool _loaded;
+
+        PTexture *_background;
+        PFont *_button_font;
+        PFont::Color *_button_color;
+        PTexture *_button[BUTTON_STATE_NO];
+
+        PFont *_title_font;
+        PFont::Color *_title_color;
+        PFont *_text_font;
+        PFont::Color *_text_color;
+
+        uint _pad[PAD_NO];
+    };
+
+    Theme(FontHandler *fh, ImageHandler *ih, TextureHandler *th,
+          const std::string& theme_file, const std::string &theme_variant);
     ~Theme(void);
 
     bool load(const std::string &dir, const std::string &variant);
     void unload(void);
 
     inline const GC &getInvertGC(void) const { return _invert_gc; }
+
+    const std::string& getThemeDir(void) const { return _theme_dir; }
+    const std::string& getBackground(void) const { return _background; }
 
     std::map<std::string, Theme::PDecorData*>::const_iterator
     decor_begin(void) {
@@ -383,23 +438,19 @@ public:
         return 0;
     }
 
+    Theme::DialogData& getDialogData(void) { return _dialog_data; }
+    Theme::HarbourData *getHarbourData(void) { return &_harbour_data; }
+    Theme::PMenuData *getMenuData(void) { return &_menu_data; }
+    Theme::TextDialogData *getCmdDialogData(void) { return &_cmd_d_data; }
+    Theme::TextDialogData *getStatusData(void) { return &_status_data; }
     Theme::WorkspaceIndicatorData &getWorkspaceIndicatorData(void) {
         return _ws_indicator_data;
     }
 
-    // menu
-    inline Theme::PMenuData *getMenuData(void) { return &_menu_data; }
-
-    // status/cmd
-    Theme::TextDialogData *getStatusData(void) { return &_status_data; }
-    Theme::TextDialogData *getCmdDialogData(void) { return &_cmd_d_data; }
 
 private:
     void loadThemeRequire(CfgParser &theme_cfg, std::string &file);
     void loadBackground(CfgParser::Entry *section);
-
-    void startBackground(const std::string& texture);
-    void stopBackground(void);
 
 private:
     FontHandler* _fh;
@@ -415,17 +466,13 @@ private:
 
     // gc
     GC _invert_gc;
-    pid_t _bg_pid;
 
     // frame decors
     std::map<std::string, Theme::PDecorData*> _pdecordata_map;
 
-    // menu
+    DialogData _dialog_data;
     PMenuData _menu_data;
-    /** Data for styling harbour. */
     HarbourData _harbour_data;
-
-    // status window
     TextDialogData _status_data;
     TextDialogData _cmd_d_data;
     WorkspaceIndicatorData _ws_indicator_data;

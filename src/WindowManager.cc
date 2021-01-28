@@ -131,6 +131,8 @@ WindowManager::start(const std::string &config_file, bool replace)
             Workspaces::addToMRUBack(*it);
         }
 
+        wm->startBackground(pekwm::theme()->getThemeDir(),
+                            pekwm::theme()->getBackground());
         wm->execStartFile();
     }
 
@@ -141,7 +143,8 @@ WindowManager::start(const std::string &config_file, bool replace)
 WindowManager::WindowManager()
     : _shutdown(false),
       _reload(false),
-      _restart(false)
+      _restart(false),
+      _bg_pid(-1)
 {
     pekwm::setIsStartup(false),
 
@@ -194,6 +197,8 @@ WindowManager::execStartFile(void)
 void
 WindowManager::cleanup(void)
 {
+    stopBackground();
+
     // update all nonactive clients properties
     auto it_f(Frame::frame_begin());
     for (; it_f != Frame::frame_end(); ++it_f) {
@@ -481,10 +486,34 @@ WindowManager::doReloadTheme(void)
         return;
     }
 
+    startBackground(pekwm::theme()->getThemeDir(),
+                    pekwm::theme()->getBackground());
+
     // Reload the themes on all decors
     for_each(PDecor::pdecor_begin(), PDecor::pdecor_end(),
              std::mem_fn(&PDecor::loadDecor));
 }
+
+void
+WindowManager::startBackground(const std::string& theme_dir,
+                               const std::string& texture)
+{
+    stopBackground();
+    std::vector<std::string> args =
+        {BINDIR "/pekwm_bg", "--load-dir", theme_dir + "/backgrounds", texture};
+    _bg_pid = Util::forkExec(args);
+}
+
+void
+WindowManager::stopBackground(void)
+{
+    if (_bg_pid != -1) {
+        // SIGCHILD will take care of waiting for the child
+        kill(_bg_pid, SIGKILL);
+    }
+    _bg_pid = -1;
+}
+
 
 /**
  * Reload mouse configuration and re-grab buttons on all windows.

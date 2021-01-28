@@ -15,14 +15,22 @@ set(util_SOURCES
   RegexString.cc
   Util.cc)
 
+set(x11_SOURCES
+  PWinObj.cc
+  PWinObjReference.cc
+  x11.cc)
+
 set(texture_SOURCES
+  Action.cc
+  FontHandler.cc
   ImageHandler.cc
+  PFont.cc
   PImage.cc
   PTexturePlain.cc
-  TextureHandler.cc)
+  TextureHandler.cc
+  Theme.cc)
 
 set(wm_SOURCES
-  Action.cc
   ActionHandler.cc
   ActionMenu.cc
   AutoProperties.cc
@@ -33,7 +41,6 @@ set(wm_SOURCES
   Config.cc
   DockApp.cc
   Frame.cc
-  FontHandler.cc
   FrameListMenu.cc
   Globals.cc
   Harbour.cc
@@ -42,20 +49,15 @@ set(wm_SOURCES
   ManagerWindows.cc
   MenuHandler.cc
   PDecor.cc
-  PFont.cc
   PMenu.cc
-  PWinObj.cc
-  PWinObjReference.cc
   PImageIcon.cc
   StatusWindow.cc
   SearchDialog.cc
-  Theme.cc
   WORefMenu.cc
   WindowManager.cc
   WinLayouter.cc
   Workspaces.cc
-  WorkspaceIndicator.cc
-  x11.cc)
+  WorkspaceIndicator.cc)
 set(common_INCLUDE_DIRS ${PROJECT_BINARY_DIR}/src ${ICONV_INCLUDE_DIR} ${X11_INCLUDE_DIR})
 set(common_LIBRARIES ${ICONV_LIBRARIES} ${X11_LIBRARIES})
 
@@ -100,6 +102,9 @@ endif (ENABLE_RANDR AND X11_Xrandr_FOUND)
 add_library(util STATIC ${util_SOURCES})
 target_include_directories(util PUBLIC ${common_INCLUDE_DIRS})
 
+add_library(x11 STATIC ${x11_SOURCES})
+target_include_directories(x11 PUBLIC ${common_INCLUDE_DIRS})
+
 add_library(texture STATIC ${texture_SOURCES})
 target_include_directories(texture PUBLIC ${common_INCLUDE_DIRS})
 
@@ -108,22 +113,27 @@ target_include_directories(wm PUBLIC ${common_INCLUDE_DIRS})
 
 add_executable(pekwm pekwm.cc)
 target_include_directories(pekwm PUBLIC ${common_INCLUDE_DIRS})
-target_link_libraries(pekwm wm texture util ${common_LIBRARIES})
+target_link_libraries(pekwm wm texture x11 util ${common_LIBRARIES})
 
 install(TARGETS pekwm DESTINATION bin)
 
 add_executable(pekwm_bg
-  pekwm_bg.cc
-  x11.cc)
+  pekwm_bg.cc)
 target_include_directories(pekwm_bg PUBLIC ${common_INCLUDE_DIRS})
-target_link_libraries(pekwm_bg texture util ${common_LIBRARIES})
+target_link_libraries(pekwm_bg texture x11 util ${common_LIBRARIES})
 
 install(TARGETS pekwm_bg DESTINATION bin)
 
+add_executable(pekwm_dialog
+  pekwm_dialog.cc)
+target_include_directories(pekwm_dialog PUBLIC ${common_INCLUDE_DIRS})
+target_link_libraries(pekwm_dialog texture x11 util ${common_LIBRARIES})
+
+install(TARGETS pekwm_dialog DESTINATION bin)
+
 add_executable(pekwm_screenshot
-  pekwm_screenshot.cc
-  x11.cc)
+  pekwm_screenshot.cc)
 target_include_directories(pekwm_screenshot PUBLIC ${common_INCLUDE_DIRS})
-target_link_libraries(pekwm_screenshot texture util ${common_LIBRARIES})
+target_link_libraries(pekwm_screenshot texture x11 util ${common_LIBRARIES})
 
 install(TARGETS pekwm_screenshot DESTINATION bin)

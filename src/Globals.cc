@@ -67,7 +67,8 @@ namespace pekwm
         _font_handler = new FontHandler();
         _image_handler = new ImageHandler();
         _texture_handler = new TextureHandler();
-        _theme = new Theme(_font_handler, _image_handler, _texture_handler);
+        _theme = new Theme(_font_handler, _image_handler, _texture_handler,
+                           _config->getThemeFile(), _config->getThemeVariant());
 
         _harbour = new Harbour(_config, _auto_properties, _root_wo);
         _status_window = new StatusWindow(_theme);

@@ -83,6 +83,10 @@ private:
     void doReloadAutoproperties(void);
     void doReloadHarbour(void);
 
+    void startBackground(const std::string& theme_dir,
+                         const std::string& texture);
+    void stopBackground(void);
+
     void cleanup(void);
 
     // screen edge related
@@ -123,6 +127,7 @@ private:
     bool _reload; //!< Set to wheter we want to reload.
     bool _restart;
     std::string _restart_command;
+    pid_t _bg_pid;
 
     EdgeWO *_screen_edges[4];
 };
