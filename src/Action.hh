@@ -10,8 +10,9 @@
 
 #include "config.h"
 
-#include "x11.hh"
+#include "CfgParser.hh"
 #include "Types.hh"
+#include "x11.hh"
 
 #include <vector>
 #include <string>
@@ -253,3 +254,29 @@ public:
         XExposeEvent *expose;
     } event;
 };
+
+namespace ActionConfig
+{
+    bool parseKey(const std::string &key_string, uint& mod, uint &key);
+
+    bool parseAction(const std::string &action_string,
+                     Action &action, uint mask);
+    bool parseActions(const std::string &action_string,
+                      ActionEvent &ae, uint mask);
+    bool parseActionEvent(CfgParser::Entry *section, ActionEvent &ae,
+                          uint mask, bool is_button);
+
+    void parseActionSetGeometry(Action& action, const std::string &str);
+
+    ActionType getAction(const std::string &name, uint mask);
+    BorderPosition getBorderPos(const std::string &name);
+    CfgDeny getCfgDeny(const std::string& name);
+    DirectionType getDirection(const std::string &name);
+    Layer getLayer(const std::string& name);
+    uint getMod(const std::string &name);
+    uint getMouseButton(const std::string &name);
+    Skip getSkip(const std::string& name);
+
+    std::vector<std::string> getActionNameList(void);
+    std::vector<std::string> getStateNameList(void);
+}

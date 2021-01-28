@@ -10,22 +10,23 @@
 
 #include "Debug.hh"
 #include "ImageHandler.hh"
+#include "ParseUtil.hh"
 #include "PImage.hh"
 #include "PImageLoaderJpeg.hh"
 #include "PImageLoaderPng.hh"
 #include "PImageLoaderXpm.hh"
 #include "Util.hh"
 
+static ParseUtil::Map<ImageType> image_type_map =
+    {{"", IMAGE_TYPE_NO},
+     {"TILED", IMAGE_TYPE_TILED},
+     {"SCALED", IMAGE_TYPE_SCALED},
+     {"FIXED", IMAGE_TYPE_FIXED}};
+
 //! @brief ImageHandler constructor
 ImageHandler::ImageHandler(void)
     : _free_on_return(false)
 {
-    // setup parsing maps
-    _image_type_map[""] = IMAGE_TYPE_NO;
-    _image_type_map["TILED"] = IMAGE_TYPE_TILED;
-    _image_type_map["SCALED"] = IMAGE_TYPE_SCALED;
-    _image_type_map["FIXED"] = IMAGE_TYPE_FIXED;
-
 #ifdef HAVE_IMAGE_JPEG
     PImage::loaderAdd(new PImageLoaderJpeg());
 #endif // HAVE_IMAGE_JPEG
@@ -69,8 +70,7 @@ ImageHandler::getImage(const std::string &file)
     auto pos = file.rfind('#');
     if (std::string::npos != pos) {
         real_file = file.substr(0, pos);
-        image_type = ParseUtil::getValue<ImageType>(file.substr(pos + 1),
-                                                    _image_type_map);
+        image_type = image_type_map.get(file.substr(pos + 1));
     }
 
     // Load the image, try load paths if not an absolute image path

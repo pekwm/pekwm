@@ -13,21 +13,23 @@
 #include "PTexturePlain.hh"
 #include "TextureHandler.hh"
 #include "Util.hh"
+#include "ParseUtil.hh"
 #include "x11.hh"
 
 #include <iostream>
 
+static ParseUtil::Map<PTexture::Type> parse_map =
+    {{"", PTexture::TYPE_NO},
+     {"SOLID", PTexture::TYPE_SOLID},
+     {"SOLIDRAISED", PTexture::TYPE_SOLID_RAISED},
+     {"LINESHORZ", PTexture::TYPE_LINES_HORZ},
+     {"LINESVERT", PTexture::TYPE_LINES_VERT},
+     {"IMAGE", PTexture::TYPE_IMAGE},
+     {"EMPTY", PTexture::TYPE_EMPTY}};
+
 TextureHandler::TextureHandler(void)
     : _length_min(5)
 {
-    // fill parse map with values
-    _parse_map[""] = PTexture::TYPE_NO;
-    _parse_map["SOLID"] = PTexture::TYPE_SOLID;
-    _parse_map["SOLIDRAISED"] = PTexture::TYPE_SOLID_RAISED;
-    _parse_map["LINESHORZ"] = PTexture::TYPE_LINES_HORZ;
-    _parse_map["LINESVERT"] = PTexture::TYPE_LINES_VERT;
-    _parse_map["IMAGE"] = PTexture::TYPE_IMAGE;
-    _parse_map["EMPTY"] = PTexture::TYPE_EMPTY;
 }
 
 TextureHandler::~TextureHandler(void)
@@ -124,9 +126,9 @@ TextureHandler::parse(const std::string &texture)
 
     PTexture::Type type;
     if (Util::splitString(texture, tok, " \t")) {
-        type = ParseUtil::getValue<PTexture::Type>(tok[0], _parse_map);
+        type = parse_map.get(tok[0]);
     } else {
-        type = ParseUtil::getValue<PTexture::Type>(texture, _parse_map);
+        type = parse_map.get(texture);
     }
 
     // need at least type and parameter, except for EMPTY type

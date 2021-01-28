@@ -74,8 +74,8 @@ CmdDialog::exec(void)
     // Check if it's a valid Action, if not we assume it's a command and try
     // to execute it.
     auto buf_mb(Util::to_mb_str(_buf));
-    if (! pekwm::config()->parseAction(buf_mb, _ae.action_list.back(),
-                                       KEYGRABBER_OK)) {
+    if (! ActionConfig::parseAction(buf_mb, _ae.action_list.back(),
+                                    KEYGRABBER_OK)) {
         _ae.action_list.back().setAction(ACTION_EXEC);
         _ae.action_list.back().setParamS(buf_mb);
     }

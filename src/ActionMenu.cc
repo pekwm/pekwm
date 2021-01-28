@@ -230,10 +230,12 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
                 // Inside of the Entry = "foo" { ... } section, here
                 // Actions and Icon are the valid options.
                 value = sub_section->findEntry("ACTIONS");
-                if (value && pekwm::config()->parseActions(value->getValue(), ae, _action_ok)) {
+                if (value && ActionConfig::parseActions(value->getValue(), ae,
+                                                        _action_ok)) {
                     icon = getIcon(sub_section->findEntry("ICON"));
 
-                    item = new PMenu::Item(Util::to_wide_str(sub_section->getValue()), 0, icon);
+                    auto sub_name = Util::to_wide_str(sub_section->getValue());
+                    item = new PMenu::Item(sub_name, 0, icon);
                     item->setCreator(parent);
                     item->setAE(ae);
 

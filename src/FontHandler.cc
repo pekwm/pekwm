@@ -12,24 +12,25 @@
 
 #include "Debug.hh"
 #include "FontHandler.hh"
-#include "x11.hh"
+#include "ParseUtil.hh"
 #include "Util.hh"
+#include "x11.hh"
+
+static ParseUtil::Map<PFont::Type> map_type =
+    {{"", PFont::FONT_TYPE_NO},
+     {"X11", PFont::FONT_TYPE_X11},
+     {"XFT", PFont::FONT_TYPE_XFT},
+     {"XMB", PFont::FONT_TYPE_XMB}};
+
+static ParseUtil::Map<FontJustify> map_justify =
+    {{"", FONT_JUSTIFY_NO},
+     {"LEFT", FONT_JUSTIFY_LEFT},
+     {"CENTER", FONT_JUSTIFY_CENTER},
+     {"RIGHT", FONT_JUSTIFY_RIGHT}};
 
 //! @brief FontHandler constructor
 FontHandler::FontHandler(void)
 {
-    if (_map_justify.size() == 0) {
-        _map_justify[""] = FONT_JUSTIFY_NO;
-        _map_justify["LEFT"] = FONT_JUSTIFY_LEFT;
-        _map_justify["CENTER"] = FONT_JUSTIFY_CENTER;
-        _map_justify["RIGHT"] = FONT_JUSTIFY_RIGHT;
-    }
-    if (_map_type.size() == 0) {
-        _map_type[""] = PFont::FONT_TYPE_NO;
-        _map_type["X11"] = PFont::FONT_TYPE_X11;
-        _map_type["XFT"] = PFont::FONT_TYPE_XFT;
-        _map_type["XMB"] = PFont::FONT_TYPE_XMB;
-    }
 }
 
 //! @brief FontHandler destructor
@@ -70,10 +71,10 @@ FontHandler::getFont(const std::string &font)
         // doesn't work fall back to the last. This is to backwards
         // compatible.
         auto tok_it = tok.begin();
-        uint type = ParseUtil::getValue<PFont::Type>(*tok_it, _map_type);
+        uint type = map_type.get(*tok_it);
         if (type == PFont::FONT_TYPE_NO) {
             tok_it = tok.end() - 1;
-            type = ParseUtil::getValue<PFont::Type>(*tok_it, _map_type);
+            type = map_type.get(*tok_it);
         }
 
         switch (type) {
@@ -110,7 +111,7 @@ FontHandler::getFont(const std::string &font)
                            strtol(tok_2[1].c_str(), 0, 10));
                 }
             } else { // justify
-                uint justify = ParseUtil::getValue<FontJustify>(*s_it, _map_justify);
+                uint justify = map_justify.get(*s_it);
                 if (justify == FONT_JUSTIFY_NO) {
                     justify = FONT_JUSTIFY_LEFT;
                 }

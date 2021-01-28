@@ -26,14 +26,79 @@ extern "C" {
 #include <sys/stat.h>
 }
 
-typedef std::pair<ActionType, uint> action_pair;
+static ParseUtil::Map<ActionAccessMask> action_access_mask_map =
+    {{"", ACTION_ACCESS_NO},
+     {"MOVE", ACTION_ACCESS_MOVE},
+     {"RESIZE", ACTION_ACCESS_RESIZE},
+     {"ICONIFY", ACTION_ACCESS_ICONIFY},
+     {"SHADE", ACTION_ACCESS_SHADE},
+     {"STICK", ACTION_ACCESS_STICK},
+     {"MAXIMIZEHORIZONTAL", ACTION_ACCESS_MAXIMIZE_HORZ},
+     {"MAXIMIZEVERTICAL", ACTION_ACCESS_MAXIMIZE_VERT},
+     {"FULLSCREEN", ACTION_ACCESS_FULLSCREEN},
+     {"SETWORKSPACE", ACTION_ACCESS_CHANGE_DESKTOP},
+     {"CLOSE", ACTION_ACCESS_CLOSE}};
 
-const int FRAME_MASK =
-    FRAME_OK|FRAME_BORDER_OK|CLIENT_OK|WINDOWMENU_OK|
-    KEYGRABBER_OK|BUTTONCLICK_OK;
-const int ANY_MASK =
-    KEYGRABBER_OK|FRAME_OK|FRAME_BORDER_OK|CLIENT_OK|ROOTCLICK_OK|
-    BUTTONCLICK_OK|WINDOWMENU_OK|ROOTMENU_OK|SCREEN_EDGE_OK;
+static ParseUtil::Map<MoveResizeActionType> moveresize_map =
+    {{"", NO_MOVERESIZE_ACTION},
+     {"MOVEHORIZONTAL", MOVE_HORIZONTAL},
+     {"MOVEVERTICAL", MOVE_VERTICAL},
+     {"RESIZEHORIZONTAL", RESIZE_HORIZONTAL},
+     {"RESIZEVERTICAL", RESIZE_VERTICAL},
+     {"MOVESNAP", MOVE_SNAP},
+     {"CANCEL", MOVE_CANCEL},
+     {"END", MOVE_END}};
+
+static ParseUtil::Map<InputDialogAction> inputdialog_map =
+    {{"", INPUT_NO_ACTION},
+     {"INSERT", INPUT_INSERT},
+     {"ERASE", INPUT_REMOVE},
+     {"CLEAR", INPUT_CLEAR},
+     {"CLEARFROMCURSOR", INPUT_CLEARFROMCURSOR},
+     {"EXEC", INPUT_EXEC},
+     {"CLOSE", INPUT_CLOSE},
+     {"COMPLETE", INPUT_COMPLETE},
+     {"COMPLETEABORT", INPUT_COMPLETE_ABORT},
+     {"CURSNEXT", INPUT_CURS_NEXT},
+     {"CURSPREV", INPUT_CURS_PREV},
+     {"CURSEND", INPUT_CURS_END},
+     {"CURSBEGIN", INPUT_CURS_BEGIN},
+     {"HISTNEXT", INPUT_HIST_NEXT},
+     {"HISTPREV", INPUT_HIST_PREV}};
+
+static ParseUtil::Map<MouseEventType> mouse_event_map =
+    {{"", MOUSE_EVENT_NO},
+     {"BUTTONPRESS", MOUSE_EVENT_PRESS},
+     {"BUTTONRELEASE", MOUSE_EVENT_RELEASE},
+     {"DOUBLECLICK", MOUSE_EVENT_DOUBLE},
+     {"MOTION", MOUSE_EVENT_MOTION},
+     {"ENTER", MOUSE_EVENT_ENTER},
+     {"LEAVE", MOUSE_EVENT_LEAVE},
+     {"ENTERMOVING", MOUSE_EVENT_ENTER_MOVING},
+     {"MOTIONPRESSED", MOUSE_EVENT_MOTION_PRESSED}};
+
+static ParseUtil::Map<ActionType> menu_action_map =
+    {{"", ACTION_MENU_NEXT},
+     {"NEXTITEM", ACTION_MENU_NEXT},
+     {"PREVITEM", ACTION_MENU_PREV},
+     {"SELECT", ACTION_MENU_SELECT},
+     {"ENTERSUBMENU", ACTION_MENU_ENTER_SUBMENU},
+     {"LEAVESUBMENU", ACTION_MENU_LEAVE_SUBMENU},
+     {"CLOSE", ACTION_CLOSE}};
+
+static ParseUtil::Map<HarbourPlacement> harbour_placement_map =
+    {{"", NO_HARBOUR_PLACEMENT},
+     {"TOP", TOP},
+     {"LEFT", LEFT},
+     {"RIGHT", RIGHT},
+     {"BOTTOM", BOTTOM}};
+
+static ParseUtil::Map<Orientation> harbour_orientation_map =
+    {{"", NO_ORIENTATION},
+     {"TOPTOBOTTOM", TOP_TO_BOTTOM},
+     {"LEFTTORIGHT", TOP_TO_BOTTOM},
+     {"BOTTOMTOTOP", BOTTOM_TO_TOP},
+     {"RIGHTTOLEFT", BOTTOM_TO_TOP}};
 
 /**
  * Parse width and height limits.
@@ -104,247 +169,6 @@ Config::Config(void) :
     for (uint i = 0; i <= SCREEN_EDGE_NO; ++i) {
         _screen_edge_sizes.push_back(0);
     }
-
-    // fill parsing maps
-    _action_map[""] = action_pair(ACTION_NO, 0);
-    _action_map["Focus"] = action_pair(ACTION_FOCUS, ANY_MASK);
-    _action_map["UnFocus"] = action_pair(ACTION_UNFOCUS, ANY_MASK);
-
-    _action_map["Set"] = action_pair(ACTION_SET, ANY_MASK);
-    _action_map["Unset"] = action_pair(ACTION_UNSET, ANY_MASK);
-    _action_map["Toggle"] = action_pair(ACTION_TOGGLE, ANY_MASK);
-
-    _action_map["MaxFill"] = action_pair(ACTION_MAXFILL, FRAME_MASK);
-    _action_map["GrowDirection"] = action_pair(ACTION_GROW_DIRECTION, FRAME_MASK);
-    _action_map["Close"] = action_pair(ACTION_CLOSE, FRAME_MASK);
-    _action_map["CloseFrame"] = action_pair(ACTION_CLOSE_FRAME, FRAME_MASK);
-    _action_map["Kill"] = action_pair(ACTION_KILL, FRAME_MASK);
-    _action_map["SetGeometry"] = action_pair(ACTION_SET_GEOMETRY, FRAME_MASK);
-    _action_map["Raise"] = action_pair(ACTION_RAISE, FRAME_MASK);
-    _action_map["Lower"] = action_pair(ACTION_LOWER, FRAME_MASK);
-    _action_map["ActivateOrRaise"] = action_pair(ACTION_ACTIVATE_OR_RAISE, FRAME_MASK);
-    _action_map["ActivateClientRel"] = action_pair(ACTION_ACTIVATE_CLIENT_REL, FRAME_MASK);
-    _action_map["MoveClientRel"] = action_pair(ACTION_MOVE_CLIENT_REL, FRAME_MASK);
-    _action_map["ActivateClient"] = action_pair(ACTION_ACTIVATE_CLIENT, FRAME_MASK);
-    _action_map["ActivateClientNum"] = action_pair(ACTION_ACTIVATE_CLIENT_NUM, KEYGRABBER_OK);
-    _action_map["Resize"] = action_pair(ACTION_RESIZE, BUTTONCLICK_OK|CLIENT_OK|FRAME_OK|FRAME_BORDER_OK);
-    _action_map["Move"] = action_pair(ACTION_MOVE, FRAME_OK|FRAME_BORDER_OK|CLIENT_OK);
-    _action_map["MoveResize"] = action_pair(ACTION_MOVE_RESIZE, KEYGRABBER_OK);
-    _action_map["GroupingDrag"] = action_pair(ACTION_GROUPING_DRAG, FRAME_OK|CLIENT_OK);
-    _action_map["WarpToWorkspace"] = action_pair(ACTION_WARP_TO_WORKSPACE, SCREEN_EDGE_OK);
-    _action_map["MoveToHead"] = action_pair(ACTION_MOVE_TO_HEAD, FRAME_MASK);
-    _action_map["MoveToEdge"] = action_pair(ACTION_MOVE_TO_EDGE, KEYGRABBER_OK);
-    _action_map["NextFrame"] = action_pair(ACTION_NEXT_FRAME, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
-    _action_map["PrevFrame"] = action_pair(ACTION_PREV_FRAME, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
-    _action_map["NextFrameMRU"] = action_pair(ACTION_NEXT_FRAME_MRU, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
-    _action_map["PrevFrameMRU"] = action_pair(ACTION_PREV_FRAME_MRU, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
-    _action_map["FocusDirectional"] = action_pair(ACTION_FOCUS_DIRECTIONAL, FRAME_MASK);
-    _action_map["AttachMarked"] = action_pair(ACTION_ATTACH_MARKED, FRAME_MASK);
-    _action_map["AttachClientInNextFrame"] = action_pair(ACTION_ATTACH_CLIENT_IN_NEXT_FRAME, FRAME_MASK);
-    _action_map["AttachClientInPrevFrame"] = action_pair(ACTION_ATTACH_CLIENT_IN_PREV_FRAME, FRAME_MASK);
-    _action_map["FindClient"] = action_pair(ACTION_FIND_CLIENT, ANY_MASK);
-    _action_map["GotoClientID"] = action_pair(ACTION_GOTO_CLIENT_ID, ANY_MASK);
-    _action_map["Detach"] = action_pair(ACTION_DETACH, FRAME_MASK);
-    _action_map["SendToWorkspace"] = action_pair(ACTION_SEND_TO_WORKSPACE, ANY_MASK);
-    _action_map["GoToWorkspace"] = action_pair(ACTION_GOTO_WORKSPACE, ANY_MASK );
-    _action_map["Exec"] =
-        action_pair(ACTION_EXEC,
-                    FRAME_MASK|ROOTMENU_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
-    _action_map["ShellExec"] =
-        action_pair(ACTION_SHELL_EXEC,
-                    FRAME_MASK|ROOTMENU_OK|ROOTCLICK_OK|SCREEN_EDGE_OK);
-    _action_map["Reload"] = action_pair(ACTION_RELOAD, KEYGRABBER_OK|ROOTMENU_OK);
-    _action_map["Restart"] = action_pair(ACTION_RESTART, KEYGRABBER_OK|ROOTMENU_OK);
-    _action_map["RestartOther"] = action_pair(ACTION_RESTART_OTHER, KEYGRABBER_OK|ROOTMENU_OK);
-    _action_map["Exit"] = action_pair(ACTION_EXIT, KEYGRABBER_OK|ROOTMENU_OK);
-    _action_map["ShowCmdDialog"] = action_pair(ACTION_SHOW_CMD_DIALOG, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK|ROOTMENU_OK|WINDOWMENU_OK);
-    _action_map["ShowSearchDialog"] = action_pair(ACTION_SHOW_SEARCH_DIALOG, KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK|ROOTMENU_OK|WINDOWMENU_OK);
-    _action_map["ShowMenu"] = action_pair(ACTION_SHOW_MENU, FRAME_MASK|ROOTCLICK_OK|SCREEN_EDGE_OK|ROOTMENU_OK|WINDOWMENU_OK);
-    _action_map["HideAllMenus"] = action_pair(ACTION_HIDE_ALL_MENUS, FRAME_MASK|ROOTCLICK_OK|SCREEN_EDGE_OK);
-    _action_map["SubMenu"] = action_pair(ACTION_MENU_SUB, ROOTMENU_OK|WINDOWMENU_OK);
-    _action_map["Dynamic"] = action_pair(ACTION_MENU_DYN, ROOTMENU_OK|WINDOWMENU_OK);
-    _action_map["SendKey"] = action_pair(ACTION_SEND_KEY, ANY_MASK);
-    _action_map["SetOpacity"] = action_pair(ACTION_SET_OPACITY, FRAME_MASK);
-    _action_map["Debug"] = action_pair(ACTION_DEBUG, ANY_MASK);
-
-    _action_access_mask_map[""] = ACTION_ACCESS_NO;
-    _action_access_mask_map["MOVE"] = ACTION_ACCESS_MOVE;
-    _action_access_mask_map["RESIZE"] = ACTION_ACCESS_RESIZE;
-    _action_access_mask_map["ICONIFY"] = ACTION_ACCESS_ICONIFY;
-    _action_access_mask_map["SHADE"] = ACTION_ACCESS_SHADE;
-    _action_access_mask_map["STICK"] = ACTION_ACCESS_STICK;
-    _action_access_mask_map["MAXIMIZEHORIZONTAL"] = ACTION_ACCESS_MAXIMIZE_HORZ;
-    _action_access_mask_map["MAXIMIZEVERTICAL"] = ACTION_ACCESS_MAXIMIZE_VERT;
-    _action_access_mask_map["FULLSCREEN"] = ACTION_ACCESS_FULLSCREEN;
-    _action_access_mask_map["SETWORKSPACE"] = ACTION_ACCESS_CHANGE_DESKTOP;
-    _action_access_mask_map["CLOSE"] = ACTION_ACCESS_CLOSE;
-
-    _edge_map[""] = NO_EDGE;
-    _edge_map["TOPLEFT"] = TOP_LEFT;
-    _edge_map["TOPEDGE"] = TOP_EDGE;
-    _edge_map["TOPCENTEREDGE"] = TOP_CENTER_EDGE;
-    _edge_map["TOPRIGHT"] = TOP_RIGHT;
-    _edge_map["BOTTOMRIGHT"] = BOTTOM_RIGHT;
-    _edge_map["BOTTOMEDGE"] = BOTTOM_EDGE;
-    _edge_map["BOTTOMCENTEREDGE"] = BOTTOM_CENTER_EDGE;
-    _edge_map["BOTTOMLEFT"] = BOTTOM_LEFT;
-    _edge_map["LEFTEDGE"] = LEFT_EDGE;
-    _edge_map["LEFTCENTEREDGE"] = LEFT_CENTER_EDGE;
-    _edge_map["RIGHTEDGE"] = RIGHT_EDGE;
-    _edge_map["RIGHTCENTEREDGE"] = RIGHT_CENTER_EDGE;
-    _edge_map["CENTER"] = CENTER;
-
-    _raise_map[""] = NO_RAISE;
-    _raise_map["ALWAYSRAISE"] = ALWAYS_RAISE;
-    _raise_map["ENDRAISE"] = END_RAISE;
-    _raise_map["NEVERRAISE"] = NEVER_RAISE;
-    _raise_map["TEMPRAISE"] = TEMP_RAISE;
-
-    _skip_map[""] = SKIP_NONE;
-    _skip_map["MENUS"] = SKIP_MENUS;
-    _skip_map["FOCUSTOGGLE"] = SKIP_FOCUS_TOGGLE;
-    _skip_map["SNAP"] = SKIP_SNAP;
-    _skip_map["PAGER"] = SKIP_PAGER;
-    _skip_map["TASKBAR"] = SKIP_TASKBAR;
-
-    _layer_map[""] = LAYER_NONE;
-    _layer_map["DESKTOP"] = LAYER_DESKTOP;
-    _layer_map["BELOW"] = LAYER_BELOW;
-    _layer_map["NORMAL"] = LAYER_NORMAL;
-    _layer_map["ONTOP"] = LAYER_ONTOP;
-    _layer_map["HARBOUR"] = LAYER_DOCK;
-    _layer_map["ABOVEHARBOUR"] = LAYER_ABOVE_DOCK;
-    _layer_map["MENU"] = LAYER_MENU;
-
-    _moveresize_map[""] = NO_MOVERESIZE_ACTION;
-    _moveresize_map["MOVEHORIZONTAL"] = MOVE_HORIZONTAL;
-    _moveresize_map["MOVEVERTICAL"] = MOVE_VERTICAL;
-    _moveresize_map["RESIZEHORIZONTAL"] = RESIZE_HORIZONTAL;
-    _moveresize_map["RESIZEVERTICAL"] = RESIZE_VERTICAL;
-    _moveresize_map["MOVESNAP"] = MOVE_SNAP;
-    _moveresize_map["CANCEL"] = MOVE_CANCEL;
-    _moveresize_map["END"] = MOVE_END;
-
-    _inputdialog_map[""] = INPUT_NO_ACTION;
-    _inputdialog_map["INSERT"] = INPUT_INSERT;
-    _inputdialog_map["ERASE"] = INPUT_REMOVE;
-    _inputdialog_map["CLEAR"] = INPUT_CLEAR;
-    _inputdialog_map["CLEARFROMCURSOR"] = INPUT_CLEARFROMCURSOR;
-    _inputdialog_map["EXEC"] = INPUT_EXEC;
-    _inputdialog_map["CLOSE"] = INPUT_CLOSE;
-    _inputdialog_map["COMPLETE"] = INPUT_COMPLETE;
-    _inputdialog_map["COMPLETEABORT"] = INPUT_COMPLETE_ABORT;
-    _inputdialog_map["CURSNEXT"] = INPUT_CURS_NEXT;
-    _inputdialog_map["CURSPREV"] = INPUT_CURS_PREV;
-    _inputdialog_map["CURSEND"] = INPUT_CURS_END;
-    _inputdialog_map["CURSBEGIN"] = INPUT_CURS_BEGIN;
-    _inputdialog_map["HISTNEXT"] = INPUT_HIST_NEXT;
-    _inputdialog_map["HISTPREV"] = INPUT_HIST_PREV;
-
-    _direction_map[""] = DIRECTION_NO;
-    _direction_map["UP"] = DIRECTION_UP;
-    _direction_map["DOWN"] = DIRECTION_DOWN;
-    _direction_map["LEFT"] = DIRECTION_LEFT;
-    _direction_map["RIGHT"] = DIRECTION_RIGHT;
-
-    _workspace_change_map[""] = WORKSPACE_NO;
-    _workspace_change_map["LEFT"] = WORKSPACE_LEFT;
-    _workspace_change_map["LEFTN"] = WORKSPACE_LEFT_N;
-    _workspace_change_map["PREV"] = WORKSPACE_PREV;
-    _workspace_change_map["PREVN"] = WORKSPACE_PREV_N;
-    _workspace_change_map["RIGHT"] = WORKSPACE_RIGHT;
-    _workspace_change_map["RIGHTN"] = WORKSPACE_RIGHT_N;
-    _workspace_change_map["NEXT"] = WORKSPACE_NEXT;
-    _workspace_change_map["NEXTN"] = WORKSPACE_NEXT_N;
-    _workspace_change_map["PREVV"] = WORKSPACE_PREV_V;
-    _workspace_change_map["UP"] = WORKSPACE_UP;
-    _workspace_change_map["NEXTV"] = WORKSPACE_NEXT_V;
-    _workspace_change_map["DOWN"] = WORKSPACE_DOWN;
-    _workspace_change_map["LAST"] = WORKSPACE_LAST;
-
-    _borderpos_map[""] = BORDER_NO_POS;
-    _borderpos_map["TOPLEFT"] = BORDER_TOP_LEFT;
-    _borderpos_map["TOP"] = BORDER_TOP;
-    _borderpos_map["TOPRIGHT"] = BORDER_TOP_RIGHT;
-    _borderpos_map["LEFT"] = BORDER_LEFT;
-    _borderpos_map["RIGHT"] = BORDER_RIGHT;
-    _borderpos_map["BOTTOMLEFT"] = BORDER_BOTTOM_LEFT;
-    _borderpos_map["BOTTOM"] = BORDER_BOTTOM;
-    _borderpos_map["BOTTOMRIGHT"] = BORDER_BOTTOM_RIGHT;
-
-    _mouse_event_map[""] = MOUSE_EVENT_NO;
-    _mouse_event_map["BUTTONPRESS"] = MOUSE_EVENT_PRESS;
-    _mouse_event_map["BUTTONRELEASE"] = MOUSE_EVENT_RELEASE;
-    _mouse_event_map["DOUBLECLICK"] = MOUSE_EVENT_DOUBLE;
-    _mouse_event_map["MOTION"] = MOUSE_EVENT_MOTION;
-    _mouse_event_map["ENTER"] = MOUSE_EVENT_ENTER;
-    _mouse_event_map["LEAVE"] = MOUSE_EVENT_LEAVE;
-    _mouse_event_map["ENTERMOVING"] = MOUSE_EVENT_ENTER_MOVING;
-    _mouse_event_map["MOTIONPRESSED"] = MOUSE_EVENT_MOTION_PRESSED;
-
-    _mod_map[""] = 0;
-    _mod_map["NONE"] = 0;
-    _mod_map["SHIFT"] = ShiftMask;
-    _mod_map["CTRL"] = ControlMask;
-    _mod_map["MOD1"] = Mod1Mask;
-    _mod_map["MOD2"] = Mod2Mask;
-    _mod_map["MOD3"] = Mod3Mask;
-    _mod_map["MOD4"] = Mod4Mask;
-    _mod_map["MOD5"] = Mod5Mask;
-    _mod_map["ANY"] = MOD_ANY;
-
-    _action_state_map[""] = ACTION_STATE_NO;
-    _action_state_map["Maximized"] = ACTION_STATE_MAXIMIZED;
-    _action_state_map["Fullscreen"] = ACTION_STATE_FULLSCREEN;
-    _action_state_map["Shaded"] = ACTION_STATE_SHADED;
-    _action_state_map["Sticky"] = ACTION_STATE_STICKY;
-    _action_state_map["AlwaysOnTop"] = ACTION_STATE_ALWAYS_ONTOP;
-    _action_state_map["AlwaysBelow"] = ACTION_STATE_ALWAYS_BELOW;
-    _action_state_map["Decor"] = ACTION_STATE_DECOR;
-    _action_state_map["DecorBorder"] = ACTION_STATE_DECOR_BORDER;
-    _action_state_map["DecorTitlebar"] = ACTION_STATE_DECOR_TITLEBAR;
-    _action_state_map["Iconified"] = ACTION_STATE_ICONIFIED;
-    _action_state_map["Tagged"] = ACTION_STATE_TAGGED;
-    _action_state_map["Marked"] = ACTION_STATE_MARKED;
-    _action_state_map["Skip"] = ACTION_STATE_SKIP;
-    _action_state_map["CfgDeny"] = ACTION_STATE_CFG_DENY;
-    _action_state_map["Opaque"] = ACTION_STATE_OPAQUE;
-    _action_state_map["Title"] = ACTION_STATE_TITLE;
-    _action_state_map["HarbourHidden"] = ACTION_STATE_HARBOUR_HIDDEN;
-    _action_state_map["GlobalGrouping"] = ACTION_STATE_GLOBAL_GROUPING;
-
-
-    _cfg_deny_map["POSITION"] = CFG_DENY_POSITION;
-    _cfg_deny_map["SIZE"] = CFG_DENY_SIZE;
-    _cfg_deny_map["STACKING"] = CFG_DENY_STACKING;
-    _cfg_deny_map["ACTIVEWINDOW"] = CFG_DENY_ACTIVE_WINDOW;
-    _cfg_deny_map["MAXIMIZEDVERT"] = CFG_DENY_STATE_MAXIMIZED_VERT;
-    _cfg_deny_map["MAXIMIZEDHORZ"] = CFG_DENY_STATE_MAXIMIZED_HORZ;
-    _cfg_deny_map["HIDDEN"] = CFG_DENY_STATE_HIDDEN;
-    _cfg_deny_map["FULLSCREEN"] = CFG_DENY_STATE_FULLSCREEN;
-    _cfg_deny_map["ABOVE"] = CFG_DENY_STATE_ABOVE;
-    _cfg_deny_map["BELOW"] = CFG_DENY_STATE_BELOW;
-    _cfg_deny_map["STRUT"] = CFG_DENY_STRUT;
-
-    _menu_action_map[""] = ACTION_MENU_NEXT;
-    _menu_action_map["NEXTITEM"] = ACTION_MENU_NEXT;
-    _menu_action_map["PREVITEM"] = ACTION_MENU_PREV;
-    _menu_action_map["SELECT"] = ACTION_MENU_SELECT;
-    _menu_action_map["ENTERSUBMENU"] = ACTION_MENU_ENTER_SUBMENU;
-    _menu_action_map["LEAVESUBMENU"] = ACTION_MENU_LEAVE_SUBMENU;
-    _menu_action_map["CLOSE"] = ACTION_CLOSE;
-
-    _harbour_placement_map[""] = NO_HARBOUR_PLACEMENT;
-    _harbour_placement_map["TOP"] = TOP;
-    _harbour_placement_map["LEFT"] = LEFT;
-    _harbour_placement_map["RIGHT"] = RIGHT;
-    _harbour_placement_map["BOTTOM"] = BOTTOM;
-
-    _harbour_orientation_map[""] = NO_ORIENTATION;
-    _harbour_orientation_map["TOPTOBOTTOM"] = TOP_TO_BOTTOM;
-    _harbour_orientation_map["LEFTTORIGHT"] = TOP_TO_BOTTOM;
-    _harbour_orientation_map["BOTTOMTOTOP"] = BOTTOM_TO_TOP;
-    _harbour_orientation_map["RIGHTTOLEFT"] = BOTTOM_TO_TOP;
 
     // fill the mouse action map
     _mouse_action_map[MOUSE_ACTION_LIST_TITLE_FRAME] =
@@ -867,12 +691,8 @@ Config::loadHarbour(CfgParser::Entry *section)
     // Convert opacity from percent to absolute value
     CONV_OPACITY(_harbour_opacity);
 
-    _harbour_placement =
-        ParseUtil::getValue<HarbourPlacement>(value_placement,
-                                              _harbour_placement_map);
-    _harbour_orientation =
-        ParseUtil::getValue<Orientation>(value_orientation,
-                                         _harbour_orientation_map);
+    _harbour_placement = harbour_placement_map.get(value_placement);
+    _harbour_orientation = harbour_orientation_map.get(value_orientation);
     if (_harbour_placement == NO_HARBOUR_PLACEMENT) {
         _harbour_placement = RIGHT;
     }
@@ -896,266 +716,10 @@ Config::loadHarbour(CfgParser::Entry *section)
     }
 }
 
-ActionType
-Config::getAction(const std::string &name, uint mask)
-{
-    auto val = ParseUtil::getValue<action_pair>(name, _action_map);
-    if ((val.first != ACTION_NO) && (val.second&mask)) {
-        return val.first;
-    }
-    return ACTION_NO;
-}
-
 ActionAccessMask
 Config::getActionAccessMask(const std::string &name)
 {
-    ActionAccessMask mask = ParseUtil::getValue<ActionAccessMask>(name, _action_access_mask_map);
-    return mask;
-}
-
-bool
-Config::parseKey(const std::string &key_string, uint &mod, uint &key)
-{
-    // used for parsing
-    std::vector<std::string> tok;
-
-    uint num;
-
-    // chop the string up separating mods and the end key/button
-    if (Util::splitString(key_string, tok, " \t")) {
-        num = tok.size() - 1;
-        if ((tok[num].size() > 1) && (tok[num][0] == '#')) {
-            key = strtol(tok[num].c_str() + 1, 0, 10);
-        } else if (strcasecmp(tok[num].c_str(), "ANY") == 0) {
-            // Do no matching, anything goes.
-            key = 0;
-        } else {
-            KeySym keysym = XStringToKeysym(tok[num].c_str());
-
-            // XStringToKeysym() may fail. Perhaps we have luck after some
-            // simple transformations. First we convert the string to lowercase
-            // and try again. Then we try with only the first character in
-            // uppercase and at last we try a complete uppercase string. If all
-            // fails, we print a warning and return false.
-            if (keysym == NoSymbol) {
-                std::string str = tok[num];
-                Util::to_lower(str);
-                keysym = XStringToKeysym(str.c_str());
-                if (keysym == NoSymbol) {
-                    str[0] = ::toupper(str[0]);
-                    keysym = XStringToKeysym(str.c_str());
-                    if (keysym == NoSymbol) {
-                        Util::to_upper(str);
-                        keysym = XStringToKeysym(str.c_str());
-                        if (keysym == NoSymbol) {
-                            USER_WARN("could not find keysym for "
-                                      << tok[num]);
-                            return false;
-                        }
-                    }
-                }
-            }
-            key = XKeysymToKeycode(X11::getDpy(), keysym);
-        }
-
-        // if the last token isn't an key/button, the action isn't valid
-        if ((key != 0) || (strcasecmp(tok[num].c_str(), "ANY") == 0)) {
-            tok.pop_back(); // remove the key/button
-
-            // add the modifier
-            mod = 0;
-            for (auto it : tok) {
-                mod |= getMod(it);
-            }
-
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Config::parseButton(const std::string &button_string, uint &mod, uint &button)
-{
-    // used for parsing
-    std::vector<std::string> tok;
-
-    // chop the string up separating mods and the end key/button
-    if (Util::splitString(button_string, tok, " \t")) {
-        // if the last token isn't an key/button, the action isn't valid
-        button = getMouseButton(tok[tok.size() - 1]);
-        if (button != BUTTON_NO) {
-            tok.pop_back(); // remove the key/button
-
-            // add the modifier
-            mod = 0;
-            uint tmp_mod;
-
-            for (auto it : tok) {
-                tmp_mod = getMod(it);
-                if (tmp_mod == MOD_ANY) {
-                    mod = MOD_ANY;
-                    break;
-                } else {
-                    mod |= tmp_mod;
-                }
-            }
-
-            return true;
-        }
-    }
-
-    return false;
-}
-
-//! @brief Parse a single action and fills action.
-//! @param action_string String representation of action.
-//! @param action Action structure to fill in.
-//! @param mask Mask action is valid for.
-//! @return true on success, else false
-bool
-Config::parseAction(const std::string &action_string, Action &action, uint mask)
-{
-    std::vector<std::string> tok;
-
-    // chop the string up separating the action and parameters
-    if (Util::splitString(action_string, tok, " \t", 2)) {
-        action.setAction(getAction(tok[0], mask));
-        if (action.getAction() != ACTION_NO) {
-            if (tok.size() == 2) { // we got enough tok for a parameter
-                switch (action.getAction()) {
-                case ACTION_EXEC:
-                case ACTION_SHELL_EXEC:
-                case ACTION_RESTART_OTHER:
-                case ACTION_FIND_CLIENT:
-                case ACTION_SHOW_CMD_DIALOG:
-                case ACTION_SHOW_SEARCH_DIALOG:
-                case ACTION_SEND_KEY:
-                case ACTION_MENU_DYN:
-                case ACTION_DEBUG:
-                    action.setParamS(tok[1]);
-                    break;
-                case ACTION_SET_GEOMETRY:
-                    parseActionSetGeometry(action, tok[1]);
-                    break;
-                case ACTION_ACTIVATE_CLIENT_REL:
-                case ACTION_MOVE_CLIENT_REL:
-                case ACTION_GOTO_CLIENT_ID:
-                case ACTION_MOVE_TO_HEAD:
-                    action.setParamI(0, strtol(tok[1].c_str(), 0, 10));
-                    break;
-                case ACTION_SET:
-                case ACTION_UNSET:
-                case ACTION_TOGGLE:
-                    parseActionState(action, tok[1]);
-                    break;
-                case ACTION_MAXFILL:
-                    if ((Util::splitString(tok[1], tok, " \t", 2)) == 2) {
-                        action.setParamI(0, Util::isTrue(tok[tok.size() - 2]));
-                        action.setParamI(1, Util::isTrue(tok[tok.size() - 1]));
-                    } else {
-                        USER_WARN("missing argument to MaxFill, 2 required");
-                    }
-                    break;
-                case ACTION_GROW_DIRECTION:
-                    action.setParamI(0,
-                                     ParseUtil::getValue<DirectionType>(tok[1],
-                                                               _direction_map));
-                    break;
-                case ACTION_ACTIVATE_CLIENT_NUM:
-                    action.setParamI(0, strtol(tok[1].c_str(), 0, 10) - 1);
-                    if (action.getParamI(0) < 0) {
-                        USER_WARN("negative number to ActivateClientNum");
-                        action.setParamI(0, 0);
-                    }
-                    break;
-                case ACTION_WARP_TO_WORKSPACE:
-                case ACTION_SEND_TO_WORKSPACE:
-                case ACTION_GOTO_WORKSPACE:
-                    action.setParamI(0, parseWorkspaceNumber(tok[1]));
-                    break;
-                case ACTION_GROUPING_DRAG:
-                    action.setParamI(0, Util::isTrue(tok[1]));
-                    break;
-                case ACTION_MOVE_TO_EDGE:
-                    action.setParamI(0, ParseUtil::getValue<OrientationType>(tok[1], _edge_map));
-                    break;
-                case ACTION_NEXT_FRAME:
-                case ACTION_NEXT_FRAME_MRU:
-                case ACTION_PREV_FRAME:
-                case ACTION_PREV_FRAME_MRU:
-                    if ((Util::splitString(tok[1], tok, " \t", 2)) == 2) {
-                        action.setParamI(0, ParseUtil::getValue<Raise>(tok[tok.size() - 2],
-                                         _raise_map));
-                        action.setParamI(1, Util::isTrue(tok[tok.size() - 1]));
-                    } else {
-                        action.setParamI(0, ParseUtil::getValue<Raise>(tok[1],
-                                         _raise_map));
-                        action.setParamI(1, false);
-                    }
-                    break;
-                case ACTION_FOCUS_DIRECTIONAL:
-                    if ((Util::splitString(tok[1], tok, " \t", 2)) == 2) {
-                        action.setParamI(0, ParseUtil::getValue<DirectionType>(tok[tok.size() - 2], _direction_map));
-                        action.setParamI(1, Util::isTrue(tok[tok.size() - 1])); // raise?
-                    } else {
-                        action.setParamI(0, ParseUtil::getValue<DirectionType>(tok[1], _direction_map));
-                        action.setParamI(1, true); // default to raise
-                    }
-                    break;
-                case ACTION_RESIZE:
-                    action.setParamI(0, 1 + ParseUtil::getValue<BorderPosition>(tok[1], _borderpos_map));
-                    break;
-                case ACTION_RAISE:
-                case ACTION_LOWER:
-                    if ((Util::splitString(tok[1], tok, " \t", 1)) == 1) {
-                        action.setParamI(0, Util::isTrue(tok[tok.size() - 1]));
-                    } else {
-                        action.setParamI(0, false);
-                    }
-                    break;
-                case ACTION_SHOW_MENU:
-                    if ((Util::splitString(tok[1], tok, " \t", 2)) == 2) {
-                        Util::to_upper(tok[tok.size() - 2]);
-                        action.setParamS(tok[tok.size() - 2]);
-                        action.setParamI(0, Util::isTrue(tok[tok.size() - 1]));
-                    } else {
-                        Util::to_upper(tok[1]);
-                        action.setParamS(tok[1]);
-                        action.setParamI(0, false); // Default to non-sticky
-                    }
-                    break;
-                case ACTION_SET_OPACITY:
-                    if ((Util::splitString(tok[1], tok, " \t", 2)) == 2) {
-                        action.setParamI(0, std::atoi(tok[tok.size() - 2].c_str()));
-                        action.setParamI(1, std::atoi(tok[tok.size() - 1].c_str()));
-                    } else {
-                        action.setParamI(0, std::atoi(tok[1].c_str()));
-                        action.setParamI(1, std::atoi(tok[1].c_str()));
-                    }
-                    break;
-                default:
-                    // do nothing
-                    break;
-                }
-            } else {
-                switch (action.getAction()) {
-                case ACTION_MAXFILL:
-                    action.setParamI(0, 1);
-                    action.setParamI(1, 1);
-                    break;
-                default:
-                    // do nothing
-                    break;
-                }
-            }
-
-            return true;
-        }
-    }
-
-    return false;
+    return action_access_mask_map.get(name);
 }
 
 bool
@@ -1174,130 +738,13 @@ Config::parseActionAccessMask(const std::string &action_mask, uint &mask)
 }
 
 bool
-Config::parseActionState(Action &action, const std::string &as_action)
-{
-    std::vector<std::string> tok;
-
-    // chop the string up separating the action and parameters
-    if (Util::splitString(as_action, tok, " \t", 2)) {
-        action.setParamI(0, ParseUtil::getValue<ActionStateType>(tok[0], _action_state_map));
-        if (action.getParamI(0) != ACTION_STATE_NO) {
-            if (tok.size() == 2) { // we got enough tok for a parameter
-                std::string directions;
-
-                switch (action.getParamI(0)) {
-                case ACTION_STATE_MAXIMIZED:
-                    // Using copy of token here to silence valgrind checks.
-                    directions = tok[1];
-
-                    Util::splitString(directions, tok, " \t", 2);
-                    if (tok.size() == 4) {
-                        action.setParamI(1, Util::isTrue(tok[2]));
-                        action.setParamI(2, Util::isTrue(tok[3]));
-                    } else {
-                        USER_WARN("missing argument to Maximized, 2 required");
-                    }
-                    break;
-                case ACTION_STATE_TAGGED:
-                    action.setParamI(1, Util::isTrue(tok[1]));
-                    break;
-                case ACTION_STATE_SKIP:
-                    action.setParamI(1, getSkip(tok[1]));
-                    break;
-                case ACTION_STATE_CFG_DENY:
-                    action.setParamI(1, getCfgDeny(tok[1]));
-                    break;
-                case ACTION_STATE_DECOR:
-                case ACTION_STATE_TITLE:
-                    action.setParamS(tok[1]);
-                    break;
-                };
-            } else {
-                switch (action.getParamI(0)) {
-                case ACTION_STATE_MAXIMIZED:
-                    action.setParamI(1, 1);
-                    action.setParamI(2, 1);
-                    break;
-                default:
-                    // do nothing
-                    break;
-                }
-            }
-
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool
-Config::parseActions(const std::string &action_string, ActionEvent &ae, uint mask)
-{
-    std::vector<std::string> tok;
-    Action action;
-
-    // reset the action event
-    ae.action_list.clear();
-
-    // chop the string up separating the actions
-    if (Util::splitString(action_string, tok, ";", 0, false, '\\')) {
-        for (auto it : tok) {
-            if (parseAction(it, action, mask)) {
-                ae.action_list.push_back(action);
-                action.clear();
-            }
-        }
-
-        return true;
-    }
-
-    return false;
-}
-
-bool
-Config::parseActionEvent(CfgParser::Entry *section, ActionEvent &ae, uint mask, bool button)
-{
-    CfgParser::Entry *value = section->findEntry("ACTIONS");
-    if (! value && section->getSection()) {
-        value = section->getSection()->findEntry("ACTIONS");
-    }
-
-    if (! value) {
-        return false;
-    }
-
-    std::string str_button = section->getValue();
-    if (! str_button.size()) {
-        if ((ae.type == MOUSE_EVENT_ENTER) || (ae.type == MOUSE_EVENT_LEAVE)) {
-            str_button = "1";
-        } else {
-            return false;
-        }
-    }
-
-    bool ok;
-    if (button) {
-        ok = parseButton(str_button, ae.mod, ae.sym);
-    } else {
-        ok = parseKey(str_button, ae.mod, ae.sym);
-    }
-    
-    if (ok) {
-        return parseActions(value->getValue(), ae, mask);
-    }
-    return false;
-}
-
-bool
 Config::parseMoveResizeAction(const std::string &action_string, Action &action)
 {
     std::vector<std::string> tok;
 
     // Chop the string up separating the actions.
     if (Util::splitString(action_string, tok, " \t", 2)) {
-        action.setAction(ParseUtil::getValue<MoveResizeActionType>(tok[0],
-                         _moveresize_map));
+        action.setAction(moveresize_map.get(tok[0]));
         if (action.getAction() != NO_MOVERESIZE_ACTION) {
             if (tok.size() == 2) { // we got enough tok for a paremeter
                 switch (action.getAction()) {
@@ -1355,8 +802,8 @@ Config::parseMoveResizeEvent(CfgParser::Entry *section, ActionEvent& ae)
     if (! section->getValue().size ()) {
         return false;
     }
-    
-    if (parseKey(section->getValue(), ae.mod, ae.sym)) {
+
+    if (ActionConfig::parseKey(section->getValue(), ae.mod, ae.sym)) {
         value = section->getSection()->findEntry("ACTIONS");
         if (value) {
             return parseMoveResizeActions(value->getValue(), ae);
@@ -1369,7 +816,7 @@ Config::parseMoveResizeEvent(CfgParser::Entry *section, ActionEvent& ae)
 bool
 Config::parseInputDialogAction(const std::string &val, Action &action)
 {
-    action.setAction(ParseUtil::getValue<InputDialogAction>(val, _inputdialog_map));
+    action.setAction(inputdialog_map.get(val));
     return (action.getAction() != INPUT_NO_ACTION);
 }
 
@@ -1415,7 +862,7 @@ Config::parseInputDialogEvent(CfgParser::Entry *section, ActionEvent &ae)
         return false;
     }
     
-    if (parseKey(section->getValue(), ae.mod, ae.sym)) {
+    if (ActionConfig::parseKey(section->getValue(), ae.mod, ae.sym)) {
         value = section->getSection()->findEntry("ACTIONS");
         if (value) {
             return parseInputDialogActions(value->getValue(), ae);
@@ -1437,7 +884,7 @@ Config::getMenuMask(const std::string &mask)
     Util::splitString(mask, tok, " \t");
 
     for (auto it : tok) {
-        val = ParseUtil::getValue<MouseEventType>(it, _mouse_event_map);
+        val = mouse_event_map.get(it);
         if (val != MOUSE_EVENT_NO) {
             mask_return |= val;
         }
@@ -1452,7 +899,7 @@ Config::parseMenuAction(const std::string &action_string, Action &action)
 
     // chop the string up separating the actions
     if (Util::splitString(action_string, tok, " \t", 2)) {
-        action.setAction(ParseUtil::getValue<ActionType>(tok[0], _menu_action_map));
+        action.setAction(menu_action_map.get(tok[0]));
         if (action.getAction() != ACTION_NO) {
             return true;
         }
@@ -1495,7 +942,7 @@ Config::parseMenuEvent(CfgParser::Entry *section, ActionEvent& ae)
         return false;
     }
 
-    if (parseKey(section->getValue(), ae.mod, ae.sym)) {
+    if (ActionConfig::parseKey(section->getValue(), ae.mod, ae.sym)) {
         value = section->getSection()->findEntry("ACTIONS");
         if (value) {
             return parseMenuActions(value->getValue(), ae);
@@ -1503,26 +950,6 @@ Config::parseMenuEvent(CfgParser::Entry *section, ActionEvent& ae)
     }
 
     return false;
-}
-
-uint
-Config::getMouseButton(const std::string &button)
-{
-    uint btn;
-
-    if (button.size() == 1 || button.size() == 2) { // it's a button
-        btn = unsigned(strtol(button.c_str(), 0, 10));
-    } else if (strcasecmp(button.c_str(), "ANY") == 0) { // any button
-        btn = BUTTON_ANY;
-    } else {
-        btn = BUTTON_NO;
-    }
-
-    if (btn > BUTTON_NO) {
-        btn = BUTTON_NO;
-    }
-
-    return btn;
 }
 
 /**
@@ -1741,19 +1168,19 @@ Config::loadMouseConfig(const std::string &mouse_file)
     if (section) {
         CfgParser::iterator edge_it(section->begin());
         for (; edge_it != section->end(); ++edge_it)  {
-            uint pos = ParseUtil::getValue<DirectionType>((*edge_it)->getName(), _direction_map);
+            uint pos = ActionConfig::getDirection((*edge_it)->getName());
 
             if (pos != SCREEN_EDGE_NO) {
                 parseButtons((*edge_it)->getSection(), getEdgeListFromPosition(pos), SCREEN_EDGE_OK);
             }
         }
     }
-    
+
     section = mouse_cfg.getEntryRoot()->findSection("BORDER");
     if (section) {
         CfgParser::iterator border_it(section->begin());
         for (; border_it != section->end(); ++border_it) {
-            uint pos = ParseUtil::getValue<BorderPosition>((*border_it)->getName(), _borderpos_map);
+            uint pos = ActionConfig::getBorderPos((*border_it)->getName());
             if (pos != BORDER_NO_POS) {
                 parseButtons((*border_it)->getSection(), getBorderListFromPosition(pos), FRAME_BORDER_OK);
             }
@@ -1779,8 +1206,8 @@ Config::parseButtons(CfgParser::Entry *section, std::vector<ActionEvent>* mouse_
         if (! (*it)->getSection()) {
             continue;
         }
-        
-        ae.type = ParseUtil::getValue<MouseEventType>((*it)->getName(), _mouse_event_map);
+
+        ae.type = mouse_event_map.get((*it)->getName());
 
         if (ae.type == MOUSE_EVENT_NO) {
             continue;
@@ -1795,7 +1222,7 @@ Config::parseButtons(CfgParser::Entry *section, std::vector<ActionEvent>* mouse_
             }
         }
 
-        if (parseActionEvent((*it), ae, action_ok, true)) {
+        if (ActionConfig::parseActionEvent((*it), ae, action_ok, true)) {
             mouse_list->push_back(ae);
         }
     }
@@ -1861,32 +1288,6 @@ Config::getEdgeListFromPosition(uint pos)
     return ret;
 }
 
-
-//! @brief Parses workspace number
-int
-Config::parseWorkspaceNumber(const std::string &workspace)
-{
-    // Get workspace looking for relative numbers
-    uint num = ParseUtil::getValue<WorkspaceChangeType>(workspace,
-                                                        _workspace_change_map);
-
-    if (num == WORKSPACE_NO) {
-        // Workspace isn't relative, check for 2x2 and ordinary specification
-        std::vector<std::string> tok;
-        if (Util::splitString(workspace, tok, "x", 2, true) == 2) {
-            uint row = strtol(tok[0].c_str(), 0, 10) - 1;
-            uint col = strtol(tok[1].c_str(), 0, 10) - 1;
-
-            num = _screen_workspaces_per_row * row + col;
-
-        } else {
-            num = strtol(workspace.c_str(), 0, 10) - 1;
-        }
-    }
-
-    return num;
-}
-
 //! @brief Parses a string which contains two opacity values
 bool
 Config::parseOpacity(const std::string value, uint &focused, uint &unfocused)
@@ -1906,42 +1307,4 @@ Config::parseOpacity(const std::string value, uint &focused, uint &unfocused)
     CONV_OPACITY(focused);
     CONV_OPACITY(unfocused);
     return true;
-}
-
-/**
- * Parse SetGeometry action parameters.
- *
- * SetGeometry 1x+0+0 [(screen|current|0-9) [HonourStrut]]
- */
-void
-Config::parseActionSetGeometry(Action& action, const std::string &str)
-{
-    std::vector<std::string> tok;
-
-    if (! Util::splitString(str, tok, " \t", 3)) {
-        return;
-    }
-
-    // geometry
-    action.setParamS(tok[0]);
-
-    // screen, current head or head number
-    if (tok.size() > 1) {
-        if (strcasecmp(tok[1].c_str(), "SCREEN") == 0) {
-            action.setParamI(0, -1);
-        } else if (strcasecmp(tok[1].c_str(), "CURRENT") == 0) {
-            action.setParamI(0, -2);
-        } else {
-            action.setParamI(0, strtol(tok[1].c_str(), 0, 10));
-        }
-    } else {
-        action.setParamI(0, -1);
-    }
-
-    // honour strut option
-    if (tok.size() > 2) {
-        action.setParamI(1, strcasecmp(tok[2].c_str(), "HONOURSTRUT") ? 0 : 1);
-    } else {
-        action.setParamI(1, 0);
-    }
 }

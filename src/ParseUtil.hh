@@ -49,14 +49,15 @@ private:
     const char *_text;
 };
 
-//! @brief Finds item in map, returns "" in map if not found
 template<class T>
-inline T
-getValue(const std::string &text,
-         typename std::map<ParseUtil::Entry, T> &val)
-{
-    auto it = val.find(text);
-    return (it != val.end()) ? it->second : val[""];
-}
+class Map : public std::map<ParseUtil::Entry, T> {
+public:
+    using std::map<ParseUtil::Entry, T>::map;
+
+    T get(const std::string& key) const {
+        auto it = this->find(key);
+        return it == this->end() ? this->at("") : it->second;
+    }
+};
 
 }

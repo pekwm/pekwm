@@ -10,7 +10,6 @@
 
 #include "config.h"
 
-#include "ParseUtil.hh"
 #include "PTexture.hh"
 
 #include <string>
@@ -71,7 +70,6 @@ private:
     void parseSize(PTexture *tex, const std::string &size);
 
 private:
-    std::map<ParseUtil::Entry, PTexture::Type> _parse_map;
     /** Minimum texture name length. */
     const int _length_min;
 

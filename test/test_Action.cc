@@ -77,9 +77,66 @@ public:
     }
 };
 
+class TestActionConfig : public TestSuite{
+public:
+    TestActionConfig()
+        : TestSuite("Config")
+    {
+        register_test("parseActionSetGeometry",
+                      TestActionConfig::testParseActionSetGeometry);
+    }
+
+    static void testParseActionSetGeometry(void)
+    {
+        Action a_empty;
+        ActionConfig::parseActionSetGeometry(a_empty, "");
+        assertAction("parseActionSetGeometry empty", a_empty, { }, { });
+
+        Action a_no_head;
+        ActionConfig::parseActionSetGeometry(a_no_head, "10x10+0+0");
+        assertAction("parseActionSetGeometry no head",
+                     a_no_head, { -1, 0 }, { "10x10+0+0" });
+
+        Action a_head;
+        ActionConfig::parseActionSetGeometry(a_head, "10x10+0+0 0");
+        assertAction("parseActionSetGeometry head",
+                     a_head, { 0, 0 }, { "10x10+0+0" });
+
+        Action a_screen;
+        ActionConfig::parseActionSetGeometry(a_screen, "10x10+0+0 screen");
+        assertAction("parseActionSetGeometry screen",
+                     a_screen, { -1, 0 }, { "10x10+0+0" });
+
+        Action a_current;
+        ActionConfig::parseActionSetGeometry(a_current, "10x10+0+0 current");
+        assertAction("parseActionSetGeometry current",
+                     a_current, { -2, 0 }, { "10x10+0+0" });
+
+        Action a_strut;
+        ActionConfig::parseActionSetGeometry(a_strut,
+                                             "10x10+0+0 current HonourStrut");
+        assertAction("parseActionSetGeometry strut",
+                     a_strut, { -2, 1 }, { "10x10+0+0" });
+    }
+
+    static void assertAction(std::string msg, const Action& action,
+                             std::vector<int> e_int,
+                             std::vector<std::string> e_str) {
+        for (uint i = 0; i < e_int.size(); i++) {
+            ASSERT_EQUAL(msg + " I " + std::to_string(i),
+                         e_int[i], action.getParamI(i));
+        }
+        for (uint i = 0; i < e_str.size(); i++) {
+            ASSERT_EQUAL(msg + " S " + std::to_string(i),
+                         e_str[i], action.getParamS(i));
+        }
+    }
+};
+
 int
 main(int argc, char *argv[])
 {
     TestAction testAction;
+    TestActionConfig testActionConfig;
     return TestSuite::main(argc, argv);
 }

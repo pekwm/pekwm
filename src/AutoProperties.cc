@@ -16,64 +16,65 @@
 #include "Util.hh"
 #include "x11.hh"
 
+static ParseUtil::Map<ApplyOn> apply_on_map =
+    {{"", APPLY_ON_ALWAYS},
+     {"START", APPLY_ON_START},
+     {"NEW", APPLY_ON_NEW},
+     {"RELOAD", APPLY_ON_RELOAD},
+     {"WORKSPACE", APPLY_ON_WORKSPACE},
+     {"TRANSIENT", APPLY_ON_TRANSIENT},
+     {"TRANSIENTONLY", APPLY_ON_TRANSIENT_ONLY}};
+
+static ParseUtil::Map<PropertyType> property_map =
+    {{"", AP_NO_PROPERTY},
+     {"WORKSPACE", AP_WORKSPACE},
+     {"PROPERTY", AP_PROPERTY},
+     {"STICKY", AP_STICKY},
+     {"SHADED", AP_SHADED},
+     {"MAXIMIZEDVERTICAL", AP_MAXIMIZED_VERTICAL},
+     {"MAXIMIZEDHORIZONTAL", AP_MAXIMIZED_HORIZONTAL},
+     {"ICONIFIED", AP_ICONIFIED},
+     {"BORDER", AP_BORDER},
+     {"TITLEBAR", AP_TITLEBAR},
+     {"FRAMEGEOMETRY", AP_FRAME_GEOMETRY},
+     {"CLIENTGEOMETRY", AP_CLIENT_GEOMETRY},
+     {"LAYER", AP_LAYER},
+     {"SKIP", AP_SKIP},
+     {"FULLSCREEN", AP_FULLSCREEN},
+     {"PLACENEW", AP_PLACE_NEW},
+     {"FOCUSNEW", AP_FOCUS_NEW},
+     {"FOCUSABLE", AP_FOCUSABLE},
+     {"CFGDENY", AP_CFG_DENY},
+     {"ALLOWEDACTIONS", AP_ALLOWED_ACTIONS},
+     {"DISALLOWEDACTIONS", AP_DISALLOWED_ACTIONS},
+     {"OPACITY", AP_OPACITY},
+     {"DECOR", AP_DECOR}};
+
+static ParseUtil::Map<PropertyType> group_property_map =
+    {{"", AP_NO_PROPERTY},
+     {"SIZE", AP_GROUP_SIZE},
+     {"BEHIND", AP_GROUP_BEHIND},
+     {"FOCUSEDFIRST", AP_GROUP_FOCUSED_FIRST},
+     {"GLOBAL", AP_GROUP_GLOBAL},
+     {"RAISE", AP_GROUP_RAISE}};
+
+static ParseUtil::Map<AtomName> window_type_map =
+    {{"", WINDOW_TYPE},
+     {"DESKTOP", WINDOW_TYPE_DESKTOP},
+     {"DOCK", WINDOW_TYPE_DOCK},
+     {"TOOLBAR", WINDOW_TYPE_TOOLBAR},
+     {"MENU", WINDOW_TYPE_MENU},
+     {"UTILITY", WINDOW_TYPE_UTILITY},
+     {"SPLASH", WINDOW_TYPE_SPLASH},
+     {"DIALOG", WINDOW_TYPE_DIALOG},
+     {"NORMAL", WINDOW_TYPE_NORMAL}};
+
 //! @brief Constructor for AutoProperties class
 AutoProperties::AutoProperties(void)
     : _extended(false),
       _harbour_sort(false),
       _apply_on_start(true)
 {
-    // fill parsing maps
-    _apply_on_map[""] = APPLY_ON_ALWAYS;
-    _apply_on_map["START"] = APPLY_ON_START;
-    _apply_on_map["NEW"] = APPLY_ON_NEW;
-    _apply_on_map["RELOAD"] = APPLY_ON_RELOAD;
-    _apply_on_map["WORKSPACE"] = APPLY_ON_WORKSPACE;
-    _apply_on_map["TRANSIENT"] = APPLY_ON_TRANSIENT;
-    _apply_on_map["TRANSIENTONLY"] = APPLY_ON_TRANSIENT_ONLY;
-
-    // global properties
-    _property_map[""] = AP_NO_PROPERTY;
-    _property_map["WORKSPACE"] = AP_WORKSPACE;
-    _property_map["PROPERTY"] = AP_PROPERTY;
-    _property_map["STICKY"] = AP_STICKY;
-    _property_map["SHADED"] = AP_SHADED;
-    _property_map["MAXIMIZEDVERTICAL"] = AP_MAXIMIZED_VERTICAL;
-    _property_map["MAXIMIZEDHORIZONTAL"] = AP_MAXIMIZED_HORIZONTAL;
-    _property_map["ICONIFIED"] = AP_ICONIFIED;
-    _property_map["BORDER"] = AP_BORDER;
-    _property_map["TITLEBAR"] = AP_TITLEBAR;
-    _property_map["FRAMEGEOMETRY"] = AP_FRAME_GEOMETRY;
-    _property_map["CLIENTGEOMETRY"] = AP_CLIENT_GEOMETRY;
-    _property_map["LAYER"] = AP_LAYER;
-    _property_map["SKIP"] = AP_SKIP;
-    _property_map["FULLSCREEN"] = AP_FULLSCREEN;
-    _property_map["PLACENEW"] = AP_PLACE_NEW;
-    _property_map["FOCUSNEW"] = AP_FOCUS_NEW;
-    _property_map["FOCUSABLE"] = AP_FOCUSABLE;
-    _property_map["CFGDENY"] = AP_CFG_DENY;
-    _property_map["ALLOWEDACTIONS"] = AP_ALLOWED_ACTIONS;
-    _property_map["DISALLOWEDACTIONS"] = AP_DISALLOWED_ACTIONS;
-    _property_map["OPACITY"] = AP_OPACITY;
-    _property_map["DECOR"] = AP_DECOR;
-
-    // group properties
-    _group_property_map[""] = AP_NO_PROPERTY;
-    _group_property_map["SIZE"] = AP_GROUP_SIZE;
-    _group_property_map["BEHIND"] = AP_GROUP_BEHIND;
-    _group_property_map["FOCUSEDFIRST"] = AP_GROUP_FOCUSED_FIRST;
-    _group_property_map["GLOBAL"] = AP_GROUP_GLOBAL;
-    _group_property_map["RAISE"] = AP_GROUP_RAISE;
-
-    // window type map
-    _window_type_map[""] = WINDOW_TYPE;
-    _window_type_map["DESKTOP"] = WINDOW_TYPE_DESKTOP;
-    _window_type_map["DOCK"] = WINDOW_TYPE_DOCK;
-    _window_type_map["TOOLBAR"] = WINDOW_TYPE_TOOLBAR;
-    _window_type_map["MENU"] = WINDOW_TYPE_MENU;
-    _window_type_map["UTILITY"] = WINDOW_TYPE_UTILITY;
-    _window_type_map["SPLASH"] = WINDOW_TYPE_SPLASH;
-    _window_type_map["DIALOG"] = WINDOW_TYPE_DIALOG;
-    _window_type_map["NORMAL"] = WINDOW_TYPE_NORMAL;
 }
 
 //! @brief Destructor for AutoProperties class
@@ -327,7 +328,7 @@ AutoProperties::parsePropertyApplyOn(const std::string &apply_on,
     if (Util::splitString(apply_on, tokens, " \t", 5)) {
         auto it(tokens.begin());
         for (; it != tokens.end(); ++it) {
-            int num = ParseUtil::getValue<ApplyOn>(*it, _apply_on_map);
+            int num = apply_on_map.get(*it);
             prop->applyAdd(static_cast<unsigned int>(num));
         }
     }
@@ -372,8 +373,7 @@ AutoProperties::parseAutoGroup(CfgParser::Entry *section,
 
     auto it(section->begin());
     for (; it != section->end(); ++it) {
-        property_type = ParseUtil::getValue<PropertyType>((*it)->getName(),
-                                                          _group_property_map);
+        property_type = group_property_map.get((*it)->getName());
 
         switch (property_type) {
         case AP_GROUP_SIZE:
@@ -532,8 +532,7 @@ AutoProperties::parseTypeProperty(CfgParser::Entry *section)
 
         // Create new property and try to parse
         type_property = new AutoProperty();
-        atom = ParseUtil::getValue<AtomName>(type_section->getValue(),
-                                             _window_type_map);
+        atom = window_type_map.get(type_section->getValue());
         if (atom == WINDOW_TYPE) {
             USER_WARN("unknown type " << type_section->getValue()
                       << " for autoproperty");
@@ -683,8 +682,7 @@ AutoProperties::parseAutoPropertyValue(CfgParser::Entry *section,
 
     auto it(section->begin());
     for (; it != section->end(); ++it) {
-        property_type = ParseUtil::getValue<PropertyType>((*it)->getName(),
-                                                          _property_map);
+        property_type = property_map.get((*it)->getName());
 
         switch (property_type) {
         case AP_STICKY:
@@ -726,7 +724,7 @@ AutoProperties::parseAutoPropertyValue(CfgParser::Entry *section,
                 X11::parseGeometry((*it)->getValue(), prop->client_gm);
             break;
         case AP_LAYER:
-            prop->layer = pekwm::config()->getLayer((*it)->getValue());
+            prop->layer = ActionConfig::getLayer((*it)->getValue());
             if (prop->layer != LAYER_NONE) {
                 prop->maskAdd(AP_LAYER);
             }
@@ -740,7 +738,7 @@ AutoProperties::parseAutoPropertyValue(CfgParser::Entry *section,
             tokens.clear();
             if ((Util::splitString((*it)->getValue(), tokens, " \t"))) {
                 for (auto it : tokens) {
-                    prop->skip |= pekwm::config()->getSkip(it);
+                    prop->skip |= ActionConfig::getSkip(it);
                 }
             }
             break;
@@ -765,7 +763,7 @@ AutoProperties::parseAutoPropertyValue(CfgParser::Entry *section,
             tokens.clear();
             if ((Util::splitString((*it)->getValue(), tokens, " \t"))) {
                 for (auto it : tokens) {
-                    prop->cfg_deny |= pekwm::config()->getCfgDeny(it);
+                    prop->cfg_deny |= ActionConfig::getCfgDeny(it);
                 }
             }
             break;

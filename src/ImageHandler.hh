@@ -50,9 +50,6 @@ private:
     std::vector<HandlerEntry<PImage*> > _images;
 
     bool _free_on_return; /**< If true, images are deleted when returned. */
-
-     /**< Type name to type enum map. */
-    std::map<ParseUtil::Entry, ImageType> _image_type_map;
 };
 
 namespace pekwm

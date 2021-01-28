@@ -71,6 +71,8 @@ private:
     void attachMarked(Frame *frame);
     void attachInNextPrevFrame(Client *client, bool frame, bool next);
 
+    int calcWorkspaceNum(const Action& action);
+
 private:
     AppCtrl* _app_ctrl;
     CmdDialog _cmd_dialog;

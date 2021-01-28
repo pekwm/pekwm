@@ -42,11 +42,6 @@ add_test(Action test_Action)
 target_include_directories(test_Action PUBLIC ${common_INCLUDE_DIRS})
 target_link_libraries(test_Action wm texture util ${common_LIBRARIES})
 
-add_executable(test_Config test_Config.cc)
-add_test(Config test_Config)
-target_include_directories(test_Config PUBLIC ${common_INCLUDE_DIRS})
-target_link_libraries(test_Config wm texture util ${common_LIBRARIES})
-
 add_executable(test_CfgParser test_CfgParser.cc)
 add_test(CfgParser test_CfgParser)
 target_include_directories(test_CfgParser PUBLIC ${common_INCLUDE_DIRS})

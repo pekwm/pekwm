@@ -75,26 +75,6 @@ public:
 
     inline const std::string &getConfigFile(void) const { return _config_file; }
 
-    /** Return vector with available keyboard actions names. */
-    std::vector<std::string> getActionNameList(void) {
-        std::vector<std::string> action_names;
-        for (auto it : _action_map) {
-            if (it.second.second&KEYGRABBER_OK) {
-                action_names.push_back(it.first.get_text());
-            }
-        }
-        return action_names;
-    }
-
-    /** Return vector with available state action names. */
-    std::vector<std::string> getStateNameList(void) {
-        std::vector<std::string> state_names;
-        for (auto it : _action_state_map) {
-            state_names.push_back(it.first.get_text());
-        }
-        return state_names;
-    }
-
     // Files
     const std::string &getKeyFile(void) const { return _files_keys; }
     const std::string &getMenuFile(void) const { return _files_menu; }
@@ -215,28 +195,10 @@ public:
     std::vector<ActionEvent> *getEdgeListFromPosition(uint pos);
 
     // map parsing
-    ActionType getAction(const std::string &name, uint mask);
     ActionAccessMask getActionAccessMask(const std::string &name);
-    Layer getLayer(const std::string &layer) {
-        return ParseUtil::getValue<Layer>(layer, _layer_map);
-    }
-    Skip getSkip(const std::string &skip) {
-        return ParseUtil::getValue<Skip>(skip, _skip_map);
-    }
-    CfgDeny getCfgDeny(const std::string &deny) {
-        return ParseUtil::getValue<CfgDeny>(deny, _cfg_deny_map);
-    }
 
-    bool parseKey(const std::string &key_string, uint& mod, uint &key);
-    bool parseButton(const std::string &button_string, uint &mod, uint &button);
-    bool parseAction(const std::string &action_string, Action &action,
-                     uint mask);
     bool parseActionAccessMask(const std::string &action_mask_string,
                                uint &mask);
-    bool parseActionState(Action &action, const std::string &st_action);
-    bool parseActions(const std::string &actions, ActionEvent &ae, uint mask);
-    bool parseActionEvent(CfgParser::Entry *section, ActionEvent &ae,
-                          uint mask, bool button);
 
     bool parseMoveResizeAction(const std::string &action_string,
                                Action &action);
@@ -270,16 +232,8 @@ public:
     bool parseMenuActions(const std::string& actions, ActionEvent& ae);
     bool parseMenuEvent(CfgParser::Entry *section, ActionEvent& ae);
 
-    uint getMod(const std::string &mod) {
-        return ParseUtil::getValue<uint>(mod, _mod_map);
-    }
-    uint getMouseButton(const std::string& button);
-
     static bool parseOpacity(const std::string value, uint &focused,
                              uint &unfocused);
-
-protected:
-    static void parseActionSetGeometry(Action& action, const std::string &str);
 
 private:
     bool tryHardLoadConfig(CfgParser &cfg, std::string &file);
@@ -296,8 +250,6 @@ private:
     void parseButtons(CfgParser::Entry *section,
                       std::vector<ActionEvent>* mouse_list,
                       ActionOk action_ok);
-
-    int parseWorkspaceNumber(const std::string &workspace);
 
     std::string _config_file; /**< Path to config file last loaded. */
     TimeFiles _cfg_files;
@@ -381,25 +333,6 @@ private:
     uint _harbour_opacity;
 
     std::map<MouseActionListName, std::vector<ActionEvent>* > _mouse_action_map;
-
-    std::map<ParseUtil::Entry, std::pair<ActionType, uint> > _action_map;
-    std::map<ParseUtil::Entry, ActionAccessMask> _action_access_mask_map;
-    std::map<ParseUtil::Entry, OrientationType> _edge_map;
-    std::map<ParseUtil::Entry, Raise> _raise_map;
-    std::map<ParseUtil::Entry, Skip> _skip_map;
-    std::map<ParseUtil::Entry, Layer> _layer_map;
-    std::map<ParseUtil::Entry, MoveResizeActionType> _moveresize_map;
-    std::map<ParseUtil::Entry, InputDialogAction> _inputdialog_map;
-    std::map<ParseUtil::Entry, DirectionType> _direction_map;
-    std::map<ParseUtil::Entry, WorkspaceChangeType> _workspace_change_map;
-    std::map<ParseUtil::Entry, BorderPosition> _borderpos_map;
-    std::map<ParseUtil::Entry, MouseEventType> _mouse_event_map;
-    std::map<ParseUtil::Entry, uint> _mod_map;
-    std::map<ParseUtil::Entry, ActionStateType> _action_state_map;
-    std::map<ParseUtil::Entry, CfgDeny> _cfg_deny_map;
-    std::map<ParseUtil::Entry, ActionType> _menu_action_map;
-    std::map<ParseUtil::Entry, HarbourPlacement> _harbour_placement_map;
-    std::map<ParseUtil::Entry, Orientation> _harbour_orientation_map;
 };
 
 namespace pekwm

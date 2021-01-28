@@ -179,7 +179,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 frame->activateChildNum(it->getParamI(0));
                 break;
             case ACTION_SEND_TO_WORKSPACE:
-                actionSendToWorkspace(decor, it->getParamI(0));
+                actionSendToWorkspace(decor, calcWorkspaceNum(*it));
                 break;
             case ACTION_DETACH:
                 frame->detachClient(client);
@@ -271,7 +271,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 }
                 break;
             case ACTION_WARP_TO_WORKSPACE:
-                actionWarpToWorkspace(decor, it->getParamI(0));
+                actionWarpToWorkspace(decor, calcWorkspaceNum(*it));
                 break;
             default:
                 matched = false;
@@ -308,7 +308,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 // Events caused by a motion event ( dragging frame to
                 // the edge ) or enter event ( moving the pointer to
                 // the edge ) should warp the pointer.
-                actionGotoWorkspace(it->getParamI(0),
+                actionGotoWorkspace(calcWorkspaceNum(*it),
                                     (ap.type == MotionNotify)
                                     || (ap.type == EnterNotify));
                 break;
@@ -802,7 +802,7 @@ bool
 ActionHandler::actionSendKey(PWinObj *wo, const std::string &key_str)
 {
     uint mod, key;
-    if (! pekwm::config()->parseKey(key_str, mod, key)) {
+    if (! ActionConfig::parseKey(key_str, mod, key)) {
         return false;
     }
 
@@ -1072,4 +1072,19 @@ ActionHandler::attachInNextPrevFrame(Client *client, bool frame, bool next)
             new_frame->giveInputFocus();
         }
     }
+}
+
+/**
+ * Get worksapce number for Warp/Send/Goto Workspace actions, either
+ * in form of 3 integer arguments (-1, row, col) or 1 integer where
+ * the number is already set.
+ */
+int
+ActionHandler::calcWorkspaceNum(const Action& action)
+{
+    if (action.getParamI(0) == -1) {
+        return pekwm::config()->getWorkspacesPerRow() * action.getParamI(1)
+            + action.getParamI(2);
+    }
+    return action.getParamI(0);
 }

@@ -13,7 +13,6 @@
 #include "pekwm.hh"
 #include "CfgParser.hh"
 #include "RegexString.hh"
-#include "ParseUtil.hh"
 
 #include <string>
 
@@ -269,11 +268,6 @@ private:
     std::vector<Property*> _dock_app_prop_list;
     bool _harbour_sort;
     bool _apply_on_start;
-
-    std::map<ParseUtil::Entry, ApplyOn> _apply_on_map;
-    std::map<ParseUtil::Entry, PropertyType> _property_map;
-    std::map<ParseUtil::Entry, PropertyType> _group_property_map;
-    std::map<ParseUtil::Entry, AtomName> _window_type_map;
 };
 
 namespace pekwm

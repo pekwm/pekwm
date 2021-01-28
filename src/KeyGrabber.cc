@@ -162,12 +162,12 @@ KeyGrabber::parseGlobalChain(CfgParser::Entry *section, KeyGrabber::Chain *chain
     for (; it != section->end(); ++it) {
         if ((*it)->getSection() && *(*it) == "CHAIN") {
             // Figure out mod and key, create a new chain.
-            if (pekwm::config()->parseKey((*it)->getValue(), mod, key)) {
+            if (ActionConfig::parseKey((*it)->getValue(), mod, key)) {
                 KeyGrabber::Chain *sub_chain = new KeyGrabber::Chain(mod, key);
                 parseGlobalChain((*it)->getSection(), sub_chain);
                 chain->addChain(sub_chain);
             }
-        } else if (pekwm::config()->parseActionEvent((*it), ae, KEYGRABBER_OK, false)) {
+        } else if (ActionConfig::parseActionEvent((*it), ae, KEYGRABBER_OK, false)) {
             chain->addAction(ae);
         }
     }
@@ -184,7 +184,7 @@ KeyGrabber::parseMoveResizeChain(CfgParser::Entry *section, KeyGrabber::Chain *c
     for (; it != section->end(); ++it) {
         if ((*it)->getSection() && *(*it) == "CHAIN") {
             // Figure out mod and key, create a new chain.
-            if (pekwm::config()->parseKey((*it)->getValue(), mod, key)) {
+            if (ActionConfig::parseKey((*it)->getValue(), mod, key)) {
                 KeyGrabber::Chain *sub_chain = new KeyGrabber::Chain(mod, key);
                 parseMoveResizeChain((*it)->getSection(), sub_chain);
                 chain->addChain(sub_chain);
@@ -206,7 +206,7 @@ KeyGrabber::parseInputDialogChain(CfgParser::Entry *section, KeyGrabber::Chain *
     for (; it != section->end(); ++it) {
         if ((*it)->getSection() && *(*it) == "CHAIN") {
             // Figure out mod and key, create a new chain.
-            if (pekwm::config()->parseKey((*it)->getValue(), mod, key)) {
+            if (ActionConfig::parseKey((*it)->getValue(), mod, key)) {
                 KeyGrabber::Chain *sub_chain = new KeyGrabber::Chain(mod, key);
                 parseInputDialogChain((*it)->getSection(), sub_chain);
                 chain->addChain(sub_chain);
@@ -228,7 +228,7 @@ KeyGrabber::parseMenuChain(CfgParser::Entry *section, KeyGrabber::Chain *chain)
     for (; it != section->end(); ++it) {
         if ((*it)->getSection() && *(*it) == "CHAIN") {
             // Figure out mod and key, create a new chain.
-            if (pekwm::config()->parseKey((*it)->getValue(), mod, key)) {
+            if (ActionConfig::parseKey((*it)->getValue(), mod, key)) {
                 KeyGrabber::Chain *sub_chain = new KeyGrabber::Chain (mod, key);
                 parseGlobalChain((*it)->getSection(), sub_chain);
                 chain->addChain(sub_chain);

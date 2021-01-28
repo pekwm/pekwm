@@ -68,7 +68,7 @@ Theme::PDecorButtonData::load(CfgParser::Entry *section)
     ActionEvent ae;
     auto it(section->begin());
     for (; it != section->end(); ++it) {
-        if (pekwm::config()->parseActionEvent(*it, ae, BUTTONCLICK_OK, true)) {
+        if (ActionConfig::parseActionEvent(*it, ae, BUTTONCLICK_OK, true)) {
             _aes.push_back (ae);
         }
     }
