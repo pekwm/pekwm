@@ -29,40 +29,40 @@ public:
     virtual ~Frame(void);
 
     // START - PWinObj interface.
-    virtual void iconify(void);
-    virtual void stick(void);
+    virtual void iconify(void) override;
+    virtual void stick(void) override;
 
-    virtual void setWorkspace(unsigned int workspace);
-    virtual void setLayer(Layer layer);
+    virtual void setWorkspace(unsigned int workspace) override;
+    virtual void setLayer(Layer layer) override;
 
-    virtual ActionEvent *handleMotionEvent(XMotionEvent *ev);
-    virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev);
-    virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev);
+    virtual ActionEvent *handleMotionEvent(XMotionEvent *ev) override;
+    virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev) override;
+    virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev) override;
 
-    virtual ActionEvent *handleMapRequest(XMapRequestEvent *ev);
-    virtual ActionEvent *handleUnmapEvent(XUnmapEvent *ev);
+    virtual ActionEvent *handleMapRequest(XMapRequestEvent *ev) override;
+    virtual ActionEvent *handleUnmapEvent(XUnmapEvent *ev) override;
     // END - PWinObj interface.
 
 #ifdef HAVE_SHAPE
-    virtual void handleShapeEvent(XShapeEvent *ev);
+    void handleShapeEvent(XShapeEvent *ev);
 #endif // HAVE_SHAPE
 
     // START - PDecor interface.
-    virtual bool allowMove(void) const;
+    virtual bool allowMove(void) const override;
 
     virtual void addChild(PWinObj *child,
-                          std::vector<PWinObj*>::iterator *it = 0);
-    virtual void removeChild(PWinObj *child, bool do_delete = true);
-    virtual void activateChild(PWinObj *child);
+                          std::vector<PWinObj*>::iterator *it = 0) override;
+    virtual void removeChild(PWinObj *child, bool do_delete = true) override;
+    virtual void activateChild(PWinObj *child) override;
 
-    virtual void updatedChildOrder(void);
-    virtual void updatedActiveChild(void);
+    virtual void updatedChildOrder(void) override;
+    virtual void updatedActiveChild(void) override;
 
-    virtual void getDecorInfo(wchar_t *buf, uint size);
+    virtual void getDecorInfo(wchar_t *buf, uint size) override;
 
-    virtual void giveInputFocus(void);
-    virtual void setShaded(StateAction sa);
-    virtual void setSkip(uint skip);
+    virtual void giveInputFocus(void) override;
+    virtual void setShaded(StateAction sa) override;
+    virtual void setSkip(uint skip) override;
     // END - PDecor interface.
 
     Client *getActiveClient(void);
@@ -163,10 +163,10 @@ protected:
     Frame(void);
 
     // BEGIN - PDecor interface
-    virtual int resizeHorzStep(int diff) const;
-    virtual int resizeVertStep(int diff) const;
+    virtual int resizeHorzStep(int diff) const override;
+    virtual int resizeVertStep(int diff) const override;
 
-    std::string getDecorName(void);
+    virtual std::string getDecorName(void) override;
     // END - PDecor interface
 
     static void applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask);

@@ -72,7 +72,7 @@ void
 StatusWindow::draw(const std::wstring &text, bool do_center, Geometry *gm)
 {
     uint width, height;
-    auto sd = pekwm::theme()->getStatusData();
+    auto sd = _theme->getStatusData();
     PFont *font = sd->getFont();
 
     width = font->getWidth(text.c_str()) + 10;
@@ -124,7 +124,7 @@ StatusWindow::render(void)
 {
     X11::freePixmap(_bg);
     _bg = X11::createPixmap(_status_wo->getWidth(), _status_wo->getHeight());
-    auto sd = pekwm::theme()->getStatusData();
+    auto sd = _theme->getStatusData();
     sd->getTexture()->render(_bg, 0, 0,
                              _status_wo->getWidth(), _status_wo->getHeight());
 

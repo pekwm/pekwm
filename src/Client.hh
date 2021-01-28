@@ -88,31 +88,31 @@ public: // Public Member Functions
     virtual ~Client(void);
 
     // START - PWinObj interface.
-    virtual void mapWindow(void);
-    virtual void unmapWindow(void);
-    virtual void iconify(void);
-    virtual void stick(void);
+    virtual void mapWindow(void) override;
+    virtual void unmapWindow(void) override;
+    virtual void iconify(void) override;
+    virtual void stick(void) override;
 
-    virtual void move(int x, int y);
-    virtual void resize(uint width, uint height);
-    virtual void moveResize(int x, int y, uint width, uint height);
+    virtual void move(int x, int y) override;
+    virtual void resize(uint width, uint height) override;
+    virtual void moveResize(int x, int y, uint width, uint height) override;
 
-    virtual void setWorkspace(uint workspace);
+    virtual void setWorkspace(uint workspace) override;
 
-    virtual void giveInputFocus(void);
-    virtual void reparent(PWinObj *parent, int x, int y);
+    virtual void giveInputFocus(void) override;
+    virtual void reparent(PWinObj *parent, int x, int y) override;
 
-    virtual ActionEvent *handleButtonPress(XButtonEvent *ev) {
+    virtual ActionEvent *handleButtonPress(XButtonEvent *ev)  override {
         if (_parent) { return _parent->handleButtonPress(ev); }
         return 0;
     }
-    virtual ActionEvent *handleButtonRelease(XButtonEvent *ev) {
+    virtual ActionEvent *handleButtonRelease(XButtonEvent *ev) override {
         if (_parent) { return _parent->handleButtonRelease(ev); }
         return 0;
     }
 
-    virtual ActionEvent *handleMapRequest(XMapRequestEvent *ev);
-    virtual ActionEvent *handleUnmapEvent(XUnmapEvent *ev);
+    virtual ActionEvent *handleMapRequest(XMapRequestEvent *ev) override;
+    virtual ActionEvent *handleUnmapEvent(XUnmapEvent *ev) override;
     // END - PWinObj interface.
 
 #ifdef HAVE_SHAPE
@@ -120,7 +120,8 @@ public: // Public Member Functions
 #endif // HAVE_SHAPE
 
     // START - Observer interface.
-    virtual void notify(Observable *observable, Observation *observation);
+    virtual void notify(Observable *observable,
+                        Observation *observation) override;
     // END - Observer interface.
 
     static Client *findClient(Window win);
@@ -335,7 +336,6 @@ private:
     inline void setMaximizedHorz(bool m) { _state.maximized_horz = m; }
     inline void setShade(bool s) { _state.shaded = s; }
     inline void setFullscreen(bool f) { _state.fullscreen = f; }
-    inline void setFocusable(bool f) { _focusable = f; }
 
     // Grabs button with Caps,Num and so on
     void grabButton(int button, int mod, int mask, Window win);

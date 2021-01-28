@@ -125,28 +125,28 @@ public:
     virtual ~PDecor(void);
 
     // START - PWinObj interface.
-    virtual void mapWindow(void);
-    virtual void mapWindowRaised(void);
-    virtual void unmapWindow(void);
+    virtual void mapWindow(void) override;
+    virtual void mapWindowRaised(void) override;
+    virtual void unmapWindow(void) override;
 
-    virtual void move(int x, int y);
-    virtual void resize(uint width, uint height);
-    virtual void moveResize(int x, int y, uint width, uint height);
-    virtual void raise(void);
-    virtual void lower(void);
+    virtual void move(int x, int y) override;
+    virtual void resize(uint width, uint height) override;
+    virtual void moveResize(int x, int y, uint width, uint height) override;
+    virtual void raise(void) override;
+    virtual void lower(void) override;
 
-    virtual void setFocused(bool focused);
-    virtual void setWorkspace(uint workspace);
+    virtual void setFocused(bool focused) override;
+    virtual void setWorkspace(uint workspace) override;
 
-    virtual void giveInputFocus(void);
+    virtual void giveInputFocus(void) override;
 
-    virtual ActionEvent *handleButtonPress(XButtonEvent *ev);
-    virtual ActionEvent *handleButtonRelease(XButtonEvent *ev);
-    virtual ActionEvent *handleMotionEvent(XMotionEvent *ev);
-    virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev);
-    virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev);
+    virtual ActionEvent *handleButtonPress(XButtonEvent *ev) override;
+    virtual ActionEvent *handleButtonRelease(XButtonEvent *ev) override;
+    virtual ActionEvent *handleMotionEvent(XMotionEvent *ev) override;
+    virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev) override;
+    virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev) override;
 
-    virtual bool operator == (const Window &window) {
+    virtual bool operator == (const Window &window) override {
         if ((_window == window) || (_title_wo == window) ||
                 findButton(window) ||
                 (getBorderPosition(window) != BORDER_NO_POS) ||
@@ -155,7 +155,7 @@ public:
         }
         return false;
     }
-    virtual bool operator != (const Window &window) {
+    virtual bool operator != (const Window &window) override {
         return !(*this == window);
     }
     // END - PWinObj interface.

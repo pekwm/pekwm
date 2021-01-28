@@ -55,7 +55,7 @@ public:
     virtual void reload(void) override { _reload = true; }
     virtual void restart(void) override { restart(""); }
     virtual void restart(std::string command) override;
-    virtual void shutdown(void) { _shutdown = true; }
+    virtual void shutdown(void) override { _shutdown = true; }
     // END - AppCtrl interface.
 
     inline bool shallRestart(void) const { return _restart; }
