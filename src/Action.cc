@@ -250,6 +250,8 @@ parseActionChangeWorkspace(Action &action, const std::string &arg)
         } else {
             action.setParamI(0, strtol(arg.c_str(), 0, 10) - 1);
         }
+    } else {
+        action.setParamI(0, num);
     }
 }
 
