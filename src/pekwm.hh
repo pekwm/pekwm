@@ -136,6 +136,7 @@ enum AtomName {
     PEKWM_FRAME_SKIP,
     PEKWM_TITLE,
     PEKWM_BG_PID,
+    PEKWM_CMD,
 
     // ICCCM Atom Names
     WM_NAME,

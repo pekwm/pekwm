@@ -114,26 +114,28 @@ target_include_directories(wm PUBLIC ${common_INCLUDE_DIRS})
 add_executable(pekwm pekwm.cc)
 target_include_directories(pekwm PUBLIC ${common_INCLUDE_DIRS})
 target_link_libraries(pekwm wm texture x11 util ${common_LIBRARIES})
-
 install(TARGETS pekwm DESTINATION bin)
 
 add_executable(pekwm_bg
   pekwm_bg.cc)
 target_include_directories(pekwm_bg PUBLIC ${common_INCLUDE_DIRS})
 target_link_libraries(pekwm_bg texture x11 util ${common_LIBRARIES})
-
 install(TARGETS pekwm_bg DESTINATION bin)
 
 add_executable(pekwm_dialog
   pekwm_dialog.cc)
 target_include_directories(pekwm_dialog PUBLIC ${common_INCLUDE_DIRS})
 target_link_libraries(pekwm_dialog texture x11 util ${common_LIBRARIES})
-
 install(TARGETS pekwm_dialog DESTINATION bin)
+
+add_executable(pekwm_ctrl
+  pekwm_ctrl.cc)
+target_include_directories(pekwm_ctrl PUBLIC ${common_INCLUDE_DIRS})
+target_link_libraries(pekwm_ctrl x11 util ${common_LIBRARIES})
+install(TARGETS pekwm_ctrl DESTINATION bin)
 
 add_executable(pekwm_screenshot
   pekwm_screenshot.cc)
 target_include_directories(pekwm_screenshot PUBLIC ${common_INCLUDE_DIRS})
 target_link_libraries(pekwm_screenshot texture x11 util ${common_LIBRARIES})
-
 install(TARGETS pekwm_screenshot DESTINATION bin)

@@ -30,7 +30,8 @@ enum ActionOk {
     WINDOWMENU_OK = (1<<6), //!< Ok from WindowMenu.
     ROOTMENU_OK = (1<<7), //!< Ok from RootMenu.
     FRAME_BORDER_OK  = (1<<8), //!< Frame border ok.
-    SCREEN_EDGE_OK = (1<<9) //!< ScreenEdge ok.
+    SCREEN_EDGE_OK = (1<<9), //!< ScreenEdge ok.
+    CMD_OK = (1<<10) //!< Command from pekwm_ctrl
 };
 
 /**

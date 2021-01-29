@@ -17,26 +17,32 @@
 
 const char RegexString::SEPARATOR = '/';
 
-//! @brief RegexString constructor.
 RegexString::RegexString(void)
-    : _reg_ok(false), _reg_inverted(false), _ref_max(1)
+    : _reg_ok(false),
+      _reg_inverted(false),
+      _ref_max(1)
 {
 }
 
-//! @brief RegexString constructor with default search
+/**
+ * RegexString constructor with default search
+ */
 RegexString::RegexString(const std::wstring &str, bool full)
-  : _reg_ok(false), _reg_inverted(false), _ref_max(1)
+  : _reg_ok(false),
+    _reg_inverted(false),
+    _ref_max(1)
 {
-  parse_match(str, full);
+    parse_match(str, full);
 }
 
-//! @brief RegexString destructor.
 RegexString::~RegexString(void)
 {
     free_regex();
 }
 
-//! @brief Simple ed s command lookalike.
+/**
+ * Simple ed s command lookalike.
+ */
 bool
 RegexString::ed_s(std::wstring &str)
 {
@@ -130,6 +136,7 @@ RegexString::parse_match(const std::wstring &match, bool full)
         }
 
         _reg_ok = ! regcomp(&_regex, expression.c_str(), flags);
+        _pattern = match;
     } else {
         _reg_ok = false;
     }
@@ -224,7 +231,7 @@ RegexString::parse_ed_s(const std::wstring &ed_s)
 
 //! @brief Matches RegexString against rhs, needs successfull parse_match.
 bool
-RegexString::operator==(const std::wstring &rhs)
+RegexString::operator==(const std::wstring &rhs) const
 {
     if (! _reg_ok) {
         return false;
@@ -243,6 +250,7 @@ RegexString::free_regex(void)
     if (_reg_ok) {
         regfree(&_regex);
         _reg_ok = false;
+        _pattern.clear();
     }
     _reg_inverted = false;
 }

@@ -632,7 +632,7 @@ WindowManager::doEventLoop(void)
             case DestroyNotify:
                 handleDestroyWindowEvent(&ev.xdestroywindow);
                 break;
-                
+
             case ConfigureRequest:
                 handleConfigureRequestEvent(&ev.xconfigurerequest);
                 break;
@@ -652,7 +652,7 @@ WindowManager::doEventLoop(void)
             case Expose:
                 handleExposeEvent(&ev.xexpose);
                 break;
-      
+
             case KeyPress:
             case KeyRelease:
                 X11::setLastEventTime(ev.xkey.time);
@@ -1218,6 +1218,10 @@ WindowManager::handleClientMessageEvent(XClientMessageEvent *ev)
                     Workspaces::setSize(ev->data.l[0]);
                 }
             }
+        } else if (ev->format == 8) {
+            if (ev->message_type == X11::getAtom(PEKWM_CMD)) {
+                handlePekwmCmd(ev);
+            }
         }
 
     } else {
@@ -1358,4 +1362,20 @@ WindowManager::createClient(Window window, bool is_new)
     }
 
     return client;
+}
+
+void
+WindowManager::handlePekwmCmd(XClientMessageEvent *ev)
+{
+    // ensure data is nul terminated
+    ev->data.b[sizeof(ev->data.b) - 1] = 0;
+    std::string cmd(ev->data.b);
+
+    Action action;
+    if (ActionConfig::parseAction(cmd, action, CMD_OK)) {
+        ActionEvent ae;
+        ae.action_list.push_back(action);
+        ActionPerformed ap(nullptr, ae);
+        pekwm::actionHandler()->handleAction(ap);
+    }
 }

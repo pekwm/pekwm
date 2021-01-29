@@ -35,6 +35,9 @@ Example in _config_:
     ThemeBackground = "False"
 ```
 
+**pekwm_ctrl** created, simple control command for pekwm that takes
+a string formatted as a single action and asks pekwm to execute it.
+
 **pekwm_screenshot** created, simple screenshot taking application
 that outputs a PNG image.
 

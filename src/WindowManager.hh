@@ -122,6 +122,8 @@ private:
 
     Client *createClient(Window window, bool is_new);
 
+    void handlePekwmCmd(XClientMessageEvent *ev);
+
 private:
     bool _shutdown; //!< Set to wheter we want to shutdown.
     bool _reload; //!< Set to wheter we want to reload.

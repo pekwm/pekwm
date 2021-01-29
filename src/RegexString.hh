@@ -53,6 +53,7 @@ public:
 
     //! @brief Returns parse_match data status.
     bool is_match_ok(void) { return _reg_ok; }
+    const std::wstring& getPattern(void) const { return _pattern; }
 
     bool ed_s(std::wstring &str);
 
@@ -60,16 +61,17 @@ public:
     bool parse_replace(const std::wstring &replace);
     bool parse_ed_s(const std::wstring &ed_s);
 
-    bool operator==(const std::wstring &rhs);
+    bool operator==(const std::wstring &rhs) const;
 
 private:
     RegexString(const RegexString &);
     RegexString &operator=(const RegexString &);
-    void free_regex (void);
+    void free_regex(void);
 
 private:
     regex_t _regex; //!< Compiled regular expression holder.
     bool _reg_ok; //!< _regex compiled ok flag.
+    std::wstring _pattern; /**< String regex was compiled from. */
     /** If true, a non-matching regexp is considered a match. */
     bool _reg_inverted;
 

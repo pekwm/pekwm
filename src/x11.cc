@@ -125,6 +125,7 @@ static const char *atomnames[] = {
     "_PEKWM_FRAME_SKIP",
     "_PEKWM_TITLE",
     "_PEKWM_BG_PID",
+    "_PEKWM_CMD",
 
     // ICCCM atoms
     "WM_NAME",
@@ -608,6 +609,10 @@ X11::getProperty(Window win, AtomName aname, Atom type,
     int r_format, status;
     ulong read = 0, left = 0;
 
+    if (expected == 0) {
+        expected = 1024;
+    }
+
     *data = 0;
     do {
         if (*data) {
@@ -845,7 +850,8 @@ X11::getKeycodeFromMask(uint mask)
 }
 
 /**
- * Wrapper for XKeycodeToKeysym and XkbKeycodeToKeysym depending on which one is available.
+ * Wrapper for XKeycodeToKeysym and XkbKeycodeToKeysym depending on
+ * which one is available.
  */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"

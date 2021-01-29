@@ -628,8 +628,9 @@ Workspaces::buildClientList(unsigned int &num_windows)
         if (pekwm::config()->isReportAllClients()) {
             for (it_c = frame->begin(); it_c != frame->end(); ++it_c) {
                 client = dynamic_cast<Client*>(*it_c);
-                if (client && ! client->isSkip(SKIP_TASKBAR)
-                    && client != client_active) {
+                if (client
+                    && client != client_active
+                    && ! client->isSkip(SKIP_TASKBAR)) {
                     windows.push_back(client->getWindow());
                 }
             }
