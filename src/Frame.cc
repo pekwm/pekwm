@@ -2424,7 +2424,6 @@ Frame::workspacesInsert()
 {
     Workspaces::insert(this);
     Workspaces::updateClientList();
-    Workspaces::updateClientStackingList();
 }
 
 /**
@@ -2435,5 +2434,4 @@ Frame::workspacesRemove()
 {
     Workspaces::remove(this);
     Workspaces::updateClientList();
-    Workspaces::updateClientStackingList();
 }

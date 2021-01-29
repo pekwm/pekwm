@@ -6,6 +6,7 @@
 
 extern "C" {
 #include <X11/Xlib.h>
+#include <X11/Xutil.h>
 #include <X11/Xatom.h>
 }
 
@@ -33,9 +34,14 @@ main(int argc, char *argv[])
                                CopyFromParent, // visual
                                attrs_mask,
                                &attrs);
+    char wm_name[] = "test_client";
+    char wm_class[] = "pekwm";
+    XClassHint hint = {wm_name, wm_class};
+    XSetClassHint(dpy, win, &hint);
     XMapWindow(dpy, win);
 
     std::cout << "Window " << win << std::endl;
+    std::cout << "WindowHex " << std::showbase << std::hex << win << std::endl;
 
     XEvent ev;
     while (! XNextEvent(dpy, &ev)) {

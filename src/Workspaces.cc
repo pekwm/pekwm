@@ -658,6 +658,7 @@ Workspaces::updateClientList(void)
     uint num;
     auto windows = buildClientList(num);
     X11::setWindows(X11::getRoot(), NET_CLIENT_LIST, windows, num);
+    X11::setWindows(X11::getRoot(), NET_CLIENT_LIST_STACKING, windows, num);
     delete [] windows;
 }
 

@@ -1,0 +1,8 @@
+Property = "test_client,pekwm" {
+	ApplyOn = "Start New"
+	Group = "term" {
+		Size = "10"
+		FocusedFirst = "True"
+		Raise = "True"
+	}
+}

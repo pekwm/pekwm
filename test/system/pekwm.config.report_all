@@ -1,0 +1,9 @@
+INCLUDE = "$_PEKWM_ETC_PATH/config_system"
+
+Files {
+    AutoProps = "./pekwm.autoproperties"
+}
+
+Screen {
+    ReportAllClients = "True"
+}

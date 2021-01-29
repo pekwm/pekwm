@@ -12,15 +12,15 @@ in one go.
 # test possible ways of setting the configuration file used by pekwm
 [function test_config_path]
     [log test_config_path]
-    !$BIN_DIR/pekwm --display $DISPLAY --config ./pekwm.config
-    ?using configuration at ./pekwm.config
-    ?failed to open file ./pekwm.config
+    !$BIN_DIR/pekwm --display $DISPLAY --config ./pekwm.config.missing
+    ?using configuration at ./pekwm.config.missing
+    ?failed to open file ./pekwm.config.missing
     !$_CTRL_C_
     ?SH-PROMPT:
 
-    !env PEKWM_CONFIG_FILE=./pekwm.env.config $BIN_DIR/pekwm --display $DISPLAY
-    ?using configuration at ./pekwm.env.config
-    ?failed to open file ./pekwm.env.config
+    !env PEKWM_CONFIG_FILE=./pekwm.env.config.missing $BIN_DIR/pekwm --display $DISPLAY
+    ?using configuration at ./pekwm.env.config.missing
+    ?failed to open file ./pekwm.env.config.missing
     !$_CTRL_C_
     ?SH-PROMPT:
 
@@ -58,28 +58,30 @@ in one go.
         ?SH-PROMPT:
 [endfunction]
 
-[function test_update_client_list]
+[function test_update_client_list_report_all]
+    [log test_update_client_list_report_all]
+
     [shell test_update_client_list]
-        [log test_update_client_list]
         ?SH-PROMPT:
         !env DISPLAY=$DISPLAY $TEST_DIR/test_update_client_list
         ?BEGIN WINDOWS
         ?END WINDOWS
         ?PROGRESS: wait for PropertyNotify
 
-    [shell test_client]
+    [shell test_client-1]
+        ?SH-PROMPT:
         !env DISPLAY=$DISPLAY $TEST_DIR/test_client
         ?Window ([0-9]+)
-        [global window=$1]
-        [log started test client $window]
+        [global window1=$1]
+        [log started test client 1 $window1]
 
     [shell test_update_client_list]
         ?BEGIN WINDOWS
-        ?Window $window
+        ?Window $window1
         ?END WINDOWS
-        -Window $window
+        -Window $window1
 
-    [shell test_client]
+    [shell test_client-1]
         !$_CTRL_C_
         ?SH-PROMPT:
 
@@ -87,6 +89,46 @@ in one go.
         ?BEGIN WINDOWS
         ?END WINDOWS
         -
+
+    [shell test_client-1]
+        ?SH-PROMPT:
+        !env DISPLAY=$DISPLAY $TEST_DIR/test_client
+        ?Window ([0-9]+)
+        [global window1=$1]
+        [log started test client 1 $window1]
+
+    [shell test_update_client_list]
+        ?BEGIN WINDOWS
+        ?Window $window1
+        ?END WINDOWS
+
+    [shell test_client-2]
+        ?SH-PROMPT:
+        !env DISPLAY=$DISPLAY $TEST_DIR/test_client
+        ?Window ([0-9]+)
+        [global window2=$1]
+        [log started test client 2 $window2]
+
+    [shell test_update_client_list]
+        ?BEGIN WINDOWS
+        ?Window $window1
+        ?Window $window2
+        ?END WINDOWS
+        !$_CTRL_C_
+        ?SH-PROMPT:
+[endfunction]
+
+[function test_update_client_list]
+    [log test_update_client_list]
+
+    [shell test_update_client_list]
+        -Window $window1
+        !env DISPLAY=$DISPLAY $TEST_DIR/test_update_client_list
+        ?BEGIN WINDOWS
+        ?Window $window2
+        ?END WINDOWS
+        !$_CTRL_C_
+        ?SH-PROMPT:
 [endfunction]
 
 [shell Xvfb]
@@ -101,8 +143,19 @@ in one go.
     [call test_pekwm_replace]
 
 [shell pekwm]
-    [log starting pekwm]
-    !$BIN_DIR/pekwm --display $DISPLAY
+    [log starting pekwm (pekwm.config.report_all)]
+    !$BIN_DIR/pekwm --display $DISPLAY --config pekwm.config.report_all
+    ?Enter event loop.
+
+[shell test]
+    [call test_update_client_list_report_all]
+
+[shell pekwm]
+    !$_CTRL_C_
+    ?SH-PROMPT:
+
+    [log starting pekwm (pekwm.config)]
+    !$BIN_DIR/pekwm --display $DISPLAY --config pekwm.config
     ?Enter event loop.
 
 [shell test]

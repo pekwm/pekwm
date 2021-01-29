@@ -1293,9 +1293,8 @@ WindowManager::createClient(Window window, bool is_new)
         if (client->isAlive()) {
             if (initConfig.parent_is_new) {
                 Workspaces::insert(client->getParent(), true);
-                Workspaces::updateClientList();
-                Workspaces::updateClientStackingList();
             }
+            Workspaces::updateClientList();
 
             // Make sure the window is mapped, this is done after it has been
             // added to the decor/frame as otherwise IsViewable state won't
@@ -1307,12 +1306,18 @@ WindowManager::createClient(Window window, bool is_new)
             // Focus was requested by the configuration, look out for
             // focus stealing.
             if (initConfig.focus) {
-                PWinObj *wo = PWinObj::getFocusedPWinObj();
-                Time time_protect = static_cast<Time>(pekwm::config()->getFocusStealProtect());
+                auto wo = PWinObj::getFocusedPWinObj();
+                Time time_protect =
+                    static_cast<Time>(pekwm::config()->getFocusStealProtect());
 
-                if (wo && wo->isMapped() && wo->isKeyboardInput()
-                    && time_protect && time_protect >= (X11::getLastEventTime() - wo->getLastActivity())) {
-                    // WO exists, is mapped, time protect is active and within it's limits.
+                if (wo != nullptr
+                    && wo->isMapped()
+                    && wo->isKeyboardInput()
+                    && time_protect
+                    && time_protect >= (X11::getLastEventTime()
+                                        - wo->getLastActivity())) {
+                    // WO exists, is mapped, time protect is active
+                    // and within it's limits.
                 } else {
                     client->getParent()->giveInputFocus();
                 }
