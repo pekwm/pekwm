@@ -337,9 +337,8 @@ Workspaces::warpToWorkspace(uint num, int dir)
         break;
       }
 
-        // warp pointer
-        XWarpPointer(X11::getDpy(), None,
-                     X11::getRoot(), 0, 0, 0, 0, x, y);
+      // warp pointer
+      X11::warpPointer(x, y);
     }
 
     // set workpsace

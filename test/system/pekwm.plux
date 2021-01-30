@@ -131,6 +131,20 @@ in one go.
         ?SH-PROMPT:
 [endfunction]
 
+[function test_warp_pointer]
+    [log test_warp_pointer]
+    !$BIN_DIR/pekwm_ctrl WarpPointer 100 100
+    ?SH-PROMPT:
+    !$TEST_DIR/test_client query_pointer
+    !root x 100 y 100
+    ?SH-PROMPT:
+    !$BIN_DIR/pekwm_ctrl WarpPointer 300 300
+    ?SH-PROMPT:
+    !$TEST_DIR/test_client query_pointer
+    !root x 300 y 300
+    ?SH-PROMPT:
+[endfunction]
+
 [shell Xvfb]
     ?SH-PROMPT:
     [log starting Xvfb]
@@ -138,16 +152,13 @@ in one go.
     !Xvfb -displayfd 1 $DISPLAY
     ?1
 
-[shell test]
-    [call test_config_path]
-    [call test_pekwm_replace]
-
 [shell pekwm]
     [log starting pekwm (pekwm.config.report_all)]
     !$BIN_DIR/pekwm --display $DISPLAY --config pekwm.config.report_all
     ?Enter event loop.
 
 [shell test]
+    [call test_warp_pointer]
     [call test_update_client_list_report_all]
 
 [shell pekwm]
@@ -160,6 +171,15 @@ in one go.
 
 [shell test]
     [call test_update_client_list]
+
+[shell pekwm]
+    !$_CTRL_C_
+    ?SH-PROMPT:
+
+[shell test]
+    [call test_config_path]
+    [call test_pekwm_replace]
+
 
 [shell Xvfb]
     !$_CTRL_C_

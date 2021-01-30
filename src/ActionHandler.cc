@@ -353,9 +353,10 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                                       frame, wo);
                 break;
             case ACTION_DEBUG:
-#ifdef DEBUG
                 Debug::doAction(it->getParamS());
-#endif
+                break;
+            case ACTION_WARP_POINTER:
+                actionWarpPointer(it->getParamI(0), it->getParamI(1));
                 break;
             default:
                 matched = false;
@@ -837,7 +838,8 @@ ActionHandler::actionSendKey(PWinObj *wo, const std::string &key_str)
 }
 
 void
-ActionHandler::actionSetOpacity(PWinObj *client, PWinObj *frame, uint focus, uint unfocus)
+ActionHandler::actionSetOpacity(PWinObj *client, PWinObj *frame,
+                                uint focus, uint unfocus)
 {
     if (! unfocus) {
         unfocus = focus;
@@ -893,7 +895,8 @@ ActionHandler::actionShowMenu(const std::string &name, bool stick,
 
 void
 ActionHandler::actionShowInputDialog(InputDialog *dialog,
-                                     const std::string &initial, Frame *frame, PWinObj *wo)
+                                     const std::string &initial,
+                                     Frame *frame, PWinObj *wo)
 {
     if (dialog->isMapped()) {
         dialog->unmapWindow();
@@ -908,6 +911,18 @@ ActionHandler::actionShowInputDialog(InputDialog *dialog,
 
         dialog->mapCentered(initial, gm, frame ? frame : wo);
     }
+}
+
+bool
+ActionHandler::actionWarpPointer(int x, int y)
+{
+    if (x < 0 || y < 0
+        || static_cast<uint>(x) > X11::getScreenGeometry().width
+        || static_cast<uint>(y) > X11::getScreenGeometry().height) {
+        return false;
+    }
+    X11::warpPointer(x, y);
+    return true;
 }
 
 //! @brief Creates a menu containing a list of Frames currently visible

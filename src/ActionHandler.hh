@@ -58,6 +58,7 @@ private:
                         PWinObj *wo_ref);
     void actionShowInputDialog(InputDialog *dialog, const std::string &initial,
                                Frame *frame, PWinObj *wo);
+    bool actionWarpPointer(int x, int y);
 
     // action helpers
     Client *findClientFromTitle(const std::wstring &title);

@@ -10,19 +10,28 @@ extern "C" {
 #include <X11/Xatom.h>
 }
 
-
-int
-main(int argc, char *argv[])
+void
+query_pointer(Display *dpy, int screen, Window root)
 {
-    Display *dpy = XOpenDisplay(NULL);
-    if (dpy == NULL) {
-        std::cerr << "ERROR: unable to open display" << std::endl;
-        return 1;
+    Window root_ret, child_ret;
+    int root_x, root_y, win_x, win_y;
+    unsigned int mask;
+    if (XQueryPointer(dpy, root, &root_ret, &child_ret,
+                      &root_x, &root_y, &win_x, &win_y,
+                      &mask)) {
+        std::cout << "root"
+                  << " x " << root_x << " y " << root_y << std::endl
+                  << "child " << child_ret
+                  << " x " << win_x << " y " << win_y
+                  << std::endl;
+    } else {
+        std::cerr << "ERROR: failed to query pointer" << std::endl;
     }
+}
 
-    int screen = DefaultScreen(dpy);
-    Window root = RootWindow(dpy, screen);
-
+void
+window(Display *dpy, int screen, Window root)
+{
     XSetWindowAttributes attrs = {0};
     attrs.event_mask = PropertyChangeMask;
     unsigned long attrs_mask = CWEventMask;
@@ -45,6 +54,25 @@ main(int argc, char *argv[])
 
     XEvent ev;
     while (! XNextEvent(dpy, &ev)) {
+    }
+}
+
+int
+main(int argc, char *argv[])
+{
+    Display *dpy = XOpenDisplay(NULL);
+    if (dpy == NULL) {
+        std::cerr << "ERROR: unable to open display" << std::endl;
+        return 1;
+    }
+
+    int screen = DefaultScreen(dpy);
+    Window root = RootWindow(dpy, screen);
+
+    if (argc == 2 && std::string(argv[1]) == "query_pointer") {
+        query_pointer(dpy, screen, root);
+    } else {
+        window(dpy, screen, root);
     }
 
     XCloseDisplay(dpy);

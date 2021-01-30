@@ -492,6 +492,10 @@ Closes all pekwm menus.
 
 Send a key, possibly with modifiers, to the active window.
 
+**WarpPointer (int int)**
+
+Move the cursor to the given position relative to the root window.
+
 **SetOpacity (int int)**
 
 Sets the Focused and Unfocused opacity values for the active

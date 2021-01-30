@@ -77,7 +77,7 @@ static ParseUtil::Map<std::pair<ActionType, uint> > action_map =
      {"GotoClientID", action_pair(ACTION_GOTO_CLIENT_ID, ANY_MASK)},
      {"Detach", action_pair(ACTION_DETACH, FRAME_MASK)},
      {"SendToWorkspace", action_pair(ACTION_SEND_TO_WORKSPACE, ANY_MASK)},
-     {"GoToWorkspace", action_pair(ACTION_GOTO_WORKSPACE, ANY_MASK )},
+     {"GoToWorkspace", action_pair(ACTION_GOTO_WORKSPACE, ANY_MASK)},
      {"Exec",
       action_pair(ACTION_EXEC,
                   FRAME_MASK|ROOTMENU_OK|ROOTCLICK_OK|SCREEN_EDGE_OK)},
@@ -92,19 +92,20 @@ static ParseUtil::Map<std::pair<ActionType, uint> > action_map =
      {"ShowCmdDialog",
       action_pair(ACTION_SHOW_CMD_DIALOG,
                   KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK|ROOTMENU_OK|
-                  WINDOWMENU_OK)},
+                  WINDOWMENU_OK|CMD_OK)},
      {"ShowSearchDialog",
       action_pair(ACTION_SHOW_SEARCH_DIALOG, KEYGRABBER_OK|ROOTCLICK_OK|
                   SCREEN_EDGE_OK|ROOTMENU_OK|WINDOWMENU_OK)},
      {"ShowMenu",
       action_pair(ACTION_SHOW_MENU, FRAME_MASK|ROOTCLICK_OK|SCREEN_EDGE_OK|
-                  ROOTMENU_OK|WINDOWMENU_OK)},
+                  ROOTMENU_OK|WINDOWMENU_OK|CMD_OK)},
      {"HideAllMenus",
       action_pair(ACTION_HIDE_ALL_MENUS, FRAME_MASK|ROOTCLICK_OK|
-                  SCREEN_EDGE_OK)},
+                  SCREEN_EDGE_OK|CMD_OK)},
      {"SubMenu", action_pair(ACTION_MENU_SUB, ROOTMENU_OK|WINDOWMENU_OK)},
      {"Dynamic", action_pair(ACTION_MENU_DYN, ROOTMENU_OK|WINDOWMENU_OK)},
      {"SendKey", action_pair(ACTION_SEND_KEY, ANY_MASK)},
+     {"WarpPointer", action_pair(ACTION_WARP_POINTER, ANY_MASK)},
      {"SetOpacity", action_pair(ACTION_SET_OPACITY, FRAME_MASK)},
      {"Debug", action_pair(ACTION_DEBUG, ANY_MASK)}};
 
@@ -414,6 +415,12 @@ parseActionArg(Action &action, const std::string& arg)
         } else {
             // Default to non-sticky
             action.setParamI(0, false);
+        }
+        break;
+    case ACTION_WARP_POINTER:
+        if (Util::splitString(arg, tok, " \t", 2) == 2) {
+            action.setParamI(0, std::atoi(tok[0].c_str()));
+            action.setParamI(1, std::atoi(tok[1].c_str()));
         }
         break;
     case ACTION_SET_OPACITY:

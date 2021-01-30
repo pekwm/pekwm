@@ -128,6 +128,12 @@ public:
     static ulong getWhitePixel(void) { return WhitePixel(_dpy, _screen); }
     static ulong getBlackPixel(void) { return BlackPixel(_dpy, _screen); }
 
+    static void warpPointer(int x, int y) {
+        if (_dpy) {
+            XWarpPointer(_dpy, None, _root, 0, 0, 0, 0, x, y);
+        }
+    }
+
     static void moveWindow(Window win, int x, int y) {
         if (_dpy) {
             XMoveWindow(_dpy, win, x, y);

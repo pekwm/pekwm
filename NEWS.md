@@ -41,6 +41,13 @@ a string formatted as a single action and asks pekwm to execute it.
 **pekwm_screenshot** created, simple screenshot taking application
 that outputs a PNG image.
 
+**WarpPointer** action that warps the X11 pointer to the given
+position. Example usage:
+
+```
+    Actions = "WarpPointer x y"
+```
+
 Updated
 -------
 
