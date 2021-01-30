@@ -22,6 +22,8 @@ endif (HAS_CXX11)
 find_package(X11 REQUIRED)
 find_package(Iconv REQUIRED)
 
+check_function_exists(localtime_r HAVE_LOCALTIME_R REQUIRED)
+
 # Look for platform specific methods
 check_function_exists(swprintf HAVE_SWPRINTF)
 check_function_exists(setenv HAVE_SETENV)

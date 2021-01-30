@@ -18,6 +18,7 @@
 #include <sstream>
 
 extern "C" {
+#include <sys/types.h>
 #include <getopt.h>
 #include <time.h>
 #include <unistd.h>
@@ -55,7 +56,8 @@ static void usage(const char* name, int ret)
 static std::string get_screenhot_name(const Geometry& gm)
 {
     std::time_t t = std::time(nullptr);
-    std::tm tm = *std::localtime(&t);
+    std::tm tm;
+    localtime_r(&t, &tm);
 
     std::ostringstream name;
     name << "pekwm_screenshot-"
