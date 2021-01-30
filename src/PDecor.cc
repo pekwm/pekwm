@@ -1339,25 +1339,49 @@ PDecor::doKeyboardMoveResize(void)
             for (; it != ae->action_list.end(); ++it) {
                 switch (it->getAction()) {
                 case MOVE_HORIZONTAL:
-                    _gm.x += it->getParamI(0);
+                    if (it->getParamI(1) == UNIT_PERCENT) {
+                        Geometry head;
+                        X11::getHeadInfo(X11::getCurrHead(), head);
+                        _gm.x += (it->getParamI(0) * static_cast<int>(head.width)) / 100;
+                    } else {
+                        _gm.x += it->getParamI(0);
+                    }
                     if (! outline) {
                         move(_gm.x, _gm.y);
                     }
                     break;
                 case MOVE_VERTICAL:
-                    _gm.y += it->getParamI(0);
+                    if (it->getParamI(1) == UNIT_PERCENT) {
+                        Geometry head;
+                        X11::getHeadInfo(X11::getCurrHead(), head);
+                        _gm.y += (it->getParamI(0) * static_cast<int>(head.height)) / 100;
+                    } else {
+                        _gm.y +=  it->getParamI(0);
+                    }
                     if (! outline) {
                         move(_gm.x, _gm.y);
                     }
                     break;
                 case RESIZE_HORIZONTAL:
-                    _gm.width += resizeHorzStep(it->getParamI(0));
+                    if (it->getParamI(1) == UNIT_PERCENT) {
+                        Geometry head;
+                        X11::getHeadInfo(X11::getCurrHead(), head);
+                        _gm.width += (it->getParamI(0) * static_cast<int>(head.width)) / 100;
+                    } else {
+                        _gm.width +=  it->getParamI(0);
+                    }
                     if (! outline) {
                         resize(_gm.width, _gm.height);
                     }
                     break;
                 case RESIZE_VERTICAL:
-                    _gm.height += resizeVertStep(it->getParamI(0));
+                    if (it->getParamI(1) == UNIT_PERCENT) {
+                        Geometry head;
+                        X11::getHeadInfo(X11::getCurrHead(), head);
+                        _gm.height += (it->getParamI(0) * static_cast<int>(head.height)) / 100;
+                    } else {
+                        _gm.height +=  it->getParamI(0);
+                    }
                     if (! outline) {
                         resize(_gm.width, _gm.height);
                     }

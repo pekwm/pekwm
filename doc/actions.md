@@ -507,27 +507,32 @@ MoveResize
 **MoveHorizontal (int)**
 
 Moves a frame horizontally. Int is amount of pixels and can be
-negative.
+negative. Int can be followed by '%' which denotes the percent of the
+screen width.
 
 > Moveresize-specific keybinding
 
 **MoveVertical (int)**
 
-Moves a frame vertically. Int is amount of pixels and can be negative.
+Moves a frame vertically. Int is amount of pixels and can be
+negative. Int can be followed by '%' which denotes the percent of the
+screen height.
 
 >Moveresize-specific keybinding
 
 **ResizeHorizontal (int)**
 
 Resizes a frame horizontally. Int is amount of pixels and can be
-negative.
+negative. Int can be followed by '%' which denotes the percent of the
+screen width.
 
 >Moveresize-specific keybinding
 
 **ResizeVertical (int)**
 
 Resizes a frame vertically. Int is amount of pixels and can be
-negative.
+negative. Int can be followed by '%' which denotes the percent of the
+screen height.
 
 >Moveresize-specific keybinding
 
