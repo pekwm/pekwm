@@ -9,11 +9,12 @@
 #pragma once
 
 #include "config.h"
-
-#include "pekwm.hh"
 #include "PWinObj.hh"
+#include "pekwm.hh"
 
 #include <string>
+
+class Config;
 
 /**
  * Window for handling of EWMH hints, sets supported attributes etc.
@@ -45,7 +46,7 @@ private:
 class RootWO : public PWinObj
 {
 public:
-    RootWO(Window root, HintWO *hint_wo);
+    RootWO(Window root, HintWO *hint_wo, Config *cfg);
     virtual ~RootWO(void);
 
     /** Resize root window, does no actual resizing but updates the
@@ -69,6 +70,12 @@ public:
     void removeStrut(Strut *rem_strut);
     void updateStrut(void);
     const Strut& getStrut(void) { return _strut; }
+    const Strut& getStrut(uint head) {
+        if (head < _strut_head.size()) {
+            return _strut_head[head];
+        }
+        return _strut;
+    }
 
     void setEwmhWorkarea(const Geometry &workarea);
     void setEwmhActiveWindow(Window win);
@@ -81,6 +88,7 @@ private:
 
 private:
     HintWO *_hint_wo;
+    Config *_cfg;
 
     Strut _strut;
     std::vector<Strut> _strut_head;
@@ -99,7 +107,8 @@ private:
 class EdgeWO : public PWinObj
 {
 public:
-    EdgeWO(RootWO *root_wo, EdgeType edge, bool set_strut);
+    EdgeWO(RootWO *root_wo, EdgeType edge, bool set_strut,
+           Config *cfg);
     virtual ~EdgeWO(void);
 
     void configureStrut(bool set_strut);
@@ -115,6 +124,7 @@ public:
 private:
     RootWO* _root_wo;
     EdgeType _edge; /**< Edge position. */
+    Config *_cfg;
     Strut _strut; /*< Strut for reserving screen edge space. */
 };
 

@@ -490,7 +490,7 @@ do_iconv_open(const char **from_names, const char **to_names)
 //! @param outp Output pointer.
 //! @param out_bytes Output bytes.
 //! @return number of bytes converted irreversible or -1 on error.
-size_t 
+size_t
 do_iconv(iconv_t ic, const char **inp, size_t *in_bytes,
          char **outp, size_t *out_bytes)
 {
@@ -529,11 +529,11 @@ iconv_deinit(void)
     if (IC_TO_WC != reinterpret_cast<iconv_t>(-1)) {
         iconv_close(IC_TO_WC);
     }
-    
+
     if (IC_TO_UTF8 != reinterpret_cast<iconv_t>(-1)) {
         iconv_close(IC_TO_UTF8);
     }
-  
+
     if (ICONV_BUF) {
         delete [] ICONV_BUF;
     }

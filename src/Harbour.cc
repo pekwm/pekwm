@@ -255,7 +255,10 @@ Harbour::setStateHidden(StateAction sa)
 void
 Harbour::updateStrutSize(void)
 {
-    _strut->left = _strut->right = _strut->top = _strut->bottom = 0;
+    _strut->left = 0;
+    _strut->right = 0;
+    _strut->top = 0;
+    _strut->bottom = 0;
 
     if (! _cfg->isHarbourMaximizeOver() && ! _hidden) {
         switch (_cfg->getHarbourPlacement()) {

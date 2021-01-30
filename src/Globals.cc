@@ -55,7 +55,7 @@ namespace pekwm
         }
 
         // Create root PWinObj
-        _root_wo = new RootWO(X11::getRoot(), _hint_wo);
+        _root_wo = new RootWO(X11::getRoot(), _hint_wo, _config);
         PWinObj::setRootPWinObj(_root_wo);
 
         _auto_properties = new AutoProperties();

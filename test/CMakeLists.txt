@@ -52,6 +52,12 @@ add_test(Frame test_Frame)
 target_include_directories(test_Frame PUBLIC ${common_INCLUDE_DIRS})
 target_link_libraries(test_Frame wm texture x11 util ${common_LIBRARIES})
 
+add_executable(test_ManagerWindows test_ManagerWindows.cc)
+add_test(ManagerWindows test_ManagerWindows)
+target_include_directories(test_ManagerWindows PUBLIC ${common_INCLUDE_DIRS})
+target_link_libraries(test_ManagerWindows
+  wm texture x11 util ${common_LIBRARIES})
+
 add_executable(test_Util test_Util.cc)
 add_test(Util test_Util)
 target_include_directories(test_Util PUBLIC ${common_INCLUDE_DIRS})

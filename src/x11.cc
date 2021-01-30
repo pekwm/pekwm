@@ -746,7 +746,7 @@ X11::initHeads(void)
         initHeadsXinerama();
 
         if (! _heads.size()) {
-            _heads.push_back(Head(0, 0, _screen_gm.width, _screen_gm.height));
+            addHead(Head(0, 0, _screen_gm.width, _screen_gm.height));
         }
     }
 }
@@ -765,7 +765,8 @@ X11::initHeadsXinerama(void)
     XineramaScreenInfo *infos = XineramaQueryScreens(_dpy, &num_heads);
 
     for (int i = 0; i < num_heads; ++i) {
-        _heads.push_back(Head(infos[i].x_org, infos[i].y_org, infos[i].width, infos[i].height));
+        addHead(Head(infos[i].x_org, infos[i].y_org,
+                     infos[i].width, infos[i].height));
     }
 
     XFree(infos);
@@ -790,7 +791,7 @@ X11::initHeadsRandr(void)
         auto output = XRRGetOutputInfo(_dpy, resources, resources->outputs[i]);
         if (output->crtc) {
             auto crtc = XRRGetCrtcInfo(_dpy, resources, output->crtc);
-            _heads.push_back(Head(crtc->x, crtc->y, crtc->width, crtc->height));
+            addHead(Head(crtc->x, crtc->y, crtc->width, crtc->height));
             XRRFreeCrtcInfo (crtc);
         }
         XRRFreeOutputInfo (output);

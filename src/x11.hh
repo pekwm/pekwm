@@ -71,12 +71,29 @@ public: // member variables
     int head; /**< Which head is the strut valid for */
 
     /** Assign values from array of longs. */
-    inline void operator=(const long *s) {
+    void operator=(const long *s) {
         left = s[0];
         right = s[1];
         top = s[2];
         bottom = s[3];
     }
+    bool operator==(const Strut& rhs) {
+        return left == rhs.left
+            && right == rhs.right
+            && top == rhs.top
+            && bottom == rhs.bottom
+            && head == rhs.head;
+    }
+    bool operator!=(const Strut& rhs) {
+        return !operator==(rhs);
+    }
+    friend std::ostream &operator<<(std::ostream &stream, const Strut &strut) {
+        stream << "Strut l: " << strut.left << " r: " << strut.right
+               << " t: " << strut.top << " b: " << strut.bottom
+               << " head " << strut.head;
+        return stream;
+    }
+
 };
 
 //! Output head, used to share same code with Xinerama and RandR
@@ -192,9 +209,10 @@ public:
 
     static uint getNearestHead(int x, int y);
     static uint getCurrHead(void);
+    static void addHead(const Head &head) { _heads.push_back(head); }
     static bool getHeadInfo(uint head, Geometry &head_info);
     static Geometry getHeadGeometry(uint head);
-    inline static int getNumHeads(void) { return _heads.size(); }
+    static int getNumHeads(void) { return _heads.size(); }
 
     inline static Time getLastEventTime(void) { return _last_event_time; }
     inline static void setLastEventTime(Time t) { _last_event_time = t; }
@@ -358,9 +376,27 @@ public:
 
     // X11 function wrappers
 
+    static Window createSimpleWindow(Window parent,
+                                     int x, int y, uint width, uint height,
+                                     uint border_width,
+                                     ulong border, ulong background) {
+        if (_dpy) {
+            return XCreateSimpleWindow(_dpy, parent, x, y, width, height,
+                                       border_width, border, background);
+        }
+        return None;
+    }
+
     static void destroyWindow(Window win) {
         if (_dpy) {
             XDestroyWindow(_dpy, win);
+        }
+    }
+
+    static void changeWindowAttributes(Window win, ulong mask,
+                                       XSetWindowAttributes &attrs) {
+        if (_dpy) {
+            XChangeWindowAttributes(_dpy, win, mask, &attrs);
         }
     }
 
@@ -390,8 +426,17 @@ public:
         return XCheckTypedEvent(_dpy, type, ev);
     }
 
-    inline static int selectInput(Window w, long mask) {
-        return XSelectInput(_dpy, w, mask);
+    static void sync(Bool discard) {
+        if (_dpy) {
+            XSync(X11::getDpy(), discard);
+        }
+    }
+
+    static int selectInput(Window w, long mask) {
+        if (_dpy) {
+            return XSelectInput(_dpy, w, mask);
+        }
+        return 0;
     }
 
     inline static void setInputFocus(Window w) {

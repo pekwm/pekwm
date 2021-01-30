@@ -352,16 +352,20 @@ WindowManager::screenEdgeCreate(void)
     auto root_wo = pekwm::rootWo();
     _screen_edges[0] =
         new EdgeWO(root_wo, SCREEN_EDGE_LEFT,
-                   indent && (cfg->getScreenEdgeSize(SCREEN_EDGE_LEFT) > 0));
+                   indent && (cfg->getScreenEdgeSize(SCREEN_EDGE_LEFT) > 0),
+                   cfg);
     _screen_edges[1] =
         new EdgeWO(root_wo, SCREEN_EDGE_RIGHT,
-                   indent && (cfg->getScreenEdgeSize(SCREEN_EDGE_RIGHT) > 0));
+                   indent && (cfg->getScreenEdgeSize(SCREEN_EDGE_RIGHT) > 0),
+                   cfg);
     _screen_edges[2] =
         new EdgeWO(root_wo, SCREEN_EDGE_TOP,
-                   indent && (cfg->getScreenEdgeSize(SCREEN_EDGE_TOP) > 0));
+                   indent && (cfg->getScreenEdgeSize(SCREEN_EDGE_TOP) > 0),
+                   cfg);
     _screen_edges[3] =
         new EdgeWO(root_wo, SCREEN_EDGE_BOTTOM,
-                   indent && (cfg->getScreenEdgeSize(SCREEN_EDGE_BOTTOM) > 0));
+                   indent && (cfg->getScreenEdgeSize(SCREEN_EDGE_BOTTOM) > 0),
+                   cfg);
 
     // make sure the edge stays ontop
     for (int i=0; i < 4; ++i) {
@@ -499,9 +503,12 @@ WindowManager::startBackground(const std::string& theme_dir,
                                const std::string& texture)
 {
     stopBackground();
-    std::vector<std::string> args =
-        {BINDIR "/pekwm_bg", "--load-dir", theme_dir + "/backgrounds", texture};
-    _bg_pid = Util::forkExec(args);
+    if (! texture.empty()) {
+        std::vector<std::string> args =
+            {BINDIR "/pekwm_bg", "--load-dir", theme_dir + "/backgrounds",
+             texture};
+        _bg_pid = Util::forkExec(args);
+    }
 }
 
 void

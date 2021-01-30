@@ -45,15 +45,14 @@ HintWO::HintWO(Window root)
     _iconified = true; // Hack, to be ignored when placing
 
     // Create window
-    _window = XCreateSimpleWindow(X11::getDpy(), root,
-                                  -200, -200, 5, 5, 0, 0, 0);
+    _window = X11::createSimpleWindow(root,
+                                      -200, -200, 5, 5, 0, 0, 0);
 
     // Remove override redirect from window
     XSetWindowAttributes attr;
     attr.override_redirect = True;
     attr.event_mask = PropertyChangeMask;
-    XChangeWindowAttributes(X11::getDpy(), _window,
-                            CWEventMask|CWOverrideRedirect, &attr);
+    X11::changeWindowAttributes(_window, CWEventMask|CWOverrideRedirect, attr);
 
     // Set hints not being updated
     X11::setUtf8String(_window, NET_WM_NAME, WM_NAME);
@@ -197,9 +196,10 @@ HintWO::claimDisplayOwner(Window session_atom, Time timestamp)
 /**
  * Root window constructor, reads geometry and sets basic atoms.
  */
-RootWO::RootWO(Window root, HintWO *hint_wo)
+RootWO::RootWO(Window root, HintWO *hint_wo, Config *cfg)
     : PWinObj(false),
-      _hint_wo(hint_wo)
+      _hint_wo(hint_wo),
+      _cfg(cfg)
 {
     _type = WO_SCREEN_ROOT;
     setLayer(LAYER_NONE);
@@ -209,14 +209,14 @@ RootWO::RootWO(Window root, HintWO *hint_wo)
     _gm.width = X11::getWidth();
     _gm.height = X11::getHeight();
 
-    XSync(X11::getDpy(), false);
+    X11::sync(False);
     setXErrorsIgnore(true);
     uint errors_before = xerrors_count;
 
     // Select window events
     X11::selectInput(_window, RootWO::EVENT_MASK);
 
-    XSync(X11::getDpy(), false);
+    X11::sync(False);
     setXErrorsIgnore(false);
     if (errors_before != xerrors_count) {
         std::cerr << "pekwm: root window unavailable, can't start!"
@@ -232,7 +232,7 @@ RootWO::RootWO(Window root, HintWO *hint_wo)
     X11::setWindow(_window, NET_SUPPORTING_WM_CHECK, _hint_wo->getWindow());
     X11::setEwmhAtomsSupport(_window);
     X11::setLong(_window, NET_NUMBER_OF_DESKTOPS,
-                 pekwm::config()->getWorkspaces());
+                 _cfg->getWorkspaces());
     X11::setLong(_window, NET_CURRENT_DESKTOP, 0);
 
     long desktop_geometry[2];
@@ -266,7 +266,7 @@ ActionEvent*
 RootWO::handleButtonPress(XButtonEvent *ev)
 {
     return ActionHandler::findMouseAction(ev->button, ev->state, MOUSE_EVENT_PRESS,
-                                          pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
+                                          _cfg->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
 }
 
 /**
@@ -279,7 +279,7 @@ RootWO::handleButtonRelease(XButtonEvent *ev)
 
     // first we check if it's a double click
     if (X11::isDoubleClick(ev->window, ev->button - 1, ev->time,
-                           pekwm::config()->getDoubleClickTime())) {
+                           _cfg->getDoubleClickTime())) {
         X11::setLastClickID(ev->window);
         X11::setLastClickTime(ev->button - 1, 0);
 
@@ -291,7 +291,7 @@ RootWO::handleButtonRelease(XButtonEvent *ev)
     }
 
     return ActionHandler::findMouseAction(ev->button, ev->state, mb,
-                                          pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
+                                          _cfg->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
 }
 
 /**
@@ -303,7 +303,7 @@ RootWO::handleMotionEvent(XMotionEvent *ev)
     unsigned int button = X11::getButtonFromState(ev->state);
 
     return ActionHandler::findMouseAction(button, ev->state, MOUSE_EVENT_MOTION,
-                                          pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
+                                          _cfg->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
 }
 
 /**
@@ -313,7 +313,7 @@ ActionEvent*
 RootWO::handleEnterEvent(XCrossingEvent *ev)
 {
     return ActionHandler::findMouseAction(BUTTON_ANY, ev->state, MOUSE_EVENT_ENTER,
-                                          pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
+                                          _cfg->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
 }
 
 /**
@@ -323,7 +323,7 @@ ActionEvent*
 RootWO::handleLeaveEvent(XCrossingEvent *ev)
 {
     return ActionHandler::findMouseAction(BUTTON_ANY, ev->state, MOUSE_EVENT_LEAVE,
-                                          pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
+                                          _cfg->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
 }
 
 
@@ -430,11 +430,12 @@ RootWO::updateStrut(void)
     _strut.top = 0;
     _strut.bottom = 0;
 
-    for (auto it : _strut_head) {
-        it.left = 0;
-        it.right = 0;
-        it.top = 0;
-        it.bottom = 0;
+    auto it = _strut_head.begin();
+    for (; it != _strut_head.end(); ++it) {
+        it->left = 0;
+        it->right = 0;
+        it->top = 0;
+        it->bottom = 0;
     }
 
     Strut *strut;
@@ -505,7 +506,7 @@ RootWO::readEwmhDesktopNames(void)
     if (X11::getProperty(X11::getRoot(), NET_DESKTOP_NAMES,
                          X11::getAtom(UTF8_STRING),
                          EXPECTED_DESKTOP_NAMES_LENGTH, &data, &data_length)) {
-        pekwm::config()->setDesktopNamesUTF8(reinterpret_cast<char *>(data), data_length);
+        _cfg->setDesktopNamesUTF8(reinterpret_cast<char *>(data), data_length);
 
         XFree(data);
     }
@@ -519,7 +520,7 @@ RootWO::setEwmhDesktopNames(void)
 {
     unsigned char *desktopnames = 0;
     unsigned int length = 0;
-    pekwm::config()->getDesktopNamesUTF8(&desktopnames, &length);
+    _cfg->getDesktopNamesUTF8(&desktopnames, &length);
 
     if (desktopnames) {
         X11::setUtf8StringArray(X11::getRoot(), NET_DESKTOP_NAMES,
@@ -541,17 +542,20 @@ RootWO::setEwmhDesktopLayout(void)
                               static_cast<long>(Workspaces::getPerRow()),
                               static_cast<long>(Workspaces::getRows()),
                               NET_WM_TOPLEFT };
-    X11::setLongs(X11::getRoot(), NET_DESKTOP_LAYOUT, desktop_layout, sizeof(desktop_layout)/sizeof(desktop_layout[0]));
+    X11::setLongs(X11::getRoot(), NET_DESKTOP_LAYOUT, desktop_layout,
+                  sizeof(desktop_layout)/sizeof(desktop_layout[0]));
 }
 
 /**
  * Edge window constructor, create window, setup strut and register
  * window.
  */
-EdgeWO::EdgeWO(RootWO* root_wo, EdgeType edge, bool set_strut)
+EdgeWO::EdgeWO(RootWO* root_wo, EdgeType edge, bool set_strut,
+               Config* cfg)
     : PWinObj(false),
       _root_wo(root_wo),
-      _edge(edge)
+      _edge(edge),
+      _cfg(cfg)
 {
     _type = WO_SCREEN_EDGE;
     setLayer(LAYER_NONE); // hack, goes over LAYER_MENU
@@ -645,7 +649,7 @@ ActionEvent*
 EdgeWO::handleEnterEvent(XCrossingEvent *ev)
 {
     return ActionHandler::findMouseAction(BUTTON_ANY, ev->state, MOUSE_EVENT_ENTER,
-                                          pekwm::config()->getEdgeListFromPosition(_edge));
+                                          _cfg->getEdgeListFromPosition(_edge));
 }
 
 /**
@@ -655,7 +659,7 @@ ActionEvent*
 EdgeWO::handleButtonPress(XButtonEvent *ev)
 {
     return ActionHandler::findMouseAction(ev->button, ev->state, MOUSE_EVENT_PRESS,
-                                          pekwm::config()->getEdgeListFromPosition(_edge));
+                                          _cfg->getEdgeListFromPosition(_edge));
 }
 
 /**
@@ -677,7 +681,7 @@ EdgeWO::handleButtonRelease(XButtonEvent *ev)
 
     // first we check if it's a double click
     if (X11::isDoubleClick(ev->window, ev->button - 1, ev->time,
-                           pekwm::config()->getDoubleClickTime())) {
+                           _cfg->getDoubleClickTime())) {
         X11::setLastClickID(ev->window);
         X11::setLastClickTime(ev->button - 1, 0);
 
@@ -688,7 +692,7 @@ EdgeWO::handleButtonRelease(XButtonEvent *ev)
     }
 
     return ActionHandler::findMouseAction(ev->button, ev->state, mb,
-                                          pekwm::config()->getEdgeListFromPosition(_edge));
+                                          _cfg->getEdgeListFromPosition(_edge));
 }
 
 void
@@ -696,6 +700,6 @@ RootWO::initStrutHead()
 {
     _strut_head.clear();
     for (int i = 0; i < X11::getNumHeads(); i++) {
-        _strut_head.push_back(Strut());
+        _strut_head.push_back(Strut(0, 0, 0, 0, i));
     }
 }
