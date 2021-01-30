@@ -752,9 +752,9 @@ Config::parseMoveResizeAction(const std::string &action_string, Action &action)
                 case MOVE_VERTICAL:
                 case RESIZE_HORIZONTAL:
                 case RESIZE_VERTICAL:
-                case MOVE_SNAP:
                     action.setParamI(0, strtol(tok[1].c_str(), 0, 10));
                     break;
+                case MOVE_SNAP:
                 default:
                     // Do nothing.
                     break;
