@@ -751,9 +751,16 @@ Config::parseMoveResizeAction(const std::string &action_string, Action &action)
                 case MOVE_HORIZONTAL:
                 case MOVE_VERTICAL:
                 case RESIZE_HORIZONTAL:
-                case RESIZE_VERTICAL:
-                    action.setParamI(0, strtol(tok[1].c_str(), 0, 10));
+                case RESIZE_VERTICAL: {
+                    char *endptr = nullptr;
+                    action.setParamI(0, strtol(tok[1].c_str(), &endptr, 10));
+                    if (endptr && *endptr == '%') {
+                        action.setParamI(1, UNIT_PERCENT);
+                    } else {
+                        action.setParamI(1, UNIT_PIXEL);
+                    }
                     break;
+                }
                 case MOVE_SNAP:
                 default:
                     // Do nothing.

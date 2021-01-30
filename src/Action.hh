@@ -143,6 +143,12 @@ enum InputDialogAction {
     INPUT_NO_ACTION
 };
 
+enum ActionParamUnit {
+    UNIT_NONE,
+    UNIT_PIXEL,
+    UNIT_PERCENT
+};
+
 // Action Utils
 namespace ActionUtil {
     //! @brief Determines if state needs toggling.
