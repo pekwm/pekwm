@@ -40,7 +40,7 @@ print_net_client_list(Display *dpy, Window root, Atom net_client_list)
     data = get_propery(dpy, root, net_client_list, nleft, &nread, &nleft);
     Window *wins = reinterpret_cast<Window*>(data);
     std::cout << "BEGIN WINDOWS" << std::endl;
-    for (int i = 0; i < nread; i++) {
+    for (unsigned long i = 0; i < nread; i++) {
         std::cout << "  Window " << wins[i] << std::endl;
     }
     std::cout << "END WINDOWS" << std::endl;
