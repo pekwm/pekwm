@@ -17,6 +17,7 @@
 #include "pekwm.hh"
 #include "Action.hh"
 #include "AppCtrl.hh"
+#include "FocusCtrl.hh"
 #include "ManagerWindows.hh"
 
 #include <algorithm>
@@ -43,7 +44,8 @@ class StatusWindow;
 class KeyGrabber;
 class Harbour;
 
-class WindowManager : public AppCtrl
+class WindowManager : public AppCtrl,
+                      public FocusCtrl
 {
 public:
     static WindowManager *start(const std::string &config_file, bool replace);
@@ -61,6 +63,11 @@ public:
     inline bool shallRestart(void) const { return _restart; }
     inline const std::string &getRestartCommand(void) const {
         return _restart_command;
+    }
+
+    void skipNextEnter(Window win) override {
+        _skip_enter_after = win;
+        _skip_enter = 0;
     }
 
     // public event handlers used when doing grabbed actions
@@ -132,4 +139,12 @@ private:
     pid_t _bg_pid;
 
     EdgeWO *_screen_edges[4];
-};
+
+    /** On Enter event to this window, skip the next Enter event. Used
+        to disable enter events caused by showing/hiding next/prev
+        menu. */
+    Window _skip_enter_after;
+    /** Number of enter events to skip. */
+    uint _skip_enter;
+
+ };

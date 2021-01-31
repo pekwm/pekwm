@@ -113,7 +113,7 @@ WindowManager::start(const std::string &config_file, bool replace)
 
     // Setup window manager
     auto wm = new WindowManager();
-    if (! pekwm::init(wm, dpy, config_file, replace)) {
+    if (! pekwm::init(wm, wm, dpy, config_file, replace)) {
         delete wm;
         wm = nullptr;
 
@@ -255,7 +255,7 @@ WindowManager::setupDisplay(Display* dpy)
 {
     pekwm::autoProperties()->load();
 
-    Workspaces::init();
+    Workspaces::init(this);
     Workspaces::setSize(pekwm::config()->getWorkspaces());
     Workspaces::setPerRow(pekwm::config()->getWorkspacesPerRow());
 
@@ -1075,6 +1075,21 @@ WindowManager::handleDestroyWindowEvent(XDestroyWindowEvent *ev)
 void
 WindowManager::handleEnterNotify(XCrossingEvent *ev)
 {
+    // Window being entered is marked to cause the upcoming enter
+    // event to have no effect, multiple consequitive enter events on
+    // this window just keeps on making the next enter event being
+    // marked to be skipped.
+    if (ev->window == _skip_enter_after) {
+        _skip_enter = 1;
+        return;
+    }
+    if (_skip_enter) {
+        _skip_enter = 0;
+        _skip_enter_after = None;
+        return;
+    }
+    _skip_enter_after = None;
+
     // Clear event queue
     while (X11::checkTypedEvent(EnterNotify, (XEvent *) ev)) {
         if (! ev->send_event) {

@@ -37,7 +37,8 @@ static Theme* _theme = nullptr;
 
 namespace pekwm
 {
-    bool init(AppCtrl* app_ctrl, Display* dpy, const std::string& config_file,
+    bool init(AppCtrl* app_ctrl, FocusCtrl* focus_ctrl,
+              Display* dpy, const std::string& config_file,
               bool replace)
     {
         _config = new Config();
@@ -73,7 +74,7 @@ namespace pekwm
         _harbour = new Harbour(_config, _auto_properties, _root_wo);
         _status_window = new StatusWindow(_theme);
 
-        _action_handler = new ActionHandler(app_ctrl);
+        _action_handler = new ActionHandler(app_ctrl, focus_ctrl);
 
         return true;
     }

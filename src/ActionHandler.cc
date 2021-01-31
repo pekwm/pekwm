@@ -32,11 +32,13 @@
 #include "WORefMenu.hh"
 #include "ActionMenu.hh"
 #include "FrameListMenu.hh"
+#include "WindowManager.hh"
 
 #include <memory>
 
-ActionHandler::ActionHandler(AppCtrl* app_ctrl)
-    : _app_ctrl(app_ctrl)
+ActionHandler::ActionHandler(AppCtrl* app_ctrl, FocusCtrl* focus_ctrl)
+    : _app_ctrl(app_ctrl),
+      _focus_ctrl(focus_ctrl)
 {
     // Initialize state_to_keycode map
     for (uint i = 0; i < X11::MODIFIER_TO_MASK_NUM; ++i) {
@@ -693,6 +695,7 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off,
                    head.y + ((head.height - menu->getHeight()) / 2));
         menu->setFocused(true);
         menu->mapWindowRaised();
+        _focus_ctrl->skipNextEnter(menu->getWindow());
     }
 
     menu->selectItemRel(off);

@@ -14,6 +14,7 @@
 #include "Action.hh"
 #include "AppCtrl.hh"
 #include "CmdDialog.hh"
+#include "FocusCtrl.hh"
 #include "SearchDialog.hh"
 
 #include <string>
@@ -22,11 +23,12 @@
 class Client;
 class Frame;
 class PMenu;
+class WindowManager;
 
 class ActionHandler
 {
 public:
-    ActionHandler(AppCtrl *app_ctrl);
+    ActionHandler(AppCtrl* app_ctrl, FocusCtrl* focus_ctrl);
     ~ActionHandler(void);
 
     void handleAction(const ActionPerformed &ap);
@@ -76,6 +78,7 @@ private:
 
 private:
     AppCtrl* _app_ctrl;
+    FocusCtrl* _focus_ctrl;
     CmdDialog _cmd_dialog;
     SearchDialog _search_dialog;
 
