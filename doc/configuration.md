@@ -289,9 +289,10 @@ all values should be placed inside quotes.
 
 | Keyword                        | Type            | Description                                                                                                                                                               |
 |--------------------------------|-----------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| ThemeBackground                | boolean         | Set to False to disable background setting from themes. Default True.                                                                                                     |
 | Workspaces                     | int             | Number of workspaces enabled.                                                                                                                                             |
 | WorkspacesPerRow               | int             | Number of workspaces on each row. Value < 1 fits all workspaces on a single row.                                                                                          |
-| WorkspaceNames                 | string          | List of names for workspaces separated by semicolon.                                                                                                                              |
+| WorkspaceNames                 | string          | List of names for workspaces separated by semicolon.                                                                                                                      |
 | ShowFrameList                  | boolean         | Controls whether a list of all available frames on the workspace is displayed during the NextFrame/PrevFrame actions.                                                     |
 | ShowStatusWindow               | boolean         | Controls whether a size/position info window is shown when moving or resizing windows.                                                                                    |
 | ShowStatusWindowCenteredOnRoot | boolean         | Controls whether a size/position info window is shown centered on the current head or the current window.                                                                 |
