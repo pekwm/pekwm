@@ -84,18 +84,18 @@ in one go.
     [shell test_client-1]
         !$_CTRL_C_
         ?SH-PROMPT:
+        [log stopped test client 1 $window1]
 
-    [shell test_update_client_list]
+[shell test_update_client_list]
         ?BEGIN WINDOWS
         ?END WINDOWS
         -
 
     [shell test_client-1]
-        ?SH-PROMPT:
         !env DISPLAY=$DISPLAY $TEST_DIR/test_client
         ?Window ([0-9]+)
         [global window1=$1]
-        [log started test client 1 $window1]
+        [log re-started test client 1 $window1]
 
     [shell test_update_client_list]
         ?BEGIN WINDOWS

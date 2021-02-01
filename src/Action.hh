@@ -149,6 +149,17 @@ enum ActionParamUnit {
     UNIT_PERCENT
 };
 
+/**
+ * Last byte of data buffer in _PEKWM_CMD messages, indicates if the
+ * message is part of a larger message.
+ */
+enum PekwmCmdBuf {
+    PEKWM_CMD_SINGLE = 0,
+    PEKWM_CMD_MULTI_FIRST = 1,
+    PEKWM_CMD_MULTI_CONT = 2,
+    PEKWM_CMD_MULTI_END = 3
+};
+
 // Action Utils
 namespace ActionUtil {
     //! @brief Determines if state needs toggling.

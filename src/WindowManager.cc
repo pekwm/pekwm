@@ -42,6 +42,7 @@
 #include "StatusWindow.hh"
 #include "WorkspaceIndicator.hh"
 
+#include <cstring>
 #include <iostream>
 #include <functional>
 #include <memory>
@@ -124,6 +125,7 @@ WindowManager::start(const std::string &config_file, bool replace)
 
         pekwm::rootWo()->setEwmhDesktopNames();
         pekwm::rootWo()->setEwmhDesktopLayout();
+        Workspaces::updateClientList();
 
         // add all frames to the MRU list
         auto it = Frame::frame_begin();
@@ -1226,32 +1228,25 @@ WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
 void
 WindowManager::handleClientMessageEvent(XClientMessageEvent *ev)
 {
-    if (ev->window == X11::getRoot()) {
-        // root window messages
-
+    if (ev->message_type == X11::getAtom(PEKWM_CMD)) {
+        // _PEKWM_CMD is handled independent of client
+        handlePekwmCmd(ev);
+    } if (ev->window == X11::getRoot()) {
         if (ev->format == 32) {
-
             if (ev->message_type == X11::getAtom(NET_CURRENT_DESKTOP)) {
                 Workspaces::setWorkspace(ev->data.l[0], true);
-
             } else if (ev->message_type ==
                        X11::getAtom(NET_NUMBER_OF_DESKTOPS)) {
                 if (ev->data.l[0] > 0) {
                     Workspaces::setSize(ev->data.l[0]);
                 }
             }
-        } else if (ev->format == 8) {
-            if (ev->message_type == X11::getAtom(PEKWM_CMD)) {
-                handlePekwmCmd(ev);
-            }
         }
-
     } else {
-        // client messages
-
-        Client *client = Client::findClientFromWindow(ev->window);
+        auto client = Client::findClientFromWindow(ev->window);
         if (client) {
-            static_cast<Frame*>(client->getParent())->handleClientMessage(ev, client);
+            auto *frame = static_cast<Frame*>(client->getParent());
+            frame->handleClientMessage(ev, client);
         }
     }
 }
@@ -1389,15 +1384,68 @@ WindowManager::createClient(Window window, bool is_new)
 void
 WindowManager::handlePekwmCmd(XClientMessageEvent *ev)
 {
-    // ensure data is nul terminated
-    ev->data.b[sizeof(ev->data.b) - 1] = 0;
-    std::string cmd(ev->data.b);
+    if (! recvPekwmCmd(ev)) {
+        return;
+    }
 
     Action action;
-    if (ActionConfig::parseAction(cmd, action, CMD_OK)) {
+    if (ActionConfig::parseAction(_pekwm_cmd_buf, action, CMD_OK)) {
         ActionEvent ae;
         ae.action_list.push_back(action);
-        ActionPerformed ap(nullptr, ae);
+
+        PWinObj *wo = nullptr;
+        if (ev->window != X11::getRoot()) {
+            wo = Client::findClient(ev->window);
+        }
+
+        ActionPerformed ap(wo, ae);
         pekwm::actionHandler()->handleAction(ap);
+    }
+
+    _pekwm_cmd_buf.clear();
+}
+
+/**
+ * Receive data from XClientMessage building up the _pekwm_cmd_buf,
+ * command can be split up in multiple messages due to size
+ * restrictions.
+ *
+ * @return true on complete message, false on error and incomplete message.
+ */
+bool
+WindowManager::recvPekwmCmd(XClientMessageEvent *ev)
+{
+    size_t last = sizeof(ev->data.b) - 1;
+    enum PekwmCmdBuf op = static_cast<enum PekwmCmdBuf>(ev->data.b[last]);
+    switch (op) {
+    case PEKWM_CMD_SINGLE:
+        _pekwm_cmd_buf = ev->data.b;
+        return true;
+    case PEKWM_CMD_MULTI_FIRST:
+        ev->data.b[last] = 0;
+        _pekwm_cmd_buf = ev->data.b;
+        return false;
+    case PEKWM_CMD_MULTI_CONT:
+    case PEKWM_CMD_MULTI_END:
+        if (_pekwm_cmd_buf.empty()) {
+            DBG("invalid _PEKWM_CMD, continuation on empty buffer");
+            _pekwm_cmd_buf.clear();
+            return false;
+        }
+
+        // multi-message command, continuation.
+        _pekwm_cmd_buf.append(ev->data.b,
+                              std::min(std::strlen(ev->data.b), last));
+        if (_pekwm_cmd_buf.size() > 1024) {
+            DBG("maximum _PEKWM_CMD message size reached, drop");
+            _pekwm_cmd_buf.clear();
+            return false;
+        }
+        return op == PEKWM_CMD_MULTI_END;
+    default:
+        // invalid data
+        DBG("invalid _PEKMW_CMD, last byte " << op << " not in range 0-3");
+        _pekwm_cmd_buf.clear();
+        return false;
     }
 }

@@ -17,32 +17,13 @@
 #include "pekwm.hh"
 #include "Action.hh"
 #include "AppCtrl.hh"
+#include "Client.hh"
 #include "FocusCtrl.hh"
 #include "ManagerWindows.hh"
+#include "PWinObj.hh"
 
 #include <algorithm>
 #include <map>
-
-class ActionHandler;
-class Config;
-class FontHandler;
-class TextureHandler;
-class Workspaces;
-
-class ScreenResources;
-class PWinObj;
-class PDecor;
-class Frame;
-class Client;
-class ClassHint;
-
-class AutoProperty; // for findGroup
-class CmdDialog;
-class SearchDialog;
-class StatusWindow;
-
-class KeyGrabber;
-class Harbour;
 
 class WindowManager : public AppCtrl,
                       public FocusCtrl
@@ -75,9 +56,13 @@ public:
     void handleButtonPressEvent(XButtonEvent *ev);
     void handleButtonReleaseEvent(XButtonEvent *ev);
 
-private:
+protected:
     WindowManager(void);
 
+    void handlePekwmCmd(XClientMessageEvent *ev);
+    bool recvPekwmCmd(XClientMessageEvent *ev);
+
+private:
     void setupDisplay(Display* dpy);
     void scanWindows(void);
     void execStartFile(void);
@@ -129,7 +114,9 @@ private:
 
     Client *createClient(Window window, bool is_new);
 
-    void handlePekwmCmd(XClientMessageEvent *ev);
+protected:
+    /** pekwm_cmd buffer for commands that do not fit in 20 bytes. */
+    std::string _pekwm_cmd_buf;
 
 private:
     bool _shutdown; //!< Set to wheter we want to shutdown.
@@ -146,5 +133,4 @@ private:
     Window _skip_enter_after;
     /** Number of enter events to skip. */
     uint _skip_enter;
-
- };
+};

@@ -68,6 +68,16 @@ add_test(Util test_Util)
 target_include_directories(test_Util PUBLIC ${common_INCLUDE_DIRS})
 target_link_libraries(test_Util util ${common_LIBRARIES})
 
+add_executable(test_WindowManager test_WindowManager.cc)
+add_test(WindowManager test_WindowManager)
+target_include_directories(test_WindowManager PUBLIC ${common_INCLUDE_DIRS})
+target_link_libraries(test_WindowManager wm texture x11 util ${common_LIBRARIES})
+
+add_executable(test_pekwm_ctrl test_pekwm_ctrl.cc)
+add_test(pekwm_ctrl test_pekwm_ctrl)
+target_include_directories(test_pekwm_ctrl PUBLIC ${common_INCLUDE_DIRS})
+target_link_libraries(test_pekwm_ctrl x11 util ${common_LIBRARIES})
+
 add_executable(test_x11 test_x11.cc)
 add_test(x11 test_x11)
 target_include_directories(test_x11 PUBLIC ${common_INCLUDE_DIRS})

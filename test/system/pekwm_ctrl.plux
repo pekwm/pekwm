@@ -1,0 +1,66 @@
+[doc]
+Run pekwm_ctrl tests using Xvfb
+
+Start a single Xvfb pekwm_ctrl system tests in one go.
+[enddoc]
+
+[global BIN_DIR=../../build/src]
+[global TEST_DIR=../../build/test/system]
+[global DISPLAY=:1]
+
+[function set_title msg title]
+    [log test pekwm_ctrl ($msg)]
+    !$BIN_DIR/pekwm_ctrl -c xterm Set Title $title
+    ?_PEKWM_CMD ([0-9]+) Set Title
+    [global window=$1]
+    ?SH-PROMPT:
+
+    [log verify xterm title]
+    !$BIN_DIR/pekwm_ctrl -a list
+    ?$window xterm \($title\)
+    ?SH-PROMPT:
+[endfunction]
+
+[shell Xvfb]
+    ?SH-PROMPT:
+    [log starting Xvfb]
+    -Fatal server error
+    !Xvfb -displayfd 1 $DISPLAY
+    ?1
+
+[shell xev]
+    ?SH-PROMPT:
+    !xev -root -display :1
+
+[shell pekwm]
+    [log starting pekwm]
+    ?SH-PROMPT:
+    !$BIN_DIR/pekwm --display :1
+    ?Enter event loop.
+
+[shell xterm]
+    [log starting xterm]
+    ?SH-PROMPT:
+    !xterm -T xterm -display :1 /bin/sh
+
+[shell xev]
+    ???(_NET_CLIENT_LIST)
+
+[shell pekwm_ctrl]
+    ?SH-PROMPT:
+    !export DISPLAY=$DISPLAY
+    ?SH-PROMPT:
+
+    # list clients for debugging purposes
+    -ERROR
+    !$BIN_DIR/pekwm_ctrl -a list
+    ?SH-PROMPT:
+
+    -(ERROR|no client match)
+    [call set_title short short]
+    [call set_title medium message_spans_multiple]
+    [call set_title long really_long_message_that_spans_many_messages]
+
+[shell Xvfb]
+    !$_CTRL_C_
+    ?SH-PROMPT:

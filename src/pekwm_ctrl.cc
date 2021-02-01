@@ -11,6 +11,8 @@
 #include "Util.hh"
 #include "x11.hh"
 
+#include <functional>
+
 extern "C" {
 #include <getopt.h>
 #include <unistd.h>
@@ -19,16 +21,19 @@ extern "C" {
 enum CtrlAction {
    ACTION_RUN,
    ACTION_FOCUS,
+   ACTION_LIST,
    ACTION_NO
 };
 
+#ifndef UNITTEST
 static void usage(const char* name, int ret)
 {
-    std::cout << "usage: " << name << " [-dhsw]" << std::endl
-              << "  -a --action [run|focus] Control action" << std::endl
+    std::cout << "usage: " << name << " [-acdhs] [command]" << std::endl
+              << "  -a --action [run|focus|list] Control action" << std::endl
               << "  -c --client pattern Client pattern" << std::endl
               << "  -d --display dpy    Display" << std::endl
-              << "  -h --help           Display this information" << std::endl;
+              << "  -h --help           Display this information" << std::endl
+              << "  -w --window window  Client window" << std::endl;
     exit(ret);
 }
 
@@ -36,6 +41,8 @@ static CtrlAction getAction(const std::string& name)
 {
     if (name == "focus") {
         return ACTION_FOCUS;
+    } else if (name == "list") {
+        return ACTION_LIST;
     } else if (name == "run") {
         return ACTION_RUN;
     } else {
@@ -43,14 +50,23 @@ static CtrlAction getAction(const std::string& name)
     }
 }
 
-static std::wstring readClientName(Window window)
+static std::wstring readClientName(Window win)
 {
     std::string name;
-    if (X11::getUtf8String(window, NET_WM_NAME, name)) {
+    if (X11::getUtf8String(win, NET_WM_NAME, name)) {
         return Util::from_utf8_str(name);
     }
-    if (X11::getTextProperty(window, XA_WM_NAME, name)) {
+    if (X11::getTextProperty(win, XA_WM_NAME, name)) {
         return Util::to_wide_str(name);
+    }
+    return L"";
+}
+
+static std::wstring readPekwmTitle(Window win)
+{
+    std::string name;
+    if (X11::getString(win, PEKWM_TITLE, name)) {
+        return Util::from_utf8_str(name);
     }
     return L"";
 }
@@ -96,17 +112,64 @@ static bool sendClientMessage(Window window, AtomName atom,
                       SubstructureRedirectMask | SubstructureNotifyMask, &ev);
 }
 
-static bool focusClient(Window window)
+static bool focusClient(Window win)
 {
-    std::cout << "_NET_ACTIVE_WINDOW " << window << std::endl;
-    return sendClientMessage(window, NET_ACTIVE_WINDOW,
-                             32, nullptr, 0);
+    return sendClientMessage(win, NET_ACTIVE_WINDOW, 32, nullptr, 0);
 }
 
-static bool sendCommand(const std::string& cmd)
+#endif // ! UNITTEST
+
+static bool sendCommand(const std::string& cmd, Window win,
+                        std::function<bool (Window, AtomName, int,
+                                            const void*, size_t)> send_message)
 {
-    return sendClientMessage(X11::getRoot(), PEKWM_CMD,
-                             8, cmd.c_str(), cmd.size());
+    XClientMessageEvent ev;
+    char buf[sizeof(ev.data.b)] = {0};
+    int chunk_size = sizeof(buf) - 1;
+
+    const char *src = cmd.c_str();
+    int left = cmd.size();
+    buf[chunk_size] = static_cast<int>(cmd.size()) <= chunk_size ? 0 : 1;
+    memcpy(buf, src, std::min(left, chunk_size));
+    bool res = send_message(win, PEKWM_CMD, 8, buf, sizeof(buf));
+    src += chunk_size;
+    left -= chunk_size;
+    while (res && left > 0) {
+        memset(buf, 0, sizeof(buf));
+        buf[chunk_size] = left <= chunk_size ? 3 : 2;
+        memcpy(buf, src, std::min(left, chunk_size));
+        src += chunk_size;
+        left -= chunk_size;
+        res = send_message(win, PEKWM_CMD, 8, buf, sizeof(buf));
+    }
+
+    return res;
+}
+
+#ifndef UNITTEST
+
+static bool listClients(void)
+{
+    ulong actual;
+    Window *windows;
+    if (! X11::getProperty(X11::getRoot(), NET_CLIENT_LIST, XA_WINDOW,
+                           0, reinterpret_cast<uchar**>(&windows), &actual)) {
+        return false;
+    }
+
+    for (uint i = 0; i < actual; i++) {
+        auto name = readClientName(windows[i]);
+        std::wcout << windows[i] << L" " << name;
+        auto pekwm_title = readPekwmTitle(windows[i]);
+        if (! pekwm_title.empty()) {
+            std::wcout << L" (" << pekwm_title << ")";
+        }
+        std::wcout << std::endl;
+    }
+
+    X11::free(windows);
+
+    return true;
 }
 
 int main(int argc, char* argv[])
@@ -118,6 +181,7 @@ int main(int argc, char* argv[])
         {"client", required_argument, NULL, 'c'},
         {"display", required_argument, NULL, 'd'},
         {"help", no_argument, NULL, 'h'},
+        {"window", required_argument, NULL, 'w'},
         {NULL, 0, NULL, 0}
     };
 
@@ -131,8 +195,9 @@ int main(int argc, char* argv[])
 
     int ch;
     CtrlAction action = ACTION_RUN;
+    Window client = None;
     RegexString client_re;
-    while ((ch = getopt_long(argc, argv, "a:c:d:hs:w:", opts, NULL)) != -1) {
+    while ((ch = getopt_long(argc, argv, "a:c:d:hw:", opts, NULL)) != -1) {
         switch (ch) {
         case 'a':
             action = getAction(optarg);
@@ -141,6 +206,10 @@ int main(int argc, char* argv[])
             }
             break;
         case 'c':
+            if (client != None) {
+                std::cerr << "-c and -w are mutually exclusive" << std::endl;
+                usage(argv[0], 1);
+            }
             client_re.parse_match(Util::to_wide_str(optarg));
             break;
         case 'd':
@@ -148,6 +217,18 @@ int main(int argc, char* argv[])
             break;
         case 'h':
             usage(argv[0], 0);
+            break;
+        case 'w':
+            if (client_re.is_match_ok()) {
+                std::cerr << "-c and -w are mutually exclusive" << std::endl;
+                usage(argv[0], 1);
+            }
+            try {
+                client = std::stoi(optarg);
+            } catch (std::invalid_argument& ex) {
+                std::cerr << "invalid client id " << optarg
+                          << " given, expect a number" << std::endl;
+            }
             break;
         default:
             usage(argv[0], 1);
@@ -173,7 +254,6 @@ int main(int argc, char* argv[])
 
     X11::init(dpy, true);
 
-    Window client = None;
     if (client_re.is_match_ok()) {
         client = findClient(client_re);
         if (client == None) {
@@ -183,15 +263,36 @@ int main(int argc, char* argv[])
         }
     }
 
+    bool res;
     switch (action) {
     case ACTION_RUN:
-        sendCommand(cmd);
+        if (client == None) {
+            client = X11::getRoot();
+        }
+        if (cmd.empty()) {
+            std::cerr << "empty command string" << std::endl;
+            usage(argv[0], 1);
+        }
+        std::cout << "_PEKWM_CMD " << client << " " << cmd;
+        res = sendCommand(cmd, client, sendClientMessage);
         break;
     case ACTION_FOCUS:
-        focusClient(client);
+        std::cout << "_NET_ACTIVE_WINDOW " << client;
+        res = focusClient(client);
+        break;
+    case ACTION_LIST:
+        std::cout << "_NET_CLIENT_LIST" << std::endl;
+        res = listClients();
         break;
     case ACTION_NO:
+        res = false;
         break;
+    }
+
+    if (res) {
+        std::cout << " OK" << std::endl;
+    } else {
+        std::cout << " ERROR" << std::endl;
     }
 
     X11::destruct();
@@ -199,3 +300,5 @@ int main(int argc, char* argv[])
 
     return 0;
 }
+
+#endif // ! UNITTEST

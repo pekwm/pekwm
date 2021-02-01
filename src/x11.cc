@@ -603,33 +603,31 @@ X11::getHeadGeometry(uint head)
 
 bool
 X11::getProperty(Window win, AtomName aname, Atom type,
-            ulong expected, uchar **data, ulong *actual)
+                 ulong expected, uchar **data_ret, ulong *actual)
 {
-    Atom r_type;
-    int r_format, status;
-    ulong read = 0, left = 0;
-
     if (expected == 0) {
         expected = 1024;
     }
 
-    *data = 0;
+    uchar *data = nullptr;
+    ulong read = 0, left = 0;
     do {
-        if (*data) {
-            X11::free(*data);
-            *data = 0;
+        if (data != nullptr) {
+            X11::free(data);
+            data = nullptr;
         }
         expected += left;
 
+        Atom r_type;
+        int r_format, status;
         status =
             XGetWindowProperty(_dpy, win, _atoms[aname],
                                0L, expected, False, type,
-                               &r_type, &r_format, &read, &left, data);
-
+                               &r_type, &r_format, &read, &left, &data);
         if (status != Success || type != r_type || read == 0) {
-            if (*data) {
-                X11::free(*data);
-                *data = 0;
+            if (data != nullptr) {
+                X11::free(data);
+                data = nullptr;
             }
             left = 0;
         }
@@ -638,8 +636,9 @@ X11::getProperty(Window win, AtomName aname, Atom type,
     if (actual) {
         *actual = read;
     }
+    *data_ret = data;
 
-    return (*data != 0);
+    return data != nullptr;
 }
 
 bool
