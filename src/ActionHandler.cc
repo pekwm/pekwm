@@ -32,7 +32,6 @@
 #include "WORefMenu.hh"
 #include "ActionMenu.hh"
 #include "FrameListMenu.hh"
-#include "WindowManager.hh"
 
 #include <memory>
 

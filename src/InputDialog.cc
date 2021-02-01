@@ -53,10 +53,11 @@ InputDialog::InputDialog(const std::wstring &title)
     attr.override_redirect = false;
     attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
     FocusChangeMask|KeyPressMask|KeyReleaseMask;
-    _text_wo->setWindow(XCreateWindow(X11::getDpy(), _window,
-                                   0, 0, 1, 1, 0,
-                                   CopyFromParent, InputOutput, CopyFromParent,
-                                   CWOverrideRedirect|CWEventMask, &attr));
+    _text_wo->setWindow(X11::createWindow(_window, 0, 0, 1, 1, 0,
+                                          CopyFromParent, InputOutput,
+                                          CopyFromParent,
+                                          CWOverrideRedirect|CWEventMask,
+                                          &attr));
 
     addChild(_text_wo);
     addChildWindow(_text_wo->getWindow());
@@ -124,7 +125,7 @@ InputDialog::addKeysymToKeysymMap(KeySym keysym, wchar_t chr)
             }
         }
 
-        XFree(keysyms);
+        X11::free(keysyms);
     }
 }
 

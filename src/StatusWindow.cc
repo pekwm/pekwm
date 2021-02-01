@@ -35,10 +35,10 @@ StatusWindow::StatusWindow(Theme* theme)
     attr.event_mask = None;
 
     _status_wo = new PWinObj(false);
-    _status_wo->setWindow(XCreateWindow(X11::getDpy(), _window,
-                                        0, 0, 1, 1, 0,
-                                        CopyFromParent, CopyFromParent, CopyFromParent,
-                                        CWEventMask, &attr));
+    _status_wo->setWindow(X11::createWindow(_window, 0, 0, 1, 1, 0,
+                                            CopyFromParent, CopyFromParent,
+                                            CopyFromParent,
+                                            CWEventMask, &attr));
 
     addChild(_status_wo);
     activateChild(_status_wo);

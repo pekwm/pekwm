@@ -30,9 +30,9 @@ WorkspaceIndicator::Display::Display(PWinObj *parent)
     attr.override_redirect = false;
     attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
                     FocusChangeMask|KeyPressMask|KeyReleaseMask;
-    _window = XCreateWindow(X11::getDpy(), _parent->getWindow(), 0, 0, 1, 1, 0,
-                            CopyFromParent, InputOutput, CopyFromParent,
-                            CWOverrideRedirect|CWEventMask, &attr);
+    _window = X11::createWindow(_parent->getWindow(), 0, 0, 1, 1, 0,
+                                CopyFromParent, InputOutput, CopyFromParent,
+                                CWOverrideRedirect|CWEventMask, &attr);
 }
 
 /**

@@ -23,7 +23,6 @@
 class Client;
 class Frame;
 class PMenu;
-class WindowManager;
 
 class ActionHandler
 {

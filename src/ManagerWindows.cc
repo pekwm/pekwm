@@ -109,14 +109,14 @@ HintWO::claimDisplay(bool replace)
             return false;
         }
 
-        XSync(X11::getDpy(), false);
+        X11::sync(False);
         setXErrorsIgnore(true);
         uint errors_before = xerrors_count;
 
         // Select event to get notified when current owner dies.
         X11::selectInput(session_owner, StructureNotifyMask);
 
-        XSync(X11::getDpy(), false);
+        X11::sync(False);
         setXErrorsIgnore(false);
         if (errors_before != xerrors_count) {
             session_owner = None;
@@ -508,7 +508,7 @@ RootWO::readEwmhDesktopNames(void)
                          EXPECTED_DESKTOP_NAMES_LENGTH, &data, &data_length)) {
         _cfg->setDesktopNamesUTF8(reinterpret_cast<char *>(data), data_length);
 
-        XFree(data);
+        X11::free(data);
     }
 }
 
@@ -568,10 +568,10 @@ EdgeWO::EdgeWO(RootWO* root_wo, EdgeType edge, bool set_strut,
     sattr.event_mask =
         EnterWindowMask|LeaveWindowMask|ButtonPressMask|ButtonReleaseMask;
 
-    _window = XCreateWindow(X11::getDpy(), root_wo->getWindow(),
-                            0, 0, 1, 1, 0,
-                            CopyFromParent, InputOnly, CopyFromParent,
-                            CWOverrideRedirect|CWEventMask, &sattr);
+    _window = X11::createWindow(root_wo->getWindow(),
+                                0, 0, 1, 1, 0,
+                                CopyFromParent, InputOnly, CopyFromParent,
+                                CWOverrideRedirect|CWEventMask, &sattr);
 
     configureStrut(set_strut);
     _root_wo->addStrut(&_strut);

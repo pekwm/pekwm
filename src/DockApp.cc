@@ -53,7 +53,7 @@ DockApp::DockApp(Window win) :
             _icon_window = wm_hints->icon_window;
             _dockapp_window = wm_hints->icon_window;
         }
-        XFree(wm_hints);
+        X11::free(wm_hints);
     }
 
     // Now, when we now what window id we should use, set the size up.
@@ -88,10 +88,10 @@ DockApp::DockApp(Window win) :
     sattr.event_mask = SubstructureRedirectMask|ButtonPressMask|ButtonMotionMask;
 
     _window =
-        XCreateWindow(X11::getDpy(), X11::getRoot(),
-                      _gm.x, _gm.y, _gm.width, _gm.height, 0,
-                      CopyFromParent, InputOutput, CopyFromParent,
-                      CWOverrideRedirect|CWEventMask, &sattr);
+        X11::createWindow(X11::getRoot(),
+                          _gm.x, _gm.y, _gm.width, _gm.height, 0,
+                          CopyFromParent, InputOutput, CopyFromParent,
+                          CWOverrideRedirect|CWEventMask, &sattr);
 
     // initial makeup
     repaint();
@@ -269,8 +269,8 @@ DockApp::readClassHint(void)
     if (XGetClassHint(X11::getDpy(), _client_window, &x_class_hint)) {
         _class_hint.h_name = Util::to_wide_str(x_class_hint.res_name);
         _class_hint.h_class = Util::to_wide_str(x_class_hint.res_class);
-        XFree(x_class_hint.res_name);
-        XFree(x_class_hint.res_class);
+        X11::free(x_class_hint.res_name);
+        X11::free(x_class_hint.res_class);
     }
 }
 

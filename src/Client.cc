@@ -95,7 +95,7 @@ Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
             } else {
                 _shape_input = true;
             }
-            XFree(rect);
+            X11::free(rect);
         }
     }
 #endif // HAVE_SHAPE
@@ -192,7 +192,7 @@ Client::~Client(void)
 
     // free names and size hint
     if (_size) {
-        XFree(_size);
+        X11::free(_size);
     }
 
     removeStrutHint();
@@ -236,8 +236,8 @@ Client::getAndUpdateWindowAttributes(void)
         ButtonPressMask|ButtonReleaseMask|ButtonMotionMask;
 
     // We don't want these masks to be propagated down to the frame
-    XChangeWindowAttributes(X11::getDpy(), _window,
-                            CWEventMask|CWDontPropagate, &sattr);
+    X11::changeWindowAttributes(_window,
+                                CWEventMask|CWDontPropagate, sattr);
 
     return true;
 }
@@ -773,7 +773,7 @@ Client::mapOrUnmapTransients(Window win, bool hide)
 bool
 Client::validate(void)
 {
-    XSync(X11::getDpy(), false);
+    X11::sync(False);
 
     XEvent ev;
     if (XCheckTypedWindowEvent(X11::getDpy(), _window, DestroyNotify, &ev)
@@ -866,8 +866,8 @@ Client::readClassRoleHints(void)
     if (XGetClassHint(X11::getDpy(), _window, &class_hint)) {
         _class_hint->h_name = Util::to_wide_str(class_hint.res_name);
         _class_hint->h_class = Util::to_wide_str(class_hint.res_class);
-        XFree(class_hint.res_name);
-        XFree(class_hint.res_class);
+        X11::free(class_hint.res_name);
+        X11::free(class_hint.res_class);
     }
 
     // wm window role
@@ -959,7 +959,7 @@ Client::readMwmHints(void)
                 // on this but that might be annoying so ignoring these.
             }
         }
-        XFree(mwm_hints);
+        X11::free(mwm_hints);
     }
 }
 
@@ -1299,7 +1299,7 @@ Client::getWmState(void)
     if ((status  == Success) && items_read) {
         data = reinterpret_cast<long*>(udata);
         state = *data;
-        XFree(udata);
+        X11::free(udata);
     }
 
     return state;
@@ -1571,7 +1571,7 @@ Client::getMwmHints(Window win)
 
     if (status == Success) {
         if (items_read < MWM_HINTS_NUM) {
-            XFree(udata);
+            X11::free(udata);
             udata = 0;
         }
     } else {
@@ -1646,7 +1646,7 @@ Client::getEwmhStates(NetWMStates &win_states)
             }
         }
 
-        XFree(states);
+        X11::free(states);
 
         return true;
     } else {
@@ -1722,7 +1722,7 @@ Client::updateWinType(bool set)
                 _window_type = WINDOW_TYPE_NORMAL;
             }
         }
-        XFree(atoms);
+        X11::free(atoms);
     }
 
     // Set window type to WINDOW_TYPE_NORMAL if it did not match
@@ -1753,7 +1753,7 @@ Client::getWMHints(void)
         }
 
         setDemandsAttention(hints->flags&XUrgencyHint);
-        XFree(hints);
+        X11::free(hints);
     }
     return initial_state;
 }
@@ -1815,7 +1815,7 @@ Client::getWMProtocols(void)
             }
         }
 
-        XFree(protocols);
+        X11::free(protocols);
     }
 }
 
@@ -1873,7 +1873,7 @@ Client::getStrutHint(void)
     if (strut) {
         _strut = new Strut();
         *_strut = strut;
-        XFree(strut);
+        X11::free(strut);
         if (! isCfgDeny(CFG_DENY_STRUT)) {
             pekwm::rootWo()->addStrut(_strut);
         }

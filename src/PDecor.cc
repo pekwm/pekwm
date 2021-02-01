@@ -50,10 +50,10 @@ PDecor::Button::Button(PWinObj *parent, Theme::PDecorButtonData *data,
     attr.event_mask = EnterWindowMask|LeaveWindowMask;
     attr.override_redirect = True;
     _window =
-        XCreateWindow(X11::getDpy(), _parent->getWindow(),
-                      -_gm.width, -_gm.height, _gm.width, _gm.height, 0,
-                      CopyFromParent, InputOutput, CopyFromParent,
-                      CWEventMask|CWOverrideRedirect, &attr);
+        X11::createWindow(_parent->getWindow(),
+                          -_gm.width, -_gm.height, _gm.width, _gm.height, 0,
+                          CopyFromParent, InputOutput, CopyFromParent,
+                          CWEventMask|CWOverrideRedirect, &attr);
 
     _bg = X11::createPixmap(_gm.width, _gm.height);
 
@@ -258,10 +258,10 @@ PDecor::createParentWindow(CreateWindowParams &params, Window child_window)
     params.attr.event_mask = ButtonPressMask|ButtonReleaseMask|
         ButtonMotionMask|EnterWindowMask|SubstructureRedirectMask|
         SubstructureNotifyMask;
-    _window = XCreateWindow(X11::getDpy(), X11::getRoot(),
-                            _gm.x, _gm.y, _gm.width, _gm.height, 0,
-                            params.depth, InputOutput, params.visual,
-                            params.mask, &params.attr);
+    _window = X11::createWindow(X11::getRoot(),
+                                _gm.x, _gm.y, _gm.width, _gm.height, 0,
+                                params.depth, InputOutput, params.visual,
+                                params.mask, &params.attr);
 
     if (params.mask & CWColormap) {
         XFreeColormap(X11::getDpy(), params.attr.colormap);
@@ -279,10 +279,10 @@ PDecor::createTitle(CreateWindowParams &params)
 {
     params.attr.event_mask = ButtonPressMask|ButtonReleaseMask|
         ButtonMotionMask|EnterWindowMask;
-    Window title = XCreateWindow(X11::getDpy(), _window,
-                                 bdLeft(this), bdTop(this), 1, 1, 0,
-                                 params.depth, InputOutput, params.visual,
-                                 params.mask, &params.attr);
+    auto title = X11::createWindow(_window,
+                                   bdLeft(this), bdTop(this), 1, 1, 0,
+                                   params.depth, InputOutput, params.visual,
+                                   params.mask, &params.attr);
     _title_wo.setWindow(title);
     addChildWindow(_title_wo.getWindow());
     _title_wo.mapWindow();
@@ -301,9 +301,9 @@ PDecor::createBorder(CreateWindowParams &params)
         params.attr.cursor = X11::getCursor(CursorType(i));
 
         _border_win[i] =
-            XCreateWindow(X11::getDpy(), _window, -1, -1, 1, 1, 0,
-                          params.depth, InputOutput, params.visual,
-                          params.mask|CWCursor, &params.attr);
+            X11::createWindow(_window, -1, -1, 1, 1, 0,
+                              params.depth, InputOutput, params.visual,
+                              params.mask|CWCursor, &params.attr);
         addChildWindow(_border_win[i]);
     }
 }
@@ -1886,9 +1886,9 @@ PDecor::applyBorderShape(int kind)
 void
 PDecor::applyBorderShapeNormal(int kind, bool client_shape)
 {
-    auto shape = XCreateSimpleWindow(X11::getDpy(), X11::getRoot(),
-                                     0, 0, _gm.width, _gm.height,
-                                     0, 0, 0);
+    auto shape = X11::createSimpleWindow(X11::getRoot(),
+                                         0, 0, _gm.width, _gm.height,
+                                         0, 0, 0);
     if (_child) {
         X11::shapeCombine(shape, kind,
                           bdLeft(this), bdTop(this) + titleHeight(this),
@@ -1925,14 +1925,14 @@ PDecor::applyBorderShapeShaded(int kind)
     Window shape;
     if (_data->getTitleWidthMin()) {
         shape =
-            XCreateSimpleWindow(X11::getDpy(), X11::getRoot(),
-                                0, 0,
-                                _title_wo.getWidth(), _title_wo.getHeight(),
-                                0, 0, 0);
+            X11::createSimpleWindow(X11::getRoot(),
+                                    0, 0,
+                                    _title_wo.getWidth(), _title_wo.getHeight(),
+                                    0, 0, 0);
     } else {
         shape =
-            XCreateSimpleWindow(X11::getDpy(), X11::getRoot(),
-                                0, 0, _gm.width, _gm.height, 0, 0, 0);
+            X11::createSimpleWindow(X11::getRoot(),
+                                    0, 0, _gm.width, _gm.height, 0, 0, 0);
         if (_border) {
             applyBorderShapeBorder(kind, shape);
         }

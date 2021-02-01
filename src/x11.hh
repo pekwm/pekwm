@@ -145,6 +145,8 @@ public:
     static ulong getWhitePixel(void) { return WhitePixel(_dpy, _screen); }
     static ulong getBlackPixel(void) { return BlackPixel(_dpy, _screen); }
 
+    static void free(void* data) { XFree(data); }
+
     static void warpPointer(int x, int y) {
         if (_dpy) {
             XWarpPointer(_dpy, None, _root, 0, 0, 0, 0, x, y);
@@ -269,7 +271,7 @@ public:
         uchar *udata = 0;
         if (getProperty(win, aname, XA_CARDINAL, 1L, &udata, 0)) {
             value = *reinterpret_cast<long*>(udata);
-            XFree(udata);
+            X11::free(udata);
             return true;
         }
         return false;
@@ -288,7 +290,7 @@ public:
         uchar *data = 0;
         if (getProperty(win, aname, _atoms[UTF8_STRING], 32, &data, 0)) {
             value = std::string(reinterpret_cast<char*>(data));
-            XFree(data);
+            X11::free(data);
             return true;
         }
         return false;
@@ -312,7 +314,7 @@ public:
         uchar *data = 0;
         if (getProperty(win, aname, XA_STRING, 64L, &data, 0)) {
             value = std::string((const char*) data);
-            XFree(data);
+            X11::free(data);
             return true;
         }
         return false;
@@ -375,6 +377,19 @@ public:
     }
 
     // X11 function wrappers
+
+    static Window createWindow(Window parent,
+                               int x, int y, uint width, uint height,
+                               uint border_width, uint depth, uint _class,
+                               Visual* visual, ulong valuemask,
+                               XSetWindowAttributes* attrs) {
+        if (_dpy) {
+            return XCreateWindow(_dpy, parent,
+                                 x, y, width, height, border_width,
+                                 depth, _class, visual, valuemask, attrs);
+        }
+        return None;
+    }
 
     static Window createSimpleWindow(Window parent,
                                      int x, int y, uint width, uint height,

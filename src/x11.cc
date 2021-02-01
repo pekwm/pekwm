@@ -252,7 +252,7 @@ X11::init(Display *dpy, bool honour_randr)
     // Figure out what keys the Num and Scroll Locks are
     setLockKeys();
 
-    XSync(_dpy, false);
+    X11::sync(False);
     XUngrabServer(_dpy);
 
     _xc_default.pixel = BlackPixel(_dpy, _screen);
@@ -290,7 +290,7 @@ X11::destruct(void) {
     // Under certain circumstances trying to restart pekwm can cause it to
     // use 100% of the CPU without making any progress with the restart.
     // This XSync() seems to be work around the issue (c.f. #300).
-    XSync(_dpy, true);
+    X11::sync(True);
 
     XCloseDisplay(_dpy);
     _dpy = 0;
@@ -414,7 +414,7 @@ X11::ungrabServer(bool sync)
 
         if (_server_grabs == 0) { // no more grabs left
             if (sync) {
-                XSync(_dpy, false);
+                X11::sync(False);
             }
             XUngrabServer(_dpy);
         }
@@ -616,7 +616,7 @@ X11::getProperty(Window win, AtomName aname, Atom type,
     *data = 0;
     do {
         if (*data) {
-            XFree(*data);
+            X11::free(*data);
             *data = 0;
         }
         expected += left;
@@ -628,7 +628,7 @@ X11::getProperty(Window win, AtomName aname, Atom type,
 
         if (status != Success || type != r_type || read == 0) {
             if (*data) {
-                XFree(*data);
+                X11::free(*data);
                 *data = 0;
             }
             left = 0;
@@ -665,7 +665,7 @@ X11::getTextProperty(Window win, Atom atom, std::string &value)
         }
     }
 
-    XFree(text_property.value);
+    X11::free(text_property.value);
 
     return true;
 }
@@ -769,7 +769,7 @@ X11::initHeadsXinerama(void)
                      infos[i].width, infos[i].height));
     }
 
-    XFree(infos);
+    X11::free(infos);
 #endif // HAVE_XINERAMA
 }
 

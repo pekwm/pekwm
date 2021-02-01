@@ -288,7 +288,7 @@ WindowManager::scanWindows(void)
     XQueryTree(X11::getDpy(), X11::getRoot(),
                &d_win1, &d_win2, &wins, &num_wins);
     std::vector<Window> win_list(wins, wins + num_wins);
-    XFree(wins);
+    X11::free(wins);
 
     auto it(win_list.begin());
 
@@ -309,7 +309,7 @@ WindowManager::scanWindows(void)
                 if (i_it != win_list.end())
                     *i_it = None;
             }
-            XFree(wm_hints);
+            X11::free(wm_hints);
         }
     }
 
@@ -1338,7 +1338,7 @@ WindowManager::createClient(Window window, bool is_new)
             } else {
                 client = new Client(window, initConfig, is_new);
             }
-            XFree(wm_hints);
+            X11::free(wm_hints);
         } else {
             client = new Client(window, initConfig, is_new);
         }

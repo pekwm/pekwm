@@ -71,7 +71,7 @@ static Window findClient(const RegexString& match)
         }
     }
 
-    XFree(windows);
+    X11::free(windows);
 
     return None;
 }

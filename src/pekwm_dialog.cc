@@ -148,11 +148,12 @@ public:
             _gm.width = widthReq();
             _gm.height = heightReq(_gm.width);
 
-            setWindow(XCreateWindow(X11::getDpy(), _parent.getWindow(),
-                                    0, 0, _gm.width, _gm.height, 0,
-                                    CopyFromParent, InputOutput, CopyFromParent,
-                                    CWEventMask|CWOverrideRedirect|CWBackPixel,
-                                    &attr));
+            setWindow(X11::createWindow(_parent.getWindow(),
+                                        0, 0, _gm.width, _gm.height, 0,
+                                        CopyFromParent, InputOutput,
+                                        CopyFromParent,
+                                        CWEventMask|CWOverrideRedirect|
+                                        CWBackPixel, &attr));
             X11::mapWindow(_window);
         }
 
@@ -418,11 +419,11 @@ protected:
     void initWindow(const std::wstring& title)
     {
         _window =
-            XCreateSimpleWindow(X11::getDpy(), X11::getRoot(),
-                                _gm.x, _gm.y, _gm.width, _gm.height, 0,
-                                X11::getBlackPixel(), X11::getWhitePixel());
-        XSelectInput(X11::getDpy(), _window,
-                     ExposureMask|StructureNotifyMask);
+            X11::createSimpleWindow(X11::getRoot(),
+                                    _gm.x, _gm.y, _gm.width, _gm.height, 0,
+                                    X11::getBlackPixel(), X11::getWhitePixel());
+        X11::selectInput(_window,
+                         ExposureMask|StructureNotifyMask);
 
         auto c_title = new uchar[title.size() + 1];
         memcpy(c_title, title.c_str(), title.size() + 1);

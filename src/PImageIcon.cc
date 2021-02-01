@@ -47,7 +47,7 @@ PImageIcon::loadFromWindow(Window win)
             status = setImageFromData(udata, actual);
         }
 
-        XFree(udata);
+        X11::free(udata);
     }
     return status;
 }
