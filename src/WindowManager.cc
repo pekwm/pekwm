@@ -505,7 +505,7 @@ WindowManager::startBackground(const std::string& theme_dir,
                                const std::string& texture)
 {
     stopBackground();
-    if (! texture.empty()) {
+    if (pekwm::config()->getThemeBackground() && ! texture.empty()) {
         std::vector<std::string> args =
             {BINDIR "/pekwm_bg", "--load-dir", theme_dir + "/backgrounds",
              texture};
