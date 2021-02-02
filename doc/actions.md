@@ -179,12 +179,24 @@ Closes a frame and all client windows in it.
 
 Kills a client window, use if close doesn't work.
 
-**SetGeometry (string int)**
+**SetGeometry (string (int|string) [honourstrut])**
 
-Sets the geometry of a frame. The first option is a geometry string
-that XParseGeometry can parse. The second one specifies the head
-number that geometry should be relative to. It defaults to -1 which
-means the geometry is relative to the whole screen.
+Sets the geometry of a frame. The first option is an extended version
+of a geometry string that XParseGeometry can parse. That is
+
+    [=][<width>{xX}<height>][{+-}<xoffset>{+-}<yoffset>]
+
+Both the size and position could be followed by '%' to denote percent
+instead of pixels.
+
+The second option specifies the head number that geometry should be
+relative to. It could also be a string, either (whole) "Screen" or
+"Current" (head). It defaults to -1 which means the geometry is
+relative to the whole screen.
+
+If HonourStrut is specified as the third option, the screen or head
+geometry will have space for panels (`_NET_WM_STRUT`) removed from the
+available space.
 
 **Raise (bool)**
 
