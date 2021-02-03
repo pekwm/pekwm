@@ -10,7 +10,7 @@ including window grouping (similar to ion, pwm, or fluxbox), auto
 properties, xinerama and keygrabber that supports keychains, and much
 more.
 
-For more information visit https://github.com/pekdon/pekwm/
+For more information visit https://www.pekwm.se/
 
 Quick Installation
 ==================
@@ -44,7 +44,7 @@ Getting Started
 See the [Manual](doc/README.md) for more information on how to use and
 configure pekwm.
 
-For themes, go to the [pekwm themes](https://pekdon.github.io/pekwm-themes)
+For themes, go to the [pekwm themes](https://www.pekwm.se/themes/)
 site that is based on data from the
 [pekwm-theme-index](https://github.com/pekdon/pekwm-theme-index) where you
 can register your own themes for inclusion.
