@@ -17,7 +17,7 @@ SCREENSHOT_CACHE_DIR="$HOME/.cache/pekwm-themes"
 # message
 #
 # die error message
-function die
+die()
 {
     echo "ERROR: $@"
     exit 1
@@ -26,15 +26,15 @@ function die
 # Print progress message
 #
 # progress progress message
-function progress
+progress()
 {
-    echo "`date`: $@"
+    echo "`date '+%Y%m%dT%H:%M:%S'`: $@"
 }
 
 # Print usage information
 #
 # usage exit-code
-function usage
+usage()
 {
     echo "usage: $0 [install|uninstall|show|search]"
     exit $1
@@ -43,7 +43,7 @@ function usage
 # Fetch remote file using HTTP(S)/FTP.
 #
 # fetch_file url local-path
-function fetch_file
+fetch_file()
 {
     progress "fetching $1 to $2..."
 
@@ -52,15 +52,13 @@ function fetch_file
     FTP=`which ftp 2>/dev/null`
 
     if test "x$CURL" != "x"; then
-        $CURL -s -o "$2" "$1"
+        $CURL -L -s -o "$2" "$1"
     elif test "$WGET" != "x"; then
-        # FIXME: implement fetch with wget
-        echo $WGET
+        $WGET -q -o "$2" "$1"
     elif test "$FTP" != "x"; then
         $FTP -h 2>&1 | grep -q http
         if $? -eq 0; then
-            # FIXME: implement fetch with BSD ftp
-            echo $FTP
+            $FTP -o "$2" "$1"
         else
             die "unsupported ftp, no HTTP support"
         fi
@@ -72,10 +70,10 @@ function fetch_file
 # Update local copy of the theme index
 #
 # update_index
-function update_index
+update_index()
 {
     mkdir -p "$HOME/.pekwm"
-    if test ! -e "$index"; then
+    if test ! -e "$LOCAL_THEME_INDEX"; then
         fetch_file "$REMOTE_THEME_INDEX" "$LOCAL_THEME_INDEX"
     fi
 }
@@ -84,7 +82,7 @@ function update_index
 # theme_branch, theme_author and theme_title
 #
 # read_theme name
-function read_theme
+read_theme()
 {
     line=`sed 1d $LOCAL_THEME_INDEX | grep "^$1 "`
     if test -z "$line"; then
@@ -99,7 +97,7 @@ function read_theme
 # Set theme_path to local theme path
 #
 # set_theme_path name
-function set_theme_path
+set_theme_path()
 {
     theme_path="$HOME/.pekwm/themes/$1"
 }
@@ -108,7 +106,7 @@ function set_theme_path
 # current theme is changed.
 #
 # theme_install name [activate]
-function theme_install
+theme_install()
 {
     read_theme "$1"
     set_theme_path "$1"
@@ -134,7 +132,7 @@ function theme_install
 # Uninstall theme from $HOME/.pekwm/themes
 #
 # theme_uninstall name
-function theme_uninstall
+theme_uninstall()
 {
     read_theme $1
     set_theme_path $1
@@ -147,7 +145,7 @@ function theme_uninstall
 # Update local copy of theme screenshot
 #
 # update_theme_screenshot name
-function update_theme_screenshot
+update_theme_screenshot()
 {
     mkdir -p $SCREENSHOT_CACHE_DIR
     path="$SCREENSHOT_CACHE_DIR/$1.png"
@@ -159,8 +157,9 @@ function update_theme_screenshot
 # Search for the
 #
 # theme_search [pattern]
-function theme_search
+theme_search()
 {
+    update_index
     if test -z "$1"; then
         echo "available themes:"
     else
@@ -178,7 +177,7 @@ function theme_search
 # installed and activated.
 #
 # theme_show name
-function theme_show
+theme_show()
 {
     read_theme "$1"
     set_theme_path "$1"
