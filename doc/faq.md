@@ -380,11 +380,11 @@ Screen {
     HonourRandr = "False"
 ```
 
-***
-
 ### Mouse scrolling does not work with GTK3 applications?
 
 You need to set the environment variable `GDK_CORE_DEVICE_EVENTS` to
 1.
+
+***
 
 [< Previous (Themes)](themes.md) - [(Development) Next >](development.md)
