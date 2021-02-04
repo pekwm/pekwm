@@ -6,12 +6,14 @@
 # URL for the pekwm theme site
 PEKWM_THEMES="https://www.pekwm.se/themes"
 # URL for the theme index file
-REMOTE_THEME_INDEX="$PEKWM_THEMES/themes.csv"
+REMOTE_THEME_INDEX="$PEKWM_THEMES/themes-v1.csv"
 # Path to local copy of the theme index file
-LOCAL_THEME_INDEX="$HOME/.pekwm/themes.csv"
+LOCAL_THEME_INDEX="$HOME/.pekwm/themes-v1.csv"
 # Path to local directory where screenshots are cached, used with the
 # show command.
 SCREENSHOT_CACHE_DIR="$HOME/.cache/pekwm-themes"
+# Field delimiter
+SEP="¤"
 
 # Stop execution with exit code 1 after printing provided error
 # message
@@ -84,14 +86,16 @@ update_index()
 # read_theme name
 read_theme()
 {
-    line=`sed 1d $LOCAL_THEME_INDEX | grep "^$1 "`
+    line=`sed 1d $LOCAL_THEME_INDEX | grep "^$1$SEP"`
     if test -z "$line"; then
         die "no theme named $1"
     fi
-    theme_remote=`echo $line | awk '{ print $2 }'`
-    theme_branch=`echo $line | awk '{ print $3 }'`
-    theme_author=`echo $line | awk '{ print $5 }' | sed 's/_/ /g'`
-    theme_title=`echo $line | awk '{ print $6 }' | sed 's/_/ /g'`
+    theme_name="$1"
+    theme_remote=`echo $line | awk -F "$SEP" '{ print $2 }'`
+    theme_branch=`echo $line | awk -F "$SEP" '{ print $3 }'`
+    theme_base_path=`echo $line | awk -F "$SEP" '{ print $4 }'`
+    theme_author=`echo $line | awk -F "$SEP" '{ print $6 }'`
+    theme_title=`echo $line | awk -F "$SEP" '{ print $7 }'`
 }
 
 # Set theme_path to local theme path
@@ -111,22 +115,56 @@ theme_install()
     read_theme "$1"
     set_theme_path "$1"
 
-    if test -d "$theme_path"; then
-        echo "$1 already installed, try updating"
-        git -C "$theme_path" remote set-url origin "$theme_remote"
-        git -C "$theme_path" fetch origin
+    if test -z "$theme_base_path"; then
+        theme_install_plain
     else
-        echo "installing $1 from GIT"
-        git clone "$theme_remote" "$theme_path"
+        theme_install_base_path
     fi
-
-    git -C "$theme_path" checkout "$theme_branch"
-    git -C "$theme_path" reset --hard "origin/$theme_branch"
 
     if test "x$2" = "xactivate"; then
         @CMAKE_INSTALL_PREFIX@/share/pekwm/scripts/pekwm_themeset.sh \
          "$HOME/.pekwm/themes" "$theme_path"
     fi
+}
+
+# Install/update theme residing in the root of the GIT repository (use
+# the theme_ variables from read_theme)
+#
+# theme_install_plain
+theme_install_plain()
+{
+    git_update_repo "$theme_remote" "$theme_branch" "$theme_path"
+}
+
+# Install/update theme not in the root of the GIT repository (use the
+# theme_ variables from read_theme)
+#
+# theme_install_base_path
+theme_install_base_path()
+{
+    mkdir -p "$HOME/.pekwm/themes_git"
+    repo_path="$HOME/.pekwm/themes_git/`echo $theme_remote | tr -cd '[:alnum:]'`"
+    git_update_repo "$theme_remote" "$theme_branch" "$repo_path"
+
+    ln -sf "$repo_path/$theme_base_path" "$HOME/.pekwm/themes/$theme_name"
+}
+
+# Clone or update GIT repository
+#
+# remote branch local-path
+git_update_repo()
+{
+    if test -d "$3"; then
+        echo "$3 already exist, updating"
+        git -C "$3" remote set-url origin "$1"
+        git -C "$3" fetch origin
+    else
+        echo "cloning $1"
+        git clone "$1" "$3"
+    fi
+
+    git -C "$3" checkout "$2"
+    git -C "$3" reset --hard "origin/$2"
 }
 
 # Uninstall theme from $HOME/.pekwm/themes
@@ -159,18 +197,13 @@ update_theme_screenshot()
 # theme_search [pattern]
 theme_search()
 {
-    update_index
     if test -z "$1"; then
         echo "available themes:"
     else
         echo "themes matching $1:"
     fi
 
-    themes=`sed 1d "$LOCAL_THEME_INDEX" | sed 's/ .*//' | grep "$1"`
-    for theme in $themes; do
-        read_theme "$theme"
-        echo "$theme: $theme_title"
-    done
+    sed 1d "$LOCAL_THEME_INDEX" | awk -F "$SEP" '{ print $1 }' | grep "$1"
 }
 
 # Show theme using pekwm_dialog, if install is choosen the theme is
@@ -192,21 +225,28 @@ theme_show()
 if test -z "$HOME"; then
     die "\$HOME is not set, can not proceed"
 fi
+if test -z "`which git`"; then
+    die "git must be available in the path, can not proceed"
+fi
 
 if test -z "$1"; then
     usage 1
-elif test "x$1" = "xinstall"; then
-    if test "$2" = "-a"; then
-        theme_install "$3" "activate"
-    else
-        theme_install "$2"
-    fi
-elif test "x$1" = "xuninstall"; then
-    theme_uninstall "$2"
-elif test "x$1" = "xshow"; then
-    theme_show "$2" "$3"
-elif test "x$1" = "xsearch"; then
-    theme_search "$2"
 else
-    usage 1
+    update_index
+
+    if test "x$1" = "xinstall"; then
+        if test "$2" = "-a"; then
+            theme_install "$3" "activate"
+        else
+            theme_install "$2"
+        fi
+    elif test "x$1" = "xuninstall"; then
+        theme_uninstall "$2"
+    elif test "x$1" = "xshow"; then
+        theme_show "$2" "$3"
+    elif test "x$1" = "xsearch"; then
+        theme_search "$2"
+    else
+        usage 1
+    fi
 fi
