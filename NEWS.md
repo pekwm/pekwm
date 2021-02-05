@@ -41,6 +41,10 @@ a string formatted as a single action and asks pekwm to execute it.
 **pekwm_screenshot** created, simple screenshot taking application
 that outputs a PNG image.
 
+**pekwm_theme** created, theme management tool for use with the
+pekwm-theme-index, enabling the user to list, search, preview,
+install and uninstall themes included in the index.
+
 **WarpPointer** action that warps the X11 pointer to the given
 position. Example usage:
 
