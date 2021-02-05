@@ -1,0 +1,53 @@
+.nh
+.TH pekwm\_bg 1 "February 2021" pekwm\_bg "User Manual"
+
+.SH NAME
+.PP
+pekwm\_bg \- a simple background setting application k
+
+
+.SH SYNOPSIS
+.PP
+pekwm\_bg [\-\-display] texture
+
+
+.SH DESCRIPTION
+.PP
+pekwm\_bg is a simple background setting application bundled together
+with pekwm and is typically run whenever a theme has a background
+texture specified.
+
+.PP
+pekwm\_bg repeats the texture on each head, making images appear once
+for every available head.
+
+.PP
+pekwm\_bg accepts textures in the same format as pekwm themes where the
+most common ones for backgrounds are:
+
+.RS
+.IP \(bu 2
+\fBImage\fP background.png#scaled, background.png scaled to screen size.
+.IP \(bu 2
+\fBSolid\fP #eeeeee, solid color.
+.IP \(bu 2
+\fBLinesHorz\fP 33% #afadbf #9f9daf #afadbf, 3 horizontal lines.
+
+.RE
+
+
+.SH OPTIONS
+.PP
+\fB\-\-daemon\fP, run as daemon.
+
+.PP
+\fB\-\-display\fP \fIDISPLAY\fP Connect to DISPLAY instead of DISPLAY set in environment.
+
+.PP
+\fB\-\-help\fP Show help information.
+
+.PP
+\fB\-\-load\-dir\fP DIR Load images from specified directory.
+
+.PP
+\fB\-\-stop\fP Stop running pekwm\_bg daemon.

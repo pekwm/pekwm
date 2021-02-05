@@ -1,0 +1,31 @@
+#!/bin/sh
+
+PAGER=""
+export PAGER
+
+if git rev-parse --verify HEAD >/dev/null 2>&1; then
+	against=HEAD
+else
+	# Initial commit: diff against an empty tree object
+	against=$(git hash-object -t tree /dev/null)
+fi
+
+# Generate manpages before whitespace checks
+manpages_md=`git diff --cached --name-only $against | grep doc/.*.1.md`
+for manpage_md in $manpages_md; do
+    manpage=`echo $manpage_md | sed 's/1.md$/1/'`
+    echo "$manpage_md updated, generating $manpage"
+    go-md2man < $manpage_md > $manpage
+    if test $? -ne 0; then
+        echo "failed to generate $manpage from $manpage_md"
+        exit 1
+    fi
+    git add $manpage
+done
+
+# If there are whitespace errors, print the offending file names and
+# fail.
+git diff-index --check --cached $against --
+if test $? -ne 0; then
+    exit 1
+fi

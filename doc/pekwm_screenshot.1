@@ -1,0 +1,34 @@
+.nh
+.TH pekwm\_sreenshot 1 "February 2021" pekwm\_sreenshot "User Manual"
+
+.SH NAME
+.PP
+pekwm\_screenshot \- a simple screenshot application
+
+
+.SH SYNOPSIS
+.PP
+pekwm\_screenshot [\-\-display] [output.png]
+
+
+.SH DESCRIPTION
+.PP
+pekwm\_screenshot is a simple screenshot application bundled together
+with pekwm.
+
+.PP
+Run without any arguments pekwm\_screenshot will output an image in the
+current directory named pekwm\_screenshot\-YYMMDDTHHMMSS\-WIDTHxHEIGHT.png
+where WIDTH and HEIGHT correspond to the size of the display.
+
+.PP
+If a file name is given it will be used as is without any processing
+supported.
+
+
+.SH OPTIONS
+.PP
+\fB\-\-help\fP Show help information.
+
+.PP
+\fB\-\-display\fP \fIDISPLAY\fP Connect to DISPLAY instead of DISPLAY set in environment.

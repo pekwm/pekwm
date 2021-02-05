@@ -1,0 +1,72 @@
+.nh
+.TH pekwm\_dialog 1 "February 2021" pekwm\_dialog "User Manual"
+
+.SH NAME
+.PP
+pekwm\_dialog \- a xmessage inspired dialog application
+
+
+.SH SYNOPSIS
+.PP
+pekwm\_dialog [\-\-display] message
+
+
+.SH DESCRIPTION
+.PP
+pekwm\_dialog presents a simple dialog with a title, image, message
+text and a button for each options specified. If no options are
+specified the dialog will have an Ok button.
+
+.PP
+The caller can identify which options was selected by checking the
+exit code of the application. The first option will exit with status
+code 0, next with 1 and so on.
+
+.PP
+Given this behavior it is recommended to have ok as the first option
+and then cancel as the second and then further options. This caters
+for standard exit code 0 on ok, and cancel would give the same exit
+code as on errors.
+
+.PP
+The illustration below depicts the layout of dialog elements:
+
+.PP
+.RS
+
+.nf
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+| TITLE                                    |
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+|                                          |
+| Image if any is displayed here           |
+|                                          |
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+| Message text goes here                   |
+|                                          |
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+|           [Option1] [Option2]            |
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-
+
+.fi
+.RE
+
+
+.SH OPTIONS
+.PP
+\fB\-\-help\fP Show help information.
+
+.PP
+\fB\-\-display\fP \fIDISPLAY\fP Connect to DISPLAY instead of DISPLAY set in environment.
+
+.PP
+\fB\-\-geometry\fP \fIGEOMETRY\fP Geometry of window, default is 200x50 expanding for image size.
+
+.PP
+\fB\-\-image\fP \fIIMAGE\fP Path to image to display.
+
+.PP
+\fB\-\-option\fP \fISTRING\fP Option title, multiple options are supported.
+
+.PP
+\fB\-\-title\fP \fISTRING\fP Title string.
