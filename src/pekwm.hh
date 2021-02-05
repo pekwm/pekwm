@@ -387,6 +387,12 @@ enum CfgDeny {
     CFG_DENY_NO = 0 //! No deny.
 };
 
+enum CurrHeadSelector {
+    CURR_HEAD_SELECTOR_CURSOR,
+    CURR_HEAD_SELECTOR_FOCUSED_WINDOW,
+    CURR_HEAD_SELECTOR_NO
+};
+
 namespace pekwm
 {
     bool init(AppCtrl* app_ctrl, FocusCtrl* focus_ctrl,

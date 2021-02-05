@@ -327,8 +327,6 @@ protected:
 
     void resizeTitle(void);
 
-    uint getNearestHead(void);
-
     void checkSnap(void);
     void checkWOSnap(void);
     void checkEdgeSnap(void);

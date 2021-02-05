@@ -16,6 +16,7 @@
 #include "PTexture.hh"
 #include "Theme.hh"
 #include "Workspaces.hh"
+#include "X11Util.hh"
 
 #include <algorithm>
 
@@ -88,7 +89,7 @@ StatusWindow::draw(const std::wstring &text, bool do_center, Geometry *gm)
     if (do_center) {
         Geometry head;
         if (! gm) {
-            X11::getHeadInfo(X11::getCurrHead(), head);
+            X11::getHeadInfo(X11Util::getCurrHead(), head);
             gm = &head;
         }
 

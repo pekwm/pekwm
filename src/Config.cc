@@ -100,6 +100,11 @@ static ParseUtil::Map<Orientation> harbour_orientation_map =
      {"BOTTOMTOTOP", BOTTOM_TO_TOP},
      {"RIGHTTOLEFT", BOTTOM_TO_TOP}};
 
+static ParseUtil::Map<CurrHeadSelector> curr_head_selector_map =
+    {{"", CURR_HEAD_SELECTOR_NO},
+     {"CURSOR", CURR_HEAD_SELECTOR_CURSOR},
+     {"FOCUSEDWINDOW", CURR_HEAD_SELECTOR_FOCUSED_WINDOW}};
+
 /**
  * Parse width and height limits.
  */
@@ -412,7 +417,7 @@ Config::loadScreen(CfgParser::Entry *section)
     }
 
     // Parse data
-    std::string edge_size, workspace_names, trim_title;
+    std::string edge_size, workspace_names, trim_title, curr_head_selector;
     CfgParser::Entry *value;
 
     std::vector<CfgParserKey*> keys;
@@ -463,6 +468,8 @@ Config::loadScreen(CfgParser::Entry *section)
                                         _screen_honour_randr, true));
     keys.push_back(new CfgParserKeyBool("HONOURASPECTRATIO",
                                         _screen_honour_aspectratio, true));
+    keys.push_back(new CfgParserKeyString("CURRHEADSELECTOR",
+                                          curr_head_selector, "CURSOR"));
     keys.push_back(new CfgParserKeyBool("REPORTALLCLIENTS",
                                         _screen_report_all_clients, false));
 
@@ -506,6 +513,8 @@ Config::loadScreen(CfgParser::Entry *section)
             _screen_workspace_names.push_back(Util::to_wide_str(vs_it));
         }
     }
+
+    _screen_curr_head_selector = curr_head_selector_map.get(curr_head_selector);
 
     auto sub = section->findSection("PLACEMENT");
     if (sub) {

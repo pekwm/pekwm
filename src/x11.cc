@@ -570,10 +570,13 @@ X11::getNearestHead(int x, int y)
     }
 }
 
-//! @brief Searches for the head that the pointer currently is on.
-//! @return Active head number
+/**
+ * Searches for the head that the pointer currently is on.
+ *
+ * @return Head number for the head that the cursor is on.
+ */
 uint
-X11::getCurrHead(void)
+X11::getCursorHead(void)
 {
     uint head = 0;
 

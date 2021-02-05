@@ -20,7 +20,7 @@
 #include "TextureHandler.hh"
 #include "Theme.hh"
 #include "Workspaces.hh"
-#include "AutoProperties.hh"
+#include "X11Util.hh"
 #include "x11.hh"
 
 #include <algorithm>
@@ -1055,7 +1055,7 @@ void
 PMenu::makeInsideScreen(int x, int y)
 {
     Geometry head;
-    X11::getHeadInfo(X11::getCurrHead(), head);
+    X11::getHeadInfo(X11Util::getCurrHead(), head);
 
     x = (x == -1) ? _gm.x : x;
     y = (y == -1) ? _gm.y : y;
@@ -1066,7 +1066,8 @@ PMenu::makeInsideScreen(int x, int y)
         x = head.x;
     } else if ((x + _gm.width) > (head.x + head.width)) {
         if (_menu_parent) {
-            x = _menu_parent->_gm.x - _gm.width; // not using getX(), refers to child
+            // not using getX(), refers to child
+            x = _menu_parent->_gm.x - _gm.width;
         } else {
             x = head.x + head.width - _gm.width;
         }

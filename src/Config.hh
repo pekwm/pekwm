@@ -142,6 +142,9 @@ public:
     }
     bool isHonourRandr(void) const { return _screen_honour_randr; }
     bool isHonourAspectRatio(void) const { return _screen_honour_aspectratio; }
+    CurrHeadSelector getCurrHeadSelector(void) const {
+        return _screen_curr_head_selector;
+    }
 
     bool placeTransOnParent(void) const { return _place_trans_parent; }
 
@@ -300,6 +303,8 @@ private:
     bool _screen_honour_randr;
     /**< if true, pekwm keeps aspect ratio (XSizeHint) */
     bool _screen_honour_aspectratio;
+    /** Setting for how current head is determined. */
+    CurrHeadSelector _screen_curr_head_selector;
     bool _screen_placement_row, _screen_placement_ltr, _screen_placement_ttb;
     int _screen_placement_offset_x, _screen_placement_offset_y;
     bool _place_trans_parent;

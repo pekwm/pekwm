@@ -218,7 +218,7 @@ public:
     static bool ungrabPointer(void);
 
     static uint getNearestHead(int x, int y);
-    static uint getCurrHead(void);
+    static uint getCursorHead(void);
     static void addHead(const Head &head) { _heads.push_back(head); }
     static bool getHeadInfo(uint head, Geometry &head_info);
     static Geometry getHeadGeometry(uint head);

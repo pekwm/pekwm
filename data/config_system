@@ -44,6 +44,8 @@ Screen {
     EdgeIndent = "False"
     DoubleClickTime = "250"
 
+    CurrHeadSelector = "Cursor"
+
     Placement {
         Model = "CenteredOnParent Smart MouseNotUnder"
         Smart {

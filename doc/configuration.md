@@ -203,6 +203,8 @@ Screen {
 	EdgeIndent = "False"
 	DoubleClickTime = "250"
 
+	CurrHeadSelector = "Cursor"
+
 	Placement {
 		Model = "Smart"
 		WorkspacePlacements = "Smart;MouseCentered"
@@ -312,6 +314,7 @@ all values should be placed inside quotes.
 | EdgeSize                       | int int int int | How many pixels from the edge of the screen should screen edges be. Parameters correspond to the following edges: top bottom left right. A value of 0 disables edges.     |
 | EdgeIndent                     | boolean         | Toggles if the screen edge should be reserved space.                                                                                                                      |
 | DoubleClickTime                | int             | Time, in milliseconds, between clicks to be counted as a doubleclick.                                                                                                     |
+| CurrHeadSelector               | string          | Controls how operations relative to the current head, such as placement, select the active head. Cursor selects the head the cursor is on, FocusedWindow considers the focused window if any and then fall backs to the cursor position. Affected operations include placement and position of CmdDialog, SearchDialog, StatusWindow and focus toggle list. |
 
 >  NOTE: A Composite Manager needs to be running for opacity options to take effect.
 

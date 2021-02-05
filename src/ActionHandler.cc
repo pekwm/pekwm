@@ -14,7 +14,6 @@
 #include "PWinObj.hh"
 #include "PDecor.hh"
 #include "PMenu.hh"
-#include "x11.hh"
 #include "Frame.hh"
 #include "Client.hh"
 #include "ClientMgr.hh"
@@ -32,6 +31,8 @@
 #include "WORefMenu.hh"
 #include "ActionMenu.hh"
 #include "FrameListMenu.hh"
+#include "X11Util.hh"
+#include "x11.hh"
 
 #include <memory>
 
@@ -689,7 +690,7 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off,
         menu->buildMenu();
 
         Geometry head;
-        X11::getHeadInfo(X11::getCurrHead(), head);
+        X11::getHeadInfo(X11Util::getCurrHead(), head);
         menu->move(head.x + ((head.width - menu->getWidth()) / 2),
                    head.y + ((head.height - menu->getHeight()) / 2));
         menu->setFocused(true);
@@ -907,8 +908,7 @@ ActionHandler::actionShowInputDialog(InputDialog *dialog,
         if (frame) {
             frame->getGeometry(gm);
         } else {
-            uint head = X11::getCurrHead();
-            X11::getHeadInfo(head, gm);
+            X11::getHeadInfo(X11Util::getCurrHead(), gm);
         }
 
         dialog->mapCentered(initial, gm, frame ? frame : wo);

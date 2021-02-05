@@ -22,7 +22,6 @@ extern "C" {
 #include "PWinObj.hh"
 #include "PFont.hh"
 #include "PDecor.hh"
-#include "x11.hh"
 #include "PTexture.hh"
 #include "PTexturePlain.hh" // PTextureSolid
 #include "ActionHandler.hh"
@@ -31,6 +30,8 @@ extern "C" {
 #include "KeyGrabber.hh"
 #include "Theme.hh"
 #include "Workspaces.hh"
+#include "x11.hh"
+#include "X11Util.hh"
 
 // PDecor::Button
 
@@ -1336,8 +1337,9 @@ PDecor::doKeyboardMoveResize(void)
                 case MOVE_HORIZONTAL:
                     if (it->getParamI(1) == UNIT_PERCENT) {
                         Geometry head;
-                        X11::getHeadInfo(X11::getCurrHead(), head);
-                        _gm.x += (it->getParamI(0) * static_cast<int>(head.width)) / 100;
+                        X11::getHeadInfo(X11Util::getNearestHead(*this), head);
+                        _gm.x += (it->getParamI(0)
+                                  * static_cast<int>(head.width)) / 100;
                     } else {
                         _gm.x += it->getParamI(0);
                     }
@@ -1348,8 +1350,9 @@ PDecor::doKeyboardMoveResize(void)
                 case MOVE_VERTICAL:
                     if (it->getParamI(1) == UNIT_PERCENT) {
                         Geometry head;
-                        X11::getHeadInfo(X11::getCurrHead(), head);
-                        _gm.y += (it->getParamI(0) * static_cast<int>(head.height)) / 100;
+                        X11::getHeadInfo(X11Util::getNearestHead(*this), head);
+                        _gm.y += (it->getParamI(0)
+                                  * static_cast<int>(head.height)) / 100;
                     } else {
                         _gm.y +=  it->getParamI(0);
                     }
@@ -1360,8 +1363,9 @@ PDecor::doKeyboardMoveResize(void)
                 case RESIZE_HORIZONTAL:
                     if (it->getParamI(1) == UNIT_PERCENT) {
                         Geometry head;
-                        X11::getHeadInfo(X11::getCurrHead(), head);
-                        _gm.width += (it->getParamI(0) * static_cast<int>(head.width)) / 100;
+                        X11::getHeadInfo(X11Util::getNearestHead(*this), head);
+                        _gm.width += (it->getParamI(0)
+                                      * static_cast<int>(head.width)) / 100;
                     } else {
                         _gm.width +=  it->getParamI(0);
                     }
@@ -1372,8 +1376,9 @@ PDecor::doKeyboardMoveResize(void)
                 case RESIZE_VERTICAL:
                     if (it->getParamI(1) == UNIT_PERCENT) {
                         Geometry head;
-                        X11::getHeadInfo(X11::getCurrHead(), head);
-                        _gm.height += (it->getParamI(0) * static_cast<int>(head.height)) / 100;
+                        X11::getHeadInfo(X11Util::getNearestHead(*this), head);
+                        _gm.height += (it->getParamI(0)
+                                       * static_cast<int>(head.height)) / 100;
                     } else {
                         _gm.height +=  it->getParamI(0);
                     }
@@ -1623,13 +1628,6 @@ PDecor::setBorderShape(void)
         }
     }
 #endif // HAVE_SHAPE
-}
-
-//! @brief Finds the Head closest to x y from the center of the decor
-uint
-PDecor::getNearestHead(void)
-{
-    return X11::getNearestHead(_gm.x + (_gm.width / 2), _gm.y + (_gm.height / 2));
 }
 
 void

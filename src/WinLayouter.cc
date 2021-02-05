@@ -1,5 +1,6 @@
 //
 // WinLayouter.cc for pekwm
+// Copyright (C) 2021 Claes Nästén
 // Copyright © 2012-2013 Andreas Schlick <ioerror{@}lavabit{.}com>
 //
 // This program is licensed under the GNU GPL.
@@ -14,6 +15,7 @@
 #include "Util.hh"
 #include "ManagerWindows.hh"
 #include "Workspaces.hh"
+#include "X11Util.hh"
 #include "x11.hh"
 
 static PWinObj*
@@ -239,8 +241,10 @@ WinLayouter::layout(Frame *frame, Window parent)
         return;
     }
 
+    // update pointer position cache, used in layout models.
     X11::getMousePosition(_ptr_x, _ptr_y);
-    int head_nr = X11::getNearestHead(_ptr_x, _ptr_y);
+
+    int head_nr = X11Util::getCurrHead();
     pekwm::rootWo()->getHeadInfoWithEdge(head_nr, _gm);
 
     // Collect the information which head has a fullscreen window.

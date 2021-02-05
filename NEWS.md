@@ -52,6 +52,14 @@ position. Example usage:
     Actions = "WarpPointer x y"
 ```
 
+**CurrHeadSelector** option is now available in the Screen section of
+the main configuration file. Controls how operations relative to the
+current head, such as placement, select the active head. Cursor
+selects the head the cursor is on, FocusedWindow considers the focused
+window if any and then fall backs to the cursor position. Affected
+operations include placement and position of CmdDialog, SearchDialog,
+StatusWindow and focus toggle list. (#43)
+
 Updated
 -------
 

@@ -13,6 +13,7 @@
 #include "Config.hh"
 #include "Workspaces.hh"
 #include "WorkspaceIndicator.hh"
+#include "X11Util.hh"
 #include "x11.hh"
 
 /**
@@ -214,7 +215,7 @@ WorkspaceIndicator::render(void)
 {
     // Center on head
     Geometry head, request;
-    X11::getHeadInfo(X11::getCurrHead(), head);
+    X11::getHeadInfo(X11Util::getCurrHead(), head);
 
     _display_wo.getSizeRequest(request);
     resizeChild(request.width, request.height);

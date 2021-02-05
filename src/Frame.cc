@@ -34,6 +34,7 @@ extern "C" {
 #include "Workspaces.hh"
 #include "KeyGrabber.hh"
 #include "Theme.hh"
+#include "X11Util.hh"
 
 std::vector<Frame*> Frame::_frames;
 std::vector<uint> Frame::_frameid_list;
@@ -953,11 +954,12 @@ Frame::detachClient(Client *client)
 bool
 Frame::fixGeometry(void)
 {
+    uint head_nr = X11Util::getNearestHead(*this);
     Geometry head, before;
     if (_fullscreen) {
-        X11::getHeadInfo(getNearestHead(), head);
+        X11::getHeadInfo(head_nr, head);
     } else {
-        pekwm::rootWo()->getHeadInfoWithEdge(getNearestHead(), head);
+        pekwm::rootWo()->getHeadInfoWithEdge(head_nr, head);
     }
 
     before = _gm;
@@ -1339,7 +1341,7 @@ Frame::recalcResizeDrag(int nx, int ny, bool left, bool top)
 void
 Frame::moveToHead(int head_nr)
 {
-    int curr_head_nr = getNearestHead();
+    int curr_head_nr = X11Util::getNearestHead(*this);
     if (curr_head_nr == head_nr || head_nr >= X11::getNumHeads()) {
         return;
     }
@@ -1371,7 +1373,7 @@ Frame::moveToEdge(OrientationType ori)
     uint head_nr;
     Geometry head, real_head;
 
-    head_nr = getNearestHead();
+    head_nr = X11Util::getNearestHead(*this);
     X11::getHeadInfo(head_nr, real_head);
     pekwm::rootWo()->getHeadInfoWithEdge(head_nr, head);
 
@@ -1467,7 +1469,7 @@ Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
     XSizeHints *size_hint = _client->getXSizeHints(); // convenience
 
     Geometry head;
-    pekwm::rootWo()->getHeadInfoWithEdge(getNearestHead(), head);
+    pekwm::rootWo()->getHeadInfoWithEdge(X11Util::getNearestHead(*this), head);
 
     int max_x, max_r, max_y, max_b;
     max_x = head.x;
@@ -1583,7 +1585,7 @@ Frame::setStateFullscreen(StateAction sa)
         setTitlebar(STATE_UNSET);
 
         Geometry head;
-        uint nr = getNearestHead();
+        uint nr = X11Util::getNearestHead(*this);
         X11::getHeadInfo(nr, head);
 
         _gm = head;
@@ -1599,7 +1601,7 @@ Frame::setStateFullscreen(StateAction sa)
         setLayer(_fullscreen ? LAYER_ABOVE_DOCK : _non_fullscreen_layer);
         raise();
     }
-    
+
     _client->setConfigureRequestLock(lock);
     _client->configureRequestSend();
 
@@ -1829,7 +1831,7 @@ Frame::setGeometry(const std::string geometry, int head, bool honour_strut)
     Geometry screen_gm = X11::getScreenGeometry();
     if (head != -1) {
         if (head == -2) {
-            head = getNearestHead();
+            head = X11Util::getNearestHead(*this);
         }
 
         if (honour_strut) {
@@ -1858,7 +1860,7 @@ void
 Frame::growDirection(uint direction)
 {
     Geometry head;
-    pekwm::rootWo()->getHeadInfoWithEdge(getNearestHead(), head);
+    pekwm::rootWo()->getHeadInfoWithEdge(X11Util::getNearestHead(*this), head);
 
     switch (direction) {
     case DIRECTION_UP:
