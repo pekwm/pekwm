@@ -20,8 +20,26 @@
 #include "TextureHandler.hh"
 #include "Util.hh"
 
-#include <iostream>
 #include <cstdlib>
+#include <iostream>
+#include <string>
+
+#define DEFAULT_FONT "Sans:size=12#XFT"
+#define DEFAULT_LARGE_FONT "Sans:size=14:weight=bold#XFT"
+
+static void parse_pad(const std::string& str, uint *pad)
+{
+    std::vector<std::string> tok;
+    if (Util::splitString(str, tok, " \t", 4) == 4) {
+        for (uint i = 0; i < PAD_NO; ++i) {
+            try {
+                pad[i] = std::stoi(tok[i]);
+            } catch (const std::invalid_argument& ex) {
+                pad[i] = 0;
+            }
+        }
+    }
+}
 
 // Theme::PDecorButtonData
 
@@ -178,9 +196,7 @@ Theme::PDecorData::PDecorData(FontHandler* fh, TextureHandler* th,
     }
 
     // init arrays
-    for (uint i = 0; i < PAD_NO; ++i) {
-        _pad[i] = 0;
-    }
+    memset(_pad, 0, sizeof(_pad));
     for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
         _texture_tab[i] = 0;
         _font[i] = 0;
@@ -258,10 +274,7 @@ Theme::PDecorData::load(CfgParser::Entry *section)
     // Handle parsed data.
     _texture_main[FOCUSED_STATE_FOCUSED] = _th->getTexture(value_focused);
     _texture_main[FOCUSED_STATE_UNFOCUSED] = _th->getTexture(value_unfocused);
-    if (Util::splitString(value_pad, tok, " \t", 4) == 4) {
-        for (uint i = 0; i < PAD_NO; ++i)
-            _pad[i] = strtol(tok[i].c_str(), 0, 10);
-    }
+    parse_pad(value_pad, _pad);
 
     auto tab_section = title_section->findSection("TAB");
     if (tab_section) {
@@ -516,9 +529,7 @@ Theme::PMenuData::PMenuData(FontHandler* fh, TextureHandler* th)
     for (uint i = 0; i < OBJECT_STATE_NO; ++i) {
         _tex_sep[i] = 0;
     }
-    for (uint i = 0; i < PAD_NO; ++i) {
-        _pad[i] = 0;
-    }
+    memset(_pad, 0, sizeof(_pad));
 }
 
 //! @brief PMenuData destructor
@@ -542,12 +553,7 @@ Theme::PMenuData::load(CfgParser::Entry *section)
     CfgParser::Entry *value;
     value = section->findEntry("PAD");
     if (value) {
-        std::vector<std::string> tok;
-        if (Util::splitString (value->getValue(), tok, " \t", 4) == 4) {
-            for (int i = 0; i < PAD_NO; ++i) {
-                _pad[i] = strtol (tok[i].c_str(), 0, 10);
-            }
-        }
+        parse_pad(value->getValue(), _pad);
     }
 
     value = section->findSection("FOCUSED");
@@ -670,9 +676,7 @@ Theme::TextDialogData::TextDialogData(FontHandler* fh, TextureHandler* th)
       _color(0),
       _tex(0)
 {
-    for (uint i = 0; i < PAD_NO; ++i) {
-        _pad[i] = 0;
-    }
+    memset(_pad, 0, sizeof(_pad));
 }
 
 //! @brief TextDialogData destructor.
@@ -711,12 +715,7 @@ Theme::TextDialogData::load(CfgParser::Entry *section)
     _color = _fh->getColor(value_text);
     _tex = _th->getTexture(value_texture);
 
-    std::vector<std::string> tok;
-    if (Util::splitString(value_pad, tok, " \t", 4) == 4) {
-        for (uint i = 0; i < PAD_NO; ++i) {
-            _pad[i] = strtol(tok[i].c_str(), 0, 10);
-        }
-    }
+    parse_pad(value_pad, _pad);
 
     check();
 
@@ -850,7 +849,7 @@ void
 Theme::WorkspaceIndicatorData::check(void)
 {
     if (! font) {
-        font = _fh->getFont("Sans#Center#XFT");
+        font = _fh->getFont(DEFAULT_FONT);
     }
     if (! font_color) {
         font_color = _fh->getColor("#000000");
@@ -896,8 +895,53 @@ Theme::DialogData::load(CfgParser::Entry *section)
 {
     if (section == nullptr) {
         check();
+        return false;
     }
-    return false;
+
+    std::string val_bg, val_bfont, val_btext, val_font, val_text,
+        val_tfont, val_ttext, val_pad;
+    std::vector<CfgParserKey*> keys =
+        {new CfgParserKeyString("BACKGROUND", val_bg, "Solid #ffffff"),
+         new CfgParserKeyString("FONT", val_font, DEFAULT_FONT),
+         new CfgParserKeyString("TEXT", val_text, "#000000"),
+         new CfgParserKeyString("TITLEFONT", val_tfont, DEFAULT_LARGE_FONT),
+         new CfgParserKeyString("TITLECOLOR", val_ttext, "#000000"),
+         new CfgParserKeyString("PAD", val_pad, "0 0 0 0", 7)};
+    section->parseKeyValues(keys.begin(), keys.end());
+    for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+
+    // Handle parsed data.
+    _background = _th->getTexture(val_bg);
+    _text_font = _fh->getFont(val_font);
+    _text_color = _fh->getColor(val_text);
+    _title_font = _fh->getFont(val_tfont);
+    _title_color = _fh->getColor(val_ttext);
+    parse_pad(val_pad, _pad);
+
+    auto button = section->findSection("BUTTON");
+    if (button != nullptr) {
+        std::string val_fo, val_un, val_pr, val_ho;
+        std::vector<CfgParserKey*> bkeys =
+            {new CfgParserKeyString("FONT", val_font, DEFAULT_FONT),
+             new CfgParserKeyString("TEXT", val_text, "#000000"),
+             new CfgParserKeyString("FOCUSED", val_fo),
+             new CfgParserKeyString("UNFOCUSED", val_un),
+             new CfgParserKeyString("PRESSED", val_pr),
+             new CfgParserKeyString("HOOVER", val_ho)};
+        button->parseKeyValues(bkeys.begin(), bkeys.end());
+        for_each(bkeys.begin(), bkeys.end(), Util::Free<CfgParserKey*>());
+
+        _button_font = _fh->getFont(val_font);
+        _button_color = _fh->getColor(val_text);
+        _button[BUTTON_STATE_FOCUSED] = _th->getTexture(val_fo);
+        _button[BUTTON_STATE_UNFOCUSED] = _th->getTexture(val_un);
+        _button[BUTTON_STATE_PRESSED] = _th->getTexture(val_pr);
+        _button[BUTTON_STATE_HOVER] = _th->getTexture(val_ho);
+    }
+
+    check();
+
+    return true;
 }
 
 void
@@ -922,7 +966,7 @@ Theme::DialogData::check(void)
         _background = _th->getTexture("Solid #ffffff");
     }
     if (_button_font == nullptr) {
-        _button_font = _fh->getFont("Sans:size=12#Center#XFT");
+        _button_font = _fh->getFont(DEFAULT_FONT);
     }
     if (_button_color == nullptr) {
         _button_color = _fh->getColor("#000000");
@@ -939,13 +983,13 @@ Theme::DialogData::check(void)
         }
     }
     if (_title_font == nullptr) {
-        _title_font = _fh->getFont("Sans:size=14,weight:bold#XFT");
+        _title_font = _fh->getFont(DEFAULT_LARGE_FONT);
     }
     if (_title_color == nullptr) {
-        _button_color = _fh->getColor("#000000");
+        _title_color = _fh->getColor("#000000");
     }
     if (_text_font == nullptr) {
-        _text_font = _fh->getFont("Sans:size=12#XFT");
+        _text_font = _fh->getFont(DEFAULT_FONT);
     }
     if (_text_color == nullptr) {
         _text_color = _fh->getColor("#000000");
@@ -1207,6 +1251,7 @@ Theme::loadThemeRequire(CfgParser &theme_cfg, std::string &file)
 void
 Theme::loadBackground(CfgParser::Entry* section)
 {
+    _background = "";
     if (section == nullptr) {
         return;
     }
@@ -1214,7 +1259,7 @@ Theme::loadBackground(CfgParser::Entry* section)
     std::vector<CfgParserKey*> keys;
     keys.push_back(new CfgParserKeyString("TEXTURE", _background, ""));
     section->parseKeyValues(keys.begin(), keys.end());
-    for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+    std::for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 }
 
 /**

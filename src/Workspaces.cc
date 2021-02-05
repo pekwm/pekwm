@@ -361,7 +361,7 @@ Workspaces::fixStacking(PWinObj *pwo)
     }
 
     if (++it == _wobjs.end()) {
-        XRaiseWindow(X11::getDpy(), pwo->getWindow());
+        X11::raiseWindow(pwo->getWindow());
     } else {
         winlist[0] = (*it)->getWindow();
         winlist[1] = pwo->getWindow();
@@ -432,7 +432,7 @@ Workspaces::insert(PWinObj *wo, bool raise)
     if (top_obj) {
         winstack.push_back(top_obj);
     } else {
-        XRaiseWindow(X11::getDpy(), winstack.back()->getWindow());
+        X11::raiseWindow(winstack.back()->getWindow());
     }
 
     const unsigned size = winstack.size();

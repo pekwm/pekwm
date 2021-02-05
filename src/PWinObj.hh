@@ -146,13 +146,11 @@ public:
     //! or ShapeInput) was set via the shape extension for this window.
     inline bool hasShapeRegion(int kind) const
     {
-#ifdef HAVE_SHAPE
         if (kind == ShapeBounding) {
             return _shape_bounding;
         } else if (kind == ShapeInput) {
             return _shape_input;
         }
-#endif
         return false;
     }
 
@@ -168,9 +166,9 @@ public:
     virtual void moveResize(int x, int y, uint width, uint height);
 
     //! @brief Raises PWinObj without respect of layer.
-    virtual void raise(void) { XRaiseWindow(X11::getDpy(), _window); }
+    virtual void raise(void) { X11::raiseWindow(_window); }
     //! @brief Lowers PWinObj without respect of layer.
-    virtual void lower(void) { XLowerWindow(X11::getDpy(), _window); }
+    virtual void lower(void) { X11::lowerWindow(_window); }
 
     virtual void setWorkspace(uint workspace);
     virtual void setLayer(Layer layer);
@@ -222,17 +220,6 @@ public:
     }
 
     // other window commands
-
-    //! @brief Clears Window causing a redraw.
-    inline void clear(void) { XClearWindow(X11::getDpy(), _window); }
-    //! @brief Sets Window background colour.
-    inline void setBackground(long pixel) {
-        XSetWindowBackground(X11::getDpy(), _window, pixel);
-    }
-    //! @brief Sets Window background pixmap.
-    inline void setBackgroundPixmap(Pixmap pm) {
-        X11::setWindowBackgroundPixmap(_window, pm);
-    }
 
 protected:
     static void woListAdd(PWinObj *wo);

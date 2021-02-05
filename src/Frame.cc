@@ -492,21 +492,19 @@ Frame::activateChild(PWinObj *child)
     }
     PDecor::activateChild(child);
 
-#ifdef HAVE_SHAPE
     // applyBorderShape() uses current active child, so we need to activate
     // the child before setting shape
     if (X11::hasExtensionShape()) {
         applyBorderShape(ShapeBounding);
         applyBorderShape(ShapeInput);
     }
-#endif // HAVE_SHAPE
 
     setOpacity(_client);
 
     if (_focused) {
         child->giveInputFocus();
     }
-    
+
     // Reload decor rules if needed.
     handleTitleChange(_client);
 }

@@ -715,8 +715,8 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off,
                 }
                 fo_wo->raise();
             } else if (raise == TEMP_RAISE) {
-                XRaiseWindow(X11::getDpy(), fo_wo->getWindow());
-                XRaiseWindow(X11::getDpy(), menu->getWindow());
+                X11::raiseWindow(fo_wo->getWindow());
+                X11::raiseWindow(menu->getWindow());
             }
         }
 

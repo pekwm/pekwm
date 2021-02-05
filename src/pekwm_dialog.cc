@@ -9,6 +9,7 @@
 #include "pekwm.hh"
 
 #include "CfgParser.hh"
+#include "Debug.hh"
 #include "FontHandler.hh"
 #include "ImageHandler.hh"
 #include "TextureHandler.hh"
@@ -174,7 +175,10 @@ public:
             if (window != _window) {
                 return false;
             }
-            _stop = _retcode;
+            if (_state == BUTTON_STATE_HOVER
+                || _state == BUTTON_STATE_PRESSED) {
+                _stop = _retcode;
+            }
             return true;
         }
 
@@ -324,10 +328,11 @@ public:
     class Text : public Widget {
     public:
         Text(Theme::DialogData& data, PWinObj& parent,
-             const std::wstring& text)
+             const std::wstring& text, bool is_title)
             : Widget(data, parent),
-              _font(data.getTextFont()),
-              _text(text)
+              _font(is_title ? data.getTitleFont() : data.getTextFont()),
+              _text(text),
+              _is_title(is_title)
         {
         }
         virtual ~Text(void) { }
@@ -340,7 +345,8 @@ public:
 
         virtual void render(void) override
         {
-            _font->setColor(_data.getTextColor());
+            _font->setColor(_is_title
+                            ? _data.getTitleColor() : _data.getTextColor());
             _font->draw(_parent.getWindow(),
                         _gm.x + _data.getPad(PAD_LEFT),
                         _gm.y + _data.getPad(PAD_UP), _text);
@@ -349,6 +355,7 @@ public:
     private:
         PFont *_font;
         std::wstring _text;
+        bool _is_title;
     };
 
     PekwmDialog(Theme::DialogData& data,
@@ -357,8 +364,7 @@ public:
                 const std::wstring& message,
                 std::vector<std::wstring> options)
         : PWinObj(true),
-          _data(data),
-          _gm(gm)
+          _data(data)
     {
         // TODO: setup size minimum based on image
         initWindow(title);
@@ -392,6 +398,7 @@ public:
     void render(void)
     {
         X11::clearWindow(_window);
+        _data.getBackground()->render(_window, 0, 0, _gm.width, _gm.height);
         for (auto it : _widgets) {
             it->render();
         }
@@ -454,13 +461,13 @@ protected:
                      std::vector<std::wstring> options)
     {
         if (title.size()) {
-            _widgets.push_back(new PekwmDialog::Text(_data, *this, title));
+            _widgets.push_back(new PekwmDialog::Text(_data, *this, title, true));
         }
         if (image) {
             _widgets.push_back(new PekwmDialog::Image(_data, *this, image));
         }
         if (message.size()) {
-            _widgets.push_back(new PekwmDialog::Text(_data, *this, message));
+            _widgets.push_back(new PekwmDialog::Text(_data, *this, message, false));
         }
         _widgets.push_back(new PekwmDialog::ButtonsRow(_data, *this, options));
     }
@@ -491,8 +498,6 @@ protected:
 
 private:
     Theme::DialogData& _data;
-    Geometry _gm;
-
     std::vector<PekwmDialog::Widget*> _widgets;
 };
 
@@ -552,7 +557,7 @@ static int mainLoop(PekwmDialog& dialog)
         case UnmapNotify:
             break;
         default:
-            std::cout << "UNKNOWN EVENT " << ev.type << std::endl;
+            DBG("UNKNOWN EVENT " << ev.type);
             break;
         }
     }
@@ -565,15 +570,13 @@ static void getThemeDir(std::string& dir, std::string& variant)
     Util::expandFileName(home_config);
 
     CfgParser cfg;
-    if (cfg.parse(home_config)
-        && cfg.getEntryRoot()->findSection("FILES") != nullptr) {
-
+    cfg.parse(home_config, CfgParserSource::SOURCE_FILE, true);
+    auto files = cfg.getEntryRoot()->findSection("FILES");
+    if (files != nullptr) {
         std::vector<CfgParserKey*> keys;
         keys.push_back(new CfgParserKeyPath("THEME", dir, THEME_DEFAULT));
-        keys.push_back(new CfgParserKeyPath("THEMEVARIANT", variant));
-        auto section = cfg.getEntryRoot()->findSection("FILES");
-        section->parseKeyValues(keys.begin(), keys.end());
-
+        keys.push_back(new CfgParserKeyString("THEMEVARIANT", variant));
+        files->parseKeyValues(keys.begin(), keys.end());
         std::for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
     } else {
         dir = THEME_DEFAULT;

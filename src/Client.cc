@@ -20,9 +20,6 @@ extern "C" {
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
-#ifdef HAVE_SHAPE
-#include <X11/extensions/shape.h>
-#endif // HAVE_SHAPE
 }
 
 #include "Compat.hh" // setenv, unsetenv
@@ -74,16 +71,15 @@ Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
     _title.setId(_id);
     _title.infoAdd(PDecor::TitleItem::INFO_ID);
 
-#ifdef HAVE_SHAPE
     if (X11::hasExtensionShape()) {
-        XShapeSelectInput(X11::getDpy(), _window, ShapeNotifyMask);
+        X11::shapeSelectInput(_window, ShapeNotifyMask);
 
         int isShaped;
         X11::shapeQuery(_window, &isShaped);
         _shape_bounding = isShaped;
 
-        int num=0; int foo;
-        XRectangle *rect = XShapeGetRectangles(X11::getDpy(), _window, ShapeInput, &num, &foo);
+        int num = 0;
+        auto *rect = X11::shapeGetRects(_window, ShapeInput, &num);
         if (rect) {
             if (num == 1) {
                 unsigned w, h, bw;
@@ -98,7 +94,6 @@ Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
             X11::free(rect);
         }
     }
-#endif // HAVE_SHAPE
 
     XAddToSaveSet(X11::getDpy(), _window);
     XSetWindowBorderWidth(X11::getDpy(), _window, 0);

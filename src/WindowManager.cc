@@ -302,7 +302,7 @@ WindowManager::scanWindows(void)
             continue;
         }
 
-        XWMHints *wm_hints = XGetWMHints(X11::getDpy(), *it);
+        auto wm_hints = XGetWMHints(X11::getDpy(), *it);
         if (wm_hints) {
             if ((wm_hints->flags&IconWindowHint) &&
                     (wm_hints->icon_window != *it)) {
@@ -706,9 +706,9 @@ WindowManager::doEventLoop(void)
 #ifdef HAVE_SHAPE
                 if (X11::hasExtensionShape()
                     && ev.type == X11::getEventShape()) {
-                    XShapeEvent *sev = reinterpret_cast<XShapeEvent*>(&ev);
+                    auto sev = reinterpret_cast<XShapeEvent*>(&ev);
                     X11::setLastEventTime(sev->time);
-                    Client *client = Client::findClient(sev->window);
+                    auto client = Client::findClient(sev->window);
                     if (client) {
                         client->handleShapeEvent(sev);
                     }

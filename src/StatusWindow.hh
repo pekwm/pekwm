@@ -35,7 +35,6 @@ private:
 private:
     Theme* _theme;
     PWinObj *_status_wo;
-    Pixmap _bg;
 };
 
 namespace pekwm

@@ -23,8 +23,7 @@
 StatusWindow::StatusWindow(Theme* theme)
     : PDecor("STATUSWINDOW"),
       _theme(theme),
-      _status_wo(new PWinObj(false)),
-      _bg(None)
+      _status_wo(new PWinObj(false))
 {
     // PWinObj attributes
     _type = PWinObj::WO_STATUS;
@@ -93,11 +92,12 @@ StatusWindow::draw(const std::wstring &text, bool do_center, Geometry *gm)
             gm = &head;
         }
 
-        move(gm->x + (gm->width - _gm.width) / 2, gm->y + (gm->height - _gm.height) / 2);
+        move(gm->x + (gm->width - _gm.width) / 2,
+             gm->y + (gm->height - _gm.height) / 2);
     }
 
     font->setColor(sd->getColor());
-    _status_wo->clear();
+    X11::clearWindow(_status_wo->getWindow());
     font->draw(_status_wo->getWindow(),
                (width - font->getWidth(text.c_str())) / 2,
                sd->getPad(PAD_UP),
@@ -115,19 +115,14 @@ StatusWindow::loadTheme(void)
 void
 StatusWindow::unloadTheme(void)
 {
-    X11::freePixmap(_bg);
 }
 
 //! @brief Renders and sets background
 void
 StatusWindow::render(void)
 {
-    X11::freePixmap(_bg);
-    _bg = X11::createPixmap(_status_wo->getWidth(), _status_wo->getHeight());
-    auto sd = _theme->getStatusData();
-    sd->getTexture()->render(_bg, 0, 0,
-                             _status_wo->getWidth(), _status_wo->getHeight());
-
-    _status_wo->setBackgroundPixmap(_bg);
-    _status_wo->clear();
+    auto tex = _theme->getStatusData()->getTexture();
+    tex->setBackground(_status_wo->getWindow(),
+                       0, 0, _status_wo->getWidth(), _status_wo->getHeight());
+    X11::clearWindow(_status_wo->getWindow());
 }

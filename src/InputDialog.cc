@@ -30,7 +30,9 @@ std::map<KeySym, wchar_t> InputDialog::_keysym_map;
 InputDialog::InputDialog(const std::wstring &title)
     : PDecor("INPUTDIALOG"), PWinObjReference(0),
       _data(pekwm::theme()->getCmdDialogData()),
-      _pixmap_bg(None), _pos(0), _buf_off(0), _buf_chars(0)
+      _pos(0),
+      _buf_off(0),
+      _buf_chars(0)
 {
     // PWinObj attributes
     setLayer(LAYER_NONE); // hack, goes over LAYER_MENU
@@ -112,12 +114,15 @@ InputDialog::reloadKeysymMap(void)
 void
 InputDialog::addKeysymToKeysymMap(KeySym keysym, wchar_t chr)
 {
-    Display *dpy = X11::getDpy();
+    auto dpy = X11::getDpy();
 
     int keysyms_per_keycode;
-    KeyCode keycode = XKeysymToKeycode(dpy, keysym);
-    KeySym *keysyms = XGetKeyboardMapping(dpy, keycode, 1, &keysyms_per_keycode);
+    auto keycode = XKeysymToKeycode(dpy, keysym);
+    if (! keycode) {
+        return;
+    }
 
+    auto keysyms = XGetKeyboardMapping(dpy, keycode, 1, &keysyms_per_keycode);
     if (keysyms) {
         for (int i = 0; i < keysyms_per_keycode; i++) {
             if (keysyms[i] != NoSymbol) {
@@ -343,7 +348,6 @@ InputDialog::loadTheme(void)
 void
 InputDialog::unloadTheme(void)
 {
-    X11::freePixmap(_pixmap_bg);
 }
 
 /**
@@ -352,20 +356,22 @@ InputDialog::unloadTheme(void)
 void
 InputDialog::render(void)
 {
-    _text_wo->clear();
+    X11::clearWindow(_text_wo->getWindow());
 
     uint pos = _data->getPad(PAD_LEFT);
     const wchar_t *buf = _buf.c_str() + _buf_off;
 
     // draw buf content
     _data->getFont()->setColor(_data->getColor());
-    _data->getFont()->draw(_text_wo->getWindow(), pos, _data->getPad(PAD_UP), buf, _buf_chars);
+    _data->getFont()->draw(_text_wo->getWindow(),
+                           pos, _data->getPad(PAD_UP), buf, _buf_chars);
 
     // draw cursor
     if (_pos > 0) {
         pos += _data->getFont()->getWidth(buf,  _pos - _buf_off) + 1;
     }
-    _data->getFont()->draw(_text_wo->getWindow(), pos, _data->getPad(PAD_UP), L"|");
+    _data->getFont()->draw(_text_wo->getWindow(),
+                           pos, _data->getPad(PAD_UP), L"|");
 }
 
 /**
@@ -587,12 +593,10 @@ InputDialog::updateSize(const Geometry &head)
 void
 InputDialog::updatePixmapSize(void)
 {
-    // Get new pixmap and render texture
-    X11::freePixmap(_pixmap_bg);
-    _pixmap_bg = X11::createPixmap(_text_wo->getWidth(), _text_wo->getHeight());
-    _data->getTexture()->render(_pixmap_bg, 0, 0, _text_wo->getWidth(), _text_wo->getHeight());
-    _text_wo->setBackgroundPixmap(_pixmap_bg);
-    _text_wo->clear();
+    auto tex = _data->getTexture();
+    tex->setBackground(_text_wo->getWindow(),
+                       0, 0, _text_wo->getWidth(), _text_wo->getHeight());
+    X11::clearWindow(_text_wo->getWindow());
 }
 
 /**
@@ -602,10 +606,12 @@ InputDialog::updatePixmapSize(void)
  * @param height Fill in height.
  */
 void
-InputDialog::getInputSize(const Geometry &head, unsigned int &width, unsigned int &height)
+InputDialog::getInputSize(const Geometry &head,
+                          unsigned int &width, unsigned int &height)
 {
     width = head.width / 3;
-    height = _data->getFont()->getHeight() + _data->getPad(PAD_UP) + _data->getPad(PAD_DOWN);
+    height = _data->getFont()->getHeight()
+        + _data->getPad(PAD_UP) + _data->getPad(PAD_DOWN);
 }
 
 void

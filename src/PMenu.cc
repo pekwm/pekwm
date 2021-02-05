@@ -53,7 +53,9 @@ PMenu::PMenu(const std::wstring &title,
       _menu_parent(0), _class_hint(L"pekwm", L"Menu", L"", L"", L""),
       _item_curr(0),
       _menu_wo(0),
-      _menu_bg_fo(None), _menu_bg_un(None), _menu_bg_se(None),
+      _menu_bg_fo(None),
+      _menu_bg_un(None),
+      _menu_bg_se(None),
       _menu_width(0),
       _item_height(0), _item_width_max(0), _item_width_max_avail(0),
       _icon_width(0), _icon_height(0),
@@ -140,8 +142,9 @@ PMenu::setFocused(bool focused)
     if (_focused != focused) {
         PDecor::setFocused(focused);
 
-        _menu_wo->setBackgroundPixmap(_focused ? _menu_bg_fo : _menu_bg_un);
-        _menu_wo->clear();
+        X11::setWindowBackgroundPixmap(_menu_wo->getWindow(),
+                                       _focused ? _menu_bg_fo : _menu_bg_un);
+        X11::clearWindow(_menu_wo->getWindow());
         if (_item_curr < _items.size()) {
             auto item(_items.begin() + _item_curr);
             _item_curr = _items.size(); // Force selectItem(item) to redraw
@@ -559,8 +562,9 @@ PMenu::buildMenuRender(void)
     buildMenuRenderState(_menu_bg_un, OBJECT_STATE_UNFOCUSED);
     buildMenuRenderState(_menu_bg_se, OBJECT_STATE_SELECTED);
 
-    _menu_wo->setBackgroundPixmap(_focused ? _menu_bg_fo : _menu_bg_un);
-    _menu_wo->clear();
+    X11::setWindowBackgroundPixmap(_menu_wo->getWindow(),
+                                   _focused ? _menu_bg_fo : _menu_bg_un);
+    X11::clearWindow(_menu_wo->getWindow());
 }
 
 //! @brief Renders menu content on pix, with state state

@@ -14,6 +14,7 @@
 
 #include "pekwm.hh"
 #include "PTexture.hh"
+#include "x11.hh"
 
 class PImage;
 
@@ -28,6 +29,10 @@ public:
     virtual void render(Drawable draw,
                         int x, int y, uint width, uint height) override {
     }
+    virtual bool getPixel(ulong &pixel) const override {
+        pixel = X11::getWhitePixel();
+        return true;
+    }
     // END - PTexture interface.
 };
 
@@ -41,6 +46,10 @@ public:
     // START - PTexture interface.
     virtual void render(Drawable draw,
                         int x, int y, uint width, uint height) override;
+    virtual bool getPixel(ulong &pixel) const override {
+        pixel = _xc->pixel;
+        return true;
+    }
     // END - PTexture interface.
 
     inline XColor *getColor() { return _xc; }
@@ -63,6 +72,7 @@ public:
     // START - PTexture interface.
     virtual void render(Drawable draw,
                         int x, int y, uint width, uint height) override;
+    virtual bool getPixel(ulong &pixel) const override { return false; }
     // END - PTexture interface.
 
     inline void setLineOff(uint loff) { _loff = loff; _loff2 = loff * 2; }
@@ -103,6 +113,7 @@ public:
     // START - PTexture interface.
     virtual void render(Drawable draw,
                         int x, int y, uint width, uint height) override;
+    virtual bool getPixel(ulong &pixel) const override { return false; }
     // END - PTexture interface.
 
 private:
@@ -135,6 +146,7 @@ public:
     // START - PTexture interface.
     virtual void render(Drawable draw,
                         int x, int y, uint width, uint height) override;
+    virtual bool getPixel(ulong &pixel) const override { return false; }
     virtual Pixmap getMask(uint width, uint height, bool &do_free) override;
     // END - PTexture interface.
 

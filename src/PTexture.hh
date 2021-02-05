@@ -1,5 +1,5 @@
 //
-// PTexture.cc for pekwm
+// PTexture.hh for pekwm
 // Copyright (C) 2004-2021 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
@@ -37,9 +37,13 @@ public:
 
     virtual void render(Drawable draw,
                         int x, int y, uint width, uint height) = 0;
+    virtual bool getPixel(ulong &pixel) const = 0;
     virtual Pixmap getMask(uint width, uint height, bool &do_free) {
         return None;
     }
+
+    void setBackground(Drawable draw,
+                       int x, int y, uint width, uint height);
 
     bool isOk(void) const { return _ok; }
     uint getWidth(void) const { return _width; }

@@ -22,6 +22,7 @@ extern "C" {
 #include <getopt.h>
 #include <time.h>
 #include <unistd.h>
+#include <X11/Xutil.h>
 }
 
 static ImageHandler* _image_handler = nullptr;

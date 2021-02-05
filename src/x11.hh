@@ -24,6 +24,14 @@ extern "C" {
 #endif // HAVE_XINERAMA
 #ifdef HAVE_SHAPE
 #include <X11/extensions/shape.h>
+#else // ! HAVE_SHAPE
+#define ShapeSet 0
+#define ShapeIntersect 2
+
+#define ShapeBounding 0
+#define ShapeInput 2
+
+#define ShapeNotifyMask 1
 #endif // HAVE_SHAPE
 
 extern bool xerrors_ignore; /**< If true, ignore X errors. */
@@ -269,7 +277,7 @@ public:
 
     inline static bool getLong(Window win, AtomName aname, long &value) {
         uchar *udata = 0;
-        if (getProperty(win, aname, XA_CARDINAL, 1L, &udata, 0)) {
+        if (getProperty(win, _atoms[aname], XA_CARDINAL, 1L, &udata, 0)) {
             value = *reinterpret_cast<long*>(udata);
             X11::free(udata);
             return true;
@@ -288,7 +296,7 @@ public:
 
     static bool getUtf8String(Window win, AtomName aname, std::string &value) {
         uchar *data = 0;
-        if (getProperty(win, aname, _atoms[UTF8_STRING], 32, &data, 0)) {
+        if (getProperty(win, _atoms[aname], _atoms[UTF8_STRING], 0, &data, 0)) {
             value = std::string(reinterpret_cast<char*>(data));
             X11::free(data);
             return true;
@@ -312,7 +320,7 @@ public:
 
     static bool getString(Window win, AtomName aname, std::string &value) {
         uchar *data = 0;
-        if (getProperty(win, aname, XA_STRING, 64L, &data, 0)) {
+        if (getProperty(win, _atoms[aname], XA_STRING, 0, &data, 0)) {
             value = std::string((const char*) data);
             X11::free(data);
             return true;
@@ -326,7 +334,7 @@ public:
                        (uchar*)value.c_str(), value.size());
     }
 
-    static bool getProperty(Window win, AtomName aname, Atom type,
+    static bool getProperty(Window win, Atom atom, Atom type,
                             ulong expected, uchar **data, ulong *actual);
     static bool getTextProperty(Window win, Atom atom, std::string &value);
     static void *getEwmhPropData(Window win, AtomName prop,
@@ -424,6 +432,9 @@ public:
     static void mapWindow(Window w) { if (_dpy) { XMapWindow(_dpy, w); } }
     static void unmapWindow(Window w) { if (_dpy) { XUnmapWindow(_dpy, w); } }
 
+    static void raiseWindow(Window w) { if (_dpy) { XRaiseWindow(_dpy, w); } }
+    static void lowerWindow(Window w) { if (_dpy) { XLowerWindow(_dpy, w); } }
+
     static void ungrabButton(Window win) {
         XUngrabButton(_dpy, AnyButton, AnyModifier, win);
     }
@@ -504,19 +515,33 @@ public:
         return None;
     }
 
-    static void freePixmap(Pixmap pixmap) {
-        if (_dpy) {
+    static void freePixmap(Pixmap& pixmap) {
+        if (_dpy && pixmap != None) {
             XFreePixmap(_dpy, pixmap);
         }
+        pixmap = None;
     }
 
+    static void setWindowBackground(Window window, ulong pixel) {
+        if (_dpy) {
+            XSetWindowBackground(_dpy, window, pixel);
+        }
+    }
     static void setWindowBackgroundPixmap(Window window, Pixmap pixmap) {
-        XSetWindowBackgroundPixmap(_dpy, window, pixmap);
+        if (_dpy) {
+            XSetWindowBackgroundPixmap(_dpy, window, pixmap);
+        }
     }
     static void  clearWindow(Window window) { XClearWindow(_dpy, window); }
 
 #ifdef HAVE_SHAPE
-    inline static void shapeQuery(Window dst, int *bshaped) {
+    static void shapeSelectInput(Window window, ulong mask) {
+        if (_dpy) {
+            XShapeSelectInput(_dpy, window, mask);
+        }
+    }
+
+    static void shapeQuery(Window dst, int *bshaped) {
         int foo; unsigned bar;
         XShapeQueryExtents(_dpy, dst, bshaped, &foo, &foo, &bar, &bar,
                            &foo, &foo, &foo, &bar, &bar);
@@ -527,23 +552,47 @@ public:
         XShapeCombineShape(_dpy, dst, kind, x, y, src, kind, op);
     }
 
-    inline static void shapeSetRect(Window dst, XRectangle *rect) {
+    static void shapeSetRect(Window dst, XRectangle *rect) {
         XShapeCombineRectangles(_dpy, dst, ShapeBounding, 0, 0, rect, 1,
                                 ShapeSet, YXBanded);
     }
 
-    inline static void shapeIntersectRect(Window dst, XRectangle *rect) {
+    static void shapeIntersectRect(Window dst, XRectangle *rect) {
         XShapeCombineRectangles(_dpy, dst, ShapeBounding, 0, 0, rect, 1,
                                 ShapeIntersect, YXBanded);
     }
 
-    inline static void shapeSetMask(Window dst, int kind, Pixmap pix) {
+    static void shapeSetMask(Window dst, int kind, Pixmap pix) {
         XShapeCombineMask(_dpy, dst, kind, 0, 0, pix, ShapeSet);
     }
 
-    inline static XRectangle *shapeGetRects(Window win, int *num) {
+    static XRectangle *shapeGetRects(Window win, int kind, int *num) {
         int t;
-        return XShapeGetRectangles(_dpy, win, ShapeBounding, num, &t);
+        return XShapeGetRectangles(_dpy, win, kind, num, &t);
+    }
+#else // ! HAVE_SHAPE
+    static void shapeSelectInput(Window window, ulong mask) { }
+
+    static void shapeQuery(Window dst, int *bshaped) {
+        *bshaped = 0;
+    }
+
+    static void shapeCombine(Window dst, int kind, int x, int y,
+                             Window src, int op) {
+    }
+
+    static void shapeSetRect(Window dst, XRectangle *rect) {
+    }
+
+    static void shapeIntersectRect(Window dst, XRectangle *rect) {
+    }
+
+    static void shapeSetMask(Window dst, int kind, Pixmap pix) {
+    }
+
+    static XRectangle *shapeGetRects(Window win, int kind, int *num) {
+        num = 0;
+        return nullptr;
     }
 #endif // HAVE_SHAPE
 

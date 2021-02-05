@@ -52,8 +52,6 @@ public:
     private:
         Theme::PDecorButtonData *_data;
         ButtonState _state;
-
-        Pixmap _bg;
         bool _left;
     };
 

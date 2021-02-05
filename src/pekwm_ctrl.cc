@@ -75,8 +75,9 @@ static Window findClient(const RegexString& match)
 {
     ulong actual;
     Window *windows;
-    if (! X11::getProperty(X11::getRoot(), NET_CLIENT_LIST, XA_WINDOW,
-                           0, reinterpret_cast<uchar**>(&windows), &actual)) {
+    if (! X11::getProperty(X11::getRoot(), X11::getAtom(NET_CLIENT_LIST),
+                           XA_WINDOW, 0,
+                           reinterpret_cast<uchar**>(&windows), &actual)) {
         return None;
     }
 
@@ -152,8 +153,9 @@ static bool listClients(void)
 {
     ulong actual;
     Window *windows;
-    if (! X11::getProperty(X11::getRoot(), NET_CLIENT_LIST, XA_WINDOW,
-                           0, reinterpret_cast<uchar**>(&windows), &actual)) {
+    if (! X11::getProperty(X11::getRoot(), X11::getAtom(NET_CLIENT_LIST),
+                           XA_WINDOW, 0,
+                           reinterpret_cast<uchar**>(&windows), &actual)) {
         return false;
     }
 

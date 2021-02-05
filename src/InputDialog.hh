@@ -78,8 +78,6 @@ protected:
     PWinObj *_text_wo;
     PDecor::TitleItem _title;
 
-    Pixmap _pixmap_bg;
-
     // content related
     std::wstring _buf;
     uint _pos, _buf_off, _buf_chars; // position, start and num display

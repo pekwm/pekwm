@@ -41,7 +41,7 @@ PImageIcon::loadFromWindow(Window win)
     bool status = false;
     uchar *udata = 0;
     ulong expected = 2, actual;
-    if (X11::getProperty(win, NET_WM_ICON, XA_CARDINAL,
+    if (X11::getProperty(win, X11::getAtom(NET_WM_ICON), XA_CARDINAL,
                          expected, &udata, &actual)) {
         if (actual >= expected) {
             status = setImageFromData(udata, actual);

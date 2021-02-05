@@ -289,7 +289,7 @@ X11::destruct(void) {
 
     // Under certain circumstances trying to restart pekwm can cause it to
     // use 100% of the CPU without making any progress with the restart.
-    // This XSync() seems to be work around the issue (c.f. #300).
+    // This X11:sync() seems to be work around the issue (c.f. #300).
     X11::sync(True);
 
     XCloseDisplay(_dpy);
@@ -602,7 +602,7 @@ X11::getHeadGeometry(uint head)
 }
 
 bool
-X11::getProperty(Window win, AtomName aname, Atom type,
+X11::getProperty(Window win, Atom atom, Atom type,
                  ulong expected, uchar **data_ret, ulong *actual)
 {
     if (expected == 0) {
@@ -621,7 +621,7 @@ X11::getProperty(Window win, AtomName aname, Atom type,
         Atom r_type;
         int r_format, status;
         status =
-            XGetWindowProperty(_dpy, win, _atoms[aname],
+            XGetWindowProperty(_dpy, win, atom,
                                0L, expected, False, type,
                                &r_type, &r_format, &read, &left, &data);
         if (status != Success || type != r_type || read == 0) {

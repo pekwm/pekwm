@@ -26,6 +26,7 @@ set(texture_SOURCES
   ImageHandler.cc
   PFont.cc
   PImage.cc
+  PTexture.cc
   PTexturePlain.cc
   TextureHandler.cc
   Theme.cc)

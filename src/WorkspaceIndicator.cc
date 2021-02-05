@@ -93,8 +93,8 @@ WorkspaceIndicator::Display::render(void)
                     _gm.width - data.edge_padding * 2 /* max_width */);
 
     // Refresh
-    setBackgroundPixmap(_pixmap);
-    clear();
+    X11::setWindowBackgroundPixmap(_window, _pixmap);
+    X11::clearWindow(_window);
 }
 
 /**

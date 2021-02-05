@@ -98,7 +98,7 @@ public:
         //! @brief Returns title maximum width in procent.
         inline int getTitleWidthMax(void) const { return _title_width_max; }
         //! @brief Returns title text pad for dir.
-        inline int getPad(PadType pad) const {
+        inline uint getPad(PadType pad) const {
             return _pad[(pad != PAD_NO) ? pad : 0];
         }
 
@@ -186,7 +186,7 @@ public:
         // size, padding etc
         int _title_height;
         int _title_width_min, _title_width_max;
-        int _pad[PAD_NO];
+        uint _pad[PAD_NO];
         bool _title_width_symetric;
         bool _title_height_adapt;
 

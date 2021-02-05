@@ -231,7 +231,8 @@ CfgParser::Entry::print(uint level)
             for (uint i = 0; i < level; ++i) {
                 std::cerr << " ";
             }
-            std::cerr << "   - " << getName() << "=" << getValue() << std::endl;
+            std::cerr << "   - " << (*it)->getName() << "="
+                      << (*it)->getValue() << std::endl;
         }
     }
 }

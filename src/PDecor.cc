@@ -54,10 +54,6 @@ PDecor::Button::Button(PWinObj *parent, Theme::PDecorButtonData *data,
                           -_gm.width, -_gm.height, _gm.width, _gm.height, 0,
                           CopyFromParent, InputOutput, CopyFromParent,
                           CWEventMask|CWOverrideRedirect, &attr);
-
-    _bg = X11::createPixmap(_gm.width, _gm.height);
-
-    setBackgroundPixmap(_bg);
     setState(_state);
 }
 
@@ -65,7 +61,6 @@ PDecor::Button::Button(PWinObj *parent, Theme::PDecorButtonData *data,
 PDecor::Button::~Button(void)
 {
     X11::destroyWindow(_window);
-    X11::freePixmap(_bg);
 }
 
 //! @brief Searches the PDecorButtonData for an action matching ev
@@ -93,27 +88,27 @@ PDecor::Button::setState(ButtonState state)
         _state = state;
     }
 
-    PTexture *texture = _data->getTexture(state);
-    if (texture) {
-        texture->render(_bg, 0, 0, _gm.width, _gm.height);
+    auto tex = _data->getTexture(state);
+    if (tex) {
+        tex->setBackground(_window, 0, 0, _gm.width, _gm.height);
 
-#ifdef HAVE_SHAPE
-        if (_data->setShape()) {
-            // Get shape mask
+        if (X11::hasExtensionShape() && _data->setShape()) {
             bool need_free;
-            Pixmap shape = _data->getTexture(state)->getMask(0, 0, need_free);
+            auto shape = tex->getMask(0, 0, need_free);
             if (shape != None) {
                 X11::shapeSetMask(_window, ShapeBounding, shape);
                 if (need_free) {
                     X11::freePixmap(shape);
                 }
             } else {
-                XRectangle rect = {0 /* x */, 0 /* y */, static_cast<short uint>(_gm.width), static_cast<short uint>(_gm.height) };
+                XRectangle rect = {0 /* x */, 0 /* y */,
+                                   static_cast<short uint>(_gm.width),
+                                   static_cast<short uint>(_gm.height)};
                 X11::shapeSetRect(_window, &rect);
             }
         }
-#endif // HAVE_SHAPE
-        clear();
+
+        X11::clearWindow(_window);
     }
 }
 
@@ -1532,14 +1527,14 @@ PDecor::renderTitle(void)
         sel = (_title_active == i);
 
         // render tab
-        _data->getTextureTab(getFocusedState(sel))->render(title_bg, x, 0,
-                                                           _titles[i]->getWidth(),
-                                                           _title_wo.getHeight());
+        auto tab = _data->getTextureTab(getFocusedState(sel));
+        tab->render(title_bg, x, 0,
+                    _titles[i]->getWidth(), _title_wo.getHeight());
 
         font = getFont(getFocusedState(sel));
         font->setColor(_data->getFontColor(getFocusedState(sel)));
 
-        PFont::TrimType trim = PFont::FONT_TRIM_MIDDLE;
+        auto trim = PFont::FONT_TRIM_MIDDLE;
         if (_titles[i]->isCustom() || _titles[i]->isUserSet()) {
             trim = PFont::FONT_TRIM_END;
         }
@@ -1561,8 +1556,8 @@ PDecor::renderTitle(void)
         }
     }
 
-    _title_wo.setBackgroundPixmap(title_bg);
-    _title_wo.clear();
+    X11::setWindowBackgroundPixmap(_title_wo.getWindow(), title_bg);
+    X11::clearWindow(_title_wo.getWindow());
     X11::freePixmap(title_bg);
 }
 
@@ -1574,7 +1569,6 @@ PDecor::renderButtons(void)
     }
 }
 
-//! @brief Renders the border of the decor.
 void
 PDecor::renderBorder(void)
 {
@@ -1582,31 +1576,14 @@ PDecor::renderBorder(void)
         return;
     }
 
-    PTexture *tex;
-    FocusedState state = getFocusedState(false);
     uint width, height;
-    Pixmap pix = None;
-
+    FocusedState state = getFocusedState(false);
     for (int i=0; i < BORDER_NO_POS; ++i) {
-        tex = _data->getBorderTexture(state, static_cast<BorderPosition>(i));
-
-        // Solid texture, get the color and set as bg, no need to render pixmap
-        if (tex->getType() == PTexture::TYPE_SOLID) {
-            XSetWindowBackground(X11::getDpy(), _border_win[i],
-                                 static_cast<PTextureSolid*>(tex)->getColor()->pixel);
-        } else {
-            // not a solid texture, get pixmap, render, set as bg
-            getBorderSize(static_cast<BorderPosition>(i), width, height);
-
-            if (width > 0 && height > 0) {
-                pix = X11::createPixmap(width, height);
-                tex->render(pix, 0, 0, width, height);
-                X11::setWindowBackgroundPixmap(_border_win[i], pix);
-                X11::freePixmap(pix);
-            }
-        }
-
-        XClearWindow(X11::getDpy(), _border_win[i]);
+        auto tex =
+            _data->getBorderTexture(state, static_cast<BorderPosition>(i));
+        getBorderSize(static_cast<BorderPosition>(i), width, height);
+        tex->setBackground(_border_win[i], 0, 0, width, height);
+        X11::clearWindow(_border_win[i]);
     }
 }
 
@@ -2038,7 +2015,7 @@ PDecor::restackBorder(void)
     }
 
     // Raise the top window so actual restacking is done.
-    XRaiseWindow(X11::getDpy(), windows[0]);
+    X11::raiseWindow(windows[0]);
     XRestackWindows(X11::getDpy(), windows, BORDER_NO_POS + extra);
 }
 

@@ -153,12 +153,12 @@ SearchDialog::findClients(const std::wstring &search)
 
     if (_result_menu->size()) {
         resizeChild(_text_wo->getWidth(), height + _result_menu->getHeight());
-        XRaiseWindow(X11::getDpy(), _result_menu->getWindow());
+        X11::raiseWindow(_result_menu->getWindow());
         // Render first item as selected, needs to be done after map/raise.
         _result_menu->selectItemNum(0);
     } else {
         resizeChild(_text_wo->getWidth(), height);
-        XLowerWindow(X11::getDpy(), _result_menu->getWindow());
+        X11::lowerWindow(_result_menu->getWindow());
     }
 
     return 0;
@@ -176,8 +176,8 @@ SearchDialog::unmapWindow(void)
         bufClear();
 
         // Clear the menu and hide it.
-        _result_menu->clear();
+        X11::clearWindow(_result_menu->getWindow());
         _previous_search.clear();
-        XLowerWindow(X11::getDpy(), _result_menu->getWindow());
+        X11::lowerWindow(_result_menu->getWindow());
     }
 }
