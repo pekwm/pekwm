@@ -71,7 +71,6 @@ public:
 
     private:
         TextureHandler* _th;
-        bool _loaded;
 
         std::vector<ActionEvent> _aes;
         PTexture *_texture[BUTTON_STATE_NO];
@@ -180,7 +179,6 @@ public:
         FontHandler* _fh;
         TextureHandler* _th;
 
-        bool _loaded;
         std::string _name;
 
         // size, padding etc
@@ -250,7 +248,6 @@ public:
     private:
         FontHandler* _fh;
         TextureHandler* _th;
-        bool _loaded;
 
         PFont *_font[OBJECT_STATE_NO + 1];
         PFont::Color *_color[OBJECT_STATE_NO + 1];
@@ -286,7 +283,6 @@ public:
     private:
         FontHandler* _fh;
         TextureHandler* _th;
-        bool _loaded;
 
         PFont *_font;
         PFont::Color *_color;
@@ -310,7 +306,6 @@ public:
     private:
         FontHandler* _fh;
         TextureHandler* _th;
-        bool _loaded;
 
     public:
         PFont *font;
@@ -339,7 +334,6 @@ public:
     private:
         TextureHandler* _th;
 
-        bool _loaded;
         /**< Texture for rendering dockapps in the harbour. */
         PTexture *_texture;
     };
@@ -383,7 +377,6 @@ public:
     private:
         FontHandler* _fh;
         TextureHandler* _th;
-        bool _loaded;
 
         PTexture *_background;
         PFont *_button_font;

@@ -28,7 +28,6 @@
 //! @brief Theme::PDecorButtonData constructor.
 Theme::PDecorButtonData::PDecorButtonData(TextureHandler *th)
     : _th(th),
-      _loaded(false),
       _shape(true),
       _left(false),
       _width(1),
@@ -42,9 +41,6 @@ Theme::PDecorButtonData::PDecorButtonData(TextureHandler *th)
 //! @brief Theme::PDecorButtonData destructor.
 Theme::PDecorButtonData::~PDecorButtonData(void)
 {
-    if (_loaded) {
-        unload();
-    }
 }
 
 //! @brief Parses CfgParser::Entry section, loads and verifies data.
@@ -60,7 +56,6 @@ Theme::PDecorButtonData::load(CfgParser::Entry *section)
     } else {
         return false;
     }
-    _loaded = true;
 
     // Get actions.
     ActionEvent ae;
@@ -119,7 +114,6 @@ Theme::PDecorButtonData::unload(void)
         _th->returnTexture(_texture[i]);
         _texture[i] = 0;
     }
-    _loaded = false;
 }
 
 //! @brief Verifies and makes sure no 0 textures exists.
@@ -148,7 +142,6 @@ Theme::PDecorData::PDecorData(FontHandler* fh, TextureHandler* th,
                               const char *name)
     : _fh(fh),
       _th(th),
-      _loaded(false),
       _title_height(10),
       _title_width_min(0),
       _title_width_max(100),
@@ -201,9 +194,6 @@ Theme::PDecorData::PDecorData(FontHandler* fh, TextureHandler* th,
 //! @brief Theme::PDecorData destructor.
 Theme::PDecorData::~PDecorData(void)
 {
-    if (_loaded) {
-        unload();
-    }
 }
 
 //! @brief Parses CfgParser::Entry section, loads and verifies data.
@@ -228,7 +218,6 @@ Theme::PDecorData::load(CfgParser::Entry *section)
         USER_WARN("no title section in decor: " << _name);
         return false;
     }
-    _loaded = true;
 
     std::vector<std::string> tok;
     std::vector<CfgParserKey*> keys;
@@ -355,8 +344,6 @@ Theme::PDecorData::unload(void)
         delete it;
     }
     _buttons.clear();
-
-    _loaded = false;
 }
 
 //! @brief Checks data properties, prints warning and tries to fix.
@@ -524,9 +511,6 @@ Theme::PMenuData::PMenuData(FontHandler* fh, TextureHandler* th)
 //! @brief PMenuData destructor
 Theme::PMenuData::~PMenuData(void)
 {
-    if (_loaded) {
-        unload();
-    }
 }
 
 //! @brief Parses CfgParser::Entry section, loads and verifies data.
@@ -678,9 +662,6 @@ Theme::TextDialogData::TextDialogData(FontHandler* fh, TextureHandler* th)
 //! @brief TextDialogData destructor.
 Theme::TextDialogData::~TextDialogData(void)
 {
-    if (_loaded) {
-        unload();
-    }
 }
 
 //! @brief Parses CfgParser::Entry section, loads and verifies data.
@@ -761,7 +742,6 @@ Theme::WorkspaceIndicatorData::WorkspaceIndicatorData(FontHandler* fh,
                                                       TextureHandler *th)
     : _fh(fh),
       _th(th),
-      _loaded(false),
       font(0),
       font_color(0),
       texture_background(0),
@@ -777,9 +757,6 @@ Theme::WorkspaceIndicatorData::WorkspaceIndicatorData(FontHandler* fh,
  */
 Theme::WorkspaceIndicatorData::~WorkspaceIndicatorData(void)
 {
-    if (_loaded) {
-        unload();
-    }
 }
 
 /**
@@ -869,7 +846,6 @@ Theme::WorkspaceIndicatorData::check(void)
 Theme::DialogData::DialogData(FontHandler* fh, TextureHandler* th)
     : _fh(fh),
       _th(th),
-      _loaded(false),
       _background(nullptr),
       _button_font(nullptr),
       _button_color(nullptr),
@@ -886,9 +862,6 @@ Theme::DialogData::DialogData(FontHandler* fh, TextureHandler* th)
 
 Theme::DialogData::~DialogData(void)
 {
-    if (_loaded) {
-        unload();
-    }
 }
 
 bool
@@ -966,9 +939,6 @@ Theme::HarbourData::HarbourData(TextureHandler* th)
  */
 Theme::HarbourData::~HarbourData(void)
 {
-    if (_loaded) {
-        unload();
-    }
 }
 
 /**
