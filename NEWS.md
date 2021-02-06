@@ -61,7 +61,9 @@ of the CmdDialog.
 
 **Debug** action is included even if not compiling with DEBUG=ON. The
 action allows for enabling and disabling of logging to file and
-standard output.
+standard output. Default logging level is warning, and all messages
+aimed towards end users such as theme errors are logged independent of
+set level.
 
 **Exec** no longer use ``sh -c`` to run commands which will cause
 incompatabilites depending on _/bin/sh_ configuration, if shell

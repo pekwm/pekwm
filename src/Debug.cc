@@ -9,9 +9,18 @@
 
 #include "pekwm.hh"
 #include "Debug.hh"
+#include "ParseUtil.hh"
 #include "Util.hh"
 
 #include <cstdlib>
+
+static ParseUtil::Map<Debug::Level> debug_level_map =
+    {{"", Debug::LEVEL_WARN},
+     {"ERROR", Debug::LEVEL_ERR},
+     {"WARNING", Debug::LEVEL_WARN},
+     {"INFO", Debug::LEVEL_INFO},
+     {"DEBUG", Debug::LEVEL_DEBUG},
+     {"TRACE", Debug::LEVEL_TRACE}};
 
 /**
  * Debug Commands:
@@ -24,6 +33,7 @@
  * dump - write all stored log messages to the logfile
  * maxmsgs - log the current maximum number of stored messages
  * maxmsgs <nr> - sets the maximum of stored messages (in RAM) to nr
+ * level [err|warn|info|debug|trace] - sets log level.
  *
  */
 void
@@ -82,15 +92,16 @@ Debug::doAction(const std::string &cmd)
             } else {
                 WARN("Debug command \"maxmsgs\" called with wrong parameter.");
             }
+        } else if (args[0] == "level") {
+            Debug::level = debug_level_map.get(args[1]);
         }
     }
 }
 
+Debug::Level Debug::level = LEVEL_WARN;
 bool Debug::enable_cerr = true;
 bool Debug::enable_logfile = false;
+
 std::ofstream Debug::_log("/dev/null");
 std::vector<std::string> Debug::_msgs;
 std::vector<std::string>::size_type Debug::_max_msgs = 32;
-const std::string Debug::_msg_info(" *INFO* ");
-const std::string Debug::_msg_warn(" *WARNING* ");
-const std::string Debug::_msg_err(" *ERROR* ");

@@ -19,10 +19,20 @@
 
 class Debug {
 public:
+    enum Level {
+        LEVEL_ERR,
+        LEVEL_WARN,
+        LEVEL_INFO,
+        LEVEL_DEBUG,
+        LEVEL_TRACE
+
+    };
+
     static void doAction(const std::string &);
 
     static bool enable_cerr;
     static bool enable_logfile;
+    static Level level;
 
     static void setLogFile(const char *f) { _log.close(); _log.open(f); }
     static void addLog(const std::string s) {
@@ -37,38 +47,41 @@ public:
             std::cerr << s << std::endl;
         }
     }
-    static void addInfo(const std::string s) { addLog(_msg_info + s); }
-    static void addWarn(const std::string s) { addLog(_msg_warn + s); }
-    static void addErr(const std::string s)  { addLog(_msg_err + s); }
 
 private:
     static std::ofstream _log;
     static std::vector<std::string> _msgs;
     static std::vector<std::string>::size_type _max_msgs;
-    static const std::string _msg_info;
-    static const std::string _msg_warn;
-    static const std::string _msg_err;
-    static const std::string _msg_bt;
+};
+
+class DebugTraceObj : public std::stringstream {
+public:
+    DebugTraceObj(void) : std::stringstream("TRACE: ") { }
+    virtual ~DebugTraceObj(void) { Debug::addLog(str()); }
 };
 
 class DebugDbgObj : public std::stringstream {
 public:
-    virtual ~DebugDbgObj() { Debug::addInfo(str()); }
+    DebugDbgObj(void) : std::stringstream("DEBUG: ") { }
+    virtual ~DebugDbgObj(void) { Debug::addLog(str()); }
 };
 
 class DebugInfoObj : public std::stringstream {
 public:
-    virtual ~DebugInfoObj() { Debug::addInfo(str()); }
+    DebugInfoObj(void) : std::stringstream("INFO: ") { }
+    virtual ~DebugInfoObj(void) { Debug::addLog(str()); }
 };
 
 class DebugWarnObj : public std::stringstream {
 public:
-    virtual ~DebugWarnObj() { Debug::addWarn(str()); }
+    DebugWarnObj(void) : std::stringstream("WARNING: ") { }
+    virtual ~DebugWarnObj(void) { Debug::addLog(str()); }
 };
 
 class DebugErrObj : public std::stringstream {
 public:
-    virtual ~DebugErrObj() { Debug::addErr(str()); }
+    DebugErrObj(void) : std::stringstream("ERROR: ") { }
+    virtual ~DebugErrObj(void) { Debug::addLog(str()); }
 };
 
 #define _PEK_DEBUG_START(fun, line) \
@@ -80,20 +93,37 @@ public:
 #define USER_WARN(M) \
     do { DebugWarnObj dobj; dobj << M; } while (0)
 
+#define TRACE(M) \
+    if (Debug::level >= Debug::LEVEL_TRACE) { \
+        DebugTraceObj dobj; dobj << PEK_DEBUG_START << M; \
+    }
+
 #define DBG(M) \
-    do { DebugDbgObj dobj; dobj << PEK_DEBUG_START << M; } while (0)
+    if (Debug::level >= Debug::LEVEL_DEBUG) { \
+        DebugDbgObj dobj; dobj << PEK_DEBUG_START << M; \
+    }
 
 #define LOG(M) \
-    do { DebugInfoObj dobj; dobj << PEK_DEBUG_START << M; } while (0)
+    if (Debug::level >= Debug::LEVEL_INFO) { \
+        DebugInfoObj dobj; dobj << PEK_DEBUG_START << M; \
+    }
+
 #define LOG_IF(C, M) \
-    do { \
-        if (C) { DebugInfoObj dobj; dobj << PEK_DEBUG_START << M; } \
-    } while (0)
+    if ((C) && Debug::level >= Debug::LEVEL_INFO) { \
+        DebugInfoObj dobj; dobj << PEK_DEBUG_START << M; \
+    }
+
 #define WARN(M) \
-    do { DebugWarnObj dobj; dobj << PEK_DEBUG_START << M; } while (0)
+    if (Debug::level >= Debug::LEVEL_WARN) { \
+        DebugWarnObj dobj; dobj << PEK_DEBUG_START << M; \
+    }
+
 #define ERR(M) \
-    do { DebugErrObj dobj; dobj << PEK_DEBUG_START << M; } while (0)
+    if (Debug::level >= Debug::LEVEL_ERR) { \
+        DebugErrObj dobj; dobj << PEK_DEBUG_START << M; \
+    }
+
 #define ERR_IF(C, M) \
-    do { \
-        if (C) { DebugErrObj dobj; dobj << PEK_DEBUG_START << M; } \
-    } while (0)
+    if ((C) && Debug::level >= Debug::LEVEL_ERR) { \
+        DebugErrObj dobj; dobj << PEK_DEBUG_START << M; \
+    }
