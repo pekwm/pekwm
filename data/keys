@@ -7,10 +7,10 @@ Global {
 # Adding your own frequently used actions is easy -
 # just copy it over from CHAINS and edit the keypress!
 	# Moving in frames
-	KeyPress = "Mod1 Tab" { Actions = "NextFrame EndRaise" }
-	KeyPress = "Mod1 Shift Tab" { Actions = "PrevFrame EndRaise" }
-	KeyPress = "Mod1 Ctrl Tab" { Actions = "NextFrameMRU EndRaise" }
-	KeyPress = "Mod1 Ctrl Shift Tab" { Actions = "PrevFrameMRU EndRaise" }
+	KeyPress = "Mod1 Tab" { Actions = "NextFrameMRU TempRaise" }
+	KeyPress = "Mod1 Shift Tab" { Actions = "PrevFrameMRU TempRaise" }
+	KeyPress = "Mod1 Ctrl Tab" { Actions = "NextFrame EndRaise" }
+	KeyPress = "Mod1 Ctrl Shift Tab" { Actions = "PrevFrame EndRaise" }
 	KeyPress = "Mod4 Tab" { Actions = "ActivateClientRel 1" }
 	KeyPress = "Mod4 Shift Tab" { Actions = "ActivateClientRel -1" }
 	KeyPress = "Mod4 Ctrl Right" { Actions = "MoveClientRel 1" }
@@ -39,20 +39,28 @@ Global {
 	KeyPress = "Ctrl Mod1 Shift Right" { Actions = "SendToWorkspace Prev; GoToWorkspace Prev" }
 	KeyPress = "Ctrl Mod1 Shift Up" { Actions = "SendToWorkspace NextV; GoToWorkspace NextV" }
 	KeyPress = "Ctrl Mod1 Shift Down" { Actions = "SendToWorkspace PrevV; GoToWorkspace PrevV" }
-	KeyPress = "Mod4 F1" { Actions = "SendToWorkspace 1" }
-	KeyPress = "Mod4 F2" { Actions = "SendToWorkspace 2" }
-	KeyPress = "Mod4 F3" { Actions = "SendToWorkspace 3" }
-	KeyPress = "Mod4 F4" { Actions = "SendToWorkspace 4" }
-	KeyPress = "Mod4 F5" { Actions = "SendToWorkspace 5" }
-	KeyPress = "Mod4 F6" { Actions = "SendToWorkspace 6" }
-	KeyPress = "Mod4 F7" { Actions = "SendToWorkspace 7" }
-	KeyPress = "Mod4 F8" { Actions = "SendToWorkspace 8" }
-	KeyPress = "Mod4 F9" { Actions = "SendToWorkspace 9" }
+	KeyPress = "Mod4 Shift 1" { Actions = "SendToWorkspace 1" }
+	KeyPress = "Mod4 Shift 2" { Actions = "SendToWorkspace 2" }
+	KeyPress = "Mod4 Shift 3" { Actions = "SendToWorkspace 3" }
+	KeyPress = "Mod4 Shift 4" { Actions = "SendToWorkspace 4" }
+	KeyPress = "Mod4 Shift 5" { Actions = "SendToWorkspace 5" }
+	KeyPress = "Mod4 Shift 6" { Actions = "SendToWorkspace 6" }
+	KeyPress = "Mod4 Shift 7" { Actions = "SendToWorkspace 7" }
+	KeyPress = "Mod4 Shift 8" { Actions = "SendToWorkspace 8" }
+	KeyPress = "Mod4 Shift 9" { Actions = "SendToWorkspace 9" }
 	# Simple window management
+	KeyPress = "Mod4 Shift V" { Actions = "Toggle Maximized False True" }
 	KeyPress = "Mod4 M" { Actions = "Toggle Maximized True True" }
+	KeyPress = "Mod4 Shift U" { Actions = "SetGeometry 50%x50% current HonourStrut" }
+	KeyPress = "Mod4 Shift Z" { Actions = "SetGeometry 50%x100% current HonourStrut" }
+	KeyPress = "Mod4 Shift H" { Actions = "SetGeometry 100%x50% current HonourStrut" }
 	KeyPress = "Mod4 G" { Actions = "Maxfill True True" }
 	KeyPress = "Mod4 F" { Actions = "Toggle FullScreen" }
 	KeyPress = "Mod4 Return" { Actions = "MoveResize" }
+	KeyPress = "Mod4 Shift Left" { Actions = "MoveToEdge LeftEdge" }
+	KeyPress = "Mod4 Shift Right" { Actions = "MoveToEdge RightEdge" }
+	KeyPress = "Mod4 Shift Up" { Actions = "MoveToEdge TopEdge" }
+	KeyPress = "Mod4 Shift Down" { Actions = "MoveToEdge BottomEdge" }
 	KeyPress = "Mod4 Q" { Actions = "Close" }
 	KeyPress = "Mod4 S" { Actions = "Toggle Shaded" }
 	KeyPress = "Mod4 I" { Actions = "Toggle Iconified" }
