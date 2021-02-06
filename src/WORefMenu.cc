@@ -22,7 +22,8 @@
 //! @param decor_name Name of decor, defaults to MENU
 WORefMenu::WORefMenu(const std::wstring &title,
                      const std::string &name, const std::string &decor_name)
-    : PMenu(title, name, decor_name), PWinObjReference(0),
+    : PMenu(title, name, decor_name),
+      PWinObjReference(nullptr),
       _title_base(title),
       _title_pre(L" ["), _title_post(L"]")
 {

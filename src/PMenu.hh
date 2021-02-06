@@ -63,7 +63,8 @@ public:
     };
 
     PMenu(const std::wstring &title,
-          const std::string &name, const std::string decor_name = "MENU");
+          const std::string &name, const std::string decor_name = "MENU",
+          bool init = true);
     virtual ~PMenu(void);
 
     // START - PWinObj interface.
@@ -100,6 +101,8 @@ public:
     void setMenuWidth(uint width) { _menu_width = width; }
 
     virtual void insert(PMenu::Item *item);
+    virtual void insert(std::vector<PMenu::Item*>::const_iterator at,
+                        PMenu::Item *item);
     virtual void insert(const std::wstring &name, PWinObj *wo_ref = 0,
                         PTexture *icon = 0);
     virtual void insert(const std::wstring &name, const ActionEvent &ae,
@@ -144,8 +147,9 @@ private:
     void handleItemEvent(MouseEventType type, int x, int y);
 
     void buildMenuCalculate(void);
-    void buildMenuCalculateMaxWidth(unsigned int &width, unsigned int &height);
-    void buildMenuCalculateColumns(unsigned int &width, unsigned int &height);
+    void buildMenuCalculateMaxWidth(uint &width,
+                                    uint &icon_width, uint &icon_height);
+    void buildMenuCalculateColumns(uint &width, uint &height);
     void buildMenuPlace(void);
     void buildMenuRender(void);
     void buildMenuRenderState(Pixmap &pix, ObjectState state);
@@ -163,12 +167,10 @@ protected:
 
     ClassHint _class_hint; /**< Class information for menu. */
 
+private:
     // menu content data
     std::vector<PMenu::Item*> _items;
     std::vector<PMenu::Item*>::size_type _item_curr;
-
-private:
-    static std::map<Window, PMenu*> _menu_map;
 
     PWinObj *_menu_wo;
     PDecor::TitleItem _title;
@@ -186,5 +188,7 @@ private:
     uint _size; // size, hidden items excluded
     uint _rows, _cols;
     bool _scroll;
-    bool _has_submenu;
+    uint _has_submenu;
+
+    static std::map<Window, PMenu*> _menu_map;
 };

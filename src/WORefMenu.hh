@@ -12,16 +12,17 @@
 
 #include <string>
 
+#include "PMenu.hh"
 #include "PWinObjReference.hh"
 
-class PWinObj;
-class PMenu;
-
-class WORefMenu : public PMenu, public PWinObjReference
+class WORefMenu : public PMenu,
+                  public PWinObjReference
 {
-public:
+protected:
     WORefMenu(const std::wstring &title, const std::string &name,
               const std::string &decor_name = "MENU");
+
+public:
     virtual ~WORefMenu(void);
 
     virtual void notify(Observable *observable, Observation *observation);

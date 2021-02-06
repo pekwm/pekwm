@@ -157,9 +157,20 @@ Theme::PDecorButtonData::check(void)
 // Theme::PDecorData
 
 std::map<FocusedState, std::string> Theme::PDecorData::_fs_map =
-    std::map<FocusedState, std::string>();
+    {{FOCUSED_STATE_FOCUSED, "FOCUSED"},
+     {FOCUSED_STATE_UNFOCUSED, "UNFOCUSED"},
+     {FOCUSED_STATE_FOCUSED_SELECTED, "FOCUSEDSELECTED"},
+     {FOCUSED_STATE_UNFOCUSED_SELECTED, "UNFOCUSEDSELECTED"}};
+
 std::map<BorderPosition, std::string> Theme::PDecorData::_border_map =
-    std::map<BorderPosition, std::string>();
+    {{BORDER_TOP_LEFT, "TOPLEFT"},
+     {BORDER_TOP, "TOP"},
+     {BORDER_TOP_RIGHT, "TOPRIGHT"},
+     {BORDER_LEFT, "LEFT"},
+     {BORDER_RIGHT, "RIGHT"},
+     {BORDER_BOTTOM_LEFT, "BOTTOMLEFT"},
+     {BORDER_BOTTOM, "BOTTOM"},
+     {BORDER_BOTTOM_RIGHT, "BOTTOMRIGHT"}};
 
 //! @brief Theme::PDecorData constructor.
 Theme::PDecorData::PDecorData(FontHandler* fh, TextureHandler* th,
@@ -175,24 +186,6 @@ Theme::PDecorData::PDecorData(FontHandler* fh, TextureHandler* th,
 {
     if (name) {
         _name = name;
-    }
-
-    // init static data
-    if (! _fs_map.size()) {
-        _fs_map[FOCUSED_STATE_FOCUSED] = "FOCUSED";
-        _fs_map[FOCUSED_STATE_UNFOCUSED] = "UNFOCUSED";
-        _fs_map[FOCUSED_STATE_FOCUSED_SELECTED] = "FOCUSEDSELECTED";
-        _fs_map[FOCUSED_STATE_UNFOCUSED_SELECTED] = "UNFOCUSEDSELECTED";
-    }
-    if (! _border_map.size()) {
-        _border_map[BORDER_TOP_LEFT] = "TOPLEFT";
-        _border_map[BORDER_TOP] = "TOP";
-        _border_map[BORDER_TOP_RIGHT] = "TOPRIGHT";
-        _border_map[BORDER_LEFT] = "LEFT";
-        _border_map[BORDER_RIGHT] = "RIGHT";
-        _border_map[BORDER_BOTTOM_LEFT] = "BOTTOMLEFT";
-        _border_map[BORDER_BOTTOM] = "BOTTOM";
-        _border_map[BORDER_BOTTOM_RIGHT] = "BOTTOMRIGHT";
     }
 
     // init arrays

@@ -12,13 +12,11 @@
 
 #include "pekwm.hh"
 #include "PMenu.hh"
+#include "WORefMenu.hh"
 
 #include <string>
 #include <list>
 
-class WORefMenu;
-class PScreen;
-class Theme;
 class Frame;
 class Client;
 
@@ -41,7 +39,8 @@ private:
 
 private:
     void buildName(Frame *frame, std::wstring &name);
-    void buildFrameNames(Frame *frame, std::wstring &pre_name);
+    void buildFrameNames(Frame *frame, std::wstring &pre_name,
+                         bool insert_separator);
 
     void handleGotomenu(Client *client);
     void handleIconmenu(Client *client);

@@ -33,19 +33,18 @@
 //! @param decor_name Name of decor to use, defaults to MENU.
 ActionMenu::ActionMenu(MenuType type, ActionHandler *act,
                        const std::wstring &title, const std::string &name,
-                       const std::string &decor_name) :
-    WORefMenu(title, name, decor_name),
-    _act(act),
-    _has_dynamic(false)
+                       const std::string &decor_name)
+    : WORefMenu(title, name, decor_name),
+      _act(act),
+      _insert_at(0),
+      _has_dynamic(false)
 {
-    // when creating dynamic submenus, this needs to be initialized as
-    // dynamic inserting will be done
-    _insert_at = 0;
     _menu_type = type;
 
     if (_menu_type == WINDOWMENU_TYPE) {
         _action_ok = WINDOWMENU_OK;
-    } else if ((_menu_type == ROOTMENU_TYPE) || (_menu_type == ROOTMENU_STANDALONE_TYPE)) {
+    } else if (_menu_type == ROOTMENU_TYPE
+               || _menu_type == ROOTMENU_STANDALONE_TYPE) {
         _action_ok = ROOTMENU_OK;
     }
 }
@@ -64,9 +63,9 @@ ActionMenu::mapWindow(void)
 {
     // find and rebuild the dynamic entries
     if (! isMapped() && _has_dynamic) {
-        uint size_before = _items.size();
+        uint size_before = size();
         rebuildDynamic();
-        if (size_before != _items.size()) {
+        if (size_before != size()) {
             buildMenu();
         }
     }
@@ -139,7 +138,7 @@ ActionMenu::insert(PMenu::Item *item)
 
     checkItemWORef(item);
 
-    _items.insert(_items.begin() + _insert_at, item);
+    insert(m_begin() + _insert_at, item);
     ++_insert_at;
 }
 
@@ -160,16 +159,6 @@ ActionMenu::remove(PMenu::Item *item)
     }
 
     PMenu::remove(item);
-}
-
-//! @brief Removes all items from the menu
-void
-ActionMenu::removeAll(void)
-{
-    while (! _items.empty()) {
-        remove(_items.back());
-    }
-    _item_curr = 0;
 }
 
 //! @brief Parse config and push items into menu
@@ -302,28 +291,38 @@ ActionMenu::rebuildDynamic(void)
     pekwm::imageHandler()->path_push_back(pekwm::config()->getIconPath());
 
     PMenu::Item* item = nullptr;
-    auto it = _items.begin();
-    for (; it != _items.end(); ++it) {
+    auto it = m_begin();
+    for (; it != m_end(); ++it) {
         if ((*it)->getAE().isOnlyAction(ACTION_MENU_DYN)) {
-            _insert_at = it - _items.begin();
+            _insert_at = it - m_begin();
 
             item = *it;
 
             CfgParser dynamic;
-            if (dynamic.parse((*it)->getAE().action_list.front().getParamS(),
-                              CfgParserSource::SOURCE_COMMAND)) {
+            auto cmd = (*it)->getAE().action_list.front().getParamS();
+            auto section = runDynamic(dynamic, cmd);
+            if (section != nullptr) {
                 _has_dynamic = true;
-                parse(dynamic.getEntryRoot()->findSection("DYNAMIC"), *it);
+                parse(section, *it);
             }
 
-            it = find(_items.begin(), _items.end(), item);
+            it = find(m_begin(), m_end(), item);
         }
     }
-    _insert_at = _items.size();
+    _insert_at = size();
 
     // Cleanup icon path
     pekwm::imageHandler()->path_pop_back();
     pekwm::imageHandler()->path_pop_back();
+}
+
+CfgParser::Entry*
+ActionMenu::runDynamic(CfgParser& parser, const std::string& src)
+{
+    if (parser.parse(src, CfgParserSource::SOURCE_COMMAND)) {
+        return parser.getEntryRoot()->findSection("DYNAMIC");
+    }
+    return nullptr;
 }
 
 //! @brief Remove all entries from the menu created by dynamic entries.
@@ -332,23 +331,26 @@ ActionMenu::removeDynamic(void)
 {
     std::set<PMenu::Item *> dynlist;
 
-    for (auto it : _items) {
-        if (it->getType() == PMenu::Item::MENU_ITEM_HIDDEN) {
-            dynlist.insert(it);
+    auto it = m_begin();
+    for (; it != m_end(); ++it) {
+        if ((*it)->getType() == PMenu::Item::MENU_ITEM_HIDDEN) {
+            dynlist.insert(*it);
         }
     }
 
-    auto it = _items.begin();
-    for (; it != _items.end();) {
+    std::vector<PMenu::Item*> items_to_remove;
+    it = m_begin();
+    for (; it != m_end(); ++it) {
         if (dynlist.find((*it)->getCreator()) != dynlist.end()) {
             if ((*it)->getWORef()
                 && ((*it)->getWORef()->getType() == WO_MENU)) {
                 delete (*it)->getWORef();
             }
-            delete (*it);
-            it = _items.erase(it);
-        } else {
-            ++it;
+            items_to_remove.push_back(*it);
         }
+    }
+
+    for (auto item : items_to_remove) {
+        remove(item);
     }
 }

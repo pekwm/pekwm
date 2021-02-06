@@ -431,6 +431,11 @@ public:
 
     static void mapWindow(Window w) { if (_dpy) { XMapWindow(_dpy, w); } }
     static void unmapWindow(Window w) { if (_dpy) { XUnmapWindow(_dpy, w); } }
+    static void reparentWindow(Window w, Window parent, int x, int y) {
+        if (_dpy) {
+            XReparentWindow(_dpy, w, parent, x, y);
+        }
+    }
 
     static void raiseWindow(Window w) { if (_dpy) { XRaiseWindow(_dpy, w); } }
     static void lowerWindow(Window w) { if (_dpy) { XLowerWindow(_dpy, w); } }

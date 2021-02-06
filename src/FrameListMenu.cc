@@ -67,9 +67,9 @@ FrameListMenu::handleItemExec(PMenu::Item *item)
         return;
     }
 
-    Client *item_client = dynamic_cast<Client*>(item->getWORef());
-    Client *wo_ref_client = dynamic_cast<Client*>(getWORef());
-    
+    auto item_client = dynamic_cast<Client*>(item->getWORef());
+    auto wo_ref_client = dynamic_cast<Client*>(getWORef());
+
     switch (_menu_type) {
     case GOTOMENU_TYPE:
     case GOTOCLIENTMENU_TYPE:
@@ -128,7 +128,8 @@ FrameListMenu::updateFrameListMenu(void)
 
         for (it = Frame::frame_begin(); it != Frame::frame_end(); ++it) {
             if (((*it)->getWorkspace() == i) && // sort by workspace
-                    // don't include ourselves if we're not doing a gotoclient menu
+                    // don't include ourselves if we're not doing a
+                    // gotoclient menu
                     ((_menu_type != GOTOCLIENTMENU_TYPE)
                      ? ((*it)->getActiveChild() != getWORef())
                      : true) &&
@@ -138,23 +139,17 @@ FrameListMenu::updateFrameListMenu(void)
                 name = buf;
 
                 if (show_clients) {
-                    buildFrameNames(*it, name);
+                    buildFrameNames(*it, name, (it + 1) != Frame::frame_end());
 
                 } else {
                     buildName(*it, name);
+                    auto client = static_cast<Client*>((*it)->getActiveChild());
                     name.append(L"] ");
-                    name.append(static_cast<Client*>((*it)->getActiveChild())->getTitle()->getVisible());
-
-                    insert(name, ae, (*it)->getActiveChild(),
-                           static_cast<Client*>((*it)->getActiveChild())->getIcon());
+                    name.append(client->getTitle()->getVisible());
+                    insert(name, ae, client, client->getIcon());
                 }
             }
         }
-    }
-
-    // remove the last separator, not needed
-    if (show_clients && size() > 0) {
-        remove(_items.back());
     }
 
     buildMenu();
@@ -183,7 +178,8 @@ FrameListMenu::buildName(Frame* frame, std::wstring &name)
 
 //! @brief Builds names for all the clients in a frame.
 void
-FrameListMenu::buildFrameNames(Frame *frame, std::wstring &pre_name)
+FrameListMenu::buildFrameNames(Frame *frame, std::wstring &pre_name,
+                               bool insert_separator)
 {
     std::wstring name, status_name;
 
@@ -209,9 +205,11 @@ FrameListMenu::buildFrameNames(Frame *frame, std::wstring &pre_name)
     }
 
     // add separator
-    auto item = new PMenu::Item(L"");
-    item->setType(PMenu::Item::MENU_ITEM_SEPARATOR);
-    insert(item);
+    if (insert_separator) {
+        auto item = new PMenu::Item(L"");
+        item->setType(PMenu::Item::MENU_ITEM_SEPARATOR);
+        insert(item);
+    }
 }
 
 //! @brief Handles gotomeu presses

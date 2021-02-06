@@ -13,13 +13,10 @@
 #include "pekwm.hh"
 #include "Action.hh" // For ActionOk
 #include "CfgParser.hh"
-#include "PMenu.hh"
+#include "WORefMenu.hh"
 
 #include <string>
 
-class WORefMenu;
-class PScreen;
-class Theme;
 class ActionHandler;
 
 class ActionMenu : public WORefMenu
@@ -43,14 +40,17 @@ public:
     virtual void reload(CfgParser::Entry *section);
 
     virtual void remove(PMenu::Item *item);
-    virtual void removeAll(void);
+
+protected:
+    void rebuildDynamic(void);
+    void removeDynamic(void);
+
+    virtual CfgParser::Entry* runDynamic(CfgParser& parser,
+                                         const std::string& src);
 
 private:
     void parse(CfgParser::Entry *section, PMenu::Item *parent=0);
-
     PTexture *getIcon(CfgParser::Entry *value);
-    void rebuildDynamic(void);
-    void removeDynamic(void);
 
 private:
     ActionHandler *_act;

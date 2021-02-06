@@ -234,7 +234,8 @@ void
 PWinObj::giveInputFocus(void)
 {
     if (! _mapped  || ! _focusable) {
-        WARN("trying to focus non focusable window. mapped " << _mapped << " focusable " << _focusable);
+        WARN("trying to focus non focusable window. mapped " << _mapped
+             << " focusable " << _focusable);
         return;
     }
 
@@ -246,7 +247,7 @@ void
 PWinObj::reparent(PWinObj *wo, int x, int y)
 {
     _parent = wo;
-    XReparentWindow(X11::getDpy(), _window, wo->getWindow(), x, y);
+    X11::reparentWindow(_window, wo->getWindow(), x, y);
 }
 
 //! @brief Get required size to hold content for window

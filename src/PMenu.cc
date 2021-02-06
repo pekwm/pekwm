@@ -28,8 +28,12 @@
 
 PMenu::Item::Item(const std::wstring &name, PWinObj *wo_ref, PTexture *icon)
     : PWinObjReference(wo_ref),
-      _x(0), _y(0), _name(name), 
-      _type(MENU_ITEM_NORMAL), _icon(icon), _creator(0)
+      _x(0),
+      _y(0),
+      _name(name),
+      _type(MENU_ITEM_NORMAL),
+      _icon(icon),
+      _creator(0)
 {
     if (_icon) {
         pekwm::textureHandler()->referenceTexture(_icon);
@@ -47,8 +51,9 @@ std::map<Window,PMenu*> PMenu::_menu_map = std::map<Window,PMenu*>();
 
 //! @brief Constructor for PMenu class
 PMenu::PMenu(const std::wstring &title,
-             const std::string &name, const std::string decor_name)
-    : PDecor(decor_name),
+             const std::string &name, const std::string decor_name,
+             bool init)
+    : PDecor(decor_name, None, init),
       _name(name),
       _menu_parent(0), _class_hint(L"pekwm", L"Menu", L"", L"", L""),
       _item_curr(0),
@@ -60,7 +65,10 @@ PMenu::PMenu(const std::wstring &title,
       _item_height(0), _item_width_max(0), _item_width_max_avail(0),
       _icon_width(0), _icon_height(0),
       _separator_height(0),
-      _rows(0), _cols(0), _scroll(false), _has_submenu(false)
+      _rows(0),
+      _cols(0),
+      _scroll(false),
+      _has_submenu(0)
 {
     // PWinObj attributes
     _type = PWinObj::WO_MENU;
@@ -347,12 +355,12 @@ PMenu::buildMenu(void)
     }
 }
 
-//! @brief Calculates how much space and how many rows/cols will be needed
+/**
+ * Calculates how much space and how many rows/cols will be needed
+ */
 void
 PMenu::buildMenuCalculate(void)
 {
-    _has_submenu = false;
-
     // Get how many visible objects we have
     unsigned int sep = 0;
     auto it(_items.begin());
@@ -364,12 +372,12 @@ PMenu::buildMenuCalculate(void)
         }
     }
 
-    unsigned int width = 1, height = 1;
-    buildMenuCalculateMaxWidth(width, height);
-
-    // FIXME: Remove extra padding from calculation
-    if (_menu_width) {
-        _item_width_max = _menu_width;
+    buildMenuCalculateMaxWidth(_item_width_max,
+                               _icon_width, _icon_height);
+    uint title_width = titleWidth(this, _title.getReal())
+        - titleLeftOffset(this) - titleRightOffset(this);
+    if (title_width > _item_width_max) {
+        _item_width_max = title_width;
     }
 
     // This is the available width for drawing text on, the rest is reserved
@@ -393,23 +401,25 @@ PMenu::buildMenuCalculate(void)
 
     // Remove padding etc from avail and item width.
     if (_menu_width) {
-        unsigned int padding = _item_width_max - _item_width_max_avail;
+        uint padding = _item_width_max - _item_width_max_avail;
         _item_width_max -= padding;
         _item_width_max_avail -= padding;
     }
 
     // Calculate item height
-    _item_height = std::max(md->getFont(OBJECT_STATE_FOCUSED)->getHeight(), _icon_height)
-      + md->getPad(PAD_UP)
-      + md->getPad(PAD_DOWN);
-    _separator_height = md->getTextureSeparator(OBJECT_STATE_FOCUSED)->getHeight();
+    _item_height =
+        std::max(md->getFont(OBJECT_STATE_FOCUSED)->getHeight(), _icon_height)
+        + md->getPad(PAD_UP)
+        + md->getPad(PAD_DOWN);
+    _separator_height =
+        md->getTextureSeparator(OBJECT_STATE_FOCUSED)->getHeight();
 
-    height = (_item_height * _size) + (_separator_height * sep);
-
+    uint height = (_item_height * _size) + (_separator_height * sep);
     if (_size) {
-    	_size += sep;
+        _size += sep;
     }
 
+    uint width;
     buildMenuCalculateColumns(width, height);
 
     // Check if we need to enable scrolling
@@ -422,51 +432,55 @@ PMenu::buildMenuCalculate(void)
  * Get maximum item width and icon size.
  */
 void
-PMenu::buildMenuCalculateMaxWidth(unsigned int &width, unsigned int &height)
+PMenu::buildMenuCalculateMaxWidth(uint &max_width,
+                                  uint &icon_width, uint &icon_height)
 {
     // Calculate max item width, to be used if/when splitting a menu
     // up in rows because of limited vertical space.
-    _item_width_max = 1;
-    _icon_width = _icon_height = 0;
+    max_width = 1;
+    icon_width = 0;
+    icon_height = 0;
 
+    auto md = pekwm::theme()->getMenuData();
+    auto font = md->getFont(OBJECT_STATE_FOCUSED);
     for (auto it : _items) {
         // Only include standard items
         if (it->getType() != PMenu::Item::MENU_ITEM_NORMAL) {
             continue;
         }
 
-        // Check if we have a submenu item
-        if (! _has_submenu && it->getWORef() &&
-            (it->getWORef()->getType() == PWinObj::WO_MENU)) {
-          _has_submenu = true;
-        }
-
         // Get icon height if any
         if (it->getIcon()) {
-          if (it->getIcon()->getWidth() > _icon_width) {
-            _icon_width = it->getIcon()->getWidth();
+          if (it->getIcon()->getWidth() > icon_width) {
+              icon_width = it->getIcon()->getWidth();
           }
-          if (it->getIcon()->getHeight() > _icon_height) {
-            _icon_height = it->getIcon()->getHeight();
+          if (it->getIcon()->getHeight() > icon_height) {
+              icon_height = it->getIcon()->getHeight();
           }
         }
 
-        auto md = pekwm::theme()->getMenuData();
-        width = md->getFont(OBJECT_STATE_FOCUSED)->getWidth(it->getName().c_str());
-        if (width > _item_width_max) {
-            _item_width_max = width;
+        uint width = font->getWidth(it->getName().c_str());
+        if (width > max_width) {
+            max_width = width;
         }
     }
 
 
     // Make sure icon width and height are not larger than configured.
-    if (_icon_width) {
-        _icon_width = Util::between<uint>(_icon_width,
-                                          pekwm::config()->getMenuIconLimit(_icon_width, WIDTH_MIN, _name),
-                                          pekwm::config()->getMenuIconLimit(_icon_width, WIDTH_MAX, _name));
-        _icon_height = Util::between<uint>(_icon_height,
-                                           pekwm::config()->getMenuIconLimit(_icon_height, HEIGHT_MIN, _name),
-                                           pekwm::config()->getMenuIconLimit(_icon_height, HEIGHT_MAX, _name));
+    if (icon_width) {
+        auto cfg = pekwm::config();
+        icon_width =
+            Util::between<uint>(icon_width,
+                                cfg->getMenuIconLimit(icon_width, WIDTH_MIN,
+                                                      _name),
+                                cfg->getMenuIconLimit(icon_width, WIDTH_MAX,
+                                                      _name));
+        icon_height =
+            Util::between<uint>(icon_height,
+                                cfg->getMenuIconLimit(icon_height, HEIGHT_MIN,
+                                                      _name),
+                                cfg->getMenuIconLimit(icon_height, HEIGHT_MAX,
+                                                      _name));
     }
 }
 
@@ -757,7 +771,7 @@ void
 PMenu::setTitle(const std::wstring &title)
 {
     _title.setReal(title);
-	
+
     // Apply title rules to allow title rewriting
     applyTitleRules(title);
 }
@@ -779,12 +793,29 @@ PMenu::applyTitleRules(const std::wstring &title)
     }
 }
 
-//! @brief Inserts item into the menu ( without rebuilding )
+/**
+ * Insert menu at the end (without rebuilding)
+ */
 void
 PMenu::insert(PMenu::Item *item)
 {
+    insert(_items.end(), item);
+}
+
+/**
+ * Inserts item into the menu at the given position (without rebuilding)
+ */
+void
+PMenu::insert(std::vector<PMenu::Item*>::const_iterator at, PMenu::Item *item)
+{
     checkItemWORef(item);
-    _items.push_back(item);
+
+    // Check if we have a submenu item
+    if (item->getWORef() && (item->getWORef()->getType() == PWinObj::WO_MENU)) {
+        _has_submenu++;
+    }
+
+    _items.insert(at, item);
 }
 
 //! @brief Creates and inserts Item
@@ -801,9 +832,10 @@ PMenu::insert(const std::wstring &name, PWinObj *wo_ref, PTexture *icon)
 //! @param ae ActionEvent for the object
 //! @param wo_ref PWinObj to refer to, defaults to 0
 void
-PMenu::insert(const std::wstring &name, const ActionEvent &ae, PWinObj *wo_ref, PTexture *icon)
+PMenu::insert(const std::wstring &name, const ActionEvent &ae,
+              PWinObj *wo_ref, PTexture *icon)
 {
-    PMenu::Item *item = new PMenu::Item(name, wo_ref, icon);
+    auto *item = new PMenu::Item(name, wo_ref, icon);
     item->setAE(ae);
     insert(item);
 }
@@ -812,13 +844,17 @@ PMenu::insert(const std::wstring &name, const ActionEvent &ae, PWinObj *wo_ref, 
 void
 PMenu::remove(PMenu::Item *item)
 {
-    if (! item) {
-        WARN("trying to remove null item");
+    if (item == nullptr) {
+        ERR("trying to remove null item");
         return;
     }
 
     if (_item_curr < _items.size() && item == _items[_item_curr]) {
         _item_curr = _items.size();
+    }
+
+    if (item->getWORef() && (item->getWORef()->getType() == PWinObj::WO_MENU)) {
+        _has_submenu--;
     }
 
     delete item;
@@ -834,6 +870,7 @@ PMenu::removeAll(void)
     }
     _items.clear();
     _item_curr = 0;
+    _has_submenu = 0;
 }
 
 //! @brief Places the menu under the mouse and maps it.

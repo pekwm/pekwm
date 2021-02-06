@@ -22,13 +22,11 @@ public:
 class ThemeGm {
 public:
     ThemeGm(Theme::PDecorData *data)
-        : _data(data),
-          _empty(new PTextureEmpty())
+        : _data(data)
     {
     }
-    ~ThemeGm()
+    ~ThemeGm(void)
     {
-        delete _empty;
     }
 
     void setData(Theme::PDecorData *data) { _data = data; }
@@ -43,6 +41,15 @@ public:
     /** Returns font used at FocusedState state. */
     PFont *getFont(FocusedState state) const {
         return _data->getFont(state);
+    }
+
+    /**
+     * Calculate title width (for given title)
+     */
+    uint titleWidth(const ThemeState *state, const std::wstring& str) const {
+        return getFont(state->getFocusedState(false))->getWidth(str)
+            + _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT)
+            + titleLeftOffset(state) + titleRightOffset(state);
     }
 
     /** Calculate title height, 0 if titlebar is disabled. */
@@ -131,9 +138,10 @@ public:
     }
 
 private:
-    PTexture* getBorder(const ThemeState *state, BorderPosition pos) const {
+    const PTexture* getBorder(const ThemeState *state,
+                              BorderPosition pos) const {
         if (! _data || ! state->hasBorder()) {
-            return _empty;
+            return &_empty;
         }
         auto focused_state = state->getFocusedState(false);
         return _data->getBorderTexture(focused_state, pos);
@@ -141,5 +149,5 @@ private:
 
 private:
     Theme::PDecorData *_data;
-    PTexture *_empty;
+    PTextureEmpty _empty;
 };

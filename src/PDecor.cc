@@ -182,7 +182,7 @@ PDecor::PDecor(const std::string &decor_name, const Window child_window,
       _maximized_horz(false),
       _fullscreen(false),
       _skip(0),
-      _data(0),
+      _data(nullptr),
       _border(true),
       _titlebar(true),
       _shaded(false),
@@ -1511,16 +1511,19 @@ PDecor::renderTitle(void)
         calcTabsWidth();
     }
 
-    PTexture *t_sep = _data->getTextureSeparator(getFocusedState(false));
-    Pixmap title_bg = X11::createPixmap(_title_wo.getWidth(), _title_wo.getHeight());
+    auto t_sep = _data->getTextureSeparator(getFocusedState(false));
+    auto title_bg = X11::createPixmap(_title_wo.getWidth(),
+                                      _title_wo.getHeight());
     // Render main background on pixmap
-    _data->getTextureMain(getFocusedState(false))->render(title_bg, 0, 0,
-                                                          _title_wo.getWidth(), _title_wo.getHeight());
+    auto t_main = _data->getTextureMain(getFocusedState(false));
+    t_main->render(title_bg, 0, 0,
+                   _title_wo.getWidth(), _title_wo.getHeight());
 
     PFont *font;
     bool sel; // Current tab selected flag
     uint x = _titles_left; // Position
-    uint pad_horiz =  _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT); // Amount of horizontal padding
+    // Amount of horizontal padding
+    uint pad_horiz =  _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT);
 
     uint size = _titles.size();
     for (uint i = 0; i < size; ++i) {
