@@ -47,12 +47,13 @@ namespace Info {
     {
         printVersion();
         std::cout
-            << " --help     show this info." << std::endl
-            << " --version  show version info" << std::endl
-            << " --info     extended info. Use for bug reports." << std::endl
-            << " --display  display to connect to" << std::endl
-            << " --config   alternative config file" << std::endl
-            << " --replace  replace running window manager" << std::endl;
+            << " --help      show this info." << std::endl
+            << " --version   show version info" << std::endl
+            << " --info      extended info. Use for bug reports." << std::endl
+            << " --log-level set log level." << std::endl
+            << " --display   display to connect to" << std::endl
+            << " --config    alternative config file" << std::endl
+            << " --replace   replace running window manager" << std::endl;
     }
 
     /**
@@ -103,6 +104,8 @@ main(int argc, char **argv)
         } else if (strcmp("--info", argv[i]) == 0) {
             Info::printInfo();
             exit(0);
+        } else if (strcmp("--log-level", argv[i]) == 0 && ((i + 1) < argc)) {
+            Debug::level = Debug::getLevel(argv[++i]);
         } else {
             Info::printUsage();
             exit(0);

@@ -187,7 +187,7 @@ X11::init(Display *dpy, bool honour_randr)
 
     _dpy = dpy;
 
-    XGrabServer(_dpy);
+    grabServer();
 
     _fd = ConnectionNumber(dpy);
     _screen = DefaultScreen(_dpy);
@@ -252,8 +252,7 @@ X11::init(Display *dpy, bool honour_randr)
     // Figure out what keys the Num and Scroll Locks are
     setLockKeys();
 
-    X11::sync(False);
-    XUngrabServer(_dpy);
+    ungrabServer(true);
 
     _xc_default.pixel = BlackPixel(_dpy, _screen);
     _xc_default.red = _xc_default.green = _xc_default.blue = 0;
@@ -398,11 +397,14 @@ bool
 X11::grabServer(void)
 {
     if (_server_grabs == 0) {
+        TRACE("grabbing server");
         XGrabServer(_dpy);
+        ++_server_grabs;
+    } else {
+        ++_server_grabs;
+        TRACE("increased server grab count to " << _server_grabs);
     }
-
-    ++_server_grabs;
-    return (_server_grabs == 1); // was actually grabbed
+    return _server_grabs == 1;
 }
 
 //! @brief Ungrabs the server, counting number of grabs
@@ -410,27 +412,30 @@ bool
 X11::ungrabServer(bool sync)
 {
     if (_server_grabs > 0) {
-        --_server_grabs;
-
-        if (_server_grabs == 0) { // no more grabs left
+        if (--_server_grabs == 0) {
             if (sync) {
+                TRACE("0 server grabs left, syncing before ungrab.");
                 X11::sync(False);
             }
+            TRACE("0 server grabs left, ungrabbing server.");
             XUngrabServer(_dpy);
+        } else {
+            TRACE("decreased server grab count to " << _server_grabs);
         }
     }
-    return (_server_grabs == 0); // is actually ungrabbed
+    return _server_grabs == 0;
 }
 
 //! @brief Grabs the keyboard
 bool
 X11::grabKeyboard(Window win)
 {
+    TRACE("grabbing keyboard");
     if (XGrabKeyboard(_dpy, win, false, GrabModeAsync, GrabModeAsync,
                       CurrentTime) == GrabSuccess) {
         return true;
     }
-    ERR("failed to grab keyboard");
+    ERR("failed to grab keyboard on " << win);
     return false;
 }
 
@@ -438,21 +443,27 @@ X11::grabKeyboard(Window win)
 bool
 X11::ungrabKeyboard(void)
 {
-    XUngrabKeyboard(_dpy, CurrentTime);
-    return true;
+    TRACE("ungrabbing keyboard");
+    if (XUngrabKeyboard(_dpy, CurrentTime) == Success) {
+        return true;
+    }
+    ERR("failed to ungrab keyboard");
+    return false;
 }
 
 //! @brief Grabs the pointer
 bool
 X11::grabPointer(Window win, uint event_mask, CursorType type)
 {
+    TRACE("grabbing pointer");
     auto cursor = type < _cursor_map.size() ? _cursor_map[type] : None;
     if (XGrabPointer(_dpy, win, false, event_mask, GrabModeAsync, GrabModeAsync,
                      None, cursor, CurrentTime) == GrabSuccess) {
         return true;
     }
-    LOG("X11()::grabPointer(" << win << "," << event_mask << "," << type
-        << ") *** unable to grab pointer.");
+    ERR("failed to grab pointer on " << win
+        << ", event_mask " << event_mask
+        << ", type " << type);
     return false;
 }
 
@@ -460,8 +471,12 @@ X11::grabPointer(Window win, uint event_mask, CursorType type)
 bool
 X11::ungrabPointer(void)
 {
-    XUngrabPointer(_dpy, CurrentTime);
-    return true;
+    TRACE("ungrabbing pointer");
+    if (XUngrabPointer(_dpy, CurrentTime) == Success) {
+        return true;
+    }
+    ERR("failed to ungrab pointer");
+    return false;
 }
 
 //! @brief Refetches the root-window size.

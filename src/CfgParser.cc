@@ -504,7 +504,7 @@ CfgParser::parseSourceNew(const std::string &name_orig,
 
             // Display error message on second try
             if (done) {
-                LOG("Exception: " << ex);
+                USER_WARN(ex);
             }
 
             // If the open fails and we are trying to open a file, try

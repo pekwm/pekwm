@@ -35,17 +35,17 @@ in one go.
 
     [shell pekwm-1]
         [log starting pekwm to be replaced]
-        !$BIN_DIR/pekwm --display $DISPLAY
+        !$BIN_DIR/pekwm --display $DISPLAY --log-level info
         ?Enter event loop.
 
     [shell pekwm-2]
         [log starting pekwm without --replace, should fail]
-        !$BIN_DIR/pekwm --display $DISPLAY
+        !$BIN_DIR/pekwm --display $DISPLAY --log-level info
         ?window manager already running
         ?SH-PROMPT:
 
         [log starting pekwm with --replace, replace first]
-        !$BIN_DIR/pekwm --display $DISPLAY --replace
+        !$BIN_DIR/pekwm --display $DISPLAY --replace --log-level info
         ?waiting for previous window manager to exit
         ?Enter event loop.
 

@@ -28,7 +28,8 @@ public:
 
     };
 
-    static void doAction(const std::string &);
+    static Level getLevel(const std::string& str);
+    static void doAction(const std::string& action);
 
     static bool enable_cerr;
     static bool enable_logfile;

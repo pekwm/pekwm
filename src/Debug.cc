@@ -22,6 +22,16 @@ static ParseUtil::Map<Debug::Level> debug_level_map =
      {"DEBUG", Debug::LEVEL_DEBUG},
      {"TRACE", Debug::LEVEL_TRACE}};
 
+
+/**
+ * Get log level from string.
+ */
+Debug::Level
+Debug::getLevel(const std::string& str)
+{
+    return debug_level_map.get(str);
+}
+
 /**
  * Debug Commands:
  *

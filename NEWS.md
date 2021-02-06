@@ -65,6 +65,9 @@ standard output. Default logging level is warning, and all messages
 aimed towards end users such as theme errors are logged independent of
 set level.
 
+The initial log level can be controlled with the new --log-level
+command line option.
+
 **Exec** no longer use ``sh -c`` to run commands which will cause
 incompatabilites depending on _/bin/sh_ configuration, if shell
 variables have been used or the command ends with &. **ShellExec** has
