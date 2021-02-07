@@ -67,6 +67,8 @@ private:
     void scanWindows(void);
     void execStartFile(void);
 
+    void handleSignals(void);
+
     void doReload(void);
     void doReloadConfig(void);
     void doReloadTheme(void);

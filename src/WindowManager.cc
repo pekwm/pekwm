@@ -65,9 +65,11 @@ extern "C" {
 
 extern "C" {
 
+    static bool is_signal = false;
     static bool is_signal_hup = false;
     static bool is_signal_int_term = false;
     static bool is_signal_alrm = false;
+    static bool is_signal_chld = false;
 
     /**
       * Signal handler setting signal flags.
@@ -75,6 +77,8 @@ extern "C" {
     static void
     sigHandler(int signal)
     {
+        is_signal = true;
+
         switch (signal) {
         case SIGHUP:
             is_signal_hup = true;
@@ -84,7 +88,7 @@ extern "C" {
             is_signal_int_term = true;
             break;
         case SIGCHLD:
-            wait(0);
+            is_signal_chld = true;
             break;
         case SIGALRM:
             // Do nothing, just used to break out of waiting
@@ -612,20 +616,56 @@ WindowManager::restart(std::string command)
 // Event handling routins beneath this =====================================
 
 void
+WindowManager::handleSignals(void)
+{
+    TRACE("handle received signal(s):"
+          << " SIGALRM " << is_signal_alrm
+          << " SIGHUP " << is_signal_hup
+          << " SIGCHILD " << is_signal_chld);
+
+    // SIGALRM used to timeout workspace indicator
+    if (is_signal_alrm) {
+        is_signal_alrm = false;
+        Workspaces::hideWorkspaceIndicator();
+    }
+
+    // SIGHUP
+    if (is_signal_hup || _reload) {
+        is_signal_hup = false;
+        doReload();
+    }
+
+    // Wait for children if a SIGCHLD was received
+    if (is_signal_chld) {
+        pid_t pid;
+        do {
+            pid = waitpid(WAIT_ANY, nullptr, WNOHANG);
+            if (pid == -1) {
+                if (errno == EINTR) {
+                    TRACE("waitpid interrupted, retrying");
+                }
+            } else if (pid == 0) {
+                TRACE("no more finished child processes");
+            } else {
+                TRACE("child process " << pid << " finished");
+            }
+        } while (pid > 0 || (pid == -1 && errno == EINTR));
+
+        is_signal_chld = false;
+    }
+}
+
+void
 WindowManager::doEventLoop(void)
 {
     XEvent ev;
 
     while (! _shutdown && ! is_signal_int_term) {
-        // Handle timeouts
-        if (is_signal_alrm) {
-            is_signal_alrm = false;
-            Workspaces::hideWorkspaceIndicator();
+        if (is_signal) {
+            handleSignals();
+            is_signal = false;
         }
-
-        // Reload if requested
-        if (is_signal_hup || _reload) {
-            is_signal_hup = false;
+        if (_reload) {
             doReload();
         }
 

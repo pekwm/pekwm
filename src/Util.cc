@@ -147,6 +147,10 @@ forkExec(std::string command)
         exit(1);
     case -1:
         ERR("fork failed: " << strerror(errno));
+        break;
+    default:
+        TRACE("started child " << pid);
+        break;
     }
 }
 
@@ -188,6 +192,7 @@ forkExec(const std::vector<std::string>& args)
     case -1:
         forkExecLog(__PRETTY_FUNCTION__, __LINE__, "fork failed", args);
     default:
+        TRACE("started child " << pid);
         return pid;
     }
 }
