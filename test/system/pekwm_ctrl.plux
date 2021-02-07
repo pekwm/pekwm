@@ -35,7 +35,7 @@ Start a single Xvfb pekwm_ctrl system tests in one go.
 [shell pekwm]
     [log starting pekwm]
     ?SH-PROMPT:
-    !$BIN_DIR/pekwm --display :1
+    !$BIN_DIR/pekwm --display :1 --log-level trace
     ?Enter event loop.
 
 [shell xterm]

@@ -12,20 +12,20 @@ in one go.
 # test possible ways of setting the configuration file used by pekwm
 [function test_config_path]
     [log test_config_path]
-    !$BIN_DIR/pekwm --display $DISPLAY --config ./pekwm.config.missing
+    !$BIN_DIR/pekwm --display $DISPLAY --config ./pekwm.config.missing --log-level trace
     ?using configuration at ./pekwm.config.missing
     ?failed to open file ./pekwm.config.missing
     !$_CTRL_C_
     ?SH-PROMPT:
 
-    !env PEKWM_CONFIG_FILE=./pekwm.env.config.missing $BIN_DIR/pekwm --display $DISPLAY
+    !env PEKWM_CONFIG_FILE=./pekwm.env.config.missing $BIN_DIR/pekwm --display $DISPLAY --log-level trace
     ?using configuration at ./pekwm.env.config.missing
     ?failed to open file ./pekwm.env.config.missing
     !$_CTRL_C_
     ?SH-PROMPT:
 
     # test without home set, supposed to fail
-    !env -i $BIN_DIR/pekwm --display $DISPLAY
+    !env -i $BIN_DIR/pekwm --display $DISPLAY --log-level trace
     ???failed to get configuration file path, $HOME not set.
     ?SH-PROMPT:
 [endfunction]
@@ -35,17 +35,17 @@ in one go.
 
     [shell pekwm-1]
         [log starting pekwm to be replaced]
-        !$BIN_DIR/pekwm --display $DISPLAY --log-level info
+        !$BIN_DIR/pekwm --display $DISPLAY --log-level trace
         ?Enter event loop.
 
     [shell pekwm-2]
         [log starting pekwm without --replace, should fail]
-        !$BIN_DIR/pekwm --display $DISPLAY --log-level info
+        !$BIN_DIR/pekwm --display $DISPLAY --log-level trace
         ?window manager already running
         ?SH-PROMPT:
 
         [log starting pekwm with --replace, replace first]
-        !$BIN_DIR/pekwm --display $DISPLAY --replace --log-level info
+        !$BIN_DIR/pekwm --display $DISPLAY --replace --log-level trace
         ?waiting for previous window manager to exit
         ?Enter event loop.
 
@@ -154,7 +154,7 @@ in one go.
 
 [shell pekwm]
     [log starting pekwm (pekwm.config.report_all)]
-    !$BIN_DIR/pekwm --display $DISPLAY --config pekwm.config.report_all
+    !$BIN_DIR/pekwm --display $DISPLAY --config pekwm.config.report_all --log-level trace
     ?Enter event loop.
 
 [shell test]
@@ -166,7 +166,7 @@ in one go.
     ?SH-PROMPT:
 
     [log starting pekwm (pekwm.config)]
-    !$BIN_DIR/pekwm --display $DISPLAY --config pekwm.config
+    !$BIN_DIR/pekwm --display $DISPLAY --config pekwm.config --log-level trace
     ?Enter event loop.
 
 [shell test]

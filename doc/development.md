@@ -11,7 +11,7 @@ can tell you how.
 **Table of Contents**
 
 1. [IRC](#irc)
-1. [Bug Tracker](#bug-tracker)
+1. [Issue Tracker](#issue-tracker)
 1. [The developers](#the-developer)
 
 IRC
@@ -82,11 +82,76 @@ on that.
 
 Welcome aboard!
 
-Bug Tracker
------------
+Issue Tracker
+-------------
 
 pekwm bugs, feature requests and what-not are filed on Github issue
 tracker available at https://github.com/pekdon/pekwm/issues
+
+When reporting a bug or other misbehavior please provide as much
+information as possible, including but not limited to:
+
+1. How is the issue reproduced?
+2. What did you expect to happen, what did actually happen?
+3. Version of pekwm and other applications used.
+4. Output of pekwm --info
+
+### Gathering pekwm log files
+
+To provide more details it is possible to run pekwm with the log level
+set to trace and log to file. If the issue appears during start of
+pekwm, start pekwm like this:
+
+```
+pekwm --log-file issue.log --log-level trace
+```
+
+If the issue is reproducible while pekwm is running, it is recommended
+to set the log level and log file while reproducing the issue to avoid
+including potential misleading information.
+
+
+Run the following commands using the CmdDialog or pekwm_ctrl before
+reproducing the issue.
+
+```
+Debug level trace
+Debug enable logfile
+Debug logfile issue.log
+```
+
+And directly after the issue has been reproduced:
+
+```
+Debug disable logfile
+```
+
+Include the issue.log in the error report if it includes any
+information.
+
+
+### Gathering information about a pekwm crash
+
+If pekwm crash please provide a stack trace from the core dump, if no
+core (or pekwm.core). To ensure a core file is generated enable core
+dumps before starting pekwm:
+
+```
+ulimit -c unlimited
+exec pekwm
+```
+
+If a core file has been created, generate a backtrace by running:
+
+```
+$ gdb /path/to/pekwm core
+(gdb) bt
+#0 ...
+(gdb)
+```
+
+The output between the two _(gdb)_ lines should be included in the
+report.
 
 The developers
 --------------

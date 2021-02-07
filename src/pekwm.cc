@@ -50,6 +50,7 @@ namespace Info {
             << " --help      show this info." << std::endl
             << " --version   show version info" << std::endl
             << " --info      extended info. Use for bug reports." << std::endl
+            << " --log-file  set log file." << std::endl
             << " --log-level set log level." << std::endl
             << " --display   display to connect to" << std::endl
             << " --config    alternative config file" << std::endl
@@ -106,6 +107,12 @@ main(int argc, char **argv)
             exit(0);
         } else if (strcmp("--log-level", argv[i]) == 0 && ((i + 1) < argc)) {
             Debug::level = Debug::getLevel(argv[++i]);
+        } else if (strcmp("--log-file", argv[i]) == 0 && ((i + 1) < argc)) {
+            if (Debug::setLogFile(argv[++i])) {
+                Debug::enable_logfile = true;
+            } else {
+                std::cerr << "Failed to open log file " << argv[i] << std::endl;
+            }
         } else {
             Info::printUsage();
             exit(0);
@@ -127,20 +134,16 @@ main(int argc, char **argv)
         }
     }
 
-#ifdef DEBUG
-    std::cout << "Starting pekwm. Use this information in bug reports:"
-              << std::endl;
-    Info::printInfo();
-    std::cout << "using configuration at " << config_file << std::endl;
-#endif // DEBUG
+    USER_INFO("Starting pekwm. Use this information in bug reports: "
+              << FEATURES << std::endl
+              << "using configuration at " << config_file);
 
     int ret = 1;
     auto wm = WindowManager::start(config_file, replace);
     if (wm) {
         try {
-#ifdef DEBUG
-            std::cout << "Enter event loop." << std::endl;
-#endif // DEBUG
+            TRACE("Enter event loop.");
+
             wm->doEventLoop();
 
             // see if we wanted to restart
@@ -162,9 +165,9 @@ main(int argc, char **argv)
                 ret = 0;
             }
         } catch (std::exception& ex) {
-            std::cerr << "exception occurred: " << ex.what() << std::endl;
+            ERR("exception occurred: " << ex.what());
         } catch (std::string& ex) {
-            std::cerr << "unexpected error occurred: " << ex << std::endl;
+            ERR("unexpected error occurred: " << ex);
         }
         delete wm;
     }

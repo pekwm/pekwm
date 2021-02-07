@@ -11,11 +11,12 @@
 
 #include "config.h"
 
-#include <iostream>
 #include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <vector>
 #include <sstream>
 #include <string>
-#include <vector>
 
 class Debug {
 public:
@@ -25,7 +26,6 @@ public:
         LEVEL_INFO,
         LEVEL_DEBUG,
         LEVEL_TRACE
-
     };
 
     static Level getLevel(const std::string& str);
@@ -35,24 +35,47 @@ public:
     static bool enable_logfile;
     static Level level;
 
-    static void setLogFile(const char *f) { _log.close(); _log.open(f); }
+    static bool setLogFile(const char *f) {
+        _log.close();
+        _log.open(f);
+        return _log.good();
+    }
     static void addLog(const std::string s) {
+        // keep max messages around in memory to aid in crash debugging
         if (_msgs.size() >= _max_msgs) {
             _msgs.erase(_msgs.begin());
         }
         _msgs.push_back(s);
+
+
+        std::time_t t = std::time(nullptr);
+        std::tm tm;
+        localtime_r(&t, &tm);
+
         if (enable_logfile) {
+            addTimestamp(_log, tm);
             _log << s << std::endl;
         }
         if (enable_cerr) {
+            addTimestamp(std::cerr, tm);
             std::cerr << s << std::endl;
         }
+    }
+
+    static void addTimestamp(std::ostream &log, const std::tm& tm) {
+        log << std::put_time(&tm, "%Y-%m-%d %H:%M:%S ");
     }
 
 private:
     static std::ofstream _log;
     static std::vector<std::string> _msgs;
     static std::vector<std::string>::size_type _max_msgs;
+};
+
+class DebugUserObj : public std::stringstream {
+public:
+    DebugUserObj(void) : std::stringstream() { }
+    virtual ~DebugUserObj(void) { Debug::addLog(str()); }
 };
 
 class DebugTraceObj : public std::stringstream {
@@ -91,8 +114,11 @@ public:
 #define PEK_DEBUG_START \
     _PEK_DEBUG_START( __PRETTY_FUNCTION__, __LINE__)
 
+#define USER_INFO(M) \
+    do { DebugUserObj dobj; dobj << M; } while (0)
+
 #define USER_WARN(M) \
-    do { DebugWarnObj dobj; dobj << M; } while (0)
+    do { DebugUserObj dobj; dobj << "WARNING: " << M; } while (0)
 
 #define TRACE(M) \
     if (Debug::level >= Debug::LEVEL_TRACE) { \
