@@ -1443,54 +1443,50 @@ Client::kill(void)
     XKillClient(X11::getDpy(), _window);
 }
 
-//! @brief Get the closest size confirming to the aspect ratio and ResizeInc (if applicable)
-//! @param r_w Pointer to put the new width in
-//! @param r_h Pointer to put the new height in
-//! @param w Width to calculate from
-//! @param h Height to calculate from
-//! @return true if width/height have changed
+/**
+ * Get the closest size confirming to the PAspect and PResizeInc.
+ *
+ * @param r_w Pointer to put the new width in
+ * @param r_h Pointer to put the new height in
+ * @param w Width to calculate from
+ * @param h Height to calculate from
+ * @return true if width/height have changed
+ */
 bool
 Client::getAspectSize(uint *r_w, uint *r_h, uint w, uint h)
 {
+    auto size = getActiveSizeHints();
+
     // see ICCCM 4.1.2.3 for PAspect and {min,max}_aspect
-    if (_size->flags & PAspect && pekwm::config()->isHonourAspectRatio()) {
+    bool incr;
+    if (size.flags & PAspect && pekwm::config()->isHonourAspectRatio()) {
         // shorthand
-        const uint amin_x = _size->min_aspect.x;
-        const uint amin_y = _size->min_aspect.y;
-        const uint amax_x = _size->max_aspect.x;
-        const uint amax_y = _size->max_aspect.y;
+        const uint amin_x = size.min_aspect.x;
+        const uint amin_y = size.min_aspect.y;
+        const uint amax_x = size.max_aspect.x;
+        const uint amax_y = size.max_aspect.y;
 
         uint base_w = 0, base_h = 0;
 
-        // If PBaseSize is specified, base_{width,height} should be subtracted
-        // before checking the aspect ratio (c.f. ICCCM). The additional checks avoid
-        // underflows in w and h. Keep in mind that _size->base_{width,height} are
+        // If PBaseSize is specified, base_{width,height} should be
+        // subtracted before checking the aspect ratio
+        // (c.f. ICCCM). The additional checks avoid underflows in w
+        // and h. Keep in mind that size.base_{width,height} are
         // guaranteed to be non-negative by getWMNormalHints().
-        if (_size->flags & PBaseSize) {
-            if (static_cast<uint>(_size->base_width) < w) {
-                base_w = _size->base_width;
+        if (size.flags & PBaseSize) {
+            if (static_cast<uint>(size.base_width) < w) {
+                base_w = size.base_width;
                 w -= base_w;
             }
-            if (static_cast<uint>(_size->base_height) < h) {
-                base_h = _size->base_height;
+            if (static_cast<uint>(size.base_height) < h) {
+                base_h = size.base_height;
                 h -= base_h;
             }
         }
 
         double tmp;
 
-        // We have to ensure: min_aspect.x/min_aspect.y <= w/h <= max_aspect.x/max_aspect.y
-
-        // How do we calculate the new r_w, r_h?
-        // Consider the plane spanned by width and height. The points with one specific
-        // aspect ratio form a line and (w,h) is a point. So, we simply calculate the
-        // point on the line that is closest to (w, h) under the Euclidean metric.
-
-        // Lesson learned doing this: It is good to look at a different implementation
-        // (thanks fluxbox!) and then let a friend go over your own calculation to
-        // tell you what your mistake is (thanks Robert!). ;-)
-
-        // Check if w/h is less than amin_x/amin_y
+        // Ensure: min_aspect.x/min_aspect.y <= w/h <= max_aspect.x/max_aspect.y
         if (w * amin_y < h * amin_x) {
             tmp = ((double)(w * amin_x + h * amin_y)) /
                   ((double)(amin_x * amin_x + amin_y * amin_y));
@@ -1498,7 +1494,6 @@ Client::getAspectSize(uint *r_w, uint *r_h, uint w, uint h)
             w = static_cast<uint>(amin_x * tmp) + base_w;
             h = static_cast<uint>(amin_y * tmp) + base_h;
 
-        // Check if w/h is greater than amax_x/amax_y
         } else if (w * amax_y > amax_x * h) {
             tmp = ((double)(w * amax_x + h * amax_y)) /
                   ((double)(amax_x * amax_x + amax_y * amax_y));
@@ -1507,41 +1502,47 @@ Client::getAspectSize(uint *r_w, uint *r_h, uint w, uint h)
             h = static_cast<uint>(amax_y * tmp) + base_h;
         }
 
-        getIncSize(r_w, r_h, w, h, false);
-        return true;
+        incr = false;
+    } else {
+        incr = true;
     }
-    return getIncSize(r_w, r_h, w, h);
+    return getIncSize(size, r_w, r_h, w, h, incr);
 }
 
-//! @brief Get the size closest to the ResizeInc incrementer
-//! @param r_w Pointer to put the new width in
-//! @param r_h Pointer to put the new height in
-//! @param w Width to calculate from
-//! @param h Height to calculate from
-//! @param incr If true, increase w,h to fulfil PResizeInc (instead of decreasing them)
+/**
+ * Get the size closest to the ResizeInc incrementer
+ *
+ * @param size Size hints to use for calculation.
+ * @param r_w Pointer to put the new width in
+ * @param r_h Pointer to put the new height in
+ * @param w Width to calculate from
+ * @param h Height to calculate from
+ * @param incr Increase w, h to match increments if true, else decrease.
+ */
 bool
-Client::getIncSize(uint *r_w, uint *r_h, uint w, uint h, bool incr)
+Client::getIncSize(const XSizeHints& size,
+                   uint *r_w, uint *r_h, uint w, uint h, bool incr)
 {
     uint basex, basey;
 
-    if (_size->flags&PResizeInc) {
-        basex = (_size->flags&PBaseSize)
-                ? _size->base_width
-                : (_size->flags&PMinSize) ? _size->min_width : 0;
+    if (size.flags&PResizeInc) {
+        basex = (size.flags&PBaseSize)
+                ? size.base_width
+                : (size.flags&PMinSize) ? size.min_width : 0;
 
-        basey = (_size->flags&PBaseSize)
-                ? _size->base_height
-                : (_size->flags&PMinSize) ? _size->min_height : 0;
+        basey = (size.flags&PBaseSize)
+                ? size.base_height
+                : (size.flags&PMinSize) ? size.min_height : 0;
 
         if (w < basex || h < basey) {
             basex=basey=0;
         }
 
-        uint dw = (w - basex) % _size->width_inc;
-        uint dh = (h - basey) % _size->height_inc;
+        uint dw = (w - basex) % size.width_inc;
+        uint dh = (h - basey) % size.height_inc;
 
-        *r_w = w - dw + ((incr && dw)?_size->width_inc:0);
-        *r_h = h - dh + ((incr && dh)?_size->height_inc:0);
+        *r_w = w - dw + ((incr && dw)?size.width_inc:0);
+        *r_h = h - dh + ((incr && dh)?size.height_inc:0);
         return true;
     }
 
@@ -1760,13 +1761,13 @@ Client::getWMNormalHints(void)
     XGetWMNormalHints(X11::getDpy(), _window, _size, &dummy);
 
     // let's do some sanity checking
-    if (_size->flags & PBaseSize) {
+    if (_size->flags&PBaseSize) {
         if (_size->base_width < 1 || _size->base_height < 1) {
             _size->base_width = _size->base_height = 0;
             _size->flags &= ~PBaseSize;
         }
     }
-    if (_size->flags & PAspect) {
+    if (_size->flags&PAspect) {
         if (_size->min_aspect.x < 1 || _size->min_aspect.y < 1 ||
             _size->max_aspect.x < 1 || _size->max_aspect.y < 1) {
 
@@ -1775,7 +1776,7 @@ Client::getWMNormalHints(void)
             _size->flags &= ~PAspect;
         }
     }
-    if (_size->flags & PResizeInc) {
+    if (_size->flags&PResizeInc) {
         if (_size->width_inc < 1 || _size->height_inc < 1) {
             _size->width_inc = 0;
             _size->height_inc = 0;

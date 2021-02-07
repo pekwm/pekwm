@@ -172,7 +172,13 @@ public: // Public Member Functions
     }
     void findAndRaiseIfTransient(void);
 
-    inline XSizeHints* getXSizeHints(void) const { return _size; }
+    XSizeHints getActiveSizeHints(void) const {
+        auto hints = *_size;
+        if (isCfgDeny(CFG_DENY_RESIZE_INC)) {
+            hints.flags &= ~PResizeInc;
+        }
+        return hints;
+    }
 
     bool isViewable(void);
     bool cameWithPosition(void) {
@@ -202,7 +208,7 @@ public: // Public Member Functions
     uint getSkip(void) const { return _state.skip; }
     bool isSkip(Skip skip) const { return (_state.skip&skip); }
     uint getDecorState(void) const { return _state.decor; }
-    bool isCfgDeny(uint deny) { return (_state.cfg_deny&deny); }
+    bool isCfgDeny(uint deny) const { return (_state.cfg_deny&deny); }
 
     bool allowMove(void) const { return _actions.move; }
     bool allowResize(void) const { return _actions.resize; }
@@ -286,7 +292,8 @@ public: // Public Member Functions
     void sendTakeFocusMessage(void);
 
     bool getAspectSize(uint *r_w, uint *r_h, uint w, uint h);
-    bool getIncSize(uint *r_w, uint *r_h, uint w, uint h, bool incr=false);
+    bool getIncSize(const XSizeHints& size,
+                    uint *r_w, uint *r_h, uint w, uint h, bool incr=false);
 
     bool getEwmhStates(NetWMStates &win_states);
     void updateEwmhStates(void);

@@ -63,6 +63,13 @@ StatusWindow and focus toggle list. (#43)
 Updated
 -------
 
+**CfgDeny** now support denying _ResizeInc_ making it possible to
+ignore size increments for terminals and other applications. (#47)
+
+```
+CfgDeny = "ResizeInc"
+```
+
 **CmdDialog** no longer cache the list of available commands reducing
 memory consumption and speeding up start at the cost of slower mapping
 of the CmdDialog.

@@ -6,3 +6,10 @@ Property = "test_client,pekwm" {
 		Raise = "True"
 	}
 }
+
+Property = "no-resize-inc,XTerm" {
+    ApplyOn = "Start New"
+    Border = "False"
+    Titlebar = "False"
+    CfgDeny = "ResizeInc"
+}

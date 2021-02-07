@@ -102,16 +102,18 @@ If a frame should be ignored on specified places, string is one of
 When things to be done to this window requested by the client program
 should be denied, string is one of:
 
-* _above_, don't let client place window above other windows
-* _activewindow_, don't let client give input focus
-* _below_, don't let client place window below other windows
-* _fullscreen_, don't let client set window fullscreen mode
-* _hidden_, don't let client hide window
-* _maximizedhorz_, don't let client maximize window horizontally
-* _maximizedvert_, don't let client maximize a window vertically
-* _position_, don't let the client move the window
-* _size_, don't let the client resize the window
-* _stacking_, don't allow the client to raise or lower the window
+* _Above_, ignore client request to always place window above other windows)
+* _ActiveWindow_, ignore client requests for showing and giving input focus)
+* _Below_, ignore client request to always place window below other windows)
+* _Fullscreen_, ignore client request to set window to fullscreen mode)
+* _Hidden_, ignore client request to show/hide window)
+* _MaximizedHorz_, ignore client request to maximize window horizontally)
+* _MaximizedVert_, ignore client request to maximize window vertically)
+* _Position_, ignore client requested changes to window position)
+* _ResizeInc_, ignore resize increments from the size hints. Use on terminals to make them fill up all available space.
+* _Size_, ignore client requested changes to window size)
+* _Stacking_, ignore client requested changes to window stacking)
+* _Strut_, ignore client request for reserving space in the screen corners, typically done by panels and the like)
     
 **Title (string)**
 

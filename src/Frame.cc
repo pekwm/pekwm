@@ -594,14 +594,14 @@ Frame::resizeHorzStep(int diff) const
     if (min == 0) { // borderless windows, we don't want X errors
         min = 1;
     }
-    const XSizeHints *hints = _client->getXSizeHints(); // convenience
+    auto hints = _client->getActiveSizeHints();
 
     // if we have ResizeInc hint set we use it instead of pixel diff
-    if (hints->flags&PResizeInc) {
+    if (hints.flags&PResizeInc) {
         if (diff > 0) {
-            diff_ret = hints->width_inc;
-        } else if ((_gm.width - hints->width_inc) >= min) {
-            diff_ret = -hints->width_inc;
+            diff_ret = hints.width_inc;
+        } else if ((_gm.width - hints.width_inc) >= min) {
+            diff_ret = -hints.width_inc;
         }
     } else if ((_gm.width + diff) >= min) {
         diff_ret = diff;
@@ -609,13 +609,13 @@ Frame::resizeHorzStep(int diff) const
 
     // check max/min size hints
     if (diff > 0) {
-        if ((hints->flags&PMaxSize) &&
-                ((getChildWidth() + diff) > unsigned(hints->max_width))) {
-            diff_ret = _gm.width - hints->max_width + min;
+        if ((hints.flags&PMaxSize) &&
+                ((getChildWidth() + diff) > unsigned(hints.max_width))) {
+            diff_ret = _gm.width - hints.max_width + min;
         }
-    } else if ((hints->flags&PMinSize) &&
-               ((getChildWidth() + diff) < unsigned(hints->min_width))) {
-        diff_ret = _gm.width - hints->min_width + min;
+    } else if ((hints.flags&PMinSize) &&
+               ((getChildWidth() + diff) < unsigned(hints.min_width))) {
+        diff_ret = _gm.width - hints.min_width + min;
     }
 
     return diff_ret;
@@ -629,14 +629,14 @@ Frame::resizeVertStep(int diff) const
     if (min == 0) { // borderless windows, we don't want X errors
         min = 1;
     }
-    const XSizeHints *hints = _client->getXSizeHints(); // convenience
+    auto hints = _client->getActiveSizeHints();
 
     // if we have ResizeInc hint set we use it instead of pixel diff
-    if (hints->flags&PResizeInc) {
+    if (hints.flags&PResizeInc) {
         if (diff > 0) {
-            diff_ret = hints->height_inc;
-        } else if ((_gm.height - hints->height_inc) >= min) {
-            diff_ret = -hints->height_inc;
+            diff_ret = hints.height_inc;
+        } else if ((_gm.height - hints.height_inc) >= min) {
+            diff_ret = -hints.height_inc;
         }
     } else {
         diff_ret = diff;
@@ -644,13 +644,13 @@ Frame::resizeVertStep(int diff) const
 
     // check max/min size hints
     if (diff > 0) {
-        if ((hints->flags&PMaxSize) &&
-                ((getChildHeight() + diff) > unsigned(hints->max_height))) {
-            diff_ret = _gm.height - hints->max_height + min;
+        if ((hints.flags&PMaxSize) &&
+                ((getChildHeight() + diff) > unsigned(hints.max_height))) {
+            diff_ret = _gm.height - hints.max_height + min;
         }
-    } else if ((hints->flags&PMinSize) &&
-               ((getChildHeight() + diff) < unsigned(hints->min_height))) {
-        diff_ret = _gm.height - hints->min_width + min;
+    } else if ((hints.flags&PMinSize) &&
+               ((getChildHeight() + diff) < unsigned(hints.min_height))) {
+        diff_ret = _gm.height - hints.min_width + min;
     }
 
     return diff_ret;
@@ -1315,20 +1315,20 @@ Frame::recalcResizeDrag(int nx, int ny, bool left, bool top)
 
     _client->getAspectSize(&width, &height, width, height);
 
-    const XSizeHints *hints = _client->getXSizeHints();
+    auto hints = _client->getActiveSizeHints();
     // check so we aren't overriding min or max size
-    if (hints->flags & PMinSize) {
-        if (signed(width) < hints->min_width)
-            width = hints->min_width;
-        if (signed(height) < hints->min_height)
-            height = hints->min_height;
+    if (hints.flags & PMinSize) {
+        if (signed(width) < hints.min_width)
+            width = hints.min_width;
+        if (signed(height) < hints.min_height)
+            height = hints.min_height;
     }
 
-    if (hints->flags & PMaxSize) {
-        if (signed(width) > hints->max_width)
-            width = hints->max_width;
-        if (signed(height) > hints->max_height)
-            height = hints->max_height;
+    if (hints.flags & PMaxSize) {
+        if (signed(width) > hints.max_width)
+            width = hints.max_width;
+        if (signed(height) > hints.max_height)
+            height = hints.max_height;
     }
 
     _gm.width = width + decorWidth(this);
@@ -1466,7 +1466,7 @@ Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
         }
     }
 
-    XSizeHints *size_hint = _client->getXSizeHints(); // convenience
+    auto hints = _client->getActiveSizeHints();
 
     Geometry head;
     pekwm::rootWo()->getHeadInfoWithEdge(X11Util::getNearestHead(*this), head);
@@ -1498,9 +1498,9 @@ Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
             _gm.x = max_x;
             _gm.width = max_r - max_x;
 
-            if ((size_hint->flags&PMaxSize) &&
-                    (_gm.width > (size_hint->max_width + h_decor))) {
-                _gm.width = size_hint->max_width + h_decor;
+            if ((hints.flags&PMaxSize)
+                && (_gm.width > (hints.max_width + h_decor))) {
+                _gm.width = hints.max_width + h_decor;
             }
             // demaximize
         } else if ((sa == STATE_UNSET) ||
@@ -1528,9 +1528,9 @@ Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
             _gm.y = max_y;
             _gm.height = max_b - max_y;
 
-            if ((size_hint->flags&PMaxSize) &&
-                    (_gm.height > (size_hint->max_height + v_decor))) {
-                _gm.height = size_hint->max_height + v_decor;
+            if ((hints.flags&PMaxSize) &&
+                    (_gm.height > (hints.max_height + v_decor))) {
+                _gm.height = hints.max_height + v_decor;
             }
             // demaximize
         } else if ((sa == STATE_UNSET) ||
@@ -1994,11 +1994,11 @@ Frame::readAutoprops(ApplyOn type)
 void
 Frame::calcSizeInCells(uint &width, uint &height)
 {
-    const XSizeHints *hints = _client->getXSizeHints();
+    auto hints = _client->getActiveSizeHints();
 
-    if (hints->flags&PResizeInc) {
-        width = (getChildWidth() - hints->base_width) / hints->width_inc;
-        height = (getChildHeight() - hints->base_height) / hints->height_inc;
+    if (hints.flags&PResizeInc) {
+        width = (getChildWidth() - hints.base_width) / hints.width_inc;
+        height = (getChildHeight() - hints.base_height) / hints.height_inc;
     } else {
         width = _gm.width;
         height = _gm.height;
@@ -2052,29 +2052,29 @@ Frame::setGravityPosition(int gravity, int &x, int &y, int w, int h)
 void
 Frame::downSize(Geometry &gm, bool keep_x, bool keep_y)
 {
-    XSizeHints *size_hint = _client->getXSizeHints(); // convenience
+    auto hints = _client->getActiveSizeHints();
 
     // conform to width_inc
-    if (size_hint->flags&PResizeInc) {
+    if (hints.flags&PResizeInc) {
         int o_r = getRX();
-        int b_x = (size_hint->flags&PBaseSize)
-                  ? size_hint->base_width
-                  : (size_hint->flags&PMinSize) ? size_hint->min_width : 0;
+        int b_x = (hints.flags&PBaseSize)
+                  ? hints.base_width
+                  : (hints.flags&PMinSize) ? hints.min_width : 0;
 
-        gm.width -= (getChildWidth() - b_x) % size_hint->width_inc;
+        gm.width -= (getChildWidth() - b_x) % hints.width_inc;
         if (! keep_x) {
             gm.x = o_r - gm.width;
         }
     }
 
     // conform to height_inc
-    if (size_hint->flags&PResizeInc) {
+    if (hints.flags&PResizeInc) {
         int o_b = getBY();
-        int b_y = (size_hint->flags&PBaseSize)
-                  ? size_hint->base_height
-                  : (size_hint->flags&PMinSize) ? size_hint->min_height : 0;
+        int b_y = (hints.flags&PBaseSize)
+                  ? hints.base_height
+                  : (hints.flags&PMinSize) ? hints.min_height : 0;
 
-        gm.height -= (getChildHeight() - b_y) % size_hint->height_inc;
+        gm.height -= (getChildHeight() - b_y) % hints.height_inc;
         if (! keep_y) {
             gm.y = o_b - gm.height;
         }
@@ -2129,7 +2129,7 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
         gm.height += diff_h;
 
         if (!chg_pos) {
-            setGravityPosition(_client->getXSizeHints()->win_gravity,
+            setGravityPosition(_client->getActiveSizeHints().win_gravity,
                                gm.x, gm.y, diff_w, diff_h);
         }
     }

@@ -383,6 +383,7 @@ enum CfgDeny {
     CFG_DENY_STATE_BELOW = (1L << 9), //! EWMH state below deny.
 
     CFG_DENY_STRUT = (1L << 10), //! _NET_WM_STRUT_HINT registration.
+    CFG_DENY_RESIZE_INC = (1L << 11), // Ignore the ResizeInc from the SizeHints
 
     CFG_DENY_NO = 0 //! No deny.
 };

@@ -289,6 +289,7 @@ program, consisting of
 * _MaximizedHorz_, ignore client request to maximize window horizontally)
 * _MaximizedVert_, ignore client request to maximize window vertically)
 * _Position_, ignore client requested changes to window position)
+* _ResizeInc_, ignore resize increments from the size hints. Use on terminals to make them fill up all available space.
 * _Size_, ignore client requested changes to window size)
 * _Stacking_, ignore client requested changes to window stacking)
 * _Strut_, ignore client request for reserving space in the screen corners, typically done by panels and the like)

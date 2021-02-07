@@ -145,7 +145,8 @@ static ParseUtil::Map<BorderPosition> borderpos_map =
      {"BOTTOMRIGHT", BORDER_BOTTOM_RIGHT}};
 
 static ParseUtil::Map<CfgDeny> cfg_deny_map =
-    {{"POSITION", CFG_DENY_POSITION},
+    {{"", CFG_DENY_NO},
+     {"POSITION", CFG_DENY_POSITION},
      {"SIZE", CFG_DENY_SIZE},
      {"STACKING", CFG_DENY_STACKING},
      {"ACTIVEWINDOW", CFG_DENY_ACTIVE_WINDOW},
@@ -155,7 +156,8 @@ static ParseUtil::Map<CfgDeny> cfg_deny_map =
      {"FULLSCREEN", CFG_DENY_STATE_FULLSCREEN},
      {"ABOVE", CFG_DENY_STATE_ABOVE},
      {"BELOW", CFG_DENY_STATE_BELOW},
-     {"STRUT", CFG_DENY_STRUT}};
+     {"STRUT", CFG_DENY_STRUT},
+     {"RESIZEINC", CFG_DENY_RESIZE_INC}};
 
 static ParseUtil::Map<DirectionType> direction_map =
     {{"", DIRECTION_NO},

@@ -9,6 +9,12 @@ in one go.
 [global TEST_DIR=../../build/test/system]
 [global DISPLAY=:1]
 
+[function init-shell]
+    ?SH-PROMPT:
+    !export DISPLAY=$DISPLAY
+    ?SH-PROMPT:
+[endfunction]
+
 # test possible ways of setting the configuration file used by pekwm
 [function test_config_path]
     [log test_config_path]
@@ -145,11 +151,43 @@ in one go.
     ?SH-PROMPT:
 [endfunction]
 
+[function test_cfg_deny_resize_inc]
+    [log test_cfg_deny_resize_inc]
+
+    [shell xev]
+        [call init-shell]
+        !xev -root
+
+    [shell xterm]
+        [call init-shell]
+        !xterm -name no-resize-inc +sb /bin/sh
+
+    [shell xev]
+        ???NET_CLIENT_LIST)
+        !$_CTRL_C_
+
+    [shell pekwm_ctrl]
+        [call init-shell]
+        -no client match
+        !$BIN_DIR/pekwm_ctrl -c no-resize-inc Set Maximized
+        ?_PEKWM_CMD ([0-9]+) Set Maximized OK
+        [global window=$1]
+        ?SH-PROMPT:
+
+    [shell xprop]
+        [call init-shell]
+        [log verify size of term]
+        !xwininfo -id $window
+        ?Width: 1024
+        ?Height: 768
+        ?SH-PROMPT:
+[endfunction]
+
 [shell Xvfb]
     ?SH-PROMPT:
     [log starting Xvfb]
     -Fatal server error
-    !Xvfb -displayfd 1 $DISPLAY
+    !Xvfb -screen 0 1024x768x24 -dpi 96 -displayfd 1 $DISPLAY
     ?1
 
 [shell pekwm]
@@ -158,6 +196,7 @@ in one go.
     ?Enter event loop.
 
 [shell test]
+    [call test_cfg_deny_resize_inc]
     [call test_warp_pointer]
     [call test_update_client_list_report_all]
 
