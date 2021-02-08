@@ -125,8 +125,9 @@ enum AtomName {
     EWMH_ACTION_FULLSCREEN, ACTION_CHANGE_DESKTOP,
     EWMH_ACTION_CLOSE,
 
-    UTF8_STRING,  // When adding an ewmh atom after this,
-                  // fix setEwmhAtomsSupport(Window)
+    // all EWMH atoms must be before this, see x11::setEwmhAtomsSupport
+    UTF8_STRING,
+
     STRING, MANAGER,
 
     // pekwm atom names

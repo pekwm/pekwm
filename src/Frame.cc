@@ -507,7 +507,7 @@ Frame::activateChild(PWinObj *child)
     }
 
     // Reload decor rules if needed.
-    handleTitleChange(_client);
+    handleTitleChange(_client, false);
 }
 
 /**
@@ -2371,8 +2371,9 @@ Frame::handlePropertyChange(XPropertyEvent *ev, Client *client)
         }
     } else if (ev->atom == X11::getAtom(NET_WM_STRUT)) {
         client->getStrutHint();
-    } else if (ev->atom == X11::getAtom(NET_WM_NAME) || ev->atom == XA_WM_NAME) {
-        handleTitleChange(client);
+    } else if (ev->atom == X11::getAtom(NET_WM_NAME)
+               || ev->atom == XA_WM_NAME) {
+        handleTitleChange(client, true);
     } else if (ev->atom == X11::getAtom(MOTIF_WM_HINTS)) {
         client->readMwmHints();
         if (! isFullscreen() && _client == client) {
@@ -2404,10 +2405,12 @@ Frame::handlePropertyChange(XPropertyEvent *ev, Client *client)
  * and update if changed.
  */
 void
-Frame::handleTitleChange(Client *client)
+Frame::handleTitleChange(Client *client, bool read_name)
 {
     // Update title
-    client->readName();
+    if (read_name) {
+        client->readName();
+    }
 
     if (client != _client || ! updateDecor()) {
         // Render title as either the title changed was not the active

@@ -574,6 +574,7 @@ PDecor::handleButtonPress(XButtonEvent *ev)
             XAllowEvents(X11::getDpy(), ReplayPointer, CurrentTime);
         }
 
+        auto cfg = pekwm::config();
         if (ev->window == _child->getWindow()
             || (ev->state == 0 && ev->subwindow == _child->getWindow())) {
             // Clicks on the child window
@@ -582,25 +583,26 @@ PDecor::handleButtonPress(XButtonEvent *ev)
             // because if we don't care about the modifier we'll get two actions
             // performed when using modifiers.
             _button_press_win = _child->getWindow();
-            actions = pekwm::config()->getMouseActionList(_decor_cfg_bpr_al_child);
-            
+            actions =
+                cfg->getMouseActionList(_decor_cfg_bpr_al_child);
         } else if (_title_wo == ev->window) {
             // Clicks on the decor title
             _button_press_win = ev->window;
-            actions = pekwm::config()->getMouseActionList(_decor_cfg_bpr_al_title);
-            
+            actions = cfg->getMouseActionList(_decor_cfg_bpr_al_title);
         } else {
-            // Clicks on the decor border, default case. Try both window and sub-window.
+            // Clicks on the decor border, default case. Try both
+            // window and sub-window.
             uint pos = getBorderPosition(ev->window);
             if (pos != BORDER_NO_POS) {
                 _button_press_win = ev->window;
-                actions = pekwm::config()->getBorderListFromPosition(pos);
+                actions = cfg->getBorderListFromPosition(pos);
             }
         }
     }
 
     if (! ae && actions) {
-        ae = ActionHandler::findMouseAction(ev->button, ev->state, MOUSE_EVENT_PRESS, actions);
+        ae = ActionHandler::findMouseAction(ev->button, ev->state,
+                                            MOUSE_EVENT_PRESS, actions);
     }
 
     return ae;
@@ -619,7 +621,8 @@ PDecor::handleButtonPressButton(XButtonEvent *ev, PDecor::Button *button)
 
     // if the button is used for resizing, we don't want to wait for release
     if (ae && ae->isOnlyAction(ACTION_RESIZE)) {
-        _button->setState(_focused ? BUTTON_STATE_FOCUSED : BUTTON_STATE_UNFOCUSED);
+        _button->setState(_focused
+                          ? BUTTON_STATE_FOCUSED : BUTTON_STATE_UNFOCUSED);
         _button = 0;
     } else {
         ae = 0;
@@ -653,6 +656,7 @@ PDecor::handleButtonRelease(XButtonEvent *ev)
         }
 
         // clicks on the child window
+        auto cfg = pekwm::config();
         if (ev->window == _child->getWindow()
             || (ev->state == 0 && ev->subwindow == _child->getWindow())) {
             // NOTE: If the we're matching against the subwindow we need to make
@@ -660,14 +664,15 @@ PDecor::handleButtonRelease(XButtonEvent *ev)
             // because if we don't care about the modifier we'll get two actions
             // performed when using modifiers.
             if (_button_press_win == _child->getWindow()) {
-                actions = pekwm::config()->getMouseActionList(_decor_cfg_bpr_al_child);
+                actions = cfg->getMouseActionList(_decor_cfg_bpr_al_child);
             }
 
         } else if (_title_wo == ev->window) {
             if (_button_press_win == ev->window) {
-                // Handle clicks on the decor title, checking double clicks first.
+                // Handle clicks on the decor title, checking double
+                // clicks first.
                 if (X11::isDoubleClick(ev->window, ev->button - 1, ev->time,
-                                                       pekwm::config()->getDoubleClickTime())) {
+                                       cfg->getDoubleClickTime())) {
                     X11::setLastClickID(ev->window);
                     X11::setLastClickTime(ev->button - 1, 0);
                     mb = MOUSE_EVENT_DOUBLE;
@@ -676,13 +681,13 @@ PDecor::handleButtonRelease(XButtonEvent *ev)
                     X11::setLastClickTime(ev->button - 1, ev->time);
                 }
 
-                actions = pekwm::config()->getMouseActionList(_decor_cfg_bpr_al_title);
+                actions = cfg->getMouseActionList(_decor_cfg_bpr_al_title);
             }
         } else {
             // Clicks on the decor border, check subwindow then window.
             uint pos = getBorderPosition(ev->window);
             if (pos != BORDER_NO_POS && (_button_press_win == ev->window)) {
-                actions = pekwm::config()->getBorderListFromPosition(pos);
+                actions = cfg->getBorderListFromPosition(pos);
             }
         }
     }

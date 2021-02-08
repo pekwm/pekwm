@@ -188,7 +188,7 @@ private:
                             int diff_w, int diff_h);
     void downSize(Geometry &gm, bool keep_x, bool keep_y);
 
-    void handleTitleChange(Client *client);
+    void handleTitleChange(Client *client, bool read_name);
 
     void getState(Client *cl);
     void applyState(Client *cl);

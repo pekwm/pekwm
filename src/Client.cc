@@ -79,7 +79,7 @@ Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
         _shape_bounding = isShaped;
 
         int num = 0;
-        auto *rect = X11::shapeGetRects(_window, ShapeInput, &num);
+        auto *rect = X11::shapeGetRects(_window, ShapeBounding, &num);
         if (rect) {
             if (num == 1) {
                 unsigned w, h, bw;

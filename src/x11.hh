@@ -37,11 +37,7 @@ extern "C" {
 extern bool xerrors_ignore; /**< If true, ignore X errors. */
 extern unsigned int xerrors_count; /**< Number of X errors occured. */
 
-#ifdef DEBUG
 #define setXErrorsIgnore(X) xerrors_ignore = (X)
-#else // ! DEBUG
-#define setXErrorsIgnore(X)
-#endif // DEBUG
 
 }
 
@@ -297,7 +293,7 @@ public:
     }
 
     static bool getUtf8String(Window win, AtomName aname, std::string &value) {
-        uchar *data = 0;
+        uchar *data = nullptr;
         if (getProperty(win, _atoms[aname], _atoms[UTF8_STRING], 0, &data, 0)) {
             value = std::string(reinterpret_cast<char*>(data));
             X11::free(data);
@@ -574,8 +570,8 @@ public:
     }
 
     static XRectangle *shapeGetRects(Window win, int kind, int *num) {
-        int t;
-        return XShapeGetRectangles(_dpy, win, kind, num, &t);
+        int ordering;
+        return XShapeGetRectangles(_dpy, win, kind, num, &ordering);
     }
 #else // ! HAVE_SHAPE
     static void shapeSelectInput(Window window, ulong mask) { }

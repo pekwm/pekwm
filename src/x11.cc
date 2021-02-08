@@ -32,9 +32,7 @@ extern "C" {
 #ifdef HAVE_X11_XKBLIB_H
 #include <X11/XKBlib.h>
 #endif
-#ifdef DEBUG
 bool xerrors_ignore = false;
-#endif // DEBUG
 
 unsigned int xerrors_count = 0;
 }
@@ -70,17 +68,16 @@ extern "C" {
     static int
     handleXError(Display *dpy, XErrorEvent *ev)
     {
-        ++xerrors_count;
-
-#ifdef DEBUG
         if (xerrors_ignore) {
             return 0;
         }
 
-        char error_buf[256];
-        XGetErrorText(dpy, ev->error_code, error_buf, 256);
-        ERR("XError: " << error_buf << " id: " << ev->resourceid);
-#endif // DEBUG
+        ++xerrors_count;
+        if (Debug::level >= Debug::LEVEL_TRACE) {
+            char error_buf[256];
+            XGetErrorText(dpy, ev->error_code, error_buf, 256);
+            TRACE("XError: " << error_buf << " id: " << ev->resourceid);
+        }
 
         return 0;
     }
@@ -125,9 +122,10 @@ static const char *atomnames[] = {
     "_NET_WM_ACTION_MAXIMIZE_VERT", "_NET_WM_ACTION_MAXIMIZE_HORZ",
     "_NET_WM_ACTION_FULLSCREEN", "_NET_WM_ACTION_CHANGE_DESKTOP",
     "_NET_WM_ACTION_CLOSE",
-    "UTF8_STRING", // When adding an ewmh atom after this,
-                   // fix setEwmhAtomsSupport(Window)
-    "STRING", "MANAGER",
+
+    "UTF8_STRING",
+    "STRING",
+    "MANAGER",
 
     // pekwm atoms
     "_PEKWM_FRAME_ID",
@@ -436,10 +434,11 @@ X11::ungrabServer(bool sync)
     if (_server_grabs > 0) {
         if (--_server_grabs == 0) {
             if (sync) {
-                TRACE("0 server grabs left, syncing before ungrab.");
+                TRACE("0 server grabs left, syncing and ungrab.");
                 X11::sync(False);
+            } else {
+                TRACE("0 server grabs left, ungrabbing server.");
             }
-            TRACE("0 server grabs left, ungrabbing server.");
             XUngrabServer(_dpy);
         } else {
             TRACE("decreased server grab count to " << _server_grabs);
@@ -466,10 +465,7 @@ bool
 X11::ungrabKeyboard(void)
 {
     TRACE("ungrabbing keyboard");
-    if (XUngrabKeyboard(_dpy, CurrentTime) == Success) {
-        return true;
-    }
-    ERR("failed to ungrab keyboard");
+    XUngrabKeyboard(_dpy, CurrentTime);
     return false;
 }
 
@@ -494,10 +490,7 @@ bool
 X11::ungrabPointer(void)
 {
     TRACE("ungrabbing pointer");
-    if (XUngrabPointer(_dpy, CurrentTime) == Success) {
-        return true;
-    }
-    ERR("failed to ungrab pointer");
+    XUngrabPointer(_dpy, CurrentTime);
     return false;
 }
 
