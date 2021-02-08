@@ -26,7 +26,7 @@ extern "C" {
 #include <sys/stat.h>
 }
 
-static ParseUtil::Map<ActionAccessMask> action_access_mask_map =
+static Util::StringMap<ActionAccessMask> action_access_mask_map =
     {{"", ACTION_ACCESS_NO},
      {"MOVE", ACTION_ACCESS_MOVE},
      {"RESIZE", ACTION_ACCESS_RESIZE},
@@ -39,7 +39,7 @@ static ParseUtil::Map<ActionAccessMask> action_access_mask_map =
      {"SETWORKSPACE", ACTION_ACCESS_CHANGE_DESKTOP},
      {"CLOSE", ACTION_ACCESS_CLOSE}};
 
-static ParseUtil::Map<MoveResizeActionType> moveresize_map =
+static Util::StringMap<MoveResizeActionType> moveresize_map =
     {{"", NO_MOVERESIZE_ACTION},
      {"MOVEHORIZONTAL", MOVE_HORIZONTAL},
      {"MOVEVERTICAL", MOVE_VERTICAL},
@@ -49,7 +49,7 @@ static ParseUtil::Map<MoveResizeActionType> moveresize_map =
      {"CANCEL", MOVE_CANCEL},
      {"END", MOVE_END}};
 
-static ParseUtil::Map<InputDialogAction> inputdialog_map =
+static Util::StringMap<InputDialogAction> inputdialog_map =
     {{"", INPUT_NO_ACTION},
      {"INSERT", INPUT_INSERT},
      {"ERASE", INPUT_REMOVE},
@@ -66,7 +66,7 @@ static ParseUtil::Map<InputDialogAction> inputdialog_map =
      {"HISTNEXT", INPUT_HIST_NEXT},
      {"HISTPREV", INPUT_HIST_PREV}};
 
-static ParseUtil::Map<MouseEventType> mouse_event_map =
+static Util::StringMap<MouseEventType> mouse_event_map =
     {{"", MOUSE_EVENT_NO},
      {"BUTTONPRESS", MOUSE_EVENT_PRESS},
      {"BUTTONRELEASE", MOUSE_EVENT_RELEASE},
@@ -77,7 +77,7 @@ static ParseUtil::Map<MouseEventType> mouse_event_map =
      {"ENTERMOVING", MOUSE_EVENT_ENTER_MOVING},
      {"MOTIONPRESSED", MOUSE_EVENT_MOTION_PRESSED}};
 
-static ParseUtil::Map<ActionType> menu_action_map =
+static Util::StringMap<ActionType> menu_action_map =
     {{"", ACTION_MENU_NEXT},
      {"NEXTITEM", ACTION_MENU_NEXT},
      {"PREVITEM", ACTION_MENU_PREV},
@@ -86,21 +86,21 @@ static ParseUtil::Map<ActionType> menu_action_map =
      {"LEAVESUBMENU", ACTION_MENU_LEAVE_SUBMENU},
      {"CLOSE", ACTION_CLOSE}};
 
-static ParseUtil::Map<HarbourPlacement> harbour_placement_map =
+static Util::StringMap<HarbourPlacement> harbour_placement_map =
     {{"", NO_HARBOUR_PLACEMENT},
      {"TOP", TOP},
      {"LEFT", LEFT},
      {"RIGHT", RIGHT},
      {"BOTTOM", BOTTOM}};
 
-static ParseUtil::Map<Orientation> harbour_orientation_map =
+static Util::StringMap<Orientation> harbour_orientation_map =
     {{"", NO_ORIENTATION},
      {"TOPTOBOTTOM", TOP_TO_BOTTOM},
      {"LEFTTORIGHT", TOP_TO_BOTTOM},
      {"BOTTOMTOTOP", BOTTOM_TO_TOP},
      {"RIGHTTOLEFT", BOTTOM_TO_TOP}};
 
-static ParseUtil::Map<CurrHeadSelector> curr_head_selector_map =
+static Util::StringMap<CurrHeadSelector> curr_head_selector_map =
     {{"", CURR_HEAD_SELECTOR_NO},
      {"CURSOR", CURR_HEAD_SELECTOR_CURSOR},
      {"FOCUSEDWINDOW", CURR_HEAD_SELECTOR_FOCUSED_WINDOW}};

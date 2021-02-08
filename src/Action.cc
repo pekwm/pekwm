@@ -10,7 +10,6 @@
 
 #include "Action.hh"
 #include "Debug.hh"
-#include "ParseUtil.hh"
 #include "Util.hh"
 
 #include <map>
@@ -25,7 +24,7 @@ const int ANY_MASK =
     BUTTONCLICK_OK|WINDOWMENU_OK|ROOTMENU_OK|SCREEN_EDGE_OK|
     CMD_OK;
 
-static ParseUtil::Map<std::pair<ActionType, uint> > action_map =
+static Util::StringMap<std::pair<ActionType, uint> > action_map =
     {{"", action_pair(ACTION_NO, 0)},
      {"Focus", action_pair(ACTION_FOCUS, ANY_MASK)},
      {"UnFocus", action_pair(ACTION_UNFOCUS, ANY_MASK)},
@@ -112,7 +111,7 @@ static ParseUtil::Map<std::pair<ActionType, uint> > action_map =
      {"SetOpacity", action_pair(ACTION_SET_OPACITY, FRAME_MASK|CMD_OK)},
      {"Debug", action_pair(ACTION_DEBUG, ANY_MASK)}};
 
-static ParseUtil::Map<ActionStateType> action_state_map =
+static Util::StringMap<ActionStateType> action_state_map =
     {{"", ACTION_STATE_NO},
      {"Maximized", ACTION_STATE_MAXIMIZED},
      {"Fullscreen", ACTION_STATE_FULLSCREEN},
@@ -133,7 +132,7 @@ static ParseUtil::Map<ActionStateType> action_state_map =
      {"HarbourHidden", ACTION_STATE_HARBOUR_HIDDEN},
      {"GlobalGrouping", ACTION_STATE_GLOBAL_GROUPING}};
 
-static ParseUtil::Map<BorderPosition> borderpos_map =
+static Util::StringMap<BorderPosition> borderpos_map =
     {{"", BORDER_NO_POS},
      {"TOPLEFT", BORDER_TOP_LEFT},
      {"TOP", BORDER_TOP},
@@ -144,7 +143,7 @@ static ParseUtil::Map<BorderPosition> borderpos_map =
      {"BOTTOM", BORDER_BOTTOM},
      {"BOTTOMRIGHT", BORDER_BOTTOM_RIGHT}};
 
-static ParseUtil::Map<CfgDeny> cfg_deny_map =
+static Util::StringMap<CfgDeny> cfg_deny_map =
     {{"", CFG_DENY_NO},
      {"POSITION", CFG_DENY_POSITION},
      {"SIZE", CFG_DENY_SIZE},
@@ -159,14 +158,14 @@ static ParseUtil::Map<CfgDeny> cfg_deny_map =
      {"STRUT", CFG_DENY_STRUT},
      {"RESIZEINC", CFG_DENY_RESIZE_INC}};
 
-static ParseUtil::Map<DirectionType> direction_map =
+static Util::StringMap<DirectionType> direction_map =
     {{"", DIRECTION_NO},
      {"UP", DIRECTION_UP},
      {"DOWN", DIRECTION_DOWN},
      {"LEFT", DIRECTION_LEFT},
      {"RIGHT", DIRECTION_RIGHT}};
 
-static ParseUtil::Map<OrientationType> edge_map =
+static Util::StringMap<OrientationType> edge_map =
     {{"", NO_EDGE},
      {"TOPLEFT", TOP_LEFT},
      {"TOPEDGE", TOP_EDGE},
@@ -182,7 +181,7 @@ static ParseUtil::Map<OrientationType> edge_map =
      {"RIGHTCENTEREDGE", RIGHT_CENTER_EDGE},
      {"CENTER", CENTER}};
 
-static ParseUtil::Map<Layer> layer_map =
+static Util::StringMap<Layer> layer_map =
     {{"", LAYER_NONE},
      {"DESKTOP", LAYER_DESKTOP},
      {"BELOW", LAYER_BELOW},
@@ -192,7 +191,7 @@ static ParseUtil::Map<Layer> layer_map =
      {"ABOVEHARBOUR", LAYER_ABOVE_DOCK},
      {"MENU", LAYER_MENU}};
 
-static ParseUtil::Map<uint> mod_map =
+static Util::StringMap<uint> mod_map =
     {{"", 0},
      {"NONE", 0},
      {"SHIFT", ShiftMask},
@@ -204,14 +203,14 @@ static ParseUtil::Map<uint> mod_map =
      {"MOD5", Mod5Mask},
      {"ANY", MOD_ANY}};
 
-static ParseUtil::Map<Raise> raise_map =
+static Util::StringMap<Raise> raise_map =
     {{"", NO_RAISE},
      {"ALWAYSRAISE", ALWAYS_RAISE},
      {"ENDRAISE", END_RAISE},
      {"NEVERRAISE", NEVER_RAISE},
      {"TEMPRAISE", TEMP_RAISE}};
 
-static ParseUtil::Map<Skip> skip_map =
+static Util::StringMap<Skip> skip_map =
     {{"", SKIP_NONE},
      {"MENUS", SKIP_MENUS},
      {"FOCUSTOGGLE", SKIP_FOCUS_TOGGLE},
@@ -219,7 +218,7 @@ static ParseUtil::Map<Skip> skip_map =
      {"PAGER", SKIP_PAGER},
      {"TASKBAR", SKIP_TASKBAR}};
 
-static ParseUtil::Map<WorkspaceChangeType> workspace_change_map =
+static Util::StringMap<WorkspaceChangeType> workspace_change_map =
     {{"", WORKSPACE_NO},
      {"LEFT", WORKSPACE_LEFT},
      {"LEFTN", WORKSPACE_LEFT_N},

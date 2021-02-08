@@ -12,17 +12,16 @@
 
 #include "Debug.hh"
 #include "FontHandler.hh"
-#include "ParseUtil.hh"
 #include "Util.hh"
 #include "x11.hh"
 
-static ParseUtil::Map<PFont::Type> map_type =
+static Util::StringMap<PFont::Type> map_type =
     {{"", PFont::FONT_TYPE_NO},
      {"X11", PFont::FONT_TYPE_X11},
      {"XFT", PFont::FONT_TYPE_XFT},
      {"XMB", PFont::FONT_TYPE_XMB}};
 
-static ParseUtil::Map<FontJustify> map_justify =
+static Util::StringMap<FontJustify> map_justify =
     {{"", FONT_JUSTIFY_NO},
      {"LEFT", FONT_JUSTIFY_LEFT},
      {"CENTER", FONT_JUSTIFY_CENTER},

@@ -8,7 +8,6 @@
 
 #include "config.h"
 
-#include "ParseUtil.hh"
 #include "Theme.hh"
 
 #include "Debug.hh"

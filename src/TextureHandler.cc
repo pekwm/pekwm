@@ -13,12 +13,11 @@
 #include "PTexturePlain.hh"
 #include "TextureHandler.hh"
 #include "Util.hh"
-#include "ParseUtil.hh"
 #include "x11.hh"
 
 #include <iostream>
 
-static ParseUtil::Map<PTexture::Type> parse_map =
+static Util::StringMap<PTexture::Type> parse_map =
     {{"", PTexture::TYPE_NO},
      {"SOLID", PTexture::TYPE_SOLID},
      {"SOLIDRAISED", PTexture::TYPE_SOLID_RAISED},

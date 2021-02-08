@@ -12,7 +12,6 @@
 
 #include "Handler.hh"
 #include "PImage.hh"
-#include "ParseUtil.hh"
 
 #include <string>
 #include <vector>

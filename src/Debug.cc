@@ -9,12 +9,11 @@
 
 #include "pekwm.hh"
 #include "Debug.hh"
-#include "ParseUtil.hh"
 #include "Util.hh"
 
 #include <cstdlib>
 
-static ParseUtil::Map<Debug::Level> debug_level_map =
+static Util::StringMap<Debug::Level> debug_level_map =
     {{"", Debug::LEVEL_WARN},
      {"ERROR", Debug::LEVEL_ERR},
      {"WARNING", Debug::LEVEL_WARN},

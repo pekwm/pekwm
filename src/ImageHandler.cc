@@ -10,14 +10,13 @@
 
 #include "Debug.hh"
 #include "ImageHandler.hh"
-#include "ParseUtil.hh"
 #include "PImage.hh"
 #include "PImageLoaderJpeg.hh"
 #include "PImageLoaderPng.hh"
 #include "PImageLoaderXpm.hh"
 #include "Util.hh"
 
-static ParseUtil::Map<ImageType> image_type_map =
+static Util::StringMap<ImageType> image_type_map =
     {{"", IMAGE_TYPE_NO},
      {"TILED", IMAGE_TYPE_TILED},
      {"SCALED", IMAGE_TYPE_SCALED},

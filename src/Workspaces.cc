@@ -10,7 +10,6 @@
 
 #include "Debug.hh"
 #include "Workspaces.hh"
-#include "ParseUtil.hh"
 #include "Config.hh"
 #include "PWinObj.hh"
 #include "PDecor.hh"

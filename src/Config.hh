@@ -13,7 +13,6 @@
 #include "pekwm.hh"
 #include "Action.hh"
 #include "CfgParser.hh"
-#include "ParseUtil.hh"
 
 #include <string>
 #include <map>

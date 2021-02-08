@@ -15,7 +15,6 @@
 #include "CfgParser.hh"
 #include "Action.hh" // ActionEvent
 #include "PFont.hh" // PFont::Color
-#include "ParseUtil.hh"
 
 class PTexture;
 class ButtonData;

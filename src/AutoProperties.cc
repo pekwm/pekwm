@@ -16,7 +16,7 @@
 #include "Util.hh"
 #include "x11.hh"
 
-static ParseUtil::Map<ApplyOn> apply_on_map =
+static Util::StringMap<ApplyOn> apply_on_map =
     {{"", APPLY_ON_ALWAYS},
      {"START", APPLY_ON_START},
      {"NEW", APPLY_ON_NEW},
@@ -25,7 +25,7 @@ static ParseUtil::Map<ApplyOn> apply_on_map =
      {"TRANSIENT", APPLY_ON_TRANSIENT},
      {"TRANSIENTONLY", APPLY_ON_TRANSIENT_ONLY}};
 
-static ParseUtil::Map<PropertyType> property_map =
+static Util::StringMap<PropertyType> property_map =
     {{"", AP_NO_PROPERTY},
      {"WORKSPACE", AP_WORKSPACE},
      {"PROPERTY", AP_PROPERTY},
@@ -50,7 +50,7 @@ static ParseUtil::Map<PropertyType> property_map =
      {"OPACITY", AP_OPACITY},
      {"DECOR", AP_DECOR}};
 
-static ParseUtil::Map<PropertyType> group_property_map =
+static Util::StringMap<PropertyType> group_property_map =
     {{"", AP_NO_PROPERTY},
      {"SIZE", AP_GROUP_SIZE},
      {"BEHIND", AP_GROUP_BEHIND},
@@ -58,7 +58,7 @@ static ParseUtil::Map<PropertyType> group_property_map =
      {"GLOBAL", AP_GROUP_GLOBAL},
      {"RAISE", AP_GROUP_RAISE}};
 
-static ParseUtil::Map<AtomName> window_type_map =
+static Util::StringMap<AtomName> window_type_map =
     {{"", WINDOW_TYPE},
      {"DESKTOP", WINDOW_TYPE_DESKTOP},
      {"DOCK", WINDOW_TYPE_DOCK},
