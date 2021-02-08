@@ -69,15 +69,15 @@ uint Workspaces::_per_row;
 std::vector<PWinObj*> Workspaces::_wobjs;
 std::vector<Workspace> Workspaces::_workspaces;
 std::vector<Frame*> Workspaces::_mru;
-FocusCtrl* Workspaces::_focus_ctrl = nullptr;
+EventLoop* Workspaces::_event_loop = nullptr;
 WorkspaceIndicator* Workspaces::_workspace_indicator = nullptr;
 
 WinLayouter *Workspace::_default_layouter = WinLayouterFactory("SMART");
 
 void
-Workspaces::init(FocusCtrl* focus_ctrl)
+Workspaces::init(EventLoop* event_loop)
 {
-    _focus_ctrl = focus_ctrl;
+    _event_loop = event_loop;
     _workspace_indicator = new WorkspaceIndicator();
 }
 
@@ -85,7 +85,7 @@ void
 Workspaces::cleanup()
 {
     delete _workspace_indicator;
-    _focus_ctrl = nullptr;
+    _event_loop = nullptr;
 }
 
 //! @brief Sets total amount of workspaces to number
@@ -186,7 +186,7 @@ Workspaces::showWorkspaceIndicator(void)
     if (timeout > 0) {
         _workspace_indicator->render();
         _workspace_indicator->mapWindowRaised();
-        _focus_ctrl->skipNextEnter(_workspace_indicator->getWindow());
+        _event_loop->skipNextEnter(_workspace_indicator->getWindow());
 
         struct itimerval value;
         timerclear(&value.it_value);

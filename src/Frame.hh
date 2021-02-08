@@ -150,7 +150,7 @@ public:
 
     // client message handling
     void handleConfigureRequest(XConfigureRequestEvent *ev, Client *client);
-    void handleClientMessage(XClientMessageEvent *ev, Client *client);
+    ActionEvent *handleClientMessage(XClientMessageEvent *ev, Client *client);
     void handlePropertyChange(XPropertyEvent *ev, Client *client);
 
     static Frame *getTagFrame(void) { return _tag_frame; }
@@ -214,6 +214,8 @@ private:
 
     static std::vector<Frame*> _frames; //!< Vector of all Frames.
     static std::vector<uint> _frameid_list; //!< Vector of free Frame IDs.
+
+    static ActionEvent _ae_move;
 
     // Tagging, static as only one Frame can be tagged
     static Frame *_tag_frame; //!< Pointer to tagged frame.

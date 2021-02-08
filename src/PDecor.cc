@@ -1152,144 +1152,6 @@ PDecor::moveChildRel(int off)
     updatedChildOrder();
 }
 
-//! @brief Do move of Decor with the mouse.
-//! @param x_root X position of the pointer when event was triggered.
-//! @param y_root Y position of the pointer when event was triggered.
-void
-PDecor::doMove(int x_root, int y_root)
-{
-    if (! allowMove()) {
-        return;
-    }
-
-    auto sw = pekwm::statusWindow();
-    if (! X11::grabPointer(X11::getRoot(), ButtonMotionMask|ButtonReleaseMask,
-                           CURSOR_MOVE)) {
-        return;
-    }
-
-    // Get relative position to root
-    int x = x_root - _gm.x;
-    int y = y_root - _gm.y;
-
-    bool outline = ! pekwm::config()->getOpaqueMove();
-    bool center_on_root = pekwm::config()->isShowStatusWindowOnRoot();
-    EdgeType edge;
-
-    // grab server, we don't want invert traces
-    if (outline) {
-        X11::grabServer();
-    }
-
-    wchar_t buf[128];
-    getDecorInfo(buf, 128);
-
-    if (pekwm::config()->isShowStatusWindow()) {
-        sw->draw(buf, true, center_on_root ? 0 : &_gm);
-        sw->mapWindowRaised();
-        sw->draw(buf, true, center_on_root ? 0 : &_gm);
-    }
-
-    Geometry last_gm(_gm);
-
-    XEvent e;
-    const long move_mask = ButtonPressMask|ButtonReleaseMask|PointerMotionMask;
-    bool exit = false;
-    while (! exit) {
-        if (outline) {
-            drawOutline(_gm);
-        }
-        XMaskEvent(X11::getDpy(), move_mask, &e);
-        if (outline) {
-            drawOutline(_gm); // clear
-        }
-
-        switch (e.type) {
-        case MotionNotify:
-            // Flush all pointer motion, no need to redraw and redraw.
-            X11::removeMotionEvents();
-
-            _gm.x = e.xmotion.x_root - x;
-            _gm.y = e.xmotion.y_root - y;
-            checkSnap();
-
-            if (! outline && _gm != last_gm) {
-                last_gm = _gm;
-                XMoveWindow(X11::getDpy(), _window, _gm.x, _gm.y);
-            }
-
-            edge = doMoveEdgeFind(e.xmotion.x_root, e.xmotion.y_root);
-            if (edge != SCREEN_EDGE_NO) {
-                doMoveEdgeAction(&e.xmotion, edge);
-            }
-
-            getDecorInfo(buf, 128);
-            if (pekwm::config()->isShowStatusWindow()) {
-                sw->draw(buf, true, center_on_root ? 0 : &_gm);
-            }
-
-            break;
-        case ButtonRelease:
-            exit = true;
-            break;
-        }
-    }
-
-    move(_gm.x, _gm.y); // update child
-
-    if (pekwm::config()->isShowStatusWindow()) {
-        sw->unmapWindow();
-    }
-
-    // ungrab the server
-    if (outline) {
-        move(_gm.x, _gm.y);
-        X11::ungrabServer(true);
-    }
-
-    X11::ungrabPointer();
-}
-
-//! @brief Matches cordinates against screen edge
-EdgeType
-PDecor::doMoveEdgeFind(int x, int y)
-{
-    EdgeType edge = SCREEN_EDGE_NO;
-    if (x <= signed(pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_LEFT))) {
-        edge = SCREEN_EDGE_LEFT;
-    } else if (x >= signed(X11::getWidth() -
-                           pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_RIGHT))) {
-        edge = SCREEN_EDGE_RIGHT;
-    } else if (y <= signed(pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_TOP))) {
-        edge = SCREEN_EDGE_TOP;
-    } else if (y >= signed(X11::getHeight() -
-                           pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_BOTTOM))) {
-        edge = SCREEN_EDGE_BOTTOM;
-    }
-
-    return edge;
-}
-
-//! @brief Finds and executes action if any
-void
-PDecor::doMoveEdgeAction(XMotionEvent *ev, EdgeType edge)
-{
-    ActionEvent *ae;
-
-    uint button = X11::getButtonFromState(ev->state);
-    ae = ActionHandler::findMouseAction(button, ev->state,
-                                        MOUSE_EVENT_ENTER_MOVING,
-                                        pekwm::config()->getEdgeListFromPosition(edge));
-
-    if (ae) {
-        ActionPerformed ap(this, *ae);
-        ap.type = ev->type;
-        ap.event.motion = ev;
-
-        pekwm::actionHandler()->handleAction(ap);
-    }
-}
-
 /**
  * Move and resize window with keybindings.
  */
@@ -1392,7 +1254,7 @@ PDecor::doKeyboardMoveResize(void)
                     }
                     break;
                 case MOVE_SNAP:
-                    checkSnap();
+                    checkSnap(this, _gm);
                     if (! outline) {
                         move(_gm.x, _gm.y);
                     }
@@ -1636,15 +1498,14 @@ PDecor::setBorderShape(void)
 }
 
 void
-PDecor::checkSnap(void)
+PDecor::checkSnap(PWinObj *skip_wo, Geometry &gm)
 {
-    if ((pekwm::config()->getWOAttract() > 0) ||
-            (pekwm::config()->getWOResist() > 0)) {
-        checkWOSnap();
+    auto cfg = pekwm::config();
+    if (cfg->getWOAttract() > 0 || cfg->getWOResist() > 0) {
+        checkWOSnap(skip_wo, gm);
     }
-    if ((pekwm::config()->getEdgeAttract() > 0) ||
-            (pekwm::config()->getEdgeResist() > 0)) {
-        checkEdgeSnap();
+    if (cfg->getEdgeAttract() > 0 || cfg->getEdgeResist() > 0) {
+        checkEdgeSnap(gm);
     }
 }
 
@@ -1663,13 +1524,13 @@ isBetween(int x1, int x2, int t1, int t2)
 
 //! @todo PDecor/PWinObj doesn't have _skip property
 void
-PDecor::checkWOSnap(void)
+PDecor::checkWOSnap(PWinObj *skip_wo, Geometry &gm)
 {
     PDecor *decor;
-    Geometry gm = _gm;
+    Geometry orig_gm = gm;
 
-    int x = getRX();
-    int y = getBY();
+    int x = gm.x + gm.width;
+    int y = gm.y + gm.height;
 
     int attract = pekwm::config()->getWOAttract();
     int resist = pekwm::config()->getWOResist();
@@ -1678,7 +1539,7 @@ PDecor::checkWOSnap(void)
 
     auto it = _wo_list.rbegin();
     for (; it != _wo_list.rend(); ++it) {
-        if (((*it) == this)
+        if (((*it) == skip_wo)
             || ! (*it)->isMapped()
             || ((*it)->getType() != PWinObj::WO_FRAME)) {
             continue;
@@ -1696,27 +1557,27 @@ PDecor::checkWOSnap(void)
         if ((x >= ((*it)->getX() - attract))
             && (x <= ((*it)->getX() + resist))) {
             if (isBetween(gm.y, y, (*it)->getY(), (*it)->getBY())) {
-                _gm.x = (*it)->getX() - gm.width;
+                gm.x = (*it)->getX() - orig_gm.width;
                 snapped = true;
             }
         } else if ((gm.x >= signed((*it)->getRX() - resist)) &&
                    (gm.x <= signed((*it)->getRX() + attract))) {
             if (isBetween(gm.y, y, (*it)->getY(), (*it)->getBY())) {
-                _gm.x = (*it)->getRX();
+                gm.x = (*it)->getRX();
                 snapped = true;
             }
         }
 
         if (y >= ((*it)->getY() - attract) && (y <= (*it)->getY() + resist)) {
             if (isBetween(gm.x, x, (*it)->getX(), (*it)->getRX())) {
-                _gm.y = (*it)->getY() - gm.height;
+                gm.y = (*it)->getY() - orig_gm.height;
                 if (snapped)
                     break;
             }
         } else if ((gm.y >= signed((*it)->getBY() - resist)) &&
                    (gm.y <= signed((*it)->getBY() + attract))) {
             if (isBetween(gm.x, x, (*it)->getX(), (*it)->getRX())) {
-                _gm.y = (*it)->getBY();
+                gm.y = (*it)->getBY();
                 if (snapped)
                     break;
             }
@@ -1727,26 +1588,26 @@ PDecor::checkWOSnap(void)
 //! @brief Snaps decor agains head edges. Only updates _gm, no real move.
 //! @todo Add support for checking for harbour and struts
 void
-PDecor::checkEdgeSnap(void)
+PDecor::checkEdgeSnap(Geometry &gm)
 {
     int attract = pekwm::config()->getEdgeAttract();
     int resist = pekwm::config()->getEdgeResist();
 
     Geometry head;
-    pekwm::rootWo()->getHeadInfoWithEdge(X11::getNearestHead(_gm.x, _gm.y),
+    pekwm::rootWo()->getHeadInfoWithEdge(X11::getNearestHead(gm.x, gm.y),
                                          head);
 
-    if ((_gm.x >= (head.x - resist)) && (_gm.x <= (head.x + attract))) {
-        _gm.x = head.x;
-    } else if ((_gm.x + _gm.width) >= (head.x + head.width - attract) &&
-               ((_gm.x + _gm.width) <= (head.x + head.width + resist))) {
-        _gm.x = head.x + head.width - _gm.width;
+    if ((gm.x >= (head.x - resist)) && (gm.x <= (head.x + attract))) {
+        gm.x = head.x;
+    } else if ((gm.x + gm.width) >= (head.x + head.width - attract) &&
+               ((gm.x + gm.width) <= (head.x + head.width + resist))) {
+        gm.x = head.x + head.width - gm.width;
     }
-    if ((_gm.y >= (head.y - resist)) && (_gm.y <= (head.y + attract))) {
-        _gm.y = head.y;
-    } else if (((_gm.y + _gm.height) >= (head.y + head.height - attract)) &&
-               ((_gm.y + _gm.height) <= (head.y + head.height + resist))) {
-        _gm.y = head.y + head.height - _gm.height;
+    if ((gm.y >= (head.y - resist)) && (gm.y <= (head.y + attract))) {
+        gm.y = head.y;
+    } else if (((gm.y + gm.height) >= (head.y + head.height - attract)) &&
+               ((gm.y + gm.height) <= (head.y + head.height + resist))) {
+        gm.y = head.y + head.height - gm.height;
     }
 }
 
@@ -1758,7 +1619,9 @@ void
 PDecor::alignChild(PWinObj *child)
 {
     if (child) {
-        XMoveWindow(X11::getDpy(), child->getWindow(), bdLeft(this), bdTop(this) + titleHeight(this));
+        X11::moveWindow(child->getWindow(),
+                        bdLeft(this),
+                        bdTop(this) + titleHeight(this));
     }
 }
 

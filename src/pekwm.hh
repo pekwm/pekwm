@@ -19,9 +19,10 @@
 
 #include "Compat.hh"
 #include "AppCtrl.hh"
-#include "FocusCtrl.hh"
 #include "Types.hh"
 #include "Exception.hh"
+
+class EventLoop;
 
 extern "C" {
 #include <X11/Xlib.h>
@@ -397,7 +398,7 @@ enum CurrHeadSelector {
 
 namespace pekwm
 {
-    bool init(AppCtrl* app_ctrl, FocusCtrl* focus_ctrl,
+    bool init(AppCtrl* app_ctrl, EventLoop* event_loop,
               Display* dpy, const std::string& config_file,
               bool replace, bool synchronous);
     void cleanup(void);

@@ -18,7 +18,8 @@
 #include "Action.hh"
 #include "AppCtrl.hh"
 #include "Client.hh"
-#include "FocusCtrl.hh"
+#include "EventHandler.hh"
+#include "EventLoop.hh"
 #include "ManagerWindows.hh"
 #include "PWinObj.hh"
 
@@ -26,7 +27,7 @@
 #include <map>
 
 class WindowManager : public AppCtrl,
-                      public FocusCtrl
+                      public EventLoop
 {
 public:
     static WindowManager *start(const std::string &config_file,
@@ -50,6 +51,13 @@ public:
     void skipNextEnter(Window win) override {
         _skip_enter_after = win;
         _skip_enter = 0;
+    }
+
+    void setEventHandler(EventHandler *event_handler) {
+        if (_event_handler) {
+            delete _event_handler;
+        }
+        _event_handler = event_handler;
     }
 
     // public event handlers used when doing grabbed actions
@@ -89,6 +97,9 @@ private:
     void screenEdgeResize(void);
     void screenEdgeMapUnmap(void);
 
+    void handleEvent(XEvent &ev);
+    bool handleEventHandlerEvent(XEvent &ev);
+
     void handleMapRequestEvent(XMapRequestEvent *ev);
     void handleUnmapEvent(XUnmapEvent *ev);
     void handleDestroyWindowEvent(XDestroyWindowEvent *ev);
@@ -127,6 +138,8 @@ private:
     bool _restart;
     std::string _restart_command;
     pid_t _bg_pid;
+
+    EventHandler *_event_handler;
 
     EdgeWO *_screen_edges[4];
 

@@ -39,7 +39,9 @@ extern "C" {
 std::vector<Frame*> Frame::_frames;
 std::vector<uint> Frame::_frameid_list;
 
-Frame* Frame::_tag_frame = 0;
+ActionEvent Frame::_ae_move = ActionEvent(Action(ACTION_MOVE));
+
+Frame* Frame::_tag_frame = nullptr;
 bool Frame::_tag_behind = false;
 
 
@@ -280,7 +282,7 @@ Frame::handleMotionEvent(XMotionEvent *ev)
         return 0;
     }
 
-    ActionEvent *ae = 0;
+    ActionEvent *ae = nullptr;
     uint button = X11::getButtonFromState(ev->state);
 
     if (ev->window == getTitleWindow()) {
@@ -309,7 +311,7 @@ Frame::handleMotionEvent(XMotionEvent *ev)
         if (! ActionHandler::checkAEThreshold(ev->x_root, ev->y_root,
                                              _pointer_x, _pointer_y,
                                               ae->threshold)) {
-            ae = 0;
+            ae = nullptr;
         }
     }
 
@@ -1828,7 +1830,7 @@ Frame::setGeometry(const std::string geometry, int head, bool honour_strut)
         return;
     }
 
-    Geometry screen_gm = X11::getScreenGeometry();
+    auto screen_gm = X11::getScreenGeometry();
     if (head != -1) {
         if (head == -2) {
             head = X11Util::getNearestHead(*this);
@@ -1845,7 +1847,8 @@ Frame::setGeometry(const std::string geometry, int head, bool honour_strut)
 }
 
 void
-Frame::setGeometry(const Geometry &geometry, int gm_mask, const Geometry &screen_gm)
+Frame::setGeometry(const Geometry &geometry, int gm_mask,
+                   const Geometry &screen_gm)
 {
     applyGeometry(_gm, geometry, gm_mask, screen_gm);
     if (gm_mask&(X_VALUE|Y_VALUE)) {
@@ -2182,9 +2185,11 @@ Frame::isRequestGeometryFullscreen(XConfigureRequestEvent *ev)
 /**
  * Handle client message.
  */
-void
+ActionEvent*
 Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
 {
+    ActionEvent *ae = nullptr;
+
     if (ev->message_type == X11::getAtom(STATE)) {
         handleClientStateMessage(ev, client);
     } else if (ev->message_type == X11::getAtom(NET_ACTIVE_WINDOW)) {
@@ -2218,7 +2223,8 @@ Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
         if (client == _client) {
             iconify();
         }
-    } else if (ev->message_type == X11::getAtom(NET_WM_MOVERESIZE) && ev->format == 32) {
+    } else if (ev->message_type == X11::getAtom(NET_WM_MOVERESIZE)
+               && ev->format == 32) {
         switch (ev->data.l[2]) {
         case NET_WM_MOVERESIZE_SIZE_TOPLEFT:
             doResize(true, true, true, true);
@@ -2245,7 +2251,8 @@ Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
             doResize(true, true, false, false);
             break;
         case NET_WM_MOVERESIZE_MOVE:
-            doMove(ev->data.l[0], ev->data.l[1]);
+            ae = &_ae_move;
+            ae->action_list[0].setParamI(ev->data.l[0], ev->data.l[1]);
             break;
         case NET_WM_MOVERESIZE_SIZE_KEYBOARD:
         case NET_WM_MOVERESIZE_MOVE_KEYBOARD:
@@ -2253,6 +2260,7 @@ Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
             break;
         }
     }
+    return ae;
 }
 
 /**

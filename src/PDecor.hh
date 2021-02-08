@@ -285,7 +285,6 @@ public:
     }
 
     // common actions like doMove
-    void doMove(int x_root, int y_root);
     void doKeyboardMoveResize(void);
 
     bool isFullscreen(void) const { return _fullscreen; }
@@ -302,6 +301,9 @@ public:
     }
 
     void deiconify(void);
+
+    void drawOutline(const Geometry &gm);
+    static void checkSnap(PWinObj *skip_wo, Geometry &gm);
 
 protected:
     // START - PDecor interface.
@@ -327,12 +329,10 @@ protected:
 
     void resizeTitle(void);
 
-    void checkSnap(void);
-    void checkWOSnap(void);
-    void checkEdgeSnap(void);
+    static void checkWOSnap(PWinObj *skip_wo, Geometry &gm);
+    static void checkEdgeSnap(Geometry &gm);
 
     void alignChild(PWinObj *child);
-    void drawOutline(const Geometry &gm);
 
     FocusedState getFocusedState(bool selected) const override {
         if (selected) {
@@ -359,9 +359,6 @@ private:
     ActionEvent *handleButtonReleaseButton(XButtonEvent *ev,
                                            PDecor::Button *button);
     ActionEvent *handleButtonReleaseBorder(XButtonEvent *ev);
-
-    EdgeType doMoveEdgeFind(int x, int y);
-    void doMoveEdgeAction(XMotionEvent *ev, EdgeType edge);
 
     void placeButtons(void);
     void placeBorder(void);

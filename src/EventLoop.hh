@@ -1,5 +1,5 @@
 //
-// FocusCtrl.hh for pekwm
+// EventLoop.hh for pekwm
 // Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
@@ -8,14 +8,18 @@
 
 #pragma once
 
+#include "EventHandler.hh"
+
 extern "C" {
 #include <X11/Xlib.h>
 }
 
 /**
- * Interface for tweaking the focus handling
+ * EventLoop interfaction
  */
-class FocusCtrl {
+class EventLoop {
 public:
+    virtual void setEventHandler(EventHandler* event_handler) = 0;
+
     virtual void skipNextEnter(Window window) = 0;
 };

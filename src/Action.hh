@@ -198,12 +198,14 @@ public:
     inline int getParamI(uint n) const {
         return n < _i.size() ? _i[n] : 0;
     }
+    size_t numParamI(void) const { return _i.size(); }
     inline const std::string &getParamS(void) const {
         return getParamS(0);
     }
     inline const std::string &getParamS(uint n) const {
         return n < _s.size() ? _s[n] : _empty_string;
     }
+    size_t numParamS(void) const { return _s.size(); }
 
     inline void setAction(uint action) { _action = action; }
     inline void setParamI(uint n, int param) {
@@ -239,6 +241,14 @@ private:
 class ActionEvent {
 public:
     ActionEvent(void) { }
+    ActionEvent(Action action)
+        : mod(0),
+          sym(0),
+          type(0),
+          threshold(0)
+    {
+        action_list.push_back(action);
+    }
     ~ActionEvent(void) { }
 
     inline bool isOnlyAction(uint action) const {
@@ -271,6 +281,7 @@ public:
         XMotionEvent *motion;
         XCrossingEvent *crossing;
         XExposeEvent *expose;
+        XClientMessageEvent *client;
     } event;
 };
 

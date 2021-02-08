@@ -34,11 +34,13 @@
 #include "X11Util.hh"
 #include "x11.hh"
 
+#include "MoveEventHandler.hh"
+
 #include <memory>
 
-ActionHandler::ActionHandler(AppCtrl* app_ctrl, FocusCtrl* focus_ctrl)
+ActionHandler::ActionHandler(AppCtrl* app_ctrl, EventLoop* event_loop)
     : _app_ctrl(app_ctrl),
-      _focus_ctrl(focus_ctrl)
+      _event_loop(event_loop)
 {
     // Initialize state_to_keycode map
     for (uint i = 0; i < X11::MODIFIER_TO_MASK_NUM; ++i) {
@@ -253,18 +255,25 @@ ActionHandler::handleAction(const ActionPerformed &ap)
         }
         // actions valid for pdecor
         if (! matched && decor) {
-            int x_root, y_root;
-
             matched = true;
             switch (it->getAction()) {
-            case ACTION_MOVE:
-                // Get root position, previously event positions was
-                // used however this seems to be error prone on
-                // Xinerama setups
-                X11::getMousePosition(x_root, y_root);
+            case ACTION_MOVE: {
+                int x_root, y_root;
 
-                decor->doMove(x_root, y_root);
+                if (it->numParamI() == 2) {
+                    x_root = it->getParamI(0);
+                    y_root = it->getParamI(1);
+                } else {
+                    // Get root position, previously used event
+                    // position but was error prone on Xinerama setups
+                    X11::getMousePosition(x_root, y_root);
+                }
+                auto event_handler =
+                    new MoveEventHandler(pekwm::config(), decor,
+                                         x_root, y_root);
+                _event_loop->setEventHandler(event_handler);
                 break;
+            }
             case ACTION_CLOSE:
                 decor->unmapWindow();
                 if (decor->getType() == PWinObj::WO_CMD_DIALOG
@@ -695,7 +704,7 @@ ActionHandler::actionFocusToggle(uint button, uint raise, int off,
                    head.y + ((head.height - menu->getHeight()) / 2));
         menu->setFocused(true);
         menu->mapWindowRaised();
-        _focus_ctrl->skipNextEnter(menu->getWindow());
+        _event_loop->skipNextEnter(menu->getWindow());
     }
 
     menu->selectItemRel(off);

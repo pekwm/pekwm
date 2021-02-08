@@ -14,7 +14,7 @@
 #include "Action.hh"
 #include "AppCtrl.hh"
 #include "CmdDialog.hh"
-#include "FocusCtrl.hh"
+#include "EventLoop.hh"
 #include "SearchDialog.hh"
 
 #include <string>
@@ -27,7 +27,7 @@ class PMenu;
 class ActionHandler
 {
 public:
-    ActionHandler(AppCtrl* app_ctrl, FocusCtrl* focus_ctrl);
+    ActionHandler(AppCtrl* app_ctrl, EventLoop* event_loop);
     ~ActionHandler(void);
 
     void handleAction(const ActionPerformed &ap);
@@ -77,7 +77,7 @@ private:
 
 private:
     AppCtrl* _app_ctrl;
-    FocusCtrl* _focus_ctrl;
+    EventLoop* _event_loop;
     CmdDialog _cmd_dialog;
     SearchDialog _search_dialog;
 

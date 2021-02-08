@@ -13,7 +13,7 @@
 #include <string>
 
 #include "pekwm.hh"
-#include "FocusCtrl.hh"
+#include "EventLoop.hh"
 #include "WinLayouter.hh"
 #include "WorkspaceIndicator.hh"
 
@@ -58,7 +58,7 @@ public:
     typedef std::vector<PWinObj*>::const_reverse_iterator
         const_reverse_iterator;
 
-    static void init(FocusCtrl* focus_ctrl);
+    static void init(EventLoop* event_loop);
     static void cleanup();
 
     static inline iterator begin(void) { return _wobjs.begin(); }
@@ -166,7 +166,7 @@ private:
     static uint _previous; /**< Previous workspace. */
     static uint _per_row; /**< Workspaces per row in layout. */
 
-    static FocusCtrl* _focus_ctrl;
+    static EventLoop* _event_loop;
     /** Window popping up when switching workspace */
     static WorkspaceIndicator *_workspace_indicator;
 

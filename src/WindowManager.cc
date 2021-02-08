@@ -151,7 +151,10 @@ WindowManager::WindowManager()
     : _shutdown(false),
       _reload(false),
       _restart(false),
-      _bg_pid(-1)
+      _bg_pid(-1),
+      _event_handler(nullptr),
+      _skip_enter_after(None),
+      _skip_enter(0)
 {
     pekwm::setIsStartup(false),
 
@@ -672,118 +675,155 @@ WindowManager::doEventLoop(void)
 
         // Get next event, drop event handling if none was given
         if (X11::getNextEvent(ev)) {
-            switch (ev.type) {
-            case MapRequest:
-                handleMapRequestEvent(&ev.xmaprequest);
-                break;
-            case UnmapNotify:
-                handleUnmapEvent(&ev.xunmap);
-                break;
-            case DestroyNotify:
-                handleDestroyWindowEvent(&ev.xdestroywindow);
-                break;
-
-            case ConfigureRequest:
-                handleConfigureRequestEvent(&ev.xconfigurerequest);
-                break;
-            case ClientMessage:
-                handleClientMessageEvent(&ev.xclient);
-                break;
-            case ColormapNotify:
-                handleColormapEvent(&ev.xcolormap);
-                break;
-            case PropertyNotify:
-                X11::setLastEventTime(ev.xproperty.time);
-                handlePropertyEvent(&ev.xproperty);
-                break;
-            case MappingNotify:
-                handleMappingEvent(&ev.xmapping);
-                break;
-            case Expose:
-                handleExposeEvent(&ev.xexpose);
-                break;
-
-            case KeyPress:
-            case KeyRelease:
-                X11::setLastEventTime(ev.xkey.time);
-                handleKeyEvent(&ev.xkey);
-                break;
-
-            case ButtonPress:
-                X11::setLastEventTime(ev.xbutton.time);
-                handleButtonPressEvent(&ev.xbutton);
-                break;
-            case ButtonRelease:
-                X11::setLastEventTime(ev.xbutton.time);
-                handleButtonReleaseEvent(&ev.xbutton);
-                break;
-
-            case MotionNotify:
-                X11::setLastEventTime(ev.xmotion.time);
-                handleMotionEvent(&ev.xmotion);
-                break;
-
-            case EnterNotify:
-                X11::setLastEventTime(ev.xcrossing.time);
-                handleEnterNotify(&ev.xcrossing);
-                break;
-            case LeaveNotify:
-                X11::setLastEventTime(ev.xcrossing.time);
-                handleLeaveNotify(&ev.xcrossing);
-                break;
-            case FocusIn:
-                handleFocusInEvent(&ev.xfocus);
-                break;
-            case FocusOut:
-                break;
-
-            case SelectionClear:
-                // Another window
-                LOG("being replaced by another WM");
-                _shutdown = true;
-                break;
-
-            default:
-#ifdef HAVE_SHAPE
-                if (X11::hasExtensionShape()
-                    && ev.type == X11::getEventShape()) {
-                    auto sev = reinterpret_cast<XShapeEvent*>(&ev);
-                    X11::setLastEventTime(sev->time);
-                    auto client = Client::findClient(sev->window);
-                    if (client) {
-                        client->handleShapeEvent(sev);
-                    }
-                }
-#endif // HAVE_SHAPE
-#ifdef HAVE_XRANDR
-                if (X11::hasExtensionXRandr()) {
-                    if (ev.type == X11::getEventXRandr() + RRScreenChangeNotify) {
-                        XRRScreenChangeNotifyEvent *scr_ev =
-                                reinterpret_cast<XRRScreenChangeNotifyEvent*>(&ev);
-
-                        if  (scr_ev->rotation == RR_Rotate_90
-                            || scr_ev->rotation == RR_Rotate_270) {
-                            pekwm::rootWo()->updateGeometry(scr_ev->height,
-                                                            scr_ev->width);
-                        } else {
-                            pekwm::rootWo()->updateGeometry(scr_ev->width,
-                                                            scr_ev->height);
-                        }
-
-                        pekwm::harbour()->updateGeometry();
-                        screenEdgeResize();
-
-                        // Make sure windows are visible after resize
-                        auto it(PDecor::pdecor_begin());
-                        for (; it != PDecor::pdecor_end(); ++it) {
-                            Workspaces::placeWoInsideScreen(*it);
-                        }
-                    }
-                }
-#endif // HAVE_XRANDR
-                break;
+            if (! _event_handler || ! handleEventHandlerEvent(ev)) {
+                handleEvent(ev);
             }
         }
+    }
+}
+
+bool
+WindowManager::handleEventHandlerEvent(XEvent &ev)
+{
+    EventHandler::Result res;
+    switch (ev.type) {
+    case ButtonPress:
+        res = _event_handler->handleButtonPressEvent(&ev.xbutton);
+        break;
+    case ButtonRelease:
+        res = _event_handler->handleButtonReleaseEvent(&ev.xbutton);
+        break;
+    case MotionNotify:
+        res = _event_handler->handleMotionNotifyEvent(&ev.xmotion);
+        break;
+    default:
+        res = EventHandler::EVENT_SKIP;
+    }
+
+    switch (res) {
+    case EventHandler::EVENT_STOP_PROCESSED:
+    case EventHandler::EVENT_STOP_SKIP:
+        TRACE("removing event handler " << _event_handler);
+        setEventHandler(nullptr);
+        return res == EventHandler::EVENT_STOP_PROCESSED;
+    default:
+        return res == EventHandler::EVENT_PROCESSED;
+    }
+}
+
+void
+WindowManager::handleEvent(XEvent &ev)
+{
+    switch (ev.type) {
+    case MapRequest:
+        handleMapRequestEvent(&ev.xmaprequest);
+        break;
+    case UnmapNotify:
+        handleUnmapEvent(&ev.xunmap);
+        break;
+    case DestroyNotify:
+        handleDestroyWindowEvent(&ev.xdestroywindow);
+        break;
+
+    case ConfigureRequest:
+        handleConfigureRequestEvent(&ev.xconfigurerequest);
+        break;
+    case ClientMessage:
+        handleClientMessageEvent(&ev.xclient);
+        break;
+    case ColormapNotify:
+        handleColormapEvent(&ev.xcolormap);
+        break;
+    case PropertyNotify:
+        X11::setLastEventTime(ev.xproperty.time);
+        handlePropertyEvent(&ev.xproperty);
+        break;
+    case MappingNotify:
+        handleMappingEvent(&ev.xmapping);
+        break;
+    case Expose:
+        handleExposeEvent(&ev.xexpose);
+        break;
+
+    case KeyPress:
+    case KeyRelease:
+        X11::setLastEventTime(ev.xkey.time);
+        handleKeyEvent(&ev.xkey);
+        break;
+
+    case ButtonPress:
+        X11::setLastEventTime(ev.xbutton.time);
+        handleButtonPressEvent(&ev.xbutton);
+        break;
+    case ButtonRelease:
+        X11::setLastEventTime(ev.xbutton.time);
+        handleButtonReleaseEvent(&ev.xbutton);
+        break;
+
+    case MotionNotify:
+        X11::setLastEventTime(ev.xmotion.time);
+        handleMotionEvent(&ev.xmotion);
+        break;
+
+    case EnterNotify:
+        X11::setLastEventTime(ev.xcrossing.time);
+        handleEnterNotify(&ev.xcrossing);
+        break;
+    case LeaveNotify:
+        X11::setLastEventTime(ev.xcrossing.time);
+        handleLeaveNotify(&ev.xcrossing);
+        break;
+    case FocusIn:
+        handleFocusInEvent(&ev.xfocus);
+        break;
+    case FocusOut:
+        break;
+
+    case SelectionClear:
+        // Another window
+        LOG("being replaced by another WM");
+        _shutdown = true;
+        break;
+
+    default:
+#ifdef HAVE_SHAPE
+        if (X11::hasExtensionShape()
+            && ev.type == X11::getEventShape()) {
+            auto sev = reinterpret_cast<XShapeEvent*>(&ev);
+            X11::setLastEventTime(sev->time);
+            auto client = Client::findClient(sev->window);
+            if (client) {
+                client->handleShapeEvent(sev);
+            }
+        }
+#endif // HAVE_SHAPE
+#ifdef HAVE_XRANDR
+        if (X11::hasExtensionXRandr()) {
+            if (ev.type == X11::getEventXRandr() + RRScreenChangeNotify) {
+                XRRScreenChangeNotifyEvent *scr_ev =
+                    reinterpret_cast<XRRScreenChangeNotifyEvent*>(&ev);
+
+                if  (scr_ev->rotation == RR_Rotate_90
+                     || scr_ev->rotation == RR_Rotate_270) {
+                    pekwm::rootWo()->updateGeometry(scr_ev->height,
+                                                    scr_ev->width);
+                } else {
+                    pekwm::rootWo()->updateGeometry(scr_ev->width,
+                                                    scr_ev->height);
+                }
+
+                pekwm::harbour()->updateGeometry();
+                screenEdgeResize();
+
+                // Make sure windows are visible after resize
+                auto it(PDecor::pdecor_begin());
+                for (; it != PDecor::pdecor_end(); ++it) {
+                    Workspaces::placeWoInsideScreen(*it);
+                }
+            }
+        }
+#endif // HAVE_XRANDR
+        break;
     }
 }
 
@@ -1141,6 +1181,7 @@ WindowManager::handleEnterNotify(XCrossingEvent *ev)
     }
 
     if ((ev->mode == NotifyGrab) || (ev->mode == NotifyUngrab)) {
+
         return;
     }
 
@@ -1178,16 +1219,13 @@ WindowManager::handleLeaveNotify(XCrossingEvent *ev)
         return;
     }
 
-    PWinObj *wo = PWinObj::findPWinObj(ev->window);
-
+    auto wo = PWinObj::findPWinObj(ev->window);
     if (wo) {
-        ActionEvent *ae = wo->handleLeaveEvent(ev);
-
+        auto ae = wo->handleLeaveEvent(ev);
         if (ae) {
             ActionPerformed ap(wo, *ae);
             ap.type = ev->type;
             ap.event.crossing = ev;
-
             pekwm::actionHandler()->handleAction(ap);
         }
     }
@@ -1287,7 +1325,13 @@ WindowManager::handleClientMessageEvent(XClientMessageEvent *ev)
         auto client = Client::findClientFromWindow(ev->window);
         if (client) {
             auto *frame = static_cast<Frame*>(client->getParent());
-            frame->handleClientMessage(ev, client);
+            auto ae = frame->handleClientMessage(ev, client);
+            if (ae) {
+                ActionPerformed ap(frame, *ae);
+                ap.type = ev->type;
+                ap.event.client = ev;
+                pekwm::actionHandler()->handleAction(ap);
+            }
         }
     }
 }
