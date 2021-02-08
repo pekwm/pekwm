@@ -47,14 +47,15 @@ namespace Info {
     {
         printVersion();
         std::cout
+            << " --config    alternative config file" << std::endl
+            << " --display   display to connect to" << std::endl
             << " --help      show this info." << std::endl
-            << " --version   show version info" << std::endl
             << " --info      extended info. Use for bug reports." << std::endl
             << " --log-file  set log file." << std::endl
             << " --log-level set log level." << std::endl
-            << " --display   display to connect to" << std::endl
-            << " --config    alternative config file" << std::endl
-            << " --replace   replace running window manager" << std::endl;
+            << " --replace   replace running window manager" << std::endl
+            << " --sync      run Xlib in synchronous mode" << std::endl
+            << " --version   show version info" << std::endl;
     }
 
     /**
@@ -91,17 +92,13 @@ main(int argc, char **argv)
 
     // get the args and test for different options
     std::string config_file;
+    bool synchronous = false;
     bool replace = false;
     for (int i = 1; i < argc; ++i)	{
         if ((strcmp("--display", argv[i]) == 0) && ((i + 1) < argc)) {
             setenv("DISPLAY", argv[++i], 1);
         } else if ((strcmp("--config", argv[i]) == 0) && ((i + 1) < argc)) {
             config_file = argv[++i];
-        } else if (strcmp("--replace", argv[i]) == 0) {
-            replace = true;
-        } else if (strcmp("--version", argv[i]) == 0) {
-            Info::printVersion();
-            exit(0);
         } else if (strcmp("--info", argv[i]) == 0) {
             Info::printInfo();
             exit(0);
@@ -113,6 +110,13 @@ main(int argc, char **argv)
             } else {
                 std::cerr << "Failed to open log file " << argv[i] << std::endl;
             }
+        } else if (strcmp("--replace", argv[i]) == 0) {
+            replace = true;
+        } else if (strcmp("--sync", argv[i]) == 0) {
+            synchronous = true;
+        } else if (strcmp("--version", argv[i]) == 0) {
+            Info::printVersion();
+            exit(0);
         } else {
             Info::printUsage();
             exit(0);
@@ -139,7 +143,7 @@ main(int argc, char **argv)
               << "using configuration at " << config_file);
 
     int ret = 1;
-    auto wm = WindowManager::start(config_file, replace);
+    auto wm = WindowManager::start(config_file, replace, synchronous);
     if (wm) {
         try {
             TRACE("Enter event loop.");

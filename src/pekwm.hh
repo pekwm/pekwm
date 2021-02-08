@@ -398,7 +398,7 @@ namespace pekwm
 {
     bool init(AppCtrl* app_ctrl, FocusCtrl* focus_ctrl,
               Display* dpy, const std::string& config_file,
-              bool replace);
+              bool replace, bool synchronous);
     void cleanup(void);
 
     bool isStartup(void);

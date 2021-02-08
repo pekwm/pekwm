@@ -39,13 +39,13 @@ namespace pekwm
 {
     bool init(AppCtrl* app_ctrl, FocusCtrl* focus_ctrl,
               Display* dpy, const std::string& config_file,
-              bool replace)
+              bool replace, bool synchronous)
     {
         _config = new Config();
         _config->load(config_file);
         _config->loadMouseConfig(_config->getMouseConfigFile());
 
-        X11::init(dpy, _config->isHonourRandr());
+        X11::init(dpy, synchronous, _config->isHonourRandr());
 
         _hint_wo = new HintWO(X11::getRoot());
         if (! _hint_wo->claimDisplay(replace)) {

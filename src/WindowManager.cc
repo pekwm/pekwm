@@ -106,7 +106,8 @@ extern "C" {
  * Create window manager instance and run main routine.
  */
 WindowManager*
-WindowManager::start(const std::string &config_file, bool replace)
+WindowManager::start(const std::string &config_file,
+                     bool replace, bool synchronous)
 {
     auto dpy = XOpenDisplay(0);
     if (! dpy) {
@@ -118,7 +119,7 @@ WindowManager::start(const std::string &config_file, bool replace)
 
     // Setup window manager
     auto wm = new WindowManager();
-    if (! pekwm::init(wm, wm, dpy, config_file, replace)) {
+    if (! pekwm::init(wm, wm, dpy, config_file, replace, synchronous)) {
         delete wm;
         wm = nullptr;
 

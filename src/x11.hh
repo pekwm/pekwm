@@ -131,7 +131,9 @@ class X11
     static const unsigned KbdLayoutMask2 = 1<<14;
 
 public:
-    static void init(Display *dpy, bool honour_randr = true);
+    static void init(Display *dpy,
+                     bool synchronous = false,
+                     bool honour_randr = true);
     static void destruct(void);
 
     static Display* getDpy(void) { return _dpy; }

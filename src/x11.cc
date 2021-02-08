@@ -53,6 +53,18 @@ Atom X11::_atoms[MAX_NR_ATOMS];
 
 extern "C" {
     /**
+     * Invoked after all Xlib calls if run in synchronous mode.
+     */
+    static int afterXlibCall(Display *dpy)
+    {
+        static uint last_xerrors_count = 0;
+        if (xerrors_count != last_xerrors_count) {
+            last_xerrors_count = xerrors_count;
+        }
+        return 0;
+    }
+
+    /**
       * XError handler, prints error.
       */
     static int
@@ -173,19 +185,24 @@ private:
     uint _ref;
 };
 
-//! @brief X11 constructor
+/**
+ * Init X11 connection, must be called before any X11:: call is made.
+ */
 void
-X11::init(Display *dpy, bool honour_randr)
+X11::init(Display *dpy, bool synchronous, bool honour_randr)
 {
     if (_dpy) {
         throw std::string("X11, trying to create multiple instances");
     }
 
+    _dpy = dpy;
     _honour_randr = honour_randr;
 
+    if (synchronous) {
+        XSynchronize(_dpy, True);
+        XSetAfterFunction(_dpy, afterXlibCall);
+    }
     XSetErrorHandler(handleXError);
-
-    _dpy = dpy;
 
     grabServer();
 
@@ -204,7 +221,8 @@ X11::init(Display *dpy, bool honour_randr)
     // create resize cursors
     _cursor_map[CURSOR_TOP_LEFT] = XCreateFontCursor(_dpy, XC_top_left_corner);
     _cursor_map[CURSOR_TOP] = XCreateFontCursor(_dpy, XC_top_side);
-    _cursor_map[CURSOR_TOP_RIGHT] = XCreateFontCursor(_dpy, XC_top_right_corner);
+    _cursor_map[CURSOR_TOP_RIGHT] =
+        XCreateFontCursor(_dpy, XC_top_right_corner);
     _cursor_map[CURSOR_LEFT] = XCreateFontCursor(_dpy, XC_left_side);
     _cursor_map[CURSOR_RIGHT] = XCreateFontCursor(_dpy, XC_right_side);
     _cursor_map[CURSOR_BOTTOM_LEFT] =
@@ -220,14 +238,16 @@ X11::init(Display *dpy, bool honour_randr)
 #ifdef HAVE_SHAPE
     {
         int dummy_error;
-        _has_extension_shape = XShapeQueryExtension(_dpy, &_event_shape, &dummy_error);
+        _has_extension_shape =
+            XShapeQueryExtension(_dpy, &_event_shape, &dummy_error);
     }
 #endif // HAVE_SHAPE
 
 #ifdef HAVE_XRANDR
     {
         int dummy_error;
-        _has_extension_xrandr = XRRQueryExtension(_dpy, &_event_xrandr, &dummy_error);
+        _has_extension_xrandr =
+            XRRQueryExtension(_dpy, &_event_xrandr, &dummy_error);
     }
 #endif // HAVE_XRANDR
 
@@ -236,7 +256,9 @@ X11::init(Display *dpy, bool honour_randr)
         int major = XkbMajorVersion;
         int minor = XkbMinorVersion;
         int ext_opcode, ext_ev, ext_err;
-        _has_extension_xkb = XkbQueryExtension(_dpy, &ext_opcode, &ext_ev, &ext_err, &major, &minor);
+        _has_extension_xkb =
+            XkbQueryExtension(_dpy, &ext_opcode, &ext_ev, &ext_err,
+                              &major, &minor);
     }
 #endif // HAVE_X11_XKBLIB_H
 

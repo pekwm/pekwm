@@ -29,7 +29,8 @@ class WindowManager : public AppCtrl,
                       public FocusCtrl
 {
 public:
-    static WindowManager *start(const std::string &config_file, bool replace);
+    static WindowManager *start(const std::string &config_file,
+                                bool replace, bool synchronous);
     virtual ~WindowManager();
 
     void doEventLoop(void);
