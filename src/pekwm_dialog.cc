@@ -461,15 +461,15 @@ protected:
                      std::vector<std::wstring> options)
     {
         if (title.size()) {
-            _widgets.push_back(new PekwmDialog::Text(_data, *this, title, true));
+            _widgets.push_back(new Text(_data, *this, title, true));
         }
         if (image) {
-            _widgets.push_back(new PekwmDialog::Image(_data, *this, image));
+            _widgets.push_back(new Image(_data, *this, image));
         }
         if (message.size()) {
-            _widgets.push_back(new PekwmDialog::Text(_data, *this, message, false));
+            _widgets.push_back(new Text(_data, *this, message, false));
         }
-        _widgets.push_back(new PekwmDialog::ButtonsRow(_data, *this, options));
+        _widgets.push_back(new ButtonsRow(_data, *this, options));
     }
 
     void placeWidgets(void)
@@ -498,7 +498,7 @@ protected:
 
 private:
     Theme::DialogData& _data;
-    std::vector<PekwmDialog::Widget*> _widgets;
+    std::vector<Widget*> _widgets;
 };
 
 static void init(Display* dpy)
@@ -564,13 +564,11 @@ static int mainLoop(PekwmDialog& dialog)
     return _stop;
 }
 
-static void getThemeDir(std::string& dir, std::string& variant)
+static void getThemeDir(const std::string& config_file,
+                        std::string& dir, std::string& variant)
 {
-    std::string home_config("~/.pekwm/config");
-    Util::expandFileName(home_config);
-
     CfgParser cfg;
-    cfg.parse(home_config, CfgParserSource::SOURCE_FILE, true);
+    cfg.parse(config_file, CfgParserSource::SOURCE_FILE, true);
     auto files = cfg.getEntryRoot()->findSection("FILES");
     if (files != nullptr) {
         std::vector<CfgParserKey*> keys;
@@ -590,10 +588,12 @@ int main(int argc, char* argv[])
     Geometry gm = { 0, 0, WIDTH_DEFAULT, HEIGHT_DEFAULT };
     int gm_mask = WIDTH_VALUE | HEIGHT_VALUE;
     std::wstring title;
+    std::string config_file = Util::getEnv("PEKWM_CONFIG_FILE");
     std::string image_name;
     std::vector<std::wstring> options;
 
     static struct option opts[] = {
+        {"config", required_argument, NULL, 'c'},
         {"display", required_argument, NULL, 'd'},
         {"geometry", required_argument, NULL, 'g'},
         {"help", no_argument, NULL, 'h'},
@@ -612,8 +612,11 @@ int main(int argc, char* argv[])
     Util::iconv_init();
 
     int ch;
-    while ((ch = getopt_long(argc, argv, "d:g:hi:o:t:", opts, NULL)) != -1) {
+    while ((ch = getopt_long(argc, argv, "c:d:g:hi:o:t:", opts, NULL)) != -1) {
         switch (ch) {
+        case 'c':
+            config_file = optarg;
+            break;
         case 'd':
             display = optarg;
             break;
@@ -638,6 +641,11 @@ int main(int argc, char* argv[])
             break;
         }
     }
+
+    if (config_file.empty()) {
+        config_file = "~/.pekwm/config";
+    }
+    Util::expandFileName(config_file);
 
     if (options.empty()) {
         options.push_back(L"Ok");
@@ -669,7 +677,7 @@ int main(int argc, char* argv[])
     }
 
     std::string theme_dir, theme_variant;
-    getThemeDir(theme_dir, theme_variant);
+    getThemeDir(config_file, theme_dir, theme_variant);
 
     int ret;
     {
