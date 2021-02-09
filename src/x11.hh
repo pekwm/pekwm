@@ -504,6 +504,19 @@ public:
         return BadImplementation;
     }
 
+    static GC createGC(Drawable d, ulong mask, XGCValues *values) {
+        if (_dpy) {
+            return XCreateGC(_dpy, d, mask, values);
+        }
+        return None;
+    }
+
+    static void freeGC(GC gc) {
+        if (_dpy) {
+            XFreeGC(_dpy, gc);
+        }
+    }
+
     static Pixmap createPixmapMask(unsigned w, unsigned h) {
         if (_dpy) {
             return XCreatePixmap(_dpy, _root, w, h, 1);

@@ -17,7 +17,6 @@
 #include "PFont.hh" // PFont::Color
 
 class PTexture;
-class ButtonData;
 class FontHandler;
 class ImageHandler;
 class TextureHandler;
@@ -30,6 +29,19 @@ class TextureHandler;
 class Theme
 {
 public:
+    /**
+     * Color map for mapping colors in images.
+     */
+    class ColorMap : public std::map<int,int> {
+    public:
+        bool load(CfgParser::Entry *section);
+        void unload(void);
+
+    protected:
+        int parseColor(const std::string& str);
+        uchar parseHex(const char *p);
+    };
+
     //! @brief Theme data parser and container for PDecor::Button
     class PDecorButtonData {
     public:
@@ -409,47 +421,50 @@ public:
     const std::string& getThemeDir(void) const { return _theme_dir; }
     const std::string& getBackground(void) const { return _background; }
 
-    std::map<std::string, Theme::PDecorData*>::const_iterator
-    decor_begin(void) {
-        return _pdecordata_map.begin();
+    const ColorMap& getColorMap(const std::string& name) {
+        return _color_maps.get(name);
     }
-    std::map<std::string, Theme::PDecorData*>::const_iterator
+
+    Util::StringMap<PDecorData*>::const_iterator
+    decor_begin(void) {
+        return _decors.begin();
+    }
+    Util::StringMap<PDecorData*>::const_iterator
     decor_end(void) {
-        return _pdecordata_map.end();
+        return _decors.end();
     }
 
     /**
      * Find PDecorData based on name.
      */
-    Theme::PDecorData *getPDecorData(const std::string &name) {
-        for (auto it : _pdecordata_map) {
-            if (strcasecmp(it.first.c_str(), name.c_str()) == 0) {
-                return it.second;
-            }
-        }
-
-        // Backwards compatibility, CMDDIALOG was used instead of
-        // INPUTDIALOG previously.
-        if (strcasecmp("INPUTDIALOG", name.c_str()) == 0) {
-            return getPDecorData("CMDDIALOG");
-        }
-
-        return 0;
+    PDecorData *getPDecorData(const std::string &name) {
+        return _decors.get(name);
     }
 
-    Theme::DialogData& getDialogData(void) { return _dialog_data; }
+    Theme::DialogData *getDialogData(void) { return &_dialog_data; }
     Theme::HarbourData *getHarbourData(void) { return &_harbour_data; }
     Theme::PMenuData *getMenuData(void) { return &_menu_data; }
     Theme::TextDialogData *getCmdDialogData(void) { return &_cmd_d_data; }
     Theme::TextDialogData *getStatusData(void) { return &_status_data; }
-    Theme::WorkspaceIndicatorData &getWorkspaceIndicatorData(void) {
-        return _ws_indicator_data;
+    Theme::WorkspaceIndicatorData *getWorkspaceIndicatorData(void) {
+        return &_ws_indicator_data;
     }
 
+protected:
+    Theme(void)
+        : _dialog_data(nullptr, nullptr),
+          _menu_data(nullptr, nullptr),
+          _harbour_data(nullptr),
+          _status_data(nullptr, nullptr),
+          _cmd_d_data(nullptr, nullptr),
+          _ws_indicator_data(nullptr, nullptr)
+    {
+    }
 
 private:
     void loadThemeRequire(CfgParser &theme_cfg, std::string &file);
     void loadBackground(CfgParser::Entry *section);
+    void loadColorMaps(CfgParser::Entry *section);
 
 private:
     FontHandler* _fh;
@@ -459,6 +474,7 @@ private:
     std::string _theme_dir; /**< Path to theme directory. */
     std::string _theme_file;
     std::string _background;
+    Util::StringMap<ColorMap> _color_maps;
     TimeFiles _cfg_files;
 
     bool _loaded;
@@ -467,7 +483,7 @@ private:
     GC _invert_gc;
 
     // frame decors
-    std::map<std::string, Theme::PDecorData*> _pdecordata_map;
+    Util::StringMap<Theme::PDecorData*> _decors;
 
     DialogData _dialog_data;
     PMenuData _menu_data;

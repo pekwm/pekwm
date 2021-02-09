@@ -20,6 +20,7 @@ public:
         TYPE_LINES_HORZ,
         TYPE_LINES_VERT,
         TYPE_IMAGE,
+        TYPE_IMAGE_MAPPED,
         TYPE_EMPTY,
         TYPE_NO
     };

@@ -741,7 +741,7 @@ namespace ActionConfig {
         std::vector<std::string> action_names;
         for (auto it : action_map) {
             if (it.second.second&KEYGRABBER_OK) {
-                action_names.push_back(it.first.get_text());
+                action_names.push_back(it.first.str());
             }
         }
         return action_names;
@@ -752,7 +752,7 @@ namespace ActionConfig {
     std::vector<std::string> getStateNameList(void) {
         std::vector<std::string> state_names;
         for (auto it : action_state_map) {
-            state_names.push_back(it.first.get_text());
+            state_names.push_back(it.first.str());
         }
         return state_names;
     }

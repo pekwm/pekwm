@@ -46,10 +46,3 @@ public:
         ASSERT_EQUAL("var in include", "value", getVar("$VAR"));
     }
 };
-
-int
-main(int argc, char *argv[])
-{
-    TestCfgParser testCfgParser;
-    TestSuite::main(argc, argv);
-}

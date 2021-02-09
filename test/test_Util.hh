@@ -71,11 +71,3 @@ public:
         }
     }
 };
-
-int
-main(int argc, char *argv[])
-{
-    TestString testString;
-    TestUtil testUtil;
-    TestSuite::main(argc, argv);
-}

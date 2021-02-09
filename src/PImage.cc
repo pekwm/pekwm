@@ -103,6 +103,18 @@ PImage::PImage(const std::string &path)
     }
 }
 
+PImage::PImage(PImage *image)
+    : _type(image->getType()),
+      _pixmap(None),
+      _mask(None),
+      _width(image->getWidth()),
+      _height(image->getHeight()),
+      _use_alpha(image->_use_alpha)
+{
+    _data = new uchar[_width * _height];
+    memcpy(_data, image->getData(), _width * _height);
+}
+
 /**
  * Create PImage from XImage.
  */
@@ -149,11 +161,7 @@ PImage::load(const std::string &file)
     for (auto it : _loaders) {
         if (! strcasecmp(it->getExt(), ext.c_str())) {
             _data = it->load(file, _width, _height, _use_alpha);
-            if (_data) {
-                _pixmap = createPixmap(_data, _width, _height);
-                _mask = createMask(_data, _width, _height);
-                break;
-            }
+            break;
         }
     }
 
@@ -253,6 +261,9 @@ PImage::getPixmap(bool &need_free, uint width, uint height)
     Pixmap pix;
     if ((width == _width) && (height == _height)) {
         // Same size, return _pixmap.
+        if (_pixmap == None) {
+            _pixmap = createPixmap(_data, width, height);
+        }
         pix = _pixmap;
     } else {
         auto scaled_data = getScaledData(width, height);
@@ -296,6 +307,9 @@ PImage::getMask(bool &need_free, uint width, uint height)
     Pixmap pix;
     if ((width == _width) && (height == _height)) {
         // Same size, return _mask.
+        if (_mask == None) {
+            _mask = createMask(_data, width, height);
+        }
         pix = _mask;
     } else {
         auto scaled_data = getScaledData(width, height);
@@ -332,8 +346,6 @@ PImage::scale(uint width, uint height)
 
         // Set data pointer and create pixmap and mask at new size.
         _data = scaled_data;
-        _pixmap = createPixmap(_data, width, height);
-        _mask = createMask(_data, width, height);
         _width = width;
         _height = height;
     }
@@ -346,7 +358,8 @@ void
 PImage::drawFixed(Drawable dest, int x, int y, uint width, uint height)
 {
     // Plain copy of the pixmap onto Drawable.
-    XCopyArea(X11::getDpy(), _pixmap, dest, X11::getGC(),
+    bool need_free;
+    XCopyArea(X11::getDpy(), getPixmap(need_free), dest, X11::getGC(),
               0, 0, width, height, x, y);
 
 }
@@ -378,10 +391,11 @@ PImage::drawScaled(Drawable dest, int x, int y, uint width, uint height)
 void
 PImage::drawTiled(Drawable dest, int x, int y, uint width, uint height)
 {
+    bool need_free;
     // Create a GC with _pixmap as tile and tiled fill style.
     XGCValues gv;
     gv.fill_style = FillTiled;
-    gv.tile = _pixmap;
+    gv.tile = getPixmap(need_free);
     gv.ts_x_origin = x;
     gv.ts_y_origin = y;
 

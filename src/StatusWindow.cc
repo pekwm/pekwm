@@ -34,7 +34,6 @@ StatusWindow::StatusWindow(Theme* theme)
     XSetWindowAttributes attr;
     attr.event_mask = None;
 
-    _status_wo = new PWinObj(false);
     _status_wo->setWindow(X11::createWindow(_window, 0, 0, 1, 1, 0,
                                             CopyFromParent, CopyFromParent,
                                             CopyFromParent,

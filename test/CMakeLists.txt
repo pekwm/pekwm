@@ -37,50 +37,15 @@ if (ENABLE_RANDR AND X11_Xrandr_FOUND)
   set(common_LIBRARIES ${common_LIBRARIES} ${X11_Xrandr_LIB})
 endif (ENABLE_RANDR AND X11_Xrandr_FOUND)
 
-add_executable(test_Action test_Action.cc)
-add_test(Action test_Action)
-target_include_directories(test_Action PUBLIC ${common_INCLUDE_DIRS})
-target_link_libraries(test_Action wm texture x11 util ${common_LIBRARIES})
-
-add_executable(test_CfgParser test_CfgParser.cc)
-add_test(CfgParser test_CfgParser)
-target_include_directories(test_CfgParser PUBLIC ${common_INCLUDE_DIRS})
-target_link_libraries(test_CfgParser util ${common_LIBRARIES})
-
-add_executable(test_Config test_Config.cc)
-add_test(Config test_Config)
-target_include_directories(test_Config PUBLIC ${common_INCLUDE_DIRS})
-target_link_libraries(test_Config wm texture x11 util ${common_LIBRARIES})
-
-add_executable(test_Frame test_Frame.cc)
-add_test(Frame test_Frame)
-target_include_directories(test_Frame PUBLIC ${common_INCLUDE_DIRS})
-target_link_libraries(test_Frame wm texture x11 util ${common_LIBRARIES})
-
-add_executable(test_ManagerWindows test_ManagerWindows.cc)
-add_test(ManagerWindows test_ManagerWindows)
-target_include_directories(test_ManagerWindows PUBLIC ${common_INCLUDE_DIRS})
-target_link_libraries(test_ManagerWindows
-  wm texture x11 util ${common_LIBRARIES})
-
-add_executable(test_Util test_Util.cc)
-add_test(Util test_Util)
-target_include_directories(test_Util PUBLIC ${common_INCLUDE_DIRS})
-target_link_libraries(test_Util util ${common_LIBRARIES})
-
-add_executable(test_WindowManager test_WindowManager.cc)
-add_test(WindowManager test_WindowManager)
-target_include_directories(test_WindowManager PUBLIC ${common_INCLUDE_DIRS})
-target_link_libraries(test_WindowManager wm texture x11 util ${common_LIBRARIES})
+add_executable(test_pekwm
+  test_pekwm.cc)
+add_test(pekwm test_pekwm)
+target_include_directories(test_pekwm PUBLIC ${common_INCLUDE_DIRS})
+target_link_libraries(test_pekwm wm texture x11 util ${common_LIBRARIES})
 
 add_executable(test_pekwm_ctrl test_pekwm_ctrl.cc)
 add_test(pekwm_ctrl test_pekwm_ctrl)
 target_include_directories(test_pekwm_ctrl PUBLIC ${common_INCLUDE_DIRS})
 target_link_libraries(test_pekwm_ctrl x11 util ${common_LIBRARIES})
-
-add_executable(test_x11 test_x11.cc)
-add_test(x11 test_x11)
-target_include_directories(test_x11 PUBLIC ${common_INCLUDE_DIRS})
-target_link_libraries(test_x11 wm texture x11 util ${common_LIBRARIES})
 
 add_subdirectory(system)

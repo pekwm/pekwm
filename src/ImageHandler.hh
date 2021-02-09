@@ -10,8 +10,8 @@
 
 #include "config.h"
 
-#include "Handler.hh"
 #include "PImage.hh"
+#include "Util.hh"
 
 #include <string>
 #include <vector>
@@ -38,17 +38,40 @@ public:
     PImage *getImage(const std::string &file);
     void returnImage(PImage *image);
 
-    void freeUnref(void);
+    void takeOwnership(PImage *image);
+
+    PImage *getMappedImage(const std::string &file,
+                           const std::string& colormap);
+    void returnMappedImage(PImage *image, const std::string& colormap);
+
+    void clearColorMaps(void) {
+        _color_maps.clear();
+        _color_maps.emplace(std::make_pair("", std::map<int,int>()));
+    }
+    void addColorMap(const std::string& name, std::map<int,int> color_map) {
+        _color_maps[name] = color_map;
+    }
 
 private:
-    PImage *getImageFromPath(const std::string &file);
+    PImage *getImage(const std::string &file, uint &ref,
+                     Util::StringMap<Util::RefEntry<PImage*>> &images);
+    PImage *getImageFromPath(const std::string &file, uint &ref,
+                             Util::StringMap<Util::RefEntry<PImage*>> &images);
 
-     /** List of directories to search. */
+    void mapColors(PImage *image, const std::map<int,int> &color_map);
+
+    static void returnImage(PImage *image,
+                            Util::StringMap<Util::RefEntry<PImage*>> &images);
+private:
+
+    /** List of directories to search. */
     std::vector<std::string> _search_path;
-     /** List of loaded images. */
-    std::vector<HandlerEntry<PImage*> > _images;
+    /** Loaded images. */
+    Util::StringMap<Util::RefEntry<PImage*>> _images;
+    /** Loaded images with color mapped data. */
+    Util::StringMap<Util::StringMap<Util::RefEntry<PImage*>>> _images_mapped;
 
-    bool _free_on_return; /**< If true, images are deleted when returned. */
+    Util::StringMap<std::map<int, int>> _color_maps;
 };
 
 namespace pekwm

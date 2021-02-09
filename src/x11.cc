@@ -353,8 +353,6 @@ X11::getColor(const std::string &color)
 void
 X11::returnColor(XColor *xc)
 {
-    bool _free_on_return = false;
-
     if (&_xc_default == xc) { // no need to return default color
         return;
     }
@@ -363,7 +361,7 @@ X11::returnColor(XColor *xc)
     for (; it != _colours.end(); ++it) {
         if ((*it)->getColor() == xc) {
             (*it)->decRef();
-            if (_free_on_return && ((*it)->getRef() == 0)) {
+            if (((*it)->getRef() == 0)) {
                 ulong pixels[1] = { (*it)->getColor()->pixel };
                 XFreeColors(X11::getDpy(), X11::getColormap(), pixels, 1, 0);
 

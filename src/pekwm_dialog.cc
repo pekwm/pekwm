@@ -114,7 +114,7 @@ public:
         virtual uint heightReq(uint width) const = 0;
 
     protected:
-        Widget(Theme::DialogData& data, PWinObj &parent)
+        Widget(Theme::DialogData* data, PWinObj &parent)
             : _data(data),
               _window(None),
               _parent(parent)
@@ -124,7 +124,7 @@ public:
         void setWindow(Window window) { _window = window; }
 
     protected:
-        Theme::DialogData &_data;
+        Theme::DialogData *_data;
         Window _window;
         PWinObj &_parent;
         Geometry _gm;
@@ -132,12 +132,12 @@ public:
 
     class Button : public Widget {
     public:
-        Button(Theme::DialogData& data, PWinObj& parent,
+        Button(Theme::DialogData* data, PWinObj& parent,
                int retcode, const std::wstring& text)
             : Widget(data, parent),
               _retcode(retcode),
               _text(text),
-              _font(data.getButtonFont()),
+              _font(data->getButtonFont()),
               _state(BUTTON_STATE_FOCUSED)
         {
             XSetWindowAttributes attr;
@@ -188,20 +188,20 @@ public:
         }
 
         virtual uint widthReq(void) const override {
-            return _font->getWidth(_text) + _data.padVert();
+            return _font->getWidth(_text) + _data->padVert();
         }
 
         virtual uint heightReq(uint width) const override {
-            return _font->getHeight() + _data.padHorz();
+            return _font->getHeight() + _data->padHorz();
         }
 
         virtual void render(void) override {
             X11::clearWindow(_window);
-            _data.getButton(_state)->render(_window, 0, 0,
+            _data->getButton(_state)->render(_window, 0, 0,
                                             _gm.width, _gm.height);
-            _font->setColor(_data.getButtonColor());
+            _font->setColor(_data->getButtonColor());
             _font->draw(_window,
-                        _data.getPad(PAD_LEFT), _data.getPad(PAD_UP),
+                        _data->getPad(PAD_LEFT), _data->getPad(PAD_UP),
                         _text);
         }
 
@@ -215,7 +215,7 @@ public:
     class ButtonsRow : public Widget
     {
     public:
-        ButtonsRow(Theme::DialogData& data, PWinObj& parent,
+        ButtonsRow(Theme::DialogData* data, PWinObj& parent,
                    std::vector<std::wstring> options)
             : Widget(data, parent)
         {
@@ -260,13 +260,13 @@ public:
             for (auto it : _buttons) {
                 buttons_width += it->widthReq();
             }
-            buttons_width += _buttons.size() * _data.padHorz();
+            buttons_width += _buttons.size() * _data->padHorz();
 
             x = (width - buttons_width) / 2;
-            y += _data.getPad(PAD_UP);
+            y += _data->getPad(PAD_UP);
             for (auto it : _buttons) {
                 it->place(x, y, width);
-                x += it->widthReq() + _data.padHorz();
+                x += it->widthReq() + _data->padHorz();
             }
         }
 
@@ -278,7 +278,7 @@ public:
                     height = height_req;
                 }
             }
-            return height + _data.padVert();
+            return height + _data->padVert();
         }
 
         virtual void render(void) override {
@@ -293,7 +293,7 @@ public:
 
     class Image : public Widget {
     public:
-        Image(Theme::DialogData& data, PWinObj& parent, PImage* image)
+        Image(Theme::DialogData* data, PWinObj& parent, PImage* image)
             : Widget(data, parent),
               _image(image)
         {
@@ -327,10 +327,10 @@ public:
 
     class Text : public Widget {
     public:
-        Text(Theme::DialogData& data, PWinObj& parent,
+        Text(Theme::DialogData* data, PWinObj& parent,
              const std::wstring& text, bool is_title)
             : Widget(data, parent),
-              _font(is_title ? data.getTitleFont() : data.getTextFont()),
+              _font(is_title ? data->getTitleFont() : data->getTextFont()),
               _text(text),
               _is_title(is_title)
         {
@@ -340,16 +340,16 @@ public:
         virtual uint heightReq(uint width) const override
         {
             // TODO: split up in lines
-            return _font->getHeight() + _data.padVert();
+            return _font->getHeight() + _data->padVert();
         }
 
         virtual void render(void) override
         {
             _font->setColor(_is_title
-                            ? _data.getTitleColor() : _data.getTextColor());
+                            ? _data->getTitleColor() : _data->getTextColor());
             _font->draw(_parent.getWindow(),
-                        _gm.x + _data.getPad(PAD_LEFT),
-                        _gm.y + _data.getPad(PAD_UP), _text);
+                        _gm.x + _data->getPad(PAD_LEFT),
+                        _gm.y + _data->getPad(PAD_UP), _text);
         }
 
     private:
@@ -358,7 +358,7 @@ public:
         bool _is_title;
     };
 
-    PekwmDialog(Theme::DialogData& data,
+    PekwmDialog(Theme::DialogData* data,
                 const Geometry &gm,
                 const std::wstring& title, PImage* image,
                 const std::wstring& message,
@@ -398,7 +398,7 @@ public:
     void render(void)
     {
         X11::clearWindow(_window);
-        _data.getBackground()->render(_window, 0, 0, _gm.width, _gm.height);
+        _data->getBackground()->render(_window, 0, 0, _gm.width, _gm.height);
         for (auto it : _widgets) {
             it->render();
         }
@@ -497,7 +497,7 @@ protected:
     }
 
 private:
-    Theme::DialogData& _data;
+    Theme::DialogData* _data;
     std::vector<Widget*> _widgets;
 };
 

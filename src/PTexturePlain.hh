@@ -10,6 +10,7 @@
 
 #include "config.h"
 
+#include <map>
 #include <string>
 
 #include "pekwm.hh"
@@ -139,9 +140,9 @@ private:
 
 class PTextureImage : public PTexture {
 public:
-    PTextureImage();
-    PTextureImage(const std::string &image);
-    virtual ~PTextureImage();
+    PTextureImage(PImage *image);
+    PTextureImage(const std::string &image, const std::string &colormap);
+    virtual ~PTextureImage(void);
 
     // START - PTexture interface.
     virtual void render(Drawable draw,
@@ -150,10 +151,11 @@ public:
     virtual Pixmap getMask(uint width, uint height, bool &do_free) override;
     // END - PTexture interface.
 
-    bool setImage(const std::string &image);
-    void setImage(PImage *image);
-    void unsetImage();
+    bool setImage(const std::string &image, const std::string &colormap);
+    // void setImage(PImage *image);
+    void unsetImage(void);
 
 private:
     PImage *_image;
+    std::string _colormap;
 };

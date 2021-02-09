@@ -41,15 +41,3 @@ public:
         ASSERT_EQUAL("empty (removed)", empty, getStrut(0));
     }
 };
-
-int
-main(int argc, char *argv[])
-{
-    // init tests with adding fake X11 head
-    X11::addHead(Head(0, 0, 800, 600));
-
-    Config cfg;
-    HintWO hint_wo(None);
-    TestRootWO testRootWO(&hint_wo, &cfg);
-    TestSuite::main(argc, argv);
-}

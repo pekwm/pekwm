@@ -12,6 +12,7 @@
 
 #include "PTexture.hh"
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -66,6 +67,8 @@ private:
     PTexture *parseSolid(std::vector<std::string> &tok);
     PTexture *parseSolidRaised(std::vector<std::string> &tok);
     PTexture *parseLines(bool horz, std::vector<std::string> &tok);
+    PTexture *parseImage(const std::string& texture);
+    PTexture *parseImageMapped(const std::string& texture);
 
     void parseSize(PTexture *tex, const std::string &size);
 
@@ -74,6 +77,7 @@ private:
     const int _length_min;
 
     std::vector<TextureHandler::Entry*> _textures;
+    std::map<std::string, std::map<int,int>*> _color_maps;
 };
 
 namespace pekwm

@@ -28,18 +28,19 @@ public:
     virtual ~ActionMenu(void);
 
     // START - PWinObj interface.
-    virtual void mapWindow(void);
-    virtual void unmapWindow(void);
+    virtual void mapWindow(void) override;
+    virtual void unmapWindow(void) override;
     // END - PWinObj interface.
 
-    virtual void handleItemExec(PMenu::Item *item);
+    virtual void handleItemExec(PMenu::Item *item) override;
 
-    virtual void insert(PMenu::Item *item);
+    virtual void insert(PMenu::Item *item) override;
     using PMenu::insert;
 
-    virtual void reload(CfgParser::Entry *section);
+    virtual void reload(CfgParser::Entry *section) override;
 
-    virtual void remove(PMenu::Item *item);
+    virtual void remove(PMenu::Item *item) override;
+    virtual void removeAll(void) override;
 
 protected:
     void rebuildDynamic(void);

@@ -84,8 +84,8 @@ public:
         Entry *setSection(Entry *section, bool overwrite=false);
 
         Entry *findEntry(const std::string &name, bool include_sections=false,
-                         const char *value=0);
-        Entry *findSection(const std::string &name, const char *value=0);
+                         const char *value=0) const;
+        Entry *findSection(const std::string &name, const char *value=0) const;
         void parseKeyValues(std::vector<CfgParserKey*>::const_iterator begin,
                             std::vector<CfgParserKey*>::const_iterator end);
 

@@ -24,6 +24,7 @@ static Util::StringMap<PTexture::Type> parse_map =
      {"LINESHORZ", PTexture::TYPE_LINES_HORZ},
      {"LINESVERT", PTexture::TYPE_LINES_VERT},
      {"IMAGE", PTexture::TYPE_IMAGE},
+     {"IMAGEMAPPED", PTexture::TYPE_IMAGE_MAPPED},
      {"EMPTY", PTexture::TYPE_EMPTY}};
 
 TextureHandler::TextureHandler(void)
@@ -148,13 +149,10 @@ TextureHandler::parse(const std::string &texture)
             ptexture = parseLines(false, tok);
             break;
         case PTexture::TYPE_IMAGE:
-            // 6==strlen("IMAGE ")
-            ptexture = new PTextureImage(texture.substr(6));
-            if (! ptexture->isOk()) {
-                auto image = static_cast<PTextureImage*>(ptexture);
-                auto pos = texture.find_first_not_of(" \t", 6);
-                image->setImage(texture.substr(pos));
-            }
+            ptexture = parseImage(texture);
+            break;
+        case PTexture::TYPE_IMAGE_MAPPED:
+            ptexture = parseImageMapped(texture);
             break;
         case PTexture::TYPE_NO:
         default:
@@ -260,6 +258,43 @@ TextureHandler::parseLines(bool horz, std::vector<std::string> &tok)
     tok.erase(tok.begin());
 
     return new PTextureLines(line_size, size_percent, horz, tok);
+}
+
+/**
+ * Parse Image texture, w
+ */
+PTexture*
+TextureHandler::parseImage(const std::string& texture)
+{
+    // 6==strlen("IMAGE ")
+    auto image = new PTextureImage(texture.substr(6), "");
+    if (! image->isOk()) {
+        auto pos = texture.find_first_not_of(" \t", 6);
+        image->setImage(texture.substr(pos), "");
+    }
+    return image;
+}
+
+/**
+ * Parse Image texture with colormap.
+ */
+PTexture*
+TextureHandler::parseImageMapped(const std::string& texture)
+{
+    // 12==strlen("IMAGEMAPPED ")
+    auto map_start = texture.find_first_not_of(" \t", 12);
+    auto map_end = texture.find_first_of(" \t", map_start);
+    if (map_end == std::string::npos) {
+        USER_WARN("not enough parameters to texture ImageMapped (2 required)");
+        return nullptr;
+    }
+    auto image_start = texture.find_first_not_of(" \t", map_end + 1);
+    if (image_start == std::string::npos) {
+        USER_WARN("not enough parameters to texture ImageMapped (2 required)");
+        return nullptr;
+    }
+    auto colormap = texture.substr(map_start, map_end - map_start);
+    return new PTextureImage(texture.substr(image_start), colormap);
 }
 
 /**

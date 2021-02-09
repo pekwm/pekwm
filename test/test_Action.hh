@@ -132,11 +132,3 @@ public:
         }
     }
 };
-
-int
-main(int argc, char *argv[])
-{
-    TestAction testAction;
-    TestActionConfig testActionConfig;
-    return TestSuite::main(argc, argv);
-}

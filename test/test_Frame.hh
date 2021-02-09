@@ -67,10 +67,3 @@ public:
         ASSERT_EQUAL(msg + " height", e_gm.height, gm.height);
     }
 };
-
-int
-main(int argc, char *argv[])
-{
-    TestFrame testFrame;
-    TestSuite::main(argc, argv);
-}

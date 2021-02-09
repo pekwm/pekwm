@@ -53,10 +53,3 @@ public:
         ASSERT_EQUAL(msg, cmd, _pekwm_cmd_buf);
     }
 };
-
-int
-main(int argc, char *argv[])
-{
-    TestWindowManager testWindowManager;
-    TestSuite::main(argc, argv);
-}

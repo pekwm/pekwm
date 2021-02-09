@@ -160,7 +160,7 @@ CfgParser::Entry::setSection(CfgParser::Entry *section, bool overwrite)
 //! @param name Name of Entry to look for.
 CfgParser::Entry*
 CfgParser::Entry::findEntry(const std::string &name, bool include_sections,
-                            const char *value)
+                            const char *value) const
 {
     CfgParser::Entry *value_check;
     for (auto it : _entries) {
@@ -179,7 +179,7 @@ CfgParser::Entry::findEntry(const std::string &name, bool include_sections,
 //! @brief Gets the next entry with subsection matchin the name name.
 //! @param name Name of Entry to look for.
 CfgParser::Entry*
-CfgParser::Entry::findSection(const std::string &name, const char *value)
+CfgParser::Entry::findSection(const std::string &name, const char *value) const
 {
     for (auto it : _entries) {
         if (it->getSection() && *it == name.c_str()

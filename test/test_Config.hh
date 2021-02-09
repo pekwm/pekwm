@@ -20,15 +20,9 @@ public:
         ASSERT_EQUAL("parsed value", 1, action.getParamI(0));
         ASSERT_EQUAL("parsed unit", UNIT_PIXEL, action.getParamI(1));
 
-        ASSERT_EQUAL("parse -3% ok", true, parseMoveResizeAction("Movehorizontal -3%", action));
+        ASSERT_EQUAL("parse -3% ok", true,
+                     parseMoveResizeAction("Movehorizontal -3%", action));
         ASSERT_EQUAL("parsed value", -3, action.getParamI(0));
         ASSERT_EQUAL("parsed unit", UNIT_PERCENT, action.getParamI(1));
     }
 };
-
-int
-main(int argc, char *argv[])
-{
-    TestConfig testConfig;
-    TestSuite::main(argc, argv);
-}

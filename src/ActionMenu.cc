@@ -161,6 +161,14 @@ ActionMenu::remove(PMenu::Item *item)
     PMenu::remove(item);
 }
 
+void
+ActionMenu::removeAll(void)
+{
+    while (size()) {
+        remove(*m_begin());
+    }
+}
+
 //! @brief Parse config and push items into menu
 //! @param cs Section object to read config from
 //! @param menu BaseMenu object to push object in
@@ -181,7 +189,6 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
     CfgParser::Entry *value;
     ActionEvent ae;
 
-    ActionMenu *submenu = 0;
     PMenu::Item *item = 0;
     PTexture *icon = 0;
 
@@ -196,7 +203,7 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
 
                 auto title = (*it)->getValue();
                 auto wtitle = Util::to_wide_str(title);
-                submenu = new ActionMenu(_menu_type, _act, wtitle, title);
+                auto submenu = new ActionMenu(_menu_type, _act, wtitle, title);
                 submenu->_menu_parent = this;
                 submenu->parse(sub_section, parent);
                 submenu->buildMenu();

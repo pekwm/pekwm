@@ -53,8 +53,8 @@ PImageLoaderXpm::load(const std::string &file, uint &width, uint &height,
                       bool &use_alpha)
 {
     // Read XPM to XpmImage format.
-    XpmImage xpm_image;
-    XpmInfo xpm_info;
+    XpmImage xpm_image = {0};
+    XpmInfo xpm_info = {0};
     if (XpmReadFileToXpmImage((char*) file.c_str(),
                               &xpm_image, &xpm_info) != Success) {
         USER_WARN(file << " not a valid XPM file");

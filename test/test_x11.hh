@@ -73,10 +73,3 @@ public:
         ASSERT_EQUAL(msg + " val", e_val, val);
     }
 };
-
-int
-main(int argc, char *argv[])
-{
-    TestX11 testX11;
-    TestSuite::main(argc, argv);
-}

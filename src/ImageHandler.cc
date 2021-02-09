@@ -22,10 +22,11 @@ static Util::StringMap<ImageType> image_type_map =
      {"SCALED", IMAGE_TYPE_SCALED},
      {"FIXED", IMAGE_TYPE_FIXED}};
 
-//! @brief ImageHandler constructor
 ImageHandler::ImageHandler(void)
-    : _free_on_return(false)
 {
+    _images[""] = Util::RefEntry<PImage*>(nullptr);
+    clearColorMaps();
+
 #ifdef HAVE_IMAGE_JPEG
     PImage::loaderAdd(new PImageLoaderJpeg());
 #endif // HAVE_IMAGE_JPEG
@@ -37,28 +38,39 @@ ImageHandler::ImageHandler(void)
 #endif // HAVE_IMAGE_XPM
 }
 
-//! @brief ImageHandler destructor
 ImageHandler::~ImageHandler(void)
 {
-    if (_images.size()) {
+    if (_images.size() != 1) {
         ERR("ImageHandler not empty on destruct, " << _images.size()
               << " entries left");
 
         while (_images.size()) {
-            ERR("delete lost image " << _images.back().getName());
-            delete _images.back().getData();
-            _images.pop_back();
+            auto it = _images.begin();
+            ERR("delete lost image " << it->first.str());
+            delete it->second.get();
+            _images.erase(it);
         }
     }
 
     PImage::loaderClear();
 }
 
-//! @brief Gets or creates a Image
+/**
+ * Gets image from cache and increments the reference or creates a new image.
+ */
 PImage*
 ImageHandler::getImage(const std::string &file)
 {
+    uint ref;
+    return getImage(file, ref, _images);
+}
+
+PImage*
+ImageHandler::getImage(const std::string &file, uint &ref,
+                       Util::StringMap<Util::RefEntry<PImage*>> &images)
+{
     if (! file.size()) {
+        ref = 0;
         return nullptr;
     }
 
@@ -76,11 +88,11 @@ ImageHandler::getImage(const std::string &file)
     // already.
     PImage *image = nullptr;
     if (real_file[0] == '/') {
-        image = getImageFromPath(real_file);
+        image = getImageFromPath(real_file, ref, images);
     } else {
         auto it(_search_path.rbegin());
         for (; ! image && it != _search_path.rend(); ++it) {
-            image = getImageFromPath(*it + real_file);
+            image = getImageFromPath(*it + real_file, ref, images);
         }
     }
 
@@ -99,15 +111,14 @@ ImageHandler::getImage(const std::string &file)
  * @return PImage or 0 if fails.
  */
 PImage*
-ImageHandler::getImageFromPath(const std::string &file)
+ImageHandler::getImageFromPath(const std::string &file, uint &ref,
+                               Util::StringMap<Util::RefEntry<PImage*>> &images)
 {
     // Check cache for entry.
-    auto it = _images.begin();
-    for (; it != _images.end(); ++it) {
-        if (*it == file) {
-            it->incRef();
-            return it->getData();
-        }
+    auto entry = images.get(file);
+    if (entry.get() != nullptr) {
+        ref = entry.incRef();
+        return entry.get();
     }
 
     // Try to load the image, setup cache only if it succeeds.
@@ -115,56 +126,102 @@ ImageHandler::getImageFromPath(const std::string &file)
     try {
         image = new PImage(file);
     } catch (LoadException&) {
-        image = 0;
+        image = nullptr;
     }
 
     // Create new PImage and handler entry for it.
     if (image) {
-        HandlerEntry<PImage*> entry(file);
-        entry.incRef();
-        entry.setData(image);
-        _images.push_back(entry);
+        images.emplace(std::make_pair(file, Util::RefEntry<PImage*>(image)));
+        ref = 1;
+    } else {
+        ref = 0;
     }
 
     return image;
 }
 
-//! @brief Returns a Image
+/**
+ * Return image to handler, removes entry if it is the last refernce.
+ */
 void
 ImageHandler::returnImage(PImage *image)
 {
-    bool found = false;
+    returnImage(image, _images);
+}
 
-    auto it(_images.begin());
-    for (; it != _images.end(); ++it) {
-        if (it->getData() == image) {
-            found = true;
+/**
+ * Take ownership ower image.
+ */
+void
+ImageHandler::takeOwnership(PImage *image)
+{
+    std::string key = Util::to_string<void*>(static_cast<void*>(image));
+    _images.emplace(std::make_pair(key, Util::RefEntry<PImage*>(image)));
+}
 
-            it->decRef();
-            if (_free_on_return || ! it->getRef()) {
-                delete it->getData();
-                _images.erase(it);
-            }
-            break;
-        }
+PImage*
+ImageHandler::getMappedImage(const std::string &file,
+                             const std::string &colormap)
+{
+    auto it = _images_mapped.find(colormap);
+    if (it == _images_mapped.end()) {
+        _images_mapped[colormap] = Util::StringMap<Util::RefEntry<PImage*>>();
+        _images_mapped[colormap][""] = Util::RefEntry<PImage*>(nullptr);
     }
 
-    if (! found) {
-        delete image;
+    uint ref;
+    auto image = getImage(file, ref, _images_mapped[colormap]);
+    if (ref == 1) {
+        // new image, requires color mapping.
+        mapColors(image, _color_maps.get(colormap));
+    }
+
+    return image;
+}
+
+/**
+ * Map colors in loaded image.
+ */
+void
+ImageHandler::mapColors(PImage *image, const std::map<int,int> &color_map)
+{
+    int *p = reinterpret_cast<int*>(image->getData());
+    int num_pixels = image->getWidth() * image->getHeight();
+    for (; num_pixels; num_pixels--, p++) {
+        auto it = color_map.find(*p);
+        if (it != color_map.end()) {
+            *p = it->second;
+        }
     }
 }
 
-//! @brief Frees all images not beeing in use
+/**
+ * Return color-mapped image to handler, removes entry if it is the
+ * last reference.
+ */
 void
-ImageHandler::freeUnref(void)
+ImageHandler::returnMappedImage(PImage *image, const std::string &colormap)
 {
-    auto it(_images.begin());
-    while (it != _images.end()) {
-        if (it->getRef() == 0) {
-            delete it->getData();
-            it = _images.erase(it);
-        } else {
-            ++it;
+    auto images = _images_mapped.get(colormap);
+    returnImage(image, images);
+}
+
+void
+ImageHandler::returnImage(PImage *image,
+                          Util::StringMap<Util::RefEntry<PImage*>> &images)
+{
+    auto it = images.begin();
+    for (; it != images.end(); ++it) {
+        if (it->second.get() == image) {
+            it->second.decRef();
+            if (it->second.getRef() == 0) {
+                delete it->second.get();
+                images.erase(it);
+            }
+            return;
         }
     }
+
+    ERR("returned image " << image << " not found in handler");
+    delete image;
 }

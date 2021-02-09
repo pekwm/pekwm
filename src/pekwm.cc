@@ -150,11 +150,8 @@ main(int argc, char **argv)
 
             wm->doEventLoop();
 
-            // see if we wanted to restart
             if (wm->shallRestart()) {
                 auto command = wm->getRestartCommand();
-
-                // cleanup before restarting
                 delete wm;
                 pekwm::cleanup();
                 Util::iconv_deinit();
@@ -165,6 +162,9 @@ main(int argc, char **argv)
                     command = "exec " + command;
                     execl("/bin/sh", "sh" , "-c", command.c_str(), (char*) 0);
                 }
+
+                ERR("failed to run restart command: " << command);
+                exit(1);
             } else {
                 ret = 0;
             }
@@ -173,7 +173,9 @@ main(int argc, char **argv)
         } catch (std::string& ex) {
             ERR("unexpected error occurred: " << ex);
         }
+
         delete wm;
+        pekwm::cleanup();
     }
 
     // Cleanup

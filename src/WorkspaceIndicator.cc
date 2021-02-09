@@ -77,21 +77,21 @@ WorkspaceIndicator::Display::render(void)
     _pixmap = X11::createPixmap(_gm.width, _gm.height);
 
     // Render background
-    data.texture_background->render(_pixmap, 0, 0, _gm.width, _gm.height);
+    data->texture_background->render(_pixmap, 0, 0, _gm.width, _gm.height);
 
     // Render workspace grid, then active workspace fill and end with
     // rendering active workspace number and name
-    renderWorkspaces(data.edge_padding, data.edge_padding,
+    renderWorkspaces(data->edge_padding, data->edge_padding,
                      _gm.width - getPaddingHorizontal(),
                      _gm.height - getPaddingVertical());
 
-    data.font->setColor(data.font_color);
-    data.font->draw(_pixmap,
-                    data.edge_padding,
-                    _gm.height - data.edge_padding - data.font->getHeight(),
-                    Workspaces::getActWorkspace().getName(),
-                    0 /* max_chars */,
-                    _gm.width - data.edge_padding * 2 /* max_width */);
+    data->font->setColor(data->font_color);
+    data->font->draw(_pixmap,
+                     data->edge_padding,
+                     _gm.height - data->edge_padding - data->font->getHeight(),
+                     Workspaces::getActWorkspace().getName(),
+                     0 /* max_chars */,
+                     _gm.width - data->edge_padding * 2 /* max_width */);
 
     // Refresh
     X11::setWindowBackgroundPixmap(_window, _pixmap);
@@ -129,14 +129,14 @@ WorkspaceIndicator::Display::renderWorkspaces(int x, int y,
             row = Workspaces::getRow(i);
 
             x_pos = x;
-            y_pos += ws_height + data.workspace_padding;
+            y_pos += ws_height + data->workspace_padding;
         }
 
         auto tex = i == Workspaces::getActive()
-            ? data.texture_workspace_act : data.texture_workspace;
+            ? data->texture_workspace_act : data->texture_workspace;
         tex->render(_pixmap, x_pos, y_pos, ws_width, ws_height);
 
-        x_pos += ws_width + data.workspace_padding;
+        x_pos += ws_width + data->workspace_padding;
     }
 }
 
@@ -147,7 +147,7 @@ uint
 WorkspaceIndicator::Display::getPaddingHorizontal(void)
 {
     auto data = pekwm::theme()->getWorkspaceIndicatorData();
-    return (data.edge_padding * 2 + data.workspace_padding
+    return (data->edge_padding * 2 + data->workspace_padding
             * (Workspaces::getPerRow() - 1));
 }
 
@@ -158,8 +158,8 @@ uint
 WorkspaceIndicator::Display::getPaddingVertical(void)
 {
     auto data = pekwm::theme()->getWorkspaceIndicatorData();
-    return (data.edge_padding * 3 + data.font->getHeight()
-            + data.workspace_padding * (Workspaces::getRows() - 1));
+    return (data->edge_padding * 3 + data->font->getHeight()
+            + data->workspace_padding * (Workspaces::getRows() - 1));
 }
 
 /**

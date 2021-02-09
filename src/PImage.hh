@@ -18,10 +18,9 @@
 //! @brief Image baseclass defining interface for image handling.
 class PImage {
 public:
-    //! @brief PImage constructor.
     PImage(const std::string &path="");
+    PImage(PImage *image);
     PImage(XImage *image);
-    //! @brief PImage destructor.
     virtual ~PImage(void);
 
     //! @brief Add loader to loader list.

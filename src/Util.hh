@@ -31,45 +31,78 @@ extern "C" {
 namespace String {
     class Key {
     public:
-        Key(const char *text) : _text(text) { }
-        Key(const std::string &text) : _text(text.c_str()) { }
-        ~Key(void) { }
+        Key(const char *key)
+            : _key(key)
+        {
+        }
+        Key(const std::string &key)
+            : _key(key)
+        {
+        }
+        ~Key(void)
+        {
+        }
 
-        /** Get text version of string. */
-        inline const char *get_text(void) const { return _text; }
+        const std::string& str(void) const { return _key; }
 
-        inline bool operator==(const std::string &rhs) const {
-            return (strcasecmp(rhs.c_str(), _text) == 0);
+        bool operator==(const std::string &rhs) const {
+            return (strcasecmp(_key.c_str(), rhs.c_str()) == 0);
         }
-        inline bool operator!=(const std::string &rhs) const {
-            return (strcasecmp(rhs.c_str(), _text) != 0);
+        bool operator!=(const std::string &rhs) const {
+            return (strcasecmp(_key.c_str(), rhs.c_str()) != 0);
         }
-        inline bool operator<(const Key &rhs) const {
-            return (strcasecmp(_text, rhs._text) < 0);
+        bool operator<(const Key &rhs) const {
+            return (strcasecmp(_key.c_str(), rhs._key.c_str()) < 0);
         }
-        inline bool operator>(const Key &rhs) const {
-            return (strcasecmp(_text, rhs._text) > 0);
+        bool operator>(const Key &rhs) const {
+            return (strcasecmp(_key.c_str(), rhs._key.c_str()) > 0);
         }
 
     private:
-        const char *_text;
+        std::string _key;
     };
 
     size_t safe_position(size_t pos, size_t fallback = 0, size_t add = 0);
     std::vector<std::string> shell_split(const std::string& str);
 }
 
-//! @brief Namespace Util used for various small file/string tasks.
 namespace Util {
     template<class T>
     class StringMap : public std::map<String::Key, T> {
     public:
         using std::map<String::Key, T>::map;
 
-        T get(const std::string& key) const {
+        const T& get(const std::string& key) const {
             auto it = this->find(key);
             return it == this->end() ? this->at("") : it->second;
         }
+    };
+
+    /**
+     * Reference counted entry.
+     */
+    template<class T>
+    class RefEntry {
+    public:
+        RefEntry(T data = nullptr)
+            : _data(data),
+              _ref(data == nullptr ? 0 : 1)
+        {
+        }
+        virtual ~RefEntry(void)
+        {
+        }
+
+        T get(void) { return _data; }
+        void set(T data) { _data = data; }
+
+        uint getRef(void) const { return _ref; }
+        uint incRef(void) { _ref++; return _ref; }
+        uint decRef(void) { if (_ref > 0) { _ref--; } return _ref; }
+
+    private:
+        T _data;
+        uint _ref;
     };
 
     std::string getEnv(const std::string& key);

@@ -10,6 +10,27 @@ Bug fixes
 New
 ---
 
+**ImageMapped**, it is now possible map colors in images during load
+using a color map from the new ColorMaps section in the theme
+file. This functionality allows for creating themes using less images
+and plays well with the new theme variants functionality.
+
+Example ColorMap mapping all white pixels to red:
+
+```
+ColorMaps {
+  ColorMap = "WhiteToRed" {
+    Map = "#ffffff" { To = "#ff0000" }
+  }
+}
+```
+
+Apply it on images during loading:
+
+```
+ImageMapped WhiteToRed image.png
+```
+
 **theme variants**, using the _ThemeVariant_ option in the Files
 section allows for specifying variants of themes. Theme variants are
 implemented by creating separate theme files in the theme directory
@@ -101,3 +122,5 @@ SetGeometry 100x100% Screen
 Removed
 -------
 
+It is no longer possible to use the decor name InputDialog in themes
+for CmdDialog decorations.

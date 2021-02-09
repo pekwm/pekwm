@@ -28,15 +28,16 @@ extern "C" {
 #include "PDecor.hh" // PDecor::TitleItem
 #include "Client.hh"
 #include "ClientMgr.hh"
-#include "x11.hh"
 #include "Config.hh"
 #include "KeyGrabber.hh"
 #include "AutoProperties.hh"
 #include "Frame.hh"
 #include "Workspaces.hh"
 #include "PImageIcon.hh"
+#include "ImageHandler.hh"
 #include "TextureHandler.hh"
 #include "ManagerWindows.hh"
+#include "x11.hh"
 
 const long Client::_clientEventMask = \
     PropertyChangeMask|StructureNotifyMask|FocusChangeMask|KeyPressMask;
@@ -197,8 +198,7 @@ Client::~Client(void)
     }
 
     if (_icon) {
-        pekwm::textureHandler()->returnTexture(_icon);
-        _icon = 0;
+        delete _icon;
     }
 
     X11::ungrabServer(true);
@@ -982,26 +982,24 @@ Client::readPekwmHints(void)
     _state.initial_frame_order = getPekwmFrameOrder();
 }
 
-//! @brief Read _NET_WM_ICON from client window.
+/**
+ * Read _NET_WM_ICON from client window.
+ */
 void
 Client::readIcon(void)
 {
-    PImageIcon *image = new PImageIcon;
+    auto *image = new PImageIcon;
     if (image->loadFromWindow(_window)) {
-        if (! _icon) {
-            _icon = new PTextureImage;
-            pekwm::textureHandler()->referenceTexture(_icon);
-        }
-
-        _icon->setImage(image);
-    } else {
-        if (image) {
-            delete image;
-        }
-
         if (_icon) {
-            pekwm::textureHandler()->returnTexture(_icon);
-            _icon = 0;
+            delete _icon;
+        }
+        pekwm::imageHandler()->takeOwnership(image);
+        _icon = new PTextureImage(image);
+    } else {
+        delete image;
+        if (_icon) {
+            delete _icon;
+            _icon = nullptr;
         }
     }
 }
