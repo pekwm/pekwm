@@ -958,27 +958,22 @@ ActionHandler::createNextPrevMenu(bool show_iconified, bool mru)
     return menu;
 }
 
-//! @brief Helper to decide wheter or not to include Frame in menu
-//! @param frame Frame to check
-//! @param show_iconified Wheter or not to include iconified windows
-//! @return true if it should be included, else false
+/**
+ * Helper to decide wheter or not to include Frame in menu
+ *
+ * @param frame Frame to check
+ * @param show_iconified Wheter or not to include iconified windows
+ * @return true if it should be included, else false
+ */
 bool
 ActionHandler::createMenuInclude(Frame *frame, bool show_iconified)
 {
-    // Make sure the frame is mapped, or on the correct workspace if
-    // it's iconified. Also make sure it's possible to give it focus
-    // and should not be skipped. The condition is rather complex, so
-    // we split it up for readability.
-
     // focw == frame on current workspace
     bool focw = frame->isSticky()
         || frame->getWorkspace() == Workspaces::getActive();
     // ibs == iconified but should be shown
-    bool ibs = show_iconified && frame->isIconified() && focw;
-    // mos == mapped or shown nonetheless
-    bool mos = frame->isMapped() || ibs;
-
-    return ! frame->isSkip(SKIP_FOCUS_TOGGLE) && frame->isFocusable() && mos;
+    bool ibs = (!frame->isIconified() || show_iconified) && focw;
+    return ! frame->isSkip(SKIP_FOCUS_TOGGLE) && frame->isFocusable() && ibs;
 }
 
 //! @brief Searches the client list for a client with a title matching title
