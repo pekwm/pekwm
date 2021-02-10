@@ -236,7 +236,8 @@ PTexture*
 TextureHandler::parseLines(bool horz, std::vector<std::string> &tok)
 {
     if (tok.size() < 2) {
-        USER_WARN("not enough parameters to texture SolidRaised (2 required)");
+        USER_WARN("not enough parameters to texture Lines"
+                  << (horz ? "Horz" : "Vert") << " (2 required)");
         return 0;
     }
 
