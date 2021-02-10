@@ -419,7 +419,9 @@ PImage::drawAlphaFixed(Drawable dest, int x, int y, uint width, uint height,
     auto dest_image = XGetImage(X11::getDpy(), dest,
                                 x, y, width, height, AllPlanes, ZPixmap);
     if (! dest_image) {
-        ERR("failed to get image for destination " << dest);
+        ERR("failed to get image for destination " << dest
+            << " x " << x << " y " << y
+            << " width " << width << " height " << height);
         return;
     }
 

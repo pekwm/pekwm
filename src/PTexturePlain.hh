@@ -152,7 +152,7 @@ public:
     // END - PTexture interface.
 
     bool setImage(const std::string &image, const std::string &colormap);
-    // void setImage(PImage *image);
+    void setImage(PImage *image);
     void unsetImage(void);
 
 private:

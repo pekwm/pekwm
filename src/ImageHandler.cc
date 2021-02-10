@@ -41,13 +41,15 @@ ImageHandler::ImageHandler(void)
 ImageHandler::~ImageHandler(void)
 {
     if (_images.size() != 1) {
-        ERR("ImageHandler not empty on destruct, " << _images.size()
+        ERR("ImageHandler not empty on destruct, " << _images.size() - 1
               << " entries left");
 
         while (_images.size()) {
             auto it = _images.begin();
-            ERR("delete lost image " << it->first.str());
-            delete it->second.get();
+            if (it->second.get()) {
+                ERR("delete lost image " << it->first.str());
+                delete it->second.get();
+            }
             _images.erase(it);
         }
     }

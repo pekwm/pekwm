@@ -198,7 +198,7 @@ Client::~Client(void)
     }
 
     if (_icon) {
-        delete _icon;
+        pekwm::textureHandler()->returnTexture(_icon);
     }
 
     X11::ungrabServer(true);
@@ -988,17 +988,18 @@ Client::readPekwmHints(void)
 void
 Client::readIcon(void)
 {
-    auto *image = new PImageIcon;
+    auto *image = new PImageIcon();
     if (image->loadFromWindow(_window)) {
         if (_icon) {
-            delete _icon;
+            _icon->setImage(image);
+        } else {
+            _icon = new PTextureImage(image);
+            pekwm::textureHandler()->referenceTexture(_icon);
         }
-        pekwm::imageHandler()->takeOwnership(image);
-        _icon = new PTextureImage(image);
     } else {
         delete image;
         if (_icon) {
-            delete _icon;
+            pekwm::textureHandler()->returnTexture(_icon);
             _icon = nullptr;
         }
     }

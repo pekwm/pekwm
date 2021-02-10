@@ -331,10 +331,11 @@ PTextureLines::unsetColors()
 // PTextureImage
 
 PTextureImage::PTextureImage(PImage *image)
-  : _image(image)
+    : _image(nullptr)
 {
-  // PTexture attributes
-  _type = PTexture::TYPE_IMAGE;
+    // PTexture attributes
+    _type = PTexture::TYPE_IMAGE;
+    setImage(image);
 }
 
 PTextureImage::PTextureImage(const std::string &image,
@@ -343,7 +344,8 @@ PTextureImage::PTextureImage(const std::string &image,
       _colormap(colormap)
 {
     // PTexture attributes
-    _type = colormap.empty() ? PTexture::TYPE_IMAGE : PTexture::TYPE_IMAGE_MAPPED;
+    _type = colormap.empty()
+        ? PTexture::TYPE_IMAGE : PTexture::TYPE_IMAGE_MAPPED;
     setImage(image, colormap);
 }
 
@@ -370,7 +372,6 @@ PTextureImage::getMask(uint width, uint height, bool &do_free)
 /**
  * Set image resource
  */
-/*
 void
 PTextureImage::setImage(PImage *image)
 {
@@ -378,9 +379,10 @@ PTextureImage::setImage(PImage *image)
     _image = image;
     _width = _image->getWidth();
     _height = _image->getHeight();
+    _colormap.clear();
+    pekwm::imageHandler()->takeOwnership(image);
     _ok = true;
 }
-*/
 
 /**
  * Load image resource
