@@ -1158,6 +1158,9 @@ PDecor::moveChildRel(int off)
 void
 PDecor::doKeyboardMoveResize(void)
 {
+    if (_fullscreen) {
+        return;
+    }
     auto sw = pekwm::statusWindow();
     if (! X11::grabPointer(X11::getRoot(), NoEventMask, CURSOR_MOVE)) {
         return;

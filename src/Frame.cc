@@ -1172,7 +1172,7 @@ Frame::doResize(BorderPosition pos)
 void
 Frame::doResize(bool left, bool x, bool top, bool y)
 {
-    if (! _client->allowResize() || isShaded()) {
+    if (! _client->allowResize() || isShaded() || _client->isFullscreen()) {
         return;
     }
 

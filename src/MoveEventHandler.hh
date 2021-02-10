@@ -95,7 +95,7 @@ public:
     virtual EventHandler::Result
     handleMotionNotifyEvent(XMotionEvent *ev) override
     {
-        if (! _decor) {
+        if (! _decor || _decor->isFullscreen()) {
             return stopMove();
         }
 
