@@ -221,7 +221,7 @@ RootWO::RootWO(Window root, HintWO *hint_wo, Config *cfg)
     if (errors_before != xerrors_count) {
         std::cerr << "pekwm: root window unavailable, can't start!"
                   << std::endl;
-        exit(1);
+        throw StopException("stop");
     }
 
     // Set hits on the hint window, these are not updated so they are

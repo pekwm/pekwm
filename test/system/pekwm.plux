@@ -17,21 +17,23 @@ in one go.
 
 # test possible ways of setting the configuration file used by pekwm
 [function test_config_path]
-    [log test_config_path]
-    !$BIN_DIR/pekwm --display $DISPLAY --config ./pekwm.config.missing --log-level trace
+    [log test_config_path (--config)]
+    !$BIN_DIR/pekwm --config ./pekwm.config.missing --log-level trace
     ?using configuration at ./pekwm.config.missing
     ?failed to open file ./pekwm.config.missing
     !$_CTRL_C_
     ?SH-PROMPT:
 
-    !env PEKWM_CONFIG_FILE=./pekwm.env.config.missing $BIN_DIR/pekwm --display $DISPLAY --log-level trace
+    [log test_config_path (env PEKWM_CONFIG_FILE)]
+    !env PEKWM_CONFIG_FILE=./pekwm.env.config.missing $BIN_DIR/pekwm --log-level trace
     ?using configuration at ./pekwm.env.config.missing
     ?failed to open file ./pekwm.env.config.missing
     !$_CTRL_C_
     ?SH-PROMPT:
 
+    [log test_config_path (env -i)]
     # test without home set, supposed to fail
-    !env -i $BIN_DIR/pekwm --display $DISPLAY --log-level trace
+    !env -i $BIN_DIR/pekwm --log-level trace
     ???failed to get configuration file path, $HOME not set.
     ?SH-PROMPT:
 [endfunction]
@@ -40,18 +42,21 @@ in one go.
     [log test pekwm --replace]
 
     [shell pekwm-1]
+        [call init-shell]
+        -window manager already running
         [log starting pekwm to be replaced]
-        !$BIN_DIR/pekwm --display $DISPLAY --log-level trace
+        !$BIN_DIR/pekwm --log-level trace
         ?Enter event loop.
 
     [shell pekwm-2]
+        [call init-shell]
         [log starting pekwm without --replace, should fail]
-        !$BIN_DIR/pekwm --display $DISPLAY --log-level trace
+        !$BIN_DIR/pekwm --log-level trace
         ?window manager already running
         ?SH-PROMPT:
 
         [log starting pekwm with --replace, replace first]
-        !$BIN_DIR/pekwm --display $DISPLAY --replace --log-level trace
+        !$BIN_DIR/pekwm --replace --log-level trace
         ?waiting for previous window manager to exit
         ?Enter event loop.
 
@@ -67,21 +72,21 @@ in one go.
 [function test_update_client_list_report_all]
     [log test_update_client_list_report_all]
 
-    [shell test_update_client_list]
-        ?SH-PROMPT:
-        !env DISPLAY=$DISPLAY $TEST_DIR/test_update_client_list
+    [shell test_update_client_list_report_all]
+        [call init-shell]
+        !$TEST_DIR/test_update_client_list
         ?BEGIN WINDOWS
         ?END WINDOWS
         ?PROGRESS: wait for PropertyNotify
 
     [shell test_client-1]
-        ?SH-PROMPT:
-        !env DISPLAY=$DISPLAY $TEST_DIR/test_client
+        [call init-shell]
+        !$TEST_DIR/test_client
         ?Window ([0-9]+)
         [global window1=$1]
         [log started test client 1 $window1]
 
-    [shell test_update_client_list]
+    [shell test_update_client_list_report_all]
         ?BEGIN WINDOWS
         ?Window $window1
         ?END WINDOWS
@@ -92,30 +97,30 @@ in one go.
         ?SH-PROMPT:
         [log stopped test client 1 $window1]
 
-[shell test_update_client_list]
+    [shell test_update_client_list_report_all]
         ?BEGIN WINDOWS
         ?END WINDOWS
         -
 
     [shell test_client-1]
-        !env DISPLAY=$DISPLAY $TEST_DIR/test_client
+        !$TEST_DIR/test_client
         ?Window ([0-9]+)
         [global window1=$1]
         [log re-started test client 1 $window1]
 
-    [shell test_update_client_list]
+    [shell test_update_client_list_report_all]
         ?BEGIN WINDOWS
         ?Window $window1
         ?END WINDOWS
 
     [shell test_client-2]
-        ?SH-PROMPT:
+        [call init-shell]
         !env DISPLAY=$DISPLAY $TEST_DIR/test_client
         ?Window ([0-9]+)
         [global window2=$1]
         [log started test client 2 $window2]
 
-    [shell test_update_client_list]
+    [shell test_update_client_list_report_all]
         ?BEGIN WINDOWS
         ?Window $window1
         ?Window $window2
@@ -128,6 +133,7 @@ in one go.
     [log test_update_client_list]
 
     [shell test_update_client_list]
+        [call init-shell]
         -Window $window1
         !env DISPLAY=$DISPLAY $TEST_DIR/test_update_client_list
         ?BEGIN WINDOWS
@@ -142,12 +148,12 @@ in one go.
     !$BIN_DIR/pekwm_ctrl WarpPointer 100 100
     ?SH-PROMPT:
     !$TEST_DIR/test_client query_pointer
-    !root x 100 y 100
+    ?root x 100 y 100
     ?SH-PROMPT:
     !$BIN_DIR/pekwm_ctrl WarpPointer 300 300
     ?SH-PROMPT:
     !$TEST_DIR/test_client query_pointer
-    !root x 300 y 300
+    ?root x 300 y 300
     ?SH-PROMPT:
 [endfunction]
 
@@ -184,18 +190,20 @@ in one go.
 [endfunction]
 
 [shell Xvfb]
-    ?SH-PROMPT:
+    [call init-shell]
     [log starting Xvfb]
     -Fatal server error
     !Xvfb -screen 0 1024x768x24 -dpi 96 -displayfd 1 $DISPLAY
     ?1
 
 [shell pekwm]
+    [call init-shell]
     [log starting pekwm (pekwm.config.report_all)]
-    !$BIN_DIR/pekwm --display $DISPLAY --config pekwm.config.report_all --log-level trace
+    !$BIN_DIR/pekwm --config pekwm.config.report_all --log-level trace
     ?Enter event loop.
 
 [shell test]
+    [call init-shell]
     [call test_cfg_deny_resize_inc]
     [call test_warp_pointer]
     [call test_update_client_list_report_all]
@@ -205,7 +213,7 @@ in one go.
     ?SH-PROMPT:
 
     [log starting pekwm (pekwm.config)]
-    !$BIN_DIR/pekwm --display $DISPLAY --config pekwm.config --log-level trace
+    !$BIN_DIR/pekwm --config pekwm.config --log-level trace
     ?Enter event loop.
 
 [shell test]
@@ -214,11 +222,10 @@ in one go.
 [shell pekwm]
     !$_CTRL_C_
     ?SH-PROMPT:
+    [call test_config_path]
 
 [shell test]
-    [call test_config_path]
     [call test_pekwm_replace]
-
 
 [shell Xvfb]
     !$_CTRL_C_

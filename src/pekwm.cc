@@ -1,185 +1,206 @@
 //
 // pekwm.cc for pekwm
-// Copyright (C) 2003-2021 Claes Nästén <pekdon@gmail.com>
-//
-// main.cc for aewm++
-// Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
-// http://sapphire.sourceforge.net/
+// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "config.h"
-
-#include "Debug.hh"
 #include "Compat.hh"
-#include "WindowManager.hh"
-#include "Util.hh"
 
 #include <iostream>
-#include <string>
-#include <cstring>
-#include <stdexcept>
-#include <locale>
+#include <vector>
 
 extern "C" {
-#include <unistd.h> // execlp
-#include <locale.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <errno.h>
+#include <string.h>
+#include <signal.h>
+#include <unistd.h>
 }
 
-namespace Info {
+static bool is_signal_int_term = false;
 
-    /**
-     * Prints version
-     */
-    void
-    printVersion(void)
-    {
-        std::cout << "pekwm: version " << VERSION << std::endl;
+static void
+sigHandler(int signal)
+{
+    switch (signal) {
+    case SIGINT:
+    case SIGTERM:
+        is_signal_int_term = true;
+        break;
+    }
+}
+
+static int
+waitPid(pid_t pid)
+{
+    int ret;
+    while (waitpid(pid, &ret, 0) == -1 && errno == EINTR) {
+        if (is_signal_int_term) {
+            is_signal_int_term = false;
+            kill(pid, SIGINT);
+        }
     }
 
-    /**
-     * Prints version and availible options
-     */
-    void
-    printUsage(void)
-    {
-        printVersion();
-        std::cout
-            << " --config    alternative config file" << std::endl
-            << " --display   display to connect to" << std::endl
-            << " --help      show this info." << std::endl
-            << " --info      extended info. Use for bug reports." << std::endl
-            << " --log-file  set log file." << std::endl
-            << " --log-level set log level." << std::endl
-            << " --replace   replace running window manager" << std::endl
-            << " --sync      run Xlib in synchronous mode" << std::endl
-            << " --version   show version info" << std::endl;
+    if (WIFEXITED(ret)) {
+        return WEXITSTATUS(ret);
+    }
+    return ret;
+}
+
+static bool
+promptForRestart(const std::string& pekwm_dialog)
+{
+    pid_t pid = fork();
+    if (pid == 0) {
+        char *argv[] = {strdup(pekwm_dialog.c_str()),
+                        strdup("-o"), strdup("Restart"),
+                        strdup("-o"), strdup("Exit"),
+                        strdup("-t"), strdup("pekwm crashed!"),
+                        strdup("-r"),
+                        strdup("pekwm quit unexpectedly, restart?"),
+                        NULL};
+        execvp(argv[0], argv);
+
+        exit(1);
+    } else if (pid == -1) {
+        return false;
+    } else {
+        return waitPid(pid) == 0;
+    }
+}
+
+static int
+handleOkResult(char *argv[], int read_fd)
+{
+    char buf[1024] = {0};
+    read(read_fd, buf, sizeof(buf) - 1);
+    close(read_fd);
+
+    if (strncmp("stop", buf, 4) == 0) {
+        return 0;
+    }
+    if (strncmp("error", buf, 5) == 0) {
+        return 1;
     }
 
-    /**
-     * Prints version and build-time options
-     */
-    void
-    printInfo(void)
-    {
-        printVersion();
-        std::cout << "features: " << FEATURES << std::endl;
+    if (strncmp("restart ", buf, 8) == 0) {
+        auto command = std::string(buf + 8);
+
+        if (command.empty()) {
+            execvp(argv[0], argv);
+        } else {
+            command = "exec " + command;
+            execl("/bin/sh", "sh" , "-c", command.c_str(), (char*) 0);
+        }
+
+        std::cerr << "failed to run restart command: " << command << std::endl;
     }
 
-} // end namespace Info
+    return 1;
+}
+
+
+static int
+handleUnexpectedResult(char *argv[], int read_fd)
+{
+    close(read_fd);
+
+    // run pekwm_dialog and wait for answer on to restart or not
+    auto pekwm_dialog = std::string(argv[0]) + "_dialog";
+    if (promptForRestart(pekwm_dialog)) {
+        execvp(argv[0], argv);
+        std::cerr << "failed to restart pekwm" << std::endl;
+        exit(1);
+    }
+
+    std::cerr << "not restarting after crash" << std::endl;
+
+    return 1;
+}
 
 /**
  * Main function of pekwm
  */
 int
-main(int argc, char **argv)
+main(int argc, char *argv[])
 {
-    try {
-        std::locale::global(std::locale(""));
-    } catch (const std::runtime_error &e) {
-        ERR("The environment variables specify an unknown C++ locale - "
-            "falling back to C's setlocale().");
-        setlocale(LC_ALL, "");
-    }
-
-    Util::iconv_init();
-
     setenv("PEKWM_ETC_PATH", SYSCONFDIR, 1);
     setenv("PEKWM_SCRIPT_PATH", DATADIR "/pekwm/scripts", 1);
     setenv("PEKWM_THEME_PATH", DATADIR "/pekwm/themes", 1);
 
-    // get the args and test for different options
-    std::string config_file;
-    bool synchronous = false;
-    bool replace = false;
-    for (int i = 1; i < argc; ++i)	{
+    // Get the pekwm_wm command by appending _wm to the path to ensure
+    // the correct pekwm_wm is used when running from a non-installed
+    // location.
+    auto pekwm_wm = std::string(argv[0]) + "_wm";
+
+    // Setup environment, DISPLAY is set to make RestartOther work as
+    // expected re-using the display from the --display argument.
+    //
+    // PEKWM_CONFIG_FILE is set as an environment to make pekwm_dialog
+    // catch the correct configuration file.
+    std::vector<std::string> wm_argv = { pekwm_wm };
+    for (int i = 1; i < argc; i++) {
         if ((strcmp("--display", argv[i]) == 0) && ((i + 1) < argc)) {
             setenv("DISPLAY", argv[++i], 1);
         } else if ((strcmp("--config", argv[i]) == 0) && ((i + 1) < argc)) {
-            config_file = argv[++i];
-        } else if (strcmp("--info", argv[i]) == 0) {
-            Info::printInfo();
-            exit(0);
-        } else if (strcmp("--log-level", argv[i]) == 0 && ((i + 1) < argc)) {
-            Debug::level = Debug::getLevel(argv[++i]);
-        } else if (strcmp("--log-file", argv[i]) == 0 && ((i + 1) < argc)) {
-            if (Debug::setLogFile(argv[++i])) {
-                Debug::enable_logfile = true;
-            } else {
-                std::cerr << "Failed to open log file " << argv[i] << std::endl;
-            }
-        } else if (strcmp("--replace", argv[i]) == 0) {
-            replace = true;
-        } else if (strcmp("--sync", argv[i]) == 0) {
-            synchronous = true;
-        } else if (strcmp("--version", argv[i]) == 0) {
-            Info::printVersion();
-            exit(0);
+            setenv("PEKWM_CONFIG_FILE", argv[++i], 1);
         } else {
-            Info::printUsage();
-            exit(0);
+            wm_argv.push_back(argv[i]);
         }
     }
 
-    // Get configuration file if none was specified as a parameter,
-    // default to reading environment, if not set get ~/.pekwm/config
-    if (config_file.size() == 0) {
-        config_file = Util::getEnv("PEKWM_CONFIG_FILE");
-        if (config_file.size() == 0) {
-            auto home = Util::getEnv("HOME");
-            if (home.size() == 0) {
-                std::cerr << "failed to get configuration file path, "
-                          << "$HOME not set." << std::endl;
-                exit(1);
-            }
-            config_file = home + "/.pekwm/config";
-        }
+    // Run the window manager inside a child process to avoid stopping
+    // the X11 server on a crash, instead just restart
+    int fd[2];
+    if (pipe(fd) == -1) {
+        std::cerr << "Failed to create pipe for communicating with "
+                  << " pekwm_wm process" << std::endl;
+        return 1;
     }
-
-    USER_INFO("Starting pekwm. Use this information in bug reports: "
-              << FEATURES << std::endl
-              << "using configuration at " << config_file);
 
     int ret = 1;
-    auto wm = WindowManager::start(config_file, replace, synchronous);
-    if (wm) {
-        try {
-            TRACE("Enter event loop.");
+    pid_t pid = fork();
+    if (pid == 0) {
+        // close reading end on child
+        close(fd[0]);
 
-            wm->doEventLoop();
+        wm_argv.insert(wm_argv.begin() + 1, "--fd");
+        wm_argv.insert(wm_argv.begin() + 2, std::to_string(fd[1]));
 
-            if (wm->shallRestart()) {
-                auto command = wm->getRestartCommand();
-                delete wm;
-                pekwm::cleanup();
-                Util::iconv_deinit();
-
-                if (command.empty()) {
-                    execvp(argv[0], argv);
-                } else {
-                    command = "exec " + command;
-                    execl("/bin/sh", "sh" , "-c", command.c_str(), (char*) 0);
-                }
-
-                ERR("failed to run restart command: " << command);
-                exit(1);
-            } else {
-                ret = 0;
-            }
-        } catch (std::exception& ex) {
-            ERR("exception occurred: " << ex.what());
-        } catch (std::string& ex) {
-            ERR("unexpected error occurred: " << ex);
+        int argc = 0;
+        auto c_wm_argv = new char*[wm_argv.size() + 1];
+        for (auto it : wm_argv) {
+            c_wm_argv[argc++] = strdup(it.c_str());
         }
+        c_wm_argv[argc++] = NULL;
 
-        delete wm;
-        pekwm::cleanup();
+        execvp(c_wm_argv[0], c_wm_argv);
+
+        std::cerr << "Failed to execute: " << pekwm_wm << std::endl;
+        exit(1);
+    } else if (pid == -1) {
+        std::cerr << "Failed to fork: " << strerror(errno) << std::endl;
+    } else {
+        // close writing end on parent
+        close(fd[1]);
+
+        struct sigaction act;
+        act.sa_handler = sigHandler;
+        act.sa_mask = sigset_t();
+        act.sa_flags = SA_NOCLDSTOP | SA_NODEFER;
+        sigaction(SIGTERM, &act, 0);
+        sigaction(SIGINT, &act, 0);
+
+        ret = waitPid(pid);
+        if (ret == 0) {
+            ret = handleOkResult(argv, fd[0]);
+        } else {
+            ret = handleUnexpectedResult(argv, fd[0]);
+        }
     }
-
-    // Cleanup
-    Util::iconv_deinit();
 
     return ret;
 }

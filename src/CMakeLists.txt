@@ -114,8 +114,7 @@ add_library(wm STATIC ${wm_SOURCES})
 target_include_directories(wm PUBLIC ${common_INCLUDE_DIRS})
 
 add_executable(pekwm pekwm.cc)
-target_include_directories(pekwm PUBLIC ${common_INCLUDE_DIRS})
-target_link_libraries(pekwm wm texture x11 util ${common_LIBRARIES})
+target_include_directories(pekwm PUBLIC ${PROJECT_BINARY_DIR}/src)
 install(TARGETS pekwm DESTINATION bin)
 
 add_executable(pekwm_bg
@@ -143,3 +142,8 @@ if (ENABLE_IMAGE_PNG AND PNG_FOUND)
   target_link_libraries(pekwm_screenshot texture x11 util ${common_LIBRARIES})
   install(TARGETS pekwm_screenshot DESTINATION bin)
 endif (ENABLE_IMAGE_PNG AND PNG_FOUND)
+
+add_executable(pekwm_wm pekwm_wm.cc)
+target_include_directories(pekwm_wm PUBLIC ${common_INCLUDE_DIRS})
+target_link_libraries(pekwm_wm wm texture x11 util ${common_LIBRARIES})
+install(TARGETS pekwm_wm DESTINATION bin)

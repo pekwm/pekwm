@@ -10,6 +10,10 @@ Bug fixes
 New
 ---
 
+**Crash Dialog**, if pekwm crash a pekwm_dialog will appear and prompt
+the user if pekwm should be restarted or quit. This avoids the X
+server to shut down.
+
 **ImageMapped**, it is now possible map colors in images during load
 using a color map from the new ColorMaps section in the theme
 file. This functionality allows for creating themes using less images

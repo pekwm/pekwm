@@ -31,7 +31,7 @@ extern "C" {
 #include <unistd.h>
 }
 
-static const uint WIDTH_DEFAULT = 200;
+static const uint WIDTH_DEFAULT = 250;
 static const uint HEIGHT_DEFAULT = 50;
 #define THEME_DEFAULT DATADIR "/pekwm/themes/default/theme"
 

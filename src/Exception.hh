@@ -11,12 +11,42 @@
 #include "config.h"
 
 /**
- * Exception thrown when loading of a file/data fails.
+ * Base class for all pekwm exceptions.
  */
-class LoadException
+class PekwmException
 {
 public:
-    LoadException(const char *resource) : _resource(resource) { }
+    virtual ~PekwmException(void) { }
+};
+
+/**
+ * Exception thrown to stop execution.
+ */
+class StopException : public PekwmException
+{
+public:
+    StopException(const char *msg)
+        : _msg(msg)
+    {
+    }
+    virtual ~StopException(void) { }
+
+    const char* getMsg(void) const { return _msg; }
+
+private:
+    const char *_msg;
+};
+
+/**
+ * Exception thrown when loading of a file/data fails.
+ */
+class LoadException : public PekwmException
+{
+public:
+    LoadException(const char *resource)
+        : _resource(resource)
+    {
+    }
     virtual ~LoadException(void) { }
 
     /** Get resource string. */
