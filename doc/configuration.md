@@ -910,7 +910,7 @@ Global {
 	KeyPress = "Mod4 F" { Actions = "Toggle FullScreen" }
 	KeyPress = "Mod4 Return" { Actions = "MoveResize" }
 	# Wm actions
-	Chain = "Ctrl Mod1 P" {
+	Chain = "Ctrl Mod4 P" {
 		KeyPress = "Delete" { Actions = "Reload" }
 		KeyPress = "Next" { Actions = "Restart" }
 		KeyPress = "End" { Actions = "Exit" }
@@ -1000,14 +1000,14 @@ attribute into Full/Vertical or Horizontal, and a simpler one level
 chain that brings up the root menu.
 
 ```
-Chain = "Ctrl Mod1 A" {
+Chain = "Ctrl Mod4 A" {
 	Chain = "M" {
 		KeyPress = "M" { Actions = "Toggle Maximized True True" }
 		KeyPress = "V" { Actions = "Toggle Maximized False True" }
 		KeyPress = "H" { Actions = "Toggle Maximized True False" }
 	}
 }
-Chain = "Ctrl Mod1 M" {
+Chain = "Ctrl Mod4 M" {
 	KeyPress = "R" { Actions = "ShowMenu Root" }
 }
 ```
