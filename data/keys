@@ -88,7 +88,7 @@ Global {
 # - - ----------------------------------------------- - -
 # CHAINS. These give you access to just about everything.
 	# Move to Corner
-	Chain = "Ctrl Mod1 C" {
+	Chain = "Ctrl Mod4 C" {
 		KeyPress = "Q" { Actions = "MoveToEdge TopLeft" }
 		KeyPress = "Y" { Actions = "MoveToEdge TopCenterEdge" }
 		KeyPress = "W" { Actions = "MoveToEdge TopCenterEdge" }
@@ -113,7 +113,7 @@ Global {
 		KeyPress = "S" { Actions = "MoveToEdge Center" }
 	}
 	# Menus
-	Chain = "Ctrl Mod1 M" {
+	Chain = "Ctrl Mod4 M" {
 		KeyPress = "R" { Actions = "ShowMenu Root" }
 		KeyPress = "W" { Actions = "ShowMenu Window" }
 		KeyPress = "I" { Actions = "ShowMenu Icon" }
@@ -127,7 +127,7 @@ Global {
 		KeyPress = "X" { Actions = "HideAllMenus" }
 	}
 	# Grouping
-	Chain = "Ctrl Mod1 T" {
+	Chain = "Ctrl Mod4 T" {
 		KeyPress = "T" { Actions = "Toggle Tagged False" }
 		KeyPress = "B" { Actions = "Toggle Tagged True" }
 		KeyPress = "C" { Actions = "Unset Tagged" }
@@ -141,13 +141,13 @@ Global {
 		KeyPress = "U" { Actions = "AttachFrameInPrevFrame" }
 	}
 	# Decor Toggles
-	Chain = "Ctrl Mod1 D" {
+	Chain = "Ctrl Mod4 D" {
 		KeyPress = "B" { Actions = "Toggle DecorBorder" }
 		KeyPress = "T" { Actions = "Toggle DecorTitlebar" }
 		KeyPress = "D" { Actions = "Toggle DecorBorder; Toggle DecorTitlebar" }
 	}
 	# Window Actions
-	Chain = "Ctrl Mod1 A" {
+	Chain = "Ctrl Mod4 A" {
 		Chain = "G" {
 			KeyPress = "G" { Actions = "MaxFill True True" }
 			KeyPress = "V" { Actions = "MaxFill False True" }
@@ -181,7 +181,7 @@ Global {
 		KeyPress = "Down" { Actions = "GrowDirection Down" }
 	}
 	# Moving in Frames
-	Chain = "Ctrl Mod1 F" {
+	Chain = "Ctrl Mod4 F" {
 		KeyPress = "P" { Actions = "NextFrame AlwaysRaise" }
 		KeyPress = "O" { Actions = "PrevFrame AlwaysRaise" }
 		KeyPress = "Shift P" { Actions = "NextFrameMRU EndRaise" }
@@ -207,7 +207,7 @@ Global {
 		KeyPress = "C" { Actions = "ShowCmdDialog GotoClientID " }
 	}
 	# Workspaces
-	Chain = "Ctrl Mod1 W" {
+	Chain = "Ctrl Mod4 W" {
 		KeyPress = "Right" { Actions = "GoToWorkspace Right" }
 		KeyPress = "Left" { Actions = "GoToWorkspace Left" }
 		KeyPress = "N" { Actions = "GoToWorkspace Next" }
@@ -234,14 +234,14 @@ Global {
 		KeyPress = "F9" { Actions = "SendToWorkspace 9" }
 	}
 	# External commands
-	Chain = "Ctrl Mod1 E" {
+	Chain = "Ctrl Mod4 E" {
 		KeyPress = "E" { Actions = "Exec $TERM" }
 		KeyPress = "L" { Actions = "Exec xlock -mode blank" }
 		KeyPress = "S" { Actions = "Exec pekwm_screenshot" }
 		KeyPress = "C" { Actions = "ShowCmdDialog" }
 	}
 	# Wm actions
-	Chain = "Ctrl Mod1 P" {
+	Chain = "Ctrl Mod4 P" {
 		KeyPress = "Delete" { Actions = "Reload" }
 		KeyPress = "Next" { Actions = "Restart" }
 		KeyPress = "End" { Actions = "Exit" }
@@ -250,7 +250,7 @@ Global {
 		KeyPress = "H" { Actions = "Toggle HarbourHidden" }
 	}
 	# Skipping
-	Chain = "Ctrl Mod1 S" {
+	Chain = "Ctrl Mod4 S" {
 		Keypress = "M" { Actions = "Toggle Skip Menus" }
 		Keypress = "F" { Actions = "Toggle Skip FocusToggle" }
 		Keypress = "S" { Actions = "Toggle Skip Snap" }
