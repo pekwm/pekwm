@@ -602,10 +602,13 @@ X11::getCursorHead(void)
     return head;
 }
 
-//! @brief Fills head_info with info about head nr head
-//! @param head Head number to examine
-//! @param head_info Returning info about the head
-//! @return true if xinerama is off or head exists.
+/**
+ * Fills head_info with info about head nr head
+ *
+ * @param head Head number to examine
+ * @param head_info Returning info about the head
+ * @return true if xinerama is off or head exists.
+ */
 bool
 X11::getHeadInfo(uint head, Geometry &head_info)
 {
@@ -619,6 +622,25 @@ X11::getHeadInfo(uint head, Geometry &head_info)
         ERR("head " << head << " does not exist");
         return false;
     }
+}
+
+/**
+ * Fill head_info with info about head at x/y.
+ */
+void
+X11::getHeadInfo(int x, int y, Geometry &head_info)
+{
+    for (auto head : _heads) {
+        if (x >= head.x && x <= signed(head.x + head.width)
+            && y >= head.y && y <= signed(head.y + head.height)) {
+            head_info.x = head.x;
+            head_info.y = head.y;
+            head_info.width = head.width;
+            head_info.height = head.height;
+            return;
+        }
+    }
+    head_info = _screen_gm;
 }
 
 /**

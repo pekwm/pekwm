@@ -1055,11 +1055,11 @@ PMenu::findItem(int x, int y)
 void
 PMenu::makeInsideScreen(int x, int y)
 {
-    Geometry head;
-    X11::getHeadInfo(X11Util::getCurrHead(), head);
-
     x = (x == -1) ? _gm.x : x;
     y = (y == -1) ? _gm.y : y;
+
+    Geometry head;
+    X11::getHeadInfo(x, y, head);
 
     // we map on submenus on the right side so this only happens on the
     // top-level menu

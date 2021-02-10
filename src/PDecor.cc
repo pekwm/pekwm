@@ -350,7 +350,7 @@ PDecor::mapWindowRaised(void)
     if (_mapped) {
         return;
     }
-    
+
     mapWindow();
 
     raise(); // XMapRaised wouldn't preserver layers

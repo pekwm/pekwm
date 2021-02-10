@@ -219,6 +219,7 @@ public:
     static uint getCursorHead(void);
     static void addHead(const Head &head) { _heads.push_back(head); }
     static bool getHeadInfo(uint head, Geometry &head_info);
+    static void getHeadInfo(int x, int y, Geometry &head_info);
     static Geometry getHeadGeometry(uint head);
     static int getNumHeads(void) { return _heads.size(); }
 
