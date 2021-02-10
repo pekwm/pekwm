@@ -128,7 +128,9 @@ applications. If the number is negative, the applications will be
 placed after the zero-position ones. So the positive numbered show up
 first in your harbour, then the zero numbered, and after the zeros
 come the negatively numbered applications. I hope that is clear, the
-next part is tricky. The larger the value of the base number the
+next part is tricky.
+
+The larger the value of the base number the
 closer to the zero applications they will be. So the smaller the base
 number the closer to the ends of the harbour the application will
 be. Position 1 would be the first application to show up on the
