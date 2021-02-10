@@ -189,10 +189,10 @@ DockApp::resize(uint width, uint height)
 
     updateSize();
 
-    XMoveResizeWindow(X11::getDpy(), _window,
-                      _gm.x, _gm.y, _gm.width, _gm.height);
-    XMoveResizeWindow(X11::getDpy(), _dockapp_window,
-                      _c_gm.x, _c_gm.y, _c_gm.width, _c_gm.height);
+    X11::moveResizeWindow(_window,
+                          _gm.x, _gm.y, _gm.width, _gm.height);
+    X11::moveResizeWindow(_dockapp_window,
+                          _c_gm.x, _c_gm.y, _c_gm.width, _c_gm.height);
 
     repaint();
 }

@@ -360,14 +360,17 @@ public:
 
     PekwmDialog(Theme::DialogData* data,
                 const Geometry &gm,
-                const std::wstring& title, PImage* image,
+                bool raise, const std::wstring& title, PImage* image,
                 const std::wstring& message,
                 std::vector<std::wstring> options)
         : PWinObj(true),
-          _data(data)
+          _data(data),
+          _raise(raise)
     {
-        // TODO: setup size minimum based on image
+        _gm = gm;
+
         initWindow(title);
+        // TODO: setup size minimum based on image
         initWidgets(title, image, message, options);
         placeWidgets();
     }
@@ -392,6 +395,9 @@ public:
     void show(void)
     {
         X11::mapWindow(_window);
+        if (_raise) {
+            X11::raiseWindow(_window);
+        }
         render();
     }
 
@@ -498,6 +504,7 @@ protected:
 
 private:
     Theme::DialogData* _data;
+    bool _raise;
     std::vector<Widget*> _widgets;
 };
 
@@ -587,6 +594,7 @@ int main(int argc, char* argv[])
     const char* display = NULL;
     Geometry gm = { 0, 0, WIDTH_DEFAULT, HEIGHT_DEFAULT };
     int gm_mask = WIDTH_VALUE | HEIGHT_VALUE;
+    bool raise;
     std::wstring title;
     std::string config_file = Util::getEnv("PEKWM_CONFIG_FILE");
     std::string image_name;
@@ -599,6 +607,7 @@ int main(int argc, char* argv[])
         {"help", no_argument, NULL, 'h'},
         {"image", required_argument, NULL, 'i'},
         {"option", required_argument, NULL, 'o'},
+        {"raise", no_argument, NULL, 'r'},
         {"title", required_argument, NULL, 't'},
         {NULL, 0, NULL, 0}
     };
@@ -612,7 +621,7 @@ int main(int argc, char* argv[])
     Util::iconv_init();
 
     int ch;
-    while ((ch = getopt_long(argc, argv, "c:d:g:hi:o:t:", opts, NULL)) != -1) {
+    while ((ch = getopt_long(argc, argv, "c:d:g:hi:o:rt:", opts, NULL)) != -1) {
         switch (ch) {
         case 'c':
             config_file = optarg;
@@ -632,6 +641,9 @@ int main(int argc, char* argv[])
             break;
         case 'o':
             options.push_back(Util::to_wide_str(optarg));
+            break;
+        case 'r':
+            raise = true;
             break;
         case 't':
             title = Util::to_wide_str(optarg);
@@ -685,7 +697,7 @@ int main(int argc, char* argv[])
         Theme theme(_font_handler, _image_handler, _texture_handler,
                     theme_dir, theme_variant);
         PekwmDialog dialog(theme.getDialogData(),
-                           gm, title, image, message, options);
+                           gm, raise, title, image, message, options);
         dialog.show();
 
         ret = mainLoop(dialog);

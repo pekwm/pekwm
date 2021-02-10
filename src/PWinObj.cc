@@ -146,7 +146,7 @@ PWinObj::move(int x, int y)
     _gm.x = x;
     _gm.y = y;
 
-    XMoveWindow(X11::getDpy(), _window, _gm.x, _gm.y);
+    X11::moveWindow(_window, _gm.x, _gm.y);
 }
 
 //! @brief Resizes the window and updates _gm.
@@ -161,7 +161,7 @@ PWinObj::resize(uint width, uint height)
     _gm.width = width;
     _gm.height = height;
 
-    XResizeWindow(X11::getDpy(), _window, _gm.width, _gm.height);
+    X11::resizeWindow(_window, _gm.width, _gm.height);
 }
 
 //! @brief Move and resize window in one call.
@@ -182,7 +182,7 @@ PWinObj::moveResize(int x, int y, uint width, uint height)
     _gm.width = width;
     _gm.height = height;
 
-    XMoveResizeWindow(X11::getDpy(), _window, _gm.x, _gm.y, _gm.width, _gm.height);
+    X11::moveResizeWindow(_window, _gm.x, _gm.y, _gm.width, _gm.height);
 }
 
 //! @brief Only sets _workspace to workspace.
