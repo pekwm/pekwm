@@ -259,35 +259,106 @@ Global {
     KeyPress = "Mod4 Space" { Actions = "SetPlacementOption SwitchGeometry 1" }
 }
 
-# Keys when MoveResize is active
+# Keys when MoveResize is active:
+#
+# - Arrows move by 10 pixels, 1 pixel with Shift, or in percentage
+#   with Ctrl.
+# - Mod1-Arrows resize instead, same modifiers apply.
+#
+#                 QWE
+# - The key block A D will move to that specific location in 9x9 block
+#                 ZXC
+#
+#   with Shift, they will also be resized to occupy one of those 9x9 block
+#
+#                 W
+# - The key Ctrl+A D will move the window to the edge in a given direction.
+#                 X
+#
+# - U, H, V, M will resize the windows to 50%x50%, 100%x50%, 50%100%
+#   and 100%x100% respectively
+# - S to snap, Escape to cancel or Enter to accept
 MoveResize {
 	KeyPress = "Left" { Actions = "MoveHorizontal -10" }
 	KeyPress = "Right" { Actions = "MoveHorizontal 10" }
 	KeyPress = "Up" { Actions = "MoveVertical -10" }
 	KeyPress = "Down" { Actions = "MoveVertical 10" }
+
 	Keypress = "Shift Left" { Actions = "MoveHorizontal -1" }
 	Keypress = "Shift Right" { Actions = "MoveHorizontal 1" }
 	Keypress = "Shift Up" { Actions = "MoveVertical -1" }
 	Keypress = "Shift Down" { Actions = "MoveVertical 1" }
-	Keypress = "Mod4 Left" { Actions = "ResizeHorizontal -10" }
-	Keypress = "Mod4 Right" { Actions = "ResizeHorizontal 10" }
-	Keypress = "Mod4 Up" { Actions = "ResizeVertical -10" }
-	Keypress = "Mod4 Down" { Actions = "ResizeVertical 10" }
+
+	KeyPress = "Ctrl Left" { Actions = "MoveHorizontal -10%" }
+	KeyPress = "Ctrl Right" { Actions = "MoveHorizontal 10%" }
+	KeyPress = "Ctrl Up" { Actions = "MoveVertical -10%" }
+	KeyPress = "Ctrl Down" { Actions = "MoveVertical 10%" }
+
+	Keypress = "Ctrl Shift Left" { Actions = "MoveHorizontal -1%" }
+	Keypress = "Ctrl Shift Right" { Actions = "MoveHorizontal 1%" }
+	Keypress = "Ctrl Shift Up" { Actions = "MoveVertical -1%" }
+	Keypress = "Ctrl Shift Down" { Actions = "MoveVertical 1%" }
+
 	Keypress = "Mod1 Left" { Actions = "ResizeHorizontal -10" }
 	Keypress = "Mod1 Right" { Actions = "ResizeHorizontal 10" }
 	Keypress = "Mod1 Up" { Actions = "ResizeVertical -10" }
 	Keypress = "Mod1 Down" { Actions = "ResizeVertical 10" }
-	Keypress = "Shift Mod4 Left" { Actions = "ResizeHorizontal -1" }
-	Keypress = "Shift Mod4 Right" { Actions = "ResizeHorizontal 1" }
-	Keypress = "Shift Mod4 Up" { Actions = "ResizeVertical -1" }
-	Keypress = "Shift Mod4 Down" { Actions = "ResizeVertical 1" }
+
 	Keypress = "Shift Mod1 Left" { Actions = "ResizeHorizontal -1" }
 	Keypress = "Shift Mod1 Right" { Actions = "ResizeHorizontal 1" }
 	Keypress = "Shift Mod1 Up" { Actions = "ResizeVertical -1" }
 	Keypress = "Shift Mod1 Down" { Actions = "ResizeVertical 1" }
+
+	Keypress = "Ctrl Mod1 Left" { Actions = "Ctrl ResizeHorizontal -10%" }
+	Keypress = "Ctrl Mod1 Right" { Actions = "Ctrl ResizeHorizontal 10%" }
+	Keypress = "Ctrl Mod1 Up" { Actions = "Ctrl ResizeVertical -10%" }
+	Keypress = "Ctrl Mod1 Down" { Actions = "Ctrl ResizeVertical 10%" }
+
+	Keypress = "Ctrl Shift Mod1 Left" { Actions = "Ctrl ResizeHorizontal -1%" }
+	Keypress = "Ctrl Shift Mod1 Right" { Actions = "Ctrl ResizeHorizontal 1%" }
+	Keypress = "Ctrl Shift Mod1 Up" { Actions = "Ctrl ResizeVertical -1%" }
+	Keypress = "Ctrl Shift Mod1 Down" { Actions = "Ctrl ResizeVertical 1%" }
+
+	Keypress = "Mod4 Left" { Actions = "ResizeHorizontal -10" }
+	Keypress = "Mod4 Right" { Actions = "ResizeHorizontal 10" }
+	Keypress = "Mod4 Up" { Actions = "ResizeVertical -10" }
+	Keypress = "Mod4 Down" { Actions = "ResizeVertical 10" }
+
+	Keypress = "Shift Mod4 Left" { Actions = "ResizeHorizontal -1" }
+	Keypress = "Shift Mod4 Right" { Actions = "ResizeHorizontal 1" }
+	Keypress = "Shift Mod4 Up" { Actions = "ResizeVertical -1" }
+	Keypress = "Shift Mod4 Down" { Actions = "ResizeVertical 1" }
+
+	KeyPress = "Q" { Actions = "MoveToEdge TopLeft" }
+	KeyPress = "W" { Actions = "MoveToEdge TopCenterEdge" }
+	KeyPress = "E" { Actions = "MoveToEdge TopRight" }
+	KeyPress = "A" { Actions = "MoveToEdge LeftCenterEdge" }
+	KeyPress = "D" { Actions = "MoveToEdge RightCenterEdge" }
+	KeyPress = "Z" { Actions = "MoveToEdge BottomLeft" }
+	KeyPress = "X" { Actions = "MoveToEdge BottomCenterEdge" }
+	KeyPress = "C" { Actions = "MoveToEdge BottomRight" }
+
+	KeyPress = "Shift Q" { Actions = "SetGeometry 50%x50%+0+0 CURRENT" }
+	KeyPress = "Shift W" { Actions = "SetGeometry 100%x50%+0+0 CURRENT" }
+	KeyPress = "Shift E" { Actions = "SetGeometry 50%x50%+50%+0 CURRENT" }
+	KeyPress = "Shift A" { Actions = "SetGeometry 50%x100%+0+0 CURRENT" }
+	KeyPress = "Shift D" { Actions = "SetGeometry 50%x100%+50%+0 CURRENT" }
+	KeyPress = "Shift Z" { Actions = "SetGeometry 50%x50%+0+50% CURRENT" }
+	KeyPress = "Shift X" { Actions = "SetGeometry 100%x50%+0+50% CURRENT" }
+	KeyPress = "Shift C" { Actions = "SetGeometry 50%x50%+50%+50% CURRENT" }
+
+	KeyPress = "Ctrl W" { Actions = "MoveToEdge TopEdge" }
+	KeyPress = "Ctrl A" { Actions = "MoveToEdge LeftEdge" }
+	KeyPress = "Ctrl D" { Actions = "MoveToEdge RightEdge" }
+	KeyPress = "Ctrl X" { Actions = "MoveToEdge BottomEdge" }
+
+	KeyPress = "U" { Actions = "SetGeometry 50%x50% current HonourStrut" }
+	KeyPress = "V" { Actions = "SetGeometry 50%x100% current HonourStrut" }
+	KeyPress = "H" { Actions = "SetGeometry 100%x50% current HonourStrut" }
+	KeyPress = "M" { Actions = "SetGeometry 100%x100% current HonourStrut" }
+
 	Keypress = "s" { Actions = "MoveSnap" }
 	Keypress = "Escape" { Actions = "Cancel" }
-	Keypress = "q" { Actions = "Cancel" }
 	Keypress = "Return" { Actions = "End" }
 }
 
