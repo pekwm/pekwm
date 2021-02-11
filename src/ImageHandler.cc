@@ -53,7 +53,8 @@ PImage*
 ImageHandler::getImage(const std::string &file)
 {
     uint ref;
-    return getImage(file, ref, _images);
+    auto image = getImage(file, ref, _images);
+    return image->getData() ? image : nullptr;
 }
 
 PImage*
@@ -82,8 +83,11 @@ ImageHandler::getImage(const std::string &file, uint &ref,
         image = getImageFromPath(real_file, ref, images);
     } else {
         auto it(_search_path.rbegin());
-        for (; ! image && it != _search_path.rend(); ++it) {
+        for (; it != _search_path.rend(); ++it) {
             image = getImageFromPath(*it + real_file, ref, images);
+            if (image) {
+                break;
+            }
         }
     }
 
@@ -156,8 +160,7 @@ ImageHandler::getMappedImage(const std::string &file,
 {
     auto it = _images_mapped.find(colormap);
     if (it == _images_mapped.end()) {
-        _images_mapped[colormap] = Util::StringMap<Util::RefEntry<PImage*>>();
-        _images_mapped[colormap][""] = Util::RefEntry<PImage*>(nullptr);
+        _images_mapped[colormap] = {{"", Util::RefEntry<PImage*>(nullptr)}};
     }
 
     uint ref;

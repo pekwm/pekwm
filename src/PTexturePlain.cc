@@ -401,9 +401,8 @@ PTextureImage::setImage(const std::string &image, const std::string &colormap)
         _image = pekwm::imageHandler()->getMappedImage(image, colormap);
     }
 
-    assert(_image->getData());
-
     if (_image) {
+        assert(_image->getData());
         _colormap = colormap;
         _width = _image->getWidth();
         _height = _image->getHeight();
