@@ -25,96 +25,13 @@ static const uint ALPHA_TRANSPARENT = 0;
 static const char *COLOR_DEFAULT = "#000000";
 
 /**
- * PImageLoaderXpm constructor.
- */
-PImageLoaderXpm::PImageLoaderXpm(void)
-    : PImageLoader("XPM")
-{
-}
-
-/**
- * PImageLoaderXpm destructor.
- */
-PImageLoaderXpm::~PImageLoaderXpm(void)
-{
-}
-
-/**
- * Loads file into data.
- *
- * @param file File to load data from.
- * @param width Set to the width of image.
- * @param height Set to the height of image.
- * @param alpha Set to wheter image has alpha channel.
- * @return Pointer to data on success, else 0.
- */
-uchar*
-PImageLoaderXpm::load(const std::string &file, uint &width, uint &height,
-                      bool &use_alpha)
-{
-    // Read XPM to XpmImage format.
-    XpmImage xpm_image = {0};
-    XpmInfo xpm_info = {0};
-    if (XpmReadFileToXpmImage((char*) file.c_str(),
-                              &xpm_image, &xpm_info) != Success) {
-        USER_WARN(file << " not a valid XPM file");
-        return 0;
-    }
-
-    if (! xpm_image.ncolors
-        || ! xpm_image.data
-        || ! xpm_image.width
-        || ! xpm_image.height) {
-        USER_WARN(file << " invalid file information."
-                  << " ncolors: " << xpm_image.ncolors
-                  << " width: " << xpm_image.width
-                  << " height: " << xpm_image.height);
-        return 0;
-    }
-
-    // Build XpmColor -> ARGB Table.
-    auto xpm_to_argb = createXpmToArgbTable(&xpm_image, use_alpha);
-
-    width = xpm_image.width;
-    height = xpm_image.height;
-
-    // Allocate data.
-    uchar* data = new uchar[width * height * 4];
-    auto dest = reinterpret_cast<int32_t*>(data);
-    auto src = xpm_image.data;
-
-    use_alpha = false;
-
-    // Fill data.
-    uint color;
-    for (uint y = 0; y < height; ++y) {
-        for (uint x = 0; x < width; ++x) {
-            color = *src++;
-            if (color < xpm_image.ncolors) {
-                *dest++ = xpm_to_argb[color];
-            } else {
-                *dest++ = 0xffffffff;
-            }
-        }
-    }
-
-    // Cleanup.
-    delete [] xpm_to_argb;
-
-    XpmFreeXpmImage(&xpm_image);
-    XpmFreeXpmInfo(&xpm_info);
-
-    return data;
-}
-
-/**
  * Creates an color number to ARGB conversion table.
  *
  * @param xpm_image Pointer to XpmImage.
  * @return Pointer to color number to ARGB conversion table.
  */
-int32_t*
-PImageLoaderXpm::createXpmToArgbTable(XpmImage *xpm_image, bool &use_alpha)
+static int32_t*
+createXpmToArgbTable(XpmImage *xpm_image, bool &use_alpha)
 {
     use_alpha = false;
 
@@ -168,6 +85,83 @@ PImageLoaderXpm::createXpmToArgbTable(XpmImage *xpm_image, bool &use_alpha)
     }
 
     return reinterpret_cast<int32_t*>(xpm_to_argb);
+}
+
+
+namespace PImageLoaderXpm
+{
+    const char*
+    getExt(void)
+    {
+        return "XPM";
+    }
+
+    /**
+     * Loads file into data.
+     *
+     * @param file File to load data from.
+     * @param width Set to the width of image.
+     * @param height Set to the height of image.
+     * @param alpha Set to wheter image has alpha channel.
+     * @return Pointer to data on success, else 0.
+     */
+    uchar*
+    load(const std::string &file, uint &width, uint &height, bool &use_alpha)
+    {
+        // Read XPM to XpmImage format.
+        XpmImage xpm_image = {0};
+        XpmInfo xpm_info = {0};
+        if (XpmReadFileToXpmImage((char*) file.c_str(),
+                                  &xpm_image, &xpm_info) != Success) {
+            USER_WARN(file << " not a valid XPM file");
+            return 0;
+        }
+
+        if (! xpm_image.ncolors
+            || ! xpm_image.data
+            || ! xpm_image.width
+            || ! xpm_image.height) {
+            USER_WARN(file << " invalid file information."
+                      << " ncolors: " << xpm_image.ncolors
+                      << " width: " << xpm_image.width
+                      << " height: " << xpm_image.height);
+            return 0;
+        }
+
+        // Build XpmColor -> ARGB Table.
+        auto xpm_to_argb = createXpmToArgbTable(&xpm_image, use_alpha);
+
+        width = xpm_image.width;
+        height = xpm_image.height;
+
+        // Allocate data.
+        uchar* data = new uchar[width * height * 4];
+        auto dest = reinterpret_cast<int32_t*>(data);
+        auto src = xpm_image.data;
+
+        use_alpha = false;
+
+        // Fill data.
+        uint color;
+        for (uint y = 0; y < height; ++y) {
+            for (uint x = 0; x < width; ++x) {
+                color = *src++;
+                if (color < xpm_image.ncolors) {
+                    *dest++ = xpm_to_argb[color];
+                } else {
+                    *dest++ = 0xffffffff;
+                }
+            }
+        }
+
+        // Cleanup.
+        delete [] xpm_to_argb;
+
+        XpmFreeXpmImage(&xpm_image);
+        XpmFreeXpmInfo(&xpm_info);
+
+        return data;
+    }
 }
 
 #endif // HAVE_IMAGE_XPM

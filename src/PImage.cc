@@ -10,8 +10,13 @@
 
 #include "Debug.hh"
 #include "PImage.hh"
+#include "PImageLoaderJpeg.hh"
+#include "PImageLoaderPng.hh"
+#include "PImageLoaderXpm.hh"
 #include "Util.hh"
 #include "x11.hh"
+
+#include <memory>
 
 extern "C" {
 #include <X11/Xutil.h>
@@ -80,7 +85,16 @@ getRgbFromPixel(XImage *ximage, ulong pixel, uchar &r, uchar &g, uchar &b)
     }
 }
 
-std::vector<PImageLoader*> PImage::_loaders;
+PImage::PImage(void)
+    : _type(IMAGE_TYPE_NO),
+      _pixmap(None),
+      _mask(None),
+      _width(0),
+      _height(0),
+      _data(nullptr),
+      _use_alpha(false)
+{
+}
 
 /**
  * PImage constructor, loads image if one is specified.
@@ -96,10 +110,8 @@ PImage::PImage(const std::string &path)
       _data(nullptr),
       _use_alpha(false)
 {
-    if (path.size()) {
-        if (! load(path)) {
-            throw LoadException(path.c_str());
-        }
+    if (! path.size() || ! load(path)) {
+        throw LoadException(path.c_str());
     }
 }
 
@@ -152,19 +164,33 @@ PImage::~PImage(void)
 bool
 PImage::load(const std::string &file)
 {
+    unload();
+
     std::string ext(Util::getFileExt(file));
     if (! ext.size()) {
         USER_WARN("no file extension on " << file);
         return false;
     }
 
-    for (auto it : _loaders) {
-        if (! strcasecmp(it->getExt(), ext.c_str())) {
-            _data = it->load(file, _width, _height, _use_alpha);
-            break;
-        }
+#ifdef HAVE_IMAGE_JPEG
+    if (! strcasecmp(PImageLoaderJpeg::getExt(), ext.c_str())) {
+        _data = PImageLoaderJpeg::load(file, _width, _height, _use_alpha);
+    } else
+#endif // HAVE_IMAGE_JPEG
+#ifdef HAVE_IMAGE_PNG
+    if (! strcasecmp(PImageLoaderPng::getExt(), ext.c_str())) {
+        _data = PImageLoaderPng::load(file, _width, _height, _use_alpha);
+    } else
+#endif // HAVE_IMAGE_PNG
+#ifdef HAVE_IMAGE_XPM
+    if (! strcasecmp(PImageLoaderXpm::getExt(), ext.c_str())) {
+        _data = PImageLoaderXpm::load(file, _width, _height, _use_alpha);
+    } else
+#endif // HAVE_IMAGE_XPM
+    {
+        // no loader matched
     }
-
+    
     return _data != nullptr;
 }
 

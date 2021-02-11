@@ -11,9 +11,6 @@
 #include "Debug.hh"
 #include "ImageHandler.hh"
 #include "PImage.hh"
-#include "PImageLoaderJpeg.hh"
-#include "PImageLoaderPng.hh"
-#include "PImageLoaderXpm.hh"
 #include "Util.hh"
 
 extern "C" {
@@ -30,16 +27,6 @@ ImageHandler::ImageHandler(void)
 {
     _images[""] = Util::RefEntry<PImage*>(nullptr);
     clearColorMaps();
-
-#ifdef HAVE_IMAGE_JPEG
-    PImage::loaderAdd(new PImageLoaderJpeg());
-#endif // HAVE_IMAGE_JPEG
-#ifdef HAVE_IMAGE_PNG
-    PImage::loaderAdd(new PImageLoaderPng());
-#endif // HAVE_IMAGE_PNG
-#ifdef HAVE_IMAGE_XPM
-    PImage::loaderAdd(new PImageLoaderXpm());
-#endif // HAVE_IMAGE_XPM
 }
 
 ImageHandler::~ImageHandler(void)
@@ -57,8 +44,6 @@ ImageHandler::~ImageHandler(void)
             _images.erase(it);
         }
     }
-
-    PImage::loaderClear();
 }
 
 /**

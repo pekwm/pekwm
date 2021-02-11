@@ -82,9 +82,8 @@ static int take_screenshot(const std::string& output)
     auto image = new PImage(ximage);
     XDestroyImage(ximage);
 
-    PImageLoaderPng png;
-    return png.save(output, image->getData(),
-                    image->getWidth(), image->getHeight())
+    return PImageLoaderPng::save(output, image->getData(),
+                                 image->getWidth(), image->getHeight())
         ? 0 : 1;
 }
 

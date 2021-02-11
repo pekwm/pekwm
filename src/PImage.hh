@@ -11,29 +11,16 @@
 #include "config.h"
 
 #include "pekwm.hh"
-#include "PImageLoader.hh"
 
 #include <string>
 
 //! @brief Image baseclass defining interface for image handling.
 class PImage {
 public:
-    PImage(const std::string &path="");
+    PImage(const std::string &path);
     PImage(PImage *image);
     PImage(XImage *image);
     virtual ~PImage(void);
-
-    //! @brief Add loader to loader list.
-    static void loaderAdd(PImageLoader *loader) {
-        _loaders.push_back(loader);
-    }
-    //! @brief Removes and frees all loaders.
-    static void loaderClear(void) {
-        while (_loaders.size()) {
-            delete _loaders.back();
-            _loaders.pop_back();
-        }
-    }
 
     //! @brief Returns type of image.
     inline ImageType getType(void) const { return _type; }
@@ -55,6 +42,8 @@ public:
     virtual void scale(uint width, uint height);
 
 protected:
+    PImage(void);
+
     void drawFixed(Drawable dest, int x, int y, uint width, uint height);
     void drawScaled(Drawable dest, int x, int y, uint widht, uint height);
     void drawTiled(Drawable dest, int x, int y, uint widht, uint height);
@@ -83,7 +72,4 @@ protected:
     uchar *_data;
     /** If all pixels have 100% alpha, this is set to false. */
     bool _use_alpha;
-
-private:
-    static std::vector<PImageLoader*> _loaders; //!< List of loaders.
 };

@@ -13,21 +13,17 @@
 #ifdef HAVE_IMAGE_JPEG
 
 #include "pekwm.hh"
-#include "PImageLoader.hh"
 
 #include <cstdio>
 
 /**
  * Jpeg Loader class.
  */
-class PImageLoaderJpeg : public PImageLoader
+namespace PImageLoaderJpeg
 {
-public:
-    PImageLoaderJpeg(void);
-    virtual ~PImageLoaderJpeg(void);
-
-    virtual uchar* load(const std::string &file, uint &width, uint &height,
-                        bool &use_alpha) override;
+    const char *getExt(void);
+    uchar* load(const std::string &file, uint &width, uint &height,
+                bool &use_alpha);
 };
 
 #endif // HAVE_IMAGE_JPEG

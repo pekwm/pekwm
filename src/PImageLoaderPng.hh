@@ -13,28 +13,20 @@
 #ifdef HAVE_IMAGE_PNG
 
 #include "pekwm.hh"
-#include "PImageLoader.hh"
 
 #include <cstdio>
 
 /**
  * PNG Loader class.
  */
-class PImageLoaderPng : public PImageLoader
+namespace PImageLoaderPng
 {
-public:
-    PImageLoaderPng(void);
-    virtual ~PImageLoaderPng(void);
+    const char *getExt(void);
 
-    virtual uchar* load(const std::string &file, uint &width, uint &height,
-                        bool &use_alpha) override;
+    uchar* load(const std::string &file, uint &width, uint &height,
+                bool &use_alpha);
     bool save(const std::string &file,
               uchar *data, uint width, uint height);
-
-private:
-    bool checkSignature(std::FILE *fp);
-
-    static const int PNG_SIG_BYTES;
-};
+}
 
 #endif // HAVE_IMAGE_PNG
