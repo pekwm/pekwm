@@ -10,6 +10,25 @@
 #include "x11.hh"
 
 /**
+ * Render texture onto drawable.
+ */
+void
+PTexture::render(Drawable draw,
+                 int x, int y, uint width, uint height)
+{
+    if (width == 0) {
+        width = _width;
+    }
+    if (height == 0) {
+        height = _height;
+    }
+
+    if (width && height) {
+        doRender(draw, x, y, width, height);
+    }
+}
+
+/**
  * Set background on drawable using the current texture, for
  * solid/empty textures this sets the background pixel instead of
  * rendering a Pixmap.

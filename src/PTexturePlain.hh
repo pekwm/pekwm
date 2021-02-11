@@ -23,17 +23,12 @@ class PImage;
 
 class PTextureEmpty : public PTexture {
 public:
-    PTextureEmpty() { }
     virtual ~PTextureEmpty() { }
 
     // START - PTexture interface.
-    virtual void render(Drawable draw,
-                        int x, int y, uint width, uint height) override {
-    }
-    virtual bool getPixel(ulong &pixel) const override {
-        pixel = X11::getWhitePixel();
-        return true;
-    }
+    virtual void doRender(Drawable draw,
+                          int x, int y, uint width, uint height) override;
+    virtual bool getPixel(ulong &pixel) const override;
     // END - PTexture interface.
 };
 
@@ -45,8 +40,8 @@ public:
     virtual ~PTextureSolid();
 
     // START - PTexture interface.
-    virtual void render(Drawable draw,
-                        int x, int y, uint width, uint height) override;
+    virtual void doRender(Drawable draw,
+                          int x, int y, uint width, uint height) override;
     virtual bool getPixel(ulong &pixel) const override {
         pixel = _xc->pixel;
         return true;
@@ -71,8 +66,8 @@ public:
     virtual ~PTextureSolidRaised();
 
     // START - PTexture interface.
-    virtual void render(Drawable draw,
-                        int x, int y, uint width, uint height) override;
+    virtual void doRender(Drawable draw,
+                          int x, int y, uint width, uint height) override;
     virtual bool getPixel(ulong &pixel) const override { return false; }
     // END - PTexture interface.
 
@@ -112,8 +107,8 @@ public:
     virtual ~PTextureLines();
 
     // START - PTexture interface.
-    virtual void render(Drawable draw,
-                        int x, int y, uint width, uint height) override;
+    virtual void doRender(Drawable draw,
+                          int x, int y, uint width, uint height) override;
     virtual bool getPixel(ulong &pixel) const override { return false; }
     // END - PTexture interface.
 
@@ -145,8 +140,8 @@ public:
     virtual ~PTextureImage(void);
 
     // START - PTexture interface.
-    virtual void render(Drawable draw,
-                        int x, int y, uint width, uint height) override;
+    virtual void doRender(Drawable draw,
+                          int x, int y, uint width, uint height) override;
     virtual bool getPixel(ulong &pixel) const override { return false; }
     virtual Pixmap getMask(uint width, uint height, bool &do_free) override;
     // END - PTexture interface.

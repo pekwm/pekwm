@@ -8,8 +8,6 @@
 
 #include "config.h"
 
-#include <iostream>
-
 #include "PTexture.hh"
 #include "PTexturePlain.hh"
 #include "PImage.hh"
@@ -17,6 +15,25 @@
 #include "x11.hh"
 
 #include <iostream>
+
+extern "C" {
+#include <assert.h>
+}
+
+// PTextureEmpty
+
+void
+PTextureEmpty::doRender(Drawable draw,
+                      int x, int y, uint width, uint height)
+{
+}
+
+bool
+PTextureEmpty::getPixel(ulong &pixel) const
+{
+    pixel = X11::getWhitePixel();
+    return true;
+}
 
 // PTextureSolid
 
@@ -47,15 +64,8 @@ PTextureSolid::~PTextureSolid(void)
  * Render single color on draw.
  */
 void
-PTextureSolid::render(Drawable draw, int x, int y, uint width, uint height)
+PTextureSolid::doRender(Drawable draw, int x, int y, uint width, uint height)
 {
-    if (width == 0) {
-        width = _width;
-    }
-    if (height == 0) {
-        height = _height;
-    }
-
     XFillRectangle(X11::getDpy(), draw, _gc, x, y, width, height);
 }
 
@@ -132,16 +142,9 @@ PTextureSolidRaised::~PTextureSolidRaised(void)
  * Renders a "raised" rectangle onto draw.
  */
 void
-PTextureSolidRaised::render(Drawable draw,
-                            int x, int y, uint width, uint height)
+PTextureSolidRaised::doRender(Drawable draw,
+                              int x, int y, uint width, uint height)
 {
-    if (width == 0) {
-        width = _width;
-    }
-    if (height == 0) {
-        height = _height;
-    }
-
     // base rectangle
     XSetForeground(X11::getDpy(), _gc, _xc_base->pixel);
     XFillRectangle(X11::getDpy(), draw, _gc, x, y, width, height);
@@ -248,7 +251,7 @@ PTextureLines::~PTextureLines()
 }
 
 void
-PTextureLines::render(Drawable draw, int x, int y, uint width, uint height)
+PTextureLines::doRender(Drawable draw, int x, int y, uint width, uint height)
 {
     if (_horz) {
         renderHorz(draw, x, y, width, height);
@@ -358,7 +361,7 @@ PTextureImage::~PTextureImage(void)
  * Renders image onto draw
  */
 void
-PTextureImage::render(Drawable draw, int x, int y, uint width, uint height)
+PTextureImage::doRender(Drawable draw, int x, int y, uint width, uint height)
 {
     _image->draw(draw, x, y, width, height);
 }

@@ -16,6 +16,10 @@
 #include "PImageLoaderXpm.hh"
 #include "Util.hh"
 
+extern "C" {
+#include <assert.h>
+}
+
 static Util::StringMap<ImageType> image_type_map =
     {{"", IMAGE_TYPE_NO},
      {"TILED", IMAGE_TYPE_TILED},

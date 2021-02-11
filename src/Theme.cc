@@ -25,6 +25,8 @@
 
 #define DEFAULT_FONT "Sans:size=12#XFT"
 #define DEFAULT_LARGE_FONT "Sans:size=14:weight=bold#XFT"
+#define DEFAULT_HEIGHT 17
+#define DEFAULT_HEIGHT_STR "17"
 
 static void parse_pad(const std::string& str, uint *pad)
 {
@@ -206,7 +208,7 @@ Theme::PDecorButtonData::check(void)
 {
     for (uint i = 0; i < (BUTTON_STATE_NO - 1); ++i) {
         if (! _texture[i]) {
-            _texture[i] = _th->getTexture("EMPTY");
+            _texture[i] = _th->getTexture("Solid #999999");
         }
     }
 
@@ -240,7 +242,7 @@ Theme::PDecorData::PDecorData(FontHandler* fh, TextureHandler* th,
     : _fh(fh),
       _th(th),
       _loaded(false),
-      _title_height(10),
+      _title_height(DEFAULT_HEIGHT),
       _title_width_min(0),
       _title_width_max(100),
       _title_width_symetric(true),
@@ -506,23 +508,31 @@ Theme::PDecorData::loadButtons(CfgParser::Entry *section)
 void
 Theme::PDecorData::checkTextures(void)
 {
+    const char *textures[] = {
+        "Solid #eeeeee",
+        "Solid #cccccc",
+        "Solid #ffffff",
+        "Solid #dddddd"
+    };
+
     for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
         if (! _texture_tab[i]) {
             WARN(_name << " missing tab texture state "
                  << _fs_map[FocusedState(i)]);
-            _texture_tab[i] = _th->getTexture("EMPTY");
+            _texture_tab[i] = _th->getTexture(textures[i]);
         }
     }
     for (uint i = 0; i < FOCUSED_STATE_FOCUSED_SELECTED; ++i) {
         if (! _texture_main[i]) {
             WARN(_name << " missing main texture state "
                  << _fs_map[FocusedState(i)]);
-            _texture_main[i] = _th->getTexture("EMPTY");
+            _texture_main[i] = _th->getTexture(textures[i]);
         }
         if (! _texture_separator[i]) {
             WARN(_name << " missing tab texture state "
                  << _fs_map[FocusedState(i)]);
-            _texture_separator[i] = _th->getTexture("EMPTY");
+            _texture_separator[i] =
+                _th->getTexture("Solid #999999 2x" DEFAULT_HEIGHT_STR);
         }
     }
 }
@@ -535,7 +545,7 @@ Theme::PDecorData::checkFonts(void)
     // others are only used if availible so we only check the focused font.
     if (! _font[FOCUSED_STATE_FOCUSED]) {
         WARN(_name << " missing font state " << _fs_map[FOCUSED_STATE_FOCUSED]);
-        _font[FOCUSED_STATE_FOCUSED] = _fh->getFont("");
+        _font[FOCUSED_STATE_FOCUSED] = _fh->getFont(DEFAULT_FONT);
     }
 }
 
@@ -551,7 +561,7 @@ Theme::PDecorData::checkBorder(void)
                      << _border_map[BorderPosition(i)] << " "
                      << _fs_map[FocusedState(state)]);
                 _texture_border[state][i] =
-                    _th->getTexture("EMPTY");
+                    _th->getTexture("Solid #999999 2x2");
             }
         }
     }
@@ -672,25 +682,25 @@ Theme::PMenuData::check(void)
 {
     for (uint i = 0; i <= OBJECT_STATE_NO; ++i) {
         if (! _font[i]) {
-            _font[i] = _fh->getFont("");
+            _font[i] = _fh->getFont(DEFAULT_FONT);
         }
         if (! _color[i]) {
             _color[i] = _fh->getColor("#000000");
         }
         if (! _tex_menu[i]) {
-            _tex_menu[i] = _th->getTexture("EMPTY");
+            _tex_menu[i] = _th->getTexture("Solid #ffffff");
         }
         if (! _tex_item[i]) {
-            _tex_item[i] = _th->getTexture("EMPTY");
+            _tex_item[i] = _th->getTexture("Solid #ffffff");
         }
         if (! _tex_arrow[i]) {
-            _tex_arrow[i] = _th->getTexture("EMPTY");
+            _tex_arrow[i] = _th->getTexture("Solid #000000 2x2");
         }
     }
 
     for (uint i = 0; i < OBJECT_STATE_NO; ++i) {
         if (! _tex_sep[i]) {
-            _tex_sep[i] = _th->getTexture("EMPTY");
+            _tex_sep[i] = _th->getTexture("Solid #000000 1x1");
         }
     }
 
@@ -708,12 +718,12 @@ Theme::PMenuData::loadState(CfgParser::Entry *section, ObjectState state)
     keys.push_back(new CfgParserKeyString("BACKGROUND", value_background,
                                           "Solid #ffffff"));
     keys.push_back(new CfgParserKeyString("ITEM", value_item, "Solid #ffffff"));
-    keys.push_back(new CfgParserKeyString("TEXT", value_text, "Solid #000000"));
+    keys.push_back(new CfgParserKeyString("TEXT", value_text, "#000000"));
     keys.push_back(new CfgParserKeyString("ARROW", value_arrow,
-                                          "Solid #000000"));
+                                          "Solid #000000 2x2"));
     if (state < OBJECT_STATE_SELECTED) {
         keys.push_back(new CfgParserKeyString("SEPARATOR", value_separator,
-                                              "Solid #000000"));
+                                              "Solid #000000 1x1"));
     }
 
     section->parseKeyValues(keys.begin(), keys.end());
@@ -811,13 +821,13 @@ void
 Theme::TextDialogData::check(void)
 {
     if (! _font) {
-        _font = _fh->getFont("");
+        _font = _fh->getFont(DEFAULT_FONT);
     }
     if (! _color) {
         _color = _fh->getColor("#000000");
     }
     if (! _tex) {
-        _tex = _th->getTexture("EMPTY");
+        _tex = _th->getTexture("Solid #ffffff");
     }
 
     _loaded = true;
@@ -1146,7 +1156,7 @@ void
 Theme::HarbourData::check(void)
 {
     if (! _texture) {
-        _texture = _th->getTexture("EMPTY");
+        _texture = _th->getTexture("Solid #000000");
     }
 
     _loaded = true;

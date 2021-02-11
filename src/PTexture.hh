@@ -36,8 +36,10 @@ public:
     {
     }
 
-    virtual void render(Drawable draw,
-                        int x, int y, uint width, uint height) = 0;
+    void render(Drawable draw,
+                int x, int y, uint width, uint height);
+    virtual void doRender(Drawable draw,
+                          int x, int y, uint width, uint height) = 0;
     virtual bool getPixel(ulong &pixel) const = 0;
     virtual Pixmap getMask(uint width, uint height, bool &do_free) {
         return None;

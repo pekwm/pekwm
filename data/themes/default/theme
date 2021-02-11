@@ -214,7 +214,7 @@ Menu {
   Focused {
     Font = "$FONT"
     Background = "Solid #f9f9f9"
-    Item = "Empty"
+    Item = "Solid #f9f9f9"
     Text = "#8b8b89" 
     Separator = "Image menuline.png#Scaled"
     Arrow = "Image arrow.png"
@@ -222,7 +222,7 @@ Menu {
   Unfocused {
     Font = "$FONT"
     Background = "Solid #f9f9f9"
-    Item = "Empty"
+    Item = "Solid #f9f9f9"
     Text = "#777777"
     Separator = "Image menuline.png#Scaled"
     Arrow = "Image arrow.png"
