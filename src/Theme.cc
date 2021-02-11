@@ -277,9 +277,12 @@ Theme::PDecorData::~PDecorData(void)
     unload();
 }
 
-//! @brief Parses CfgParser::Entry section, loads and verifies data.
-//! @param section CfgParser::Entry with pdecor configuration.
-//! @return True if a valid pdecor was parsed.
+/**
+ * Parses CfgParser::Entry section, loads and verifies data.
+ *
+ * @param section CfgParser::Entry with pdecor configuration.
+ * @return true if a valid decor was constructed, else false.
+ */
 bool
 Theme::PDecorData::load(CfgParser::Entry *section)
 {
@@ -294,10 +297,11 @@ Theme::PDecorData::load(CfgParser::Entry *section)
         return false;
     }
 
-    CfgParser::Entry *title_section = section->findSection("TITLE");
+    auto title_section = section->findSection("TITLE");
     if (! title_section) {
-        USER_WARN("no title section in decor: " << _name);
-        return false;
+        // no longer require a Title section, everything in the decor
+        // is inside of it anyway.
+        title_section = section;
     }
     _loaded = true;
 

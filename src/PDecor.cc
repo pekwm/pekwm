@@ -1956,7 +1956,7 @@ uint
 PDecor::calcTitleWidth(void)
 {
     if (_data->getTitleWidthMin() != 0) {
-        return calcTitleWidthDynamic();
+        return std::max(static_cast<uint>(1), calcTitleWidthDynamic());
     }
 
     uint width = _gm.width;
@@ -1964,7 +1964,7 @@ PDecor::calcTitleWidth(void)
     if (width > title_offsets) {
         width -= title_offsets;
     }
-    return width;
+    return std::max(static_cast<uint>(1), width);
 }
 
 uint

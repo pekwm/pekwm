@@ -425,7 +425,8 @@ PMenu::buildMenuCalculate(void)
     // Check if we need to enable scrolling
     _scroll = (width > X11::getWidth());
 
-    resizeChild(width, height);
+    resizeChild(std::max(static_cast<uint>(1), width),
+                std::max(static_cast<uint>(1), height));
 }
 
 /**
