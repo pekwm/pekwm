@@ -109,7 +109,7 @@ public:
 };
 
 #define _PEK_DEBUG_START(fun, line) \
-    fun << '@' << line << ":\n\t" << std::showbase << std::hex
+    fun << '@' << line << ":\n\t"
 
 #define PEK_DEBUG_START \
     _PEK_DEBUG_START( __PRETTY_FUNCTION__, __LINE__)
