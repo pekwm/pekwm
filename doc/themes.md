@@ -117,17 +117,12 @@ of the configuration file.
 
 * _Texture (texture)_, Texture used to set the background. Each head is treated individually for scaled backgrounds.
 
-### PDecor
-
-The block for decoration sets, any amount of Decor sections can exist
-inside this block.
-
-#### Decor
+### Decor
 
 A list of blocks with theme specifications the various types of
 decorations.
 
-##### Title
+#### Title
 
 Theming of the frame.
 
@@ -140,7 +135,7 @@ Theming of the frame.
 * _WidthMax (percent)_, Maximum width of titles relative to window width, when this value ends up being smaller than the value in WidthMin, WidthMin is overridden.
 * _WidthSymetric (boolean)_, Set true to constant width titles or false to use titles that only are as big as the clients title text string requires (note, asymmetric width is not fully implemented yet, always set this true for now to avoid problems).
     
-##### Tab
+#### Tab
 
 Theming of a titlebar tabs.
 
@@ -149,7 +144,7 @@ Theming of a titlebar tabs.
 * _FocusedSelected (texture)_, Background texture for the currently selected tab of a focused window.
 * _UnFocusedSelected (texture)_, Background texture for the currently selected tab of an unfocused window.
     
-##### FontColor
+#### FontColor
 
 Theming of font colors.
 
@@ -158,7 +153,7 @@ Theming of font colors.
 * _FocusedSelected (colour colour)_, Text colour for the currently selected tab of a focused window. second value for shadow.
 * _UnFocusedSelected (colour colour)_, Text colour for the currently selected tab of an unfocused window. second value for shadow.
 
-##### Font
+#### Font
 
 Theming of the titlebar fonts.
 
@@ -167,14 +162,14 @@ Theming of the titlebar fonts.
 * _FocusedSelected (fontstring)_, Font of the text of the currently selected tab of a focused window.
 * _UnFocusedSelected (fontstring)_, Font of the text of the currently selected tab of an unfocused window.
     
-##### Separator
+#### Separator
 
 Theming of the tab separator.
 
 * _Focused (texture)_, Separator texture for a focused window.
 * _Unfocused (texture)_, Separator texture for an unfocused window.
     
-##### Buttons
+#### Buttons
 
 Theming of titlebar buttons.
 
@@ -197,7 +192,7 @@ Places the button on the left end of the titlebar.
 * _SetShape (bool)_, If true, the shape of the button is derived from the alpha-channel. If false, the alpha-channel sets only the transparency. (defaults to true)
 * _Button (buttonactions)), Configures what to do when a button is pressed.
     
-##### Border
+#### Border
 
 Theming of the borders.
 
@@ -214,19 +209,19 @@ UnFocused: borders for unfocused windows.
 * _Bottom (texture)_, Texture for the bottom border.
 * _BottomRight (texture)_, Texture for the bottom right border.
     
-##### Harbour
+### Harbour
 
 Enables theming of the harbour.
 
 * _Texture (texture)_, Texture to use as the harbour background.
     
-##### Menu
+### Menu
 
 Themes the insides of a menu window.
 
 * _Pad (padding)_, How many pixels of space around an entry is reserved.
     
-##### State
+#### State
 
 One of Focused, Unfocused and Selected defining the appearance when
 the menu/submenu is focused, not focused and the menu entry currently
@@ -239,7 +234,7 @@ selected.
 * _Separator (texture)_, Texture to use as separator (required, client menu will break if none is defined).
 * _Arrow (texture)_, Texture to use for indicating submenus (you want this to be defined too).
 
-##### CmdDialog
+### CmdDialog
 
 Themes the insides of a command dialog window.
 
@@ -248,7 +243,7 @@ Themes the insides of a command dialog window.
 * _Text (colour)_, Colour of text.
 * _Pad (padding)_, Amount of pixels of space around font to reserve.
 
-##### Status
+### Status
 
 Themes the insides of the status window that shows up when moving
 windows and so on.
@@ -258,7 +253,7 @@ windows and so on.
 * _Text (colour)_, Colour of text.
 * _Pad (padding)_, Amount of pixels of space around font to reserve.
 
-##### WorkspaceIndicator
+### WorkspaceIndicator
 
 Themes the workspace indicator that shows up when switching workspace.
 

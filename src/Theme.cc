@@ -1268,47 +1268,21 @@ Theme::load(const std::string &dir, const std::string &variant)
     loadColorMaps(root->findSection("COLORMAPS"));
 
     _dialog_data.load(root->findSection("DIALOG"));
-
-    // Load decor data.
-    auto section = root->findSection("PDECOR");
-    if (section) {
-        auto it(section->begin());
-        for (; it != section->end(); ++it) {
-            auto data = new Theme::PDecorData(_fh, _th);
-            if (data->load((*it)->getSection())) {
-                _decors[data->getName()] = data;
-            } else {
-                delete data;
-            }
-        }
-    }
-
-    if (! getPDecorData("DEFAULT")) {
-        // Create DEFAULT decor, let check fill it up with empty but
-        // non-null data.
-        WARN("Theme doesn't contain any DEFAULT decor.");
-        auto decor_data = new Theme::PDecorData(_fh, _th, "DEFAULT");
-        decor_data->check();
-        _decors["DEFAULT"] = decor_data;
-    }
+    loadDecors(root);
 
     if (! _menu_data.load(root->findSection("MENU"))) {
         WARN("Missing or malformed \"MENU\" section!");
     }
-
     if (! _status_data.load(root->findSection("STATUS"))) {
         WARN("Missing \"STATUS\" section!");
     }
-
     if (! _cmd_d_data.load(root->findSection("CMDDIALOG"))) {
         WARN("Missing \"CMDDIALOG\" section!");
     }
-
     auto ws_section = root->findSection("WORKSPACEINDICATOR");
     if (! _ws_indicator_data.load(ws_section)) {
         WARN("Missing \"WORKSPACEINDICATOR\" section!");
     }
-
     if (! _harbour_data.load(root->findSection("HARBOUR"))) {
         WARN("Missing \"HARBOUR\" section!");
     }
@@ -1379,6 +1353,38 @@ Theme::loadColorMaps(CfgParser::Entry* section)
         Theme::ColorMap color_map;
         color_map.load((*it)->getSection());
         _ih->addColorMap((*it)->getValue(), color_map);
+    }
+}
+
+void
+Theme::loadDecors(CfgParser::Entry *root)
+{
+    auto section = root->findSection("PDECOR");
+    if (section == nullptr) {
+        section = root;
+    }
+
+    auto it = section->begin();
+    for (; it != section->end(); ++it) {
+        if (strcasecmp((*it)->getName().c_str(), "DECOR") != 0) {
+            continue;
+        }
+
+        auto data = new Theme::PDecorData(_fh, _th);
+        if (data->load((*it)->getSection())) {
+            _decors[data->getName()] = data;
+        } else {
+            delete data;
+        }
+    }
+
+    if (! getPDecorData("DEFAULT")) {
+        // Create DEFAULT decor, let check fill it up with empty but
+        // non-null data.
+        WARN("Theme doesn't contain any DEFAULT decor.");
+        auto decor_data = new Theme::PDecorData(_fh, _th, "DEFAULT");
+        decor_data->check();
+        _decors["DEFAULT"] = decor_data;
     }
 }
 

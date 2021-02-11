@@ -126,5 +126,8 @@ SetGeometry 100x100% Screen
 Removed
 -------
 
-It is no longer possible to use the decor name InputDialog in themes
-for CmdDialog decorations.
+**PDecor** section in themes is no longer required, all Decor sections
+in the top-level will be used if no PDecor section is found.
+
+**InputDialog** is no longer possible to use as the decor name for
+CmdDialog decorations in themes.

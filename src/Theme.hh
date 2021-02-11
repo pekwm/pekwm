@@ -465,6 +465,7 @@ private:
     void loadThemeRequire(CfgParser &theme_cfg, std::string &file);
     void loadBackground(CfgParser::Entry *section);
     void loadColorMaps(CfgParser::Entry *section);
+    void loadDecors(CfgParser::Entry *root);
 
 private:
     FontHandler* _fh;
