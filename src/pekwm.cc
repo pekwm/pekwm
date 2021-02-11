@@ -20,15 +20,16 @@ extern "C" {
 #include <unistd.h>
 }
 
-static bool is_signal_int_term = false;
+static int child_signal = 0;
 
 static void
 sigHandler(int signal)
 {
     switch (signal) {
+    case SIGHUP:
     case SIGINT:
     case SIGTERM:
-        is_signal_int_term = true;
+        child_signal = signal;
         break;
     }
 }
@@ -38,9 +39,9 @@ waitPid(pid_t pid)
 {
     int ret;
     while (waitpid(pid, &ret, 0) == -1 && errno == EINTR) {
-        if (is_signal_int_term) {
-            is_signal_int_term = false;
-            kill(pid, SIGINT);
+        if (child_signal) {
+            kill(pid, child_signal);
+            child_signal = 0;
         }
     }
 
@@ -191,6 +192,7 @@ main(int argc, char *argv[])
         act.sa_handler = sigHandler;
         act.sa_mask = sigset_t();
         act.sa_flags = SA_NOCLDSTOP | SA_NODEFER;
+        sigaction(SIGHUP, &act, 0);
         sigaction(SIGTERM, &act, 0);
         sigaction(SIGINT, &act, 0);
 
