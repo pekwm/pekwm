@@ -67,13 +67,13 @@ namespace String {
 }
 
 namespace Util {
-    template<class T>
+    template<typename T>
     class StringMap : public std::map<String::Key, T> {
     public:
         using std::map<String::Key, T>::map;
 
-        const T& get(const std::string& key) const {
-            auto it = this->find(key);
+        T& get(const std::string& key) {
+            typename StringMap<T>::iterator it = this->find(key);
             return it == this->end() ? this->at("") : it->second;
         }
     };
@@ -89,9 +89,7 @@ namespace Util {
               _ref(data == nullptr ? 0 : 1)
         {
         }
-        virtual ~RefEntry(void)
-        {
-        }
+        virtual ~RefEntry(void) { }
 
         T get(void) { return _data; }
         void set(T data) { _data = data; }

@@ -117,7 +117,7 @@ ImageHandler::getImageFromPath(const std::string &file, uint &ref,
                                Util::StringMap<Util::RefEntry<PImage*>> &images)
 {
     // Check cache for entry.
-    auto entry = images.get(file);
+    Util::RefEntry<PImage*> &entry = images.get(file);
     if (entry.get() != nullptr) {
         ref = entry.incRef();
         return entry.get();
@@ -204,8 +204,7 @@ ImageHandler::mapColors(PImage *image, const std::map<int,int> &color_map)
 void
 ImageHandler::returnMappedImage(PImage *image, const std::string &colormap)
 {
-    auto images = _images_mapped.get(colormap);
-    returnImage(image, images);
+    returnImage(image, _images_mapped[colormap]);
 }
 
 void
@@ -215,8 +214,7 @@ ImageHandler::returnImage(PImage *image,
     auto it = images.begin();
     for (; it != images.end(); ++it) {
         if (it->second.get() == image) {
-            it->second.decRef();
-            if (it->second.getRef() == 0) {
+            if (it->second.decRef() == 0) {
                 delete it->second.get();
                 images.erase(it);
             }

@@ -377,9 +377,9 @@ PTextureImage::setImage(PImage *image)
 {
     unsetImage();
     _image = image;
+    _colormap.clear();
     _width = _image->getWidth();
     _height = _image->getHeight();
-    _colormap.clear();
     pekwm::imageHandler()->takeOwnership(image);
     _ok = true;
 }
@@ -398,7 +398,10 @@ PTextureImage::setImage(const std::string &image, const std::string &colormap)
         _image = pekwm::imageHandler()->getMappedImage(image, colormap);
     }
 
+    assert(_image->getData());
+
     if (_image) {
+        _colormap = colormap;
         _width = _image->getWidth();
         _height = _image->getHeight();
         _ok = true;
@@ -422,7 +425,8 @@ PTextureImage::unsetImage(void)
         }
     }
     _image = nullptr;
-    _width = 1;
-    _height = 1;
+    _colormap.clear();
+    _width = 0;
+    _height = 0;
     _ok = false;
 }
