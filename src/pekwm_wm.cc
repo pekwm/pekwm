@@ -135,7 +135,7 @@ main(int argc, char **argv)
                           << "$HOME not set." << std::endl;
                 stop(write_fd, "error", nullptr);
             }
-            config_file = home + "/.pekwm/config";
+            config_file = Util::getConfig("config");
         }
     }
 

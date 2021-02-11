@@ -233,6 +233,21 @@ isFile(const std::string &file)
     return false;
 }
 
+bool
+isDir(const std::string &file)
+{
+    if (file.size() == 0) {
+        return false;
+    }
+
+    struct stat stat_buf;
+    if (stat(file.c_str(), &stat_buf) == 0) {
+        return (S_ISDIR(stat_buf.st_mode));
+    }
+
+    return false;
+}
+
 //! @brief Determines if the file is executable for the current user.
 bool
 isExecutable(const std::string &file)
@@ -627,6 +642,42 @@ from_utf8_str(const std::string &str)
     }
 
     return wide_str;
+}
+
+std::string getConfig(const std::string &entry)
+{
+    static bool initialized = false;
+    static std::string dir;
+
+    if (!initialized) {
+        std::string xdg_config_dir = getEnv("XDG_CONFIG_HOME");
+        if (xdg_config_dir.empty()) {
+            xdg_config_dir = getEnv("HOME") + "/.config";
+        }
+        xdg_config_dir += "/pekwm";
+        std::string home_config_dir = getEnv("HOME") + "/.pekwm";
+        bool has_xdg = isDir(xdg_config_dir);
+        bool has_home = isDir(home_config_dir);
+        if (has_xdg && !has_home) {
+            dir = xdg_config_dir;
+        } else if (!has_xdg & has_home) {
+            dir = home_config_dir;
+        } else if (has_xdg && has_home) {
+            USER_WARN("Both " << xdg_config_dir << " and " << home_config_dir << " exists,"
+                      << " choosing " << home_config_dir);
+            dir = home_config_dir;
+        } else {
+            // prefer ~/.pekwm to ~/.config/pekwm, maybe this will
+            // change in the future
+            dir = home_config_dir;
+        }
+        initialized = true;
+    }
+
+    if (entry.empty()) {
+        return dir;
+    }
+    return dir + "/" + entry;
 }
 
 } // end namespace Util.

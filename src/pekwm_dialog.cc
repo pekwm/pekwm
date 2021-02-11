@@ -655,7 +655,7 @@ int main(int argc, char* argv[])
     }
 
     if (config_file.empty()) {
-        config_file = "~/.pekwm/config";
+        config_file = Util::getConfig("config");
     }
     Util::expandFileName(config_file);
 

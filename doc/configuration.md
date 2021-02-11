@@ -163,14 +163,10 @@ As previously indicated, the config file follows the rules defined in
 Here's an example ~/.pekwm/config file:
 
 ```
+INCLUDE = "$_PEKWM_ETC_PATH/config_system"
+
 Files {
-	Keys = "~/.pekwm/keys"
-	Mouse = "~/.pekwm/mouse"
-	Menu = "~/.pekwm/menu"
-	Start = "~/.pekwm/start"
-	AutoProps = "~/.pekwm/autoproperties"
-	Theme = "~/.pekwm/themes/default"
-	Icons = "~/.pekwm/icons/"
+	Theme = "$_PEKWM_THEME_PATH/default"
 }
 
 MoveResize {
@@ -256,6 +252,22 @@ Harbour {
 		SideMin = "64"
 		SideMax = "0"
 	}
+}
+```
+
+If you prefer XDG config files, please note that by default the
+`config_system` file specifies files in `~/.pekwm`. You need to update
+the `Files` section to point to the right places, e.g.
+
+```
+Files {
+    Theme = "$_PEKWM_THEME_PATH/default"
+    Keys = "~/.config/pekwm/keys"
+    Mouse = "~/.config/pekwm/mouse"
+    Menu = "~/.config/pekwm/menu"
+    Start = "~/.config/pekwm/start"
+    AutoProps = "~/.config/pekwm/autoproperties"
+    Icons = "~/.config/pekwm/icons/"
 }
 ```
 

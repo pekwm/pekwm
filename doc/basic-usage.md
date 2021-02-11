@@ -41,6 +41,11 @@ start, vars. You will learn more about these files in the
 All this happens behind-the-scenes, so by default, you'll be placed
 into a nice working environment.
 
+If you prefer XDG config layout, you could move `~/.pekwm` to
+`~/.config/pekwm` (or `$XDG_CONFIG_HOME/pekwm` to be exact). The rest
+of the document still refers to `~/.pekwm`, but it still works the
+same way.
+
 ### About Menus and Iconification
 
 When you iconify (This is the traditional name in unix. Windows calls

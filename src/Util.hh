@@ -112,6 +112,7 @@ namespace Util {
     std::string getHostname(void);
 
     bool isFile(const std::string &file);
+    bool isDir(const std::string &file);
     bool isExecutable(const std::string &file);
     time_t getMtime(const std::string &file);
 
@@ -126,6 +127,8 @@ namespace Util {
                      std::vector<std::string> &vals,
                      const char *sep, uint max = 0,
                      bool include_empty = false, char escape = '\0');
+
+    std::string getConfig(const std::string &entry);
 
     template<class T> std::string to_string(T t) {
         std::ostringstream oss;

@@ -165,7 +165,7 @@ Config::Config(void) :
         _menu_focus_opacity(EWMH_OPAQUE_WINDOW),
         _menu_unfocus_opacity(EWMH_OPAQUE_WINDOW),
         _cmd_dialog_history_unique(true), _cmd_dialog_history_size(1024),
-        _cmd_dialog_history_file("~/.pekwm/history"), _cmd_dialog_history_save_interval(16),
+        _cmd_dialog_history_file(Util::getConfig("history")), _cmd_dialog_history_save_interval(16),
         _harbour_da_min_s(0), _harbour_da_max_s(0),
         _harbour_ontop(true), _harbour_maximize_over(false),
         _harbour_placement(TOP), _harbour_orientation(TOP_TO_BOTTOM), _harbour_head_nr(0),
@@ -656,7 +656,7 @@ Config::loadCmdDialog(CfgParser::Entry *section)
                                                 1024, 1));
     keys.push_back(new CfgParserKeyPath("HISTORYFILE",
                                         _cmd_dialog_history_file,
-                                        "~/.pekwm/history"));
+                                        Util::getConfig("history")));
     keys.push_back(new CfgParserKeyNumeric<int>("HISTORYSAVEINTERVAL",
                                               _cmd_dialog_history_save_interval,
                                                 16, 0));
@@ -988,7 +988,7 @@ Config::tryHardLoadConfig(CfgParser &cfg, std::string &file)
 
     // Try loading ~/.pekwm/config
     if (! success) {
-        file = Util::getEnv("HOME") + "/.pekwm/config";
+        file = Util::getConfig("config");
         success = cfg.parse(file, CfgParserSource::SOURCE_FILE, true);
 
         // Copy cfg files to ~/.pekwm and try loading ~/.pekwm/config again.
@@ -1011,7 +1011,7 @@ Config::tryHardLoadConfig(CfgParser &cfg, std::string &file)
 void
 Config::copyConfigFiles(void)
 {
-    std::string cfg_dir = Util::getEnv("HOME") + "/.pekwm";
+    std::string cfg_dir = Util::getConfig("");
 
     std::string cfg_file = cfg_dir + std::string("/config");
     std::string keys_file = cfg_dir + std::string("/keys");
