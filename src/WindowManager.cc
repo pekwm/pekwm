@@ -191,6 +191,9 @@ void
 WindowManager::execStartFile(void)
 {
     std::string start_file(pekwm::config()->getStartFile());
+    if (start_file.empty()) {
+        return;
+    }
 
     bool exec = Util::isExecutable(start_file);
     if (! exec) {
