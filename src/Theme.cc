@@ -1174,6 +1174,7 @@ Theme::Theme(FontHandler *fh, ImageHandler *ih, TextureHandler *th,
     : _fh(fh),
       _ih(ih),
       _th(th),
+      _version(0),
       _loaded(false),
       _invert_gc(None),
       _dialog_data(fh, th),
@@ -1268,6 +1269,7 @@ Theme::load(const std::string &dir, const std::string &variant)
     _ih->path_clear();
     _ih->path_push_back(_theme_dir + "/");
 
+    loadVersion(root);
     loadBackground(root->findSection("BACKGROUND"));
     loadColorMaps(root->findSection("COLORMAPS"));
 
@@ -1322,6 +1324,15 @@ Theme::loadThemeRequire(CfgParser &theme_cfg, std::string &file)
             theme_cfg.parse(file, CfgParserSource::SOURCE_FILE, true);
         }
     }
+}
+
+void
+Theme::loadVersion(CfgParser::Entry* root)
+{
+    std::vector<CfgParserKey*> keys;
+    keys.push_back(new CfgParserKeyNumeric<int>("VERSION", _version));
+    root->parseKeyValues(keys.begin(), keys.end());
+    std::for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 }
 
 void

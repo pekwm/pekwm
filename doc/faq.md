@@ -35,7 +35,7 @@ A simple example start file could look like this:
 ```
 #!/bin/sh
 gkrellm &
-Esetroot -s mybackground.png &
+pekwm_bg -D -l ~/backgrounds mybackground.png &
 ```
 
 Remember the &'s.
@@ -198,17 +198,12 @@ never have to see this question in IRC anymore.
 
 ### How do I set a background/root/desktop image?
 
-In simple terms, you use any program that is capable of setting
-background images. What? Want links too? Because you asked nice,
-[here's feh](http://www.linuxbrit.co.uk/feh/) and
-[hsetroot](http://thegraveyard.org/hsetroot.php). If you have Eterm
-installed you have a program named Esetroot, that will set you
-backgrounds. There's a million of similar apps, and this is no place
-for a comprehensive list of them.
+pekwm now comes with a background setting tool, _pekwm_bg_ which is
+integrated with the themes and will set the background on theme load
+if the theme has a backgorund specified.
 
-You want that the background gets set automatically when you start
-pekwm? Add the command for setting background in to your pekwm start
-file located at _~/.pekwm/start_. Remember to **chmod +x**.
+pekwm_bg can be run independent of pekwm to set the background, see
+the [pekwm_bg manual page](pekwm_bg.1.md) for more details.
 
 ### A theme I tested doesn't work!
 

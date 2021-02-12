@@ -38,7 +38,14 @@ progress()
 # usage exit-code
 usage()
 {
-    echo "usage: $0 [install|uninstall|show|search]"
+    echo "usage: $0 [install|uninstall|show|search|new]"
+    echo ""
+    echo "  install name"
+    echo "  uninstall name"
+    echo "  show name"
+    echo "  search [pattern]"
+    echo "  new name"
+    echo ""
     exit $1
 }
 
@@ -222,6 +229,354 @@ theme_show()
     fi
 }
 
+# Generate a theme directory
+#
+# theme_new name
+theme_new()
+{
+    theme_name="$1"
+
+    if test -z "$theme_name"; then
+        die "a theme name must be provided to pekwm_theme new"
+    fi
+    if test -e "$theme_name"; then
+       die "a file or directory with the name $theme_name already exist"
+    fi
+
+    mkdir $theme_name || die "failed to create $theme_name"
+    mkdir $theme_name/backgrounds \
+          || die "failed to create $theme_name/backgrounds"
+
+    cat > $theme_name/theme <<EOF
+\$FONT = "-*-fixed-*-r-*-*-*-*-*-*-*-*-iso10646-*"
+\$MENU_FONT = "-*-fixed-*-r-*-*-*-*-*-*-*-*-iso10646-*"
+
+\$BG_TEX = "Solid #ffffff"
+
+\$COLOR_FO = "#eeeeee"
+\$COLOR_FO_HI = "#ffffff"
+\$COLOR_FO_LO = "#dddddd"
+\$COLOR_BD_FO = "#000000"
+\$TEXT_FO = "#333333"
+
+\$COLOR_FO_SEL = "#efefef"
+\$COLOR_FO_SEL_HI = "#ffffff"
+\$COLOR_FO_SEL_LO = "#dddddd"
+\$TEXT_FO_SEL = "#000000"
+
+\$COLOR_UN = "#aaaaaa"
+\$COLOR_UN_HI = "#bbbbbb"
+\$COLOR_UN_LO = "#999999"
+\$COLOR_BD_UN = "#666666"
+\$TEXT_UN = "#666666"
+
+\$COLOR_UN_SEL = "#afafaf"
+\$COLOR_UN_SEL_HI = "#bbbbbb"
+\$COLOR_UN_SEL_LO = "#999999"
+\$TEXT_UN_SEL = "#333333"
+
+INCLUDE = "\$THEME_DIR/template"
+EOF
+
+    cat > $theme_name/template <<EOF
+\$TEX_FO = "SolidRaised \$COLOR_FO \$COLOR_FO_HI \$COLOR_FO_LO 1 0"
+\$TEX_FO_SEL = "SolidRaised \$COLOR_FO_SEL \$COLOR_FO_SEL_HI \$COLOR_FO_SEL_LO 1 0"
+\$TEX_UN = "SolidRaised \$COLOR_UN \$COLOR_UN_HI \$COLOR_UN_LO 1 0"
+\$TEX_UN_SEL = "SolidRaised \$COLOR_UN_SEL \$COLOR_UN_SEL_HI \$COLOR_UN_SEL_LO"
+\$TEX_SEP_FO = "Solid \$COLOR_FO_HI 2x20"
+\$TEX_SEP_UN = "Solid \$COLOR_UN_HI 2x20"
+
+# Theme format version
+Version = "2"
+
+Require {
+  Templates = "True"
+}
+
+Background {
+  Texture = "\$BG_TEX"
+}
+
+ColorMaps {
+  ColorMap = "Focused" {
+    Map = "#aaaaaa" { To = "\$COLOR_FO" }
+    Map = "#ffffff" { To = "\$COLOR_FO_LO" }
+  }
+  ColorMap = "Unfocused" {
+    Map = "#aaaaaa" { To = "\$COLOR_UN" }
+    Map = "#ffffff" { To = "\$COLOR_UN_LO" }
+  }
+  ColorMap = "Hoover" {
+    Map = "#aaaaaa" { To = "\$COLOR_FO_SEL" }
+    Map = "#ffffff" { To = "\$COLOR_FO_SEL_HI" }
+    Map = "#000000" { To = "#ffffff" }
+  }
+  ColorMap = "Pressed" {
+    Map = "#aaaaaa" { To = "\$COLOR_FO" }
+    Map = "#ffffff" { To = "\$COLOR_FO_LO" }
+    Map = "#000000" { To = "#ffffff" }
+  }
+}
+
+Define = "Border" {
+  Focused {
+    TopLeft = "Solid \$COLOR_BD_FO 2x2"
+    Top = "Solid \$COLOR_BD_FO 2x2"
+    TopRight = "Solid \$COLOR_BD_FO 2x2"
+    Left = "Solid \$COLOR_BD_FO 2x2"
+    Right = "Solid \$COLOR_BD_FO 2x2"
+    BottomLeft = "Solid \$COLOR_BD_FO 2x2"
+    Bottom = "Solid \$COLOR_BD_FO 2x2"
+    BottomRight = "Solid \$COLOR_BD_FO 2x2"
+  }
+  Unfocused {
+    TopLeft = "Solid \$COLOR_BD_UN 2x2"
+    Top = "Solid \$COLOR_BD_UN 2x2"
+    TopRight = "Solid \$COLOR_BD_UN 2x2"
+    Left = "Solid \$COLOR_BD_UN 2x2"
+    Right = "Solid \$COLOR_BD_UN 2x2"
+    BottomLeft = "Solid \$COLOR_BD_UN 2x2"
+    Bottom = "Solid \$COLOR_BD_UN 2x2"
+    BottomRight = "Solid \$COLOR_BD_UN 2x2"
+  }
+}
+
+Define = "EmptyBorder" {
+  Focused {
+    TopLeft = "Empty"
+    Top = "Empty"
+    TopRight = "Empty"
+    Left = "Empty"
+    Right = "Empty"
+    BottomLeft = "Empty"
+    Bottom = "Empty"
+    BottomRight = "Empty"
+  }
+  Unfocused {
+    TopLeft = "Empty"
+    Top = "Empty"
+    TopRight = "Empty"
+    Left = "Empty"
+    Right = "Empty"
+    BottomLeft = "Empty"
+    Bottom = "Empty"
+    BottomRight = "Empty"
+  }
+}
+
+Define = "Buttons" {
+  Right = "Close" {
+    Focused = "ImageMapped Focused button-close.xpm"
+    Unfocused = "ImageMapped Unfocused button-close.xpm"
+    Hoover = "ImageMapped Hoover button-close.xpm"
+    Pressed = "ImageMapped Pressed button-close.xpm"
+    Button = "1" { Actions = "Close" }
+    Button = "3" { Actions = "Kill" }
+  }
+}
+
+Define = "Decor" {
+  Height = "20"
+  Pad = "2 2 5 5"
+
+  Focused = "\$TEX_FO"
+  Unfocused = "\$TEX_UN"
+
+  Tab {
+    Focused = "\$TEX_FO"
+    FocusedSelected = "\$TEX_FO_SEL"
+    Unfocused = "\$TEX_UN"
+    UnfocusedSelected = "\$TEX_UN_SEL"
+  }
+  Separator {
+    Focused = "\$TEX_SEP_FO"
+    Unfocused = "\$TEX_SEP_UN"
+  }
+  Font {
+    Focused = "\$FONT#Center"
+  }
+  FontColor {
+    Focused = "\$TEXT_FO"
+    FocusedSelected = "\$TEXT_FO_SEL"
+    Unfocused = "\$TEXT_UN"
+    UnfocusedSelected = "\$TEXT_UN_SEL"
+  }
+}
+
+Define = "EmptyDecor" {
+  Height = "0"
+  Pad = "0 0 0 0"
+  Focused = "Empty"
+  Unfocused = "Empty"
+  Tab {
+    Focused = "Empty"
+    FocusedSelected = "Empty"
+    Unfocused = "Empty"
+    UnfocusedSelected = "Empty"
+  }
+  Separator {
+    Focused = "Empty"
+    Unfocused = "Empty"
+  }
+  Font {
+    Focused = "Empty"
+  }
+  FontColor {
+    Focused = "Empty"
+    FocusedSelected = "Empty"
+    Unfocused = "Empty"
+    UnfocusedSelected = "Empty"
+  }
+}
+
+Decor = "Default" {
+  @Decor
+  Border {
+    @Border
+  }
+  Buttons {
+    @Buttons
+  }
+}
+
+Decor = "InputDialog" {
+  @EmptyDecor
+  Border {
+    @Border
+  }
+}
+
+Decor = "Menu" {
+  @Decor
+  Border {
+    @Border
+  }
+}
+
+Decor = "StatusWindow" {
+  @EmptyDecor
+  Border {
+    @Border
+  }
+}
+
+Decor = "WorkspaceIndicator" {
+  @EmptyDecor
+  Border {
+    @Border
+  }
+}
+
+CmdDialog {
+  Font = "\$FONT"
+  Texture = "\$TEX_UN"
+  Text = "\$TEXT_UN"
+  Pad = "4 4 4 4"
+}
+
+Dialog {
+  Background = "Solid \$COLOR_UN"
+  TitleFont = "\$MENU_FONT"
+  TitleColor = "\$TEXT_FO_SEL"
+  Font = "\$FONT"
+  Text = "\$TEXT_FO"
+  Pad = "4 4 4 4"
+
+  Button {
+    Font = "\$FONT"
+    Text = "\$TEXT_FO_SEL"
+
+    Focused = "\$TEX_FO"
+    Unfocused = "\$TEX_UN"
+    Hoover = "\$TEX_FO_SEL"
+    Pressed = "\$TEX_UN_SEL"
+  }
+}
+
+Harbour {
+  Texture = "\$TEX_UN"
+}
+
+Menu {
+  Focused {
+    Font = "\$MENU_FONT"
+    Background = "\$TEX_FO"
+    Item = "Empty"
+    Text = "\$TEXT_FO"
+    Separator = "Solid \$COLOR_FO_HI 1x1"
+    Arrow = "Solid \$COLOR_FO_LO 5x5"
+  }
+  Unfocused {
+    Font = "\$MENU_FONT"
+    Background = "\$TEX_UN"
+    Item = "Empty"
+    Text = "\$TEXT_UN"
+    Separator = "Solid \$COLOR_UN_HI 1x1"
+    Arrow = "Solid \$COLOR_UN_LO 5x5"
+  }
+  Selected {
+    Font = "\$MENU_FONT"
+    Background = "\$TEX_FO_SEL"
+    Item = "\$TEX_FO_SEL"
+    Text = "\$TEXT_FO_SEL"
+    Arrow = "Solid \$COLOR_FO_SEL_LO 5x5"
+  }
+  Pad = "2 2 4 4"
+}
+
+Status {
+  Font = "\$FONT"
+  Texture = "Solid \$COLOR_UN"
+  Text = "\$TEXT_UN"
+  Pad = "0 0 0 0"
+}
+
+WorkspaceIndicator {
+  Font = "\$FONT#Center"
+  Background = "Solid \$COLOR_UN"
+  Workspace = "Solid \$COLOR_UN_SEL"
+  WorkspaceActive = "Solid \$COLOR_FO_SEL"
+  Text = "\$TEXT_FO"
+  EdgePadding = "2"
+  WorkspacePadding = "2"
+}
+EOF
+
+    cat > $theme_name/button-close.xpm <<EOF
+/* XPM */
+static char *button_close[] = {
+/* columns rows colors chars-per-pixel */
+"20 20 3 1 ",
+"  c #aaaaaaaaaaaa",
+". c black",
+"X c white",
+/* pixels */
+"XXXXXXXXXXXXXXXXXXXX",
+"X..          ......X",
+"X...        ...... X",
+"X...       .....   X",
+"X....     .....    X",
+"X.....   .....     X",
+"X ..... .....      X",
+"X  .........       X",
+"X   .......        X",
+"X    .....         X",
+"X    ......        X",
+"X   ........       X",
+"X  ..........      X",
+"X .....  .....     X",
+"X ....    .....    X",
+"X....      .....   X",
+"X....       ...... X",
+"X...         ......X",
+"X..           .....X",
+"XXXXXXXXXXXXXXXXXXXX"
+};
+EOF
+
+    echo "generated theme $theme_name"
+}
+
 if test -z "$HOME"; then
     die "\$HOME is not set, can not proceed"
 fi
@@ -246,6 +601,8 @@ else
         theme_show "$2" "$3"
     elif test "x$1" = "xsearch"; then
         theme_search "$2"
+    elif test "x$1" = "xnew"; then
+        theme_new "$2"
     else
         usage 1
     fi

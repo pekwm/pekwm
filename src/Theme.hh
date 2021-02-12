@@ -463,6 +463,7 @@ protected:
 
 private:
     void loadThemeRequire(CfgParser &theme_cfg, std::string &file);
+    void loadVersion(CfgParser::Entry *root);
     void loadBackground(CfgParser::Entry *section);
     void loadColorMaps(CfgParser::Entry *section);
     void loadDecors(CfgParser::Entry *root);
@@ -474,6 +475,7 @@ private:
 
     std::string _theme_dir; /**< Path to theme directory. */
     std::string _theme_file;
+    int _version;
     std::string _background;
     Util::StringMap<ColorMap> _color_maps;
     TimeFiles _cfg_files;
