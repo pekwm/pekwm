@@ -27,6 +27,23 @@ static Util::StringMap<PTexture::Type> parse_map =
      {"IMAGEMAPPED", PTexture::TYPE_IMAGE_MAPPED},
      {"EMPTY", PTexture::TYPE_EMPTY}};
 
+static bool
+parseSize(const std::string &str, uint &width, uint &height)
+{
+    std::vector<std::string> tok;
+    if ((Util::splitString(str, tok, "x", 2, true)) != 2) {
+        return false;
+    }
+
+    try {
+        width = std::stoi(tok[0]);
+        height = std::stoi(tok[1]);
+    } catch (std::invalid_argument &ex) {
+        return false;
+    }
+    return true;
+}
+
 TextureHandler::TextureHandler(void)
     : _length_min(5)
 {
@@ -258,7 +275,18 @@ TextureHandler::parseLines(bool horz, std::vector<std::string> &tok)
 
     tok.erase(tok.begin());
 
-    return new PTextureLines(line_size, size_percent, horz, tok);
+    uint width, height;
+    if (::parseSize(tok.back(), width, height)) {
+        tok.pop_back();
+    } else {
+        width = 0;
+        height = 0;
+    }
+
+    auto tex = new PTextureLines(line_size, size_percent, horz, tok);
+    tex->setWidth(width);
+    tex->setHeight(height);
+    return tex;
 }
 
 /**
@@ -301,12 +329,14 @@ TextureHandler::parseImageMapped(const std::string& texture)
 /**
  * Parses size parameter, i.e. 10x20
  */
-void
+bool
 TextureHandler::parseSize(PTexture *tex, const std::string &size)
 {
-    std::vector<std::string> tok;
-    if ((Util::splitString(size, tok, "x", 2, true)) == 2) {
-        tex->setWidth(strtol(tok[0].c_str(), 0, 10));
-        tex->setHeight(strtol(tok[1].c_str(), 0, 10));
+    uint width, height;
+    if (::parseSize(size, width, height)) {
+        tex->setWidth(width);
+        tex->setHeight(height);
+        return true;
     }
+    return false;
 }

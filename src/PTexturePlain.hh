@@ -85,6 +85,9 @@ public:
     void unsetColor();
 
 private:
+    void renderArea(Drawable draw, int x, int y, uint width, uint height);
+
+private:
     GC _gc;
 
     XColor *_xc_base;
@@ -113,6 +116,8 @@ public:
     // END - PTexture interface.
 
 private:
+    void renderArea(Drawable draw, int x, int y, uint width, uint height);
+
     void renderHorz(Drawable draw, int x, int y, uint width, uint height);
     void renderVert(Drawable draw, int x, int y, uint width, uint height);
 

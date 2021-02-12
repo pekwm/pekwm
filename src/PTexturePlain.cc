@@ -20,6 +20,45 @@ extern "C" {
 #include <assert.h>
 }
 
+
+static void
+renderTiled(const int a_x, const int a_y,
+            const uint a_width, const uint a_height,
+            const uint r_width, const uint r_height,
+            std::function<void(int, int, uint, uint)> render)
+{
+    assert(r_width);
+    assert(r_height);
+
+    int x, y;
+    uint width, height;
+
+    y = a_y;
+    height = a_height;
+    while (height > r_height) {
+        x = a_x;
+        width = a_width;
+        while (width > r_width) {
+            render(x, y, r_width, r_height);
+            x += r_width;
+            width -= r_width;
+        }
+        render(x, y, width, r_height);
+
+        y += r_height;
+        height -= r_height;
+    }
+
+    x = a_x;
+    width = a_width;
+    while (width > r_width) {
+        render(x, y, r_width, height);
+        x += r_width;
+        width -= r_width;
+    }
+    render(x, y, width, height);
+}
+
 // PTextureEmpty
 
 void
@@ -145,6 +184,23 @@ void
 PTextureSolidRaised::doRender(Drawable draw,
                               int x, int y, uint width, uint height)
 {
+    if (_width && _height) {
+        // size was given in the texture, repeat the texture over the
+        // provided geometry
+        auto render = [this, draw](int rx, int ry, uint rw, uint rh) {
+            this->renderArea(draw, rx, ry, rw, rh);
+        };
+        renderTiled(x, y, width, height, _width, _height, render);
+    } else {
+        // no size given, treat provided geometry as area
+        renderArea(draw, x, y, width, height);
+    }
+}
+
+void
+PTextureSolidRaised::renderArea(Drawable draw,
+                                int x, int y, uint width, uint height)
+{
     // base rectangle
     XSetForeground(X11::getDpy(), _gc, _xc_base->pixel);
     XFillRectangle(X11::getDpy(), draw, _gc, x, y, width, height);
@@ -252,6 +308,22 @@ PTextureLines::~PTextureLines()
 
 void
 PTextureLines::doRender(Drawable draw, int x, int y, uint width, uint height)
+{
+    if (_width && _height) {
+        // size was given in the texture, repeat the texture over the
+        // provided geometry
+        auto render = [this, draw](int rx, int ry, uint rw, uint rh) {
+            this->renderArea(draw, rx, ry, rw, rh);
+        };
+        renderTiled(x, y, width, height, _width, _height, render);
+    } else {
+        // no size given, treat provided geometry as area
+        renderArea(draw, x, y, width, height);
+    }
+}
+
+void
+PTextureLines::renderArea(Drawable draw, int x, int y, uint width, uint height)
 {
     if (_horz) {
         renderHorz(draw, x, y, width, height);

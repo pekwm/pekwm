@@ -70,7 +70,7 @@ private:
     PTexture *parseImage(const std::string& texture);
     PTexture *parseImageMapped(const std::string& texture);
 
-    void parseSize(PTexture *tex, const std::string &size);
+    bool parseSize(PTexture *tex, const std::string &size);
 
 private:
     /** Minimum texture name length. */
