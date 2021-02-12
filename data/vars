@@ -1,1 +1,4 @@
+$BROWSER="firefox"
+$EDITOR="xedit"
+$FILEMANAGER="worker"
 $TERM="xterm -fn fixed +sb -bg white -fg black"

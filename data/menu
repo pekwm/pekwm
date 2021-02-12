@@ -1,166 +1,94 @@
-# Menu config for pekwm
-
 # Variables
 INCLUDE = "vars"
 
 RootMenu = "Pekwm" {
-	Entry = "Terminal" { Actions = "Exec $TERM" }
-	Entry = "Run.." { Actions = "ShowCmdDialog" }
+  Entry = "Terminal" { Actions = "Exec $TERM" }
+  Entry = "Run.." { Actions = "ShowCmdDialog" }
 
-	Separator {}
+  Separator {}
 
-	Submenu = "Editors" {
-		Entry = "emacs" { Actions = "Exec emacs" }
-		Entry = "emacs terminal" { Actions = "Exec $TERM -title emacs -e emacs -nw" }
-		Entry = "gedit" { Actions = "Exec gedit" }
-		Entry = "gvim" { Actions = "Exec gvim" }
-		Entry = "kate" { Actions = "Exec kate" }
-		Entry = "vim" { Actions = "Exec $TERM -title vim -e vim" }
-	}
-	Submenu = "eMail" {
-		Entry = "claws-mail" { Actions = "Exec claws-mail" }
-		Entry = "evolution" { Actions = "Exec evolution" }
-		Entry = "kmail" { Actions = "Exec kmail" }
-		Entry = "mutt" { Actions = "Exec $TERM -e mutt" }
-		Entry = "thunderbird" { Actions = "Exec thunderbird" }
-	}
-	Submenu = "Filemanager" {
-		Entry = "dolphin" { Actions = "Exec dolphin" }
-		Entry = "mc" { Actions = "Exec $TERM -e mc" }
-		Entry = "nautilus" { Actions = "Exec nautilus" }
-		Entry = "pcmanfm" { Actions = "Exec pcmanfm" }
-		Entry = "rox" { Actions = "Exec rox" }
-		Entry = "thunar" { Actions = "Exec thunar" }
-	}
-	Submenu = "Graphics" {
-		Entry = "gimp" { Actions = "Exec gimp" }
-		Entry = "digikam" { Actions = "Exec digikam" }
-		Entry = "display" { Actions = "Exec display" }
-		Entry = "eog" { Actions = "Exec eog" }
-		Entry = "gwenview" { Actions = "Exec gwenview" }
-		Entry = "shotwell" { Actions = "Exec shotwell" }
-	}
-	Submenu = "IDE" {
-		Entry = "anjuta" { Actions = "Exec anjuta" }
-		Entry = "eclipse" { Actions = "Exec eclipse" }
-		Entry = "kdevelop" { Actions = "Exec kdevelop" }
-	}
-	Submenu = "IM" {
-		Entry = "empathy" { Actions = "Exec empathy" }
-		Entry = "kopete" { Actions = "Exec kopete" }
-		Entry = "pidgin" { Actions = "Exec pidgin" }
-		Entry = "psi" { Actions = "Exec psi" }
-	}
-	Submenu = "Multimedia" {
-		Entry = "vlc" { Actions = "Exec vlc" }
-		Entry = "amarok" { Actions = "Exec amarok" }
-		Entry = "banshee" { Actions = "Exec banshee" }
-		Entry = "rhythmbox" { Actions = "Exec rhythmbox" }
-		Entry = "smplayer" { Actions = "Exec smplayer" }
-		Entry = "alsamixer" { Actions = "Exec $TERM -title alsamixer -e alsamixer" }
-	}
-	Submenu = "Office" {
-		Entry = "LOffice - Calc" { Actions = "Exec libreoffice --calc" }
-		Entry = "LOffice - Draw" { Actions = "Exec libreoffice --draw" }
-		Entry = "LOffice - Impress" { Actions = "Exec libreoffice --impress" }
-		Entry = "LOffice - Writer" { Actions = "Exec libreoffice --writer" }
-	}
-	Submenu = "VoIP" {
-		Entry = "ekiga" { Actions = "Exec ekiga" }
-		Entry = "jitsi" { Actions = "Exec jitsi" }
-		Entry = "sflphone" { Actions = "Exec sflphone" }
-}
-	Submenu = "WWW" {
-		Entry = "firefox" { Actions = "Exec firefox" }
-		Entry = "chromium" { Actions = "Exec chromium" }
-		Entry = "opera" { Actions = "Exec opera" }
-	}
+  Entry = "Browser" { Actions = "Exec $BROWSER" }
+  Entry = "Editor" { Actions = "Exec $EDITOR" }
+  Entry = "File Manager" { Actions = "Exec $FILEMANAGER" }
 
-	Separator {}
+  Separator {}
 
-	Entry = "Take screenshot" { Actions = "Exec $_PEKWM_SCRIPT_PATH/pekwm_screenshot.sh" }
+  Entry = "Take screenshot" { Actions = "Exec pekwm_screenshot" }
 
-	Separator {}
+  Separator {}
 
-	Submenu = "Go to" {
-		SubMenu = "Workspace" {
-			# Create goto menu once per pekwm config reload. The fast way that
-			# will work for most if not all users.
-			COMMAND = "$_PEKWM_SCRIPT_PATH/pekwm_ws_menu.sh goto"
-			# Create goto menu every time the menu is opened. The slow way.
-			# This is what you want if you are using external tools to make
-			# the amount of workspaces something else than what you define in
-			# ~/.pekwm/config. You will know if you want this.
-			# Entry = "" { Actions = "Dynamic $_PEKWM_SCRIPT_PATH/pekwm_ws_menu.sh goto dynamic" }
-		}
-		Entry = "Window.." { Actions = "ShowMenu GotoClient True" }
-	}
+  Submenu = "Go to" {
+    SubMenu = "Workspace" {
+      # Create goto menu once per pekwm config reload. The fast way that
+      # will work for most if not all users.
+      COMMAND = "$_PEKWM_SCRIPT_PATH/pekwm_ws_menu.sh goto"
+      # Create goto menu every time the menu is opened. The slow way.
+      # This is what you want if you are using external tools to make
+      # the amount of workspaces something else than what you define in
+      # ~/.pekwm/config. You will know if you want this.
+      # Entry = "" { Actions = "Dynamic $_PEKWM_SCRIPT_PATH/pekwm_ws_menu.sh goto dynamic" }
+    }
+    Entry = "Window.." { Actions = "ShowMenu GotoClient True" }
+  }
 
-	Submenu = "Pekwm" {
-		Submenu = "Themes" {
-			Entry { Actions = "Dynamic $_PEKWM_SCRIPT_PATH/pekwm_themeset.sh $_PEKWM_THEME_PATH" }
-			Entry { Actions = "Dynamic $_PEKWM_SCRIPT_PATH/pekwm_themeset.sh ~/.pekwm/themes" }
-		}
-		Entry = "Reload" { Actions = "Reload" }
-		Entry = "Restart" { Actions = "Restart" }
-		Entry = "Exit" { Actions = "Exit" }
-		Submenu = "Exit to" {
-			Entry = "Xterm" { Actions = "RestartOther xterm" }
-			Entry = "TWM" { Actions = "RestartOther twm" }
-		}
-	}
+  Submenu = "pekwm" {
+    Submenu = "Themes" {
+      Entry { Actions = "Dynamic $_PEKWM_SCRIPT_PATH/pekwm_themeset.sh $_PEKWM_THEME_PATH" }
+      Entry { Actions = "Dynamic $_PEKWM_SCRIPT_PATH/pekwm_themeset.sh ~/.pekwm/themes" }
+    }
+    Entry = "Reload" { Actions = "Reload" }
+    Entry = "Restart" { Actions = "Restart" }
+    Entry = "Exit" { Actions = "Exit" }
+    Submenu = "Exit to" {
+      Entry = "Xterm" { Actions = "RestartOther xterm" }
+      Entry = "TWM" { Actions = "RestartOther twm" }
+    }
+  }
 }
 
 WindowMenu = "Window Menu" {
-	Entry = "(Un)Stick" { Actions = "Toggle Sticky" }
-	Entry = "(Un)Shade" { Actions = "Toggle Shaded" }
-	Entry = "Iconify" { Actions = "Set Iconified" }
-	Entry = "Command.." { Actions = "ShowCmdDialog" }
+  Entry = "(Un)Stick" { Actions = "Toggle Sticky" }
+  Entry = "(Un)Shade" { Actions = "Toggle Shaded" }
+  Entry = "Iconify" { Actions = "Set Iconified" }
+  Entry = "Command.." { Actions = "ShowCmdDialog" }
 
-	Submenu = "Maximize" {
-		Entry = "Toggle Full" { Actions = "Toggle Maximized True True" }
-		Entry = "Toggle Horizontal" { Actions = "Toggle Maximized True False" }
-		Entry = "Toggle Vertical" { Actions = "Toggle Maximized False True" }
-	}
-	Submenu = "Fill" {
-		Entry = "Full" { Actions = "MaxFill True True" }
-		Entry = "Horizontal" { Actions = "MaxFill True False" }
-		Entry = "Vertical" { Actions = "MaxFill False True" }
-	}
-	Submenu = "Stacking" {
-		Entry = "Raise" { Actions = "Raise" }
-		Entry = "Lower" { Actions = "Lower" }
-		Entry = "Toggle Always On Top" { Actions = "Toggle AlwaysOnTop" }
-		Entry = "Toggle Always Below" { Actions = "Toggle AlwaysBelow" }
-	}
-	Submenu = "Decorations" {
-		Entry = "Toggle Decorations" { Actions = "Toggle DecorBorder; Toggle DecorTitlebar" }
-		Entry = "Toggle Borders" { Actions = "Toggle DecorBorder" }
-		Entry = "Toggle Titlebar" { Actions = "Toggle DecorTitlebar" }
-	}
-	Submenu = "Skip" {
-		Entry = "Toggle showing this frame in menus" { Actions = "Toggle Skip Menus" }
-		Entry = "Toggle including this frame in focus toggle" { Actions = "Toggle Skip FocusToggle" }
-		Entry = "Toggle if this frame snaps to other windows" { Actions = "Toggle Skip Snap" }
-	}
-	SubMenu = "Send To" {
-		# Create sendto menu once per pekwm config reload. The fast way that
-		# will work for most if not all users.
-		COMMAND = "$_PEKWM_SCRIPT_PATH/pekwm_ws_menu.sh send"
-		# Create sendto menu every time the menu is opened. The slow way.
-		# This is what you want if you are using external tools to make
-		# the amount of workspaces something else than what you define in
-		# ~/.pekwm/config. You will know if you want this.
-		# Entry = "" { Actions = "Dynamic $_PEKWM_SCRIPT_PATH/pekwm_ws_menu.sh send dynamic" }
-	}
-	Separator {}
-	Entry = "Close" { Actions = "Close" }
-	Submenu = "Kill" { Entry = "Kill application" { Actions = "Kill" } }
-}
-
-LayoutMenu = "Layout" {
-	Entry = "Smart" { Actions = "SetLayouter Smart" }
-	Entry = "Mouse Not Under" { Actions = "SetLayouter MouseNotUnder" }
-	Entry = "Mouse Centered" { Actions = "SetLayouter MouseCentered" }
-	Entry = "Mouse Top Left" { Actions = "SetLayouter MouseTopLeft" }
+  Submenu = "Maximize" {
+    Entry = "Toggle Full" { Actions = "Toggle Maximized True True" }
+    Entry = "Toggle Horizontal" { Actions = "Toggle Maximized True False" }
+    Entry = "Toggle Vertical" { Actions = "Toggle Maximized False True" }
+  }
+  Submenu = "Fill" {
+    Entry = "Full" { Actions = "MaxFill True True" }
+    Entry = "Horizontal" { Actions = "MaxFill True False" }
+    Entry = "Vertical" { Actions = "MaxFill False True" }
+  }
+  Submenu = "Stacking" {
+    Entry = "Raise" { Actions = "Raise" }
+    Entry = "Lower" { Actions = "Lower" }
+    Entry = "Toggle Always On Top" { Actions = "Toggle AlwaysOnTop" }
+    Entry = "Toggle Always Below" { Actions = "Toggle AlwaysBelow" }
+  }
+  Submenu = "Decorations" {
+    Entry = "Toggle Decorations" { Actions = "Toggle DecorBorder; Toggle DecorTitlebar" }
+    Entry = "Toggle Borders" { Actions = "Toggle DecorBorder" }
+    Entry = "Toggle Titlebar" { Actions = "Toggle DecorTitlebar" }
+  }
+  Submenu = "Skip" {
+    Entry = "Toggle showing this frame in menus" { Actions = "Toggle Skip Menus" }
+    Entry = "Toggle including this frame in focus toggle" { Actions = "Toggle Skip FocusToggle" }
+    Entry = "Toggle if this frame snaps to other windows" { Actions = "Toggle Skip Snap" }
+  }
+  SubMenu = "Send To" {
+    # Create sendto menu once per pekwm config reload. The fast way that
+    # will work for most if not all users.
+    COMMAND = "$_PEKWM_SCRIPT_PATH/pekwm_ws_menu.sh send"
+    # Create sendto menu every time the menu is opened. The slow way.
+    # This is what you want if you are using external tools to make
+    # the amount of workspaces something else than what you define in
+    # ~/.pekwm/config. You will know if you want this.
+    # Entry = "" { Actions = "Dynamic $_PEKWM_SCRIPT_PATH/pekwm_ws_menu.sh send dynamic" }
+  }
+  Separator {}
+  Entry = "Close" { Actions = "Close" }
+  Submenu = "Kill" { Entry = "Kill application" { Actions = "Kill" } }
 }
