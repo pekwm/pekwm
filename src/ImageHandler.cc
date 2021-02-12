@@ -53,8 +53,7 @@ PImage*
 ImageHandler::getImage(const std::string &file)
 {
     uint ref;
-    auto image = getImage(file, ref, _images);
-    return image->getData() ? image : nullptr;
+    return getImage(file, ref, _images);
 }
 
 PImage*
