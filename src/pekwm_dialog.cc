@@ -307,18 +307,26 @@ public:
 
         virtual uint heightReq(uint width) const override
         {
-            // TODO: if width < image width, this should return the
-            // scaled image height considering the aspect
+            if (_image->getWidth() > width) {
+                float aspect = float(_image->getWidth()) / _image->getHeight();
+                return width / aspect;
+            }
             return _image->getHeight();
         }
 
         virtual void render(void) override
         {
-            // render image centered on available width
-            uint x = (_gm.width - _image->getWidth()) / 2;
-            _image->draw(_parent.getWindow(),
-                         x, _gm.y,
-                         _image->getWidth(), _image->getHeight());
+            if (_image->getWidth() > _gm.width) {
+                float aspect = float(_image->getWidth()) / _image->getHeight();
+                _image->draw(_parent.getWindow(),
+                             _gm.x, _gm.y, _gm.width, _gm.width / aspect);
+            } else {
+                // render image centered on available width
+                uint x = (_gm.width - _image->getWidth()) / 2;
+                _image->draw(_parent.getWindow(),
+                             x, _gm.y,
+                             _image->getWidth(), _image->getHeight());
+            }
         }
 
     private:
@@ -334,27 +342,79 @@ public:
               _text(text),
               _is_title(is_title)
         {
+            Util::splitString<wchar_t>(text, _words, L" \t");
         }
         virtual ~Text(void) { }
 
+        virtual void place(int x, int y, uint width)
+        {
+            if (width != _gm.width) {
+                _lines.clear();
+            }
+            Widget::place(x, y, width);
+        }
+
         virtual uint heightReq(uint width) const override
         {
-            // TODO: split up in lines
-            return _font->getHeight() + _data->padVert();
+            std::vector<std::wstring> lines;
+            uint num_lines = getLines(width, lines);
+            return _font->getHeight() * num_lines + _data->padVert();
         }
 
         virtual void render(void) override
         {
+            if (_lines.empty()) {
+                getLines(_gm.width, _lines);
+            }
+
             _font->setColor(_is_title
                             ? _data->getTitleColor() : _data->getTextColor());
-            _font->draw(_parent.getWindow(),
-                        _gm.x + _data->getPad(PAD_LEFT),
-                        _gm.y + _data->getPad(PAD_UP), _text);
+
+            uint y = _gm.y + _data->getPad(PAD_UP);
+            for (auto line : _lines) {
+                _font->draw(_parent.getWindow(),
+                            _gm.x + _data->getPad(PAD_LEFT), y,
+                            line);
+                y += _font->getHeight();
+            }
+        }
+
+    private:
+        uint getLines(uint width, std::vector<std::wstring> &lines)  const
+        {
+            width -= _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT);
+
+            std::wstring line;
+            for (auto word : _words) {
+                if (! line.empty()) {
+                    line += L" ";
+                }
+                line += word;
+
+                uint l_width = _font->getWidth(line);
+                if (l_width > width) {
+                    if (line == word) {
+                        lines.push_back(line);
+                    } else {
+                        line = line.substr(0, line.size() - word.size() - 1);
+                        lines.push_back(line);
+                        line = word;
+                    }
+                }
+            }
+
+            if (! line.empty()) {
+                lines.push_back(line);
+            }
+
+            return lines.size();
         }
 
     private:
         PFont *_font;
         std::wstring _text;
+        std::vector<std::wstring> _words;
+        std::vector<std::wstring> _lines;
         bool _is_title;
     };
 
@@ -552,6 +612,9 @@ static int mainLoop(PekwmDialog& dialog)
             dialog.setState(ev.xbutton.window, BUTTON_STATE_HOVER);
             break;
         case Expose:
+            // Flush queued expose events if they are queued up
+            while (XCheckMaskEvent(X11::getDpy(), ExposureMask, &ev) == True)
+                ;
             dialog.render();
             break;
         case LeaveNotify:
@@ -686,6 +749,9 @@ int main(int argc, char* argv[])
     PImage *image = nullptr;
     if (image_name.size()) {
         image = _image_handler->getImage(image_name);
+        if (image) {
+            image->setType(IMAGE_TYPE_SCALED);
+        }
     }
 
     std::string theme_dir, theme_variant;

@@ -360,63 +360,16 @@ expandFileName(std::string &file)
     }
 }
 
-//! @brief Split the string str based on separator sep and put into vals
-//!
-//! This splits the string str into to max_tokens parts and puts in the vector
-//! vals. If max is 0 then it'll split it into as many tokens
-//! as possible, max defaults to 0.
-//! splitString returns the number of tokens it put into vals.
-//!
-//! @param str String to split
-//! @param vals Vector to put split values into
-//! @param sep Separators to use when splitting string
-//! @param max Maximum number of elements to put into vals (optional)
-//! @param include_empty Include empty elements, defaults to false.
-//! @param escape Escape character (optional)
-//! @return Number of tokens inserted into vals
-uint
-splitString(const std::string str, std::vector<std::string> &toks,
-            const char *sep, uint max, bool include_empty, char escape)
+const char*
+spaceChars(char escape)
 {
-    auto start = str.find_first_not_of(" \t\n");
-    if (str.size() == 0 || start == std::string::npos) {
-        return 0;
-    }
+    return " \t\n";
+}
 
-    std::string token;
-    token.reserve(str.size());
-    bool in_escape = false;
-    uint num_tokens = 1;
-
-    auto it = str.cbegin() + start;
-    for (; it != str.cend() && (max == 0 || num_tokens < max); ++it) {
-        if (in_escape) {
-            token += *it;
-            in_escape = false;
-        } else if (*it == escape) {
-            in_escape = true;
-        } else if (strchr(sep, *it) != 0) {
-            if (token.size() > 0 || include_empty) {
-                toks.push_back(token);
-                ++num_tokens;
-            }
-            token.clear();
-        } else {
-            token += *it;
-        }
-    }
-
-    // Get the last token (if any)
-    if (it != str.cend()) {
-        copy(it, str.cend(), back_inserter(token));
-    }
-
-    if (token.size() > 0 || include_empty) {
-        toks.push_back(token);
-        ++num_tokens;
-    }
-
-    return num_tokens - 1;
+const wchar_t*
+spaceChars(wchar_t escape)
+{
+    return L" \t\n";
 }
 
 //! @brief Converts wide-character string to multibyte version
