@@ -77,7 +77,10 @@ static int
 handleOkResult(char *argv[], int read_fd)
 {
     char buf[1024] = {0};
-    read(read_fd, buf, sizeof(buf) - 1);
+    if (read(read_fd, buf, sizeof(buf) - 1) == -1) {
+        std::cerr << "failed to read pekwm_wm result due to: "
+                  << strerror(errno) << std::endl;
+    }
     close(read_fd);
 
     if (strncmp("stop", buf, 4) == 0) {
@@ -86,7 +89,6 @@ handleOkResult(char *argv[], int read_fd)
     if (strncmp("error", buf, 5) == 0) {
         return 1;
     }
-
     if (strncmp("restart ", buf, 8) == 0) {
         auto command = std::string(buf + 8);
 

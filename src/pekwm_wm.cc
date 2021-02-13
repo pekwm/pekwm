@@ -72,7 +72,10 @@ stop(int write_fd, const std::string &msg, WindowManager *wm)
 
     Util::iconv_deinit();
 
-    write(write_fd, msg.c_str(), msg.size() + 1);
+    if (write(write_fd, msg.c_str(), msg.size() + 1) == -1) {
+        ERR("failed to write pekwm_wm result msg " << msg
+            << " due to: " << strerror(errno));
+    }
     exit(0);
 }
 
@@ -152,8 +155,7 @@ main(int argc, char **argv)
 
             if (wm->shallRestart()) {
                 auto command = wm->getRestartCommand();
-                write(write_fd, "restart ", 8);
-                write(write_fd, command.c_str(), command.size() + 1);
+                stop(write_fd, "restart " + command, wm);
             }
 
             stop(write_fd, "stop", wm);
