@@ -72,6 +72,16 @@ public:
         return false;
     }
 
+    static bool isSkipEnterAfter(Window win) {
+        return (win == _win_skip_enter_after
+                || (_skip_enter_after != nullptr && *_skip_enter_after == win));
+    }
+
+    static void setSkipEnterAfter(PWinObj *wo) {
+        _win_skip_enter_after = None;
+        _skip_enter_after = wo;
+    }
+
     //! @brief Return Window this PWinObj represents.
     inline Window getWindow(void) const { return _window; }
     //! @brief Sets Window this PWinObj represents.
@@ -255,6 +265,13 @@ protected:
     bool _shape_bounding:1; //!< _window has a custom bounding region (shape)
     bool _shape_input:1; //!< _window has a custom input region (shape)
     bool _keyboard_input:1; //!< PWinObj is consuming keyboard input.
+
+    /**
+     * Window to skip (instead of PWinObj), set on PWinObj destructor
+     * to preserve skip functionality when PWinObj goes away.
+     */
+    static Window _win_skip_enter_after;
+    static PWinObj *_skip_enter_after;
 
     static PWinObj *_root_wo; //!< Static root PWinObj pointer.
     static PWinObj *_focused_wo; //!< Static focused PWinObj pointer.

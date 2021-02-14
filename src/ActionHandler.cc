@@ -34,6 +34,7 @@
 #include "X11Util.hh"
 #include "x11.hh"
 
+#include "FocusToggleEventHandler.hh"
 #include "MoveEventHandler.hh"
 #include "KeyboardMoveResizeEventHandler.hh"
 
@@ -84,7 +85,8 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 PWinObj::getRootPWinObj()->giveInputFocus();
                 break;
             case ACTION_FOCUS_DIRECTIONAL:
-                actionFocusDirectional(wo, DirectionType(it->getParamI(0)), it->getParamI(1));
+                actionFocusDirectional(wo, DirectionType(it->getParamI(0)),
+                                       it->getParamI(1));
                 break;
             case ACTION_SEND_KEY:
                 actionSendKey(wo, it->getParamS());
@@ -306,21 +308,20 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 handleStateAction(*it, wo, client, frame);
                 break;
             case ACTION_NEXT_FRAME:
-                actionFocusToggle(ap.ae.sym, it->getParamI(0), 1 /* Direction */,
-                                  it->getParamI(1), false);
-                break;
             case ACTION_NEXT_FRAME_MRU:
-                actionFocusToggle(ap.ae.sym, it->getParamI(0), 1 /* Direction */,
-                                  it->getParamI(1), true);
-                break;
             case ACTION_PREV_FRAME:
-                actionFocusToggle(ap.ae.sym, it->getParamI(0), -1 /* Direction */,
-                                  it->getParamI(1), false);
+            case ACTION_PREV_FRAME_MRU: {
+                bool mru = it->getAction() == ACTION_NEXT_FRAME_MRU
+                    || it->getAction() == ACTION_PREV_FRAME_MRU;
+                int dir = (it->getAction() == ACTION_NEXT_FRAME
+                       || it->getAction() == ACTION_NEXT_FRAME_MRU) ? 1 : -1;
+                auto event_handler =
+                    new FocusToggleEventHandler(pekwm::config(),
+                                                ap.ae.sym, it->getParamI(0),
+                                                dir, it->getParamI(1), mru);
+                setEventHandler(event_handler);
                 break;
-            case ACTION_PREV_FRAME_MRU:
-                actionFocusToggle(ap.ae.sym, it->getParamI(0), -1 /* Direction */,
-                                  it->getParamI(1), true);
-                break;
+            }
             case ACTION_GOTO_WORKSPACE:
                 // Events caused by a motion event ( dragging frame to
                 // the edge ) or enter event ( moving the pointer to
@@ -669,128 +670,6 @@ ActionHandler::actionWarpToWorkspace(PDecor *decor, uint direction)
     }
 }
 
-//! @brief Tries to find the next/prev frame relative to the focused client
-void
-ActionHandler::actionFocusToggle(uint button, uint raise, int off,
-                                 bool show_iconified, bool mru)
-{
-    std::unique_ptr<PMenu> menu{createNextPrevMenu(show_iconified, mru)};
-
-    // no clients in the list
-    if (menu->size() == 0) {
-        return;
-    }
-
-    // unable to grab keyboard
-    if (! X11::grabKeyboard(X11::getRoot())) {
-        return;
-    }
-
-    // find the focused window object
-    PWinObj *fo_wo = 0;
-    if (PWinObj::isFocusedPWinObj(PWinObj::WO_CLIENT)) {
-        fo_wo = PWinObj::getFocusedPWinObj()->getParent();
-
-        auto it(menu->m_begin());
-        for (; it != menu->m_end(); ++it) {
-            if ((*it)->getWORef() == fo_wo) {
-                menu->selectItem(it);
-                break;
-            }
-        }
-        fo_wo->setFocused(false);
-    }
-
-    if (pekwm::config()->getShowFrameList()) {
-        menu->buildMenu();
-
-        Geometry head;
-        X11::getHeadInfo(X11Util::getCurrHead(), head);
-        menu->move(head.x + ((head.width - menu->getWidth()) / 2),
-                   head.y + ((head.height - menu->getHeight()) / 2));
-        menu->setFocused(true);
-        menu->mapWindowRaised();
-        _event_loop->skipNextEnter(menu->getWindow());
-    }
-
-    menu->selectItemRel(off);
-    fo_wo = menu->getItemCurr()->getWORef();
-
-    XEvent ev;
-    bool cycling = true;
-    bool was_iconified = false;
-
-    while (cycling) {
-        if (fo_wo) {
-            fo_wo->setFocused(true);
-            if (raise == ALWAYS_RAISE) {
-                // Make sure it's not iconified if raise is on.
-                if (fo_wo->isIconified()) {
-                    was_iconified = true;
-                    fo_wo->mapWindow();
-                }
-                fo_wo->raise();
-            } else if (raise == TEMP_RAISE) {
-                X11::raiseWindow(fo_wo->getWindow());
-                X11::raiseWindow(menu->getWindow());
-            }
-        }
-
-        XMaskEvent(X11::getDpy(), KeyPressMask|KeyReleaseMask, &ev);
-        if (ev.type == KeyPress) {
-            if (ev.xkey.keycode == button) {
-                if (fo_wo) {
-                    if (raise == TEMP_RAISE) {
-                        Workspaces::fixStacking(fo_wo);
-                    }
-                    // Restore iconified state
-                    if (was_iconified) {
-                        was_iconified = false;
-                        fo_wo->iconify();
-                    }
-                    fo_wo->setFocused(false);
-                }
-
-                menu->selectItemRel(off);
-                fo_wo = menu->getItemCurr()->getWORef();
-            } else {
-                XPutBackEvent(X11::getDpy(), &ev);
-                cycling = false;
-            }
-        } else if (ev.type == KeyRelease) {
-            if (IsModifierKey(X11::getKeysymFromKeycode(ev.xkey.keycode))) {
-                cycling = false;
-            }
-        } else {
-            XPutBackEvent(X11::getDpy(), &ev);
-        }
-    }
-
-    X11::ungrabKeyboard();
-
-    // Got something to focus
-    if (fo_wo) {
-        if (raise == TEMP_RAISE) {
-            fo_wo->raise();
-            fo_wo->setFocused(true);
-        }
-
-        // De-iconify if iconified, user probably wants this
-        if (fo_wo->isIconified()) {
-            // If the window was iconfied, and sticky
-            fo_wo->setWorkspace(Workspaces::getActive());
-            fo_wo->mapWindow();
-            fo_wo->raise();
-        } else if (Raise(raise) == END_RAISE) {
-            fo_wo->raise();
-        }
-
-        // Give focus
-        fo_wo->giveInputFocus();
-    }
-}
-
-
 //! @brief Finds a window in direction and gives it focus
 void
 ActionHandler::actionFocusDirectional(PWinObj *wo, DirectionType dir, bool raise)
@@ -940,46 +819,6 @@ ActionHandler::actionWarpPointer(int x, int y)
     }
     X11::warpPointer(x, y);
     return true;
-}
-
-//! @brief Creates a menu containing a list of Frames currently visible
-//! @param show_iconified Flag to show/hide iconified windows
-//! @param mru Whether MRU order should be used or not.
-PMenu*
-ActionHandler::createNextPrevMenu(bool show_iconified, bool mru)
-{
-    auto menu = new PMenu(mru ? L"MRU Windows" : L"Windows", "" /* name*/);
-
-    auto it = mru ? Workspaces::mru_begin() : Frame::frame_begin();
-    auto end = mru ? Workspaces::mru_end() : Frame::frame_end();
-    for (; it != end; ++it) {
-        auto frame = *it;
-        if (createMenuInclude(frame, show_iconified)) {
-            auto client = static_cast<Client*>(frame->getActiveChild());
-            menu->insert(client->getTitle()->getVisible(), ActionEvent(), frame,
-                         client->getIcon());
-        }
-    }
-
-    return menu;
-}
-
-/**
- * Helper to decide wheter or not to include Frame in menu
- *
- * @param frame Frame to check
- * @param show_iconified Wheter or not to include iconified windows
- * @return true if it should be included, else false
- */
-bool
-ActionHandler::createMenuInclude(Frame *frame, bool show_iconified)
-{
-    // focw == frame on current workspace
-    bool focw = frame->isSticky()
-        || frame->getWorkspace() == Workspaces::getActive();
-    // ibs == iconified but should be shown
-    bool ibs = (!frame->isIconified() || show_iconified) && focw;
-    return ! frame->isSkip(SKIP_FOCUS_TOGGLE) && frame->isFocusable() && ibs;
 }
 
 //! @brief Searches the client list for a client with a title matching title

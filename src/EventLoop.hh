@@ -20,6 +20,4 @@ extern "C" {
 class EventLoop {
 public:
     virtual void setEventHandler(EventHandler* event_handler) = 0;
-
-    virtual void skipNextEnter(Window window) = 0;
 };

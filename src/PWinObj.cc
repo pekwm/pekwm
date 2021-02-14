@@ -14,8 +14,10 @@
 #include "Debug.hh"
 #include "PWinObj.hh"
 
-PWinObj* PWinObj::_focused_wo = (PWinObj*) 0;
-PWinObj* PWinObj::_root_wo = (PWinObj*) 0;
+Window PWinObj::_win_skip_enter_after = None;
+PWinObj* PWinObj::_skip_enter_after = nullptr;
+PWinObj* PWinObj::_focused_wo = nullptr;
+PWinObj* PWinObj::_root_wo = nullptr;
 std::vector<PWinObj*> PWinObj::_wo_list = std::vector<PWinObj*>();
 std::map<Window, PWinObj*> PWinObj::_wo_map = std::map<Window, PWinObj*>();
 
@@ -37,6 +39,10 @@ PWinObj::~PWinObj(void)
 {
     if (_focused_wo == this) {
         _focused_wo = 0;
+    }
+    if (_skip_enter_after == this) {
+        _skip_enter_after = nullptr;
+        _win_skip_enter_after = _window;
     }
     notifyObservers(0);
 }

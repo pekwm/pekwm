@@ -48,11 +48,6 @@ public:
         return _restart_command;
     }
 
-    void skipNextEnter(Window win) override {
-        _skip_enter_after = win;
-        _skip_enter = 0;
-    }
-
     void setEventHandler(EventHandler *event_handler) {
         if (_event_handler) {
             delete _event_handler;
@@ -143,10 +138,10 @@ private:
 
     EdgeWO *_screen_edges[4];
 
-    /** On Enter event to this window, skip the next Enter event. Used
-        to disable enter events caused by showing/hiding next/prev
-        menu. */
-    Window _skip_enter_after;
-    /** Number of enter events to skip. */
-    uint _skip_enter;
+    /**
+     * If set to true, skip next enter event. Used in conjunction with
+     * PWinObj::setSkipEnterAfter to skip "leave" events caused by
+     * internal windows  such as status dialog.
+     */
+    bool _skip_enter;
 };

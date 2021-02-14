@@ -13,7 +13,6 @@
 #include <string>
 
 #include "pekwm.hh"
-#include "EventLoop.hh"
 #include "WinLayouter.hh"
 #include "WorkspaceIndicator.hh"
 
@@ -58,8 +57,8 @@ public:
     typedef std::vector<PWinObj*>::const_reverse_iterator
         const_reverse_iterator;
 
-    static void init(EventLoop* event_loop);
-    static void cleanup();
+    static void init(void);
+    static void cleanup(void);
 
     static inline iterator begin(void) { return _wobjs.begin(); }
     static inline iterator end(void) { return _wobjs.end(); }
@@ -166,7 +165,6 @@ private:
     static uint _previous; /**< Previous workspace. */
     static uint _per_row; /**< Workspaces per row in layout. */
 
-    static EventLoop* _event_loop;
     /** Window popping up when switching workspace */
     static WorkspaceIndicator *_workspace_indicator;
 

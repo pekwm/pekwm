@@ -49,8 +49,6 @@ private:
     void actionGotoWorkspace(uint workspace, bool warp);
     void actionSendToWorkspace(PDecor *decor, int direction);
     void actionWarpToWorkspace(PDecor *decor, uint direction);
-    void actionFocusToggle(uint button, uint raise, int off,
-                           bool show_iconified, bool mru);
     void actionFocusDirectional(PWinObj *wo, DirectionType dir, bool raise);
     bool actionSendKey(PWinObj *wo, const std::string &key_str);
     static void actionSetOpacity(PWinObj *client, PWinObj *frame,
@@ -64,9 +62,6 @@ private:
     // action helpers
     Client *findClientFromTitle(const std::wstring &title);
     void gotoClient(Client *client);
-
-    PMenu *createNextPrevMenu(bool show_iconified, bool mru);
-    bool createMenuInclude(Frame *frame, bool show_iconified);
 
     void initSendKeyEvent(XEvent &ev, PWinObj *wo);
 

@@ -153,8 +153,7 @@ WindowManager::WindowManager()
       _restart(false),
       _bg_pid(-1),
       _event_handler(nullptr),
-      _skip_enter_after(None),
-      _skip_enter(0)
+      _skip_enter(false)
 {
     pekwm::setIsStartup(false),
 
@@ -268,7 +267,7 @@ WindowManager::setupDisplay(Display* dpy)
 {
     pekwm::autoProperties()->load();
 
-    Workspaces::init(this);
+    Workspaces::init();
     Workspaces::setSize(pekwm::config()->getWorkspaces());
     Workspaces::setPerRow(pekwm::config()->getWorkspacesPerRow());
 
@@ -1169,16 +1168,15 @@ WindowManager::handleEnterNotify(XCrossingEvent *ev)
     // event to have no effect, multiple consequitive enter events on
     // this window just keeps on making the next enter event being
     // marked to be skipped.
-    if (ev->window == _skip_enter_after) {
-        _skip_enter = 1;
+    if (PWinObj::isSkipEnterAfter(ev->window)) {
+        _skip_enter = true;
         return;
     }
+    PWinObj::setSkipEnterAfter(nullptr);
     if (_skip_enter) {
-        _skip_enter = 0;
-        _skip_enter_after = None;
+        _skip_enter = false;
         return;
     }
-    _skip_enter_after = None;
 
     // Clear event queue
     while (X11::checkTypedEvent(EnterNotify, (XEvent *) ev)) {
