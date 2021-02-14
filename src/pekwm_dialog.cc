@@ -94,9 +94,9 @@ public:
             return false;
         }
         virtual bool click(Window window) { return false; }
-        virtual void render(void) = 0;
+        virtual void render(Pixmap pix) = 0;
 
-        virtual void place(int x, int y, uint width)
+        virtual void place(int x, int y, uint width, uint tot_height)
         {
             _gm.x = x;
             _gm.y = y;
@@ -138,28 +138,32 @@ public:
               _retcode(retcode),
               _text(text),
               _font(data->getButtonFont()),
+              _background(None),
               _state(BUTTON_STATE_FOCUSED)
         {
+            _gm.width = widthReq();
+            _gm.height = heightReq(_gm.width);
+            _background = X11::createPixmap(_gm.width, _gm.height);
+
             XSetWindowAttributes attr;
-            attr.background_pixel = X11::getWhitePixel();
+            attr.background_pixmap = _background;
             attr.override_redirect = True;
             attr.event_mask =
                 ButtonPressMask|ButtonReleaseMask|
                 EnterWindowMask|LeaveWindowMask;
-            _gm.width = widthReq();
-            _gm.height = heightReq(_gm.width);
 
             setWindow(X11::createWindow(_parent.getWindow(),
                                         0, 0, _gm.width, _gm.height, 0,
                                         CopyFromParent, InputOutput,
                                         CopyFromParent,
                                         CWEventMask|CWOverrideRedirect|
-                                        CWBackPixel, &attr));
+                                        CWBackPixmap, &attr));
             X11::mapWindow(_window);
         }
 
         virtual ~Button(void)
         {
+            X11::freePixmap(_background);
         }
 
         virtual bool setState(Window window, ButtonState state) override {
@@ -167,7 +171,7 @@ public:
                 return false;
             }
             _state = state;
-            render();
+            render(None);
             return true;
         }
 
@@ -182,8 +186,8 @@ public:
             return true;
         }
 
-        virtual void place(int x, int y, uint width) override {
-            Widget::place(x, y, _gm.width);
+        virtual void place(int x, int y, uint width, uint tot_height) override {
+            Widget::place(x, y, _gm.width, tot_height);
             X11::moveWindow(_window, _gm.x, _gm.y);
         }
 
@@ -195,20 +199,23 @@ public:
             return _font->getHeight() + _data->padHorz();
         }
 
-        virtual void render(void) override {
-            X11::clearWindow(_window);
-            _data->getButton(_state)->render(_window, 0, 0,
+        virtual void render(Pixmap pix) override {
+            _data->getButton(_state)->render(_background, 0, 0,
                                             _gm.width, _gm.height);
             _font->setColor(_data->getButtonColor());
-            _font->draw(_window,
+            _font->draw(_background,
                         _data->getPad(PAD_LEFT), _data->getPad(PAD_UP),
                         _text);
+
+            X11::clearWindow(_window);
         }
 
     private:
         int _retcode;
         std::wstring _text;
         PFont *_font;
+
+        Pixmap _background;
         ButtonState _state;
     };
 
@@ -251,9 +258,9 @@ public:
 
         }
 
-        virtual void place(int x, int y, uint width) override
+        virtual void place(int x, int y, uint width, uint tot_height) override
         {
-            Widget::place(x, y, width);
+            Widget::place(x, y, width, tot_height);
 
             // place buttons centered on available width
             uint buttons_width = 0;
@@ -263,9 +270,14 @@ public:
             buttons_width += _buttons.size() * _data->padHorz();
 
             x = (width - buttons_width) / 2;
-            y += _data->getPad(PAD_UP);
+            if (tot_height) {
+                y = tot_height - _data->getPad(PAD_DOWN)
+                    - _buttons[0]->heightReq(width);
+            } else {
+                y += _data->getPad(PAD_UP);
+            }
             for (auto it : _buttons) {
-                it->place(x, y, width);
+                it->place(x, y, width, tot_height);
                 x += it->widthReq() + _data->padHorz();
             }
         }
@@ -281,9 +293,9 @@ public:
             return height + _data->padVert();
         }
 
-        virtual void render(void) override {
+        virtual void render(Pixmap pix) override {
             for (auto it : _buttons) {
-                it->render();
+                it->render(pix);
             }
         }
 
@@ -314,16 +326,16 @@ public:
             return _image->getHeight();
         }
 
-        virtual void render(void) override
+        virtual void render(Pixmap pix) override
         {
             if (_image->getWidth() > _gm.width) {
                 float aspect = float(_image->getWidth()) / _image->getHeight();
-                _image->draw(_parent.getWindow(),
+                _image->draw(pix,
                              _gm.x, _gm.y, _gm.width, _gm.width / aspect);
             } else {
                 // render image centered on available width
                 uint x = (_gm.width - _image->getWidth()) / 2;
-                _image->draw(_parent.getWindow(),
+                _image->draw(pix,
                              x, _gm.y,
                              _image->getWidth(), _image->getHeight());
             }
@@ -346,12 +358,12 @@ public:
         }
         virtual ~Text(void) { }
 
-        virtual void place(int x, int y, uint width)
+        virtual void place(int x, int y, uint width, uint tot_height) override
         {
             if (width != _gm.width) {
                 _lines.clear();
             }
-            Widget::place(x, y, width);
+            Widget::place(x, y, width, tot_height);
         }
 
         virtual uint heightReq(uint width) const override
@@ -361,7 +373,7 @@ public:
             return _font->getHeight() * num_lines + _data->padVert();
         }
 
-        virtual void render(void) override
+        virtual void render(Pixmap pix) override
         {
             if (_lines.empty()) {
                 getLines(_gm.width, _lines);
@@ -372,7 +384,7 @@ public:
 
             uint y = _gm.y + _data->getPad(PAD_UP);
             for (auto line : _lines) {
-                _font->draw(_parent.getWindow(),
+                _font->draw(pix,
                             _gm.x + _data->getPad(PAD_LEFT), y,
                             line);
                 y += _font->getHeight();
@@ -425,7 +437,8 @@ public:
                 std::vector<std::wstring> options)
         : PWinObj(true),
           _data(data),
-          _raise(raise)
+          _raise(raise),
+          _background(None)
     {
         _gm = gm;
 
@@ -440,34 +453,54 @@ public:
         for (auto it : _widgets) {
             delete it;
         }
+        X11::freePixmap(_background);
         X11::destroyWindow(_window);
     }
 
     virtual void resize(uint width, uint height) override
     {
-        PWinObj::resize(width, height);
-        for (auto it : _widgets) {
-            it->place(it->getX(), it->getY(), width);
+        if (_gm.width == width && _gm.height == height) {
+            return;
         }
+
+        _gm.width = width;
+        _gm.height = height;
+
+        // FIXME: first pass calculating "important" height req, then
+        // assign size left to image
+
+        int y = 0;
+        for (auto it : _widgets) {
+            it->place(it->getX(), y, width, height);
+            y += it->heightReq(width);
+        }
+
+        X11::freePixmap(_background);
         render();
     }
 
     void show(void)
     {
-        X11::mapWindow(_window);
-        if (_raise) {
-            X11::raiseWindow(_window);
-        }
         render();
+        if (_raise) {
+            X11::mapRaised(_window);
+        } else {
+            X11::mapWindow(_window);
+        }
     }
 
     void render(void)
     {
-        X11::clearWindow(_window);
-        _data->getBackground()->render(_window, 0, 0, _gm.width, _gm.height);
-        for (auto it : _widgets) {
-            it->render();
+        if (_background == None) {
+            _background = X11::createPixmap(_gm.width, _gm.height);
+            X11::setWindowBackgroundPixmap(_window, _background);
         }
+        _data->getBackground()->render(_background,
+                                       0, 0, _gm.width, _gm.height);
+        for (auto it : _widgets) {
+            it->render(_background);
+        }
+        X11::clearWindow(_window);
     }
 
     void setState(Window window, ButtonState state)
@@ -495,8 +528,7 @@ protected:
             X11::createSimpleWindow(X11::getRoot(),
                                     _gm.x, _gm.y, _gm.width, _gm.height, 0,
                                     X11::getBlackPixel(), X11::getWhitePixel());
-        X11::selectInput(_window,
-                         ExposureMask|StructureNotifyMask);
+        X11::selectInput(_window, StructureNotifyMask);
 
         auto c_title = new uchar[title.size() + 1];
         memcpy(c_title, title.c_str(), title.size() + 1);
@@ -555,7 +587,7 @@ protected:
 
         uint y = 0;
         for (auto it : _widgets) {
-            it->place(0, y, width);
+            it->place(0, y, width, 0);
             y += it->heightReq(width);
         }
 
@@ -565,6 +597,8 @@ protected:
 private:
     Theme::DialogData* _data;
     bool _raise;
+
+    Pixmap _background;
     std::vector<Widget*> _widgets;
 };
 
@@ -610,12 +644,6 @@ static int mainLoop(PekwmDialog& dialog)
             break;
         case EnterNotify:
             dialog.setState(ev.xbutton.window, BUTTON_STATE_HOVER);
-            break;
-        case Expose:
-            // Flush queued expose events if they are queued up
-            while (XCheckMaskEvent(X11::getDpy(), ExposureMask, &ev) == True)
-                ;
-            dialog.render();
             break;
         case LeaveNotify:
             dialog.setState(ev.xbutton.window, BUTTON_STATE_FOCUSED);
