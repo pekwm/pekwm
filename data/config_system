@@ -14,7 +14,7 @@ MoveResize {
     WindowAttract = "5"
     WindowResist = "5"
     OpaqueMove = "True"
-    OpaqueResize = "False"
+    OpaqueResize = "True"
 }
 
 Screen {
