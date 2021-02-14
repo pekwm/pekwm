@@ -24,6 +24,7 @@ public:
           _show_status_window(cfg->isShowStatusWindow()),
           _center_on_root(cfg->isShowStatusWindowOnRoot()),
           _curr_edge(SCREEN_EDGE_NO),
+          _init(false),
           _decor(decor)
     {
         decor->getGeometry(_gm);
@@ -38,6 +39,7 @@ public:
         if (_decor) {
             _decor->removeObserver(this);
         }
+        stopMove();
     }
 
     virtual void notify(Observable *observable,
@@ -49,15 +51,15 @@ public:
         }
     }
 
-    virtual EventHandler::Result
-    handleButtonPressEvent(XButtonEvent *ev) override
+    virtual bool
+    initEventHandler(void) override
     {
         if (! _decor
             || ! _decor->allowMove()
             || ! X11::grabPointer(X11::getRoot(),
                                   ButtonMotionMask|ButtonReleaseMask,
                                   CURSOR_MOVE)) {
-            return EventHandler::EVENT_STOP_PROCESSED;
+            return false;
         }
 
         // Grab server to avoid any events causing garbage on the
@@ -66,17 +68,16 @@ public:
             X11::grabServer();
             drawOutline();
         }
+        updateStatusWindow(true);
 
-        if (_show_status_window) {
-            wchar_t buf[128];
-            _decor->getDecorInfo(buf, 128);
+        _init = true;
+        return true;
+    }
 
-            auto sw = pekwm::statusWindow();
-            sw->draw(buf, true, _center_on_root ? 0 : &_gm);
-            sw->mapWindowRaised();
-            sw->draw(buf, true, _center_on_root ? 0 : &_gm);
-        }
-
+    virtual EventHandler::Result
+    handleButtonPressEvent(XButtonEvent *ev) override
+    {
+        // mark as processed disabling wm processing of these events.
         return EventHandler::EVENT_PROCESSED;
     }
 
@@ -90,6 +91,13 @@ public:
         }
 
         return EventHandler::EVENT_STOP_PROCESSED;
+    }
+
+    virtual EventHandler::Result
+    handleKeyEvent(XKeyEvent *ev) override
+    {
+        // mark as processed disabling wm processing of these events.
+        return EventHandler::EVENT_PROCESSED;
     }
 
     virtual EventHandler::Result
@@ -121,33 +129,47 @@ public:
             }
         }
 
-        wchar_t buf[128];
-        _decor->getDecorInfo(buf, 128);
-        if (_show_status_window) {
-            pekwm::statusWindow()->draw(buf, true, _center_on_root ? 0 : &_gm);
-        }
-
         drawOutline();
+        updateStatusWindow(false);
 
         return EventHandler::EVENT_PROCESSED;
     }
 
 private:
     EventHandler::Result stopMove(void) {
-        if (_show_status_window) {
-            pekwm::statusWindow()->unmapWindow();
+        if (_init) {
+            if (_show_status_window) {
+                pekwm::statusWindow()->unmapWindow();
+            }
+            if (_outline) {
+                drawOutline(); // clear
+                X11::ungrabServer(true);
+            }
+            X11::ungrabPointer();
+            _init = false;
         }
-        if (_outline) {
-            drawOutline(); // clear
-            X11::ungrabServer(true);
-        }
-        X11::ungrabPointer();
         return EventHandler::EVENT_STOP_SKIP;
     }
 
     void drawOutline(void) {
         if (_outline) {
             _decor->drawOutline(_gm);
+        }
+    }
+
+    void updateStatusWindow(bool map) {
+        if (_show_status_window) {
+            wchar_t buf[128];
+            _decor->getDecorInfo(buf, 128, _gm);
+
+            auto sw = pekwm::statusWindow();
+            if (map) {
+                // draw before map to avoid resize right after the
+                // window is mapped.
+                sw->draw(buf, true, _center_on_root ? 0 : &_gm);
+                sw->mapWindowRaised();
+            }
+            sw->draw(buf, true, _center_on_root ? 0 : &_gm);
         }
     }
 
@@ -184,7 +206,6 @@ private:
         }
     }
 
-
 private:
     Config *_cfg;
 
@@ -198,5 +219,6 @@ private:
     int _x;
     int _y;
 
+    bool _init;
     PDecor *_decor;
 };

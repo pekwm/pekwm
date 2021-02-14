@@ -40,6 +40,7 @@ std::vector<Frame*> Frame::_frames;
 std::vector<uint> Frame::_frameid_list;
 
 ActionEvent Frame::_ae_move = ActionEvent(Action(ACTION_MOVE));
+ActionEvent Frame::_ae_move_resize = ActionEvent(Action(ACTION_MOVE_RESIZE));
 
 Frame* Frame::_tag_frame = nullptr;
 bool Frame::_tag_behind = false;
@@ -554,10 +555,10 @@ Frame::updatedActiveChild(void)
 }
 
 void
-Frame::getDecorInfo(wchar_t *buf, uint size)
+Frame::getDecorInfo(wchar_t *buf, uint size, const Geometry& gm)
 {
     uint width, height;
-    calcSizeInCells(width, height);
+    calcSizeInCells(width, height, gm);
     swprintf(buf, size, L"%d+%d+%d+%d", width, height, _gm.x, _gm.y);
 }
 
@@ -1203,7 +1204,7 @@ Frame::doResize(bool left, bool x, bool top, bool y)
     X11::getMousePosition(pointer_x, pointer_y);
 
     wchar_t buf[128];
-    getDecorInfo(buf, 128);
+    getDecorInfo(buf, 128, _gm);
 
     bool center_on_root = pekwm::config()->isShowStatusWindowOnRoot();
     StatusWindow *sw = pekwm::statusWindow();
@@ -1246,7 +1247,7 @@ Frame::doResize(bool left, bool x, bool top, bool y)
 
             recalcResizeDrag(new_x, new_y, left, top);
 
-            getDecorInfo(buf, 128);
+            getDecorInfo(buf, 128, _gm);
             if (pekwm::config()->isShowStatusWindow()) {
                 sw->draw(buf, true, center_on_root ? 0 : &_gm);
             }
@@ -1993,18 +1994,28 @@ Frame::readAutoprops(ApplyOn type)
     }
 }
 
-//! @brief Figure out how large the frame is in cells.
+/**
+ * Return how large the frame is in cells.
+ */
 void
-Frame::calcSizeInCells(uint &width, uint &height)
+Frame::calcSizeInCells(uint &width, uint &height, const Geometry& gm)
 {
     auto hints = _client->getActiveSizeHints();
 
     if (hints.flags&PResizeInc) {
-        width = (getChildWidth() - hints.base_width) / hints.width_inc;
-        height = (getChildHeight() - hints.base_height) / hints.height_inc;
+        int c_width = gm.width - bdLeft(this) - bdRight(this);
+        if (c_width < 1) {
+            c_width = 1;
+        }
+        int c_height = gm.height - decorHeight(this);
+        if (c_height < 1) {
+            c_height = 1;
+        }
+        width = (c_width - hints.base_width) / hints.width_inc;
+        height = (c_height - hints.base_height) / hints.height_inc;
     } else {
-        width = _gm.width;
-        height = _gm.height;
+        width = gm.width;
+        height = gm.height;
     }
 }
 
@@ -2256,7 +2267,7 @@ Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
             break;
         case NET_WM_MOVERESIZE_SIZE_KEYBOARD:
         case NET_WM_MOVERESIZE_MOVE_KEYBOARD:
-            doKeyboardMoveResize();
+            ae = &_ae_move_resize;
             break;
         }
     }

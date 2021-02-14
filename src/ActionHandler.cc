@@ -35,6 +35,7 @@
 #include "x11.hh"
 
 #include "MoveEventHandler.hh"
+#include "KeyboardMoveResizeEventHandler.hh"
 
 #include <memory>
 
@@ -124,9 +125,14 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                     frame->doResize(BorderPosition(it->getParamI(0)-1));
                 }
                 break;
-            case ACTION_MOVE_RESIZE:
-                frame->doKeyboardMoveResize();
+            case ACTION_MOVE_RESIZE: {
+                auto event_handler =
+                    new KeyboardMoveResizeEventHandler(pekwm::config(),
+                                                       pekwm::keyGrabber(),
+                                                       decor);
+                setEventHandler(event_handler);
                 break;
+            }
             case ACTION_CLOSE:
                 client->close();
                 break;
@@ -271,7 +277,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 auto event_handler =
                     new MoveEventHandler(pekwm::config(), decor,
                                          x_root, y_root);
-                _event_loop->setEventHandler(event_handler);
+                setEventHandler(event_handler);
                 break;
             }
             case ACTION_CLOSE:
@@ -1108,4 +1114,14 @@ ActionHandler::calcWorkspaceNum(const Action& action)
             + action.getParamI(2);
     }
     return action.getParamI(0);
+}
+
+void
+ActionHandler::setEventHandler(EventHandler *event_handler)
+{
+    if (event_handler->initEventHandler()) {
+        _event_loop->setEventHandler(event_handler);
+    } else {
+        delete event_handler;
+    }
 }

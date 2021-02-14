@@ -169,7 +169,7 @@ public:
     virtual void updatedChildOrder(void) { }
     virtual void updatedActiveChild(void) { }
 
-    virtual void getDecorInfo(wchar_t *buf, uint size);
+    virtual void getDecorInfo(wchar_t *buf, uint size, const Geometry& gm);
 
     virtual void setShaded(StateAction sa);
     virtual void setSkip(uint skip);
@@ -283,9 +283,6 @@ public:
             updateDecor();
         }
     }
-
-    // common actions like doMove
-    void doKeyboardMoveResize(void);
 
     bool isFullscreen(void) const { return _fullscreen; }
 

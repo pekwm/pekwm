@@ -75,6 +75,8 @@ private:
 
     int calcWorkspaceNum(const Action& action);
 
+    void setEventHandler(EventHandler *event_handler);
+
 private:
     AppCtrl* _app_ctrl;
     EventLoop* _event_loop;

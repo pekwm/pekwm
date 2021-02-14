@@ -26,8 +26,11 @@ public:
 
     virtual ~EventHandler(void) { }
 
+    virtual bool initEventHandler(void) = 0;
+
     virtual Result handleButtonPressEvent(XButtonEvent *ev) = 0;
     virtual Result handleButtonReleaseEvent(XButtonEvent *ev) = 0;
+    virtual Result handleKeyEvent(XKeyEvent *ev) = 0;
     virtual Result handleMotionNotifyEvent(XMotionEvent *ev) = 0;
 
 protected:

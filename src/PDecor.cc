@@ -1082,9 +1082,9 @@ PDecor::activateChild(PWinObj *child)
 }
 
 void
-PDecor::getDecorInfo(wchar_t *buf, uint size)
+PDecor::getDecorInfo(wchar_t *buf, uint size, const Geometry& gm)
 {
-    swprintf(buf, size, L"%dx%d+%d+%d", _gm.width, _gm.height, _gm.x, _gm.y);
+    swprintf(buf, size, L"%dx%d+%d+%d", gm.width, gm.height, gm.x, gm.y);
 }
 
 void
@@ -1147,160 +1147,10 @@ PDecor::moveChildRel(int off)
         off += size;
     }
 
-    _children.erase(std::remove(_children.begin(), _children.end(), _child), _children.end());
+    _children.erase(std::remove(_children.begin(), _children.end(), _child),
+                    _children.end());
     _children.insert(_children.begin()+off, _child);
     updatedChildOrder();
-}
-
-/**
- * Move and resize window with keybindings.
- */
-void
-PDecor::doKeyboardMoveResize(void)
-{
-    auto sw = pekwm::statusWindow();
-    if (! X11::grabPointer(X11::getRoot(), NoEventMask, CURSOR_MOVE)) {
-        return;
-    }
-    if (! X11::grabKeyboard(X11::getRoot())) {
-        X11::ungrabPointer();
-        return;
-    }
-
-    Geometry old_gm = _gm; // backup geometry if we cancel
-    bool outline = (! pekwm::config()->getOpaqueMove() ||
-                    ! pekwm::config()->getOpaqueResize());
-    ActionEvent *ae;
-
-    wchar_t buf[128];
-    getDecorInfo(buf, 128);
-
-    bool center_on_root = pekwm::config()->isShowStatusWindowOnRoot();
-    if (pekwm::config()->isShowStatusWindow()) {
-        sw->draw(buf, true, center_on_root ? 0 : &_gm);
-        sw->mapWindowRaised();
-        sw->draw(buf, true, center_on_root ? 0 : &_gm);
-    }
-
-    if (outline) {
-        X11::grabServer();
-    }
-
-    XEvent e;
-    bool exit = false;
-    while (! exit) {
-        if (outline) {
-            drawOutline(_gm);
-        }
-        XMaskEvent(X11::getDpy(), KeyPressMask, &e);
-        if (outline) {
-            drawOutline(_gm); // clear
-        }
-
-        if ((ae = pekwm::keyGrabber()->findMoveResizeAction(&e.xkey)) != 0) {
-            auto it = ae->action_list.begin();
-            for (; it != ae->action_list.end(); ++it) {
-                switch (it->getAction()) {
-                case MOVE_HORIZONTAL:
-                    if (it->getParamI(1) == UNIT_PERCENT) {
-                        Geometry head;
-                        X11::getHeadInfo(X11Util::getNearestHead(*this), head);
-                        _gm.x += (it->getParamI(0)
-                                  * static_cast<int>(head.width)) / 100;
-                    } else {
-                        _gm.x += it->getParamI(0);
-                    }
-                    if (! outline) {
-                        move(_gm.x, _gm.y);
-                    }
-                    break;
-                case MOVE_VERTICAL:
-                    if (it->getParamI(1) == UNIT_PERCENT) {
-                        Geometry head;
-                        X11::getHeadInfo(X11Util::getNearestHead(*this), head);
-                        _gm.y += (it->getParamI(0)
-                                  * static_cast<int>(head.height)) / 100;
-                    } else {
-                        _gm.y +=  it->getParamI(0);
-                    }
-                    if (! outline) {
-                        move(_gm.x, _gm.y);
-                    }
-                    break;
-                case RESIZE_HORIZONTAL:
-                    if (it->getParamI(1) == UNIT_PERCENT) {
-                        Geometry head;
-                        X11::getHeadInfo(X11Util::getNearestHead(*this), head);
-                        _gm.width += (it->getParamI(0)
-                                      * static_cast<int>(head.width)) / 100;
-                    } else {
-                        _gm.width +=  it->getParamI(0);
-                    }
-                    if (! outline) {
-                        resize(_gm.width, _gm.height);
-                    }
-                    break;
-                case RESIZE_VERTICAL:
-                    if (it->getParamI(1) == UNIT_PERCENT) {
-                        Geometry head;
-                        X11::getHeadInfo(X11Util::getNearestHead(*this), head);
-                        _gm.height += (it->getParamI(0)
-                                       * static_cast<int>(head.height)) / 100;
-                    } else {
-                        _gm.height +=  it->getParamI(0);
-                    }
-                    if (! outline) {
-                        resize(_gm.width, _gm.height);
-                    }
-                    break;
-                case MOVE_SNAP:
-                    checkSnap(this, _gm);
-                    if (! outline) {
-                        move(_gm.x, _gm.y);
-                    }
-                    break;
-                case MOVE_CANCEL:
-                    _gm = old_gm; // restore position
-
-                    if (! outline) {
-                        move(_gm.x, _gm.y);
-                        resize(_gm.width, _gm.height);
-                    }
-
-                    exit = true;
-                    break;
-                case MOVE_END:
-                    if (outline) {
-                        if ((_gm.x != old_gm.x) || (_gm.y != old_gm.y))
-                            move(_gm.x, _gm.y);
-                        if ((_gm.width != old_gm.width) || (_gm.height != old_gm.height))
-                            resize(_gm.width, _gm.height);
-                    }
-                    exit = true;
-                    break;
-                default:
-                    // do nothing
-                    break;
-                }
-
-                getDecorInfo(buf, 128);
-                if (pekwm::config()->isShowStatusWindow()) {
-                    sw->draw(buf, true, center_on_root ? 0 : &_gm);
-                }
-            }
-        }
-    }
-
-    if (pekwm::config()->isShowStatusWindow()) {
-        sw->unmapWindow();
-    }
-
-    if (outline) {
-        X11::ungrabServer(true);
-    }
-
-    X11::ungrabKeyboard();
-    X11::ungrabPointer();
 }
 
 //! @brief Sets shaded state

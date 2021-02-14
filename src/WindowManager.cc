@@ -696,6 +696,10 @@ WindowManager::handleEventHandlerEvent(XEvent &ev)
     case ButtonRelease:
         res = _event_handler->handleButtonReleaseEvent(&ev.xbutton);
         break;
+    case KeyPress:
+    case KeyRelease:
+        res = _event_handler->handleKeyEvent(&ev.xkey);
+        break;
     case MotionNotify:
         res = _event_handler->handleMotionNotifyEvent(&ev.xmotion);
         break;

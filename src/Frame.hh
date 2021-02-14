@@ -58,7 +58,8 @@ public:
     virtual void updatedChildOrder(void) override;
     virtual void updatedActiveChild(void) override;
 
-    virtual void getDecorInfo(wchar_t *buf, uint size) override;
+    virtual void getDecorInfo(wchar_t *buf, uint size,
+                              const Geometry& gm) override;
 
     virtual void giveInputFocus(void) override;
     virtual void setShaded(StateAction sa) override;
@@ -183,7 +184,7 @@ private:
 
     void recalcResizeDrag(int nx, int ny, bool left, bool top);
     void getMaxBounds(int &max_x,int &max_r, int &max_y, int &max_b);
-    void calcSizeInCells(uint &width, uint &height);
+    void calcSizeInCells(uint &width, uint &height, const Geometry& gm);
     void setGravityPosition(int gravity, int &x, int &y,
                             int diff_w, int diff_h);
     void downSize(Geometry &gm, bool keep_x, bool keep_y);
@@ -216,6 +217,7 @@ private:
     static std::vector<uint> _frameid_list; //!< Vector of free Frame IDs.
 
     static ActionEvent _ae_move;
+    static ActionEvent _ae_move_resize;
 
     // Tagging, static as only one Frame can be tagged
     static Frame *_tag_frame; //!< Pointer to tagged frame.
