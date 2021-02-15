@@ -6,6 +6,11 @@ Bug fixes
 
 * **#7 new windows fail to appear on fbpanel taskbar and pager**,
   regression introduced in 0.1.18.
+* **#14 zombines during move resize**, executing external commands
+  while moving a window did not collect all child processes.
+* Size specification was ignored on plain textures (except solid),
+  it is now read and can cause issues on themes that have incorrectly
+  specified them.
 
 New
 ---
