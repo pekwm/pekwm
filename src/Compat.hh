@@ -13,6 +13,10 @@
 #include <cwchar>
 #include <cstddef>
 
+#ifndef WAIT_ANY
+#define WAIT_ANY -1
+#endif // WAIT_ANY
+
 #ifndef HAVE_SWPRINTF
 namespace std {
     int swprintf(wchar_t *wcs, size_t maxlen, const wchar_t *format, ...);

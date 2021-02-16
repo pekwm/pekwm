@@ -63,6 +63,9 @@ extern "C" {
 #endif // HAVE_XRANDR
 }
 
+// include after all includes to get ifndefs right
+#include "Compat.hh"
+
 extern "C" {
 
     static bool is_signal = false;
