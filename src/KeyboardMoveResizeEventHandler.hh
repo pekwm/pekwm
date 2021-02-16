@@ -250,6 +250,7 @@ public:
                 X11::ungrabServer(true);
             }
             X11::ungrabPointer();
+            X11::ungrabKeyboard();
             _init = false;
         }
         return EventHandler::EVENT_STOP_SKIP;
