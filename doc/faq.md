@@ -380,6 +380,22 @@ Screen {
 You need to set the environment variable `GDK_CORE_DEVICE_EVENTS` to
 1.
 
+### Cannot switch back to fullscreen windows with NextFrame or similar commands
+
+Some applications (notably games) could iconify themselves when losing
+focus. So if you switch to another window with NextFrame, PrevFrame or
+their MRU equivalents and could not switch back to the original
+window, this may be because iconified windows are hidden in those
+menus by default.
+
+You should be able to see and select them with `ShowMenu Icon`
+command. But if you want to fix your "Alt-Tab", set the second
+argument to true to include iconified windows as well, e.g.
+
+```
+	KeyPress = "Mod1 Tab" { Actions = "NextFrameMRU TempRaise True" }
+```
+
 ***
 
 [< Previous (Themes)](themes.md) - [(Development) Next >](development.md)
