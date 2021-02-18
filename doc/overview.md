@@ -134,14 +134,15 @@ the cmake command line as:
 
 ### Options to reduce the size
 
-| Option           | Default | Description                                                          |
-|------------------|---------|----------------------------------------------------------------------|
-| ENABLE_SHAPE     | ON      | Enables the use of the Xshape extension for non-rectangular windows. |
-| ENABLE_XINERAMA  | ON      | Enables Xinerama multi screen support                                |
-| ENABLE_RANDR     | ON      | Enables RandR multi screen support                                   |
-| ENABLE_XFT       | ON      | Enables Xft font support in pekwm (themes).                          |
-| ENABLE_IMAGE_XPM | ON      | XPM image support using libXpm.                                      |
-| ENABLE_IMAGE_PNG | ON      | PNG image support using libpng.                                      |
+| Option            | Default | Description                                                          |
+|-------------------|---------|----------------------------------------------------------------------|
+| ENABLE_SHAPE      | ON      | Enables the use of the Xshape extension for non-rectangular windows. |
+| ENABLE_XINERAMA   | ON      | Enables Xinerama multi screen support                                |
+| ENABLE_RANDR      | ON      | Enables RandR multi screen support                                   |
+| ENABLE_XFT        | ON      | Enables Xft font support in pekwm (themes).                          |
+| ENABLE_IMAGE_XPM  | ON      | XPM image support using libXpm.                                      |
+| ENABLE_IMAGE_JPEG | ON      | JPEG image support using libjpeg.                                    |
+| ENABLE_IMAGE_PNG  | ON      | PNG image support using libpng.                                      |
 
 ### Building and installing
 
