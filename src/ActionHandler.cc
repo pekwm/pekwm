@@ -236,17 +236,18 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 menu->selectItemNum(it->getParamI(0));
                 break;
             case ACTION_MENU_SELECT:
-                menu->exec(menu->getItemCurr());
-
-                // special case: execItem can cause an reload to be issued, if that's
-                // the case it causes the list (ae) to change and therefore
-                // it can't be used anymore
-                return;
             case ACTION_MENU_ENTER_SUBMENU:
                 if (menu->getItemCurr() &&
                         menu->getItemCurr()->getWORef() &&
                         (menu->getItemCurr()->getWORef()->getType() == PWinObj::WO_MENU)) {
                     menu->mapSubmenu(static_cast<PMenu*>(menu->getItemCurr()->getWORef()), true);
+                } else if (it->getAction() == ACTION_MENU_SELECT) {
+                    menu->exec(menu->getItemCurr());
+
+                    // special case: execItem can cause an reload to be issued, if that's
+                    // the case it causes the list (ae) to change and therefore
+                    // it can't be used anymore
+                    return;
                 }
                 break;
             case ACTION_MENU_LEAVE_SUBMENU:

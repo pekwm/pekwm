@@ -593,7 +593,7 @@ Goes to item number int. First item in menu is 1.
 
 **Select**
 
-Selects the current menu item.
+Selects the current menu item. If it's a submenu, enter the submenu.
 
 >Menu-specific keybinding
 
