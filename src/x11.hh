@@ -207,7 +207,10 @@ public:
 
     static Cursor getCursor(CursorType type) { return _cursor_map[type]; }
 
-    static bool getNextEvent(XEvent &ev);
+    static void flush(void) { if (_dpy) { XFlush(_dpy); } }
+    static int pending(void) { if (_dpy) { return XPending(_dpy); } return 0; }
+
+    static bool getNextEvent(XEvent &ev, struct timeval *timeout = nullptr);
     static bool grabServer(void);
     static bool ungrabServer(bool sync);
     static bool grabKeyboard(Window win);
@@ -264,6 +267,15 @@ public:
                        PropModeReplace, (uchar *) _atoms, UTF8_STRING+1);
     }
 
+    static bool getWindow(Window win, AtomName aname, Window& value) {
+        uchar *udata = 0;
+        if (getProperty(win, _atoms[aname], XA_WINDOW, 1L, &udata, 0)) {
+            value = *reinterpret_cast<Window*>(udata);
+            X11::free(udata);
+            return true;
+        }
+        return false;
+    }
     static void setWindow(Window win, AtomName aname, Window value) {
         changeProperty(win, _atoms[aname], XA_WINDOW, 32,
                        PropModeReplace, (uchar *) &value, 1);
@@ -550,7 +562,17 @@ public:
             XSetWindowBackgroundPixmap(_dpy, window, pixmap);
         }
     }
-    static void  clearWindow(Window window) { XClearWindow(_dpy, window); }
+    static void  clearWindow(Window window) {
+        if (_dpy) {
+            XClearWindow(_dpy, window);
+        }
+    }
+    static void clearArea(Window window, int x, int y,
+                          uint width, uint height) {
+        if (_dpy) {
+            XClearArea(_dpy, window, x, y, width, height, False);
+        }
+    }
 
 #ifdef HAVE_SHAPE
     static void shapeSelectInput(Window window, ulong mask) {

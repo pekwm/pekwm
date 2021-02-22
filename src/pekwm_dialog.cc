@@ -16,9 +16,11 @@
 #include "Theme.hh"
 #include "PWinObj.hh"
 #include "Util.hh"
+#include "X11App.hh"
 #include "x11.hh"
 
 #include <algorithm>
+#include <functional>
 #include <iostream>
 #include <iomanip>
 #include <vector>
@@ -35,7 +37,6 @@ static const uint WIDTH_DEFAULT = 250;
 static const uint HEIGHT_DEFAULT = 50;
 #define THEME_DEFAULT DATADIR "/pekwm/themes/default/theme"
 
-static int _stop = -1;
 static FontHandler* _font_handler = nullptr;
 static ImageHandler* _image_handler = nullptr;
 static TextureHandler* _texture_handler = nullptr;
@@ -76,7 +77,7 @@ namespace pekwm
  * --------------------------------------------
  *
  */
-class PekwmDialog : public PWinObj {
+class PekwmDialog : public X11App {
 public:
     class Widget{
     public:
@@ -133,8 +134,10 @@ public:
     class Button : public Widget {
     public:
         Button(Theme::DialogData* data, PWinObj& parent,
+               std::function<void(int)> stop,
                int retcode, const std::wstring& text)
             : Widget(data, parent),
+              _stop(stop),
               _retcode(retcode),
               _text(text),
               _font(data->getButtonFont()),
@@ -181,7 +184,7 @@ public:
             }
             if (_state == BUTTON_STATE_HOVER
                 || _state == BUTTON_STATE_PRESSED) {
-                _stop = _retcode;
+                _stop(_retcode);
             }
             return true;
         }
@@ -211,6 +214,7 @@ public:
         }
 
     private:
+        std::function<void(int)> _stop;
         int _retcode;
         std::wstring _text;
         PFont *_font;
@@ -223,12 +227,13 @@ public:
     {
     public:
         ButtonsRow(Theme::DialogData* data, PWinObj& parent,
+                   std::function<void(int)> stop,
                    std::vector<std::wstring> options)
             : Widget(data, parent)
         {
             int i = 0;
             for (auto it : options) {
-                _buttons.push_back(new Button(_data, parent, i++, it));
+                _buttons.push_back(new Button(_data, parent, stop, i++, it));
             }
         }
 
@@ -435,14 +440,11 @@ public:
                 bool raise, const std::wstring& title, PImage* image,
                 const std::wstring& message,
                 std::vector<std::wstring> options)
-        : PWinObj(true),
+        : X11App(gm, title, "dialog", "pekwm_dialog", WINDOW_TYPE_NORMAL),
           _data(data),
           _raise(raise),
           _background(None)
     {
-        _gm = gm;
-
-        initWindow(title);
         // TODO: setup size minimum based on image
         initWidgets(title, image, message, options);
         placeWidgets();
@@ -454,7 +456,36 @@ public:
             delete it;
         }
         X11::freePixmap(_background);
-        X11::destroyWindow(_window);
+    }
+
+    virtual void handleEvent(XEvent *ev)
+    {
+        switch (ev->type) {
+        case ButtonPress:
+            setState(ev->xbutton.window, BUTTON_STATE_PRESSED);
+            break;
+        case ButtonRelease:
+            click(ev->xbutton.window);
+            break;
+        case ConfigureNotify:
+            resize(ev->xconfigure.width, ev->xconfigure.height);
+            break;
+        case EnterNotify:
+            setState(ev->xbutton.window, BUTTON_STATE_HOVER);
+            break;
+        case LeaveNotify:
+            setState(ev->xbutton.window, BUTTON_STATE_FOCUSED);
+            break;
+        case MapNotify:
+            break;
+        case ReparentNotify:
+            break;
+        case UnmapNotify:
+            break;
+        default:
+            DBG("UNKNOWN EVENT " << ev->type);
+            break;
+        }
     }
 
     virtual void resize(uint width, uint height) override
@@ -522,38 +553,6 @@ public:
     }
 
 protected:
-    void initWindow(const std::wstring& title)
-    {
-        _window =
-            X11::createSimpleWindow(X11::getRoot(),
-                                    _gm.x, _gm.y, _gm.width, _gm.height, 0,
-                                    X11::getBlackPixel(), X11::getWhitePixel());
-        X11::selectInput(_window, StructureNotifyMask);
-
-        auto c_title = new uchar[title.size() + 1];
-        memcpy(c_title, title.c_str(), title.size() + 1);
-
-        XSizeHints normal_hints = {0};
-        XWMHints wm_hints = {0};
-        wm_hints.flags = StateHint|InputHint;
-        wm_hints.initial_state = NormalState;
-        wm_hints.input = True;
-
-        char wm_name[] = "dialog";
-        char wm_class[] = "pekwm_dialog";
-        XClassHint class_hint = {wm_name, wm_class};
-
-        auto title_utf8 =
-            Util::to_utf8_str(title.size() ? title : L"pekwm_dialog");
-        Xutf8SetWMProperties(X11::getDpy(), _window,
-                             title_utf8.c_str(), title_utf8.c_str(), 0, 0,
-                             &normal_hints, &wm_hints, &class_hint);
-
-        delete [] c_title;
-
-        X11::setAtom(_window, WINDOW_TYPE, WINDOW_TYPE_NORMAL);
-    }
-
     void initWidgets(const std::wstring& title, PImage* image,
                      const std::wstring& message,
                      std::vector<std::wstring> options)
@@ -567,7 +566,8 @@ protected:
         if (message.size()) {
             _widgets.push_back(new Text(_data, *this, message, false));
         }
-        _widgets.push_back(new ButtonsRow(_data, *this, options));
+        auto stop = [this](int retcode) { this->stop(retcode); };
+        _widgets.push_back(new ButtonsRow(_data, *this, stop, options));
     }
 
     void placeWidgets(void)
@@ -628,40 +628,6 @@ static void usage(const char* name, int ret)
     exit(ret);
 }
 
-static int mainLoop(PekwmDialog& dialog)
-{
-    XEvent ev;
-    while (_stop == -1 && X11::getNextEvent(ev)) {
-        switch (ev.type) {
-        case ButtonPress:
-            dialog.setState(ev.xbutton.window, BUTTON_STATE_PRESSED);
-            break;
-        case ButtonRelease:
-            dialog.click(ev.xbutton.window);
-            break;
-        case ConfigureNotify:
-            dialog.resize(ev.xconfigure.width, ev.xconfigure.height);
-            break;
-        case EnterNotify:
-            dialog.setState(ev.xbutton.window, BUTTON_STATE_HOVER);
-            break;
-        case LeaveNotify:
-            dialog.setState(ev.xbutton.window, BUTTON_STATE_FOCUSED);
-            break;
-        case MapNotify:
-            break;
-        case ReparentNotify:
-            break;
-        case UnmapNotify:
-            break;
-        default:
-            DBG("UNKNOWN EVENT " << ev.type);
-            break;
-        }
-    }
-    return _stop;
-}
-
 static void getThemeDir(const std::string& config_file,
                         std::string& dir, std::string& variant)
 {
@@ -686,7 +652,7 @@ int main(int argc, char* argv[])
     Geometry gm = { 0, 0, WIDTH_DEFAULT, HEIGHT_DEFAULT };
     int gm_mask = WIDTH_VALUE | HEIGHT_VALUE;
     bool raise;
-    std::wstring title;
+    std::wstring title = L"pekwm_dialog";
     std::string config_file = Util::getEnv("PEKWM_CONFIG_FILE");
     std::string image_name;
     std::vector<std::wstring> options;
@@ -794,8 +760,7 @@ int main(int argc, char* argv[])
         PekwmDialog dialog(theme.getDialogData(),
                            gm, raise, title, image, message, options);
         dialog.show();
-
-        ret = mainLoop(dialog);
+        ret = dialog.main(60);
     }
     if (image) {
         _image_handler->returnImage(image);

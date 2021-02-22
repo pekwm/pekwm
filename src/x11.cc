@@ -387,9 +387,9 @@ X11::setLockKeys(void)
 //! @param ev Event to fill in.
 //! @return true if event was fetched, else false.
 bool
-X11::getNextEvent(XEvent &ev)
+X11::getNextEvent(XEvent &ev, struct timeval *timeout)
 {
-    if (XPending(_dpy) > 0) {
+    if (pending()) {
         XNextEvent(_dpy, &ev);
         return true;
     }
@@ -397,12 +397,12 @@ X11::getNextEvent(XEvent &ev)
     int ret;
     fd_set rfds;
 
-    XFlush(_dpy);
+    flush();
 
     FD_ZERO(&rfds);
     FD_SET(_fd, &rfds);
 
-    ret = select(_fd + 1, &rfds, 0, 0, 0);
+    ret = select(_fd + 1, &rfds, nullptr, nullptr, timeout);
     if (ret > 0) {
         XNextEvent(_dpy, &ev);
     }
