@@ -294,8 +294,6 @@ public: // Public Member Functions
     bool getAspectSize(uint *r_w, uint *r_h, uint w, uint h);
     bool getIncSize(const XSizeHints& size,
                     uint *r_w, uint *r_h, uint w, uint h, bool incr=false);
-
-    bool getEwmhStates(NetWMStates &win_states);
     void updateEwmhStates(void);
 
     inline AtomName getWinType(void) const { return _window_type; }

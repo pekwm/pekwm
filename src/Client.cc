@@ -898,21 +898,35 @@ Client::readEwmhHints(void)
 
     // The _NET_WM_STATE overrides the _NET_WM_TYPE
     NetWMStates win_states;
-    if (getEwmhStates(win_states)) {
-        if (win_states.hidden) _iconified = true;
+    if (X11Util::readEwmhStates(_window, win_states)) {
+        if (win_states.hidden
+            && ! isCfgDeny(CFG_DENY_STATE_HIDDEN)) {
+            _iconified = true;
+        }
         if (win_states.shaded) _state.shaded = true;
-        if (win_states.max_vert) _state.maximized_vert = true;
-        if (win_states.max_horz) _state.maximized_horz = true;
+        if (win_states.max_vert
+            && ! isCfgDeny(CFG_DENY_STATE_MAXIMIZED_VERT)) {
+            _state.maximized_vert = true;
+        }
+        if (win_states.max_horz
+            && ! isCfgDeny(CFG_DENY_STATE_MAXIMIZED_HORZ)) {
+            _state.maximized_horz = true;
+        }
         if (win_states.skip_taskbar) _state.skip |= SKIP_TASKBAR;
         if (win_states.skip_pager) _state.skip |= SKIP_PAGER;
         if (win_states.sticky) _sticky = true;
-        if (win_states.above) {
+        if (win_states.above
+            && ! isCfgDeny(CFG_DENY_STATE_ABOVE)) {
             setLayer(LAYER_ABOVE_DOCK);
         }
-        if (win_states.below) {
+        if (win_states.below
+            && ! isCfgDeny(CFG_DENY_STATE_BELOW)) {
             setLayer(LAYER_BELOW);
         }
-        if (win_states.fullscreen) _state.fullscreen = true;
+        if (win_states.fullscreen
+            && ! isCfgDeny(CFG_DENY_STATE_FULLSCREEN)) {
+            _state.fullscreen = true;
+        }
         _demands_attention = win_states.demands_attention;
     }
 
@@ -1597,56 +1611,6 @@ Client::handleColormapChange(XColormapEvent *e)
     if (e->c_new) {
         _cmap = e->colormap;
         XInstallColormap(X11::getDpy(), _cmap);
-    }
-}
-
-bool
-Client::getEwmhStates(NetWMStates &win_states)
-{
-    int num = 0;
-    Atom *states;
-    states = (Atom*) X11::getEwmhPropData(_window, STATE, XA_ATOM, num);
-
-    if (states) {
-        for (int i = 0; i < num; ++i) {
-            if (states[i] == X11::getAtom(STATE_MODAL)) {
-                win_states.modal = true;
-            } else if (states[i] == X11::getAtom(STATE_STICKY)) {
-                win_states.sticky = true;
-            } else if (states[i] == X11::getAtom(STATE_MAXIMIZED_VERT)
-                       && ! isCfgDeny(CFG_DENY_STATE_MAXIMIZED_VERT)) {
-                win_states.max_vert = true;
-            } else if (states[i] == X11::getAtom(STATE_MAXIMIZED_HORZ)
-                       && ! isCfgDeny(CFG_DENY_STATE_MAXIMIZED_HORZ)) {
-                win_states.max_horz = true;
-            } else if (states[i] == X11::getAtom(STATE_SHADED)) {
-                win_states.shaded = true;
-            } else if (states[i] == X11::getAtom(STATE_SKIP_TASKBAR)) {
-                win_states.skip_taskbar = true;
-            } else if (states[i] == X11::getAtom(STATE_SKIP_PAGER)) {
-                win_states.skip_pager = true;
-            } else if (states[i] == X11::getAtom(STATE_DEMANDS_ATTENTION)) {
-                win_states.demands_attention = true;
-            } else if (states[i] == X11::getAtom(STATE_HIDDEN)
-                       && ! isCfgDeny(CFG_DENY_STATE_HIDDEN)) {
-                win_states.hidden = true;
-            } else if (states[i] == X11::getAtom(STATE_FULLSCREEN)
-                       && ! isCfgDeny(CFG_DENY_STATE_FULLSCREEN)) {
-                win_states.fullscreen = true;
-            } else if (states[i] == X11::getAtom(STATE_ABOVE)
-                       && ! isCfgDeny(CFG_DENY_STATE_ABOVE)) {
-                win_states.above = true;
-            } else if (states[i] == X11::getAtom(STATE_BELOW)
-                       && ! isCfgDeny(CFG_DENY_STATE_BELOW)) {
-                win_states.below = true;
-            }
-        }
-
-        X11::free(states);
-
-        return true;
-    } else {
-        return false;
     }
 }
 
