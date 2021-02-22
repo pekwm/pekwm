@@ -482,7 +482,9 @@ void
 PDecor::raise(void)
 {
     Workspaces::raise(this);
-    Workspaces::updateClientStackingList();
+    if (_type == PWinObj::WO_FRAME) {
+        Workspaces::updateClientStackingList();
+    }
 }
 
 //! @brief Lowers the window, taking _layer into account
@@ -490,7 +492,9 @@ void
 PDecor::lower(void)
 {
     Workspaces::lower(this);
-    Workspaces::updateClientStackingList();
+    if (_type == PWinObj::WO_FRAME) {
+        Workspaces::updateClientStackingList();
+    }
 }
 
 void
