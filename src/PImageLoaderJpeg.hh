@@ -24,6 +24,6 @@ namespace PImageLoaderJpeg
     const char *getExt(void);
     uchar* load(const std::string &file, uint &width, uint &height,
                 bool &use_alpha);
-};
+}
 
 #endif // HAVE_IMAGE_JPEG
