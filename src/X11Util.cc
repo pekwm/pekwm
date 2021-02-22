@@ -6,7 +6,6 @@
 // See the LICENSE file for more information.
 //
 
-#include "Config.hh"
 #include "PWinObj.hh"
 #include "X11Util.hh"
 
@@ -17,10 +16,10 @@ namespace X11Util {
      * head as the cursor is on OR the head where the focused window
      * is on.
      */
-    uint getCurrHead(void)
+    uint getCurrHead(CurrHeadSelector chs)
     {
         PWinObj *wo;
-        switch (pekwm::config()->getCurrHeadSelector()) {
+        switch (chs) {
         case CURR_HEAD_SELECTOR_FOCUSED_WINDOW:
             wo = PWinObj::getFocusedPWinObj();
             if (wo != nullptr) {

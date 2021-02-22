@@ -802,7 +802,8 @@ ActionHandler::actionShowInputDialog(InputDialog *dialog,
         if (frame) {
             frame->getGeometry(gm);
         } else {
-            X11::getHeadInfo(X11Util::getCurrHead(), gm);
+            auto chs = pekwm::config()->getCurrHeadSelector();
+            X11::getHeadInfo(X11Util::getCurrHead(chs), gm);
         }
 
         dialog->mapCentered(initial, gm, frame ? frame : wo);

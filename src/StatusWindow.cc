@@ -88,7 +88,8 @@ StatusWindow::draw(const std::wstring &text, bool do_center, Geometry *gm)
     if (do_center) {
         Geometry head;
         if (! gm) {
-            X11::getHeadInfo(X11Util::getCurrHead(), head);
+            auto chs = pekwm::config()->getCurrHeadSelector();
+            X11::getHeadInfo(X11Util::getCurrHead(chs), head);
             gm = &head;
         }
 

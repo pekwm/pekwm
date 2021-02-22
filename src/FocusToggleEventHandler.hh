@@ -78,7 +78,8 @@ public:
             _menu->buildMenu();
 
             Geometry head;
-            X11::getHeadInfo(X11Util::getCurrHead(), head);
+            auto chs = pekwm::config()->getCurrHeadSelector();
+            X11::getHeadInfo(X11Util::getCurrHead(chs), head);
             _menu->move(head.x + ((head.width - _menu->getWidth()) / 2),
                         head.y + ((head.height - _menu->getHeight()) / 2));
             _menu->setFocused(true);

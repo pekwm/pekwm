@@ -37,6 +37,7 @@ extern "C" {
 #include "ImageHandler.hh"
 #include "TextureHandler.hh"
 #include "ManagerWindows.hh"
+#include "X11Util.hh"
 #include "x11.hh"
 
 const long Client::_clientEventMask = \

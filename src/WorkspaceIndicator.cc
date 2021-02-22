@@ -215,7 +215,8 @@ WorkspaceIndicator::render(void)
 {
     // Center on head
     Geometry head, request;
-    X11::getHeadInfo(X11Util::getCurrHead(), head);
+    auto chs = pekwm::config()->getCurrHeadSelector();
+    X11::getHeadInfo(X11Util::getCurrHead(chs), head);
 
     _display_wo.getSizeRequest(request);
     resizeChild(request.width, request.height);

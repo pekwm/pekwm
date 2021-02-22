@@ -18,7 +18,8 @@ set(util_SOURCES
 set(x11_SOURCES
   PWinObj.cc
   PWinObjReference.cc
-  x11.cc)
+  x11.cc
+  X11Util.cc)
 
 set(texture_SOURCES
   Action.cc
@@ -58,8 +59,7 @@ set(wm_SOURCES
   WindowManager.cc
   WinLayouter.cc
   Workspaces.cc
-  WorkspaceIndicator.cc
-  X11Util.cc)
+  WorkspaceIndicator.cc)
 set(common_INCLUDE_DIRS ${PROJECT_BINARY_DIR}/src ${ICONV_INCLUDE_DIR} ${X11_INCLUDE_DIR})
 set(common_LIBRARIES ${ICONV_LIBRARIES} ${X11_LIBRARIES})
 

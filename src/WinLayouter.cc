@@ -244,7 +244,8 @@ WinLayouter::layout(Frame *frame, Window parent)
     // update pointer position cache, used in layout models.
     X11::getMousePosition(_ptr_x, _ptr_y);
 
-    int head_nr = X11Util::getCurrHead();
+    auto chs = pekwm::config()->getCurrHeadSelector();
+    int head_nr = X11Util::getCurrHead(chs);
     pekwm::rootWo()->getHeadInfoWithEdge(head_nr, _gm);
 
     // Collect the information which head has a fullscreen window.
