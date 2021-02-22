@@ -23,6 +23,7 @@
 
 extern "C" {
 #include <assert.h>
+#include <fcntl.h>
 #include <iconv.h>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -215,6 +216,25 @@ getHostname(void)
     }
 
     return hostname;
+}
+
+/**
+ * Set file descriptor in non-blocking mode.
+ */
+bool
+setNonBlock(int fd)
+{
+    int flags = fcntl(fd, F_GETFL, 0);
+    if (flags == -1) {
+        ERR("failed to get flags from fd " << fd << ": " << strerror(errno));
+        return false;
+    }
+    int ret = fcntl(fd, F_SETFL, flags | O_NONBLOCK);
+    if (ret == -1) {
+        ERR("failed to set O_NONBLOCK on fd " << fd << ": " << strerror(errno));
+        return false;
+    }
+    return true;
 }
 
 //! @brief Determines if the file exists

@@ -108,6 +108,7 @@ namespace Util {
     void forkExec(std::string command);
     pid_t forkExec(const std::vector<std::string>& args);
     std::string getHostname(void);
+    bool setNonBlock(int fd);
 
     bool isFile(const std::string &file);
     bool isExecutable(const std::string &file);
