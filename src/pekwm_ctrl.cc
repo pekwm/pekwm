@@ -248,9 +248,10 @@ int main(int argc, char* argv[])
 
     auto dpy = XOpenDisplay(display);
     if (! dpy) {
+        auto actual_display = display ? display : Util::getEnv("DISPLAY");
         std::cerr << "Can not open display!" << std::endl
                   << "Your DISPLAY variable currently is set to: "
-                  << Util::getEnv("DISPLAY") << std::endl;
+                  << actual_display << std::endl;
         return 1;
     }
 
