@@ -1,0 +1,30 @@
+# pekwm_panel configuration
+
+Commands {
+  Command = "uptime | sed 's/.*:/load/'" {
+    Interval = "15"
+  }
+  # battery percent (works on OpenBSD)
+  # Command = "apm | head -1 | awk '{print \"battery \" $4}'" {
+  #   Interval = "60"
+  # }
+}
+
+Widgets {
+  WorkspaceNumber {
+    Size = "Required"
+  }
+  ExternalData = "load" {
+    Size = "TextWidth _0.00, 0.00, 0.00_"
+  }
+  # ExternalData = "battery" {
+  #   Size = "TextWidth _100%_"
+  # }
+  ClientList {
+    Size = "*"
+  }
+  DateTime = "%Y-%m-%d %H:%M" {
+    Size = "Required"
+    Interval = "60"
+  }
+}

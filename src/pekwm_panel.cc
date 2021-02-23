@@ -51,7 +51,8 @@ enum WidgetUnit {
     WIDGET_UNIT_PIXELS,
     WIDGET_UNIT_PERCENT,
     WIDGET_UNIT_REQUIRED,
-    WIDGET_UNIT_REST
+    WIDGET_UNIT_REST,
+    WIDGET_UNIT_TEXT_WIDTH
 };
 
 /** empty string, used as default return value. */
@@ -118,7 +119,14 @@ public:
      */
     class SizeReq {
     public:
-        SizeReq(WidgetUnit unit, uint size = 0)
+        SizeReq(const std::wstring &text)
+            : _unit(WIDGET_UNIT_TEXT_WIDTH),
+              _size(0),
+              _text(text)
+        {
+        }
+
+        SizeReq(WidgetUnit unit, uint size)
             : _unit(unit),
               _size(size)
         {
@@ -126,23 +134,25 @@ public:
 
         enum WidgetUnit getUnit(void) const { return _unit; }
         uint getSize(void) const { return _size; }
+        const std::wstring& getText(void) const { return _text; }
 
     private:
         WidgetUnit _unit;
         uint _size;
+        std::wstring _text;
     };
-    
+
     /**
      * Widgets to display.
      */
     class WidgetConfig {
     public:
         WidgetConfig(const std::string& name, std::vector<std::string> args,
-                     const SizeReq& size_req)
+                     const SizeReq& size_req, uint interval_s = UINT_MAX)
             : _name(name),
               _args(args),
               _size_req(size_req),
-              _interval_s(UINT_MAX)
+              _interval_s(interval_s)
         {
         }
 
@@ -171,23 +181,20 @@ public:
 
     PanelConfig(void)
     {
-        const char *load_cmd =
-            "uptime | sed 's/.*:/load/'";
-        _commands.push_back(CommandConfig(load_cmd, 15));
-        // const char *battery_cmd =
-        //     "apm | head -1  awk '{print \"battery \" $4}'";
-        // _commands.push_back(CommandConfig(battery_cmd, 60));
+    }
 
-        _widgets.push_back(WidgetConfig("WorkspaceNumber", {},
-                                        SizeReq(WIDGET_UNIT_REQUIRED)));
-        _widgets.push_back(WidgetConfig("ExternalData", {"load"},
-                                        SizeReq(WIDGET_UNIT_PIXELS, 125)));
-        _widgets.push_back(WidgetConfig("ClientList", {},
-                                        SizeReq(WIDGET_UNIT_REST)));
-        _widgets.push_back(WidgetConfig("DateTime", {"%Y-%m-%d %H:%M"},
-                                        SizeReq(WIDGET_UNIT_REQUIRED, 0)));
+    bool load(const std::string &panel_file)
+    {
+        CfgParser cfg;
+        if (! cfg.parse(panel_file, CfgParserSource::SOURCE_FILE, true)) {
+            return false;
+        }
 
+        auto root = cfg.getEntryRoot();
+        loadCommands(root->findSection("COMMANDS"));
+        loadWidgets(root->findSection("WIDGETS"));
         _refresh_interval_s = calculateRefreshIntervalS();
+        return true;
     }
 
     uint getRefreshIntervalS(void) const { return _refresh_interval_s; }
@@ -199,6 +206,90 @@ public:
     widget_config_it widgetsEnd(void) const { return _widgets.end(); }
 
 private:
+    void loadCommands(CfgParser::Entry *section)
+    {
+        _commands.clear();
+        if (section == nullptr) {
+            return;
+        }
+
+        auto it = section->begin();
+        for (; it != section->end(); ++it) {
+            uint interval = UINT_MAX;
+
+            if ((*it)->getSection()) {
+                std::vector<CfgParserKey*> keys;
+                keys.push_back(new CfgParserKeyNumeric<uint>("INTERVAL",
+                                                             interval,
+                                                             UINT_MAX));
+                (*it)->getSection()->parseKeyValues(keys.begin(), keys.end());
+                std::for_each(keys.begin(), keys.end(),
+                              Util::Free<CfgParserKey*>());
+            }
+            _commands.push_back(CommandConfig((*it)->getValue(), interval));
+        }
+    }
+
+    void loadWidgets(CfgParser::Entry *section)
+    {
+        _widgets.clear();
+        if (section == nullptr) {
+            return;
+        }
+
+        auto it = section->begin();
+        for (; it != section->end(); ++it) {
+            uint interval = UINT_MAX;
+            std::string size = "REQUIRED";
+
+            if ((*it)->getSection()) {
+                std::vector<CfgParserKey*> keys;
+                keys.push_back(new CfgParserKeyNumeric<uint>("INTERVAL",
+                                                             interval,
+                                                             UINT_MAX));
+                keys.push_back(new CfgParserKeyString("SIZE",
+                                                      size,
+                                                      "REQUIRED"));
+                (*it)->getSection()->parseKeyValues(keys.begin(), keys.end());
+                std::for_each(keys.begin(), keys.end(),
+                              Util::Free<CfgParserKey*>());
+            }
+
+            auto size_req = parseSize(size);
+            std::vector<std::string> args;
+            if (! (*it)->getValue().empty()) {
+                args.push_back((*it)->getValue());
+            }
+
+            _widgets.push_back(WidgetConfig((*it)->getName(), args,
+                                            size_req, interval));
+        }
+    }
+
+    SizeReq parseSize(const std::string& size)
+    {
+        std::vector<std::string> toks;
+        Util::splitString(size, toks, " \t", 2);
+        if (toks.size() == 1) {
+            if (strcasecmp("REQUIRED", toks[0].c_str()) == 0) {
+                return SizeReq(WIDGET_UNIT_REQUIRED, 0);
+            } else if (toks[0] == "*") {
+                return SizeReq(WIDGET_UNIT_REST, 0);
+            }
+        } else if (toks.size() == 2) {
+            if (strcasecmp("PIXELS", toks[0].c_str()) == 0) {
+                return SizeReq(WIDGET_UNIT_PIXELS, atoi(toks[1].c_str()));
+            } else if (strcasecmp("PERCENT", toks[0].c_str()) == 0) {
+                return SizeReq(WIDGET_UNIT_PERCENT, atoi(toks[1].c_str()));
+            } else if (strcasecmp("TEXTWIDTH", toks[0].c_str()) == 0) {
+                return SizeReq(Util::to_wide_str(toks[1]));
+            }
+        }
+
+        USER_WARN("failed to parse size: " << size);
+        return SizeReq(WIDGET_UNIT_REQUIRED, 0);
+    }
+
     uint calculateRefreshIntervalS(void) const
     {
         uint min = UINT_MAX;
@@ -214,7 +305,7 @@ private:
         }
         return min;
     }
-    
+
 private:
     /** List of commands to run. */
     command_config_vector _commands;
@@ -702,30 +793,43 @@ public:
         : PanelWidget(theme, size_req),
           _format(format)
     {
+        if (_format.empty()) {
+            _format = "%Y-%m-%d %H:%M";
+        }
     }
 
     virtual uint getRequiredSize(void) const override
     {
-        return 140; // FIXME: calculate from format/text/theme
+        std::wstring wtime;
+        formatNow(wtime);
+        auto font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
+        return font->getWidth(L" " + wtime + L" ");
     }
 
     virtual void render(Drawable draw)
     {
         PanelWidget::render(draw);
 
-        time_t now = time(NULL);
-        struct tm tm;
-        localtime_r(&now, &tm);
-
-        char buf[64];
-        strftime(buf, sizeof(buf), _format.c_str(), &tm);
-        auto wtime = Util::to_wide_str(buf);
+        std::wstring wtime;
+        formatNow(wtime);
         auto font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
         font->draw(draw, getX(), 1, wtime, 0, getWidth());
 
         // always treat date time as dirty, requires redraw up to
         // every second.
         _dirty = true;
+    }
+
+private:
+    void formatNow(std::wstring &res) const
+    {
+        time_t now = time(NULL);
+        struct tm tm;
+        localtime_r(&now, &tm);
+
+        char buf[64];
+        strftime(buf, sizeof(buf), _format.c_str(), &tm);
+        res = Util::to_wide_str(buf);
     }
 
 private:
@@ -878,7 +982,8 @@ public:
 
     virtual uint getRequiredSize(void) const override
     {
-        return 25; // FIXME: calculate from format/text/theme
+        auto font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
+        return font->getWidth(L" 00 ");
     }
 
     virtual void render(Drawable draw)
@@ -913,7 +1018,6 @@ public:
         std::string name = cfg.getName();
         Util::to_upper(name);
 
-        // FIXME: check argument count
         if (name == "DATETIME") {
             auto format = cfg.getArg(0);
             return new DateTimeWidget(_theme, cfg.getSizeReq(), format);
@@ -921,14 +1025,20 @@ public:
             return new ClientListWidget(_theme, cfg.getSizeReq(), _wm_state);
         } else if (name == "EXTERNALDATA") {
             auto field = cfg.getArg(0);
-            return new ExternalDataWidget(_theme, cfg.getSizeReq(),
-                                          _ext_data, field);
+            if (field.empty()) {
+                USER_WARN("missing required argument to ExternalData widget");
+            } else {
+                return new ExternalDataWidget(_theme, cfg.getSizeReq(),
+                                              _ext_data, field);
+            }
         } else if (name == "WORKSPACENUMBER") {
             return new WorkspaceNumberWidget(_theme, cfg.getSizeReq(),
                                              _wm_state);
         } else {
-            return nullptr;
+            USER_WARN("unknown widget " << cfg.getName());
         }
+
+        return nullptr;
     }
 
 private:
@@ -1101,7 +1211,7 @@ private:
 
     void resizeWidgets(void)
     {
-        uint num_percent = 0;
+        uint num_rest = 0;
         uint width_left = _gm.width;
         for (auto it : _widgets) {
             switch (it->getSizeReq().getUnit()) {
@@ -1122,13 +1232,20 @@ private:
                 it->setWidth(it->getRequiredSize());
                 break;
             case WIDGET_UNIT_REST:
-                num_percent++;
+                num_rest++;
                 break;
+            case WIDGET_UNIT_TEXT_WIDTH: {
+                auto font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
+                uint width = font->getWidth(it->getSizeReq().getText());
+                width_left -= width;
+                it->setWidth(width);
+                break;
+            }
             }
         }
 
         uint x = 0;
-        uint rest = width_left / static_cast<float>(num_percent);
+        uint rest = width_left / static_cast<float>(num_rest);
         for (auto it : _widgets) {
             if (it->getSizeReq().getUnit() == WIDGET_UNIT_REST) {
                 it->setWidth(rest);
@@ -1147,6 +1264,20 @@ private:
     Pixmap _pixmap;
 };
 
+static bool loadConfig(PanelConfig& cfg, const std::string& file)
+{
+    if (file.size() && cfg.load(file)) {
+        return true;
+    }
+
+    std::string panel_config = Util::getEnv("HOME") + "/.pekwm/panel";
+    if (cfg.load(panel_config)) {
+        return true;
+    }
+
+    return cfg.load(SYSCONFDIR "/panel");
+}
+
 static void init(Display* dpy)
 {
     _font_handler = new FontHandler();
@@ -1164,18 +1295,21 @@ static void cleanup()
 static void usage(const char* name, int ret)
 {
     std::cout << "usage: " << name << " [-dh]" << std::endl
+              << " -c --config path    Configuration file" << std::endl
               << " -d --display dpy    Display" << std::endl
               << " -h --help           Display this information" << std::endl
-              << " --log-file          Set log file." << std::endl
-              << " --log-level         Set log level." << std::endl;
+              << " -f --log-file       Set log file." << std::endl
+              << " -l --log-level      Set log level." << std::endl;
     exit(ret);
 }
 
 int main(int argc, char *argv[])
 {
+    std::string config;
     const char* display = NULL;
 
     static struct option opts[] = {
+        {"config", required_argument, NULL, 'c'},
         {"display", required_argument, NULL, 'd'},
         {"help", no_argument, NULL, 'h'},
         {"log-level", required_argument, NULL, 'l'},
@@ -1192,8 +1326,11 @@ int main(int argc, char *argv[])
     Util::iconv_init();
 
     char ch;
-    while ((ch = getopt_long(argc, argv, "a:c:d:hw:", opts, NULL)) != -1) {
+    while ((ch = getopt_long(argc, argv, "c:d:f:hl:", opts, NULL)) != -1) {
         switch (ch) {
+        case 'c':
+            config = optarg;
+            break;
         case 'd':
             display = optarg;
             break;
@@ -1231,9 +1368,9 @@ int main(int argc, char *argv[])
     {
         // run in separate scope to get resources cleaned up before
         // X11 and iconv cleanup
-        PanelConfig cfg; // FIXME: read config from ~/.pekwm/panel
+        PanelConfig cfg;
         PanelTheme theme; // FIXME: read panel theme from active theme
-        {
+        if (loadConfig(cfg, config)) {
             XSizeHints normal_hints = {0};
             normal_hints.flags = PPosition|PSize;
             normal_hints.x = 0;
@@ -1246,6 +1383,8 @@ int main(int argc, char *argv[])
             panel.mapWindow();
             panel.render();
             panel.main(cfg.getRefreshIntervalS());
+        } else {
+            std::cerr << "failed to read panel configuration" << std::endl;
         }
     }
 

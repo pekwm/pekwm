@@ -14,6 +14,7 @@ install(FILES
   mouse_system
   mouse_click
   mouse_sloppy
+  panel
   start
   vars
   DESTINATION etc/pekwm/)
