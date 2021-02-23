@@ -709,7 +709,7 @@ public:
         _color = pekwm::fontHandler()->getColor("#000000");
 
         auto th = pekwm::textureHandler();
-        _background = th->getTexture("Solid #ffffff ");
+        _background = th->getTexture("SolidRaised #ffffff #eeeeee #cccccc");
         _sep = th->getTexture("Solid #aaaaaa 1x24");
 
         for (int i = 0; i < CLIENT_STATE_NO; i++) {
@@ -1116,15 +1116,17 @@ public:
     {
         auto sep = _theme.getSep();
 
-        PanelWidget *last_widget = nullptr;
+        int x = 0;
+        PanelWidget *last_widget = _widgets.back();
         for (auto it : _widgets) {
-            if (last_widget) {
-                sep->render(_window,
-                            it->getX() - sep->getWidth(), 0,
-                            sep->getWidth(), sep->getHeight());
-            }
             if (it->isDirty()) {
                 it->render(_window);
+            }
+            x += it->getWidth();
+
+            if (it != last_widget) {
+                sep->render(_window, x, 0, sep->getWidth(), sep->getHeight());
+                x += sep->getWidth();
             }
         }
     }
@@ -1211,8 +1213,13 @@ private:
 
     void resizeWidgets(void)
     {
+        if (_widgets.empty()) {
+            return;
+        }
+
+        auto sep = _theme.getSep();
         uint num_rest = 0;
-        uint width_left = _gm.width;
+        uint width_left = _gm.width - sep->getWidth() * (_widgets.size() - 1);
         for (auto it : _widgets) {
             switch (it->getSizeReq().getUnit()) {
             case WIDGET_UNIT_PIXELS:
@@ -1251,7 +1258,7 @@ private:
                 it->setWidth(rest);
             }
             it->move(x);
-            x += it->getWidth();
+            x += it->getWidth() + sep->getWidth();
         }
     }
 
