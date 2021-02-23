@@ -130,16 +130,18 @@ public:
     virtual int main(uint timeout_s)
     {
         while (_stop == -1) {
-            refresh();
-
             if (is_signal) {
                 handleSignal();
-            } else if (X11::pending()) {
-                XEvent ev;
-                X11::getNextEvent(ev);
-                handleEvent(&ev);
             } else {
-                waitForData(timeout_s);
+                refresh();
+
+                if (X11::pending()) {
+                    XEvent ev;
+                    X11::getNextEvent(ev);
+                    handleEvent(&ev);
+                } else {
+                    waitForData(timeout_s);
+                }
             }
         }
 
@@ -234,7 +236,7 @@ private:
 
         struct timeval timeout = { timeout_s, 0 };
         int ret = select(_max_fd + 1, &rfds, nullptr, nullptr, &timeout);
-        if (ret < 1) {
+        if (ret > 0) {
             for (int fd : _fds) {
                 if (! FD_ISSET(fd, &rfds)) {
                     continue;
