@@ -12,10 +12,7 @@
 #include <iostream>
 #include <cassert>
 #include <cstring> // required for memset in FD_ZERO
-
-#ifdef HAVE_LIMITS
 #include <limits>
-#endif // HAVE_LIMITS
 
 extern "C" {
 #include <X11/Xlib.h>
@@ -521,11 +518,7 @@ X11::getNearestHead(int x, int y)
 {
   if(_heads.size() > 1) {
         // set distance to the highest uint value
-#ifdef HAVE_LIMITS
-        uint min_distance = numeric_limits<uint>::max();
-#else //! HAVE_LIMITS
-        uint min_distance = ~0;
-#endif // HAVE_LIMITS
+        uint min_distance = std::numeric_limits<uint>::max();
         uint nearest_head = 0;
 
         uint distance;

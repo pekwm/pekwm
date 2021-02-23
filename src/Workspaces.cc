@@ -22,9 +22,7 @@
 
 #include <iostream>
 #include <sstream>
-#ifdef HAVE_LIMITS
 #include <limits>
-#endif // HAVE_LIMITS
 
 extern "C" {
 #include <signal.h>
@@ -757,11 +755,7 @@ Workspaces::findDirectional(PWinObj *wo, DirectionType dir, uint skip)
     int wo_main, wo_sec;
     int diff_main, diff_pos;
 
-#ifdef HAVE_LIMITS
-    score_min = numeric_limits<uint>::max();
-#else // !HAVE_LIMITS
-    score_min = ~0;
-#endif // HAVE_LIMITS
+    score_min = std::numeric_limits<uint>::max();
 
     // init wo variables
     if ((dir == DIRECTION_UP) || (dir == DIRECTION_DOWN)) {

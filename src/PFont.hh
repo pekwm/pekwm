@@ -11,9 +11,7 @@
 #include "config.h"
 
 #include <string>
-#ifdef HAVE_LIMITS
 #include <limits>
-#endif // HAVE_LIMITS
 
 #include "pekwm.hh"
 
