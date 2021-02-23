@@ -5,7 +5,7 @@
 
 extern "C" {
 #include <X11/Xlib.h>
-};
+}
 
 namespace pekwm_ctrl {
 #define UNITTEST
