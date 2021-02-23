@@ -5,7 +5,7 @@ pekwm_theme 1 "February 2021" pekwm_theme "User Manual"
 pekwm_theme - theme management for pekwm
 
 # SYNOPSIS
-pekwm_theme [install|uninstall|show|search|new]
+pekwm_theme [install|uninstall|show|search|new|update]
 
 # DESCRIPTION
 pekwm_theme is a theme manager for pekwm that handles _installation_,
@@ -23,3 +23,5 @@ and published on the pekwm theme site (https://www.pekwm.se/themes/).
 **search**, search for themes matching the provided pattern (grep).
 
 **new**, create new theme from template.
+
+**update**, re-fetch the local copy of the theme index.

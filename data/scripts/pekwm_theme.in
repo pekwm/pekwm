@@ -9,6 +9,8 @@ PEKWM_THEMES="https://www.pekwm.se/themes"
 REMOTE_THEME_INDEX="$PEKWM_THEMES/themes-v1.csv"
 # Path to local copy of the theme index file
 LOCAL_THEME_INDEX="$HOME/.pekwm/themes-v1.csv"
+# Max age of the local theme index before it is re fetchted.
+LOCAL_THEME_INDEX_MAX_AGE="86400"
 # Path to local directory where screenshots are cached, used with the
 # show command.
 SCREENSHOT_CACHE_DIR="$HOME/.cache/pekwm-themes"
@@ -38,13 +40,14 @@ progress()
 # usage exit-code
 usage()
 {
-    echo "usage: $0 [install|uninstall|show|search|new]"
+    echo "usage: $0 [install|uninstall|show|search|new|update]"
     echo ""
-    echo "  install name"
-    echo "  uninstall name"
-    echo "  show name"
-    echo "  search [pattern]"
-    echo "  new name"
+    echo "  install [-a] name   install theme"
+    echo "  uninstall name      uninstall theme (removes local changes)"
+    echo "  show name           display theme preview"
+    echo "  search [pattern]    search for theme"
+    echo "  new name            create new theme"
+    echo "  update              update theme index"
     echo ""
     exit $1
 }
@@ -63,7 +66,7 @@ fetch_file()
     if test "x$CURL" != "x"; then
         $CURL -L -s -o "$2" "$1"
     elif test "$WGET" != "x"; then
-        $WGET -q -o "$2" "$1"
+        $WGET -q -O "$2" "$1"
     elif test "$FTP" != "x"; then
         $FTP -h 2>&1 | grep -q http
         if $? -eq 0; then
@@ -82,8 +85,21 @@ fetch_file()
 update_index()
 {
     mkdir -p "$HOME/.pekwm"
+    if test -e "${LOCAL_THEME_INDEX}.stamp"; then
+        created=`cat ${LOCAL_THEME_INDEX}.stamp`
+        now=`date '+%S'`
+        age=$(($now - $created))
+        if test $age -gt $LOCAL_THEME_INDEX_MAX_AGE; then
+            rm -f "$LOCAL_THEME_INDEX"
+        fi
+    else
+        # no stamp file exists, force a refresh
+        rm -f "$LOCAL_THEME_INDEX"
+    fi
+
     if test ! -e "$LOCAL_THEME_INDEX"; then
         fetch_file "$REMOTE_THEME_INDEX" "$LOCAL_THEME_INDEX"
+        date '+%S' > "${LOCAL_THEME_INDEX}.stamp"
     fi
 }
 
@@ -577,6 +593,15 @@ EOF
     echo "generated theme $theme_name"
 }
 
+# Update theme index
+#
+# theme_update_index
+theme_update()
+{
+    rm -f "$LOCAL_THEME_INDEX.stamp" "$LOCAL_THEME_INDEX"
+    update_index
+}
+
 if test -z "$HOME"; then
     die "\$HOME is not set, can not proceed"
 fi
@@ -586,6 +611,8 @@ fi
 
 if test -z "$1"; then
     usage 1
+elif test "x$1" = "xupdate"; then
+    theme_update
 else
     update_index
 
