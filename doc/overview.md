@@ -128,6 +128,20 @@ Build dependencies:
 # apk add fontconfig-dev jpeg-dev libxext-dev libpng-dev libxft-dev libxpm-dev
 ```
 
+#### Debian
+
+Development tools using the GCC C++ compiler:
+
+```
+# apt install cmake g++ make
+```
+
+Build dependencies:
+
+```
+# apt install libfontconfig1-dev libjpeg-dev libxext-dev libpng-dev libxft-dev libxpm-dev
+```
+
 #### OpenBSD
 
 OpenBSD comes with X11 and a compatible C++ compiler. To add the
