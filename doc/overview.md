@@ -125,7 +125,7 @@ Development tools using the GCC C++ compiler:
 Build dependencies:
 
 ```
-# apk add fontconfig-dev jpeg-dev libxext-dev libpng-dev libxft-dev libxpm-dev
+# apk add fontconfig-dev jpeg-dev libxext-dev libpng-dev libxft-dev libxpm-dev libxrandr-dev libxinerama-dev
 ```
 
 #### Debian
@@ -139,7 +139,7 @@ Development tools using the GCC C++ compiler:
 Build dependencies:
 
 ```
-# apt install libfontconfig1-dev libjpeg-dev libxext-dev libpng-dev libxft-dev libxpm-dev
+# apt install libfontconfig1-dev libjpeg-dev libxext-dev libpng-dev libxft-dev libxpm-dev libxrandr-dev libxinerama-dev
 ```
 
 #### OpenBSD
