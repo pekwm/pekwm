@@ -152,7 +152,7 @@ with the --version parameter to find the right executable to
 keep. Note to give the full path to the executable when querying for
 the version (**/usr/local/bin/pekwm --version**).
 
-### Can I turn off this sloppy focus crap?
+### Can I turn off sloppy focus option?
 
 Yes. You can. You need to make all enter and leave events not affect
 the focus of frames, borders, clients. See the comments above the
@@ -410,6 +410,13 @@ argument to true to include iconified windows as well, e.g.
 ```
 	KeyPress = "Mod1 Tab" { Actions = "NextFrameMRU TempRaise True" }
 ```
+
+### What if I must change system-wide configuration files location?
+
+By default pekwm installs its configuration files in /usr/etc/pekwm. However this
+can be overridden if your distro defaults its system-wide configuration files in
+a different location using the option -DCMAKE_INSTALL_SYSCONFDIR=/foo. See
+[overview.md](overview.md#compiling-pekwm) for configure options, building and installing.
 
 ***
 

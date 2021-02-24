@@ -192,10 +192,12 @@ the cmake command line as:
 
 | Option               | Default    | Description                                                   |
 |----------------------|------------|---------------------------------------------------------------|
-| CMAKE_INSTALL_PREFIX | /usr/local | It may be useful to use a custom prefix to install the files. |
-| CMAKE_BUILD_TYPE     |            | Set to Debug to enable debug outputs and code                 |
-| PEDANTIC             | OFF        | Turn on extra compiler warnings                               |
-| TESTS                | OFF        | Enable compilation of unit test programs                      |
+| CMAKE_INSTALL_PREFIX      | /usr/local       | It may be useful to use a custom prefix to install the files. |
+| CMAKE_INSTALL_SYSCONFDIR | /usr/etc/pekwm | It may be useful to use a custom prefix to install the config files. |
+| CMAKE_BUILD_TYPE         |                | Set to Debug to enable debug outputs and code                 |
+| DEBUG                    | OFF              | Enable debug outputs and code                                 |
+| PEDANTIC                 | OFF              | Turn on extra compiler warnings                               |
+| TESTS                    | OFF              | Enable compilation of unit test programs                      |
 
 ### Options to reduce the size
 
@@ -211,8 +213,8 @@ the cmake command line as:
 
 ### Building and installing
 
-After running cmake with any options you need, run **make**. This
-should only take a few minutes. After that, become root (unless you
+After running cmake with any configuration options you need, run **make**.
+This should only take a few minutes. After that, become root (unless you
 used a prefix in your home directory, such as
 -DCMAKE_INSTALL_PREFIX=/home/you/pkg) and type **make install**
 

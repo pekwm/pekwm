@@ -18,6 +18,9 @@ else (HAS_CXX11)
   message(FATAL_ERROR "Compiler with C++11 support is required")
 endif (HAS_CXX11)
 
+# Add support for more install configuration
+include(GNUInstallDirs)
+
 # Look for dependencies
 find_package(X11 REQUIRED)
 find_package(Iconv REQUIRED)
@@ -115,7 +118,7 @@ add_definitions(-DVERSION="${pekwm_VERSION}"
   -DFEATURES="${pekwm_FEATURES}"
   -DBINDIR="${CMAKE_INSTALL_PREFIX}/bin"
   -DDATADIR="${CMAKE_INSTALL_PREFIX}/share"
-  -DSYSCONFDIR="${CMAKE_INSTALL_PREFIX}/etc/pekwm")
+  -DSYSCONFDIR="${CMAKE_INSTALL_FULL_SYSCONFDIR}/pekwm")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH True)
 
 # Subdirectories
