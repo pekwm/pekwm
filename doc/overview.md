@@ -105,6 +105,57 @@ The 'v' options are optional, they show you the filenames as they're
 being extracted. at this point, you should have a pekwm-0.2.0
 directory. Use **cd pekwm-0.2.0** to get there.
 
+### Installing build dependencies
+
+Before building pekwm a C++ compiler with support for C++11 needs to
+be available on the system, the CMake build system and a set of X11
+and image libraries.
+
+The below sections details how to install the required packages for
+different OSes and Linux distributions.
+
+#### Alpine
+
+Development tools using the GCC C++ compiler:
+
+```
+# apk add cmake g++ make
+```
+
+Build dependencies:
+
+```
+# apk add fontconfig-dev jpeg-dev libxext-dev libpng-dev libxft-dev libxpm-dev
+```
+
+#### OpenBSD
+
+OpenBSD comes with X11 and a compatible C++ compiler. To add the
+required packages run:
+
+```
+# pkg_add cmake jpeg libiconv png
+```
+
+#### OS X (homebrew)
+
+OS X does not come with a X11 installation by default so first
+[XQuartz](https://www.xquartz.org/) needs to be installed.
+
+The development tools are not installed by default but can be
+installed using the following command:
+
+```
+xcode-select --install
+```
+
+Assuming homebrew is installed, the only package required to build
+pekwm after install XQuartz and the development tools is CMake:
+
+```
+$ brew install cmake
+```
+
 ### Setting up a build directory
 
 The first thing to do is to setup a build directory and configure
