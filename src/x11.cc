@@ -647,6 +647,23 @@ X11::getHeadGeometry(uint head)
     return gm;
 }
 
+const char*
+X11::getAtomString(AtomName name)
+{
+    return atomnames[name];
+}
+
+AtomName
+X11::getAtomName(Atom atom)
+{
+    for (int i = 0; i < MAX_NR_ATOMS; i++) {
+        if (_atoms[i] == atom) {
+            return static_cast<AtomName>(i);
+        }
+    }
+    return MAX_NR_ATOMS;
+}
+
 bool
 X11::getProperty(Window win, Atom atom, Atom type,
                  ulong expected, uchar **data_ret, ulong *actual)

@@ -361,9 +361,7 @@ public:
 
         ~CommandProcess(void)
         {
-            if (_fd != -1) {
-                close(_fd);
-            }
+            reset();
         }
 
         int getFd(void) const { return _fd; }
@@ -422,6 +420,9 @@ public:
         void reset(void)
         {
             _pid = -1;
+            if (_fd != -1) {
+                close(_fd);
+            }
             _fd = -1;
             _buf.clear();
 
@@ -538,11 +539,13 @@ private:
 class WmState : public Observable
 {
 public:
-    class ClientInfo : public NetWMStates{
+    class ClientInfo : public NetWMStates {
     public:
         ClientInfo(Window window)
             : _window(window)
         {
+            X11::selectInput(_window, PropertyChangeMask);
+
             _name = readName();
             _gm = readGeometry();
             _workspace = readWorkspace();
@@ -556,6 +559,21 @@ public:
         bool displayOn(uint workspace) const
         {
             return sticky || this->_workspace == workspace;
+        }
+
+        bool handlePropertyNotify(XPropertyEvent *ev)
+        {
+            if (ev->atom == X11::getAtom(NET_WM_NAME)
+                || ev->atom == XA_WM_NAME) {
+                _name = readName();
+            } else if (ev->atom == X11::getAtom(NET_WM_DESKTOP)) {
+                _workspace = readWorkspace();
+            } else if (ev->atom == X11::getAtom(STATE)) {
+                X11Util::readEwmhStates(_window, *this);
+            } else {
+                return false;
+            }
+            return true;
         }
 
     private:
@@ -594,7 +612,7 @@ public:
         uint _workspace;
     };
 
-    typedef std::vector<ClientInfo> client_info_vector;
+    typedef std::vector<ClientInfo*> client_info_vector;
     typedef client_info_vector::const_iterator client_info_it;
 
     WmState(void)
@@ -602,7 +620,12 @@ public:
           _workspace(0)
     {
     }
-    virtual ~WmState(void) { }
+    virtual ~WmState(void)
+    {
+        for (auto it : _clients) {
+            delete it;
+        }
+    }
 
     void read(void)
     {
@@ -630,6 +653,11 @@ public:
             } else if (ev->atom == X11::getAtom(NET_CLIENT_LIST)) {
                 updated = readClientListStacking();
             }
+        } else {
+            auto client_info = findClientInfo(ev->window, _clients);
+            if (client_info != nullptr) {
+                updated = client_info->handlePropertyNotify(ev);
+            }
         }
 
         if (updated) {
@@ -639,7 +667,31 @@ public:
         return updated;
     }
 
+    ClientInfo* findClientInfo(Window win, std::vector<ClientInfo*> &clients)
+    {
+        auto it = clients.begin();
+        for (; it != clients.end(); ++it) {
+            if ((*it)->getWindow() == win) {
+                return *it;
+            }
+        }
+        return nullptr;
+    }
+
 private:
+    ClientInfo* popClientInfo(Window win, std::vector<ClientInfo*> &clients)
+    {
+        auto it = clients.begin();
+        for (; it != clients.end(); ++it) {
+            if ((*it)->getWindow() == win) {
+                auto client_info = *it;
+                clients.erase(it);
+                return client_info;
+            }
+        }
+        return nullptr;
+    }
+
     bool readActiveWorkspace(void)
     {
         long workspace;
@@ -675,11 +727,19 @@ private:
             return false;
         }
 
-        // FIXME: only add new clients to avoid re-reading geometry and name.
-
+        client_info_vector old_clients = _clients;
         _clients.clear();
         for (uint i = 0; i < actual; i++) {
-            _clients.push_back(ClientInfo(windows[i]));
+            auto client_info = popClientInfo(windows[i], old_clients);
+            if (client_info == nullptr) {
+                _clients.push_back(new ClientInfo(windows[i]));
+            } else {
+                _clients.push_back(client_info);
+            }
+        }
+
+        for (auto it : old_clients) {
+            delete it;
         }
 
         X11::free(windows);
@@ -691,7 +751,7 @@ private:
 private:
     Window _active_window;
     uint _workspace;
-    std::vector<WmState::ClientInfo> _clients;
+    client_info_vector _clients;
 };
 
 /**
@@ -759,6 +819,7 @@ public:
 
     bool isDirty(void) const { return _dirty; }
     int getX(void) const { return _x; }
+    int getRX(void) const { return _x + _width; }
     void move(int x) { _x = x; }
 
     uint getWidth(void) const { return _width; }
@@ -766,6 +827,8 @@ public:
 
     const PanelConfig::SizeReq& getSizeReq(void) const { return _size_req; }
     virtual uint getRequiredSize(void) const { return 0; }
+
+    virtual void click(int x, int y) { }
 
     virtual void render(Drawable draw)
     {
@@ -873,7 +936,7 @@ public:
         uint num_clients = 0;
         auto it = _wm_state.clientsBegin();
         for (; it != _wm_state.clientsEnd(); ++it) {
-            if (it->displayOn(workspace)) {
+            if ((*it)->displayOn(workspace)) {
                 num_clients++;
             }
         }
@@ -888,18 +951,18 @@ public:
         int x = getX();
         it = _wm_state.clientsBegin();
         for (; it != _wm_state.clientsEnd(); ++it) {
-            if (! it->displayOn(workspace)) {
+            if (! (*it)->displayOn(workspace)) {
                 continue;
             }
             PFont *font;
-            if (it->getWindow() == _wm_state.getActiveWindow()) {
+            if ((*it)->getWindow() == _wm_state.getActiveWindow()) {
                 font = _theme.getFont(CLIENT_STATE_FOCUSED);
-            } else if (it->hidden) {
+            } else if ((*it)->hidden) {
                 font = _theme.getFont(CLIENT_STATE_ICONIFIED);
             } else {
                 font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
             }
-            font->draw(draw, x, 1, it->getName(), 0, client_width);
+            font->draw(draw, x, 1, (*it)->getName(), 0, client_width);
             x += client_width;
         }
     }
@@ -1076,6 +1139,11 @@ public:
           _ext_data(cfg),
           _pixmap(X11::createPixmap(sh->width, sh->height))
     {
+        X11::selectInput(_window,
+                         ButtonPressMask|ButtonReleaseMask|
+                         ExposureMask|
+                         PropertyChangeMask);
+
         renderBackground();
         X11::setWindowBackgroundPixmap(_window, _pixmap);
 
@@ -1115,26 +1183,7 @@ public:
 
     void render(void)
     {
-        auto sep = _theme.getSep();
-
-        int x = 0;
-        PanelWidget *last_widget = _widgets.back();
-        for (auto it : _widgets) {
-            if (it->isDirty()) {
-                it->render(_window);
-            }
-            x += it->getWidth();
-
-            if (it != last_widget) {
-                sep->render(_window, x, 0, sep->getWidth(), sep->getHeight());
-                x += sep->getWidth();
-            }
-        }
-    }
-
-    void renderBackground(void)
-    {
-        _theme.getBackground()->render(_pixmap, 0, 0, _gm.width, _gm.height);
+        renderPred([](PanelWidget *w) { return w->isDirty(); });
     }
 
     virtual void refresh(void) override
@@ -1148,15 +1197,21 @@ public:
         switch (ev->type) {
         case ButtonPress:
             TRACE("ButtonPress");
+            handleButtonPress(&ev->xbutton);
             break;
         case ButtonRelease:
             TRACE("ButtonRelease");
+            handleButtonRelease(&ev->xbutton);
             break;
         case ConfigureNotify:
             TRACE("ConfigureNotify");
             break;
         case EnterNotify:
             TRACE("EnterNotify");
+            break;
+        case Expose:
+            TRACE("Expose");
+            handleExpose(&ev->xexpose);
             break;
         case LeaveNotify:
             TRACE("LeaveNotify");
@@ -1179,6 +1234,30 @@ public:
         }
     }
 
+private:
+
+    virtual ActionEvent *handleButtonPress(XButtonEvent *ev) override
+    {
+        auto widget = findWidget(ev->x);
+        if (widget != nullptr) {
+            widget->click(ev->x - widget->getX(), ev->y - _gm.y);
+        }
+        return nullptr;
+    }
+
+    virtual ActionEvent *handleButtonRelease(XButtonEvent *ev) override
+    {
+        return nullptr;
+    }
+
+    void handleExpose(XExposeEvent *ev)
+    {
+        renderPred([ev](PanelWidget *w) {
+            return (w->getX() >= ev->x)
+                && (w->getRX() <= (ev->x + ev->width));
+        });
+    }
+
     void handlePropertyNotify(XPropertyEvent *ev)
     {
         if (_wm_state.handlePropertyNotify(ev)) {
@@ -1196,7 +1275,16 @@ public:
         _ext_data.done(pid, [this](int fd) { this->removeFd(fd); });
     }
 
-private:
+    PanelWidget* findWidget(int x)
+    {
+        for (auto it : _widgets) {
+            if (x >= it->getX() && x <= it->getRX()) {
+                return it;
+            }
+        }
+        return nullptr;
+    }
+
     void addWidgets(void)
     {
         WidgetFactory factory(_theme, _ext_data, _wm_state);
@@ -1262,6 +1350,32 @@ private:
             x += it->getWidth() + sep->getWidth();
         }
     }
+
+    void renderPred(std::function<bool(PanelWidget*)> pred)
+    {
+        auto sep = _theme.getSep();
+
+        int x = 0;
+        PanelWidget *last_widget = _widgets.back();
+        for (auto it : _widgets) {
+            bool do_render = pred(it);
+            if (do_render) {
+                it->render(_window);
+            }
+            x += it->getWidth();
+
+            if (do_render && it != last_widget) {
+                sep->render(_window, x, 0, sep->getWidth(), sep->getHeight());
+                x += sep->getWidth();
+            }
+        }
+    }
+
+    void renderBackground(void)
+    {
+        _theme.getBackground()->render(_pixmap, 0, 0, _gm.width, _gm.height);
+    }
+
 
 private:
     const PanelConfig& _cfg;

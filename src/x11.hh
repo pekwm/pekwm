@@ -254,6 +254,8 @@ public:
     }
 
     static Atom getAtom(AtomName name) { return _atoms[name]; }
+    static const char *getAtomString(AtomName name);
+    static AtomName getAtomName(Atom id);
     static void setAtom(Window win, AtomName aname, AtomName value) {
         changeProperty(win, _atoms[aname], XA_ATOM, 32,
                        PropModeReplace, (uchar *) &_atoms[value], 1);
