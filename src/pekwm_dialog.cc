@@ -458,7 +458,7 @@ public:
         X11::freePixmap(_background);
     }
 
-    virtual void handleEvent(XEvent *ev)
+    virtual void handleEvent(XEvent *ev) override
     {
         switch (ev->type) {
         case ButtonPress:

@@ -21,8 +21,7 @@ class KeyboardMoveResizeEventHandler : public EventHandler,
 public:
     KeyboardMoveResizeEventHandler(Config* cfg, KeyGrabber *key_grabber,
                                    PDecor* decor)
-        : _cfg(cfg),
-          _key_grabber(key_grabber),
+        : _key_grabber(key_grabber),
           _outline(! cfg->getOpaqueMove() || ! cfg->getOpaqueResize()),
           _show_status_window(cfg->isShowStatusWindow()),
           _center_on_root(cfg->isShowStatusWindowOnRoot()),
@@ -257,7 +256,6 @@ public:
     }
 
 private:
-    Config *_cfg;
     KeyGrabber *_key_grabber;
     bool _outline;
     bool _show_status_window;

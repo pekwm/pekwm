@@ -23,6 +23,7 @@
 extern "C" {
 #include <assert.h>
 #include <getopt.h>
+#include <limits.h>
 #include <time.h>
 #include <unistd.h>
 }
@@ -806,7 +807,7 @@ public:
         return font->getWidth(L" " + wtime + L" ");
     }
 
-    virtual void render(Drawable draw)
+    virtual void render(Drawable draw) override
     {
         PanelWidget::render(draw);
 
@@ -862,7 +863,7 @@ public:
         _dirty = true;
     }
 
-    virtual void render(Drawable draw)
+    virtual void render(Drawable draw) override
     {
         PanelWidget::render(draw);
 
@@ -940,7 +941,7 @@ public:
         }
     }
 
-    virtual void render(Drawable draw)
+    virtual void render(Drawable draw) override
     {
         PanelWidget::render(draw);
 
@@ -986,7 +987,7 @@ public:
         return font->getWidth(L" 00 ");
     }
 
-    virtual void render(Drawable draw)
+    virtual void render(Drawable draw) override
     {
         PanelWidget::render(draw);
 
@@ -1190,7 +1191,7 @@ public:
         _ext_data.input(fd);
     }
 
-    virtual void handleChildDone(pid_t pid, int code)
+    virtual void handleChildDone(pid_t pid, int code) override
     {
         _ext_data.done(pid, [this](int fd) { this->removeFd(fd); });
     }
@@ -1332,7 +1333,7 @@ int main(int argc, char *argv[])
 
     Util::iconv_init();
 
-    char ch;
+    int ch;
     while ((ch = getopt_long(argc, argv, "c:d:f:hl:", opts, NULL)) != -1) {
         switch (ch) {
         case 'c':

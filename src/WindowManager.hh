@@ -48,7 +48,7 @@ public:
         return _restart_command;
     }
 
-    void setEventHandler(EventHandler *event_handler) {
+    void setEventHandler(EventHandler *event_handler) override {
         if (_event_handler) {
             delete _event_handler;
         }
