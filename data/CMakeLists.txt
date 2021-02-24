@@ -17,4 +17,4 @@ install(FILES
   panel
   start
   vars
-  DESTINATION etc/pekwm/)
+  DESTINATION ${CMAKE_INSTALL_FULL_SYSCONFDIR}/pekwm/)
