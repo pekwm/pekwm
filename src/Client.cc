@@ -373,25 +373,22 @@ Client::setInitialState(void)
  * Ensure the Client is (un) mapped and give input focus if requested.
  */
 void
-Client::setClientInitConfig(ClientInitConfig &initConfig, bool is_new, AutoProperty *autoproperty)
+Client::setClientInitConfig(ClientInitConfig &initConfig, bool is_new,
+                            AutoProperty *prop)
 {
     initConfig.map = (! _iconified && _parent->isMapped());
     initConfig.focus = false;
 
-    // Let us hear what autoproperties has to say about focusing
-    bool do_focus = is_new ? pekwm::config()->isFocusNew() : false;
-    if (is_new && autoproperty && autoproperty->isMask(AP_FOCUS_NEW)) {
-        do_focus = autoproperty->focus_new;
-    }
+    if (is_new && _parent->isMapped()) {
+        initConfig.focus = pekwm::config()->isFocusNew();
+        if (! initConfig.focus && _transient_for) {
+            initConfig.focus = _transient_for->isFocused()
+                && pekwm::config()->isFocusNewChild();
+        }
 
-    // Only can give input focus to mapped windows
-    if (_parent->isMapped()) {
-        // Ordinary focus
-        if (do_focus) {
-            initConfig.focus = true;
-        // Check if we are transient, and if we want to focus
-        } else if (_transient_for && _transient_for->isFocused() && pekwm::config()->isFocusNewChild()) {
-            initConfig.focus = true;
+        // overwrite focus if set in the autoproperties
+        if (prop && prop->isMask(AP_FOCUS_NEW)) {
+            initConfig.focus = prop->focus_new;
         }
     }
 }
