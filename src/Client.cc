@@ -1350,7 +1350,7 @@ void Client::sendTakeFocusMessage(void)
                          PropertyChangeMask, &ev);
             X11::setLastEventTime(ev.xproperty.time);
         }
-        X11::sendEvent(_window,
+        X11::sendEvent(_window, _window,
                        X11::getAtom(WM_PROTOCOLS), NoEventMask,
                        X11::getAtom(WM_TAKE_FOCUS),
                        X11::getLastEventTime());
@@ -1443,8 +1443,9 @@ Client::close(void)
     }
 
     if (_send_close_message) {
-        X11::sendEvent(_window, X11::getAtom(WM_PROTOCOLS), NoEventMask,
-                     X11::getAtom(WM_DELETE_WINDOW), CurrentTime);
+        X11::sendEvent(_window, _window, X11::getAtom(WM_PROTOCOLS),
+                       NoEventMask,
+                       X11::getAtom(WM_DELETE_WINDOW), CurrentTime);
     } else {
         kill();
     }

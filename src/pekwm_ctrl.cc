@@ -109,8 +109,8 @@ static bool sendClientMessage(Window window, AtomName atom,
                std::min(size, sizeof(ev.xclient.data.b)));
     }
 
-    return XSendEvent(X11::getDpy(), X11::getRoot(), False,
-                      SubstructureRedirectMask | SubstructureNotifyMask, &ev);
+    return X11::sendEvent(X11::getRoot(), False,
+                          SubstructureRedirectMask | SubstructureNotifyMask, &ev);
 }
 
 static bool focusClient(Window win)

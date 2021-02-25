@@ -788,21 +788,33 @@ X11::getButtonFromState(uint state)
 }
 
 int
-X11::sendEvent(Window win, Atom atom, long mask,
-                   long v1, long v2, long v3, long v4, long v5)
+X11::sendEvent(Window dest, Window win, Atom atom, long mask,
+               long v1, long v2, long v3, long v4, long v5)
 {
     XEvent e;
     e.type = e.xclient.type = ClientMessage;
-    e.xclient.display = _dpy;
+    e.xclient.serial = 0;
+    e.xclient.send_event = True;
+    e.xclient.message_type = atom;
     e.xclient.window = win;
     e.xclient.format = 32;
-    e.xclient.message_type = atom;
+
     e.xclient.data.l[0] = v1;
     e.xclient.data.l[1] = v2;
     e.xclient.data.l[2] = v3;
     e.xclient.data.l[3] = v4;
     e.xclient.data.l[4] = v5;
-    return XSendEvent(_dpy, win, False, mask, &e);
+
+    return sendEvent(dest, False, mask, &e);
+}
+
+int
+X11::sendEvent(Window dest, Bool propagate, long mask, XEvent *ev)
+{
+    if (_dpy) {
+        return XSendEvent(_dpy, dest, propagate, mask, ev);
+    }
+    return BadValue;
 }
 
 //! @brief Initialize head information

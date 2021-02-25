@@ -488,9 +488,10 @@ public:
         XSetInputFocus(_dpy, w, RevertToPointerRoot, CurrentTime);
     }
 
-    static int sendEvent(Window win, Atom atom, long mask,
+    static int sendEvent(Window dest, Window win, Atom atom, long mask,
                          long v1=0l, long v2=0l, long v3=0l,
                          long v4=0l, long v5=0l);
+    static int sendEvent(Window dest, Bool propagate, long mask, XEvent *ev);
 
     static int changeProperty(Window win, Atom prop, Atom type, int format,
                               int mode, const unsigned char *data, int num_e)
