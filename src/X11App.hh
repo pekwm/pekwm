@@ -54,7 +54,8 @@ public:
            const char *wm_name, const char *wm_class,
            AtomName window_type, XSizeHints *normal_hints = nullptr)
         : PWinObj(true),
-          _stop(-1)
+          _stop(-1),
+          _max_fd(-1)
     {
         _dpy_fd = ConnectionNumber(X11::getDpy());
         addFd(_dpy_fd);

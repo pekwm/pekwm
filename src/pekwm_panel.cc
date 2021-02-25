@@ -781,6 +781,7 @@ public:
     {
         auto th = pekwm::textureHandler();
         th->returnTexture(_sep);
+        th->returnTexture(_background);
 
         auto fh = pekwm::fontHandler();
         fh->returnColor(_color);
