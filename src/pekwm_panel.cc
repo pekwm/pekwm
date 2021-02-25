@@ -905,8 +905,31 @@ private:
  * List of Frames/Clients on the current workspace.
  */
 class ClientListWidget : public PanelWidget,
-                         public Observer{
+                         public Observer {
 public:
+    class Entry {
+    public:
+        Entry(const std::wstring& name, ClientState state, int x, Window window)
+            : _name(name),
+              _state(state),
+              _x(x),
+              _window(window)
+        {
+        }
+
+        const std::wstring getName(void) const { return _name; }
+        ClientState getState(void) const { return _state; }
+        int getX(void) const { return _x; }
+        void setX(int x) { _x = x; }
+        Window getWindow(void) const { return _window; }
+
+    private:
+        std::wstring _name;
+        ClientState _state;
+        int _x;
+        Window _window;
+    };
+
     ClientListWidget(const PanelTheme& theme,
                      const PanelConfig::SizeReq& size_req,
                      WmState& wm_state)
@@ -914,6 +937,7 @@ public:
           _wm_state(wm_state)
     {
         _wm_state.addObserver(this);
+        update();
     }
 
     virtual ~ClientListWidget(void)
@@ -925,51 +949,104 @@ public:
                         Observation *observation) override
     {
         _dirty = true;
+        update();
+    }
+
+    virtual void click(int x, int y) override
+    {
+        auto window = findClientAt(x);
+        if (window == None) {
+            return;
+        }
+
+        long timestamp = 0;
+        X11::getLong(window, NET_WM_USER_TIME, timestamp);
+        TRACE("ClientListWidget activate " << window << " timestamp "
+              << timestamp);
+
+        XEvent ev;
+        ev.xclient.type = ClientMessage;
+        ev.xclient.serial = 0;
+        ev.xclient.send_event = True;
+        ev.xclient.message_type = X11::getAtom(NET_ACTIVE_WINDOW);
+        ev.xclient.window = window;
+        ev.xclient.format = 32;
+        ev.xclient.data.l[0] = 2;
+        ev.xclient.data.l[1] = timestamp;
+        ev.xclient.data.l[2] = _wm_state.getActiveWindow();
+
+        X11::sendEvent(X11::getRoot(), False,
+                       SubstructureRedirectMask|SubstructureNotifyMask, &ev);
     }
 
     virtual void render(Drawable draw) override
     {
         PanelWidget::render(draw);
 
+        for (auto it : _entries) {
+            auto font = _theme.getFont(it.getState());
+            font->draw(draw, getX() + it.getX(), 1, it.getName(),
+                       0, _entry_width);
+        }
+    }
+
+private:
+    Window findClientAt(int x)
+    {
+        for (auto it : _entries) {
+            if (x >= it.getX() && x <= (it.getX() + _entry_width)) {
+                return it.getWindow();
+            }
+        }
+        return None;
+    }
+
+    void update(void)
+    {
+        _entries.clear();
+
         uint workspace = _wm_state.getActiveWorkspace();
 
-        // divide width equally between all clients
-        uint num_clients = 0;
-        auto it = _wm_state.clientsBegin();
-        for (; it != _wm_state.clientsEnd(); ++it) {
-            if ((*it)->displayOn(workspace)) {
-                num_clients++;
+        {
+            auto it = _wm_state.clientsBegin();
+            for (; it != _wm_state.clientsEnd(); ++it) {
+                if ((*it)->displayOn(workspace)) {
+                    ClientState state;
+                    if ((*it)->getWindow() == _wm_state.getActiveWindow()) {
+                        state = CLIENT_STATE_FOCUSED;
+                    } else if ((*it)->hidden) {
+                        state = CLIENT_STATE_ICONIFIED;
+                    } else {
+                        state = CLIENT_STATE_UNFOCUSED;
+                    }
+                    _entries.emplace_back(Entry((*it)->getName(), state, 0,
+                                                (*it)->getWindow()));
+                }
             }
         }
 
         // no clients on active workspace, skip rendering and avoid
         // division by zero.
-        if (! num_clients) {
-            return;
+        if (_entries.empty()) {
+            _entry_width = getWidth();
+        } else {
+            _entry_width = getWidth() / _entries.size();
         }
-        uint client_width = getWidth() / num_clients;;
 
-        int x = getX();
-        it = _wm_state.clientsBegin();
-        for (; it != _wm_state.clientsEnd(); ++it) {
-            if (! (*it)->displayOn(workspace)) {
-                continue;
+        {
+            int x = 0;
+            auto it = _entries.begin();
+            for (; it != _entries.end(); ++it) {
+                it->setX(x);
+                x += _entry_width;
             }
-            PFont *font;
-            if ((*it)->getWindow() == _wm_state.getActiveWindow()) {
-                font = _theme.getFont(CLIENT_STATE_FOCUSED);
-            } else if ((*it)->hidden) {
-                font = _theme.getFont(CLIENT_STATE_ICONIFIED);
-            } else {
-                font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
-            }
-            font->draw(draw, x, 1, (*it)->getName(), 0, client_width);
-            x += client_width;
         }
     }
 
 private:
     WmState& _wm_state;
+    int _entry_width;
+    std::vector<Entry> _entries;
 };
 
 /**
@@ -977,7 +1054,7 @@ private:
  * commands in this panel.
  */
 class ExternalDataWidget : public PanelWidget,
-                           public Observer{
+                           public Observer {
 public:
     ExternalDataWidget(const PanelTheme& theme,
                        const PanelConfig::SizeReq& size_req,
@@ -1228,6 +1305,9 @@ public:
             break;
         case PropertyNotify:
             handlePropertyNotify(&ev->xproperty);
+            break;
+        case MappingNotify:
+            TRACE("MappingNotify");
             break;
         default:
             DBG("UNKNOWN EVENT " << ev->type);
