@@ -67,6 +67,12 @@ static Util::StringMap<AtomName> window_type_map =
      {"UTILITY", WINDOW_TYPE_UTILITY},
      {"SPLASH", WINDOW_TYPE_SPLASH},
      {"DIALOG", WINDOW_TYPE_DIALOG},
+     {"DROPDOWNMENU", WINDOW_TYPE_DROPDOWN_MENU},
+     {"POPUPMENU", WINDOW_TYPE_POPUP_MENU},
+     {"TOOLTIP", WINDOW_TYPE_TOOLTIP},
+     {"NOTIFICATION", WINDOW_TYPE_NOTIFICATION},
+     {"COMBO", WINDOW_TYPE_COMBO},
+     {"DND", WINDOW_TYPE_DND},
      {"NORMAL", WINDOW_TYPE_NORMAL}};
 
 //! @brief Constructor for AutoProperties class
@@ -562,7 +568,7 @@ AutoProperties::setDefaultTypeProperties(void)
 {
     // DESKTOP
     if (! findWindowTypeProperty(WINDOW_TYPE_DESKTOP)) {
-        AutoProperty *prop = new AutoProperty();
+        auto prop = new AutoProperty();
         prop->maskAdd(AP_CLIENT_GEOMETRY);
         prop->client_gm_mask = X11::parseGeometry("0x0+0+0", prop->client_gm);
         prop->maskAdd(AP_STICKY);
@@ -585,7 +591,7 @@ AutoProperties::setDefaultTypeProperties(void)
 
     // DOCK
     if (! findWindowTypeProperty(WINDOW_TYPE_DOCK)) {
-        AutoProperty *prop = new AutoProperty();
+        auto prop = new AutoProperty();
         prop->maskAdd(AP_STICKY);
         prop->sticky = true;
         prop->maskAdd(AP_TITLEBAR);
@@ -606,7 +612,7 @@ AutoProperties::setDefaultTypeProperties(void)
 
     // TOOLBAR
     if (! findWindowTypeProperty(WINDOW_TYPE_TOOLBAR)) {
-        AutoProperty *prop = new AutoProperty();
+        auto prop = new AutoProperty();
         prop->maskAdd(AP_TITLEBAR);
         prop->titlebar = true;
         prop->maskAdd(AP_BORDER);
@@ -619,20 +625,21 @@ AutoProperties::setDefaultTypeProperties(void)
 
     // MENU
     if (! findWindowTypeProperty(WINDOW_TYPE_MENU)) {
-        AutoProperty *prop = new AutoProperty();
+        auto prop = new AutoProperty();
         prop->maskAdd(AP_TITLEBAR);
         prop->titlebar = false;
         prop->maskAdd(AP_BORDER);
         prop->border = false;
         prop->maskAdd(AP_SKIP);
-        prop->skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE|SKIP_SNAP|SKIP_PAGER|SKIP_TASKBAR;
+        prop->skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE|SKIP_SNAP|SKIP_PAGER
+            |SKIP_TASKBAR;
 
         _window_type_prop_map[WINDOW_TYPE_MENU] = prop;
     }
 
     // UTILITY
     if (! findWindowTypeProperty(WINDOW_TYPE_UTILITY)) {
-        AutoProperty *prop = new AutoProperty();
+        auto prop = new AutoProperty();
         prop->maskAdd(AP_TITLEBAR);
         prop->titlebar = true;
         prop->maskAdd(AP_BORDER);
@@ -645,13 +652,71 @@ AutoProperties::setDefaultTypeProperties(void)
 
     // SPLASH
     if (! findWindowTypeProperty(WINDOW_TYPE_SPLASH)) {
-        AutoProperty *prop = new AutoProperty();
+        auto prop = new AutoProperty();
         prop->maskAdd(AP_TITLEBAR);
         prop->titlebar = false;
         prop->maskAdd(AP_BORDER);
         prop->border = false;
 
         _window_type_prop_map[WINDOW_TYPE_SPLASH] = prop;
+    }
+
+    // DIALOG
+    if (! findWindowTypeProperty(WINDOW_TYPE_DIALOG)) {
+        auto prop = new AutoProperty();
+        _window_type_prop_map[WINDOW_TYPE_DIALOG] = prop;
+    }
+
+    // DROPDOWNMENU
+    if (! findWindowTypeProperty(WINDOW_TYPE_DROPDOWN_MENU)) {
+        auto prop = new AutoProperty();
+        _window_type_prop_map[WINDOW_TYPE_DROPDOWN_MENU] = prop;
+    }
+
+    // POPUPMENU
+    if (! findWindowTypeProperty(WINDOW_TYPE_POPUP_MENU)) {
+        auto prop = new AutoProperty();
+        _window_type_prop_map[WINDOW_TYPE_POPUP_MENU] = prop;
+    }
+
+    // TOOLTIP
+    if (! findWindowTypeProperty(WINDOW_TYPE_TOOLTIP)) {
+        auto prop = new AutoProperty();
+        prop->titlebar = false;
+        prop->maskAdd(AP_TITLEBAR);
+        prop->border = false;
+        prop->maskAdd(AP_BORDER);
+        prop->focus_new = false;
+        prop->maskAdd(AP_FOCUS_NEW);
+        prop->skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE|SKIP_SNAP;
+        prop->maskAdd(AP_SKIP);
+        _window_type_prop_map[WINDOW_TYPE_TOOLTIP] = prop;
+    }
+
+    // NOTIFICATION
+    if (! findWindowTypeProperty(WINDOW_TYPE_NOTIFICATION)) {
+        auto prop = new AutoProperty();
+        prop->titlebar = false;
+        prop->maskAdd(AP_TITLEBAR);
+        prop->border = false;
+        prop->maskAdd(AP_BORDER);
+        prop->focus_new = false;
+        prop->maskAdd(AP_FOCUS_NEW);
+        prop->skip = SKIP_MENUS|SKIP_FOCUS_TOGGLE|SKIP_SNAP;
+        prop->maskAdd(AP_SKIP);
+        _window_type_prop_map[WINDOW_TYPE_NOTIFICATION] = prop;
+    }
+
+    // COMBO
+    if (! findWindowTypeProperty(WINDOW_TYPE_COMBO)) {
+        auto prop = new AutoProperty();
+        _window_type_prop_map[WINDOW_TYPE_COMBO] = prop;
+    }
+
+    // DND
+    if (! findWindowTypeProperty(WINDOW_TYPE_DND)) {
+        auto prop = new AutoProperty();
+        _window_type_prop_map[WINDOW_TYPE_DND] = prop;
     }
 }
 

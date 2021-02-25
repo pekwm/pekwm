@@ -4,41 +4,75 @@
  should not be included in the menu and in snapping.
  */
 Property = "DESKTOP" {
-	FrameGeometry = "0x0+0+0"
-	Titlebar = "False"
-	Border = "False"
-	Sticky = "True"
-	Skip = "FocusToggle Menus Snap"
-	Layer = "Desktop"
-	Focusable = "False"
-	DisallowedActions = "Move"
+    FrameGeometry = "0x0+0+0"
+    Titlebar = "False"
+    Border = "False"
+    Sticky = "True"
+    Skip = "FocusToggle Menus Snap"
+    Layer = "Desktop"
+    FocusNew = "False"
+    Focusable = "False"
+    DisallowedActions = "Move"
 }
 Property = "DOCK" {
-	Titlebar = "False"
-	Border = "False"
-	Sticky = "True"
-	Layer = "Dock"
-	Skip = "FocusToggle Menus"
-	Focusable = "False"
-	DisallowedActions = "Move"
+    Titlebar = "False"
+    Border = "False"
+    Sticky = "True"
+    Layer = "Dock"
+    Skip = "FocusToggle Menus"
+    FocusNew = "False"
+    Focusable = "False"
+    DisallowedActions = "Move"
 }
-Property = "TOOLBAR"  {
-	Skip = "FocusToggle Menus Snap"
+Property = "TOOLBAR" {
+    Skip = "FocusToggle Menus Snap"
 }
-Property = "MENU"  {
-	Titlebar = "False"
-	Border = "False"
-	Skip = "FocusToggle Menus Snap"
+Property = "MENU" {
+    Titlebar = "False"
+    Border = "False"
+    Skip = "FocusToggle Menus Snap"
 }
-Property = "UTILITY"  {
+Property = "UTILITY" {
 }
-Property = "SPLASH"  {
-	Titlebar = "False"
-	Border = "False"
-	Layer = "OnTop"
+Property = "SPLASH" {
+    Titlebar = "False"
+    Border = "False"
+    Layer = "OnTop"
+    FocusNew = "False"
 }
-Property = "DIALOG"  {
-	Layer = "OnTop"
+Property = "DIALOG" {
+    Layer = "OnTop"
 }
-Property = "NORMAL"  {
+
+Property = "DROPDOWNMENU" {
+    Skip = "FocusToggle Menus Snap"
+}
+
+Property = "POPUPMENU" {
+    Skip = "FocusToggle Menus Snap"
+}
+
+Property = "TOOLTIP" {
+    Titlebar = "False"
+    Border = "False"
+    FocusNew = "False"
+    Skip = "FocusToggle Menus Snap"
+}
+
+Property = "NOTIFICATION" {
+    Titlebar = "False"
+    Border = "False"
+    FocusNew = "False"
+    Skip = "FocusToggle Menus Snap"
+}
+
+Property = "COMBO" {
+    Skip = "FocusToggle Menus Snap"
+}
+
+Property = "DND" {
+    Skip = "FocusToggle Menus Snap"
+}
+
+Property = "NORMAL" {
 }

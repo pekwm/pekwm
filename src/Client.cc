@@ -1678,6 +1678,18 @@ Client::updateWinType(bool set)
                 _window_type = WINDOW_TYPE_DIALOG;
             } else if (atoms[i] == X11::getAtom(WINDOW_TYPE_SPLASH)) {
                 _window_type = WINDOW_TYPE_SPLASH;
+            } else if (atoms[i] == X11::getAtom(WINDOW_TYPE_DROPDOWN_MENU)) {
+                _window_type = WINDOW_TYPE_DROPDOWN_MENU;
+            } else if (atoms[i] == X11::getAtom(WINDOW_TYPE_POPUP_MENU)) {
+                _window_type = WINDOW_TYPE_POPUP_MENU;
+            } else if (atoms[i] == X11::getAtom(WINDOW_TYPE_TOOLTIP)) {
+                _window_type = WINDOW_TYPE_TOOLTIP;
+            } else if (atoms[i] == X11::getAtom(WINDOW_TYPE_NOTIFICATION)) {
+                _window_type = WINDOW_TYPE_NOTIFICATION;
+            } else if (atoms[i] == X11::getAtom(WINDOW_TYPE_COMBO)) {
+                _window_type = WINDOW_TYPE_COMBO;
+            } else if (atoms[i] == X11::getAtom(WINDOW_TYPE_DND)) {
+                _window_type = WINDOW_TYPE_DND;
             } else if (atoms[i] == X11::getAtom(WINDOW_TYPE_NORMAL)) {
                 _window_type = WINDOW_TYPE_NORMAL;
             }
@@ -1688,8 +1700,9 @@ Client::updateWinType(bool set)
     // Set window type to WINDOW_TYPE_NORMAL if it did not match
     if (_window_type == WINDOW_TYPE) {
         _window_type = WINDOW_TYPE_NORMAL;
-        if (set)
+        if (set) {
             X11::setAtom(_window, WINDOW_TYPE, WINDOW_TYPE_NORMAL);
+        }
     }
 }
 
