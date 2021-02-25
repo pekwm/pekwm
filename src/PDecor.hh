@@ -133,6 +133,8 @@ public:
     virtual void raise(void) override;
     virtual void lower(void) override;
 
+    void moveResize(const Geometry &geometry, int gm_mask);
+
     virtual void setFocused(bool focused) override;
     virtual void setWorkspace(uint workspace) override;
 

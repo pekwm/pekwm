@@ -824,7 +824,9 @@ Frame::setupAPGeometry(Client *client, AutoProperty *ap)
     // get frame geometry
     if (ap->isMask(AP_FRAME_GEOMETRY)) {
         Geometry screen_gm = X11::getScreenGeometry();
-        setGeometry(ap->frame_gm, ap->frame_gm_mask, screen_gm);
+        Geometry gm;
+        applyGeometry(gm, ap->frame_gm, ap->frame_gm_mask, screen_gm);
+        moveResize(gm, ap->frame_gm_mask);
     }
 }
 
@@ -1844,20 +1846,9 @@ Frame::setGeometry(const std::string geometry, int head, bool honour_strut)
         }
     }
 
-    setGeometry(gm, mask, screen_gm);
-}
-
-void
-Frame::setGeometry(const Geometry &geometry, int gm_mask,
-                   const Geometry &screen_gm)
-{
-    applyGeometry(_gm, geometry, gm_mask, screen_gm);
-    if (gm_mask&(X_VALUE|Y_VALUE)) {
-        move(_gm.x, _gm.y);
-    }
-    if (gm_mask&(WIDTH_VALUE|HEIGHT_VALUE)) {
-        resize(_gm.width, _gm.height);
-    }
+    Geometry applied_gm;
+    applyGeometry(applied_gm, gm, mask, screen_gm);
+    moveResize(applied_gm, mask);
 }
 
 void

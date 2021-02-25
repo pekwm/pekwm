@@ -778,6 +778,8 @@ Config::parseMoveResizeAction(const std::string &action_string, Action &action)
             }
 
             return true;
+        } else {
+            USER_WARN("Unknown move/resize action: " << tok[0]);
         }
     }
 

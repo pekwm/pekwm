@@ -113,8 +113,6 @@ public:
 
     void setGeometry(const std::string geometry, int head=-1,
                      bool honour_strut=false);
-    void setGeometry(const Geometry &geometry, int gm_mask,
-                     const Geometry &head);
 
     void growDirection(uint direction);
     void moveToHead(int head_nr);
