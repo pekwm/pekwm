@@ -420,6 +420,30 @@ PDecor::resize(uint width, uint height)
     renderBorder();
 }
 
+void
+PDecor::moveResize(const Geometry &gm, int gm_mask)
+{
+    if (gm_mask & (X_VALUE|Y_VALUE)) {
+        if (gm_mask & X_VALUE) {
+            _gm.x = gm.x;
+        }
+        if (gm_mask & Y_VALUE) {
+            _gm.y = gm.y;
+        }
+        move(_gm.x, _gm.y);
+    }
+
+    if (gm_mask & (WIDTH_VALUE|HEIGHT_VALUE)) {
+        if (gm_mask & WIDTH_VALUE) {
+            _gm.width = gm.width;
+        }
+        if (gm_mask & HEIGHT_VALUE) {
+            _gm.height = gm.height;
+        }
+        resize(_gm.width, _gm.height);
+    }
+}
+
 //! @brief Move and resize window.
 void
 PDecor::moveResize(int x, int y, uint width, uint height)

@@ -212,6 +212,22 @@ public:
         return (x != gm.x) || (y != gm.y) ||
                 (width != gm.width) || (height != gm.height);
     }
+    inline int diffMask(const Geometry &old_gm) {
+        int mask = 0;
+        if (x != old_gm.x) {
+            mask |= X_VALUE;
+        }
+        if (y != old_gm.y) {
+            mask |= Y_VALUE;
+        }
+        if (width != old_gm.width) {
+            mask |= WIDTH_VALUE;
+        }
+        if (height != old_gm.height) {
+            mask |= HEIGHT_VALUE;
+        }
+        return mask;
+    }
 };
 
 /**

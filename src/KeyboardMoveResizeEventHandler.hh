@@ -129,6 +129,8 @@ public:
     EventHandler::Result
     runMoveResizeAction(const Action& action)
     {
+        int gm_mask = 0;
+
         switch (action.getAction()) {
         case MOVE_HORIZONTAL:
             if (action.getParamI(1) == UNIT_PERCENT) {
@@ -139,9 +141,7 @@ public:
             } else {
                 _gm.x += action.getParamI(0);
             }
-            if (! _outline) {
-                _decor->move(_gm.x, _gm.y);
-            }
+            gm_mask = X_VALUE;
             break;
         case MOVE_VERTICAL:
             if (action.getParamI(1) == UNIT_PERCENT) {
@@ -152,9 +152,7 @@ public:
             } else {
                 _gm.y +=  action.getParamI(0);
             }
-            if (! _outline) {
-                _decor->move(_gm.x, _gm.y);
-            }
+            gm_mask = Y_VALUE;
             break;
         case RESIZE_HORIZONTAL:
             if (action.getParamI(1) == UNIT_PERCENT) {
@@ -165,9 +163,7 @@ public:
             } else {
                 _gm.width +=  action.getParamI(0);
             }
-            if (! _outline) {
-                _decor->resize(_gm.width, _gm.height);
-            }
+            gm_mask = WIDTH_VALUE;
             break;
         case RESIZE_VERTICAL:
             if (action.getParamI(1) == UNIT_PERCENT) {
@@ -178,41 +174,34 @@ public:
             } else {
                 _gm.height +=  action.getParamI(0);
             }
-            if (! _outline) {
-                _decor->resize(_gm.width, _gm.height);
-            }
+            gm_mask = HEIGHT_VALUE;
             break;
         case MOVE_SNAP:
             PDecor::checkSnap(_decor, _gm);
-            if (! _outline) {
-                _decor->move(_gm.x, _gm.y);
-            }
+            gm_mask = X_VALUE | Y_VALUE;
             break;
         case MOVE_CANCEL:
+            gm_mask = _old_gm.diffMask(_gm);
             _gm = _old_gm; // restore position
 
             if (! _outline) {
-                _decor->move(_gm.x, _gm.y);
-                _decor->resize(_gm.width, _gm.height);
+                _decor->moveResize(_old_gm, gm_mask);
             }
 
             return EventHandler::EVENT_STOP_PROCESSED;
         case MOVE_END:
             if (_outline) {
-                if (_gm.x != _old_gm.x
-                    || _gm.y != _old_gm.y) {
-                    _decor->move(_gm.x, _gm.y);
-                }
-                if (_gm.width != _old_gm.width
-                    || _gm.height != _old_gm.height) {
-                    _decor->resize(_gm.width, _gm.height);
-                }
+                gm_mask = _gm.diffMask(_old_gm);
+                _decor->moveResize(_gm, gm_mask);
             }
             return EventHandler::EVENT_STOP_PROCESSED;
         default:
             break;
         }
 
+        if (! _outline) {
+            _decor->moveResize(_gm, gm_mask);
+        }
         return EventHandler::EVENT_PROCESSED;
     }
 
