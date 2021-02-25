@@ -14,7 +14,6 @@
 #include "Config.hh"
 #include "Debug.hh"
 #include "Util.hh"
-#include "x11.hh"
 
 static Util::StringMap<ApplyOn> apply_on_map =
     {{"", APPLY_ON_ALWAYS},

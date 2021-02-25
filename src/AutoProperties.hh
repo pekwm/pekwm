@@ -13,6 +13,7 @@
 #include "pekwm.hh"
 #include "CfgParser.hh"
 #include "RegexString.hh"
+#include "x11.hh"
 
 #include <string>
 

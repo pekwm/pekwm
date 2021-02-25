@@ -10,11 +10,12 @@
 
 #include "config.h"
 
-#include "pekwm.hh"
+#include "Types.hh"
 
 #include <array>
 #include <iostream>
 #include <string>
+#include <vector>
 
 extern "C" {
 #include <X11/Xlib.h>
@@ -41,6 +42,130 @@ extern unsigned int xerrors_count; /**< Number of X errors occured. */
 
 }
 
+enum AtomName {
+    // Ewmh Atom Names
+    NET_SUPPORTED,
+    NET_CLIENT_LIST, NET_CLIENT_LIST_STACKING,
+    NET_NUMBER_OF_DESKTOPS,
+    NET_DESKTOP_GEOMETRY, NET_DESKTOP_VIEWPORT,
+    NET_CURRENT_DESKTOP, NET_DESKTOP_NAMES,
+    NET_ACTIVE_WINDOW, NET_WORKAREA,
+    NET_DESKTOP_LAYOUT, NET_SUPPORTING_WM_CHECK,
+    NET_CLOSE_WINDOW,
+    NET_WM_MOVERESIZE,
+    NET_WM_NAME, NET_WM_VISIBLE_NAME,
+    NET_WM_ICON_NAME, NET_WM_VISIBLE_ICON_NAME,
+    NET_WM_ICON, NET_WM_DESKTOP,
+    NET_WM_STRUT, NET_WM_PID,
+    NET_WM_USER_TIME,
+    NET_WM_WINDOW_OPACITY,
+
+    WINDOW_TYPE,
+    WINDOW_TYPE_DESKTOP,
+    WINDOW_TYPE_DOCK,
+    WINDOW_TYPE_TOOLBAR,
+    WINDOW_TYPE_MENU,
+    WINDOW_TYPE_UTILITY,
+    WINDOW_TYPE_SPLASH,
+    WINDOW_TYPE_DIALOG,
+    WINDOW_TYPE_DROPDOWN_MENU,
+    WINDOW_TYPE_POPUP_MENU,
+    WINDOW_TYPE_TOOLTIP,
+    WINDOW_TYPE_NOTIFICATION,
+    WINDOW_TYPE_COMBO,
+    WINDOW_TYPE_DND,
+    WINDOW_TYPE_NORMAL,
+
+    STATE,
+    STATE_MODAL, STATE_STICKY,
+    STATE_MAXIMIZED_VERT, STATE_MAXIMIZED_HORZ,
+    STATE_SHADED,
+    STATE_SKIP_TASKBAR, STATE_SKIP_PAGER,
+    STATE_HIDDEN, STATE_FULLSCREEN,
+    STATE_ABOVE, STATE_BELOW,
+    STATE_DEMANDS_ATTENTION,
+
+    EWMH_ALLOWED_ACTIONS,
+    EWMH_ACTION_MOVE, EWMH_ACTION_RESIZE,
+    EWMH_ACTION_MINIMIZE, EWMH_ACTION_SHADE,
+    EWMH_ACTION_STICK,
+    EWHM_ACTION_MAXIMIZE_VERT, EWMH_ACTION_MAXIMIZE_HORZ,
+    EWMH_ACTION_FULLSCREEN, ACTION_CHANGE_DESKTOP,
+    EWMH_ACTION_CLOSE,
+
+    // all EWMH atoms must be before this, see x11::setEwmhAtomsSupport
+    UTF8_STRING,
+
+    STRING, MANAGER,
+
+    // pekwm atom names
+    PEKWM_FRAME_ID,
+    PEKWM_FRAME_ORDER,
+    PEKWM_FRAME_ACTIVE,
+    PEKWM_FRAME_DECOR,
+    PEKWM_FRAME_SKIP,
+    PEKWM_TITLE,
+    PEKWM_BG_PID,
+    PEKWM_CMD,
+
+    // ICCCM Atom Names
+    WM_NAME,
+    WM_ICON_NAME,
+    WM_HINTS,
+    WM_CLASS,
+    WM_STATE,
+    WM_CHANGE_STATE,
+    WM_PROTOCOLS,
+    WM_DELETE_WINDOW,
+    WM_COLORMAP_WINDOWS,
+    WM_TAKE_FOCUS,
+    WM_WINDOW_ROLE,
+    WM_CLIENT_MACHINE,
+
+    // List of non PEKWM, ICCCM and EWMH atoms.
+    MOTIF_WM_HINTS,
+
+    XROOTPMAP_ID,
+    XSETROOT_ID,
+
+    MAX_NR_ATOMS
+};
+
+enum ButtonNum {
+    BUTTON_ANY = 0,
+    BUTTON1 = Button1,
+    BUTTON2,
+    BUTTON3,
+    BUTTON4,
+    BUTTON5,
+    BUTTON6,
+    BUTTON7,
+    BUTTON8,
+    BUTTON9,
+    BUTTON10,
+    BUTTON11,
+    BUTTON12,
+    BUTTON_NO
+};
+
+/**
+ * Keep in sync with BorderPosition in pekwm.hh
+ */
+enum CursorType {
+    CURSOR_TOP_LEFT = 0,
+    CURSOR_TOP,
+    CURSOR_TOP_RIGHT,
+    CURSOR_LEFT,
+    CURSOR_RIGHT,
+    CURSOR_BOTTOM_LEFT,
+    CURSOR_BOTTOM,
+    CURSOR_BOTTOM_RIGHT,
+    CURSOR_ARROW,
+    CURSOR_MOVE,
+    CURSOR_RESIZE,
+    CURSOR_NONE
+};
+
 /**
  * Bitmask values for parseGeometry result.
  */
@@ -57,6 +182,36 @@ enum XGeometryMask {
     Y_PERCENT = 1 << 8,
     WIDTH_PERCENT = 1 << 9,
     HEIGHT_PERCENT = 1 << 10
+};
+
+class Geometry {
+public:
+    Geometry(void)
+      : x(0), y(0), width(1), height(1) { }
+    Geometry(int _x, int _y, unsigned int _width, unsigned int _height) :
+      x(_x), y(_y), width(_width), height(_height) { }
+    Geometry(const Geometry &gm)
+      : x(gm.x), y(gm.y), width(gm.width), height(gm.height) { }
+    ~Geometry(void) { }
+
+    int x, y;
+    unsigned int width, height;
+
+    inline Geometry& operator = (const Geometry& gm) {
+        x = gm.x;
+        y = gm.y;
+        width = gm.width;
+        height = gm.height;
+        return *this;
+    }
+    inline bool operator == (const Geometry& gm) {
+        return ((x == gm.x) && (y == gm.y) &&
+                (width == gm.width) && (height == gm.height));
+    }
+    inline bool operator != (const Geometry& gm) {
+        return (x != gm.x) || (y != gm.y) ||
+                (width != gm.width) || (height != gm.height);
+    }
 };
 
 /**

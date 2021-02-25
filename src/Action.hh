@@ -12,6 +12,7 @@
 
 #include "CfgParser.hh"
 #include "Types.hh"
+#include "pekwm.hh"
 #include "x11.hh"
 
 #include <vector>
