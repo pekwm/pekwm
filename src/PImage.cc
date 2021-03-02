@@ -130,7 +130,7 @@ PImage::PImage(PImage *image)
 /**
  * Create PImage from XImage.
  */
-PImage::PImage(XImage *image)
+PImage::PImage(XImage *image, uchar opacity)
     : _type(IMAGE_TYPE_FIXED),
       _pixmap(None),
       _mask(None),
@@ -142,7 +142,7 @@ PImage::PImage(XImage *image)
     uint dst = 0;
     for (uint y = 0; y < _height; ++y) {
         for (uint x = 0; x < _width; ++x) {
-            _data[dst] = 0; // A
+            _data[dst] = opacity; // A
             getRgbFromPixel(image, XGetPixel(image, x, y),
                             _data[dst + 1], _data[dst + 2], _data[dst + 3]);
             dst += 4;
@@ -246,7 +246,7 @@ PImage::draw(Drawable draw, int x, int y, uint width, uint height)
         || ((_type == IMAGE_TYPE_SCALED)
             && (_width == width) && (_height == height))) {
         if (_use_alpha) {
-            drawAlphaFixed(draw, x, y, width, height);
+            drawAlphaFixed(draw, x, y, width, height, _data);
         } else {
             drawFixed(draw, x, y, width, height);
         }
@@ -381,6 +381,69 @@ PImage::scale(uint width, uint height)
  * Draw image at position, not scaling.
  */
 void
+PImage::drawAlphaFixed(Drawable dest, int x, int y, uint width, uint height,
+                       uchar* data)
+{
+    auto dest_image = X11::getImage(dest,
+                                    x, y, width, height, AllPlanes, ZPixmap);
+    if (! dest_image) {
+        ERR("failed to get image for destination " << dest
+            << " x " << x << " y " << y
+            << " width " << width << " height " << height);
+        return;
+    }
+
+    drawAlphaFixed(dest_image, x, y, width, height, data);
+
+    X11::putImage(dest, X11::getGC(), dest_image,
+                  0, 0, x, y, width, height);
+    X11::destroyImage(dest_image);
+}
+
+void
+PImage::drawAlphaFixed(XImage *dest_image, int x, int y, uint width, uint height,
+                       uchar* data)
+{
+    // Get mask from visual
+    auto visual = X11::getVisual();
+    dest_image->red_mask = visual->red_mask;
+    dest_image->green_mask = visual->green_mask;
+    dest_image->blue_mask = visual->blue_mask;
+
+    uchar *src = data;
+    for (uint i_y = 0; i_y < height; ++i_y) {
+        for (uint i_x = 0; i_x < width; ++i_x) {
+            // Get pixel value, copy them directly if alpha is set to 255.
+            uchar a = *src++;
+            uchar r = *src++;
+            uchar g = *src++;
+            uchar b = *src++;
+
+            // Alpha not 100% solid, blend
+            if (a != 255) {
+                // Get RGB values from pixel.
+                uchar d_r = 0, d_g = 0, d_b = 0;
+                getRgbFromPixel(dest_image, XGetPixel(dest_image, i_x, i_y),
+                                d_r, d_g, d_b);
+
+                float a_percent = static_cast<float>(a) / 255;
+                float a_percent_inv = 1 - a_percent;
+                r = static_cast<uchar>((a_percent_inv * d_r) + (a_percent * r));
+                g = static_cast<uchar>((a_percent_inv * d_g) + (a_percent * g));
+                b = static_cast<uchar>((a_percent_inv * d_b) + (a_percent * b));
+            }
+
+            XPutPixel(dest_image, i_x, i_y,
+                      getPixelFromRgb(dest_image, r, g, b));
+        }
+    }
+}
+
+
+/**
+ * Draw image at position, not scaling.
+ */
+void
 PImage::drawFixed(Drawable dest, int x, int y, uint width, uint height)
 {
     // Plain copy of the pixmap onto Drawable.
@@ -436,69 +499,6 @@ PImage::drawTiled(Drawable dest, int x, int y, uint width, uint height)
 }
 
 /**
- * Draw image at position, not scaling.
- */
-void
-PImage::drawAlphaFixed(Drawable dest, int x, int y, uint width, uint height,
-                       uchar* data)
-{
-    auto dest_image = XGetImage(X11::getDpy(), dest,
-                                x, y, width, height, AllPlanes, ZPixmap);
-    if (! dest_image) {
-        ERR("failed to get image for destination " << dest
-            << " x " << x << " y " << y
-            << " width " << width << " height " << height);
-        return;
-    }
-
-    // Get mask from visual
-    auto visual = X11::getVisual();
-    dest_image->red_mask = visual->red_mask;
-    dest_image->green_mask = visual->green_mask;
-    dest_image->blue_mask = visual->blue_mask;
-
-    uchar *src;
-    if (data) {
-        src = data;
-    } else {
-        src = _data;
-        width = std::min(width, _width);
-        height = std::min(height, _height);
-    }
-
-    for (uint i_y = 0; i_y < height; ++i_y) {
-        for (uint i_x = 0; i_x < width; ++i_x) {
-            // Get pixel value, copy them directly if alpha is set to 255.
-            uchar a = *src++;
-            uchar r = *src++;
-            uchar g = *src++;
-            uchar b = *src++;
-
-            // Alpha not 100% solid, blend
-            if (a != 255) {
-                // Get RGB values from pixel.
-                uchar d_r = 0, d_g = 0, d_b = 0;
-                getRgbFromPixel(dest_image, XGetPixel(dest_image, i_x, i_y),
-                                d_r, d_g, d_b);
-
-                float a_percent = static_cast<float>(a) / 255;
-                float a_percent_inv = 1 - a_percent;
-                r = static_cast<uchar>((a_percent_inv * d_r) + (a_percent * r));
-                g = static_cast<uchar>((a_percent_inv * d_g) + (a_percent * g));
-                b = static_cast<uchar>((a_percent_inv * d_b) + (a_percent * b));
-            }
-
-            XPutPixel(dest_image, i_x, i_y,
-                      getPixelFromRgb(dest_image, r, g, b));
-        }
-    }
-
-    XPutImage(X11::getDpy(), dest, X11::getGC(), dest_image,
-              0, 0, x, y, width, height);
-    XDestroyImage(dest_image);
-}
-
-/**
  * Draw image scaled to fit width and height.
  */
 void
@@ -537,12 +537,12 @@ PImage::createPixmap(uchar* data, uint width, uint height)
     auto ximage = createXImage(data, width, height);
     if (ximage) {
         pix = X11::createPixmap(width, height);
-        XPutImage(X11::getDpy(), pix, X11::getGC(), ximage,
-                  0, 0, 0, 0, width, height);
+        X11::putImage(pix, X11::getGC(), ximage,
+                      0, 0, 0, 0, width, height);
 
         delete [] ximage->data;
         ximage->data = 0;
-        XDestroyImage(ximage);
+        X11::destroyImage(ximage);
     }
 
     return pix;
@@ -587,12 +587,12 @@ PImage::createMask(uchar* data, uint width, uint height)
 
     Pixmap pix{X11::createPixmapMask(width, height)};
     GC gc = XCreateGC(X11::getDpy(), pix, 0, 0);
-    XPutImage(X11::getDpy(), pix, gc, ximage, 0, 0, 0, 0, width, height);
+    X11::putImage(pix, gc, ximage, 0, 0, 0, 0, width, height);
     XFreeGC(X11::getDpy(), gc);
 
     delete [] ximage->data;
     ximage->data = 0;
-    XDestroyImage(ximage);
+    X11::destroyImage(ximage);
 
     return pix;
 }

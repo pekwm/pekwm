@@ -472,9 +472,10 @@ public:
                        PropModeReplace, (uchar *) values, size);
     }
 
-    inline static bool getLong(Window win, AtomName aname, long &value) {
+    inline static bool getLong(Window win, AtomName aname, long &value,
+                               long format=XA_CARDINAL) {
         uchar *udata = 0;
-        if (getProperty(win, _atoms[aname], XA_CARDINAL, 1L, &udata, 0)) {
+        if (getProperty(win, _atoms[aname], format, 1L, &udata, 0)) {
             value = *reinterpret_cast<long*>(udata);
             X11::free(udata);
             return true;
@@ -737,6 +738,25 @@ public:
             XFreePixmap(_dpy, pixmap);
         }
         pixmap = None;
+    }
+
+    static XImage *getImage(Drawable src, int x, int y, uint width, uint height,
+                           unsigned long plane_mask, int format) {
+        if (_dpy) {
+            return XGetImage(_dpy, src, x, y, width, height, plane_mask, format);
+        }
+        return nullptr;
+    }
+    static void putImage(Drawable dest, GC gc, XImage *ximage,
+                         int src_x, int src_y, int dest_x, int dest_y,
+                         uint width, uint height) {
+        if (_dpy) {
+            XPutImage(_dpy, dest, gc, ximage,
+                      src_x, src_y, dest_x, dest_y, width, height);
+        }
+    }
+    static void destroyImage(XImage *ximage) {
+        XDestroyImage(ximage);
     }
 
     static void setWindowBackground(Window window, ulong pixel) {

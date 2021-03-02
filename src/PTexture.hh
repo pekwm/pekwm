@@ -29,7 +29,8 @@ public:
         : _ok(false),
           _width(0),
           _height(0),
-          _type(PTexture::TYPE_NO)
+          _type(PTexture::TYPE_NO),
+          _opacity(255)
     {
     }
     virtual ~PTexture(void)
@@ -37,7 +38,8 @@ public:
     }
 
     void render(Drawable draw,
-                int x, int y, uint width, uint height);
+                int x, int y, uint width, uint height,
+                int root_x=0, int root_y=0);
     virtual void doRender(Drawable draw,
                           int x, int y, uint width, uint height) = 0;
     virtual bool getPixel(ulong &pixel) const = 0;
@@ -56,8 +58,17 @@ public:
     void setWidth(uint width) { _width = width; }
     void setHeight(uint height) { _height = height; }
 
+    uchar getOpacity(void) const { return _opacity; }
+    void setOpacity(uchar opacity) { _opacity = opacity; }
+
+private:
+    void renderOnBackground(Drawable draw,
+                            int x, int y, uint width, uint height,
+                            int root_x, int root_y);
+
 protected:
     bool _ok; // Texture successfully loaded
     uint _width, _height; // for images etc, 0 for infinite like in stretch
     PTexture::Type _type; // Type of texture
+    uchar _opacity; // Texture opacity, blended onto background pixmap
 };

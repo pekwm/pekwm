@@ -19,7 +19,7 @@ class PImage {
 public:
     PImage(const std::string &path);
     PImage(PImage *image);
-    PImage(XImage *image);
+    PImage(XImage *image, uchar opacity=255);
     virtual ~PImage(void);
 
     //! @brief Returns type of image.
@@ -41,14 +41,20 @@ public:
     virtual Pixmap getMask(bool &need_free, uint width = 0, uint height = 0);
     virtual void scale(uint width, uint height);
 
+
+    static void drawAlphaFixed(Drawable dest,
+                               int x, int y, uint width, uint height,
+                               uchar* data);
+    static void drawAlphaFixed(XImage *dest_image,
+                               int x, int y, uint width, uint height,
+                               uchar* data);
+
 protected:
     PImage(void);
 
     void drawFixed(Drawable dest, int x, int y, uint width, uint height);
     void drawScaled(Drawable dest, int x, int y, uint widht, uint height);
     void drawTiled(Drawable dest, int x, int y, uint widht, uint height);
-    void drawAlphaFixed(Drawable dest, int x, int y, uint widht, uint height,
-                        uchar* data = 0);
     void drawAlphaScaled(Drawable dest, int x, int y, uint widht, uint height);
     void drawAlphaTiled(Drawable dest, int x, int y, uint widht, uint height);
 

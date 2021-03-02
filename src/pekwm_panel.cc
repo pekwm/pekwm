@@ -771,6 +771,7 @@ public:
 
         auto th = pekwm::textureHandler();
         _background = th->getTexture("SolidRaised #ffffff #eeeeee #cccccc");
+        _background->setOpacity(50);
         _sep = th->getTexture("Solid #aaaaaa 1x24");
 
         for (int i = 0; i < CLIENT_STATE_NO; i++) {
@@ -1454,9 +1455,9 @@ private:
 
     void renderBackground(void)
     {
-        _theme.getBackground()->render(_pixmap, 0, 0, _gm.width, _gm.height);
+        _theme.getBackground()->render(_pixmap, 0, 0, _gm.width, _gm.height,
+                                       _gm.x, _gm.y);
     }
-
 
 private:
     const PanelConfig& _cfg;

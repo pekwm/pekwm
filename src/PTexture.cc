@@ -7,6 +7,7 @@
 //
 
 #include "PTexture.hh"
+#include "PImage.hh"
 #include "x11.hh"
 
 /**
@@ -14,7 +15,8 @@
  */
 void
 PTexture::render(Drawable draw,
-                 int x, int y, uint width, uint height)
+                 int x, int y, uint width, uint height,
+                 int root_x, int root_y)
 {
     if (width == 0) {
         width = _width;
@@ -25,6 +27,9 @@ PTexture::render(Drawable draw,
 
     if (width && height) {
         doRender(draw, x, y, width, height);
+        if (_opacity != 255) {
+            renderOnBackground(draw, x, y, width, height, root_x, root_y);
+        }
     }
 }
 
@@ -38,7 +43,7 @@ PTexture::setBackground(Drawable draw,
                         int x, int y, uint width, uint height)
 {
     ulong pixel;
-    if (getPixel(pixel)) {
+    if (getPixel(pixel) && _opacity == 255) {
         // set background pixel
         X11::setWindowBackground(draw, pixel);
     } else if (width > 0 && height > 0) {
@@ -46,5 +51,35 @@ PTexture::setBackground(Drawable draw,
         render(pix, x, y, width, height);
         X11::setWindowBackgroundPixmap(draw, pix);
         X11::freePixmap(pix);
+    }
+}
+
+void
+PTexture::renderOnBackground(Drawable draw,
+                            int x, int y, uint width, uint height,
+                            int root_x, int root_y)
+{
+    auto src_ximage = X11::getImage(draw, x, y, width, height,
+                                    AllPlanes, ZPixmap);
+    if (src_ximage) {
+        auto src_image = PImage(src_ximage, _opacity);
+        X11::destroyImage(src_ximage);
+
+        long pix;
+        if (X11::getLong(X11::getRoot(), XROOTPMAP_ID, pix, XA_PIXMAP)) {
+            auto dest_ximage = X11::getImage(pix,
+                                             root_x, root_y,
+                                             width, height,
+                                             AllPlanes, ZPixmap);
+            if (dest_ximage) {
+                // read background pixmap for area
+                PImage::drawAlphaFixed(dest_ximage, x, y, width, height,
+                                       src_image.getData());
+
+                X11::putImage(draw, X11::getGC(), dest_ximage,
+                              0, 0, x, y, width, height);
+                X11::destroyImage(dest_ximage);
+            }
+        }
     }
 }

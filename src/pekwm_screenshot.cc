@@ -71,16 +71,16 @@ static std::string get_screenhot_name(const Geometry& gm)
 static int take_screenshot(const std::string& output)
 {
     auto gm = X11::getScreenGeometry();
-    auto ximage = XGetImage(X11::getDpy(), X11::getRoot(),
-                            gm.x, gm.y, gm.width, gm.height,
-                            AllPlanes, ZPixmap);
+    auto ximage = X11::getImage(X11::getRoot(),
+                               gm.x, gm.y, gm.width, gm.height,
+                               AllPlanes, ZPixmap);
     if (ximage == nullptr) {
         std::cerr << "Failed to take a screenshot" << std::endl;
         return 1;
     }
 
     auto image = new PImage(ximage);
-    XDestroyImage(ximage);
+    X11::destroyImage(ximage);
 
     return PImageLoaderPng::save(output, image->getData(),
                                  image->getWidth(), image->getHeight())
