@@ -62,8 +62,8 @@ renderTiled(const int a_x, const int a_y,
 // PTextureEmpty
 
 void
-PTextureEmpty::doRender(Drawable draw,
-                      int x, int y, uint width, uint height)
+PTextureEmpty::doRender(Render &rend,
+                        int x, int y, uint width, uint height)
 {
 }
 
@@ -82,18 +82,11 @@ PTextureSolid::PTextureSolid(const std::string &color)
 {
     // PTexture attributes
     _type = PTexture::TYPE_SOLID;
-
-    XGCValues gv;
-    gv.function = GXcopy;
-    _gc = XCreateGC(X11::getDpy(), X11::getRoot(), GCFunction, &gv);
-
     setColor(color);
 }
 
 PTextureSolid::~PTextureSolid(void)
 {
-    XFreeGC(X11::getDpy(), _gc);
-
     unsetColor();
 }
 
@@ -103,9 +96,10 @@ PTextureSolid::~PTextureSolid(void)
  * Render single color on draw.
  */
 void
-PTextureSolid::doRender(Drawable draw, int x, int y, uint width, uint height)
+PTextureSolid::doRender(Render &rend, int x, int y, uint width, uint height)
 {
-    XFillRectangle(X11::getDpy(), draw, _gc, x, y, width, height);
+    rend.setColor(_xc->pixel);
+    rend.fill(x, y, width, height);
 }
 
 // END - PTexture interface.
@@ -119,8 +113,6 @@ PTextureSolid::setColor(const std::string &color)
     unsetColor(); // unload used resources
 
     _xc = X11::getColor(color);
-    XSetForeground(X11::getDpy(), _gc, _xc->pixel);
-
     _ok = true;
 
     return _ok;
@@ -159,19 +151,11 @@ PTextureSolidRaised::PTextureSolidRaised(const std::string &base,
 {
     // PTexture attributes
     _type = PTexture::TYPE_SOLID_RAISED;
-
-    XGCValues gv;
-    gv.function = GXcopy;
-    gv.line_width = _lw;
-    _gc = XCreateGC(X11::getDpy(), X11::getRoot(), GCFunction|GCLineWidth, &gv);
-
     setColor(base, hi, lo);
 }
 
 PTextureSolidRaised::~PTextureSolidRaised(void)
 {
-    XFreeGC(X11::getDpy(), _gc);
-
     unsetColor();
 }
 
@@ -181,53 +165,51 @@ PTextureSolidRaised::~PTextureSolidRaised(void)
  * Renders a "raised" rectangle onto draw.
  */
 void
-PTextureSolidRaised::doRender(Drawable draw,
+PTextureSolidRaised::doRender(Render &rend,
                               int x, int y, uint width, uint height)
 {
     if (_width && _height) {
         // size was given in the texture, repeat the texture over the
         // provided geometry
-        auto render = [this, draw](int rx, int ry, uint rw, uint rh) {
-            this->renderArea(draw, rx, ry, rw, rh);
+        auto render = [this, &rend](int rx, int ry, uint rw, uint rh) {
+            this->renderArea(rend, rx, ry, rw, rh);
         };
         renderTiled(x, y, width, height, _width, _height, render);
     } else {
         // no size given, treat provided geometry as area
-        renderArea(draw, x, y, width, height);
+        renderArea(rend, x, y, width, height);
     }
 }
 
 void
-PTextureSolidRaised::renderArea(Drawable draw,
+PTextureSolidRaised::renderArea(Render &rend,
                                 int x, int y, uint width, uint height)
 {
+    rend.setLineWidth(_lw);
+
     // base rectangle
-    XSetForeground(X11::getDpy(), _gc, _xc_base->pixel);
-    XFillRectangle(X11::getDpy(), draw, _gc, x, y, width, height);
+    rend.setColor(_xc_base->pixel);
+    rend.fill(x, y, width, height);
 
     // hi line ( consisting of two lines )
-    XSetForeground(X11::getDpy(), _gc, _xc_hi->pixel);
+    rend.setColor(_xc_hi->pixel);
     if (_draw_top) {
-        XDrawLine(X11::getDpy(), draw, _gc,
-                  x + _loff, y + _loff, x + width - _loff - _lw, y + _loff);
+        rend.line(x + _loff, y + _loff, x + width - _loff - _lw, y + _loff);
     }
     if (_draw_left) {
-        XDrawLine(X11::getDpy(), draw, _gc,
-                  x + _loff, y + _loff, x + _loff, y + height - _loff - _lw);
+        rend.line(x + _loff, y + _loff, x + _loff, y + height - _loff - _lw);
     }
 
     // lo line ( consisting of two lines )
-    XSetForeground(X11::getDpy(), _gc, _xc_lo->pixel);
+    rend.setColor(_xc_lo->pixel);
     if (_draw_bottom) {
-        XDrawLine(X11::getDpy(), draw, _gc,
-                  x + _loff + _lw,
+        rend.line(x + _loff + _lw,
                   y + height - _loff - (_lw ? _lw : 1),
                   x + width - _loff - _lw,
                   y + height - _loff - (_lw ? _lw : 1));
     }
     if (_draw_right) {
-        XDrawLine(X11::getDpy(), draw, _gc,
-                  x + width - _loff - (_lw ? _lw : 1),
+        rend.line(x + width - _loff - (_lw ? _lw : 1),
                   y + _loff + _lw,
                   x + width - _loff - (_lw ? _lw : 1),
                   y + height - _loff - _lw);
@@ -242,15 +224,7 @@ PTextureSolidRaised::renderArea(Drawable draw,
 void
 PTextureSolidRaised::setLineWidth(uint lw)
 {
-    _lw = lw;
-    // This is a hack to be able to rid the spacing lw == 1 does.
-    if (! lw) {
-        lw = 1;
-    }
-
-    XGCValues gv;
-    gv.line_width = lw;
-    XChangeGC(X11::getDpy(), _gc, GCLineWidth, &gv);
+    _lw = lw < 1 ? 1 : lw;
 }
 
 /**
@@ -295,45 +269,41 @@ PTextureLines::PTextureLines(float line_size, bool size_percent, bool horz,
       _horz(horz)
 {
     _type = horz ? PTexture::TYPE_LINES_HORZ : PTexture::TYPE_LINES_VERT;
-    XGCValues gv;
-    gv.function = GXcopy;
-    _gc = XCreateGC(X11::getDpy(), X11::getRoot(), GCFunction, &gv);
     setColors(colors);
 }
 
 PTextureLines::~PTextureLines()
 {
-    XFreeGC(X11::getDpy(), _gc);
 }
 
 void
-PTextureLines::doRender(Drawable draw, int x, int y, uint width, uint height)
+PTextureLines::doRender(Render &rend, int x, int y, uint width, uint height)
 {
     if (_width && _height) {
         // size was given in the texture, repeat the texture over the
         // provided geometry
-        auto render = [this, draw](int rx, int ry, uint rw, uint rh) {
-            this->renderArea(draw, rx, ry, rw, rh);
+        auto render = [this, &rend](int rx, int ry, uint rw, uint rh) {
+            this->renderArea(rend, rx, ry, rw, rh);
         };
         renderTiled(x, y, width, height, _width, _height, render);
     } else {
         // no size given, treat provided geometry as area
-        renderArea(draw, x, y, width, height);
+        renderArea(rend, x, y, width, height);
     }
 }
 
 void
-PTextureLines::renderArea(Drawable draw, int x, int y, uint width, uint height)
+PTextureLines::renderArea(Render &rend, int x, int y, uint width, uint height)
 {
     if (_horz) {
-        renderHorz(draw, x, y, width, height);
+        renderHorz(rend, x, y, width, height);
     } else {
-        renderVert(draw, x, y, width, height);
+        renderVert(rend, x, y, width, height);
     }
 }
 
 void
-PTextureLines::renderHorz(Drawable draw, int x, int y, uint width, uint height)
+PTextureLines::renderHorz(Render &rend, int x, int y, uint width, uint height)
 {
     uint line_height;
     if (_size_percent) {
@@ -350,18 +320,16 @@ PTextureLines::renderHorz(Drawable draw, int x, int y, uint width, uint height)
     uint pos = 0;
     while (pos < height) {
         for (auto it : _colors) {
-            XSetForeground(X11::getDpy(), _gc, it->pixel);
-            XFillRectangle(X11::getDpy(), draw, _gc,
-                           x, y + pos,
-                           width,
-                           std::min(line_height, height - pos));
+            rend.setColor(it->pixel);
+            rend.fill(x, y + pos,
+                      width, std::min(line_height, height - pos));
             pos += line_height;
         }
     }
 }
 
 void
-PTextureLines::renderVert(Drawable draw, int x, int y, uint width, uint height)
+PTextureLines::renderVert(Render &rend, int x, int y, uint width, uint height)
 {
     uint line_width;
     if (_size_percent) {
@@ -373,11 +341,9 @@ PTextureLines::renderVert(Drawable draw, int x, int y, uint width, uint height)
     uint pos = 0;
     while (pos < width) {
         for (auto it : _colors) {
-            XSetForeground(X11::getDpy(), _gc, it->pixel);
-            XFillRectangle(X11::getDpy(), draw, _gc,
-                           x + pos, y,
-                           std::min(line_width, width - pos),
-                           height);
+            rend.setColor(it->pixel);
+            rend.fill(x + pos, y,
+                      std::min(line_width, width - pos), height);
             pos += line_width;
         }
     }
@@ -433,9 +399,10 @@ PTextureImage::~PTextureImage(void)
  * Renders image onto draw
  */
 void
-PTextureImage::doRender(Drawable draw, int x, int y, uint width, uint height)
+PTextureImage::doRender(Render &rend, int x, int y, uint width, uint height)
 {
-    _image->draw(draw, x, y, width, height);
+    // FIXME: add support for XImageRender here where Drawable is None
+    _image->draw(rend.getDrawable(), x, y, width, height);
 }
 
 Pixmap

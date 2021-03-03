@@ -18,6 +18,18 @@ PTexture::render(Drawable draw,
                  int x, int y, uint width, uint height,
                  int root_x, int root_y)
 {
+    auto rend = X11Render(draw);
+    render(rend, x, y, width, height, root_x, root_y);
+}
+
+/**
+ * Render texture using render.
+ */
+void
+PTexture::render(Render &rend,
+                 int x, int y, uint width, uint height,
+                 int root_x, int root_y)
+{
     if (width == 0) {
         width = _width;
     }
@@ -26,9 +38,21 @@ PTexture::render(Drawable draw,
     }
 
     if (width && height) {
-        doRender(draw, x, y, width, height);
-        if (_opacity != 255) {
-            renderOnBackground(draw, x, y, width, height, root_x, root_y);
+        if (_opacity == 255) {
+            doRender(rend, x, y, width, height);
+        } else {
+            char *data = static_cast<char*>(malloc(width * height * 4));
+            auto ximage = X11::createImage(data, width, height);
+            if (ximage) {
+                auto x_rend = XImageRender(ximage);
+                doRender(x_rend, 0, 0, width, height);
+                if (renderOnBackground(ximage, x, y, width, height,
+                                       root_x, root_y)) {
+                    X11::putImage(rend.getDrawable(), X11::getGC(), ximage,
+                                  0, 0, 0, 0, width, height);
+                }
+                X11::destroyImage(ximage);
+            }
         }
     }
 }
@@ -54,32 +78,27 @@ PTexture::setBackground(Drawable draw,
     }
 }
 
-void
-PTexture::renderOnBackground(Drawable draw,
-                            int x, int y, uint width, uint height,
-                            int root_x, int root_y)
+bool
+PTexture::renderOnBackground(XImage *ximage,
+                             int x, int y, uint width, uint height,
+                             int root_x, int root_y)
 {
-    auto src_ximage = X11::getImage(draw, x, y, width, height,
-                                    AllPlanes, ZPixmap);
-    if (src_ximage) {
-        auto src_image = PImage(src_ximage, _opacity);
-        X11::destroyImage(src_ximage);
-
-        long pix;
-        if (X11::getLong(X11::getRoot(), XROOTPMAP_ID, pix, XA_PIXMAP)) {
-            auto dest_ximage = X11::getImage(pix,
-                                             root_x, root_y,
-                                             width, height,
-                                             AllPlanes, ZPixmap);
-            if (dest_ximage) {
-                // read background pixmap for area
-                PImage::drawAlphaFixed(dest_ximage, x, y, width, height,
-                                       src_image.getData());
-
-                X11::putImage(draw, X11::getGC(), dest_ximage,
-                              0, 0, x, y, width, height);
-                X11::destroyImage(dest_ximage);
-            }
-        }
+    long pix;
+    if (! X11::getLong(X11::getRoot(), XROOTPMAP_ID, pix, XA_PIXMAP)) {
+        return false;
     }
+
+    // read background pixmap for area
+    auto root_ximage = X11::getImage(pix, root_x, root_y, width, height,
+                                     AllPlanes, ZPixmap);
+    if (root_ximage == nullptr) {
+        return false;
+    }
+
+    auto image = PImage(ximage, _opacity);
+    PImage::drawAlphaFixed(root_ximage, ximage, x, y, width, height,
+                           image.getData());
+    X11::destroyImage(root_ximage);
+
+    return true;
 }

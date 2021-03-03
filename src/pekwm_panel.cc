@@ -539,6 +539,9 @@ private:
 class WmState : public Observable
 {
 public:
+    class XROOTPMAP_ID_Changed : public Observation {
+    };
+
     class ClientInfo : public NetWMStates {
     public:
         ClientInfo(Window window)
@@ -644,6 +647,7 @@ public:
     bool handlePropertyNotify(XPropertyEvent *ev)
     {
         bool updated = false;
+        Observation *observation = nullptr;
 
         if (ev->window == X11::getRoot()) {
             if (ev->atom == X11::getAtom(NET_CURRENT_DESKTOP)) {
@@ -652,6 +656,9 @@ public:
                 updated = readActiveWindow();
             } else if (ev->atom == X11::getAtom(NET_CLIENT_LIST)) {
                 updated = readClientListStacking();
+            } else if (ev->atom == X11::getAtom(XROOTPMAP_ID)) {
+                updated = true;
+                observation = &_xrootpmap_id_changed;
             }
         } else {
             auto client_info = findClientInfo(ev->window, _clients);
@@ -661,7 +668,7 @@ public:
         }
 
         if (updated) {
-            notifyObservers(nullptr);
+            notifyObservers(observation);
         }
 
         return updated;
@@ -752,6 +759,8 @@ private:
     Window _active_window;
     uint _workspace;
     client_info_vector _clients;
+
+    XROOTPMAP_ID_Changed _xrootpmap_id_changed;
 };
 
 /**
@@ -771,7 +780,7 @@ public:
 
         auto th = pekwm::textureHandler();
         _background = th->getTexture("SolidRaised #ffffff #eeeeee #cccccc");
-        _background->setOpacity(50);
+        _background->setOpacity(127);
         _sep = th->getTexture("Solid #aaaaaa 1x24");
 
         for (int i = 0; i < CLIENT_STATE_NO; i++) {
@@ -1206,7 +1215,8 @@ private:
  * ----------------------------------------------------------------------------
  *
  */
-class PekwmPanel : public X11App {
+class PekwmPanel : public X11App,
+                   public Observer {
 public:
     PekwmPanel(const PanelConfig &cfg, const PanelTheme &theme, XSizeHints *sh)
         : X11App({sh->x, sh->y,
@@ -1242,10 +1252,12 @@ public:
         X11::selectInput(X11::getRoot(), PropertyChangeMask);
 
         _wm_state.read();
+        _wm_state.addObserver(this);
     }
 
     ~PekwmPanel(void)
     {
+        _wm_state.removeObserver(this);
         for (auto it : _widgets) {
             delete it;
         }
@@ -1265,10 +1277,19 @@ public:
         renderPred([](PanelWidget *w) { return w->isDirty(); });
     }
 
+    virtual void notify(Observable *observable,
+                        Observation *observation) override
+    {
+        if (dynamic_cast<WmState::XROOTPMAP_ID_Changed*>(observation)) {
+            renderBackground();
+            render();
+        }
+    }
+
     virtual void refresh(void) override
     {
         _ext_data.refresh([this](int fd) { this->addFd(fd); });
-        render();
+        renderPred([](PanelWidget *w) { return true; });
     }
 
     virtual void handleEvent(XEvent *ev) override

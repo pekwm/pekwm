@@ -393,7 +393,7 @@ PImage::drawAlphaFixed(Drawable dest, int x, int y, uint width, uint height,
         return;
     }
 
-    drawAlphaFixed(dest_image, x, y, width, height, data);
+    drawAlphaFixed(dest_image, dest_image, x, y, width, height, data);
 
     X11::putImage(dest, X11::getGC(), dest_image,
                   0, 0, x, y, width, height);
@@ -401,11 +401,15 @@ PImage::drawAlphaFixed(Drawable dest, int x, int y, uint width, uint height,
 }
 
 void
-PImage::drawAlphaFixed(XImage *dest_image, int x, int y, uint width, uint height,
+PImage::drawAlphaFixed(XImage *src_image, XImage *dest_image,
+                       int x, int y, uint width, uint height,
                        uchar* data)
 {
     // Get mask from visual
     auto visual = X11::getVisual();
+    src_image->red_mask = visual->red_mask;
+    src_image->green_mask = visual->green_mask;
+    src_image->blue_mask = visual->blue_mask;
     dest_image->red_mask = visual->red_mask;
     dest_image->green_mask = visual->green_mask;
     dest_image->blue_mask = visual->blue_mask;
@@ -423,7 +427,7 @@ PImage::drawAlphaFixed(XImage *dest_image, int x, int y, uint width, uint height
             if (a != 255) {
                 // Get RGB values from pixel.
                 uchar d_r = 0, d_g = 0, d_b = 0;
-                getRgbFromPixel(dest_image, XGetPixel(dest_image, i_x, i_y),
+                getRgbFromPixel(src_image, XGetPixel(src_image, i_x, i_y),
                                 d_r, d_g, d_b);
 
                 float a_percent = static_cast<float>(a) / 255;

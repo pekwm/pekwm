@@ -326,7 +326,7 @@ public:
 
     static int getDepth(void) { return _depth; }
     static Visual *getVisual(void) { return _visual; }
-    static GC getGC(void) { return DefaultGC(_dpy, _screen); }
+    static GC getGC(void) { return _gc; }
     static Colormap getColormap(void) { return _colormap; }
 
     static XColor *getColor(const std::string &color);
@@ -740,10 +740,18 @@ public:
         pixmap = None;
     }
 
+    static XImage *createImage(char *data, uint width, uint height) {
+        if (_dpy) {
+            return XCreateImage(_dpy, _visual, 24, ZPixmap,
+                                0, data, width, height, 32, 0);
+        }
+        return nullptr;
+    }
     static XImage *getImage(Drawable src, int x, int y, uint width, uint height,
                            unsigned long plane_mask, int format) {
         if (_dpy) {
-            return XGetImage(_dpy, src, x, y, width, height, plane_mask, format);
+            return XGetImage(_dpy, src, x, y, width, height,
+                             plane_mask, format);
         }
         return nullptr;
     }
@@ -878,6 +886,7 @@ private:
 
     static Window _root;
     static Visual *_visual;
+    static GC _gc;
     static Colormap _colormap;
     static XModifierKeymap *_modifier_map; /**< Key to modifier mappings. */
 

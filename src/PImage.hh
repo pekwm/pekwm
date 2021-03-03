@@ -45,7 +45,7 @@ public:
     static void drawAlphaFixed(Drawable dest,
                                int x, int y, uint width, uint height,
                                uchar* data);
-    static void drawAlphaFixed(XImage *dest_image,
+    static void drawAlphaFixed(XImage *src_image, XImage *dest_image,
                                int x, int y, uint width, uint height,
                                uchar* data);
 

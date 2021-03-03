@@ -220,6 +220,10 @@ X11::init(Display *dpy, bool synchronous, bool honour_randr)
 
     _depth = DefaultDepth(_dpy, _screen);
     _visual = DefaultVisual(_dpy, _screen);
+    _gc = DefaultGC(_dpy, _screen);
+    XGCValues gv;
+    gv.function = GXcopy;
+    XChangeGC(_dpy, _gc, GCFunction, &gv);
     _colormap = DefaultColormap(_dpy, _screen);
     _modifier_map = XGetModifierMapping(_dpy);
 
@@ -1051,6 +1055,7 @@ int X11::_depth = -1;
 Geometry X11::_screen_gm;
 Window X11::_root = None;
 Visual *X11::_visual = 0;
+GC X11::_gc = None;
 Colormap X11::_colormap = None;
 XModifierKeymap *X11::_modifier_map;
 bool X11::_has_extension_shape = false;
