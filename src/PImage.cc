@@ -22,6 +22,14 @@ extern "C" {
 #include <X11/Xutil.h>
 }
 
+static void
+destroyXImage(XImage *ximage)
+{
+    delete [] ximage->data;
+    ximage->data = nullptr;
+    X11::destroyImage(ximage);
+}
+
 /**
  * Create pixel value suitable for ximage from R, G and B.
  */
@@ -220,14 +228,14 @@ PImage::unload(void)
 /**
  * Draws image on drawable.
  *
- * @param draw Drawable to draw on.
+ * @param rend Renderer used for drawing.
  * @param x Destination x coordinate.
  * @param y Destination y coordinate.
  * @param width Destination width, defaults to 0 which expands to image size.
  * @param height Destination height, defaults to 0 which expands to image size.
  */
 void
-PImage::draw(Drawable draw, int x, int y, uint width, uint height)
+PImage::draw(Render &rend, int x, int y, uint width, uint height)
 {
     if (_data == nullptr) {
         return;
@@ -246,21 +254,21 @@ PImage::draw(Drawable draw, int x, int y, uint width, uint height)
         || ((_type == IMAGE_TYPE_SCALED)
             && (_width == width) && (_height == height))) {
         if (_use_alpha) {
-            drawAlphaFixed(draw, x, y, width, height, _data);
+            drawAlphaFixed(rend, x, y, width, height, _data);
         } else {
-            drawFixed(draw, x, y, width, height);
+            drawFixed(rend, x, y, width, height);
         }
     } else if (_type == IMAGE_TYPE_SCALED) {
         if (_use_alpha) {
-            drawAlphaScaled(draw, x, y, width, height);
+            drawAlphaScaled(rend, x, y, width, height);
         } else {
-            drawScaled(draw, x, y, width, height);
+            drawScaled(rend, x, y, width, height);
         }
     } else if (_type == IMAGE_TYPE_TILED) {
         if (_use_alpha) {
-            drawAlphaTiled(draw, x, y, width, height);
+            drawAlphaTiled(rend, x, y, width, height);
         } else {
-            drawTiled(draw, x, y, width, height);
+            drawTiled(rend, x, y, width, height);
         }
     }
 }
@@ -381,13 +389,12 @@ PImage::scale(uint width, uint height)
  * Draw image at position, not scaling.
  */
 void
-PImage::drawAlphaFixed(Drawable dest, int x, int y, uint width, uint height,
+PImage::drawAlphaFixed(Render &rend, int x, int y, uint width, uint height,
                        uchar* data)
 {
-    auto dest_image = X11::getImage(dest,
-                                    x, y, width, height, AllPlanes, ZPixmap);
+    auto dest_image = rend.getImage(x, y, width, height);
     if (! dest_image) {
-        ERR("failed to get image for destination " << dest
+        ERR("failed to get image for area "
             << " x " << x << " y " << y
             << " width " << width << " height " << height);
         return;
@@ -395,9 +402,8 @@ PImage::drawAlphaFixed(Drawable dest, int x, int y, uint width, uint height,
 
     drawAlphaFixed(dest_image, dest_image, x, y, width, height, data);
 
-    X11::putImage(dest, X11::getGC(), dest_image,
-                  0, 0, x, y, width, height);
-    X11::destroyImage(dest_image);
+    rend.putImage(dest_image, x, y, width, height);
+    rend.destroyImage(dest_image);
 }
 
 void
@@ -448,33 +454,41 @@ PImage::drawAlphaFixed(XImage *src_image, XImage *dest_image,
  * Draw image at position, not scaling.
  */
 void
-PImage::drawFixed(Drawable dest, int x, int y, uint width, uint height)
+PImage::drawFixed(Render &rend, int x, int y, uint width, uint height)
 {
-    // Plain copy of the pixmap onto Drawable.
-    bool need_free;
-    XCopyArea(X11::getDpy(), getPixmap(need_free), dest, X11::getGC(),
-              0, 0, width, height, x, y);
+    width = std::min(width, _width);
+    height = std::min(width, _height);
 
+    if (rend.getDrawable() == None) {
+        auto ximage = createXImage(_data, _width, _height);
+        if (ximage) {
+            rend.putImage(ximage, x, y, width, height);
+            destroyXImage(ximage);
+        }
+    } else {
+        // Plain copy of the pixmap onto Drawable.
+        bool need_free;
+        XCopyArea(X11::getDpy(), getPixmap(need_free),
+                  rend.getDrawable(), X11::getGC(),
+                  0, 0, width, height, x, y);
+    }
 }
 
 /**
  * Draw image scaled to fit width and height.
  */
 void
-PImage::drawScaled(Drawable dest, int x, int y, uint width, uint height)
+PImage::drawScaled(Render &rend, int x, int y, uint width, uint height)
 {
     // Create scaled representation of image.
     auto scaled_data = getScaledData(width, height);
     if (scaled_data) {
-        // Create pixmap.
-        auto pix = createPixmap(scaled_data, width, height);
-        if (pix) {
-            XCopyArea(X11::getDpy(), pix, dest, X11::getGC(),
-                      0, 0, width, height, x, y);
-            X11::freePixmap(pix);
-        }
-
+        auto ximage = createXImage(scaled_data, width, height);
         delete [] scaled_data;
+        if (ximage) {
+            rend.putImage(ximage, x, y, width, height);
+            destroyXImage(ximage);
+        }
     }
 }
 
@@ -482,35 +496,47 @@ PImage::drawScaled(Drawable dest, int x, int y, uint width, uint height)
  * Draw image tiled to fit width and height.
  */
 void
-PImage::drawTiled(Drawable dest, int x, int y, uint width, uint height)
+PImage::drawTiled(Render &rend, int x, int y, uint width, uint height)
 {
-    bool need_free;
-    // Create a GC with _pixmap as tile and tiled fill style.
-    XGCValues gv;
-    gv.fill_style = FillTiled;
-    gv.tile = getPixmap(need_free);
-    gv.ts_x_origin = x;
-    gv.ts_y_origin = y;
+    if (rend.getDrawable() == None) {
+        auto ximage = createXImage(_data, _width, _height);
+        if (ximage) {
+            auto render =
+                [this, ximage, &rend](int rx, int ry, uint rw, uint rh) {
+                    rend.putImage(ximage, rx, ry, rw, rh);
+                };
+            renderTiled(x, y, width, height, _width, _height, render);
+            destroyXImage(ximage);
+        }
+    } else {
+        Drawable dest = rend.getDrawable();
+        bool need_free;
+        // Create a GC with _pixmap as tile and tiled fill style.
+        XGCValues gv;
+        gv.fill_style = FillTiled;
+        gv.tile = getPixmap(need_free);
+        gv.ts_x_origin = x;
+        gv.ts_y_origin = y;
 
-    GC gc = XCreateGC(X11::getDpy(), dest,
-                      GCFillStyle|GCTile|GCTileStipXOrigin|GCTileStipYOrigin,
-                      &gv);
+        ulong gv_mask = GCFillStyle|GCTile|GCTileStipXOrigin|GCTileStipYOrigin;
+        GC gc = XCreateGC(X11::getDpy(), dest, gv_mask, &gv);
 
-    // Tile the image onto drawable.
-    XFillRectangle(X11::getDpy(), dest, gc, x, y, width, height);
+        // Tile the image onto drawable.
+        XFillRectangle(X11::getDpy(), dest, gc, x, y, width, height);
 
-    XFreeGC(X11::getDpy(), gc);
+        XFreeGC(X11::getDpy(), gc);
+    }
 }
 
 /**
  * Draw image scaled to fit width and height.
  */
 void
-PImage::drawAlphaScaled(Drawable dest, int x, int y, uint width, uint height)
+PImage::drawAlphaScaled(Render &rend, int x, int y, uint width, uint height)
 {
     auto scaled_data = getScaledData(width, height);
     if (scaled_data) {
-        drawAlphaFixed(dest, x, y, width, height, scaled_data);
+        drawAlphaFixed(rend, x, y, width, height, scaled_data);
         delete [] scaled_data;
     }
 }
@@ -519,10 +545,13 @@ PImage::drawAlphaScaled(Drawable dest, int x, int y, uint width, uint height)
  * Draw image tiled to fit width and height.
  */
 void
-PImage::drawAlphaTiled(Drawable dest, int x, int y, uint width, uint height)
+PImage::drawAlphaTiled(Render &rend, int x, int y, uint width, uint height)
 {
-    // FIXME: Implement tiled rendering with alpha support
-    drawTiled(dest, x, y, width, height);
+    auto render =
+        [this, &rend](int rx, int ry, uint rw, uint rh) {
+             drawAlphaFixed(rend, rx, ry, rw, rh, _data);
+        };
+    renderTiled(x, y, width, height, _width, _height, render);
 }
 
 /**
@@ -543,10 +572,7 @@ PImage::createPixmap(uchar* data, uint width, uint height)
         pix = X11::createPixmap(width, height);
         X11::putImage(pix, X11::getGC(), ximage,
                       0, 0, 0, 0, width, height);
-
-        delete [] ximage->data;
-        ximage->data = 0;
-        X11::destroyImage(ximage);
+        destroyXImage(ximage);
     }
 
     return pix;
@@ -612,9 +638,7 @@ XImage*
 PImage::createXImage(uchar* data, uint width, uint height)
 {
     // Create XImage
-    auto ximage = XCreateImage(X11::getDpy(), X11::getVisual(),
-                               X11::getDepth(), ZPixmap, 0, 0,
-                               width, height, 32, 0);
+    auto ximage = X11::createImage(nullptr, width, height);
     if (! ximage) {
         ERR("failed to create XImage " << width << "x" << height);
         return nullptr;

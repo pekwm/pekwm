@@ -11,6 +11,7 @@
 #include "PTexture.hh"
 #include "PTexturePlain.hh"
 #include "PImage.hh"
+#include "Render.hh"
 #include "ImageHandler.hh"
 #include "x11.hh"
 
@@ -18,45 +19,6 @@
 
 extern "C" {
 #include <assert.h>
-}
-
-
-static void
-renderTiled(const int a_x, const int a_y,
-            const uint a_width, const uint a_height,
-            const uint r_width, const uint r_height,
-            std::function<void(int, int, uint, uint)> render)
-{
-    assert(r_width);
-    assert(r_height);
-
-    int x, y;
-    uint width, height;
-
-    y = a_y;
-    height = a_height;
-    while (height > r_height) {
-        x = a_x;
-        width = a_width;
-        while (width > r_width) {
-            render(x, y, r_width, r_height);
-            x += r_width;
-            width -= r_width;
-        }
-        render(x, y, width, r_height);
-
-        y += r_height;
-        height -= r_height;
-    }
-
-    x = a_x;
-    width = a_width;
-    while (width > r_width) {
-        render(x, y, r_width, height);
-        x += r_width;
-        width -= r_width;
-    }
-    render(x, y, width, height);
 }
 
 // PTextureEmpty
@@ -401,8 +363,7 @@ PTextureImage::~PTextureImage(void)
 void
 PTextureImage::doRender(Render &rend, int x, int y, uint width, uint height)
 {
-    // FIXME: add support for XImageRender here where Drawable is None
-    _image->draw(rend.getDrawable(), x, y, width, height);
+    _image->draw(rend, x, y, width, height);
 }
 
 Pixmap

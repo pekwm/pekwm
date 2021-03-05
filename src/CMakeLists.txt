@@ -29,6 +29,7 @@ set(texture_SOURCES
   PImage.cc
   PTexture.cc
   PTexturePlain.cc
+  Render.cc
   TextureHandler.cc
   Theme.cc)
 

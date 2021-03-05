@@ -780,7 +780,7 @@ public:
 
         auto th = pekwm::textureHandler();
         _background = th->getTexture("SolidRaised #ffffff #eeeeee #cccccc");
-        _background->setOpacity(127);
+        _background->setOpacity(100);
         _sep = th->getTexture("Solid #aaaaaa 1x24");
 
         for (int i = 0; i < CLIENT_STATE_NO; i++) {

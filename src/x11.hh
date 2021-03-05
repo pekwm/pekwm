@@ -764,7 +764,9 @@ public:
         }
     }
     static void destroyImage(XImage *ximage) {
-        XDestroyImage(ximage);
+        if (ximage) {
+            XDestroyImage(ximage);
+        }
     }
 
     static void setWindowBackground(Window window, ulong pixel) {

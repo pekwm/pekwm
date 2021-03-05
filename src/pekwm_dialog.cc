@@ -15,6 +15,7 @@
 #include "TextureHandler.hh"
 #include "Theme.hh"
 #include "PWinObj.hh"
+#include "Render.hh"
 #include "Util.hh"
 #include "X11App.hh"
 #include "x11.hh"
@@ -95,7 +96,7 @@ public:
             return false;
         }
         virtual bool click(Window window) { return false; }
-        virtual void render(Pixmap pix) = 0;
+        virtual void render(Render &rend) = 0;
 
         virtual void place(int x, int y, uint width, uint tot_height)
         {
@@ -174,7 +175,8 @@ public:
                 return false;
             }
             _state = state;
-            render(None);
+            X11Render rend(None);
+            render(rend);
             return true;
         }
 
@@ -202,7 +204,7 @@ public:
             return _font->getHeight() + _data->padHorz();
         }
 
-        virtual void render(Pixmap pix) override {
+        virtual void render(Render &rend) override {
             _data->getButton(_state)->render(_background, 0, 0,
                                             _gm.width, _gm.height);
             _font->setColor(_data->getButtonColor());
@@ -298,9 +300,9 @@ public:
             return height + _data->padVert();
         }
 
-        virtual void render(Pixmap pix) override {
+        virtual void render(Render &rend) override {
             for (auto it : _buttons) {
-                it->render(pix);
+                it->render(rend);
             }
         }
 
@@ -331,16 +333,16 @@ public:
             return _image->getHeight();
         }
 
-        virtual void render(Pixmap pix) override
+        virtual void render(Render &rend) override
         {
             if (_image->getWidth() > _gm.width) {
                 float aspect = float(_image->getWidth()) / _image->getHeight();
-                _image->draw(pix,
+                _image->draw(rend,
                              _gm.x, _gm.y, _gm.width, _gm.width / aspect);
             } else {
                 // render image centered on available width
                 uint x = (_gm.width - _image->getWidth()) / 2;
-                _image->draw(pix,
+                _image->draw(rend,
                              x, _gm.y,
                              _image->getWidth(), _image->getHeight());
             }
@@ -378,7 +380,7 @@ public:
             return _font->getHeight() * num_lines + _data->padVert();
         }
 
-        virtual void render(Pixmap pix) override
+        virtual void render(Render &rend) override
         {
             if (_lines.empty()) {
                 getLines(_gm.width, _lines);
@@ -389,7 +391,7 @@ public:
 
             uint y = _gm.y + _data->getPad(PAD_UP);
             for (auto line : _lines) {
-                _font->draw(pix,
+                _font->draw(rend.getDrawable(),
                             _gm.x + _data->getPad(PAD_LEFT), y,
                             line);
                 y += _font->getHeight();
@@ -526,10 +528,11 @@ public:
             _background = X11::createPixmap(_gm.width, _gm.height);
             X11::setWindowBackgroundPixmap(_window, _background);
         }
-        _data->getBackground()->render(_background,
+        X11Render rend(_background);
+        _data->getBackground()->render(rend,
                                        0, 0, _gm.width, _gm.height);
         for (auto it : _widgets) {
-            it->render(_background);
+            it->render(rend);
         }
         X11::clearWindow(_window);
     }

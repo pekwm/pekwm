@@ -9,7 +9,7 @@
 #pragma once
 
 #include "config.h"
-
+#include "Render.hh"
 #include "pekwm.hh"
 
 #include <string>
@@ -33,16 +33,16 @@ public:
     //! @brief Returns height of image.
     inline uint getHeight(void) const { return _height; }
 
-    virtual bool load(const std::string &file);
-    virtual void unload(void);
-    virtual void draw(Drawable dest, int x, int y,
-                      uint width = 0, uint height = 0);
-    virtual Pixmap getPixmap(bool &need_free, uint width = 0, uint height = 0);
-    virtual Pixmap getMask(bool &need_free, uint width = 0, uint height = 0);
-    virtual void scale(uint width, uint height);
+    bool load(const std::string &file);
+    void unload(void);
 
+    void draw(Render &rend, int x, int y,
+              uint width = 0, uint height = 0);
+    Pixmap getPixmap(bool &need_free, uint width = 0, uint height = 0);
+    Pixmap getMask(bool &need_free, uint width = 0, uint height = 0);
+    void scale(uint width, uint height);
 
-    static void drawAlphaFixed(Drawable dest,
+    static void drawAlphaFixed(Render &rend,
                                int x, int y, uint width, uint height,
                                uchar* data);
     static void drawAlphaFixed(XImage *src_image, XImage *dest_image,
@@ -52,11 +52,11 @@ public:
 protected:
     PImage(void);
 
-    void drawFixed(Drawable dest, int x, int y, uint width, uint height);
-    void drawScaled(Drawable dest, int x, int y, uint widht, uint height);
-    void drawTiled(Drawable dest, int x, int y, uint widht, uint height);
-    void drawAlphaScaled(Drawable dest, int x, int y, uint widht, uint height);
-    void drawAlphaTiled(Drawable dest, int x, int y, uint widht, uint height);
+    void drawFixed(Render &rend, int x, int y, uint width, uint height);
+    void drawScaled(Render &rend, int x, int y, uint widht, uint height);
+    void drawTiled(Render &rend, int x, int y, uint widht, uint height);
+    void drawAlphaScaled(Render &rend, int x, int y, uint widht, uint height);
+    void drawAlphaTiled(Render &rend, int x, int y, uint widht, uint height);
 
     Pixmap createPixmap(uchar* data, uint width, uint height);
     Pixmap createMask(uchar* data, uint width, uint height);

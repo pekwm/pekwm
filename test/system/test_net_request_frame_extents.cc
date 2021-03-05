@@ -121,7 +121,7 @@ main(int argc, char *argv[])
 
     Atom type_ret;
     int format_ret;
-    ulong items_ret, after_ret;
+    unsigned long items_ret, after_ret;
     unsigned char *data = 0;
     std::cout << "PROGRESS: read _NET_FRAME_EXTENTS" << std::endl;
     XGetWindowProperty(dpy, win, frame_extents,
