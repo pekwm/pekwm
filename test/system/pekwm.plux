@@ -224,6 +224,54 @@ in one go.
         ?SH-PROMPT:
 [endfunction]
 
+[function test_transient_for]
+    [shell test_transient_for]
+        -ERROR
+        [call init-shell]
+        [log test_transient_for (normal)]
+        !$TEST_DIR/test_transient_for
+        ?windows mapped
+        !next
+        ?PROGRESS: destroy transient window
+        ?PROGRESS: destroy last window
+        ?SH-PROMPT:
+
+        [log test_transient_for (transient on self)]
+        !$TEST_DIR/test_transient_for transient-on-self
+        ?transient [0-9]+ set to self
+        ?windows mapped
+
+    [shell pekwm]
+        [log verify pekwm error message]
+        ?Client set transient hint for itself
+
+    [shell test_transient_for]
+        !next
+        ?PROGRESS: destroy transient window 1
+        ?PROGRESS: destroy last window
+        ?SH-PROMPT:
+
+        [log test_transient_for (destroy main before transient)]
+        !$TEST_DIR/test_transient_for destroy-main-first
+        ?windows mapped
+        !next
+        ?PROGRESS: destroy main window
+        ?PROGRESS: destroy last window
+        ?SH-PROMPT:
+
+        [log test_transient_for (loop)]
+        !$TEST_DIR/test_transient_for transient-loop
+        ?transient [0-9]+ set to [0-9]+
+        ?transient [0-9]+ set to [0-9]+
+        ?transient [0-9]+ set to [0-9]+
+        ?windows mapped
+        !next
+        ?PROGRESS: destroy transient window 1
+        ?PROGRESS: destroy transient window 2
+        ?PROGRESS: destroy last window
+        ?SH-PROMPT:
+[endfunction]
+
 [shell Xvfb]
     [call init-shell]
     [log starting Xvfb]
@@ -239,6 +287,7 @@ in one go.
 
 [shell test]
     [call init-shell]
+    [call test_transient_for]
     [call test_cfg_deny_resize_inc]
     [call test_warp_pointer]
     [call test_net_request_frame_extents]
