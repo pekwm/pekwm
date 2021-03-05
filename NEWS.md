@@ -8,6 +8,7 @@ Bug fixes
   regression introduced in 0.1.18.
 * **#14 zombines during move resize**, executing external commands
   while moving a window did not collect all child processes.
+* **#22 support _NET_REQUEST_FRAME_EXTENTS**, improved EWMH compatability.
 * Size specification was ignored on plain textures (except solid),
   it is now read and can cause issues on themes that have incorrectly
   specified them.

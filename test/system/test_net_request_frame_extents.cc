@@ -34,6 +34,7 @@ extern "C" {
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
+#include <string.h>
 }
 
 #define MWM_HINTS_DECORATIONS (1L << 1)

@@ -1008,12 +1008,10 @@ PDecor::setBorder(StateAction sa)
     if (updateDecor()) {
         // updateDecorName returns true, decor already loaded no need
         // to notify decorUpdated
-    } else {
-        if (_child) {
-            resizeChild(_child->getWidth(), _child->getHeight());
-        }
-        decorUpdated();
+    } else if (_child) {
+        resizeChild(_child->getWidth(), _child->getHeight());
     }
+    decorUpdated();
 }
 
 //! @brief Sets titlebar state of the decor
@@ -1036,13 +1034,11 @@ PDecor::setTitlebar(StateAction sa)
     if (updateDecor()) {
         // updateDecorName returns true, decor already loaded no need
         // to notify decorUpdated
-    } else {
-        if (_child) {
-            alignChild(_child);
-            resizeChild(_child->getWidth(), _child->getHeight());
-        }
-        decorUpdated();
+    } else if (_child) {
+        alignChild(_child);
+        resizeChild(_child->getWidth(), _child->getHeight());
     }
+    decorUpdated();
 }
 
 //! @brief Adds a child to the decor, reparenting the window

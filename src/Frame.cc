@@ -485,11 +485,13 @@ Frame::activateChild(PWinObj *child)
     // decoration from DEFAULT to REMOTE or WARNING
 
     // Sync the frame state with the client only if we already had a client
-    if (_client != child) {
-        applyState(static_cast<Client*>(child));
+    auto new_client = static_cast<Client*>(child);
+    if (_client != new_client) {
+        applyState(new_client);
     }
+    setFrameExtents(new_client);
 
-    _client = static_cast<Client*>(child);
+    _client = new_client;
     if (_client->demandsAttention()) {
         _client->setDemandsAttention(false);
         decrAttention();
@@ -586,6 +588,18 @@ Frame::setShaded(StateAction sa)
     if (shaded != isShaded()) {
         _client->setShade(isShaded());
         _client->updateEwmhStates();
+    }
+}
+
+/**
+ * Decor has been changed or titlebar/border state has been changed,
+ * update the _NET_FRAME_EXTENTS.
+ */
+void
+Frame::decorUpdated(void)
+{
+    if (_client) {
+        setFrameExtents(_client);
     }
 }
 
@@ -760,6 +774,17 @@ Frame::applyState(Client *cl)
     }
 
     cl->updateEwmhStates();
+}
+
+void
+Frame::setFrameExtents(Client *cl)
+{
+    long extents[4];
+    extents[0] = bdLeft(this);
+    extents[1] = bdRight(this);
+    extents[2] = bdTop(this) + titleHeight(this);
+    extents[3] = bdBottom(this);
+    X11::setLongs(cl->getWindow(), NET_FRAME_EXTENTS, extents, 4);
 }
 
 //! @brief Sets skip state.

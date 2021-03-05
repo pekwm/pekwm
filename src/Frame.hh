@@ -162,6 +162,7 @@ protected:
     Frame(void);
 
     // BEGIN - PDecor interface
+    virtual void decorUpdated(void) override;
     virtual int resizeHorzStep(int diff) const override;
     virtual int resizeVertStep(int diff) const override;
 
@@ -191,6 +192,7 @@ private:
 
     void getState(Client *cl);
     void applyState(Client *cl);
+    void setFrameExtents(Client *cl);
 
     void setupAPGeometry(Client *client, AutoProperty *ap);
 
