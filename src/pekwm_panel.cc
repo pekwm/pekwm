@@ -30,6 +30,9 @@ extern "C" {
 
 #include "Compat.hh"
 
+#define DEFAULT_PLACEMENT PANEL_TOP
+#define DEFAULT_HEIGHT 24
+
 #define DEFAULT_FONT "-misc-fixed-medium-r-*-*-13-*-*-*-*-*-iso10646-*"
 #define DEFAULT_FONT_FOC "-misc-fixed-bold-r-*-*-13-*-*-*-*-*-iso10646-*"
 #define DEFAULT_FONT_ICO "-misc-fixed-medium-o-*-*-13-*-*-*-*-*-iso10646-*"
@@ -56,10 +59,23 @@ enum WidgetUnit {
     WIDGET_UNIT_TEXT_WIDTH
 };
 
+/**
+ * Panel placement.
+ */
+enum PanelPlacement {
+    PANEL_TOP,
+    PANEL_BOTTOM
+};
+
 /** empty string, used as default return value. */
 static std::string _empty_string;
 /** empty string, used as default return value. */
 static std::wstring _empty_wstring;
+
+static Util::StringMap<PanelPlacement> panel_placement_map =
+    {{"", PANEL_TOP},
+     {"TOP", PANEL_TOP},
+     {"BOTTOM", PANEL_BOTTOM}};
 
 /** static pekwm resources, accessed via the pekwm namespace. */
 static FontHandler* _font_handler = nullptr;
@@ -181,6 +197,7 @@ public:
     typedef widget_config_vector::const_iterator widget_config_it;
 
     PanelConfig(void)
+        : _placement(DEFAULT_PLACEMENT)
     {
     }
 
@@ -192,11 +209,14 @@ public:
         }
 
         auto root = cfg.getEntryRoot();
+        loadPanel(root->findSection("PANEL"));
         loadCommands(root->findSection("COMMANDS"));
         loadWidgets(root->findSection("WIDGETS"));
         _refresh_interval_s = calculateRefreshIntervalS();
         return true;
     }
+
+    PanelPlacement getPlacement(void) const { return _placement; }
 
     uint getRefreshIntervalS(void) const { return _refresh_interval_s; }
 
@@ -207,6 +227,21 @@ public:
     widget_config_it widgetsEnd(void) const { return _widgets.end(); }
 
 private:
+    void loadPanel(CfgParser::Entry *section)
+    {
+        if (section == nullptr) {
+            return;
+        }
+
+        std::string placement;
+        std::vector<CfgParserKey*> keys;
+        keys.push_back(new CfgParserKeyString("PLACEMENT", placement, "TOP"));
+        section->parseKeyValues(keys.begin(), keys.end());
+        std::for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+
+        _placement = panel_placement_map.get(placement);
+    }
+
     void loadCommands(CfgParser::Entry *section)
     {
         _commands.clear();
@@ -308,6 +343,9 @@ private:
     }
 
 private:
+    /** Position of panel. */
+    PanelPlacement _placement;
+
     /** List of commands to run. */
     command_config_vector _commands;
     /** List of widgets to instantiate. */
@@ -769,6 +807,7 @@ private:
 class PanelTheme {
 public:
     PanelTheme(void)
+        : _height(DEFAULT_HEIGHT)
     {
         auto fh = pekwm::fontHandler();
         _fonts[CLIENT_STATE_UNFOCUSED] = fh->getFont(DEFAULT_FONT "#Center");
@@ -787,6 +826,7 @@ public:
             _fonts[i]->setColor(_color);
         }
     }
+
     ~PanelTheme(void)
     {
         auto th = pekwm::textureHandler();
@@ -800,11 +840,16 @@ public:
         }
     }
 
+    uint getHeight(void) const { return _height; }
+
     PFont *getFont(ClientState state) const { return _fonts[state]; }
     PTexture *getBackground(void) const { return _background; }
     PTexture *getSep(void) const { return _sep; }
 
 private:
+    /** Panel height, can be fixed or calculated from font size */
+    uint _height;
+
     PFont* _fonts[CLIENT_STATE_NO];
     PFont::Color* _color;
     PTexture *_background;
@@ -843,7 +888,7 @@ public:
 
     virtual void render(Drawable draw)
     {
-        X11::clearArea(draw, _x, 0, _width - 1, 24);
+        X11::clearArea(draw, _x, 0, _width, _theme.getHeight());
         _dirty = false;
     }
 
@@ -1244,7 +1289,12 @@ public:
         };
         X11::setAtoms(_window, STATE, state, sizeof(state)/sizeof(state[0]));
 
-        long strut[] = {0, 0, sh->height, 0};
+        long strut[4] = {0};
+        if (cfg.getPlacement() == PANEL_TOP) {
+            strut[2] = sh->height;
+        } else {
+            strut[3] = sh->height;
+        }
         X11::setLongs(_window, NET_WM_STRUT, strut, 4);
 
         // select root window for atom changes _before_ reading state
@@ -1456,6 +1506,10 @@ private:
 
     void renderPred(std::function<bool(PanelWidget*)> pred)
     {
+        if (_widgets.empty()) {
+            return;
+        }
+
         auto sep = _theme.getSep();
 
         int x = 0;
@@ -1599,9 +1653,14 @@ int main(int argc, char *argv[])
             XSizeHints normal_hints = {0};
             normal_hints.flags = PPosition|PSize;
             normal_hints.x = 0;
-            normal_hints.y = 0;
             normal_hints.width = X11::getWidth();
-            normal_hints.height = 24;
+            normal_hints.height = theme.getHeight();
+
+            if (cfg.getPlacement() == PANEL_TOP) {
+                normal_hints.y = 0;
+            } else {
+                normal_hints.y = X11::getHeight() - normal_hints.height;
+            }
 
             PekwmPanel panel(cfg, theme, &normal_hints);
             panel.configure();

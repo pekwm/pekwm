@@ -1,5 +1,9 @@
 # pekwm_panel configuration
 
+Panel {
+  Placement = "Top"
+}
+
 Commands {
   Command = "uptime | sed 's/.*:/load/'" {
     Interval = "15"

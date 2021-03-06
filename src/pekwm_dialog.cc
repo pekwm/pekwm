@@ -36,7 +36,6 @@ extern "C" {
 
 static const uint WIDTH_DEFAULT = 250;
 static const uint HEIGHT_DEFAULT = 50;
-#define THEME_DEFAULT DATADIR "/pekwm/themes/default/theme"
 
 static FontHandler* _font_handler = nullptr;
 static ImageHandler* _image_handler = nullptr;
@@ -631,24 +630,6 @@ static void usage(const char* name, int ret)
     exit(ret);
 }
 
-static void getThemeDir(const std::string& config_file,
-                        std::string& dir, std::string& variant)
-{
-    CfgParser cfg;
-    cfg.parse(config_file, CfgParserSource::SOURCE_FILE, true);
-    auto files = cfg.getEntryRoot()->findSection("FILES");
-    if (files != nullptr) {
-        std::vector<CfgParserKey*> keys;
-        keys.push_back(new CfgParserKeyPath("THEME", dir, THEME_DEFAULT));
-        keys.push_back(new CfgParserKeyString("THEMEVARIANT", variant));
-        files->parseKeyValues(keys.begin(), keys.end());
-        std::for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
-    } else {
-        dir = THEME_DEFAULT;
-        variant = "";
-    }
-}
-
 int main(int argc, char* argv[])
 {
     const char* display = NULL;
@@ -753,7 +734,7 @@ int main(int argc, char* argv[])
     }
 
     std::string theme_dir, theme_variant;
-    getThemeDir(config_file, theme_dir, theme_variant);
+    Util::getThemeDir(config_file, theme_dir, theme_variant);
 
     int ret;
     {

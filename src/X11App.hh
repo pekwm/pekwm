@@ -54,6 +54,8 @@ public:
            const char *wm_name, const char *wm_class,
            AtomName window_type, XSizeHints *normal_hints = nullptr)
         : PWinObj(true),
+          _wm_name(wm_name),
+          _wm_class(wm_class),
           _stop(-1),
           _max_fd(-1)
     {
@@ -130,6 +132,7 @@ public:
 
     virtual int main(uint timeout_s)
     {
+        TRACE(_wm_name << ", " << _wm_class << ": entering main loop");
         while (_stop == -1) {
             if (is_signal) {
                 handleSignal();
@@ -255,6 +258,9 @@ private:
     }
 
 private:
+    std::string _wm_name;
+    std::string _wm_class;
+
     int _stop;
     std::vector<int> _fds;
     int _dpy_fd;

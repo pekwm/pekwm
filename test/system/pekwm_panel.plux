@@ -1,0 +1,78 @@
+[doc]
+Basic pekwm_panel tests
+[enddoc]
+
+[global BIN_DIR=../../build/src]
+[global TEST_DIR=../../build/test/system]
+[global DISPLAY=:1]
+
+[function init-shell]
+    ?SH-PROMPT:
+    !export DISPLAY=$DISPLAY
+    ?SH-PROMPT:
+[endfunction]
+
+[shell Xvfb]
+    [call init-shell]
+    [log starting Xvfb]
+    -Fatal server error
+    !Xvfb -screen 0 640x480x24 -dpi 96 -displayfd 1 $DISPLAY
+    ?1
+
+[shell xev]
+    [call init-shell]
+    !xev -root
+
+[shell pekwm_panel]
+    [call init-shell]
+    [log run panel at the top]
+    !$BIN_DIR/pekwm_panel --config pekwm_panel.config.top --log-level trace
+    ?entering main loop
+
+[shell xev]
+    [log waiting for window to be mapped]
+    ?MapNotify
+    ?window (0x[0-9]+)
+    [global panel_window=$1]
+
+[shell xwininfo]
+    [call init-shell]
+    [log verfiy panel size]
+    !xwininfo -id $panel_window
+    ?Absolute upper-left X:  0
+    ?Absolute upper-left Y:  0
+    ?Width: 640
+    ?Height: 24
+    ???-geometry 640x24+0+0
+    ?SH-PROMPT:
+
+[shell pekwm_panel]
+    !$_CTRL_C_
+    ?SH-PROMPT:
+    [log run panel at the bottom]
+    !$BIN_DIR/pekwm_panel --config pekwm_panel.config.bottom --log-level trace
+    ?entering main loop
+
+[shell xev]
+    [log waiting for window to be mapped]
+    ?MapNotify
+    ?window (0x[0-9]+)
+    [global panel_window=$1]
+
+[shell xwininfo]
+    [log verfiy panel size]
+    !xwininfo -id $panel_window
+    ?Absolute upper-left X:  0
+    ?Absolute upper-left Y:  456
+    ?Width: 640
+    ?Height: 24
+    ???-geometry 640x24+0-0
+    ?SH-PROMPT:
+
+[shell pekwm_panel]
+    !$_CTRL_C_
+    ?SH-PROMPT:
+
+[shell Xvfb]
+    !$_CTRL_C_
+    ?SH-PROMPT:

@@ -32,8 +32,11 @@ extern "C" {
 #include <errno.h>
 }
 
+#include "CfgParser.hh"
 #include "Debug.hh"
 #include "Util.hh"
+
+#define THEME_DEFAULT DATADIR "/pekwm/themes/default/theme"
 
 namespace String {
     /** Get safe version of position */
@@ -377,6 +380,25 @@ expandFileName(std::string &file)
         if (file[0] == '~') {
             file.replace(0, 1, getEnv("HOME"));
         }
+    }
+}
+
+void
+getThemeDir(const std::string& config_file,
+            std::string& dir, std::string& variant)
+{
+    CfgParser cfg;
+    cfg.parse(config_file, CfgParserSource::SOURCE_FILE, true);
+    auto files = cfg.getEntryRoot()->findSection("FILES");
+    if (files != nullptr) {
+        std::vector<CfgParserKey*> keys;
+        keys.push_back(new CfgParserKeyPath("THEME", dir, THEME_DEFAULT));
+        keys.push_back(new CfgParserKeyString("THEMEVARIANT", variant));
+        files->parseKeyValues(keys.begin(), keys.end());
+        std::for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+    } else {
+        dir = THEME_DEFAULT;
+        variant = "";
     }
 }
 
