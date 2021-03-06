@@ -24,6 +24,7 @@ extern "C" {
 #include <assert.h>
 #include <getopt.h>
 #include <limits.h>
+#include <string.h>
 #include <time.h>
 #include <unistd.h>
 }
@@ -31,8 +32,11 @@ extern "C" {
 #include "Compat.hh"
 
 #define DEFAULT_PLACEMENT PANEL_TOP
+#define DEFAULT_BACKGROUND "SolidRaised #ffffff #eeeeee #cccccc"
 #define DEFAULT_HEIGHT 24
+#define DEFAULT_SEPARATOR "Solid #aaaaaa 1x24"
 
+#define DEFAULT_COLOR "#000000"
 #define DEFAULT_FONT "-misc-fixed-medium-r-*-*-13-*-*-*-*-*-iso10646-*"
 #define DEFAULT_FONT_FOC "-misc-fixed-bold-r-*-*-13-*-*-*-*-*-iso10646-*"
 #define DEFAULT_FONT_ICO "-misc-fixed-medium-o-*-*-13-*-*-*-*-*-iso10646-*"
@@ -807,37 +811,83 @@ private:
 class PanelTheme {
 public:
     PanelTheme(void)
-        : _height(DEFAULT_HEIGHT)
+        : _height(DEFAULT_HEIGHT),
+          _loaded(false),
+          _background(nullptr),
+          _background_opacity(255),
+          _sep(nullptr)
     {
-        auto fh = pekwm::fontHandler();
-        _fonts[CLIENT_STATE_UNFOCUSED] = fh->getFont(DEFAULT_FONT "#Center");
-        _fonts[CLIENT_STATE_FOCUSED] =
-            fh->getFont(DEFAULT_FONT_FOC "#Center");
-        _fonts[CLIENT_STATE_ICONIFIED] =
-            fh->getFont(DEFAULT_FONT_ICO "#Center");
-        _color = pekwm::fontHandler()->getColor("#000000");
-
-        auto th = pekwm::textureHandler();
-        _background = th->getTexture("SolidRaised #ffffff #eeeeee #cccccc");
-        _background->setOpacity(100);
-        _sep = th->getTexture("Solid #aaaaaa 1x24");
-
-        for (int i = 0; i < CLIENT_STATE_NO; i++) {
-            _fonts[i]->setColor(_color);
-        }
+        memset(_fonts, 0, sizeof(_fonts));
+        memset(_colors, 0, sizeof(_colors));
     }
 
     ~PanelTheme(void)
     {
+        unload();
+    }
+
+    void load(const std::string &theme_dir, const std::string& theme_path)
+    {
+        unload();
+
+        CfgParser theme;
+        theme.setVar("$THEME_DIR", theme_dir);
+        if (! theme.parse(theme_path, CfgParserSource::SOURCE_FILE, true)) {
+            check();
+            return;
+        }
+        auto section = theme.getEntryRoot()->findSection("PANEL");
+        if (section == nullptr) {
+            check();
+            return;
+        }
+
+        std::string background, separator;
+        uint opacity;
+        std::vector<CfgParserKey*> keys;
+        keys.push_back(new CfgParserKeyString("BACKGROUND",
+                                              background, DEFAULT_BACKGROUND));
+        keys.push_back(new CfgParserKeyNumeric<uint>("BACKGROUNDOPACITY",
+                                                     opacity, 100));
+        keys.push_back(new CfgParserKeyNumeric<uint>("HEIGHT",
+                                                     _height, DEFAULT_HEIGHT));
+        keys.push_back(new CfgParserKeyString("SEPARATOR",
+                                              separator, DEFAULT_SEPARATOR));
+        section->parseKeyValues(keys.begin(), keys.end());
+        std::for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+
+        auto ih = pekwm::imageHandler();
+        ih->path_clear();
+        ih->path_push_back(theme_dir + "/");
+
+        auto th = pekwm::textureHandler();
+        _background = th->getTexture(background);
+        _background_opacity = 255.0 * opacity / 100.0;
+        _sep = th->getTexture(separator);
+
+        loadState(section->findSection("FOCUSED"), CLIENT_STATE_FOCUSED);
+        loadState(section->findSection("UNFOCUSED"), CLIENT_STATE_UNFOCUSED);
+        loadState(section->findSection("ICONIFIED"), CLIENT_STATE_ICONIFIED);
+
+        check();
+    }
+
+    void unload(void)
+    {
+        if (! _loaded) {
+            return;
+        }
+
         auto th = pekwm::textureHandler();
         th->returnTexture(_sep);
         th->returnTexture(_background);
 
         auto fh = pekwm::fontHandler();
-        fh->returnColor(_color);
         for (int i = 0; i < CLIENT_STATE_NO; i++) {
             fh->returnFont(_fonts[i]);
+            fh->returnColor(_colors[i]);
         }
+        _loaded = false;
     }
 
     uint getHeight(void) const { return _height; }
@@ -847,13 +897,62 @@ public:
     PTexture *getSep(void) const { return _sep; }
 
 private:
+    void loadState(CfgParser::Entry *section, ClientState state)
+    {
+        if (section == nullptr) {
+            return;
+        }
+
+        std::string font, color;
+        std::vector<CfgParserKey*> keys;
+        keys.push_back(new CfgParserKeyString("FONT", font, DEFAULT_FONT));
+        keys.push_back(new CfgParserKeyString("COLOR", color, "#000000"));
+        section->parseKeyValues(keys.begin(), keys.end());
+        std::for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+
+        _fonts[state] = pekwm::fontHandler()->getFont(font);
+        _colors[state] = pekwm::fontHandler()->getColor(color);
+    }
+
+    void check(void)
+    {
+        auto fh = pekwm::fontHandler();
+        for (int i = 0; i < CLIENT_STATE_NO; i++) {
+            if (_fonts[i] == nullptr) {
+                _fonts[i] = fh->getFont(DEFAULT_FONT "#Center");
+            }
+            if (_colors[i] == nullptr) {
+                _colors[i] = fh->getColor(DEFAULT_COLOR);
+            }
+        }
+
+        auto th = pekwm::textureHandler();
+        if (_background == nullptr) {
+            _background = th->getTexture(DEFAULT_BACKGROUND);
+        }
+        if (_sep == nullptr) {
+            _sep = th->getTexture(DEFAULT_SEPARATOR);
+        }
+
+        _background->setOpacity(_background_opacity);
+        for (int i = 0; i < CLIENT_STATE_NO; i++) {
+            _fonts[i]->setColor(_colors[i]);
+        }
+
+        _loaded = true;
+    }
+
+private:
     /** Panel height, can be fixed or calculated from font size */
     uint _height;
+    /** Set to true after load has been called. */
+    bool _loaded;
 
-    PFont* _fonts[CLIENT_STATE_NO];
-    PFont::Color* _color;
     PTexture *_background;
+    uchar _background_opacity;
     PTexture *_sep;
+    PFont* _fonts[CLIENT_STATE_NO];
+    PFont::Color* _colors[CLIENT_STATE_NO];
 };
 
 /**
@@ -1584,11 +1683,12 @@ static void usage(const char* name, int ret)
 
 int main(int argc, char *argv[])
 {
-    std::string config;
+    std::string config_file, pekwm_config_file;
     const char* display = NULL;
 
     static struct option opts[] = {
         {"config", required_argument, NULL, 'c'},
+        {"pekwm-config", required_argument, NULL, 'C'},
         {"display", required_argument, NULL, 'd'},
         {"help", no_argument, NULL, 'h'},
         {"log-level", required_argument, NULL, 'l'},
@@ -1605,10 +1705,13 @@ int main(int argc, char *argv[])
     Util::iconv_init();
 
     int ch;
-    while ((ch = getopt_long(argc, argv, "c:d:f:hl:", opts, NULL)) != -1) {
+    while ((ch = getopt_long(argc, argv, "c:C:d:f:hl:", opts, NULL)) != -1) {
         switch (ch) {
         case 'c':
-            config = optarg;
+            config_file = optarg;
+            break;
+        case 'C':
+            pekwm_config_file = optarg;
             break;
         case 'd':
             display = optarg;
@@ -1632,6 +1735,15 @@ int main(int argc, char *argv[])
         }
     }
 
+    if (config_file.empty()) {
+        config_file = "~/.pekwm/panel";
+    }
+    if (pekwm_config_file.empty()) {
+        pekwm_config_file = "~/.pekwm/config";
+    }
+    Util::expandFileName(config_file);
+    Util::expandFileName(pekwm_config_file);
+
     auto dpy = XOpenDisplay(display);
     if (! dpy) {
         auto actual_display = display ? display : Util::getEnv("DISPLAY");
@@ -1648,8 +1760,15 @@ int main(int argc, char *argv[])
         // run in separate scope to get resources cleaned up before
         // X11 and iconv cleanup
         PanelConfig cfg;
-        PanelTheme theme; // FIXME: read panel theme from active theme
-        if (loadConfig(cfg, config)) {
+        if (loadConfig(cfg, config_file)) {
+            std::string config_file;
+            std::string theme_dir, theme_variant, theme_path;
+            Util::getThemeDir(pekwm_config_file,
+                              theme_dir, theme_variant, theme_path);
+
+            PanelTheme theme;
+            theme.load(theme_dir, theme_path);
+
             XSizeHints normal_hints = {0};
             normal_hints.flags = PPosition|PSize;
             normal_hints.x = 0;

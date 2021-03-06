@@ -26,13 +26,13 @@ Basic pekwm_panel tests
 [shell pekwm_panel]
     [call init-shell]
     [log run panel at the top]
-    !$BIN_DIR/pekwm_panel --config pekwm_panel.config.top --log-level trace
+    !$BIN_DIR/pekwm_panel -c pekwm_panel.config.top  -C pekwm.config --log-level trace
     ?entering main loop
 
 [shell xev]
     [log waiting for window to be mapped]
     ?MapNotify
-    ?window (0x[0-9]+)
+    ?window (0x[0-9a-f]+)
     [global panel_window=$1]
 
 [shell xwininfo]
@@ -50,13 +50,13 @@ Basic pekwm_panel tests
     !$_CTRL_C_
     ?SH-PROMPT:
     [log run panel at the bottom]
-    !$BIN_DIR/pekwm_panel --config pekwm_panel.config.bottom --log-level trace
+    !$BIN_DIR/pekwm_panel -c pekwm_panel.config.bottom -C pekwm.config --log-level trace
     ?entering main loop
 
 [shell xev]
     [log waiting for window to be mapped]
     ?MapNotify
-    ?window (0x[0-9]+)
+    ?window (0x[0-9a-f]+)
     [global panel_window=$1]
 
 [shell xwininfo]

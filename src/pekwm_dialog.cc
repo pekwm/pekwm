@@ -733,8 +733,8 @@ int main(int argc, char* argv[])
         }
     }
 
-    std::string theme_dir, theme_variant;
-    Util::getThemeDir(config_file, theme_dir, theme_variant);
+    std::string theme_dir, theme_variant, theme_path;
+    Util::getThemeDir(config_file, theme_dir, theme_variant, theme_path);
 
     int ret;
     {

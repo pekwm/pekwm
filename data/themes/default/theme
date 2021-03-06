@@ -5,7 +5,8 @@
 # Email: adriano.src@gmail.com
 # Homepage: http://adrinux.wordpress.com
 
-$FONT = "XFT#Sans:size=9#Left"
+$FONT_NAME = "XFT#Sans:size=9"
+$FONT = "$FONT_NAME#Left"
 $FONT_TITLE = "XFT#Sans:size=9:weight=bold#Center#1 1"
 
 Require {
@@ -230,6 +231,32 @@ CmdDialog {
   Texture = "Solid #ffffff"
   Text = "#000000"
   Pad = "3 0 1 10"
+}
+
+Panel {
+  Background = "Image panel.png#Tiled"
+  BackgroundOpacity = "90"
+  Height = "20"
+  Separator = "Solid #aaaaaa 1x20"
+
+  Bar {
+    Percent = "100" { Color = "#00ff00" }
+    Percent = "70" { Color = "#ffa500" }
+    Percent = "10" { Color = "#ff0000" }
+  }
+
+  Focused {
+    Font = "$FONT_NAME#Center"
+    Color = "#000000"
+  }
+  Unfocused {
+    Font = "$FONT_NAME#Center"
+    Color = "#333333"
+  }
+  Iconified {
+    Font = "$FONT_NAME:slant=italic#Center"
+    Color = "#666666"
+  }
 }
 
 Status {

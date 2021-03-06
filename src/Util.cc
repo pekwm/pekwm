@@ -385,7 +385,8 @@ expandFileName(std::string &file)
 
 void
 getThemeDir(const std::string& config_file,
-            std::string& dir, std::string& variant)
+            std::string& dir, std::string& variant,
+            std::string& theme_file)
 {
     CfgParser cfg;
     cfg.parse(config_file, CfgParserSource::SOURCE_FILE, true);
@@ -399,6 +400,21 @@ getThemeDir(const std::string& config_file,
     } else {
         dir = THEME_DEFAULT;
         variant = "";
+    }
+
+    std::string norm_dir(dir);
+    if (dir.size() && dir.at(dir.size() - 1) == '/') {
+        norm_dir.erase(norm_dir.end() - 1);
+    }
+
+    theme_file = norm_dir + "/theme";
+    if (! variant.empty()) {
+        auto theme_file_variant = theme_file + "-" + variant;
+        if (isFile(theme_file_variant)) {
+            theme_file = theme_file_variant;
+        } else {
+            DBG("theme variant " << variant << " does not exist");
+        }
     }
 }
 

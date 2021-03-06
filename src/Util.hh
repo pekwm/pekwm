@@ -123,7 +123,8 @@ namespace Util {
     void expandFileName(std::string &file);
 
     void getThemeDir(const std::string &config_file,
-                     std::string &theme_dir, std::string &theme_variant);
+                     std::string &theme_dir, std::string &theme_variant,
+                     std::string &theme_path);
 
     const char* spaceChars(char escape);
     const wchar_t* spaceChars(wchar_t escape);
