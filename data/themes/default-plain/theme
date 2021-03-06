@@ -1,10 +1,4 @@
-# default theme for pekwm
-# 
-# ChangeLog:
-#
-# * Update for 0.1.8 with templates enabled.
-# * Created for version 0.1.7
-#
+# default non pixmap theme for pekwm
 
 Require {
   Templates = "True"
@@ -20,10 +14,10 @@ Define = "BaseDecor" {
 
   # increase first number to bring title text downwards
   Pad = "2 0 2 0"
-  
+
   Focused = "Empty"
   Unfocused = "Empty"
-  
+
   Tab {
     Focused = "Solid #dddddd"
     FocusedSelected = "Solid #ffffff"
@@ -93,7 +87,7 @@ Define = "BaseButtonDecor" {
       Button = "1" { Actions = "Close" }
       Button = "2" { Actions = "Kill" }
     }
-    Right { 
+    Right {
       @ButtonStates
 
       Button = "1" { Actions = "Toggle Maximized 1 1" }
@@ -103,118 +97,106 @@ Define = "BaseButtonDecor" {
   }
 }
 
-PDecor {
-  Decor = "DEFAULT" {
-    Title {
-      @BaseButtonDecor
-    }
+Decor = "DEFAULT" {
+  @BaseButtonDecor
+}
+
+Decor = "REMOTE" {
+  @BaseButtonDecor
+
+  Tab {
+    Focused = "Solid #fffcec"
+    FocusedSelected = "Solid #fff9d6"
   }
 
-  Decor = "REMOTE" {
-    Title {
-      @BaseButtonDecor
-
-      Tab {
-        Focused = "Solid #fffcec"
-        FocusedSelected = "Solid #fff9d6"
-      }
-
-      Buttons {
-        Left {
-          @ButtonStatesRemote
-        }
-        Right {
-          @ButtonStatesRemote
-        }
-      }
+  Buttons {
+    Left {
+      @ButtonStatesRemote
+    }
+    Right {
+      @ButtonStatesRemote
     }
   }
+}
 
-  Decor = "WARNING" {
-    Title {
-      @BaseButtonDecor
+Decor = "WARNING" {
+  @BaseButtonDecor
 
-      Tab {
-        Focused = "Solid #ee5454"
-        FocusedSelected = "Solid #ff7474"
-      }
-
-      Buttons {
-        Left {
-          @ButtonStatesWarning
-        }
-        Right {
-          @ButtonStatesWarning
-        }
-      }
-    }
+  Tab {
+    Focused = "Solid #ee5454"
+    FocusedSelected = "Solid #ff7474"
   }
 
-  Decor = "MENU" {
-    Title {
-      @BaseDecor
+  Buttons {
+    Left {
+      @ButtonStatesWarning
+    }
+    Right {
+      @ButtonStatesWarning
     }
   }
+}
 
-  Decor = "WORKSPACEINDICATOR" {
-    Title {
-        @BaseDecor
+Decor = "MENU" {
+  @BaseDecor
+}
 
-        Height = "0"
-        HeightAdapt = "False"
-    }
-  }
+Decor = "WORKSPACEINDICATOR" {
+  @BaseDecor
+
+  Height = "0"
+  HeightAdapt = "False"
 }
 
 Harbour {
-    Texture = "SolidRaised #ffffff #000000 #000000 1 0"
+  Texture = "SolidRaised #ffffff #000000 #000000 1 0"
 }
 
 Menu {
-    Pad = "2 2 2 2"
-    Focused {
-        Font = "Sans:size=12#XFT"
-        Background = "Empty"
-        Item = "Solid #ffffff 1 0"
-        Separator = "Solid #aaaaaa 0x1"
-        Arrow = "Solid #ff790c 4x4"
-        Text = "#000000"
-    }
-    Unfocused {
-        Font = "Sans:size=12#XFT"
-        Background = "Empty"
-        Item = "Solid #cccccc 1 0"
-        Separator = "Solid #999999 0x2"
-        Arrow = "Solid #999999 4x4"
-        Text = "#000000"
-    }
-    Selected {
-        Font = "Sans:size=12#XFT"
-        Background = "Empty"
-        Item = "Solid #eeeeee"
-        Arrow = "Solid #ff790c 4x4"
-        Text = "#000000"
-    }
+  Pad = "2 2 2 2"
+  Focused {
+    Font = "Sans:size=12#XFT"
+    Background = "Empty"
+    Item = "Solid #ffffff 1 0"
+    Separator = "Solid #aaaaaa 0x1"
+    Arrow = "Solid #ff790c 4x4"
+    Text = "#000000"
+  }
+  Unfocused {
+    Font = "Sans:size=12#XFT"
+    Background = "Empty"
+    Item = "Solid #cccccc 1 0"
+    Separator = "Solid #999999 0x2"
+    Arrow = "Solid #999999 4x4"
+    Text = "#000000"
+  }
+  Selected {
+    Font = "Sans:size=12#XFT"
+    Background = "Empty"
+    Item = "Solid #eeeeee"
+    Arrow = "Solid #ff790c 4x4"
+    Text = "#000000"
+  }
 }
 
 CmdDialog {
-    Font = "Sans:size=12#CENTER#XFT"
-    Texture = "Solid #ffffff"
-    Text = "#000000"
+  Font = "Sans:size=12#CENTER#XFT"
+  Texture = "Solid #ffffff"
+  Text = "#000000"
 }
 
 Status {
-    Font = "Sans:size=12#CENTER#XFT"
-    Texture = "Solid #ffffff"
-    Text = "#000000"
+  Font = "Sans:size=12#CENTER#XFT"
+  Texture = "Solid #ffffff"
+  Text = "#000000"
 }
 
 WorkspaceIndicator {
-    Font = "Sans:size=12#XFT"
-    Background = "Solid #ffffff"
-    Workspace = "Solid #cccccc"
-    WorkspaceActive = "Solid #aaaaaa"
-    Text = "#000000"
-    EdgePadding = "5"
-    WorkspacePadding = "2"
+  Font = "Sans:size=12#XFT"
+  Background = "Solid #ffffff"
+  Workspace = "Solid #cccccc"
+  WorkspaceActive = "Solid #aaaaaa"
+  Text = "#000000"
+  EdgePadding = "5"
+  WorkspacePadding = "2"
 }

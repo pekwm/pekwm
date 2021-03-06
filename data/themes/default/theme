@@ -1,4 +1,5 @@
-# default-nice Pekwm theme
+# default pekwm theme
+#
 # License: GPL
 # Author: adriano.src
 # Email: adriano.src@gmail.com
@@ -127,7 +128,7 @@ Define = "EmptyDecor" {
     FocusedSelected = "Empty"
     Unfocused = "Empty"
     UnfocusedSelected = "Empty"
-  }    
+  }
 
   Border {
     Focused {
@@ -165,43 +166,31 @@ Define = "BorderOnly" {
   }
 }
 
-PDecor {
-  Decor = "Default" {
-    Title {
-      @BaseDecor
-      @BaseButtons
+Decor = "Default" {
+  @BaseDecor
+  @BaseButtons
+}
+
+Decor = "Menu" {
+  @BaseDecor
+
+  Border {
+    Focused {
+      TopRight = "Image top-right-no-buttons.png"
     }
   }
+}
 
-  Decor = "Menu" {
-    Title {
-      @BaseDecor
+Decor = "Titlebarless" {
+  @BorderOnly
+}
 
-      Border {
-        Focused {
-          TopRight = "Image top-right-no-buttons.png"
-        }
-      }
-    }
-  }
+Decor = "Statuswindow" {
+  @EmptyDecor
+}
 
-  Decor = "Titlebarless" {
-    Title {
-      @BorderOnly
-    }
-  }
-
-  Decor = "Statuswindow" {
-    Title {
-      @EmptyDecor
-    }
-  }
-
-  Decor = "WorkspaceIndicator" {
-    Title {
-      @BorderOnly
-    }
-  }
+Decor = "WorkspaceIndicator" {
+  @BorderOnly
 }
 
 Harbour {
@@ -209,13 +198,13 @@ Harbour {
 }
 
 Menu {
-  Pad = "0 0 4 4" 
+  Pad = "0 0 4 4"
 
   Focused {
     Font = "$FONT"
     Background = "Solid #f9f9f9"
     Item = "Solid #f9f9f9"
-    Text = "#8b8b89" 
+    Text = "#8b8b89"
     Separator = "Image menuline.png#Scaled"
     Arrow = "Image arrow.png"
   }
