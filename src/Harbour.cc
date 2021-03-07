@@ -22,10 +22,7 @@
 
 #include <algorithm>
 #include <functional>
-
-#ifdef DEBUG
 #include <iostream>
-#endif // DEBUG
 
 //! @brief Harbour constructor
 Harbour::Harbour(Config* cfg, AutoProperties* ap, RootWO* root_wo)

@@ -124,12 +124,12 @@ target_include_directories(pekwm_bg PUBLIC ${common_INCLUDE_DIRS})
 target_link_libraries(pekwm_bg texture x11 util ${common_LIBRARIES})
 install(TARGETS pekwm_bg DESTINATION bin)
 
-if (DEBUG)
+if (CMAKE_BUILD_TYPE MATCHES Debug)
   add_executable(pekwm_cfg pekwm_cfg.cc)
   target_include_directories(pekwm_cfg PUBLIC ${PROJECT_BINARY_DIR}/src)
   target_link_libraries(pekwm_cfg util ${common_LIBRARIES})
   install(TARGETS pekwm_cfg DESTINATION bin)
-endif (DEBUG)
+endif (CMAKE_BUILD_TYPE MATCHES Debug)
 
 add_executable(pekwm_dialog
   pekwm_dialog.cc)

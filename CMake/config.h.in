@@ -1,8 +1,6 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
-#cmakedefine DEBUG
-
 #cmakedefine HAVE_SWPRINTF
 #cmakedefine HAVE_SETENV
 #cmakedefine HAVE_UNSETENV

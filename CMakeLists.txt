@@ -50,7 +50,6 @@ option(ENABLE_IMAGE_JPEG "include support for JPEG images" ON)
 option(ENABLE_IMAGE_PNG "include support for PNG images" ON)
 option(ENABLE_IMAGE_XPM "include support for XPM images" ON)
 
-option(DEBUG "include verbose debugging code" OFF)
 option(PEDANTIC "turn on strict compile-time warnings" OFF)
 option(TESTS "include tests" OFF)
 
@@ -102,10 +101,10 @@ if (ENABLE_RANDR AND X11_Xrandr_FOUND)
   set(HAVE_XRANDR 1)
 endif (ENABLE_RANDR AND X11_Xrandr_FOUND)
 
-if (DEBUG)
+if (CMAKE_BUILD_TYPE MATCHES Debug)
   set(pekwm_FEATURES "${pekwm_FEATURES} debug")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
-endif (DEBUG)
+endif (CMAKE_BUILD_TYPE MATCHES Debug)
 
 if (PEDANTIC)
   set(pekwm_FEATURES "${pekwm_FEATURES} pedantic")

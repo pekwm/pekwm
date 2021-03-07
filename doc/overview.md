@@ -193,7 +193,7 @@ the cmake command line as:
 | Option               | Default    | Description                                                   |
 |----------------------|------------|---------------------------------------------------------------|
 | CMAKE_INSTALL_PREFIX | /usr/local | It may be useful to use a custom prefix to install the files. |
-| DEBUG                | OFF        | Enable debug outputs and code                                 |
+| CMAKE_BUILD_TYPE     |            | Set to Debug to enable debug outputs and code                 |
 | PEDANTIC             | OFF        | Turn on extra compiler warnings                               |
 | TESTS                | OFF        | Enable compilation of unit test programs                      |
 
