@@ -79,7 +79,9 @@ ActionHandler::handleAction(const ActionPerformed &ap)
             matched = true;
             switch (it->getAction()) {
             case ACTION_FOCUS:
-                wo->giveInputFocus();
+                if (wo->isFocusable()) {
+                    wo->giveInputFocus();
+                }
                 break;
             case ACTION_UNFOCUS:
                 PWinObj::getRootPWinObj()->giveInputFocus();
