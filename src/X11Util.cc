@@ -44,6 +44,34 @@ namespace X11Util {
     }
 
     /**
+     * Grabs the button button, with the mod mod and mask mask on the
+     * window win and cursor curs with "all" possible extra modifiers
+     */
+    void
+    grabButton(int button, int mod, int mask, Window win, int mode)
+    {
+        uint num_lock = X11::getNumLock();
+        uint scroll_lock = X11::getScrollLock();
+
+        X11::grabButton(button, mod, win, mask, mode);
+        X11::grabButton(button, mod|LockMask, win, mask, mode);
+
+        if (num_lock) {
+            X11::grabButton(button, mod|num_lock, win, mask, mode);
+            X11::grabButton(button, mod|num_lock|LockMask, win, mask, mode);
+        }
+        if (scroll_lock) {
+            X11::grabButton(button, mod|scroll_lock, win, mask, mode);
+            X11::grabButton(button, mod|scroll_lock|LockMask, win, mask, mode);
+        }
+        if (num_lock && scroll_lock) {
+            X11::grabButton(button, mod|num_lock|scroll_lock, win, mask, mode);
+            X11::grabButton(button, mod|num_lock|scroll_lock|LockMask,
+                            win, mask, mode);
+        }
+    }
+
+    /**
      * Reads MWM hints from a client.
      *
      * @return true if the hint was read succesfully.

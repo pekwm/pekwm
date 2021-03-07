@@ -395,6 +395,11 @@ public:
     static int pending(void) { if (_dpy) { return XPending(_dpy); } return 0; }
 
     static bool getNextEvent(XEvent &ev, struct timeval *timeout = nullptr);
+    static void allowEvents(int event_mode, Time time) {
+        if (_dpy) {
+            XAllowEvents(_dpy, event_mode, time);
+        }
+    }
     static bool grabServer(void);
     static bool ungrabServer(bool sync);
     static bool grabKeyboard(Window win);
@@ -639,8 +644,8 @@ public:
     static void raiseWindow(Window w) { if (_dpy) { XRaiseWindow(_dpy, w); } }
     static void lowerWindow(Window w) { if (_dpy) { XLowerWindow(_dpy, w); } }
 
-    static void ungrabButton(Window win) {
-        XUngrabButton(_dpy, AnyButton, AnyModifier, win);
+    static void ungrabButton(uint button, uint modifiers, Window win) {
+        XUngrabButton(_dpy, button, modifiers, win);
     }
 
     /**

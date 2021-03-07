@@ -598,8 +598,8 @@ PDecor::handleButtonPress(XButtonEvent *ev)
         _pointer_y = ev->y_root;
 
         // Allow us to get clicks from anywhere on the window.
-        if (_decor_cfg_bpr_replay_pointer) {
-            XAllowEvents(X11::getDpy(), ReplayPointer, CurrentTime);
+        if (_decor_cfg_bpr_replay_pointer && ev->window == _window) {
+            X11::allowEvents(ReplayPointer, CurrentTime);
         }
 
         auto cfg = pekwm::config();
@@ -679,8 +679,8 @@ PDecor::handleButtonRelease(XButtonEvent *ev)
 
     } else {
         // Allow us to get clicks from anywhere on the window.
-        if (_decor_cfg_bpr_replay_pointer) {
-            XAllowEvents(X11::getDpy(), ReplayPointer, CurrentTime);
+        if (_decor_cfg_bpr_replay_pointer && ev->window == _window) {
+            X11::allowEvents(ReplayPointer, CurrentTime);
         }
 
         // clicks on the child window

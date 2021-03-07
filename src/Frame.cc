@@ -74,9 +74,16 @@ Frame::Frame(Client *client, AutoProperty *ap)
     _decor_cfg_bpr_al_child = MOUSE_ACTION_LIST_CHILD_FRAME;
 
     // grab buttons so that we can reply them
-    for (uint i = 0; i < BUTTON_NO; ++i) {
-        X11::grabButton(i, AnyModifier, _window,
-                        ButtonPressMask|ButtonReleaseMask, GrabModeSync);
+    for (auto it : pekwm::config()->getClientMouseActionButtons()) {
+        if (it.button == BUTTON_ANY) {
+            continue;
+        }
+
+        for (auto mod : it.mods) {
+            X11Util::grabButton(it.button, mod,
+                                ButtonPressMask|ButtonReleaseMask,
+                                _window, GrabModeSync);
+        }
     }
 
     // get unique id of the frame, if the client didn't have an id

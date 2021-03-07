@@ -181,7 +181,7 @@ Client::~Client(void)
     // Clean up if the client still is alive, it'll be dead all times
     // except when we exit pekwm
     if (_alive) {
-        X11::ungrabButton(_window);
+        X11::ungrabButton(AnyButton, AnyModifier, _window);
         pekwm::keyGrabber()->ungrabKeys(_window);
         XRemoveFromSaveSet(X11::getDpy(), _window);
         PWinObj::mapWindow();
@@ -793,7 +793,7 @@ void
 Client::grabButtons(void)
 {
     // Make sure we don't have any buttons grabbed.
-    X11::ungrabButton(_window);
+    X11::ungrabButton(AnyButton, AnyModifier, _window);
 
     auto actions =
         pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_CHILD_FRAME);
@@ -805,14 +805,12 @@ Client::grabButtons(void)
                 continue;
             }
 
-            grabButton(it.sym, it.mod,
-                       ButtonPressMask|ButtonReleaseMask,
-                       _window);
+            uint mask = ButtonPressMask|ButtonReleaseMask;
+            X11Util::grabButton(it.sym, it.mod, mask, _window);
         } else if (it.type == MOUSE_EVENT_MOTION) {
             // FIXME: Add support for MOD_ANY
-            grabButton(it.sym, it.mod,
-                       ButtonPressMask|ButtonReleaseMask|ButtonMotionMask,
-                       _window);
+            uint mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask;
+            X11Util::grabButton(it.sym, it.mod, mask, _window);
         }
     }
 }
@@ -1354,32 +1352,6 @@ void Client::sendTakeFocusMessage(void)
                        X11::getAtom(WM_PROTOCOLS), NoEventMask,
                        X11::getAtom(WM_TAKE_FOCUS),
                        X11::getLastEventTime());
-    }
-}
-
-//! @brief Grabs a button on the window win
-//! Grabs the button button, with the mod mod and mask mask on the window win
-//! and cursor curs with "all" possible extra modifiers
-void
-Client::grabButton(int button, int mod, int mask, Window win)
-{
-    uint num_lock = X11::getNumLock();
-    uint scroll_lock = X11::getScrollLock();
-
-    X11::grabButton(button, mod, win, mask);
-    X11::grabButton(button, mod|LockMask, win, mask);
-
-    if (num_lock) {
-        X11::grabButton(button, mod|num_lock, win, mask);
-        X11::grabButton(button, mod|num_lock|LockMask, win, mask);
-    }
-    if (scroll_lock) {
-        X11::grabButton(button, mod|scroll_lock, win, mask);
-        X11::grabButton(button, mod|scroll_lock|LockMask, win, mask);
-    }
-    if (num_lock && scroll_lock) {
-        X11::grabButton(button, mod|num_lock|scroll_lock, win, mask);
-        X11::grabButton(button, mod|num_lock|scroll_lock|LockMask, win, mask);
     }
 }
 

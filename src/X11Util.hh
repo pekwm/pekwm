@@ -75,6 +75,9 @@ namespace X11Util {
     uint getCurrHead(CurrHeadSelector chs);
     uint getNearestHead(const PWinObj& wo);
 
+    void grabButton(int button, int mod, int mask, Window win,
+                    int mode=GrabModeAsync);
+
     bool readMwmHints(Window win, MwmHints &hints);
     bool readEwmhStates(Window win, NetWMStates &win_states);
 }

@@ -176,39 +176,10 @@ Config::Config(void) :
     }
 
     // fill the mouse action map
-    _mouse_action_map[MOUSE_ACTION_LIST_TITLE_FRAME] =
-        new std::vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_TITLE_OTHER] =
-        new std::vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_CHILD_FRAME] =
-        new std::vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_CHILD_OTHER] =
-        new std::vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_ROOT] = new std::vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_MENU] = new std::vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_OTHER] = new std::vector<ActionEvent>;
-
-    _mouse_action_map[MOUSE_ACTION_LIST_EDGE_T] = new std::vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_EDGE_B] = new std::vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_EDGE_L] = new std::vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_EDGE_R] = new std::vector<ActionEvent>;
-
-    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_TL] =
-        new std::vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_T] =
-        new std::vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_TR] =
-        new std::vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_L] =
-        new std::vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_R] =
-        new std::vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_BL] =
-        new std::vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_B] =
-        new std::vector<ActionEvent>;
-    _mouse_action_map[MOUSE_ACTION_LIST_BORDER_BR] =
-        new std::vector<ActionEvent>;
+    for (uint i = 0; i <= MOUSE_ACTION_LIST_NO; i++) {
+        auto maln = static_cast<MouseActionListName>(i);
+        _mouse_action_map[maln] = new std::vector<ActionEvent>();
+    }
 }
 
 //! @brief Destructor for Config class
@@ -879,7 +850,7 @@ Config::parseInputDialogEvent(CfgParser::Entry *section, ActionEvent &ae)
     if (! section->getValue().size()) {
         return false;
     }
-    
+
     if (ActionConfig::parseKey(section->getValue(), ae.mod, ae.sym)) {
         value = section->getSection()->findEntry("ACTIONS");
         if (value) {
@@ -1050,7 +1021,8 @@ Config::copyConfigFiles(void)
         }
         if (! cfg_dir_ok) {
             if (getgid() == stat_buf.st_gid) {
-                if ((stat_buf.st_mode&S_IWGRP) && (stat_buf.st_mode&(S_IXGRP))) {
+                if ((stat_buf.st_mode&S_IWGRP)
+                    && (stat_buf.st_mode&(S_IXGRP))) {
                     cfg_dir_ok = true;
                 }
             }
@@ -1131,14 +1103,15 @@ Config::loadMouseConfig(const std::string &mouse_file)
     if (! _cfg_files_mouse.requireReload(mouse_file)) {
         return false;
     }
-    
+
     CfgParser mouse_cfg;
     if (! mouse_cfg.parse(mouse_file, CfgParserSource::SOURCE_FILE, true)
-        && ! mouse_cfg.parse(SYSCONFDIR "/mouse", CfgParserSource::SOURCE_FILE, true)) {
+        && ! mouse_cfg.parse(SYSCONFDIR "/mouse",
+                             CfgParserSource::SOURCE_FILE, true)) {
         _cfg_files_mouse.clear();
         return false;
     }
-    
+
     if (mouse_cfg.isDynamicContent()) {
         _cfg_files_mouse.clear();
     } else {
@@ -1154,34 +1127,40 @@ Config::loadMouseConfig(const std::string &mouse_file)
 
     section = mouse_cfg.getEntryRoot()->findSection("FRAMETITLE");
     if (section) {
-        parseButtons(section, _mouse_action_map[MOUSE_ACTION_LIST_TITLE_FRAME], FRAME_OK);
+        parseButtons(section, _mouse_action_map[MOUSE_ACTION_LIST_TITLE_FRAME],
+                     nullptr, FRAME_OK);
     }
 
     section = mouse_cfg.getEntryRoot()->findSection("OTHERTITLE");
     if (section) {
-        parseButtons(section, _mouse_action_map[MOUSE_ACTION_LIST_TITLE_OTHER], FRAME_OK);
+        parseButtons(section, _mouse_action_map[MOUSE_ACTION_LIST_TITLE_OTHER],
+                     nullptr, FRAME_OK);
     }
-    
+
     section = mouse_cfg.getEntryRoot()->findSection("CLIENT");
     if (section) {
-        parseButtons(section, _mouse_action_map[MOUSE_ACTION_LIST_CHILD_FRAME], CLIENT_OK);
+        parseButtons(section, _mouse_action_map[MOUSE_ACTION_LIST_CHILD_FRAME],
+                     &_client_mouse_action_buttons, CLIENT_OK);
     }
-    
+
     section = mouse_cfg.getEntryRoot()->findSection("ROOT");
     if (section) {
-        parseButtons(section, _mouse_action_map[MOUSE_ACTION_LIST_ROOT], ROOTCLICK_OK);
+        parseButtons(section, _mouse_action_map[MOUSE_ACTION_LIST_ROOT],
+                     nullptr, ROOTCLICK_OK);
     }
-    
+
     section = mouse_cfg.getEntryRoot()->findSection("MENU");
     if (section) {
-        parseButtons(section, _mouse_action_map[MOUSE_ACTION_LIST_MENU], FRAME_OK);
+        parseButtons(section, _mouse_action_map[MOUSE_ACTION_LIST_MENU],
+                     nullptr, FRAME_OK);
     }
-    
+
     section = mouse_cfg.getEntryRoot()->findSection("OTHER");
     if (section) {
-        parseButtons(section, _mouse_action_map[MOUSE_ACTION_LIST_OTHER], FRAME_OK);
+        parseButtons(section, _mouse_action_map[MOUSE_ACTION_LIST_OTHER],
+                     nullptr, FRAME_OK);
     }
-    
+
     section = mouse_cfg.getEntryRoot()->findSection("SCREENEDGE");
     if (section) {
         CfgParser::iterator edge_it(section->begin());
@@ -1189,7 +1168,9 @@ Config::loadMouseConfig(const std::string &mouse_file)
             uint pos = ActionConfig::getDirection((*edge_it)->getName());
 
             if (pos != SCREEN_EDGE_NO) {
-                parseButtons((*edge_it)->getSection(), getEdgeListFromPosition(pos), SCREEN_EDGE_OK);
+                parseButtons((*edge_it)->getSection(),
+                             getEdgeListFromPosition(pos), nullptr,
+                             SCREEN_EDGE_OK);
             }
         }
     }
@@ -1200,7 +1181,9 @@ Config::loadMouseConfig(const std::string &mouse_file)
         for (; border_it != section->end(); ++border_it) {
             uint pos = ActionConfig::getBorderPos((*border_it)->getName());
             if (pos != BORDER_NO_POS) {
-                parseButtons((*border_it)->getSection(), getBorderListFromPosition(pos), FRAME_BORDER_OK);
+                parseButtons((*border_it)->getSection(),
+                             getBorderListFromPosition(pos), nullptr,
+                             FRAME_BORDER_OK);
             }
         }
     }
@@ -1208,9 +1191,36 @@ Config::loadMouseConfig(const std::string &mouse_file)
     return true;
 }
 
-//! @brief Parses mouse config section, like FRAME
+static void
+mouseButtonsAdd(std::vector<BoundButton>* buttons, uint button, uint mod)
+{
+    if (buttons == nullptr) {
+        return;
+    }
+
+    auto bit = buttons->begin();
+    for (; bit != buttons->end(); ++bit) {
+        if (bit->button == button) {
+            for (auto mit : bit->mods) {
+                if (mit == mod) {
+                    return;
+                }
+            }
+            bit->mods.push_back(mod);
+            return;
+        }
+    }
+    buttons->push_back({button, {mod}});
+}
+
+/**
+ * Parses mouse config section, like FRAME
+ */
 void
-Config::parseButtons(CfgParser::Entry *section, std::vector<ActionEvent>* mouse_list, ActionOk action_ok)
+Config::parseButtons(CfgParser::Entry *section,
+                     std::vector<ActionEvent>* mouse_list,
+                     std::vector<BoundButton>* mouse_buttons,
+                     ActionOk action_ok)
 {
     if (! section || ! mouse_list) {
         return;
@@ -1226,7 +1236,6 @@ Config::parseButtons(CfgParser::Entry *section, std::vector<ActionEvent>* mouse_
         }
 
         ae.type = mouse_event_map.get((*it)->getName());
-
         if (ae.type == MOUSE_EVENT_NO) {
             continue;
         }
@@ -1242,6 +1251,7 @@ Config::parseButtons(CfgParser::Entry *section, std::vector<ActionEvent>* mouse_
 
         if (ActionConfig::parseActionEvent((*it), ae, action_ok, true)) {
             mouse_list->push_back(ae);
+            mouseButtonsAdd(mouse_buttons, ae.sym, ae.mod);
         }
     }
 }

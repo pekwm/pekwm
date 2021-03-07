@@ -59,6 +59,11 @@ private:
 #define CONV_OPACITY(X)\
     X = (X == 100)?EWMH_OPAQUE_WINDOW:X*(EWMH_OPAQUE_WINDOW/100)
 
+struct BoundButton {
+    uint button;
+    std::vector<uint> mods;
+};
+
 /**
  * Large set of configuration options stored and parsed by the
  * singleton Config class.
@@ -192,6 +197,9 @@ public:
     std::vector<ActionEvent> *getMouseActionList(MouseActionListName name) {
         return _mouse_action_map[name];
     }
+    const std::vector<BoundButton>& getClientMouseActionButtons(void) {
+        return _client_mouse_action_buttons;
+    }
 
     std::vector<ActionEvent> *getBorderListFromPosition(uint pos);
     std::vector<ActionEvent> *getEdgeListFromPosition(uint pos);
@@ -251,7 +259,7 @@ private:
 
     void parseButtons(CfgParser::Entry *section,
                       std::vector<ActionEvent>* mouse_list,
-                      ActionOk action_ok);
+                      std::vector<BoundButton>* mouse_buttons, ActionOk action_ok);
 
     std::string _config_file; /**< Path to config file last loaded. */
     TimeFiles _cfg_files;
@@ -337,6 +345,7 @@ private:
     uint _harbour_opacity;
 
     std::map<MouseActionListName, std::vector<ActionEvent>* > _mouse_action_map;
+    std::vector<BoundButton> _client_mouse_action_buttons;
 };
 
 namespace pekwm

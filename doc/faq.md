@@ -377,8 +377,23 @@ Screen {
 
 ### Mouse scrolling does not work with GTK3 applications?
 
-You need to set the environment variable `GDK_CORE_DEVICE_EVENTS` to
-1.
+pekwm version prior to 0.2.0 required the use of the environment
+variable `GDK_CORE_DEVICE_EVENTS` set to 1.
+
+If starting pekwm from .xinitrc or .xsession this could be achieved by
+starting pekwm like this:
+
+```
+GDK_CORE_DEVICE_EVENTS=1
+export GDK_CORE_DEVICE_EVENTS
+
+pekwm
+```
+
+pekwm 0.2.0 and later scrolling should work with the default
+configuration, however if there are **Client** bindings in the mouse
+file for buttons 4 and 5 without any modifiers set the above trick
+with GDK_CORE_DEVICE_EVENTS might still be required.
 
 ### Cannot switch back to fullscreen windows with NextFrame or similar commands
 

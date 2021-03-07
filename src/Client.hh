@@ -196,7 +196,6 @@ public: // Public Member Functions
     bool isAlive(void) const { return _alive; }
     bool isMarked(void) const { return _marked; }
 
-    // We have this public so that we can reload button actions.
     void grabButtons(void);
 
     void setStateCfgDeny(StateAction sa, uint deny);
@@ -311,9 +310,6 @@ private:
     inline void setMaximizedHorz(bool m) { _state.maximized_horz = m; }
     inline void setShade(bool s) { _state.shaded = s; }
     inline void setFullscreen(bool f) { _state.fullscreen = f; }
-
-    // Grabs button with Caps,Num and so on
-    void grabButton(int button, int mod, int mask, Window win);
 
     void readHints(void);
     void readClassRoleHints(void);
