@@ -71,6 +71,9 @@ enum PanelPlacement {
     PANEL_BOTTOM
 };
 
+/** pekwm configuration file. */
+static std::string _pekwm_config_file;
+
 /** empty string, used as default return value. */
 static std::string _empty_string;
 /** empty string, used as default return value. */
@@ -584,6 +587,9 @@ public:
     class XROOTPMAP_ID_Changed : public Observation {
     };
 
+    class PEKWM_THEME_Changed : public Observation {
+    };
+
     class ClientInfo : public NetWMStates {
     public:
         ClientInfo(Window window)
@@ -699,8 +705,9 @@ public:
             } else if (ev->atom == X11::getAtom(NET_CLIENT_LIST)) {
                 updated = readClientListStacking();
             } else if (ev->atom == X11::getAtom(XROOTPMAP_ID)) {
-                updated = true;
                 observation = &_xrootpmap_id_changed;
+            } else if (ev->atom == X11::getAtom(PEKWM_THEME)) {
+                observation = &_pekwm_theme_changed;
             }
         } else {
             auto client_info = findClientInfo(ev->window, _clients);
@@ -709,7 +716,7 @@ public:
             }
         }
 
-        if (updated) {
+        if (updated || observation) {
             notifyObservers(observation);
         }
 
@@ -803,6 +810,7 @@ private:
     client_info_vector _clients;
 
     XROOTPMAP_ID_Changed _xrootpmap_id_changed;
+    PEKWM_THEME_Changed _pekwm_theme_changed;
 };
 
 /**
@@ -878,14 +886,20 @@ public:
             return;
         }
 
+        _height = DEFAULT_HEIGHT;
+
         auto th = pekwm::textureHandler();
         th->returnTexture(_sep);
+        _sep = nullptr;
         th->returnTexture(_background);
+        _background = nullptr;
 
         auto fh = pekwm::fontHandler();
         for (int i = 0; i < CLIENT_STATE_NO; i++) {
             fh->returnFont(_fonts[i]);
+            _fonts[i] = nullptr;
             fh->returnColor(_colors[i]);
+            _colors[i] = nullptr;
         }
         _loaded = false;
     }
@@ -954,6 +968,16 @@ private:
     PFont* _fonts[CLIENT_STATE_NO];
     PFont::Color* _colors[CLIENT_STATE_NO];
 };
+
+static void
+loadTheme(PanelTheme& theme, const std::string& pekwm_config_file)
+{
+    std::string config_file;
+    std::string theme_dir, theme_variant, theme_path;
+    Util::getThemeDir(pekwm_config_file, theme_dir, theme_variant, theme_path);
+
+    theme.load(theme_dir, theme_path);
+}
 
 /**
  * Base class for all widgets displayed on the panel.
@@ -1362,7 +1386,7 @@ private:
 class PekwmPanel : public X11App,
                    public Observer {
 public:
-    PekwmPanel(const PanelConfig &cfg, const PanelTheme &theme, XSizeHints *sh)
+    PekwmPanel(const PanelConfig &cfg, PanelTheme &theme, XSizeHints *sh)
         : X11App({sh->x, sh->y,
                   static_cast<uint>(sh->width), static_cast<uint>(sh->height)},
                  L"", "panel", "pekwm_panel",
@@ -1387,14 +1411,7 @@ public:
             X11::getAtom(STATE_ABOVE)
         };
         X11::setAtoms(_window, STATE, state, sizeof(state)/sizeof(state[0]));
-
-        long strut[4] = {0};
-        if (cfg.getPlacement() == PANEL_TOP) {
-            strut[2] = sh->height;
-        } else {
-            strut[3] = sh->height;
-        }
-        X11::setLongs(_window, NET_WM_STRUT, strut, 4);
+        setStrut();
 
         // select root window for atom changes _before_ reading state
         // ensuring state is up-to-date at all times.
@@ -1421,6 +1438,28 @@ public:
         resizeWidgets();
     }
 
+    void setStrut(void)
+    {
+        long strut[4] = {0};
+        if (_cfg.getPlacement() == PANEL_TOP) {
+            strut[2] = _theme.getHeight();
+        } else {
+            strut[3] = _theme.getHeight();
+        }
+        X11::setLongs(_window, NET_WM_STRUT, strut, 4);
+    }
+
+    void place(void)
+    {
+        int y;
+        if (_cfg.getPlacement() == PANEL_TOP) {
+            y = 0;
+        } else {
+            y = X11::getHeight() - _theme.getHeight();
+        }
+        moveResize(0, y, X11::getWidth(), _theme.getHeight());
+    }
+
     void render(void)
     {
         renderPred([](PanelWidget *w) { return w->isDirty(); });
@@ -1429,9 +1468,17 @@ public:
     virtual void notify(Observable *observable,
                         Observation *observation) override
     {
-        if (dynamic_cast<WmState::XROOTPMAP_ID_Changed*>(observation)) {
+        if (dynamic_cast<WmState::PEKWM_THEME_Changed*>(observation)) {
+            DBG("reloading theme, _PEKWM_THEME changed");
+            loadTheme(_theme, _pekwm_config_file);
+            setStrut();
+            place();
+        }
+
+        if (dynamic_cast<WmState::XROOTPMAP_ID_Changed*>(observation)
+            || dynamic_cast<WmState::PEKWM_THEME_Changed*>(observation)) {
             renderBackground();
-            render();
+            renderPred([](PanelWidget *w) { return true; });
         }
     }
 
@@ -1475,6 +1522,7 @@ public:
             TRACE("UnmapNotify");
             break;
         case PropertyNotify:
+            TRACE("PropertyNotify");
             handlePropertyNotify(&ev->xproperty);
             break;
         case MappingNotify:
@@ -1635,7 +1683,7 @@ private:
 
 private:
     const PanelConfig& _cfg;
-    const PanelTheme& _theme;
+    PanelTheme& _theme;
     WmState _wm_state;
     std::vector<PanelWidget*> _widgets;
     ExternalCommandData _ext_data;
@@ -1683,7 +1731,7 @@ static void usage(const char* name, int ret)
 
 int main(int argc, char *argv[])
 {
-    std::string config_file, pekwm_config_file;
+    std::string config_file;
     const char* display = NULL;
 
     static struct option opts[] = {
@@ -1711,7 +1759,7 @@ int main(int argc, char *argv[])
             config_file = optarg;
             break;
         case 'C':
-            pekwm_config_file = optarg;
+            _pekwm_config_file = optarg;
             break;
         case 'd':
             display = optarg;
@@ -1738,11 +1786,11 @@ int main(int argc, char *argv[])
     if (config_file.empty()) {
         config_file = "~/.pekwm/panel";
     }
-    if (pekwm_config_file.empty()) {
-        pekwm_config_file = "~/.pekwm/config";
+    if (_pekwm_config_file.empty()) {
+        _pekwm_config_file = "~/.pekwm/config";
     }
     Util::expandFileName(config_file);
-    Util::expandFileName(pekwm_config_file);
+    Util::expandFileName(_pekwm_config_file);
 
     auto dpy = XOpenDisplay(display);
     if (! dpy) {
@@ -1761,13 +1809,8 @@ int main(int argc, char *argv[])
         // X11 and iconv cleanup
         PanelConfig cfg;
         if (loadConfig(cfg, config_file)) {
-            std::string config_file;
-            std::string theme_dir, theme_variant, theme_path;
-            Util::getThemeDir(pekwm_config_file,
-                              theme_dir, theme_variant, theme_path);
-
             PanelTheme theme;
-            theme.load(theme_dir, theme_path);
+            loadTheme(theme, _pekwm_config_file);
 
             XSizeHints normal_hints = {0};
             normal_hints.flags = PPosition|PSize;

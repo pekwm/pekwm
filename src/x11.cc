@@ -146,6 +146,7 @@ static const char *atomnames[] = {
     "_PEKWM_TITLE",
     "_PEKWM_BG_PID",
     "_PEKWM_CMD",
+    "_PEKWM_THEME",
 
     // ICCCM atoms
     "WM_NAME",

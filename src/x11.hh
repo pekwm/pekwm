@@ -110,6 +110,7 @@ enum AtomName {
     PEKWM_TITLE,
     PEKWM_BG_PID,
     PEKWM_CMD,
+    PEKWM_THEME,
 
     // ICCCM Atom Names
     WM_NAME,

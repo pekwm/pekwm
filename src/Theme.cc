@@ -1254,6 +1254,8 @@ Theme::load(const std::string &dir, const std::string &variant)
         }
     }
 
+    X11::setString(X11::getRoot(), PEKWM_THEME, theme_file);
+
     // Setup quirks and requirements before parsing.
     if (theme_ok) {
         if (theme.isDynamicContent()) {
