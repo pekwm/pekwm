@@ -178,11 +178,15 @@ XImageRender::line(int x1, int y1, int x2, int y2)
 {
     if (x1 == x2) {
         for (; y1 <= y2; y1++) {
-            XPutPixel(_image, x1, y1, _color);
+            for (int lw = 0; lw < _lw; lw++) {
+                XPutPixel(_image, x1, y1 + lw, _color);
+            }
         }
     } else if (y1 == y2) {
         for (; x1 <= x2; x1++) {
-            XPutPixel(_image, x1, y1, _color);
+            for (int lw = 0; lw < _lw; lw++) {
+                XPutPixel(_image, x1 + lw, y1, _color);
+            }
         }
     } else {
         // only horizontal and vertical lines are currently
