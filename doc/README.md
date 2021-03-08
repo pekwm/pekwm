@@ -1,4 +1,4 @@
-Manual
+pekwm
 ======
 
 * [Overview](overview.md)
@@ -9,3 +9,7 @@ Manual
 * [Themes](themes.md)
 * [FAQ](faq.md)
 * [Development](development.md)
+
+## applications
+
+* [pekwm_panel](pekwm_panel.md)
