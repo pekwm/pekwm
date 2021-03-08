@@ -61,10 +61,10 @@ void
 ActionHandler::handleAction(const ActionPerformed &ap)
 {
     PWinObj *wo = ap.wo;
-    Client *client = 0;
-    Frame *frame = 0;
-    PMenu *menu = 0;
-    PDecor *decor = 0;
+    Client *client = nullptr;
+    Frame *frame = nullptr;
+    PMenu *menu = nullptr;
+    PDecor *decor = nullptr;
     bool matched = false;
 
     // go through the list of actions and execute them
@@ -73,6 +73,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
         // Determine what type if any of the window object that is focused
         // and check if it is still alive.
         lookupWindowObjects(&wo, &client, &frame, &menu, &decor);
+        TRACE("run action " << it->getAction() << " wo " << wo);
 
         // actions valid for all PWinObjs
         if (! matched && wo) {
