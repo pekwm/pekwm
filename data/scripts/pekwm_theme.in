@@ -87,7 +87,7 @@ update_index()
     mkdir -p "$HOME/.pekwm"
     if test -e "${LOCAL_THEME_INDEX}.stamp"; then
         created=`cat ${LOCAL_THEME_INDEX}.stamp`
-        now=`date '+%S'`
+        now=`date '+%s'`
         age=$(($now - $created))
         if test $age -gt $LOCAL_THEME_INDEX_MAX_AGE; then
             rm -f "$LOCAL_THEME_INDEX"
@@ -99,7 +99,7 @@ update_index()
 
     if test ! -e "$LOCAL_THEME_INDEX"; then
         fetch_file "$REMOTE_THEME_INDEX" "$LOCAL_THEME_INDEX"
-        date '+%S' > "${LOCAL_THEME_INDEX}.stamp"
+        date '+%s' > "${LOCAL_THEME_INDEX}.stamp"
     fi
 }
 
