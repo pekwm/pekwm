@@ -72,14 +72,20 @@ main(int argc, char *argv[])
         XSetTransientForHint(dpy, t_win2, win);
         std::cout << "PROGRESS: transient " << t_win2 << " set to "
                   << win << std::endl;
+    } else {
+        XSetTransientForHint(dpy, win, t_win1);
+        std::cout << "PROGRESS: transient " << t_win1 << " set to "
+                  << win << std::endl;
     }
 
     XMapWindow(dpy, win);
+    XFlush(dpy);
     XMapWindow(dpy, t_win1);
+    XFlush(dpy);
     if (t_win2 != None) {
         XMapWindow(dpy, t_win2);
+        XFlush(dpy);
     }
-    XFlush(dpy);
 
     std::cout << "PROGRESS: windows mapped (press enter)" << std::endl;
     std::string line;

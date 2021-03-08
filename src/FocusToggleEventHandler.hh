@@ -11,7 +11,7 @@
 #include "Action.hh"
 #include "Config.hh"
 #include "EventHandler.hh"
-#include "Observer.hh"
+#include "Observable.hh"
 
 class FocusToggleEventHandler : public EventHandler,
                                 public Observer
@@ -39,7 +39,8 @@ public:
     virtual void notify(Observable *observable,
                         Observation *observation) override
     {
-        if (observable == _fo_wo) {
+        if (observation == &PWinObj::pwin_obj_deleted
+            && observable == _fo_wo) {
             TRACE("decor " << _fo_wo << " lost while moving");
             _fo_wo = nullptr;
         }

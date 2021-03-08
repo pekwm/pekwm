@@ -11,7 +11,7 @@
 #include "Action.hh"
 #include "Config.hh"
 #include "EventHandler.hh"
-#include "Observer.hh"
+#include "Observable.hh"
 #include "KeyGrabber.hh"
 #include "StatusWindow.hh"
 
@@ -43,7 +43,8 @@ public:
     virtual void notify(Observable *observable,
                         Observation *observation) override
     {
-        if (observable == _decor) {
+        if (observation == &PWinObj::pwin_obj_deleted
+            && observable == _decor) {
             TRACE("decor " << _decor << " lost while keyboard move/resize");
             _decor = nullptr;
         }

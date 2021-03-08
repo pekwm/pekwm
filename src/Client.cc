@@ -20,6 +20,7 @@ extern "C" {
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <X11/Xutil.h>
+#include <assert.h>
 }
 
 #include "Compat.hh" // setenv, unsetenv
@@ -47,8 +48,11 @@ std::vector<uint> Client::_clientids;
 
 Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
     : PWinObj(true),
-      _id(0), _size(0),
-      _transient_for(0), _strut(0), _icon(0),
+      _id(0),
+      _size(0),
+      _transient_for(nullptr),
+      _strut(nullptr),
+      _icon(nullptr),
       _pid(0), _is_remote(false), _class_hint(0),
       _window_type(WINDOW_TYPE_NORMAL),
       _alive(false), _marked(false),
@@ -149,12 +153,6 @@ Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
 //! @brief Client destructor
 Client::~Client(void)
 {
-    // Remove from lists
-    if (_transient_for) {
-        std::vector<Client*> &tc(_transient_for->_transients);
-        tc.erase(std::remove(tc.begin(), tc.end(), this), tc.end());
-        _transient_for->removeObserver(this);
-    }
     _wo_map.erase(_window);
     woListRemove(this);
     _clients.erase(std::remove(_clients.begin(), _clients.end(), this), _clients.end());
@@ -639,19 +637,21 @@ Client::handleShapeEvent(XShapeEvent *ev)
 void
 Client::notify(Observable *observable, Observation *observation)
 {
-    if (observation) {
-        LayerObservation *layer_observation = dynamic_cast<LayerObservation*>(observation);
+    if (observation == &PWinObj::pwin_obj_deleted) {
+        if (observable == _transient_for) {
+            TRACE(this << " transient for client deleted: " << _transient_for);
+            _transient_for = nullptr;
+        } else {
+            TRACE(this << " transient client deleted: " << observable);
+            _transients.erase(std::remove(_transients.begin(),
+                                          _transients.end(), observable),
+                              _transients.end());
+        }
+    } else {
+        auto layer_observation = dynamic_cast<LayerObservation*>(observation);
         if (layer_observation && layer_observation->layer > getLayer()) {
             setLayer(layer_observation->layer);
             updateParentLayerAndRaiseIfActive();
-        }
-    } else {
-        Client *client = static_cast<Client*>(observable);
-        if (client == _transient_for) {
-            _transient_for = 0;
-        } else {
-            _transients.erase(std::remove(_transients.begin(), _transients.end(), this),
-                              _transients.end());
         }
     }
 }
@@ -762,7 +762,9 @@ Client::mapOrUnmapTransients(Window win, bool hide)
     }
 }
 
-//! @brief Checks if the window has any Destroy or Unmap notifys.
+/**
+ * Checks if the window has any Destroy or Unmap notifys.
+ */
 bool
 Client::validate(void)
 {
@@ -1741,26 +1743,50 @@ Client::getWMProtocols(void)
 void
 Client::getTransientForHint(void)
 {
-    if (_transient_for) {
-        return;
-    }
-
+    _transient_for_window = None;
     XGetTransientForHint(X11::getDpy(), _window, &_transient_for_window);
 
+    Client *transient_for = nullptr;
     if (_transient_for_window != None) {
         if (_transient_for_window == _window) {
-            ERR("Client set transient hint for itself.");
+            ERR(this << " client set transient hint for itself");
             _transient_for_window = None;
-            return;
-        }
-
-        _transient_for = findClientFromWindow(_transient_for_window);
-        if (_transient_for) {
-            // Observe for changes
-            _transient_for->_transients.push_back(this);
-            _transient_for->addObserver(this);
+        } else {
+            transient_for = findClientFromWindow(_transient_for_window);
+            TRACE(this << " transient for " << _transient_for_window
+                  << " client " << transient_for);
         }
     }
+
+    if (_transient_for != transient_for) {
+        if (_transient_for) {
+            _transient_for->removeTransient(this);
+        }
+        _transient_for = transient_for;
+        if (transient_for) {
+            transient_for->addTransient(this);
+        }
+    }
+}
+
+void
+Client::addTransient(Client *client)
+{
+    TRACE(this << " add transient: " << client);
+    assert(client != this);
+    _transients.push_back(client);
+    client->addObserver(this);
+}
+
+void
+Client::removeTransient(Client *client)
+{
+    TRACE(this << " remove transient: " << client);
+    assert(client != this);
+    _transients.erase(std::remove(_transients.begin(), _transients.end(),
+                                  client),
+                      _transients.end());
+    client->removeObserver(this);
 }
 
 void

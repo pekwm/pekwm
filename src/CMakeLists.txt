@@ -11,13 +11,11 @@ set(util_SOURCES
   CfgParserSource.cc
   Compat.cc
   Debug.cc
-  Observable.cc
   RegexString.cc
   Util.cc)
 
 set(x11_SOURCES
   PWinObj.cc
-  PWinObjReference.cc
   x11.cc
   X11Util.cc)
 

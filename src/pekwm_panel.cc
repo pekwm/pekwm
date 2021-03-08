@@ -11,7 +11,6 @@
 #include "FontHandler.hh"
 #include "ImageHandler.hh"
 #include "Observable.hh"
-#include "Observer.hh"
 #include "TextureHandler.hh"
 #include "Util.hh"
 #include "X11App.hh"

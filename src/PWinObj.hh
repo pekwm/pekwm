@@ -22,6 +22,12 @@
 class PWinObj : public Observable
 {
 public:
+    /**
+     * Observation sent when a PWinObj is destructed.
+     */
+    class PWinObjDeleted : public Observation {
+    };
+
     //! @brief PWinObj inherited types.
     enum Type {
         WO_FRAME = (1<<1), //!< Frame type.
@@ -230,6 +236,9 @@ public:
     }
 
     // other window commands
+
+public:
+    static PWinObjDeleted pwin_obj_deleted;
 
 protected:
     static void woListAdd(PWinObj *wo);

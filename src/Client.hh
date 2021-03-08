@@ -16,7 +16,6 @@
 
 #include "pekwm.hh"
 #include "PWinObj.hh"
-#include "Observer.hh"
 #include "PTexturePlain.hh"
 #include "PDecor.hh"
 
@@ -48,7 +47,8 @@ public:
     bool parent_is_new;
 };
 
-class Client : public PWinObj, public Observer
+class Client : public PWinObj,
+               public Observer
 {
     // FIXME: This relationship should end as soon as possible, but I need to
     // figure out a good way of sharing. :)
@@ -321,6 +321,9 @@ private:
     void applyActionAccessMask(uint mask, bool value);
     void readClientPid(void);
     void readClientRemote(void);
+
+    void addTransient(Client *client);
+    void removeTransient(Client *client);
 
     static uint findClientID(void);
     static void returnClientID(uint id);

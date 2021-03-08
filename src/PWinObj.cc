@@ -14,6 +14,8 @@
 #include "Debug.hh"
 #include "PWinObj.hh"
 
+PWinObj::PWinObjDeleted PWinObj::pwin_obj_deleted;
+
 Window PWinObj::_win_skip_enter_after = None;
 PWinObj* PWinObj::_skip_enter_after = nullptr;
 PWinObj* PWinObj::_focused_wo = nullptr;
@@ -44,7 +46,7 @@ PWinObj::~PWinObj(void)
         _skip_enter_after = nullptr;
         _win_skip_enter_after = _window;
     }
-    notifyObservers(0);
+    notifyObservers(&pwin_obj_deleted);
 }
 
 //! @brief Sets the desired opacity values for focused/unfocused states

@@ -23,7 +23,8 @@ extern "C" {
 /**
  * Base for windows handling text input.
  */
-class InputDialog : public PDecor, public PWinObjReference {
+class InputDialog : public PDecor,
+                    public PWinObjReference {
 public:
     InputDialog(const std::wstring &title);
     virtual ~InputDialog(void);
