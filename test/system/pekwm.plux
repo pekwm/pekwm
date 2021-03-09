@@ -13,19 +13,21 @@ in one go.
     ?SH-PROMPT:
     !export DISPLAY=$DISPLAY
     ?SH-PROMPT:
+    !VALGRIND=`which valgrind 2>/dev/null`
+    ?SH-PROMPT:
 [endfunction]
 
 # test possible ways of setting the configuration file used by pekwm
 [function test_config_path]
     [log test_config_path (--config)]
-    !$BIN_DIR/pekwm --config ./pekwm.config.missing --log-level trace
+    !$$VALGRIND $BIN_DIR/pekwm --config ./pekwm.config.missing --log-level trace
     ?using configuration at ./pekwm.config.missing
     ?failed to open file ./pekwm.config.missing
     !$_CTRL_C_
     ?SH-PROMPT:
 
     [log test_config_path (env PEKWM_CONFIG_FILE)]
-    !env PEKWM_CONFIG_FILE=./pekwm.env.config.missing $BIN_DIR/pekwm --log-level trace
+    !env PEKWM_CONFIG_FILE=./pekwm.env.config.missing $$VALGRIND $BIN_DIR/pekwm --log-level trace
     ?using configuration at ./pekwm.env.config.missing
     ?failed to open file ./pekwm.env.config.missing
     !$_CTRL_C_
@@ -33,7 +35,7 @@ in one go.
 
     [log test_config_path (env -i)]
     # test without home set, supposed to fail
-    !env -i $BIN_DIR/pekwm --log-level trace
+    !env -i $$VALGRIND $BIN_DIR/pekwm --log-level trace
     ???failed to get configuration file path, $HOME not set.
     ?SH-PROMPT:
 [endfunction]
@@ -43,20 +45,22 @@ in one go.
 
     [shell pekwm-1]
         [call init-shell]
-        -window manager already running
+        -(window manager already running|Invalid read of size)
         [log starting pekwm to be replaced]
-        !$BIN_DIR/pekwm --log-level trace
+        !$$VALGRIND $BIN_DIR/pekwm --log-level trace
         ?Enter event loop.
 
     [shell pekwm-2]
         [call init-shell]
+        -Invalid read of size
         [log starting pekwm without --replace, should fail]
-        !$BIN_DIR/pekwm --log-level trace
+        !$$VALGRIND $BIN_DIR/pekwm --log-level trace
         ?window manager already running
         ?SH-PROMPT:
 
         [log starting pekwm with --replace, replace first]
-        !$BIN_DIR/pekwm --replace --log-level trace
+        -Invalid read of size
+        !$$VALGRIND $BIN_DIR/pekwm --replace --log-level trace
         ?waiting for previous window manager to exit
         ?Enter event loop.
 
@@ -174,8 +178,8 @@ in one go.
 
     [shell pekwm_ctrl]
         [call init-shell]
-        -no client match
-        !$BIN_DIR/pekwm_ctrl -c no-resize-inc Set Maximized
+        -(no client match|Invalid read of size)
+        !$$VALGRIND $BIN_DIR/pekwm_ctrl -c no-resize-inc Set Maximized
         ?_PEKWM_CMD ([0-9]+) Set Maximized OK
         [global window=$1]
         ?SH-PROMPT:
@@ -230,45 +234,57 @@ in one go.
         [call init-shell]
         [log test_transient_for (normal)]
         !$TEST_DIR/test_transient_for
-        ?windows mapped
-        !next
-        ?PROGRESS: destroy transient window
-        ?PROGRESS: destroy last window
+        ?transient [0-9]+ set to [0-9]+
+        !
+        ?PROGRESS: destroy transient window 1
+        !
+        ?PROGRESS: destroy main window
+        !
+        ?PROGRESS: done
         ?SH-PROMPT:
 
         [log test_transient_for (transient on self)]
         !$TEST_DIR/test_transient_for transient-on-self
         ?transient [0-9]+ set to self
-        ?windows mapped
 
     [shell pekwm]
         [log verify pekwm error message]
         ?client set transient hint for itself
 
     [shell test_transient_for]
-        !next
+        !
         ?PROGRESS: destroy transient window 1
-        ?PROGRESS: destroy last window
+        !
+        ?PROGRESS: destroy main window
+        !
+        ?PROGRESS: done
         ?SH-PROMPT:
 
         [log test_transient_for (destroy main before transient)]
         !$TEST_DIR/test_transient_for destroy-main-first
-        ?windows mapped
-        !next
+        ?transient [0-9]+ set to [0-9]+
+        !
         ?PROGRESS: destroy main window
-        ?PROGRESS: destroy last window
+        !
+        ?PROGRESS: destroy transient window 1
+        !
+        ?PROGRESS: done
         ?SH-PROMPT:
 
         [log test_transient_for (loop)]
         !$TEST_DIR/test_transient_for transient-loop
         ?transient [0-9]+ set to [0-9]+
+        !
         ?transient [0-9]+ set to [0-9]+
         ?transient [0-9]+ set to [0-9]+
-        ?windows mapped
-        !next
+        !
         ?PROGRESS: destroy transient window 1
+        !
         ?PROGRESS: destroy transient window 2
-        ?PROGRESS: destroy last window
+        !
+        ?PROGRESS: destroy main window
+        !
+        ?PROGRESS: done
         ?SH-PROMPT:
 [endfunction]
 
@@ -281,8 +297,9 @@ in one go.
 
 [shell pekwm]
     [call init-shell]
+    -Invalid read of size
     [log starting pekwm (pekwm.config.report_all)]
-    !$BIN_DIR/pekwm --config pekwm.config.report_all --log-level trace
+    !$$VALGRIND $BIN_DIR/pekwm --config pekwm.config.report_all --log-level trace
     ?Enter event loop.
 
 [shell test]
@@ -298,7 +315,7 @@ in one go.
     ?SH-PROMPT:
 
     [log starting pekwm (pekwm.config)]
-    !$BIN_DIR/pekwm --config pekwm.config --log-level trace
+    !$$VALGRIND $BIN_DIR/pekwm --config pekwm.config --log-level trace
     ?Enter event loop.
 
 [shell test]

@@ -640,12 +640,16 @@ Client::notify(Observable *observable, Observation *observation)
     if (observation == &PWinObj::pwin_obj_deleted) {
         if (observable == _transient_for) {
             TRACE(this << " transient for client deleted: " << _transient_for);
+            removeObserver(_transient_for);
             _transient_for = nullptr;
         } else {
             TRACE(this << " transient client deleted: " << observable);
-            _transients.erase(std::remove(_transients.begin(),
-                                          _transients.end(), observable),
-                              _transients.end());
+            auto it = std::find(_transients.begin(), _transients.end(),
+                                observable);
+            if (it != _transients.end()) {
+                _transients.erase(it);
+                removeObserver(*it);
+            }
         }
     } else {
         auto layer_observation = dynamic_cast<LayerObservation*>(observation);
@@ -1744,10 +1748,10 @@ void
 Client::getTransientForHint(void)
 {
     _transient_for_window = None;
-    XGetTransientForHint(X11::getDpy(), _window, &_transient_for_window);
 
     Client *transient_for = nullptr;
-    if (_transient_for_window != None) {
+    if (XGetTransientForHint(X11::getDpy(), _window, &_transient_for_window)
+        && _transient_for_window != None) {
         if (_transient_for_window == _window) {
             ERR(this << " client set transient hint for itself");
             _transient_for_window = None;
@@ -1770,23 +1774,25 @@ Client::getTransientForHint(void)
 }
 
 void
-Client::addTransient(Client *client)
+Client::addTransient(Client *transient)
 {
-    TRACE(this << " add transient: " << client);
-    assert(client != this);
-    _transients.push_back(client);
-    client->addObserver(this);
+    TRACE(this << " add transient: " << transient);
+    assert(transient != this);
+    _transients.push_back(transient);
+    addObserver(transient);
+    transient->addObserver(this);
 }
 
 void
-Client::removeTransient(Client *client)
+Client::removeTransient(Client *transient)
 {
-    TRACE(this << " remove transient: " << client);
-    assert(client != this);
+    TRACE(this << " remove transient: " << transient);
+    assert(transient != this);
     _transients.erase(std::remove(_transients.begin(), _transients.end(),
-                                  client),
+                                  transient),
                       _transients.end());
-    client->removeObserver(this);
+    removeObserver(transient);
+    transient->removeObserver(this);
 }
 
 void

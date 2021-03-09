@@ -2,14 +2,120 @@
  * Test application for (bad) transient for usage.
  */
 
+#include "../../src/X11App.hh"
+
 #include <iostream>
 
-extern "C" {
-#include <X11/Xlib.h>
-#include <X11/Xatom.h>
-#include <X11/Xutil.h>
-#include <string.h>
-}
+class TransientTest : public X11App {
+public:
+    TransientTest(int argc, char *argv[])
+        : X11App({0, 0, 100, 100}, L"transient test",
+                 "main", "TransientTest", WINDOW_TYPE_NORMAL),
+          _t_win1(None),
+          _t_win2(None)
+    {
+        _main_first = argc == 2 && strcmp(argv[1], "destroy-main-first") == 0;
+        _loop = argc == 2 && strcmp(argv[1], "transient-loop") == 0;
+
+        XSetWindowAttributes attrs = {0};
+        attrs.event_mask = PropertyChangeMask;
+        unsigned long attrs_mask = CWEventMask|CWBackPixel;
+
+        attrs.background_pixel = X11::getBlackPixel();
+        _t_win1 = X11::createWindow(X11::getRoot(),
+                                    0, 0, 100, 100, 0,
+                                    CopyFromParent, //depth
+                                    InputOutput, // class
+                                    CopyFromParent, // visual
+                                    attrs_mask,
+                                    &attrs);
+
+        if (argc == 2 && strcmp(argv[1], "transient-on-self") == 0) {
+            // set transient for to self, does not make sense and should
+            // not be done in real code (but could happen)
+            XSetTransientForHint(X11::getDpy(), _t_win1, _t_win1);
+            std::cout << "PROGRESS: transient " << _t_win1 << " set to self"
+                      << std::endl;
+        } else if (_loop) {
+            attrs.background_pixel = X11::getBlackPixel();
+            _t_win2 = XCreateWindow(X11::getDpy(), X11::getRoot(),
+                                    0, 0, 100, 100, 0,
+                                    CopyFromParent, //depth
+                                    InputOutput, // class
+                                    CopyFromParent, // visual
+                                    attrs_mask,
+                                    &attrs);
+            XSetTransientForHint(X11::getDpy(), _t_win1, _window);
+            std::cout << "PROGRESS: transient " << _window << " set to "
+                      << _t_win1 << std::endl;
+        } else {
+            XSetTransientForHint(X11::getDpy(), _t_win1, _window);
+            std::cout << "PROGRESS: transient " << _t_win1 << " set to "
+                      << _window << std::endl;
+        }
+    }
+
+    virtual void handleFd(int fd) override
+    {
+        if (fd != 1) {
+            return;
+        }
+
+        std::string line;
+        std::getline(std::cin, line);
+
+        if (_loop) {
+            XSetTransientForHint(X11::getDpy(), _t_win2, _t_win1);
+            std::cout << "PROGRESS: transient " << _t_win2 << " set to "
+                      << _t_win1 << std::endl;
+            XSetTransientForHint(X11::getDpy(), _window, _t_win2);
+            std::cout << "PROGRESS: transient " << _t_win2 << " set to "
+                      << _window << std::endl;
+            _loop = false;
+        } else if (_main_first && _window != None) {
+            // test destroying the window that the transient window is
+            // transient for before destroying the transient window.
+            std::cout << "PROGRESS: destroy main window" << std::endl;
+            XDestroyWindow(X11::getDpy(), _window);
+            _window = None;
+        } else if (_t_win1 != None) {
+            std::cout << "PROGRESS: destroy transient window 1" << std::endl;
+            XDestroyWindow(X11::getDpy(), _t_win1);
+            _t_win1 = None;
+        } else if (_t_win2 != None) {
+            std::cout << "PROGRESS: destroy transient window 2" << std::endl;
+            XDestroyWindow(X11::getDpy(), _t_win2);
+            _t_win2 = None;
+        } else if (_window != None) {
+            std::cout << "PROGRESS: destroy main window" << std::endl;
+            XDestroyWindow(X11::getDpy(), _window);
+            _window = None;
+        } else {
+            std::cout << "PROGRESS: done" << std::endl;
+            stop(0);
+        }
+    }
+
+    void show(void)
+    {
+        mapWindow();
+        X11::flush();
+        if (_t_win1 != None) {
+            X11::mapWindow(_t_win1);
+            X11::flush();
+        }
+        if (_t_win2 != None) {
+            X11::mapWindow(_t_win2);
+            X11::flush();
+        }
+    }
+
+private:
+    Window _t_win1;
+    Window _t_win2;
+    bool _main_first;
+    bool _loop;
+};
 
 int
 main(int argc, char *argv[])
@@ -19,99 +125,18 @@ main(int argc, char *argv[])
         std::cerr << "ERROR: unable to open display" << std::endl;
         return 1;
     }
+    X11::init(dpy);
+    Util::iconv_init();
 
-    int screen = DefaultScreen(dpy);
-    Window root = RootWindow(dpy, screen);
-
-    XSetWindowAttributes attrs = {0};
-    attrs.event_mask = PropertyChangeMask;
-    unsigned long attrs_mask = CWEventMask|CWBackPixel;
-
-    attrs.background_pixel = WhitePixel(dpy, screen);
-    auto win = XCreateWindow(dpy, root,
-                             0, 0, 100, 100, 0,
-                             CopyFromParent, //depth
-                             InputOutput, // class
-                             CopyFromParent, // visual
-                             attrs_mask,
-                             &attrs);
-
-    attrs.background_pixel = BlackPixel(dpy, screen);
-    auto t_win1 = XCreateWindow(dpy, root,
-                               0, 0, 100, 100, 0,
-                               CopyFromParent, //depth
-                               InputOutput, // class
-                               CopyFromParent, // visual
-                               attrs_mask,
-                               &attrs);
-
-    Window t_win2 = None;
-
-    if (argc == 2 && strcmp(argv[1], "transient-on-self") == 0) {
-        // set transient for to self, does not make sense and should
-        // not be done in real code (but could happen)
-        XSetTransientForHint(dpy, t_win1, t_win1);
-        std::cout << "PROGRESS: transient " << t_win1 << " set to self"
-                  << std::endl;
-    } else if (argc == 2 && strcmp(argv[1], "transient-loop") == 0) {
-        attrs.background_pixel = BlackPixel(dpy, screen);
-        t_win2 = XCreateWindow(dpy, root,
-                               0, 0, 100, 100, 0,
-                               CopyFromParent, //depth
-                               InputOutput, // class
-                               CopyFromParent, // visual
-                               attrs_mask,
-                               &attrs);
-
-        XSetTransientForHint(dpy, win, t_win1);
-        std::cout << "PROGRESS: transient " << win << " set to "
-                  << t_win1 << std::endl;
-        XSetTransientForHint(dpy, t_win1, t_win2);
-        std::cout << "PROGRESS: transient " << t_win1 << " set to "
-                  << t_win2 << std::endl;
-        XSetTransientForHint(dpy, t_win2, win);
-        std::cout << "PROGRESS: transient " << t_win2 << " set to "
-                  << win << std::endl;
-    } else {
-        XSetTransientForHint(dpy, win, t_win1);
-        std::cout << "PROGRESS: transient " << t_win1 << " set to "
-                  << win << std::endl;
+    {
+        TransientTest test(argc, argv);
+        test.addFd(1);
+        test.show();
+        test.main(1);
     }
 
-    XMapWindow(dpy, win);
-    XFlush(dpy);
-    XMapWindow(dpy, t_win1);
-    XFlush(dpy);
-    if (t_win2 != None) {
-        XMapWindow(dpy, t_win2);
-        XFlush(dpy);
-    }
-
-    std::cout << "PROGRESS: windows mapped (press enter)" << std::endl;
-    std::string line;
-    std::getline(std::cin, line);
-
-    Window last_win;
-    if (argc == 2 && strcmp(argv[1], "destroy-main-first") == 0) {
-        // test destroying the window that the transient window is
-        // transient for before destroying the transient window.
-        std::cout << "PROGRESS: destroy main window" << std::endl;
-        XDestroyWindow(dpy, win);
-        last_win = t_win1;
-    } else {
-        std::cout << "PROGRESS: destroy transient window 1" << std::endl;
-        XDestroyWindow(dpy, t_win1);
-        last_win = win;
-    }
-
-    if (t_win2 != None) {
-        std::cout << "PROGRESS: destroy transient window 2" << std::endl;
-        XDestroyWindow(dpy, t_win2);
-    }
-
-    std::cout << "PROGRESS: destroy last window" << std::endl;
-    XDestroyWindow(dpy, last_win);
-    XCloseDisplay(dpy);
+    Util::iconv_deinit();
+    X11::destruct();
 
     return 0;
 }

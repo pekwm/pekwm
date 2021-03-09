@@ -25,7 +25,7 @@ public:
     Observer(void) { }
     virtual ~Observer(void) { }
 
-    virtual void notify(Observable *observable, Observation *observation) = 0;
+    virtual void notify(Observable *observable, Observation *observation) { }
 };
 
 class Observable {
