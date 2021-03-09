@@ -410,12 +410,7 @@ public:
 
         int getFd(void) const { return _fd; }
         pid_t getPid(void) const { return _pid; }
-        const std::string& getBuf(void) const { return _buf; }
-
-        void append(char *data, ssize_t size)
-        {
-            _buf.append(data, data + size);
-        }
+        std::string& getBuf(void) { return _buf; }
 
         bool start(void)
         {
@@ -521,19 +516,22 @@ public:
     {
         char buf[1024];
         ssize_t nread = read(fd, buf, sizeof(buf));
-        if (nread == -1) {
-            TRACE("failed to read from " << fd << ": " << strerror(errno));
+        if (nread < 1) {
+            if (nread == -1) {
+                TRACE("failed to read from " << fd << ": " << strerror(errno));
+            }
             return false;
         }
 
         auto it = _command_processes.begin();
         for (; it != _command_processes.end(); ++it) {
             if (it->getFd() == fd) {
-                it->append(buf, nread);
+                append(it->getBuf(), buf, nread);
                 break;
             }
         }
-        return nread > 0;
+
+        return true;
     }
 
     void done(pid_t pid, std::function<void(int)> removeFd)
@@ -555,18 +553,34 @@ public:
     }
 
 private:
+    void append(std::string &buf, char *data, size_t size)
+    {
+        buf.append(data, data + size);
+        auto pos = buf.find('\n');
+        while (pos != std::string::npos) {
+            auto line = buf.substr(0, pos);
+            parseLine(line);
+            buf.erase(0, pos + 1);
+            pos = buf.find('\n');
+        }
+    }
+
     void parseOutput(const std::string& buf)
     {
         std::vector<std::string> lines;
-        std::vector<std::string> field_value;
         Util::splitString(buf, lines, "\n");
         for (auto line : lines) {
-            field_value.clear();
-            if (Util::splitString(line, field_value, " \t", 2) == 2) {
-                _fields[field_value[0]] = Util::to_wide_str(field_value[1]);
-                FieldObservation field_obs(field_value[0]);
-                notifyObservers(&field_obs);
-            }
+            parseLine(line);
+        }
+    }
+
+    void parseLine(const std::string& line)
+    {
+        std::vector<std::string> field_value;
+        if (Util::splitString(line, field_value, " \t", 2) == 2) {
+            _fields[field_value[0]] = Util::to_wide_str(field_value[1]);
+            FieldObservation field_obs(field_value[0]);
+            notifyObservers(&field_obs);
         }
     }
 

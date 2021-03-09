@@ -17,8 +17,8 @@ All widgets share two common configuration parameters
 
 **Size**
 
-| Name | Type | Description
----------------------------
+| Name      | Type    | Description                                                             |
+|-----------|---------|-------------------------------------------------------------------------|
 | Pixels    | Integer | Screen pixels, use only for fixed size widgets                          |
 | Percent   | 1-100   | Percent of total panel width                                            |
 | Required  |         | Calculated required width using the current theme                       |
@@ -64,7 +64,7 @@ ExternalData = "field" {
 
 ### WorkspaceNumber
 
-Widget displaing the current workspace number.
+Widget displaying the current workspace number.
 
 ```
 WorkspaceNumber {
@@ -75,7 +75,7 @@ WorkspaceNumber {
 ## Commands
 
 The **Commands** section of the panel configuration includes
-nconfiguration for external commands pekwm_panel will run at given
+configuration for external commands pekwm_panel will run at given
 intervals to collect data displayed by the _ExternalData_ and _Bar_
 widgets.
 
@@ -88,4 +88,43 @@ Example:
 ```
 field1 value one
 field2 value two
+```
+### Long running commands
+
+pekwm_panel parses data as it is output by the command and it is thus
+possible to have a single long-running command providing data for all
+widgets requiring external data.
+
+It is recommended to use long-running commands if frequent updates of
+the displayed data is required.
+
+A simple example creating displaying updated time every second without
+using the _DateTime_ widget could look this:
+
+**date.sh**
+
+```
+#!/bin/sh
+
+while `/usr/bin/true`; do
+    echo data `date`
+    sleep 1
+done
+```
+
+**panel**
+
+```
+Commands {
+  Command = "/path/to/date.sh" {
+    # time to wait between runs if date.sh crash
+    Interval = "3600"
+  }
+}
+
+Widgets {
+  ExternalData = "date" {
+    Size = "TextWidth _Ddd Mmm 00 00:00:00 ZZZ YYYY_"
+  }
+}
 ```
