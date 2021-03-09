@@ -104,17 +104,18 @@ enum Skip {
 };
 
 /**
- * Keep in sync with CursorType in x11.hh
+ * Keep in sync with CursorType in x11.hh. Border order is
+ * significant, reordering can casue theme rendering break.
  */
 enum BorderPosition {
     BORDER_TOP_LEFT = 0,
-    BORDER_TOP,
     BORDER_TOP_RIGHT,
+    BORDER_BOTTOM_LEFT,
+    BORDER_BOTTOM_RIGHT,
+    BORDER_TOP,
     BORDER_LEFT,
     BORDER_RIGHT,
-    BORDER_BOTTOM_LEFT,
     BORDER_BOTTOM,
-    BORDER_BOTTOM_RIGHT,
     BORDER_NO_POS
 };
 
