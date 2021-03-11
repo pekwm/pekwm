@@ -338,6 +338,10 @@ grouping options. They are:
 * _Raise (bool)_, if true makes new clients raise the frame they open in.
 * _Size (integer), how many clients should be grouped in one group.
 
+**Icon (string)**
+
+Set _NET_WM_ICON on the specified window. Icon is loaded from the icon load path, [see configuration](configuration.md) for details.
+
 **Iconified (bool)**
 
 Window starts Iconified

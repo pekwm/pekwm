@@ -17,12 +17,24 @@
  */
 class PImageIcon : public PImage {
 public:
-    PImageIcon(void);
+    PImageIcon(PImage *image);
     virtual ~PImageIcon(void);
 
-    bool loadFromWindow(Window win);
+    void setOnWindow(Window win);
+
+    static PImageIcon *newFromWindow(Window win);
+    static void setOnWindow(Window win, uint width, uint height, uchar *data);
+
+private:
+    PImageIcon(void);
 
 private:
     bool setImageFromData(uchar *data, ulong actual);
-    void convertToARGB(ulong size, long *from_data, uchar *to_data);
+
+    static Cardinal* newCardinals(uint width, uint height, uchar *data);
+    static void fromCardinals(ulong size, Cardinal *from_data, uchar *to_data);
+    static void toCardinals(ulong size, uchar *from_data, Cardinal *to_data);
+
+private:
+    Cardinal *_cardinals;
 };

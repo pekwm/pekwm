@@ -9,7 +9,7 @@
 #include "pekwm.hh"
 #include "RegexString.hh"
 #include "Util.hh"
-#include "x11.hh"
+#include "X11.hh"
 
 #include <functional>
 

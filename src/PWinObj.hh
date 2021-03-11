@@ -14,7 +14,7 @@
 #include <map>
 
 #include "pekwm.hh"
-#include "x11.hh"
+#include "X11.hh"
 #include "Action.hh"
 #include "Observable.hh"
 

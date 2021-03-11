@@ -15,7 +15,7 @@
 
 #include "pekwm.hh"
 #include "PTexture.hh"
-#include "x11.hh"
+#include "X11.hh"
 
 class PImage;
 

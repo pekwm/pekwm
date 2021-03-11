@@ -21,7 +21,7 @@
 #include "Theme.hh"
 #include "Workspaces.hh"
 #include "X11Util.hh"
-#include "x11.hh"
+#include "X11.hh"
 
 #include <algorithm>
 #include <cstdlib>

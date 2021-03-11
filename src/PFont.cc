@@ -14,7 +14,7 @@
 #include "Debug.hh"
 #include "PFont.hh"
 #include "Util.hh"
-#include "x11.hh"
+#include "X11.hh"
 
 std::wstring PFont::_trim_string = std::wstring();
 const char *FALLBACK_FONT = "fixed";

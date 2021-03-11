@@ -8,7 +8,7 @@
 
 #include "PTexture.hh"
 #include "PImage.hh"
-#include "x11.hh"
+#include "X11.hh"
 
 /**
  * Render texture onto drawable.
@@ -83,8 +83,8 @@ PTexture::renderOnBackground(XImage *ximage,
                              int x, int y, uint width, uint height,
                              int root_x, int root_y)
 {
-    long pix;
-    if (! X11::getLong(X11::getRoot(), XROOTPMAP_ID, pix, XA_PIXMAP)) {
+    Cardinal pix;
+    if (! X11::getCardinal(X11::getRoot(), XROOTPMAP_ID, pix, XA_PIXMAP)) {
         return false;
     }
 

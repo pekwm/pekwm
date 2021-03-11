@@ -39,7 +39,7 @@ extern "C" {
 #include "TextureHandler.hh"
 #include "ManagerWindows.hh"
 #include "X11Util.hh"
-#include "x11.hh"
+#include "X11.hh"
 
 const long Client::_clientEventMask = \
     PropertyChangeMask|StructureNotifyMask|FocusChangeMask|KeyPressMask;
@@ -306,8 +306,8 @@ Client::findPreviousFrame(void)
         return false;
     }
 
-    long id;
-    if (X11::getLong(_window, PEKWM_FRAME_ID, id)) {
+    Cardinal id;
+    if (X11::getCardinal(_window, PEKWM_FRAME_ID, id)) {
         _parent = Frame::findFrameFromID(id);
         if (_parent) {
             Frame *frame = static_cast<Frame*>(_parent);
@@ -536,9 +536,9 @@ Client::setWorkspace(uint workspace)
         _workspace = workspace;
 
         if (_sticky) {
-            X11::setLong(_window, NET_WM_DESKTOP, NET_WM_STICKY_WINDOW);
+            X11::setCardinal(_window, NET_WM_DESKTOP, NET_WM_STICKY_WINDOW);
         } else {
-            X11::setLong(_window, NET_WM_DESKTOP, _workspace);
+            X11::setCardinal(_window, NET_WM_DESKTOP, _workspace);
         }
     }
 }
@@ -879,11 +879,11 @@ void
 Client::readEwmhHints(void)
 {
     // which workspace do we belong to?
-    long workspace = -1;
-    X11::getLong(_window, NET_WM_DESKTOP, workspace);
+    Cardinal workspace = -1;
+    X11::getCardinal(_window, NET_WM_DESKTOP, workspace);
     if (workspace < 0) {
         _workspace = Workspaces::getActive();
-        X11::setLong(_window, NET_WM_DESKTOP, _workspace);
+        X11::setCardinal(_window, NET_WM_DESKTOP, _workspace);
     } else {
         _workspace = workspace;
     }
@@ -981,15 +981,15 @@ Client::readMwmHints(void)
 void
 Client::readPekwmHints(void)
 {
-    long value;
+    Cardinal value;
     std::string str;
 
     // Get decor state
-    if (X11::getLong(_window, PEKWM_FRAME_DECOR, value)) {
+    if (X11::getCardinal(_window, PEKWM_FRAME_DECOR, value)) {
         _state.decor = value;
     }
     // Get skip state
-    if (X11::getLong(_window, PEKWM_FRAME_SKIP, value)) {
+    if (X11::getCardinal(_window, PEKWM_FRAME_SKIP, value)) {
         _state.skip = value;
     }
 
@@ -1007,8 +1007,8 @@ Client::readPekwmHints(void)
 void
 Client::readIcon(void)
 {
-    auto *image = new PImageIcon();
-    if (image->loadFromWindow(_window)) {
+    auto image = PImageIcon::newFromWindow(_window);
+    if (image) {
         if (_icon) {
             _icon->setImage(image);
         } else {
@@ -1096,6 +1096,10 @@ Client::applyAutoprops(AutoProperty *ap)
     if (ap->isMask(AP_OPACITY)) {
         setOpacity(ap->focus_opacity, ap->unfocus_opacity);
     }
+    if (ap->isMask(AP_ICON)) {
+        TRACE("set _NET_WM_ICON on " << _window);
+        ap->icon->setOnWindow(_window);
+    }
 }
 
 void
@@ -1139,7 +1143,7 @@ Client::applyActionAccessMask(uint mask, bool value)
 void
 Client::readClientPid(void)
 {
-    X11::getLong(_window, NET_WM_PID, _pid);
+    X11::getCardinal(_window, NET_WM_PID, _pid);
 }
 
 /**
@@ -1386,7 +1390,7 @@ void
 Client::setSkip(uint skip)
 {
     _state.skip = skip;
-    X11::setLong(_window, PEKWM_FRAME_SKIP, _state.skip);
+    X11::setCardinal(_window, PEKWM_FRAME_SKIP, _state.skip);
 }
 
 std::string
@@ -1850,8 +1854,8 @@ Client::removeStrutHint(void)
 long
 Client::getPekwmFrameOrder(void)
 {
-    long num = -1;
-    X11::getLong(_window, PEKWM_FRAME_ORDER, num);
+    Cardinal num = -1;
+    X11::getCardinal(_window, PEKWM_FRAME_ORDER, num);
     return num;
 }
 
@@ -1861,7 +1865,7 @@ Client::getPekwmFrameOrder(void)
 void
 Client::setPekwmFrameOrder(long num)
 {
-    X11::setLong(_window, PEKWM_FRAME_ORDER, num);
+    X11::setCardinal(_window, PEKWM_FRAME_ORDER, num);
 }
 
 /**
@@ -1871,8 +1875,8 @@ Client::setPekwmFrameOrder(long num)
 bool
 Client::getPekwmFrameActive(void)
 {
-    long act = 0;
-    return (X11::getLong(_window, PEKWM_FRAME_ACTIVE, act)
+    Cardinal act = 0;
+    return (X11::getCardinal(_window, PEKWM_FRAME_ACTIVE, act)
             && act == 1);
 }
 
@@ -1882,7 +1886,7 @@ Client::getPekwmFrameActive(void)
 void
 Client::setPekwmFrameActive(bool act)
 {
-    X11::setLong(_window, PEKWM_FRAME_ACTIVE, act ? 1 : 0);
+    X11::setCardinal(_window, PEKWM_FRAME_ACTIVE, act ? 1 : 0);
 }
 
 /**

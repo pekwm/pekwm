@@ -12,7 +12,7 @@
 
 #include "Debug.hh"
 #include "PImageLoaderXpm.hh"
-#include "x11.hh"
+#include "X11.hh"
 
 #include <cstring>
 #include <cstdio>

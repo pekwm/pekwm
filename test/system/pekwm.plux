@@ -165,16 +165,15 @@ in one go.
     [log test_cfg_deny_resize_inc]
 
     [shell xev]
-        [call init-shell]
         !xev -root
 
     [shell xterm]
-        [call init-shell]
         !xterm -name no-resize-inc +sb /bin/sh
 
     [shell xev]
         ???NET_CLIENT_LIST)
         !$_CTRL_C_
+        ?SH-PROMPT:
 
     [shell pekwm_ctrl]
         [call init-shell]
@@ -185,11 +184,14 @@ in one go.
         ?SH-PROMPT:
 
     [shell xprop]
-        [call init-shell]
         [log verify size of term]
         !xwininfo -id $window
         ?Width: 1024
         ?Height: 768
+        ?SH-PROMPT:
+
+    [shell xterm]
+        !$_CTRL_C_
         ?SH-PROMPT:
 [endfunction]
 
@@ -288,6 +290,36 @@ in one go.
         ?SH-PROMPT:
 [endfunction]
 
+[function test_icon_property]
+    [log test_icon_property]
+
+    [shell xev]
+        !xev -root
+
+    [shell xterm]
+        !xterm -name icon +sb /bin/sh
+
+    [shell xev]
+        ?ReparentNotify
+        ?window (0x[0-9a-f]+)
+        [global window=$1]
+        ???NET_CLIENT_LIST)
+        !$_CTRL_C_
+        ?SH-PROMPT:
+
+    [shell xprop]
+        [log verify _NET_WM_ICON is set]
+        -not found
+        !xprop -id $window _NET_WM_ICON
+        ?_NET_WM_ICON.*32 x 32
+        ?SH-PROMPT:
+        -
+
+    [shell xterm]
+        !$_CTRL_C_
+        ?SH-PROMPT:
+[endfunction]
+
 [shell Xvfb]
     [call init-shell]
     [log starting Xvfb]
@@ -302,8 +334,18 @@ in one go.
     !$$VALGRIND $BIN_DIR/pekwm --config pekwm.config.report_all --log-level trace
     ?Enter event loop.
 
+[shell xev]
+    [call init-shell]
+
+[shell xprop]
+    [call init-shell]
+
+[shell xterm]
+    [call init-shell]
+
 [shell test]
     [call init-shell]
+    [call test_icon_property]
     [call test_transient_for]
     [call test_cfg_deny_resize_inc]
     [call test_warp_pointer]

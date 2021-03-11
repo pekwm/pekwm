@@ -32,7 +32,7 @@
 #include "ActionMenu.hh"
 #include "FrameListMenu.hh"
 #include "X11Util.hh"
-#include "x11.hh"
+#include "X11.hh"
 
 #include "FocusToggleEventHandler.hh"
 #include "MoveEventHandler.hh"

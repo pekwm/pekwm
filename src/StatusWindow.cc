@@ -12,7 +12,7 @@
 #include "PWinObj.hh"
 #include "PDecor.hh"
 #include "StatusWindow.hh"
-#include "x11.hh"
+#include "X11.hh"
 #include "PTexture.hh"
 #include "Theme.hh"
 #include "Workspaces.hh"

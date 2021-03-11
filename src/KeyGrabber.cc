@@ -13,7 +13,7 @@
 #include "CfgParser.hh"
 #include "KeyGrabber.hh"
 #include "Util.hh"
-#include "x11.hh"
+#include "X11.hh"
 
 extern "C" {
 #include <X11/Xutil.h>

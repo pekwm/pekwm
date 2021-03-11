@@ -9,7 +9,7 @@
 #include <iostream>
 
 #include "test.hh"
-#include "x11.hh"
+#include "X11.hh"
 
 class TestX11 : public X11,
                 public TestSuite {

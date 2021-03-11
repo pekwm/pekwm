@@ -34,7 +34,7 @@ bool xerrors_ignore = false;
 unsigned int xerrors_count = 0;
 }
 
-#include "x11.hh"
+#include "X11.hh"
 #include "Debug.hh"
 
 const uint X11::MODIFIER_TO_MASK[] = {

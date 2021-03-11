@@ -2,6 +2,7 @@ INCLUDE = "$_PEKWM_ETC_PATH/config_system"
 
 Files {
     AutoProps = "./pekwm.autoproperties"
+    Icons = "./icons/"
 }
 
 Screen {

@@ -18,7 +18,7 @@
 #include "Render.hh"
 #include "Util.hh"
 #include "X11App.hh"
-#include "x11.hh"
+#include "X11.hh"
 
 #include <algorithm>
 #include <functional>

@@ -13,6 +13,7 @@
 #include "AutoProperties.hh"
 #include "Config.hh"
 #include "Debug.hh"
+#include "ImageHandler.hh"
 #include "Util.hh"
 
 static Util::StringMap<ApplyOn> apply_on_map =
@@ -47,7 +48,8 @@ static Util::StringMap<PropertyType> property_map =
      {"ALLOWEDACTIONS", AP_ALLOWED_ACTIONS},
      {"DISALLOWEDACTIONS", AP_DISALLOWED_ACTIONS},
      {"OPACITY", AP_OPACITY},
-     {"DECOR", AP_DECOR}};
+     {"DECOR", AP_DECOR},
+     {"ICON", AP_ICON}};
 
 static Util::StringMap<PropertyType> group_property_map =
     {{"", AP_NO_PROPERTY},
@@ -75,8 +77,9 @@ static Util::StringMap<AtomName> window_type_map =
      {"NORMAL", WINDOW_TYPE_NORMAL}};
 
 //! @brief Constructor for AutoProperties class
-AutoProperties::AutoProperties(void)
-    : _extended(false),
+AutoProperties::AutoProperties(ImageHandler *image_handler)
+    : _image_handler(image_handler),
+      _extended(false),
       _harbour_sort(false),
       _apply_on_start(true)
 {
@@ -121,9 +124,12 @@ AutoProperties::load(void)
     // reset values
     _apply_on_start = true;
 
+    // set load path for icons while loading auto-properties
+    pekwm::imageHandler()->path_push_back(pekwm::config()->getSystemIconPath());
+    pekwm::imageHandler()->path_push_back(pekwm::config()->getIconPath());
+
     std::vector<std::string> tokens;
     std::vector<uint> workspaces;
-
     auto it(a_cfg.getEntryRoot()->begin());
     for (; it != a_cfg.getEntryRoot()->end(); ++it) {
         if (*(*it) == "PROPERTY") {
@@ -153,6 +159,9 @@ AutoProperties::load(void)
             }
         }
     }
+
+    pekwm::imageHandler()->path_pop_back();
+    pekwm::imageHandler()->path_pop_back();
 
     // Validate date
     setDefaultTypeProperties();
@@ -850,6 +859,15 @@ AutoProperties::parseAutoPropertyValue(CfgParser::Entry *section,
             prop->maskAdd(AP_DECOR);
             prop->frame_decor = (*it)->getValue();
             break;
+        case AP_ICON: {
+            auto image = pekwm::imageHandler()->getImage((*it)->getValue());
+            if (image != nullptr) {
+                prop->maskAdd(AP_ICON);
+                prop->icon = new PImageIcon(image);
+                pekwm::imageHandler()->returnImage(image);
+            }
+            break;
+        }
         default:
             // do nothing
             break;

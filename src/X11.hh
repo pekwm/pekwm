@@ -1,5 +1,5 @@
 //
-// x11.hh for pekwm
+// X11.hh for pekwm
 // Copyright (C) 2003-2020 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -42,6 +42,8 @@ extern unsigned int xerrors_count; /**< Number of X errors occured. */
 #define setXErrorsIgnore(X) xerrors_ignore = (X)
 
 }
+
+typedef long Cardinal;
 
 enum AtomName {
     // Ewmh Atom Names
@@ -480,22 +482,25 @@ public:
                        PropModeReplace, (uchar *) values, size);
     }
 
-    inline static bool getLong(Window win, AtomName aname, long &value,
-                               long format=XA_CARDINAL) {
-        uchar *udata = 0;
+    static bool getCardinal(Window win, AtomName aname, Cardinal &value,
+                                   long format=XA_CARDINAL) {
+        uchar *udata = nullptr;
         if (getProperty(win, _atoms[aname], format, 1L, &udata, 0)) {
-            value = *reinterpret_cast<long*>(udata);
+            value = *reinterpret_cast<Cardinal*>(udata);
             X11::free(udata);
             return true;
         }
         return false;
     }
-    static void setLong(Window win, AtomName aname, long value,
-                        long format=XA_CARDINAL) {
+
+    static void setCardinal(Window win, AtomName aname, Cardinal value,
+                            long format=XA_CARDINAL) {
         changeProperty(win, _atoms[aname], format, 32,
-                       PropModeReplace, (uchar *) &value, 1);
+                       PropModeReplace, reinterpret_cast<uchar*>(&value), 1);
     }
-    static void setLongs(Window win, AtomName aname, long *values, int num) {
+
+    static void setCardinals(Window win, AtomName aname,
+                             Cardinal *values, int num) {
         changeProperty(win, _atoms[aname], XA_CARDINAL, 32, PropModeReplace,
                        reinterpret_cast<uchar*>(values), num);
     }

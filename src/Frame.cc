@@ -23,7 +23,7 @@ extern "C" {
 #include "Frame.hh"
 
 #include "Compat.hh"
-#include "x11.hh"
+#include "X11.hh"
 #include "Config.hh"
 #include "ActionHandler.hh"
 #include "AutoProperties.hh"
@@ -88,8 +88,8 @@ Frame::Frame(Client *client, AutoProperty *ap)
 
     // get unique id of the frame, if the client didn't have an id
     if (! pekwm::isStartup()) {
-        long id;
-        if (X11::getLong(client->getWindow(), PEKWM_FRAME_ID, id)) {
+        Cardinal id;
+        if (X11::getCardinal(client->getWindow(), PEKWM_FRAME_ID, id)) {
             _id = id;
         }
 
@@ -444,7 +444,7 @@ void
 Frame::addChild(PWinObj *child, std::vector<PWinObj*>::iterator *it)
 {
     PDecor::addChild(child, it);
-    X11::setLong(child->getWindow(), PEKWM_FRAME_ID, _id);
+    X11::setCardinal(child->getWindow(), PEKWM_FRAME_ID, _id);
     child->lower();
 
     Client *client = dynamic_cast<Client*>(child);
@@ -704,7 +704,7 @@ Frame::setId(uint id)
 {
     _id = id;
     for (auto it : _children) {
-        X11::setLong(it->getWindow(), PEKWM_FRAME_ID, id);
+        X11::setCardinal(it->getWindow(), PEKWM_FRAME_ID, id);
     }
 }
 
@@ -786,12 +786,12 @@ Frame::applyState(Client *cl)
 void
 Frame::setFrameExtents(Client *cl)
 {
-    long extents[4];
+    Cardinal extents[4];
     extents[0] = bdLeft(this);
     extents[1] = bdRight(this);
     extents[2] = bdTop(this) + titleHeight(this);
     extents[3] = bdBottom(this);
-    X11::setLongs(cl->getWindow(), NET_FRAME_EXTENTS, extents, 4);
+    X11::setCardinals(cl->getWindow(), NET_FRAME_EXTENTS, extents, 4);
 }
 
 //! @brief Sets skip state.
@@ -1698,8 +1698,8 @@ Frame::setStateDecorBorder(StateAction sa)
         _client->setBorder(hasBorder());
 
         // update the _PEKWM_FRAME_DECOR hint
-        X11::setLong(_client->getWindow(), PEKWM_FRAME_DECOR,
-                     _client->getDecorState());
+        X11::setCardinal(_client->getWindow(), PEKWM_FRAME_DECOR,
+                         _client->getDecorState());
     }
 }
 
@@ -1716,8 +1716,8 @@ Frame::setStateDecorTitlebar(StateAction sa)
     if (titlebar != hasTitlebar()) {
         _client->setTitlebar(hasTitlebar());
 
-        X11::setLong(_client->getWindow(), PEKWM_FRAME_DECOR,
-                     _client->getDecorState());
+        X11::setCardinal(_client->getWindow(), PEKWM_FRAME_DECOR,
+                         _client->getDecorState());
     }
 }
 
@@ -2403,10 +2403,9 @@ Frame::handlePropertyChange(XPropertyEvent *ev, Client *client)
 {
     if (ev->atom == X11::getAtom(NET_WM_DESKTOP)) {
         if (client == _client) {
-            long workspace;
-
-            if (X11::getLong(client->getWindow(),
-                             NET_WM_DESKTOP, workspace)) {
+            Cardinal workspace;
+            if (X11::getCardinal(client->getWindow(),
+                                 NET_WM_DESKTOP, workspace)) {
                 if (workspace != signed(_workspace))
                     setWorkspace(workspace);
             }

@@ -63,7 +63,7 @@ PWinObj::setOpacity(uint focused, uint unfocused, bool enabled)
 void
 PWinObj::updateOpacity(void)
 {
-    uint opacity;
+    Cardinal opacity;
     if (_opaque) {
         opacity = EWMH_OPAQUE_WINDOW;
     } else {
@@ -72,7 +72,7 @@ PWinObj::updateOpacity(void)
 
     if (_opacity.current != opacity) {
         _opacity.current = opacity;
-        X11::setLong(_window, NET_WM_WINDOW_OPACITY, opacity);
+        X11::setCardinal(_window, NET_WM_WINDOW_OPACITY, opacity);
     }
 }
 

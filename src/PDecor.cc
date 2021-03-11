@@ -30,7 +30,7 @@ extern "C" {
 #include "KeyGrabber.hh"
 #include "Theme.hh"
 #include "Workspaces.hh"
-#include "x11.hh"
+#include "X11.hh"
 #include "X11Util.hh"
 
 // PDecor::Button

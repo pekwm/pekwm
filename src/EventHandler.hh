@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "x11.hh"
+#include "X11.hh"
 
 /**
  * EventHandler interface for implementing event handling overriding

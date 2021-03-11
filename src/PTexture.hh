@@ -12,7 +12,7 @@
 
 #include "pekwm.hh"
 #include "Render.hh"
-#include "x11.hh"
+#include "X11.hh"
 
 class PTexture {
 public:

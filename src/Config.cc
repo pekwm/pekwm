@@ -14,7 +14,7 @@
 #include "PFont.hh"
 #include "Util.hh"
 #include "Workspaces.hh"
-#include "x11.hh" // for DPY in keyconfig code
+#include "X11.hh" // for DPY in keyconfig code
 
 #include <fstream>
 

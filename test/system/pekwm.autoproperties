@@ -13,3 +13,8 @@ Property = "no-resize-inc,XTerm" {
     Titlebar = "False"
     CfgDeny = "ResizeInc"
 }
+
+Property = "icon,XTerm" {
+    ApplyOn = "Start New"
+    Icon = "term.png"
+}

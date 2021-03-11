@@ -16,7 +16,7 @@
 #include "ManagerWindows.hh"
 #include "Workspaces.hh"
 #include "X11Util.hh"
-#include "x11.hh"
+#include "X11.hh"
 
 static PWinObj*
 isEmptySpace(int x, int y, const PWinObj* wo, std::vector<PWinObj*> &wvec)

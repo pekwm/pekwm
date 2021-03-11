@@ -10,7 +10,7 @@
 
 #include "Debug.hh"
 #include "PWinObj.hh"
-#include "x11.hh"
+#include "X11.hh"
 
 extern "C" {
 #include <sys/wait.h>
@@ -92,7 +92,7 @@ public:
 
         // setting of the WM properties ensure that the
         // WM_CLIENT_MACHINE is set which is a requirement for NET_WM_PID
-        X11::setLong(_window, NET_WM_PID, static_cast<long>(getpid()));
+        X11::setCardinal(_window, NET_WM_PID, static_cast<long>(getpid()));
     }
 
     virtual ~X11App(void)

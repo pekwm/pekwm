@@ -13,7 +13,7 @@
 #include "Debug.hh"
 #include "FontHandler.hh"
 #include "Util.hh"
-#include "x11.hh"
+#include "X11.hh"
 
 static Util::StringMap<PFont::Type> map_type =
     {{"", PFont::FONT_TYPE_NO},

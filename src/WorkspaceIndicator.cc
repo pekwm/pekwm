@@ -14,7 +14,7 @@
 #include "Workspaces.hh"
 #include "WorkspaceIndicator.hh"
 #include "X11Util.hh"
-#include "x11.hh"
+#include "X11.hh"
 
 /**
  * Display constructor

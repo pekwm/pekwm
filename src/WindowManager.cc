@@ -30,7 +30,7 @@
 #include "Workspaces.hh"
 #include "Util.hh"
 #include "X11Util.hh"
-#include "x11.hh"
+#include "X11.hh"
 
 #include "RegexString.hh"
 
@@ -1368,7 +1368,7 @@ WindowManager::handleNetRequestFrameExtents(Window win)
     if (data) {
         ThemeGm theme_gm(data);
 
-        long extents[4];
+        Cardinal extents[4];
         extents[0] = theme_gm.bdLeft(state);
         extents[1] = theme_gm.bdRight(state);
         extents[2] = theme_gm.bdTop(state) + theme_gm.titleHeight(state);
@@ -1376,7 +1376,7 @@ WindowManager::handleNetRequestFrameExtents(Window win)
         TRACE("setting _NET_FRAME_EXTENTS (" << extents[0] << " "
               << extents[1] << " " << extents[2] << " " << extents[3]
               << ") on " << win);
-        X11::setLongs(win, NET_FRAME_EXTENTS, extents, 4);
+        X11::setCardinals(win, NET_FRAME_EXTENTS, extents, 4);
     }
 }
 

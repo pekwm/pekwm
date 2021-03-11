@@ -11,7 +11,7 @@
 #include "config.h"
 
 #include "pekwm.hh"
-#include "x11.hh"
+#include "X11.hh"
 
 #include <functional>
 

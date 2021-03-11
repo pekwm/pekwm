@@ -11,7 +11,7 @@
 #include "Theme.hh"
 
 #include "Debug.hh"
-#include "x11.hh"
+#include "X11.hh"
 #include "PFont.hh"
 #include "PTexture.hh"
 #include "FontHandler.hh"

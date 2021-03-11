@@ -16,7 +16,7 @@ set(util_SOURCES
 
 set(x11_SOURCES
   PWinObj.cc
-  x11.cc
+  X11.cc
   X11Util.cc)
 
 set(texture_SOURCES

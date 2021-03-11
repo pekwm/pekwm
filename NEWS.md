@@ -1,8 +1,8 @@
 pekwm-0.2.0
 ===========
 
-Bug fixes
----------
+Closed issues
+-------------
 
 * **#7 new windows fail to appear on fbpanel taskbar and pager**,
   regression introduced in 0.1.18.
@@ -12,6 +12,16 @@ Bug fixes
 * Size specification was ignored on plain textures (except solid),
   it is now read and can cause issues on themes that have incorrectly
   specified them.
+* **#78 Icon Autoproperty**, it is now possible to set the _NET_WM_ICON
+  hint using the new property Icon. It will load the image from the icon
+  load path.
+
+```
+Property = "^xterm,^XTerm" {
+    ApplyOn = "New"
+    Icon = "term.png"
+}
+```
 
 New
 ---

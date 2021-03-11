@@ -15,7 +15,7 @@
 #include "Util.hh"
 #include "X11App.hh"
 #include "X11Util.hh"
-#include "x11.hh"
+#include "X11.hh"
 
 #include <functional>
 
@@ -660,8 +660,8 @@ public:
 
         uint readWorkspace(void)
         {
-            long workspace;
-            if (! X11::getLong(_window, NET_WM_DESKTOP, workspace)) {
+            Cardinal workspace;
+            if (! X11::getCardinal(_window, NET_WM_DESKTOP, workspace)) {
                 TRACE("failed to read _NET_WM_DESKTOP on " << _window
                       << " using 0");
                 return 0;
@@ -763,8 +763,8 @@ private:
 
     bool readActiveWorkspace(void)
     {
-        long workspace;
-        if (! X11::getLong(X11::getRoot(), NET_CURRENT_DESKTOP, workspace)) {
+        Cardinal workspace;
+        if (! X11::getCardinal(X11::getRoot(), NET_CURRENT_DESKTOP, workspace)) {
             TRACE("failed to read _NET_CURRENT_DESKTOP, setting to 0");
             _workspace = 0;
             return false;
@@ -1150,8 +1150,8 @@ public:
             return;
         }
 
-        long timestamp = 0;
-        X11::getLong(window, NET_WM_USER_TIME, timestamp);
+        Cardinal timestamp = 0;
+        X11::getCardinal(window, NET_WM_USER_TIME, timestamp);
         TRACE("ClientListWidget activate " << window << " timestamp "
               << timestamp);
 
@@ -1453,13 +1453,13 @@ public:
 
     void setStrut(void)
     {
-        long strut[4] = {0};
+        Cardinal strut[4] = {0};
         if (_cfg.getPlacement() == PANEL_TOP) {
             strut[2] = _theme.getHeight();
         } else {
             strut[3] = _theme.getHeight();
         }
-        X11::setLongs(_window, NET_WM_STRUT, strut, 4);
+        X11::setCardinals(_window, NET_WM_STRUT, strut, 4);
     }
 
     void place(void)

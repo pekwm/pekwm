@@ -11,7 +11,7 @@
 #include "ImageHandler.hh"
 #include "TextureHandler.hh"
 #include "Util.hh"
-#include "x11.hh"
+#include "X11.hh"
 
 extern "C" {
 #include <getopt.h>
@@ -77,8 +77,8 @@ static Pixmap setBackground(PTexture *tex)
         tex->render(pix, head.x, head.y, head.width, head.height);
     }
 
-    X11::setLong(X11::getRoot(), XROOTPMAP_ID, pix, XA_PIXMAP);
-    X11::setLong(X11::getRoot(), XSETROOT_ID, pix, XA_PIXMAP);
+    X11::setCardinal(X11::getRoot(), XROOTPMAP_ID, pix, XA_PIXMAP);
+    X11::setCardinal(X11::getRoot(), XSETROOT_ID, pix, XA_PIXMAP);
     X11::setWindowBackgroundPixmap(X11::getRoot(), pix);
     X11::clearWindow(X11::getRoot());
 
@@ -94,7 +94,7 @@ void modeBackground(const std::string& tex_str)
         pekwm::textureHandler()->returnTexture(tex);
 
         // used for stop actions
-        X11::setLong(X11::getRoot(), PEKWM_BG_PID, getpid());
+        X11::setCardinal(X11::getRoot(), PEKWM_BG_PID, getpid());
 
         XEvent ev;
         while (! _stop && X11::getNextEvent(ev)) {
@@ -109,8 +109,8 @@ void modeBackground(const std::string& tex_str)
 
 void modeStop()
 {
-    long pid;
-    if (! X11::getLong(X11::getRoot(), PEKWM_BG_PID, pid)) {
+    Cardinal pid;
+    if (! X11::getCardinal(X11::getRoot(), PEKWM_BG_PID, pid)) {
         std::cerr << "Failed to get _PEKWM_BG_PID, unable to stop" << std::endl;
         return;
     }

@@ -59,8 +59,6 @@ namespace pekwm
         _root_wo = new RootWO(X11::getRoot(), _hint_wo, _config);
         PWinObj::setRootPWinObj(_root_wo);
 
-        _auto_properties = new AutoProperties();
-        _auto_properties->load();
         _key_grabber = new KeyGrabber();
         _key_grabber->load(_config->getKeyFile());
         _key_grabber->grabKeys(X11::getRoot());
@@ -70,6 +68,9 @@ namespace pekwm
         _texture_handler = new TextureHandler();
         _theme = new Theme(_font_handler, _image_handler, _texture_handler,
                            _config->getThemeFile(), _config->getThemeVariant());
+
+        _auto_properties = new AutoProperties(_image_handler);
+        _auto_properties->load();
 
         _harbour = new Harbour(_config, _auto_properties, _root_wo);
         _status_window = new StatusWindow(_theme);

@@ -18,7 +18,7 @@
 #include "ManagerWindows.hh"
 #include "WinLayouter.hh"
 #include "WorkspaceIndicator.hh"
-#include "x11.hh"
+#include "X11.hh"
 
 #include <iostream>
 #include <sstream>
@@ -161,7 +161,7 @@ Workspaces::setWorkspace(uint num, bool focus)
 
     // switch workspace
     hideAll(_active);
-    X11::setLong(X11::getRoot(), NET_CURRENT_DESKTOP, num);
+    X11::setCardinal(X11::getRoot(), NET_CURRENT_DESKTOP, num);
 
     _previous = _active;
     _active = num;

@@ -10,7 +10,7 @@
 
 #include "Harbour.hh"
 
-#include "x11.hh"
+#include "X11.hh"
 #include "Config.hh"
 #include "PWinObj.hh"
 #include "DockApp.hh"

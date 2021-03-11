@@ -345,7 +345,7 @@ private: // Private Member Variables
     PTextureImage *_icon;
 
     /** _NET_WM_PID of the client, only valid if is_remote is false. */
-    long _pid;
+    Cardinal _pid;
     bool _is_remote;
 
     ClassHint *_class_hint;

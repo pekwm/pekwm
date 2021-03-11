@@ -226,19 +226,19 @@ RootWO::RootWO(Window root, HintWO *hint_wo, Config *cfg)
 
     // Set hits on the hint window, these are not updated so they are
     // set in the constructor.
-    X11::setLong(_window, NET_WM_PID, static_cast<long>(getpid()));
+    X11::setCardinal(_window, NET_WM_PID, static_cast<long>(getpid()));
     X11::setString(_window, WM_CLIENT_MACHINE, Util::getHostname());
 
     X11::setWindow(_window, NET_SUPPORTING_WM_CHECK, _hint_wo->getWindow());
     X11::setEwmhAtomsSupport(_window);
-    X11::setLong(_window, NET_NUMBER_OF_DESKTOPS,
+    X11::setCardinal(_window, NET_NUMBER_OF_DESKTOPS,
                  _cfg->getWorkspaces());
-    X11::setLong(_window, NET_CURRENT_DESKTOP, 0);
+    X11::setCardinal(_window, NET_CURRENT_DESKTOP, 0);
 
-    long desktop_geometry[2];
+    Cardinal desktop_geometry[2];
     desktop_geometry[0] = _gm.width;
     desktop_geometry[1] = _gm.height;
-    X11::setLongs(_window, NET_DESKTOP_GEOMETRY, desktop_geometry, 2);
+    X11::setCardinals(_window, NET_DESKTOP_GEOMETRY, desktop_geometry, 2);
 
     woListAdd(this);
     _wo_map[_window] = this;
@@ -491,10 +491,10 @@ RootWO::handlePropertyChange(XPropertyEvent *ev)
 void
 RootWO::setEwmhWorkarea(const Geometry &workarea)
 {
-    long workarea_array[4] = { workarea.x, workarea.y, 0, 0 };
+    Cardinal workarea_array[4] = { workarea.x, workarea.y, 0, 0 };
     workarea_array[2] = workarea.width;
     workarea_array[3] = workarea.height;
-    X11::setLongs(_window, NET_WORKAREA, workarea_array, 4);
+    X11::setCardinals(_window, NET_WORKAREA, workarea_array, 4);
 }
 
 /**
@@ -551,12 +551,14 @@ RootWO::setEwmhDesktopLayout(void)
     // This property is defined to be set by the pager, however, as pekwm
     // displays a "pager" when changing workspaces and other applications
     // might want to read this information set it anyway.
-    long desktop_layout[] = { NET_WM_ORIENTATION_HORZ,
-                              static_cast<long>(Workspaces::getPerRow()),
-                              static_cast<long>(Workspaces::getRows()),
-                              NET_WM_TOPLEFT };
-    X11::setLongs(X11::getRoot(), NET_DESKTOP_LAYOUT, desktop_layout,
-                  sizeof(desktop_layout)/sizeof(desktop_layout[0]));
+    Cardinal desktop_layout[] = {
+        NET_WM_ORIENTATION_HORZ,
+        static_cast<Cardinal>(Workspaces::getPerRow()),
+        static_cast<Cardinal>(Workspaces::getRows()),
+        NET_WM_TOPLEFT
+    };
+    X11::setCardinals(X11::getRoot(), NET_DESKTOP_LAYOUT, desktop_layout,
+                      sizeof(desktop_layout)/sizeof(desktop_layout[0]));
 }
 
 /**

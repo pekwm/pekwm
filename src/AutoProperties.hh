@@ -1,6 +1,6 @@
 //
 // AutoProperties.hh for pekwm
-// Copyright (C) 2003-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2021 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -12,8 +12,10 @@
 
 #include "pekwm.hh"
 #include "CfgParser.hh"
+#include "ImageHandler.hh"
+#include "PImageIcon.hh"
 #include "RegexString.hh"
-#include "x11.hh"
+#include "X11.hh"
 
 #include <string>
 
@@ -43,6 +45,7 @@ enum PropertyType {
     AP_DISALLOWED_ACTIONS = (1L << 19),
     AP_OPACITY = (1L << 20),
     AP_DECOR = (1L << 21),
+    AP_ICON = (1L << 22),
 
     AP_GROUP_SIZE,
     AP_GROUP_BEHIND,
@@ -128,8 +131,10 @@ public:
     }
 
 private:
-    RegexString _hint_name, _hint_class;
-    RegexString _role, _title;
+    RegexString _hint_name;
+    RegexString _hint_class;
+    RegexString _role;
+    RegexString _title;
 
     uint _apply_mask;
     std::vector<uint> _workspaces;
@@ -139,34 +144,65 @@ private:
 class AutoProperty : public Property
 {
 public:
-    AutoProperty(void) : skip(SKIP_NONE), cfg_deny(0),
-            group_size(-1), group_behind(false), group_focused_first(false),
-            group_global(false), group_raise(false), _prop_mask(0) { }
-    virtual ~AutoProperty(void) { }
+    AutoProperty(void)
+        : skip(SKIP_NONE),
+          cfg_deny(0),
+          icon(nullptr),
+          group_size(-1),
+          group_behind(false),
+          group_focused_first(false),
+          group_global(false),
+          group_raise(false),
+          _prop_mask(0)
+    {
+    }
+    virtual ~AutoProperty(void)
+    {
+        if (icon != nullptr) {
+            delete icon;
+        }
+    }
 
     inline bool isMask(uint mask) { return (_prop_mask&mask); }
     inline void maskAdd(uint mask) { _prop_mask |= mask; }
     inline void maskRemove(uint mask) { _prop_mask &= ~mask; }
 
 public:
-    Geometry frame_gm, client_gm;
-    int frame_gm_mask, client_gm_mask;
+    Geometry frame_gm;
+    Geometry client_gm;
+    int frame_gm_mask;
+    int client_gm_mask;
 
-    bool sticky, shaded, iconified;
-    bool maximized_vertical, maximized_horizontal, fullscreen;
-    bool border, titlebar;
-    bool focusable, place_new, focus_new;
-    uint workspace, skip, cfg_deny;
+    bool sticky;
+    bool shaded;
+    bool iconified;
+    bool maximized_vertical;
+    bool maximized_horizontal;
+    bool fullscreen;
+    bool border;
+    bool titlebar;
+    bool focusable;
+    bool place_new;
+    bool focus_new;
+    uint workspace;
+    uint skip;
+    uint cfg_deny;
     Layer layer;
-    uint focus_opacity, unfocus_opacity;
-    uint allowed_actions, disallowed_actions;
+    uint focus_opacity;
+    uint unfocus_opacity;
+    uint allowed_actions;
+    uint disallowed_actions;
 
     std::string frame_decor;
+    PImageIcon *icon;
 
     // grouping variables
     int group_size;
     std::wstring group_name;
-    bool group_behind, group_focused_first, group_global, group_raise;
+    bool group_behind;
+    bool group_focused_first;
+    bool group_global;
+    bool group_raise;
 
 private:
     uint _prop_mask;
@@ -215,7 +251,7 @@ private:
 
 class AutoProperties {
 public:
-    AutoProperties(void);
+    AutoProperties(ImageHandler *image_handler);
     ~AutoProperties(void);
 
     AutoProperty* findAutoProperty(const ClassHint* class_hintbb,
@@ -258,6 +294,9 @@ private:
     void parseTypeProperty(CfgParser::Entry *section);
 
     void setDefaultTypeProperties(void);
+
+private:
+    ImageHandler *_image_handler;
 
     TimeFiles _cfg_files;
     bool _extended; /**< Extended syntax enabled for autoproperties? */

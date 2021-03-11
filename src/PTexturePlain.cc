@@ -13,7 +13,7 @@
 #include "PImage.hh"
 #include "Render.hh"
 #include "ImageHandler.hh"
-#include "x11.hh"
+#include "X11.hh"
 
 #include <iostream>
 

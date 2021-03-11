@@ -11,7 +11,7 @@
 #include "ImageHandler.hh"
 #include "PImageLoaderPng.hh"
 #include "Util.hh"
-#include "x11.hh"
+#include "X11.hh"
 
 #include <iostream>
 #include <iomanip>
