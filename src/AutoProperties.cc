@@ -76,6 +76,14 @@ static Util::StringMap<AtomName> window_type_map =
      {"DND", WINDOW_TYPE_DND},
      {"NORMAL", WINDOW_TYPE_NORMAL}};
 
+std::ostream&
+operator<<(std::ostream& os, const ClassHint &ch)
+{
+    os << "ClassHint "
+       << Util::to_mb_str(ch.h_name) << "," << Util::to_mb_str(ch.h_class);
+    return os;
+}
+
 //! @brief Constructor for AutoProperties class
 AutoProperties::AutoProperties(ImageHandler *image_handler)
     : _image_handler(image_handler),
@@ -861,7 +869,10 @@ AutoProperties::parseAutoPropertyValue(CfgParser::Entry *section,
             break;
         case AP_ICON: {
             auto image = pekwm::imageHandler()->getImage((*it)->getValue());
-            if (image != nullptr) {
+            if (image == nullptr) {
+                USER_WARN("failed to load icon " << (*it)->getValue()
+                          << " ignoring icon property");
+            } else {
                 prop->maskAdd(AP_ICON);
                 prop->icon = new PImageIcon(image);
                 pekwm::imageHandler()->returnImage(image);

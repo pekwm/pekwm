@@ -97,6 +97,8 @@ public:
         return false;
     }
 
+    friend std::ostream& operator<<(std::ostream& os, const ClassHint &ch);
+
 public:
     std::wstring h_name; /**< name part of WM_CLASS hint. */
     std::wstring h_class; /**< class part of WM_CLASS hint. */

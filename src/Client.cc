@@ -1024,29 +1024,33 @@ Client::readIcon(void)
     }
 }
 
-//! @brief Tries to find a AutoProp for the current client.
-//! @param type Defaults to APPLY_ON_ALWAYS.
-//! @return AutoProperty if any is found, else 0.
+/**
+ * Match current client against list of autoproperties.
+ *
+ * @param type Match type, defaults to APPLY_ON_ALWAYS.
+ * @return AutoProperty if any is found, else nullptr.
+ */
 AutoProperty*
 Client::readAutoprops(ApplyOn type)
 {
-    auto data =
-        pekwm::autoProperties()->findAutoProperty(_class_hint,
-                                                  Workspaces::getActive(),
-                                                  type);
+    auto aps = pekwm::autoProperties();
+    auto property =
+        aps->findAutoProperty(_class_hint, Workspaces::getActive(), type);
+    if (property) {
+        DBG("auto property found for client " << _class_hint);
 
-    if (data) {
         // Make sure transient state matches
         if (isTransient()
-                ? data->isApplyOn(APPLY_ON_TRANSIENT|APPLY_ON_TRANSIENT_ONLY)
-                : ! data->isApplyOn(APPLY_ON_TRANSIENT_ONLY)) {
-            applyAutoprops(data);
+            ? property->isApplyOn(APPLY_ON_TRANSIENT|APPLY_ON_TRANSIENT_ONLY)
+            : ! property->isApplyOn(APPLY_ON_TRANSIENT_ONLY)) {
+            applyAutoprops(property);
         } else {
-            data = 0;
+            property = nullptr;
         }
+    } else {
+        DBG("no auto property found for client " << _class_hint);
     }
-
-    return data;
+    return property;
 }
 
 //! @brief Applies AutoPropery to this Client.
