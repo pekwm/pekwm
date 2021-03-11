@@ -320,6 +320,69 @@ in one go.
         ?SH-PROMPT:
 [endfunction]
 
+[function test_client_frame_geometry_property]
+    [log test_client_frame_geometry_property]
+
+    [shell xev]
+        !xev -root
+
+    [shell xterm]
+        !xterm -name client-geometry +sb /bin/sh
+
+    [shell xev]
+        ?ReparentNotify
+        ?window (0x[0-9a-f]+)
+        [global window=$1]
+        ???NET_CLIENT_LIST)
+        !$_CTRL_C_
+        ?SH-PROMPT:
+
+    [shell xprop]
+        [log verify Client geometry]
+        [timeout 1]
+        -not found
+        !xwininfo -id $window
+        ?Width: 100
+        ?Height: 100
+        ?-geometry .*-10-10
+        ?SH-PROMPT:
+        -
+
+    [shell xterm]
+        !$_CTRL_C_
+        ?SH-PROMPT:
+
+    [shell xev]
+        !xev -root
+
+    [shell xterm]
+        !xterm -name frame-geometry +sb /bin/sh
+
+    [shell xev]
+        ?ReparentNotify
+        ?window (0x[0-9a-f]+)
+        [global window=$1]
+        ???NET_CLIENT_LIST)
+        !$_CTRL_C_
+        ?SH-PROMPT:
+
+    [shell xprop]
+        [log verify Frame geometry]
+        # height should be less than 100 due to titlebar
+        -(not found|Height: 100)
+        !xwininfo -id $window
+        ?Width: 100
+        # not checking height due to variable title height
+        ?-geometry .*\+10\+10
+        ?SH-PROMPT:
+        -
+
+    [shell xterm]
+        !$_CTRL_C_
+        ?SH-PROMPT:
+
+[endfunction]
+
 [shell Xvfb]
     [call init-shell]
     [log starting Xvfb]
@@ -345,6 +408,7 @@ in one go.
 
 [shell test]
     [call init-shell]
+    [call test_client_frame_geometry_property]
     [call test_icon_property]
     [call test_transient_for]
     [call test_cfg_deny_resize_inc]

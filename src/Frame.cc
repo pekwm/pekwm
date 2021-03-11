@@ -851,14 +851,18 @@ Frame::setupAPGeometry(Client *client, AutoProperty *ap)
         if(ap->client_gm_mask&(WIDTH_VALUE|HEIGHT_VALUE)) {
             resizeChild(gm.width, gm.height);
         }
+        TRACE("applied ClientGeometry property "
+              << ap->client_gm << " -> " << gm);
     }
 
     // get frame geometry
     if (ap->isMask(AP_FRAME_GEOMETRY)) {
         Geometry screen_gm = X11::getScreenGeometry();
-        Geometry gm;
+        Geometry gm(_gm);
         applyGeometry(gm, ap->frame_gm, ap->frame_gm_mask, screen_gm);
         moveResize(gm, ap->frame_gm_mask);
+        TRACE("applied FrameGeometry property "
+              << ap->frame_gm << " -> " << gm);
     }
 }
 

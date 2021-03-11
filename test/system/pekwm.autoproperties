@@ -1,10 +1,10 @@
 Property = "test_client,pekwm" {
-	ApplyOn = "Start New"
-	Group = "term" {
-		Size = "10"
-		FocusedFirst = "True"
-		Raise = "True"
-	}
+    ApplyOn = "Start New"
+    Group = "term" {
+        Size = "10"
+        FocusedFirst = "True"
+        Raise = "True"
+    }
 }
 
 Property = "no-resize-inc,XTerm" {
@@ -12,6 +12,22 @@ Property = "no-resize-inc,XTerm" {
     Border = "False"
     Titlebar = "False"
     CfgDeny = "ResizeInc"
+}
+
+Property = "client-geometry,XTerm" {
+    ApplyOn = "Start New"
+    # Set border to false to be able to verify without knowing the
+    # decoration size
+    Border = "False"
+    ClientGeometry = "100x100-10-10"
+}
+
+Property = "frame-geometry,XTerm" {
+    ApplyOn = "Start New"
+    # Set border to false to be able to verify without knowing the
+    # decoration size
+    Border = "False"
+    FrameGeometry = "100x100+10+10"
 }
 
 Property = "icon,XTerm" {

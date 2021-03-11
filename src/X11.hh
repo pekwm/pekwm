@@ -235,6 +235,8 @@ public:
         }
         return mask;
     }
+
+    friend std::ostream& operator<<(std::ostream& os, const Geometry& gm);
 };
 
 /**

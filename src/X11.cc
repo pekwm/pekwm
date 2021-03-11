@@ -169,10 +169,18 @@ static const char *atomnames[] = {
     "_XSETROOT_ID",
 };
 
+std::ostream&
+operator<<(std::ostream& os, const Geometry& gm)
+{
+    os << "Geometry"
+       << " x:" << gm.x << " y: " << gm.y
+       << " width: " << gm.width << " height: " << gm.height;
+    return os;
+}
+
 /**
  * Helper class for XColor.
  */
-
 class X11::ColorEntry {
 public:
     ColorEntry(const std::string &name) : _name(name), _ref(0) { }
