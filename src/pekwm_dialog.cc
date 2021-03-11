@@ -621,12 +621,14 @@ static void cleanup()
 static void usage(const char* name, int ret)
 {
     std::cout << "usage: " << name
-              << " [-dhit] [-o option|-o option...] message" << std::endl
+              << " [-dhitfl] [-o option|-o option...] message" << std::endl
               << "  -d --display dpy    Display" << std::endl
               << "  -h --help           Display this information" << std::endl
               << "  -i --image          Image under title" << std::endl
               << "  -o --option         Option (many allowed)" << std::endl
-              << "  -t --title          Dialog title" << std::endl;
+              << "  -t --title          Dialog title" << std::endl
+              << "  -f --log-file        Set log file." << std::endl
+              << "  -l --log-level       Set log level." << std::endl;
     exit(ret);
 }
 
@@ -650,6 +652,8 @@ int main(int argc, char* argv[])
         {"option", required_argument, NULL, 'o'},
         {"raise", no_argument, NULL, 'r'},
         {"title", required_argument, NULL, 't'},
+        {"log-level", required_argument, NULL, 'l'},
+        {"log-file", required_argument, NULL, 'f'},
         {NULL, 0, NULL, 0}
     };
 
@@ -688,6 +692,16 @@ int main(int argc, char* argv[])
             break;
         case 't':
             title = Util::to_wide_str(optarg);
+            break;
+        case 'f':
+            if (Debug::setLogFile(optarg)) {
+                Debug::enable_logfile = true;
+            } else {
+                std::cerr << "Failed to open log file " << optarg << std::endl;
+            }
+            break;
+        case 'l':
+            Debug::level = Debug::getLevel(optarg);
             break;
         default:
             usage(argv[0], 1);
