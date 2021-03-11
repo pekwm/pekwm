@@ -11,6 +11,7 @@
 #include "FontHandler.hh"
 #include "ImageHandler.hh"
 #include "Observable.hh"
+#include "PImageIcon.hh"
 #include "TextureHandler.hh"
 #include "Util.hh"
 #include "X11App.hh"
@@ -614,11 +615,20 @@ public:
             _gm = readGeometry();
             _workspace = readWorkspace();
             X11Util::readEwmhStates(_window, *this);
+            _icon = PImageIcon::newFromWindow(_window);
+        }
+
+        ~ClientInfo(void)
+        {
+            if (_icon) {
+                delete _icon;
+            }
         }
 
         Window getWindow(void) const { return _window; }
         const std::wstring& getName(void) const { return _name; }
         const Geometry& getGeometry(void) const { return _gm; }
+        PImage *getIcon(void) const { return _icon; }
 
         bool displayOn(uint workspace) const
         {
@@ -674,6 +684,7 @@ public:
         std::wstring _name;
         Geometry _gm;
         uint _workspace;
+        PImageIcon *_icon;
     };
 
     typedef std::vector<ClientInfo*> client_info_vector;
@@ -1022,9 +1033,9 @@ public:
 
     virtual void click(int x, int y) { }
 
-    virtual void render(Drawable draw)
+    virtual void render(Render& render)
     {
-        X11::clearArea(draw, _x, 0, _width, _theme.getHeight());
+        render.clear(_x, 0, _width, _theme.getHeight());
         _dirty = false;
     }
 
@@ -1062,14 +1073,14 @@ public:
         return font->getWidth(L" " + wtime + L" ");
     }
 
-    virtual void render(Drawable draw) override
+    virtual void render(Render &rend) override
     {
-        PanelWidget::render(draw);
+        PanelWidget::render(rend);
 
         std::wstring wtime;
         formatNow(wtime);
         auto font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
-        font->draw(draw, getX(), 1, wtime, 0, getWidth());
+        font->draw(rend.getDrawable(), getX(), 1, wtime, 0, getWidth());
 
         // always treat date time as dirty, requires redraw up to
         // every second.
@@ -1100,11 +1111,13 @@ class ClientListWidget : public PanelWidget,
 public:
     class Entry {
     public:
-        Entry(const std::wstring& name, ClientState state, int x, Window window)
+        Entry(const std::wstring& name, ClientState state, int x, Window window,
+              PImage *icon)
             : _name(name),
               _state(state),
               _x(x),
-              _window(window)
+              _window(window),
+              _icon(icon)
         {
         }
 
@@ -1113,12 +1126,14 @@ public:
         int getX(void) const { return _x; }
         void setX(int x) { _x = x; }
         Window getWindow(void) const { return _window; }
+        PImage *getIcon(void) const { return _icon; }
 
     private:
         std::wstring _name;
         ClientState _state;
         int _x;
         Window _window;
+        PImage *_icon;
     };
 
     ClientListWidget(const PanelTheme& theme,
@@ -1170,14 +1185,37 @@ public:
                        SubstructureRedirectMask|SubstructureNotifyMask, &ev);
     }
 
-    virtual void render(Drawable draw) override
+    virtual void render(Render &rend) override
     {
-        PanelWidget::render(draw);
+        PanelWidget::render(rend);
 
+        int height = _theme.getHeight() - 2;
         for (auto it : _entries) {
+            int x = getX() + it.getX();
+
+            int entry_width = _entry_width;
+            int icon_x;
             auto font = _theme.getFont(it.getState());
-            font->draw(draw, getX() + it.getX(), 1, it.getName(),
-                       0, _entry_width);
+            if (font->getJustify() == FONT_JUSTIFY_LEFT) {
+                icon_x = x;
+                x += height + 1;
+                entry_width -= height;
+                font->draw(rend.getDrawable(),
+                           x, 1, it.getName(), 0, entry_width);
+            } else {
+                icon_x = font->draw(rend.getDrawable(),
+                                    x, 1, it.getName(), 0, entry_width);
+                icon_x -= height + 1;
+            }
+
+            auto icon = it.getIcon();
+            if (icon) {
+                if (icon->getHeight() > height) {
+                    icon->scale(height, height);
+                }
+                int icon_y = (height - icon->getHeight()) / 2;
+                icon->draw(rend, icon_x, icon_y);
+            }
         }
     }
 
@@ -1211,7 +1249,8 @@ private:
                         state = CLIENT_STATE_UNFOCUSED;
                     }
                     _entries.emplace_back(Entry((*it)->getName(), state, 0,
-                                                (*it)->getWindow()));
+                                                (*it)->getWindow(),
+                                                (*it)->getIcon()));
                 }
             }
         }
@@ -1238,6 +1277,73 @@ private:
     WmState& _wm_state;
     int _entry_width;
     std::vector<Entry> _entries;
+};
+
+/**
+ * Widget display a bar filled from 0-100% getting fill percentage
+ * from external command data.
+ */
+class BarWidget : public PanelWidget,
+                  public Observer {
+public:
+    BarWidget(const PanelTheme& theme,
+              const PanelConfig::SizeReq& size_req,
+              ExternalCommandData& ext_data,
+              const std::string& field)
+        : PanelWidget(theme, size_req),
+          _ext_data(ext_data),
+          _field(field)
+    {
+        _ext_data.addObserver(this);
+    }
+
+    virtual ~BarWidget(void)
+    {
+        _ext_data.removeObserver(this);
+    }
+
+    virtual void notify(Observable *observable,
+                        Observation *observation) override
+    {
+        auto efo =
+            dynamic_cast<ExternalCommandData::FieldObservation*>(observation);
+        if (efo != nullptr && efo->getField() == _field) {
+            _dirty = true;
+        }
+    }
+
+    virtual void render(Render &rend) override
+    {
+        PanelWidget::render(rend);
+
+        int width = getWidth() - 3;
+        int height = _theme.getHeight() - 3;
+        rend.rectangle(getX() + 1, 1, width, height);
+
+        float fill_p = getPercent(_ext_data.get(_field));
+        int fill = fill_p * (height - 2);
+        rend.fill(getX() + 2, 1 + height - fill, width - 1, fill);
+    }
+
+private:
+    float getPercent(const std::wstring& str)
+    {
+        try {
+            float percent = std::stof(str);
+            if (percent < 0.0) {
+                percent = 0.0;
+            } else if (percent > 100.0) {
+                percent = 100.0;
+            }
+            return percent / 100;
+        } catch (std::invalid_argument ex) {
+            return 0.0;
+        }
+    }
+
+private:
+    ExternalCommandData& _ext_data;
+    std::string _field;
 };
 
 /**
@@ -1273,13 +1379,13 @@ public:
         }
     }
 
-    virtual void render(Drawable draw) override
+    virtual void render(Render &rend) override
     {
-        PanelWidget::render(draw);
+        PanelWidget::render(rend);
 
         auto data = _ext_data.get(_field);
         auto font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
-        font->draw(draw, getX(), 1, data, 0, getWidth());
+        font->draw(rend.getDrawable(), getX(), 1, data, 0, getWidth());
     }
 
 private:
@@ -1319,13 +1425,14 @@ public:
         return font->getWidth(L" 00 ");
     }
 
-    virtual void render(Drawable draw) override
+    virtual void render(Render &rend) override
     {
-        PanelWidget::render(draw);
+        PanelWidget::render(rend);
 
         auto ws = std::to_string(_wm_state.getActiveWorkspace() + 1);
         auto font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
-        font->draw(draw, getX(), 1, Util::to_wide_str(ws), 0, getWidth());
+        font->draw(rend.getDrawable(),
+                   getX(), 1, Util::to_wide_str(ws), 0, getWidth());
     }
 
 private:
@@ -1356,6 +1463,14 @@ public:
             return new DateTimeWidget(_theme, cfg.getSizeReq(), format);
         } else if (name == "CLIENTLIST") {
             return new ClientListWidget(_theme, cfg.getSizeReq(), _wm_state);
+        } else if (name == "BAR") {
+            auto field = cfg.getArg(0);
+            if (field.empty()) {
+                USER_WARN("missing required argument to Bar widget");
+            } else {
+                return new BarWidget(_theme, cfg.getSizeReq(),
+                                     _ext_data, field);
+            }
         } else if (name == "EXTERNALDATA") {
             auto field = cfg.getArg(0);
             if (field.empty()) {
@@ -1495,10 +1610,12 @@ public:
         }
     }
 
-    virtual void refresh(void) override
+    virtual void refresh(bool timed_out) override
     {
         _ext_data.refresh([this](int fd) { this->addFd(fd); });
-        renderPred([](PanelWidget *w) { return true; });
+        if (timed_out) {
+            renderPred([](PanelWidget *w) { return true; });
+        }
     }
 
     virtual void handleEvent(XEvent *ev) override
@@ -1674,15 +1791,16 @@ private:
 
         int x = 0;
         PanelWidget *last_widget = _widgets.back();
+        X11Render rend(_window);
         for (auto it : _widgets) {
             bool do_render = pred(it);
             if (do_render) {
-                it->render(_window);
+                it->render(rend);
             }
             x += it->getWidth();
 
             if (do_render && it != last_widget) {
-                sep->render(_window, x, 0, sep->getWidth(), sep->getHeight());
+                sep->render(rend, x, 0, sep->getWidth(), sep->getHeight());
                 x += sep->getWidth();
             }
         }

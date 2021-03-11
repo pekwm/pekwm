@@ -93,6 +93,18 @@ X11Render::line(int x1, int y1, int x2, int y2)
 }
 
 void
+X11Render::rectangle(int x, int y, uint width, uint height)
+{
+    XDrawRectangle(X11::getDpy(), _draw, _gc, x, y, width, height);
+}
+
+void
+X11Render::clear(int x, int y, uint width, uint height)
+{
+    XClearArea(X11::getDpy(), _draw, x, y, width, height, False);
+}
+
+void
 X11Render::fill(int x, int y, uint width, uint height)
 {
     XFillRectangle(X11::getDpy(), _draw, _gc, x, y, width, height);
@@ -191,6 +203,27 @@ XImageRender::line(int x1, int y1, int x2, int y2)
     } else {
         // only horizontal and vertical lines are currently
         // supported.
+    }
+}
+
+void
+XImageRender::rectangle(int x, int y, uint width, uint height)
+{
+    int rx = x + width;
+    int by = y + height;
+    line(x, y, rx, y);
+    line(x, by, rx, by);
+    line(x, y, x, by);
+    line(rx, y, rx, by);
+}
+
+void
+XImageRender::clear(int x0, int y, uint width, uint height)
+{
+    for (; height; y++, height--) {
+        for (uint x = x0; x < width; x++) {
+            XPutPixel(_image, x, y, 0);
+        }
     }
 }
 

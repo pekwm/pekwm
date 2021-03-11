@@ -68,9 +68,9 @@ public:
     inline void setJustify(uint j) { _justify = j; }
     inline void setOffset(uint x, uint y) { _offset_x = x; _offset_y = y; }
 
-    void draw(Drawable dest, int x, int y, const std::wstring &text,
-              uint max_chars = 0, uint max_width = 0,
-              PFont::TrimType trim_type = FONT_TRIM_END);
+    int draw(Drawable dest, int x, int y, const std::wstring &text,
+             uint max_chars = 0, uint max_width = 0,
+             PFont::TrimType trim_type = FONT_TRIM_END);
 
     void trim(std::wstring &text, TrimType trim_type, uint max_width);
     void trimEnd(std::wstring &text, uint max_width);

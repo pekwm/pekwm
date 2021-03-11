@@ -34,20 +34,23 @@ PFont::~PFont(void)
     unload();
 }
 
-//! @brief Draws the text on the drawable.
-//! @param dest destination Drawable
-//! @param x x start position
-//! @param y y start position
-//! @param text text to draw
-//! @param max_chars max nr of chars, defaults to 0 == strlen(text)
-//! @param max_width max nr of pixels, defaults to 0 == infinity
-//! @param trim_type how to trim title if not enough space, defaults to FONT_TRIM_END
-void
+/**
+ * Draws the text on the drawable.
+ *
+ * @param dest destination Drawable
+ * @param x x start position
+ * @param y y start position
+ * @param text text to draw
+ * @param max_chars max nr of chars, defaults to 0 == strlen(text)
+ * @param max_width max nr of pixels, defaults to 0 == infinity
+ * @param trim_type how to trim title if not enough space, defaults to FONT_TRIM_END
+ */
+int
 PFont::draw(Drawable dest, int x, int y, const std::wstring &text,
             uint max_chars, uint max_width, PFont::TrimType trim_type)
 {
     if (! text.size()) {
-        return;
+        return 0;
     }
 
     uint offset = x, chars = max_chars;
@@ -67,11 +70,13 @@ PFont::draw(Drawable dest, int x, int y, const std::wstring &text,
     // Draw shadowed font if x or y offset is specified
     if (_offset_x || _offset_y) {
         drawText(dest, offset + _offset_x, y + _ascent + _offset_y,
-                real_text, chars, false); // false as in bg
+                 real_text, chars, false /* bg */);
     }
 
     // Draw main font
-    drawText(dest, offset, y + _ascent, real_text, chars, true); // true as in fg
+    drawText(dest, offset, y + _ascent, real_text, chars, true /* fg */);
+
+    return offset;
 }
 
 //! @brief Trims the text making it max max_width wide

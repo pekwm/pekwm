@@ -132,19 +132,22 @@ public:
 
     virtual int main(uint timeout_s)
     {
+        bool timed_out = false;
+
         TRACE(_wm_name << ", " << _wm_class << ": entering main loop");
         while (_stop == -1) {
             if (is_signal) {
                 handleSignal();
             } else {
-                refresh();
+                refresh(timed_out);
 
                 if (X11::pending()) {
                     XEvent ev;
                     X11::getNextEvent(ev);
                     handleEvent(&ev);
+                    timed_out = false;
                 } else {
-                    waitForData(timeout_s);
+                    timed_out = waitForData(timeout_s);
                 }
             }
         }
@@ -170,7 +173,7 @@ protected:
     /**
      * Refresh function, called at every timeout interval.
      */
-    virtual void refresh(void)
+    virtual void refresh(bool timed_out)
     {
     }
 
@@ -226,7 +229,7 @@ private:
         is_signal = false;
     }
 
-    void waitForData(int timeout_s)
+    bool waitForData(int timeout_s)
     {
         // flush before selecting input ensuring any outstanding
         // output is sent before waiting on a reply.
@@ -255,6 +258,8 @@ private:
                 }
             }
         }
+
+        return ret < 1;
     }
 
 private:

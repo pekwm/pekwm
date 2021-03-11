@@ -25,6 +25,7 @@ set(texture_SOURCES
   ImageHandler.cc
   PFont.cc
   PImage.cc
+  PImageIcon.cc
   PTexture.cc
   PTexturePlain.cc
   Render.cc
@@ -51,7 +52,6 @@ set(wm_SOURCES
   MenuHandler.cc
   PDecor.cc
   PMenu.cc
-  PImageIcon.cc
   StatusWindow.cc
   SearchDialog.cc
   WORefMenu.cc

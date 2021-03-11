@@ -34,7 +34,9 @@ public:
     virtual void setColor(int pixel) = 0;
     virtual void setLineWidth(int lw) = 0;
 
+    virtual void clear(int x, int y, uint width, uint height) = 0;
     virtual void line(int x1, int y1, int x2, int y2) = 0;
+    virtual void rectangle(int x0, int y, uint width, uint height) = 0;
     virtual void fill(int x, int y, uint width, uint height) = 0;
     virtual void putImage(XImage *image, int dest_x, int dest_y,
                           uint width, uint height) = 0;
@@ -55,7 +57,9 @@ public:
     virtual void setColor(int pixel) override;
     virtual void setLineWidth(int lw) override;
 
+    virtual void clear(int x, int y, uint width, uint height) override;
     virtual void line(int x1, int y1, int x2, int y2) override;
+    virtual void rectangle(int x0, int y, uint width, uint height) override;
     virtual void fill(int x, int y, uint width, uint height) override;
     virtual void putImage(XImage *image, int dest_x, int dest_y,
                           uint width, uint height) override;
@@ -80,7 +84,9 @@ public:
     virtual void setLineWidth(int lw) override;
     virtual void setColor(int pixel) override;
 
+    virtual void clear(int x, int y, uint width, uint height) override;
     virtual void line(int x1, int y1, int x2, int y2) override;
+    virtual void rectangle(int x0, int y, uint width, uint height) override;
     virtual void fill(int x0, int y, uint width, uint height) override;
     virtual void putImage(XImage *image, int dest_x, int dest_y,
                           uint width, uint height) override;
