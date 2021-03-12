@@ -8,6 +8,7 @@
 
 #include "config.h"
 
+#include "Charset.hh"
 #include "Config.hh"
 #include "Compat.hh"
 #include "Debug.hh"
@@ -210,7 +211,7 @@ Config::getDesktopNamesUTF8(uchar **names, uint *length) const
     // Convert strings to UTF-8 and calculate total length
     std::string utf8_names;
     for (auto it : _screen_workspace_names) {
-        std::string utf8_name(Util::to_utf8_str(it));
+        std::string utf8_name(Charset::to_utf8_str(it));
         utf8_names.append(utf8_name.c_str(), utf8_name.size() + 1);
     }
 
@@ -236,7 +237,7 @@ Config::setDesktopNamesUTF8(char *names, ulong length)
     }
 
     for (ulong i = 0; i < length;) {
-        _screen_workspace_names.push_back(Util::from_utf8_str(names));
+        _screen_workspace_names.push_back(Charset::from_utf8_str(names));
         i += strlen(names) + 1;
         names += strlen(names) + 1;
     }
@@ -481,7 +482,7 @@ Config::loadScreen(CfgParser::Entry *section)
     std::vector<std::string> vs;
     if (Util::splitString(workspace_names, vs, ";", 0, true)) {
         for (auto vs_it : vs) {
-            _screen_workspace_names.push_back(Util::to_wide_str(vs_it));
+            _screen_workspace_names.push_back(Charset::to_wide_str(vs_it));
         }
     }
 

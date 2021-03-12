@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.5)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMake/Modules/")
 include(CheckSymbolExists)
 include(CheckCXXCompilerFlag)
+include(CheckCXXSourceRuns)
 
 project(pekwm)
 set(pekwm_VERSION_MAJOR 0)
@@ -26,6 +27,29 @@ find_package(X11 REQUIRED)
 find_package(Iconv REQUIRED)
 
 check_function_exists(localtime_r HAVE_LOCALTIME_R REQUIRED)
+
+# Look for missing C++-11 features
+check_cxx_source_runs("
+#include <iostream>
+#include <iomanip>
+int main() { std::tm tm = {0}; std::cout << std::put_time(&tm, \"%S\"); }
+" HAVE_PUT_TIME)
+
+check_cxx_source_runs("
+#include <iostream>
+#include <string>
+int main() { std::to_string(42); }
+" HAVE_TO_STRING)
+
+check_cxx_source_runs("
+#include <string>
+int main() { std::stoi(\"42\"); }
+" HAVE_STOI)
+
+check_cxx_source_runs("
+#include <string>
+int main() { std::stof(\"42.0\"); }
+" HAVE_STOF)
 
 # Look for platform specific methods
 check_function_exists(swprintf HAVE_SWPRINTF)

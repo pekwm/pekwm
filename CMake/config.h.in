@@ -1,6 +1,11 @@
 #ifndef _CONFIG_H_
 #define _CONFIG_H_
 
+#cmakedefine HAVE_PUT_TIME
+#cmakedefine HAVE_TO_STRING
+#cmakedefine HAVE_STOI
+#cmakedefine HAVE_STOF
+
 #cmakedefine HAVE_SWPRINTF
 #cmakedefine HAVE_SETENV
 #cmakedefine HAVE_UNSETENV

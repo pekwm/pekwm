@@ -11,6 +11,7 @@
 #include <cstdio>
 #include <set>
 
+#include "Charset.hh"
 #include "Debug.hh"
 #include "PWinObj.hh"
 #include "PDecor.hh"
@@ -138,7 +139,7 @@ ActionMenu::insert(PMenu::Item *item)
 
     checkItemWORef(item);
 
-    insert(m_begin() + _insert_at, item);
+    insert(m_begin_non_const() + _insert_at, item);
     ++_insert_at;
 }
 
@@ -181,7 +182,7 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
     }
 
     if (section->getValue().size()) {
-        auto title(Util::to_wide_str(section->getValue()));
+        auto title(Charset::to_wide_str(section->getValue()));
         setTitle(title);
         _title_base = title;
     }
@@ -202,13 +203,13 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
                 icon = getIcon(sub_section->findEntry("ICON"));
 
                 auto title = (*it)->getValue();
-                auto wtitle = Util::to_wide_str(title);
+                auto wtitle = Charset::to_wide_str(title);
                 auto submenu = new ActionMenu(_menu_type, _act, wtitle, title);
                 submenu->_menu_parent = this;
                 submenu->parse(sub_section, parent);
                 submenu->buildMenu();
 
-                auto wsub_title = Util::to_wide_str(sub_section->getValue());
+                auto wsub_title = Charset::to_wide_str(sub_section->getValue());
                 item = new PMenu::Item(wsub_title, submenu, icon);
                 item->setCreator(parent);
             } else {
@@ -230,7 +231,7 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
                                                         _action_ok)) {
                     icon = getIcon(sub_section->findEntry("ICON"));
 
-                    auto sub_name = Util::to_wide_str(sub_section->getValue());
+                    auto sub_name = Charset::to_wide_str(sub_section->getValue());
                     item = new PMenu::Item(sub_name, 0, icon);
                     item->setCreator(parent);
                     item->setAE(ae);

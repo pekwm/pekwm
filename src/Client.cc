@@ -23,6 +23,7 @@ extern "C" {
 #include <assert.h>
 }
 
+#include "Charset.hh"
 #include "Compat.hh" // setenv, unsetenv
 #include "Debug.hh"
 #include "PWinObj.hh"
@@ -853,8 +854,8 @@ Client::readClassRoleHints(void)
     // class hint
     XClassHint class_hint;
     if (XGetClassHint(X11::getDpy(), _window, &class_hint)) {
-        _class_hint->h_name = Util::to_wide_str(class_hint.res_name);
-        _class_hint->h_class = Util::to_wide_str(class_hint.res_class);
+        _class_hint->h_name = Charset::to_wide_str(class_hint.res_name);
+        _class_hint->h_class = Charset::to_wide_str(class_hint.res_class);
         X11::free(class_hint.res_name);
         X11::free(class_hint.res_class);
     }
@@ -863,7 +864,7 @@ Client::readClassRoleHints(void)
     std::string role;
     X11::getString(_window, WM_WINDOW_ROLE, role);
 
-    _class_hint->h_role = Util::to_wide_str(role);
+    _class_hint->h_role = Charset::to_wide_str(role);
 }
 
 //! @brief Loads the Clients state from EWMH atoms.
@@ -987,7 +988,7 @@ Client::readPekwmHints(void)
 
     // Get custom title
     if (X11::getString(_window, PEKWM_TITLE, str)) {
-        _title.setUser(Util::to_wide_str(str));
+        _title.setUser(Charset::to_wide_str(str));
     }
 
     _state.initial_frame_order = getPekwmFrameOrder();
@@ -1195,9 +1196,9 @@ Client::readName(void)
     std::string title;
     std::wstring wtitle;
     if (X11::getUtf8String(_window, NET_WM_NAME, title)) {
-        wtitle = Util::from_utf8_str(title);
+        wtitle = Charset::from_utf8_str(title);
     } else if (X11::getTextProperty(_window, XA_WM_NAME, title)) {
-        wtitle = Util::to_wide_str(title);
+        wtitle = Charset::to_wide_str(title);
     } else {
         return;
     }
@@ -1211,7 +1212,7 @@ Client::readName(void)
     // user-set titles
     if (titleApplyRule(wtitle)) {
         _title.setCustom(wtitle);
-        X11::setUtf8String(_window, NET_WM_VISIBLE_NAME, Util::to_utf8_str(wtitle));
+        X11::setUtf8String(_window, NET_WM_VISIBLE_NAME, Charset::to_utf8_str(wtitle));
     } else {
         X11::unsetProperty(_window, NET_WM_VISIBLE_NAME);
     }

@@ -9,6 +9,7 @@ set(util_SOURCES
   CfgParser.cc
   CfgParserKey.cc
   CfgParserSource.cc
+  Charset.cc
   Compat.cc
   Debug.cc
   RegexString.cc
@@ -114,6 +115,7 @@ target_include_directories(wm PUBLIC ${common_INCLUDE_DIRS})
 
 add_executable(pekwm pekwm.cc)
 target_include_directories(pekwm PUBLIC ${PROJECT_BINARY_DIR}/src)
+target_link_libraries(pekwm util ${ICONV_LIBRARIES})
 install(TARGETS pekwm DESTINATION bin)
 
 add_executable(pekwm_bg

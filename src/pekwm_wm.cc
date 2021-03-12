@@ -8,8 +8,9 @@
 
 #include "config.h"
 
-#include "Debug.hh"
+#include "Charset.hh"
 #include "Compat.hh"
+#include "Debug.hh"
 #include "WindowManager.hh"
 #include "Util.hh"
 
@@ -70,7 +71,7 @@ stop(int write_fd, const std::string &msg, WindowManager *wm)
         pekwm::cleanup();
     }
 
-    Util::iconv_deinit();
+    Charset::destruct();
 
     if (write(write_fd, msg.c_str(), msg.size() + 1) == -1) {
         ERR("failed to write pekwm_wm result msg " << msg
@@ -93,7 +94,7 @@ main(int argc, char **argv)
         setlocale(LC_ALL, "");
     }
 
-    Util::iconv_init();
+    Charset::init();
 
     // get the args and test for different options
     int write_fd = fileno(stdout);

@@ -7,6 +7,7 @@
 //
 
 #include "pekwm.hh"
+#include "Compat.hh"
 #include "Debug.hh"
 #include "FontHandler.hh"
 #include "ImageHandler.hh"
@@ -325,7 +326,7 @@ private:
             } else if (strcasecmp("PERCENT", toks[0].c_str()) == 0) {
                 return SizeReq(WIDGET_UNIT_PERCENT, atoi(toks[1].c_str()));
             } else if (strcasecmp("TEXTWIDTH", toks[0].c_str()) == 0) {
-                return SizeReq(Util::to_wide_str(toks[1]));
+                return SizeReq(Charset::to_wide_str(toks[1]));
             }
         }
 
@@ -579,7 +580,7 @@ private:
     {
         std::vector<std::string> field_value;
         if (Util::splitString(line, field_value, " \t", 2) == 2) {
-            _fields[field_value[0]] = Util::to_wide_str(field_value[1]);
+            _fields[field_value[0]] = Charset::to_wide_str(field_value[1]);
             FieldObservation field_obs(field_value[0]);
             notifyObservers(&field_obs);
         }
@@ -655,10 +656,10 @@ public:
         {
             std::string name;
             if (X11::getUtf8String(_window, NET_WM_NAME, name)) {
-                return Util::from_utf8_str(name);
+                return Charset::from_utf8_str(name);
             }
             if (X11::getTextProperty(_window, XA_WM_NAME, name)) {
-                return Util::to_wide_str(name);
+                return Charset::to_wide_str(name);
             }
             return L"";
         }
@@ -1096,7 +1097,7 @@ private:
 
         char buf[64];
         strftime(buf, sizeof(buf), _format.c_str(), &tm);
-        res = Util::to_wide_str(buf);
+        res = Charset::to_wide_str(buf);
     }
 
 private:
@@ -1432,7 +1433,7 @@ public:
         auto ws = std::to_string(_wm_state.getActiveWorkspace() + 1);
         auto font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
         font->draw(rend.getDrawable(),
-                   getX(), 1, Util::to_wide_str(ws), 0, getWidth());
+                   getX(), 1, Charset::to_wide_str(ws), 0, getWidth());
     }
 
 private:
@@ -1881,7 +1882,7 @@ int main(int argc, char *argv[])
         setlocale(LC_ALL, "");
     }
 
-    Util::iconv_init();
+    Charset::init();
 
     int ch;
     while ((ch = getopt_long(argc, argv, "c:C:d:f:hl:", opts, NULL)) != -1) {
@@ -1967,7 +1968,7 @@ int main(int argc, char *argv[])
 
     cleanup();
     X11::destruct();
-    Util::iconv_deinit();
+    Charset::destruct();
 
     return 0;
 }

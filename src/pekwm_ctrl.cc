@@ -7,6 +7,8 @@
 //
 
 #include "pekwm.hh"
+#include "Compat.hh"
+#include "Charset.hh"
 #include "RegexString.hh"
 #include "Util.hh"
 #include "X11.hh"
@@ -54,10 +56,10 @@ static std::wstring readClientName(Window win)
 {
     std::string name;
     if (X11::getUtf8String(win, NET_WM_NAME, name)) {
-        return Util::from_utf8_str(name);
+        return Charset::from_utf8_str(name);
     }
     if (X11::getTextProperty(win, XA_WM_NAME, name)) {
-        return Util::to_wide_str(name);
+        return Charset::to_wide_str(name);
     }
     return L"";
 }
@@ -66,7 +68,7 @@ static std::wstring readPekwmTitle(Window win)
 {
     std::string name;
     if (X11::getString(win, PEKWM_TITLE, name)) {
-        return Util::from_utf8_str(name);
+        return Charset::from_utf8_str(name);
     }
     return L"";
 }
@@ -193,7 +195,7 @@ int main(int argc, char* argv[])
         setlocale(LC_ALL, "");
     }
 
-    Util::iconv_init();
+    Charset::init();
 
     int ch;
     CtrlAction action = ACTION_RUN;
@@ -212,7 +214,7 @@ int main(int argc, char* argv[])
                 std::cerr << "-c and -w are mutually exclusive" << std::endl;
                 usage(argv[0], 1);
             }
-            client_re.parse_match(Util::to_wide_str(optarg));
+            client_re.parse_match(Charset::to_wide_str(optarg));
             break;
         case 'd':
             display = optarg;
@@ -299,7 +301,7 @@ int main(int argc, char* argv[])
     }
 
     X11::destruct();
-    Util::iconv_deinit();
+    Charset::destruct();
 
     return 0;
 }

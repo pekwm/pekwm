@@ -10,6 +10,7 @@
 
 #include "ActionHandler.hh"
 
+#include "Charset.hh"
 #include "Debug.hh"
 #include "PWinObj.hh"
 #include "PDecor.hh"
@@ -335,7 +336,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                                     || (ap.type == EnterNotify));
                 break;
             case ACTION_FIND_CLIENT:
-                actionFindClient(Util::to_wide_str(it->getParamS()));
+                actionFindClient(Charset::to_wide_str(it->getParamS()));
                 break;
             case ACTION_GOTO_CLIENT_ID:
                 actionGotoClientID(it->getParamI(0));
@@ -474,7 +475,7 @@ ActionHandler::handleStateAction(const Action &action, PWinObj *wo,
             frame->setDecorOverride(sa, action.getParamS());
             break;
         case ACTION_STATE_TITLE:
-            frame->setStateTitle(sa, client, Util::to_wide_str(action.getParamS()));
+            frame->setStateTitle(sa, client, Charset::to_wide_str(action.getParamS()));
             break;
         case ACTION_STATE_OPAQUE:
             frame->setStateOpaque(sa);

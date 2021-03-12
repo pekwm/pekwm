@@ -22,6 +22,7 @@ extern "C" {
 #include "PDecor.hh"
 #include "Frame.hh"
 
+#include "Charset.hh"
 #include "Compat.hh"
 #include "X11.hh"
 #include "Config.hh"
@@ -1792,7 +1793,7 @@ Frame::setStateTitle(StateAction sa, Client *client, const std::wstring &title)
 
     // Set PEKWM_TITLE atom to preserve title on client between sessions.
     X11::setString(client->getWindow(), PEKWM_TITLE,
-                   Util::to_mb_str(client->getTitle()->getUser()));
+                   Charset::to_mb_str(client->getTitle()->getUser()));
 
     renderTitle();
 }

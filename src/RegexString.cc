@@ -11,6 +11,7 @@
 #include <iostream>
 #include <cstdlib>
 
+#include "Charset.hh"
 #include "Debug.hh"
 #include "RegexString.hh"
 #include "Util.hh"
@@ -50,7 +51,7 @@ RegexString::ed_s(std::wstring &str)
         return false;
     }
 
-    std::string mb_str(Util::to_mb_str(str));
+    std::string mb_str(Charset::to_mb_str(str));
 
     const char *c_str = mb_str.c_str();
     regmatch_t *matches = new regmatch_t[_ref_max];
@@ -74,7 +75,7 @@ RegexString::ed_s(std::wstring &str)
                 result.append(std::string(c_str + matches[ref].rm_so, size));
             }
         } else {
-            result.append(Util::to_mb_str(it->get_string()));
+            result.append(Charset::to_mb_str(it->get_string()));
         }
     }
 
@@ -82,7 +83,7 @@ RegexString::ed_s(std::wstring &str)
     size = matches[0].rm_eo - matches[0].rm_so;
     mb_str.replace(matches[0].rm_so, size, result);
 
-    str = Util::to_wide_str(mb_str);
+    str = Charset::to_wide_str(mb_str);
 
     return true;
 }
@@ -126,13 +127,13 @@ RegexString::parse_match(const std::wstring &match, bool full)
                 }
             }
 
-            expression = Util::to_mb_str(expression_str);
+            expression = Charset::to_mb_str(expression_str);
         } else {
             if (full) {
                 USER_WARN("invalid format of regular expression, "
                           << "missing separator " << SEPARATOR);
             }
-            expression = Util::to_mb_str(match);
+            expression = Charset::to_mb_str(match);
         }
 
         _reg_ok = ! regcomp(&_regex, expression.c_str(), flags);
@@ -171,7 +172,7 @@ RegexString::parse_replace(const std::wstring &replace)
         if (end > begin) {
             // Convert number and add item.
             part = replace.substr(begin, end - last);
-            int ref = strtol(Util::to_mb_str(part).c_str(), 0, 10);
+            int ref = strtol(Charset::to_mb_str(part).c_str(), 0, 10);
             if (ref >= 0) {
                 _refs.push_back(RegexString::Part(L"", ref));
                 if (ref > _ref_max) {
@@ -237,7 +238,7 @@ RegexString::operator==(const std::wstring &rhs) const
         return false;
     }
 
-    std::string mb_rhs(Util::to_mb_str(rhs));
+    std::string mb_rhs(Charset::to_mb_str(rhs));
     bool match = ! regexec(&_regex, mb_rhs.c_str(), 0, 0, 0);
 
     return _reg_inverted ? ! match : match;

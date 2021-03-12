@@ -806,12 +806,13 @@ PMenu::insert(PMenu::Item *item)
  * Inserts item into the menu at the given position (without rebuilding)
  */
 void
-PMenu::insert(std::vector<PMenu::Item*>::const_iterator at, PMenu::Item *item)
+PMenu::insert(std::vector<PMenu::Item*>::iterator at, PMenu::Item *item)
 {
     checkItemWORef(item);
 
     // Check if we have a submenu item
-    if (item->getWORef() && (item->getWORef()->getType() == PWinObj::WO_MENU)) {
+    if (item->getWORef()
+	&& (item->getWORef()->getType() == PWinObj::WO_MENU)) {
         _has_submenu++;
     }
 

@@ -16,9 +16,10 @@ extern "C" {
 #include <X11/Xutil.h>
 }
 
-#include "Debug.hh"
+#include "Charset.hh"
 #include "Compat.hh"
 #include "Config.hh"
+#include "Debug.hh"
 #include "PWinObj.hh"
 #include "PFont.hh"
 #include "PDecor.hh"
@@ -125,7 +126,7 @@ PDecor::TitleItem::updateVisible(void) {
         _visible.append(L"[");
 
         if (infoIs(INFO_ID) && pekwm::config()->isShowClientID()) {
-            _visible.append(Util::to_wide_str(Util::to_string<uint>(_id)));
+            _visible.append(Charset::to_wide_str(Util::to_string<uint>(_id)));
         }
         if (infoIs(INFO_MARKED)) {
             _visible.append(L"M");
@@ -145,9 +146,9 @@ PDecor::TitleItem::updateVisible(void) {
 
     // Add client number to title
     if (_count > 0) {
-      _visible.append(Util::to_wide_str(pekwm::config()->getClientUniqueNamePre()));
-      _visible.append(Util::to_wide_str(Util::to_string(_count)));
-      _visible.append(Util::to_wide_str(pekwm::config()->getClientUniqueNamePost()));
+      _visible.append(Charset::to_wide_str(pekwm::config()->getClientUniqueNamePre()));
+      _visible.append(Charset::to_wide_str(Util::to_string(_count)));
+      _visible.append(Charset::to_wide_str(pekwm::config()->getClientUniqueNamePost()));
     }
 }
 

@@ -9,6 +9,7 @@
 #pragma once
 
 #include "Debug.hh"
+#include "Charset.hh"
 #include "PWinObj.hh"
 #include "X11.hh"
 
@@ -81,7 +82,7 @@ public:
         wm_hints.input = True;
 
         XClassHint class_hint = {strdup(wm_name), strdup(wm_class)};
-        auto title_utf8 = Util::to_utf8_str(title);
+        auto title_utf8 = Charset::to_utf8_str(title);
         Xutf8SetWMProperties(X11::getDpy(), _window,
                              title_utf8.c_str(), title_utf8.c_str(), 0, 0,
                              normal_hints, &wm_hints, &class_hint);

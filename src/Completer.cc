@@ -20,6 +20,7 @@ extern "C" {
 #include <stdlib.h>
 }
 
+#include "Charset.hh"
 #include "Completer.hh"
 #include "Config.hh"
 #include "Util.hh"
@@ -38,7 +39,7 @@ completions_list_from_name_list(T name_list, completions_list &completions_list)
     completions_list.clear();
     typename T::const_iterator it(name_list.begin());
     for (; it != name_list.end(); ++it) {
-        auto name(Util::to_wide_str(*it));
+        auto name(Charset::to_wide_str(*it));
         auto name_lower(name);
         Util::to_lower(name_lower);
         completions_list.push_back(comp_pair(name_lower, name));
@@ -123,7 +124,7 @@ public:
         for (auto it : path_parts) {
             DIR *dh = opendir(it.c_str());
             if (dh) {
-                refresh_path(dh, Util::to_wide_str(it));
+                refresh_path(dh, Charset::to_wide_str(it));
                 closedir(dh);
             }
         }
@@ -146,7 +147,7 @@ private:
                 continue;
             }
 
-            auto name(Util::to_wide_str(entry->d_name));
+            auto name(Charset::to_wide_str(entry->d_name));
             _path_list.push_back(comp_pair(name, name));
             _path_list.push_back(comp_pair(path + L"/" + name,
                                            path + L"/" + name));

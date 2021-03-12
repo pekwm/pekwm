@@ -11,6 +11,7 @@
 #include <algorithm>
 
 #include "AutoProperties.hh"
+#include "Charset.hh"
 #include "Config.hh"
 #include "Debug.hh"
 #include "ImageHandler.hh"
@@ -80,7 +81,8 @@ std::ostream&
 operator<<(std::ostream& os, const ClassHint &ch)
 {
     os << "ClassHint "
-       << Util::to_mb_str(ch.h_name) << "," << Util::to_mb_str(ch.h_class);
+       << Charset::to_mb_str(ch.h_name) << ","
+       << Charset::to_mb_str(ch.h_class);
     return os;
 }
 
@@ -270,7 +272,7 @@ AutoProperties::parseRegexpOrWarning(RegexString &regex,
                                      const std::string regex_str,
                                      const std::string &name)
 {
-    if (! regex_str.size() || regex.parse_match(Util::to_wide_str(regex_str))) {
+    if (! regex_str.size() || regex.parse_match(Charset::to_wide_str(regex_str))) {
         return true;
     } else {
         USER_WARN("invalid regexp " << regex_str << " for autoproperty "
@@ -388,7 +390,7 @@ AutoProperties::parseAutoGroup(CfgParser::Entry *section,
     }
 
     if (section->getValue().size()) {
-        property->group_name = Util::to_wide_str(section->getValue());
+        property->group_name = Charset::to_wide_str(section->getValue());
     }
 
     PropertyType property_type;
@@ -442,7 +444,7 @@ AutoProperties::parseTitleProperty(CfgParser::Entry *section)
         parsePropertyMatch(title_section->getValue(), title_property);
         if (parseProperty(title_section, title_property)) {
             auto value = title_section->findEntry("RULE");
-            auto wstr = Util::to_wide_str(value->getValue());
+            auto wstr = Charset::to_wide_str(value->getValue());
             if (value && title_property->getTitleRule().parse_ed_s(wstr)) {
                 _title_prop_list.push_back(title_property);
                 title_property = 0;

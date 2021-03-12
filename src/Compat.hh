@@ -10,6 +10,11 @@
 
 #include "config.h"
 
+#ifndef HAVE_TO_STRING
+#include <string>
+#include <sstream>
+#endif // HAVE_TO_STRING
+
 #include <cwchar>
 #include <cstddef>
 
@@ -50,3 +55,47 @@ int unsetenv(const char *name);
     }                                                                         \
   } while (0)
 #endif // HAVE_TIMERSUB
+
+#ifndef HAVE_PUT_TIME
+
+namespace std
+{
+    const char* put_time(const struct tm *tm, const char *fmt);
+}
+
+#endif // HAVE_PUT_TIME
+
+#ifndef HAVE_TO_STRING
+
+namespace std
+{
+    template<typename T>
+    std::string to_string(T const& val)
+    {
+        std::ostringstream oss;
+        oss << val;
+        return oss.str();
+    }
+}
+
+#endif // HAVE_TO_STRING
+
+#ifndef HAVE_STOI
+
+namespace std
+{
+    int stoi(const std::string& str);
+}
+
+#endif // HAVE_STOI
+
+
+#ifndef HAVE_STOF
+
+namespace std
+{
+    float stof(const std::string& str);
+    float stof(const std::wstring& str);
+}
+
+#endif // HAVE_STOF

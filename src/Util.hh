@@ -252,12 +252,6 @@ namespace Util {
                        (int(*)(int)) std::towlower);
     }
 
-    std::string to_mb_str(const std::wstring &str);
-    std::wstring to_wide_str(const std::string &str);
-
-    void iconv_init(void);
-    void iconv_deinit(void);
-
     /**
      * Return value within bounds of min and max value.
      */
@@ -270,9 +264,6 @@ namespace Util {
         }
         return value;
     }
-
-    std::string to_utf8_str(const std::wstring &str);
-    std::wstring from_utf8_str(const std::string &str);
 
     //! @brief Removes leading blanks( \n\t) from string.
     inline void trimLeadingBlanks(std::string &trim) {

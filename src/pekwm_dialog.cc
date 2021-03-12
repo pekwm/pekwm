@@ -663,7 +663,7 @@ int main(int argc, char* argv[])
         setlocale(LC_ALL, "");
     }
 
-    Util::iconv_init();
+    Charset::init();
 
     int ch;
     while ((ch = getopt_long(argc, argv, "c:d:g:hi:o:rt:", opts, NULL)) != -1) {
@@ -685,13 +685,13 @@ int main(int argc, char* argv[])
             Util::expandFileName(image_name);
             break;
         case 'o':
-            options.push_back(Util::to_wide_str(optarg));
+            options.push_back(Charset::to_wide_str(optarg));
             break;
         case 'r':
             raise = true;
             break;
         case 't':
-            title = Util::to_wide_str(optarg);
+            title = Charset::to_wide_str(optarg);
             break;
         case 'f':
             if (Debug::setLogFile(optarg)) {
@@ -723,7 +723,7 @@ int main(int argc, char* argv[])
         if (i > optind) {
             message += L' ';
         }
-        message += Util::to_wide_str(argv[i]);
+        message += Charset::to_wide_str(argv[i]);
     }
 
     auto dpy = XOpenDisplay(display);
@@ -766,7 +766,7 @@ int main(int argc, char* argv[])
 
     cleanup();
     X11::destruct();
-    Util::iconv_deinit();
+    Charset::destruct();
 
     return ret;
 }

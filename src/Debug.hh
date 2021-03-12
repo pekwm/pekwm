@@ -9,7 +9,7 @@
 
 #pragma once
 
-#include "config.h"
+#include "Compat.hh"
 
 #include <fstream>
 #include <iomanip>

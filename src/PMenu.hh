@@ -101,7 +101,7 @@ public:
     void setMenuWidth(uint width) { _menu_width = width; }
 
     virtual void insert(PMenu::Item *item);
-    virtual void insert(std::vector<PMenu::Item*>::const_iterator at,
+    virtual void insert(std::vector<PMenu::Item*>::iterator at,
                         PMenu::Item *item);
     virtual void insert(const std::wstring &name, PWinObj *wo_ref = 0,
                         PTexture *icon = 0);
@@ -114,6 +114,9 @@ public:
     void buildMenu(void);
 
     inline uint size(void) const { return _items.size(); }
+    std::vector<PMenu::Item*>::iterator m_begin_non_const(void) {
+        return _items.begin();
+    }
     std::vector<PMenu::Item*>::const_iterator m_begin(void) {
         return _items.begin();
     }

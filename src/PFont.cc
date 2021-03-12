@@ -11,6 +11,7 @@
 #include <iostream>
 #include <cstring>
 
+#include "Charset.hh"
 #include "Debug.hh"
 #include "PFont.hh"
 #include "Util.hh"
@@ -162,7 +163,7 @@ PFont::trimMiddle(std::wstring &text, uint max_width)
 
 void
 PFont::setTrimString(const std::string &text) {
-    _trim_string = Util::to_wide_str(text);
+    _trim_string = Charset::to_wide_str(text);
 }
 
 //! @brief Justifies the string based on _justify property of the Font
@@ -268,7 +269,7 @@ PFontX11::getWidth(const std::wstring &text, uint max_chars)
     uint width = 0;
     if (_font) {
         // No UTF8 support, convert to locale encoding.
-        std::string mb_text(Util::to_mb_str(text.substr(0, max_chars)));
+        std::string mb_text(Charset::to_mb_str(text.substr(0, max_chars)));
         width = XTextWidth(_font, mb_text.c_str(), mb_text.size());
     }
 
@@ -288,9 +289,9 @@ PFontX11::drawText(Drawable dest, int x, int y,
     if (_font && (gc != None)) {
         std::string mb_text;
         if (chars != 0) {
-            mb_text = Util::to_mb_str(text.substr(0, chars));
+            mb_text = Charset::to_mb_str(text.substr(0, chars));
         } else {
-            mb_text = Util::to_mb_str(text);
+            mb_text = Charset::to_mb_str(text);
         }
 
         XDrawString(X11::getDpy(), dest, gc, x, y,
@@ -543,7 +544,7 @@ PFontXft::getWidth(const std::wstring &text, uint max_chars)
 
     uint width = 0;
     if (_font) {
-        std::string utf8_text(Util::to_utf8_str(text.substr(0, max_chars)));
+        std::string utf8_text(Charset::to_utf8_str(text.substr(0, max_chars)));
 
         XGlyphInfo extents;
         XftTextExtentsUtf8(X11::getDpy(), _font,
@@ -569,9 +570,9 @@ PFontXft::drawText(Drawable dest, int x, int y,
     if (_font && cl) {
         std::string utf8_text;
         if (chars != 0) {
-            utf8_text = Util::to_utf8_str(text.substr(0, chars));
+            utf8_text = Charset::to_utf8_str(text.substr(0, chars));
         } else {
-            utf8_text = Util::to_utf8_str(text);
+            utf8_text = Charset::to_utf8_str(text);
         }
 
         XftDrawChange(_draw, dest);

@@ -13,6 +13,7 @@
 #include <fstream>
 #include <algorithm>
 
+#include "Charset.hh"
 #include "InputDialog.hh"
 #include "KeyGrabber.hh"
 #include "X11.hh"
@@ -254,7 +255,7 @@ InputDialog::mapCentered(const std::string &buf, const Geometry &gm, PWinObj *wo
     // Setup data
     _hist_it = _history.end();
 
-    _buf = Util::to_wide_str(buf);
+    _buf = Charset::to_wide_str(buf);
     _pos = _buf.size();
     bufChanged();
 
@@ -437,7 +438,7 @@ InputDialog::bufAdd(XKeyEvent *ev)
         _buf.insert(_buf.begin() + _pos++, _keysym_map[keysym]);
     } else {
         // Add wide string to buffer counting position
-        std::wstring buf_ret(Util::to_wide_str(c_return));
+        std::wstring buf_ret(Charset::to_wide_str(c_return));
         for (unsigned int i = 0; i < buf_ret.size(); ++i) {
             if (iswprint(buf_ret[i])) {
                 _buf.insert(_buf.begin() + _pos++, buf_ret[i]);
@@ -635,7 +636,7 @@ InputDialog::loadHistory(const std::string &path)
         while (ifile.good()) {
             getline(ifile, mb_line);
             if (mb_line.size()) {
-                _history.push_back(Util::to_wide_str(mb_line));
+                _history.push_back(Charset::to_wide_str(mb_line));
             }
         }
         ifile.close();
@@ -648,7 +649,7 @@ InputDialog::saveHistory(const std::string &path)
     std::ofstream ofile(path.c_str());
     if (ofile.is_open()) {
         for (auto it : _history) {
-            ofile << Util::to_utf8_str(it) << "\n";
+            ofile << Charset::to_utf8_str(it) << "\n";
         }
         ofile.close();
     }

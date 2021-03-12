@@ -9,6 +9,7 @@
 #include "config.h"
 
 #include "Compat.hh"
+#include "Charset.hh"
 #include "Util.hh"
 
 #include <iostream>
@@ -18,6 +19,9 @@
 extern "C" {
 #include <errno.h>
 #include <stdarg.h>
+#ifndef HAVE_PUT_TIME
+#include <time.h>
+#endif // HAVE_PUT_TIME
 #include <unistd.h>
 #include <wchar.h>
 }
@@ -41,7 +45,7 @@ namespace std {
     swprintf(wchar_t *wcs, size_t maxlen, const wchar_t *format, ...)
     {
         size_t len;
-        string mb_format(Util::to_mb_str(format));
+        string mb_format(Charset::to_mb_str(format));
 
         // Look for wide string formatting, not yet implemented.
         if (mb_format.find("%ls") != string::npos) {
@@ -55,7 +59,7 @@ namespace std {
             vsnprintf(res, maxlen, mb_format.c_str(), ap);
             va_end(ap);
 
-            wstring w_res(Util::to_wide_str(res));
+            wstring w_res(Charset::to_wide_str(res));
             len = std::min(maxlen - 1, w_res.size());
             wmemcpy(wcs, w_res.c_str(), len);
 
@@ -151,3 +155,63 @@ daemon(int nochdir, int noclose)
     return 0;
 }
 #endif // ! HAVE_DAEMON
+
+#ifndef HAVE_PUT_TIME
+
+namespace std
+{
+    const char*
+    put_time(const struct tm *tm, const char *fmt)
+    {
+         static char buf[128] = {0};
+         strftime(buf, sizeof(buf), fmt, tm);
+         return buf;
+    }
+}
+
+#endif // HAVE_PUT_TIME
+
+#ifndef HAVE_STOI
+
+namespace std
+{
+    int
+    stoi(const std::string& str)
+    {
+        char *endptr;
+        long val = strtol(str.c_str(), &endptr, 10);
+        if (*endptr != 0) {
+           throw std::invalid_argument("not a valid integer: " + str);
+        }
+        return val;
+    }
+}
+
+
+#endif // HAVE_STOI
+
+
+#ifndef HAVE_STOF
+
+namespace std
+{
+    float
+    stof(const std::string& str)
+    {
+        char *endptr;
+        float val = strtof(str.c_str(), &endptr);
+        if (*endptr != 0) {
+           throw std::invalid_argument("not a valid float: " + str);
+        }
+        return val;
+    }
+
+    float
+    stof(const std::wstring& wstr)
+    {
+        auto str = Charset::to_mb_str(wstr);
+        return stof(str);
+    }
+}
+
+#endif // HAVE_STOF
