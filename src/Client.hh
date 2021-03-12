@@ -322,6 +322,7 @@ private:
     void readClientPid(void);
     void readClientRemote(void);
 
+    void setTransientFor(Client *client);
     void addTransient(Client *client);
     void removeTransient(Client *client);
 

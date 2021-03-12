@@ -55,7 +55,7 @@ StatusWindow::~StatusWindow(void)
     Workspaces::remove(this);
 
     // remove ourself from the decor manually, no need to reparent and stuff
-    _children.erase(std::remove(_children.begin(), _children.end(), _status_wo), _children.end());
+    Util::vectorRemove(_children, _status_wo);;
 
     // free resources
     X11::destroyWindow(_status_wo->getWindow());

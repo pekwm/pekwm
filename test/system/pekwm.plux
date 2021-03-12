@@ -237,14 +237,32 @@ in one go.
         [log test_transient_for (normal)]
         !$TEST_DIR/test_transient_for
         ?transient [0-9]+ set to [0-9]+
+
+    [shell pekwm]
+        ?transient for changed from 0 to (.*)
+        [local client=$1]
+
+    [shell test_transient_for]
         !
         ?PROGRESS: destroy transient window 1
+
+    [shell pekwm]
+        ?transient for changed from $client to 0
+        ?client destructed
+
+    [shell test_transient_for]
         !
         ?PROGRESS: destroy main window
+
+    [shell pekwm]
+        ?client destructed
+
+    [shell test_transient_for]
         !
         ?PROGRESS: done
         ?SH-PROMPT:
 
+    [shell test_transient_for]
         [log test_transient_for (transient on self)]
         !$TEST_DIR/test_transient_for transient-on-self
         ?transient [0-9]+ set to self
@@ -265,10 +283,27 @@ in one go.
         [log test_transient_for (destroy main before transient)]
         !$TEST_DIR/test_transient_for destroy-main-first
         ?transient [0-9]+ set to [0-9]+
+
+    [shell pekwm]
+        ?transient for changed from 0 to (.*)
+        [local client=$1]
+
+    [shell test_transient_for]
         !
         ?PROGRESS: destroy main window
+
+    [shell pekwm]
+        ?transient for changed from $client to 0
+        ?client destructed
+
+    [shell test_transient_for]
         !
         ?PROGRESS: destroy transient window 1
+
+    [shell pekwm]
+        ?client destructed
+
+    [shell test_transient_for]
         !
         ?PROGRESS: done
         ?SH-PROMPT:
@@ -276,15 +311,46 @@ in one go.
         [log test_transient_for (loop)]
         !$TEST_DIR/test_transient_for transient-loop
         ?transient [0-9]+ set to [0-9]+
+
+    [shell pekwm]
+        ?transient for changed from 0 to (.*)
+        [local client1=$1]
+
+    [shell test_transient_for]
         !
         ?transient [0-9]+ set to [0-9]+
         ?transient [0-9]+ set to [0-9]+
+
+    [shell pekwm]
+        ?transient for changed from 0 to (.*)
+        [local client2=$1]
+        ?transient for changed from 0 to (.*)
+        [local client3=$1]
+
+    [shell test_transient_for]
         !
         ?PROGRESS: destroy transient window 1
+
+    [shell pekwm]
+        ?transient for changed from .* to 0
+        ?client destructed
+
+    [shell test_transient_for]
         !
         ?PROGRESS: destroy transient window 2
+
+    [shell pekwm]
+        ?transient for changed from .* to 0
+        ?client destructed
+
+    [shell test_transient_for]
         !
         ?PROGRESS: destroy main window
+
+    [shell pekwm]
+        ?client destructed
+
+    [shell test_transient_for]
         !
         ?PROGRESS: done
         ?SH-PROMPT:
@@ -306,6 +372,9 @@ in one go.
         ???NET_CLIENT_LIST)
         !$_CTRL_C_
         ?SH-PROMPT:
+
+    [shell pekwm]
+        ?set _NET_WM_ICON on
 
     [shell xprop]
         [log verify _NET_WM_ICON is set]
@@ -337,9 +406,11 @@ in one go.
         !$_CTRL_C_
         ?SH-PROMPT:
 
+    [shell pekwm]
+        ???applied ClientGeometry property Geometry x:10 y: 10 width: 100 height: 100 -> Geometry x:914 y: 658 width: 100 height: 100
+
     [shell xprop]
         [log verify Client geometry]
-        [timeout 1]
         -not found
         !xwininfo -id $window
         ?Width: 100
@@ -365,6 +436,9 @@ in one go.
         ???NET_CLIENT_LIST)
         !$_CTRL_C_
         ?SH-PROMPT:
+
+    [shell pekwm]
+        ???applied FrameGeometry property Geometry x:10 y: 10 width: 100 height: 100 -> Geometry x:10 y: 10 width: 100 height: 100
 
     [shell xprop]
         [log verify Frame geometry]

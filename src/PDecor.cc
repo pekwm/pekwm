@@ -307,7 +307,7 @@ PDecor::createBorder(CreateWindowParams &params)
 //! @brief PDecor destructor
 PDecor::~PDecor(void)
 {
-    _pdecors.erase(std::remove(_pdecors.begin(), _pdecors.end(), this), _pdecors.end());
+    Util::vectorRemove(_pdecors, this);
 
     while (! _children.empty()) {
         removeChild(_children.back(), false); // Don't call delete this.
@@ -1184,8 +1184,7 @@ PDecor::moveChildRel(int off)
         off += size;
     }
 
-    _children.erase(std::remove(_children.begin(), _children.end(), _child),
-                    _children.end());
+    Util::vectorRemove(_children, _child);
     _children.insert(_children.begin()+off, _child);
     updatedChildOrder();
 }

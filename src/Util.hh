@@ -103,6 +103,11 @@ namespace Util {
         uint _ref;
     };
 
+    template<typename T> void
+    vectorRemove(std::vector<T> &v, T val) {
+        v.erase(std::remove(v.begin(), v.end(), val), v.end());
+    }
+
     std::string getEnv(const std::string& key);
 
     void forkExec(std::string command);

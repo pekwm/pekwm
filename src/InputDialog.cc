@@ -85,7 +85,7 @@ InputDialog::~InputDialog(void)
 
     // Free resources
     if (_text_wo) {
-        _children.erase(std::remove(_children.begin(), _children.end(), _text_wo), _children.end());
+        Util::vectorRemove(_children, _text_wo);
         removeChildWindow(_text_wo->getWindow());
         X11::destroyWindow(_text_wo->getWindow());
         delete _text_wo;

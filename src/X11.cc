@@ -1,5 +1,5 @@
 //
-// x11.cc for pekwm
+// X11.cc for pekwm
 // Copyright (C) 2009-2021 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -443,7 +443,6 @@ X11::grabServer(void)
         ++_server_grabs;
     } else {
         ++_server_grabs;
-        TRACE("increased server grab count to " << _server_grabs);
     }
     return _server_grabs == 1;
 }
@@ -461,8 +460,6 @@ X11::ungrabServer(bool sync)
                 TRACE("0 server grabs left, ungrabbing server.");
             }
             XUngrabServer(_dpy);
-        } else {
-            TRACE("decreased server grab count to " << _server_grabs);
         }
     }
     return _server_grabs == 0;

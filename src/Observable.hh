@@ -53,8 +53,7 @@ public:
      * Remove observer from list.
      */
     void removeObserver(Observer *observer) {
-        _observers.erase(std::remove(_observers.begin(), _observers.end(),
-                                     observer), _observers.end());
+        Util::vectorRemove(_observers, observer);
     }
 
 private:
