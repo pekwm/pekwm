@@ -28,6 +28,7 @@
  * _NET_FRAME_EXTENTS PropertyNotify events.
  */
 
+#include <cstdlib>
 #include <iostream>
 
 extern "C" {

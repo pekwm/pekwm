@@ -3,6 +3,7 @@
  */
 
 #include "../../src/X11App.hh"
+#include "../../src/Charset.hh"
 
 #include <iostream>
 
@@ -126,7 +127,7 @@ main(int argc, char *argv[])
         return 1;
     }
     X11::init(dpy);
-    Util::iconv_init();
+    Charset::init();
 
     {
         TransientTest test(argc, argv);
@@ -135,7 +136,7 @@ main(int argc, char *argv[])
         test.main(1);
     }
 
-    Util::iconv_deinit();
+    Charset::destruct();
     X11::destruct();
 
     return 0;

@@ -1,7 +1,4 @@
-/**
- * Test application for 
- */
-
+#include <cstdlib>
 #include <iostream>
 
 extern "C" {
