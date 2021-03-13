@@ -6,16 +6,25 @@ to have a small core and be extensible using external
 scripts.
 
 pekwm_panel integrates with the pekwm themes and aims to support pekwm
-specific atoms and hints on windows.
+specific window hints.
+
+## Configuration
 
 The default configuration is placed in _~/.pekwm/panel_ and configures
 the _widgets_ displayed, panel placement and external _commands_.
+
+* Placement, Top or Bottom
 
 ## Widgets
 
 All widgets share two common configuration parameters
 
+### Common configuration
+
 **Size**
+
+The size controls how much of the panel each widget is going to
+consume and can be specified in one of the below units.
 
 | Name      | Type    | Description                                                             |
 |-----------|---------|-------------------------------------------------------------------------|
@@ -25,11 +34,56 @@ All widgets share two common configuration parameters
 | TextWidth | String  | Width of the provided string using the current theme                    |
 | *         | NA      | Use rest of available space, divided equally between all widgets with * |
 
-* **Interval**,
+Using the configuration below would distribute the available 800
+pixels as follows:
 
-### ClientList
+* WorkspaceNumber, Size = "Required"
+* ExternalData, Size = "Pixels 300"
+* ClientLIst, Size = "*"
 
-Dispay list of clients on the current workspace.
+For simplicity space for the separators is excluded.
+
+```
+                          800px
+----------------------------------------------------------------------------
+|  [1]  | [ExternalData] |                 [ClientList]                    |
+----------------------------------------------------------------------------
+  30px        300px                           470px
+```
+
+** Interval**
+
+### Widget: Bar
+
+Display a filled bar, where the fill percent is read from a field
+extracted from an external command.
+
+The value should be numeric value between 0.0 and 100.0, values below
+and and above will be set to 0.0 and 100.0 respectively.
+
+If it is not possible to parse the value it will default ot 0.0.
+
+Example field output possible to use with the bar that will render the
+bar at 50%:
+
+```
+fill-percent 50
+```
+
+Widget configuration:
+
+```
+Bar = "field" {
+  Size = "Pixels 32"
+}
+```
+
+### Widget: ClientList
+
+Dispay list of clients on the current workspace together with client
+icon if _NET_WM_ICON is set.
+
+Widget configuration:
 
 ```
 ClientList {
@@ -37,9 +91,11 @@ ClientList {
 }
 ```
 
-### DateTime
+### Widget: DateTime
 
 Display date and time using _strftime(3)_ format string.
+
+Widget configuration:
 
 ```
 DateTime = "%Y-%m-%d %H:%M" {
@@ -48,13 +104,15 @@ DateTime = "%Y-%m-%d %H:%M" {
 }
 ```
 
-### ExternalData
+### Widget: ExternalData
 
-Display external data for a given field extracted from a external
+Display external data for a given field extracted from an external
 command. The widget is updated whenever the data field is updated.
 
 It is recommended to use _TextWidth_ as size to handle font size
 differences between themes.
+
+Widget configuration:
 
 ```
 ExternalData = "field" {
@@ -62,9 +120,11 @@ ExternalData = "field" {
 }
 ```
 
-### WorkspaceNumber
+### Widget: WorkspaceNumber
 
 Widget displaying the current workspace number.
+
+Widget configuration:
 
 ```
 WorkspaceNumber {
