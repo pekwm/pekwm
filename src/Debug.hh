@@ -154,3 +154,6 @@ public:
     if ((C) && Debug::level >= Debug::LEVEL_ERR) { \
         DebugErrObj dobj; dobj << PEK_DEBUG_START << M; \
     }
+
+#define FMT_HEX(V) \
+    "0x" << std::hex << (V) << std::dec

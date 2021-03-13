@@ -10,6 +10,8 @@ Basic pekwm_panel tests
     ?SH-PROMPT:
     !export DISPLAY=$DISPLAY
     ?SH-PROMPT:
+    !VALGRIND=`which valgrind 2>/dev/null`
+    ?SH-PROMPT:
 [endfunction]
 
 [shell Xvfb]
@@ -19,9 +21,10 @@ Basic pekwm_panel tests
     !Xvfb -screen 0 640x480x24 -dpi 96 -displayfd 1 $DISPLAY
     ?1
 
-[shell xev]
+[shell pekwm]
     [call init-shell]
-    !xev -root
+    !$$VALGRIND $BIN_DIR/pekwm --config pekwm.config --log-level trace
+    ?Enter event loop.
 
 [shell pekwm_panel]
     [call init-shell]
@@ -29,10 +32,9 @@ Basic pekwm_panel tests
     !$BIN_DIR/pekwm_panel -c pekwm_panel.config.top  -C pekwm.config --log-level trace
     ?entering main loop
 
-[shell xev]
+[shell pekwm]
     [log waiting for window to be mapped]
-    ?MapNotify
-    ?window (0x[0-9a-f]+)
+    ?client constructed for window (0x[0-9a-f]+)
     [global panel_window=$1]
 
 [shell xwininfo]
@@ -53,10 +55,9 @@ Basic pekwm_panel tests
     !$BIN_DIR/pekwm_panel -c pekwm_panel.config.bottom -C pekwm.config --log-level trace
     ?entering main loop
 
-[shell xev]
+[shell pekwm]
     [log waiting for window to be mapped]
-    ?MapNotify
-    ?window (0x[0-9a-f]+)
+    ?client constructed for window (0x[0-9a-f]+)
     [global panel_window=$1]
 
 [shell xwininfo]

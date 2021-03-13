@@ -150,7 +150,7 @@ Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
     _wo_map[_window] = this;
     _clients.push_back(this);
 
-    TRACE(this << " client constructed");
+    TRACE(this << " client constructed for window " << FMT_HEX(_window));
 }
 
 //! @brief Client destructor
@@ -209,7 +209,7 @@ Client::~Client(void)
 
     X11::ungrabServer(true);
 
-    TRACE(this << " client destructed");
+    TRACE(this << " client for window " << FMT_HEX(_window) << " destructed");
 }
 
 /**

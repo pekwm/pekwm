@@ -164,16 +164,11 @@ in one go.
 [function test_cfg_deny_resize_inc]
     [log test_cfg_deny_resize_inc]
 
-    [shell xev]
-        !xev -root
-
     [shell xterm]
         !xterm -name no-resize-inc +sb /bin/sh
 
-    [shell xev]
-        ???NET_CLIENT_LIST)
-        !$_CTRL_C_
-        ?SH-PROMPT:
+    [shell pekwm]
+        ?client constructed
 
     [shell pekwm_ctrl]
         [call init-shell]
@@ -239,23 +234,25 @@ in one go.
         ?transient [0-9]+ set to [0-9]+
 
     [shell pekwm]
-        ?transient for changed from 0 to (.*)
-        [local client=$1]
+        ?client constructed
+        ?transient for changed from (0x)?0 to (.*)
+        [local client=$2]
+        ?client constructed
 
     [shell test_transient_for]
         !
         ?PROGRESS: destroy transient window 1
 
     [shell pekwm]
-        ?transient for changed from $client to 0
-        ?client destructed
+        ?transient for changed from $client to (0x)?0
+        ?client for window .* destructed
 
     [shell test_transient_for]
         !
         ?PROGRESS: destroy main window
 
     [shell pekwm]
-        ?client destructed
+        ?client for window .* destructed
 
     [shell test_transient_for]
         !
@@ -285,23 +282,23 @@ in one go.
         ?transient [0-9]+ set to [0-9]+
 
     [shell pekwm]
-        ?transient for changed from 0 to (.*)
-        [local client=$1]
+        ?transient for changed from (0x)?0 to (.*)
+        [local client=$2]
 
     [shell test_transient_for]
         !
         ?PROGRESS: destroy main window
 
     [shell pekwm]
-        ?transient for changed from $client to 0
-        ?client destructed
+        ?transient for changed from $client to (0x)?0
+        ?client for window .* destructed
 
     [shell test_transient_for]
         !
         ?PROGRESS: destroy transient window 1
 
     [shell pekwm]
-        ?client destructed
+        ?client for window .* destructed
 
     [shell test_transient_for]
         !
@@ -313,8 +310,8 @@ in one go.
         ?transient [0-9]+ set to [0-9]+
 
     [shell pekwm]
-        ?transient for changed from 0 to (.*)
-        [local client1=$1]
+        ?transient for changed from (0x)?0 to (.*)
+        [local client1=$2]
 
     [shell test_transient_for]
         !
@@ -322,33 +319,33 @@ in one go.
         ?transient [0-9]+ set to [0-9]+
 
     [shell pekwm]
-        ?transient for changed from 0 to (.*)
-        [local client2=$1]
-        ?transient for changed from 0 to (.*)
-        [local client3=$1]
+        ?transient for changed from (0x)?0 to (.*)
+        [local client2=$2]
+        ?transient for changed from (0x)?0 to (.*)
+        [local client3=$2]
 
     [shell test_transient_for]
         !
         ?PROGRESS: destroy transient window 1
 
     [shell pekwm]
-        ?transient for changed from .* to 0
-        ?client destructed
+        ?transient for changed from .* to (0x)?0
+        ?client for window .* destructed
 
     [shell test_transient_for]
         !
         ?PROGRESS: destroy transient window 2
 
     [shell pekwm]
-        ?transient for changed from .* to 0
-        ?client destructed
+        ?transient for changed from .* to (0x)?0
+        ?client for window .* destructed
 
     [shell test_transient_for]
         !
         ?PROGRESS: destroy main window
 
     [shell pekwm]
-        ?client destructed
+        ?client for window .* destructed
 
     [shell test_transient_for]
         !
@@ -359,22 +356,13 @@ in one go.
 [function test_icon_property]
     [log test_icon_property]
 
-    [shell xev]
-        !xev -root
-
     [shell xterm]
         !xterm -name icon +sb /bin/sh
 
-    [shell xev]
-        ?ReparentNotify
-        ?window (0x[0-9a-f]+)
-        [global window=$1]
-        ???NET_CLIENT_LIST)
-        !$_CTRL_C_
-        ?SH-PROMPT:
-
     [shell pekwm]
         ?set _NET_WM_ICON on
+        ?client constructed for window (0x[0-9a-f]+)
+        [global window=$1]
 
     [shell xprop]
         [log verify _NET_WM_ICON is set]
@@ -392,22 +380,13 @@ in one go.
 [function test_client_frame_geometry_property]
     [log test_client_frame_geometry_property]
 
-    [shell xev]
-        !xev -root
-
     [shell xterm]
         !xterm -name client-geometry +sb /bin/sh
 
-    [shell xev]
-        ?ReparentNotify
-        ?window (0x[0-9a-f]+)
-        [global window=$1]
-        ???NET_CLIENT_LIST)
-        !$_CTRL_C_
-        ?SH-PROMPT:
-
     [shell pekwm]
         ???applied ClientGeometry property Geometry x:10 y: 10 width: 100 height: 100 -> Geometry x:914 y: 658 width: 100 height: 100
+        ?client constructed for window (0x[0-9a-f]+)
+        [global window=$1]
 
     [shell xprop]
         [log verify Client geometry]
@@ -423,22 +402,13 @@ in one go.
         !$_CTRL_C_
         ?SH-PROMPT:
 
-    [shell xev]
-        !xev -root
-
     [shell xterm]
         !xterm -name frame-geometry +sb /bin/sh
 
-    [shell xev]
-        ?ReparentNotify
-        ?window (0x[0-9a-f]+)
-        [global window=$1]
-        ???NET_CLIENT_LIST)
-        !$_CTRL_C_
-        ?SH-PROMPT:
-
     [shell pekwm]
         ???applied FrameGeometry property Geometry x:10 y: 10 width: 100 height: 100 -> Geometry x:10 y: 10 width: 100 height: 100
+        ?client constructed for window (0x[0-9a-f]+)
+        [global window=$1]
 
     [shell xprop]
         [log verify Frame geometry]
