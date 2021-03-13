@@ -441,7 +441,8 @@ public:
                 bool raise, const std::wstring& title, PImage* image,
                 const std::wstring& message,
                 std::vector<std::wstring> options)
-        : X11App(gm, title, "dialog", "pekwm_dialog", WINDOW_TYPE_NORMAL),
+        : X11App(gm, title.empty() ? L"pekwm_dialog" : title,
+                 "dialog", "pekwm_dialog", WINDOW_TYPE_NORMAL),
           _data(data),
           _raise(raise),
           _background(None)
@@ -638,7 +639,7 @@ int main(int argc, char* argv[])
     Geometry gm = { 0, 0, WIDTH_DEFAULT, HEIGHT_DEFAULT };
     int gm_mask = WIDTH_VALUE | HEIGHT_VALUE;
     bool raise;
-    std::wstring title = L"pekwm_dialog";
+    std::wstring title;
     std::string config_file = Util::getEnv("PEKWM_CONFIG_FILE");
     std::string image_name;
     std::vector<std::wstring> options;

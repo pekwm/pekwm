@@ -6,6 +6,7 @@
 // See the LICENSE file for more information.
 //
 
+#include "Compat.hh"
 #include "CfgParser.hh"
 #include "Util.hh"
 
