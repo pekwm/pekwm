@@ -1,9 +1,7 @@
-pekwm_panel overview
-====================
+# pekwm_panel overview
 
 pekwm_panel is a simple panel application bundled with pekwm that aims
-to have a small core and be extensible using external
-scripts.
+to have a small core and be extensible using external scripts.
 
 pekwm_panel integrates with the pekwm themes and aims to support pekwm
 specific window hints.
@@ -11,31 +9,31 @@ specific window hints.
 ## Configuration
 
 The default configuration is placed in _~/.pekwm/panel_ and configures
-the _widgets_ displayed, panel placement and external _commands_.
+the _widgets_ displayed, panel _placement_ and external _commands_.
 
-* Placement, Top or Bottom
+**Placement** _Top_ or _Bottom_
 
-## Widgets
+### Widgets
 
-All widgets share two common configuration parameters
+All widgets share two common configuration parameters.
 
-### Common configuration
+#### Common configuration
 
 **Size**
 
-The size controls how much of the panel each widget is going to
-consume and can be specified in one of the below units.
+The _Size_ parameter controls how much of the panel each widget is
+going to consume and can be specified in one of the units below.
 
 | Name      | Type    | Description                                                             |
 |-----------|---------|-------------------------------------------------------------------------|
 | Pixels    | Integer | Screen pixels, use only for fixed size widgets                          |
 | Percent   | 1-100   | Percent of total panel width                                            |
-| Required  |         | Calculated required width using the current theme                       |
+| Required  | NA      | Calculated required width using the current theme                       |
 | TextWidth | String  | Width of the provided string using the current theme                    |
 | *         | NA      | Use rest of available space, divided equally between all widgets with * |
 
-Using the configuration below would distribute the available 800
-pixels as follows:
+The configuration below would distribute the available
+800 pixels as follows:
 
 * WorkspaceNumber, Size = "Required"
 * ExternalData, Size = "Pixels 300"
@@ -51,19 +49,19 @@ For simplicity space for the separators is excluded.
   30px        300px                           470px
 ```
 
-** Interval**
+**Interval** update interval in seconds
 
-### Widget: Bar
+#### Widget: Bar
 
-Display a filled bar, where the fill percent is read from a field
-extracted from an external command.
+Display a partially filled bar, where the fill percent is read from
+a field extracted from an external command.
 
-The value should be numeric value between 0.0 and 100.0, values below
-and and above will be set to 0.0 and 100.0 respectively.
+The fill percent should be a numeric value between 0.0 and 100.0,
+values below and and above will be set to 0.0 and 100.0 respectively.
 
-If it is not possible to parse the value it will default ot 0.0.
+If it is not possible to parse the value it will default to 0.0.
 
-Example field output possible to use with the bar that will render the
+Example field output usable with the bar which will render the
 bar at 50%:
 
 ```
@@ -78,10 +76,10 @@ Bar = "field" {
 }
 ```
 
-### Widget: ClientList
+#### Widget: ClientList
 
-Dispay list of clients on the current workspace together with client
-icon if _NET_WM_ICON is set.
+Dispay a list of clients on the current workspace together with the
+client icon if _NET_WM_ICON is set.
 
 Widget configuration:
 
@@ -91,9 +89,9 @@ ClientList {
 }
 ```
 
-### Widget: DateTime
+#### Widget: DateTime
 
-Display date and time using _strftime(3)_ format string.
+Display date and time using a _strftime(3)_ format string.
 
 Widget configuration:
 
@@ -104,13 +102,13 @@ DateTime = "%Y-%m-%d %H:%M" {
 }
 ```
 
-### Widget: ExternalData
+#### Widget: ExternalData
 
-Display external data for a given field extracted from an external
+Display external data from a given field extracted from an external
 command. The widget is updated whenever the data field is updated.
 
-It is recommended to use _TextWidth_ as size to handle font size
-differences between themes.
+It is recommended to use _TextWidth_ for the _Size_ parameter to
+handle font size differences between themes.
 
 Widget configuration:
 
@@ -120,7 +118,7 @@ ExternalData = "field" {
 }
 ```
 
-### Widget: WorkspaceNumber
+#### Widget: WorkspaceNumber
 
 Widget displaying the current workspace number.
 
@@ -132,10 +130,10 @@ WorkspaceNumber {
 }
 ```
 
-## Commands
+### Commands
 
 The **Commands** section of the panel configuration includes
-configuration for external commands pekwm_panel will run at given
+configuration for external commands which pekwm_panel will run at given
 intervals to collect data displayed by the _ExternalData_ and _Bar_
 widgets.
 
@@ -158,7 +156,7 @@ widgets requiring external data.
 It is recommended to use long-running commands if frequent updates of
 the displayed data is required.
 
-A simple example creating displaying updated time every second without
+A simple example displaying the current time every second without
 using the _DateTime_ widget could look this:
 
 **date.sh**
@@ -167,7 +165,7 @@ using the _DateTime_ widget could look this:
 #!/bin/sh
 
 while `/usr/bin/true`; do
-    echo data `date`
+    echo date `date`
     sleep 1
 done
 ```
