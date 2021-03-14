@@ -107,7 +107,7 @@ public:
         std::string _value; /**< Value of node. */
 
         int _line;
-        const std::string &_source_name;
+        std::string _source_name;
     };
 
 

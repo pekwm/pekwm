@@ -73,7 +73,7 @@ protected:
     }
 
 protected:
-    const std::string &_name; /**< Name of source. */
+    std::string _name; /**< Name of source. */
     CfgParserSource::Type _type; /**< Type of source. */
     uint _line; /**< Line number. */
     bool _is_dynamic; /**< Set to true if source has dynamic content. */
