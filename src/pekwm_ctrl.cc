@@ -9,6 +9,7 @@
 #include "pekwm.hh"
 #include "Compat.hh"
 #include "Charset.hh"
+#include "Debug.hh" 
 #include "RegexString.hh"
 #include "Util.hh"
 #include "X11.hh"

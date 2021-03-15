@@ -86,14 +86,6 @@ stop(int write_fd, const std::string &msg, WindowManager *wm)
 int
 main(int argc, char **argv)
 {
-    try {
-        std::locale::global(std::locale(""));
-    } catch (const std::runtime_error &e) {
-        ERR("The environment variables specify an unknown C++ locale - "
-            "falling back to C's setlocale().");
-        setlocale(LC_ALL, "");
-    }
-
     Charset::init();
 
     // get the args and test for different options

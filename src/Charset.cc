@@ -9,6 +9,10 @@
 #include "Charset.hh"
 #include "Debug.hh"
 
+#include <locale>
+#include <iomanip>
+#include <stdexcept>
+
 extern "C" {
 #include <string.h>
 #include <iconv.h>
@@ -103,6 +107,12 @@ do_iconv(iconv_t ic, const char **inp, size_t *in_bytes,
 #endif // ICONV_CONST
 }
 
+class NoGroupingNumpunct : public std::numpunct<char>
+{
+protected:
+    virtual std::string do_grouping(void) const { return ""; } 
+};
+
 namespace Charset
 {
     /**
@@ -112,6 +122,15 @@ namespace Charset
     void
     init(void)
     {
+        try {
+            std::locale locale(std::locale(""), new NoGroupingNumpunct());
+            std::locale::global(locale);
+	} catch (const std::runtime_error &e) {
+            ERR("The environment variables specify an unknown C++ locale - "
+                "falling back to C's setlocale().");
+            setlocale(LC_ALL, "");
+        }
+
         // Cleanup previous init if any, being paranoid.
         destruct();
 
