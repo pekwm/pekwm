@@ -97,7 +97,7 @@ in one go.
         -Window $window1
 
     [shell test_client-1]
-        !$_CTRL_C_
+        !
         ?SH-PROMPT:
         [log stopped test client 1 $window1]
 
@@ -129,7 +129,7 @@ in one go.
         ?Window $window1
         ?Window $window2
         ?END WINDOWS
-        !$_CTRL_C_
+        !
         ?SH-PROMPT:
 [endfunction]
 
@@ -143,7 +143,7 @@ in one go.
         ?BEGIN WINDOWS
         ?Window $window2
         ?END WINDOWS
-        !$_CTRL_C_
+        !
         ?SH-PROMPT:
 [endfunction]
 

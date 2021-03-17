@@ -10,6 +10,8 @@ extern "C" {
 #include <X11/Xatom.h>
 }
 
+#include "test_util.hh"
+
 void
 query_pointer(Display *dpy, int screen, Window root)
 {
@@ -52,7 +54,7 @@ window(Display *dpy, int screen, Window root)
     std::cout << "WindowHex " << std::showbase << std::hex << win << std::endl;
 
     XEvent ev;
-    while (! XNextEvent(dpy, &ev)) {
+    while (next_event(dpy, &ev)) {
     }
 }
 

@@ -6,6 +6,8 @@ extern "C" {
 #include <X11/Xatom.h>
 }
 
+#include "test_util.hh"
+
 unsigned char*
 get_propery(Display *dpy, Window root, Atom atom,
             unsigned long rread, unsigned long *nread, unsigned long *nleft)
@@ -67,7 +69,7 @@ main(int argc, char *argv[])
     // wait for property notify on window, then read the _NET_FRAME_EXTENTS
     std::cout << "PROGRESS: wait for PropertyNotify" << std::endl;
     XEvent ev;
-    while (! XNextEvent(dpy, &ev)) {
+    while (next_event(dpy, &ev)) {
         if (ev.type != PropertyNotify) {
             std::cout << "ERROR: got event " << ev.type << std::endl;
             exit(1);
