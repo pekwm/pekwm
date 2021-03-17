@@ -148,17 +148,28 @@ in one go.
 [endfunction]
 
 [function test_warp_pointer]
-    [log test_warp_pointer]
-    !$BIN_DIR/pekwm_ctrl WarpPointer 100 100
-    ?SH-PROMPT:
-    !$TEST_DIR/test_client query_pointer
-    ?root x 100 y 100
-    ?SH-PROMPT:
-    !$BIN_DIR/pekwm_ctrl WarpPointer 300 300
-    ?SH-PROMPT:
-    !$TEST_DIR/test_client query_pointer
-    ?root x 300 y 300
-    ?SH-PROMPT:
+    [shell test]
+        [log test_warp_pointer]
+        !$BIN_DIR/pekwm_ctrl WarpPointer 100 100
+        ?SH-PROMPT:
+
+    [shell pekwm]
+        ?run action 60 wo 0
+
+    [shell test]
+        !$TEST_DIR/test_client query_pointer
+        ?root x 100 y 100
+        ?SH-PROMPT:
+        !$BIN_DIR/pekwm_ctrl WarpPointer 300 300
+        ?SH-PROMPT:
+
+    [shell pekwm]
+        ?run action 60 wo 0
+
+    [shell test]
+        !$TEST_DIR/test_client query_pointer
+        ?root x 300 y 300
+        ?SH-PROMPT:
 [endfunction]
 
 [function test_cfg_deny_resize_inc]
@@ -235,7 +246,7 @@ in one go.
 
     [shell pekwm]
         ?client constructed
-        ?transient for changed from (0x)?0 to (.*)
+        ?transient for changed from (0x)?0 to (0x[0-9a-f]+)
         [local client=$2]
         ?client constructed
 
@@ -244,6 +255,7 @@ in one go.
         ?PROGRESS: destroy transient window 1
 
     [shell pekwm]
+        [log waiting for _transient_for $client to be set to 0]
         ?transient for changed from $client to (0x)?0
         ?client for window .* destructed
 
@@ -282,7 +294,7 @@ in one go.
         ?transient [0-9]+ set to [0-9]+
 
     [shell pekwm]
-        ?transient for changed from (0x)?0 to (.*)
+        ?transient for changed from (0x)?0 to (0x[0-9a-f]+)
         [local client=$2]
 
     [shell test_transient_for]
@@ -290,6 +302,7 @@ in one go.
         ?PROGRESS: destroy main window
 
     [shell pekwm]
+        [log waiting for _transient_for $client to be set to 0]
         ?transient for changed from $client to (0x)?0
         ?client for window .* destructed
 
@@ -310,7 +323,7 @@ in one go.
         ?transient [0-9]+ set to [0-9]+
 
     [shell pekwm]
-        ?transient for changed from (0x)?0 to (.*)
+        ?transient for changed from (0x)?0 to (0x[0-9a-f]+)
         [local client1=$2]
 
     [shell test_transient_for]
@@ -319,9 +332,9 @@ in one go.
         ?transient [0-9]+ set to [0-9]+
 
     [shell pekwm]
-        ?transient for changed from (0x)?0 to (.*)
+        ?transient for changed from (0x)?0 to (0x[0-9a-f]+)
         [local client2=$2]
-        ?transient for changed from (0x)?0 to (.*)
+        ?transient for changed from (0x)?0 to (0x[0-9a-f]+)
         [local client3=$2]
 
     [shell test_transient_for]
@@ -432,7 +445,7 @@ in one go.
     [log starting Xvfb]
     -Fatal server error
     !Xvfb -screen 0 1024x768x24 -dpi 96 -displayfd 1 $DISPLAY
-    ?1
+    ?^1
 
 [shell pekwm]
     [call init-shell]

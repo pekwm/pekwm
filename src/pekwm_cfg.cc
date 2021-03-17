@@ -20,8 +20,8 @@ extern "C" {
 
 static void usage(const char* name, int ret)
 {
-    std::cout << "usage: " << name << " [-j]" << std::endl
-              << "  -j --json file    dump file as JSON" << std::endl;
+    std::cout << "usage: " << name << " [-j]" << std::endl;
+    std::cout << "  -j --json file    dump file as JSON" << std::endl;
     exit(ret);
 }
 
@@ -67,8 +67,10 @@ jsonDump(const std::string& path,
          const std::map<std::string, std::string> &cfg_env)
 {
     CfgParser cfg;
-    for (auto it : cfg_env) {
-        cfg.setVar(it.first, it.second);
+    std::map<std::string, std::string>::const_iterator it =
+        cfg_env.begin();
+    for (; it != cfg_env.end(); ++it) {
+        cfg.setVar(it->first, it->second);
     }
     cfg.parse(path);
 

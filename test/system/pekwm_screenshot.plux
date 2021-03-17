@@ -13,7 +13,7 @@ Start a single Xvfb pekwm_screenshot system tests in one go.
     [log starting Xvfb]
     -Fatal server error
     !Xvfb -displayfd 1 $DISPLAY
-    ?1
+    ?^1
 
 [shell pekwm_screenshot]
     ?SH-PROMPT:

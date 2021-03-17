@@ -19,6 +19,29 @@
 class PImage;
 
 /**
+ * Reference counted entry.
+ */
+class ImageRefEntry {
+public:
+    ImageRefEntry(const std::string& u_name, PImage* data = nullptr);
+    ~ImageRefEntry(void);
+
+    PImage* get(void) { return _data; }
+    void set(PImage* data) { _data = data; }
+
+    const std::string& getUName(void) { return _u_name; }
+
+    uint getRef(void) const { return _ref; }
+    uint incRef(void);
+    uint decRef(void);
+
+private:
+    std::string _u_name;
+    PImage* _data;
+    uint _ref;
+};
+
+/**
  * ImageHandler, a caching and image type transparent image handler.
  */
 class ImageHandler {
@@ -44,34 +67,31 @@ public:
                            const std::string& colormap);
     void returnMappedImage(PImage *image, const std::string& colormap);
 
-    void clearColorMaps(void) {
-        _color_maps.clear();
-        _color_maps.emplace(std::make_pair("", std::map<int,int>()));
-    }
-    void addColorMap(const std::string& name, std::map<int,int> color_map) {
-        _color_maps[name] = color_map;
-    }
+    void clearColorMaps(void);
+    void addColorMap(const std::string& name, std::map<int,int> color_map);
 
 private:
     PImage *getImage(const std::string &file, uint &ref,
-                     Util::StringMap<Util::RefEntry<PImage*>> &images);
-    PImage *getImageFromPath(const std::string &file, uint &ref,
-                             Util::StringMap<Util::RefEntry<PImage*>> &images);
+                     std::vector<ImageRefEntry> &images);
+    PImage *getImageFromPath(const std::string &file,
+                             const std::string &u_file,
+                             uint &ref,
+                             std::vector<ImageRefEntry> &images);
 
     void mapColors(PImage *image, const std::map<int,int> &color_map);
 
     static void returnImage(PImage *image,
-                            Util::StringMap<Util::RefEntry<PImage*>> &images);
+                            std::vector<ImageRefEntry> &images);
 private:
 
     /** List of directories to search. */
     std::vector<std::string> _search_path;
     /** Loaded images. */
-    Util::StringMap<Util::RefEntry<PImage*>> _images;
+    std::vector<ImageRefEntry> _images;
     /** Loaded images with color mapped data. */
-    Util::StringMap<Util::StringMap<Util::RefEntry<PImage*>>> _images_mapped;
+    std::map<std::string, std::vector<ImageRefEntry>> _images_mapped;
 
-    Util::StringMap<std::map<int, int>> _color_maps;
+    std::map<std::string, std::map<int, int>> _color_maps;
 };
 
 namespace pekwm

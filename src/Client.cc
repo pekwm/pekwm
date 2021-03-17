@@ -163,7 +163,8 @@ Client::~Client(void)
 
     _wo_map.erase(_window);
     woListRemove(this);
-    Util::vectorRemove(_clients, this);
+    _clients.erase(std::remove(_clients.begin(), _clients.end(), this),
+                   _clients.end());
     returnClientID(_id);
 
     X11::grabServer();
@@ -987,8 +988,8 @@ Client::readPekwmHints(void)
     }
 
     // Get custom title
-    if (X11::getString(_window, PEKWM_TITLE, str)) {
-        _title.setUser(Charset::to_wide_str(str));
+    if (X11::getUtf8String(_window, PEKWM_TITLE, str)) {
+        _title.setUser(Charset::from_utf8_str(str));
     }
 
     _state.initial_frame_order = getPekwmFrameOrder();
@@ -1798,7 +1799,9 @@ Client::removeTransient(Client *transient)
 {
     TRACE(this << " remove transient: " << transient);
     assert(transient != this);
-    Util::vectorRemove(_transients, transient);
+    _transients.erase(std::remove(_transients.begin(), _transients.end(),
+                                  transient),
+                      _transients.end());
 }
 
 void
@@ -1898,8 +1901,10 @@ void
 Client::setClientEnvironment(Client *client)
 {
     if (client) {
-        setenv("CLIENT_PID", Util::to_string<long>(client->isRemote() ? -1 : client->getPid()).c_str(), 1);
-        setenv("CLIENT_WINDOW", Util::to_string<Window>(client->getWindow()).c_str(), 1);
+        setenv("CLIENT_PID",
+               std::to_string(client->isRemote()
+                              ? -1 : client->getPid()).c_str(), 1);
+        setenv("CLIENT_WINDOW", std::to_string(client->getWindow()).c_str(), 1);
     } else {
         unsetenv("CLIENT_PID");
         unsetenv("CLIENT_WINDOW");

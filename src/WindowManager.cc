@@ -628,25 +628,23 @@ WindowManager::restart(std::string command)
 void
 WindowManager::handleSignals(void)
 {
-    TRACE("handle received signal(s):"
-          << " SIGALRM " << is_signal_alrm
-          << " SIGHUP " << is_signal_hup
-          << " SIGCHILD " << is_signal_chld);
-
     // SIGALRM used to timeout workspace indicator
     if (is_signal_alrm) {
+        TRACE("handle SIGALRM");
         is_signal_alrm = false;
         Workspaces::hideWorkspaceIndicator();
     }
 
     // SIGHUP
     if (is_signal_hup || _reload) {
+        TRACE("handle SIGHUP or reload");
         is_signal_hup = false;
         doReload();
     }
 
     // Wait for children if a SIGCHLD was received
     if (is_signal_chld) {
+        TRACE("handle SIGHUP");
         pid_t pid;
         do {
             pid = waitpid(WAIT_ANY, nullptr, WNOHANG);
@@ -1373,9 +1371,14 @@ WindowManager::handleNetRequestFrameExtents(Window win)
         extents[1] = theme_gm.bdRight(state);
         extents[2] = theme_gm.bdTop(state) + theme_gm.titleHeight(state);
         extents[3] = theme_gm.bdBottom(state);
-        TRACE("setting _NET_FRAME_EXTENTS (" << extents[0] << " "
-              << extents[1] << " " << extents[2] << " " << extents[3]
-              << ") on " << win);
+
+        if (Debug::isLevel(Debug::LEVEL_TRACE)) {
+            std::ostringstream msg;
+            msg << "setting _NET_FRAME_EXTENTS (" << extents[0] << " ";
+            msg << extents[1] << " " << extents[2] << " " << extents[3];
+            msg << ") on " << win;
+            TRACE(msg.str());
+        }
         X11::setCardinals(win, NET_FRAME_EXTENTS, extents, 4);
     }
 }
@@ -1512,6 +1515,7 @@ WindowManager::handlePekwmCmd(XClientMessageEvent *ev)
     }
 
     Action action;
+    TRACE("received _PEKWM_CMD: " << _pekwm_cmd_buf);
     if (ActionConfig::parseAction(_pekwm_cmd_buf, action, CMD_OK)) {
         ActionEvent ae;
         ae.action_list.push_back(action);

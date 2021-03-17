@@ -14,8 +14,8 @@
 #include "PImageLoaderPng.hh"
 #include "PImageLoaderXpm.hh"
 #include "Util.hh"
-#include "X11.hh"
 
+#include <cstring>
 #include <memory>
 
 extern "C" {
@@ -33,7 +33,7 @@ destroyXImage(XImage *ximage)
 /**
  * Create pixel value suitable for ximage from R, G and B.
  */
-static inline ulong
+static ulong
 getPixelFromRgb(XImage* ximage, uchar r, uchar g, uchar b)
 {
     // 5 R, 5 G, 5 B (15 bit display)
@@ -63,7 +63,7 @@ getPixelFromRgb(XImage* ximage, uchar r, uchar g, uchar b)
 /**
  * Fill in RGB values from pixel value from ximage.
  */
-static inline void
+static void
 getRgbFromPixel(XImage *ximage, ulong pixel, uchar &r, uchar &g, uchar &b)
 {
     // 5 R, 5 G, 5 B (15 bit display)
@@ -197,8 +197,9 @@ PImage::load(const std::string &file)
 #endif // HAVE_IMAGE_XPM
     {
         // no loader matched
+        _data = nullptr;
     }
-    
+
     return _data != nullptr;
 }
 
@@ -394,9 +395,13 @@ PImage::drawAlphaFixed(Render &rend, int x, int y, uint width, uint height,
 {
     auto dest_image = rend.getImage(x, y, width, height);
     if (! dest_image) {
-        ERR("failed to get image for area "
-            << " x " << x << " y " << y
-            << " width " << width << " height " << height);
+        if (Debug::isLevel(Debug::LEVEL_ERR)) {
+            std::ostringstream msg;
+            msg << "failed to get image for area ";
+            msg << " x " << x << " y " << y;
+            msg << " width " << width << " height " << height;
+            ERR(msg.str());
+        }
         return;
     }
 

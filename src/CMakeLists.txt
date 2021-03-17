@@ -12,13 +12,15 @@ set(util_SOURCES
   Charset.cc
   Compat.cc
   Debug.cc
+  Observable.cc
   RegexString.cc
   Util.cc)
 
 set(x11_SOURCES
   PWinObj.cc
   X11.cc
-  X11Util.cc)
+  X11Util.cc
+  X11App.cc)
 
 set(texture_SOURCES
   Action.cc
@@ -31,7 +33,8 @@ set(texture_SOURCES
   PTexturePlain.cc
   Render.cc
   TextureHandler.cc
-  Theme.cc)
+  Theme.cc
+  ThemeGm.cc)
 
 set(wm_SOURCES
   ActionHandler.cc
@@ -43,14 +46,17 @@ set(wm_SOURCES
   CmdDialog.cc
   Config.cc
   DockApp.cc
+  FocusToggleEventHandler.cc
   Frame.cc
   FrameListMenu.cc
   Globals.cc
   Harbour.cc
   InputDialog.cc
   KeyGrabber.cc
+  KeyboardMoveResizeEventHandler.cc
   ManagerWindows.cc
   MenuHandler.cc
+  MoveEventHandler.cc
   PDecor.cc
   PMenu.cc
   StatusWindow.cc

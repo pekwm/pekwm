@@ -10,7 +10,6 @@
 
 #include "config.h"
 #include "Render.hh"
-#include "pekwm.hh"
 
 #include <string>
 

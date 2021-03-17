@@ -9,7 +9,7 @@
 #include "pekwm.hh"
 #include "Compat.hh"
 #include "Charset.hh"
-#include "Debug.hh" 
+#include "Debug.hh"
 #include "RegexString.hh"
 #include "Util.hh"
 #include "X11.hh"
@@ -31,12 +31,12 @@ enum CtrlAction {
 #ifndef UNITTEST
 static void usage(const char* name, int ret)
 {
-    std::cout << "usage: " << name << " [-acdhs] [command]" << std::endl
-              << "  -a --action [run|focus|list] Control action" << std::endl
-              << "  -c --client pattern Client pattern" << std::endl
-              << "  -d --display dpy    Display" << std::endl
-              << "  -h --help           Display this information" << std::endl
-              << "  -w --window window  Client window" << std::endl;
+    std::cout << "usage: " << name << " [-acdhs] [command]" << std::endl;
+    std::cout << "  -a --action [run|focus|list] Control action" << std::endl;
+    std::cout << "  -c --client pattern Client pattern" << std::endl;
+    std::cout << "  -d --display dpy    Display" << std::endl;
+    std::cout << "  -h --help           Display this information" << std::endl;
+    std::cout << "  -w --window window  Client window" << std::endl;
     exit(ret);
 }
 
@@ -68,7 +68,7 @@ static std::wstring readClientName(Window win)
 static std::wstring readPekwmTitle(Window win)
 {
     std::string name;
-    if (X11::getString(win, PEKWM_TITLE, name)) {
+    if (X11::getUtf8String(win, PEKWM_TITLE, name)) {
         return Charset::from_utf8_str(name);
     }
     return L"";
@@ -164,12 +164,15 @@ static bool listClients(void)
 
     for (uint i = 0; i < actual; i++) {
         auto name = readClientName(windows[i]);
-        std::wcout << windows[i] << L" " << name;
+        auto mb_name = Charset::to_mb_str(name);
         auto pekwm_title = readPekwmTitle(windows[i]);
-        if (! pekwm_title.empty()) {
-            std::wcout << L" (" << pekwm_title << ")";
+        auto mb_pekwm_title = Charset::to_mb_str(pekwm_title);
+
+        std::cout << windows[i] << " " << mb_name;
+        if (! mb_pekwm_title.empty()) {
+            std::cout << " (" << mb_pekwm_title << ")";
         }
-        std::wcout << std::endl;
+        std::cout << std::endl;
     }
 
     X11::free(windows);
@@ -189,12 +192,6 @@ int main(int argc, char* argv[])
         {"window", required_argument, NULL, 'w'},
         {NULL, 0, NULL, 0}
     };
-
-    try {
-        std::locale::global(std::locale(""));
-    } catch (const std::runtime_error &e) {
-        setlocale(LC_ALL, "");
-    }
 
     Charset::init();
 
@@ -230,7 +227,7 @@ int main(int argc, char* argv[])
             }
             try {
                 client = std::stoi(optarg);
-            } catch (std::invalid_argument& ex) {
+            } catch (std::invalid_argument&) {
                 std::cerr << "invalid client id " << optarg
                           << " given, expect a number" << std::endl;
             }
@@ -263,8 +260,8 @@ int main(int argc, char* argv[])
     if (client_re.is_match_ok()) {
         client = findClient(client_re);
         if (client == None) {
-            std::wcerr << "no client match "
-                       << client_re.getPattern() << std::endl;
+            std::cerr << "no client match ";
+            std::cerr << Charset::to_utf8_str(client_re.getPattern()) << std::endl;
             return 1;
         }
     }

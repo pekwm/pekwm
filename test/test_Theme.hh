@@ -25,8 +25,9 @@ public:
         ASSERT_EQUAL("environment error", true, section != nullptr);
 
         auto it = section->begin();
-        Theme::ColorMap color_map;
-        ASSERT_EQUAL("load failed", true, color_map.load((*it)->getSection()));
+        std::map<int, int> color_map;
+        ASSERT_EQUAL("load failed", true, Theme::ColorMap::load((*it)->getSection(),
+								color_map));
         ASSERT_EQUAL("invalid count", 2, color_map.size());
     }
 };

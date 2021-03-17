@@ -1,6 +1,6 @@
 //
 // Completer.cc for pekwm
-// Copyright (C) 2009-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2009-2021 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -27,7 +27,41 @@ extern "C" {
 #include "PWinObj.hh"
 #include "MenuHandler.hh"
 
-typedef std::pair<std::wstring, std::wstring> comp_pair;
+CompPair::CompPair(const std::wstring& _first,
+                   const std::wstring& _second)
+    : first(_first),
+      second(_second)
+{
+}
+
+CompPair::~CompPair(void)
+{
+}
+
+bool
+CompPair::operator==(const CompPair& rhs) const
+{
+    return first == rhs.first && second == rhs.second;
+}
+
+bool
+CompPair::operator<(const CompPair& rhs) const
+{
+    if (first == rhs.first) {
+        return second < rhs.second;
+    }
+    return first < rhs.first;
+}
+
+bool CompPair_lt(const CompPair& lhs, const CompPair& rhs)
+{
+    return lhs < rhs;
+}
+
+bool CompPair_equal(const CompPair& lhs, const CompPair& rhs)
+{
+    return lhs == rhs;
+}
 
 /**
  * Build completions_list from a container of strings.
@@ -39,13 +73,15 @@ completions_list_from_name_list(T name_list, completions_list &completions_list)
     completions_list.clear();
     typename T::const_iterator it(name_list.begin());
     for (; it != name_list.end(); ++it) {
-        auto name(Charset::to_wide_str(*it));
+        auto name = Charset::to_wide_str(*it);
         auto name_lower(name);
         Util::to_lower(name_lower);
-        completions_list.push_back(comp_pair(name_lower, name));
+        completions_list.push_back(CompPair(name_lower, name));
     }
-    std::unique(completions_list.begin(), completions_list.end());
-    std::sort(completions_list.begin(), completions_list.end());
+    std::unique(completions_list.begin(), completions_list.end(),
+                CompPair_equal);
+    std::sort(completions_list.begin(), completions_list.end(),
+              CompPair_lt);
 }
 
 /**
@@ -61,7 +97,7 @@ public:
     virtual ~CompleterMethod(void) { }
 
     /** Find completions for string. */
-    virtual unsigned int complete(CompletionState &completion_state) {
+    virtual unsigned int complete(CompletionState&) {
         return 0;
     }
     /** Refresh completion list. */
@@ -138,24 +174,39 @@ public:
     }
 
 private:
-    //! Refresh single directory.
-    void refresh_path(DIR *dh, const std::wstring path)
-    {
-        struct dirent *entry;
-        while ((entry = readdir(dh)) != 0) {
-            if (entry->d_name[0] == '.') {
-                continue;
-            }
-
-            auto name(Charset::to_wide_str(entry->d_name));
-            _path_list.push_back(comp_pair(name, name));
-            _path_list.push_back(comp_pair(path + L"/" + name,
-                                           path + L"/" + name));
-        }
-    }
+    void refresh_path(DIR *dh, const std::wstring& path);
+    void add_path(const std::wstring& name, const std::wstring& path_name);
 
     completions_list _path_list; /**< List of all elements in path. */
 };
+
+/**
+ * Refresh single directory.
+ */
+void
+PathCompleterMethod::refresh_path(DIR *dh, const std::wstring& path)
+{
+    struct dirent *entry;
+    while ((entry = readdir(dh)) != 0) {
+        if (entry->d_name[0] == '.') {
+            continue;
+        }
+
+        auto name = Charset::to_wide_str(entry->d_name);
+        auto path_name = path + L"/" + name;
+        add_path(name, path_name);
+    }
+}
+
+void
+PathCompleterMethod::add_path(const std::wstring& name,
+                              const std::wstring& path_name)
+{
+    CompPair nn(name, name);
+    _path_list.push_back(nn);
+    CompPair pp(path_name, path_name);
+    _path_list.push_back(pp);
+}
 
 /**
  * Action completer, provides completion of all available actions in
@@ -197,10 +248,8 @@ public:
         State _state; /**< State */
     };
 
-    /** Constructor for ActionCompleter method. */
-    ActionCompleterMethod(void) : CompleterMethod() { refresh(); }
-    /** Destructor for ActionCompleterMethod */
-    virtual ~ActionCompleterMethod(void) { }
+    ActionCompleterMethod(void);
+    virtual ~ActionCompleterMethod(void);
 
     virtual unsigned int complete(CompletionState &state) {
         State type_state = find_state(state);
@@ -218,14 +267,7 @@ public:
     }
 
     //! Build list of completions from available actions.
-    virtual void refresh(void) {
-        completions_list_from_name_list(ActionConfig::getActionNameList(),
-                                        _action_list);
-        completions_list_from_name_list(ActionConfig::getStateNameList(),
-                                        _state_list);
-        completions_list_from_name_list(MenuHandler::getMenuNames(),
-                                        _menu_list);
-    }
+    virtual void refresh(void);
 
     void clear(void) { }
 
@@ -236,8 +278,30 @@ private:
     completions_list _action_list; /**< List of all available actions. */
     completions_list _state_list; /**< List of parameters to state actions. */
     completions_list _menu_list; /**< List of parameters to state actions. */
-    static StateMatch STATE_MATCHES[]; /**< List of known states with matching data. */
+    /**< List of known states with matching data. */
+    static StateMatch STATE_MATCHES[];
 };
+
+ActionCompleterMethod::ActionCompleterMethod(void)
+    : CompleterMethod()
+{
+    refresh();
+}
+
+ActionCompleterMethod::~ActionCompleterMethod(void)
+{
+}
+
+void
+ActionCompleterMethod::refresh(void)
+{
+    completions_list_from_name_list(ActionConfig::getActionNameList(),
+                                    _action_list);
+    completions_list_from_name_list(ActionConfig::getStateNameList(),
+                                    _state_list);
+    completions_list_from_name_list(MenuHandler::getMenuNames(),
+                                    _menu_list);
+}
 
 ActionCompleterMethod::StateMatch ActionCompleterMethod::STATE_MATCHES[] = {
   StateMatch(ActionCompleterMethod::STATE_STATE, L"set"),

@@ -32,14 +32,14 @@ public:
     /**
      * Color map for mapping colors in images.
      */
-    class ColorMap : public std::map<int,int> {
+    class ColorMap {
     public:
-        bool load(CfgParser::Entry *section);
-        void unload(void);
+        static bool load(CfgParser::Entry *section,
+                         std::map<int,int> &map);
 
     protected:
-        int parseColor(const std::string& str);
-        uchar parseHex(const char *p);
+        static int parseColor(const std::string& str);
+        static uchar parseHex(const char *p);
     };
 
     //! @brief Theme data parser and container for PDecor::Button
@@ -109,9 +109,7 @@ public:
         //! @brief Returns title maximum width in procent.
         inline int getTitleWidthMax(void) const { return _title_width_max; }
         //! @brief Returns title text pad for dir.
-        inline uint getPad(PadType pad) const {
-            return _pad[(pad != PAD_NO) ? pad : 0];
-        }
+        uint getPad(PadType pad) const;
 
         //! @brief Returns wheter all items in the title have same width.
         inline bool isTitleWidthSymetric(void) const {
@@ -421,9 +419,7 @@ public:
     const std::string& getThemeDir(void) const { return _theme_dir; }
     const std::string& getBackground(void) const { return _background; }
 
-    const ColorMap& getColorMap(const std::string& name) {
-        return _color_maps.get(name);
-    }
+    ColorMap* getColorMap(const std::string& name);
 
     Util::StringMap<PDecorData*>::const_iterator
     decor_begin(void) {
@@ -477,7 +473,7 @@ private:
     std::string _theme_file;
     int _version;
     std::string _background;
-    Util::StringMap<ColorMap> _color_maps;
+    std::map<std::string, ColorMap> _color_maps;
     TimeFiles _cfg_files;
 
     bool _loaded;

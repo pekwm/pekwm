@@ -14,14 +14,8 @@
 class TestAction : public Action,
                    public TestSuite {
 public:
-    TestAction()
-        : Action(),
-          TestSuite("Action")
-    {
-        register_test("construct", TestAction::testConstruct);
-        register_test("ParamI", TestAction::testParamI);
-        register_test("ParamS", TestAction::testParamS);
-    }
+    TestAction(void);
+    virtual ~TestAction(void);
 
     static void testConstruct(void) {
         Action a;
@@ -123,12 +117,27 @@ public:
                              std::vector<int> e_int,
                              std::vector<std::string> e_str) {
         for (uint i = 0; i < e_int.size(); i++) {
-            ASSERT_EQUAL(msg + " I " + std::to_string(i),
+            auto is = std::to_string(i);
+            ASSERT_EQUAL(msg + " I " + is,
                          e_int[i], action.getParamI(i));
         }
         for (uint i = 0; i < e_str.size(); i++) {
-            ASSERT_EQUAL(msg + " S " + std::to_string(i),
+            auto is = std::to_string(i);
+            ASSERT_EQUAL(msg + " S " + is,
                          e_str[i], action.getParamS(i));
         }
     }
 };
+
+TestAction::TestAction(void)
+    : Action(),
+      TestSuite("Action")
+{
+    register_test("construct", TestAction::testConstruct);
+    register_test("ParamI", TestAction::testParamI);
+    register_test("ParamS", TestAction::testParamS);
+}
+
+TestAction::~TestAction(void)
+{
+}

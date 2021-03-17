@@ -27,24 +27,40 @@ private:
 #define ASSERT_EQUAL(msg, expected, actual)                             \
     if ((expected) != (actual)) {                                       \
         std::ostringstream oss;                                         \
-        oss << (msg)                                                    \
-            << " expected " << (expected)                               \
-            << " got " << (actual);                                     \
+        oss << (msg);                                                   \
+        oss << " expected " << (expected);                              \
+        oss << " got " << (actual);                                     \
         throw AssertFailed(__FILE__, __LINE__, oss.str());              \
     }
 
+typedef std::function<void()> test_fn;
+
+class Test {
+public:
+    Test(const std::string& _name, test_fn _fn);
+    ~Test(void);
+
+public:
+    std::string name;
+    test_fn fn;
+};
+
+Test::Test(const std::string& _name, test_fn _fn)
+    : name(_name),
+      fn(_fn)
+{
+}
+
+Test::~Test(void)
+{
+}
+
 class TestSuite {
 public:
-    typedef std::function<void()> test_fn;
+    TestSuite(const std::string& name);
+    virtual ~TestSuite(void);
 
-    TestSuite(const std::string& name)
-        : _name(name)
-    {
-         _suites.push_back(this);
-    }
-    virtual ~TestSuite() { }
-
-    static int main(int argc, char *argv[])
+    static int main(int, char **)
     {
         bool status = true;
 
@@ -58,39 +74,56 @@ public:
 
     const std::string& name() const { return _name; }
 
-    void register_test(const std::string& name, test_fn fn)
-    {
-        _tests[name] = fn;
-    };
+    void register_test(const std::string& name, test_fn fn);
 
-    bool test()
-    {
-        bool status = true;
-
-        std::cout << _name << std::endl;
-        typename std::map<std::string, test_fn>::iterator it(_tests.begin());
-        for (; it != _tests.end(); ++it) {
-            try {
-                std::cout << "  * " << it->first << "...";
-                it->second();
-                std::cout << " OK" << std::endl;;
-            } catch (const AssertFailed& ex) {
-                std::cout << " ERROR" << std::endl;;
-                std::cout << "      " << ex.file() << ":" << ex.line() << " "
-                          << _name << "::" << it->first << " " << ex.msg()
-                          << std::endl;
-                status = false;
-            }
-        }
-        return status;
-    }
+    bool test(void);
 
 private:
     std::string _name;
-    std::map<std::string, test_fn> _tests;
+    std::vector<Test> _tests;
 
     static std::vector<TestSuite*> _suites;
 };
+
+TestSuite::TestSuite(const std::string& name)
+    : _name(name)
+{
+    _suites.push_back(this);
+}
+
+TestSuite::~TestSuite(void)
+{
+}
+
+void
+TestSuite::register_test(const std::string& name, test_fn fn)
+{
+    Test test(name, fn);
+    _tests.push_back(test);
+}
+
+bool
+TestSuite::test(void)
+{
+    bool status = true;
+
+    std::cout << _name << std::endl;
+    auto it = _tests.begin();
+    for (; it != _tests.end(); ++it) {
+        try {
+            std::cout << "  * " << it->name << "...";
+            it->fn();
+            std::cout << " OK" << std::endl;;
+        } catch (const AssertFailed& ex) {
+            std::cout << " ERROR" << std::endl;;
+            std::cout << "      " << ex.file() << ":" << ex.line() << " ";
+            std::cout << _name << "::" << it->name << " " << ex.msg();
+            std::cout << std::endl;
+            status = false;
+        }
+    }
+    return status;
+}
 
 std::vector<TestSuite*> TestSuite::_suites;
 

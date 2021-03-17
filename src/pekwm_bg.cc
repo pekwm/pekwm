@@ -57,12 +57,12 @@ static void cleanup()
 
 static void usage(const char* name, int ret)
 {
-    std::cout << "usage: " << name << " [-hl] texture" << std::endl
-              << "  -d --display dpy    Display" << std::endl
-              << "  -D --daemon         Run in the background" << std::endl
-              << "  -h --help           Display this information" << std::endl
-              << "  -l --load-dir path  Search path for images" << std::endl
-              << "  -s --stop           Stop running pekwm_bg" << std::endl;
+    std::cout << "usage: " << name << " [-hl] texture" << std::endl;
+    std::cout << "  -d --display dpy    Display" << std::endl;
+    std::cout << "  -D --daemon         Run in the background" << std::endl;
+    std::cout << "  -h --help           Display this information" << std::endl;
+    std::cout << "  -l --load-dir path  Search path for images" << std::endl;
+    std::cout << "  -s --stop           Stop running pekwm_bg" << std::endl;
     exit(ret);
 }
 

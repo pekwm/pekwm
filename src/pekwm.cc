@@ -173,12 +173,12 @@ main(int argc, char *argv[])
         wm_argv.insert(wm_argv.begin() + 1, "--fd");
         wm_argv.insert(wm_argv.begin() + 2, std::to_string(fd[1]));
 
-        int argc = 0;
+        int c_wm_argc = 0;
         auto c_wm_argv = new char*[wm_argv.size() + 1];
         for (auto it : wm_argv) {
-            c_wm_argv[argc++] = strdup(it.c_str());
+            c_wm_argv[c_wm_argc++] = strdup(it.c_str());
         }
-        c_wm_argv[argc++] = NULL;
+        c_wm_argv[c_wm_argc++] = NULL;
 
         execvp(c_wm_argv[0], c_wm_argv);
 

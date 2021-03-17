@@ -125,9 +125,9 @@ namespace Charset
         try {
             std::locale locale(std::locale(""), new NoGroupingNumpunct());
             std::locale::global(locale);
-	} catch (const std::runtime_error &e) {
-            ERR("The environment variables specify an unknown C++ locale - "
-                "falling back to C's setlocale().");
+        } catch (const std::runtime_error&) {
+            USER_WARN("The environment variables specify an unknown C++ "
+                      "locale - falling back to C's setlocale().");
             setlocale(LC_ALL, "");
         }
 
@@ -186,11 +186,14 @@ namespace Charset
         char *buf = new char[num];
         memset(buf, '\0', num);
 
+        std::string ret_str;
         ret = wcstombs(buf, str.c_str(), num);
         if (ret == static_cast<size_t>(-1)) {
             USER_WARN("failed to convert wide string to multibyte string");
+            ret_str = to_utf8_str(str);
+        } else {
+            ret_str = buf;
         }
-        std::string ret_str(buf);
 
         delete [] buf;
 

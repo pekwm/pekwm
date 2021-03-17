@@ -193,48 +193,18 @@ enum XGeometryMask {
 
 class Geometry {
 public:
-    Geometry(void)
-      : x(0), y(0), width(1), height(1) { }
-    Geometry(int _x, int _y, unsigned int _width, unsigned int _height) :
-      x(_x), y(_y), width(_width), height(_height) { }
-    Geometry(const Geometry &gm)
-      : x(gm.x), y(gm.y), width(gm.width), height(gm.height) { }
-    ~Geometry(void) { }
+    Geometry(void);
+    Geometry(int _x, int _y, unsigned int _width, unsigned int _height);
+    Geometry(const Geometry &gm);
+    ~Geometry(void);
 
     int x, y;
     unsigned int width, height;
 
-    inline Geometry& operator = (const Geometry& gm) {
-        x = gm.x;
-        y = gm.y;
-        width = gm.width;
-        height = gm.height;
-        return *this;
-    }
-    inline bool operator == (const Geometry& gm) {
-        return ((x == gm.x) && (y == gm.y) &&
-                (width == gm.width) && (height == gm.height));
-    }
-    inline bool operator != (const Geometry& gm) {
-        return (x != gm.x) || (y != gm.y) ||
-                (width != gm.width) || (height != gm.height);
-    }
-    inline int diffMask(const Geometry &old_gm) {
-        int mask = 0;
-        if (x != old_gm.x) {
-            mask |= X_VALUE;
-        }
-        if (y != old_gm.y) {
-            mask |= Y_VALUE;
-        }
-        if (width != old_gm.width) {
-            mask |= WIDTH_VALUE;
-        }
-        if (height != old_gm.height) {
-            mask |= HEIGHT_VALUE;
-        }
-        return mask;
-    }
+    Geometry& operator=(const Geometry& gm);
+    bool operator==(const Geometry& gm);
+    bool operator != (const Geometry& gm);
+    int diffMask(const Geometry &old_gm);
 
     friend std::ostream& operator<<(std::ostream& os, const Geometry& gm);
 };
@@ -244,19 +214,11 @@ public:
  */
 class Strut {
 public:
-    Strut(long l=0, long r=0, long t=0, long b=0, int nhead=-1)
-        : left(l), right(r), top(t), bottom(b), head(nhead) { };
-    ~Strut(void) { };
+    Strut(long l=0, long r=0, long t=0, long b=0, int nhead=-1);
+    ~Strut(void);
 
-    bool isSet() const {
-        return left != 0 || right != 0 || top != 0 || bottom != 0;
-    }
-    void clear() {
-        left = 0;
-        right = 0;
-        top = 0;
-        bottom = 0;
-    }
+    bool isSet(void) const;
+    void clear(void);
 
 public: // member variables
     long left; /**< Pixels allocated on the left of the head. */
@@ -265,30 +227,11 @@ public: // member variables
     long bottom; /**< Pixels allocated on the bottom of the head.*/
     int head; /**< Which head is the strut valid for */
 
-    /** Assign values from array of longs. */
-    void operator=(const long *s) {
-        left = s[0];
-        right = s[1];
-        top = s[2];
-        bottom = s[3];
-    }
-    bool operator==(const Strut& rhs) {
-        return left == rhs.left
-            && right == rhs.right
-            && top == rhs.top
-            && bottom == rhs.bottom
-            && head == rhs.head;
-    }
-    bool operator!=(const Strut& rhs) {
-        return !operator==(rhs);
-    }
-    friend std::ostream &operator<<(std::ostream &stream, const Strut &strut) {
-        stream << "Strut l: " << strut.left << " r: " << strut.right
-               << " t: " << strut.top << " b: " << strut.bottom
-               << " head " << strut.head;
-        return stream;
-    }
+    void operator=(const long *s);
+    bool operator==(const Strut& rhs) const;
+    bool operator!=(const Strut& rhs) const;
 
+    friend std::ostream &operator<<(std::ostream &stream, const Strut &strut);
 };
 
 //! Output head, used to share same code with Xinerama and RandR

@@ -18,7 +18,7 @@
 #include "test_Theme.hh"
 #include "test_Util.hh"
 #include "test_WindowManager.hh"
-#include "test_x11.hh"
+#include "test_X11.hh"
 
 int
 main(int argc, char *argv[])
@@ -26,7 +26,7 @@ main(int argc, char *argv[])
     // Setup environment required for the tests
     Config cfg;
     HintWO hint_wo(None);
-    Debug::enable_cerr = false;
+    Debug::setLogFile("/dev/null");
     X11::addHead(Head(0, 0, 800, 600));
 
     // Action

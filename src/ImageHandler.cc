@@ -23,23 +23,50 @@ static Util::StringMap<ImageType> image_type_map =
      {"SCALED", IMAGE_TYPE_SCALED},
      {"FIXED", IMAGE_TYPE_FIXED}};
 
+ImageRefEntry::ImageRefEntry(const std::string& u_name, PImage* data)
+    : _u_name(u_name),
+      _data(data),
+      _ref(1)
+{
+    assert(_data);
+}
+
+ImageRefEntry::~ImageRefEntry(void)
+{
+}
+
+uint
+ImageRefEntry::incRef(void)
+{
+    _ref++;
+    return _ref;
+}
+
+uint
+ImageRefEntry::decRef(void)
+{
+    if (_ref > 0) {
+        _ref--;
+    }
+    return _ref;
+}
+
 ImageHandler::ImageHandler(void)
 {
-    _images[""] = Util::RefEntry<PImage*>(nullptr);
     clearColorMaps();
 }
 
 ImageHandler::~ImageHandler(void)
 {
-    if (_images.size() != 1) {
-        ERR("ImageHandler not empty on destruct, " << _images.size() - 1
-              << " entries left");
+    if (! _images.empty()) {
+        ERR("ImageHandler not empty on destruct, " << _images.size()
+            << " entries left");
 
         while (_images.size()) {
-            auto it = _images.begin();
-            if (it->second.get()) {
-                ERR("delete lost image " << it->first.str());
-                delete it->second.get();
+            auto it = _images.end() - 1;
+            if (it->get()) {
+                ERR("delete lost image " << it->getUName());
+                delete it->get();
             }
             _images.erase(it);
         }
@@ -58,7 +85,7 @@ ImageHandler::getImage(const std::string &file)
 
 PImage*
 ImageHandler::getImage(const std::string &file, uint &ref,
-                       Util::StringMap<Util::RefEntry<PImage*>> &images)
+                       std::vector<ImageRefEntry> &images)
 {
     if (! file.size()) {
         ref = 0;
@@ -79,11 +106,16 @@ ImageHandler::getImage(const std::string &file, uint &ref,
     // already.
     PImage *image = nullptr;
     if (real_file[0] == '/') {
-        image = getImageFromPath(real_file, ref, images);
+        std::string u_real_file(real_file);
+        Util::to_upper(u_real_file);
+        image = getImageFromPath(real_file, u_real_file, ref, images);
     } else {
         auto it(_search_path.rbegin());
         for (; it != _search_path.rend(); ++it) {
-            image = getImageFromPath(*it + real_file, ref, images);
+            auto sp_real_file = *it + real_file;
+            std::string u_sp_real_file(sp_real_file);
+            Util::to_upper(u_sp_real_file);
+            image = getImageFromPath(sp_real_file, u_sp_real_file, ref, images);
             if (image) {
                 break;
             }
@@ -105,29 +137,28 @@ ImageHandler::getImage(const std::string &file, uint &ref,
  * @return PImage or 0 if fails.
  */
 PImage*
-ImageHandler::getImageFromPath(const std::string &file, uint &ref,
-                               Util::StringMap<Util::RefEntry<PImage*>> &images)
+ImageHandler::getImageFromPath(const std::string &file,
+                               const std::string &u_file,
+                               uint &ref,
+                               std::vector<ImageRefEntry> &images)
 {
     // Check cache for entry.
-    Util::RefEntry<PImage*> &entry = images.get(file);
-    if (entry.get() != nullptr) {
-        ref = entry.incRef();
-        return entry.get();
+    auto it = images.begin();
+    for (; it != images.end(); ++it) {
+        if (it->getUName() == u_file) {
+            ref = it->incRef();
+            return it->get();
+        }
     }
 
     // Try to load the image, setup cache only if it succeeds.
     PImage *image;
     try {
         image = new PImage(file);
+        images.push_back(ImageRefEntry(u_file, image));
+        ref = 1;
     } catch (LoadException&) {
         image = nullptr;
-    }
-
-    // Create new PImage and handler entry for it.
-    if (image) {
-        images.emplace(std::make_pair(file, Util::RefEntry<PImage*>(image)));
-        ref = 1;
-    } else {
         ref = 0;
     }
 
@@ -149,24 +180,34 @@ ImageHandler::returnImage(PImage *image)
 void
 ImageHandler::takeOwnership(PImage *image)
 {
-    std::string key = Util::to_string<void*>(static_cast<void*>(image));
-    _images.emplace(std::make_pair(key, Util::RefEntry<PImage*>(image)));
+    auto key = Util::to_string(static_cast<void*>(image));
+    Util::to_upper(key);
+    _images.push_back(ImageRefEntry(key, image));
 }
 
 PImage*
 ImageHandler::getMappedImage(const std::string &file,
                              const std::string &colormap)
 {
-    auto it = _images_mapped.find(colormap);
-    if (it == _images_mapped.end()) {
-        _images_mapped[colormap] = {{"", Util::RefEntry<PImage*>(nullptr)}};
+    std::string u_colormap(colormap);
+    Util::to_upper(u_colormap);
+
+    // no color map present with that name, return no image
+    auto c_it = _color_maps.find(u_colormap);
+    if (c_it == _color_maps.end()) {
+        return nullptr;
+    }
+
+    auto i_it = _images_mapped.find(u_colormap);
+    if (i_it == _images_mapped.end()) {
+        _images_mapped[u_colormap] = std::vector<ImageRefEntry>();
     }
 
     uint ref;
-    auto image = getImage(file, ref, _images_mapped[colormap]);
+    auto image = getImage(file, ref, _images_mapped[u_colormap]);
     if (ref == 1) {
         // new image, requires color mapping.
-        mapColors(image, _color_maps.get(colormap));
+        mapColors(image, _color_maps[u_colormap]);
     }
 
     return image;
@@ -195,18 +236,20 @@ ImageHandler::mapColors(PImage *image, const std::map<int,int> &color_map)
 void
 ImageHandler::returnMappedImage(PImage *image, const std::string &colormap)
 {
-    returnImage(image, _images_mapped[colormap]);
+    std::string u_colormap(colormap);
+    Util::to_upper(u_colormap);
+    returnImage(image, _images_mapped[u_colormap]);
 }
 
 void
 ImageHandler::returnImage(PImage *image,
-                          Util::StringMap<Util::RefEntry<PImage*>> &images)
+                          std::vector<ImageRefEntry> &images)
 {
     auto it = images.begin();
     for (; it != images.end(); ++it) {
-        if (it->second.get() == image) {
-            if (it->second.decRef() == 0) {
-                delete it->second.get();
+        if (it->get() == image) {
+            if (it->decRef() == 0) {
+                delete it->get();
                 images.erase(it);
             }
             return;
@@ -215,4 +258,19 @@ ImageHandler::returnImage(PImage *image,
 
     ERR("returned image " << image << " not found in handler");
     delete image;
+}
+
+void
+ImageHandler::clearColorMaps(void)
+{
+    _color_maps.clear();
+}
+
+void
+ImageHandler::addColorMap(const std::string& name,
+                          std::map<int,int> color_map)
+{
+    std::string u_name(name);
+    Util::to_upper(u_name);
+    _color_maps[u_name] = color_map;
 }

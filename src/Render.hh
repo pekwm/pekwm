@@ -9,9 +9,8 @@
 #pragma once
 
 #include "config.h"
-
-#include "pekwm.hh"
 #include "X11.hh"
+#include "pekwm.hh"
 
 #include <functional>
 
@@ -25,7 +24,8 @@ void renderTiled(const int a_x, const int a_y,
  */
 class Render {
 public:
-    virtual ~Render(void) { }
+    Render(void);
+    virtual ~Render(void);
 
     virtual Drawable getDrawable(void) const = 0;
     virtual XImage *getImage(int x, int y, uint width, uint height) = 0;
@@ -48,7 +48,7 @@ public:
 class X11Render : public Render {
 public:
     X11Render(Drawable draw);
-    virtual ~X11Render(void) { }
+    virtual ~X11Render(void);
 
     virtual Drawable getDrawable(void) const override;
     virtual XImage *getImage(int x, int y, uint width, uint height) override;
@@ -75,7 +75,7 @@ private:
 class XImageRender : public Render {
 public:
     XImageRender(XImage *image);
-    virtual ~XImageRender(void) { }
+    virtual ~XImageRender(void);
 
     virtual Drawable getDrawable(void) const override;
     virtual XImage *getImage(int x, int y, uint width, uint height) override;

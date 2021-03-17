@@ -13,14 +13,8 @@
 class TestRootWO : public TestSuite,
                    public RootWO {
 public:
-    TestRootWO(HintWO *hint_wo, Config *cfg)
-        : TestSuite("RootWO"),
-          RootWO(None, hint_wo, cfg)
-    {
-        register_test("update strut",
-                      std::bind(&TestRootWO::testUpdateStrut, this));
-
-    }
+    TestRootWO(HintWO *hint_wo, Config *cfg);
+    virtual ~TestRootWO(void);
 
     void testUpdateStrut(void) {
         Strut empty = {0, 0, 0, 0, 0};
@@ -41,3 +35,16 @@ public:
         ASSERT_EQUAL("empty (removed)", empty, getStrut(0));
     }
 };
+
+TestRootWO::TestRootWO(HintWO *hint_wo, Config *cfg)
+    : TestSuite("RootWO"),
+      RootWO(None, hint_wo, cfg)
+{
+    register_test("update strut",
+                  std::bind(&TestRootWO::testUpdateStrut, this));
+
+}
+
+TestRootWO::~TestRootWO(void)
+{
+}

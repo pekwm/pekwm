@@ -49,7 +49,7 @@ set_target_properties(test_transient_for PROPERTIES
   CXX_STANDARD 11
   CXX_STANDARD_REQUIRED ON)
 target_include_directories(test_transient_for PUBLIC ${common_INCLUDE_DIR})
-target_link_libraries(test_transient_for util x11 ${common_LIBRARIES})
+target_link_libraries(test_transient_for x11 util ${common_LIBRARIES})
 
 add_executable(test_update_client_list test_update_client_list.cc)
 set_target_properties(test_update_client_list PROPERTIES

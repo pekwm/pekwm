@@ -15,8 +15,6 @@
  */
 class PekwmException
 {
-public:
-    virtual ~PekwmException(void) { }
 };
 
 /**
@@ -29,7 +27,6 @@ public:
         : _msg(msg)
     {
     }
-    virtual ~StopException(void) { }
 
     const char* getMsg(void) const { return _msg; }
 
@@ -43,15 +40,21 @@ private:
 class LoadException : public PekwmException
 {
 public:
-    LoadException(const char *resource)
+    LoadException(const std::string &resource)
         : _resource(resource)
     {
     }
-    virtual ~LoadException(void) { }
 
     /** Get resource string. */
-    const char *getResource(void) const { return _resource; }
+    const std::string& getResource(void) const { return _resource; }
 
 private:
-    const char *_resource; /**< Resource that failed to load. */
+    const std::string _resource; /**< Resource that failed to load. */
+};
+
+/**
+ * Invalid value provided.
+ */
+class ValueException : public PekwmException
+{
 };

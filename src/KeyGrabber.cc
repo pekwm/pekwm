@@ -245,13 +245,15 @@ void
 KeyGrabber::grabKeys(Window win)
 {
     auto chains = _global_chain.getChains();
-    for (auto c_it : chains) {
-        grabKey(win, c_it->getMod(), c_it->getKey());
+    auto c_it = chains.begin();
+    for (; c_it != chains.end(); ++c_it) {
+        grabKey(win, (*c_it)->getMod(), (*c_it)->getKey());
     }
 
     auto keys = _global_chain.getKeys();
-    for (auto k_it : keys) {
-        grabKey(win, k_it.mod, k_it.sym);
+    auto k_it = keys.begin();
+    for (; k_it  != keys.end(); ++k_it) {
+        grabKey(win, k_it->mod, k_it->sym);
     }
 }
 

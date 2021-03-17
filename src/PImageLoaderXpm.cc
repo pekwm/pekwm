@@ -121,10 +121,13 @@ namespace PImageLoaderXpm
             || ! xpm_image.data
             || ! xpm_image.width
             || ! xpm_image.height) {
-            USER_WARN(file << " invalid file information."
-                      << " ncolors: " << xpm_image.ncolors
-                      << " width: " << xpm_image.width
-                      << " height: " << xpm_image.height);
+            std::ostringstream msg;
+            msg << file << " invalid file information.";
+            msg << " ncolors: " << xpm_image.ncolors;
+            msg << " width: " << xpm_image.width;
+            msg << " height: " << xpm_image.height;
+            USER_WARN(msg.str());
+
             return 0;
         }
 

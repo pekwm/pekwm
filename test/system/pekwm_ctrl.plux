@@ -9,16 +9,21 @@ Start a single Xvfb pekwm_ctrl system tests in one go.
 [global DISPLAY=:1]
 
 [function set_title msg title]
-    [log test pekwm_ctrl ($msg)]
-    !$BIN_DIR/pekwm_ctrl -c xterm Set Title $title
-    ?_PEKWM_CMD ([0-9]+) Set Title
-    [global window=$1]
-    ?SH-PROMPT:
+    [shell pekwm_ctrl]
+        [log test pekwm_ctrl ($msg)]
+        !$BIN_DIR/pekwm_ctrl -c xterm Set Title $title
+        ?_PEKWM_CMD ([0-9]+) Set Title
+        [global window=$1]
+        ?SH-PROMPT:
 
-    [log verify xterm title]
-    !$BIN_DIR/pekwm_ctrl -a list
-    ?$window xterm \($title\)
-    ?SH-PROMPT:
+    [shell pekwm]
+        ?run action 1 wo
+
+    [shell pekwm_ctrl]
+        [log verify xterm title]
+        !$BIN_DIR/pekwm_ctrl -a list
+        ??$window xterm ($title)
+        ?SH-PROMPT:
 [endfunction]
 
 [shell Xvfb]
@@ -26,11 +31,7 @@ Start a single Xvfb pekwm_ctrl system tests in one go.
     [log starting Xvfb]
     -Fatal server error
     !Xvfb -displayfd 1 $DISPLAY
-    ?1
-
-[shell xev]
-    ?SH-PROMPT:
-    !xev -root -display :1
+    ?^1
 
 [shell pekwm]
     [log starting pekwm]
@@ -43,8 +44,8 @@ Start a single Xvfb pekwm_ctrl system tests in one go.
     ?SH-PROMPT:
     !xterm -T xterm -display :1 /bin/sh
 
-[shell xev]
-    ???(_NET_CLIENT_LIST)
+[shell pekwm]
+    ?client constructed
 
 [shell pekwm_ctrl]
     ?SH-PROMPT:

@@ -13,9 +13,24 @@
 #include <vector>
 #include <string>
 
+class CompPair
+{
+public:
+    CompPair(const std::wstring& first,
+             const std::wstring& second);
+    ~CompPair(void);
+
+    bool operator==(const CompPair& rhs) const;
+    bool operator<(const CompPair& rhs) const;
+
+public:
+    std::wstring first;
+    std::wstring second;
+};
+
 typedef std::vector<std::wstring> complete_list;
 typedef complete_list::iterator complete_it;
-typedef std::vector<std::pair<std::wstring, std::wstring> > completions_list;
+typedef std::vector<CompPair> completions_list;
 typedef completions_list::iterator completions_it;
 
 /**

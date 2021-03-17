@@ -35,7 +35,7 @@ static void parse_pad(const std::string& str, uint *pad)
         for (uint i = 0; i < PAD_NO; ++i) {
             try {
                 pad[i] = std::stoi(tok[i]);
-            } catch (const std::invalid_argument& ex) {
+            } catch (const ValueException&) {
                 pad[i] = 0;
             }
         }
@@ -44,7 +44,8 @@ static void parse_pad(const std::string& str, uint *pad)
 
 // Theme::ColorMap
 bool
-Theme::ColorMap::load(CfgParser::Entry *section)
+Theme::ColorMap::load(CfgParser::Entry *section,
+                      std::map<int, int> &map)
 {
     auto it = section->begin();
     for (; it != section->end(); ++it) {
@@ -62,10 +63,12 @@ Theme::ColorMap::load(CfgParser::Entry *section)
             try {
                 int from_c = parseColor((*it)->getValue());
                 int to_c = parseColor(to->getValue());
-                insert({from_c, to_c});
-            } catch (std::invalid_argument &ex) {
-                USER_WARN("invalid colors from " << (*it)->getValue()
-                          << " to " << to->getValue() << " in ColorMap entry");
+                map[from_c] = to_c;
+            } catch (ValueException&) {
+                std::ostringstream msg;
+                msg << "invalid colors from " << (*it)->getValue();
+                msg << " to " << to->getValue() << " in ColorMap entry";
+                USER_WARN(msg.str());
             }
         }
     }
@@ -76,7 +79,7 @@ int
 Theme::ColorMap::parseColor(const std::string& str)
 {
     if (str.size() != 7 || str[0] != '#') {
-        throw std::invalid_argument("invalid color: " + str);
+        throw ValueException();
     }
 
     // ARGB format, always set full alpha
@@ -92,12 +95,6 @@ Theme::ColorMap::parseHex(const char *p)
 {
     char val[3] = {p[0], p[1], 0};
     return static_cast<uchar>(strtol(val, NULL, 16));
-}
-
-void
-Theme::ColorMap::unload(void)
-{
-    clear();
 }
 
 // Theme::PDecorButtonData
@@ -275,6 +272,12 @@ Theme::PDecorData::PDecorData(FontHandler* fh, TextureHandler* th,
 Theme::PDecorData::~PDecorData(void)
 {
     unload();
+}
+
+uint
+Theme::PDecorData::getPad(PadType pad) const
+{
+    return _pad[(pad != PAD_NO) ? pad : 0];
 }
 
 /**
@@ -561,9 +564,13 @@ Theme::PDecorData::checkBorder(void)
          state < FOCUSED_STATE_FOCUSED_SELECTED; ++state) {
         for (uint i = 0; i < BORDER_NO_POS; ++i) {
             if (! _texture_border[state][i]) {
-                WARN(_name << " missing border texture "
-                     << _border_map[BorderPosition(i)] << " "
-                     << _fs_map[FocusedState(state)]);
+                if (Debug::isLevel(Debug::LEVEL_WARN)) {
+                    std::ostringstream msg;
+                    msg << _name << " missing border texture ";
+                    msg << _border_map[BorderPosition(i)] << " ";
+                    msg << _fs_map[FocusedState(state)];
+                    WARN(msg.str());
+                }
                 _texture_border[state][i] =
                     _th->getTexture("Solid #999999 2x2");
             }
@@ -1184,7 +1191,6 @@ Theme::Theme(FontHandler *fh, ImageHandler *ih, TextureHandler *th,
       _cmd_d_data(fh, th),
       _ws_indicator_data(fh, th)
 {
-    _color_maps[""] = ColorMap();
     _decors[""] = nullptr;
 
     // window gc's
@@ -1367,8 +1373,8 @@ Theme::loadColorMaps(CfgParser::Entry* section)
             continue;
         }
 
-        Theme::ColorMap color_map;
-        color_map.load((*it)->getSection());
+        std::map<int, int> color_map;
+        Theme::ColorMap::load((*it)->getSection(), color_map);
         _ih->addColorMap((*it)->getValue(), color_map);
     }
 }
@@ -1429,4 +1435,13 @@ Theme::unload(void)
     _cmd_d_data.unload();
     _ws_indicator_data.unload();
     _harbour_data.unload();
+}
+
+Theme::ColorMap*
+Theme::getColorMap(const std::string& name)
+{
+    std::string u_name;
+    Util::to_upper(u_name);
+    auto it = _color_maps.find(u_name);
+    return it == _color_maps.end() ? nullptr : &it->second;
 }

@@ -41,16 +41,16 @@ void
 printUsage(void)
 {
     printVersion();
-    std::cout
-        << " --config    alternative config file" << std::endl
-        << " --display   display to connect to" << std::endl
-        << " --help      show this info." << std::endl
-        << " --info      extended info. Use for bug reports." << std::endl
-        << " --log-file  set log file." << std::endl
-        << " --log-level set log level." << std::endl
-        << " --replace   replace running window manager" << std::endl
-        << " --sync      run Xlib in synchronous mode" << std::endl
-        << " --version   show version info" << std::endl;
+    std::cout << " --config    alternative config file" << std::endl;
+    std::cout << " --display   display to connect to" << std::endl;
+    std::cout << " --help      show this info." << std::endl;
+    std::cout << " --info      extended info. Use for bug reports."
+              << std::endl;
+    std::cout << " --log-file  set log file." << std::endl;
+    std::cout << " --log-level set log level." << std::endl;
+    std::cout << " --replace   replace running window manager" << std::endl;
+    std::cout << " --sync      run Xlib in synchronous mode" << std::endl;
+    std::cout << " --version   show version info" << std::endl;
 }
 
 /**
@@ -98,11 +98,9 @@ main(int argc, char **argv)
             printInfo();
             stop(write_fd, "stop", nullptr);
         } else if (strcmp("--log-level", argv[i]) == 0 && ((i + 1) < argc)) {
-            Debug::level = Debug::getLevel(argv[++i]);
+            Debug::setLevel(Debug::getLevel(argv[++i]));
         } else if (strcmp("--log-file", argv[i]) == 0 && ((i + 1) < argc)) {
-            if (Debug::setLogFile(argv[++i])) {
-                Debug::enable_logfile = true;
-            } else {
+            if (! Debug::setLogFile(argv[++i])) {
                 std::cerr << "Failed to open log file " << argv[i] << std::endl;
             }
         } else if (strcmp("--replace", argv[i]) == 0) {

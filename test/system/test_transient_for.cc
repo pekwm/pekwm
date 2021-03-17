@@ -9,52 +9,8 @@
 
 class TransientTest : public X11App {
 public:
-    TransientTest(int argc, char *argv[])
-        : X11App({0, 0, 100, 100}, L"transient test",
-                 "main", "TransientTest", WINDOW_TYPE_NORMAL),
-          _t_win1(None),
-          _t_win2(None)
-    {
-        _main_first = argc == 2 && strcmp(argv[1], "destroy-main-first") == 0;
-        _loop = argc == 2 && strcmp(argv[1], "transient-loop") == 0;
+    TransientTest(int argc, char *argv[]);
 
-        XSetWindowAttributes attrs = {0};
-        attrs.event_mask = PropertyChangeMask;
-        unsigned long attrs_mask = CWEventMask|CWBackPixel;
-
-        attrs.background_pixel = X11::getBlackPixel();
-        _t_win1 = X11::createWindow(X11::getRoot(),
-                                    0, 0, 100, 100, 0,
-                                    CopyFromParent, //depth
-                                    InputOutput, // class
-                                    CopyFromParent, // visual
-                                    attrs_mask,
-                                    &attrs);
-
-        if (argc == 2 && strcmp(argv[1], "transient-on-self") == 0) {
-            // set transient for to self, does not make sense and should
-            // not be done in real code (but could happen)
-            XSetTransientForHint(X11::getDpy(), _t_win1, _t_win1);
-            std::cout << "PROGRESS: transient " << _t_win1 << " set to self"
-                      << std::endl;
-        } else if (_loop) {
-            attrs.background_pixel = X11::getBlackPixel();
-            _t_win2 = XCreateWindow(X11::getDpy(), X11::getRoot(),
-                                    0, 0, 100, 100, 0,
-                                    CopyFromParent, //depth
-                                    InputOutput, // class
-                                    CopyFromParent, // visual
-                                    attrs_mask,
-                                    &attrs);
-            XSetTransientForHint(X11::getDpy(), _t_win1, _window);
-            std::cout << "PROGRESS: transient " << _window << " set to "
-                      << _t_win1 << std::endl;
-        } else {
-            XSetTransientForHint(X11::getDpy(), _t_win1, _window);
-            std::cout << "PROGRESS: transient " << _t_win1 << " set to "
-                      << _window << std::endl;
-        }
-    }
 
     virtual void handleFd(int fd) override
     {
@@ -117,6 +73,53 @@ private:
     bool _main_first;
     bool _loop;
 };
+
+TransientTest::TransientTest(int argc, char *argv[])
+    : X11App({0, 0, 100, 100}, L"transient test",
+             "main", "TransientTest", WINDOW_TYPE_NORMAL),
+      _t_win1(None),
+      _t_win2(None)
+{
+    _main_first = argc == 2 && strcmp(argv[1], "destroy-main-first") == 0;
+    _loop = argc == 2 && strcmp(argv[1], "transient-loop") == 0;
+
+    XSetWindowAttributes attrs = {0};
+    attrs.event_mask = PropertyChangeMask;
+    unsigned long attrs_mask = CWEventMask|CWBackPixel;
+
+    attrs.background_pixel = X11::getBlackPixel();
+    _t_win1 = X11::createWindow(X11::getRoot(),
+                                0, 0, 100, 100, 0,
+                                CopyFromParent, //depth
+                                InputOutput, // class
+                                CopyFromParent, // visual
+                                attrs_mask,
+                                &attrs);
+
+    if (argc == 2 && strcmp(argv[1], "transient-on-self") == 0) {
+        // set transient for to self, does not make sense and should
+        // not be done in real code (but could happen)
+        XSetTransientForHint(X11::getDpy(), _t_win1, _t_win1);
+        std::cout << "PROGRESS: transient " << _t_win1 << " set to self"
+                  << std::endl;
+    } else if (_loop) {
+        attrs.background_pixel = X11::getBlackPixel();
+        _t_win2 = XCreateWindow(X11::getDpy(), X11::getRoot(),
+                                0, 0, 100, 100, 0,
+                                CopyFromParent, //depth
+                                InputOutput, // class
+                                CopyFromParent, // visual
+                                attrs_mask,
+                                &attrs);
+        XSetTransientForHint(X11::getDpy(), _t_win1, _window);
+        std::cout << "PROGRESS: transient " << _window << " set to "
+                  << _t_win1 << std::endl;
+    } else {
+        XSetTransientForHint(X11::getDpy(), _t_win1, _window);
+        std::cout << "PROGRESS: transient " << _t_win1 << " set to "
+                  << _window << std::endl;
+    }
+}
 
 int
 main(int argc, char *argv[])

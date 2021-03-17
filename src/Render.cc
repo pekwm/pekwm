@@ -52,11 +52,24 @@ renderTiled(const int a_x, const int a_y,
     render(x, y, width, height);
 }
 
+// Render
+Render::Render(void)
+{
+}
+
+Render::~Render(void)
+{
+}
+
 // X11Render
 
 X11Render::X11Render(Drawable draw)
     : _draw(draw),
       _gc(X11::getGC())
+{
+}
+
+X11Render::~X11Render(void)
 {
 }
 
@@ -131,6 +144,10 @@ XImageRender::XImageRender(XImage *image)
     : _image(image),
       _color(0),
       _lw(1)
+{
+}
+
+XImageRender::~XImageRender(void)
 {
 }
 

@@ -22,7 +22,7 @@ extern "C" {
 }
 
 // Static initializers
-const std::string HintWO::WM_NAME = std::string("pekwm");
+const std::string HintWO::WM_NAME = "pekwm";
 const unsigned int HintWO::DISPLAY_WAIT = 10;
 
 const unsigned long RootWO::EVENT_MASK =

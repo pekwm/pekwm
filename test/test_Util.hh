@@ -33,7 +33,8 @@ public:
         auto res = String::shell_split(str);
         ASSERT_EQUAL(msg + " size", expected.size(), res.size());
         for (uint i = 0; i < expected.size(); i++) {
-            ASSERT_EQUAL(msg + " res[" + std::to_string(i) + "]",
+            auto is =  std::to_string(i);
+            ASSERT_EQUAL(msg + " res[" + is + "]",
                          expected[i], res[i]);
         }
     }
@@ -66,8 +67,8 @@ public:
         ASSERT_EQUAL(msg + " ret", e_ret, ret);
         ASSERT_EQUAL(msg + " tokens", e_toks.size(), toks.size());
         for (uint i = 0; i < e_toks.size(); i++) {
-            ASSERT_EQUAL(msg + " tok " + std::to_string(i),
-                         e_toks[i], toks[i]);
+            auto is = std::to_string(i);
+            ASSERT_EQUAL(msg + " tok " + is, e_toks[i], toks[i]);
         }
     }
 };

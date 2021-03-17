@@ -47,9 +47,9 @@ static void cleanup()
 
 static void usage(const char* name, int ret)
 {
-    std::cout << "usage: " << name << " [-dh] [screenshot.png]" << std::endl
-              << "  -d --display dpy    Display" << std::endl
-              << "  -h --help           Display this information" << std::endl;
+    std::cout << "usage: " << name << " [-dh] [screenshot.png]" << std::endl;
+    std::cout << "  -d --display dpy    Display" << std::endl;
+    std::cout << "  -h --help           Display this information" << std::endl;
     exit(ret);
 }
 
@@ -61,10 +61,10 @@ static std::string get_screenhot_name(const Geometry& gm)
     localtime_r(&t, &tm);
 
     std::ostringstream name;
-    name << "pekwm_screenshot-"
-         << std::put_time(&tm, "%Y%m%dT%H%M%S")
-         << "-" << gm.width << "x" << gm.height
-         << ".png";
+    name << "pekwm_screenshot-";
+    name << std::put_time(&tm, "%Y%m%dT%H%M%S");
+    name << "-" << gm.width << "x" << gm.height;
+    name << ".png";
     return name.str();
 }
 

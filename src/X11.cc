@@ -70,7 +70,7 @@ extern "C" {
         }
 
         ++xerrors_count;
-        if (Debug::level >= Debug::LEVEL_TRACE) {
+        if (Debug::getLevel() >= Debug::LEVEL_TRACE) {
             char error_buf[256];
             XGetErrorText(dpy, ev->error_code, error_buf, 256);
             TRACE("XError: " << error_buf << " id: " << ev->resourceid);
@@ -172,10 +172,142 @@ static const char *atomnames[] = {
 std::ostream&
 operator<<(std::ostream& os, const Geometry& gm)
 {
-    os << "Geometry"
-       << " x:" << gm.x << " y: " << gm.y
-       << " width: " << gm.width << " height: " << gm.height;
+    os << "Geometry";
+    os << " x:" << gm.x << " y: " << gm.y;
+    os << " width: " << gm.width << " height: " << gm.height;
     return os;
+}
+
+Geometry::Geometry(void)
+    : x(0),
+      y(0),
+      width(1),
+      height(1)
+{
+}
+
+Geometry::Geometry(int _x, int _y, unsigned int _width, unsigned int _height)
+    : x(_x),
+      y(_y),
+      width(_width),
+      height(_height)
+{
+}
+
+Geometry::Geometry(const Geometry &gm)
+    : x(gm.x),
+      y(gm.y),
+      width(gm.width),
+      height(gm.height)
+{
+}
+
+Geometry::~Geometry(void)
+{
+}
+
+Geometry&
+Geometry::operator=(const Geometry& gm)
+{
+    x = gm.x;
+    y = gm.y;
+    width = gm.width;
+    height = gm.height;
+    return *this;
+}
+
+bool
+Geometry::operator==(const Geometry& gm)
+{
+    return ((x == gm.x) && (y == gm.y) &&
+            (width == gm.width) && (height == gm.height));
+}
+
+bool
+Geometry::operator!=(const Geometry& gm)
+{
+    return (x != gm.x) || (y != gm.y) ||
+        (width != gm.width) || (height != gm.height);
+}
+
+int
+Geometry::diffMask(const Geometry &old_gm)
+{
+    int mask = 0;
+    if (x != old_gm.x) {
+        mask |= X_VALUE;
+    }
+    if (y != old_gm.y) {
+        mask |= Y_VALUE;
+    }
+    if (width != old_gm.width) {
+        mask |= WIDTH_VALUE;
+    }
+    if (height != old_gm.height) {
+        mask |= HEIGHT_VALUE;
+    }
+    return mask;
+}
+
+Strut::Strut(long l, long r, long t, long b, int nhead)
+    : left(l),
+      right(r),
+      top(t),
+      bottom(b),
+      head(nhead)
+{
+}
+
+Strut::~Strut(void)
+{
+}
+
+bool
+Strut::isSet(void) const
+{
+    return left != 0 || right != 0 || top != 0 || bottom != 0;
+}
+
+void
+Strut::clear(void)
+{
+    left = 0;
+    right = 0;
+    top = 0;
+    bottom = 0;
+}
+
+void
+Strut::operator=(const long *s)
+{
+    left = s[0];
+    right = s[1];
+    top = s[2];
+    bottom = s[3];
+}
+
+bool
+Strut::operator==(const Strut& rhs) const
+{
+    return left == rhs.left
+        && right == rhs.right
+        && top == rhs.top
+        && bottom == rhs.bottom
+        && head == rhs.head;
+}
+
+bool
+Strut::operator!=(const Strut& rhs) const
+{
+    return !operator==(rhs);
+}
+
+std::ostream& operator<<(std::ostream &stream, const Strut &strut)
+{
+    stream << "Strut l: " << strut.left << " r: " << strut.right;
+    stream << " t: " << strut.top << " b: " << strut.bottom;
+    stream << " head " << strut.head;
+    return stream;
 }
 
 /**
@@ -951,8 +1083,14 @@ X11::getKeycodeFromMask(uint mask)
  * Wrapper for XKeycodeToKeysym and XkbKeycodeToKeysym depending on
  * which one is available.
  */
+#ifdef __GNUG__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#else // ! __GNUG__
+#ifdef __SUNPRO_CC
+#pragma error_messages (off,symdeprecated)
+#endif // __SUNPRO_CC
+#endif // __GNUG__
 KeySym
 X11::getKeysymFromKeycode(KeyCode keycode)
 {
@@ -963,7 +1101,9 @@ X11::getKeysymFromKeycode(KeyCode keycode)
 #endif
         return XKeycodeToKeysym(_dpy, keycode, 0);
 }
+#ifdef __GNUG__
 #pragma GCC diagnostic pop
+#endif // __GNUG__
 
 /**
  * Parse string and set on geometry, same format as XParseGeometry

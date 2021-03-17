@@ -5,14 +5,9 @@
 class TestConfig : public TestSuite,
                    public Config {
 public:
-    TestConfig()
-        : TestSuite("Config"),
-          Config()
-    {
-        register_test("parseMoveResizeAction",
-                      std::bind(&TestConfig::testParseMoveResizeAction,
-                                this));
-    }
+    TestConfig(void);
+    virtual ~TestConfig(void);
+
 
     void testParseMoveResizeAction(void) {
         Action action;
@@ -26,3 +21,16 @@ public:
         ASSERT_EQUAL("parsed unit", UNIT_PERCENT, action.getParamI(1));
     }
 };
+
+TestConfig::TestConfig(void)
+    : TestSuite("Config"),
+      Config()
+{
+    register_test("parseMoveResizeAction",
+                  std::bind(&TestConfig::testParseMoveResizeAction,
+                            this));
+}
+
+TestConfig::~TestConfig(void)
+{
+}

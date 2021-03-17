@@ -9,6 +9,25 @@
 #include "PWinObj.hh"
 #include "X11Util.hh"
 
+NetWMStates::NetWMStates(void)
+    : modal(false),
+      sticky(false),
+      max_vert(false),
+      max_horz(false), shaded(false),
+      skip_taskbar(false),
+      skip_pager(false),
+      hidden(false),
+      fullscreen(false),
+      above(false),
+      below(false),
+      demands_attention(false)
+{
+}
+
+NetWMStates::~NetWMStates(void)
+{
+}
+
 namespace X11Util {
 
     /**

@@ -12,16 +12,8 @@
 class TestCfgParser : public TestSuite,
                       public CfgParser {
 public:
-    TestCfgParser()
-        : TestSuite("CfgParser"),
-          CfgParser()
-    {
-        register_test("empty val",
-                      std::bind(&TestCfgParser::testEmptyVal, this));
-        register_test("INCLUDE without newline",
-                      std::bind(&TestCfgParser::testIncludeWithoutNewline,
-                                this));
-    }
+    TestCfgParser(void);
+    virtual ~TestCfgParser(void);
 
     void testEmptyVal(void) {
         auto cfg = "Section {\n    Key = \"\"\n}";
@@ -43,6 +35,22 @@ public:
 
         clear();
         ASSERT_EQUAL("parse ok", true, parse(source));
-        ASSERT_EQUAL("var in include", "value", getVar("$VAR"));
+        auto var = getVar("$VAR");
+        ASSERT_EQUAL("var in include", "value", var);
     }
 };
+
+TestCfgParser::TestCfgParser(void)
+    : TestSuite("CfgParser"),
+      CfgParser()
+{
+    register_test("empty val",
+                  std::bind(&TestCfgParser::testEmptyVal, this));
+    register_test("INCLUDE without newline",
+                  std::bind(&TestCfgParser::testIncludeWithoutNewline,
+                            this));
+}
+
+TestCfgParser::~TestCfgParser(void)
+{
+}

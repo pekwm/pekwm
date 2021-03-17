@@ -200,7 +200,8 @@ Frame::~Frame(void)
     // remove from lists
     _wo_map.erase(_window);
     woListRemove(this);
-    Util::vectorRemove(_frames, this);
+    _frames.erase(std::remove(_frames.begin(), _frames.end(), this),
+                  _frames.end());
     Workspaces::removeFromMRU(this);
     if (_tag_frame == this) {
         _tag_frame = 0;
@@ -1792,8 +1793,8 @@ Frame::setStateTitle(StateAction sa, Client *client, const std::wstring &title)
     }
 
     // Set PEKWM_TITLE atom to preserve title on client between sessions.
-    X11::setString(client->getWindow(), PEKWM_TITLE,
-                   Charset::to_mb_str(client->getTitle()->getUser()));
+    X11::setUtf8String(client->getWindow(), PEKWM_TITLE,
+                       Charset::to_utf8_str(client->getTitle()->getUser()));
 
     renderTitle();
 }
