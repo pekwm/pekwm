@@ -22,7 +22,9 @@ Start a single Xvfb pekwm_ctrl system tests in one go.
     [shell pekwm_ctrl]
         [log verify xterm title]
         !$BIN_DIR/pekwm_ctrl -a list
-        ??$window xterm ($title)
+        # ... is to match a byte order mark that is output on NetBSD
+        # at the time of writing.
+        ?$window xterm \((...)?$title\)
         ?SH-PROMPT:
 [endfunction]
 

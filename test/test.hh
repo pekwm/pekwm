@@ -24,13 +24,16 @@ private:
     std::string _msg;
 };
 
+#define ASSERT_FAILED(msg) \
+    throw AssertFailed(__FILE__, __LINE__, (msg));
+
 #define ASSERT_EQUAL(msg, expected, actual)                             \
     if ((expected) != (actual)) {                                       \
-        std::ostringstream oss;                                         \
-        oss << (msg);                                                   \
-        oss << " expected " << (expected);                              \
-        oss << " got " << (actual);                                     \
-        throw AssertFailed(__FILE__, __LINE__, oss.str());              \
+        std::ostringstream __test_oss;                                  \
+        __test_oss << (msg);                                            \
+        __test_oss << " expected " << (expected);                       \
+        __test_oss << " got " << (actual);                              \
+        ASSERT_FAILED(__test_oss.str())                                 \
     }
 
 typedef std::function<void()> test_fn;

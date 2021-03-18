@@ -115,6 +115,16 @@ protected:
 
 namespace Charset
 {
+    WithCharset::WithCharset(void)
+    {
+        init();
+    }
+
+    WithCharset::~WithCharset(void)
+    {
+        destruct();
+    }
+
     /**
      * Init charset conversion resources, must be called before
      * any other call to functions in the Charset namespace.
@@ -123,7 +133,15 @@ namespace Charset
     init(void)
     {
         try {
-            std::locale locale(std::locale(""), new NoGroupingNumpunct());
+            // initial global locale setup works around issues on at
+            // least FreeBSD where num_locale setup would cause
+            // charset conversion to break.
+            std::locale base_locale("");
+            std::locale::global(base_locale);
+
+            std::locale num_locale(std::locale(), new NoGroupingNumpunct());
+            std::locale locale =
+                std::locale().combine<std::numpunct<char>>(num_locale);
             std::locale::global(locale);
         } catch (const std::runtime_error&) {
             USER_WARN("The environment variables specify an unknown C++ "

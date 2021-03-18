@@ -12,6 +12,13 @@
 
 namespace Charset
 {
+    class WithCharset
+    {
+    public:
+        WithCharset(void);
+        ~WithCharset(void);
+    };
+
     void init(void);
     void destruct(void);
 

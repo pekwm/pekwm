@@ -39,13 +39,28 @@ endif (ENABLE_RANDR AND X11_Xrandr_FOUND)
 
 add_executable(test_pekwm
   test_pekwm.cc)
-add_test(pekwm test_pekwm)
+add_test(NAME pekwm
+  COMMAND test_pekwm
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test/)
 target_include_directories(test_pekwm PUBLIC ${common_INCLUDE_DIRS})
 target_link_libraries(test_pekwm wm texture x11 util ${common_LIBRARIES})
 
 add_executable(test_pekwm_ctrl test_pekwm_ctrl.cc)
-add_test(pekwm_ctrl test_pekwm_ctrl)
+add_test(NAME pekwm_ctrl
+  COMMAND test_pekwm_ctrl
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test/)
 target_include_directories(test_pekwm_ctrl PUBLIC ${common_INCLUDE_DIRS})
 target_link_libraries(test_pekwm_ctrl x11 util ${common_LIBRARIES})
+
+add_executable(test_util test_util.cc)
+add_test(NAME test_util
+  COMMAND test_util
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test)
+set(common_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/src ${PROJECT_BINARY_DIR}/src
+                        ${ICONV_INCLUDE_DIR} ${X11_INCLUDE_DIR})
+set(common_LIBRARIES ${ICONV_LIBRARIES} ${X11_LIBRARIES})
+target_include_directories(test_util PUBLIC
+  ${PROJECT_SOURCE_DIR}/src ${PROJECT_BINARY_DIR}/src ${ICONV_INCLUDE_DIR})
+target_link_libraries(test_util util ${ICONV_LIBRARIES})
 
 add_subdirectory(system)

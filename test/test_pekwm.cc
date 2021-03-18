@@ -11,12 +11,10 @@
 #include "Debug.hh"
 
 #include "test_Action.hh"
-#include "test_CfgParser.hh"
 #include "test_Config.hh"
 #include "test_Frame.hh"
 #include "test_ManagerWindows.hh"
 #include "test_Theme.hh"
-#include "test_Util.hh"
 #include "test_WindowManager.hh"
 #include "test_X11.hh"
 
@@ -33,9 +31,6 @@ main(int argc, char *argv[])
     TestAction testAction;
     TestActionConfig testActionConfig;
 
-    // CfgParser
-    TestCfgParser testCfgParser;
-
     // Config
     TestConfig testConfig;
 
@@ -48,15 +43,11 @@ main(int argc, char *argv[])
     // Theme
     TestTheme testTheme;
 
-    // Util
-    TestString testString;
-    TestUtil testUtil;
-
     // WindowManager
     TestWindowManager testWindowManager;
 
     // x11
     TestX11 testX11;
 
-    TestSuite::main(argc, argv);
+    return TestSuite::main(argc, argv);
 }

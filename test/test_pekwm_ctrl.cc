@@ -74,5 +74,5 @@ int
 main(int argc, char *argv[])
 {
     TestPekwmCtrl testPekwmCtrl;
-    TestSuite::main(argc, argv);
+    return TestSuite::main(argc, argv);
 }

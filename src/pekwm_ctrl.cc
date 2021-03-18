@@ -113,7 +113,8 @@ static bool sendClientMessage(Window window, AtomName atom,
     }
 
     return X11::sendEvent(X11::getRoot(), False,
-                          SubstructureRedirectMask | SubstructureNotifyMask, &ev);
+                          SubstructureRedirectMask | SubstructureNotifyMask,
+                          &ev);
 }
 
 static bool focusClient(Window win)
