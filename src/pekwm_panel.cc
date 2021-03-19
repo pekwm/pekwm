@@ -1130,6 +1130,10 @@ public:
     }
 
 protected:
+    int renderText(Render &rend, PFont *font,
+                   int x, const std::wstring& text, uint max_width);
+
+protected:
     const PanelTheme& _theme;
     bool _dirty;
 
@@ -1153,6 +1157,14 @@ PanelWidget::PanelWidget(const PanelTheme &theme,
 
 PanelWidget::~PanelWidget(void)
 {
+}
+
+int
+PanelWidget::renderText(Render &rend, PFont *font,
+                        int x, const std::wstring& text, uint max_width)
+{
+    int y = (_theme.getHeight() - font->getHeight()) / 2;
+    return font->draw(rend.getDrawable(), x, y, text, 0, max_width);
 }
 
 /**
@@ -1186,7 +1198,7 @@ public:
         std::wstring wtime;
         formatNow(wtime);
         auto font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
-        font->draw(rend.getDrawable(), getX(), 1, wtime, 0, getWidth());
+        renderText(rend, font, getX(), wtime, getWidth());
 
         // always treat date time as dirty, requires redraw up to
         // every second.
@@ -1295,11 +1307,9 @@ public:
                 icon_x = x;
                 x += height + 1;
                 entry_width -= height;
-                font->draw(rend.getDrawable(),
-                           x, 1, it.getName(), 0, entry_width);
+                renderText(rend, font, x, it.getName(), entry_width);
             } else {
-                icon_x = font->draw(rend.getDrawable(),
-                                    x, 1, it.getName(), 0, entry_width);
+                icon_x = renderText(rend, font, x, it.getName(), entry_width);
                 icon_x -= height + 1;
             }
 
@@ -1488,7 +1498,7 @@ public:
 
         auto data = _ext_data.get(_field);
         auto font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
-        font->draw(rend.getDrawable(), getX(), 1, data, 0, getWidth());
+        renderText(rend, font, getX(), data, getWidth());
     }
 
 private:
@@ -1549,8 +1559,7 @@ public:
 
         auto ws = std::to_string(_wm_state.getActiveWorkspace() + 1);
         auto font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
-        font->draw(rend.getDrawable(),
-                   getX(), 1, Charset::to_wide_str(ws), 0, getWidth());
+        renderText(rend, font, getX(), Charset::to_wide_str(ws), getWidth());
     }
 
 private:
