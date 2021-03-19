@@ -154,7 +154,8 @@ in one go.
         ?SH-PROMPT:
 
     [shell pekwm]
-        ?run action 60 wo 0
+        ?start action 60 wo 0
+        ?end action 60 wo 0
 
     [shell test]
         !$TEST_DIR/test_client query_pointer
@@ -164,7 +165,8 @@ in one go.
         ?SH-PROMPT:
 
     [shell pekwm]
-        ?run action 60 wo 0
+        ?start action 60 wo 0
+        ?end action 60 wo 0
 
     [shell test]
         !$TEST_DIR/test_client query_pointer

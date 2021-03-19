@@ -74,7 +74,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
         // Determine what type if any of the window object that is focused
         // and check if it is still alive.
         lookupWindowObjects(&wo, &client, &frame, &menu, &decor);
-        TRACE("run action " << it->getAction() << " wo " << wo);
+        TRACE("start action " << it->getAction() << " wo " << wo);
 
         // actions valid for all PWinObjs
         if (! matched && wo) {
@@ -386,6 +386,8 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 break;
             }
         }
+
+        TRACE("end action " << it->getAction() << " wo " << wo);
     }
 }
 
