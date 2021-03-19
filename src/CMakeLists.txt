@@ -65,7 +65,8 @@ set(wm_SOURCES
   WindowManager.cc
   WinLayouter.cc
   Workspaces.cc
-  WorkspaceIndicator.cc)
+  WorkspaceIndicator.cc
+  WmUtil.cc)
 set(common_INCLUDE_DIRS ${PROJECT_BINARY_DIR}/src ${ICONV_INCLUDE_DIR} ${X11_INCLUDE_DIR})
 set(common_LIBRARIES ${ICONV_LIBRARIES} ${X11_LIBRARIES})
 

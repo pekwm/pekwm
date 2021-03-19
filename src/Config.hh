@@ -88,6 +88,7 @@ public:
     const std::string &getThemeVariant(void) const {
         return _files_theme_variant;
     }
+    std::string getThemeIconPath(void) const { return _files_theme + "/icons/"; }
     const std::string &getMouseConfigFile(void) const { return _files_mouse; }
     const std::string &getIconPath(void) const { return _files_icon_path; }
     const char *getSystemIconPath(void) const {

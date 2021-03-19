@@ -40,7 +40,6 @@ namespace PImageLoaderJpeg
     {
         auto fp= fopen(file.c_str(), "rb");
         if (! fp) {
-            USER_WARN("failed to open " << file << " for reading");
             return 0;
         }
 

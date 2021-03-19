@@ -26,6 +26,7 @@
 #include "Client.hh"
 #include "Frame.hh"
 #include "Util.hh"
+#include "WmUtil.hh"
 
 //! @brief ActionMenu constructor
 //! @param type Type of menu
@@ -118,12 +119,11 @@ ActionMenu::reload(CfgParser::Entry *section)
     removeAll();
 
     // Parse section (if any)
-    pekwm::imageHandler()->path_push_back(pekwm::config()->getSystemIconPath());
-    pekwm::imageHandler()->path_push_back(pekwm::config()->getIconPath());
     _insert_at = 0;
-    parse(section);
-    pekwm::imageHandler()->path_pop_back();
-    pekwm::imageHandler()->path_pop_back();
+    {
+        WithIconPath with_icon_path(pekwm::config(), pekwm::imageHandler());
+        parse(section);
+    }
 
     // Build menu from parsed content
     buildMenu();
@@ -294,9 +294,7 @@ ActionMenu::rebuildDynamic(void)
     Client::setClientEnvironment(client);
 
     // Setup icon path before parsing.
-    pekwm::imageHandler()
-        ->path_push_back(pekwm::config()->getSystemIconPath());
-    pekwm::imageHandler()->path_push_back(pekwm::config()->getIconPath());
+    WithIconPath with_icon_path(pekwm::config(), pekwm::imageHandler());
 
     PMenu::Item* item = nullptr;
     auto it = m_begin();
@@ -318,10 +316,6 @@ ActionMenu::rebuildDynamic(void)
         }
     }
     _insert_at = size();
-
-    // Cleanup icon path
-    pekwm::imageHandler()->path_pop_back();
-    pekwm::imageHandler()->path_pop_back();
 }
 
 CfgParser::Entry*

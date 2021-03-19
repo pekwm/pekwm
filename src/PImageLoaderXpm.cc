@@ -113,7 +113,6 @@ namespace PImageLoaderXpm
         XpmInfo xpm_info = {0};
         if (XpmReadFileToXpmImage((char*) file.c_str(),
                                   &xpm_image, &xpm_info) != Success) {
-            USER_WARN(file << " not a valid XPM file");
             return 0;
         }
 

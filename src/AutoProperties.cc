@@ -16,6 +16,7 @@
 #include "Debug.hh"
 #include "ImageHandler.hh"
 #include "Util.hh"
+#include "WmUtil.hh"
 
 static Util::StringMap<ApplyOn> apply_on_map =
     {{"", APPLY_ON_ALWAYS},
@@ -210,8 +211,7 @@ AutoProperties::load(void)
     _apply_on_start = true;
 
     // set load path for icons while loading auto-properties
-    _image_handler->path_push_back(pekwm::config()->getSystemIconPath());
-    _image_handler->path_push_back(pekwm::config()->getIconPath());
+    WithIconPath with_icon_path(pekwm::config(), _image_handler);
 
     std::vector<std::string> tokens;
     std::vector<uint> workspaces;
@@ -244,9 +244,6 @@ AutoProperties::load(void)
             }
         }
     }
-
-    _image_handler->path_pop_back();
-    _image_handler->path_pop_back();
 
     // Validate date
     setDefaultTypeProperties();
