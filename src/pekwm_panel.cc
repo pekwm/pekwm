@@ -813,7 +813,8 @@ private:
     bool readActiveWorkspace(void)
     {
         Cardinal workspace;
-        if (! X11::getCardinal(X11::getRoot(), NET_CURRENT_DESKTOP, workspace)) {
+        if (! X11::getCardinal(X11::getRoot(), NET_CURRENT_DESKTOP,
+                               workspace)) {
             TRACE("failed to read _NET_CURRENT_DESKTOP, setting to 0");
             _workspace = 0;
             return false;
@@ -930,7 +931,8 @@ public:
           _loaded(false),
           _background(nullptr),
           _background_opacity(255),
-          _sep(nullptr)
+          _sep(nullptr),
+          _handle(nullptr)
     {
         memset(_fonts, 0, sizeof(_fonts));
         memset(_colors, 0, sizeof(_colors));
@@ -949,6 +951,7 @@ public:
     PFont *getFont(ClientState state) const { return _fonts[state]; }
     PTexture *getBackground(void) const { return _background; }
     PTexture *getSep(void) const { return _sep; }
+    PTexture *getHandle(void) const { return _handle; }
 
 private:
     void loadState(CfgParser::Entry *section, ClientState state);
@@ -960,9 +963,15 @@ private:
     /** Set to true after load has been called. */
     bool _loaded;
 
+    /** Panel background texture. */
     PTexture *_background;
+    /** If < 255 (dervied from 0-100%) panel background is blended on
+        top of background image. */
     uchar _background_opacity;
+    /** Texture rendered between widgets in the bar. */
     PTexture *_sep;
+    /** Texture rendered at the left and right of the bar, optional. */
+    PTexture *_handle;
     PFont* _fonts[CLIENT_STATE_NO];
     PFont::Color* _colors[CLIENT_STATE_NO];
 };
@@ -984,7 +993,7 @@ PanelTheme::load(const std::string &theme_dir, const std::string& theme_path)
         return;
     }
 
-    std::string background, separator;
+    std::string background, separator, handle;
     uint opacity;
     std::vector<CfgParserKey*> keys;
     keys.push_back(new CfgParserKeyString("BACKGROUND",
@@ -995,6 +1004,7 @@ PanelTheme::load(const std::string &theme_dir, const std::string& theme_path)
                                                  _height, DEFAULT_HEIGHT));
     keys.push_back(new CfgParserKeyString("SEPARATOR",
                                           separator, DEFAULT_SEPARATOR));
+    keys.push_back(new CfgParserKeyString("HANDLE", handle, ""));
     section->parseKeyValues(keys.begin(), keys.end());
     std::for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 
@@ -1006,6 +1016,9 @@ PanelTheme::load(const std::string &theme_dir, const std::string& theme_path)
     _background = th->getTexture(background);
     _background_opacity = 255.0 * opacity / 100.0;
     _sep = th->getTexture(separator);
+    if (! handle.empty()) {
+        _handle = th->getTexture(handle);
+    }
 
     loadState(section->findSection("FOCUSED"), CLIENT_STATE_FOCUSED);
     loadState(section->findSection("UNFOCUSED"), CLIENT_STATE_UNFOCUSED);
@@ -1024,6 +1037,10 @@ PanelTheme::unload(void)
     _height = DEFAULT_HEIGHT;
 
     auto th = pekwm::textureHandler();
+    if (_handle) {
+        th->returnTexture(_handle);
+        _handle = nullptr;
+    }
     th->returnTexture(_sep);
     _sep = nullptr;
     th->returnTexture(_background);
@@ -1772,87 +1789,9 @@ private:
         }
     }
 
-    void resizeWidgets(void)
-    {
-        if (_widgets.empty()) {
-            return;
-        }
-
-        auto sep = _theme.getSep();
-        uint num_rest = 0;
-        uint width_left = _gm.width - sep->getWidth() * (_widgets.size() - 1);
-        for (auto it : _widgets) {
-            switch (it->getSizeReq().getUnit()) {
-            case WIDGET_UNIT_PIXELS:
-                width_left -= it->getSizeReq().getSize();
-                it->setWidth(it->getSizeReq().getSize());
-                break;
-            case WIDGET_UNIT_PERCENT: {
-                uint width =
-                    _gm.width
-                    * (static_cast<float>(it->getSizeReq().getSize()) / 100);
-                width_left -= width;
-                it->setWidth(width);
-                break;
-            }
-            case WIDGET_UNIT_REQUIRED:
-                width_left -= it->getRequiredSize();
-                it->setWidth(it->getRequiredSize());
-                break;
-            case WIDGET_UNIT_REST:
-                num_rest++;
-                break;
-            case WIDGET_UNIT_TEXT_WIDTH: {
-                auto font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
-                uint width = font->getWidth(it->getSizeReq().getText());
-                width_left -= width;
-                it->setWidth(width);
-                break;
-            }
-            }
-        }
-
-        uint x = 0;
-        uint rest = width_left / static_cast<float>(num_rest);
-        for (auto it : _widgets) {
-            if (it->getSizeReq().getUnit() == WIDGET_UNIT_REST) {
-                it->setWidth(rest);
-            }
-            it->move(x);
-            x += it->getWidth() + sep->getWidth();
-        }
-    }
-
-    void renderPred(std::function<bool(PanelWidget*)> pred)
-    {
-        if (_widgets.empty()) {
-            return;
-        }
-
-        auto sep = _theme.getSep();
-
-        int x = 0;
-        PanelWidget *last_widget = _widgets.back();
-        X11Render rend(_window);
-        for (auto it : _widgets) {
-            bool do_render = pred(it);
-            if (do_render) {
-                it->render(rend);
-            }
-            x += it->getWidth();
-
-            if (do_render && it != last_widget) {
-                sep->render(rend, x, 0, sep->getWidth(), sep->getHeight());
-                x += sep->getWidth();
-            }
-        }
-    }
-
-    void renderBackground(void)
-    {
-        _theme.getBackground()->render(_pixmap, 0, 0, _gm.width, _gm.height,
-                                       _gm.x, _gm.y);
-    }
+    void resizeWidgets(void);
+    void renderPred(std::function<bool(PanelWidget*)> pred);
+    void renderBackground(void);
 
 private:
     const PanelConfig& _cfg;
@@ -1964,6 +1903,109 @@ PekwmPanel::handleEvent(XEvent *ev)
     default:
         DBG("UNKNOWN EVENT " << ev->type);
         break;
+    }
+}
+
+void
+PekwmPanel::resizeWidgets(void)
+{
+    if (_widgets.empty()) {
+        return;
+    }
+
+    auto sep = _theme.getSep();
+    uint num_rest = 0;
+    uint width_left = _gm.width - sep->getWidth() * (_widgets.size() - 1);
+
+    auto handle = _theme.getHandle();
+    if (handle) {
+        width_left -= handle->getWidth() * 2;
+    }
+
+    for (auto it : _widgets) {
+        switch (it->getSizeReq().getUnit()) {
+        case WIDGET_UNIT_PIXELS:
+            width_left -= it->getSizeReq().getSize();
+            it->setWidth(it->getSizeReq().getSize());
+            break;
+        case WIDGET_UNIT_PERCENT: {
+            uint width =
+                _gm.width
+                * (static_cast<float>(it->getSizeReq().getSize()) / 100);
+            width_left -= width;
+            it->setWidth(width);
+            break;
+        }
+        case WIDGET_UNIT_REQUIRED:
+            width_left -= it->getRequiredSize();
+            it->setWidth(it->getRequiredSize());
+            break;
+        case WIDGET_UNIT_REST:
+            num_rest++;
+            break;
+        case WIDGET_UNIT_TEXT_WIDTH: {
+            auto font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
+            uint width = font->getWidth(it->getSizeReq().getText());
+            width_left -= width;
+            it->setWidth(width);
+            break;
+        }
+        }
+    }
+
+    uint x = handle ? handle->getWidth() : 0;
+    uint rest = width_left / static_cast<float>(num_rest);
+    for (auto it : _widgets) {
+        if (it->getSizeReq().getUnit() == WIDGET_UNIT_REST) {
+            it->setWidth(rest);
+        }
+        it->move(x);
+        x += it->getWidth() + sep->getWidth();
+    }
+}
+
+void
+PekwmPanel::renderPred(std::function<bool(PanelWidget*)> pred)
+{
+    if (_widgets.empty()) {
+        return;
+    }
+
+    auto sep = _theme.getSep();
+    auto handle = _theme.getHandle();
+
+    int x = handle ? handle->getWidth() : 0;
+    PanelWidget *last_widget = _widgets.back();
+    X11Render rend(_window);
+    for (auto it : _widgets) {
+        bool do_render = pred(it);
+        if (do_render) {
+            it->render(rend);
+        }
+        x += it->getWidth();
+
+        if (do_render && it != last_widget) {
+            sep->render(rend, x, 0, sep->getWidth(), sep->getHeight());
+            x += sep->getWidth();
+        }
+    }
+}
+
+void
+PekwmPanel::renderBackground(void)
+{
+    _theme.getBackground()->render(_pixmap, 0, 0, _gm.width, _gm.height,
+                                   _gm.x, _gm.y);
+    auto handle = _theme.getHandle();
+    if (handle) {
+        handle->render(_pixmap,
+                       0, 0,
+                       handle->getWidth(), handle->getHeight(),
+                       0, 0); // root coordinates
+        handle->render(_pixmap,
+                       _gm.width - handle->getWidth(), 0,
+                       handle->getWidth(), handle->getHeight(),
+                       0, 0); // root coordinates
     }
 }
 

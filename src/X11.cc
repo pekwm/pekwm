@@ -672,13 +672,12 @@ bool
 X11::selectXRandrInput(void)
 {
 #ifdef HAVE_XRANDR
-    if (_has_extension_xrandr) {
+    if (_honour_randr && _has_extension_xrandr) {
         XRRSelectInput(_dpy, _root, RRScreenChangeNotifyMask);
+        return true;
     }
-    return _has_extension_xrandr;
-#else // ! HAVE_XRANDR
-    return false;
 #endif // HAVE_XRANDR
+    return false;
 }
 
 bool
