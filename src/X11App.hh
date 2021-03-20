@@ -32,10 +32,14 @@ protected:
     virtual void refresh(bool);
     virtual void handleChildDone(pid_t, int);
 
+    virtual void screenChanged(const ScreenChangeNotification &scn);
+
 private:
     void initSignalHandler(void);
     void handleSignal(void);
     bool waitForData(int timeout_s);
+
+    void processEvent(void);
 
 private:
     std::string _wm_name;

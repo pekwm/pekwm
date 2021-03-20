@@ -252,6 +252,15 @@ public:
     uint height;
 };
 
+/**
+ * Wrapper for XRRScreenChangeNotifyEvent.
+ */
+struct ScreenChangeNotification
+{
+    uint width;
+    uint height;
+};
+
 //! @brief Display information class.
 class X11
 {
@@ -336,8 +345,9 @@ public:
 
     static bool updateGeometry(uint width, uint height);
 
-    static bool hasExtensionXRandr(void) { return _has_extension_xrandr; }
-    static int getEventXRandr(void) { return _event_xrandr; }
+    static bool selectXRandrInput(void);
+    static bool getScreenChangeNotification(XEvent *ev,
+                                            ScreenChangeNotification &scn);
 
     static Cursor getCursor(CursorType type) { return _cursor_map[type]; }
 

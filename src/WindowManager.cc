@@ -59,9 +59,6 @@ extern "C" {
 
 #include <X11/Xatom.h>
 #include <X11/keysym.h>
-#ifdef HAVE_XRANDR
-#include <X11/extensions/Xrandr.h>
-#endif // HAVE_XRANDR
 }
 
 // include after all includes to get ifndefs right
@@ -279,9 +276,7 @@ WindowManager::setupDisplay(Display* dpy)
 
     XDefineCursor(dpy, X11::getRoot(), X11::getCursor(CURSOR_ARROW));
 
-#ifdef HAVE_XRANDR
-    XRRSelectInput(dpy, X11::getRoot(), RRScreenChangeNotifyMask);
-#endif // HAVE_XRANDR
+    X11::selectXRandrInput();
 
     // Create screen edge windows
     screenEdgeCreate();
@@ -722,6 +717,8 @@ WindowManager::handleEventHandlerEvent(XEvent &ev)
 void
 WindowManager::handleEvent(XEvent &ev)
 {
+    static ScreenChangeNotification scn;
+
     switch (ev.type) {
     case MapRequest:
         handleMapRequestEvent(&ev.xmaprequest);
@@ -805,32 +802,17 @@ WindowManager::handleEvent(XEvent &ev)
             }
         }
 #endif // HAVE_SHAPE
-#ifdef HAVE_XRANDR
-        if (X11::hasExtensionXRandr()) {
-            if (ev.type == X11::getEventXRandr() + RRScreenChangeNotify) {
-                XRRScreenChangeNotifyEvent *scr_ev =
-                    reinterpret_cast<XRRScreenChangeNotifyEvent*>(&ev);
+        if (X11::getScreenChangeNotification(&ev, scn)) {
+            pekwm::rootWo()->updateGeometry(scn.width, scn.height);
+            pekwm::harbour()->updateGeometry();
+            screenEdgeResize();
 
-                if  (scr_ev->rotation == RR_Rotate_90
-                     || scr_ev->rotation == RR_Rotate_270) {
-                    pekwm::rootWo()->updateGeometry(scr_ev->height,
-                                                    scr_ev->width);
-                } else {
-                    pekwm::rootWo()->updateGeometry(scr_ev->width,
-                                                    scr_ev->height);
-                }
-
-                pekwm::harbour()->updateGeometry();
-                screenEdgeResize();
-
-                // Make sure windows are visible after resize
-                auto it(PDecor::pdecor_begin());
-                for (; it != PDecor::pdecor_end(); ++it) {
-                    Workspaces::placeWoInsideScreen(*it);
-                }
+            // Make sure windows are visible after resize
+            auto it(PDecor::pdecor_begin());
+            for (; it != PDecor::pdecor_end(); ++it) {
+                Workspaces::placeWoInsideScreen(*it);
             }
         }
-#endif // HAVE_XRANDR
         break;
     }
 }

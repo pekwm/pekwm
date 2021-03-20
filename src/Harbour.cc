@@ -139,7 +139,6 @@ Harbour::findDockAppFromFrame(Window win)
     return dockapp;
 }
 
-#ifdef HAVE_XRANDR
 //! @brief Refetches the root-window size and takes appropriate actions.
 void
 Harbour::updateGeometry(void)
@@ -148,7 +147,6 @@ Harbour::updateGeometry(void)
         placeDockAppInsideScreen(it);
     }
 }
-#endif // HAVE_XRANDR
 
 //! @brief Lowers or Raises all the DockApps in the harbour.
 void

@@ -65,6 +65,7 @@ X11App::X11App(Geometry gm, const std::wstring &title,
                                 _gm.x, _gm.y, _gm.width, _gm.height, 0,
                                 X11::getBlackPixel(), X11::getWhitePixel());
     X11::selectInput(_window, StructureNotifyMask);
+    X11::selectXRandrInput();
 
     XSizeHints default_normal_hints = {0};
     if (normal_hints == nullptr) {
@@ -141,9 +142,7 @@ X11App::main(uint timeout_s)
             refresh(timed_out);
 
             if (X11::pending()) {
-                XEvent ev;
-                X11::getNextEvent(ev);
-                handleEvent(&ev);
+                processEvent();
                 timed_out = false;
             } else {
                 timed_out = waitForData(timeout_s);
@@ -183,6 +182,14 @@ X11App::refresh(bool)
  */
 void
 X11App::handleChildDone(pid_t, int)
+{
+}
+
+/**
+ * Called whenever the screen size has changed (XRandr)
+ */
+void
+X11App::screenChanged(const ScreenChangeNotification &scn)
 {
 }
 
@@ -254,9 +261,7 @@ X11App::waitForData(int timeout_s)
             }
 
             if (fd == _dpy_fd) {
-                XEvent ev;
-                X11::getNextEvent(ev);
-                handleEvent(&ev);
+                processEvent();
             } else {
                 handleFd(fd);
             }
@@ -264,4 +269,20 @@ X11App::waitForData(int timeout_s)
     }
 
     return ret < 1;
+}
+
+void
+X11App::processEvent(void)
+{
+    static ScreenChangeNotification scn;
+
+    XEvent ev;
+    if (X11::getNextEvent(ev)) {
+        if (X11::getScreenChangeNotification(&ev, scn)) {
+            X11::updateGeometry(scn.width, scn.height);
+            screenChanged(scn);
+        } else {
+            handleEvent(&ev);
+        }
+    }
 }

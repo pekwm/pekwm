@@ -85,26 +85,47 @@ static Pixmap setBackground(PTexture *tex)
     return pix;
 }
 
-void modeBackground(const std::string& tex_str)
+static Pixmap loadAndSetBackground(const std::string& tex_str)
 {
     auto tex = pekwm::textureHandler()->getTexture(tex_str);
-    if (tex) {
-        std::cout << "Setting background " << tex_str << std::endl;
-        auto pix = setBackground(tex);
-        pekwm::textureHandler()->returnTexture(tex);
-
-        // used for stop actions
-        X11::setCardinal(X11::getRoot(), PEKWM_BG_PID, getpid());
-
-        XEvent ev;
-        while (! _stop && X11::getNextEvent(ev)) {
-            ;
-        }
-
-        X11::freePixmap(pix);
-    } else {
+    if (! tex) {
         std::cerr << "Failed to load texture " << tex_str << std::endl;
+        return None;
     }
+
+    std::cout << "Setting background " << tex_str << std::endl;
+    auto pix = setBackground(tex);
+    pekwm::textureHandler()->returnTexture(tex);
+    return pix;
+}
+
+static void modeBackground(const std::string& tex_str)
+{
+    auto pix = loadAndSetBackground(tex_str);
+    if (pix == None) {
+        return;
+    }
+
+    // used for stop actions
+    X11::setCardinal(X11::getRoot(), PEKWM_BG_PID, getpid());
+    X11::selectXRandrInput();
+
+    XEvent ev;
+    ScreenChangeNotification scn;
+    while (! _stop && X11::getNextEvent(ev)) {
+        if (X11::getScreenChangeNotification(&ev, scn)) {
+            std::cout << "Screen changed: " << scn.width << "x" << scn.height
+                      << std::endl;
+            X11::updateGeometry(scn.width, scn.height);
+            X11::freePixmap(pix);
+            pix = loadAndSetBackground(tex_str);
+            if (pix == None) {
+                break;
+            }
+        }
+    }
+
+    X11::freePixmap(pix);
 }
 
 void modeStop()

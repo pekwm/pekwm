@@ -1740,6 +1740,13 @@ private:
         _ext_data.done(pid, [this](int fd) { this->removeFd(fd); });
     }
 
+    virtual void screenChanged(const ScreenChangeNotification&) override
+    {
+        TRACE("screen geometry updated, resizing");
+        place();
+        resizeWidgets();
+    }
+
     PanelWidget* findWidget(int x)
     {
         for (auto it : _widgets) {

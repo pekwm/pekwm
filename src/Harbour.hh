@@ -35,9 +35,7 @@ public:
 
     inline uint getSize(void) const { return _size; }
 
-#ifdef HAVE_XRANDR
     void updateGeometry(void);
-#endif // HAVE_XRANDR
 
     void restack(void);
     void rearrange(void);

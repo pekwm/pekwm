@@ -644,7 +644,9 @@ X11::ungrabPointer(void)
     return false;
 }
 
-//! @brief Refetches the root-window size.
+/**
+ * Refetches the root-window size.
+ */
 bool
 X11::updateGeometry(uint width, uint height)
 {
@@ -664,6 +666,41 @@ X11::updateGeometry(uint width, uint height)
 #else // ! HAVE_XRANDR
   return false;
 #endif // HAVE_XRANDR
+}
+
+bool
+X11::selectXRandrInput(void)
+{
+#ifdef HAVE_XRANDR
+    if (_has_extension_xrandr) {
+        XRRSelectInput(_dpy, _root, RRScreenChangeNotifyMask);
+    }
+    return _has_extension_xrandr;
+#else // ! HAVE_XRANDR
+    return false;
+#endif // HAVE_XRANDR
+}
+
+bool
+X11::getScreenChangeNotification(XEvent *ev, ScreenChangeNotification &scn)
+{
+#ifdef HAVE_XRANDR
+    if (_honour_randr
+        && _has_extension_xrandr
+        && ev->type == _event_xrandr + RRScreenChangeNotify) {
+        auto scr_ev = reinterpret_cast<XRRScreenChangeNotifyEvent*>(ev);
+        if  (scr_ev->rotation == RR_Rotate_90
+             || scr_ev->rotation == RR_Rotate_270) {
+            scn.width = scr_ev->height;
+            scn.height = scr_ev->width;
+        } else {
+            scn.width = scr_ev->width;
+            scn.height = scr_ev->height;
+        }
+        return true;
+    }
+#endif // HAVE_XRANDR
+    return false;
 }
 
 //! @brief Searches for the head closest to the coordinates x,y.
