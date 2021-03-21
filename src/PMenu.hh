@@ -75,6 +75,7 @@ public:
 
     virtual ActionEvent *handleButtonPress(XButtonEvent *ev);
     virtual ActionEvent *handleButtonRelease(XButtonEvent *ev);
+    virtual ActionEvent *handleExposeEvent(XExposeEvent*);
     virtual ActionEvent *handleMotionEvent(XMotionEvent *ev);
     virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev);
     virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev);
@@ -147,6 +148,8 @@ protected:
     void checkItemWORef(PMenu::Item *item);
 
 private:
+    void renderSelectedItem(void);
+
     void handleItemEvent(MouseEventType type, int x, int y);
 
     void buildMenuCalculate(void);

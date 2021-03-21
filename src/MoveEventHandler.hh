@@ -30,6 +30,8 @@ public:
     virtual EventHandler::Result
     handleButtonReleaseEvent(XButtonEvent*) override;
     virtual EventHandler::Result
+    handleExposeEvent(XExposeEvent*) override;
+    virtual EventHandler::Result
     handleKeyEvent(XKeyEvent*) override;
     virtual EventHandler::Result
     handleMotionNotifyEvent(XMotionEvent *ev) override;

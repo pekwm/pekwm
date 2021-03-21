@@ -80,6 +80,12 @@ KeyboardMoveResizeEventHandler::handleButtonReleaseEvent(XButtonEvent*)
 }
 
 EventHandler::Result
+KeyboardMoveResizeEventHandler::handleExposeEvent(XExposeEvent*)
+{
+    return EventHandler::EVENT_SKIP;
+}
+
+EventHandler::Result
 KeyboardMoveResizeEventHandler::handleMotionNotifyEvent(XMotionEvent*)
 {
     // mark as processed disabling wm processing of these events.

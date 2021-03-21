@@ -770,7 +770,7 @@ PDecor::handleButtonReleaseButton(XButtonEvent *ev, PDecor::Button *button)
     if (*_button == ev->subwindow) {
         ae = _button->findAction(ev);
 
-        // This is a little hack, resizing isn't wanted on both press and release
+        // This is a hack to avoid resizing on both press and release
         if (ae && ae->isOnlyAction(ACTION_RESIZE)) {
             ae = 0;
         }
@@ -785,9 +785,9 @@ ActionEvent*
 PDecor::handleMotionEvent(XMotionEvent *ev)
 {
     uint button = X11::getButtonFromState(ev->state);
+    auto malo = pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_OTHER);
     return ActionHandler::findMouseAction(button, ev->state,
-                                          MOUSE_EVENT_MOTION,
-                                          pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_OTHER));
+                                          MOUSE_EVENT_MOTION, malo);
 }
 
 /**
@@ -802,8 +802,9 @@ PDecor::handleEnterEvent(XCrossingEvent *ev)
         button->setState(BUTTON_STATE_HOVER);
     }
 
-    return ActionHandler::findMouseAction(BUTTON_ANY, ev->state, MOUSE_EVENT_ENTER,
-                                          pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_OTHER));
+    auto malo = pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_OTHER);
+    return ActionHandler::findMouseAction(BUTTON_ANY, ev->state,
+                                          MOUSE_EVENT_ENTER, malo);
 }
 
 /**
@@ -818,8 +819,25 @@ PDecor::handleLeaveEvent(XCrossingEvent *ev)
         button->setState(button->getState());
     }
 
-    return ActionHandler::findMouseAction(BUTTON_ANY, ev->state, MOUSE_EVENT_LEAVE,
-                                          pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_OTHER));
+    auto malo = pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_OTHER);
+    return ActionHandler::findMouseAction(BUTTON_ANY, ev->state,
+                                          MOUSE_EVENT_LEAVE, malo);
+}
+
+bool
+PDecor::operator==(const Window &window)
+{
+    return _window == window
+        || _title_wo == window
+        || findButton(window)
+        || getBorderPosition(window) != BORDER_NO_POS
+        || (_child ? *_child == window : false);
+}
+
+bool
+PDecor::operator!=(const Window &window)
+{
+    return !(*this == window);
 }
 
 // END - PWinObj interface.

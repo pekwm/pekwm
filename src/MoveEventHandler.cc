@@ -89,6 +89,12 @@ MoveEventHandler::handleButtonReleaseEvent(XButtonEvent*)
 }
 
 EventHandler::Result
+MoveEventHandler::handleExposeEvent(XExposeEvent*)
+{
+    return EventHandler::EVENT_SKIP;
+}
+
+EventHandler::Result
 MoveEventHandler::handleKeyEvent(XKeyEvent*)
 {
     // mark as processed disabling wm processing of these events.

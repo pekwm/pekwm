@@ -146,18 +146,8 @@ public:
     virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev) override;
     virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev) override;
 
-    virtual bool operator == (const Window &window) override {
-        if ((_window == window) || (_title_wo == window) ||
-                findButton(window) ||
-                (getBorderPosition(window) != BORDER_NO_POS) ||
-                ((_child) ? (*_child == window) : false)) {
-            return true;
-        }
-        return false;
-    }
-    virtual bool operator != (const Window &window) override {
-        return !(*this == window);
-    }
+    virtual bool operator == (const Window &window) override;
+    virtual bool operator != (const Window &window) override;
     // END - PWinObj interface.
 
     // START - PDecor interface.

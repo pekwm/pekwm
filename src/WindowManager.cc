@@ -692,6 +692,9 @@ WindowManager::handleEventHandlerEvent(XEvent &ev)
     case ButtonRelease:
         res = _event_handler->handleButtonReleaseEvent(&ev.xbutton);
         break;
+    case Expose:
+        res = _event_handler->handleExposeEvent(&ev.xexpose);
+        break;
     case KeyPress:
     case KeyRelease:
         res = _event_handler->handleKeyEvent(&ev.xkey);
@@ -973,9 +976,10 @@ WindowManager::handleButtonReleaseEvent(XButtonEvent *ev)
         ae = wo->handleButtonRelease(ev);
 
         if (wotype == PWinObj::WO_FRAME) {
-            // this is done so that clicking the titlebar executes action on
-            // the client clicked on, doesn't apply when subwindow is set (meaning
-            // a titlebar button beeing pressed)
+            // this is done so that clicking the titlebar executes
+            // action on the client clicked on, doesn't apply when
+            // subwindow is set (meaning a titlebar button beeing
+            // pressed)
             if ((ev->subwindow == None)
                 && (ev->window == static_cast<Frame*>(wo)->getTitleWindow())) {
                 wo = static_cast<Frame*>(wo)->getChildFromPos(ev->x);

@@ -348,7 +348,6 @@ Workspaces::warpToWorkspace(uint num, int dir)
 void
 Workspaces::fixStacking(PWinObj *pwo)
 {
-    Window winlist[2];
     const_iterator it = find(_wobjs.begin(), _wobjs.end(), pwo);
     if (it == _wobjs.end()) {
         return;
@@ -357,16 +356,17 @@ Workspaces::fixStacking(PWinObj *pwo)
     if (++it == _wobjs.end()) {
         X11::raiseWindow(pwo->getWindow());
     } else {
-        winlist[0] = (*it)->getWindow();
-        winlist[1] = pwo->getWindow();
-        XRestackWindows(X11::getDpy(), winlist, 2);
+        Window winlist[] = { (*it)->getWindow(), pwo->getWindow() };
+        X11::stackWindows(winlist, 2);
     }
 }
 
 /**
- * Adds a PWinObj to the stacking list. Assumes that wo is not in _wobjs already.
+ * Adds a PWinObj to the stacking list. Assumes that wo is not in _wobjs
+ * already.
  * @param wo PWinObj to insert
- * @param raise Whether to insert at the bottom or top of the layer (defaults to true).
+ * @param raise Whether to insert at the bottom or top of the layer
+ *        (defaults to true).
  */
 void
 Workspaces::insert(PWinObj *wo, bool raise)
@@ -375,8 +375,9 @@ Workspaces::insert(PWinObj *wo, bool raise)
     Frame *frame, *wo_frame = dynamic_cast<Frame*>(wo);
     iterator it;
 
-    if (! raise && wo_frame && wo_frame->getTransFor()
-                && wo_frame->getTransFor()->getLayer() == wo_frame->getLayer()) {
+    if (! raise
+        && wo_frame && wo_frame->getTransFor()
+        && wo_frame->getTransFor()->getLayer() == wo_frame->getLayer()) {
         // Lower only to the top of the transient_for window.
         it = ++find(_wobjs.begin(), _wobjs.end(), wo_frame->getTransFor()->getParent());
         top_obj = it!=_wobjs.end()?*it:0; // I think it==_wobjs.end() can't happen

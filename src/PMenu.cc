@@ -81,7 +81,7 @@ PMenu::PMenu(const std::wstring &title,
     attr.override_redirect = True;
     attr.event_mask =
         ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
-        FocusChangeMask|KeyPressMask|KeyReleaseMask|
+        ExposureMask|FocusChangeMask|KeyPressMask|KeyReleaseMask|
         PointerMotionMask;
     _menu_wo->setWindow(X11::createWindow(_window, 0, 0, 1, 1, 0,
                                           CopyFromParent, InputOutput,
@@ -182,9 +182,9 @@ PMenu::handleButtonPress(XButtonEvent *ev)
         _pointer_x = ev->x_root;
         _pointer_y = ev->y_root;
 
+        auto malm = pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU);
         return ActionHandler::findMouseAction(ev->button, ev->state,
-                                              MOUSE_EVENT_PRESS,
-                                              pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU));
+                                              MOUSE_EVENT_PRESS, malm);
     } else {
         return PDecor::handleButtonPress(ev);
     }
@@ -205,9 +205,10 @@ PMenu::handleButtonRelease(XButtonEvent *ev)
     if (*_menu_wo == ev->window) {
         MouseEventType mb = MOUSE_EVENT_RELEASE;
 
+        auto cfg = pekwm::config();
         // first we check if it's a double click
         if (X11::isDoubleClick(ev->window, ev->button - 1, ev->time,
-                                               pekwm::config()->getDoubleClickTime())) {
+                               cfg->getDoubleClickTime())) {
             X11::setLastClickID(ev->window);
             X11::setLastClickTime(ev->button - 1, 0);
 
@@ -220,11 +221,21 @@ PMenu::handleButtonRelease(XButtonEvent *ev)
 
         handleItemEvent(mb, ev->x, ev->y);
 
-        return ActionHandler::findMouseAction(ev->button, ev->state, mb,
-                                              pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU));
+        auto malm = cfg->getMouseActionList(MOUSE_ACTION_LIST_MENU);
+        return ActionHandler::findMouseAction(ev->button, ev->state, mb, malm);
     } else {
         return PDecor::handleButtonRelease(ev);
     }
+}
+
+/**
+ * Handle Expose event, just redraw the currently selected menu item.
+ */
+ActionEvent*
+PMenu::handleExposeEvent(XExposeEvent*)
+{
+    renderSelectedItem();
+    return nullptr;
 }
 
 /**
@@ -243,17 +254,21 @@ PMenu::handleMotionEvent(XMotionEvent *ev)
 
     if (*_menu_wo == ev->window) {
         uint button = X11::getButtonFromState(ev->state);
-        handleItemEvent(button ? MOUSE_EVENT_MOTION_PRESSED : MOUSE_EVENT_MOTION, ev->x, ev->y);
+        handleItemEvent(button
+                        ? MOUSE_EVENT_MOTION_PRESSED : MOUSE_EVENT_MOTION,
+                        ev->x, ev->y);
 
         ActionEvent *ae;
         X11::stripButtonModifiers(&ev->state);
-        ae = ActionHandler::findMouseAction(button, ev->state, MOUSE_EVENT_MOTION,
-                                            pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU));
+        auto malm = pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU);
+        ae = ActionHandler::findMouseAction(button, ev->state,
+                                            MOUSE_EVENT_MOTION, malm);
 
         // check motion threshold
         if (ae && (ae->threshold > 0)) {
             if (! ActionHandler::checkAEThreshold(ev->x_root, ev->y_root,
-                                                  _pointer_x, _pointer_y, ae->threshold)) {
+                                                  _pointer_x, _pointer_y,
+                                                  ae->threshold)) {
                 ae = 0;
             }
         }
@@ -267,8 +282,9 @@ ActionEvent*
 PMenu::handleEnterEvent(XCrossingEvent *ev)
 {
     if (*_menu_wo == ev->window) {
-        return ActionHandler::findMouseAction(BUTTON_ANY, ev->state, MOUSE_EVENT_ENTER,
-                                              pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU));
+        auto malm = pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU);
+        return ActionHandler::findMouseAction(BUTTON_ANY, ev->state,
+                                              MOUSE_EVENT_ENTER, malm);
     } else {
         return PDecor::handleEnterEvent(ev);
     }
@@ -278,9 +294,9 @@ ActionEvent*
 PMenu::handleLeaveEvent(XCrossingEvent *ev)
 {
     if (*_menu_wo == ev->window) {
+        auto malm = pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU);
         return ActionHandler::findMouseAction(BUTTON_ANY, ev->state,
-                                              MOUSE_EVENT_LEAVE,
-                                              pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU));
+                                              MOUSE_EVENT_LEAVE, malm);
     } else {
         return PDecor::handleLeaveEvent(ev);
     }
@@ -319,8 +335,9 @@ PMenu::handleItemEvent(MouseEventType type, int x, int y)
     if (pekwm::config()->isMenuEnterOn(type)) {
         if (item->getWORef()
             && (item->getWORef()->getType() == PWinObj::WO_MENU)) {
-            // Special case for motion, would flicker like crazy if we didn't check
-            if ((type != MOUSE_EVENT_MOTION) && (type != MOUSE_EVENT_MOTION_PRESSED)
+            // Special case for motion to avoid flickering
+            if (type != MOUSE_EVENT_MOTION
+                && type != MOUSE_EVENT_MOTION_PRESSED
                 && item->getWORef()->isMapped()) {
                 static_cast<PMenu*>(item->getWORef())->unmapSubmenus();
                 item->getWORef()->unmapWindow();
@@ -333,8 +350,9 @@ PMenu::handleItemEvent(MouseEventType type, int x, int y)
         }
     }
 
-    // Submenus don't have any actions, so we don't exec ( and close them )
-    if (item->getAE().action_list.size() && pekwm::config()->isMenuExecOn(type)) {
+    // Submenus do not have any actions -> no exec and close
+    if (item->getAE().action_list.size()
+        && pekwm::config()->isMenuExecOn(type)) {
         exec(item);
     }
 }
@@ -651,7 +669,7 @@ PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
         if (pekwm::config()->isDisplayMenuIcons()) {
             start_x += _icon_width;
         }
-		
+
         start_y = item->getY() + md->getPad(PAD_UP)
             + (_item_height - font->getHeight() - md->getPad(PAD_UP) - md->getPad(PAD_DOWN)) / 2;
 
@@ -684,8 +702,18 @@ PMenu::selectItem(std::vector<PMenu::Item*>::const_iterator item,
     deselectItem(unmap_submenu);
     _item_curr = item-_items.begin();
 
-    if (_mapped) {
-        COPY_ITEM_AREA((*item), _menu_bg_se);
+    renderSelectedItem();
+}
+
+
+void
+PMenu::renderSelectedItem(void)
+{
+    if (_mapped && _item_curr < _items.size()) {
+        auto item = _items[_item_curr];
+        if (item->getType() != PMenu::Item::MENU_ITEM_HIDDEN) {
+            COPY_ITEM_AREA(item, _menu_bg_se);
+        }
     }
 }
 
@@ -696,7 +724,7 @@ PMenu::deselectItem(bool unmap_submenu)
 {
     // deselect previous item
     if (_item_curr < _items.size()
-            && _items[_item_curr]->getType() != PMenu::Item::MENU_ITEM_HIDDEN) {
+        && _items[_item_curr]->getType() != PMenu::Item::MENU_ITEM_HIDDEN) {
         if (_mapped)
             COPY_ITEM_AREA(_items[_item_curr], (_focused ? _menu_bg_fo : _menu_bg_un));
 

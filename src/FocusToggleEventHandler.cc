@@ -105,6 +105,16 @@ FocusToggleEventHandler::handleButtonReleaseEvent(XButtonEvent*)
 }
 
 EventHandler::Result
+FocusToggleEventHandler::handleExposeEvent(XExposeEvent *ev)
+{
+    if (_menu->isMapped() && *_menu == ev->window) {
+        _menu->handleExposeEvent(ev);
+        return EventHandler::EVENT_PROCESSED;
+    }
+    return EventHandler::EVENT_SKIP;
+}
+
+EventHandler::Result
 FocusToggleEventHandler::handleMotionNotifyEvent(XMotionEvent*)
 {
     // mark as processed disabling wm processing of these events.
