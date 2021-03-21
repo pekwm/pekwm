@@ -191,8 +191,8 @@ FocusToggleEventHandler::setFocusedWo(PWinObj *fo_wo)
             }
             _fo_wo->raise();
         } else if (_raise == TEMP_RAISE) {
-            X11::raiseWindow(_fo_wo->getWindow());
-            X11::raiseWindow(_menu->getWindow());
+            Window winlist[] = { _menu->getWindow(), _fo_wo->getWindow() };
+            X11::stackWindows(winlist, 2);
         }
     }
 }
