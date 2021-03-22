@@ -235,13 +235,13 @@ static Util::StringMap<WorkspaceChangeType> workspace_change_map =
      {"LAST", WORKSPACE_LAST}};
 
 /**
- * Parse WarpToWorkspace, SendToWorkspace and GotoWorkspace argument.
+ * Parse WarpToWorkspace, (part of) SendToWorkspace and GotoWorkspace argument.
  *
  * Either in form of absolute number or as ROWxCOL, the latter is
  * stored as 3 integers where the first is -1, then row and col.
  */
 static void
-parseActionChangeWorkspace(Action &action, const std::string &arg)
+parseActionChangeWorkspace(Action &action, const std::string &arg, int idx = 0)
 {
     // Get workspace looking for relative numbers
     uint num = workspace_change_map.get(arg);
@@ -250,14 +250,38 @@ parseActionChangeWorkspace(Action &action, const std::string &arg)
         // Workspace isn't relative, check for 2x2 and ordinary specification
         std::vector<std::string> tok;
         if (Util::splitString(arg, tok, "x", 2, true) == 2) {
-            action.setParamI(0, -1); // indicate ROWxCOL
-            action.setParamI(1, strtol(tok[0].c_str(), 0, 10) - 1); // row
-            action.setParamI(2, strtol(tok[1].c_str(), 0, 10) - 1); // col
+            action.setParamI(idx, -1); // indicate ROWxCOL
+            action.setParamI(idx + 1, strtol(tok[0].c_str(), 0, 10) - 1); // row
+            action.setParamI(idx + 2, strtol(tok[1].c_str(), 0, 10) - 1); // col
         } else {
-            action.setParamI(0, strtol(arg.c_str(), 0, 10) - 1);
+            action.setParamI(idx, strtol(arg.c_str(), 0, 10) - 1);
         }
     } else {
-        action.setParamI(0, num);
+        action.setParamI(idx, num);
+    }
+}
+
+/**
+ * Parse SendToWorkspace argument.
+ *
+ * First parameter is focus, the rest comes from
+ * parseActionChangeWorkspace
+ */
+static void
+parseActionSendToWorkspace(Action &action, const std::string &arg)
+{
+    std::vector<std::string> tok;
+    if ((Util::splitString(arg, tok, " \t", 2)) == 2) {
+        if (!strcasecmp(tok[1].c_str(), "keepfocus")) {
+            action.setParamI(0, 1);
+        } else {
+            action.setParamI(0, 0);
+            USER_WARN("second argument to SendToWorkspace should be 'KeepFocus'");
+        }
+        parseActionChangeWorkspace(action, tok[0], 1);
+    } else {
+        action.setParamI(0, 0);
+        parseActionChangeWorkspace(action, arg, 1);
     }
 }
 
@@ -367,8 +391,10 @@ parseActionArg(Action &action, const std::string& arg)
             action.setParamI(0, 0);
         }
         break;
-    case ACTION_WARP_TO_WORKSPACE:
     case ACTION_SEND_TO_WORKSPACE:
+        parseActionSendToWorkspace(action, arg);
+        break;
+    case ACTION_WARP_TO_WORKSPACE:
     case ACTION_GOTO_WORKSPACE:
         parseActionChangeWorkspace(action, arg);
         break;

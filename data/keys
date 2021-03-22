@@ -35,10 +35,10 @@ Global {
         KeyPress = "Mod4 7" { Actions = "GotoWorkspace 7" }
         KeyPress = "Mod4 8" { Actions = "GotoWorkspace 8" }
         KeyPress = "Mod4 9" { Actions = "GotoWorkspace 9" }
-        KeyPress = "Ctrl Mod1 Shift Left" { Actions = "SendToWorkspace Next; GoToWorkspace Next" }
-        KeyPress = "Ctrl Mod1 Shift Right" { Actions = "SendToWorkspace Prev; GoToWorkspace Prev" }
-        KeyPress = "Ctrl Mod1 Shift Up" { Actions = "SendToWorkspace NextV; GoToWorkspace NextV" }
-        KeyPress = "Ctrl Mod1 Shift Down" { Actions = "SendToWorkspace PrevV; GoToWorkspace PrevV" }
+        KeyPress = "Ctrl Mod1 Shift Left" { Actions = "SendToWorkspace Next KeepFocus; GoToWorkspace Next" }
+        KeyPress = "Ctrl Mod1 Shift Right" { Actions = "SendToWorkspace Prev KeepFocus; GoToWorkspace Prev" }
+        KeyPress = "Ctrl Mod1 Shift Up" { Actions = "SendToWorkspace NextV KeepFocus; GoToWorkspace NextV" }
+        KeyPress = "Ctrl Mod1 Shift Down" { Actions = "SendToWorkspace PrevV KeepFocus; GoToWorkspace PrevV" }
         KeyPress = "Mod4 Shift 1" { Actions = "SendToWorkspace 1" }
         KeyPress = "Mod4 Shift 2" { Actions = "SendToWorkspace 2" }
         KeyPress = "Mod4 Shift 3" { Actions = "SendToWorkspace 3" }
@@ -221,8 +221,8 @@ Global {
                 KeyPress = "7" { Actions = "GoToWorkspace 7" }
                 KeyPress = "8" { Actions = "GoToWorkspace 8" }
                 KeyPress = "9" { Actions = "GoToWorkspace 9" }
-                KeyPress = "Up" { Actions = "SendToWorkspace Next; GoToWorkspace Next" }
-                KeyPress = "Down" { Actions = "SendToWorkspace Prev; GoToWorkspace Prev" }
+                KeyPress = "Up" { Actions = "SendToWorkspace Next KeepFocus; GoToWorkspace Next" }
+                KeyPress = "Down" { Actions = "SendToWorkspace Prev KeepFocus; GoToWorkspace Prev" }
                 KeyPress = "F1" { Actions = "SendToWorkspace 1" }
                 KeyPress = "F2" { Actions = "SendToWorkspace 2" }
                 KeyPress = "F3" { Actions = "SendToWorkspace 3" }
