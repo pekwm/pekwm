@@ -742,6 +742,9 @@ std::wstring
 ClientInfo::readName(void)
 {
     std::string name;
+    if (X11::getUtf8String(_window, NET_WM_VISIBLE_NAME, name)) {
+        return Charset::from_utf8_str(name);
+    }
     if (X11::getUtf8String(_window, NET_WM_NAME, name)) {
         return Charset::from_utf8_str(name);
     }
