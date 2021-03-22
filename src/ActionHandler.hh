@@ -47,7 +47,7 @@ private:
     void actionFindClient(const std::wstring &title);
     void actionGotoClientID(uint id);
     void actionGotoWorkspace(uint workspace, bool warp);
-    void actionSendToWorkspace(PDecor *decor, int direction);
+    void actionSendToWorkspace(PDecor *decor, bool focus, int direction);
     void actionWarpToWorkspace(PDecor *decor, uint direction);
     void actionFocusDirectional(PWinObj *wo, DirectionType dir, bool raise);
     bool actionSendKey(PWinObj *wo, const std::string &key_str);
@@ -68,7 +68,7 @@ private:
     void attachMarked(Frame *frame);
     void attachInNextPrevFrame(Client *client, bool frame, bool next);
 
-    int calcWorkspaceNum(const Action& action);
+    int calcWorkspaceNum(const Action& action, int index = 0);
 
     void setEventHandler(EventHandler *event_handler);
 

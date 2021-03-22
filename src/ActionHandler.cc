@@ -195,7 +195,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 frame->activateChildNum(it->getParamI(0));
                 break;
             case ACTION_SEND_TO_WORKSPACE:
-                actionSendToWorkspace(decor, calcWorkspaceNum(*it));
+                actionSendToWorkspace(decor, it->getParamI(0), calcWorkspaceNum(*it, 1));
                 break;
             case ACTION_DETACH:
                 frame->detachClient(client);
@@ -602,9 +602,10 @@ ActionHandler::actionGotoClientID(uint id)
 }
 
 //! @brief Sends client to specified workspace
+//! @param focus make the window "last focused" in the new workspace
 //! @param direction Workspace to send to, or special meaning relative space.
 void
-ActionHandler::actionSendToWorkspace(PDecor *decor, int direction)
+ActionHandler::actionSendToWorkspace(PDecor *decor, bool focus, int direction)
 {
     // Convenience
     const uint per_row = Workspaces::getPerRow(),
@@ -613,47 +614,54 @@ ActionHandler::actionSendToWorkspace(PDecor *decor, int direction)
         row_min = Workspaces::getRowMin(),
         row_max = Workspaces::getRowMax();
 
+    uint new_workspace;
+
     switch (static_cast<WorkspaceChangeType>(direction)) {
     case WORKSPACE_LEFT:
     case WORKSPACE_PREV:
         if (cur_act > row_min) {
-            decor->setWorkspace(cur_act - 1);
+            new_workspace = cur_act - 1;
         } else if (static_cast<uint>(direction) == WORKSPACE_PREV) {
-            decor->setWorkspace(row_max);
+            new_workspace = row_max;
         }
         break;
     case WORKSPACE_NEXT:
     case WORKSPACE_RIGHT:
         if (cur_act < row_max) {
-            decor->setWorkspace(cur_act + 1);
+            new_workspace = cur_act + 1;
         } else if (static_cast<uint>(direction) == WORKSPACE_NEXT) {
-            decor->setWorkspace(row_min);
+            new_workspace = row_min;
         }
         break;
     case WORKSPACE_PREV_V:
     case WORKSPACE_UP:
         if (cur_act >= per_row) {
-            decor->setWorkspace(cur_act - per_row);
+            new_workspace = cur_act - per_row;
         } else if (static_cast<uint>(direction) == WORKSPACE_PREV_V) {
             // Bottom left + column
-            decor->setWorkspace(Workspaces::size() - per_row
-                                + cur_act - cur_row * per_row);
+            new_workspace = Workspaces::size() - per_row
+                + cur_act - cur_row * per_row;
         }
         break;
     case WORKSPACE_NEXT_V:
     case WORKSPACE_DOWN:
         if ((cur_act + per_row) < Workspaces::size()) {
-            decor->setWorkspace(cur_act + per_row);
+            new_workspace = cur_act + per_row;
         } else if (static_cast<uint>(direction) == WORKSPACE_NEXT_V) {
-            decor->setWorkspace(cur_act - cur_row * per_row);
+            new_workspace = cur_act - cur_row * per_row;
         }
         break;
     case WORKSPACE_LAST:
-        decor->setWorkspace(Workspaces::getPrevious());
+        new_workspace = Workspaces::getPrevious();
         break;
     default:
-        decor->setWorkspace(direction);
+        new_workspace = direction;
         break;
+    }
+
+    decor->setWorkspace(new_workspace);
+    if (focus) {
+        Workspaces::setLastFocused(new_workspace, decor);
     }
 }
 
@@ -952,13 +960,13 @@ ActionHandler::attachInNextPrevFrame(Client *client, bool frame, bool next)
  * the number is already set.
  */
 int
-ActionHandler::calcWorkspaceNum(const Action& action)
+ActionHandler::calcWorkspaceNum(const Action& action, int index)
 {
-    if (action.getParamI(0) == -1) {
-        return pekwm::config()->getWorkspacesPerRow() * action.getParamI(1)
-            + action.getParamI(2);
+    if (action.getParamI(index) == -1) {
+        return pekwm::config()->getWorkspacesPerRow() * action.getParamI(index + 1)
+            + action.getParamI(index + 2);
     }
-    return action.getParamI(0);
+    return action.getParamI(index);
 }
 
 void

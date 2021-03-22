@@ -402,7 +402,7 @@ parameter.
 
 Detach the current client from its frame.
 
-**SendToWorkspace (string)**
+**SendToWorkspace (string) [keepfocus]**
 
 Sends a frame to the specified workspace. String is one of:
 
@@ -416,6 +416,9 @@ Sends a frame to the specified workspace. String is one of:
 * _down_
 * _last_, send to workspace you last used before the current
 * _int_, integer is a workspace number to send to to
+
+If the second argument is "keepfocus", the window remains focused in
+the new workspace. Default no keepfocus.
 
 **GotoWorkspace (string)**
 
