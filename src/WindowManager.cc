@@ -147,8 +147,7 @@ WindowManager::start(const std::string &config_file,
     return wm;
 }
 
-//! @brief Constructor for WindowManager class
-WindowManager::WindowManager()
+WindowManager::WindowManager(void)
     : _shutdown(false),
       _reload(false),
       _restart(false),
@@ -156,8 +155,6 @@ WindowManager::WindowManager()
       _event_handler(nullptr),
       _skip_enter(false)
 {
-    pekwm::setIsStartup(false),
-
     _screen_edges[0] = 0;
     _screen_edges[1] = 0;
     _screen_edges[2] = 0;
@@ -283,12 +280,14 @@ WindowManager::setupDisplay(Display* dpy)
     screenEdgeMapUnmap();
 }
 
-//! @brief Goes through the window and creates Clients/DockApps.
+/**
+ * Goes through the window and creates Clients/DockApps.
+ */
 void
 WindowManager::scanWindows(void)
 {
     // only done once when we start
-    if (pekwm::isStartup()) {
+    if (! pekwm::isStarting()) {
         return;
     }
 
@@ -350,10 +349,12 @@ WindowManager::scanWindows(void)
     // We won't be needing these anymore until next restart
     pekwm::autoProperties()->removeApplyOnStart();
 
-    pekwm::setIsStartup(true);
+    pekwm::setStarted();
 }
 
-//! @brief Creates and places screen edge
+/**
+ * Creates and places screen edge
+ */
 void
 WindowManager::screenEdgeCreate(void)
 {

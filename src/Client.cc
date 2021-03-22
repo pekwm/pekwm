@@ -121,7 +121,7 @@ Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
     // avoid auto-grouping to be to greedy.
     getTransientForHint();
 
-    auto ap = readAutoprops(pekwm::isStartup() ? APPLY_ON_NEW : APPLY_ON_START);
+    auto ap = readAutoprops(pekwm::isStarting() ? APPLY_ON_START : APPLY_ON_NEW);
     readHints();
 
     // We need to set the state before acquiring a frame,
@@ -288,7 +288,7 @@ Client::findOrCreateFrame(AutoProperty *autoproperty)
 bool
 Client::findTaggedFrame(void)
 {
-    if (! pekwm::isStartup()) {
+    if (pekwm::isStarting()) {
         return false;
     }
 
@@ -312,7 +312,7 @@ Client::findTaggedFrame(void)
 bool
 Client::findPreviousFrame(void)
 {
-    if (pekwm::isStartup()) {
+    if (! pekwm::isStarting()) {
         return false;
     }
 

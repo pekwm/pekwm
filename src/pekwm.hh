@@ -278,6 +278,6 @@ namespace pekwm
               bool replace, bool synchronous);
     void cleanup(void);
 
-    bool isStartup(void);
-    void setIsStartup(bool is_startup);
+    bool isStarting(void);
+    void setStarted(void);
 }

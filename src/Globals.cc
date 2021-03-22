@@ -20,7 +20,7 @@
 #include "TextureHandler.hh"
 #include "Theme.hh"
 
-static bool s_is_startup = true;
+static bool s_is_starting = true;
 
 static ActionHandler* _action_handler = nullptr;
 static AutoProperties* _auto_properties = nullptr;
@@ -80,7 +80,7 @@ namespace pekwm
         return true;
     }
 
-    void cleanup()
+    void cleanup(void)
     {
         delete _action_handler;
         delete _harbour;
@@ -101,73 +101,73 @@ namespace pekwm
         delete _config;
     }
 
-    ActionHandler* actionHandler()
+    ActionHandler* actionHandler(void)
     {
         return _action_handler;
     }
 
-    AutoProperties* autoProperties()
+    AutoProperties* autoProperties(void)
     {
         return _auto_properties;
     }
 
-    Config* config()
+    Config* config(void)
     {
         return _config;
     }
 
-    FontHandler* fontHandler()
+    FontHandler* fontHandler(void)
     {
         return _font_handler;
     }
 
-    Harbour* harbour()
+    Harbour* harbour(void)
     {
         return _harbour;
     }
 
-    HintWO* hintWo()
+    HintWO* hintWo(void)
     {
         return _hint_wo;
     }
 
-    RootWO* rootWo()
+    RootWO* rootWo(void)
     {
         return _root_wo;
     }
 
-    ImageHandler* imageHandler()
+    ImageHandler* imageHandler(void)
     {
         return _image_handler;
     }
 
-    KeyGrabber* keyGrabber()
+    KeyGrabber* keyGrabber(void)
     {
         return _key_grabber;
     }
 
-    StatusWindow* statusWindow()
+    StatusWindow* statusWindow(void)
     {
         return _status_window;
     }
 
-    TextureHandler* textureHandler()
+    TextureHandler* textureHandler(void)
     {
         return _texture_handler;
     }
 
-    Theme* theme()
+    Theme* theme(void)
     {
         return _theme;
     }
 
-    bool isStartup()
+    bool isStarting(void)
     {
-        return s_is_startup;
+        return s_is_starting;
     }
 
-    void setIsStartup(bool is_startup)
+    void setStarted(void)
     {
-        s_is_startup = is_startup;
+        s_is_starting = false;
     }
 }

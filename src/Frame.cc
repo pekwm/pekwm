@@ -88,7 +88,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
     }
 
     // get unique id of the frame, if the client didn't have an id
-    if (! pekwm::isStartup()) {
+    if (pekwm::isStarting()) {
         Cardinal id;
         if (X11::getCardinal(client->getWindow(), PEKWM_FRAME_ID, id)) {
             _id = id;
@@ -492,9 +492,9 @@ Frame::activateChild(PWinObj *child)
     // FIXME: Update default decoration for this child, can change
     // decoration from DEFAULT to REMOTE or WARNING
 
-    // Sync the frame state with the client only if we already had a client
     auto new_client = static_cast<Client*>(child);
-    if (_client != new_client) {
+    bool client_changed = _client != new_client;
+    if (client_changed) {
         applyState(new_client);
     }
     setFrameExtents(new_client);
@@ -521,6 +521,10 @@ Frame::activateChild(PWinObj *child)
 
     // Reload decor rules if needed.
     handleTitleChange(_client, false);
+
+    if (client_changed && ! pekwm::isStarting()) {
+        Workspaces::updateClientList();
+    }
 }
 
 /**
