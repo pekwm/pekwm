@@ -8,6 +8,7 @@
 
 #include "PWinObj.hh"
 #include "X11Util.hh"
+#include "Util.hh"
 
 NetWMStates::NetWMStates(void)
     : modal(false),
@@ -160,3 +161,29 @@ namespace X11Util {
     }
 
 }
+
+#ifndef HAVE_XUTF8
+
+void
+Xutf8SetWMProperties(Display *dpy, Window win,
+                     const char* window_name, const char* icon_name,
+                     char** argv, int argc,
+                     XSizeHints* normal_hints, XWMHints* wm_hints,
+                     XClassHint* class_hints)
+{
+    X11::setUtf8String(win, WM_CLIENT_MACHINE, Util::getHostname());
+    X11::setUtf8String(win, WM_NAME, window_name);
+    X11::setUtf8String(win, WM_ICON_NAME, icon_name);
+
+    if (normal_hints) {
+        XSetNormalHints(dpy, win, normal_hints);
+    }
+    if (wm_hints) {
+        XSetWMHints(dpy, win, wm_hints);
+    }
+    if (class_hints) {
+        XSetClassHint(dpy, win, class_hints);
+    }
+}
+
+#endif // HAVE_XUTF8

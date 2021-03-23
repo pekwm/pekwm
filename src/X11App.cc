@@ -9,6 +9,7 @@
 #include "Charset.hh"
 #include "Debug.hh"
 #include "X11App.hh"
+#include "X11Util.hh"
 
 extern "C" {
 #include <sys/wait.h>

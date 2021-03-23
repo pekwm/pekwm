@@ -60,6 +60,11 @@ check_function_exists(unsetenv HAVE_UNSETENV)
 check_function_exists(daemon HAVE_DAEMON)
 check_symbol_exists(timersub sys/time.h HAVE_TIMERSUB)
 
+# Look for modern X11 functions
+set(CMAKE_REQUIRED_INCLUDES ${X11_INCLUDE_DIR})
+set(CMAKE_REQUIRED_LIBRARIES ${X11_LIBRARIES})
+check_symbol_exists(Xutf8SetWMProperties X11/Xutil.h HAVE_XUTF8)
+
 # Look for platform specific tools
 find_program(GSED gsed /usr/bin /usr/local/bin /usr/pkg/bin)
 if (GSED)

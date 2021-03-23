@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include "config.h"
+
 #include "PWinObj.hh"
 
 struct MwmHints {
@@ -68,3 +70,13 @@ namespace X11Util {
     bool readMwmHints(Window win, MwmHints &hints);
     bool readEwmhStates(Window win, NetWMStates &win_states);
 }
+
+#ifndef HAVE_XUTF8
+
+void Xutf8SetWMProperties(Display *dpy, Window win,
+                          const char* window_name, const char* icon_name,
+                          char** argv, int argc,
+                          XSizeHints* normal_hints, XWMHints* wm_hints,
+                          XClassHint* class_hints);
+
+#endif // HAVE_XUTF8

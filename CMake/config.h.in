@@ -24,4 +24,6 @@
 #cmakedefine HAVE_ICONVCTL
 #cmakedefine ICONV_CONST
 
+#cmakedefine HAVE_XUTF8
+
 #endif // _CONFIG_H_
