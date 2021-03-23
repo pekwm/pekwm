@@ -382,13 +382,11 @@ expandFileName(std::string &file)
 }
 
 void
-getThemeDir(const std::string& config_file,
+getThemeDir(const CfgParser::Entry* root,
             std::string& dir, std::string& variant,
             std::string& theme_file)
 {
-    CfgParser cfg;
-    cfg.parse(config_file, CfgParserSource::SOURCE_FILE, true);
-    auto files = cfg.getEntryRoot()->findSection("FILES");
+    auto files = root->findSection("FILES");
     if (files != nullptr) {
         std::vector<CfgParserKey*> keys;
         keys.push_back(new CfgParserKeyPath("THEME", dir, THEME_DEFAULT));
@@ -413,6 +411,21 @@ getThemeDir(const std::string& config_file,
         } else {
             DBG("theme variant " << variant << " does not exist");
         }
+    }
+}
+
+void
+getIconDir(const CfgParser::Entry* root, std::string& dir)
+{
+    dir = "~/.pekwm/icons/";
+    expandFileName(dir);
+
+    auto files = root->findSection("FILES");
+    if (files != nullptr) {
+        std::vector<CfgParserKey*> keys;
+        keys.push_back(new CfgParserKeyPath("ICONS", dir));
+        files->parseKeyValues(keys.begin(), keys.end());
+        std::for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
     }
 }
 

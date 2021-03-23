@@ -73,6 +73,11 @@ Widget configuration:
 ```
 Bar = "field" {
   Size = "Pixels 32"
+  Colors {
+    Percent = "80" { Color = "#00ff00" }
+    Percent = "40" { Color = "#ffff00" }
+    Percent = "10" { Color = "#ff0000" }
+  }
 }
 ```
 
@@ -115,6 +120,18 @@ Widget configuration:
 ```
 ExternalData = "field" {
   Size = "TextWidth _value_"
+}
+```
+
+#### Widget: Icon
+
+Widget displaying icon. The icon can be configured to update whenever
+a given external data field is updated.
+
+```
+Icon = "battery-icon-status" {
+  Size = "Pixel 32"
+  Icon = "battery.png"
 }
 ```
 

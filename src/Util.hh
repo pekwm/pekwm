@@ -10,6 +10,7 @@
 
 #include "config.h"
 
+#include "CfgParser.hh"
 #include "Types.hh"
 
 #include <algorithm>
@@ -82,9 +83,10 @@ namespace Util {
     std::string getDir(const std::string &file);
     void expandFileName(std::string &file);
 
-    void getThemeDir(const std::string &config_file,
+    void getThemeDir(const CfgParser::Entry* root,
                      std::string &theme_dir, std::string &theme_variant,
                      std::string &theme_path);
+    void getIconDir(const CfgParser::Entry* root, std::string &icon_dir);
 
     const char* spaceChars(char escape);
     const wchar_t* spaceChars(wchar_t escape);

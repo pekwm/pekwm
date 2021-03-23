@@ -15,6 +15,7 @@
 #include "CfgParser.hh"
 #include "Action.hh" // ActionEvent
 #include "PFont.hh" // PFont::Color
+#include "Util.hh"
 
 class PTexture;
 class FontHandler;
