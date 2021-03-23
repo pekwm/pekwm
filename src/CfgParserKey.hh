@@ -11,8 +11,6 @@
 #include <limits>
 #include <cstdlib>
 
-#include "Util.hh"
-
 //! @brief CfgParserKey base class.
 class CfgParserKey {
 public:
@@ -107,15 +105,9 @@ private:
 //! @brief CfgParser Key boolean value parser.
 class CfgParserKeyBool : public CfgParserKey {
 public:
-    //! @brief CfgParserKeyBool constructor.
     CfgParserKeyBool(const char *name,
-                     bool &set, const bool default_val = false)
-        : CfgParserKey(name),
-          _set(set), _default(default_val)
-    {
-    }
-    //! @brief CfgParserKeyBool destructor.
-    virtual ~CfgParserKeyBool(void) { }
+                     bool &set, const bool default_val = false);
+    virtual ~CfgParserKeyBool(void);
 
     virtual void parseValue(const std::string &value);
 
@@ -127,16 +119,10 @@ private:
 //! @brief CfgParser Key string value parser.
 class CfgParserKeyString : public CfgParserKey {
 public:
-    //! @brief CfgParserKeyString constructor.
     CfgParserKeyString(const char *name,
                        std::string &set, const std::string default_val = "",
-                       const std::string::size_type length_min = 0)
-        : CfgParserKey(name), _set(set), _length_min(length_min)
-    {
-        _set = default_val;
-    }
-    //! @brief CfgParserKeyString destructor.
-    virtual ~CfgParserKeyString(void) { }
+                       const std::string::size_type length_min = 0);
+    virtual ~CfgParserKeyString(void);
 
     virtual void parseValue(const std::string &value);
 
@@ -150,14 +136,8 @@ class CfgParserKeyPath : public CfgParserKey {
 public:
     //! @brief CfgParserKeyPath constructor.
     CfgParserKeyPath(const char *name,
-                     std::string &set, const std::string default_val = "")
-        : CfgParserKey(name),
-          _set(set), _default(default_val)
-    {
-        Util::expandFileName(_default);
-    }
-    //! @brief CfgParserKeyPath destructor.
-    virtual ~CfgParserKeyPath(void) { }
+                     std::string &set, const std::string default_val = "");
+    virtual ~CfgParserKeyPath(void);
 
     virtual void parseValue(const std::string &value);
 

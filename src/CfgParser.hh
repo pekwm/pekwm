@@ -83,7 +83,7 @@ public:
                          const char *value=0) const;
         Entry *findSection(const std::string &name, const char *value=0) const;
         void parseKeyValues(std::vector<CfgParserKey*>::const_iterator begin,
-                            std::vector<CfgParserKey*>::const_iterator end);
+                            std::vector<CfgParserKey*>::const_iterator end) const;
 
         void print(uint level = 0);
         void copyTreeInto(CfgParser::Entry *from, bool overwrite=false);

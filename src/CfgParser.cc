@@ -56,8 +56,10 @@ CfgParser::Entry::Entry(const std::string &source_name, int line,
                         const std::string &name, const std::string &value,
                         CfgParser::Entry *section)
     : _section(section),
-      _name(name), _value(value),
-      _line(line), _source_name(source_name)
+      _name(name),
+      _value(value),
+      _line(line),
+      _source_name(source_name)
 {
 }
 
@@ -66,8 +68,10 @@ CfgParser::Entry::Entry(const std::string &source_name, int line,
  */
 CfgParser::Entry::Entry(const CfgParser::Entry &entry)
     : _section(0),
-      _name(entry._name), _value(entry._value),
-      _line(entry._line), _source_name(entry._source_name)
+      _name(entry._name),
+      _value(entry._value),
+      _line(entry._line),
+      _source_name(entry._source_name)
 {
     for (auto it : entry._entries) {
         _entries.push_back(new Entry(*it));
@@ -77,15 +81,11 @@ CfgParser::Entry::Entry(const CfgParser::Entry &entry)
     }
 }
 
-//! @brief CfgParser::Entry destructor.
 CfgParser::Entry::~Entry(void)
 {
-    for_each(_entries.begin(), _entries.end(), Util::Free<CfgParser::Entry*>());
-
-    if (_section) {
-        delete _section;
-        _section = 0;
-    }
+    std::for_each(_entries.begin(), _entries.end(),
+                  Util::Free<CfgParser::Entry*>());
+    delete _section;
 }
 
 const std::string&
@@ -220,6 +220,7 @@ CfgParser::Entry::findSection(const std::string &name, const char *value) const
 void
 CfgParser::Entry::parseKeyValues(std::vector<CfgParserKey*>::const_iterator it,
                                  std::vector<CfgParserKey*>::const_iterator end)
+    const
 {
     CfgParser::Entry *value;
 

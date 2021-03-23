@@ -12,11 +12,25 @@
 #include <iostream>
 #include <cstdlib>
 
-//! @brief Parses value and sets _br_set.
-//! Boolean true is represented either by case insensitive true or 1.
-//! Boolean false is represented either by case insensitive false or 0.
-//! @param value Value to parse.
-//! @return true on success, else false and _br_set set to _b_default.
+CfgParserKeyBool::CfgParserKeyBool(const char *name, bool &set,
+                                   const bool default_val)
+    : CfgParserKey(name),
+      _set(set),
+      _default(default_val)
+{
+}
+
+CfgParserKeyBool::~CfgParserKeyBool(void)
+{
+}
+
+/**
+ * Parses value and sets _br_set.
+ * Boolean true is represented either by case insensitive true or 1.
+ * Boolean false is represented either by case insensitive false or 0.
+ * @param value Value to parse.
+ * @return true on success, else false and _br_set set to _b_default.
+ */
 void
 CfgParserKeyBool::parseValue(const std::string &value)
 {
@@ -30,9 +44,25 @@ CfgParserKeyBool::parseValue(const std::string &value)
     }
 }
 
-//! @brief Parses value and sets _set.
-//! @param value Value to parse.
-//! @return true on success, else false and _set set to _default.
+CfgParserKeyString::CfgParserKeyString(const char *name, std::string &set,
+                                       const std::string default_val,
+                                       const std::string::size_type length_min)
+    : CfgParserKey(name),
+      _set(set),
+      _length_min(length_min)
+{
+    _set = default_val;
+}
+
+CfgParserKeyString::~CfgParserKeyString(void)
+{
+}
+
+/**
+ * Parses value and sets _set.
+ * @param value Value to parse.
+ * @return true on success, else false and _set set to _default.
+ */
 void
 CfgParserKeyString::parseValue(const std::string &value)
 {
@@ -44,9 +74,25 @@ CfgParserKeyString::parseValue(const std::string &value)
     _set = value;
 }
 
-//! @brief Parses value and sets _set.
-//! @param value Value to parse.
-//! @return true on success, else false and _set set to _default.
+CfgParserKeyPath::CfgParserKeyPath(const char *name, std::string &set,
+                                   const std::string default_val)
+    : CfgParserKey(name),
+      _set(set),
+      _default(default_val)
+{
+    Util::expandFileName(_default);
+}
+
+CfgParserKeyPath::~CfgParserKeyPath(void)
+{
+}
+
+/**
+ * Parses value and sets _set.
+ *
+ * @param value Value to parse.
+ * @return true on success, else false and _set set to _default.
+ */
 void
 CfgParserKeyPath::parseValue(const std::string &value)
 {
