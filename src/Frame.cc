@@ -510,7 +510,6 @@ Frame::activateChild(PWinObj *child)
     // the child before setting shape
     if (X11::hasExtensionShape()) {
         applyBorderShape(ShapeBounding);
-        applyBorderShape(ShapeInput);
     }
 
     setOpacity(_client);

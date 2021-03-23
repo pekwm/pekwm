@@ -31,7 +31,7 @@ PWinObj::PWinObj(bool keyboard_input)
       _mapped(false), _iconified(false),
       _hidden(false), _focused(false), _sticky(false),
       _focusable(true),
-      _shape_bounding(false), _shape_input(false),
+      _shape_bounding(false),
       _keyboard_input(keyboard_input)
 {
 }

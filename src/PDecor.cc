@@ -1706,7 +1706,7 @@ PDecor::placeBorder(void)
 void
 PDecor::applyBorderShape(int kind)
 {
-    bool client_shape = _child ? _child->hasShapeRegion(kind) : false;
+    bool client_shape = _child ? _child->hasShapeRegion() : false;
     if ((_need_shape && kind == ShapeBounding) || client_shape) {
         if (_shaded) {
             applyBorderShapeShaded(kind);

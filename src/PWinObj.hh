@@ -158,17 +158,7 @@ public:
     void updateOpacity(void);
     void setOpaque(bool opaque);
 
-    //! Returns true if a custom region of kind @kind (ShapeBounding
-    //! or ShapeInput) was set via the shape extension for this window.
-    inline bool hasShapeRegion(int kind) const
-    {
-        if (kind == ShapeBounding) {
-            return _shape_bounding;
-        } else if (kind == ShapeInput) {
-            return _shape_input;
-        }
-        return false;
-    }
+    bool hasShapeRegion(void) const { return _shape_bounding; }
 
     // interface
     virtual void mapWindow(void);
@@ -261,7 +251,6 @@ protected:
     bool _sticky:1; //!< Sticky state of PWinObj.
     bool _focusable:1; //!< Focusable state of PWinObj.
     bool _shape_bounding:1; //!< _window has a custom bounding region (shape)
-    bool _shape_input:1; //!< _window has a custom input region (shape)
     bool _keyboard_input:1; //!< PWinObj is consuming keyboard input.
 
     /**

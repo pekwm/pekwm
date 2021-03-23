@@ -84,22 +84,6 @@ Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
         int isShaped;
         X11::shapeQuery(_window, &isShaped);
         _shape_bounding = isShaped;
-
-        int num = 0;
-        auto *rect = X11::shapeGetRects(_window, ShapeBounding, &num);
-        if (rect) {
-            if (num == 1) {
-                unsigned w, h, bw;
-                X11::getGeometry(_window, &w, &h, &bw);
-                if (rect->x > 0 || rect->y > 0 || rect->width < w+bw
-                                || rect->height < h+bw) {
-                   _shape_input = true;
-                }
-            } else {
-                _shape_input = true;
-            }
-            X11::free(rect);
-        }
     }
 
     XAddToSaveSet(X11::getDpy(), _window);
@@ -630,8 +614,6 @@ Client::handleShapeEvent(XShapeEvent *ev)
 {
     if (ev->kind == ShapeBounding) {
         _shape_bounding = ev->shaped;
-    } else if (ev->kind == ShapeInput) {
-        _shape_input = ev->shaped;
     } else {
         return;
     }
