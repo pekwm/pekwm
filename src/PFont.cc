@@ -20,6 +20,26 @@
 std::wstring PFont::_trim_string = std::wstring();
 const char *FALLBACK_FONT = "fixed";
 
+// PFont::Color
+
+PFont::Color::Color(void)
+    : _fg(nullptr),
+      _bg(nullptr),
+      _fg_alpha(65535),
+      _bg_alpha(65535)
+{
+}
+
+PFont::Color::~Color(void)
+{
+    if (_fg) {
+        X11::returnColor(_fg);
+    }
+    if (_bg) {
+        X11::returnColor(_bg);
+    }
+}
+
 // PFont
 
 //! @brief PFont constructor

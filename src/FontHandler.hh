@@ -30,7 +30,6 @@ public:
 
 private:
     void loadColor(const std::string &color, PFont::Color *font_color, bool fg);
-    void freeColor(PFont::Color *font_color);
 
 private:
     std::vector<HandlerEntry<PFont*> > _fonts;

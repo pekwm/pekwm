@@ -162,14 +162,12 @@ FontHandler::getColor(const std::string &color)
     }
 
     // create new
-    PFont::Color *font_color = new PFont::Color();
-    font_color->setHasFg(true);
+    auto font_color = new PFont::Color();
 
     std::vector<std::string> tok;
     if (Util::splitString(color, tok, " \t", 2) == 2) {
         loadColor(tok[0], font_color, true);
         loadColor(tok[1], font_color, false);
-        font_color->setHasBg(true);
     } else {
         loadColor(color, font_color, true);
     }
@@ -233,19 +231,4 @@ FontHandler::loadColor(const std::string &color, PFont::Color *font_color,
     } else {
         font_color->setBg(xc);
     }
-}
-
-//! @brief Helper unloader of font colors
-void
-FontHandler::freeColor(PFont::Color *font_color)
-{
-    if (font_color->hasFg()) {
-        X11::returnColor(font_color->getFg());
-    }
-    
-    if (font_color->hasBg()) {
-        X11::returnColor(font_color->getBg());
-    }
-    
-    delete font_color;
 }

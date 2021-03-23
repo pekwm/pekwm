@@ -289,7 +289,7 @@ public:
     static Colormap getColormap(void) { return _colormap; }
 
     static XColor *getColor(const std::string &color);
-    static void returnColor(XColor *xc);
+    static void returnColor(XColor*& xc);
 
     static ulong getWhitePixel(void) { return WhitePixel(_dpy, _screen); }
     static ulong getBlackPixel(void) { return BlackPixel(_dpy, _screen); }

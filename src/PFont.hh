@@ -33,31 +33,27 @@ public:
 
     class Color {
     public:
-        Color(void) : _has_fg(false), _has_bg(false),
-                      _fg_alpha(65535), _bg_alpha(65535)
-                     { }
-        ~Color(void) { }
+        Color(void);
+        ~Color(void);
 
-        inline XColor *getFg(void) { return _fg; }
-        inline XColor *getBg(void) { return _bg; }
-        inline void setFg(XColor *xc) { _fg = xc; }
-        inline void setBg(XColor *xc) { _bg = xc; }
+        XColor *getFg(void) { return _fg; }
+        XColor *getBg(void) { return _bg; }
+        void setFg(XColor *xc) { _fg = xc; }
+        void setBg(XColor *xc) { _bg = xc; }
 
-        inline uint getFgAlpha(void) const { return _fg_alpha; }
-        inline uint getBgAlpha(void) const { return _bg_alpha; }
-        inline void setFgAlpha(uint alpha) { _fg_alpha = alpha; }
-        inline void setBgAlpha(uint alpha) { _bg_alpha = alpha; }
+        uint getFgAlpha(void) const { return _fg_alpha; }
+        uint getBgAlpha(void) const { return _bg_alpha; }
+        void setFgAlpha(uint alpha) { _fg_alpha = alpha; }
+        void setBgAlpha(uint alpha) { _bg_alpha = alpha; }
 
-        inline bool hasFg(void) const { return _has_fg; }
-        inline bool hasBg(void) const { return _has_bg; }
-        inline void setHasFg(bool f) { _has_fg = f; }
-        inline void setHasBg(bool b) { _has_bg = b; }
+        bool hasFg(void) const { return _fg != nullptr; }
+        bool hasBg(void) const { return _bg != nullptr; }
 
     private:
-        XColor *_fg, *_bg;
-        bool _has_fg, _has_bg;
-
-        uint _fg_alpha, _bg_alpha;
+        XColor *_fg;
+        XColor *_bg;
+        uint _fg_alpha;
+        uint _bg_alpha;
     };
 
     PFont(void);

@@ -506,7 +506,7 @@ X11::getColor(const std::string &color)
 }
 
 void
-X11::returnColor(XColor *xc)
+X11::returnColor(XColor*& xc)
 {
     if (&_xc_default == xc) { // no need to return default color
         return;
@@ -526,6 +526,8 @@ X11::returnColor(XColor *xc)
             break;
         }
     }
+
+    xc = nullptr;
 }
 
 /**
