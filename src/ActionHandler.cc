@@ -610,20 +610,22 @@ void
 ActionHandler::actionSendToWorkspace(PDecor *decor, bool focus, int direction)
 {
     // Convenience
-    const uint per_row = Workspaces::getPerRow(),
-        cur_row = Workspaces::getRow(),
-        cur_act = Workspaces::getActive(),
-        row_min = Workspaces::getRowMin(),
-        row_max = Workspaces::getRowMax();
+    const uint per_row = Workspaces::getPerRow();
+    const uint cur_row = Workspaces::getRow();
+    const uint cur_act = Workspaces::getActive();
+    const uint row_min = Workspaces::getRowMin();
+    const uint row_max = Workspaces::getRowMax();
+    const uint udirection = static_cast<uint>(direction);
 
-    uint new_workspace;
+    // Initialized to silence compiler warning
+    uint new_workspace = cur_act;
 
     switch (static_cast<WorkspaceChangeType>(direction)) {
     case WORKSPACE_LEFT:
     case WORKSPACE_PREV:
         if (cur_act > row_min) {
             new_workspace = cur_act - 1;
-        } else if (static_cast<uint>(direction) == WORKSPACE_PREV) {
+        } else if (udirection == WORKSPACE_PREV) {
             new_workspace = row_max;
         }
         break;
@@ -631,7 +633,7 @@ ActionHandler::actionSendToWorkspace(PDecor *decor, bool focus, int direction)
     case WORKSPACE_RIGHT:
         if (cur_act < row_max) {
             new_workspace = cur_act + 1;
-        } else if (static_cast<uint>(direction) == WORKSPACE_NEXT) {
+        } else if (udirection == WORKSPACE_NEXT) {
             new_workspace = row_min;
         }
         break;
@@ -639,7 +641,7 @@ ActionHandler::actionSendToWorkspace(PDecor *decor, bool focus, int direction)
     case WORKSPACE_UP:
         if (cur_act >= per_row) {
             new_workspace = cur_act - per_row;
-        } else if (static_cast<uint>(direction) == WORKSPACE_PREV_V) {
+        } else if (udirection == WORKSPACE_PREV_V) {
             // Bottom left + column
             new_workspace = Workspaces::size() - per_row
                 + cur_act - cur_row * per_row;
@@ -649,7 +651,7 @@ ActionHandler::actionSendToWorkspace(PDecor *decor, bool focus, int direction)
     case WORKSPACE_DOWN:
         if ((cur_act + per_row) < Workspaces::size()) {
             new_workspace = cur_act + per_row;
-        } else if (static_cast<uint>(direction) == WORKSPACE_NEXT_V) {
+        } else if (udirection == WORKSPACE_NEXT_V) {
             new_workspace = cur_act - cur_row * per_row;
         }
         break;
