@@ -8,6 +8,7 @@
 
 #include "pekwm.hh"
 
+#include "Compat.hh"
 #include "ImageHandler.hh"
 #include "TextureHandler.hh"
 #include "Util.hh"
@@ -149,16 +150,16 @@ int main(int argc, char* argv[])
     std::string load_dir("./");
 
     static struct option opts[] = {
-        {"display", required_argument, NULL, 'd'},
-        {"daemon", no_argument, NULL, 'D'},
-        {"help", no_argument, NULL, 'h'},
-        {"load-dir", required_argument, NULL, 'l'},
-        {"stop", no_argument, NULL, 's'},
-        {NULL, 0, NULL, 0}
+        {const_cast<char*>("display"), required_argument, nullptr, 'd'},
+        {const_cast<char*>("daemon"), no_argument, nullptr, 'D'},
+        {const_cast<char*>("help"), no_argument, nullptr, 'h'},
+        {const_cast<char*>("load-dir"), required_argument, nullptr, 'l'},
+        {const_cast<char*>("stop"), no_argument, nullptr, 's'},
+        {nullptr, 0, nullptr, 0}
     };
 
     int ch;
-    while ((ch = getopt_long(argc, argv, "d:Dhl:s", opts, NULL)) != -1) {
+    while ((ch = getopt_long(argc, argv, "d:Dhl:s", opts, nullptr)) != -1) {
         switch (ch) {
         case 'd':
             display = optarg;

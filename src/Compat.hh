@@ -44,6 +44,10 @@ extern "C" {
 int unsetenv(const char *name);
 #endif // HAVE_UNSETENV
 
+#ifndef HAVE_DAEMON
+int daemon(int nochdir, int noclose);
+#endif // HAVE_DAEMON
+
 #ifndef HAVE_TIMERSUB
 #define timersub(a, b, result)                                                \
   do {                                                                        \

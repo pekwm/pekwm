@@ -675,23 +675,24 @@ int main(int argc, char* argv[])
     std::vector<std::wstring> options;
 
     static struct option opts[] = {
-        {"config", required_argument, NULL, 'c'},
-        {"display", required_argument, NULL, 'd'},
-        {"geometry", required_argument, NULL, 'g'},
-        {"help", no_argument, NULL, 'h'},
-        {"image", required_argument, NULL, 'i'},
-        {"option", required_argument, NULL, 'o'},
-        {"raise", no_argument, NULL, 'r'},
-        {"title", required_argument, NULL, 't'},
-        {"log-level", required_argument, NULL, 'l'},
-        {"log-file", required_argument, NULL, 'f'},
-        {NULL, 0, NULL, 0}
+        {const_cast<char*>("config"), required_argument, nullptr, 'c'},
+        {const_cast<char*>("display"), required_argument, nullptr, 'd'},
+        {const_cast<char*>("geometry"), required_argument, nullptr, 'g'},
+        {const_cast<char*>("help"), no_argument, nullptr, 'h'},
+        {const_cast<char*>("image"), required_argument, nullptr, 'i'},
+        {const_cast<char*>("option"), required_argument, nullptr, 'o'},
+        {const_cast<char*>("raise"), no_argument, nullptr, 'r'},
+        {const_cast<char*>("title"), required_argument, nullptr, 't'},
+        {const_cast<char*>("log-level"), required_argument, nullptr, 'l'},
+        {const_cast<char*>("log-file"), required_argument, nullptr, 'f'},
+        {nullptr, 0, nullptr, 0}
     };
 
     Charset::init();
 
     int ch;
-    while ((ch = getopt_long(argc, argv, "c:d:g:hi:o:rt:", opts, NULL)) != -1) {
+    while ((ch = getopt_long(argc, argv, "c:d:g:hi:o:rt:",
+                             opts, nullptr)) != -1) {
         switch (ch) {
         case 'c':
             config_file = optarg;

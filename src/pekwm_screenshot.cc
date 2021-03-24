@@ -92,13 +92,13 @@ int main(int argc, char* argv[])
     const char* display = NULL;
 
     static struct option opts[] = {
-        {"display", required_argument, NULL, 'd'},
-        {"help", no_argument, NULL, 'h'},
-        {NULL, 0, NULL, 0}
+        {const_cast<char*>("display"), required_argument, nullptr, 'd'},
+        {const_cast<char*>("help"), no_argument, nullptr, 'h'},
+        {nullptr, 0, nullptr, 0}
     };
 
     int ch;
-    while ((ch = getopt_long(argc, argv, "d:h", opts, NULL)) != -1) {
+    while ((ch = getopt_long(argc, argv, "d:h", opts, nullptr)) != -1) {
         switch (ch) {
         case 'd':
             display = optarg;

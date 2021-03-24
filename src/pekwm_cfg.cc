@@ -85,14 +85,14 @@ int main(int argc, char* argv[])
     std::map<std::string, std::string> cfg_env;
 
     static struct option opts[] = {
-        {"json", required_argument, NULL, 'd'},
-        {"env", required_argument, NULL, 'e'},
-        {"help", no_argument, NULL, 'h'},
-        {NULL, 0, NULL, 0}
+        {const_cast<char*>("json"), required_argument, nullptr, 'd'},
+        {const_cast<char*>("env"), required_argument, nullptr, 'e'},
+        {const_cast<char*>("help"), no_argument, nullptr, 'h'},
+        {nullptr, 0, nullptr, 0}
     };
 
     int ch;
-    while ((ch = getopt_long(argc, argv, "e:j:h", opts, NULL)) != -1) {
+    while ((ch = getopt_long(argc, argv, "e:j:h", opts, nullptr)) != -1) {
         switch (ch) {
         case 'e': {
             std::vector<std::string> vals;

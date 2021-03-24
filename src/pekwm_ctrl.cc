@@ -186,12 +186,12 @@ int main(int argc, char* argv[])
     const char* display = NULL;
 
     static struct option opts[] = {
-        {"action", required_argument, NULL, 'a'},
-        {"client", required_argument, NULL, 'c'},
-        {"display", required_argument, NULL, 'd'},
-        {"help", no_argument, NULL, 'h'},
-        {"window", required_argument, NULL, 'w'},
-        {NULL, 0, NULL, 0}
+        {const_cast<char*>("action"), required_argument, nullptr, 'a'},
+        {const_cast<char*>("client"), required_argument, nullptr, 'c'},
+        {const_cast<char*>("display"), required_argument, nullptr, 'd'},
+        {const_cast<char*>("help"), no_argument, nullptr, 'h'},
+        {const_cast<char*>("window"), required_argument, nullptr, 'w'},
+        {nullptr, 0, nullptr, 0}
     };
 
     Charset::init();
@@ -200,7 +200,7 @@ int main(int argc, char* argv[])
     CtrlAction action = ACTION_RUN;
     Window client = None;
     RegexString client_re;
-    while ((ch = getopt_long(argc, argv, "a:c:d:hw:", opts, NULL)) != -1) {
+    while ((ch = getopt_long(argc, argv, "a:c:d:hw:", opts, nullptr)) != -1) {
         switch (ch) {
         case 'a':
             action = getAction(optarg);

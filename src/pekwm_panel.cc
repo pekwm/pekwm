@@ -2359,19 +2359,19 @@ int main(int argc, char *argv[])
     const char* display = NULL;
 
     static struct option opts[] = {
-        {"config", required_argument, NULL, 'c'},
-        {"pekwm-config", required_argument, NULL, 'C'},
-        {"display", required_argument, NULL, 'd'},
-        {"help", no_argument, NULL, 'h'},
-        {"log-level", required_argument, NULL, 'l'},
-        {"log-file", required_argument, NULL, 'f'},
-        {NULL, 0, NULL, 0}
+        {const_cast<char*>("config"), required_argument, nullptr, 'c'},
+        {const_cast<char*>("pekwm-config"), required_argument, nullptr, 'C'},
+        {const_cast<char*>("display"), required_argument, nullptr, 'd'},
+        {const_cast<char*>("help"), no_argument, nullptr, 'h'},
+        {const_cast<char*>("log-level"), required_argument, nullptr, 'l'},
+        {const_cast<char*>("log-file"), required_argument, nullptr, 'f'},
+        {nullptr, 0, nullptr, 0}
     };
 
     Charset::init();
 
     int ch;
-    while ((ch = getopt_long(argc, argv, "c:C:d:f:hl:", opts, NULL)) != -1) {
+    while ((ch = getopt_long(argc, argv, "c:C:d:f:hl:", opts, nullptr)) != -1) {
         switch (ch) {
         case 'c':
             config_file = optarg;
