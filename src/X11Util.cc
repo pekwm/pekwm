@@ -32,6 +32,18 @@ NetWMStates::~NetWMStates(void)
 namespace X11Util {
 
     /**
+     * Get geometry for the given head, -1 will return the screen
+     * geometry.
+     */
+    Geometry getHeadGeometry(int head)
+    {
+        if (head < 0) {
+            return X11::getScreenGeometry();
+        }
+        return X11::getHeadGeometry(head);
+    }
+
+    /**
      * Get current head, depending on configuration it is the same
      * head as the cursor is on OR the head where the focused window
      * is on.

@@ -263,6 +263,7 @@ public:
     bool load(const std::string &panel_file);
 
     PanelPlacement getPlacement(void) const { return _placement; }
+    int getHead(void) const { return _head; }
 
     uint getRefreshIntervalS(void) const { return _refresh_interval_s; }
 
@@ -286,6 +287,8 @@ private:
 private:
     /** Position of panel. */
     PanelPlacement _placement;
+    /** Panel head, -1 for stretch all heads which is default. */
+    int _head;
 
     /** List of commands to run. */
     command_config_vector _commands;
@@ -296,7 +299,8 @@ private:
 };
 
 PanelConfig::PanelConfig(void)
-    : _placement(DEFAULT_PLACEMENT)
+    : _placement(DEFAULT_PLACEMENT),
+      _head(-1)
 {
 }
 
@@ -330,6 +334,7 @@ PanelConfig::loadPanel(CfgParser::Entry *section)
     std::string placement;
     std::vector<CfgParserKey*> keys;
     keys.push_back(new CfgParserKeyString("PLACEMENT", placement, "TOP"));
+    keys.push_back(new CfgParserKeyNumeric<int>("HEAD", _head, -1));
     section->parseKeyValues(keys.begin(), keys.end());
     std::for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 
@@ -1972,54 +1977,13 @@ public:
 
     const PanelConfig& getCfg(void) const { return _cfg; }
 
-    void configure(void)
-    {
-        addWidgets();
-        resizeWidgets();
-    }
-
+    void configure(void);
     void setStrut(void);
+    void place(void);
+    void render(void);
 
-    void place(void)
-    {
-        int y;
-        if (_cfg.getPlacement() == PANEL_TOP) {
-            y = 0;
-        } else {
-            y = X11::getHeight() - _theme.getHeight();
-        }
-        moveResize(0, y, X11::getWidth(), _theme.getHeight());
-    }
-
-    void render(void)
-    {
-        renderPred([](PanelWidget *w) { return w->isDirty(); });
-    }
-
-    virtual void notify(Observable*, Observation *observation) override
-    {
-        if (dynamic_cast<WmState::PEKWM_THEME_Changed*>(observation)) {
-            DBG("reloading theme, _PEKWM_THEME changed");
-            loadTheme(_theme, _pekwm_config_file);
-            setStrut();
-            place();
-        }
-
-        if (dynamic_cast<WmState::XROOTPMAP_ID_Changed*>(observation)
-            || dynamic_cast<WmState::PEKWM_THEME_Changed*>(observation)) {
-            renderBackground();
-            renderPred([](PanelWidget*) { return true; });
-        }
-    }
-
-    virtual void refresh(bool timed_out) override
-    {
-        _ext_data.refresh([this](int fd) { this->addFd(fd); });
-        if (timed_out) {
-            renderPred([](PanelWidget*) { return true; });
-        }
-    }
-
+    virtual void notify(Observable*, Observation *observation) override;
+    virtual void refresh(bool timed_out) override;
     virtual void handleEvent(XEvent *ev) override;
 
 private:
@@ -2153,6 +2117,13 @@ PekwmPanel::~PekwmPanel(void)
 }
 
 void
+PekwmPanel::configure(void)
+{
+    addWidgets();
+    resizeWidgets();
+}
+
+void
 PekwmPanel::setStrut(void)
 {
     Cardinal strut[4] = {0};
@@ -2162,6 +2133,52 @@ PekwmPanel::setStrut(void)
         strut[3] = _theme.getHeight();
     }
     X11::setCardinals(_window, NET_WM_STRUT, strut, 4);
+}
+
+void
+PekwmPanel::place(void)
+{
+    auto head = X11Util::getHeadGeometry(_cfg.getHead());
+
+    int y;
+    if (_cfg.getPlacement() == PANEL_TOP) {
+        y = head.y;
+    } else {
+        y = head.y + head.height - _theme.getHeight();
+    }
+    moveResize(head.x, y, head.width, _theme.getHeight());
+}
+
+void
+PekwmPanel::render(void)
+{
+    renderPred([](PanelWidget *w) { return w->isDirty(); });
+}
+
+void
+PekwmPanel::notify(Observable*, Observation *observation)
+{
+    if (dynamic_cast<WmState::PEKWM_THEME_Changed*>(observation)) {
+        DBG("reloading theme, _PEKWM_THEME changed");
+        loadTheme(_theme, _pekwm_config_file);
+        setStrut();
+        place();
+    }
+
+    if (dynamic_cast<WmState::XROOTPMAP_ID_Changed*>(observation)
+        || dynamic_cast<WmState::PEKWM_THEME_Changed*>(observation)) {
+        renderBackground();
+        renderPred([](PanelWidget*) { return true; });
+    }
+}
+
+void
+PekwmPanel::refresh(bool timed_out)
+{
+    _ext_data.refresh([this](int fd) { this->addFd(fd); });
+    if (timed_out) {
+        renderPred([](PanelWidget*) { return true; });
+    }
 }
 
 void
@@ -2428,16 +2445,17 @@ int main(int argc, char *argv[])
             PanelTheme theme;
             loadTheme(theme, _pekwm_config_file);
 
+            auto head = X11Util::getHeadGeometry(cfg.getHead());
             XSizeHints normal_hints = {0};
             normal_hints.flags = PPosition|PSize;
-            normal_hints.x = 0;
-            normal_hints.width = X11::getWidth();
+            normal_hints.x = head.x;
+            normal_hints.width = head.width;
             normal_hints.height = theme.getHeight();
 
             if (cfg.getPlacement() == PANEL_TOP) {
-                normal_hints.y = 0;
+                normal_hints.y = head.y;
             } else {
-                normal_hints.y = X11::getHeight() - normal_hints.height;
+                normal_hints.y = head.y + head.height - normal_hints.height;
             }
 
             PekwmPanel panel(cfg, theme, &normal_hints);

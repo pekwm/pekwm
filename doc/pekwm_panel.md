@@ -11,7 +11,14 @@ specific window hints.
 The default configuration is placed in _~/.pekwm/panel_ and configures
 the _widgets_ displayed, panel _placement_ and external _commands_.
 
-**Placement** _Top_ or _Bottom_
+### Panel
+
+The panel section contains configuration for the panel itself.
+
+**Placement**, place panel at the _Top_ or _Bottom_ of the head.
+
+**Head**, if present place the panel on the given head (number)
+instead of spanning all heads.
 
 ### Widgets
 

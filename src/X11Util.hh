@@ -61,6 +61,7 @@ public:
 };
 
 namespace X11Util {
+    Geometry getHeadGeometry(int head);
     uint getCurrHead(CurrHeadSelector chs);
     uint getNearestHead(const PWinObj& wo);
 
