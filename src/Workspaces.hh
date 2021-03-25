@@ -109,6 +109,7 @@ public:
 
     static void raise(PWinObj* wo);
     static void lower(PWinObj* wo);
+    static bool handleFullscreenBeforeRaise(PWinObj* wo);
 
     static PWinObj* getTopWO(uint type_mask);
     static void updateClientList(void);
@@ -158,6 +159,7 @@ private:
     static Window *buildClientList(unsigned int &num_windows);
     static bool warpToWorkspace(uint num, int dir);
 
+    static bool lowerFullscreenWindows(Layer new_layer);
     static std::wstring getWorkspaceName(uint num);
 
     static uint _active; /**< Current active workspace. */
