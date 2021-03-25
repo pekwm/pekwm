@@ -538,9 +538,93 @@ Workspaces::raise(PWinObj* wo)
     if (it == _wobjs.end()) { // no Frame to raise.
         return;
     }
+    if (handleFullscreenBeforeRaise(wo)) {
+        it = find(_wobjs.begin(), _wobjs.end(), wo);
+    }
     _wobjs.erase(it);
 
     insert(wo, true); // reposition and restack
+}
+
+/**
+ * Handles fullscreen windows when raising a window: if a normal
+ * window is raised, fullscreen windows on LAYER_ABOVE_DOCK are
+ * lowered. If a fullscreen window is raised, bring it back to
+ * LAYER_ABOVE_DOCK.
+ *
+ * @return true if _wobjs iterators may be invalid
+ */
+bool
+Workspaces::handleFullscreenBeforeRaise(PWinObj* wo)
+{
+    if (!pekwm::config()->isFullscreenAbove()
+        || wo->getLayer() == LAYER_DESKTOP
+        || wo->getLayer() >= LAYER_ABOVE_DOCK) {
+        return false;
+    }
+
+    if (wo->isFullscreen()) {
+        // Fullscreen windows may have been removed from
+        // LAYER_ABOVE_DOCK by lowerFullscreenWindows(). Raise it back
+        // to LAYER_ABOVE_DOCK
+        wo->setLayer(LAYER_ABOVE_DOCK);
+        return false;
+    }
+
+    // Move all mapped fullscreen windows at LAYER_ABOVE_DOCK back
+    // to wo->getLayer() in order for "wo" to be visible.
+    //
+    // Since restacking is done one by one, this could lead to
+    // some flickering, but quite minimmum.
+    return lowerFullscreenWindows(wo->getLayer());
+}
+
+/**
+ * Move all windows above new_layer back to new_layer and restack one
+ * by one, from bottom to top.
+ *
+ * Since the top fullscreen window should hide everything else,
+ * multiple restacking operations shouldn't produce any flickering
+ * until the top one is restacked, which may show a few more windows
+ * on top of it.
+ *
+ * @param new_layer the new layer for fullscreen windows
+ * @return true if _wobjs iterators may be invalid
+ */
+bool
+Workspaces::lowerFullscreenWindows(Layer new_layer)
+{
+    std::vector<PWinObj*> fs_wobjs;
+
+    // Note, fullscreen windows are typically only in
+    // LAYER_ABOVE_DOCK. However, a call to lowerFullscreenWindows()
+    // with new_layer == LAYER_ONTOP could put fullscreen windows
+    // there, so we need to check all layers above new_layer, not just
+    // LAYER_ABOVE_DOCK.
+    for (auto wo : _wobjs) {
+        if (wo->getLayer() > new_layer
+            && wo->isMapped() && wo->isFullscreen()) {
+            fs_wobjs.push_back(wo);
+            wo->setLayer(new_layer);
+        }
+    }
+
+    for (auto wo : fs_wobjs) {
+        // We could have erased these windows in the first for loop,
+        // which could reduce a couple of find() calls.
+        //
+        // But we want the higher fullscreen windows to _stay_ in
+        // _wobjs, so that they can be the (top_obj) anchor point for
+        // restacking. And since that anchor is most likely fullscreen
+        // and hides everything else, no flickering.
+        iterator it(find(_wobjs.begin(), _wobjs.end(), wo));
+
+        if (it != _wobjs.end()) {
+            _wobjs.erase(it);
+            insert(wo, true);
+        }
+    }
+    return !fs_wobjs.empty();
 }
 
 //! @brief Lower a PWinObj and restacks windows.

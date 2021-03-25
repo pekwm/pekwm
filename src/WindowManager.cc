@@ -1455,7 +1455,9 @@ WindowManager::createClient(Window window, bool is_new)
     if (client) {
         if (client->isAlive()) {
             if (initConfig.parent_is_new) {
-                Workspaces::insert(client->getParent(), true);
+                PWinObj *wo = client->getParent();
+                Workspaces::handleFullscreenBeforeRaise(wo);
+                Workspaces::insert(wo, true);
             }
             Workspaces::updateClientList();
 
@@ -1475,15 +1477,12 @@ WindowManager::createClient(Window window, bool is_new)
 
                 if (wo != nullptr
                     && wo->isMapped()
-                    && ((pekwm::config()->isFullscreenAbove()
-                         && wo->isFullscreen())
-                        || (wo->isKeyboardInput()
-                            && time_protect
-                            && time_protect >= (X11::getLastEventTime()
-                                                - wo->getLastActivity())))) {
-                    // WO exists, is mapped, and either time protect
-                    // is active and within it's limits or WO is
-                    // fullscreen.
+                    && wo->isKeyboardInput()
+                    && time_protect
+                    && time_protect >= (X11::getLastEventTime()
+                                        - wo->getLastActivity())) {
+                    // WO exists, is mapped, and time protect is
+                    // active and within it's limits.
                 } else {
                     client->getParent()->giveInputFocus();
                 }
