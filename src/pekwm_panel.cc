@@ -796,7 +796,7 @@ ClientInfo::readName(void)
     if (X11::getTextProperty(_window, XA_WM_NAME, name)) {
         return Charset::to_wide_str(name);
     }
-    return L"";
+    return _empty_wstring;
 }
 
 /**
@@ -822,10 +822,18 @@ public:
         readActiveWorkspace();
         readActiveWindow();
         readClientListStacking();
+        readDesktopNames();
     }
 
     uint getActiveWorkspace(void) const { return _workspace; }
+    const std::wstring& getWorkspaceName(uint num) const {
+        if (num < _desktop_names.size()) {
+            return _desktop_names[num];
+        }
+        return _empty_wstring;
+    }
     Window getActiveWindow(void) const { return _active_window; }
+    ClientInfo *findClientInfo(Window win) const;
 
     uint numClients(void) const { return _clients.size(); }
     client_info_it clientsBegin(void) const { return _clients.begin(); }
@@ -833,92 +841,21 @@ public:
 
     bool handlePropertyNotify(XPropertyEvent *ev);
 
-    ClientInfo* findClientInfo(Window win, std::vector<ClientInfo*> &clients)
-    {
-        auto it = clients.begin();
-        for (; it != clients.end(); ++it) {
-            if ((*it)->getWindow() == win) {
-                return *it;
-            }
-        }
-        return nullptr;
-    }
-
 private:
-    ClientInfo* popClientInfo(Window win, std::vector<ClientInfo*> &clients)
-    {
-        auto it = clients.begin();
-        for (; it != clients.end(); ++it) {
-            if ((*it)->getWindow() == win) {
-                auto client_info = *it;
-                clients.erase(it);
-                return client_info;
-            }
-        }
-        return nullptr;
-    }
+    ClientInfo* findClientInfo(Window win,
+                               const std::vector<ClientInfo*> &clients) const;
+    ClientInfo* popClientInfo(Window win, std::vector<ClientInfo*> &clients);
 
-    bool readActiveWorkspace(void)
-    {
-        Cardinal workspace;
-        if (! X11::getCardinal(X11::getRoot(), NET_CURRENT_DESKTOP,
-                               workspace)) {
-            TRACE("failed to read _NET_CURRENT_DESKTOP, setting to 0");
-            _workspace = 0;
-            return false;
-        }
-        _workspace = workspace;
-        return true;
-    }
-
-    bool readActiveWindow(void)
-    {
-        if (! X11::getWindow(X11::getRoot(),
-                             NET_ACTIVE_WINDOW, _active_window)) {
-            TRACE("failed to read _NET_ACTIVE_WINDOW, setting to None");
-            _active_window = None;
-            return false;
-        }
-        return true;
-    }
-
-    bool readClientListStacking(void)
-    {
-        ulong actual;
-        Window *windows;
-        if (! X11::getProperty(X11::getRoot(),
-                               X11::getAtom(NET_CLIENT_LIST),
-                               XA_WINDOW, 0,
-                               reinterpret_cast<uchar**>(&windows), &actual)) {
-            TRACE("failed to read _NET_CLIENT_LIST");
-            return false;
-        }
-
-        client_info_vector old_clients = _clients;
-        _clients.clear();
-        for (uint i = 0; i < actual; i++) {
-            auto client_info = popClientInfo(windows[i], old_clients);
-            if (client_info == nullptr) {
-                _clients.push_back(new ClientInfo(windows[i]));
-            } else {
-                _clients.push_back(client_info);
-            }
-        }
-
-        for (auto it : old_clients) {
-            delete it;
-        }
-
-        X11::free(windows);
-
-        TRACE("read _NET_CLIENT_LIST, " << actual << " windows");
-        return true;
-    }
+    bool readActiveWorkspace(void);
+    bool readActiveWindow(void);
+    bool readClientListStacking(void);
+    bool readDesktopNames(void);
 
 private:
     Window _active_window;
     uint _workspace;
     client_info_vector _clients;
+    std::vector<std::wstring> _desktop_names;
 
     XROOTPMAP_ID_Changed _xrootpmap_id_changed;
     PEKWM_THEME_Changed _pekwm_theme_changed;
@@ -936,6 +873,12 @@ WmState::~WmState(void)
     for (auto it : _clients) {
         delete it;
     }
+}
+
+ClientInfo*
+WmState::findClientInfo(Window win) const
+{
+    return findClientInfo(win, _clients);
 }
 
 bool
@@ -968,6 +911,117 @@ WmState::handlePropertyNotify(XPropertyEvent *ev)
     }
 
     return updated;
+}
+
+ClientInfo*
+WmState::findClientInfo(Window win,
+                        const std::vector<ClientInfo*> &clients) const
+{
+    auto it = clients.begin();
+    for (; it != clients.end(); ++it) {
+        if ((*it)->getWindow() == win) {
+            return *it;
+        }
+    }
+    return nullptr;
+}
+
+ClientInfo*
+WmState::popClientInfo(Window win, std::vector<ClientInfo*> &clients)
+{
+    auto it = clients.begin();
+    for (; it != clients.end(); ++it) {
+        if ((*it)->getWindow() == win) {
+            auto client_info = *it;
+            clients.erase(it);
+            return client_info;
+        }
+    }
+    return nullptr;
+}
+
+bool
+WmState::readActiveWorkspace(void)
+{
+    Cardinal workspace;
+    if (! X11::getCardinal(X11::getRoot(), NET_CURRENT_DESKTOP,
+                           workspace)) {
+        TRACE("failed to read _NET_CURRENT_DESKTOP, setting to 0");
+        _workspace = 0;
+        return false;
+    }
+    _workspace = workspace;
+    return true;
+}
+
+bool
+WmState::readActiveWindow(void)
+{
+    if (! X11::getWindow(X11::getRoot(),
+                         NET_ACTIVE_WINDOW, _active_window)) {
+        TRACE("failed to read _NET_ACTIVE_WINDOW, setting to None");
+        _active_window = None;
+        return false;
+    }
+    return true;
+}
+
+bool
+WmState::readClientListStacking(void)
+{
+    ulong actual;
+    Window *windows;
+    if (! X11::getProperty(X11::getRoot(),
+                           X11::getAtom(NET_CLIENT_LIST),
+                           XA_WINDOW, 0,
+                           reinterpret_cast<uchar**>(&windows), &actual)) {
+        TRACE("failed to read _NET_CLIENT_LIST");
+        return false;
+    }
+
+    client_info_vector old_clients = _clients;
+    _clients.clear();
+    for (uint i = 0; i < actual; i++) {
+        auto client_info = popClientInfo(windows[i], old_clients);
+        if (client_info == nullptr) {
+            _clients.push_back(new ClientInfo(windows[i]));
+        } else {
+            _clients.push_back(client_info);
+        }
+    }
+
+    for (auto it : old_clients) {
+        delete it;
+    }
+
+    X11::free(windows);
+
+    TRACE("read _NET_CLIENT_LIST, " << actual << " windows");
+    return true;
+}
+
+bool
+WmState::readDesktopNames(void)
+{
+    _desktop_names.clear();
+
+    uchar *data;
+    ulong data_length;
+    if (! X11::getProperty(X11::getRoot(), X11::getAtom(NET_DESKTOP_NAMES),
+                           X11::getAtom(UTF8_STRING), 0, &data, &data_length)) {
+        return false;
+    }
+
+    char *name = reinterpret_cast<char*>(data);
+    for (ulong i = 0; i < data_length; ) {
+        _desktop_names.push_back(Charset::from_utf8_str(name));
+        int name_len = strlen(name);
+        i += name_len + 1;
+        name += name_len + 1;
+    }
+    X11::free(data);
+
+    return true;
 }
 
 /**
@@ -1664,55 +1718,243 @@ BarWidget::addColor(float percent, XColor* color)
     _colors.insert(it, std::pair<float, XColor*>(percent, color));
 }
 
-/**
- * Widget displaying a data field from the output of the defined
- * commands in this panel.
- */
-class ExternalDataWidget : public PanelWidget,
-                           public Observer {
+class TextFormatter
+{
 public:
-    ExternalDataWidget(const PanelTheme& theme,
-                       const SizeReq& size_req,
-                       ExternalCommandData& ext_data,
-                       const std::string& field);
-    virtual ~ExternalDataWidget(void);
+    TextFormatter(ExternalCommandData& ext_data, WmState& wm_state);
+    ~TextFormatter(void);
 
-    virtual void notify(Observable *, Observation *observation) override
-    {
-        auto fo = dynamic_cast<FieldObservation*>(observation);
-        if (fo != nullptr && fo->getField() == _field) {
-            _dirty = true;
-        }
-    }
+    bool referenceWmState(void) const { return _check_wm_state; }
+    std::vector<std::string> getFields(void) { return _fields; }
 
-    virtual void render(Render &rend) override
-    {
-        PanelWidget::render(rend);
+    std::wstring preprocess(const std::wstring& raw_format);
+    std::wstring format(const std::wstring& pp_format);
 
-        auto data = _ext_data.get(_field);
-        auto font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
-        renderText(rend, font, getX(), data, getWidth());
-    }
+private:
+    std::wstring format(const std::wstring& pp_format,
+                        std::function<std::wstring(const std::wstring&)> exp);
+
+    std::wstring preprocessVar(const std::wstring& var);
+    std::wstring expandVar(const std::wstring& var);
 
 private:
     ExternalCommandData& _ext_data;
-    std::string _field;
+    WmState& _wm_state;
+
+    bool _check_wm_state;
+    std::vector<std::string> _fields;
 };
 
-ExternalDataWidget::ExternalDataWidget(const PanelTheme& theme,
-                                       const SizeReq& size_req,
-                                       ExternalCommandData& ext_data,
-                                       const std::string& field)
-    : PanelWidget(theme, size_req),
-      _ext_data(ext_data),
-      _field(field)
+TextFormatter::TextFormatter(ExternalCommandData& ext_data, WmState& wm_state)
+    : _ext_data(ext_data),
+      _wm_state(wm_state),
+      _check_wm_state(false)
 {
-    _ext_data.addObserver(this);
 }
 
-ExternalDataWidget::~ExternalDataWidget(void)
+TextFormatter::~TextFormatter(void)
 {
-    _ext_data.removeObserver(this);
+}
+
+/**
+ * pre process format string for use with the format command, expands
+ * environment variables and other static data.
+ */
+std::wstring
+TextFormatter::preprocess(const std::wstring& raw_format)
+{
+    return format(raw_format,
+                  [this](const std::wstring& buf) {
+                      return this->preprocessVar(buf);
+                  });
+}
+
+/**
+ * format previously pre-processed format string expanding external
+ * command data and wm state.
+ */
+std::wstring
+TextFormatter::format(const std::wstring& pp_format)
+{
+    return format(pp_format,
+                  [this](const std::wstring& buf) {
+                      return this->expandVar(buf);
+                  });
+}
+
+std::wstring
+TextFormatter::format(const std::wstring& pp_format,
+                      std::function<std::wstring(const std::wstring&)> exp)
+{
+    std::wstring formatted;
+
+    bool in_escape = false, in_var = false;
+    std::wstring buf;
+    for (auto chr : pp_format) {
+        if (in_escape) {
+            buf += chr;
+            in_escape = false;
+        } else if (chr == L'\\') {
+            in_escape = true;
+        } else if (in_var && isspace(chr)) {
+            formatted += exp(buf);
+            buf = chr;
+            in_var = false;
+        } else if (! in_var && chr == L'%') {
+            if (! buf.empty()) {
+                formatted += buf;
+                buf = _empty_wstring;
+            }
+            in_var = true;
+        } else {
+            buf += chr;
+        }
+    }
+    if (! buf.empty()) {
+        if (in_var) {
+            formatted += exp(buf);
+        } else {
+            formatted += buf;
+        }
+    }
+
+    return formatted;
+}
+
+std::wstring
+TextFormatter::preprocessVar(const std::wstring& buf)
+{
+    if (buf.empty()) {
+        return L"%";
+    }
+
+    switch (buf[0]) {
+    case '_': {
+        auto key = Charset::to_mb_str(buf.substr(1));
+        return Charset::to_wide_str(Util::getEnv(key));
+    }
+    case ':':
+        _check_wm_state = true;
+        return L"%" + buf;
+    default:
+        _fields.push_back(Charset::to_mb_str(buf));
+        return L"%" + buf;
+    }
+}
+
+std::wstring
+TextFormatter::expandVar(const std::wstring& buf)
+{
+    if (buf.empty()) {
+        return _empty_wstring;
+    }
+
+    if (buf[0] == L':') {
+        // window manager state variable
+        if (buf == L":CLIENT_NAME:") {
+            auto win = _wm_state.getActiveWindow();
+            auto client_info = _wm_state.findClientInfo(win);
+            return client_info ? client_info->getName() : _empty_wstring;
+        } else if (buf == L":WORKSPACE_NUMBER:") {
+            auto ws = std::to_string(_wm_state.getActiveWorkspace() + 1);
+            return Charset::to_wide_str(ws);
+        } else if (buf == L":WORKSPACE_NAME:") {
+            return _wm_state.getWorkspaceName(_wm_state.getActiveWorkspace());
+        }
+        return _empty_wstring;
+    }
+
+    // external command data
+    auto field = Charset::to_mb_str(buf);
+    return _ext_data.get(field);
+}
+
+/**
+ * Text widget with format string that is able to reference command
+ * data, window manager state data and environment variables.
+ *
+ * Format $external, $:wm, $_env
+ */
+class TextWidget : public PanelWidget,
+                   public Observer {
+public:
+    TextWidget(const PanelTheme& theme, const SizeReq& size_req,
+               ExternalCommandData& _ext_data, WmState& _wm_state,
+               const std::string& format);
+    virtual ~TextWidget(void);
+
+    virtual void notify(Observable *, Observation *observation) override;
+    virtual void render(Render &rend) override;
+
+private:
+    ExternalCommandData& _ext_data;
+    WmState& _wm_state;
+    std::wstring _pp_format;
+
+    bool _check_wm_state;
+    std::vector<std::string> _fields;
+};
+
+TextWidget::TextWidget(const PanelTheme& theme, const SizeReq& size_req,
+                       ExternalCommandData& ext_data, WmState& wm_state,
+                       const std::string& format)
+    : PanelWidget(theme, size_req),
+      _ext_data(ext_data),
+      _wm_state(wm_state),
+      _check_wm_state(false)
+{
+    TextFormatter tf(_ext_data, _wm_state);
+    _pp_format = tf.preprocess(Charset::to_wide_str(format));
+    _check_wm_state = tf.referenceWmState();
+    _fields = tf.getFields();
+
+    if (! _fields.empty()) {
+        _ext_data.addObserver(this);
+    }
+    if (_check_wm_state) {
+        _wm_state.addObserver(this);
+    }
+}
+
+TextWidget::~TextWidget(void)
+{
+    if (_check_wm_state) {
+        _wm_state.removeObserver(this);
+    }
+    if (! _fields.empty()) {
+        _ext_data.removeObserver(this);
+    }
+}
+
+void
+TextWidget::notify(Observable *, Observation *observation)
+{
+    if (_dirty) {
+        return;
+    }
+
+    auto fo = dynamic_cast<FieldObservation*>(observation);
+    if (fo != nullptr) {
+        for (auto it : _fields) {
+            if (it == fo->getField()) {
+                _dirty = true;
+                break;
+            }
+        }
+    } else {
+        _dirty = true;
+    }
+}
+
+void
+TextWidget::render(Render &rend)
+{
+    PanelWidget::render(rend);
+
+    TextFormatter tf(_ext_data, _wm_state);
+    auto font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
+    auto text = tf.format(_pp_format);
+    renderText(rend, font, getX(), text, getWidth());
 }
 
 /**
@@ -1847,50 +2089,6 @@ IconWidget::parseIcon(const CfgParser::Entry* section)
 }
 
 /**
- * Simple widget displaying the active workspace number.
- */
-class WorkspaceNumberWidget : public PanelWidget,
-                              public Observer {
-public:
-    WorkspaceNumberWidget(const PanelTheme& theme,
-                          const SizeReq& size_req,
-                          WmState& wm_state)
-        : PanelWidget(theme, size_req),
-          _wm_state(wm_state)
-    {
-        _wm_state.addObserver(this);
-    }
-
-    virtual ~WorkspaceNumberWidget(void)
-    {
-        _wm_state.removeObserver(this);
-    }
-
-    virtual void notify(Observable*, Observation*) override
-    {
-        _dirty = true;
-    }
-
-    virtual uint getRequiredSize(void) const override
-    {
-        auto font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
-        return font->getWidth(L" 00 ");
-    }
-
-    virtual void render(Render &rend) override
-    {
-        PanelWidget::render(rend);
-
-        auto ws = std::to_string(_wm_state.getActiveWorkspace() + 1);
-        auto font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
-        renderText(rend, font, getX(), Charset::to_wide_str(ws), getWidth());
-    }
-
-private:
-    WmState& _wm_state;
-};
-
-/**
  * Widget construction.
  */
 class WidgetFactory {
@@ -1931,21 +2129,18 @@ WidgetFactory::construct(const WidgetConfig& cfg)
     } else if (name == "DATETIME") {
         auto format = cfg.getArg(0);
         return new DateTimeWidget(_theme, cfg.getSizeReq(), format);
-    } else if (name == "EXTERNALDATA") {
-        auto field = cfg.getArg(0);
-        if (field.empty()) {
-            USER_WARN("missing required argument to ExternalData widget");
-        } else {
-            return new ExternalDataWidget(_theme, cfg.getSizeReq(),
-                                          _ext_data, field);
-        }
     } else if (name == "ICON") {
         auto field = cfg.getArg(0);
         return new IconWidget(_theme, cfg.getSizeReq(), _ext_data, field,
                               cfg.getCfgSection());
-    } else if (name == "WORKSPACENUMBER") {
-        return new WorkspaceNumberWidget(_theme, cfg.getSizeReq(),
-                                         _wm_state);
+    } else if (name == "TEXT") {
+        auto format = cfg.getArg(0);
+        if (format.empty()) {
+            USER_WARN("missing required argument to Text widget");
+        } else {
+            return new TextWidget(_theme, cfg.getSizeReq(),
+                                  _ext_data, _wm_state, format);
+        }
     } else {
         USER_WARN("unknown widget " << cfg.getName());
     }

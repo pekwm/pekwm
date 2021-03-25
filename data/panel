@@ -15,10 +15,10 @@ Commands {
 }
 
 Widgets {
-  WorkspaceNumber {
-    Size = "Required"
+  Text = "%:WORKSPACE_NUMBER:" {
+    Size = "TextWidth _00_"
   }
-  ExternalData = "load" {
+  ExternalData = "%load" {
     Size = "TextWidth _0.00, 0.00, 0.00_"
   }
   # ExternalData = "battery" {

@@ -114,22 +114,6 @@ DateTime = "%Y-%m-%d %H:%M" {
 }
 ```
 
-#### Widget: ExternalData
-
-Display external data from a given field extracted from an external
-command. The widget is updated whenever the data field is updated.
-
-It is recommended to use _TextWidth_ for the _Size_ parameter to
-handle font size differences between themes.
-
-Widget configuration:
-
-```
-ExternalData = "field" {
-  Size = "TextWidth _value_"
-}
-```
-
 #### Widget: Icon
 
 Widget displaying icon. The icon can be configured to update whenever
@@ -142,15 +126,38 @@ Icon = "battery-icon-status" {
 }
 ```
 
-#### Widget: WorkspaceNumber
+#### Widget: Text
 
-Widget displaying the current workspace number.
+Display formatted text. The format string can reference environment
+variables, external command data and specific window manager state
+variables.
+
+The widget is updated whenever any field in the format string is
+updated.
+
+It is recommended to use _TextWidth_ for the _Size_ parameter to
+handle font size differences between themes.
+
+All format string variables start with **%**, the second character
+determine which type of data is referenced.
+
+* **%_**, reference environment variables. Example: __%_USER__.
+* **%:**, reference window manager state, see table below.
+* **%**, reference external command data.
+
+
+| Variable           | Description                  |
+|--------------------|------------------------------|
+| :CLIENT_NAME:      | Name of the active client    |
+| :WORKSPACE_NAME:   | Name of the active workspace |
+| :WORKSPACE_NUMBER: | Active workspace number      |
+
 
 Widget configuration:
 
 ```
-WorkspaceNumber {
-  Size = "Required"
+Text = "format string" {
+  Size = "TextWidth _value_"
 }
 ```
 
