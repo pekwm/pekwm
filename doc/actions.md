@@ -332,7 +332,7 @@ Focuses the previous frame. String is:
 
 * _alwaysraise_, raise windows while toggling them
 * _endraise_, raise the selected client
-* _neverrais_, do not raise the selected client (unless it's iconified)
+* _neverraise_, do not raise the selected client (unless it's iconified)
 * _tempraise_, raise the selected client but keep the order of the other windows
 
 If boolean is true, also goes thru iconified windows. Defaults to
