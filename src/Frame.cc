@@ -1991,7 +1991,7 @@ Frame::readAutoprops(ApplyOn type)
         // and then actually called PDecor::setWorkspace from Frame::setWorkspace
         if (type == APPLY_ON_WORKSPACE) {
             _workspace = data->workspace;
-        }	else if (_workspace != data->workspace) {
+        } else if (_workspace != data->workspace) {
             // Call PDecor directly to avoid recursion.
             PDecor::setWorkspace(data->workspace);
         }

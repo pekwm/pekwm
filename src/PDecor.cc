@@ -380,7 +380,7 @@ PDecor::mapWindowRaised(void)
 
     mapWindow();
 
-    raise(); // XMapRaised wouldn't preserver layers
+    raise(); // XMapRaised wouldn't preserve layers
 }
 
 //! @brief Unmaps decor and all children
@@ -528,11 +528,14 @@ PDecor::resizeTitle(void)
     placeButtons();
 }
 
-//! @brief Raises the window, taking _layer into account
+/**
+ * Raises the window, taking _layer into account, iconifying
+ * fullscreen windows in the process if necessary
+ */
 void
 PDecor::raise(void)
 {
-    Workspaces::raise(this);
+    Workspaces::raise(this, true);
     if (_type == PWinObj::WO_FRAME) {
         Workspaces::updateClientStackingList();
     }

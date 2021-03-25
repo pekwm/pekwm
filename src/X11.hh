@@ -207,6 +207,7 @@ public:
     bool operator==(const Geometry& gm);
     bool operator != (const Geometry& gm);
     int diffMask(const Geometry &old_gm);
+    bool isInside(const Geometry &gm);
 
     friend std::ostream& operator<<(std::ostream& os, const Geometry& gm);
 };

@@ -440,6 +440,30 @@ Workspaces::insert(PWinObj *wo, bool raise)
     delete [] wins;
 }
 
+/**
+ * Iconifies all windows on layers above "wo" that completely cover
+ * "wo"
+ */
+void
+Workspaces::iconifyWindowsAbove(PWinObj* wo)
+{
+    Geometry wo_gm;
+    wo->getGeometry(wo_gm);
+    auto it = _wobjs.rbegin();
+    for (; it != _wobjs.rend() && (*it)->getLayer() > wo->getLayer(); ++it) {
+        if (!(*it)->isMapped()) {
+            continue;
+        }
+        Geometry it_gm;
+        (*it)->getGeometry(it_gm);
+        if (wo_gm.isInside(it_gm)) {
+            // If *it is a window with decoration, we probably have an
+            // option to shade it too.
+            (*it)->iconify();
+        }
+    }
+}
+
 //! @brief Removes a PWinObj from the stacking list.
 void
 Workspaces::remove(PWinObj* wo)
@@ -531,7 +555,7 @@ Workspaces::unhideAll(uint workspace, bool focus)
 
 //! @brief Raises a PWinObj and restacks windows.
 void
-Workspaces::raise(PWinObj* wo)
+Workspaces::raise(PWinObj* wo, bool iconify_fullscreen)
 {
     iterator it(find(_wobjs.begin(), _wobjs.end(), wo));
 
@@ -539,6 +563,10 @@ Workspaces::raise(PWinObj* wo)
         return;
     }
     _wobjs.erase(it);
+
+    if (iconify_fullscreen && wo->getLayer() != LAYER_DOCK) {
+        iconifyWindowsAbove(wo);
+    }
 
     insert(wo, true); // reposition and restack
 }

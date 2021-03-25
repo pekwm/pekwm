@@ -249,6 +249,14 @@ Geometry::diffMask(const Geometry &old_gm)
     return mask;
 }
 
+bool
+Geometry::isInside(const Geometry &gm)
+{
+    return
+        gm.x <= x && x + width <= gm.x + gm.width &&
+        gm.y <= y && y + height <= gm.y + gm.height;
+}
+
 Strut::Strut(long l, long r, long t, long b, int nhead)
     : left(l),
       right(r),

@@ -107,7 +107,7 @@ public:
     static PWinObj* getLastFocused(uint workspace);
     static void setLastFocused(uint workspace, PWinObj* wo);
 
-    static void raise(PWinObj* wo);
+    static void raise(PWinObj* wo, bool iconify_fullscreen = false);
     static void lower(PWinObj* wo);
 
     static PWinObj* getTopWO(uint type_mask);
@@ -159,6 +159,8 @@ private:
     static bool warpToWorkspace(uint num, int dir);
 
     static std::wstring getWorkspaceName(uint num);
+
+    static void iconifyWindowsAbove(PWinObj* wo);
 
     static uint _active; /**< Current active workspace. */
     static uint _previous; /**< Previous workspace. */

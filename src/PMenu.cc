@@ -842,7 +842,7 @@ PMenu::insert(std::vector<PMenu::Item*>::iterator at, PMenu::Item *item)
 
     // Check if we have a submenu item
     if (item->getWORef()
-	&& (item->getWORef()->getType() == PWinObj::WO_MENU)) {
+        && (item->getWORef()->getType() == PWinObj::WO_MENU)) {
         _has_submenu++;
     }
 

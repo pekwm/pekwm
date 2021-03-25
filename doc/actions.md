@@ -206,6 +206,9 @@ Raises a frame above other frames. If bool is true raises a frame and
 all of the currently active clients child/parent windows above other
 frames.
 
+If there is a fullscreen window or an always-on-top one that
+completely covers the frame to be raised, it will be iconfied.
+
 **Lower (bool)**
 
 Lowers a frame under other frames. If bool is true lowers a frame and
