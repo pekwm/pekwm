@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include <map>
 #include <vector>
 
 /**
@@ -15,28 +16,45 @@
  */
 class Observation {
 public:
-    virtual ~Observation(void) { };
+    virtual ~Observation(void);
 };
 
-class Observable;
-
-class Observer {
-public:
-    Observer(void) { }
-    virtual ~Observer(void) { }
-
-    virtual void notify(Observable*, Observation*) { };
-};
-
+/**
+ * Observable object.
+ */
 class Observable {
 public:
-    Observable(void);
     virtual ~Observable(void);
+};
 
-    void notifyObservers(Observation *observation);
-    void addObserver(Observer *observer);
-    void removeObserver(Observer *observer);
+/**
+ * Object observing Observables.
+ */
+class Observer {
+public:
+    virtual ~Observer(void);
+    virtual void notify(Observable*, Observation*) = 0;
+};
+
+class ObserverMapping {
+public:
+    ObserverMapping(void);
+    ~ObserverMapping(void);
+
+    size_t size(void) const { return _observable_map.size(); }
+
+    void notifyObservers(Observable *observable, Observation *observation);
+    void addObserver(Observable *observable, Observer *observer);
+    void removeObserver(Observable *observable, Observer *observer);
+
+    void removeObservable(Observable *observable);
 
 private:
-    std::vector<Observer*> _observers; /**< List of observers. */
+    /** Map from Observable to list of observers. */
+    std::map<Observable*, std::vector<Observer*>> _observable_map;
 };
+
+namespace pekwm
+{
+    ObserverMapping* observerMapping(void);
+}

@@ -46,7 +46,8 @@ PWinObj::~PWinObj(void)
         _skip_enter_after = nullptr;
         _win_skip_enter_after = _window;
     }
-    notifyObservers(&pwin_obj_deleted);
+
+    pekwm::observerMapping()->notifyObservers(this, &pwin_obj_deleted);
 }
 
 //! @brief Sets the desired opacity values for focused/unfocused states

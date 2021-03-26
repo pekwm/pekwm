@@ -22,6 +22,8 @@
 
 static bool s_is_starting = true;
 
+static ObserverMapping* _observer_mapping = nullptr;
+
 static ActionHandler* _action_handler = nullptr;
 static AutoProperties* _auto_properties = nullptr;
 static Config* _config = nullptr;
@@ -37,10 +39,22 @@ static Theme* _theme = nullptr;
 
 namespace pekwm
 {
+    void initNoDisplay(void)
+    {
+        _observer_mapping = new ObserverMapping();
+    }
+
+    void cleanupNoDisplay(void)
+    {
+        delete _observer_mapping;
+    }
+
     bool init(AppCtrl* app_ctrl, EventLoop* event_loop,
               Display* dpy, const std::string& config_file,
               bool replace, bool synchronous)
     {
+        initNoDisplay();
+
         _config = new Config();
         _config->load(config_file);
         _config->loadMouseConfig(_config->getMouseConfigFile());
@@ -99,6 +113,8 @@ namespace pekwm
         X11::destruct();
 
         delete _config;
+
+        cleanupNoDisplay();
     }
 
     ActionHandler* actionHandler(void)
@@ -144,6 +160,11 @@ namespace pekwm
     KeyGrabber* keyGrabber(void)
     {
         return _key_grabber;
+    }
+
+    ObserverMapping* observerMapping(void)
+    {
+        return _observer_mapping;
     }
 
     StatusWindow* statusWindow(void)

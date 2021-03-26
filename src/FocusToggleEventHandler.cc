@@ -186,11 +186,11 @@ void
 FocusToggleEventHandler::setFocusedWo(PWinObj *fo_wo)
 {
     if (_fo_wo) {
-        _fo_wo->removeObserver(this);
+        pekwm::observerMapping()->removeObserver(_fo_wo, this);
     }
     _fo_wo = fo_wo;
     if (_fo_wo) {
-        _fo_wo->addObserver(this);
+        pekwm::observerMapping()->addObserver(_fo_wo, this);
 
         _fo_wo->setFocused(true);
         if (_raise == ALWAYS_RAISE) {

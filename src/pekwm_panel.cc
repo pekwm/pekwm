@@ -90,12 +90,18 @@ static Util::StringMap<PanelPlacement> panel_placement_map =
      {"BOTTOM", PANEL_BOTTOM}};
 
 /** static pekwm resources, accessed via the pekwm namespace. */
+static ObserverMapping* _observer_mapping = nullptr;
 static FontHandler* _font_handler = nullptr;
 static ImageHandler* _image_handler = nullptr;
 static TextureHandler* _texture_handler = nullptr;
 
 namespace pekwm
 {
+    ObserverMapping* observerMapping(void)
+    {
+        return _observer_mapping;
+    }
+
     FontHandler* fontHandler()
     {
         return _font_handler;
@@ -660,7 +666,7 @@ private:
         if (Util::splitString(line, field_value, " \t", 2) == 2) {
             _fields[field_value[0]] = Charset::to_wide_str(field_value[1]);
             FieldObservation field_obs(field_value[0]);
-            notifyObservers(&field_obs);
+            pekwm::observerMapping()->notifyObservers(this, &field_obs);
         }
     }
 
@@ -907,7 +913,7 @@ WmState::handlePropertyNotify(XPropertyEvent *ev)
     }
 
     if (updated || observation) {
-        notifyObservers(observation);
+        pekwm::observerMapping()->notifyObservers(this, observation);
     }
 
     return updated;
@@ -1463,12 +1469,12 @@ ClientListWidget::ClientListWidget(const PanelTheme& theme,
     : PanelWidget(theme, size_req),
       _wm_state(wm_state)
 {
-    _wm_state.addObserver(this);
+    pekwm::observerMapping()->addObserver(&_wm_state, this);
 }
 
 ClientListWidget::~ClientListWidget(void)
 {
-    _wm_state.removeObserver(this);
+    pekwm::observerMapping()->removeObserver(&_wm_state, this);
 }
 
 void
@@ -1615,12 +1621,12 @@ BarWidget::BarWidget(const PanelTheme& theme,
       _field(field)
 {
     parseColors(section);
-    _ext_data.addObserver(this);
+    pekwm::observerMapping()->addObserver(&_ext_data, this);
 }
 
 BarWidget::~BarWidget(void)
 {
-    _ext_data.removeObserver(this);
+    pekwm::observerMapping()->removeObserver(&_ext_data, this);
 }
 
 void
@@ -1898,20 +1904,20 @@ TextWidget::TextWidget(const PanelTheme& theme, const SizeReq& size_req,
     _fields = tf.getFields();
 
     if (! _fields.empty()) {
-        _ext_data.addObserver(this);
+        pekwm::observerMapping()->addObserver(&_ext_data, this);
     }
     if (_check_wm_state) {
-        _wm_state.addObserver(this);
+        pekwm::observerMapping()->addObserver(&_wm_state, this);
     }
 }
 
 TextWidget::~TextWidget(void)
 {
     if (_check_wm_state) {
-        _wm_state.removeObserver(this);
+        pekwm::observerMapping()->removeObserver(&_wm_state, this);
     }
     if (! _fields.empty()) {
-        _ext_data.removeObserver(this);
+        pekwm::observerMapping()->removeObserver(&_ext_data, this);
     }
 }
 
@@ -1992,7 +1998,7 @@ IconWidget::IconWidget(const PanelTheme& theme,
 {
     parseIcon(section);
 
-    _ext_data.addObserver(this);
+    pekwm::observerMapping()->addObserver(&_ext_data, this);
     load();
 }
 
@@ -2001,7 +2007,7 @@ IconWidget::~IconWidget(void)
     if (_icon) {
         pekwm::imageHandler()->returnImage(_icon);
     }
-    _ext_data.removeObserver(this);
+    pekwm::observerMapping()->removeObserver(&_ext_data, this);
 }
 
 void
@@ -2288,12 +2294,12 @@ PekwmPanel::PekwmPanel(const PanelConfig &cfg, PanelTheme &theme,
     // ensuring state is up-to-date at all times.
     X11::selectInput(X11::getRoot(), PropertyChangeMask);
 
-    _wm_state.addObserver(this);
+    pekwm::observerMapping()->addObserver(&_wm_state, this);
 }
 
 PekwmPanel::~PekwmPanel(void)
 {
-    _wm_state.removeObserver(this);
+    pekwm::observerMapping()->removeObserver(&_wm_state, this);
     for (auto it : _widgets) {
         delete it;
     }
@@ -2531,6 +2537,7 @@ static bool loadConfig(PanelConfig& cfg, const std::string& file)
 
 static void init(Display* dpy)
 {
+    _observer_mapping = new ObserverMapping();
     _font_handler = new FontHandler();
     _image_handler = new ImageHandler();
     _texture_handler = new TextureHandler();
@@ -2541,6 +2548,7 @@ static void cleanup()
     delete _texture_handler;
     delete _image_handler;
     delete _font_handler;
+    delete _observer_mapping;
 }
 
 static void usage(const char* name, int ret)

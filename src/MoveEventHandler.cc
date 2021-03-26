@@ -25,12 +25,12 @@ MoveEventHandler::MoveEventHandler(Config* cfg, PDecor* decor,
     _x = x_root - _gm.x;
     _y = y_root - _gm.y;
 
-    decor->addObserver(this);
+    pekwm::observerMapping()->addObserver(decor, this);
 }
 MoveEventHandler::~MoveEventHandler(void)
 {
     if (_decor) {
-        _decor->removeObserver(this);
+        pekwm::observerMapping()->removeObserver(_decor, this);
     }
     stopMove();
 }

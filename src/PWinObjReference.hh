@@ -43,11 +43,11 @@ public:
     virtual void setWORef(PWinObj *wo_ref) {
         if (_wo_ref != wo_ref) {
             if (_wo_ref != nullptr) {
-                _wo_ref->removeObserver(this);
+                pekwm::observerMapping()->removeObserver(_wo_ref, this);
             }
             _wo_ref = wo_ref;
             if (_wo_ref != nullptr) {
-                _wo_ref->addObserver(this);
+                pekwm::observerMapping()->addObserver(_wo_ref, this);
             }
         }
     }

@@ -22,13 +22,13 @@ KeyboardMoveResizeEventHandler::KeyboardMoveResizeEventHandler(Config* cfg,
 {
     decor->getGeometry(_gm);
     decor->getGeometry(_old_gm);
-    decor->addObserver(this);
+    pekwm::observerMapping()->addObserver(decor, this);
 }
 
 KeyboardMoveResizeEventHandler::~KeyboardMoveResizeEventHandler(void)
 {
     if (_decor) {
-        _decor->removeObserver(this);
+        pekwm::observerMapping()->removeObserver(_decor, this);
     }
     stopMoveResize();
 }

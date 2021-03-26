@@ -15,6 +15,7 @@
 #include "config.h"
 
 #include "pekwm.hh"
+#include "Observable.hh"
 #include "PWinObj.hh"
 #include "PTexturePlain.hh"
 #include "PDecor.hh"

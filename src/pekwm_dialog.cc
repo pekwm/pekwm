@@ -38,12 +38,18 @@ extern "C" {
 static const uint WIDTH_DEFAULT = 250;
 static const uint HEIGHT_DEFAULT = 50;
 
+static ObserverMapping *_observer_mapping = nullptr;
 static FontHandler* _font_handler = nullptr;
 static ImageHandler* _image_handler = nullptr;
 static TextureHandler* _texture_handler = nullptr;
 
 namespace pekwm
 {
+    ObserverMapping* observerMapping(void)
+    {
+        return _observer_mapping;
+    }
+
     FontHandler* fontHandler()
     {
         return _font_handler;
@@ -637,6 +643,7 @@ PekwmDialog::initWidgets(const std::wstring& title, PImage* image,
 
 static void init(Display* dpy)
 {
+    _observer_mapping = new ObserverMapping();
     _font_handler = new FontHandler();
     _image_handler = new ImageHandler();
     _texture_handler = new TextureHandler();
@@ -647,6 +654,7 @@ static void cleanup()
     delete _texture_handler;
     delete _image_handler;
     delete _font_handler;
+    delete _observer_mapping;
 }
 
 static void usage(const char* name, int ret)

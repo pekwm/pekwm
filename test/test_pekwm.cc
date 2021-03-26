@@ -14,12 +14,13 @@
 #include "test_Config.hh"
 #include "test_Frame.hh"
 #include "test_ManagerWindows.hh"
+#include "test_Observable.hh"
 #include "test_Theme.hh"
 #include "test_WindowManager.hh"
 #include "test_X11.hh"
 
-int
-main(int argc, char *argv[])
+static int
+main_tests(int argc, char *argv[])
 {
     // Setup environment required for the tests
     Config cfg;
@@ -40,6 +41,9 @@ main(int argc, char *argv[])
     // ManagerWindows
     TestRootWO testRootWO(&hint_wo, &cfg);
 
+    // Observable
+    TestObserverMapping testObserverMapping;
+
     // Theme
     TestTheme testTheme;
 
@@ -50,4 +54,14 @@ main(int argc, char *argv[])
     TestX11 testX11;
 
     return TestSuite::main(argc, argv);
+}
+
+int
+main(int argc, char *argv[])
+{
+    pekwm::initNoDisplay();
+    int res = main_tests(argc, argv);
+    pekwm::cleanupNoDisplay();
+
+    return res;
 }

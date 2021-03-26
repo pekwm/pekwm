@@ -7,6 +7,13 @@
 
 #include <iostream>
 
+static ObserverMapping* _observer_mapping;
+
+namespace pekwm
+{
+    ObserverMapping* observerMapping(void) { return _observer_mapping; }
+}
+
 class TransientTest : public X11App {
 public:
     TransientTest(int argc, char *argv[]);
@@ -129,6 +136,8 @@ main(int argc, char *argv[])
         std::cerr << "ERROR: unable to open display" << std::endl;
         return 1;
     }
+
+    _observer_mapping = new ObserverMapping();
     X11::init(dpy);
     Charset::init();
 
@@ -141,6 +150,7 @@ main(int argc, char *argv[])
 
     Charset::destruct();
     X11::destruct();
+    delete _observer_mapping;
 
     return 0;
 }

@@ -273,6 +273,9 @@ enum CurrHeadSelector {
 
 namespace pekwm
 {
+    void initNoDisplay(void);
+    void cleanupNoDisplay(void);
+
     bool init(AppCtrl* app_ctrl, EventLoop* event_loop,
               Display* dpy, const std::string& config_file,
               bool replace, bool synchronous);

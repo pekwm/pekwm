@@ -276,7 +276,7 @@ Frame::setLayer(Layer layer)
         _client->setLayer(layer);
 
         LayerObservation observation(layer);
-        _client->notifyObservers(&observation);
+        pekwm::observerMapping()->notifyObservers(_client, &observation);
     }
 }
 
