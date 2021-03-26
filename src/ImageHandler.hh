@@ -54,9 +54,13 @@ public:
         _search_path.push_back(path);
     }
     /** Remove newest entry in the search path. */
-    void path_pop_back(void) { _search_path.pop_back(); }
+    void path_pop_back(void) {
+        _search_path.pop_back();
+    }
     /** Remove all entries from the search path. */
-    void path_clear(void) { _search_path.clear(); }
+    void path_clear(void) {
+        _search_path.clear();
+    }
 
     PImage *getImage(const std::string &file);
     void returnImage(PImage *image);

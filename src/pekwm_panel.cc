@@ -1052,15 +1052,12 @@ public:
 private:
     void loadState(CfgParser::Entry *section, ClientState state);
     void check(void);
-    void unsetIconPath(void);
 
 private:
     /** Panel height, can be fixed or calculated from font size */
     uint _height;
     /** Set to true after load has been called. */
     bool _loaded;
-    /** Icon path counter. */
-    uint _icon_path;
 
     /** Panel background texture. */
     PTexture *_background;
@@ -1083,11 +1080,12 @@ private:
 PanelTheme::PanelTheme(void)
     : _height(DEFAULT_HEIGHT),
       _loaded(false),
-      _icon_path(0),
       _background(nullptr),
       _background_opacity(255),
       _sep(nullptr),
-      _handle(nullptr)
+      _handle(nullptr),
+      _bar_border(nullptr),
+      _bar_fill(nullptr)
 {
     memset(_fonts, 0, sizeof(_fonts));
     memset(_colors, 0, sizeof(_colors));
@@ -1095,7 +1093,6 @@ PanelTheme::PanelTheme(void)
 
 PanelTheme::~PanelTheme(void)
 {
-    unsetIconPath();
     unload();
 }
 
@@ -1210,21 +1207,10 @@ void
 PanelTheme::setIconPath(const std::string& config_path,
                         const std::string& theme_path)
 {
-    unsetIconPath();
     auto ih = pekwm::imageHandler();
     ih->path_push_back(DATADIR "/pekwm/icons/");
     ih->path_push_back(config_path);
     ih->path_push_back(theme_path);
-    _icon_path += 3;
-}
-
-void
-PanelTheme::unsetIconPath(void)
-{
-    auto ih = pekwm::imageHandler();
-    for (; _icon_path > 0; _icon_path--) {
-        ih->path_pop_back();
-    }
 }
 
 void
@@ -1253,6 +1239,9 @@ PanelTheme::check(void)
         _fonts[i]->setColor(_colors[i]);
     }
 
+    if (_bar_border == nullptr) {
+        _bar_border = X11::getColor(DEFAULT_BAR_BORDER);
+    }
     if (_bar_fill == nullptr) {
         _bar_fill = X11::getColor(DEFAULT_BAR_FILL);
     }
