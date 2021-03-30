@@ -1879,6 +1879,7 @@ public:
     virtual ~TextWidget(void);
 
     virtual void notify(Observable *, Observation *observation) override;
+    virtual uint getRequiredSize(void) const override;
     virtual void render(Render &rend) override;
 
 private:
@@ -1939,6 +1940,21 @@ TextWidget::notify(Observable *, Observation *observation)
     } else {
         _dirty = true;
     }
+}
+
+uint
+TextWidget::getRequiredSize(void) const
+{
+    if (_fields.empty() && ! _check_wm_state) {
+        // no variables that will be expanded after the widget has
+        // been created, use width of _pp_format.
+        auto font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
+        return font->getWidth(L" " + _pp_format + L" ");
+    }
+
+    // variables will be expanded, no way to know how much space will
+    // be required.
+    return 0;
 }
 
 void

@@ -42,8 +42,8 @@ going to consume and can be specified in one of the units below.
 The configuration below would distribute the available
 800 pixels as follows:
 
-* WorkspaceNumber, Size = "Required"
-* ExternalData, Size = "Pixels 300"
+* DateTimeWidget, Size = "Required"
+* Text, Size = "Pixels 250"
 * ClientLIst, Size = "*"
 
 For simplicity space for the separators is excluded.
@@ -51,9 +51,9 @@ For simplicity space for the separators is excluded.
 ```
                           800px
 ----------------------------------------------------------------------------
-|  [1]  | [ExternalData] |                 [ClientList]                    |
+|  [1]  |    [Text]      |                 [ClientList]                    |
 ----------------------------------------------------------------------------
-  30px        300px                           470px
+  100px       250px                           450px
 ```
 
 **Interval** update interval in seconds
@@ -164,8 +164,8 @@ Text = "format string" {
 ### Commands
 
 The **Commands** section of the panel configuration includes
-configuration for external commands which pekwm_panel will run at given
-intervals to collect data displayed by the _ExternalData_ and _Bar_
+configuration for external commands which pekwm_panel will run at
+given intervals to collect data displayed by the _Text_ and _Bar_
 widgets.
 
 The commands run shall output data in the given format:
@@ -212,7 +212,7 @@ Commands {
 }
 
 Widgets {
-  ExternalData = "date" {
+  Text = "date" {
     Size = "TextWidth _Ddd Mmm 00 00:00:00 ZZZ YYYY_"
   }
 }

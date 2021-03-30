@@ -52,6 +52,14 @@ add_test(NAME pekwm_ctrl
 target_include_directories(test_pekwm_ctrl PUBLIC ${common_INCLUDE_DIRS})
 target_link_libraries(test_pekwm_ctrl x11 util ${common_LIBRARIES})
 
+add_executable(test_pekwm_panel
+  test_pekwm_panel.cc)
+add_test(NAME pekwm_panel
+  COMMAND test_pekwm_panel
+  WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test/)
+target_include_directories(test_pekwm_panel PUBLIC ${common_INCLUDE_DIRS})
+target_link_libraries(test_pekwm_panel wm texture x11 util ${common_LIBRARIES})
+
 add_executable(test_util test_util.cc)
 add_test(NAME test_util
   COMMAND test_util
