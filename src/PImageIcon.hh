@@ -23,7 +23,7 @@ public:
     void setOnWindow(Window win);
 
     static PImageIcon *newFromWindow(Window win);
-    static void setOnWindow(Window win, uint width, uint height, uchar *data);
+    static void setOnWindow(Window win, size_t width, size_t height, uchar *data);
 
 private:
     PImageIcon(void);

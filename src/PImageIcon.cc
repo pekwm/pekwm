@@ -86,7 +86,7 @@ PImageIcon::setOnWindow(Window win)
  * Set _NET_WM_ICON on window using image.data.
  */
 void
-PImageIcon::setOnWindow(Window win, uint width, uint height, uchar *data)
+PImageIcon::setOnWindow(Window win, size_t width, size_t height, uchar *data)
 {
     size_t pixels = width * height;
     auto cardinals = newCardinals(width, height, data);
@@ -116,7 +116,7 @@ PImageIcon::setImageFromData(uchar *udata, ulong actual)
     Cardinal *from_data = reinterpret_cast<Cardinal*>(udata);
     uint width = from_data[0];
     uint height = from_data[1];
-    ulong pixels = width * height;
+    size_t pixels = width * height;
     if (actual < (pixels + 2)) {
         return false;
     }
