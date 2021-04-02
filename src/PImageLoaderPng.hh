@@ -23,10 +23,10 @@ namespace PImageLoaderPng
 {
     const char *getExt(void);
 
-    uchar* load(const std::string &file, uint &width, uint &height,
+    uchar* load(const std::string &file, size_t &width, size_t &height,
                 bool &use_alpha);
     bool save(const std::string &file,
-              uchar *data, uint width, uint height);
+              uchar *data, size_t width, size_t height);
 }
 
 #endif // HAVE_IMAGE_PNG

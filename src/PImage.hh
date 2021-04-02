@@ -28,41 +28,43 @@ public:
 
     inline uchar* getData(void) { return _data; }
     //! @brief Returns width of image.
-    inline uint getWidth(void) const { return _width; }
+    inline size_t getWidth(void) const { return _width; }
     //! @brief Returns height of image.
-    inline uint getHeight(void) const { return _height; }
+    inline size_t getHeight(void) const { return _height; }
 
     bool load(const std::string &file);
     void unload(void);
 
     void draw(Render &rend, int x, int y,
-              uint width = 0, uint height = 0);
-    Pixmap getPixmap(bool &need_free, uint width = 0, uint height = 0);
-    Pixmap getMask(bool &need_free, uint width = 0, uint height = 0);
-    void scale(uint width, uint height);
+              size_t width = 0, size_t height = 0);
+    Pixmap getPixmap(bool &need_free, size_t width = 0, size_t height = 0);
+    Pixmap getMask(bool &need_free, size_t width = 0, size_t height = 0);
+    void scale(size_t width, size_t height);
 
     static void drawAlphaFixed(Render &rend,
-                               int x, int y, uint width, uint height,
+                               int x, int y, size_t width, size_t height,
                                uchar* data);
     static void drawAlphaFixed(XImage *src_image, XImage *dest_image,
-                               int x, int y, uint width, uint height,
+                               int x, int y, size_t width, size_t height,
                                uchar* data);
 
 protected:
     PImage(void);
 
-    void drawFixed(Render &rend, int x, int y, uint width, uint height);
-    void drawScaled(Render &rend, int x, int y, uint widht, uint height);
-    void drawTiled(Render &rend, int x, int y, uint widht, uint height);
-    void drawAlphaScaled(Render &rend, int x, int y, uint widht, uint height);
-    void drawAlphaTiled(Render &rend, int x, int y, uint widht, uint height);
+    void drawFixed(Render &rend, int x, int y, size_t width, size_t height);
+    void drawScaled(Render &rend, int x, int y, size_t widht, size_t height);
+    void drawTiled(Render &rend, int x, int y, size_t widht, size_t height);
+    void drawAlphaScaled(Render &rend,
+                         int x, int y, size_t widht, size_t height);
+    void drawAlphaTiled(Render &rend,
+                        int x, int y, size_t widht, size_t height);
 
-    Pixmap createPixmap(uchar* data, uint width, uint height);
-    Pixmap createMask(uchar* data, uint width, uint height);
+    Pixmap createPixmap(uchar* data, size_t width, size_t height);
+    Pixmap createMask(uchar* data, size_t width, size_t height);
 
 private:
-    XImage* createXImage(uchar* data, uint width, uint height);
-    uchar* getScaledData(uint width, uint height);
+    XImage* createXImage(uchar* data, size_t width, size_t height);
+    uchar* getScaledData(size_t width, size_t height);
 
 protected:
     ImageType _type; //!< Type of image.
@@ -70,8 +72,8 @@ protected:
     Pixmap _pixmap; //!< Pixmap representation of image.
     Pixmap _mask; //!< Pixmap representation of image shape mask.
 
-    uint _width; //!< Width of image.
-    uint _height; //!< Height of image.
+    size_t _width; //!< Width of image.
+    size_t _height; //!< Height of image.
 
     /** ARGB image data. */
     uchar *_data;

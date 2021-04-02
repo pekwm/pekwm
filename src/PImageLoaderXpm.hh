@@ -25,7 +25,7 @@ extern "C" {
 namespace PImageLoaderXpm
 {
     const char *getExt(void);
-    uchar* load(const std::string &file, uint &width, uint &height,
+    uchar* load(const std::string &file, size_t &width, size_t &height,
                         bool &use_alpha);
 }
 

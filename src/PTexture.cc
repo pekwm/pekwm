@@ -28,7 +28,7 @@ PTexture::~PTexture(void)
  */
 void
 PTexture::render(Drawable draw,
-                 int x, int y, uint width, uint height,
+                 int x, int y, size_t width, size_t height,
                  int root_x, int root_y)
 {
     X11Render rend(draw);
@@ -40,7 +40,7 @@ PTexture::render(Drawable draw,
  */
 void
 PTexture::render(Render &rend,
-                 int x, int y, uint width, uint height,
+                 int x, int y, size_t width, size_t height,
                  int root_x, int root_y)
 {
     if (width == 0) {
@@ -77,7 +77,7 @@ PTexture::render(Render &rend,
  */
 void
 PTexture::setBackground(Drawable draw,
-                        int x, int y, uint width, uint height)
+                        int x, int y, size_t width, size_t height)
 {
     ulong pixel;
     if (getPixel(pixel) && _opacity == 255) {
@@ -91,13 +91,13 @@ PTexture::setBackground(Drawable draw,
     }
 }
 
-uint
+size_t
 PTexture::getWidth(void) const
 {
     return _width;
 }
 
-uint
+size_t
 PTexture::getHeight(void) const
 {
     return _height;
@@ -105,7 +105,7 @@ PTexture::getHeight(void) const
 
 bool
 PTexture::renderOnBackground(XImage *ximage,
-                             int x, int y, uint width, uint height,
+                             int x, int y, size_t width, size_t height,
                              int root_x, int root_y)
 {
     Cardinal pix;

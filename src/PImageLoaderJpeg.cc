@@ -36,7 +36,7 @@ namespace PImageLoaderJpeg
      * @return Pointer to data on success, else 0.
      */
     uchar*
-    load(const std::string &file, uint &width, uint &height, bool &use_alpha)
+    load(const std::string &file, size_t &width, size_t &height, bool &use_alpha)
     {
         auto fp= fopen(file.c_str(), "rb");
         if (! fp) {
@@ -72,11 +72,11 @@ namespace PImageLoaderJpeg
         // Read image and convet to ARGB
         int pos = 0;
         JSAMPROW row;
-        for (uint y = 0; y < height; ++y) {
+        for (size_t y = 0; y < height; ++y) {
             row = row_data;
-            uint src = 0;
+            size_t src = 0;
             jpeg_read_scanlines(&cinfo, &row, 1);
-            for (uint x = 0; x < width; ++x) {
+            for (size_t x = 0; x < width; ++x) {
                 data[pos++] = 0xff;
                 data[pos++] = row[src++];
                 data[pos++] = row[src++];

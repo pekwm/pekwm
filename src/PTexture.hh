@@ -31,38 +31,39 @@ public:
     virtual ~PTexture(void);
 
     void render(Drawable draw,
-                int x, int y, uint width, uint height,
+                int x, int y, size_t width, size_t height,
                 int root_x=0, int root_y=0);
     void render(Render &rend,
-                int x, int y, uint width, uint height,
+                int x, int y, size_t width, size_t height,
                 int root_x=0, int root_y=0);
     virtual void doRender(Render &rend,
-                          int x, int y, uint width, uint height) = 0;
+                          int x, int y, size_t width, size_t height) = 0;
     virtual bool getPixel(ulong &pixel) const = 0;
-    virtual Pixmap getMask(uint, uint, bool&) { return None; }
+    virtual Pixmap getMask(size_t, size_t, bool&) { return None; }
 
     void setBackground(Drawable draw,
-                       int x, int y, uint width, uint height);
+                       int x, int y, size_t width, size_t height);
 
     bool isOk(void) const { return _ok; }
-    uint getWidth(void) const;
-    uint getHeight(void) const;
+    size_t getWidth(void) const;
+    size_t getHeight(void) const;
     PTexture::Type getType(void) const { return _type; }
 
-    void setWidth(uint width) { _width = width; }
-    void setHeight(uint height) { _height = height; }
+    void setWidth(size_t width) { _width = width; }
+    void setHeight(size_t height) { _height = height; }
 
     uchar getOpacity(void) const { return _opacity; }
     void setOpacity(uchar opacity) { _opacity = opacity; }
 
 private:
     bool renderOnBackground(XImage *src_ximage,
-                            int x, int y, uint width, uint height,
+                            int x, int y, size_t width, size_t height,
                             int root_x, int root_y);
 
 protected:
     bool _ok; // Texture successfully loaded
-    uint _width, _height; // for images etc, 0 for infinite like in stretch
+    size_t _width;
+    size_t _height;
     PTexture::Type _type; // Type of texture
     uchar _opacity; // Texture opacity, blended onto background pixmap
 };

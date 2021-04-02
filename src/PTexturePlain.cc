@@ -25,7 +25,7 @@ extern "C" {
 
 void
 PTextureEmpty::doRender(Render &rend,
-                        int x, int y, uint width, uint height)
+                        int x, int y, size_t width, size_t height)
 {
 }
 
@@ -58,7 +58,7 @@ PTextureSolid::~PTextureSolid(void)
  * Render single color on draw.
  */
 void
-PTextureSolid::doRender(Render &rend, int x, int y, uint width, uint height)
+PTextureSolid::doRender(Render &rend, int x, int y, size_t width, size_t height)
 {
     rend.setColor(_xc->pixel);
     rend.fill(x, y, width, height);
@@ -128,12 +128,12 @@ PTextureSolidRaised::~PTextureSolidRaised(void)
  */
 void
 PTextureSolidRaised::doRender(Render &rend,
-                              int x, int y, uint width, uint height)
+                              int x, int y, size_t width, size_t height)
 {
     if (_width && _height) {
         // size was given in the texture, repeat the texture over the
         // provided geometry
-        auto render = [this, &rend](int rx, int ry, uint rw, uint rh) {
+        auto render = [this, &rend](int rx, int ry, size_t rw, size_t rh) {
             this->renderArea(rend, rx, ry, rw, rh);
         };
         renderTiled(x, y, width, height, _width, _height, render);
@@ -145,7 +145,7 @@ PTextureSolidRaised::doRender(Render &rend,
 
 void
 PTextureSolidRaised::renderArea(Render &rend,
-                                int x, int y, uint width, uint height)
+                                int x, int y, size_t width, size_t height)
 {
     rend.setLineWidth(_lw);
 
@@ -239,12 +239,12 @@ PTextureLines::~PTextureLines()
 }
 
 void
-PTextureLines::doRender(Render &rend, int x, int y, uint width, uint height)
+PTextureLines::doRender(Render &rend, int x, int y, size_t width, size_t height)
 {
     if (_width && _height) {
         // size was given in the texture, repeat the texture over the
         // provided geometry
-        auto render = [this, &rend](int rx, int ry, uint rw, uint rh) {
+        auto render = [this, &rend](int rx, int ry, size_t rw, size_t rh) {
             this->renderArea(rend, rx, ry, rw, rh);
         };
         renderTiled(x, y, width, height, _width, _height, render);
@@ -255,7 +255,7 @@ PTextureLines::doRender(Render &rend, int x, int y, uint width, uint height)
 }
 
 void
-PTextureLines::renderArea(Render &rend, int x, int y, uint width, uint height)
+PTextureLines::renderArea(Render &rend, int x, int y, size_t width, size_t height)
 {
     if (_horz) {
         renderHorz(rend, x, y, width, height);
@@ -265,9 +265,9 @@ PTextureLines::renderArea(Render &rend, int x, int y, uint width, uint height)
 }
 
 void
-PTextureLines::renderHorz(Render &rend, int x, int y, uint width, uint height)
+PTextureLines::renderHorz(Render &rend, int x, int y, size_t width, size_t height)
 {
-    uint line_height;
+    size_t line_height;
     if (_size_percent) {
         line_height = static_cast<float>(height) * _line_size;
     } else {
@@ -279,7 +279,7 @@ PTextureLines::renderHorz(Render &rend, int x, int y, uint width, uint height)
         line_height = 1;
     }
 
-    uint pos = 0;
+    size_t pos = 0;
     while (pos < height) {
         for (auto it : _colors) {
             rend.setColor(it->pixel);
@@ -291,16 +291,16 @@ PTextureLines::renderHorz(Render &rend, int x, int y, uint width, uint height)
 }
 
 void
-PTextureLines::renderVert(Render &rend, int x, int y, uint width, uint height)
+PTextureLines::renderVert(Render &rend, int x, int y, size_t width, size_t height)
 {
-    uint line_width;
+    size_t line_width;
     if (_size_percent) {
         line_width = static_cast<float>(width) * _line_size;
     } else {
         line_width = _line_size;
     }
 
-    uint pos = 0;
+    size_t pos = 0;
     while (pos < width) {
         for (auto it : _colors) {
             rend.setColor(it->pixel);
@@ -361,13 +361,13 @@ PTextureImage::~PTextureImage(void)
  * Renders image onto draw
  */
 void
-PTextureImage::doRender(Render &rend, int x, int y, uint width, uint height)
+PTextureImage::doRender(Render &rend, int x, int y, size_t width, size_t height)
 {
     _image->draw(rend, x, y, width, height);
 }
 
 Pixmap
-PTextureImage::getMask(uint width, uint height, bool &do_free)
+PTextureImage::getMask(size_t width, size_t height, bool &do_free)
 {
     return _image->getMask(do_free, width, height);
 }

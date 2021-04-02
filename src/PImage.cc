@@ -236,7 +236,7 @@ PImage::unload(void)
  * @param height Destination height, defaults to 0 which expands to image size.
  */
 void
-PImage::draw(Render &rend, int x, int y, uint width, uint height)
+PImage::draw(Render &rend, int x, int y, size_t width, size_t height)
 {
     if (_data == nullptr) {
         return;
@@ -282,7 +282,7 @@ PImage::draw(Render &rend, int x, int y, uint width, uint height)
  * @return Returns pixmap at size or None on error.
  */
 Pixmap
-PImage::getPixmap(bool &need_free, uint width, uint height)
+PImage::getPixmap(bool &need_free, size_t width, size_t height)
 {
     need_free = false;
 
@@ -323,7 +323,7 @@ PImage::getPixmap(bool &need_free, uint width, uint height)
  * @return Returns shape mask at size or None if there is no mask information.
  */
 Pixmap
-PImage::getMask(bool &need_free, uint width, uint height)
+PImage::getMask(bool &need_free, size_t width, size_t height)
 {
     need_free = false;
 
@@ -367,7 +367,7 @@ PImage::getMask(bool &need_free, uint width, uint height)
  * @param height Height to scale image to.
  */
 void
-PImage::scale(uint width, uint height)
+PImage::scale(size_t width, size_t height)
 {
     // Invalid width or height or no need to scale.
     if (! width || ! height || ((width == _width) && (height == _height))) {
@@ -390,7 +390,7 @@ PImage::scale(uint width, uint height)
  * Draw image at position, not scaling.
  */
 void
-PImage::drawAlphaFixed(Render &rend, int x, int y, uint width, uint height,
+PImage::drawAlphaFixed(Render &rend, int x, int y, size_t width, size_t height,
                        uchar* data)
 {
     auto dest_image = rend.getImage(x, y, width, height);
@@ -413,7 +413,7 @@ PImage::drawAlphaFixed(Render &rend, int x, int y, uint width, uint height,
 
 void
 PImage::drawAlphaFixed(XImage *src_image, XImage *dest_image,
-                       int x, int y, uint width, uint height,
+                       int x, int y, size_t width, size_t height,
                        uchar* data)
 {
     // Get mask from visual
@@ -426,8 +426,8 @@ PImage::drawAlphaFixed(XImage *src_image, XImage *dest_image,
     dest_image->blue_mask = visual->blue_mask;
 
     uchar *src = data;
-    for (uint i_y = 0; i_y < height; ++i_y) {
-        for (uint i_x = 0; i_x < width; ++i_x) {
+    for (size_t i_y = 0; i_y < height; ++i_y) {
+        for (size_t i_x = 0; i_x < width; ++i_x) {
             // Get pixel value, copy them directly if alpha is set to 255.
             uchar a = *src++;
             uchar r = *src++;
@@ -459,7 +459,7 @@ PImage::drawAlphaFixed(XImage *src_image, XImage *dest_image,
  * Draw image at position, not scaling.
  */
 void
-PImage::drawFixed(Render &rend, int x, int y, uint width, uint height)
+PImage::drawFixed(Render &rend, int x, int y, size_t width, size_t height)
 {
     width = std::min(width, _width);
     height = std::min(width, _height);
@@ -483,7 +483,7 @@ PImage::drawFixed(Render &rend, int x, int y, uint width, uint height)
  * Draw image scaled to fit width and height.
  */
 void
-PImage::drawScaled(Render &rend, int x, int y, uint width, uint height)
+PImage::drawScaled(Render &rend, int x, int y, size_t width, size_t height)
 {
     // Create scaled representation of image.
     auto scaled_data = getScaledData(width, height);
@@ -501,13 +501,13 @@ PImage::drawScaled(Render &rend, int x, int y, uint width, uint height)
  * Draw image tiled to fit width and height.
  */
 void
-PImage::drawTiled(Render &rend, int x, int y, uint width, uint height)
+PImage::drawTiled(Render &rend, int x, int y, size_t width, size_t height)
 {
     if (rend.getDrawable() == None) {
         auto ximage = createXImage(_data, _width, _height);
         if (ximage) {
             auto render =
-                [ximage, &rend](int rx, int ry, uint rw, uint rh) {
+                [ximage, &rend](int rx, int ry, size_t rw, size_t rh) {
                     rend.putImage(ximage, rx, ry, rw, rh);
                 };
             renderTiled(x, y, width, height, _width, _height, render);
@@ -537,7 +537,7 @@ PImage::drawTiled(Render &rend, int x, int y, uint width, uint height)
  * Draw image scaled to fit width and height.
  */
 void
-PImage::drawAlphaScaled(Render &rend, int x, int y, uint width, uint height)
+PImage::drawAlphaScaled(Render &rend, int x, int y, size_t width, size_t height)
 {
     auto scaled_data = getScaledData(width, height);
     if (scaled_data) {
@@ -550,10 +550,10 @@ PImage::drawAlphaScaled(Render &rend, int x, int y, uint width, uint height)
  * Draw image tiled to fit width and height.
  */
 void
-PImage::drawAlphaTiled(Render &rend, int x, int y, uint width, uint height)
+PImage::drawAlphaTiled(Render &rend, int x, int y, size_t width, size_t height)
 {
     auto render =
-        [this, &rend](int rx, int ry, uint rw, uint rh) {
+        [this, &rend](int rx, int ry, size_t rw, size_t rh) {
              drawAlphaFixed(rend, rx, ry, rw, rh, _data);
         };
     renderTiled(x, y, width, height, _width, _height, render);
@@ -568,7 +568,7 @@ PImage::drawAlphaTiled(Render &rend, int x, int y, uint width, uint height)
  * @return Returns Pixmap on success, else None.
  */
 Pixmap
-PImage::createPixmap(uchar* data, uint width, uint height)
+PImage::createPixmap(uchar* data, size_t width, size_t height)
 {
     Pixmap pix = None;
 
@@ -592,7 +592,7 @@ PImage::createPixmap(uchar* data, uint width, uint height)
  * @return Returns Pixmap mask on success, else None.
  */
 Pixmap
-PImage::createMask(uchar* data, uint width, uint height)
+PImage::createMask(uchar* data, size_t width, size_t height)
 {
     if (! _use_alpha) {
         return None;
@@ -613,8 +613,8 @@ PImage::createMask(uchar* data, uint width, uint height)
 
     auto pixel_trans = X11::getBlackPixel();
     auto pixel_solid = X11::getWhitePixel();
-    for (uint y = 0; y < height; ++y) {
-        for (uint x = 0; x < width; ++x) {
+    for (size_t y = 0; y < height; ++y) {
+        for (size_t x = 0; x < width; ++x) {
             XPutPixel(ximage, x, y, (*src > 127) ? pixel_solid : pixel_trans);
             src += 4; // Skip A, R, G, and B
         }
@@ -640,7 +640,7 @@ PImage::createMask(uchar* data, uint width, uint height)
  * @param height Height of image data is representing.
  */
 XImage*
-PImage::createXImage(uchar* data, uint width, uint height)
+PImage::createXImage(uchar* data, size_t width, size_t height)
 {
     // Create XImage
     auto ximage = X11::createImage(nullptr, width, height);
@@ -655,8 +655,8 @@ PImage::createXImage(uchar* data, uint width, uint height)
     uchar *src = data;
 
     // Put data into XImage.
-    for (uint y = 0; y < height; ++y) {
-        for (uint x = 0; x < width; ++x) {
+    for (size_t y = 0; y < height; ++y) {
+        for (size_t x = 0; x < width; ++x) {
             // skip alpha
             src++;
             uchar r = *src++;
@@ -692,7 +692,7 @@ scalePixel(uchar* data, int pos, int width, float x_diff, float y_diff)
  * @return Pointer to image data on success, else nullptr.
  */
 uchar*
-PImage::getScaledData(uint dwidth, uint dheight)
+PImage::getScaledData(size_t dwidth, size_t dheight)
 {
     if (dwidth < 1 || dheight < 1) {
         return nullptr;
@@ -702,11 +702,11 @@ PImage::getScaledData(uint dwidth, uint dheight)
     float x_ratio = static_cast<float>(_width - 1) / dwidth ;
     float y_ratio = static_cast<float>(_height - 1) / dheight;
 
-    uint dst = 0 ;
-    for (uint dy = 0; dy < dheight; dy++) {
-        for (uint dx = 0; dx < dwidth; dx++) {
-            uint sx = static_cast<uint>(x_ratio * dx);
-            uint sy = static_cast<uint>(y_ratio * dy);
+    size_t dst = 0 ;
+    for (size_t dy = 0; dy < dheight; dy++) {
+        for (size_t dx = 0; dx < dwidth; dx++) {
+            size_t sx = static_cast<size_t>(x_ratio * dx);
+            size_t sy = static_cast<size_t>(y_ratio * dy);
 
             int spos = (sy * _width + sx) * 4;
             float x_diff = (x_ratio * dx) - sx;

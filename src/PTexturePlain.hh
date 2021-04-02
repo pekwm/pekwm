@@ -27,7 +27,7 @@ public:
 
     // START - PTexture interface.
     virtual void doRender(Render &rend,
-                          int x, int y, uint width, uint height) override;
+                          int x, int y, size_t width, size_t height) override;
     virtual bool getPixel(ulong &pixel) const override;
     // END - PTexture interface.
 };
@@ -41,7 +41,7 @@ public:
 
     // START - PTexture interface.
     virtual void doRender(Render &rend,
-                          int x, int y, uint width, uint height) override;
+                          int x, int y, size_t width, size_t height) override;
     virtual bool getPixel(ulong &pixel) const override {
         pixel = _xc->pixel;
         return true;
@@ -66,11 +66,11 @@ public:
 
     // START - PTexture interface.
     virtual void doRender(Render &rend,
-                          int x, int y, uint width, uint height) override;
+                          int x, int y, size_t width, size_t height) override;
     virtual bool getPixel(ulong&) const override { return false; }
     // END - PTexture interface.
 
-    inline void setLineOff(uint loff) { _loff = loff; _loff2 = loff * 2; }
+    inline void setLineOff(size_t loff) { _loff = loff; _loff2 = loff * 2; }
     inline void setDraw(bool top, bool bottom, bool left, bool right) {
         _draw_top = top;
         _draw_bottom = bottom;
@@ -84,7 +84,7 @@ public:
     void unsetColor();
 
 private:
-    void renderArea(Render &rend, int x, int y, uint width, uint height);
+    void renderArea(Render &rend, int x, int y, size_t width, size_t height);
 
 private:
     XColor *_xc_base;
@@ -108,15 +108,15 @@ public:
 
     // START - PTexture interface.
     virtual void doRender(Render &rend,
-                          int x, int y, uint width, uint height) override;
+                          int x, int y, size_t width, size_t height) override;
     virtual bool getPixel(ulong&) const override { return false; }
     // END - PTexture interface.
 
 private:
-    void renderArea(Render &rend, int x, int y, uint width, uint height);
+    void renderArea(Render &rend, int x, int y, size_t width, size_t height);
 
-    void renderHorz(Render &rend, int x, int y, uint width, uint height);
-    void renderVert(Render &rend, int x, int y, uint width, uint height);
+    void renderHorz(Render &rend, int x, int y, size_t width, size_t height);
+    void renderVert(Render &rend, int x, int y, size_t width, size_t height);
 
     void setColors(const std::vector<std::string> &colors);
     void unsetColors();
@@ -142,9 +142,9 @@ public:
 
     // START - PTexture interface.
     virtual void doRender(Render &rend,
-                          int x, int y, uint width, uint height) override;
+                          int x, int y, size_t width, size_t height) override;
     virtual bool getPixel(ulong&) const override { return false; }
-    virtual Pixmap getMask(uint width, uint height, bool &do_free) override;
+    virtual Pixmap getMask(size_t width, size_t height, bool &do_free) override;
     // END - PTexture interface.
 
     bool setImage(const std::string &image, const std::string &colormap);
