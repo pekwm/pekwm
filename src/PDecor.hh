@@ -261,8 +261,6 @@ public:
         }
     }
 
-    bool isFullscreen(void) const { return _fullscreen; }
-
     //! @brief Returns border position Window win is at.
     inline BorderPosition getBorderPosition(Window win) const {
         for (uint i = 0; i < BORDER_NO_POS; ++i) {
@@ -396,7 +394,6 @@ protected:
     // state switches, commonly not used by all decors
     bool _maximized_vert;
     bool _maximized_horz;
-    bool _fullscreen;
     uint _skip;
 
     Window _border_win[BORDER_NO_POS]; /** Array of border windows. */

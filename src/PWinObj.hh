@@ -145,6 +145,7 @@ public:
     inline bool isFocusable(void) const { return _focusable; }
     //! @brief Returns true if the PWinObj is interested in keyboard input
     inline bool isKeyboardInput(void) const { return _keyboard_input; }
+    inline bool isFullscreen(void) const { return _fullscreen; }
 
     //! @brief Returns transparency state of PWinObj
     inline bool isOpaque(void) const { return _opaque; }
@@ -250,6 +251,7 @@ protected:
     bool _focused:1; //!< Focused state of PWinObj.
     bool _sticky:1; //!< Sticky state of PWinObj.
     bool _focusable:1; //!< Focusable state of PWinObj.
+    bool _fullscreen:1;
     bool _shape_bounding:1; //!< _window has a custom bounding region (shape)
     bool _keyboard_input:1; //!< PWinObj is consuming keyboard input.
 

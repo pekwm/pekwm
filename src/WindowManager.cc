@@ -1475,12 +1475,14 @@ WindowManager::createClient(Window window, bool is_new)
 
                 if (wo != nullptr
                     && wo->isMapped()
-                    && wo->isKeyboardInput()
-                    && time_protect
-                    && time_protect >= (X11::getLastEventTime()
-                                        - wo->getLastActivity())) {
-                    // WO exists, is mapped, time protect is active
-                    // and within it's limits.
+                    && (wo->getParent()->isFullscreen()
+                        || (wo->isKeyboardInput()
+                            && time_protect
+                            && time_protect >= (X11::getLastEventTime()
+                                                - wo->getLastActivity())))) {
+                    // WO exists, is mapped, and either time protect
+                    // is active and within it's limits or WO is
+                    // fullscreen.
                 } else {
                     client->getParent()->giveInputFocus();
                 }
