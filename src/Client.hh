@@ -175,7 +175,7 @@ public: // Public Member Functions
     bool isMaximizedVert(void) const { return _state.maximized_vert; }
     bool isMaximizedHorz(void) const { return _state.maximized_horz; }
     bool isShaded(void) const { return _state.shaded; }
-    bool isFullscreen(void) const { return _state.fullscreen; }
+    bool isFullscreen(void) const override { return _state.fullscreen; }
     bool isPlaced(void) const { return _state.placed; }
     uint getInitialFrameOrder(void) const { return _state.initial_frame_order; }
     uint getSkip(void) const { return _state.skip; }

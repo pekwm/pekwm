@@ -145,7 +145,7 @@ public:
     inline bool isFocusable(void) const { return _focusable; }
     //! @brief Returns true if the PWinObj is interested in keyboard input
     inline bool isKeyboardInput(void) const { return _keyboard_input; }
-    inline bool isFullscreen(void) const { return _fullscreen; }
+    virtual bool isFullscreen(void) const { return _fullscreen; }
 
     //! @brief Returns transparency state of PWinObj
     inline bool isOpaque(void) const { return _opaque; }
