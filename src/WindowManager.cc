@@ -1475,7 +1475,8 @@ WindowManager::createClient(Window window, bool is_new)
 
                 if (wo != nullptr
                     && wo->isMapped()
-                    && (wo->getParent()->isFullscreen()
+                    && ((pekwm::config()->isFullscreenAbove()
+                         && wo->isFullscreen())
                         || (wo->isKeyboardInput()
                             && time_protect
                             && time_protect >= (X11::getLastEventTime()
