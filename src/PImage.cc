@@ -30,66 +30,183 @@ destroyXImage(XImage *ximage)
     X11::destroyImage(ximage);
 }
 
-/**
- * Create pixel value suitable for ximage from R, G and B.
- */
+typedef ulong (*rgbToPixel)(uchar, uchar, uchar);
+
 static ulong
-getPixelFromRgb(XImage* ximage, uchar r, uchar g, uchar b)
+rgbToPixel15bitLSB(uchar r, uchar g, uchar b)
 {
-    // 5 R, 5 G, 5 B (15 bit display)
-    if ((ximage->red_mask == 0x7c00)
-        && (ximage->green_mask == 0x3e0) && (ximage->blue_mask == 0x1f)) {
-        return ((r << 7) & 0x7c00)
+    return ((r << 7) & 0x7c00)
             | ((g << 2) & 0x03e0) | ((b >> 3) & 0x001f);
+}
 
-        // 5 R, 6 G, 5 B (16 bit display)
-    } else  if ((ximage->red_mask == 0xf800)
-                && (ximage->green_mask == 0x07e0)
-                && (ximage->blue_mask == 0x001f)) {
-        return ((r << 8) &  0xf800)
+static ulong
+rgbToPixel16bitLSB(uchar r, uchar g, uchar b)
+{
+    return ((r << 8) &  0xf800)
             | ((g << 3) & 0x07e0) | ((b >> 3) & 0x001f);
+}
 
-        // 8 R, 8 G, 8 B (24/32 bit display)
-    } else if  ((ximage->red_mask == 0xff0000)
-                && (ximage->green_mask == 0xff00)
-                && (ximage->blue_mask == 0xff)) {
-        return ((r << 16) & 0xff0000)
+static ulong
+rgbToPixel24bitLSB(uchar r, uchar g, uchar b)
+{
+    return ((r << 16) & 0xff0000)
             | ((g << 8) & 0x00ff00) | (b & 0x0000ff);
-    } else {
-        return 0;
-    }
+}
+
+static ulong
+rgbToPixel15bitMSB(uchar r, uchar g, uchar b)
+{
+    return ((b << 7) & 0x7c00)
+            | ((g << 2) & 0x03e0) | ((r >> 3) & 0x001f);
+}
+
+static ulong
+rgbToPixel16bitMSB(uchar r, uchar g, uchar b)
+{
+    return ((b << 8) &  0xf800)
+            | ((g << 3) & 0x07e0) | ((r >> 3) & 0x001f);
+}
+
+
+static ulong
+rgbToPixel24bitMSB(uchar r, uchar g, uchar b)
+{
+    return ((b << 16) & 0xff0000)
+            | ((g << 8) & 0x00ff00) | (r & 0x0000ff);
+}
+
+static ulong
+rgbToPixelUnknown(uchar r, uchar g, uchar b)
+{
+    return 0;
 }
 
 /**
- * Fill in RGB values from pixel value from ximage.
+ * Get RGB to pixel conversion appropriate for this XImage.
  */
-static void
-getRgbFromPixel(XImage *ximage, ulong pixel, uchar &r, uchar &g, uchar &b)
+static rgbToPixel
+getRgbToPixelFun(XImage* ximage)
 {
-    // 5 R, 5 G, 5 B (15 bit display)
-    if ((ximage->red_mask == 0x7c00)
-        && (ximage->green_mask == 0x3e0) && (ximage->blue_mask == 0x1f)) {
-        r = (pixel >> 7) & 0x7c;
-        g = (pixel >> 2) & 0x3e;
-        b = (pixel << 3) & 0x1f;
-        // 5 R, 6 G, 5 B (16 bit display)
-    } else  if ((ximage->red_mask == 0xf800)
+    if ((ximage->red_mask == 0xff0000)
+         && (ximage->green_mask == 0xff00)
+         && (ximage->blue_mask == 0xff)) {
+        return rgbToPixel24bitLSB;
+    } else if ((ximage->red_mask == 0xf800)
                 && (ximage->green_mask == 0x07e0)
                 && (ximage->blue_mask == 0x001f)) {
-        r = (pixel >> 8) & 0xf8;
-        g = (pixel >> 3) & 0x7e;
-        b = (pixel << 3) & 0x1f;
-        // 8 R, 8 G, 8 B (24/32 bit display)
-    } else if  ((ximage->red_mask == 0xff0000)
+        return rgbToPixel16bitLSB;
+    } else if ((ximage->red_mask == 0x7c00)
+	       && (ximage->green_mask == 0x3e0)
+	       && (ximage->blue_mask == 0x1f)) {
+        return rgbToPixel15bitLSB;
+    } else if  ((ximage->red_mask == 0xff)
                 && (ximage->green_mask == 0xff00)
-                && (ximage->blue_mask == 0xff)) {
-        r = (pixel >> 16) & 0xff;
-        g = (pixel >> 8) & 0xff;
-        b = pixel & 0xff;
+                && (ximage->blue_mask == 0xff0000)) {
+        return rgbToPixel24bitMSB;
+    } else if ((ximage->red_mask == 0x001f)
+                && (ximage->green_mask == 0x07e0)
+                && (ximage->blue_mask == 0xf800)) {
+        return rgbToPixel16bitMSB;
+    } else if ((ximage->red_mask == 0x1f)
+	       && (ximage->green_mask == 0x3e0)
+	       && (ximage->blue_mask == 0x7c00)) {
+        return rgbToPixel15bitMSB;
     } else {
-        r = 0;
-        g = 0;
-        b = 0;
+        return rgbToPixelUnknown;
+    }
+}
+
+typedef void (*pixelToRgb)(ulong, uchar&, uchar&, uchar&);
+
+static void
+pixelToRgb15bitLSB(ulong pixel, uchar &r, uchar &g, uchar &b)
+{
+    r = (pixel >> 7) & 0x7c;
+    g = (pixel >> 2) & 0x3e;
+    b = (pixel << 3) & 0x1f;
+}
+
+static void
+pixelToRgb16bitLSB(ulong pixel, uchar &r, uchar &g, uchar &b)
+{
+    r = (pixel >> 8) & 0xf8;
+    g = (pixel >> 3) & 0x7e;
+    b = (pixel << 3) & 0x1f;
+}
+
+static void
+pixelToRgb24bitLSB(ulong pixel, uchar &r, uchar &g, uchar &b)
+{
+    r = (pixel >> 16) & 0xff;
+    g = (pixel >> 8) & 0xff;
+    b = pixel & 0xff;
+}
+
+static void
+pixelToRgb15bitMSB(ulong pixel, uchar &r, uchar &g, uchar &b)
+{
+    r = (pixel << 3) & 0x1f;
+    g = (pixel >> 2) & 0x3e;
+    b = (pixel >> 7) & 0x7c;
+}
+
+static void
+pixelToRgb16bitMSB(ulong pixel, uchar &r, uchar &g, uchar &b)
+{
+    r = (pixel << 3) & 0x1f;
+    g = (pixel >> 3) & 0x7e;
+    b = (pixel >> 8) & 0xf8;
+}
+
+
+static void
+pixelToRgb24bitMSB(ulong pixel, uchar &r, uchar &g, uchar &b)
+{
+    r = pixel & 0xff;
+    g = (pixel >> 8) & 0xff;
+    b = (pixel >> 16) & 0xff;
+}
+
+static void
+pixelToRgbUnknown(ulong pixel, uchar &r, uchar &g, uchar &b)
+{
+    r = 0;
+    g = 0;
+    b = 0;
+}
+
+/**
+ * Get pixel to RGB conversion appropriate for this XImage.
+ */
+static pixelToRgb
+getPixelToRgbFun(XImage *ximage)
+{
+    if  ((ximage->red_mask == 0xff0000)
+         && (ximage->green_mask == 0xff00)
+         && (ximage->blue_mask == 0xff)) {
+        return pixelToRgb24bitLSB;
+    } else if ((ximage->red_mask == 0xf800)
+               && (ximage->green_mask == 0x07e0)
+               && (ximage->blue_mask == 0x001f)) {
+        return pixelToRgb16bitLSB;
+    } else if ((ximage->red_mask == 0x7c00)
+               && (ximage->green_mask == 0x3e0)
+	       && (ximage->blue_mask == 0x1f)) {
+        return pixelToRgb15bitLSB;
+    } else if  ((ximage->red_mask == 0xff)
+                && (ximage->green_mask == 0xff00)
+                && (ximage->blue_mask == 0xff0000)) {
+        return pixelToRgb24bitMSB;
+    } else if ((ximage->red_mask == 0x001f)
+               && (ximage->green_mask == 0x07e0)
+               && (ximage->blue_mask == 0xf800)) {
+        return pixelToRgb16bitMSB;
+    } else if ((ximage->red_mask == 0x1f)
+               && (ximage->green_mask == 0x3e0)
+	       && (ximage->blue_mask == 0x7c00)) {
+        return pixelToRgb15bitMSB;
+    } else {
+        return pixelToRgbUnknown;
     }
 }
 
@@ -147,12 +264,14 @@ PImage::PImage(XImage *image, uchar opacity)
       _data(new uchar[image->width * image->height * 4]),
       _use_alpha(false)
 {
+    auto pixelToRgb = getPixelToRgbFun(image);
+
     uint dst = 0;
     for (uint y = 0; y < _height; ++y) {
         for (uint x = 0; x < _width; ++x) {
             _data[dst] = opacity; // A
-            getRgbFromPixel(image, XGetPixel(image, x, y),
-                            _data[dst + 1], _data[dst + 2], _data[dst + 3]);
+            pixelToRgb(XGetPixel(image, x, y),
+		       _data[dst + 1], _data[dst + 2], _data[dst + 3]);
             dst += 4;
         }
     }
@@ -425,6 +544,9 @@ PImage::drawAlphaFixed(XImage *src_image, XImage *dest_image,
     dest_image->green_mask = visual->green_mask;
     dest_image->blue_mask = visual->blue_mask;
 
+    auto pixelToRgb = getPixelToRgbFun(src_image);
+    auto rgbToPixel = getRgbToPixelFun(dest_image);
+
     uchar *src = data;
     for (size_t i_y = 0; i_y < height; ++i_y) {
         for (size_t i_x = 0; i_x < width; ++i_x) {
@@ -438,8 +560,8 @@ PImage::drawAlphaFixed(XImage *src_image, XImage *dest_image,
             if (a != 255) {
                 // Get RGB values from pixel.
                 uchar d_r = 0, d_g = 0, d_b = 0;
-                getRgbFromPixel(src_image, XGetPixel(src_image, i_x, i_y),
-                                d_r, d_g, d_b);
+                pixelToRgb(XGetPixel(src_image, i_x, i_y),
+			   d_r, d_g, d_b);
 
                 float a_percent = static_cast<float>(a) / 255;
                 float a_percent_inv = 1 - a_percent;
@@ -448,8 +570,7 @@ PImage::drawAlphaFixed(XImage *src_image, XImage *dest_image,
                 b = static_cast<uchar>((a_percent_inv * d_b) + (a_percent * b));
             }
 
-            XPutPixel(dest_image, i_x, i_y,
-                      getPixelFromRgb(dest_image, r, g, b));
+            XPutPixel(dest_image, i_x, i_y, rgbToPixel(r, g, b));
         }
     }
 }
@@ -654,6 +775,8 @@ PImage::createXImage(uchar* data, size_t width, size_t height)
 
     uchar *src = data;
 
+    auto rgbToPixel = getRgbToPixelFun(ximage);
+
     // Put data into XImage.
     for (size_t y = 0; y < height; ++y) {
         for (size_t x = 0; x < width; ++x) {
@@ -662,7 +785,7 @@ PImage::createXImage(uchar* data, size_t width, size_t height)
             uchar r = *src++;
             uchar g = *src++;
             uchar b = *src++;
-            XPutPixel(ximage, x, y, getPixelFromRgb(ximage, r, g, b));
+            XPutPixel(ximage, x, y, rgbToPixel(r, g, b));
         }
     }
 
