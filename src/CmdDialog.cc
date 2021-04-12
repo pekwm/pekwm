@@ -10,7 +10,6 @@
 
 #include <iostream>
 #include <list>
-#include <cwctype>
 
 extern "C" {
 #include <X11/Xlib.h>
@@ -29,7 +28,7 @@ extern "C" {
  * @todo Make size configurable.
  */
 CmdDialog::CmdDialog()
-  : InputDialog(L"Enter command"), _exec_count(0)
+  : InputDialog("Enter command"), _exec_count(0)
 {
     _type = PWinObj::WO_CMD_DIALOG;
 
@@ -48,40 +47,37 @@ CmdDialog::~CmdDialog(void)
     }
 }
 
-
-//! @brief Parses _buf and tries to generate an ActionEvent
-//! @return Pointer to ActionEvent.
+/**
+ * Parses _buf and tries to generate an ActionEvent
+ * @return Pointer to ActionEvent.
+ */
 ActionEvent*
 CmdDialog::exec(void)
 {
+    auto cfg = pekwm::config();
+
     // Update history
-    if (pekwm::config()->isCmdDialogHistoryUnique()) {
-        addHistoryUnique(_buf);
-    } else {
-        _history.push_back(_buf);
-    }
-    if (_history.size() > static_cast<uint>(pekwm::config()->getCmdDialogHistorySize())) {
-        _history.erase(_history.begin());
-    }
+    addHistory(str(),
+               cfg->isCmdDialogHistoryUnique(),
+               static_cast<uint>(cfg->getCmdDialogHistorySize()));
 
     // Persist changes
-    if (pekwm::config()->getCmdDialogHistorySaveInterval() > 0
-        && pekwm::config()->getCmdDialogHistoryFile().size() > 0
-        && ++_exec_count > pekwm::config()->getCmdDialogHistorySaveInterval()) {
-        saveHistory(pekwm::config()->getCmdDialogHistoryFile());
+    if (cfg->getCmdDialogHistorySaveInterval() > 0
+        && cfg->getCmdDialogHistoryFile().size() > 0
+        && ++_exec_count > cfg->getCmdDialogHistorySaveInterval()) {
+        saveHistory(cfg->getCmdDialogHistoryFile());
         _exec_count = 0;
     }
 
-    // Check if it's a valid Action, if not we assume it's a command and try
-    // to execute it.
-    auto buf_mb(Charset::to_mb_str(_buf));
-    if (! ActionConfig::parseAction(buf_mb, _ae.action_list.back(),
+    // Check if it is a valid Action, if not assume it is a shell
+    // command and try to execute it.
+    if (! ActionConfig::parseAction(str(), ae().action_list.back(),
                                     KEYGRABBER_OK)) {
-        _ae.action_list.back().setAction(ACTION_EXEC);
-        _ae.action_list.back().setParamS(buf_mb);
+        ae().action_list.back().setAction(ACTION_EXEC);
+        ae().action_list.back().setParamS(str());
     }
 
-    return &_ae;
+    return &(ae());
 }
 
 /**
@@ -103,7 +99,7 @@ CmdDialog::unmapWindow(void)
     if (_mapped) {
         InputDialog::unmapWindow();
         setWORef(0);
-        bufClear();
+        buf().clear();
         _completer.clear();
     }
 }
@@ -115,16 +111,45 @@ void
 CmdDialog::complete(void)
 {
     // Find completion if changed since last time.
-    if (_buf != _buf_on_complete_result) {
+    if (str() != _buf_on_complete_result) {
         InputDialog::complete();
-        _complete_list = _completer.find_completions(_buf, _pos);
+        _complete_list = _completer.find_completions(str(), buf().pos());
         _complete_it = _complete_list.begin();
     }
 
     if (_complete_list.size()) {
-        _buf = _completer.do_complete(_buf_on_complete, _pos, _complete_list, _complete_it);
-        _buf_on_complete_result = _buf;
+        uint pos = buf().pos();
+        auto val = _completer.do_complete(_buf_on_complete, pos,
+                                          _complete_list, _complete_it);
+        buf().setBuf(val);
+        buf().setPos(pos);
+        _buf_on_complete_result = val;
     }
+}
+
+/**
+ * Restore buffer and clear completion buffers.
+ */
+void
+CmdDialog::completeAbort(void)
+{
+    if (_buf_on_complete.size()) {
+        buf().setBuf(_buf_on_complete);
+        buf().setPos(_pos_on_complete);
+    }
+
+    completeReset();
+}
+
+/**
+ * Clear the completion buffer.
+ */
+void
+CmdDialog::completeReset(void)
+{
+    _buf_on_complete = "";
+    _buf_on_complete_result = "";
+    _pos_on_complete = 0;
 }
 
 /**

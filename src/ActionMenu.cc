@@ -34,7 +34,7 @@
 //! @param name Name of the menu, empty for dynamic else should be unique
 //! @param decor_name Name of decor to use, defaults to MENU.
 ActionMenu::ActionMenu(MenuType type, ActionHandler *act,
-                       const std::wstring &title, const std::string &name,
+                       const std::string &title, const std::string &name,
                        const std::string &decor_name)
     : WORefMenu(title, name, decor_name),
       _act(act),
@@ -182,7 +182,7 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
     }
 
     if (section->getValue().size()) {
-        auto title(Charset::to_wide_str(section->getValue()));
+        auto title(section->getValue());
         setTitle(title);
         _title_base = title;
     }
@@ -203,21 +203,20 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
                 icon = getIcon(sub_section->findEntry("ICON"));
 
                 auto title = (*it)->getValue();
-                auto wtitle = Charset::to_wide_str(title);
-                auto submenu = new ActionMenu(_menu_type, _act, wtitle, title);
+                auto submenu = new ActionMenu(_menu_type, _act, title, title);
                 submenu->_menu_parent = this;
                 submenu->parse(sub_section, parent);
                 submenu->buildMenu();
 
-                auto wsub_title = Charset::to_wide_str(sub_section->getValue());
-                item = new PMenu::Item(wsub_title, submenu, icon);
+                auto sub_title = sub_section->getValue();
+                item = new PMenu::Item(sub_title, submenu, icon);
                 item->setCreator(parent);
             } else {
                 USER_WARN("submenu entry does not contain any section");
             }
         } else if (*(*it) == "SEPARATOR") {
             // No icon support on separators.
-            item = new PMenu::Item(L"", 0, 0);
+            item = new PMenu::Item("", 0, 0);
             item->setType(PMenu::Item::MENU_ITEM_SEPARATOR);
             item->setCreator(parent);
 
@@ -231,7 +230,7 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
                                                         _action_ok)) {
                     icon = getIcon(sub_section->findEntry("ICON"));
 
-                    auto sub_name = Charset::to_wide_str(sub_section->getValue());
+                    auto sub_name = sub_section->getValue();
                     item = new PMenu::Item(sub_name, 0, icon);
                     item->setCreator(parent);
                     item->setAE(ae);

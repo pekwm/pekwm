@@ -82,8 +82,8 @@ std::ostream&
 operator<<(std::ostream& os, const ClassHint &ch)
 {
     os << "ClassHint "
-       << Charset::to_mb_str(ch.h_name) << ","
-       << Charset::to_mb_str(ch.h_class);
+       << Charset::toSystem(ch.h_name) << ","
+       << Charset::toSystem(ch.h_class);
     return os;
 }
 
@@ -91,11 +91,11 @@ ClassHint::ClassHint(void)
 {
 }
 
-ClassHint::ClassHint(const std::wstring &n_h_name,
-                     const std::wstring &n_h_class,
-                     const std::wstring &n_h_role,
-                     const std::wstring &n_title,
-                     const std::wstring &n_group)
+ClassHint::ClassHint(const std::string &n_h_name,
+                     const std::string &n_h_class,
+                     const std::string &n_h_role,
+                     const std::string &n_title,
+                     const std::string &n_group)
     : h_name(n_h_name),
       h_class(n_h_class),
       h_role(n_h_role),
@@ -344,7 +344,7 @@ AutoProperties::parseRegexpOrWarning(RegexString &regex,
                                      const std::string regex_str,
                                      const std::string &name)
 {
-    if (! regex_str.size() || regex.parse_match(Charset::to_wide_str(regex_str))) {
+    if (! regex_str.size() || regex.parse_match(regex_str)) {
         return true;
     } else {
         USER_WARN("invalid regexp " << regex_str << " for autoproperty "
@@ -462,7 +462,7 @@ AutoProperties::parseAutoGroup(CfgParser::Entry *section,
     }
 
     if (section->getValue().size()) {
-        property->group_name = Charset::to_wide_str(section->getValue());
+        property->group_name = section->getValue();
     }
 
     PropertyType property_type;
@@ -516,7 +516,7 @@ AutoProperties::parseTitleProperty(CfgParser::Entry *section)
         parsePropertyMatch(title_section->getValue(), title_property);
         if (parseProperty(title_section, title_property)) {
             auto value = title_section->findEntry("RULE");
-            auto wstr = Charset::to_wide_str(value->getValue());
+            auto wstr = value->getValue();
             if (value && title_property->getTitleRule().parse_ed_s(wstr)) {
                 _title_prop_list.push_back(title_property);
                 title_property = 0;

@@ -13,8 +13,10 @@
 #include "test_Action.hh"
 #include "test_Config.hh"
 #include "test_Frame.hh"
+#include "test_InputDialog.hh"
 #include "test_ManagerWindows.hh"
 #include "test_Observable.hh"
+#include "test_PFont.hh"
 #include "test_Theme.hh"
 #include "test_WindowManager.hh"
 #include "test_X11.hh"
@@ -38,11 +40,17 @@ main_tests(int argc, char *argv[])
     // Frame
     TestFrame testFrame;
 
+    // InputDialog
+    TestInputBuffer testInputBuffer;
+
     // ManagerWindows
     TestRootWO testRootWO(&hint_wo, &cfg);
 
     // Observable
     TestObserverMapping testObserverMapping;
+
+    // PFont
+    TestPFont testPFont;
 
     // Theme
     TestTheme testTheme;

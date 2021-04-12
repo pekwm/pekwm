@@ -27,8 +27,8 @@ extern "C" {
 #include "PWinObj.hh"
 #include "MenuHandler.hh"
 
-CompPair::CompPair(const std::wstring& _first,
-                   const std::wstring& _second)
+CompPair::CompPair(const std::string& _first,
+                   const std::string& _second)
     : first(_first),
       second(_second)
 {
@@ -73,7 +73,7 @@ completions_list_from_name_list(T name_list, completions_list &completions_list)
     completions_list.clear();
     typename T::const_iterator it(name_list.begin());
     for (; it != name_list.end(); ++it) {
-        auto name = Charset::to_wide_str(*it);
+        auto name = *it;
         auto name_lower(name);
         Util::to_lower(name_lower);
         completions_list.push_back(CompPair(name_lower, name));
@@ -111,7 +111,7 @@ protected:
      */
     unsigned int complete_word(completions_list &completions_list,
                                complete_list &completions,
-                               const std::wstring &word)
+                               const std::string &word)
     {
         unsigned int completed = 0, equality = -1;
 
@@ -160,7 +160,7 @@ public:
         for (auto it : path_parts) {
             DIR *dh = opendir(it.c_str());
             if (dh) {
-                refresh_path(dh, Charset::to_wide_str(it));
+                refresh_path(dh, Charset::fromSystem(it));
                 closedir(dh);
             }
         }
@@ -174,8 +174,8 @@ public:
     }
 
 private:
-    void refresh_path(DIR *dh, const std::wstring& path);
-    void add_path(const std::wstring& name, const std::wstring& path_name);
+    void refresh_path(DIR *dh, const std::string& path);
+    void add_path(const std::string& name, const std::string& path_name);
 
     completions_list _path_list; /**< List of all elements in path. */
 };
@@ -184,7 +184,7 @@ private:
  * Refresh single directory.
  */
 void
-PathCompleterMethod::refresh_path(DIR *dh, const std::wstring& path)
+PathCompleterMethod::refresh_path(DIR *dh, const std::string& path)
 {
     struct dirent *entry;
     while ((entry = readdir(dh)) != 0) {
@@ -192,15 +192,15 @@ PathCompleterMethod::refresh_path(DIR *dh, const std::wstring& path)
             continue;
         }
 
-        auto name = Charset::to_wide_str(entry->d_name);
-        auto path_name = path + L"/" + name;
+        auto name = Charset::toSystem(entry->d_name);
+        auto path_name = path + "/" + name;
         add_path(name, path_name);
     }
 }
 
 void
-PathCompleterMethod::add_path(const std::wstring& name,
-                              const std::wstring& path_name)
+PathCompleterMethod::add_path(const std::string& name,
+                              const std::string& path_name)
 {
     CompPair nn(name, name);
     _path_list.push_back(nn);
@@ -231,20 +231,22 @@ public:
      */
     class StateMatch {
     public:
-        StateMatch(State state, const wchar_t *prefix)
-           : _prefix(prefix), _prefix_len(wcslen(prefix)), _state(state) {
+        StateMatch(State state, const char *prefix)
+            : _prefix(prefix),
+              _prefix_len(strlen(prefix)),
+              _state(state) {
         }
 
         State get_state(void) { return _state; }
         //! Check if str matches state prefix.
-        bool is_state(const std::wstring &str, size_t pos) {
+        bool is_state(const std::string &str, size_t pos) {
             return (str.size() - pos < _prefix_len)
                 ? false
                 : ! str.compare(pos, _prefix_len, _prefix, _prefix_len);
         }
     private:
-        const wchar_t *_prefix; /**< Matching prefix */
-        const size_t _prefix_len; /**< */
+        const char *_prefix; /**< Matching prefix */
+        const size_t _prefix_len;
         State _state; /**< State */
     };
 
@@ -273,7 +275,7 @@ public:
 
 private:
     State find_state(CompletionState &completion_state);
-    size_t find_state_word_start(const std::wstring &str);
+    size_t find_state_word_start(const std::string &str);
 
     completions_list _action_list; /**< List of all available actions. */
     completions_list _state_list; /**< List of parameters to state actions. */
@@ -304,10 +306,10 @@ ActionCompleterMethod::refresh(void)
 }
 
 ActionCompleterMethod::StateMatch ActionCompleterMethod::STATE_MATCHES[] = {
-  StateMatch(ActionCompleterMethod::STATE_STATE, L"set"),
-  StateMatch(ActionCompleterMethod::STATE_STATE, L"unset"),
-  StateMatch(ActionCompleterMethod::STATE_STATE, L"toggle"),
-  StateMatch(ActionCompleterMethod::STATE_MENU, L"showmenu")
+  StateMatch(ActionCompleterMethod::STATE_STATE, "set"),
+  StateMatch(ActionCompleterMethod::STATE_STATE, "unset"),
+  StateMatch(ActionCompleterMethod::STATE_STATE, "toggle"),
+  StateMatch(ActionCompleterMethod::STATE_MENU, "showmenu")
 };
 
 /**
@@ -361,7 +363,7 @@ Completer::clear()
  * Find completions for string with the cursor at position.
  */
 complete_list
-Completer::find_completions(const std::wstring &str, unsigned int pos)
+Completer::find_completions(const std::string &str, unsigned int pos)
 {
     // Get current part of str, if it is empty return no completions.
     CompletionState state;
@@ -392,8 +394,8 @@ Completer::find_completions(const std::wstring &str, unsigned int pos)
  * @param pos Cursor position in string.
  * @return Completed string.
  */
-std::wstring
-Completer::do_complete(const std::wstring &str, unsigned int &pos,
+std::string
+Completer::do_complete(const std::string &str, unsigned int &pos,
                        complete_list &completions, complete_it &it)
 {
     // Do not perform completion if there is nothing to complete
@@ -410,10 +412,10 @@ Completer::do_complete(const std::wstring &str, unsigned int &pos,
 
     // Get current word, this is the one being replaced
     size_t word_begin, word_end;
-    std::wstring word(get_word_at_position(str, pos, word_begin, word_end));
+    std::string word(get_word_at_position(str, pos, word_begin, word_end));
 
     // Replace the current word
-    std::wstring completed(str);
+    std::string completed(str);
     completed.replace(word_begin, word_end - word_begin, *it);
 
     // Update position
@@ -435,17 +437,17 @@ Completer::do_complete(const std::wstring &str, unsigned int &pos,
  * @param part_end
  * @return Current part of string.
  */
-std::wstring
-Completer::get_part(const std::wstring &str, unsigned int pos,
+std::string
+Completer::get_part(const std::string &str, unsigned int pos,
                     size_t &part_begin, size_t &part_end)
 {
     // Get beginning and end of string, add 1 for removal of separator
-    part_begin = String::safe_position(str.find_last_of(L";", pos), 0, 1);
-    part_end = String::safe_position(str.find_first_of(L";", pos), str.size());
+    part_begin = String::safe_position(str.find_last_of(";", pos), 0, 1);
+    part_end = String::safe_position(str.find_first_of(";", pos), str.size());
 
     // Strip spaces from the beginning of the string
     part_begin =
-        String::safe_position(str.find_first_not_of(L" \t", part_begin),
+        String::safe_position(str.find_first_not_of(" \t", part_begin),
                               part_end);
 
     return str.substr(part_begin, part_end - part_begin);
@@ -454,14 +456,14 @@ Completer::get_part(const std::wstring &str, unsigned int pos,
 /**
  * Get word at position.
  */
-std::wstring
-Completer::get_word_at_position(const std::wstring &str, unsigned int pos,
+std::string
+Completer::get_word_at_position(const std::string &str, unsigned int pos,
                                 size_t &word_begin, size_t &word_end)
 {
     // Get beginning and end of string, add 1 for removal of separator
-    word_begin = String::safe_position(str.find_last_of(L" \t", pos), 0, 1);
+    word_begin = String::safe_position(str.find_last_of(" \t", pos), 0, 1);
     word_end =
-        String::safe_position(str.find_first_of(L" \t", pos), str.size());
+        String::safe_position(str.find_first_of(" \t", pos), str.size());
 
     return str.substr(word_begin, word_end - word_begin);
 }

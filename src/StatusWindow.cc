@@ -69,7 +69,7 @@ StatusWindow::~StatusWindow(void)
 //! @param text Text to draw in StatusWindow
 //! @param do_center Center the StatusWindow on screen. Defaults to false.
 void
-StatusWindow::draw(const std::wstring &text, bool do_center, Geometry *gm)
+StatusWindow::draw(const std::string &text, bool do_center, Geometry *gm)
 {
     uint width, height;
     auto sd = _theme->getStatusData();

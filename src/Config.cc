@@ -142,7 +142,7 @@ Config::Config(void) :
         _moveresize_woattract(0), _moveresize_woresist(0),
         _moveresize_opaquemove(0), _moveresize_opaqueresize(0),
         _screen_workspaces(4),
-        _screen_workspaces_per_row(0), _screen_workspace_name_default(L"Workspace"),
+        _screen_workspaces_per_row(0), _screen_workspace_name_default("Workspace"),
         _screen_edge_indent(false),
         _screen_doubleclicktime(250), _screen_fullscreen_above(true),
         _screen_fullscreen_detect(true),
@@ -208,11 +208,9 @@ Config::getDesktopNamesUTF8(uchar **names, uint *length) const
         return;
     }
 
-    // Convert strings to UTF-8 and calculate total length
     std::string utf8_names;
     for (auto it : _screen_workspace_names) {
-        std::string utf8_name(Charset::to_utf8_str(it));
-        utf8_names.append(utf8_name.c_str(), utf8_name.size() + 1);
+        utf8_names.append(it.c_str(), it.size() + 1);
     }
 
     *names = new uchar[utf8_names.size()];
@@ -237,7 +235,7 @@ Config::setDesktopNamesUTF8(char *names, ulong length)
     }
 
     for (ulong i = 0; i < length;) {
-        _screen_workspace_names.push_back(Charset::from_utf8_str(names));
+        _screen_workspace_names.push_back(names);
         i += strlen(names) + 1;
         names += strlen(names) + 1;
     }
@@ -482,7 +480,7 @@ Config::loadScreen(CfgParser::Entry *section)
     std::vector<std::string> vs;
     if (Util::splitString(workspace_names, vs, ";", 0, true)) {
         for (auto vs_it : vs) {
-            _screen_workspace_names.push_back(Charset::to_wide_str(vs_it));
+            _screen_workspace_names.push_back(vs_it);
         }
     }
 

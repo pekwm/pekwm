@@ -24,7 +24,7 @@ class FrameListMenu : public WORefMenu
 {
 public:
     FrameListMenu(MenuType type,
-                  const std::wstring &title, const std::string &name,
+                  const std::string &title, const std::string &name,
                   const std::string &decor_name = "MENU");
     virtual ~FrameListMenu(void);
 
@@ -39,8 +39,8 @@ private:
     void updateFrameListMenu(void);
 
 private:
-    void buildName(Frame *frame, std::wstring &name);
-    void buildFrameNames(Frame *frame, std::wstring &pre_name,
+    void buildName(Frame *frame, std::string &name);
+    void buildFrameNames(Frame *frame, std::string &pre_name,
                          bool insert_separator);
 
     void handleGotomenu(Client *client);

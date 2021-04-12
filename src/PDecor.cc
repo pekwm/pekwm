@@ -144,21 +144,21 @@ PDecor::TitleItem::infoIs(enum Info info)
 void
 PDecor::TitleItem::updateVisible(void) {
     // Start with empty string
-    _visible = L"";
+    _visible = "";
 
     // Add client info to title
     if ((_info != 0)
         && ((_info != INFO_ID) || pekwm::config()->isShowClientID())) {
-        _visible.append(L"[");
+        _visible.append("[");
 
         if (infoIs(INFO_ID) && pekwm::config()->isShowClientID()) {
-            _visible.append(Charset::to_wide_str(std::to_string(_id)));
+            _visible.append(std::to_string(_id));
         }
         if (infoIs(INFO_MARKED)) {
-            _visible.append(L"M");
+            _visible.append("M");
         }
 
-        _visible.append(L"] ");
+        _visible.append("] ");
     }
 
     // Add title
@@ -172,9 +172,9 @@ PDecor::TitleItem::updateVisible(void) {
 
     // Add client number to title
     if (_count > 0) {
-      _visible.append(Charset::to_wide_str(pekwm::config()->getClientUniqueNamePre()));
-      _visible.append(Charset::to_wide_str(std::to_string(_count)));
-      _visible.append(Charset::to_wide_str(pekwm::config()->getClientUniqueNamePost()));
+      _visible.append(pekwm::config()->getClientUniqueNamePre());
+      _visible.append(std::to_string(_count));
+      _visible.append(pekwm::config()->getClientUniqueNamePost());
     }
 }
 
@@ -1198,9 +1198,9 @@ PDecor::activateChild(PWinObj *child)
 }
 
 void
-PDecor::getDecorInfo(wchar_t *buf, uint size, const Geometry& gm)
+PDecor::getDecorInfo(char *buf, uint size, const Geometry& gm)
 {
-    swprintf(buf, size, L"%dx%d+%d+%d", gm.width, gm.height, gm.x, gm.y);
+    snprintf(buf, size, "%dx%d+%d+%d", gm.width, gm.height, gm.x, gm.y);
 }
 
 void

@@ -336,7 +336,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                                     || (ap.type == EnterNotify));
                 break;
             case ACTION_FIND_CLIENT:
-                actionFindClient(Charset::to_wide_str(it->getParamS()));
+                actionFindClient(it->getParamS());
                 break;
             case ACTION_GOTO_CLIENT_ID:
                 actionGotoClientID(it->getParamI(0));
@@ -477,7 +477,7 @@ ActionHandler::handleStateAction(const Action &action, PWinObj *wo,
             frame->setDecorOverride(sa, action.getParamS());
             break;
         case ACTION_STATE_TITLE:
-            frame->setStateTitle(sa, client, Charset::to_wide_str(action.getParamS()));
+            frame->setStateTitle(sa, client, action.getParamS());
             break;
         case ACTION_STATE_OPAQUE:
             frame->setStateOpaque(sa);
@@ -575,7 +575,7 @@ ActionHandler::actionExec(Client *client, const std::string &command,
 
 //! @brief Searches for a client matching titles and makes it visible
 void
-ActionHandler::actionFindClient(const std::wstring &title)
+ActionHandler::actionFindClient(const std::string &title)
 {
     Client *client = findClientFromTitle(title);
     if (client) {
@@ -841,7 +841,7 @@ ActionHandler::actionWarpPointer(int x, int y)
 
 //! @brief Searches the client list for a client with a title matching title
 Client*
-ActionHandler::findClientFromTitle(const std::wstring &or_title)
+ActionHandler::findClientFromTitle(const std::string &or_title)
 {
     RegexString o_rs;
 

@@ -30,8 +30,8 @@ public:
     ~Workspace(void);
     Workspace &operator=(const Workspace &w);
 
-    inline const std::wstring &getName(void) const { return _name; }
-    inline void setName(const std::wstring &name) { _name = name; }
+    inline const std::string &getName(void) const { return _name; }
+    inline void setName(const std::string &name) { _name = name; }
 
     inline WinLayouter *getLayouter(void) const {
         return _layouter?_layouter:_default_layouter;
@@ -42,7 +42,7 @@ public:
     inline void setLastFocused(PWinObj* wo) { _last_focused = wo; }
 
 private:
-    std::wstring _name;
+    std::string _name;
     mutable WinLayouter *_layouter; // evil hack, will change with C++11
     PWinObj *_last_focused;
 
@@ -160,7 +160,7 @@ private:
     static bool warpToWorkspace(uint num, int dir);
 
     static bool lowerFullscreenWindows(Layer new_layer);
-    static std::wstring getWorkspaceName(uint num);
+    static std::string getWorkspaceName(uint num);
 
     static uint _active; /**< Current active workspace. */
     static uint _previous; /**< Previous workspace. */

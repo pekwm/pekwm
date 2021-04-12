@@ -17,7 +17,7 @@
 #include "Util.hh"
 #include "X11.hh"
 
-std::wstring PFont::_trim_string = std::wstring();
+std::string PFont::_trim_string = std::string();
 const char *FALLBACK_FONT = "fixed";
 
 // PFont::Color
@@ -64,10 +64,11 @@ PFont::~PFont(void)
  * @param text text to draw
  * @param max_chars max nr of chars, defaults to 0 == strlen(text)
  * @param max_width max nr of pixels, defaults to 0 == infinity
- * @param trim_type how to trim title if not enough space, defaults to FONT_TRIM_END
+ * @param trim_type how to trim title if not enough space, defaults
+ *        to FONT_TRIM_END
  */
 int
-PFont::draw(Drawable dest, int x, int y, const std::wstring &text,
+PFont::draw(Drawable dest, int x, int y, const std::string &text,
             uint max_chars, uint max_width, PFont::TrimType trim_type)
 {
     if (! text.size()) {
@@ -75,7 +76,7 @@ PFont::draw(Drawable dest, int x, int y, const std::wstring &text,
     }
 
     uint offset = x, chars = max_chars;
-    std::wstring real_text(text);
+    std::string real_text(text);
 
     if (max_width > 0) {
         // If max width set, make sure text fits in max_width pixels.
@@ -100,95 +101,111 @@ PFont::draw(Drawable dest, int x, int y, const std::wstring &text,
     return offset;
 }
 
-//! @brief Trims the text making it max max_width wide
-//! @param text
-//! @param trim_type
-//! @param max_width
-//! @param chars
+/**
+ * Trims the text making it max max_width wide
+ */
 void
-PFont::trim(std::wstring &text, PFont::TrimType trim_type, uint max_width)
+PFont::trim(std::string &text, PFont::TrimType trim_type, uint max_width)
 {
+    if (! text.size()) {
+        return;
+    }
+
     if (getWidth(text) > max_width) {
-        if ((_trim_string.size() > 0) && (trim_type == FONT_TRIM_MIDDLE)) {
-            // Trim middle before end if trim string is set.
-            trimMiddle(text, max_width);
+        if (_trim_string.size() > 0
+            && trim_type == FONT_TRIM_MIDDLE
+            && trimMiddle(text, max_width)) {
+            return;
         }
 
         trimEnd(text, max_width);
     }
 }
 
-//! @brief Figures how many charachters to have before exceding max_width
+/**
+ * Figures how many charachters to have before exceding max_width
+ */
 void
-PFont::trimEnd(std::wstring &text, uint max_width)
+PFont::trimEnd(std::string &text, uint max_width)
 {
-    for (uint i = text.size(); i > 0; --i) {
-        if (getWidth(text, i) <= max_width) {
-            text = text.substr(0, i);
-            break;
+    Charset::Utf8Iterator it(text, text.size());
+    --it;
+    --it;
+    for (; ! it.begin(); --it) {
+        if (getWidth(text, it.pos()) <= max_width) {
+            text = text.substr(0, it.pos());
+            return;
         }
     }
+    text = "";
 }
 
-//! @brief Replace middle of string with _trim_string making it max_width wide
-void
-PFont::trimMiddle(std::wstring &text, uint max_width)
+/**
+ * Replace middle of string with _trim_string making it max_width wide
+ */
+bool
+PFont::trimMiddle(std::string &text, uint max_width)
 {
+    bool trimmed = false;
+
     // Get max and separator width
     uint max_side = (max_width / 2);
-    uint sep_width = getWidth(_trim_string.c_str(),
-                            _trim_string.size() / 2 + _trim_string.size() % 2);
+    uint sep_width = getWidth(_trim_string);
 
     uint pos = 0;
-    std::wstring dest;
+    std::string dest;
 
     // If the trim string is too large, do nothing and let trimEnd handle this.
-    if (max_side <= sep_width) {
-        return;
+    if (sep_width > max_width) {
+        return false;
     }
     // Add space for the trim string
-    max_side -= sep_width;
+    max_side -= sep_width / 2;
 
     // Get numbers of chars before trim string (..)
-    for (uint i = text.size(); i > 0; --i) {
-        if (getWidth(text, i) < max_side) {
-            pos = i;
-            dest.insert(0, text.substr(0, i));
+    Charset::Utf8Iterator it(text, text.size());
+    for (--it; ! it.begin(); --it) {
+        if (getWidth(text, it.pos()) <= max_side) {
+            pos = it.pos();
+            dest.insert(0, text.substr(0, it.pos()));
             break;
         }
     }
-    
+
     // get numbers of chars after ...
     if (pos < text.size()) {
-        for (uint i = pos; i < text.size(); ++i) {
-            std::wstring second_part(text.substr(i, text.size() - i));
-            if (getWidth(second_part, 0) < max_side) {
+        for (++it; ! it.end(); ++it) {
+            auto second_part(text.substr(it.pos(), text.size() - it.pos()));
+            if (getWidth(second_part, 0) <= max_side) {
                 dest.insert(dest.size(), second_part);
                 break;
             }
         }
 
-        // Got a char after and before, if not do nothing and trimEnd will handle
-        // trimming after this call.
+        // Got a char after and before, if not do nothing and trimEnd
+        // will handle trimming after this call.
         if (dest.size() > 1) {
-            if ((getWidth(dest) + getWidth(_trim_string)) < max_width) {
+            if ((getWidth(dest) + getWidth(_trim_string)) <= max_width) {
                 dest.insert(pos, _trim_string);
+                trimmed = true;
             }
 
             // Update original string
             text = dest;
         }
     }
+
+    return trimmed;
 }
 
 void
 PFont::setTrimString(const std::string &text) {
-    _trim_string = Charset::to_wide_str(text);
+    _trim_string = text;
 }
 
 //! @brief Justifies the string based on _justify property of the Font
 uint
-PFont::justify(const std::wstring &text, uint max_width,
+PFont::justify(const std::string &text, uint max_width,
                uint padding, uint chars)
 {
     uint x;
@@ -274,7 +291,7 @@ PFontX11::unload(void)
 
 //! @brief Gets the width the text would take using this font
 uint
-PFontX11::getWidth(const std::wstring &text, uint max_chars)
+PFontX11::getWidth(const std::string &text, uint max_chars)
 {
     if (! text.size()) {
         return 0;
@@ -285,11 +302,11 @@ PFontX11::getWidth(const std::wstring &text, uint max_chars)
     if (! max_chars || (max_chars > text.size())) {
         max_chars = text.size();
     }
-  
+
     uint width = 0;
     if (_font) {
         // No UTF8 support, convert to locale encoding.
-        std::string mb_text(Charset::to_mb_str(text.substr(0, max_chars)));
+        auto mb_text = Charset::toSystem(text.substr(0, max_chars));
         width = XTextWidth(_font, mb_text.c_str(), mb_text.size());
     }
 
@@ -302,16 +319,16 @@ PFontX11::getWidth(const std::wstring &text, uint max_chars)
 //! @param fg Bool, to use foreground or background colors
 void
 PFontX11::drawText(Drawable dest, int x, int y,
-                   const std::wstring &text, uint chars, bool fg)
+                   const std::string &text, uint chars, bool fg)
 {
     GC gc = fg ? _gc_fg : _gc_bg;
 
     if (_font && (gc != None)) {
         std::string mb_text;
         if (chars != 0) {
-            mb_text = Charset::to_mb_str(text.substr(0, chars));
+            mb_text = Charset::toSystem(text.substr(0, chars));
         } else {
-            mb_text = Charset::to_mb_str(text);
+            mb_text = Charset::toSystem(text);
         }
 
         XDrawString(X11::getDpy(), dest, gc, x, y,
@@ -431,7 +448,7 @@ PFontXmb::unload(void)
 
 //! @brief Gets the width the text would take using this font
 uint
-PFontXmb::getWidth(const std::wstring &text, uint max_chars)
+PFontXmb::getWidth(const std::string &text, uint max_chars)
 {
     if (! text.size()) {
         return 0;
@@ -446,7 +463,7 @@ PFontXmb::getWidth(const std::wstring &text, uint max_chars)
     uint width = 0;
     if (_fontset) {
         XRectangle ink, logical;
-        XwcTextExtents(_fontset, text.c_str(), max_chars, &ink, &logical);
+        XmbTextExtents(_fontset, text.c_str(), max_chars, &ink, &logical);
         width = logical.width;
     }
 
@@ -459,13 +476,13 @@ PFontXmb::getWidth(const std::wstring &text, uint max_chars)
 //! @param fg Bool, to use foreground or background colors
 void
 PFontXmb::drawText(Drawable dest, int x, int y,
-                   const std::wstring &text, uint chars, bool fg)
+                   const std::string &text, uint chars, bool fg)
 {
     GC gc = fg ? _gc_fg : _gc_bg;
 
     if (_fontset && (gc != None)) {
-        XwcDrawString(X11::getDpy(), dest, _fontset, gc,
-                  x, y, text.c_str(), chars ? chars : text.size());
+        XmbDrawString(X11::getDpy(), dest, _fontset, gc,
+                      x, y, text.c_str(), chars ? chars : text.size());
     }
 }
 
@@ -550,7 +567,7 @@ PFontXft::unload(void)
 
 //! @brief Gets the width the text would take using this font
 uint
-PFontXft::getWidth(const std::wstring &text, uint max_chars)
+PFontXft::getWidth(const std::string &text, uint max_chars)
 {
     if (! text.size()) {
         return 0;
@@ -564,12 +581,12 @@ PFontXft::getWidth(const std::wstring &text, uint max_chars)
 
     uint width = 0;
     if (_font) {
-        std::string utf8_text(Charset::to_utf8_str(text.substr(0, max_chars)));
+        std::string sub_text = text.substr(0, max_chars);
 
         XGlyphInfo extents;
         XftTextExtentsUtf8(X11::getDpy(), _font,
-                         reinterpret_cast<const XftChar8*>(utf8_text.c_str()),
-                         utf8_text.size(), &extents);
+                           reinterpret_cast<const XftChar8*>(sub_text.c_str()),
+                           sub_text.size(), &extents);
 
         width = extents.xOff;
     }
@@ -583,22 +600,22 @@ PFontXft::getWidth(const std::wstring &text, uint max_chars)
 //! @param fg Bool, to use foreground or background colors
 void
 PFontXft::drawText(Drawable dest, int x, int y,
-                   const std::wstring &text, uint chars, bool fg)
+                   const std::string &text, uint chars, bool fg)
 {
     XftColor *cl = fg ? _cl_fg : _cl_bg;
 
     if (_font && cl) {
-        std::string utf8_text;
+        std::string sub_text;
         if (chars != 0) {
-            utf8_text = Charset::to_utf8_str(text.substr(0, chars));
+            sub_text = text.substr(0, chars);
         } else {
-            utf8_text = Charset::to_utf8_str(text);
+            sub_text = text;
         }
 
         XftDrawChange(_draw, dest);
         XftDrawStringUtf8(_draw, cl, _font, x, y,
-                          reinterpret_cast<const XftChar8*>(utf8_text.c_str()),
-                          utf8_text.size());
+                          reinterpret_cast<const XftChar8*>(sub_text.c_str()),
+                          sub_text.size());
     }
 }
 

@@ -27,6 +27,15 @@ private:
 #define ASSERT_FAILED(msg) \
     throw AssertFailed(__FILE__, __LINE__, (msg));
 
+#define ASSERT_TRUE(msg, actual)                \
+    if (! (actual)) {                           \
+        std::ostringstream __test_oss;          \
+        __test_oss << (msg);                    \
+        __test_oss << " expected true";         \
+        __test_oss << " got " << (actual);      \
+        ASSERT_FAILED(__test_oss.str())         \
+    }
+
 #define ASSERT_EQUAL(msg, expected, actual)                             \
     if ((expected) != (actual)) {                                       \
         std::ostringstream __test_oss;                                  \

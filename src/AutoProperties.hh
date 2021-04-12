@@ -63,9 +63,9 @@ enum PropertyType {
 class ClassHint {
 public:
     ClassHint(void);
-    ClassHint(const std::wstring &n_h_name, const std::wstring &n_h_class,
-              const std::wstring &n_h_role, const std::wstring &n_title,
-              const std::wstring &n_group);
+    ClassHint(const std::string &n_h_name, const std::string &n_h_class,
+              const std::string &n_h_role, const std::string &n_title,
+              const std::string &n_group);
     ~ClassHint(void);
 
     ClassHint& operator=(const ClassHint& rhs);
@@ -74,11 +74,11 @@ public:
     friend std::ostream& operator<<(std::ostream& os, const ClassHint &ch);
 
 public:
-    std::wstring h_name; /**< name part of WM_CLASS hint. */
-    std::wstring h_class; /**< class part of WM_CLASS hint. */
-    std::wstring h_role; /**< WM_ROLE hint value. */
-    std::wstring title; /**< Title of window. */
-    std::wstring group; /**< Group window belongs to. */
+    std::string h_name; /**< name part of WM_CLASS hint. */
+    std::string h_class; /**< class part of WM_CLASS hint. */
+    std::string h_role; /**< WM_ROLE hint value. */
+    std::string title; /**< Title of window. */
+    std::string group; /**< Group window belongs to. */
 };
 
 /**
@@ -158,7 +158,7 @@ public:
 
     // grouping variables
     int group_size;
-    std::wstring group_name;
+    std::string group_name;
     bool group_behind;
     bool group_focused_first;
     bool group_global;

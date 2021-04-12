@@ -659,12 +659,12 @@ Workspaces::setLastFocused(uint workspace, PWinObj* wo)
 }
 
 //! @brief Create name for workspace num
-std::wstring
+std::string
 Workspaces::getWorkspaceName(uint num)
 {
-    std::wostringstream buf;
+    std::ostringstream buf;
     buf << num + 1;
-    buf << L": ";
+    buf << ": ";
     buf << pekwm::config()->getWorkspaceName(num);
     return buf.str();
 }

@@ -58,7 +58,7 @@ public:
     virtual void updatedChildOrder(void) override;
     virtual void updatedActiveChild(void) override;
 
-    virtual void getDecorInfo(wchar_t *buf, uint size,
+    virtual void getDecorInfo(char *buf, uint size,
                               const Geometry& gm) override;
 
     virtual void giveInputFocus(void) override;
@@ -132,7 +132,7 @@ public:
     void setStateTagged(StateAction sa, bool behind);
     void setStateSkip(StateAction sa, uint skip);
     void setStateTitle(StateAction sa, Client *client,
-                       const std::wstring &title);
+                       const std::string &title);
     void setStateMarked(StateAction sa, Client *client);
     void setStateOpaque(StateAction sa);
 

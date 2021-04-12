@@ -12,6 +12,7 @@
 
 #include "test_CfgParser.hh"
 #include "test_Charset.hh"
+#include "test_RegexString.hh"
 #include "test_Util.hh"
 
 int
@@ -24,6 +25,9 @@ main(int argc, char *argv[])
 
     // Charset
     TestCharset testCharset;
+
+    // RegexString
+    TestRegexString testRegexString;
 
     // Util
     TestString testString;

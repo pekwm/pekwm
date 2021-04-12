@@ -19,7 +19,7 @@ class WORefMenu : public PMenu,
                   public PWinObjReference
 {
 protected:
-    WORefMenu(const std::wstring &title, const std::string &name,
+    WORefMenu(const std::string &title, const std::string &name,
               const std::string &decor_name = "MENU");
 
 public:
@@ -30,7 +30,7 @@ public:
     virtual void setWORef(PWinObj *wo_ref);
 
 protected:
-    std::wstring _title_base;
-    std::wstring _title_pre;
-    std::wstring _title_post;
+    std::string _title_base;
+    std::string _title_pre;
+    std::string _title_post;
 };

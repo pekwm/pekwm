@@ -16,7 +16,7 @@
  */
 class X11App : public PWinObj {
 public:
-    X11App(Geometry gm, const std::wstring &title,
+    X11App(Geometry gm, const std::string &title,
            const char *wm_name, const char *wm_class,
            AtomName window_type, XSizeHints *normal_hints = nullptr);
     virtual ~X11App(void);

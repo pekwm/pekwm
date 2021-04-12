@@ -29,7 +29,7 @@ public:
     {
     public:
         //! @brief RegexString::Part constructor.
-        Part(const std::wstring &str, int ref = -1)
+        Part(const std::string &str, int ref = -1)
             : _string(str),
               _ref(ref)
         {
@@ -38,30 +38,30 @@ public:
         ~Part(void) { }
 
         //! @brief Returns string data.
-        const std::wstring &get_string(void) { return _string; }
+        const std::string &get_string(void) { return _string; }
         //! @brief Returns reference number.
         int get_reference(void) { return _ref; }
 
     private:
-        std::wstring _string; //!< String data at item.
+        std::string _string; //!< String data at item.
         int _ref; //!< Reference string should be replaced with.
     };
 
     RegexString(void);
-    RegexString(const std::wstring &string, bool full = false);
+    RegexString(const std::string &string, bool full = false);
     ~RegexString(void);
 
     //! @brief Returns parse_match data status.
     bool is_match_ok(void) { return _reg_ok; }
-    const std::wstring& getPattern(void) const { return _pattern; }
+    const std::string& getPattern(void) const { return _pattern; }
 
-    bool ed_s(std::wstring &str);
+    bool ed_s(std::string &str);
 
-    bool parse_match(const std::wstring &match, bool full = false);
-    bool parse_replace(const std::wstring &replace);
-    bool parse_ed_s(const std::wstring &ed_s);
+    bool parse_match(const std::string &match, bool full = false);
+    bool parse_replace(const std::string &replace);
+    bool parse_ed_s(const std::string &ed_s);
 
-    bool operator==(const std::wstring &rhs) const;
+    bool operator==(const std::string &rhs) const;
 
 private:
     RegexString(const RegexString &);
@@ -71,7 +71,7 @@ private:
 private:
     regex_t _regex; //!< Compiled regular expression holder.
     bool _reg_ok; //!< _regex compiled ok flag.
-    std::wstring _pattern; /**< String regex was compiled from. */
+    std::string _pattern; /**< String regex was compiled from. */
     /** If true, a non-matching regexp is considered a match. */
     bool _reg_inverted;
 

@@ -30,19 +30,19 @@ public:
         enum Type {
             MENU_ITEM_NORMAL, MENU_ITEM_SEPARATOR, MENU_ITEM_HIDDEN
         };
-        Item(const std::wstring &name, PWinObj *wo_ref = 0, PTexture *icon = 0);
+        Item(const std::string &name, PWinObj *wo_ref = 0, PTexture *icon = 0);
         virtual ~Item(void);
 
         inline int getX(void) const { return _x; }
         inline int getY(void) const { return _y; }
-        inline const std::wstring &getName(void) const { return _name; }
+        inline const std::string &getName(void) const { return _name; }
         inline const ActionEvent &getAE(void) const { return _ae; }
         inline PTexture *getIcon(void) { return _icon; }
         inline PMenu::Item::Type getType(void) const { return _type; }
 
         inline void setX(int x) { _x = x; }
         inline void setY(int y) { _y = y; }
-        inline void setName(const std::wstring &name) { _name = name; }
+        inline void setName(const std::string &name) { _name = name; }
         inline void setAE(const ActionEvent &ae) { _ae = ae; }
         inline void setType(PMenu::Item::Type type) { _type = type; }
 
@@ -51,7 +51,7 @@ public:
 
     private:
         int _x, _y;
-        std::wstring _name;
+        std::string _name;
 
         ActionEvent _ae; // used for specifying action of the entry
 
@@ -62,7 +62,7 @@ public:
                                     that created this item. */
     };
 
-    PMenu(const std::wstring &title,
+    PMenu(const std::string &title,
           const std::string &name, const std::string decor_name = "MENU",
           bool init = true);
     virtual ~PMenu(void);
@@ -98,15 +98,15 @@ public:
     void selectPrevItem(void);
 
     // modifying menu content
-    void setTitle(const std::wstring &title);
+    void setTitle(const std::string &title);
     void setMenuWidth(uint width) { _menu_width = width; }
 
     virtual void insert(PMenu::Item *item);
     virtual void insert(std::vector<PMenu::Item*>::iterator at,
                         PMenu::Item *item);
-    virtual void insert(const std::wstring &name, PWinObj *wo_ref = 0,
+    virtual void insert(const std::string &name, PWinObj *wo_ref = 0,
                         PTexture *icon = 0);
-    virtual void insert(const std::wstring &name, const ActionEvent &ae,
+    virtual void insert(const std::string &name, const ActionEvent &ae,
                         PWinObj *wo_ref = 0, PTexture *icon = 0);
     virtual void remove(PMenu::Item *item);
     virtual void removeAll(void);
@@ -164,7 +164,7 @@ private:
     PMenu::Item *findItem(int x, int y);
     void makeInsideScreen(int x, int y);
 
-    void applyTitleRules(const std::wstring &title);
+    void applyTitleRules(const std::string &title);
 
 protected:
     std::string _name; //!< Name of menu, must be unique

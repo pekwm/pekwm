@@ -33,31 +33,31 @@ MenuHandler::createMenus(ActionHandler *act)
     PMenu *menu = 0;
 
     menu = new FrameListMenu(ATTACH_CLIENT_IN_FRAME_TYPE,
-                             L"Attach Client In Frame",
+                             "Attach Client In Frame",
                              "AttachClientInFrame");
     _menu_map["ATTACHCLIENTINFRAME"] = menu;
      menu = new FrameListMenu(ATTACH_CLIENT_TYPE,
-                              L"Attach Client", "AttachClient");
+                              "Attach Client", "AttachClient");
     _menu_map["ATTACHCLIENT"] = menu;
      menu = new FrameListMenu(ATTACH_FRAME_IN_FRAME_TYPE,
-                              L"Attach Frame In Frame",
+                              "Attach Frame In Frame",
                               "AttachFrameInFrame");
     _menu_map["ATTACHFRAMEINFRAME"] = menu;
     menu = new FrameListMenu(ATTACH_FRAME_TYPE,
-                             L"Attach Frame", "AttachFrame");
+                             "Attach Frame", "AttachFrame");
     _menu_map["ATTACHFRAME"] = menu;
     menu = new FrameListMenu(GOTOCLIENTMENU_TYPE,
-                             L"Focus Client", "GotoClient");
+                             "Focus Client", "GotoClient");
     _menu_map["GOTOCLIENT"] = menu;
     menu = new FrameListMenu(GOTOMENU_TYPE,
-                             L"Focus Frame", "Goto");
+                             "Focus Frame", "Goto");
     _menu_map["GOTO"] = menu;
     menu = new FrameListMenu(ICONMENU_TYPE,
-                             L"Focus Iconified Frame", "Icon");
+                             "Focus Iconified Frame", "Icon");
     _menu_map["ICON"] = menu;
-    menu =  new ActionMenu(ROOTMENU_TYPE, act, L"", "RootMenu");
+    menu =  new ActionMenu(ROOTMENU_TYPE, act, "", "RootMenu");
     _menu_map["ROOT"] = menu;
-    menu = new ActionMenu(WINDOWMENU_TYPE, act, L"", "WindowMenu");
+    menu = new ActionMenu(WINDOWMENU_TYPE, act, "", "WindowMenu");
     _menu_map["WINDOW"] = menu;
 
     createMenusLoadConfiguration(act);
@@ -166,7 +166,7 @@ MenuHandler::reloadStandaloneMenus(ActionHandler *act,
         if (! getMenu(menu_name_upper)) {
             // Create, parse and add to map
             auto menu = new ActionMenu(ROOTMENU_STANDALONE_TYPE, act,
-                                       L"", (*it)->getName());
+                                       "", (*it)->getName());
             menu->reload((*it)->getSection());
             _menu_map[menu_name_upper] = menu;
         }

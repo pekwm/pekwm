@@ -35,14 +35,20 @@ public:
 private:
     void render(void);
 
-    virtual ActionEvent *exec(void);
-    virtual void complete(void);
+    virtual ActionEvent *exec(void) override;
+    virtual void complete(void) override;
+    virtual void completeAbort(void) override;
+    virtual void completeReset(void) override;
 
 private:
     Completer _completer; /**< Completer used completing actions. */
     /** List of completions found by completer. */
     complete_list _complete_list;
     complete_it _complete_it; /**< Iterator used to step between completions. */
+
+    std::string _buf_on_complete; /**< Buffer before completion. */
+    std::string _buf_on_complete_result; /** Buffer after completion. */
+    unsigned int _pos_on_complete; /**< Cursor position on completion start. */
 
     /** Number of CmdDialog has run exec since last history save. */
     int _exec_count;

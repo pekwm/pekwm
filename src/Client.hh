@@ -300,8 +300,8 @@ private:
     void setClientInitConfig(ClientInitConfig &initConfig, bool is_new,
                              AutoProperty *autoproperty);
 
-    bool titleApplyRule(std::wstring &wtitle);
-    uint titleFindID(std::wstring &wtitle);
+    bool titleApplyRule(std::string &wtitle);
+    uint titleFindID(std::string &wtitle);
 
     void setWmState(ulong state);
     long getWmState(void);

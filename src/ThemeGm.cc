@@ -30,7 +30,7 @@ ThemeGm::getFont(FocusedState state) const
  * Calculate title width (for given title)
  */
 uint
-ThemeGm::titleWidth(const ThemeState *state, const std::wstring& str) const {
+ThemeGm::titleWidth(const ThemeState *state, const std::string& str) const {
     return getFont(state->getFocusedState(false))->getWidth(str)
         + _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT)
         + titleLeftOffset(state) + titleRightOffset(state);

@@ -96,7 +96,7 @@ int main(int argc, char* argv[])
         switch (ch) {
         case 'e': {
             std::vector<std::string> vals;
-            if (Util::splitString<char>(optarg, vals, "=", 2) == 2) {
+            if (Util::splitString(optarg, vals, "=", 2) == 2) {
                 cfg_env["$" + vals[0]] = vals[1];
             } else {
                 usage(argv[0], 1);

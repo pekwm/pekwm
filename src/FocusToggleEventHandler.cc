@@ -215,7 +215,7 @@ FocusToggleEventHandler::setFocusedWo(PWinObj *fo_wo)
 PMenu*
 FocusToggleEventHandler::createNextPrevMenu(void)
 {
-    auto menu = new PMenu(_mru ? L"MRU Windows" : L"Windows", "" /* name*/);
+    auto menu = new PMenu(_mru ? "MRU Windows" : "Windows", "" /* name*/);
 
     auto it = _mru ? Workspaces::mru_begin() : Frame::frame_begin();
     auto end = _mru ? Workspaces::mru_end() : Frame::frame_end();

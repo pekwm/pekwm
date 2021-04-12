@@ -66,10 +66,10 @@ public:
 
         TitleItem(void);
 
-        inline const std::wstring &getVisible(void) const { return _visible; }
-        inline const std::wstring &getReal(void) const { return _real; }
-        inline const std::wstring &getCustom(void) const { return _custom; }
-        inline const std::wstring &getUser(void) const { return _user; }
+        inline const std::string &getVisible(void) const { return _visible; }
+        inline const std::string &getReal(void) const { return _real; }
+        inline const std::string &getCustom(void) const { return _custom; }
+        inline const std::string &getUser(void) const { return _user; }
 
         inline uint getCount(void) const { return _count; }
         inline uint getId(void) const { return _id; }
@@ -81,19 +81,19 @@ public:
         void infoRemove(enum Info info);
         bool infoIs(enum Info info);
 
-        void setReal(const std::wstring &real) {
+        void setReal(const std::string &real) {
             _real = real;
             if (! isUserSet() && ! isCustom()) {
                 updateVisible();
             }
         }
-        void setCustom(const std::wstring &custom) {
+        void setCustom(const std::string &custom) {
             _custom = custom;
             if (_custom.size() > 0 && ! isUserSet()) {
                 updateVisible();
             }
         }
-        void setUser(const std::wstring &user) {
+        void setUser(const std::string &user) {
             _user = user;
             updateVisible();
         }
@@ -104,11 +104,11 @@ public:
         void updateVisible(void);
 
     private:
-        std::wstring _visible; //!< Visible version of title
+        std::string _visible; //!< Visible version of title
 
-        std::wstring _real; //!< Title from client
-        std::wstring _custom; //!< Custom (title rule) set version of title
-        std::wstring _user; //!< User set version of title
+        std::string _real; //!< Title from client
+        std::string _custom; //!< Custom (title rule) set version of title
+        std::string _user; //!< User set version of title
 
         uint _count; //!< Number of title
         uint _id; //!< ID of title
@@ -161,7 +161,7 @@ public:
     virtual void updatedChildOrder(void) { }
     virtual void updatedActiveChild(void) { }
 
-    virtual void getDecorInfo(wchar_t *buf, uint size, const Geometry& gm);
+    virtual void getDecorInfo(char *buf, uint size, const Geometry& gm);
 
     virtual void setShaded(StateAction sa);
     virtual void setSkip(uint skip);

@@ -64,37 +64,37 @@ public:
     inline void setJustify(uint j) { _justify = j; }
     inline void setOffset(uint x, uint y) { _offset_x = x; _offset_y = y; }
 
-    int draw(Drawable dest, int x, int y, const std::wstring &text,
+    int draw(Drawable dest, int x, int y, const std::string &text,
              uint max_chars = 0, uint max_width = 0,
              PFont::TrimType trim_type = FONT_TRIM_END);
 
-    void trim(std::wstring &text, TrimType trim_type, uint max_width);
-    void trimEnd(std::wstring &text, uint max_width);
-    void trimMiddle(std::wstring &text, uint max_width);
+    void trim(std::string &text, TrimType trim_type, uint max_width);
+    void trimEnd(std::string &text, uint max_width);
+    bool trimMiddle(std::string &text, uint max_width);
 
     static void setTrimString(const std::string &trim);
 
-    uint justify(const std::wstring &text, uint max_width,
+    uint justify(const std::string &text, uint max_width,
                  uint padding, uint chars);
 
     // virtual interface
     virtual bool load(const std::string& font_name) = 0;
     virtual void unload(void) { }
 
-    virtual uint getWidth(const std::wstring& text, uint max_chars = 0) = 0;
+    virtual uint getWidth(const std::string& text, uint max_chars = 0) = 0;
     virtual uint getHeight(void) { return _height; }
 
     virtual void setColor(PFont::Color* color) = 0;
 
 private:
-    virtual void drawText(Drawable dest, int x, int y, const std::wstring &text,
+    virtual void drawText(Drawable dest, int x, int y, const std::string &text,
                           uint chars, bool fg) = 0;
 
 protected:
     uint _height, _ascent, _descent;
     uint _offset_x, _offset_y, _justify;
 
-    static std::wstring _trim_string;
+    static std::string _trim_string;
 };
 
 class PFontX11 : public PFont {
@@ -106,12 +106,12 @@ public:
   virtual bool load(const std::string &name);
   virtual void unload(void);
 
-  virtual uint getWidth(const std::wstring &text, uint max_chars = 0);
+  virtual uint getWidth(const std::string &text, uint max_chars = 0);
 
   virtual void setColor(PFont::Color *color);
 
 private:
-  virtual void drawText(Drawable dest, int x, int y, const std::wstring &text,
+  virtual void drawText(Drawable dest, int x, int y, const std::string &text,
                         uint chars, bool fg);
 
 private:
@@ -128,12 +128,12 @@ public:
     virtual bool load(const std::string &name);
     virtual void unload(void);
 
-    virtual uint getWidth(const std::wstring &text, uint max_chars = 0);
+    virtual uint getWidth(const std::string &text, uint max_chars = 0);
 
     virtual void setColor(PFont::Color *color);
 
 private:
-    virtual void drawText(Drawable dest, int x, int y, const std::wstring &text,
+    virtual void drawText(Drawable dest, int x, int y, const std::string &text,
                           uint chars, bool fg);
 
     XFontSet _fontset;
@@ -151,12 +151,12 @@ public:
     virtual bool load(const std::string &font_name);
     virtual void unload(void);
 
-    virtual uint getWidth(const std::wstring &text, uint max_chars = 0);
+    virtual uint getWidth(const std::string &text, uint max_chars = 0);
 
     virtual void setColor(PFont::Color *color);
 
 private:
-    virtual void drawText(Drawable dest, int x, int y, const std::wstring &text,
+    virtual void drawText(Drawable dest, int x, int y, const std::string &text,
                           uint chars, bool fg);
 
     XftDraw *_draw;

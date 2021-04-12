@@ -12,6 +12,7 @@
 #include "Util.hh"
 
 #include <cstdlib>
+#include <ctime>
 
 static Util::StringMap<Debug::Level> debug_level_map =
     {{"", Debug::LEVEL_WARN},

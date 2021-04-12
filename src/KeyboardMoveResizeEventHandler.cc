@@ -218,7 +218,7 @@ void
 KeyboardMoveResizeEventHandler::updateStatusWindow(bool map)
 {
     if (_show_status_window) {
-        wchar_t buf[128];
+        char buf[128];
         _decor->getDecorInfo(buf, 128, _gm);
 
         auto sw = pekwm::statusWindow();

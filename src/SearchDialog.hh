@@ -29,18 +29,18 @@ public:
     void unmapWindow(void);
 
 protected:
-    virtual ActionEvent *exec(void);
+    virtual ActionEvent *exec(void) override;
 
-    virtual void bufChanged(void);
+    virtual void bufChanged(void) override;
 
-    virtual void histNext(void);
-    virtual void histPrev(void);
+    virtual void histNext(void) override;
+    virtual void histPrev(void) override;
 
-    virtual void updateSize(const Geometry &head);
+    virtual void updateSize(const Geometry &head) override;
 
 private:
-    uint findClients(const std::wstring &search);
+    uint findClients(const std::string &search);
 
     PMenu *_result_menu; /**< Menu for displaying results. */
-    std::wstring _previous_search; /**< Buffer with previous search string. */
+    std::string _previous_search; /**< Buffer with previous search string. */
 };

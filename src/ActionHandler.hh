@@ -44,7 +44,7 @@ private:
                            Client *client, Frame *frame);
 
     void actionExec(Client *client, const std::string &command, bool use_shell);
-    void actionFindClient(const std::wstring &title);
+    void actionFindClient(const std::string &title);
     void actionGotoClientID(uint id);
     void actionGotoWorkspace(uint workspace, bool warp);
     void actionSendToWorkspace(PDecor *decor, bool focus, int direction);
@@ -60,7 +60,7 @@ private:
     bool actionWarpPointer(int x, int y);
 
     // action helpers
-    Client *findClientFromTitle(const std::wstring &title);
+    Client *findClientFromTitle(const std::string &title);
     void gotoClient(Client *client);
 
     void initSendKeyEvent(XEvent &ev, PWinObj *wo);

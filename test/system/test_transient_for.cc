@@ -82,7 +82,7 @@ private:
 };
 
 TransientTest::TransientTest(int argc, char *argv[])
-    : X11App({0, 0, 100, 100}, L"transient test",
+    : X11App({0, 0, 100, 100}, "transient test",
              "main", "TransientTest", WINDOW_TYPE_NORMAL),
       _t_win1(None),
       _t_win2(None)

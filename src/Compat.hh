@@ -15,18 +15,14 @@
 #include <sstream>
 #endif // HAVE_TO_STRING
 
-#include <cwchar>
 #include <cstddef>
+extern "C" {
+#include <time.h>
+}
 
 #ifndef WAIT_ANY
 #define WAIT_ANY -1
 #endif // WAIT_ANY
-
-#ifndef HAVE_SWPRINTF
-namespace std {
-    int swprintf(wchar_t *wcs, size_t maxlen, const wchar_t *format, ...);
-}
-#endif // HAVE_SWPRINTF
 
 #ifdef HAVE_SETENV
 extern "C" {
@@ -64,7 +60,7 @@ int daemon(int nochdir, int noclose);
 
 namespace std
 {
-    const char* put_time(const struct tm *tm, const char *fmt);
+    const char* put_time(const struct ::tm *tm, const char *fmt);
 }
 
 #endif // HAVE_PUT_TIME
@@ -99,7 +95,6 @@ namespace std
 namespace std
 {
     float stof(const std::string& str);
-    float stof(const std::wstring& str);
 }
 
 #endif // HAVE_STOF

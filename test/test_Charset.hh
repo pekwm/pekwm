@@ -17,7 +17,8 @@ public:
     ~TestCharset(void);
 
 private:
-    static void test_to_mb_str(void);
+    static void testToSystem(void);
+    static void testFromSystem(void);
     static void test_no_grouping_numpunct(void);
 };
 
@@ -26,7 +27,8 @@ TestCharset::TestCharset(void)
 {
     register_test("no_grouping_numpunct",
                   TestCharset::test_no_grouping_numpunct);
-    register_test("test_to_mb_str", TestCharset::test_to_mb_str);
+    register_test("testToSystem", TestCharset::testToSystem);
+    register_test("testFromSystem", TestCharset::testFromSystem);
 }
 
 TestCharset::~TestCharset(void)
@@ -42,12 +44,11 @@ TestCharset::test_no_grouping_numpunct(void)
 }
 
 void
-TestCharset::test_to_mb_str(void)
+TestCharset::testToSystem(void)
 {
-    auto wide_cstr = L"Ge idéerna plats — Mozilla Firefox";
-    auto mb_str = Charset::to_mb_str(wide_cstr);
-    auto wide_str = Charset::to_wide_str(mb_str);
-    if (wide_str != wide_cstr) {
-        ASSERT_FAILED("wide -> mb -> wide");
-    }
+}
+
+void
+TestCharset::testFromSystem(void)
+{
 }

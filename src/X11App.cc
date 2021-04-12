@@ -6,7 +6,6 @@
 // See the LICENSE file for more information.
 //
 
-#include "Charset.hh"
 #include "Debug.hh"
 #include "X11App.hh"
 #include "X11Util.hh"
@@ -46,7 +45,7 @@ static void sigHandler(int signal)
 /**
  * Base for X11 applications
  */
-X11App::X11App(Geometry gm, const std::wstring &title,
+X11App::X11App(Geometry gm, const std::string &title,
                const char *wm_name, const char *wm_class,
                AtomName window_type, XSizeHints *normal_hints)
     : PWinObj(true),
@@ -78,9 +77,8 @@ X11App::X11App(Geometry gm, const std::wstring &title,
     wm_hints.input = True;
 
     XClassHint class_hint = {strdup(wm_name), strdup(wm_class)};
-    auto title_utf8 = Charset::to_utf8_str(title);
     Xutf8SetWMProperties(X11::getDpy(), _window,
-                         title_utf8.c_str(), title_utf8.c_str(), 0, 0,
+                         title.c_str(), title.c_str(), 0, 0,
                          normal_hints, &wm_hints, &class_hint);
     free(class_hint.res_name);
     free(class_hint.res_class);

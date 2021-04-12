@@ -568,11 +568,11 @@ Frame::updatedActiveChild(void)
 }
 
 void
-Frame::getDecorInfo(wchar_t *buf, uint size, const Geometry& gm)
+Frame::getDecorInfo(char *buf, uint size, const Geometry& gm)
 {
     uint width, height;
     calcSizeInCells(width, height, gm);
-    swprintf(buf, size, L"%d+%d+%d+%d", width, height, _gm.x, _gm.y);
+    snprintf(buf, size, "%d+%d+%d+%d", width, height, _gm.x, _gm.y);
 }
 
 void
@@ -1048,11 +1048,11 @@ Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind)
     o_x = ev ? ev->x_root : 0;
     o_y = ev ? ev->y_root : 0;
 
-    std::wstring name(L"Grouping ");
+    std::string name("Grouping ");
     if (client->getTitle()->getVisible().size() > 0) {
         name += client->getTitle()->getVisible();
     } else {
-        name += L"No Name";
+        name += "No Name";
     }
 
     bool status = X11::grabPointer(X11::getRoot(),
@@ -1245,7 +1245,7 @@ Frame::doResize(bool left, bool x, bool top, bool y)
     int pointer_x = _gm.x, pointer_y = _gm.y;
     X11::getMousePosition(pointer_x, pointer_y);
 
-    wchar_t buf[128];
+    char buf[128];
     getDecorInfo(buf, 128, _gm);
 
     bool center_on_root = pekwm::config()->isShowStatusWindowOnRoot();
@@ -1779,17 +1779,17 @@ Frame::setStateSkip(StateAction sa, uint skip)
 
 //! @brief Sets client title
 void
-Frame::setStateTitle(StateAction sa, Client *client, const std::wstring &title)
+Frame::setStateTitle(StateAction sa, Client *client, const std::string &title)
 {
     if (sa == STATE_SET) {
         client->getTitle()->setUser(title);
 
     } else if (sa == STATE_UNSET) {
-        client->getTitle()->setUser(L"");
+        client->getTitle()->setUser("");
         client->readName();
     } else {
         if (client->getTitle()->isUserSet()) {
-            client->getTitle()->setUser(L"");
+            client->getTitle()->setUser("");
         } else {
             client->getTitle()->setUser(title);
         }
@@ -1797,7 +1797,7 @@ Frame::setStateTitle(StateAction sa, Client *client, const std::wstring &title)
 
     // Set PEKWM_TITLE atom to preserve title on client between sessions.
     X11::setUtf8String(client->getWindow(), PEKWM_TITLE,
-                       Charset::to_utf8_str(client->getTitle()->getUser()));
+                       client->getTitle()->getUser());
 
     renderTitle();
 }
@@ -1946,7 +1946,7 @@ Frame::readAutoprops(ApplyOn type)
     auto data =
         pekwm::autoProperties()->findAutoProperty(_class_hint,
                                                   _workspace, type);
-    _class_hint->title = L"";
+    _class_hint->title = "";
 
     if (! data) {
         return;

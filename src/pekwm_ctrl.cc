@@ -53,25 +53,25 @@ static CtrlAction getAction(const std::string& name)
     }
 }
 
-static std::wstring readClientName(Window win)
+static std::string readClientName(Window win)
 {
     std::string name;
     if (X11::getUtf8String(win, NET_WM_NAME, name)) {
-        return Charset::from_utf8_str(name);
+        return name;
     }
     if (X11::getTextProperty(win, XA_WM_NAME, name)) {
-        return Charset::to_wide_str(name);
+        return name;
     }
-    return L"";
+    return "";
 }
 
-static std::wstring readPekwmTitle(Window win)
+static std::string readPekwmTitle(Window win)
 {
     std::string name;
     if (X11::getUtf8String(win, PEKWM_TITLE, name)) {
-        return Charset::from_utf8_str(name);
+        return name;
     }
-    return L"";
+    return "";
 }
 
 static Window findClient(const RegexString& match)
@@ -165,9 +165,9 @@ static bool listClients(void)
 
     for (uint i = 0; i < actual; i++) {
         auto name = readClientName(windows[i]);
-        auto mb_name = Charset::to_mb_str(name);
+        auto mb_name = Charset::toSystem(name);
         auto pekwm_title = readPekwmTitle(windows[i]);
-        auto mb_pekwm_title = Charset::to_mb_str(pekwm_title);
+        auto mb_pekwm_title = Charset::toSystem(pekwm_title);
 
         std::cout << windows[i] << " " << mb_name;
         if (! mb_pekwm_title.empty()) {
@@ -213,7 +213,7 @@ int main(int argc, char* argv[])
                 std::cerr << "-c and -w are mutually exclusive" << std::endl;
                 usage(argv[0], 1);
             }
-            client_re.parse_match(Charset::to_wide_str(optarg));
+            client_re.parse_match(optarg);
             break;
         case 'd':
             display = optarg;
@@ -262,7 +262,7 @@ int main(int argc, char* argv[])
         client = findClient(client_re);
         if (client == None) {
             std::cerr << "no client match ";
-            std::cerr << Charset::to_utf8_str(client_re.getPattern()) << std::endl;
+            std::cerr << Charset::toSystem(client_re.getPattern()) << std::endl;
             return 1;
         }
     }

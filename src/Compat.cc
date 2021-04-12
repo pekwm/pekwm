@@ -26,54 +26,6 @@ extern "C" {
 #include <wchar.h>
 }
 
-#ifndef HAVE_SWPRINTF
-/**< Message displayed when %ls formatting is attempted. */
-static const wchar_t *SWPRINTF_LS_NOT_SUPPORTED =
-    L"%ls format string not supported";
-
-/**
- * Compat swprintf, print formatted wide string.
- *
- * @param wcs Result string, maxlen long.
- * @param maxlen Maximum number of characters to print.
- * @param format Formatting string.
- * @param ... Formatting arguments.
- * @return Number of characters written or -1 on error.
- */
-namespace std {
-    int
-    swprintf(wchar_t *wcs, size_t maxlen, const wchar_t *format, ...)
-    {
-        size_t len;
-        string mb_format(Charset::to_mb_str(format));
-
-        // Look for wide string formatting, not yet implemented.
-        if (mb_format.find("%ls") != string::npos) {
-            len = std::min(wcslen(SWPRINTF_LS_NOT_SUPPORTED), maxlen - 1);
-            wmemcpy(wcs, SWPRINTF_LS_NOT_SUPPORTED, len);
-        } else {
-            char *res = new char[maxlen];
-
-            va_list ap;
-            va_start(ap, format);
-            vsnprintf(res, maxlen, mb_format.c_str(), ap);
-            va_end(ap);
-
-            wstring w_res(Charset::to_wide_str(res));
-            len = std::min(maxlen - 1, w_res.size());
-            wmemcpy(wcs, w_res.c_str(), len);
-
-            delete [] res;
-        }
-
-        // Null terminate and return result.
-        wcs[len] = L'\0';
-
-        return wcslen(wcs);
-    }
-}
-#endif // HAVE_SWPRINTF
-
 #ifndef HAVE_SETENV
 /**
  * Compat setenv, insert variable to environment.
@@ -161,10 +113,10 @@ daemon(int nochdir, int noclose)
 namespace std
 {
     const char*
-    put_time(const struct tm *tm, const char *fmt)
+    put_time(const struct ::tm *tm, const char *fmt)
     {
          static char buf[128] = {0};
-         strftime(buf, sizeof(buf), fmt, tm);
+         ::strftime(buf, sizeof(buf), fmt, tm);
          return buf;
     }
 }
@@ -204,13 +156,6 @@ namespace std
            throw std::invalid_argument("not a valid float: " + str);
         }
         return val;
-    }
-
-    float
-    stof(const std::wstring& wstr)
-    {
-        auto str = Charset::to_mb_str(wstr);
-        return stof(str);
     }
 }
 

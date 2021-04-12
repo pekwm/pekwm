@@ -82,7 +82,7 @@ static std::string _pekwm_config_file;
 /** empty string, used as default return value. */
 static std::string _empty_string;
 /** empty string, used as default return value. */
-static std::wstring _empty_wstring;
+static std::string _empty_wstring;
 
 static Util::StringMap<PanelPlacement> panel_placement_map =
     {{"", PANEL_TOP},
@@ -123,7 +123,7 @@ namespace pekwm
  */
 class SizeReq {
 public:
-    SizeReq(const std::wstring &text)
+    SizeReq(const std::string &text)
         : _unit(WIDGET_UNIT_TEXT_WIDTH),
           _size(0),
           _text(text)
@@ -144,12 +144,12 @@ public:
 
     enum WidgetUnit getUnit(void) const { return _unit; }
     uint getSize(void) const { return _size; }
-    const std::wstring& getText(void) const { return _text; }
+    const std::string& getText(void) const { return _text; }
 
 private:
     WidgetUnit _unit;
     uint _size;
-    std::wstring _text;
+    std::string _text;
 };
 
 /**
@@ -432,7 +432,7 @@ PanelConfig::parseSize(const std::string& size)
         } else if (strcasecmp("PERCENT", toks[0].c_str()) == 0) {
             return SizeReq(WIDGET_UNIT_PERCENT, atoi(toks[1].c_str()));
         } else if (strcasecmp("TEXTWIDTH", toks[0].c_str()) == 0) {
-            return SizeReq(Charset::to_wide_str(toks[1]));
+            return SizeReq(toks[1]);
         }
     }
 
@@ -576,7 +576,7 @@ public:
     ExternalCommandData(const PanelConfig& cfg);
     ~ExternalCommandData(void);
 
-    const std::wstring& get(const std::string& field) const
+    const std::string& get(const std::string& field) const
     {
         auto it = _fields.find(field);
         return it == _fields.end() ? _empty_wstring : it->second;
@@ -664,7 +664,7 @@ private:
     {
         std::vector<std::string> field_value;
         if (Util::splitString(line, field_value, " \t", 2) == 2) {
-            _fields[field_value[0]] = Charset::to_wide_str(field_value[1]);
+            _fields[field_value[0]] = field_value[1];
             FieldObservation field_obs(field_value[0]);
             pekwm::observerMapping()->notifyObservers(this, &field_obs);
         }
@@ -673,7 +673,7 @@ private:
 private:
     const PanelConfig& _cfg;
 
-    std::map<std::string, std::wstring> _fields;
+    std::map<std::string, std::string> _fields;
     std::vector<CommandProcess> _command_processes;
 };
 
@@ -702,7 +702,7 @@ public:
     virtual ~ClientInfo(void);
 
     Window getWindow(void) const { return _window; }
-    const std::wstring& getName(void) const { return _name; }
+    const std::string& getName(void) const { return _name; }
     const Geometry& getGeometry(void) const { return _gm; }
     PImage *getIcon(void) const { return _icon; }
 
@@ -714,7 +714,7 @@ public:
     bool handlePropertyNotify(XPropertyEvent *ev);
 
 private:
-    std::wstring readName(void);
+    std::string readName(void);
 
     Geometry readGeometry(void)
     {
@@ -734,7 +734,7 @@ private:
 
 private:
     Window _window;
-    std::wstring _name;
+    std::string _name;
     Geometry _gm;
     uint _workspace;
     PImageIcon *_icon;
@@ -789,18 +789,18 @@ ClientInfo::handlePropertyNotify(XPropertyEvent *ev)
     return true;
 }
 
-std::wstring
+std::string
 ClientInfo::readName(void)
 {
     std::string name;
     if (X11::getUtf8String(_window, NET_WM_VISIBLE_NAME, name)) {
-        return Charset::from_utf8_str(name);
+        return name;
     }
     if (X11::getUtf8String(_window, NET_WM_NAME, name)) {
-        return Charset::from_utf8_str(name);
+        return name;
     }
     if (X11::getTextProperty(_window, XA_WM_NAME, name)) {
-        return Charset::to_wide_str(name);
+        return name;
     }
     return _empty_wstring;
 }
@@ -832,7 +832,7 @@ public:
     }
 
     uint getActiveWorkspace(void) const { return _workspace; }
-    const std::wstring& getWorkspaceName(uint num) const {
+    const std::string& getWorkspaceName(uint num) const {
         if (num < _desktop_names.size()) {
             return _desktop_names[num];
         }
@@ -861,7 +861,7 @@ private:
     Window _active_window;
     uint _workspace;
     client_info_vector _clients;
-    std::vector<std::wstring> _desktop_names;
+    std::vector<std::string> _desktop_names;
 
     XROOTPMAP_ID_Changed _xrootpmap_id_changed;
     PEKWM_THEME_Changed _pekwm_theme_changed;
@@ -1020,7 +1020,7 @@ WmState::readDesktopNames(void)
 
     char *name = reinterpret_cast<char*>(data);
     for (ulong i = 0; i < data_length; ) {
-        _desktop_names.push_back(Charset::from_utf8_str(name));
+        _desktop_names.push_back(name);
         int name_len = strlen(name);
         i += name_len + 1;
         name += name_len + 1;
@@ -1307,7 +1307,7 @@ public:
 
 protected:
     int renderText(Render &rend, PFont *font,
-                   int x, const std::wstring& text, uint max_width);
+                   int x, const std::string& text, uint max_width);
 
 protected:
     const PanelTheme& _theme;
@@ -1337,7 +1337,7 @@ PanelWidget::~PanelWidget(void)
 
 int
 PanelWidget::renderText(Render &rend, PFont *font,
-                        int x, const std::wstring& text, uint max_width)
+                        int x, const std::string& text, uint max_width)
 {
     int y = (_theme.getHeight() - font->getHeight()) / 2;
     return font->draw(rend.getDrawable(), x, y, text, 0, max_width);
@@ -1361,17 +1361,17 @@ public:
 
     virtual uint getRequiredSize(void) const override
     {
-        std::wstring wtime;
+        std::string wtime;
         formatNow(wtime);
         auto font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
-        return font->getWidth(L" " + wtime + L" ");
+        return font->getWidth(" " + wtime + " ");
     }
 
     virtual void render(Render &rend) override
     {
         PanelWidget::render(rend);
 
-        std::wstring wtime;
+        std::string wtime;
         formatNow(wtime);
         auto font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
         renderText(rend, font, getX(), wtime, getWidth());
@@ -1382,7 +1382,7 @@ public:
     }
 
 private:
-    void formatNow(std::wstring &res) const
+    void formatNow(std::string &res) const
     {
         time_t now = time(NULL);
         struct tm tm;
@@ -1390,7 +1390,7 @@ private:
 
         char buf[64];
         strftime(buf, sizeof(buf), _format.c_str(), &tm);
-        res = Charset::to_wide_str(buf);
+        res = buf;
     }
 
 private:
@@ -1405,7 +1405,7 @@ class ClientListWidget : public PanelWidget,
 public:
     class Entry {
     public:
-        Entry(const std::wstring& name, ClientState state, int x, Window window,
+        Entry(const std::string& name, ClientState state, int x, Window window,
               PImage *icon)
             : _name(name),
               _state(state),
@@ -1415,7 +1415,7 @@ public:
         {
         }
 
-        const std::wstring getName(void) const { return _name; }
+        const std::string getName(void) const { return _name; }
         ClientState getState(void) const { return _state; }
         int getX(void) const { return _x; }
         void setX(int x) { _x = x; }
@@ -1423,7 +1423,7 @@ public:
         PImage *getIcon(void) const { return _icon; }
 
     private:
-        std::wstring _name;
+        std::string _name;
         ClientState _state;
         int _x;
         Window _window;
@@ -1601,7 +1601,7 @@ public:
 
 private:
     int getBarFill(float percent) const;
-    float getPercent(const std::wstring& str) const;
+    float getPercent(const std::string& str) const;
     void parseColors(const CfgParser::Entry* section);
     void addColor(float percent, XColor* color);
 
@@ -1662,7 +1662,7 @@ BarWidget::getBarFill(float percent) const
 }
 
 float
-BarWidget::getPercent(const std::wstring& str) const
+BarWidget::getPercent(const std::string& str) const
 {
     try {
         float percent = std::stof(str);
@@ -1692,7 +1692,7 @@ BarWidget::parseColors(const CfgParser::Entry* section)
             continue;
         }
 
-        float percent = getPercent(Charset::to_wide_str((*it)->getValue()));
+        float percent = getPercent((*it)->getValue());
         auto color = (*it)->getSection()->findEntry("COLOR");
         if (color) {
             addColor(percent, X11::getColor(color->getValue()));
@@ -1722,15 +1722,15 @@ public:
     bool referenceWmState(void) const { return _check_wm_state; }
     std::vector<std::string> getFields(void) { return _fields; }
 
-    std::wstring preprocess(const std::wstring& raw_format);
-    std::wstring format(const std::wstring& pp_format);
+    std::string preprocess(const std::string& raw_format);
+    std::string format(const std::string& pp_format);
 
 private:
-    std::wstring format(const std::wstring& pp_format,
-                        std::function<std::wstring(const std::wstring&)> exp);
+    std::string format(const std::string& pp_format,
+                        std::function<std::string(const std::string&)> exp);
 
-    std::wstring preprocessVar(const std::wstring& var);
-    std::wstring expandVar(const std::wstring& var);
+    std::string preprocessVar(const std::string& var);
+    std::string expandVar(const std::string& var);
 
 private:
     ExternalCommandData& _ext_data;
@@ -1755,11 +1755,11 @@ TextFormatter::~TextFormatter(void)
  * pre process format string for use with the format command, expands
  * environment variables and other static data.
  */
-std::wstring
-TextFormatter::preprocess(const std::wstring& raw_format)
+std::string
+TextFormatter::preprocess(const std::string& raw_format)
 {
     return format(raw_format,
-                  [this](const std::wstring& buf) {
+                  [this](const std::string& buf) {
                       return this->preprocessVar(buf);
                   });
 }
@@ -1768,34 +1768,34 @@ TextFormatter::preprocess(const std::wstring& raw_format)
  * format previously pre-processed format string expanding external
  * command data and wm state.
  */
-std::wstring
-TextFormatter::format(const std::wstring& pp_format)
+std::string
+TextFormatter::format(const std::string& pp_format)
 {
     return format(pp_format,
-                  [this](const std::wstring& buf) {
+                  [this](const std::string& buf) {
                       return this->expandVar(buf);
                   });
 }
 
-std::wstring
-TextFormatter::format(const std::wstring& pp_format,
-                      std::function<std::wstring(const std::wstring&)> exp)
+std::string
+TextFormatter::format(const std::string& pp_format,
+                      std::function<std::string(const std::string&)> exp)
 {
-    std::wstring formatted;
+    std::string formatted;
 
     bool in_escape = false, in_var = false;
-    std::wstring buf;
+    std::string buf;
     for (auto chr : pp_format) {
         if (in_escape) {
             buf += chr;
             in_escape = false;
-        } else if (chr == L'\\') {
+        } else if (chr == '\\') {
             in_escape = true;
         } else if (in_var && isspace(chr)) {
             formatted += exp(buf);
             buf = chr;
             in_var = false;
-        } else if (! in_var && chr == L'%') {
+        } else if (! in_var && chr == '%') {
             if (! buf.empty()) {
                 formatted += buf;
                 buf = _empty_wstring;
@@ -1816,52 +1816,49 @@ TextFormatter::format(const std::wstring& pp_format,
     return formatted;
 }
 
-std::wstring
-TextFormatter::preprocessVar(const std::wstring& buf)
+std::string
+TextFormatter::preprocessVar(const std::string& buf)
 {
     if (buf.empty()) {
-        return L"%";
+        return "%";
     }
 
     switch (buf[0]) {
     case '_': {
-        auto key = Charset::to_mb_str(buf.substr(1));
-        return Charset::to_wide_str(Util::getEnv(key));
+        return Util::getEnv(buf.substr(1));
     }
     case ':':
         _check_wm_state = true;
-        return L"%" + buf;
+        return "%" + buf;
     default:
-        _fields.push_back(Charset::to_mb_str(buf));
-        return L"%" + buf;
+        _fields.push_back(buf);
+        return "%" + buf;
     }
 }
 
-std::wstring
-TextFormatter::expandVar(const std::wstring& buf)
+std::string
+TextFormatter::expandVar(const std::string& buf)
 {
     if (buf.empty()) {
         return _empty_wstring;
     }
 
-    if (buf[0] == L':') {
+    if (buf[0] == ':') {
         // window manager state variable
-        if (buf == L":CLIENT_NAME:") {
+        if (buf == ":CLIENT_NAME:") {
             auto win = _wm_state.getActiveWindow();
             auto client_info = _wm_state.findClientInfo(win);
             return client_info ? client_info->getName() : _empty_wstring;
-        } else if (buf == L":WORKSPACE_NUMBER:") {
-            auto ws = std::to_string(_wm_state.getActiveWorkspace() + 1);
-            return Charset::to_wide_str(ws);
-        } else if (buf == L":WORKSPACE_NAME:") {
+        } else if (buf == ":WORKSPACE_NUMBER:") {
+            return std::to_string(_wm_state.getActiveWorkspace() + 1);
+        } else if (buf == ":WORKSPACE_NAME:") {
             return _wm_state.getWorkspaceName(_wm_state.getActiveWorkspace());
         }
         return _empty_wstring;
     }
 
     // external command data
-    auto field = Charset::to_mb_str(buf);
-    return _ext_data.get(field);
+    return _ext_data.get(buf);
 }
 
 /**
@@ -1885,7 +1882,7 @@ public:
 private:
     ExternalCommandData& _ext_data;
     WmState& _wm_state;
-    std::wstring _pp_format;
+    std::string _pp_format;
 
     bool _check_wm_state;
     std::vector<std::string> _fields;
@@ -1900,7 +1897,7 @@ TextWidget::TextWidget(const PanelTheme& theme, const SizeReq& size_req,
       _check_wm_state(false)
 {
     TextFormatter tf(_ext_data, _wm_state);
-    _pp_format = tf.preprocess(Charset::to_wide_str(format));
+    _pp_format = tf.preprocess(format);
     _check_wm_state = tf.referenceWmState();
     _fields = tf.getFields();
 
@@ -1949,7 +1946,7 @@ TextWidget::getRequiredSize(void) const
         // no variables that will be expanded after the widget has
         // been created, use width of _pp_format.
         auto font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
-        return font->getWidth(L" " + _pp_format + L" ");
+        return font->getWidth(" " + _pp_format + " ");
     }
 
     // variables will be expanded, no way to know how much space will
@@ -2053,7 +2050,7 @@ IconWidget::load(void)
 {
     std::string value;
     if (! _field.empty()) {
-        value = Charset::to_mb_str(_ext_data.get(_field));
+        value = Charset::toSystem(_ext_data.get(_field));
     }
 
     if (value.empty() || ! loadImage(_name + "-" + value + _ext)) {
@@ -2282,7 +2279,7 @@ PekwmPanel::PekwmPanel(const PanelConfig &cfg, PanelTheme &theme,
                        XSizeHints *sh)
     : X11App({sh->x, sh->y,
                 static_cast<uint>(sh->width), static_cast<uint>(sh->height)},
-        L"", "panel", "pekwm_panel",
+        "", "panel", "pekwm_panel",
         WINDOW_TYPE_DOCK, sh),
       _cfg(cfg),
       _theme(theme),
@@ -2647,7 +2644,7 @@ int main(int argc, char *argv[])
 
     {
         // run in separate scope to get resources cleaned up before
-        // X11 and iconv cleanup
+        // X11 cleanup
         PanelConfig cfg;
         if (loadConfig(cfg, config_file)) {
             PanelTheme theme;

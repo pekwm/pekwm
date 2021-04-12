@@ -21,7 +21,7 @@ public:
     StatusWindow(Theme* theme);
     virtual ~StatusWindow(void);
 
-    void draw(const std::wstring &text, bool do_center = false,
+    void draw(const std::string &text, bool do_center = false,
               Geometry *gm = 0);
 
 private:

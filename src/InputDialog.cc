@@ -8,8 +8,6 @@
 
 #include "config.h"
 
-#include <cwchar>
-#include <cwctype>
 #include <fstream>
 #include <algorithm>
 
@@ -23,15 +21,96 @@ extern "C" {
 #include <X11/Xutil.h>
 }
 
-std::map<KeySym, wchar_t> InputDialog::_keysym_map;
+std::map<KeySym, std::string> InputDialog::_keysym_map;
+
+InputBuffer::InputBuffer(void)
+    : _pos(0)
+{
+}
+
+InputBuffer::InputBuffer(const std::string& buf, int pos)
+    : _buf(buf)
+{
+    if (pos == -1) {
+        _pos = buf.size();
+    } else {
+        _pos = pos;
+    }
+}
+
+InputBuffer::~InputBuffer(void)
+{
+}
+
+/**
+ * Adds str to buffer
+ */
+void
+InputBuffer::add(const std::string& buf)
+{
+    for (auto c : buf) {
+        _buf.insert(_buf.begin() + _pos++, c);
+    }
+}
+
+/**
+ * Removes char at current position from buffer
+ */
+void
+InputBuffer::remove(void)
+{
+    if (_pos == 0 || _pos > _buf.size() || _buf.empty()) {
+        return;
+    }
+
+    Charset::Utf8Iterator it(_buf, _pos);
+    --it;
+    _buf.erase(it.pos(), _pos - it.pos());
+    _pos = it.pos();
+}
+
+void
+InputBuffer::clear(void)
+{
+    _buf = "";
+    _pos = 0;
+}
+
+/**
+ * Removes buffer content after position
+ */
+void
+InputBuffer::kill(void)
+{
+    _buf.resize(_pos);
+}
+
+/**
+ * Moves the marker
+ */
+void
+InputBuffer::changePos(int off)
+{
+    Charset::Utf8Iterator it(_buf, _pos);
+    if (off > 0) {
+        for (; off > 0; off--) {
+            ++it;
+        }
+    } else if (off < 0) {
+        for (; off < 0; off++) {
+            --it;
+        }
+    }
+    _pos = it.pos();
+}
+
 
 /**
  * InputDialog constructor.
  */
-InputDialog::InputDialog(const std::wstring &title)
+InputDialog::InputDialog(const std::string &title)
     : PDecor("INPUTDIALOG"), PWinObjReference(0),
       _data(pekwm::theme()->getCmdDialogData()),
-      _pos(0),
       _buf_off(0),
       _buf_chars(0)
 {
@@ -102,20 +181,20 @@ InputDialog::reloadKeysymMap(void)
 {
     _keysym_map.clear();
 
-    addKeysymToKeysymMap(XK_KP_0, L'0');
-    addKeysymToKeysymMap(XK_KP_1, L'1');
-    addKeysymToKeysymMap(XK_KP_2, L'2');
-    addKeysymToKeysymMap(XK_KP_3, L'3');
-    addKeysymToKeysymMap(XK_KP_4, L'4');
-    addKeysymToKeysymMap(XK_KP_5, L'5');
-    addKeysymToKeysymMap(XK_KP_6, L'6');
-    addKeysymToKeysymMap(XK_KP_7, L'7');
-    addKeysymToKeysymMap(XK_KP_8, L'8');
-    addKeysymToKeysymMap(XK_KP_9, L'9');
+    addKeysymToKeysymMap(XK_KP_0, "0");
+    addKeysymToKeysymMap(XK_KP_1, "1");
+    addKeysymToKeysymMap(XK_KP_2, "2");
+    addKeysymToKeysymMap(XK_KP_3, "3");
+    addKeysymToKeysymMap(XK_KP_4, "4");
+    addKeysymToKeysymMap(XK_KP_5, "5");
+    addKeysymToKeysymMap(XK_KP_6, "6");
+    addKeysymToKeysymMap(XK_KP_7, "7");
+    addKeysymToKeysymMap(XK_KP_8, "8");
+    addKeysymToKeysymMap(XK_KP_9, "9");
 }
 
 void
-InputDialog::addKeysymToKeysymMap(KeySym keysym, wchar_t chr)
+InputDialog::addKeysymToKeysymMap(KeySym keysym, const std::string& chr)
 {
     auto dpy = X11::getDpy();
 
@@ -169,14 +248,13 @@ InputDialog::handleKeyPress(XKeyEvent *ev)
                 completeReset();
                 break;
             case INPUT_REMOVE:
-                bufRemove();
+                _buf.remove();
                 break;
             case INPUT_CLEAR:
                 bufClear();
-                completeReset();
                 break;
             case INPUT_CLEARFROMCURSOR:
-                bufKill();
+                _buf.kill();
                 completeReset();
                 break;
             case INPUT_EXEC:
@@ -192,19 +270,19 @@ InputDialog::handleKeyPress(XKeyEvent *ev)
                 completeAbort();
                 break;
             case INPUT_CURS_NEXT:
-                bufChangePos(1);
+                _buf.changePos(1);
                 completeReset();
                 break;
             case INPUT_CURS_PREV:
-                bufChangePos(-1);
+                _buf.changePos(-1);
                 completeReset();
                 break;
             case INPUT_CURS_BEGIN:
-                _pos = 0;
+                _buf.setPos(0);
                 completeReset();
                 break;
             case INPUT_CURS_END:
-                _pos = _buf.size();
+                _buf.setPos(_buf.size());
                 completeReset();
                 break;
             case INPUT_HIST_NEXT:
@@ -252,17 +330,19 @@ InputDialog::handleExposeEvent(XExposeEvent *ev)
  * @param wo_ref PWinObj reference, defaults to 0 which does not update.
  */
 void
-InputDialog::mapCentered(const std::string &buf, const Geometry &gm, PWinObj *wo_ref)
+InputDialog::mapCentered(const std::string &buf, const Geometry &gm,
+                         PWinObj *wo_ref)
 {
     // Setup data
     _hist_it = _history.end();
 
-    _buf = Charset::to_wide_str(buf);
-    _pos = _buf.size();
+    _buf.setBuf(buf);
+    _buf.setPos(buf.size());
     bufChanged();
 
     Geometry head;
-    uint head_nr = X11::getNearestHead(gm.x + (gm.width / 2), gm.y + (gm.height / 2));
+    uint head_nr = X11::getNearestHead(gm.x + (gm.width / 2),
+                                       gm.y + (gm.height / 2));
     X11::getHeadInfo(head_nr, head);
 
     // Update size (before, as we center) and position
@@ -285,7 +365,8 @@ void
 InputDialog::moveCentered(const Geometry &head, const Geometry &gm)
 {
     // Make sure X is inside head.
-    int new_x = gm.x + (static_cast<int>(gm.width) - static_cast<int>(_gm.width)) / 2;
+    int new_x =
+        gm.x + (static_cast<int>(gm.width) - static_cast<int>(_gm.width)) / 2;
     if (new_x < head.x) {
         new_x = head.x;
     } else if ((new_x + _gm.width) > (head.x + head.width)) {
@@ -293,7 +374,8 @@ InputDialog::moveCentered(const Geometry &head, const Geometry &gm)
     }
 
     // Make sure Y is inside head.
-    int new_y = gm.y + (static_cast<int>(gm.height) - static_cast<int>(_gm.height)) / 2;
+    int new_y =
+        gm.y + (static_cast<int>(gm.height) - static_cast<int>(_gm.height)) / 2;
     if (new_y < head.y) {
         new_y = head.y;
     } else if ((new_y + _gm.height) > (head.y + head.height)) {
@@ -301,14 +383,14 @@ InputDialog::moveCentered(const Geometry &head, const Geometry &gm)
     }
 
     // Update position.
-    move(new_x, new_y);    
+    move(new_x, new_y);
 }
 
 /**
  * Sets title of decor
  */
 void
-InputDialog::setTitle(const std::wstring &title)
+InputDialog::setTitle(const std::string &title)
 {
     _title.setReal(title);
 }
@@ -362,7 +444,7 @@ InputDialog::render(void)
     X11::clearWindow(_text_wo->getWindow());
 
     uint pos = _data->getPad(PAD_LEFT);
-    const wchar_t *buf = _buf.c_str() + _buf_off;
+    const char *buf = str().c_str() + _buf_off;
 
     // draw buf content
     _data->getFont()->setColor(_data->getColor());
@@ -370,11 +452,11 @@ InputDialog::render(void)
                            pos, _data->getPad(PAD_UP), buf, _buf_chars);
 
     // draw cursor
-    if (_pos > 0) {
-        pos += _data->getFont()->getWidth(buf,  _pos - _buf_off) + 1;
+    if (_buf.pos() > 0) {
+        pos += _data->getFont()->getWidth(buf,  _buf.pos() - _buf_off) + 1;
     }
     _data->getFont()->draw(_text_wo->getWindow(),
-                           pos, _data->getPad(PAD_UP), L"|");
+                           pos, _data->getPad(PAD_UP), "|");
 }
 
 /**
@@ -389,40 +471,19 @@ InputDialog::close(void)
     return &_ae;
 }
 
-/**
- * Default implementation, fills in _buf_on_complete to safely run
- * completeAbort.
- */
 void
 InputDialog::complete(void)
 {
-    _buf_on_complete = _buf;
-    _pos_on_complete = _pos;
 }
 
-/**
- * Restore buffer and clear completion buffers.
- */
 void
 InputDialog::completeAbort(void)
 {
-    if (_buf_on_complete.size()) {
-        _buf = _buf_on_complete;
-        _pos = _pos_on_complete;
-    }
-
-    completeReset();
 }
 
-/**
- * Clear the completion buffer.
- */
 void
 InputDialog::completeReset(void)
 {
-    // Old gcc doesn't know about .clear()
-    _buf_on_complete = _buf_on_complete_result = L"";
-    _pos_on_complete = 0;
 }
 
 /**
@@ -432,35 +493,15 @@ void
 InputDialog::bufAdd(XKeyEvent *ev)
 {
     KeySym keysym;
-    char c_return[64];
-    memset(c_return, '\0', sizeof(c_return));
-
+    char c_return[64] = {0};
     XLookupString(ev, c_return, sizeof(c_return), &keysym, 0);
     if (_keysym_map.count(keysym)) {
-        _buf.insert(_buf.begin() + _pos++, _keysym_map[keysym]);
+        _buf.add(_keysym_map[keysym]);
     } else {
-        // Add wide string to buffer counting position
-        std::wstring buf_ret(Charset::to_wide_str(c_return));
-        for (unsigned int i = 0; i < buf_ret.size(); ++i) {
-            if (iswprint(buf_ret[i])) {
-                _buf.insert(_buf.begin() + _pos++, buf_ret[i]);
-            }
-        }
+        _buf.add(c_return);
     }
 }
 
-/**
- * Removes char from buffer
- */
-void
-InputDialog::bufRemove(void)
-{
-    if ((_pos > _buf.size()) || (_pos == 0) || (_buf.size() == 0)) {
-        return;
-    }
-
-    _buf.erase(_buf.begin() + --_pos);
-}
 
 /**
  * Clears the buffer, resets status
@@ -468,32 +509,11 @@ InputDialog::bufRemove(void)
 void
 InputDialog::bufClear(void)
 {
-    _buf = _buf_on_complete = _buf_on_complete_result = L""; // old gcc doesn't know about .clear()
-    _pos = _pos_on_complete = _buf_off = _buf_chars = 0;
-}
+    _buf_off = 0;
+    _buf_chars = 0;
 
-/**
- * Removes buffer content after cursor position
- */
-void
-InputDialog::bufKill(void)
-{
-    _buf.resize(_pos);
-}
-
-/**
- * Moves the marker
- */
-void
-InputDialog::bufChangePos(int off)
-{
-    if ((signed(_pos) + off) < 0) {
-        _pos = 0;
-    } else if (unsigned(_pos + off) > _buf.size()) {
-        _pos = _buf.size();
-    } else {
-        _pos += off;
-    }
+    _buf.clear();
+    completeReset();
 }
 
 /**
@@ -504,21 +524,22 @@ InputDialog::bufChanged(void)
 {
     PFont *font =  _data->getFont(); // convenience
 
-    // complete string doesn't fit in the window OR
-    // we don't fit in the first set
-    if ((_pos > 0)
-      && (font->getWidth(_buf.c_str()) > _text_wo->getWidth())
-      && (font->getWidth(_buf.c_str(), _pos) > _text_wo->getWidth())) {
+    // complete string does not fit in the window OR the first set
+    // does not fit
+    if (_buf.pos() > 0
+        && (font->getWidth(str()) > _text_wo->getWidth())
+        && (font->getWidth(str(), _buf.pos()) > _text_wo->getWidth())) {
 
         // increase position until it all fits
-        for (_buf_off = 0; _buf_off < _pos; ++_buf_off) {
-            if (font->getWidth(_buf.c_str() + _buf_off, _buf.size() - _buf_off)
-                    < _text_wo->getWidth()) {
+        Charset::Utf8Iterator it(_buf.str(), 0);
+        for (; it.pos() < _buf.pos(); ++it) {
+            if (font->getWidth(_buf.str().c_str() + it.pos(), _buf.size() - it.pos())
+                < _text_wo->getWidth()) {
                 break;
             }
         }
 
-        _buf_chars = _buf.size() - _buf_off;
+        _buf_chars = _buf.size() - it.pos();
     } else {
         _buf_off = 0;
         _buf_chars = _buf.size();
@@ -538,13 +559,13 @@ InputDialog::histNext(void)
     // get next item, if at the end, restore the edit buffer
     ++_hist_it;
     if (_hist_it == _history.end()) {
-        _buf = _hist_new;
+        _buf.setBuf(_hist_new);
     } else {
-        _buf = *_hist_it;
+        _buf.setBuf(*_hist_it);
     }
 
     // move cursor to the end of line
-    _pos = _buf.size();
+    _buf.setPos(_buf.str().size());
 }
 
 /**
@@ -559,14 +580,14 @@ InputDialog::histPrev(void)
 
     // save item so we can restore the edit buffer later
     if (_hist_it == _history.end()) {
-        _hist_new = _buf;
+        _hist_new = _buf.str();
     }
 
     // get prev item
-    _buf = *(--_hist_it);
+    _buf.setBuf(*(--_hist_it));
 
     // move cursor to the end of line
-    _pos = _buf.size();
+    _buf.setPos(_buf.size());
 }
 
 /**
@@ -618,7 +639,21 @@ InputDialog::getInputSize(const Geometry &head,
 }
 
 void
-InputDialog::addHistoryUnique(const std::wstring &entry)
+InputDialog::addHistory(const std::string& entry, bool unique, uint max_size)
+{
+    if (unique) {
+        addHistoryUnique(entry);
+    } else {
+        _history.push_back(entry);
+    }
+
+    if (_history.size() > max_size) {
+        _history.erase(_history.begin());
+    }
+}
+
+void
+InputDialog::addHistoryUnique(const std::string& entry)
 {
     auto it(find(_history.begin(), _history.end(), entry));
     if (it != _history.end()) {
@@ -638,7 +673,7 @@ InputDialog::loadHistory(const std::string &path)
         while (ifile.good()) {
             getline(ifile, mb_line);
             if (mb_line.size()) {
-                _history.push_back(Charset::to_wide_str(mb_line));
+                _history.push_back(mb_line);
             }
         }
         ifile.close();
@@ -651,7 +686,7 @@ InputDialog::saveHistory(const std::string &path)
     std::ofstream ofile(path.c_str());
     if (ofile.is_open()) {
         for (auto it : _history) {
-            ofile << Charset::to_utf8_str(it) << "\n";
+            ofile << it << "\n";
         }
         ofile.close();
     }

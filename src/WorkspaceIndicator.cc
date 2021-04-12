@@ -176,7 +176,7 @@ WorkspaceIndicator::WorkspaceIndicator()
     // Add title
     titleAdd(&_title);
     titleSetActive(0);
-    _title.setReal(L"Workspace");
+    _title.setReal("Workspace");
 
     // Add display window
     addChild(&_display_wo);

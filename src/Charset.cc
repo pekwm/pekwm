@@ -9,108 +9,88 @@
 #include "Charset.hh"
 #include "Debug.hh"
 
+#include <cstdlib>
+#include <cstring>
 #include <locale>
 #include <iomanip>
 #include <stdexcept>
 
-extern "C" {
-#include <string.h>
-#include <iconv.h>
-}
+// Lookup table from character value to number of bytes
+static const uint8_t UTF8_BYTES[256] = {
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+  2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+  3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 1, 1
+};
 
-static iconv_t do_iconv_open(const char **from_names, const char **to_names);
-static size_t do_iconv(iconv_t ic, const char **inp, size_t *in_bytes,
-                       char **outp, size_t *out_bytes);
+static const uint8_t UTF8_MAX_BYTES = 4;
 
-// Initializers, members used for shared buffer
-unsigned int WIDE_STRING_COUNT = 0;
-iconv_t IC_TO_WC = reinterpret_cast<iconv_t>(-1);
-iconv_t IC_TO_UTF8 = reinterpret_cast<iconv_t>(-1);
-char *ICONV_BUF = 0;
-size_t ICONV_BUF_LEN = 0;
+static int _is_utf8_locale = -1;
 
-// Constants, name of iconv internal names
-const char *ICONV_WC_NAMES[] = {"WCHAR_T", "UCS-4", 0};
-const char *ICONV_UTF8_NAMES[] = {"UTF-8", "UTF8", 0};
-
-const char *ICONV_UTF8_INVALID_STR = "<INVALID>";
-const wchar_t *ICONV_WIDE_INVALID_STR = L"<INVALID>";
-
-// Constants, maximum number of bytes a single UTF-8 character can use.
-const size_t UTF8_MAX_BYTES = 6;
-
-
-static void
-iconv_buf_grow(size_t size)
+static uint8_t
+wchar_to_utf8(wchar_t wc, char *utf8)
 {
-    if (ICONV_BUF_LEN < size) {
-        // Free resources, if any.
-        if (ICONV_BUF) {
-            delete [] ICONV_BUF;
-        }
-
-        // Calculate new buffer length and allocate new buffer
-        for (; ICONV_BUF_LEN < size; ICONV_BUF_LEN *= 2)
-            ;
-        ICONV_BUF = new char[ICONV_BUF_LEN];
+    if (wc < 0x80) {
+        utf8[0] = wc;
+        return 1;
     }
-}
-
-
-/**
- * Open iconv handle with to/from names.
- *
- * @param from_names null terminated list of from name alternatives.
- * @param to_names null terminated list of to name alternatives.
- * @return iconv_t handle on success, else -1.
- */
-iconv_t
-do_iconv_open(const char **from_names, const char **to_names)
-{
-    iconv_t ic = reinterpret_cast<iconv_t>(-1);
-
-    // Try all combinations of from/to name's to get a working
-    // conversion handle.
-    for (unsigned int i = 0; from_names[i]; ++i) {
-        for (unsigned int j = 0; to_names[j]; ++j) {
-            ic = iconv_open(to_names[j], from_names[i]);
-            if (ic != reinterpret_cast<iconv_t>(-1)) {
-#ifdef HAVE_ICONVCTL
-                int int_value_one = 1;
-                iconvctl(ic, ICONV_SET_DISCARD_ILSEQ, &int_value_one);
-#endif // HAVE_ICONVCTL
-                return ic;
-            }
-        }
+    if (wc <= 0x7FF) {
+        utf8[0] = (wc >> 6) + 0xC0;
+        utf8[1] = (wc & 0x3F) + 0x80;
+        return 2;
     }
-
-    return ic;
+    if (wc <= 0xFFFF) {
+        utf8[0] = (wc >> 12) + 0xE0;
+        utf8[1] = ((wc >> 6) & 0x3F) + 0x80;
+        utf8[2] = (wc & 0x3F) + 0x80;
+        return 3;
+    }
+    if (wc <= 0x10FFFF) {
+        utf8[0] = (wc >> 18) + 0xF0;
+        utf8[1] = ((wc >> 12) & 0x3F) + 0x80;
+        utf8[2] = ((wc >> 6) & 0x3F) + 0x80;
+        utf8[3] = (wc & 0x3F) + 0x80;
+        return 4;
+    }
+    // unsupported character
+    return 0;
 }
 
-/**
- * Iconv wrapper to hide different definitions of iconv.
- * @param ic iconv handle.
- * @param inp Input pointer.
- * @param in_bytes Input bytes.
- * @param outp Output pointer.
- * @param out_bytes Output bytes.
- * @return number of bytes converted irreversible or -1 on error.
- */
-size_t
-do_iconv(iconv_t ic, const char **inp, size_t *in_bytes,
-         char **outp, size_t *out_bytes)
+static uint8_t
+utf8_to_wchar(const char *utf8, wchar_t &wc)
 {
-#ifdef ICONV_CONST
-    return iconv(ic, inp, in_bytes, outp, out_bytes);
-#else // !ICONV_CONST
-    return iconv(ic, const_cast<char**>(inp), in_bytes, outp, out_bytes);
-#endif // ICONV_CONST
+    uint8_t len = UTF8_BYTES[static_cast<uint8_t>(utf8[0])];
+    if (len == 1) {
+        wc = utf8[0];
+    } else if (len == 2) {
+        wc = ((utf8[0] & 0x3f) << 6)
+            | (utf8[1] & 0x3f);
+    } else if (len == 3) {
+        wc = ((utf8[0] & 0x3f) << 12)
+            | ((utf8[1] & 0x3f) << 6)
+            | (utf8[2] & 0x3f);
+    } else if (len == 4) {
+        wc = ((utf8[0] & 0x3f) << 18)
+            | ((utf8[1] & 0x3f) << 12)
+            | ((utf8[1] & 0x3f) << 6)
+            | (utf8[2] & 0x3f);
+    } else {
+        // 5 and 6 character sequences are invalid.
+        len = 0;
+    }
+    return len;
 }
 
 class NoGroupingNumpunct : public std::numpunct<char>
 {
 protected:
-    virtual std::string do_grouping(void) const { return ""; } 
+    virtual std::string do_grouping(void) const { return ""; }
 };
 
 namespace Charset
@@ -123,6 +103,107 @@ namespace Charset
     WithCharset::~WithCharset(void)
     {
         destruct();
+    }
+
+    Utf8Iterator::Utf8Iterator(const std::string& str, size_t pos)
+        : _begin(false),
+          _str(str),
+          _pos(pos)
+    {
+        if (_pos > str.size()) {
+            _pos = str.size();
+        }
+    }
+
+    bool
+    Utf8Iterator::operator==(char chr) const
+    {
+        return ok() && len(_pos) == 1 && _str[_pos] == chr;
+    }
+
+    bool
+    Utf8Iterator::operator==(const char* chr) const
+    {
+        return ok()
+            && strncmp(_str.c_str() + _pos, chr, len(_pos)) == 0;
+    }
+
+    bool
+    Utf8Iterator::operator==(const std::string& chr) const
+    {
+        return ok()
+            && strncmp(_str.c_str() + _pos, chr.c_str(), len(_pos)) == 0;
+    }
+
+    const char*
+    Utf8Iterator::operator*(void)
+    {
+        if (! ok()) {
+            return "";
+        }
+        size_t size = len(_pos);
+        memcpy(_deref_buf, _str.c_str() + _pos, size);
+        _deref_buf[size] = '\0';
+        return _deref_buf;
+    }
+
+    Utf8Iterator&
+    Utf8Iterator::operator--(void)
+    {
+        decPos();
+        return *this;
+    }
+
+    Utf8Iterator&
+    Utf8Iterator::operator++(void)
+    {
+        incPos();
+        return *this;
+    }
+
+    size_t
+    Utf8Iterator::len(size_t pos) const
+    {
+        if (pos >= _str.size()) {
+            return 0;
+        }
+        return UTF8_BYTES[static_cast<uint8_t>(_str[pos])];
+    }
+
+    bool
+    Utf8Iterator::incPos(void)
+    {
+        if (_pos < _str.size()) {
+            _pos += len(_pos);
+            if (_pos >= _str.size()) {
+                _pos = _str.size();
+                return false;
+            }
+            _begin = false;
+        }
+        return true;
+    }
+
+    bool
+    Utf8Iterator::decPos(void)
+    {
+        if (_pos > 5 && len(_pos - 6) == 6) {
+            _pos -= 6;
+        } else if (_pos > 4 && len(_pos - 5) == 5) {
+            _pos -= 5;
+        } else if (_pos > 3 && len(_pos - 4) == 4) {
+            _pos -= 4;
+        } else if (_pos > 2 && len(_pos - 3) == 3) {
+            _pos -= 3;
+        } else if (_pos > 1 && len(_pos - 2) == 2) {
+            _pos -= 2;
+        } else if (_pos > 0) {
+            _pos -= 1;
+        } else {
+            _begin = true;
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -148,21 +229,6 @@ namespace Charset
                       "locale - falling back to C's setlocale().");
             setlocale(LC_ALL, "");
         }
-
-        // Cleanup previous init if any, being paranoid.
-        destruct();
-
-        // Raise exception if this fails
-        IC_TO_WC = do_iconv_open(ICONV_UTF8_NAMES, ICONV_WC_NAMES);
-        IC_TO_UTF8 = do_iconv_open(ICONV_WC_NAMES, ICONV_UTF8_NAMES);
-
-        // Equal mean
-        if (IC_TO_WC != reinterpret_cast<iconv_t>(-1)
-            && IC_TO_UTF8 != reinterpret_cast<iconv_t>(-1)) {
-            // Create shared buffer.
-            ICONV_BUF_LEN = 1024;
-            ICONV_BUF = new char[ICONV_BUF_LEN];
-        }
     }
 
     /**
@@ -171,138 +237,75 @@ namespace Charset
     void
     destruct(void)
     {
-        // Cleanup resources
-        if (IC_TO_WC != reinterpret_cast<iconv_t>(-1)) {
-            iconv_close(IC_TO_WC);
-        }
-
-        if (IC_TO_UTF8 != reinterpret_cast<iconv_t>(-1)) {
-            iconv_close(IC_TO_UTF8);
-        }
-
-        if (ICONV_BUF) {
-            delete [] ICONV_BUF;
-        }
-
-        // Set members to safe values
-        IC_TO_WC = reinterpret_cast<iconv_t>(-1);
-        IC_TO_UTF8 = reinterpret_cast<iconv_t>(-1);
-        ICONV_BUF = 0;
-        ICONV_BUF_LEN = 0;
     }
 
-    /**
-     * Converts wide-character string to multibyte version
-     *
-     * @param str String to convert.
-     * @return Returns multibyte version of string.
-     */
-    std::string
-    to_mb_str(const std::wstring &str)
+    bool isUtf8Locale(void)
     {
-        size_t ret, num = str.size() * 6 + 1;
-        char *buf = new char[num];
-        memset(buf, '\0', num);
-
-        std::string ret_str;
-        ret = wcstombs(buf, str.c_str(), num);
-        if (ret == static_cast<size_t>(-1)) {
-            USER_WARN("failed to convert wide string to multibyte string");
-            ret_str = to_utf8_str(str);
-        } else {
-            ret_str = buf;
+        if (_is_utf8_locale == -1) {
+            const char* lc = getenv("LC_CTYPE");
+            if (lc == nullptr) {
+                lc = getenv("LC_ALL");
+            }
+            if (lc != nullptr
+                && (strstr(lc, "utf8")
+                    || strstr(lc, "UTF8")
+                    || strstr(lc, "UTF-8"))) {
+                _is_utf8_locale = 1;
+            } else {
+                _is_utf8_locale = 0;
+            }
         }
-
-        delete [] buf;
-
-        return ret_str;
+        return _is_utf8_locale == 1;
     }
 
-    /**
-     * Converts multibyte string to wide-character version
-     *
-     * @param str String to convert.
-     * @return Returns wide-character version of string.
-     */
-     std::wstring
-     to_wide_str(const std::string &str)
-     {
-         size_t ret, num = str.size() + 1;
-         wchar_t *buf = new wchar_t[num];
-         wmemset(buf, L'\0', num);
+    std::string toSystem(const std::string &str)
+    {
+        if (isUtf8Locale()) {
+            return str;
+        }
 
-         ret = mbstowcs(buf, str.c_str(), num);
-         if (ret == static_cast<size_t>(-1)) {
-             USER_WARN("failed to convert multibyte string to wide string");
-         }
-         std::wstring ret_str(buf);
+        wchar_t wc;
+        auto mb = new char[MB_CUR_MAX + 1];
+        std::string str_sys;
 
-         delete [] buf;
+        // reset state of wctomb before starting
+        wctomb(nullptr, 0);
 
-         return ret_str;
-     }
+        Utf8Iterator it(str, 0);
+        for (; ! it.end(); ++it) {
+            utf8_to_wchar(*it, wc);
+            int len = wctomb(mb, wc);
+            if (len > 0) {
+                mb[len] = '\0';
+                str_sys += mb;
+            }
+        }
 
-    /**
-     * Converts wide-character string to UTF-8
-     * @param str String to convert.
-     * @return Returns UTF-8 representation of string.
-     */
-     std::string
-     to_utf8_str(const std::wstring &str)
-     {
-         std::string utf8_str;
+        delete [] mb;
 
-         // Calculate length
-         size_t in_bytes = str.size() * sizeof(wchar_t);
-         size_t out_bytes = str.size() * UTF8_MAX_BYTES + 1;
+        return str_sys;
+    }
 
-         iconv_buf_grow(out_bytes);
+    std::string fromSystem(const std::string &str)
+    {
+        if (isUtf8Locale()) {
+            return str;
+        }
 
-         // Convert
-         const char *inp = reinterpret_cast<const char*>(str.c_str());
-         char *outp = ICONV_BUF;
-         size_t len = do_iconv(IC_TO_UTF8, &inp, &in_bytes, &outp, &out_bytes);
-         if (len != static_cast<size_t>(-1)) {
-             // Terminate string and cache result
-             *outp = '\0';
-             utf8_str = ICONV_BUF;
-         } else {
-             USER_WARN("to_utf8_str, failed with error " << strerror(errno));
-             utf8_str = ICONV_UTF8_INVALID_STR;
-         }
+        wchar_t wc;
+        char utf8[UTF8_MAX_BYTES + 1];
+        std::string str_utf8;
 
-         return utf8_str;
-     }
+        mbtowc(&wc, nullptr, 0);
 
-    /**
-     * Converts to wide string from UTF-8
-     * @param str String to convert.
-     * @return Returns wide representation of string.
-     */
-     std::wstring
-     from_utf8_str(const std::string &str)
-     {
-         std::wstring wide_str;
+        const char *mb = str.c_str();
+        const char *mb_end = str.c_str() + str.size();
+        for (int len; (len = mbtowc(&wc, mb, mb_end - mb)) > 0; mb += len) {
+            len = wchar_to_utf8(wc, utf8);
+            utf8[len] = '\0';
+            str_utf8 += utf8;
+        }
 
-         // Calculate length
-         size_t in_bytes = str.size();
-         size_t out_bytes = (in_bytes + 1) * sizeof(wchar_t);
-
-         iconv_buf_grow(out_bytes);
-
-         // Convert
-         const char *inp = str.c_str();
-         char *outp = ICONV_BUF;
-         size_t len = do_iconv(IC_TO_WC, &inp, &in_bytes, &outp, &out_bytes);
-         if (len != static_cast<size_t>(-1)) {
-             // Terminate string and cache result
-             *reinterpret_cast<wchar_t*>(outp) = L'\0';
-             wide_str = reinterpret_cast<wchar_t*>(ICONV_BUF);
-         } else {
-             USER_WARN("from_utf8_str, failed on string \"" << str << "\"");
-             wide_str = ICONV_WIDE_INVALID_STR;
-         }
-
-         return wide_str;
-     }
+        return str_utf8;
+    }
 }

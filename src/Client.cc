@@ -837,8 +837,8 @@ Client::readClassRoleHints(void)
     // class hint
     XClassHint class_hint;
     if (XGetClassHint(X11::getDpy(), _window, &class_hint)) {
-        _class_hint->h_name = Charset::to_wide_str(class_hint.res_name);
-        _class_hint->h_class = Charset::to_wide_str(class_hint.res_class);
+        _class_hint->h_name = class_hint.res_name;
+        _class_hint->h_class = class_hint.res_class;
         X11::free(class_hint.res_name);
         X11::free(class_hint.res_class);
     }
@@ -847,7 +847,7 @@ Client::readClassRoleHints(void)
     std::string role;
     X11::getString(_window, WM_WINDOW_ROLE, role);
 
-    _class_hint->h_role = Charset::to_wide_str(role);
+    _class_hint->h_role = role;
 }
 
 //! @brief Loads the Clients state from EWMH atoms.
@@ -971,7 +971,7 @@ Client::readPekwmHints(void)
 
     // Get custom title
     if (X11::getUtf8String(_window, PEKWM_TITLE, str)) {
-        _title.setUser(Charset::from_utf8_str(str));
+        _title.setUser(str);
     }
 
     _state.initial_frame_order = getPekwmFrameOrder();
@@ -1177,25 +1177,21 @@ Client::readName(void)
 {
     // Read title, bail out if it fails.
     std::string title;
-    std::wstring wtitle;
-    if (X11::getUtf8String(_window, NET_WM_NAME, title)) {
-        wtitle = Charset::from_utf8_str(title);
-    } else if (X11::getTextProperty(_window, XA_WM_NAME, title)) {
-        wtitle = Charset::to_wide_str(title);
-    } else {
+    if (! X11::getUtf8String(_window, NET_WM_NAME, title)
+        && ! X11::getTextProperty(_window, XA_WM_NAME, title)) {
         return;
     }
 
     // Mirror it on the visible
-    _title.setCustom(L"");
-    _title.setCount(titleFindID(wtitle));
-    _title.setReal(wtitle);
+    _title.setCustom("");
+    _title.setCount(titleFindID(title));
+    _title.setReal(title);
 
     // Apply title rules and find unique name, doesn't apply on
     // user-set titles
-    if (titleApplyRule(wtitle)) {
-        _title.setCustom(wtitle);
-        X11::setUtf8String(_window, NET_WM_VISIBLE_NAME, Charset::to_utf8_str(wtitle));
+    if (titleApplyRule(title)) {
+        _title.setCustom(title);
+        X11::setUtf8String(_window, NET_WM_VISIBLE_NAME, title);
     } else {
         X11::unsetProperty(_window, NET_WM_VISIBLE_NAME);
     }
@@ -1205,7 +1201,7 @@ Client::readName(void)
 //! @param title Title to apply rule on.
 //! @return true if rule was applied, else false.
 bool
-Client::titleApplyRule(std::wstring &title)
+Client::titleApplyRule(std::string &title)
 {
     _class_hint->title = title;
     auto data = pekwm::autoProperties()->findTitleProperty(_class_hint);
@@ -1220,7 +1216,7 @@ Client::titleApplyRule(std::wstring &title)
 //! @param title Title of client to find ID for.
 //! @return Number of clients with that id.
 uint
-Client::titleFindID(std::wstring &title)
+Client::titleFindID(std::string &title)
 {
     // Do not search for unique IDs if it is not enabled.
     if (! pekwm::config()->getClientUniqueName()) {

@@ -1,5 +1,5 @@
 //
-// PImage.hh for pekwm
+// PImageIcon.cc for pekwm
 // Copyright (C) 2007-2021 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
@@ -12,7 +12,6 @@
 #include <iostream>
 
 #include "PImageIcon.hh"
-#include "X11.hh"
 
 /**
  * New PImageIcon copying image data from image.
@@ -95,7 +94,7 @@ PImageIcon::setOnWindow(Window win, size_t width, size_t height, uchar *data)
 }
 
 Cardinal*
-PImageIcon::newCardinals(uint width, uint height, uchar *data)
+PImageIcon::newCardinals(size_t width, size_t height, uchar *data)
 {
     size_t pixels = width * height;
     auto cardinals = new Cardinal[pixels + 2];
@@ -114,8 +113,8 @@ PImageIcon::setImageFromData(uchar *udata, ulong actual)
     // Icon size successfully read, proceed with loading the actual
     // icon data.
     Cardinal *from_data = reinterpret_cast<Cardinal*>(udata);
-    uint width = from_data[0];
-    uint height = from_data[1];
+    size_t width = from_data[0];
+    size_t height = from_data[1];
     size_t pixels = width * height;
     if (actual < (pixels + 2)) {
         return false;
@@ -133,12 +132,12 @@ PImageIcon::setImageFromData(uchar *udata, ulong actual)
 }
 
 void
-PImageIcon::fromCardinals(ulong pixels, Cardinal *from_data, uchar *to_data)
+PImageIcon::fromCardinals(size_t pixels, Cardinal *from_data, uchar *to_data)
 {
     Cardinal *src = from_data;
     uchar *dst = to_data;
     int pixel;
-    for (ulong i = 0; i < pixels; i += 1) {
+    for (size_t i = 0; i < pixels; i += 1) {
         pixel = *src++;
         *dst++ = pixel >> 24 & 0xff;
         *dst++ = pixel >> 16 & 0xff;
@@ -148,12 +147,12 @@ PImageIcon::fromCardinals(ulong pixels, Cardinal *from_data, uchar *to_data)
 }
 
 void
-PImageIcon::toCardinals(ulong pixels, uchar *from_data, Cardinal *to_data)
+PImageIcon::toCardinals(size_t pixels, uchar *from_data, Cardinal *to_data)
 {
     uchar *src = from_data;
     Cardinal *dst = to_data;
     int pixel;
-    for (ulong i = 0; i < pixels; i += 1) {
+    for (size_t i = 0; i < pixels; i += 1) {
         pixel = (src[0] << 24)
             | (src[1] << 16)
             | (src[2] << 8)

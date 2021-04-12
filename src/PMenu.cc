@@ -26,7 +26,7 @@
 #include <algorithm>
 #include <cstdlib>
 
-PMenu::Item::Item(const std::wstring &name, PWinObj *wo_ref, PTexture *icon)
+PMenu::Item::Item(const std::string &name, PWinObj *wo_ref, PTexture *icon)
     : PWinObjReference(wo_ref),
       _x(0),
       _y(0),
@@ -50,12 +50,12 @@ PMenu::Item::~Item(void)
 std::map<Window,PMenu*> PMenu::_menu_map = std::map<Window,PMenu*>();
 
 //! @brief Constructor for PMenu class
-PMenu::PMenu(const std::wstring &title,
+PMenu::PMenu(const std::string &title,
              const std::string &name, const std::string decor_name,
              bool init)
     : PDecor(decor_name, None, init),
       _name(name),
-      _menu_parent(0), _class_hint(L"pekwm", L"Menu", L"", L"", L""),
+      _menu_parent(0), _class_hint("pekwm", "Menu", "", "", ""),
       _item_curr(0),
       _menu_wo(0),
       _menu_bg_fo(None),
@@ -798,7 +798,7 @@ PMenu::selectPrevItem(void)
 
 //! @brief Sets title of the menu/decor
 void
-PMenu::setTitle(const std::wstring &title)
+PMenu::setTitle(const std::string &title)
 {
     _title.setReal(title);
 
@@ -810,13 +810,13 @@ PMenu::setTitle(const std::wstring &title)
  * Applies title rules to menu.
  */
 void
-PMenu::applyTitleRules(const std::wstring &title)
+PMenu::applyTitleRules(const std::string &title)
 {
     _class_hint.title = title;
     auto data = pekwm::autoProperties()->findTitleProperty(&_class_hint);
 
     if (data) {
-        std::wstring new_title(title);
+        std::string new_title(title);
         if (data->getTitleRule().ed_s(new_title)) {
             _title.setCustom(new_title);
         }
@@ -853,7 +853,7 @@ PMenu::insert(std::vector<PMenu::Item*>::iterator at, PMenu::Item *item)
 //! @param name Name of objet to create and insert
 //! @param wo_ref PWinObj to refer to, defaults to 0
 void
-PMenu::insert(const std::wstring &name, PWinObj *wo_ref, PTexture *icon)
+PMenu::insert(const std::string &name, PWinObj *wo_ref, PTexture *icon)
 {
     insert(new PMenu::Item(name, wo_ref, icon));
 }
@@ -863,7 +863,7 @@ PMenu::insert(const std::wstring &name, PWinObj *wo_ref, PTexture *icon)
 //! @param ae ActionEvent for the object
 //! @param wo_ref PWinObj to refer to, defaults to 0
 void
-PMenu::insert(const std::wstring &name, const ActionEvent &ae,
+PMenu::insert(const std::string &name, const ActionEvent &ae,
               PWinObj *wo_ref, PTexture *icon)
 {
     auto *item = new PMenu::Item(name, wo_ref, icon);

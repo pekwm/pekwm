@@ -20,16 +20,16 @@
  * SearchDialog constructor.
  */
 SearchDialog::SearchDialog()
-  : InputDialog(L"Search"),
+  : InputDialog("Search"),
     _result_menu(0)
 {
     _type = PWinObj::WO_SEARCH_DIALOG;
 
     // Set up ActionEvent
-    _ae.action_list.back().setAction(ACTION_GOTO_CLIENT);
+    ae().action_list.back().setAction(ACTION_GOTO_CLIENT);
 
     // Set up menu for displaying results
-    _result_menu = new PMenu(L"", "");
+    _result_menu = new PMenu("", "");
     _result_menu->reparent(this,
                            bdLeft(this),
                            bdTop(this) + titleHeight(this) + _text_wo->getHeight());
@@ -57,7 +57,7 @@ ActionEvent*
 SearchDialog::exec(void)
 {
     // InputDialog::close() may have overwritten our action.
-    _ae.action_list.back().setAction(ACTION_GOTO_CLIENT);
+    ae().action_list.back().setAction(ACTION_GOTO_CLIENT);
 
     PWinObj *wo_ref = 0;
     if (_result_menu->getItemCurr()) {
@@ -65,7 +65,7 @@ SearchDialog::exec(void)
     }
     setWORef(wo_ref);
 
-    return &_ae;
+    return &(ae());
 }
 
 /**
@@ -75,7 +75,7 @@ void
 SearchDialog::bufChanged(void)
 {
     InputDialog::bufChanged();
-    findClients(_buf);
+    findClients(str());
 }
 
 /**
@@ -113,7 +113,7 @@ SearchDialog::updateSize(const Geometry &head)
  * @return Number of matches
  */
 uint
-SearchDialog::findClients(const std::wstring &search)
+SearchDialog::findClients(const std::string &search)
 {
     // Do nothing if search has not changed.
     if (_previous_search == search) {
@@ -123,7 +123,7 @@ SearchDialog::findClients(const std::wstring &search)
 
     _result_menu->removeAll();
     if (search.size() > 0) {
-        RegexString search_re(L"/" + search + L"/i");
+        RegexString search_re("/" + search + "/i");
         if (! search_re.is_match_ok()) {
             return 0;
         }

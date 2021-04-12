@@ -68,7 +68,7 @@ public:
     uint decorHeight(const ThemeState *state) const;
 
     PFont *getFont(FocusedState state) const;
-    uint titleWidth(const ThemeState *state, const std::wstring& str) const;
+    uint titleWidth(const ThemeState *state, const std::string& str) const;
     uint titleHeight(const ThemeState *state) const;
 
     /**

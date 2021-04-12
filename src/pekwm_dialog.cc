@@ -122,7 +122,7 @@ class Button : public Widget {
 public:
     Button(Theme::DialogData* data, PWinObj& parent,
            std::function<void(int)> stop,
-           int retcode, const std::wstring& text);
+           int retcode, const std::string& text);
     virtual ~Button(void);
 
     virtual bool setState(Window window, ButtonState state) override {
@@ -173,7 +173,7 @@ public:
 private:
     std::function<void(int)> _stop;
     int _retcode;
-    std::wstring _text;
+    std::string _text;
     PFont *_font;
 
     Pixmap _background;
@@ -182,7 +182,7 @@ private:
 
 Button::Button(Theme::DialogData* data, PWinObj& parent,
        std::function<void(int)> stop,
-       int retcode, const std::wstring& text)
+       int retcode, const std::string& text)
     : Widget(data, parent),
       _stop(stop),
       _retcode(retcode),
@@ -221,7 +221,7 @@ class ButtonsRow : public Widget
 public:
     ButtonsRow(Theme::DialogData* data, PWinObj& parent,
                std::function<void(int)> stop,
-               std::vector<std::wstring> options);
+               std::vector<std::string> options);
     virtual ~ButtonsRow(void);
 
     virtual bool setState(Window window, ButtonState state) override {
@@ -290,7 +290,7 @@ private:
 
 ButtonsRow::ButtonsRow(Theme::DialogData* data, PWinObj& parent,
            std::function<void(int)> stop,
-           std::vector<std::wstring> options)
+           std::vector<std::string> options)
     : Widget(data, parent)
 {
     int i = 0;
@@ -351,7 +351,7 @@ private:
 class Text : public Widget {
 public:
     Text(Theme::DialogData* data, PWinObj& parent,
-         const std::wstring& text, bool is_title);
+         const std::string& text, bool is_title);
     virtual ~Text(void);
 
     virtual void place(int x, int y, uint width, uint tot_height) override
@@ -364,7 +364,7 @@ public:
 
     virtual uint heightReq(uint width) const override
     {
-        std::vector<std::wstring> lines;
+        std::vector<std::string> lines;
         uint num_lines = getLines(width, lines);
         return _font->getHeight() * num_lines + _data->padVert();
     }
@@ -388,14 +388,14 @@ public:
     }
 
 private:
-    uint getLines(uint width, std::vector<std::wstring> &lines)  const
+    uint getLines(uint width, std::vector<std::string> &lines)  const
     {
         width -= _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT);
 
-        std::wstring line;
+        std::string line;
         for (auto word : _words) {
             if (! line.empty()) {
-                line += L" ";
+                line += " ";
             }
             line += word;
 
@@ -420,20 +420,20 @@ private:
 
 private:
     PFont *_font;
-    std::wstring _text;
-    std::vector<std::wstring> _words;
-    std::vector<std::wstring> _lines;
+    std::string _text;
+    std::vector<std::string> _words;
+    std::vector<std::string> _lines;
     bool _is_title;
 };
 
 Text::Text(Theme::DialogData* data, PWinObj& parent,
-           const std::wstring& text, bool is_title)
+           const std::string& text, bool is_title)
     : Widget(data, parent),
       _font(is_title ? data->getTitleFont() : data->getTextFont()),
       _text(text),
       _is_title(is_title)
 {
-    Util::splitString<wchar_t>(text, _words, L" \t");
+    Util::splitString(text, _words, " \t");
 }
 
 Text::~Text(void)
@@ -462,9 +462,9 @@ class PekwmDialog : public X11App {
 public:
     PekwmDialog(Theme::DialogData* data,
                 const Geometry &gm,
-                bool raise, const std::wstring& title, PImage* image,
-                const std::wstring& message,
-                std::vector<std::wstring> options);
+                bool raise, const std::string& title, PImage* image,
+                const std::string& message,
+                std::vector<std::string> options);
     virtual ~PekwmDialog(void);
 
     virtual void handleEvent(XEvent *ev) override
@@ -563,9 +563,9 @@ public:
     }
 
 protected:
-    void initWidgets(const std::wstring& title, PImage* image,
-                     const std::wstring& message,
-                     std::vector<std::wstring> options);
+    void initWidgets(const std::string& title, PImage* image,
+                     const std::string& message,
+                     std::vector<std::string> options);
 
     void placeWidgets(void)
     {
@@ -601,10 +601,10 @@ private:
 
 PekwmDialog::PekwmDialog(Theme::DialogData* data,
                          const Geometry &gm,
-                         bool raise, const std::wstring& title, PImage* image,
-                         const std::wstring& message,
-                         std::vector<std::wstring> options)
-    : X11App(gm, title.empty() ? L"pekwm_dialog" : title,
+                         bool raise, const std::string& title, PImage* image,
+                         const std::string& message,
+                         std::vector<std::string> options)
+    : X11App(gm, title.empty() ? "pekwm_dialog" : title,
              "dialog", "pekwm_dialog", WINDOW_TYPE_NORMAL),
       _data(data),
       _raise(raise),
@@ -624,9 +624,9 @@ PekwmDialog::~PekwmDialog(void)
 }
 
 void
-PekwmDialog::initWidgets(const std::wstring& title, PImage* image,
-                         const std::wstring& message,
-                         std::vector<std::wstring> options)
+PekwmDialog::initWidgets(const std::string& title, PImage* image,
+                         const std::string& message,
+                         std::vector<std::string> options)
 {
     if (title.size()) {
         _widgets.push_back(new Text(_data, *this, title, true));
@@ -677,10 +677,10 @@ int main(int argc, char* argv[])
     Geometry gm = { 0, 0, WIDTH_DEFAULT, HEIGHT_DEFAULT };
     int gm_mask = WIDTH_VALUE | HEIGHT_VALUE;
     bool raise;
-    std::wstring title;
+    std::string title;
     std::string config_file = Util::getEnv("PEKWM_CONFIG_FILE");
     std::string image_name;
-    std::vector<std::wstring> options;
+    std::vector<std::string> options;
 
     static struct option opts[] = {
         {const_cast<char*>("config"), required_argument, nullptr, 'c'},
@@ -719,13 +719,13 @@ int main(int argc, char* argv[])
             Util::expandFileName(image_name);
             break;
         case 'o':
-            options.push_back(Charset::to_wide_str(optarg));
+            options.push_back(optarg);
             break;
         case 'r':
             raise = true;
             break;
         case 't':
-            title = Charset::to_wide_str(optarg);
+            title = optarg;
             break;
         case 'f':
             if (! Debug::setLogFile(optarg)) {
@@ -747,15 +747,15 @@ int main(int argc, char* argv[])
     Util::expandFileName(config_file);
 
     if (options.empty()) {
-        options.push_back(L"Ok");
+        options.push_back("Ok");
     }
 
-    std::wstring message;
+    std::string message;
     for (int i = optind; i < argc; i++) {
         if (i > optind) {
-            message += L' ';
+            message += ' ';
         }
-        message += Charset::to_wide_str(argv[i]);
+        message += argv[i];
     }
 
     auto dpy = XOpenDisplay(display);

@@ -268,8 +268,8 @@ DockApp::readClassHint(void)
 {
     XClassHint x_class_hint;
     if (XGetClassHint(X11::getDpy(), _client_window, &x_class_hint)) {
-        _class_hint.h_name = Charset::to_wide_str(x_class_hint.res_name);
-        _class_hint.h_class = Charset::to_wide_str(x_class_hint.res_class);
+        _class_hint.h_name = x_class_hint.res_name;
+        _class_hint.h_class = x_class_hint.res_class;
         X11::free(x_class_hint.res_name);
         X11::free(x_class_hint.res_class);
     }

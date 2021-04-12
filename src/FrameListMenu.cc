@@ -31,7 +31,7 @@
 //! @param name Name of menu
 //! @param decor_name Decor name, defaults to MENU
 FrameListMenu::FrameListMenu(MenuType type,
-                             const std::wstring &title, const std::string &name,
+                             const std::string &title, const std::string &name,
                              const std::string &decor_name)
     : WORefMenu(title, name, decor_name)
 {
@@ -113,8 +113,8 @@ FrameListMenu::updateFrameListMenu(void)
 {
     removeAll();
 
-    wchar_t buf[16];
-    std::wstring name;
+    char buf[16];
+    std::string name;
 
     // need to add an action, otherwise it looks as if we don't have anything
     // to exec and thus it doesn't get handled.
@@ -136,7 +136,7 @@ FrameListMenu::updateFrameListMenu(void)
     std::vector<Frame*>::const_iterator it;
     for (uint i = 0; i < Workspaces::size(); ++i) {
         if (Workspaces::size() > 1) {
-            swprintf(buf, 16, L"<%d> ", i + 1);
+            snprintf(buf, sizeof(buf), "<%d> ", i + 1);
         }
 
         for (it = Frame::frame_begin(); it != Frame::frame_end(); ++it) {
@@ -157,7 +157,7 @@ FrameListMenu::updateFrameListMenu(void)
                 } else {
                     buildName(*it, name);
                     auto client = static_cast<Client*>((*it)->getActiveChild());
-                    name.append(L"] ");
+                    name.append("] ");
                     name.append(client->getTitle()->getVisible());
                     insert(name, ae, client, client->getIcon());
                 }
@@ -170,31 +170,31 @@ FrameListMenu::updateFrameListMenu(void)
 
 //! @brief Builds the name for the frame.
 void
-FrameListMenu::buildName(Frame* frame, std::wstring &name)
+FrameListMenu::buildName(Frame* frame, std::string &name)
 {
-    name.append(L"[");
+    name.append("[");
     if (frame->isSticky()) {
-        name.append(L"*");
+        name.append("*");
     }
     if (frame->isIconified()) {
-        name.append(L".");
+        name.append(".");
     }
     if (frame->isShaded()) {
-        name.append(L"^");
+        name.append("^");
     }
     if (frame->getActiveChild()->getLayer() > LAYER_NORMAL) {
-        name.append(L"+");
+        name.append("+");
     } else if (frame->getActiveChild()->getLayer() < LAYER_NORMAL) {
-        name.append(L"-");
+        name.append("-");
     }
 }
 
 //! @brief Builds names for all the clients in a frame.
 void
-FrameListMenu::buildFrameNames(Frame *frame, std::wstring &pre_name,
+FrameListMenu::buildFrameNames(Frame *frame, std::string &pre_name,
                                bool insert_separator)
 {
-    std::wstring name, status_name;
+    std::string name, status_name;
 
     // need to add an action, otherwise it looks as if we don't have anything
     // to exec and thus it doesn't get handled.
@@ -209,9 +209,9 @@ FrameListMenu::buildFrameNames(Frame *frame, std::wstring &pre_name,
         name = pre_name;
         name.append(status_name);
         if (frame->getActiveChild() == *it) {
-            name.append(L"A");
+            name.append("A");
         }
-        name.append(L"] ");
+        name.append("] ");
         name.append(static_cast<Client*>(*it)->getTitle()->getVisible());
 
         insert(name, ae, *it, static_cast<Client*>(*it)->getIcon());
@@ -219,7 +219,7 @@ FrameListMenu::buildFrameNames(Frame *frame, std::wstring &pre_name,
 
     // add separator
     if (insert_separator) {
-        auto item = new PMenu::Item(L"");
+        auto item = new PMenu::Item("");
         item->setType(PMenu::Item::MENU_ITEM_SEPARATOR);
         insert(item);
     }
