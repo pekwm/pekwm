@@ -26,7 +26,7 @@ public:
     SearchDialog();
     virtual ~SearchDialog(void);
 
-    void unmapWindow(void);
+    virtual void unmapWindow(void) override;
 
 protected:
     virtual ActionEvent *exec(void) override;

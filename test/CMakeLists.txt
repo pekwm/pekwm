@@ -1,6 +1,6 @@
 set(common_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/src ${PROJECT_BINARY_DIR}/src
-                        ${ICONV_INCLUDE_DIR} ${X11_INCLUDE_DIR})
-set(common_LIBRARIES ${ICONV_LIBRARIES} ${X11_LIBRARIES})
+                        ${X11_INCLUDE_DIR})
+set(common_LIBRARIES ${X11_LIBRARIES})
 
 if (ENABLE_SHAPE AND X11_Xshape_FOUND)
   set(common_INCLUDE_DIRS ${common_INCLUDE_DIRS} ${X11_Xshape_INCLUDE_PATH})
@@ -65,10 +65,10 @@ add_test(NAME test_util
   COMMAND test_util
   WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test)
 set(common_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/src ${PROJECT_BINARY_DIR}/src
-                        ${ICONV_INCLUDE_DIR} ${X11_INCLUDE_DIR})
-set(common_LIBRARIES ${ICONV_LIBRARIES} ${X11_LIBRARIES})
+                        ${X11_INCLUDE_DIR})
+set(common_LIBRARIES ${X11_LIBRARIES})
 target_include_directories(test_util PUBLIC
-  ${PROJECT_SOURCE_DIR}/src ${PROJECT_BINARY_DIR}/src ${ICONV_INCLUDE_DIR})
-target_link_libraries(test_util util ${ICONV_LIBRARIES})
+  ${PROJECT_SOURCE_DIR}/src ${PROJECT_BINARY_DIR}/src)
+target_link_libraries(test_util util)
 
 add_subdirectory(system)

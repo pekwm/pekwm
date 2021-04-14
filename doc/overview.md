@@ -148,7 +148,7 @@ OpenBSD comes with X11 and a compatible C++ compiler. To add the
 required packages run:
 
 ```
-# pkg_add cmake jpeg libiconv png
+# pkg_add cmake jpeg png
 ```
 
 #### OS X (homebrew)

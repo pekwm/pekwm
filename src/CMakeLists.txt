@@ -67,8 +67,8 @@ set(wm_SOURCES
   Workspaces.cc
   WorkspaceIndicator.cc
   WmUtil.cc)
-set(common_INCLUDE_DIRS ${PROJECT_BINARY_DIR}/src ${ICONV_INCLUDE_DIR} ${X11_INCLUDE_DIR})
-set(common_LIBRARIES ${ICONV_LIBRARIES} ${X11_LIBRARIES})
+set(common_INCLUDE_DIRS ${PROJECT_BINARY_DIR}/src ${X11_INCLUDE_DIR})
+set(common_LIBRARIES ${X11_LIBRARIES})
 
 if (ENABLE_SHAPE AND X11_Xshape_FOUND)
   set(common_INCLUDE_DIRS ${common_INCLUDE_DIRS} ${X11_Xshape_INCLUDE_PATH})
@@ -122,7 +122,7 @@ target_include_directories(wm PUBLIC ${common_INCLUDE_DIRS})
 
 add_executable(pekwm pekwm.cc)
 target_include_directories(pekwm PUBLIC ${PROJECT_BINARY_DIR}/src)
-target_link_libraries(pekwm util ${ICONV_LIBRARIES})
+target_link_libraries(pekwm util)
 install(TARGETS pekwm DESTINATION bin)
 
 add_executable(pekwm_bg

@@ -19,7 +19,6 @@ include(GNUInstallDirs)
 
 # Look for dependencies
 find_package(X11 REQUIRED)
-find_package(Iconv REQUIRED)
 
 check_function_exists(localtime_r HAVE_LOCALTIME_R REQUIRED)
 

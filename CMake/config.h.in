@@ -21,9 +21,6 @@
 #cmakedefine HAVE_IMAGE_JPEG
 #cmakedefine HAVE_IMAGE_XPM
 
-#cmakedefine HAVE_ICONVCTL
-#cmakedefine ICONV_CONST
-
 #cmakedefine HAVE_XUTF8
 
 #endif // _CONFIG_H_

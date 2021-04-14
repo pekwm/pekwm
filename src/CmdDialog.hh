@@ -25,12 +25,12 @@ public:
     virtual ~CmdDialog(void);
 
     // BEGIN - PWinObj interface
-    virtual void mapWindow(void);
+    virtual void mapWindow(void) override;
     // END - PWinObj interface
-    void unmapWindow(void);
+    virtual void unmapWindow(void) override;
 
     virtual void mapCentered(const std::string &buf, const Geometry &geom,
-                             PWinObj *wo_ref);
+                             PWinObj *wo_ref) override;
 
 private:
     void render(void);

@@ -301,8 +301,8 @@ namespace Charset
         const char *mb = str.c_str();
         const char *mb_end = str.c_str() + str.size();
         for (int len; (len = mbtowc(&wc, mb, mb_end - mb)) > 0; mb += len) {
-            len = wchar_to_utf8(wc, utf8);
-            utf8[len] = '\0';
+            int utf8_len = wchar_to_utf8(wc, utf8);
+            utf8[utf8_len] = '\0';
             str_utf8 += utf8;
         }
 
