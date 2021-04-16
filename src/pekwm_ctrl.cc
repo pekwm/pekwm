@@ -18,6 +18,7 @@
 
 extern "C" {
 #include <getopt.h>
+#include <time.h>
 #include <unistd.h>
 }
 
@@ -25,6 +26,7 @@ enum CtrlAction {
    ACTION_RUN,
    ACTION_FOCUS,
    ACTION_LIST,
+   ACTION_UTIL,
    ACTION_NO
 };
 
@@ -32,7 +34,7 @@ enum CtrlAction {
 static void usage(const char* name, int ret)
 {
     std::cout << "usage: " << name << " [-acdhs] [command]" << std::endl;
-    std::cout << "  -a --action [run|focus|list] Control action" << std::endl;
+    std::cout << "  -a --action [run|focus|list|util] Control action" << std::endl;
     std::cout << "  -c --client pattern Client pattern" << std::endl;
     std::cout << "  -d --display dpy    Display" << std::endl;
     std::cout << "  -h --help           Display this information" << std::endl;
@@ -48,6 +50,8 @@ static CtrlAction getAction(const std::string& name)
         return ACTION_LIST;
     } else if (name == "run") {
         return ACTION_RUN;
+    } else if (name == "util") {
+        return ACTION_UTIL;
     } else {
         return ACTION_NO;
     }
@@ -181,6 +185,22 @@ static bool listClients(void)
     return true;
 }
 
+int actionUtil(int argc, char* argv[])
+{
+    if (argc == 0) {
+        return 1;
+    }
+
+    std::string cmd(argv[0]);
+    if (cmd == "timestamp") {
+        time_t ts = time(nullptr);
+        std::cout << std::to_string(ts) << std::endl;
+        return 0;
+    } else {
+        return 1;
+    }
+}
+
 int main(int argc, char* argv[])
 {
     const char* display = NULL;
@@ -239,6 +259,10 @@ int main(int argc, char* argv[])
         }
     }
 
+    if (action == ACTION_UTIL) {
+        return actionUtil(argc - optind, argv + optind);
+    }
+
     std::string cmd;
     for (int i = optind; i < argc; i++) {
         if (i != optind) {
@@ -289,6 +313,7 @@ int main(int argc, char* argv[])
         res = listClients();
         break;
     case ACTION_NO:
+    case ACTION_UTIL:
         res = false;
         break;
     }

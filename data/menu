@@ -34,7 +34,7 @@ RootMenu = "Pekwm" {
   Submenu = "pekwm" {
     Submenu = "Themes" {
       Entry { Actions = "Dynamic $_PEKWM_SCRIPT_PATH/pekwm_themeset.sh $_PEKWM_THEME_PATH" }
-      Entry { Actions = "Dynamic $_PEKWM_SCRIPT_PATH/pekwm_themeset.sh ~/.pekwm/themes" }
+      Entry { Actions = "Dynamic $_PEKWM_SCRIPT_PATH/pekwm_themeset.sh $_HOME/themes" }
     }
     Entry = "Reload" { Actions = "Reload" }
     Entry = "Restart" { Actions = "Restart" }

@@ -1,6 +1,6 @@
 #!@SH@
 #
-# Copyright © 2009 the pekwm development team
+# Copyright (C) 2009-2021 the pekwm development team
 #
 
 if test "${1}" = "send"; then
@@ -16,7 +16,7 @@ if test "${2}" = "dynamic"; then
   echo "Dynamic {"
 fi
 
-num_workspaces="$(xprop -root _NET_NUMBER_OF_DESKTOPS | awk '{ print $3 }')"
+num_workspaces=`xprop -root _NET_NUMBER_OF_DESKTOPS | awk '{ print $3 }'`
 
 i=1;
 while test "${i}" -le "${num_workspaces}"; do
@@ -24,7 +24,6 @@ while test "${i}" -le "${num_workspaces}"; do
 
   i=$(($i + 1))
 done
-
 
 if test "${2}" = "dynamic"; then
   echo "}"

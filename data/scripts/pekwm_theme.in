@@ -59,9 +59,9 @@ fetch_file()
 {
     progress "fetching $1 to $2..."
 
-    CURL=`which curl 2>/dev/null`
-    WGET=`which wget 2>/dev/null`
-    FTP=`which ftp 2>/dev/null`
+    CURL=`which curl 2>/dev/null | grep '^/'`
+    WGET=`which wget 2>/dev/null | grep '^/'`
+    FTP=`which ftp 2>/dev/null | grep '^/'`
 
     if test "x$CURL" != "x"; then
         $CURL -L -s -o "$2" "$1"
@@ -87,7 +87,7 @@ update_index()
     mkdir -p "$HOME/.pekwm"
     if test -e "${LOCAL_THEME_INDEX}.stamp"; then
         created=`cat ${LOCAL_THEME_INDEX}.stamp`
-        now=`date '+%s'`
+        now=`pekwm_ctrl -a util timestamp 2>/dev/null`
         age=$(($now - $created))
         if test $age -gt $LOCAL_THEME_INDEX_MAX_AGE; then
             rm -f "$LOCAL_THEME_INDEX"
@@ -99,7 +99,7 @@ update_index()
 
     if test ! -e "$LOCAL_THEME_INDEX"; then
         fetch_file "$REMOTE_THEME_INDEX" "$LOCAL_THEME_INDEX"
-        date '+%s' > "${LOCAL_THEME_INDEX}.stamp"
+        pekwm_ctrl -a util timestamp >"${LOCAL_THEME_INDEX}.stamp" 2>/dev/null
     fi
 }
 
@@ -114,11 +114,11 @@ read_theme()
         die "no theme named $1"
     fi
     theme_name="$1"
-    theme_remote=`echo $line | awk -F "$SEP" '{ print $2 }'`
-    theme_branch=`echo $line | awk -F "$SEP" '{ print $3 }'`
-    theme_base_path=`echo $line | awk -F "$SEP" '{ print $4 }'`
-    theme_author=`echo $line | awk -F "$SEP" '{ print $6 }'`
-    theme_title=`echo $line | awk -F "$SEP" '{ print $7 }'`
+    theme_remote=`echo $line | @AWK@ -F "$SEP" '{ print $2 }'`
+    theme_branch=`echo $line | @AWK@ -F "$SEP" '{ print $3 }'`
+    theme_base_path=`echo $line | @AWK@ -F "$SEP" '{ print $4 }'`
+    theme_author=`echo $line | @AWK@ -F "$SEP" '{ print $6 }'`
+    theme_title=`echo $line | @AWK@ -F "$SEP" '{ print $7 }'`
 }
 
 # Set theme_path to local theme path
@@ -226,7 +226,12 @@ theme_search()
         echo "themes matching $1:"
     fi
 
-    sed 1d "$LOCAL_THEME_INDEX" | awk -F "$SEP" '{ print $1 }' | grep "$1"
+    search="$1"
+    if test -z "$search"; then
+        search=".*"
+    fi
+
+    sed 1d "$LOCAL_THEME_INDEX" | @AWK@ -F "$SEP" '{ print $1 }' | grep "$search"
 }
 
 # Show theme using pekwm_dialog, if install is choosen the theme is
@@ -605,7 +610,7 @@ theme_update()
 if test -z "$HOME"; then
     die "\$HOME is not set, can not proceed"
 fi
-if test -z "`which git`"; then
+if test -z "`which git 2>/dev/null | grep '^/'`"; then
     die "git must be available in the path, can not proceed"
 fi
 

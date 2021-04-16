@@ -65,14 +65,24 @@ set(CMAKE_REQUIRED_LIBRARIES ${X11_LIBRARIES})
 check_symbol_exists(Xutf8SetWMProperties X11/Xutil.h HAVE_XUTF8)
 
 # Look for platform specific tools
-find_program(GSED gsed /usr/bin /usr/local/bin /usr/pkg/bin)
+find_program(GSED gsed /usr/bin/gsed /usr/pkg/bin/gsed /usr/local/bin/gsed)
 if (GSED)
   set(SED ${GSED})
 else (GSED)
-  find_program(SED sed /usr/bin /usr/local/bin /usr/pkg/bin)
+  find_program(SED sed /usr/bin/sed /usr/pkg/bin/sed /usr/local/bin/sed)
 endif (GSED)
 
-find_program(SH sh /usr/xpg4/bin/sh /bin/sh /usr/xpg4/bin)
+find_program(SH /usr/xpg4/bin/sh
+                /usr/pkg/bin/sh
+                /usr/local/bin/sh
+                /usr/bin/sh
+                /bin/sh)
+
+find_program(AWK /usr/xpg4/bin/awk
+                 /usr/pkg/bin/awk
+                 /usr/local/bin/awk
+                 /usr/bin/awk
+                 /bin/awk)
 
 # Optons
 option(ENABLE_SHAPE "include support for Xshape" ON)
