@@ -1,11 +1,11 @@
 Files {
-    Keys = "~/.pekwm/keys"
-    Mouse = "~/.pekwm/mouse"
-    Menu = "~/.pekwm/menu"
-    Start = "~/.pekwm/start"
-    AutoProps = "~/.pekwm/autoproperties"
+    Keys = "$_PEKWM_CONFIG_PATH/keys"
+    Mouse = "$_PEKWM_CONFIG_PATH/mouse"
+    Menu = "$_PEKWM_CONFIG_PATH/menu"
+    Start = "$_PEKWM_CONFIG_PATH/start"
+    AutoProps = "$_PEKWM_CONFIG_PATH/autoproperties"
     Theme = "$_PEKWM_THEME_PATH/default"
-    Icons = "~/.pekwm/icons/"
+    Icons = "$_PEKWM_CONFIG_PATH/icons/"
 }
 
 MoveResize {
@@ -95,7 +95,7 @@ Menu {
 CmdDialog {
     HistoryUnique = "True"
     HistorySize = "1024"
-    HistoryFile = "~/.pekwm/history"
+    HistoryFile = "$_PEKWM_CONFIG_PATH/history"
     HistorySaveInterval = "16"
 }
 
