@@ -146,6 +146,17 @@ starts, and it's contents will be used as the default config file. It
 will also be updated to point to the currently active config file if
 needed.
 
+A few other variables defined by pekwm:
+
+- $\_PEKWM\_ETC\_PATH points to the system configuration directory,
+  set at compile time. This is usually /etc.
+- $\_PEKWM\_SCRIPT\_PATH points to the "scripts" directory of pekwm,
+  e.g. /usr/share/pekwm/scripts.
+- $\_PEKWM\_THEME\_PATH points to the "themes" directory of pekwm,
+  e.g. /usr/share/pekwm/themes.
+- $\_PEKWM\_CONFIG\_PATH contains the directory path of
+  $\_PEKWM\_CONFIG\_FILE
+
 Variables can probably be defined almost anywhere, but it's probably a
 better idea to place them at the top of the file, outside of any
 sections.

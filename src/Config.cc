@@ -271,6 +271,11 @@ Config::load(const std::string &config_file)
     auto cfg_env = Util::getEnv("PEKWM_CONFIG_FILE");
     if (cfg_env.size() == 0 || _config_file.compare(cfg_env) != 0) {
         setenv("PEKWM_CONFIG_FILE", _config_file.c_str(), 1);
+
+        auto sep = _config_file.rfind('/');
+        if (sep != std::string::npos) {
+            setenv("PEKWM_CONFIG_PATH", _config_file.substr(0, sep).c_str(), 1);
+        }
     }
 
     std::string o_file_mouse; // temporary filepath for mouseconfig

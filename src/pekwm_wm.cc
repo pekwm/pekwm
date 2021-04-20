@@ -132,6 +132,10 @@ main(int argc, char **argv)
             config_file = home + "/.pekwm/config";
         }
     }
+    auto sep = config_file.rfind('/');
+    if (sep != std::string::npos) {
+        setenv("PEKWM_CONFIG_PATH", config_file.substr(0, sep).c_str(), 1);
+    }
 
     USER_INFO("Starting pekwm. Use this information in bug reports: "
               << FEATURES << std::endl
