@@ -14,13 +14,14 @@
 #include <cstdlib>
 #include <ctime>
 
-static Util::StringMap<Debug::Level> debug_level_map =
-    {{"", Debug::LEVEL_WARN},
-     {"ERROR", Debug::LEVEL_ERR},
-     {"WARNING", Debug::LEVEL_WARN},
-     {"INFO", Debug::LEVEL_INFO},
-     {"DEBUG", Debug::LEVEL_DEBUG},
-     {"TRACE", Debug::LEVEL_TRACE}};
+static Util::StringTo<Debug::Level> debug_level_map[] = {
+    {"ERROR", Debug::LEVEL_ERR},
+    {"WARNING", Debug::LEVEL_WARN},
+    {"INFO", Debug::LEVEL_INFO},
+    {"DEBUG", Debug::LEVEL_DEBUG},
+    {"TRACE", Debug::LEVEL_TRACE},
+    {nullptr, Debug::LEVEL_WARN}
+};
 
 static Debug::Level _level = Debug::LEVEL_WARN;
 static bool _use_cerr = true;
@@ -48,7 +49,7 @@ namespace Debug
     Level
     getLevel(const std::string& str)
     {
-        return debug_level_map.get(str);
+        return Util::StringToGet<Debug::Level>(debug_level_map, str);
     }
 
     /**
@@ -103,7 +104,7 @@ namespace Debug
     setLogFile(const std::string& path)
     {
         _log.close();
-        _log.open(path);
+        _log.open(path.c_str());
         return _log.good();
     }
 
@@ -130,7 +131,7 @@ namespace Debug
                 _use_cerr = ! setLogFile(args[1]);
             }
         } else if (args[0] == "level") {
-            _level = debug_level_map.get(args[1]);
+            _level = getLevel(args[1]);
         }
     }
 }

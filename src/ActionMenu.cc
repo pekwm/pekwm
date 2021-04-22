@@ -182,7 +182,7 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
     }
 
     if (section->getValue().size()) {
-        auto title(section->getValue());
+        const std::string& title(section->getValue());
         setTitle(title);
         _title_base = title;
     }
@@ -193,7 +193,7 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
     PMenu::Item *item = 0;
     PTexture *icon = 0;
 
-    auto it(section->begin());
+    CfgParser::Entry::entry_cit it = section->begin();
     for (; it != section->end(); ++it) {
         item = 0;
 
@@ -202,13 +202,14 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
             if (sub_section) {
                 icon = getIcon(sub_section->findEntry("ICON"));
 
-                auto title = (*it)->getValue();
-                auto submenu = new ActionMenu(_menu_type, _act, title, title);
+                const std::string& title = (*it)->getValue();
+                ActionMenu *submenu =
+                    new ActionMenu(_menu_type, _act, title, title);
                 submenu->_menu_parent = this;
                 submenu->parse(sub_section, parent);
                 submenu->buildMenu();
 
-                auto sub_title = sub_section->getValue();
+                const std::string& sub_title = sub_section->getValue();
                 item = new PMenu::Item(sub_title, submenu, icon);
                 item->setCreator(parent);
             } else {
@@ -230,7 +231,7 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
                                                         _action_ok)) {
                     icon = getIcon(sub_section->findEntry("ICON"));
 
-                    auto sub_name = sub_section->getValue();
+                    const std::string& sub_name = sub_section->getValue();
                     item = new PMenu::Item(sub_name, 0, icon);
                     item->setCreator(parent);
                     item->setAE(ae);
@@ -296,7 +297,7 @@ ActionMenu::rebuildDynamic(void)
     WithIconPath with_icon_path(pekwm::config(), pekwm::imageHandler());
 
     PMenu::Item* item = nullptr;
-    auto it = m_begin();
+    std::vector<PMenu::Item*>::const_iterator it = m_begin();
     for (; it != m_end(); ++it) {
         if ((*it)->getAE().isOnlyAction(ACTION_MENU_DYN)) {
             _insert_at = it - m_begin();
@@ -304,8 +305,8 @@ ActionMenu::rebuildDynamic(void)
             item = *it;
 
             CfgParser dynamic;
-            auto cmd = (*it)->getAE().action_list.front().getParamS();
-            auto section = runDynamic(dynamic, cmd);
+            std::string cmd = (*it)->getAE().action_list.front().getParamS();
+            CfgParser::Entry *section = runDynamic(dynamic, cmd);
             if (section != nullptr) {
                 _has_dynamic = true;
                 parse(section, *it);
@@ -332,7 +333,7 @@ ActionMenu::removeDynamic(void)
 {
     std::set<PMenu::Item *> dynlist;
 
-    auto it = m_begin();
+    std::vector<PMenu::Item*>::const_iterator it = m_begin();
     for (; it != m_end(); ++it) {
         if ((*it)->getType() == PMenu::Item::MENU_ITEM_HIDDEN) {
             dynlist.insert(*it);
@@ -351,7 +352,8 @@ ActionMenu::removeDynamic(void)
         }
     }
 
-    for (auto item : items_to_remove) {
-        remove(item);
+    it = items_to_remove.begin();
+    for (; it != items_to_remove.end(); ++it) {
+        remove(*it);
     }
 }

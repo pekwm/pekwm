@@ -90,7 +90,7 @@ handleOkResult(char *argv[], int read_fd)
         return 1;
     }
     if (strncmp("restart ", buf, 8) == 0) {
-        auto command = std::string(buf + 8);
+        std::string command = std::string(buf + 8);
 
         if (command.empty()) {
             execvp(argv[0], argv);
@@ -112,7 +112,7 @@ handleUnexpectedResult(char *argv[], int read_fd)
     close(read_fd);
 
     // run pekwm_dialog and wait for answer on to restart or not
-    auto pekwm_dialog = std::string(argv[0]) + "_dialog";
+    std::string pekwm_dialog = std::string(argv[0]) + "_dialog";
     if (promptForRestart(pekwm_dialog)) {
         execvp(argv[0], argv);
         std::cerr << "failed to restart pekwm" << std::endl;
@@ -137,14 +137,15 @@ main(int argc, char *argv[])
     // Get the pekwm_wm command by appending _wm to the path to ensure
     // the correct pekwm_wm is used when running from a non-installed
     // location.
-    auto pekwm_wm = std::string(argv[0]) + "_wm";
+    std::string pekwm_wm = std::string(argv[0]) + "_wm";
 
     // Setup environment, DISPLAY is set to make RestartOther work as
     // expected re-using the display from the --display argument.
     //
     // PEKWM_CONFIG_FILE is set as an environment to make pekwm_dialog
     // catch the correct configuration file.
-    std::vector<std::string> wm_argv = { pekwm_wm };
+    std::vector<std::string> wm_argv;
+    wm_argv.push_back(pekwm_wm);
     for (int i = 1; i < argc; i++) {
         if ((strcmp("--display", argv[i]) == 0) && ((i + 1) < argc)) {
             setenv("DISPLAY", argv[++i], 1);
@@ -174,9 +175,10 @@ main(int argc, char *argv[])
         wm_argv.insert(wm_argv.begin() + 2, std::to_string(fd[1]));
 
         int c_wm_argc = 0;
-        auto c_wm_argv = new char*[wm_argv.size() + 1];
-        for (auto it : wm_argv) {
-            c_wm_argv[c_wm_argc++] = strdup(it.c_str());
+        char **c_wm_argv = new char*[wm_argv.size() + 1];
+        std::vector<std::string>::iterator it = wm_argv.begin();
+        for (; it != wm_argv.end(); ++it) {
+            c_wm_argv[c_wm_argc++] = strdup(it->c_str());
         }
         c_wm_argv[c_wm_argc++] = NULL;
 

@@ -102,7 +102,8 @@ public:
 
     inline void setWorkspaces(const std::vector<uint> &ws) { _workspaces=ws; }
     inline bool applyOnWs(uint ws) {
-        auto it(find(_workspaces.begin(), _workspaces.end(), ws));
+        std::vector<uint>::iterator it =
+            find(_workspaces.begin(), _workspaces.end(), ws);
         return _workspaces.empty() || it != _workspaces.end();
     }
 
@@ -233,7 +234,7 @@ public:
 private:
     Property* findProperty(const ClassHint* class_hint,
                            std::vector<Property*>* prop_list,
-                           uint ws, ApplyOn type);
+                           int ws, ApplyOn type);
 
     void loadRequire(CfgParser &a_cfg, std::string &file);
 

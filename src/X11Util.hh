@@ -72,7 +72,7 @@ namespace X11Util {
     bool readEwmhStates(Window win, NetWMStates &win_states);
 }
 
-#ifndef HAVE_XUTF8
+#ifndef PEKWM_HAVE_XUTF8
 
 void Xutf8SetWMProperties(Display *dpy, Window win,
                           const char* window_name, const char* icon_name,
@@ -80,4 +80,4 @@ void Xutf8SetWMProperties(Display *dpy, Window win,
                           XSizeHints* normal_hints, XWMHints* wm_hints,
                           XClassHint* class_hints);
 
-#endif // HAVE_XUTF8
+#endif // PEKWM_HAVE_XUTF8

@@ -25,20 +25,20 @@ public:
     virtual ~CmdDialog(void);
 
     // BEGIN - PWinObj interface
-    virtual void mapWindow(void) override;
+    virtual void mapWindow(void);
     // END - PWinObj interface
-    virtual void unmapWindow(void) override;
+    virtual void unmapWindow(void);
 
     virtual void mapCentered(const std::string &buf, const Geometry &geom,
-                             PWinObj *wo_ref) override;
+                             PWinObj *wo_ref);
 
 private:
     void render(void);
 
-    virtual ActionEvent *exec(void) override;
-    virtual void complete(void) override;
-    virtual void completeAbort(void) override;
-    virtual void completeReset(void) override;
+    virtual ActionEvent *exec(void);
+    virtual void complete(void);
+    virtual void completeAbort(void);
+    virtual void completeReset(void);
 
 private:
     Completer _completer; /**< Completer used completing actions. */

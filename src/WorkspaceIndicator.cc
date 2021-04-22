@@ -70,7 +70,8 @@ WorkspaceIndicator::Display::getSizeRequest(Geometry &gm)
 void
 WorkspaceIndicator::Display::render(void)
 {
-    auto data = pekwm::theme()->getWorkspaceIndicatorData();
+    Theme::WorkspaceIndicatorData *data =
+        pekwm::theme()->getWorkspaceIndicatorData();
 
     // Make sure pixmap has correct size
     X11::freePixmap(_pixmap);
@@ -110,7 +111,8 @@ void
 WorkspaceIndicator::Display::renderWorkspaces(int x, int y,
                                               uint width, uint height)
 {
-    auto data = pekwm::theme()->getWorkspaceIndicatorData();
+    Theme::WorkspaceIndicatorData *data =
+        pekwm::theme()->getWorkspaceIndicatorData();
 
     uint per_row = Workspaces::getPerRow();
     uint rows = Workspaces::getRows();
@@ -132,7 +134,7 @@ WorkspaceIndicator::Display::renderWorkspaces(int x, int y,
             y_pos += ws_height + data->workspace_padding;
         }
 
-        auto tex = i == Workspaces::getActive()
+        PTexture *tex = i == Workspaces::getActive()
             ? data->texture_workspace_act : data->texture_workspace;
         tex->render(_pixmap, x_pos, y_pos, ws_width, ws_height);
 
@@ -146,7 +148,8 @@ WorkspaceIndicator::Display::renderWorkspaces(int x, int y,
 uint
 WorkspaceIndicator::Display::getPaddingHorizontal(void)
 {
-    auto data = pekwm::theme()->getWorkspaceIndicatorData();
+    Theme::WorkspaceIndicatorData *data =
+        pekwm::theme()->getWorkspaceIndicatorData();
     return (data->edge_padding * 2 + data->workspace_padding
             * (Workspaces::getPerRow() - 1));
 }
@@ -157,7 +160,8 @@ WorkspaceIndicator::Display::getPaddingHorizontal(void)
 uint
 WorkspaceIndicator::Display::getPaddingVertical(void)
 {
-    auto data = pekwm::theme()->getWorkspaceIndicatorData();
+    Theme::WorkspaceIndicatorData *data =
+        pekwm::theme()->getWorkspaceIndicatorData();
     return (data->edge_padding * 3 + data->font->getHeight()
             + data->workspace_padding * (Workspaces::getRows() - 1));
 }
@@ -215,7 +219,7 @@ WorkspaceIndicator::render(void)
 {
     // Center on head
     Geometry head, request;
-    auto chs = pekwm::config()->getCurrHeadSelector();
+    CurrHeadSelector chs = pekwm::config()->getCurrHeadSelector();
     X11::getHeadInfo(X11Util::getCurrHead(chs), head);
 
     _display_wo.getSizeRequest(request);

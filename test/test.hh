@@ -1,7 +1,6 @@
 #ifndef _TEST_HH_
 #define _TEST_HH_
 
-#include <functional>
 #include <iostream>
 #include <map>
 #include <vector>
@@ -18,11 +17,24 @@ public:
     const int line(void) const { return _line; }
     const std::string& msg(void) const { return _msg;}
 
+    void format(const std::string &suite_name,
+                const std::string &name) const;
+
 private:
     std::string _file;
     int _line;
     std::string _msg;
 };
+
+void
+AssertFailed::format(const std::string &suite_name,
+                     const std::string &name) const
+{
+    std::cout << " ERROR" << std::endl;;
+    std::cout << "      " << _file << ":" << _line << " ";
+    std::cout << suite_name << "::" << name << " " << _msg;
+    std::cout << std::endl;
+}
 
 #define ASSERT_FAILED(msg) \
     throw AssertFailed(__FILE__, __LINE__, (msg));
@@ -45,27 +57,22 @@ private:
         ASSERT_FAILED(__test_oss.str())                                 \
     }
 
-typedef std::function<void()> test_fn;
+#define TEST_FN(spec, test_name, F)                     \
+    do {                                                \
+        try {                                           \
+            std::cout << "  * " << test_name << "...";  \
+            F;                                          \
+            std::cout << " OK" << std::endl;            \
+        } catch (const AssertFailed& ex) {              \
+            ex.format(name(), test_name);               \
+            status = false;                             \
+        }                                               \
+    } while (0)
 
-class Test {
-public:
-    Test(const std::string& _name, test_fn _fn);
-    ~Test(void);
 
-public:
-    std::string name;
-    test_fn fn;
+enum TestSpec {
+    TEST_RUN
 };
-
-Test::Test(const std::string& _name, test_fn _fn)
-    : name(_name),
-      fn(_fn)
-{
-}
-
-Test::~Test(void)
-{
-}
 
 class TestSuite {
 public:
@@ -86,14 +93,13 @@ public:
 
     const std::string& name() const { return _name; }
 
-    void register_test(const std::string& name, test_fn fn);
-
     bool test(void);
+
+protected:
+    virtual bool run_test(TestSpec spec, bool status) = 0;
 
 private:
     std::string _name;
-    std::vector<Test> _tests;
-
     static std::vector<TestSuite*> _suites;
 };
 
@@ -107,34 +113,11 @@ TestSuite::~TestSuite(void)
 {
 }
 
-void
-TestSuite::register_test(const std::string& name, test_fn fn)
-{
-    Test test(name, fn);
-    _tests.push_back(test);
-}
-
 bool
 TestSuite::test(void)
 {
-    bool status = true;
-
     std::cout << _name << std::endl;
-    auto it = _tests.begin();
-    for (; it != _tests.end(); ++it) {
-        try {
-            std::cout << "  * " << it->name << "...";
-            it->fn();
-            std::cout << " OK" << std::endl;;
-        } catch (const AssertFailed& ex) {
-            std::cout << " ERROR" << std::endl;;
-            std::cout << "      " << ex.file() << ":" << ex.line() << " ";
-            std::cout << _name << "::" << it->name << " " << ex.msg();
-            std::cout << std::endl;
-            status = false;
-        }
-    }
-    return status;
+    return run_test(TEST_RUN, true);
 }
 
 std::vector<TestSuite*> TestSuite::_suites;

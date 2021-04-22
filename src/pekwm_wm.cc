@@ -21,6 +21,7 @@
 #include <locale>
 
 extern "C" {
+#include <errno.h>
 #include <unistd.h> // execlp
 #include <locale.h>
 }
@@ -74,7 +75,7 @@ stop(int write_fd, const std::string &msg, WindowManager *wm)
     Charset::destruct();
 
     if (write(write_fd, msg.c_str(), msg.size() + 1) == -1) {
-        ERR("failed to write pekwm_wm result msg " << msg
+        P_ERR("failed to write pekwm_wm result msg " << msg
             << " due to: " << strerror(errno));
     }
     exit(0);
@@ -123,7 +124,7 @@ main(int argc, char **argv)
     if (config_file.size() == 0) {
         config_file = Util::getEnv("PEKWM_CONFIG_FILE");
         if (config_file.size() == 0) {
-            auto home = Util::getEnv("HOME");
+            std::string home = Util::getEnv("HOME");
             if (home.size() == 0) {
                 std::cerr << "failed to get configuration file path, "
                           << "$HOME not set." << std::endl;
@@ -132,7 +133,7 @@ main(int argc, char **argv)
             config_file = home + "/.pekwm/config";
         }
     }
-    auto sep = config_file.rfind('/');
+    size_t sep = config_file.rfind('/');
     if (sep != std::string::npos) {
         setenv("PEKWM_CONFIG_PATH", config_file.substr(0, sep).c_str(), 1);
     }
@@ -141,15 +142,15 @@ main(int argc, char **argv)
               << FEATURES << std::endl
               << "using configuration at " << config_file);
 
-    auto wm = WindowManager::start(config_file, replace, synchronous);
+    WindowManager *wm = WindowManager::start(config_file, replace, synchronous);
     if (wm) {
         try {
-            TRACE("Enter event loop.");
+            P_TRACE("Enter event loop.");
 
             wm->doEventLoop();
 
             if (wm->shallRestart()) {
-                auto command = wm->getRestartCommand();
+                std::string command = wm->getRestartCommand();
                 stop(write_fd, "restart " + command, wm);
             }
 
@@ -157,7 +158,7 @@ main(int argc, char **argv)
         } catch (StopException& ex) {
             stop(write_fd, ex.getMsg(), wm);
         } catch (std::string& ex) {
-            ERR("unexpected error occurred: " << ex);
+            P_ERR("unexpected error occurred: " << ex);
             stop(write_fd, "error", wm);
         }
     } else {

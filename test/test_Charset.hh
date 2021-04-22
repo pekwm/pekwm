@@ -16,6 +16,8 @@ public:
     TestCharset(void);
     ~TestCharset(void);
 
+    virtual bool run_test(TestSpec spec, bool status);
+
 private:
     static void testToSystem(void);
     static void testFromSystem(void);
@@ -25,14 +27,17 @@ private:
 TestCharset::TestCharset(void)
     : TestSuite("Charset")
 {
-    register_test("no_grouping_numpunct",
-                  TestCharset::test_no_grouping_numpunct);
-    register_test("testToSystem", TestCharset::testToSystem);
-    register_test("testFromSystem", TestCharset::testFromSystem);
 }
 
 TestCharset::~TestCharset(void)
 {
+}
+
+bool
+TestCharset::run_test(TestSpec spec, bool status)
+{
+    TEST_FN(spec, "no_grouping_numpunct", test_no_grouping_numpunct());
+    return status;
 }
 
 void
@@ -41,14 +46,4 @@ TestCharset::test_no_grouping_numpunct(void)
     std::ostringstream oss;
     oss << 100200300;
     ASSERT_EQUAL("no grouping", "100200300", oss.str());
-}
-
-void
-TestCharset::testToSystem(void)
-{
-}
-
-void
-TestCharset::testFromSystem(void)
-{
 }

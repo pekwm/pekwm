@@ -48,8 +48,8 @@ InputBuffer::~InputBuffer(void)
 void
 InputBuffer::add(const std::string& buf)
 {
-    for (auto c : buf) {
-        _buf.insert(_buf.begin() + _pos++, c);
+    for (size_t i = 0; i < buf.size(); i++) {
+        _buf.insert(_buf.begin() + _pos++, buf[i]);
     }
 }
 
@@ -196,15 +196,16 @@ InputDialog::reloadKeysymMap(void)
 void
 InputDialog::addKeysymToKeysymMap(KeySym keysym, const std::string& chr)
 {
-    auto dpy = X11::getDpy();
+    Display *dpy = X11::getDpy();
 
     int keysyms_per_keycode;
-    auto keycode = XKeysymToKeycode(dpy, keysym);
+    KeyCode keycode = XKeysymToKeycode(dpy, keysym);
     if (! keycode) {
         return;
     }
 
-    auto keysyms = XGetKeyboardMapping(dpy, keycode, 1, &keysyms_per_keycode);
+    KeySym *keysyms =
+        XGetKeyboardMapping(dpy, keycode, 1, &keysyms_per_keycode);
     if (keysyms) {
         for (int i = 0; i < keysyms_per_keycode; i++) {
             if (keysyms[i] != NoSymbol) {
@@ -240,7 +241,7 @@ InputDialog::handleKeyPress(XKeyEvent *ev)
     ActionEvent *c_ae, *ae = 0;
 
     if ((c_ae = pekwm::keyGrabber()->findAction(ev, _type, matched))) {
-        auto it(c_ae->action_list.begin());
+        ActionEvent::it it(c_ae->action_list.begin());
         for (; it != c_ae->action_list.end(); ++it) {
             switch (it->getAction()) {
             case INPUT_INSERT:
@@ -617,7 +618,7 @@ InputDialog::updateSize(const Geometry &head)
 void
 InputDialog::updatePixmapSize(void)
 {
-    auto tex = _data->getTexture();
+    PTexture *tex = _data->getTexture();
     tex->setBackground(_text_wo->getWindow(),
                        0, 0, _text_wo->getWidth(), _text_wo->getHeight());
     X11::clearWindow(_text_wo->getWindow());
@@ -655,7 +656,8 @@ InputDialog::addHistory(const std::string& entry, bool unique, uint max_size)
 void
 InputDialog::addHistoryUnique(const std::string& entry)
 {
-    auto it(find(_history.begin(), _history.end(), entry));
+    std::vector<std::string>::iterator it =
+        find(_history.begin(), _history.end(), entry);
     if (it != _history.end()) {
         _history.erase(it);
     }
@@ -685,8 +687,9 @@ InputDialog::saveHistory(const std::string &path)
 {
     std::ofstream ofile(path.c_str());
     if (ofile.is_open()) {
-        for (auto it : _history) {
-            ofile << it << "\n";
+        std::vector<std::string>::iterator it = _history.begin();
+        for (; it != _history.end(); ++it) {
+            ofile << *it << "\n";
         }
         ofile.close();
     }

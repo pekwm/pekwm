@@ -8,7 +8,7 @@
 
 #include "config.h"
 
-#ifdef HAVE_IMAGE_PNG
+#ifdef PEKWM_HAVE_IMAGE_PNG
 
 #include "Debug.hh"
 #include "PImageLoaderPng.hh"
@@ -44,7 +44,7 @@ convertRgbaToArgb(uchar* data, size_t width, size_t height, bool& use_alpha)
 static uchar*
 convertRgbToArgb(uchar* data_rgb, size_t width, size_t height)
 {
-    auto data_argb = new uchar[width * height * 4];
+    uchar *data_argb = new uchar[width * height * 4];
     int src = 0, dst = 0;
     for (size_t y = 0; y < height; ++y) {
         for (size_t x = 0; x < width; ++x) {
@@ -60,7 +60,7 @@ convertRgbToArgb(uchar* data_rgb, size_t width, size_t height)
 static uchar*
 convertArgbToRgb(uchar* data_argb, size_t width, size_t height)
 {
-    auto data_rgb = new uchar[width * height * 4];
+    uchar *data_rgb = new uchar[width * height * 4];
     int src = 0, dst = 0;
     for (size_t y = 0; y < height; ++y) {
         for (size_t x = 0; x < width; ++x) {
@@ -113,7 +113,7 @@ namespace PImageLoaderPng
     uchar*
     load(const std::string &file, size_t &width, size_t &height, bool &use_alpha)
     {
-        auto fp = fopen(file.c_str(), "rb");
+        FILE *fp = fopen(file.c_str(), "rb");
         if (! fp) {
             return 0;
         }
@@ -125,16 +125,16 @@ namespace PImageLoaderPng
         }
 
         // Start PNG loading.
-        auto png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
+        png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
         if (! png_ptr) {
-            ERR("out of memory, png_create_read_struct failed");
+            P_ERR("out of memory, png_create_read_struct failed");
             fclose(fp);
             return 0;
         }
 
-        auto info_ptr = png_create_info_struct(png_ptr);
+        png_infop info_ptr = png_create_info_struct(png_ptr);
         if (! info_ptr) {
-            ERR("out of memory, png_create_info_struct failed");
+            P_ERR("out of memory, png_create_info_struct failed");
             png_destroy_read_struct(&png_ptr, 0, 0);
             fclose(fp);
             return 0;
@@ -187,8 +187,8 @@ namespace PImageLoaderPng
         // Now load image data.
         png_read_update_info(png_ptr, info_ptr);
 
-        auto rowbytes = png_get_rowbytes(png_ptr, info_ptr);
-        auto channels = png_get_channels(png_ptr, info_ptr);
+        png_uint_32 rowbytes = png_get_rowbytes(png_ptr, info_ptr);
+        png_byte channels = png_get_channels(png_ptr, info_ptr);
 
         size_t data_size = rowbytes * height;
         uchar* data = new uchar[data_size];
@@ -209,7 +209,7 @@ namespace PImageLoaderPng
 
         use_alpha = false;
         if (channels < 4) {
-            auto data_argb = convertRgbToArgb(data, width, height);
+            uchar *data_argb = convertRgbToArgb(data, width, height);
             delete [] data;
 
             data = data_argb;
@@ -224,15 +224,15 @@ namespace PImageLoaderPng
     bool
     save(const std::string& file, uchar *data, size_t width, size_t height)
     {
-        auto png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
+        png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
         if (! png_ptr) {
-            ERR("out of memory, png_create_write_struct failed");
+            P_ERR("out of memory, png_create_write_struct failed");
             return false;
         }
 
-        auto info_ptr = png_create_info_struct(png_ptr);
+        png_infop info_ptr = png_create_info_struct(png_ptr);
         if (! info_ptr) {
-            ERR("out of memory, png_create_info_struct failed");
+            P_ERR("out of memory, png_create_info_struct failed");
             png_destroy_write_struct(&png_ptr, 0);
             return false;
         }
@@ -243,7 +243,7 @@ namespace PImageLoaderPng
             return false;
         }
 
-        auto fp = fopen(file.c_str(), "wb");
+        FILE *fp = fopen(file.c_str(), "wb");
         if (!fp) {
             USER_WARN("failed to open " << file << " for writing");
             png_destroy_write_struct(&png_ptr, &info_ptr);
@@ -259,7 +259,7 @@ namespace PImageLoaderPng
                      PNG_COMPRESSION_TYPE_DEFAULT,
                      PNG_FILTER_TYPE_DEFAULT);
 
-        auto rgb_data = convertArgbToRgb(data, width, height);
+        uchar *rgb_data = convertArgbToRgb(data, width, height);
         png_write_info(png_ptr, info_ptr);
         png_bytep row = rgb_data;
         for (size_t y = 0; y < height; y++) {
@@ -277,4 +277,4 @@ namespace PImageLoaderPng
     }
 }
 
-#endif // HAVE_IMAGE_PNG
+#endif // PEKWM_HAVE_IMAGE_PNG

@@ -18,6 +18,7 @@ extern "C" {
 #include <regex.h>
 }
 
+#include "Compat.hh"
 #include "Types.hh"
 
 //! @brief POSIX regular expression wrapper.

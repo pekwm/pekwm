@@ -8,6 +8,7 @@
 
 #include "pekwm.hh"
 
+#include "Compat.hh"
 #include "ImageHandler.hh"
 #include "PImageLoaderPng.hh"
 #include "Util.hh"
@@ -56,8 +57,8 @@ static void usage(const char* name, int ret)
 
 static std::string get_screenhot_name(const Geometry& gm)
 {
-    std::time_t t = std::time(nullptr);
-    std::tm tm;
+    time_t t = time(nullptr);
+    tm tm;
     localtime_r(&t, &tm);
 
     std::ostringstream name;
@@ -70,16 +71,16 @@ static std::string get_screenhot_name(const Geometry& gm)
 
 static int take_screenshot(const std::string& output)
 {
-    auto gm = X11::getScreenGeometry();
-    auto ximage = X11::getImage(X11::getRoot(),
-                               gm.x, gm.y, gm.width, gm.height,
-                               AllPlanes, ZPixmap);
+    Geometry gm = X11::getScreenGeometry();
+    XImage *ximage = X11::getImage(X11::getRoot(),
+                                   gm.x, gm.y, gm.width, gm.height,
+                                   AllPlanes, ZPixmap);
     if (ximage == nullptr) {
         std::cerr << "Failed to take a screenshot" << std::endl;
         return 1;
     }
 
-    auto image = new PImage(ximage);
+    PImage *image = new PImage(ximage);
     X11::destroyImage(ximage);
 
     return PImageLoaderPng::save(output, image->getData(),
@@ -112,9 +113,10 @@ int main(int argc, char* argv[])
         }
     }
 
-    auto dpy = XOpenDisplay(display);
+    Display *dpy = XOpenDisplay(display);
     if (! dpy) {
-        auto actual_display = display ? display : Util::getEnv("DISPLAY");
+        std::string actual_display =
+            display ? display : Util::getEnv("DISPLAY");
         std::cerr << "Can not open display!" << std::endl
                   << "Your DISPLAY variable currently is set to: "
                   << actual_display << std::endl;

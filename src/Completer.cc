@@ -73,8 +73,8 @@ completions_list_from_name_list(T name_list, completions_list &completions_list)
     completions_list.clear();
     typename T::const_iterator it(name_list.begin());
     for (; it != name_list.end(); ++it) {
-        auto name = *it;
-        auto name_lower(name);
+        std::string name = *it;
+        std::string name_lower(name);
         Util::to_lower(name_lower);
         completions_list.push_back(CompPair(name_lower, name));
     }
@@ -113,7 +113,7 @@ protected:
                                complete_list &completions,
                                const std::string &word)
     {
-        unsigned int completed = 0, equality = -1;
+        int completed = 0, equality = -1;
 
         completions_it it(completions_list.begin());
         for (; it != completions_list.end(); ++it) {
@@ -155,12 +155,13 @@ public:
         clear();
 
         std::vector<std::string> path_parts;
+        std::vector<std::string>::iterator it;;
         Util::splitString(Util::getEnv("PATH"), path_parts, ":");
 
-        for (auto it : path_parts) {
-            DIR *dh = opendir(it.c_str());
+        for (it = path_parts.begin(); it != path_parts.end(); ++it) {
+            DIR *dh = opendir(it->c_str());
             if (dh) {
-                refresh_path(dh, Charset::fromSystem(it));
+                refresh_path(dh, Charset::fromSystem(*it));
                 closedir(dh);
             }
         }
@@ -192,8 +193,8 @@ PathCompleterMethod::refresh_path(DIR *dh, const std::string& path)
             continue;
         }
 
-        auto name = Charset::toSystem(entry->d_name);
-        auto path_name = path + "/" + name;
+        std::string name = Charset::toSystem(entry->d_name);
+        std::string path_name = path + "/" + name;
         add_path(name, path_name);
     }
 }

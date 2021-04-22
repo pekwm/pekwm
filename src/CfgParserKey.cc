@@ -67,7 +67,7 @@ void
 CfgParserKeyString::parseValue(const std::string &value)
 {
     if (value.size() < _length_min) {
-        auto msg = "string too short, min length "
+        std::string msg = "string too short, min length "
             + std::to_string(_length_min);
         throw msg;
     }

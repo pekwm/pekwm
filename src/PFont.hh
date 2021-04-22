@@ -11,14 +11,13 @@
 #include "config.h"
 
 #include <string>
-#include <limits>
 
 #include "pekwm.hh"
 
 extern "C" {
-#ifdef HAVE_XFT
+#ifdef PEKWM_HAVE_XFT
 #include <X11/Xft/Xft.h>
-#endif // HAVE_XFT
+#endif // PEKWM_HAVE_XFT
 }
 
 class PFont
@@ -141,7 +140,7 @@ private:
     static const char *DEFAULT_FONTSET; /**< Default fallback fontset. */
 };
 
-#ifdef HAVE_XFT
+#ifdef PEKWM_HAVE_XFT
 class PFontXft : public PFont {
 public:
     PFontXft(void);
@@ -165,4 +164,4 @@ private:
 
     XRenderColor _xrender_color;
 };
-#endif // HAVE_XFT
+#endif // PEKWM_HAVE_XFT

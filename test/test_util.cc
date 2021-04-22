@@ -6,8 +6,8 @@
 // See the LICENSE file for more information.
 //
 
+#include "Compat.hh"
 #include "test.hh"
-
 #include "Debug.hh"
 
 #include "test_CfgParser.hh"
@@ -26,10 +26,10 @@ main(int argc, char *argv[])
     // Charset
     TestCharset testCharset;
 
-    // RegexString
+    // // RegexString
     TestRegexString testRegexString;
 
-    // Util
+    // // Util
     TestString testString;
     TestUtil testUtil;
 

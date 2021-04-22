@@ -17,15 +17,15 @@
 
 #include <iostream>
 
-static Util::StringMap<PTexture::Type> parse_map =
-    {{"", PTexture::TYPE_NO},
-     {"SOLID", PTexture::TYPE_SOLID},
+static Util::StringTo<PTexture::Type> parse_map[] =
+    {{"SOLID", PTexture::TYPE_SOLID},
      {"SOLIDRAISED", PTexture::TYPE_SOLID_RAISED},
      {"LINESHORZ", PTexture::TYPE_LINES_HORZ},
      {"LINESVERT", PTexture::TYPE_LINES_VERT},
      {"IMAGE", PTexture::TYPE_IMAGE},
      {"IMAGEMAPPED", PTexture::TYPE_IMAGE_MAPPED},
-     {"EMPTY", PTexture::TYPE_EMPTY}};
+     {"EMPTY", PTexture::TYPE_EMPTY},
+     {nullptr, PTexture::TYPE_NO}};
 
 static bool
 parseSize(const std::string &str, uint &width, uint &height)
@@ -60,7 +60,7 @@ PTexture*
 TextureHandler::getTexture(const std::string &texture)
 {
     // check for already existing entry
-    auto it(_textures.begin());
+    std::vector<TextureHandler::Entry*>::iterator it = _textures.begin();
     for (; it != _textures.end(); ++it) {
         if (*(*it) == texture) {
             (*it)->incRef();
@@ -69,10 +69,10 @@ TextureHandler::getTexture(const std::string &texture)
     }
 
     // parse texture
-    auto ptexture = parse(texture);
+    PTexture *ptexture = parse(texture);
     if (ptexture) {
         // create new entry
-        auto entry = new TextureHandler::Entry(texture, ptexture);
+        TextureHandler::Entry *entry = new TextureHandler::Entry(texture, ptexture);
         entry->incRef();
         _textures.push_back(entry);
     }
@@ -89,7 +89,7 @@ PTexture*
 TextureHandler::referenceTexture(PTexture *texture)
 {
     // Check for already existing entry
-    auto it(_textures.begin());
+    std::vector<TextureHandler::Entry*>::iterator it(_textures.begin());
     for (; it != _textures.end(); ++it) {
         if ((*it)->getTexture() == texture) {
             (*it)->incRef();
@@ -98,7 +98,7 @@ TextureHandler::referenceTexture(PTexture *texture)
     }
 
     // Create new entry
-    auto entry = new TextureHandler::Entry("", texture);
+    TextureHandler::Entry *entry = new TextureHandler::Entry("", texture);
     entry->incRef();
     _textures.push_back(entry);
 
@@ -113,7 +113,7 @@ TextureHandler::returnTexture(PTexture *texture)
 {
     bool found = false;
 
-    auto it(_textures.begin());
+    std::vector<TextureHandler::Entry*>::iterator it(_textures.begin());
     for (; it != _textures.end(); ++it) {
         if ((*it)->getTexture() == texture) {
             found = true;
@@ -143,9 +143,9 @@ TextureHandler::parse(const std::string &texture)
 
     PTexture::Type type;
     if (Util::splitString(texture, tok, " \t")) {
-        type = parse_map.get(tok[0]);
+        type = Util::StringToGet(parse_map, tok[0]);
     } else {
-        type = parse_map.get(texture);
+        type = Util::StringToGet(parse_map, texture);
     }
 
     // need at least type and parameter, except for EMPTY type
@@ -261,7 +261,7 @@ TextureHandler::parseLines(bool horz, std::vector<std::string> &tok)
     float line_size;
     bool size_percent;
     try {
-        if (tok[0].back() == '%') {
+        if (tok[0][tok[0].size()-1] == '%') {
             size_percent = true;
             tok[0].erase(tok[0].end() - 1);
             line_size = std::stof(tok[0]) / 100;
@@ -283,7 +283,7 @@ TextureHandler::parseLines(bool horz, std::vector<std::string> &tok)
         height = 0;
     }
 
-    auto tex = new PTextureLines(line_size, size_percent, horz, tok);
+    PTextureLines *tex = new PTextureLines(line_size, size_percent, horz, tok);
     tex->setWidth(width);
     tex->setHeight(height);
     return tex;
@@ -296,9 +296,9 @@ PTexture*
 TextureHandler::parseImage(const std::string& texture)
 {
     // 6==strlen("IMAGE ")
-    auto image = new PTextureImage(texture.substr(6), "");
+    PTextureImage *image = new PTextureImage(texture.substr(6), "");
     if (! image->isOk()) {
-        auto pos = texture.find_first_not_of(" \t", 6);
+        size_t pos = texture.find_first_not_of(" \t", 6);
         image->setImage(texture.substr(pos), "");
     }
     return image;
@@ -311,18 +311,18 @@ PTexture*
 TextureHandler::parseImageMapped(const std::string& texture)
 {
     // 12==strlen("IMAGEMAPPED ")
-    auto map_start = texture.find_first_not_of(" \t", 12);
-    auto map_end = texture.find_first_of(" \t", map_start);
+    size_t map_start = texture.find_first_not_of(" \t", 12);
+    size_t map_end = texture.find_first_of(" \t", map_start);
     if (map_end == std::string::npos) {
         USER_WARN("not enough parameters to texture ImageMapped (2 required)");
         return nullptr;
     }
-    auto image_start = texture.find_first_not_of(" \t", map_end + 1);
+    size_t image_start = texture.find_first_not_of(" \t", map_end + 1);
     if (image_start == std::string::npos) {
         USER_WARN("not enough parameters to texture ImageMapped (2 required)");
         return nullptr;
     }
-    auto colormap = texture.substr(map_start, map_end - map_start);
+    std::string colormap = texture.substr(map_start, map_end - map_start);
     return new PTextureImage(texture.substr(image_start), colormap);
 }
 

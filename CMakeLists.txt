@@ -8,61 +8,72 @@ set(pekwm_VERSION_MINOR 2)
 set(pekwm_VERSION_PATCH 0)
 set(pekwm_VERSION "${pekwm_VERSION_MAJOR}.${pekwm_VERSION_MINOR}.${pekwm_VERSION_PATCH}")
 
-# Check for C++11
-set(CMAKE_CXX_STANDARD 11)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+# Check for C++98
+set(CMAKE_CXX_STANDARD 98)
 
 include(CheckSymbolExists)
 include(CheckCXXCompilerFlag)
 include(CheckCXXSourceRuns)
+include(CheckIncludeFile)
+include(CheckIncludeFileCXX)
 include(GNUInstallDirs)
 
 # Look for dependencies
 find_package(X11 REQUIRED)
 
-check_function_exists(localtime_r HAVE_LOCALTIME_R REQUIRED)
+check_include_file_cxx(limits PEKWM_HAVE_LIMITS)
+if (NOT PEKWM_HAVE_LIMITS)
+  check_include_file(sys/limits.h PEKWM_HAVE_SYS_LIMITS_H)
+endif (NOT PEKWM_HAVE_LIMITS)
+check_include_file(stdint.h PEKWM_HAVE_STDINT_H)
 
-# Add work-around for missing -std=c++11 flag when running the
+check_include_file_cxx(locale PEKWM_HAVE_LOCALE)
+if (NOT PEKWM_HAVE_LOCALE)
+  check_include_file(locale.h PEKWM_HAVE_LOCALE_H REQUIRED)
+endif (NOT PEKWM_HAVE_LOCALE)
+
+check_function_exists(localtime_r PEKWM_HAVE_LOCALTIME_R REQUIRED)
+
+# Add work-around for missing -std=c++98 flag when running the
 # check_cxx_source_runs tests
-set(orig_CMAKE_CXX_FLAGS ${CMAKE_CXX11_FLAGS})
-set(CMAKE_CXX_FLAGS ${CMAKE_CXX11_STANDARD_COMPILE_OPTION})
+set(orig_CMAKE_CXX_FLAGS ${CMAKE_CXX98_FLAGS})
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX98_STANDARD_COMPILE_OPTION})
 
-# Look for missing C++-11 features
 check_cxx_source_runs("
 #include <iostream>
 #include <iomanip>
 int main() { std::tm tm = {0}; std::cout << std::put_time(&tm, \"%S\"); }
-" HAVE_PUT_TIME)
+" PEKWM_HAVE_PUT_TIME)
 
 check_cxx_source_runs("
 #include <iostream>
 #include <string>
 int main() { std::to_string(42); }
-" HAVE_TO_STRING)
+" PEKWM_HAVE_TO_STRING)
 
 check_cxx_source_runs("
 #include <string>
 int main() { std::stoi(\"42\"); }
-" HAVE_STOI)
+" PEKWM_HAVE_STOI)
 
 check_cxx_source_runs("
 #include <string>
 int main() { std::stof(\"42.0\"); }
-" HAVE_STOF)
+" PEKWM_HAVE_STOF)
 
 set(CMAKE_CXX_FLAGS ${orig_CMAKE_CXX_FLAGS})
 
 # Look for platform specific methods
-check_function_exists(swprintf HAVE_SWPRINTF)
-check_function_exists(setenv HAVE_SETENV)
-check_function_exists(unsetenv HAVE_UNSETENV)
-check_function_exists(daemon HAVE_DAEMON)
-check_symbol_exists(timersub sys/time.h HAVE_TIMERSUB)
+check_function_exists(setenv PEKWM_HAVE_SETENV)
+check_function_exists(unsetenv PEKWM_HAVE_UNSETENV)
+check_function_exists(daemon PEKWM_HAVE_DAEMON)
+check_function_exists(clock_gettime PEKWM_HAVE_CLOCK_GETTIME)
+check_symbol_exists(timersub sys/time.h PEKWM_HAVE_TIMERSUB)
 
 # Look for modern X11 functions
 set(CMAKE_REQUIRED_INCLUDES ${X11_INCLUDE_DIR})
 set(CMAKE_REQUIRED_LIBRARIES ${X11_LIBRARIES})
-check_symbol_exists(Xutf8SetWMProperties X11/Xutil.h HAVE_XUTF8)
+check_symbol_exists(Xutf8SetWMProperties X11/Xutil.h PEKWM_HAVE_XUTF8)
 
 # Look for platform specific tools
 find_program(SED gsed sed
@@ -105,37 +116,37 @@ endif (ENABLE_IMAGE_PNG)
 # Compilation
 if (ENABLE_SHAPE AND X11_Xshape_FOUND)
   set(pekwm_FEATURES "${pekwm_FEATURES} XShape")
-  set(HAVE_SHAPE 1)
+  set(PEKWM_HAVE_SHAPE 1)
 endif (ENABLE_SHAPE AND X11_Xshape_FOUND)
 
 if (ENABLE_XINERAMA AND X11_Xinerama_FOUND)
   set(pekwm_FEATURES "${pekwm_FEATURES} Xinerama")
-  set(HAVE_XINERAMA 1)
+  set(PEKWM_HAVE_XINERAMA 1)
 endif (ENABLE_XINERAMA AND X11_Xinerama_FOUND)
 
 if (ENABLE_XFT AND X11_Xft_FOUND AND FREETYPE_FOUND)
   set(pekwm_FEATURES "${pekwm_FEATURES} Xft")
-  set(HAVE_XFT 1)
+  set(PEKWM_HAVE_XFT 1)
 endif (ENABLE_XFT AND X11_Xft_FOUND AND FREETYPE_FOUND)
 
 if (ENABLE_IMAGE_JPEG AND JPEG_FOUND)
   set(pekwm_FEATURES "${pekwm_FEATURES} image-jpeg")
-  set(HAVE_IMAGE_JPEG 1)
+  set(PEKWM_HAVE_IMAGE_JPEG 1)
 endif (ENABLE_IMAGE_JPEG AND JPEG_FOUND)
 
 if (ENABLE_IMAGE_PNG AND PNG_FOUND)
   set(pekwm_FEATURES "${pekwm_FEATURES} image-png")
-  set(HAVE_IMAGE_PNG 1)
+  set(PEKWM_HAVE_IMAGE_PNG 1)
 endif (ENABLE_IMAGE_PNG AND PNG_FOUND)
 
 if (ENABLE_IMAGE_XPM AND X11_Xpm_FOUND)
   set(pekwm_FEATURES "${pekwm_FEATURES} image-xpm")
-  set(HAVE_IMAGE_XPM 1)
+  set(PEKWM_HAVE_IMAGE_XPM 1)
 endif (ENABLE_IMAGE_XPM AND X11_Xpm_FOUND)
 
 if (ENABLE_RANDR AND X11_Xrandr_FOUND)
   set(pekwm_FEATURES "${pekwm_FEATURES} Xrandr")
-  set(HAVE_XRANDR 1)
+  set(PEKWM_HAVE_XRANDR 1)
 endif (ENABLE_RANDR AND X11_Xrandr_FOUND)
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
@@ -145,8 +156,27 @@ endif (CMAKE_BUILD_TYPE MATCHES Debug)
 
 if (PEDANTIC)
   set(pekwm_FEATURES "${pekwm_FEATURES} pedantic")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -Wno-variadic-macros -pedantic")
+  # -Werror cause the compiler fail with:
+  #  Error: original is defined but not used.
+  # when throwing some exceptions
+  if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic")
+  else ()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pedantic")
+  endif ()
+  check_cxx_compiler_flag("-Wno-variadic-macros" NO_VARIADIC_MACROS)
+  if (NO_VARIADIC_MACROS)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-variadic-macros")
+  endif (NO_VARIADIC_MACROS)
 endif (PEDANTIC)
+
+# check after pedantic check, -Wall -Werror -pedantic will cause this
+# to fail if missing/ignored
+check_cxx_source_runs("
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored \"-Wdeprecated-declarations\"
+int main() { return 0; }
+" PEKWM_HAVE_GCC_DIAGNOSTICS_PUSH)
 
 add_definitions(-DVERSION="${pekwm_VERSION}"
   -DFEATURES="${pekwm_FEATURES}"

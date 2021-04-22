@@ -88,7 +88,7 @@ void
 PImageIcon::setOnWindow(Window win, size_t width, size_t height, uchar *data)
 {
     size_t pixels = width * height;
-    auto cardinals = newCardinals(width, height, data);
+    Cardinal *cardinals = newCardinals(width, height, data);
     X11::setCardinals(win, NET_WM_ICON, cardinals, pixels + 2);
     delete [] cardinals;
 }
@@ -97,7 +97,7 @@ Cardinal*
 PImageIcon::newCardinals(size_t width, size_t height, uchar *data)
 {
     size_t pixels = width * height;
-    auto cardinals = new Cardinal[pixels + 2];
+    Cardinal *cardinals = new Cardinal[pixels + 2];
     cardinals[0] = width;
     cardinals[1] = height;
     toCardinals(pixels, data, cardinals + 2);

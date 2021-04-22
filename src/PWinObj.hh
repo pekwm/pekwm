@@ -63,8 +63,8 @@ public:
     //! @brief Searches for the PWinObj matching Window win.
     //! @param win Window to match PWinObjs against.
     //! @return PWinObj pointer on match, else 0.
-    static PWinObj *findPWinObj(Window win) {
-        auto it(_wo_map.find(win));
+    static inline PWinObj *findPWinObj(Window win) {
+        std::map<Window, PWinObj*>::iterator it(_wo_map.find(win));
         return (it != _wo_map.end()) ? it->second : 0;
     }
 
@@ -72,9 +72,11 @@ public:
     //! @param wo PWinObj to search for.
     //! @return true if found, else false.
     static inline bool windowObjectExists(PWinObj *wo) {
-        auto it = std::find(_wo_list.begin(), _wo_list.end(), wo);
-        if (it != _wo_list.end())
+        std::vector<PWinObj*>::iterator it =
+            std::find(_wo_list.begin(), _wo_list.end(), wo);
+        if (it != _wo_list.end()) {
             return true;
+        }
         return false;
     }
 
@@ -238,7 +240,9 @@ protected:
             : current(EWMH_OPAQUE_WINDOW),
               focused(EWMH_OPAQUE_WINDOW),
               unfocused(EWMH_OPAQUE_WINDOW) { }
-        uint current, focused, unfocused;
+        Cardinal current;
+        Cardinal focused;
+        Cardinal unfocused;
     } _opacity;
     bool _opaque; //!< Opaque set state of PWinObj
 

@@ -16,6 +16,8 @@ public:
     TestInputBuffer(void);
     ~TestInputBuffer(void);
 
+    virtual bool run_test(TestSpec spec, bool status);
+
 private:
     static void testConstruct(void);
     static void testAdd(void);
@@ -28,16 +30,22 @@ private:
 TestInputBuffer::TestInputBuffer(void)
     : TestSuite("InputBuffer")
 {
-    register_test("construct", TestInputBuffer::testConstruct);
-    register_test("add", TestInputBuffer::testAdd);
-    register_test("remove", TestInputBuffer::testRemove);
-    register_test("clear", TestInputBuffer::testClear);
-    register_test("kill", TestInputBuffer::testKill);
-    register_test("changePos", TestInputBuffer::testChangePos);
 }
 
 TestInputBuffer::~TestInputBuffer(void)
 {
+}
+
+bool
+TestInputBuffer::run_test(TestSpec spec, bool status)
+{
+    TEST_FN(spec, "construct", testConstruct());
+    TEST_FN(spec, "add", testAdd());
+    TEST_FN(spec, "remove", testRemove());
+    TEST_FN(spec, "clear", testClear());
+    TEST_FN(spec, "kill", testKill());
+    TEST_FN(spec, "changePos", testChangePos());
+    return status;
 }
 
 void
@@ -121,7 +129,7 @@ TestInputBuffer::testChangePos(void)
     buf.kill();
     ASSERT_EQUAL("changePos", "räksmör", buf.str());
 
-    auto pos = buf.pos();
+    size_t pos = buf.pos();
     buf.changePos(-3);
     buf.changePos(3);
     ASSERT_EQUAL("changePos", pos, buf.pos());

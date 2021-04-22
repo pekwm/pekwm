@@ -62,6 +62,10 @@ public:
                                     that created this item. */
     };
 
+    typedef std::vector<Item*> item_vec;
+    typedef item_vec::iterator item_it;
+    typedef item_vec::const_iterator item_cit;
+
     PMenu(const std::string &title,
           const std::string &name, const std::string decor_name = "MENU",
           bool init = true);
@@ -85,8 +89,8 @@ public:
     virtual void loadTheme(void);
     // END - PDecor interface.
 
-    static PMenu *findMenu(Window win) {
-        auto it = _menu_map.find(win);
+    static inline PMenu *findMenu(Window win) {
+        std::map<Window, PMenu*>::iterator it = _menu_map.find(win);
         return (it != _menu_map.end()) ? it->second : 0;
     }
 
@@ -115,15 +119,9 @@ public:
     void buildMenu(void);
 
     inline uint size(void) const { return _items.size(); }
-    std::vector<PMenu::Item*>::iterator m_begin_non_const(void) {
-        return _items.begin();
-    }
-    std::vector<PMenu::Item*>::const_iterator m_begin(void) {
-        return _items.begin();
-    }
-    std::vector<PMenu::Item*>::const_iterator m_end(void) {
-        return _items.end();
-    }
+    item_it m_begin_non_const(void) { return _items.begin(); }
+    item_cit m_begin(void) { return _items.begin(); }
+    item_cit m_end(void) { return _items.end(); }
 
     inline MenuType getMenuType(void) const { return _menu_type; }
 
@@ -175,8 +173,8 @@ protected:
 
 private:
     // menu content data
-    std::vector<PMenu::Item*> _items;
-    std::vector<PMenu::Item*>::size_type _item_curr;
+    item_vec _items;
+    item_vec::size_type _item_curr;
 
     PWinObj *_menu_wo;
     PDecor::TitleItem _title;

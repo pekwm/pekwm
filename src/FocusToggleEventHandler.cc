@@ -37,7 +37,7 @@ FocusToggleEventHandler::notify(Observable *observable,
     {
         if (observation == &PWinObj::pwin_obj_deleted
             && observable == _fo_wo) {
-            TRACE("decor " << _fo_wo << " lost while moving");
+            P_TRACE("decor " << _fo_wo << " lost while moving");
             _fo_wo = nullptr;
         }
     }
@@ -59,9 +59,9 @@ FocusToggleEventHandler::initEventHandler(void)
 
     // find the focused window object
     if (PWinObj::isFocusedPWinObj(PWinObj::WO_CLIENT)) {
-        auto fo_wo = PWinObj::getFocusedPWinObj()->getParent();
+        PWinObj *fo_wo = PWinObj::getFocusedPWinObj()->getParent();
 
-        auto it(_menu->m_begin());
+        PMenu::item_cit it(_menu->m_begin());
         for (; it != _menu->m_end(); ++it) {
             if ((*it)->getWORef() == fo_wo) {
                 _menu->selectItem(it);
@@ -75,7 +75,7 @@ FocusToggleEventHandler::initEventHandler(void)
         _menu->buildMenu();
 
         Geometry head;
-        auto chs = pekwm::config()->getCurrHeadSelector();
+        CurrHeadSelector chs = pekwm::config()->getCurrHeadSelector();
         X11::getHeadInfo(X11Util::getCurrHead(chs), head);
         _menu->move(head.x + ((head.width - _menu->getWidth()) / 2),
                     head.y + ((head.height - _menu->getHeight()) / 2));
@@ -215,14 +215,21 @@ FocusToggleEventHandler::setFocusedWo(PWinObj *fo_wo)
 PMenu*
 FocusToggleEventHandler::createNextPrevMenu(void)
 {
-    auto menu = new PMenu(_mru ? "MRU Windows" : "Windows", "" /* name*/);
+    PMenu *menu = new PMenu(_mru ? "MRU Windows" : "Windows", "" /* name*/);
 
-    auto it = _mru ? Workspaces::mru_begin() : Frame::frame_begin();
-    auto end = _mru ? Workspaces::mru_end() : Frame::frame_end();
+    Frame::frame_cit it, end;
+    if (_mru) {
+        it = Workspaces::mru_begin();
+        end = Workspaces::mru_end();
+    } else {
+        it = Frame::frame_begin();
+        end = Frame::frame_end();
+    }
+
     for (; it != end; ++it) {
-        auto frame = *it;
+        Frame *frame = *it;
         if (createMenuInclude(frame, _show_iconified)) {
-            auto client = static_cast<Client*>(frame->getActiveChild());
+            Client *client = static_cast<Client*>(frame->getActiveChild());
             menu->insert(client->getTitle()->getVisible(), ActionEvent(),
                          frame, client->getIcon());
         }

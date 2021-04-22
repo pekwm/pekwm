@@ -10,9 +10,9 @@
 
 #include "config.h"
 
+#include "Compat.hh"
 #include "Types.hh"
 
-#include <array>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -23,12 +23,12 @@ extern "C" {
 #include <X11/Xatom.h>
 #include <X11/keysym.h>
 #include <X11/keysymdef.h>
-#ifdef HAVE_XINERAMA
+#ifdef PEKWM_HAVE_XINERAMA
 #include <X11/extensions/Xinerama.h>
-#endif // HAVE_XINERAMA
-#ifdef HAVE_SHAPE
+#endif // PEKWM_HAVE_XINERAMA
+#ifdef PEKWM_HAVE_SHAPE
 #include <X11/extensions/shape.h>
-#else // ! HAVE_SHAPE
+#else // ! PEKWM_HAVE_SHAPE
 #define ShapeSet 0
 #define ShapeIntersect 2
 
@@ -36,7 +36,7 @@ extern "C" {
 #define ShapeInput 2
 
 #define ShapeNotifyMask 1
-#endif // HAVE_SHAPE
+#endif // PEKWM_HAVE_SHAPE
 
 extern bool xerrors_ignore; /**< If true, ignore X errors. */
 extern unsigned int xerrors_count; /**< Number of X errors occured. */
@@ -160,6 +160,7 @@ enum ButtonNum {
  * Keep in sync with BorderPosition in pekwm.hh
  */
 enum CursorType {
+    CURSOR_0 = 0,
     CURSOR_TOP_LEFT = 0,
     CURSOR_TOP_RIGHT,
     CURSOR_BOTTOM_LEFT,
@@ -761,7 +762,7 @@ public:
         }
     }
 
-#ifdef HAVE_SHAPE
+#ifdef PEKWM_HAVE_SHAPE
     static void shapeSelectInput(Window window, ulong mask) {
         if (_dpy) {
             XShapeSelectInput(_dpy, window, mask);
@@ -797,7 +798,7 @@ public:
         int ordering;
         return XShapeGetRectangles(_dpy, win, kind, num, &ordering);
     }
-#else // ! HAVE_SHAPE
+#else // ! PEKWM_HAVE_SHAPE
     static void shapeSelectInput(Window window, ulong mask) { }
 
     static void shapeQuery(Window dst, int *bshaped) {
@@ -821,7 +822,7 @@ public:
         num = 0;
         return nullptr;
     }
-#endif // HAVE_SHAPE
+#endif // PEKWM_HAVE_SHAPE
 
 protected:
     static int parseGeometryVal(const char *c_str, const char *e_end,
@@ -885,10 +886,10 @@ private:
     static Window _last_click_id;
     static Time _last_click_time[BUTTON_NO - 1];
 
-    static std::array<Cursor, CURSOR_NONE> _cursor_map;
+    static Cursor _cursor_map[CURSOR_NONE];
 
     class ColorEntry;
-    static std::vector<ColorEntry *> _colours;
+    static std::vector<ColorEntry*> _colors;
     static XColor _xc_default; // when allocating fails
 
     static Atom _atoms[MAX_NR_ATOMS];

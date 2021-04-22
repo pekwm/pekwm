@@ -22,19 +22,19 @@ public:
     virtual ~MoveEventHandler(void);
 
     virtual void notify(Observable *observable,
-                        Observation *observation) override;
-    virtual bool initEventHandler(void) override;
+                        Observation *observation);
+    virtual bool initEventHandler(void);
 
     virtual EventHandler::Result
-    handleButtonPressEvent(XButtonEvent*) override;
+    handleButtonPressEvent(XButtonEvent*);
     virtual EventHandler::Result
-    handleButtonReleaseEvent(XButtonEvent*) override;
+    handleButtonReleaseEvent(XButtonEvent*);
     virtual EventHandler::Result
-    handleExposeEvent(XExposeEvent*) override;
+    handleExposeEvent(XExposeEvent*);
     virtual EventHandler::Result
-    handleKeyEvent(XKeyEvent*) override;
+    handleKeyEvent(XKeyEvent*);
     virtual EventHandler::Result
-    handleMotionNotifyEvent(XMotionEvent *ev) override;
+    handleMotionNotifyEvent(XMotionEvent *ev);
 
 private:
     EventHandler::Result stopMove(void);

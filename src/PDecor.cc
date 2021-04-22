@@ -69,12 +69,12 @@ PDecor::Button::~Button(void)
 ActionEvent*
 PDecor::Button::findAction(XButtonEvent *ev)
 {
-    auto it(_data->begin());
+    std::vector<ActionEvent>::iterator it = _data->begin();
     for (; it != _data->end(); ++it) {
         if (it->mod == ev->state && it->sym == ev->button)
             return &*it;
     }
-    return 0;
+    return nullptr;
 }
 
 //! @brief Sets the state of the button
@@ -90,13 +90,13 @@ PDecor::Button::setState(ButtonState state)
         _state = state;
     }
 
-    auto tex = _data->getTexture(state);
+    PTexture *tex = _data->getTexture(state);
     if (tex) {
         tex->setBackground(_window, 0, 0, _gm.width, _gm.height);
 
         if (X11::hasExtensionShape() && _data->setShape()) {
             bool need_free;
-            auto shape = tex->getMask(0, 0, need_free);
+            Pixmap shape = tex->getMask(0, 0, need_free);
             if (shape != None) {
                 X11::shapeSetMask(_window, ShapeBounding, shape);
                 if (need_free) {
@@ -302,10 +302,10 @@ PDecor::createTitle(CreateWindowParams &params)
 {
     params.attr.event_mask = ButtonPressMask|ButtonReleaseMask|
         ButtonMotionMask|EnterWindowMask;
-    auto title = X11::createWindow(_window,
-                                   bdLeft(this), bdTop(this), 1, 1, 0,
-                                   params.depth, InputOutput, params.visual,
-                                   params.mask, &params.attr);
+    Window title = X11::createWindow(_window,
+                                     bdLeft(this), bdTop(this), 1, 1, 0,
+                                     params.depth, InputOutput, params.visual,
+                                     params.mask, &params.attr);
     _title_wo.setWindow(title);
     addChildWindow(_title_wo.getWindow());
     _title_wo.mapWindow();
@@ -366,8 +366,10 @@ PDecor::mapWindow(void)
 {
     if (! _mapped) {
         PWinObj::mapWindow();
-        for_each(_children.begin(), _children.end(),
-                 std::mem_fn(&PWinObj::mapWindow));
+        std::vector<PWinObj*>::iterator it = _children.begin();
+        for (; it != _children.end(); ++it) {
+            (*it)->mapWindow();
+        }
     }
 }
 
@@ -389,12 +391,13 @@ void
 PDecor::unmapWindow(void)
 {
     if (_mapped) {
-        if (_iconified) {
-            for_each(_children.begin(), _children.end(),
-                     std::mem_fn(&PWinObj::iconify));
-        } else {
-            for_each(_children.begin(), _children.end(),
-                     std::mem_fn(&PWinObj::unmapWindow));
+        std::vector<PWinObj*>::iterator it = _children.begin();
+        for (; it != _children.end(); ++it) {
+            if (_iconified) {
+                (*it)->iconify();
+            } else {
+                (*it)->unmapWindow();
+            }
         }
         PWinObj::unmapWindow();
     }
@@ -569,15 +572,16 @@ PDecor::setWorkspace(uint workspace)
 {
     if (workspace != NET_WM_STICKY_WINDOW) {
         if (workspace >= Workspaces::size()) {
-            LOG("this == " << this << " workspace == " << workspace
-                << " >= number of workspaces == " << Workspaces::size());
+            P_LOG("this == " << this << " workspace == " << workspace
+                  << " >= number of workspaces == " << Workspaces::size());
             workspace = Workspaces::size() - 1;
         }
         _workspace = workspace;
     }
 
-    for (auto it : _children) {
-        it->setWorkspace(workspace);
+    std::vector<PWinObj*>::iterator it = _children.begin();
+    for (; it != _children.end(); ++it) {
+        (*it)->setWorkspace(workspace);
     }
 
     if (! _mapped && ! _iconified) {
@@ -596,7 +600,7 @@ PDecor::giveInputFocus(void)
     if (_mapped && _child) {
         _child->giveInputFocus();
     } else {
-        LOG("this == " << this << " - reverting to root");
+        P_LOG("this == " << this << " - reverting to root");
         PWinObj::getRootPWinObj()->giveInputFocus();
     }
 }
@@ -630,7 +634,7 @@ PDecor::handleButtonPress(XButtonEvent *ev)
             X11::allowEvents(ReplayPointer, CurrentTime);
         }
 
-        auto cfg = pekwm::config();
+        Config *cfg = pekwm::config();
         if (ev->window == _child->getWindow()
             || (ev->state == 0 && ev->subwindow == _child->getWindow())) {
             // Clicks on the child window
@@ -712,7 +716,7 @@ PDecor::handleButtonRelease(XButtonEvent *ev)
         }
 
         // clicks on the child window
-        auto cfg = pekwm::config();
+        Config *cfg = pekwm::config();
         if (ev->window == _child->getWindow()
             || (ev->state == 0 && ev->subwindow == _child->getWindow())) {
             // NOTE: If the we're matching against the subwindow we need to make
@@ -785,7 +789,8 @@ ActionEvent*
 PDecor::handleMotionEvent(XMotionEvent *ev)
 {
     uint button = X11::getButtonFromState(ev->state);
-    auto malo = pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_OTHER);
+    std::vector<ActionEvent> *malo =
+        pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_OTHER);
     return ActionHandler::findMouseAction(button, ev->state,
                                           MOUSE_EVENT_MOTION, malo);
 }
@@ -802,7 +807,8 @@ PDecor::handleEnterEvent(XCrossingEvent *ev)
         button->setState(BUTTON_STATE_HOVER);
     }
 
-    auto malo = pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_OTHER);
+    std::vector<ActionEvent> *malo =
+        pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_OTHER);
     return ActionHandler::findMouseAction(BUTTON_ANY, ev->state,
                                           MOUSE_EVENT_ENTER, malo);
 }
@@ -819,7 +825,8 @@ PDecor::handleLeaveEvent(XCrossingEvent *ev)
         button->setState(button->getState());
     }
 
-    auto malo = pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_OTHER);
+    std::vector<ActionEvent> *malo =
+        pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_OTHER);
     return ActionHandler::findMouseAction(BUTTON_ANY, ev->state,
                                           MOUSE_EVENT_LEAVE, malo);
 }
@@ -847,11 +854,11 @@ void
 PDecor::addDecor(PDecor *decor)
 {
     if (this == decor) {
-        LOG("this == decor (" << this << ")");
+        P_LOG("this == decor (" << this << ")");
         return;
     }
 
-    auto it(decor->begin());
+    std::vector<PWinObj*>::const_iterator it = decor->begin();
     for (; it != decor->end(); ++it) {
         addChild(*it);
         (*it)->setWorkspace(_workspace);
@@ -908,10 +915,15 @@ PDecor::loadDecor(void)
     setDataFromDecorName(_decor_name);
 
     // Load decor.
-    auto b_it(_data->buttonBegin());
+    std::vector<Theme::PDecorButtonData*>::const_iterator b_it =
+        _data->buttonBegin();
     for (; b_it != _data->buttonEnd(); ++b_it) {
-        uint width = std::max(static_cast<uint>(1), (*b_it)->getWidth() ? (*b_it)->getWidth() : titleHeight(this));
-        uint height = std::max(static_cast<uint>(1), (*b_it)->getHeight() ? (*b_it)->getHeight() : titleHeight(this));
+        uint width = std::max(static_cast<uint>(1),
+                              (*b_it)->getWidth()
+                              ? (*b_it)->getWidth() : titleHeight(this));
+        uint height = std::max(static_cast<uint>(1),
+                               (*b_it)->getHeight()
+                               ? (*b_it)->getHeight() : titleHeight(this));
 
         _buttons.push_back(new PDecor::Button(&_title_wo, *b_it, width, height));
         _buttons.back()->mapWindow();
@@ -934,8 +946,9 @@ PDecor::loadDecor(void)
     }
 
     // Update child positions.
-    for (auto c_it : _children) {
-        alignChild(c_it);
+    std::vector<PWinObj*>::iterator c_it = _children.begin();
+    for (; c_it != _children.end(); ++c_it) {
+        alignChild(*c_it);
     }
 
     // Make sure it gets rendered correctly.
@@ -961,7 +974,7 @@ PDecor::setDataFromDecorName(const std::string &decor_name)
         _data = pekwm::theme()->getPDecorData(DEFAULT_DECOR_NAME);
     }
     setData(_data);
-    LOG_IF(!_data, "_data == 0");
+    P_LOG_IF(!_data, "_data == 0");
 }
 
 //! @brief Frees resources used by PDecor.
@@ -972,9 +985,10 @@ PDecor::unloadDecor(void)
     // the current buttons.
     _button = 0;
 
-    for (auto it : _buttons) {
-        removeChildWindow(it->getWindow());
-        delete it;
+    std::vector<PDecor::Button*>::iterator it = _buttons.begin();
+    for (; it != _buttons.end(); ++it) {
+        removeChildWindow((*it)->getWindow());
+        delete *it;
     }
     _buttons.clear();
 }
@@ -982,12 +996,13 @@ PDecor::unloadDecor(void)
 PDecor::Button*
 PDecor::findButton(Window win)
 {
-    for (auto it : _buttons) {
-        if (*it == win) {
-            return it;
+    std::vector<PDecor::Button*>::iterator it = _buttons.begin();
+    for (; it != _buttons.end(); ++it) {
+        if (*(*it) == win) {
+            return *it;
         }
     }
-    return 0;
+    return nullptr;
 }
 
 /**
@@ -1155,10 +1170,11 @@ PDecor::removeChild(PWinObj *child, bool do_delete)
                     _gm.x + bdLeft(this),
                     _gm.y + bdTop(this) + titleHeight(this));
 
-    auto it(find(_children.begin(), _children.end(), child));
+    std::vector<PWinObj*>::iterator it
+        = find(_children.begin(), _children.end(), child);
     if (it == _children.end()) {
-        LOG("this == " << this << " child == " << child
-            << " - child not in _child_list, bailing out");
+        P_LOG("this == " << this << " child == " << child
+              << " - child not in _child_list, bailing out");
         return;
     }
 
@@ -1207,8 +1223,8 @@ void
 PDecor::activateChildNum(uint num)
 {
     if (num >= _children.size()) {
-        LOG("this == " << this << " num == " << num
-             << " >= _children.size() == " << _children.size());
+        P_LOG("this == " << this << " num == " << num
+              << " >= _children.size() == " << _children.size());
         return;
     }
 
@@ -1251,7 +1267,7 @@ PDecor::moveChildRel(int off)
 
     if (idx == size) {
         if (_children.empty()) {
-            ERR("_children is empty! off == " << off << " Please report.");
+            P_ERR("_children is empty! off == " << off << " Please report.");
             return;
         }
         _child = _children.front();
@@ -1349,11 +1365,11 @@ PDecor::renderTitle(void)
         calcTabsWidth();
     }
 
-    auto t_sep = _data->getTextureSeparator(getFocusedState(false));
-    auto title_bg = X11::createPixmap(_title_wo.getWidth(),
-                                      _title_wo.getHeight());
+    PTexture *t_sep = _data->getTextureSeparator(getFocusedState(false));
+    Pixmap title_bg = X11::createPixmap(_title_wo.getWidth(),
+                                        _title_wo.getHeight());
     // Render main background on pixmap
-    auto t_main = _data->getTextureMain(getFocusedState(false));
+    PTexture *t_main = _data->getTextureMain(getFocusedState(false));
     t_main->render(title_bg, 0, 0,
                    _title_wo.getWidth(), _title_wo.getHeight());
 
@@ -1368,14 +1384,14 @@ PDecor::renderTitle(void)
         sel = (_title_active == i);
 
         // render tab
-        auto tab = _data->getTextureTab(getFocusedState(sel));
+        PTexture *tab = _data->getTextureTab(getFocusedState(sel));
         tab->render(title_bg, x, 0,
                     _titles[i]->getWidth(), _title_wo.getHeight());
 
         font = getFont(getFocusedState(sel));
         font->setColor(_data->getFontColor(getFocusedState(sel)));
 
-        auto trim = PFont::FONT_TRIM_MIDDLE;
+        PFont::TrimType trim = PFont::FONT_TRIM_MIDDLE;
         if (_titles[i]->isCustom() || _titles[i]->isUserSet()) {
             trim = PFont::FONT_TRIM_END;
         }
@@ -1405,8 +1421,10 @@ PDecor::renderTitle(void)
 void
 PDecor::renderButtons(void)
 {
-    for (auto it : _buttons) {
-        it->setState(_focused ? BUTTON_STATE_FOCUSED : BUTTON_STATE_UNFOCUSED);
+    std::vector<PDecor::Button*>::iterator it = _buttons.begin();
+    for (; it != _buttons.end(); ++it) {
+        (*it)->setState(_focused
+                        ? BUTTON_STATE_FOCUSED : BUTTON_STATE_UNFOCUSED);
     }
 }
 
@@ -1420,7 +1438,7 @@ PDecor::renderBorder(void)
     uint width, height;
     FocusedState state = getFocusedState(false);
     for (int i=0; i < BORDER_NO_POS; ++i) {
-        auto tex =
+        PTexture *tex =
             _data->getBorderTexture(state, static_cast<BorderPosition>(i));
         getBorderSize(static_cast<BorderPosition>(i), width, height);
         tex->setBackground(_border_win[i], 0, 0, width, height);
@@ -1432,7 +1450,7 @@ PDecor::renderBorder(void)
 void
 PDecor::setBorderShape(void)
 {
-#ifdef HAVE_SHAPE
+#ifdef PEKWM_HAVE_SHAPE
     Pixmap pix;
     bool do_free;
     unsigned int width, height;
@@ -1460,13 +1478,13 @@ PDecor::setBorderShape(void)
             X11::shapeSetRect(_border_win[i], &rect);
         }
     }
-#endif // HAVE_SHAPE
+#endif // PEKWM_HAVE_SHAPE
 }
 
 void
 PDecor::checkSnap(PWinObj *skip_wo, Geometry &gm)
 {
-    auto cfg = pekwm::config();
+    Config *cfg = pekwm::config();
     if (cfg->getWOAttract() > 0 || cfg->getWOResist() > 0) {
         checkWOSnap(skip_wo, gm);
     }
@@ -1503,7 +1521,7 @@ PDecor::checkWOSnap(PWinObj *skip_wo, Geometry &gm)
 
     bool snapped;
 
-    auto it = _wo_list.rbegin();
+    std::vector<PWinObj*>::reverse_iterator it = _wo_list.rbegin();
     for (; it != _wo_list.rend(); ++it) {
         if (((*it) == skip_wo)
             || ! (*it)->isMapped()
@@ -1608,13 +1626,14 @@ PDecor::placeButtons(void)
     _titles_left = 0;
     _titles_right = 0;
 
-    for (auto it : _buttons) {
-        if (it->isLeft()) {
-            it->move(_titles_left, 0);
-            _titles_left += it->getWidth();
+    std::vector<PDecor::Button*>::iterator it = _buttons.begin();
+    for (; it != _buttons.end(); ++it) {
+        if ((*it)->isLeft()) {
+            (*it)->move(_titles_left, 0);
+            _titles_left += (*it)->getWidth();
         } else {
-            _titles_right += it->getWidth();
-            it->move(_title_wo.getWidth() - _titles_right, 0);
+            _titles_right += (*it)->getWidth();
+            (*it)->move(_title_wo.getWidth() - _titles_right, 0);
         }
     }
 }
@@ -1698,7 +1717,7 @@ PDecor::placeBorder(void)
     applyBorderShape();
 }
 
-#ifdef HAVE_SHAPE
+#ifdef PEKWM_HAVE_SHAPE
 /**
  * Apply shaping on the window based on the shape of the client and
  * the borders.
@@ -1722,9 +1741,9 @@ PDecor::applyBorderShape(int kind)
 void
 PDecor::applyBorderShapeNormal(int kind, bool client_shape)
 {
-    auto shape = X11::createSimpleWindow(X11::getRoot(),
-                                         0, 0, _gm.width, _gm.height,
-                                         0, 0, 0);
+    Window shape = X11::createSimpleWindow(X11::getRoot(),
+                                           0, 0, _gm.width, _gm.height,
+                                           0, 0, 0);
     if (_child) {
         X11::shapeCombine(shape, kind,
                           bdLeft(this), bdTop(this) + titleHeight(this),
@@ -1824,7 +1843,7 @@ PDecor::applyBorderShapeBorder(int kind, Window shape)
                           ShapeUnion);
     }
 }
-#endif // HAVE_SHAPE
+#endif // PEKWM_HAVE_SHAPE
 
 //! @brief Restacks child, title and border windows.
 void
@@ -1907,7 +1926,7 @@ PDecor::getBorderSize(BorderPosition pos, uint &width, uint &height)
         }
         break;
     default:
-        LOG("this == " << this << " - invalid border position");
+        P_LOG("this == " << this << " - invalid border position");
         width = 1;
         height = 1;
         break;
@@ -1943,8 +1962,9 @@ PDecor::calcTitleWidthDynamic(void)
 
     if (_data->isTitleWidthSymetric()) {
         // Symetric mode, get max tab width, multiply with number of tabs
-        for (auto it : _titles ){
-            width = font->getWidth(it->getVisible());
+        std::vector<PDecor::TitleItem*>::iterator it = _titles.begin();
+        for (; it != _titles.end(); ++it) {
+            width = font->getWidth((*it)->getVisible());
             if (width > width_max) {
                 width_max = width;
             }
@@ -1955,8 +1975,9 @@ PDecor::calcTitleWidthDynamic(void)
 
     } else {
         // Asymetric mode, get individual widths
-        for (auto it : _titles) {
-            width += font->getWidth(it->getVisible())
+        std::vector<PDecor::TitleItem*>::iterator it = _titles.begin();
+        for (; it != _titles.end(); ++it) {
+            width += font->getWidth((*it)->getVisible())
                 + _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT);
         }
     }
@@ -2011,7 +2032,7 @@ PDecor::calcTabsGetAvailAndTabWidth(uint &width_avail, uint &tab_width, int &off
     if (width_avail > (_titles_left + _titles_right)) {
         width_avail -= _titles_left + _titles_right;
     }
- 
+
     // Remove separators if enough space is available
     uint sep_width = (_titles.size() - 1)
         * _data->getTextureSeparator(getFocusedState(false))->getWidth();
@@ -2032,8 +2053,9 @@ PDecor::calcTabsWidthSymetric(void)
     calcTabsGetAvailAndTabWidth(width_avail, tab_width, off);
 
     // Assign width to elements
-    for (auto it : _titles) {
-        it->setWidth(tab_width + ((off-- > 0) ? 1 : 0));
+    std::vector<PDecor::TitleItem*>::iterator it = _titles.begin();
+    for (; it != _titles.end(); ++it) {
+        (*it)->setWidth(tab_width + ((off-- > 0) ? 1 : 0));
     }
 }
 
@@ -2058,12 +2080,13 @@ PDecor::calcTabsWidthAsymetric(void)
 
     // 1. give tabs their required width.
     uint width_total = 0;
-    for (auto it : _titles) {
+    std::vector<PDecor::TitleItem*>::iterator it = _titles.begin();
+    for (; it != _titles.end(); ++it) {
         // This should set the tab width to be only the size needed
-        width = font->getWidth(it->getVisible().c_str())
+        width = font->getWidth((*it)->getVisible().c_str())
             + _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT) + ((off-- > 0) ? 1 : 0);
         width_total += width;
-        it->setWidth(width);
+        (*it)->setWidth(width);
     }
 
     if (width_total > width_avail) {
@@ -2082,20 +2105,21 @@ PDecor::calcTabsWidthAsymetricShrink(uint width_avail, uint tab_width)
 {
     // 2. Tabs did not fit
     uint tabs_left = _titles.size();
-    for (auto it : _titles) {
-        if (it->getWidth() < tab_width) {
+    std::vector<PDecor::TitleItem*>::iterator it = _titles.begin();
+    for (; it != _titles.end(); ++it) {
+        if ((*it)->getWidth() < tab_width) {
             // 3. Add width of tabs requiring less space to the average.
             tabs_left--;
-            width_avail -= it->getWidth();
+            width_avail -= (*it)->getWidth();
         }
     }
 
     // 4. Re-assign width equally to tabs using more than average
     tab_width = width_avail / tabs_left;
     uint off = width_avail % tabs_left;
-    for (auto it : _titles) {
-        if (it->getWidth() >= tab_width) {
-            it->setWidth(tab_width + ((off-- > 0) ? 1 : 0));
+    for (it = _titles.begin(); it != _titles.end(); ++it) {
+        if ((*it)->getWidth() >= tab_width) {
+            (*it)->setWidth(tab_width + ((off-- > 0) ? 1 : 0));
         }
     }
 }

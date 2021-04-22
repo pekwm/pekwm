@@ -39,7 +39,7 @@ KeyboardMoveResizeEventHandler::notify(Observable *observable,
 {
     if (observation == &PWinObj::pwin_obj_deleted
         && observable == _decor) {
-        TRACE("decor" << _decor << " lost while keyboard move/resize");
+        P_TRACE("decor" << _decor << " lost while keyboard move/resize");
         _decor = nullptr;
     }
 }
@@ -101,16 +101,17 @@ KeyboardMoveResizeEventHandler::handleKeyEvent(XKeyEvent *ev)
         return EventHandler::EVENT_PROCESSED;
     }
 
-    auto res = EventHandler::EVENT_PROCESSED;
-    auto ae = _key_grabber->findMoveResizeAction(ev);
+    EventHandler::Result res = EventHandler::EVENT_PROCESSED;
+    ActionEvent *ae = _key_grabber->findMoveResizeAction(ev);
     if (ae == nullptr) {
         return res;
     }
 
     drawOutline(); // clear previous draw
 
-    for (auto it : ae->action_list) {
-        res = runMoveResizeAction(it);
+    ActionEvent::it it = ae->action_list.begin();
+    for (; it != ae->action_list.end(); ++it) {
+        res = runMoveResizeAction(*it);
         if (res == EventHandler::EVENT_STOP_PROCESSED) {
             break;
         }
@@ -221,7 +222,7 @@ KeyboardMoveResizeEventHandler::updateStatusWindow(bool map)
         char buf[128];
         _decor->getDecorInfo(buf, 128, _gm);
 
-        auto sw = pekwm::statusWindow();
+        StatusWindow *sw = pekwm::statusWindow();
         if (map) {
             // draw before map to avoid resize right after the
             // window is mapped.

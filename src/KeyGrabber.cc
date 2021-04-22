@@ -38,8 +38,9 @@ KeyGrabber::Chain::~Chain(void)
 void
 KeyGrabber::Chain::unload(void)
 {
-    for (auto it : _chains) {
-        delete it;
+    std::vector<Chain*>::iterator it = _chains.begin();
+    for (; it != _chains.end(); ++it) {
+        delete *it;
     }
     _chains.clear();
     _keys.clear();
@@ -49,20 +50,21 @@ KeyGrabber::Chain::unload(void)
 KeyGrabber::Chain*
 KeyGrabber::Chain::findChain(XKeyEvent *ev, bool &matched)
 {
-    for (auto it : _chains) {
-        if (((it->getMod() == MOD_ANY) || (it->getMod() == ev->state)) &&
-                ((it->getKey() == 0) || (it->getKey() == ev->keycode))) {
-            return it;
+    std::vector<Chain*>::iterator it = _chains.begin();
+    for (; it != _chains.end(); ++it) {
+        if ((((*it)->getMod() == MOD_ANY) || ((*it)->getMod() == ev->state)) &&
+                (((*it)->getKey() == 0) || ((*it)->getKey() == ev->keycode))) {
+            return *it;
         }
     }
-    return 0;
+    return nullptr;
 }
 
 //! @brief Searches the _keys list for an action
 ActionEvent*
 KeyGrabber::Chain::findAction(XKeyEvent *ev, bool &matched)
 {
-    auto it = _keys.begin();
+    std::vector<ActionEvent>::iterator it = _keys.begin();
     for (; it != _keys.end(); ++it) {
         if ((it->mod == MOD_ANY || it->mod == ev->state)
             && (it->sym == 0 || it->sym == ev->keycode)) {
@@ -104,7 +106,7 @@ KeyGrabber::load(const std::string &file, bool force)
         _cfg_files.clear();
         if (! key_cfg.parse(SYSCONFDIR "/keys", CfgParserSource::SOURCE_FILE,
                             true)) {
-            ERR("no keyfile at " << file << " or " << SYSCONFDIR "/keys");
+            P_ERR("no keyfile at " << file << " or " << SYSCONFDIR "/keys");
             return false;
         }
     }
@@ -158,7 +160,7 @@ KeyGrabber::parseGlobalChain(CfgParser::Entry *section, KeyGrabber::Chain *chain
     ActionEvent ae;
     uint key, mod;
 
-    auto it(section->begin());
+    CfgParser::Entry::entry_cit it(section->begin());
     for (; it != section->end(); ++it) {
         if ((*it)->getSection() && *(*it) == "CHAIN") {
             // Figure out mod and key, create a new chain.
@@ -180,7 +182,7 @@ KeyGrabber::parseMoveResizeChain(CfgParser::Entry *section, KeyGrabber::Chain *c
     ActionEvent ae;
     uint key, mod;
 
-    CfgParser::iterator it(section->begin());
+    CfgParser::Entry::entry_cit it(section->begin());
     for (; it != section->end(); ++it) {
         if ((*it)->getSection() && *(*it) == "CHAIN") {
             // Figure out mod and key, create a new chain.
@@ -202,7 +204,7 @@ KeyGrabber::parseInputDialogChain(CfgParser::Entry *section, KeyGrabber::Chain *
     ActionEvent ae;
     uint key, mod;
 
-    CfgParser::iterator it(section->begin());
+    CfgParser::Entry::entry_cit it(section->begin());
     for (; it != section->end(); ++it) {
         if ((*it)->getSection() && *(*it) == "CHAIN") {
             // Figure out mod and key, create a new chain.
@@ -224,7 +226,7 @@ KeyGrabber::parseMenuChain(CfgParser::Entry *section, KeyGrabber::Chain *chain)
     ActionEvent ae;
     uint key, mod;
 
-    CfgParser::iterator it(section->begin());
+    CfgParser::Entry::entry_cit it(section->begin());
     for (; it != section->end(); ++it) {
         if ((*it)->getSection() && *(*it) == "CHAIN") {
             // Figure out mod and key, create a new chain.
@@ -244,14 +246,14 @@ KeyGrabber::parseMenuChain(CfgParser::Entry *section, KeyGrabber::Chain *chain)
 void
 KeyGrabber::grabKeys(Window win)
 {
-    auto chains = _global_chain.getChains();
-    auto c_it = chains.begin();
+    const std::vector<Chain*> &chains = _global_chain.getChains();
+    std::vector<Chain*>::const_iterator c_it = chains.begin();
     for (; c_it != chains.end(); ++c_it) {
         grabKey(win, (*c_it)->getMod(), (*c_it)->getKey());
     }
 
-    auto keys = _global_chain.getKeys();
-    auto k_it = keys.begin();
+    const std::vector<ActionEvent> &keys = _global_chain.getKeys();
+    std::vector<ActionEvent>::const_iterator k_it = keys.begin();
     for (; k_it  != keys.end(); ++k_it) {
         grabKey(win, k_it->mod, k_it->sym);
     }
@@ -322,7 +324,7 @@ KeyGrabber::findAction(XKeyEvent *ev, KeyGrabber::Chain *chain, bool &matched)
                 XMaskEvent(X11::getDpy(), KeyPressMask, &c_ev);
                 X11::stripStateModifiers(&c_ev.xkey.state);
 
-                auto keysym = X11::getKeysymFromKeycode(c_ev.xkey.keycode);
+                KeySym keysym = X11::getKeysymFromKeycode(c_ev.xkey.keycode);
                 if (IsModifierKey(keysym)) {
                     // do nothing
                 } else  if ((last_chain = sub_chain->findChain(&c_ev.xkey,

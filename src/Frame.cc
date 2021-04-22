@@ -75,13 +75,17 @@ Frame::Frame(Client *client, AutoProperty *ap)
     _decor_cfg_bpr_al_child = MOUSE_ACTION_LIST_CHILD_FRAME;
 
     // grab buttons so that we can reply them
-    for (auto it : pekwm::config()->getClientMouseActionButtons()) {
-        if (it.button == BUTTON_ANY) {
+    const std::vector<BoundButton> &cmab =
+        pekwm::config()->getClientMouseActionButtons();
+    std::vector<BoundButton>::const_iterator it = cmab.begin();
+    for (; it != cmab.end(); ++it) {
+        if (it->button == BUTTON_ANY) {
             continue;
         }
 
-        for (auto mod : it.mods) {
-            X11Util::grabButton(it.button, mod,
+        std::vector<uint>::const_iterator mit = it->mods.begin();
+        for (; mit != it->mods.end(); ++mit) {
+            X11Util::grabButton(it->button, *mit,
                                 ButtonPressMask|ButtonReleaseMask,
                                 _window, GrabModeSync);
         }
@@ -309,7 +313,8 @@ Frame::handleMotionEvent(XMotionEvent *ev)
             pos = getBorderPosition(ev->window);
         }
         if (pos != BORDER_NO_POS) {
-            auto *bl = pekwm::config()->getBorderListFromPosition(pos);
+            std::vector<ActionEvent> *bl =
+                pekwm::config()->getBorderListFromPosition(pos);
             ae = ActionHandler::findMouseAction(button, ev->state,
                                                 MOUSE_EVENT_MOTION, bl);
         }
@@ -336,7 +341,7 @@ Frame::handleEnterEvent(XCrossingEvent *ev)
 
     ActionEvent *ae = 0;
     std::vector<ActionEvent> *al = 0;
-    auto cfg = pekwm::config();
+    Config *cfg = pekwm::config();
 
     if (ev->window == getTitleWindow() || findButton(ev->window)) {
         al = cfg->getMouseActionList(MOUSE_ACTION_LIST_TITLE_FRAME);
@@ -384,7 +389,7 @@ Frame::handleMapRequest(XMapRequestEvent *ev)
     }
 
     if (! _sticky && _workspace != Workspaces::getActive()) {
-        LOG("Ignoring MapRequest, not on current workspace!");
+        P_LOG("Ignoring MapRequest, not on current workspace!");
         return 0;
     }
 
@@ -396,19 +401,20 @@ Frame::handleMapRequest(XMapRequestEvent *ev)
 ActionEvent*
 Frame::handleUnmapEvent(XUnmapEvent *ev)
 {
-    for (auto it : _children) {
-        if (*it == ev->window) {
-            it->handleUnmapEvent(ev);
+    std::vector<PWinObj*>::iterator it = _children.begin();
+    for (; it != _children.end(); ++it) {
+        if (*(*it) == ev->window) {
+            (*it)->handleUnmapEvent(ev);
             break;
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 // END - PWinObj interface.
 
-#ifdef HAVE_SHAPE
+#ifdef PEKWM_HAVE_SHAPE
 void
 Frame::handleShapeEvent(XShapeEvent *ev)
 {
@@ -417,7 +423,7 @@ Frame::handleShapeEvent(XShapeEvent *ev)
     }
     applyBorderShape(ev->kind);
 }
-#endif // HAVE_SHAPE
+#endif // PEKWM_HAVE_SHAPE
 
 // START - PDecor interface.
 
@@ -461,7 +467,7 @@ void
 Frame::addChildOrdered(Client *child)
 {
     Client *client;
-    auto it(_children.begin());
+    std::vector<PWinObj*>::iterator it(_children.begin());
     for (; it != _children.end(); ++it) {
         client = static_cast<Client*>(*it);
         if (child->getInitialFrameOrder() < client->getInitialFrameOrder()) {
@@ -492,7 +498,7 @@ Frame::activateChild(PWinObj *child)
     // FIXME: Update default decoration for this child, can change
     // decoration from DEFAULT to REMOTE or WARNING
 
-    auto new_client = static_cast<Client*>(child);
+    Client *new_client = static_cast<Client*>(child);
     bool client_changed = _client != new_client;
     if (client_changed) {
         applyState(new_client);
@@ -536,7 +542,7 @@ Frame::updatedChildOrder(void)
     titleClear();
 
     Client *client;
-    auto it(_children.begin());
+    std::vector<PWinObj*>::iterator it(_children.begin());
     for (long num = 0; it != _children.end(); ++num, ++it) {
         client = static_cast<Client*>(*it);
         client->setPekwmFrameOrder(num);
@@ -622,7 +628,7 @@ Frame::resizeHorzStep(int diff) const
     if (min == 0) { // borderless windows, we don't want X errors
         min = 1;
     }
-    auto hints = _client->getActiveSizeHints();
+    XSizeHints hints = _client->getActiveSizeHints();
 
     // if we have ResizeInc hint set we use it instead of pixel diff
     if (hints.flags&PResizeInc) {
@@ -657,7 +663,7 @@ Frame::resizeVertStep(int diff) const
     if (min == 0) { // borderless windows, we don't want X errors
         min = 1;
     }
-    auto hints = _client->getActiveSizeHints();
+    XSizeHints hints = _client->getActiveSizeHints();
 
     // if we have ResizeInc hint set we use it instead of pixel diff
     if (hints.flags&PResizeInc) {
@@ -692,7 +698,7 @@ std::string
 Frame::getDecorName(void)
 {
     if (! demandAttention()) {
-        auto name = _client->getAPDecorName();
+        const std::string& name = _client->getAPDecorName();
         if (! name.empty()) {
             return name;
         }
@@ -707,8 +713,9 @@ void
 Frame::setId(uint id)
 {
     _id = id;
-    for (auto it : _children) {
-        X11::setCardinal(it->getWindow(), PEKWM_FRAME_ID, id);
+    std::vector<PWinObj*>::iterator it = _children.begin();
+    for (; it != _children.end(); ++it) {
+        X11::setCardinal((*it)->getWindow(), PEKWM_FRAME_ID, id);
     }
 }
 
@@ -817,12 +824,13 @@ Frame::findFrameFromWindow(Window win)
         return 0;
     }
 
-    for (auto it : _frames) {
-        if (win == it->getWindow()) { // operator == does more than that
-            return it;
+    frame_cit it = _frames.begin();
+    for (; it != _frames.end(); ++it) {
+        if (win == (*it)->getWindow()) { // operator == does more than that
+            return *it;
         }
     }
-    return 0;
+    return nullptr;
 }
 
 //! @brief Find Frame with id.
@@ -831,12 +839,13 @@ Frame::findFrameFromWindow(Window win)
 Frame*
 Frame::findFrameFromID(uint id)
 {
-    for (auto it : _frames) {
-        if (it->getId() == id) {
-            return it;
+    frame_cit it = _frames.begin();
+    for (; it != _frames.end(); ++it) {
+        if ((*it)->getId() == id) {
+            return *it;
         }
     }
-    return 0;
+    return nullptr;
 }
 
 void
@@ -855,7 +864,7 @@ Frame::setupAPGeometry(Client *client, AutoProperty *ap)
         if(ap->client_gm_mask&(WIDTH_VALUE|HEIGHT_VALUE)) {
             resizeChild(gm.width, gm.height);
         }
-        TRACE("applied ClientGeometry property "
+        P_TRACE("applied ClientGeometry property "
               << ap->client_gm << " -> " << gm);
     }
 
@@ -865,7 +874,7 @@ Frame::setupAPGeometry(Client *client, AutoProperty *ap)
         Geometry gm(_gm);
         applyGeometry(gm, ap->frame_gm, ap->frame_gm_mask, screen_gm);
         moveResize(gm, ap->frame_gm_mask);
-        TRACE("applied FrameGeometry property "
+        P_TRACE("applied FrameGeometry property "
               << ap->frame_gm << " -> " << gm);
     }
 }
@@ -955,7 +964,7 @@ Frame::findFrameID(void)
 void
 Frame::returnFrameID(uint id)
 {
-    auto it(_frameid_list.begin());
+    std::vector<uint>::iterator it(_frameid_list.begin());
     for (; it != _frameid_list.end() && id < *it; ++it)
         ;
     _frameid_list.insert(it, id);
@@ -965,7 +974,7 @@ Frame::returnFrameID(uint id)
 void
 Frame::resetFrameIDs(void)
 {
-    auto it(_frames.begin());
+    frame_it it(_frames.begin());
     for (uint id = 1; it != _frames.end(); ++id, ++it) {
         (*it)->setId(id);
     }
@@ -1360,7 +1369,7 @@ Frame::recalcResizeDrag(int nx, int ny, bool left, bool top)
 
     _client->getAspectSize(&width, &height, width, height);
 
-    auto hints = _client->getActiveSizeHints();
+    XSizeHints hints = _client->getActiveSizeHints();
     // check so we aren't overriding min or max size
     if (hints.flags & PMinSize) {
         if (signed(width) < hints.min_width)
@@ -1482,10 +1491,11 @@ Frame::moveToEdge(OrientationType ori)
 void
 Frame::updateInactiveChildInfo(void)
 {
-    for (auto it : _children) {
-        if (it != _client) {
-            applyState(static_cast<Client*>(it));
-            it->resize(getChildWidth(), getChildHeight());
+    std::vector<PWinObj*>::iterator it = _children.begin();
+    for (; it != _children.end(); ++it) {
+        if ((*it) != _client) {
+            applyState(static_cast<Client*>(*it));
+            (*it)->resize(getChildWidth(), getChildHeight());
         }
     }
 }
@@ -1511,7 +1521,7 @@ Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
         }
     }
 
-    auto hints = _client->getActiveSizeHints();
+    XSizeHints hints = _client->getActiveSizeHints();
 
     Geometry head;
     pekwm::rootWo()->getHeadInfoWithEdge(X11Util::getNearestHead(*this), head);
@@ -1837,15 +1847,16 @@ Frame::getMaxBounds(int &max_x,int &max_r, int &max_y, int &max_b)
     f_r = getRX();
     f_b = getBY();
 
-    for (auto it : _frames) {
-        if (! it->isMapped()) {
+    frame_it it = _frames.begin();
+    for (; it != _frames.end(); ++it) {
+        if (! (*it)->isMapped()) {
             continue;
         }
 
-        x = it->getX();
-        y = it->getY();
-        r = it->getRX();
-        b = it->getBY();
+        x = (*it)->getX();
+        y = (*it)->getY();
+        r = (*it)->getRX();
+        b = (*it)->getBY();
 
         // update max borders when other frame border lies between
         // this border and prior max border (originally screen/head edge)
@@ -1873,7 +1884,7 @@ Frame::setGeometry(const std::string geometry, int head, bool honour_strut)
         return;
     }
 
-    auto screen_gm = X11::getScreenGeometry();
+    Geometry screen_gm = X11::getScreenGeometry();
     if (head != -1) {
         if (head == -2) {
             head = X11Util::getNearestHead(*this);
@@ -1925,8 +1936,9 @@ Frame::growDirection(uint direction)
 void
 Frame::close(void)
 {
-    for (auto it : _children) {
-        static_cast<Client*>(it)->close();
+    std::vector<PWinObj*>::iterator it = _children.begin();
+    for (; it != _children.end(); ++it) {
+        static_cast<Client*>(*it)->close();
     }
 }
 
@@ -1943,7 +1955,7 @@ Frame::readAutoprops(ApplyOn type)
     }
 
     _class_hint->title = _client->getTitle()->getReal();
-    auto data =
+    AutoProperty *data =
         pekwm::autoProperties()->findAutoProperty(_class_hint,
                                                   _workspace, type);
     _class_hint->title = "";
@@ -2035,7 +2047,7 @@ Frame::readAutoprops(ApplyOn type)
 void
 Frame::calcSizeInCells(uint &width, uint &height, const Geometry& gm)
 {
-    auto hints = _client->getActiveSizeHints();
+    XSizeHints hints = _client->getActiveSizeHints();
 
     if (hints.flags&PResizeInc) {
         int c_width = gm.width - bdLeft(this) - bdRight(this);
@@ -2101,7 +2113,7 @@ Frame::setGravityPosition(int gravity, int &x, int &y, int w, int h)
 void
 Frame::downSize(Geometry &gm, bool keep_x, bool keep_y)
 {
-    auto hints = _client->getActiveSizeHints();
+    XSizeHints hints = _client->getActiveSizeHints();
 
     // conform to width_inc
     if (hints.flags&PResizeInc) {

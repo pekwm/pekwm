@@ -27,8 +27,8 @@ isEmptySpace(int x, int y, const PWinObj* wo, std::vector<PWinObj*> &wvec)
 
     if (wvec.empty()) {
         // say that it's placed, now check if we are wrong!
-        auto it(Workspaces::begin());
-        auto end(Workspaces::end());
+        Workspaces::iterator it(Workspaces::begin());
+        Workspaces::iterator end(Workspaces::end());
         for (; it != end; ++it) {
             // Skip ourselves, non-mapped and desktop objects. Iconified means
             // skip placement.
@@ -244,7 +244,7 @@ WinLayouter::layout(Frame *frame, Window parent)
     // update pointer position cache, used in layout models.
     X11::getMousePosition(_ptr_x, _ptr_y);
 
-    auto chs = pekwm::config()->getCurrHeadSelector();
+    CurrHeadSelector chs = pekwm::config()->getCurrHeadSelector();
     int head_nr = X11Util::getCurrHead(chs);
     pekwm::rootWo()->getHeadInfoWithEdge(head_nr, _gm);
 

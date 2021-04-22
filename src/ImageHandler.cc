@@ -17,11 +17,11 @@ extern "C" {
 #include <assert.h>
 }
 
-static Util::StringMap<ImageType> image_type_map =
-    {{"", IMAGE_TYPE_NO},
-     {"TILED", IMAGE_TYPE_TILED},
+static Util::StringTo<ImageType> image_type_map[] =
+    {{"TILED", IMAGE_TYPE_TILED},
      {"SCALED", IMAGE_TYPE_SCALED},
-     {"FIXED", IMAGE_TYPE_FIXED}};
+     {"FIXED", IMAGE_TYPE_FIXED},
+     {nullptr, IMAGE_TYPE_NO}};
 
 ImageRefEntry::ImageRefEntry(const std::string& u_name, PImage* data)
     : _u_name(u_name),
@@ -59,13 +59,13 @@ ImageHandler::ImageHandler(void)
 ImageHandler::~ImageHandler(void)
 {
     if (! _images.empty()) {
-        ERR("ImageHandler not empty on destruct, " << _images.size()
+        P_ERR("ImageHandler not empty on destruct, " << _images.size()
             << " entries left");
 
         while (_images.size()) {
-            auto it = _images.end() - 1;
+            std::vector<ImageRefEntry>::iterator it = _images.end() - 1;
             if (it->get()) {
-                ERR("delete lost image " << it->getUName());
+                P_ERR("delete lost image " << it->getUName());
                 delete it->get();
             }
             _images.erase(it);
@@ -96,10 +96,10 @@ ImageHandler::getImage(const std::string &file, uint &ref,
     ImageType image_type = IMAGE_TYPE_TILED;
 
     // Split image in path # type parts.
-    auto pos = file.rfind('#');
+    size_t pos = file.rfind('#');
     if (std::string::npos != pos) {
         real_file = file.substr(0, pos);
-        image_type = image_type_map.get(file.substr(pos + 1));
+        image_type = Util::StringToGet(image_type_map, file.substr(pos + 1));
     }
 
     // Load the image, try load paths if not an absolute image path
@@ -110,9 +110,9 @@ ImageHandler::getImage(const std::string &file, uint &ref,
         Util::to_upper(u_real_file);
         image = getImageFromPath(real_file, u_real_file, ref, images);
     } else {
-        auto it(_search_path.rbegin());
+        std::vector<std::string>::reverse_iterator it(_search_path.rbegin());
         for (; it != _search_path.rend(); ++it) {
-            auto sp_real_file = *it + real_file;
+            std::string sp_real_file = *it + real_file;
             std::string u_sp_real_file(sp_real_file);
             Util::to_upper(u_sp_real_file);
             image = getImageFromPath(sp_real_file, u_sp_real_file, ref, images);
@@ -143,7 +143,7 @@ ImageHandler::getImageFromPath(const std::string &file,
                                std::vector<ImageRefEntry> &images)
 {
     // Check cache for entry.
-    auto it = images.begin();
+    std::vector<ImageRefEntry>::iterator it = images.begin();
     for (; it != images.end(); ++it) {
         if (it->getUName() == u_file) {
             ref = it->incRef();
@@ -180,7 +180,7 @@ ImageHandler::returnImage(PImage *image)
 void
 ImageHandler::takeOwnership(PImage *image)
 {
-    auto key = Util::to_string(static_cast<void*>(image));
+    std::string key = Util::to_string(static_cast<void*>(image));
     Util::to_upper(key);
     _images.push_back(ImageRefEntry(key, image));
 }
@@ -193,18 +193,20 @@ ImageHandler::getMappedImage(const std::string &file,
     Util::to_upper(u_colormap);
 
     // no color map present with that name, return no image
-    auto c_it = _color_maps.find(u_colormap);
+    std::map<std::string, std::map<int, int> >::iterator c_it =
+        _color_maps.find(u_colormap);
     if (c_it == _color_maps.end()) {
         return nullptr;
     }
 
-    auto i_it = _images_mapped.find(u_colormap);
+    std::map<std::string, std::vector<ImageRefEntry> >::iterator i_it =
+        _images_mapped.find(u_colormap);
     if (i_it == _images_mapped.end()) {
         _images_mapped[u_colormap] = std::vector<ImageRefEntry>();
     }
 
     uint ref;
-    auto image = getImage(file, ref, _images_mapped[u_colormap]);
+    PImage *image = getImage(file, ref, _images_mapped[u_colormap]);
     if (ref == 1) {
         // new image, requires color mapping.
         mapColors(image, _color_maps[u_colormap]);
@@ -222,7 +224,7 @@ ImageHandler::mapColors(PImage *image, const std::map<int,int> &color_map)
     int *p = reinterpret_cast<int*>(image->getData());
     int num_pixels = image->getWidth() * image->getHeight();
     for (; num_pixels; num_pixels--, p++) {
-        auto it = color_map.find(*p);
+        std::map<int, int>::const_iterator it = color_map.find(*p);
         if (it != color_map.end()) {
             *p = it->second;
         }
@@ -245,7 +247,7 @@ void
 ImageHandler::returnImage(PImage *image,
                           std::vector<ImageRefEntry> &images)
 {
-    auto it = images.begin();
+    std::vector<ImageRefEntry>::iterator it = images.begin();
     for (; it != images.end(); ++it) {
         if (it->get() == image) {
             if (it->decRef() == 0) {
@@ -256,7 +258,7 @@ ImageHandler::returnImage(PImage *image,
         }
     }
 
-    ERR("returned image " << image << " not found in handler");
+    P_ERR("returned image " << image << " not found in handler");
     delete image;
 }
 

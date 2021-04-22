@@ -55,7 +55,7 @@ PTexture::render(Render &rend,
             doRender(rend, x, y, width, height);
         } else {
             char *data = static_cast<char*>(malloc(width * height * 4));
-            auto ximage = X11::createImage(data, width, height);
+            XImage *ximage = X11::createImage(data, width, height);
             if (ximage) {
                 XImageRender x_rend(ximage);
                 doRender(x_rend, 0, 0, width, height);
@@ -84,7 +84,7 @@ PTexture::setBackground(Drawable draw,
         // set background pixel
         X11::setWindowBackground(draw, pixel);
     } else if (width > 0 && height > 0) {
-        auto pix = X11::createPixmap(width, height);
+        Pixmap pix = X11::createPixmap(width, height);
         render(pix, x, y, width, height);
         X11::setWindowBackgroundPixmap(draw, pix);
         X11::freePixmap(pix);
@@ -114,13 +114,13 @@ PTexture::renderOnBackground(XImage *ximage,
     }
 
     // read background pixmap for area
-    auto root_ximage = X11::getImage(pix, root_x, root_y, width, height,
-                                     AllPlanes, ZPixmap);
+    XImage *root_ximage = X11::getImage(pix, root_x, root_y, width, height,
+                                        AllPlanes, ZPixmap);
     if (root_ximage == nullptr) {
         return false;
     }
 
-    auto image = PImage(ximage, _opacity);
+    PImage image = PImage(ximage, _opacity);
     PImage::drawAlphaFixed(root_ximage, ximage, x, y, width, height,
                            image.getData());
     X11::destroyImage(root_ximage);

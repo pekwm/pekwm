@@ -230,6 +230,9 @@ private:
 
 class ActionEvent {
 public:
+    typedef std::vector<Action> action_vector;
+    typedef action_vector::const_iterator it;
+    
     ActionEvent(void);
     ActionEvent(Action action);
     ~ActionEvent(void);
@@ -241,7 +244,7 @@ public:
 
     uint mod, sym; // event matching
     uint type, threshold; // more matching, press, release etc
-    std::vector<Action> action_list;
+    action_vector action_list;
 };
 
 class ActionPerformed {

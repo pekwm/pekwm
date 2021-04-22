@@ -28,18 +28,18 @@ static void usage(const char* name, int ret)
 static void
 jsonDumpSection(CfgParser::Entry *entry)
 {
-    // map keeping track of seen section names to ensure unique names
+  // map keeping track of seen section names to ensure unique names
     // in the output.
     std::map<std::string, int> sections;
 
-    auto it = entry->begin();
+    CfgParser::Entry::entry_cit it = entry->begin();
     for (; it != entry->end(); ++it) {
         if (it != entry->begin()) {
             std::cout << ",";
         }
 
         if ((*it)->getSection()) {
-            auto name = (*it)->getName();
+	    std::string name = (*it)->getName();
             if (! (*it)->getValue().empty()) {
                 name += "-" + (*it)->getValue();
             }
@@ -56,8 +56,8 @@ jsonDumpSection(CfgParser::Entry *entry)
             jsonDumpSection((*it)->getSection());
             std::cout << "}" << std::endl;
         } else {
-            std::cout << "\"" << (*it)->getName() << "\""
-                      << ": \"" << (*it)->getValue() << "\"" << std::endl;
+            std::cout << "\"" << (*it)->getName() << "\"";
+            std::cout << ": \"" << (*it)->getValue() << "\"" << std::endl;
         }
     }
 }

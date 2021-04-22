@@ -8,6 +8,8 @@
 
 #pragma once
 
+
+
 #include <cstdio>
 #include <cstring>
 
@@ -35,7 +37,7 @@ next_event(Display *dpy, XEvent *ev)
 
     int ret;
     do {
-        ret = select(xfd + 1, &rfds, nullptr, nullptr, nullptr);
+        ret = select(xfd + 1, &rfds, 0, 0, 0);
     } while (ret == -1 && errno == EINTR);
 
     if (ret > 0) {

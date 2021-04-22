@@ -37,10 +37,10 @@ public:
     void doEventLoop(void);
 
     // START - AppCtrl interface.
-    virtual void reload(void) override { _reload = true; }
-    virtual void restart(void) override { restart(""); }
-    virtual void restart(std::string command) override;
-    virtual void shutdown(void) override { _shutdown = true; }
+    virtual void reload(void) { _reload = true; }
+    virtual void restart(void) { restart(""); }
+    virtual void restart(std::string command);
+    virtual void shutdown(void) { _shutdown = true; }
     // END - AppCtrl interface.
 
     inline bool shallRestart(void) const { return _restart; }
@@ -48,7 +48,7 @@ public:
         return _restart_command;
     }
 
-    void setEventHandler(EventHandler *event_handler) override {
+    void setEventHandler(EventHandler *event_handler) {
         if (_event_handler) {
             delete _event_handler;
         }

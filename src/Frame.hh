@@ -25,45 +25,49 @@ class AutoProperty;
 class Frame : public PDecor
 {
 public:
+    typedef std::vector<Frame*> frame_vec;
+    typedef frame_vec::iterator frame_it;
+    typedef frame_vec::const_iterator frame_cit;
+    
     Frame(Client *client, AutoProperty *ap);
     virtual ~Frame(void);
 
     // START - PWinObj interface.
-    virtual void iconify(void) override;
-    virtual void stick(void) override;
+    virtual void iconify(void);
+    virtual void stick(void);
 
-    virtual void setWorkspace(unsigned int workspace) override;
-    virtual void setLayer(Layer layer) override;
+    virtual void setWorkspace(unsigned int workspace);
+    virtual void setLayer(Layer layer);
 
-    virtual ActionEvent *handleMotionEvent(XMotionEvent *ev) override;
-    virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev) override;
-    virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev) override;
+    virtual ActionEvent *handleMotionEvent(XMotionEvent *ev);
+    virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev);
+    virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev);
 
-    virtual ActionEvent *handleMapRequest(XMapRequestEvent *ev) override;
-    virtual ActionEvent *handleUnmapEvent(XUnmapEvent *ev) override;
+    virtual ActionEvent *handleMapRequest(XMapRequestEvent *ev);
+    virtual ActionEvent *handleUnmapEvent(XUnmapEvent *ev);
     // END - PWinObj interface.
 
-#ifdef HAVE_SHAPE
+#ifdef PEKWM_HAVE_SHAPE
     void handleShapeEvent(XShapeEvent *ev);
-#endif // HAVE_SHAPE
+#endif // PEKWM_HAVE_SHAPE
 
     // START - PDecor interface.
-    virtual bool allowMove(void) const override;
+    virtual bool allowMove(void) const;
 
     virtual void addChild(PWinObj *child,
-                          std::vector<PWinObj*>::iterator *it = 0) override;
-    virtual void removeChild(PWinObj *child, bool do_delete = true) override;
-    virtual void activateChild(PWinObj *child) override;
+                          std::vector<PWinObj*>::iterator *it = 0);
+    virtual void removeChild(PWinObj *child, bool do_delete = true);
+    virtual void activateChild(PWinObj *child);
 
-    virtual void updatedChildOrder(void) override;
-    virtual void updatedActiveChild(void) override;
+    virtual void updatedChildOrder(void);
+    virtual void updatedActiveChild(void);
 
     virtual void getDecorInfo(char *buf, uint size,
-                              const Geometry& gm) override;
+                              const Geometry& gm);
 
-    virtual void giveInputFocus(void) override;
-    virtual void setShaded(StateAction sa) override;
-    virtual void setSkip(uint skip) override;
+    virtual void giveInputFocus(void);
+    virtual void setShaded(StateAction sa);
+    virtual void setSkip(uint skip);
     // END - PDecor interface.
 
     Client *getActiveClient(void);
@@ -75,16 +79,12 @@ public:
 
     // START - Iterators
     static uint frame_size(void) { return _frames.size(); }
-    static std::vector<Frame*>::const_iterator frame_begin(void) {
-        return _frames.begin();
-    }
-    static std::vector<Frame*>::const_iterator frame_end(void) {
-        return _frames.end();
-    }
-    static std::vector<Frame*>::const_reverse_iterator frame_rbegin(void) {
+    static frame_cit frame_begin(void) { return _frames.begin(); }
+    static frame_cit frame_end(void) { return _frames.end(); }
+    static frame_vec::const_reverse_iterator frame_rbegin(void) {
         return _frames.rbegin();
     }
-    static std::vector<Frame*>::const_reverse_iterator frame_rend(void) {
+    static frame_vec::const_reverse_iterator frame_rend(void) {
         return _frames.rend();
     }
 
@@ -162,11 +162,11 @@ protected:
     Frame(void);
 
     // BEGIN - PDecor interface
-    virtual void decorUpdated(void) override;
-    virtual int resizeHorzStep(int diff) const override;
-    virtual int resizeVertStep(int diff) const override;
+    virtual void decorUpdated(void);
+    virtual int resizeHorzStep(int diff) const;
+    virtual int resizeVertStep(int diff) const;
 
-    virtual std::string getDecorName(void) override;
+    virtual std::string getDecorName(void);
     // END - PDecor interface
 
     static void applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask);
@@ -213,7 +213,7 @@ private:
     uint _non_fullscreen_decor_state; // FIXME: move to PDecor?
     Layer _non_fullscreen_layer;
 
-    static std::vector<Frame*> _frames; //!< Vector of all Frames.
+    static frame_vec _frames; //!< Vector of all Frames.
     static std::vector<uint> _frameid_list; //!< Vector of free Frame IDs.
 
     static ActionEvent _ae_move;

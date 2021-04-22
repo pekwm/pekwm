@@ -214,7 +214,7 @@ DockApp::repaint(void)
     X11::freePixmap(_background);
     _background = X11::createPixmap(_gm.width, _gm.height);
 
-    auto hd = pekwm::theme()->getHarbourData();
+    Theme::HarbourData *hd = pekwm::theme()->getHarbourData();
     hd->getTexture()->render(_background, 0, 0, _gm.width, _gm.height);
 
     X11::setWindowBackgroundPixmap(_window, _background);
@@ -279,7 +279,7 @@ DockApp::readClassHint(void)
 void
 DockApp::readAutoProperties(void)
 {
-    auto prop =
+    DockAppProperty *prop =
         pekwm::autoProperties()->findDockAppProperty(&_class_hint);
     if (prop) {
         _position = prop->getPosition();

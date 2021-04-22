@@ -37,10 +37,13 @@
 //! @brief Helper class
 class TimeFiles {
 public:
+    typedef std::vector<std::string> filev;
+    typedef filev::iterator filev_it;
+    
     TimeFiles() : mtime(0) {}
 
     time_t mtime;
-    std::vector<std::string> files;
+    filev files;
 
     bool requireReload(const std::string &file);
     void clear() { files.clear(); mtime = 0; }
@@ -49,21 +52,24 @@ public:
 //! @brief Configuration file parser.
 class CfgParser {
 public:
+    typedef std::map<std::string, std::string> var_map;
+    typedef var_map::iterator var_map_it;
+    typedef var_map::const_iterator var_map_cit;
+
     //! @brief Entry in parsed data structure.
     class Entry {
     public:
+        typedef std::vector<CfgParser::Entry*>::iterator entry_it;
+        typedef std::vector<CfgParser::Entry*>::const_iterator entry_cit;
+        
         Entry(const std::string &source_name, int line,
               const std::string &name, const std::string &value,
               CfgParser::Entry *section=0);
         Entry(const Entry &entry);
         ~Entry(void);
 
-        std::vector<CfgParser::Entry*>::const_iterator begin(void) {
-            return _entries.begin();
-        }
-        std::vector<CfgParser::Entry*>::const_iterator end(void) {
-            return _entries.end();
-        }
+        entry_cit begin(void) const { return _entries.begin(); }
+        entry_cit end(void) const { return _entries.end(); }
 
         const std::string &getName(void) const;
         const std::string &getValue(void) const;
@@ -106,8 +112,9 @@ public:
         std::string _source_name;
     };
 
-
-    typedef std::vector<CfgParser::Entry*>::const_iterator iterator;
+    typedef std::map<std::string, CfgParser::Entry*> section_map;
+    typedef section_map::iterator section_map_it;
+    typedef section_map::const_iterator section_map_cit;
 
     CfgParser(void);
     ~CfgParser(void);
@@ -127,7 +134,7 @@ public:
     bool parse(CfgParserSource* source, bool overwrite = false);
 
     std::string getVar(const std::string& key) const {
-        auto it = _var_map.find(key);
+        var_map_cit it = _var_map.find(key);
         return it == _var_map.end() ? "" : it->second;
     }
     void setVar(const std::string& key, const std::string& val) {
@@ -159,7 +166,8 @@ private:
                             std::string::size_type &end);
 
 protected:
-    std::map<std::string, std::string> _var_map; //!< Map of $VARS
+    /** Map of $VARS */
+    var_map _var_map;
 
 private:
 
@@ -177,7 +185,7 @@ private:
     std::vector<Entry*> _sections; //!< for recursive parsing.
 
     /**  Map of Define = ... sections */
-    std::map<std::string, CfgParser::Entry*> _section_map;
+    section_map _section_map;
 
     Entry *_root_entry; /**< Root Entry. */
     /** If true, parsed data included command or similar. */

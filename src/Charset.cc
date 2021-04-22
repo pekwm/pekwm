@@ -7,13 +7,21 @@
 //
 
 #include "Charset.hh"
+#include "Types.hh"
 #include "Debug.hh"
 
 #include <cstdlib>
 #include <cstring>
-#include <locale>
 #include <iomanip>
 #include <stdexcept>
+
+#ifdef PEKWM_HAVE_LOCALE
+#include <locale>
+#else // ! PEKWM_HAVE_LOCALE
+extern "C" {
+#include <locale.h>
+}
+#endif // PEKWM_HAVE_LOCALE
 
 // Lookup table from character value to number of bytes
 static const uint8_t UTF8_BYTES[256] = {
@@ -87,11 +95,13 @@ utf8_to_wchar(const char *utf8, wchar_t &wc)
     return len;
 }
 
+#ifdef PEKWM_HAVE_LOCALE
 class NoGroupingNumpunct : public std::numpunct<char>
 {
 protected:
     virtual std::string do_grouping(void) const { return ""; }
 };
+#endif // PEKWM_HAVE_LOCALE
 
 namespace Charset
 {
@@ -213,6 +223,7 @@ namespace Charset
     void
     init(void)
     {
+#ifdef PEKWM_HAVE_LOCALE
         try {
             // initial global locale setup works around issues on at
             // least FreeBSD where num_locale setup would cause
@@ -222,13 +233,16 @@ namespace Charset
 
             std::locale num_locale(std::locale(), new NoGroupingNumpunct());
             std::locale locale =
-                std::locale().combine<std::numpunct<char>>(num_locale);
+                std::locale().combine<std::numpunct<char> >(num_locale);
             std::locale::global(locale);
         } catch (const std::runtime_error&) {
             USER_WARN("The environment variables specify an unknown C++ "
                       "locale - falling back to C's setlocale().");
             setlocale(LC_ALL, "");
         }
+#else // ! PEKWM_HAVE_LOCALE
+        setlocale(LC_ALL, "");
+#endif // PEKWM_HAVE_LOCALE
     }
 
     /**
@@ -265,16 +279,16 @@ namespace Charset
         }
 
         wchar_t wc;
-        auto mb = new char[MB_CUR_MAX + 1];
+        char *mb = new char[MB_CUR_MAX + 1];
         std::string str_sys;
 
         // reset state of wctomb before starting
-        wctomb(nullptr, 0);
+        int len = wctomb(nullptr, 0);
 
         Utf8Iterator it(str, 0);
         for (; ! it.end(); ++it) {
             utf8_to_wchar(*it, wc);
-            int len = wctomb(mb, wc);
+            len = wctomb(mb, wc);
             if (len > 0) {
                 mb[len] = '\0';
                 str_sys += mb;

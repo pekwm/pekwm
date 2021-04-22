@@ -45,41 +45,41 @@ namespace Debug
 #define USER_WARN(M) \
     Debug::getStream("WARNING: ") << M << std::endl;
 
-#define TRACE(M) \
+#define P_TRACE(M) \
     if (Debug::isLevel(Debug::LEVEL_TRACE)) { \
         Debug::getStream(__PRETTY_FUNCTION__, __LINE__, "TRACE:   ") \
             << M << std::endl; \
     }
 
-#define DBG(M) \
+#define P_DBG(M) \
     if (Debug::isLevel(Debug::LEVEL_DEBUG)) { \
         Debug::getStream(__PRETTY_FUNCTION__, __LINE__, "DEBUG:   ") \
             << M << std::endl; \
     }
 
-#define LOG(M) \
+#define P_LOG(M) \
     if (Debug::isLevel(Debug::LEVEL_INFO)) { \
         Debug::getStream(__PRETTY_FUNCTION__, __LINE__, "") << M << std::endl; \
     }
 
-#define LOG_IF(C, M) \
+#define P_LOG_IF(C, M) \
     if ((C) && Debug::isLevel(Debug::LEVEL_INFO)) { \
         Debug::getStream(__PRETTY_FUNCTION__, __LINE__, "") << M << std::endl; \
     }
 
-#define WARN(M) \
+#define P_WARN(M) \
     if (Debug::isLevel(Debug::LEVEL_WARN)) { \
         Debug::getStream(__PRETTY_FUNCTION__, __LINE__, "WARNING: ") \
             << M << std::endl; \
     }
 
-#define ERR(M) \
+#define P_ERR(M) \
     if (Debug::isLevel(Debug::LEVEL_ERR)) { \
         Debug::getStream(__PRETTY_FUNCTION__, __LINE__, "ERROR:   ") \
             << M << std::endl; \
     }
 
-#define ERR_IF(C, M) \
+#define P_ERR_IF(C, M) \
     if ((C) && Debug::isLevel(Debug::LEVEL_ERR)) { \
         Debug::getStream(__PRETTY_FUNCTION__, __LINE__, "ERROR:   ") \
             << M << std::endl; \

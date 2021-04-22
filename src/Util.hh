@@ -51,16 +51,19 @@ namespace String {
     std::vector<std::string> shell_split(const std::string& str);
 }
 
-namespace Util {
+namespace Util {    
     template<typename T>
     class StringMap : public std::map<String::Key, T> {
     public:
-        using std::map<String::Key, T>::map;
+        StringMap(void) { }
         virtual ~StringMap(void) { }
 
         T& get(const std::string& key) {
             typename StringMap<T>::iterator it = this->find(key);
-            return it == this->end() ? this->at("") : it->second;
+            if (it == this->end()) {
+                return this->operator[]("");
+            }
+            return it->second;
         }
     };
 
@@ -127,4 +130,23 @@ namespace Util {
     template<class T> struct Free : public std::unary_function<T, void> {
         void operator ()(T t) { delete t; }
     };
+
+    template<typename T>
+    struct StringTo {
+        const char *name;
+        T value;
+    };
+
+    template<typename T>
+    T StringToGet(const Util::StringTo<T> *map, const std::string& key)
+    {
+        int i = 0;
+        for (; map[i].name != nullptr; i++) {
+            if (strcasecmp(map[i].name, key.c_str()) == 0) {
+                return map[i].value;
+            }
+        }
+        return map[i].value;
+    }
+
 }

@@ -18,7 +18,7 @@ void
 renderTiled(const int a_x, const int a_y,
             const uint a_width, const uint a_height,
             const uint r_width, const uint r_height,
-            std::function<void(int, int, uint, uint)> render)
+            render_fun render, void *opaque)
 {
     assert(r_width);
     assert(r_height);
@@ -32,11 +32,11 @@ renderTiled(const int a_x, const int a_y,
         x = a_x;
         width = a_width;
         while (width > r_width) {
-            render(x, y, r_width, r_height);
+            render(x, y, r_width, r_height, opaque);
             x += r_width;
             width -= r_width;
         }
-        render(x, y, width, r_height);
+        render(x, y, width, r_height, opaque);
 
         y += r_height;
         height -= r_height;
@@ -45,11 +45,11 @@ renderTiled(const int a_x, const int a_y,
     x = a_x;
     width = a_width;
     while (width > r_width) {
-        render(x, y, r_width, height);
+        render(x, y, r_width, height, opaque);
         x += r_width;
         width -= r_width;
     }
-    render(x, y, width, height);
+    render(x, y, width, height, opaque);
 }
 
 // Render
@@ -160,7 +160,7 @@ XImageRender::getDrawable(void) const
 XImage*
 XImageRender::getImage(int src_x, int src_y, uint width, uint height)
 {
-    auto image = X11::createImage(nullptr, width, height);
+    XImage *image = X11::createImage(nullptr, width, height);
     if (image == nullptr) {
         return image;
     }

@@ -6,8 +6,8 @@
 // See the LICENSE file for more information.
 //
 
+#include "Compat.hh"
 #include "test.hh"
-
 #include "Debug.hh"
 
 #include "test_Action.hh"

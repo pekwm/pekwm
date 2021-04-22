@@ -24,20 +24,20 @@ public:
     virtual ~KeyboardMoveResizeEventHandler(void);
 
     virtual void notify(Observable *observable,
-                        Observation *observation) override;
+                        Observation *observation);
 
-    virtual bool initEventHandler(void) override;
+    virtual bool initEventHandler(void);
 
     virtual EventHandler::Result
-    handleButtonPressEvent(XButtonEvent*) override;
+    handleButtonPressEvent(XButtonEvent*);
     virtual EventHandler::Result
-    handleButtonReleaseEvent(XButtonEvent*) override;
+    handleButtonReleaseEvent(XButtonEvent*);
     virtual EventHandler::Result
-    handleExposeEvent(XExposeEvent*) override;
+    handleExposeEvent(XExposeEvent*);
     virtual EventHandler::Result
-    handleMotionNotifyEvent(XMotionEvent*) override;
+    handleMotionNotifyEvent(XMotionEvent*);
     virtual EventHandler::Result
-    handleKeyEvent(XKeyEvent *ev) override;
+    handleKeyEvent(XKeyEvent *ev);
 
     EventHandler::Result
     runMoveResizeAction(const Action& action);

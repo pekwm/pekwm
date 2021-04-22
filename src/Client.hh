@@ -56,78 +56,74 @@ class Client : public PWinObj,
     friend class Frame;
 
 public: // Public Member Functions
+    typedef std::vector<Client*> client_vec;
+    typedef client_vec::iterator client_it;
+    typedef client_vec::const_iterator client_cit;
+
     Client(Window new_client, ClientInitConfig &initConfig,
            bool is_new = false);
     virtual ~Client(void);
 
     // START - PWinObj interface.
-    virtual void mapWindow(void) override;
-    virtual void unmapWindow(void) override;
-    virtual void iconify(void) override;
-    virtual void stick(void) override;
+    virtual void mapWindow(void);
+    virtual void unmapWindow(void);
+    virtual void iconify(void);
+    virtual void stick(void);
 
-    virtual void move(int x, int y) override;
-    virtual void resize(uint width, uint height) override;
-    virtual void moveResize(int x, int y, uint width, uint height) override;
+    virtual void move(int x, int y);
+    virtual void resize(uint width, uint height);
+    virtual void moveResize(int x, int y, uint width, uint height);
 
-    virtual void setWorkspace(uint workspace) override;
+    virtual void setWorkspace(uint workspace);
 
-    virtual void giveInputFocus(void) override;
-    virtual void reparent(PWinObj *parent, int x, int y) override;
+    virtual void giveInputFocus(void);
+    virtual void reparent(PWinObj *parent, int x, int y);
 
-    virtual ActionEvent *handleButtonPress(XButtonEvent *ev)  override {
+    virtual ActionEvent *handleButtonPress(XButtonEvent *ev)  {
         if (_parent) { return _parent->handleButtonPress(ev); }
         return 0;
     }
-    virtual ActionEvent *handleButtonRelease(XButtonEvent *ev) override {
+    virtual ActionEvent *handleButtonRelease(XButtonEvent *ev) {
         if (_parent) { return _parent->handleButtonRelease(ev); }
         return 0;
     }
 
-    virtual ActionEvent *handleMapRequest(XMapRequestEvent *ev) override;
-    virtual ActionEvent *handleUnmapEvent(XUnmapEvent *ev) override;
+    virtual ActionEvent *handleMapRequest(XMapRequestEvent *ev);
+    virtual ActionEvent *handleUnmapEvent(XUnmapEvent *ev);
     // END - PWinObj interface.
 
-#ifdef HAVE_SHAPE
+#ifdef PEKWM_HAVE_SHAPE
     void handleShapeEvent(XShapeEvent *);
-#endif // HAVE_SHAPE
+#endif // PEKWM_HAVE_SHAPE
 
     // START - Observer interface.
     virtual void notify(Observable *observable,
-                        Observation *observation) override;
+                        Observation *observation);
     // END - Observer interface.
 
     static Client *findClient(Window win);
     static Client *findClientFromWindow(Window win);
     static Client *findClientFromHint(const ClassHint *class_hint);
     static Client *findClientFromID(uint id);
-    static void findFamilyFromWindow(std::vector<Client*> &client_list,
+    static void findFamilyFromWindow(client_vec &client_list,
                                      Window win);
 
     static void mapOrUnmapTransients(Window win, bool hide);
 
     // START - Iterators
     static uint client_size(void) { return _clients.size(); }
-    static std::vector<Client*>::const_iterator client_begin(void) {
-        return _clients.begin();
-    }
-    static std::vector<Client*>::const_iterator client_end(void) {
-        return _clients.end();
-    }
-    static std::vector<Client*>::const_reverse_iterator client_rbegin(void) {
+    static client_cit client_begin(void) { return _clients.begin(); }
+    static client_cit client_end(void) { return _clients.end(); }
+    static client_vec::const_reverse_iterator client_rbegin(void) {
         return _clients.rbegin();
     }
-    static std::vector<Client*>::const_reverse_iterator client_rend(void) {
+    static client_vec::const_reverse_iterator client_rend(void) {
         return _clients.rend();
     }
 
     bool hasTransients() const { return ! _transients.empty(); }
-    std::vector<Client*>::const_iterator getTransientsBegin(void) const {
-        return _transients.begin();
-    }
-    std::vector<Client*>::const_iterator getTransientsEnd(void) const {
-        return _transients.end();
-    }
+    client_cit getTransientsBegin(void) const { return _transients.begin(); }
+    client_cit getTransientsEnd(void) const { return _transients.end(); }
     // END - Iterators
 
     bool validate(void);
@@ -146,7 +142,7 @@ public: // Public Member Functions
     void findAndRaiseIfTransient(void);
 
     XSizeHints getActiveSizeHints(void) const {
-        auto hints = *_size;
+        XSizeHints hints = *_size;
         if (isCfgDeny(CFG_DENY_RESIZE_INC)) {
             hints.flags &= ~PResizeInc;
         }
@@ -175,7 +171,7 @@ public: // Public Member Functions
     bool isMaximizedVert(void) const { return _state.maximized_vert; }
     bool isMaximizedHorz(void) const { return _state.maximized_horz; }
     bool isShaded(void) const { return _state.shaded; }
-    bool isFullscreen(void) const override { return _state.fullscreen; }
+    bool isFullscreen(void) const { return _state.fullscreen; }
     bool isPlaced(void) const { return _state.placed; }
     uint getInitialFrameOrder(void) const { return _state.initial_frame_order; }
     uint getSkip(void) const { return _state.skip; }
@@ -339,7 +335,7 @@ private: // Private Member Variables
     /** Client for which this client is transient for */
     Client *_transient_for;
     Window _transient_for_window;
-    std::vector<Client*> _transients; /**< Vector of transient clients. */
+    client_vec _transients; /**< Vector of transient clients. */
 
     Strut *_strut;
 
@@ -408,6 +404,6 @@ private: // Private Member Variables
 
     static const long _clientEventMask;
 
-    static std::vector<Client*> _clients; //!< Vector of all Clients.
+    static client_vec _clients; //!< Vector of all Clients.
     static std::vector<uint> _clientids; //!< Vector of free Client IDs.
 };

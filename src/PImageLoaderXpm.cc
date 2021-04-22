@@ -8,7 +8,7 @@
 
 #include "config.h"
 
-#ifdef HAVE_IMAGE_XPM
+#ifdef PEKWM_HAVE_IMAGE_XPM
 
 #include "Debug.hh"
 #include "PImageLoaderXpm.hh"
@@ -40,8 +40,8 @@ createXpmToArgbTable(XpmImage *xpm_image, bool &use_alpha)
     const char *color;
     XColor xcolor_exact;
 
-    auto xpm_to_argb = new uchar[xpm_image->ncolors * 4];
-    auto dest = xpm_to_argb;
+    uchar *xpm_to_argb = new uchar[xpm_image->ncolors * 4];
+    uchar *dest = xpm_to_argb;
     for (uint i = 0; i < xpm_image->ncolors; ++i) {
         if (xpm_image->colorTable[i].c_color) {
             color = xpm_image->colorTable[i].c_color;
@@ -131,15 +131,15 @@ namespace PImageLoaderXpm
         }
 
         // Build XpmColor -> ARGB Table.
-        auto xpm_to_argb = createXpmToArgbTable(&xpm_image, use_alpha);
+        int32_t *xpm_to_argb = createXpmToArgbTable(&xpm_image, use_alpha);
 
         width = xpm_image.width;
         height = xpm_image.height;
 
         // Allocate data.
         uchar* data = new uchar[width * height * 4];
-        auto dest = reinterpret_cast<int32_t*>(data);
-        auto src = xpm_image.data;
+        int32_t *dest = reinterpret_cast<int32_t*>(data);
+        uint *src = xpm_image.data;
 
         use_alpha = false;
 
@@ -166,4 +166,4 @@ namespace PImageLoaderXpm
     }
 }
 
-#endif // HAVE_IMAGE_XPM
+#endif // PEKWM_HAVE_IMAGE_XPM

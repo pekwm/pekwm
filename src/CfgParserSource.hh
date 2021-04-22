@@ -16,6 +16,8 @@ extern "C" {
 #include <signal.h>
 }
 
+#include "Compat.hh"
+
 /**
  * Base class for configuration sources defining the interface and
  * common methods.
@@ -39,8 +41,8 @@ public:
     virtual bool open(void) = 0;
     virtual void close(void) = 0;
 
-    virtual int getc(void) = 0;
-    virtual void ungetc(int c) {
+    virtual int get_char(void) = 0;
+    virtual void unget_char(int c) {
         if (c == '\n') {
             --_line;
         }
@@ -56,7 +58,7 @@ public:
     bool isDynamic(void) const { return _is_dynamic; }
 
 protected:
-    int get_char(int c) {
+    int do_get_char(int c) {
         if (c == '\n') {
             ++_line;
         }
@@ -82,15 +84,15 @@ public:
     /**
      * Gets a character from _file, increments line count if \n.
      */
-    virtual int getc(void) override {
-        return get_char(std::fgetc(_file));
+    virtual int get_char(void) {
+        return do_get_char(fgetc(_file));
     }
 
     /**
      * Returns a character to _op_file, decrements line count if \n.
      */
-    virtual void ungetc(int c) override {
-        return CfgParserSource::ungetc(std::ungetc(c, _file));
+    virtual void unget_char(int c) {
+        return CfgParserSource::unget_char(ungetc(c, _file));
     }
 
 protected:
@@ -124,11 +126,11 @@ public:
     CfgParserSourceString(const std::string &source, const std::string &data);
     virtual ~CfgParserSourceString(void);
 
-    virtual bool open(void) override;
-    virtual void close(void) override;
+    virtual bool open(void);
+    virtual void close(void);
 
-    virtual int getc(void) override;
-    virtual void ungetc(int c) override;
+    virtual int get_char(void);
+    virtual void unget_char(int c);
 
 private:
     std::string _data;

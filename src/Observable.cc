@@ -39,10 +39,11 @@ void
 ObserverMapping::notifyObservers(Observable *observable,
                                  Observation *observation)
 {
-    auto oit = _observable_map.find(observable);
+    observable_map_it oit = _observable_map.find(observable);
     if (oit != _observable_map.end()) {
-        for (auto it : oit->second) {
-            it->notify(observable, observation);
+        std::vector<Observer*>::iterator it = oit->second.begin();
+        for (; it != oit->second.end(); ++it) {
+            (*it)->notify(observable, observation);
         }
     }
 }
@@ -54,9 +55,10 @@ void
 ObserverMapping::addObserver(Observable *observable,
                              Observer *observer)
 {
-    auto it = _observable_map.find(observable);
+    observable_map_it it = _observable_map.find(observable);
     if (it == _observable_map.end()) {
-        _observable_map[observable] = {observer};
+        _observable_map[observable] = std::vector<Observer*>();
+        _observable_map[observable].push_back(observer);
     } else {
         it->second.push_back(observer);
     }
@@ -69,9 +71,9 @@ void
 ObserverMapping::removeObserver(Observable *observable,
                                 Observer *observer)
 {
-    auto it = _observable_map.find(observable);
+    observable_map_it it = _observable_map.find(observable);
     if (it == _observable_map.end()) {
-        ERR("stale observable " << observable);
+        P_ERR("stale observable " << observable);
         return;
     }
 
@@ -89,7 +91,7 @@ ObserverMapping::removeObserver(Observable *observable,
 void
 ObserverMapping::removeObservable(Observable *observable)
 {
-    auto it = _observable_map.find(observable);
+    observable_map_it it = _observable_map.find(observable);
     if (it != _observable_map.end()) {
         _observable_map.erase(it);
     }

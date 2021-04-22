@@ -175,7 +175,7 @@ PFont::trimMiddle(std::string &text, uint max_width)
     // get numbers of chars after ...
     if (pos < text.size()) {
         for (++it; ! it.end(); ++it) {
-            auto second_part(text.substr(it.pos(), text.size() - it.pos()));
+            std::string second_part(text.substr(it.pos(), text.size() - it.pos()));
             if (getWidth(second_part, 0) <= max_side) {
                 dest.insert(dest.size(), second_part);
                 break;
@@ -306,7 +306,7 @@ PFontX11::getWidth(const std::string &text, uint max_chars)
     uint width = 0;
     if (_font) {
         // No UTF8 support, convert to locale encoding.
-        auto mb_text = Charset::toSystem(text.substr(0, max_chars));
+        std::string mb_text = Charset::toSystem(text.substr(0, max_chars));
         width = XTextWidth(_font, mb_text.c_str(), mb_text.size());
     }
 
@@ -501,7 +501,7 @@ PFontXmb::setColor(PFont::Color *color)
 
 // PFontXft
 
-#ifdef HAVE_XFT
+#ifdef PEKWM_HAVE_XFT
 
 //! @brief PFontXft constructor
 PFontXft::PFontXft(void)
@@ -661,4 +661,4 @@ PFontXft::setColor(PFont::Color *color)
     }
 }
 
-#endif // HAVE_XFT
+#endif // PEKWM_HAVE_XFT

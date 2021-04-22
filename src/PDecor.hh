@@ -123,31 +123,31 @@ public:
     virtual ~PDecor(void);
 
     // START - PWinObj interface.
-    virtual void mapWindow(void) override;
-    virtual void mapWindowRaised(void) override;
-    virtual void unmapWindow(void) override;
+    virtual void mapWindow(void);
+    virtual void mapWindowRaised(void);
+    virtual void unmapWindow(void);
 
-    virtual void move(int x, int y) override;
-    virtual void resize(uint width, uint height) override;
-    virtual void moveResize(int x, int y, uint width, uint height) override;
-    virtual void raise(void) override;
-    virtual void lower(void) override;
+    virtual void move(int x, int y);
+    virtual void resize(uint width, uint height);
+    virtual void moveResize(int x, int y, uint width, uint height);
+    virtual void raise(void);
+    virtual void lower(void);
 
     void moveResize(const Geometry &geometry, int gm_mask);
 
-    virtual void setFocused(bool focused) override;
-    virtual void setWorkspace(uint workspace) override;
+    virtual void setFocused(bool focused);
+    virtual void setWorkspace(uint workspace);
 
-    virtual void giveInputFocus(void) override;
+    virtual void giveInputFocus(void);
 
-    virtual ActionEvent *handleButtonPress(XButtonEvent *ev) override;
-    virtual ActionEvent *handleButtonRelease(XButtonEvent *ev) override;
-    virtual ActionEvent *handleMotionEvent(XMotionEvent *ev) override;
-    virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev) override;
-    virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev) override;
+    virtual ActionEvent *handleButtonPress(XButtonEvent *ev);
+    virtual ActionEvent *handleButtonRelease(XButtonEvent *ev);
+    virtual ActionEvent *handleMotionEvent(XMotionEvent *ev);
+    virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev);
+    virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev);
 
-    virtual bool operator == (const Window &window) override;
-    virtual bool operator != (const Window &window) override;
+    virtual bool operator == (const Window &window);
+    virtual bool operator != (const Window &window);
     // END - PWinObj interface.
 
     // START - PDecor interface.
@@ -245,11 +245,11 @@ public:
     // decor state
 
     /** Returns wheter we have a border or not. */
-    virtual bool hasBorder(void) const override { return _border; }
+    virtual bool hasBorder(void) const { return _border; }
     /** @brief Returns wheter we have a titlebar or not. */
-    virtual bool hasTitlebar(void) const override { return _titlebar; }
+    virtual bool hasTitlebar(void) const { return _titlebar; }
     /** @brief Returns wheter we are shaded or not. */
-    virtual bool isShaded(void) const override { return _shaded; }
+    virtual bool isShaded(void) const { return _shaded; }
     void setBorder(StateAction sa);
     void setTitlebar(StateAction sa);
 
@@ -261,7 +261,7 @@ public:
         }
     }
 
-    bool isFullscreen(void) const override { return _fullscreen; }
+    bool isFullscreen(void) const { return _fullscreen; }
 
     //! @brief Returns border position Window win is at.
     inline BorderPosition getBorderPosition(Window win) const {
@@ -296,14 +296,14 @@ protected:
     virtual int resizeVertStep(int diff) const { return diff; }
     // END - PDecor interface.
 
-#ifdef HAVE_SHAPE
+#ifdef PEKWM_HAVE_SHAPE
     void applyBorderShape(int kind=ShapeBounding);
     void applyBorderShapeNormal(int kind, bool client_shape);
     void applyBorderShapeShaded(int kind);
     void applyBorderShapeBorder(int kind, Window shape);
 #else
     void applyBorderShape(int kind=0) {}
-#endif // HAVE_SHAPE
+#endif // PEKWM_HAVE_SHAPE
 
     void resizeTitle(void);
 
@@ -312,7 +312,7 @@ protected:
 
     void alignChild(PWinObj *child);
 
-    FocusedState getFocusedState(bool selected) const override {
+    FocusedState getFocusedState(bool selected) const {
         if (selected) {
             return _focused
                 ? FOCUSED_STATE_FOCUSED_SELECTED

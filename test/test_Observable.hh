@@ -33,6 +33,8 @@ public:
     TestObserverMapping(void);
     ~TestObserverMapping(void);
 
+    virtual bool run_test(TestSpec spec, bool status);
+
 private:
     static void testNotify(void);
     static void testRemoveObservable(void);
@@ -54,22 +56,27 @@ TestObserver::~TestObserver(void)
 void
 TestObserver::notify(Observable* observable, Observation* observation)
 {
-    auto test_observation = dynamic_cast<TestObservation*>(observation);
+    TestObservation *test_observation =
+        dynamic_cast<TestObservation*>(observation);
     observations.push_back(test_observation);
 }
 
 TestObserverMapping::TestObserverMapping(void)
     : TestSuite("ObserverMapping")
 {
-    register_test("notify", TestObserverMapping::testNotify);
-    register_test("removeObservable",
-                  TestObserverMapping::testRemoveObservable);
-    register_test("destructObservable",
-                  TestObserverMapping::testDestructObservable);
 }
 
 TestObserverMapping::~TestObserverMapping(void)
 {
+}
+
+bool
+TestObserverMapping::run_test(TestSpec spec, bool status)
+{
+    TEST_FN(spec, "notify", testNotify());
+    TEST_FN(spec, "removeObservable", testRemoveObservable());
+    TEST_FN(spec, "destructObservable", testDestructObservable());
+    return status;
 }
 
 void
@@ -141,7 +148,7 @@ TestObserverMapping::testDestructObservable(void)
 {
     TestObserver observer;
 
-    auto om = pekwm::observerMapping();
+    ObserverMapping *om = pekwm::observerMapping();
     {
         TestObservable observable;
         om->addObserver(&observable, &observer);

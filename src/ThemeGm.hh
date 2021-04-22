@@ -27,24 +27,24 @@ class MwmThemeState : public ThemeState {
 public:
     void setHints(const MwmHints &hints) { _hints = hints; }
 
-    virtual bool hasBorder(void) const override {
+    virtual bool hasBorder(void) const {
         if (_hints.flags & MWM_HINTS_DECORATIONS) {
             return _hints.decorations & (MWM_DECOR_ALL | MWM_DECOR_BORDER);
         } else {
             return true;
         }
     }
-    virtual bool hasTitlebar(void) const override {
+    virtual bool hasTitlebar(void) const {
         if (_hints.flags & MWM_HINTS_DECORATIONS) {
             return _hints.decorations & (MWM_DECOR_ALL | MWM_DECOR_TITLE);
         } else {
             return true;
         }
     }
-    virtual bool isShaded(void) const override {
+    virtual bool isShaded(void) const {
         return false;
     }
-    virtual FocusedState getFocusedState(bool) const override {
+    virtual FocusedState getFocusedState(bool) const {
         return FOCUSED_STATE_FOCUSED;
     }
 

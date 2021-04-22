@@ -83,7 +83,7 @@ ClientMgr::findGroupMatch(AutoProperty *property)
 
     // Moving on to the rest of the frames.
     if (! frame) {
-        auto it(Frame::frame_begin());
+        Frame::frame_cit it(Frame::frame_begin());
         for (; it != Frame::frame_end(); ++it) {
             if (findGroupMatchProperty(*it, property)) {
                 frame = *it;
@@ -127,8 +127,9 @@ ClientMgr::familyRaiseLower(Client *client, bool raise)
         }
     }
 
-    for (auto it : client_list) {
-        auto frame = dynamic_cast<Frame*>(it->getParent());
+    std::vector<Client*>::iterator it = client_list.begin();
+    for (; it != client_list.end(); ++it) {
+        Frame *frame = dynamic_cast<Frame*>((*it)->getParent());
         if (frame) {
             if (raise) {
                 frame->raise();

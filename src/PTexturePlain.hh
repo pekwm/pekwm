@@ -27,9 +27,17 @@ public:
 
     // START - PTexture interface.
     virtual void doRender(Render &rend,
-                          int x, int y, size_t width, size_t height) override;
-    virtual bool getPixel(ulong &pixel) const override;
+                          int x, int y, size_t width, size_t height);
+    virtual bool getPixel(ulong &pixel) const;
     // END - PTexture interface.
+};
+
+class PTextureAreaRender : public PTexture {
+public:
+    virtual ~PTextureAreaRender() { }
+
+    virtual void renderArea(Render &rend, int x, int y,
+                            size_t width, size_t height) = 0;
 };
 
 // PTextureSolid
@@ -41,8 +49,8 @@ public:
 
     // START - PTexture interface.
     virtual void doRender(Render &rend,
-                          int x, int y, size_t width, size_t height) override;
-    virtual bool getPixel(ulong &pixel) const override {
+                          int x, int y, size_t width, size_t height);
+    virtual bool getPixel(ulong &pixel) const {
         pixel = _xc->pixel;
         return true;
     }
@@ -58,7 +66,7 @@ private:
 
 // PTextureSolidRaised
 
-class PTextureSolidRaised : public PTexture {
+class PTextureSolidRaised : public PTextureAreaRender {
 public:
     PTextureSolidRaised(const std::string &base,
                         const std::string &hi, const std::string &lo);
@@ -66,9 +74,12 @@ public:
 
     // START - PTexture interface.
     virtual void doRender(Render &rend,
-                          int x, int y, size_t width, size_t height) override;
-    virtual bool getPixel(ulong&) const override { return false; }
+                          int x, int y, size_t width, size_t height);
+    virtual bool getPixel(ulong&) const { return false; }
     // END - PTexture interface.
+
+    virtual void renderArea(Render &rend, int x, int y,
+                            size_t width, size_t height);
 
     inline void setLineOff(size_t loff) { _loff = loff; _loff2 = loff * 2; }
     inline void setDraw(bool top, bool bottom, bool left, bool right) {
@@ -84,9 +95,6 @@ public:
     void unsetColor();
 
 private:
-    void renderArea(Render &rend, int x, int y, size_t width, size_t height);
-
-private:
     XColor *_xc_base;
     XColor *_xc_hi;
     XColor *_xc_lo;
@@ -100,7 +108,7 @@ private:
 
 // PTxtureLines
 
-class PTextureLines : public PTexture {
+class PTextureLines : public PTextureAreaRender {
 public:
     PTextureLines(float line_size, bool size_percent, bool horz,
                   const std::vector<std::string> &colors);
@@ -108,13 +116,14 @@ public:
 
     // START - PTexture interface.
     virtual void doRender(Render &rend,
-                          int x, int y, size_t width, size_t height) override;
-    virtual bool getPixel(ulong&) const override { return false; }
+                          int x, int y, size_t width, size_t height);
+    virtual bool getPixel(ulong&) const { return false; }
     // END - PTexture interface.
 
-private:
-    void renderArea(Render &rend, int x, int y, size_t width, size_t height);
+    virtual void renderArea(Render &rend, int x, int y,
+                            size_t width, size_t height);
 
+private:
     void renderHorz(Render &rend, int x, int y, size_t width, size_t height);
     void renderVert(Render &rend, int x, int y, size_t width, size_t height);
 
@@ -142,9 +151,9 @@ public:
 
     // START - PTexture interface.
     virtual void doRender(Render &rend,
-                          int x, int y, size_t width, size_t height) override;
-    virtual bool getPixel(ulong&) const override { return false; }
-    virtual Pixmap getMask(size_t width, size_t height, bool &do_free) override;
+                          int x, int y, size_t width, size_t height);
+    virtual bool getPixel(ulong&) const { return false; }
+    virtual Pixmap getMask(size_t width, size_t height, bool &do_free);
     // END - PTexture interface.
 
     bool setImage(const std::string &image, const std::string &colormap);

@@ -124,8 +124,9 @@ PMenu::~PMenu(void)
         delete _menu_wo;
     }
 
-    for (auto it : _items) {
-        delete it;
+    item_it it = _items.begin();
+    for (; it != _items.end(); ++it) {
+        delete *it;
     }
 
     X11::freePixmap(_menu_bg_fo);
@@ -155,7 +156,7 @@ PMenu::setFocused(bool focused)
                                        _focused ? _menu_bg_fo : _menu_bg_un);
         X11::clearWindow(_menu_wo->getWindow());
         if (_item_curr < _items.size()) {
-            auto item(_items.begin() + _item_curr);
+            item_it item(_items.begin() + _item_curr);
             _item_curr = _items.size(); // Force selectItem(item) to redraw
             selectItem(item);
         }
@@ -182,7 +183,8 @@ PMenu::handleButtonPress(XButtonEvent *ev)
         _pointer_x = ev->x_root;
         _pointer_y = ev->y_root;
 
-        auto malm = pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU);
+        std::vector<ActionEvent> *malm =
+            pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU);
         return ActionHandler::findMouseAction(ev->button, ev->state,
                                               MOUSE_EVENT_PRESS, malm);
     } else {
@@ -205,7 +207,7 @@ PMenu::handleButtonRelease(XButtonEvent *ev)
     if (*_menu_wo == ev->window) {
         MouseEventType mb = MOUSE_EVENT_RELEASE;
 
-        auto cfg = pekwm::config();
+        Config *cfg = pekwm::config();
         // first we check if it's a double click
         if (X11::isDoubleClick(ev->window, ev->button - 1, ev->time,
                                cfg->getDoubleClickTime())) {
@@ -221,7 +223,8 @@ PMenu::handleButtonRelease(XButtonEvent *ev)
 
         handleItemEvent(mb, ev->x, ev->y);
 
-        auto malm = cfg->getMouseActionList(MOUSE_ACTION_LIST_MENU);
+        std::vector<ActionEvent> *malm =
+            cfg->getMouseActionList(MOUSE_ACTION_LIST_MENU);
         return ActionHandler::findMouseAction(ev->button, ev->state, mb, malm);
     } else {
         return PDecor::handleButtonRelease(ev);
@@ -260,7 +263,8 @@ PMenu::handleMotionEvent(XMotionEvent *ev)
 
         ActionEvent *ae;
         X11::stripButtonModifiers(&ev->state);
-        auto malm = pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU);
+        std::vector<ActionEvent> *malm =
+            pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU);
         ae = ActionHandler::findMouseAction(button, ev->state,
                                             MOUSE_EVENT_MOTION, malm);
 
@@ -282,7 +286,8 @@ ActionEvent*
 PMenu::handleEnterEvent(XCrossingEvent *ev)
 {
     if (*_menu_wo == ev->window) {
-        auto malm = pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU);
+        std::vector<ActionEvent> *malm =
+            pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU);
         return ActionHandler::findMouseAction(BUTTON_ANY, ev->state,
                                               MOUSE_EVENT_ENTER, malm);
     } else {
@@ -294,7 +299,8 @@ ActionEvent*
 PMenu::handleLeaveEvent(XCrossingEvent *ev)
 {
     if (*_menu_wo == ev->window) {
-        auto malm = pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU);
+        std::vector<ActionEvent> *malm =
+            pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU);
         return ActionHandler::findMouseAction(BUTTON_ANY, ev->state,
                                               MOUSE_EVENT_LEAVE, malm);
     } else {
@@ -382,7 +388,7 @@ PMenu::buildMenuCalculate(void)
 {
     // Get how many visible objects we have
     unsigned int sep = 0;
-    auto it(_items.begin());
+    item_it it(_items.begin());
     for (_size = 0; it != _items.end(); ++it) {
         if ((*it)->getType() == PMenu::Item::MENU_ITEM_NORMAL) {
             ++_size;
@@ -404,7 +410,7 @@ PMenu::buildMenuCalculate(void)
     _item_width_max_avail = _item_width_max;
 
     // Continue add padding etc.
-    auto md = pekwm::theme()->getMenuData();
+    Theme::PMenuData *md = pekwm::theme()->getMenuData();
     _item_width_max += md->getPad(PAD_LEFT)
         + md->getPad(PAD_RIGHT);
     if (pekwm::config()->isDisplayMenuIcons()) {
@@ -461,25 +467,26 @@ PMenu::buildMenuCalculateMaxWidth(uint &max_width,
     icon_width = 0;
     icon_height = 0;
 
-    auto md = pekwm::theme()->getMenuData();
-    auto font = md->getFont(OBJECT_STATE_FOCUSED);
-    for (auto it : _items) {
+    Theme::PMenuData *md = pekwm::theme()->getMenuData();
+    PFont *font = md->getFont(OBJECT_STATE_FOCUSED);
+    item_it it = _items.begin();
+    for (; it != _items.end(); ++it) {
         // Only include standard items
-        if (it->getType() != PMenu::Item::MENU_ITEM_NORMAL) {
+        if ((*it)->getType() != PMenu::Item::MENU_ITEM_NORMAL) {
             continue;
         }
 
         // Get icon height if any
-        if (it->getIcon()) {
-          if (it->getIcon()->getWidth() > icon_width) {
-              icon_width = it->getIcon()->getWidth();
+        if ((*it)->getIcon()) {
+          if ((*it)->getIcon()->getWidth() > icon_width) {
+              icon_width = (*it)->getIcon()->getWidth();
           }
-          if (it->getIcon()->getHeight() > icon_height) {
-              icon_height = it->getIcon()->getHeight();
+          if ((*it)->getIcon()->getHeight() > icon_height) {
+              icon_height = (*it)->getIcon()->getHeight();
           }
         }
 
-        uint width = font->getWidth(it->getName().c_str());
+        uint width = font->getWidth((*it)->getName().c_str());
         if (width > max_width) {
             max_width = width;
         }
@@ -488,7 +495,7 @@ PMenu::buildMenuCalculateMaxWidth(uint &max_width,
 
     // Make sure icon width and height are not larger than configured.
     if (icon_width) {
-        auto cfg = pekwm::config();
+        Config *cfg = pekwm::config();
         icon_width =
             Util::between<uint>(icon_width,
                                 cfg->getMenuIconLimit(icon_width, WIDTH_MIN,
@@ -535,7 +542,7 @@ PMenu::buildMenuCalculateColumns(unsigned int &width, unsigned int &height)
         uint i, j, row_height;
         height = 0;
 
-        auto it(_items.begin());
+        item_it it(_items.begin());
         for (i = 0, it = _items.begin(); i < _cols; ++i) {
             row_height = 0;
             for (j = 0; j < _rows && it != _items.end(); ++it, ++j) {
@@ -609,15 +616,16 @@ PMenu::buildMenuRenderState(Pixmap &pix, ObjectState state)
     X11::freePixmap(pix);
     pix = X11::createPixmap(getChildWidth(), getChildHeight());
 
-    auto md = pekwm::theme()->getMenuData();
-    auto tex = md->getTextureMenu(state);
+    Theme::PMenuData *md = pekwm::theme()->getMenuData();
+    PTexture *tex = md->getTextureMenu(state);
     tex->render(pix, 0, 0, getChildWidth(), getChildHeight());
-    auto font = md->getFont(state);
+    PFont *font = md->getFont(state);
     font->setColor(md->getColor(state));
 
-    for (auto it : _items) {
-        if (it->getType() != PMenu::Item::MENU_ITEM_HIDDEN) {
-            buildMenuRenderItem(pix, state, it);
+    item_it it = _items.begin();
+    for (; it != _items.end(); ++it) {
+        if ((*it)->getType() != PMenu::Item::MENU_ITEM_HIDDEN) {
+            buildMenuRenderItem(pix, state, *it);
         }
     }
 }
@@ -626,39 +634,52 @@ PMenu::buildMenuRenderState(Pixmap &pix, ObjectState state)
 void
 PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
 {
-    auto md = pekwm::theme()->getMenuData();
+    Theme::PMenuData *md = pekwm::theme()->getMenuData();
+    Config *cfg = pekwm::config();
 
     if (item->getType() == PMenu::Item::MENU_ITEM_NORMAL) {
-        auto tex = md->getTextureItem(state);
-        tex->render(pix, item->getX(), item->getY(), _item_width_max, _item_height);
+        PTexture *tex = md->getTextureItem(state);
+        tex->render(pix, item->getX(), item->getY(),
+                    _item_width_max, _item_height);
 
         uint start_x, start_y, icon_width, icon_height;
         // If entry has an icon, draw it
-        if (item->getIcon() && pekwm::config()->isDisplayMenuIcons()) {
-            icon_width = Util::between<uint>(item->getIcon()->getWidth(),
-                                             pekwm::config()->getMenuIconLimit(_icon_width, WIDTH_MIN, _name),
-                                             pekwm::config()->getMenuIconLimit(_icon_width, WIDTH_MAX, _name));
-            
-            icon_height = Util::between<uint>(item->getIcon()->getHeight(),
-                                              pekwm::config()->getMenuIconLimit(_icon_height, HEIGHT_MIN, _name),
-                                              pekwm::config()->getMenuIconLimit(_icon_height, HEIGHT_MAX, _name));
+        if (item->getIcon() && cfg->isDisplayMenuIcons()) {
+            icon_width =
+                Util::between<uint>(item->getIcon()->getWidth(),
+                                    cfg->getMenuIconLimit(_icon_width,
+                                                          WIDTH_MIN, _name),
+                                    cfg->getMenuIconLimit(_icon_width,
+                                                          WIDTH_MAX, _name));
 
-            start_x = item->getX() + md->getPad(PAD_LEFT) + (_icon_width - icon_width) / 2;
+            icon_height =
+                Util::between<uint>(item->getIcon()->getHeight(),
+                                    cfg->getMenuIconLimit(_icon_height,
+                                                          HEIGHT_MIN, _name),
+                                    cfg->getMenuIconLimit(_icon_height,
+                                                          HEIGHT_MAX, _name));
+
+            start_x = item->getX() + md->getPad(PAD_LEFT)
+                + (_icon_width - icon_width) / 2;
             start_y = item->getY() + (_item_height - icon_height) / 2;
-            item->getIcon()->render(pix, start_x, start_y, icon_width, icon_height);
+            item->getIcon()->render(pix, start_x, start_y,
+                                    icon_width, icon_height);
         } else {
             icon_width = 0;
             icon_height = 0;
         }
 
         // If entry has a submenu, lets draw our submenu "arrow"
-        if (item->getWORef() && (item->getWORef()->getType() == PWinObj::WO_MENU)) {
+        if (item->getWORef()
+            && (item->getWORef()->getType() == PWinObj::WO_MENU)) {
             tex = md->getTextureArrow(state);
             uint arrow_width = tex->getWidth();
             uint arrow_height = tex->getHeight();
-            uint arrow_y = static_cast<uint>((_item_height / 2) - (arrow_height / 2));
+            uint arrow_y =
+                static_cast<uint>((_item_height / 2) - (arrow_height / 2));
 
-            start_x = item->getX() + _item_width_max - arrow_width - md->getPad(PAD_RIGHT);
+            start_x = item->getX() + _item_width_max
+                - arrow_width - md->getPad(PAD_RIGHT);
             start_y = item->getY() + arrow_y;
             tex->render(pix, start_x, start_y, arrow_width, arrow_height);
         }
@@ -666,20 +687,23 @@ PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
         PFont *font = md->getFont(state);
         start_x = item->getX() + md->getPad(PAD_LEFT);
         // Add icon width to starting x position if frame icons are enabled.
-        if (pekwm::config()->isDisplayMenuIcons()) {
+        if (cfg->isDisplayMenuIcons()) {
             start_x += _icon_width;
         }
 
         start_y = item->getY() + md->getPad(PAD_UP)
-            + (_item_height - font->getHeight() - md->getPad(PAD_UP) - md->getPad(PAD_DOWN)) / 2;
+            + (_item_height - font->getHeight()
+               - md->getPad(PAD_UP) - md->getPad(PAD_DOWN)) / 2;
 
         // Render item text.
-        font->draw(pix, start_x, start_y, item->getName().c_str(), 0, _item_width_max_avail);
+        font->draw(pix, start_x, start_y, item->getName().c_str(),
+                   0, _item_width_max_avail);
 
     } else if ((item->getType() == PMenu::Item::MENU_ITEM_SEPARATOR) &&
                (state < OBJECT_STATE_SELECTED)) {
-        auto tex = md->getTextureSeparator(state);
-        tex->render(pix, item->getX(), item->getY(), _item_width_max, _separator_height);
+        PTexture *tex = md->getTextureSeparator(state);
+        tex->render(pix, item->getX(), item->getY(),
+                    _item_width_max, _separator_height);
     }
 }
 
@@ -710,7 +734,7 @@ void
 PMenu::renderSelectedItem(void)
 {
     if (_mapped && _item_curr < _items.size()) {
-        auto item = _items[_item_curr];
+        PMenu::Item *item = _items[_item_curr];
         if (item->getType() != PMenu::Item::MENU_ITEM_HIDDEN) {
             COPY_ITEM_AREA(item, _menu_bg_se);
         }
@@ -746,7 +770,7 @@ PMenu::selectNextItem(void)
         return;
     }
 
-    auto item(_items.begin() + (_item_curr<_items.size()?_item_curr:0));
+    item_it item(_items.begin() + (_item_curr<_items.size()?_item_curr:0));
 
     // no item selected, select the first item
     if (item == _items.end()) {
@@ -777,7 +801,7 @@ PMenu::selectPrevItem(void)
         return;
     }
 
-    auto item(_items.begin() + (_item_curr<_items.size()?_item_curr:0));
+    item_it item(_items.begin() + (_item_curr<_items.size()?_item_curr:0));
 
     // no item selected, select the last item OR
     // we're at the beginning and need to wrap to the end
@@ -813,7 +837,8 @@ void
 PMenu::applyTitleRules(const std::string &title)
 {
     _class_hint.title = title;
-    auto data = pekwm::autoProperties()->findTitleProperty(&_class_hint);
+    TitleProperty *data =
+        pekwm::autoProperties()->findTitleProperty(&_class_hint);
 
     if (data) {
         std::string new_title(title);
@@ -842,7 +867,7 @@ PMenu::insert(std::vector<PMenu::Item*>::iterator at, PMenu::Item *item)
 
     // Check if we have a submenu item
     if (item->getWORef()
-	&& (item->getWORef()->getType() == PWinObj::WO_MENU)) {
+        && (item->getWORef()->getType() == PWinObj::WO_MENU)) {
         _has_submenu++;
     }
 
@@ -866,7 +891,7 @@ void
 PMenu::insert(const std::string &name, const ActionEvent &ae,
               PWinObj *wo_ref, PTexture *icon)
 {
-    auto *item = new PMenu::Item(name, wo_ref, icon);
+    PMenu::Item *item = new PMenu::Item(name, wo_ref, icon);
     item->setAE(ae);
     insert(item);
 }
@@ -876,7 +901,7 @@ void
 PMenu::remove(PMenu::Item *item)
 {
     if (item == nullptr) {
-        ERR("trying to remove null item");
+        P_ERR("trying to remove null item");
         return;
     }
 
@@ -897,8 +922,9 @@ PMenu::remove(PMenu::Item *item)
 void
 PMenu::removeAll(void)
 {
-    for (auto it : _items) {
-        delete it;
+    item_it it = _items.begin();
+    for (; it != _items.end(); ++it) {
+        delete *it;
     }
     _items.clear();
     _item_curr = 0;
@@ -953,12 +979,14 @@ PMenu::mapSubmenu(PMenu *menu, bool focus)
 void
 PMenu::unmapSubmenus(void)
 {
-    for (auto it : _items) {
-        if (it->getWORef() && it->getWORef()->getType() == PWinObj::WO_MENU) {
+    item_it it = _items.begin();
+    for (; it != _items.end(); ++it) {
+        if ((*it)->getWORef()
+            && (*it)->getWORef()->getType() == PWinObj::WO_MENU) {
             // Sub-menus will be deleted when unmapping this, so no need
             // to continue.
-            static_cast<PMenu*>(it->getWORef())->unmapSubmenus();
-            it->getWORef()->unmapWindow();
+            static_cast<PMenu*>((*it)->getWORef())->unmapSubmenus();
+            (*it)->getWORef()->unmapWindow();
         }
     }
 }
@@ -1012,12 +1040,12 @@ void
 PMenu::selectItemRel(int off)
 {
     if (off == 0) {
-        WARN("trying to select non existing relative (current) item number");
+        P_WARN("trying to select non existing relative (current) item number");
         return;
     }
 
     // if no selected item, use first
-    auto it(_items.begin() + (_item_curr < _items.size()?_item_curr:0));
+    item_it it(_items.begin() + (_item_curr < _items.size()?_item_curr:0));
 
     int dir = (off > 0) ? 1 : -1;
     off = abs(off);
@@ -1068,16 +1096,17 @@ PMenu::checkItemWORef(PMenu::Item *item)
 PMenu::Item*
 PMenu::findItem(int x, int y)
 {
-    for (auto it : _items) {
-        if ((it->getType() == PMenu::Item::MENU_ITEM_NORMAL) &&
-            (x >= it->getX())
-            && (x <= signed(it->getX() + _item_width_max)) &&
-            (y >= it->getY())
-            && (y <= signed(it->getY() + _item_height))) {
-            return it;
+    item_it it = _items.begin();
+    for (; it != _items.end(); ++it) {
+        if (((*it)->getType() == PMenu::Item::MENU_ITEM_NORMAL) &&
+            (x >= (*it)->getX())
+            && (x <= signed((*it)->getX() + _item_width_max)) &&
+            (y >= (*it)->getY())
+            && (y <= signed((*it)->getY() + _item_height))) {
+            return *it;
         }
     }
-    return 0;
+    return nullptr;
 }
 
 //! @brief Moves the menu relative to it's parent to make it fit on screen

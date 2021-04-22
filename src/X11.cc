@@ -12,21 +12,23 @@
 #include <iostream>
 #include <cassert>
 #include <cstring> // required for memset in FD_ZERO
+#ifdef PEKWM_HAVE_LIMITS
 #include <limits>
+#endif // PEKWM_HAVE_LIMITS
 
 extern "C" {
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
-#ifdef HAVE_SHAPE
+#ifdef PEKWM_HAVE_SHAPE
 #include <X11/extensions/shape.h>
-#endif // HAVE_SHAPE
-#ifdef HAVE_XRANDR
+#endif // PEKWM_HAVE_SHAPE
+#ifdef PEKWM_HAVE_XRANDR
 #include <X11/extensions/Xrandr.h>
-#endif // HAVE_XRANDR
+#endif // PEKWM_HAVE_XRANDR
 #include <X11/keysym.h> // For XK_ entries
 #include <sys/select.h>
-#ifdef HAVE_X11_XKBLIB_H
+#ifdef PEKWM_HAVE_X11_XKBLIB_H
 #include <X11/XKBlib.h>
 #endif
 bool xerrors_ignore = false;
@@ -73,7 +75,7 @@ extern "C" {
         if (Debug::getLevel() >= Debug::LEVEL_TRACE) {
             char error_buf[256];
             XGetErrorText(dpy, ev->error_code, error_buf, 256);
-            TRACE("XError: " << error_buf << " id: " << ev->resourceid);
+            P_TRACE("XError: " << error_buf << " id: " << ev->resourceid);
         }
 
         return 0;
@@ -388,23 +390,23 @@ X11::init(Display *dpy, bool synchronous, bool honour_randr)
     _cursor_map[CURSOR_MOVE]  = XCreateFontCursor(_dpy, XC_fleur);
     _cursor_map[CURSOR_RESIZE] = XCreateFontCursor(_dpy, XC_plus);
 
-#ifdef HAVE_SHAPE
+#ifdef PEKWM_HAVE_SHAPE
     {
         int dummy_error;
         _has_extension_shape =
             XShapeQueryExtension(_dpy, &_event_shape, &dummy_error);
     }
-#endif // HAVE_SHAPE
+#endif // PEKWM_HAVE_SHAPE
 
-#ifdef HAVE_XRANDR
+#ifdef PEKWM_HAVE_XRANDR
     {
         int dummy_error;
         _has_extension_xrandr =
             XRRQueryExtension(_dpy, &_event_xrandr, &dummy_error);
     }
-#endif // HAVE_XRANDR
+#endif // PEKWM_HAVE_XRANDR
 
-#ifdef HAVE_X11_XKBLIB_H
+#ifdef PEKWM_HAVE_X11_XKBLIB_H
     {
         int major = XkbMajorVersion;
         int minor = XkbMinorVersion;
@@ -413,7 +415,7 @@ X11::init(Display *dpy, bool synchronous, bool honour_randr)
             XkbQueryExtension(_dpy, &ext_opcode, &ext_ev, &ext_err,
                               &major, &minor);
     }
-#endif // HAVE_X11_XKBLIB_H
+#endif // PEKWM_HAVE_X11_XKBLIB_H
 
     // Now screen geometry has been read and extensions have been
     // looked for, read head information.
@@ -435,21 +437,21 @@ X11::init(Display *dpy, bool synchronous, bool honour_randr)
     assert(sizeof(atomnames)/sizeof(char*) == MAX_NR_ATOMS);
     if (! XInternAtoms(_dpy, const_cast<char**>(atomnames), MAX_NR_ATOMS,
                        0, _atoms)) {
-        ERR("XInternAtoms did not return all requested atoms");
+        P_ERR("XInternAtoms did not return all requested atoms");
     }
 }
 
 //! @brief X11 destructor
 void
 X11::destruct(void) {
-    if (_colours.size() > 0) {
-        ulong *pixels = new ulong[_colours.size()];
-        for (uint i=0; i < _colours.size(); ++i) {
-            pixels[i] = _colours[i]->getColor()->pixel;
-            delete _colours[i];
+    if (_colors.size() > 0) {
+        ulong *pixels = new ulong[_colors.size()];
+        for (uint i=0; i < _colors.size(); ++i) {
+            pixels[i] = _colors[i]->getColor()->pixel;
+            delete _colors[i];
         }
         XFreeColors(_dpy, X11::getColormap(),
-                    pixels, _colours.size(), 0);
+                    pixels, _colors.size(), 0);
         delete [] pixels;
     }
 
@@ -457,8 +459,8 @@ X11::destruct(void) {
         XFreeModifiermap(_modifier_map);
     }
 
-    for (const auto &cursor : _cursor_map) {
-        XFreeCursor(_dpy, cursor);
+    for (Cursor i = CURSOR_0; i != CURSOR_NONE; i++) {
+        XFreeCursor(_dpy, _cursor_map[i]);
     }
 
     // Under certain circumstances trying to restart pekwm can cause it to
@@ -473,14 +475,12 @@ X11::destruct(void) {
 XColor *
 X11::getColor(const std::string &color)
 {
-    // check for already existing entry
-    auto it(_colours.begin());
-
     if (strcasecmp(color.c_str(), "EMPTY") == 0) {
         return &_xc_default;
     }
 
-    for (; it != _colours.end(); ++it) {
+    std::vector<ColorEntry*>::iterator it = _colors.begin();
+    for (; it != _colors.end(); ++it) {
         if (*(*it) == color) {
             (*it)->incRef();
             return (*it)->getColor();
@@ -494,11 +494,11 @@ X11::getColor(const std::string &color)
     XColor dummy;
     if (XAllocNamedColor(_dpy, X11::getColormap(),
                          color.c_str(), entry->getColor(), &dummy) == 0) {
-        ERR("failed to alloc color: " << color);
+        P_ERR("failed to alloc color: " << color);
         delete entry;
         entry = 0;
     } else {
-        _colours.push_back(entry);
+        _colors.push_back(entry);
         entry->incRef();
     }
 
@@ -512,8 +512,8 @@ X11::returnColor(XColor*& xc)
         return;
     }
 
-    auto it(_colours.begin());
-    for (; it != _colours.end(); ++it) {
+    std::vector<ColorEntry*>::iterator it = _colors.begin();
+    for (; it != _colors.end(); ++it) {
         if ((*it)->getColor() == xc) {
             (*it)->decRef();
             if (((*it)->getRef() == 0)) {
@@ -521,7 +521,7 @@ X11::returnColor(XColor*& xc)
                 XFreeColors(X11::getDpy(), X11::getColormap(), pixels, 1, 0);
 
                 delete *it;
-                _colours.erase(it);
+                _colors.erase(it);
             }
             break;
         }
@@ -572,7 +572,7 @@ bool
 X11::grabServer(void)
 {
     if (_server_grabs == 0) {
-        TRACE("grabbing server");
+        P_TRACE("grabbing server");
         XGrabServer(_dpy);
         ++_server_grabs;
     } else {
@@ -588,10 +588,10 @@ X11::ungrabServer(bool sync)
     if (_server_grabs > 0) {
         if (--_server_grabs == 0) {
             if (sync) {
-                TRACE("0 server grabs left, syncing and ungrab.");
+                P_TRACE("0 server grabs left, syncing and ungrab.");
                 X11::sync(False);
             } else {
-                TRACE("0 server grabs left, ungrabbing server.");
+                P_TRACE("0 server grabs left, ungrabbing server.");
             }
             XUngrabServer(_dpy);
         }
@@ -603,12 +603,12 @@ X11::ungrabServer(bool sync)
 bool
 X11::grabKeyboard(Window win)
 {
-    TRACE("grabbing keyboard");
+    P_TRACE("grabbing keyboard");
     if (XGrabKeyboard(_dpy, win, false, GrabModeAsync, GrabModeAsync,
                       CurrentTime) == GrabSuccess) {
         return true;
     }
-    ERR("failed to grab keyboard on " << win);
+    P_ERR("failed to grab keyboard on " << win);
     return false;
 }
 
@@ -616,7 +616,7 @@ X11::grabKeyboard(Window win)
 bool
 X11::ungrabKeyboard(void)
 {
-    TRACE("ungrabbing keyboard");
+    P_TRACE("ungrabbing keyboard");
     XUngrabKeyboard(_dpy, CurrentTime);
     return false;
 }
@@ -625,13 +625,13 @@ X11::ungrabKeyboard(void)
 bool
 X11::grabPointer(Window win, uint event_mask, CursorType type)
 {
-    TRACE("grabbing pointer");
-    auto cursor = type < _cursor_map.size() ? _cursor_map[type] : None;
+    P_TRACE("grabbing pointer");
+    Cursor cursor = type < CURSOR_NONE ? _cursor_map[type] : None;
     if (XGrabPointer(_dpy, win, false, event_mask, GrabModeAsync, GrabModeAsync,
                      None, cursor, CurrentTime) == GrabSuccess) {
         return true;
     }
-    ERR("failed to grab pointer on " << win
+    P_ERR("failed to grab pointer on " << win
         << ", event_mask " << event_mask
         << ", type " << type);
     return false;
@@ -641,7 +641,7 @@ X11::grabPointer(Window win, uint event_mask, CursorType type)
 bool
 X11::ungrabPointer(void)
 {
-    TRACE("ungrabbing pointer");
+    P_TRACE("ungrabbing pointer");
     XUngrabPointer(_dpy, CurrentTime);
     return false;
 }
@@ -652,7 +652,7 @@ X11::ungrabPointer(void)
 bool
 X11::updateGeometry(uint width, uint height)
 {
-#ifdef HAVE_XRANDR
+#ifdef PEKWM_HAVE_XRANDR
   if (! _honour_randr || ! _has_extension_xrandr) {
     return false;
   }
@@ -665,31 +665,32 @@ X11::updateGeometry(uint width, uint height)
   _screen_gm.width = width;
   _screen_gm.height = height;
   return true;
-#else // ! HAVE_XRANDR
+#else // ! PEKWM_HAVE_XRANDR
   return false;
-#endif // HAVE_XRANDR
+#endif // PEKWM_HAVE_XRANDR
 }
 
 bool
 X11::selectXRandrInput(void)
 {
-#ifdef HAVE_XRANDR
+#ifdef PEKWM_HAVE_XRANDR
     if (_honour_randr && _has_extension_xrandr) {
         XRRSelectInput(_dpy, _root, RRScreenChangeNotifyMask);
         return true;
     }
-#endif // HAVE_XRANDR
+#endif // PEKWM_HAVE_XRANDR
     return false;
 }
 
 bool
 X11::getScreenChangeNotification(XEvent *ev, ScreenChangeNotification &scn)
 {
-#ifdef HAVE_XRANDR
+#ifdef PEKWM_HAVE_XRANDR
     if (_honour_randr
         && _has_extension_xrandr
         && ev->type == _event_xrandr + RRScreenChangeNotify) {
-        auto scr_ev = reinterpret_cast<XRRScreenChangeNotifyEvent*>(ev);
+        XRRScreenChangeNotifyEvent* scr_ev =
+            reinterpret_cast<XRRScreenChangeNotifyEvent*>(ev);
         if  (scr_ev->rotation == RR_Rotate_90
              || scr_ev->rotation == RR_Rotate_270) {
             scn.width = scr_ev->height;
@@ -700,7 +701,7 @@ X11::getScreenChangeNotification(XEvent *ev, ScreenChangeNotification &scn)
         }
         return true;
     }
-#endif // HAVE_XRANDR
+#endif // PEKWM_HAVE_XRANDR
     return false;
 }
 
@@ -805,7 +806,7 @@ X11::getHeadInfo(uint head, Geometry &head_info)
         head_info.height = _heads[head].height;
         return true;
     } else {
-        ERR("head " << head << " does not exist");
+        P_ERR("head " << head << " does not exist");
         return false;
     }
 }
@@ -816,13 +817,14 @@ X11::getHeadInfo(uint head, Geometry &head_info)
 void
 X11::getHeadInfo(int x, int y, Geometry &head_info)
 {
-    for (auto head : _heads) {
-        if (x >= head.x && x <= signed(head.x + head.width)
-            && y >= head.y && y <= signed(head.y + head.height)) {
-            head_info.x = head.x;
-            head_info.y = head.y;
-            head_info.width = head.width;
-            head_info.height = head.height;
+    std::vector<Head>::iterator it = _heads.begin();
+    for (; it != _heads.end(); ++it) {
+        if (x >= it->x && x <= signed(it->x + it->width)
+            && y >= it->y && y <= signed(it->y + it->height)) {
+            head_info.x = it->x;
+            head_info.y = it->y;
+            head_info.width = it->width;
+            head_info.height = it->height;
             return;
         }
     }
@@ -1022,7 +1024,7 @@ X11::initHeads(void)
 void
 X11::initHeadsXinerama(void)
 {
-#ifdef HAVE_XINERAMA
+#ifdef PEKWM_HAVE_XINERAMA
     // Check if there are heads already initialized from example Randr
     if (! XineramaIsActive(_dpy)) {
         return;
@@ -1037,14 +1039,14 @@ X11::initHeadsXinerama(void)
     }
 
     X11::free(infos);
-#endif // HAVE_XINERAMA
+#endif // PEKWM_HAVE_XINERAMA
 }
 
 //! @brief Initialize head information from RandR
 void
 X11::initHeadsRandr(void)
 {
-#ifdef HAVE_XRANDR
+#ifdef PEKWM_HAVE_XRANDR
     if (! _honour_randr || ! _has_extension_xrandr) {
         return;
     }
@@ -1055,9 +1057,10 @@ X11::initHeadsRandr(void)
     }
 
     for (int i = 0; i < resources->noutput; ++i) {
-        auto output = XRRGetOutputInfo(_dpy, resources, resources->outputs[i]);
+        XRROutputInfo* output =
+            XRRGetOutputInfo(_dpy, resources, resources->outputs[i]);
         if (output->crtc) {
-            auto crtc = XRRGetCrtcInfo(_dpy, resources, output->crtc);
+            XRRCrtcInfo* crtc = XRRGetCrtcInfo(_dpy, resources, output->crtc);
             addHead(Head(crtc->x, crtc->y, crtc->width, crtc->height));
             XRRFreeCrtcInfo (crtc);
         }
@@ -1065,7 +1068,7 @@ X11::initHeadsRandr(void)
     }
 
     XRRFreeScreenResources (resources);
-#endif // HAVE_XRANDR
+#endif // PEKWM_HAVE_XRANDR
 }
 
 /**
@@ -1122,8 +1125,10 @@ X11::getKeycodeFromMask(uint mask)
  * which one is available.
  */
 #ifdef __GNUG__
+#ifdef PEKWM_HAVE_GCC_DIAGNOSTICS_PUSH
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif // PEKWM_HAVE_GCC_DIAGNOSTICS_PUSH
 #else // ! __GNUG__
 #ifdef __SUNPRO_CC
 #pragma error_messages (off,symdeprecated)
@@ -1132,7 +1137,7 @@ X11::getKeycodeFromMask(uint mask)
 KeySym
 X11::getKeysymFromKeycode(KeyCode keycode)
 {
-#ifdef HAVE_X11_XKBLIB_H
+#ifdef PEKWM_HAVE_X11_XKBLIB_H
     if (_has_extension_xkb)
         return XkbKeycodeToKeysym(_dpy, keycode, 0, 0);
     else
@@ -1140,7 +1145,9 @@ X11::getKeysymFromKeycode(KeyCode keycode)
         return XKeycodeToKeysym(_dpy, keycode, 0);
 }
 #ifdef __GNUG__
+#ifdef PEKWM_HAVE_GCC_DIAGNOSTICS_PUSH
 #pragma GCC diagnostic pop
+#endif // PEKWM_HAVE_GCC_DIAGNOSTICS_PUSH
 #endif // __GNUG__
 
 /**
@@ -1255,6 +1262,6 @@ uint X11::_server_grabs;
 Time X11::_last_event_time;
 Window X11::_last_click_id = None;
 Time X11::_last_click_time[BUTTON_NO - 1];
-std::vector<X11::ColorEntry*> X11::_colours;
+std::vector<X11::ColorEntry*> X11::_colors;
 XColor X11::_xc_default;
-std::array<Cursor, CURSOR_NONE> X11::_cursor_map;
+Cursor X11::_cursor_map[CURSOR_NONE];

@@ -105,7 +105,8 @@ Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
     // avoid auto-grouping to be to greedy.
     getTransientForHint();
 
-    auto ap = readAutoprops(pekwm::isStarting() ? APPLY_ON_START : APPLY_ON_NEW);
+    AutoProperty *ap =
+        readAutoprops(pekwm::isStarting() ? APPLY_ON_START : APPLY_ON_NEW);
     readHints();
 
     // We need to set the state before acquiring a frame,
@@ -134,7 +135,7 @@ Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
     _wo_map[_window] = this;
     _clients.push_back(this);
 
-    TRACE(this << " client constructed for window " << FMT_HEX(_window));
+    P_TRACE(this << " client constructed for window " << FMT_HEX(_window));
 }
 
 //! @brief Client destructor
@@ -194,7 +195,7 @@ Client::~Client(void)
 
     X11::ungrabServer(true);
 
-    TRACE(this << " client for window " << FMT_HEX(_window) << " destructed");
+    P_TRACE(this << " client for window " << FMT_HEX(_window) << " destructed");
 }
 
 /**
@@ -325,7 +326,7 @@ Client::findAutoGroupFrame(AutoProperty *autoproperty)
         return false;
     }
 
-    auto frame = ClientMgr::findGroup(autoproperty);
+    Frame *frame = ClientMgr::findGroup(autoproperty);
     if (frame) {
         frame->addChild(this);
 
@@ -608,7 +609,7 @@ Client::handleUnmapEvent(XUnmapEvent *ev)
 
 // END - PWinObj interface.
 
-#ifdef HAVE_SHAPE
+#ifdef PEKWM_HAVE_SHAPE
 void
 Client::handleShapeEvent(XShapeEvent *ev)
 {
@@ -622,14 +623,15 @@ Client::handleShapeEvent(XShapeEvent *ev)
         static_cast<Frame *>(_parent)->handleShapeEvent(ev);
     }
 }
-#endif // HAVE_SHAPE
+#endif // PEKWM_HAVE_SHAPE
 
 // START - Observer interface
 
 void
 Client::notify(Observable *observable, Observation *observation)
 {
-    auto layer_observation = dynamic_cast<LayerObservation*>(observation);
+    LayerObservation* layer_observation =
+        dynamic_cast<LayerObservation*>(observation);
     if (layer_observation && layer_observation->layer > getLayer()) {
         setLayer(layer_observation->layer);
         updateParentLayerAndRaiseIfActive();
@@ -649,14 +651,15 @@ Client::findClient(Window win)
         return 0;
     }
 
-    for (auto it : _clients) {
-        if (win == it->getWindow()
-            || (it->getParent() && (*(it->getParent()) == win))) {
-            return it;
+    client_it it = _clients.begin();
+    for (; it != _clients.end(); ++it) {
+        if (win == (*it)->getWindow()
+            || ((*it)->getParent() && (*((*it)->getParent()) == win))) {
+            return *it;
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 //! @brief Finds the Client of Window win.
@@ -669,13 +672,14 @@ Client::findClientFromWindow(Window win)
         return 0;
     }
 
-    for (auto it : _clients) {
-        if (win == it->getWindow()) {
-            return it;
+    client_it it = _clients.begin();
+    for (; it != _clients.end(); ++it) {
+        if (win == (*it)->getWindow()) {
+            return *it;
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 //! @brief Finds Client with equal ClassHint.
@@ -684,13 +688,14 @@ Client::findClientFromWindow(Window win)
 Client*
 Client::findClientFromHint(const ClassHint *class_hint)
 {
-    for (auto it : _clients) {
-        if (*class_hint == *it->getClassHint()) {
-            return it;
+    client_it it = _clients.begin();
+    for (; it != _clients.end(); ++it) {
+        if (*class_hint == *(*it)->getClassHint()) {
+            return *it;
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 //! @brief Finds Client with id.
@@ -699,13 +704,14 @@ Client::findClientFromHint(const ClassHint *class_hint)
 Client*
 Client::findClientFromID(uint id)
 {
-    for (auto it : _clients) {
-        if (it->getClientID() == id) {
-            return it;
+    client_it it = _clients.begin();
+    for (; it != _clients.end(); ++it) {
+        if ((*it)->getClientID() == id) {
+            return *it;
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 /**
@@ -714,9 +720,10 @@ Client::findClientFromID(uint id)
 void
 Client::findFamilyFromWindow(std::vector<Client*> &client_list, Window win)
 {
-    for (auto it : _clients) {
-        if (it->getTransientForClientWindow() == win) {
-            client_list.push_back(it);
+    client_it it = _clients.begin();
+    for (; it != _clients.end(); ++it) {
+        if ((*it)->getTransientForClientWindow() == win) {
+            client_list.push_back(*it);
         }
     }
 }
@@ -731,12 +738,13 @@ Client::mapOrUnmapTransients(Window win, bool hide)
     std::vector<Client*> client_list;
     findFamilyFromWindow(client_list, win);
 
-    for (auto it : client_list) {
-        if (static_cast<Frame*>(it->getParent())->getActiveChild() == it) {
+    client_it it = client_list.begin();
+    for (; it != client_list.end(); ++it) {
+        if (static_cast<Frame*>((*it)->getParent())->getActiveChild() == *it) {
             if (hide) {
-                it->getParent()->iconify();
+                (*it)->getParent()->iconify();
             } else {
-                it->getParent()->mapWindow();
+                (*it)->getParent()->mapWindow();
             }
         }
     }
@@ -777,22 +785,23 @@ Client::grabButtons(void)
     // Make sure we don't have any buttons grabbed.
     X11::ungrabButton(AnyButton, AnyModifier, _window);
 
-    auto actions =
+    std::vector<ActionEvent> *actions =
         pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_CHILD_FRAME);
-    for (auto it : *actions) {
-        if ((it.type == MOUSE_EVENT_PRESS)
-            || (it.type == MOUSE_EVENT_RELEASE)) {
+    std::vector<ActionEvent>::iterator it = actions->begin();
+    for (; it != actions->end(); ++it) {
+        if ((it->type == MOUSE_EVENT_PRESS)
+            || (it->type == MOUSE_EVENT_RELEASE)) {
             // No need to grab mod less events, replied with the frame
-            if ((it.mod == 0) || (it.mod == MOD_ANY)) {
+            if ((it->mod == 0) || (it->mod == MOD_ANY)) {
                 continue;
             }
 
             uint mask = ButtonPressMask|ButtonReleaseMask;
-            X11Util::grabButton(it.sym, it.mod, mask, _window);
-        } else if (it.type == MOUSE_EVENT_MOTION) {
+            X11Util::grabButton(it->sym, it->mod, mask, _window);
+        } else if (it->type == MOUSE_EVENT_MOTION) {
             // FIXME: Add support for MOD_ANY
             uint mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask;
-            X11Util::grabButton(it.sym, it.mod, mask, _window);
+            X11Util::grabButton(it->sym, it->mod, mask, _window);
         }
     }
 }
@@ -867,7 +876,7 @@ Client::readEwmhHints(void)
     updateWinType(true);
 
     // Apply autoproperties for window type
-    auto auto_property =
+    AutoProperty *auto_property =
         pekwm::autoProperties()->findWindowTypeProperty(_window_type);
     if (auto_property) {
         applyAutoprops(auto_property);
@@ -983,7 +992,7 @@ Client::readPekwmHints(void)
 void
 Client::readIcon(void)
 {
-    auto image = PImageIcon::newFromWindow(_window);
+    PImage *image = PImageIcon::newFromWindow(_window);
     if (image) {
         if (_icon) {
             _icon->setImage(image);
@@ -1009,11 +1018,11 @@ Client::readIcon(void)
 AutoProperty*
 Client::readAutoprops(ApplyOn type)
 {
-    auto aps = pekwm::autoProperties();
-    auto property =
+    AutoProperties *aps = pekwm::autoProperties();
+    AutoProperty *property =
         aps->findAutoProperty(_class_hint, Workspaces::getActive(), type);
     if (property) {
-        DBG("auto property found for client " << _class_hint);
+        P_DBG("auto property found for client " << _class_hint);
 
         // Make sure transient state matches
         if (isTransient()
@@ -1024,7 +1033,7 @@ Client::readAutoprops(ApplyOn type)
             property = nullptr;
         }
     } else {
-        DBG("no auto property found for client " << _class_hint);
+        P_DBG("no auto property found for client " << _class_hint);
     }
     return property;
 }
@@ -1077,7 +1086,7 @@ Client::applyAutoprops(AutoProperty *ap)
         setOpacity(ap->focus_opacity, ap->unfocus_opacity);
     }
     if (ap->isMask(AP_ICON)) {
-        TRACE("set _NET_WM_ICON on " << _window);
+        P_TRACE("set _NET_WM_ICON on " << _window);
         ap->icon->setOnWindow(_window);
     }
 }
@@ -1163,7 +1172,7 @@ Client::findClientID(void)
 void
 Client::returnClientID(uint id)
 {
-    auto it(_clientids.begin());
+    std::vector<uint>::iterator it = _clientids.begin();
     for (; it != _clientids.end() && id < *it; ++it)
         ;
     _clientids.insert(it, id);
@@ -1204,7 +1213,8 @@ bool
 Client::titleApplyRule(std::string &title)
 {
     _class_hint->title = title;
-    auto data = pekwm::autoProperties()->findTitleProperty(_class_hint);
+    TitleProperty *data =
+        pekwm::autoProperties()->findTitleProperty(_class_hint);
     if (data) {
         return data->getTitleRule().ed_s(title);
     } else {
@@ -1226,10 +1236,11 @@ Client::titleFindID(std::string &title)
     uint id_found = 0;
     std::vector<uint> ids_used;
 
-    for (auto it : _clients) {
-        if (it != this) {
-            if (it->getTitle()->getReal() == title) {
-                ids_used.push_back(it->getTitle()->getCount());
+    client_it it = _clients.begin();
+    for (; it != _clients.end(); ++it) {
+        if (*it != this) {
+            if ((*it)->getTitle()->getReal() == title) {
+                ids_used.push_back((*it)->getTitle()->getCount());
             }
         }
     }
@@ -1238,7 +1249,7 @@ Client::titleFindID(std::string &title)
     if (ids_used.size() > 0) {
         std::sort(ids_used.begin(), ids_used.end());
 
-        auto ui_it(ids_used.begin());
+        std::vector<uint>::iterator ui_it(ids_used.begin());
         for (uint i = 0; ui_it != ids_used.end(); ++i, ++ui_it) {
             if (i < *ui_it) {
                 id_found = i;
@@ -1372,8 +1383,8 @@ Client::setSkip(uint skip)
 std::string
 Client::getAPDecorName(void)
 {
-    auto props = pekwm::autoProperties();
-    auto ap = props->findAutoProperty(getClassHint());
+    AutoProperties *props = pekwm::autoProperties();
+    AutoProperty *ap = props->findAutoProperty(getClassHint());
     if (ap && ap->isMask(AP_DECOR)) {
         return ap->frame_decor;
     }
@@ -1383,7 +1394,7 @@ Client::getAPDecorName(void)
         return ap->frame_decor;
     }
 
-    auto dp = props->findDecorProperty(getClassHint());
+    DecorProperty *dp = props->findDecorProperty(getClassHint());
     if (dp) {
         return dp->getName();
     }
@@ -1428,7 +1439,7 @@ Client::kill(void)
 bool
 Client::getAspectSize(uint *r_w, uint *r_h, uint w, uint h)
 {
-    auto size = getActiveSizeHints();
+    XSizeHints size = getActiveSizeHints();
 
     // see ICCCM 4.1.2.3 for PAspect and {min,max}_aspect
     bool incr;
@@ -1733,11 +1744,11 @@ Client::getTransientForHint(void)
     XGetTransientForHint(X11::getDpy(), _window, &_transient_for_window);
     if (_transient_for_window != None) {
         if (_transient_for_window == _window) {
-            ERR(this << " client set transient hint for itself");
+            P_ERR(this << " client set transient hint for itself");
             _transient_for_window = None;
         } else {
             transient_for = findClientFromWindow(_transient_for_window);
-            TRACE(this << " transient for " << _transient_for_window
+            P_TRACE(this << " transient for " << _transient_for_window
                   << " client " << transient_for);
         }
     }
@@ -1752,7 +1763,7 @@ Client::setTransientFor(Client *transient_for)
         return;
     }
 
-    TRACE(this << " transient for changed from " << _transient_for
+    P_TRACE(this << " transient for changed from " << _transient_for
           << " to " << transient_for);
 
     if (_transient_for) {
@@ -1767,7 +1778,7 @@ Client::setTransientFor(Client *transient_for)
 void
 Client::addTransient(Client *transient)
 {
-    TRACE(this << " add transient: " << transient);
+    P_TRACE(this << " add transient: " << transient);
     assert(transient != this);
     _transients.push_back(transient);
 }
@@ -1775,7 +1786,7 @@ Client::addTransient(Client *transient)
 void
 Client::removeTransient(Client *transient)
 {
-    TRACE(this << " remove transient: " << transient);
+    P_TRACE(this << " remove transient: " << transient);
     assert(transient != this);
     _transients.erase(std::remove(_transients.begin(), _transients.end(),
                                   transient),

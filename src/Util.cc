@@ -141,7 +141,7 @@ namespace Util {
      */
     std::string getEnv(const std::string& key)
     {
-        auto val = getenv(key.c_str());
+        const char *val = getenv(key.c_str());
         return val ? val : "";
     }
 
@@ -152,7 +152,7 @@ namespace Util {
     forkExec(std::string command)
     {
         if (command.length() == 0) {
-            ERR("command length == 0");
+            P_ERR("command length == 0");
             return;
         }
 
@@ -161,13 +161,13 @@ namespace Util {
         case 0:
             setsid();
             execlp("/bin/sh", "sh", "-c", command.c_str(), (char *) 0);
-            ERR("execlp failed: " << strerror(errno));
+            P_ERR("execlp failed: " << strerror(errno));
             exit(1);
         case -1:
-            ERR("fork failed: " << strerror(errno));
+            P_ERR("fork failed: " << strerror(errno));
             break;
         default:
-            TRACE("started child " << pid);
+            P_TRACE("started child " << pid);
             break;
         }
     }
@@ -181,8 +181,8 @@ namespace Util {
         switch (pid) {
         case 0: {
             int i = 0;
-            auto argv = new char*[args.size() + 1];
-            auto it = args.begin();
+            char **argv = new char*[args.size() + 1];
+            std::vector<std::string>::const_iterator it = args.begin();
             for (; it != args.end(); ++it) {
                 argv[i++] = const_cast<char*>(it->c_str());
             }
@@ -193,9 +193,9 @@ namespace Util {
             exit(1);
         }
         case -1:
-            ERR("fork failed: " << strerror(errno));
+            P_ERR("fork failed: " << strerror(errno));
         default:
-            TRACE("started child " << pid);
+            P_TRACE("started child " << pid);
             return pid;
         }
     }
@@ -228,13 +228,13 @@ namespace Util {
     {
         int flags = fcntl(fd, F_GETFL, 0);
         if (flags == -1) {
-            ERR("failed to get flags from fd " << fd
+            P_ERR("failed to get flags from fd " << fd
                 << ": " << strerror(errno));
             return false;
         }
         int ret = fcntl(fd, F_SETFL, flags | O_NONBLOCK);
         if (ret == -1) {
-            ERR("failed to set O_NONBLOCK on fd " << fd
+            P_ERR("failed to set O_NONBLOCK on fd " << fd
                 << ": " << strerror(errno));
             return false;
         }
@@ -262,7 +262,7 @@ namespace Util {
     isExecutable(const std::string &file)
     {
         if (file.size() == 0) {
-            ERR("file length == 0");
+            P_ERR("file length == 0");
             return false;
         }
 
@@ -389,7 +389,7 @@ namespace Util {
                 std::string& dir, std::string& variant,
                 std::string& theme_file)
     {
-        auto files = root->findSection("FILES");
+        CfgParser::Entry *files = root->findSection("FILES");
         if (files != nullptr) {
             std::vector<CfgParserKey*> keys;
             keys.push_back(new CfgParserKeyPath("THEME", dir, THEME_DEFAULT));
@@ -409,11 +409,11 @@ namespace Util {
 
         theme_file = norm_dir + "/theme";
         if (! variant.empty()) {
-            auto theme_file_variant = theme_file + "-" + variant;
+            std::string theme_file_variant = theme_file + "-" + variant;
             if (isFile(theme_file_variant)) {
                 theme_file = theme_file_variant;
             } else {
-                DBG("theme variant " << variant << " does not exist");
+                P_DBG("theme variant " << variant << " does not exist");
             }
         }
     }
@@ -424,7 +424,7 @@ namespace Util {
         dir = "~/.pekwm/icons/";
         expandFileName(dir);
 
-        auto files = root->findSection("FILES");
+        CfgParser::Entry *files = root->findSection("FILES");
         if (files != nullptr) {
             std::vector<CfgParserKey*> keys;
             keys.push_back(new CfgParserKeyPath("ICONS", dir));
@@ -476,7 +476,7 @@ namespace Util {
                      const char *sep, uint max,
                      bool include_empty, char escape)
     {
-        auto start = str.find_first_not_of(spaceChars(escape));
+        size_t start = str.find_first_not_of(spaceChars(escape));
         if (str.size() == 0 || start == std::string::npos) {
             return 0;
         }

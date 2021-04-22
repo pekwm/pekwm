@@ -7,9 +7,14 @@
 
 #pragma once
 
+#include "Compat.hh"
+
 #include <string>
-#include <limits>
 #include <cstdlib>
+
+#ifdef PEKWM_HAVE_LIMITS
+#include <limits>
+#endif // PEKWM_HAVE_LIMITS
 
 //! @brief CfgParserKey base class.
 class CfgParserKey {

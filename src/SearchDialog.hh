@@ -26,17 +26,17 @@ public:
     SearchDialog();
     virtual ~SearchDialog(void);
 
-    virtual void unmapWindow(void) override;
+    virtual void unmapWindow(void);
 
 protected:
-    virtual ActionEvent *exec(void) override;
+    virtual ActionEvent *exec(void);
 
-    virtual void bufChanged(void) override;
+    virtual void bufChanged(void);
 
-    virtual void histNext(void) override;
-    virtual void histPrev(void) override;
+    virtual void histNext(void);
+    virtual void histPrev(void);
 
-    virtual void updateSize(const Geometry &head) override;
+    virtual void updateSize(const Geometry &head);
 
 private:
     uint findClients(const std::string &search);

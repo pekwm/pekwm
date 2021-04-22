@@ -105,7 +105,7 @@ HintWO::claimDisplay(bool replace)
 
     if (session_owner && session_owner != _window) {
         if (! replace) {
-            LOG("window manager already running");
+            P_LOG("window manager already running");
             return false;
         }
 
@@ -153,7 +153,7 @@ HintWO::claimDisplayWait(Window session_owner)
 {
     XEvent event;
 
-    LOG("waiting for previous window manager to exit");
+    P_LOG("waiting for previous window manager to exit");
 
     for (uint waited = 0; waited < HintWO::DISPLAY_WAIT; ++waited) {
         if (XCheckWindowEvent(X11::getDpy(), session_owner,
@@ -165,7 +165,7 @@ HintWO::claimDisplayWait(Window session_owner)
         sleep(1);
     }
 
-    LOG("previous window manager did not exit");
+    P_LOG("previous window manager did not exit");
 
     return false;
 }
@@ -367,7 +367,7 @@ RootWO::getHeadInfoWithEdge(uint num, Geometry &head)
     }
 
     int strut_val;
-    auto strut = _strut_head[num];
+    Strut &strut = _strut_head[num];
 
     // Remove the strut area from the head info
     strut_val = (head.x == 0) ? std::max(_strut.left, strut.left) : strut.left;
@@ -413,7 +413,8 @@ RootWO::addStrut(Strut *strut)
 void
 RootWO::removeStrut(Strut *strut)
 {
-    auto it(find(_struts.begin(), _struts.end(), strut));
+    std::vector<Strut*>::iterator it =
+        find(_struts.begin(), _struts.end(), strut);
     if (it != _struts.end()) {
         _struts.erase(it);
     }
@@ -430,35 +431,36 @@ RootWO::updateStrut(void)
     _strut.top = 0;
     _strut.bottom = 0;
 
-    auto it = _strut_head.begin();
-    for (; it != _strut_head.end(); ++it) {
-        it->left = 0;
-        it->right = 0;
-        it->top = 0;
-        it->bottom = 0;
+    std::vector<Strut>::iterator hit = _strut_head.begin();
+    for (; hit != _strut_head.end(); ++hit) {
+        hit->left = 0;
+        hit->right = 0;
+        hit->top = 0;
+        hit->bottom = 0;
     }
 
     Strut *strut;
-    for(auto it : _struts) {
-        if (it->head < 0) {
+    std::vector<Strut*>::iterator it = _struts.begin();
+    for (; it != _struts.end(); ++it) {
+        if ((*it)->head < 0) {
             strut = &_strut;
-        } else if (static_cast<uint>(it->head) < _strut_head.size()) {
-            strut = &(_strut_head[it->head]);
+        } else if (static_cast<uint>((*it)->head) < _strut_head.size()) {
+            strut = &(_strut_head[(*it)->head]);
         } else {
             continue;
         }
 
-        if (strut->left < it->left) {
-            strut->left = it->left;
+        if (strut->left < (*it)->left) {
+            strut->left = (*it)->left;
         }
-        if (strut->right < it->right) {
-            strut->right = it->right;
+        if (strut->right < (*it)->right) {
+            strut->right = (*it)->right;
         }
-        if (strut->top < it->top) {
-            strut->top = it->top;
+        if (strut->top < (*it)->top) {
+            strut->top = (*it)->top;
         }
-        if (strut->bottom < it->bottom) {
-          strut->bottom = it->bottom;
+        if (strut->bottom < (*it)->bottom) {
+          strut->bottom = (*it)->bottom;
         }
     }
 
@@ -692,7 +694,7 @@ EdgeWO::handleButtonRelease(XButtonEvent *ev)
         return 0;
     }
 
-    auto mb = MOUSE_EVENT_RELEASE;
+    MouseEventType mb = MOUSE_EVENT_RELEASE;
 
     // first we check if it's a double click
     if (X11::isDoubleClick(ev->window, ev->button - 1, ev->time,

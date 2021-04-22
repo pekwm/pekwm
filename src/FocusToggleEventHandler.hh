@@ -24,19 +24,19 @@ public:
     virtual ~FocusToggleEventHandler(void);
 
     virtual void notify(Observable *observable,
-                        Observation *observation) override;
-    virtual bool initEventHandler(void) override;
+                        Observation *observation);
+    virtual bool initEventHandler(void);
 
     virtual EventHandler::Result
-    handleButtonPressEvent(XButtonEvent*) override;
+    handleButtonPressEvent(XButtonEvent*);
     virtual EventHandler::Result
-    handleButtonReleaseEvent(XButtonEvent*) override;
+    handleButtonReleaseEvent(XButtonEvent*);
     virtual EventHandler::Result
-    handleExposeEvent(XExposeEvent *ev) override;
+    handleExposeEvent(XExposeEvent *ev);
     virtual EventHandler::Result
-    handleMotionNotifyEvent(XMotionEvent*) override;
+    handleMotionNotifyEvent(XMotionEvent*);
     virtual EventHandler::Result
-    handleKeyEvent(XKeyEvent *ev) override;
+    handleKeyEvent(XKeyEvent *ev);
 
 private:
 

@@ -17,6 +17,8 @@ public:
     TestFrame(void);
     ~TestFrame(void);
 
+    virtual bool run_test(TestSpec spec, bool status);
+
     static void testApplyGeometry(void);
     static void assertApplyGeometry(std::string msg,
                                     Geometry gm,
@@ -29,11 +31,17 @@ TestFrame::TestFrame(void)
     : Frame(),
       TestSuite("Frame")
 {
-    register_test("applyGeometry", TestFrame::testApplyGeometry);
 }
 
 TestFrame::~TestFrame(void)
 {
+}
+
+bool
+TestFrame::run_test(TestSpec spec, bool status)
+{
+    TEST_FN(spec, "applyGeometry", testApplyGeometry());
+    return status;
 }
 
 void

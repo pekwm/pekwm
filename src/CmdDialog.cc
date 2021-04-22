@@ -54,7 +54,7 @@ CmdDialog::~CmdDialog(void)
 ActionEvent*
 CmdDialog::exec(void)
 {
-    auto cfg = pekwm::config();
+    Config *cfg = pekwm::config();
 
     // Update history
     addHistory(str(),
@@ -119,8 +119,9 @@ CmdDialog::complete(void)
 
     if (_complete_list.size()) {
         uint pos = buf().pos();
-        auto val = _completer.do_complete(_buf_on_complete, pos,
-                                          _complete_list, _complete_it);
+        std::string val = _completer.do_complete(_buf_on_complete, pos,
+
+                                                 _complete_list, _complete_it);
         buf().setBuf(val);
         buf().setPos(pos);
         _buf_on_complete_result = val;

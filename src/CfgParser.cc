@@ -29,7 +29,7 @@ bool
 TimeFiles::requireReload(const std::string &file)
 {
     // Check for the file, signal reload if not previously loaded.
-    auto it(find(files.begin(), files.end(), file));
+    filev_it it = find(files.begin(), files.end(), file);
     if (it == files.end()) {
         return true;
     }
@@ -73,8 +73,9 @@ CfgParser::Entry::Entry(const CfgParser::Entry &entry)
       _line(entry._line),
       _source_name(entry._source_name)
 {
-    for (auto it : entry._entries) {
-        _entries.push_back(new Entry(*it));
+    entry_cit it = entry.begin();
+    for (; it != entry.end(); ++it) {
+        _entries.push_back(new Entry(*(*it)));
     }
     if (entry._section) {
         _section = new Entry(*entry._section);
@@ -187,13 +188,14 @@ CfgParser::Entry::findEntry(const std::string &name, bool include_sections,
                             const char *value) const
 {
     CfgParser::Entry *value_check;
-    for (auto it : _entries) {
-        value_check = include_sections ? it->getSection() : it;
+    entry_cit it = begin();
+    for (; it != end(); ++it) {
+        value_check = include_sections ? (*it)->getSection() : *it;
 
-        if (*it == name.c_str()
-            && (! it->getSection() || include_sections)
+        if (*(*it) == name.c_str()
+            && (! (*it)->getSection() || include_sections)
             && (! value || (value_check && value_check->getValue() == value))) {
-            return it;
+            return *it;
         }
     }
 
@@ -205,14 +207,15 @@ CfgParser::Entry::findEntry(const std::string &name, bool include_sections,
 CfgParser::Entry*
 CfgParser::Entry::findSection(const std::string &name, const char *value) const
 {
-    for (auto it : _entries) {
-        if (it->getSection() && *it == name.c_str()
-            && (! value || it->getSection()->getValue() == value)) {
-            return it->getSection();
+    entry_cit it = begin();
+    for (; it != end(); ++it) {
+        if ((*it)->getSection() && *(*it) == name.c_str()
+            && (! value || (*it)->getSection()->getValue() == value)) {
+            return (*it)->getSection();
         }
     }
 
-    return 0;
+    return nullptr;
 }
 
 
@@ -231,7 +234,7 @@ CfgParser::Entry::parseKeyValues(std::vector<CfgParserKey*>::const_iterator it,
                 (*it)->parseValue(value->getValue());
 
             } catch (std::string &ex) {
-                WARN("Exception: " << ex << " - " << *value);
+                P_WARN("Exception: " << ex << " - " << *value);
             }
         }
     }
@@ -248,7 +251,7 @@ CfgParser::Entry::print(uint level)
     }
     std::cerr << " * " << getName() << "=" << getValue() << std::endl;
 
-    CfgParser::iterator it(begin());
+    CfgParser::Entry::entry_cit it(begin());
     for (; it != end(); ++it) {
         if ((*it)->getSection()) {
             (*it)->getSection()->print(level + 1);
@@ -279,7 +282,7 @@ CfgParser::Entry::copyTreeInto(CfgParser::Entry *from, bool overwrite)
     }
 
     // Copy elements
-    CfgParser::iterator it(from->begin());
+    CfgParser::Entry::entry_cit it(from->begin());
     for (; it != from->end(); ++it) {
         CfgParser::Entry *entry_section = 0;
         if ((*it)->getSection()) {
@@ -344,8 +347,9 @@ CfgParser::clear(bool realloc)
     _var_map.clear();
 
     // Remove sections
-    for (auto it : _section_map) {
-        delete it.second;
+    section_map_it it = _section_map.begin();
+    for (; it  != _section_map.end(); ++it) {
+        delete it->second;
     }
     _section_map.clear();
 }
@@ -410,7 +414,7 @@ CfgParser::parse()
             _is_dynamic_content = true;
         }
 
-        while ((c = _source->getc()) != EOF) {
+        while ((c = _source->get_char()) != EOF) {
             switch (c) {
             case '\n':
                 // To be able to handle entry ends AND { after \n a check
@@ -456,14 +460,14 @@ CfgParser::parse()
                 parseCommentLine(_source);
                 break;
             case '/':
-                next = _source->getc();
+                next = _source->get_char();
                 if (next == '/') {
                     parseCommentLine(_source);
                 } else if (next == '*') {
                     parseCommentC(_source);
                 } else {
                     buf += c;
-                    _source->ungetc(next);
+                    _source->unget_char(next);
                 }
                 break;
             default:
@@ -475,7 +479,7 @@ CfgParser::parse()
         try {
             _source->close();
         } catch (std::string &ex) {
-            LOG("Exception: " << ex);
+            P_LOG("Exception: " << ex);
         }
         delete _source;
         _sources.pop_back();
@@ -502,8 +506,8 @@ CfgParser::parseSourceNew(const std::string &name_orig,
     std::string name(name_orig);
 
     do {
-        auto source = sourceNew(name, type);
-        ERR_IF(!source, "source == 0");
+        CfgParserSource *source = sourceNew(name, type);
+        P_ERR_IF(!source, "source == 0");
 
         // Open and set as active, delete if fails.
         try {
@@ -554,11 +558,11 @@ CfgParser::parseName(std::string &buf)
     }
 
     // Identify name.
-    auto begin = buf.find_first_not_of(CP_PARSE_BLANKS);
+    size_t begin = buf.find_first_not_of(CP_PARSE_BLANKS);
     if (begin == std::string::npos) {
         return false;
     }
-    auto end = buf.find_first_of(CP_PARSE_BLANKS, begin);
+    size_t end = buf.find_first_of(CP_PARSE_BLANKS, begin);
 
     // Check if there is any garbage after the value.
     if (end != std::string::npos) {
@@ -581,7 +585,7 @@ CfgParser::parseValue(std::string &value)
 {
     // Expect to get a " after the =, ignore anything else.
     int c;
-    while ((c = _source->getc()) != EOF && c != '"') {
+    while ((c = _source->get_char()) != EOF && c != '"') {
          ;
     }
 
@@ -592,10 +596,10 @@ CfgParser::parseValue(std::string &value)
     }
 
     // Parse until next ", and escape characters after \.
-    while ((c = _source->getc()) != EOF && c != '"') {
+    while ((c = _source->get_char()) != EOF && c != '"') {
         // Escape character after \, if newline drop it.
         if (c == '\\') {
-            c = _source->getc();
+            c = _source->get_char();
             if (c == '\n' || c == EOF) {
                 continue;
             }
@@ -603,7 +607,7 @@ CfgParser::parseValue(std::string &value)
         value += c;
     }
 
-    LOG_IF(c == EOF, "Reached EOF before closing \" in value.");
+    P_LOG_IF(c == EOF, "Reached EOF before closing \" in value.");
     return c != EOF;
 }
 
@@ -661,9 +665,9 @@ CfgParser::parseEntryFinishStandard(std::string &buf, std::string &value,
 void
 CfgParser::parseEntryFinishTemplate(std::string &name)
 {
-    auto it(_section_map.find(name.c_str() + 1));
+    section_map_it it = _section_map.find(name.c_str() + 1);
     if (it == _section_map.end()) {
-        WARN("No such template " << name);
+        P_WARN("No such template " << name);
         return;
     }
 
@@ -678,7 +682,7 @@ CfgParser::parseSectionFinish(std::string &buf, std::string &value)
     Entry *section = 0;
     if (buf.size() == 6 && strcasecmp(buf.c_str(), "DEFINE") == 0) {
         // Look for define section, started with Define = "Name" {
-        auto it(_section_map.find(value));
+        section_map_it it = _section_map.find(value);
         if (it != _section_map.end()) {
             delete it->second;
             _section_map.erase(it);
@@ -693,8 +697,9 @@ CfgParser::parseSectionFinish(std::string &buf, std::string &value)
         // Add parent section, get section from parent section as it
         // can be different from the newly created if it is not
         // overwritten.
-        auto parent = _section->addEntry(_source->getName(), _source->getLine(),
-                                         buf, value, section, _overwrite);
+        CfgParser::Entry *parent =
+            _section->addEntry(_source->getName(), _source->getLine(),
+                               buf, value, section, _overwrite);
         section = parent->getSection();
     }
 
@@ -708,12 +713,12 @@ void
 CfgParser::parseCommentLine(CfgParserSource *source)
 {
     int c;
-    while (((c = source->getc()) != EOF) && (c != '\n'))
+    while (((c = source->get_char()) != EOF) && (c != '\n'))
         ;
 
     // Give back the newline, needed for flushing value before comment
     if (c == '\n') {
-        source->ungetc(c);
+        source->unget_char(c);
     }
 }
 
@@ -722,17 +727,17 @@ void
 CfgParser::parseCommentC(CfgParserSource *source)
 {
     int c;
-    while ((c = source->getc()) != EOF) {
+    while ((c = source->get_char()) != EOF) {
         if (c == '*') {
-            if ((c = source->getc()) == '/') {
+            if ((c = source->get_char()) == '/') {
                 break;
             } else if (c != EOF) {
-                source->ungetc(c);
+                source->unget_char(c);
             }
         }
     }
 
-    LOG_IF(c == EOF, "Reached EOF before closing */ in comment.");
+    P_LOG_IF(c == EOF, "Reached EOF before closing */ in comment.");
 }
 
 //! @brief Parses Source until next non whitespace char is found.
@@ -740,10 +745,10 @@ char
 CfgParser::parseSkipBlank(CfgParserSource *source)
 {
     int c;
-    while (((c = source->getc()) != EOF) && isspace(c))
+    while (((c = source->get_char()) != EOF) && isspace(c))
         ;
     if (c != EOF) {
-        source->ungetc(c);
+        source->unget_char(c);
     }
     return c;
 }
@@ -834,7 +839,7 @@ CfgParser::variableExpandName(std::string &var,
                       << var_name);
         }
     } else {
-        auto it(_var_map.find(var_name));
+        var_map_it it = _var_map.find(var_name);
         if (it != _var_map.end()) {
             var.replace(begin, end - begin, it->second);
             end = begin + it->second.size();

@@ -27,9 +27,8 @@ extern "C" {
 #include <sys/stat.h>
 }
 
-static Util::StringMap<ActionAccessMask> action_access_mask_map =
-    {{"", ACTION_ACCESS_NO},
-     {"MOVE", ACTION_ACCESS_MOVE},
+static Util::StringTo<ActionAccessMask> action_access_mask_map[] =
+    {{"MOVE", ACTION_ACCESS_MOVE},
      {"RESIZE", ACTION_ACCESS_RESIZE},
      {"ICONIFY", ACTION_ACCESS_ICONIFY},
      {"SHADE", ACTION_ACCESS_SHADE},
@@ -38,21 +37,21 @@ static Util::StringMap<ActionAccessMask> action_access_mask_map =
      {"MAXIMIZEVERTICAL", ACTION_ACCESS_MAXIMIZE_VERT},
      {"FULLSCREEN", ACTION_ACCESS_FULLSCREEN},
      {"SETWORKSPACE", ACTION_ACCESS_CHANGE_DESKTOP},
-     {"CLOSE", ACTION_ACCESS_CLOSE}};
+     {"CLOSE", ACTION_ACCESS_CLOSE},
+     {nullptr, ACTION_ACCESS_NO}};
 
-static Util::StringMap<MoveResizeActionType> moveresize_map =
-    {{"", NO_MOVERESIZE_ACTION},
-     {"MOVEHORIZONTAL", MOVE_HORIZONTAL},
+static Util::StringTo<MoveResizeActionType> moveresize_map[] =
+    {{"MOVEHORIZONTAL", MOVE_HORIZONTAL},
      {"MOVEVERTICAL", MOVE_VERTICAL},
      {"RESIZEHORIZONTAL", RESIZE_HORIZONTAL},
      {"RESIZEVERTICAL", RESIZE_VERTICAL},
      {"MOVESNAP", MOVE_SNAP},
      {"CANCEL", MOVE_CANCEL},
-     {"END", MOVE_END}};
+     {"END", MOVE_END},
+     {nullptr, NO_MOVERESIZE_ACTION}};
 
-static Util::StringMap<InputDialogAction> inputdialog_map =
-    {{"", INPUT_NO_ACTION},
-     {"INSERT", INPUT_INSERT},
+static Util::StringTo<InputDialogAction> inputdialog_map[] =
+    {{"INSERT", INPUT_INSERT},
      {"ERASE", INPUT_REMOVE},
      {"CLEAR", INPUT_CLEAR},
      {"CLEARFROMCURSOR", INPUT_CLEARFROMCURSOR},
@@ -65,46 +64,47 @@ static Util::StringMap<InputDialogAction> inputdialog_map =
      {"CURSEND", INPUT_CURS_END},
      {"CURSBEGIN", INPUT_CURS_BEGIN},
      {"HISTNEXT", INPUT_HIST_NEXT},
-     {"HISTPREV", INPUT_HIST_PREV}};
+     {"HISTPREV", INPUT_HIST_PREV},
+     {nullptr, INPUT_NO_ACTION}};
 
-static Util::StringMap<MouseEventType> mouse_event_map =
-    {{"", MOUSE_EVENT_NO},
-     {"BUTTONPRESS", MOUSE_EVENT_PRESS},
+static Util::StringTo<MouseEventType> mouse_event_map[] =
+    {{"BUTTONPRESS", MOUSE_EVENT_PRESS},
      {"BUTTONRELEASE", MOUSE_EVENT_RELEASE},
      {"DOUBLECLICK", MOUSE_EVENT_DOUBLE},
      {"MOTION", MOUSE_EVENT_MOTION},
      {"ENTER", MOUSE_EVENT_ENTER},
      {"LEAVE", MOUSE_EVENT_LEAVE},
      {"ENTERMOVING", MOUSE_EVENT_ENTER_MOVING},
-     {"MOTIONPRESSED", MOUSE_EVENT_MOTION_PRESSED}};
+     {"MOTIONPRESSED", MOUSE_EVENT_MOTION_PRESSED},
+     {nullptr, MOUSE_EVENT_NO}};
 
-static Util::StringMap<ActionType> menu_action_map =
-    {{"", ACTION_MENU_NEXT},
-     {"NEXTITEM", ACTION_MENU_NEXT},
+static Util::StringTo<ActionType> menu_action_map[] =
+    {{"NEXTITEM", ACTION_MENU_NEXT},
      {"PREVITEM", ACTION_MENU_PREV},
      {"SELECT", ACTION_MENU_SELECT},
      {"ENTERSUBMENU", ACTION_MENU_ENTER_SUBMENU},
      {"LEAVESUBMENU", ACTION_MENU_LEAVE_SUBMENU},
-     {"CLOSE", ACTION_CLOSE}};
+     {"CLOSE", ACTION_CLOSE},
+     {nullptr, ACTION_MENU_NEXT}};
 
-static Util::StringMap<HarbourPlacement> harbour_placement_map =
-    {{"", NO_HARBOUR_PLACEMENT},
-     {"TOP", TOP},
+static Util::StringTo<HarbourPlacement> harbour_placement_map[] =
+    {{"TOP", TOP},
      {"LEFT", LEFT},
      {"RIGHT", RIGHT},
-     {"BOTTOM", BOTTOM}};
+     {"BOTTOM", BOTTOM},
+     {nullptr, NO_HARBOUR_PLACEMENT}};
 
-static Util::StringMap<Orientation> harbour_orientation_map =
-    {{"", NO_ORIENTATION},
-     {"TOPTOBOTTOM", TOP_TO_BOTTOM},
+static Util::StringTo<Orientation> harbour_orientation_map[] =
+    {{"TOPTOBOTTOM", TOP_TO_BOTTOM},
      {"LEFTTORIGHT", TOP_TO_BOTTOM},
      {"BOTTOMTOTOP", BOTTOM_TO_TOP},
-     {"RIGHTTOLEFT", BOTTOM_TO_TOP}};
+     {"RIGHTTOLEFT", BOTTOM_TO_TOP},
+     {nullptr, NO_ORIENTATION}};
 
-static Util::StringMap<CurrHeadSelector> curr_head_selector_map =
-    {{"", CURR_HEAD_SELECTOR_NO},
-     {"CURSOR", CURR_HEAD_SELECTOR_CURSOR},
-     {"FOCUSEDWINDOW", CURR_HEAD_SELECTOR_FOCUSED_WINDOW}};
+static Util::StringTo<CurrHeadSelector> curr_head_selector_map[] =
+    {{"CURSOR", CURR_HEAD_SELECTOR_CURSOR},
+     {"FOCUSEDWINDOW", CURR_HEAD_SELECTOR_FOCUSED_WINDOW},
+     {nullptr, CURR_HEAD_SELECTOR_NO}};
 
 /**
  * Parse width and height limits.
@@ -178,7 +178,7 @@ Config::Config(void) :
 
     // fill the mouse action map
     for (uint i = 0; i <= MOUSE_ACTION_LIST_NO; i++) {
-        auto maln = static_cast<MouseActionListName>(i);
+        MouseActionListName maln = static_cast<MouseActionListName>(i);
         _mouse_action_map[maln] = new std::vector<ActionEvent>();
     }
 }
@@ -186,8 +186,10 @@ Config::Config(void) :
 //! @brief Destructor for Config class
 Config::~Config(void)
 {
-    for (auto it : _mouse_action_map) {
-        delete it.second;
+    std::map<MouseActionListName, std::vector<ActionEvent>* >::iterator it =
+        _mouse_action_map.begin();
+    for (; it != _mouse_action_map.end(); ++it) {
+        delete it->second;
     }
 }
 
@@ -209,8 +211,9 @@ Config::getDesktopNamesUTF8(uchar **names, uint *length) const
     }
 
     std::string utf8_names;
-    for (auto it : _screen_workspace_names) {
-        utf8_names.append(it.c_str(), it.size() + 1);
+    std::vector<std::string>::const_iterator it = _screen_workspace_names.begin();
+    for (; it != _screen_workspace_names.end(); ++it) {
+        utf8_names.append(it->c_str(), it->size() + 1);
     }
 
     *names = new uchar[utf8_names.size()];
@@ -268,11 +271,11 @@ Config::load(const std::string &config_file)
     }
 
     // Update PEKWM_CONFIG_FILE environment if needed (to reflect active file)
-    auto cfg_env = Util::getEnv("PEKWM_CONFIG_FILE");
+    std::string cfg_env = Util::getEnv("PEKWM_CONFIG_FILE");
     if (cfg_env.size() == 0 || _config_file.compare(cfg_env) != 0) {
         setenv("PEKWM_CONFIG_FILE", _config_file.c_str(), 1);
 
-        auto sep = _config_file.rfind('/');
+        size_t sep = _config_file.rfind('/');
         if (sep != std::string::npos) {
             setenv("PEKWM_CONFIG_PATH", _config_file.substr(0, sep).c_str(), 1);
         }
@@ -465,8 +468,9 @@ Config::loadScreen(CfgParser::Entry *section)
     if (edge_size.size()) {
         std::vector<std::string> sizes;
         if (Util::splitString(edge_size, sizes, " \t", 4) == 4) {
-            for (auto it : sizes) {
-                _screen_edge_sizes.push_back(strtol(it.c_str(), 0, 10));
+            std::vector<std::string>::iterator it = sizes.begin();
+            for (; it != sizes.end(); ++it) {
+                _screen_edge_sizes.push_back(strtol(it->c_str(), 0, 10));
             }
         } else {
             edge_size_all = strtol(edge_size.c_str(), 0, 10);
@@ -484,14 +488,16 @@ Config::loadScreen(CfgParser::Entry *section)
 
     std::vector<std::string> vs;
     if (Util::splitString(workspace_names, vs, ";", 0, true)) {
-        for (auto vs_it : vs) {
-            _screen_workspace_names.push_back(vs_it);
+        std::vector<std::string>::iterator vs_it = vs.begin();
+        for (; vs_it != vs.end(); ++vs_it) {
+            _screen_workspace_names.push_back(*vs_it);
         }
     }
 
-    _screen_curr_head_selector = curr_head_selector_map.get(curr_head_selector);
+    _screen_curr_head_selector =
+        Util::StringToGet(curr_head_selector_map, curr_head_selector);
 
-    auto sub = section->findSection("PLACEMENT");
+    CfgParser::Entry *sub = section->findSection("PLACEMENT");
     if (sub) {
         value = sub->findEntry("MODEL");
         if (value) {
@@ -573,7 +579,7 @@ Config::loadMenu(CfgParser::Entry *section)
     keys.clear();
 
     // Parse icon size limits
-    CfgParser::iterator it(section->begin());
+    CfgParser::Entry::entry_cit it(section->begin());
     for (; it != section->end(); ++it) {
         if (*(*it) == "ICONS") {
             loadMenuIcons((*it)->getSection());
@@ -675,8 +681,10 @@ Config::loadHarbour(CfgParser::Entry *section)
     // Convert opacity from percent to absolute value
     CONV_OPACITY(_harbour_opacity);
 
-    _harbour_placement = harbour_placement_map.get(value_placement);
-    _harbour_orientation = harbour_orientation_map.get(value_orientation);
+    _harbour_placement =
+        Util::StringToGet(harbour_placement_map, value_placement);
+    _harbour_orientation =
+        Util::StringToGet(harbour_orientation_map, value_orientation);
     if (_harbour_placement == NO_HARBOUR_PLACEMENT) {
         _harbour_placement = RIGHT;
     }
@@ -703,7 +711,7 @@ Config::loadHarbour(CfgParser::Entry *section)
 ActionAccessMask
 Config::getActionAccessMask(const std::string &name)
 {
-    return action_access_mask_map.get(name);
+    return Util::StringToGet(action_access_mask_map, name);
 }
 
 bool
@@ -713,8 +721,9 @@ Config::parseActionAccessMask(const std::string &action_mask, uint &mask)
 
     std::vector<std::string> tok;
     if (Util::splitString(action_mask, tok, " \t")) {
-        for (auto it : tok) {
-            mask |= getActionAccessMask(it);
+        std::vector<std::string>::iterator it = tok.begin();
+        for (; it != tok.end(); ++it) {
+            mask |= getActionAccessMask(*it);
         }
     }
 
@@ -728,7 +737,7 @@ Config::parseMoveResizeAction(const std::string &action_string, Action &action)
 
     // Chop the string up separating the actions.
     if (Util::splitString(action_string, tok, " \t", 2)) {
-        action.setAction(moveresize_map.get(tok[0]));
+        action.setAction(Util::StringToGet(moveresize_map, tok[0]));
         if (action.getAction() != NO_MOVERESIZE_ACTION) {
             if (tok.size() == 2) { // we got enough tok for a paremeter
                 switch (action.getAction()) {
@@ -762,10 +771,10 @@ Config::parseMoveResizeAction(const std::string &action_string, Action &action)
 }
 
 bool
-Config::parseMoveResizeActions(const std::string &action_string,
-                               ActionEvent& ae)
+Config::parseMoveResizeActions(const std::string &action_string, ActionEvent& ae)
 {
     std::vector<std::string> tok;
+    std::vector<std::string>::iterator it;
     Action action;
 
     // reset the action event
@@ -773,8 +782,8 @@ Config::parseMoveResizeActions(const std::string &action_string,
 
     // chop the string up separating the actions
     if (Util::splitString(action_string, tok, ";")) {
-        for (auto it : tok) {
-            if (parseMoveResizeAction(it, action)) {
+        for (it = tok.begin(); it != tok.end(); ++it) {
+            if (parseMoveResizeAction(*it, action)) {
                 ae.action_list.push_back(action);
                 action.clear();
             }
@@ -809,7 +818,7 @@ Config::parseMoveResizeEvent(CfgParser::Entry *section, ActionEvent& ae)
 bool
 Config::parseInputDialogAction(const std::string &val, Action &action)
 {
-    action.setAction(inputdialog_map.get(val));
+    action.setAction(Util::StringToGet(inputdialog_map, val));
     return (action.getAction() != INPUT_NO_ACTION);
 }
 
@@ -817,6 +826,7 @@ bool
 Config::parseInputDialogActions(const std::string &actions, ActionEvent &ae)
 {
     std::vector<std::string> tok;
+    std::vector<std::string>::iterator it;
     Action action;
     std::string::size_type first, last;
 
@@ -825,14 +835,13 @@ Config::parseInputDialogActions(const std::string &actions, ActionEvent &ae)
 
     // chop the string up separating the actions
     if (Util::splitString(actions, tok, ";")) {
-        for (auto it : tok) {
-            first = it.find_first_not_of(" \t\n");
-            if (first == std::string::npos) {
+        for (it = tok.begin(); it != tok.end(); ++it) {
+            first = (*it).find_first_not_of(" \t\n");
+            if (first == std::string::npos)
                 continue;
-            }
-            last = it.find_last_not_of(" \t\n");
-            auto name = it.substr(first, last-first+1);
-            if (parseInputDialogAction(name, action)) {
+            last = (*it).find_last_not_of(" \t\n");
+            (*it) = (*it).substr(first, last-first+1);
+            if (parseInputDialogAction(*it, action)) {
                 ae.action_list.push_back(action);
                 action.clear();
             }
@@ -875,9 +884,9 @@ Config::getMenuMask(const std::string &mask)
 
     std::vector<std::string> tok;
     Util::splitString(mask, tok, " \t");
-
-    for (auto it : tok) {
-        val = mouse_event_map.get(it);
+    std::vector<std::string>::iterator it = tok.begin();
+    for (; it != tok.end(); ++it) {
+        val = Util::StringToGet(mouse_event_map, *it);
         if (val != MOUSE_EVENT_NO) {
             mask_return |= val;
         }
@@ -890,7 +899,8 @@ Config::getMenuIconLimit(unsigned int value, SizeLimitType limit,
                          const std::string &name) const
 {
     unsigned int limit_val = 0;
-    auto it(_menu_icon_limits.find(name));
+    std::map<std::string, SizeLimits>::const_iterator it =
+        _menu_icon_limits.find(name);
     if (it == _menu_icon_limits.end()) {
         if (name == "DEFAULT") {
             limit_val = 16;
@@ -911,7 +921,7 @@ Config::parseMenuAction(const std::string &action_string, Action &action)
 
     // chop the string up separating the actions
     if (Util::splitString(action_string, tok, " \t", 2)) {
-        action.setAction(menu_action_map.get(tok[0]));
+        action.setAction(Util::StringToGet(menu_action_map, tok[0]));
         if (action.getAction() != ACTION_NO) {
             return true;
         }
@@ -924,6 +934,7 @@ bool
 Config::parseMenuActions(const std::string &actions, ActionEvent &ae)
 {
     std::vector<std::string> tok;
+    std::vector<std::string>::iterator it;
     Action action;
 
     // reset the action event
@@ -931,8 +942,8 @@ Config::parseMenuActions(const std::string &actions, ActionEvent &ae)
 
     // chop the string up separating the actions
     if (Util::splitString(actions, tok, ";", 0, false, '\\')) {
-        for (auto it : tok) {
-            if (parseMenuAction(it, action)) {
+        for (it = tok.begin(); it != tok.end(); ++it) {
+            if (parseMenuAction(*it, action)) {
                 ae.action_list.push_back(action);
                 action.clear();
             }
@@ -1142,8 +1153,10 @@ Config::loadMouseConfig(const std::string &mouse_file)
     }
 
     // Make sure old actions get unloaded.
-    for (auto it : _mouse_action_map) {
-        it.second->clear();
+    std::map<MouseActionListName, std::vector<ActionEvent>* >::iterator it
+        = _mouse_action_map.begin();
+    for (; it != _mouse_action_map.end(); ++it) {
+        it->second->clear();
     }
 
     CfgParser::Entry *section;
@@ -1186,7 +1199,7 @@ Config::loadMouseConfig(const std::string &mouse_file)
 
     section = mouse_cfg.getEntryRoot()->findSection("SCREENEDGE");
     if (section) {
-        CfgParser::iterator edge_it(section->begin());
+        CfgParser::Entry::entry_cit edge_it(section->begin());
         for (; edge_it != section->end(); ++edge_it)  {
             uint pos = ActionConfig::getDirection((*edge_it)->getName());
 
@@ -1200,7 +1213,7 @@ Config::loadMouseConfig(const std::string &mouse_file)
 
     section = mouse_cfg.getEntryRoot()->findSection("BORDER");
     if (section) {
-        CfgParser::iterator border_it(section->begin());
+        CfgParser::Entry::entry_cit border_it(section->begin());
         for (; border_it != section->end(); ++border_it) {
             uint pos = ActionConfig::getBorderPos((*border_it)->getName());
             if (pos != BORDER_NO_POS) {
@@ -1221,11 +1234,12 @@ mouseButtonsAdd(std::vector<BoundButton>* buttons, uint button, uint mod)
         return;
     }
 
-    auto bit = buttons->begin();
+    std::vector<BoundButton>::iterator bit = buttons->begin();
     for (; bit != buttons->end(); ++bit) {
         if (bit->button == button) {
-            for (auto mit : bit->mods) {
-                if (mit == mod) {
+            std::vector<uint>::iterator mit = bit->mods.begin();
+            for (; mit != bit->mods.end(); ++mit) {
+                if (*mit == mod) {
                     return;
                 }
             }
@@ -1233,7 +1247,7 @@ mouseButtonsAdd(std::vector<BoundButton>* buttons, uint button, uint mod)
             return;
         }
     }
-    buttons->push_back({button, {mod}});
+    buttons->push_back(BoundButton(button, mod));
 }
 
 /**
@@ -1252,13 +1266,13 @@ Config::parseButtons(CfgParser::Entry *section,
     ActionEvent ae;
     CfgParser::Entry *value;
 
-    CfgParser::iterator it(section->begin());
+    CfgParser::Entry::entry_cit it(section->begin());
     for (; it != section->end(); ++it) {
         if (! (*it)->getSection()) {
             continue;
         }
 
-        ae.type = mouse_event_map.get((*it)->getName());
+        ae.type = Util::StringToGet(mouse_event_map, (*it)->getName());
         if (ae.type == MOUSE_EVENT_NO) {
             continue;
         }

@@ -17,6 +17,8 @@ public:
     TestX11(void);
     virtual ~TestX11(void);
 
+    virtual bool run_test(TestSpec spec, bool status);
+
     static void testParseGeometry(void);
     static void assertParseGeometry(std::string msg, std::string str,
                                     Geometry e_gm, int e_mask);
@@ -29,12 +31,18 @@ TestX11::TestX11(void)
     : X11(),
       TestSuite("X11")
 {
-    register_test("parseGeometry", TestX11::testParseGeometry);
-    register_test("parseGeometryVal", TestX11::testParseGeometryVal);
 }
 
 TestX11::~TestX11(void)
 {
+}
+
+bool
+TestX11::run_test(TestSpec spec, bool status)
+{
+    TEST_FN(spec, "parseGeometry", testParseGeometry());
+    TEST_FN(spec, "parseGeometryVal", testParseGeometryVal());
+    return status;
 }
 
 void

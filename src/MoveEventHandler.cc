@@ -41,7 +41,7 @@ MoveEventHandler::notify(Observable *observable,
 {
     if (observation == &PWinObj::pwin_obj_deleted
         && observable == _decor) {
-        TRACE("decor " << _decor << " lost while moving");
+        P_TRACE("decor " << _decor << " lost while moving");
         _decor = nullptr;
     }
 }
@@ -122,7 +122,7 @@ MoveEventHandler::handleMotionNotifyEvent(XMotionEvent *ev)
         X11::moveWindow(_decor->getWindow(), _gm.x, _gm.y);
     }
 
-    auto edge = doMoveEdgeFind(ev->x_root, ev->y_root);
+    EdgeType edge = doMoveEdgeFind(ev->x_root, ev->y_root);
     if (edge != _curr_edge) {
         _curr_edge = edge;
         if (edge != SCREEN_EDGE_NO) {
@@ -168,7 +168,7 @@ MoveEventHandler::updateStatusWindow(bool map)
         char buf[128];
         _decor->getDecorInfo(buf, 128, _gm);
 
-        auto sw = pekwm::statusWindow();
+        StatusWindow *sw = pekwm::statusWindow();
         if (map) {
             // draw before map to avoid resize right after the
             // window is mapped.
@@ -182,7 +182,7 @@ MoveEventHandler::updateStatusWindow(bool map)
 EdgeType
 MoveEventHandler::doMoveEdgeFind(int x, int y)
 {
-    auto edge = SCREEN_EDGE_NO;
+    EdgeType edge = SCREEN_EDGE_NO;
     if (x <= signed(pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_LEFT))) {
         edge = SCREEN_EDGE_LEFT;
     } else if (x >= signed(X11::getWidth() -
@@ -201,7 +201,7 @@ void
 MoveEventHandler::doMoveEdgeAction(XMotionEvent *ev, EdgeType edge)
 {
     uint button = X11::getButtonFromState(ev->state);
-    auto ae =
+    ActionEvent *ae =
         ActionHandler::findMouseAction(button, ev->state,
                                        MOUSE_EVENT_ENTER_MOVING,
                                        _cfg->getEdgeListFromPosition(edge));

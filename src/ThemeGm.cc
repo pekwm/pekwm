@@ -140,6 +140,6 @@ ThemeGm::getBorder(const ThemeState *state, BorderPosition pos) const
     if (! _data || ! state->hasBorder()) {
         return &_empty;
     }
-    auto focused_state = state->getFocusedState(false);
+    FocusedState focused_state = state->getFocusedState(false);
     return _data->getBorderTexture(focused_state, pos);
 }

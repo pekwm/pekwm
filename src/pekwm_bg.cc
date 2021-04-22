@@ -15,6 +15,7 @@
 #include "X11.hh"
 
 extern "C" {
+#include <errno.h>
 #include <getopt.h>
 #include <signal.h>
 #include <unistd.h>
@@ -69,12 +70,12 @@ static void usage(const char* name, int ret)
 
 static Pixmap setBackground(PTexture *tex)
 {
-    auto pix = X11::createPixmap(X11::getWidth(), X11::getHeight());
+    Pixmap pix = X11::createPixmap(X11::getWidth(), X11::getHeight());
 
     // render background per-head, might not suite all but leave it at
     // that for now.
     for (int i = 0; i < X11::getNumHeads(); i++) {
-        auto head = X11::getHeadGeometry(i);
+        Geometry head = X11::getHeadGeometry(i);
         tex->render(pix, head.x, head.y, head.width, head.height);
     }
 
@@ -88,21 +89,21 @@ static Pixmap setBackground(PTexture *tex)
 
 static Pixmap loadAndSetBackground(const std::string& tex_str)
 {
-    auto tex = pekwm::textureHandler()->getTexture(tex_str);
+    PTexture *tex = pekwm::textureHandler()->getTexture(tex_str);
     if (! tex) {
         std::cerr << "Failed to load texture " << tex_str << std::endl;
         return None;
     }
 
     std::cout << "Setting background " << tex_str << std::endl;
-    auto pix = setBackground(tex);
+    Pixmap pix = setBackground(tex);
     pekwm::textureHandler()->returnTexture(tex);
     return pix;
 }
 
 static void modeBackground(const std::string& tex_str)
 {
-    auto pix = loadAndSetBackground(tex_str);
+    Pixmap pix = loadAndSetBackground(tex_str);
     if (pix == None) {
         return;
     }
@@ -172,7 +173,7 @@ int main(int argc, char* argv[])
             break;
         case 'l':
             load_dir = optarg;
-            if (load_dir.back() != '/') {
+            if (! load_dir.empty() && load_dir[load_dir.size() - 1] != '/') {
                 load_dir += '/';
             }
             Util::expandFileName(load_dir);
@@ -199,9 +200,10 @@ int main(int argc, char* argv[])
         return 1;
     }
 
-    auto dpy = XOpenDisplay(display);
+    Display *dpy = XOpenDisplay(display);
     if (! dpy) {
-        auto actual_display = display ? display : Util::getEnv("DISPLAY");
+        std::string actual_display =
+            display ? display : Util::getEnv("DISPLAY");
         std::cerr << "Can not open display!" << std::endl
                   << "Your DISPLAY variable currently is set to: "
                   << actual_display << std::endl;

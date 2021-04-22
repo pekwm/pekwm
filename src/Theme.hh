@@ -213,9 +213,6 @@ public:
         PTexture *_texture_border[FOCUSED_STATE_FOCUSED_SELECTED][BORDER_NO_POS];
 
         std::vector<Theme::PDecorButtonData*> _buttons;
-
-        static std::map<FocusedState, std::string> _fs_map;
-        static std::map<BorderPosition, std::string> _border_map;
     };
 
     //! @brief PMenu theme data container and parser.

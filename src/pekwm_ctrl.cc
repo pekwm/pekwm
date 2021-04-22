@@ -14,13 +14,14 @@
 #include "Util.hh"
 #include "X11.hh"
 
-#include <functional>
-
 extern "C" {
 #include <getopt.h>
 #include <time.h>
 #include <unistd.h>
 }
+
+typedef bool(*send_message_fun)(Window, AtomName, int, const void*, size_t,
+                                void *opaque);
 
 enum CtrlAction {
    ACTION_RUN,
@@ -34,7 +35,8 @@ enum CtrlAction {
 static void usage(const char* name, int ret)
 {
     std::cout << "usage: " << name << " [-acdhs] [command]" << std::endl;
-    std::cout << "  -a --action [run|focus|list|util] Control action" << std::endl;
+    std::cout << "  -a --action [run|focus|list|util] Control action"
+              << std::endl;
     std::cout << "  -c --client pattern Client pattern" << std::endl;
     std::cout << "  -d --display dpy    Display" << std::endl;
     std::cout << "  -h --help           Display this information" << std::endl;
@@ -89,7 +91,7 @@ static Window findClient(const RegexString& match)
     }
 
     for (uint i = 0; i < actual; i++) {
-        auto name = readClientName(windows[i]);
+        std::string name = readClientName(windows[i]);
         if (match == name) {
             return windows[i];
         }
@@ -101,7 +103,7 @@ static Window findClient(const RegexString& match)
 }
 
 static bool sendClientMessage(Window window, AtomName atom,
-                              int format, const void* data, size_t size)
+                              int format, const void* data, size_t size, void *)
 {
     XEvent ev;
     ev.xclient.type = ClientMessage;
@@ -123,14 +125,13 @@ static bool sendClientMessage(Window window, AtomName atom,
 
 static bool focusClient(Window win)
 {
-    return sendClientMessage(win, NET_ACTIVE_WINDOW, 32, nullptr, 0);
+    return sendClientMessage(win, NET_ACTIVE_WINDOW, 32, nullptr, 0, nullptr);
 }
 
 #endif // ! UNITTEST
 
 static bool sendCommand(const std::string& cmd, Window win,
-                        std::function<bool (Window, AtomName, int,
-                                            const void*, size_t)> send_message)
+                        send_message_fun send_message, void *opaque)
 {
     XClientMessageEvent ev;
     char buf[sizeof(ev.data.b)] = {0};
@@ -140,7 +141,7 @@ static bool sendCommand(const std::string& cmd, Window win,
     int left = cmd.size();
     buf[chunk_size] = static_cast<int>(cmd.size()) <= chunk_size ? 0 : 1;
     memcpy(buf, src, std::min(left, chunk_size));
-    bool res = send_message(win, PEKWM_CMD, 8, buf, sizeof(buf));
+    bool res = send_message(win, PEKWM_CMD, 8, buf, sizeof(buf), opaque);
     src += chunk_size;
     left -= chunk_size;
     while (res && left > 0) {
@@ -149,7 +150,7 @@ static bool sendCommand(const std::string& cmd, Window win,
         memcpy(buf, src, std::min(left, chunk_size));
         src += chunk_size;
         left -= chunk_size;
-        res = send_message(win, PEKWM_CMD, 8, buf, sizeof(buf));
+        res = send_message(win, PEKWM_CMD, 8, buf, sizeof(buf), opaque);
     }
 
     return res;
@@ -168,10 +169,10 @@ static bool listClients(void)
     }
 
     for (uint i = 0; i < actual; i++) {
-        auto name = readClientName(windows[i]);
-        auto mb_name = Charset::toSystem(name);
-        auto pekwm_title = readPekwmTitle(windows[i]);
-        auto mb_pekwm_title = Charset::toSystem(pekwm_title);
+        std::string name = readClientName(windows[i]);
+        std::string mb_name = Charset::toSystem(name);
+        std::string pekwm_title = readPekwmTitle(windows[i]);
+        std::string mb_pekwm_title = Charset::toSystem(pekwm_title);
 
         std::cout << windows[i] << " " << mb_name;
         if (! mb_pekwm_title.empty()) {
@@ -271,9 +272,9 @@ int main(int argc, char* argv[])
         cmd += argv[i];
     }
 
-    auto dpy = XOpenDisplay(display);
+    Display *dpy = XOpenDisplay(display);
     if (! dpy) {
-        auto actual_display = display ? display : Util::getEnv("DISPLAY");
+        std::string actual_display = display ? display : Util::getEnv("DISPLAY");
         std::cerr << "Can not open display!" << std::endl
                   << "Your DISPLAY variable currently is set to: "
                   << actual_display << std::endl;
@@ -302,7 +303,7 @@ int main(int argc, char* argv[])
             usage(argv[0], 1);
         }
         std::cout << "_PEKWM_CMD " << client << " " << cmd;
-        res = sendCommand(cmd, client, sendClientMessage);
+        res = sendCommand(cmd, client, sendClientMessage, nullptr);
         break;
     case ACTION_FOCUS:
         std::cout << "_NET_ACTIVE_WINDOW " << client;

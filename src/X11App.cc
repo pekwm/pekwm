@@ -12,6 +12,7 @@
 
 extern "C" {
 #include <sys/wait.h>
+#include <errno.h>
 #include <unistd.h>
 }
 
@@ -115,7 +116,7 @@ void
 X11App::removeFd(int fd)
 {
     _max_fd = 0;
-    auto it = _fds.begin();
+    std::vector<int>::iterator it = _fds.begin();
     for (; it != _fds.end(); ) {
         if (*it == fd) {
             it = _fds.erase(it);
@@ -133,7 +134,7 @@ X11App::main(uint timeout_s)
 {
     bool timed_out = false;
 
-    TRACE(_wm_name << ", " << _wm_class << ": entering main loop");
+    P_TRACE(_wm_name << ", " << _wm_class << ": entering main loop");
     while (_stop == -1) {
         if (is_signal) {
             handleSignal();
@@ -219,12 +220,12 @@ X11App::handleSignal(void)
             pid = waitpid(WAIT_ANY, &status, WNOHANG);
             if (pid == -1) {
                 if (errno == EINTR) {
-                    TRACE("waitpid interrupted, retrying");
+                    P_TRACE("waitpid interrupted, retrying");
                 }
             } else if (pid == 0) {
-                TRACE("no more finished child processes");
+                P_TRACE("no more finished child processes");
             } else {
-                TRACE("child process " << pid << " finished");
+                P_TRACE("child process " << pid << " finished");
                 handleChildDone(pid, WEXITSTATUS(status));
             }
         } while (pid > 0 || (pid == -1 && errno == EINTR));
@@ -247,22 +248,23 @@ X11App::waitForData(int timeout_s)
 
     fd_set rfds;
     FD_ZERO(&rfds);
-    for (int fd : _fds) {
-        FD_SET(fd, &rfds);
+    std::vector<int>::iterator it;
+    for (it = _fds.begin(); it != _fds.end(); ++it) {
+        FD_SET(*it, &rfds);
     }
 
     struct timeval timeout = { timeout_s, 0 };
     int ret = select(_max_fd + 1, &rfds, nullptr, nullptr, &timeout);
     if (ret > 0) {
-        for (int fd : _fds) {
-            if (! FD_ISSET(fd, &rfds)) {
+        for (it = _fds.begin(); it != _fds.end(); ++it) {
+            if (! FD_ISSET(*it, &rfds)) {
                 continue;
             }
 
-            if (fd == _dpy_fd) {
+            if (*it == _dpy_fd) {
                 processEvent();
             } else {
-                handleFd(fd);
+                handleFd(*it);
             }
         }
     }

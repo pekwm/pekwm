@@ -69,12 +69,12 @@ ActionHandler::handleAction(const ActionPerformed &ap)
     bool matched = false;
 
     // go through the list of actions and execute them
-    auto it = ap.ae.action_list.begin();
+    ActionEvent::it it = ap.ae.action_list.begin();
     for (; it != ap.ae.action_list.end(); ++it, matched = false) {
         // Determine what type if any of the window object that is focused
         // and check if it is still alive.
         lookupWindowObjects(&wo, &client, &frame, &menu, &decor);
-        TRACE("start action " << it->getAction() << " wo " << wo);
+        P_TRACE("start action " << it->getAction() << " wo " << wo);
 
         // actions valid for all PWinObjs
         if (! matched && wo) {
@@ -132,7 +132,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                 }
                 break;
             case ACTION_MOVE_RESIZE: {
-                auto event_handler =
+                EventHandler *event_handler =
                     new KeyboardMoveResizeEventHandler(pekwm::config(),
                                                        pekwm::keyGrabber(),
                                                        decor);
@@ -281,7 +281,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                     // position but was error prone on Xinerama setups
                     X11::getMousePosition(x_root, y_root);
                 }
-                auto event_handler =
+                EventHandler *event_handler =
                     new MoveEventHandler(pekwm::config(), decor,
                                          x_root, y_root);
                 setEventHandler(event_handler);
@@ -320,7 +320,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
                     || it->getAction() == ACTION_PREV_FRAME_MRU;
                 int dir = (it->getAction() == ACTION_NEXT_FRAME
                        || it->getAction() == ACTION_NEXT_FRAME_MRU) ? 1 : -1;
-                auto event_handler =
+                EventHandler *event_handler =
                     new FocusToggleEventHandler(pekwm::config(),
                                                 ap.ae.sym, it->getParamI(0),
                                                 dir, it->getParamI(1), mru);
@@ -387,7 +387,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
             }
         }
 
-        TRACE("end action " << it->getAction() << " wo " << wo);
+        P_TRACE("end action " << it->getAction() << " wo " << wo);
     }
 }
 
@@ -541,7 +541,7 @@ ActionHandler::findMouseAction(uint button, uint state, MouseEventType type,
     X11::stripStateModifiers(&state);
     X11::stripButtonModifiers(&state);
 
-    auto it(actions->begin());
+    std::vector<ActionEvent>::iterator it = actions->begin();
     for (; it != actions->end(); ++it) {
         if ((it->type == unsigned(type))
             && ((it->mod == MOD_ANY) || (it->mod == state))
@@ -568,7 +568,7 @@ ActionHandler::actionExec(Client *client, const std::string &command,
     if (use_shell) {
         Util::forkExec(command);
     } else {
-        auto args = String::shell_split(command);
+        std::vector<std::string> args = String::shell_split(command);
         Util::forkExec(args);
     }
 }
@@ -725,11 +725,12 @@ ActionHandler::actionSendKey(PWinObj *wo, const std::string &key_str)
     initSendKeyEvent(ev, wo);
 
     // Press state modifiers
-    for (auto it : _state_to_keycode) {
-        if (mod & it.first) {
-            ev.xkey.keycode = it.second;
+    std::map<uint, uint>::iterator it;
+    for (it  = _state_to_keycode.begin(); it != _state_to_keycode.end(); ++it) {
+        if (mod & it->first) {
+            ev.xkey.keycode = it->second;
             XSendEvent(X11::getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
-            ev.xkey.state |= it.first;
+            ev.xkey.state |= it->first;
         }
     }
 
@@ -740,11 +741,11 @@ ActionHandler::actionSendKey(PWinObj *wo, const std::string &key_str)
     XSendEvent(X11::getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
 
     // Release state modifiers
-    for (auto it : _state_to_keycode) {
-        if (mod & it.first) {
-            ev.xkey.keycode = it.second;
+    for (it  = _state_to_keycode.begin(); it != _state_to_keycode.end(); ++it) {
+        if (mod & it->first) {
+            ev.xkey.keycode = it->second;
             XSendEvent(X11::getDpy(), wo->getWindow(), True, KeyPressMask, &ev);
-            ev.xkey.state &= ~it.first;
+            ev.xkey.state &= ~it->first;
         }
     }
 
@@ -819,7 +820,7 @@ ActionHandler::actionShowInputDialog(InputDialog *dialog,
         if (frame) {
             frame->getGeometry(gm);
         } else {
-            auto chs = pekwm::config()->getCurrHeadSelector();
+            CurrHeadSelector chs = pekwm::config()->getCurrHeadSelector();
             X11::getHeadInfo(X11Util::getCurrHead(chs), gm);
         }
 
@@ -846,7 +847,7 @@ ActionHandler::findClientFromTitle(const std::string &or_title)
     RegexString o_rs;
 
     if (o_rs.parse_match(or_title, true)) {
-        auto it(Client::client_begin());
+        Client::client_cit it = Client::client_begin();
         for (; it != Client::client_end(); ++it) {
             if (o_rs == (*it)->getTitle()->getVisible()) {
                 return (*it);
@@ -864,7 +865,7 @@ ActionHandler::gotoClient(Client *client)
 {
     Frame *frame = dynamic_cast<Frame*>(client->getParent());
     if (! frame) {
-        WARN("parent is not a Frame");
+        P_WARN("parent is not a Frame");
         return;
     }
 
@@ -913,11 +914,11 @@ ActionHandler::initSendKeyEvent(XEvent &ev, PWinObj *wo)
 void
 ActionHandler::attachMarked(Frame *frame)
 {
-    auto it = Client::client_begin();
+    Client::client_cit it = Client::client_begin();
     for (; it != Client::client_end(); ++it) {
         if ((*it)->isMarked()) {
             if ((*it)->getParent() != frame) {
-                auto parent = static_cast<Frame*>((*it)->getParent());
+                Frame *parent = static_cast<Frame*>((*it)->getParent());
                 parent->removeChild(*it);
                 (*it)->setWorkspace(frame->getWorkspace());
                 frame->addChild(*it);
@@ -938,7 +939,7 @@ ActionHandler::attachInNextPrevFrame(Client *client, bool frame, bool next)
     }
 
     Frame *new_frame;
-    auto *parent = static_cast<Frame*>(client->getParent());
+    Frame *parent = static_cast<Frame*>(client->getParent());
     if (next) {
         new_frame = Workspaces::getNextFrame(parent, true, SKIP_FOCUS_TOGGLE);
     } else {

@@ -86,7 +86,7 @@ Harbour::removeDockApp(DockApp *da)
         return;
     }
 
-    auto it(find(_dapps.begin(), _dapps.end(), da));
+    std::vector<DockApp*>::iterator it(find(_dapps.begin(), _dapps.end(), da));
     if (it != _dapps.end()) {
         _dapps.erase(it);
         Workspaces::remove(da); // remove the dockapp to the stacking list
@@ -104,9 +104,10 @@ Harbour::removeDockApp(DockApp *da)
 void
 Harbour::removeAllDockApps(void)
 {
-    for (auto it : _dapps) {
-        Workspaces::remove(it); // remove the dockapp to the stacking list
-        delete it;
+    std::vector<DockApp*>::iterator it = _dapps.begin();
+    for (; it != _dapps.end(); ++it) {
+        Workspaces::remove(*it); // remove the dockapp to the stacking list
+        delete *it;
     }
     _dapps.clear();
 }
@@ -115,10 +116,11 @@ Harbour::removeAllDockApps(void)
 DockApp*
 Harbour::findDockApp(Window win)
 {
-    DockApp *dockapp = 0;
-    for (auto it : _dapps) {
-        if (it->findDockApp(win)) {
-            dockapp = it;
+    DockApp *dockapp = nullptr;
+    std::vector<DockApp*>::iterator it = _dapps.begin();
+    for (; it != _dapps.end(); ++it) {
+        if ((*it)->findDockApp(win)) {
+            dockapp = *it;
             break;
         }
     }
@@ -129,10 +131,11 @@ Harbour::findDockApp(Window win)
 DockApp*
 Harbour::findDockAppFromFrame(Window win)
 {
-    DockApp *dockapp = 0;
-    for (auto it : _dapps) {
-        if (it->findDockAppFromFrame(win)) {
-            dockapp = it;
+    DockApp *dockapp = nullptr;
+    std::vector<DockApp*>::iterator it = _dapps.begin();
+    for (; it != _dapps.end(); ++it) {
+        if ((*it)->findDockAppFromFrame(win)) {
+            dockapp = *it;
             break;
         }
     }
@@ -143,8 +146,9 @@ Harbour::findDockAppFromFrame(Window win)
 void
 Harbour::updateGeometry(void)
 {
-    for (auto it : _dapps) {
-        placeDockAppInsideScreen(it);
+    std::vector<DockApp*>::iterator it = _dapps.begin();
+    for (; it != _dapps.end(); ++it) {
+        placeDockAppInsideScreen(*it);
     }
 }
 
@@ -161,13 +165,14 @@ Harbour::restack(void)
 
     Layer l = _cfg->isHarbourOntop() ? LAYER_DOCK : LAYER_DESKTOP;
 
-    for (auto it : _dapps) {
-        it->setLayer(l);
+    std::vector<DockApp*>::iterator it = _dapps.begin();
+    for (; it != _dapps.end(); ++it) {
+        (*it)->setLayer(l);
 
         if (_cfg->isHarbourOntop()) {
-            Workspaces::raise(it);
+            Workspaces::raise(*it);
         } else {
-            Workspaces::lower(it);
+            Workspaces::lower(*it);
         }
     }
 }
@@ -181,8 +186,9 @@ Harbour::rearrange(void)
     if (_ap->isHarbourSort()) {
         placeDockAppsSorted();
     } else {
-        for (auto it : _dapps) {
-            placeDockApp(it);
+        std::vector<DockApp*>::iterator it = _dapps.begin();
+        for (; it != _dapps.end(); ++it) {
+            placeDockApp(*it);
         }
     }
 }
@@ -191,7 +197,10 @@ Harbour::rearrange(void)
 void
 Harbour::loadTheme(void)
 {
-    for_each(_dapps.begin(), _dapps.end(), std::mem_fn(&DockApp::loadTheme));
+    std::vector<DockApp*>::iterator it = _dapps.begin();
+    for (; it != _dapps.end(); ++it) {
+        (*it)->loadTheme();
+    }
 }
 
 //! @brief Updates the harbour max size variable.
@@ -200,18 +209,19 @@ Harbour::updateHarbourSize(void)
 {
     _size = 0;
 
-    for (auto it : _dapps) {
+    std::vector<DockApp*>::iterator it = _dapps.begin();
+    for (; it != _dapps.end(); ++it) {
         switch (_cfg->getHarbourPlacement())
         {
         case TOP:
         case BOTTOM:
-            if (it->getHeight() > _size)
-                _size = it->getHeight();
+            if ((*it)->getHeight() > _size)
+                _size = (*it)->getHeight();
             break;
         case LEFT:
         case RIGHT:
-            if (it->getWidth() > _size)
-                _size = it->getWidth();
+            if ((*it)->getWidth() > _size)
+                _size = (*it)->getWidth();
             break;
         default:
             // Do nothing.
@@ -232,14 +242,13 @@ Harbour::setStateHidden(StateAction sa)
         return;
     }
 
-    if (_hidden) {
-        // Show if currently hidden.
-        for_each(_dapps.begin(), _dapps.end(),
-                 std::mem_fn(&DockApp::mapWindow));
-    } else {
-        // Hide if currently visible.
-        for_each(_dapps.begin(), _dapps.end(),
-                 std::mem_fn(&DockApp::unmapWindow));
+    std::vector<DockApp*>::iterator it = _dapps.begin();
+    for (; it != _dapps.end(); ++it) {
+        if (_hidden) {
+            (*it)->mapWindow();
+        } else {
+            (*it)->unmapWindow();
+        }
     }
 
     _hidden = !_hidden;
@@ -337,7 +346,7 @@ Harbour::handleConfigureRequestEvent(XConfigureRequestEvent* ev, DockApp* da)
         return;
     }
 
-    auto it(find(_dapps.begin(), _dapps.end(), da));
+    std::vector<DockApp*>::iterator it(find(_dapps.begin(), _dapps.end(), da));
     if (it != _dapps.end()) {
         // Thing is that we doesn't listen to border width, position or
         // stackign so the only thing that we'll alter is size if that's
@@ -459,24 +468,25 @@ Harbour::placeDockAppsSorted(void)
 
     getPlaceStartPosition(_dapps.front (), x_real, y_real, inc_x);
 
-    for (auto it : _dapps) {
-        getPlaceStartPosition(it, x, y, inc_x);
+    std::vector<DockApp*>::iterator it = _dapps.begin();
+    for (; it != _dapps.end(); ++it) {
+        getPlaceStartPosition(*it, x, y, inc_x);
 
         if (inc_x) {
             if (right) {
-                it->move(x_real - it->getWidth(), y);
-                x_real -= -it->getWidth();
+                (*it)->move(x_real - (*it)->getWidth(), y);
+                x_real -= -(*it)->getWidth();
             } else {
-                it->move(x_real, y);
-                x_real += it->getWidth();
+                (*it)->move(x_real, y);
+                x_real += (*it)->getWidth();
             }
         } else {
             if (right) {
-                it->move(x, y_real - it->getHeight());
-                y_real -= it->getHeight();
+                (*it)->move(x, y_real - (*it)->getHeight());
+                y_real -= (*it)->getHeight();
             } else {
-                it->move(x, y_real);
-                y_real += it->getHeight();
+                (*it)->move(x, y_real);
+                y_real += (*it)->getHeight();
             }
         }
     }
@@ -567,7 +577,7 @@ Harbour::getPlaceStartPosition(DockApp *da, int &x, int &y, bool &inc_x)
 void
 Harbour::insertDockAppSorted(DockApp *da)
 {
-    auto it(_dapps.begin());
+    std::vector<DockApp*>::iterator it = _dapps.begin();
 
     // The order of this list doesn't make much sense to me when
     // it comes to representing it in code, however it's perfectly sane

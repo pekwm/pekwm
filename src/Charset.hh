@@ -8,6 +8,7 @@
 
 #pragma once
 
+#include "Compat.hh"
 #include <string>
 
 namespace Charset

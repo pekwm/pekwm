@@ -51,7 +51,7 @@ RegexString::ed_s(std::string &str)
         return false;
     }
 
-    auto mb_str = Charset::toSystem(str);
+    std::string mb_str = Charset::toSystem(str);
 
     const char *c_str = mb_str.c_str();
     regmatch_t *matches = new regmatch_t[_ref_max];
@@ -65,7 +65,7 @@ RegexString::ed_s(std::string &str)
     std::string result;
     uint ref, size;
 
-    auto it(_refs.begin());
+    std::vector<RegexString::Part>::iterator it = _refs.begin();
     for (; it != _refs.end(); ++it) {
         if (it->get_reference() >= 0) {
             ref = it->get_reference();
@@ -243,7 +243,7 @@ RegexString::operator==(const std::string &rhs) const
         return false;
     }
 
-    auto mb_rhs = Charset::toSystem(rhs);
+    std::string mb_rhs = Charset::toSystem(rhs);
     bool match = regexec(&_regex, mb_rhs.c_str(), 0, 0, 0) == 0;
 
     return _reg_inverted ? ! match : match;

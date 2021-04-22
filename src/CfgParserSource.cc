@@ -88,19 +88,19 @@ CfgParserSourceString::close(void)
 }
 
 int
-CfgParserSourceString::getc(void)
+CfgParserSourceString::get_char(void)
 {
     if (_pos == _data.end()) {
         return EOF;
     }
-    return CfgParserSource::get_char(*_pos++);
+    return CfgParserSource::do_get_char(*_pos++);
 }
 
 void
-CfgParserSourceString::ungetc(int c)
+CfgParserSourceString::unget_char(int c)
 {
     if (_pos != _data.begin()) {
-        CfgParserSource::ungetc(*_pos--);
+        CfgParserSource::unget_char(*_pos--);
     }
 }
 
@@ -142,8 +142,6 @@ CfgParserSourceCommand::open(void)
 
         execlp("/bin/sh", "sh", "-c", _name.c_str(), (char *) 0);
 
-        // PRINT ERROR
-
         ::close (STDOUT_FILENO);
 
         exit (1);
@@ -184,6 +182,6 @@ CfgParserSourceCommand::close(void)
 
     // Wait failed, throw error
     if (status == -1) {
-        auto msg = "failed to wait for pid " + std::to_string(_pid);
+        std::string msg = "failed to wait for pid " + std::to_string(_pid);
     }
 }

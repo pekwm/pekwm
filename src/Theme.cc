@@ -47,7 +47,7 @@ bool
 Theme::ColorMap::load(CfgParser::Entry *section,
                       std::map<int, int> &map)
 {
-    auto it = section->begin();
+    CfgParser::Entry::entry_cit it = section->begin();
     for (; it != section->end(); ++it) {
         if (strcasecmp((*it)->getName().c_str(), "MAP")) {
             USER_WARN("unexpected entry " << (*it)->getName()
@@ -55,7 +55,7 @@ Theme::ColorMap::load(CfgParser::Entry *section,
             continue;
         }
 
-        auto to = (*it)->getSection()
+        CfgParser::Entry *to = (*it)->getSection()
             ? (*it)->getSection()->findEntry("TO") : nullptr;
         if (to == nullptr) {
             USER_WARN("missing To entry in ColorMap entry");
@@ -137,7 +137,7 @@ Theme::PDecorButtonData::load(CfgParser::Entry *section)
 
     // Get actions.
     ActionEvent ae;
-    auto it(section->begin());
+    CfgParser::Entry::entry_cit it(section->begin());
     for (; it != section->end(); ++it) {
         if (ActionConfig::parseActionEvent(*it, ae, BUTTONCLICK_OK, true)) {
             _aes.push_back (ae);
@@ -217,21 +217,13 @@ Theme::PDecorButtonData::check(void)
 
 // Theme::PDecorData
 
-std::map<FocusedState, std::string> Theme::PDecorData::_fs_map =
-    {{FOCUSED_STATE_FOCUSED, "FOCUSED"},
-     {FOCUSED_STATE_UNFOCUSED, "UNFOCUSED"},
-     {FOCUSED_STATE_FOCUSED_SELECTED, "FOCUSEDSELECTED"},
-     {FOCUSED_STATE_UNFOCUSED_SELECTED, "UNFOCUSEDSELECTED"}};
 
-std::map<BorderPosition, std::string> Theme::PDecorData::_border_map =
-    {{BORDER_TOP_LEFT, "TOPLEFT"},
-     {BORDER_TOP, "TOP"},
-     {BORDER_TOP_RIGHT, "TOPRIGHT"},
-     {BORDER_LEFT, "LEFT"},
-     {BORDER_RIGHT, "RIGHT"},
-     {BORDER_BOTTOM_LEFT, "BOTTOMLEFT"},
-     {BORDER_BOTTOM, "BOTTOM"},
-     {BORDER_BOTTOM_RIGHT, "BOTTOMRIGHT"}};
+static const char *focused_state_to_string[FOCUSED_STATE_NO] =
+    {"FOCUSED", "UNFOCUSED", "FOCUSEDSELECTED", "UNFOCUSEDSELECTED"};
+static const char *border_to_string[BORDER_NO_POS] =
+    {"TOPLEFT", "TOPRIGHT",
+     "BOTTOMLEFT", "BOTTOMRIGHT",
+     "TOP", "LEFT", "RIGHT", "BOTTOM"};
 
 //! @brief Theme::PDecorData constructor.
 Theme::PDecorData::PDecorData(FontHandler* fh, TextureHandler* th,
@@ -300,7 +292,7 @@ Theme::PDecorData::load(CfgParser::Entry *section)
         return false;
     }
 
-    auto title_section = section->findSection("TITLE");
+    CfgParser::Entry *title_section = section->findSection("TITLE");
     if (! title_section) {
         // no longer require a Title section, everything in the decor
         // is inside of it anyway.
@@ -338,17 +330,19 @@ Theme::PDecorData::load(CfgParser::Entry *section)
     _texture_main[FOCUSED_STATE_UNFOCUSED] = _th->getTexture(value_unfocused);
     parse_pad(value_pad, _pad);
 
-    auto tab_section = title_section->findSection("TAB");
+    CfgParser::Entry *tab_section = title_section->findSection("TAB");
     if (tab_section) {
         for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
-            auto value = tab_section->findEntry(_fs_map[FocusedState(i)]);
+            CfgParser::Entry *value =
+                tab_section->findEntry(focused_state_to_string[i]);
             if (value) {
                 _texture_tab[i] = _th->getTexture(value->getValue());
             }
         }
     }
 
-    auto separator_section = title_section->findSection("SEPARATOR");
+    CfgParser::Entry *separator_section =
+        title_section->findSection("SEPARATOR");
     if (separator_section) {
         keys.push_back(new CfgParserKeyString("FOCUSED", value_focused,
                                               "Empty", _th->getLengthMin()));
@@ -370,22 +364,25 @@ Theme::PDecorData::load(CfgParser::Entry *section)
     }
 
 
-    auto font_section = title_section->findSection("FONT");
+    CfgParser::Entry *font_section = title_section->findSection("FONT");
     if (font_section) {
         for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
-            auto value = font_section->findEntry(_fs_map[FocusedState(i)]);
+            CfgParser::Entry *value =
+                font_section->findEntry(focused_state_to_string[i]);
             if (value) {
                 _font[i] = _fh->getFont(value->getValue());
             }
         }
     } else {
-        WARN("no font section in decor: " << _name);
+        P_WARN("no font section in decor: " << _name);
     }
 
-    auto fontcolor_section = title_section->findSection("FONTCOLOR");
+    CfgParser::Entry *fontcolor_section =
+        title_section->findSection("FONTCOLOR");
     if (fontcolor_section) {
         for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
-            auto value = fontcolor_section->findEntry(_fs_map[FocusedState(i)]);
+            CfgParser::Entry *value =
+                fontcolor_section->findEntry(focused_state_to_string[i]);
             if (value) {
                 _font_color[i] = _fh->getColor(value->getValue());
             }
@@ -431,8 +428,10 @@ Theme::PDecorData::unload(void)
         }
     }
 
-    for (auto it : _buttons) {
-        delete it;
+
+    std::vector<Theme::PDecorButtonData*>::iterator it = _buttons.begin();
+    for (; it != _buttons.end(); ++it) {
+        delete *it;
     }
     _buttons.clear();
 }
@@ -443,7 +442,7 @@ Theme::PDecorData::check(void)
 {
     // check values
     if (_title_width_max > 100) {
-        WARN(_name << " WIDTHMAX > 100");
+        P_WARN(_name << " WIDTHMAX > 100");
         _title_width_max = 100;
     }
 
@@ -468,7 +467,7 @@ Theme::PDecorData::loadBorder(CfgParser::Entry *section)
     sub = section->findSection("FOCUSED");
     if (sub) {
         for (uint i = 0; i < BORDER_NO_POS; ++i) {
-            value = sub->findEntry(_border_map[BorderPosition (i)]);
+            value = sub->findEntry(border_to_string[i]);
             if (value) {
                 _texture_border[FOCUSED_STATE_FOCUSED][i] =
                     _th->getTexture(value->getValue());
@@ -479,7 +478,7 @@ Theme::PDecorData::loadBorder(CfgParser::Entry *section)
     sub = section->findSection("UNFOCUSED");
     if (sub) {
         for (uint i = 0; i < BORDER_NO_POS; ++i) {
-            value = sub->findEntry(_border_map[BorderPosition (i)]);
+            value = sub->findEntry(border_to_string[i]);
             if (value) {
                 _texture_border[FOCUSED_STATE_UNFOCUSED][i] =
                     _th->getTexture(value->getValue());
@@ -496,13 +495,13 @@ Theme::PDecorData::loadButtons(CfgParser::Entry *section)
         return;
     }
 
-    auto it(section->begin());
+    CfgParser::Entry::entry_cit it(section->begin());
     for (; it != section->end(); ++it) {
         if (! (*it)->getSection()) {
             continue;
         }
 
-        auto btn = new Theme::PDecorButtonData(_th);
+        Theme::PDecorButtonData *btn = new Theme::PDecorButtonData(_th);
         if (btn->load((*it)->getSection())) {
             _buttons.push_back(btn);
         } else {
@@ -524,20 +523,20 @@ Theme::PDecorData::checkTextures(void)
 
     for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
         if (! _texture_tab[i]) {
-            WARN(_name << " missing tab texture state "
-                 << _fs_map[FocusedState(i)]);
+            P_WARN(_name << " missing tab texture state "
+                 << focused_state_to_string[i]);
             _texture_tab[i] = _th->getTexture(textures[i]);
         }
     }
     for (uint i = 0; i < FOCUSED_STATE_FOCUSED_SELECTED; ++i) {
         if (! _texture_main[i]) {
-            WARN(_name << " missing main texture state "
-                 << _fs_map[FocusedState(i)]);
+            P_WARN(_name << " missing main texture state "
+                 << focused_state_to_string[i]);
             _texture_main[i] = _th->getTexture(textures[i]);
         }
         if (! _texture_separator[i]) {
-            WARN(_name << " missing tab texture state "
-                 << _fs_map[FocusedState(i)]);
+            P_WARN(_name << " missing tab texture state "
+                 << focused_state_to_string[i]);
             _texture_separator[i] =
                 _th->getTexture("Solid #999999 2x" DEFAULT_HEIGHT_STR);
         }
@@ -551,7 +550,8 @@ Theme::PDecorData::checkFonts(void)
     // the only font that's "obligatory" is the standard focused font,
     // others are only used if availible so we only check the focused font.
     if (! _font[FOCUSED_STATE_FOCUSED]) {
-        WARN(_name << " missing font state " << _fs_map[FOCUSED_STATE_FOCUSED]);
+        P_WARN(_name << " missing font state "
+             << focused_state_to_string[FOCUSED_STATE_FOCUSED]);
         _font[FOCUSED_STATE_FOCUSED] = _fh->getFont(DEFAULT_FONT);
     }
 }
@@ -567,9 +567,9 @@ Theme::PDecorData::checkBorder(void)
                 if (Debug::isLevel(Debug::LEVEL_WARN)) {
                     std::ostringstream msg;
                     msg << _name << " missing border texture ";
-                    msg << _border_map[BorderPosition(i)] << " ";
-                    msg << _fs_map[FocusedState(state)];
-                    WARN(msg.str());
+                    msg << border_to_string[i] << " ";
+                    msg << focused_state_to_string[state];
+                    P_WARN(msg.str());
                 }
                 _texture_border[state][i] =
                     _th->getTexture("Solid #999999 2x2");
@@ -584,8 +584,8 @@ Theme::PDecorData::checkColors(void)
 {
     for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
         if (! _font_color[i]) {
-            WARN(_name << " missing font color state "
-                 << _fs_map[FocusedState(i)]);
+            P_WARN(_name << " missing font color state "
+                 << focused_state_to_string[i]);
             _font_color[i] = _fh->getColor("#000000");
         }
     }
@@ -999,15 +999,17 @@ Theme::DialogData::load(CfgParser::Entry *section)
 
     std::string val_bg, val_bfont, val_btext, val_font, val_text,
         val_tfont, val_ttext, val_pad;
-    std::vector<CfgParserKey*> keys =
-        {new CfgParserKeyString("BACKGROUND", val_bg, "Solid #ffffff"),
-         new CfgParserKeyString("FONT", val_font, DEFAULT_FONT),
-         new CfgParserKeyString("TEXT", val_text, "#000000"),
-         new CfgParserKeyString("TITLEFONT", val_tfont, DEFAULT_LARGE_FONT),
-         new CfgParserKeyString("TITLECOLOR", val_ttext, "#000000"),
-         new CfgParserKeyString("PAD", val_pad, "0 0 0 0", 7)};
+    std::vector<CfgParserKey*> keys;
+    keys.push_back(new CfgParserKeyString("BACKGROUND", val_bg,
+                                          "Solid #ffffff"));
+    keys.push_back(new CfgParserKeyString("FONT", val_font, DEFAULT_FONT));
+    keys.push_back(new CfgParserKeyString("TEXT", val_text, "#000000"));
+    keys.push_back(new CfgParserKeyString("TITLEFONT", val_tfont,
+                                          DEFAULT_LARGE_FONT));
+    keys.push_back(new CfgParserKeyString("TITLECOLOR", val_ttext, "#000000"));
+    keys.push_back(new CfgParserKeyString("PAD", val_pad, "0 0 0 0", 7));
     section->parseKeyValues(keys.begin(), keys.end());
-    for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+    std::for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 
     // Handle parsed data.
     _background = _th->getTexture(val_bg);
@@ -1017,16 +1019,16 @@ Theme::DialogData::load(CfgParser::Entry *section)
     _title_color = _fh->getColor(val_ttext);
     parse_pad(val_pad, _pad);
 
-    auto button = section->findSection("BUTTON");
+    CfgParser::Entry *button = section->findSection("BUTTON");
     if (button != nullptr) {
         std::string val_fo, val_un, val_pr, val_ho;
-        std::vector<CfgParserKey*> bkeys =
-            {new CfgParserKeyString("FONT", val_font, DEFAULT_FONT),
-             new CfgParserKeyString("TEXT", val_text, "#000000"),
-             new CfgParserKeyString("FOCUSED", val_fo),
-             new CfgParserKeyString("UNFOCUSED", val_un),
-             new CfgParserKeyString("PRESSED", val_pr),
-             new CfgParserKeyString("HOOVER", val_ho)};
+        std::vector<CfgParserKey*> bkeys;
+        bkeys.push_back(new CfgParserKeyString("FONT", val_font, DEFAULT_FONT));
+        bkeys.push_back(new CfgParserKeyString("TEXT", val_text, "#000000"));
+        bkeys.push_back(new CfgParserKeyString("FOCUSED", val_fo));
+        bkeys.push_back(new CfgParserKeyString("UNFOCUSED", val_un));
+        bkeys.push_back(new CfgParserKeyString("PRESSED", val_pr));
+        bkeys.push_back(new CfgParserKeyString("HOOVER", val_ho));
         button->parseKeyValues(bkeys.begin(), bkeys.end());
         for_each(bkeys.begin(), bkeys.end(), Util::Free<CfgParserKey*>());
 
@@ -1133,7 +1135,7 @@ Theme::HarbourData::load(CfgParser::Entry *section)
     }
     _loaded = true;
 
-    auto value = section->findEntry("TEXTURE");
+    CfgParser::Entry *value = section->findEntry("TEXTURE");
     if (value) {
         _texture = _th->getTexture(value->getValue());
     }
@@ -1223,11 +1225,11 @@ Theme::load(const std::string &dir, const std::string &variant)
     }
     std::string theme_file(norm_dir + "/theme");
     if (! variant.empty()) {
-        auto theme_file_variant = theme_file + "-" + variant;
+        std::string theme_file_variant = theme_file + "-" + variant;
         if (Util::isFile(theme_file_variant)) {
             theme_file = theme_file_variant;
         } else {
-            DBG("theme variant " << variant << " does not exist");
+            P_DBG("theme variant " << variant << " does not exist");
         }
     }
 
@@ -1271,7 +1273,7 @@ Theme::load(const std::string &dir, const std::string &variant)
         }
         loadThemeRequire(theme, theme_file);
     }
-    auto root = theme.getEntryRoot();
+    CfgParser::Entry *root = theme.getEntryRoot();
 
     // Set image basedir.
     _ih->path_clear();
@@ -1285,20 +1287,20 @@ Theme::load(const std::string &dir, const std::string &variant)
     loadDecors(root);
 
     if (! _menu_data.load(root->findSection("MENU"))) {
-        WARN("Missing or malformed \"MENU\" section!");
+        P_WARN("Missing or malformed \"MENU\" section!");
     }
     if (! _status_data.load(root->findSection("STATUS"))) {
-        WARN("Missing \"STATUS\" section!");
+        P_WARN("Missing \"STATUS\" section!");
     }
     if (! _cmd_d_data.load(root->findSection("CMDDIALOG"))) {
-        WARN("Missing \"CMDDIALOG\" section!");
+        P_WARN("Missing \"CMDDIALOG\" section!");
     }
-    auto ws_section = root->findSection("WORKSPACEINDICATOR");
+    CfgParser::Entry *ws_section = root->findSection("WORKSPACEINDICATOR");
     if (! _ws_indicator_data.load(ws_section)) {
-        WARN("Missing \"WORKSPACEINDICATOR\" section!");
+        P_WARN("Missing \"WORKSPACEINDICATOR\" section!");
     }
     if (! _harbour_data.load(root->findSection("HARBOUR"))) {
-        WARN("Missing \"HARBOUR\" section!");
+        P_WARN("Missing \"HARBOUR\" section!");
     }
 
     _loaded = true;
@@ -1365,7 +1367,7 @@ Theme::loadColorMaps(CfgParser::Entry* section)
         return;
     }
 
-    auto it = section->begin();
+    CfgParser::Entry::entry_cit it = section->begin();
     for (; it != section->end(); ++it) {
         if (strcasecmp((*it)->getName().c_str(), "COLORMAP")) {
             USER_WARN("unexpected entry " << (*it)->getName()
@@ -1382,18 +1384,18 @@ Theme::loadColorMaps(CfgParser::Entry* section)
 void
 Theme::loadDecors(CfgParser::Entry *root)
 {
-    auto section = root->findSection("PDECOR");
+    CfgParser::Entry *section = root->findSection("PDECOR");
     if (section == nullptr) {
         section = root;
     }
 
-    auto it = section->begin();
+    CfgParser::Entry::entry_cit it = section->begin();
     for (; it != section->end(); ++it) {
         if (strcasecmp((*it)->getName().c_str(), "DECOR") != 0) {
             continue;
         }
 
-        auto data = new Theme::PDecorData(_fh, _th);
+        Theme::PDecorData *data = new Theme::PDecorData(_fh, _th);
         if (data->load((*it)->getSection())) {
             _decors[data->getName()] = data;
         } else {
@@ -1404,8 +1406,8 @@ Theme::loadDecors(CfgParser::Entry *root)
     if (! getPDecorData("DEFAULT")) {
         // Create DEFAULT decor, let check fill it up with empty but
         // non-null data.
-        WARN("Theme doesn't contain any DEFAULT decor.");
-        auto decor_data = new Theme::PDecorData(_fh, _th, "DEFAULT");
+        P_WARN("Theme doesn't contain any DEFAULT decor.");
+        Theme::PDecorData *decor_data = new Theme::PDecorData(_fh, _th, "DEFAULT");
         decor_data->check();
         _decors["DEFAULT"] = decor_data;
     }
@@ -1423,8 +1425,9 @@ Theme::unload(void)
     _loaded = false;
 
     // Unload decors
-    for (auto it : _decors) {
-        delete it.second;
+    Util::StringMap<PDecorData*>::iterator it = _decors.begin();
+    for (; it != _decors.end(); ++it) {
+        delete it->second;
     }
     _decors.clear();
     _decors[""] = nullptr;
@@ -1442,6 +1445,7 @@ Theme::getColorMap(const std::string& name)
 {
     std::string u_name;
     Util::to_upper(u_name);
-    auto it = _color_maps.find(u_name);
+    std::map<std::string, ColorMap>::iterator it =
+        _color_maps.find(u_name);
     return it == _color_maps.end() ? nullptr : &it->second;
 }

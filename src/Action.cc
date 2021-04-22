@@ -24,9 +24,8 @@ const int ANY_MASK =
     BUTTONCLICK_OK|WINDOWMENU_OK|ROOTMENU_OK|SCREEN_EDGE_OK|
     CMD_OK;
 
-static Util::StringMap<std::pair<ActionType, uint> > action_map =
-    {{"", action_pair(ACTION_NO, 0)},
-     {"Focus", action_pair(ACTION_FOCUS, ANY_MASK)},
+static Util::StringTo<std::pair<ActionType, uint> > action_map[] =
+    {{"Focus", action_pair(ACTION_FOCUS, ANY_MASK)},
      {"UnFocus", action_pair(ACTION_UNFOCUS, ANY_MASK)},
      {"Set", action_pair(ACTION_SET, ANY_MASK)},
      {"Unset", action_pair(ACTION_UNSET, ANY_MASK)},
@@ -109,11 +108,11 @@ static Util::StringMap<std::pair<ActionType, uint> > action_map =
      {"SendKey", action_pair(ACTION_SEND_KEY, ANY_MASK)},
      {"WarpPointer", action_pair(ACTION_WARP_POINTER, ANY_MASK)},
      {"SetOpacity", action_pair(ACTION_SET_OPACITY, FRAME_MASK|CMD_OK)},
-     {"Debug", action_pair(ACTION_DEBUG, ANY_MASK)}};
+     {"Debug", action_pair(ACTION_DEBUG, ANY_MASK)},
+     {nullptr, action_pair(ACTION_NO, 0)}};
 
-static Util::StringMap<ActionStateType> action_state_map =
-    {{"", ACTION_STATE_NO},
-     {"Maximized", ACTION_STATE_MAXIMIZED},
+static Util::StringTo<ActionStateType> action_state_map[] =
+    {{"Maximized", ACTION_STATE_MAXIMIZED},
      {"Fullscreen", ACTION_STATE_FULLSCREEN},
      {"Shaded", ACTION_STATE_SHADED},
      {"Sticky", ACTION_STATE_STICKY},
@@ -130,22 +129,22 @@ static Util::StringMap<ActionStateType> action_state_map =
      {"Opaque", ACTION_STATE_OPAQUE},
      {"Title", ACTION_STATE_TITLE},
      {"HarbourHidden", ACTION_STATE_HARBOUR_HIDDEN},
-     {"GlobalGrouping", ACTION_STATE_GLOBAL_GROUPING}};
+     {"GlobalGrouping", ACTION_STATE_GLOBAL_GROUPING},
+     {nullptr, ACTION_STATE_NO}};
 
-static Util::StringMap<BorderPosition> borderpos_map =
-    {{"", BORDER_NO_POS},
-     {"TOPLEFT", BORDER_TOP_LEFT},
+static Util::StringTo<BorderPosition> borderpos_map[] =
+    {{"TOPLEFT", BORDER_TOP_LEFT},
      {"TOP", BORDER_TOP},
      {"TOPRIGHT", BORDER_TOP_RIGHT},
      {"LEFT", BORDER_LEFT},
      {"RIGHT", BORDER_RIGHT},
      {"BOTTOMLEFT", BORDER_BOTTOM_LEFT},
      {"BOTTOM", BORDER_BOTTOM},
-     {"BOTTOMRIGHT", BORDER_BOTTOM_RIGHT}};
+     {"BOTTOMRIGHT", BORDER_BOTTOM_RIGHT},
+     {nullptr, BORDER_NO_POS}};
 
-static Util::StringMap<CfgDeny> cfg_deny_map =
-    {{"", CFG_DENY_NO},
-     {"POSITION", CFG_DENY_POSITION},
+static Util::StringTo<CfgDeny> cfg_deny_map[] =
+    {{"POSITION", CFG_DENY_POSITION},
      {"SIZE", CFG_DENY_SIZE},
      {"STACKING", CFG_DENY_STACKING},
      {"ACTIVEWINDOW", CFG_DENY_ACTIVE_WINDOW},
@@ -156,18 +155,18 @@ static Util::StringMap<CfgDeny> cfg_deny_map =
      {"ABOVE", CFG_DENY_STATE_ABOVE},
      {"BELOW", CFG_DENY_STATE_BELOW},
      {"STRUT", CFG_DENY_STRUT},
-     {"RESIZEINC", CFG_DENY_RESIZE_INC}};
+     {"RESIZEINC", CFG_DENY_RESIZE_INC},
+     {nullptr, CFG_DENY_NO}};
 
-static Util::StringMap<DirectionType> direction_map =
-    {{"", DIRECTION_NO},
-     {"UP", DIRECTION_UP},
+static Util::StringTo<DirectionType> direction_map[] =
+    {{"UP", DIRECTION_UP},
      {"DOWN", DIRECTION_DOWN},
      {"LEFT", DIRECTION_LEFT},
-     {"RIGHT", DIRECTION_RIGHT}};
+     {"RIGHT", DIRECTION_RIGHT},
+     {nullptr, DIRECTION_NO}};
 
-static Util::StringMap<OrientationType> edge_map =
-    {{"", NO_EDGE},
-     {"TOPLEFT", TOP_LEFT},
+static Util::StringTo<OrientationType> edge_map[] =
+    {{"TOPLEFT", TOP_LEFT},
      {"TOPEDGE", TOP_EDGE},
      {"TOPCENTEREDGE", TOP_CENTER_EDGE},
      {"TOPRIGHT", TOP_RIGHT},
@@ -179,21 +178,21 @@ static Util::StringMap<OrientationType> edge_map =
      {"LEFTCENTEREDGE", LEFT_CENTER_EDGE},
      {"RIGHTEDGE", RIGHT_EDGE},
      {"RIGHTCENTEREDGE", RIGHT_CENTER_EDGE},
-     {"CENTER", CENTER}};
+     {"CENTER", CENTER},
+     {nullptr, NO_EDGE}};
 
-static Util::StringMap<Layer> layer_map =
-    {{"", LAYER_NONE},
-     {"DESKTOP", LAYER_DESKTOP},
+static Util::StringTo<Layer> layer_map[] =
+    {{"DESKTOP", LAYER_DESKTOP},
      {"BELOW", LAYER_BELOW},
      {"NORMAL", LAYER_NORMAL},
      {"ONTOP", LAYER_ONTOP},
      {"HARBOUR", LAYER_DOCK},
      {"ABOVEHARBOUR", LAYER_ABOVE_DOCK},
-     {"MENU", LAYER_MENU}};
+     {"MENU", LAYER_MENU},
+     {nullptr, LAYER_NONE}};
 
-static Util::StringMap<uint> mod_map =
-    {{"", 0},
-     {"NONE", 0},
+static Util::StringTo<uint> mod_map[] =
+    {{"NONE", 0},
      {"SHIFT", ShiftMask},
      {"CTRL", ControlMask},
      {"MOD1", Mod1Mask},
@@ -201,26 +200,26 @@ static Util::StringMap<uint> mod_map =
      {"MOD3", Mod3Mask},
      {"MOD4", Mod4Mask},
      {"MOD5", Mod5Mask},
-     {"ANY", MOD_ANY}};
+     {"ANY", MOD_ANY},
+     {nullptr, 0}};
 
-static Util::StringMap<Raise> raise_map =
-    {{"", NO_RAISE},
-     {"ALWAYSRAISE", ALWAYS_RAISE},
+static Util::StringTo<Raise> raise_map[] =
+    {{"ALWAYSRAISE", ALWAYS_RAISE},
      {"ENDRAISE", END_RAISE},
-     {"NEVERRAISE", NEVER_RAISE},
-     {"TEMPRAISE", TEMP_RAISE}};
+     {"NEVP_ERRAISE", NEVER_RAISE},
+     {"TEMPRAISE", TEMP_RAISE},
+     {nullptr, NO_RAISE}};
 
-static Util::StringMap<Skip> skip_map =
-    {{"", SKIP_NONE},
-     {"MENUS", SKIP_MENUS},
+static Util::StringTo<Skip> skip_map[] =
+    {{"MENUS", SKIP_MENUS},
      {"FOCUSTOGGLE", SKIP_FOCUS_TOGGLE},
      {"SNAP", SKIP_SNAP},
      {"PAGER", SKIP_PAGER},
-     {"TASKBAR", SKIP_TASKBAR}};
+     {"TASKBAR", SKIP_TASKBAR},
+     {nullptr, SKIP_NONE}};
 
-static Util::StringMap<WorkspaceChangeType> workspace_change_map =
-    {{"", WORKSPACE_NO},
-     {"LEFT", WORKSPACE_LEFT},
+static Util::StringTo<WorkspaceChangeType> workspace_change_map[] =
+    {{"LEFT", WORKSPACE_LEFT},
      {"LEFTN", WORKSPACE_LEFT_N},
      {"PREV", WORKSPACE_PREV},
      {"PREVN", WORKSPACE_PREV_N},
@@ -232,7 +231,8 @@ static Util::StringMap<WorkspaceChangeType> workspace_change_map =
      {"UP", WORKSPACE_UP},
      {"NEXTV", WORKSPACE_NEXT_V},
      {"DOWN", WORKSPACE_DOWN},
-     {"LAST", WORKSPACE_LAST}};
+     {"LAST", WORKSPACE_LAST},
+     {nullptr, WORKSPACE_NO}};
 
 /**
  * Parse WarpToWorkspace, (part of) SendToWorkspace and GotoWorkspace argument.
@@ -244,7 +244,7 @@ static void
 parseActionChangeWorkspace(Action &action, const std::string &arg, int idx = 0)
 {
     // Get workspace looking for relative numbers
-    uint num = workspace_change_map.get(arg);
+    uint num = Util::StringToGet(workspace_change_map, arg);
 
     if (num == WORKSPACE_NO) {
         // Workspace isn't relative, check for 2x2 and ordinary specification
@@ -292,7 +292,7 @@ parseActionState(Action &action, const std::string &as_action)
 
     // chop the string up separating the action and parameters
     if (Util::splitString(as_action, tok, " \t", 2)) {
-        action.setParamI(0, action_state_map.get(tok[0]));
+        action.setParamI(0, Util::StringToGet(action_state_map, tok[0]));
         if (action.getParamI(0) != ACTION_STATE_NO) {
             if (tok.size() == 2) { // we got enough tok for a parameter
                 std::string directions;
@@ -314,10 +314,11 @@ parseActionState(Action &action, const std::string &as_action)
                     action.setParamI(1, Util::isTrue(tok[1]));
                     break;
                 case ACTION_STATE_SKIP:
-                    action.setParamI(1, skip_map.get(tok[1]));
+                    action.setParamI(1, Util::StringToGet(skip_map, tok[1]));
                     break;
                 case ACTION_STATE_CFG_DENY:
-                    action.setParamI(1, cfg_deny_map.get(tok[1]));
+                    action.setParamI(1,
+                                     Util::StringToGet(cfg_deny_map, tok[1]));
                     break;
                 case ACTION_STATE_DECOR:
                 case ACTION_STATE_TITLE:
@@ -382,7 +383,7 @@ parseActionArg(Action &action, const std::string& arg)
         }
         break;
     case ACTION_GROW_DIRECTION:
-        action.setParamI(0, direction_map.get(arg));
+        action.setParamI(0, Util::StringToGet(direction_map, arg));
         break;
     case ACTION_ACTIVATE_CLIENT_NUM:
         action.setParamI(0, strtol(arg.c_str(), 0, 10) - 1);
@@ -402,31 +403,31 @@ parseActionArg(Action &action, const std::string& arg)
         action.setParamI(0, Util::isTrue(arg));
         break;
     case ACTION_MOVE_TO_EDGE:
-        action.setParamI(0, edge_map.get(arg));
+        action.setParamI(0, Util::StringToGet(edge_map, arg));
         break;
     case ACTION_NEXT_FRAME:
     case ACTION_NEXT_FRAME_MRU:
     case ACTION_PREV_FRAME:
     case ACTION_PREV_FRAME_MRU:
         if ((Util::splitString(arg, tok, " \t", 2)) == 2) {
-            action.setParamI(0, raise_map.get(tok[0]));
+            action.setParamI(0, Util::StringToGet(raise_map, tok[0]));
             action.setParamI(1, Util::isTrue(tok[1]));
         } else {
-            action.setParamI(0, raise_map.get(arg));
+            action.setParamI(0, Util::StringToGet(raise_map, arg));
             action.setParamI(1, false);
         }
         break;
     case ACTION_FOCUS_DIRECTIONAL:
         if ((Util::splitString(arg, tok, " \t", 2)) == 2) {
-            action.setParamI(0, direction_map.get(tok[0]));
+            action.setParamI(0, Util::StringToGet(direction_map, tok[0]));
             action.setParamI(1, Util::isTrue(tok[1])); // raise
         } else {
-            action.setParamI(0, direction_map.get(arg));
+            action.setParamI(0, Util::StringToGet(direction_map, arg));
             action.setParamI(1, true); // default to raise
         }
         break;
     case ACTION_RESIZE:
-        action.setParamI(0, 1 + borderpos_map.get(arg));
+        action.setParamI(0, 1 + Util::StringToGet(borderpos_map, arg));
         break;
     case ACTION_RAISE:
     case ACTION_LOWER:
@@ -497,8 +498,9 @@ parseButton(const std::string &button_string, uint &mod, uint &button)
             mod = 0;
             uint tmp_mod;
 
-            for (auto it : tok) {
-                tmp_mod = ActionConfig::getMod(it);
+            std::vector<std::string>::iterator it = tok.begin();
+            for (; it != tok.end(); ++it) {
+                tmp_mod = ActionConfig::getMod(*it);
                 if (tmp_mod == MOD_ANY) {
                     mod = MOD_ANY;
                     break;
@@ -562,7 +564,7 @@ namespace ActionConfig {
             // Do no matching, anything goes.
             key = 0;
         } else {
-            auto keysym = XStringToKeysym(tok[num].c_str());
+            KeySym keysym = XStringToKeysym(tok[num].c_str());
 
             // XStringToKeysym() may fail. Perhaps we have luck after some
             // simple transformations. First we convert the string to lowercase
@@ -596,8 +598,9 @@ namespace ActionConfig {
 
             // add the modifier
             mod = 0;
-            for (auto it : tok) {
-                mod |= getMod(it);
+            std::vector<std::string>::iterator it = tok.begin();
+            for (; it != tok.end(); ++it) {
+                mod |= getMod(*it);
             }
 
             return true;
@@ -646,9 +649,10 @@ namespace ActionConfig {
             return false;
         }
 
-        for (auto it : tok) {
+        std::vector<std::string>::iterator it = tok.begin();
+        for (; it != tok.end(); ++it) {
             Action action;
-            if (parseAction(it, action, mask)) {
+            if (parseAction(*it, action, mask)) {
                 ae.action_list.push_back(action);
             }
         }
@@ -660,7 +664,7 @@ namespace ActionConfig {
     parseActionEvent(CfgParser::Entry *section, ActionEvent &ae,
                      uint mask, bool is_button)
     {
-        auto value = section->findEntry("ACTIONS");
+        CfgParser::Entry *value = section->findEntry("ACTIONS");
         if (value == nullptr && section->getSection()) {
             value = section->getSection()->findEntry("ACTIONS");
         }
@@ -668,7 +672,7 @@ namespace ActionConfig {
             return false;
         }
 
-        auto str_button = section->getValue();
+        std::string str_button = section->getValue();
         if (str_button.empty()) {
             if (ae.type == MOUSE_EVENT_ENTER || ae.type == MOUSE_EVENT_LEAVE) {
                 str_button = "1";
@@ -718,7 +722,7 @@ namespace ActionConfig {
 
         // honour strut option
         if (tok.size() > 2) {
-            auto honour_strut =
+            int honour_strut =
                 strcasecmp(tok[2].c_str(), "HONOURSTRUT") ? 0 : 1;
             action.setParamI(1, honour_strut);
         } else {
@@ -729,7 +733,7 @@ namespace ActionConfig {
     ActionType
     getAction(const std::string &name, uint mask)
     {
-        auto val = action_map.get(name);
+        action_pair val = Util::StringToGet(action_map, name);
         if (val.second & mask) {
             return val.first;
         }
@@ -739,31 +743,31 @@ namespace ActionConfig {
     BorderPosition
     getBorderPos(const std::string &name)
     {
-        return borderpos_map.get(name);
+        return Util::StringToGet(borderpos_map, name);
     }
 
     CfgDeny
     getCfgDeny(const std::string& name)
     {
-        return cfg_deny_map.get(name);
+        return Util::StringToGet(cfg_deny_map, name);
     }
 
     DirectionType
     getDirection(const std::string &name)
     {
-        return direction_map.get(name);
+        return Util::StringToGet(direction_map, name);
     }
 
     Layer
     getLayer(const std::string &name)
     {
-        return layer_map.get(name);
+        return Util::StringToGet(layer_map, name);
     }
 
     uint
     getMod(const std::string &name)
     {
-        return mod_map.get(name);
+        return Util::StringToGet(mod_map, name);
     }
 
     uint
@@ -787,7 +791,7 @@ namespace ActionConfig {
     Skip
     getSkip(const std::string &name)
     {
-        return skip_map.get(name);
+        return Util::StringToGet(skip_map, name);
     }
 
     /** Return vector with available keyboard actions names. */
@@ -795,9 +799,9 @@ namespace ActionConfig {
     getActionNameList(void)
     {
         std::vector<std::string> action_names;
-        for (auto it : action_map) {
-            if (it.second.second&KEYGRABBER_OK) {
-                action_names.push_back(it.first.str());
+        for (int i = 0; action_map[i].name != nullptr; i++) {
+            if (action_map[i].value.second&KEYGRABBER_OK) {
+                action_names.push_back(action_map[i].name);
             }
         }
         return action_names;
@@ -807,8 +811,8 @@ namespace ActionConfig {
     /** Return vector with available state action names. */
     std::vector<std::string> getStateNameList(void) {
         std::vector<std::string> state_names;
-        for (auto it : action_state_map) {
-            state_names.push_back(it.first.str());
+        for (int i = 0; action_state_map[i].name != nullptr; i++) {
+            state_names.push_back(action_state_map[i].name);
         }
         return state_names;
     }

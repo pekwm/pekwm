@@ -93,9 +93,9 @@ private:
     /** Loaded images. */
     std::vector<ImageRefEntry> _images;
     /** Loaded images with color mapped data. */
-    std::map<std::string, std::vector<ImageRefEntry>> _images_mapped;
+    std::map<std::string, std::vector<ImageRefEntry> > _images_mapped;
 
-    std::map<std::string, std::map<int, int>> _color_maps;
+    std::map<std::string, std::map<int, int> > _color_maps;
 };
 
 namespace pekwm

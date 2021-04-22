@@ -80,8 +80,8 @@ FrameListMenu::handleItemExec(PMenu::Item *item)
         return;
     }
 
-    auto item_client = dynamic_cast<Client*>(item->getWORef());
-    auto wo_ref_client = dynamic_cast<Client*>(getWORef());
+    Client *item_client = dynamic_cast<Client*>(item->getWORef());
+    Client *wo_ref_client = dynamic_cast<Client*>(getWORef());
 
     switch (_menu_type) {
     case GOTOMENU_TYPE:
@@ -156,7 +156,8 @@ FrameListMenu::updateFrameListMenu(void)
 
                 } else {
                     buildName(*it, name);
-                    auto client = static_cast<Client*>((*it)->getActiveChild());
+                    Client *client =
+                        static_cast<Client*>((*it)->getActiveChild());
                     name.append("] ");
                     name.append(client->getTitle()->getVisible());
                     insert(name, ae, client, client->getIcon());
@@ -204,7 +205,7 @@ FrameListMenu::buildFrameNames(Frame *frame, std::string &pre_name,
 
     buildName(frame, status_name); // add states to the name
 
-    auto it = frame->begin();
+    std::vector<PWinObj*>::const_iterator it = frame->begin();
     for (; it != frame->end(); ++it) {
         name = pre_name;
         name.append(status_name);
@@ -219,7 +220,7 @@ FrameListMenu::buildFrameNames(Frame *frame, std::string &pre_name,
 
     // add separator
     if (insert_separator) {
-        auto item = new PMenu::Item("");
+        PMenu::Item *item = new PMenu::Item("");
         item->setType(PMenu::Item::MENU_ITEM_SEPARATOR);
         insert(item);
     }

@@ -74,11 +74,12 @@ MenuHandler::createMenusLoadConfiguration(ActionHandler *act)
     if (menu_cfg.parse(pekwm::config()->getMenuFile())
         || menu_cfg.parse(std::string(SYSCONFDIR "/menu"))) {
         _cfg_files = menu_cfg.getCfgFiles();
-        auto root_entry = menu_cfg.getEntryRoot();
+        CfgParser::Entry *root_entry = menu_cfg.getEntryRoot();
 
         // Load standard menus
-        for (auto it : _menu_map) {
-            it.second->reload(root_entry->findSection(it.second->getName()));
+        menu_map_it it = _menu_map.begin();
+        for (; it != _menu_map.end(); ++it) {
+            it->second->reload(root_entry->findSection(it->second->getName()));
         }
 
         // Load standalone menus
@@ -103,7 +104,7 @@ MenuHandler::reloadMenus(ActionHandler *act)
     CfgParser::Entry *root = cfg.getEntryRoot();
 
     // Update, delete standalone root menus, load decors on others
-    auto it(_menu_map.begin());
+    menu_map_it it(_menu_map.begin());
     while (it != _menu_map.end()) {
         if (it->second->getMenuType() == ROOTMENU_STANDALONE_TYPE) {
             delete it->second;
@@ -156,7 +157,7 @@ MenuHandler::reloadStandaloneMenus(ActionHandler *act,
     std::string menu_name_upper;
 
     // Go through all but reserved section names and create menus
-    CfgParser::iterator it(section->begin());
+    CfgParser::Entry::entry_cit it(section->begin());
     for (; it != section->end(); ++it) {
         // Uppercase name
         menu_name_upper = (*it)->getName();
@@ -165,8 +166,8 @@ MenuHandler::reloadStandaloneMenus(ActionHandler *act,
         // Create new menu if the name is not used
         if (! getMenu(menu_name_upper)) {
             // Create, parse and add to map
-            auto menu = new ActionMenu(ROOTMENU_STANDALONE_TYPE, act,
-                                       "", (*it)->getName());
+            ActionMenu *menu = new ActionMenu(ROOTMENU_STANDALONE_TYPE, act,
+                                              "", (*it)->getName());
             menu->reload((*it)->getSection());
             _menu_map[menu_name_upper] = menu;
         }
@@ -179,8 +180,9 @@ MenuHandler::reloadStandaloneMenus(ActionHandler *act,
 void
 MenuHandler::deleteMenus(void)
 {
-    for (auto it : _menu_map) {
-        delete it.second;
+    menu_map_it it = _menu_map.begin();
+    for (; it != _menu_map.end(); ++it) {
+        delete it->second;
     }
     _menu_map.clear();
 }

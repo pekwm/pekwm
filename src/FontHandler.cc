@@ -15,17 +15,17 @@
 #include "Util.hh"
 #include "X11.hh"
 
-static Util::StringMap<PFont::Type> map_type =
-    {{"", PFont::FONT_TYPE_NO},
-     {"X11", PFont::FONT_TYPE_X11},
+static Util::StringTo<PFont::Type> map_type[] =
+    {{"X11", PFont::FONT_TYPE_X11},
      {"XFT", PFont::FONT_TYPE_XFT},
-     {"XMB", PFont::FONT_TYPE_XMB}};
+     {"XMB", PFont::FONT_TYPE_XMB},
+     {nullptr, PFont::FONT_TYPE_NO}};
 
-static Util::StringMap<FontJustify> map_justify =
-    {{"", FONT_JUSTIFY_NO},
-     {"LEFT", FONT_JUSTIFY_LEFT},
+static Util::StringTo<FontJustify> map_justify[] =
+    {{"LEFT", FONT_JUSTIFY_LEFT},
      {"CENTER", FONT_JUSTIFY_CENTER},
-     {"RIGHT", FONT_JUSTIFY_RIGHT}};
+     {"RIGHT", FONT_JUSTIFY_RIGHT},
+     {nullptr, FONT_JUSTIFY_NO}};
 
 //! @brief FontHandler constructor
 FontHandler::FontHandler(void)
@@ -35,12 +35,14 @@ FontHandler::FontHandler(void)
 //! @brief FontHandler destructor
 FontHandler::~FontHandler(void)
 {
-    for (auto it : _fonts) {
-        delete it.getData();
+    std::vector<HandlerEntry<PFont*> >::iterator fit = _fonts.begin();
+    for (; fit != _fonts.end(); ++fit) {
+        delete fit->getData();
     }
 
-    for (auto it : _colours) {
-        delete it.getData();
+    std::vector<HandlerEntry<PFont::Color*> >::iterator cit = _colors.begin();
+    for (; cit != _colors.end(); ++cit) {
+        delete cit->getData();
     }
 }
 
@@ -54,10 +56,11 @@ PFont*
 FontHandler::getFont(const std::string &font)
 {
     // Check cache
-    for (auto it : _fonts) {
-        if (it == font) {
-            it.incRef();
-            return it.getData();
+    std::vector<HandlerEntry<PFont*> >::iterator it = _fonts.begin();
+    for (; it != _fonts.end(); ++it) {
+        if (*it == font) {
+            it->incRef();
+            return it->getData();
         }
     }
 
@@ -65,15 +68,16 @@ FontHandler::getFont(const std::string &font)
     PFont *pfont = 0;
 
     std::vector<std::string> tok;
+    std::vector<std::string>::iterator tok_it;
     if ((Util::splitString(font, tok, "#", 0, true)) > 1) {
         // Try getting the font type from the first paramter, if that
         // doesn't work fall back to the last. This is to backwards
         // compatible.
-        auto tok_it = tok.begin();
-        uint type = map_type.get(*tok_it);
+        tok_it = tok.begin();
+        uint type = Util::StringToGet(map_type, *tok_it);
         if (type == PFont::FONT_TYPE_NO) {
             tok_it = tok.end() - 1;
-            type = map_type.get(*tok_it);
+            type = Util::StringToGet(map_type, *tok_it);
         }
 
         switch (type) {
@@ -81,12 +85,12 @@ FontHandler::getFont(const std::string &font)
             pfont = new PFontXmb;
             tok.erase(tok_it);
             break;
-#ifdef HAVE_XFT
+#ifdef PEKWM_HAVE_XFT
         case PFont::FONT_TYPE_XFT:
             pfont = new PFontXft;
             tok.erase(tok_it);
             break;
-#endif // HAVE_XFT
+#endif // PEKWM_HAVE_XFT
         case PFont::FONT_TYPE_X11:
             pfont = new PFontX11;
             tok.erase(tok_it);
@@ -101,7 +105,7 @@ FontHandler::getFont(const std::string &font)
         tok.erase(tok.begin());
 
         // fields left for justify and offset
-        auto s_it(tok.begin());
+        std::vector<std::string>::iterator s_it(tok.begin());
         for (; s_it != tok.end(); ++s_it) {
             if (isdigit((*s_it)[0])) { // number
                 std::vector<std::string> tok_2;
@@ -110,7 +114,7 @@ FontHandler::getFont(const std::string &font)
                            strtol(tok_2[1].c_str(), 0, 10));
                 }
             } else { // justify
-                uint justify = map_justify.get(*s_it);
+                uint justify = Util::StringToGet(map_justify, *s_it);
                 if (justify == FONT_JUSTIFY_NO) {
                     justify = FONT_JUSTIFY_LEFT;
                 }
@@ -136,7 +140,7 @@ FontHandler::getFont(const std::string &font)
 void
 FontHandler::returnFont(PFont *font)
 {
-    auto it = _fonts.begin();
+    std::vector<HandlerEntry<PFont*> >::iterator it = _fonts.begin();
     for (; it != _fonts.end(); ++it) {
         if (it->getData() == font) {
             it->decRef();
@@ -154,15 +158,16 @@ PFont::Color*
 FontHandler::getColor(const std::string &color)
 {
     // check cache
-    for (auto it : _colours) {
-        if (it == color) {
-            it.incRef();
-            return it.getData();
+    std::vector<HandlerEntry<PFont::Color*> >::iterator it = _colors.begin();
+    for (; it != _colors.end(); ++it) {
+        if (*it == color) {
+            it->incRef();
+            return it->getData();
         }
     }
 
     // create new
-    auto font_color = new PFont::Color();
+    PFont::Color *font_color = new PFont::Color();
 
     std::vector<std::string> tok;
     if (Util::splitString(color, tok, " \t", 2) == 2) {
@@ -177,7 +182,7 @@ FontHandler::getColor(const std::string &color)
     entry.incRef();
     entry.setData(font_color);
 
-    _colours.push_back(entry);
+    _colors.push_back(entry);
 
     return font_color;
 }
@@ -186,13 +191,13 @@ FontHandler::getColor(const std::string &color)
 void
 FontHandler::returnColor(PFont::Color *color)
 {
-    auto it(_colours.begin());
-    for (; it != _colours.end(); ++it) {
+    std::vector<HandlerEntry<PFont::Color*> >::iterator it = _colors.begin();
+    for (; it != _colors.end(); ++it) {
         if (it->getData() == color) {
             it->decRef();
             if (! it->getRef()) {
                 delete it->getData();
-                _colours.erase(it);
+                _colors.erase(it);
             }
             break;
         }

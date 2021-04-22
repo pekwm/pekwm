@@ -163,7 +163,7 @@ void
 PWinObj::resize(uint width, uint height)
 {
     if (! width || ! height) {
-        WARN("width " << width << " height " << height << ", invalid geometry");
+        P_WARN("width " << width << " height " << height << ", invalid geometry");
         return;
     }
 
@@ -182,7 +182,7 @@ void
 PWinObj::moveResize(int x, int y, uint width, uint height)
 {
     if (! width || ! height) {
-        WARN("Invalid geometry, width/height not set");
+        P_WARN("Invalid geometry, width/height not set");
         return;
     }
 
@@ -243,7 +243,7 @@ void
 PWinObj::giveInputFocus(void)
 {
     if (! _mapped  || ! _focusable) {
-        WARN("trying to focus non focusable window. mapped " << _mapped
+        P_WARN("trying to focus non focusable window. mapped " << _mapped
              << " focusable " << _focusable);
         return;
     }
@@ -279,7 +279,8 @@ PWinObj::woListAdd(PWinObj *wo)
 void
 PWinObj::woListRemove(PWinObj *wo)
 {
-    auto it(find(_wo_list.begin(), _wo_list.end(), wo));
+    std::vector<PWinObj*>::iterator it
+        = find(_wo_list.begin(), _wo_list.end(), wo);
     if (it != _wo_list.end()) {
         _wo_list.erase(it);
     }

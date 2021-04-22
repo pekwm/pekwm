@@ -129,7 +129,7 @@ SearchDialog::findClients(const std::string &search)
         }
 
         std::vector<Client*> matches;
-        auto it(Client::client_begin());
+        Client::client_cit it(Client::client_begin());
         for (; it != Client::client_end(); ++it) {
             if ((*it)->isFocusable()  && ! (*it)->isSkip(SKIP_FOCUS_TOGGLE)
                  && search_re == (*it)->getTitle()->getReal()) {

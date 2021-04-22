@@ -264,7 +264,7 @@ PImage::PImage(XImage *image, uchar opacity)
       _data(new uchar[image->width * image->height * 4]),
       _use_alpha(false)
 {
-    auto pixelToRgb = getPixelToRgbFun(image);
+    pixelToRgb pixelToRgb = getPixelToRgbFun(image);
 
     uint dst = 0;
     for (uint y = 0; y < _height; ++y) {
@@ -299,21 +299,21 @@ PImage::load(const std::string &file)
         return false;
     }
 
-#ifdef HAVE_IMAGE_JPEG
+#ifdef PEKWM_HAVE_IMAGE_JPEG
     if (! strcasecmp(PImageLoaderJpeg::getExt(), ext.c_str())) {
         _data = PImageLoaderJpeg::load(file, _width, _height, _use_alpha);
     } else
-#endif // HAVE_IMAGE_JPEG
-#ifdef HAVE_IMAGE_PNG
+#endif // PEKWM_HAVE_IMAGE_JPEG
+#ifdef PEKWM_HAVE_IMAGE_PNG
     if (! strcasecmp(PImageLoaderPng::getExt(), ext.c_str())) {
         _data = PImageLoaderPng::load(file, _width, _height, _use_alpha);
     } else
-#endif // HAVE_IMAGE_PNG
-#ifdef HAVE_IMAGE_XPM
+#endif // PEKWM_HAVE_IMAGE_PNG
+#ifdef PEKWM_HAVE_IMAGE_XPM
     if (! strcasecmp(PImageLoaderXpm::getExt(), ext.c_str())) {
         _data = PImageLoaderXpm::load(file, _width, _height, _use_alpha);
     } else
-#endif // HAVE_IMAGE_XPM
+#endif // PEKWM_HAVE_IMAGE_XPM
     {
         // no loader matched
         _data = nullptr;
@@ -420,7 +420,7 @@ PImage::getPixmap(bool &need_free, size_t width, size_t height)
         }
         pix = _pixmap;
     } else {
-        auto scaled_data = getScaledData(width, height);
+        uchar *scaled_data = getScaledData(width, height);
         if (scaled_data) {
             need_free = true;
             pix = createPixmap(scaled_data, width, height);
@@ -466,7 +466,7 @@ PImage::getMask(bool &need_free, size_t width, size_t height)
         }
         pix = _mask;
     } else {
-        auto scaled_data = getScaledData(width, height);
+        uchar *scaled_data = getScaledData(width, height);
         if (scaled_data) {
             need_free = true;
             pix = createMask(scaled_data, width, height);
@@ -493,7 +493,7 @@ PImage::scale(size_t width, size_t height)
         return;
     }
 
-    auto scaled_data = getScaledData(width, height);
+    uchar *scaled_data = getScaledData(width, height);
     if (scaled_data) {
         // Free old resources.
         unload();
@@ -512,14 +512,14 @@ void
 PImage::drawAlphaFixed(Render &rend, int x, int y, size_t width, size_t height,
                        uchar* data)
 {
-    auto dest_image = rend.getImage(x, y, width, height);
+    XImage *dest_image = rend.getImage(x, y, width, height);
     if (! dest_image) {
         if (Debug::isLevel(Debug::LEVEL_ERR)) {
             std::ostringstream msg;
             msg << "failed to get image for area ";
             msg << " x " << x << " y " << y;
             msg << " width " << width << " height " << height;
-            ERR(msg.str());
+            P_ERR(msg.str());
         }
         return;
     }
@@ -536,7 +536,7 @@ PImage::drawAlphaFixed(XImage *src_image, XImage *dest_image,
                        uchar* data)
 {
     // Get mask from visual
-    auto visual = X11::getVisual();
+    Visual *visual = X11::getVisual();
     src_image->red_mask = visual->red_mask;
     src_image->green_mask = visual->green_mask;
     src_image->blue_mask = visual->blue_mask;
@@ -544,8 +544,8 @@ PImage::drawAlphaFixed(XImage *src_image, XImage *dest_image,
     dest_image->green_mask = visual->green_mask;
     dest_image->blue_mask = visual->blue_mask;
 
-    auto pixelToRgb = getPixelToRgbFun(src_image);
-    auto rgbToPixel = getRgbToPixelFun(dest_image);
+    pixelToRgb pixelToRgb = getPixelToRgbFun(src_image);
+    rgbToPixel rgbToPixel = getRgbToPixelFun(dest_image);
 
     uchar *src = data;
     for (size_t i_y = 0; i_y < height; ++i_y) {
@@ -561,7 +561,7 @@ PImage::drawAlphaFixed(XImage *src_image, XImage *dest_image,
                 // Get RGB values from pixel.
                 uchar d_r = 0, d_g = 0, d_b = 0;
                 pixelToRgb(XGetPixel(src_image, i_x, i_y),
-			   d_r, d_g, d_b);
+                           d_r, d_g, d_b);
 
                 float a_percent = static_cast<float>(a) / 255;
                 float a_percent_inv = 1 - a_percent;
@@ -586,7 +586,7 @@ PImage::drawFixed(Render &rend, int x, int y, size_t width, size_t height)
     height = std::min(width, _height);
 
     if (rend.getDrawable() == None) {
-        auto ximage = createXImage(_data, _width, _height);
+        XImage *ximage = createXImage(_data, _width, _height);
         if (ximage) {
             rend.putImage(ximage, x, y, width, height);
             destroyXImage(ximage);
@@ -607,15 +607,34 @@ void
 PImage::drawScaled(Render &rend, int x, int y, size_t width, size_t height)
 {
     // Create scaled representation of image.
-    auto scaled_data = getScaledData(width, height);
+    uchar *scaled_data = getScaledData(width, height);
     if (scaled_data) {
-        auto ximage = createXImage(scaled_data, width, height);
+        XImage *ximage = createXImage(scaled_data, width, height);
         delete [] scaled_data;
         if (ximage) {
             rend.putImage(ximage, x, y, width, height);
             destroyXImage(ximage);
         }
     }
+}
+
+struct RenderAndXImage
+{
+    RenderAndXImage(Render &_rend, XImage *_ximage)
+        : rend(_rend),
+          ximage(_ximage)
+    {
+    }
+
+    Render &rend;
+    XImage *ximage;
+};
+
+static void
+renderWithXImageRender(int x, int y, uint width, uint height, void *opaque)
+{
+    RenderAndXImage *raxi = reinterpret_cast<RenderAndXImage*>(opaque);
+    raxi->rend.putImage(raxi->ximage, x, y, width, height);
 }
 
 /**
@@ -625,13 +644,11 @@ void
 PImage::drawTiled(Render &rend, int x, int y, size_t width, size_t height)
 {
     if (rend.getDrawable() == None) {
-        auto ximage = createXImage(_data, _width, _height);
+        XImage *ximage = createXImage(_data, _width, _height);
         if (ximage) {
-            auto render =
-                [ximage, &rend](int rx, int ry, size_t rw, size_t rh) {
-                    rend.putImage(ximage, rx, ry, rw, rh);
-                };
-            renderTiled(x, y, width, height, _width, _height, render);
+            RenderAndXImage raxi(rend, ximage);
+            renderTiled(x, y, width, height, _width, _height,
+                        renderWithXImageRender, reinterpret_cast<void*>(&raxi));
             destroyXImage(ximage);
         }
     } else {
@@ -660,11 +677,32 @@ PImage::drawTiled(Render &rend, int x, int y, size_t width, size_t height)
 void
 PImage::drawAlphaScaled(Render &rend, int x, int y, size_t width, size_t height)
 {
-    auto scaled_data = getScaledData(width, height);
+    uchar *scaled_data = getScaledData(width, height);
     if (scaled_data) {
         drawAlphaFixed(rend, x, y, width, height, scaled_data);
         delete [] scaled_data;
     }
+}
+
+struct ImageRenderAndData
+{
+    ImageRenderAndData(PImage *_image, Render &_rend, uchar *_data)
+        : image(_image),
+          rend(_rend),
+          data(_data)
+    {
+    }
+
+    PImage *image;
+    Render &rend;
+    uchar *data;
+};
+
+static void
+renderWithAlphaFixed(int x, int y, uint width, uint height, void *opaque)
+{
+    ImageRenderAndData *irad = reinterpret_cast<ImageRenderAndData*>(opaque);
+    irad->image->drawAlphaFixed(irad->rend, x, y, width, height, irad->data);
 }
 
 /**
@@ -673,11 +711,9 @@ PImage::drawAlphaScaled(Render &rend, int x, int y, size_t width, size_t height)
 void
 PImage::drawAlphaTiled(Render &rend, int x, int y, size_t width, size_t height)
 {
-    auto render =
-        [this, &rend](int rx, int ry, size_t rw, size_t rh) {
-             drawAlphaFixed(rend, rx, ry, rw, rh, _data);
-        };
-    renderTiled(x, y, width, height, _width, _height, render);
+    ImageRenderAndData irad(this, rend, _data);
+    renderTiled(x, y, width, height, _width, _height,
+                renderWithAlphaFixed, reinterpret_cast<void*>(&irad));
 }
 
 /**
@@ -693,7 +729,7 @@ PImage::createPixmap(uchar* data, size_t width, size_t height)
 {
     Pixmap pix = None;
 
-    auto ximage = createXImage(data, width, height);
+    XImage *ximage = createXImage(data, width, height);
     if (ximage) {
         pix = X11::createPixmap(width, height);
         X11::putImage(pix, X11::getGC(), ximage,
@@ -720,10 +756,10 @@ PImage::createMask(uchar* data, size_t width, size_t height)
     }
 
     // Create XImage
-    auto ximage = XCreateImage(X11::getDpy(), X11::getVisual(),
+    XImage *ximage = XCreateImage(X11::getDpy(), X11::getVisual(),
                                1, ZPixmap, 0, 0, width, height, 32, 0);
     if (! ximage) {
-        ERR("failed to create XImage " << width << "x" << height);
+        P_ERR("failed to create XImage " << width << "x" << height);
         return None;
     }
 
@@ -732,8 +768,8 @@ PImage::createMask(uchar* data, size_t width, size_t height)
 
     uchar *src = data;
 
-    auto pixel_trans = X11::getBlackPixel();
-    auto pixel_solid = X11::getWhitePixel();
+    ulong pixel_trans = X11::getBlackPixel();
+    ulong pixel_solid = X11::getWhitePixel();
     for (size_t y = 0; y < height; ++y) {
         for (size_t x = 0; x < width; ++x) {
             XPutPixel(ximage, x, y, (*src > 127) ? pixel_solid : pixel_trans);
@@ -741,7 +777,7 @@ PImage::createMask(uchar* data, size_t width, size_t height)
         }
     }
 
-    Pixmap pix{X11::createPixmapMask(width, height)};
+    Pixmap pix = X11::createPixmapMask(width, height);
     GC gc = XCreateGC(X11::getDpy(), pix, 0, 0);
     X11::putImage(pix, gc, ximage, 0, 0, 0, 0, width, height);
     XFreeGC(X11::getDpy(), gc);
@@ -764,9 +800,9 @@ XImage*
 PImage::createXImage(uchar* data, size_t width, size_t height)
 {
     // Create XImage
-    auto ximage = X11::createImage(nullptr, width, height);
+    XImage *ximage = X11::createImage(nullptr, width, height);
     if (! ximage) {
-        ERR("failed to create XImage " << width << "x" << height);
+        P_ERR("failed to create XImage " << width << "x" << height);
         return nullptr;
     }
 
@@ -775,7 +811,7 @@ PImage::createXImage(uchar* data, size_t width, size_t height)
 
     uchar *src = data;
 
-    auto rgbToPixel = getRgbToPixelFun(ximage);
+    rgbToPixel rgbToPixel = getRgbToPixelFun(ximage);
 
     // Put data into XImage.
     for (size_t y = 0; y < height; ++y) {
@@ -821,7 +857,7 @@ PImage::getScaledData(size_t dwidth, size_t dheight)
         return nullptr;
     }
 
-    auto scaled_data = new uchar[dwidth * dheight * 4] ;
+    uchar *scaled_data = new uchar[dwidth * dheight * 4] ;
     float x_ratio = static_cast<float>(_width - 1) / dwidth ;
     float y_ratio = static_cast<float>(_height - 1) / dheight;
 

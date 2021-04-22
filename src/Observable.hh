@@ -38,6 +38,9 @@ public:
 
 class ObserverMapping {
 public:
+    typedef std::map<Observable*, std::vector<Observer*> > observable_map;
+    typedef observable_map::iterator observable_map_it;
+    
     ObserverMapping(void);
     ~ObserverMapping(void);
 
@@ -51,7 +54,7 @@ public:
 
 private:
     /** Map from Observable to list of observers. */
-    std::map<Observable*, std::vector<Observer*>> _observable_map;
+    observable_map _observable_map;
 };
 
 namespace pekwm

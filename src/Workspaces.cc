@@ -22,7 +22,9 @@
 
 #include <iostream>
 #include <sstream>
+#ifdef PEKWM_HAVE_LIMITS
 #include <limits>
+#endif // PEKWM_HAVE_LIMITS
 
 extern "C" {
 #include <signal.h>
@@ -176,7 +178,7 @@ Workspaces::setWorkspace(uint num, bool focus)
 void
 Workspaces::showWorkspaceIndicator(void)
 {
-    auto timeout = pekwm::config()->getShowWorkspaceIndicator();
+    int timeout = pekwm::config()->getShowWorkspaceIndicator();
     if (timeout > 0) {
         _workspace_indicator->render();
         _workspace_indicator->mapWindowRaised();
@@ -432,7 +434,7 @@ Workspaces::insert(PWinObj *wo, bool raise)
 
     const unsigned size = winstack.size();
     Window *wins = new Window[size];
-    auto wit(winstack.end());
+    std::vector<PWinObj*>::iterator wit(winstack.end());
     for (unsigned i=0; i<size; ++i) {
         wins[i] = (*--wit)->getWindow();
     }
@@ -454,9 +456,10 @@ Workspaces::remove(PWinObj* wo)
     }
 
     // remove from last focused
-    for (auto it : _workspaces) {
-        if (wo == it.getLastFocused()) {
-            it.setLastFocused(0);
+    std::vector<Workspace>::iterator it = _workspaces.begin();
+    for (; it != _workspaces.end(); ++it) {
+        if (wo == it->getLastFocused()) {
+            it->setLastFocused(0);
         }
     }
 }
@@ -516,7 +519,7 @@ Workspaces::unhideAll(uint workspace, bool focus)
 
             // update the MRU list
             if (wo->getType() == PWinObj::WO_CLIENT) {
-                auto frame = static_cast<Frame*>(wo->getParent());
+                Frame *frame = static_cast<Frame*>(wo->getParent());
                 addToMRUFront(frame);
             }
         }
@@ -601,15 +604,16 @@ Workspaces::lowerFullscreenWindows(Layer new_layer)
     // with new_layer == LAYER_ONTOP could put fullscreen windows
     // there, so we need to check all layers above new_layer, not just
     // LAYER_ABOVE_DOCK.
-    for (auto wo : _wobjs) {
-        if (wo->getLayer() > new_layer
-            && wo->isMapped() && wo->isFullscreen()) {
-            fs_wobjs.push_back(wo);
-            wo->setLayer(new_layer);
+    iterator wo = _wobjs.begin();
+    for (; wo != _wobjs.end(); ++wo) {
+        if ((*wo)->getLayer() > new_layer
+            && (*wo)->isMapped() && (*wo)->isFullscreen()) {
+            fs_wobjs.push_back(*wo);
+            (*wo)->setLayer(new_layer);
         }
     }
 
-    for (auto wo : fs_wobjs) {
+    for (wo = fs_wobjs.begin(); wo != fs_wobjs.end(); ++wo) {
         // We could have erased these windows in the first for loop,
         // which could reduce a couple of find() calls.
         //
@@ -617,11 +621,11 @@ Workspaces::lowerFullscreenWindows(Layer new_layer)
         // _wobjs, so that they can be the (top_obj) anchor point for
         // restacking. And since that anchor is most likely fullscreen
         // and hides everything else, no flickering.
-        iterator it(find(_wobjs.begin(), _wobjs.end(), wo));
+        iterator it(std::find(_wobjs.begin(), _wobjs.end(), *wo));
 
         if (it != _wobjs.end()) {
             _wobjs.erase(it);
-            insert(wo, true);
+            insert(*wo, true);
         }
     }
     return !fs_wobjs.empty();
@@ -675,15 +679,17 @@ Workspaces::getWorkspaceName(uint num)
 PWinObj*
 Workspaces::getTopWO(uint type_mask)
 {
+/* FIXME:
     const_reverse_iterator r_it = _wobjs.rbegin();
-    for (; r_it != _wobjs.rend(); ++r_it) {
+    for (; r_it != _wobjs.end(); ++r_it) {
         if ((*r_it)->isMapped()
                 && (*r_it)->isFocusable()
                 && ((*r_it)->getType()&type_mask)) {
             return (*r_it);
         }
     }
-    return 0;
+*/
+    return nullptr;
 }
 
 /**
@@ -739,7 +745,7 @@ void
 Workspaces::updateClientList(void)
 {
     uint num;
-    auto windows = buildClientList(num);
+    Window *windows = buildClientList(num);
     if (num == 0) {
         X11::unsetProperty(X11::getRoot(), NET_CLIENT_LIST);
         X11::unsetProperty(X11::getRoot(), NET_CLIENT_LIST_STACKING);
@@ -757,7 +763,7 @@ void
 Workspaces::updateClientStackingList(void)
 {
     uint num;
-    auto windows = buildClientList(num);
+    Window *windows = buildClientList(num);
     if (num == 0) {
         X11::unsetProperty(X11::getRoot(), NET_CLIENT_LIST_STACKING);
     } else {
@@ -804,9 +810,10 @@ Workspaces::findWOAndFocus(PWinObj *search)
 
     // search window object didn't exist, go through the MRU list
     if (! focus) {
-        for (auto it : _mru) {
-            if (it->isMapped() && it->isFocusable()) {
-                focus = it;
+        std::vector<Frame*>::iterator it = _mru.begin();
+        for (; it != _mru.end(); ++it) {
+            if ((*it)->isMapped() && (*it)->isFocusable()) {
+                focus = *it;
                 break;
             }
         }
@@ -933,9 +940,10 @@ Workspaces::getNextFrame(Frame* frame, bool mapped, uint mask)
     }
 
     Frame *next_frame = nullptr;
-    auto f_it = std::find(Frame::frame_begin(), Frame::frame_end(), frame);
+    Frame::frame_cit f_it =
+        std::find(Frame::frame_begin(), Frame::frame_end(), frame);
     if (f_it != Frame::frame_end()) {
-        auto n_it(f_it);
+        Frame::frame_cit n_it(f_it);
         if (++n_it == Frame::frame_end()) {
             n_it = Frame::frame_begin();
         }
@@ -968,9 +976,10 @@ Workspaces::getPrevFrame(Frame* frame, bool mapped, uint mask)
     }
 
     Frame *prev_frame = nullptr;
-    auto f_it = std::find(Frame::frame_begin(), Frame::frame_end(), frame);
+    Frame::frame_cit f_it =
+        std::find(Frame::frame_begin(), Frame::frame_end(), frame);
     if (f_it != Frame::frame_end()) {
-        auto n_it(f_it);
+        Frame::frame_cit n_it(f_it);
 
         if (n_it == Frame::frame_begin()) {
             n_it = --Frame::frame_end();

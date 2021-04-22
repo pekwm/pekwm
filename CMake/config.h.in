@@ -1,26 +1,32 @@
-#ifndef _CONFIG_H_
-#define _CONFIG_H_
+#pragma once
 
-#cmakedefine HAVE_PUT_TIME
-#cmakedefine HAVE_TO_STRING
-#cmakedefine HAVE_STOI
-#cmakedefine HAVE_STOF
+#cmakedefine PEKWM_HAVE_GCC_DIAGNOSTICS_PUSH
 
-#cmakedefine HAVE_SWPRINTF
-#cmakedefine HAVE_SETENV
-#cmakedefine HAVE_UNSETENV
-#cmakedefine HAVE_DAEMON
-#cmakedefine HAVE_TIMERSUB
+#cmakedefine PEKWM_HAVE_LIMITS
+#cmakedefine PEKWM_HAVE_LOCALE
 
-#cmakedefine HAVE_SHAPE
-#cmakedefine HAVE_XINERAMA
-#cmakedefine HAVE_XFT
-#cmakedefine HAVE_XRANDR
+#cmakedefine PEKWM_HAVE_SYS_LIMITS_H
+#cmakedefine PEKWM_HAVE_LIMITS_H
+#cmakedefine PEKWM_HAVE_STDINT_H
 
-#cmakedefine HAVE_IMAGE_PNG
-#cmakedefine HAVE_IMAGE_JPEG
-#cmakedefine HAVE_IMAGE_XPM
+#cmakedefine PEKWM_HAVE_PUT_TIME
+#cmakedefine PEKWM_HAVE_TO_STRING
+#cmakedefine PEKWM_HAVE_STOI
+#cmakedefine PEKWM_HAVE_STOF
 
-#cmakedefine HAVE_XUTF8
+#cmakedefine PEKWM_HAVE_SETENV
+#cmakedefine PEKWM_HAVE_UNSETENV
+#cmakedefine PEKWM_HAVE_DAEMON
+#cmakedefine PEKWM_HAVE_TIMERSUB
+#cmakedefine PEKWM_HAVE_CLOCK_GETTIME
 
-#endif // _CONFIG_H_
+#cmakedefine PEKWM_HAVE_SHAPE
+#cmakedefine PEKWM_HAVE_XINERAMA
+#cmakedefine PEKWM_HAVE_XFT
+#cmakedefine PEKWM_HAVE_XRANDR
+
+#cmakedefine PEKWM_HAVE_IMAGE_PNG
+#cmakedefine PEKWM_HAVE_IMAGE_JPEG
+#cmakedefine PEKWM_HAVE_IMAGE_XPM
+
+#cmakedefine PEKWM_HAVE_XUTF8

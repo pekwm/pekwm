@@ -60,6 +60,12 @@ private:
     X = (X == 100)?EWMH_OPAQUE_WINDOW:X*(EWMH_OPAQUE_WINDOW/100)
 
 struct BoundButton {
+    BoundButton(uint _button, uint mod)
+        : button(_button)
+    {
+        mods.push_back(mod);
+    }
+    
     uint button;
     std::vector<uint> mods;
 };

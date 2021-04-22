@@ -10,7 +10,7 @@
 
 #include "config.h"
 
-#ifdef HAVE_IMAGE_PNG
+#ifdef PEKWM_HAVE_IMAGE_PNG
 
 #include "pekwm.hh"
 
@@ -29,4 +29,4 @@ namespace PImageLoaderPng
               uchar *data, size_t width, size_t height);
 }
 
-#endif // HAVE_IMAGE_PNG
+#endif // PEKWM_HAVE_IMAGE_PNG

@@ -10,7 +10,7 @@
 
 #include "config.h"
 
-#ifdef HAVE_IMAGE_JPEG
+#ifdef PEKWM_HAVE_IMAGE_JPEG
 
 #include "pekwm.hh"
 
@@ -26,4 +26,4 @@ namespace PImageLoaderJpeg
                 bool &use_alpha);
 }
 
-#endif // HAVE_IMAGE_JPEG
+#endif // PEKWM_HAVE_IMAGE_JPEG

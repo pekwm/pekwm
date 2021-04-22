@@ -10,6 +10,7 @@
 
 #include "config.h"
 
+#include "Compat.hh"
 #include "PTexture.hh"
 
 #include <map>

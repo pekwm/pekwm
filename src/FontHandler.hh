@@ -33,7 +33,7 @@ private:
 
 private:
     std::vector<HandlerEntry<PFont*> > _fonts;
-    std::vector<HandlerEntry<PFont::Color*> > _colours;
+    std::vector<HandlerEntry<PFont::Color*> > _colors;
 };
 
 namespace pekwm

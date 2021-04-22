@@ -10,12 +10,12 @@
 
 #include "config.h"
 
-#ifdef HAVE_IMAGE_XPM
+#ifdef PEKWM_HAVE_IMAGE_XPM
 
 #include "pekwm.hh"
+#include "Types.hh"
 
 extern "C" {
-#include <stdint.h>
 #include <X11/xpm.h>
 }
 
@@ -29,4 +29,4 @@ namespace PImageLoaderXpm
                         bool &use_alpha);
 }
 
-#endif // HAVE_IMAGE_XPM
+#endif // PEKWM_HAVE_IMAGE_XPM

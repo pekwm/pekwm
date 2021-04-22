@@ -99,7 +99,7 @@ PTextureSolid::unsetColor(void)
 PTextureSolidRaised::PTextureSolidRaised(const std::string &base,
                                          const std::string &hi,
                                          const std::string &lo)
-    : PTexture(),
+    : PTextureAreaRender(),
       _xc_base(0),
       _xc_hi(0),
       _xc_lo(0),
@@ -123,6 +123,26 @@ PTextureSolidRaised::~PTextureSolidRaised(void)
 
 // START - PTexture interface.
 
+struct RenderAndTextureAreaRender
+{
+    RenderAndTextureAreaRender(Render &_rend, PTextureAreaRender *_tex)
+        : rend(_rend),
+          tex(_tex)
+    {
+    }
+
+    Render &rend;
+    PTextureAreaRender *tex;
+};
+
+void
+renderWithTexture(int x, int y, uint width, uint height, void *opaque)
+{
+    RenderAndTextureAreaRender *rat =
+        reinterpret_cast<RenderAndTextureAreaRender*>(opaque);
+    rat->tex->renderArea(rat->rend, x, y, width, height);
+}
+
 /**
  * Renders a "raised" rectangle onto draw.
  */
@@ -133,10 +153,9 @@ PTextureSolidRaised::doRender(Render &rend,
     if (_width && _height) {
         // size was given in the texture, repeat the texture over the
         // provided geometry
-        auto render = [this, &rend](int rx, int ry, size_t rw, size_t rh) {
-            this->renderArea(rend, rx, ry, rw, rh);
-        };
-        renderTiled(x, y, width, height, _width, _height, render);
+        RenderAndTextureAreaRender rat(rend, this);
+        renderTiled(x, y, width, height, _width, _height,
+                    renderWithTexture, reinterpret_cast<void*>(&rat));
     } else {
         // no size given, treat provided geometry as area
         renderArea(rend, x, y, width, height);
@@ -244,10 +263,9 @@ PTextureLines::doRender(Render &rend, int x, int y, size_t width, size_t height)
     if (_width && _height) {
         // size was given in the texture, repeat the texture over the
         // provided geometry
-        auto render = [this, &rend](int rx, int ry, size_t rw, size_t rh) {
-            this->renderArea(rend, rx, ry, rw, rh);
-        };
-        renderTiled(x, y, width, height, _width, _height, render);
+        RenderAndTextureAreaRender rat(rend, this);
+        renderTiled(x, y, width, height, _width, _height,
+                    renderWithTexture, reinterpret_cast<void*>(&rat));
     } else {
         // no size given, treat provided geometry as area
         renderArea(rend, x, y, width, height);
@@ -255,7 +273,8 @@ PTextureLines::doRender(Render &rend, int x, int y, size_t width, size_t height)
 }
 
 void
-PTextureLines::renderArea(Render &rend, int x, int y, size_t width, size_t height)
+PTextureLines::renderArea(Render &rend, int x, int y,
+                          size_t width, size_t height)
 {
     if (_horz) {
         renderHorz(rend, x, y, width, height);
@@ -265,13 +284,14 @@ PTextureLines::renderArea(Render &rend, int x, int y, size_t width, size_t heigh
 }
 
 void
-PTextureLines::renderHorz(Render &rend, int x, int y, size_t width, size_t height)
+PTextureLines::renderHorz(Render &rend, int x, int y,
+                          size_t width, size_t height)
 {
     size_t line_height;
     if (_size_percent) {
-        line_height = static_cast<float>(height) * _line_size;
+        line_height = static_cast<size_t>(static_cast<float>(height) * _line_size);
     } else {
-        line_height = _line_size;
+        line_height = static_cast<size_t>(_line_size);
     }
 
     // ensure code does not get stuck never increasing pos
@@ -281,8 +301,9 @@ PTextureLines::renderHorz(Render &rend, int x, int y, size_t width, size_t heigh
 
     size_t pos = 0;
     while (pos < height) {
-        for (auto it : _colors) {
-            rend.setColor(it->pixel);
+        std::vector<XColor*>::iterator it = _colors.begin();
+        for (; it != _colors.end(); ++it) {
+            rend.setColor((*it)->pixel);
             rend.fill(x, y + pos,
                       width, std::min(line_height, height - pos));
             pos += line_height;
@@ -291,19 +312,21 @@ PTextureLines::renderHorz(Render &rend, int x, int y, size_t width, size_t heigh
 }
 
 void
-PTextureLines::renderVert(Render &rend, int x, int y, size_t width, size_t height)
+PTextureLines::renderVert(Render &rend, int x, int y,
+                          size_t width, size_t height)
 {
     size_t line_width;
     if (_size_percent) {
-        line_width = static_cast<float>(width) * _line_size;
+        line_width = static_cast<size_t>(static_cast<float>(width) * _line_size);
     } else {
-        line_width = _line_size;
+        line_width = static_cast<size_t>(_line_size);
     }
 
     size_t pos = 0;
     while (pos < width) {
-        for (auto it : _colors) {
-            rend.setColor(it->pixel);
+        std::vector<XColor*>::iterator it = _colors.begin();
+        for (; it != _colors.end(); ++it) {
+            rend.setColor((*it)->pixel);
             rend.fill(x + pos, y,
                       std::min(line_width, width - pos), height);
             pos += line_width;
@@ -316,8 +339,9 @@ PTextureLines::setColors(const std::vector<std::string> &colors)
 {
     unsetColors();
 
-    for (auto it : colors) {
-        _colors.push_back(X11::getColor(it));
+    std::vector<std::string>::const_iterator it = colors.begin();
+    for (; it != colors.end(); ++it) {
+        _colors.push_back(X11::getColor(*it));
     }
     _ok = ! _colors.empty();
 }
@@ -325,8 +349,9 @@ PTextureLines::setColors(const std::vector<std::string> &colors)
 void
 PTextureLines::unsetColors()
 {
-    for (auto it : _colors) {
-        X11::returnColor(it);
+    std::vector<XColor*>::iterator it = _colors.begin();
+    for (; it != _colors.end(); ++it) {
+        X11::returnColor(*it);
     }
     _colors.clear();
 }

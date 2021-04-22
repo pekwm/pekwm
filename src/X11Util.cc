@@ -133,8 +133,8 @@ namespace X11Util {
     readEwmhStates(Window win, NetWMStates &win_states)
     {
         int num = 0;
-        auto states = static_cast<Atom*>(X11::getEwmhPropData(win, STATE,
-                                                              XA_ATOM, num));
+        Atom *states = static_cast<Atom*>(X11::getEwmhPropData(win, STATE,
+                                                               XA_ATOM, num));
         if (! states) {
             return false;
         }
@@ -174,7 +174,7 @@ namespace X11Util {
 
 }
 
-#ifndef HAVE_XUTF8
+#ifndef PEKWM_HAVE_XUTF8
 
 void
 Xutf8SetWMProperties(Display *dpy, Window win,
@@ -198,4 +198,4 @@ Xutf8SetWMProperties(Display *dpy, Window win,
     }
 }
 
-#endif // HAVE_XUTF8
+#endif // PEKWM_HAVE_XUTF8

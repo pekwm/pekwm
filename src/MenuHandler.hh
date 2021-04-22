@@ -23,8 +23,12 @@ class ActionHandler;
  */
 class MenuHandler {
 public:
+    typedef std::map<std::string, PMenu*> menu_map;
+    typedef menu_map::iterator menu_map_it;
+    typedef menu_map::const_iterator menu_map_cit;
+    
     static PMenu *getMenu(const std::string &name) {
-        auto it = _menu_map.find(name);
+        menu_map_cit it = _menu_map.find(name);
         return (it != _menu_map.end()) ? it->second : 0;
     }
 
@@ -33,16 +37,18 @@ public:
      */
     static std::vector<std::string> getMenuNames(void) {
         std::vector<std::string> menu_names;
-        for (auto it : _menu_map) {
-            menu_names.push_back(it.second->getName());
+        menu_map_cit it = _menu_map.begin();
+        for (; it != _menu_map.end(); ++it) {
+            menu_names.push_back(it->second->getName());
         }
         return menu_names;
     }
 
     static void createMenus(ActionHandler *act);
     static void hideAllMenus(void) {
-        for (auto it : _menu_map) {
-            it.second->unmapAll();
+        menu_map_it it = _menu_map.begin();
+        for (; it != _menu_map.end(); ++it) {
+            it->second->unmapAll();
         }
     }
     static void reloadMenus(ActionHandler *act);

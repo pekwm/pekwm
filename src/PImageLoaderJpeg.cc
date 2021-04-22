@@ -8,7 +8,7 @@
 
 #include "config.h"
 
-#ifdef HAVE_IMAGE_JPEG
+#ifdef PEKWM_HAVE_IMAGE_JPEG
 
 #include "Debug.hh"
 #include "PImageLoaderJpeg.hh"
@@ -38,7 +38,7 @@ namespace PImageLoaderJpeg
     uchar*
     load(const std::string &file, size_t &width, size_t &height, bool &use_alpha)
     {
-        auto fp= fopen(file.c_str(), "rb");
+        FILE *fp = fopen(file.c_str(), "rb");
         if (! fp) {
             return 0;
         }
@@ -66,8 +66,8 @@ namespace PImageLoaderJpeg
         uint channels = cinfo.output_components;
 
         // Allocate image data.
-        auto data = new uchar[width * height * 4];
-        auto row_data = new uchar[width * channels];
+        uchar *data = new uchar[width * height * 4];
+        uchar *row_data = new uchar[width * channels];
 
         // Read image and convet to ARGB
         int pos = 0;
@@ -98,4 +98,4 @@ namespace PImageLoaderJpeg
     }
 }
 
-#endif // HAVE_IMAGE_JPEG
+#endif // PEKWM_HAVE_IMAGE_JPEG

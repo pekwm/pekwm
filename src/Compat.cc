@@ -12,21 +12,21 @@
 #include "Charset.hh"
 #include "Util.hh"
 
-#include <iostream>
 #include <string>
+#include <cstdlib>
 #include <cstring>
 
 extern "C" {
+#include <assert.h>
 #include <errno.h>
 #include <stdarg.h>
-#ifndef HAVE_PUT_TIME
+#ifndef PEKWM_HAVE_PUT_TIME
 #include <time.h>
-#endif // HAVE_PUT_TIME
+#endif // PEKWM_HAVE_PUT_TIME
 #include <unistd.h>
-#include <wchar.h>
 }
 
-#ifndef HAVE_SETENV
+#ifndef PEKWM_HAVE_SETENV
 /**
  * Compat setenv, insert variable to environment.
  */
@@ -53,9 +53,9 @@ setenv(const char *name, const char *value, int overwrite)
 
     return (putenv(str));
 }
-#endif // ! HAVE_SETENV
+#endif // ! PEKWM_HAVE_SETENV
 
-#ifndef HAVE_UNSETENV
+#ifndef PEKWM_HAVE_UNSETENV
 /**
  * Compat unsetenv, removes variable from the environment.
  */
@@ -69,9 +69,9 @@ unsetenv(const char *name) {
         return -1;
     }
 }
-#endif // ! HAVE_UNSETENV
+#endif // ! PEKWM_HAVE_UNSETENV
 
-#ifndef HAVE_DAEMON
+#ifndef PEKWM_HAVE_DAEMON
 /**
  * Compat daemon.
  */
@@ -106,9 +106,26 @@ daemon(int nochdir, int noclose)
 
     return 0;
 }
-#endif // ! HAVE_DAEMON
+#endif // ! PEKWM_HAVE_DAEMON
 
-#ifndef HAVE_PUT_TIME
+#ifndef PEKWM_HAVE_CLOCK_GETTIME
+
+int clock_gettime(clockid_t clk_id, struct timespec *tp)
+{
+    assert(clk_id == CLOCK_MONOTONIC);
+
+    struct timeval tv = {0};
+    int ret = gettimeofday(&tv, nullptr);
+    if (! ret) {
+        tp->tv_sec = tv.tv_sec;
+        tp->tv_nsec = tv.tv_usec / 100;
+    }
+    return ret;
+}
+
+#endif // ! PEKWM_HAVE_CLOCK_GETTIME
+
+#ifndef PEKWM_HAVE_PUT_TIME
 
 namespace std
 {
@@ -121,9 +138,22 @@ namespace std
     }
 }
 
-#endif // HAVE_PUT_TIME
+#endif
 
-#ifndef HAVE_STOI
+#ifndef PEKWM_HAVE_TO_STRING
+
+namespace std
+{
+    std::string to_string(long val)
+    {
+        char buf[32];
+        snprintf(buf, sizeof(buf), "%ld", val);
+        return buf;
+    }
+}
+#endif
+
+#ifndef PEKWM_HAVE_STOI
 
 namespace std
 {
@@ -133,17 +163,19 @@ namespace std
         char *endptr;
         long val = strtol(str.c_str(), &endptr, 10);
         if (*endptr != 0) {
-           throw std::invalid_argument("not a valid integer: " + str);
+            std::string msg("not a valid integer: ");
+            msg += str;
+            throw std::invalid_argument(msg);
         }
         return val;
     }
 }
 
 
-#endif // HAVE_STOI
+#endif
 
 
-#ifndef HAVE_STOF
+#ifndef PEKWM_HAVE_STOF
 
 namespace std
 {
@@ -151,12 +183,14 @@ namespace std
     stof(const std::string& str)
     {
         char *endptr;
-        float val = strtof(str.c_str(), &endptr);
+        double val = strtod(str.c_str(), &endptr);
         if (*endptr != 0) {
-           throw std::invalid_argument("not a valid float: " + str);
+            std::string msg("not a valid float: ");
+            msg += str;
+            throw std::invalid_argument(msg);
         }
-        return val;
+        return static_cast<float>(val);
     }
 }
 
-#endif // HAVE_STOF
+#endif
