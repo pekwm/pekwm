@@ -6,6 +6,7 @@
 // See the LICENSE file for more information.
 //
 
+#include "config.h"
 #include "Compat.hh"
 
 #include <iostream>

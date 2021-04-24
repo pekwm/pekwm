@@ -1,0 +1,22 @@
+.POSIX:
+
+PLATFORM = CONF_PLATFORM
+VERSION = VERSION_MAJOR.VERSION_MINOR.VERSION_PATCH
+
+PREFIX = CONF_PREFIX
+
+# environment options
+AWK = /usr/bin/awk
+SED = /usr/bin/sed
+SH = /bin/sh
+
+# toolchain
+CXX           = c++
+CXXFLAGS_BASE = --std=c++98 -O2 -g
+LD            = $(CXX)
+LDFLAGS_BASE  =
+
+include $(MK)/$(PLATFORM).mk
+
+CXXFLAGS = $(CXXFLAGS_BASE) -I$(MK) -DPREFIX=\"$(PREFIX)\" $(X11_CFLAGS) $(PKG_CFLAGS)
+LDFLAGS  = $(LDFLAGS_BASE) $(X11_LDFLAGS) $(PKG_LDFLAGS)

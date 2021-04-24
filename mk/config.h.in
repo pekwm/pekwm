@@ -1,0 +1,14 @@
+#pragma once
+
+#define VERSION "VERSION_MAJOR.VERSION_MINOR.VERSION_PATCH"
+
+#define BINDIR PREFIX "/bin"
+#define DATADIR PREFIX "/share"
+#define SYSCONFDIR PREFIX "/etc/pekwm"
+
+// these should be available unless on old systems
+#define PEKWM_HAVE_LIMITS
+#define PEKWM_HAVE_STDINT_H
+#define PEKWM_HAVE_LOCALE
+
+#include "CONFIG_PLATFORM-config.h"

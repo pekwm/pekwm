@@ -1,0 +1,52 @@
+#!/bin/sh
+
+PREFIX="/usr/local"
+
+OS=`uname`
+REL=`uname -r`
+
+# extract version information from CMakeLists.txt to avoid duplication
+VERSION_MAJOR=`awk '/set\(pekwm_VERSION_MAJOR/ { print $2 }' CMakeLists.txt | tr -d ')'`
+VERSION_MINOR=`awk '/set\(pekwm_VERSION_MINOR/ { print $2 }' CMakeLists.txt | tr -d ')'`
+VERSION_PATCH=`awk '/set\(pekwm_VERSION_PATCH/ { print $2 }' CMakeLists.txt | tr -d ')'`
+
+PLATFORM="generic"
+CONFIG_PLATFORM="generic"
+
+if test "x$OS" = "xFreeBSD"; then
+    PLATFORM="FreeBSD"
+elif test "x$OS" = "xLinux"; then
+    PLATFORM="linux"
+elif test "x$OS" = "xOpenBSD"; then
+    if test `echo $REL |tr -d .` -lt 35; then
+        # gcc 2.95
+        PLATFORM="OpenBSD34"
+        CONFIG_PLATFORM="OpenBSD34"
+    else
+        PLATFORM="OpenBSD"
+    fi
+elif test "x$OS" = "xNetBSD"; then
+    PLATFORM="NetBSD"
+elif test "x$OS" = "xSunOS"; then
+    if test "x$REL" = "x5.11"; then
+	PLATFORM="SunOS-5.11"
+    else
+	PLATFORM="SunOS"
+	CONFIG_PLATFORM="SunOS"
+    fi
+fi
+
+sed -e "s@VERSION_MAJOR@$VERSION_MAJOR@g" \
+    -e "s@VERSION_MINOR@$VERSION_MINOR@g" \
+    -e "s@VERSION_PATCH@$VERSION_PATCH@g" \
+    -e "s@CONF_PLATFORM@$PLATFORM@g" \
+    -e "s@CONF_PREFIX@$PREFIX@g" \
+    mk/config.mk.in > mk/config.mk
+
+sed -e "s@VERSION_MAJOR@$VERSION_MAJOR@g" \
+    -e "s@VERSION_MINOR@$VERSION_MINOR@g" \
+    -e "s@VERSION_PATCH@$VERSION_PATCH@g" \
+    -e "s@CONFIG_PLATFORM@$CONFIG_PLATFORM@g" \
+    mk/config.h.in > mk/config.h
+
+echo "Configured pekwm $VERSION_MAJOR.$VERSION_MINOR.$VERSION_PATCH for $PLATFORM"
