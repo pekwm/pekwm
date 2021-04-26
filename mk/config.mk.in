@@ -16,6 +16,10 @@ CXXFLAGS_BASE = --std=c++98 -O2 -g
 LD            = $(CXX)
 LDFLAGS_BASE  =
 
+# platform specific options from configure
+SUNOS_ARCH_LIB = CONF_SUNOS_ARCH_LIB
+SUNOS_ARCH_FLAG = CONF_SUNOS_ARCH_FLAG
+
 include $(MK)/$(PLATFORM).mk
 
 CXXFLAGS = $(CXXFLAGS_BASE) -I$(MK) -DPREFIX=\"$(PREFIX)\" $(X11_CFLAGS) $(PKG_CFLAGS)

@@ -2,6 +2,11 @@
 
 PREFIX="/usr/local"
 
+echo $1 | grep -- --prefix= 2>&1 >/dev/null
+if test $? -eq 0; then
+    PREFIX=`echo $1 | sed -e 's/--prefix=//' -e 's@/$@@'`
+fi
+
 OS=`uname`
 REL=`uname -r`
 
@@ -29,10 +34,18 @@ elif test "x$OS" = "xNetBSD"; then
     PLATFORM="NetBSD"
 elif test "x$OS" = "xSunOS"; then
     if test "x$REL" = "x5.11"; then
-	PLATFORM="SunOS-5.11"
+        PLATFORM="SunOS-5.11"
     else
-	PLATFORM="SunOS"
-	CONFIG_PLATFORM="SunOS"
+        PLATFORM="SunOS"
+        CONFIG_PLATFORM="SunOS"
+        isainfo -v |grep 64-bit 2>&1 >/dev/null
+        if test $? -eq 0; then
+            SUNOS_ARCH_LIB="/`isainfo -n`"
+            SUNOS_ARCH_FLAG="-m64"
+        else
+            SUNOS_ARCH_LIB=""
+            SUNOS_ARCH_FLAG=""
+        fi
     fi
 fi
 
@@ -41,6 +54,8 @@ sed -e "s@VERSION_MAJOR@$VERSION_MAJOR@g" \
     -e "s@VERSION_PATCH@$VERSION_PATCH@g" \
     -e "s@CONF_PLATFORM@$PLATFORM@g" \
     -e "s@CONF_PREFIX@$PREFIX@g" \
+    -e "s@CONF_SUNOS_ARCH_LIB@$SUNOS_ARCH_LIB@g" \
+    -e "s@CONF_SUNOS_ARCH_FLAG@$SUNOS_ARCH_FLAG@g" \
     mk/config.mk.in > mk/config.mk
 
 sed -e "s@VERSION_MAJOR@$VERSION_MAJOR@g" \

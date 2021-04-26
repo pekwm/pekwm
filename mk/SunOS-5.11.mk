@@ -3,7 +3,7 @@
 # environment options
 AWK = /usr/xpg4/bin/awk
 SED = /usr/xpg4/bin/sed
-SH = /bin/xpg4/bin/sh
+SH = /usr/xpg4/bin/sh
 
 # toolchain
 CXX           = CC

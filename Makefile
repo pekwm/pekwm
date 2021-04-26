@@ -3,7 +3,12 @@ MK = mk
 include $(MK)/config.mk
 
 all:
-	$(MAKE) -C src
+	( cd src; $(MAKE) all )
+	( cd data; $(MAKE) all )
+
+install:
+	( cd src; $(MAKE) install )
+	( cd data; $(MAKE) install )
 
 dist:
 	rm -f pekwm-$(VERSION).tar.gz
@@ -23,5 +28,6 @@ dist:
 	rm -rf pekwm-$(VERSION)
 
 clean:
-	$(MAKE) -C src clean
+	(cd src; $(MAKE) clean)
+	(cd data; $(MAKE) clean)
 	rm mk/config.h mk/config.mk

@@ -4,6 +4,9 @@ test/system/plux
 *~
 .#*
 \#*#
+data/scripts/pekwm_theme
+data/scripts/pekwm_themeset.sh
+data/scripts/pekwm_ws_menu.sh
 mk/config.h
 mk/config.mk
 src/pekwm
