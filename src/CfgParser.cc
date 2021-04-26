@@ -434,16 +434,16 @@ CfgParser::parse()
                 } else {
                     USER_WARN("Ignoring section as name is empty.");
                 }
-                buf.clear();
-                value.clear();
+                buf = "";
+                value = "";
                 have_value = false;
                 break;
             case '}':
                 if (_sections.size() > 0) {
                     if (buf.size() && parseName(buf)) {
                         parseEntryFinish(buf, value, have_value);
-                        buf.clear();
-                        value.clear();
+                        buf = "";
+                        value = "";
                         have_value = false;
                     }
                     _section = _sections.back();
@@ -453,7 +453,7 @@ CfgParser::parse()
                 }
                 break;
             case '=':
-                value.clear();
+                value = "";
                 have_value = parseValue(value);
                 break;
             case '#':
@@ -625,7 +625,7 @@ CfgParser::parseEntryFinish(std::string &buf, std::string &value,
         if (buf.size() && parseName(buf) && buf[0] == '@') {
             parseEntryFinishTemplate(buf);
         }
-        buf.clear();
+        buf = "";
     }
 }
 /**
@@ -654,9 +654,9 @@ CfgParser::parseEntryFinishStandard(std::string &buf, std::string &value,
         USER_WARN("Dropping entry with empty name.");
     }
 
-    value.clear();
+    value = "";
     have_value = false;
-    buf.clear();
+    buf = "";
 }
 
 /**

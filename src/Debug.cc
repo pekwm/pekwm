@@ -82,19 +82,29 @@ namespace Debug
     std::ostream&
     getStream(const char* prefix)
     {
-        std::ostream& log = _use_cerr ? std::cerr : _log;
-        addTimestamp(log);
-        log << prefix;
-        return log;
+        if (_use_cerr) {
+            addTimestamp(std::cerr);
+            std::cerr << prefix;
+            return std::cerr;
+        } else {
+            addTimestamp(_log);
+            _log << prefix;
+            return _log;
+        }
     }
 
     std::ostream&
     getStream(const char* fun, int line, const char* prefix)
     {
-        std::ostream& log = _use_cerr ? std::cerr : _log;
-        addTimestamp(log);
-        log << fun << '@' << line << ":\n    " << prefix;
-        return log;
+        if (_use_cerr) {
+            addTimestamp(std::cerr);
+            std::cerr << fun << '@' << line << ":\n    " << prefix;
+            return std::cerr;
+        } else {
+            addTimestamp(_log);
+            _log << fun << '@' << line << ":\n    " << prefix;
+            return _log;
+        }
     }
 
     /**

@@ -18,12 +18,10 @@
 #include <string>
 #include <cstring>
 #include <stdexcept>
-#include <locale>
 
 extern "C" {
 #include <errno.h>
 #include <unistd.h> // execlp
-#include <locale.h>
 }
 
 /**

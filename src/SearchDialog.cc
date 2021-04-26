@@ -177,7 +177,7 @@ SearchDialog::unmapWindow(void)
 
         // Clear the menu and hide it.
         X11::clearWindow(_result_menu->getWindow());
-        _previous_search.clear();
+        _previous_search = "";
         X11::lowerWindow(_result_menu->getWindow());
     }
 }

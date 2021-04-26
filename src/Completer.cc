@@ -27,6 +27,15 @@ extern "C" {
 #include "PWinObj.hh"
 #include "MenuHandler.hh"
 
+static bool starts_with(const std::string &str, size_t off,
+                        const std::string &prefix, size_t prefix_len)
+{
+    if ((str.size() - off) < prefix_len) {
+        return false;
+    }
+    return memcmp(str.c_str() + off, prefix.c_str(), prefix_len) == 0;
+}
+
 CompPair::CompPair(const std::string& _first,
                    const std::string& _second)
     : first(_first),
@@ -113,15 +122,14 @@ protected:
                                complete_list &completions,
                                const std::string &word)
     {
-        int completed = 0, equality = -1;
+        int completed = 0;
 
         completions_it it(completions_list.begin());
         for (; it != completions_list.end(); ++it) {
             if (it->first.size() < word.size()) {
                 continue;
             }
-            equality = it->first.compare(0, word.size(), word, 0, word.size());
-            if (equality == 0) {
+            if (starts_with(it->first, 0, word, word.size())) {
                 completions.push_back(it->second);
                 completed++;
             }
@@ -243,7 +251,7 @@ public:
         bool is_state(const std::string &str, size_t pos) {
             return (str.size() - pos < _prefix_len)
                 ? false
-                : ! str.compare(pos, _prefix_len, _prefix, _prefix_len);
+                : starts_with(str, pos, _prefix, _prefix_len);
         }
     private:
         const char *_prefix; /**< Matching prefix */

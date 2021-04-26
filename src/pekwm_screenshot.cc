@@ -54,7 +54,6 @@ static void usage(const char* name, int ret)
     exit(ret);
 }
 
-
 static std::string get_screenhot_name(const Geometry& gm)
 {
     time_t t = time(nullptr);
@@ -83,9 +82,10 @@ static int take_screenshot(const std::string& output)
     PImage *image = new PImage(ximage);
     X11::destroyImage(ximage);
 
-    return PImageLoaderPng::save(output, image->getData(),
-                                 image->getWidth(), image->getHeight())
-        ? 0 : 1;
+    bool success =
+        PImageLoaderPng::save(output, image->getData(),
+                              image->getWidth(), image->getHeight());
+    return success ? 0 : 1;
 }
 
 int main(int argc, char* argv[])

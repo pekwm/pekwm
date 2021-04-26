@@ -11,12 +11,17 @@
 #include <string>
 #include <iostream>
 #include <cassert>
-#include <cstring> // required for memset in FD_ZERO
 #ifdef PEKWM_HAVE_LIMITS
 #include <limits>
 #endif // PEKWM_HAVE_LIMITS
 
 extern "C" {
+#include <sys/types.h>
+#include <sys/time.h>
+#include <sys/select.h>
+#include <string.h>
+#include <unistd.h>
+
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
@@ -27,7 +32,6 @@ extern "C" {
 #include <X11/extensions/Xrandr.h>
 #endif // PEKWM_HAVE_XRANDR
 #include <X11/keysym.h> // For XK_ entries
-#include <sys/select.h>
 #ifdef PEKWM_HAVE_X11_XKBLIB_H
 #include <X11/XKBlib.h>
 #endif

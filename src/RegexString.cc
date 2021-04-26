@@ -256,7 +256,7 @@ RegexString::free_regex(void)
     if (_reg_ok) {
         regfree(&_regex);
         _reg_ok = false;
-        _pattern.clear();
+        _pattern = "";
     }
     _reg_inverted = false;
 }

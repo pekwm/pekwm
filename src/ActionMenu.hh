@@ -36,7 +36,12 @@ public:
     virtual void handleItemExec(PMenu::Item *item);
 
     virtual void insert(PMenu::Item *item);
-    using PMenu::insert;
+    virtual void insert(std::vector<PMenu::Item*>::iterator at,
+                        PMenu::Item *item);
+    virtual void insert(const std::string &name, PWinObj *wo_ref = 0,
+                        PTexture *icon = 0);
+    virtual void insert(const std::string &name, const ActionEvent &ae,
+                        PWinObj *wo_ref = 0, PTexture *icon = 0);
 
     virtual void reload(CfgParser::Entry *section);
 

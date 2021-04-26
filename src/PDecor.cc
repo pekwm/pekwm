@@ -902,7 +902,7 @@ PDecor::setDecorOverride(StateAction sa, const std::string &name)
         }
     } else if (! _decor_name_saved.empty()) {
         _decor_name = _decor_name_saved;
-        _decor_name_saved.clear();
+        _decor_name_saved = "";
         loadDecor();
     }
 }

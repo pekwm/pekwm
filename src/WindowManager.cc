@@ -1532,7 +1532,7 @@ WindowManager::handlePekwmCmd(XClientMessageEvent *ev)
         pekwm::actionHandler()->handleAction(ap);
     }
 
-    _pekwm_cmd_buf.clear();
+    _pekwm_cmd_buf = "";
 }
 
 /**
@@ -1559,7 +1559,7 @@ WindowManager::recvPekwmCmd(XClientMessageEvent *ev)
     case PEKWM_CMD_MULTI_END:
         if (_pekwm_cmd_buf.empty()) {
             P_DBG("invalid _PEKWM_CMD, continuation on empty buffer");
-            _pekwm_cmd_buf.clear();
+            _pekwm_cmd_buf = "";
             return false;
         }
 
@@ -1568,14 +1568,14 @@ WindowManager::recvPekwmCmd(XClientMessageEvent *ev)
                               std::min(std::strlen(ev->data.b), last));
         if (_pekwm_cmd_buf.size() > 1024) {
             P_DBG("maximum _PEKWM_CMD message size reached, drop");
-            _pekwm_cmd_buf.clear();
+            _pekwm_cmd_buf = "";
             return false;
         }
         return op == PEKWM_CMD_MULTI_END;
     default:
         // invalid data
         P_DBG("invalid _PEKMW_CMD, last byte " << op << " not in range 0-3");
-        _pekwm_cmd_buf.clear();
+        _pekwm_cmd_buf = "";
         return false;
     }
 }

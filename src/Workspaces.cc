@@ -8,6 +8,7 @@
 
 #include "config.h"
 
+#include "Compat.hh"
 #include "Debug.hh"
 #include "Workspaces.hh"
 #include "Config.hh"
@@ -381,7 +382,8 @@ Workspaces::insert(PWinObj *wo, bool raise)
         && wo_frame && wo_frame->getTransFor()
         && wo_frame->getTransFor()->getLayer() == wo_frame->getLayer()) {
         // Lower only to the top of the transient_for window.
-        it = ++find(_wobjs.begin(), _wobjs.end(), wo_frame->getTransFor()->getParent());
+        it = find(_wobjs.begin(), _wobjs.end(), wo_frame->getTransFor()->getParent());
+        ++it;
         top_obj = it!=_wobjs.end()?*it:0; // I think it==_wobjs.end() can't happen
     } else {
         it = _wobjs.begin();
@@ -422,7 +424,8 @@ Workspaces::insert(PWinObj *wo, bool raise)
             ++it;
         }
 
-        it = ++find(_wobjs.begin(), _wobjs.end(), wo);
+        it = find(_wobjs.begin(), _wobjs.end(), wo);
+        ++it;
         _wobjs.insert(it, winstack.begin()+1, winstack.end());
     }
 
@@ -982,20 +985,18 @@ Workspaces::getPrevFrame(Frame* frame, bool mapped, uint mask)
         Frame::frame_cit n_it(f_it);
 
         if (n_it == Frame::frame_begin()) {
-            n_it = --Frame::frame_end();
-        } else {
-            --n_it;
+            n_it = Frame::frame_end();
         }
+        --n_it;
 
         while (! prev_frame && (n_it != f_it)) {
             if (! (*n_it)->isSkip(mask) && (! mapped || (*n_it)->isMapped())) {
                 prev_frame =  (*n_it);
             }
             if (n_it == Frame::frame_begin()) {
-                n_it = --Frame::frame_end();
-            } else {
-                --n_it;
+                n_it = Frame::frame_end();
             }
+            --n_it;
         }
     }
 

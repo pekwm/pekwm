@@ -1360,11 +1360,11 @@ Config::parseOpacity(const std::string value, uint &focused, uint &unfocused)
     std::vector<std::string> tokens;
     switch ((Util::splitString(value, tokens, " ,", 2))) {
     case 2:
-        focused = std::atoi(tokens.at(0).c_str());
-        unfocused = std::atoi(tokens.at(1).c_str());
+        focused = std::atoi(tokens[0].c_str());
+        unfocused = std::atoi(tokens[1].c_str());
         break;
     case 1:
-        focused = unfocused = std::atoi(tokens.at(0).c_str());
+        focused = unfocused = std::atoi(tokens[0].c_str());
         break;
     default:
         return false;

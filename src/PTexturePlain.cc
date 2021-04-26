@@ -405,7 +405,7 @@ PTextureImage::setImage(PImage *image)
 {
     unsetImage();
     _image = image;
-    _colormap.clear();
+    _colormap = "";
     _width = _image->getWidth();
     _height = _image->getHeight();
     pekwm::imageHandler()->takeOwnership(image);
@@ -452,7 +452,7 @@ PTextureImage::unsetImage(void)
         }
     }
     _image = nullptr;
-    _colormap.clear();
+    _colormap = "";
     _width = 0;
     _height = 0;
     _ok = false;

@@ -104,7 +104,7 @@ namespace String
                 } else if (it == in_quote) {
                     in_quote = 0;
                     toks.push_back(tok);
-                    tok.clear();
+                    tok = "";
                     in_tok = false;
                 } else if (it == '\\') {
                     in_escape = true;
@@ -114,7 +114,7 @@ namespace String
                     in_quote = (*it)[0];
                 } else if (isspace((*it)[0])) {
                     toks.push_back(tok);
-                    tok.clear();
+                    tok = "";
                     in_tok = false;
                 } else {
                     tok += *it;
@@ -501,7 +501,7 @@ namespace Util {
                             toks.push_back(token);
                             ++num_tokens;
                         }
-                        token.clear();
+                        token = "";
                         break;
                     }
                 }

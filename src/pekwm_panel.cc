@@ -565,7 +565,7 @@ public:
                 close(_fd);
             }
             _fd = -1;
-            _buf.clear();
+            _buf = "";
 
             int ret = clock_gettime(CLOCK_MONOTONIC, &_next_interval);
             assert(ret == 0);
