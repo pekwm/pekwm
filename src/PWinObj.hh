@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_PWINOBJ_HH_
+#define _PEKWM_PWINOBJ_HH_
 
 #include "config.h"
 
@@ -270,3 +271,5 @@ protected:
     static std::vector<PWinObj*> _wo_list; //!< List of PWinObjs.
     static std::map<Window, PWinObj*> _wo_map; //!< Mapping of Window to PWinObj
 };
+
+#endif // _PEKWM_PWINOBJ_HH_

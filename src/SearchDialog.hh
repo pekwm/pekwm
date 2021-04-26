@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_SEARCHDIALOG_HH_
+#define _PEKWM_SEARCHDIALOG_HH_
 
 #include "config.h"
 
@@ -44,3 +45,5 @@ private:
     PMenu *_result_menu; /**< Menu for displaying results. */
     std::string _previous_search; /**< Buffer with previous search string. */
 };
+
+#endif // _PEKWM_SEARCHDIALOG_HH_

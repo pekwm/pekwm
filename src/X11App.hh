@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_X11APP_HH_
+#define _PEKWM_X11APP_HH_
 
 #include "PWinObj.hh"
 #include "X11.hh"
@@ -50,3 +51,5 @@ private:
     int _dpy_fd;
     int _max_fd;
 };
+
+#endif // _PEKWM_X11APP_HH_

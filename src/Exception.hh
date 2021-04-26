@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_EXCEPTION_HH_
+#define _PEKWM_EXCEPTION_HH_
 
 #include "config.h"
 
@@ -58,3 +59,5 @@ private:
 class ValueException : public PekwmException
 {
 };
+
+#endif // _PEKWM_EXCEPTION_HH_

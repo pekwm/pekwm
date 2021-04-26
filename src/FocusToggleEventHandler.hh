@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_FOCUSTOGGLEEVENTHANDLER_HH_
+#define _PEKWM_FOCUSTOGGLEEVENTHANDLER_HH_
 
 #include "Action.hh"
 #include "Config.hh"
@@ -58,3 +59,5 @@ private:
     PWinObj *_fo_wo;
     bool _was_iconified;
 };
+
+#endif // _PEKWM_FOCUSTOGGLEEVENTHANDLER_HH_

@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_X11_HH_
+#define _PEKWM_X11_HH_
 
 #include "config.h"
 
@@ -894,3 +895,5 @@ private:
 
     static Atom _atoms[MAX_NR_ATOMS];
 };
+
+#endif // _PEKWM_X11_HH_

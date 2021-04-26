@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_PIMAGELOADERXPM_HH_
+#define _PEKWM_PIMAGELOADERXPM_HH_
 
 #include "config.h"
 
@@ -30,3 +31,5 @@ namespace PImageLoaderXpm
 }
 
 #endif // PEKWM_HAVE_IMAGE_XPM
+
+#endif // _PEKWM_PIMAGELOADERXPM_HH_

@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_WMUTIL_HH_
+#define _PEKWM_WMUTIL_HH_
 
 class Config;
 class ImageHandler;
@@ -23,3 +24,5 @@ public:
 private:
     ImageHandler *_image_handler;
 };
+
+#endif // _PEKWM_WMUTIL_HH_

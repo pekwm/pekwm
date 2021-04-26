@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_ACTIONMENU_HH_
+#define _PEKWM_ACTIONMENU_HH_
 
 #include "config.h"
 
@@ -62,3 +63,5 @@ private:
     /** Set to true if any of the entries in the menu is dynamic. */
     bool _has_dynamic;
 };
+
+#endif // _PEKWM_ACTIONMENU_HH_

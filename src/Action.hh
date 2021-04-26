@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_ACTION_HH_
+#define _PEKWM_ACTION_HH_
 
 #include "config.h"
 
@@ -296,3 +297,5 @@ namespace ActionConfig
     std::vector<std::string> getActionNameList(void);
     std::vector<std::string> getStateNameList(void);
 }
+
+#endif // _PEKWM_ACTION_HH_

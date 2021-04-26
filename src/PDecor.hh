@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_PDECOR_HH_
+#define _PEKWM_PDECOR_HH_
 
 #include "config.h"
 
@@ -420,3 +421,5 @@ private:
 
     static std::vector<PDecor*> _pdecors; /**< List of all PDecors */
 };
+
+#endif // _PEKWM_PDECOR_HH_

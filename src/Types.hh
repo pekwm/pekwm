@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_TYPES_HH_
+#define _PEKWM_TYPES_HH_
 
 extern "C" {
 #include <sys/types.h>
@@ -30,3 +31,5 @@ extern "C" {
 #ifndef uchar
 #define uchar unsigned char
 #endif // uchar
+
+#endif // _PEKWM_TYPES_HH_

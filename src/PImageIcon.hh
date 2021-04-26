@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_PIMAGEICON_HH_
+#define _PEKWM_PIMAGEICON_HH_
 
 #include "config.h"
 
@@ -42,3 +43,5 @@ private:
 private:
     Cardinal *_cardinals;
 };
+
+#endif // _PEKWM_PIMAGEICON_HH_

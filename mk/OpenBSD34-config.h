@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _PEKWM_OPENBSD34_CONFIG_H_
+#define _PEKWM_OPENBSD34_CONFIG_H_
 
 #define FEATURES "XShape image-xpm"
 
@@ -31,3 +32,5 @@
 #define PEKWM_HAVE_IMAGE_XPM
 
 // #define PEKWM_HAVE_XUTF8
+
+#endif // _PEKWM_OPENBSD34_CONFIG_H_

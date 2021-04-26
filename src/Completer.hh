@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_COMPLETER_HH_
+#define _PEKWM_COMPLETER_HH_
 
 #include "config.h"
 
@@ -78,3 +79,5 @@ private:
     CompleterMethod *_completer_action;
     CompleterMethod *_completer_path;
 };
+
+#endif // _PEKWM_COMPLETER_HH_

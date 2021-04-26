@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_WOREFMENU_HH_
+#define _PEKWM_WOREFMENU_HH_
 
 #include "config.h"
 
@@ -34,3 +35,5 @@ protected:
     std::string _title_pre;
     std::string _title_post;
 };
+
+#endif // _PEKWM_WOREFMENU_HH_

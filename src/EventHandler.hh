@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_EVENTHANDLER_HH_
+#define _PEKWM_EVENTHANDLER_HH_
 
 #include "X11.hh"
 
@@ -37,3 +38,5 @@ public:
 protected:
     EventHandler(void) { }
 };
+
+#endif // _PEKWM_EVENTHANDLER_HH_

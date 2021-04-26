@@ -5,7 +5,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_CFGPARSERSOURCE_HH_
+#define _PEKWM_CFGPARSERSOURCE_HH_
 
 #include <string>
 #include <cstdio>
@@ -160,3 +161,5 @@ private:
     struct sigaction _sigaction; /**< sigaction for restore. */
     static unsigned int _sigaction_counter; /**< Counts open. */
 };
+
+#endif // _PEKWM_CFGPARSERSOURCE_HH_

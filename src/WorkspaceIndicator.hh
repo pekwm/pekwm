@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_WORKSPACEINDICATOR_HH_
+#define _PEKWM_WORKSPACEINDICATOR_HH_
 
 #include "config.h"
 
@@ -53,3 +54,5 @@ private:
     Display _display_wo;
     PDecor::TitleItem _title; //!< Title item added to the decor
 };
+
+#endif // _PEKWM_WORKSPACEINDICATOR_HH_

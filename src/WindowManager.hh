@@ -10,7 +10,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_WINDOWMANAGER_HH_
+#define _PEKWM_WINDOWMANAGER_HH_
 
 #include "config.h"
 
@@ -146,3 +147,5 @@ private:
      */
     bool _skip_enter;
 };
+
+#endif // _PEKWM_WINDOWMANAGER_HH_

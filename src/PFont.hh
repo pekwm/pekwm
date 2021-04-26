@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_PFONT_HH_
+#define _PEKWM_PFONT_HH_
 
 #include "config.h"
 
@@ -165,3 +166,5 @@ private:
     XRenderColor _xrender_color;
 };
 #endif // PEKWM_HAVE_XFT
+
+#endif // _PEKWM_PFONT_HH_

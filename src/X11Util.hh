@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_X11UTIL_HH_
+#define _PEKWM_X11UTIL_HH_
 
 #include "config.h"
 
@@ -81,3 +82,5 @@ void Xutf8SetWMProperties(Display *dpy, Window win,
                           XClassHint* class_hints);
 
 #endif // PEKWM_HAVE_XUTF8
+
+#endif // _PEKWM_X11UTIL_HH_

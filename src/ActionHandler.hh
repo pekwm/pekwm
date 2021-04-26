@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_ACTIONHANDLER_HH_
+#define _PEKWM_ACTIONHANDLER_HH_
 
 #include "config.h"
 
@@ -86,3 +87,5 @@ namespace pekwm
 {
     ActionHandler* actionHandler();
 }
+
+#endif // _PEKWM_ACTIONHANDLER_HH_

@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_CHARSET_HH_
+#define _PEKWM_CHARSET_HH_
 
 #include "Compat.hh"
 #include <string>
@@ -62,3 +63,5 @@ namespace Charset
     std::string toSystem(const std::string &str);
     std::string fromSystem(const std::string &str);
 }
+
+#endif // _PEKWM_CHARSET_HH_

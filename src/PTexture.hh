@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_PTEXTURE_HH_
+#define _PEKWM_PTEXTURE_HH_
 
 #include "config.h"
 
@@ -67,3 +68,5 @@ protected:
     PTexture::Type _type; // Type of texture
     uchar _opacity; // Texture opacity, blended onto background pixmap
 };
+
+#endif // _PEKWM_PTEXTURE_HH_

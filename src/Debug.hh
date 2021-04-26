@@ -7,7 +7,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_DEBUG_HH_
+#define _PEKWM_DEBUG_HH_
 
 #include "Compat.hh"
 
@@ -87,3 +88,5 @@ namespace Debug
 
 #define FMT_HEX(V) \
     "0x" << std::hex << (V) << std::dec
+
+#endif // _PEKWM_DEBUG_HH_

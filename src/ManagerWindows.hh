@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_MANAGERWINDOWS_HH_
+#define _PEKWM_MANAGERWINDOWS_HH_
 
 #include "config.h"
 #include "PWinObj.hh"
@@ -135,3 +136,5 @@ namespace pekwm
     HintWO* hintWo();
     RootWO* rootWo();
 }
+
+#endif // _PEKWM_MANAGERWINDOWS_HH_

@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_CMDDIALOG_HH_
+#define _PEKWM_CMDDIALOG_HH_
 
 #include "config.h"
 
@@ -53,3 +54,5 @@ private:
     /** Number of CmdDialog has run exec since last history save. */
     int _exec_count;
 };
+
+#endif // _PEKWM_CMDDIALOG_HH_

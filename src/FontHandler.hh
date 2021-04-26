@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_FONTHANDLER_HH_
+#define _PEKWM_FONTHANDLER_HH_
 
 #include "config.h"
 
@@ -40,3 +41,5 @@ namespace pekwm
 {
     FontHandler* fontHandler();
 }
+
+#endif // _PEKWM_FONTHANDLER_HH_

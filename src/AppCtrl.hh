@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_APPCTRL_HH_
+#define _PEKWM_APPCTRL_HH_
 
 #include <string>
 
@@ -21,3 +22,5 @@ public:
     virtual void restart(std::string cmd) = 0;
     virtual void shutdown(void) = 0;
 };
+
+#endif // _PEKWM_APPCTRL_HH_

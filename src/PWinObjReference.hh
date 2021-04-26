@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_PWINOBJREFERENCE_HH_
+#define _PEKWM_PWINOBJREFERENCE_HH_
 
 #include "config.h"
 
@@ -56,3 +57,5 @@ private:
     /** Window object reference. */
     PWinObj *_wo_ref;
 };
+
+#endif // _PEKWM_PWINOBJREFERENCE_HH_

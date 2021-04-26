@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_WORKSPACES_HH_
+#define _PEKWM_WORKSPACES_HH_
 
 #include "config.h"
 
@@ -174,3 +175,5 @@ private:
     static std::vector<Frame*> _mru;
     static std::vector<Workspace> _workspaces;
 };
+
+#endif // _PEKWM_WORKSPACES_HH_

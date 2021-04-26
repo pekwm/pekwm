@@ -19,7 +19,8 @@
 // }
 //
 
-#pragma once
+#ifndef _PEKWM_CFGPARSER_HH_
+#define _PEKWM_CFGPARSER_HH_
 
 #include "config.h"
 
@@ -195,3 +196,5 @@ private:
 
     static const std::string _root_source_name; //!< Root Entry Source Name.
 };
+
+#endif // _PEKWM_CFGPARSER_HH_

@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_DOCKAPP_HH_
+#define _PEKWM_DOCKAPP_HH_
 
 #include "config.h"
 
@@ -78,3 +79,5 @@ private:
 
     bool _is_alive;
 };
+
+#endif // _PEKWM_DOCKAPP_HH_

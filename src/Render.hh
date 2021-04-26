@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_RENDER_HH_
+#define _PEKWM_RENDER_HH_
 
 #include "config.h"
 #include "X11.hh"
@@ -97,3 +98,5 @@ private:
     int _color;
     int _lw;
 };
+
+#endif // _PEKWM_RENDER_HH_

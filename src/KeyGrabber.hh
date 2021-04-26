@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_KEYGRABBER_HH_
+#define _PEKWM_KEYGRABBER_HH_
 
 #include "config.h"
 
@@ -98,3 +99,5 @@ namespace pekwm
 {
     KeyGrabber* keyGrabber();
 }
+
+#endif // _PEKWM_KEYGRABBER_HH_

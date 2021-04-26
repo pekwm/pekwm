@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_INPUTDIALOG_HH_
+#define _PEKWM_INPUTDIALOG_HH_
 
 #include "config.h"
 
@@ -126,3 +127,5 @@ private:
     static void addKeysymToKeysymMap(KeySym keysym, const std::string& chr);
     static std::map<KeySym, std::string> _keysym_map;
 };
+
+#endif // _PEKWM_INPUTDIALOG_HH_

@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_KEYBOARDMOVERESIZEEVENTHANDLER_HH_
+#define _PEKWM_KEYBOARDMOVERESIZEEVENTHANDLER_HH_
 
 #include "Action.hh"
 #include "Config.hh"
@@ -60,3 +61,5 @@ private:
     bool _init;
     PDecor *_decor;
 };
+
+#endif // _PEKWM_KEYBOARDMOVERESIZEEVENTHANDLER_HH_

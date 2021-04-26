@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_REGEXSTRING_HH_
+#define _PEKWM_REGEXSTRING_HH_
 
 #include "config.h"
 
@@ -81,3 +82,5 @@ private:
     std::vector<RegexString::Part> _refs;
     static const char SEPARATOR; /**< Regular expression seperator. */
 };
+
+#endif // _PEKWM_REGEXSTRING_HH_

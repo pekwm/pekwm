@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _PEKWM_GENERIC_CONFIG_H_
+#define _PEKWM_GENERIC_CONFIG_H_
 
 #define FEATURES "XShape Xft image-png image-jpeg image-xpm"
 
@@ -25,3 +26,5 @@
 #define PEKWM_HAVE_IMAGE_XPM
 
 #define PEKWM_HAVE_XUTF8
+
+#endif // _PEKWM_GENERIC_CONFIG_H_

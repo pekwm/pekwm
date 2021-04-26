@@ -10,7 +10,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_PEKWM_HH_
+#define _PEKWM_PEKWM_HH_
 
 #include "config.h"
 
@@ -284,3 +285,5 @@ namespace pekwm
     bool isStarting(void);
     void setStarted(void);
 }
+
+#endif // _PEKWM_PEKWM_HH_

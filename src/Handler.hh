@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_HANDLER_HH_
+#define _PEKWM_HANDLER_HH_
 
 #include "config.h"
 
@@ -41,3 +42,5 @@ private:
 
     T _data;
 };
+
+#endif // _PEKWM_HANDLER_HH_

@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_FRAMELISTMENU_HH_
+#define _PEKWM_FRAMELISTMENU_HH_
 
 #include "config.h"
 
@@ -47,3 +48,5 @@ private:
     void handleIconmenu(Client *client);
     void handleAttach(Client *client_to, Client *client_from, bool frame);
 };
+
+#endif // _PEKWM_FRAMELISTMENU_HH_

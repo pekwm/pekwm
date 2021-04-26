@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_COMPAT_HH_
+#define _PEKWM_COMPAT_HH_
 
 #include "config.h"
 
@@ -119,17 +120,22 @@ namespace std
 namespace std
 {
     template<typename T>
-    class numeric_limits {
-    public:
-        template<int>
+    struct numeric_limits {
+        static T min(void);
+        static T max(void);
+    };
+
+    struct numeric_limits<int> {
         static int min(void) { return INT_MIN; }
-        template<int>
         static int max(void) { return INT_MAX; }
-        template<unsigned int>
+    };
+
+    struct numeric_limits<unsigned int> {
         static unsigned int min(void) { return 0; }
-        template<unsigned int>
         static unsigned int max(void) { return UINT_MAX; }
     };
 }
 
 #endif
+
+#endif // _PEKWM_COMPAT_HH_

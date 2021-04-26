@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_TEXTUREHANDLER_HH_
+#define _PEKWM_TEXTUREHANDLER_HH_
 
 #include "config.h"
 
@@ -85,3 +86,5 @@ namespace pekwm
 {
     TextureHandler* textureHandler();
 }
+
+#endif // _PEKWM_TEXTUREHANDLER_HH_

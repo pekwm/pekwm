@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_FRAME_HH_
+#define _PEKWM_FRAME_HH_
 
 #include "config.h"
 
@@ -228,3 +229,5 @@ private:
     static const int NET_WM_STATE_ADD = 1; // add/set property
     static const int NET_WM_STATE_TOGGLE = 2; // toggle property
 };
+
+#endif // _PEKWM_FRAME_HH_

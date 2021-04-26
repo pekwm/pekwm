@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_PMENU_HH_
+#define _PEKWM_PMENU_HH_
 
 #include "config.h"
 
@@ -196,3 +197,5 @@ private:
 
     static std::map<Window, PMenu*> _menu_map;
 };
+
+#endif // _PEKWM_PMENU_HH_

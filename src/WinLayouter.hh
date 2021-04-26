@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_WINLAYOUTER_HH_
+#define _PEKWM_WINLAYOUTER_HH_
 
 #include "X11.hh"
 
@@ -34,3 +35,5 @@ private:
 };
 
 WinLayouter *WinLayouterFactory(std::string name);
+
+#endif // _PEKWM_WINLAYOUTER_HH_

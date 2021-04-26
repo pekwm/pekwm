@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _PEKWM_CONFIG_H_
+#define _PEKWM_CONFIG_H_
 
 #define VERSION "VERSION_MAJOR.VERSION_MINOR.VERSION_PATCH"
 
@@ -12,3 +13,5 @@
 #define PEKWM_HAVE_LOCALE
 
 #include "CONFIG_PLATFORM-config.h"
+
+#endif // _PEKWM_CONFIG_H_

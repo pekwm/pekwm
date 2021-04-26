@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_PTEXTUREPLAIN_HH_
+#define _PEKWM_PTEXTUREPLAIN_HH_
 
 #include "config.h"
 
@@ -164,3 +165,5 @@ private:
     PImage *_image;
     std::string _colormap;
 };
+
+#endif // _PEKWM_PTEXTUREPLAIN_HH_

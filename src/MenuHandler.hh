@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_MENUHANDLER_HH_
+#define _PEKWM_MENUHANDLER_HH_
 
 #include "config.h"
 
@@ -65,3 +66,5 @@ private:
     /** Map from menu name to menu */
     static std::map<std::string, PMenu*> _menu_map;
 };
+
+#endif // _PEKWM_MENUHANDLER_HH_

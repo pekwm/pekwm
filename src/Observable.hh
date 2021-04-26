@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_OBSERVABLE_HH_
+#define _PEKWM_OBSERVABLE_HH_
 
 #include <map>
 #include <vector>
@@ -61,3 +62,5 @@ namespace pekwm
 {
     ObserverMapping* observerMapping(void);
 }
+
+#endif // _PEKWM_OBSERVABLE_HH_

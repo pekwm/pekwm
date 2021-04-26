@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_AUTOPROPERTIES_HH_
+#define _PEKWM_AUTOPROPERTIES_HH_
 
 #include "config.h"
 
@@ -275,3 +276,5 @@ namespace pekwm
 {
     AutoProperties* autoProperties();
 }
+
+#endif // _PEKWM_AUTOPROPERTIES_HH_

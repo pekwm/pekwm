@@ -5,7 +5,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_CFGPARSERKEY_HH_
+#define _PEKWM_CFGPARSERKEY_HH_
 
 #include "Compat.hh"
 
@@ -150,3 +151,5 @@ private:
     std::string &_set; //!< Reference to store parsed value in.
     std::string _default; //!< Default value.
 };
+
+#endif // _PEKWM_CFGPARSERKEY_HH_

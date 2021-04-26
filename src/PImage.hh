@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_PIMAGE_HH_
+#define _PEKWM_PIMAGE_HH_
 
 #include "config.h"
 #include "Render.hh"
@@ -80,3 +81,5 @@ protected:
     /** If all pixels have 100% alpha, this is set to false. */
     bool _use_alpha;
 };
+
+#endif // _PEKWM_PIMAGE_HH_

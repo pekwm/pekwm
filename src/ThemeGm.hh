@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_THEMEGM_HH_
+#define _PEKWM_THEMEGM_HH_
 
 #include "Theme.hh"
 #include "PTexturePlain.hh"
@@ -118,3 +119,5 @@ private:
     Theme::PDecorData *_data;
     PTextureEmpty _empty;
 };
+
+#endif // _PEKWM_THEMEGM_HH_

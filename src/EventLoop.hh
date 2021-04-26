@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_EVENTLOOP_HH_
+#define _PEKWM_EVENTLOOP_HH_
 
 #include "EventHandler.hh"
 
@@ -21,3 +22,5 @@ class EventLoop {
 public:
     virtual void setEventHandler(EventHandler* event_handler) = 0;
 };
+
+#endif // _PEKWM_EVENTLOOP_HH_

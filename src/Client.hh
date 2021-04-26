@@ -10,7 +10,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_CLIENT_HH_
+#define _PEKWM_CLIENT_HH_
 
 #include "config.h"
 
@@ -407,3 +408,5 @@ private: // Private Member Variables
     static client_vec _clients; //!< Vector of all Clients.
     static std::vector<uint> _clientids; //!< Vector of free Client IDs.
 };
+
+#endif // _PEKWM_CLIENT_HH_

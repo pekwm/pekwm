@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_CLIENTMGR_HH_
+#define _PEKWM_CLIENTMGR_HH_
 
 #include "Action.hh"
 
@@ -35,3 +36,5 @@ private:
     /** Global control used to disable grouping. */
     static bool _allow_grouping;
 };
+
+#endif // _PEKWM_CLIENTMGR_HH_

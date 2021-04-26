@@ -6,7 +6,8 @@
 // See the LICENSE file for more information.
 //
 
-#pragma once
+#ifndef _PEKWM_UTIL_HH_
+#define _PEKWM_UTIL_HH_
 
 #include "config.h"
 
@@ -150,3 +151,5 @@ namespace Util {
     }
 
 }
+
+#endif // _PEKWM_UTIL_HH_
