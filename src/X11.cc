@@ -534,6 +534,77 @@ X11::returnColor(XColor*& xc)
     xc = nullptr;
 }
 
+ulong
+X11::getWhitePixel(void)
+{
+    return WhitePixel(_dpy, _screen);
+}
+
+ulong
+X11::getBlackPixel(void)
+{
+    return BlackPixel(_dpy, _screen);
+}
+
+void
+X11::free(void* data)
+{
+    XFree(data);
+}
+
+void
+X11::warpPointer(int x, int y)
+{
+    if (_dpy) {
+        XWarpPointer(_dpy, None, _root, 0, 0, 0, 0, x, y);
+    }
+}
+
+void
+X11::moveWindow(Window win, int x, int y)
+{
+    if (_dpy) {
+        XMoveWindow(_dpy, win, x, y);
+    }
+}
+void
+X11::resizeWindow(Window win,
+                  unsigned int width, unsigned int height)
+{
+    if (_dpy) {
+        XResizeWindow(_dpy, win, width, height);
+    }
+}
+
+void
+X11::moveResizeWindow(Window win, int x, int y,
+                      unsigned int width, unsigned int height)
+{
+    if (_dpy) {
+        XMoveResizeWindow(_dpy, win, x, y, width, height);
+    }
+}
+
+/**
+ * Remove state modifiers such as NumLock from state.
+ */
+void
+X11::stripStateModifiers(unsigned int *state)
+{
+    *state &= ~(_num_lock | _scroll_lock | LockMask |
+                KbdLayoutMask1 | KbdLayoutMask2);
+}
+
+/**
+ * Remove button modifiers from state.
+ */
+void
+X11::stripButtonModifiers(unsigned int *state)
+{
+    *state &= ~(Button1Mask | Button2Mask | Button3Mask |
+                Button4Mask | Button5Mask);
+}
+
 /**
  * Figure out what keys the Num and Scroll Locks are
  */
@@ -544,9 +615,29 @@ X11::setLockKeys(void)
     _scroll_lock = getMaskFromKeycode(XKeysymToKeycode(_dpy, XK_Scroll_Lock));
 }
 
-//! @brief Get next event using select to avoid signal blocking
-//! @param ev Event to fill in.
-//! @return true if event was fetched, else false.
+void
+X11::flush(void)
+{
+    if (_dpy) {
+        XFlush(_dpy);
+    }
+}
+
+int
+X11::pending(void)
+{
+    if (_dpy) {
+        return XPending(_dpy);
+    }
+    return 0;
+}
+
+/**
+ * Get next event using select to avoid signal blocking
+ *
+ * @param ev Event to fill in.
+ * @return true if event was fetched, else false.
+ */
 bool
 X11::getNextEvent(XEvent &ev, struct timeval *timeout)
 {
@@ -569,6 +660,14 @@ X11::getNextEvent(XEvent &ev, struct timeval *timeout)
     }
 
     return ret > 0;
+}
+
+void
+X11::allowEvents(int event_mode, Time time)
+{
+    if (_dpy) {
+        XAllowEvents(_dpy, event_mode, time);
+    }
 }
 
 //! @brief Grabs the server, counting number of grabs
@@ -793,6 +892,13 @@ X11::getCursorHead(void)
     return head;
 }
 
+
+void
+X11::addHead(const Head &head)
+{
+    _heads.push_back(head);
+}
+
 /**
  * Fills head_info with info about head nr head
  *
@@ -846,6 +952,12 @@ X11::getHeadGeometry(uint head)
     return gm;
 }
 
+int
+X11::getNumHeads(void)
+{
+    return _heads.size();
+}
+
 const char*
 X11::getAtomString(AtomName name)
 {
@@ -861,6 +973,123 @@ X11::getAtomName(Atom atom)
         }
     }
     return MAX_NR_ATOMS;
+}
+
+void
+X11::setAtom(Window win, AtomName aname, AtomName value)
+{
+    changeProperty(win, _atoms[aname], XA_ATOM, 32,
+                   PropModeReplace, (uchar *) &_atoms[value], 1);
+}
+
+void
+X11::setAtoms(Window win, AtomName aname, Atom *values, int size)
+{
+    changeProperty(win, _atoms[aname], XA_ATOM, 32,
+                   PropModeReplace, (uchar *) values, size);
+}
+
+void
+X11::setEwmhAtomsSupport(Window win)
+{
+    changeProperty(win, _atoms[NET_SUPPORTED], XA_ATOM, 32,
+                   PropModeReplace, (uchar *) _atoms, UTF8_STRING+1);
+}
+
+bool
+X11::getWindow(Window win, AtomName aname, Window& value)
+{
+    uchar *udata = 0;
+    if (getProperty(win, _atoms[aname], XA_WINDOW, 1L, &udata, 0)) {
+        value = *reinterpret_cast<Window*>(udata);
+        X11::free(udata);
+        return true;
+    }
+    return false;
+}
+
+void
+X11::setWindow(Window win, AtomName aname, Window value)
+{
+    changeProperty(win, _atoms[aname], XA_WINDOW, 32,
+                   PropModeReplace, (uchar *) &value, 1);
+}
+
+void
+X11::setWindows(Window win, AtomName aname, Window *values,
+                int size)
+{
+    changeProperty(win, _atoms[aname], XA_WINDOW, 32,
+                   PropModeReplace, (uchar *) values, size);
+}
+
+bool
+X11::getCardinal(Window win, AtomName aname, Cardinal &value, long format)
+{
+    uchar *udata = nullptr;
+    if (getProperty(win, _atoms[aname], format, 1L, &udata, 0)) {
+        value = *reinterpret_cast<Cardinal*>(udata);
+        X11::free(udata);
+        return true;
+    }
+    return false;
+}
+
+void
+X11::setCardinals(Window win, AtomName aname,
+                  Cardinal *values, int num)
+{
+    changeProperty(win, _atoms[aname], XA_CARDINAL, 32, PropModeReplace,
+                   reinterpret_cast<uchar*>(values), num);
+}
+
+bool
+X11::getUtf8String(Window win, AtomName aname, std::string &value)
+{
+    uchar *data = nullptr;
+    if (getProperty(win, _atoms[aname], _atoms[UTF8_STRING], 0, &data, 0)) {
+        value = std::string(reinterpret_cast<char*>(data));
+        X11::free(data);
+        return true;
+    }
+    return false;
+}
+
+void
+X11::setUtf8String(Window win, AtomName aname,
+                   const std::string &value)
+{
+    changeProperty(win, _atoms[aname], _atoms[UTF8_STRING], 8,
+                   PropModeReplace,
+                   reinterpret_cast<const uchar*>(value.c_str()),
+                   value.size());
+}
+
+void
+X11::setUtf8StringArray(Window win, AtomName aname,
+                        unsigned char *values, uint length)
+{
+    changeProperty(win, _atoms[aname], _atoms[UTF8_STRING], 8,
+                   PropModeReplace, values, length);
+}
+
+bool
+X11::getString(Window win, AtomName aname, std::string &value)
+{
+    uchar *data = 0;
+    if (getProperty(win, _atoms[aname], XA_STRING, 0, &data, 0)) {
+        value = std::string((const char*) data);
+        X11::free(data);
+        return true;
+    }
+    return false;
+}
+
+void
+X11::setString(Window win, AtomName aname, const std::string &value)
+{
+    changeProperty(win, _atoms[aname], XA_STRING, 8, PropModeReplace,
+                   (uchar*)value.c_str(), value.size());
 }
 
 bool
@@ -947,6 +1176,14 @@ X11::getEwmhPropData(Window win, AtomName prop, Atom type, int &num)
 }
 
 void
+X11::unsetProperty(Window win, AtomName aname)
+{
+    if (_dpy) {
+        XDeleteProperty(_dpy, win, _atoms[aname]);
+    }
+}
+
+void
 X11::getMousePosition(int &x, int &y)
 {
     Window d_root, d_win;
@@ -1004,6 +1241,253 @@ X11::sendEvent(Window dest, Bool propagate, long mask, XEvent *ev)
     }
     return BadValue;
 }
+
+void
+X11::setCardinal(Window win, AtomName aname, Cardinal value, long format)
+{
+    changeProperty(win, _atoms[aname], format, 32,
+                   PropModeReplace, reinterpret_cast<uchar*>(&value), 1);
+}
+
+int
+X11::changeProperty(Window win, Atom prop, Atom type, int format,
+                    int mode, const unsigned char *data, int num_e)
+{
+    if (_dpy) {
+        return XChangeProperty(_dpy, win, prop, type, format, mode,
+                               data, num_e);
+    }
+    return BadImplementation;
+}
+
+int
+X11::getGeometry(Window win, unsigned *w, unsigned *h, unsigned *bw)
+{
+    Window wn;
+    int x, y;
+    unsigned int depth_return;
+    if (_dpy) {
+        return XGetGeometry(_dpy, win, &wn, &x, &y,
+                            w, h, bw, &depth_return);
+    }
+    return BadImplementation;
+}
+
+bool
+X11::getWindowAttributes(Window win, XWindowAttributes *wa)
+{
+    if (_dpy) {
+        return XGetWindowAttributes(_dpy, win, wa);
+    }
+    return BadImplementation;
+}
+
+GC
+X11::createGC(Drawable d, ulong mask, XGCValues *values)
+{
+    if (_dpy) {
+        return XCreateGC(_dpy, d, mask, values);
+    }
+    return None;
+}
+
+void
+X11::freeGC(GC gc)
+{
+    if (_dpy) {
+        XFreeGC(_dpy, gc);
+    }
+}
+
+Pixmap
+X11::createPixmapMask(unsigned w, unsigned h)
+{
+    if (_dpy) {
+        return XCreatePixmap(_dpy, _root, w, h, 1);
+    }
+    return None;
+}
+
+Pixmap
+X11::createPixmap(unsigned w, unsigned h)
+{
+    if (_dpy) {
+        return XCreatePixmap(_dpy, _root, w, h, _depth);
+    }
+    return None;
+}
+
+void
+X11::freePixmap(Pixmap& pixmap)
+{
+    if (_dpy && pixmap != None) {
+        XFreePixmap(_dpy, pixmap);
+    }
+    pixmap = None;
+}
+
+XImage*
+X11::createImage(char *data, uint width, uint height)
+{
+    if (_dpy) {
+        return XCreateImage(_dpy, _visual, 24, ZPixmap,
+                            0, data, width, height, 32, 0);
+    }
+    return nullptr;
+}
+
+XImage*
+X11::getImage(Drawable src, int x, int y, uint width, uint height,
+              unsigned long plane_mask, int format)
+{
+    if (_dpy) {
+        return XGetImage(_dpy, src, x, y, width, height,
+                         plane_mask, format);
+    }
+    return nullptr;
+}
+
+void
+X11::putImage(Drawable dest, GC gc, XImage *ximage,
+              int src_x, int src_y, int dest_x, int dest_y,
+              uint width, uint height)
+{
+    if (_dpy) {
+        XPutImage(_dpy, dest, gc, ximage,
+                  src_x, src_y, dest_x, dest_y, width, height);
+    }
+}
+
+void
+X11::destroyImage(XImage *ximage)
+{
+    if (ximage) {
+        XDestroyImage(ximage);
+    }
+}
+
+void
+X11::setWindowBackground(Window window, ulong pixel)
+{
+    if (_dpy) {
+        XSetWindowBackground(_dpy, window, pixel);
+    }
+}
+
+void
+X11::setWindowBackgroundPixmap(Window window, Pixmap pixmap)
+{
+    if (_dpy) {
+        XSetWindowBackgroundPixmap(_dpy, window, pixmap);
+    }
+}
+
+void
+X11::clearWindow(Window window)
+{
+    if (_dpy) {
+        XClearWindow(_dpy, window);
+    }
+}
+
+void
+X11::clearArea(Window window, int x, int y, uint width, uint height)
+{
+    if (_dpy) {
+        XClearArea(_dpy, window, x, y, width, height, False);
+    }
+}
+
+#ifdef PEKWM_HAVE_SHAPE
+void
+X11::shapeSelectInput(Window window, ulong mask)
+{
+    if (_dpy) {
+        XShapeSelectInput(_dpy, window, mask);
+    }
+}
+
+void
+X11::shapeQuery(Window dst, int *bshaped)
+{
+    int foo; unsigned bar;
+    XShapeQueryExtents(_dpy, dst, bshaped, &foo, &foo, &bar, &bar,
+                       &foo, &foo, &foo, &bar, &bar);
+}
+
+void
+X11::shapeCombine(Window dst, int kind, int x, int y,
+                  Window src, int op)
+{
+    XShapeCombineShape(_dpy, dst, kind, x, y, src, kind, op);
+}
+
+void
+X11::shapeSetRect(Window dst, XRectangle *rect)
+{
+    XShapeCombineRectangles(_dpy, dst, ShapeBounding, 0, 0, rect, 1,
+                            ShapeSet, YXBanded);
+}
+
+void
+X11::shapeIntersectRect(Window dst, XRectangle *rect)
+{
+    XShapeCombineRectangles(_dpy, dst, ShapeBounding, 0, 0, rect, 1,
+                            ShapeIntersect, YXBanded);
+}
+
+void
+X11::shapeSetMask(Window dst, int kind, Pixmap pix)
+{
+    XShapeCombineMask(_dpy, dst, kind, 0, 0, pix, ShapeSet);
+}
+
+XRectangle*
+X11::shapeGetRects(Window win, int kind, int *num)
+{
+    int ordering;
+    return XShapeGetRectangles(_dpy, win, kind, num, &ordering);
+}
+#else // ! PEKWM_HAVE_SHAPE
+void
+X11::shapeSelectInput(Window window, ulong mask)
+{
+}
+
+void
+X11::shapeQuery(Window dst, int *bshaped)
+{
+    *bshaped = 0;
+}
+
+void
+X11::shapeCombine(Window dst, int kind, int x, int y,
+                  Window src, int op)
+{
+}
+
+void
+X11::shapeSetRect(Window dst, XRectangle *rect)
+{
+}
+
+void
+X11::shapeIntersectRect(Window dst, XRectangle *rect)
+{
+}
+
+void
+shapeSetMask(Window dst, int kind, Pixmap pix)
+{
+}
+
+XRectangle*
+X11::shapeGetRects(Window win, int kind, int *num)
+{
+    num = 0;
+    return nullptr;
+}
+#endif // PEKWM_HAVE_SHAPE
 
 //! @brief Initialize head information
 void
@@ -1073,6 +1557,20 @@ X11::initHeadsRandr(void)
 
     XRRFreeScreenResources (resources);
 #endif // PEKWM_HAVE_XRANDR
+}
+
+// gets the squared distance between 2 points
+uint
+X11::calcDistance(int x1, int y1, int x2, int y2)
+{
+    return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+}
+
+// gets the squared distance between 2 points with either x or y the same
+uint
+X11::calcDistance(int p1, int p2)
+{
+    return (p1 - p2) * (p1 - p2);
 }
 
 /**
@@ -1153,6 +1651,14 @@ X11::getKeysymFromKeycode(KeyCode keycode)
 #pragma GCC diagnostic pop
 #endif // PEKWM_HAVE_GCC_DIAGNOSTICS_PUSH
 #endif // __GNUG__
+
+void
+X11::removeMotionEvents(void)
+{
+    XEvent xev;
+    while (XCheckMaskEvent(_dpy, PointerMotionMask, &xev))
+        ;
+}
 
 /**
  * Parse string and set on geometry, same format as XParseGeometry
@@ -1240,6 +1746,170 @@ X11::parseGeometryVal(const char *cstr, const char *e_end, int &val)
         return 2;
     }
     return end == e_end ? 1 : 0;
+}
+
+void
+X11::keepVisible(Geometry &gm)
+{
+    if (gm.x > static_cast<int>(getWidth()) - 3) {
+        gm.x = getWidth() - 3;
+    }
+    if (gm.x + static_cast<int>(gm.width) < 3) {
+        gm.x = 3 - gm.width;
+    }
+    if (gm.y > static_cast<int>(getHeight()) - 3) {
+        gm.y = getHeight() - 3;
+    }
+    if (gm.y + static_cast<int>(gm.height) < 3) {
+        gm.y = 3 - gm.height;
+    }
+}
+
+Window
+X11::createWindow(Window parent,
+                  int x, int y, uint width, uint height,
+                  uint border_width, uint depth, uint _class,
+                  Visual* visual, ulong valuemask,
+                  XSetWindowAttributes* attrs)
+{
+    if (_dpy) {
+        return XCreateWindow(_dpy, parent,
+                             x, y, width, height, border_width,
+                             depth, _class, visual, valuemask, attrs);
+    }
+    return None;
+}
+
+Window
+X11::createSimpleWindow(Window parent,
+                        int x, int y, uint width, uint height,
+                        uint border_width,
+                        ulong border, ulong background)
+{
+    if (_dpy) {
+        return XCreateSimpleWindow(_dpy, parent, x, y, width, height,
+                                   border_width, border, background);
+    }
+    return None;
+}
+
+void
+X11::destroyWindow(Window win)
+{
+    if (_dpy) {
+        XDestroyWindow(_dpy, win);
+    }
+}
+
+void
+X11::changeWindowAttributes(Window win, ulong mask,
+                            XSetWindowAttributes &attrs)
+{
+    if (_dpy) {
+        XChangeWindowAttributes(_dpy, win, mask, &attrs);
+    }
+}
+
+void
+X11::grabButton(unsigned b, unsigned int mod, Window win,
+                unsigned mask, int mode)
+{
+    XGrabButton(_dpy, b, mod, win, true, mask, mode,
+                GrabModeAsync, None, None);
+}
+
+void
+X11::mapWindow(Window w)
+{
+    if (_dpy) {
+        XMapWindow(_dpy, w);
+    }
+}
+
+void
+X11::mapRaised(Window w)
+{
+    if (_dpy) {
+        XMapRaised(_dpy, w);
+    }
+}
+
+void
+X11::unmapWindow(Window w)
+{
+    if (_dpy) {
+        XUnmapWindow(_dpy, w);
+    }
+}
+
+void
+X11::reparentWindow(Window w, Window parent, int x, int y)
+{
+    if (_dpy) {
+        XReparentWindow(_dpy, w, parent, x, y);
+    }
+}
+
+void
+X11::raiseWindow(Window w)
+{
+    if (_dpy) {
+        XRaiseWindow(_dpy, w);
+    }
+}
+
+void
+X11::lowerWindow(Window w)
+{
+    if (_dpy) {
+        XLowerWindow(_dpy, w);
+    }
+}
+
+void
+X11::ungrabButton(uint button, uint modifiers, Window win)
+{
+    XUngrabButton(_dpy, button, modifiers, win);
+}
+
+/**
+ * Wrapper for XRestackWindows, windows go in top-to-bottom order.
+ */
+void
+X11::stackWindows(Window *wins, unsigned len)
+{
+    if (len > 1) {
+        XRestackWindows(_dpy, wins, len);
+    }
+}
+
+bool
+X11::checkTypedEvent(int type, XEvent *ev)
+{
+    return XCheckTypedEvent(_dpy, type, ev);
+}
+
+void
+X11::sync(Bool discard)
+{
+    if (_dpy) {
+        XSync(X11::getDpy(), discard);
+    }
+}
+
+int
+X11::selectInput(Window w, long mask)
+{
+    if (_dpy) {
+        return XSelectInput(_dpy, w, mask);
+    }
+    return 0;
+}
+
+void
+X11::setInputFocus(Window w)
+{
+    XSetInputFocus(_dpy, w, RevertToPointerRoot, CurrentTime);
 }
 
 Display *X11::_dpy;

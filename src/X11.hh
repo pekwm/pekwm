@@ -282,88 +282,73 @@ public:
     static Display* getDpy(void) { return _dpy; }
     static int getScreenNum(void) { return _screen; }
     static Window getRoot(void) { return _root; }
-
     static const Geometry &getScreenGeometry(void) { return _screen_gm; }
     static uint getWidth(void)  { return _screen_gm.width; }
     static uint getHeight(void) { return _screen_gm.height; }
-
     static int getDepth(void) { return _depth; }
     static Visual *getVisual(void) { return _visual; }
     static GC getGC(void) { return _gc; }
     static Colormap getColormap(void) { return _colormap; }
+    static uint getNumLock(void) { return _num_lock; }
+    static uint getScrollLock(void) { return _scroll_lock; }
+    static bool hasExtensionShape(void) { return _has_extension_shape; }
+    static int getEventShape(void) { return _event_shape; }
+    static bool updateGeometry(uint width, uint height);
+    static Cursor getCursor(CursorType type) { return _cursor_map[type]; }
+
+    static Time getLastEventTime(void) { return _last_event_time; }
+    static void setLastEventTime(Time t) { _last_event_time = t; }
+
+    static Window getLastClickID(void) { return _last_click_id; }
+    static void setLastClickID(Window id) { _last_click_id = id; }
+    static Time getLastClickTime(uint button) {
+        if (button < BUTTON_NO) {
+            return _last_click_time[button];
+        }
+        return 0;
+    }
+    static void setLastClickTime(uint button, Time time) {
+        if (button < BUTTON_NO) {
+            _last_click_time[button] = time;
+        }
+    }
+    static bool isDoubleClick(Window id, uint button,
+                                     Time time, Time dc_time) {
+        if ((_last_click_id == id)
+            && ((time - getLastClickTime(button)) < dc_time)) {
+            return true;
+        }
+        return false;
+    }
 
     static XColor *getColor(const std::string &color);
     static void returnColor(XColor*& xc);
 
-    static ulong getWhitePixel(void) { return WhitePixel(_dpy, _screen); }
-    static ulong getBlackPixel(void) { return BlackPixel(_dpy, _screen); }
+    static ulong getWhitePixel(void);
+    static ulong getBlackPixel(void);
 
-    static void free(void* data) { XFree(data); }
+    static void free(void* data);
 
-    static void warpPointer(int x, int y) {
-        if (_dpy) {
-            XWarpPointer(_dpy, None, _root, 0, 0, 0, 0, x, y);
-        }
-    }
+    static void warpPointer(int x, int y);
 
-    static void moveWindow(Window win, int x, int y) {
-        if (_dpy) {
-            XMoveWindow(_dpy, win, x, y);
-        }
-    }
+    static void moveWindow(Window win, int x, int y);
     static void resizeWindow(Window win,
-                             unsigned int width, unsigned int height) {
-        if (_dpy) {
-            XResizeWindow(_dpy, win, width, height);
-        }
-    }
+                             unsigned int width, unsigned int height);
     static void moveResizeWindow(Window win, int x, int y,
-                                 unsigned int width, unsigned int height) {
-        if (_dpy) {
-            XMoveResizeWindow(_dpy, win, x, y, width, height);
-        }
-    }
+                                 unsigned int width, unsigned int height);
 
-    /**
-     * Remove state modifiers such as NumLock from state.
-     */
-    static void stripStateModifiers(unsigned int *state) {
-        *state &= ~(_num_lock | _scroll_lock | LockMask |
-                    KbdLayoutMask1 | KbdLayoutMask2);
-    }
-
-    /**
-     * Remove button modifiers from state.
-     */
-    static void stripButtonModifiers(unsigned int *state) {
-        *state &= ~(Button1Mask | Button2Mask | Button3Mask |
-                    Button4Mask | Button5Mask);
-    }
-
+    static void stripStateModifiers(unsigned int *state);
+    static void stripButtonModifiers(unsigned int *state);
     static void setLockKeys(void);
-    inline static uint getNumLock(void) { return _num_lock; }
-    inline static uint getScrollLock(void) { return _scroll_lock; }
-
-    inline static bool hasExtensionShape(void) { return _has_extension_shape; }
-    inline static int getEventShape(void) { return _event_shape; }
-
-    static bool updateGeometry(uint width, uint height);
-
     static bool selectXRandrInput(void);
     static bool getScreenChangeNotification(XEvent *ev,
                                             ScreenChangeNotification &scn);
 
-    static Cursor getCursor(CursorType type) { return _cursor_map[type]; }
-
-    static void flush(void) { if (_dpy) { XFlush(_dpy); } }
-    static int pending(void) { if (_dpy) { return XPending(_dpy); } return 0; }
+    static void flush(void);
+    static int pending(void);
 
     static bool getNextEvent(XEvent &ev, struct timeval *timeout = nullptr);
-    static void allowEvents(int event_mode, Time time) {
-        if (_dpy) {
-            XAllowEvents(_dpy, event_mode, time);
-        }
-    }
+    static void allowEvents(int event_mode, Time time);
     static bool grabServer(void);
     static bool ungrabServer(bool sync);
     static bool grabKeyboard(Window win);
@@ -373,147 +358,43 @@ public:
 
     static uint getNearestHead(int x, int y);
     static uint getCursorHead(void);
-    static void addHead(const Head &head) { _heads.push_back(head); }
+    static void addHead(const Head &head);
     static bool getHeadInfo(uint head, Geometry &head_info);
     static void getHeadInfo(int x, int y, Geometry &head_info);
     static Geometry getHeadGeometry(uint head);
-    static int getNumHeads(void) { return _heads.size(); }
-
-    inline static Time getLastEventTime(void) { return _last_event_time; }
-    inline static void setLastEventTime(Time t) { _last_event_time = t; }
-
-    inline static Window getLastClickID(void) { return _last_click_id; }
-    inline static void setLastClickID(Window id) { _last_click_id = id; }
-
-    inline static Time getLastClickTime(uint button) {
-        if (button < BUTTON_NO) {
-            return _last_click_time[button];
-        }
-        return 0;
-    }
-    inline static void setLastClickTime(uint button, Time time) {
-        if (button < BUTTON_NO) {
-            _last_click_time[button] = time;
-        }
-    }
-
-    inline static bool isDoubleClick(Window id, uint button,
-                                     Time time, Time dc_time) {
-        if ((_last_click_id == id)
-            && ((time - getLastClickTime(button)) < dc_time)) {
-            return true;
-        }
-        return false;
-    }
+    static int getNumHeads(void);
 
     static Atom getAtom(AtomName name) { return _atoms[name]; }
     static const char *getAtomString(AtomName name);
     static AtomName getAtomName(Atom id);
-    static void setAtom(Window win, AtomName aname, AtomName value) {
-        changeProperty(win, _atoms[aname], XA_ATOM, 32,
-                       PropModeReplace, (uchar *) &_atoms[value], 1);
-    }
-    static void setAtoms(Window win, AtomName aname, Atom *values, int size) {
-        changeProperty(win, _atoms[aname], XA_ATOM, 32,
-                       PropModeReplace, (uchar *) values, size);
-    }
-    static void setEwmhAtomsSupport(Window win) {
-        changeProperty(win, _atoms[NET_SUPPORTED], XA_ATOM, 32,
-                       PropModeReplace, (uchar *) _atoms, UTF8_STRING+1);
-    }
-
-    static bool getWindow(Window win, AtomName aname, Window& value) {
-        uchar *udata = 0;
-        if (getProperty(win, _atoms[aname], XA_WINDOW, 1L, &udata, 0)) {
-            value = *reinterpret_cast<Window*>(udata);
-            X11::free(udata);
-            return true;
-        }
-        return false;
-    }
-    static void setWindow(Window win, AtomName aname, Window value) {
-        changeProperty(win, _atoms[aname], XA_WINDOW, 32,
-                       PropModeReplace, (uchar *) &value, 1);
-    }
+    static void setAtom(Window win, AtomName aname, AtomName value);
+    static void setAtoms(Window win, AtomName aname, Atom *values, int size);
+    static void setEwmhAtomsSupport(Window win);
+    static bool getWindow(Window win, AtomName aname, Window& value);
+    static void setWindow(Window win, AtomName aname, Window value);
     static void setWindows(Window win, AtomName aname, Window *values,
-                           int size) {
-        changeProperty(win, _atoms[aname], XA_WINDOW, 32,
-                       PropModeReplace, (uchar *) values, size);
-    }
-
+                           int size);
     static bool getCardinal(Window win, AtomName aname, Cardinal &value,
-                                   long format=XA_CARDINAL) {
-        uchar *udata = nullptr;
-        if (getProperty(win, _atoms[aname], format, 1L, &udata, 0)) {
-            value = *reinterpret_cast<Cardinal*>(udata);
-            X11::free(udata);
-            return true;
-        }
-        return false;
-    }
-
+                                   long format=XA_CARDINAL);
     static void setCardinal(Window win, AtomName aname, Cardinal value,
-                            long format=XA_CARDINAL) {
-        changeProperty(win, _atoms[aname], format, 32,
-                       PropModeReplace, reinterpret_cast<uchar*>(&value), 1);
-    }
-
+                            long format=XA_CARDINAL);
     static void setCardinals(Window win, AtomName aname,
-                             Cardinal *values, int num) {
-        changeProperty(win, _atoms[aname], XA_CARDINAL, 32, PropModeReplace,
-                       reinterpret_cast<uchar*>(values), num);
-    }
-
-    static bool getUtf8String(Window win, AtomName aname, std::string &value) {
-        uchar *data = nullptr;
-        if (getProperty(win, _atoms[aname], _atoms[UTF8_STRING], 0, &data, 0)) {
-            value = std::string(reinterpret_cast<char*>(data));
-            X11::free(data);
-            return true;
-        }
-        return false;
-    }
-
+                             Cardinal *values, int num);
+    static bool getUtf8String(Window win, AtomName aname, std::string &value);
     static void setUtf8String(Window win, AtomName aname,
-                              const std::string &value) {
-        changeProperty(win, _atoms[aname], _atoms[UTF8_STRING], 8,
-                       PropModeReplace,
-                       reinterpret_cast<const uchar*>(value.c_str()),
-                       value.size());
-    }
-
+                              const std::string &value);
     static void setUtf8StringArray(Window win, AtomName aname,
-                                   unsigned char *values, uint length) {
-        changeProperty(win, _atoms[aname], _atoms[UTF8_STRING], 8,
-                       PropModeReplace, values, length);
-    }
-
-    static bool getString(Window win, AtomName aname, std::string &value) {
-        uchar *data = 0;
-        if (getProperty(win, _atoms[aname], XA_STRING, 0, &data, 0)) {
-            value = std::string((const char*) data);
-            X11::free(data);
-            return true;
-        }
-        return false;
-    }
-
+                                   unsigned char *values, uint length);
+    static bool getString(Window win, AtomName aname, std::string &value);
     static void setString(Window win, AtomName aname,
-                          const std::string &value) {
-        changeProperty(win, _atoms[aname], XA_STRING, 8, PropModeReplace,
-                       (uchar*)value.c_str(), value.size());
-    }
+                          const std::string &value);
 
     static bool getProperty(Window win, Atom atom, Atom type,
                             ulong expected, uchar **data, ulong *actual);
     static bool getTextProperty(Window win, Atom atom, std::string &value);
     static void *getEwmhPropData(Window win, AtomName prop,
                                  Atom type, int &num);
-    static void unsetProperty(Window win, AtomName aname) {
-        if (_dpy) {
-            XDeleteProperty(_dpy, win, _atoms[aname]);
-        }
-    }
+    static void unsetProperty(Window win, AtomName aname);
 
     static void getMousePosition(int &x, int &y);
     static uint getButtonFromState(uint state);
@@ -522,12 +403,7 @@ public:
     static KeyCode getKeycodeFromMask(uint mask);
     static KeySym getKeysymFromKeycode(KeyCode keycode);
 
-    inline static void removeMotionEvents(void)
-    {
-        XEvent xev;
-        while (XCheckMaskEvent(_dpy, PointerMotionMask, &xev))
-            ;
-    }
+    static void removeMotionEvents(void);
 
     /** Modifier from (XModifierKeymap) to mask table. */
     static const uint MODIFIER_TO_MASK[];
@@ -537,22 +413,7 @@ public:
     // helper functions
 
     static int parseGeometry(const std::string& str, Geometry& gm);
-
-    inline static
-    void keepVisible(Geometry &gm) {
-        if (gm.x > static_cast<int>(getWidth()) - 3) {
-            gm.x = getWidth() - 3;
-        }
-        if (gm.x + static_cast<int>(gm.width) < 3) {
-            gm.x = 3 - gm.width;
-        }
-        if (gm.y > static_cast<int>(getHeight()) - 3) {
-            gm.y = getHeight() - 3;
-        }
-        if (gm.y + static_cast<int>(gm.height) < 3) {
-            gm.y = 3 - gm.height;
-        }
-    }
+    static void keepVisible(Geometry &gm);
 
     // X11 function wrappers
 
@@ -560,90 +421,34 @@ public:
                                int x, int y, uint width, uint height,
                                uint border_width, uint depth, uint _class,
                                Visual* visual, ulong valuemask,
-                               XSetWindowAttributes* attrs) {
-        if (_dpy) {
-            return XCreateWindow(_dpy, parent,
-                                 x, y, width, height, border_width,
-                                 depth, _class, visual, valuemask, attrs);
-        }
-        return None;
-    }
-
+                               XSetWindowAttributes* attrs);
     static Window createSimpleWindow(Window parent,
                                      int x, int y, uint width, uint height,
                                      uint border_width,
-                                     ulong border, ulong background) {
-        if (_dpy) {
-            return XCreateSimpleWindow(_dpy, parent, x, y, width, height,
-                                       border_width, border, background);
-        }
-        return None;
-    }
-
-    static void destroyWindow(Window win) {
-        if (_dpy) {
-            XDestroyWindow(_dpy, win);
-        }
-    }
-
+                                     ulong border, ulong background);
+    static void destroyWindow(Window win);
     static void changeWindowAttributes(Window win, ulong mask,
-                                       XSetWindowAttributes &attrs) {
-        if (_dpy) {
-            XChangeWindowAttributes(_dpy, win, mask, &attrs);
-        }
-    }
-
+                                       XSetWindowAttributes &attrs);
     static void grabButton(unsigned b, unsigned int mod, Window win,
-                           unsigned mask, int mode=GrabModeAsync) {
-        XGrabButton(_dpy, b, mod, win, true, mask, mode,
-                    GrabModeAsync, None, None);
-    }
+                           unsigned mask, int mode=GrabModeAsync);
 
-    static void mapWindow(Window w) { if (_dpy) { XMapWindow(_dpy, w); } }
-    static void mapRaised(Window w) { if (_dpy) { XMapRaised(_dpy, w); } }
-    static void unmapWindow(Window w) { if (_dpy) { XUnmapWindow(_dpy, w); } }
-    static void reparentWindow(Window w, Window parent, int x, int y) {
-        if (_dpy) {
-            XReparentWindow(_dpy, w, parent, x, y);
-        }
-    }
+    static void mapWindow(Window w);
+    static void mapRaised(Window w);
+    static void unmapWindow(Window w);
+    static void reparentWindow(Window w, Window parent, int x, int y);
 
-    static void raiseWindow(Window w) { if (_dpy) { XRaiseWindow(_dpy, w); } }
-    static void lowerWindow(Window w) { if (_dpy) { XLowerWindow(_dpy, w); } }
+    static void raiseWindow(Window w);
+    static void lowerWindow(Window w);
 
-    static void ungrabButton(uint button, uint modifiers, Window win) {
-        XUngrabButton(_dpy, button, modifiers, win);
-    }
+    static void ungrabButton(uint button, uint modifiers, Window win);
 
-    /**
-     * Wrapper for XRestackWindows, windows go in top-to-bottom order.
-     */
-    inline static void stackWindows(Window *wins, unsigned len) {
-        if (len > 1) {
-            XRestackWindows(_dpy, wins, len);
-        }
-    }
+    static void stackWindows(Window *wins, unsigned len);
+    static bool checkTypedEvent(int type, XEvent *ev);
 
-    inline static bool checkTypedEvent(int type, XEvent *ev) {
-        return XCheckTypedEvent(_dpy, type, ev);
-    }
+    static void sync(Bool discard);
 
-    static void sync(Bool discard) {
-        if (_dpy) {
-            XSync(X11::getDpy(), discard);
-        }
-    }
-
-    static int selectInput(Window w, long mask) {
-        if (_dpy) {
-            return XSelectInput(_dpy, w, mask);
-        }
-        return 0;
-    }
-
-    inline static void setInputFocus(Window w) {
-        XSetInputFocus(_dpy, w, RevertToPointerRoot, CurrentTime);
-    }
+    static int selectInput(Window w, long mask);
+    static void setInputFocus(Window w);
 
     static int sendEvent(Window dest, Window win, Atom atom, long mask,
                          long v1=0l, long v2=0l, long v3=0l,
@@ -651,195 +456,48 @@ public:
     static int sendEvent(Window dest, Bool propagate, long mask, XEvent *ev);
 
     static int changeProperty(Window win, Atom prop, Atom type, int format,
-                              int mode, const unsigned char *data, int num_e)
-    {
-        if (_dpy) {
-            return XChangeProperty(_dpy, win, prop, type, format, mode,
-                                   data, num_e);
-        }
-        return BadImplementation;
-    }
+                              int mode, const unsigned char *data, int num_e);
 
-    static int getGeometry(Window win, unsigned *w, unsigned *h, unsigned *bw) {
-        Window wn;
-        int x, y;
-        unsigned int depth_return;
-        if (_dpy) {
-            return XGetGeometry(_dpy, win, &wn, &x, &y,
-                                w, h, bw, &depth_return);
-        }
-        return BadImplementation;
-    }
+    static int getGeometry(Window win, unsigned *w, unsigned *h, unsigned *bw);
 
-    static bool getWindowAttributes(Window win, XWindowAttributes *wa) {
-        if (_dpy) {
-            return XGetWindowAttributes(_dpy, win, wa);
-        }
-        return BadImplementation;
-    }
+    static bool getWindowAttributes(Window win, XWindowAttributes *wa);
 
-    static GC createGC(Drawable d, ulong mask, XGCValues *values) {
-        if (_dpy) {
-            return XCreateGC(_dpy, d, mask, values);
-        }
-        return None;
-    }
+    static GC createGC(Drawable d, ulong mask, XGCValues *values);
+    static void freeGC(GC gc);
 
-    static void freeGC(GC gc) {
-        if (_dpy) {
-            XFreeGC(_dpy, gc);
-        }
-    }
-
-    static Pixmap createPixmapMask(unsigned w, unsigned h) {
-        if (_dpy) {
-            return XCreatePixmap(_dpy, _root, w, h, 1);
-        }
-        return None;
-    }
-
-    static Pixmap createPixmap(unsigned w, unsigned h) {
-        if (_dpy) {
-            return XCreatePixmap(_dpy, _root, w, h, _depth);
-        }
-        return None;
-    }
-
-    static void freePixmap(Pixmap& pixmap) {
-        if (_dpy && pixmap != None) {
-            XFreePixmap(_dpy, pixmap);
-        }
-        pixmap = None;
-    }
-
-    static XImage *createImage(char *data, uint width, uint height) {
-        if (_dpy) {
-            return XCreateImage(_dpy, _visual, 24, ZPixmap,
-                                0, data, width, height, 32, 0);
-        }
-        return nullptr;
-    }
+    static Pixmap createPixmapMask(unsigned w, unsigned h);
+    static Pixmap createPixmap(unsigned w, unsigned h);
+    static void freePixmap(Pixmap& pixmap);
+    static XImage *createImage(char *data, uint width, uint height);
     static XImage *getImage(Drawable src, int x, int y, uint width, uint height,
-                           unsigned long plane_mask, int format) {
-        if (_dpy) {
-            return XGetImage(_dpy, src, x, y, width, height,
-                             plane_mask, format);
-        }
-        return nullptr;
-    }
+                            unsigned long plane_mask, int format);
     static void putImage(Drawable dest, GC gc, XImage *ximage,
                          int src_x, int src_y, int dest_x, int dest_y,
-                         uint width, uint height) {
-        if (_dpy) {
-            XPutImage(_dpy, dest, gc, ximage,
-                      src_x, src_y, dest_x, dest_y, width, height);
-        }
-    }
-    static void destroyImage(XImage *ximage) {
-        if (ximage) {
-            XDestroyImage(ximage);
-        }
-    }
+                         uint width, uint height);
+    static void destroyImage(XImage *ximage);
 
-    static void setWindowBackground(Window window, ulong pixel) {
-        if (_dpy) {
-            XSetWindowBackground(_dpy, window, pixel);
-        }
-    }
-    static void setWindowBackgroundPixmap(Window window, Pixmap pixmap) {
-        if (_dpy) {
-            XSetWindowBackgroundPixmap(_dpy, window, pixmap);
-        }
-    }
-    static void  clearWindow(Window window) {
-        if (_dpy) {
-            XClearWindow(_dpy, window);
-        }
-    }
+    static void setWindowBackground(Window window, ulong pixel);
+    static void setWindowBackgroundPixmap(Window window, Pixmap pixmap);
+    static void  clearWindow(Window window);
     static void clearArea(Window window, int x, int y,
-                          uint width, uint height) {
-        if (_dpy) {
-            XClearArea(_dpy, window, x, y, width, height, False);
-        }
-    }
+                          uint width, uint height);
 
-#ifdef PEKWM_HAVE_SHAPE
-    static void shapeSelectInput(Window window, ulong mask) {
-        if (_dpy) {
-            XShapeSelectInput(_dpy, window, mask);
-        }
-    }
-
-    static void shapeQuery(Window dst, int *bshaped) {
-        int foo; unsigned bar;
-        XShapeQueryExtents(_dpy, dst, bshaped, &foo, &foo, &bar, &bar,
-                           &foo, &foo, &foo, &bar, &bar);
-    }
-
+    static void shapeSelectInput(Window window, ulong mask);
+    static void shapeQuery(Window dst, int *bshaped);
     static void shapeCombine(Window dst, int kind, int x, int y,
-                             Window src, int op) {
-        XShapeCombineShape(_dpy, dst, kind, x, y, src, kind, op);
-    }
-
-    static void shapeSetRect(Window dst, XRectangle *rect) {
-        XShapeCombineRectangles(_dpy, dst, ShapeBounding, 0, 0, rect, 1,
-                                ShapeSet, YXBanded);
-    }
-
-    static void shapeIntersectRect(Window dst, XRectangle *rect) {
-        XShapeCombineRectangles(_dpy, dst, ShapeBounding, 0, 0, rect, 1,
-                                ShapeIntersect, YXBanded);
-    }
-
-    static void shapeSetMask(Window dst, int kind, Pixmap pix) {
-        XShapeCombineMask(_dpy, dst, kind, 0, 0, pix, ShapeSet);
-    }
-
-    static XRectangle *shapeGetRects(Window win, int kind, int *num) {
-        int ordering;
-        return XShapeGetRectangles(_dpy, win, kind, num, &ordering);
-    }
-#else // ! PEKWM_HAVE_SHAPE
-    static void shapeSelectInput(Window window, ulong mask) { }
-
-    static void shapeQuery(Window dst, int *bshaped) {
-        *bshaped = 0;
-    }
-
-    static void shapeCombine(Window dst, int kind, int x, int y,
-                             Window src, int op) {
-    }
-
-    static void shapeSetRect(Window dst, XRectangle *rect) {
-    }
-
-    static void shapeIntersectRect(Window dst, XRectangle *rect) {
-    }
-
-    static void shapeSetMask(Window dst, int kind, Pixmap pix) {
-    }
-
-    static XRectangle *shapeGetRects(Window win, int kind, int *num) {
-        num = 0;
-        return nullptr;
-    }
-#endif // PEKWM_HAVE_SHAPE
+                             Window src, int op);
+    static void shapeSetRect(Window dst, XRectangle *rect);
+    static void shapeIntersectRect(Window dst, XRectangle *rect);
+    static void shapeSetMask(Window dst, int kind, Pixmap pix);
+    static XRectangle* shapeGetRects(Window win, int kind, int *num);
 
 protected:
     static int parseGeometryVal(const char *c_str, const char *e_end,
                                 int &val_ret);
 
 private:
-    // squared distance because computing with sqrt is expensive
-
-    // gets the squared distance between 2 points
-    inline static uint calcDistance(int x1, int y1, int x2, int y2) {
-        return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
-    }
-    // gets the squared distance between 2 points with either x or y the same
-    inline static uint calcDistance(int p1, int p2) {
-        return (p1 - p2) * (p1 - p2);
-    }
+    static uint calcDistance(int x1, int y1, int x2, int y2);
+    static uint calcDistance(int p1, int p2);
 
     static void initHeads(void);
     static void initHeadsRandr(void);

@@ -231,8 +231,7 @@ RootWO::RootWO(Window root, HintWO *hint_wo, Config *cfg)
 
     X11::setWindow(_window, NET_SUPPORTING_WM_CHECK, _hint_wo->getWindow());
     X11::setEwmhAtomsSupport(_window);
-    X11::setCardinal(_window, NET_NUMBER_OF_DESKTOPS,
-                 _cfg->getWorkspaces());
+    X11::setCardinal(_window, NET_NUMBER_OF_DESKTOPS, _cfg->getWorkspaces());
     X11::setCardinal(_window, NET_CURRENT_DESKTOP, 0);
 
     Cardinal desktop_geometry[2];
