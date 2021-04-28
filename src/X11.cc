@@ -1477,7 +1477,7 @@ X11::shapeIntersectRect(Window dst, XRectangle *rect)
 }
 
 void
-shapeSetMask(Window dst, int kind, Pixmap pix)
+X11::shapeSetMask(Window dst, int kind, Pixmap pix)
 {
 }
 
