@@ -295,6 +295,8 @@ protected:
 
 	virtual int resizeHorzStep(int diff) const { return diff; }
 	virtual int resizeVertStep(int diff) const { return diff; }
+
+	virtual void clearMaximizedStatesAfterResize() { }
 	// END - PDecor interface.
 
 #ifdef PEKWM_HAVE_SHAPE
