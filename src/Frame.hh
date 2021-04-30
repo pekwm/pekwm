@@ -168,6 +168,7 @@ protected:
 	virtual int resizeVertStep(int diff) const;
 
 	virtual std::string getDecorName(void);
+	virtual void clearMaximizedStatesAfterResize();
 	// END - PDecor interface
 
 	static void applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask);

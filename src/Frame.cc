@@ -1325,17 +1325,22 @@ Frame::doResize(bool left, bool x, bool top, bool y)
 	X11::ungrabPointer();
 
 	// Make sure the state isn't set to maximized after we've resized.
+	clearMaximizedStatesAfterResize();
+
+	if (outline) {
+		moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
+		X11::ungrabServer(true);
+	}
+}
+
+void Frame::clearMaximizedStatesAfterResize()
+{
 	if (_maximized_horz || _maximized_vert) {
 		_maximized_horz = false;
 		_maximized_vert = false;
 		_client->setMaximizedHorz(false);
 		_client->setMaximizedVert(false);
 		_client->updateEwmhStates();
-	}
-
-	if (outline) {
-		moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
-		X11::ungrabServer(true);
 	}
 }
 

@@ -471,6 +471,7 @@ PDecor::moveResize(const Geometry &gm, int gm_mask)
 		if (gm_mask & HEIGHT_VALUE) {
 			_gm.height = gm.height;
 		}
+		clearMaximizedStatesAfterResize();
 		resize(_gm.width, _gm.height);
 	}
 }
