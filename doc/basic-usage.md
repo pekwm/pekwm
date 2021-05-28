@@ -292,7 +292,7 @@ isn't active. It's default keybinding is Ctrl+Mod1+T then C.
 You can toggle all autogrouping on and off with the toggleable
 attribute GlobalGrouping. To disable you need to use the action "Unset
 GlobalGrouping" and to enable autogrouping use "Set
-GlobalGrouping". The default keybinding that toggless between set and
+GlobalGrouping". The default keybinding that toggles between set and
 unset is Ctrl+Mod1+T then G.
 
 You can set a marked state on clients with "set marked" and then
