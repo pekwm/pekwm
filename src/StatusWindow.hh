@@ -19,28 +19,28 @@ class Theme;
 //! @brief Status display window.
 class StatusWindow : public PDecor {
 public:
-    StatusWindow(Theme* theme);
-    virtual ~StatusWindow(void);
+	StatusWindow(Theme* theme);
+	virtual ~StatusWindow(void);
 
-    void draw(const std::string &text, bool do_center = false,
-              Geometry *gm = 0);
-
-private:
-    // BEGIN - PDecor interface
-    virtual void loadTheme(void);
-    // END - PDecor interface
-    void unloadTheme(void);
-
-    void render(void);
+	void draw(const std::string &text, bool do_center = false,
+		  Geometry *gm = 0);
 
 private:
-    Theme* _theme;
-    PWinObj *_status_wo;
+	// BEGIN - PDecor interface
+	virtual void loadTheme(void);
+	// END - PDecor interface
+	void unloadTheme(void);
+
+	void render(void);
+
+private:
+	Theme* _theme;
+	PWinObj *_status_wo;
 };
 
 namespace pekwm
 {
-    StatusWindow* statusWindow();
+	StatusWindow* statusWindow();
 }
 
 #endif // _PEKWM_STATUSWINDOW_HH_

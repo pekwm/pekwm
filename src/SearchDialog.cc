@@ -20,25 +20,25 @@
  * SearchDialog constructor.
  */
 SearchDialog::SearchDialog()
-  : InputDialog("Search"),
-    _result_menu(0)
+	: InputDialog("Search"),
+	  _result_menu(0)
 {
-    _type = PWinObj::WO_SEARCH_DIALOG;
+	_type = PWinObj::WO_SEARCH_DIALOG;
 
-    // Set up ActionEvent
-    ae().action_list.back().setAction(ACTION_GOTO_CLIENT);
+	// Set up ActionEvent
+	ae().action_list.back().setAction(ACTION_GOTO_CLIENT);
 
-    // Set up menu for displaying results
-    _result_menu = new PMenu("", "");
-    _result_menu->reparent(this,
-                           bdLeft(this),
-                           bdTop(this) + titleHeight(this) + _text_wo->getHeight());
-    _result_menu->setLayer(LAYER_DESKTOP); // Ignore when placing
-    _result_menu->setSticky(STATE_SET);
-    _result_menu->setBorder(STATE_UNSET);
-    _result_menu->setTitlebar(STATE_UNSET);
-    _result_menu->setFocusable(false);
-    _result_menu->mapWindow();
+	// Set up menu for displaying results
+	_result_menu = new PMenu("", "");
+	_result_menu->reparent(this,
+			       bdLeft(this),
+			       bdTop(this) + titleHeight(this) + _text_wo->getHeight());
+	_result_menu->setLayer(LAYER_DESKTOP); // Ignore when placing
+	_result_menu->setSticky(STATE_SET);
+	_result_menu->setBorder(STATE_UNSET);
+	_result_menu->setTitlebar(STATE_UNSET);
+	_result_menu->setFocusable(false);
+	_result_menu->mapWindow();
 }
 
 /**
@@ -46,7 +46,7 @@ SearchDialog::SearchDialog()
  */
 SearchDialog::~SearchDialog(void)
 {
-    delete _result_menu;
+	delete _result_menu;
 }
 
 /**
@@ -56,16 +56,16 @@ SearchDialog::~SearchDialog(void)
 ActionEvent*
 SearchDialog::exec(void)
 {
-    // InputDialog::close() may have overwritten our action.
-    ae().action_list.back().setAction(ACTION_GOTO_CLIENT);
+	// InputDialog::close() may have overwritten our action.
+	ae().action_list.back().setAction(ACTION_GOTO_CLIENT);
 
-    PWinObj *wo_ref = 0;
-    if (_result_menu->getItemCurr()) {
-        wo_ref = _result_menu->getItemCurr()->getWORef();
-    }
-    setWORef(wo_ref);
+	PWinObj *wo_ref = 0;
+	if (_result_menu->getItemCurr()) {
+		wo_ref = _result_menu->getItemCurr()->getWORef();
+	}
+	setWORef(wo_ref);
 
-    return &(ae());
+	return &(ae());
 }
 
 /**
@@ -74,8 +74,8 @@ SearchDialog::exec(void)
 void
 SearchDialog::bufChanged(void)
 {
-    InputDialog::bufChanged();
-    findClients(str());
+	InputDialog::bufChanged();
+	findClients(str());
 }
 
 /**
@@ -84,7 +84,7 @@ SearchDialog::bufChanged(void)
 void
 SearchDialog::histNext(void)
 {
-    _result_menu->selectItemRel(1);
+	_result_menu->selectItemRel(1);
 }
 
 /**
@@ -93,7 +93,7 @@ SearchDialog::histNext(void)
 void
 SearchDialog::histPrev(void)
 {
-    _result_menu->selectItemRel(-1);
+	_result_menu->selectItemRel(-1);
 }
 
 /**
@@ -102,8 +102,8 @@ SearchDialog::histPrev(void)
 void
 SearchDialog::updateSize(const Geometry &head)
 {
-    InputDialog::updateSize(head);
-    _result_menu->setMenuWidth(_text_wo->getWidth());
+	InputDialog::updateSize(head);
+	_result_menu->setMenuWidth(_text_wo->getWidth());
 }
 
 /**
@@ -115,53 +115,53 @@ SearchDialog::updateSize(const Geometry &head)
 uint
 SearchDialog::findClients(const std::string &search)
 {
-    // Do nothing if search has not changed.
-    if (_previous_search == search) {
-        return _result_menu->size();
-    }
-    _previous_search = search;
+	// Do nothing if search has not changed.
+	if (_previous_search == search) {
+		return _result_menu->size();
+	}
+	_previous_search = search;
 
-    _result_menu->removeAll();
-    if (search.size() > 0) {
-        RegexString search_re("/" + search + "/i");
-        if (! search_re.is_match_ok()) {
-            return 0;
-        }
+	_result_menu->removeAll();
+	if (search.size() > 0) {
+		RegexString search_re("/" + search + "/i");
+		if (! search_re.is_match_ok()) {
+			return 0;
+		}
 
-        std::vector<Client*> matches;
-        Client::client_cit it(Client::client_begin());
-        for (; it != Client::client_end(); ++it) {
-            if ((*it)->isFocusable()  && ! (*it)->isSkip(SKIP_FOCUS_TOGGLE)
-                 && search_re == (*it)->getTitle()->getReal()) {
-                matches.push_back(*it);
-            }
-        }
+		std::vector<Client*> matches;
+		Client::client_cit it(Client::client_begin());
+		for (; it != Client::client_end(); ++it) {
+			if ((*it)->isFocusable()  && ! (*it)->isSkip(SKIP_FOCUS_TOGGLE)
+			    && search_re == (*it)->getTitle()->getReal()) {
+				matches.push_back(*it);
+			}
+		}
 
-        for (it = matches.begin(); it != matches.end(); ++it) {
-            _result_menu->insert((*it)->getTitle()->getVisible(), *it, (*it)->getIcon());
-        }
-    }
+		for (it = matches.begin(); it != matches.end(); ++it) {
+			_result_menu->insert((*it)->getTitle()->getVisible(), *it, (*it)->getIcon());
+		}
+	}
 
-    // Rebuild menu and make room for it
-    _result_menu->buildMenu();
+	// Rebuild menu and make room for it
+	_result_menu->buildMenu();
 
-    Geometry head;
-    X11::getHeadInfo(getHead(), head);
+	Geometry head;
+	X11::getHeadInfo(getHead(), head);
 
-    unsigned int width, height;
-    getInputSize(head, width, height);
+	unsigned int width, height;
+	getInputSize(head, width, height);
 
-    if (_result_menu->size()) {
-        resizeChild(_text_wo->getWidth(), height + _result_menu->getHeight());
-        X11::raiseWindow(_result_menu->getWindow());
-        // Render first item as selected, needs to be done after map/raise.
-        _result_menu->selectItemNum(0);
-    } else {
-        resizeChild(_text_wo->getWidth(), height);
-        X11::lowerWindow(_result_menu->getWindow());
-    }
+	if (_result_menu->size()) {
+		resizeChild(_text_wo->getWidth(), height + _result_menu->getHeight());
+		X11::raiseWindow(_result_menu->getWindow());
+		// Render first item as selected, needs to be done after map/raise.
+		_result_menu->selectItemNum(0);
+	} else {
+		resizeChild(_text_wo->getWidth(), height);
+		X11::lowerWindow(_result_menu->getWindow());
+	}
 
-    return 0;
+	return 0;
 }
 
 /**
@@ -170,14 +170,14 @@ SearchDialog::findClients(const std::string &search)
 void
 SearchDialog::unmapWindow(void)
 {
-    if (_mapped) {
-        InputDialog::unmapWindow();
-        setWORef(0);
-        bufClear();
+	if (_mapped) {
+		InputDialog::unmapWindow();
+		setWORef(0);
+		bufClear();
 
-        // Clear the menu and hide it.
-        X11::clearWindow(_result_menu->getWindow());
-        _previous_search = "";
-        X11::lowerWindow(_result_menu->getWindow());
-    }
+		// Clear the menu and hide it.
+		X11::clearWindow(_result_menu->getWindow());
+		_previous_search = "";
+		X11::lowerWindow(_result_menu->getWindow());
+	}
 }

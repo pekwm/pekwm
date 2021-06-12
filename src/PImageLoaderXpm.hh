@@ -25,9 +25,9 @@ extern "C" {
  */
 namespace PImageLoaderXpm
 {
-    const char *getExt(void);
-    uchar* load(const std::string &file, size_t &width, size_t &height,
-                        bool &use_alpha);
+	const char *getExt(void);
+	uchar* load(const std::string &file, size_t &width, size_t &height,
+		    bool &use_alpha);
 }
 
 #endif // PEKWM_HAVE_IMAGE_XPM

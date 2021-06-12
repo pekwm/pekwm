@@ -17,10 +17,10 @@
  */
 class AppCtrl {
 public:
-    virtual void reload(void) = 0;
-    virtual void restart(void) = 0;
-    virtual void restart(std::string cmd) = 0;
-    virtual void shutdown(void) = 0;
+	virtual void reload(void) = 0;
+	virtual void restart(void) = 0;
+	virtual void restart(std::string cmd) = 0;
+	virtual void shutdown(void) = 0;
 };
 
 #endif // _PEKWM_APPCTRL_HH_

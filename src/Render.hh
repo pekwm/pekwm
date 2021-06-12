@@ -26,22 +26,22 @@ void renderTiled(const int a_x, const int a_y,
  */
 class Render {
 public:
-    Render(void);
-    virtual ~Render(void);
+	Render(void);
+	virtual ~Render(void);
 
-    virtual Drawable getDrawable(void) const = 0;
-    virtual XImage *getImage(int x, int y, uint width, uint height) = 0;
-    virtual void destroyImage(XImage *image) = 0;
+	virtual Drawable getDrawable(void) const = 0;
+	virtual XImage *getImage(int x, int y, uint width, uint height) = 0;
+	virtual void destroyImage(XImage *image) = 0;
 
-    virtual void setColor(int pixel) = 0;
-    virtual void setLineWidth(int lw) = 0;
+	virtual void setColor(int pixel) = 0;
+	virtual void setLineWidth(int lw) = 0;
 
-    virtual void clear(int x, int y, uint width, uint height) = 0;
-    virtual void line(int x1, int y1, int x2, int y2) = 0;
-    virtual void rectangle(int x0, int y, uint width, uint height) = 0;
-    virtual void fill(int x, int y, uint width, uint height) = 0;
-    virtual void putImage(XImage *image, int dest_x, int dest_y,
-                          uint width, uint height) = 0;
+	virtual void clear(int x, int y, uint width, uint height) = 0;
+	virtual void line(int x1, int y1, int x2, int y2) = 0;
+	virtual void rectangle(int x0, int y, uint width, uint height) = 0;
+	virtual void fill(int x, int y, uint width, uint height) = 0;
+	virtual void putImage(XImage *image, int dest_x, int dest_y,
+			      uint width, uint height) = 0;
 };
 
 /**
@@ -49,26 +49,26 @@ public:
  */
 class X11Render : public Render {
 public:
-    X11Render(Drawable draw);
-    virtual ~X11Render(void);
+	X11Render(Drawable draw);
+	virtual ~X11Render(void);
 
-    virtual Drawable getDrawable(void) const;
-    virtual XImage *getImage(int x, int y, uint width, uint height);
-    virtual void destroyImage(XImage *image);
+	virtual Drawable getDrawable(void) const;
+	virtual XImage *getImage(int x, int y, uint width, uint height);
+	virtual void destroyImage(XImage *image);
 
-    virtual void setColor(int pixel);
-    virtual void setLineWidth(int lw);
+	virtual void setColor(int pixel);
+	virtual void setLineWidth(int lw);
 
-    virtual void clear(int x, int y, uint width, uint height);
-    virtual void line(int x1, int y1, int x2, int y2);
-    virtual void rectangle(int x0, int y, uint width, uint height);
-    virtual void fill(int x, int y, uint width, uint height);
-    virtual void putImage(XImage *image, int dest_x, int dest_y,
-                          uint width, uint height);
+	virtual void clear(int x, int y, uint width, uint height);
+	virtual void line(int x1, int y1, int x2, int y2);
+	virtual void rectangle(int x0, int y, uint width, uint height);
+	virtual void fill(int x, int y, uint width, uint height);
+	virtual void putImage(XImage *image, int dest_x, int dest_y,
+			      uint width, uint height);
 
 private:
-    Drawable _draw;
-    GC _gc;
+	Drawable _draw;
+	GC _gc;
 };
 
 /**
@@ -76,27 +76,27 @@ private:
  */
 class XImageRender : public Render {
 public:
-    XImageRender(XImage *image);
-    virtual ~XImageRender(void);
+	XImageRender(XImage *image);
+	virtual ~XImageRender(void);
 
-    virtual Drawable getDrawable(void) const;
-    virtual XImage *getImage(int x, int y, uint width, uint height);
-    virtual void destroyImage(XImage *image);
+	virtual Drawable getDrawable(void) const;
+	virtual XImage *getImage(int x, int y, uint width, uint height);
+	virtual void destroyImage(XImage *image);
 
-    virtual void setLineWidth(int lw);
-    virtual void setColor(int pixel);
+	virtual void setLineWidth(int lw);
+	virtual void setColor(int pixel);
 
-    virtual void clear(int x, int y, uint width, uint height);
-    virtual void line(int x1, int y1, int x2, int y2);
-    virtual void rectangle(int x0, int y, uint width, uint height);
-    virtual void fill(int x0, int y, uint width, uint height);
-    virtual void putImage(XImage *image, int dest_x, int dest_y,
-                          uint width, uint height);
+	virtual void clear(int x, int y, uint width, uint height);
+	virtual void line(int x1, int y1, int x2, int y2);
+	virtual void rectangle(int x0, int y, uint width, uint height);
+	virtual void fill(int x0, int y, uint width, uint height);
+	virtual void putImage(XImage *image, int dest_x, int dest_y,
+			      uint width, uint height);
 
 private:
-    XImage *_image;
-    int _color;
-    int _lw;
+	XImage *_image;
+	int _color;
+	int _lw;
 };
 
 #endif // _PEKWM_RENDER_HH_

@@ -23,36 +23,36 @@
 class WorkspaceIndicator : public PDecor
 {
 public:
-    /**
-     * Display class rendering workspace layout in WorkspaceIndicator.
-     */
-    class Display : public PWinObj {
-    public:
-        Display(PWinObj *parent);
-        virtual ~Display(void);
+	/**
+	 * Display class rendering workspace layout in WorkspaceIndicator.
+	 */
+	class Display : public PWinObj {
+	public:
+		Display(PWinObj *parent);
+		virtual ~Display(void);
 
-        virtual bool getSizeRequest(Geometry &request);
-        void render(void);
+		virtual bool getSizeRequest(Geometry &request);
+		void render(void);
 
-    private:
-        void renderWorkspaces(int x, int y, uint width, uint height);
+	private:
+		void renderWorkspaces(int x, int y, uint width, uint height);
 
-        uint getPaddingHorizontal(void);
-        uint getPaddingVertical(void);
+		uint getPaddingHorizontal(void);
+		uint getPaddingVertical(void);
 
-        Pixmap _pixmap; //!< Pixmap holding rendered workspace view
-    };
+		Pixmap _pixmap; //!< Pixmap holding rendered workspace view
+	};
 
-    WorkspaceIndicator();
-    virtual ~WorkspaceIndicator(void);
+	WorkspaceIndicator();
+	virtual ~WorkspaceIndicator(void);
 
-    void render(void);
-    void updateHideTimer(uint timeout);
+	void render(void);
+	void updateHideTimer(uint timeout);
 
 private:
-    /** Display winobj handling rendering of workspace status */
-    Display _display_wo;
-    PDecor::TitleItem _title; //!< Title item added to the decor
+	/** Display winobj handling rendering of workspace status */
+	Display _display_wo;
+	PDecor::TitleItem _title; //!< Title item added to the decor
 };
 
 #endif // _PEKWM_WORKSPACEINDICATOR_HH_

@@ -11,16 +11,16 @@
 #include "WmUtil.hh"
 
 WithIconPath::WithIconPath(const Config *cfg, ImageHandler *image_handler)
-    : _image_handler(image_handler)
+	: _image_handler(image_handler)
 {
-    _image_handler->path_push_back(cfg->getSystemIconPath());
-    _image_handler->path_push_back(cfg->getIconPath());
-    _image_handler->path_push_back(cfg->getThemeIconPath());
+	_image_handler->path_push_back(cfg->getSystemIconPath());
+	_image_handler->path_push_back(cfg->getIconPath());
+	_image_handler->path_push_back(cfg->getThemeIconPath());
 }
 
 WithIconPath::~WithIconPath(void)
 {
-    _image_handler->path_pop_back();
-    _image_handler->path_pop_back();
-    _image_handler->path_pop_back();
+	_image_handler->path_pop_back();
+	_image_handler->path_pop_back();
+	_image_handler->path_pop_back();
 }

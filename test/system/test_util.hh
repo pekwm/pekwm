@@ -23,27 +23,27 @@ extern "C" {
 bool
 next_event(Display *dpy, XEvent *ev)
 {
-    if (XPending(dpy)) {
-        return ! XNextEvent(dpy, ev);
-    }
+	if (XPending(dpy)) {
+		return ! XNextEvent(dpy, ev);
+	}
 
-    XFlush(dpy);
+	XFlush(dpy);
 
-    int xfd = ConnectionNumber(dpy);
-    fd_set rfds;
-    FD_ZERO(&rfds);
-    FD_SET(0, &rfds);
-    FD_SET(xfd, &rfds);
+	int xfd = ConnectionNumber(dpy);
+	fd_set rfds;
+	FD_ZERO(&rfds);
+	FD_SET(0, &rfds);
+	FD_SET(xfd, &rfds);
 
-    int ret;
-    do {
-        ret = select(xfd + 1, &rfds, 0, 0, 0);
-    } while (ret == -1 && errno == EINTR);
+	int ret;
+	do {
+		ret = select(xfd + 1, &rfds, 0, 0, 0);
+	} while (ret == -1 && errno == EINTR);
 
-    if (ret > 0) {
-        if (FD_ISSET(xfd, &rfds)) {
-            return ! XNextEvent(dpy, ev);
-        }
-    }
-    return false;
+	if (ret > 0) {
+		if (FD_ISSET(xfd, &rfds)) {
+			return ! XNextEvent(dpy, ev);
+		}
+	}
+	return false;
 }

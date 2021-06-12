@@ -24,56 +24,56 @@ class Strut;
 class Harbour
 {
 public:
-    Harbour(Config* cfg, AutoProperties* ap, RootWO *root_wo);
-    ~Harbour(void);
+	Harbour(Config* cfg, AutoProperties* ap, RootWO *root_wo);
+	~Harbour(void);
 
-    void addDockApp(DockApp* da);
-    void removeDockApp(DockApp* da);
-    void removeAllDockApps(void);
+	void addDockApp(DockApp* da);
+	void removeDockApp(DockApp* da);
+	void removeAllDockApps(void);
 
-    DockApp* findDockApp(Window win);
-    DockApp* findDockAppFromFrame(Window win);
+	DockApp* findDockApp(Window win);
+	DockApp* findDockAppFromFrame(Window win);
 
-    inline uint getSize(void) const { return _size; }
+	inline uint getSize(void) const { return _size; }
 
-    void updateGeometry(void);
+	void updateGeometry(void);
 
-    void restack(void);
-    void rearrange(void);
-    void loadTheme(void);
-    void updateHarbourSize(void);
+	void restack(void);
+	void rearrange(void);
+	void loadTheme(void);
+	void updateHarbourSize(void);
 
-    void setStateHidden(StateAction sa);
+	void setStateHidden(StateAction sa);
 
-    void handleButtonEvent(XButtonEvent* ev, DockApp* da);
-    void handleMotionNotifyEvent(XMotionEvent* ev, DockApp* da);
-    void handleConfigureRequestEvent(XConfigureRequestEvent* ev, DockApp* da);
-
-private:
-    void placeDockApp(DockApp *da);
-    void placeDockAppsSorted(void);
-    void placeDockAppInsideScreen(DockApp *da);
-
-    void getPlaceStartPosition(DockApp *da, int &x, int &y, bool &inc_x);
-    void insertDockAppSorted(DockApp *da);
-
-    void updateStrutSize(void);
+	void handleButtonEvent(XButtonEvent* ev, DockApp* da);
+	void handleMotionNotifyEvent(XMotionEvent* ev, DockApp* da);
+	void handleConfigureRequestEvent(XConfigureRequestEvent* ev, DockApp* da);
 
 private:
-    Config* _cfg;
-    AutoProperties* _ap;
-    RootWO *_root_wo;
+	void placeDockApp(DockApp *da);
+	void placeDockAppsSorted(void);
+	void placeDockAppInsideScreen(DockApp *da);
 
-    std::vector<DockApp*> _dapps;
-    bool _hidden;
-    uint _size;
-    Strut *_strut;
-    int _last_button_x, _last_button_y;
+	void getPlaceStartPosition(DockApp *da, int &x, int &y, bool &inc_x);
+	void insertDockAppSorted(DockApp *da);
+
+	void updateStrutSize(void);
+
+private:
+	Config* _cfg;
+	AutoProperties* _ap;
+	RootWO *_root_wo;
+
+	std::vector<DockApp*> _dapps;
+	bool _hidden;
+	uint _size;
+	Strut *_strut;
+	int _last_button_x, _last_button_y;
 };
 
 namespace pekwm
 {
-    Harbour* harbour();
+	Harbour* harbour();
 }
 
 #endif // _PEKWM_HARBOUR_HH_

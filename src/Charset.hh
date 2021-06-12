@@ -14,54 +14,54 @@
 
 namespace Charset
 {
-    class WithCharset
-    {
-    public:
-        WithCharset(void);
-        ~WithCharset(void);
-    };
+	class WithCharset
+	{
+	public:
+		WithCharset(void);
+		~WithCharset(void);
+	};
 
-    class Utf8Iterator
-    {
-    public:
-        Utf8Iterator(const std::string& str, size_t pos);
+	class Utf8Iterator
+	{
+	public:
+		Utf8Iterator(const std::string& str, size_t pos);
 
-        bool begin(void) const { return _begin; }
-        bool end(void) const { return _pos == _str.size(); }
-        bool ok(void) const { return ! end(); }
+		bool begin(void) const { return _begin; }
+		bool end(void) const { return _pos == _str.size(); }
+		bool ok(void) const { return ! end(); }
 
-        size_t pos(void) const { return _pos; }
-        const char* str(void) const { return ok() ? _str.c_str() + _pos : ""; }
+		size_t pos(void) const { return _pos; }
+		const char* str(void) const { return ok() ? _str.c_str() + _pos : ""; }
 
-        bool operator==(char chr) const;
-        bool operator==(const char* chr) const;
-        bool operator==(const std::string& chr) const;
+		bool operator==(char chr) const;
+		bool operator==(const char* chr) const;
+		bool operator==(const std::string& chr) const;
 
-        const char* operator*(void);
+		const char* operator*(void);
 
-        Utf8Iterator& operator--(void);
-        Utf8Iterator& operator++(void);
+		Utf8Iterator& operator--(void);
+		Utf8Iterator& operator++(void);
 
-    private:
-        size_t len(size_t pos) const;
-        bool decPos(void);
-        bool incPos(void);
+	private:
+		size_t len(size_t pos) const;
+		bool decPos(void);
+		bool incPos(void);
 
-    private:
-        bool _begin;
-        const std::string &_str;
-        size_t _pos;
+	private:
+		bool _begin;
+		const std::string &_str;
+		size_t _pos;
 
-        char _deref_buf[7];
-    };
+		char _deref_buf[7];
+	};
 
-    void init(void);
-    void destruct(void);
+	void init(void);
+	void destruct(void);
 
-    bool isUtf8Locale(void);
+	bool isUtf8Locale(void);
 
-    std::string toSystem(const std::string &str);
-    std::string fromSystem(const std::string &str);
+	std::string toSystem(const std::string &str);
+	std::string fromSystem(const std::string &str);
 }
 
 #endif // _PEKWM_CHARSET_HH_

@@ -24,26 +24,26 @@
  */
 class SearchDialog : public InputDialog {
 public:
-    SearchDialog();
-    virtual ~SearchDialog(void);
+	SearchDialog();
+	virtual ~SearchDialog(void);
 
-    virtual void unmapWindow(void);
+	virtual void unmapWindow(void);
 
 protected:
-    virtual ActionEvent *exec(void);
+	virtual ActionEvent *exec(void);
 
-    virtual void bufChanged(void);
+	virtual void bufChanged(void);
 
-    virtual void histNext(void);
-    virtual void histPrev(void);
+	virtual void histNext(void);
+	virtual void histPrev(void);
 
-    virtual void updateSize(const Geometry &head);
+	virtual void updateSize(const Geometry &head);
 
 private:
-    uint findClients(const std::string &search);
+	uint findClients(const std::string &search);
 
-    PMenu *_result_menu; /**< Menu for displaying results. */
-    std::string _previous_search; /**< Buffer with previous search string. */
+	PMenu *_result_menu; /**< Menu for displaying results. */
+	std::string _previous_search; /**< Buffer with previous search string. */
 };
 
 #endif // _PEKWM_SEARCHDIALOG_HH_

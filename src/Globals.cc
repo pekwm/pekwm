@@ -39,156 +39,156 @@ static Theme* _theme = nullptr;
 
 namespace pekwm
 {
-    void initNoDisplay(void)
-    {
-        _observer_mapping = new ObserverMapping();
-    }
+	void initNoDisplay(void)
+	{
+		_observer_mapping = new ObserverMapping();
+	}
 
-    void cleanupNoDisplay(void)
-    {
-        delete _observer_mapping;
-    }
+	void cleanupNoDisplay(void)
+	{
+		delete _observer_mapping;
+	}
 
-    bool init(AppCtrl* app_ctrl, EventLoop* event_loop,
-              Display* dpy, const std::string& config_file,
-              bool replace, bool synchronous)
-    {
-        initNoDisplay();
+	bool init(AppCtrl* app_ctrl, EventLoop* event_loop,
+		  Display* dpy, const std::string& config_file,
+		  bool replace, bool synchronous)
+	{
+		initNoDisplay();
 
-        _config = new Config();
-        _config->load(config_file);
-        _config->loadMouseConfig(_config->getMouseConfigFile());
+		_config = new Config();
+		_config->load(config_file);
+		_config->loadMouseConfig(_config->getMouseConfigFile());
 
-        X11::init(dpy, synchronous, _config->isHonourRandr());
+		X11::init(dpy, synchronous, _config->isHonourRandr());
 
-        _hint_wo = new HintWO(X11::getRoot());
-        if (! _hint_wo->claimDisplay(replace)) {
-            delete _config;
-            delete _hint_wo;
-            X11::destruct();
-            return false;
-        }
+		_hint_wo = new HintWO(X11::getRoot());
+		if (! _hint_wo->claimDisplay(replace)) {
+			delete _config;
+			delete _hint_wo;
+			X11::destruct();
+			return false;
+		}
 
-        // Create root PWinObj
-        _root_wo = new RootWO(X11::getRoot(), _hint_wo, _config);
-        PWinObj::setRootPWinObj(_root_wo);
+		// Create root PWinObj
+		_root_wo = new RootWO(X11::getRoot(), _hint_wo, _config);
+		PWinObj::setRootPWinObj(_root_wo);
 
-        _key_grabber = new KeyGrabber();
-        _key_grabber->load(_config->getKeyFile());
-        _key_grabber->grabKeys(X11::getRoot());
+		_key_grabber = new KeyGrabber();
+		_key_grabber->load(_config->getKeyFile());
+		_key_grabber->grabKeys(X11::getRoot());
 
-        _font_handler = new FontHandler();
-        _image_handler = new ImageHandler();
-        _texture_handler = new TextureHandler();
-        _theme = new Theme(_font_handler, _image_handler, _texture_handler,
-                           _config->getThemeFile(), _config->getThemeVariant());
+		_font_handler = new FontHandler();
+		_image_handler = new ImageHandler();
+		_texture_handler = new TextureHandler();
+		_theme = new Theme(_font_handler, _image_handler, _texture_handler,
+				   _config->getThemeFile(), _config->getThemeVariant());
 
-        _auto_properties = new AutoProperties(_image_handler);
-        _auto_properties->load();
+		_auto_properties = new AutoProperties(_image_handler);
+		_auto_properties->load();
 
-        _harbour = new Harbour(_config, _auto_properties, _root_wo);
-        _status_window = new StatusWindow(_theme);
+		_harbour = new Harbour(_config, _auto_properties, _root_wo);
+		_status_window = new StatusWindow(_theme);
 
-        _action_handler = new ActionHandler(app_ctrl, event_loop);
+		_action_handler = new ActionHandler(app_ctrl, event_loop);
 
-        return true;
-    }
+		return true;
+	}
 
-    void cleanup(void)
-    {
-        delete _action_handler;
-        delete _harbour;
-        delete _status_window;
-        delete _theme;
-        delete _texture_handler;
-        delete _image_handler;
-        delete _font_handler;
-        delete _key_grabber;
-        delete _auto_properties;
+	void cleanup(void)
+	{
+		delete _action_handler;
+		delete _harbour;
+		delete _status_window;
+		delete _theme;
+		delete _texture_handler;
+		delete _image_handler;
+		delete _font_handler;
+		delete _key_grabber;
+		delete _auto_properties;
 
-        delete _root_wo;
-        PWinObj::setRootPWinObj(nullptr);
-        delete _hint_wo;
+		delete _root_wo;
+		PWinObj::setRootPWinObj(nullptr);
+		delete _hint_wo;
 
-        X11::destruct();
+		X11::destruct();
 
-        delete _config;
+		delete _config;
 
-        cleanupNoDisplay();
-    }
+		cleanupNoDisplay();
+	}
 
-    ActionHandler* actionHandler(void)
-    {
-        return _action_handler;
-    }
+	ActionHandler* actionHandler(void)
+	{
+		return _action_handler;
+	}
 
-    AutoProperties* autoProperties(void)
-    {
-        return _auto_properties;
-    }
+	AutoProperties* autoProperties(void)
+	{
+		return _auto_properties;
+	}
 
-    Config* config(void)
-    {
-        return _config;
-    }
+	Config* config(void)
+	{
+		return _config;
+	}
 
-    FontHandler* fontHandler(void)
-    {
-        return _font_handler;
-    }
+	FontHandler* fontHandler(void)
+	{
+		return _font_handler;
+	}
 
-    Harbour* harbour(void)
-    {
-        return _harbour;
-    }
+	Harbour* harbour(void)
+	{
+		return _harbour;
+	}
 
-    HintWO* hintWo(void)
-    {
-        return _hint_wo;
-    }
+	HintWO* hintWo(void)
+	{
+		return _hint_wo;
+	}
 
-    RootWO* rootWo(void)
-    {
-        return _root_wo;
-    }
+	RootWO* rootWo(void)
+	{
+		return _root_wo;
+	}
 
-    ImageHandler* imageHandler(void)
-    {
-        return _image_handler;
-    }
+	ImageHandler* imageHandler(void)
+	{
+		return _image_handler;
+	}
 
-    KeyGrabber* keyGrabber(void)
-    {
-        return _key_grabber;
-    }
+	KeyGrabber* keyGrabber(void)
+	{
+		return _key_grabber;
+	}
 
-    ObserverMapping* observerMapping(void)
-    {
-        return _observer_mapping;
-    }
+	ObserverMapping* observerMapping(void)
+	{
+		return _observer_mapping;
+	}
 
-    StatusWindow* statusWindow(void)
-    {
-        return _status_window;
-    }
+	StatusWindow* statusWindow(void)
+	{
+		return _status_window;
+	}
 
-    TextureHandler* textureHandler(void)
-    {
-        return _texture_handler;
-    }
+	TextureHandler* textureHandler(void)
+	{
+		return _texture_handler;
+	}
 
-    Theme* theme(void)
-    {
-        return _theme;
-    }
+	Theme* theme(void)
+	{
+		return _theme;
+	}
 
-    bool isStarting(void)
-    {
-        return s_is_starting;
-    }
+	bool isStarting(void)
+	{
+		return s_is_starting;
+	}
 
-    void setStarted(void)
-    {
-        s_is_starting = false;
-    }
+	void setStarted(void)
+	{
+		s_is_starting = false;
+	}
 }

@@ -19,46 +19,46 @@ class MoveEventHandler : public EventHandler,
                          public Observer
 {
 public:
-    MoveEventHandler(Config* cfg, PDecor* decor, int x_root, int y_root);
-    virtual ~MoveEventHandler(void);
+	MoveEventHandler(Config* cfg, PDecor* decor, int x_root, int y_root);
+	virtual ~MoveEventHandler(void);
 
-    virtual void notify(Observable *observable,
-                        Observation *observation);
-    virtual bool initEventHandler(void);
+	virtual void notify(Observable *observable,
+			    Observation *observation);
+	virtual bool initEventHandler(void);
 
-    virtual EventHandler::Result
-    handleButtonPressEvent(XButtonEvent*);
-    virtual EventHandler::Result
-    handleButtonReleaseEvent(XButtonEvent*);
-    virtual EventHandler::Result
-    handleExposeEvent(XExposeEvent*);
-    virtual EventHandler::Result
-    handleKeyEvent(XKeyEvent*);
-    virtual EventHandler::Result
-    handleMotionNotifyEvent(XMotionEvent *ev);
-
-private:
-    EventHandler::Result stopMove(void);
-    void drawOutline(void);
-    void updateStatusWindow(bool map);
-    EdgeType doMoveEdgeFind(int x, int y);
-    void doMoveEdgeAction(XMotionEvent *ev, EdgeType edge);
+	virtual EventHandler::Result
+	handleButtonPressEvent(XButtonEvent*);
+	virtual EventHandler::Result
+	handleButtonReleaseEvent(XButtonEvent*);
+	virtual EventHandler::Result
+	handleExposeEvent(XExposeEvent*);
+	virtual EventHandler::Result
+	handleKeyEvent(XKeyEvent*);
+	virtual EventHandler::Result
+	handleMotionNotifyEvent(XMotionEvent *ev);
 
 private:
-    Config *_cfg;
+	EventHandler::Result stopMove(void);
+	void drawOutline(void);
+	void updateStatusWindow(bool map);
+	EdgeType doMoveEdgeFind(int x, int y);
+	void doMoveEdgeAction(XMotionEvent *ev, EdgeType edge);
 
-    bool _outline;
-    bool _show_status_window;
-    bool _center_on_root;
-    Geometry _gm;
-    Geometry _last_gm;
-    EdgeType _curr_edge;
+private:
+	Config *_cfg;
 
-    int _x;
-    int _y;
+	bool _outline;
+	bool _show_status_window;
+	bool _center_on_root;
+	Geometry _gm;
+	Geometry _last_gm;
+	EdgeType _curr_edge;
 
-    bool _init;
-    PDecor *_decor;
+	int _x;
+	int _y;
+
+	bool _init;
+	PDecor *_decor;
 };
 
 #endif // _PEKWM_MOVEEVENTHANDLER_HH_

@@ -20,46 +20,46 @@ class KeyboardMoveResizeEventHandler : public EventHandler,
                                        public Observer
 {
 public:
-    KeyboardMoveResizeEventHandler(Config* cfg, KeyGrabber *key_grabber,
-                                   PDecor* decor);
-    virtual ~KeyboardMoveResizeEventHandler(void);
+	KeyboardMoveResizeEventHandler(Config* cfg, KeyGrabber *key_grabber,
+				       PDecor* decor);
+	virtual ~KeyboardMoveResizeEventHandler(void);
 
-    virtual void notify(Observable *observable,
-                        Observation *observation);
+	virtual void notify(Observable *observable,
+			    Observation *observation);
 
-    virtual bool initEventHandler(void);
+	virtual bool initEventHandler(void);
 
-    virtual EventHandler::Result
-    handleButtonPressEvent(XButtonEvent*);
-    virtual EventHandler::Result
-    handleButtonReleaseEvent(XButtonEvent*);
-    virtual EventHandler::Result
-    handleExposeEvent(XExposeEvent*);
-    virtual EventHandler::Result
-    handleMotionNotifyEvent(XMotionEvent*);
-    virtual EventHandler::Result
-    handleKeyEvent(XKeyEvent *ev);
+	virtual EventHandler::Result
+	handleButtonPressEvent(XButtonEvent*);
+	virtual EventHandler::Result
+	handleButtonReleaseEvent(XButtonEvent*);
+	virtual EventHandler::Result
+	handleExposeEvent(XExposeEvent*);
+	virtual EventHandler::Result
+	handleMotionNotifyEvent(XMotionEvent*);
+	virtual EventHandler::Result
+	handleKeyEvent(XKeyEvent *ev);
 
-    EventHandler::Result
-    runMoveResizeAction(const Action& action);
+	EventHandler::Result
+	runMoveResizeAction(const Action& action);
 
-    void drawOutline(void);
+	void drawOutline(void);
 
-    void updateStatusWindow(bool map);
+	void updateStatusWindow(bool map);
 
-    EventHandler::Result stopMoveResize(void);
+	EventHandler::Result stopMoveResize(void);
 
 private:
-    KeyGrabber *_key_grabber;
-    bool _outline;
-    bool _show_status_window;
-    bool _center_on_root;
+	KeyGrabber *_key_grabber;
+	bool _outline;
+	bool _show_status_window;
+	bool _center_on_root;
 
-    Geometry _gm;
-    Geometry _old_gm;
+	Geometry _gm;
+	Geometry _old_gm;
 
-    bool _init;
-    PDecor *_decor;
+	bool _init;
+	PDecor *_decor;
 };
 
 #endif // _PEKWM_KEYBOARDMOVERESIZEEVENTHANDLER_HH_

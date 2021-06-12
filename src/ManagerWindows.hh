@@ -23,21 +23,21 @@ class Config;
 class HintWO : public PWinObj
 {
 public:
-    HintWO(Window root);
-    virtual ~HintWO(void);
+	HintWO(Window root);
+	virtual ~HintWO(void);
 
-    bool claimDisplay(bool replace);
-
-private:
-    Time getTime(void);
-    bool claimDisplayWait(Window session_owner);
-    void claimDisplayOwner(Window session_atom, Time timestamp);
+	bool claimDisplay(bool replace);
 
 private:
-    /** Name of the window manager, that is pekwm. */
-    static const std::string WM_NAME;
-    /** Max wait time for previous WM. */
-    static const unsigned int DISPLAY_WAIT;
+	Time getTime(void);
+	bool claimDisplayWait(Window session_owner);
+	void claimDisplayOwner(Window session_atom, Time timestamp);
+
+private:
+	/** Name of the window manager, that is pekwm. */
+	static const std::string WM_NAME;
+	/** Max wait time for previous WM. */
+	static const unsigned int DISPLAY_WAIT;
 };
 
 /**
@@ -47,60 +47,60 @@ private:
 class RootWO : public PWinObj
 {
 public:
-    RootWO(Window root, HintWO *hint_wo, Config *cfg);
-    virtual ~RootWO(void);
+	RootWO(Window root, HintWO *hint_wo, Config *cfg);
+	virtual ~RootWO(void);
 
-    /** Resize root window, does no actual resizing but updates the
-        geometry of the window. */
-    virtual void resize(uint width, uint height) {
-        _gm.width = width;
-        _gm.height = height;
-    }
+	/** Resize root window, does no actual resizing but updates the
+	    geometry of the window. */
+	virtual void resize(uint width, uint height) {
+		_gm.width = width;
+		_gm.height = height;
+	}
 
-    virtual ActionEvent *handleButtonPress(XButtonEvent *ev);
-    virtual ActionEvent *handleButtonRelease(XButtonEvent *ev);
-    virtual ActionEvent *handleMotionEvent(XMotionEvent *ev);
-    virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev);
-    virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev);
+	virtual ActionEvent *handleButtonPress(XButtonEvent *ev);
+	virtual ActionEvent *handleButtonRelease(XButtonEvent *ev);
+	virtual ActionEvent *handleMotionEvent(XMotionEvent *ev);
+	virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev);
+	virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev);
 
-    void placeInsideScreen(Geometry &gm, bool without_edge=false);
-    void getHeadInfoWithEdge(uint num, Geometry& head);
+	void placeInsideScreen(Geometry &gm, bool without_edge=false);
+	void getHeadInfoWithEdge(uint num, Geometry& head);
 
-    void updateGeometry(uint width, uint height);
-    void addStrut(Strut *strut);
-    void removeStrut(Strut *rem_strut);
-    void updateStrut(void);
-    const Strut& getStrut(void) { return _strut; }
-    const Strut& getStrut(uint head) {
-        if (head < _strut_head.size()) {
-            return _strut_head[head];
-        }
-        return _strut;
-    }
+	void updateGeometry(uint width, uint height);
+	void addStrut(Strut *strut);
+	void removeStrut(Strut *rem_strut);
+	void updateStrut(void);
+	const Strut& getStrut(void) { return _strut; }
+	const Strut& getStrut(uint head) {
+		if (head < _strut_head.size()) {
+			return _strut_head[head];
+		}
+		return _strut;
+	}
 
-    void handlePropertyChange(XPropertyEvent *ev);
+	void handlePropertyChange(XPropertyEvent *ev);
 
-    void setEwmhWorkarea(const Geometry &workarea);
-    void setEwmhActiveWindow(Window win);
-    void readEwmhDesktopNames(void);
-    void setEwmhDesktopNames(void);
-    void setEwmhDesktopLayout(void);
-
-private:
-    void initStrutHead();
+	void setEwmhWorkarea(const Geometry &workarea);
+	void setEwmhActiveWindow(Window win);
+	void readEwmhDesktopNames(void);
+	void setEwmhDesktopNames(void);
+	void setEwmhDesktopLayout(void);
 
 private:
-    HintWO *_hint_wo;
-    Config *_cfg;
+	void initStrutHead();
 
-    Strut _strut;
-    std::vector<Strut> _strut_head;
-    std::vector<Strut*> _struts;
+private:
+	HintWO *_hint_wo;
+	Config *_cfg;
 
-    /** Root window event mask. */
-    static const unsigned long EVENT_MASK;
-    /** Expected length of desktop hint. */
-    static const unsigned long EXPECTED_DESKTOP_NAMES_LENGTH;
+	Strut _strut;
+	std::vector<Strut> _strut_head;
+	std::vector<Strut*> _struts;
+
+	/** Root window event mask. */
+	static const unsigned long EVENT_MASK;
+	/** Expected length of desktop hint. */
+	static const unsigned long EXPECTED_DESKTOP_NAMES_LENGTH;
 };
 
 /**
@@ -110,31 +110,31 @@ private:
 class EdgeWO : public PWinObj
 {
 public:
-    EdgeWO(RootWO *root_wo, EdgeType edge, bool set_strut,
-           Config *cfg);
-    virtual ~EdgeWO(void);
+	EdgeWO(RootWO *root_wo, EdgeType edge, bool set_strut,
+	       Config *cfg);
+	virtual ~EdgeWO(void);
 
-    void configureStrut(bool set_strut);
+	void configureStrut(bool set_strut);
 
-    virtual void mapWindow(void);
+	virtual void mapWindow(void);
 
-    virtual ActionEvent *handleButtonPress(XButtonEvent *ev);
-    virtual ActionEvent *handleButtonRelease(XButtonEvent *ev);
-    virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev);
+	virtual ActionEvent *handleButtonPress(XButtonEvent *ev);
+	virtual ActionEvent *handleButtonRelease(XButtonEvent *ev);
+	virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev);
 
-    inline EdgeType getEdge(void) const { return _edge; }
+	inline EdgeType getEdge(void) const { return _edge; }
 
 private:
-    RootWO* _root_wo;
-    EdgeType _edge; /**< Edge position. */
-    Config *_cfg;
-    Strut _strut; /*< Strut for reserving screen edge space. */
+	RootWO* _root_wo;
+	EdgeType _edge; /**< Edge position. */
+	Config *_cfg;
+	Strut _strut; /*< Strut for reserving screen edge space. */
 };
 
 namespace pekwm
 {
-    HintWO* hintWo();
-    RootWO* rootWo();
+	HintWO* hintWo();
+	RootWO* rootWo();
 }
 
 #endif // _PEKWM_MANAGERWINDOWS_HH_

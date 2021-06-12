@@ -19,28 +19,28 @@
 template<class T>
 class HandlerEntry {
 public:
-    HandlerEntry(const std::string &name) : _name(name), _ref(0) { }
-    virtual ~HandlerEntry(void) { }
+	HandlerEntry(const std::string &name) : _name(name), _ref(0) { }
+	virtual ~HandlerEntry(void) { }
 
-    const std::string &getName(void) { return _name; }
+	const std::string &getName(void) { return _name; }
 
-    inline T getData(void) { return _data; }
-    inline void setData(T data) { _data = data; }
+	inline T getData(void) { return _data; }
+	inline void setData(T data) { _data = data; }
 
-    inline uint getRef(void) const { return _ref; }
-    inline void incRef(void) { _ref++; }
-    inline void decRef(void) { if (_ref > 0) { _ref--; }
-    }
+	inline uint getRef(void) const { return _ref; }
+	inline void incRef(void) { _ref++; }
+	inline void decRef(void) { if (_ref > 0) { _ref--; }
+	}
 
-    inline bool operator==(const std::string &name) {
-        return (strcasecmp(_name.c_str(), name.c_str()) == 0);
-    }
+	inline bool operator==(const std::string &name) {
+		return (strcasecmp(_name.c_str(), name.c_str()) == 0);
+	}
 
 private:
-    std::string _name; // id
-    uint _ref; // ref count
+	std::string _name; // id
+	uint _ref; // ref count
 
-    T _data;
+	T _data;
 };
 
 #endif // _PEKWM_HANDLER_HH_

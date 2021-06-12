@@ -20,7 +20,7 @@ extern "C" {
  */
 class EventLoop {
 public:
-    virtual void setEventHandler(EventHandler* event_handler) = 0;
+	virtual void setEventHandler(EventHandler* event_handler) = 0;
 };
 
 #endif // _PEKWM_EVENTLOOP_HH_

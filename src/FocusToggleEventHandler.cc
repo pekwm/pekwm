@@ -13,198 +13,198 @@
 FocusToggleEventHandler::FocusToggleEventHandler(Config* cfg, uint button,
                                                  uint raise, int off,
                                                  bool show_iconified, bool mru)
-    : _cfg(cfg),
-      _button(button),
-      _raise(raise),
-      _off(off),
-      _show_iconified(show_iconified),
-      _mru(mru),
-      _menu(nullptr),
-      _fo_wo(nullptr),
-      _was_iconified(false)
+	: _cfg(cfg),
+	  _button(button),
+	  _raise(raise),
+	  _off(off),
+	  _show_iconified(show_iconified),
+	  _mru(mru),
+	  _menu(nullptr),
+	  _fo_wo(nullptr),
+	  _was_iconified(false)
 {
 }
 
 FocusToggleEventHandler::~FocusToggleEventHandler(void)
 {
-    setFocusedWo(nullptr);
-    delete _menu;
+	setFocusedWo(nullptr);
+	delete _menu;
 }
 
 void
 FocusToggleEventHandler::notify(Observable *observable,
-                        Observation *observation)
-    {
-        if (observation == &PWinObj::pwin_obj_deleted
-            && observable == _fo_wo) {
-            P_TRACE("decor " << _fo_wo << " lost while moving");
-            _fo_wo = nullptr;
-        }
-    }
+				Observation *observation)
+{
+	if (observation == &PWinObj::pwin_obj_deleted
+	    && observable == _fo_wo) {
+		P_TRACE("decor " << _fo_wo << " lost while moving");
+		_fo_wo = nullptr;
+	}
+}
 
 bool
 FocusToggleEventHandler::initEventHandler(void)
 {
-    _menu = createNextPrevMenu();
+	_menu = createNextPrevMenu();
 
-    // no clients in the list
-    if (_menu->size() == 0) {
-        return false;
-    }
+	// no clients in the list
+	if (_menu->size() == 0) {
+		return false;
+	}
 
-    // unable to grab keyboard
-    if (! X11::grabKeyboard(X11::getRoot())) {
-        return false;
-    }
+	// unable to grab keyboard
+	if (! X11::grabKeyboard(X11::getRoot())) {
+		return false;
+	}
 
-    // find the focused window object
-    if (PWinObj::isFocusedPWinObj(PWinObj::WO_CLIENT)) {
-        PWinObj *fo_wo = PWinObj::getFocusedPWinObj()->getParent();
+	// find the focused window object
+	if (PWinObj::isFocusedPWinObj(PWinObj::WO_CLIENT)) {
+		PWinObj *fo_wo = PWinObj::getFocusedPWinObj()->getParent();
 
-        PMenu::item_cit it(_menu->m_begin());
-        for (; it != _menu->m_end(); ++it) {
-            if ((*it)->getWORef() == fo_wo) {
-                _menu->selectItem(it);
-                break;
-            }
-        }
-        fo_wo->setFocused(false);
-    }
+		PMenu::item_cit it(_menu->m_begin());
+		for (; it != _menu->m_end(); ++it) {
+			if ((*it)->getWORef() == fo_wo) {
+				_menu->selectItem(it);
+				break;
+			}
+		}
+		fo_wo->setFocused(false);
+	}
 
-    if (_cfg->getShowFrameList()) {
-        _menu->buildMenu();
+	if (_cfg->getShowFrameList()) {
+		_menu->buildMenu();
 
-        Geometry head;
-        CurrHeadSelector chs = pekwm::config()->getCurrHeadSelector();
-        X11::getHeadInfo(X11Util::getCurrHead(chs), head);
-        _menu->move(head.x + ((head.width - _menu->getWidth()) / 2),
-                    head.y + ((head.height - _menu->getHeight()) / 2));
-        _menu->setFocused(true);
-        _menu->mapWindowRaised();
-        PWinObj::setSkipEnterAfter(_menu);
-    }
+		Geometry head;
+		CurrHeadSelector chs = pekwm::config()->getCurrHeadSelector();
+		X11::getHeadInfo(X11Util::getCurrHead(chs), head);
+		_menu->move(head.x + ((head.width - _menu->getWidth()) / 2),
+			    head.y + ((head.height - _menu->getHeight()) / 2));
+		_menu->setFocused(true);
+		_menu->mapWindowRaised();
+		PWinObj::setSkipEnterAfter(_menu);
+	}
 
-    _menu->selectItemRel(_off);
-    setFocusedWo(_menu->getItemCurr()->getWORef());
+	_menu->selectItemRel(_off);
+	setFocusedWo(_menu->getItemCurr()->getWORef());
 
-    return true;
+	return true;
 }
 
 EventHandler::Result
 FocusToggleEventHandler::handleButtonPressEvent(XButtonEvent*)
 {
-    // mark as processed disabling wm processing of these events.
-    return EventHandler::EVENT_PROCESSED;
+	// mark as processed disabling wm processing of these events.
+	return EventHandler::EVENT_PROCESSED;
 }
 
 EventHandler::Result
 FocusToggleEventHandler::handleButtonReleaseEvent(XButtonEvent*)
 {
-    // mark as processed disabling wm processing of these events.
-    return EventHandler::EVENT_PROCESSED;
+	// mark as processed disabling wm processing of these events.
+	return EventHandler::EVENT_PROCESSED;
 }
 
 EventHandler::Result
 FocusToggleEventHandler::handleExposeEvent(XExposeEvent *ev)
 {
-    if (_menu->isMapped() && *_menu == ev->window) {
-        _menu->handleExposeEvent(ev);
-        return EventHandler::EVENT_PROCESSED;
-    }
-    return EventHandler::EVENT_SKIP;
+	if (_menu->isMapped() && *_menu == ev->window) {
+		_menu->handleExposeEvent(ev);
+		return EventHandler::EVENT_PROCESSED;
+	}
+	return EventHandler::EVENT_SKIP;
 }
 
 EventHandler::Result
 FocusToggleEventHandler::handleMotionNotifyEvent(XMotionEvent*)
 {
-    // mark as processed disabling wm processing of these events.
-    return EventHandler::EVENT_PROCESSED;
+	// mark as processed disabling wm processing of these events.
+	return EventHandler::EVENT_PROCESSED;
 }
 
 EventHandler::Result
 FocusToggleEventHandler::handleKeyEvent(XKeyEvent *ev)
 {
-    if (ev->type == KeyRelease) {
-        if (IsModifierKey(X11::getKeysymFromKeycode(ev->keycode))) {
-            return stop();
-        }
-        return EventHandler::EVENT_PROCESSED;
-    }
+	if (ev->type == KeyRelease) {
+		if (IsModifierKey(X11::getKeysymFromKeycode(ev->keycode))) {
+			return stop();
+		}
+		return EventHandler::EVENT_PROCESSED;
+	}
 
-    if (ev->keycode == _button) {
-        if (_fo_wo) {
-            if (_raise == TEMP_RAISE) {
-                Workspaces::fixStacking(_fo_wo);
-            }
-            // Restore iconified state
-            if (_was_iconified) {
-                _was_iconified = false;
-                _fo_wo->iconify();
-            }
-            _fo_wo->setFocused(false);
-        }
+	if (ev->keycode == _button) {
+		if (_fo_wo) {
+			if (_raise == TEMP_RAISE) {
+				Workspaces::fixStacking(_fo_wo);
+			}
+			// Restore iconified state
+			if (_was_iconified) {
+				_was_iconified = false;
+				_fo_wo->iconify();
+			}
+			_fo_wo->setFocused(false);
+		}
 
-        _menu->selectItemRel(_off);
-        setFocusedWo(_menu->getItemCurr()->getWORef());
+		_menu->selectItemRel(_off);
+		setFocusedWo(_menu->getItemCurr()->getWORef());
 
-        return EventHandler::EVENT_PROCESSED;
-    }
+		return EventHandler::EVENT_PROCESSED;
+	}
 
-    return stop();
+	return stop();
 }
 
 EventHandler::Result
 FocusToggleEventHandler::stop(void)
 {
-    X11::ungrabKeyboard();
+	X11::ungrabKeyboard();
 
-    // Got something to focus
-    if (_fo_wo) {
-        if (_raise == TEMP_RAISE) {
-            _fo_wo->raise();
-            _fo_wo->setFocused(true);
-        }
+	// Got something to focus
+	if (_fo_wo) {
+		if (_raise == TEMP_RAISE) {
+			_fo_wo->raise();
+			_fo_wo->setFocused(true);
+		}
 
-        // De-iconify if iconified, user probably wants this
-        if (_fo_wo->isIconified()) {
-            // If the window was iconfied, and sticky
-            _fo_wo->setWorkspace(Workspaces::getActive());
-            _fo_wo->mapWindow();
-            _fo_wo->raise();
-        } else if (_raise == END_RAISE) {
-            _fo_wo->raise();
-        }
+		// De-iconify if iconified, user probably wants this
+		if (_fo_wo->isIconified()) {
+			// If the window was iconfied, and sticky
+			_fo_wo->setWorkspace(Workspaces::getActive());
+			_fo_wo->mapWindow();
+			_fo_wo->raise();
+		} else if (_raise == END_RAISE) {
+			_fo_wo->raise();
+		}
 
-        // Give focus
-        _fo_wo->giveInputFocus();
-    }
+		// Give focus
+		_fo_wo->giveInputFocus();
+	}
 
-    return EventHandler::EVENT_STOP_PROCESSED;
+	return EventHandler::EVENT_STOP_PROCESSED;
 }
 
 void
 FocusToggleEventHandler::setFocusedWo(PWinObj *fo_wo)
 {
-    if (_fo_wo) {
-        pekwm::observerMapping()->removeObserver(_fo_wo, this);
-    }
-    _fo_wo = fo_wo;
-    if (_fo_wo) {
-        pekwm::observerMapping()->addObserver(_fo_wo, this);
+	if (_fo_wo) {
+		pekwm::observerMapping()->removeObserver(_fo_wo, this);
+	}
+	_fo_wo = fo_wo;
+	if (_fo_wo) {
+		pekwm::observerMapping()->addObserver(_fo_wo, this);
 
-        _fo_wo->setFocused(true);
-        if (_raise == ALWAYS_RAISE) {
-            // Make sure it's not iconified if raise is on.
-            if (_fo_wo->isIconified()) {
-                _was_iconified = true;
-                _fo_wo->mapWindow();
-            }
-            _fo_wo->raise();
-        } else if (_raise == TEMP_RAISE) {
-            Window winlist[] = { _menu->getWindow(), _fo_wo->getWindow() };
-            X11::stackWindows(winlist, 2);
-        }
-    }
+		_fo_wo->setFocused(true);
+		if (_raise == ALWAYS_RAISE) {
+			// Make sure it's not iconified if raise is on.
+			if (_fo_wo->isIconified()) {
+				_was_iconified = true;
+				_fo_wo->mapWindow();
+			}
+			_fo_wo->raise();
+		} else if (_raise == TEMP_RAISE) {
+			Window winlist[] = { _menu->getWindow(), _fo_wo->getWindow() };
+			X11::stackWindows(winlist, 2);
+		}
+	}
 }
 
 /**
@@ -215,27 +215,27 @@ FocusToggleEventHandler::setFocusedWo(PWinObj *fo_wo)
 PMenu*
 FocusToggleEventHandler::createNextPrevMenu(void)
 {
-    PMenu *menu = new PMenu(_mru ? "MRU Windows" : "Windows", "" /* name*/);
+	PMenu *menu = new PMenu(_mru ? "MRU Windows" : "Windows", "" /* name*/);
 
-    Frame::frame_cit it, end;
-    if (_mru) {
-        it = Workspaces::mru_begin();
-        end = Workspaces::mru_end();
-    } else {
-        it = Frame::frame_begin();
-        end = Frame::frame_end();
-    }
+	Frame::frame_cit it, end;
+	if (_mru) {
+		it = Workspaces::mru_begin();
+		end = Workspaces::mru_end();
+	} else {
+		it = Frame::frame_begin();
+		end = Frame::frame_end();
+	}
 
-    for (; it != end; ++it) {
-        Frame *frame = *it;
-        if (createMenuInclude(frame, _show_iconified)) {
-            Client *client = static_cast<Client*>(frame->getActiveChild());
-            menu->insert(client->getTitle()->getVisible(), ActionEvent(),
-                         frame, client->getIcon());
-        }
-    }
+	for (; it != end; ++it) {
+		Frame *frame = *it;
+		if (createMenuInclude(frame, _show_iconified)) {
+			Client *client = static_cast<Client*>(frame->getActiveChild());
+			menu->insert(client->getTitle()->getVisible(), ActionEvent(),
+				     frame, client->getIcon());
+		}
+	}
 
-    return menu;
+	return menu;
 }
 
 /**
@@ -248,12 +248,12 @@ FocusToggleEventHandler::createNextPrevMenu(void)
 bool
 FocusToggleEventHandler::createMenuInclude(Frame *frame, bool show_iconified)
 {
-    // focw == frame on current workspace
-    bool focw = frame->isSticky()
-        || frame->getWorkspace() == Workspaces::getActive();
-    // ibs == iconified but should be shown
-    bool ibs = (!frame->isIconified() || show_iconified) && focw;
-    return ! frame->isSkip(SKIP_FOCUS_TOGGLE)
-        && frame->isFocusable()
-        && ibs;
+	// focw == frame on current workspace
+	bool focw = frame->isSticky()
+		|| frame->getWorkspace() == Workspaces::getActive();
+	// ibs == iconified but should be shown
+	bool ibs = (!frame->isIconified() || show_iconified) && focw;
+	return ! frame->isSkip(SKIP_FOCUS_TOGGLE)
+		&& frame->isFocusable()
+		&& ibs;
 }

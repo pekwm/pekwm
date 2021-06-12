@@ -18,11 +18,11 @@ class ImageHandler;
  */
 class WithIconPath {
 public:
-    WithIconPath(const Config *cfg, ImageHandler *image_handler);
-    ~WithIconPath(void);
+	WithIconPath(const Config *cfg, ImageHandler *image_handler);
+	~WithIconPath(void);
 
 private:
-    ImageHandler *_image_handler;
+	ImageHandler *_image_handler;
 };
 
 #endif // _PEKWM_WMUTIL_HH_

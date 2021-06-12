@@ -21,48 +21,48 @@
 static PWinObj*
 isEmptySpace(int x, int y, const PWinObj* wo, std::vector<PWinObj*> &wvec)
 {
-    if (! wo) {
-        return 0;
-    }
+	if (! wo) {
+		return 0;
+	}
 
-    if (wvec.empty()) {
-        // say that it's placed, now check if we are wrong!
-        Workspaces::iterator it(Workspaces::begin());
-        Workspaces::iterator end(Workspaces::end());
-        for (; it != end; ++it) {
-            // Skip ourselves, non-mapped and desktop objects. Iconified means
-            // skip placement.
-            if (wo == (*it) || ! (*it)->isMapped() || (*it)->isIconified()
-                || ((*it)->getLayer() == LAYER_DESKTOP)) {
-                continue;
-            }
+	if (wvec.empty()) {
+		// say that it's placed, now check if we are wrong!
+		Workspaces::iterator it(Workspaces::begin());
+		Workspaces::iterator end(Workspaces::end());
+		for (; it != end; ++it) {
+			// Skip ourselves, non-mapped and desktop objects. Iconified means
+			// skip placement.
+			if (wo == (*it) || ! (*it)->isMapped() || (*it)->isIconified()
+			    || ((*it)->getLayer() == LAYER_DESKTOP)) {
+				continue;
+			}
 
-            // Also skip windows tagged as Maximized as they cause us to
-            // automatically fail.
-            if ((*it)->getType() == PWinObj::WO_FRAME) {
-                Client *client = static_cast<Frame*>((*it))->getActiveClient();
-                if (client &&
-                    (client->isFullscreen()
-                     || (client->isMaximizedVert() && client->isMaximizedHorz()))) {
-                    continue;
-                }
-            }
+			// Also skip windows tagged as Maximized as they cause us to
+			// automatically fail.
+			if ((*it)->getType() == PWinObj::WO_FRAME) {
+				Client *client = static_cast<Frame*>((*it))->getActiveClient();
+				if (client &&
+				    (client->isFullscreen()
+				     || (client->isMaximizedVert() && client->isMaximizedHorz()))) {
+					continue;
+				}
+			}
 
-            wvec.push_back(*it);
-        }
-    }
+			wvec.push_back(*it);
+		}
+	}
 
-    for (unsigned i=0; i < wvec.size(); ++i) {
-        // Check if we are "intruding" on some other window's place
-        if ((wvec[i]->getX() < signed(x + wo->getWidth())) &&
-            (signed(wvec[i]->getX() + wvec[i]->getWidth()) > x) &&
-            (wvec[i]->getY() < signed(y + wo->getHeight())) &&
-            (signed(wvec[i]->getY() + wvec[i]->getHeight()) > y)) {
-            return wvec[i];
-        }
-    }
+	for (unsigned i=0; i < wvec.size(); ++i) {
+		// Check if we are "intruding" on some other window's place
+		if ((wvec[i]->getX() < signed(x + wo->getWidth())) &&
+		    (signed(wvec[i]->getX() + wvec[i]->getWidth()) > x) &&
+		    (wvec[i]->getY() < signed(y + wo->getHeight())) &&
+		    (signed(wvec[i]->getY() + wvec[i]->getHeight()) > y)) {
+			return wvec[i];
+		}
+	}
 
-    return 0; // we passed the test, no frames in the way
+	return 0; // we passed the test, no frames in the way
 }
 
 //! @brief Tries to find empty space to place the client in
@@ -70,237 +70,237 @@ isEmptySpace(int x, int y, const PWinObj* wo, std::vector<PWinObj*> &wvec)
 //! @todo What should we do about Xinerama as when we don't have it enabled we care about the struts.
 class LayouterSmart : public WinLayouter {
 public:
-    LayouterSmart() : WinLayouter() {}
-    virtual ~LayouterSmart() {}
+	LayouterSmart() : WinLayouter() {}
+	virtual ~LayouterSmart() {}
 
 private:
-    virtual bool layout_impl(Frame *wo)
-    {
-        if (! wo) {
-            return true;
-        }
+	virtual bool layout_impl(Frame *wo)
+	{
+		if (! wo) {
+			return true;
+		}
 
-        PWinObj *wo_e;
-        bool placed = false;
-        std::vector<PWinObj*> wvec;
+		PWinObj *wo_e;
+		bool placed = false;
+		std::vector<PWinObj*> wvec;
 
-        int step_x = (pekwm::config()->getPlacementLtR()) ? 1 : -1;
-        int step_y = (pekwm::config()->getPlacementTtB()) ? 1 : -1;
-        int offset_x = (pekwm::config()->getPlacementLtR())
-                       ? pekwm::config()->getPlacementOffsetX()
-                       : -pekwm::config()->getPlacementOffsetX();
-        int offset_y = (pekwm::config()->getPlacementTtB())
-                       ? pekwm::config()->getPlacementOffsetY()
-                       : -pekwm::config()->getPlacementOffsetY();
-        int start_x, start_y, test_x = 0, test_y = 0;
+		int step_x = (pekwm::config()->getPlacementLtR()) ? 1 : -1;
+		int step_y = (pekwm::config()->getPlacementTtB()) ? 1 : -1;
+		int offset_x = (pekwm::config()->getPlacementLtR())
+			? pekwm::config()->getPlacementOffsetX()
+			: -pekwm::config()->getPlacementOffsetX();
+		int offset_y = (pekwm::config()->getPlacementTtB())
+			? pekwm::config()->getPlacementOffsetY()
+			: -pekwm::config()->getPlacementOffsetY();
+		int start_x, start_y, test_x = 0, test_y = 0;
 
-        // Wrap these up, to get proper checking of space.
-        uint wo_width = wo->getWidth() + pekwm::config()->getPlacementOffsetX();
-        uint wo_height = wo->getHeight() + pekwm::config()->getPlacementOffsetY();
+		// Wrap these up, to get proper checking of space.
+		uint wo_width = wo->getWidth() + pekwm::config()->getPlacementOffsetX();
+		uint wo_height = wo->getHeight() + pekwm::config()->getPlacementOffsetY();
 
-        start_x = pekwm::config()->getPlacementLtR() ?
-                  _gm.x : _gm.x + _gm.width - wo_width;
-        start_y = pekwm::config()->getPlacementTtB() ?
-                  _gm.y : _gm.y + _gm.height - wo_height;
+		start_x = pekwm::config()->getPlacementLtR() ?
+			_gm.x : _gm.x + _gm.width - wo_width;
+		start_y = pekwm::config()->getPlacementTtB() ?
+			_gm.y : _gm.y + _gm.height - wo_height;
 
-        if (pekwm::config()->getPlacementRow()) { // row placement
-            test_y = start_y;
-            while (! placed && (pekwm::config()->getPlacementTtB()
-                               ? test_y + wo_height <= _gm.y + _gm.height
-                               : test_y >= _gm.y)) {
-                test_x = start_x;
-                while (! placed && (pekwm::config()->getPlacementLtR()
-                                    ? test_x + wo_width <= _gm.x + _gm.width
-                                    : test_x >= _gm.x)) {
-                    // see if we can place the window here
-                    if ((wo_e = isEmptySpace(test_x, test_y, wo, wvec))) {
-                        placed = false;
-                        test_x = pekwm::config()->getPlacementLtR() ?
-                                 wo_e->getX() + wo_e->getWidth() : wo_e->getX() - wo_width;
-                    } else {
-                        placed = true;
-                        wo->move(test_x + offset_x, test_y + offset_y);
-                    }
-                }
-                test_y += step_y;
-            }
-        } else { // column placement
-            test_x = start_x;
-            while (! placed && (pekwm::config()->getPlacementLtR()
-                                ? test_x + wo_width <= _gm.x + _gm.width
-                                : test_x >= _gm.x)) {
-                test_y = start_y;
-                while (! placed && (pekwm::config()->getPlacementTtB()
-                                    ? test_y + wo_height <= _gm.y + _gm.height
-                                    : test_y >= _gm.y)) {
-                    // see if we can place the window here
-                    if ((wo_e = isEmptySpace(test_x, test_y, wo, wvec))) {
-                        placed = false;
-                        test_y = pekwm::config()->getPlacementTtB() ?
-                                 wo_e->getY() + wo_e->getHeight() : wo_e->getY() - wo_height;
-                    } else {
-                        placed = true;
-                        wo->move(test_x + offset_x, test_y + offset_y);
-                    }
-                }
-                test_x += step_x;
-            }
-        }
-        return placed;
-    }
+		if (pekwm::config()->getPlacementRow()) { // row placement
+			test_y = start_y;
+			while (! placed && (pekwm::config()->getPlacementTtB()
+					    ? test_y + wo_height <= _gm.y + _gm.height
+					    : test_y >= _gm.y)) {
+				test_x = start_x;
+				while (! placed && (pekwm::config()->getPlacementLtR()
+						    ? test_x + wo_width <= _gm.x + _gm.width
+						    : test_x >= _gm.x)) {
+					// see if we can place the window here
+					if ((wo_e = isEmptySpace(test_x, test_y, wo, wvec))) {
+						placed = false;
+						test_x = pekwm::config()->getPlacementLtR() ?
+							wo_e->getX() + wo_e->getWidth() : wo_e->getX() - wo_width;
+					} else {
+						placed = true;
+						wo->move(test_x + offset_x, test_y + offset_y);
+					}
+				}
+				test_y += step_y;
+			}
+		} else { // column placement
+			test_x = start_x;
+			while (! placed && (pekwm::config()->getPlacementLtR()
+					    ? test_x + wo_width <= _gm.x + _gm.width
+					    : test_x >= _gm.x)) {
+				test_y = start_y;
+				while (! placed && (pekwm::config()->getPlacementTtB()
+						    ? test_y + wo_height <= _gm.y + _gm.height
+						    : test_y >= _gm.y)) {
+					// see if we can place the window here
+					if ((wo_e = isEmptySpace(test_x, test_y, wo, wvec))) {
+						placed = false;
+						test_y = pekwm::config()->getPlacementTtB() ?
+							wo_e->getY() + wo_e->getHeight() : wo_e->getY() - wo_height;
+					} else {
+						placed = true;
+						wo->move(test_x + offset_x, test_y + offset_y);
+					}
+				}
+				test_x += step_x;
+			}
+		}
+		return placed;
+	}
 };
 
 //! @brief Places the wo in a corner of the screen not under the pointer
 class LayouterMouseNotUnder : public WinLayouter {
 public:
-    LayouterMouseNotUnder() : WinLayouter() {}
-    virtual ~LayouterMouseNotUnder() {}
+	LayouterMouseNotUnder() : WinLayouter() {}
+	virtual ~LayouterMouseNotUnder() {}
 
-    virtual bool layout_impl(Frame *wo)
-    {
-        if (! wo) {
-            return true;
-        }
+	virtual bool layout_impl(Frame *wo)
+	{
+		if (! wo) {
+			return true;
+		}
 
-        // compensate for head offset
-        _ptr_x -= _gm.x;
-        _ptr_y -= _gm.y;
+		// compensate for head offset
+		_ptr_x -= _gm.x;
+		_ptr_y -= _gm.y;
 
-        // divide the screen into four rectangles using the pointer as divider
-        if (wo->getWidth() < unsigned(_ptr_x) && wo->getHeight() < _gm.height) {
-            wo->move(_gm.x, _gm.y);
-            return true;
-        }
+		// divide the screen into four rectangles using the pointer as divider
+		if (wo->getWidth() < unsigned(_ptr_x) && wo->getHeight() < _gm.height) {
+			wo->move(_gm.x, _gm.y);
+			return true;
+		}
 
-        if (wo->getWidth() < _gm.width && wo->getHeight() < unsigned(_ptr_y)) {
-            wo->move(_gm.x + _gm.width - wo->getWidth(), _gm.y);
-            return true;
-        }
+		if (wo->getWidth() < _gm.width && wo->getHeight() < unsigned(_ptr_y)) {
+			wo->move(_gm.x + _gm.width - wo->getWidth(), _gm.y);
+			return true;
+		}
 
-        if (wo->getWidth() < _gm.width - _ptr_x && wo->getHeight() < _gm.height) {
-            wo->move(_gm.x + _gm.width - wo->getWidth(), _gm.y + _gm.height - wo->getHeight());
-            return true;
-        }
+		if (wo->getWidth() < _gm.width - _ptr_x && wo->getHeight() < _gm.height) {
+			wo->move(_gm.x + _gm.width - wo->getWidth(), _gm.y + _gm.height - wo->getHeight());
+			return true;
+		}
 
-        if (wo->getWidth() < _gm.width && wo->getHeight() < _gm.height - _ptr_y) {
-            wo->move(_gm.x, _gm.y + _gm.height - wo->getHeight());
-            return true;
-        }
-        return false;
-    }
+		if (wo->getWidth() < _gm.width && wo->getHeight() < _gm.height - _ptr_y) {
+			wo->move(_gm.x, _gm.y + _gm.height - wo->getHeight());
+			return true;
+		}
+		return false;
+	}
 };
 
 //! @brief Places the client centered under the mouse
 class LayouterMouseCentred : public WinLayouter {
 public:
-    LayouterMouseCentred() : WinLayouter() {}
-    ~LayouterMouseCentred() {}
+	LayouterMouseCentred() : WinLayouter() {}
+	~LayouterMouseCentred() {}
 
 private:
-    virtual bool layout_impl(Frame *wo)
-    {
-        if (wo) {
-            Geometry gm(_ptr_x - (wo->getWidth() / 2), _ptr_y - (wo->getHeight() / 2),
-                        wo->getWidth(), wo->getHeight());
+	virtual bool layout_impl(Frame *wo)
+	{
+		if (wo) {
+			Geometry gm(_ptr_x - (wo->getWidth() / 2), _ptr_y - (wo->getHeight() / 2),
+				    wo->getWidth(), wo->getHeight());
 
-            // make sure it's within the screen's border
-            pekwm::rootWo()->placeInsideScreen(gm);
-            wo->move(gm.x, gm.y);
-        }
-        return true;
-    }
+			// make sure it's within the screen's border
+			pekwm::rootWo()->placeInsideScreen(gm);
+			wo->move(gm.x, gm.y);
+		}
+		return true;
+	}
 };
 
 //! @brief Places the client like the menu gets placed
 class LayouterMouseTopLeft : public WinLayouter {
 public:
-    LayouterMouseTopLeft() : WinLayouter() {}
+	LayouterMouseTopLeft() : WinLayouter() {}
 
 private:
-    virtual bool layout_impl(Frame *wo)
-    {
-        if (wo) {
-            Geometry gm(_ptr_x, _ptr_y, wo->getWidth(), wo->getHeight());
-            pekwm::rootWo()->placeInsideScreen(gm);
-            wo->move(gm.x, gm.y);
-        }
-        return true;
-    }
+	virtual bool layout_impl(Frame *wo)
+	{
+		if (wo) {
+			Geometry gm(_ptr_x, _ptr_y, wo->getWidth(), wo->getHeight());
+			pekwm::rootWo()->placeInsideScreen(gm);
+			wo->move(gm.x, gm.y);
+		}
+		return true;
+	}
 };
 
 void
 WinLayouter::layout(Frame *frame, Window parent)
 {
-    if (frame) {
-        frame->updateDecor();
-    }
+	if (frame) {
+		frame->updateDecor();
+	}
 
-    if (frame && parent != None
-              && pekwm::config()->placeTransOnParent()
-              && placeOnParent(frame, parent)) {
-        return;
-    }
+	if (frame && parent != None
+	    && pekwm::config()->placeTransOnParent()
+	    && placeOnParent(frame, parent)) {
+		return;
+	}
 
-    // update pointer position cache, used in layout models.
-    X11::getMousePosition(_ptr_x, _ptr_y);
+	// update pointer position cache, used in layout models.
+	X11::getMousePosition(_ptr_x, _ptr_y);
 
-    CurrHeadSelector chs = pekwm::config()->getCurrHeadSelector();
-    int head_nr = X11Util::getCurrHead(chs);
-    pekwm::rootWo()->getHeadInfoWithEdge(head_nr, _gm);
+	CurrHeadSelector chs = pekwm::config()->getCurrHeadSelector();
+	int head_nr = X11Util::getCurrHead(chs);
+	pekwm::rootWo()->getHeadInfoWithEdge(head_nr, _gm);
 
-    // Collect the information which head has a fullscreen window.
-    // To be conservative for now we ignore fullscreen windows on
-    // the desktop or normal layer, because it might be a file
-    // manager in desktop mode, for example.
-    std::vector<bool> fsHead(X11::getNumHeads(), false);
-    Workspaces::const_iterator it(Workspaces::begin()),
-                              end(Workspaces::end());
-    for (; it != end; ++it) {
-        if ((*it)->isMapped() && (*it)->getType() == PWinObj::WO_FRAME) {
-            Client *client = static_cast<Frame*>(*it)->getActiveClient();
-            if (client && client->isFullscreen()
-                       && client->getLayer()>LAYER_NORMAL) {
-                fsHead[client->getHead()] = true;
-            }
-        }
-    }
+	// Collect the information which head has a fullscreen window.
+	// To be conservative for now we ignore fullscreen windows on
+	// the desktop or normal layer, because it might be a file
+	// manager in desktop mode, for example.
+	std::vector<bool> fsHead(X11::getNumHeads(), false);
+	Workspaces::const_iterator it(Workspaces::begin()),
+		end(Workspaces::end());
+	for (; it != end; ++it) {
+		if ((*it)->isMapped() && (*it)->getType() == PWinObj::WO_FRAME) {
+			Client *client = static_cast<Frame*>(*it)->getActiveClient();
+			if (client && client->isFullscreen()
+			    && client->getLayer()>LAYER_NORMAL) {
+				fsHead[client->getHead()] = true;
+			}
+		}
+	}
 
-    // Try to place the window
-    int i = head_nr;
-    do {
-        if (! fsHead[i]) {
-            pekwm::rootWo()->getHeadInfoWithEdge(i, _gm);
-            if (layout_impl(frame)) {
-                return;
-            }
-        }
-        i = (i+1)%X11::getNumHeads();
-    } while (i != head_nr);
+	// Try to place the window
+	int i = head_nr;
+	do {
+		if (! fsHead[i]) {
+			pekwm::rootWo()->getHeadInfoWithEdge(i, _gm);
+			if (layout_impl(frame)) {
+				return;
+			}
+		}
+		i = (i+1)%X11::getNumHeads();
+	} while (i != head_nr);
 
-    // We failed to place the window, so put it in the top-left
-    // corner but still try to avoid heads with a fullscreen window on it.
-    i = head_nr;
-    do {
-        if (! fsHead[i]) {
-            break;
-        }
-        i = (i+1)%X11::getNumHeads();
-    } while (i != head_nr);
-    pekwm::rootWo()->getHeadInfoWithEdge(i, _gm);
-    frame->move(_gm.x, _gm.y);
+	// We failed to place the window, so put it in the top-left
+	// corner but still try to avoid heads with a fullscreen window on it.
+	i = head_nr;
+	do {
+		if (! fsHead[i]) {
+			break;
+		}
+		i = (i+1)%X11::getNumHeads();
+	} while (i != head_nr);
+	pekwm::rootWo()->getHeadInfoWithEdge(i, _gm);
+	frame->move(_gm.x, _gm.y);
 }
 
 bool
 WinLayouter::placeOnParent(Frame *wo, Window parent)
 {
-    PWinObj *wo_s = PWinObj::findPWinObj(parent);
-    if (wo_s) {
-        wo->move(wo_s->getX() + wo_s->getWidth() / 2 - wo->getWidth() / 2,
-                 wo_s->getY() + wo_s->getHeight() / 2 - wo->getHeight() / 2);
-        return true;
-    }
+	PWinObj *wo_s = PWinObj::findPWinObj(parent);
+	if (wo_s) {
+		wo->move(wo_s->getX() + wo_s->getWidth() / 2 - wo->getWidth() / 2,
+			 wo_s->getY() + wo_s->getHeight() / 2 - wo->getHeight() / 2);
+		return true;
+	}
 
-    return false;
+	return false;
 }
 
 int WinLayouter::_ptr_x;
@@ -308,20 +308,20 @@ int WinLayouter::_ptr_y;
 Geometry WinLayouter::_gm;
 
 WinLayouter *WinLayouterFactory(std::string l) {
-    Util::to_upper(l);
-    const char *str = l.c_str();
+	Util::to_upper(l);
+	const char *str = l.c_str();
 
-    if (! strcmp(str, "SMART")) {
-        return new LayouterSmart;
-    }
-    if (! strcmp(str, "MOUSENOTUNDER")) {
-        return new LayouterMouseNotUnder;
-    }
-    if (! strcmp(str, "MOUSECENTERED")) {
-        return new LayouterMouseCentred;
-    }
-    if (! strcmp(str, "MOUSETOPLEFT")) {
-        return new LayouterMouseTopLeft;
-    }
-    return 0;
+	if (! strcmp(str, "SMART")) {
+		return new LayouterSmart;
+	}
+	if (! strcmp(str, "MOUSENOTUNDER")) {
+		return new LayouterMouseNotUnder;
+	}
+	if (! strcmp(str, "MOUSECENTERED")) {
+		return new LayouterMouseCentred;
+	}
+	if (! strcmp(str, "MOUSETOPLEFT")) {
+		return new LayouterMouseTopLeft;
+	}
+	return 0;
 }

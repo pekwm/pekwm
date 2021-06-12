@@ -15,19 +15,19 @@
 static int
 main_tests(int argc, char *argv[])
 {
-    // Setup environment required for the tests
-    Debug::setLogFile("/dev/null");
-    X11::addHead(Head(0, 0, 800, 600));
+	// Setup environment required for the tests
+	Debug::setLogFile("/dev/null");
+	X11::addHead(Head(0, 0, 800, 600));
 
-    return TestSuite::main(argc, argv);
+	return TestSuite::main(argc, argv);
 }
 
 int
 main(int argc, char *argv[])
 {
-    pekwm::initNoDisplay();
-    int res = main_tests(argc, argv);
-    pekwm::cleanupNoDisplay();
+	pekwm::initNoDisplay();
+	int res = main_tests(argc, argv);
+	pekwm::cleanupNoDisplay();
 
-    return res;
+	return res;
 }

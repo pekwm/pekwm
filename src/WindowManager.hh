@@ -31,121 +31,121 @@ class WindowManager : public AppCtrl,
                       public EventLoop
 {
 public:
-    static WindowManager *start(const std::string &config_file,
-                                bool replace, bool synchronous);
-    virtual ~WindowManager();
+	static WindowManager *start(const std::string &config_file,
+				    bool replace, bool synchronous);
+	virtual ~WindowManager();
 
-    void doEventLoop(void);
+	void doEventLoop(void);
 
-    // START - AppCtrl interface.
-    virtual void reload(void) { _reload = true; }
-    virtual void restart(void) { restart(""); }
-    virtual void restart(std::string command);
-    virtual void shutdown(void) { _shutdown = true; }
-    // END - AppCtrl interface.
+	// START - AppCtrl interface.
+	virtual void reload(void) { _reload = true; }
+	virtual void restart(void) { restart(""); }
+	virtual void restart(std::string command);
+	virtual void shutdown(void) { _shutdown = true; }
+	// END - AppCtrl interface.
 
-    inline bool shallRestart(void) const { return _restart; }
-    inline const std::string &getRestartCommand(void) const {
-        return _restart_command;
-    }
+	inline bool shallRestart(void) const { return _restart; }
+	inline const std::string &getRestartCommand(void) const {
+		return _restart_command;
+	}
 
-    void setEventHandler(EventHandler *event_handler) {
-        if (_event_handler) {
-            delete _event_handler;
-        }
-        _event_handler = event_handler;
-    }
+	void setEventHandler(EventHandler *event_handler) {
+		if (_event_handler) {
+			delete _event_handler;
+		}
+		_event_handler = event_handler;
+	}
 
-    // public event handlers used when doing grabbed actions
-    void handleKeyEvent(XKeyEvent *ev);
-    void handleButtonPressEvent(XButtonEvent *ev);
-    void handleButtonReleaseEvent(XButtonEvent *ev);
-
-protected:
-    WindowManager(void);
-
-    void handlePekwmCmd(XClientMessageEvent *ev);
-    bool recvPekwmCmd(XClientMessageEvent *ev);
-
-private:
-    void setupDisplay(Display* dpy);
-    void scanWindows(void);
-    void execStartFile(void);
-
-    void handleSignals(void);
-
-    void doReload(void);
-    void doReloadConfig(void);
-    void doReloadTheme(void);
-    void doReloadMouse(void);
-    void doReloadKeygrabber(bool force=false);
-    void doReloadAutoproperties(void);
-    void doReloadHarbour(void);
-
-    void startBackground(const std::string& theme_dir,
-                         const std::string& texture);
-    void stopBackground(void);
-
-    void cleanup(void);
-
-    // screen edge related
-    void screenEdgeCreate(void);
-    void screenEdgeResize(void);
-    void screenEdgeMapUnmap(void);
-
-    void handleEvent(XEvent &ev);
-    bool handleEventHandlerEvent(XEvent &ev);
-
-    void handleMapRequestEvent(XMapRequestEvent *ev);
-    void handleUnmapEvent(XUnmapEvent *ev);
-    void handleDestroyWindowEvent(XDestroyWindowEvent *ev);
-
-    void handleConfigureRequestEvent(XConfigureRequestEvent *ev);
-    void handleClientMessageEvent(XClientMessageEvent *ev);
-    void handleNetRequestFrameExtents(Window win);
-
-    void handleColormapEvent(XColormapEvent *ev);
-    void handlePropertyEvent(XPropertyEvent *ev);
-    void handleMappingEvent(XMappingEvent *ev);
-    void handleExposeEvent(XExposeEvent *ev);
-
-    void handleMotionEvent(XMotionEvent *ev);
-
-    void handleEnterNotify(XCrossingEvent *ev);
-    void handleLeaveNotify(XCrossingEvent *ev);
-    void handleFocusInEvent(XFocusChangeEvent *ev);
-
-    void handleKeyEventAction(XKeyEvent *ev, ActionEvent *ae, PWinObj *wo,
-                              PWinObj *wo_orig);
-
-    void readDesktopNamesHint(void);
-
-    // private methods for the hints
-    void initHints(void);
-
-    Client *createClient(Window window, bool is_new);
+	// public event handlers used when doing grabbed actions
+	void handleKeyEvent(XKeyEvent *ev);
+	void handleButtonPressEvent(XButtonEvent *ev);
+	void handleButtonReleaseEvent(XButtonEvent *ev);
 
 protected:
-    /** pekwm_cmd buffer for commands that do not fit in 20 bytes. */
-    std::string _pekwm_cmd_buf;
+	WindowManager(void);
+
+	void handlePekwmCmd(XClientMessageEvent *ev);
+	bool recvPekwmCmd(XClientMessageEvent *ev);
 
 private:
-    bool _shutdown; //!< Set to wheter we want to shutdown.
-    bool _reload; //!< Set to wheter we want to reload.
-    bool _restart;
-    std::string _restart_command;
-    pid_t _bg_pid;
+	void setupDisplay(Display* dpy);
+	void scanWindows(void);
+	void execStartFile(void);
 
-    EventHandler *_event_handler;
+	void handleSignals(void);
 
-    EdgeWO *_screen_edges[4];
+	void doReload(void);
+	void doReloadConfig(void);
+	void doReloadTheme(void);
+	void doReloadMouse(void);
+	void doReloadKeygrabber(bool force=false);
+	void doReloadAutoproperties(void);
+	void doReloadHarbour(void);
 
-    /**
-     * If set to true, skip next enter event. Used in conjunction with
-     * PWinObj::setSkipEnterAfter to skip "leave" events caused by
-     * internal windows  such as status dialog.
-     */
-    bool _skip_enter;
+	void startBackground(const std::string& theme_dir,
+			     const std::string& texture);
+	void stopBackground(void);
+
+	void cleanup(void);
+
+	// screen edge related
+	void screenEdgeCreate(void);
+	void screenEdgeResize(void);
+	void screenEdgeMapUnmap(void);
+
+	void handleEvent(XEvent &ev);
+	bool handleEventHandlerEvent(XEvent &ev);
+
+	void handleMapRequestEvent(XMapRequestEvent *ev);
+	void handleUnmapEvent(XUnmapEvent *ev);
+	void handleDestroyWindowEvent(XDestroyWindowEvent *ev);
+
+	void handleConfigureRequestEvent(XConfigureRequestEvent *ev);
+	void handleClientMessageEvent(XClientMessageEvent *ev);
+	void handleNetRequestFrameExtents(Window win);
+
+	void handleColormapEvent(XColormapEvent *ev);
+	void handlePropertyEvent(XPropertyEvent *ev);
+	void handleMappingEvent(XMappingEvent *ev);
+	void handleExposeEvent(XExposeEvent *ev);
+
+	void handleMotionEvent(XMotionEvent *ev);
+
+	void handleEnterNotify(XCrossingEvent *ev);
+	void handleLeaveNotify(XCrossingEvent *ev);
+	void handleFocusInEvent(XFocusChangeEvent *ev);
+
+	void handleKeyEventAction(XKeyEvent *ev, ActionEvent *ae, PWinObj *wo,
+				  PWinObj *wo_orig);
+
+	void readDesktopNamesHint(void);
+
+	// private methods for the hints
+	void initHints(void);
+
+	Client *createClient(Window window, bool is_new);
+
+protected:
+	/** pekwm_cmd buffer for commands that do not fit in 20 bytes. */
+	std::string _pekwm_cmd_buf;
+
+private:
+	bool _shutdown; //!< Set to wheter we want to shutdown.
+	bool _reload; //!< Set to wheter we want to reload.
+	bool _restart;
+	std::string _restart_command;
+	pid_t _bg_pid;
+
+	EventHandler *_event_handler;
+
+	EdgeWO *_screen_edges[4];
+
+	/**
+	 * If set to true, skip next enter event. Used in conjunction with
+	 * PWinObj::setSkipEnterAfter to skip "leave" events caused by
+	 * internal windows  such as status dialog.
+	 */
+	bool _skip_enter;
 };
 
 #endif // _PEKWM_WINDOWMANAGER_HH_

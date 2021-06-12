@@ -18,20 +18,20 @@
 int
 main(int argc, char *argv[])
 {
-    Charset::WithCharset charset;
+	Charset::WithCharset charset;
 
-    // CfgParser
-    TestCfgParser testCfgParser;
+	// CfgParser
+	TestCfgParser testCfgParser;
 
-    // Charset
-    TestCharset testCharset;
+	// Charset
+	TestCharset testCharset;
 
-    // // RegexString
-    TestRegexString testRegexString;
+	// // RegexString
+	TestRegexString testRegexString;
 
-    // // Util
-    TestString testString;
-    TestUtil testUtil;
+	// // Util
+	TestString testString;
+	TestUtil testUtil;
 
-    return TestSuite::main(argc, argv);
+	return TestSuite::main(argc, argv);
 }

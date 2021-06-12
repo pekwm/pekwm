@@ -20,26 +20,26 @@
 //! @brief FontHandler, a caching and font type transparent font handler.
 class FontHandler {
 public:
-    FontHandler(void);
-    ~FontHandler(void);
+	FontHandler(void);
+	~FontHandler(void);
 
-    PFont *getFont(const std::string &font);
-    void returnFont(PFont *font);
+	PFont *getFont(const std::string &font);
+	void returnFont(PFont *font);
 
-    PFont::Color *getColor(const std::string &color);
-    void returnColor(PFont::Color *color);
-
-private:
-    void loadColor(const std::string &color, PFont::Color *font_color, bool fg);
+	PFont::Color *getColor(const std::string &color);
+	void returnColor(PFont::Color *color);
 
 private:
-    std::vector<HandlerEntry<PFont*> > _fonts;
-    std::vector<HandlerEntry<PFont::Color*> > _colors;
+	void loadColor(const std::string &color, PFont::Color *font_color, bool fg);
+
+private:
+	std::vector<HandlerEntry<PFont*> > _fonts;
+	std::vector<HandlerEntry<PFont::Color*> > _colors;
 };
 
 namespace pekwm
 {
-    FontHandler* fontHandler();
+	FontHandler* fontHandler();
 }
 
 #endif // _PEKWM_FONTHANDLER_HH_

@@ -20,20 +20,20 @@ class WORefMenu : public PMenu,
                   public PWinObjReference
 {
 protected:
-    WORefMenu(const std::string &title, const std::string &name,
-              const std::string &decor_name = "MENU");
+	WORefMenu(const std::string &title, const std::string &name,
+		  const std::string &decor_name = "MENU");
 
 public:
-    virtual ~WORefMenu(void);
+	virtual ~WORefMenu(void);
 
-    virtual void notify(Observable *observable, Observation *observation);
+	virtual void notify(Observable *observable, Observation *observation);
 
-    virtual void setWORef(PWinObj *wo_ref);
+	virtual void setWORef(PWinObj *wo_ref);
 
 protected:
-    std::string _title_base;
-    std::string _title_pre;
-    std::string _title_post;
+	std::string _title_base;
+	std::string _title_pre;
+	std::string _title_post;
 };
 
 #endif // _PEKWM_WOREFMENU_HH_

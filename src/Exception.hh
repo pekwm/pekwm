@@ -24,15 +24,15 @@ class PekwmException
 class StopException : public PekwmException
 {
 public:
-    StopException(const char *msg)
-        : _msg(msg)
-    {
-    }
+	StopException(const char *msg)
+		: _msg(msg)
+	{
+	}
 
-    const char* getMsg(void) const { return _msg; }
+	const char* getMsg(void) const { return _msg; }
 
 private:
-    const char *_msg;
+	const char *_msg;
 };
 
 /**
@@ -41,16 +41,16 @@ private:
 class LoadException : public PekwmException
 {
 public:
-    LoadException(const std::string &resource)
-        : _resource(resource)
-    {
-    }
+	LoadException(const std::string &resource)
+		: _resource(resource)
+	{
+	}
 
-    /** Get resource string. */
-    const std::string& getResource(void) const { return _resource; }
+	/** Get resource string. */
+	const std::string& getResource(void) const { return _resource; }
 
 private:
-    const std::string _resource; /**< Resource that failed to load. */
+	const std::string _resource; /**< Resource that failed to load. */
 };
 
 /**

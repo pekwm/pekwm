@@ -67,21 +67,21 @@ int clock_gettime(clockid_t clk_id, struct timespec *tp);
 #endif // PEKWM_HAVE_CLOCK_GETTIME
 
 #ifndef PEKWM_HAVE_TIMERSUB
-#define timersub(a, b, result)                                                \
-  do {                                                                        \
-    (result)->tv_sec = (a)->tv_sec - (b)->tv_sec;                             \
-    (result)->tv_usec = (a)->tv_usec - (b)->tv_usec;                          \
-    if ((result)->tv_usec < 0) {                                              \
-      --(result)->tv_sec;                                                     \
-      (result)->tv_usec += 1000000;                                           \
-    }                                                                         \
-  } while (0)
+#define timersub(a, b, result)						\
+	do {								\
+		(result)->tv_sec = (a)->tv_sec - (b)->tv_sec;		\
+		(result)->tv_usec = (a)->tv_usec - (b)->tv_usec;	\
+		if ((result)->tv_usec < 0) {				\
+			--(result)->tv_sec;				\
+			(result)->tv_usec += 1000000;			\
+		}							\
+	} while (0)
 #endif // PEKWM_HAVE_TIMERSUB
 
 #ifndef PEKWM_HAVE_PUT_TIME
 namespace std
 {
-    const char* put_time(const struct ::tm *tm, const char *fmt);
+	const char* put_time(const struct ::tm *tm, const char *fmt);
 }
 #endif
 
@@ -90,14 +90,14 @@ namespace std
 
 namespace std
 {
-    std::string to_string(long val);
+	std::string to_string(long val);
 }
 #endif
 
 #ifndef PEKWM_HAVE_STOI
 namespace std
 {
-    int stoi(const std::string& str);
+	int stoi(const std::string& str);
 }
 #endif
 
@@ -105,7 +105,7 @@ namespace std
 #ifndef PEKWM_HAVE_STOF
 namespace std
 {
-    float stof(const std::string& str);
+	float stof(const std::string& str);
 }
 #endif
 
@@ -119,21 +119,21 @@ namespace std
 
 namespace std
 {
-    template<typename T>
-    struct numeric_limits {
-        static T min(void);
-        static T max(void);
-    };
+	template<typename T>
+	struct numeric_limits {
+		static T min(void);
+		static T max(void);
+	};
 
-    struct numeric_limits<int> {
-        static int min(void) { return INT_MIN; }
-        static int max(void) { return INT_MAX; }
-    };
+	struct numeric_limits<int> {
+		static int min(void) { return INT_MIN; }
+		static int max(void) { return INT_MAX; }
+	};
 
-    struct numeric_limits<unsigned int> {
-        static unsigned int min(void) { return 0; }
-        static unsigned int max(void) { return UINT_MAX; }
-    };
+	struct numeric_limits<unsigned int> {
+		static unsigned int min(void) { return 0; }
+		static unsigned int max(void) { return UINT_MAX; }
+	};
 }
 
 #endif

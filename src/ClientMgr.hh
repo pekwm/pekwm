@@ -17,24 +17,24 @@ class Frame;
 
 class ClientMgr {
 public:
-    static Frame *findGroup(AutoProperty *ap);
+	static Frame *findGroup(AutoProperty *ap);
 
-    static bool isAllowGrouping(void) { return _allow_grouping; }
-    static void setStateGlobalGrouping(StateAction sa) {
-        if (ActionUtil::needToggle(sa, _allow_grouping)) {
-            _allow_grouping = !_allow_grouping;
-        }
-    }
+	static bool isAllowGrouping(void) { return _allow_grouping; }
+	static void setStateGlobalGrouping(StateAction sa) {
+		if (ActionUtil::needToggle(sa, _allow_grouping)) {
+			_allow_grouping = !_allow_grouping;
+		}
+	}
 
-    static void familyRaiseLower(Client *client, bool raise);
-
-private:
-    static bool findGroupMatchProperty(Frame *frame, AutoProperty *property);
-    static Frame* findGroupMatch(AutoProperty *property);
+	static void familyRaiseLower(Client *client, bool raise);
 
 private:
-    /** Global control used to disable grouping. */
-    static bool _allow_grouping;
+	static bool findGroupMatchProperty(Frame *frame, AutoProperty *property);
+	static Frame* findGroupMatch(AutoProperty *property);
+
+private:
+	/** Global control used to disable grouping. */
+	static bool _allow_grouping;
 };
 
 #endif // _PEKWM_CLIENTMGR_HH_

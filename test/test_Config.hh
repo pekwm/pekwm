@@ -5,17 +5,17 @@
 class TestConfig : public TestSuite,
                    public Config {
 public:
-    TestConfig(void);
-    virtual ~TestConfig(void);
+	TestConfig(void);
+	virtual ~TestConfig(void);
 
-    virtual bool run_test(TestSpec spec, bool status);
+	virtual bool run_test(TestSpec spec, bool status);
 
-    void testParseMoveResizeAction(void);
+	void testParseMoveResizeAction(void);
 };
 
 TestConfig::TestConfig(void)
-    : TestSuite("Config"),
-      Config()
+	: TestSuite("Config"),
+	  Config()
 {
 }
 
@@ -26,21 +26,21 @@ TestConfig::~TestConfig(void)
 bool
 TestConfig::run_test(TestSpec spec, bool status)
 {
-    TEST_FN(spec, "parseMoveResizeAction", testParseMoveResizeAction());
-    return status;
+	TEST_FN(spec, "parseMoveResizeAction", testParseMoveResizeAction());
+	return status;
 }
 
 void
 TestConfig::testParseMoveResizeAction(void)
 {
-    Action action;
-    ASSERT_EQUAL("parse 1 ok", true,
-                 parseMoveResizeAction("Movehorizontal 1", action));
-    ASSERT_EQUAL("parsed value", 1, action.getParamI(0));
-    ASSERT_EQUAL("parsed unit", UNIT_PIXEL, action.getParamI(1));
+	Action action;
+	ASSERT_EQUAL("parse 1 ok", true,
+		     parseMoveResizeAction("Movehorizontal 1", action));
+	ASSERT_EQUAL("parsed value", 1, action.getParamI(0));
+	ASSERT_EQUAL("parsed unit", UNIT_PIXEL, action.getParamI(1));
 
-    ASSERT_EQUAL("parse -3% ok", true,
-                 parseMoveResizeAction("Movehorizontal -3%", action));
-    ASSERT_EQUAL("parsed value", -3, action.getParamI(0));
-    ASSERT_EQUAL("parsed unit", UNIT_PERCENT, action.getParamI(1));
+	ASSERT_EQUAL("parse -3% ok", true,
+		     parseMoveResizeAction("Movehorizontal -3%", action));
+	ASSERT_EQUAL("parsed value", -3, action.getParamI(0));
+	ASSERT_EQUAL("parsed unit", UNIT_PERCENT, action.getParamI(1));
 }

@@ -24,29 +24,29 @@ class Client;
 class FrameListMenu : public WORefMenu
 {
 public:
-    FrameListMenu(MenuType type,
-                  const std::string &title, const std::string &name,
-                  const std::string &decor_name = "MENU");
-    virtual ~FrameListMenu(void);
+	FrameListMenu(MenuType type,
+		      const std::string &title, const std::string &name,
+		      const std::string &decor_name = "MENU");
+	virtual ~FrameListMenu(void);
 
-    // START - PWinObj interface.
-    virtual void mapWindow(void);
-    virtual void unmapWindow(void);
-    // END - PWinObj interface.
+	// START - PWinObj interface.
+	virtual void mapWindow(void);
+	virtual void unmapWindow(void);
+	// END - PWinObj interface.
 
-    virtual void handleItemExec(PMenu::Item *item);
-
-private:
-    void updateFrameListMenu(void);
+	virtual void handleItemExec(PMenu::Item *item);
 
 private:
-    void buildName(Frame *frame, std::string &name);
-    void buildFrameNames(Frame *frame, std::string &pre_name,
-                         bool insert_separator);
+	void updateFrameListMenu(void);
 
-    void handleGotomenu(Client *client);
-    void handleIconmenu(Client *client);
-    void handleAttach(Client *client_to, Client *client_from, bool frame);
+private:
+	void buildName(Frame *frame, std::string &name);
+	void buildFrameNames(Frame *frame, std::string &pre_name,
+			     bool insert_separator);
+
+	void handleGotomenu(Client *client);
+	void handleIconmenu(Client *client);
+	void handleAttach(Client *client_to, Client *client_from, bool frame);
 };
 
 #endif // _PEKWM_FRAMELISTMENU_HH_

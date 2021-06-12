@@ -18,25 +18,25 @@
  */
 class EventHandler {
 public:
-    enum Result {
-        EVENT_PROCESSED,
-        EVENT_SKIP,
-        EVENT_STOP_PROCESSED,
-        EVENT_STOP_SKIP
-    };
+	enum Result {
+		EVENT_PROCESSED,
+		EVENT_SKIP,
+		EVENT_STOP_PROCESSED,
+		EVENT_STOP_SKIP
+	};
 
-    virtual ~EventHandler(void) { }
+	virtual ~EventHandler(void) { }
 
-    virtual bool initEventHandler(void) = 0;
+	virtual bool initEventHandler(void) = 0;
 
-    virtual Result handleButtonPressEvent(XButtonEvent*) = 0;
-    virtual Result handleButtonReleaseEvent(XButtonEvent*) = 0;
-    virtual Result handleExposeEvent(XExposeEvent*) = 0;
-    virtual Result handleKeyEvent(XKeyEvent*) = 0;
-    virtual Result handleMotionNotifyEvent(XMotionEvent*) = 0;
+	virtual Result handleButtonPressEvent(XButtonEvent*) = 0;
+	virtual Result handleButtonReleaseEvent(XButtonEvent*) = 0;
+	virtual Result handleExposeEvent(XExposeEvent*) = 0;
+	virtual Result handleKeyEvent(XKeyEvent*) = 0;
+	virtual Result handleMotionNotifyEvent(XMotionEvent*) = 0;
 
 protected:
-    EventHandler(void) { }
+	EventHandler(void) { }
 };
 
 #endif // _PEKWM_EVENTHANDLER_HH_

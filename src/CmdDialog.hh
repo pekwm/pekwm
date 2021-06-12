@@ -22,37 +22,37 @@
 class CmdDialog : public InputDialog
 {
 public:
-    CmdDialog();
-    virtual ~CmdDialog(void);
+	CmdDialog();
+	virtual ~CmdDialog(void);
 
-    // BEGIN - PWinObj interface
-    virtual void mapWindow(void);
-    // END - PWinObj interface
-    virtual void unmapWindow(void);
+	// BEGIN - PWinObj interface
+	virtual void mapWindow(void);
+	// END - PWinObj interface
+	virtual void unmapWindow(void);
 
-    virtual void mapCentered(const std::string &buf, const Geometry &geom,
-                             PWinObj *wo_ref);
-
-private:
-    void render(void);
-
-    virtual ActionEvent *exec(void);
-    virtual void complete(void);
-    virtual void completeAbort(void);
-    virtual void completeReset(void);
+	virtual void mapCentered(const std::string &buf, const Geometry &geom,
+				 PWinObj *wo_ref);
 
 private:
-    Completer _completer; /**< Completer used completing actions. */
-    /** List of completions found by completer. */
-    complete_list _complete_list;
-    complete_it _complete_it; /**< Iterator used to step between completions. */
+	void render(void);
 
-    std::string _buf_on_complete; /**< Buffer before completion. */
-    std::string _buf_on_complete_result; /** Buffer after completion. */
-    unsigned int _pos_on_complete; /**< Cursor position on completion start. */
+	virtual ActionEvent *exec(void);
+	virtual void complete(void);
+	virtual void completeAbort(void);
+	virtual void completeReset(void);
 
-    /** Number of CmdDialog has run exec since last history save. */
-    int _exec_count;
+private:
+	Completer _completer; /**< Completer used completing actions. */
+	/** List of completions found by completer. */
+	complete_list _complete_list;
+	complete_it _complete_it; /**< Iterator used to step between completions. */
+
+	std::string _buf_on_complete; /**< Buffer before completion. */
+	std::string _buf_on_complete_result; /** Buffer after completion. */
+	unsigned int _pos_on_complete; /**< Cursor position on completion start. */
+
+	/** Number of CmdDialog has run exec since last history save. */
+	int _exec_count;
 };
 
 #endif // _PEKWM_CMDDIALOG_HH_

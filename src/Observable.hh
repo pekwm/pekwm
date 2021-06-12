@@ -17,7 +17,7 @@
  */
 class Observation {
 public:
-    virtual ~Observation(void);
+	virtual ~Observation(void);
 };
 
 /**
@@ -25,7 +25,7 @@ public:
  */
 class Observable {
 public:
-    virtual ~Observable(void);
+	virtual ~Observable(void);
 };
 
 /**
@@ -33,34 +33,34 @@ public:
  */
 class Observer {
 public:
-    virtual ~Observer(void);
-    virtual void notify(Observable*, Observation*) = 0;
+	virtual ~Observer(void);
+	virtual void notify(Observable*, Observation*) = 0;
 };
 
 class ObserverMapping {
 public:
-    typedef std::map<Observable*, std::vector<Observer*> > observable_map;
-    typedef observable_map::iterator observable_map_it;
+	typedef std::map<Observable*, std::vector<Observer*> > observable_map;
+	typedef observable_map::iterator observable_map_it;
     
-    ObserverMapping(void);
-    ~ObserverMapping(void);
+	ObserverMapping(void);
+	~ObserverMapping(void);
 
-    size_t size(void) const { return _observable_map.size(); }
+	size_t size(void) const { return _observable_map.size(); }
 
-    void notifyObservers(Observable *observable, Observation *observation);
-    void addObserver(Observable *observable, Observer *observer);
-    void removeObserver(Observable *observable, Observer *observer);
+	void notifyObservers(Observable *observable, Observation *observation);
+	void addObserver(Observable *observable, Observer *observer);
+	void removeObserver(Observable *observable, Observer *observer);
 
-    void removeObservable(Observable *observable);
+	void removeObservable(Observable *observable);
 
 private:
-    /** Map from Observable to list of observers. */
-    observable_map _observable_map;
+	/** Map from Observable to list of observers. */
+	observable_map _observable_map;
 };
 
 namespace pekwm
 {
-    ObserverMapping* observerMapping(void);
+	ObserverMapping* observerMapping(void);
 }
 
 #endif // _PEKWM_OBSERVABLE_HH_

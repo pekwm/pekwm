@@ -17,7 +17,7 @@ Observation::~Observation(void)
 
 Observable::~Observable(void)
 {
-    pekwm::observerMapping()->removeObservable(this);
+	pekwm::observerMapping()->removeObservable(this);
 }
 
 Observer::~Observer(void)
@@ -39,13 +39,13 @@ void
 ObserverMapping::notifyObservers(Observable *observable,
                                  Observation *observation)
 {
-    observable_map_it oit = _observable_map.find(observable);
-    if (oit != _observable_map.end()) {
-        std::vector<Observer*>::iterator it = oit->second.begin();
-        for (; it != oit->second.end(); ++it) {
-            (*it)->notify(observable, observation);
-        }
-    }
+	observable_map_it oit = _observable_map.find(observable);
+	if (oit != _observable_map.end()) {
+		std::vector<Observer*>::iterator it = oit->second.begin();
+		for (; it != oit->second.end(); ++it) {
+			(*it)->notify(observable, observation);
+		}
+	}
 }
 
 /**
@@ -55,13 +55,13 @@ void
 ObserverMapping::addObserver(Observable *observable,
                              Observer *observer)
 {
-    observable_map_it it = _observable_map.find(observable);
-    if (it == _observable_map.end()) {
-        _observable_map[observable] = std::vector<Observer*>();
-        _observable_map[observable].push_back(observer);
-    } else {
-        it->second.push_back(observer);
-    }
+	observable_map_it it = _observable_map.find(observable);
+	if (it == _observable_map.end()) {
+		_observable_map[observable] = std::vector<Observer*>();
+		_observable_map[observable].push_back(observer);
+	} else {
+		it->second.push_back(observer);
+	}
 }
 
 /**
@@ -71,18 +71,18 @@ void
 ObserverMapping::removeObserver(Observable *observable,
                                 Observer *observer)
 {
-    observable_map_it it = _observable_map.find(observable);
-    if (it == _observable_map.end()) {
-        P_ERR("stale observable " << observable);
-        return;
-    }
+	observable_map_it it = _observable_map.find(observable);
+	if (it == _observable_map.end()) {
+		P_ERR("stale observable " << observable);
+		return;
+	}
 
-    it->second.erase(std::remove(it->second.begin(),
-                                 it->second.end(), observer),
-                     it->second.end());
-    if (it->second.empty()) {
-        _observable_map.erase(it);
-    }
+	it->second.erase(std::remove(it->second.begin(),
+				     it->second.end(), observer),
+			 it->second.end());
+	if (it->second.empty()) {
+		_observable_map.erase(it);
+	}
 }
 
 /**
@@ -91,8 +91,8 @@ ObserverMapping::removeObserver(Observable *observable,
 void
 ObserverMapping::removeObservable(Observable *observable)
 {
-    observable_map_it it = _observable_map.find(observable);
-    if (it != _observable_map.end()) {
-        _observable_map.erase(it);
-    }
+	observable_map_it it = _observable_map.find(observable);
+	if (it != _observable_map.end()) {
+		_observable_map.erase(it);
+	}
 }
