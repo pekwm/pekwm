@@ -899,7 +899,7 @@ AutoProperties::parseAutoPropertyValue(CfgParser::Entry *section,
 			break;
 		case AP_WORKSPACE:
 			try {
-				prop->workspace = std::stoi((*it)->getValue());
+				prop->workspace = std::stoi((*it)->getValue()) - 1;
 				prop->maskAdd(AP_WORKSPACE);
 			} catch (std::invalid_argument&) {
 			}
