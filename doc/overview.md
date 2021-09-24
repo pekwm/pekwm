@@ -142,6 +142,20 @@ Build dependencies:
 # apt install libfontconfig1-dev libjpeg-dev libxext-dev libpng-dev libxft-dev libxpm-dev libxrandr-dev libxinerama-dev
 ```
 
+#### Void
+
+Development tools using the GCC C++ compiler:
+
+```
+# xbps-install cmake make gcc
+```
+
+Build dependencies:
+
+```
+# xbps-install fontconfig-devel libjpeg-turbo-devel libXext-devel libpng-devel libXft-devel libXpm-devel libXrandr-devel libXinerama-devel
+```
+
 #### OpenBSD
 
 OpenBSD comes with X11 and a compatible C++ compiler. To add the
