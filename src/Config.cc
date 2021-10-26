@@ -401,11 +401,11 @@ Config::loadScreen(CfgParser::Entry *section)
 	std::vector<CfgParserKey*> keys;
 	keys.push_back(new CfgParserKeyBool("THEMEBACKGROUND",
 					    _screen_theme_background, true));
-	keys.push_back(new CfgParserKeyNumeric<int>("WORKSPACES",
-						    _screen_workspaces, 4, 1));
-	keys.push_back(new CfgParserKeyNumeric<int>("WORKSPACESPERROW",
-						    _screen_workspaces_per_row,
-						    0, 0));
+	keys.push_back(new CfgParserKeyNumeric<uint>("WORKSPACES",
+						     _screen_workspaces, 4, 1));
+	keys.push_back(new CfgParserKeyNumeric<uint>("WORKSPACESPERROW",
+						     _screen_workspaces_per_row,
+						     0, 0));
 	keys.push_back(new CfgParserKeyString("WORKSPACENAMES", workspace_names));
 	keys.push_back(new CfgParserKeyString("EDGESIZE", edge_size));
 	keys.push_back(new CfgParserKeyBool("EDGEINDENT", _screen_edge_indent));

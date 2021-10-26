@@ -30,7 +30,7 @@ main(int argc, char *argv[])
 	TestRegexString testRegexString;
 
 	// // Util
-	TestString testString;
+	TestStringUtil testStringUtil;
 	TestUtil testUtil;
 
 	return TestSuite::main(argc, argv);

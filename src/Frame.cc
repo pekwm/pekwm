@@ -2435,7 +2435,7 @@ Frame::handlePropertyChange(XPropertyEvent *ev, Client *client)
 			Cardinal workspace;
 			if (X11::getCardinal(client->getWindow(),
 					     NET_WM_DESKTOP, workspace)) {
-				if (workspace != signed(_workspace))
+				if (workspace != (Cardinal) _workspace)
 					setWorkspace(workspace);
 			}
 		}

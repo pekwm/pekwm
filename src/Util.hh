@@ -30,7 +30,7 @@ extern "C" {
  * String utilities, convenience functions for making life easier
  * when working with strings.
  */
-namespace String {
+namespace StringUtil {
 	class Key {
 	public:
 		Key(const char *key);
@@ -54,7 +54,7 @@ namespace String {
 
 namespace Util {    
 	template<typename T>
-	class StringMap : public std::map<String::Key, T> {
+	class StringMap : public std::map<StringUtil::Key, T> {
 	public:
 		StringMap(void) { }
 		virtual ~StringMap(void) { }

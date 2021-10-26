@@ -37,7 +37,7 @@ extern "C" {
 
 #define THEME_DEFAULT DATADIR "/pekwm/themes/default/theme"
 
-namespace String
+namespace StringUtil
 {
 	Key::Key(const char *key)
 		: _key(key)

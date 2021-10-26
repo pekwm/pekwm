@@ -112,10 +112,8 @@ Workspaces::setSize(uint number)
 	}
 
 	// Tell the rest of the world how many workspaces we have.
-	X11::changeProperty(X11::getRoot(),
-			    X11::getAtom(NET_NUMBER_OF_DESKTOPS),
-			    XA_CARDINAL, 32, PropModeReplace,
-			    (uchar *) &number, 1);
+	X11::setCardinal(X11::getRoot(), NET_NUMBER_OF_DESKTOPS,
+			 static_cast<Cardinal>(number));
 
 	// make sure we aren't on an non-existent workspace
 	if (number <= _active) {

@@ -451,13 +451,13 @@ Completer::get_part(const std::string &str, unsigned int pos,
                     size_t &part_begin, size_t &part_end)
 {
 	// Get beginning and end of string, add 1 for removal of separator
-	part_begin = String::safe_position(str.find_last_of(";", pos), 0, 1);
-	part_end = String::safe_position(str.find_first_of(";", pos), str.size());
+	part_begin = StringUtil::safe_position(str.find_last_of(";", pos), 0, 1);
+	part_end = StringUtil::safe_position(str.find_first_of(";", pos), str.size());
 
 	// Strip spaces from the beginning of the string
 	part_begin =
-		String::safe_position(str.find_first_not_of(" \t", part_begin),
-				      part_end);
+		StringUtil::safe_position(str.find_first_not_of(" \t", part_begin),
+					  part_end);
 
 	return str.substr(part_begin, part_end - part_begin);
 }
@@ -470,9 +470,9 @@ Completer::get_word_at_position(const std::string &str, unsigned int pos,
                                 size_t &word_begin, size_t &word_end)
 {
 	// Get beginning and end of string, add 1 for removal of separator
-	word_begin = String::safe_position(str.find_last_of(" \t", pos), 0, 1);
+	word_begin = StringUtil::safe_position(str.find_last_of(" \t", pos), 0, 1);
 	word_end =
-		String::safe_position(str.find_first_of(" \t", pos), str.size());
+		StringUtil::safe_position(str.find_first_of(" \t", pos), str.size());
 
 	return str.substr(word_begin, word_end - word_begin);
 }

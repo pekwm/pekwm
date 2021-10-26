@@ -112,8 +112,8 @@ public:
 
 	// Screen
 	bool getThemeBackground(void) const { return _screen_theme_background; }
-	int getWorkspaces(void) const { return _screen_workspaces; }
-	int getWorkspacesPerRow(void) const { return _screen_workspaces_per_row; }
+	uint getWorkspaces(void) const { return _screen_workspaces; }
+	uint getWorkspacesPerRow(void) const { return _screen_workspaces_per_row; }
 	void getDesktopNamesUTF8(uchar **names, uint *length) const;
 	const std::string &getWorkspaceName(uint num) const {
 		return (num >= _screen_workspace_names.size())
@@ -276,8 +276,8 @@ private:
 
 	// screen
 	bool _screen_theme_background;
-	int _screen_workspaces;
-	int _screen_workspaces_per_row;
+	uint _screen_workspaces;
+	uint _screen_workspaces_per_row;
 	std::vector<std::string> _screen_workspace_names;
 	std::string _screen_workspace_name_default;
 	std::vector<int> _screen_edge_sizes;

@@ -1,6 +1,8 @@
 #ifndef _PEKWM_CONFIG_H_
 #define _PEKWM_CONFIG_H_
 
+#cmakedefine HAVE_CARDINAL
+
 #cmakedefine PEKWM_HAVE_GCC_DIAGNOSTICS_PUSH
 
 #cmakedefine PEKWM_HAVE_LIMITS

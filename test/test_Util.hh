@@ -11,10 +11,10 @@
 #include "test.hh"
 #include "Util.hh"
 
-class TestString : public TestSuite {
+class TestStringUtil : public TestSuite {
 public:
-	TestString()
-		: TestSuite("String")
+	TestStringUtil()
+		: TestSuite("StringUtil")
 	{
 	}
 
@@ -26,14 +26,14 @@ public:
 };
 
 bool
-TestString::run_test(TestSpec spec, bool status)
+TestStringUtil::run_test(TestSpec spec, bool status)
 {
 	TEST_FN(spec, "shell_split", testShellSplit());
 	return status;
 }
 
 void
-TestString::testShellSplit(void)
+TestStringUtil::testShellSplit(void)
 {
 	std::vector<std::string> basic_e;
 	basic_e.push_back("one");
@@ -62,10 +62,10 @@ TestString::testShellSplit(void)
 }
 
 void
-TestString::assertShellSplit(std::string msg, std::string str,
+TestStringUtil::assertShellSplit(std::string msg, std::string str,
                              std::vector<std::string> &expected)
 {
-	std::vector<std::string> res = String::shell_split(str);
+	std::vector<std::string> res = StringUtil::shell_split(str);
 	ASSERT_EQUAL(msg + " size", expected.size(), res.size());
 	for (uint i = 0; i < expected.size(); i++) {
 		std::string is =  std::to_string(i);

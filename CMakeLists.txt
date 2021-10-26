@@ -12,6 +12,7 @@ set(pekwm_VERSION "${pekwm_VERSION_MAJOR}.${pekwm_VERSION_MINOR}.${pekwm_VERSION
 set(CMAKE_CXX_STANDARD 98)
 
 include(CheckSymbolExists)
+include(CheckTypeSize)
 include(CheckCXXCompilerFlag)
 include(CheckCXXSourceRuns)
 include(CheckIncludeFile)
@@ -72,6 +73,10 @@ check_symbol_exists(timersub sys/time.h PEKWM_HAVE_TIMERSUB)
 
 # Look for modern X11 functions
 set(CMAKE_REQUIRED_INCLUDES ${X11_INCLUDE_DIR})
+set(CMAKE_EXTRA_INCLUDE_FILES "X11/Intrinsic.h")
+check_type_size(Cardinal CARDINAL)
+set(CMAKE_EXTRA_INCLUDE_FILES "")
+
 set(CMAKE_REQUIRED_LIBRARIES ${X11_LIBRARIES})
 check_symbol_exists(Xutf8SetWMProperties X11/Xutil.h PEKWM_HAVE_XUTF8)
 

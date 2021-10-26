@@ -568,7 +568,7 @@ ActionHandler::actionExec(Client *client, const std::string &command,
 	if (use_shell) {
 		Util::forkExec(command);
 	} else {
-		std::vector<std::string> args = String::shell_split(command);
+		std::vector<std::string> args = StringUtil::shell_split(command);
 		Util::forkExec(args);
 	}
 }

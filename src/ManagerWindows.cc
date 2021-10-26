@@ -226,17 +226,18 @@ RootWO::RootWO(Window root, HintWO *hint_wo, Config *cfg)
 
 	// Set hits on the hint window, these are not updated so they are
 	// set in the constructor.
-	X11::setCardinal(_window, NET_WM_PID, static_cast<long>(getpid()));
+	X11::setCardinal(_window, NET_WM_PID, static_cast<Cardinal>(getpid()));
 	X11::setString(_window, WM_CLIENT_MACHINE, Util::getHostname());
 
 	X11::setWindow(_window, NET_SUPPORTING_WM_CHECK, _hint_wo->getWindow());
 	X11::setEwmhAtomsSupport(_window);
-	X11::setCardinal(_window, NET_NUMBER_OF_DESKTOPS, _cfg->getWorkspaces());
+	X11::setCardinal(_window, NET_NUMBER_OF_DESKTOPS,
+			 static_cast<Cardinal>(_cfg->getWorkspaces()));
 	X11::setCardinal(_window, NET_CURRENT_DESKTOP, 0);
 
 	Cardinal desktop_geometry[2];
-	desktop_geometry[0] = _gm.width;
-	desktop_geometry[1] = _gm.height;
+	desktop_geometry[0] = static_cast<Cardinal>(_gm.width);
+	desktop_geometry[1] = static_cast<Cardinal>(_gm.height);
 	X11::setCardinals(_window, NET_DESKTOP_GEOMETRY, desktop_geometry, 2);
 
 	woListAdd(this);
@@ -492,9 +493,11 @@ RootWO::handlePropertyChange(XPropertyEvent *ev)
 void
 RootWO::setEwmhWorkarea(const Geometry &workarea)
 {
-	Cardinal workarea_array[4] = { workarea.x, workarea.y, 0, 0 };
-	workarea_array[2] = workarea.width;
-	workarea_array[3] = workarea.height;
+	Cardinal workarea_array[4];
+	workarea_array[0] = static_cast<Cardinal>(workarea.x);
+	workarea_array[1] = static_cast<Cardinal>(workarea.y);
+	workarea_array[2] = static_cast<Cardinal>(workarea.width);
+	workarea_array[3] = static_cast<Cardinal>(workarea.height);
 	X11::setCardinals(_window, NET_WORKAREA, workarea_array, 4);
 }
 

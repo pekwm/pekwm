@@ -68,9 +68,9 @@ namespace pekwm
 	}
 }
 
-class Widget {
+class DialogWidget {
 public:
-	virtual ~Widget(void)
+	virtual ~DialogWidget(void)
 	{
 		if (_window != None) {
 			X11::destroyWindow(_window);
@@ -104,7 +104,7 @@ public:
 	virtual uint heightReq(uint width) const = 0;
 
 protected:
-	Widget(Theme::DialogData* data, PWinObj &parent)
+	DialogWidget(Theme::DialogData* data, PWinObj &parent)
 		: _data(data),
 		  _window(None),
 		  _parent(parent)
@@ -120,7 +120,7 @@ protected:
 	Geometry _gm;
 };
 
-class Button : public Widget {
+class Button : public DialogWidget {
 public:
 	Button(Theme::DialogData* data, PWinObj& parent,
 	       stop_fun stop, int retcode, const std::string& text);
@@ -148,7 +148,7 @@ public:
 	}
 
 	virtual void place(int x, int y, uint, uint tot_height) {
-		Widget::place(x, y, _gm.width, tot_height);
+		DialogWidget::place(x, y, _gm.width, tot_height);
 		X11::moveWindow(_window, _gm.x, _gm.y);
 	}
 
@@ -183,7 +183,7 @@ private:
 
 Button::Button(Theme::DialogData* data, PWinObj& parent,
                stop_fun stop, int retcode, const std::string& text)
-	: Widget(data, parent),
+	: DialogWidget(data, parent),
 	  _stop(stop),
 	  _retcode(retcode),
 	  _text(text),
@@ -216,7 +216,7 @@ Button::~Button(void)
 	X11::freePixmap(_background);
 }
 
-class ButtonsRow : public Widget
+class ButtonsRow : public DialogWidget
 {
 public:
 	ButtonsRow(Theme::DialogData* data, PWinObj& parent,
@@ -246,7 +246,7 @@ public:
 
 	virtual void place(int x, int y, uint width, uint tot_height)
 	{
-		Widget::place(x, y, width, tot_height);
+		DialogWidget::place(x, y, width, tot_height);
 
 		// place buttons centered on available width
 		uint buttons_width = 0;
@@ -295,7 +295,7 @@ private:
 
 ButtonsRow::ButtonsRow(Theme::DialogData* data, PWinObj& parent,
                        stop_fun stop, std::vector<std::string> options)
-	: Widget(data, parent)
+	: DialogWidget(data, parent)
 {
 	int i = 0;
 	std::vector<std::string>::iterator it = options.begin();
@@ -312,10 +312,10 @@ ButtonsRow::~ButtonsRow(void)
 	}
 }
 
-class Image : public Widget {
+class Image : public DialogWidget {
 public:
 	Image(Theme::DialogData* data, PWinObj& parent, PImage* image)
-		: Widget(data, parent),
+		: DialogWidget(data, parent),
 		  _image(image)
 	{
 	}
@@ -354,7 +354,7 @@ private:
 	PImage *_image;
 };
 
-class Text : public Widget {
+class Text : public DialogWidget {
 public:
 	Text(Theme::DialogData* data, PWinObj& parent,
 	     const std::string& text, bool is_title);
@@ -365,7 +365,7 @@ public:
 		if (width != _gm.width) {
 			_lines.clear();
 		}
-		Widget::place(x, y, width, tot_height);
+		DialogWidget::place(x, y, width, tot_height);
 	}
 
 	virtual uint heightReq(uint width) const
@@ -435,7 +435,7 @@ private:
 
 Text::Text(Theme::DialogData* data, PWinObj& parent,
            const std::string& text, bool is_title)
-	: Widget(data, parent),
+	: DialogWidget(data, parent),
 	  _font(is_title ? data->getTitleFont() : data->getTextFont()),
 	  _text(text),
 	  _is_title(is_title)
@@ -519,7 +519,7 @@ public:
 		// assign size left to image
 
 		int y = 0;
-		std::vector<Widget*>::iterator it = _widgets.begin();
+		std::vector<DialogWidget*>::iterator it = _widgets.begin();
 		for (; it != _widgets.end(); ++it) {
 			(*it)->place((*it)->getX(), y, width, height);
 			y += (*it)->heightReq(width);
@@ -548,7 +548,7 @@ public:
 		X11Render rend(_background);
 		_data->getBackground()->render(rend,
 					       0, 0, _gm.width, _gm.height);
-		std::vector<Widget*>::iterator it = _widgets.begin();
+		std::vector<DialogWidget*>::iterator it = _widgets.begin();
 		for (; it != _widgets.end(); ++it) {
 			(*it)->render(rend);
 		}
@@ -557,7 +557,7 @@ public:
 
 	void setState(Window window, ButtonState state)
 	{
-		std::vector<Widget*>::iterator it = _widgets.begin();
+		std::vector<DialogWidget*>::iterator it = _widgets.begin();
 		for (; it != _widgets.end(); ++it) {
 			if ((*it)->setState(window, state)) {
 				break;
@@ -567,7 +567,7 @@ public:
 
 	void click(Window window)
 	{
-		std::vector<Widget*>::iterator it = _widgets.begin();
+		std::vector<DialogWidget*>::iterator it = _widgets.begin();
 		for (; it != _widgets.end(); ++it) {
 			if ((*it)->click(window)) {
 				break;
@@ -585,7 +585,7 @@ protected:
 		// height is dependent on the available width, get requested
 		// width first.
 		uint width = _gm.width;
-		std::vector<Widget*>::iterator it = _widgets.begin();
+		std::vector<DialogWidget*>::iterator it = _widgets.begin();
 		for (; it != _widgets.end(); ++it) {
 			uint width_req = (*it)->widthReq();
 			if (width_req && width_req > width) {
@@ -614,7 +614,7 @@ private:
 	bool _raise;
 
 	Pixmap _background;
-	std::vector<Widget*> _widgets;
+	std::vector<DialogWidget*> _widgets;
 
 	static PekwmDialog *_instance;
 };
@@ -639,7 +639,7 @@ PekwmDialog::PekwmDialog(Theme::DialogData* data,
 
 PekwmDialog::~PekwmDialog(void)
 {
-	std::vector<Widget*>::iterator it = _widgets.begin();
+	std::vector<DialogWidget*>::iterator it = _widgets.begin();
 	for (; it != _widgets.end(); ++it) {
 		delete *it;
 	}
