@@ -562,6 +562,7 @@ ActionHandler::actionExec(Client *client, const std::string &command,
 {
 	if (! command.size()) {
 		USER_WARN("empty Exec/ShellExec command");
+		return;
 	}
 
 	Client::setClientEnvironment(client);
