@@ -526,12 +526,11 @@ public:
 				close(fd[0]);
 				close(fd[1]);
 
-				char *argv[5];
+				char *argv[4];
 				argv[0] = strdup("/bin/sh");
-				argv[1] = strdup("sh");
-				argv[2] = strdup("-c");
-				argv[3] = strdup(_command.c_str());
-				argv[4] = NULL;
+				argv[1] = strdup("-c");
+				argv[2] = strdup(_command.c_str());
+				argv[3] = NULL;
 				execvp(argv[0], argv);
 
 				P_ERR("failed to execute: " << _command);
