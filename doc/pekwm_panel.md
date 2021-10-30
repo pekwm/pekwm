@@ -161,6 +161,32 @@ Text = "format string" {
 }
 ```
 
+#### Transform
+
+The **Text** and **Icon** widgets support transformation of the value
+of the field the widget is using. For the **Text** widget the
+formatted string is transformed.
+
+The transformation can be used if the value of pre-defined fields,
+such as X11 atoms, require some change before it can be used.
+
+Transform takes the same form as TitleRules do in pekwm, and is
+configured using the **Transform** keyword.
+
+Example using the _XKB_RULES_NAMES atom to display a keyboard language
+indicator in the panel. The _XKB_RULES_NAMES is a multi value string
+looking something like "evdev,pc105,us,,".
+
+The below example shows the use of a transform, to display kbd-en.png,
+kbd-se.png etc. icon depending on the current keyboard layout.
+
+```
+Icon = "ATOM__XKB_RULES_NAMES" {
+  Icon = "kbd.png"
+  Transform = "/^[^,]*,[^,]*,([^,]*),.*/\\1/"
+}
+```
+
 ### Commands
 
 The **Commands** section of the panel configuration includes

@@ -14,6 +14,7 @@
 #include "ImageHandler.hh"
 #include "Observable.hh"
 #include "PImageIcon.hh"
+#include "RegexString.hh"
 #include "TextureHandler.hh"
 #include "Util.hh"
 #include "X11App.hh"
@@ -482,6 +483,41 @@ FieldObservation::~FieldObservation(void)
 {
 }
 
+
+/**
+ * Variable data storage, used by WmState and ExternalCommandData to
+ * store and notify data.
+ */
+class VarData : public Observable
+{
+public:
+	const std::string& get(const std::string& field) const;
+	void set(const std::string& field, const std::string& value);
+
+private:
+	std::map<std::string, std::string> _vars;
+};
+
+const std::string&
+VarData::get(const std::string& field) const
+{
+	std::map<std::string, std::string>::const_iterator it =
+	  _vars.find(field);
+	return it == _vars.end() ? _empty_string : it->second;
+}
+
+void
+VarData::set(const std::string& field, const std::string& value)
+{
+	// update the value in the map before notifying in case the
+	// value is read by the obvserver
+	_vars[field] = value;
+
+	FieldObservation field_obs(field);
+	pekwm::observerMapping()->notifyObservers(this, &field_obs);
+}
+
+
 /**
  * Collection of data from external commands.
  *
@@ -581,15 +617,8 @@ public:
 		std::string _buf;
 	};
 
-	ExternalCommandData(const PanelConfig& cfg);
+	ExternalCommandData(const PanelConfig& cfg, VarData& var_data);
 	~ExternalCommandData(void);
-
-	const std::string& get(const std::string& field) const
-	{
-		std::map<std::string, std::string>::const_iterator it =
-			_fields.find(field);
-		return it == _fields.end() ? _empty_wstring : it->second;
-	}
 
 	void refresh(fdFun addFd, void *opaque)
 	{
@@ -674,16 +703,14 @@ private:
 	{
 		std::vector<std::string> field_value;
 		if (Util::splitString(line, field_value, " \t", 2) == 2) {
-			_fields[field_value[0]] = field_value[1];
-			FieldObservation field_obs(field_value[0]);
-			pekwm::observerMapping()->notifyObservers(this, &field_obs);
+			_var_data.set(field_value[0], field_value[1]);
 		}
 	}
 
 private:
 	const PanelConfig& _cfg;
+	VarData& _var_data;
 
-	std::map<std::string, std::string> _fields;
 	std::vector<CommandProcess> _command_processes;
 };
 
@@ -705,6 +732,23 @@ ExternalCommandData::CommandProcess::~CommandProcess(void)
 {
 	reset();
 }
+
+ExternalCommandData::ExternalCommandData(const PanelConfig& cfg,
+					 VarData& var_data)
+	: _cfg(cfg),
+	  _var_data(var_data)
+{
+	PanelConfig::command_config_it it = _cfg.commandsBegin();
+	for (; it != _cfg.commandsEnd(); ++it) {
+		_command_processes.push_back(CommandProcess(it->getCommand(),
+							    it->getIntervalS()));
+	}
+}
+
+ExternalCommandData::~ExternalCommandData(void)
+{
+}
+
 
 class ClientInfo : public NetWMStates {
 public:
@@ -749,20 +793,6 @@ private:
 	uint _workspace;
 	PImageIcon *_icon;
 };
-
-ExternalCommandData::ExternalCommandData(const PanelConfig& cfg)
-	: _cfg(cfg)
-{
-	PanelConfig::command_config_it it = _cfg.commandsBegin();
-	for (; it != _cfg.commandsEnd(); ++it) {
-		_command_processes.push_back(CommandProcess(it->getCommand(),
-							    it->getIntervalS()));
-	}
-}
-
-ExternalCommandData::~ExternalCommandData(void)
-{
-}
 
 ClientInfo::ClientInfo(Window window)
 	: _window(window)
@@ -830,16 +860,10 @@ public:
 	typedef std::vector<ClientInfo*> client_info_vector;
 	typedef client_info_vector::const_iterator client_info_it;
 
-	WmState(void);
+	WmState(VarData& var_data);
 	virtual ~WmState(void);
 
-	void read(void)
-	{
-		readActiveWorkspace();
-		readActiveWindow();
-		readClientListStacking();
-		readDesktopNames();
-	}
+	void read(void);
 
 	uint getActiveWorkspace(void) const { return _workspace; }
 	const std::string& getWorkspaceName(uint num) const {
@@ -866,19 +890,26 @@ private:
 	bool readActiveWindow(void);
 	bool readClientListStacking(void);
 	bool readDesktopNames(void);
+	void readRootProperties(void);
+	bool readRootProperty(Atom atom);
+
+	const std::string& getAtomName(Atom atom);
 
 private:
+	VarData& _var_data;
 	Window _active_window;
 	uint _workspace;
 	client_info_vector _clients;
 	std::vector<std::string> _desktop_names;
+	std::map<Atom, std::string> _atom_names;
 
 	XROOTPMAP_ID_Changed _xrootpmap_id_changed;
 	PEKWM_THEME_Changed _pekwm_theme_changed;
 };
 
-WmState::WmState(void)
-	: _active_window(None),
+WmState::WmState(VarData& var_data)
+	: _var_data(var_data),
+	  _active_window(None),
 	  _workspace(0)
 {
 	read();
@@ -890,6 +921,16 @@ WmState::~WmState(void)
 	for (; it != _clients.end(); ++it) {
 		delete *it;
 	}
+}
+
+void
+WmState::read(void)
+{
+	readActiveWorkspace();
+	readActiveWindow();
+	readClientListStacking();
+	readDesktopNames();
+	readRootProperties();
 }
 
 ClientInfo*
@@ -915,6 +956,8 @@ WmState::handlePropertyNotify(XPropertyEvent *ev)
 			observation = &_xrootpmap_id_changed;
 		} else if (ev->atom == X11::getAtom(PEKWM_THEME)) {
 			observation = &_pekwm_theme_changed;
+		} else {
+			readRootProperty(ev->atom);
 		}
 	} else {
 		ClientInfo *client_info = findClientInfo(ev->window, _clients);
@@ -1040,6 +1083,46 @@ WmState::readDesktopNames(void)
 	X11::free(data);
 
 	return true;
+}
+
+void
+WmState::readRootProperties(void)
+{
+	std::vector<Atom> atoms;
+	if (! X11::listProperties(X11::getRoot(), atoms)) {
+		return;
+	}
+
+	std::vector<Atom>::iterator it = atoms.begin();
+	for (; it != atoms.end(); ++it) {
+		readRootProperty(*it);
+	}
+}
+
+bool
+WmState::readRootProperty(Atom atom)
+{
+	bool res = false;
+	const std::string& name = getAtomName(atom);
+	if (name.size() > 0) {
+		std::string value;
+		if (X11::getStringId(X11::getRoot(), atom, value)) {
+			_var_data.set("ATOM_" + name, value);
+			res = true;
+		}
+	}
+	return res;
+}
+
+const std::string&
+WmState::getAtomName(Atom atom)
+{
+	std::map<Atom, std::string>::iterator it = _atom_names.find(atom);
+	if (it != _atom_names.end()) {
+		return it->second;
+	}
+	_atom_names[atom] = X11::getAtomIdString(atom);
+	return _atom_names[atom];
 }
 
 /**
@@ -1427,7 +1510,7 @@ public:
 		{
 		}
 
-		const std::string getName(void) const { return _name; }
+		const std::string &getName(void) const { return _name; }
 		ClientState getState(void) const { return _state; }
 		int getX(void) const { return _x; }
 		void setX(int x) { _x = x; }
@@ -1598,7 +1681,7 @@ class BarWidget : public PanelWidget,
 public:
 	BarWidget(const PanelTheme& theme,
 		  const SizeReq& size_req,
-		  ExternalCommandData& ext_data,
+		  VarData& var_data,
 		  const std::string& field,
 		  const CfgParser::Entry *section);
 	virtual ~BarWidget(void);
@@ -1620,27 +1703,27 @@ private:
 	void addColor(float percent, XColor* color);
 
 private:
-	ExternalCommandData& _ext_data;
+	VarData& _var_data;
 	std::string _field;
 	std::vector<std::pair<float, XColor*> > _colors;
 };
 
 BarWidget::BarWidget(const PanelTheme& theme,
                      const SizeReq& size_req,
-                     ExternalCommandData& ext_data,
+                     VarData& var_data,
                      const std::string& field,
                      const CfgParser::Entry *section)
 	: PanelWidget(theme, size_req),
-	  _ext_data(ext_data),
+	  _var_data(var_data),
 	  _field(field)
 {
 	parseColors(section);
-	pekwm::observerMapping()->addObserver(&_ext_data, this);
+	pekwm::observerMapping()->addObserver(&_var_data, this);
 }
 
 BarWidget::~BarWidget(void)
 {
-	pekwm::observerMapping()->removeObserver(&_ext_data, this);
+	pekwm::observerMapping()->removeObserver(&_var_data, this);
 }
 
 void
@@ -1653,7 +1736,7 @@ BarWidget::render(Render &rend)
 	rend.setColor(_theme.getBarBorder()->pixel);
 	rend.rectangle(getX() + 1, 1, width, height);
 
-	float fill_p = getPercent(_ext_data.get(_field));
+	float fill_p = getPercent(_var_data.get(_field));
 	int fill = static_cast<int>(fill_p * (height - 2));
 	rend.setColor(getBarFill(fill_p));
 	rend.fill(getX() + 2, 1 + height - fill, width - 1, fill);
@@ -1734,7 +1817,7 @@ class TextFormatter
 public:
 	typedef std::string(*formatFun)(TextFormatter *tf, const std::string& buf);
 
-	TextFormatter(ExternalCommandData& ext_data, WmState& wm_state);
+	TextFormatter(VarData& var_data, WmState& wm_state);
 	~TextFormatter(void);
 
 	bool referenceWmState(void) const { return _check_wm_state; }
@@ -1762,15 +1845,15 @@ private:
 	}
 
 private:
-	ExternalCommandData& _ext_data;
+	VarData& _var_data;
 	WmState& _wm_state;
 
 	bool _check_wm_state;
 	std::vector<std::string> _fields;
 };
 
-TextFormatter::TextFormatter(ExternalCommandData& ext_data, WmState& wm_state)
-	: _ext_data(ext_data),
+TextFormatter::TextFormatter(VarData& var_data, WmState& wm_state)
+	: _var_data(var_data),
 	  _wm_state(wm_state),
 	  _check_wm_state(false)
 {
@@ -1882,7 +1965,7 @@ TextFormatter::expandVar(const std::string& buf)
 	}
 
 	// external command data
-	return _ext_data.get(buf);
+	return _var_data.get(buf);
 }
 
 /**
@@ -1895,8 +1978,9 @@ class TextWidget : public PanelWidget,
                    public Observer {
 public:
 	TextWidget(const PanelTheme& theme, const SizeReq& size_req,
-		   ExternalCommandData& _ext_data, WmState& _wm_state,
-		   const std::string& format);
+		   VarData& _var_data, WmState& _wm_state,
+		   const std::string& format,
+		   const CfgParser::Entry *section);
 	virtual ~TextWidget(void);
 
 	virtual void notify(Observable *, Observation *observation);
@@ -1904,29 +1988,37 @@ public:
 	virtual void render(Render &rend);
 
 private:
-	ExternalCommandData& _ext_data;
+	void parseText(const CfgParser::Entry* section);
+
+private:
+	VarData& _var_data;
 	WmState& _wm_state;
 	std::string _pp_format;
+	/** Regex transform of formatted output */
+	RegexString _transform;
 
 	bool _check_wm_state;
 	std::vector<std::string> _fields;
 };
 
 TextWidget::TextWidget(const PanelTheme& theme, const SizeReq& size_req,
-                       ExternalCommandData& ext_data, WmState& wm_state,
-                       const std::string& format)
+                       VarData& var_data, WmState& wm_state,
+                       const std::string& format,
+                       const CfgParser::Entry *section)
 	: PanelWidget(theme, size_req),
-	  _ext_data(ext_data),
+	  _var_data(var_data),
 	  _wm_state(wm_state),
 	  _check_wm_state(false)
 {
-	TextFormatter tf(_ext_data, _wm_state);
+	parseText(section);
+
+	TextFormatter tf(_var_data, _wm_state);
 	_pp_format = tf.preprocess(format);
 	_check_wm_state = tf.referenceWmState();
 	_fields = tf.getFields();
 
 	if (! _fields.empty()) {
-		pekwm::observerMapping()->addObserver(&_ext_data, this);
+		pekwm::observerMapping()->addObserver(&_var_data, this);
 	}
 	if (_check_wm_state) {
 		pekwm::observerMapping()->addObserver(&_wm_state, this);
@@ -1939,7 +2031,7 @@ TextWidget::~TextWidget(void)
 		pekwm::observerMapping()->removeObserver(&_wm_state, this);
 	}
 	if (! _fields.empty()) {
-		pekwm::observerMapping()->removeObserver(&_ext_data, this);
+		pekwm::observerMapping()->removeObserver(&_var_data, this);
 	}
 }
 
@@ -1984,10 +2076,27 @@ TextWidget::render(Render &rend)
 {
 	PanelWidget::render(rend);
 
-	TextFormatter tf(_ext_data, _wm_state);
+	TextFormatter tf(_var_data, _wm_state);
 	PFont *font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
 	std::string text = tf.format(_pp_format);
+	if (_transform.is_match_ok()) {
+		_transform.ed_s(text);
+	}
 	renderText(rend, font, getX(), text, getWidth());
+}
+
+void
+TextWidget::parseText(const CfgParser::Entry* section)
+{
+	std::string transform;
+	std::vector<CfgParserKey*> keys;
+	keys.push_back(new CfgParserKeyString("TRANSFORM", transform));
+	section->parseKeyValues(keys.begin(), keys.end());
+	std::for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+
+	if (transform.size() > 0) {
+		_transform.parse_ed_s(transform);
+	}
 }
 
 /**
@@ -1998,12 +2107,13 @@ class IconWidget : public PanelWidget,
 public:
 	IconWidget(const PanelTheme& theme,
 		   const SizeReq& size_req,
-		   ExternalCommandData &ext_data,
+		   VarData &var_data,
 		   const std::string& field,
 		   const CfgParser::Entry *section);
 	virtual ~IconWidget(void);
 
 	virtual void notify(Observable *, Observation *observation);
+	virtual uint getRequiredSize(void) const;
 	virtual void render(Render& rend);
 
 private:
@@ -2012,12 +2122,14 @@ private:
 	void parseIcon(const CfgParser::Entry* section);
 
 private:
-	ExternalCommandData& _ext_data;
+	VarData& _var_data;
 	std::string _field;
 	/** icon name, no file extension. */
 	std::string _name;
 	/** file extension. */
 	std::string _ext;
+	/** Regex transform of observed field */
+	RegexString _transform;
 
 	/** current loaded icon, matching _icon_name. */
 	PImage* _icon;
@@ -2026,17 +2138,17 @@ private:
 
 IconWidget::IconWidget(const PanelTheme& theme,
                        const SizeReq& size_req,
-                       ExternalCommandData &ext_data,
+                       VarData &var_data,
                        const std::string& field,
                        const CfgParser::Entry *section)
 	: PanelWidget(theme, size_req),
-	  _ext_data(ext_data),
+	  _var_data(var_data),
 	  _field(field),
 	  _icon(nullptr)
 {
 	parseIcon(section);
 
-	pekwm::observerMapping()->addObserver(&_ext_data, this);
+	pekwm::observerMapping()->addObserver(&_var_data, this);
 	load();
 }
 
@@ -2045,7 +2157,7 @@ IconWidget::~IconWidget(void)
 	if (_icon) {
 		pekwm::imageHandler()->returnImage(_icon);
 	}
-	pekwm::observerMapping()->removeObserver(&_ext_data, this);
+	pekwm::observerMapping()->removeObserver(&_var_data, this);
 }
 
 void
@@ -2056,6 +2168,12 @@ IconWidget::notify(Observable *, Observation *observation)
 		_dirty = true;
 		load();
 	}
+}
+
+uint
+IconWidget::getRequiredSize(void) const
+{
+	return _theme.getHeight();
 }
 
 void
@@ -2075,10 +2193,13 @@ IconWidget::load(void)
 {
 	std::string value;
 	if (! _field.empty()) {
-		value = Charset::toSystem(_ext_data.get(_field));
+		value = Charset::toSystem(_var_data.get(_field));
 	}
-
-	if (value.empty() || ! loadImage(_name + "-" + value + _ext)) {
+	if (_transform.is_match_ok()) {
+		_transform.ed_s(value);
+	}
+	std::string image = _name + "-" + value + _ext;
+	if (value.empty() || ! loadImage(image)) {
 		loadImage(_name + _ext);
 	}
 }
@@ -2106,9 +2227,10 @@ IconWidget::loadImage(const std::string& icon_name)
 void
 IconWidget::parseIcon(const CfgParser::Entry* section)
 {
-	std::string name;
+	std::string name, transform;
 	std::vector<CfgParserKey*> keys;
 	keys.push_back(new CfgParserKeyString("ICON", name));
+	keys.push_back(new CfgParserKeyString("TRANSFORM", transform));
 	section->parseKeyValues(keys.begin(), keys.end());
 	std::for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 
@@ -2119,6 +2241,9 @@ IconWidget::parseIcon(const CfgParser::Entry* section)
 		_name = name.substr(0, pos);
 		_ext = name.substr(pos, name.size() - pos);
 	}
+	if (transform.size() > 0) {
+		_transform.parse_ed_s(transform);
+	}
 }
 
 /**
@@ -2127,10 +2252,9 @@ IconWidget::parseIcon(const CfgParser::Entry* section)
 class WidgetFactory {
 public:
 	WidgetFactory(const PanelTheme& theme,
-		      ExternalCommandData& ext_data,
-		      WmState& wm_state)
+		      VarData& var_data, WmState& wm_state)
 		: _theme(theme),
-		  _ext_data(ext_data),
+		  _var_data(var_data),
 		  _wm_state(wm_state)
 	{
 	}
@@ -2139,7 +2263,7 @@ public:
 
 private:
 	const PanelTheme& _theme;
-	ExternalCommandData& _ext_data;
+	VarData& _var_data;
 	WmState& _wm_state;
 };
 
@@ -2155,7 +2279,7 @@ WidgetFactory::construct(const WidgetConfig& cfg)
 			USER_WARN("missing required argument to Bar widget");
 		} else {
 			return new BarWidget(_theme, cfg.getSizeReq(),
-					     _ext_data, field, cfg.getCfgSection());
+					     _var_data, field, cfg.getCfgSection());
 		}
 	} else if (name == "CLIENTLIST") {
 		return new ClientListWidget(_theme, cfg.getSizeReq(), _wm_state);
@@ -2164,7 +2288,7 @@ WidgetFactory::construct(const WidgetConfig& cfg)
 		return new DateTimeWidget(_theme, cfg.getSizeReq(), format);
 	} else if (name == "ICON") {
 		const std::string &field = cfg.getArg(0);
-		return new IconWidget(_theme, cfg.getSizeReq(), _ext_data, field,
+		return new IconWidget(_theme, cfg.getSizeReq(), _var_data, field,
 				      cfg.getCfgSection());
 	} else if (name == "TEXT") {
 		const std::string &format = cfg.getArg(0);
@@ -2172,7 +2296,8 @@ WidgetFactory::construct(const WidgetConfig& cfg)
 			USER_WARN("missing required argument to Text widget");
 		} else {
 			return new TextWidget(_theme, cfg.getSizeReq(),
-					      _ext_data, _wm_state, format);
+					      _var_data, _wm_state, format,
+					      cfg.getCfgSection());
 		}
 	} else {
 		USER_WARN("unknown widget " << cfg.getName());
@@ -2291,7 +2416,7 @@ private:
 
 	void addWidgets(void)
 	{
-		WidgetFactory factory(_theme, _ext_data, _wm_state);
+		WidgetFactory factory(_theme, _var_data, _wm_state);
 
 		std::vector<WidgetConfig>::const_iterator it = _cfg.widgetsBegin();
 		for (; it != _cfg.widgetsEnd(); ++it) {
@@ -2323,9 +2448,10 @@ private:
 private:
 	const PanelConfig& _cfg;
 	PanelTheme& _theme;
+	VarData _var_data;
+	ExternalCommandData _ext_data;
 	WmState _wm_state;
 	std::vector<PanelWidget*> _widgets;
-	ExternalCommandData _ext_data;
 	Pixmap _pixmap;
 };
 
@@ -2338,7 +2464,8 @@ PekwmPanel::PekwmPanel(const PanelConfig &cfg, PanelTheme &theme,
 		 WINDOW_TYPE_DOCK, sh),
 	  _cfg(cfg),
 	  _theme(theme),
-	  _ext_data(cfg),
+	  _ext_data(cfg, _var_data),
+	  _wm_state(_var_data),
 	  _pixmap(X11::createPixmap(sh->width, sh->height))
 {
 	X11::selectInput(_window,
@@ -2367,6 +2494,9 @@ PekwmPanel::PekwmPanel(const PanelConfig &cfg, PanelTheme &theme,
 
 PekwmPanel::~PekwmPanel(void)
 {
+	if (! _widgets.empty()) {
+		pekwm::observerMapping()->removeObserver(&_var_data, this);
+	}
 	pekwm::observerMapping()->removeObserver(&_wm_state, this);
 	std::vector<PanelWidget*>::iterator it = _widgets.begin();
 	for (; it != _widgets.end(); ++it) {
@@ -2378,7 +2508,13 @@ PekwmPanel::~PekwmPanel(void)
 void
 PekwmPanel::configure(void)
 {
+	if (! _widgets.empty()) {
+		pekwm::observerMapping()->removeObserver(&_var_data, this);
+	}
 	addWidgets();
+	if (! _widgets.empty()) {
+		pekwm::observerMapping()->addObserver(&_var_data, this);
+	}
 	resizeWidgets();
 }
 
@@ -2428,6 +2564,8 @@ PekwmPanel::notify(Observable*, Observation *observation)
 	    || dynamic_cast<WmState::PEKWM_THEME_Changed*>(observation)) {
 		renderBackground();
 		renderPred(renderPredAlways, nullptr);
+	} else {
+		render();
 	}
 }
 
