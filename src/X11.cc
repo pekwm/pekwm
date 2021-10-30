@@ -964,6 +964,18 @@ X11::getAtomString(AtomName name)
 	return atomnames[name];
 }
 
+std::string
+X11::getAtomIdString(Atom id)
+{
+	std::string name;
+	char *c_name = XGetAtomName(_dpy, id);
+	if (c_name != nullptr) {
+		name = c_name;
+		XFree(c_name);
+	}
+	return name;
+}
+
 AtomName
 X11::getAtomName(Atom atom)
 {
@@ -1046,8 +1058,14 @@ X11::setCardinals(Window win, AtomName aname,
 bool
 X11::getUtf8String(Window win, AtomName aname, std::string &value)
 {
+	return getUtf8StringId(win, _atoms[aname], value);
+}
+
+bool
+X11::getUtf8StringId(Window win, Atom id, std::string &value)
+{
 	uchar *data = nullptr;
-	if (getProperty(win, _atoms[aname], _atoms[UTF8_STRING], 0, &data, 0)) {
+	if (getProperty(win, id, _atoms[UTF8_STRING], 0, &data, 0)) {
 		value = std::string(reinterpret_cast<char*>(data));
 		X11::free(data);
 		return true;
@@ -1076,9 +1094,20 @@ X11::setUtf8StringArray(Window win, AtomName aname,
 bool
 X11::getString(Window win, AtomName aname, std::string &value)
 {
+	return X11::getStringId(win, _atoms[aname], value);
+}
+
+bool
+X11::getStringId(Window win, Atom id, std::string &value)
+{
 	uchar *data = 0;
-	if (getProperty(win, _atoms[aname], XA_STRING, 0, &data, 0)) {
+	long uint actual;
+	if (getProperty(win, id, XA_STRING, 0, &data, &actual)) {
 		value = std::string((const char*) data);
+		while (value.size() < actual) {
+			value += ',';
+			value += ((const char*) data) + value.size();
+		}
 		X11::free(data);
 		return true;
 	}
@@ -1090,6 +1119,24 @@ X11::setString(Window win, AtomName aname, const std::string &value)
 {
 	changeProperty(win, _atoms[aname], XA_STRING, 8, PropModeReplace,
 		       (uchar*)value.c_str(), value.size());
+}
+
+bool
+X11::listProperties(Window win, std::vector<Atom>& atoms)
+{
+	if (! _dpy) {
+		return false;
+	}
+
+	int num_props;
+	Atom *c_atoms = XListProperties(_dpy, win, &num_props);
+	if (c_atoms) {
+		for (int i = 0; i < num_props; i++) {
+			atoms.push_back(c_atoms[i]);
+		}
+		XFree(c_atoms);
+	}
+	return c_atoms != nullptr;
 }
 
 bool

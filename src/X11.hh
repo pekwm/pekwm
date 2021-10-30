@@ -366,6 +366,7 @@ public:
 
 	static Atom getAtom(AtomName name) { return _atoms[name]; }
 	static const char *getAtomString(AtomName name);
+	static std::string getAtomIdString(Atom id);
 	static AtomName getAtomName(Atom id);
 	static void setAtom(Window win, AtomName aname, AtomName value);
 	static void setAtoms(Window win, AtomName aname, Atom *values, int size);
@@ -381,13 +382,17 @@ public:
 	static void setCardinals(Window win, AtomName aname,
 				 Cardinal *values, int num);
 	static bool getUtf8String(Window win, AtomName aname, std::string &value);
+	static bool getUtf8StringId(Window win, Atom id, std::string &value);
 	static void setUtf8String(Window win, AtomName aname,
 				  const std::string &value);
 	static void setUtf8StringArray(Window win, AtomName aname,
 				       unsigned char *values, uint length);
 	static bool getString(Window win, AtomName aname, std::string &value);
+	static bool getStringId(Window win, Atom id, std::string &value);
 	static void setString(Window win, AtomName aname,
 			      const std::string &value);
+
+	static bool listProperties(Window win, std::vector<Atom>& atoms);
 
 	static bool getProperty(Window win, Atom atom, Atom type,
 				ulong expected, uchar **data, ulong *actual);
