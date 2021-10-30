@@ -816,17 +816,26 @@ ActionHandler::actionShowInputDialog(InputDialog *dialog,
 {
 	if (dialog->isMapped()) {
 		dialog->unmapWindow();
-	} else {
-		Geometry gm;
-		if (frame) {
-			frame->getGeometry(gm);
-		} else {
-			CurrHeadSelector chs = pekwm::config()->getCurrHeadSelector();
-			X11::getHeadInfo(X11Util::getCurrHead(chs), gm);
-		}
-
-		dialog->mapCentered(initial, gm, frame ? frame : wo);
+		return;
 	}
+
+
+	Geometry gm;
+	if (frame) {
+		frame->getGeometry(gm);
+	} else {
+		CurrHeadSelector chs = pekwm::config()->getCurrHeadSelector();
+		X11::getHeadInfo(X11Util::getCurrHead(chs), gm);
+	}
+
+	// skip leave events for the focused window object displaying
+	// the input dialog, it should get the focus
+	PWinObj *focused_wo = PWinObj::getFocusedPWinObj();
+	if (focused_wo && focused_wo->getType() == PWinObj::WO_MENU) {
+		PWinObj::setSkipEnterAfter(focused_wo);
+	}
+
+	dialog->mapCentered(initial, gm, frame ? frame : wo);
 }
 
 bool
