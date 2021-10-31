@@ -2334,9 +2334,9 @@ static bool renderPredAlways(PanelWidget*, void*)
  *   * *, all space not occupied by the other widgets. All * share the remaining
  *     space.
  *
- *       required            300px                         *
+ *       required           300px                         *
  * ----------------------------------------------------------------------------
- * | [WorkspaceNumber] | [ExternalData] | [ClientList]                        |
+ * | [WorkspaceNumber] |    [Text]   |              [ClientList]              |
  * ----------------------------------------------------------------------------
  *
  */

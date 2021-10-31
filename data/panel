@@ -18,10 +18,10 @@ Widgets {
   Text = "%:WORKSPACE_NUMBER:" {
     Size = "TextWidth _00_"
   }
-  ExternalData = "%load" {
+  Text = "%load" {
     Size = "TextWidth _0.00, 0.00, 0.00_"
   }
-  # ExternalData = "battery" {
+  # Text = "battery" {
   #   Size = "TextWidth _100%_"
   # }
   ClientList {
