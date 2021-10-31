@@ -1,6 +1,18 @@
 pekwm-0.2.0
 ===========
 
+Build system
+------------
+
+* pekwm reverted back to using C++98 to support building on legacy
+  systems.
+* autotools have been removed, being replaced by CMake.
+* pekwm supports a simple shell based configure script together with a
+  set of mk files for building on systems without CMake.
+* iconv/libiconv dependency has been removed.
+* Fixed build issues on Solaris 10 and Solaris 11 with the Sun Studio
+  compiler.
+
 Closed issues
 -------------
 
@@ -12,6 +24,8 @@ Closed issues
 * Size specification was ignored on plain textures (except solid),
   it is now read and can cause issues on themes that have incorrectly
   specified them.
+* **#75 SendToWorkspace KeepFocus**, new parameter KeepFocus added to
+  SendToWorkspace.
 * **#78 Icon Autoproperty**, it is now possible to set the _NET_WM_ICON
   hint using the new property Icon. It will load the image from the icon
   load path.
@@ -22,6 +36,15 @@ Property = "^xterm,^XTerm" {
     Icon = "term.png"
 }
 ```
+* **#79 TempRaise visual bug**, menus now refresh on expose events
+  avoiding redraw issues on the selected items.
+* **Correct maximized state after SetGeometry command** now corrects
+  the behavior where toggle to maximize a window, execute SetGeometry
+  to move it in a corner, toggle maximizing again now maximizes the
+  window instead of unmaximizing it.
+* **Support MSB visual** fixing black-only decorations on at least
+  some Sun hardware.
+* **Fix _NET_NUMBER_OF_DESKTOPS reported on sparc64**
 
 New
 ---
@@ -101,6 +124,10 @@ window if any and then fall backs to the cursor position. Affected
 operations include placement and position of CmdDialog, SearchDialog,
 StatusWindow and focus toggle list. (#43)
 
+**pekwm_panel** created, simpel panel application with pekwm theme
+support. Displayed data, excluding a few builtin types, come from
+external commands or root window properties.
+
 Updated
 -------
 
@@ -138,6 +165,15 @@ Examples:
 SetGeometry 100%x50%+0+0 Current HonourStrut
 SetGeometry 100x100% Screen
 ```
+
+**Fullscreen Focus** changes where fullscreen windows (using
+FullscreenAbove) are temporarily lowered when a non fullscreen window
+is raised to enable interactions with the client.
+
+**Icon load path** now include the current theme path icons folder.
+
+**$_PEKWM_CONFIG_PATH** is now set to the path where the configuration
+file was read from.
 
 Removed
 -------
