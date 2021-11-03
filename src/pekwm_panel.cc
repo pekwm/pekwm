@@ -2117,6 +2117,9 @@ public:
 	virtual void render(Render& rend);
 
 private:
+	void renderFixed(Render& rend);
+	void renderScaled(Render& rend);
+
 	void load(void);
 	bool loadImage(const std::string& icon_name);
 	void parseIcon(const CfgParser::Entry* section);
@@ -2130,6 +2133,8 @@ private:
 	std::string _ext;
 	/** Regex transform of observed field */
 	RegexString _transform;
+	/** If true, scale icon square to fit panel height */
+	bool _scale;
 
 	/** current loaded icon, matching _icon_name. */
 	PImage* _icon;
@@ -2144,6 +2149,7 @@ IconWidget::IconWidget(const PanelTheme& theme,
 	: PanelWidget(theme, size_req),
 	  _var_data(var_data),
 	  _field(field),
+	  _scale(false),
 	  _icon(nullptr)
 {
 	parseIcon(section);
@@ -2173,7 +2179,10 @@ IconWidget::notify(Observable *, Observation *observation)
 uint
 IconWidget::getRequiredSize(void) const
 {
-	return _theme.getHeight();
+	if (_scale || _icon == nullptr) {
+		return _theme.getHeight();
+	}
+	return _icon->getWidth() + 2;
 }
 
 void
@@ -2181,11 +2190,35 @@ IconWidget::render(Render& rend)
 {
 	PanelWidget::render(rend);
 	if (_icon == nullptr) {
-		return;
+		// do nothing, no icon to render
+	} else if (_scale) {
+		renderScaled(rend);
+	} else {
+		renderFixed(rend);
 	}
+}
 
-	uint height = _theme.getHeight() - 2;
-	_icon->draw(rend, getX(), 1, height, height);
+void
+IconWidget::renderFixed(Render& rend)
+{
+	uint height, width;
+	uint height_avail = _theme.getHeight() - 2;
+	if (_icon->getHeight() > height_avail) {
+		float aspect = (float) height_avail / _icon->getHeight();
+		height = height_avail;
+		width = _icon->getWidth() * aspect;
+	} else {
+		height = _icon->getHeight();
+		width = _icon->getWidth();
+	}
+	_icon->draw(rend, getX() + 1, 1, width, height);
+}
+
+void
+IconWidget::renderScaled(Render& rend)
+{
+	uint side = _theme.getHeight() - 2;
+	_icon->draw(rend, getX() + 1, 1, side, side);
 }
 
 void
@@ -2231,6 +2264,7 @@ IconWidget::parseIcon(const CfgParser::Entry* section)
 	std::vector<CfgParserKey*> keys;
 	keys.push_back(new CfgParserKeyString("ICON", name));
 	keys.push_back(new CfgParserKeyString("TRANSFORM", transform));
+	keys.push_back(new CfgParserKeyBool("SCALE", _scale));
 	section->parseKeyValues(keys.begin(), keys.end());
 	std::for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 
@@ -2244,6 +2278,9 @@ IconWidget::parseIcon(const CfgParser::Entry* section)
 	if (transform.size() > 0) {
 		_transform.parse_ed_s(transform);
 	}
+
+	// inital load of image to get size request right
+	load();
 }
 
 /**

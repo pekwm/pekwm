@@ -1,3 +1,11 @@
+pekwm-0.2.1
+===========
+
+Updated
+-------
+
+* pekwm_panel, Icon widget now has a Scale option defaulting to false.
+
 pekwm-0.2.0
 ===========
 
