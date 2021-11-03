@@ -123,8 +123,13 @@ a given external data field is updated.
 Icon = "battery-icon-status" {
   Size = "Pixel 32"
   Icon = "battery.png"
+  # If True, scale image square to panel height
+  Scale = "False"
 }
 ```
+
+NOTE: The widget expect all icons set by the external data field to
+have the same size.
 
 #### Widget: Text
 
