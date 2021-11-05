@@ -1,6 +1,13 @@
 pekwm-0.2.1
 ===========
 
+Build system
+------------
+
+* Makefile based build now install docs, support configuring the
+  manpath (relative to the prefix) and create .sh files properly with
+  the configured SED on Solaris
+
 Updated
 -------
 

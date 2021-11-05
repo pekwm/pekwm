@@ -5,10 +5,12 @@ include $(MK)/config.mk
 all:
 	( cd src; $(MAKE) all )
 	( cd data; $(MAKE) all )
+	( cd doc; $(MAKE) all )
 
 install:
 	( cd src; $(MAKE) install )
 	( cd data; $(MAKE) install )
+	( cd doc; $(MAKE) install )
 
 dist:
 	rm -f pekwm-$(VERSION).tar.gz
@@ -18,6 +20,7 @@ dist:
 	mkdir -p pekwm-$(VERSION)/src
 	cp configure Makefile CMakeLists.txt pekwm-$(VERSION)/
 	cp -R data/* pekwm-$(VERSION)/data/
+	cp -R doc/* pekwm-$(VERSION)/data/
 	cp -R mk/* pekwm-$(VERSION)/mk/
 	cp -R src/Makefile pekwm-$(VERSION)/src/
 	cp -R src/*.cc pekwm-$(VERSION)/src/
