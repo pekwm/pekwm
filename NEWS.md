@@ -12,6 +12,7 @@ Updated
 -------
 
 * pekwm_panel, Icon widget now has a Scale option defaulting to false.
+* pekwm_theme, Detect download errors of the theme index file.
 
 pekwm-0.2.0
 ===========

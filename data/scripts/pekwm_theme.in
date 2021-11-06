@@ -84,7 +84,9 @@ fetch_file()
 # update_index
 update_index()
 {
-    mkdir -p "$HOME/.pekwm"
+    if ! test -e "$HOME/.pekwm"; then
+        mkdir -p "$HOME/.pekwm"
+    fi
     if test -e "${LOCAL_THEME_INDEX}.stamp"; then
         created=`cat ${LOCAL_THEME_INDEX}.stamp`
         now=`pekwm_ctrl -a util timestamp 2>/dev/null`
@@ -99,6 +101,9 @@ update_index()
 
     if test ! -e "$LOCAL_THEME_INDEX"; then
         fetch_file "$REMOTE_THEME_INDEX" "$LOCAL_THEME_INDEX"
+        if test $? -ne 0; then
+            die "failed to update theme index from $REMOTE_THEME_INDEX"
+        fi
         pekwm_ctrl -a util timestamp >"${LOCAL_THEME_INDEX}.stamp" 2>/dev/null
     fi
 }
