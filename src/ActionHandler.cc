@@ -328,12 +328,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
 				break;
 			}
 			case ACTION_GOTO_WORKSPACE:
-				// Events caused by a motion event ( dragging frame to
-				// the edge ) or enter event ( moving the pointer to
-				// the edge ) should warp the pointer.
-				actionGotoWorkspace(calcWorkspaceNum(*it),
-						    (ap.type == MotionNotify)
-						    || (ap.type == EnterNotify));
+				actionGotoWorkspace(*it, ap.type);
 				break;
 			case ACTION_FIND_CLIENT:
 				actionFindClient(it->getParamS());
@@ -588,9 +583,16 @@ ActionHandler::actionFindClient(const std::string &title)
 //! @param workspace Workspace to got to
 //! @param warp If true, warp pointer as well
 void
-ActionHandler::actionGotoWorkspace(uint workspace, bool warp)
+ActionHandler::actionGotoWorkspace(const Action &action, int type)
 {
-	Workspaces::gotoWorkspace(workspace, warp);
+
+	uint workspace = calcWorkspaceNum(action);
+	bool focus = action.getParamI(action.numParamI() - 1);
+	// events caused by a motion event ( dragging frame to the
+	// edge ) or enter event ( moving the pointer to the edge )
+	// should warp the pointer.
+	bool warp = type == MotionNotify || type == EnterNotify;
+	Workspaces::gotoWorkspace(workspace, focus, warp);
 }
 
 //! @brief Focus client with id.
@@ -678,7 +680,7 @@ ActionHandler::actionWarpToWorkspace(PDecor *decor, uint direction)
 	X11::removeMotionEvents();
 
 	// actually did move
-	if (Workspaces::gotoWorkspace(DirectionType(direction), true)) {
+	if (Workspaces::gotoWorkspace(DirectionType(direction), false, true)) {
 		int x, y;
 		X11::getMousePosition(x, y);
 

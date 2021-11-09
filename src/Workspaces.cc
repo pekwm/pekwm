@@ -199,7 +199,7 @@ Workspaces::hideWorkspaceIndicator(void)
 }
 
 bool
-Workspaces::gotoWorkspace(uint direction, bool warp)
+Workspaces::gotoWorkspace(uint direction, bool focus, bool warp)
 {
 	uint workspace;
 	int dir = 0;
@@ -303,7 +303,7 @@ Workspaces::gotoWorkspace(uint direction, bool warp)
 		if (warp) {
 			warpToWorkspace(workspace, dir);
 		} else {
-			setWorkspace(workspace, true);
+			setWorkspace(workspace, focus);
 		}
 	}
 

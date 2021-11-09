@@ -89,7 +89,7 @@ public:
 	static void setNames(void);
 
 	static void setWorkspace(uint num, bool focus);
-	static bool gotoWorkspace(uint direction, bool warp);
+	static bool gotoWorkspace(uint direction, bool focus, bool warp);
 
 	static Workspace &getActWorkspace(void) {
 		return _workspaces[_active];

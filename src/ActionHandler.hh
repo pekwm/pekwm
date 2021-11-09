@@ -47,7 +47,7 @@ private:
 	void actionExec(Client *client, const std::string &command, bool use_shell);
 	void actionFindClient(const std::string &title);
 	void actionGotoClientID(uint id);
-	void actionGotoWorkspace(uint workspace, bool warp);
+	void actionGotoWorkspace(const Action &action, int type);
 	void actionSendToWorkspace(PDecor *decor, bool focus, int direction);
 	void actionWarpToWorkspace(PDecor *decor, uint direction);
 	void actionFocusDirectional(PWinObj *wo, DirectionType dir, bool raise);

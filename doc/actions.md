@@ -420,7 +420,7 @@ Sends a frame to the specified workspace. String is one of:
 If the second argument is "keepfocus", the window remains focused in
 the new workspace. Default no keepfocus.
 
-**GotoWorkspace (string)**
+**GotoWorkspace (string) [bool]**
 
 Changes workspaces. String is one of:
 
@@ -438,6 +438,9 @@ Changes workspaces. String is one of:
 * _down_
 * _last_, go to workspace you last used before the current
 * _int_, integer is a workspace number to go to
+
+If the second argument is given, it can be used to disable the default
+behaviour of focusing the previously focused window on the workspace.
 
 **Exec (string)**
 

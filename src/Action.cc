@@ -243,22 +243,29 @@ static Util::StringTo<WorkspaceChangeType> workspace_change_map[] =
 static void
 parseActionChangeWorkspace(Action &action, const std::string &arg, int idx = 0)
 {
-	// Get workspace looking for relative numbers
-	uint num = Util::StringToGet(workspace_change_map, arg);
-
-	if (num == WORKSPACE_NO) {
-		// Workspace isn't relative, check for 2x2 and ordinary specification
-		std::vector<std::string> tok;
-		if (Util::splitString(arg, tok, "x", 2, true) == 2) {
-			action.setParamI(idx, -1); // indicate ROWxCOL
-			action.setParamI(idx + 1, strtol(tok[0].c_str(), 0, 10) - 1); // row
-			action.setParamI(idx + 2, strtol(tok[1].c_str(), 0, 10) - 1); // col
-		} else {
-			action.setParamI(idx, strtol(arg.c_str(), 0, 10) - 1);
-		}
-	} else {
-		action.setParamI(idx, num);
+	int focus = 1;
+	std::vector<std::string> tok;
+	if ((Util::splitString(arg, tok, " \t", 2)) == 2) {
+		focus = Util::isTrue(tok[1]) ? 1 : 0;
 	}
+
+	// Get workspace looking for relative numbers
+	uint num = Util::StringToGet(workspace_change_map, tok[0]);
+	if (num != WORKSPACE_NO) {
+		action.setParamI(idx++, num);
+	} else {
+		// Workspace isn't relative, check for 2x2 and ordinary specification
+		std::vector<std::string> tok1;
+		if (Util::splitString(tok[0], tok1, "x", 2, true) == 2) {
+			// [0] -1 (indicate ROWxCOL), [1] (row) [2] (col)
+			action.setParamI(idx++, -1);
+			action.setParamI(idx++, std::stoi(tok1[0]) - 1);
+			action.setParamI(idx++, std::stoi(tok1[1]) - 1);
+		} else {
+			action.setParamI(idx++, std::stoi(tok[0]) - 1);
+		}
+	}
+	action.setParamI(idx, focus);
 }
 
 /**
