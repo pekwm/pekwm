@@ -140,11 +140,17 @@ enum DecorState {
 };
 
 enum ImageType {
-	IMAGE_TYPE_TILED = 1, IMAGE_TYPE_SCALED, IMAGE_TYPE_FIXED, IMAGE_TYPE_NO = 0
+	IMAGE_TYPE_TILED = 1,
+	IMAGE_TYPE_SCALED,
+	IMAGE_TYPE_FIXED,
+	IMAGE_TYPE_NO = 0
 };
 
 enum FontJustify {
-	FONT_JUSTIFY_LEFT, FONT_JUSTIFY_CENTER, FONT_JUSTIFY_RIGHT, FONT_JUSTIFY_NO
+	FONT_JUSTIFY_LEFT,
+	FONT_JUSTIFY_CENTER,
+	FONT_JUSTIFY_RIGHT,
+	FONT_JUSTIFY_NO
 };
 
 enum HarbourPlacement {
@@ -261,7 +267,8 @@ enum CfgDeny {
 	CFG_DENY_STATE_BELOW = (1L << 9), //! EWMH state below deny.
 
 	CFG_DENY_STRUT = (1L << 10), //! _NET_WM_STRUT_HINT registration.
-	CFG_DENY_RESIZE_INC = (1L << 11), // Ignore the ResizeInc from the SizeHints
+	/** Ignore the ResizeInc from the SizeHints */
+	CFG_DENY_RESIZE_INC = (1L << 11),
 
 	CFG_DENY_NO = 0 //! No deny.
 };
@@ -270,6 +277,19 @@ enum CurrHeadSelector {
 	CURR_HEAD_SELECTOR_CURSOR,
 	CURR_HEAD_SELECTOR_FOCUSED_WINDOW,
 	CURR_HEAD_SELECTOR_NO
+};
+
+enum FocusSelector {
+	/** select window under pointer. */
+	FOCUS_SELECTOR_POINTER,
+	/** select previously foused window (on last workspace change) */
+	FOCUS_SELECTOR_WORKSPACE_LAST_FOCUSED,
+	/** select top-most window. */
+	FOCUS_SELECTOR_TOP,
+	/** select root window */
+	FOCUS_SELECTOR_ROOT,
+	/** not a valid focus selector */
+	FOCUS_SELECTOR_NO
 };
 
 namespace pekwm

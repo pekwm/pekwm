@@ -331,8 +331,8 @@ WindowManager::scanWindows(void)
 	}
 
 	// Try to focus the ontop window, if no window we give root focus
-	PWinObj *wo = Workspaces::getTopWO(PWinObj::WO_FRAME);
-	if (wo && wo->isMapped()) {
+	PWinObj *wo = Workspaces::getTopFocusableWO(PWinObj::WO_FRAME);
+	if (wo) {
 		wo->giveInputFocus();
 	} else {
 		pekwm::rootWo()->giveInputFocus();

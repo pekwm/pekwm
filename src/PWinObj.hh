@@ -128,6 +128,11 @@ public:
 	//! @brief Sets gm to geometry of window.
 	inline void getGeometry(Geometry &gm) const { gm = _gm; }
 
+	//! @brief Return true if x and y is within the window coordinates
+	inline bool isUnder(int x, int y) {
+		return x >= _gm.x && x < getRX() && y >= _gm.y && y <= getBY();
+	}
+
 	uint getHead(void);
 	//! @brief Returns workspace PWinObj is on.
 	inline uint getWorkspace(void) const { return _workspace; }

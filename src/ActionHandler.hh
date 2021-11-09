@@ -1,6 +1,6 @@
 //
 // ActionHandler.hh for pekwm
-// Copyright (C) 2003-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2021 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -44,19 +44,22 @@ private:
 	void handleStateAction(const Action &action, PWinObj *wo,
 			       Client *client, Frame *frame);
 
-	void actionExec(Client *client, const std::string &command, bool use_shell);
+	void actionExec(Client *client, const std::string &command,
+			bool use_shell);
 	void actionFindClient(const std::string &title);
 	void actionGotoClientID(uint id);
 	void actionGotoWorkspace(const Action &action, int type);
 	void actionSendToWorkspace(PDecor *decor, bool focus, int direction);
 	void actionWarpToWorkspace(PDecor *decor, uint direction);
+	void actionFocusWithSelector(const Action &action);
 	void actionFocusDirectional(PWinObj *wo, DirectionType dir, bool raise);
 	bool actionSendKey(PWinObj *wo, const std::string &key_str);
 	static void actionSetOpacity(PWinObj *client, PWinObj *frame,
 				     uint focus, uint unfocus);
 	void actionShowMenu(const std::string &name, bool stick, uint e_type,
 			    PWinObj *wo_ref);
-	void actionShowInputDialog(InputDialog *dialog, const std::string &initial,
+	void actionShowInputDialog(InputDialog *dialog,
+				   const std::string &initial,
 				   Frame *frame, PWinObj *wo);
 	bool actionWarpPointer(int x, int y);
 

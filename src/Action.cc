@@ -67,6 +67,8 @@ static Util::StringTo<std::pair<ActionType, uint> > action_map[] =
 	 {"PrevFrameMRU",
 	  action_pair(ACTION_PREV_FRAME_MRU,
 		      KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK)},
+	 {"FocusWithSelector", action_pair(ACTION_FOCUS_WITH_SELECTOR,
+					   ANY_MASK)},
 	 {"FocusDirectional", action_pair(ACTION_FOCUS_DIRECTIONAL,
 					  FRAME_MASK|CMD_OK)},
 	 {"AttachMarked", action_pair(ACTION_ATTACH_MARKED, FRAME_MASK|CMD_OK)},
@@ -234,6 +236,13 @@ static Util::StringTo<WorkspaceChangeType> workspace_change_map[] =
 	 {"LAST", WORKSPACE_LAST},
 	 {nullptr, WORKSPACE_NO}};
 
+static Util::StringTo<FocusSelector> focus_selector_map[] =
+	{{"POINTER", FOCUS_SELECTOR_POINTER},
+	 {"WORKSPACELASTFOCUSED", FOCUS_SELECTOR_WORKSPACE_LAST_FOCUSED},
+	 {"TOP", FOCUS_SELECTOR_TOP},
+	 {"ROOT", FOCUS_SELECTOR_ROOT},
+	 {nullptr, FOCUS_SELECTOR_NO}};
+
 /**
  * Parse WarpToWorkspace, (part of) SendToWorkspace and GotoWorkspace argument.
  *
@@ -289,6 +298,21 @@ parseActionSendToWorkspace(Action &action, const std::string &arg)
 	} else {
 		action.setParamI(0, 0);
 		parseActionChangeWorkspace(action, arg, 1);
+	}
+}
+
+static void
+parseActionFocusWithSelector(Action &action, const std::string &arg)
+{
+	std::vector<std::string> tok;
+	Util::splitString(arg, tok, " \t", 2);
+
+	std::vector<std::string>::iterator it = tok.begin();
+	for (; it != tok.end(); ++it) {
+		int selector = Util::StringToGet(focus_selector_map, *it);
+		if (selector != FOCUS_SELECTOR_NO) {
+			action.setParamI(action.numParamI(), selector);
+		}
 	}
 }
 
@@ -423,6 +447,9 @@ parseActionArg(Action &action, const std::string& arg)
 			action.setParamI(0, Util::StringToGet(raise_map, arg));
 			action.setParamI(1, false);
 		}
+		break;
+	case ACTION_FOCUS_WITH_SELECTOR:
+		parseActionFocusWithSelector(action, arg);
 		break;
 	case ACTION_FOCUS_DIRECTIONAL:
 		if ((Util::splitString(arg, tok, " \t", 2)) == 2) {

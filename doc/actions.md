@@ -364,6 +364,19 @@ switched to first. String is:
 If boolean is true, also goes thru iconified windows. Defaults to
 false.
 
+**FocusWithSelector string (string...)**
+
+Focus window based on the provided selectors, if a selector does not find
+a window the next will be used until a window is found or all selectors have
+been tried.
+
+String is:
+
+* _pointer_, window under pointer.
+* _workspacelastfocused_, workspace last focused window (updated on switch).
+* _top_, top window.
+* _root_, root window.
+
 **FocusDirectional (string bool)**
 
 Focuses the first window on the direction specified, and optionally

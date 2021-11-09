@@ -32,6 +32,7 @@
 #include "WORefMenu.hh"
 #include "ActionMenu.hh"
 #include "FrameListMenu.hh"
+#include "ManagerWindows.hh"
 #include "X11Util.hh"
 #include "X11.hh"
 
@@ -307,6 +308,9 @@ ActionHandler::handleAction(const ActionPerformed &ap)
 		if (! matched) {
 			matched = true;
 			switch (it->getAction()) {
+			case ACTION_FOCUS_WITH_SELECTOR:
+				actionFocusWithSelector(*it);
+				break;
 			case ACTION_SET:
 			case ACTION_UNSET:
 			case ACTION_TOGGLE:
@@ -687,6 +691,46 @@ ActionHandler::actionWarpToWorkspace(PDecor *decor, uint direction)
 		decor->move(decor->getClickX() + x - decor->getPointerX(),
 			    decor->getClickY() + y - decor->getPointerY());
 		decor->setWorkspace(Workspaces::getActive());
+	}
+}
+
+/**
+ * Find window object under the pointer and give it focus, if none is
+ * found use fallback.
+ */
+void
+ActionHandler::actionFocusWithSelector(const Action& action)
+{
+	PWinObj *wo_focus = nullptr;
+	for (int i = 0; i < action.numParamI() && ! wo_focus; i++) {
+		switch (action.getParamI(i)) {
+		case FOCUS_SELECTOR_POINTER:
+			wo_focus = Workspaces::findUnderPointer();
+			break;
+		 case FOCUS_SELECTOR_WORKSPACE_LAST_FOCUSED: {
+			int active = Workspaces::getActive();
+			wo_focus = Workspaces::getLastFocused(active);
+			break;
+		}
+		case FOCUS_SELECTOR_TOP: {
+			int mask = PWinObj::WO_FRAME
+			  |PWinObj::WO_MENU
+			  |PWinObj::WO_CMD_DIALOG
+			  |PWinObj::WO_SEARCH_DIALOG;
+			wo_focus = Workspaces::getTopFocusableWO(mask);
+			break;
+		}
+		case FOCUS_SELECTOR_ROOT:
+			wo_focus = pekwm::rootWo();
+			break;
+		default:
+			// should not happen, validated during parse
+			break;
+		}
+	}
+
+	if (wo_focus != nullptr) {
+		wo_focus->giveInputFocus();
 	}
 }
 

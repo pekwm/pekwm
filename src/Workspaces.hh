@@ -39,8 +39,8 @@ public:
 	}
 	static void setDefaultLayouter(const std::string &);
 
-	inline PWinObj* getLastFocused(void) const { return _last_focused; }
-	inline void setLastFocused(PWinObj* wo) { _last_focused = wo; }
+	PWinObj* getLastFocused(bool verify) const;
+	void setLastFocused(PWinObj* wo);
 
 private:
 	std::string _name;
@@ -112,12 +112,13 @@ public:
 	static void lower(PWinObj* wo);
 	static bool handleFullscreenBeforeRaise(PWinObj* wo);
 
-	static PWinObj* getTopWO(uint type_mask);
+	static PWinObj* getTopFocusableWO(uint type_mask);
 	static void updateClientList(void);
 	static void updateClientStackingList(void);
 	static void placeWoInsideScreen(PWinObj *wo);
 
 	static void findWOAndFocus(PWinObj *search);
+	static PWinObj *findUnderPointer(void);
 	static PWinObj *findDirectional(PWinObj *wo,
 					DirectionType dir, uint skip = 0);
 	static Frame* getNextFrame(Frame* frame, bool mapped, uint mask = 0);

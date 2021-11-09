@@ -61,6 +61,34 @@ Workspace::setDefaultLayouter(const std::string &layo)
 	}
 }
 
+/**
+ * Return last focused window object, checks that the object still
+ * exists and is mapped and focusable before returning it.
+ */
+PWinObj*
+Workspace::getLastFocused(bool verify) const
+{
+	if (! verify || _last_focused == nullptr) {
+		return _last_focused;
+	}
+
+	if (PWinObj::windowObjectExists(_last_focused)
+	    && _last_focused->isMapped()
+	    && _last_focused->isFocusable()) {
+		return _last_focused;
+	}
+	return nullptr;
+}
+
+/**
+ * Set last focused window object for workspace.
+ */
+void
+Workspace::setLastFocused(PWinObj* wo)
+{
+	_last_focused = wo;
+}
+
 // Workspaces
 
 uint Workspaces::_active;
@@ -158,7 +186,8 @@ Workspaces::setWorkspace(uint num, bool focus)
 
 	// Save the focused window object
 	setLastFocused(_active, wo);
-	PWinObj::setFocusedPWinObj(0);
+	PWinObj::setFocusedPWinObj(nullptr);
+	pekwm::rootWo()->giveInputFocus();
 
 	// switch workspace
 	hideAll(_active);
@@ -459,8 +488,8 @@ Workspaces::remove(PWinObj* wo)
 	// remove from last focused
 	std::vector<Workspace>::iterator it = _workspaces.begin();
 	for (; it != _workspaces.end(); ++it) {
-		if (wo == it->getLastFocused()) {
-			it->setLastFocused(0);
+		if (wo == it->getLastFocused(false)) {
+			it->setLastFocused(nullptr);
 		}
 	}
 }
@@ -493,15 +522,16 @@ Workspaces::unhideAll(uint workspace, bool focus)
 		}
 	}
 
-	// Try to focus last focused window and if that fails we get the top-most
-	// Frame if any and give it focus.
 	if (focus) {
-		PWinObj *wo = _workspaces[workspace].getLastFocused();
-		if (! wo || ! PWinObj::windowObjectExists(wo)) {
-			wo = getTopWO(PWinObj::WO_FRAME);
+		// Try to focus last focused window and if that
+		// fails, get the top-most Frame if any and give it
+		// focus.
+		PWinObj *wo = _workspaces[workspace].getLastFocused(true);
+		if (wo == nullptr) {
+			wo = getTopFocusableWO(PWinObj::WO_FRAME);
 		}
 
-		if (wo && wo->isMapped() && wo->isFocusable()) {
+		if (wo) {
 			// Render as focused
 			if (wo->getType() == PWinObj::WO_CLIENT) {
 				wo->getParent()->setFocused(true);
@@ -509,7 +539,8 @@ Workspaces::unhideAll(uint workspace, bool focus)
 				wo->setFocused(true);
 			}
 
-			// Get the active child if a frame, to get correct focus behavior
+			// Get the active child if a frame, to get
+			// correct focus behavior
 			if (wo->getType() == PWinObj::WO_FRAME) {
 				wo = static_cast<Frame*>(wo)->getActiveChild();
 			}
@@ -520,7 +551,8 @@ Workspaces::unhideAll(uint workspace, bool focus)
 
 			// update the MRU list
 			if (wo->getType() == PWinObj::WO_CLIENT) {
-				Frame *frame = static_cast<Frame*>(wo->getParent());
+				Frame *frame =
+					static_cast<Frame*>(wo->getParent());
 				addToMRUFront(frame);
 			}
 		}
@@ -649,9 +681,9 @@ PWinObj*
 Workspaces::getLastFocused(uint workspace)
 {
 	if (workspace >= _workspaces.size()) {
-		return 0;
+		return nullptr;
 	}
-	return _workspaces[workspace].getLastFocused();
+	return _workspaces[workspace].getLastFocused(true);
 }
 
 void
@@ -676,20 +708,20 @@ Workspaces::getWorkspaceName(uint num)
 
 // MISC METHODS
 
-//! @brief Returns the first focusable PWinObj with the highest stacking
+/**
+ * Returns the first focusable PWinObj with the highest stacking.
+ */
 PWinObj*
-Workspaces::getTopWO(uint type_mask)
+Workspaces::getTopFocusableWO(uint type_mask)
 {
-	/* FIXME:
-	   const_reverse_iterator r_it = _wobjs.rbegin();
-	   for (; r_it != _wobjs.end(); ++r_it) {
-	   if ((*r_it)->isMapped()
-	   && (*r_it)->isFocusable()
-	   && ((*r_it)->getType()&type_mask)) {
-	   return (*r_it);
-	   }
-	   }
-	*/
+	reverse_iterator r_it = _wobjs.rbegin();
+	for (; r_it != _wobjs.rend(); ++r_it) {
+		if ((*r_it)->isMapped()
+		    && (*r_it)->isFocusable()
+		    && ((*r_it)->getType()&type_mask)) {
+			return *r_it;
+		}
+	}
 	return nullptr;
 }
 
@@ -826,6 +858,27 @@ Workspaces::findWOAndFocus(PWinObj *search)
 		pekwm::rootWo()->giveInputFocus();
 		pekwm::rootWo()->setEwmhActiveWindow(None);
 	}
+}
+
+/**
+ * Find window object under the mouse, favouring higher stacked
+ * windows over window below it
+ */
+PWinObj*
+Workspaces::findUnderPointer(void)
+{
+	int x, y;
+	X11::getMousePosition(x, y);
+
+	reverse_iterator it;
+	for (it = _wobjs.rbegin(); it != _wobjs.rend(); ++it) {
+		if ((*it)->isMapped()
+		    && (*it)->isFocusable()
+		    && (*it)->isUnder(x, y)) {
+			return *it;
+		}
+	}
+	return nullptr;
 }
 
 /**
