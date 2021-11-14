@@ -89,7 +89,8 @@ StatusWindow::draw(const std::string &text, bool do_center, Geometry *gm)
 	if (do_center) {
 		Geometry head;
 		if (! gm) {
-			CurrHeadSelector chs = pekwm::config()->getCurrHeadSelector();
+			CurrHeadSelector chs =
+				pekwm::config()->getCurrHeadSelector();
 			X11::getHeadInfo(X11Util::getCurrHead(chs), head);
 			gm = &head;
 		}
@@ -125,6 +126,7 @@ StatusWindow::render(void)
 {
 	PTexture *tex = _theme->getStatusData()->getTexture();
 	tex->setBackground(_status_wo->getWindow(),
-			   0, 0, _status_wo->getWidth(), _status_wo->getHeight());
+			   0, 0,
+			   _status_wo->getWidth(), _status_wo->getHeight());
 	X11::clearWindow(_status_wo->getWindow());
 }
