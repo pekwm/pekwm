@@ -578,7 +578,7 @@ Frame::getDecorInfo(char *buf, uint size, const Geometry& gm)
 {
 	uint width, height;
 	calcSizeInCells(width, height, gm);
-	snprintf(buf, size, "%d+%d+%d+%d", width, height, _gm.x, _gm.y);
+	snprintf(buf, size, "%d+%d+%d+%d", width, height, gm.x, gm.y);
 }
 
 void

@@ -8,6 +8,12 @@ Build system
   manpath (relative to the prefix) and create .sh files properly with
   the configured SED on Solaris
 
+Closed issues
+-------------
+
+* **#114 Coordinates not updating when moving windows**,
+  regression introduced in 0.2.0.
+
 Updated
 -------
 

@@ -169,13 +169,14 @@ MoveEventHandler::updateStatusWindow(bool map)
 		_decor->getDecorInfo(buf, 128, _gm);
 
 		StatusWindow *sw = pekwm::statusWindow();
+		Geometry *sw_gm = _center_on_root ? nullptr : &_gm;
 		if (map) {
 			// draw before map to avoid resize right after the
 			// window is mapped.
-			sw->draw(buf, true, _center_on_root ? 0 : &_gm);
+			sw->draw(buf, true, sw_gm);
 			sw->mapWindowRaised();
 		}
-		sw->draw(buf, true, _center_on_root ? 0 : &_gm);
+		sw->draw(buf, true, sw_gm);
 	}
 }
 
