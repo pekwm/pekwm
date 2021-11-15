@@ -11,6 +11,9 @@ Build system
   man pages. Use -DCMAKE_INSTALL_MANDIR=/path/to/man to override.
 * Log awk, sed and sh paths during configuration (and fix a few missing
   path substitutions in the scripts)
+* Use check_cxx_source_compiles instead of check_cxx_source_runs as
+  there is no need to check for runtime issues, improves cross compilation
+  support.
 
 Closed issues
 -------------

@@ -14,7 +14,7 @@ set(CMAKE_CXX_STANDARD 98)
 include(CheckSymbolExists)
 include(CheckTypeSize)
 include(CheckCXXCompilerFlag)
-include(CheckCXXSourceRuns)
+include(CheckCXXSourceCompiles)
 include(CheckIncludeFile)
 include(CheckIncludeFileCXX)
 include(GNUInstallDirs)
@@ -36,28 +36,28 @@ endif (NOT PEKWM_HAVE_LOCALE)
 check_function_exists(localtime_r PEKWM_HAVE_LOCALTIME_R REQUIRED)
 
 # Add work-around for missing -std=c++98 flag when running the
-# check_cxx_source_runs tests
+# check_cxx_source_compiles tests
 set(orig_CMAKE_CXX_FLAGS ${CMAKE_CXX98_FLAGS})
 set(CMAKE_CXX_FLAGS ${CMAKE_CXX98_STANDARD_COMPILE_OPTION})
 
-check_cxx_source_runs("
+check_cxx_source_compiles("
 #include <iostream>
 #include <iomanip>
 int main() { std::tm tm = {0}; std::cout << std::put_time(&tm, \"%S\"); }
 " PEKWM_HAVE_PUT_TIME)
 
-check_cxx_source_runs("
+check_cxx_source_compiles("
 #include <iostream>
 #include <string>
 int main() { std::to_string(42); }
 " PEKWM_HAVE_TO_STRING)
 
-check_cxx_source_runs("
+check_cxx_source_compiles("
 #include <string>
 int main() { std::stoi(\"42\"); }
 " PEKWM_HAVE_STOI)
 
-check_cxx_source_runs("
+check_cxx_source_compiles("
 #include <string>
 int main() { std::stof(\"42.0\"); }
 " PEKWM_HAVE_STOF)
@@ -185,7 +185,7 @@ endif (PEDANTIC)
 
 # check after pedantic check, -Wall -Werror -pedantic will cause this
 # to fail if missing/ignored
-check_cxx_source_runs("
+check_cxx_source_compiles("
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored \"-Wdeprecated-declarations\"
 int main() { return 0; }
