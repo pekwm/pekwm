@@ -13,4 +13,4 @@ endif (ENABLE_IMAGE_PNG AND PNG_FOUND)
 
 install(FILES
   ${manpages}
-  DESTINATION share/man/man1)
+  DESTINATION ${CMAKE_INSTALL_FULL_MANDIR}/man1)

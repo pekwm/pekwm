@@ -7,6 +7,8 @@ Build system
 * Makefile based build now install docs, support configuring the
   manpath (relative to the prefix) and create .sh files properly with
   the configured SED on Solaris
+* CMAKE_INSTALL_MANDIR is now used to specify the destination of
+  man pages. Use -DCMAKE_INSTALL_MANDIR=/path/to/man to override.
 
 Closed issues
 -------------
