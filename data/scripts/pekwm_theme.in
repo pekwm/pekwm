@@ -114,7 +114,7 @@ update_index()
 # read_theme name
 read_theme()
 {
-    line=`sed 1d $LOCAL_THEME_INDEX | grep "^$1$SEP"`
+    line=`@SED@ 1d $LOCAL_THEME_INDEX | grep "^$1$SEP"`
     if test -z "$line"; then
         die "no theme named $1"
     fi
@@ -236,7 +236,7 @@ theme_search()
         search=".*"
     fi
 
-    sed 1d "$LOCAL_THEME_INDEX" | @AWK@ -F "$SEP" '{ print $1 }' | grep "$search"
+    @SED@ 1d "$LOCAL_THEME_INDEX" | @AWK@ -F "$SEP" '{ print $1 }' | grep "$search"
 }
 
 # Show theme using pekwm_dialog, if install is choosen the theme is
