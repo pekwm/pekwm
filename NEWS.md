@@ -9,6 +9,8 @@ Build system
   the configured SED on Solaris
 * CMAKE_INSTALL_MANDIR is now used to specify the destination of
   man pages. Use -DCMAKE_INSTALL_MANDIR=/path/to/man to override.
+* Log awk, sed and sh paths during configuration (and fix a few missing
+  path substitutions in the scripts)
 
 Closed issues
 -------------

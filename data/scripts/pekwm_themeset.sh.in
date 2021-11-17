@@ -31,7 +31,7 @@ if test -z "${2}"; then
                 theme_path="${theme_dir}/${theme_name}"
                 echo "Entry = \"${theme_name}\" { Actions = \"Exec ${0} ${1} ${theme_path}\" }"
                 for theme_variant in `ls ${theme_path}/theme-* 2>/dev/null | grep -v '~'`; do
-                    variant=`basename ${theme_variant} | sed 's/theme-//'`
+                    variant=`basename ${theme_variant} | @SED@ 's/theme-//'`
                     echo "Entry = \"${theme_name} (${variant})\" { Actions = \"Exec ${0} ${1} ${theme_path} ${variant}\" }"
                 done
             fi
@@ -74,7 +74,7 @@ else
     mv "${tmp_file}" "${PEKWM_CONFIG_FILE}"
 
     # Reload pekwm
-    kill -HUP `xprop -root _NET_WM_PID | awk '/_NET_WM_PID/ { print $3 }'`
+    kill -HUP `xprop -root _NET_WM_PID | @AWK@ '/_NET_WM_PID/ { print $3 }'`
 fi
 
 exit 0
