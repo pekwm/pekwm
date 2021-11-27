@@ -31,6 +31,7 @@ pekwm_theme: pekwm_theme.in
 	$(SED) -e 's@\@SH\@@$(SH)@g' \
 	    -e 's@\@AWK\@@$(AWK)@g' \
 	    -e 's@\@CMAKE_INSTALL_PREFIX\@/@$(PREFIX)@g' \
+	    -e 's@\@PEKWM_THEMES\@@$(PEKWM_THEMES)@g' \
 	    pekwm_theme.in > pekwm_theme
 	chmod +x pekwm_theme
 

@@ -4,7 +4,7 @@
 #
 
 # URL for the pekwm theme site
-PEKWM_THEMES="https://www.pekwm.se/themes"
+PEKWM_THEMES="@PEKWM_THEMES@"
 # URL for the theme index file
 REMOTE_THEME_INDEX="$PEKWM_THEMES/themes-v1.csv"
 # Path to local copy of the theme index file
@@ -52,6 +52,42 @@ usage()
     exit $1
 }
 
+# Set fetch_cmd and fetch_cmd_type
+init_fetch_cmd()
+{
+    # OpenBSD and NetBSD ftp come with http(s) support,
+    # fast forward and use it.
+    case `uname -s` in
+        OpenBSD|NetBSD)
+            fetch_cmd="/usr/bin/ftp"
+            fetch_cmd_type="ftp"
+            return
+            ;;
+        *)
+            ;;
+    esac
+
+    fetch_cmd=`which curl 2>/dev/null | grep '^/'`
+    if test "x$fetch_cmd" != "x"; then
+        fetch_cmd_type="curl"
+    else
+        fetch_cmd=`which wget 2>/dev/null | grep '^/'`
+        if test "x$fetch_cmd" != "x"; then
+            fetch_cmd_type="wget"
+        else
+            fetch_cmd=`which ftp 2>/dev/null | grep '^/'`
+            if test "x$fetch_cmd" != "x"; then
+                $fetch_cmd -h 2>&1 | grep -q http
+                if $? -eq 0; then
+                    fetch_cmd_type="ftp"
+                fi
+            else
+                fetch_cmd_type="unknown"
+            fi
+        fi
+    fi
+}
+
 # Fetch remote file using HTTP(S)/FTP.
 #
 # fetch_file url local-path
@@ -59,24 +95,24 @@ fetch_file()
 {
     progress "fetching $1 to $2..."
 
-    CURL=`which curl 2>/dev/null | grep '^/'`
-    WGET=`which wget 2>/dev/null | grep '^/'`
-    FTP=`which ftp 2>/dev/null | grep '^/'`
-
-    if test "x$CURL" != "x"; then
-        $CURL -L -s -o "$2" "$1"
-    elif test "$WGET" != "x"; then
-        $WGET -q -O "$2" "$1"
-    elif test "$FTP" != "x"; then
-        $FTP -h 2>&1 | grep -q http
-        if $? -eq 0; then
-            $FTP -o "$2" "$1"
-        else
-            die "unsupported ftp, no HTTP support"
-        fi
-    else
-        die "no supported HTTP client (curl, wget, BSD ftp)"
+    if test "x$fetch_cmd" = "x"; then
+        init_fetch_cmd
     fi
+
+    case $fetch_cmd_type in
+        curl)
+            $fetch_cmd -L -s -o "$2" "$1"
+            ;;
+        wget)
+            $fetch_cmd -q -O "$2" "$1"
+            ;;
+        ftp)
+            $fetch_cmd -V -o "$2" "$1"
+            ;;
+        *)
+            die "no supported HTTP client (curl, wget, BSD ftp)"
+            ;;
+    esac
 }
 
 # Update local copy of the theme index
@@ -90,9 +126,11 @@ update_index()
     if test -e "${LOCAL_THEME_INDEX}.stamp"; then
         created=`cat ${LOCAL_THEME_INDEX}.stamp`
         now=`pekwm_ctrl -a util timestamp 2>/dev/null`
-        age=$(($now - $created))
-        if test $age -gt $LOCAL_THEME_INDEX_MAX_AGE; then
-            rm -f "$LOCAL_THEME_INDEX"
+        if test $? -eq 0; then
+            age=$(($now - $created))
+            if test $age -gt $LOCAL_THEME_INDEX_MAX_AGE; then
+                rm -f "$LOCAL_THEME_INDEX"
+            fi
         fi
     else
         # no stamp file exists, force a refresh
@@ -105,6 +143,9 @@ update_index()
             die "failed to update theme index from $REMOTE_THEME_INDEX"
         fi
         pekwm_ctrl -a util timestamp >"${LOCAL_THEME_INDEX}.stamp" 2>/dev/null
+        if test $? -ne 0; then
+            rm -f "${LOCAL_THEME_INDEX}.stamp"
+        fi
     fi
 }
 
@@ -236,7 +277,7 @@ theme_search()
         search=".*"
     fi
 
-    @SED@ 1d "$LOCAL_THEME_INDEX" | @AWK@ -F "$SEP" '{ print $1 }' | grep "$search"
+    @SED@ 1d "$LOCAL_THEME_INDEX" | @AWK@ -F "$SEP" '{ print $1 }' | grep -- "$search"
 }
 
 # Show theme using pekwm_dialog, if install is choosen the theme is

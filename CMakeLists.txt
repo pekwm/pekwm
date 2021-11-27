@@ -7,6 +7,8 @@ set(pekwm_VERSION_MAJOR 0)
 set(pekwm_VERSION_MINOR 3)
 set(pekwm_VERSION_PATCH 0)
 set(pekwm_VERSION "${pekwm_VERSION_MAJOR}.${pekwm_VERSION_MINOR}.${pekwm_VERSION_PATCH}")
+set(PEKWM_THEMES "https://www.pekwm.se/themes" CACHE STRING
+    "base url where theme index resides, without ending /")
 
 # Check for C++98
 set(CMAKE_CXX_STANDARD 98)
