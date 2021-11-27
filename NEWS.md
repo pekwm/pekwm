@@ -28,6 +28,8 @@ Updated
 
 * pekwm_panel, Icon widget now has a Scale option defaulting to false.
 * pekwm_theme, Detect download errors of the theme index file.
+* pekwm_theme, Use ftp by default on OpenBSD and NetBSD and silence
+  progress output.
 
 pekwm-0.2.0
 ===========
