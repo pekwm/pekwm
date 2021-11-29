@@ -702,7 +702,7 @@ void
 ActionHandler::actionFocusWithSelector(const Action& action)
 {
 	PWinObj *wo_focus = nullptr;
-	for (int i = 0; i < action.numParamI() && ! wo_focus; i++) {
+	for (size_t i = 0; i < action.numParamI() && ! wo_focus; i++) {
 		switch (action.getParamI(i)) {
 		case FOCUS_SELECTOR_POINTER:
 			wo_focus = Workspaces::findUnderPointer();
