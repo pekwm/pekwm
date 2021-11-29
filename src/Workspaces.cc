@@ -779,13 +779,11 @@ Workspaces::updateClientList(void)
 {
 	uint num;
 	Window *windows = buildClientList(num);
-	if (num == 0) {
-		X11::unsetProperty(X11::getRoot(), NET_CLIENT_LIST);
-		X11::unsetProperty(X11::getRoot(), NET_CLIENT_LIST_STACKING);
-	} else {
-		X11::setWindows(X11::getRoot(), NET_CLIENT_LIST, windows, num);
-		X11::setWindows(X11::getRoot(), NET_CLIENT_LIST_STACKING, windows, num);
-	}
+	// previously, the lists where unset when they ended up empty
+	// however some applications does not support this, one
+	// example being tint2 on Debian Stretch
+	X11::setWindows(X11::getRoot(), NET_CLIENT_LIST, windows, num);
+	X11::setWindows(X11::getRoot(), NET_CLIENT_LIST_STACKING, windows, num);
 	delete [] windows;
 }
 
@@ -797,11 +795,7 @@ Workspaces::updateClientStackingList(void)
 {
 	uint num;
 	Window *windows = buildClientList(num);
-	if (num == 0) {
-		X11::unsetProperty(X11::getRoot(), NET_CLIENT_LIST_STACKING);
-	} else {
-		X11::setWindows(X11::getRoot(), NET_CLIENT_LIST_STACKING, windows, num);
-	}
+	X11::setWindows(X11::getRoot(), NET_CLIENT_LIST_STACKING, windows, num);
 	delete [] windows;
 }
 
