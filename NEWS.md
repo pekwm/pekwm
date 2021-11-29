@@ -16,7 +16,9 @@ Closed issues
 -------------
 
 * **#114 Coordinates not updating when moving windows**,
-  regression introduced in 0.2.0.
+  regression introduced in 0.2.0. (Reported by caoliver)
+* **#110 Tint2 panel not updated on last window close**,
+  regression introduced in 0.2.0. (Reported by Maman Sulaeman)
 
 Updated
 -------
