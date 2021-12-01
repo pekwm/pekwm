@@ -888,7 +888,7 @@ private:
 
 	bool readActiveWorkspace(void);
 	bool readActiveWindow(void);
-	bool readClientListStacking(void);
+	bool readClientList(void);
 	bool readDesktopNames(void);
 	void readRootProperties(void);
 	bool readRootProperty(Atom atom);
@@ -928,7 +928,7 @@ WmState::read(void)
 {
 	readActiveWorkspace();
 	readActiveWindow();
-	readClientListStacking();
+	readClientList();
 	readDesktopNames();
 	readRootProperties();
 }
@@ -951,7 +951,7 @@ WmState::handlePropertyNotify(XPropertyEvent *ev)
 		} else if (ev->atom == X11::getAtom(NET_ACTIVE_WINDOW)) {
 			updated = readActiveWindow();
 		} else if (ev->atom == X11::getAtom(NET_CLIENT_LIST)) {
-			updated = readClientListStacking();
+			updated = readClientList();
 		} else if (ev->atom == X11::getAtom(XROOTPMAP_ID)) {
 			observation = &_xrootpmap_id_changed;
 		} else if (ev->atom == X11::getAtom(PEKWM_THEME)) {
@@ -1027,27 +1027,29 @@ WmState::readActiveWindow(void)
 }
 
 bool
-WmState::readClientListStacking(void)
+WmState::readClientList(void)
 {
 	ulong actual;
 	Window *windows;
-	if (! X11::getProperty(X11::getRoot(),
-			       X11::getAtom(NET_CLIENT_LIST),
-			       XA_WINDOW, 0,
-			       reinterpret_cast<uchar**>(&windows), &actual)) {
-		P_TRACE("failed to read _NET_CLIENT_LIST");
-		return false;
-	}
 
 	client_info_vector old_clients = _clients;
 	_clients.clear();
-	for (uint i = 0; i < actual; i++) {
-		ClientInfo *client_info = popClientInfo(windows[i], old_clients);
-		if (client_info == nullptr) {
-			_clients.push_back(new ClientInfo(windows[i]));
-		} else {
-			_clients.push_back(client_info);
+
+	if (X11::getProperty(X11::getRoot(),
+			     X11::getAtom(NET_CLIENT_LIST),
+			     XA_WINDOW, 0,
+			     reinterpret_cast<uchar**>(&windows), &actual)) {
+		P_TRACE("read _NET_CLIENT_LIST, " << actual << " windows");
+		for (uint i = 0; i < actual; i++) {
+			ClientInfo *client_info =
+			  popClientInfo(windows[i], old_clients);
+			if (client_info == nullptr) {
+				_clients.push_back(new ClientInfo(windows[i]));
+			} else {
+				_clients.push_back(client_info);
+			}
 		}
+		X11::free(windows);
 	}
 
 	client_info_it it = old_clients.begin();
@@ -1055,10 +1057,7 @@ WmState::readClientListStacking(void)
 		delete *it;
 	}
 
-	X11::free(windows);
-
-	P_TRACE("read _NET_CLIENT_LIST, " << actual << " windows");
-	return true;
+	return old_clients.size() > 0;
 }
 
 bool
