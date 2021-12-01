@@ -85,21 +85,28 @@ check_symbol_exists(Xutf8SetWMProperties X11/Xutil.h PEKWM_HAVE_XUTF8)
 # Look for platform specific tools
 message(STATUS "Looking for program awk")
 find_program(AWK awk
-             PATHS /usr/xpg4/bin /usr/pkg/bin /usr/local/bin /usr/bin /bin
+             PATHS /usr/pkg/bin /usr/xpg4/bin /usr/local/bin /usr/bin /bin
              NO_DEFAULT_PATH
              REQUIRED)
 message(STATUS "Looking for program awk - ${AWK}")
 
+message(STATUS "Looking for program grep")
+find_program(GREP ggrep grep
+             PATHS /usr/pkg/bin /usr/sfw/bin /usr/local/bin /usr/bin /bin
+             NO_DEFAULT_PATH
+             REQUIRED)
+message(STATUS "Looking for program grep - ${GREP}")
+
 message(STATUS "Looking for program sed")
 find_program(SED gsed sed
-             PATHS /usr/sfw/bin /usr/pkg/bin /usr/local/bin /usr/bin /bin
+             PATHS /usr/pkg/bin /usr/sfw/bin /usr/local/bin /usr/bin /bin
              NO_DEFAULT_PATH
              REQUIRED)
 message(STATUS "Looking for program sed - ${SED}")
 
 message(STATUS "Looking for program sh")
 find_program(SH sh
-             PATHS /usr/xpg4/bin /usr/pkg/bin /usr/local/bin /usr/bin /bin
+             PATHS /usr/pkg/bin /usr/xpg4/bin /usr/local/bin /usr/bin /bin
              NO_DEFAULT_PATH
              REQUIRED)
 message(STATUS "Looking for program sh - ${SH}")

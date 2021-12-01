@@ -67,17 +67,17 @@ init_fetch_cmd()
             ;;
     esac
 
-    fetch_cmd=`which curl 2>/dev/null | grep '^/'`
+    fetch_cmd=`which curl 2>/dev/null | @GREP@ '^/'`
     if test "x$fetch_cmd" != "x"; then
         fetch_cmd_type="curl"
     else
-        fetch_cmd=`which wget 2>/dev/null | grep '^/'`
+        fetch_cmd=`which wget 2>/dev/null | @GREP@ '^/'`
         if test "x$fetch_cmd" != "x"; then
             fetch_cmd_type="wget"
         else
-            fetch_cmd=`which ftp 2>/dev/null | grep '^/'`
+            fetch_cmd=`which ftp 2>/dev/null | @GREP@ '^/'`
             if test "x$fetch_cmd" != "x"; then
-                $fetch_cmd -h 2>&1 | grep -q http
+                $fetch_cmd -h 2>&1 | @GREP@ -q http
                 if $? -eq 0; then
                     fetch_cmd_type="ftp"
                 fi
@@ -155,7 +155,7 @@ update_index()
 # read_theme name
 read_theme()
 {
-    line=`@SED@ 1d $LOCAL_THEME_INDEX | grep "^$1$SEP"`
+    line=`@SED@ 1d $LOCAL_THEME_INDEX | @GREP@ "^$1$SEP"`
     if test -z "$line"; then
         die "no theme named $1"
     fi
@@ -277,7 +277,7 @@ theme_search()
         search=".*"
     fi
 
-    @SED@ 1d "$LOCAL_THEME_INDEX" | @AWK@ -F "$SEP" '{ print $1 }' | grep -- "$search"
+    @SED@ 1d "$LOCAL_THEME_INDEX" | @AWK@ -F "$SEP" '{ print $1 }' | @GREP@ -- "$search"
 }
 
 # Show theme using pekwm_dialog, if install is choosen the theme is
@@ -656,7 +656,7 @@ theme_update()
 if test -z "$HOME"; then
     die "\$HOME is not set, can not proceed"
 fi
-if test -z "`which git 2>/dev/null | grep '^/'`"; then
+if test -z "`which git 2>/dev/null | @GREP@ '^/'`"; then
     die "git must be available in the path, can not proceed"
 fi
 
