@@ -17,7 +17,8 @@ install:
 	   $(DESTDIR)$(PREFIX)/bin
 
 pekwm_themeset.sh: pekwm_themeset.sh.in
-	$(SED) -e 's@\@SH\@@$(SH)@g' \
+	$(SED) -e 's@\@GREP\@@$(GREP)@g' \
+	    -e 's@\@SH\@@$(SH)@g' \
 	    -e 's@\@SED\@@$(SED)@g' \
 	    pekwm_themeset.sh.in > pekwm_themeset.sh
 	chmod +x pekwm_themeset.sh
@@ -30,6 +31,7 @@ pekwm_ws_menu.sh: pekwm_ws_menu.sh.in
 pekwm_theme: pekwm_theme.in
 	$(SED) -e 's@\@SH\@@$(SH)@g' \
 	    -e 's@\@AWK\@@$(AWK)@g' \
+	    -e 's@\@GREP\@@$(GREP)@g' \
 	    -e 's@\@CMAKE_INSTALL_PREFIX\@/@$(PREFIX)@g' \
 	    -e 's@\@PEKWM_THEMES\@@$(PEKWM_THEMES)@g' \
 	    pekwm_theme.in > pekwm_theme

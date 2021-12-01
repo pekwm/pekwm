@@ -9,6 +9,7 @@ MANDIR = CONF_MANDIR
 
 # environment options
 AWK = /usr/bin/awk
+GREP = /usr/bin/grep
 SED = /usr/bin/sed
 SH = /bin/sh
 

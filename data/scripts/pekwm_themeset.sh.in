@@ -30,7 +30,7 @@ if test -z "${2}"; then
             if test -d "${theme_name}"; then
                 theme_path="${theme_dir}/${theme_name}"
                 echo "Entry = \"${theme_name}\" { Actions = \"Exec ${0} ${1} ${theme_path}\" }"
-                for theme_variant in `ls ${theme_path}/theme-* 2>/dev/null | grep -v '~'`; do
+                for theme_variant in `ls ${theme_path}/theme-* 2>/dev/null | @GREP@ -v '~'`; do
                     variant=`basename ${theme_variant} | @SED@ 's/theme-//'`
                     echo "Entry = \"${theme_name} (${variant})\" { Actions = \"Exec ${0} ${1} ${theme_path} ${variant}\" }"
                 done

@@ -14,6 +14,9 @@ Build system
 * Use check_cxx_source_compiles instead of check_cxx_source_runs as
   there is no need to check for runtime issues, improves cross compilation
   support.
+* Substitute grep in shell scripts, as with awk, sed and sh.
+* Prefer /usr/pkg/bin over /usr/sfw/bin when searching for external
+  commands during configuration.
 
 Closed issues
 -------------
