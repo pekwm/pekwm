@@ -288,7 +288,7 @@ parseActionSendToWorkspace(Action &action, const std::string &arg)
 {
 	std::vector<std::string> tok;
 	if ((Util::splitString(arg, tok, " \t", 2)) == 2) {
-		if (!strcasecmp(tok[1].c_str(), "keepfocus")) {
+		if (StringUtil::ascii_ncase_equal(tok[1], "keepfocus")) {
 			action.setParamI(0, 1);
 		} else {
 			action.setParamI(0, 0);
@@ -594,7 +594,7 @@ namespace ActionConfig {
 		uint num = tok.size() - 1;
 		if ((tok[num].size() > 1) && (tok[num][0] == '#')) {
 			key = strtol(tok[num].c_str() + 1, 0, 10);
-		} else if (strcasecmp(tok[num].c_str(), "ANY") == 0) {
+		} else if (StringUtil::ascii_ncase_equal(tok[num], "ANY")) {
 			// Do no matching, anything goes.
 			key = 0;
 		} else {
@@ -627,7 +627,8 @@ namespace ActionConfig {
 		}
 
 		// if the last token isn't an key/button, the action isn't valid
-		if ((key != 0) || (strcasecmp(tok[num].c_str(), "ANY") == 0)) {
+		if ((key != 0)
+		     || StringUtil::ascii_ncase_equal(tok[num], "ANY")) {
 			tok.pop_back(); // remove the key/button
 
 			// add the modifier
@@ -743,9 +744,10 @@ namespace ActionConfig {
 
 		// screen, current head or head number
 		if (tok.size() > 1) {
-			if (strcasecmp(tok[1].c_str(), "SCREEN") == 0) {
+			if (StringUtil::ascii_ncase_equal(tok[1], "SCREEN")) {
 				action.setParamI(0, -1);
-			} else if (strcasecmp(tok[1].c_str(), "CURRENT") == 0) {
+			} else if (StringUtil::ascii_ncase_equal(tok[1],
+								 "CURRENT")) {
 				action.setParamI(0, -2);
 			} else {
 				action.setParamI(0, strtol(tok[1].c_str(), 0, 10));
@@ -757,7 +759,9 @@ namespace ActionConfig {
 		// honour strut option
 		if (tok.size() > 2) {
 			int honour_strut =
-				strcasecmp(tok[2].c_str(), "HONOURSTRUT") ? 0 : 1;
+				StringUtil::ascii_ncase_equal(tok[2],
+							      "HONOURSTRUT")
+				? 1 : 0;
 			action.setParamI(1, honour_strut);
 		} else {
 			action.setParamI(1, 0);
@@ -809,7 +813,7 @@ namespace ActionConfig {
 	{
 		uint button;
 
-		if (strcasecmp(name.c_str(), "ANY") == 0) {
+		if (StringUtil::ascii_ncase_equal(name, "ANY")) {
 			button = BUTTON_ANY;
 		} else {
 			button = unsigned(strtol(name.c_str(), 0, 10));

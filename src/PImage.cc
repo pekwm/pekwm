@@ -300,17 +300,19 @@ PImage::load(const std::string &file)
 	}
 
 #ifdef PEKWM_HAVE_IMAGE_JPEG
-	if (! strcasecmp(PImageLoaderJpeg::getExt(), ext.c_str())) {
+	if (StringUtil::ascii_ncase_equal(PImageLoaderJpeg::getExt(), ext)) {
 		_data = PImageLoaderJpeg::load(file, _width, _height, _use_alpha);
 	} else
 #endif // PEKWM_HAVE_IMAGE_JPEG
 #ifdef PEKWM_HAVE_IMAGE_PNG
-		if (! strcasecmp(PImageLoaderPng::getExt(), ext.c_str())) {
+		if (StringUtil::ascii_ncase_equal(PImageLoaderPng::getExt(),
+						  ext)) {
 			_data = PImageLoaderPng::load(file, _width, _height, _use_alpha);
 		} else
 #endif // PEKWM_HAVE_IMAGE_PNG
 #ifdef PEKWM_HAVE_IMAGE_XPM
-			if (! strcasecmp(PImageLoaderXpm::getExt(), ext.c_str())) {
+			if (StringUtil::ascii_ncase_equal(PImageLoaderXpm::getExt(),
+							  ext)) {
 				_data = PImageLoaderXpm::load(file, _width, _height, _use_alpha);
 			} else
 #endif // PEKWM_HAVE_IMAGE_XPM

@@ -9,6 +9,7 @@ set(util_SOURCES
   CfgParser.cc
   CfgParserKey.cc
   CfgParserSource.cc
+  CfgUtil.cc
   Charset.cc
   Compat.cc
   Debug.cc

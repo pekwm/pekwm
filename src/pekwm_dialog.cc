@@ -9,6 +9,7 @@
 #include "pekwm.hh"
 
 #include "CfgParser.hh"
+#include "CfgUtil.hh"
 #include "Charset.hh"
 #include "Debug.hh"
 #include "FontHandler.hh"
@@ -816,8 +817,8 @@ int main(int argc, char* argv[])
 	{
 		CfgParser cfg;
 		cfg.parse(config_file, CfgParserSource::SOURCE_FILE, true);
-		Util::getThemeDir(cfg.getEntryRoot(),
-				  theme_dir, theme_variant, theme_path);
+		CfgUtil::getThemeDir(cfg.getEntryRoot(),
+				     theme_dir, theme_variant, theme_path);
 	}
 
 	int ret;

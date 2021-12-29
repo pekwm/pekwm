@@ -35,8 +35,6 @@ extern "C" {
 #include "Debug.hh"
 #include "Util.hh"
 
-#define THEME_DEFAULT DATADIR "/pekwm/themes/default/theme"
-
 namespace StringUtil
 {
 	Key::Key(const char *key)
@@ -55,22 +53,22 @@ namespace StringUtil
 
 	bool
 	Key::operator==(const std::string &rhs) const {
-		return (strcasecmp(_key.c_str(), rhs.c_str()) == 0);
+		return ascii_ncase_equal(_key, rhs);
 	}
 
 	bool
 	Key::operator!=(const std::string &rhs) const {
-		return (strcasecmp(_key.c_str(), rhs.c_str()) != 0);
+		return !ascii_ncase_equal(_key, rhs);
 	}
 
 	bool
 	Key::operator<(const Key &rhs) const {
-		return (strcasecmp(_key.c_str(), rhs._key.c_str()) < 0);
+		return ascii_ncase_cmp(_key, rhs._key) < 0;
 	}
 
 	bool
 	Key::operator>(const Key &rhs) const {
-		return (strcasecmp(_key.c_str(), rhs._key.c_str()) > 0);
+		return ascii_ncase_cmp(_key, rhs._key) > 0;
 	}
 
 	/** Get safe version of position */
@@ -127,6 +125,85 @@ namespace StringUtil
 		}
 
 		return toks;
+	}
+
+	/**
+	 * Return lowercase version of chr, ASCII only.
+	 */
+	int
+	ascii_tolower(int chr)
+	{
+		if (chr >= 'A' && chr <= 'Z') {
+			return chr + 32;
+		}
+		return chr;
+	}
+
+	int
+	ascii_ncase_cmp(const std::string &lhs, const std::string &rhs)
+	{
+		return ascii_ncase_cmp(lhs.c_str(), rhs.c_str());
+	}
+
+	int
+	ascii_ncase_cmp(const std::string &lhs, const char *rhs)
+	{
+		return ascii_ncase_cmp(lhs.c_str(), rhs);
+	}
+
+	int
+	ascii_ncase_cmp(const char *lhs, const std::string &rhs)
+	{
+		return ascii_ncase_cmp(lhs, rhs.c_str());
+	}
+
+	/**
+	 * Compare two strings ignoring case, ASCII only.
+	 */
+	int
+	ascii_ncase_cmp(const char *lhs, const char *rhs)
+	{
+		int diff;
+		for (; *rhs && *lhs; rhs++, lhs++) {
+			diff = ascii_tolower(*lhs) - ascii_tolower(*rhs);
+			if (diff != 0) {
+				return diff;
+			}
+		}
+		if (*lhs == '\0' && *rhs == '\0') {
+			return 0;
+		} else if (*lhs == '\0') {
+			return 0 - *rhs;
+		} else {
+			return *lhs;
+		}
+	}
+
+	bool
+	ascii_ncase_equal(const std::string &lhs, const std::string &rhs)
+	{
+		return ascii_ncase_cmp(lhs, rhs) == 0;
+	}
+
+	bool
+	ascii_ncase_equal(const std::string &lhs, const char *rhs)
+	{
+		return ascii_ncase_cmp(lhs, rhs) == 0;
+	}
+
+	bool
+	ascii_ncase_equal(const char *lhs, const std::string &rhs)
+	{
+		return ascii_ncase_cmp(lhs, rhs) == 0;
+	}
+
+	/**
+	 * Check if two strings are equal ignoring case, ASCII only.
+	 */
+	bool
+	ascii_ncase_equal(const char *lhs, const char *rhs)
+	{
+		return ascii_ncase_cmp(lhs, rhs) == 0;
 	}
 }
 
@@ -381,56 +458,6 @@ namespace Util {
 			if (file[0] == '~') {
 				file.replace(0, 1, getEnv("HOME"));
 			}
-		}
-	}
-
-	void
-	getThemeDir(const CfgParser::Entry* root,
-		    std::string& dir, std::string& variant,
-		    std::string& theme_file)
-	{
-		CfgParser::Entry *files = root->findSection("FILES");
-		if (files != nullptr) {
-			std::vector<CfgParserKey*> keys;
-			keys.push_back(new CfgParserKeyPath("THEME", dir, THEME_DEFAULT));
-			keys.push_back(new CfgParserKeyString("THEMEVARIANT", variant));
-			files->parseKeyValues(keys.begin(), keys.end());
-			std::for_each(keys.begin(), keys.end(),
-				      Util::Free<CfgParserKey*>());
-		} else {
-			dir = THEME_DEFAULT;
-			variant = "";
-		}
-
-		std::string norm_dir(dir);
-		if (dir.size() && dir.at(dir.size() - 1) == '/') {
-			norm_dir.erase(norm_dir.end() - 1);
-		}
-
-		theme_file = norm_dir + "/theme";
-		if (! variant.empty()) {
-			std::string theme_file_variant = theme_file + "-" + variant;
-			if (isFile(theme_file_variant)) {
-				theme_file = theme_file_variant;
-			} else {
-				P_DBG("theme variant " << variant << " does not exist");
-			}
-		}
-	}
-
-	void
-	getIconDir(const CfgParser::Entry* root, std::string& dir)
-	{
-		dir = "~/.pekwm/icons/";
-		expandFileName(dir);
-
-		CfgParser::Entry *files = root->findSection("FILES");
-		if (files != nullptr) {
-			std::vector<CfgParserKey*> keys;
-			keys.push_back(new CfgParserKeyPath("ICONS", dir));
-			files->parseKeyValues(keys.begin(), keys.end());
-			std::for_each(keys.begin(), keys.end(),
-				      Util::Free<CfgParserKey*>());
 		}
 	}
 

@@ -34,9 +34,10 @@ CfgParserKeyBool::~CfgParserKeyBool(void)
 void
 CfgParserKeyBool::parseValue(const std::string &value)
 {
-	if ((value == "1") || ! strcasecmp(value.c_str(), "TRUE")) {
+	if ((value == "1") || StringUtil::ascii_ncase_equal(value, "TRUE")) {
 		_set = true;
-	} else if ((value == "0") || ! strcasecmp(value.c_str(), "FALSE")) {
+	} else if ((value == "0")
+		   || StringUtil::ascii_ncase_equal(value, "FALSE")) {
 		_set = false;
 	} else  {
 		_set = _default;
