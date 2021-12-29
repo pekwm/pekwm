@@ -1,3 +1,13 @@
+pekwm-0.2.2
+===========
+
+Closed issues
+-------------
+
+* **#116 Crash using Turkish locale**, pekwm failed to start properly using
+  Turkish and Azerbaijan locales due to strcasecmp behavior under those
+  locales. (Reported by memetg)
+
 pekwm-0.2.1
 ===========
 

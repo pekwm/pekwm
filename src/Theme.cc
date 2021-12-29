@@ -49,7 +49,7 @@ Theme::ColorMap::load(CfgParser::Entry *section,
 {
 	CfgParser::Entry::entry_cit it = section->begin();
 	for (; it != section->end(); ++it) {
-		if (strcasecmp((*it)->getName().c_str(), "MAP")) {
+		if (! StringUtil::ascii_ncase_equal((*it)->getName(), "MAP")) {
 			USER_WARN("unexpected entry " << (*it)->getName()
 				  << " in ColorMap");
 			continue;
@@ -1369,7 +1369,8 @@ Theme::loadColorMaps(CfgParser::Entry* section)
 
 	CfgParser::Entry::entry_cit it = section->begin();
 	for (; it != section->end(); ++it) {
-		if (strcasecmp((*it)->getName().c_str(), "COLORMAP")) {
+		if (! StringUtil::ascii_ncase_equal((*it)->getName(),
+						    "COLORMAP")) {
 			USER_WARN("unexpected entry " << (*it)->getName()
 				  << " in ColorMaps");
 			continue;
@@ -1391,7 +1392,8 @@ Theme::loadDecors(CfgParser::Entry *root)
 
 	CfgParser::Entry::entry_cit it = section->begin();
 	for (; it != section->end(); ++it) {
-		if (strcasecmp((*it)->getName().c_str(), "DECOR") != 0) {
+		if (! StringUtil::ascii_ncase_equal((*it)->getName(),
+						    "DECOR")) {
 			continue;
 		}
 

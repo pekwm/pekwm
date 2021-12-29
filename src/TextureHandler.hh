@@ -13,6 +13,7 @@
 
 #include "Compat.hh"
 #include "PTexture.hh"
+#include "Util.hh"
 
 #include <map>
 #include <string>
@@ -46,7 +47,7 @@ public:
 		inline void decRef(void) { if (_ref > 0) { --_ref; } }
 
 		inline bool operator==(const std::string &name) {
-			return (::strcasecmp(_name.c_str(), name.c_str()) == 0);
+			return StringUtil::ascii_ncase_equal(_name, name);
 		}
 
 	private:

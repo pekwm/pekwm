@@ -12,7 +12,9 @@
 #include "Charset.hh"
 #include "Util.hh"
 
+#include <iostream>
 #include <string>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
 

@@ -1,0 +1,25 @@
+//
+// CfgUtil.hh for pekwm
+// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+//
+// This program is licensed under the GNU GPL.
+// See the LICENSE file for more information.
+//
+
+#ifndef _PEKWM_CFG_UTIL_HH_
+#define _PEKWM_CFG_UTIL_HH_
+
+#include <string>
+
+#include "CfgParser.hh"
+
+namespace CfgUtil {
+
+	void getThemeDir(const CfgParser::Entry* root,
+			 std::string &theme_dir, std::string &theme_variant,
+			 std::string &theme_path);
+	void getIconDir(const CfgParser::Entry* root, std::string &icon_dir);
+
+}
+
+#endif // _PEKWM_CFG_UTIL_HH_

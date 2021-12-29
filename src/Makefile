@@ -10,7 +10,7 @@ PROGS = pekwm pekwm_bg pekwm_cfg pekwm_ctrl pekwm_dialog pekwm_panel \
 BASE_OBJS = Compat.o Charset.o Debug.o
 CFG_PARSER_OBJS = CfgParser.o CfgParserKey.o CfgParserSource.o
 
-UTIL_OBJS = $(CFG_PARSER_OBJS) Observable.o RegexString.o Util.o
+UTIL_OBJS = $(CFG_PARSER_OBJS) CfgUtil.o Observable.o RegexString.o Util.o
 IMAGE_LOADER_OBJS = PImageLoaderJpeg.o PImageLoaderPng.o PImageLoaderXpm.o
 TEXTURE_OBJS = Action.o FontHandler.o ImageHandler.o PFont.o PImage.o \
 	       PImageIcon.o PTexture.o PTexturePlain.o Render.o \

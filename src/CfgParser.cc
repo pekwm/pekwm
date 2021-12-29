@@ -134,8 +134,8 @@ CfgParser::Entry::addEntry(CfgParser::Entry *entry, bool overwrite)
 	// when the value is the same.
 	if (entry_search
 	    && (! entry_search->getSection()
-		|| strcasecmp(entry->getValue().c_str(),
-			      entry_search->getValue().c_str()) == 0)) {
+		|| StringUtil::ascii_ncase_equal(entry->getValue(),
+						 entry_search->getValue()))) {
 		entry_search->_value = entry->getValue();
 		entry_search->setSection(entry->getSection(), overwrite);
 
@@ -680,7 +680,7 @@ CfgParser::parseSectionFinish(std::string &buf, std::string &value)
 {
 	// Create Entry representing Section
 	Entry *section = 0;
-	if (buf.size() == 6 && strcasecmp(buf.c_str(), "DEFINE") == 0) {
+	if (buf.size() == 6 && StringUtil::ascii_ncase_equal(buf, "DEFINE")) {
 		// Look for define section, started with Define = "Name" {
 		section_map_it it = _section_map.find(value);
 		if (it != _section_map.end()) {

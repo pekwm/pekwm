@@ -42,6 +42,7 @@ extern "C" {
 
 #include "X11.hh"
 #include "Debug.hh"
+#include "Util.hh"
 
 const uint X11::MODIFIER_TO_MASK[] = {
 	ShiftMask, LockMask, ControlMask,
@@ -331,7 +332,7 @@ public:
 	inline void decRef(void) { if (_ref > 0) { _ref--; } }
 
 	inline bool operator==(const std::string &name) {
-		return (::strcasecmp(_name.c_str(), name.c_str()) == 0);
+		return StringUtil::ascii_ncase_equal(_name, name);
 	}
 
 private:
@@ -479,7 +480,7 @@ X11::destruct(void) {
 XColor *
 X11::getColor(const std::string &color)
 {
-	if (strcasecmp(color.c_str(), "EMPTY") == 0) {
+	if (StringUtil::ascii_ncase_equal(color.c_str(), "EMPTY")) {
 		return &_xc_default;
 	}
 

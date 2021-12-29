@@ -12,6 +12,7 @@
 #include "config.h"
 
 #include "Types.hh"
+#include "Util.hh"
 
 #include <string>
 #include <cstring>
@@ -33,7 +34,7 @@ public:
 	}
 
 	inline bool operator==(const std::string &name) {
-		return (strcasecmp(_name.c_str(), name.c_str()) == 0);
+		return StringUtil::ascii_ncase_equal(_name, name);
 	}
 
 private:

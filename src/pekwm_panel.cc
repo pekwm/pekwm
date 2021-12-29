@@ -7,6 +7,7 @@
 //
 
 #include "pekwm.hh"
+#include "CfgUtil.hh"
 #include "Charset.hh"
 #include "Compat.hh"
 #include "Debug.hh"
@@ -424,17 +425,18 @@ PanelConfig::parseSize(const std::string& size)
 	std::vector<std::string> toks;
 	Util::splitString(size, toks, " \t", 2);
 	if (toks.size() == 1) {
-		if (strcasecmp("REQUIRED", toks[0].c_str()) == 0) {
+		if (StringUtil::ascii_ncase_equal("REQUIRED", toks[0])) {
 			return SizeReq(WIDGET_UNIT_REQUIRED, 0);
 		} else if (toks[0] == "*") {
 			return SizeReq(WIDGET_UNIT_REST, 0);
 		}
 	} else if (toks.size() == 2) {
-		if (strcasecmp("PIXELS", toks[0].c_str()) == 0) {
+		if (StringUtil::ascii_ncase_equal("PIXELS", toks[0])) {
 			return SizeReq(WIDGET_UNIT_PIXELS, atoi(toks[1].c_str()));
-		} else if (strcasecmp("PERCENT", toks[0].c_str()) == 0) {
+		} else if (StringUtil::ascii_ncase_equal("PERCENT", toks[0])) {
 			return SizeReq(WIDGET_UNIT_PERCENT, atoi(toks[1].c_str()));
-		} else if (strcasecmp("TEXTWIDTH", toks[0].c_str()) == 0) {
+		} else if (StringUtil::ascii_ncase_equal("TEXTWIDTH",
+							 toks[0])) {
 			return SizeReq(toks[1]);
 		}
 	}
@@ -1357,12 +1359,13 @@ loadTheme(PanelTheme& theme, const std::string& pekwm_config_file)
 
 	std::string config_file;
 	std::string theme_dir, theme_variant, theme_path;
-	Util::getThemeDir(cfg.getEntryRoot(), theme_dir, theme_variant, theme_path);
+	CfgUtil::getThemeDir(cfg.getEntryRoot(),
+			     theme_dir, theme_variant, theme_path);
 
 	theme.load(theme_dir, theme_path);
 
 	std::string icon_path;
-	Util::getIconDir(cfg.getEntryRoot(), icon_path);
+	CfgUtil::getIconDir(cfg.getEntryRoot(), icon_path);
 	theme.setIconPath(icon_path, theme_dir + "/icons/");
 }
 
@@ -1784,7 +1787,7 @@ BarWidget::parseColors(const CfgParser::Entry* section)
 
 	CfgParser::Entry::entry_cit it = colors->begin();
 	for (; it != colors->end(); ++it) {
-		if (strcasecmp((*it)->getName().c_str(), "PERCENT")
+		if (! StringUtil::ascii_ncase_equal((*it)->getName(), "PERCENT")
 		    || ! (*it)->getSection()) {
 			continue;
 		}
