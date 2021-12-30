@@ -27,7 +27,7 @@ extern "C" {
 /**
  * Prints version
  */
-void
+static void
 printVersion(void)
 {
 	std::cout << "pekwm: version " << VERSION << std::endl;
@@ -36,33 +36,44 @@ printVersion(void)
 /**
  * Prints version and availible options
  */
-void
+static void
 printUsage(void)
 {
 	printVersion();
-	std::cout << " --config    alternative config file" << std::endl;
-	std::cout << " --display   display to connect to" << std::endl;
-	std::cout << " --help      show this info." << std::endl;
-	std::cout << " --info      extended info. Use for bug reports."
+	std::cout << " --config     alternative config file" << std::endl;
+	std::cout << " --display    display to connect to" << std::endl;
+	std::cout << " --help       show this info." << std::endl;
+	std::cout << " --info       extended info. Use for bug reports."
 		  << std::endl;
-	std::cout << " --log-file  set log file." << std::endl;
-	std::cout << " --log-level set log level." << std::endl;
-	std::cout << " --replace   replace running window manager" << std::endl;
-	std::cout << " --sync      run Xlib in synchronous mode" << std::endl;
-	std::cout << " --version   show version info" << std::endl;
+	std::cout << " --log-file   set log file." << std::endl;
+	std::cout << " --log-level  set log level." << std::endl;
+	std::cout << " --replace    replace running window manager"
+		  << std::endl;
+	std::cout << " --sync       run Xlib in synchronous mode" << std::endl;
+	std::cout << " --standalone run pekwm_wm in standalone mode"
+		  << std::endl;
+	std::cout << " --version    show version info" << std::endl;
 }
 
 /**
  * Prints version and build-time options
  */
-void
+static void
 printInfo(void)
 {
 	printVersion();
 	std::cout << "features: " << FEATURES << std::endl;
 }
 
-void
+static void
+setPekwmEnv(void)
+{
+	setenv("PEKWM_ETC_PATH", SYSCONFDIR, 1);
+	setenv("PEKWM_SCRIPT_PATH", DATADIR "/pekwm/scripts", 1);
+	setenv("PEKWM_THEME_PATH", DATADIR "/pekwm/themes", 1);
+}
+
+static void
 stop(int write_fd, const std::string &msg, WindowManager *wm)
 {
 	if (wm) {
@@ -72,7 +83,8 @@ stop(int write_fd, const std::string &msg, WindowManager *wm)
 
 	Charset::destruct();
 
-	if (write(write_fd, msg.c_str(), msg.size() + 1) == -1) {
+	if (write_fd != -1
+	    && write(write_fd, msg.c_str(), msg.size() + 1) == -1) {
 		P_ERR("failed to write pekwm_wm result msg " << msg
 		      << " due to: " << strerror(errno));
 	}
@@ -88,11 +100,25 @@ main(int argc, char **argv)
 	Charset::init();
 
 	// get the args and test for different options
-	int write_fd = fileno(stdout);
-	std::string config_file;
 	bool synchronous = false;
 	bool replace = false;
-	for (int i = 1; i < argc; ++i) {
+
+	// force --standalone option to be the first option as it
+	// enables/disables the --fd/--display and --config options
+	int i, write_fd;
+	bool standalone;
+	if (argc > 1 && strcmp("--standalone", argv[1]) == 0) {
+		i = 2;
+		standalone = true;
+		write_fd = -1;
+		setPekwmEnv();
+	} else {
+		i = 1;
+		standalone = false;
+		write_fd = fileno(stdout);
+	}
+
+	for (; i < argc; ++i) {
 		if (strcmp("--info", argv[i]) == 0) {
 			printInfo();
 			stop(write_fd, "stop", nullptr);
@@ -109,8 +135,15 @@ main(int argc, char **argv)
 		} else if (strcmp("--version", argv[i]) == 0) {
 			printVersion();
 			stop(write_fd, "stop", nullptr);
-		} else if (strcmp("--fd", argv[i]) == 0 && ((i + 1) < argc)) {
+		} else if (! standalone && strcmp("--fd", argv[i]) == 0
+			   && ((i + 1) < argc)) {
 			write_fd = std::stoi(argv[++i]);
+		} else if (standalone && (strcmp("--display", argv[i]) == 0)
+			   && ((i + 1) < argc)) {
+			setenv("DISPLAY", argv[++i], 1);
+		} else if (standalone && strcmp("--config", argv[i]) == 0
+			   && (i + 1) < argc) {
+			setenv("PEKWM_CONFIG_FILE", argv[++i], 1);
 		} else {
 			printUsage();
 			stop(write_fd, "stop", nullptr);
@@ -119,17 +152,15 @@ main(int argc, char **argv)
 
 	// Get configuration file if none was specified as a parameter,
 	// default to reading environment, if not set get ~/.pekwm/config
+	std::string config_file = Util::getEnv("PEKWM_CONFIG_FILE");
 	if (config_file.size() == 0) {
-		config_file = Util::getEnv("PEKWM_CONFIG_FILE");
-		if (config_file.size() == 0) {
-			std::string home = Util::getEnv("HOME");
-			if (home.size() == 0) {
-				std::cerr << "failed to get configuration file path, "
-					  << "$HOME not set." << std::endl;
-				stop(write_fd, "error", nullptr);
-			}
-			config_file = home + "/.pekwm/config";
+		std::string home = Util::getEnv("HOME");
+		if (home.size() == 0) {
+			std::cerr << "failed to get configuration file path, "
+				  << "$HOME not set." << std::endl;
+			stop(write_fd, "error", nullptr);
 		}
+		config_file = home + "/.pekwm/config";
 	}
 	size_t sep = config_file.rfind('/');
 	if (sep != std::string::npos) {

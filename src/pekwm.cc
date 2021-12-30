@@ -135,6 +135,12 @@ main(int argc, char *argv[])
 	setenv("PEKWM_SCRIPT_PATH", DATADIR "/pekwm/scripts", 1);
 	setenv("PEKWM_THEME_PATH", DATADIR "/pekwm/themes", 1);
 
+	if (argc > 1 && strcmp("--standalone", argv[1]) == 0) {
+		std::cerr << "--standalone only supported using pekwm_wm"
+			  << std::endl;
+		return 1;
+	}
+
 	// Get the pekwm_wm command by appending _wm to the path to ensure
 	// the correct pekwm_wm is used when running from a non-installed
 	// location.
@@ -150,7 +156,8 @@ main(int argc, char *argv[])
 	for (int i = 1; i < argc; i++) {
 		if ((strcmp("--display", argv[i]) == 0) && ((i + 1) < argc)) {
 			setenv("DISPLAY", argv[++i], 1);
-		} else if ((strcmp("--config", argv[i]) == 0) && ((i + 1) < argc)) {
+		} else if ((strcmp("--config", argv[i]) == 0)
+			   && ((i + 1) < argc)) {
 			setenv("PEKWM_CONFIG_FILE", argv[++i], 1);
 		} else {
 			wm_argv.push_back(argv[i]);

@@ -133,7 +133,7 @@ information.
 ### Gathering information about a pekwm crash
 
 If pekwm crash please provide a stack trace from the core dump, if no
-core (or pekwm.core). To ensure a core file is generated enable core
+core (or pekwm_wm.core). To ensure a core file is generated enable core
 dumps before starting pekwm:
 
 ```
@@ -144,7 +144,7 @@ exec pekwm
 If a core file has been created, generate a backtrace by running:
 
 ```
-$ gdb /path/to/pekwm core
+$ gdb /path/to/pekwm_wm core
 (gdb) bt
 #0 ...
 (gdb)
@@ -152,6 +152,23 @@ $ gdb /path/to/pekwm core
 
 The output between the two _(gdb)_ lines should be included in the
 report.
+
+### Running pekwm_wm in standalone mode
+
+pekwm, starting from 0.2.0 consists of the two programs pekwm and pekwm_wm.
+pekwm is a small application only responsible for starting pekwm_wm and
+ensuring it is restarted in case of a crash avoiding the X11 session to end.
+pekwm_wm, does all the heavy lifting and is the likely location for bugs.
+
+When debugging, it can be helpful to start pekwm_wm in standalone mode. To
+do so use the **--standalone** option, which must be the first argument to
+pekwm_wm.
+
+Example starting pekwm_wm in standalone mode inside of gdb:
+
+```
+$ gdb --args pekwm_wm --standalone
+```
 
 The developers
 --------------
