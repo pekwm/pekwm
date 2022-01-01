@@ -25,6 +25,6 @@
 
 <!ENTITY http-site "http://pekwm.org">
 
-<!ENTITY irc-channel "irc.freenode.org/#pekwm">
+<!ENTITY irc-channel "irc.libera.chat/#pekwm">
 <!-- I now use this in index.xml -->
 <!-- <!ENTITY current-version "0.1.1"> -->
