@@ -17,9 +17,9 @@ can tell you how.
 IRC
 ---
 
-Our IRC channel #pekwm is located on irc.freenode.net. A lot of
-development discussion goes on there, however you can also get simple
-help there pretty easily.
+Our IRC channel #pekwm is located on [Libera.Chat](https://libera.chat).
+Join if you want to ask questions, share thoughts and ideas or idle as much as
+you like.
 
 The following is a "do not" list. If some idiotic behaviour like,
 public away messages, or nick changing as a way of telling what you
