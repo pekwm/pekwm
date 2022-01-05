@@ -23,3 +23,5 @@ Updated
 Removed
 -------
 
+* C++ setlocale warning during startup is no longer output, silent fallback
+  to setlocale()

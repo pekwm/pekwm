@@ -225,8 +225,8 @@ namespace Charset
 	{
 #ifdef PEKWM_HAVE_LOCALE
 		try {
-			// initial global locale setup works around issues on at
-			// least FreeBSD where num_locale setup would cause
+			// initial global locale setup works around issues on
+			// at least FreeBSD where num_locale setup would cause
 			// charset conversion to break.
 			std::locale base_locale("");
 			std::locale::global(base_locale);
@@ -236,8 +236,8 @@ namespace Charset
 				std::locale().combine<std::numpunct<char> >(num_locale);
 			std::locale::global(locale);
 		} catch (const std::runtime_error&) {
-			USER_WARN("The environment variables specify an unknown C++ "
-				  "locale - falling back to C's setlocale().");
+			// a user warning used to occur here  but this fails on
+			// too many systems, so skipping the warning.
 			setlocale(LC_ALL, "");
 		}
 #else // ! PEKWM_HAVE_LOCALE
