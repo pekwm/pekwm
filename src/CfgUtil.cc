@@ -68,4 +68,28 @@ namespace CfgUtil
 				      Util::Free<CfgParserKey*>());
 		}
 	}
+
+	/**
+	 * Return options used to initialize FontHandler
+	 */
+	void
+	getFontSettings(const CfgParser::Entry* root,
+			bool &default_is_x11,
+			std::string &charset_override)
+	{
+		default_is_x11 = false;
+		CfgParser::Entry *screen = root->findSection("SCREEN");
+		if (screen != nullptr) {
+			std::vector<CfgParserKey*> keys;
+			keys.push_back(new CfgParserKeyBool("FONTDEFAULTX11",
+					    default_is_x11, false));
+			keys.push_back(new CfgParserKeyString(
+						"FONTCHARSETOVERRIDE",
+					        charset_override));
+			screen->parseKeyValues(keys.begin(), keys.end());
+			std::for_each(keys.begin(), keys.end(),
+				      Util::Free<CfgParserKey*>());
+		}
+	}
+
 }

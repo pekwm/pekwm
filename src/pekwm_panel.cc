@@ -1359,9 +1359,16 @@ loadTheme(PanelTheme& theme, const std::string& pekwm_config_file)
 
 	std::string config_file;
 	std::string theme_dir, theme_variant, theme_path;
+	bool font_default_x11;
+	std::string font_charset_override;
 	CfgUtil::getThemeDir(cfg.getEntryRoot(),
 			     theme_dir, theme_variant, theme_path);
+	CfgUtil::getFontSettings(cfg.getEntryRoot(),
+				 font_default_x11,
+				 font_charset_override);
 
+	pekwm::fontHandler()->setDefaultFontX11(font_default_x11);
+	pekwm::fontHandler()->setCharsetOverride(font_charset_override);
 	theme.load(theme_dir, theme_path);
 
 	std::string icon_path;
@@ -2786,7 +2793,8 @@ static bool loadConfig(PanelConfig& cfg, const std::string& file)
 static void init(Display* dpy)
 {
 	_observer_mapping = new ObserverMapping();
-	_font_handler = new FontHandler();
+	// options setup in loadTheme later on
+	_font_handler = new FontHandler(false, "");
 	_image_handler = new ImageHandler();
 	_texture_handler = new TextureHandler();
 }

@@ -326,6 +326,8 @@ all values should be placed inside quotes.
 | EdgeIndent                     | boolean         | Toggles if the screen edge should be reserved space.                                                                                                                      |
 | DoubleClickTime                | int             | Time, in milliseconds, between clicks to be counted as a doubleclick.                                                                                                     |
 | CurrHeadSelector               | string          | Controls how operations relative to the current head, such as placement, select the active head. Cursor selects the head the cursor is on, FocusedWindow considers the focused window if any and then fall backs to the cursor position. Affected operations include placement and position of CmdDialog, SearchDialog, StatusWindow and focus toggle list. |
+| FontDefaultX11                 | boolean         | If true, default font type is X11 else XMB if no font type is specified in font string.                                                                                   |
+| FontCharsetOverride            | string          | If set, overrides the charset of X11/XMB fonts with the specified string. Should be in format iso8859-1                                                                   |
 
 >  NOTE: A Composite Manager needs to be running for opacity options to take effect.
 

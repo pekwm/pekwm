@@ -25,7 +25,12 @@ class PFont
 {
 public:
 	enum Type {
-		FONT_TYPE_X11, FONT_TYPE_XFT, FONT_TYPE_XMB, FONT_TYPE_NO
+		FONT_TYPE_X11,
+#ifdef PEKWM_HAVE_XFT
+		FONT_TYPE_XFT,
+#endif // PEKWM_HAVE_XFT
+		FONT_TYPE_XMB,
+		FONT_TYPE_NO
 	};
 	enum TrimType {
 		FONT_TRIM_END, FONT_TRIM_MIDDLE

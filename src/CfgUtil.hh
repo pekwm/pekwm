@@ -1,6 +1,6 @@
 //
 // CfgUtil.hh for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -19,6 +19,10 @@ namespace CfgUtil {
 			 std::string &theme_dir, std::string &theme_variant,
 			 std::string &theme_path);
 	void getIconDir(const CfgParser::Entry* root, std::string &icon_dir);
+
+	void getFontSettings(const CfgParser::Entry* root,
+			     bool &default_is_x11,
+			     std::string &charset_override);
 
 }
 

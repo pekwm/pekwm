@@ -1,6 +1,6 @@
 //
 // test_pekwm.cc for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -12,6 +12,7 @@
 
 #include "test_Action.hh"
 #include "test_Config.hh"
+#include "test_FontHandler.hh"
 #include "test_Frame.hh"
 #include "test_InputDialog.hh"
 #include "test_ManagerWindows.hh"
@@ -48,6 +49,9 @@ main_tests(int argc, char *argv[])
 
 	// Observable
 	TestObserverMapping testObserverMapping;
+
+	// FontHandler
+	TestFontHandler testFontHandler;
 
 	// PFont
 	TestPFont testPFont;

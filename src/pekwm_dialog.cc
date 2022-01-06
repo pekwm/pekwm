@@ -674,10 +674,12 @@ PekwmDialog::stopDialog(int retcode)
 
 PekwmDialog* PekwmDialog::_instance = nullptr;
 
-static void init(Display* dpy)
+static void init(Display* dpy,
+		 bool font_default_x11, std::string &font_charset_override)
 {
 	_observer_mapping = new ObserverMapping();
-	_font_handler = new FontHandler();
+	_font_handler =
+		new FontHandler(font_default_x11, font_charset_override);
 	_image_handler = new ImageHandler();
 	_texture_handler = new TextureHandler();
 }
@@ -801,8 +803,21 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
+	std::string theme_dir, theme_variant, theme_path;
+	bool font_default_x11;
+	std::string font_charset_override;
+	{
+		CfgParser cfg;
+		cfg.parse(config_file, CfgParserSource::SOURCE_FILE, true);
+		CfgUtil::getThemeDir(cfg.getEntryRoot(),
+				     theme_dir, theme_variant, theme_path);
+		CfgUtil::getFontSettings(cfg.getEntryRoot(),
+					 font_default_x11,
+					 font_charset_override);
+	}
+
 	X11::init(dpy, true);
-	init(dpy);
+	init(dpy, font_default_x11, font_charset_override);
 
 	_image_handler->path_push_back("./");
 	PImage *image = nullptr;
@@ -811,14 +826,6 @@ int main(int argc, char* argv[])
 		if (image) {
 			image->setType(IMAGE_TYPE_SCALED);
 		}
-	}
-
-	std::string theme_dir, theme_variant, theme_path;
-	{
-		CfgParser cfg;
-		cfg.parse(config_file, CfgParserSource::SOURCE_FILE, true);
-		CfgUtil::getThemeDir(cfg.getEntryRoot(),
-				     theme_dir, theme_variant, theme_path);
 	}
 
 	int ret;
