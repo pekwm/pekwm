@@ -331,16 +331,24 @@ RootWO::handleLeaveEvent(XCrossingEvent *ev)
  * Makes sure the Geometry is inside the screen.
  */
 void
-RootWO::placeInsideScreen(Geometry& gm, bool without_edge)
+RootWO::placeInsideScreen(Geometry& gm, bool without_edge, bool fullscreen, bool maximized_virt, bool maximized_horz)
 {
 	uint head_nr = X11::getNearestHead(gm.x, gm.y);
 	Geometry head;
+	if (fullscreen) {
+		X11::getHeadInfo(head_nr, gm);
+		return;
+	}
 	if (without_edge) {
 		X11::getHeadInfo(head_nr, head);
 	} else {
 		getHeadInfoWithEdge(head_nr, head);
 	}
 
+	if (maximized_horz) {
+		gm.x = head.x;
+		gm.width = head.width;
+	}
 	if (gm.x + gm.width > head.x + head.width) {
 		gm.x = head.x + head.width - gm.width;
 	}
@@ -348,6 +356,10 @@ RootWO::placeInsideScreen(Geometry& gm, bool without_edge)
 		gm.x = head.x;
 	}
 
+	if (maximized_virt) {
+		gm.y = head.y;
+		gm.height = head.height;
+	}
 	if (gm.y + gm.height > head.y + head.height) {
 		gm.y = head.y + head.height - gm.height;
 	}

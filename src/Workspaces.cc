@@ -800,7 +800,9 @@ Workspaces::updateClientStackingList(void)
 }
 
 /**
- * Make sure window is inside screen boundaries.
+ * Make sure window is inside screen boundaries. If window is in
+ * fullscreen mode or maximized, resize to make sure it covers the new
+ * screen.
  */
 void
 Workspaces::placeWoInsideScreen(PWinObj *wo)
@@ -809,16 +811,20 @@ Workspaces::placeWoInsideScreen(PWinObj *wo)
 	Geometry gm_after(gm_before);
 
 	Strut *strut = 0;
+	bool maximized_virt = false;
+	bool maximized_horz = false;
 	if (wo->getType() == PWinObj::WO_FRAME) {
 		Client *client = static_cast<Frame*>(wo)->getActiveClient();
 		if (client) {
 			strut = client->getStrut();
+			maximized_virt = client->isMaximizedVert();
+			maximized_horz = client->isMaximizedHorz();
 		}
 	}
 
-	pekwm::rootWo()->placeInsideScreen(gm_after, strut);
+	pekwm::rootWo()->placeInsideScreen(gm_after, strut, wo->isFullscreen(), maximized_virt, maximized_horz);
 	if (gm_before != gm_after) {
-		wo->move(gm_after.x, gm_after.y);
+		wo->moveResize(gm_after.x, gm_after.y, gm_after.width, gm_after.height);
 	}
 }
 
