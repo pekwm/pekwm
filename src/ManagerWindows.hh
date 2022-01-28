@@ -63,7 +63,7 @@ public:
 	virtual ActionEvent *handleEnterEvent(XCrossingEvent *ev);
 	virtual ActionEvent *handleLeaveEvent(XCrossingEvent *ev);
 
-	void placeInsideScreen(Geometry &gm, bool without_edge=false);
+	void placeInsideScreen(Geometry &gm, bool without_edge=false, bool fullscreen=false, bool maximized_vert=false, bool maximized_horz=false);
 	void getHeadInfoWithEdge(uint num, Geometry& head);
 
 	void updateGeometry(uint width, uint height);
