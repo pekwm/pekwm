@@ -333,7 +333,7 @@ RootWO::handleLeaveEvent(XCrossingEvent *ev)
 void
 RootWO::placeInsideScreen(Geometry& gm, bool without_edge, bool fullscreen, bool maximized_virt, bool maximized_horz)
 {
-	uint head_nr = X11::getNearestHead(gm.x, gm.y);
+	uint head_nr = X11::getNearestHead(gm.x + gm.width / 2, gm.y + gm.height / 2);
 	Geometry head;
 	if (fullscreen) {
 		X11::getHeadInfo(head_nr, gm);
