@@ -190,13 +190,12 @@ Workspaces::setWorkspace(uint num, bool focus)
 	pekwm::rootWo()->giveInputFocus();
 
 	// switch workspace
-	hideAll(_active);
 	X11::setCardinal(X11::getRoot(), NET_CURRENT_DESKTOP, num);
 
 	_previous = _active;
 	_active = num;
 
-	unhideAll(_active);
+	hideAndUnhideAll(_previous, _active);
 	if (focus) {
 		setNewFocus(_active);
 	}
@@ -497,32 +496,28 @@ Workspaces::remove(PWinObj* wo)
 	}
 }
 
-//! @brief Hides all non-sticky Frames on the workspace.
+//! @brief Unhides all hidden PWinObjs on new_workspace then hide ones
+//! from old_workspace.
 void
-Workspaces::hideAll(uint workspace)
+Workspaces::hideAndUnhideAll(uint old_workspace, uint new_workspace)
 {
-	const_iterator it(_wobjs.begin());
-	for (; it != _wobjs.end(); ++it) {
+	std::vector<PWinObj*> to_hide;
+	for (const_iterator it = _wobjs.begin(); it != _wobjs.end(); ++it) {
 		if (! ((*it)->isSticky()) && ! ((*it)->isHidden()) &&
-		    ((*it)->getWorkspace() == workspace)) {
-			(*it)->unmapWindow();
+		    ((*it)->getWorkspace() == old_workspace)) {
+			to_hide.push_back(*it);
 		}
-	}
-}
-
-//! @brief Unhides all hidden PWinObjs on the workspace.
-void
-Workspaces::unhideAll(uint workspace)
-{
-	const_iterator it(_wobjs.begin());
-	for (; it != _wobjs.end(); ++it) {
 		if (! (*it)->isMapped() && ! (*it)->isIconified() && ! (*it)->isHidden()
-		    && ((*it)->getWorkspace() == workspace)) {
+		    && ((*it)->getWorkspace() == new_workspace)) {
 			(*it)->mapWindow(); // don't restack ontop windows
 			if ((*it)->getType() == PWinObj::WO_FRAME) {
 				static_cast<Frame*>(*it)->updateDecor();
 			}
 		}
+	}
+
+	for (const_iterator it = to_hide.begin(); it != to_hide.end(); ++it) {
+		(*it)->unmapWindow();
 	}
 }
 
