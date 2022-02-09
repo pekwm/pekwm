@@ -196,7 +196,10 @@ Workspaces::setWorkspace(uint num, bool focus)
 	_previous = _active;
 	_active = num;
 
-	unhideAll(num, focus);
+	unhideAll(_active);
+	if (focus) {
+		setNewFocus(_active);
+	}
 
 	X11::ungrabServer(true);
 
@@ -509,7 +512,7 @@ Workspaces::hideAll(uint workspace)
 
 //! @brief Unhides all hidden PWinObjs on the workspace.
 void
-Workspaces::unhideAll(uint workspace, bool focus)
+Workspaces::unhideAll(uint workspace)
 {
 	const_iterator it(_wobjs.begin());
 	for (; it != _wobjs.end(); ++it) {
@@ -521,47 +524,48 @@ Workspaces::unhideAll(uint workspace, bool focus)
 			}
 		}
 	}
+}
 
-	if (focus) {
-		// Try to focus last focused window and if that
-		// fails, get the top-most Frame if any and give it
-		// focus.
-		PWinObj *wo = _workspaces[workspace].getLastFocused(true);
-		if (wo == nullptr) {
-			wo = getTopFocusableWO(PWinObj::WO_FRAME);
+void
+Workspaces::setNewFocus(uint workspace)
+{
+	// Try to focus last focused window and if that
+	// fails, get the top-most Frame if any and give it
+	// focus.
+	PWinObj *wo = _workspaces[workspace].getLastFocused(true);
+	if (wo == nullptr) {
+		wo = getTopFocusableWO(PWinObj::WO_FRAME);
+	}
+
+	if (wo) {
+		// Render as focused
+		if (wo->getType() == PWinObj::WO_CLIENT) {
+			wo->getParent()->setFocused(true);
+		} else {
+			wo->setFocused(true);
 		}
 
-		if (wo) {
-			// Render as focused
-			if (wo->getType() == PWinObj::WO_CLIENT) {
-				wo->getParent()->setFocused(true);
-			} else {
-				wo->setFocused(true);
-			}
-
-			// Get the active child if a frame, to get
-			// correct focus behavior
-			if (wo->getType() == PWinObj::WO_FRAME) {
-				wo = static_cast<Frame*>(wo)->getActiveChild();
-			}
-
-			// Focus
-			wo->giveInputFocus();
-			PWinObj::setFocusedPWinObj(wo);
-
-			// update the MRU list
-			if (wo->getType() == PWinObj::WO_CLIENT) {
-				Frame *frame =
-					static_cast<Frame*>(wo->getParent());
-				addToMRUFront(frame);
-			}
+		// Get the active child if a frame, to get
+		// correct focus behavior
+		if (wo->getType() == PWinObj::WO_FRAME) {
+			wo = static_cast<Frame*>(wo)->getActiveChild();
 		}
 
-		// If focusing fails, focus the root window.
-		if (! PWinObj::getFocusedPWinObj()
-		    || ! PWinObj::getFocusedPWinObj()->isMapped()) {
-			PWinObj::getRootPWinObj()->giveInputFocus();
+		// Focus
+		wo->giveInputFocus();
+		PWinObj::setFocusedPWinObj(wo);
+
+		// update the MRU list
+		if (wo->getType() == PWinObj::WO_CLIENT) {
+			Frame *frame = static_cast<Frame*>(wo->getParent());
+			addToMRUFront(frame);
 		}
+	}
+
+	// If focusing fails, focus the root window.
+	if (! PWinObj::getFocusedPWinObj()
+	    || ! PWinObj::getFocusedPWinObj()->isMapped()) {
+		PWinObj::getRootPWinObj()->giveInputFocus();
 	}
 }
 

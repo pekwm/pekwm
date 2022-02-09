@@ -103,7 +103,8 @@ public:
 	static void remove(PWinObj* wo);
 
 	static void hideAll(uint workspace);
-	static void unhideAll(uint workspace, bool focus);
+	static void unhideAll(uint workspace);
+	static void setNewFocus(uint workspace);
 
 	static PWinObj* getLastFocused(uint workspace);
 	static void setLastFocused(uint workspace, PWinObj* wo);
