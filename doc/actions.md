@@ -294,9 +294,10 @@ Moves the frame to the same relative position on another head. The
 window is shrunk to fit if it is larger than the new head, or resized
 if it's fullscreen or maximized.
 
-If head is not a number, it must be one of the following keywords to
-select the head relative to the current head: _left_, _right_, _up_
-and _down_.
+If head is not a number, it must be the name of the head (only if
+Randr is supported, and special name "primary" is also accepted) or
+the following keywords to select the head relative to the current
+head: _left_, _right_, _up_ and _down_.
 
 **MoveToEdge (string)**
 

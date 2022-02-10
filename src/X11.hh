@@ -242,15 +242,20 @@ public: // member variables
 //! Output head, used to share same code with Xinerama and RandR
 class Head {
 public:
-	Head(int nx, int ny, uint nwidth, uint nheight)
-		: x(nx),
-		  y(ny),
-		  width(nwidth),
-		  height(nheight)
+	Head(int nx, int ny, uint nwidth, uint nheight,
+	     const char* nname = nullptr, bool nprimary = false) :
+		name(nname ? nname : ""),
+		primary(nprimary),
+		x(nx),
+		y(ny),
+		width(nwidth),
+		height(nheight)
 	{
 	};
 
 public:
+	std::string name;
+	bool primary;
 	int x;
 	int y;
 	uint width;
@@ -364,6 +369,7 @@ public:
 	static bool getHeadInfo(uint head, Geometry &head_info);
 	static void getHeadInfo(int x, int y, Geometry &head_info);
 	static Geometry getHeadGeometry(uint head);
+	static int findHeadByName(const std::string& name);
 	static int getNumHeads(void);
 
 	static Atom getAtom(AtomName name) { return _atoms[name]; }
