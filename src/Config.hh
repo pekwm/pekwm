@@ -201,7 +201,7 @@ public:
 
 	int getHarbourDAMinSide(void) const { return _harbour_da_min_s; }
 	int getHarbourDAMaxSide(void) const { return _harbour_da_max_s; }
-	int getHarbourHead(void) const { return _harbour_head_nr; }
+	int getHarbourHead(void) const;
 	bool isHarbourOntop(void) const { return _harbour_ontop; }
 	bool isHarbourMaximizeOver(void) const { return _harbour_maximize_over; }
 	uint getHarbourPlacement(void) const { return _harbour_placement; }
@@ -346,6 +346,7 @@ private:
 	bool _harbour_maximize_over;
 	uint _harbour_placement;
 	uint _harbour_orientation;
+	std::string _harbour_head;
 	int _harbour_head_nr;
 	uint _harbour_opacity;
 

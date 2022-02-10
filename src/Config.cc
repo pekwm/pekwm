@@ -674,6 +674,8 @@ Config::loadHarbour(CfgParser::Entry *section)
 					    _harbour_maximize_over, false));
 	keys.push_back(new CfgParserKeyNumeric<int>("HEAD",
 						    _harbour_head_nr, 0, 0));
+	keys.push_back(new CfgParserKeyString("HEADNAME",
+					      _harbour_head, "", 0));
 	keys.push_back(new CfgParserKeyString("PLACEMENT",
 					      value_placement, "RIGHT", 0));
 	keys.push_back(new CfgParserKeyString("ORIENTATION",
@@ -1383,4 +1385,18 @@ Config::parseOpacity(const std::string value, uint &focused, uint &unfocused)
 	CONV_OPACITY(focused);
 	CONV_OPACITY(unfocused);
 	return true;
+}
+
+int
+Config::getHarbourHead(void) const
+{
+	if (_harbour_head.empty()) {
+		return _harbour_head_nr;
+	}
+	int head = X11::findHeadByName(_harbour_head);
+	if (head == -1) {
+		// fallback to primary head, which should always be valid
+		head = X11::findHeadByName("PRIMARY");
+	}
+	return head;
 }

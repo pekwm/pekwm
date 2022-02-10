@@ -987,6 +987,26 @@ X11::getHeadGeometry(uint head)
 	return gm;
 }
 
+/**
+ * Find a head by name case-insensitively (xrandr only). If "name" is
+ * "primary" then return the primary head. Return -1 if not matching.
+ */
+int
+X11::findHeadByName(const std::string& name)
+{
+	bool find_primary = StringUtil::ascii_ncase_equal(name, "PRIMARY");
+	for (uint i = 0; i < _heads.size(); i++) {
+		if (find_primary) {
+			if (_heads[i].primary) {
+				return i;
+			}
+		} else if (StringUtil::ascii_ncase_equal(_heads[i].name, name)) {
+			return i;
+		}
+	}
+	return -1;
+}
+
 int
 X11::getNumHeads(void)
 {
@@ -1588,6 +1608,18 @@ X11::initHeads(void)
 			addHead(Head(0, 0, _screen_gm.width, _screen_gm.height));
 		}
 	}
+
+	// Fallback to head 0 as primary
+	bool has_primary = false;
+	for (uint i = 0; i < _heads.size(); i++) {
+		if (_heads[i].primary) {
+			has_primary = true;
+			break;
+		}
+	}
+	if (!has_primary) {
+		_heads[0].primary = true;
+	}
 }
 
 //! @brief Initialize head information from Xinerama
@@ -1626,12 +1658,16 @@ X11::initHeadsRandr(void)
 		return;
 	}
 
+	RROutput primary_output = XRRGetOutputPrimary(_dpy, _root);
+
 	for (int i = 0; i < resources->noutput; ++i) {
 		XRROutputInfo* output =
 			XRRGetOutputInfo(_dpy, resources, resources->outputs[i]);
 		if (output->crtc) {
 			XRRCrtcInfo* crtc = XRRGetCrtcInfo(_dpy, resources, output->crtc);
-			addHead(Head(crtc->x, crtc->y, crtc->width, crtc->height));
+			addHead(Head(crtc->x, crtc->y, crtc->width, crtc->height,
+				     output->name,
+				     resources->outputs[i] == primary_output));
 			XRRFreeCrtcInfo (crtc);
 		}
 		XRRFreeOutputInfo (output);

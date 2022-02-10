@@ -400,7 +400,8 @@ Placement Models:
 | Orientation  | string  | From what to which direction the harbour expands. One of TopToBottom, BottomToTop, RightToLeft, LeftToRight.                      |
 | OnTop        | boolean | Whether or not the harbour is "always on top"                                                                                     |
 | MaximizeOver | boolean | Controls whether maximized clients will cover the harbour (true), or if they will stop at the edge of the harbour (false).        |
-| Head         | int     | When RandR or Xinerama is on, decides on what head the harbour resides on. Integer is the head number.                            |
+| Head         | int     | When RandR or Xinerama is on, decides on what head the harbour resides on. Integer is the head number. Default 0.                 |
+| HeadName     | string  | When RandR is on, decides on what head the harbour resides on by name (which could be found from `xrandr` command). A special name "primary" connects to the primary head. This option overwrites Head. |
 | Opacity      | int     | Sets the opacity/transparency for the harbour. A value of 100 means completely opaque, while 0 stands for completely transparent. |
 
 **Config File Elements under the DockApp-subsection of the Harbour-section:**

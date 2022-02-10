@@ -1418,8 +1418,10 @@ Frame::moveToHead(const std::string& arg)
 	} else if (StringUtil::ascii_ncase_equal(arg, "DOWN")) {
 		head_nr = X11Util::getNearestHead(*this, DIRECTION_NO, DIRECTION_DOWN);
 	} else {
-		head_nr = -1;
-		P_ERR("unrecognized MoveToHead argument: " << arg);
+		head_nr = X11::findHeadByName(arg);
+		if (head_nr == -1) {
+			P_ERR("unrecognized MoveToHead argument: " << arg);
+		}
 	}
 	if (head_nr != -1) {
 		moveToHead(head_nr);
