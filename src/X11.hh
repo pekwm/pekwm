@@ -13,6 +13,7 @@
 
 #include "Compat.hh"
 #include "Types.hh"
+#include "pekwm.hh"
 
 #include <iostream>
 #include <string>
@@ -356,6 +357,7 @@ public:
 	static bool grabPointer(Window win, uint event_mask, CursorType cursor);
 	static bool ungrabPointer(void);
 
+	static int getNearestHead(int x, int y, DirectionType dx, DirectionType dy);
 	static uint getNearestHead(int x, int y);
 	static uint getCursorHead(void);
 	static void addHead(const Head &head);

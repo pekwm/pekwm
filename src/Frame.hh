@@ -116,6 +116,7 @@ public:
 			 bool honour_strut=false);
 
 	void growDirection(uint direction);
+	void moveToHead(const std::string& arg);
 	void moveToHead(int head_nr);
 	void moveToEdge(OrientationType ori);
 

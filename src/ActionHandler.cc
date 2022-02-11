@@ -181,7 +181,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
 				}
 				break;
 			case ACTION_MOVE_TO_HEAD:
-				frame->moveToHead(it->getParamI(0));
+				frame->moveToHead(it->getParamS(0));
 				break;
 			case ACTION_MOVE_TO_EDGE:
 				frame->moveToEdge(OrientationType(it->getParamI(0)));

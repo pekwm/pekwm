@@ -64,6 +64,7 @@ public:
 namespace X11Util {
 	Geometry getHeadGeometry(int head);
 	uint getCurrHead(CurrHeadSelector chs);
+	int getNearestHead(const PWinObj& wo, DirectionType dx, DirectionType dy);
 	uint getNearestHead(const PWinObj& wo);
 
 	void grabButton(int button, int mod, int mask, Window win,

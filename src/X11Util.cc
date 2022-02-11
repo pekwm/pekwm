@@ -75,6 +75,13 @@ namespace X11Util {
 					   wo.getY() + (wo.getHeight() / 2));
 	}
 
+	int getNearestHead(const PWinObj& wo, DirectionType dx, DirectionType dy)
+	{
+		return X11::getNearestHead(wo.getX() + (wo.getWidth() / 2),
+					   wo.getY() + (wo.getHeight() / 2),
+					   dx, dy);
+	}
+
 	/**
 	 * Grabs the button button, with the mod mod and mask mask on the
 	 * window win and cursor curs with "all" possible extra modifiers

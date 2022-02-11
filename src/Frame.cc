@@ -1398,6 +1398,35 @@ Frame::recalcResizeDrag(int nx, int ny, bool left, bool top)
 }
 
 void
+Frame::moveToHead(const std::string& arg)
+{
+	int head_nr;
+	try {
+		head_nr = std::stoi(arg);
+	} catch (std::invalid_argument&) {
+		head_nr = -1;
+	}
+
+	if (head_nr != -1) {
+		// valid value from stoi above
+	} else if (StringUtil::ascii_ncase_equal(arg, "LEFT")) {
+		head_nr = X11Util::getNearestHead(*this, DIRECTION_LEFT, DIRECTION_NO);
+	} else if (StringUtil::ascii_ncase_equal(arg, "RIGHT")) {
+		head_nr = X11Util::getNearestHead(*this, DIRECTION_RIGHT, DIRECTION_NO);
+	} else if (StringUtil::ascii_ncase_equal(arg, "UP")) {
+		head_nr = X11Util::getNearestHead(*this, DIRECTION_NO, DIRECTION_UP);
+	} else if (StringUtil::ascii_ncase_equal(arg, "DOWN")) {
+		head_nr = X11Util::getNearestHead(*this, DIRECTION_NO, DIRECTION_DOWN);
+	} else {
+		head_nr = -1;
+		P_ERR("unrecognized MoveToHead argument: " << arg);
+	}
+	if (head_nr != -1) {
+		moveToHead(head_nr);
+	}
+}
+
+void
 Frame::moveToHead(int head_nr)
 {
 	int curr_head_nr = X11Util::getNearestHead(*this);
@@ -1406,12 +1435,27 @@ Frame::moveToHead(int head_nr)
 	}
 
 	Geometry old_gm, new_gm;
-	pekwm::rootWo()->getHeadInfoWithEdge(curr_head_nr, old_gm);
-	pekwm::rootWo()->getHeadInfoWithEdge(head_nr, new_gm);
+	if (isFullscreen()) {
+		X11::getHeadInfo(curr_head_nr, old_gm);
+		X11::getHeadInfo(head_nr, new_gm);
+	} else {
+		pekwm::rootWo()->getHeadInfoWithEdge(curr_head_nr, old_gm);
+		pekwm::rootWo()->getHeadInfoWithEdge(head_nr, new_gm);
+	}
 
-	// Ensure the window fits in the new head.
 	_gm.x = new_gm.x + (_gm.x - old_gm.x);
 	_gm.y = new_gm.y + (_gm.y - old_gm.y);
+
+	// Resize if the window is fullscreen or maximized
+	Client *client = getActiveClient();
+	if (isFullscreen() || (client && client->isMaximizedHorz())) {
+		_gm.width = new_gm.width;
+	}
+	if (isFullscreen() || (client && client->isMaximizedVert())) {
+		_gm.height = new_gm.height;
+	}
+
+	// Ensure the window fits in the new head.
 	_gm.width = std::min(_gm.width, new_gm.width);
 	_gm.height = std::min(_gm.height, new_gm.height);
 
