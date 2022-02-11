@@ -43,6 +43,7 @@ extern "C" {
 #include "X11.hh"
 #include "Debug.hh"
 #include "Util.hh"
+#include "pekwm.hh"
 
 const uint X11::MODIFIER_TO_MASK[] = {
 	ShiftMask, LockMask, ControlMask,
@@ -814,20 +815,43 @@ X11::getScreenChangeNotification(XEvent *ev, ScreenChangeNotification &scn)
 uint
 X11::getNearestHead(int x, int y)
 {
+	int nearest_head = getNearestHead(x, y, DIRECTION_IGNORED, DIRECTION_IGNORED);
+	return nearest_head != -1 ? nearest_head : 0;
+}
+
+//! @brief Searches for the head closest to the coordinates x,y.
+//!
+//! If a direction is not DIRECTION_IGNORED, only nearest window in
+//! that direction is selected.
+//!
+//! @return The nearest head or -1 if not found
+int
+X11::getNearestHead(int x, int y, DirectionType dx, DirectionType dy)
+{
 	if(_heads.size() > 1) {
 		// set distance to the highest uint value
 		uint min_distance = std::numeric_limits<uint>::max();
-		uint nearest_head = 0;
+		int nearest_head = -1;
 
-		uint distance;
-		int head_t, head_b, head_l, head_r;
 		for(uint head = 0; head < _heads.size(); ++head) {
-			head_t = _heads[head].y;
-			head_b = _heads[head].y + _heads[head].height;
-			head_l = _heads[head].x;
-			head_r = _heads[head].x + _heads[head].width;
+			int head_t = _heads[head].y;
+			int head_b = _heads[head].y + _heads[head].height;
+			int head_l = _heads[head].x;
+			int head_r = _heads[head].x + _heads[head].width;
 
+			int head_dx;
+			int head_dy;
+			if(y < head_t) {
+				head_dy = DIRECTION_DOWN;
+			} else if(y > head_b) {
+				head_dy = DIRECTION_UP;
+			} else {
+				head_dy = DIRECTION_NO;
+			}
+
+			uint distance;
 			if(x > head_r) {
+				head_dx = DIRECTION_LEFT;
 				if(y < head_t) {
 					// above and right of the head
 					distance = calcDistance(x, y, head_r, head_t);
@@ -839,6 +863,7 @@ X11::getNearestHead(int x, int y)
 					distance = calcDistance(x, head_r);
 				}
 			} else if(x < head_l) {
+				head_dx = DIRECTION_RIGHT;
 				if(y < head_t) {
 					// above and left of the head
 					distance = calcDistance(x, y, head_l, head_t);
@@ -850,6 +875,7 @@ X11::getNearestHead(int x, int y)
 					distance = calcDistance(x, head_l);
 				}
 			} else {
+				head_dx = DIRECTION_NO;
 				if(y < head_t) {
 					// above the head
 					distance = calcDistance(y, head_t);
@@ -858,19 +884,27 @@ X11::getNearestHead(int x, int y)
 					distance = calcDistance(y, head_b);
 				} else {
 					// on the head
-					return head;
+					if(dx == DIRECTION_IGNORED && dy == DIRECTION_IGNORED) {
+						return head;
+					}
+					distance = 0;
 				}
 			}
 
+			if((dx != DIRECTION_IGNORED && dx != head_dx) ||
+			   (dy != DIRECTION_IGNORED && dy != head_dy)) {
+				continue;
+			}
 
 			if(distance < min_distance) {
 				min_distance = distance;
 				nearest_head = head;
 			}
 		}
+
 		return nearest_head;
 	} else {
-		return 0;
+		return -1;
 	}
 }
 

@@ -380,24 +380,24 @@ parseActionArg(Action &action, const std::string& arg)
 {
 	std::vector<std::string> tok;
 	switch (action.getAction()) {
+	case ACTION_DEBUG:
 	case ACTION_EXEC:
-	case ACTION_SHELL_EXEC:
-	case ACTION_RESTART_OTHER:
 	case ACTION_FIND_CLIENT:
+	case ACTION_MENU_DYN:
+	case ACTION_MOVE_TO_HEAD:
+	case ACTION_RESTART_OTHER:
+	case ACTION_SEND_KEY:
+	case ACTION_SHELL_EXEC:
 	case ACTION_SHOW_CMD_DIALOG:
 	case ACTION_SHOW_SEARCH_DIALOG:
-	case ACTION_SEND_KEY:
-	case ACTION_MENU_DYN:
-	case ACTION_DEBUG:
 		action.setParamS(arg);
 		break;
 	case ACTION_SET_GEOMETRY:
 		ActionConfig::parseActionSetGeometry(action, arg);
 		break;
 	case ACTION_ACTIVATE_CLIENT_REL:
-	case ACTION_MOVE_CLIENT_REL:
 	case ACTION_GOTO_CLIENT_ID:
-	case ACTION_MOVE_TO_HEAD:
+	case ACTION_MOVE_CLIENT_REL:
 		action.setParamI(0, strtol(arg.c_str(), 0, 10));
 		break;
 	case ACTION_SET:
