@@ -353,6 +353,13 @@ Client::setInitialState(void)
 		_iconified = true;
 	}
 
+	if (! _iconified) {
+		Geometry head_gm = X11::getHeadGeometry(X11Util::getNearestHead(*this));
+		if (! isCfgDeny(CFG_DENY_STATE_FULLSCREEN) && _gm == head_gm) {
+			_state.fullscreen = true;
+		}
+	}
+
 	if (_iconified || initial_state == IconicState) {
 		_iconified = true;
 		_mapped = true;
