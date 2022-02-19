@@ -321,7 +321,7 @@ KeyGrabber::findAction(XKeyEvent *ev, KeyGrabber::Chain *chain, bool &matched)
 			bool exit = false;
 
 			while (! exit) {
-				XMaskEvent(X11::getDpy(), KeyPressMask, &c_ev);
+				X11::maskEvent(KeyPressMask, &c_ev);
 				X11::stripStateModifiers(&c_ev.xkey.state);
 
 				KeySym keysym = X11::getKeysymFromKeycode(c_ev.xkey.keycode);

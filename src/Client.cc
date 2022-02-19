@@ -759,8 +759,8 @@ Client::validate(void)
 	X11::sync(False);
 
 	XEvent ev;
-	if (XCheckTypedWindowEvent(X11::getDpy(), _window, DestroyNotify, &ev)
-	    || XCheckTypedWindowEvent(X11::getDpy(), _window, UnmapNotify, &ev)) {
+	if (X11::checkTypedWindowEvent(_window, DestroyNotify, &ev)
+	    || X11::checkTypedWindowEvent(_window, UnmapNotify, &ev)) {
 		XPutBackEvent(X11::getDpy(), &ev);
 		return false;
 	}

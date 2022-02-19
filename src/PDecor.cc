@@ -684,9 +684,9 @@ PDecor::handleButtonPressButton(XButtonEvent *ev, PDecor::Button *button)
 	if (ae && ae->isOnlyAction(ACTION_RESIZE)) {
 		_button->setState(_focused
 				  ? BUTTON_STATE_FOCUSED : BUTTON_STATE_UNFOCUSED);
-		_button = 0;
+		_button = nullptr;
 	} else {
-		ae = 0;
+		ae = nullptr;
 	}
 
 	return ae;

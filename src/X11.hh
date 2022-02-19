@@ -459,7 +459,9 @@ public:
 	static void ungrabButton(uint button, uint modifiers, Window win);
 
 	static void stackWindows(Window *wins, unsigned len);
+	static bool maskEvent(long event_mask, XEvent *ev);
 	static bool checkTypedEvent(int type, XEvent *ev);
+	static bool checkTypedWindowEvent(Window win, int type, XEvent *ev);
 
 	static void sync(Bool discard);
 

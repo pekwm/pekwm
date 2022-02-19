@@ -2015,9 +2015,21 @@ X11::stackWindows(Window *wins, unsigned len)
 }
 
 bool
+X11::maskEvent(long event_mask, XEvent *ev)
+{
+	return XMaskEvent(_dpy, event_mask, ev);
+}
+
+bool
 X11::checkTypedEvent(int type, XEvent *ev)
 {
 	return XCheckTypedEvent(_dpy, type, ev);
+}
+
+bool
+X11::checkTypedWindowEvent(Window w, int type, XEvent *ev)
+{
+	return XCheckTypedWindowEvent(_dpy, w, type, ev);
 }
 
 void
