@@ -752,6 +752,19 @@ X11::ungrabPointer(void)
 }
 
 /**
+ * Translate coordinates relative to the root window getting the relative
+ * coordinates and matching window.
+ */
+Window
+X11::translateRootCoordinates(int x, int y, int *ret_x, int *ret_y)
+{
+	Window win = None;
+	XTranslateCoordinates(_dpy, _root, _root, x, y, ret_x, ret_y,
+			      &win);
+	return win;
+}
+
+/**
  * Refetches the root-window size.
  */
 bool

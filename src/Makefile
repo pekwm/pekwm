@@ -19,7 +19,7 @@ X11_OBJS = PWinObj.o X11.o X11Util.o X11App.o
 WM_OBJS = ActionHandler.o ActionMenu.o AutoProperties.o Completer.o \
 	  Client.o ClientMgr.o CmdDialog.o Config.o DockApp.o \
 	  FocusToggleEventHandler.o Frame.o FrameListMenu.o Globals.o \
-	  Harbour.o InputDialog.o KeyGrabber.o \
+	  GroupingDragEventHandler.o Harbour.o InputDialog.o KeyGrabber.o \
 	  KeyboardMoveResizeEventHandler.o ManagerWindows.o MenuHandler.o \
 	  MoveEventHandler.o PDecor.o PMenu.o StatusWindow.o \
 	  SearchDialog.o WORefMenu.o WindowManager.o WinLayouter.o \

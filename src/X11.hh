@@ -362,6 +362,9 @@ public:
 	static bool grabPointer(Window win, uint event_mask, CursorType cursor);
 	static bool ungrabPointer(void);
 
+	static Window translateRootCoordinates(int x, int y,
+					       int *ret_x, int *ret_y);
+
 	static int getNearestHead(int x, int y, DirectionType dx, DirectionType dy);
 	static uint getNearestHead(int x, int y);
 	static uint getCursorHead(void);

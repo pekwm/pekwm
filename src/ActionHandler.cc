@@ -37,6 +37,7 @@
 #include "X11.hh"
 
 #include "FocusToggleEventHandler.hh"
+#include "GroupingDragEventHandler.hh"
 #include "MoveEventHandler.hh"
 #include "KeyboardMoveResizeEventHandler.hh"
 
@@ -107,9 +108,8 @@ ActionHandler::handleAction(const ActionPerformed &ap)
 			matched = true;
 			switch (it->getAction()) {
 			case ACTION_GROUPING_DRAG:
-				if (ap.type == MotionNotify) {
-					frame->doGroupingDrag(ap.event.motion, client, it->getParamI(0));
-				}
+				actionGroupingDrag(ap, frame, client,
+						   it->getParamI(0));
 				break;
 			case ACTION_ACTIVATE_CLIENT:
 				if ((ap.type == ButtonPress) || (ap.type == ButtonRelease))
@@ -199,7 +199,9 @@ ActionHandler::handleAction(const ActionPerformed &ap)
 				actionSendToWorkspace(decor, it->getParamI(0), calcWorkspaceNum(*it, 1));
 				break;
 			case ACTION_DETACH:
-				frame->detachClient(client);
+				frame->detachClient(client,
+						    frame->getX(),
+						    frame->getY());
 				break;
 			case ACTION_ATTACH_MARKED:
 				attachMarked(frame);
@@ -608,6 +610,24 @@ ActionHandler::actionGotoClientID(uint id)
 	if (client) {
 		gotoClient(client);
 	}
+}
+
+/**
+ * Initiate grouping drag.
+ */
+void
+ActionHandler::actionGroupingDrag(const ActionPerformed &ap,
+				  Frame *frame, Client *client, bool behind)
+{
+	if (ap.type != MotionNotify) {
+		return;
+	}
+
+	int x = ap.event.motion->x_root;
+	int y = ap.event.motion->y_root;
+	EventHandler *event_handler =
+		new GroupingDragEventHandler(frame, client, x, y, behind);
+	setEventHandler(event_handler);
 }
 
 //! @brief Sends client to specified workspace

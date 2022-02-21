@@ -49,6 +49,8 @@ private:
 	void actionFindClient(const std::string &title);
 	void actionGotoClientID(uint id);
 	void actionGotoWorkspace(const Action &action, int type);
+	void actionGroupingDrag(const ActionPerformed &ap,
+				Frame *frame, Client *client, bool behind);
 	void actionSendToWorkspace(PDecor *decor, bool focus, int direction);
 	void actionWarpToWorkspace(PDecor *decor, uint direction);
 	void actionFocusWithSelector(const Action &action);

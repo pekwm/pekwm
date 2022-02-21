@@ -108,7 +108,7 @@ public:
 	inline uint getId(void) const { return _id; }
 	void setId(uint id);
 
-	void detachClient(Client *client);
+	Frame *detachClient(Client *client, int x, int y);
 
 	inline const ClassHint* getClassHint(void) const { return _class_hint; }
 
@@ -145,7 +145,6 @@ public:
 	void doResize(XMotionEvent *ev); // redirects to doResize(bool...
 	void doResize(BorderPosition pos); // redirect to doResize(bool...
 	void doResize(bool left, bool x, bool top, bool y);
-	void doGroupingDrag(XMotionEvent *ev, Client *client, bool behind);
 
 	bool fixGeometry(void);
 

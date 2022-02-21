@@ -51,6 +51,7 @@ set(wm_SOURCES
   Frame.cc
   FrameListMenu.cc
   Globals.cc
+  GroupingDragEventHandler.cc
   Harbour.cc
   InputDialog.cc
   KeyGrabber.cc

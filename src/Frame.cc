@@ -980,28 +980,35 @@ Frame::resetFrameIDs(void)
 	}
 }
 
-
-//! @brief Removes the client from the Frame and creates a new Frame for it
-void
-Frame::detachClient(Client *client)
+/**
+ * Remove given client from frame moving it to a new frame at the
+ * specified coordinates.
+ *
+ * @return new Frame on success, nullptr if client is not part of frame or is
+ *         the only client in the frame.
+ */
+Frame*
+Frame::detachClient(Client *client, int x, int y)
 {
 	if (client->getParent() != this) {
-		return;
+		return nullptr;
+	} else if (_children.size() < 2) {
+		move(x, y);
+		return nullptr;
 	}
 
-	if (_children.size() > 1) {
-		removeChild(client);
+	removeChild(client);
 
-		client->move(_gm.x, _gm.y + bdTop(this));
+	client->move(x, y + bdTop(this));
 
-		Frame *frame = new Frame(client, 0);
-		frame->workspacesInsert();
+	Frame *frame = new Frame(client, nullptr);
+	frame->workspacesInsert();
+	client->setParent(frame);
+	client->setWorkspace(Workspaces::getActive());
 
-		client->setParent(frame);
-		client->setWorkspace(Workspaces::getActive());
+	setFocused(false);
 
-		setFocused(false);
-	}
+	return frame;
 }
 
 //! @brief Makes sure the frame doesn't cover any struts / the harbour.
@@ -1039,123 +1046,6 @@ Frame::fixGeometry(void)
 	}
 
 	return (_gm != before);
-}
-
-/**
- * Initiates grouping move, based on a XMotionEvent.
- *
- * @fixme rewrite
- */
-void
-Frame::doGroupingDrag(XMotionEvent *ev, Client *client, bool behind)
-{
-	if (! client) {
-		return;
-	}
-
-	int o_x, o_y;
-	o_x = ev ? ev->x_root : 0;
-	o_y = ev ? ev->y_root : 0;
-
-	std::string name("Grouping ");
-	if (client->getTitle()->getVisible().size() > 0) {
-		name += client->getTitle()->getVisible();
-	} else {
-		name += "No Name";
-	}
-
-	bool status = X11::grabPointer(X11::getRoot(),
-				       ButtonReleaseMask|PointerMotionMask,
-				       CURSOR_NONE);
-	if (status != true) {
-		return;
-	}
-
-	StatusWindow *sw = pekwm::statusWindow();
-
-	sw->draw(name); // resize window and render bg
-	sw->move(o_x, o_y);
-	sw->mapWindowRaised();
-	sw->draw(name); // redraw after map
-
-	XEvent e;
-	while (true) { // this breaks when we get an button release
-		XMaskEvent(X11::getDpy(), PointerMotionMask|ButtonReleaseMask, &e);
-
-		switch (e.type)  {
-		case MotionNotify:
-			// update the position
-			o_x = e.xmotion.x_root;
-			o_y = e.xmotion.y_root;
-
-			sw->move(o_x, o_y);
-			sw->draw(name);
-			break;
-
-		case ButtonRelease:
-			sw->unmapWindow();
-			X11::ungrabPointer();
-
-			Client *search = 0;
-
-			// only group if we have grouping turned on
-			if (ClientMgr::isAllowGrouping()) {
-				int x, y;
-				Window win;
-
-				// find the frame we dropped the client on
-				XTranslateCoordinates(X11::getDpy(),
-						      X11::getRoot(), X11::getRoot(),
-						      e.xmotion.x_root, e.xmotion.y_root,
-						      &x, &y, &win);
-
-				search = Client::findClient(win);
-			}
-
-			// if we found a client, and it's not in the current frame and
-			// it has a "normal" ( make configurable? ) layer we group
-			if (search && search->getParent() &&
-			    (search->getParent() != this) &&
-			    (search->getLayer() > LAYER_BELOW) &&
-			    (search->getLayer() < LAYER_ONTOP)) {
-
-				// if we currently have focus and the frame exists after we remove
-				// this client we need to redraw it as unfocused
-				bool focus = behind ? false : (_children.size() > 1);
-
-				removeChild(client);
-
-				Frame *frame = static_cast<Frame*>(search->getParent());
-				frame->addChild(client);
-				if (! behind) {
-					frame->activateChild(client);
-					frame->giveInputFocus();
-				}
-
-				if (focus) {
-					setFocused(false);
-				}
-
-			}  else if (_children.size() > 1) {
-				// if we have more than one client in the frame detach this one
-				removeChild(client);
-
-				client->move(e.xmotion.x_root, e.xmotion.y_root);
-
-				Frame *frame = new Frame(client, 0);
-				client->setParent(frame);
-				// make sure the client ends up on the current workspace
-				client->setWorkspace(Workspaces::getActive());
-				frame->workspacesInsert();
-
-				// make sure it get's focus
-				setFocused(false);
-				frame->giveInputFocus();
-			}
-
-			return;
-		}
-	}
 }
 
 //! @brief Initiates resizing of a window based on motion event
