@@ -1610,14 +1610,17 @@ PDecor::alignChild(PWinObj *child)
 	}
 }
 
-//! @brief Draws outline of the decor with geometry gm
+/**
+ * Draws outline for the provided geometry, if shaded is non-zero use
+ * that as height instead of gm.height
+ */
 void
-PDecor::drawOutline(const Geometry &gm)
+PDecor::drawOutline(const Geometry &gm, uint shaded)
 {
 	XDrawRectangle(X11::getDpy(), X11::getRoot(),
 		       pekwm::theme()->getInvertGC(),
 		       gm.x, gm.y, gm.width,
-		       _shaded ? _gm.height : gm.height);
+		       shaded ? shaded : gm.height);
 }
 
 //! @brief Places decor buttons

@@ -1,6 +1,6 @@
 //
 // ActionHandler.cc for pekwm
-// Copyright (C) 2002-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2002-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -40,6 +40,7 @@
 #include "GroupingDragEventHandler.hh"
 #include "MoveEventHandler.hh"
 #include "KeyboardMoveResizeEventHandler.hh"
+#include "ResizeEventHandler.hh"
 
 #include <memory>
 
@@ -126,20 +127,13 @@ ActionHandler::handleAction(const ActionPerformed &ap)
 				frame->growDirection(it->getParamI(0));
 				break;
 			case ACTION_RESIZE:
-				if (ap.type == MotionNotify && ! it->getParamI(0)) {
-					frame->doResize(ap.event.motion);
-				} else {
-					frame->doResize(BorderPosition(it->getParamI(0)-1));
-				}
+				actionResize(ap, frame, client,
+					     static_cast<BorderPosition>(
+						     it->getParamI(0, BORDER_NO_POS)));
 				break;
-			case ACTION_MOVE_RESIZE: {
-				EventHandler *event_handler =
-					new KeyboardMoveResizeEventHandler(pekwm::config(),
-									   pekwm::keyGrabber(),
-									   decor);
-				setEventHandler(event_handler);
+			case ACTION_MOVE_RESIZE:
+				actionMoveResize(decor);
 				break;
-			}
 			case ACTION_CLOSE:
 				client->close();
 				break;
@@ -629,6 +623,77 @@ ActionHandler::actionGroupingDrag(const ActionPerformed &ap,
 		new GroupingDragEventHandler(frame, client, x, y, behind);
 	setEventHandler(event_handler);
 }
+
+/**
+ * Initiate resize of provided Frame/Client.
+ */
+void
+ActionHandler::actionResize(const ActionPerformed &ap,
+			    Frame *frame, Client *client, BorderPosition pos)
+{
+	bool resize;
+
+	bool left = false, top = false, x = false, y = false;
+	if (ap.type == MotionNotify && pos == BORDER_NO_POS) {
+		// figure out which part of the window we are in
+		left = ap.event.motion->x < signed(frame->getWidth() / 2);
+		top = ap.event.motion->y < signed(frame->getHeight() / 2);
+		x = true;
+		y = true;
+	   	resize = true; 
+	} else {
+		switch (pos) {
+		case BORDER_TOP_LEFT:
+			x = y = left = top = true;
+			break;
+		case BORDER_TOP:
+			y = top = true;
+			break;
+		case BORDER_TOP_RIGHT:
+			x = y = top = true;
+			break;
+		case BORDER_LEFT:
+			x = left = true;
+			break;
+		case BORDER_RIGHT:
+			x = true;
+			break;
+		case BORDER_BOTTOM_LEFT:
+			x = y = left = true;
+			break;
+		case BORDER_BOTTOM:
+			y = true;
+			break;
+		case BORDER_BOTTOM_RIGHT:
+			x = y = true;
+			break;
+		default:
+			resize = false;
+			break;
+		}
+	}
+
+	if (resize) {
+		EventHandler *event_handler =
+			new ResizeEventHandler(pekwm::config(), frame, client,
+					       left, x, top, y);
+		setEventHandler(event_handler);
+	}
+}
+
+/**
+ * Initiate keyboard move resize of the provided Decor.
+ */
+void
+ActionHandler::actionMoveResize(PDecor *decor)
+{
+	EventHandler *event_handler =
+		new KeyboardMoveResizeEventHandler(pekwm::config(),
+						   pekwm::keyGrabber(),
+						   decor);
+	setEventHandler(event_handler);
+}
+
 
 //! @brief Sends client to specified workspace
 //! @param focus make the window "last focused" in the new workspace

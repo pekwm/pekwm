@@ -1,6 +1,6 @@
 //
 // Action.hh for pekwm
-// Copyright (C) 2003-2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -189,10 +189,13 @@ public:
 
 	inline uint getAction(void) const { return _action; }
 	inline int getParamI() const {
-		return getParamI(0);
+		return getParamI(0, 0);
 	}
 	inline int getParamI(uint n) const {
-		return n < _i.size() ? _i[n] : 0;
+		return getParamI(n, 0);
+	}
+	inline int getParamI(uint n, int def) const {
+		return n < _i.size() ? _i[n] : def;
 	}
 	size_t numParamI(void) const { return _i.size(); }
 	inline const std::string &getParamS(void) const {

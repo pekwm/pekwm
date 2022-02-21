@@ -125,6 +125,7 @@ public:
 	// state actions
 	void setStateMaximized(StateAction sa, bool horz, bool vert, bool fill);
 	void setStateFullscreen(StateAction sa);
+	void clearMaximizedStates(void);
 	void setStateSticky(StateAction sa);
 	void setStateAlwaysOnTop(StateAction sa);
 	void setStateAlwaysBelow(StateAction sa);
@@ -141,10 +142,6 @@ public:
 	void close(void);
 
 	void readAutoprops(ApplyOn type = APPLY_ON_RELOAD);
-
-	void doResize(XMotionEvent *ev); // redirects to doResize(bool...
-	void doResize(BorderPosition pos); // redirect to doResize(bool...
-	void doResize(bool left, bool x, bool top, bool y);
 
 	bool fixGeometry(void);
 
@@ -183,7 +180,6 @@ private:
 					  Client *client);
 	bool isRequestGeometryFullscreen(XConfigureRequestEvent *ev);
 
-	void recalcResizeDrag(int nx, int ny, bool left, bool top);
 	void getMaxBounds(int &max_x,int &max_r, int &max_y, int &max_b);
 	void calcSizeInCells(uint &width, uint &height, const Geometry& gm);
 	void setGravityPosition(int gravity, int &x, int &y,
@@ -219,6 +215,7 @@ private:
 	static std::vector<uint> _frameid_list; //!< Vector of free Frame IDs.
 
 	static ActionEvent _ae_move;
+	static ActionEvent _ae_resize;
 	static ActionEvent _ae_move_resize;
 
 	// Tagging, static as only one Frame can be tagged

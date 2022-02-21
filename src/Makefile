@@ -21,9 +21,9 @@ WM_OBJS = ActionHandler.o ActionMenu.o AutoProperties.o Completer.o \
 	  FocusToggleEventHandler.o Frame.o FrameListMenu.o Globals.o \
 	  GroupingDragEventHandler.o Harbour.o InputDialog.o KeyGrabber.o \
 	  KeyboardMoveResizeEventHandler.o ManagerWindows.o MenuHandler.o \
-	  MoveEventHandler.o PDecor.o PMenu.o StatusWindow.o \
-	  SearchDialog.o WORefMenu.o WindowManager.o WinLayouter.o \
-	  Workspaces.o WorkspaceIndicator.o WmUtil.o
+	  MoveEventHandler.o PDecor.o PMenu.o ResizeEventHandler.o \
+	  StatusWindow.o SearchDialog.o WORefMenu.o WindowManager.o \
+	  WinLayouter.o Workspaces.o WorkspaceIndicator.o WmUtil.o
 
 PEKWM_OBJS = pekwm.o Compat.o
 PEKWM_BG_OBJS = pekwm_bg.o $(BASE_OBJS) $(CFG_PARSER_OBJS)  \

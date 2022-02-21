@@ -41,6 +41,7 @@ std::vector<Frame*> Frame::_frames;
 std::vector<uint> Frame::_frameid_list;
 
 ActionEvent Frame::_ae_move = ActionEvent(Action(ACTION_MOVE));
+ActionEvent Frame::_ae_resize = ActionEvent(Action(ACTION_RESIZE));
 ActionEvent Frame::_ae_move_resize = ActionEvent(Action(ACTION_MOVE_RESIZE));
 
 Frame* Frame::_tag_frame = nullptr;
@@ -1048,182 +1049,8 @@ Frame::fixGeometry(void)
 	return (_gm != before);
 }
 
-//! @brief Initiates resizing of a window based on motion event
 void
-Frame::doResize(XMotionEvent *ev)
-{
-	if (! ev) {
-		return;
-	}
-    
-	// figure out which part of the window we are in
-	bool left = false, top = false;
-	if (ev->x < signed(_gm.width / 2)) {
-		left = true;
-	}
-	if (ev->y < signed(_gm.height / 2)) {
-		top = true;
-	}
-    
-	doResize(left, true, top, true);
-}
-
-//! @brief Initiates resizing of a window based border position
-void
-Frame::doResize(BorderPosition pos)
-{
-	bool x = false, y = false;
-	bool left = false, top = false, resize = true;
-
-	switch (pos) {
-	case BORDER_TOP_LEFT:
-		x = y = left = top = true;
-		break;
-	case BORDER_TOP:
-		y = top = true;
-		break;
-	case BORDER_TOP_RIGHT:
-		x = y = top = true;
-		break;
-	case BORDER_LEFT:
-		x = left = true;
-		break;
-	case BORDER_RIGHT:
-		x = true;
-		break;
-	case BORDER_BOTTOM_LEFT:
-		x = y = left = true;
-		break;
-	case BORDER_BOTTOM:
-		y = true;
-		break;
-	case BORDER_BOTTOM_RIGHT:
-		x = y = true;
-		break;
-	default:
-		resize = false;
-		break;
-	}
-
-	if (resize) {
-		doResize(left, x, top, y);
-	}
-}
-
-//! @brief Resizes the frame by handling MotionNotify events.
-void
-Frame::doResize(bool left, bool x, bool top, bool y)
-{
-	if (! _client->allowResize() || isShaded()) {
-		return;
-	}
-
-	if (! X11::grabPointer(X11::getRoot(), ButtonMotionMask|ButtonReleaseMask,
-			       CURSOR_RESIZE)) {
-		return;
-	}
-
-	setShaded(STATE_UNSET); // make sure the frame isn't shaded
-	setStateFullscreen(STATE_UNSET);
-
-	// Initialize variables
-	int start_x, new_x;
-	int start_y, new_y;
-	uint old_width;
-	uint old_height;
-
-	start_x = new_x = left ? _gm.x : (_gm.x + _gm.width);
-	start_y = new_y = top ? _gm.y : (_gm.y + _gm.height);
-	old_width = _gm.width;
-	old_height = _gm.height;
-
-	// the basepoint of our window
-	_click_x = left ? (_gm.x + _gm.width) : _gm.x;
-	_click_y = top ? (_gm.y + _gm.height) : _gm.y;
-
-	int pointer_x = _gm.x, pointer_y = _gm.y;
-	X11::getMousePosition(pointer_x, pointer_y);
-
-	char buf[128];
-	getDecorInfo(buf, 128, _gm);
-
-	bool center_on_root = pekwm::config()->isShowStatusWindowOnRoot();
-	StatusWindow *sw = pekwm::statusWindow();
-	if (pekwm::config()->isShowStatusWindow()) {
-		sw->draw(buf, true, center_on_root ? 0 : &_gm);
-		sw->mapWindowRaised();
-		sw->draw(buf, true, center_on_root ? 0 : &_gm);
-	}
-
-	bool outline = ! pekwm::config()->getOpaqueResize();
-
-	// grab server, we don't want invert traces
-	if (outline) {
-		X11::grabServer();
-	}
-
-	const long resize_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask;
-	XEvent ev;
-	bool exit = false;
-	while (exit != true) {
-		if (outline) {
-			drawOutline(_gm);
-		}
-		XMaskEvent(X11::getDpy(), resize_mask, &ev);
-		if (outline) {
-			drawOutline(_gm); // clear
-		}
-
-		switch (ev.type) {
-		case MotionNotify:
-			// Flush all pointer motion, no need to redraw and redraw.
-			X11::removeMotionEvents();
-
-			if (x) {
-				new_x = start_x - pointer_x + ev.xmotion.x;
-			}
-			if (y) {
-				new_y = start_y - pointer_y + ev.xmotion.y;
-			}
-
-			recalcResizeDrag(new_x, new_y, left, top);
-
-			getDecorInfo(buf, 128, _gm);
-			if (pekwm::config()->isShowStatusWindow()) {
-				sw->draw(buf, true, center_on_root ? 0 : &_gm);
-			}
-
-			// only updated when needed when in opaque mode
-			if (! outline) {
-				if ((old_width != _gm.width) || (old_height != _gm.height)) {
-					moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
-				}
-				old_width = _gm.width;
-				old_height = _gm.height;
-			}
-			break;
-		case ButtonRelease:
-			exit = true;
-			break;
-		}
-	}
-
-	if (pekwm::config()->isShowStatusWindow()) {
-		sw->unmapWindow();
-	}
-
-	X11::ungrabPointer();
-
-	// Make sure the state isn't set to maximized after we've resized.
-	clearMaximizedStatesAfterResize();
-
-	if (outline) {
-		moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
-		X11::ungrabServer(true);
-	}
-}
-
-void Frame::clearMaximizedStatesAfterResize()
+Frame::clearMaximizedStatesAfterResize(void)
 {
 	if (_maximized_horz || _maximized_vert) {
 		_maximized_horz = false;
@@ -1232,59 +1059,6 @@ void Frame::clearMaximizedStatesAfterResize()
 		_client->setMaximizedVert(false);
 		_client->updateEwmhStates();
 	}
-}
-
-//! @brief Updates the width, height of the frame when resizing it.
-void
-Frame::recalcResizeDrag(int nx, int ny, bool left, bool top)
-{
-	if (left) {
-		if (nx >= signed(_click_x - decorWidth(this)))
-			nx = _click_x - decorWidth(this) - 1;
-	} else {
-		if (nx <= signed(_click_x + decorWidth(this)))
-			nx = _click_x + decorWidth(this) + 1;
-	}
-
-	if (top) {
-		if (ny >= signed(_click_y - decorHeight(this))) {
-			ny = _click_y - decorHeight(this) - 1;
-		}
-	} else {
-		if (ny <= signed(_click_y + decorHeight(this))) {
-			ny = _click_y + decorHeight(this) + 1;
-		}
-	}
-
-	uint width = left ? (_click_x - nx) : (nx - _click_x);
-	uint height = top ? (_click_y - ny) : (ny - _click_y);
-
-	width -= decorWidth(this);
-	height -= decorHeight(this);
-
-	_client->getAspectSize(&width, &height, width, height);
-
-	XSizeHints hints = _client->getActiveSizeHints();
-	// check so we aren't overriding min or max size
-	if (hints.flags & PMinSize) {
-		if (signed(width) < hints.min_width)
-			width = hints.min_width;
-		if (signed(height) < hints.min_height)
-			height = hints.min_height;
-	}
-
-	if (hints.flags & PMaxSize) {
-		if (signed(width) > hints.max_width)
-			width = hints.max_width;
-		if (signed(height) > hints.max_height)
-			height = hints.max_height;
-	}
-
-	_gm.width = width + decorWidth(this);
-	_gm.height = height + decorHeight(this);
-
-	_gm.x = left ? (_click_x - _gm.width) : _click_x;
-	_gm.y = top ? (_click_y - _gm.height) : _click_y;
 }
 
 void
@@ -1602,6 +1376,12 @@ Frame::setStateFullscreen(StateAction sa)
 	_client->configureRequestSend();
 
 	_client->updateEwmhStates();
+}
+
+void
+Frame::clearMaximizedStates(void)
+{
+	clearMaximizedStatesAfterResize();
 }
 
 void
@@ -2226,28 +2006,36 @@ Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
 		   && ev->format == 32) {
 		switch (ev->data.l[2]) {
 		case NET_WM_MOVERESIZE_SIZE_TOPLEFT:
-			doResize(true, true, true, true);
+			ae = &_ae_resize;
+			ae->action_list[0].setParamI(0, BORDER_TOP_LEFT);
 			break;
 		case NET_WM_MOVERESIZE_SIZE_TOP:
-			doResize(false, false, true, true);
+			ae = &_ae_resize;
+			ae->action_list[0].setParamI(0, BORDER_TOP);
 			break;
 		case NET_WM_MOVERESIZE_SIZE_TOPRIGHT:
-			doResize(false, true, true, true);
+			ae = &_ae_resize;
+			ae->action_list[0].setParamI(0, BORDER_TOP_RIGHT);
 			break;
 		case NET_WM_MOVERESIZE_SIZE_RIGHT:
-			doResize(false, true, false, false);
+			ae = &_ae_resize;
+			ae->action_list[0].setParamI(0, BORDER_RIGHT);
 			break;
 		case NET_WM_MOVERESIZE_SIZE_BOTTOMRIGHT:
-			doResize(false, true, false, true);
+			ae = &_ae_resize;
+			ae->action_list[0].setParamI(0, BORDER_BOTTOM_RIGHT);
 			break;
 		case NET_WM_MOVERESIZE_SIZE_BOTTOM:
-			doResize(false, false, false, true);
+			ae = &_ae_resize;
+			ae->action_list[0].setParamI(0, BORDER_BOTTOM);
 			break;
 		case NET_WM_MOVERESIZE_SIZE_BOTTOMLEFT:
-			doResize(true, true, false, true);
+			ae = &_ae_resize;
+			ae->action_list[0].setParamI(0, BORDER_BOTTOM_LEFT);
 			break;
 		case NET_WM_MOVERESIZE_SIZE_LEFT:
-			doResize(true, true, false, false);
+			ae = &_ae_resize;
+			ae->action_list[0].setParamI(0, BORDER_LEFT);
 			break;
 		case NET_WM_MOVERESIZE_MOVE:
 			ae = &_ae_move;

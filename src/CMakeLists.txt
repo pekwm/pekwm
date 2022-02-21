@@ -61,6 +61,7 @@ set(wm_SOURCES
   MoveEventHandler.cc
   PDecor.cc
   PMenu.cc
+  ResizeEventHandler.cc
   StatusWindow.cc
   SearchDialog.cc
   WORefMenu.cc

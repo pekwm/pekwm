@@ -24,6 +24,7 @@ MoveEventHandler::MoveEventHandler(Config* cfg, PDecor* decor,
 	decor->getGeometry(_last_gm);
 	_x = x_root - _gm.x;
 	_y = y_root - _gm.y;
+	_decor_shaded = decor->isShaded() ? _gm.height : 0;
 
 	pekwm::observerMapping()->addObserver(decor, this);
 }
@@ -130,8 +131,9 @@ MoveEventHandler::handleMotionNotifyEvent(XMotionEvent *ev)
 		}
 	}
 
-	drawOutline();
 	updateStatusWindow(false);
+
+	drawOutline();
 
 	return EventHandler::EVENT_PROCESSED;
 }
@@ -157,7 +159,7 @@ void
 MoveEventHandler::drawOutline(void)
 {
 	if (_outline) {
-		_decor->drawOutline(_gm);
+		PDecor::drawOutline(_gm, _decor_shaded);
 	}
 }
 

@@ -461,7 +461,7 @@ parseActionArg(Action &action, const std::string& arg)
 		}
 		break;
 	case ACTION_RESIZE:
-		action.setParamI(0, 1 + Util::StringToGet(borderpos_map, arg));
+		action.setParamI(0, Util::StringToGet(borderpos_map, arg));
 		break;
 	case ACTION_RAISE:
 	case ACTION_LOWER:

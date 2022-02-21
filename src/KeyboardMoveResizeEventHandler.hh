@@ -60,6 +60,7 @@ private:
 
 	bool _init;
 	PDecor *_decor;
+	uint _decor_shaded;
 };
 
 #endif // _PEKWM_KEYBOARDMOVERESIZEEVENTHANDLER_HH_

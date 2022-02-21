@@ -1,6 +1,6 @@
 //
 // ActionHandler.hh for pekwm
-// Copyright (C) 2003-2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -51,6 +51,9 @@ private:
 	void actionGotoWorkspace(const Action &action, int type);
 	void actionGroupingDrag(const ActionPerformed &ap,
 				Frame *frame, Client *client, bool behind);
+	void actionResize(const ActionPerformed &ap,
+			  Frame *frame, Client *client, BorderPosition pos);
+	void actionMoveResize(PDecor *decor);
 	void actionSendToWorkspace(PDecor *decor, bool focus, int direction);
 	void actionWarpToWorkspace(PDecor *decor, uint direction);
 	void actionFocusWithSelector(const Action &action);

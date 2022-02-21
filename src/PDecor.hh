@@ -277,7 +277,7 @@ public:
 
 	void deiconify(void);
 
-	void drawOutline(const Geometry &gm);
+	static void drawOutline(const Geometry &gm, uint shaded);
 	static void checkSnap(PWinObj *skip_wo, Geometry &gm);
 
 protected:
