@@ -251,6 +251,14 @@ public:
 			(action_list.front().getAction() == action));
 	}
 
+	inline bool isAnyModifier(void) {
+		return mod == 0 || mod == MOD_ANY;
+	}
+	inline bool isButtonEvent(void) {
+		return type == MOUSE_EVENT_PRESS
+			|| type == MOUSE_EVENT_RELEASE;
+	}
+
 	uint mod, sym; // event matching
 	uint type, threshold; // more matching, press, release etc
 	action_vector action_list;

@@ -778,30 +778,35 @@ Client::isViewable(void)
 	return (attr.map_state == IsViewable);
 }
 
-//! @brief Grabs all the mouse button actions on the client.
+/**
+ * Grab all mouse button actions on the client excluding the events
+ * without a modifier.
+ */
 void
 Client::grabButtons(void)
 {
-	// Make sure we don't have any buttons grabbed.
+	// make sure all previous grabs are removed
 	X11::ungrabButton(AnyButton, AnyModifier, _window);
 
+	Config *cfg = pekwm::config();
 	std::vector<ActionEvent> *actions =
-		pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_CHILD_FRAME);
+		cfg->getMouseActionList(MOUSE_ACTION_LIST_CHILD_FRAME);
 	std::vector<ActionEvent>::iterator it = actions->begin();
+
+	const uint mask = ButtonPressMask|ButtonReleaseMask;
 	for (; it != actions->end(); ++it) {
-		if ((it->type == MOUSE_EVENT_PRESS)
-		    || (it->type == MOUSE_EVENT_RELEASE)) {
-			// No need to grab mod less events, replied with the frame
-			if ((it->mod == 0) || (it->mod == MOD_ANY)) {
+		if (it->isButtonEvent()) {
+			// not grabbing actions without modifier, will be
+			// grabbed by the Frame code and replied from there
+			if (it->isAnyModifier()) {
 				continue;
 			}
 
-			uint mask = ButtonPressMask|ButtonReleaseMask;
 			X11Util::grabButton(it->sym, it->mod, mask, _window);
 		} else if (it->type == MOUSE_EVENT_MOTION) {
-			// FIXME: Add support for MOD_ANY
-			uint mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask;
-			X11Util::grabButton(it->sym, it->mod, mask, _window);
+			const uint motion_mask = mask|ButtonMotionMask;
+			X11Util::grabButton(it->sym, it->mod,
+					    motion_mask, _window);
 		}
 	}
 }
