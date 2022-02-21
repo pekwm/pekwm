@@ -204,15 +204,16 @@ void
 MoveEventHandler::doMoveEdgeAction(XMotionEvent *ev, EdgeType edge)
 {
 	uint button = X11::getButtonFromState(ev->state);
+	std::vector<ActionEvent> *edge_actions =
+		_cfg->getEdgeListFromPosition(edge);
 	ActionEvent *ae =
 		ActionHandler::findMouseAction(button, ev->state,
 					       MOUSE_EVENT_ENTER_MOVING,
-					       _cfg->getEdgeListFromPosition(edge));
+					       edge_actions);
 	if (ae) {
-		ActionPerformed ap(_decor, *ae);
+		ActionPerformedWithOffset ap(_decor, *ae, _x, _y);
 		ap.type = ev->type;
 		ap.event.motion = ev;
-
-		pekwm::actionHandler()->handleAction(ap);
+		pekwm::actionHandler()->handleAction(&ap);
 	}
 }

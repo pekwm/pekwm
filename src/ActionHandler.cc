@@ -62,9 +62,9 @@ ActionHandler::~ActionHandler(void)
 
 //! @brief Executes an ActionPerformed event.
 void
-ActionHandler::handleAction(const ActionPerformed &ap)
+ActionHandler::handleAction(const ActionPerformed *ap)
 {
-	PWinObj *wo = ap.wo;
+	PWinObj *wo = ap->wo;
 	Client *client = nullptr;
 	Frame *frame = nullptr;
 	PMenu *menu = nullptr;
@@ -72,8 +72,8 @@ ActionHandler::handleAction(const ActionPerformed &ap)
 	bool matched = false;
 
 	// go through the list of actions and execute them
-	ActionEvent::it it = ap.ae.action_list.begin();
-	for (; it != ap.ae.action_list.end(); ++it, matched = false) {
+	ActionEvent::it it = ap->ae.action_list.begin();
+	for (; it != ap->ae.action_list.end(); ++it, matched = false) {
 		// Determine what type if any of the window object that is focused
 		// and check if it is still alive.
 		lookupWindowObjects(&wo, &client, &frame, &menu, &decor);
@@ -113,8 +113,10 @@ ActionHandler::handleAction(const ActionPerformed &ap)
 						   it->getParamI(0));
 				break;
 			case ACTION_ACTIVATE_CLIENT:
-				if ((ap.type == ButtonPress) || (ap.type == ButtonRelease))
-					frame->activateChild(frame->getChildFromPos(ap.event.button->x));
+				if (ap->type == ButtonPress
+				     || ap->type == ButtonRelease) {
+					frame->activateChild(frame->getChildFromPos(ap->event.button->x));
+				}
 				break;
 			case ACTION_GOTO_CLIENT:
 				gotoClient(client);
@@ -162,9 +164,9 @@ ActionHandler::handleAction(const ActionPerformed &ap)
 				}
 				break;
 			case ACTION_ACTIVATE_OR_RAISE:
-				if ((ap.type == ButtonPress) || (ap.type == ButtonRelease)) {
-					if (ap.event.button->window == frame->getTitleWindow()) {
-						frame->activateChild(frame->getChildFromPos(ap.event.button->x));
+				if (ap->type == ButtonPress || ap->type == ButtonRelease) {
+					if (ap->event.button->window == frame->getTitleWindow()) {
+						frame->activateChild(frame->getChildFromPos(ap->event.button->x));
 					}
 				}
 
@@ -292,7 +294,8 @@ ActionHandler::handleAction(const ActionPerformed &ap)
 				}
 				break;
 			case ACTION_WARP_TO_WORKSPACE:
-				actionWarpToWorkspace(decor, calcWorkspaceNum(*it));
+				actionWarpToWorkspace(ap, decor,
+						      calcWorkspaceNum(*it));
 				break;
 			default:
 				matched = false;
@@ -322,13 +325,13 @@ ActionHandler::handleAction(const ActionPerformed &ap)
 					   || it->getAction() == ACTION_NEXT_FRAME_MRU) ? 1 : -1;
 				EventHandler *event_handler =
 					new FocusToggleEventHandler(pekwm::config(),
-								    ap.ae.sym, it->getParamI(0),
+								    ap->ae.sym, it->getParamI(0),
 								    dir, it->getParamI(1), mru);
 				setEventHandler(event_handler);
 				break;
 			}
 			case ACTION_GOTO_WORKSPACE:
-				actionGotoWorkspace(*it, ap.type);
+				actionGotoWorkspace(*it, ap->type);
 				break;
 			case ACTION_FIND_CLIENT:
 				actionFindClient(it->getParamS());
@@ -344,7 +347,7 @@ ActionHandler::handleAction(const ActionPerformed &ap)
 				break;
 			case ACTION_SHOW_MENU:
 				actionShowMenu(it->getParamS(), it->getParamI(0),
-					       ap.type, client ? client : wo);
+					       ap->type, client ? client : wo);
 				break;
 			case ACTION_HIDE_ALL_MENUS:
 				MenuHandler::hideAllMenus();
@@ -610,15 +613,15 @@ ActionHandler::actionGotoClientID(uint id)
  * Initiate grouping drag.
  */
 void
-ActionHandler::actionGroupingDrag(const ActionPerformed &ap,
+ActionHandler::actionGroupingDrag(const ActionPerformed *ap,
 				  Frame *frame, Client *client, bool behind)
 {
-	if (ap.type != MotionNotify) {
+	if (ap->type != MotionNotify) {
 		return;
 	}
 
-	int x = ap.event.motion->x_root;
-	int y = ap.event.motion->y_root;
+	int x = ap->event.motion->x_root;
+	int y = ap->event.motion->y_root;
 	EventHandler *event_handler =
 		new GroupingDragEventHandler(frame, client, x, y, behind);
 	setEventHandler(event_handler);
@@ -628,16 +631,16 @@ ActionHandler::actionGroupingDrag(const ActionPerformed &ap,
  * Initiate resize of provided Frame/Client.
  */
 void
-ActionHandler::actionResize(const ActionPerformed &ap,
+ActionHandler::actionResize(const ActionPerformed *ap,
 			    Frame *frame, Client *client, BorderPosition pos)
 {
 	bool resize;
 
 	bool left = false, top = false, x = false, y = false;
-	if (ap.type == MotionNotify && pos == BORDER_NO_POS) {
+	if (ap->type == MotionNotify && pos == BORDER_NO_POS) {
 		// figure out which part of the window we are in
-		left = ap.event.motion->x < signed(frame->getWidth() / 2);
-		top = ap.event.motion->y < signed(frame->getHeight() / 2);
+		left = ap->event.motion->x < signed(frame->getWidth() / 2);
+		top = ap->event.motion->y < signed(frame->getHeight() / 2);
 		x = true;
 		y = true;
 	   	resize = true; 
@@ -762,8 +765,15 @@ ActionHandler::actionSendToWorkspace(PDecor *decor, bool focus, int direction)
 }
 
 void
-ActionHandler::actionWarpToWorkspace(PDecor *decor, uint direction)
+ActionHandler::actionWarpToWorkspace(const ActionPerformed *ap, PDecor *decor,
+				     uint direction)
 {
+	const ActionPerformedWithOffset *ap_o =
+		dynamic_cast<const ActionPerformedWithOffset*>(ap);
+	if (ap_o == nullptr) {
+		return;
+	}
+
 	// Removing the already accumulated motion events can help
 	// to avoid skipping workspaces (see task #77).
 	X11::removeMotionEvents();
@@ -773,8 +783,7 @@ ActionHandler::actionWarpToWorkspace(PDecor *decor, uint direction)
 		int x, y;
 		X11::getMousePosition(x, y);
 
-		decor->move(decor->getClickX() + x - decor->getPointerX(),
-			    decor->getClickY() + y - decor->getPointerY());
+		decor->move(x + ap_o->offset_x, y + ap_o->offset_y);
 		decor->setWorkspace(Workspaces::getActive());
 	}
 }

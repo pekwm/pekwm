@@ -101,7 +101,7 @@ ActionMenu::handleItemExec(PMenu::Item *item)
 	}
 
 	ActionPerformed ap(getWORef(), item->getAE());
-	_act->handleAction(ap);
+	_act->handleAction(&ap);
 }
 
 

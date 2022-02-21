@@ -912,13 +912,13 @@ WindowManager::handleKeyEventAction(XKeyEvent *ev, ActionEvent *ae,
 		close_ae.action_list.back().setAction(ACTION_CLOSE);
 
 		ActionPerformed close_ap(wo_orig, close_ae);
-		pekwm::actionHandler()->handleAction(close_ap);
+		pekwm::actionHandler()->handleAction(&close_ap);
 	}
 
 	ActionPerformed ap(wo, *ae);
 	ap.type = ev->type;
 	ap.event.key = ev;
-	pekwm::actionHandler()->handleAction(ap);
+	pekwm::actionHandler()->handleAction(&ap);
 }
 
 void
@@ -944,7 +944,7 @@ WindowManager::handleButtonPressEvent(XButtonEvent *ev)
 		ActionPerformed ap(wo, *ae);
 		ap.type = ev->type;
 		ap.event.button = ev;
-		pekwm::actionHandler()->handleAction(ap);
+		pekwm::actionHandler()->handleAction(&ap);
 	} else {
 		Harbour *harbour = pekwm::harbour();
 		DockApp *da = harbour->findDockAppFromFrame(ev->window);
@@ -977,7 +977,7 @@ WindowManager::handleButtonReleaseEvent(XButtonEvent *ev)
 		ActionPerformed ap(wo, *ae);
 		ap.type = ev->type;
 		ap.event.button = ev;
-		pekwm::actionHandler()->handleAction(ap);
+		pekwm::actionHandler()->handleAction(&ap);
 	} else {
 		Harbour *harbour = pekwm::harbour();
 		DockApp *da = harbour->findDockAppFromFrame(ev->window);
@@ -1079,7 +1079,7 @@ WindowManager::handleMotionEvent(XMotionEvent *ev)
 			ap.type = ev->type;
 			ap.event.motion = ev;
 
-			pekwm::actionHandler()->handleAction(ap);
+			pekwm::actionHandler()->handleAction(&ap);
 		}
 	} else {
 		DockApp *da = pekwm::harbour()->findDockAppFromFrame(ev->window);
@@ -1201,7 +1201,7 @@ WindowManager::handleEnterNotify(XCrossingEvent *ev)
 			ap.type = ev->type;
 			ap.event.crossing = ev;
 
-			pekwm::actionHandler()->handleAction(ap);
+			pekwm::actionHandler()->handleAction(&ap);
 		}
 	}
 }
@@ -1227,7 +1227,7 @@ WindowManager::handleLeaveNotify(XCrossingEvent *ev)
 			ActionPerformed ap(wo, *ae);
 			ap.type = ev->type;
 			ap.event.crossing = ev;
-			pekwm::actionHandler()->handleAction(ap);
+			pekwm::actionHandler()->handleAction(&ap);
 		}
 	}
 }
@@ -1333,7 +1333,7 @@ WindowManager::handleClientMessageEvent(XClientMessageEvent *ev)
 				ActionPerformed ap(frame, *ae);
 				ap.type = ev->type;
 				ap.event.client = ev;
-				pekwm::actionHandler()->handleAction(ap);
+				pekwm::actionHandler()->handleAction(&ap);
 			}
 		}
 	}
@@ -1429,7 +1429,7 @@ WindowManager::handleExposeEvent(XExposeEvent *ev)
 		ap.type = ev->type;
 		ap.event.expose = ev;
 
-		pekwm::actionHandler()->handleAction(ap);
+		pekwm::actionHandler()->handleAction(&ap);
 	}
 }
 
@@ -1522,7 +1522,7 @@ WindowManager::handlePekwmCmd(XClientMessageEvent *ev)
 		}
 
 		ActionPerformed ap(wo, ae);
-		pekwm::actionHandler()->handleAction(ap);
+		pekwm::actionHandler()->handleAction(&ap);
 	}
 
 	_pekwm_cmd_buf = "";

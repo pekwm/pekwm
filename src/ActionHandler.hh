@@ -31,7 +31,7 @@ public:
 	ActionHandler(AppCtrl* app_ctrl, EventLoop* event_loop);
 	~ActionHandler(void);
 
-	void handleAction(const ActionPerformed &ap);
+	void handleAction(const ActionPerformed *ap);
 
 	static bool checkAEThreshold(int x, int y, int x_t, int y_t, uint t);
 	static ActionEvent *findMouseAction(uint button, uint mod,
@@ -49,13 +49,14 @@ private:
 	void actionFindClient(const std::string &title);
 	void actionGotoClientID(uint id);
 	void actionGotoWorkspace(const Action &action, int type);
-	void actionGroupingDrag(const ActionPerformed &ap,
+	void actionGroupingDrag(const ActionPerformed *ap,
 				Frame *frame, Client *client, bool behind);
-	void actionResize(const ActionPerformed &ap,
+	void actionResize(const ActionPerformed *ap,
 			  Frame *frame, Client *client, BorderPosition pos);
 	void actionMoveResize(PDecor *decor);
 	void actionSendToWorkspace(PDecor *decor, bool focus, int direction);
-	void actionWarpToWorkspace(PDecor *decor, uint direction);
+	void actionWarpToWorkspace(const ActionPerformed *ap, PDecor *decor,
+				   uint direction);
 	void actionFocusWithSelector(const Action &action);
 	void actionFocusDirectional(PWinObj *wo, DirectionType dir, bool raise);
 	bool actionSendKey(PWinObj *wo, const std::string &key_str);

@@ -198,10 +198,6 @@ PDecor::PDecor(const std::string &decor_name, const Window child_window,
 	  _child(0),
 	  _button(0),
 	  _button_press_win(None),
-	  _pointer_x(0),
-	  _pointer_y(0),
-	  _click_x(0),
-	  _click_y(0),
 	  _decor_cfg_child_move_overloaded(false),
 	  _decor_cfg_bpr_replay_pointer(false),
 	  _decor_cfg_bpr_al_child(MOUSE_ACTION_LIST_CHILD_OTHER),
@@ -624,12 +620,6 @@ PDecor::handleButtonPress(XButtonEvent *ev)
 		ae = handleButtonPressButton(ev, _button);
 
 	} else {
-		// Record position, used in the motion handler when doing a window move.
-		_click_x = _gm.x;
-		_click_y = _gm.y;
-		_pointer_x = ev->x_root;
-		_pointer_y = ev->y_root;
-
 		// Allow us to get clicks from anywhere on the window.
 		if (_decor_cfg_bpr_replay_pointer && ev->window == _window) {
 			X11::allowEvents(ReplayPointer, CurrentTime);

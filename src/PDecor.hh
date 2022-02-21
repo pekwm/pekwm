@@ -195,15 +195,6 @@ public:
 
 	uint getRealHeight(void) const;
 
-	//! @brief Returns last click x root position.
-	inline int getPointerX(void) const { return _pointer_x; }
-	//! @brief Returns last click y root position.
-	inline int getPointerY(void) const { return _pointer_y; }
-	//! @brief Returns last click x window position.
-	inline int getClickX(void) const { return _click_x; }
-	//! @brief Returns last click y window position.
-	inline int getClickY(void) const { return _click_y; }
-
 	uint getChildWidth(void) const;
 	uint getChildHeight(void) const;
 

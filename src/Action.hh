@@ -262,7 +262,7 @@ public:
 		: wo(w), ae(a), type(0)
 	{
 	}
-	~ActionPerformed(void)
+	virtual ~ActionPerformed(void)
 	{
 	}
 
@@ -278,6 +278,21 @@ public:
 		XExposeEvent *expose;
 		XClientMessageEvent *client;
 	} event;
+};
+
+class ActionPerformedWithOffset : public ActionPerformed
+{
+public:
+	ActionPerformedWithOffset(PWinObj *w, const ActionEvent &a,
+				  int _offset_x, int _offset_y)
+		: ActionPerformed(w, a),
+		  offset_x(_offset_x),
+		  offset_y(_offset_y)
+	{
+	}
+
+	int offset_x;
+	int offset_y;
 };
 
 namespace ActionConfig
