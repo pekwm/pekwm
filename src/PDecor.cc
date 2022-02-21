@@ -608,55 +608,52 @@ PDecor::giveInputFocus(void)
 ActionEvent*
 PDecor::handleButtonPress(XButtonEvent *ev)
 {
-	ActionEvent *ae = 0;
-	std::vector<ActionEvent> *actions = 0;
-
-	// Remove state modifiers from event
 	X11::stripStateModifiers(&ev->state);
 	X11::stripButtonModifiers(&ev->state);
 
 	// Try to do something about frame buttons
-	if (ev->subwindow != None && (_button = findButton(ev->subwindow)) != 0) {
-		ae = handleButtonPressButton(ev, _button);
+	_button = findButton(ev->subwindow);
+	if (_button) {
+		return handleButtonPressButton(ev, _button);
+	}
+	return handleButtonPressDecor(ev);
+}
 
+ActionEvent*
+PDecor::handleButtonPressDecor(XButtonEvent *ev)
+{
+	// Allow us to get clicks from anywhere on the window.
+	if (_decor_cfg_bpr_replay_pointer && ev->window == _window) {
+		X11::allowEvents(ReplayPointer, CurrentTime);
+	}
+
+	std::vector<ActionEvent> *actions = nullptr;
+	Config *cfg = pekwm::config();
+	if (ev->window == _child->getWindow()
+	    || (ev->state == 0 && ev->subwindow == _child->getWindow())) {
+		// press on the child window (not the actual decor), if the
+		// match was against the subwindow the check against zero
+		// state is required to avoid duplicate actions to trigger.
+		_button_press_win = _child->getWindow();
+		actions = cfg->getMouseActionList(_decor_cfg_bpr_al_child);
+	} else if (_title_wo == ev->window) {
+		// press on the decor title
+		_button_press_win = ev->window;
+		actions = cfg->getMouseActionList(_decor_cfg_bpr_al_title);
 	} else {
-		// Allow us to get clicks from anywhere on the window.
-		if (_decor_cfg_bpr_replay_pointer && ev->window == _window) {
-			X11::allowEvents(ReplayPointer, CurrentTime);
-		}
-
-		Config *cfg = pekwm::config();
-		if (ev->window == _child->getWindow()
-		    || (ev->state == 0 && ev->subwindow == _child->getWindow())) {
-			// Clicks on the child window
-			// NOTE: If the we're matching against the subwindow we need to make
-			// sure that the state is 0, meaning we didn't have any modifier
-			// because if we don't care about the modifier we'll get two actions
-			// performed when using modifiers.
-			_button_press_win = _child->getWindow();
-			actions =
-				cfg->getMouseActionList(_decor_cfg_bpr_al_child);
-		} else if (_title_wo == ev->window) {
-			// Clicks on the decor title
+		// press on decor border, default case. Try both window and
+		// sub-window.
+		uint pos = getBorderPosition(ev->window);
+		if (pos != BORDER_NO_POS) {
 			_button_press_win = ev->window;
-			actions = cfg->getMouseActionList(_decor_cfg_bpr_al_title);
-		} else {
-			// Clicks on the decor border, default case. Try both
-			// window and sub-window.
-			uint pos = getBorderPosition(ev->window);
-			if (pos != BORDER_NO_POS) {
-				_button_press_win = ev->window;
-				actions = cfg->getBorderListFromPosition(pos);
-			}
+			actions = cfg->getBorderListFromPosition(pos);
 		}
 	}
 
-	if (! ae && actions) {
-		ae = ActionHandler::findMouseAction(ev->button, ev->state,
-						    MOUSE_EVENT_PRESS, actions);
-	}
-
-	return ae;
+	return actions
+		? ActionHandler::findMouseAction(ev->button, ev->state,
+						 MOUSE_EVENT_PRESS, actions)
+		: nullptr;
 }
 
 /**
@@ -673,7 +670,8 @@ PDecor::handleButtonPressButton(XButtonEvent *ev, PDecor::Button *button)
 	// if the button is used for resizing, we don't want to wait for release
 	if (ae && ae->isOnlyAction(ACTION_RESIZE)) {
 		_button->setState(_focused
-				  ? BUTTON_STATE_FOCUSED : BUTTON_STATE_UNFOCUSED);
+				  ? BUTTON_STATE_FOCUSED
+				  : BUTTON_STATE_UNFOCUSED);
 		_button = nullptr;
 	} else {
 		ae = nullptr;
@@ -688,66 +686,66 @@ PDecor::handleButtonPressButton(XButtonEvent *ev, PDecor::Button *button)
 ActionEvent*
 PDecor::handleButtonRelease(XButtonEvent *ev)
 {
-	ActionEvent *ae = 0;
-	std::vector<ActionEvent> *actions = 0;
-	MouseEventType mb = MOUSE_EVENT_RELEASE;
-
 	// Remove state modifiers from event
 	X11::stripStateModifiers(&ev->state);
 	X11::stripButtonModifiers(&ev->state);
 
 	// handle titlebar buttons
 	if (_button) {
-		ae = handleButtonReleaseButton(ev, _button);
+		return handleButtonReleaseButton(ev, _button);
+	}
+	return handleButtonReleaseDecor(ev);
+}
 
-	} else {
-		// Allow us to get clicks from anywhere on the window.
-		if (_decor_cfg_bpr_replay_pointer && ev->window == _window) {
-			X11::allowEvents(ReplayPointer, CurrentTime);
-		}
+ActionEvent*
+PDecor::handleButtonReleaseDecor(XButtonEvent *ev)
+{
+	// Allow us to get clicks from anywhere on the window.
+	if (_decor_cfg_bpr_replay_pointer && ev->window == _window) {
+		X11::allowEvents(ReplayPointer, CurrentTime);
+	}
 
-		// clicks on the child window
-		Config *cfg = pekwm::config();
-		if (ev->window == _child->getWindow()
-		    || (ev->state == 0 && ev->subwindow == _child->getWindow())) {
-			// NOTE: If the we're matching against the subwindow we need to make
-			// sure that the state is 0, meaning we didn't have any modifier
-			// because if we don't care about the modifier we'll get two actions
-			// performed when using modifiers.
-			if (_button_press_win == _child->getWindow()) {
-				actions = cfg->getMouseActionList(_decor_cfg_bpr_al_child);
-			}
+	// ensure that the button was released on the same window as it
+	// was pressed on to allow button release events to be triggered
+	if (ev->window != _button_press_win
+	    && ev->subwindow != _button_press_win) {
+		return nullptr;
+	}
 
-		} else if (_title_wo == ev->window) {
-			if (_button_press_win == ev->window) {
-				// Handle clicks on the decor title, checking double
-				// clicks first.
-				if (X11::isDoubleClick(ev->window, ev->button - 1, ev->time,
-						       cfg->getDoubleClickTime())) {
-					X11::setLastClickID(ev->window);
-					X11::setLastClickTime(ev->button - 1, 0);
-					mb = MOUSE_EVENT_DOUBLE;
-				} else {
-					X11::setLastClickID(ev->window);
-					X11::setLastClickTime(ev->button - 1, ev->time);
-				}
-
-				actions = cfg->getMouseActionList(_decor_cfg_bpr_al_title);
-			}
+	MouseEventType mb = MOUSE_EVENT_RELEASE;
+	std::vector<ActionEvent> *actions = nullptr;
+	Config *cfg = pekwm::config();
+	if (ev->window == _child->getWindow()
+	    || (ev->state == 0 && ev->subwindow == _child->getWindow())) {
+		// release on the child window (not the actual decor), if the
+		// match was against the subwindow the check against zero
+		// state is required to avoid duplicate actions to trigger.
+		actions = cfg->getMouseActionList(_decor_cfg_bpr_al_child);
+	} else if (_title_wo == ev->window) {
+		// handle release on the decor title, checking double clicks
+		// first.
+		if (X11::isDoubleClick(ev->window, ev->button - 1, ev->time,
+				       cfg->getDoubleClickTime())) {
+			X11::setLastClickID(ev->window);
+			X11::setLastClickTime(ev->button - 1, 0);
+			mb = MOUSE_EVENT_DOUBLE;
 		} else {
-			// Clicks on the decor border, check subwindow then window.
-			uint pos = getBorderPosition(ev->window);
-			if (pos != BORDER_NO_POS && (_button_press_win == ev->window)) {
-				actions = cfg->getBorderListFromPosition(pos);
-			}
+			X11::setLastClickID(ev->window);
+			X11::setLastClickTime(ev->button - 1, ev->time);
+		}
+		actions = cfg->getMouseActionList(_decor_cfg_bpr_al_title);
+	} else {
+		// release on the decor border, check subwindow then window.
+		uint pos = getBorderPosition(ev->window);
+		if (pos != BORDER_NO_POS && (_button_press_win == ev->window)) {
+			actions = cfg->getBorderListFromPosition(pos);
 		}
 	}
 
-	if (! ae && actions) {
-		ae = ActionHandler::findMouseAction(ev->button, ev->state, mb, actions);
-	}
-
-	return ae;
+	return actions
+		? ActionHandler::findMouseAction(ev->button, ev->state,
+						 mb, actions)
+		: nullptr;
 }
 
 /**
@@ -757,9 +755,11 @@ ActionEvent*
 PDecor::handleButtonReleaseButton(XButtonEvent *ev, PDecor::Button *button)
 {
 	// First restore the pressed buttons state
-	_button->setState(_focused ? BUTTON_STATE_FOCUSED : BUTTON_STATE_UNFOCUSED);
+	_button->setState(_focused
+			  ? BUTTON_STATE_FOCUSED
+			  : BUTTON_STATE_UNFOCUSED);
 
-	ActionEvent *ae = 0;
+	ActionEvent *ae = nullptr;
 
 	// Then see if the button was released over ( to execute an action )
 	if (*_button == ev->subwindow) {
@@ -767,11 +767,11 @@ PDecor::handleButtonReleaseButton(XButtonEvent *ev, PDecor::Button *button)
 
 		// This is a hack to avoid resizing on both press and release
 		if (ae && ae->isOnlyAction(ACTION_RESIZE)) {
-			ae = 0;
+			ae = nullptr;
 		}
 	}
 
-	_button = 0;
+	_button = nullptr;
 
 	return ae;
 }
@@ -987,6 +987,10 @@ PDecor::unloadDecor(void)
 PDecor::Button*
 PDecor::findButton(Window win)
 {
+	if (win == None) {
+		return nullptr;
+	}
+
 	std::vector<PDecor::Button*>::iterator it = _buttons.begin();
 	for (; it != _buttons.end(); ++it) {
 		if (*(*it) == win) {

@@ -325,11 +325,13 @@ private:
 	void setDataFromDecorName(const std::string &decor_name);
 	void unloadDecor(void);
 
+	ActionEvent *handleButtonPressDecor(XButtonEvent *ev);
+	ActionEvent *handleButtonReleaseDecor(XButtonEvent *ev);
 	ActionEvent *handleButtonPressButton(XButtonEvent *ev,
 					     PDecor::Button *button);
-	ActionEvent *handleButtonPressBorder(XButtonEvent *ev);
 	ActionEvent *handleButtonReleaseButton(XButtonEvent *ev,
 					       PDecor::Button *button);
+	ActionEvent *handleButtonPressBorder(XButtonEvent *ev);
 	ActionEvent *handleButtonReleaseBorder(XButtonEvent *ev);
 
 	void placeButtons(void);
