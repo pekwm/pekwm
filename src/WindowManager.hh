@@ -96,6 +96,8 @@ private:
 	void handleEvent(XEvent &ev);
 	bool handleEventHandlerEvent(XEvent &ev);
 
+	PWinObj *updateWoForFrameClick(XButtonEvent *ev, PWinObj *orig_wo);
+
 	void handleMapRequestEvent(XMapRequestEvent *ev);
 	void handleUnmapEvent(XUnmapEvent *ev);
 	void handleDestroyWindowEvent(XDestroyWindowEvent *ev);

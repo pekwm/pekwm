@@ -924,13 +924,6 @@ WindowManager::handleKeyEventAction(XKeyEvent *ev, ActionEvent *ae,
 void
 WindowManager::handleButtonPressEvent(XButtonEvent *ev)
 {
-	// Clear event queue
-	while (X11::checkTypedEvent(ButtonPress, (XEvent *) ev)) {
-		if (! ev->send_event) {
-			X11::setLastEventTime(ev->time);
-		}
-	}
-
 	ActionEvent *ae = nullptr;
 	PWinObj *wo = PWinObj::findPWinObj(ev->window);
 	if (wo == pekwm::rootWo() && ev->subwindow != None) {
@@ -938,39 +931,25 @@ WindowManager::handleButtonPressEvent(XButtonEvent *ev)
 	}
 
 	if (wo) {
-		// Update all objects (and again if child found)
 		wo->setLastActivity(ev->time);
 
-		ae = wo->handleButtonPress(ev);
-
-		if (wo->getType() == PWinObj::WO_FRAME) {
-			// this is done so that clicking the titlebar executes
-			// action on the client clicked on, doesn't apply when
-			// subwindow is set (meaning a titlebar button beeing
-			// pressed)
-			if ((ev->subwindow == None)
-			    && (ev->window == static_cast<Frame*>(wo)->getTitleWindow())) {
-				wo = static_cast<Frame*>(wo)->getChildFromPos(ev->x);
-			} else {
-				wo = static_cast<Frame*>(wo)->getActiveChild();
-			}
-
-			if (wo != 0) {
-				wo->setLastActivity(ev->time);
-			}
-		}
+		// in case the event causes the wo to go away, update it
+		// before handling the event.
+		PWinObj *orig_wo = wo;
+		wo = updateWoForFrameClick(ev, orig_wo);
+		ae = orig_wo->handleButtonPress(ev);
 	}
 
 	if (ae) {
 		ActionPerformed ap(wo, *ae);
 		ap.type = ev->type;
 		ap.event.button = ev;
-
 		pekwm::actionHandler()->handleAction(ap);
 	} else {
-		DockApp *da = pekwm::harbour()->findDockAppFromFrame(ev->window);
+		Harbour *harbour = pekwm::harbour();
+		DockApp *da = harbour->findDockAppFromFrame(ev->window);
 		if (da) {
-			pekwm::harbour()->handleButtonEvent(ev, da);
+			harbour->handleButtonEvent(ev, da);
 		}
 	}
 }
@@ -978,13 +957,6 @@ WindowManager::handleButtonPressEvent(XButtonEvent *ev)
 void
 WindowManager::handleButtonReleaseEvent(XButtonEvent *ev)
 {
-	// Flush ButtonReleases
-	while (X11::checkTypedEvent(ButtonRelease, (XEvent *) ev)) {
-		if (! ev->send_event) {
-			X11::setLastEventTime(ev->time);
-		}
-	}
-
 	ActionEvent *ae = nullptr;
 	PWinObj *wo = PWinObj::findPWinObj(ev->window);
 	if (wo == pekwm::rootWo() && ev->subwindow != None) {
@@ -992,36 +964,52 @@ WindowManager::handleButtonReleaseEvent(XButtonEvent *ev)
 	}
 
 	if (wo) {
-		// Kludge for the case that wo is freed by handleButtonRelease(.).
-		PWinObj::Type wotype = wo->getType();
-		ae = wo->handleButtonRelease(ev);
+		wo->setLastActivity(ev->time);
 
-		if (wotype == PWinObj::WO_FRAME) {
-			// this is done so that clicking the titlebar executes
-			// action on the client clicked on, doesn't apply when
-			// subwindow is set (meaning a titlebar button beeing
-			// pressed)
-			if ((ev->subwindow == None)
-			    && (ev->window == static_cast<Frame*>(wo)->getTitleWindow())) {
-				wo = static_cast<Frame*>(wo)->getChildFromPos(ev->x);
-			} else {
-				wo = static_cast<Frame*>(wo)->getActiveChild();
-			}
-		}
+		// in case the event causes the wo to go away, update it
+		// before handling the event.
+		PWinObj *orig_wo = wo;
+		wo = updateWoForFrameClick(ev, orig_wo);
+		ae = orig_wo->handleButtonRelease(ev);
+	}
 
-		if (ae) {
-			ActionPerformed ap(wo, *ae);
-			ap.type = ev->type;
-			ap.event.button = ev;
-
-			pekwm::actionHandler()->handleAction(ap);
-		}
+	if (ae) {
+		ActionPerformed ap(wo, *ae);
+		ap.type = ev->type;
+		ap.event.button = ev;
+		pekwm::actionHandler()->handleAction(ap);
 	} else {
-		DockApp *da = pekwm::harbour()->findDockAppFromFrame(ev->window);
+		Harbour *harbour = pekwm::harbour();
+		DockApp *da = harbour->findDockAppFromFrame(ev->window);
 		if (da) {
-			pekwm::harbour()->handleButtonEvent(ev, da);
+			harbour->handleButtonEvent(ev, da);
 		}
 	}
+}
+
+PWinObj*
+WindowManager::updateWoForFrameClick(XButtonEvent *ev, PWinObj *wo)
+{
+	if (wo->getType() != PWinObj::WO_FRAME) {
+		return wo;
+	}
+
+	// update selected window object with the one clicked
+	// on the titlebar (if any), subwindow check is there
+	// to skip titlebar button press
+	Frame *frame = static_cast<Frame*>(wo);
+	if (ev->subwindow == None
+	    && ev->window == frame->getTitleWindow()) {
+		wo = frame->getChildFromPos(ev->x);
+	} else {
+		wo = frame->getActiveChild();
+	}
+
+	if (wo) {
+		wo->setLastActivity(ev->time);
+	}
+
+	return wo;
 }
 
 void
