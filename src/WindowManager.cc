@@ -931,10 +931,12 @@ WindowManager::handleButtonPressEvent(XButtonEvent *ev)
 		}
 	}
 
-	ActionEvent *ae = 0;
-	PWinObj *wo = 0;
+	ActionEvent *ae = nullptr;
+	PWinObj *wo = PWinObj::findPWinObj(ev->window);
+	if (wo == pekwm::rootWo() && ev->subwindow != None) {
+		wo = PWinObj::findPWinObj(ev->subwindow);
+	}
 
-	wo = PWinObj::findPWinObj(ev->window);
 	if (wo) {
 		// Update all objects (and again if child found)
 		wo->setLastActivity(ev->time);
@@ -983,7 +985,7 @@ WindowManager::handleButtonReleaseEvent(XButtonEvent *ev)
 		}
 	}
 
-	ActionEvent *ae = 0;
+	ActionEvent *ae = nullptr;
 	PWinObj *wo = PWinObj::findPWinObj(ev->window);
 	if (wo == pekwm::rootWo() && ev->subwindow != None) {
 		wo = PWinObj::findPWinObj(ev->subwindow);
