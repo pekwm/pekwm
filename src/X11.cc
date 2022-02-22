@@ -1945,7 +1945,7 @@ void
 X11::grabButton(unsigned b, unsigned int mod, Window win,
                 unsigned mask, int mode)
 {
-	XGrabButton(_dpy, b, mod, win, true, mask, mode,
+	XGrabButton(_dpy, b, mod, win, False, mask, mode,
 		    GrabModeAsync, None, None);
 }
 

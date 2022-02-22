@@ -173,6 +173,8 @@ protected:
 				  const Geometry &screen_gm);
 
 private:
+	void grabButtons(void);
+
 	void handleClientStateMessage(XClientMessageEvent *ev, Client *client);
 	static StateAction getStateActionFromMessage(XClientMessageEvent *ev);
 	void handleStateAtom(StateAction sa, Atom atom, Client *client);

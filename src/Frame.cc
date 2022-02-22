@@ -75,22 +75,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
 	_decor_cfg_bpr_al_title = MOUSE_ACTION_LIST_TITLE_FRAME;
 	_decor_cfg_bpr_al_child = MOUSE_ACTION_LIST_CHILD_FRAME;
 
-	// grab buttons so that we can reply them
-	const std::vector<BoundButton> &cmab =
-		pekwm::config()->getClientMouseActionButtons();
-	std::vector<BoundButton>::const_iterator it = cmab.begin();
-	for (; it != cmab.end(); ++it) {
-		if (it->button == BUTTON_ANY) {
-			continue;
-		}
-
-		std::vector<uint>::const_iterator mit = it->mods.begin();
-		for (; mit != it->mods.end(); ++mit) {
-			X11Util::grabButton(it->button, *mit,
-					    ButtonPressMask|ButtonReleaseMask,
-					    _window, GrabModeSync);
-		}
-	}
+	grabButtons();
 
 	// get unique id of the frame, if the client didn't have an id
 	if (pekwm::isStarting()) {
@@ -98,7 +83,6 @@ Frame::Frame(Client *client, AutoProperty *ap)
 		if (X11::getCardinal(client->getWindow(), PEKWM_FRAME_ID, id)) {
 			_id = id;
 		}
-
 	} else {
 		_id = findFrameID();
 	}
@@ -219,6 +203,32 @@ Frame::~Frame(void)
 	}
 
 	workspacesRemove();
+}
+
+void
+Frame::grabButtons(void)
+{
+	// grab buttons so that we can reply them
+	const std::vector<BoundButton> &cmab =
+		pekwm::config()->getClientMouseActionButtons();
+	std::vector<BoundButton>::const_iterator it = cmab.begin();
+	for (; it != cmab.end(); ++it) {
+		if (it->button == BUTTON_ANY) {
+			continue;
+		}
+
+		std::vector<uint>::const_iterator mit = it->mods.begin();
+		for (; mit != it->mods.end(); ++mit) {
+			// only grabbing non-modifier buttons, the rest will
+			// be grabbed by the client code.
+			if (*mit) {
+				continue;
+			}
+			X11Util::grabButton(it->button, *mit,
+					    ButtonPressMask|ButtonReleaseMask,
+					    _window, GrabModeSync);
+		}
+	}
 }
 
 // START - PWinObj interface.

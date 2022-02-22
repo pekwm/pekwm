@@ -793,7 +793,7 @@ Client::grabButtons(void)
 		cfg->getMouseActionList(MOUSE_ACTION_LIST_CHILD_FRAME);
 	std::vector<ActionEvent>::iterator it = actions->begin();
 
-	const uint mask = ButtonPressMask|ButtonReleaseMask;
+	const uint mask = ButtonPressMask;
 	for (; it != actions->end(); ++it) {
 		if (it->isButtonEvent()) {
 			// not grabbing actions without modifier, will be
@@ -802,11 +802,13 @@ Client::grabButtons(void)
 				continue;
 			}
 
-			X11Util::grabButton(it->sym, it->mod, mask, _window);
+			X11Util::grabButton(it->sym, it->mod, mask, _window,
+					    GrabModeAsync);
 		} else if (it->type == MOUSE_EVENT_MOTION) {
 			const uint motion_mask = mask|ButtonMotionMask;
 			X11Util::grabButton(it->sym, it->mod,
-					    motion_mask, _window);
+					    motion_mask, _window,
+					    GrabModeAsync);
 		}
 	}
 }

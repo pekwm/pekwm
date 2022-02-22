@@ -700,11 +700,6 @@ PDecor::handleButtonRelease(XButtonEvent *ev)
 ActionEvent*
 PDecor::handleButtonReleaseDecor(XButtonEvent *ev)
 {
-	// Allow us to get clicks from anywhere on the window.
-	if (_decor_cfg_bpr_replay_pointer && ev->window == _window) {
-		X11::allowEvents(ReplayPointer, CurrentTime);
-	}
-
 	// ensure that the button was released on the same window as it
 	// was pressed on to allow button release events to be triggered
 	if (ev->window != _button_press_win

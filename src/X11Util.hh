@@ -67,8 +67,7 @@ namespace X11Util {
 	int getNearestHead(const PWinObj& wo, DirectionType dx, DirectionType dy);
 	uint getNearestHead(const PWinObj& wo);
 
-	void grabButton(int button, int mod, int mask, Window win,
-			int mode=GrabModeAsync);
+	void grabButton(int button, int mod, int mask, Window win, int mode);
 
 	bool readMwmHints(Window win, MwmHints &hints);
 	bool readEwmhStates(Window win, NetWMStates &win_states);
