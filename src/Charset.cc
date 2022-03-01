@@ -278,7 +278,7 @@ namespace Charset
 			return str;
 		}
 
-		wchar_t wc;
+		wchar_t wc = 0;
 		char *mb = new char[MB_CUR_MAX + 1];
 		std::string str_sys;
 

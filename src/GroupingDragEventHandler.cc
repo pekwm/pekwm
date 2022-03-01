@@ -16,11 +16,11 @@ GroupingDragEventHandler::GroupingDragEventHandler(Frame* frame,
 						   Client *client,
 						   int x_root, int y_root,
 						   bool behind)
-	: _init(false),
+	: _x(x_root),
+	  _y(y_root),
+	  _init(false),
 	  _frame(frame),
 	  _client(client),
-	  _x(x_root),
-	  _y(y_root),
 	  _behind(behind)
 {
 	pekwm::observerMapping()->addObserver(frame, this);

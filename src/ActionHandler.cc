@@ -634,7 +634,7 @@ void
 ActionHandler::actionResize(const ActionPerformed *ap,
 			    Frame *frame, Client *client, BorderPosition pos)
 {
-	bool resize;
+	bool resize = true;
 
 	bool left = false, top = false, x = false, y = false;
 	if (ap->type == MotionNotify && pos == BORDER_NO_POS) {
@@ -643,8 +643,8 @@ ActionHandler::actionResize(const ActionPerformed *ap,
 		top = ap->event.motion->y < signed(frame->getHeight() / 2);
 		x = true;
 		y = true;
-	   	resize = true; 
 	} else {
+
 		switch (pos) {
 		case BORDER_TOP_LEFT:
 			x = y = left = top = true;
