@@ -16,6 +16,11 @@ New
   section of the main configuration file. Controls the default font type and
   override of charset in font strings.
 
+### pekwm_panel
+
+* **Icon widget now can Exec** command on click, configure by setting
+  _Exec_ to the command to be executed in the Icon configuration.
+
 Updated
 -------
 

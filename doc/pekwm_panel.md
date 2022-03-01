@@ -131,6 +131,10 @@ Icon = "battery-icon-status" {
 NOTE: The widget expect all icons set by the external data field to
 have the same size.
 
+The Icon widget support executing a command when it is clicked. To enable
+command execution add an Exec statement, the format of the command will be
+expanded the same way as the _Text_ widget before being executed.
+
 #### Widget: Text
 
 Display formatted text. The format string can reference environment

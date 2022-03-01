@@ -2117,12 +2117,14 @@ public:
 	IconWidget(const PanelTheme& theme,
 		   const SizeReq& size_req,
 		   VarData &var_data,
+		   WmState &wm_state,
 		   const std::string& field,
 		   const CfgParser::Entry *section);
 	virtual ~IconWidget(void);
 
 	virtual void notify(Observable *, Observation *observation);
 	virtual uint getRequiredSize(void) const;
+	virtual void click(int, int);
 	virtual void render(Render& rend);
 
 private:
@@ -2135,6 +2137,7 @@ private:
 
 private:
 	VarData& _var_data;
+	WmState& _wm_state;
 	std::string _field;
 	/** icon name, no file extension. */
 	std::string _name;
@@ -2144,6 +2147,10 @@ private:
 	RegexString _transform;
 	/** If true, scale icon square to fit panel height */
 	bool _scale;
+	/** If non empty, command to execute on click (release) */
+	std::string _exec;
+	/** Preprocessed version of exec string using TextFormatter. */
+	std::string _pp_exec;
 
 	/** current loaded icon, matching _icon_name. */
 	PImage* _icon;
@@ -2152,11 +2159,12 @@ private:
 
 IconWidget::IconWidget(const PanelTheme& theme,
                        const SizeReq& size_req,
-                       VarData &var_data,
+		       VarData& var_data, WmState& wm_state,
                        const std::string& field,
                        const CfgParser::Entry *section)
 	: PanelWidget(theme, size_req),
 	  _var_data(var_data),
+	  _wm_state(wm_state),
 	  _field(field),
 	  _scale(false),
 	  _icon(nullptr)
@@ -2192,6 +2200,23 @@ IconWidget::getRequiredSize(void) const
 		return _theme.getHeight();
 	}
 	return _icon->getWidth() + 2;
+}
+
+void
+IconWidget::click(int, int)
+{
+	if (_pp_exec.size() == 0) {
+		return;
+	}
+
+	TextFormatter tf(_var_data, _wm_state);
+	std::string command = tf.format(_pp_exec);
+	P_TRACE("IconWidget exec " << _exec << " command " << command);
+	if (command.size() > 0) {
+		std::vector<std::string> args =
+			StringUtil::shell_split(command);
+		Util::forkExec(args);
+	}
 }
 
 void
@@ -2274,6 +2299,7 @@ IconWidget::parseIcon(const CfgParser::Entry* section)
 	keys.push_back(new CfgParserKeyString("ICON", name));
 	keys.push_back(new CfgParserKeyString("TRANSFORM", transform));
 	keys.push_back(new CfgParserKeyBool("SCALE", _scale));
+	keys.push_back(new CfgParserKeyString("EXEC", _exec));
 	section->parseKeyValues(keys.begin(), keys.end());
 	std::for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 
@@ -2287,6 +2313,9 @@ IconWidget::parseIcon(const CfgParser::Entry* section)
 	if (transform.size() > 0) {
 		_transform.parse_ed_s(transform);
 	}
+
+	TextFormatter tf(_var_data, _wm_state);
+	_pp_exec = tf.preprocess(_exec);
 
 	// inital load of image to get size request right
 	load();
@@ -2334,8 +2363,9 @@ WidgetFactory::construct(const WidgetConfig& cfg)
 		return new DateTimeWidget(_theme, cfg.getSizeReq(), format);
 	} else if (name == "ICON") {
 		const std::string &field = cfg.getArg(0);
-		return new IconWidget(_theme, cfg.getSizeReq(), _var_data, field,
-				      cfg.getCfgSection());
+		return new IconWidget(_theme, cfg.getSizeReq(),
+				      _var_data, _wm_state,
+				      field, cfg.getCfgSection());
 	} else if (name == "TEXT") {
 		const std::string &format = cfg.getArg(0);
 		if (format.empty()) {
