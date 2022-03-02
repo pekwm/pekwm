@@ -458,15 +458,15 @@ MyOwnMenuName:
 $TERM = "xterm -fn fixed +sb -bg black -fg white"
 
 RootMenu = "Pekwm" {
-    Entry = "Term" { Actions = "Exec $TERM &" }
-    Entry = "Emacs" { Icon = "emacs.png"; Actions = "Exec $TERM -title emacs -e emacs -nw &" }
-    Entry = "Vim" { Actions = "Exec $TERM -title vim -e vi &" }
+    Entry = "Term" { Actions = "Exec $TERM" }
+    Entry = "Emacs" { Icon = "emacs.png"; Actions = "Exec $TERM -title emacs -e emacs -nw" }
+    Entry = "Vim" { Actions = "Exec $TERM -title vim -e vi" }
 
     Separator {}
 
     Submenu = "Utils" {
-        Entry = "XCalc" { Actions = "Exec xcalc &" }
-        Entry = "XMan" { Actions = "Exec xman &" }
+        Entry = "XCalc" { Actions = "Exec xcalc" }
+        Entry = "XMan" { Actions = "Exec xman" }
     }
 
     Separator {}
@@ -504,9 +504,9 @@ WindowMenu = "Window Menu" {
 }
 
 MyOwnMenuName = "Most used apps" {
-	Entry = "Term" { Actions = "Exec $TERM &" }
-	Entry = "XCalc" { Actions = "Exec xcalc &" }
-	Entry = "Dillo" { Actions = "Exec dillo &" }
+	Entry = "Term" { Actions = "Exec $TERM" }
+	Entry = "XCalc" { Actions = "Exec xcalc" }
+	Entry = "Dillo" { Actions = "Exec dillo" }
 }
 ```
 
@@ -542,7 +542,7 @@ Adds a separator to the menu.
 
 Exec
 
-Exec makes pekwm to execute the command that follows it. Make sure the program gets backgrounded. Put an '&' at the end of the action if it doesn't do this on it's own.
+Exec makes pekwm to execute the command that follows it.
 
 Reload
 
@@ -585,9 +585,9 @@ Lets see that example again, simplified:
 RootMenu = "Pekwm" { ... }
 WindowMenu = "Window Menu" { ... }
 MyOwnMenuName = "Most used apps" {
-	Entry = "Term" { Actions = "Exec $TERM &" }
-	Entry = "XCalc" { Actions = "Exec xcalc &" }
-	Entry = "Dillo" { Actions = "Exec dillo &" }
+	Entry = "Term" { Actions = "Exec $TERM" }
+	Entry = "XCalc" { Actions = "Exec xcalc" }
+	Entry = "Dillo" { Actions = "Exec dillo" }
 }
 ```
 
