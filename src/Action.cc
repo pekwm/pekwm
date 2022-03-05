@@ -87,6 +87,9 @@ static Util::StringTo<std::pair<ActionType, uint> > action_map[] =
 	 {"ShellExec",
 	  action_pair(ACTION_SHELL_EXEC,
 		      FRAME_MASK|ROOTMENU_OK|ROOTCLICK_OK|SCREEN_EDGE_OK)},
+	 {"Setenv",
+	  action_pair(ACTION_SETENV,
+		      FRAME_MASK|ROOTMENU_OK|ROOTCLICK_OK|SCREEN_EDGE_OK)},
 	 {"Reload", action_pair(ACTION_RELOAD, KEYGRABBER_OK|ROOTMENU_OK)},
 	 {"Restart", action_pair(ACTION_RESTART, KEYGRABBER_OK|ROOTMENU_OK)},
 	 {"RestartOther",
@@ -391,6 +394,17 @@ parseActionArg(Action &action, const std::string& arg)
 	case ACTION_SHOW_CMD_DIALOG:
 	case ACTION_SHOW_SEARCH_DIALOG:
 		action.setParamS(arg);
+		break;
+	case ACTION_SETENV:
+		if ((Util::splitString(arg, tok, " \t", 2)) == 2) {
+			// set environment, name value
+			action.setParamS(0, tok[tok.size() - 2]);
+			action.setParamS(1, tok[tok.size() - 1]);
+		} else {
+			// delete environment name
+			action.setParamS(0, tok[tok.size() - 1]);
+			action.setParamS(1, "");
+		}
 		break;
 	case ACTION_SET_GEOMETRY:
 		ActionConfig::parseActionSetGeometry(action, arg);

@@ -46,6 +46,7 @@ private:
 
 	void actionExec(Client *client, const std::string &command,
 			bool use_shell);
+	void actionSetenv(const std::string &name, const std::string &value);
 	void actionFindClient(const std::string &title);
 	void actionGotoClientID(uint id);
 	void actionGotoWorkspace(const Action &action, int type);

@@ -342,6 +342,10 @@ ActionHandler::handleAction(const ActionPerformed *ap)
 			case ACTION_EXEC:
 				actionExec(client, it->getParamS(), false);
 				break;
+			case ACTION_SETENV:
+				actionSetenv(it->getParamS(0),
+					     it->getParamS(1));
+				break;
 			case ACTION_SHELL_EXEC:
 				actionExec(client, it->getParamS(), true);
 				break;
@@ -569,6 +573,19 @@ ActionHandler::actionExec(Client *client, const std::string &command,
 	} else {
 		std::vector<std::string> args = StringUtil::shell_split(command);
 		Util::forkExec(args);
+	}
+}
+
+/**
+ * Set or delete environment variable.
+ */
+void
+ActionHandler::actionSetenv(const std::string &name, const std::string &value)
+{
+	if (value.size() == 0) {
+		unsetenv(name.c_str());
+	} else {
+		setenv(name.c_str(), value.c_str(), 1 /* override */);
 	}
 }
 

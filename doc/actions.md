@@ -465,6 +465,11 @@ behaviour of focusing the previously focused window on the workspace.
 
 Executes a program, string is a path to an executable file.
 
+**Setenv (string) [(string)]**
+
+Set environment variable, will be used whenever pekwm starts a new application.
+If the second argument is empty, the environment variable is unset.
+
 **Reload**
 
 Reloads pekwm configs.

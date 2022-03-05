@@ -15,6 +15,8 @@ New
 * **FontDefaultX11** and **FontCharsetOverride** options added to the _Screen_
   section of the main configuration file. Controls the default font type and
   override of charset in font strings.
+* **Setenv** action added, making it possible to update the environment pekwm
+  use when executing applications without restarting pekwm.
 
 ### pekwm_panel
 
