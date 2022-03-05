@@ -4,6 +4,7 @@ test/system/plux
 *~
 .#*
 \#*#
+tags
 data/scripts/pekwm_theme
 data/scripts/pekwm_themeset.sh
 data/scripts/pekwm_ws_menu.sh

@@ -13,9 +13,13 @@ GREP = /usr/bin/grep
 SED = /usr/bin/sed
 SH = /bin/sh
 
+# developer tools
+CTAGS = CONF_CTAGS
+
 # toolchain
 CXX           = c++
-CXXFLAGS_BASE = --std=c++98 -O2 -g
+CXXFLAGS_BASE = --std=c++98 -g
+CXXFLAGS_EXTRA = CONF_CXXFLAGS_EXTRA
 LD            = $(CXX)
 LDFLAGS_BASE  =
 
@@ -25,5 +29,5 @@ SUNOS_ARCH_FLAG = CONF_SUNOS_ARCH_FLAG
 
 include $(MK)/$(PLATFORM).mk
 
-CXXFLAGS = $(CXXFLAGS_BASE) -I$(MK) -DPREFIX=\"$(PREFIX)\" $(X11_CFLAGS) $(PKG_CFLAGS)
+CXXFLAGS = $(CXXFLAGS_BASE) $(CXXFLAGS_EXTRA) -I$(MK) -DPREFIX=\"$(PREFIX)\" $(X11_CFLAGS) $(PKG_CFLAGS)
 LDFLAGS  = $(LDFLAGS_BASE) $(X11_LDFLAGS) $(PKG_LDFLAGS)

@@ -30,7 +30,11 @@ dist:
 	gzip pekwm-$(VERSION).tar
 	rm -rf pekwm-$(VERSION)
 
+.PHONY: tags
+tags:
+	$(CTAGS) -f tags src/*.cc src/*.hh
+
 clean:
 	(cd src; $(MAKE) clean)
 	(cd data; $(MAKE) clean)
-	rm mk/config.h mk/config.mk
+	rm mk/config.h mk/config.mk tags
