@@ -261,8 +261,9 @@ Config::load(const std::string &config_file)
 
 	CfgParser cfg;
 
+	std::string cfg_dir;
 	_config_file = config_file;
-	bool success = tryHardLoadConfig(cfg, _config_file);
+	bool success = tryHardLoadConfig(cfg, _config_file, cfg_dir);
 
 	// Make sure config is reloaded next time as content is dynamically
 	// generated from the configuration file.
@@ -277,15 +278,12 @@ Config::load(const std::string &config_file)
 		return false;
 	}
 
-	// Update PEKWM_CONFIG_FILE environment if needed (to reflect active file)
+	// Update PEKWM_CONFIG_FILE environment if needed (to reflect active
+	// file)
 	std::string cfg_env = Util::getEnv("PEKWM_CONFIG_FILE");
 	if (cfg_env.size() == 0 || _config_file.compare(cfg_env) != 0) {
-		setenv("PEKWM_CONFIG_FILE", _config_file.c_str(), 1);
-
-		size_t sep = _config_file.rfind('/');
-		if (sep != std::string::npos) {
-			setenv("PEKWM_CONFIG_PATH", _config_file.substr(0, sep).c_str(), 1);
-		}
+		Util::setEnv("PEKWM_CONFIG_FILE", _config_file);
+		Util::setEnv("PEKWM_CONFIG_PATH", cfg_dir);
 	}
 
 	std::string o_file_mouse; // temporary filepath for mouseconfig
@@ -991,34 +989,33 @@ Config::parseMenuEvent(CfgParser::Entry *section, ActionEvent& ae)
 /**
  * Load main configuration file, priority as follows:
  *
- *   1. Load command line specified file.
- *   2. Load ~/.pekwm/config
- *   3. Copy configuration and load ~/.pekwm/config
- *   4. Load system configuration
+ *   1. Load command line specified file or ~/.pekwm/config if none specified
+ *   2. Copy configuration files to dirname of file in step 1
+ *   3. Load system configuration
  */
 bool
-Config::tryHardLoadConfig(CfgParser &cfg, std::string &file)
+Config::tryHardLoadConfig(CfgParser &cfg, std::string &file,
+			  std::string &cfg_dir)
 {
 	bool success = false;
 
-	// Try loading command line specified file.
+	// If a command line
 	if (file.size()) {
-		success = cfg.parse(file, CfgParserSource::SOURCE_FILE, true);
+		cfg_dir = Util::getDir(file);
+	} else {
+		cfg_dir = Util::getConfigDir();
+		file = cfg_dir + "/config";
 	}
 
-	// Try loading ~/.pekwm/config
+	success = cfg.parse(file, CfgParserSource::SOURCE_FILE, true);
+
+	// Copy config files to cfg_dir and try loading file again.
 	if (! success) {
-		file = Util::getEnv("HOME") + "/.pekwm/config";
+		copyConfigFiles(cfg_dir);
 		success = cfg.parse(file, CfgParserSource::SOURCE_FILE, true);
-
-		// Copy cfg files to ~/.pekwm and try loading ~/.pekwm/config again.
-		if (! success) {
-			copyConfigFiles();
-			success = cfg.parse(file, CfgParserSource::SOURCE_FILE, true);
-		}
 	}
 
-	// Try loading system configuration files.
+	// Failed to load file, fall back to using system config files
 	if (! success) {
 		file = std::string(SYSCONFDIR "/config");
 		success = cfg.parse(file, CfgParserSource::SOURCE_FILE, true);
@@ -1027,118 +1024,84 @@ Config::tryHardLoadConfig(CfgParser &cfg, std::string &file)
 	return success;
 }
 
-//! @brief Populates the ~/.pekwm/ dir with config files
+/**
+ * Populate cfg_dir with config files from system directory.
+ */
 void
-Config::copyConfigFiles(void)
+Config::copyConfigFiles(const std::string &cfg_dir)
 {
-	std::string cfg_dir = Util::getEnv("HOME") + "/.pekwm";
+	const char *files[] = {
+		"autoproperties", "config", "keys", "menu", "mouse", "start",
+		"vars", nullptr
+	};
 
-	std::string cfg_file = cfg_dir + std::string("/config");
-	std::string keys_file = cfg_dir + std::string("/keys");
-	std::string mouse_file = cfg_dir + std::string("/mouse");
-	std::string menu_file = cfg_dir + std::string("/menu");
-	std::string autoprops_file = cfg_dir + std::string("/autoproperties");
-	std::string start_file = cfg_dir + std::string("/start");
-	std::string vars_file = cfg_dir + std::string("/vars");
+	if (! ensureConfigDirExists(cfg_dir)) {
+		return;
+	}
+
+	struct stat sb;
+	std::string sys_dir(SYSCONFDIR);
+	for (int i = 0; files[i] != nullptr; i++) {
+		std::string dst_file = cfg_dir + "/" + files[i];
+		if (stat(dst_file.c_str(), &sb)) {
+			std::string src_file = sys_dir + "/" + files[i];
+			std::cout << "COPY " << src_file << " TO " << dst_file << std::endl;
+			Util::copyTextFile(src_file, dst_file);
+		}
+	}
+
+	// ensure themes directory exists
 	std::string themes_dir = cfg_dir + std::string("/themes");
-
-	bool cp_config, cp_keys, cp_mouse, cp_menu;
-	bool cp_autoprops, cp_start, cp_vars;
-	bool make_themes = false;
-	cp_config = cp_keys = cp_mouse = cp_menu = false;
-	cp_autoprops = cp_start = cp_vars = false;
-
-	struct stat stat_buf;
-	// check and see if we already have a ~/.pekwm/ directory
-	if (stat(cfg_dir.c_str(), &stat_buf) == 0) {
-		// is it a dir or file?
-		if (! S_ISDIR(stat_buf.st_mode)) {
-			USER_WARN(cfg_dir << " already exists and is not a directory."
-				  << " can not copy config files");
-			return;
-		}
-
-		// we already have a directory, see if it's writeable and executable
-		bool cfg_dir_ok = false;
-
-		if (getuid() == stat_buf.st_uid) {
-			if ((stat_buf.st_mode&S_IWUSR) && (stat_buf.st_mode&(S_IXUSR))) {
-				cfg_dir_ok = true;
-			}
-		}
-		if (! cfg_dir_ok) {
-			if (getgid() == stat_buf.st_gid) {
-				if ((stat_buf.st_mode&S_IWGRP)
-				    && (stat_buf.st_mode&(S_IXGRP))) {
-					cfg_dir_ok = true;
-				}
-			}
-		}
-
-		if (! cfg_dir_ok) {
-			if (! (stat_buf.st_mode&S_IWOTH)
-			    || ! (stat_buf.st_mode&(S_IXOTH))) {
-				USER_WARN("write access missing to " << cfg_dir << " directory."
-					  << " unable to copy the config files");
-				return;
-			}
-		}
-
-		// we apparently could write and exec that dir, now see if we have any
-		// files in it
-		if (stat(cfg_file.c_str(), &stat_buf))
-			cp_config = true;
-		if (stat(keys_file.c_str(), &stat_buf))
-			cp_keys = true;
-		if (stat(mouse_file.c_str(), &stat_buf))
-			cp_mouse = true;
-		if (stat(menu_file.c_str(), &stat_buf))
-			cp_menu = true;
-		if (stat(autoprops_file.c_str(), &stat_buf))
-			cp_autoprops = true;
-		if (stat(start_file.c_str(), &stat_buf))
-			cp_start = true;
-		if (stat(vars_file.c_str(), &stat_buf))
-			cp_vars = true;
-		if (stat(themes_dir.c_str(), &stat_buf)) {
-			make_themes = true;
-		}
-	} else { // we didn't have a ~/.pekwm directory already, lets create one
-		if (mkdir(cfg_dir.c_str(), 0700)) {
-			USER_WARN("can not create the directory " << cfg_dir
-				  << ". can not copy config files");
-			return;
-		}
-
-		cp_config = cp_keys = cp_mouse = cp_menu = true;
-		cp_autoprops = cp_start = cp_vars = true;
-		make_themes = true;
-	}
-
-	if (cp_config) {
-		Util::copyTextFile(SYSCONFDIR "/config", cfg_file);
-	}
-	if (cp_keys) {
-		Util::copyTextFile(SYSCONFDIR "/keys", keys_file);
-	}
-	if (cp_mouse) {
-		Util::copyTextFile(SYSCONFDIR "/mouse", mouse_file);
-	}
-	if (cp_menu) {
-		Util::copyTextFile(SYSCONFDIR "/menu", menu_file);
-	}
-	if (cp_autoprops) {
-		Util::copyTextFile(SYSCONFDIR "/autoproperties", autoprops_file);
-	}
-	if (cp_start) {
-		Util::copyTextFile(SYSCONFDIR "/start", start_file);
-	}
-	if (cp_vars) {
-		Util::copyTextFile(SYSCONFDIR "/vars", vars_file);
-	}
-	if (make_themes) {
+	if (stat(themes_dir.c_str(), &sb)) {
 		mkdir(themes_dir.c_str(), 0700);
 	}
+}
+
+/**
+ * Ensure that the provided configuration directory exists and is writable.
+ */
+bool
+Config::ensureConfigDirExists(const std::string &cfg_dir)
+{
+	// Ensure that cfg_dir exists and is a directory
+	struct stat sb;
+	if (stat(cfg_dir.c_str(), &sb)) {
+		if (mkdir(cfg_dir.c_str(), 0700)) {
+			USER_WARN("unable to create the config directory "
+				  << cfg_dir << ". can not copy config files");
+			return false;
+		}
+		stat(cfg_dir.c_str(), &sb);
+	} else if (! S_ISDIR(sb.st_mode)) {
+		USER_WARN(cfg_dir << " already exists and is not a directory."
+			  << " can not copy config files");
+		return false;
+	}
+
+	// Ensure that the config directory has write end execute bits set.
+	bool cfg_dir_ok = false;
+	if (getuid() == sb.st_uid) {
+		if (sb.st_mode&(S_IWUSR|S_IXUSR) == (S_IWUSR|S_IXUSR)) {
+			cfg_dir_ok = true;
+		}
+	}
+	if (! cfg_dir_ok && getgid() == sb.st_gid) {
+		if (sb.st_mode&(S_IWGRP|S_IXGRP) == (S_IWGRP|S_IXGRP)) {
+			cfg_dir_ok = true;
+		}
+	}
+
+	if (! cfg_dir_ok) {
+		if (sb.st_mode&(S_IWOTH|S_IXOTH) == (S_IWOTH|S_IXOTH)) {
+			cfg_dir_ok = true;
+		} else {
+			USER_WARN("no write on " << cfg_dir << " directory."
+				  << " can not copy config files");
+			return false;
+		}
+	}
+
+	return cfg_dir_ok;
 }
 
 /**

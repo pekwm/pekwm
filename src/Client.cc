@@ -24,7 +24,7 @@ extern "C" {
 }
 
 #include "Charset.hh"
-#include "Compat.hh" // setenv, unsetenv
+#include "Compat.hh"
 #include "Debug.hh"
 #include "PWinObj.hh"
 #include "PDecor.hh" // PDecor::TitleItem
@@ -1897,12 +1897,12 @@ void
 Client::setClientEnvironment(Client *client)
 {
 	if (client) {
-		setenv("CLIENT_PID",
-		       std::to_string(client->isRemote()
-				      ? -1 : client->getPid()).c_str(), 1);
-		setenv("CLIENT_WINDOW", std::to_string(client->getWindow()).c_str(), 1);
+		int client_pid = client->isRemote() ? -1 : client->getPid();
+		Util::setEnv("CLIENT_PID", std::to_string(client_pid));
+		Util::setEnv("CLIENT_WINDOW",
+			     std::to_string(client->getWindow()));
 	} else {
-		unsetenv("CLIENT_PID");
-		unsetenv("CLIENT_WINDOW");
+		Util::setEnv("CLIENT_PID", "");
+		Util::setEnv("CLIENT_WINDOW", "");
 	}
 }

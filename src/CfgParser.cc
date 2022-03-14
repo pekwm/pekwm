@@ -784,7 +784,7 @@ CfgParser::variableDefine(const std::string &name, const std::string &value)
 
 	// If the variable begins with $_ it should update the environment aswell.
 	if ((name.size() > 2) && (name[1] == '_')) {
-		setenv(name.c_str() + 2, value.c_str(), 1);
+		Util::setEnv(name.c_str() + 2, value);
 	}
 }
 

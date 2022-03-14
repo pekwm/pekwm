@@ -78,6 +78,8 @@ namespace Util {
 	};
 
 	std::string getEnv(const std::string& key);
+	void setEnv(const std::string& key, const std::string &value);
+	std::string getConfigDir(void);
 
 	void forkExec(std::string command);
 	pid_t forkExec(const std::vector<std::string>& args);

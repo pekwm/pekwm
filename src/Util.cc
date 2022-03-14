@@ -214,12 +214,37 @@ namespace Util {
 #endif // HOST_NAME_MAX
 
 	/**
-	 * Return environment variabel as string.
+	 * Return environment variable as string.
 	 */
 	std::string getEnv(const std::string& key)
 	{
 		const char *val = getenv(key.c_str());
 		return val ? val : "";
+	}
+
+	/**
+	 * Set environment variable
+	 */
+	void setEnv(const std::string &key, const std::string &val)
+	{
+		if (val.size() == 0) {
+			unsetenv(key.c_str());
+		} else {
+			setenv(key.c_str(), val.c_str(), 1 /* override */);
+		}
+	}
+
+	/**
+	 * Get path to configuration directory, either from PEKWM_CONFIG_PATH
+	 * or HOME environment variables.
+	 */
+	std::string getConfigDir(void)
+	{
+		std::string dir = getEnv("PEKWM_CONFIG_PATH");
+		if (dir.size() == 0) {
+			dir = getEnv("HOME") + "/.pekwm";
+		}
+		return dir;
 	}
 
 	/**
@@ -438,7 +463,9 @@ namespace Util {
 		}
 	}
 
-	//! @brief Returns dir part of file
+	/**
+	 * std::string version of dirname.
+	 */
 	std::string
 	getDir(const std::string &file)
 	{

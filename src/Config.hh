@@ -246,8 +246,10 @@ public:
 				 uint &unfocused);
 
 private:
-	bool tryHardLoadConfig(CfgParser &cfg, std::string &file);
-	void copyConfigFiles(void);
+	bool tryHardLoadConfig(CfgParser &cfg, std::string &file,
+			       std::string &cfg_dir);
+	void copyConfigFiles(const std::string &cfg_dir);
+	bool ensureConfigDirExists(const std::string &cfg_dir);
 
 	void loadFiles(CfgParser::Entry *section);
 	void loadMoveResize(CfgParser::Entry *section);

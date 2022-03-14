@@ -2812,7 +2812,7 @@ static bool loadConfig(PanelConfig& cfg, const std::string& file)
 		return true;
 	}
 
-	std::string panel_config = Util::getEnv("HOME") + "/.pekwm/panel";
+	std::string panel_config = Util::getConfigDir() + "/panel";
 	if (cfg.load(panel_config)) {
 		return true;
 	}

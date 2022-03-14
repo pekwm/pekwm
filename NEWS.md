@@ -4,6 +4,10 @@ pekwm-0.3.0
 Closed issues
 -------------
 
+ * #126, Improved XDG config directory support by making use of
+   $PEKWM_CONFIG_PATH instead of $HOME in scripts and copy configuration
+   files to dirname of provided configuration file.
+
 New
 ---
 

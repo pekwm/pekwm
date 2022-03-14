@@ -582,11 +582,7 @@ ActionHandler::actionExec(Client *client, const std::string &command,
 void
 ActionHandler::actionSetenv(const std::string &name, const std::string &value)
 {
-	if (value.size() == 0) {
-		unsetenv(name.c_str());
-	} else {
-		setenv(name.c_str(), value.c_str(), 1 /* override */);
-	}
+	Util::setEnv(name, value);
 }
 
 //! @brief Searches for a client matching titles and makes it visible

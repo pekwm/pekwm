@@ -1,14 +1,20 @@
 #!@SH@
 #
-# Copyright (C) 2021 Claes Nästén
+# Copyright (C) 2021-2022 Claes Nästén
 #
+
+# pekwm configuration directory, setup by pekwm but use this to ensure
+# that the script will run properly without running from pekwm.
+if test -z "$PEKWM_CONFIG_PATH"; then
+    PEKWM_CONFIG_PATH="$HOME/.pekwm"
+fi
 
 # URL for the pekwm theme site
 PEKWM_THEMES="@PEKWM_THEMES@"
 # URL for the theme index file
 REMOTE_THEME_INDEX="$PEKWM_THEMES/themes-v1.csv"
 # Path to local copy of the theme index file
-LOCAL_THEME_INDEX="$HOME/.pekwm/themes-v1.csv"
+LOCAL_THEME_INDEX="$PEKWM_CONFIG_PATH/themes-v1.csv"
 # Max age of the local theme index before it is re fetchted.
 LOCAL_THEME_INDEX_MAX_AGE="86400"
 # Path to local directory where screenshots are cached, used with the
@@ -120,8 +126,8 @@ fetch_file()
 # update_index
 update_index()
 {
-    if ! test -e "$HOME/.pekwm"; then
-        mkdir -p "$HOME/.pekwm"
+    if ! test -e "$PEKWM_CONFIG_PATH"; then
+        mkdir -p "$PEKWM_CONFIG_PATH"
     fi
     if test -e "${LOCAL_THEME_INDEX}.stamp"; then
         created=`cat ${LOCAL_THEME_INDEX}.stamp`
@@ -172,10 +178,10 @@ read_theme()
 # set_theme_path name
 set_theme_path()
 {
-    theme_path="$HOME/.pekwm/themes/$1"
+    theme_path="$PEKWM_CONFIG_PATH/themes/$1"
 }
 
-# Install theme to $HOME/.pekwm/themes, if activate is given the
+# Install theme to $PEKWM_CONFIG_PATH/themes, if activate is given the
 # current theme is changed.
 #
 # theme_install name [activate]
@@ -192,7 +198,7 @@ theme_install()
 
     if test "x$2" = "xactivate"; then
         @CMAKE_INSTALL_PREFIX@/share/pekwm/scripts/pekwm_themeset.sh \
-         "$HOME/.pekwm/themes" "$theme_path"
+         "$PEKWM_CONFIG_PATH/themes" "$theme_path"
     fi
 }
 
@@ -211,11 +217,11 @@ theme_install_plain()
 # theme_install_base_path
 theme_install_base_path()
 {
-    mkdir -p "$HOME/.pekwm/themes_git"
-    repo_path="$HOME/.pekwm/themes_git/`echo $theme_remote | tr -cd '[:alnum:]'`"
+    mkdir -p "$PEKWM_CONFIG_PATH/themes_git"
+    repo_path="$PEKWM_CONFIG_PATH/themes_git/`echo $theme_remote | tr -cd '[:alnum:]'`"
     git_update_repo "$theme_remote" "$theme_branch" "$repo_path"
 
-    ln -sf "$repo_path/$theme_base_path" "$HOME/.pekwm/themes/$theme_name"
+    ln -sf "$repo_path/$theme_base_path" "$PEKWM_CONFIG_PATH/themes/$theme_name"
 }
 
 # Clone or update GIT repository
@@ -236,7 +242,7 @@ git_update_repo()
     git -C "$3" reset --hard "origin/$2"
 }
 
-# Uninstall theme from $HOME/.pekwm/themes
+# Uninstall theme from $PEKWM_CONFIG_PATH/themes
 #
 # theme_uninstall name
 theme_uninstall()
@@ -653,8 +659,8 @@ theme_update()
     update_index
 }
 
-if test -z "$HOME"; then
-    die "\$HOME is not set, can not proceed"
+if test -z "$PEKWM_CONFIG_PATH"; then
+    die "none of \$HOME and \$PEKWM_CONFIG_PATH is set, can not proceed"
 fi
 if test -z "`which git 2>/dev/null | @GREP@ '^/'`"; then
     die "git must be available in the path, can not proceed"

@@ -146,6 +146,9 @@ sub get_autoprops_file {
 	}
 	
 	close(OUTFILE);
+	if ($ENV[PEKWM_CONFIG_PATH]) {
+		return $ENV{PEKWM_CONFIG_PATH}."/autoproperties";
+	}
 	return $ENV{HOME}."/.pekwm/autoproperties";
 }
 

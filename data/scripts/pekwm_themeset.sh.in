@@ -15,6 +15,12 @@ if test -z "${1}"; then
     exit 1
 fi
 
+# pekwm configuration directory, setup by pekwm but use this to ensure
+# that the script will run properly without running from pekwm.
+if test -z "$PEKWM_CONFIG_PATH"; then
+    PEKWM_CONFIG_PATH="$HOME/.pekwm"
+fi
+
 if test -z "${2}"; then
     theme_dir="${1}"
 
@@ -49,7 +55,7 @@ else
         exit 1;
     fi
 
-    theme=`echo "${2}" | @SED@ -e "s@^${HOME}@~@" | @SED@ -e 's@\/@\\\/@g'`
+    theme=`echo "${2}" | @SED@ -e "s@^${PEKWM_CONFIG_PATH}@~@" | @SED@ -e 's@\/@\\\/@g'`
     variant="${3}"
 
     # Get temporary file, not all platforms have mktemp though

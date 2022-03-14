@@ -68,9 +68,9 @@ printInfo(void)
 static void
 setPekwmEnv(void)
 {
-	setenv("PEKWM_ETC_PATH", SYSCONFDIR, 1);
-	setenv("PEKWM_SCRIPT_PATH", DATADIR "/pekwm/scripts", 1);
-	setenv("PEKWM_THEME_PATH", DATADIR "/pekwm/themes", 1);
+	Util::setEnv("PEKWM_ETC_PATH", SYSCONFDIR);
+	Util::setEnv("PEKWM_SCRIPT_PATH", DATADIR "/pekwm/scripts");
+	Util::setEnv("PEKWM_THEME_PATH", DATADIR "/pekwm/themes");
 }
 
 static void
@@ -140,10 +140,10 @@ main(int argc, char **argv)
 			write_fd = std::stoi(argv[++i]);
 		} else if (standalone && (strcmp("--display", argv[i]) == 0)
 			   && ((i + 1) < argc)) {
-			setenv("DISPLAY", argv[++i], 1);
+			Util::setEnv("DISPLAY", argv[++i]);
 		} else if (standalone && strcmp("--config", argv[i]) == 0
 			   && (i + 1) < argc) {
-			setenv("PEKWM_CONFIG_FILE", argv[++i], 1);
+			Util::setEnv("PEKWM_CONFIG_FILE", argv[++i]);
 		} else {
 			printUsage();
 			stop(write_fd, "stop", nullptr);
@@ -154,17 +154,18 @@ main(int argc, char **argv)
 	// default to reading environment, if not set get ~/.pekwm/config
 	std::string config_file = Util::getEnv("PEKWM_CONFIG_FILE");
 	if (config_file.size() == 0) {
-		std::string home = Util::getEnv("HOME");
-		if (home.size() == 0) {
+		std::string cfg_dir = Util::getConfigDir();
+		if (cfg_dir.size() == 0) {
 			std::cerr << "failed to get configuration file path, "
-				  << "$HOME not set." << std::endl;
+				  << "none of $HOME and $PEKWM_CONFIG_PATH "
+				  << " is set." << std::endl;
 			stop(write_fd, "error", nullptr);
 		}
-		config_file = home + "/.pekwm/config";
+		config_file = cfg_dir + "/config";
 	}
-	size_t sep = config_file.rfind('/');
-	if (sep != std::string::npos) {
-		setenv("PEKWM_CONFIG_PATH", config_file.substr(0, sep).c_str(), 1);
+	std::string config_path = Util::getDir(config_file);
+	if (config_path.size() != 0) {
+		Util::setEnv("PEKWM_CONFIG_PATH", config_path);
 	}
 
 	USER_INFO("Starting pekwm. Use this information in bug reports: "
