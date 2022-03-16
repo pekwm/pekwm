@@ -115,10 +115,10 @@ public: // Public Member Functions
 	static uint client_size(void) { return _clients.size(); }
 	static client_cit client_begin(void) { return _clients.begin(); }
 	static client_cit client_end(void) { return _clients.end(); }
-	static client_vec::const_reverse_iterator client_rbegin(void) {
+	static client_vec::reverse_iterator client_rbegin(void) {
 		return _clients.rbegin();
 	}
-	static client_vec::const_reverse_iterator client_rend(void) {
+	static client_vec::reverse_iterator client_rend(void) {
 		return _clients.rend();
 	}
 

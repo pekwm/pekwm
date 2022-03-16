@@ -95,13 +95,13 @@ utf8_to_wchar(const char *utf8, wchar_t &wc)
 	return len;
 }
 
-#ifdef PEKWM_HAVE_LOCALE
+#ifdef PEKWM_HAVE_LOCALE_COMBINE
 class NoGroupingNumpunct : public std::numpunct<char>
 {
 protected:
 	virtual std::string do_grouping(void) const { return ""; }
 };
-#endif // PEKWM_HAVE_LOCALE
+#endif // PEKWM_HAVE_LOCALE_COMBINE
 
 namespace Charset
 {
@@ -231,10 +231,12 @@ namespace Charset
 			std::locale base_locale("");
 			std::locale::global(base_locale);
 
+#ifdef PEKWM_HAVE_LOCALE_COMBINE
 			std::locale num_locale(std::locale(), new NoGroupingNumpunct());
 			std::locale locale =
 				std::locale().combine<std::numpunct<char> >(num_locale);
 			std::locale::global(locale);
+#endif // PEKWM_HAVE_LOCALE_COMBINE
 		} catch (const std::runtime_error&) {
 			// a user warning used to occur here  but this fails on
 			// too many systems, so skipping the warning.

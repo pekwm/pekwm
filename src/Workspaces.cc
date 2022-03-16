@@ -378,7 +378,7 @@ Workspaces::warpToWorkspace(uint num, int dir)
 void
 Workspaces::fixStacking(PWinObj *pwo)
 {
-	const_iterator it = find(_wobjs.begin(), _wobjs.end(), pwo);
+	const_iterator it = std::find(_wobjs.begin(), _wobjs.end(), pwo);
 	if (it == _wobjs.end()) {
 		return;
 	}
@@ -409,7 +409,8 @@ Workspaces::insert(PWinObj *wo, bool raise)
 	    && wo_frame && wo_frame->getTransFor()
 	    && wo_frame->getTransFor()->getLayer() == wo_frame->getLayer()) {
 		// Lower only to the top of the transient_for window.
-		it = find(_wobjs.begin(), _wobjs.end(), wo_frame->getTransFor()->getParent());
+		it = std::find(_wobjs.begin(), _wobjs.end(),
+			       wo_frame->getTransFor()->getParent());
 		++it;
 		top_obj = it!=_wobjs.end()?*it:0; // I think it==_wobjs.end() can't happen
 	} else {
@@ -440,8 +441,9 @@ Workspaces::insert(PWinObj *wo, bool raise)
 		std::vector<Client*>::const_iterator t_it;
 		for (it = _wobjs.begin(); *it != wo;) {
 			if ((frame = dynamic_cast<Frame*>(*it))) {
-				t_it = find(wo_frame->getTransBegin(), wo_frame->getTransEnd(),
-					    frame->getActiveClient());
+				t_it = std::find(wo_frame->getTransBegin(),
+						 wo_frame->getTransEnd(),
+						 frame->getActiveClient());
 				if (t_it != wo_frame->getTransEnd()) {
 					winstack.push_back(frame);
 					it = _wobjs.erase(it);
@@ -451,7 +453,7 @@ Workspaces::insert(PWinObj *wo, bool raise)
 			++it;
 		}
 
-		it = find(_wobjs.begin(), _wobjs.end(), wo);
+		it = std::find(_wobjs.begin(), _wobjs.end(), wo);
 		++it;
 		_wobjs.insert(it, winstack.begin()+1, winstack.end());
 	}
@@ -569,13 +571,13 @@ Workspaces::unhideAll(uint workspace, bool focus)
 void
 Workspaces::raise(PWinObj* wo)
 {
-	iterator it(find(_wobjs.begin(), _wobjs.end(), wo));
+	iterator it(std::find(_wobjs.begin(), _wobjs.end(), wo));
 
 	if (it == _wobjs.end()) { // no Frame to raise.
 		return;
 	}
 	if (handleFullscreenBeforeRaise(wo)) {
-		it = find(_wobjs.begin(), _wobjs.end(), wo);
+		it = std::find(_wobjs.begin(), _wobjs.end(), wo);
 	}
 	_wobjs.erase(it);
 
@@ -648,7 +650,7 @@ Workspaces::lowerFullscreenWindows(Layer new_layer)
 
 	for (wo = fs_wobjs.begin(); wo != fs_wobjs.end(); ++wo) {
 		// We could have erased these windows in the first for loop,
-		// which could reduce a couple of find() calls.
+		// which could reduce a couple of std::find() calls.
 		//
 		// But we want the higher fullscreen windows to _stay_ in
 		// _wobjs, so that they can be the (top_obj) anchor point for
@@ -668,7 +670,7 @@ Workspaces::lowerFullscreenWindows(Layer new_layer)
 void
 Workspaces::lower(PWinObj* wo)
 {
-	iterator it(find(_wobjs.begin(), _wobjs.end(), wo));
+	iterator it(std::find(_wobjs.begin(), _wobjs.end(), wo));
 
 	if (it == _wobjs.end()) // no Frame to raise.
 		return;
@@ -765,7 +767,7 @@ Workspaces::buildClientList(unsigned int &num_windows)
 	num_windows = windows.size();
 	Window *wins = new Window[num_windows ? num_windows : 1];
 	if (num_windows > 0) {
-		copy(windows.begin(), windows.end(), wins);
+		std::copy(windows.begin(), windows.end(), wins);
 	}
 
 	return wins;

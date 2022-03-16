@@ -315,10 +315,12 @@ WindowManager::scanWindows(void)
 			if ((wm_hints->flags&IconWindowHint) &&
 			    (wm_hints->icon_window != *it)) {
 				std::vector<Window>::iterator
-					i_it(find(win_list.begin(), win_list.end(),
-						  wm_hints->icon_window));
-				if (i_it != win_list.end())
+					i_it(std::find(win_list.begin(),
+						       win_list.end(),
+						       wm_hints->icon_window));
+				if (i_it != win_list.end()) {
 					*i_it = None;
+				}
 			}
 			X11::free(wm_hints);
 		}

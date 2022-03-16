@@ -331,7 +331,7 @@ ActionMenu::rebuildDynamic(void)
 				parse(section, *it);
 			}
 
-			it = find(m_begin(), m_end(), item);
+			it = std::find(m_begin(), m_end(), item);
 		}
 	}
 	_insert_at = size();

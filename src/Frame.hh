@@ -82,10 +82,10 @@ public:
 	static uint frame_size(void) { return _frames.size(); }
 	static frame_cit frame_begin(void) { return _frames.begin(); }
 	static frame_cit frame_end(void) { return _frames.end(); }
-	static frame_vec::const_reverse_iterator frame_rbegin(void) {
+	static frame_vec::reverse_iterator frame_rbegin(void) {
 		return _frames.rbegin();
 	}
-	static frame_vec::const_reverse_iterator frame_rend(void) {
+	static frame_vec::reverse_iterator frame_rend(void) {
 		return _frames.rend();
 	}
 

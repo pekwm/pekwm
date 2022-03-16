@@ -280,7 +280,7 @@ void
 PWinObj::woListRemove(PWinObj *wo)
 {
 	std::vector<PWinObj*>::iterator it
-		= find(_wo_list.begin(), _wo_list.end(), wo);
+		= std::find(_wo_list.begin(), _wo_list.end(), wo);
 	if (it != _wo_list.end()) {
 		_wo_list.erase(it);
 	}

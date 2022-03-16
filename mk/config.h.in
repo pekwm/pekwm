@@ -11,6 +11,7 @@
 #define PEKWM_HAVE_LIMITS
 #define PEKWM_HAVE_STDINT_H
 #define PEKWM_HAVE_LOCALE
+#define PEKWM_HAVE_LOCALE_COMBINE
 
 #include "CONFIG_PLATFORM-config.h"
 

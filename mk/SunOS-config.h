@@ -3,6 +3,8 @@
 
 #define FEATURES "XShape image-png image-jpeg image-xpm"
 
+#undef PEKWM_HAVE_LOCALE_COMBINE
+
 // #define PEKWM_HAVE_GCC_DIAGNOSTICS_PUSH
 
 // #define PEKWM_HAVE_PUT_TIME

@@ -1021,7 +1021,8 @@ PMenu::gotoParentMenu(void)
 void
 PMenu::select(PMenu::Item *item, bool unmap_submenu)
 {
-	selectItem(find(_items.begin(), _items.end(), item), unmap_submenu);
+	selectItem(std::find(_items.begin(), _items.end(), item),
+		   unmap_submenu);
 }
 
 //! @brief Selects item number num in menu

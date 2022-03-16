@@ -426,7 +426,7 @@ void
 RootWO::removeStrut(Strut *strut)
 {
 	std::vector<Strut*>::iterator it =
-		find(_struts.begin(), _struts.end(), strut);
+		std::find(_struts.begin(), _struts.end(), strut);
 	if (it != _struts.end()) {
 		_struts.erase(it);
 	}

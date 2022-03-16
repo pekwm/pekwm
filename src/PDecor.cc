@@ -1161,7 +1161,7 @@ PDecor::removeChild(PWinObj *child, bool do_delete)
 			_gm.y + bdTop(this) + titleHeight(this));
 
 	std::vector<PWinObj*>::iterator it
-		= find(_children.begin(), _children.end(), child);
+		= std::find(_children.begin(), _children.end(), child);
 	if (it == _children.end()) {
 		P_LOG("this == " << this << " child == " << child
 		      << " - child not in _child_list, bailing out");

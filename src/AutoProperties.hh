@@ -104,7 +104,7 @@ public:
 	inline void setWorkspaces(const std::vector<uint> &ws) { _workspaces=ws; }
 	inline bool applyOnWs(uint ws) {
 		std::vector<uint>::iterator it =
-			find(_workspaces.begin(), _workspaces.end(), ws);
+			std::find(_workspaces.begin(), _workspaces.end(), ws);
 		return _workspaces.empty() || it != _workspaces.end();
 	}
 

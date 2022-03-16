@@ -31,9 +31,18 @@ endif (NOT PEKWM_HAVE_LIMITS)
 check_include_file(stdint.h PEKWM_HAVE_STDINT_H)
 
 check_include_file_cxx(locale PEKWM_HAVE_LOCALE)
-if (NOT PEKWM_HAVE_LOCALE)
+if (PEKWM_HAVE_LOCALE)
+  check_cxx_source_compiles("
+#include <locale>
+int main() {
+  std::locale num_locale1(\"\");
+  std::locale locale = std::locale().combine<std::numpunct<char> >(num_locale);
+}
+" PEKWM_HAVE_LOCALE_COMBINE)
+
+else()
   check_include_file(locale.h PEKWM_HAVE_LOCALE_H REQUIRED)
-endif (NOT PEKWM_HAVE_LOCALE)
+endif (PEKWM_HAVE_LOCALE)
 
 check_function_exists(localtime_r PEKWM_HAVE_LOCALTIME_R REQUIRED)
 

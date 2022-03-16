@@ -86,7 +86,8 @@ Harbour::removeDockApp(DockApp *da)
 		return;
 	}
 
-	std::vector<DockApp*>::iterator it(find(_dapps.begin(), _dapps.end(), da));
+	std::vector<DockApp*>::iterator
+		it(std::find(_dapps.begin(), _dapps.end(), da));
 	if (it != _dapps.end()) {
 		_dapps.erase(it);
 		Workspaces::remove(da); // remove the dockapp to the stacking list
@@ -346,7 +347,8 @@ Harbour::handleConfigureRequestEvent(XConfigureRequestEvent* ev, DockApp* da)
 		return;
 	}
 
-	std::vector<DockApp*>::iterator it(find(_dapps.begin(), _dapps.end(), da));
+	std::vector<DockApp*>::iterator
+		it(std::find(_dapps.begin(), _dapps.end(), da));
 	if (it != _dapps.end()) {
 		// Thing is that we doesn't listen to border width, position or
 		// stackign so the only thing that we'll alter is size if that's

@@ -7,6 +7,8 @@
 
 #cmakedefine PEKWM_HAVE_LIMITS
 #cmakedefine PEKWM_HAVE_LOCALE
+#cmakedefine PEKWM_HAVE_LOCALE_H
+#cmakedefine PEKWM_HAVE_LOCALE_COMBINE
 
 #cmakedefine PEKWM_HAVE_SYS_LIMITS_H
 #cmakedefine PEKWM_HAVE_LIMITS_H

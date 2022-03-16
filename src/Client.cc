@@ -1594,7 +1594,7 @@ Client::updateEwmhStates(void)
 
 	Atom *atoms = new Atom[(states.size() > 0) ? states.size() : 1];
 	if (states.size() > 0) {
-		copy(states.begin(), states.end(), atoms);
+		std::copy(states.begin(), states.end(), atoms);
 	}
 	X11::setAtoms(_window, STATE, atoms, states.size());
 	delete [] atoms;
