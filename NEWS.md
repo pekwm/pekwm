@@ -7,6 +7,9 @@ Closed issues
  * #126, Improved XDG config directory support by making use of
    $PEKWM_CONFIG_PATH instead of $HOME in scripts and copy configuration
    files to dirname of provided configuration file.
+ * #129 Centered placement model. Simple placement model where the
+   window is placed centered on the screen. Struts (panels etc) are
+   taken into consideration.
 
 New
 ---

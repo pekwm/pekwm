@@ -1,6 +1,6 @@
 //
 // WinLayouter.cc for pekwm
-// Copyright (C) 2021-2022 Claes Nästén
+// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
 // Copyright © 2012-2013 Andreas Schlick <ioerror{@}lavabit{.}com>
 //
 // This program is licensed under the GNU GPL.
@@ -8,12 +8,13 @@
 //
 
 #include "pekwm.hh"
-#include "WinLayouter.hh"
 
 #include "Client.hh"
+#include "Debug.hh"
 #include "Frame.hh"
 #include "Util.hh"
 #include "ManagerWindows.hh"
+#include "WinLayouter.hh"
 #include "Workspaces.hh"
 #include "X11Util.hh"
 #include "X11.hh"
@@ -147,6 +148,24 @@ private:
 	}
 };
 
+/**
+ * Place windows centered on the current head.
+ */
+class LayouterCentered : public WinLayouter {
+public:
+	LayouterCentered(void) : WinLayouter() {}
+	virtual ~LayouterCentered(void) { };
+
+	virtual bool layout(PWinObj *wo, Window parent,
+			    const Geometry &head_gm, int ptr_x, int ptr_y)
+
+	{
+		Geometry gm = head_gm.center(wo->getGeometry());
+		wo->move(gm.x, gm.y);
+		return true;
+	}
+};
+
 //! @brief Places the wo in a corner of the screen not under the pointer
 class LayouterMouseNotUnder : public WinLayouter {
 public:
@@ -227,21 +246,27 @@ private:
 	}
 };
 
-WinLayouter *WinLayouterFactory(std::string l) {
-	Util::to_upper(l);
-	const char *str = l.c_str();
+WinLayouter*
+WinLayouterFactory(std::string name)
+{
+	std::string name_upper(name);
+	Util::to_upper(name_upper);
 
-	if (! strcmp(str, "SMART")) {
+	if (! name_upper.compare("SMART")) {
 		return new LayouterSmart;
 	}
-	if (! strcmp(str, "MOUSENOTUNDER")) {
+	if (! name_upper.compare("CENTERED")) {
+		return new LayouterCentered;
+	}
+	if (! name_upper.compare("MOUSENOTUNDER")) {
 		return new LayouterMouseNotUnder;
 	}
-	if (! strcmp(str, "MOUSECENTERED")) {
+	if (! name_upper.compare("MOUSECENTERED")) {
 		return new LayouterMouseCentred;
 	}
-	if (! strcmp(str, "MOUSETOPLEFT")) {
+	if (! name_upper.compare("MOUSETOPLEFT")) {
 		return new LayouterMouseTopLeft;
 	}
-	return 0;
+	USER_WARN("Unknown placement model: " << name);
+	return nullptr;
 }

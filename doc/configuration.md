@@ -342,6 +342,7 @@ all values should be placed inside quotes.
 Placement Models:
 
 * _Smart_, Tries to place windows where no other window is present
+* _Centered_, Places the window centered on the current head.
 * _MouseCentered_, Places the center of the window underneath the current mouse pointer position
 * _MouseTopLeft_, Places the top-left corner of the window under the pointer
 * _MouseNotUnder_, Places windows on screen corners avoiding the current mouse cursor position.
