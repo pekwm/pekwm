@@ -1,5 +1,6 @@
 //
 // X11.cc for pekwm
+// Copyright (C) 2022 Claes Nästén
 // Copyright (C) 2009-2021 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -212,6 +213,17 @@ Geometry::Geometry(const Geometry &gm)
 
 Geometry::~Geometry(void)
 {
+}
+
+/**
+ * Update provided gm to be centered within this geometry.
+ */
+Geometry
+Geometry::center(Geometry gm) const
+{
+	gm.x = x + (width / 2) - (gm.width / 2);
+	gm.y = y + (height / 2) - (gm.height / 2);
+	return gm;
 }
 
 Geometry&

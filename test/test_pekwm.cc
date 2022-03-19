@@ -63,6 +63,7 @@ main_tests(int argc, char *argv[])
 	TestWindowManager testWindowManager;
 
 	// x11
+	TestGeometry testGeometry;
 	TestX11 testX11;
 
 	return TestSuite::main(argc, argv);

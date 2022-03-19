@@ -203,6 +203,8 @@ public:
 	Geometry(const Geometry &gm);
 	~Geometry(void);
 
+	Geometry center(Geometry gm) const;
+
 	int x, y;
 	unsigned int width, height;
 
