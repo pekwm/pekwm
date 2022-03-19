@@ -1,4 +1,5 @@
 //
+// Copyright (C) 2013-2022 Claes Nästén
 // Copyright (C) 2005-2013 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -9,7 +10,9 @@
 #define _PEKWM_CFGPARSERKEY_HH_
 
 #include "Compat.hh"
+#include "Util.hh"
 
+#include <algorithm>
 #include <string>
 #include <cstdlib>
 
@@ -150,6 +153,55 @@ public:
 private:
 	std::string &_set; //!< Reference to store parsed value in.
 	std::string _default; //!< Default value.
+};
+
+/**
+ * Convenience vector implementaiton for cfg parser keys, cares of memory
+ * management and makes constructions more compact.
+ */
+class CfgParserKeys : public std::vector<CfgParserKey*>
+{
+public:
+	CfgParserKeys(void) { }
+	virtual ~CfgParserKeys(void)
+	{
+		clear();
+	}
+
+	void add_bool(const char *key, bool &value,
+		      const bool default_val = false)
+	{
+		push_back(new CfgParserKeyBool(key, value, default_val));
+	}
+
+	template<typename T>
+	void add_numeric(const char *name, T &set, const T default_val = 0,
+			 const T value_min = std::numeric_limits<T>::min(),
+			 const T value_max = std::numeric_limits<T>::max())
+	{
+		push_back(new CfgParserKeyNumeric<T>(name, set, default_val,
+						     value_min, value_max));
+	}
+
+	void add_path(const char *key, std::string &value,
+		      const std::string default_val = "")
+	{
+		push_back(new CfgParserKeyPath(key, value, default_val));
+	}
+
+	void add_string(const char *key, std::string &value,
+			const std::string default_val = "",
+			const std::string::size_type length_min = 0)
+	{
+		push_back(new CfgParserKeyString(key, value, default_val,
+						 length_min));
+	}
+
+	virtual void clear(void)
+	{
+		std::for_each(begin(), end(), Util::Free<CfgParserKey*>());
+		std::vector<CfgParserKey*>::clear();
+	}
 };
 
 #endif // _PEKWM_CFGPARSERKEY_HH_
