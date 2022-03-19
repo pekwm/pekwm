@@ -1,6 +1,6 @@
 //
 // test_X11.cc for pekwm
-// Copyright (C) 2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2020-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -10,6 +10,47 @@
 
 #include "test.hh"
 #include "X11.hh"
+
+class TestGeometry : public TestSuite {
+public:
+	TestGeometry(void);
+	virtual ~TestGeometry(void);
+
+	virtual bool run_test(TestSpec, bool status);
+
+private:
+	static void testCenter(void);
+};
+
+TestGeometry::TestGeometry(void)
+	: TestSuite("Geometry")
+{
+}
+
+TestGeometry::~TestGeometry(void)
+{
+}
+
+bool
+TestGeometry::run_test(TestSpec spec, bool status)
+{
+	TEST_FN(spec, "center", testCenter());
+	return status;
+}
+
+void
+TestGeometry::testCenter(void)
+{
+	Geometry head(100, 200, 1000, 2000);
+
+	ASSERT_EQUAL("center same size", head, head.center(head));
+	ASSERT_EQUAL("center smaller",
+		     Geometry(550, 1100, 100, 200),
+		     head.center(Geometry(0, 0, 100, 200)));
+	ASSERT_EQUAL("center larger",
+		     Geometry(-400, -800, 2000, 4000),
+		     head.center(Geometry(0, 0, 2000, 4000)));
+}
 
 class TestX11 : public X11,
                 public TestSuite {
