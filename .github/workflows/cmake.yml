@@ -18,7 +18,9 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DTESTS=ON -DDEV=ON
+      run: |
+        sudo apt-get -y install libxft2-dev
+        cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DTESTS=ON -DDEV=ON
 
     - name: Build code style check tool
       working-directory: ${{runner.workspace}}/build

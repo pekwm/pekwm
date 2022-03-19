@@ -1,0 +1,47 @@
+name: pekwm
+arch: amd64
+platform: linux
+
+version: ${SEMVER}
+
+version_schema: semver
+
+section: x11
+priority: optional
+
+maintainer: Claes Nästén <pekdon@gmail.com>
+description: |
+  A light, unobtrusive, and configurable windowmanager.
+  .
+  Most notable features include grouping (a la Fluxbox, Ion, or PWM), automatic
+  properties, and a chainable keygrabber.
+
+homepage: https://www.pekwm.se/
+
+provides:
+  - x-window-manager
+
+depends:
+  - menu
+  - x11-utils
+  - libc6 (>= 2.15)
+  - libgcc-s1 (>= 3.0)
+  - libjpeg62-turbo
+  - libpng16-16 (>= 1.6.2-1)
+  - libstdc++6 (>= 5.2)
+  - libx11-6
+  - libxext6
+  - libxft2 (>> 2.1.1)
+  - libxinerama1
+  - libxpm4
+  - libxrandr2 (>= 2:1.2.0)
+  - libxft2
+
+contents:
+  - src: target/usr
+    dst: /usr
+  - src: target/etc
+    dst: /etc
+
+deb:
+  compression: xz
