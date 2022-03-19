@@ -116,8 +116,8 @@ static void modeBackground(const std::string& tex_str)
 	ScreenChangeNotification scn;
 	while (! _stop && X11::getNextEvent(ev)) {
 		if (X11::getScreenChangeNotification(&ev, scn)) {
-			std::cout << "Screen changed: " << scn.width << "x" << scn.height
-				  << std::endl;
+			std::cout << "Screen changed: " << scn.width << "x"
+				  << scn.height << std::endl;
 			X11::updateGeometry(scn.width, scn.height);
 			X11::freePixmap(pix);
 			pix = loadAndSetBackground(tex_str);
@@ -134,13 +134,12 @@ void modeStop()
 {
 	Cardinal pid;
 	if (! X11::getCardinal(X11::getRoot(), PEKWM_BG_PID, pid)) {
-		std::cerr << "Failed to get _PEKWM_BG_PID, unable to stop" << std::endl;
 		return;
 	}
 
 	kill(pid, SIGINT);
 
-	std::cerr << "Sent " << pid << " SIGINT" << std::endl;
+	std::cout << "Sent pekwm_bg " << pid << " SIGINT" << std::endl;
 }
 
 int main(int argc, char* argv[])
@@ -216,16 +215,13 @@ int main(int argc, char* argv[])
 	X11::init(dpy, true);
 	init(dpy);
 
-	std::cout << "Load dir " << load_dir << std::endl;
 	_image_handler->path_push_back(load_dir);
 
 	modeStop();
 	if (! stop) {
-		if (do_daemon) {
-			if (daemon(0, 0) == -1) {
-				std::cerr << "Failed to daemonize: " << strerror(errno)
-					  << std::endl;
-			}
+		if (do_daemon && daemon(0, 0) == -1) {
+			std::cerr << "Failed to daemonize: " << strerror(errno)
+				  << std::endl;
 		}
 		modeBackground(tex_str);
 	}
