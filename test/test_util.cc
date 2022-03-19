@@ -31,6 +31,7 @@ main(int argc, char *argv[])
 
 	// // Util
 	TestStringUtil testStringUtil;
+	TestGenerator testGenerator;
 	TestUtil testUtil;
 
 	return TestSuite::main(argc, argv);
