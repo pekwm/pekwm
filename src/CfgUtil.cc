@@ -26,12 +26,11 @@ namespace CfgUtil
 	{
 		CfgParser::Entry *files = root->findSection("FILES");
 		if (files != nullptr) {
-			std::vector<CfgParserKey*> keys;
-			keys.push_back(new CfgParserKeyPath("THEME", dir, THEME_DEFAULT));
-			keys.push_back(new CfgParserKeyString("THEMEVARIANT", variant));
+			CfgParserKeys keys;
+			keys.add_path("THEME", dir, THEME_DEFAULT);
+			keys.add_string("THEMEVARIANT", variant);
 			files->parseKeyValues(keys.begin(), keys.end());
-			std::for_each(keys.begin(), keys.end(),
-				      Util::Free<CfgParserKey*>());
+			keys.clear();
 		} else {
 			dir = THEME_DEFAULT;
 			variant = "";
@@ -56,16 +55,15 @@ namespace CfgUtil
 	void
 	getIconDir(const CfgParser::Entry* root, std::string& dir)
 	{
-		dir = "~/.pekwm/icons/";
+		dir = "~/.pekwm/icons/"; // FIXME: config directory
 		Util::expandFileName(dir);
 
 		CfgParser::Entry *files = root->findSection("FILES");
 		if (files != nullptr) {
-			std::vector<CfgParserKey*> keys;
-			keys.push_back(new CfgParserKeyPath("ICONS", dir));
+			CfgParserKeys keys;
+			keys.add_path("ICONS", dir);
 			files->parseKeyValues(keys.begin(), keys.end());
-			std::for_each(keys.begin(), keys.end(),
-				      Util::Free<CfgParserKey*>());
+			keys.clear();
 		}
 	}
 
@@ -80,15 +78,12 @@ namespace CfgUtil
 		default_is_x11 = false;
 		CfgParser::Entry *screen = root->findSection("SCREEN");
 		if (screen != nullptr) {
-			std::vector<CfgParserKey*> keys;
-			keys.push_back(new CfgParserKeyBool("FONTDEFAULTX11",
-					    default_is_x11, false));
-			keys.push_back(new CfgParserKeyString(
-						"FONTCHARSETOVERRIDE",
-					        charset_override));
+			CfgParserKeys keys;
+			keys.add_bool("FONTDEFAULTX11", default_is_x11, false);
+			keys.add_string("FONTCHARSETOVERRIDE",
+					charset_override);
 			screen->parseKeyValues(keys.begin(), keys.end());
-			std::for_each(keys.begin(), keys.end(),
-				      Util::Free<CfgParserKey*>());
+			keys.clear();
 		}
 	}
 

@@ -335,29 +335,19 @@ Config::loadFiles(CfgParser::Entry *section)
 		return;
 	}
 
-	std::vector<CfgParserKey*> keys;
-	keys.push_back(new CfgParserKeyPath("KEYS", _files_keys,
-					    SYSCONFDIR "/keys"));
-	keys.push_back(new CfgParserKeyPath("MOUSE", _files_mouse,
-					    SYSCONFDIR "/mouse"));
-	keys.push_back(new CfgParserKeyPath("MENU", _files_menu,
-					    SYSCONFDIR "/menu"));
-	keys.push_back(new CfgParserKeyPath("START", _files_start,
-					    SYSCONFDIR "/start"));
-	keys.push_back(new CfgParserKeyPath("AUTOPROPS", _files_autoprops,
-					    SYSCONFDIR "/autoproperties"));
-	keys.push_back(new CfgParserKeyPath("THEME", _files_theme,
-					    DATADIR "/pekwm/themes/default"));
-	keys.push_back(new CfgParserKeyString("THEMEVARIANT",
-					      _files_theme_variant));
-	keys.push_back(new CfgParserKeyPath("ICONS", _files_icon_path,
-					    DATADIR "/pekwm/icons"));
+	CfgParserKeys keys;
+	keys.add_path("KEYS", _files_keys, SYSCONFDIR "/keys");
+	keys.add_path("MOUSE", _files_mouse, SYSCONFDIR "/mouse");
+	keys.add_path("MENU", _files_menu, SYSCONFDIR "/menu");
+	keys.add_path("START", _files_start, SYSCONFDIR "/start");
+	keys.add_path("AUTOPROPS", _files_autoprops,
+		      SYSCONFDIR "/autoproperties");
+	keys.add_path("THEME", _files_theme, DATADIR "/pekwm/themes/default");
+	keys.add_string("THEMEVARIANT", _files_theme_variant);
+	keys.add_path("ICONS", _files_icon_path, DATADIR "/pekwm/icons");
 
-	// Parse
 	section->parseKeyValues(keys.begin(), keys.end());
-
-	// Free up resources
-	for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+	keys.clear();
 }
 
 //! @brief Loads MOVERESIZE section of main configuration
@@ -369,25 +359,15 @@ Config::loadMoveResize(CfgParser::Entry *section)
 		return;
 	}
 
-	std::vector<CfgParserKey*> keys;
-	keys.push_back(new CfgParserKeyNumeric<int>("EDGEATTRACT",
-						    _moveresize_edgeattract, 0, 0));
-	keys.push_back(new CfgParserKeyNumeric<int>("EDGERESIST",
-						    _moveresize_edgeresist, 0, 0));
-	keys.push_back(new CfgParserKeyNumeric<int>("WINDOWATTRACT",
-						    _moveresize_woattract, 0, 0));
-	keys.push_back(new CfgParserKeyNumeric<int>("WINDOWRESIST",
-						    _moveresize_woresist, 0, 0));
-	keys.push_back(new CfgParserKeyBool("OPAQUEMOVE",
-					    _moveresize_opaquemove));
-	keys.push_back(new CfgParserKeyBool("OPAQUERESIZE",
-					    _moveresize_opaqueresize));
-
-	// Parse data
+	CfgParserKeys keys;
+	keys.add_numeric<int>("EDGEATTRACT", _moveresize_edgeattract, 0, 0);
+	keys.add_numeric<int>("EDGERESIST", _moveresize_edgeresist, 0, 0);
+	keys.add_numeric<int>("WINDOWATTRACT", _moveresize_woattract, 0, 0);
+	keys.add_numeric<int>("WINDOWRESIST", _moveresize_woresist, 0, 0);
+	keys.add_bool("OPAQUEMOVE", _moveresize_opaquemove);
+	keys.add_bool("OPAQUERESIZE", _moveresize_opaqueresize);
 	section->parseKeyValues(keys.begin(), keys.end());
-
-	// Free up resources
-	for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+	keys.clear();
 }
 
 //! @brief Loads SCREEN section of main configuration
@@ -402,68 +382,44 @@ Config::loadScreen(CfgParser::Entry *section)
 	// Parse data
 	std::string edge_size, workspace_names, trim_title, curr_head_selector;
 
-	std::vector<CfgParserKey*> keys;
-	keys.push_back(new CfgParserKeyBool("THEMEBACKGROUND",
-					    _screen_theme_background, true));
-	keys.push_back(new CfgParserKeyNumeric<uint>("WORKSPACES",
-						     _screen_workspaces, 4, 1));
-	keys.push_back(new CfgParserKeyNumeric<uint>("WORKSPACESPERROW",
-						     _screen_workspaces_per_row,
-						     0, 0));
-	keys.push_back(new CfgParserKeyString("WORKSPACENAMES", workspace_names));
-	keys.push_back(new CfgParserKeyString("EDGESIZE", edge_size));
-	keys.push_back(new CfgParserKeyBool("EDGEINDENT", _screen_edge_indent));
-	keys.push_back(new CfgParserKeyNumeric<int>("DOUBLECLICKTIME",
-						    _screen_doubleclicktime,
-						    250, 0));
-	keys.push_back(new CfgParserKeyString("TRIMTITLE", trim_title));
-	keys.push_back(new CfgParserKeyBool("FULLSCREENABOVE",
-					    _screen_fullscreen_above, true));
-	keys.push_back(new CfgParserKeyBool("FULLSCREENDETECT",
-					    _screen_fullscreen_detect, true));
-	keys.push_back(new CfgParserKeyBool("SHOWFRAMELIST",
-					    _screen_showframelist));
-	keys.push_back(new CfgParserKeyBool("SHOWSTATUSWINDOW",
-					    _screen_show_status_window));
-	keys.push_back(new CfgParserKeyBool("SHOWSTATUSWINDOWCENTEREDONROOT",
-					    _screen_show_status_window_on_root,
-					    false));
-	keys.push_back(new CfgParserKeyBool("SHOWCLIENTID",
-					    _screen_show_client_id));
-	keys.push_back(new CfgParserKeyNumeric<int>("SHOWWORKSPACEINDICATOR",
-						    _screen_show_workspace_indicator,
-						    500, 0));
-	keys.push_back(new CfgParserKeyNumeric<int>("WORKSPACEINDICATORSCALE",
-						    _screen_workspace_indicator_scale,
-						    16, 2));
-	keys.push_back(new CfgParserKeyNumeric<uint>("WORKSPACEINDICATOROPACITY",
-						     _screen_workspace_indicator_opacity,
-						     100, 0, 100));
-	keys.push_back(new CfgParserKeyBool("PLACENEW", _screen_place_new));
-	keys.push_back(new CfgParserKeyBool("FOCUSNEW", _screen_focus_new));
-	keys.push_back(new CfgParserKeyBool("FOCUSNEWCHILD",
-					    _screen_focus_new_child, true));
-	keys.push_back(new CfgParserKeyNumeric<uint>("FOCUSSTEALPROTECT",
-						     _screen_focus_steal_protect,
-						     0));
-	keys.push_back(new CfgParserKeyBool("HONOURRANDR",
-					    _screen_honour_randr, true));
-	keys.push_back(new CfgParserKeyBool("HONOURASPECTRATIO",
-					    _screen_honour_aspectratio, true));
-	keys.push_back(new CfgParserKeyString("CURRHEADSELECTOR",
-					      curr_head_selector, "CURSOR"));
-	keys.push_back(new CfgParserKeyBool("FONTDEFAULTX11",
-					    _screen_default_font_x11, false));
-	keys.push_back(new CfgParserKeyString("FONTCHARSETOVERRIDE",
-					      _screen_font_charset_override));
-	keys.push_back(new CfgParserKeyBool("REPORTALLCLIENTS",
-					    _screen_report_all_clients, false));
+	CfgParserKeys keys;
+	keys.add_bool("THEMEBACKGROUND", _screen_theme_background, true);
+	keys.add_numeric<uint>("WORKSPACES", _screen_workspaces, 4, 1);
+	keys.add_numeric<uint>("WORKSPACESPERROW", _screen_workspaces_per_row,
+			       0, 0);
+	keys.add_string("WORKSPACENAMES", workspace_names);
+	keys.add_string("EDGESIZE", edge_size);
+	keys.add_bool("EDGEINDENT", _screen_edge_indent);
+	keys.add_numeric<int>("DOUBLECLICKTIME", _screen_doubleclicktime,
+			      250, 0);
+	keys.add_string("TRIMTITLE", trim_title);
+	keys.add_bool("FULLSCREENABOVE", _screen_fullscreen_above, true);
+	keys.add_bool("FULLSCREENDETECT", _screen_fullscreen_detect, true);
+	keys.add_bool("SHOWFRAMELIST", _screen_showframelist);
+	keys.add_bool("SHOWSTATUSWINDOW", _screen_show_status_window);
+	keys.add_bool("SHOWSTATUSWINDOWCENTEREDONROOT",
+		      _screen_show_status_window_on_root, false);
+	keys.add_bool("SHOWCLIENTID", _screen_show_client_id);
+	keys.add_numeric<int>("SHOWWORKSPACEINDICATOR",
+			      _screen_show_workspace_indicator, 500, 0);
+	keys.add_numeric<int>("WORKSPACEINDICATORSCALE",
+			      _screen_workspace_indicator_scale, 16, 2);
+	keys.add_numeric<uint>("WORKSPACEINDICATOROPACITY",
+			       _screen_workspace_indicator_opacity,
+			       100, 0, 100);
+	keys.add_bool("PLACENEW", _screen_place_new);
+	keys.add_bool("FOCUSNEW", _screen_focus_new);
+	keys.add_bool("FOCUSNEWCHILD", _screen_focus_new_child, true);
+	keys.add_numeric<uint>("FOCUSSTEALPROTECT",
+			       _screen_focus_steal_protect, 0);
+	keys.add_bool("HONOURRANDR", _screen_honour_randr, true);
+	keys.add_bool("HONOURASPECTRATIO", _screen_honour_aspectratio, true);
+	keys.add_string("CURRHEADSELECTOR", curr_head_selector, "CURSOR");
+	keys.add_bool("FONTDEFAULTX11", _screen_default_font_x11, false);
+	keys.add_string("FONTCHARSETOVERRIDE", _screen_font_charset_override);
+	keys.add_bool("REPORTALLCLIENTS", _screen_report_all_clients, false);
 
-	// Parse data
 	section->parseKeyValues(keys.begin(), keys.end());
-
-	// Free up resources
-	for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 	keys.clear();
 
 	PFont::setTrimString(trim_title);
@@ -510,15 +466,11 @@ Config::loadScreen(CfgParser::Entry *section)
 
 	sub = section->findSection("UNIQUENAMES");
 	if (sub) {
-		keys.push_back(new CfgParserKeyBool("SETUNIQUE", _screen_client_unique_name));
-		keys.push_back(new CfgParserKeyString("PRE", _screen_client_unique_name_pre));
-		keys.push_back(new CfgParserKeyString("POST", _screen_client_unique_name_post));
+		keys.add_bool("SETUNIQUE", _screen_client_unique_name);
+		keys.add_string("PRE", _screen_client_unique_name_pre);
+		keys.add_string("POST", _screen_client_unique_name_post);
 
-		// Parse data
 		sub->parseKeyValues(keys.begin(), keys.end());
-
-		// Free up resources
-		for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 		keys.clear();
 	}
 }
@@ -540,22 +492,21 @@ Config::loadScreenPlacement(CfgParser::Entry *section)
 		Workspaces::setLayoutModels(tok);
 	}
 
-	std::vector<CfgParserKey*> keys;
-	keys.push_back(new CfgParserKeyBool("TRANSIENTONPARENT",
-					    _place_trans_parent, true));
+	CfgParserKeys keys;
+	keys.add_bool("TRANSIENTONPARENT", _place_trans_parent, true);
 	section->parseKeyValues(keys.begin(), keys.end());
-	for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 	keys.clear();
 
 	CfgParser::Entry *sub = section->findSection("SMART");
 	if (sub) {
-		keys.push_back(new CfgParserKeyBool("ROW", _screen_placement_row));
-		keys.push_back(new CfgParserKeyBool("LEFTTORIGHT", _screen_placement_ltr));
-		keys.push_back(new CfgParserKeyBool("TOPTOBOTTOM", _screen_placement_ttb));
-		keys.push_back(new CfgParserKeyNumeric<int>("OFFSETX", _screen_placement_offset_x, 0, 0));
-		keys.push_back(new CfgParserKeyNumeric<int>("OFFSETY", _screen_placement_offset_y, 0, 0));
+		keys.add_bool("ROW", _screen_placement_row);
+		keys.add_bool("LEFTTORIGHT", _screen_placement_ltr);
+		keys.add_bool("TOPTOBOTTOM", _screen_placement_ttb);
+		keys.add_numeric<int>("OFFSETX", _screen_placement_offset_x,
+				      0, 0);
+		keys.add_numeric<int>("OFFSETY", _screen_placement_offset_y,
+				      0, 0);
 		sub->parseKeyValues(keys.begin(), keys.end());
-		for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 		keys.clear();
 	}
 }
@@ -569,33 +520,24 @@ Config::loadMenu(CfgParser::Entry *section)
 		return;
 	}
 
-	std::vector<CfgParserKey*> keys;
+	CfgParserKeys keys;
 	std::string value_select, value_enter, value_exec;
 
-	keys.push_back(new CfgParserKeyString("SELECT", value_select, "MOTION", 0));
-	keys.push_back(new CfgParserKeyString("ENTER", value_enter,
-					      "BUTTONPRESS", 0));
-	keys.push_back(new CfgParserKeyString("EXEC", value_exec,
-					      "BUTTONRELEASE", 0));
-	keys.push_back(new CfgParserKeyBool("DISPLAYICONS", _menu_display_icons,
-					    true));
-	keys.push_back(new CfgParserKeyNumeric<uint>("FOCUSOPACITY",
-						     _menu_focus_opacity,
-						     100, 0, 100));
-	keys.push_back(new CfgParserKeyNumeric<uint>("UNFOCUSOPACITY",
-						     _menu_unfocus_opacity,
-						     100, 0, 100));
+	keys.add_string("SELECT", value_select, "MOTION", 0);
+	keys.add_string("ENTER", value_enter, "BUTTONPRESS", 0);
+	keys.add_string("EXEC", value_exec, "BUTTONRELEASE", 0);
+	keys.add_bool("DISPLAYICONS", _menu_display_icons, true);
+	keys.add_numeric<uint>("FOCUSOPACITY", _menu_focus_opacity,
+			       100, 0, 100);
+	keys.add_numeric<uint>("UNFOCUSOPACITY", _menu_unfocus_opacity,
+			       100, 0, 100);
 
-	// Parse data
 	section->parseKeyValues(keys.begin(), keys.end());
+	keys.clear();
 
 	_menu_select_mask = getMenuMask(value_select);
 	_menu_enter_mask = getMenuMask(value_enter);
 	_menu_exec_mask = getMenuMask(value_exec);
-
-	// Free up resources
-	for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
-	keys.clear();
 
 	// Parse icon size limits
 	CfgParser::Entry::entry_cit it(section->begin());
@@ -620,16 +562,14 @@ Config::loadMenuIcons(CfgParser::Entry *section)
 		return;
 	}
 
-	std::vector<CfgParserKey*> keys;
+	CfgParserKeys keys;
 	std::string minimum, maximum;
 
-	keys.push_back(new CfgParserKeyString("MINIMUM", minimum, "16x16", 3));
-	keys.push_back(new CfgParserKeyString("MAXIMUM", maximum, "16x16", 3));
+	keys.add_string("MINIMUM", minimum, "16x16", 3);
+	keys.add_string("MAXIMUM", maximum, "16x16", 3);
 
-	// Parse data
 	section->parseKeyValues(keys.begin(), keys.end());
-
-	for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+	keys.clear();
 
 	SizeLimits limits;
 	if (limits.parse(minimum, maximum)) {
@@ -647,25 +587,19 @@ Config::loadCmdDialog(CfgParser::Entry *section)
 		return;
 	}
 
-	std::vector<CfgParserKey*> keys;
+	CfgParserKeys keys;
 
-	keys.push_back(new CfgParserKeyBool("HISTORYUNIQUE",
-					    _cmd_dialog_history_unique));
-	keys.push_back(new CfgParserKeyNumeric<int>("HISTORYSIZE",
-						    _cmd_dialog_history_size,
-						    1024, 1));
-	keys.push_back(new CfgParserKeyPath("HISTORYFILE",
-					    _cmd_dialog_history_file,
-					    "~/.pekwm/history"));
-	keys.push_back(new CfgParserKeyNumeric<int>("HISTORYSAVEINTERVAL",
-						    _cmd_dialog_history_save_interval,
-						    16, 0));
+	keys.add_bool("HISTORYUNIQUE", _cmd_dialog_history_unique);
+	keys.add_numeric<int>("HISTORYSIZE", _cmd_dialog_history_size,
+			      1024, 1);
+	keys.add_path("HISTORYFILE", _cmd_dialog_history_file,
+		      "~/.pekwm/history"); // FIXME: use config directory
+	keys.add_numeric<int>("HISTORYSAVEINTERVAL",
+			      _cmd_dialog_history_save_interval, 16, 0);
 
 	section->parseKeyValues(keys.begin(), keys.end());
-
-	for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+	keys.clear();
 }
-
 //! @brief Loads the HARBOUR section of the main configuration
 void
 Config::loadHarbour(CfgParser::Entry *section)
@@ -674,29 +608,19 @@ Config::loadHarbour(CfgParser::Entry *section)
 		return;
 	}
 
-	std::vector<CfgParserKey*> keys;
+	CfgParserKeys keys;
 	std::string value_placement, value_orientation;
 
-	keys.push_back(new CfgParserKeyBool("ONTOP", _harbour_ontop, true));
-	keys.push_back(new CfgParserKeyBool("MAXIMIZEOVER",
-					    _harbour_maximize_over, false));
-	keys.push_back(new CfgParserKeyNumeric<int>("HEAD",
-						    _harbour_head_nr, 0, 0));
-	keys.push_back(new CfgParserKeyString("HEADNAME",
-					      _harbour_head, "", 0));
-	keys.push_back(new CfgParserKeyString("PLACEMENT",
-					      value_placement, "RIGHT", 0));
-	keys.push_back(new CfgParserKeyString("ORIENTATION",
-					      value_orientation, "TOPTOBOTTOM", 0));
-	keys.push_back(new CfgParserKeyNumeric<uint>("OPACITY",
-						     _harbour_opacity,
-						     100, 0, 100));
+	keys.add_bool("ONTOP", _harbour_ontop, true);
+	keys.add_bool("MAXIMIZEOVER", _harbour_maximize_over, false);
+	keys.add_numeric<int>("HEAD", _harbour_head_nr, 0, 0);
+	keys.add_string("HEADNAME", _harbour_head, "", 0);
+	keys.add_string("PLACEMENT", value_placement, "RIGHT", 0);
+	keys.add_string("ORIENTATION", value_orientation, "TOPTOBOTTOM", 0);
+	keys.add_numeric<uint>("OPACITY", _harbour_opacity, 100, 0, 100);
+	keys.add_numeric<uint>("OPACITY", _harbour_opacity, 100, 0, 100);
 
-	// Parse data
 	section->parseKeyValues(keys.begin(), keys.end());
-
-	// Free up resources
-	for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 	keys.clear();
 
 	// Convert opacity from percent to absolute value
@@ -715,16 +639,10 @@ Config::loadHarbour(CfgParser::Entry *section)
 
 	CfgParser::Entry *sub = section->findSection("DOCKAPP");
 	if (sub) {
-		keys.push_back(new CfgParserKeyNumeric<int>("SIDEMIN",
-							    _harbour_da_min_s, 64, 0));
-		keys.push_back(new CfgParserKeyNumeric<int>("SIDEMAX",
-							    _harbour_da_max_s, 64, 0));
+		keys.add_numeric<int>("SIDEMIN", _harbour_da_min_s, 64, 0);
+		keys.add_numeric<int>("SIDEMAX", _harbour_da_max_s, 64, 0);
 
-		// Parse data
 		sub->parseKeyValues(keys.begin(), keys.end());
-
-		// Free up resources
-		for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 		keys.clear();
 	}
 }

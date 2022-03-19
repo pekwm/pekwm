@@ -1,6 +1,6 @@
 //
 // pekwm_panel.cc for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -342,11 +342,11 @@ PanelConfig::loadPanel(CfgParser::Entry *section)
 	}
 
 	std::string placement;
-	std::vector<CfgParserKey*> keys;
-	keys.push_back(new CfgParserKeyString("PLACEMENT", placement, "TOP"));
-	keys.push_back(new CfgParserKeyNumeric<int>("HEAD", _head, -1));
+	CfgParserKeys keys;
+	keys.add_string("PLACEMENT", placement, "TOP");
+	keys.add_numeric<int>("HEAD", _head, -1);
 	section->parseKeyValues(keys.begin(), keys.end());
-	std::for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+	keys.clear();
 
 	_placement = Util::StringToGet(panel_placement_map, placement);
 }
@@ -364,13 +364,11 @@ PanelConfig::loadCommands(CfgParser::Entry *section)
 		uint interval = UINT_MAX;
 
 		if ((*it)->getSection()) {
-			std::vector<CfgParserKey*> keys;
-			keys.push_back(new CfgParserKeyNumeric<uint>("INTERVAL",
-								     interval,
-								     UINT_MAX));
-			(*it)->getSection()->parseKeyValues(keys.begin(), keys.end());
-			std::for_each(keys.begin(), keys.end(),
-				      Util::Free<CfgParserKey*>());
+			CfgParserKeys keys;
+			keys.add_numeric<uint>("INTERVAL", interval, UINT_MAX);
+			(*it)->getSection()->parseKeyValues(keys.begin(),
+							    keys.end());
+			keys.clear();
 		}
 		_commands.push_back(CommandConfig((*it)->getValue(), interval));
 	}
@@ -391,13 +389,11 @@ PanelConfig::loadWidgets(CfgParser::Entry *section)
 
 		CfgParser::Entry *w_section = (*it)->getSection();
 		if (w_section) {
-			std::vector<CfgParserKey*> keys;
-			keys.push_back(new CfgParserKeyNumeric<uint>("INTERVAL",
-								     interval, UINT_MAX));
-			keys.push_back(new CfgParserKeyString("SIZE", size, "REQUIRED"));
+			CfgParserKeys keys;
+			keys.add_numeric<uint>("INTERVAL", interval, UINT_MAX);
+			keys.add_string("SIZE", size, "REQUIRED");
 			w_section->parseKeyValues(keys.begin(), keys.end());
-			std::for_each(keys.begin(), keys.end(),
-				      Util::Free<CfgParserKey*>());
+			keys.clear();
 		}
 
 		SizeReq size_req = parseSize(size);
@@ -1217,22 +1213,16 @@ PanelTheme::load(const std::string &theme_dir, const std::string& theme_path)
 
 	std::string background, separator, handle, bar_border, bar_fill;
 	uint opacity;
-	std::vector<CfgParserKey*> keys;
-	keys.push_back(new CfgParserKeyString("BACKGROUND",
-					      background, DEFAULT_BACKGROUND));
-	keys.push_back(new CfgParserKeyNumeric<uint>("BACKGROUNDOPACITY",
-						     opacity, 100));
-	keys.push_back(new CfgParserKeyNumeric<uint>("HEIGHT",
-						     _height, DEFAULT_HEIGHT));
-	keys.push_back(new CfgParserKeyString("SEPARATOR",
-					      separator, DEFAULT_SEPARATOR));
-	keys.push_back(new CfgParserKeyString("HANDLE", handle, ""));
-	keys.push_back(new CfgParserKeyString("BARBORDER", bar_border,
-					      DEFAULT_BAR_BORDER));
-	keys.push_back(new CfgParserKeyString("BARFILL", bar_fill,
-					      DEFAULT_BAR_FILL));
+	CfgParserKeys keys;
+	keys.add_string("BACKGROUND", background, DEFAULT_BACKGROUND);
+	keys.add_numeric<uint>("BACKGROUNDOPACITY", opacity, 100);
+	keys.add_numeric<uint>("HEIGHT", _height, DEFAULT_HEIGHT);
+	keys.add_string("SEPARATOR", separator, DEFAULT_SEPARATOR);
+	keys.add_string("HANDLE", handle, "");
+	keys.add_string("BARBORDER", bar_border, DEFAULT_BAR_BORDER);
+	keys.add_string("BARFILL", bar_fill, DEFAULT_BAR_FILL);
 	section->parseKeyValues(keys.begin(), keys.end());
-	std::for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+	keys.clear();
 
 	ImageHandler *ih = pekwm::imageHandler();
 	ih->path_clear();
@@ -1295,11 +1285,11 @@ PanelTheme::loadState(CfgParser::Entry *section, ClientState state)
 	}
 
 	std::string font, color;
-	std::vector<CfgParserKey*> keys;
-	keys.push_back(new CfgParserKeyString("FONT", font, DEFAULT_FONT));
-	keys.push_back(new CfgParserKeyString("COLOR", color, "#000000"));
+	CfgParserKeys keys;
+	keys.add_string("FONT", font, DEFAULT_FONT);
+	keys.add_string("COLOR", color, "#000000");
 	section->parseKeyValues(keys.begin(), keys.end());
-	std::for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+	keys.clear();
 
 	_fonts[state] = pekwm::fontHandler()->getFont(font);
 	_colors[state] = pekwm::fontHandler()->getColor(color);
@@ -2098,10 +2088,10 @@ void
 TextWidget::parseText(const CfgParser::Entry* section)
 {
 	std::string transform;
-	std::vector<CfgParserKey*> keys;
-	keys.push_back(new CfgParserKeyString("TRANSFORM", transform));
+	CfgParserKeys keys;
+	keys.add_string("TRANSFORM", transform);
 	section->parseKeyValues(keys.begin(), keys.end());
-	std::for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+	keys.clear();
 
 	if (transform.size() > 0) {
 		_transform.parse_ed_s(transform);
@@ -2295,13 +2285,13 @@ void
 IconWidget::parseIcon(const CfgParser::Entry* section)
 {
 	std::string name, transform;
-	std::vector<CfgParserKey*> keys;
-	keys.push_back(new CfgParserKeyString("ICON", name));
-	keys.push_back(new CfgParserKeyString("TRANSFORM", transform));
-	keys.push_back(new CfgParserKeyBool("SCALE", _scale));
-	keys.push_back(new CfgParserKeyString("EXEC", _exec));
+	CfgParserKeys keys;
+	keys.add_string("ICON", name);
+	keys.add_string("TRANSFORM", transform);
+	keys.add_bool("SCALE", _scale);
+	keys.add_string("EXEC", _exec);
 	section->parseKeyValues(keys.begin(), keys.end());
-	std::for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+	keys.clear();
 
 	size_t pos = name.find_last_of(".");
 	if (pos == std::string::npos) {

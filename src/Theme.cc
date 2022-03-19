@@ -1,5 +1,6 @@
 //
 // Theme.cc for pekwm
+// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2003-2021 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -301,28 +302,21 @@ Theme::PDecorData::load(CfgParser::Entry *section)
 	_loaded = true;
 
 	std::vector<std::string> tok;
-	std::vector<CfgParserKey*> keys;
+	CfgParserKeys keys;
 	std::string value_pad, value_focused, value_unfocused;
 
-	keys.push_back(new CfgParserKeyNumeric<int>("HEIGHT",
-						    _title_height, 10, 0));
-	keys.push_back(new CfgParserKeyNumeric<int>("WIDTHMIN",
-						    _title_width_min, 0));
-	keys.push_back(new CfgParserKeyNumeric<int>("WIDTHMAX",
-						    _title_width_max, 100, 0, 100));
-	keys.push_back(new CfgParserKeyBool("WIDTHSYMETRIC",
-					    _title_width_symetric));
-	keys.push_back(new CfgParserKeyBool("HEIGHTADAPT", _title_height_adapt));
-	keys.push_back(new CfgParserKeyString("PAD", value_pad, "0 0 0 0", 7));
-	keys.push_back(new CfgParserKeyString("FOCUSED", value_focused,
-					      "Empty", _th->getLengthMin()));
-	keys.push_back(new CfgParserKeyString("UNFOCUSED", value_unfocused,
-					      "Empty", _th->getLengthMin()));
+	keys.add_numeric<int>("HEIGHT", _title_height, 10, 0);
+	keys.add_numeric<int>("WIDTHMIN", _title_width_min, 0);
+	keys.add_numeric<int>("WIDTHMAX", _title_width_max, 100, 0, 100);
+	keys.add_bool("WIDTHSYMETRIC", _title_width_symetric);
+	keys.add_bool("HEIGHTADAPT", _title_height_adapt);
+	keys.add_string("PAD", value_pad, "0 0 0 0", 7);
+	keys.add_string("FOCUSED", value_focused, "Empty",
+			_th->getLengthMin());
+	keys.add_string("UNFOCUSED", value_unfocused, "Empty",
+			_th->getLengthMin());
 
-	// Free up resources
 	title_section->parseKeyValues(keys.begin(), keys.end());
-
-	for_each (keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 	keys.clear();
 
 	// Handle parsed data.
@@ -344,16 +338,12 @@ Theme::PDecorData::load(CfgParser::Entry *section)
 	CfgParser::Entry *separator_section =
 		title_section->findSection("SEPARATOR");
 	if (separator_section) {
-		keys.push_back(new CfgParserKeyString("FOCUSED", value_focused,
-						      "Empty", _th->getLengthMin()));
-		keys.push_back(new CfgParserKeyString("UNFOCUSED", value_unfocused,
-						      "Empty", _th->getLengthMin()));
+		keys.add_string("FOCUSED", value_focused, "Empty",
+				_th->getLengthMin());
+		keys.add_string("UNFOCUSED", value_unfocused, "Empty",
+				_th->getLengthMin());
 
-		// Parse data
 		separator_section->parseKeyValues(keys.begin(), keys.end());
-
-		// Free up resources
-		for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 		keys.clear();
 
 		// Handle parsed data.
@@ -721,25 +711,22 @@ Theme::PMenuData::check(void)
 void
 Theme::PMenuData::loadState(CfgParser::Entry *section, ObjectState state)
 {
-	std::vector<CfgParserKey*> keys;
+	CfgParserKeys keys;
 	std::string value_font, value_background, value_item;
 	std::string value_text, value_arrow, value_separator;
 
-	keys.push_back(new CfgParserKeyString("FONT", value_font));
-	keys.push_back(new CfgParserKeyString("BACKGROUND", value_background,
-					      "Solid #ffffff"));
-	keys.push_back(new CfgParserKeyString("ITEM", value_item, "Solid #ffffff"));
-	keys.push_back(new CfgParserKeyString("TEXT", value_text, "#000000"));
-	keys.push_back(new CfgParserKeyString("ARROW", value_arrow,
-					      "Solid #000000 2x2"));
+	keys.add_string("FONT", value_font);
+	keys.add_string("BACKGROUND", value_background, "Solid #ffffff");
+	keys.add_string("ITEM", value_item, "Solid #ffffff");
+	keys.add_string("TEXT", value_text, "#000000");
+	keys.add_string("ARROW", value_arrow, "Solid #000000 2x2");
 	if (state < OBJECT_STATE_SELECTED) {
-		keys.push_back(new CfgParserKeyString("SEPARATOR", value_separator,
-						      "Solid #000000 1x1"));
+		keys.add_string("SEPARATOR", value_separator,
+				"Solid #000000 1x1");
 	}
 
 	section->parseKeyValues(keys.begin(), keys.end());
-
-	for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+	keys.clear();
 
 	// Handle parsed data.
 	_font[state] = _fh->getFont(value_font);
@@ -783,18 +770,16 @@ Theme::TextDialogData::load(CfgParser::Entry *section)
 	}
 	_loaded = true;
 
-	std::vector<CfgParserKey*> keys;
+	CfgParserKeys keys;
 	std::string value_font, value_text, value_texture, value_pad;
 
-	keys.push_back(new CfgParserKeyString("FONT", value_font));
-	keys.push_back(new CfgParserKeyString("TEXT", value_text, "#000000"));
-	keys.push_back(new CfgParserKeyString("TEXTURE", value_texture,
-					      "Solid #ffffff"));
-	keys.push_back(new CfgParserKeyString("PAD", value_pad, "0 0 0 0", 7));
+	keys.add_string("FONT", value_font);
+	keys.add_string("TEXT", value_text, "#000000");
+	keys.add_string("TEXTURE", value_texture, "Solid #ffffff");
+	keys.add_string("PAD", value_pad, "0 0 0 0", 7);
 
 	section->parseKeyValues(keys.begin(), keys.end());
-
-	for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+	keys.clear();
 
 	// Handle parsed data.
 	_font = _fh->getFont(value_font);
@@ -884,24 +869,21 @@ Theme::WorkspaceIndicatorData::load(CfgParser::Entry *section)
 	}
 	_loaded = true;
 
-	std::vector<CfgParserKey*> keys;
+	CfgParserKeys keys;
 
 	std::string value_font, value_color, value_tex_bg;
 	std::string value_tex_ws, value_tex_ws_act;
 
-	keys.push_back(new CfgParserKeyString("FONT", value_font));
-	keys.push_back(new CfgParserKeyString("TEXT", value_color));
-	keys.push_back(new CfgParserKeyString("BACKGROUND", value_tex_bg));
-	keys.push_back(new CfgParserKeyString("WORKSPACE", value_tex_ws));
-	keys.push_back(new CfgParserKeyString("WORKSPACEACTIVE", value_tex_ws_act));
-	keys.push_back(new CfgParserKeyNumeric<int>("EDGEPADDING", edge_padding,
-						    5, 0));
-	keys.push_back(new CfgParserKeyNumeric<int>("WORKSPACEPADDING",
-						    workspace_padding,
-						    2, 0));
+	keys.add_string("FONT", value_font);
+	keys.add_string("TEXT", value_color);
+	keys.add_string("BACKGROUND", value_tex_bg);
+	keys.add_string("WORKSPACE", value_tex_ws);
+	keys.add_string("WORKSPACEACTIVE", value_tex_ws_act);
+	keys.add_numeric<int>("EDGEPADDING", edge_padding, 5, 0);
+	keys.add_numeric<int>("WORKSPACEPADDING", workspace_padding, 2, 0);
 
 	section->parseKeyValues(keys.begin(), keys.end());
-	for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+	keys.clear();
 
 	font = _fh->getFont(value_font);
 	font_color = _fh->getColor(value_color);
@@ -999,17 +981,15 @@ Theme::DialogData::load(CfgParser::Entry *section)
 
 	std::string val_bg, val_bfont, val_btext, val_font, val_text,
 		val_tfont, val_ttext, val_pad;
-	std::vector<CfgParserKey*> keys;
-	keys.push_back(new CfgParserKeyString("BACKGROUND", val_bg,
-					      "Solid #ffffff"));
-	keys.push_back(new CfgParserKeyString("FONT", val_font, DEFAULT_FONT));
-	keys.push_back(new CfgParserKeyString("TEXT", val_text, "#000000"));
-	keys.push_back(new CfgParserKeyString("TITLEFONT", val_tfont,
-					      DEFAULT_LARGE_FONT));
-	keys.push_back(new CfgParserKeyString("TITLECOLOR", val_ttext, "#000000"));
-	keys.push_back(new CfgParserKeyString("PAD", val_pad, "0 0 0 0", 7));
+	CfgParserKeys keys;
+	keys.add_string("BACKGROUND", val_bg, "Solid #ffffff");
+	keys.add_string("FONT", val_font, DEFAULT_FONT);
+	keys.add_string("TEXT", val_text, "#000000");
+	keys.add_string("TITLEFONT", val_tfont, DEFAULT_LARGE_FONT);
+	keys.add_string("TITLECOLOR", val_ttext, "#000000");
+	keys.add_string("PAD", val_pad, "0 0 0 0", 7);
 	section->parseKeyValues(keys.begin(), keys.end());
-	std::for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+	keys.clear();
 
 	// Handle parsed data.
 	_background = _th->getTexture(val_bg);
@@ -1022,15 +1002,15 @@ Theme::DialogData::load(CfgParser::Entry *section)
 	CfgParser::Entry *button = section->findSection("BUTTON");
 	if (button != nullptr) {
 		std::string val_fo, val_un, val_pr, val_ho;
-		std::vector<CfgParserKey*> bkeys;
-		bkeys.push_back(new CfgParserKeyString("FONT", val_font, DEFAULT_FONT));
-		bkeys.push_back(new CfgParserKeyString("TEXT", val_text, "#000000"));
-		bkeys.push_back(new CfgParserKeyString("FOCUSED", val_fo));
-		bkeys.push_back(new CfgParserKeyString("UNFOCUSED", val_un));
-		bkeys.push_back(new CfgParserKeyString("PRESSED", val_pr));
-		bkeys.push_back(new CfgParserKeyString("HOOVER", val_ho));
+		CfgParserKeys bkeys;
+		bkeys.add_string("FONT", val_font, DEFAULT_FONT);
+		bkeys.add_string("TEXT", val_text, "#000000");
+		bkeys.add_string("FOCUSED", val_fo);
+		bkeys.add_string("UNFOCUSED", val_un);
+		bkeys.add_string("PRESSED", val_pr);
+		bkeys.add_string("HOOVER", val_ho);
 		button->parseKeyValues(bkeys.begin(), bkeys.end());
-		for_each(bkeys.begin(), bkeys.end(), Util::Free<CfgParserKey*>());
+		bkeys.clear();
 
 		_button_font = _fh->getFont(val_font);
 		_button_color = _fh->getColor(val_text);
@@ -1319,13 +1299,12 @@ Theme::loadThemeRequire(CfgParser &theme_cfg, std::string &file)
 	// Look for requires section,
 	section = theme_cfg.getEntryRoot()->findSection("REQUIRE");
 	if (section) {
-		std::vector<CfgParserKey*> keys;
+		CfgParserKeys keys;
 		bool value_templates;
 
-		keys.push_back(new CfgParserKeyBool("TEMPLATES", value_templates,
-						    false));
+		keys.add_bool("TEMPLATES", value_templates, false);
 		section->parseKeyValues(keys.begin(), keys.end());
-		for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+		keys.clear();
 
 		// Re-load configuration with templates enabled.
 		if (value_templates) {
@@ -1339,10 +1318,10 @@ Theme::loadThemeRequire(CfgParser &theme_cfg, std::string &file)
 void
 Theme::loadVersion(CfgParser::Entry* root)
 {
-	std::vector<CfgParserKey*> keys;
-	keys.push_back(new CfgParserKeyNumeric<int>("VERSION", _version));
+	CfgParserKeys keys;
+	keys.add_numeric<int>("VERSION", _version);
 	root->parseKeyValues(keys.begin(), keys.end());
-	std::for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+	keys.clear();
 }
 
 void
@@ -1353,10 +1332,10 @@ Theme::loadBackground(CfgParser::Entry* section)
 		return;
 	}
 
-	std::vector<CfgParserKey*> keys;
-	keys.push_back(new CfgParserKeyString("TEXTURE", _background, ""));
+	CfgParserKeys keys;
+	keys.add_string("TEXTURE", _background, "");
 	section->parseKeyValues(keys.begin(), keys.end());
-	std::for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+	keys.clear();
 }
 
 void

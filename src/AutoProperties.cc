@@ -262,11 +262,11 @@ AutoProperties::loadRequire(CfgParser &a_cfg, std::string &file)
 	// Look for requires section,
 	CfgParser::Entry *section = a_cfg.getEntryRoot()->findSection("REQUIRE");
 	if (section) {
-		std::vector<CfgParserKey*> keys;
+		CfgParserKeys keys;
 
-		keys.push_back(new CfgParserKeyBool("TEMPLATES", _extended, false));
+		keys.add_bool("TEMPLATES", _extended, false);
 		section->parseKeyValues(keys.begin(), keys.end());
-		for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+		keys.clear();
 
 		// Re-load configuration with templates enabled.
 		if (_extended) {
