@@ -1081,18 +1081,18 @@ Config::ensureConfigDirExists(const std::string &cfg_dir)
 	// Ensure that the config directory has write end execute bits set.
 	bool cfg_dir_ok = false;
 	if (getuid() == sb.st_uid) {
-		if (sb.st_mode&(S_IWUSR|S_IXUSR) == (S_IWUSR|S_IXUSR)) {
+		if ((sb.st_mode&(S_IWUSR|S_IXUSR)) == (S_IWUSR|S_IXUSR)) {
 			cfg_dir_ok = true;
 		}
 	}
 	if (! cfg_dir_ok && getgid() == sb.st_gid) {
-		if (sb.st_mode&(S_IWGRP|S_IXGRP) == (S_IWGRP|S_IXGRP)) {
+		if ((sb.st_mode&(S_IWGRP|S_IXGRP)) == (S_IWGRP|S_IXGRP)) {
 			cfg_dir_ok = true;
 		}
 	}
 
 	if (! cfg_dir_ok) {
-		if (sb.st_mode&(S_IWOTH|S_IXOTH) == (S_IWOTH|S_IXOTH)) {
+		if ((sb.st_mode&(S_IWOTH|S_IXOTH)) == (S_IWOTH|S_IXOTH)) {
 			cfg_dir_ok = true;
 		} else {
 			USER_WARN("no write on " << cfg_dir << " directory."
