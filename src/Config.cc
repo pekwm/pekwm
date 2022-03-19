@@ -396,7 +396,6 @@ Config::loadScreen(CfgParser::Entry *section)
 
 	// Parse data
 	std::string edge_size, workspace_names, trim_title, curr_head_selector;
-	CfgParser::Entry *value;
 
 	std::vector<CfgParserKey*> keys;
 	keys.push_back(new CfgParserKeyBool("THEMEBACKGROUND",
@@ -498,33 +497,7 @@ Config::loadScreen(CfgParser::Entry *section)
 		Util::StringToGet(curr_head_selector_map, curr_head_selector);
 
 	CfgParser::Entry *sub = section->findSection("PLACEMENT");
-	if (sub) {
-		value = sub->findEntry("MODEL");
-		if (value) {
-			Workspace::setDefaultLayouter(value->getValue());
-		}
-
-		CfgParser::Entry *sub_2 = sub->findSection("SMART");
-		if (sub_2) {
-			keys.push_back(new CfgParserKeyBool("ROW", _screen_placement_row));
-			keys.push_back(new CfgParserKeyBool("LEFTTORIGHT", _screen_placement_ltr));
-			keys.push_back(new CfgParserKeyBool("TOPTOBOTTOM", _screen_placement_ttb));
-			keys.push_back(new CfgParserKeyNumeric<int>("OFFSETX", _screen_placement_offset_x, 0, 0));
-			keys.push_back(new CfgParserKeyNumeric<int>("OFFSETY", _screen_placement_offset_y, 0, 0));
-
-			// Do the parsing
-			sub_2->parseKeyValues(keys.begin(), keys.end());
-
-			// Freeup resources
-			for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
-			keys.clear();
-		}
-
-		keys.push_back(new CfgParserKeyBool("TRANSIENTONPARENT", _place_trans_parent, true));
-		sub->parseKeyValues(keys.begin(), keys.end());
-		for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
-		keys.clear();
-	}
+	loadScreenPlacement(sub);
 
 	sub = section->findSection("UNIQUENAMES");
 	if (sub) {
@@ -536,6 +509,43 @@ Config::loadScreen(CfgParser::Entry *section)
 		sub->parseKeyValues(keys.begin(), keys.end());
 
 		// Free up resources
+		for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+		keys.clear();
+	}
+}
+
+/**
+ * Load Placement sub section of the Screen section.
+ */
+void
+Config::loadScreenPlacement(CfgParser::Entry *section)
+{
+	if (section == nullptr) {
+		return;
+	}
+
+	CfgParser::Entry *value = section->findEntry("MODEL");
+	if (value) {
+		std::vector<std::string> tok;
+		Util::splitString(value->getValue(), tok, " \t");
+		Workspaces::setLayoutModels(tok);
+	}
+
+	std::vector<CfgParserKey*> keys;
+	keys.push_back(new CfgParserKeyBool("TRANSIENTONPARENT",
+					    _place_trans_parent, true));
+	section->parseKeyValues(keys.begin(), keys.end());
+	for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
+	keys.clear();
+
+	CfgParser::Entry *sub = section->findSection("SMART");
+	if (sub) {
+		keys.push_back(new CfgParserKeyBool("ROW", _screen_placement_row));
+		keys.push_back(new CfgParserKeyBool("LEFTTORIGHT", _screen_placement_ltr));
+		keys.push_back(new CfgParserKeyBool("TOPTOBOTTOM", _screen_placement_ttb));
+		keys.push_back(new CfgParserKeyNumeric<int>("OFFSETX", _screen_placement_offset_x, 0, 0));
+		keys.push_back(new CfgParserKeyNumeric<int>("OFFSETY", _screen_placement_offset_y, 0, 0));
+		sub->parseKeyValues(keys.begin(), keys.end());
 		for_each(keys.begin(), keys.end(), Util::Free<CfgParserKey*>());
 		keys.clear();
 	}
