@@ -61,6 +61,76 @@ namespace StringUtil {
 	bool ascii_ncase_equal(const char *lhs, const char *rhs);
 }
 
+namespace Generator {
+
+	/**
+	 * Generate a sequence of numbers from start to num, wrapping at num
+	 * if start is > 0.
+	 *
+	 * For start=3, max=5 the sequence: 3, 4, 0, 1, 2 is produced.
+	 */
+	template<typename T>
+	class RangeWrap {
+	public:
+		RangeWrap(T start, T max, T step=1)
+			: _start(start),
+			  _max(max),
+			  _step(step)
+		{
+			reset();
+		}
+
+		/**
+		 * Reset generator, allowing for a full set of values to be
+		 * returned.
+		 */
+		void reset(void)
+		{
+			_curr = _start;
+			_wrapped = false;
+		}
+
+		/** Return true if the end has been reached */
+		bool is_end(void) const
+		{
+			if (_start == 0) {
+				return _curr >= _max;
+			}
+			return _wrapped && _curr >= _start;
+		}
+
+		/** Return current value. */
+		T operator*(void) const { return _curr; }
+
+		/**
+		 * Move generator to next value, unless end has been reached
+		 * and nothing is done.
+		 */
+		RangeWrap<T>& operator++(void)
+		{
+			if (is_end()) {
+				return *this;
+			}
+
+			_curr += _step;
+			if (_curr >= _max) {
+				if (! _start == 0 && ! _wrapped) {
+					_curr -= _max;
+					_wrapped = true;
+				}
+			}
+			return *this;
+		}
+
+	private:
+		T _start; /**< start value for generator */
+		T _max; /** < max value (exclusive) */
+		T _step; /** increment with step for each round. */
+		T _curr; /**< current value */
+		bool _wrapped; /**< set to true if end has been reached */
+	};
+}
+
 namespace Util {    
 	template<typename T>
 	class StringMap : public std::map<StringUtil::Key, T> {

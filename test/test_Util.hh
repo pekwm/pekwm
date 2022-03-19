@@ -13,8 +13,11 @@
 
 class TestStringUtil : public TestSuite {
 public:
-	TestStringUtil()
+	TestStringUtil(void)
 		: TestSuite("StringUtil")
+	{
+	}
+	virtual ~TestStringUtil(void)
 	{
 	}
 
@@ -125,6 +128,73 @@ TestStringUtil::assertShellSplit(std::string msg, std::string str,
 		ASSERT_EQUAL(msg + " res[" + is + "]",
 			     expected[i], res[i]);
 	}
+}
+
+class TestGenerator : public TestSuite {
+public:
+	TestGenerator(void)
+		: TestSuite("Generator")
+	{
+	}
+	virtual ~TestGenerator(void) { }
+
+	virtual bool run_test(TestSpec spec, bool status);
+
+private:
+	static void testRangeWrap(void);
+	static void assertRangeWrap(const std::string &name,
+				    Generator::RangeWrap<int> &r,
+				    int *expected, int num_expected);
+};
+
+bool
+TestGenerator::run_test(TestSpec spec, bool status)
+{
+	TEST_FN(spec, "RangeWrap", testRangeWrap());
+	return status;
+}
+
+void
+TestGenerator::testRangeWrap(void)
+{
+	// empty
+	int e_empty[] = { -1 };
+	Generator::RangeWrap<int> r_empty(0, 0);
+	assertRangeWrap("empty (1)", r_empty, e_empty, 0);
+
+	// single value
+	int e_single[] = { 0 };
+	Generator::RangeWrap<int> r_single(0, 1);
+	assertRangeWrap("single (1)", r_single, e_single, 1);
+
+	// start from 0, step 1
+	int e1[] = { 0, 1, 2 };
+	Generator::RangeWrap<int> r1(0, 3);
+	assertRangeWrap("0-3 (1)", r1, e1, 3);
+
+	// start from middle, step 1
+	int e2[] = { 3, 4, 5, 0, 1, 2 };
+	Generator::RangeWrap<int> r2(3, 6);
+	assertRangeWrap("3-5,0-2 (1)", r2, e2, 6);
+
+	// start from 0, step 3
+	int e3[] = { 0, 3, 6, 9 };
+	Generator::RangeWrap<int> r3(0, 10, 3);
+	assertRangeWrap("0,3,6,9 (3)", r3, e3, 4);
+}
+
+void
+TestGenerator::assertRangeWrap(const std::string &name,
+			       Generator::RangeWrap<int> &r,
+			       int *expected, int num_expected)
+{
+	for (int i = 0; i < num_expected; i++, ++r) {
+		std::string i_name = name + " " + std::to_string(i);
+		ASSERT_EQUAL(i_name + " too few values", false, r.is_end());
+		ASSERT_EQUAL(i_name + " incorrect value", expected[i], *r);
+	}
+	ASSERT_EQUAL(name + " too many values",
+		     true, r.is_end());
 }
 
 class TestUtil : public TestSuite {
