@@ -36,29 +36,26 @@ extern "C" {
 
 // Workspace
 
+Workspace::Workspace(void)
+	: _last_focused(nullptr)
+{
+}
+
+Workspace::Workspace(const Workspace &w)
+	: _name(w._name),
+	  _last_focused(w._last_focused)
+{
+}
+
 Workspace::~Workspace(void)
 {
-	delete _layouter;
 }
 
 Workspace &Workspace::operator=(const Workspace &w)
 {
 	_name = w._name;
-	delete _layouter;
-	_layouter = w._layouter;
-	w._layouter = 0;
 	_last_focused = w._last_focused;
 	return *this;
-}
-
-void
-Workspace::setDefaultLayouter(const std::string &layo)
-{
-	WinLayouter *wl = WinLayouterFactory(layo);
-	if (wl) {
-		delete _default_layouter;
-		_default_layouter = wl;
-	}
 }
 
 /**
@@ -94,12 +91,11 @@ Workspace::setLastFocused(PWinObj* wo)
 uint Workspaces::_active;
 uint Workspaces::_previous;
 uint Workspaces::_per_row;
+std::vector<WinLayouter*> Workspaces::_layout_models;
 std::vector<PWinObj*> Workspaces::_wobjs;
 std::vector<Workspace> Workspaces::_workspaces;
 std::vector<Frame*> Workspaces::_mru;
 WorkspaceIndicator* Workspaces::_workspace_indicator = nullptr;
-
-WinLayouter *Workspace::_default_layouter = WinLayouterFactory("SMART");
 
 void
 Workspaces::init(void)
@@ -110,6 +106,7 @@ Workspaces::init(void)
 void
 Workspaces::cleanup()
 {
+	clearLayoutModels();
 	delete _workspace_indicator;
 }
 
@@ -159,6 +156,33 @@ Workspaces::setNames(void)
 	for (; i<size; ++i) {
 		_workspaces[i].setName(pekwm::config()->getWorkspaceName(i));
 	}
+}
+
+/**
+ * Set layout models from provided string vector.
+ */
+void
+Workspaces::setLayoutModels(const std::vector<std::string> &models)
+{
+	clearLayoutModels();
+	std::vector<std::string>::const_iterator it(models.begin());
+	for (; it != models.end(); ++it) {
+		WinLayouter *lm = WinLayouterFactory(*it);
+		if (lm != nullptr) {
+			_layout_models.push_back(lm);
+		}
+	}
+}
+
+void
+Workspaces::clearLayoutModels(void)
+{
+	std::vector<WinLayouter*>::iterator it(_layout_models.begin());
+	for (; it != _layout_models.end(); ++it) {
+		delete *it;
+	}
+	_layout_models.clear();
+
 }
 
 //! @brief Activates Workspace workspace and sets the right hints
@@ -389,6 +413,97 @@ Workspaces::fixStacking(PWinObj *pwo)
 		Window winlist[] = { (*it)->getWindow(), pwo->getWindow() };
 		X11::stackWindows(winlist, 2);
 	}
+}
+
+/**
+ * Place window based on the current placement model.
+ */
+void
+Workspaces::layout(Frame *frame, Window parent)
+{
+	if (frame == nullptr) {
+		return;
+	}
+
+	frame->updateDecor();
+
+	if (parent != None
+	    && pekwm::config()->placeTransOnParent()
+	    && placeOnParent(frame, parent)) {
+		return;
+	}
+
+	// Collect the information which head has a fullscreen window.
+	// To be conservative for now we ignore fullscreen windows on
+	// the desktop or normal layer, because it might be a file
+	// manager in desktop mode, for example.
+	std::vector<bool> fsHead(X11::getNumHeads(), false);
+	Workspaces::const_iterator it(Workspaces::begin()),
+		end(Workspaces::end());
+	for (; it != end; ++it) {
+		if ((*it)->isMapped() && (*it)->getType() == PWinObj::WO_FRAME) {
+			Client *client = static_cast<Frame*>(*it)->getActiveClient();
+			if (client && client->isFullscreen()
+			    && client->getLayer()>LAYER_NORMAL) {
+				fsHead[client->getHead()] = true;
+			}
+		}
+	}
+
+	// Try to place the window
+	Geometry gm;
+	CurrHeadSelector chs = pekwm::config()->getCurrHeadSelector();
+	int head_nr = X11Util::getCurrHead(chs);
+
+	// update pointer position cache, used in layout models.
+	int ptr_x, ptr_y;
+	X11::getMousePosition(ptr_x, ptr_y);
+
+	Generator::RangeWrap<int> range(head_nr, X11::getNumHeads());
+	for (; ! range.is_end(); ++range) {
+		if (! fsHead[*range]) {
+			pekwm::rootWo()->getHeadInfoWithEdge(*range, gm);
+			if (layoutOnHead(frame, parent, gm, ptr_x, ptr_y)) {
+				return;
+			}
+		}
+	}
+
+	// Failed to place the window, so put it in the top-left corner
+	// trying to avoid heads with a fullscreen window on it.
+	for (range.reset(); ! range.is_end(); ++range) {
+		if (! fsHead[*range]) {
+			break;
+		}
+	}
+
+	pekwm::rootWo()->getHeadInfoWithEdge(*range, gm);
+	frame->move(gm.x, gm.y);
+}
+
+bool
+Workspaces::layoutOnHead(PWinObj *wo, Window parent, const Geometry &gm,
+			 int ptr_x, int ptr_y)
+{
+	std::vector<WinLayouter*>::iterator it(_layout_models.begin());
+	for (; it != _layout_models.end(); ++it) {
+		if ((*it)->layout(wo, parent, gm, ptr_x, ptr_y)) {
+			return true;
+		}
+	}
+	return false;
+}
+
+bool
+Workspaces::placeOnParent(PWinObj *wo, Window parent)
+{
+	PWinObj *wo_s = PWinObj::findPWinObj(parent);
+	if (wo_s) {
+		Geometry gm = wo_s->getGeometry().center(wo->getGeometry());
+		wo->move(gm.x, gm.y);
+		return true;
+	}
+	return false;
 }
 
 /**

@@ -1,6 +1,6 @@
 //
 // Workspaces.hh for pekwm
-// Copyright (C) 2002-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2002-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -22,32 +22,20 @@ class Frame;
 
 class Workspace {
 public:
-	Workspace() : _name(), _layouter(0), _last_focused(0) { }
-	Workspace(const Workspace &w) : _name(w._name), _layouter(w._layouter),
-					_last_focused(w._last_focused)
-	{
-		w._layouter = 0;
-	}
+	Workspace(void);
+	Workspace(const Workspace &w);
 	~Workspace(void);
 	Workspace &operator=(const Workspace &w);
 
 	inline const std::string &getName(void) const { return _name; }
 	inline void setName(const std::string &name) { _name = name; }
 
-	inline WinLayouter *getLayouter(void) const {
-		return _layouter?_layouter:_default_layouter;
-	}
-	static void setDefaultLayouter(const std::string &);
-
 	PWinObj* getLastFocused(bool verify) const;
 	void setLastFocused(PWinObj* wo);
 
 private:
 	std::string _name;
-	mutable WinLayouter *_layouter; // evil hack, will change with C++11
 	PWinObj *_last_focused;
-
-	static WinLayouter *_default_layouter;
 };
 
 class Workspaces {
@@ -88,6 +76,8 @@ public:
 	static void setPerRow(uint per_row) { _per_row = per_row; }
 	static void setNames(void);
 
+	static void setLayoutModels(const std::vector<std::string> &models);
+
 	static void setWorkspace(uint num, bool focus);
 	static bool gotoWorkspace(uint direction, bool focus, bool warp);
 
@@ -95,10 +85,7 @@ public:
 		return _workspaces[_active];
 	}
 
-	static void layout(Frame *f=0, Window parent=None) {
-		_workspaces[_active].getLayouter()->layout(f, parent);
-	}
-
+	static void layout(Frame *frame, Window parent=None);
 	static void insert(PWinObj* wo, bool raise = true);
 	static void remove(PWinObj* wo);
 
@@ -158,6 +145,11 @@ public:
 	}
 
 private:
+	static void clearLayoutModels(void);
+	static bool layoutOnHead(PWinObj *wo, Window parent,
+				 const Geometry &gm, int ptr_x, int ptr_y);
+	static bool placeOnParent(PWinObj *wo, Window parent);
+
 	static Window *buildClientList(unsigned int &num_windows);
 	static bool warpToWorkspace(uint num, int dir);
 
@@ -167,6 +159,9 @@ private:
 	static uint _active; /**< Current active workspace. */
 	static uint _previous; /**< Previous workspace. */
 	static uint _per_row; /**< Workspaces per row in layout. */
+
+	/** List of layouters tried in sequence when placing windows. */
+	static std::vector<WinLayouter*> _layout_models;
 
 	/** Window popping up when switching workspace */
 	static WorkspaceIndicator *_workspace_indicator;

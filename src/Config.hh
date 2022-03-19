@@ -254,6 +254,7 @@ private:
 	void loadFiles(CfgParser::Entry *section);
 	void loadMoveResize(CfgParser::Entry *section);
 	void loadScreen(CfgParser::Entry *section);
+	void loadScreenPlacement(CfgParser::Entry *section);
 	void loadMenu(CfgParser::Entry *section);
 	void loadMenuIcons(CfgParser::Entry *section);
 	void loadCmdDialog(CfgParser::Entry *section);

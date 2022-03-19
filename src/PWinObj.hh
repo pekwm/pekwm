@@ -126,6 +126,7 @@ public:
 	inline uint getHeight(void) const { return _gm.height; }
 
 	//! @brief Sets gm to geometry of window.
+	inline const Geometry& getGeometry(void) const { return _gm; }
 	inline void getGeometry(Geometry &gm) const { gm = _gm; }
 
 	//! @brief Return true if x and y is within the window coordinates
