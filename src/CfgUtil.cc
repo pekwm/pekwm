@@ -55,7 +55,7 @@ namespace CfgUtil
 	void
 	getIconDir(const CfgParser::Entry* root, std::string& dir)
 	{
-		dir = "~/.pekwm/icons/"; // FIXME: config directory
+		dir = Util::getConfigDir() + "/icons/";
 		Util::expandFileName(dir);
 
 		CfgParser::Entry *files = root->findSection("FILES");

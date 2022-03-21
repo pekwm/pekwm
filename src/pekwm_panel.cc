@@ -2885,10 +2885,10 @@ int main(int argc, char *argv[])
 	}
 
 	if (config_file.empty()) {
-		config_file = "~/.pekwm/panel";
+		config_file = Util::getConfigDir() + "/panel";
 	}
 	if (_pekwm_config_file.empty()) {
-		_pekwm_config_file = "~/.pekwm/config";
+		_pekwm_config_file = Util::getConfigDir() + "/config";
 	}
 	Util::expandFileName(config_file);
 	Util::expandFileName(_pekwm_config_file);
