@@ -114,7 +114,7 @@ namespace Generator {
 
 			_curr += _step;
 			if (_curr >= _max) {
-				if (! _start == 0 && ! _wrapped) {
+				if (_start != 0 && ! _wrapped) {
 					_curr -= _max;
 					_wrapped = true;
 				}
