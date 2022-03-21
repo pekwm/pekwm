@@ -1,6 +1,6 @@
 //
 // Workspaces.cc for pekwm
-// Copyright (C) 2002-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2002-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -427,12 +427,6 @@ Workspaces::layout(Frame *frame, Window parent)
 
 	frame->updateDecor();
 
-	if (parent != None
-	    && pekwm::config()->placeTransOnParent()
-	    && placeOnParent(frame, parent)) {
-		return;
-	}
-
 	// Collect the information which head has a fullscreen window.
 	// To be conservative for now we ignore fullscreen windows on
 	// the desktop or normal layer, because it might be a file
@@ -490,18 +484,6 @@ Workspaces::layoutOnHead(PWinObj *wo, Window parent, const Geometry &gm,
 		if ((*it)->layout(wo, parent, gm, ptr_x, ptr_y)) {
 			return true;
 		}
-	}
-	return false;
-}
-
-bool
-Workspaces::placeOnParent(PWinObj *wo, Window parent)
-{
-	PWinObj *wo_s = PWinObj::findPWinObj(parent);
-	if (wo_s) {
-		Geometry gm = wo_s->getGeometry().center(wo->getGeometry());
-		wo->move(gm.x, gm.y);
-		return true;
 	}
 	return false;
 }

@@ -19,42 +19,54 @@
 #include "X11Util.hh"
 #include "X11.hh"
 
+static void
+populateWvec(const PWinObj *wo, std::vector<PWinObj*> &wvec)
+{
+	Workspaces::iterator it(Workspaces::begin());
+	Workspaces::iterator end(Workspaces::end());
+	for (; it != end; ++it) {
+		// Include standard window objects excluding the provded wo.
+		// Windows that are not mapped, desktop windows and iconified
+		// windows are excludes.
+		enum PWinObj::Type it_type = (*it)->getType();
+		if (wo == (*it)
+		    || ! (*it)->isMapped()
+		    || ! (it_type == PWinObj::WO_FRAME
+			  || it_type == PWinObj::WO_MENU)
+		    || ((*it)->getLayer() == LAYER_DESKTOP)) {
+			continue;
+		}
+
+		// Skip windows tagged as Maximized as they cause no space
+		// to be found.
+		if ((*it)->getType() == PWinObj::WO_FRAME) {
+			Frame *frame = static_cast<Frame*>(*it);
+			Client *client = frame->getActiveClient();
+			if (client &&
+			    (client->isFullscreen()
+			     || (client->isMaximizedVert()
+				 && client->isMaximizedHorz()))) {
+				continue;
+			}
+		}
+
+		wvec.push_back(*it);
+	}
+}
+
 static PWinObj*
 isEmptySpace(int x, int y, const PWinObj* wo, std::vector<PWinObj*> &wvec)
 {
-	if (! wo) {
-		return 0;
+	if (wo == nullptr) {
+		return nullptr;
 	}
 
 	if (wvec.empty()) {
-		// say that it's placed, now check if we are wrong!
-		Workspaces::iterator it(Workspaces::begin());
-		Workspaces::iterator end(Workspaces::end());
-		for (; it != end; ++it) {
-			// Skip ourselves, non-mapped and desktop objects. Iconified means
-			// skip placement.
-			if (wo == (*it) || ! (*it)->isMapped() || (*it)->isIconified()
-			    || ((*it)->getLayer() == LAYER_DESKTOP)) {
-				continue;
-			}
-
-			// Also skip windows tagged as Maximized as they cause us to
-			// automatically fail.
-			if ((*it)->getType() == PWinObj::WO_FRAME) {
-				Client *client = static_cast<Frame*>((*it))->getActiveClient();
-				if (client &&
-				    (client->isFullscreen()
-				     || (client->isMaximizedVert() && client->isMaximizedHorz()))) {
-					continue;
-				}
-			}
-
-			wvec.push_back(*it);
-		}
+		populateWvec(wo, wvec);
 	}
 
 	for (unsigned i=0; i < wvec.size(); ++i) {
-		// Check if we are "intruding" on some other window's place
+		// Check if window is on some other windows space
 		if ((wvec[i]->getX() < signed(x + wo->getWidth())) &&
 		    (signed(wvec[i]->getX() + wvec[i]->getWidth()) > x) &&
 		    (wvec[i]->getY() < signed(y + wo->getHeight())) &&
@@ -63,7 +75,7 @@ isEmptySpace(int x, int y, const PWinObj* wo, std::vector<PWinObj*> &wvec)
 		}
 	}
 
-	return 0; // we passed the test, no frames in the way
+	return nullptr;
 }
 
 //! @brief Tries to find empty space to place the client in
@@ -166,6 +178,33 @@ public:
 	}
 };
 
+/**
+ * Place window centered on its parent (excluding root as parent)
+ */
+class LayouterCenteredOnParent : public WinLayouter {
+public:
+	LayouterCenteredOnParent(void) : WinLayouter() {}
+	virtual ~LayouterCenteredOnParent(void) { };
+
+	virtual bool layout(PWinObj *wo, Window parent,
+			    const Geometry &head_gm, int ptr_x, int ptr_y)
+
+	{
+		if (parent == None || parent == X11::getRoot()) {
+			return false;
+		}
+
+		PWinObj *parent_wo = PWinObj::findPWinObj(parent);
+		if (parent_wo != nullptr) {
+			const Geometry &parent_gm = parent_wo->getGeometry();
+			Geometry gm = parent_gm.center(wo->getGeometry());
+			wo->move(gm.x, gm.y);
+			return true;
+		}
+		return false;
+	}
+};
+
 //! @brief Places the wo in a corner of the screen not under the pointer
 class LayouterMouseNotUnder : public WinLayouter {
 public:
@@ -257,6 +296,9 @@ WinLayouterFactory(std::string name)
 	}
 	if (! name_upper.compare("CENTERED")) {
 		return new LayouterCentered;
+	}
+	if (! name_upper.compare("CENTEREDONPARENT")) {
+		return new LayouterCenteredOnParent;
 	}
 	if (! name_upper.compare("MOUSENOTUNDER")) {
 		return new LayouterMouseNotUnder;

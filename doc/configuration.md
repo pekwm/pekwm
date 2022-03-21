@@ -219,7 +219,6 @@ Screen {
 	Placement {
 		Model = "Smart"
 		WorkspacePlacements = "Smart;MouseCentered"
-		TransientOnParent = "True"
 		Smart {
 			Row = "False"
 			TopToBottom = "True"
@@ -335,7 +334,6 @@ all values should be placed inside quotes.
 
 | Keyword             | Type    | Description                                                                                                                       |
 |---------------------|---------|-----------------------------------------------------------------------------------------------------------------------------------|
-| TransientOnParent   | boolean | Set to true if you want the transient windows to be mappend on their "parent" window. |
 | Model               | string  | Default placement model, one of the below Placement Models.                                                                       |
 | WorkspacePlacements | string  | List of placement models for the workspaces separated by semicolon. For an explanation of the allowed options see "Model" above.  |
 

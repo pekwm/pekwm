@@ -1,5 +1,6 @@
 //
 // Config.hh for pekwm
+// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2002-2021 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -164,8 +165,6 @@ public:
 		return _screen_font_charset_override;
 	}
 
-	bool placeTransOnParent(void) const { return _place_trans_parent; }
-
 	bool getPlacementRow(void) const { return _screen_placement_row; }
 	bool getPlacementLtR(void) const { return _screen_placement_ltr; }
 	bool getPlacementTtB(void) const { return _screen_placement_ttb; }
@@ -322,7 +321,6 @@ private:
 	std::string _screen_font_charset_override;
 	bool _screen_placement_row, _screen_placement_ltr, _screen_placement_ttb;
 	int _screen_placement_offset_x, _screen_placement_offset_y;
-	bool _place_trans_parent;
 	bool _screen_client_unique_name;
 	std::string _screen_client_unique_name_pre, _screen_client_unique_name_post;
 	bool _screen_report_all_clients;

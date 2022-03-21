@@ -24,6 +24,7 @@ New
   override of charset in font strings.
 * **Setenv** action added, making it possible to update the environment pekwm
   use when executing applications without restarting pekwm.
+* **CenteredOnParent** placement model replacing TransientOnParent re-added.
 
 ### pekwm_panel
 
@@ -42,3 +43,9 @@ Removed
 
 * C++ setlocale warning during startup is no longer output, silent fallback
   to setlocale()
+* Remove TransientOnParent option, replaced by CenteredOnParent placement
+  model.
+
+### pekwm_bg
+
+* Removed warning about being unable to send kill signal if atom is missing.

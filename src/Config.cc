@@ -163,7 +163,6 @@ Config::Config(void) :
 	_screen_placement_row(false),
 	_screen_placement_ltr(true), _screen_placement_ttb(true),
 	_screen_placement_offset_x(0), _screen_placement_offset_y(0),
-	_place_trans_parent(true),
 	_screen_client_unique_name(true),
 	_screen_client_unique_name_pre(" #"),
 	_screen_client_unique_name_post(""),
@@ -492,13 +491,9 @@ Config::loadScreenPlacement(CfgParser::Entry *section)
 		Workspaces::setLayoutModels(tok);
 	}
 
-	CfgParserKeys keys;
-	keys.add_bool("TRANSIENTONPARENT", _place_trans_parent, true);
-	section->parseKeyValues(keys.begin(), keys.end());
-	keys.clear();
-
 	CfgParser::Entry *sub = section->findSection("SMART");
 	if (sub) {
+		CfgParserKeys keys;
 		keys.add_bool("ROW", _screen_placement_row);
 		keys.add_bool("LEFTTORIGHT", _screen_placement_ltr);
 		keys.add_bool("TOPTOBOTTOM", _screen_placement_ttb);

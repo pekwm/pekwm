@@ -148,7 +148,6 @@ private:
 	static void clearLayoutModels(void);
 	static bool layoutOnHead(PWinObj *wo, Window parent,
 				 const Geometry &gm, int ptr_x, int ptr_y);
-	static bool placeOnParent(PWinObj *wo, Window parent);
 
 	static Window *buildClientList(unsigned int &num_windows);
 	static bool warpToWorkspace(uint num, int dir);
