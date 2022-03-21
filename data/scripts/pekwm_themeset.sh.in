@@ -55,7 +55,7 @@ else
         exit 1;
     fi
 
-    theme=`echo "${2}" | @SED@ -e "s@^${PEKWM_CONFIG_PATH}@~@" | @SED@ -e 's@\/@\\\/@g'`
+    theme=`echo "${2}" | @SED@ -e "s@^${HOME}@~@" | @SED@ -e 's@\/@\\\/@g'`
     variant="${3}"
 
     # Get temporary file, not all platforms have mktemp though
