@@ -1400,13 +1400,27 @@ X11::getGeometry(Window win, unsigned *w, unsigned *h, unsigned *bw)
 	return BadImplementation;
 }
 
-bool
-X11::getWindowAttributes(Window win, XWindowAttributes *wa)
+Status
+X11::getWindowAttributes(Window win, XWindowAttributes &wa)
 {
 	if (_dpy) {
-		return XGetWindowAttributes(_dpy, win, wa);
+		return XGetWindowAttributes(_dpy, win, &wa);
 	}
 	return BadImplementation;
+}
+
+bool
+X11::getWMHints(Window win, XWMHints &hints)
+{
+	if (_dpy) {
+		XWMHints *hints_ptr = XGetWMHints(_dpy, win);
+		if (hints_ptr) {
+			hints = *hints_ptr;
+			X11::free(hints_ptr);
+			return true;
+		}
+	}
+	return false;
 }
 
 GC

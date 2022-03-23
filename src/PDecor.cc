@@ -1,5 +1,6 @@
 //
 // PDecor.cc for pekwm
+// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2004-2020 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -263,7 +264,7 @@ PDecor::createParentWindow(CreateWindowParams &params, Window child_window)
 
 	if (child_window != None) {
 		XWindowAttributes attr;
-		if (X11::getWindowAttributes(child_window, &attr)
+		if (X11::getWindowAttributes(child_window, attr)
 		    && 32 != X11::getDepth()
 		    && attr.depth == 32) {
 			params.mask |= CWColormap;

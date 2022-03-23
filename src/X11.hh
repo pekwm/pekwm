@@ -1,5 +1,6 @@
 //
 // X11.hh for pekwm
+// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2003-2020 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -480,7 +481,8 @@ public:
 
 	static int getGeometry(Window win, unsigned *w, unsigned *h, unsigned *bw);
 
-	static bool getWindowAttributes(Window win, XWindowAttributes *wa);
+	static Status getWindowAttributes(Window win, XWindowAttributes &wa);
+	static bool getWMHints(Window win, XWMHints &hints);
 
 	static GC createGC(Drawable d, ulong mask, XGCValues *values);
 	static void freeGC(GC gc);

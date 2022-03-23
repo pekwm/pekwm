@@ -1,6 +1,6 @@
 //
 // Client.cc for pekwm
-// Copyright (C) 2002-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2002-2022 Claes Nästén <pekdon@gmail.com>
 //
 // client.cc for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
@@ -1660,20 +1660,19 @@ ulong
 Client::getWMHints(void)
 {
 	ulong initial_state = NormalState;
-	XWMHints* hints = XGetWMHints(X11::getDpy(), _window);
-	if (hints) {
+	XWMHints hints;
+	if (X11::getWMHints(_window, hints)) {
 		// get the input focus mode
-		if (hints->flags&InputHint) { // FIXME: More logic needed
-			_wm_hints_input = hints->input;
+		if (hints.flags&InputHint) { // FIXME: More logic needed
+			_wm_hints_input = hints.input;
 		}
 
 		// Get initial state of the window
-		if (hints->flags&StateHint) {
-			initial_state = hints->initial_state;
+		if (hints.flags&StateHint) {
+			initial_state = hints.initial_state;
 		}
 
-		setDemandsAttention(hints->flags&XUrgencyHint);
-		X11::free(hints);
+		setDemandsAttention(hints.flags&XUrgencyHint);
 	}
 	return initial_state;
 }

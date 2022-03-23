@@ -1,5 +1,6 @@
 //
 // WindowManager.cc for pekwm
+// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2002-2021 the pekwm development team
 //
 // windowmanager.cc for aewm++
@@ -305,24 +306,22 @@ WindowManager::scanWindows(void)
 	// We filter out all windows with the the IconWindowHint
 	// set not pointing to themselves, making DockApps
 	// work as they are supposed to.
+	XWMHints wm_hints;
 	for (; it != win_list.end(); ++it) {
 		if (*it == None) {
 			continue;
 		}
 
-		XWMHints *wm_hints = XGetWMHints(X11::getDpy(), *it);
-		if (wm_hints) {
-			if ((wm_hints->flags&IconWindowHint) &&
-			    (wm_hints->icon_window != *it)) {
-				std::vector<Window>::iterator
-					i_it(std::find(win_list.begin(),
-						       win_list.end(),
-						       wm_hints->icon_window));
-				if (i_it != win_list.end()) {
-					*i_it = None;
-				}
+		if (X11::getWMHints(*it, wm_hints)
+		    && (wm_hints.flags&IconWindowHint)
+		    && (wm_hints.icon_window != *it)) {
+			std::vector<Window>::iterator
+				i_it(std::find(win_list.begin(),
+					       win_list.end(),
+					       wm_hints.icon_window));
+			if (i_it != win_list.end()) {
+				*i_it = None;
 			}
-			X11::free(wm_hints);
 		}
 	}
 
@@ -1440,65 +1439,59 @@ WindowManager::handleExposeEvent(XExposeEvent *ev)
 Client*
 WindowManager::createClient(Window window, bool is_new)
 {
-	Client *client = 0;
-	ClientInitConfig initConfig;
-
 	XWindowAttributes attr;
-	XGetWindowAttributes(X11::getDpy(), window, &attr);
-	if (! attr.override_redirect && (is_new || attr.map_state != IsUnmapped)) {
-		// We need to figure out whether or not this is a dockapp.
-		XWMHints *wm_hints = XGetWMHints(X11::getDpy(), window);
-		if (wm_hints) {
-			if ((wm_hints->flags&StateHint)
-			    && (wm_hints->initial_state == WithdrawnState)) {
-				pekwm::harbour()->addDockApp(new DockApp(window));
-			} else {
-				client = new Client(window, initConfig, is_new);
-			}
-			X11::free(wm_hints);
-		} else {
-			client = new Client(window, initConfig, is_new);
-		}
+	X11::getWindowAttributes(window, attr);
+	if (attr.override_redirect
+	    || (! is_new && attr.map_state == IsUnmapped)) {
+		return nullptr;
 	}
 
-	if (client) {
-		if (client->isAlive()) {
-			if (initConfig.parent_is_new) {
-				PWinObj *wo = client->getParent();
-				Workspaces::handleFullscreenBeforeRaise(wo);
-				Workspaces::insert(wo, true);
-			}
-			Workspaces::updateClientList();
+	XWMHints wm_hints;
+	if (X11::getWMHints(window, wm_hints)
+	    && (wm_hints.flags&StateHint)
+	    && (wm_hints.initial_state == WithdrawnState)) {
+		pekwm::harbour()->addDockApp(new DockApp(window));
+		return nullptr;
+	}
 
-			// Make sure the window is mapped, this is done after it has been
-			// added to the decor/frame as otherwise IsViewable state won't
-			// be correct and we don't know whether or not to place the window
-			if (initConfig.map) {
-				client->mapWindow();
-			}
+	ClientInitConfig initConfig;
+	Client *client = new Client(window, initConfig, is_new);
+	if (! client->isAlive()) {
+		delete client;
+		return nullptr;
+	}
 
-			// Focus was requested by the configuration, look out for
-			// focus stealing.
-			if (initConfig.focus) {
-				PWinObj *wo = PWinObj::getFocusedPWinObj();
-				Time time_protect =
-					static_cast<Time>(pekwm::config()->getFocusStealProtect());
+	if (initConfig.parent_is_new) {
+		PWinObj *wo = client->getParent();
+		Workspaces::handleFullscreenBeforeRaise(wo);
+		Workspaces::insert(wo, true);
+	}
+	Workspaces::updateClientList();
 
-				if (wo != nullptr
-				    && wo->isMapped()
-				    && wo->isKeyboardInput()
-				    && time_protect
-				    && time_protect >= (X11::getLastEventTime()
-							- wo->getLastActivity())) {
-					// WO exists, is mapped, and time protect is
-					// active and within it's limits.
-				} else {
-					client->getParent()->giveInputFocus();
-				}
-			}
-		} else{
-			delete client;
-			client = 0;
+	// Make sure the window is mapped, this is done after it has been
+	// added to the decor/frame as otherwise IsViewable state won't
+	// be correct and we don't know whether or not to place the window
+	if (initConfig.map) {
+		client->mapWindow();
+	}
+
+	// Focus was requested by the configuration, look out for
+	// focus stealing.
+	if (initConfig.focus) {
+		PWinObj *wo = PWinObj::getFocusedPWinObj();
+		Time time_protect =
+			static_cast<Time>(pekwm::config()->getFocusStealProtect());
+
+		if (wo != nullptr
+		    && wo->isMapped()
+		    && wo->isKeyboardInput()
+		    && time_protect
+		    && time_protect >= (X11::getLastEventTime()
+					- wo->getLastActivity())) {
+			// WO exists, is mapped, and time protect is
+			// active and within it's limits.
+		} else {
+			client->getParent()->giveInputFocus();
 		}
 	}
 

@@ -1,5 +1,6 @@
 //
 // DockApp.cc for pekwm
+// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2003-2020 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -41,41 +42,38 @@ DockApp::DockApp(Window win) :
 	_iconified = true; // We set ourself iconified for workspace switching.
 	_sticky = true;
 
-	// First, we need to figure out which window that actually belongs to the
-	// dockapp. This we do by checking if it has the IconWindowHint set in it's
-	// WM Hint.
-	XWMHints *wm_hints = XGetWMHints(X11::getDpy(), _dockapp_window);
-	if (wm_hints) {
-		if ((wm_hints->flags&IconWindowHint) &&
-		    (wm_hints->icon_window != None)) {
-			// let us hide the _client_window window, as we won't use it.
-			X11::unmapWindow(_client_window);
+	// First, we need to figure out which window that actually belongs to
+	// the dockapp. This we do by checking if it has the IconWindowHint
+	// set in it's WM Hint.
+	XWMHints wm_hints;
+	if (X11::getWMHints(_dockapp_window, wm_hints)
+	    && (wm_hints.flags&IconWindowHint)
+	    && (wm_hints.icon_window != None)) {
+		// hide the _client_window window, as it will not be used
+		X11::unmapWindow(_client_window);
 
-			_icon_window = wm_hints->icon_window;
-			_dockapp_window = wm_hints->icon_window;
-		}
-		X11::free(wm_hints);
+		_icon_window = wm_hints.icon_window;
+		_dockapp_window = wm_hints.icon_window;
 	}
 
-	// Now, when we now what window id we should use, set the size up.
+	// Setup size after detected the window to use
 	XWindowAttributes attr;
-	if (XGetWindowAttributes(X11::getDpy(), _dockapp_window, &attr)) {
+	if (X11::getWindowAttributes(_dockapp_window, attr)) {
 		_c_gm.width = attr.width;
 		_c_gm.height = attr.height;
 
 		_gm.width = attr.width;
 		_gm.height = attr.height;
-
 	} else {
-		// Didn't get any size from the dockapp, use default
 		if (cfg->getHarbourDAMinSide() > 0) {
 			_c_gm.width = cfg->getHarbourDAMinSide();
 			_c_gm.height = cfg->getHarbourDAMinSide();
 		} else {
-			_c_gm.width = DOCKAPP_DEFAULT_SIDE - DOCKAPP_BORDER_WIDTH * 2;
-			_c_gm.height = DOCKAPP_DEFAULT_SIDE - DOCKAPP_BORDER_WIDTH * 2;
+			_c_gm.width = DOCKAPP_DEFAULT_SIDE
+				- DOCKAPP_BORDER_WIDTH * 2;
+			_c_gm.height = DOCKAPP_DEFAULT_SIDE
+				- DOCKAPP_BORDER_WIDTH * 2;
 		}
-
 		_gm.width = _c_gm.width;
 		_gm.height = _c_gm.height;
 	}
@@ -83,10 +81,11 @@ DockApp::DockApp(Window win) :
 	// make sure size is valid and position the dockapp
 	updateSize();
 
-	// Okie, now lets create it's parent window which is going to hold the border
+	// create parent window which is going to hold the border
 	XSetWindowAttributes sattr;
 	sattr.override_redirect = True;
-	sattr.event_mask = SubstructureRedirectMask|ButtonPressMask|ButtonMotionMask;
+	sattr.event_mask =
+		SubstructureRedirectMask|ButtonPressMask|ButtonMotionMask;
 
 	_window =
 		X11::createWindow(X11::getRoot(),
