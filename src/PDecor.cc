@@ -49,14 +49,10 @@ PDecor::Button::Button(PWinObj *parent, Theme::PDecorButtonData *data,
 	_gm.width = width;
 	_gm.height = height;
 
-	XSetWindowAttributes attr;
-	attr.event_mask = EnterWindowMask|LeaveWindowMask;
-	attr.override_redirect = True;
-	_window =
-		X11::createWindow(_parent->getWindow(),
-				  -_gm.width, -_gm.height, _gm.width, _gm.height, 0,
-				  CopyFromParent, InputOutput, CopyFromParent,
-				  CWEventMask|CWOverrideRedirect, &attr);
+	_window = X11::createWmWindow(_parent->getWindow(),
+				      -_gm.width, -_gm.height,
+				      _gm.width, _gm.height,
+				      EnterWindowMask|LeaveWindowMask);
 	setState(_state);
 }
 
@@ -1735,9 +1731,8 @@ PDecor::applyBorderShape(int kind)
 void
 PDecor::applyBorderShapeNormal(int kind, bool client_shape)
 {
-	Window shape = X11::createSimpleWindow(X11::getRoot(),
-					       0, 0, _gm.width, _gm.height,
-					       0, 0, 0);
+	Window shape = X11::createWmWindow(X11::getRoot(),
+					   0, 0, _gm.width, _gm.height, None);
 	if (_child) {
 		X11::shapeCombine(shape, kind,
 				  bdLeft(this), bdTop(this) + titleHeight(this),
@@ -1773,15 +1768,15 @@ PDecor::applyBorderShapeShaded(int kind)
 {
 	Window shape;
 	if (_data->getTitleWidthMin()) {
-		shape =
-			X11::createSimpleWindow(X11::getRoot(),
-						0, 0,
-						_title_wo.getWidth(), _title_wo.getHeight(),
-						0, 0, 0);
+		shape = X11::createWmWindow(X11::getRoot(),
+					    0, 0,
+					    _title_wo.getWidth(),
+					    _title_wo.getHeight(),
+					    None);
 	} else {
-		shape =
-			X11::createSimpleWindow(X11::getRoot(),
-						0, 0, _gm.width, _gm.height, 0, 0, 0);
+		shape = X11::createWmWindow(X11::getRoot(),
+					    0, 0, _gm.width, _gm.height,
+					    None);
 		if (_border) {
 			applyBorderShapeBorder(kind, shape);
 		}

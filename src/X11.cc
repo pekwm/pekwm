@@ -1950,6 +1950,22 @@ X11::createSimpleWindow(Window parent,
 	return None;
 }
 
+/**
+ * Create window to be used by the window manager, having override redirect
+ * set to true.
+ */
+Window
+X11::createWmWindow(Window parent, int x, int y, uint width, uint height,
+		    int event_mask)
+{
+	XSetWindowAttributes attr;
+	attr.event_mask = event_mask;
+	attr.override_redirect = True;
+	return createWindow(parent, x, y, width, height, 0,
+			    CopyFromParent, InputOutput, CopyFromParent,
+			    CWEventMask|CWOverrideRedirect, &attr);
+}
+
 void
 X11::destroyWindow(Window win)
 {

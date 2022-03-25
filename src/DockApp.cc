@@ -82,16 +82,10 @@ DockApp::DockApp(Window win) :
 	updateSize();
 
 	// create parent window which is going to hold the border
-	XSetWindowAttributes sattr;
-	sattr.override_redirect = True;
-	sattr.event_mask =
-		SubstructureRedirectMask|ButtonPressMask|ButtonMotionMask;
-
-	_window =
-		X11::createWindow(X11::getRoot(),
-				  _gm.x, _gm.y, _gm.width, _gm.height, 0,
-				  CopyFromParent, InputOutput, CopyFromParent,
-				  CWOverrideRedirect|CWEventMask, &sattr);
+	_window = X11::createWmWindow(X11::getRoot(),
+				      _gm.x, _gm.y, _gm.width, _gm.height,
+				      SubstructureRedirectMask|ButtonPressMask|
+				      ButtonMotionMask);
 
 	// initial makeup
 	repaint();

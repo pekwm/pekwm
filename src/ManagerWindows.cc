@@ -1,6 +1,6 @@
 //
 // ManagerWindows.cc for pekwm
-// Copyright (C) 2009-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2009-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -41,18 +41,9 @@ HintWO::HintWO(Window root)
 {
 	_type = WO_SCREEN_HINT;
 	setLayer(LAYER_NONE);
-	_sticky = true; // Hack, do not map/unmap this window
-	_iconified = true; // Hack, to be ignored when placing
 
-	// Create window
-	_window = X11::createSimpleWindow(root,
-					  -200, -200, 5, 5, 0, 0, 0);
-
-	// Remove override redirect from window
-	XSetWindowAttributes attr;
-	attr.override_redirect = True;
-	attr.event_mask = PropertyChangeMask;
-	X11::changeWindowAttributes(_window, CWEventMask|CWOverrideRedirect, attr);
+	_window = X11::createWmWindow(X11::getRoot(), -200, -200, 5, 5,
+				      PropertyChangeMask);
 
 	// Set hints not being updated
 	X11::setUtf8String(_window, NET_WM_NAME, WM_NAME);
@@ -594,15 +585,9 @@ EdgeWO::EdgeWO(RootWO* root_wo, EdgeType edge, bool set_strut,
 	_iconified = true; // hack, to be ignored when placing
 	_focusable = false; // focusing input only windows crashes X
 
-	XSetWindowAttributes sattr;
-	sattr.override_redirect = True;
-	sattr.event_mask =
-		EnterWindowMask|LeaveWindowMask|ButtonPressMask|ButtonReleaseMask;
-
-	_window = X11::createWindow(root_wo->getWindow(),
-				    0, 0, 1, 1, 0,
-				    CopyFromParent, InputOnly, CopyFromParent,
-				    CWOverrideRedirect|CWEventMask, &sattr);
+	_window = X11::createWmWindow(root_wo->getWindow(), 0, 0, 1, 1,
+				      EnterWindowMask|LeaveWindowMask|
+				      ButtonPressMask|ButtonReleaseMask);
 
 	configureStrut(set_strut);
 	_root_wo->addStrut(&_strut);

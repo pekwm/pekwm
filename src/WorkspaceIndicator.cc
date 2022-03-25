@@ -1,5 +1,6 @@
 //
 // WorkspaceIndicator.cc for pekwm
+// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2009-2020 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -27,13 +28,10 @@ WorkspaceIndicator::Display::Display(PWinObj *parent)
 	// Do not give the indicator focus, it doesn't handle input
 	_focusable = false;
 
-	XSetWindowAttributes attr;
-	attr.override_redirect = false;
-	attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
-		FocusChangeMask|KeyPressMask|KeyReleaseMask;
-	_window = X11::createWindow(_parent->getWindow(), 0, 0, 1, 1, 0,
-				    CopyFromParent, InputOutput, CopyFromParent,
-				    CWOverrideRedirect|CWEventMask, &attr);
+	long event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
+			  FocusChangeMask|KeyPressMask|KeyReleaseMask;
+	_window = X11::createWmWindow(_parent->getWindow(), 0, 0, 1, 1,
+				      event_mask);
 }
 
 /**

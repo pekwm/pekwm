@@ -131,15 +131,13 @@ InputDialog::InputDialog(const std::string &title)
 	setTitle(title);
 
 	_text_wo = new PWinObj(true);
-	XSetWindowAttributes attr;
-	attr.override_redirect = false;
-	attr.event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
-		FocusChangeMask|KeyPressMask|KeyReleaseMask;
-	_text_wo->setWindow(X11::createWindow(_window, 0, 0, 1, 1, 0,
-					      CopyFromParent, InputOutput,
-					      CopyFromParent,
-					      CWOverrideRedirect|CWEventMask,
-					      &attr));
+
+	Window window =
+		X11::createWmWindow(_window, 0, 0, 1, 1,
+				    ButtonPressMask|ButtonReleaseMask|
+				    ButtonMotionMask|FocusChangeMask|
+				    KeyPressMask|KeyReleaseMask);
+	_text_wo->setWindow(window);
 
 	addChild(_text_wo);
 	addChildWindow(_text_wo->getWindow());

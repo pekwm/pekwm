@@ -77,17 +77,13 @@ PMenu::PMenu(const std::string &title,
 
 	// create menu content child
 	_menu_wo = new PWinObj(false);
-	XSetWindowAttributes attr;
-	attr.override_redirect = True;
-	attr.event_mask =
+
+	long event_mask =
 		ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
 		ExposureMask|FocusChangeMask|KeyPressMask|KeyReleaseMask|
 		PointerMotionMask;
-	_menu_wo->setWindow(X11::createWindow(_window, 0, 0, 1, 1, 0,
-					      CopyFromParent, InputOutput,
-					      CopyFromParent,
-					      CWOverrideRedirect|CWEventMask,
-					      &attr));
+	Window window = X11::createWmWindow(_window, 0, 0, 1, 1, event_mask);
+	_menu_wo->setWindow(window);
 
 	titleAdd(&_title);
 	titleSetActive(0);
