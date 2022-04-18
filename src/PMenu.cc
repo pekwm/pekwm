@@ -82,7 +82,7 @@ PMenu::PMenu(const std::string &title,
 		ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
 		ExposureMask|FocusChangeMask|KeyPressMask|KeyReleaseMask|
 		PointerMotionMask;
-	Window window = X11::createWmWindow(_window, 0, 0, 1, 1, event_mask);
+	Window window = X11::createWmWindow(_window, 0, 0, 1, 1, InputOutput, event_mask);
 	_menu_wo->setWindow(window);
 
 	titleAdd(&_title);

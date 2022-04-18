@@ -1955,14 +1955,14 @@ X11::createSimpleWindow(Window parent,
  * set to true.
  */
 Window
-X11::createWmWindow(Window parent, int x, int y, uint width, uint height,
+X11::createWmWindow(Window parent, int x, int y, uint width, uint height, uint _class,
 		    ulong event_mask)
 {
 	XSetWindowAttributes attr;
 	attr.event_mask = event_mask;
 	attr.override_redirect = True;
 	return createWindow(parent, x, y, width, height, 0,
-			    CopyFromParent, InputOutput, CopyFromParent,
+			    CopyFromParent, _class, CopyFromParent,
 			    CWEventMask|CWOverrideRedirect, &attr);
 }
 

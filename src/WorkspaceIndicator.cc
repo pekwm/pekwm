@@ -30,7 +30,7 @@ WorkspaceIndicator::Display::Display(PWinObj *parent)
 
 	long event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
 			  FocusChangeMask|KeyPressMask|KeyReleaseMask;
-	_window = X11::createWmWindow(_parent->getWindow(), 0, 0, 1, 1,
+	_window = X11::createWmWindow(_parent->getWindow(), 0, 0, 1, 1, InputOutput,
 				      event_mask);
 }
 

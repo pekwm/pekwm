@@ -133,7 +133,7 @@ InputDialog::InputDialog(const std::string &title)
 	_text_wo = new PWinObj(true);
 
 	Window window =
-		X11::createWmWindow(_window, 0, 0, 1, 1,
+		X11::createWmWindow(_window, 0, 0, 1, 1, InputOutput,
 				    ButtonPressMask|ButtonReleaseMask|
 				    ButtonMotionMask|FocusChangeMask|
 				    KeyPressMask|KeyReleaseMask);

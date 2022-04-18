@@ -446,7 +446,7 @@ public:
 					 uint border_width,
 					 ulong border, ulong background);
 	static Window createWmWindow(Window parent,
-				     int x, int y, uint width, uint height,
+				     int x, int y, uint width, uint height, uint _class,
 				     ulong event_mask);
 	static void destroyWindow(Window win);
 	static void changeWindowAttributes(Window win, ulong mask,

@@ -83,7 +83,7 @@ DockApp::DockApp(Window win) :
 
 	// create parent window which is going to hold the border
 	_window = X11::createWmWindow(X11::getRoot(),
-				      _gm.x, _gm.y, _gm.width, _gm.height,
+				      _gm.x, _gm.y, _gm.width, _gm.height, InputOutput,
 				      SubstructureRedirectMask|ButtonPressMask|
 				      ButtonMotionMask);
 
