@@ -1956,7 +1956,7 @@ X11::createSimpleWindow(Window parent,
  */
 Window
 X11::createWmWindow(Window parent, int x, int y, uint width, uint height,
-		    int event_mask)
+		    ulong event_mask)
 {
 	XSetWindowAttributes attr;
 	attr.event_mask = event_mask;
