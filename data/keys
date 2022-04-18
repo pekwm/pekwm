@@ -84,6 +84,12 @@ Global {
         KeyPress = "Mod4 D" { Actions = "ShowCmdDialog" }
         KeyPress = "Mod4 V" { Actions = "ShowSearchDialog" }
         KeyPress = "Mod4 H" { Actions = "Toggle HarbourHidden" }
+	# Audio controls
+        KeyPress = "XF86AudioRaiseVolume" { Actions = "exec amixer set Master 1%+ unmute &" }
+        KeyPress = "XF86AudioLowerVolume" { Actions = "exec amixer set Master 1%- unmute &" }
+        KeyPress = "XF86AudioMute" { Actions = "exec amixer set Master toggle &" }
+        KeyPress = "XF86AudioMicMute" { Actions = "exec amixer set Capture toggle &" }
+
 
 # - - ----------------------------------------------- - -
 # CHAINS. These give you access to just about everything.
