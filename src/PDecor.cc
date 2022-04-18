@@ -51,7 +51,7 @@ PDecor::Button::Button(PWinObj *parent, Theme::PDecorButtonData *data,
 
 	_window = X11::createWmWindow(_parent->getWindow(),
 				      -_gm.width, -_gm.height,
-				      _gm.width, _gm.height,
+				      _gm.width, _gm.height, InputOutput,
 				      EnterWindowMask|LeaveWindowMask);
 	setState(_state);
 }
@@ -1732,7 +1732,7 @@ void
 PDecor::applyBorderShapeNormal(int kind, bool client_shape)
 {
 	Window shape = X11::createWmWindow(X11::getRoot(),
-					   0, 0, _gm.width, _gm.height, None);
+					   0, 0, _gm.width, _gm.height, InputOutput, None);
 	if (_child) {
 		X11::shapeCombine(shape, kind,
 				  bdLeft(this), bdTop(this) + titleHeight(this),
@@ -1771,11 +1771,11 @@ PDecor::applyBorderShapeShaded(int kind)
 		shape = X11::createWmWindow(X11::getRoot(),
 					    0, 0,
 					    _title_wo.getWidth(),
-					    _title_wo.getHeight(),
+					    _title_wo.getHeight(), InputOutput,
 					    None);
 	} else {
 		shape = X11::createWmWindow(X11::getRoot(),
-					    0, 0, _gm.width, _gm.height,
+					    0, 0, _gm.width, _gm.height, InputOutput,
 					    None);
 		if (_border) {
 			applyBorderShapeBorder(kind, shape);

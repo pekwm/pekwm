@@ -42,7 +42,7 @@ HintWO::HintWO(Window root)
 	_type = WO_SCREEN_HINT;
 	setLayer(LAYER_NONE);
 
-	_window = X11::createWmWindow(X11::getRoot(), -200, -200, 5, 5,
+	_window = X11::createWmWindow(X11::getRoot(), -200, -200, 5, 5, InputOutput,
 				      PropertyChangeMask);
 
 	// Set hints not being updated
@@ -585,7 +585,7 @@ EdgeWO::EdgeWO(RootWO* root_wo, EdgeType edge, bool set_strut,
 	_iconified = true; // hack, to be ignored when placing
 	_focusable = false; // focusing input only windows crashes X
 
-	_window = X11::createWmWindow(root_wo->getWindow(), 0, 0, 1, 1,
+	_window = X11::createWmWindow(root_wo->getWindow(), 0, 0, 1, 1, InputOnly,
 				      EnterWindowMask|LeaveWindowMask|
 				      ButtonPressMask|ButtonReleaseMask);
 
