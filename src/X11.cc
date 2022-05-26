@@ -654,6 +654,12 @@ X11::pending(void)
 bool
 X11::getNextEvent(XEvent &ev, struct timeval *timeout)
 {
+	// A call to flush was previously used when no pending events was
+	// found, however accoarding to the XFlush man page XPending does
+	// flush by itself.
+	//
+	// This reportedly fixes lockups and the change was suggested
+	// by Christian Zander
 	if (pending()) {
 		XNextEvent(_dpy, &ev);
 		return true;
@@ -661,8 +667,6 @@ X11::getNextEvent(XEvent &ev, struct timeval *timeout)
 
 	int ret;
 	fd_set rfds;
-
-	flush();
 
 	FD_ZERO(&rfds);
 	FD_SET(_fd, &rfds);
