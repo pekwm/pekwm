@@ -1,6 +1,6 @@
 .POSIX:
 
-CXX = clang++
+CXX = g++
 
 # compiler options
 X11_CFLAGS = -I/usr/X11R6/include -I/usr/X11R6/include/freetype2

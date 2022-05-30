@@ -64,8 +64,13 @@ elif test "x$OS" = "xOpenBSD"; then
 		# gcc 2.95
 		PLATFORM="OpenBSD34"
 		CONFIG_PLATFORM="OpenBSD34"
+	elif test `echo $REL |tr -d .` -lt 62; then
+		# gcc
+		PLATFORM="OpenBSD61"
+		CONFIG_PLATFORM="OpenBSD61"
 	else
 		PLATFORM="OpenBSD"
+		CONFIG_PLATFORM="OpenBSD"
 	fi
 elif test "x$OS" = "xNetBSD"; then
 	PLATFORM="NetBSD"
@@ -87,7 +92,7 @@ elif test "x$OS" = "xSunOS"; then
 fi
 
 # developer tool used to create tags file
-which exctags 2>&1 >/dev/null
+which exctags >/dev/null 2>&1
 if test $? -eq 0; then
 	CONF_CTAGS="exctags"
 else
