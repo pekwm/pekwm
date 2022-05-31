@@ -418,6 +418,26 @@ can be overridden if your distro defaults its system-wide configuration files in
 a different location using the option -DCMAKE_INSTALL_SYSCONFDIR=/foo. See
 [overview.md](overview.md#compiling-pekwm) for configure options, building and installing.
 
+### Clicking on the screen edges does not work!?
+
+By default pekwm has the screen edges configured to react to mouse clicks and
+dragging windows warps them to a new workspace.
+
+If configuring pekwm with a single workspace the edges seemingly does nothing.
+
+They can be disabled by setting _EdgeSize_ to _0_ in ~/.pekwm/config
+under the Screen section.
+
+Example:
+
+```
+Screen {
+  ...
+  EdgeSize = "0"
+  ...
+}
+```
+
 ***
 
 [< Previous (Themes)](themes.md) - [(Development) Next >](development.md)
