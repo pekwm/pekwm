@@ -64,7 +64,8 @@ public:
 namespace X11Util {
 	Geometry getHeadGeometry(int head);
 	uint getCurrHead(CurrHeadSelector chs);
-	int getNearestHead(const PWinObj& wo, DirectionType dx, DirectionType dy);
+	int getNearestHead(const PWinObj& wo,
+			   DirectionType dx, DirectionType dy);
 	uint getNearestHead(const PWinObj& wo);
 
 	void grabButton(int button, int mod, int mask, Window win, int mode);
@@ -76,10 +77,10 @@ namespace X11Util {
 #ifndef PEKWM_HAVE_XUTF8
 
 void Xutf8SetWMProperties(Display *dpy, Window win,
-                          const char* window_name, const char* icon_name,
-                          char** argv, int argc,
-                          XSizeHints* normal_hints, XWMHints* wm_hints,
-                          XClassHint* class_hints);
+			  const char* window_name, const char* icon_name,
+			  char** argv, int argc,
+			  XSizeHints* normal_hints, XWMHints* wm_hints,
+			  XClassHint* class_hints);
 
 #endif // PEKWM_HAVE_XUTF8
 

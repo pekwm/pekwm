@@ -45,11 +45,13 @@ private:
 	Completer _completer; /**< Completer used completing actions. */
 	/** List of completions found by completer. */
 	complete_list _complete_list;
-	complete_it _complete_it; /**< Iterator used to step between completions. */
+	/** Iterator used to step between completions. */
+	complete_it _complete_it;
 
 	std::string _buf_on_complete; /**< Buffer before completion. */
 	std::string _buf_on_complete_result; /** Buffer after completion. */
-	unsigned int _pos_on_complete; /**< Cursor position on completion start. */
+	/** Cursor position on completion start. */
+	unsigned int _pos_on_complete;
 
 	/** Number of CmdDialog has run exec since last history save. */
 	int _exec_count;

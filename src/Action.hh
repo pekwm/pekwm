@@ -242,7 +242,7 @@ class ActionEvent {
 public:
 	typedef std::vector<Action> action_vector;
 	typedef action_vector::const_iterator it;
-    
+
 	ActionEvent(void);
 	ActionEvent(Action action);
 	~ActionEvent(void);

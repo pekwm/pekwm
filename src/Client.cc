@@ -105,8 +105,8 @@ Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
 	// avoid auto-grouping to be to greedy.
 	getTransientForHint();
 
-	AutoProperty *ap =
-		readAutoprops(pekwm::isStarting() ? APPLY_ON_START : APPLY_ON_NEW);
+	AutoProperty *ap = readAutoprops(pekwm::isStarting()
+			? APPLY_ON_START : APPLY_ON_NEW);
 	readHints();
 
 	// We need to set the state before acquiring a frame,
@@ -163,7 +163,8 @@ Client::~Client(void)
 
 	// Focus the parent if we had focus before
 	if (focus && _transient_for) {
-		Frame *trans_frame = static_cast<Frame*>(_transient_for->getParent());
+		Frame *trans_frame =
+			static_cast<Frame*>(_transient_for->getParent());
 		if (trans_frame->getActiveChild() == _transient_for) {
 			trans_frame->giveInputFocus();
 		}
@@ -195,7 +196,8 @@ Client::~Client(void)
 
 	X11::ungrabServer(true);
 
-	P_TRACE(this << " client for window " << FMT_HEX(_window) << " destructed");
+	P_TRACE(this << " client for window " << FMT_HEX(_window)
+		<< " destructed");
 }
 
 /**
@@ -367,7 +369,7 @@ Client::setInitialState(void)
  */
 void
 Client::setClientInitConfig(ClientInitConfig &initConfig, bool is_new,
-                            AutoProperty *prop)
+			    AutoProperty *prop)
 {
 	initConfig.map = (! _iconified && _parent->isMapped());
 	initConfig.focus = false;
@@ -508,7 +510,8 @@ Client::resize(uint width, uint height)
 void
 Client::moveResize(int x, int y, uint width, uint height)
 {
-	bool request = ((_gm.x != x) || (_gm.y != y) || (_gm.width != width) || (_gm.height != height));
+	bool request = ((_gm.x != x) || (_gm.y != y)
+			|| (_gm.width != width) || (_gm.height != height));
 
 	_gm.x = x;
 	_gm.y = y;
@@ -529,12 +532,8 @@ Client::setWorkspace(uint workspace)
 			workspace = Workspaces::size() - 1;
 		}
 		_workspace = workspace;
-
-		if (_sticky) {
-			X11::setCardinal(_window, NET_WM_DESKTOP, NET_WM_STICKY_WINDOW);
-		} else {
-			X11::setCardinal(_window, NET_WM_DESKTOP, _workspace);
-		}
+		Cardinal ws_card = _sticky ? NET_WM_STICKY_WINDOW : _workspace;
+		X11::setCardinal(_window, NET_WM_DESKTOP, ws_card);
 	}
 }
 
@@ -563,8 +562,8 @@ Client::reparent(PWinObj *parent, int x, int y)
 	PWinObj::reparent(parent, x, y);
 	_gm.x = parent->getX() + x;
 	_gm.y = parent->getY() + y;
-	X11::selectInput(_window,
-			 PropertyChangeMask|StructureNotifyMask|FocusChangeMask);
+	X11::selectInput(_window, PropertyChangeMask|StructureNotifyMask|
+				  FocusChangeMask);
 }
 
 ActionEvent*
@@ -595,8 +594,9 @@ Client::handleUnmapEvent(XUnmapEvent *ev)
 	X11::unsetProperty(_window, STATE);
 
 	// Extended Window Manager Hints 1.3 specifies that a window manager
-	// should remove the _NET_WM_DESKTOP property when a window is withdrawn.
-	// (to allow legacy applications to reuse a withdrawn window)
+	// should remove the _NET_WM_DESKTOP property when a window is
+	// withdrawn. (to allow legacy applications to reuse a withdrawn
+	// window)
 	X11::unsetProperty(_window, NET_WM_DESKTOP);
 
 	// FIXME: Listen mask should change as this doesn't work?
@@ -740,7 +740,8 @@ Client::mapOrUnmapTransients(Window win, bool hide)
 
 	client_it it = client_list.begin();
 	for (; it != client_list.end(); ++it) {
-		if (static_cast<Frame*>((*it)->getParent())->getActiveChild() == *it) {
+		PWinObj* parent = (*it)->getParent();
+		if (static_cast<Frame*>(parent)->getActiveChild() == *it) {
 			if (hide) {
 				(*it)->getParent()->iconify();
 			} else {
@@ -962,9 +963,10 @@ Client::readMwmHints(void)
 			if (! (mwm_hints.decorations & MWM_DECOR_BORDER)) {
 				setBorder(false);
 			}
-			// Do not handle HANDLE, MENU, ICONFIY or MAXIMIZE. Maybe
-			// one should set the allowed actions for the client based
-			// on this but that might be annoying so ignoring these.
+			// Do not handle HANDLE, MENU, ICONFIY or MAXIMIZE.
+			// Maybe one should set the allowed actions for the
+			// client based on this but that might be annoying so
+			// ignoring these.
 		}
 	}
 }
@@ -1027,13 +1029,15 @@ Client::readAutoprops(ApplyOn type)
 {
 	AutoProperties *aps = pekwm::autoProperties();
 	AutoProperty *property =
-		aps->findAutoProperty(_class_hint, Workspaces::getActive(), type);
+		aps->findAutoProperty(_class_hint, Workspaces::getActive(),
+				      type);
 	if (property) {
 		P_DBG("auto property found for client " << _class_hint);
 
 		// Make sure transient state matches
 		if (isTransient()
-		    ? property->isApplyOn(APPLY_ON_TRANSIENT|APPLY_ON_TRANSIENT_ONLY)
+		    ? property->isApplyOn(
+			APPLY_ON_TRANSIENT|APPLY_ON_TRANSIENT_ONLY)
 		    : ! property->isApplyOn(APPLY_ON_TRANSIENT_ONLY)) {
 			applyAutoprops(property);
 		} else {
@@ -1150,7 +1154,8 @@ void
 Client::readClientRemote(void)
 {
 	std::string client_machine;
-	if (X11::getTextProperty(_window, XA_WM_CLIENT_MACHINE, client_machine)) {
+	if (X11::getTextProperty(_window, XA_WM_CLIENT_MACHINE,
+				 client_machine)) {
 		_is_remote = Util::getHostname() != client_machine;
 	}
 }
@@ -1167,7 +1172,8 @@ Client::findClientID(void)
 		id = _clientids.back();
 		_clientids.pop_back();
 	} else {
-		// No free, get next number (Client is not in list when this is called.)
+		// No free, get next number (Client is not in list when this is
+		// called.)
 		id = _clients.size() + 1;
 	}
 
@@ -1247,7 +1253,8 @@ Client::titleFindID(std::string &title)
 	for (; it != _clients.end(); ++it) {
 		if (*it != this) {
 			if ((*it)->getTitle()->getReal() == title) {
-				ids_used.push_back((*it)->getTitle()->getCount());
+				int count = (*it)->getTitle()->getCount();
+				ids_used.push_back(count);
 			}
 		}
 	}
@@ -1303,9 +1310,11 @@ Client::getWmState(void)
 	uchar *udata;
 
 	int status =
-		XGetWindowProperty(X11::getDpy(), _window, X11::getAtom(WM_STATE),
-				   0L, 2L, False, X11::getAtom(WM_STATE),
-				   &real_type, &real_format, &items_read, &items_left,
+		XGetWindowProperty(X11::getDpy(), _window,
+				   X11::getAtom(WM_STATE), 0L, 2L, False,
+				   X11::getAtom(WM_STATE),
+				   &real_type, &real_format,
+				   &items_read, &items_left,
 				   &udata);
 	if ((status  == Success) && items_read) {
 		data = reinterpret_cast<long*>(udata);
@@ -1337,26 +1346,27 @@ Client::configureRequestSend(void)
 	e.above = None;
 	e.override_redirect = False;
 
-	XSendEvent(X11::getDpy(), _window, false, StructureNotifyMask, (XEvent *) &e);
+	X11::sendEvent(_window, False, StructureNotifyMask,
+		       reinterpret_cast<XEvent*>(&e));
 }
 
 //! @brief Send a TAKE_FOCUS client message to the client (if requested by it).
 void Client::sendTakeFocusMessage(void)
 {
-	if (_send_focus_message) {
-		{
-			XEvent ev;
-			X11::changeProperty(X11::getRoot(),
-					    XA_PRIMARY, XA_STRING, 8, PropModeAppend, 0, 0);
-			XWindowEvent(X11::getDpy(), X11::getRoot(),
-				     PropertyChangeMask, &ev);
-			X11::setLastEventTime(ev.xproperty.time);
-		}
-		X11::sendEvent(_window, _window,
-			       X11::getAtom(WM_PROTOCOLS), NoEventMask,
-			       X11::getAtom(WM_TAKE_FOCUS),
-			       X11::getLastEventTime());
+	if (! _send_focus_message) {
+		return;
 	}
+
+	XEvent ev;
+	X11::changeProperty(X11::getRoot(),
+			    XA_PRIMARY, XA_STRING, 8, PropModeAppend, 0, 0);
+	XWindowEvent(X11::getDpy(), X11::getRoot(), PropertyChangeMask, &ev);
+	X11::setLastEventTime(ev.xproperty.time);
+
+	X11::sendEvent(_window, _window,
+		       X11::getAtom(WM_PROTOCOLS), NoEventMask,
+		       X11::getAtom(WM_TAKE_FOCUS),
+		       X11::getLastEventTime());
 }
 
 /**
@@ -1477,7 +1487,8 @@ Client::getAspectSize(uint *r_w, uint *r_h, uint w, uint h)
 
 		double tmp;
 
-		// Ensure: min_aspect.x/min_aspect.y <= w/h <= max_aspect.x/max_aspect.y
+		// Ensure: min_aspect.x/min_aspect.y <= w/h <=
+		// max_aspect.x/max_aspect.y
 		if (w * amin_y < h * amin_x) {
 			tmp = ((double)(w * amin_x + h * amin_y)) /
 				((double)(amin_x * amin_x + amin_y * amin_y));
@@ -1512,7 +1523,7 @@ Client::getAspectSize(uint *r_w, uint *r_h, uint w, uint h)
  */
 bool
 Client::getIncSize(const XSizeHints& size,
-                   uint *r_w, uint *r_h, uint w, uint h, bool incr)
+		   uint *r_w, uint *r_h, uint w, uint h, bool incr)
 {
 	uint basex, basey;
 
@@ -1603,45 +1614,17 @@ Client::updateEwmhStates(void)
 void
 Client::updateWinType(bool set)
 {
-	// try to figure out what kind of window we are and alter it accordingly
+	// try to figure out what kind of window we are and alter it
+	// accordingly
 	int items;
-	Atom *atoms = 0;
-
-	_window_type = WINDOW_TYPE;
-	atoms = (Atom*) X11::getEwmhPropData(_window, WINDOW_TYPE, XA_ATOM, items);
-	if (atoms) {
-		for (int i = 0; _window_type == WINDOW_TYPE && i < items; ++i) {
-			if (atoms[i] == X11::getAtom(WINDOW_TYPE_DESKTOP)) {
-				_window_type = WINDOW_TYPE_DESKTOP;
-			} else if (atoms[i] == X11::getAtom(WINDOW_TYPE_DOCK)) {
-				_window_type = WINDOW_TYPE_DOCK;
-			} else if (atoms[i] == X11::getAtom(WINDOW_TYPE_TOOLBAR)) {
-				_window_type = WINDOW_TYPE_TOOLBAR;
-			} else if (atoms[i] == X11::getAtom(WINDOW_TYPE_MENU)) {
-				_window_type = WINDOW_TYPE_MENU;
-			} else if (atoms[i] == X11::getAtom(WINDOW_TYPE_UTILITY)) {
-				_window_type = WINDOW_TYPE_UTILITY;
-			} else if (atoms[i] == X11::getAtom(WINDOW_TYPE_DIALOG)) {
-				_window_type = WINDOW_TYPE_DIALOG;
-			} else if (atoms[i] == X11::getAtom(WINDOW_TYPE_SPLASH)) {
-				_window_type = WINDOW_TYPE_SPLASH;
-			} else if (atoms[i] == X11::getAtom(WINDOW_TYPE_DROPDOWN_MENU)) {
-				_window_type = WINDOW_TYPE_DROPDOWN_MENU;
-			} else if (atoms[i] == X11::getAtom(WINDOW_TYPE_POPUP_MENU)) {
-				_window_type = WINDOW_TYPE_POPUP_MENU;
-			} else if (atoms[i] == X11::getAtom(WINDOW_TYPE_TOOLTIP)) {
-				_window_type = WINDOW_TYPE_TOOLTIP;
-			} else if (atoms[i] == X11::getAtom(WINDOW_TYPE_NOTIFICATION)) {
-				_window_type = WINDOW_TYPE_NOTIFICATION;
-			} else if (atoms[i] == X11::getAtom(WINDOW_TYPE_COMBO)) {
-				_window_type = WINDOW_TYPE_COMBO;
-			} else if (atoms[i] == X11::getAtom(WINDOW_TYPE_DND)) {
-				_window_type = WINDOW_TYPE_DND;
-			} else if (atoms[i] == X11::getAtom(WINDOW_TYPE_NORMAL)) {
-				_window_type = WINDOW_TYPE_NORMAL;
-			}
-		}
+	void *data =
+		X11::getEwmhPropData(_window, WINDOW_TYPE, XA_ATOM, items);
+	if (data) {
+		Atom *atoms = static_cast<Atom*>(data);
+		_window_type = findWinType(atoms, items);
 		X11::free(atoms);
+	} else {
+		_window_type = WINDOW_TYPE;
 	}
 
 	// Set window type to WINDOW_TYPE_NORMAL if it did not match
@@ -1651,6 +1634,44 @@ Client::updateWinType(bool set)
 			X11::setAtom(_window, WINDOW_TYPE, WINDOW_TYPE_NORMAL);
 		}
 	}
+}
+
+AtomName
+Client::findWinType(Atom* atoms, int items)
+{
+	for (int i = 0; i < items; ++i) {
+		if (atoms[i] == X11::getAtom(WINDOW_TYPE_DESKTOP)) {
+			return WINDOW_TYPE_DESKTOP;
+		} else if (atoms[i] == X11::getAtom(WINDOW_TYPE_DOCK)) {
+			return WINDOW_TYPE_DOCK;
+		} else if (atoms[i] == X11::getAtom(WINDOW_TYPE_TOOLBAR)) {
+			return WINDOW_TYPE_TOOLBAR;
+		} else if (atoms[i] == X11::getAtom(WINDOW_TYPE_MENU)) {
+			return WINDOW_TYPE_MENU;
+		} else if (atoms[i] == X11::getAtom(WINDOW_TYPE_UTILITY)) {
+			return WINDOW_TYPE_UTILITY;
+		} else if (atoms[i] == X11::getAtom(WINDOW_TYPE_DIALOG)) {
+			return WINDOW_TYPE_DIALOG;
+		} else if (atoms[i] == X11::getAtom(WINDOW_TYPE_SPLASH)) {
+			return WINDOW_TYPE_SPLASH;
+		} else if (atoms[i]
+				== X11::getAtom(WINDOW_TYPE_DROPDOWN_MENU)) {
+			return WINDOW_TYPE_DROPDOWN_MENU;
+		} else if (atoms[i] == X11::getAtom(WINDOW_TYPE_POPUP_MENU)) {
+			return WINDOW_TYPE_POPUP_MENU;
+		} else if (atoms[i] == X11::getAtom(WINDOW_TYPE_TOOLTIP)) {
+			return WINDOW_TYPE_TOOLTIP;
+		} else if (atoms[i] == X11::getAtom(WINDOW_TYPE_NOTIFICATION)) {
+			return WINDOW_TYPE_NOTIFICATION;
+		} else if (atoms[i] == X11::getAtom(WINDOW_TYPE_COMBO)) {
+			return WINDOW_TYPE_COMBO;
+		} else if (atoms[i] == X11::getAtom(WINDOW_TYPE_DND)) {
+			return WINDOW_TYPE_DND;
+		} else if (atoms[i] == X11::getAtom(WINDOW_TYPE_NORMAL)) {
+			return WINDOW_TYPE_NORMAL;
+		}
+	}
+	return WINDOW_TYPE;
 }
 
 /**
@@ -1724,18 +1745,18 @@ Client::getWMProtocols(void)
 {
 	int count;
 	Atom *protocols;
-
-	if (XGetWMProtocols(X11::getDpy(), _window, &protocols, &count) != 0) {
-		for (int i = 0; i < count; ++i) {
-			if (protocols[i] == X11::getAtom(WM_TAKE_FOCUS)) {
-				_send_focus_message = true;
-			} else if (protocols[i] == X11::getAtom(WM_DELETE_WINDOW)) {
-				_send_close_message = true;
-			}
-		}
-
-		X11::free(protocols);
+	if (! XGetWMProtocols(X11::getDpy(), _window, &protocols, &count)) {
+		return;
 	}
+
+	for (int i = 0; i < count; ++i) {
+		if (protocols[i] == X11::getAtom(WM_TAKE_FOCUS)) {
+			_send_focus_message = true;
+		} else if (protocols[i] == X11::getAtom(WM_DELETE_WINDOW)) {
+			_send_close_message = true;
+		}
+	}
+	X11::free(protocols);
 }
 
 /**
@@ -1753,9 +1774,11 @@ Client::getTransientForHint(void)
 			P_ERR(this << " client set transient hint for itself");
 			_transient_for_window = None;
 		} else {
-			transient_for = findClientFromWindow(_transient_for_window);
-			P_TRACE(this << " transient for " << _transient_for_window
-				<< " client " << transient_for);
+			transient_for =
+				findClientFromWindow(_transient_for_window);
+			P_TRACE(this << " transient for "
+				<< _transient_for_window << " client "
+				<< transient_for);
 		}
 	}
 
@@ -1820,15 +1843,14 @@ Client::getStrutHint(void)
 	removeStrutHint();
 
 	int num = 0;
-	long *strut = static_cast<long*>(X11::getEwmhPropData(_window, NET_WM_STRUT,
-							      XA_CARDINAL, num));
-	if (strut) {
-		_strut = new Strut();
-		*_strut = strut;
-		X11::free(strut);
+	void* data = X11::getEwmhPropData(_window, NET_WM_STRUT,
+					  XA_CARDINAL, num);
+	if (data) {
+		_strut = new Strut(static_cast<long*>(data));
 		if (! isCfgDeny(CFG_DENY_STRUT)) {
 			pekwm::rootWo()->addStrut(_strut);
 		}
+		X11::free(data);
 	}
 }
 

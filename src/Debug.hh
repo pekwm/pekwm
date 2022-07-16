@@ -60,12 +60,14 @@ namespace Debug
 
 #define P_LOG(M)							\
 	if (Debug::isLevel(Debug::LEVEL_INFO)) {			\
-		Debug::getStream(__PRETTY_FUNCTION__, __LINE__, "") << M << std::endl; \
+		Debug::getStream(__PRETTY_FUNCTION__, __LINE__, "")	\
+		<< M << std::endl;					\
 	}
 
 #define P_LOG_IF(C, M)							\
 	if ((C) && Debug::isLevel(Debug::LEVEL_INFO)) {			\
-		Debug::getStream(__PRETTY_FUNCTION__, __LINE__, "") << M << std::endl; \
+		Debug::getStream(__PRETTY_FUNCTION__, __LINE__, "")	\
+			<< M << std::endl;				\
 	}
 
 #define P_WARN(M)							\

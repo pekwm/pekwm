@@ -25,7 +25,7 @@ extern "C" {
 
 void
 PTextureEmpty::doRender(Render &rend,
-                        int x, int y, size_t width, size_t height)
+			int x, int y, size_t width, size_t height)
 {
 }
 
@@ -97,8 +97,8 @@ PTextureSolid::unsetColor(void)
 // PTextureSolidRaised
 
 PTextureSolidRaised::PTextureSolidRaised(const std::string &base,
-                                         const std::string &hi,
-                                         const std::string &lo)
+					 const std::string &hi,
+					 const std::string &lo)
 	: PTextureAreaRender(),
 	  _xc_base(0),
 	  _xc_hi(0),
@@ -148,7 +148,7 @@ renderWithTexture(int x, int y, uint width, uint height, void *opaque)
  */
 void
 PTextureSolidRaised::doRender(Render &rend,
-                              int x, int y, size_t width, size_t height)
+			      int x, int y, size_t width, size_t height)
 {
 	if (_width && _height) {
 		// size was given in the texture, repeat the texture over the
@@ -164,7 +164,7 @@ PTextureSolidRaised::doRender(Render &rend,
 
 void
 PTextureSolidRaised::renderArea(Render &rend,
-                                int x, int y, size_t width, size_t height)
+				int x, int y, size_t width, size_t height)
 {
 	rend.setLineWidth(_lw);
 
@@ -175,10 +175,12 @@ PTextureSolidRaised::renderArea(Render &rend,
 	// hi line ( consisting of two lines )
 	rend.setColor(_xc_hi->pixel);
 	if (_draw_top) {
-		rend.line(x + _loff, y + _loff, x + width - _loff - _lw, y + _loff);
+		rend.line(x + _loff, y + _loff,
+			  x + width - _loff - _lw, y + _loff);
 	}
 	if (_draw_left) {
-		rend.line(x + _loff, y + _loff, x + _loff, y + height - _loff - _lw);
+		rend.line(x + _loff, y + _loff,
+			  x + _loff, y + height - _loff - _lw);
 	}
 
 	// lo line ( consisting of two lines )
@@ -213,7 +215,7 @@ PTextureSolidRaised::setLineWidth(uint lw)
  */
 bool
 PTextureSolidRaised::setColor(const std::string &base,
-                              const std::string &hi, const std::string &lo)
+			      const std::string &hi, const std::string &lo)
 {
 	unsetColor(); // unload used resources
 
@@ -244,7 +246,7 @@ PTextureSolidRaised::unsetColor(void)
 // PTextureLines
 
 PTextureLines::PTextureLines(float line_size, bool size_percent, bool horz,
-                             const std::vector<std::string> &colors)
+			     const std::vector<std::string> &colors)
 	: _line_size(line_size),
 	  _size_percent(size_percent),
 	  _horz(horz)
@@ -274,7 +276,7 @@ PTextureLines::doRender(Render &rend, int x, int y, size_t width, size_t height)
 
 void
 PTextureLines::renderArea(Render &rend, int x, int y,
-                          size_t width, size_t height)
+			  size_t width, size_t height)
 {
 	if (_horz) {
 		renderHorz(rend, x, y, width, height);
@@ -285,11 +287,12 @@ PTextureLines::renderArea(Render &rend, int x, int y,
 
 void
 PTextureLines::renderHorz(Render &rend, int x, int y,
-                          size_t width, size_t height)
+			  size_t width, size_t height)
 {
 	size_t line_height;
 	if (_size_percent) {
-		line_height = static_cast<size_t>(static_cast<float>(height) * _line_size);
+		line_height = static_cast<size_t>(static_cast<float>(height)
+						  * _line_size);
 	} else {
 		line_height = static_cast<size_t>(_line_size);
 	}
@@ -313,11 +316,12 @@ PTextureLines::renderHorz(Render &rend, int x, int y,
 
 void
 PTextureLines::renderVert(Render &rend, int x, int y,
-                          size_t width, size_t height)
+			  size_t width, size_t height)
 {
 	size_t line_width;
 	if (_size_percent) {
-		line_width = static_cast<size_t>(static_cast<float>(width) * _line_size);
+		line_width = static_cast<size_t>(static_cast<float>(width)
+						 * _line_size);
 	} else {
 		line_width = static_cast<size_t>(_line_size);
 	}
@@ -367,7 +371,7 @@ PTextureImage::PTextureImage(PImage *image)
 }
 
 PTextureImage::PTextureImage(const std::string &image,
-                             const std::string &colormap)
+			     const std::string &colormap)
 	: _image(nullptr),
 	  _colormap(colormap)
 {
@@ -448,7 +452,8 @@ PTextureImage::unsetImage(void)
 		if (_colormap.empty()) {
 			pekwm::imageHandler()->returnImage(_image);
 		} else {
-			pekwm::imageHandler()->returnMappedImage(_image, _colormap);
+			pekwm::imageHandler()->returnMappedImage(_image,
+								 _colormap);
 		}
 	}
 	_image = nullptr;

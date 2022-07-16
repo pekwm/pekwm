@@ -25,7 +25,7 @@ namespace PImageLoaderJpeg
 	{
 		return "JPG";
 	}
-    
+
 	/**
 	 * Loads file into data.
 	 *
@@ -36,7 +36,8 @@ namespace PImageLoaderJpeg
 	 * @return Pointer to data on success, else 0.
 	 */
 	uchar*
-	load(const std::string &file, size_t &width, size_t &height, bool &use_alpha)
+	load(const std::string &file, size_t &width, size_t &height,
+	     bool &use_alpha)
 	{
 		FILE *fp = fopen(file.c_str(), "rb");
 		if (! fp) {

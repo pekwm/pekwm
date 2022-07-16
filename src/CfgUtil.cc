@@ -43,11 +43,13 @@ namespace CfgUtil
 
 		theme_file = norm_dir + "/theme";
 		if (! variant.empty()) {
-			std::string theme_file_variant = theme_file + "-" + variant;
+			std::string theme_file_variant =
+				theme_file + "-" + variant;
 			if (Util::isFile(theme_file_variant)) {
 				theme_file = theme_file_variant;
 			} else {
-				P_DBG("theme variant " << variant << " does not exist");
+				P_DBG("theme variant " << variant
+				      << " does not exist");
 			}
 		}
 	}

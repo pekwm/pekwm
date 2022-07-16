@@ -271,8 +271,8 @@ Frame::setWorkspace(unsigned int workspace)
 			return;
 		}
 
-		// First we set the workspace, then load autoproperties for possible
-		// overrun of workspace and then set the workspace.
+		// First we set the workspace, then load autoproperties for
+		// possible overrun of workspace and then set the workspace.
 		_workspace = workspace;
 		readAutoprops(APPLY_ON_WORKSPACE);
 		workspace = _workspace;
@@ -291,7 +291,8 @@ Frame::setLayer(Layer layer)
 		_client->setLayer(layer);
 
 		LayerObservation observation(layer);
-		pekwm::observerMapping()->notifyObservers(_client, &observation);
+		pekwm::observerMapping()->notifyObservers(_client,
+							  &observation);
 	}
 }
 
@@ -300,21 +301,21 @@ Frame::setLayer(Layer layer)
 ActionEvent*
 Frame::handleMotionEvent(XMotionEvent *ev)
 {
-	// This is true when we have a title button pressed and then we don't want
-	// to be able to drag windows around, therefore we ignore the event
+	// This is true when we have a title button pressed and then we don't
+	// want to be able to drag windows around, therefore we ignore the
+	// event
 	if (_button) {
 		return 0;
 	}
 
-	ActionEvent *ae = nullptr;
+	Config* cfg = pekwm::config();
+	std::vector<ActionEvent>* al = nullptr;
 	uint button = X11::getButtonFromState(ev->state);
 
 	if (ev->window == getTitleWindow()) {
-		ae = ActionHandler::findMouseAction(button, ev->state, MOUSE_EVENT_MOTION,
-						    pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_TITLE_FRAME));
+		al = cfg->getMouseActionList(MOUSE_ACTION_LIST_TITLE_FRAME);
 	} else if (ev->window == _client->getWindow()) {
-		ae = ActionHandler::findMouseAction(button, ev->state, MOUSE_EVENT_MOTION,
-						    pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_CHILD_FRAME));
+		al = cfg->getMouseActionList(MOUSE_ACTION_LIST_CHILD_FRAME);
 	} else {
 		uint pos = getBorderPosition(ev->subwindow);
 
@@ -324,12 +325,13 @@ Frame::handleMotionEvent(XMotionEvent *ev)
 			pos = getBorderPosition(ev->window);
 		}
 		if (pos != BORDER_NO_POS) {
-			std::vector<ActionEvent> *bl =
-				pekwm::config()->getBorderListFromPosition(pos);
-			ae = ActionHandler::findMouseAction(button, ev->state,
-							    MOUSE_EVENT_MOTION, bl);
+			al = cfg->getBorderListFromPosition(pos);
 		}
 	}
+
+	ActionEvent* ae = ActionHandler::findMouseAction(button, ev->state,
+							 MOUSE_EVENT_MOTION,
+							 al);
 
 	// check motion threshold
 	if (ae && (ae->threshold > 0)) {
@@ -365,11 +367,8 @@ Frame::handleEnterEvent(XCrossingEvent *ev)
 		}
 	}
 
-	if (al) {
-		ae = ActionHandler::findMouseAction(BUTTON_ANY, ev->state, MOUSE_EVENT_ENTER, al);
-	}
-
-	return ae;
+	return ActionHandler::findMouseAction(BUTTON_ANY, ev->state,
+					      MOUSE_EVENT_ENTER, al);
 }
 
 ActionEvent*
@@ -379,17 +378,14 @@ Frame::handleLeaveEvent(XCrossingEvent *ev)
 	// returned.
 	PDecor::handleLeaveEvent(ev);
 
-	ActionEvent *ae;
-
 	MouseActionListName ln = MOUSE_ACTION_LIST_TITLE_FRAME;
 	if (ev->window == _client->getWindow()) {
 		ln = MOUSE_ACTION_LIST_CHILD_FRAME;
 	}
 
-	ae = ActionHandler::findMouseAction(BUTTON_ANY, ev->state, MOUSE_EVENT_LEAVE,
-					    pekwm::config()->getMouseActionList(ln));
-
-	return ae;
+	std::vector<ActionEvent>* al = pekwm::config()->getMouseActionList(ln);
+	return ActionHandler::findMouseAction(BUTTON_ANY, ev->state,
+					      MOUSE_EVENT_LEAVE, al);
 }
 
 ActionEvent*
@@ -481,7 +477,8 @@ Frame::addChildOrdered(Client *child)
 	std::vector<PWinObj*>::iterator it(_children.begin());
 	for (; it != _children.end(); ++it) {
 		client = static_cast<Client*>(*it);
-		if (child->getInitialFrameOrder() < client->getInitialFrameOrder()) {
+		if (child->getInitialFrameOrder()
+		    < client->getInitialFrameOrder()) {
 			break;
 		}
 	}
@@ -782,7 +779,7 @@ Frame::applyState(Client *cl)
 	if (! cl) {
 		return;
 	}
-    
+
 	cl->setSticky(_sticky);
 	cl->setMaximizedHorz(_maximized_horz);
 	cl->setMaximizedVert(_maximized_vert);
@@ -837,7 +834,8 @@ Frame::findFrameFromWindow(Window win)
 
 	frame_cit it = _frames.begin();
 	for (; it != _frames.end(); ++it) {
-		if (win == (*it)->getWindow()) { // operator == does more than that
+		// operator == does more than that
+		if (win == (*it)->getWindow()) {
 			return *it;
 		}
 	}
@@ -906,13 +904,14 @@ Frame::applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask)
  */
 void
 Frame::applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask,
-                     const Geometry &screen_gm)
+		     const Geometry &screen_gm)
 {
 	// Read size before position so negative position works, if size is
 	// < 1 consider it to be full screen size.
 	if (mask & WIDTH_VALUE) {
 		if (mask & WIDTH_PERCENT) {
-			gm.width = int(screen_gm.width * (float(ap_gm.width) / 100));
+			gm.width = int(screen_gm.width
+					* (float(ap_gm.width) / 100));
 		} else if (ap_gm.width < 1) {
 			gm.width = screen_gm.width;
 		} else {
@@ -922,7 +921,8 @@ Frame::applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask,
 
 	if (mask & HEIGHT_VALUE) {
 		if (mask & HEIGHT_PERCENT) {
-			gm.height = int(screen_gm.height * (float(ap_gm.height) / 100));
+			gm.height = int(screen_gm.height
+					* (float(ap_gm.height) / 100));
 		} else if (ap_gm.height < 1) {
 			gm.height = screen_gm.height;
 		} else {
@@ -963,7 +963,8 @@ Frame::findFrameID(void)
 		id = _frameid_list.back();
 		_frameid_list.pop_back();
 	} else {
-		// No free, get next number (Frame is not in list when this is called.)
+		// No free, get next number (Frame is not in list when this is
+		// called.)
 		id = _frames.size() + 1;
 	}
 
@@ -1084,13 +1085,21 @@ Frame::moveToHead(const std::string& arg)
 	if (head_nr != -1) {
 		// valid value from stoi above
 	} else if (StringUtil::ascii_ncase_equal(arg, "LEFT")) {
-		head_nr = X11Util::getNearestHead(*this, DIRECTION_LEFT, DIRECTION_NO);
+		head_nr = X11Util::getNearestHead(*this,
+						  DIRECTION_LEFT,
+						  DIRECTION_NO);
 	} else if (StringUtil::ascii_ncase_equal(arg, "RIGHT")) {
-		head_nr = X11Util::getNearestHead(*this, DIRECTION_RIGHT, DIRECTION_NO);
+		head_nr = X11Util::getNearestHead(*this,
+						  DIRECTION_RIGHT,
+						  DIRECTION_NO);
 	} else if (StringUtil::ascii_ncase_equal(arg, "UP")) {
-		head_nr = X11Util::getNearestHead(*this, DIRECTION_NO, DIRECTION_UP);
+		head_nr = X11Util::getNearestHead(*this,
+						  DIRECTION_NO,
+						  DIRECTION_UP);
 	} else if (StringUtil::ascii_ncase_equal(arg, "DOWN")) {
-		head_nr = X11Util::getNearestHead(*this, DIRECTION_NO, DIRECTION_DOWN);
+		head_nr = X11Util::getNearestHead(*this,
+						  DIRECTION_NO,
+						  DIRECTION_DOWN);
 	} else {
 		head_nr = X11::findHeadByName(arg);
 		if (head_nr == -1) {
@@ -1249,7 +1258,8 @@ Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
 	XSizeHints hints = _client->getActiveSizeHints();
 
 	Geometry head;
-	pekwm::rootWo()->getHeadInfoWithEdge(X11Util::getNearestHead(*this), head);
+	pekwm::rootWo()->getHeadInfoWithEdge(X11Util::getNearestHead(*this),
+					     head);
 
 	int max_x, max_r, max_y, max_b;
 	max_x = head.x;
@@ -1324,8 +1334,10 @@ Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
 		_client->setMaximizedVert(_maximized_vert);
 	}
 
-	fixGeometry(); // harbour already considered
-	downSize(_gm, true, true); // keep x and keep y ( make conform to inc size )
+	// harbour already considered
+	fixGeometry();
+	// keep x and keep y ( make conform to inc size )
+	downSize(_gm, true, true);
 
 	moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
 
@@ -1348,10 +1360,12 @@ Frame::setStateFullscreen(StateAction sa)
 	bool lock = _client->setConfigureRequestLock(true);
 
 	if (_fullscreen) {
-		if ((_non_fullscreen_decor_state&DECOR_BORDER) != hasBorder()) {
+		if ((_non_fullscreen_decor_state&DECOR_BORDER)
+		    != hasBorder()) {
 			setBorder(STATE_TOGGLE);
 		}
-		if ((_non_fullscreen_decor_state&DECOR_TITLEBAR) != hasTitlebar()) {
+		if ((_non_fullscreen_decor_state&DECOR_TITLEBAR)
+		    != hasTitlebar()) {
 			setTitlebar(STATE_TOGGLE);
 		}
 		_gm = _old_gm;
@@ -1377,8 +1391,11 @@ Frame::setStateFullscreen(StateAction sa)
 	moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
 
 	// Re-stack window if fullscreen is above other windows.
-	if (pekwm::config()->isFullscreenAbove() && _client->getLayer() != LAYER_DESKTOP) {
-		setLayer(_fullscreen ? LAYER_ABOVE_DOCK : _non_fullscreen_layer);
+	if (pekwm::config()->isFullscreenAbove()
+	    && _client->getLayer() != LAYER_DESKTOP) {
+		setLayer(_fullscreen
+				? LAYER_ABOVE_DOCK
+				: _non_fullscreen_layer);
 		raise();
 	}
 
@@ -1589,18 +1606,26 @@ Frame::getMaxBounds(int &max_x,int &max_r, int &max_y, int &max_b)
 		r = (*it)->getRX();
 		b = (*it)->getBY();
 
-		// update max borders when other frame border lies between
-		// this border and prior max border (originally screen/head edge)
-		if ((r >= max_x) && (r <= _gm.x) && ! ((y >= f_b) || (b <= _gm.y))) {
+		// update max borders when other frame border lies between this
+		// border and prior max border (originally screen/head edge)
+		if ((r >= max_x)
+		    && (r <= _gm.x)
+		    && ! ((y >= f_b) || (b <= _gm.y))) {
 			max_x = r;
 		}
-		if ((x <= max_r) && (x >= f_r) && ! ((y >= f_b) || (b <= _gm.y))) {
+		if ((x <= max_r)
+		    && (x >= f_r)
+		    && ! ((y >= f_b) || (b <= _gm.y))) {
 			max_r = x;
 		}
-		if ((b >= max_y) && (b <= _gm.y) && ! ((x >= f_r) || (r <= _gm.x))) {
+		if ((b >= max_y)
+		    && (b <= _gm.y)
+		    && ! ((x >= f_r) || (r <= _gm.x))) {
 			max_y = b;
 		}
-		if ((y <= max_b) && (y >= f_b) && ! ((x >= f_r) || (r <= _gm.x))) {
+		if ((y <= max_b)
+		    && (y >= f_b)
+		    && ! ((x >= f_r) || (r <= _gm.x))) {
 			max_b = y;
 		}
 	}
@@ -1637,7 +1662,8 @@ void
 Frame::growDirection(uint direction)
 {
 	Geometry head;
-	pekwm::rootWo()->getHeadInfoWithEdge(X11Util::getNearestHead(*this), head);
+	pekwm::rootWo()->getHeadInfoWithEdge(X11Util::getNearestHead(*this),
+					     head);
 
 	switch (direction) {
 	case DIRECTION_UP:
@@ -1658,7 +1684,8 @@ Frame::growDirection(uint direction)
 		break;
 	}
 
-	downSize(_gm, (direction != DIRECTION_LEFT), (direction != DIRECTION_UP));
+	downSize(_gm,
+		 (direction != DIRECTION_LEFT), (direction != DIRECTION_UP));
 
 	moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
 }
@@ -1730,8 +1757,9 @@ Frame::readAutoprops(ApplyOn type)
 		}
 	}
 	if (data->isMask(AP_WORKSPACE)) {
-		// In order to avoid eternal recursion, the workspace is only set here
-		// and then actually called PDecor::setWorkspace from Frame::setWorkspace
+		// In order to avoid eternal recursion, the workspace is only
+		// set here and then actually called PDecor::setWorkspace from
+		// Frame::setWorkspace
 		if (type == APPLY_ON_WORKSPACE) {
 			_workspace = data->workspace;
 		}	else if (_workspace != data->workspace) {
@@ -1885,24 +1913,29 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
 	}
 
 	// Update the stacking (ev->value_mask&CWSibling should not happen)
-	if (! client->isCfgDeny(CFG_DENY_STACKING) && ev->value_mask&CWStackMode) {
+	if (! client->isCfgDeny(CFG_DENY_STACKING)
+	    && ev->value_mask&CWStackMode) {
 		if (ev->detail == Above) {
 			raise();
 		} else if (ev->detail == Below) {
 			lower();
-		} // ignore TopIf, BottomIf, Opposite - PekWM is a reparenting WM
+		} // ignore TopIf, BottomIf, Opposite - PekWM is a reparenting
+		  // WM
 	}
 
 	// Update the geometry if requested
-	bool chg_size = ! _client->isCfgDeny(CFG_DENY_SIZE) && (ev->value_mask&(CWWidth|CWHeight));
-	bool chg_pos  = ! _client->isCfgDeny(CFG_DENY_POSITION) && (ev->value_mask&(CWX|CWY));
+	bool chg_size = ! _client->isCfgDeny(CFG_DENY_SIZE)
+		&& (ev->value_mask&(CWWidth|CWHeight));
+	bool chg_pos  = ! _client->isCfgDeny(CFG_DENY_POSITION)
+		&& (ev->value_mask&(CWX|CWY));
 	if (! (chg_size || chg_pos)) {
 		_client->configureRequestSend();
 		return;
 	}
 
 	if (pekwm::config()->isFullscreenDetect()
-	    && (ev->value_mask&(CWX|CWY|CWWidth|CWHeight)) == (CWX|CWY|CWWidth|CWHeight)
+	    && (ev->value_mask&(CWX|CWY|CWWidth|CWHeight))
+		== (CWX|CWY|CWWidth|CWHeight)
 	    && isRequestGeometryFullscreen(ev)) {
 		if (isFullscreen()) {
 			_client->configureRequestSend();
@@ -1921,8 +1954,8 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
 		gm.height += diff_h;
 
 		if (!chg_pos) {
-			setGravityPosition(_client->getActiveSizeHints().win_gravity,
-					   gm.x, gm.y, diff_w, diff_h);
+			int grav = _client->getActiveSizeHints().win_gravity;
+			setGravityPosition(grav, gm.x, gm.y, diff_w, diff_h);
 		}
 	}
 
@@ -1948,7 +1981,8 @@ Frame::handleConfigureRequest(XConfigureRequestEvent *ev, Client *client)
 bool
 Frame::isRequestGeometryFullscreen(XConfigureRequestEvent *ev)
 {
-	if (_client->isCfgDeny(CFG_DENY_SIZE) || _client->isCfgDeny(CFG_DENY_POSITION)
+	if (_client->isCfgDeny(CFG_DENY_SIZE)
+	    || _client->isCfgDeny(CFG_DENY_POSITION)
 	    || ! _client->allowFullscreen()) {
 		return false;
 	}
@@ -1988,16 +2022,18 @@ Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
 				activateChild(client);
 			}
 
-			// If we aren't mapped we check if we make sure we're on the right
-			// workspace and then map the window.
+			// If we aren't mapped we check if we make sure we're
+			// on the right workspace and then map the window.
 			if (! _mapped) {
-				if (_workspace != Workspaces::getActive() &&
-				    !isSticky()) {
-					Workspaces::setWorkspace(_workspace, false);
+				if (_workspace != Workspaces::getActive()
+				    && !isSticky()) {
+					Workspaces::setWorkspace(_workspace,
+								 false);
 				}
 				mapWindow();
 			}
-			// Seems as if raising the window is implied in activating it
+			// Seems as if raising the window is implied in
+			// activating it
 			raise();
 			giveInputFocus();
 		}
@@ -2049,7 +2085,8 @@ Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
 			break;
 		case NET_WM_MOVERESIZE_MOVE:
 			ae = &_ae_move;
-			ae->action_list[0].setParamI(ev->data.l[0], ev->data.l[1]);
+			ae->action_list[0].setParamI(ev->data.l[0],
+						     ev->data.l[1]);
 			break;
 		case NET_WM_MOVERESIZE_SIZE_KEYBOARD:
 		case NET_WM_MOVERESIZE_MOVE_KEYBOARD:
@@ -2110,7 +2147,8 @@ Frame::handleStateAtom(StateAction sa, Atom atom, Client *client)
 		break;
 	case STATE_DEMANDS_ATTENTION:
 		bool ostate = client->demandsAttention();
-		bool nstate = (sa == STATE_SET || (sa == STATE_TOGGLE && ! ostate));
+		bool nstate = (sa == STATE_SET
+			       || (sa == STATE_TOGGLE && ! ostate));
 		client->setDemandsAttention(nstate);
 		if (ostate != nstate) {
 			if (ostate) {
@@ -2181,8 +2219,12 @@ Frame::handlePropertyChange(XPropertyEvent *ev, Client *client)
 	} else if (ev->atom == X11::getAtom(MOTIF_WM_HINTS)) {
 		client->readMwmHints();
 		if (! isFullscreen() && _client == client) {
-			setBorder(_client->hasBorder()?STATE_SET:STATE_UNSET);
-			setTitlebar(_client->hasTitlebar()?STATE_SET:STATE_UNSET);
+			setBorder(_client->hasBorder()
+					? STATE_SET
+					: STATE_UNSET);
+			setTitlebar(_client->hasTitlebar()
+					? STATE_SET
+					: STATE_UNSET);
 		}
 	} else if (ev->atom == XA_WM_NORMAL_HINTS) {
 		client->getWMNormalHints();

@@ -32,7 +32,9 @@ SearchDialog::SearchDialog()
 	_result_menu = new PMenu("", "");
 	_result_menu->reparent(this,
 			       bdLeft(this),
-			       bdTop(this) + titleHeight(this) + _text_wo->getHeight());
+			       bdTop(this)
+				   + titleHeight(this)
+				   + _text_wo->getHeight());
 	_result_menu->setLayer(LAYER_DESKTOP); // Ignore when placing
 	_result_menu->setSticky(STATE_SET);
 	_result_menu->setBorder(STATE_UNSET);
@@ -131,14 +133,16 @@ SearchDialog::findClients(const std::string &search)
 		std::vector<Client*> matches;
 		Client::client_cit it(Client::client_begin());
 		for (; it != Client::client_end(); ++it) {
-			if ((*it)->isFocusable()  && ! (*it)->isSkip(SKIP_FOCUS_TOGGLE)
+			if ((*it)->isFocusable()
+			    && ! (*it)->isSkip(SKIP_FOCUS_TOGGLE)
 			    && search_re == (*it)->getTitle()->getReal()) {
 				matches.push_back(*it);
 			}
 		}
 
 		for (it = matches.begin(); it != matches.end(); ++it) {
-			_result_menu->insert((*it)->getTitle()->getVisible(), *it, (*it)->getIcon());
+			_result_menu->insert((*it)->getTitle()->getVisible(),
+					     *it, (*it)->getIcon());
 		}
 	}
 
@@ -152,9 +156,11 @@ SearchDialog::findClients(const std::string &search)
 	getInputSize(head, width, height);
 
 	if (_result_menu->size()) {
-		resizeChild(_text_wo->getWidth(), height + _result_menu->getHeight());
+		resizeChild(_text_wo->getWidth(),
+			    height + _result_menu->getHeight());
 		X11::raiseWindow(_result_menu->getWindow());
-		// Render first item as selected, needs to be done after map/raise.
+		// Render first item as selected, needs to be done after
+		// map/raise.
 		_result_menu->selectItemNum(0);
 	} else {
 		resizeChild(_text_wo->getWidth(), height);

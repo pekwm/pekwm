@@ -21,7 +21,7 @@
 //! @param name Name of menu
 //! @param decor_name Name of decor, defaults to MENU
 WORefMenu::WORefMenu(const std::string &title,
-                     const std::string &name, const std::string &decor_name)
+		     const std::string &name, const std::string &decor_name)
 	: PMenu(title, name, decor_name),
 	  PWinObjReference(nullptr),
 	  _title_base(title),
@@ -56,7 +56,9 @@ WORefMenu::setWORef(PWinObj *wo_ref)
 	// if of client type, add the clients named to the title
 	if (wo_ref && (wo_ref->getType() == PWinObj::WO_CLIENT)) {
 		Client *client = static_cast<Client*>(wo_ref);
-		title += _title_pre + client->getTitle()->getVisible() + _title_post;
+		title += _title_pre
+			 + client->getTitle()->getVisible()
+			 + _title_post;
 	}
 
 	setTitle(title);

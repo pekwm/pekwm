@@ -101,7 +101,9 @@ public:
 	inline void applyAdd(uint mask) { _apply_mask |= mask; }
 	inline void applyRemove(uint mask) { _apply_mask &= ~mask; }
 
-	inline void setWorkspaces(const std::vector<uint> &ws) { _workspaces=ws; }
+	inline void setWorkspaces(const std::vector<uint>& workspaces) {
+		_workspaces = workspaces;
+	}
 	inline bool applyOnWs(uint ws) {
 		std::vector<uint>::iterator it =
 			std::find(_workspaces.begin(), _workspaces.end(), ws);
@@ -217,7 +219,8 @@ public:
 	~AutoProperties(void);
 
 	AutoProperty* findAutoProperty(const ClassHint* class_hintbb,
-				       int ws = -1, ApplyOn type = APPLY_ON_ALWAYS);
+				       int ws = -1,
+				       ApplyOn type = APPLY_ON_ALWAYS);
 	TitleProperty* findTitleProperty(const ClassHint* class_hint);
 	DecorProperty* findDecorProperty(const ClassHint* class_hint);
 	DockAppProperty* findDockAppProperty(const ClassHint *class_hint);
@@ -241,18 +244,22 @@ private:
 
 	bool parsePropertyMatch(const std::string &str, Property *prop);
 	void parsePropertyApplyOn(const std::string &apply_on, Property *prop);
-	bool parseRegexpOrWarning(RegexString &regex, const std::string regex_str,
+	bool parseRegexpOrWarning(RegexString &regex,
+				  const std::string regex_str,
 				  const std::string &name);
 	bool parseProperty(CfgParser::Entry *section, Property *prop);
-	void parseAutoProperty(CfgParser::Entry *section, std::vector<uint> *ws);
+	void parseAutoProperty(CfgParser::Entry *section,
+			       std::vector<uint> *ws);
+	void parseAutoPropertyType(CfgParser::Entry* it, AutoProperty* prop);
 	void parseAutoGroup(CfgParser::Entry *section, AutoProperty* prop);
 	void parseTitleProperty(CfgParser::Entry *section);
 	void parseDecorProperty(CfgParser::Entry *section);
 
-	void parseAutoPropertyValue(CfgParser::Entry *section, AutoProperty *prop,
-				    std::vector<uint> *ws);
+	void parseAutoPropertyValue(CfgParser::Entry *section,
+				    AutoProperty *prop, std::vector<uint> *ws);
 
 	void parseDockAppProperty(CfgParser::Entry *section);
+	void parseWorkspace(CfgParser::Entry* section);
 	void parseTypeProperty(CfgParser::Entry *section);
 
 	void setDefaultTypeProperties(void);

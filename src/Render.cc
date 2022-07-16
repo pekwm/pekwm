@@ -16,9 +16,9 @@ extern "C" {
 
 void
 renderTiled(const int a_x, const int a_y,
-            const uint a_width, const uint a_height,
-            const uint r_width, const uint r_height,
-            render_fun render, void *opaque)
+	    const uint a_width, const uint a_height,
+	    const uint r_width, const uint r_height,
+	    render_fun render, void *opaque)
 {
 	assert(r_width);
 	assert(r_height);
@@ -125,7 +125,7 @@ X11Render::fill(int x, int y, uint width, uint height)
 
 void
 X11Render::putImage(XImage *image, int dest_x, int dest_y,
-                    uint width, uint height)
+		    uint width, uint height)
 {
 	X11::putImage(_draw, X11::getGC(), image, 0, 0,
 		      dest_x, dest_y, width, height);
@@ -167,15 +167,18 @@ XImageRender::getImage(int src_x, int src_y, uint width, uint height)
 	image->data = new char[image->bytes_per_line * height];
 
 	if (static_cast<int>(src_y + height) > _image->height) {
-		height = std::min(height, static_cast<uint>(_image->height - src_y));
+		height = std::min(height,
+				  static_cast<uint>(_image->height - src_y));
 	}
 	if (static_cast<int>(src_x + width) > _image->width) {
-		width = std::min(width, static_cast<uint>(_image->width - src_x));
+		width = std::min(width,
+				 static_cast<uint>(_image->width - src_x));
 	}
 
 	for (uint y = 0; y < height; y++) {
 		for (uint x = 0; x < width; x++) {
-			XPutPixel(image, x, y, XGetPixel(_image, src_x + x, src_y + y));
+			XPutPixel(image, x, y,
+				  XGetPixel(_image, src_x + x, src_y + y));
 		}
 	}
 
@@ -256,13 +259,18 @@ XImageRender::fill(int x0, int y, uint width, uint height)
 
 void
 XImageRender::putImage(XImage *image, int dest_x, int dest_y,
-                       uint width, uint height)
+		       uint width, uint height)
 {
-	int max_y = std::min(static_cast<int>(height), dest_y + _image->height);
-	int max_x = std::min(static_cast<int>(width), dest_x + _image->width);
+	int max_y =
+		std::min(static_cast<int>(height), dest_y + _image->height);
+	int max_x =
+		std::min(static_cast<int>(width), dest_x + _image->width);
 	for (int y = 0; y < max_y; y++) {
 		for (int x = 0; x < max_x; x++) {
-			XPutPixel(_image, dest_x + x, dest_y + y, XGetPixel(image, x, y));
+			XPutPixel(_image,
+				  dest_x + x,
+				  dest_y + y,
+				  XGetPixel(image, x, y));
 		}
 	}
 }

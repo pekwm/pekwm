@@ -39,6 +39,17 @@ public:
 					    std::vector<ActionEvent> *actions);
 
 private:
+	void handleAction(const ActionPerformed* ap, ActionEvent::it it);
+	bool handleWoAction(const ActionPerformed* ap, ActionEvent::it it);
+	bool handleFrameAction(const ActionPerformed* ap, ActionEvent::it it,
+			       Client* client, Frame* frame);
+	bool handleMenuAction(const ActionPerformed* ap, ActionEvent::it it,
+			      PMenu* menu);
+	bool handleDecorAction(const ActionPerformed* ap, ActionEvent::it it,
+			       PDecor* decor);
+	bool handleAnyAction(const ActionPerformed* ap, ActionEvent::it it,
+			     Client* client, Frame* frame);
+
 	void lookupWindowObjects(PWinObj **wo, Client **client, Frame **frame,
 				 PMenu **menu, PDecor **decor);
 	void handleStateAction(const Action &action, PWinObj *wo,

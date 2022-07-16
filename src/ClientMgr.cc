@@ -54,7 +54,8 @@ ClientMgr::findGroupMatchProperty(Frame *frame, AutoProperty *property)
 	    && (property->group_size == 0
 		|| signed(frame->size()) < property->group_size)
 	    && (((frame->getClassHint()->group.size() > 0)
-		 ? (frame->getClassHint()->group == property->group_name) : false)
+		 ? (frame->getClassHint()->group == property->group_name)
+		 : false)
 		|| AutoProperties::matchAutoClass(*frame->getClassHint(),
 						  property))) {
 		return true;
@@ -74,8 +75,8 @@ ClientMgr::findGroupMatch(AutoProperty *property)
 	// Matching against the focused window first if requested
 	if (property->group_focused_first
 	    && PWinObj::isFocusedPWinObj(PWinObj::WO_CLIENT)) {
-		Frame *fo_frame =
-			static_cast<Frame*>(PWinObj::getFocusedPWinObj()->getParent());
+		PWinObj* wo_parent = PWinObj::getFocusedPWinObj()->getParent();
+		Frame *fo_frame = static_cast<Frame*>(wo_parent);
 		if (findGroupMatchProperty(fo_frame, property)) {
 			frame = fo_frame;
 		}

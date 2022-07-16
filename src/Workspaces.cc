@@ -119,7 +119,8 @@ Workspaces::setSize(uint number)
 	}
 
 	if (number == _workspaces.size()) {
-		return; // no need to change number of workspaces to the current number
+		// no need to change number of workspaces to the current number
+		return;
 	}
 
 	uint before = _workspaces.size();
@@ -370,22 +371,27 @@ Workspaces::warpToWorkspace(uint num, int dir)
 		return false;
 	}
 
-	int x, y;
+	int x, y, edge_size;
 	X11::getMousePosition(x, y);
+	Config* cfg = pekwm::config();
 
 	if (dir != 0) {
 		switch(dir) {
 		case 1:
-			x = X11::getWidth() - std::max(pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_LEFT) + 2, 2);
+			edge_size = cfg->getScreenEdgeSize(SCREEN_EDGE_LEFT);
+			x = X11::getWidth() - std::max(edge_size + 2, 2);
 			break;
 		case 2:
-			x = std::max(pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_RIGHT) * 2, 2);
+			edge_size = cfg->getScreenEdgeSize(SCREEN_EDGE_RIGHT);
+			x = std::max(edge_size + 2, 2);
 			break;
 		case -1:
-			y = X11::getHeight() - std::max(pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_BOTTOM) + 2, 2);
+			edge_size = cfg->getScreenEdgeSize(SCREEN_EDGE_BOTTOM);
+			y = X11::getHeight() - std::max(edge_size + 2, 2);
 			break;
 		case -2:
-			y = std::max(pekwm::config()->getScreenEdgeSize(SCREEN_EDGE_TOP) + 2, 2);
+			edge_size = cfg->getScreenEdgeSize(SCREEN_EDGE_TOP);
+			y = std::max(edge_size + 2, 2);
 			break;
 		}
 
@@ -427,16 +433,18 @@ Workspaces::layout(Frame *frame, Window parent)
 
 	frame->updateDecor();
 
-	// Collect the information which head has a fullscreen window.
-	// To be conservative for now we ignore fullscreen windows on
-	// the desktop or normal layer, because it might be a file
-	// manager in desktop mode, for example.
+	// Collect the information which head has a fullscreen window. To be
+	// conservative for now we ignore fullscreen windows on the desktop or
+	// normal layer, because it might be a file manager in desktop mode,
+	// for example.
 	std::vector<bool> fsHead(X11::getNumHeads(), false);
 	Workspaces::const_iterator it(Workspaces::begin()),
 		end(Workspaces::end());
 	for (; it != end; ++it) {
-		if ((*it)->isMapped() && (*it)->getType() == PWinObj::WO_FRAME) {
-			Client *client = static_cast<Frame*>(*it)->getActiveClient();
+		if ((*it)->isMapped()
+		    && (*it)->getType() == PWinObj::WO_FRAME) {
+			Client *client =
+				static_cast<Frame*>(*it)->getActiveClient();
 			if (client && client->isFullscreen()
 			    && client->getLayer()>LAYER_NORMAL) {
 				fsHead[client->getHead()] = true;
@@ -509,19 +517,20 @@ Workspaces::insert(PWinObj *wo, bool raise)
 		it = std::find(_wobjs.begin(), _wobjs.end(),
 			       wo_frame->getTransFor()->getParent());
 		++it;
-		top_obj = it!=_wobjs.end()?*it:0; // I think it==_wobjs.end() can't happen
+		top_obj = it!=_wobjs.end() ? *it : nullptr;
 	} else {
 		it = _wobjs.begin();
 		for (; it != _wobjs.end(); ++it) {
 			if (raise) {
-				// If raising, make sure the inserted wo gets below the first
-				// window in the next layer.
+				// If raising, make sure the inserted wo gets
+				// below the first window in the next layer.
 				if ((*it)->getLayer() > wo->getLayer()) {
 					top_obj = *it;
 					break;
 				}
 			} else if (wo->getLayer() <= (*it)->getLayer()) {
-				// If lowering, put the window below the first window with the same level.
+				// If lowering, put the window below the first
+				// window with the same level.
 				top_obj = *it;
 				break;
 			}
@@ -612,7 +621,9 @@ Workspaces::unhideAll(uint workspace, bool focus)
 {
 	const_iterator it(_wobjs.begin());
 	for (; it != _wobjs.end(); ++it) {
-		if (! (*it)->isMapped() && ! (*it)->isIconified() && ! (*it)->isHidden()
+		if (! (*it)->isMapped()
+		    && ! (*it)->isIconified()
+		    && ! (*it)->isHidden()
 		    && ((*it)->getWorkspace() == workspace)) {
 			(*it)->mapWindow(); // don't restack ontop windows
 			if ((*it)->getType() == PWinObj::WO_FRAME) {
@@ -846,7 +857,9 @@ Workspaces::buildClientList(unsigned int &num_windows)
 		client_active = frame->getActiveClient();
 
 		if (pekwm::config()->isReportAllClients()) {
-			for (it_c = frame->begin(); it_c != frame->end(); ++it_c) {
+			for (it_c = frame->begin();
+			     it_c != frame->end();
+			     ++it_c) {
 				client = dynamic_cast<Client*>(*it_c);
 				if (client
 				    && client != client_active
@@ -906,7 +919,8 @@ Workspaces::updateClientStackingList(void)
 void
 Workspaces::placeWoInsideScreen(PWinObj *wo)
 {
-	Geometry gm_before(wo->getX(), wo->getY(), wo->getWidth(), wo->getHeight());
+	Geometry gm_before(wo->getX(), wo->getY(),
+			   wo->getWidth(), wo->getHeight());
 	Geometry gm_after(gm_before);
 
 	Strut *strut = 0;
@@ -921,9 +935,11 @@ Workspaces::placeWoInsideScreen(PWinObj *wo)
 		}
 	}
 
-	pekwm::rootWo()->placeInsideScreen(gm_after, strut, wo->isFullscreen(), maximized_virt, maximized_horz);
+	pekwm::rootWo()->placeInsideScreen(gm_after, strut, wo->isFullscreen(),
+					   maximized_virt, maximized_horz);
 	if (gm_before != gm_after) {
-		wo->moveResize(gm_after.x, gm_after.y, gm_after.width, gm_after.height);
+		wo->moveResize(gm_after.x, gm_after.y,
+			       gm_after.width, gm_after.height);
 	}
 }
 
@@ -1021,24 +1037,28 @@ Workspaces::findDirectional(PWinObj *wo, DirectionType dir, uint skip)
 			continue; // only include frames and not having skip set
 		}
 
-		// check main direction, making sure it's at the right side
-		// we check against the middle of the window as it gives a saner feeling
-		// than the edges IMHO
+		// check main direction, making sure it's at the right side we
+		// check against the middle of the window as it gives a saner
+		// feeling than the edges IMHO
 		switch (dir) {
 		case DIRECTION_UP:
-			diff_main = wo_main - ((*it)->getY() + (*it)->getHeight() / 2);
+			diff_main = wo_main
+				- ((*it)->getY() + (*it)->getHeight() / 2);
 			diff_pos = wo->getY() - (*it)->getY();
 			break;
 		case DIRECTION_DOWN:
-			diff_main = ((*it)->getY() + (*it)->getHeight() / 2) - wo_main;
+			diff_main = ((*it)->getY() + (*it)->getHeight() / 2)
+				- wo_main;
 			diff_pos = (*it)->getBY() - wo->getBY();
 			break;
 		case DIRECTION_LEFT:
-			diff_main = wo_main - ((*it)->getX() + (*it)->getWidth() / 2);
+			diff_main = wo_main
+				- ((*it)->getX() + (*it)->getWidth() / 2);
 			diff_pos = wo->getX() - (*it)->getX();
 			break;
 		case DIRECTION_RIGHT:
-			diff_main = ((*it)->getX() + (*it)->getWidth() / 2) - wo_main;
+			diff_main = ((*it)->getX() + (*it)->getWidth() / 2)
+				- wo_main;
 			diff_pos = (*it)->getRX() - wo->getRX();
 			break;
 		default:
@@ -1054,19 +1074,23 @@ Workspaces::findDirectional(PWinObj *wo, DirectionType dir, uint skip)
 		score = diff_main;
 
 		if ((dir == DIRECTION_UP) || (dir == DIRECTION_DOWN)) {
-			if ((wo_sec < (*it)->getX()) || (wo_sec > (*it)->getRX())) {
+			if ((wo_sec < (*it)->getX())
+			    || (wo_sec > (*it)->getRX())) {
 				score += X11::getHeight() / 2;
 			}
-			score += abs (static_cast<long> (wo_sec - ((*it)->getX ()
-								   + (*it)->getWidth () / 2)));
+			score += abs (static_cast<long>(
+						wo_sec - ((*it)->getX ()
+						+ (*it)->getWidth () / 2)));
 
 		} else {
-			if ((wo_sec < (*it)->getY()) || (wo_sec > (*it)->getBY())) {
+			if ((wo_sec < (*it)->getY())
+			    || (wo_sec > (*it)->getBY())) {
 				score += X11::getWidth() / 2;
 			}
 
-			score += abs (static_cast<long> (wo_sec - ((*it)->getY ()
-								   + (*it)->getHeight () / 2)));
+			score += abs(static_cast<long>(
+						wo_sec - ((*it)->getY ()
+						+ (*it)->getHeight () / 2)));
 		}
 
 		if (score < score_min) {
@@ -1102,7 +1126,8 @@ Workspaces::getNextFrame(Frame* frame, bool mapped, uint mask)
 		}
 
 		while (! next_frame && n_it != f_it) {
-			if (! (*n_it)->isSkip(mask) && (! mapped || (*n_it)->isMapped())) {
+			if (! (*n_it)->isSkip(mask)
+			    && (! mapped || (*n_it)->isMapped())) {
 				next_frame =  (*n_it);
 			}
 			if (++n_it == Frame::frame_end()) {
@@ -1140,7 +1165,8 @@ Workspaces::getPrevFrame(Frame* frame, bool mapped, uint mask)
 		--n_it;
 
 		while (! prev_frame && (n_it != f_it)) {
-			if (! (*n_it)->isSkip(mask) && (! mapped || (*n_it)->isMapped())) {
+			if (! (*n_it)->isSkip(mask)
+			    && (! mapped || (*n_it)->isMapped())) {
 				prev_frame =  (*n_it);
 			}
 			if (n_it == Frame::frame_begin()) {

@@ -13,7 +13,7 @@
 #include <cstdlib>
 
 CfgParserKeyBool::CfgParserKeyBool(const char *name, bool &set,
-                                   const bool default_val)
+				   const bool default_val)
 	: CfgParserKey(name),
 	  _set(set),
 	  _default(default_val)
@@ -46,8 +46,8 @@ CfgParserKeyBool::parseValue(const std::string &value)
 }
 
 CfgParserKeyString::CfgParserKeyString(const char *name, std::string &set,
-                                       const std::string default_val,
-                                       const std::string::size_type length_min)
+				       const std::string default_val,
+				       const std::string::size_type length_min)
 	: CfgParserKey(name),
 	  _set(set),
 	  _length_min(length_min)
@@ -76,7 +76,7 @@ CfgParserKeyString::parseValue(const std::string &value)
 }
 
 CfgParserKeyPath::CfgParserKeyPath(const char *name, std::string &set,
-                                   const std::string default_val)
+				   const std::string default_val)
 	: CfgParserKey(name),
 	  _set(set),
 	  _default(default_val)

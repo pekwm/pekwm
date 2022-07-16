@@ -125,14 +125,17 @@ public:
 				size_t width, size_t height);
 
 private:
-	void renderHorz(Render &rend, int x, int y, size_t width, size_t height);
-	void renderVert(Render &rend, int x, int y, size_t width, size_t height);
+	void renderHorz(Render &rend,
+			int x, int y, size_t width, size_t height);
+	void renderVert(Render &rend,
+			int x, int y, size_t width, size_t height);
 
 	void setColors(const std::vector<std::string> &colors);
 	void unsetColors();
 
 private:
-	/** Line width/height, given in percent (0-100) if _size_percent is true */
+	/** Line width/height, given in percent (0-100) if _size_percent is
+	 * true */
 	float _line_size;
 	/** If true, size given in percent instead of pixels. */
 	bool _size_percent;

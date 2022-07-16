@@ -42,14 +42,22 @@ public:
 		inline uint getKey(void) const { return _key; }
 
 		//! @brief Returns vector of Chains that follows.
-		const std::vector<Chain*> &getChains(void) const { return _chains; }
+		const std::vector<Chain*> &getChains(void) const {
+			return _chains;
+		}
 		//! @brief Returns vector of Keys in chain.
-		const std::vector<ActionEvent> &getKeys(void) const { return _keys; }
+		const std::vector<ActionEvent> &getKeys(void) const {
+			return _keys;
+		}
 
 		//! @brief Adds chain to Chain vector.
-		inline void addChain(Chain *chain) { _chains.push_back(chain); }
+		inline void addChain(Chain *chain) {
+			_chains.push_back(chain);
+		}
 		//! @brief Adds action to Key vector.
-		inline void addAction(const ActionEvent &key) { _keys.push_back(key); }
+		inline void addAction(const ActionEvent &key) {
+			_keys.push_back(key);
+		}
 
 		Chain *findChain(XKeyEvent *ev, bool &matched);
 		ActionEvent *findAction(XKeyEvent *ev, bool &matched);
@@ -68,18 +76,25 @@ public:
 	void grabKeys(Window win);
 	void ungrabKeys(Window win);
 
-	ActionEvent *findAction(XKeyEvent *ev, PWinObj::Type type, bool &matched);
+	ActionEvent *findAction(XKeyEvent *ev, PWinObj::Type type,
+				bool &matched);
 	ActionEvent *findMoveResizeAction(XKeyEvent *ev);
+
+private:
+	ActionEvent* findActionGrabbed(KeyGrabber::Chain* sub_chain,
+				       bool& matched);
 
 private:
 	void grabKey(Window win, uint mod, uint key);
 
-	void parseGlobalChain(CfgParser::Entry *section, KeyGrabber::Chain *chain);
+	void parseGlobalChain(CfgParser::Entry *section,
+			      KeyGrabber::Chain *chain);
 	void parseMoveResizeChain(CfgParser::Entry *section,
 				  KeyGrabber::Chain *chain);
 	void parseInputDialogChain(CfgParser::Entry *section,
 				   KeyGrabber::Chain *chain);
-	void parseMenuChain(CfgParser::Entry *section, KeyGrabber::Chain *chain);
+	void parseMenuChain(CfgParser::Entry *section,
+			    KeyGrabber::Chain *chain);
 
 	ActionEvent *findAction(XKeyEvent *ev, KeyGrabber::Chain *chain,
 				bool &matched);

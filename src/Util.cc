@@ -262,7 +262,8 @@ namespace Util {
 		switch (pid) {
 		case 0:
 			setsid();
-			execlp("/bin/sh", "sh", "-c", command.c_str(), (char *) 0);
+			execlp("/bin/sh", "sh", "-c", command.c_str(),
+			       static_cast<char*>(0));
 			P_ERR("execlp failed: " << strerror(errno));
 			exit(1);
 		case -1:
@@ -284,7 +285,8 @@ namespace Util {
 		case 0: {
 			int i = 0;
 			char **argv = new char*[args.size() + 1];
-			std::vector<std::string>::const_iterator it = args.begin();
+			std::vector<std::string>::const_iterator it =
+				args.begin();
 			for (; it != args.end(); ++it) {
 				argv[i++] = const_cast<char*>(it->c_str());
 			}
@@ -370,18 +372,24 @@ namespace Util {
 
 		struct stat stat_buf;
 		if (! stat(file.c_str(), &stat_buf)) {
-			if (stat_buf.st_uid == getuid()) { // user readable and executable
-				if ((stat_buf.st_mode&S_IRUSR) && (stat_buf.st_mode&S_IXUSR)) {
+			// user readable and executable
+			if (stat_buf.st_uid == getuid()) {
+				if ((stat_buf.st_mode&S_IRUSR)
+				    && (stat_buf.st_mode&S_IXUSR)) {
 					return true;
 				}
 			}
-			if (getgid() == stat_buf.st_gid) { // group readable and executable
-				if ((stat_buf.st_mode&S_IRGRP) && (stat_buf.st_mode&S_IXGRP)) {
+			// group readable and executable
+			if (getgid() == stat_buf.st_gid) {
+				if ((stat_buf.st_mode&S_IRGRP)
+				    && (stat_buf.st_mode&S_IXGRP)) {
 					return true;
 				}
 			}
-			if ((stat_buf.st_mode&S_IROTH) && (stat_buf.st_mode&S_IXOTH)) {
-				return true; // other readable and executable
+			// other readable and executable
+			if ((stat_buf.st_mode&S_IROTH)
+			    && (stat_buf.st_mode&S_IXOTH)) {
+				return true;
 			}
 		}
 
@@ -551,7 +559,8 @@ namespace Util {
 				const char *p = sep;
 				for (; *p; p++) {
 					if (it == *p) {
-						if (token.size() > 0 || include_empty) {
+						if (token.size() > 0
+						    || include_empty) {
 							toks.push_back(token);
 							++num_tokens;
 						}

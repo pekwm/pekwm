@@ -52,8 +52,10 @@ KeyGrabber::Chain::findChain(XKeyEvent *ev, bool &matched)
 {
 	std::vector<Chain*>::iterator it = _chains.begin();
 	for (; it != _chains.end(); ++it) {
-		if ((((*it)->getMod() == MOD_ANY) || ((*it)->getMod() == ev->state)) &&
-		    (((*it)->getKey() == 0) || ((*it)->getKey() == ev->keycode))) {
+		if ((((*it)->getMod() == MOD_ANY)
+		      || ((*it)->getMod() == ev->state))
+		    && (((*it)->getKey() == 0)
+			|| ((*it)->getKey() == ev->keycode))) {
 			return *it;
 		}
 	}
@@ -104,9 +106,10 @@ KeyGrabber::load(const std::string &file, bool force)
 	CfgParser key_cfg;
 	if (! key_cfg.parse(file, CfgParserSource::SOURCE_FILE)) {
 		_cfg_files.clear();
-		if (! key_cfg.parse(SYSCONFDIR "/keys", CfgParserSource::SOURCE_FILE,
-				    true)) {
-			P_ERR("no keyfile at " << file << " or " << SYSCONFDIR "/keys");
+		if (! key_cfg.parse(SYSCONFDIR "/keys",
+				    CfgParserSource::SOURCE_FILE, true)) {
+			P_ERR("no keyfile at " << file << " or "
+			      << SYSCONFDIR "/keys");
 			return false;
 		}
 	}
@@ -155,7 +158,8 @@ KeyGrabber::load(const std::string &file, bool force)
 
 //! @brief Parses chain, getting actions as plain ActionEvents
 void
-KeyGrabber::parseGlobalChain(CfgParser::Entry *section, KeyGrabber::Chain *chain)
+KeyGrabber::parseGlobalChain(CfgParser::Entry *section,
+			     KeyGrabber::Chain *chain)
 {
 	ActionEvent ae;
 	uint key, mod;
@@ -164,12 +168,16 @@ KeyGrabber::parseGlobalChain(CfgParser::Entry *section, KeyGrabber::Chain *chain
 	for (; it != section->end(); ++it) {
 		if ((*it)->getSection() && *(*it) == "CHAIN") {
 			// Figure out mod and key, create a new chain.
-			if (ActionConfig::parseKey((*it)->getValue(), mod, key)) {
-				KeyGrabber::Chain *sub_chain = new KeyGrabber::Chain(mod, key);
-				parseGlobalChain((*it)->getSection(), sub_chain);
+			if (ActionConfig::parseKey((*it)->getValue(),
+						   mod, key)) {
+				KeyGrabber::Chain *sub_chain =
+					new KeyGrabber::Chain(mod, key);
+				parseGlobalChain((*it)->getSection(),
+						 sub_chain);
 				chain->addChain(sub_chain);
 			}
-		} else if (ActionConfig::parseActionEvent((*it), ae, KEYGRABBER_OK, false)) {
+		} else if (ActionConfig::parseActionEvent(
+					(*it), ae, KEYGRABBER_OK, false)) {
 			chain->addAction(ae);
 		}
 	}
@@ -177,7 +185,8 @@ KeyGrabber::parseGlobalChain(CfgParser::Entry *section, KeyGrabber::Chain *chain
 
 //! @brief Parses chain, getting actions as MoveResizeEvents
 void
-KeyGrabber::parseMoveResizeChain(CfgParser::Entry *section, KeyGrabber::Chain *chain)
+KeyGrabber::parseMoveResizeChain(CfgParser::Entry *section,
+				 KeyGrabber::Chain *chain)
 {
 	ActionEvent ae;
 	uint key, mod;
@@ -186,9 +195,12 @@ KeyGrabber::parseMoveResizeChain(CfgParser::Entry *section, KeyGrabber::Chain *c
 	for (; it != section->end(); ++it) {
 		if ((*it)->getSection() && *(*it) == "CHAIN") {
 			// Figure out mod and key, create a new chain.
-			if (ActionConfig::parseKey((*it)->getValue(), mod, key)) {
-				KeyGrabber::Chain *sub_chain = new KeyGrabber::Chain(mod, key);
-				parseMoveResizeChain((*it)->getSection(), sub_chain);
+			if (ActionConfig::parseKey((*it)->getValue(),
+						   mod, key)) {
+				KeyGrabber::Chain *sub_chain =
+					new KeyGrabber::Chain(mod, key);
+				parseMoveResizeChain((*it)->getSection(),
+						     sub_chain);
 				chain->addChain(sub_chain);
 			}
 		} else if (pekwm::config()->parseMoveResizeEvent((*it), ae)) {
@@ -199,7 +211,8 @@ KeyGrabber::parseMoveResizeChain(CfgParser::Entry *section, KeyGrabber::Chain *c
 
 //! @brief Parses chain, getting actions as InputDialog Events
 void
-KeyGrabber::parseInputDialogChain(CfgParser::Entry *section, KeyGrabber::Chain *chain)
+KeyGrabber::parseInputDialogChain(CfgParser::Entry *section,
+				  KeyGrabber::Chain *chain)
 {
 	ActionEvent ae;
 	uint key, mod;
@@ -208,9 +221,12 @@ KeyGrabber::parseInputDialogChain(CfgParser::Entry *section, KeyGrabber::Chain *
 	for (; it != section->end(); ++it) {
 		if ((*it)->getSection() && *(*it) == "CHAIN") {
 			// Figure out mod and key, create a new chain.
-			if (ActionConfig::parseKey((*it)->getValue(), mod, key)) {
-				KeyGrabber::Chain *sub_chain = new KeyGrabber::Chain(mod, key);
-				parseInputDialogChain((*it)->getSection(), sub_chain);
+			if (ActionConfig::parseKey((*it)->getValue(),
+						   mod, key)) {
+				KeyGrabber::Chain *sub_chain =
+					new KeyGrabber::Chain(mod, key);
+				parseInputDialogChain((*it)->getSection(),
+						      sub_chain);
 				chain->addChain(sub_chain);
 			}
 		} else if (pekwm::config()->parseInputDialogEvent((*it), ae)) {
@@ -230,9 +246,12 @@ KeyGrabber::parseMenuChain(CfgParser::Entry *section, KeyGrabber::Chain *chain)
 	for (; it != section->end(); ++it) {
 		if ((*it)->getSection() && *(*it) == "CHAIN") {
 			// Figure out mod and key, create a new chain.
-			if (ActionConfig::parseKey((*it)->getValue(), mod, key)) {
-				KeyGrabber::Chain *sub_chain = new KeyGrabber::Chain (mod, key);
-				parseGlobalChain((*it)->getSection(), sub_chain);
+			if (ActionConfig::parseKey((*it)->getValue(),
+						   mod, key)) {
+				KeyGrabber::Chain *sub_chain =
+					new KeyGrabber::Chain (mod, key);
+				parseGlobalChain((*it)->getSection(),
+						 sub_chain);
 				chain->addChain(sub_chain);
 			}
 		} else if (pekwm::config()->parseMenuEvent((*it), ae)) {
@@ -268,8 +287,10 @@ KeyGrabber::grabKey(Window win, uint mod, uint key)
 {
 	Display *dpy = X11::getDpy(); // convenience
 
-	XGrabKey(dpy, key, mod, win, true, GrabModeAsync, GrabModeAsync);
-	XGrabKey(dpy, key, mod|LockMask, win, true, GrabModeAsync, GrabModeAsync);
+	XGrabKey(dpy, key, mod, win, true,
+		 GrabModeAsync, GrabModeAsync);
+	XGrabKey(dpy, key, mod|LockMask, win, true,
+		 GrabModeAsync, GrabModeAsync);
 
 	if (_num_lock) {
 		XGrabKey(dpy, key, mod|_num_lock,
@@ -314,32 +335,38 @@ KeyGrabber::findAction(XKeyEvent *ev, KeyGrabber::Chain *chain, bool &matched)
 	KeyGrabber::Chain *sub_chain = _global_chain.findChain(ev, matched);
 	if (sub_chain) {
 		matched = true;
-
 		if (X11::grabKeyboard(X11::getRoot())) {
-			XEvent c_ev;
-			KeyGrabber::Chain *last_chain;
-			bool exit = false;
-
-			while (! exit) {
-				X11::maskEvent(KeyPressMask, &c_ev);
-				X11::stripStateModifiers(&c_ev.xkey.state);
-
-				KeySym keysym = X11::getKeysymFromKeycode(c_ev.xkey.keycode);
-				if (IsModifierKey(keysym)) {
-					// do nothing
-				} else  if ((last_chain = sub_chain->findChain(&c_ev.xkey,
-									       matched))) {
-					sub_chain = last_chain;
-				} else {
-					action = sub_chain->findAction(&c_ev.xkey, matched);
-					exit = true;
-				}
-			}
-
+			action = findActionGrabbed(sub_chain, matched);
 			X11::ungrabKeyboard();
 		}
 	} else {
 		action = chain->findAction(ev, matched);
+	}
+
+	return action;
+}
+
+ActionEvent*
+KeyGrabber::findActionGrabbed(KeyGrabber::Chain* sub_chain, bool& matched)
+{
+	XEvent c_ev;
+	KeyGrabber::Chain *last_chain;
+	ActionEvent* action = nullptr;
+
+	for (bool exit = false; ! exit; ) {
+		X11::maskEvent(KeyPressMask, &c_ev);
+		X11::stripStateModifiers(&c_ev.xkey.state);
+
+		KeySym keysym = X11::getKeysymFromKeycode(c_ev.xkey.keycode);
+		if (IsModifierKey(keysym)) {
+			// do nothing
+		} else if ((last_chain = sub_chain->findChain(&c_ev.xkey,
+							      matched))) {
+			sub_chain = last_chain;
+		} else {
+			action = sub_chain->findAction(&c_ev.xkey, matched);
+			exit = true;
+		}
 	}
 
 	return action;
@@ -356,7 +383,8 @@ KeyGrabber::findAction(XKeyEvent *ev, PWinObj::Type type, bool &matched)
 	if (type == PWinObj::WO_MENU) {
 		ae = findAction(ev, &_menu_chain, matched);
 	}
-	if (type == PWinObj::WO_CMD_DIALOG || type == PWinObj::WO_SEARCH_DIALOG) {
+	if (type == PWinObj::WO_CMD_DIALOG
+	    || type == PWinObj::WO_SEARCH_DIALOG) {
 		ae = findAction(ev, &_input_dialog_chain, matched);
 	}
 

@@ -1,6 +1,6 @@
 //
 // pekwm_screenshot.cc for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -48,9 +48,11 @@ static void cleanup()
 
 static void usage(const char* name, int ret)
 {
-	std::cout << "usage: " << name << " [-dh] [screenshot.png]" << std::endl;
+	std::cout << "usage: " << name << " [-dh] [screenshot.png]"
+		  << std::endl;
 	std::cout << "  -d --display dpy    Display" << std::endl;
-	std::cout << "  -h --help           Display this information" << std::endl;
+	std::cout << "  -h --help           Display this information"
+		  << std::endl;
 	exit(ret);
 }
 
@@ -93,7 +95,8 @@ int main(int argc, char* argv[])
 	const char* display = NULL;
 
 	static struct option opts[] = {
-		{const_cast<char*>("display"), required_argument, nullptr, 'd'},
+		{const_cast<char*>("display"), required_argument, nullptr,
+		 'd'},
 		{const_cast<char*>("help"), no_argument, nullptr, 'h'},
 		{nullptr, 0, nullptr, 0}
 	};
@@ -126,7 +129,6 @@ int main(int argc, char* argv[])
 	X11::init(dpy, true);
 	init(dpy);
 
-
 	std::string output;
 	if (optind < argc) {
 		output = argv[optind];
@@ -136,7 +138,8 @@ int main(int argc, char* argv[])
 
 	int ret = take_screenshot(output);
 	if (ret) {
-		std::cerr << "failed to write screenshot to " << output << std::endl;
+		std::cerr << "failed to write screenshot to " << output
+			  << std::endl;
 	} else {
 		std::cout << "screenshot written to " << output << std::endl;
 	}

@@ -86,14 +86,15 @@ daemon(int nochdir, int noclose)
 	} else if (pid == 0) {
 		pid_t session = setsid();
 		if (session == -1) {
-			std::cerr << "failed to setsid, aborting: " << strerror(errno)
-				  << std::endl;
+			std::cerr << "failed to setsid, aborting: "
+				  << strerror(errno) << std::endl;
 			exit(1);
 		}
 
 		if (! nochdir) {
 			if (chdir("/") == -1) {
-				std::cerr << "failed to change directory to /" << std::endl;
+				std::cerr << "failed to change directory to /"
+					  << std::endl;
 			}
 		}
 		if (! noclose) {

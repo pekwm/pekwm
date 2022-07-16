@@ -122,11 +122,14 @@ main(int argc, char **argv)
 		if (strcmp("--info", argv[i]) == 0) {
 			printInfo();
 			stop(write_fd, "stop", nullptr);
-		} else if (strcmp("--log-level", argv[i]) == 0 && ((i + 1) < argc)) {
+		} else if (strcmp("--log-level", argv[i]) == 0
+			   && ((i + 1) < argc)) {
 			Debug::setLevel(Debug::getLevel(argv[++i]));
-		} else if (strcmp("--log-file", argv[i]) == 0 && ((i + 1) < argc)) {
+		} else if (strcmp("--log-file", argv[i]) == 0
+			   && ((i + 1) < argc)) {
 			if (! Debug::setLogFile(argv[++i])) {
-				std::cerr << "Failed to open log file " << argv[i] << std::endl;
+				std::cerr << "Failed to open log file "
+					  << argv[i] << std::endl;
 			}
 		} else if (strcmp("--replace", argv[i]) == 0) {
 			replace = true;
@@ -172,7 +175,8 @@ main(int argc, char **argv)
 		  << FEATURES << std::endl
 		  << "using configuration at " << config_file);
 
-	WindowManager *wm = WindowManager::start(config_file, replace, synchronous);
+	WindowManager *wm =
+		WindowManager::start(config_file, replace, synchronous);
 	if (wm) {
 		try {
 			P_TRACE("Enter event loop.");

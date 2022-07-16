@@ -66,14 +66,16 @@ public:
 	void refresh();
 	void clear();
 
-	complete_list find_completions(const std::string &str, unsigned int pos);
+	complete_list find_completions(const std::string &str,
+				       unsigned int pos);
 	std::string do_complete(const std::string &str, unsigned int &pos,
 				complete_list &completions, complete_it &it);
 
 private:
 	std::string get_part(const std::string &str, unsigned int pos,
 			     size_t &part_begin, size_t &part_end);
-	std::string get_word_at_position(const std::string &str, unsigned int pos,
+	std::string get_word_at_position(const std::string &str,
+					 unsigned int pos,
 					 size_t &word_begin, size_t &word_end);
 
 	CompleterMethod *_completer_action;

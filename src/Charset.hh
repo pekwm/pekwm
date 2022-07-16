@@ -31,7 +31,9 @@ namespace Charset
 		bool ok(void) const { return ! end(); }
 
 		size_t pos(void) const { return _pos; }
-		const char* str(void) const { return ok() ? _str.c_str() + _pos : ""; }
+		const char* str(void) const {
+			return ok() ? _str.c_str() + _pos : "";
+		}
 
 		bool operator==(char chr) const;
 		bool operator==(const char* chr) const;

@@ -44,7 +44,8 @@ jsonDumpSection(CfgParser::Entry *entry)
 				name += "-" + (*it)->getValue();
 			}
 
-			std::map<std::string, int>::iterator s_it = sections.find(name);
+			std::map<std::string, int>::iterator s_it =
+				sections.find(name);
 			if (s_it == sections.end()) {
 				sections[name] = 0;
 			} else {
@@ -57,14 +58,15 @@ jsonDumpSection(CfgParser::Entry *entry)
 			std::cout << "}" << std::endl;
 		} else {
 			std::cout << "\"" << (*it)->getName() << "\"";
-			std::cout << ": \"" << (*it)->getValue() << "\"" << std::endl;
+			std::cout << ": \"" << (*it)->getValue()
+				  << "\"" << std::endl;
 		}
 	}
 }
 
 static void
 jsonDump(const std::string& path,
-         const std::map<std::string, std::string> &cfg_env)
+	 const std::map<std::string, std::string> &cfg_env)
 {
 	CfgParser cfg;
 	std::map<std::string, std::string>::const_iterator it =

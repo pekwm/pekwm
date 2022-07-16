@@ -63,7 +63,8 @@ ImageHandler::~ImageHandler(void)
 		      << " entries left");
 
 		while (_images.size()) {
-			std::vector<ImageRefEntry>::iterator it = _images.end() - 1;
+			std::vector<ImageRefEntry>::iterator it =
+				_images.end() - 1;
 			if (it->get()) {
 				P_ERR("delete lost image " << it->getUName());
 				delete it->get();
@@ -85,7 +86,7 @@ ImageHandler::getImage(const std::string &file)
 
 PImage*
 ImageHandler::getImage(const std::string &file, uint &ref,
-                       std::vector<ImageRefEntry> &images)
+		       std::vector<ImageRefEntry> &images)
 {
 	if (! file.size()) {
 		ref = 0;
@@ -99,7 +100,8 @@ ImageHandler::getImage(const std::string &file, uint &ref,
 	size_t pos = file.rfind('#');
 	if (std::string::npos != pos) {
 		real_file = file.substr(0, pos);
-		image_type = Util::StringToGet(image_type_map, file.substr(pos + 1));
+		image_type = Util::StringToGet(image_type_map,
+					       file.substr(pos + 1));
 	}
 
 	// Load the image, try load paths if not an absolute image path
@@ -110,12 +112,14 @@ ImageHandler::getImage(const std::string &file, uint &ref,
 		Util::to_upper(u_real_file);
 		image = getImageFromPath(real_file, u_real_file, ref, images);
 	} else {
-		std::vector<std::string>::reverse_iterator it(_search_path.rbegin());
+		std::vector<std::string>::reverse_iterator it =
+			_search_path.rbegin();
 		for (; it != _search_path.rend(); ++it) {
 			std::string sp_real_file = *it + real_file;
 			std::string u_sp_real_file(sp_real_file);
 			Util::to_upper(u_sp_real_file);
-			image = getImageFromPath(sp_real_file, u_sp_real_file, ref, images);
+			image = getImageFromPath(sp_real_file, u_sp_real_file,
+						 ref, images);
 			if (image) {
 				break;
 			}
@@ -138,9 +142,9 @@ ImageHandler::getImage(const std::string &file, uint &ref,
  */
 PImage*
 ImageHandler::getImageFromPath(const std::string &file,
-                               const std::string &u_file,
-                               uint &ref,
-                               std::vector<ImageRefEntry> &images)
+			       const std::string &u_file,
+			       uint &ref,
+			       std::vector<ImageRefEntry> &images)
 {
 	// Check cache for entry.
 	std::vector<ImageRefEntry>::iterator it = images.begin();
@@ -187,7 +191,7 @@ ImageHandler::takeOwnership(PImage *image)
 
 PImage*
 ImageHandler::getMappedImage(const std::string &file,
-                             const std::string &colormap)
+			     const std::string &colormap)
 {
 	std::string u_colormap(colormap);
 	Util::to_upper(u_colormap);
@@ -245,7 +249,7 @@ ImageHandler::returnMappedImage(PImage *image, const std::string &colormap)
 
 void
 ImageHandler::returnImage(PImage *image,
-                          std::vector<ImageRefEntry> &images)
+			  std::vector<ImageRefEntry> &images)
 {
 	std::vector<ImageRefEntry>::iterator it = images.begin();
 	for (; it != images.end(); ++it) {
@@ -270,7 +274,7 @@ ImageHandler::clearColorMaps(void)
 
 void
 ImageHandler::addColorMap(const std::string& name,
-                          std::map<int,int> color_map)
+			  std::map<int,int> color_map)
 {
 	std::string u_name(name);
 	Util::to_upper(u_name);

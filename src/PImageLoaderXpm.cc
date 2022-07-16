@@ -65,11 +65,13 @@ createXpmToArgbTable(XpmImage *xpm_image, bool &use_alpha)
 					*dest++ = c_tmp;
 				} else {
 					*dest++ = 0;
-					USER_WARN(c_buf << " invalid color value");
+					USER_WARN(c_buf
+						  << " invalid color value");
 				}
 			}
-		} else if (color && XParseColor(X11::getDpy(), X11::getColormap(),
-						color, &xcolor_exact)) {
+		} else if (color
+			   && XParseColor(X11::getDpy(), X11::getColormap(),
+					  color, &xcolor_exact)) {
 			*dest++ = ALPHA_SOLID;
 			*dest++ = xcolor_exact.red;
 			*dest++ = xcolor_exact.green;
@@ -106,7 +108,8 @@ namespace PImageLoaderXpm
 	 * @return Pointer to data on success, else 0.
 	 */
 	uchar*
-	load(const std::string &file, size_t &width, size_t &height, bool &use_alpha)
+	load(const std::string &file, size_t &width, size_t &height,
+	     bool &use_alpha)
 	{
 		// Read XPM to XpmImage format.
 		XpmImage xpm_image = {0};
@@ -131,7 +134,8 @@ namespace PImageLoaderXpm
 		}
 
 		// Build XpmColor -> ARGB Table.
-		int32_t *xpm_to_argb = createXpmToArgbTable(&xpm_image, use_alpha);
+		int32_t *xpm_to_argb =
+			createXpmToArgbTable(&xpm_image, use_alpha);
 
 		width = xpm_image.width;
 		height = xpm_image.height;

@@ -330,7 +330,7 @@ InputDialog::handleExposeEvent(XExposeEvent *ev)
  */
 void
 InputDialog::mapCentered(const std::string &buf, const Geometry &gm,
-                         PWinObj *wo_ref)
+			 PWinObj *wo_ref)
 {
 	// Setup data
 	_hist_it = _history.end();
@@ -365,7 +365,8 @@ InputDialog::moveCentered(const Geometry &head, const Geometry &gm)
 {
 	// Make sure X is inside head.
 	int new_x =
-		gm.x + (static_cast<int>(gm.width) - static_cast<int>(_gm.width)) / 2;
+		gm.x + (static_cast<int>(gm.width)
+			- static_cast<int>(_gm.width)) / 2;
 	if (new_x < head.x) {
 		new_x = head.x;
 	} else if ((new_x + _gm.width) > (head.x + head.width)) {
@@ -374,7 +375,8 @@ InputDialog::moveCentered(const Geometry &head, const Geometry &gm)
 
 	// Make sure Y is inside head.
 	int new_y =
-		gm.y + (static_cast<int>(gm.height) - static_cast<int>(_gm.height)) / 2;
+		gm.y + (static_cast<int>(gm.height)
+			- static_cast<int>(_gm.height)) / 2;
 	if (new_y < head.y) {
 		new_y = head.y;
 	} else if ((new_y + _gm.height) > (head.y + head.height)) {
@@ -452,7 +454,8 @@ InputDialog::render(void)
 
 	// draw cursor
 	if (_buf.pos() > 0) {
-		pos += _data->getFont()->getWidth(buf,  _buf.pos() - _buf_off) + 1;
+		pos += _data->getFont()->getWidth(buf, _buf.pos() - _buf_off)
+			+ 1;
 	}
 	_data->getFont()->draw(_text_wo->getWindow(),
 			       pos, _data->getPad(PAD_UP), "|");
@@ -532,7 +535,8 @@ InputDialog::bufChanged(void)
 		// increase position until it all fits
 		Charset::Utf8Iterator it(_buf.str(), 0);
 		for (; it.pos() < _buf.pos(); ++it) {
-			if (font->getWidth(_buf.str().c_str() + it.pos(), _buf.size() - it.pos())
+			if (font->getWidth(_buf.str().c_str() + it.pos(),
+					   _buf.size() - it.pos())
 			    < _text_wo->getWidth()) {
 				break;
 			}
@@ -630,7 +634,7 @@ InputDialog::updatePixmapSize(void)
  */
 void
 InputDialog::getInputSize(const Geometry &head,
-                          unsigned int &width, unsigned int &height)
+			  unsigned int &width, unsigned int &height)
 {
 	width = head.width / 3;
 	height = _data->getFont()->getHeight()

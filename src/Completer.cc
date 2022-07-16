@@ -28,7 +28,7 @@ extern "C" {
 #include "MenuHandler.hh"
 
 static bool starts_with(const std::string &str, size_t off,
-                        const std::string &prefix, size_t prefix_len)
+			const std::string &prefix, size_t prefix_len)
 {
 	if ((str.size() - off) < prefix_len) {
 		return false;
@@ -37,7 +37,7 @@ static bool starts_with(const std::string &str, size_t off,
 }
 
 CompPair::CompPair(const std::string& _first,
-                   const std::string& _second)
+		   const std::string& _second)
 	: first(_first),
 	  second(_second)
 {
@@ -209,7 +209,7 @@ PathCompleterMethod::refresh_path(DIR *dh, const std::string& path)
 
 void
 PathCompleterMethod::add_path(const std::string& name,
-                              const std::string& path_name)
+			      const std::string& path_name)
 {
 	CompPair nn(name, name);
 	_path_list.push_back(nn);
@@ -266,11 +266,14 @@ public:
 		State type_state = find_state(state);
 		switch (type_state) {
 		case STATE_STATE:
-			return complete_word(_state_list, state.completions, state.word_lower);
+			return complete_word(_state_list, state.completions,
+					     state.word_lower);
 		case STATE_MENU:
-			return complete_word(_menu_list, state.completions, state.word_lower);
+			return complete_word(_menu_list, state.completions,
+					     state.word_lower);
 		case STATE_ACTION:
-			return complete_word(_action_list, state.completions, state.word_lower);
+			return complete_word(_action_list, state.completions,
+					     state.word_lower);
 		case STATE_NO:
 		default:
 			return 0;
@@ -286,9 +289,12 @@ private:
 	State find_state(CompletionState &completion_state);
 	size_t find_state_word_start(const std::string &str);
 
-	completions_list _action_list; /**< List of all available actions. */
-	completions_list _state_list; /**< List of parameters to state actions. */
-	completions_list _menu_list; /**< List of parameters to state actions. */
+	/** List of all available actions. */
+	completions_list _action_list;
+	/** List of parameters to state actions. */
+	completions_list _state_list;
+	/** List of parameters to state actions. */
+	completions_list _menu_list;
 	/**< List of known states with matching data. */
 	static StateMatch STATE_MATCHES[];
 };
@@ -328,8 +334,12 @@ ActionCompleterMethod::State
 ActionCompleterMethod::find_state(CompletionState &completion_state)
 {
 	if (completion_state.word_begin != 0) {
-		for (unsigned i = 0; i < sizeof(STATE_MATCHES)/sizeof(StateMatch); ++i) {
-			if (STATE_MATCHES[i].is_state(completion_state.part_lower, completion_state.part_begin)) {
+		for (unsigned i = 0;
+		     i < sizeof(STATE_MATCHES)/sizeof(StateMatch);
+		     ++i) {
+			if (STATE_MATCHES[i].is_state(
+						completion_state.part_lower,
+						completion_state.part_begin)) {
 				return STATE_MATCHES[i].get_state();
 			}
 		}
@@ -384,7 +394,8 @@ Completer::find_completions(const std::string &str, unsigned int pos)
 
 	// Get word at position, the one that will be completed
 	state.word = state.word_lower =
-		get_word_at_position(str, pos, state.word_begin, state.word_end);
+		get_word_at_position(str, pos,
+				     state.word_begin, state.word_end);
 
 	Util::to_lower(state.part_lower);
 	Util::to_lower(state.word_lower);
@@ -405,7 +416,7 @@ Completer::find_completions(const std::string &str, unsigned int pos)
  */
 std::string
 Completer::do_complete(const std::string &str, unsigned int &pos,
-                       complete_list &completions, complete_it &it)
+		       complete_list &completions, complete_it &it)
 {
 	// Do not perform completion if there is nothing to complete
 	if (! completions.size()) {
@@ -448,15 +459,18 @@ Completer::do_complete(const std::string &str, unsigned int &pos,
  */
 std::string
 Completer::get_part(const std::string &str, unsigned int pos,
-                    size_t &part_begin, size_t &part_end)
+		    size_t &part_begin, size_t &part_end)
 {
 	// Get beginning and end of string, add 1 for removal of separator
-	part_begin = StringUtil::safe_position(str.find_last_of(";", pos), 0, 1);
-	part_end = StringUtil::safe_position(str.find_first_of(";", pos), str.size());
+	part_begin = StringUtil::safe_position(str.find_last_of(";", pos),
+					       0, 1);
+	part_end = StringUtil::safe_position(str.find_first_of(";", pos),
+					     str.size());
 
 	// Strip spaces from the beginning of the string
 	part_begin =
-		StringUtil::safe_position(str.find_first_not_of(" \t", part_begin),
+		StringUtil::safe_position(str.find_first_not_of(" \t",
+								part_begin),
 					  part_end);
 
 	return str.substr(part_begin, part_end - part_begin);
@@ -467,12 +481,13 @@ Completer::get_part(const std::string &str, unsigned int pos,
  */
 std::string
 Completer::get_word_at_position(const std::string &str, unsigned int pos,
-                                size_t &word_begin, size_t &word_end)
+				size_t &word_begin, size_t &word_end)
 {
 	// Get beginning and end of string, add 1 for removal of separator
-	word_begin = StringUtil::safe_position(str.find_last_of(" \t", pos), 0, 1);
-	word_end =
-		StringUtil::safe_position(str.find_first_of(" \t", pos), str.size());
+	word_begin = StringUtil::safe_position(str.find_last_of(" \t", pos),
+					       0, 1);
+	word_end = StringUtil::safe_position(str.find_first_of(" \t", pos),
+					     str.size());
 
 	return str.substr(word_begin, word_end - word_begin);
 }

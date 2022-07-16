@@ -31,7 +31,9 @@ StatusWindow::StatusWindow(Theme* theme)
 	setLayer(LAYER_NONE); // hack, goes over LAYER_MENU
 	_hidden = true; // don't care about it when changing worskpace etc
 
-	_status_wo->setWindow(X11::createWmWindow(_window, 0, 0, 1, 1, CopyFromParent, None));
+	Window win =
+		X11::createWmWindow(_window, 0, 0, 1, 1, CopyFromParent, None);
+	_status_wo->setWindow(win);
 	addChild(_status_wo);
 	activateChild(_status_wo);
 	_status_wo->mapWindow();

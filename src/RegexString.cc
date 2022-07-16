@@ -115,7 +115,9 @@ RegexString::parse_match(const std::string &match, bool full)
 		expression_str = match.substr(1, pos - 1);
 
 		// Expression flags
-		for (std::string::size_type i = pos + 1; i < match.size(); ++i) {
+		for (std::string::size_type i = pos + 1;
+		     i < match.size();
+		     ++i) {
 			switch (match[i]) {
 			case 'i':
 				flags |= REG_ICASE;
@@ -158,7 +160,8 @@ RegexString::parse_replace(const std::string &replace)
 	std::string::size_type begin = 0, end = 0, last = 0;
 
 	// Go through the string and split at \num points
-	while ((end = replace.find_first_of('\\', begin)) != std::string::npos) {
+	while ((end = replace.find_first_of('\\', begin))
+	       != std::string::npos) {
 		// Store string between references.
 		if (end > last) {
 			part = replace.substr(last, end - last);
@@ -213,7 +216,8 @@ RegexString::parse_ed_s(const std::string &ed_s)
 
 	// Middle.
 	for (middle = 1; middle < ed_s.size(); middle++) {
-		if ((ed_s[middle] == c_delimeter) && (ed_s[middle - 1] != '\\')) {
+		if ((ed_s[middle] == c_delimeter)
+		    && (ed_s[middle - 1] != '\\')) {
 			break;
 		}
 	}

@@ -61,10 +61,14 @@ static void usage(const char* name, int ret)
 {
 	std::cout << "usage: " << name << " [-hl] texture" << std::endl;
 	std::cout << "  -d --display dpy    Display" << std::endl;
-	std::cout << "  -D --daemon         Run in the background" << std::endl;
-	std::cout << "  -h --help           Display this information" << std::endl;
-	std::cout << "  -l --load-dir path  Search path for images" << std::endl;
-	std::cout << "  -s --stop           Stop running pekwm_bg" << std::endl;
+	std::cout << "  -D --daemon         Run in the background"
+		  << std::endl;
+	std::cout << "  -h --help           Display this information"
+		  << std::endl;
+	std::cout << "  -l --load-dir path  Search path for images"
+		  << std::endl;
+	std::cout << "  -s --stop           Stop running pekwm_bg"
+		  << std::endl;
 	exit(ret);
 }
 
@@ -150,10 +154,12 @@ int main(int argc, char* argv[])
 	std::string load_dir("./");
 
 	static struct option opts[] = {
-		{const_cast<char*>("display"), required_argument, nullptr, 'd'},
+		{const_cast<char*>("display"), required_argument, nullptr,
+		 'd'},
 		{const_cast<char*>("daemon"), no_argument, nullptr, 'D'},
 		{const_cast<char*>("help"), no_argument, nullptr, 'h'},
-		{const_cast<char*>("load-dir"), required_argument, nullptr, 'l'},
+		{const_cast<char*>("load-dir"), required_argument, nullptr,
+		 'l'},
 		{const_cast<char*>("stop"), no_argument, nullptr, 's'},
 		{nullptr, 0, nullptr, 0}
 	};
@@ -172,7 +178,8 @@ int main(int argc, char* argv[])
 			break;
 		case 'l':
 			load_dir = optarg;
-			if (! load_dir.empty() && load_dir[load_dir.size() - 1] != '/') {
+			if (! load_dir.empty()
+			    && load_dir[load_dir.size() - 1] != '/') {
 				load_dir += '/';
 			}
 			Util::expandFileName(load_dir);

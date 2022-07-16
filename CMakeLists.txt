@@ -131,6 +131,7 @@ option(ENABLE_IMAGE_XPM "include support for XPM images" ON)
 
 option(PEDANTIC "turn on strict compile-time warnings" OFF)
 option(TESTS "include tests" OFF)
+option(DEV "include development tools" OFF)
 
 if (ENABLE_XFT)
   find_package(Freetype)
@@ -221,6 +222,10 @@ add_subdirectory(contrib)
 add_subdirectory(data)
 add_subdirectory(doc)
 add_subdirectory(src)
+
+if (DEV)
+   add_subdirectory(dev)
+endif (DEV)
 
 if (TESTS)
    enable_testing()

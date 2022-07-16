@@ -110,7 +110,7 @@ PWinObj::unmapWindow(void)
 	if (! _mapped) {
 		return;
 	}
-    
+
 	_mapped = false;
 
 	// Make sure unmapped windows drops focus
@@ -126,7 +126,7 @@ PWinObj::iconify(void)
 	if (_iconified) {
 		return;
 	}
-    
+
 	_iconified = true;
 }
 
@@ -163,7 +163,8 @@ void
 PWinObj::resize(uint width, uint height)
 {
 	if (! width || ! height) {
-		P_WARN("width " << width << " height " << height << ", invalid geometry");
+		P_WARN("width " << width << " height " << height
+		       << ", invalid geometry");
 		return;
 	}
 
@@ -243,8 +244,8 @@ void
 PWinObj::giveInputFocus(void)
 {
 	if (! _mapped  || ! _focusable) {
-		P_WARN("trying to focus non focusable window. mapped " << _mapped
-		       << " focusable " << _focusable);
+		P_WARN("trying to focus non focusable window. mapped "
+		       << _mapped << " focusable " << _focusable);
 		return;
 	}
 

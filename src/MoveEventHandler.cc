@@ -11,7 +11,7 @@
 #include "MoveEventHandler.hh"
 
 MoveEventHandler::MoveEventHandler(Config* cfg, PDecor* decor,
-                                   int x_root, int y_root)
+				   int x_root, int y_root)
 	: _cfg(cfg),
 	  _outline(!cfg->getOpaqueMove()),
 	  _show_status_window(cfg->isShowStatusWindow()),
@@ -37,8 +37,7 @@ MoveEventHandler::~MoveEventHandler(void)
 }
 
 void
-MoveEventHandler::notify(Observable *observable,
-                         Observation *observation)
+MoveEventHandler::notify(Observable *observable, Observation *observation)
 {
 	if (observation == &PWinObj::pwin_obj_deleted
 	    && observable == _decor) {

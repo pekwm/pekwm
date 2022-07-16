@@ -28,8 +28,8 @@ PTexture::~PTexture(void)
  */
 void
 PTexture::render(Drawable draw,
-                 int x, int y, size_t width, size_t height,
-                 int root_x, int root_y)
+		 int x, int y, size_t width, size_t height,
+		 int root_x, int root_y)
 {
 	X11Render rend(draw);
 	render(rend, x, y, width, height, root_x, root_y);
@@ -40,8 +40,8 @@ PTexture::render(Drawable draw,
  */
 void
 PTexture::render(Render &rend,
-                 int x, int y, size_t width, size_t height,
-                 int root_x, int root_y)
+		 int x, int y, size_t width, size_t height,
+		 int root_x, int root_y)
 {
 	if (width == 0) {
 		width = _width;
@@ -50,22 +50,25 @@ PTexture::render(Render &rend,
 		height = _height;
 	}
 
-	if (width && height) {
-		if (_opacity == 255) {
-			doRender(rend, x, y, width, height);
-		} else {
-			char *data = static_cast<char*>(malloc(width * height * 4));
-			XImage *ximage = X11::createImage(data, width, height);
-			if (ximage) {
-				XImageRender x_rend(ximage);
-				doRender(x_rend, 0, 0, width, height);
-				if (renderOnBackground(ximage, x, y, width, height,
-						       root_x, root_y)) {
-					X11::putImage(rend.getDrawable(), X11::getGC(), ximage,
-						      0, 0, 0, 0, width, height);
-				}
-				X11::destroyImage(ximage);
+	if (! width || ! height) {
+		return;
+	}
+
+	if (_opacity == 255) {
+		doRender(rend, x, y, width, height);
+	} else {
+		char *data = static_cast<char*>(malloc(width * height * 4));
+		XImage *ximage = X11::createImage(data, width, height);
+		if (ximage) {
+			XImageRender x_rend(ximage);
+			doRender(x_rend, 0, 0, width, height);
+			if (renderOnBackground(ximage, x, y, width, height,
+					       root_x, root_y)) {
+				X11::putImage(rend.getDrawable(),
+					      X11::getGC(), ximage,
+					      0, 0, 0, 0, width, height);
 			}
+			X11::destroyImage(ximage);
 		}
 	}
 }
@@ -77,7 +80,7 @@ PTexture::render(Render &rend,
  */
 void
 PTexture::setBackground(Drawable draw,
-                        int x, int y, size_t width, size_t height)
+			int x, int y, size_t width, size_t height)
 {
 	ulong pixel;
 	if (getPixel(pixel) && _opacity == 255) {
@@ -105,8 +108,8 @@ PTexture::getHeight(void) const
 
 bool
 PTexture::renderOnBackground(XImage *ximage,
-                             int x, int y, size_t width, size_t height,
-                             int root_x, int root_y)
+			     int x, int y, size_t width, size_t height,
+			     int root_x, int root_y)
 {
 	Cardinal pix;
 	if (! X11::getCardinal(X11::getRoot(), XROOTPMAP_ID, pix, XA_PIXMAP)) {

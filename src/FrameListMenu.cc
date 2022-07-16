@@ -31,8 +31,8 @@
 //! @param name Name of menu
 //! @param decor_name Decor name, defaults to MENU
 FrameListMenu::FrameListMenu(MenuType type,
-                             const std::string &title, const std::string &name,
-                             const std::string &decor_name)
+			     const std::string &title, const std::string &name,
+			     const std::string &decor_name)
 	: WORefMenu(title, name, decor_name)
 {
 	_menu_type = type;
@@ -116,15 +116,16 @@ FrameListMenu::updateFrameListMenu(void)
 	char buf[16];
 	std::string name;
 
-	// need to add an action, otherwise it looks as if we don't have anything
-	// to exec and thus it doesn't get handled.
+	// need to add an action, otherwise it looks as if we don't have
+	// anything to exec and thus it doesn't get handled.
 	Action action;
 	ActionEvent ae;
 	ae.action_list.push_back(action);
 
 	// Decide wheter to show clients and iconified.
 	bool show_clients = false, show_iconified_only = false;
-	if (_menu_type == ATTACH_CLIENT_TYPE || _menu_type == GOTOCLIENTMENU_TYPE) {
+	if (_menu_type == ATTACH_CLIENT_TYPE
+	    || _menu_type == GOTOCLIENTMENU_TYPE) {
 		show_clients = true;
 	} else if (_menu_type == ICONMENU_TYPE) {
 		show_iconified_only = true;
@@ -139,7 +140,9 @@ FrameListMenu::updateFrameListMenu(void)
 			snprintf(buf, sizeof(buf), "<%d> ", i + 1);
 		}
 
-		for (it = Frame::frame_begin(); it != Frame::frame_end(); ++it) {
+		for (it = Frame::frame_begin();
+		     it != Frame::frame_end();
+		     ++it) {
 			if (((*it)->getWorkspace() == i) && // sort by workspace
 			    // don't include ourselves if we're not doing a
 			    // gotoclient menu
@@ -152,15 +155,19 @@ FrameListMenu::updateFrameListMenu(void)
 				name = buf;
 
 				if (show_clients) {
-					buildFrameNames(*it, name, (it + 1) != Frame::frame_end());
+					bool is_last =
+						(it + 1) == Frame::frame_end();
+					buildFrameNames(*it, name, !is_last);
 
 				} else {
 					buildName(*it, name);
-					Client *client =
-						static_cast<Client*>((*it)->getActiveChild());
+					Client *client = static_cast<Client*>(
+						(*it)->getActiveChild());
 					name.append("] ");
-					name.append(client->getTitle()->getVisible());
-					insert(name, ae, client, client->getIcon());
+					name.append(client->getTitle()
+							->getVisible());
+					insert(name, ae,
+					       client, client->getIcon());
 				}
 			}
 		}
@@ -193,12 +200,12 @@ FrameListMenu::buildName(Frame* frame, std::string &name)
 //! @brief Builds names for all the clients in a frame.
 void
 FrameListMenu::buildFrameNames(Frame *frame, std::string &pre_name,
-                               bool insert_separator)
+			       bool insert_separator)
 {
 	std::string name, status_name;
 
-	// need to add an action, otherwise it looks as if we don't have anything
-	// to exec and thus it doesn't get handled.
+	// need to add an action, otherwise it looks as if we don't have
+	// anything to exec and thus it doesn't get handled.
 	Action action;
 	ActionEvent ae;
 	ae.action_list.push_back(action);
@@ -213,7 +220,8 @@ FrameListMenu::buildFrameNames(Frame *frame, std::string &pre_name,
 			name.append("A");
 		}
 		name.append("] ");
-		name.append(static_cast<Client*>(*it)->getTitle()->getVisible());
+		Client* client = static_cast<Client*>(*it);
+		name.append(client->getTitle()->getVisible());
 
 		insert(name, ae, *it, static_cast<Client*>(*it)->getIcon());
 	}

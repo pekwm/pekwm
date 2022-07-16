@@ -16,10 +16,10 @@
 typedef void(*render_fun)(int, int, uint, uint, void *opaque);
 
 void renderTiled(const int a_x, const int a_y,
-                 const uint a_width, const uint a_height,
-                 const uint r_width, const uint r_height,
-                 render_fun render,
-                 void *opaque);
+		 const uint a_width, const uint a_height,
+		 const uint r_width, const uint r_height,
+		 render_fun render,
+		 void *opaque);
 
 /**
  * Graphics render interface, used for textures and images.

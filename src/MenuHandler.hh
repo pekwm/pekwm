@@ -27,7 +27,7 @@ public:
 	typedef std::map<std::string, PMenu*> menu_map;
 	typedef menu_map::iterator menu_map_it;
 	typedef menu_map::const_iterator menu_map_cit;
-    
+
 	static PMenu *getMenu(const std::string &name) {
 		menu_map_cit it = _menu_map.find(name);
 		return (it != _menu_map.end()) ? it->second : 0;

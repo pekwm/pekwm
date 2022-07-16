@@ -97,10 +97,12 @@ handleOkResult(char *argv[], int read_fd)
 			execvp(argv[0], argv);
 		} else {
 			command = "exec " + command;
-			execl("/bin/sh", "sh" , "-c", command.c_str(), (char*) 0);
+			execl("/bin/sh", "sh" , "-c", command.c_str(),
+			      static_cast<char*>(0));
 		}
 
-		std::cerr << "failed to run restart command: " << command << std::endl;
+		std::cerr << "failed to run restart command: "
+			  << command << std::endl;
 	}
 
 	return 1;

@@ -39,7 +39,7 @@ extern "C" {
 
 //! @brief PDecor::Button constructor
 PDecor::Button::Button(PWinObj *parent, Theme::PDecorButtonData *data,
-                       uint width, uint height)
+		       uint width, uint height)
 	: PWinObj(true),
 	  _data(data), _state(BUTTON_STATE_UNFOCUSED),
 	  _left(_data->isLeft())
@@ -95,7 +95,8 @@ PDecor::Button::setState(ButtonState state)
 			bool need_free;
 			Pixmap shape = tex->getMask(0, 0, need_free);
 			if (shape != None) {
-				X11::shapeSetMask(_window, ShapeBounding, shape);
+				X11::shapeSetMask(_window, ShapeBounding,
+						  shape);
 				if (need_free) {
 					X11::freePixmap(shape);
 				}
@@ -188,7 +189,7 @@ std::vector<PDecor*> PDecor::_pdecors;
 //! @param dpy Display
 //! @param decor_name String, if not DEFAULT_DECOR_NAME sets _decor_name_saved
 PDecor::PDecor(const std::string &decor_name, const Window child_window,
-               bool init)
+	       bool init)
 	: PWinObj(true),
 	  ThemeGm(nullptr),
 	  _decor_name(decor_name),
@@ -266,9 +267,9 @@ PDecor::createParentWindow(CreateWindowParams &params, Window child_window)
 			params.mask |= CWColormap;
 			params.depth = attr.depth;
 			params.visual = attr.visual;
-			params.attr.colormap = XCreateColormap(X11::getDpy(),
-							       X11::getRoot(),
-							       params.visual, AllocNone);
+			params.attr.colormap =
+				XCreateColormap(X11::getDpy(), X11::getRoot(),
+						params.visual, AllocNone);
 		}
 	}
 	params.attr.event_mask = ButtonPressMask|ButtonReleaseMask|
@@ -297,8 +298,9 @@ PDecor::createTitle(CreateWindowParams &params)
 		ButtonMotionMask|EnterWindowMask;
 	Window title = X11::createWindow(_window,
 					 bdLeft(this), bdTop(this), 1, 1, 0,
-					 params.depth, InputOutput, params.visual,
-					 params.mask, &params.attr);
+					 params.depth, InputOutput,
+					 params.visual, params.mask,
+					 &params.attr);
 	_title_wo.setWindow(title);
 	addChildWindow(_title_wo.getWindow());
 	_title_wo.mapWindow();
@@ -318,8 +320,9 @@ PDecor::createBorder(CreateWindowParams &params)
 
 		_border_win[i] =
 			X11::createWindow(_window, -1, -1, 1, 1, 0,
-					  params.depth, InputOutput, params.visual,
-					  params.mask|CWCursor, &params.attr);
+					  params.depth, InputOutput,
+					  params.visual, params.mask|CWCursor,
+					  &params.attr);
 		addChildWindow(_border_win[i]);
 	}
 }
@@ -403,7 +406,8 @@ PDecor::move(int x, int y)
 	// update real position
 	PWinObj::move(x, y);
 	if (_child && (_decor_cfg_child_move_overloaded)) {
-		_child->move(x + bdLeft(this), y + bdTop(this) + titleHeight(this));
+		_child->move(x + bdLeft(this),
+			     y + bdTop(this) + titleHeight(this));
 	}
 }
 
@@ -490,14 +494,16 @@ PDecor::moveResize(int x, int y, uint width, uint height)
 	// Update size before moving and shaping the rest as shaping
 	// depends on the child window
 	if (_child) {
-		_child->moveResize(x + bdLeft(this), y + bdTop(this) + titleHeight(this),
+		_child->moveResize(x + bdLeft(this),
+				   y + bdTop(this) + titleHeight(this),
 				   getChildWidth(), getChildHeight());
 
-		// The client window may have its window gravity set to something different
-		// than NorthWestGravity (see Xlib manual chapter 3.2.3). Therefore the
-		// X server may not move its top left corner along with the decoration.
-		// We correct these cases by calling alignChild(). It is called only for
-		// _child and not all members of _children, because activateChild.*()
+		// The client window may have its window gravity set to
+		// something different than NorthWestGravity (see Xlib manual
+		// chapter 3.2.3). Therefore the X server may not move its top
+		// left corner along with the decoration. We correct these
+		// cases by calling alignChild(). It is called only for _child
+		// and not all members of _children, because activateChild.*()
 		// does it itself.
 		alignChild(_child);
 	}
@@ -566,8 +572,9 @@ PDecor::setWorkspace(uint workspace)
 {
 	if (workspace != NET_WM_STICKY_WINDOW) {
 		if (workspace >= Workspaces::size()) {
-			P_LOG("this == " << this << " workspace == " << workspace
-			      << " >= number of workspaces == " << Workspaces::size());
+			P_LOG("this == " << this << " workspace == "
+			      << workspace << " >= number of workspaces == "
+			      << Workspaces::size());
 			workspace = Workspaces::size() - 1;
 		}
 		_workspace = workspace;
@@ -903,12 +910,15 @@ PDecor::loadDecor(void)
 	for (; b_it != _data->buttonEnd(); ++b_it) {
 		uint width = std::max(static_cast<uint>(1),
 				      (*b_it)->getWidth()
-				      ? (*b_it)->getWidth() : titleHeight(this));
+				      ? (*b_it)->getWidth()
+				      : titleHeight(this));
 		uint height = std::max(static_cast<uint>(1),
 				       (*b_it)->getHeight()
-				       ? (*b_it)->getHeight() : titleHeight(this));
+				       ? (*b_it)->getHeight()
+				       : titleHeight(this));
 
-		_buttons.push_back(new PDecor::Button(&_title_wo, *b_it, width, height));
+		_buttons.push_back(new PDecor::Button(&_title_wo, *b_it,
+						      width, height));
 		_buttons.back()->mapWindow();
 		addChildWindow(_buttons.back()->getWindow());
 	}
@@ -1254,7 +1264,8 @@ PDecor::moveChildRel(int off)
 
 	if (idx == size) {
 		if (_children.empty()) {
-			P_ERR("_children is empty! off == " << off << " Please report.");
+			P_ERR("_children is empty! off == " << off
+			      << " Please report.");
 			return;
 		}
 		_child = _children.front();
@@ -1266,7 +1277,8 @@ PDecor::moveChildRel(int off)
 		off += size;
 	}
 
-	_children.erase(std::remove(_children.begin(), _children.end(), _child),
+	_children.erase(std::remove(_children.begin(), _children.end(),
+				    _child),
 			_children.end());
 	_children.insert(_children.begin()+off, _child);
 	updatedChildOrder();
@@ -1284,12 +1296,12 @@ PDecor::setShaded(StateAction sa)
 	if (_shaded) {
 		_gm.height = _real_height;
 		_shaded = false;
-		// If we have a titlebar OR border (border will only be visible in
-		// full-width mode only)
+		// If we have a titlebar OR border (border will only be
+		// visible in full-width mode only)
 	} else if (_titlebar || (_border && ! _data->getTitleWidthMin())) {
 		_real_height = _gm.height;
 		_gm.height = titleHeight(this);
-		// shading in non full width title mode will make border go away
+		// Shading in non full width title mode (border not visible)
 		if (! _data->getTitleWidthMin()) {
 			_gm.height += bdTop(this) + bdBottom(this);
 		}
@@ -1387,7 +1399,7 @@ PDecor::renderTitle(void)
 			   x + _data->getPad(PAD_LEFT), // X position
 			   _data->getPad(PAD_UP), // Y position
 			   _titles[i]->getVisible(), 0, // Text and max chars
-			   _titles[i]->getWidth() - pad_horiz, // Available width
+			   _titles[i]->getWidth() - pad_horiz,
 			   trim); // Type of trim
 
 		// move to next tab (or separator if any)
@@ -1411,7 +1423,8 @@ PDecor::renderButtons(void)
 	std::vector<PDecor::Button*>::iterator it = _buttons.begin();
 	for (; it != _buttons.end(); ++it) {
 		(*it)->setState(_focused
-				? BUTTON_STATE_FOCUSED : BUTTON_STATE_UNFOCUSED);
+				? BUTTON_STATE_FOCUSED
+				: BUTTON_STATE_UNFOCUSED);
 	}
 }
 
@@ -1425,8 +1438,9 @@ PDecor::renderBorder(void)
 	uint width, height;
 	FocusedState state = getFocusedState(false);
 	for (int i=0; i < BORDER_NO_POS; ++i) {
+		BorderPosition bp = static_cast<BorderPosition>(i);
 		PTexture *tex =
-			_data->getBorderTexture(state, static_cast<BorderPosition>(i));
+			_data->getBorderTexture(state, bp);
 		getBorderSize(static_cast<BorderPosition>(i), width, height);
 		tex->setBackground(_border_win[i], 0, 0, width, height);
 		X11::clearWindow(_border_win[i]);
@@ -1450,7 +1464,8 @@ PDecor::setBorderShape(void)
 		// Get the size of the border at position
 		getBorderSize(static_cast<BorderPosition>(i), width, height);
 
-		tex = _data->getBorderTexture(state, static_cast<BorderPosition>(i));
+		tex = _data->getBorderTexture(state,
+					      static_cast<BorderPosition>(i));
 		pix = tex->getMask(width, height, do_free);
 
 		if (pix != None) {
@@ -1527,27 +1542,32 @@ PDecor::checkWOSnap(PWinObj *skip_wo, Geometry &gm)
 		// check snap
 		if ((x >= ((*it)->getX() - attract))
 		    && (x <= ((*it)->getX() + resist))) {
-			if (isBetween(gm.y, y, (*it)->getY(), (*it)->getBY())) {
+			if (isBetween(gm.y, y,
+				      (*it)->getY(), (*it)->getBY())) {
 				gm.x = (*it)->getX() - orig_gm.width;
 				snapped = true;
 			}
 		} else if ((gm.x >= signed((*it)->getRX() - resist)) &&
 			   (gm.x <= signed((*it)->getRX() + attract))) {
-			if (isBetween(gm.y, y, (*it)->getY(), (*it)->getBY())) {
+			if (isBetween(gm.y, y,
+				      (*it)->getY(), (*it)->getBY())) {
 				gm.x = (*it)->getRX();
 				snapped = true;
 			}
 		}
 
-		if (y >= ((*it)->getY() - attract) && (y <= (*it)->getY() + resist)) {
-			if (isBetween(gm.x, x, (*it)->getX(), (*it)->getRX())) {
+		if (y >= ((*it)->getY() - attract)
+		    && (y <= (*it)->getY() + resist)) {
+			if (isBetween(gm.x, x,
+				      (*it)->getX(), (*it)->getRX())) {
 				gm.y = (*it)->getY() - orig_gm.height;
 				if (snapped)
 					break;
 			}
 		} else if ((gm.y >= signed((*it)->getBY() - resist)) &&
 			   (gm.y <= signed((*it)->getBY() + attract))) {
-			if (isBetween(gm.x, x, (*it)->getX(), (*it)->getRX())) {
+			if (isBetween(gm.x, x,
+				      (*it)->getX(), (*it)->getRX())) {
 				gm.y = (*it)->getBY();
 				if (snapped)
 					break;
@@ -1640,7 +1660,9 @@ PDecor::placeBorder(void)
 		X11::moveResizeWindow(_border_win[BORDER_TOP],
 				      bdTopLeft(this),
 				      bt_off,
-				      _gm.width - bdTopLeft(this) - bdTopRight(this),
+				      _gm.width
+					  - bdTopLeft(this)
+					  - bdTopRight(this),
 				      bdTop(this));
 
 		X11::moveResizeWindow(_border_win[BORDER_TOP_LEFT],
@@ -1658,7 +1680,9 @@ PDecor::placeBorder(void)
 					      0,
 					      bdTopLeftHeight(this) + bt_off,
 					      bdLeft(this),
-					      _gm.height - bdTopLeftHeight(this) - bdBottomLeftHeight(this));
+					      _gm.height
+						  - bdTopLeftHeight(this)
+						  - bdBottomLeftHeight(this));
 		}
 
 		if (bdRight(this)) {
@@ -1666,7 +1690,9 @@ PDecor::placeBorder(void)
 					      _gm.width - bdRight(this),
 					      bdTopRightHeight(this) + bt_off,
 					      bdRight(this),
-					      _gm.height - bdTopRightHeight(this) - bdBottomRightHeight(this));
+					      _gm.height
+						  - bdTopRightHeight(this)
+						  - bdBottomRightHeight(this));
 		}
 	} else {
 		if (bdLeft(this)) {
@@ -1674,7 +1700,9 @@ PDecor::placeBorder(void)
 					      0,
 					      titleHeight(this),
 					      bdLeft(this),
-					      _gm.height - titleHeight(this) - bdBottom(this));
+					      _gm.height
+						  - titleHeight(this)
+						  - bdBottom(this));
 		}
 
 		if (bdRight(this)) {
@@ -1682,7 +1710,9 @@ PDecor::placeBorder(void)
 					      _gm.width - bdRight(this),
 					      titleHeight(this),
 					      bdRight(this),
-					      _gm.height - titleHeight(this) - bdBottom(this));
+					      _gm.height
+						  - titleHeight(this)
+						  - bdBottom(this));
 		}
 	}
 
@@ -1690,7 +1720,9 @@ PDecor::placeBorder(void)
 		X11::moveResizeWindow(_border_win[BORDER_BOTTOM],
 				      bdBottomLeft(this),
 				      _gm.height - bdBottom(this),
-				      _gm.width - bdBottomLeft(this) - bdBottomRight(this),
+				      _gm.width
+					  - bdBottomLeft(this)
+					  - bdBottomRight(this),
 				      bdBottom(this));
 		X11::moveResizeWindow(_border_win[BORDER_BOTTOM_LEFT],
 				      0,
@@ -1732,10 +1764,12 @@ void
 PDecor::applyBorderShapeNormal(int kind, bool client_shape)
 {
 	Window shape = X11::createWmWindow(X11::getRoot(),
-					   0, 0, _gm.width, _gm.height, InputOutput, None);
+					   0, 0, _gm.width, _gm.height,
+					   InputOutput, None);
 	if (_child) {
 		X11::shapeCombine(shape, kind,
-				  bdLeft(this), bdTop(this) + titleHeight(this),
+				  bdLeft(this),
+				  bdTop(this) + titleHeight(this),
 				  _child->getWindow(), ShapeSet);
 	}
 
@@ -1775,8 +1809,8 @@ PDecor::applyBorderShapeShaded(int kind)
 					    None);
 	} else {
 		shape = X11::createWmWindow(X11::getRoot(),
-					    0, 0, _gm.width, _gm.height, InputOutput,
-					    None);
+					    0, 0, _gm.width, _gm.height,
+					    InputOutput, None);
 		if (_border) {
 			applyBorderShapeBorder(kind, shape);
 		}
@@ -1806,15 +1840,17 @@ PDecor::applyBorderShapeBorder(int kind, Window shape)
 	if (bdLeft(this) > 0) {
 		X11::shapeCombine(shape, kind,
 				  0,
-				  use_bt_off ? bd_top_offset + bdTopLeftHeight(this)
-				  : titleHeight(this),
+				  use_bt_off
+				      ? bd_top_offset + bdTopLeftHeight(this)
+				      : titleHeight(this),
 				  _border_win[BORDER_LEFT], ShapeUnion);
 	}
 
 	if (bdRight(this) > 0) {
 		X11::shapeCombine(shape, kind, _gm.width - bdRight(this),
-				  use_bt_off ? bd_top_offset + bdTopRightHeight(this)
-				  : titleHeight(this),
+				  use_bt_off
+				      ? bd_top_offset + bdTopRightHeight(this)
+				      : titleHeight(this),
 				  _border_win[BORDER_RIGHT], ShapeUnion);
 	}
 
@@ -1823,7 +1859,8 @@ PDecor::applyBorderShapeBorder(int kind, Window shape)
 				  0, _gm.height - bdBottomLeftHeight(this),
 				  _border_win[BORDER_BOTTOM_LEFT], ShapeUnion);
 		X11::shapeCombine(shape, kind,
-				  bdBottomLeft(this), _gm.height - bdBottom(this),
+				  bdBottomLeft(this),
+				  _gm.height - bdBottom(this),
 				  _border_win[BORDER_BOTTOM], ShapeUnion);
 		X11::shapeCombine(shape, kind,
 				  _gm.width - bdBottomRight(this),
@@ -1891,8 +1928,11 @@ PDecor::getBorderSize(BorderPosition pos, uint &width, uint &height)
 		height = _data->getBorderTexture(state, pos)->getHeight();
 		break;
 	case BORDER_BOTTOM:
-		if ((bdBottomLeft(this) + bdBottomRight(this)) < _gm.width) {
-			width = _gm.width - bdBottomLeft(this) - bdBottomRight(this);
+		if ((bdBottomLeft(this)
+		     + bdBottomRight(this)) < _gm.width) {
+			width = _gm.width
+				- bdBottomLeft(this)
+				- bdBottomRight(this);
 		} else {
 			width = 1;
 		}
@@ -1900,16 +1940,22 @@ PDecor::getBorderSize(BorderPosition pos, uint &width, uint &height)
 		break;
 	case BORDER_LEFT:
 		width = _data->getBorderTexture(state, pos)->getWidth();
-		if ((bdTopLeftHeight(this) + bdBottomLeftHeight(this)) < _gm.height) {
-			height = _gm.height - bdTopLeftHeight(this) - bdBottomLeftHeight(this);
+		if ((bdTopLeftHeight(this)
+		     + bdBottomLeftHeight(this)) < _gm.height) {
+			height = _gm.height
+				- bdTopLeftHeight(this)
+				- bdBottomLeftHeight(this);
 		} else {
 			height = 1;
 		}
 		break;
 	case BORDER_RIGHT:
 		width = _data->getBorderTexture(state, pos)->getWidth();
-		if ((bdTopRightHeight(this) + bdBottomRightHeight(this)) < _gm.height) {
-			height = _gm.height - bdTopRightHeight(this) - bdBottomRightHeight(this);
+		if ((bdTopRightHeight(this)
+		     + bdBottomRightHeight(this)) < _gm.height) {
+			height = _gm.height
+				- bdTopRightHeight(this)
+				- bdBottomRightHeight(this);
 		} else {
 			height = 1;
 		}
@@ -1944,13 +1990,15 @@ PDecor::calcTitleWidth(void)
 uint
 PDecor::calcTitleWidthDynamic(void)
 {
+	FocusedState fs = getFocusedState(false);
 	uint width = 0;
 	uint width_max = 0;
 	// FIXME: what about selected tabs?
-	PFont *font = getFont(getFocusedState(false));
+	PFont *font = getFont(fs);
 
 	if (_data->isTitleWidthSymetric()) {
-		// Symetric mode, get max tab width, multiply with number of tabs
+		// Symetric mode, get max tab width, multiply with number
+		// of tabs
 		std::vector<PDecor::TitleItem*>::iterator it = _titles.begin();
 		for (; it != _titles.end(); ++it) {
 			width = font->getWidth((*it)->getVisible());
@@ -1959,7 +2007,9 @@ PDecor::calcTitleWidthDynamic(void)
 			}
 		}
 
-		width = width_max + _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT);
+		width = width_max
+			+ _data->getPad(PAD_LEFT)
+			+ _data->getPad(PAD_RIGHT);
 		width *= _titles.size();
 
 	} else {
@@ -1967,13 +2017,14 @@ PDecor::calcTitleWidthDynamic(void)
 		std::vector<PDecor::TitleItem*>::iterator it = _titles.begin();
 		for (; it != _titles.end(); ++it) {
 			width += font->getWidth((*it)->getVisible())
-				+ _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT);
+				+ _data->getPad(PAD_LEFT)
+				+ _data->getPad(PAD_RIGHT);
 		}
 	}
 
 	// Add width of separators and buttons
 	width += (_titles.size() - 1)
-		* _data->getTextureSeparator(getFocusedState(false))->getWidth();
+		* _data->getTextureSeparator(fs)->getWidth();
 	width += _titles_left + _titles_right;
 
 	// Validate sizes, make sure it is not less than width min
@@ -2012,7 +2063,8 @@ PDecor::calcTabsWidth(void)
  * @param off Number of pixels left with tab_width pixels wide tabs.
  */
 void
-PDecor::calcTabsGetAvailAndTabWidth(uint &width_avail, uint &tab_width, int &off)
+PDecor::calcTabsGetAvailAndTabWidth(uint& width_avail, uint& tab_width,
+				    int &off)
 {
 	// Calculate width
 	width_avail = _title_wo.getWidth();
@@ -2023,8 +2075,9 @@ PDecor::calcTabsGetAvailAndTabWidth(uint &width_avail, uint &tab_width, int &off
 	}
 
 	// Remove separators if enough space is available
+	FocusedState fs = getFocusedState(false);
 	uint sep_width = (_titles.size() - 1)
-		* _data->getTextureSeparator(getFocusedState(false))->getWidth();
+		* _data->getTextureSeparator(fs)->getWidth();
 	if (width_avail > sep_width) {
 		width_avail -= sep_width;
 	}
@@ -2073,7 +2126,9 @@ PDecor::calcTabsWidthAsymetric(void)
 	for (; it != _titles.end(); ++it) {
 		// This should set the tab width to be only the size needed
 		width = font->getWidth((*it)->getVisible().c_str())
-			+ _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT) + ((off-- > 0) ? 1 : 0);
+			+ _data->getPad(PAD_LEFT)
+			+ _data->getPad(PAD_RIGHT)
+			+ ((off-- > 0) ? 1 : 0);
 		width_total += width;
 		(*it)->setWidth(width);
 	}
@@ -2097,7 +2152,8 @@ PDecor::calcTabsWidthAsymetricShrink(uint width_avail, uint tab_width)
 	std::vector<PDecor::TitleItem*>::iterator it = _titles.begin();
 	for (; it != _titles.end(); ++it) {
 		if ((*it)->getWidth() < tab_width) {
-			// 3. Add width of tabs requiring less space to the average.
+			// 3. Add width of tabs requiring less space than the
+			//    the average
 			tabs_left--;
 			width_avail -= (*it)->getWidth();
 		}

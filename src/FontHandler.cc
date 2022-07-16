@@ -215,7 +215,8 @@ PFont::Color*
 FontHandler::getColor(const std::string &color)
 {
 	// check cache
-	std::vector<HandlerEntry<PFont::Color*> >::iterator it = _colors.begin();
+	std::vector<HandlerEntry<PFont::Color*> >::iterator it =
+		_colors.begin();
 	for (; it != _colors.end(); ++it) {
 		if (*it == color) {
 			it->incRef();
@@ -248,7 +249,8 @@ FontHandler::getColor(const std::string &color)
 void
 FontHandler::returnColor(PFont::Color *color)
 {
-	std::vector<HandlerEntry<PFont::Color*> >::iterator it = _colors.begin();
+	std::vector<HandlerEntry<PFont::Color*> >::iterator it =
+		_colors.begin();
 	for (; it != _colors.end(); ++it) {
 		if (it->getData() == color) {
 			it->decRef();
@@ -264,7 +266,7 @@ FontHandler::returnColor(PFont::Color *color)
 //! @brief Helper loader of font colors ( main and offset color )
 void
 FontHandler::loadColor(const std::string &color, PFont::Color *font_color,
-                       bool fg)
+		       bool fg)
 {
 	XColor *xc;
 
@@ -276,7 +278,8 @@ FontHandler::loadColor(const std::string &color, PFont::Color *font_color,
 			alpha = 100;
 		}
 
-		alpha = static_cast<uint>(65535 * (static_cast<float>(alpha) / 100));
+		alpha = static_cast<uint>(65535
+				* (static_cast<float>(alpha) / 100));
 
 		if (fg) {
 			font_color->setFgAlpha(alpha);

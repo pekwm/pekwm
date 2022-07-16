@@ -41,7 +41,7 @@ class TimeFiles {
 public:
 	typedef std::vector<std::string> filev;
 	typedef filev::iterator filev_it;
-    
+
 	TimeFiles() : mtime(0) {}
 
 	time_t mtime;
@@ -57,13 +57,15 @@ public:
 	typedef std::map<std::string, std::string> var_map;
 	typedef var_map::iterator var_map_it;
 	typedef var_map::const_iterator var_map_cit;
+	typedef std::vector<CfgParserKey*>::const_iterator key_cit;
 
 	//! @brief Entry in parsed data structure.
 	class Entry {
 	public:
 		typedef std::vector<CfgParser::Entry*>::iterator entry_it;
-		typedef std::vector<CfgParser::Entry*>::const_iterator entry_cit;
-        
+		typedef std::vector<CfgParser::Entry*>::const_iterator
+			entry_cit;
+
 		Entry(const std::string &source_name, int line,
 		      const std::string &name, const std::string &value,
 		      CfgParser::Entry *section=0);
@@ -80,18 +82,21 @@ public:
 
 		Entry *addEntry(Entry *entry, bool overwrite=false);
 		Entry *addEntry(const std::string &source_name, int line,
-				const std::string &name, const std::string &value,
-				CfgParser::Entry *section=0, bool overwrite=false);
+				const std::string &name,
+				const std::string &value,
+				CfgParser::Entry *section=0,
+				bool overwrite=false);
 
 		//! @brief Returns the sub section.
 		Entry *getSection(void) { return _section; }
 		Entry *setSection(Entry *section, bool overwrite=false);
 
-		Entry *findEntry(const std::string &name, bool include_sections=false,
+		Entry *findEntry(const std::string &name,
+				 bool include_sections=false,
 				 const char *value=0) const;
-		Entry *findSection(const std::string &name, const char *value=0) const;
-		void parseKeyValues(std::vector<CfgParserKey*>::const_iterator begin,
-				    std::vector<CfgParserKey*>::const_iterator end) const;
+		Entry *findSection(const std::string &name,
+				   const char *value=0) const;
+		void parseKeyValues(key_cit begin, key_cit end) const;
 
 		void print(uint level = 0);
 		void copyTreeInto(CfgParser::Entry *from, bool overwrite=false);
@@ -100,7 +105,8 @@ public:
 		bool operator==(const char *rhs) {
 			return StringUtil::ascii_ncase_equal(rhs, _name);
 		}
-		friend std::ostream &operator<<(std::ostream &stream, const CfgParser::Entry &entry);
+		friend std::ostream &operator<<(std::ostream &stream,
+						const CfgParser::Entry &entry);
 
 	private:
 		/** List of entries in section. */
@@ -145,7 +151,8 @@ public:
 
 private:
 	bool parse(void);
-	void parseSourceNew(const std::string &name, CfgParserSource::Type type);
+	void parseSourceNew(const std::string &name,
+			    CfgParserSource::Type type);
 	bool parseName(std::string &buf);
 	bool parseValue(std::string &value);
 	void parseEntryFinish(std::string &buf, std::string &value,

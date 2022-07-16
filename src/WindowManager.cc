@@ -367,19 +367,23 @@ WindowManager::screenEdgeCreate(void)
 	RootWO *root_wo = pekwm::rootWo();
 	_screen_edges[0] =
 		new EdgeWO(root_wo, SCREEN_EDGE_LEFT,
-			   indent && (cfg->getScreenEdgeSize(SCREEN_EDGE_LEFT) > 0),
+			   indent
+			   && (cfg->getScreenEdgeSize(SCREEN_EDGE_LEFT) > 0),
 			   cfg);
 	_screen_edges[1] =
 		new EdgeWO(root_wo, SCREEN_EDGE_RIGHT,
-			   indent && (cfg->getScreenEdgeSize(SCREEN_EDGE_RIGHT) > 0),
+			   indent
+			   && (cfg->getScreenEdgeSize(SCREEN_EDGE_RIGHT) > 0),
 			   cfg);
 	_screen_edges[2] =
 		new EdgeWO(root_wo, SCREEN_EDGE_TOP,
-			   indent && (cfg->getScreenEdgeSize(SCREEN_EDGE_TOP) > 0),
+			   indent
+			   && (cfg->getScreenEdgeSize(SCREEN_EDGE_TOP) > 0),
 			   cfg);
 	_screen_edges[3] =
 		new EdgeWO(root_wo, SCREEN_EDGE_BOTTOM,
-			   indent && (cfg->getScreenEdgeSize(SCREEN_EDGE_BOTTOM) > 0),
+			   indent
+			   && (cfg->getScreenEdgeSize(SCREEN_EDGE_BOTTOM) > 0),
 			   cfg);
 
 	// make sure the edge stays ontop
@@ -432,7 +436,8 @@ WindowManager::screenEdgeMapUnmap(void)
 		edge = _screen_edges[i];
 		Config *cfg = pekwm::config();
 		if (cfg->getScreenEdgeSize(edge->getEdge()) > 0
-		    && cfg->getEdgeListFromPosition(edge->getEdge())->size() > 0) {
+		    && cfg->getEdgeListFromPosition(edge->getEdge())->size()
+		       > 0) {
 			edge->mapWindow();
 		} else {
 			edge->unmapWindow();
@@ -663,12 +668,14 @@ WindowManager::handleSignals(void)
 			pid = waitpid(WAIT_ANY, nullptr, WNOHANG);
 			if (pid == -1) {
 				if (errno == EINTR) {
-					P_TRACE("waitpid interrupted, retrying");
+					P_TRACE("waitpid interrupted, "
+						"retrying");
 				}
 			} else if (pid == 0) {
 				P_TRACE("no more finished child processes");
 			} else {
-				P_TRACE("child process " << pid << " finished");
+				P_TRACE("child process " << pid
+					<< " finished");
 			}
 		} while (pid > 0 || (pid == -1 && errno == EINTR));
 
@@ -829,7 +836,8 @@ WindowManager::handleEvent(XEvent &ev)
 			screenEdgeResize();
 
 			// Make sure windows are visible after resize
-			std::vector<PDecor*>::const_iterator it(PDecor::pdecor_begin());
+			std::vector<PDecor*>::const_iterator it =
+				PDecor::pdecor_begin();
 			for (; it != PDecor::pdecor_end(); ++it) {
 				Workspaces::placeWoInsideScreen(*it);
 			}
@@ -1019,15 +1027,16 @@ WindowManager::handleConfigureRequestEvent(XConfigureRequestEvent *ev)
 	Client *client = Client::findClientFromWindow(ev->window);
 
 	if (client) {
-		((Frame*) client->getParent())->handleConfigureRequest(ev, client);
-
+		Frame* frame = static_cast<Frame*>(client->getParent());
+		frame->handleConfigureRequest(ev, client);
 	} else {
 		DockApp *da = pekwm::harbour()->findDockApp(ev->window);
 		if (da) {
 			pekwm::harbour()->handleConfigureRequestEvent(ev, da);
 		} else {
 			// Since this window isn't yet a client lets delegate
-			// the configure request back to the window so it can use it.
+			// the configure request back to the window so it can
+			// use it.
 
 			XWindowChanges wc;
 
@@ -1038,7 +1047,8 @@ WindowManager::handleConfigureRequestEvent(XConfigureRequestEvent *ev)
 			wc.sibling = ev->above;
 			wc.stack_mode = ev->detail;
 
-			XConfigureWindow(X11::getDpy(), ev->window, ev->value_mask, &wc);
+			XConfigureWindow(X11::getDpy(), ev->window,
+					 ev->value_mask, &wc);
 		}
 	}
 }
@@ -1063,12 +1073,13 @@ WindowManager::handleMotionEvent(XMotionEvent *ev)
 		} else if (wo->getType() == PWinObj::WO_FRAME) {
 			ae = wo->handleMotionEvent(ev);
 
-			// this is done so that clicking the titlebar executes action on
-			// the client clicked on
+			// this is done so that clicking the titlebar executes
+			// action on the client clicked on
+			Frame* frame = static_cast<Frame*>(wo);
 			if (ev->subwindow != None) {
-				wo = static_cast<Frame*>(wo)->getActiveChild();
+				wo = frame->getActiveChild();
 			} else {
-				wo = static_cast<Frame*>(wo)->getChildFromPos(ev->x);
+				wo = frame->getChildFromPos(ev->x);
 			}
 
 		} else {
@@ -1083,7 +1094,8 @@ WindowManager::handleMotionEvent(XMotionEvent *ev)
 			pekwm::actionHandler()->handleAction(&ap);
 		}
 	} else {
-		DockApp *da = pekwm::harbour()->findDockAppFromFrame(ev->window);
+		DockApp* da =
+			pekwm::harbour()->findDockAppFromFrame(ev->window);
 		if (da) {
 			pekwm::harbour()->handleMotionNotifyEvent(ev, da);
 		}
@@ -1244,59 +1256,65 @@ WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
 	}
 
 	PWinObj *wo = PWinObj::findPWinObj(ev->window);
-	if (wo) {
-		// To simplify logic, changing client in frame wouldn't update the
-		// focused window because wo != focused_wo woule be true.
-		if (wo->getType() == PWinObj::WO_FRAME) {
-			wo = static_cast<Frame*>(wo)->getActiveChild();
+	if (wo == nullptr) {
+		return;
+	}
+
+	// To simplify logic, changing client in frame wouldn't update the
+	// focused window because wo != focused_wo woule be true.
+	if (wo->getType() == PWinObj::WO_FRAME) {
+		wo = static_cast<Frame*>(wo)->getActiveChild();
+	}
+
+	if (! wo->isFocusable() || ! wo->isMapped()) {
+		Workspaces::findWOAndFocus(nullptr);
+
+	} else if (wo != PWinObj::getFocusedPWinObj()) {
+		// If it's a valid FocusIn event with accepatable target lets
+		// flush all EnterNotify and LeaveNotify as they can interfere
+		// with focusing if Sloppy or Follow like focus model is used.
+		XEvent e_flush;
+		while (X11::checkTypedEvent(EnterNotify, &e_flush)) {
+			if (! e_flush.xcrossing.send_event) {
+				X11::setLastEventTime(e_flush.xcrossing.time);
+			}
+		}
+		while (X11::checkTypedEvent(LeaveNotify, &e_flush)) {
+			if (! e_flush.xcrossing.send_event) {
+				X11::setLastEventTime(e_flush.xcrossing.time);
+			}
 		}
 
-		if (! wo->isFocusable() || ! wo->isMapped()) {
-			Workspaces::findWOAndFocus(nullptr);
+		PWinObj *focused_wo = PWinObj::getFocusedPWinObj();
 
-		} else if (wo != PWinObj::getFocusedPWinObj()) {
-			// If it's a valid FocusIn event with accepatable target lets flush
-			// all EnterNotify and LeaveNotify as they can interfere with
-			// focusing if Sloppy or Follow like focus model is used.
-			XEvent e_flush;
-			while (X11::checkTypedEvent(EnterNotify, &e_flush)) {
-				if (! e_flush.xcrossing.send_event) {
-					X11::setLastEventTime(e_flush.xcrossing.time);
-				}
-			}
-			while (X11::checkTypedEvent(LeaveNotify, &e_flush)) {
-				if (! e_flush.xcrossing.send_event) {
-					X11::setLastEventTime(e_flush.xcrossing.time);
-				}
-			}
-
-			PWinObj *focused_wo = PWinObj::getFocusedPWinObj(); // convenience
-
-			// unfocus last window
-			if (focused_wo) {
-				if (focused_wo->getType() == PWinObj::WO_CLIENT) {
-					focused_wo->getParent()->setFocused(false);
-				} else {
-					focused_wo->setFocused(false);
-				}
-				Workspaces::setLastFocused(Workspaces::getActive(), focused_wo);
-			}
-
-			PWinObj::setFocusedPWinObj(wo);
-
-			if (wo->getType() == PWinObj::WO_CLIENT) {
-				wo->getParent()->setFocused(true);
-				pekwm::rootWo()->setEwmhActiveWindow(wo->getWindow());
-
-				// update the MRU list (except for skip focus windows, see #297)
-				if (! static_cast<Client*>(wo)->isSkip(SKIP_FOCUS_TOGGLE)) {
-					Frame *frame = static_cast<Frame*>(wo->getParent());
-					Workspaces::addToMRUFront(frame);
-				}
+		// unfocus last window
+		if (focused_wo) {
+			if (focused_wo->getType() == PWinObj::WO_CLIENT) {
+				focused_wo->getParent()->setFocused(false);
 			} else {
-				wo->setFocused(true);
-				pekwm::rootWo()->setEwmhActiveWindow(None);
+				focused_wo->setFocused(false);
 			}
+			Workspaces::setLastFocused(Workspaces::getActive(),
+						   focused_wo);
+		}
+
+		PWinObj::setFocusedPWinObj(wo);
+
+		if (wo->getType() == PWinObj::WO_CLIENT) {
+			wo->getParent()->setFocused(true);
+			pekwm::rootWo()->setEwmhActiveWindow(wo->getWindow());
+
+			// update the MRU list (except for skip focus windows,
+			// see #297)
+			Client* client = static_cast<Client*>(wo);
+			if (! client->isSkip(SKIP_FOCUS_TOGGLE)) {
+				Frame *frame =
+					static_cast<Frame*>(wo->getParent());
+				Workspaces::addToMRUFront(frame);
+			}
+		} else {
+			wo->setFocused(true);
+			pekwm::rootWo()->setEwmhActiveWindow(None);
 		}
 	}
 }
@@ -1314,7 +1332,8 @@ WindowManager::handleClientMessageEvent(XClientMessageEvent *ev)
 		handlePekwmCmd(ev);
 	} if (ev->window == X11::getRoot()) {
 		if (ev->format == 32) {
-			if (ev->message_type == X11::getAtom(NET_CURRENT_DESKTOP)) {
+			if (ev->message_type
+			    == X11::getAtom(NET_CURRENT_DESKTOP)) {
 				Workspaces::setWorkspace(ev->data.l[0], true);
 			} else if (ev->message_type ==
 				   X11::getAtom(NET_NUMBER_OF_DESKTOPS)) {
@@ -1323,13 +1342,16 @@ WindowManager::handleClientMessageEvent(XClientMessageEvent *ev)
 				}
 			}
 		}
-	} else if (ev->message_type == X11::getAtom(NET_REQUEST_FRAME_EXTENTS)) {
+	} else if (ev->message_type
+		   == X11::getAtom(NET_REQUEST_FRAME_EXTENTS)) {
 		handleNetRequestFrameExtents(ev->window);
 	} else {
 		Client *client = Client::findClientFromWindow(ev->window);
 		if (client) {
-			Frame *frame = static_cast<Frame*>(client->getParent());
-			ActionEvent *ae = frame->handleClientMessage(ev, client);
+			Frame *frame =
+				static_cast<Frame*>(client->getParent());
+			ActionEvent *ae =
+				frame->handleClientMessage(ev, client);
 			if (ae) {
 				ActionPerformed ap(frame, *ae);
 				ap.type = ev->type;
@@ -1364,14 +1386,15 @@ WindowManager::handleNetRequestFrameExtents(Window win)
 		Cardinal extents[4];
 		extents[0] = theme_gm.bdLeft(state);
 		extents[1] = theme_gm.bdRight(state);
-		extents[2] = theme_gm.bdTop(state) + theme_gm.titleHeight(state);
+		extents[2] = theme_gm.bdTop(state)
+			+ theme_gm.titleHeight(state);
 		extents[3] = theme_gm.bdBottom(state);
 
 		if (Debug::isLevel(Debug::LEVEL_TRACE)) {
 			std::ostringstream msg;
-			msg << "setting _NET_FRAME_EXTENTS (" << extents[0] << " ";
-			msg << extents[1] << " " << extents[2] << " " << extents[3];
-			msg << ") on " << win;
+			msg << "setting _NET_FRAME_EXTENTS (" << extents[0];
+			msg << " " << extents[1] << " " << extents[2] << " ";
+			msg << extents[3] << ") on " << win;
 			P_TRACE(msg.str());
 		}
 		X11::setCardinals(win, NET_FRAME_EXTENTS, extents, 4);
@@ -1383,8 +1406,8 @@ WindowManager::handleColormapEvent(XColormapEvent *ev)
 {
 	Client *client = Client::findClient(ev->window);
 	if (client) {
-		client =
-		  static_cast<Client*>(((Frame*) client->getParent())->getActiveChild());
+		Frame* frame = static_cast<Frame*>(client->getParent());
+		client = static_cast<Client*>(frame->getActiveChild());
 		client->handleColormapChange(ev);
 	}
 }
@@ -1399,7 +1422,8 @@ WindowManager::handlePropertyEvent(XPropertyEvent *ev)
 
 	Client *client = Client::findClientFromWindow(ev->window);
 	if (client) {
-		((Frame*) client->getParent())->handlePropertyChange(ev, client);
+		Frame* frame = static_cast<Frame*>(client->getParent());
+		frame->handlePropertyChange(ev, client);
 	}
 }
 
@@ -1479,8 +1503,9 @@ WindowManager::createClient(Window window, bool is_new)
 	// focus stealing.
 	if (initConfig.focus) {
 		PWinObj *wo = PWinObj::getFocusedPWinObj();
+		Config *cfg = pekwm::config();
 		Time time_protect =
-			static_cast<Time>(pekwm::config()->getFocusStealProtect());
+			static_cast<Time>(cfg->getFocusStealProtect());
 
 		if (wo != nullptr
 		    && wo->isMapped()
@@ -1546,7 +1571,8 @@ WindowManager::recvPekwmCmd(XClientMessageEvent *ev)
 	case PEKWM_CMD_MULTI_CONT:
 	case PEKWM_CMD_MULTI_END:
 		if (_pekwm_cmd_buf.empty()) {
-			P_DBG("invalid _PEKWM_CMD, continuation on empty buffer");
+			P_DBG("invalid _PEKWM_CMD, continuation on empty "
+			      "buffer");
 			_pekwm_cmd_buf = "";
 			return false;
 		}
@@ -1562,7 +1588,8 @@ WindowManager::recvPekwmCmd(XClientMessageEvent *ev)
 		return op == PEKWM_CMD_MULTI_END;
 	default:
 		// invalid data
-		P_DBG("invalid _PEKMW_CMD, last byte " << op << " not in range 0-3");
+		P_DBG("invalid _PEKMW_CMD, last byte " << op
+		      << " not in range 0-3");
 		_pekwm_cmd_buf = "";
 		return false;
 	}

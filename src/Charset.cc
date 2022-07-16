@@ -25,16 +25,17 @@ extern "C" {
 
 // Lookup table from character value to number of bytes
 static const uint8_t UTF8_BYTES[256] = {
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
-	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
-	3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 1, 1
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+	2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+	2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+	4, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 6, 6, 1, 1
 };
 
 static const uint8_t UTF8_MAX_BYTES = 4;
@@ -141,8 +142,8 @@ namespace Charset
 	bool
 	Utf8Iterator::operator==(const std::string& chr) const
 	{
-		return ok()
-			&& strncmp(_str.c_str() + _pos, chr.c_str(), len(_pos)) == 0;
+		return ok() && strncmp(_str.c_str() + _pos,
+				       chr.c_str(), len(_pos)) == 0;
 	}
 
 	const char*
@@ -232,9 +233,10 @@ namespace Charset
 			std::locale::global(base_locale);
 
 #ifdef PEKWM_HAVE_LOCALE_COMBINE
-			std::locale num_locale(std::locale(), new NoGroupingNumpunct());
-			std::locale locale =
-				std::locale().combine<std::numpunct<char> >(num_locale);
+			std::locale num_locale(std::locale(),
+					       new NoGroupingNumpunct());
+			std::locale locale = std::locale()
+				.combine<std::numpunct<char> >(num_locale);
 			std::locale::global(locale);
 #endif // PEKWM_HAVE_LOCALE_COMBINE
 		} catch (const std::runtime_error&) {
@@ -316,7 +318,9 @@ namespace Charset
 
 		const char *mb = str.c_str();
 		const char *mb_end = str.c_str() + str.size();
-		for (int len; (len = mbtowc(&wc, mb, mb_end - mb)) > 0; mb += len) {
+		for (int len;
+		     (len = mbtowc(&wc, mb, mb_end - mb)) > 0;
+		     mb += len) {
 			int utf8_len = wchar_to_utf8(wc, utf8);
 			utf8[utf8_len] = '\0';
 			str_utf8 += utf8;

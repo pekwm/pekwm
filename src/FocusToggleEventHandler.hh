@@ -17,7 +17,7 @@
 #include "PMenu.hh"
 
 class FocusToggleEventHandler : public EventHandler,
-                                public Observer
+				public Observer
 {
 public:
 	FocusToggleEventHandler(Config* cfg, uint button, uint raise, int off,

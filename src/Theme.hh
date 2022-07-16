@@ -96,7 +96,8 @@ public:
 	//! @brief PDecor theme data container and parser.
 	class PDecorData {
 	public:
-		PDecorData(FontHandler* fh, TextureHandler* th, const char *name=0);
+		PDecorData(FontHandler* fh, TextureHandler* th,
+			   const char *name=0);
 		~PDecorData(void);
 
 		//! @brief Returns decor name.
@@ -105,15 +106,23 @@ public:
 		inline void setName(const std::string &name) { _name = name; }
 
 		//! @brief Returns title height.
-		inline int getTitleHeight(void) const { return _title_height; }
-		//! @brief Returns title minimum width (0 for full width title).
-		inline int getTitleWidthMin(void) const { return _title_width_min; }
+		inline int getTitleHeight(void) const {
+			return _title_height;
+		}
+		//! @brief Returns title minimum width (0 for full width
+		//title).
+		inline int getTitleWidthMin(void) const {
+			return _title_width_min;
+		}
 		//! @brief Returns title maximum width in procent.
-		inline int getTitleWidthMax(void) const { return _title_width_max; }
+		inline int getTitleWidthMax(void) const {
+			return _title_width_max;
+		}
 		//! @brief Returns title text pad for dir.
 		uint getPad(PadType pad) const;
 
-		//! @brief Returns wheter all items in the title have same width.
+		//! @brief Returns wheter all items in the title have same
+		//width.
 		inline bool isTitleWidthSymetric(void) const {
 			return _title_width_symetric;
 		}
@@ -121,35 +130,45 @@ public:
 		 * Returns wheter titlebar height should be relative the font
 		 * height
 		 */
-		bool isTitleHeightAdapt(void) const { return _title_height_adapt; }
+		bool isTitleHeightAdapt(void) const {
+			return _title_height_adapt;
+		}
 
 		// Title textures
 
-		//! @brief Returns background PTexture used in FocusedState state.
+		//! @brief Returns background PTexture used in FocusedState
+		//state.
 		inline PTexture *getTextureMain(FocusedState state) {
-			return _texture_main[(state < FOCUSED_STATE_FOCUSED_SELECTED)
-					     ? state : 0];
+			return _texture_main
+				[(state < FOCUSED_STATE_FOCUSED_SELECTED)
+				 ? state : 0];
 		}
 		//! @brief Returns tab PTexture used in FocusedState state.
 		inline PTexture *getTextureTab(FocusedState state) {
-			return _texture_tab[(state != FOCUSED_STATE_NO) ? state : 0];
+			return _texture_tab
+				[(state != FOCUSED_STATE_NO) ? state : 0];
 		}
-		//! @brief Returns separator PTexture used in FocusedState state.
+		//! @brief Returns separator PTexture used in FocusedState
+		//state.
 		inline PTexture *getTextureSeparator(FocusedState state) {
-			return _texture_separator[(state < FOCUSED_STATE_FOCUSED_SELECTED)
-						  ? state : 0];
+			return _texture_separator
+				[(state < FOCUSED_STATE_FOCUSED_SELECTED)
+				 ? state : 0];
 		}
 
 		// font
 
 		//! @brief Returns PFont used in FocusedState state.
 		inline PFont *getFont(FocusedState state) const {
-			return _font[((state == FOCUSED_STATE_NO) || ! _font[state])
-				     ? FOCUSED_STATE_FOCUSED : state];
+			return _font
+				[((state == FOCUSED_STATE_NO)
+				  || ! _font[state])
+				 ? FOCUSED_STATE_FOCUSED : state];
 		}
 		//! @brief Return PFont::Color used in FocusedState state.
 		inline PFont::Color *getFontColor(FocusedState state) {
-			return _font_color[(state != FOCUSED_STATE_NO) ? state : 0];
+			return _font_color
+				[(state != FOCUSED_STATE_NO) ? state : 0];
 		}
 
 		// border
@@ -159,8 +178,9 @@ public:
 		 */
 		inline PTexture *getBorderTexture(FocusedState state,
 						  BorderPosition pos) {
-			return _texture_border[(state < FOCUSED_STATE_FOCUSED_SELECTED)
-					       ? state : 0][pos];
+			return _texture_border
+				[(state < FOCUSED_STATE_FOCUSED_SELECTED)
+				 ? state : 0][pos];
 		}
 
 		// button
@@ -211,7 +231,8 @@ public:
 		PFont::Color *_font_color[FOCUSED_STATE_NO];
 
 		// border
-		PTexture *_texture_border[FOCUSED_STATE_FOCUSED_SELECTED][BORDER_NO_POS];
+		PTexture *_texture_border
+			[FOCUSED_STATE_FOCUSED_SELECTED][BORDER_NO_POS];
 
 		std::vector<Theme::PDecorButtonData*> _buttons;
 	};
@@ -223,9 +244,13 @@ public:
 		~PMenuData(void);
 
 		//! @brief Returns PFont used in ObjectState state.
-		inline PFont *getFont(ObjectState state) { return _font[state]; }
+		inline PFont *getFont(ObjectState state) {
+			return _font[state];
+		}
 		/** Returns PFont::Color used in ObjectState state. */
-		PFont::Color *getColor(ObjectState state) { return _color[state]; }
+		PFont::Color *getColor(ObjectState state) {
+			return _color[state];
+		}
 		//! @brief Returns menu PTexture used in ObjectState state.
 		inline PTexture *getTextureMenu(ObjectState state) {
 			return _tex_menu[state];
@@ -363,7 +388,9 @@ public:
 		PTexture* getBackground(void) const { return _background; }
 
 		PFont* getButtonFont(void) const { return _button_font; }
-		PFont::Color* getButtonColor(void) const { return _button_color; }
+		PFont::Color* getButtonColor(void) const {
+			return _button_color;
+		}
 		PTexture* getButton(ButtonState state) const {
 			return _button[state < BUTTON_STATE_NO ? state : 0];
 		}

@@ -47,8 +47,8 @@ static void sigHandler(int signal)
  * Base for X11 applications
  */
 X11App::X11App(Geometry gm, const std::string &title,
-               const char *wm_name, const char *wm_class,
-               AtomName window_type, XSizeHints *normal_hints)
+	       const char *wm_name, const char *wm_class,
+	       AtomName window_type, XSizeHints *normal_hints)
 	: PWinObj(true),
 	  _wm_name(wm_name),
 	  _wm_class(wm_class),
@@ -64,7 +64,8 @@ X11App::X11App(Geometry gm, const std::string &title,
 	_window =
 		X11::createSimpleWindow(X11::getRoot(),
 					_gm.x, _gm.y, _gm.width, _gm.height, 0,
-					X11::getBlackPixel(), X11::getWhitePixel());
+					X11::getBlackPixel(),
+					X11::getWhitePixel());
 	X11::selectInput(_window, StructureNotifyMask);
 	X11::selectXRandrInput();
 
@@ -220,7 +221,8 @@ X11App::handleSignal(void)
 			pid = waitpid(WAIT_ANY, &status, WNOHANG);
 			if (pid == -1) {
 				if (errno == EINTR) {
-					P_TRACE("waitpid interrupted, retrying");
+					P_TRACE("waitpid interrupted, "
+						"retrying");
 				}
 			} else if (pid == 0) {
 				P_TRACE("no more finished child processes");

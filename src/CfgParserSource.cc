@@ -63,7 +63,7 @@ CfgParserSourceFile::close(void)
 
 
 CfgParserSourceString::CfgParserSourceString(const std::string &source,
-                                             const std::string &data)
+					     const std::string &data)
 	: CfgParserSource(source),
 	  _data(data)
 {
@@ -182,6 +182,7 @@ CfgParserSourceCommand::close(void)
 
 	// Wait failed, throw error
 	if (status == -1) {
-		std::string msg = "failed to wait for pid " + std::to_string(_pid);
+		std::string msg =
+			"failed to wait for pid " + std::to_string(_pid);
 	}
 }

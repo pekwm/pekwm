@@ -112,15 +112,17 @@ static Util::StringTo<CurrHeadSelector> curr_head_selector_map[] =
 bool
 SizeLimits::parse(const std::string &minimum, const std::string &maximum)
 {
-	return (parseLimit(minimum, _limits[WIDTH_MIN], _limits[HEIGHT_MIN])
-		&& parseLimit(maximum, _limits[WIDTH_MAX], _limits[HEIGHT_MAX]));
+	return (parseLimit(minimum,
+			   _limits[WIDTH_MIN], _limits[HEIGHT_MIN])
+		&& parseLimit(maximum,
+			      _limits[WIDTH_MAX], _limits[HEIGHT_MAX]));
 }
 
 /**
  * Parse single limit.
  */
 bool
-SizeLimits::parseLimit(const std::string &limit, unsigned int &min, unsigned int &max)
+SizeLimits::parseLimit(const std::string &limit, uint &min, uint &max)
 {
 	bool status = false;
 	std::vector<std::string> tokens;
@@ -175,7 +177,9 @@ Config::Config(void) :
 	_cmd_dialog_history_save_interval(16),
 	_harbour_da_min_s(0), _harbour_da_max_s(0),
 	_harbour_ontop(true), _harbour_maximize_over(false),
-	_harbour_placement(TOP), _harbour_orientation(TOP_TO_BOTTOM), _harbour_head_nr(0),
+	_harbour_placement(TOP),
+	_harbour_orientation(TOP_TO_BOTTOM),
+	_harbour_head_nr(0),
 	_harbour_opacity(EWMH_OPAQUE_WINDOW)
 {
 	for (uint i = 0; i <= SCREEN_EDGE_NO; ++i) {
@@ -192,8 +196,7 @@ Config::Config(void) :
 //! @brief Destructor for Config class
 Config::~Config(void)
 {
-	std::map<MouseActionListName, std::vector<ActionEvent>* >::iterator it =
-		_mouse_action_map.begin();
+	mouse_action_map::iterator it = _mouse_action_map.begin();
 	for (; it != _mouse_action_map.end(); ++it) {
 		delete it->second;
 	}
@@ -202,10 +205,10 @@ Config::~Config(void)
 /**
  * Returns an array of NULL-terminated desktop names in UTF-8.
  *
- * @param names *names will be set to an array of desktop names or 0. The caller has
- *        to delete [] *names
- * @param length *length will be set to the complete length of array *names points
- *        to or 0.
+ * @param names *names will be set to an array of desktop names or 0.
+ * 	  The caller has to delete [] *names
+ * @param length *length will be set to the complete length of array *names
+ * 	  points to or 0.
  */
 void
 Config::getDesktopNamesUTF8(uchar **names, uint *length) const
@@ -217,7 +220,8 @@ Config::getDesktopNamesUTF8(uchar **names, uint *length) const
 	}
 
 	std::string utf8_names;
-	std::vector<std::string>::const_iterator it = _screen_workspace_names.begin();
+	std::vector<std::string>::const_iterator it =
+		_screen_workspace_names.begin();
 	for (; it != _screen_workspace_names.end(); ++it) {
 		utf8_names.append(it->c_str(), it->size() + 1);
 	}
@@ -433,7 +437,7 @@ Config::loadScreen(CfgParser::Entry *section)
 		if (Util::splitString(edge_size, sizes, " \t", 4) == 4) {
 			std::vector<std::string>::iterator it = sizes.begin();
 			for (; it != sizes.end(); ++it) {
-				_screen_edge_sizes.push_back(strtol(it->c_str(), 0, 10));
+				_screen_edge_sizes.push_back(std::stoi(*it));
 			}
 		} else {
 			edge_size_all = strtol(edge_size.c_str(), 0, 10);
@@ -670,42 +674,43 @@ Config::parseMoveResizeAction(const std::string &action_string, Action &action)
 	std::vector<std::string> tok;
 
 	// Chop the string up separating the actions.
-	if (Util::splitString(action_string, tok, " \t", 2)) {
-		action.setAction(Util::StringToGet(moveresize_map, tok[0]));
-		if (action.getAction() != NO_MOVERESIZE_ACTION) {
-			if (tok.size() == 2) { // we got enough tok for a paremeter
-				switch (action.getAction()) {
-				case MOVE_HORIZONTAL:
-				case MOVE_VERTICAL:
-				case RESIZE_HORIZONTAL:
-				case RESIZE_VERTICAL: {
-					char *endptr = nullptr;
-					action.setParamI(0, strtol(tok[1].c_str(), &endptr, 10));
-					if (endptr && *endptr == '%') {
-						action.setParamI(1, UNIT_PERCENT);
-					} else {
-						action.setParamI(1, UNIT_PIXEL);
-					}
-					break;
-				}
-				case MOVE_SNAP:
-				default:
-					// Do nothing.
-					break;
-				}
-			}
-
-			return true;
-		} else {
-			USER_WARN("Unknown move/resize action: " << tok[0]);
-		}
+	if (! Util::splitString(action_string, tok, " \t", 2)) {
+		return false;
 	}
-
-	return false;
+	action.setAction(Util::StringToGet(moveresize_map, tok[0]));
+	if (action.getAction() != NO_MOVERESIZE_ACTION
+	    && tok.size() == 2) {
+		// Got enough tok for a paremeter
+		switch (action.getAction()) {
+		case MOVE_HORIZONTAL:
+		case MOVE_VERTICAL:
+		case RESIZE_HORIZONTAL:
+		case RESIZE_VERTICAL: {
+			char *endptr = nullptr;
+			action.setParamI(0,
+					 strtol(tok[1].c_str(), &endptr, 10));
+			if (endptr && *endptr == '%') {
+				action.setParamI(1, UNIT_PERCENT);
+			} else {
+				action.setParamI(1, UNIT_PIXEL);
+			}
+			break;
+		}
+		case MOVE_SNAP:
+		default:
+			// Do nothing.
+			break;
+		}
+	} else {
+		USER_WARN("Unknown move/resize action: " << tok[0]);
+		return false;
+	}
+	return true;
 }
 
 bool
-Config::parseMoveResizeActions(const std::string &action_string, ActionEvent& ae)
+Config::parseMoveResizeActions(const std::string &action_string,
+			       ActionEvent& ae)
 {
 	std::vector<std::string> tok;
 	std::vector<std::string>::iterator it;
@@ -830,7 +835,7 @@ Config::getMenuMask(const std::string &mask)
 
 unsigned int
 Config::getMenuIconLimit(unsigned int value, SizeLimitType limit,
-                         const std::string &name) const
+			 const std::string &name) const
 {
 	unsigned int limit_val = 0;
 	std::map<std::string, SizeLimits>::const_iterator it =
@@ -968,7 +973,8 @@ Config::copyConfigFiles(const std::string &cfg_dir)
 		std::string dst_file = cfg_dir + "/" + files[i];
 		if (stat(dst_file.c_str(), &sb)) {
 			std::string src_file = sys_dir + "/" + files[i];
-			std::cout << "COPY " << src_file << " TO " << dst_file << std::endl;
+			std::cout << "COPY " << src_file
+				  << " TO " << dst_file << std::endl;
 			Util::copyTextFile(src_file, dst_file);
 		}
 	}
@@ -1052,8 +1058,7 @@ Config::loadMouseConfig(const std::string &mouse_file)
 	}
 
 	// Make sure old actions get unloaded.
-	std::map<MouseActionListName, std::vector<ActionEvent>* >::iterator it
-		= _mouse_action_map.begin();
+	mouse_action_map::iterator it = _mouse_action_map.begin();
 	for (; it != _mouse_action_map.end(); ++it) {
 		it->second->clear();
 	}
@@ -1062,37 +1067,43 @@ Config::loadMouseConfig(const std::string &mouse_file)
 
 	section = mouse_cfg.getEntryRoot()->findSection("FRAMETITLE");
 	if (section) {
-		parseButtons(section, _mouse_action_map[MOUSE_ACTION_LIST_TITLE_FRAME],
+		parseButtons(section,
+			     _mouse_action_map[MOUSE_ACTION_LIST_TITLE_FRAME],
 			     nullptr, FRAME_OK);
 	}
 
 	section = mouse_cfg.getEntryRoot()->findSection("OTHERTITLE");
 	if (section) {
-		parseButtons(section, _mouse_action_map[MOUSE_ACTION_LIST_TITLE_OTHER],
+		parseButtons(section,
+			     _mouse_action_map[MOUSE_ACTION_LIST_TITLE_OTHER],
 			     nullptr, FRAME_OK);
 	}
 
 	section = mouse_cfg.getEntryRoot()->findSection("CLIENT");
 	if (section) {
-		parseButtons(section, _mouse_action_map[MOUSE_ACTION_LIST_CHILD_FRAME],
+		parseButtons(section,
+			     _mouse_action_map[MOUSE_ACTION_LIST_CHILD_FRAME],
 			     &_client_mouse_action_buttons, CLIENT_OK);
 	}
 
 	section = mouse_cfg.getEntryRoot()->findSection("ROOT");
 	if (section) {
-		parseButtons(section, _mouse_action_map[MOUSE_ACTION_LIST_ROOT],
+		parseButtons(section,
+			     _mouse_action_map[MOUSE_ACTION_LIST_ROOT],
 			     nullptr, ROOTCLICK_OK);
 	}
 
 	section = mouse_cfg.getEntryRoot()->findSection("MENU");
 	if (section) {
-		parseButtons(section, _mouse_action_map[MOUSE_ACTION_LIST_MENU],
+		parseButtons(section,
+			     _mouse_action_map[MOUSE_ACTION_LIST_MENU],
 			     nullptr, FRAME_OK);
 	}
 
 	section = mouse_cfg.getEntryRoot()->findSection("OTHER");
 	if (section) {
-		parseButtons(section, _mouse_action_map[MOUSE_ACTION_LIST_OTHER],
+		parseButtons(section,
+			     _mouse_action_map[MOUSE_ACTION_LIST_OTHER],
 			     nullptr, FRAME_OK);
 	}
 
@@ -1100,12 +1111,13 @@ Config::loadMouseConfig(const std::string &mouse_file)
 	if (section) {
 		CfgParser::Entry::entry_cit edge_it(section->begin());
 		for (; edge_it != section->end(); ++edge_it)  {
-			uint pos = ActionConfig::getDirection((*edge_it)->getName());
+			uint pos = ActionConfig::getDirection(
+					(*edge_it)->getName());
 
 			if (pos != SCREEN_EDGE_NO) {
 				parseButtons((*edge_it)->getSection(),
-					     getEdgeListFromPosition(pos), nullptr,
-					     SCREEN_EDGE_OK);
+					     getEdgeListFromPosition(pos),
+					     nullptr, SCREEN_EDGE_OK);
 			}
 		}
 	}
@@ -1114,11 +1126,12 @@ Config::loadMouseConfig(const std::string &mouse_file)
 	if (section) {
 		CfgParser::Entry::entry_cit border_it(section->begin());
 		for (; border_it != section->end(); ++border_it) {
-			uint pos = ActionConfig::getBorderPos((*border_it)->getName());
+			uint pos = ActionConfig::getBorderPos(
+					(*border_it)->getName());
 			if (pos != BORDER_NO_POS) {
 				parseButtons((*border_it)->getSection(),
-					     getBorderListFromPosition(pos), nullptr,
-					     FRAME_BORDER_OK);
+					     getBorderListFromPosition(pos),
+					     nullptr, FRAME_BORDER_OK);
 			}
 		}
 	}
@@ -1154,9 +1167,9 @@ mouseButtonsAdd(std::vector<BoundButton>* buttons, uint button, uint mod)
  */
 void
 Config::parseButtons(CfgParser::Entry *section,
-                     std::vector<ActionEvent>* mouse_list,
-                     std::vector<BoundButton>* mouse_buttons,
-                     ActionOk action_ok)
+		     std::vector<ActionEvent>* mouse_list,
+		     std::vector<BoundButton>* mouse_buttons,
+		     ActionOk action_ok)
 {
 	if (! section || ! mouse_list) {
 		return;
@@ -1179,13 +1192,14 @@ Config::parseButtons(CfgParser::Entry *section,
 		if (ae.type == MOUSE_EVENT_MOTION) {
 			value = (*it)->getSection()->findEntry("THRESHOLD");
 			if (value) {
-				ae.threshold = strtol(value->getValue().c_str(), 0, 10);
+				ae.threshold = std::stoi(value->getValue());
 			} else {
 				ae.threshold = 0;
 			}
 		}
 
-		if (ActionConfig::parseActionEvent((*it), ae, action_ok, true)) {
+		if (ActionConfig::parseActionEvent((*it), ae, action_ok,
+						   true)) {
 			mouse_list->push_back(ae);
 			mouseButtonsAdd(mouse_buttons, ae.sym, ae.mod);
 		}

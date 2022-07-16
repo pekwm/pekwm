@@ -113,15 +113,16 @@ CmdDialog::complete(void)
 	// Find completion if changed since last time.
 	if (str() != _buf_on_complete_result) {
 		InputDialog::complete();
-		_complete_list = _completer.find_completions(str(), buf().pos());
+		_complete_list =
+			_completer.find_completions(str(), buf().pos());
 		_complete_it = _complete_list.begin();
 	}
 
 	if (_complete_list.size()) {
 		uint pos = buf().pos();
-		std::string val = _completer.do_complete(_buf_on_complete, pos,
-
-							 _complete_list, _complete_it);
+		std::string val =
+			_completer.do_complete(_buf_on_complete, pos,
+					       _complete_list, _complete_it);
 		buf().setBuf(val);
 		buf().setPos(pos);
 		_buf_on_complete_result = val;
@@ -157,7 +158,8 @@ CmdDialog::completeReset(void)
  * Map CmdDialog centered on wo_ref is specified, else _wo_ref.
  */
 void
-CmdDialog::mapCentered(const std::string &buf, const Geometry &geom, PWinObj *wo_ref)
+CmdDialog::mapCentered(const std::string &buf, const Geometry &geom,
+		       PWinObj *wo_ref)
 {
 	if (wo_ref != 0) {
 		setWORef(wo_ref);

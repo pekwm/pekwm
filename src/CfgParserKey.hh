@@ -82,8 +82,8 @@ public:
 		// Get long value.
 		value = strtod(value_str.c_str(), &endptr);
 
-		// Check for validity, 0 is returned on failiure with endptr set to the
-		// beginning of the string, else we are (semi) ok.
+		// Check for validity, 0 is returned on failiure with endptr
+		// set to the beginning of the string, else we are (semi) ok.
 		if ((value == 0) && (endptr == value_str.c_str())) {
 			_set = _default;
 

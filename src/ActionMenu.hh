@@ -57,6 +57,10 @@ protected:
 
 private:
 	void parse(CfgParser::Entry *section, PMenu::Item *parent=0);
+	PMenu::Item* parseSubmenu(CfgParser::Entry *section,
+				  PMenu::Item* parent,
+				  const std::string& title);
+	PMenu::Item* parseItem(CfgParser::Entry *section, PMenu::Item* parent);
 	PTexture *getIcon(CfgParser::Entry *value);
 
 private:

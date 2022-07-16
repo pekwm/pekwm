@@ -183,7 +183,7 @@ private:
 };
 
 Button::Button(Theme::DialogData* data, PWinObj& parent,
-               stop_fun stop, int retcode, const std::string& text)
+	       stop_fun stop, int retcode, const std::string& text)
 	: DialogWidget(data, parent),
 	  _stop(stop),
 	  _retcode(retcode),
@@ -295,7 +295,7 @@ private:
 };
 
 ButtonsRow::ButtonsRow(Theme::DialogData* data, PWinObj& parent,
-                       stop_fun stop, std::vector<std::string> options)
+		       stop_fun stop, std::vector<std::string> options)
 	: DialogWidget(data, parent)
 {
 	int i = 0;
@@ -330,7 +330,8 @@ public:
 	virtual uint heightReq(uint width) const
 	{
 		if (_image->getWidth() > width) {
-			float aspect = float(_image->getWidth()) / _image->getHeight();
+			float aspect = float(_image->getWidth())
+					     / _image->getHeight();
 			return static_cast<uint>(width / aspect);
 		}
 		return _image->getHeight();
@@ -339,9 +340,10 @@ public:
 	virtual void render(Render &rend)
 	{
 		if (_image->getWidth() > _gm.width) {
-			float aspect = float(_image->getWidth()) / _image->getHeight();
-			_image->draw(rend,
-				     _gm.x, _gm.y, _gm.width, static_cast<uint>(_gm.width / aspect));
+			float aspect = float(_image->getWidth())
+					     / _image->getHeight();
+			_image->draw(rend, _gm.x, _gm.y, _gm.width,
+				     static_cast<uint>(_gm.width / aspect));
 		} else {
 			// render image centered on available width
 			uint x = (_gm.width - _image->getWidth()) / 2;
@@ -382,8 +384,8 @@ public:
 			getLines(_gm.width, _lines);
 		}
 
-		_font->setColor(_is_title
-				? _data->getTitleColor() : _data->getTextColor());
+		_font->setColor(_is_title ? _data->getTitleColor()
+					  : _data->getTextColor());
 
 		uint y = _gm.y + _data->getPad(PAD_UP);
 		std::vector<std::string>::iterator line = _lines.begin();
@@ -412,7 +414,9 @@ private:
 				if (line == *word) {
 					lines.push_back(line);
 				} else {
-					line = line.substr(0, line.size() - word->size() - 1);
+					size_t len =
+						line.size() - word->size() - 1;
+					line = line.substr(0, len);
 					lines.push_back(line);
 					line = *word;
 				}
@@ -435,7 +439,7 @@ private:
 };
 
 Text::Text(Theme::DialogData* data, PWinObj& parent,
-           const std::string& text, bool is_title)
+	   const std::string& text, bool is_title)
 	: DialogWidget(data, parent),
 	  _font(is_title ? data->getTitleFont() : data->getTextFont()),
 	  _text(text),
@@ -604,7 +608,8 @@ protected:
 			y += (*it)->heightReq(width);
 		}
 
-		PWinObj::resize(std::max(width, _gm.width), std::max(y, _gm.height));
+		PWinObj::resize(std::max(width, _gm.width),
+				std::max(y, _gm.height));
 	}
 
 private:
@@ -621,10 +626,10 @@ private:
 };
 
 PekwmDialog::PekwmDialog(Theme::DialogData* data,
-                         const Geometry &gm,
-                         bool raise, const std::string& title, PImage* image,
-                         const std::string& message,
-                         std::vector<std::string> options)
+			 const Geometry &gm,
+			 bool raise, const std::string& title, PImage* image,
+			 const std::string& message,
+			 std::vector<std::string> options)
 	: X11App(gm, title.empty() ? "pekwm_dialog" : title,
 		 "dialog", "pekwm_dialog", WINDOW_TYPE_NORMAL),
 	  _data(data),
@@ -650,8 +655,8 @@ PekwmDialog::~PekwmDialog(void)
 
 void
 PekwmDialog::initWidgets(const std::string& title, PImage* image,
-                         const std::string& message,
-                         std::vector<std::string> options)
+			 const std::string& message,
+			 std::vector<std::string> options)
 {
 	if (title.size()) {
 		_widgets.push_back(new Text(_data, *this, title, true));
@@ -695,11 +700,14 @@ static void cleanup()
 static void usage(const char* name, int ret)
 {
 	std::cout << "usage: " << name;
-	std::cout << " [-dhitfl] [-o option|-o option...] message" << std::endl;
+	std::cout << " [-dhitfl] [-o option|-o option...] message"
+		  << std::endl;
 	std::cout << "  -d --display dpy    Display" << std::endl;
-	std::cout << "  -h --help           Display this information" << std::endl;
+	std::cout << "  -h --help           Display this information"
+		  << std::endl;
 	std::cout << "  -i --image          Image under title" << std::endl;
-	std::cout << "  -o --option         Option (many allowed)" << std::endl;
+	std::cout << "  -o --option         Option (many allowed)"
+		  << std::endl;
 	std::cout << "  -t --title          Dialog title" << std::endl;
 	std::cout << "  -f --log-file        Set log file." << std::endl;
 	std::cout << "  -l --log-level       Set log level." << std::endl;
@@ -719,15 +727,19 @@ int main(int argc, char* argv[])
 
 	static struct option opts[] = {
 		{const_cast<char*>("config"), required_argument, nullptr, 'c'},
-		{const_cast<char*>("display"), required_argument, nullptr, 'd'},
-		{const_cast<char*>("geometry"), required_argument, nullptr, 'g'},
+		{const_cast<char*>("display"), required_argument, nullptr,
+		 'd'},
+		{const_cast<char*>("geometry"), required_argument, nullptr,
+		 'g'},
 		{const_cast<char*>("help"), no_argument, nullptr, 'h'},
 		{const_cast<char*>("image"), required_argument, nullptr, 'i'},
 		{const_cast<char*>("option"), required_argument, nullptr, 'o'},
 		{const_cast<char*>("raise"), no_argument, nullptr, 'r'},
 		{const_cast<char*>("title"), required_argument, nullptr, 't'},
-		{const_cast<char*>("log-level"), required_argument, nullptr, 'l'},
-		{const_cast<char*>("log-file"), required_argument, nullptr, 'f'},
+		{const_cast<char*>("log-level"), required_argument, nullptr,
+		 'l'},
+		{const_cast<char*>("log-file"), required_argument, nullptr,
+		 'f'},
 		{nullptr, 0, nullptr, 0}
 	};
 
@@ -764,7 +776,8 @@ int main(int argc, char* argv[])
 			break;
 		case 'f':
 			if (! Debug::setLogFile(optarg)) {
-				std::cerr << "Failed to open log file " << optarg << std::endl;
+				std::cerr << "Failed to open log file "
+					  << optarg << std::endl;
 			}
 			break;
 		case 'l':

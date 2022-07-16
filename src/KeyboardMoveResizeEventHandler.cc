@@ -11,8 +11,8 @@
 #include "PDecor.hh"
 
 KeyboardMoveResizeEventHandler::KeyboardMoveResizeEventHandler(Config* cfg,
-                                                               KeyGrabber *kg,
-                                                               PDecor* decor)
+							       KeyGrabber *kg,
+							       PDecor* decor)
 	: _key_grabber(kg),
 	  _outline(! cfg->getOpaqueMove() || ! cfg->getOpaqueResize()),
 	  _show_status_window(cfg->isShowStatusWindow()),
@@ -36,11 +36,12 @@ KeyboardMoveResizeEventHandler::~KeyboardMoveResizeEventHandler(void)
 
 void
 KeyboardMoveResizeEventHandler::notify(Observable *observable,
-                                       Observation *observation)
+				       Observation *observation)
 {
 	if (observation == &PWinObj::pwin_obj_deleted
 	    && observable == _decor) {
-		P_TRACE("decor" << _decor << " lost while keyboard move/resize");
+		P_TRACE("decor" << _decor
+			<< " lost while keyboard move/resize");
 		_decor = nullptr;
 	}
 }
@@ -138,7 +139,8 @@ KeyboardMoveResizeEventHandler::runMoveResizeAction(const Action& action)
 	case MOVE_HORIZONTAL:
 		if (action.getParamI(1) == UNIT_PERCENT) {
 			Geometry head;
-			X11::getHeadInfo(X11Util::getNearestHead(*_decor), head);
+			uint nhead = X11Util::getNearestHead(*_decor);
+			X11::getHeadInfo(nhead, head);
 			_gm.x += (action.getParamI(0)
 				  * static_cast<int>(head.width)) / 100;
 		} else {
@@ -149,7 +151,8 @@ KeyboardMoveResizeEventHandler::runMoveResizeAction(const Action& action)
 	case MOVE_VERTICAL:
 		if (action.getParamI(1) == UNIT_PERCENT) {
 			Geometry head;
-			X11::getHeadInfo(X11Util::getNearestHead(*_decor), head);
+			uint nhead = X11Util::getNearestHead(*_decor);
+			X11::getHeadInfo(nhead, head);
 			_gm.y += (action.getParamI(0)
 				  * static_cast<int>(head.height)) / 100;
 		} else {
@@ -160,7 +163,8 @@ KeyboardMoveResizeEventHandler::runMoveResizeAction(const Action& action)
 	case RESIZE_HORIZONTAL:
 		if (action.getParamI(1) == UNIT_PERCENT) {
 			Geometry head;
-			X11::getHeadInfo(X11Util::getNearestHead(*_decor), head);
+			uint nhead = X11Util::getNearestHead(*_decor);
+			X11::getHeadInfo(nhead, head);
 			_gm.width += (action.getParamI(0)
 				      * static_cast<int>(head.width)) / 100;
 		} else {
@@ -171,7 +175,8 @@ KeyboardMoveResizeEventHandler::runMoveResizeAction(const Action& action)
 	case RESIZE_VERTICAL:
 		if (action.getParamI(1) == UNIT_PERCENT) {
 			Geometry head;
-			X11::getHeadInfo(X11Util::getNearestHead(*_decor), head);
+			uint nhead = X11Util::getNearestHead(*_decor);
+			X11::getHeadInfo(nhead, head);
 			_gm.height += (action.getParamI(0)
 				       * static_cast<int>(head.height)) / 100;
 		} else {

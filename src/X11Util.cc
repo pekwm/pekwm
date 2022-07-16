@@ -29,6 +29,36 @@ NetWMStates::~NetWMStates(void)
 {
 }
 
+static void
+readEwmhState(Atom atom, NetWMStates& win_states)
+{
+	if (atom == X11::getAtom(STATE_MODAL)) {
+		win_states.modal = true;
+	} else if (atom == X11::getAtom(STATE_STICKY)) {
+		win_states.sticky = true;
+	} else if (atom == X11::getAtom(STATE_MAXIMIZED_VERT)) {
+		win_states.max_vert = true;
+	} else if (atom == X11::getAtom(STATE_MAXIMIZED_HORZ)) {
+		win_states.max_horz = true;
+	} else if (atom == X11::getAtom(STATE_SHADED)) {
+		win_states.shaded = true;
+	} else if (atom == X11::getAtom(STATE_SKIP_TASKBAR)) {
+		win_states.skip_taskbar = true;
+	} else if (atom == X11::getAtom(STATE_SKIP_PAGER)) {
+		win_states.skip_pager = true;
+	} else if (atom == X11::getAtom(STATE_DEMANDS_ATTENTION)) {
+		win_states.demands_attention = true;
+	} else if (atom == X11::getAtom(STATE_HIDDEN)) {
+		win_states.hidden = true;
+	} else if (atom == X11::getAtom(STATE_FULLSCREEN)) {
+		win_states.fullscreen = true;
+	} else if (atom == X11::getAtom(STATE_ABOVE)) {
+		win_states.above = true;
+	} else if (atom == X11::getAtom(STATE_BELOW)) {
+		win_states.below = true;
+	}
+}
+
 namespace X11Util {
 
 	/**
@@ -55,8 +85,9 @@ namespace X11Util {
 		case CURR_HEAD_SELECTOR_FOCUSED_WINDOW:
 			wo = PWinObj::getFocusedPWinObj();
 			if (wo != nullptr) {
-				return X11::getNearestHead(wo->getX() + (wo->getWidth() / 2),
-							   wo->getY() + (wo->getHeight() / 2));
+				int mx = wo->getX() + (wo->getWidth() / 2);
+				int my = wo->getY() + (wo->getHeight() / 2);
+				return X11::getNearestHead(mx, my);
 			}
 		case CURR_HEAD_SELECTOR_CURSOR:
 		case CURR_HEAD_SELECTOR_NO:
@@ -75,7 +106,8 @@ namespace X11Util {
 					   wo.getY() + (wo.getHeight() / 2));
 	}
 
-	int getNearestHead(const PWinObj& wo, DirectionType dx, DirectionType dy)
+	int getNearestHead(const PWinObj& wo,
+			   DirectionType dx, DirectionType dy)
 	{
 		return X11::getNearestHead(wo.getX() + (wo.getWidth() / 2),
 					   wo.getY() + (wo.getHeight() / 2),
@@ -96,16 +128,23 @@ namespace X11Util {
 		X11::grabButton(button, mod|LockMask, win, mask, mode);
 
 		if (num_lock) {
-			X11::grabButton(button, mod|num_lock, win, mask, mode);
-			X11::grabButton(button, mod|num_lock|LockMask, win, mask, mode);
+			X11::grabButton(button, mod|num_lock,
+					win, mask, mode);
+			X11::grabButton(button, mod|num_lock|LockMask,
+					win, mask, mode);
 		}
 		if (scroll_lock) {
-			X11::grabButton(button, mod|scroll_lock, win, mask, mode);
-			X11::grabButton(button, mod|scroll_lock|LockMask, win, mask, mode);
+			X11::grabButton(button, mod|scroll_lock,
+					win, mask, mode);
+			X11::grabButton(button, mod|scroll_lock|LockMask,
+					win, mask, mode);
 		}
 		if (num_lock && scroll_lock) {
-			X11::grabButton(button, mod|num_lock|scroll_lock, win, mask, mode);
-			X11::grabButton(button, mod|num_lock|scroll_lock|LockMask,
+			X11::grabButton(button,
+					mod|num_lock|scroll_lock,
+					win, mask, mode);
+			X11::grabButton(button,
+					mod|num_lock|scroll_lock|LockMask,
 					win, mask, mode);
 		}
 	}
@@ -121,7 +160,8 @@ namespace X11Util {
 		Atom atom = X11::getAtom(MOTIF_WM_HINTS);
 		uchar *data;
 		ulong items_read;
-		if (! X11::getProperty(win, atom, atom, 20L, &data, &items_read)) {
+		if (! X11::getProperty(win, atom, atom, 20L,
+				       &data, &items_read)) {
 			return false;
 		}
 
@@ -140,55 +180,27 @@ namespace X11Util {
 	readEwmhStates(Window win, NetWMStates &win_states)
 	{
 		int num = 0;
-		Atom *states = static_cast<Atom*>(X11::getEwmhPropData(win, STATE,
-								       XA_ATOM, num));
-		if (! states) {
-			return false;
-		}
-
-		for (int i = 0; i < num; ++i) {
-			if (states[i] == X11::getAtom(STATE_MODAL)) {
-				win_states.modal = true;
-			} else if (states[i] == X11::getAtom(STATE_STICKY)) {
-				win_states.sticky = true;
-			} else if (states[i] == X11::getAtom(STATE_MAXIMIZED_VERT)) {
-				win_states.max_vert = true;
-			} else if (states[i] == X11::getAtom(STATE_MAXIMIZED_HORZ)) {
-				win_states.max_horz = true;
-			} else if (states[i] == X11::getAtom(STATE_SHADED)) {
-				win_states.shaded = true;
-			} else if (states[i] == X11::getAtom(STATE_SKIP_TASKBAR)) {
-				win_states.skip_taskbar = true;
-			} else if (states[i] == X11::getAtom(STATE_SKIP_PAGER)) {
-				win_states.skip_pager = true;
-			} else if (states[i] == X11::getAtom(STATE_DEMANDS_ATTENTION)) {
-				win_states.demands_attention = true;
-			} else if (states[i] == X11::getAtom(STATE_HIDDEN)) {
-				win_states.hidden = true;
-			} else if (states[i] == X11::getAtom(STATE_FULLSCREEN)) {
-				win_states.fullscreen = true;
-			} else if (states[i] == X11::getAtom(STATE_ABOVE)) {
-				win_states.above = true;
-			} else if (states[i] == X11::getAtom(STATE_BELOW)) {
-				win_states.below = true;
+		void *data = X11::getEwmhPropData(win, STATE, XA_ATOM, num);
+		if (data) {
+			Atom *states = static_cast<Atom*>(data);
+			for (int i = 0; i < num; ++i) {
+				readEwmhState(states[i], win_states);
 			}
+			X11::free(data);
+			return true;
 		}
-
-		X11::free(states);
-
-		return true;
+		return false;
 	}
-
 }
 
 #ifndef PEKWM_HAVE_XUTF8
 
 void
 Xutf8SetWMProperties(Display *dpy, Window win,
-                     const char* window_name, const char* icon_name,
-                     char** argv, int argc,
-                     XSizeHints* normal_hints, XWMHints* wm_hints,
-                     XClassHint* class_hints)
+		     const char* window_name, const char* icon_name,
+		     char** argv, int argc,
+		     XSizeHints* normal_hints, XWMHints* wm_hints,
+		     XClassHint* class_hints)
 {
 	X11::setUtf8String(win, WM_CLIENT_MACHINE, Util::getHostname());
 	X11::setUtf8String(win, WM_NAME, window_name);

@@ -31,7 +31,8 @@ static Util::StringTo<std::pair<ActionType, uint> > action_map[] =
 	 {"Unset", action_pair(ACTION_UNSET, ANY_MASK)},
 	 {"Toggle", action_pair(ACTION_TOGGLE, ANY_MASK)},
 	 {"MaxFill", action_pair(ACTION_MAXFILL, FRAME_MASK|CMD_OK)},
-	 {"GrowDirection", action_pair(ACTION_GROW_DIRECTION, FRAME_MASK|CMD_OK)},
+	 {"GrowDirection",
+	  action_pair(ACTION_GROW_DIRECTION, FRAME_MASK|CMD_OK)},
 	 {"Close", action_pair(ACTION_CLOSE, FRAME_MASK)},
 	 {"CloseFrame", action_pair(ACTION_CLOSE_FRAME, FRAME_MASK)},
 	 {"Kill", action_pair(ACTION_KILL, FRAME_MASK)},
@@ -42,8 +43,10 @@ static Util::StringTo<std::pair<ActionType, uint> > action_map[] =
 					 FRAME_MASK|CMD_OK)},
 	 {"ActivateClientRel", action_pair(ACTION_ACTIVATE_CLIENT_REL,
 					   FRAME_MASK|CMD_OK)},
-	 {"MoveClientRel", action_pair(ACTION_MOVE_CLIENT_REL, FRAME_MASK|CMD_OK)},
-	 {"ActivateClient", action_pair(ACTION_ACTIVATE_CLIENT, FRAME_MASK|CMD_OK)},
+	 {"MoveClientRel",
+	  action_pair(ACTION_MOVE_CLIENT_REL, FRAME_MASK|CMD_OK)},
+	 {"ActivateClient",
+	  action_pair(ACTION_ACTIVATE_CLIENT, FRAME_MASK|CMD_OK)},
 	 {"ActivateClientNum",
 	  action_pair(ACTION_ACTIVATE_CLIENT_NUM, KEYGRABBER_OK|CMD_OK)},
 	 {"Resize",
@@ -51,8 +54,10 @@ static Util::StringTo<std::pair<ActionType, uint> > action_map[] =
 		      BUTTONCLICK_OK|CLIENT_OK|FRAME_OK|FRAME_BORDER_OK)},
 	 {"Move", action_pair(ACTION_MOVE, FRAME_OK|FRAME_BORDER_OK|CLIENT_OK)},
 	 {"MoveResize", action_pair(ACTION_MOVE_RESIZE, KEYGRABBER_OK)},
-	 {"GroupingDrag", action_pair(ACTION_GROUPING_DRAG, FRAME_OK|CLIENT_OK)},
-	 {"WarpToWorkspace", action_pair(ACTION_WARP_TO_WORKSPACE, SCREEN_EDGE_OK)},
+	 {"GroupingDrag",
+	  action_pair(ACTION_GROUPING_DRAG, FRAME_OK|CLIENT_OK)},
+	 {"WarpToWorkspace",
+	  action_pair(ACTION_WARP_TO_WORKSPACE, SCREEN_EDGE_OK)},
 	 {"MoveToHead", action_pair(ACTION_MOVE_TO_HEAD, FRAME_MASK|CMD_OK)},
 	 {"MoveToEdge", action_pair(ACTION_MOVE_TO_EDGE, KEYGRABBER_OK|CMD_OK)},
 	 {"NextFrame",
@@ -266,7 +271,8 @@ parseActionChangeWorkspace(Action &action, const std::string &arg, int idx = 0)
 	if (num != WORKSPACE_NO) {
 		action.setParamI(idx++, num);
 	} else {
-		// Workspace isn't relative, check for 2x2 and ordinary specification
+		// Workspace isn't relative, check for 2x2 and ordinary
+		// specification
 		std::vector<std::string> tok1;
 		if (Util::splitString(tok[0], tok1, "x", 2, true) == 2) {
 			// [0] -1 (indicate ROWxCOL), [1] (row) [2] (col)
@@ -295,7 +301,8 @@ parseActionSendToWorkspace(Action &action, const std::string &arg)
 			action.setParamI(0, 1);
 		} else {
 			action.setParamI(0, 0);
-			USER_WARN("second argument to SendToWorkspace should be 'KeepFocus'");
+			USER_WARN("second argument to SendToWorkspace should "
+				  "be 'KeepFocus'");
 		}
 		parseActionChangeWorkspace(action, tok[0], 1);
 	} else {
@@ -326,33 +333,44 @@ parseActionState(Action &action, const std::string &as_action)
 
 	// chop the string up separating the action and parameters
 	if (Util::splitString(as_action, tok, " \t", 2)) {
-		action.setParamI(0, Util::StringToGet(action_state_map, tok[0]));
+		action.setParamI(0, Util::StringToGet(action_state_map,
+				 tok[0]));
 		if (action.getParamI(0) != ACTION_STATE_NO) {
-			if (tok.size() == 2) { // we got enough tok for a parameter
+			if (tok.size() == 2) {
 				std::string directions;
 
 				switch (action.getParamI(0)) {
 				case ACTION_STATE_MAXIMIZED:
-					// Using copy of token here to silence valgrind checks.
+					// Using copy of token here to silence
+					// valgrind checks.
 					directions = tok[1];
 
-					Util::splitString(directions, tok, " \t", 2);
+					Util::splitString(directions, tok,
+							  " \t", 2);
 					if (tok.size() == 4) {
-						action.setParamI(1, Util::isTrue(tok[2]));
-						action.setParamI(2, Util::isTrue(tok[3]));
+						action.setParamI(
+							1,
+							Util::isTrue(tok[2]));
+						action.setParamI(
+							2,
+							Util::isTrue(tok[3]));
 					} else {
-						USER_WARN("missing argument to Maximized, 2 required");
+						USER_WARN("missing argument "
+							  "to Maximized, 2 "
+							  "required");
 					}
 					break;
 				case ACTION_STATE_TAGGED:
-					action.setParamI(1, Util::isTrue(tok[1]));
+					action.setParamI(1, Util::isTrue(
+							tok[1]));
 					break;
 				case ACTION_STATE_SKIP:
-					action.setParamI(1, Util::StringToGet(skip_map, tok[1]));
+					action.setParamI(1, Util::StringToGet(
+							skip_map, tok[1]));
 					break;
 				case ACTION_STATE_CFG_DENY:
-					action.setParamI(1,
-							 Util::StringToGet(cfg_deny_map, tok[1]));
+					action.setParamI(1, Util::StringToGet(
+							cfg_deny_map, tok[1]));
 					break;
 				case ACTION_STATE_DECOR:
 				case ACTION_STATE_TITLE:
@@ -455,7 +473,8 @@ parseActionArg(Action &action, const std::string& arg)
 	case ACTION_PREV_FRAME:
 	case ACTION_PREV_FRAME_MRU:
 		if ((Util::splitString(arg, tok, " \t", 2)) == 2) {
-			action.setParamI(0, Util::StringToGet(raise_map, tok[0]));
+			action.setParamI(0, Util::StringToGet(raise_map,
+							      tok[0]));
 			action.setParamI(1, Util::isTrue(tok[1]));
 		} else {
 			action.setParamI(0, Util::StringToGet(raise_map, arg));
@@ -467,10 +486,12 @@ parseActionArg(Action &action, const std::string& arg)
 		break;
 	case ACTION_FOCUS_DIRECTIONAL:
 		if ((Util::splitString(arg, tok, " \t", 2)) == 2) {
-			action.setParamI(0, Util::StringToGet(direction_map, tok[0]));
+			action.setParamI(0, Util::StringToGet(direction_map,
+							      tok[0]));
 			action.setParamI(1, Util::isTrue(tok[1])); // raise
 		} else {
-			action.setParamI(0, Util::StringToGet(direction_map, arg));
+			action.setParamI(0, Util::StringToGet(direction_map,
+							      arg));
 			action.setParamI(1, true); // default to raise
 		}
 		break;
@@ -614,10 +635,11 @@ namespace ActionConfig {
 		} else {
 			KeySym keysym = XStringToKeysym(tok[num].c_str());
 
-			// XStringToKeysym() may fail. Perhaps we have luck after some
-			// simple transformations. First we convert the string to lowercase
-			// and try again. Then we try with only the first character in
-			// uppercase and at last we try a complete uppercase string. If all
+			// XStringToKeysym() may fail. Perhaps we have luck
+			// after some simple transformations. First we convert
+			// the string to lowercase and try again. Then we try
+			// with only the first character in uppercase and at
+			// last we try a complete uppercase string. If all
 			// fails, we print a warning and return false.
 			if (keysym == NoSymbol) {
 				std::string str = tok[num];
@@ -628,9 +650,12 @@ namespace ActionConfig {
 					keysym = XStringToKeysym(str.c_str());
 					if (keysym == NoSymbol) {
 						Util::to_upper(str);
-						keysym = XStringToKeysym(str.c_str());
+						keysym = XStringToKeysym(
+								str.c_str());
 						if (keysym == NoSymbol) {
-							USER_WARN("could not find keysym for "
+							USER_WARN("could not "
+								  "find "
+								  "keysym for "
 								  << tok[num]);
 							return false;
 						}
@@ -688,13 +713,15 @@ namespace ActionConfig {
 	}
 
 	bool
-	parseActions(const std::string &action_string, ActionEvent &ae, uint mask)
+	parseActions(const std::string &action_string, ActionEvent &ae,
+		     uint mask)
 	{
 		// reset the action event
 		ae.action_list.clear();
 
 		std::vector<std::string> tok;
-		if (! Util::splitString(action_string, tok, ";", 0, false, '\\')) {
+		if (! Util::splitString(action_string, tok, ";", 0, false,
+					'\\')) {
 			return false;
 		}
 
@@ -723,7 +750,8 @@ namespace ActionConfig {
 
 		std::string str_button = section->getValue();
 		if (str_button.empty()) {
-			if (ae.type == MOUSE_EVENT_ENTER || ae.type == MOUSE_EVENT_LEAVE) {
+			if (ae.type == MOUSE_EVENT_ENTER
+			    || ae.type == MOUSE_EVENT_LEAVE) {
 				str_button = "1";
 			} else {
 				return false;
@@ -764,7 +792,7 @@ namespace ActionConfig {
 								 "CURRENT")) {
 				action.setParamI(0, -2);
 			} else {
-				action.setParamI(0, strtol(tok[1].c_str(), 0, 10));
+				action.setParamI(0, std::stoi(tok[1]));
 			}
 		} else {
 			action.setParamI(0, -1);

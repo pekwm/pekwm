@@ -92,8 +92,9 @@ public:
 	virtual void setColor(PFont::Color* color) = 0;
 
 private:
-	virtual void drawText(Drawable dest, int x, int y, const std::string &text,
-			      uint chars, bool fg) = 0;
+	virtual void drawText(Drawable dest, int x, int y,
+			      const std::string &text, uint chars,
+			      bool fg) = 0;
 
 protected:
 	uint _height, _ascent, _descent;
@@ -116,8 +117,8 @@ public:
 	virtual void setColor(PFont::Color *color);
 
 private:
-	virtual void drawText(Drawable dest, int x, int y, const std::string &text,
-			      uint chars, bool fg);
+	virtual void drawText(Drawable dest, int x, int y,
+			      const std::string &text, uint chars, bool fg);
 
 private:
 	XFontStruct *_font;
@@ -138,8 +139,8 @@ public:
 	virtual void setColor(PFont::Color *color);
 
 private:
-	virtual void drawText(Drawable dest, int x, int y, const std::string &text,
-			      uint chars, bool fg);
+	virtual void drawText(Drawable dest, int x, int y,
+			      const std::string &text, uint chars, bool fg);
 
 	XFontSet _fontset;
 	GC _gc_fg, _gc_bg;
@@ -161,8 +162,8 @@ public:
 	virtual void setColor(PFont::Color *color);
 
 private:
-	virtual void drawText(Drawable dest, int x, int y, const std::string &text,
-			      uint chars, bool fg);
+	virtual void drawText(Drawable dest, int x, int y,
+			      const std::string &text, uint chars, bool fg);
 
 	XftDraw *_draw;
 	XftFont *_font;

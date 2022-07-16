@@ -17,7 +17,7 @@
 #include "StatusWindow.hh"
 
 class KeyboardMoveResizeEventHandler : public EventHandler,
-                                       public Observer
+				       public Observer
 {
 public:
 	KeyboardMoveResizeEventHandler(Config* cfg, KeyGrabber *key_grabber,

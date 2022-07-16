@@ -51,8 +51,8 @@ std::map<Window,PMenu*> PMenu::_menu_map = std::map<Window,PMenu*>();
 
 //! @brief Constructor for PMenu class
 PMenu::PMenu(const std::string &title,
-             const std::string &name, const std::string decor_name,
-             bool init)
+	     const std::string &name, const std::string decor_name,
+	     bool init)
 	: PDecor(decor_name, None, init),
 	  _name(name),
 	  _menu_parent(0), _class_hint("pekwm", "Menu", "", "", ""),
@@ -82,7 +82,8 @@ PMenu::PMenu(const std::string &title,
 		ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
 		ExposureMask|FocusChangeMask|KeyPressMask|KeyReleaseMask|
 		PointerMotionMask;
-	Window window = X11::createWmWindow(_window, 0, 0, 1, 1, InputOutput, event_mask);
+	Window window = X11::createWmWindow(_window, 0, 0, 1, 1,
+					    InputOutput, event_mask);
 	_menu_wo->setWindow(window);
 
 	titleAdd(&_title);
@@ -149,11 +150,14 @@ PMenu::setFocused(bool focused)
 		PDecor::setFocused(focused);
 
 		X11::setWindowBackgroundPixmap(_menu_wo->getWindow(),
-					       _focused ? _menu_bg_fo : _menu_bg_un);
+					       _focused
+						   ? _menu_bg_fo
+						   : _menu_bg_un);
 		X11::clearWindow(_menu_wo->getWindow());
 		if (_item_curr < _items.size()) {
 			item_it item(_items.begin() + _item_curr);
-			_item_curr = _items.size(); // Force selectItem(item) to redraw
+			// Force selectItem(item) to redraw
+			_item_curr = _items.size();
 			selectItem(item);
 		}
 	}
@@ -179,8 +183,9 @@ PMenu::handleButtonPress(XButtonEvent *ev)
 		_pointer_x = ev->x_root;
 		_pointer_y = ev->y_root;
 
+		Config* cfg = pekwm::config();
 		std::vector<ActionEvent> *malm =
-			pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU);
+			cfg->getMouseActionList(MOUSE_ACTION_LIST_MENU);
 		return ActionHandler::findMouseAction(ev->button, ev->state,
 						      MOUSE_EVENT_PRESS, malm);
 	} else {
@@ -221,7 +226,8 @@ PMenu::handleButtonRelease(XButtonEvent *ev)
 
 		std::vector<ActionEvent> *malm =
 			cfg->getMouseActionList(MOUSE_ACTION_LIST_MENU);
-		return ActionHandler::findMouseAction(ev->button, ev->state, mb, malm);
+		return ActionHandler::findMouseAction(ev->button, ev->state,
+						      mb, malm);
 	} else {
 		return PDecor::handleButtonRelease(ev);
 	}
@@ -254,21 +260,24 @@ PMenu::handleMotionEvent(XMotionEvent *ev)
 	if (*_menu_wo == ev->window) {
 		uint button = X11::getButtonFromState(ev->state);
 		handleItemEvent(button
-				? MOUSE_EVENT_MOTION_PRESSED : MOUSE_EVENT_MOTION,
+				? MOUSE_EVENT_MOTION_PRESSED
+				: MOUSE_EVENT_MOTION,
 				ev->x, ev->y);
 
 		ActionEvent *ae;
 		X11::stripButtonModifiers(&ev->state);
+		Config* cfg = pekwm::config();
 		std::vector<ActionEvent> *malm =
-			pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU);
+			cfg->getMouseActionList(MOUSE_ACTION_LIST_MENU);
 		ae = ActionHandler::findMouseAction(button, ev->state,
 						    MOUSE_EVENT_MOTION, malm);
 
 		// check motion threshold
 		if (ae && (ae->threshold > 0)) {
-			if (! ActionHandler::checkAEThreshold(ev->x_root, ev->y_root,
-							      _pointer_x, _pointer_y,
-							      ae->threshold)) {
+			if (! ActionHandler::checkAEThreshold(
+						ev->x_root, ev->y_root,
+						_pointer_x, _pointer_y,
+						ae->threshold)) {
 				ae = 0;
 			}
 		}
@@ -282,8 +291,9 @@ ActionEvent*
 PMenu::handleEnterEvent(XCrossingEvent *ev)
 {
 	if (*_menu_wo == ev->window) {
+		Config* cfg = pekwm::config();
 		std::vector<ActionEvent> *malm =
-			pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU);
+			cfg->getMouseActionList(MOUSE_ACTION_LIST_MENU);
 		return ActionHandler::findMouseAction(BUTTON_ANY, ev->state,
 						      MOUSE_EVENT_ENTER, malm);
 	} else {
@@ -295,8 +305,9 @@ ActionEvent*
 PMenu::handleLeaveEvent(XCrossingEvent *ev)
 {
 	if (*_menu_wo == ev->window) {
+		Config* cfg = pekwm::config();
 		std::vector<ActionEvent> *malm =
-			pekwm::config()->getMouseActionList(MOUSE_ACTION_LIST_MENU);
+			cfg->getMouseActionList(MOUSE_ACTION_LIST_MENU);
 		return ActionHandler::findMouseAction(BUTTON_ANY, ev->state,
 						      MOUSE_EVENT_LEAVE, malm);
 	} else {
@@ -335,19 +346,21 @@ PMenu::handleItemEvent(MouseEventType type, int x, int y)
 	}
 
 	if (pekwm::config()->isMenuEnterOn(type)) {
-		if (item->getWORef()
-		    && (item->getWORef()->getType() == PWinObj::WO_MENU)) {
+		PWinObj* wo_ref = item->getWORef();
+		if (wo_ref
+		    && (wo_ref->getType() == PWinObj::WO_MENU)) {
+			PMenu* ref_menu = static_cast<PMenu*>(wo_ref);
 			// Special case for motion to avoid flickering
 			if (type != MOUSE_EVENT_MOTION
 			    && type != MOUSE_EVENT_MOTION_PRESSED
-			    && item->getWORef()->isMapped()) {
-				static_cast<PMenu*>(item->getWORef())->unmapSubmenus();
-				item->getWORef()->unmapWindow();
+			    && wo_ref->isMapped()) {
+				ref_menu->unmapSubmenus();
+				ref_menu->unmapWindow();
 
-			} else if (! item->getWORef()->isMapped()) {
+			} else if (! wo_ref->isMapped()) {
 				// unmap previous opened submenu if any
 				unmapSubmenus();
-				mapSubmenu(static_cast<PMenu*>(item->getWORef()));
+				mapSubmenu(ref_menu);
 			}
 		}
 	}
@@ -388,7 +401,8 @@ PMenu::buildMenuCalculate(void)
 	for (_size = 0; it != _items.end(); ++it) {
 		if ((*it)->getType() == PMenu::Item::MENU_ITEM_NORMAL) {
 			++_size;
-		} else if ((*it)->getType() == PMenu::Item::MENU_ITEM_SEPARATOR) {
+		} else if ((*it)->getType()
+			   == PMenu::Item::MENU_ITEM_SEPARATOR) {
 			++sep;
 		}
 	}
@@ -413,8 +427,8 @@ PMenu::buildMenuCalculate(void)
 		_item_width_max += _icon_width;
 	}
 
-	// If we have any submenus, increase the maximum width with arrow width +
-	// right pad as we are going to pad the arrow from the text too.
+	// If we have any submenus, increase the maximum width with arrow width
+	// + right pad as we are going to pad the arrow from the text too.
 	if (_has_submenu) {
 		_item_width_max += md->getPad(PAD_RIGHT)
 			+ md->getTextureArrow(OBJECT_STATE_FOCUSED)->getWidth();
@@ -429,7 +443,8 @@ PMenu::buildMenuCalculate(void)
 
 	// Calculate item height
 	_item_height =
-		std::max(md->getFont(OBJECT_STATE_FOCUSED)->getHeight(), _icon_height)
+		std::max(md->getFont(OBJECT_STATE_FOCUSED)->getHeight(),
+			 _icon_height)
 		+ md->getPad(PAD_UP)
 		+ md->getPad(PAD_DOWN);
 	_separator_height =
@@ -455,7 +470,7 @@ PMenu::buildMenuCalculate(void)
  */
 void
 PMenu::buildMenuCalculateMaxWidth(uint &max_width,
-                                  uint &icon_width, uint &icon_height)
+				  uint &icon_width, uint &icon_height)
 {
 	// Calculate max item width, to be used if/when splitting a menu
 	// up in rows because of limited vertical space.
@@ -492,18 +507,15 @@ PMenu::buildMenuCalculateMaxWidth(uint &max_width,
 	// Make sure icon width and height are not larger than configured.
 	if (icon_width) {
 		Config *cfg = pekwm::config();
-		icon_width =
-			Util::between<uint>(icon_width,
-					    cfg->getMenuIconLimit(icon_width, WIDTH_MIN,
-								  _name),
-					    cfg->getMenuIconLimit(icon_width, WIDTH_MAX,
-								  _name));
-		icon_height =
-			Util::between<uint>(icon_height,
-					    cfg->getMenuIconLimit(icon_height, HEIGHT_MIN,
-								  _name),
-					    cfg->getMenuIconLimit(icon_height, HEIGHT_MAX,
-								  _name));
+		uint lmin, lmax;
+
+		lmin = cfg->getMenuIconLimit(icon_width, WIDTH_MIN, _name),
+		lmax = cfg->getMenuIconLimit(icon_width, WIDTH_MAX, _name);
+		icon_width = Util::between<uint>(icon_width, lmin, lmax);
+
+		lmin = cfg->getMenuIconLimit(icon_height, HEIGHT_MIN, _name),
+		lmax = cfg->getMenuIconLimit(icon_height, HEIGHT_MAX, _name);
+		icon_height = Util::between<uint>(icon_height, lmin, lmax);
 	}
 }
 
@@ -541,7 +553,9 @@ PMenu::buildMenuCalculateColumns(unsigned int &width, unsigned int &height)
 		item_it it(_items.begin());
 		for (i = 0, it = _items.begin(); i < _cols; ++i) {
 			row_height = 0;
-			for (j = 0; j < _rows && it != _items.end(); ++it, ++j) {
+			for (j = 0;
+			     j < _rows && it != _items.end();
+			     ++it, ++j) {
 				switch ((*it)->getType()) {
 				case PMenu::Item::MENU_ITEM_NORMAL:
 					row_height += _item_height;
@@ -576,15 +590,19 @@ PMenu::buildMenuPlace(void)
 		y = 0;
 		// rows
 		for (uint j = 0; j < _rows && it != _items.end(); ++it) {
-			if ((*it)->getType() != PMenu::Item::MENU_ITEM_HIDDEN) {
-				(*it)->setX(x);
-				(*it)->setY(y);
-				if ((*it)->getType() == PMenu::Item::MENU_ITEM_NORMAL) {
-					y += _item_height;
-					++j; // only count real menu items
-				} else if ((*it)->getType() == PMenu::Item::MENU_ITEM_SEPARATOR) {
-					y += _separator_height;
-				}
+			if ((*it)->getType()
+			    == PMenu::Item::MENU_ITEM_HIDDEN) {
+				continue;
+			}
+			(*it)->setX(x);
+			(*it)->setY(y);
+			if ((*it)->getType()
+			    == PMenu::Item::MENU_ITEM_NORMAL) {
+				y += _item_height;
+				++j; // only count real menu items
+			} else if ((*it)->getType()
+				   == PMenu::Item::MENU_ITEM_SEPARATOR) {
+				y += _separator_height;
 			}
 		}
 		x += _item_width_max;
@@ -630,82 +648,99 @@ PMenu::buildMenuRenderState(Pixmap &pix, ObjectState state)
 void
 PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
 {
+	if (item->getType() == PMenu::Item::MENU_ITEM_NORMAL) {
+		buildMenuRenderItemNormal(pix, state, item);
+	} else if (item->getType() == PMenu::Item::MENU_ITEM_SEPARATOR
+		   && state < OBJECT_STATE_SELECTED) {
+	}
+}
+
+void
+PMenu::buildMenuRenderItemNormal(Pixmap pix, ObjectState state,
+				 PMenu::Item* item)
+{
 	Theme::PMenuData *md = pekwm::theme()->getMenuData();
 	Config *cfg = pekwm::config();
 
-	if (item->getType() == PMenu::Item::MENU_ITEM_NORMAL) {
-		PTexture *tex = md->getTextureItem(state);
-		tex->render(pix, item->getX(), item->getY(),
-			    _item_width_max, _item_height);
+	PTexture *tex = md->getTextureItem(state);
+	tex->render(pix, item->getX(), item->getY(),
+		    _item_width_max, _item_height);
 
-		uint start_x, start_y, icon_width, icon_height;
-		// If entry has an icon, draw it
-		if (item->getIcon() && cfg->isDisplayMenuIcons()) {
-			icon_width =
-				Util::between<uint>(item->getIcon()->getWidth(),
-						    cfg->getMenuIconLimit(_icon_width,
-									  WIDTH_MIN, _name),
-						    cfg->getMenuIconLimit(_icon_width,
-									  WIDTH_MAX, _name));
+	uint start_x, start_y, icon_width, icon_height;
+	// If entry has an icon, draw it
+	if (item->getIcon() && cfg->isDisplayMenuIcons()) {
+		uint lmin, lmax;
+		lmin = cfg->getMenuIconLimit(_icon_width, WIDTH_MIN, _name);
+		lmax = cfg->getMenuIconLimit(_icon_width, WIDTH_MAX, _name);
+		icon_width =
+			Util::between<uint>(item->getIcon()->getWidth(),
+					    lmin, lmax);
 
-			icon_height =
-				Util::between<uint>(item->getIcon()->getHeight(),
-						    cfg->getMenuIconLimit(_icon_height,
-									  HEIGHT_MIN, _name),
-						    cfg->getMenuIconLimit(_icon_height,
-									  HEIGHT_MAX, _name));
+		lmin = cfg->getMenuIconLimit(_icon_height, HEIGHT_MIN, _name);
+		lmax = cfg->getMenuIconLimit(_icon_height, HEIGHT_MAX, _name);
+		icon_height =
+			Util::between<uint>(item->getIcon()->getHeight(),
+					    lmin, lmax);
 
-			start_x = item->getX() + md->getPad(PAD_LEFT)
-				+ (_icon_width - icon_width) / 2;
-			start_y = item->getY() + (_item_height - icon_height) / 2;
-			item->getIcon()->render(pix, start_x, start_y,
-						icon_width, icon_height);
-		} else {
-			icon_width = 0;
-			icon_height = 0;
-		}
-
-		// If entry has a submenu, lets draw our submenu "arrow"
-		if (item->getWORef()
-		    && (item->getWORef()->getType() == PWinObj::WO_MENU)) {
-			tex = md->getTextureArrow(state);
-			uint arrow_width = tex->getWidth();
-			uint arrow_height = tex->getHeight();
-			uint arrow_y =
-				static_cast<uint>((_item_height / 2) - (arrow_height / 2));
-
-			start_x = item->getX() + _item_width_max
-				- arrow_width - md->getPad(PAD_RIGHT);
-			start_y = item->getY() + arrow_y;
-			tex->render(pix, start_x, start_y, arrow_width, arrow_height);
-		}
-
-		PFont *font = md->getFont(state);
-		start_x = item->getX() + md->getPad(PAD_LEFT);
-		// Add icon width to starting x position if frame icons are enabled.
-		if (cfg->isDisplayMenuIcons()) {
-			start_x += _icon_width;
-		}
-
-		start_y = item->getY() + md->getPad(PAD_UP)
-			+ (_item_height - font->getHeight()
-			   - md->getPad(PAD_UP) - md->getPad(PAD_DOWN)) / 2;
-
-		// Render item text.
-		font->draw(pix, start_x, start_y, item->getName().c_str(),
-			   0, _item_width_max_avail);
-
-	} else if ((item->getType() == PMenu::Item::MENU_ITEM_SEPARATOR) &&
-		   (state < OBJECT_STATE_SELECTED)) {
-		PTexture *tex = md->getTextureSeparator(state);
-		tex->render(pix, item->getX(), item->getY(),
-			    _item_width_max, _separator_height);
+		start_x = item->getX() + md->getPad(PAD_LEFT)
+			+ (_icon_width - icon_width) / 2;
+		start_y = item->getY()
+			+ (_item_height - icon_height) / 2;
+		item->getIcon()->render(pix, start_x, start_y,
+					icon_width, icon_height);
+	} else {
+		icon_width = 0;
+		icon_height = 0;
 	}
+
+	// If entry has a submenu, lets draw our submenu "arrow"
+	if (item->getWORef()
+	    && (item->getWORef()->getType() == PWinObj::WO_MENU)) {
+		tex = md->getTextureArrow(state);
+		uint arrow_width = tex->getWidth();
+		uint arrow_height = tex->getHeight();
+		uint arrow_y =
+			static_cast<uint>((_item_height / 2)
+					  - (arrow_height / 2));
+
+		start_x = item->getX() + _item_width_max
+			- arrow_width - md->getPad(PAD_RIGHT);
+		start_y = item->getY() + arrow_y;
+		tex->render(pix, start_x, start_y,
+			    arrow_width, arrow_height);
+	}
+
+	PFont *font = md->getFont(state);
+	start_x = item->getX() + md->getPad(PAD_LEFT);
+	// Add icon width to starting x position if frame icons are
+	// enabled.
+	if (cfg->isDisplayMenuIcons()) {
+		start_x += _icon_width;
+	}
+
+	start_y = item->getY() + md->getPad(PAD_UP)
+		+ (_item_height - font->getHeight()
+		   - md->getPad(PAD_UP) - md->getPad(PAD_DOWN)) / 2;
+
+	// Render item text.
+	font->draw(pix, start_x, start_y, item->getName().c_str(),
+		   0, _item_width_max_avail);
+}
+
+void
+PMenu::buildMenuRenderItemSeparator(Pixmap pix, ObjectState state,
+				    PMenu::Item* item)
+{
+	Theme::PMenuData *md = pekwm::theme()->getMenuData();
+	PTexture *tex = md->getTextureSeparator(state);
+	tex->render(pix, item->getX(), item->getY(),
+		    _item_width_max, _separator_height);
 }
 
 #define COPY_ITEM_AREA(ITEM, PIX)					\
 	XCopyArea(X11::getDpy(), PIX, _menu_wo->getWindow(), X11::getGC(), \
-		  (ITEM)->getX(), (ITEM)->getY(), _item_width_max, _item_height, \
+		  (ITEM)->getX(), (ITEM)->getY(), \
+		  _item_width_max, _item_height, \
 		  (ITEM)->getX(), (ITEM)->getY());
 
 //! @brief Renders item as selected
@@ -713,7 +748,7 @@ PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
 //! @param unmap_submenu Defaults to true
 void
 PMenu::selectItem(std::vector<PMenu::Item*>::const_iterator item,
-                  bool unmap_submenu)
+		  bool unmap_submenu)
 {
 	if (_item_curr < _items.size() && _items[_item_curr] == *item) {
 		return;
@@ -743,16 +778,27 @@ void
 PMenu::deselectItem(bool unmap_submenu)
 {
 	// deselect previous item
-	if (_item_curr < _items.size()
-	    && _items[_item_curr]->getType() != PMenu::Item::MENU_ITEM_HIDDEN) {
-		if (_mapped)
-			COPY_ITEM_AREA(_items[_item_curr], (_focused ? _menu_bg_fo : _menu_bg_un));
+	if (_item_curr >= _items.size()) {
+		return;
+	}
 
-		if (unmap_submenu && _items[_item_curr]->getWORef()
-		    && (_items[_item_curr]->getWORef()->getType() == PWinObj::WO_MENU)) {
-			static_cast<PMenu*>(_items[_item_curr]->getWORef())->unmapSubmenus();
-			_items[_item_curr]->getWORef()->unmapWindow();
-		}
+	PMenu::Item* item = _items[_item_curr];
+	if (item->getType() == PMenu::Item::MENU_ITEM_HIDDEN) {
+		return;
+	}
+
+	if (_mapped) {
+		COPY_ITEM_AREA(_items[_item_curr],
+			       (_focused ? _menu_bg_fo : _menu_bg_un));
+	}
+
+	PWinObj* wo_ref = item->getWORef();
+	if (unmap_submenu
+	    && wo_ref
+	    && (wo_ref->getType() == PWinObj::WO_MENU)) {
+		PMenu* ref_menu = static_cast<PMenu*>(wo_ref);
+		ref_menu->unmapSubmenus();
+		wo_ref->unmapWindow();
 	}
 }
 
@@ -885,7 +931,7 @@ PMenu::insert(const std::string &name, PWinObj *wo_ref, PTexture *icon)
 //! @param wo_ref PWinObj to refer to, defaults to 0
 void
 PMenu::insert(const std::string &name, const ActionEvent &ae,
-              PWinObj *wo_ref, PTexture *icon)
+	      PWinObj *wo_ref, PTexture *icon)
 {
 	PMenu::Item *item = new PMenu::Item(name, wo_ref, icon);
 	item->setAE(ae);
@@ -905,7 +951,8 @@ PMenu::remove(PMenu::Item *item)
 		_item_curr = _items.size();
 	}
 
-	if (item->getWORef() && (item->getWORef()->getType() == PWinObj::WO_MENU)) {
+	if (item->getWORef()
+	    && (item->getWORef()->getType() == PWinObj::WO_MENU)) {
 		_has_submenu--;
 	}
 
@@ -979,8 +1026,8 @@ PMenu::unmapSubmenus(void)
 	for (; it != _items.end(); ++it) {
 		if ((*it)->getWORef()
 		    && (*it)->getWORef()->getType() == PWinObj::WO_MENU) {
-			// Sub-menus will be deleted when unmapping this, so no need
-			// to continue.
+			// Sub-menus will be deleted when unmapping this, so no
+			// need to continue.
 			static_cast<PMenu*>((*it)->getWORef())->unmapSubmenus();
 			(*it)->getWORef()->unmapWindow();
 		}
@@ -1037,7 +1084,8 @@ void
 PMenu::selectItemRel(int off)
 {
 	if (off == 0) {
-		P_WARN("trying to select non existing relative (current) item number");
+		P_WARN("trying to select non existing relative (current) "
+		       "item number");
 		return;
 	}
 

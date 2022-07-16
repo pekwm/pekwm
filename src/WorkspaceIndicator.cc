@@ -30,8 +30,8 @@ WorkspaceIndicator::Display::Display(PWinObj *parent)
 
 	long event_mask = ButtonPressMask|ButtonReleaseMask|ButtonMotionMask|
 			  FocusChangeMask|KeyPressMask|KeyReleaseMask;
-	_window = X11::createWmWindow(_parent->getWindow(), 0, 0, 1, 1, InputOutput,
-				      event_mask);
+	_window = X11::createWmWindow(_parent->getWindow(), 0, 0, 1, 1,
+				      InputOutput, event_mask);
 }
 
 /**
@@ -87,7 +87,9 @@ WorkspaceIndicator::Display::render(void)
 	data->font->setColor(data->font_color);
 	data->font->draw(_pixmap,
 			 data->edge_padding,
-			 _gm.height - data->edge_padding - data->font->getHeight(),
+			 _gm.height
+			     - data->edge_padding
+			     - data->font->getHeight(),
 			 Workspaces::getActWorkspace().getName(),
 			 0 /* max_chars */,
 			 _gm.width - data->edge_padding * 2 /* max_width */);
@@ -107,7 +109,7 @@ WorkspaceIndicator::Display::render(void)
  */
 void
 WorkspaceIndicator::Display::renderWorkspaces(int x, int y,
-                                              uint width, uint height)
+					      uint width, uint height)
 {
 	Theme::WorkspaceIndicatorData *data =
 		pekwm::theme()->getWorkspaceIndicatorData();

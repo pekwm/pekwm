@@ -28,7 +28,7 @@
 #include <map>
 
 class WindowManager : public AppCtrl,
-                      public EventLoop
+		      public EventLoop
 {
 public:
 	static WindowManager *start(const std::string &config_file,

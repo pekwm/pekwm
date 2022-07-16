@@ -43,7 +43,8 @@ private:
 	uint findClients(const std::string &search);
 
 	PMenu *_result_menu; /**< Menu for displaying results. */
-	std::string _previous_search; /**< Buffer with previous search string. */
+	/** Buffer with previous search string. */
+	std::string _previous_search;
 };
 
 #endif // _PEKWM_SEARCHDIALOG_HH_

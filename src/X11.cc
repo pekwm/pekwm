@@ -82,7 +82,8 @@ extern "C" {
 		if (Debug::getLevel() >= Debug::LEVEL_TRACE) {
 			char error_buf[256];
 			XGetErrorText(dpy, ev->error_code, error_buf, 256);
-			P_TRACE("XError: " << error_buf << " id: " << ev->resourceid);
+			P_TRACE("XError: " << error_buf
+				<< " id: " << ev->resourceid);
 		}
 
 		return 0;
@@ -269,6 +270,11 @@ Geometry::diffMask(const Geometry &old_gm)
 	return mask;
 }
 
+Strut::Strut(const long* s)
+{
+	*this = s;
+}
+
 Strut::Strut(long l, long r, long t, long b, int nhead)
 	: left(l),
 	  right(r),
@@ -392,7 +398,8 @@ X11::init(Display *dpy, bool synchronous, bool honour_randr)
 	_screen_gm.height = HeightOfScreen(ScreenOfDisplay(_dpy, _screen));
 
 	// create resize cursors
-	_cursor_map[CURSOR_TOP_LEFT] = XCreateFontCursor(_dpy, XC_top_left_corner);
+	_cursor_map[CURSOR_TOP_LEFT] =
+		XCreateFontCursor(_dpy, XC_top_left_corner);
 	_cursor_map[CURSOR_TOP] = XCreateFontCursor(_dpy, XC_top_side);
 	_cursor_map[CURSOR_TOP_RIGHT] =
 		XCreateFontCursor(_dpy, XC_top_right_corner);
@@ -536,7 +543,8 @@ X11::returnColor(XColor*& xc)
 			(*it)->decRef();
 			if (((*it)->getRef() == 0)) {
 				ulong pixels[1] = { (*it)->getColor()->pixel };
-				XFreeColors(X11::getDpy(), X11::getColormap(), pixels, 1, 0);
+				XFreeColors(X11::getDpy(), X11::getColormap(),
+					    pixels, 1, 0);
 
 				delete *it;
 				_colors.erase(it);
@@ -583,7 +591,7 @@ X11::moveWindow(Window win, int x, int y)
 }
 void
 X11::resizeWindow(Window win,
-                  unsigned int width, unsigned int height)
+		  unsigned int width, unsigned int height)
 {
 	if (_dpy) {
 		XResizeWindow(_dpy, win, width, height);
@@ -592,7 +600,7 @@ X11::resizeWindow(Window win,
 
 void
 X11::moveResizeWindow(Window win, int x, int y,
-                      unsigned int width, unsigned int height)
+		      unsigned int width, unsigned int height)
 {
 	if (_dpy) {
 		XMoveResizeWindow(_dpy, win, x, y, width, height);
@@ -625,8 +633,10 @@ X11::stripButtonModifiers(unsigned int *state)
 void
 X11::setLockKeys(void)
 {
-	_num_lock = getMaskFromKeycode(XKeysymToKeycode(_dpy, XK_Num_Lock));
-	_scroll_lock = getMaskFromKeycode(XKeysymToKeycode(_dpy, XK_Scroll_Lock));
+	KeyCode kc_num = XKeysymToKeycode(_dpy, XK_Num_Lock);
+	KeyCode kc_scroll = XKeysymToKeycode(_dpy, XK_Scroll_Lock);
+	_num_lock = getMaskFromKeycode(kc_num);
+	_scroll_lock = getMaskFromKeycode(kc_scroll);
 }
 
 void
@@ -706,16 +716,18 @@ X11::grabServer(void)
 bool
 X11::ungrabServer(bool sync)
 {
-	if (_server_grabs > 0) {
-		if (--_server_grabs == 0) {
-			if (sync) {
-				P_TRACE("0 server grabs left, syncing and ungrab.");
-				X11::sync(False);
-			} else {
-				P_TRACE("0 server grabs left, ungrabbing server.");
-			}
-			XUngrabServer(_dpy);
+	if (_server_grabs == 0) {
+		return true;
+	}
+
+	if (--_server_grabs == 0) {
+		if (sync) {
+			P_TRACE("0 server grabs left, syncing and ungrab.");
+			X11::sync(False);
+		} else {
+			P_TRACE("0 server grabs left, ungrabbing server.");
 		}
+		XUngrabServer(_dpy);
 	}
 	return _server_grabs == 0;
 }
@@ -748,7 +760,8 @@ X11::grabPointer(Window win, uint event_mask, CursorType type)
 {
 	P_TRACE("grabbing pointer");
 	Cursor cursor = type < CURSOR_NONE ? _cursor_map[type] : None;
-	if (XGrabPointer(_dpy, win, false, event_mask, GrabModeAsync, GrabModeAsync,
+	if (XGrabPointer(_dpy, win, false, event_mask,
+			 GrabModeAsync, GrabModeAsync,
 			 None, cursor, CurrentTime) == GrabSuccess) {
 		return true;
 	}
@@ -844,7 +857,8 @@ X11::getScreenChangeNotification(XEvent *ev, ScreenChangeNotification &scn)
 uint
 X11::getNearestHead(int x, int y)
 {
-	int nearest_head = getNearestHead(x, y, DIRECTION_IGNORED, DIRECTION_IGNORED);
+	int nearest_head =
+		getNearestHead(x, y, DIRECTION_IGNORED, DIRECTION_IGNORED);
 	return nearest_head != -1 ? nearest_head : 0;
 }
 
@@ -857,84 +871,89 @@ X11::getNearestHead(int x, int y)
 int
 X11::getNearestHead(int x, int y, DirectionType dx, DirectionType dy)
 {
-	if(_heads.size() > 1) {
-		// set distance to the highest uint value
-		uint min_distance = std::numeric_limits<uint>::max();
-		int nearest_head = -1;
+	if (_heads.size() < 2) {
+		return -1;
+	}
 
-		for(uint head = 0; head < _heads.size(); ++head) {
-			int head_t = _heads[head].y;
-			int head_b = _heads[head].y + _heads[head].height;
-			int head_l = _heads[head].x;
-			int head_r = _heads[head].x + _heads[head].width;
+	// set distance to the highest uint value
+	uint min_distance = std::numeric_limits<uint>::max();
+	int nearest_head = -1;
 
-			int head_dx;
-			int head_dy;
+	for(uint head = 0; head < _heads.size(); ++head) {
+		int head_t = _heads[head].y;
+		int head_b = _heads[head].y + _heads[head].height;
+		int head_l = _heads[head].x;
+		int head_r = _heads[head].x + _heads[head].width;
+
+		int head_dx;
+		int head_dy;
+		if(y < head_t) {
+			head_dy = DIRECTION_DOWN;
+		} else if(y > head_b) {
+			head_dy = DIRECTION_UP;
+		} else {
+			head_dy = DIRECTION_NO;
+		}
+
+		uint distance;
+		if(x > head_r) {
+			head_dx = DIRECTION_LEFT;
 			if(y < head_t) {
-				head_dy = DIRECTION_DOWN;
+				// above and right of the head
+				distance = calcDistance(x, y, head_r, head_t);
 			} else if(y > head_b) {
-				head_dy = DIRECTION_UP;
+				// below and right of the head
+				distance = calcDistance(x, y, head_r, head_b);
 			} else {
-				head_dy = DIRECTION_NO;
+				// right of the head
+				distance = calcDistance(x, head_r);
 			}
-
-			uint distance;
-			if(x > head_r) {
-				head_dx = DIRECTION_LEFT;
-				if(y < head_t) {
-					// above and right of the head
-					distance = calcDistance(x, y, head_r, head_t);
-				} else if(y > head_b) {
-					// below and right of the head
-					distance = calcDistance(x, y, head_r, head_b);
-				} else {
-					// right of the head
-					distance = calcDistance(x, head_r);
-				}
-			} else if(x < head_l) {
-				head_dx = DIRECTION_RIGHT;
-				if(y < head_t) {
-					// above and left of the head
-					distance = calcDistance(x, y, head_l, head_t);
-				} else if(y > head_b) {
-					// below and left of the head
-					distance = calcDistance(x, y, head_l, head_b);
-				} else {
-					// left of the head
-					distance = calcDistance(x, head_l);
-				}
+		} else if(x < head_l) {
+			head_dx = DIRECTION_RIGHT;
+			if(y < head_t) {
+				// above and left of the head
+				distance =
+					calcDistance(x, y,
+						     head_l, head_t);
+			} else if(y > head_b) {
+				// below and left of the head
+				distance =
+					calcDistance(x, y,
+						     head_l, head_b);
 			} else {
-				head_dx = DIRECTION_NO;
-				if(y < head_t) {
-					// above the head
-					distance = calcDistance(y, head_t);
-				} else if(y > head_b) {
-					// below the head
-					distance = calcDistance(y, head_b);
-				} else {
-					// on the head
-					if(dx == DIRECTION_IGNORED && dy == DIRECTION_IGNORED) {
-						return head;
-					}
-					distance = 0;
+				// left of the head
+				distance = calcDistance(x, head_l);
+			}
+		} else {
+			head_dx = DIRECTION_NO;
+			if(y < head_t) {
+				// above the head
+				distance = calcDistance(y, head_t);
+			} else if(y > head_b) {
+				// below the head
+				distance = calcDistance(y, head_b);
+			} else {
+				// on the head
+				if(dx == DIRECTION_IGNORED
+				   && dy == DIRECTION_IGNORED) {
+					return head;
 				}
-			}
-
-			if((dx != DIRECTION_IGNORED && dx != head_dx) ||
-			   (dy != DIRECTION_IGNORED && dy != head_dy)) {
-				continue;
-			}
-
-			if(distance < min_distance) {
-				min_distance = distance;
-				nearest_head = head;
+				distance = 0;
 			}
 		}
 
-		return nearest_head;
-	} else {
-		return -1;
+		if((dx != DIRECTION_IGNORED && dx != head_dx) ||
+		   (dy != DIRECTION_IGNORED && dy != head_dy)) {
+			continue;
+		}
+
+		if(distance < min_distance) {
+			min_distance = distance;
+			nearest_head = head;
+		}
 	}
+
+	return nearest_head;
 }
 
 /**
@@ -1029,7 +1048,8 @@ X11::findHeadByName(const std::string& name)
 			if (_heads[i].primary) {
 				return i;
 			}
-		} else if (StringUtil::ascii_ncase_equal(_heads[i].name, name)) {
+		} else if (StringUtil::ascii_ncase_equal(_heads[i].name, 
+							 name)) {
 			return i;
 		}
 	}
@@ -1112,8 +1132,7 @@ X11::setWindow(Window win, AtomName aname, Window value)
 }
 
 void
-X11::setWindows(Window win, AtomName aname, Window *values,
-                int size)
+X11::setWindows(Window win, AtomName aname, Window *values, int size)
 {
 	changeProperty(win, _atoms[aname], XA_WINDOW, 32,
 		       PropModeReplace, (uchar *) values, size);
@@ -1133,7 +1152,7 @@ X11::getCardinal(Window win, AtomName aname, Cardinal &value, long format)
 
 void
 X11::setCardinals(Window win, AtomName aname,
-                  Cardinal *values, int num)
+		  Cardinal *values, int num)
 {
 	changeProperty(win, _atoms[aname], XA_CARDINAL, 32, PropModeReplace,
 		       reinterpret_cast<uchar*>(values), num);
@@ -1159,7 +1178,7 @@ X11::getUtf8StringId(Window win, Atom id, std::string &value)
 
 void
 X11::setUtf8String(Window win, AtomName aname,
-                   const std::string &value)
+		   const std::string &value)
 {
 	changeProperty(win, _atoms[aname], _atoms[UTF8_STRING], 8,
 		       PropModeReplace,
@@ -1169,7 +1188,7 @@ X11::setUtf8String(Window win, AtomName aname,
 
 void
 X11::setUtf8StringArray(Window win, AtomName aname,
-                        unsigned char *values, uint length)
+			unsigned char *values, uint length)
 {
 	changeProperty(win, _atoms[aname], _atoms[UTF8_STRING], 8,
 		       PropModeReplace, values, length);
@@ -1225,7 +1244,7 @@ X11::listProperties(Window win, std::vector<Atom>& atoms)
 
 bool
 X11::getProperty(Window win, Atom atom, Atom type,
-                 ulong expected, uchar **data_ret, ulong *actual)
+		 ulong expected, uchar **data_ret, ulong *actual)
 {
 	if (expected == 0) {
 		expected = 1024;
@@ -1245,7 +1264,8 @@ X11::getProperty(Window win, Atom atom, Atom type,
 		status =
 			XGetWindowProperty(_dpy, win, atom,
 					   0L, expected, False, type,
-					   &r_type, &r_format, &read, &left, &data);
+					   &r_type, &r_format, &read, &left,
+					   &data);
 		if (status != Success || type != r_type || read == 0) {
 			if (data != nullptr) {
 				X11::free(data);
@@ -1321,7 +1341,8 @@ X11::getMousePosition(int &x, int &y)
 	int win_x, win_y;
 	uint mask;
 
-	XQueryPointer(_dpy, _root, &d_root, &d_win, &x, &y, &win_x, &win_y, &mask);
+	XQueryPointer(_dpy, _root, &d_root, &d_win, &x, &y,
+		      &win_x, &win_y, &mask);
 }
 
 uint
@@ -1345,7 +1366,7 @@ X11::getButtonFromState(uint state)
 
 int
 X11::sendEvent(Window dest, Window win, Atom atom, long mask,
-               long v1, long v2, long v3, long v4, long v5)
+	       long v1, long v2, long v3, long v4, long v5)
 {
 	XEvent e;
 	e.type = e.xclient.type = ClientMessage;
@@ -1382,7 +1403,7 @@ X11::setCardinal(Window win, AtomName aname, Cardinal value, long format)
 
 int
 X11::changeProperty(Window win, Atom prop, Atom type, int format,
-                    int mode, const unsigned char *data, int num_e)
+		    int mode, const unsigned char *data, int num_e)
 {
 	if (_dpy) {
 		return XChangeProperty(_dpy, win, prop, type, format, mode,
@@ -1483,7 +1504,7 @@ X11::createImage(char *data, uint width, uint height)
 
 XImage*
 X11::getImage(Drawable src, int x, int y, uint width, uint height,
-              unsigned long plane_mask, int format)
+	      unsigned long plane_mask, int format)
 {
 	if (_dpy) {
 		return XGetImage(_dpy, src, x, y, width, height,
@@ -1494,8 +1515,8 @@ X11::getImage(Drawable src, int x, int y, uint width, uint height,
 
 void
 X11::putImage(Drawable dest, GC gc, XImage *ximage,
-              int src_x, int src_y, int dest_x, int dest_y,
-              uint width, uint height)
+	      int src_x, int src_y, int dest_x, int dest_y,
+	      uint width, uint height)
 {
 	if (_dpy) {
 		XPutImage(_dpy, dest, gc, ximage,
@@ -1562,7 +1583,7 @@ X11::shapeQuery(Window dst, int *bshaped)
 
 void
 X11::shapeCombine(Window dst, int kind, int x, int y,
-                  Window src, int op)
+		  Window src, int op)
 {
 	XShapeCombineShape(_dpy, dst, kind, x, y, src, kind, op);
 }
@@ -1607,7 +1628,7 @@ X11::shapeQuery(Window dst, int *bshaped)
 
 void
 X11::shapeCombine(Window dst, int kind, int x, int y,
-                  Window src, int op)
+		  Window src, int op)
 {
 }
 
@@ -1648,7 +1669,8 @@ X11::initHeads(void)
 		initHeadsXinerama();
 
 		if (! _heads.size()) {
-			addHead(Head(0, 0, _screen_gm.width, _screen_gm.height));
+			addHead(Head(0, 0,
+				     _screen_gm.width, _screen_gm.height));
 		}
 	}
 
@@ -1705,10 +1727,13 @@ X11::initHeadsRandr(void)
 
 	for (int i = 0; i < resources->noutput; ++i) {
 		XRROutputInfo* output =
-			XRRGetOutputInfo(_dpy, resources, resources->outputs[i]);
+			XRRGetOutputInfo(_dpy, resources,
+					 resources->outputs[i]);
 		if (output->crtc) {
-			XRRCrtcInfo* crtc = XRRGetCrtcInfo(_dpy, resources, output->crtc);
-			addHead(Head(crtc->x, crtc->y, crtc->width, crtc->height,
+			XRRCrtcInfo* crtc =
+				XRRGetCrtcInfo(_dpy, resources, output->crtc);
+			addHead(Head(crtc->x, crtc->y,
+				     crtc->width, crtc->height,
 				     output->name,
 				     resources->outputs[i] == primary_output));
 			XRRFreeCrtcInfo (crtc);
@@ -1750,9 +1775,10 @@ X11::getMaskFromKeycode(KeyCode keycode)
 
 	// .h files states that modifiermap is an 8 * max_keypermod array.
 	int max_info = _modifier_map->max_keypermod * 8;
+	int mkpm = _modifier_map->max_keypermod;
 	for (int i = 0; i < max_info; ++i) {
 		if (_modifier_map->modifiermap[i] == keycode) {
-			return MODIFIER_TO_MASK[i / _modifier_map->max_keypermod];
+			return MODIFIER_TO_MASK[i / mkpm];
 		}
 	}
 
@@ -1773,10 +1799,11 @@ X11::getKeycodeFromMask(uint mask)
 		return 0;
 	}
 
+	const int mkpm = _modifier_map->max_keypermod;
 	for (int i = 0; i < 8; ++i) {
 		if (MODIFIER_TO_MASK[i] == mask) {
 			// FIXME: Is iteration over the range required?
-			return _modifier_map->modifiermap[i * _modifier_map->max_keypermod];
+			return _modifier_map->modifiermap[i * mkpm];
 		}
 	}
 
@@ -1846,7 +1873,8 @@ X11::parseGeometry(const std::string& str, Geometry& gm)
 		s_end = str.size();
 	} else {
 		// position
-		std::string::size_type y_start = str.find_first_of("+-", s_end + 1);
+		std::string::size_type y_start =
+			str.find_first_of("+-", s_end + 1);
 		if ((ret = parseGeometryVal(cstr + s_end + 1,
 					    cstr + y_start, gm.x)) > 0) {
 			mask |= X_VALUE;
@@ -1872,8 +1900,10 @@ X11::parseGeometry(const std::string& str, Geometry& gm)
 	if (s_end > s_start) {
 		// size
 		int width, height;
-		std::string::size_type h_start = str.find_first_of("xX", s_start);
-		if ((ret = parseGeometryVal(cstr + s_start, cstr + h_start, width)) > 0
+		std::string::size_type h_start =
+			str.find_first_of("xX", s_start);
+		if ((ret = parseGeometryVal(cstr + s_start,
+					    cstr + h_start, width)) > 0
 		    && width > 0) {
 			gm.width = width;
 			mask |= WIDTH_VALUE;
@@ -1928,10 +1958,10 @@ X11::keepVisible(Geometry &gm)
 
 Window
 X11::createWindow(Window parent,
-                  int x, int y, uint width, uint height,
-                  uint border_width, uint depth, uint _class,
-                  Visual* visual, ulong valuemask,
-                  XSetWindowAttributes* attrs)
+		  int x, int y, uint width, uint height,
+		  uint border_width, uint depth, uint _class,
+		  Visual* visual, ulong valuemask,
+		  XSetWindowAttributes* attrs)
 {
 	if (_dpy) {
 		return XCreateWindow(_dpy, parent,
@@ -1943,9 +1973,9 @@ X11::createWindow(Window parent,
 
 Window
 X11::createSimpleWindow(Window parent,
-                        int x, int y, uint width, uint height,
-                        uint border_width,
-                        ulong border, ulong background)
+			int x, int y, uint width, uint height,
+			uint border_width,
+			ulong border, ulong background)
 {
 	if (_dpy) {
 		return XCreateSimpleWindow(_dpy, parent, x, y, width, height,
@@ -1959,8 +1989,8 @@ X11::createSimpleWindow(Window parent,
  * set to true.
  */
 Window
-X11::createWmWindow(Window parent, int x, int y, uint width, uint height, uint _class,
-		    ulong event_mask)
+X11::createWmWindow(Window parent, int x, int y, uint width, uint height,
+		    uint _class, ulong event_mask)
 {
 	XSetWindowAttributes attr;
 	attr.event_mask = event_mask;
@@ -1980,7 +2010,7 @@ X11::destroyWindow(Window win)
 
 void
 X11::changeWindowAttributes(Window win, ulong mask,
-                            XSetWindowAttributes &attrs)
+			    XSetWindowAttributes &attrs)
 {
 	if (_dpy) {
 		XChangeWindowAttributes(_dpy, win, mask, &attrs);
@@ -1989,7 +2019,7 @@ X11::changeWindowAttributes(Window win, ulong mask,
 
 void
 X11::grabButton(unsigned b, unsigned int mod, Window win,
-                unsigned mask, int mode)
+		unsigned mask, int mode)
 {
 	XGrabButton(_dpy, b, mod, win, False, mask, mode,
 		    GrabModeAsync, None, None);

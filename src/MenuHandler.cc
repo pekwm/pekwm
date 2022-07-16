@@ -79,7 +79,9 @@ MenuHandler::createMenusLoadConfiguration(ActionHandler *act)
 		// Load standard menus
 		menu_map_it it = _menu_map.begin();
 		for (; it != _menu_map.end(); ++it) {
-			it->second->reload(root_entry->findSection(it->second->getName()));
+			CfgParser::Entry* section =
+				root_entry->findSection(it->second->getName());
+			it->second->reload(section);
 		}
 
 		// Load standalone menus
@@ -112,7 +114,9 @@ MenuHandler::reloadMenus(ActionHandler *act)
 			continue;
 		} else if (cfg_ok) {
 			// Only reload the menu if we got a ok configuration
-			it->second->reload(root->findSection(it->second->getName()));
+			CfgParser::Entry* section =
+				root->findSection(it->second->getName());
+			it->second->reload(section);
 		}
 		++it;
 	}
@@ -151,7 +155,7 @@ MenuHandler::loadMenuConfig(const std::string &menu_file, CfgParser &menu_cfg)
  */
 void
 MenuHandler::reloadStandaloneMenus(ActionHandler *act,
-                                   CfgParser::Entry *section)
+				   CfgParser::Entry *section)
 {
 	// Temporary name, as names are stored uppercase
 	std::string menu_name_upper;
@@ -166,8 +170,9 @@ MenuHandler::reloadStandaloneMenus(ActionHandler *act,
 		// Create new menu if the name is not used
 		if (! getMenu(menu_name_upper)) {
 			// Create, parse and add to map
-			ActionMenu *menu = new ActionMenu(ROOTMENU_STANDALONE_TYPE, act,
-							  "", (*it)->getName());
+			ActionMenu *menu =
+				new ActionMenu(ROOTMENU_STANDALONE_TYPE, act,
+					       "", (*it)->getName());
 			menu->reload((*it)->getSection());
 			_menu_map[menu_name_upper] = menu;
 		}

@@ -34,8 +34,8 @@
 //! @param name Name of the menu, empty for dynamic else should be unique
 //! @param decor_name Name of decor to use, defaults to MENU.
 ActionMenu::ActionMenu(MenuType type, ActionHandler *act,
-                       const std::string &title, const std::string &name,
-                       const std::string &decor_name)
+		       const std::string &title, const std::string &name,
+		       const std::string &decor_name)
 	: WORefMenu(title, name, decor_name),
 	  _act(act),
 	  _insert_at(0),
@@ -121,7 +121,8 @@ ActionMenu::reload(CfgParser::Entry *section)
 	// Parse section (if any)
 	_insert_at = 0;
 	{
-		WithIconPath with_icon_path(pekwm::config(), pekwm::imageHandler());
+		WithIconPath with_icon_path(pekwm::config(),
+					    pekwm::imageHandler());
 		parse(section);
 	}
 
@@ -157,7 +158,7 @@ ActionMenu::insert(const std::string &name, PWinObj *wo_ref, PTexture *icon)
 
 void
 ActionMenu::insert(const std::string &name, const ActionEvent &ae,
-                   PWinObj *wo_ref, PTexture *icon)
+		   PWinObj *wo_ref, PTexture *icon)
 {
 	WORefMenu::insert(name, ae, wo_ref, icon);
 }
@@ -192,7 +193,8 @@ ActionMenu::removeAll(void)
 //! @brief Parse config and push items into menu
 //! @param cs Section object to read config from
 //! @param menu BaseMenu object to push object in
-//! @param has_dynamic If true the menu being parsed is dynamic, defaults to false.
+//! @param has_dynamic If true the menu being parsed is dynamic, defaults to
+// false.
 void
 ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
 {
@@ -207,33 +209,13 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
 	}
 
 	CfgParser::Entry *value;
-	ActionEvent ae;
-
-	PMenu::Item *item = 0;
-	PTexture *icon = 0;
-
 	CfgParser::Entry::entry_cit it = section->begin();
 	for (; it != section->end(); ++it) {
-		item = 0;
+		PMenu::Item* item = nullptr;
 
 		if (*(*it) == "SUBMENU") {
-			CfgParser::Entry *sub_section = (*it)->getSection();
-			if (sub_section) {
-				icon = getIcon(sub_section->findEntry("ICON"));
-
-				const std::string& title = (*it)->getValue();
-				ActionMenu *submenu =
-					new ActionMenu(_menu_type, _act, title, title);
-				submenu->_menu_parent = this;
-				submenu->parse(sub_section, parent);
-				submenu->buildMenu();
-
-				const std::string& sub_title = sub_section->getValue();
-				item = new PMenu::Item(sub_title, submenu, icon);
-				item->setCreator(parent);
-			} else {
-				USER_WARN("submenu entry does not contain any section");
-			}
+			item = parseSubmenu((*it)->getSection(), parent,
+					    (*it)->getValue());
 		} else if (*(*it) == "SEPARATOR") {
 			// No icon support on separators.
 			item = new PMenu::Item("", 0, 0);
@@ -241,26 +223,7 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
 			item->setCreator(parent);
 
 		} else {
-			CfgParser::Entry *sub_section = (*it)->getSection();
-			if (sub_section) {
-				// Inside of the Entry = "foo" { ... } section, here
-				// Actions and Icon are the valid options.
-				value = sub_section->findEntry("ACTIONS");
-				if (value && ActionConfig::parseActions(value->getValue(), ae,
-									_action_ok)) {
-					icon = getIcon(sub_section->findEntry("ICON"));
-
-					const std::string& sub_name = sub_section->getValue();
-					item = new PMenu::Item(sub_name, 0, icon);
-					item->setCreator(parent);
-					item->setAE(ae);
-
-					if (ae.isOnlyAction(ACTION_MENU_DYN)) {
-						_has_dynamic = true;
-						item->setType(PMenu::Item::MENU_ITEM_HIDDEN);
-					}
-				}
-			}
+			item = parseItem((*it)->getSection(), parent);
 		}
 
 		// If an item was successfully created, insert it to the menu.
@@ -268,6 +231,58 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
 			insert(item);
 		}
 	}
+}
+
+PMenu::Item*
+ActionMenu::parseSubmenu(CfgParser::Entry* section, PMenu::Item* parent,
+			 const std::string& title)
+{
+	if (section == nullptr) {
+		USER_WARN("submenu entry does not contain any section");
+		return nullptr;
+	}
+
+	PTexture* icon = getIcon(section->findEntry("ICON"));
+
+	ActionMenu *submenu = new ActionMenu(_menu_type, _act, title, title);
+	submenu->_menu_parent = this;
+	submenu->parse(section, parent);
+	submenu->buildMenu();
+
+	const std::string& sub_title = section->getValue();
+	PMenu::Item* item = new PMenu::Item(sub_title, submenu, icon);
+	item->setCreator(parent);
+
+	return item;
+}
+
+PMenu::Item*
+ActionMenu::parseItem(CfgParser::Entry* section, PMenu::Item* parent)
+{
+	PMenu::Item* item = nullptr;
+	if (section == nullptr) {
+		return item;
+	}
+
+	// Inside of the Entry = "foo" { ... } section, here Actions and Icon
+	// are the valid options.
+	ActionEvent ae;
+	CfgParser::Entry* value = section->findEntry("ACTIONS");
+	if (value && ActionConfig::parseActions(value->getValue(), ae,
+						_action_ok)) {
+		PTexture* icon = getIcon(section->findEntry("ICON"));
+
+		const std::string& sub_name = section->getValue();
+		item = new PMenu::Item(sub_name, 0, icon);
+		item->setCreator(parent);
+		item->setAE(ae);
+
+		if (ae.isOnlyAction(ACTION_MENU_DYN)) {
+			_has_dynamic = true;
+			item->setType(PMenu::Item::MENU_ITEM_HIDDEN);
+		}
+	}
+	return item;
 }
 
 /**
@@ -290,8 +305,8 @@ ActionMenu::getIcon(CfgParser::Entry *value)
 	// that fails load is an scaled image.
 	icon = pekwm::textureHandler()->getTexture(value->getValue());
 	if (! icon) {
-		icon = pekwm::textureHandler()->getTexture("IMAGE " + value->getValue()
-							   + "#SCALED");
+		std::string tex = "IMAGE " + value->getValue() + "#SCALED";
+		icon = pekwm::textureHandler()->getTexture(tex);
 	}
 
 	return icon;
@@ -324,7 +339,8 @@ ActionMenu::rebuildDynamic(void)
 			item = *it;
 
 			CfgParser dynamic;
-			std::string cmd = (*it)->getAE().action_list.front().getParamS();
+			std::string cmd =
+				(*it)->getAE().action_list.front().getParamS();
 			CfgParser::Entry *section = runDynamic(dynamic, cmd);
 			if (section != nullptr) {
 				_has_dynamic = true;

@@ -50,10 +50,10 @@ public:
 };
 
 class Client : public PWinObj,
-               public Observer
+	       public Observer
 {
-	// FIXME: This relationship should end as soon as possible, but I need to
-	// figure out a good way of sharing. :)
+	// FIXME: This relationship should end as soon as possible, but I need
+	// to figure out a good way of sharing. :)
 	friend class Frame;
 
 public: // Public Member Functions
@@ -123,8 +123,12 @@ public: // Public Member Functions
 	}
 
 	bool hasTransients() const { return ! _transients.empty(); }
-	client_cit getTransientsBegin(void) const { return _transients.begin(); }
-	client_cit getTransientsEnd(void) const { return _transients.end(); }
+	client_cit getTransientsBegin(void) const {
+		return _transients.begin();
+	}
+	client_cit getTransientsEnd(void) const {
+		return _transients.end();
+	}
 	// END - Iterators
 
 	bool validate(void);
@@ -174,7 +178,9 @@ public: // Public Member Functions
 	bool isShaded(void) const { return _state.shaded; }
 	bool isFullscreen(void) const { return _state.fullscreen; }
 	bool isPlaced(void) const { return _state.placed; }
-	uint getInitialFrameOrder(void) const { return _state.initial_frame_order; }
+	uint getInitialFrameOrder(void) const {
+		return _state.initial_frame_order;
+	}
 	uint getSkip(void) const { return _state.skip; }
 	bool isSkip(Skip skip) const { return (_state.skip&skip); }
 	uint getDecorState(void) const { return _state.decor; }
@@ -201,9 +207,11 @@ public: // Public Member Functions
 		if (ActionUtil::needToggle(sa, _marked)) {
 			_marked = !_marked;
 			if (_marked) {
-				_title.infoAdd(PDecor::TitleItem::INFO_MARKED);
+				_title.infoAdd(
+					PDecor::TitleItem::INFO_MARKED);
 			} else {
-				_title.infoRemove(PDecor::TitleItem::INFO_MARKED);
+				_title.infoRemove(
+					PDecor::TitleItem::INFO_MARKED);
 			}
 			_title.updateVisible();
 		}
@@ -267,6 +275,7 @@ public: // Public Member Functions
 
 	inline AtomName getWinType(void) const { return _window_type; }
 	void updateWinType(bool set);
+	AtomName findWinType(Atom* atoms, int items);
 
 	ulong getWMHints(void);
 	void getWMNormalHints(void);

@@ -193,9 +193,9 @@ private:
 };
 
 WidgetConfig::WidgetConfig(const std::string& name,
-                           std::vector<std::string> args,
-                           const SizeReq& size_req, uint interval_s,
-                           const CfgParser::Entry* section)
+			   std::vector<std::string> args,
+			   const SizeReq& size_req, uint interval_s,
+			   const CfgParser::Entry* section)
 	: _name(name),
 	  _args(args),
 	  _size_req(size_req),
@@ -246,7 +246,7 @@ private:
 };
 
 CommandConfig::CommandConfig(const std::string& command,
-                             uint interval_s)
+			     uint interval_s)
 	: _command(command),
 	  _interval_s(interval_s)
 {
@@ -277,7 +277,9 @@ public:
 
 	uint getRefreshIntervalS(void) const { return _refresh_interval_s; }
 
-	command_config_it commandsBegin(void) const { return _commands.begin(); }
+	command_config_it commandsBegin(void) const {
+		return _commands.begin();
+	}
 	command_config_it commandsEnd(void) const { return _commands.end(); }
 
 	widget_config_it widgetsBegin(void) const { return _widgets.begin(); }
@@ -397,22 +399,23 @@ PanelConfig::loadWidgets(CfgParser::Entry *section)
 		}
 
 		SizeReq size_req = parseSize(size);
-		addWidget((*it)->getName(), size_req, interval, (*it)->getValue(),
-			  w_section);
+		addWidget((*it)->getName(), size_req, interval,
+			  (*it)->getValue(), w_section);
 	}
 }
 
 void
 PanelConfig::addWidget(const std::string& name,
-                       const SizeReq& size_req, uint interval,
-                       const std::string& args_str,
-                       const CfgParser::Entry* section)
+		       const SizeReq& size_req, uint interval,
+		       const std::string& args_str,
+		       const CfgParser::Entry* section)
 {
 	std::vector<std::string> args;
 	if (! args_str.empty()) {
 		args.push_back(args_str);
 	}
-	_widgets.push_back(WidgetConfig(name, args, size_req, interval, section));
+	_widgets.push_back(WidgetConfig(name, args, size_req, interval,
+					section));
 }
 
 SizeReq
@@ -428,9 +431,11 @@ PanelConfig::parseSize(const std::string& size)
 		}
 	} else if (toks.size() == 2) {
 		if (StringUtil::ascii_ncase_equal("PIXELS", toks[0])) {
-			return SizeReq(WIDGET_UNIT_PIXELS, atoi(toks[1].c_str()));
+			return SizeReq(WIDGET_UNIT_PIXELS,
+				       std::stoi(toks[1]));
 		} else if (StringUtil::ascii_ncase_equal("PERCENT", toks[0])) {
-			return SizeReq(WIDGET_UNIT_PERCENT, atoi(toks[1].c_str()));
+			return SizeReq(WIDGET_UNIT_PERCENT,
+				       std::stoi(toks[1]));
 		} else if (StringUtil::ascii_ncase_equal("TEXTWIDTH",
 							 toks[0])) {
 			return SizeReq(toks[1]);
@@ -543,7 +548,8 @@ public:
 			int fd[2];
 			int ret = pipe(fd);
 			if (ret == -1) {
-				P_ERR("pipe failed due to: " << strerror(errno));
+				P_ERR("pipe failed due to: "
+				      << strerror(errno));
 				return false;
 			}
 
@@ -551,10 +557,12 @@ public:
 			if (_pid == -1) {
 				close(fd[0]);
 				close(fd[1]);
-				P_ERR("fork failed due to: " << strerror(errno));
+				P_ERR("fork failed due to: "
+				      << strerror(errno));
 				return false;
 			} else if (_pid == 0) {
-				// child, dup write end of file descriptor to stdout
+				// child, dup write end of file descriptor to
+				// stdout
 				dup2(fd[1], STDOUT_FILENO);
 
 				close(fd[0]);
@@ -579,8 +587,8 @@ public:
 			Util::setNonBlock(_fd);
 			if (Debug::isLevel(Debug::LEVEL_TRACE)) {
 				std::ostringstream msg;
-				msg << "pid " << _pid << " started with fd " << _fd;
-				msg << " for command " << _command;
+				msg << "pid " << _pid << " started with fd "
+				    << _fd << " for command " << _command;
 				P_TRACE(msg.str());
 			}
 			return true;
@@ -600,7 +608,8 @@ public:
 			_fd = -1;
 			_buf = "";
 
-			int ret = clock_gettime(CLOCK_MONOTONIC, &_next_interval);
+			int ret = clock_gettime(CLOCK_MONOTONIC,
+						&_next_interval);
 			assert(ret == 0);
 			_next_interval.tv_sec += _interval_s;
 		}
@@ -624,7 +633,8 @@ public:
 		int ret = clock_gettime(CLOCK_MONOTONIC, &now);
 		assert(ret == 0);
 
-		std::vector<CommandProcess>::iterator it = _command_processes.begin();
+		std::vector<CommandProcess>::iterator it =
+			_command_processes.begin();
 		for (; it != _command_processes.end(); ++it) {
 			if (it->getPid() == -1
 			    && it->checkInterval(&now)
@@ -640,12 +650,14 @@ public:
 		ssize_t nread = read(fd, buf, sizeof(buf));
 		if (nread < 1) {
 			if (nread == -1) {
-				P_TRACE("failed to read from " << fd << ": " << strerror(errno));
+				P_TRACE("failed to read from " << fd << ": "
+					<< strerror(errno));
 			}
 			return false;
 		}
 
-		std::vector<CommandProcess>::iterator it = _command_processes.begin();
+		std::vector<CommandProcess>::iterator it =
+			_command_processes.begin();
 		for (; it != _command_processes.end(); ++it) {
 			if (it->getFd() == fd) {
 				append(it->getBuf(), buf, nread);
@@ -658,7 +670,8 @@ public:
 
 	void done(pid_t pid, fdFun removeFd, void *opaque)
 	{
-		std::vector<CommandProcess>::iterator it = _command_processes.begin();
+		std::vector<CommandProcess>::iterator it =
+			_command_processes.begin();
 		for (; it != _command_processes.end(); ++it) {
 			if (it->getPid() == pid) {
 				while (input(it->getFd())) {
@@ -713,7 +726,7 @@ private:
 };
 
 ExternalCommandData::CommandProcess::CommandProcess(const std::string& command,
-                                                    uint interval_s)
+						    uint interval_s)
 	: _command(command),
 	  _interval_s(interval_s),
 	  _pid(-1),
@@ -738,8 +751,9 @@ ExternalCommandData::ExternalCommandData(const PanelConfig& cfg,
 {
 	PanelConfig::command_config_it it = _cfg.commandsBegin();
 	for (; it != _cfg.commandsEnd(); ++it) {
-		_command_processes.push_back(CommandProcess(it->getCommand(),
-							    it->getIntervalS()));
+		_command_processes.push_back(
+				CommandProcess(it->getCommand(),
+					       it->getIntervalS()));
 	}
 }
 
@@ -881,8 +895,10 @@ public:
 
 private:
 	ClientInfo* findClientInfo(Window win,
-				   const std::vector<ClientInfo*> &clients) const;
-	ClientInfo* popClientInfo(Window win, std::vector<ClientInfo*> &clients);
+				   const std::vector<ClientInfo*> &clients)
+		const;
+	ClientInfo* popClientInfo(Window win,
+				  std::vector<ClientInfo*> &clients);
 
 	bool readActiveWorkspace(void);
 	bool readActiveWindow(void);
@@ -973,7 +989,7 @@ WmState::handlePropertyNotify(XPropertyEvent *ev)
 
 ClientInfo*
 WmState::findClientInfo(Window win,
-                        const std::vector<ClientInfo*> &clients) const
+			const std::vector<ClientInfo*> &clients) const
 {
 	std::vector<ClientInfo*>::const_iterator it = clients.begin();
 	for (; it != clients.end(); ++it) {
@@ -1066,7 +1082,8 @@ WmState::readDesktopNames(void)
 	uchar *data;
 	ulong data_length;
 	if (! X11::getProperty(X11::getRoot(), X11::getAtom(NET_DESKTOP_NAMES),
-			       X11::getAtom(UTF8_STRING), 0, &data, &data_length)) {
+			       X11::getAtom(UTF8_STRING), 0,
+			       &data, &data_length)) {
 		return false;
 	}
 
@@ -1297,7 +1314,7 @@ PanelTheme::loadState(CfgParser::Entry *section, ClientState state)
 
 void
 PanelTheme::setIconPath(const std::string& config_path,
-                        const std::string& theme_path)
+			const std::string& theme_path)
 {
 	ImageHandler *ih = pekwm::imageHandler();
 	ih->path_push_back(DATADIR "/pekwm/icons/");
@@ -1415,7 +1432,7 @@ private:
 };
 
 PanelWidget::PanelWidget(const PanelTheme &theme,
-                         const SizeReq& size_req)
+			 const SizeReq& size_req)
 	: _theme(theme),
 	  _dirty(true),
 	  _x(0),
@@ -1431,7 +1448,7 @@ PanelWidget::~PanelWidget(void)
 
 int
 PanelWidget::renderText(Render &rend, PFont *font,
-                        int x, const std::string& text, uint max_width)
+			int x, const std::string& text, uint max_width)
 {
 	int y = (_theme.getHeight() - font->getHeight()) / 2;
 	return font->draw(rend.getDrawable(), x, y, text, 0, max_width);
@@ -1495,12 +1512,12 @@ private:
  * List of Frames/Clients on the current workspace.
  */
 class ClientListWidget : public PanelWidget,
-                         public Observer {
+			 public Observer {
 public:
 	class Entry {
 	public:
-		Entry(const std::string& name, ClientState state, int x, Window window,
-		      PImage *icon)
+		Entry(const std::string& name, ClientState state, int x,
+		      Window window, PImage *icon)
 			: _name(name),
 			  _state(state),
 			  _x(x),
@@ -1543,7 +1560,8 @@ private:
 	{
 		std::vector<Entry>::iterator it = _entries.begin();
 		for (; it != _entries.end(); ++it) {
-			if (x >= it->getX() && x <= (it->getX() + _entry_width)) {
+			if (x >= it->getX()
+			    && x <= (it->getX() + _entry_width)) {
 				return it->getWindow();
 			}
 		}
@@ -1559,8 +1577,8 @@ private:
 };
 
 ClientListWidget::ClientListWidget(const PanelTheme& theme,
-                                   const SizeReq& size_req,
-                                   WmState& wm_state)
+				   const SizeReq& size_req,
+				   WmState& wm_state)
 	: PanelWidget(theme, size_req),
 	  _wm_state(wm_state)
 {
@@ -1614,7 +1632,8 @@ ClientListWidget::render(Render &rend)
 		int entry_width = _entry_width - icon_width;
 
 		PFont *font = _theme.getFont(it->getState());
-		int icon_x = renderText(rend, font, x, it->getName(), entry_width);
+		int icon_x = renderText(rend, font, x,
+					it->getName(), entry_width);
 		icon_x -= icon_width;
 
 		if (icon) {
@@ -1639,14 +1658,16 @@ ClientListWidget::update(void)
 		for (; it != _wm_state.clientsEnd(); ++it) {
 			if ((*it)->displayOn(workspace)) {
 				ClientState state;
-				if ((*it)->getWindow() == _wm_state.getActiveWindow()) {
+				if ((*it)->getWindow()
+				    == _wm_state.getActiveWindow()) {
 					state = CLIENT_STATE_FOCUSED;
 				} else if ((*it)->hidden) {
 					state = CLIENT_STATE_ICONIFIED;
 				} else {
 					state = CLIENT_STATE_UNFOCUSED;
 				}
-				_entries.push_back(Entry((*it)->getName(), state, 0,
+				_entries.push_back(Entry((*it)->getName(),
+							 state, 0,
 							 (*it)->getWindow(),
 							 (*it)->getIcon()));
 			}
@@ -1676,7 +1697,7 @@ ClientListWidget::update(void)
  * from external command data.
  */
 class BarWidget : public PanelWidget,
-                  public Observer {
+		  public Observer {
 public:
 	BarWidget(const PanelTheme& theme,
 		  const SizeReq& size_req,
@@ -1687,7 +1708,8 @@ public:
 
 	virtual void notify(Observable*, Observation *observation)
 	{
-		FieldObservation *efo = dynamic_cast<FieldObservation*>(observation);
+		FieldObservation *efo =
+			dynamic_cast<FieldObservation*>(observation);
 		if (efo != nullptr && efo->getField() == _field) {
 			_dirty = true;
 		}
@@ -1708,10 +1730,10 @@ private:
 };
 
 BarWidget::BarWidget(const PanelTheme& theme,
-                     const SizeReq& size_req,
-                     VarData& var_data,
-                     const std::string& field,
-                     const CfgParser::Entry *section)
+		     const SizeReq& size_req,
+		     VarData& var_data,
+		     const std::string& field,
+		     const CfgParser::Entry *section)
 	: PanelWidget(theme, size_req),
 	  _var_data(var_data),
 	  _field(field)
@@ -1784,13 +1806,15 @@ BarWidget::parseColors(const CfgParser::Entry* section)
 
 	CfgParser::Entry::entry_cit it = colors->begin();
 	for (; it != colors->end(); ++it) {
-		if (! StringUtil::ascii_ncase_equal((*it)->getName(), "PERCENT")
+		if (! StringUtil::ascii_ncase_equal((*it)->getName(),
+						    "PERCENT")
 		    || ! (*it)->getSection()) {
 			continue;
 		}
 
 		float percent = getPercent((*it)->getValue());
-		CfgParser::Entry *color = (*it)->getSection()->findEntry("COLOR");
+		CfgParser::Entry *color =
+			(*it)->getSection()->findEntry("COLOR");
 		if (color) {
 			addColor(percent, X11::getColor(color->getValue()));
 		}
@@ -1814,7 +1838,8 @@ BarWidget::addColor(float percent, XColor* color)
 class TextFormatter
 {
 public:
-	typedef std::string(*formatFun)(TextFormatter *tf, const std::string& buf);
+	typedef std::string(*formatFun)(TextFormatter *tf,
+			    const std::string& buf);
 
 	TextFormatter(VarData& var_data, WmState& wm_state);
 	~TextFormatter(void);
@@ -1953,12 +1978,17 @@ TextFormatter::expandVar(const std::string& buf)
 		// window manager state variable
 		if (buf == ":CLIENT_NAME:") {
 			Window win = _wm_state.getActiveWindow();
-			ClientInfo *client_info = _wm_state.findClientInfo(win);
-			return client_info ? client_info->getName() : _empty_wstring;
+			ClientInfo *client_info =
+				_wm_state.findClientInfo(win);
+			return client_info
+				? client_info->getName()
+				: _empty_wstring;
 		} else if (buf == ":WORKSPACE_NUMBER:") {
-			return std::to_string(_wm_state.getActiveWorkspace() + 1);
+			return std::to_string(
+					_wm_state.getActiveWorkspace() + 1);
 		} else if (buf == ":WORKSPACE_NAME:") {
-			return _wm_state.getWorkspaceName(_wm_state.getActiveWorkspace());
+			return _wm_state.getWorkspaceName(
+					_wm_state.getActiveWorkspace());
 		}
 		return _empty_wstring;
 	}
@@ -1974,7 +2004,7 @@ TextFormatter::expandVar(const std::string& buf)
  * Format $external, $:wm, $_env
  */
 class TextWidget : public PanelWidget,
-                   public Observer {
+		   public Observer {
 public:
 	TextWidget(const PanelTheme& theme, const SizeReq& size_req,
 		   VarData& _var_data, WmState& _wm_state,
@@ -2001,9 +2031,9 @@ private:
 };
 
 TextWidget::TextWidget(const PanelTheme& theme, const SizeReq& size_req,
-                       VarData& var_data, WmState& wm_state,
-                       const std::string& format,
-                       const CfgParser::Entry *section)
+		       VarData& var_data, WmState& wm_state,
+		       const std::string& format,
+		       const CfgParser::Entry *section)
 	: PanelWidget(theme, size_req),
 	  _var_data(var_data),
 	  _wm_state(wm_state),
@@ -2102,7 +2132,7 @@ TextWidget::parseText(const CfgParser::Entry* section)
  * Display icon based on value from external command.
  */
 class IconWidget : public PanelWidget,
-                   public Observer {
+		   public Observer {
 public:
 	IconWidget(const PanelTheme& theme,
 		   const SizeReq& size_req,
@@ -2148,10 +2178,10 @@ private:
 };
 
 IconWidget::IconWidget(const PanelTheme& theme,
-                       const SizeReq& size_req,
+		       const SizeReq& size_req,
 		       VarData& var_data, WmState& wm_state,
-                       const std::string& field,
-                       const CfgParser::Entry *section)
+		       const std::string& field,
+		       const CfgParser::Entry *section)
 	: PanelWidget(theme, size_req),
 	  _var_data(var_data),
 	  _wm_state(wm_state),
@@ -2344,10 +2374,12 @@ WidgetFactory::construct(const WidgetConfig& cfg)
 			USER_WARN("missing required argument to Bar widget");
 		} else {
 			return new BarWidget(_theme, cfg.getSizeReq(),
-					     _var_data, field, cfg.getCfgSection());
+					     _var_data, field,
+					     cfg.getCfgSection());
 		}
 	} else if (name == "CLIENTLIST") {
-		return new ClientListWidget(_theme, cfg.getSizeReq(), _wm_state);
+		return new ClientListWidget(_theme, cfg.getSizeReq(),
+					    _wm_state);
 	} else if (name == "DATETIME") {
 		const std::string &format = cfg.getArg(0);
 		return new DateTimeWidget(_theme, cfg.getSizeReq(), format);
@@ -2397,8 +2429,8 @@ static bool renderPredAlways(PanelWidget*, void*)
  *   * pixels, number of pixels
  *   * percent, percent of the screen width the panel is on.
  *   * required, minimum required size.
- *   * *, all space not occupied by the other widgets. All * share the remaining
- *     space.
+ *   * *, all space not occupied by the other widgets. All * share the
+ *     remaining space.
  *
  *       required           300px                         *
  * ----------------------------------------------------------------------------
@@ -2407,7 +2439,7 @@ static bool renderPredAlways(PanelWidget*, void*)
  *
  */
 class PekwmPanel : public X11App,
-                   public Observer {
+		   public Observer {
 public:
 	PekwmPanel(const PanelConfig &cfg, PanelTheme &theme, XSizeHints *sh);
 	virtual ~PekwmPanel(void);
@@ -2458,8 +2490,8 @@ private:
 
 	virtual void handleChildDone(pid_t pid, int)
 	{
-		_ext_data.done(pid,
-			       PekwmPanel::ppRemoveFd, reinterpret_cast<void*>(this));
+		_ext_data.done(pid, PekwmPanel::ppRemoveFd,
+			       reinterpret_cast<void*>(this));
 	}
 
 	virtual void screenChanged(const ScreenChangeNotification&)
@@ -2484,7 +2516,8 @@ private:
 	{
 		WidgetFactory factory(_theme, _var_data, _wm_state);
 
-		std::vector<WidgetConfig>::const_iterator it = _cfg.widgetsBegin();
+		std::vector<WidgetConfig>::const_iterator it =
+			_cfg.widgetsBegin();
 		for (; it != _cfg.widgetsEnd(); ++it) {
 			PanelWidget *widget = factory.construct(*it);
 			if (widget == nullptr) {
@@ -2522,7 +2555,7 @@ private:
 };
 
 PekwmPanel::PekwmPanel(const PanelConfig &cfg, PanelTheme &theme,
-                       XSizeHints *sh)
+		       XSizeHints *sh)
 	: X11App(Geometry(sh->x, sh->y,
 			  static_cast<uint>(sh->width),
 			  static_cast<uint>(sh->height)),
@@ -2715,9 +2748,9 @@ PekwmPanel::resizeWidgets(void)
 			(*it)->setWidth((*it)->getSizeReq().getSize());
 			break;
 		case WIDGET_UNIT_PERCENT: {
-			uint width =
-				static_cast<uint>(_gm.width
-						  * (static_cast<float>((*it)->getSizeReq().getSize()) / 100));
+			uint width = static_cast<uint>(_gm.width
+				  * (static_cast<float>(
+					(*it)->getSizeReq().getSize()) / 100));
 			width_left -= width;
 			(*it)->setWidth(width);
 			break;
@@ -2731,7 +2764,8 @@ PekwmPanel::resizeWidgets(void)
 			break;
 		case WIDGET_UNIT_TEXT_WIDTH: {
 			PFont *font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
-			uint width = font->getWidth((*it)->getSizeReq().getText());
+			uint width = font->getWidth(
+					(*it)->getSizeReq().getText());
 			width_left -= width;
 			(*it)->setWidth(width);
 			break;
@@ -2740,7 +2774,8 @@ PekwmPanel::resizeWidgets(void)
 	}
 
 	uint x = handle ? handle->getWidth() : 0;
-	uint rest = static_cast<uint>(width_left / static_cast<float>(num_rest));
+	uint rest = static_cast<uint>(width_left
+				      / static_cast<float>(num_rest));
 	for (it = _widgets.begin(); it != _widgets.end(); ++it) {
 		if ((*it)->getSizeReq().getUnit() == WIDGET_UNIT_REST) {
 			(*it)->setWidth(rest);
@@ -2772,7 +2807,8 @@ PekwmPanel::renderPred(renderPredFun pred, void *opaque)
 		x += (*it)->getWidth();
 
 		if (do_render && *it != last_widget) {
-			sep->render(rend, x, 0, sep->getWidth(), sep->getHeight());
+			sep->render(rend, x, 0,
+				    sep->getWidth(), sep->getHeight());
 			x += sep->getWidth();
 		}
 	}
@@ -2832,7 +2868,8 @@ static void usage(const char* name, int ret)
 	std::cout << "usage: " << name << " [-dh]" << std::endl;
 	std::cout << " -c --config path    Configuration file" << std::endl;
 	std::cout << " -d --display dpy    Display" << std::endl;
-	std::cout << " -h --help           Display this information" << std::endl;
+	std::cout << " -h --help           Display this information"
+		  << std::endl;
 	std::cout << " -f --log-file       Set log file." << std::endl;
 	std::cout << " -l --log-level      Set log level." << std::endl;
 	exit(ret);
@@ -2844,19 +2881,25 @@ int main(int argc, char *argv[])
 	const char* display = NULL;
 
 	static struct option opts[] = {
-		{const_cast<char*>("config"), required_argument, nullptr, 'c'},
-		{const_cast<char*>("pekwm-config"), required_argument, nullptr, 'C'},
-		{const_cast<char*>("display"), required_argument, nullptr, 'd'},
+		{const_cast<char*>("config"), required_argument, nullptr,
+		 'c'},
+		{const_cast<char*>("pekwm-config"), required_argument, nullptr,
+		 'C'},
+		{const_cast<char*>("display"), required_argument, nullptr,
+		 'd'},
 		{const_cast<char*>("help"), no_argument, nullptr, 'h'},
-		{const_cast<char*>("log-level"), required_argument, nullptr, 'l'},
-		{const_cast<char*>("log-file"), required_argument, nullptr, 'f'},
+		{const_cast<char*>("log-level"), required_argument, nullptr,
+		 'l'},
+		{const_cast<char*>("log-file"), required_argument, nullptr,
+		 'f'},
 		{nullptr, 0, nullptr, 0}
 	};
 
 	Charset::init();
 
 	int ch;
-	while ((ch = getopt_long(argc, argv, "c:C:d:f:hl:", opts, nullptr)) != -1) {
+	while ((ch = getopt_long(argc, argv, "c:C:d:f:hl:", opts, nullptr))
+	       != -1) {
 		switch (ch) {
 		case 'c':
 			config_file = optarg;
@@ -2872,7 +2915,8 @@ int main(int argc, char *argv[])
 			break;
 		case 'f':
 			if (! Debug::setLogFile(optarg)) {
-				std::cerr << "Failed to open log file " << optarg << std::endl;
+				std::cerr << "Failed to open log file "
+					  << optarg << std::endl;
 			}
 			break;
 		case 'l':
@@ -2914,7 +2958,8 @@ int main(int argc, char *argv[])
 			PanelTheme theme;
 			loadTheme(theme, _pekwm_config_file);
 
-			Geometry head = X11Util::getHeadGeometry(cfg.getHead());
+			Geometry head =
+				X11Util::getHeadGeometry(cfg.getHead());
 			XSizeHints normal_hints = {0};
 			normal_hints.flags = PPosition|PSize;
 			normal_hints.x = head.x;
@@ -2924,7 +2969,8 @@ int main(int argc, char *argv[])
 			if (cfg.getPlacement() == PANEL_TOP) {
 				normal_hints.y = head.y;
 			} else {
-				normal_hints.y = head.y + head.height - normal_hints.height;
+				normal_hints.y = head.y
+					+ head.height - normal_hints.height;
 			}
 
 			PekwmPanel panel(cfg, theme, &normal_hints);
@@ -2933,7 +2979,8 @@ int main(int argc, char *argv[])
 			panel.render();
 			panel.main(cfg.getRefreshIntervalS());
 		} else {
-			std::cerr << "failed to read panel configuration" << std::endl;
+			std::cerr << "failed to read panel configuration"
+				  << std::endl;
 		}
 	}
 

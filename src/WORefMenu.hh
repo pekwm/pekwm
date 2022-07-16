@@ -17,7 +17,7 @@
 #include "PWinObjReference.hh"
 
 class WORefMenu : public PMenu,
-                  public PWinObjReference
+		  public PWinObjReference
 {
 protected:
 	WORefMenu(const std::string &title, const std::string &name,

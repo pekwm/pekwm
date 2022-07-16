@@ -42,14 +42,17 @@ public:
 
 	/** Sets the PWinObj reference and add this as an observer. */
 	virtual void setWORef(PWinObj *wo_ref) {
-		if (_wo_ref != wo_ref) {
-			if (_wo_ref != nullptr) {
-				pekwm::observerMapping()->removeObserver(_wo_ref, this);
-			}
-			_wo_ref = wo_ref;
-			if (_wo_ref != nullptr) {
-				pekwm::observerMapping()->addObserver(_wo_ref, this);
-			}
+		if (_wo_ref == wo_ref) {
+			return;
+		}
+
+		ObserverMapping* om = pekwm::observerMapping();
+		if (_wo_ref != nullptr) {
+			om->removeObserver(_wo_ref, this);
+		}
+		_wo_ref = wo_ref;
+		if (_wo_ref != nullptr) {
+			om->addObserver(_wo_ref, this);
 		}
 	}
 

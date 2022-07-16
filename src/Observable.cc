@@ -37,7 +37,7 @@ ObserverMapping::~ObserverMapping(void)
  */
 void
 ObserverMapping::notifyObservers(Observable *observable,
-                                 Observation *observation)
+				 Observation *observation)
 {
 	observable_map_it oit = _observable_map.find(observable);
 	if (oit != _observable_map.end()) {
@@ -52,8 +52,7 @@ ObserverMapping::notifyObservers(Observable *observable,
  * Add observer.
  */
 void
-ObserverMapping::addObserver(Observable *observable,
-                             Observer *observer)
+ObserverMapping::addObserver(Observable *observable, Observer *observer)
 {
 	observable_map_it it = _observable_map.find(observable);
 	if (it == _observable_map.end()) {
@@ -68,8 +67,7 @@ ObserverMapping::addObserver(Observable *observable,
  * Remove observer from list.
  */
 void
-ObserverMapping::removeObserver(Observable *observable,
-                                Observer *observer)
+ObserverMapping::removeObserver(Observable *observable, Observer *observer)
 {
 	observable_map_it it = _observable_map.find(observable);
 	if (it == _observable_map.end()) {

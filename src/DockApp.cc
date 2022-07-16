@@ -83,7 +83,8 @@ DockApp::DockApp(Window win) :
 
 	// create parent window which is going to hold the border
 	_window = X11::createWmWindow(X11::getRoot(),
-				      _gm.x, _gm.y, _gm.width, _gm.height, InputOutput,
+				      _gm.x, _gm.y, _gm.width, _gm.height,
+				      InputOutput,
 				      SubstructureRedirectMask|ButtonPressMask|
 				      ButtonMotionMask);
 
@@ -94,7 +95,8 @@ DockApp::DockApp(Window win) :
 	// move the dockapp to it's new parent, making sure we don't
 	// get any UnmapEvents
 	X11::selectInput(_dockapp_window, NoEventMask);
-	XReparentWindow(X11::getDpy(), _dockapp_window, _window, _c_gm.x, _c_gm.y);
+	XReparentWindow(X11::getDpy(), _dockapp_window, _window,
+			_c_gm.x, _c_gm.y);
 	X11::selectInput(_dockapp_window, SubstructureNotifyMask);
 
 	readClassHint();
@@ -113,10 +115,11 @@ DockApp::~DockApp(void)
 			X11::unmapWindow(_icon_window);
 		}
 
-		// move the dockapp back to the root window, making sure we don't
-		// get any UnmapEvents
+		// move the dockapp back to the root window, making sure we
+		// don't get any UnmapEvents
 		X11::selectInput(_dockapp_window, NoEventMask);
-		XReparentWindow(X11::getDpy(), _dockapp_window, X11::getRoot(), _gm.x, _gm.y);
+		XReparentWindow(X11::getDpy(), _dockapp_window, X11::getRoot(),
+				_gm.x, _gm.y);
 		X11::mapWindow(_client_window);
 
 		X11::ungrabServer(false);
@@ -237,19 +240,23 @@ DockApp::validateSize(void)
 	Config *cfg = pekwm::config(); // convenience
 
 	if (cfg->getHarbourDAMinSide() > 0) {
-		if (_gm.width < static_cast<uint>(cfg->getHarbourDAMinSide())) {
+		if (_gm.width
+		    < static_cast<uint>(cfg->getHarbourDAMinSide())) {
 			_gm.width = cfg->getHarbourDAMinSide();
 		}
-		if (_gm.height < static_cast<uint>(cfg->getHarbourDAMinSide())) {
+		if (_gm.height
+		    < static_cast<uint>(cfg->getHarbourDAMinSide())) {
 			_gm.height = cfg->getHarbourDAMinSide();
 		}
 	}
 
 	if (cfg->getHarbourDAMaxSide() > 0) {
-		if (_gm.width > static_cast<uint>(cfg->getHarbourDAMaxSide())) {
+		if (_gm.width
+		    > static_cast<uint>(cfg->getHarbourDAMaxSide())) {
 			_gm.width = cfg->getHarbourDAMaxSide();
 		}
-		if (_gm.height > static_cast<uint>(cfg->getHarbourDAMaxSide())) {
+		if (_gm.height
+		    > static_cast<uint>(cfg->getHarbourDAMaxSide())) {
 			_gm.height = cfg->getHarbourDAMaxSide();
 		}
 	}

@@ -222,6 +222,7 @@ public:
  */
 class Strut {
 public:
+	Strut(const long* s);
 	Strut(long l=0, long r=0, long t=0, long b=0, int nhead=-1);
 	~Strut(void);
 
@@ -239,7 +240,8 @@ public: // member variables
 	bool operator==(const Strut& rhs) const;
 	bool operator!=(const Strut& rhs) const;
 
-	friend std::ostream &operator<<(std::ostream &stream, const Strut &strut);
+	friend std::ostream &operator<<(std::ostream &stream,
+					const Strut &strut);
 };
 
 //! Output head, used to share same code with Xinerama and RandR
@@ -368,7 +370,8 @@ public:
 	static Window translateRootCoordinates(int x, int y,
 					       int *ret_x, int *ret_y);
 
-	static int getNearestHead(int x, int y, DirectionType dx, DirectionType dy);
+	static int getNearestHead(int x, int y,
+				  DirectionType dx, DirectionType dy);
 	static uint getNearestHead(int x, int y);
 	static uint getCursorHead(void);
 	static void addHead(const Head &head);
@@ -383,7 +386,8 @@ public:
 	static std::string getAtomIdString(Atom id);
 	static AtomName getAtomName(Atom id);
 	static void setAtom(Window win, AtomName aname, AtomName value);
-	static void setAtoms(Window win, AtomName aname, Atom *values, int size);
+	static void setAtoms(Window win, AtomName aname, Atom *values,
+			     int size);
 	static void setEwmhAtomsSupport(Window win);
 	static bool getWindow(Window win, AtomName aname, Window& value);
 	static void setWindow(Window win, AtomName aname, Window value);
@@ -395,7 +399,8 @@ public:
 				long format=XA_CARDINAL);
 	static void setCardinals(Window win, AtomName aname,
 				 Cardinal *values, int num);
-	static bool getUtf8String(Window win, AtomName aname, std::string &value);
+	static bool getUtf8String(Window win, AtomName aname,
+				  std::string &value);
 	static bool getUtf8StringId(Window win, Atom id, std::string &value);
 	static void setUtf8String(Window win, AtomName aname,
 				  const std::string &value);
@@ -446,8 +451,8 @@ public:
 					 uint border_width,
 					 ulong border, ulong background);
 	static Window createWmWindow(Window parent,
-				     int x, int y, uint width, uint height, uint _class,
-				     ulong event_mask);
+				     int x, int y, uint width, uint height,
+				     uint _class, ulong event_mask);
 	static void destroyWindow(Window win);
 	static void changeWindowAttributes(Window win, ulong mask,
 					   XSetWindowAttributes &attrs);
@@ -477,12 +482,15 @@ public:
 	static int sendEvent(Window dest, Window win, Atom atom, long mask,
 			     long v1=0l, long v2=0l, long v3=0l,
 			     long v4=0l, long v5=0l);
-	static int sendEvent(Window dest, Bool propagate, long mask, XEvent *ev);
+	static int sendEvent(Window dest, Bool propagate, long mask,
+			     XEvent *ev);
 
 	static int changeProperty(Window win, Atom prop, Atom type, int format,
-				  int mode, const unsigned char *data, int num_e);
+				  int mode, const unsigned char *data,
+				  int num_e);
 
-	static int getGeometry(Window win, unsigned *w, unsigned *h, unsigned *bw);
+	static int getGeometry(Window win, unsigned *w, unsigned *h,
+			       unsigned *bw);
 
 	static Status getWindowAttributes(Window win, XWindowAttributes &wa);
 	static bool getWMHints(Window win, XWMHints &hints);
@@ -494,7 +502,8 @@ public:
 	static Pixmap createPixmap(unsigned w, unsigned h);
 	static void freePixmap(Pixmap& pixmap);
 	static XImage *createImage(char *data, uint width, uint height);
-	static XImage *getImage(Drawable src, int x, int y, uint width, uint height,
+	static XImage *getImage(Drawable src,
+				int x, int y, uint width, uint height,
 				unsigned long plane_mask, int format);
 	static void putImage(Drawable dest, GC gc, XImage *ximage,
 			     int src_x, int src_y, int dest_x, int dest_y,
@@ -534,12 +543,12 @@ protected:
 
 private:
 	static Display *_dpy;
-	static bool _honour_randr; /**< Boolean flag if randr should be honoured. */
+	static bool _honour_randr; /**< If true, honor randr. */
 	static int _fd;
 
 	static int _screen, _depth;
 
-	static Geometry _screen_gm; /**< Screen geometry, no head information. */
+	static Geometry _screen_gm; /**< Full screen geometry (not head). */
 
 	static Window _root;
 	static Visual *_visual;

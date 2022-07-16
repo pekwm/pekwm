@@ -29,7 +29,8 @@ public:
 	static void familyRaiseLower(Client *client, bool raise);
 
 private:
-	static bool findGroupMatchProperty(Frame *frame, AutoProperty *property);
+	static bool findGroupMatchProperty(Frame *frame,
+					   AutoProperty *property);
 	static Frame* findGroupMatch(AutoProperty *property);
 
 private:

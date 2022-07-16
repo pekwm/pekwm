@@ -52,9 +52,12 @@ public:
 protected:
 	PImage(void);
 
-	void drawFixed(Render &rend, int x, int y, size_t width, size_t height);
-	void drawScaled(Render &rend, int x, int y, size_t widht, size_t height);
-	void drawTiled(Render &rend, int x, int y, size_t widht, size_t height);
+	void drawFixed(Render &rend,
+		       int x, int y, size_t width, size_t height);
+	void drawScaled(Render &rend,
+			int x, int y, size_t width, size_t height);
+	void drawTiled(Render &rend,
+		       int x, int y, size_t width, size_t height);
 	void drawAlphaScaled(Render &rend,
 			     int x, int y, size_t widht, size_t height);
 	void drawAlphaTiled(Render &rend,

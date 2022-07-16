@@ -124,7 +124,8 @@ public:
 class CfgParserSourceString : public CfgParserSource
 {
 public:
-	CfgParserSourceString(const std::string &source, const std::string &data);
+	CfgParserSourceString(const std::string &source,
+			      const std::string &data);
 	virtual ~CfgParserSourceString(void);
 
 	virtual bool open(void);

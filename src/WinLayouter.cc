@@ -80,7 +80,6 @@ isEmptySpace(int x, int y, const PWinObj* wo, std::vector<PWinObj*> &wvec)
 
 //! @brief Tries to find empty space to place the client in
 //! @return true if client got placed, else false
-//! @todo What should we do about Xinerama as when we don't have it enabled we care about the struts.
 class LayouterSmart : public WinLayouter {
 public:
 	LayouterSmart() : WinLayouter() {}
@@ -93,64 +92,85 @@ private:
 		PWinObj *wo_e;
 		bool placed = false;
 		std::vector<PWinObj*> wvec;
+		Config* cfg = pekwm::config();
 
-		int step_x = (pekwm::config()->getPlacementLtR()) ? 1 : -1;
-		int step_y = (pekwm::config()->getPlacementTtB()) ? 1 : -1;
-		int offset_x = (pekwm::config()->getPlacementLtR())
-			? pekwm::config()->getPlacementOffsetX()
-			: -pekwm::config()->getPlacementOffsetX();
-		int offset_y = (pekwm::config()->getPlacementTtB())
-			? pekwm::config()->getPlacementOffsetY()
-			: -pekwm::config()->getPlacementOffsetY();
+		int step_x = (cfg->getPlacementLtR()) ? 1 : -1;
+		int step_y = (cfg->getPlacementTtB()) ? 1 : -1;
+		int offset_x = (cfg->getPlacementLtR())
+			? cfg->getPlacementOffsetX()
+			: -cfg->getPlacementOffsetX();
+		int offset_y = (cfg->getPlacementTtB())
+			? cfg->getPlacementOffsetY()
+			: -cfg->getPlacementOffsetY();
 		int start_x, start_y, test_x = 0, test_y = 0;
 
 		// Wrap these up, to get proper checking of space.
-		uint wo_width = wo->getWidth() + pekwm::config()->getPlacementOffsetX();
-		uint wo_height = wo->getHeight() + pekwm::config()->getPlacementOffsetY();
+		uint wo_width = wo->getWidth() + cfg->getPlacementOffsetX();
+		uint wo_height = wo->getHeight() + cfg->getPlacementOffsetY();
 
-		start_x = pekwm::config()->getPlacementLtR() ?
+		start_x = cfg->getPlacementLtR() ?
 			head_gm.x : head_gm.x + head_gm.width - wo_width;
-		start_y = pekwm::config()->getPlacementTtB() ?
+		start_y = cfg->getPlacementTtB() ?
 			head_gm.y : head_gm.y + head_gm.height - wo_height;
 
-		if (pekwm::config()->getPlacementRow()) { // row placement
+		if (cfg->getPlacementRow()) { // row placement
 			test_y = start_y;
-			while (! placed && (pekwm::config()->getPlacementTtB()
-					    ? test_y + wo_height <= head_gm.y + head_gm.height
-					    : test_y >= head_gm.y)) {
+			while (! placed
+			       && (cfg->getPlacementTtB()
+				   ? test_y + wo_height
+				     <= head_gm.y + head_gm.height
+				   : test_y >= head_gm.y)) {
 				test_x = start_x;
-				while (! placed && (pekwm::config()->getPlacementLtR()
-						    ? test_x + wo_width <= head_gm.x + head_gm.width
-						    : test_x >= head_gm.x)) {
+				while (! placed
+				       && (cfg->getPlacementLtR()
+					   ? test_x + wo_width
+					     <= head_gm.x + head_gm.width
+					   : test_x >= head_gm.x)) {
 					// see if we can place the window here
-					if ((wo_e = isEmptySpace(test_x, test_y, wo, wvec))) {
+					wo_e = isEmptySpace(test_x, test_y,
+							    wo, wvec);
+					if (wo_e) {
 						placed = false;
-						test_x = pekwm::config()->getPlacementLtR() ?
-							wo_e->getX() + wo_e->getWidth() : wo_e->getX() - wo_width;
+						test_x = cfg->getPlacementLtR()
+							? wo_e->getX()
+							  + wo_e->getWidth()
+							: wo_e->getX()
+							  - wo_width;
 					} else {
 						placed = true;
-						wo->move(test_x + offset_x, test_y + offset_y);
+						wo->move(test_x + offset_x,
+							 test_y + offset_y);
 					}
 				}
 				test_y += step_y;
 			}
 		} else { // column placement
 			test_x = start_x;
-			while (! placed && (pekwm::config()->getPlacementLtR()
-					    ? test_x + wo_width <= head_gm.x + head_gm.width
-					    : test_x >= head_gm.x)) {
+			while (! placed
+			       && (cfg->getPlacementLtR()
+				   ? test_x + wo_width
+				     <= head_gm.x + head_gm.width
+				   : test_x >= head_gm.x)) {
 				test_y = start_y;
-				while (! placed && (pekwm::config()->getPlacementTtB()
-						    ? test_y + wo_height <= head_gm.y + head_gm.height
-						    : test_y >= head_gm.y)) {
+				while (! placed
+				       && (cfg->getPlacementTtB()
+					   ? test_y + wo_height
+					     <= head_gm.y + head_gm.height
+					   : test_y >= head_gm.y)) {
 					// see if we can place the window here
-					if ((wo_e = isEmptySpace(test_x, test_y, wo, wvec))) {
+					wo_e = isEmptySpace(test_x, test_y,
+							    wo, wvec);
+					if (wo_e) {
 						placed = false;
-						test_y = pekwm::config()->getPlacementTtB() ?
-							wo_e->getY() + wo_e->getHeight() : wo_e->getY() - wo_height;
+						test_y = cfg->getPlacementTtB()
+							? wo_e->getY()
+							  + wo_e->getHeight()
+							: wo_e->getY()
+							  - wo_height;
 					} else {
 						placed = true;
-						wo->move(test_x + offset_x, test_y + offset_y);
+						wo->move(test_x + offset_x,
+							 test_y + offset_y);
 					}
 				}
 				test_x += step_x;
@@ -218,7 +238,8 @@ public:
 		ptr_x -= head_gm.x;
 		ptr_y -= head_gm.y;
 
-		// divide the screen into four rectangles using the pointer as divider
+		// divide the screen into four rectangles using the pointer as
+		// divider
 		if (wo->getWidth() < unsigned(ptr_x)
 		    && wo->getHeight() < head_gm.height) {
 			wo->move(head_gm.x, head_gm.y);

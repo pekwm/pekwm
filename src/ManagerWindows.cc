@@ -42,8 +42,8 @@ HintWO::HintWO(Window root)
 	_type = WO_SCREEN_HINT;
 	setLayer(LAYER_NONE);
 
-	_window = X11::createWmWindow(X11::getRoot(), -200, -200, 5, 5, InputOutput,
-				      PropertyChangeMask);
+	_window = X11::createWmWindow(X11::getRoot(), -200, -200, 5, 5,
+				      InputOutput, PropertyChangeMask);
 
 	// Set hints not being updated
 	X11::setUtf8String(_window, NET_WM_NAME, WM_NAME);
@@ -89,10 +89,12 @@ HintWO::claimDisplay(bool replace)
 	bool status = true;
 
 	// Get atom for the current screen and it's owner
-	std::string session_name("WM_S"
-				 + std::to_string(DefaultScreen(X11::getDpy())));
-	Atom session_atom = XInternAtom(X11::getDpy(), session_name.c_str(), false);
-	Window session_owner = XGetSelectionOwner(X11::getDpy(), session_atom);
+	std::string default_str = std::to_string(DefaultScreen(X11::getDpy()));
+	std::string session_name("WM_S" + default_str);
+	Atom session_atom =
+		XInternAtom(X11::getDpy(), session_name.c_str(), false);
+	Window session_owner =
+		XGetSelectionOwner(X11::getDpy(), session_atom);
 
 	if (session_owner && session_owner != _window) {
 		if (! replace) {
@@ -119,7 +121,8 @@ HintWO::claimDisplay(bool replace)
 	XSetSelectionOwner(X11::getDpy(), session_atom, _window, timestamp);
 	if (XGetSelectionOwner(X11::getDpy(), session_atom) == _window) {
 		if (session_owner) {
-			// Wait for the previous window manager to go away and update owner.
+			// Wait for the previous window manager to go away and
+			// update owner.
 			status = claimDisplayWait(session_owner);
 			if (status) {
 				claimDisplayOwner(session_atom, timestamp);
@@ -256,8 +259,10 @@ RootWO::~RootWO(void)
 ActionEvent*
 RootWO::handleButtonPress(XButtonEvent *ev)
 {
-	return ActionHandler::findMouseAction(ev->button, ev->state, MOUSE_EVENT_PRESS,
-					      _cfg->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
+	std::vector<ActionEvent>* el =
+		_cfg->getMouseActionList(MOUSE_ACTION_LIST_ROOT);
+	return ActionHandler::findMouseAction(ev->button, ev->state,
+					      MOUSE_EVENT_PRESS, el);
 }
 
 /**
@@ -281,8 +286,9 @@ RootWO::handleButtonRelease(XButtonEvent *ev)
 		X11::setLastClickTime(ev->button - 1, ev->time);
 	}
 
-	return ActionHandler::findMouseAction(ev->button, ev->state, mb,
-					      _cfg->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
+	std::vector<ActionEvent>* el =
+		_cfg->getMouseActionList(MOUSE_ACTION_LIST_ROOT);
+	return ActionHandler::findMouseAction(ev->button, ev->state, mb, el);
 }
 
 /**
@@ -292,9 +298,10 @@ ActionEvent*
 RootWO::handleMotionEvent(XMotionEvent *ev)
 {
 	unsigned int button = X11::getButtonFromState(ev->state);
-
-	return ActionHandler::findMouseAction(button, ev->state, MOUSE_EVENT_MOTION,
-					      _cfg->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
+	std::vector<ActionEvent>* el =
+		_cfg->getMouseActionList(MOUSE_ACTION_LIST_ROOT);
+	return ActionHandler::findMouseAction(button, ev->state,
+					      MOUSE_EVENT_MOTION, el);
 }
 
 /**
@@ -303,8 +310,10 @@ RootWO::handleMotionEvent(XMotionEvent *ev)
 ActionEvent*
 RootWO::handleEnterEvent(XCrossingEvent *ev)
 {
-	return ActionHandler::findMouseAction(BUTTON_ANY, ev->state, MOUSE_EVENT_ENTER,
-					      _cfg->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
+	std::vector<ActionEvent>* el =
+		_cfg->getMouseActionList(MOUSE_ACTION_LIST_ROOT);
+	return ActionHandler::findMouseAction(BUTTON_ANY, ev->state,
+					      MOUSE_EVENT_ENTER, el);
 }
 
 /**
@@ -313,18 +322,21 @@ RootWO::handleEnterEvent(XCrossingEvent *ev)
 ActionEvent*
 RootWO::handleLeaveEvent(XCrossingEvent *ev)
 {
-	return ActionHandler::findMouseAction(BUTTON_ANY, ev->state, MOUSE_EVENT_LEAVE,
-					      _cfg->getMouseActionList(MOUSE_ACTION_LIST_ROOT));
+	std::vector<ActionEvent>* el =
+		_cfg->getMouseActionList(MOUSE_ACTION_LIST_ROOT);
+	return ActionHandler::findMouseAction(BUTTON_ANY, ev->state,
+					      MOUSE_EVENT_LEAVE, el);
 }
-
 
 /**
  * Makes sure the Geometry is inside the screen.
  */
 void
-RootWO::placeInsideScreen(Geometry& gm, bool without_edge, bool fullscreen, bool maximized_virt, bool maximized_horz)
+RootWO::placeInsideScreen(Geometry& gm, bool without_edge, bool fullscreen,
+			  bool maximized_virt, bool maximized_horz)
 {
-	uint head_nr = X11::getNearestHead(gm.x + gm.width / 2, gm.y + gm.height / 2);
+	uint head_nr = X11::getNearestHead(gm.x + gm.width / 2,
+					   gm.y + gm.height / 2);
 	Geometry head;
 	if (fullscreen) {
 		X11::getHeadInfo(head_nr, gm);
@@ -373,7 +385,8 @@ RootWO::getHeadInfoWithEdge(uint num, Geometry &head)
 	Strut &strut = _strut_head[num];
 
 	// Remove the strut area from the head info
-	strut_val = (head.x == 0) ? std::max(_strut.left, strut.left) : strut.left;
+	strut_val = (head.x == 0)
+		? std::max(_strut.left, strut.left) : strut.left;
 	head.x += strut_val;
 	head.width -= strut_val;
 
@@ -381,7 +394,8 @@ RootWO::getHeadInfoWithEdge(uint num, Geometry &head)
 		? std::max(_strut.right, strut.right) : strut.right;
 	head.width -= strut_val;
 
-	strut_val = (head.y == 0) ? std::max(_strut.top, strut.top) : strut.top;
+	strut_val = (head.y == 0)
+		? std::max(_strut.top, strut.top) : strut.top;
 	head.y += strut_val;
 	head.height -= strut_val;
 
@@ -447,7 +461,8 @@ RootWO::updateStrut(void)
 	for (; it != _struts.end(); ++it) {
 		if ((*it)->head < 0) {
 			strut = &_strut;
-		} else if (static_cast<uint>((*it)->head) < _strut_head.size()) {
+		} else if (static_cast<uint>((*it)->head)
+			   < _strut_head.size()) {
 			strut = &(_strut_head[(*it)->head]);
 		} else {
 			continue;
@@ -525,8 +540,10 @@ RootWO::readEwmhDesktopNames(void)
 	ulong data_length;
 	if (X11::getProperty(X11::getRoot(), X11::getAtom(NET_DESKTOP_NAMES),
 			     X11::getAtom(UTF8_STRING),
-			     EXPECTED_DESKTOP_NAMES_LENGTH, &data, &data_length)) {
-		_cfg->setDesktopNamesUTF8(reinterpret_cast<char *>(data), data_length);
+			     EXPECTED_DESKTOP_NAMES_LENGTH,
+			     &data, &data_length)) {
+		_cfg->setDesktopNamesUTF8(reinterpret_cast<char*>(data),
+					  data_length);
 
 		X11::free(data);
 	}
@@ -573,7 +590,7 @@ RootWO::setEwmhDesktopLayout(void)
  * window.
  */
 EdgeWO::EdgeWO(RootWO* root_wo, EdgeType edge, bool set_strut,
-               Config* cfg)
+	       Config* cfg)
 	: PWinObj(false),
 	  _root_wo(root_wo),
 	  _edge(edge),
@@ -585,7 +602,8 @@ EdgeWO::EdgeWO(RootWO* root_wo, EdgeType edge, bool set_strut,
 	_iconified = true; // hack, to be ignored when placing
 	_focusable = false; // focusing input only windows crashes X
 
-	_window = X11::createWmWindow(root_wo->getWindow(), 0, 0, 1, 1, InputOnly,
+	_window = X11::createWmWindow(root_wo->getWindow(), 0, 0, 1, 1,
+				      InputOnly,
 				      EnterWindowMask|LeaveWindowMask|
 				      ButtonPressMask|ButtonReleaseMask);
 
@@ -611,7 +629,8 @@ EdgeWO::~EdgeWO(void)
 /**
  * Configure strut on edge window.
  *
- * @param set_strut If true, set actual values on the strut, false sets all to 0.
+ * @param set_strut If true, set actual values on the strut, false sets all to
+ * 0.
  */
 void
 EdgeWO::configureStrut(bool set_strut)
@@ -664,8 +683,9 @@ EdgeWO::mapWindow(void)
 ActionEvent*
 EdgeWO::handleEnterEvent(XCrossingEvent *ev)
 {
-	return ActionHandler::findMouseAction(BUTTON_ANY, ev->state, MOUSE_EVENT_ENTER,
-					      _cfg->getEdgeListFromPosition(_edge));
+	std::vector<ActionEvent>* el = _cfg->getEdgeListFromPosition(_edge);
+	return ActionHandler::findMouseAction(BUTTON_ANY, ev->state,
+					      MOUSE_EVENT_ENTER, el);
 }
 
 /**
@@ -674,8 +694,9 @@ EdgeWO::handleEnterEvent(XCrossingEvent *ev)
 ActionEvent*
 EdgeWO::handleButtonPress(XButtonEvent *ev)
 {
-	return ActionHandler::findMouseAction(ev->button, ev->state, MOUSE_EVENT_PRESS,
-					      _cfg->getEdgeListFromPosition(_edge));
+	std::vector<ActionEvent>* el = _cfg->getEdgeListFromPosition(_edge);
+	return ActionHandler::findMouseAction(ev->button, ev->state,
+					      MOUSE_EVENT_PRESS, el);
 }
 
 /**
@@ -707,8 +728,8 @@ EdgeWO::handleButtonRelease(XButtonEvent *ev)
 		X11::setLastClickTime(ev->button - 1, ev->time);
 	}
 
-	return ActionHandler::findMouseAction(ev->button, ev->state, mb,
-					      _cfg->getEdgeListFromPosition(_edge));
+	std::vector<ActionEvent>* el = _cfg->getEdgeListFromPosition(_edge);
+	return ActionHandler::findMouseAction(ev->button, ev->state, mb, el);
 }
 
 void

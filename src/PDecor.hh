@@ -31,8 +31,8 @@ public:
 
 //! @brief PWinObj container class with fancy decor.
 class PDecor : public PWinObj,
-               public ThemeGm,
-               public ThemeState
+	       public ThemeGm,
+	       public ThemeState
 {
 public:
 	//! @brief Decor title button class.
@@ -67,15 +67,19 @@ public:
 
 		TitleItem(void);
 
-		inline const std::string &getVisible(void) const { return _visible; }
+		inline const std::string &getVisible(void) const {
+			return _visible;
+		}
 		inline const std::string &getReal(void) const { return _real; }
-		inline const std::string &getCustom(void) const { return _custom; }
+		inline const std::string &getCustom(void) const {
+			return _custom;
+		}
 		inline const std::string &getUser(void) const { return _user; }
 
 		inline uint getCount(void) const { return _count; }
 		inline uint getId(void) const { return _id; }
-		inline bool isUserSet(void) const { return (_user.size() > 0); }
-		inline bool isCustom(void) const { return (_custom.size() > 0); }
+		inline bool isUserSet(void) const { return _user.size() > 0; }
+		inline bool isCustom(void) const { return _custom.size() > 0; }
 		inline uint getWidth(void) const { return _width; }
 
 		void infoAdd(enum Info info);
@@ -108,7 +112,8 @@ public:
 		std::string _visible; //!< Visible version of title
 
 		std::string _real; //!< Title from client
-		std::string _custom; //!< Custom (title rule) set version of title
+		/** Custom (title rule) set version of title */
+		std::string _custom;
 		std::string _user; //!< User set version of title
 
 		uint _count; //!< Number of title
@@ -190,7 +195,9 @@ public:
 	void loadDecor(void);
 
 	//! @brief Returns title Window.
-	inline Window getTitleWindow(void) const { return _title_wo.getWindow(); }
+	inline Window getTitleWindow(void) const {
+		return _title_wo.getWindow();
+	}
 	PDecor::Button *findButton(Window win);
 
 	uint getRealHeight(void) const;
@@ -312,13 +319,16 @@ protected:
 				? FOCUSED_STATE_FOCUSED_SELECTED
 				: FOCUSED_STATE_UNFOCUSED_SELECTED;
 		}
-		return _focused ? FOCUSED_STATE_FOCUSED : FOCUSED_STATE_UNFOCUSED;
+		return _focused
+			? FOCUSED_STATE_FOCUSED
+			: FOCUSED_STATE_UNFOCUSED;
 	}
 
 private:
 	void init(Window child_window);
 
-	void createParentWindow(CreateWindowParams &params, Window child_window);
+	void createParentWindow(CreateWindowParams &params,
+				Window child_window);
 	void createTitle(CreateWindowParams &params);
 	void createBorder(CreateWindowParams &params);
 

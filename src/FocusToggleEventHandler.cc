@@ -11,8 +11,8 @@
 #include "Workspaces.hh"
 
 FocusToggleEventHandler::FocusToggleEventHandler(Config* cfg, uint button,
-                                                 uint raise, int off,
-                                                 bool show_iconified, bool mru)
+						 uint raise, int off,
+						 bool show_iconified, bool mru)
 	: _cfg(cfg),
 	  _button(button),
 	  _raise(raise),
@@ -201,7 +201,8 @@ FocusToggleEventHandler::setFocusedWo(PWinObj *fo_wo)
 			}
 			_fo_wo->raise();
 		} else if (_raise == TEMP_RAISE) {
-			Window winlist[] = { _menu->getWindow(), _fo_wo->getWindow() };
+			Window winlist[] = { _menu->getWindow(),
+					     _fo_wo->getWindow() };
 			X11::stackWindows(winlist, 2);
 		}
 	}
@@ -215,7 +216,7 @@ FocusToggleEventHandler::setFocusedWo(PWinObj *fo_wo)
 PMenu*
 FocusToggleEventHandler::createNextPrevMenu(void)
 {
-	PMenu *menu = new PMenu(_mru ? "MRU Windows" : "Windows", "" /* name*/);
+	PMenu *menu = new PMenu(_mru ? "MRU Windows" : "Windows", "");
 
 	Frame::frame_cit it, end;
 	if (_mru) {
@@ -229,9 +230,10 @@ FocusToggleEventHandler::createNextPrevMenu(void)
 	for (; it != end; ++it) {
 		Frame *frame = *it;
 		if (createMenuInclude(frame, _show_iconified)) {
-			Client *client = static_cast<Client*>(frame->getActiveChild());
-			menu->insert(client->getTitle()->getVisible(), ActionEvent(),
-				     frame, client->getIcon());
+			Client *client =
+				static_cast<Client*>(frame->getActiveChild());
+			menu->insert(client->getTitle()->getVisible(),
+				     ActionEvent(), frame, client->getIcon());
 		}
 	}
 

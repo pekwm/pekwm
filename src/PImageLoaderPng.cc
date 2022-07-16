@@ -111,7 +111,8 @@ namespace PImageLoaderPng
 	 * @return Pointer to data on success, else 0.
 	 */
 	uchar*
-	load(const std::string &file, size_t &width, size_t &height, bool &use_alpha)
+	load(const std::string &file, size_t &width, size_t &height,
+	     bool &use_alpha)
 	{
 		FILE *fp = fopen(file.c_str(), "rb");
 		if (! fp) {
@@ -125,7 +126,8 @@ namespace PImageLoaderPng
 		}
 
 		// Start PNG loading.
-		png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
+		png_structp png_ptr =
+			png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
 		if (! png_ptr) {
 			P_ERR("out of memory, png_create_read_struct failed");
 			fclose(fp);
@@ -153,8 +155,8 @@ namespace PImageLoaderPng
 
 		int color_type, bpp;
 		png_uint_32 png_width = 1, png_height = 1;
-		png_get_IHDR(png_ptr, info_ptr, &png_width, &png_height, &bpp, &color_type,
-			     0, 0, 0);
+		png_get_IHDR(png_ptr, info_ptr, &png_width, &png_height,
+			     &bpp, &color_type, 0, 0, 0);
 
 		width = png_width;
 		height = png_height;
@@ -209,7 +211,8 @@ namespace PImageLoaderPng
 
 		use_alpha = false;
 		if (channels < 4) {
-			uchar *data_argb = convertRgbToArgb(data, width, height);
+			uchar *data_argb =
+				convertRgbToArgb(data, width, height);
 			delete [] data;
 
 			data = data_argb;
@@ -224,7 +227,9 @@ namespace PImageLoaderPng
 	bool
 	save(const std::string& file, uchar *data, size_t width, size_t height)
 	{
-		png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
+		png_structp png_ptr =
+			png_create_write_struct(PNG_LIBPNG_VER_STRING,
+						0, 0, 0);
 		if (! png_ptr) {
 			P_ERR("out of memory, png_create_write_struct failed");
 			return false;

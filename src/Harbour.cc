@@ -90,7 +90,8 @@ Harbour::removeDockApp(DockApp *da)
 		it(std::find(_dapps.begin(), _dapps.end(), da));
 	if (it != _dapps.end()) {
 		_dapps.erase(it);
-		Workspaces::remove(da); // remove the dockapp to the stacking list
+		// remove the dockapp to the stacking list
+		Workspaces::remove(da);
 		delete da;
 
 		if (_ap->isHarbourSort()) {
@@ -107,7 +108,8 @@ Harbour::removeAllDockApps(void)
 {
 	std::vector<DockApp*>::iterator it = _dapps.begin();
 	for (; it != _dapps.end(); ++it) {
-		Workspaces::remove(*it); // remove the dockapp to the stacking list
+		// remove the dockapp to the stacking list
+		Workspaces::remove(*it);
 		delete *it;
 	}
 	_dapps.clear();
@@ -369,88 +371,108 @@ Harbour::handleConfigureRequestEvent(XConfigureRequestEvent* ev, DockApp* da)
 void
 Harbour::placeDockApp(DockApp *da)
 {
-	if (! da || ! _dapps.size())
+	if (! da || ! _dapps.size()) {
 		return;
+	}
 
 	bool right = (_cfg->getHarbourOrientation() == BOTTOM_TO_TOP);
 
 	int test, x = 0, y = 0;
-	bool placed = false, increase = false, x_place = false;
+	bool x_place = false;
 
 	Geometry head;
 	X11::getHeadInfo(_cfg->getHarbourHead(), head);
 
-	getPlaceStartPosition (da, x, y, x_place);
+	getPlaceStartPosition(da, x, y, x_place);
 	if (right) {
 		if (x_place) {
-			x -= da->getWidth ();
+			x -= da->getWidth();
 		} else {
-			y -= da->getHeight ();
+			y -= da->getHeight();
 		}
 	}
 
-	std::vector<DockApp*>::const_iterator it;
 	if (x_place) {
-		x = test = right ? head.x + head.width - da->getWidth() : head.x;
-
-		while (! placed
-		       && (right
-			   ? (test >= 0)
-			   : ((test + da->getWidth()) < (head.x + head.width))))
-			{
-				placed = increase = true;
-
-				it = _dapps.begin();
-				for (; placed && it != _dapps.end(); ++it) {
-					if ((*it) == da) {
-						continue; // exclude ourselves
-					}
-                
-					if (((*it)->getX() < static_cast<signed>(test + da->getWidth())) &&
-					    ((*it)->getRX() > test)) {
-						placed = increase = false;
-						test = right ? (*it)->getX() - da->getWidth() : (*it)->getRX();
-					}
-				}
-
-				if (placed) {
-					x = test;
-				} else if (increase) {
-					test += right ? -1 : 1;
-				}
-			}
-	} else { // !x_place
-		y = test = right ? head.y + head.height - da->getHeight() : head.y;
-
-		while (! placed
-		       && (right
-			   ? (test >= 0)
-			   : ((test + da->getHeight()) < (head.y + head.height))))
-			{
-				placed = increase = true;
-
-				it = _dapps.begin();
-				for (; placed && it != _dapps.end(); ++it) {
-					if ((*it) == da) {
-						continue; // exclude ourselves
-					}
-                
-					if (((*it)->getY() < static_cast<signed>(test + da->getHeight())) &&
-					    ((*it)->getBY() > test)) {
-						placed = increase = false;
-						test = right ? (*it)->getY() - da->getHeight() : (*it)->getBY();
-					}
-				}
-
-				if (placed) {
-					y = test;
-				} else if (increase) {
-					test += right ? -1 : 1;
-				}
-			}
+		placeDockAppX(da, head, x, y);
+	} else {
+		placeDockAppX(da, head, x, y);
 	}
 
 	da->move(x, y);
+}
+
+void
+Harbour::placeDockAppX(DockApp* da, const Geometry& head, int& x, const int y)
+{
+	int test;
+	bool placed = false, increase = false;
+	bool right = (_cfg->getHarbourOrientation() == BOTTOM_TO_TOP);
+	x = test = right ? head.x + head.width - da->getWidth() : head.x;
+
+	while (! placed
+	       && (right
+		   ? (test >= 0)
+		   : ((test + da->getWidth()) < (head.x + head.width)))) {
+		placed = increase = true;
+
+		std::vector<DockApp*>::const_iterator it = _dapps.begin();
+		for (; placed && it != _dapps.end(); ++it) {
+			if ((*it) == da) {
+				continue;
+			}
+
+			int tx = static_cast<signed>(test + da->getWidth());
+			if (((*it)->getX() < tx) && ((*it)->getRX() > test)) {
+				placed = increase = false;
+				test = right
+					? (*it)->getX() - da->getWidth()
+					: (*it)->getRX();
+			}
+		}
+
+		if (placed) {
+			x = test;
+		} else if (increase) {
+			test += right ? -1 : 1;
+		}
+	}
+}
+
+void
+Harbour::placeDockAppY(DockApp *da, const Geometry& head, const int x, int &y)
+{
+	int test;
+	bool placed = false, increase = false;
+	bool bottom = (_cfg->getHarbourOrientation() == BOTTOM_TO_TOP);
+	y = test = bottom ? head.y + head.height - da->getHeight() : head.y;
+
+	while (! placed
+	       && (bottom
+		   ? (test >= 0)
+		   : ((test + da->getHeight()) < (head.y + head.height)))) {
+		placed = increase = true;
+
+		std::vector<DockApp*>::const_iterator it = _dapps.begin();
+		for (; placed && it != _dapps.end(); ++it) {
+			if ((*it) == da) {
+				continue; // exclude ourselves
+			}
+
+			int ty = static_cast<signed>(test + da->getHeight());
+			if (((*it)->getY() < ty) && ((*it)->getBY() > test)) {
+				placed = increase = false;
+				test = bottom
+					? (*it)->getY() - da->getHeight()
+					: (*it)->getBY();
+			}
+		}
+
+		if (placed) {
+			y = test;
+		} else if (increase) {
+			test += bottom ? -1 : 1;
+		}
+	}
 }
 
 
@@ -510,15 +532,20 @@ Harbour::placeDockAppInsideScreen(DockApp *da)
 		// check horizontal position
 		if (da->getX() < head.x) {
 			da->move(head.x, da->getY());
-		} else if (da->getRX() > static_cast<signed>(head.x + head.width)) {
-			da->move(head.x + head.width - da->getWidth(), da->getY());
+		} else if (da->getRX()
+			   > static_cast<signed>(head.x + head.width)) {
+			da->move(head.x + head.width - da->getWidth(),
+				 da->getY());
 		}
 
 		// check vertical position
 		if ((pos == TOP) && (da->getY() != head.y)) {
 			da->move(da->getX(), head.y);
-		} else if ((pos == BOTTOM) && (da->getBY() != static_cast<signed>(head.y + head.height))) {
-			da->move(da->getX(), head.y + head.height - da->getHeight());
+		} else if ((pos == BOTTOM)
+			   && (da->getBY()
+			       != static_cast<signed>(head.y + head.height))) {
+			da->move(da->getX(),
+				 head.y + head.height - da->getHeight());
 		}
 
 		// left or right placement
@@ -526,17 +553,20 @@ Harbour::placeDockAppInsideScreen(DockApp *da)
 		// check vertical position
 		if (da->getY() < head.y) {
 			da->move(da->getX(), head.y);
-		} else if (da->getBY() > static_cast<signed>(head.y + head.height)) {
-			da->move(da->getX(), head.y + head.height - da->getHeight());
+		} else if (da->getBY()
+			   > static_cast<signed>(head.y + head.height)) {
+			da->move(da->getX(),
+				 head.y + head.height - da->getHeight());
 		}
 
 		// check horizontal position
 		if ((pos == LEFT) && (da->getX() != head.x)) {
 			da->move(head.x, da->getY());
 		} else if ((pos == RIGHT)
-			   && (da->getRX() != static_cast<signed>(head.x
-								  + head.width))) {
-			da->move(head.x + head.width - da->getWidth(), da->getY());
+			   && (da->getRX()
+			       != static_cast<signed>(head.x + head.width))) {
+			da->move(head.x + head.width - da->getWidth(),
+				 da->getY());
 		}
 	}
 }
@@ -600,9 +630,11 @@ Harbour::insertDockAppSorted(DockApp *da)
 		}
 		// end of the list
 	} else {
-		for (; it != _dapps.end() && (*it)->getPosition() >= 0; ++it)
+		for (; it != _dapps.end()
+		       && (*it)->getPosition() >= 0; ++it)
 			;
-		for (; it != _dapps.end() && da->getPosition() >= (*it)->getPosition(); ++it)
+		for (; it != _dapps.end()
+		       && da->getPosition() >= (*it)->getPosition(); ++it)
 			;
 	}
 

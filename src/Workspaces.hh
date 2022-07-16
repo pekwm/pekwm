@@ -63,12 +63,16 @@ public:
 		}
 		return _per_row ? (active / _per_row) : 0;
 	}
-	static uint getRowMin(void) { return _per_row ? (getRow() * _per_row) : 0; }
+	static uint getRowMin(void) {
+		return _per_row ? (getRow() * _per_row) : 0;
+	}
 	static uint getRowMax(void) {
 		return _per_row ? (getRowMin() + _per_row - 1) : size() - 1;
 	}
 	static uint getRows(void) {
-		return _per_row ? (size() / _per_row + (size() % _per_row ? 1 : 0)) : 1;
+		return _per_row
+			? (size() / _per_row + (size() % _per_row ? 1 : 0))
+			: 1;
 	}
 	static uint getPerRow(void) { return _per_row ? _per_row : size(); }
 

@@ -31,7 +31,8 @@ public:
 		enum Type {
 			MENU_ITEM_NORMAL, MENU_ITEM_SEPARATOR, MENU_ITEM_HIDDEN
 		};
-		Item(const std::string &name, PWinObj *wo_ref = 0, PTexture *icon = 0);
+		Item(const std::string& name, PWinObj* wo_ref = nullptr,
+		     PTexture* icon = nullptr);
 		virtual ~Item(void);
 
 		inline int getX(void) const { return _x; }
@@ -97,7 +98,8 @@ public:
 
 	const std::string &getName(void) { return _name; }
 	PMenu::Item *getItemCurr(void) {
-		return _item_curr < _items.size() ? _items[_item_curr] : nullptr;
+		return _item_curr < _items.size()
+			? _items[_item_curr] : nullptr;
 	}
 	void selectNextItem(void);
 	void selectPrevItem(void);
@@ -158,7 +160,12 @@ private:
 	void buildMenuPlace(void);
 	void buildMenuRender(void);
 	void buildMenuRenderState(Pixmap &pix, ObjectState state);
-	void buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item);
+	void buildMenuRenderItem(Pixmap pix, ObjectState state,
+				 PMenu::Item* item);
+	void buildMenuRenderItemNormal(Pixmap pix, ObjectState state,
+				       PMenu::Item* item);
+	void buildMenuRenderItemSeparator(Pixmap pix, ObjectState state,
+					  PMenu::Item* item);
 
 	PMenu::Item *findItem(int x, int y);
 	void makeInsideScreen(int x, int y);

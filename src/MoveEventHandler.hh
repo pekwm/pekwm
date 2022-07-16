@@ -16,7 +16,7 @@
 #include "StatusWindow.hh"
 
 class MoveEventHandler : public EventHandler,
-                         public Observer
+			 public Observer
 {
 public:
 	MoveEventHandler(Config* cfg, PDecor* decor, int x_root, int y_root);

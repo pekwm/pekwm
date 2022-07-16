@@ -30,14 +30,16 @@ public:
 
 	virtual bool hasBorder(void) const {
 		if (_hints.flags & MWM_HINTS_DECORATIONS) {
-			return _hints.decorations & (MWM_DECOR_ALL | MWM_DECOR_BORDER);
+			return _hints.decorations
+				& (MWM_DECOR_ALL | MWM_DECOR_BORDER);
 		} else {
 			return true;
 		}
 	}
 	virtual bool hasTitlebar(void) const {
 		if (_hints.flags & MWM_HINTS_DECORATIONS) {
-			return _hints.decorations & (MWM_DECOR_ALL | MWM_DECOR_TITLE);
+			return _hints.decorations
+				& (MWM_DECOR_ALL | MWM_DECOR_TITLE);
 		} else {
 			return true;
 		}

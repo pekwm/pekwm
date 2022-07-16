@@ -49,7 +49,7 @@ private:
  * Base for windows handling text input.
  */
 class InputDialog : public PDecor,
-                    public PWinObjReference {
+		    public PWinObjReference {
 public:
 	InputDialog(const std::string &title);
 	virtual ~InputDialog(void);

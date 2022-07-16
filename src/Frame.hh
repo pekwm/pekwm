@@ -29,7 +29,7 @@ public:
 	typedef std::vector<Frame*> frame_vec;
 	typedef frame_vec::iterator frame_it;
 	typedef frame_vec::const_iterator frame_cit;
-    
+
 	Frame(Client *client, AutoProperty *ap);
 	virtual ~Frame(void);
 
@@ -146,8 +146,10 @@ public:
 	bool fixGeometry(void);
 
 	// client message handling
-	void handleConfigureRequest(XConfigureRequestEvent *ev, Client *client);
-	ActionEvent *handleClientMessage(XClientMessageEvent *ev, Client *client);
+	void handleConfigureRequest(XConfigureRequestEvent *ev,
+				    Client *client);
+	ActionEvent *handleClientMessage(XClientMessageEvent *ev,
+					 Client *client);
 	void handlePropertyChange(XPropertyEvent *ev, Client *client);
 
 	static Frame *getTagFrame(void) { return _tag_frame; }
@@ -168,9 +170,10 @@ protected:
 	virtual void clearMaximizedStatesAfterResize();
 	// END - PDecor interface
 
-	static void applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask);
-	static void applyGeometry(Geometry &gm, const Geometry &ap_gm, int mask,
-				  const Geometry &screen_gm);
+	static void applyGeometry(Geometry &gm, const Geometry &ap_gm,
+				  int mask);
+	static void applyGeometry(Geometry &gm, const Geometry &ap_gm,
+				  int mask, const Geometry &screen_gm);
 
 private:
 	void grabButtons(void);

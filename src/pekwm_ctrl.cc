@@ -21,7 +21,7 @@ extern "C" {
 }
 
 typedef bool(*send_message_fun)(Window, AtomName, int, const void*, size_t,
-                                void *opaque);
+				void *opaque);
 
 enum CtrlAction {
 	ACTION_RUN,
@@ -39,7 +39,8 @@ static void usage(const char* name, int ret)
 		  << std::endl;
 	std::cout << "  -c --client pattern Client pattern" << std::endl;
 	std::cout << "  -d --display dpy    Display" << std::endl;
-	std::cout << "  -h --help           Display this information" << std::endl;
+	std::cout << "  -h --help           Display this information"
+		  << std::endl;
 	std::cout << "  -w --window window  Client window" << std::endl;
 	exit(ret);
 }
@@ -103,7 +104,8 @@ static Window findClient(const RegexString& match)
 }
 
 static bool sendClientMessage(Window window, AtomName atom,
-                              int format, const void* data, size_t size, void *)
+			      int format, const void* data, size_t size,
+			      void *)
 {
 	XEvent ev;
 	ev.xclient.type = ClientMessage;
@@ -125,13 +127,14 @@ static bool sendClientMessage(Window window, AtomName atom,
 
 static bool focusClient(Window win)
 {
-	return sendClientMessage(win, NET_ACTIVE_WINDOW, 32, nullptr, 0, nullptr);
+	return sendClientMessage(win, NET_ACTIVE_WINDOW, 32,
+				 nullptr, 0, nullptr);
 }
 
 #endif // ! UNITTEST
 
 static bool sendCommand(const std::string& cmd, Window win,
-                        send_message_fun send_message, void *opaque)
+			send_message_fun send_message, void *opaque)
 {
 	XClientMessageEvent ev;
 	char buf[sizeof(ev.data.b)] = {0};
@@ -221,7 +224,8 @@ int main(int argc, char* argv[])
 	CtrlAction action = ACTION_RUN;
 	Window client = None;
 	RegexString client_re;
-	while ((ch = getopt_long(argc, argv, "a:c:d:hw:", opts, nullptr)) != -1) {
+	while ((ch = getopt_long(argc, argv, "a:c:d:hw:", opts, nullptr))
+	       != -1) {
 		switch (ch) {
 		case 'a':
 			action = getAction(optarg);
@@ -231,7 +235,8 @@ int main(int argc, char* argv[])
 			break;
 		case 'c':
 			if (client != None) {
-				std::cerr << "-c and -w are mutually exclusive" << std::endl;
+				std::cerr << "-c and -w are mutually "
+					  << "exclusive" << std::endl;
 				usage(argv[0], 1);
 			}
 			client_re.parse_match(optarg);
@@ -244,14 +249,16 @@ int main(int argc, char* argv[])
 			break;
 		case 'w':
 			if (client_re.is_match_ok()) {
-				std::cerr << "-c and -w are mutually exclusive" << std::endl;
+				std::cerr << "-c and -w are mutually "
+					  << "exclusive" << std::endl;
 				usage(argv[0], 1);
 			}
 			try {
 				client = std::stoi(optarg);
 			} catch (std::invalid_argument&) {
 				std::cerr << "invalid client id " << optarg
-					  << " given, expect a number" << std::endl;
+					  << " given, expect a number"
+					  << std::endl;
 			}
 			break;
 		default:
@@ -274,7 +281,8 @@ int main(int argc, char* argv[])
 
 	Display *dpy = XOpenDisplay(display);
 	if (! dpy) {
-		std::string actual_display = display ? display : Util::getEnv("DISPLAY");
+		std::string actual_display =
+			display ? display : Util::getEnv("DISPLAY");
 		std::cerr << "Can not open display!" << std::endl
 			  << "Your DISPLAY variable currently is set to: "
 			  << actual_display << std::endl;
@@ -287,7 +295,8 @@ int main(int argc, char* argv[])
 		client = findClient(client_re);
 		if (client == None) {
 			std::cerr << "no client match ";
-			std::cerr << Charset::toSystem(client_re.getPattern()) << std::endl;
+			std::cerr << Charset::toSystem(client_re.getPattern())
+				  << std::endl;
 			return 1;
 		}
 	}

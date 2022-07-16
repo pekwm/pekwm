@@ -67,7 +67,7 @@ struct BoundButton {
 	{
 		mods.push_back(mod);
 	}
-    
+
 	uint button;
 	std::vector<uint> mods;
 };
@@ -79,42 +79,63 @@ struct BoundButton {
 class Config
 {
 public:
+	typedef std::map<MouseActionListName, std::vector<ActionEvent>* >
+		mouse_action_map;
+
 	Config(void);
 	~Config(void);
 
 	bool load(const std::string &config_file);
 	bool loadMouseConfig(const std::string &mouse_file);
 
-	inline const std::string &getConfigFile(void) const { return _config_file; }
+	inline const std::string &getConfigFile(void) const {
+		return _config_file;
+	}
 
 	// Files
 	const std::string &getKeyFile(void) const { return _files_keys; }
 	const std::string &getMenuFile(void) const { return _files_menu; }
 	const std::string &getStartFile(void) const { return _files_start; }
-	const std::string &getAutoPropsFile(void) const { return _files_autoprops; }
+	const std::string &getAutoPropsFile(void) const {
+		return _files_autoprops;
+	}
 	const std::string &getThemeFile(void) const { return _files_theme; }
 	const std::string &getThemeVariant(void) const {
 		return _files_theme_variant;
 	}
-	std::string getThemeIconPath(void) const { return _files_theme + "/icons/"; }
-	const std::string &getMouseConfigFile(void) const { return _files_mouse; }
+	std::string getThemeIconPath(void) const {
+		return _files_theme + "/icons/";
+	}
+	const std::string &getMouseConfigFile(void) const {
+		return _files_mouse;
+	}
 	const std::string &getIconPath(void) const { return _files_icon_path; }
 	const char *getSystemIconPath(void) const {
 		return DATADIR "/pekwm/icons/";
 	}
 
 	// Moveresize
-	inline int getEdgeAttract(void) const { return _moveresize_edgeattract; }
+	inline int getEdgeAttract(void) const {
+		return _moveresize_edgeattract;
+	}
 	inline int getEdgeResist(void) const { return _moveresize_edgeresist; }
 	inline int getWOAttract(void) const { return _moveresize_woattract; }
 	inline int getWOResist(void) const { return _moveresize_woresist; }
-	inline bool getOpaqueMove(void) const { return _moveresize_opaquemove; }
-	inline bool getOpaqueResize(void) const { return _moveresize_opaqueresize; }
+	inline bool getOpaqueMove(void) const {
+		return _moveresize_opaquemove;
+	}
+	inline bool getOpaqueResize(void) const {
+		return _moveresize_opaqueresize;
+	}
 
 	// Screen
-	bool getThemeBackground(void) const { return _screen_theme_background; }
+	bool getThemeBackground(void) const {
+		return _screen_theme_background;
+	}
 	uint getWorkspaces(void) const { return _screen_workspaces; }
-	uint getWorkspacesPerRow(void) const { return _screen_workspaces_per_row; }
+	uint getWorkspacesPerRow(void) const {
+		return _screen_workspaces_per_row;
+	}
 	void getDesktopNamesUTF8(uchar **names, uint *length) const;
 	const std::string &getWorkspaceName(uint num) const {
 		return (num >= _screen_workspace_names.size())
@@ -130,10 +151,14 @@ public:
 	int getDoubleClickTime(void) const { return _screen_doubleclicktime; }
 
 	bool isFullscreenAbove(void) const { return _screen_fullscreen_above; }
-	bool isFullscreenDetect(void) const { return _screen_fullscreen_detect; }
+	bool isFullscreenDetect(void) const {
+		return _screen_fullscreen_detect;
+	}
 
 	bool getShowFrameList(void) const { return _screen_showframelist; }
-	bool isShowStatusWindow(void) const { return _screen_show_status_window; }
+	bool isShowStatusWindow(void) const {
+		return _screen_show_status_window;
+	}
 	bool isShowStatusWindowOnRoot(void) const {
 		return _screen_show_status_window_on_root;
 	}
@@ -154,7 +179,9 @@ public:
 		return _screen_focus_steal_protect;
 	}
 	bool isHonourRandr(void) const { return _screen_honour_randr; }
-	bool isHonourAspectRatio(void) const { return _screen_honour_aspectratio; }
+	bool isHonourAspectRatio(void) const {
+		return _screen_honour_aspectratio;
+	}
 	CurrHeadSelector getCurrHeadSelector(void) const {
 		return _screen_curr_head_selector;
 	}
@@ -168,29 +195,41 @@ public:
 	bool getPlacementRow(void) const { return _screen_placement_row; }
 	bool getPlacementLtR(void) const { return _screen_placement_ltr; }
 	bool getPlacementTtB(void) const { return _screen_placement_ttb; }
-	int getPlacementOffsetX(void) const { return _screen_placement_offset_x; }
-	int getPlacementOffsetY(void) const { return _screen_placement_offset_y; }
+	int getPlacementOffsetX(void) const {
+		return _screen_placement_offset_x;
+	}
+	int getPlacementOffsetY(void) const {
+		return _screen_placement_offset_y;
+	}
 
-	bool getClientUniqueName(void) const { return _screen_client_unique_name; }
+	bool getClientUniqueName(void) const {
+		return _screen_client_unique_name;
+	}
 	const std::string &getClientUniqueNamePre(void) const {
 		return _screen_client_unique_name_pre;
 	}
 	inline const std::string &getClientUniqueNamePost(void) const {
 		return _screen_client_unique_name_post;
 	}
-	bool isReportAllClients(void) const { return _screen_report_all_clients; }
+	bool isReportAllClients(void) const {
+		return _screen_report_all_clients;
+	}
 
 	bool isMenuSelectOn(uint val) const { return (_menu_select_mask&val); }
 	bool isMenuEnterOn(uint val) const { return (_menu_enter_mask&val); }
 	bool isMenuExecOn(uint val) const { return (_menu_exec_mask&val); }
 	bool isDisplayMenuIcons(void) const { return _menu_display_icons; }
 	uint getMenuFocusOpacity(void) const { return _menu_focus_opacity; }
-	uint getMenuUnfocusOpacity(void) const { return _menu_unfocus_opacity; }
+	uint getMenuUnfocusOpacity(void) const {
+		return _menu_unfocus_opacity;
+	}
 
 	bool isCmdDialogHistoryUnique(void) const {
 		return _cmd_dialog_history_unique;
 	}
-	int getCmdDialogHistorySize(void) const { return _cmd_dialog_history_size; }
+	int getCmdDialogHistorySize(void) const {
+		return _cmd_dialog_history_size;
+	}
 	const std::string &getCmdDialogHistoryFile(void) const {
 		return _cmd_dialog_history_file;
 	}
@@ -202,13 +241,15 @@ public:
 	int getHarbourDAMaxSide(void) const { return _harbour_da_max_s; }
 	int getHarbourHead(void) const;
 	bool isHarbourOntop(void) const { return _harbour_ontop; }
-	bool isHarbourMaximizeOver(void) const { return _harbour_maximize_over; }
+	bool isHarbourMaximizeOver(void) const {
+		return _harbour_maximize_over;
+	}
 	uint getHarbourPlacement(void) const { return _harbour_placement; }
 	uint getHarbourOrientation(void) const { return _harbour_orientation; }
 	uint getHarbourOpacity(void) const { return _harbour_opacity; }
 
-	std::vector<ActionEvent> *getMouseActionList(MouseActionListName name) {
-		return _mouse_action_map[name];
+	std::vector<ActionEvent> *getMouseActionList(MouseActionListName n) {
+		return _mouse_action_map[n];
 	}
 	const std::vector<BoundButton>& getClientMouseActionButtons(void) {
 		return _client_mouse_action_buttons;
@@ -225,11 +266,13 @@ public:
 
 	bool parseMoveResizeAction(const std::string &action_string,
 				   Action &action);
-	bool parseMoveResizeActions(const std::string &actions, ActionEvent &ae);
+	bool parseMoveResizeActions(const std::string &actions,
+				    ActionEvent &ae);
 	bool parseMoveResizeEvent(CfgParser::Entry *section, ActionEvent &ae);
 
 	bool parseInputDialogAction(const std::string &val, Action &action);
-	bool parseInputDialogActions(const std::string &actions, ActionEvent &ae);
+	bool parseInputDialogActions(const std::string &actions,
+				     ActionEvent &ae);
 	bool parseInputDialogEvent(CfgParser::Entry *section, ActionEvent &ae);
 
 	uint getMenuMask(const std::string &mask);
@@ -261,7 +304,8 @@ private:
 
 	void parseButtons(CfgParser::Entry *section,
 			  std::vector<ActionEvent>* mouse_list,
-			  std::vector<BoundButton>* mouse_buttons, ActionOk action_ok);
+			  std::vector<BoundButton>* mouse_buttons,
+			  ActionOk action_ok);
 
 	std::string _config_file; /**< Path to config file last loaded. */
 	TimeFiles _cfg_files;
@@ -319,10 +363,14 @@ private:
 	bool _screen_default_font_x11;
 	/** Charset override for X11/Xmb fonts. */
 	std::string _screen_font_charset_override;
-	bool _screen_placement_row, _screen_placement_ltr, _screen_placement_ttb;
-	int _screen_placement_offset_x, _screen_placement_offset_y;
+	bool _screen_placement_row;
+	bool _screen_placement_ltr;
+	bool _screen_placement_ttb;
+	int _screen_placement_offset_x;
+	int _screen_placement_offset_y;
 	bool _screen_client_unique_name;
-	std::string _screen_client_unique_name_pre, _screen_client_unique_name_post;
+	std::string _screen_client_unique_name_pre;
+	std::string _screen_client_unique_name_post;
 	bool _screen_report_all_clients;
 
 	uint _menu_select_mask, _menu_enter_mask, _menu_exec_mask;
@@ -333,9 +381,11 @@ private:
 	/** Map of name -> limit for icons in menus */
 	std::map<std::string, SizeLimits> _menu_icon_limits;
 
-	/** Boolean flag, when true entries in the CmdDialog history are unique. */
+	/** Boolean flag, when true entries in the CmdDialog history are
+	 * unique. */
 	bool _cmd_dialog_history_unique;
-	/** Number of entries in the history before the last entries are dropped. */
+	/** Number of entries in the history before the last entries are
+	 * dropped. */
 	int _cmd_dialog_history_size;
 	/** Path to cmd dialog history file. */
 	std::string _cmd_dialog_history_file;
@@ -351,7 +401,7 @@ private:
 	int _harbour_head_nr;
 	uint _harbour_opacity;
 
-	std::map<MouseActionListName, std::vector<ActionEvent>* > _mouse_action_map;
+	mouse_action_map _mouse_action_map;
 	std::vector<BoundButton> _client_mouse_action_buttons;
 };
 

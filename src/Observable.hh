@@ -41,7 +41,7 @@ class ObserverMapping {
 public:
 	typedef std::map<Observable*, std::vector<Observer*> > observable_map;
 	typedef observable_map::iterator observable_map_it;
-    
+
 	ObserverMapping(void);
 	~ObserverMapping(void);
 

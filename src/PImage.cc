@@ -271,7 +271,9 @@ PImage::PImage(XImage *image, uchar opacity)
 		for (uint x = 0; x < _width; ++x) {
 			_data[dst] = opacity; // A
 			pixelToRgb(XGetPixel(image, x, y),
-				   _data[dst + 1], _data[dst + 2], _data[dst + 3]);
+				   _data[dst + 1],
+				   _data[dst + 2],
+				   _data[dst + 3]);
 			dst += 4;
 		}
 	}
@@ -301,19 +303,29 @@ PImage::load(const std::string &file)
 
 #ifdef PEKWM_HAVE_IMAGE_JPEG
 	if (StringUtil::ascii_ncase_equal(PImageLoaderJpeg::getExt(), ext)) {
-		_data = PImageLoaderJpeg::load(file, _width, _height, _use_alpha);
+		_data = PImageLoaderJpeg::load(file,
+					       _width,
+					       _height,
+					       _use_alpha);
 	} else
 #endif // PEKWM_HAVE_IMAGE_JPEG
 #ifdef PEKWM_HAVE_IMAGE_PNG
 		if (StringUtil::ascii_ncase_equal(PImageLoaderPng::getExt(),
 						  ext)) {
-			_data = PImageLoaderPng::load(file, _width, _height, _use_alpha);
+			_data = PImageLoaderPng::load(file,
+						      _width,
+						      _height,
+						      _use_alpha);
 		} else
 #endif // PEKWM_HAVE_IMAGE_PNG
 #ifdef PEKWM_HAVE_IMAGE_XPM
-			if (StringUtil::ascii_ncase_equal(PImageLoaderXpm::getExt(),
-							  ext)) {
-				_data = PImageLoaderXpm::load(file, _width, _height, _use_alpha);
+			if (StringUtil::ascii_ncase_equal(
+						PImageLoaderXpm::getExt(),
+						ext)) {
+				_data = PImageLoaderXpm::load(file,
+							      _width,
+							      _height,
+							      _use_alpha);
 			} else
 #endif // PEKWM_HAVE_IMAGE_XPM
 				{
@@ -512,7 +524,7 @@ PImage::scale(size_t width, size_t height)
  */
 void
 PImage::drawAlphaFixed(Render &rend, int x, int y, size_t width, size_t height,
-                       uchar* data)
+		       uchar* data)
 {
 	XImage *dest_image = rend.getImage(x, y, width, height);
 	if (! dest_image) {
@@ -534,8 +546,8 @@ PImage::drawAlphaFixed(Render &rend, int x, int y, size_t width, size_t height,
 
 void
 PImage::drawAlphaFixed(XImage *src_image, XImage *dest_image,
-                       int x, int y, size_t width, size_t height,
-                       uchar* data)
+		       int x, int y, size_t width, size_t height,
+		       uchar* data)
 {
 	// Get mask from visual
 	Visual *visual = X11::getVisual();
@@ -552,7 +564,8 @@ PImage::drawAlphaFixed(XImage *src_image, XImage *dest_image,
 	uchar *src = data;
 	for (size_t i_y = 0; i_y < height; ++i_y) {
 		for (size_t i_x = 0; i_x < width; ++i_x) {
-			// Get pixel value, copy them directly if alpha is set to 255.
+			// Get pixel value, copy them directly if alpha is set
+			// to 255.
 			uchar a = *src++;
 			uchar r = *src++;
 			uchar g = *src++;
@@ -567,9 +580,12 @@ PImage::drawAlphaFixed(XImage *src_image, XImage *dest_image,
 
 				float a_percent = static_cast<float>(a) / 255;
 				float a_percent_inv = 1 - a_percent;
-				r = static_cast<uchar>((a_percent_inv * d_r) + (a_percent * r));
-				g = static_cast<uchar>((a_percent_inv * d_g) + (a_percent * g));
-				b = static_cast<uchar>((a_percent_inv * d_b) + (a_percent * b));
+				r = static_cast<uchar>((a_percent_inv * d_r)
+						       + (a_percent * r));
+				g = static_cast<uchar>((a_percent_inv * d_g)
+						       + (a_percent * g));
+				b = static_cast<uchar>((a_percent_inv * d_b)
+						       + (a_percent * b));
 			}
 
 			XPutPixel(dest_image, i_x, i_y, rgbToPixel(r, g, b));
@@ -650,7 +666,8 @@ PImage::drawTiled(Render &rend, int x, int y, size_t width, size_t height)
 		if (ximage) {
 			RenderAndXImage raxi(rend, ximage);
 			renderTiled(x, y, width, height, _width, _height,
-				    renderWithXImageRender, reinterpret_cast<void*>(&raxi));
+				    renderWithXImageRender,
+				    reinterpret_cast<void*>(&raxi));
 			destroyXImage(ximage);
 		}
 	} else {
@@ -663,7 +680,8 @@ PImage::drawTiled(Render &rend, int x, int y, size_t width, size_t height)
 		gv.ts_x_origin = x;
 		gv.ts_y_origin = y;
 
-		ulong gv_mask = GCFillStyle|GCTile|GCTileStipXOrigin|GCTileStipYOrigin;
+		ulong gv_mask =
+			GCFillStyle|GCTile|GCTileStipXOrigin|GCTileStipYOrigin;
 		GC gc = XCreateGC(X11::getDpy(), dest, gv_mask, &gv);
 
 		// Tile the image onto drawable.
@@ -703,8 +721,10 @@ struct ImageRenderAndData
 static void
 renderWithAlphaFixed(int x, int y, uint width, uint height, void *opaque)
 {
-	ImageRenderAndData *irad = reinterpret_cast<ImageRenderAndData*>(opaque);
-	irad->image->drawAlphaFixed(irad->rend, x, y, width, height, irad->data);
+	ImageRenderAndData *irad =
+		reinterpret_cast<ImageRenderAndData*>(opaque);
+	irad->image->drawAlphaFixed(irad->rend,
+				    x, y, width, height, irad->data);
 }
 
 /**
@@ -774,7 +794,8 @@ PImage::createMask(uchar* data, size_t width, size_t height)
 	ulong pixel_solid = X11::getWhitePixel();
 	for (size_t y = 0; y < height; ++y) {
 		for (size_t x = 0; x < width; ++x) {
-			XPutPixel(ximage, x, y, (*src > 127) ? pixel_solid : pixel_trans);
+			XPutPixel(ximage, x, y,
+				  (*src > 127) ? pixel_solid : pixel_trans);
 			src += 4; // Skip A, R, G, and B
 		}
 	}
@@ -874,13 +895,17 @@ PImage::getScaledData(size_t dwidth, size_t dheight)
 			float y_diff = (y_ratio * dy) - sy;
 
 			scaled_data[dst++] =
-				scalePixel(_data, spos, _width, x_diff, y_diff); // A
+				scalePixel(_data, spos, _width,
+					   x_diff, y_diff); // A
 			scaled_data[dst++] =
-				scalePixel(_data + 1, spos, _width, x_diff, y_diff); // R
+				scalePixel(_data + 1, spos, _width,
+					   x_diff, y_diff); // R
 			scaled_data[dst++] =
-				scalePixel(_data + 2, spos, _width, x_diff, y_diff); // G
+				scalePixel(_data + 2, spos, _width,
+					   x_diff, y_diff); // G
 			scaled_data[dst++] =
-				scalePixel(_data + 3, spos, _width, x_diff, y_diff); // B
+				scalePixel(_data + 3, spos, _width,
+					   x_diff, y_diff); // B
 		}
 	}
 

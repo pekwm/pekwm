@@ -83,7 +83,8 @@ public:
 
 	static bool isSkipEnterAfter(Window win) {
 		return (win == _win_skip_enter_after
-			|| (_skip_enter_after != nullptr && *_skip_enter_after == win));
+			|| (_skip_enter_after != nullptr
+			    && *_skip_enter_after == win));
 	}
 
 	static void setSkipEnterAfter(PWinObj *wo) {
@@ -202,16 +203,36 @@ public:
 
 	// event interface
 
-	virtual ActionEvent *handleButtonPress(XButtonEvent*) { return nullptr; }
-	virtual ActionEvent *handleButtonRelease(XButtonEvent*) { return nullptr; }
-	virtual ActionEvent *handleKeyPress(XKeyEvent*) { return nullptr; }
-	virtual ActionEvent *handleKeyRelease(XKeyEvent*) { return nullptr; }
-	virtual ActionEvent *handleMotionEvent(XMotionEvent*) { return nullptr; }
-	virtual ActionEvent *handleEnterEvent(XCrossingEvent*) { return nullptr; }
-	virtual ActionEvent *handleLeaveEvent(XCrossingEvent*) { return nullptr; }
-	virtual ActionEvent *handleExposeEvent(XExposeEvent*) { return nullptr; }
-	virtual ActionEvent *handleMapRequest(XMapRequestEvent*) { return nullptr; }
-	virtual ActionEvent *handleUnmapEvent(XUnmapEvent*) { return nullptr; }
+	virtual ActionEvent *handleButtonPress(XButtonEvent*) {
+		return nullptr;
+	}
+	virtual ActionEvent *handleButtonRelease(XButtonEvent*) {
+		return nullptr;
+	}
+	virtual ActionEvent *handleKeyPress(XKeyEvent*) {
+		return nullptr;
+	}
+	virtual ActionEvent *handleKeyRelease(XKeyEvent*) {
+		return nullptr;
+	}
+	virtual ActionEvent *handleMotionEvent(XMotionEvent*) {
+		return nullptr;
+	}
+	virtual ActionEvent *handleEnterEvent(XCrossingEvent*) {
+		return nullptr;
+	}
+	virtual ActionEvent *handleLeaveEvent(XCrossingEvent*) {
+		return nullptr;
+	}
+	virtual ActionEvent *handleExposeEvent(XExposeEvent*) {
+		return nullptr;
+	}
+	virtual ActionEvent *handleMapRequest(XMapRequestEvent*) {
+		return nullptr;
+	}
+	virtual ActionEvent *handleUnmapEvent(XUnmapEvent*) {
+		return nullptr;
+	}
 
 	// operators
 
@@ -262,7 +283,7 @@ protected:
 	bool _focused:1; //!< Focused state of PWinObj.
 	bool _sticky:1; //!< Sticky state of PWinObj.
 	bool _focusable:1; //!< Focusable state of PWinObj.
-	bool _shape_bounding:1; //!< _window has a custom bounding region (shape)
+	bool _shape_bounding:1; //!< Custom bounding region (shape)
 	bool _keyboard_input:1; //!< PWinObj is consuming keyboard input.
 
 	/**
@@ -275,7 +296,8 @@ protected:
 	static PWinObj *_root_wo; //!< Static root PWinObj pointer.
 	static PWinObj *_focused_wo; //!< Static focused PWinObj pointer.
 	static std::vector<PWinObj*> _wo_list; //!< List of PWinObjs.
-	static std::map<Window, PWinObj*> _wo_map; //!< Mapping of Window to PWinObj
+	/** Mapping of Window to PWinObj */
+	static std::map<Window, PWinObj*> _wo_map;
 };
 
 #endif // _PEKWM_PWINOBJ_HH_

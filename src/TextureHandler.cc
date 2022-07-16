@@ -72,7 +72,8 @@ TextureHandler::getTexture(const std::string &texture)
 	PTexture *ptexture = parse(texture);
 	if (ptexture) {
 		// create new entry
-		TextureHandler::Entry *entry = new TextureHandler::Entry(texture, ptexture);
+		TextureHandler::Entry *entry =
+			new TextureHandler::Entry(texture, ptexture);
 		entry->incRef();
 		_textures.push_back(entry);
 	}
@@ -218,11 +219,13 @@ PTexture*
 TextureHandler::parseSolidRaised(std::vector<std::string> &tok)
 {
 	if (tok.size() < 3) {
-		USER_WARN("not enough parameters to texture SolidRaised (3 required)");
+		USER_WARN("not enough parameters to texture SolidRaised "
+			  "(3 required)");
 		return 0;
 	}
 
-	PTextureSolidRaised *tex = new PTextureSolidRaised(tok[0], tok[1], tok[2]);
+	PTextureSolidRaised *tex =
+		new PTextureSolidRaised(tok[0], tok[1], tok[2]);
 	tok.erase(tok.begin(), tok.begin() + 3);
 
 	// Check if we have line width and offset.
@@ -283,7 +286,8 @@ TextureHandler::parseLines(bool horz, std::vector<std::string> &tok)
 		height = 0;
 	}
 
-	PTextureLines *tex = new PTextureLines(line_size, size_percent, horz, tok);
+	PTextureLines *tex =
+		new PTextureLines(line_size, size_percent, horz, tok);
 	tex->setWidth(width);
 	tex->setHeight(height);
 	return tex;
@@ -314,12 +318,14 @@ TextureHandler::parseImageMapped(const std::string& texture)
 	size_t map_start = texture.find_first_not_of(" \t", 12);
 	size_t map_end = texture.find_first_of(" \t", map_start);
 	if (map_end == std::string::npos) {
-		USER_WARN("not enough parameters to texture ImageMapped (2 required)");
+		USER_WARN("not enough parameters to texture ImageMapped "
+			  "(2 required)");
 		return nullptr;
 	}
 	size_t image_start = texture.find_first_not_of(" \t", map_end + 1);
 	if (image_start == std::string::npos) {
-		USER_WARN("not enough parameters to texture ImageMapped (2 required)");
+		USER_WARN("not enough parameters to texture ImageMapped "
+			  "(2 required)");
 		return nullptr;
 	}
 	std::string colormap = texture.substr(map_start, map_end - map_start);
