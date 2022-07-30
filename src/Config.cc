@@ -678,8 +678,12 @@ Config::parseMoveResizeAction(const std::string &action_string, Action &action)
 		return false;
 	}
 	action.setAction(Util::StringToGet(moveresize_map, tok[0]));
-	if (action.getAction() != NO_MOVERESIZE_ACTION
-	    && tok.size() == 2) {
+	if (action.getAction() == NO_MOVERESIZE_ACTION) {
+		USER_WARN("Unknown move/resize action: " << tok[0]);
+		return false;
+	}
+
+	if (tok.size() == 2) {
 		// Got enough tok for a paremeter
 		switch (action.getAction()) {
 		case MOVE_HORIZONTAL:
@@ -701,9 +705,6 @@ Config::parseMoveResizeAction(const std::string &action_string, Action &action)
 			// Do nothing.
 			break;
 		}
-	} else {
-		USER_WARN("Unknown move/resize action: " << tok[0]);
-		return false;
 	}
 	return true;
 }
