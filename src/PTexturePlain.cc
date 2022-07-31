@@ -305,7 +305,7 @@ PTextureLines::renderHorz(Render &rend, int x, int y,
 	size_t pos = 0;
 	while (pos < height) {
 		std::vector<XColor*>::iterator it = _colors.begin();
-		for (; it != _colors.end(); ++it) {
+		for (; pos < height && it != _colors.end(); ++it) {
 			rend.setColor((*it)->pixel);
 			rend.fill(x, y + pos,
 				  width, std::min(line_height, height - pos));
@@ -329,7 +329,7 @@ PTextureLines::renderVert(Render &rend, int x, int y,
 	size_t pos = 0;
 	while (pos < width) {
 		std::vector<XColor*>::iterator it = _colors.begin();
-		for (; it != _colors.end(); ++it) {
+		for (; pos < width && it != _colors.end(); ++it) {
 			rend.setColor((*it)->pixel);
 			rend.fill(x + pos, y,
 				  std::min(line_width, width - pos), height);
