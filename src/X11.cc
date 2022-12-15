@@ -43,7 +43,7 @@ extern "C" {
 
 #include "X11.hh"
 #include "Debug.hh"
-#include "Util.hh"
+#include "String.hh"
 #include "pekwm.hh"
 
 const uint X11::MODIFIER_TO_MASK[] = {
@@ -146,6 +146,7 @@ static const char *atomnames[] = {
 	"UTF8_STRING",
 	"STRING",
 	"MANAGER",
+	"RESOURCE_MANAGER",
 
 	// pekwm atoms
 	"_PEKWM_FRAME_ID",
@@ -351,7 +352,7 @@ public:
 	inline void decRef(void) { if (_ref > 0) { _ref--; } }
 
 	inline bool operator==(const std::string &name) {
-		return StringUtil::ascii_ncase_equal(_name, name);
+		return pekwm::ascii_ncase_equal(_name, name);
 	}
 
 private:
@@ -464,6 +465,9 @@ X11::init(Display *dpy, bool synchronous, bool honour_randr)
 			   0, _atoms)) {
 		P_ERR("XInternAtoms did not return all requested atoms");
 	}
+
+	XrmInitialize();
+	loadXrmResources();
 }
 
 //! @brief X11 destructor
@@ -488,6 +492,8 @@ X11::destruct(void) {
 		XFreeCursor(_dpy, _cursor_map[i]);
 	}
 
+	XrmDestroyDatabase(_xrm_db);
+
 	// Under certain circumstances trying to restart pekwm can cause it to
 	// use 100% of the CPU without making any progress with the restart.
 	// This X11:sync() seems to be work around the issue (c.f. #300).
@@ -500,7 +506,7 @@ X11::destruct(void) {
 XColor *
 X11::getColor(const std::string &color)
 {
-	if (StringUtil::ascii_ncase_equal(color.c_str(), "EMPTY")) {
+	if (pekwm::ascii_ncase_equal(color.c_str(), "EMPTY")) {
 		return &_xc_default;
 	}
 
@@ -1042,14 +1048,14 @@ X11::getHeadGeometry(uint head)
 int
 X11::findHeadByName(const std::string& name)
 {
-	bool find_primary = StringUtil::ascii_ncase_equal(name, "PRIMARY");
+	bool find_primary = pekwm::ascii_ncase_equal(name, "PRIMARY");
 	for (uint i = 0; i < _heads.size(); i++) {
 		if (find_primary) {
 			if (_heads[i].primary) {
 				return i;
 			}
-		} else if (StringUtil::ascii_ncase_equal(_heads[i].name, 
-							 name)) {
+		} else if (pekwm::ascii_ncase_equal(_heads[i].name,
+							    name)) {
 			return i;
 		}
 	}
@@ -2131,6 +2137,36 @@ X11::setInputFocus(Window w)
 	XSetInputFocus(_dpy, w, RevertToPointerRoot, CurrentTime);
 }
 
+void
+X11::loadXrmResources()
+{
+	XrmDestroyDatabase(_xrm_db);
+	_xrm_db = nullptr;
+
+	// not using XResourceManagerString as the result is cached
+	// even if the resources on the display gets updated
+	std::string xrm;
+	if (getString(_root, RESOURCE_MANAGER, xrm)) {
+		_xrm_db = XrmGetStringDatabase(xrm.c_str());
+	}
+}
+
+std::string
+X11::getXrmString(const std::string& name)
+{
+	if (_xrm_db) {
+		char *type;
+		XrmValue value;
+		if (XrmGetResource(_xrm_db, name.c_str(), "String",
+				   &type, &value)
+		    && value.size > 0
+		    && strcmp(type, "String") == 0) {
+			return std::string(value.addr, value.size - 1);
+		}
+	}
+	return std::string();
+}
+
 Display *X11::_dpy;
 bool X11::_honour_randr = false;
 int X11::_fd = -1;
@@ -2158,3 +2194,4 @@ Time X11::_last_click_time[BUTTON_NO - 1];
 std::vector<X11::ColorEntry*> X11::_colors;
 XColor X11::_xc_default;
 Cursor X11::_cursor_map[CURSOR_NONE];
+XrmDatabase X11::_xrm_db = 0;

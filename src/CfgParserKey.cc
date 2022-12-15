@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2005-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -7,7 +7,7 @@
 
 #include "Compat.hh"
 #include "CfgParserKey.hh"
-#include "Util.hh"
+#include "String.hh"
 
 #include <iostream>
 #include <cstdlib>
@@ -34,10 +34,10 @@ CfgParserKeyBool::~CfgParserKeyBool(void)
 void
 CfgParserKeyBool::parseValue(const std::string &value)
 {
-	if ((value == "1") || StringUtil::ascii_ncase_equal(value, "TRUE")) {
+	if ((value == "1") || pekwm::ascii_ncase_equal(value, "TRUE")) {
 		_set = true;
 	} else if ((value == "0")
-		   || StringUtil::ascii_ncase_equal(value, "FALSE")) {
+		   || pekwm::ascii_ncase_equal(value, "FALSE")) {
 		_set = false;
 	} else  {
 		_set = _default;

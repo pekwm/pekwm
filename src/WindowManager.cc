@@ -13,6 +13,7 @@
 
 #include "config.h"
 
+#include "Color.hh"
 #include "Debug.hh"
 #include "PWinObj.hh"
 #include "PDecor.hh"
@@ -509,17 +510,25 @@ WindowManager::doReloadConfig(void)
  * Reload theme file and update decorations.
  */
 void
-WindowManager::doReloadTheme(void)
+WindowManager::doReloadTheme(bool force)
 {
 	// Reload the theme
 	if (! pekwm::theme()->load(pekwm::config()->getThemeFile(),
-				   pekwm::config()->getThemeVariant())) {
+				   pekwm::config()->getThemeVariant(),
+				   force)) {
+		P_TRACE("not reloading decors, theme not changed");
 		return;
 	}
 
 	startBackground(pekwm::theme()->getThemeDir(),
 			pekwm::theme()->getBackground());
 
+	doReloadThemeDecors();
+}
+
+void
+WindowManager::doReloadThemeDecors()
+{
 	// Reload the themes on all decors
 	std::vector<PDecor*>::const_iterator it = PDecor::pdecor_begin();
 	for (; it != PDecor::pdecor_end(); ++it) {
@@ -626,6 +635,36 @@ WindowManager::doReloadHarbour(void)
 	pekwm::harbour()->rearrange();
 	pekwm::harbour()->restack();
 	pekwm::harbour()->updateHarbourSize();
+}
+
+/**
+ * Reload Xrm Resources and update resource dependent parts (if any at
+ * the time).
+ */
+void
+WindowManager::doReloadResources(void)
+{
+	P_TRACE("RESOURCE_MANAGER changed, reloading resources");
+	X11::loadXrmResources();
+	if (isResourcesChanged()) {
+		P_TRACE("used resources changed, reloading theme");
+		doReloadTheme(true);
+	}
+}
+
+bool
+WindowManager::isResourcesChanged(void)
+{
+	const std::map<std::string, std::string> &resources =
+		pekwm::getColorResources();
+	std::map<std::string, std::string>::const_iterator it =
+		resources.begin();
+	for (; it != resources.end(); ++it) {
+		if (X11::getXrmString(it->first) != it->second) {
+			return true;
+		}
+	}
+	return false;
 }
 
 /**
@@ -1417,7 +1456,11 @@ void
 WindowManager::handlePropertyEvent(XPropertyEvent *ev)
 {
 	if (ev->window == X11::getRoot()) {
-		return pekwm::rootWo()->handlePropertyChange(ev);
+		if (ev->atom == X11::getAtom(RESOURCE_MANAGER)) {
+			doReloadResources();
+		} else {
+			return pekwm::rootWo()->handlePropertyChange(ev);
+		}
 	}
 
 	Client *client = Client::findClientFromWindow(ev->window);

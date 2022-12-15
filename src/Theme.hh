@@ -1,6 +1,6 @@
 //
 // Theme.hh for pekwm
-// Copyright (C) 2003-2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -221,16 +221,14 @@ public:
 		bool _title_width_symetric;
 		bool _title_height_adapt;
 
-		// title
-		PTexture *_texture_main[FOCUSED_STATE_FOCUSED_SELECTED];
+		// elements with FOCUSED_STATE_NO
 		PTexture *_texture_tab[FOCUSED_STATE_NO];
-		PTexture *_texture_separator[FOCUSED_STATE_FOCUSED_SELECTED];
-
-		// font
 		PFont *_font[FOCUSED_STATE_NO];
 		PFont::Color *_font_color[FOCUSED_STATE_NO];
 
-		// border
+		// elements with FOCUSED_STATE_FOCUSED_SELECTED
+		PTexture *_texture_main[FOCUSED_STATE_FOCUSED_SELECTED];
+		PTexture *_texture_separator[FOCUSED_STATE_FOCUSED_SELECTED];
 		PTexture *_texture_border
 			[FOCUSED_STATE_FOCUSED_SELECTED][BORDER_NO_POS];
 
@@ -437,7 +435,8 @@ public:
 	      const std::string& theme_file, const std::string &theme_variant);
 	~Theme(void);
 
-	bool load(const std::string &dir, const std::string &variant);
+	bool load(const std::string &dir, const std::string &variant,
+		  bool force=false);
 	void unload(void);
 
 	inline const GC &getInvertGC(void) const { return _invert_gc; }

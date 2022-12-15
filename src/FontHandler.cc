@@ -1,6 +1,6 @@
 //
 // FontHandler.cc for pekwm
-// Copyright (C) 2004-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2004-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -10,6 +10,7 @@
 
 #include <cctype>
 
+#include "Color.hh"
 #include "Debug.hh"
 #include "FontHandler.hh"
 #include "Util.hh"
@@ -286,9 +287,9 @@ FontHandler::loadColor(const std::string &color, PFont::Color *font_color,
 		} else {
 			font_color->setBgAlpha(alpha);
 		}
-		xc = X11::getColor(tok[0]);
+		xc = pekwm::getColor(tok[0]);
 	} else {
-		xc = X11::getColor(color);
+		xc = pekwm::getColor(color);
 	}
 
 	if (fg) {

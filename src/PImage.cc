@@ -1,5 +1,7 @@
 //
 // PImage.cc for pekwm
+//
+// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2005-2021 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -13,6 +15,7 @@
 #include "PImageLoaderJpeg.hh"
 #include "PImageLoaderPng.hh"
 #include "PImageLoaderXpm.hh"
+#include "String.hh"
 #include "Util.hh"
 
 #include <cstring>
@@ -302,7 +305,7 @@ PImage::load(const std::string &file)
 	}
 
 #ifdef PEKWM_HAVE_IMAGE_JPEG
-	if (StringUtil::ascii_ncase_equal(PImageLoaderJpeg::getExt(), ext)) {
+	if (pekwm::ascii_ncase_equal(PImageLoaderJpeg::getExt(), ext)) {
 		_data = PImageLoaderJpeg::load(file,
 					       _width,
 					       _height,
@@ -310,8 +313,7 @@ PImage::load(const std::string &file)
 	} else
 #endif // PEKWM_HAVE_IMAGE_JPEG
 #ifdef PEKWM_HAVE_IMAGE_PNG
-		if (StringUtil::ascii_ncase_equal(PImageLoaderPng::getExt(),
-						  ext)) {
+		if (pekwm::ascii_ncase_equal(PImageLoaderPng::getExt(), ext)) {
 			_data = PImageLoaderPng::load(file,
 						      _width,
 						      _height,
@@ -319,9 +321,8 @@ PImage::load(const std::string &file)
 		} else
 #endif // PEKWM_HAVE_IMAGE_PNG
 #ifdef PEKWM_HAVE_IMAGE_XPM
-			if (StringUtil::ascii_ncase_equal(
-						PImageLoaderXpm::getExt(),
-						ext)) {
+			if (pekwm::ascii_ncase_equal(PImageLoaderXpm::getExt(),
+						     ext)) {
 				_data = PImageLoaderXpm::load(file,
 							      _width,
 							      _height,

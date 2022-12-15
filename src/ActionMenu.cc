@@ -208,7 +208,6 @@ ActionMenu::parse(CfgParser::Entry *section, PMenu::Item *parent)
 		_title_base = title;
 	}
 
-	CfgParser::Entry *value;
 	CfgParser::Entry::entry_cit it = section->begin();
 	for (; it != section->end(); ++it) {
 		PMenu::Item* item = nullptr;

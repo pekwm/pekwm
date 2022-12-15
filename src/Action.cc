@@ -1,6 +1,6 @@
 //
 // Action.cc for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -10,7 +10,7 @@
 
 #include "Action.hh"
 #include "Debug.hh"
-#include "Util.hh"
+#include "String.hh"
 
 #include <map>
 
@@ -297,7 +297,7 @@ parseActionSendToWorkspace(Action &action, const std::string &arg)
 {
 	std::vector<std::string> tok;
 	if ((Util::splitString(arg, tok, " \t", 2)) == 2) {
-		if (StringUtil::ascii_ncase_equal(tok[1], "keepfocus")) {
+		if (pekwm::ascii_ncase_equal(tok[1], "keepfocus")) {
 			action.setParamI(0, 1);
 		} else {
 			action.setParamI(0, 0);
@@ -629,7 +629,7 @@ namespace ActionConfig {
 		uint num = tok.size() - 1;
 		if ((tok[num].size() > 1) && (tok[num][0] == '#')) {
 			key = strtol(tok[num].c_str() + 1, 0, 10);
-		} else if (StringUtil::ascii_ncase_equal(tok[num], "ANY")) {
+		} else if (pekwm::ascii_ncase_equal(tok[num], "ANY")) {
 			// Do no matching, anything goes.
 			key = 0;
 		} else {
@@ -667,7 +667,7 @@ namespace ActionConfig {
 
 		// if the last token isn't an key/button, the action isn't valid
 		if ((key != 0)
-		     || StringUtil::ascii_ncase_equal(tok[num], "ANY")) {
+		     || pekwm::ascii_ncase_equal(tok[num], "ANY")) {
 			tok.pop_back(); // remove the key/button
 
 			// add the modifier
@@ -786,10 +786,10 @@ namespace ActionConfig {
 
 		// screen, current head or head number
 		if (tok.size() > 1) {
-			if (StringUtil::ascii_ncase_equal(tok[1], "SCREEN")) {
+			if (pekwm::ascii_ncase_equal(tok[1], "SCREEN")) {
 				action.setParamI(0, -1);
-			} else if (StringUtil::ascii_ncase_equal(tok[1],
-								 "CURRENT")) {
+			} else if (pekwm::ascii_ncase_equal(tok[1],
+							    "CURRENT")) {
 				action.setParamI(0, -2);
 			} else {
 				action.setParamI(0, std::stoi(tok[1]));
@@ -801,8 +801,8 @@ namespace ActionConfig {
 		// honour strut option
 		if (tok.size() > 2) {
 			int honour_strut =
-				StringUtil::ascii_ncase_equal(tok[2],
-							      "HONOURSTRUT")
+				pekwm::ascii_ncase_equal(tok[2],
+							 "HONOURSTRUT")
 				? 1 : 0;
 			action.setParamI(1, honour_strut);
 		} else {
@@ -855,7 +855,7 @@ namespace ActionConfig {
 	{
 		uint button;
 
-		if (StringUtil::ascii_ncase_equal(name, "ANY")) {
+		if (pekwm::ascii_ncase_equal(name, "ANY")) {
 			button = BUTTON_ANY;
 		} else {
 			button = unsigned(strtol(name.c_str(), 0, 10));

@@ -1,6 +1,6 @@
 //
 // test_Theme.cc for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -19,19 +19,25 @@ public:
 	virtual bool run_test(TestSpec spec, bool status);
 
 	static void testColorMapLoad(void);
+	static void testColorMapLoadInvalid(void);
+
+private:
+	static bool loadColorMap(const char *cfg,
+				 std::map<int, int> &color_map);
 };
 
 bool
 TestTheme::run_test(TestSpec spec, bool status)
 {
 	TEST_FN(spec, "colorMapLoad", testColorMapLoad());
+	TEST_FN(spec, "colorMapLoadInvalid", testColorMapLoadInvalid());
 	return status;
 }
 
 void
 TestTheme::testColorMapLoad(void)
 {
-	const char *colormap_cfg =
+	const char *cfg =
 		"ColorMaps {\n"
 		"  ColorMap = \"Light\" {\n"
 		"    Map = \"#aaaaaa\" { To = \"#eeeeee\" }\n"
@@ -39,8 +45,33 @@ TestTheme::testColorMapLoad(void)
 		"  }\n"
 		"}\n";
 
+	std::map<int, int> color_map;
+	ASSERT_EQUAL("load failed", true, loadColorMap(cfg, color_map));
+	ASSERT_EQUAL("invalid count", 2, color_map.size());
+}
+
+void
+TestTheme::testColorMapLoadInvalid(void)
+{
+	const char *cfg =
+		"ColorMaps {\n"
+		"  ColorMap = \"Invalid\" {\n"
+		"    Map = \"#aaaaaa\" { To = \"#eeeee\" }\n"
+		"    Map = \"#ccccc\" { To = \"#ffffff\" }\n"
+		"    Map = \"\" { To = \"\" }\n"
+		"  }\n"
+		"}\n";
+
+	std::map<int, int> color_map;
+	ASSERT_EQUAL("load failed", true, loadColorMap(cfg, color_map));
+	ASSERT_EQUAL("invalid count", 0, color_map.size());
+}
+
+bool
+TestTheme::loadColorMap(const char *cfg, std::map<int, int> &color_map)
+{
 	CfgParserSourceString *source =
-		new CfgParserSourceString(":memory:", colormap_cfg);
+		new CfgParserSourceString(":memory:", cfg);
 
 	CfgParser parser;
 	parser.parse(source);
@@ -49,8 +80,5 @@ TestTheme::testColorMapLoad(void)
 	ASSERT_EQUAL("environment error", true, section != nullptr);
 
 	CfgParser::Entry::entry_cit it = section->begin();
-	std::map<int, int> color_map;
-	ASSERT_EQUAL("load failed", true,
-		     Theme::ColorMap::load((*it)->getSection(), color_map));
-	ASSERT_EQUAL("invalid count", 2, color_map.size());
+	return Theme::ColorMap::load((*it)->getSection(), color_map);
 }

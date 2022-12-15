@@ -352,7 +352,6 @@ Frame::handleEnterEvent(XCrossingEvent *ev)
 	// returned.
 	PDecor::handleEnterEvent(ev);
 
-	ActionEvent *ae = 0;
 	std::vector<ActionEvent> *al = 0;
 	Config *cfg = pekwm::config();
 
@@ -1084,19 +1083,19 @@ Frame::moveToHead(const std::string& arg)
 
 	if (head_nr != -1) {
 		// valid value from stoi above
-	} else if (StringUtil::ascii_ncase_equal(arg, "LEFT")) {
+	} else if (pekwm::ascii_ncase_equal(arg, "LEFT")) {
 		head_nr = X11Util::getNearestHead(*this,
 						  DIRECTION_LEFT,
 						  DIRECTION_NO);
-	} else if (StringUtil::ascii_ncase_equal(arg, "RIGHT")) {
+	} else if (pekwm::ascii_ncase_equal(arg, "RIGHT")) {
 		head_nr = X11Util::getNearestHead(*this,
 						  DIRECTION_RIGHT,
 						  DIRECTION_NO);
-	} else if (StringUtil::ascii_ncase_equal(arg, "UP")) {
+	} else if (pekwm::ascii_ncase_equal(arg, "UP")) {
 		head_nr = X11Util::getNearestHead(*this,
 						  DIRECTION_NO,
 						  DIRECTION_UP);
-	} else if (StringUtil::ascii_ncase_equal(arg, "DOWN")) {
+	} else if (pekwm::ascii_ncase_equal(arg, "DOWN")) {
 		head_nr = X11Util::getNearestHead(*this,
 						  DIRECTION_NO,
 						  DIRECTION_DOWN);

@@ -53,22 +53,22 @@ namespace StringUtil
 
 	bool
 	Key::operator==(const std::string &rhs) const {
-		return ascii_ncase_equal(_key, rhs);
+		return pekwm::ascii_ncase_equal(_key, rhs);
 	}
 
 	bool
 	Key::operator!=(const std::string &rhs) const {
-		return !ascii_ncase_equal(_key, rhs);
+		return !pekwm::ascii_ncase_equal(_key, rhs);
 	}
 
 	bool
 	Key::operator<(const Key &rhs) const {
-		return ascii_ncase_cmp(_key, rhs._key) < 0;
+		return pekwm::ascii_ncase_cmp(_key, rhs._key) < 0;
 	}
 
 	bool
 	Key::operator>(const Key &rhs) const {
-		return ascii_ncase_cmp(_key, rhs._key) > 0;
+		return pekwm::ascii_ncase_cmp(_key, rhs._key) > 0;
 	}
 
 	/** Get safe version of position */
@@ -125,85 +125,6 @@ namespace StringUtil
 		}
 
 		return toks;
-	}
-
-	/**
-	 * Return lowercase version of chr, ASCII only.
-	 */
-	int
-	ascii_tolower(int chr)
-	{
-		if (chr >= 'A' && chr <= 'Z') {
-			return chr + 32;
-		}
-		return chr;
-	}
-
-	int
-	ascii_ncase_cmp(const std::string &lhs, const std::string &rhs)
-	{
-		return ascii_ncase_cmp(lhs.c_str(), rhs.c_str());
-	}
-
-	int
-	ascii_ncase_cmp(const std::string &lhs, const char *rhs)
-	{
-		return ascii_ncase_cmp(lhs.c_str(), rhs);
-	}
-
-	int
-	ascii_ncase_cmp(const char *lhs, const std::string &rhs)
-	{
-		return ascii_ncase_cmp(lhs, rhs.c_str());
-	}
-
-	/**
-	 * Compare two strings ignoring case, ASCII only.
-	 */
-	int
-	ascii_ncase_cmp(const char *lhs, const char *rhs)
-	{
-		int diff;
-		for (; *rhs && *lhs; rhs++, lhs++) {
-			diff = ascii_tolower(*lhs) - ascii_tolower(*rhs);
-			if (diff != 0) {
-				return diff;
-			}
-		}
-		if (*lhs == '\0' && *rhs == '\0') {
-			return 0;
-		} else if (*lhs == '\0') {
-			return 0 - *rhs;
-		} else {
-			return *lhs;
-		}
-	}
-
-	bool
-	ascii_ncase_equal(const std::string &lhs, const std::string &rhs)
-	{
-		return ascii_ncase_cmp(lhs, rhs) == 0;
-	}
-
-	bool
-	ascii_ncase_equal(const std::string &lhs, const char *rhs)
-	{
-		return ascii_ncase_cmp(lhs, rhs) == 0;
-	}
-
-	bool
-	ascii_ncase_equal(const char *lhs, const std::string &rhs)
-	{
-		return ascii_ncase_cmp(lhs, rhs) == 0;
-	}
-
-	/**
-	 * Check if two strings are equal ignoring case, ASCII only.
-	 */
-	bool
-	ascii_ncase_equal(const char *lhs, const char *rhs)
-	{
-		return ascii_ncase_cmp(lhs, rhs) == 0;
 	}
 }
 

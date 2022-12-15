@@ -1,6 +1,6 @@
 //
-// test_Util.cc for pekwm
-// Copyright (C) 2020 Claes Nästén <pekdon@gmail.com>
+// test_Util.hh for pekwm
+// Copyright (C) 2020-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -23,9 +23,6 @@ public:
 
 	virtual bool run_test(TestSpec spec, bool status);
 
-	static void testAsciiTolower(void);
-	static void testAsciiNCaseCmp(void);
-	static void testAsciiNCaseEqual(void);
 	static void testShellSplit(void);
 	static void assertShellSplit(std::string msg, std::string str,
 				     std::vector<std::string> &expected);
@@ -34,58 +31,8 @@ public:
 bool
 TestStringUtil::run_test(TestSpec spec, bool status)
 {
-	TEST_FN(spec, "ascii_tolower", testAsciiTolower());
-	TEST_FN(spec, "ascii_ncase_cmp", testAsciiNCaseCmp());
-	TEST_FN(spec, "ascii_ncase_equal", testAsciiNCaseEqual());
 	TEST_FN(spec, "shell_split", testShellSplit());
 	return status;
-}
-
-void
-TestStringUtil::testAsciiTolower(void)
-{
-	ASSERT_EQUAL("a", static_cast<int>('a'),
-		     StringUtil::ascii_tolower('a'));
-	ASSERT_EQUAL("z", static_cast<int>('z'),
-		     StringUtil::ascii_tolower('z'));
-	ASSERT_EQUAL("A", static_cast<int>('a'),
-		     StringUtil::ascii_tolower('A'));
-	ASSERT_EQUAL("Z", static_cast<int>('z'),
-		     StringUtil::ascii_tolower('Z'));
-	ASSERT_EQUAL("0", static_cast<int>('0'),
-		     StringUtil::ascii_tolower('0'));
-	ASSERT_EQUAL("9", static_cast<int>('9'),
-		     StringUtil::ascii_tolower('9'));
-}
-
-void
-TestStringUtil::testAsciiNCaseCmp(void)
-{
-	ASSERT_EQUAL("lower", -1,
-		     StringUtil::ascii_ncase_cmp("abc", "bcd"));
-	ASSERT_EQUAL("UPPER", 2,
-		     StringUtil::ascii_ncase_cmp("CDE", "abc"));
-	ASSERT_EQUAL("short lhs", -99,
-		     StringUtil::ascii_ncase_cmp("ab", "abc"));
-	ASSERT_EQUAL("short rhs", 99,
-		     StringUtil::ascii_ncase_cmp("abc", "ab"));
-}
-
-void
-TestStringUtil::testAsciiNCaseEqual(void)
-{
-	ASSERT_EQUAL("lower", true,
-		     StringUtil::ascii_ncase_equal("hello", "hello"));
-	ASSERT_EQUAL("UPPER", true,
-		     StringUtil::ascii_ncase_equal("HELLO", "hello"));
-	ASSERT_EQUAL("MiXeD", true,
-		     StringUtil::ascii_ncase_equal("MiXeD", "mixed"));
-	ASSERT_EQUAL("short lhs", false,
-		     StringUtil::ascii_ncase_equal("test", "tes"));
-	ASSERT_EQUAL("short rhs", false,
-		     StringUtil::ascii_ncase_equal("tes", "test"));
-	ASSERT_EQUAL("empty", true,
-		     StringUtil::ascii_ncase_equal("", ""));
 }
 
 void

@@ -1,6 +1,6 @@
 //
 // TextureHandler.cc for pekwm
-// Copyright (C) 2004-2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2004-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -59,8 +59,14 @@ TextureHandler::~TextureHandler(void)
 PTexture*
 TextureHandler::getTexture(const std::string &texture)
 {
+	if (texture.size() < _length_min) {
+		// name to short, can not be a valid texture.
+		P_TRACE("texture " << texture << " name too short");
+		return nullptr;
+	}
+
 	// check for already existing entry
-	std::vector<TextureHandler::Entry*>::iterator it = _textures.begin();
+	entry_vector::iterator it(_textures.begin());
 	for (; it != _textures.end(); ++it) {
 		if (*(*it) == texture) {
 			(*it)->incRef();
@@ -90,7 +96,7 @@ PTexture*
 TextureHandler::referenceTexture(PTexture *texture)
 {
 	// Check for already existing entry
-	std::vector<TextureHandler::Entry*>::iterator it(_textures.begin());
+	entry_vector::iterator it(_textures.begin());
 	for (; it != _textures.end(); ++it) {
 		if ((*it)->getTexture() == texture) {
 			(*it)->incRef();
@@ -99,7 +105,7 @@ TextureHandler::referenceTexture(PTexture *texture)
 	}
 
 	// Create new entry
-	TextureHandler::Entry *entry = new TextureHandler::Entry("", texture);
+	TextureHandler::Entry *entry = new TextureHandler::Entry("@", texture);
 	entry->incRef();
 	_textures.push_back(entry);
 
@@ -114,7 +120,7 @@ TextureHandler::returnTexture(PTexture *texture)
 {
 	bool found = false;
 
-	std::vector<TextureHandler::Entry*>::iterator it(_textures.begin());
+	entry_vector::iterator it(_textures.begin());
 	for (; it != _textures.end(); ++it) {
 		if ((*it)->getTexture() == texture) {
 			found = true;
@@ -131,6 +137,23 @@ TextureHandler::returnTexture(PTexture *texture)
 	if (! found) {
 		delete texture;
 	}
+}
+
+/**
+ * Log all referenced textures as trace messages.
+ */
+void
+TextureHandler::logTextures(const std::string& msg) const
+{
+	std::ostringstream oss;
+	oss << msg << " " << _textures.size() << " texture entries";
+	entry_vector::const_iterator it(_textures.begin());
+	for (; it != _textures.end(); ++it) {
+		oss << std::endl
+		    << "  " << (*it)->getRef()
+		    << ": " << (*it)->getName();
+	}
+	P_TRACE(oss.str());
 }
 
 /**

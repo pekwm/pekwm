@@ -252,8 +252,8 @@ XImageRender::fill(int x0, int y0, uint width, uint height)
 {
 	x0 = std::max(0, x0);
 	y0 = std::max(0, y0);
-	for (int y = y0; y < height; y++) {
-		for (int x = x0; x < width; x++) {
+	for (int y = y0; y < static_cast<int>(height); y++) {
+		for (int x = x0; x < static_cast<int>(width); x++) {
 			XPutPixel(_image, x, y, _color);
 		}
 	}

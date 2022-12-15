@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2005-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -8,7 +8,7 @@
 #include "CfgParser.hh"
 #include "Debug.hh"
 #include "Compat.hh"
-#include "Util.hh"
+#include "String.hh"
 
 #include <algorithm>
 #include <cstring>
@@ -135,8 +135,8 @@ CfgParser::Entry::addEntry(CfgParser::Entry *entry, bool overwrite)
 	// when the value is the same.
 	if (entry_search
 	    && (! entry_search->getSection()
-		|| StringUtil::ascii_ncase_equal(entry->getValue(),
-						 entry_search->getValue()))) {
+		|| pekwm::ascii_ncase_equal(entry->getValue(),
+					    entry_search->getValue()))) {
 		entry_search->_value = entry->getValue();
 		entry_search->setSection(entry->getSection(), overwrite);
 
@@ -697,7 +697,7 @@ CfgParser::parseSectionFinish(std::string &buf, std::string &value)
 {
 	// Create Entry representing Section
 	Entry *section = 0;
-	if (buf.size() == 6 && StringUtil::ascii_ncase_equal(buf, "DEFINE")) {
+	if (buf.size() == 6 && pekwm::ascii_ncase_equal(buf, "DEFINE")) {
 		// Look for define section, started with Define = "Name" {
 		section_map_it it = _section_map.find(value);
 		if (it != _section_map.end()) {

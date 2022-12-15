@@ -26,7 +26,7 @@
 
 #include "CfgParserKey.hh"
 #include "CfgParserSource.hh"
-#include "Util.hh"
+#include "String.hh"
 
 #include <vector>
 #include <map>
@@ -103,7 +103,7 @@ public:
 
 		//! @brief Matches Entry name agains op_rhs.
 		bool operator==(const char *rhs) {
-			return StringUtil::ascii_ncase_equal(rhs, _name);
+			return pekwm::ascii_ncase_equal(rhs, _name);
 		}
 		friend std::ostream &operator<<(std::ostream &stream,
 						const CfgParser::Entry &entry);

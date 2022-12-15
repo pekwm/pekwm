@@ -1,6 +1,6 @@
 //
 // TextureHandler.hh for pekwm
-// Copyright (C) 2005-2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2005-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -13,7 +13,7 @@
 
 #include "Compat.hh"
 #include "PTexture.hh"
-#include "Util.hh"
+#include "String.hh"
 
 #include <map>
 #include <string>
@@ -41,13 +41,14 @@ public:
 		}
 
 		PTexture *getTexture(void) { return _texture; }
+		const std::string& getName(void) const { return _name; }
 
 		inline uint getRef(void) const { return _ref; }
 		inline void incRef(void) { ++_ref; }
 		inline void decRef(void) { if (_ref > 0) { --_ref; } }
 
 		inline bool operator==(const std::string &name) {
-			return StringUtil::ascii_ncase_equal(_name, name);
+			return pekwm::ascii_ncase_equal(_name, name);
 		}
 
 	private:
@@ -57,6 +58,8 @@ public:
 		uint _ref;
 	};
 
+	typedef std::vector<TextureHandler::Entry*> entry_vector;
+
 	TextureHandler(void);
 	~TextureHandler(void);
 
@@ -64,6 +67,8 @@ public:
 	PTexture *getTexture(const std::string &texture);
 	PTexture *referenceTexture(PTexture *texture);
 	void returnTexture(PTexture *texture);
+
+	void logTextures(const std::string& msg) const;
 
 private:
 	PTexture *parse(const std::string &texture);
@@ -79,7 +84,7 @@ private:
 	/** Minimum texture name length. */
 	const int _length_min;
 
-	std::vector<TextureHandler::Entry*> _textures;
+	entry_vector _textures;
 	std::map<std::string, std::map<int,int>*> _color_maps;
 };
 

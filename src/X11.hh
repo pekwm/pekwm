@@ -26,6 +26,7 @@ extern "C" {
 #include <X11/Xatom.h>
 #include <X11/keysym.h>
 #include <X11/keysymdef.h>
+#include <X11/Xresource.h>
 #ifdef PEKWM_HAVE_XINERAMA
 #include <X11/extensions/Xinerama.h>
 #endif // PEKWM_HAVE_XINERAMA
@@ -106,7 +107,9 @@ enum AtomName {
 	// all EWMH atoms must be before this, see x11::setEwmhAtomsSupport
 	UTF8_STRING,
 
-	STRING, MANAGER,
+	STRING,
+	MANAGER,
+	RESOURCE_MANAGER,
 
 	// pekwm atom names
 	PEKWM_FRAME_ID,
@@ -525,6 +528,9 @@ public:
 	static void shapeSetMask(Window dst, int kind, Pixmap pix);
 	static XRectangle* shapeGetRects(Window win, int kind, int *num);
 
+	static void loadXrmResources(void);
+	static std::string getXrmString(const std::string& name);
+
 protected:
 	static int parseGeometryVal(const char *c_str, const char *e_end,
 				    int &val_ret);
@@ -584,6 +590,7 @@ private:
 	class ColorEntry;
 	static std::vector<ColorEntry*> _colors;
 	static XColor _xc_default; // when allocating fails
+	static XrmDatabase _xrm_db;
 
 	static Atom _atoms[MAX_NR_ATOMS];
 };

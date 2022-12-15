@@ -18,6 +18,7 @@
 #include "RegexString.hh"
 #include "TextureHandler.hh"
 #include "Util.hh"
+#include "String.hh"
 #include "X11App.hh"
 #include "X11Util.hh"
 #include "X11.hh"
@@ -424,20 +425,19 @@ PanelConfig::parseSize(const std::string& size)
 	std::vector<std::string> toks;
 	Util::splitString(size, toks, " \t", 2);
 	if (toks.size() == 1) {
-		if (StringUtil::ascii_ncase_equal("REQUIRED", toks[0])) {
+		if (pekwm::ascii_ncase_equal("REQUIRED", toks[0])) {
 			return SizeReq(WIDGET_UNIT_REQUIRED, 0);
 		} else if (toks[0] == "*") {
 			return SizeReq(WIDGET_UNIT_REST, 0);
 		}
 	} else if (toks.size() == 2) {
-		if (StringUtil::ascii_ncase_equal("PIXELS", toks[0])) {
+		if (pekwm::ascii_ncase_equal("PIXELS", toks[0])) {
 			return SizeReq(WIDGET_UNIT_PIXELS,
 				       std::stoi(toks[1]));
-		} else if (StringUtil::ascii_ncase_equal("PERCENT", toks[0])) {
+		} else if (pekwm::ascii_ncase_equal("PERCENT", toks[0])) {
 			return SizeReq(WIDGET_UNIT_PERCENT,
 				       std::stoi(toks[1]));
-		} else if (StringUtil::ascii_ncase_equal("TEXTWIDTH",
-							 toks[0])) {
+		} else if (pekwm::ascii_ncase_equal("TEXTWIDTH", toks[0])) {
 			return SizeReq(toks[1]);
 		}
 	}
@@ -1806,8 +1806,7 @@ BarWidget::parseColors(const CfgParser::Entry* section)
 
 	CfgParser::Entry::entry_cit it = colors->begin();
 	for (; it != colors->end(); ++it) {
-		if (! StringUtil::ascii_ncase_equal((*it)->getName(),
-						    "PERCENT")
+		if (! pekwm::ascii_ncase_equal((*it)->getName(), "PERCENT")
 		    || ! (*it)->getSection()) {
 			continue;
 		}

@@ -58,6 +58,22 @@ private:
  */
 class ValueException : public PekwmException
 {
+public:
+	ValueException(void)
+		: PekwmException()
+	{
+	}
+
+	ValueException(const std::string& value)
+		: PekwmException(),
+		  _value(value)
+	{
+	}
+
+	const std::string& getValue(void) const { return _value; }
+
+private:
+	std::string _value;
 };
 
 #endif // _PEKWM_EXCEPTION_HH_

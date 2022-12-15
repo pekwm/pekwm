@@ -9,8 +9,7 @@
 
 #include "config.h"
 
-#include "Theme.hh"
-
+#include "Color.hh"
 #include "Debug.hh"
 #include "X11.hh"
 #include "PFont.hh"
@@ -18,7 +17,9 @@
 #include "FontHandler.hh"
 #include "ImageHandler.hh"
 #include "TextureHandler.hh"
+#include "Theme.hh"
 #include "Util.hh"
+#include "String.hh"
 
 #include <cstdlib>
 #include <iostream>
@@ -49,7 +50,7 @@ Theme::ColorMap::load(CfgParser::Entry *section, std::map<int, int> &map)
 {
 	CfgParser::Entry::entry_cit it = section->begin();
 	for (; it != section->end(); ++it) {
-		if (! StringUtil::ascii_ncase_equal((*it)->getName(), "MAP")) {
+		if (! pekwm::ascii_ncase_equal((*it)->getName(), "MAP")) {
 			USER_WARN("unexpected entry " << (*it)->getName()
 				  << " in ColorMap");
 			continue;
@@ -60,28 +61,40 @@ Theme::ColorMap::load(CfgParser::Entry *section, std::map<int, int> &map)
 		if (to == nullptr) {
 			USER_WARN("missing To entry in ColorMap entry");
 		} else {
+			int from_c, to_c;
 			try {
-				int from_c = parseColor((*it)->getValue());
-				int to_c = parseColor(to->getValue());
-				map[from_c] = to_c;
-			} catch (ValueException&) {
+				from_c = parseColor((*it)->getValue());
+			} catch (ValueException& ex) {
 				std::ostringstream msg;
-				msg << "invalid colors from "
-				    << (*it)->getValue();
-				msg << " to " << to->getValue()
+				msg << "invalid from color "
+				    << ex.getValue()
 				    << " in ColorMap entry";
 				USER_WARN(msg.str());
+				continue;
 			}
+			try {
+				to_c = parseColor(to->getValue());
+			} catch (ValueException& ex) {
+				std::ostringstream msg;
+				msg << "invalid to color "
+				    << ex.getValue()
+				    << " in ColorMap entry";
+				USER_WARN(msg.str());
+				continue;
+			}
+
+			map[from_c] = to_c;
 		}
 	}
 	return true;
 }
 
 int
-Theme::ColorMap::parseColor(const std::string& str)
+Theme::ColorMap::parseColor(const std::string& desc)
 {
+	std::string str = pekwm::getColorResource(desc);
 	if (str.size() != 7 || str[0] != '#') {
-		throw ValueException();
+		throw ValueException(str);
 	}
 
 	// ARGB format, always set full alpha
@@ -412,24 +425,22 @@ Theme::PDecorData::unload(void)
 		_th->returnTexture(_texture_tab[i]);
 		_fh->returnFont(_font[i]);
 		_fh->returnColor(_font_color[i]);
-
-		_texture_tab[i] = 0;
-		_font[i] = 0;
-		_font_color[i] = 0;
+		_texture_tab[i] = nullptr;
+		_font[i] = nullptr;
+		_font_color[i] = nullptr;
 	}
 
 	for (uint i = 0; i < FOCUSED_STATE_FOCUSED_SELECTED; ++i) {
 		_th->returnTexture(_texture_main[i]);
 		_th->returnTexture(_texture_separator[i]);
-		_texture_main[i] = 0;
-		_texture_separator[i] = 0;
+		_texture_main[i] = nullptr;
+		_texture_separator[i] = nullptr;
 
 		for (uint j = 0; j < BORDER_NO_POS; ++j) {
 			_th->returnTexture(_texture_border[i][j]);
-			_texture_border[i][j] = 0;
+			_texture_border[i][j] = nullptr;
 		}
 	}
-
 
 	std::vector<Theme::PDecorButtonData*>::iterator it = _buttons.begin();
 	for (; it != _buttons.end(); ++it) {
@@ -1211,7 +1222,7 @@ Theme::~Theme(void)
  * Re-loads theme if needed, clears up previously used resources.
  */
 bool
-Theme::load(const std::string &dir, const std::string &variant)
+Theme::load(const std::string &dir, const std::string &variant, bool force)
 {
 	std::string norm_dir(dir);
 	if (dir.size() && dir.at(dir.size() - 1) == '/') {
@@ -1227,7 +1238,8 @@ Theme::load(const std::string &dir, const std::string &variant)
 		}
 	}
 
-	if (_theme_dir == norm_dir
+	if (! force
+	    && _theme_dir == norm_dir
 	    && _theme_file == theme_file
 	    && ! _cfg_files.requireReload(theme_file)) {
 		return false;
@@ -1299,6 +1311,7 @@ Theme::load(const std::string &dir, const std::string &variant)
 	}
 
 	_loaded = true;
+	_th->logTextures("theme loaded");
 
 	return true;
 }
@@ -1364,8 +1377,7 @@ Theme::loadColorMaps(CfgParser::Entry* section)
 
 	CfgParser::Entry::entry_cit it = section->begin();
 	for (; it != section->end(); ++it) {
-		if (! StringUtil::ascii_ncase_equal((*it)->getName(),
-						    "COLORMAP")) {
+		if (! pekwm::ascii_ncase_equal((*it)->getName(), "COLORMAP")) {
 			USER_WARN("unexpected entry " << (*it)->getName()
 				  << " in ColorMaps");
 			continue;
@@ -1387,8 +1399,7 @@ Theme::loadDecors(CfgParser::Entry *root)
 
 	CfgParser::Entry::entry_cit it = section->begin();
 	for (; it != section->end(); ++it) {
-		if (! StringUtil::ascii_ncase_equal((*it)->getName(),
-						    "DECOR")) {
+		if (! pekwm::ascii_ncase_equal((*it)->getName(), "DECOR")) {
 			continue;
 		}
 
@@ -1431,11 +1442,17 @@ Theme::unload(void)
 	_decors[""] = nullptr;
 
 	// Unload theme data
+	_dialog_data.unload();
 	_menu_data.unload();
+	_harbour_data.unload();
 	_status_data.unload();
 	_cmd_d_data.unload();
 	_ws_indicator_data.unload();
-	_harbour_data.unload();
+
+	// Clear referenced colors
+	pekwm::clearColorResources();
+
+	_th->logTextures("theme unloaded");
 }
 
 Theme::ColorMap*

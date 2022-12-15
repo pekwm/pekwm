@@ -15,6 +15,7 @@ set(util_SOURCES
   Debug.cc
   Observable.cc
   RegexString.cc
+  String.cc
   Util.cc)
 
 set(x11_SOURCES
@@ -25,6 +26,7 @@ set(x11_SOURCES
 
 set(texture_SOURCES
   Action.cc
+  Color.cc
   FontHandler.cc
   ImageHandler.cc
   PFont.cc

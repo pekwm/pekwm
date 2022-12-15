@@ -1,6 +1,6 @@
 //
 // PTexturePlain.cc for pekwm
-// Copyright (C) 2004-2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2004-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -8,6 +8,7 @@
 
 #include "config.h"
 
+#include "Color.hh"
 #include "PTexture.hh"
 #include "PTexturePlain.hh"
 #include "PImage.hh"
@@ -74,7 +75,7 @@ PTextureSolid::setColor(const std::string &color)
 {
 	unsetColor(); // unload used resources
 
-	_xc = X11::getColor(color);
+	_xc = pekwm::getColor(color);
 	_ok = true;
 
 	return _ok;
@@ -219,9 +220,9 @@ PTextureSolidRaised::setColor(const std::string &base,
 {
 	unsetColor(); // unload used resources
 
-	_xc_base = X11::getColor(base);
-	_xc_hi = X11::getColor(hi);
-	_xc_lo = X11::getColor(lo);
+	_xc_base = pekwm::getColor(base);
+	_xc_hi = pekwm::getColor(hi);
+	_xc_lo = pekwm::getColor(lo);
 
 	_ok = true;
 
@@ -345,7 +346,7 @@ PTextureLines::setColors(const std::vector<std::string> &colors)
 
 	std::vector<std::string>::const_iterator it = colors.begin();
 	for (; it != colors.end(); ++it) {
-		_colors.push_back(X11::getColor(*it));
+		_colors.push_back(pekwm::getColor(*it));
 	}
 	_ok = ! _colors.empty();
 }

@@ -12,6 +12,7 @@
 #include "config.h"
 
 #include "Types.hh"
+#include "String.hh"
 
 #include <algorithm>
 #include <string>
@@ -49,16 +50,6 @@ namespace StringUtil {
 
 	size_t safe_position(size_t pos, size_t fallback = 0, size_t add = 0);
 	std::vector<std::string> shell_split(const std::string& str);
-
-	int ascii_tolower(int chr);
-	int ascii_ncase_cmp(const std::string &lhs, const std::string &rhs);
-	int ascii_ncase_cmp(const std::string &lhs, const char *rhs);
-	int ascii_ncase_cmp(const char *lhs, const std::string &rhs);
-	int ascii_ncase_cmp(const char *lhs, const char *rhs);
-	bool ascii_ncase_equal(const std::string &lhs, const std::string &rhs);
-	bool ascii_ncase_equal(const std::string &lhs, const char *rhs);
-	bool ascii_ncase_equal(const char *lhs, const std::string &rhs);
-	bool ascii_ncase_equal(const char *lhs, const char *rhs);
 }
 
 namespace Generator {
@@ -131,7 +122,7 @@ namespace Generator {
 	};
 }
 
-namespace Util {    
+namespace Util {
 	template<typename T>
 	class StringMap : public std::map<StringUtil::Key, T> {
 	public:
@@ -219,7 +210,7 @@ namespace Util {
 	{
 		int i = 0;
 		for (; map[i].name != nullptr; i++) {
-			if (StringUtil::ascii_ncase_equal(map[i].name, key)) {
+			if (pekwm::ascii_ncase_equal(map[i].name, key)) {
 				return map[i].value;
 			}
 		}

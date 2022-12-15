@@ -1,6 +1,6 @@
 //
 // ImageHandler.cc for pekwm
-// Copyright (C) 2003-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -196,10 +196,10 @@ ImageHandler::getMappedImage(const std::string &file,
 	std::string u_colormap(colormap);
 	Util::to_upper(u_colormap);
 
-	// no color map present with that name, return no image
 	std::map<std::string, std::map<int, int> >::iterator c_it =
 		_color_maps.find(u_colormap);
 	if (c_it == _color_maps.end()) {
+		// no color map present with that name, return no image
 		return nullptr;
 	}
 

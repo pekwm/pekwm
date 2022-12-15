@@ -1,6 +1,6 @@
 //
 // Handler.hh for pekwm
-// Copyright (C) 2004-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2004-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -12,7 +12,7 @@
 #include "config.h"
 
 #include "Types.hh"
-#include "Util.hh"
+#include "String.hh"
 
 #include <string>
 #include <cstring>
@@ -34,7 +34,7 @@ public:
 	}
 
 	inline bool operator==(const std::string &name) {
-		return StringUtil::ascii_ncase_equal(_name, name);
+		return pekwm::ascii_ncase_equal(_name, name);
 	}
 
 private:

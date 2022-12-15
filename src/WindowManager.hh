@@ -1,6 +1,6 @@
 //
 // WindowManager.hh for pekwm
-// Copyright (C) 2003-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2022 Claes Nästén <pekdon@gmail.com>
 //
 // windowmanager.hh for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
@@ -76,11 +76,14 @@ private:
 
 	void doReload(void);
 	void doReloadConfig(void);
-	void doReloadTheme(void);
+	void doReloadTheme(bool force=false);
+	void doReloadThemeDecors(void);
 	void doReloadMouse(void);
 	void doReloadKeygrabber(bool force=false);
 	void doReloadAutoproperties(void);
 	void doReloadHarbour(void);
+	void doReloadResources(void);
+	bool isResourcesChanged(void);
 
 	void startBackground(const std::string& theme_dir,
 			     const std::string& texture);

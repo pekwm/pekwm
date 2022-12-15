@@ -377,7 +377,7 @@ Harbour::placeDockApp(DockApp *da)
 
 	bool right = (_cfg->getHarbourOrientation() == BOTTOM_TO_TOP);
 
-	int test, x = 0, y = 0;
+	int x = 0, y = 0;
 	bool x_place = false;
 
 	Geometry head;
