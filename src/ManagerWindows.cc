@@ -91,8 +91,7 @@ HintWO::claimDisplay(bool replace)
 	// Get atom for the current screen and it's owner
 	std::string default_str = std::to_string(DefaultScreen(X11::getDpy()));
 	std::string session_name("WM_S" + default_str);
-	Atom session_atom =
-		XInternAtom(X11::getDpy(), session_name.c_str(), false);
+	Atom session_atom = X11::getAtomId(session_name);
 	Window session_owner =
 		XGetSelectionOwner(X11::getDpy(), session_atom);
 

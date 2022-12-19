@@ -1,6 +1,6 @@
 //
 // Globals.cc for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -55,11 +55,17 @@ namespace pekwm
 	{
 		initNoDisplay();
 
+		// configuration parsing require X11 to get atom and
+		// resource variables expanded properly
+		X11::init(dpy, synchronous, true);
+
 		_config = new Config();
 		_config->load(config_file);
 		_config->loadMouseConfig(_config->getMouseConfigFile());
 
-		X11::init(dpy, synchronous, _config->isHonourRandr());
+		// setup options in X11 from configuration as a second
+		// pass
+		X11::setHonourRandr(_config->isHonourRandr());
 
 		_hint_wo = new HintWO(X11::getRoot());
 		if (! _hint_wo->claimDisplay(replace)) {

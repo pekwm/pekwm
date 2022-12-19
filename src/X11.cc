@@ -178,6 +178,8 @@ static const char *atomnames[] = {
 
 	"_XROOTPMAP_ID",
 	"_XSETROOT_ID",
+
+	nullptr
 };
 
 std::ostream&
@@ -460,7 +462,7 @@ X11::init(Display *dpy, bool synchronous, bool honour_randr)
 	_xc_default.pixel = BlackPixel(_dpy, _screen);
 	_xc_default.red = _xc_default.green = _xc_default.blue = 0;
 
-	assert(sizeof(atomnames)/sizeof(char*) == MAX_NR_ATOMS);
+	assert(sizeof(atomnames)/sizeof(char*) == (MAX_NR_ATOMS + 1));
 	if (! XInternAtoms(_dpy, const_cast<char**>(atomnames), MAX_NR_ATOMS,
 			   0, _atoms)) {
 		P_ERR("XInternAtoms did not return all requested atoms");
@@ -858,6 +860,16 @@ X11::getScreenChangeNotification(XEvent *ev, ScreenChangeNotification &scn)
 	return false;
 }
 
+void
+X11::setHonourRandr(bool honour_randr)
+{
+	if (_honour_randr != honour_randr) {
+		initHeads();
+	}
+	_honour_randr = honour_randr;
+
+}
+
 //! @brief Searches for the head closest to the coordinates x,y.
 //! @return The nearest head.  Head numbers are indexed from 0.
 uint
@@ -1068,12 +1080,38 @@ X11::getNumHeads(void)
 	return _heads.size();
 }
 
+AtomName
+X11::getAtomName(const std::string& name)
+{
+	for (int i = 0; atomnames[i] != nullptr; ++i) {
+		if (name == atomnames[i]) {
+			return AtomName(i);
+		}
+	}
+	return MAX_NR_ATOMS;
+}
+
 const char*
 X11::getAtomString(AtomName name)
 {
 	return atomnames[name];
 }
 
+/**
+ * Return Atom from provided string.
+ */
+Atom
+X11::getAtomId(const std::string& str)
+{
+	if (_dpy) {
+		return XInternAtom(_dpy, str.c_str(), False);
+	}
+	return 0;
+}
+
+/**
+ * Lookup string representation of AtomId.
+ */
 std::string
 X11::getAtomIdString(Atom id)
 {
@@ -2151,8 +2189,11 @@ X11::loadXrmResources()
 	}
 }
 
-std::string
-X11::getXrmString(const std::string& name)
+/**
+ * Lookup String resource from REOURCE_MANAGER.
+ */
+bool
+X11::getXrmString(const std::string& name, std::string& val)
 {
 	if (_xrm_db) {
 		char *type;
@@ -2161,10 +2202,11 @@ X11::getXrmString(const std::string& name)
 				   &type, &value)
 		    && value.size > 0
 		    && strcmp(type, "String") == 0) {
-			return std::string(value.addr, value.size - 1);
+			val = std::string(value.addr, value.size - 1);
+			return true;
 		}
 	}
-	return std::string();
+	return false;
 }
 
 Display *X11::_dpy;

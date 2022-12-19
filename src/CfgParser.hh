@@ -26,6 +26,7 @@
 
 #include "CfgParserKey.hh"
 #include "CfgParserSource.hh"
+#include "CfgParserVarExpander.hh"
 #include "String.hh"
 
 #include <vector>
@@ -54,9 +55,6 @@ public:
 //! @brief Configuration file parser.
 class CfgParser {
 public:
-	typedef std::map<std::string, std::string> var_map;
-	typedef var_map::iterator var_map_it;
-	typedef var_map::const_iterator var_map_cit;
 	typedef std::vector<CfgParserKey*>::const_iterator key_cit;
 
 	//! @brief Entry in parsed data structure.
@@ -142,11 +140,12 @@ public:
 	bool parse(CfgParserSource* source, bool overwrite = false);
 
 	std::string getVar(const std::string& key) const {
-		var_map_cit it = _var_map.find(key);
-		return it == _var_map.end() ? "" : it->second;
+		std::string val;
+		_var_expander_mem->lookup(key, val);
+		return val;
 	}
 	void setVar(const std::string& key, const std::string& val) {
-		_var_map[key] = val;
+		_var_expander_mem->define(key, val);
 	}
 
 private:
@@ -174,13 +173,11 @@ private:
 				std::string::size_type begin,
 				std::string::size_type &end);
 
-protected:
-	/** Map of $VARS */
-	var_map _var_map;
-
 private:
 
 	CfgParserSource *_source;
+	std::vector<CfgParserVarExpander*> _var_expanders;
+	CfgParserVarExpander* _var_expander_mem;
 
 	TimeFiles _cfg_files;
 

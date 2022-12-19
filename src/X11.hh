@@ -373,6 +373,7 @@ public:
 	static Window translateRootCoordinates(int x, int y,
 					       int *ret_x, int *ret_y);
 
+	static void setHonourRandr(bool honour_randr);
 	static int getNearestHead(int x, int y,
 				  DirectionType dx, DirectionType dy);
 	static uint getNearestHead(int x, int y);
@@ -385,7 +386,9 @@ public:
 	static int getNumHeads(void);
 
 	static Atom getAtom(AtomName name) { return _atoms[name]; }
+	static AtomName getAtomName(const std::string& str);
 	static const char *getAtomString(AtomName name);
+	static Atom getAtomId(const std::string& str);
 	static std::string getAtomIdString(Atom id);
 	static AtomName getAtomName(Atom id);
 	static void setAtom(Window win, AtomName aname, AtomName value);
@@ -529,7 +532,7 @@ public:
 	static XRectangle* shapeGetRects(Window win, int kind, int *num);
 
 	static void loadXrmResources(void);
-	static std::string getXrmString(const std::string& name);
+	static bool getXrmString(const std::string& name, std::string& val);
 
 protected:
 	static int parseGeometryVal(const char *c_str, const char *e_end,

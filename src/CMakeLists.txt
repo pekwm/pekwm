@@ -9,6 +9,7 @@ set(util_SOURCES
   CfgParser.cc
   CfgParserKey.cc
   CfgParserSource.cc
+  CfgParserVarExpander.cc
   CfgUtil.cc
   Charset.cc
   Compat.cc
@@ -139,7 +140,7 @@ install(TARGETS pekwm_bg DESTINATION bin)
 if (CMAKE_BUILD_TYPE MATCHES Debug)
   add_executable(pekwm_cfg pekwm_cfg.cc)
   target_include_directories(pekwm_cfg PUBLIC ${PROJECT_BINARY_DIR}/src)
-  target_link_libraries(pekwm_cfg util ${common_LIBRARIES})
+  target_link_libraries(pekwm_cfg util x11 ${common_LIBRARIES})
   install(TARGETS pekwm_cfg DESTINATION bin)
 endif (CMAKE_BUILD_TYPE MATCHES Debug)
 

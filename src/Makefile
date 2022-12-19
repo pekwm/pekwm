@@ -8,7 +8,8 @@ PROGS = pekwm pekwm_bg pekwm_cfg pekwm_ctrl pekwm_dialog pekwm_panel \
 	pekwm_screenshot pekwm_wm
 
 BASE_OBJS = Compat.o Charset.o Debug.o
-CFG_PARSER_OBJS = CfgParser.o CfgParserKey.o CfgParserSource.o
+CFG_PARSER_OBJS = CfgParser.o CfgParserKey.o CfgParserSource.o \
+	CfgParserVarExpander.o
 
 UTIL_OBJS = $(CFG_PARSER_OBJS) CfgUtil.o Observable.o RegexString.o String.o \
 	    Util.o
@@ -31,7 +32,8 @@ PEKWM_BG_OBJS = pekwm_bg.o $(BASE_OBJS) $(CFG_PARSER_OBJS)  \
 		String.o Util.o X11.o Color.o \
 		ImageHandler.o TextureHandler.o PTexture.o PTexturePlain.o \
 		Render.o PImage.o $(IMAGE_LOADER_OBJS)
-PEKWM_CFG_OBJS = pekwm_cfg.o $(BASE_OBJS) $(CFG_PARSER_OBJS) String.o Util.o
+PEKWM_CFG_OBJS = pekwm_cfg.o $(BASE_OBJS) $(CFG_PARSER_OBJS) \
+	String.o Util.o X11.o
 PEKWM_CTRL_OBJS = pekwm_ctrl.o $(BASE_OBJS) $(CFG_PARSER_OBJS) \
 		  RegexString.o String.o Util.o X11.o
 PEKWM_DIALOG_OBJS = pekwm_dialog.o $(BASE_OBJS) $(UTIL_OBJS) \

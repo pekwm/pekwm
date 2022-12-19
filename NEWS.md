@@ -14,6 +14,11 @@ Closed issues
 New
 ---
 
+* $@ and $& variables available in configuration files. $@ATOM_NAME
+  gets String atom values. $&resource gets String resource values from
+  RESOURCE_MANAGER resources.
+* &resource colors available in themes (not variables). When used, the
+  theme will re-load when resources are updated.
 * **FocusWithSelector string (string...)** action that can be used to
   explicitly try to focus a window. The currently available selectors are:
   _pointer_, _workspacelastofocused_, _top_ and _root_.

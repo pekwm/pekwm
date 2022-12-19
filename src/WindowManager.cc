@@ -660,7 +660,9 @@ WindowManager::isResourcesChanged(void)
 	std::map<std::string, std::string>::const_iterator it =
 		resources.begin();
 	for (; it != resources.end(); ++it) {
-		if (X11::getXrmString(it->first) != it->second) {
+		std::string val;
+		X11::getXrmString(it->first, val);
+		if (val != it->second) {
 			return true;
 		}
 	}

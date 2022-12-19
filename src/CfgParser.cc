@@ -308,9 +308,25 @@ operator<<(std::ostream &stream, const CfgParser::Entry &entry)
 
 //! @brief CfgParser constructor.
 CfgParser::CfgParser(void)
-	: _source(0), _root_entry(0), _is_dynamic_content(false),
-	  _section(_root_entry), _overwrite(false)
+	: _source(nullptr),
+	  _root_entry(nullptr),
+	  _is_dynamic_content(false),
+	  _section(_root_entry),
+	  _overwrite(false)
 {
+	_var_expanders.push_back
+		(mkCfgParserVarExpander(CFG_PARSER_VAR_EXPANDER_OS_ENV));
+	_var_expanders.push_back
+		(mkCfgParserVarExpander(CFG_PARSER_VAR_EXPANDER_X11_ATOM));
+	_var_expanders.push_back
+		(mkCfgParserVarExpander(CFG_PARSER_VAR_EXPANDER_X11_RES));
+
+	// memory expander is put last as it does not require a
+	// specific prefix to lookup and would lookup all vars if
+	// placed first.
+	_var_expander_mem = mkCfgParserVarExpander(CFG_PARSER_VAR_EXPANDER_MEM);
+	_var_expanders.push_back(_var_expander_mem);
+
 	_root_entry = new CfgParser::Entry(_root_source_name, 0, "ROOT", "");
 	_section = _root_entry;
 }
@@ -319,6 +335,11 @@ CfgParser::CfgParser(void)
 CfgParser::~CfgParser(void)
 {
 	clear(false);
+
+	std::vector<CfgParserVarExpander*>::iterator it(_var_expanders.begin());
+	for (; it != _var_expanders.end(); ++it) {
+		delete *it;
+	}
 }
 
 /**
@@ -349,7 +370,7 @@ CfgParser::clear(bool realloc)
 	_source_names.clear();
 	_source_name_set.clear();
 	_sections.clear();
-	_var_map.clear();
+	_var_expander_mem->clear();
 
 	// Remove sections
 	section_map_it it = _section_map.begin();
@@ -802,13 +823,7 @@ CfgParser::sourceNew(const std::string &name, CfgParserSource::Type type)
 void
 CfgParser::variableDefine(const std::string &name, const std::string &value)
 {
-	_var_map[name] = value;
-
-	// If the variable begins with $_ it should update the environment
-	// aswell.
-	if ((name.size() > 2) && (name[1] == '_')) {
-		Util::setEnv(name.c_str() + 2, value);
-	}
+	_var_expander_mem->define(name, value);
 }
 
 //! @brief Expands all $ variables in a string.
@@ -828,6 +843,13 @@ CfgParser::variableExpand(std::string &var)
 			// Skip escaped \$
 			if ((begin > 0) && (var[begin - 1] == '\\')) {
 				continue;
+			}
+
+			// Skip inital @ and & chars, allowed in
+			// special var names as the second character
+			if (end < var.size()
+			    && (var[end] == '@' || var[end] == '&')) {
+				end++;
 			}
 
 			// Find end of variable
@@ -852,27 +874,11 @@ CfgParser::variableExpandName(std::string &var,
 	bool did_expand = false;
 	std::string var_name(var.substr(begin, end - begin));
 
-	// If the variable starts with _ it is considered an environment
-	// variable, use getenv to see if it is available
-	if (var_name.size() > 2 && var_name[1] == '_') {
-		char *value = getenv(var_name.c_str() + 2);
-		if (value) {
+	std::vector<CfgParserVarExpander*>::iterator it(_var_expanders.begin());
+	for (; ! did_expand && it != _var_expanders.end(); ++it) {
+		std::string value;
+		if ((did_expand = (*it)->lookup(var_name, value))) {
 			var.replace(begin, end - begin, value);
-			end = begin + strlen(value);
-			did_expand = true;
-		} else {
-			USER_WARN("Trying to use undefined environment "
-				  "variable: " << var_name);
-		}
-	} else {
-		var_map_it it = _var_map.find(var_name);
-		if (it != _var_map.end()) {
-			var.replace(begin, end - begin, it->second);
-			end = begin + it->second.size();
-			did_expand = true;
-		} else  {
-			USER_WARN("Trying to use undefined variable: "
-				  << var_name);
 		}
 	}
 

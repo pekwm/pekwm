@@ -25,7 +25,8 @@ static std::string
 lookupResource(const std::string& desc)
 {
 	std::string res = stripResPrefix(desc);
-	std::string val = X11::getXrmString(res);
+	std::string val;
+	X11::getXrmString(res, val);
 	_resources[res] = val;
 	return val;
 }

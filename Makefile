@@ -37,4 +37,4 @@ tags:
 clean:
 	(cd src; $(MAKE) clean)
 	(cd data; $(MAKE) clean)
-	rm mk/config.h mk/config.mk tags
+	rm -f mk/config.h mk/config.mk tags
