@@ -671,7 +671,7 @@ CfgParser::parseEntryFinishStandard(std::string &buf, std::string &value,
 {
 	if (parseName(buf)) {
 		if (buf[0] == '$') {
-			variableDefine(buf, value);
+			variableDefine(buf.substr(1), value);
 		} else  {
 			variableExpand(value);
 
@@ -828,57 +828,90 @@ CfgParser::variableDefine(const std::string &name, const std::string &value)
 
 //! @brief Expands all $ variables in a string.
 void
-CfgParser::variableExpand(std::string &var)
+CfgParser::variableExpand(std::string& line)
 {
 	bool did_expand;
-
 	do {
 		did_expand = false;
 
+        std::string var;
 		std::string::size_type begin = 0, end = 0;
-		while ((begin = var.find_first_of('$', end))
-		       != std::string::npos) {
-			end = begin + 1;
-
-			// Skip escaped \$
-			if ((begin > 0) && (var[begin - 1] == '\\')) {
-				continue;
-			}
-
-			// Skip inital @ and & chars, allowed in
-			// special var names as the second character
-			if (end < var.size()
-			    && (var[end] == '@' || var[end] == '&')) {
-				end++;
-			}
-
-			// Find end of variable
-			for (; end != var.size(); ++end) {
-				if ((isalnum(var[end]) == 0)
-				    && (var[end] != '_'))  {
-					break;
-				}
-			}
-
-			did_expand = variableExpandName(var, begin, end)
+        for (; parseVarName(line, begin, end, var); var = "") {
+			did_expand = variableExpandName(line, begin, end, var)
 				|| did_expand;
+            begin = end;
 		}
 	} while (did_expand);
 }
 
 bool
-CfgParser::variableExpandName(std::string &var,
-			      std::string::size_type begin,
-			      std::string::size_type &end)
+CfgParser::parseVarName(const std::string& line,
+			std::string::size_type& begin,
+			std::string::size_type& end,
+			std::string& name)
+{
+	char c;
+	bool in_escape = false, in_var = false, in_curly = false;
+	for (std::string::size_type pos = begin; pos < line.size(); pos++) {
+		c = line[pos];
+		if (in_escape) {
+			if (in_var) {
+				name += c;
+			}
+			in_escape = false;
+		} else if (c == '\\') {
+			in_escape = true;
+		} else if (in_var) {
+			if (pos == (begin + 1) && c == '{') {
+				in_curly = true;
+			} else if (in_curly) {
+				if (c == '}') {
+					end = pos;
+					return true;
+				}
+				name += c;
+			} else if (isalnum(c) || c == '_'
+				   || (pos == (begin + 1)
+				       && (c == '@' || c == '&'))) {
+				name += c;
+			} else {
+				end = pos;
+				return true;
+			}
+		} else if (line[pos] == '$') {
+			in_var = true;
+			begin = pos;
+		}
+	}
+
+	// variable to end of line, not supported in {} vars at the end }
+	// is required and end of line while in escape also treated as
+	// error.
+	if (in_var && (! in_curly && ! in_escape)) {
+		end = line.size();
+		return true;
+	}
+
+	// remove buffered data
+	name = "";
+
+	return false;
+}
+
+bool
+CfgParser::variableExpandName(std::string& line,
+                              const std::string::size_type begin,
+                              std::string::size_type &end,
+                              const std::string& var)
 {
 	bool did_expand = false;
-	std::string var_name(var.substr(begin, end - begin));
 
 	std::vector<CfgParserVarExpander*>::iterator it(_var_expanders.begin());
 	for (; ! did_expand && it != _var_expanders.end(); ++it) {
 		std::string value;
-		if ((did_expand = (*it)->lookup(var_name, value))) {
-			var.replace(begin, end - begin, value);
+		if ((did_expand = (*it)->lookup(var, value))) {
+			line.replace(begin, end - begin, value);
+            end = begin + value.size();
 		}
 	}
 

@@ -148,6 +148,12 @@ public:
 		_var_expander_mem->define(key, val);
 	}
 
+protected:
+    bool parseVarName(const std::string& line,
+                      std::string::size_type &begin,
+                      std::string::size_type &end,
+                      std::string& var);
+
 private:
 	bool parse(void);
 	void parseSourceNew(const std::string &name,
@@ -168,10 +174,11 @@ private:
 				   CfgParserSource::Type type);
 
 	void variableDefine(const std::string &name, const std::string &value);
-	void variableExpand(std::string &var);
-	bool variableExpandName(std::string &var,
-				std::string::size_type begin,
-				std::string::size_type &end);
+	void variableExpand(std::string& line);
+    bool variableExpandName(std::string& line,
+                            const std::string::size_type begin,
+                            std::string::size_type &end,
+                            const std::string& var);
 
 private:
 

@@ -1217,7 +1217,7 @@ PanelTheme::load(const std::string &theme_dir, const std::string& theme_path)
 	unload();
 
 	CfgParser theme;
-	theme.setVar("$THEME_DIR", theme_dir);
+	theme.setVar("THEME_DIR", theme_dir);
 	if (! theme.parse(theme_path, CfgParserSource::SOURCE_FILE, true)) {
 		check();
 		return;

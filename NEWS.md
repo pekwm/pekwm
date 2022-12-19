@@ -14,6 +14,8 @@ Closed issues
 New
 ---
 
+* ${NAME} style variables now supported in the configuration, convenient
+  when using resource names.
 * $@ and $& variables available in configuration files. $@ATOM_NAME
   gets String atom values. $&resource gets String resource values from
   RESOURCE_MANAGER resources.

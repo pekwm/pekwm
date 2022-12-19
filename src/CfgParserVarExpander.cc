@@ -35,10 +35,10 @@ public:
 	{
 		_var_map[name] = val;
 
-		// If the variable begins with $_ it should update the environment
-		// aswell.
-		if ((name.size() > 2) && (name[1] == '_')) {
-			Util::setEnv(name.c_str() + 2, val);
+		// If the variable begins with $_ it should update the
+		// environment aswell.
+		if ((name.size() > 1) && (name[0] == '_')) {
+			Util::setEnv(name.c_str() + 1, val);
 		}
 	}
 
@@ -48,8 +48,7 @@ public:
 		if (it != _var_map.end()) {
 			val = it->second;
 		} else  {
-			USER_WARN("Trying to use undefined variable: "
-				  << name);
+			USER_WARN("Trying to use undefined variable: " << name);
 		}
 		return it != _var_map.end();
 	}
@@ -64,11 +63,11 @@ public:
 
 	virtual bool lookup(const std::string& name, std::string& val)
 	{
-		if (name.size() < 3 || name[1] != '_') {
+		if (name.size() < 2 || name[0] != '_') {
 			return false;
 		}
 
-		char *c_val = getenv(name.c_str() + 2);
+		char *c_val = getenv(name.c_str() + 1);
 		if (c_val) {
 			val = c_val;
 		} else {
@@ -85,11 +84,11 @@ public:
 
 	virtual bool lookup(const std::string& name, std::string& val)
 	{
-		if (name.size() < 3 || name[1] != '@') {
+		if (name.size() < 2 || name[0] != '@') {
 			return false;
 		}
 
-		std::string atom_name(name.substr(2));
+		std::string atom_name(name.substr(1));
 
 		Atom id;
 		AtomName aname = X11::getAtomName(atom_name);
@@ -109,10 +108,10 @@ public:
 
 	virtual bool lookup(const std::string& name, std::string& val)
 	{
-		if (name.size() < 3 || name[1] != '&') {
+		if (name.size() < 2 || name[0] != '&') {
 			return false;
 		}
-		return X11::getXrmString(name.substr(2), val);
+		return X11::getXrmString(name.substr(1), val);
 	}
 };
 

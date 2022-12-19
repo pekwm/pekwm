@@ -1257,10 +1257,10 @@ Theme::load(const std::string &dir, const std::string &variant, bool force)
 
 	bool theme_ok = true;
 	CfgParser theme;
-	theme.setVar("$THEME_DIR", _theme_dir);
+	theme.setVar("THEME_DIR", _theme_dir);
 	if (! theme.parse(theme_file)) {
 		_theme_dir = DATADIR "/pekwm/themes/default";
-		theme.setVar("$THEME_DIR", _theme_dir);
+		theme.setVar("THEME_DIR", _theme_dir);
 		theme_file = _theme_dir + "/theme";
 		if (! theme.parse(theme_file)) {
 			USER_WARN("unable to load " << _theme_dir
@@ -1337,7 +1337,7 @@ Theme::loadThemeRequire(CfgParser &theme_cfg, std::string &file)
 		// Re-load configuration with templates enabled.
 		if (value_templates) {
 			theme_cfg.clear(true);
-			theme_cfg.setVar("$THEME_DIR", _theme_dir);
+			theme_cfg.setVar("THEME_DIR", _theme_dir);
 			theme_cfg.parse(file, CfgParserSource::SOURCE_FILE,
 					true);
 		}
