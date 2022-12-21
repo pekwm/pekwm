@@ -36,7 +36,7 @@ in one go.
     [log test_config_path (env -i)]
     # test without home set, supposed to fail
     !env -i $$VALGRIND $BIN_DIR/pekwm --log-level trace
-    ???failed to get configuration file path, $HOME not set.
+    ???failed to get configuration file path, none of $HOME and $PEKWM_CONFIG_PATH  is set.
     ?SH-PROMPT:
 [endfunction]
 
@@ -154,8 +154,8 @@ in one go.
         ?SH-PROMPT:
 
     [shell pekwm]
-        ?start action 61 wo 0
-        ?end action 61 wo 0
+        ?start action 62 wo 0
+        ?end action 62 wo 0
 
     [shell test]
         !$TEST_DIR/test_client query_pointer
@@ -165,8 +165,8 @@ in one go.
         ?SH-PROMPT:
 
     [shell pekwm]
-        ?start action 61 wo 0
-        ?end action 61 wo 0
+        ?start action 62 wo 0
+        ?end action 62 wo 0
 
     [shell test]
         !$TEST_DIR/test_client query_pointer

@@ -1,6 +1,6 @@
 //
 // Util.cc for pekwm
-// Copyright (C) 2002-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2002-2022 Claes Nästén <pekdon@gmail.com>
 //
 // misc.cc for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
@@ -242,7 +242,10 @@ namespace Util {
 	{
 		std::string dir = getEnv("PEKWM_CONFIG_PATH");
 		if (dir.size() == 0) {
-			dir = getEnv("HOME") + "/.pekwm";
+			dir = getEnv("HOME");
+			if (dir.size() > 0) {
+				dir += "/.pekwm";
+			}
 		}
 		return dir;
 	}
