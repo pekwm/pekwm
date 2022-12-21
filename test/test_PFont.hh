@@ -1,6 +1,6 @@
 //
 // test_PFont.cc for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -51,7 +51,8 @@ MockPFont::getWidth(const std::string& text, uint max_chars)
 	std::map<std::string, uint>::iterator it = _width_map.find(key);
 	if (it == _width_map.end()) {
 		std::cerr << "unexpected lookup " << key << std::endl;
-		std::cerr << "|" << text.substr(0, max_chars) << "|" << std::endl;
+		std::cerr << "|" << text.substr(0, max_chars)
+			  << "|" << std::endl;
 		exit(1);
 	}
 	return _width_map[key];
@@ -105,7 +106,12 @@ TestPFont::testTrimEndNoTrim(void)
 void
 TestPFont::testTrimEndTrim(void)
 {
-	WMP fontd[] = {{"test0", 100}, {"test3", 75}, {"test2", 50}, {nullptr, 0}};
+	WMP fontd[] = {
+		{"test0", 100},
+		{"test3", 75},
+		{"test2", 50},
+		{nullptr, 0}
+	};
 	MockPFont font(fontd);
 	std::string str("test");
 	font.trim(str, PFont::FONT_TRIM_END, 50);

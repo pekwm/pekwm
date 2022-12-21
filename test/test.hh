@@ -28,7 +28,7 @@ private:
 
 void
 AssertFailed::format(const std::string &suite_name,
-                     const std::string &name) const
+		     const std::string &name) const
 {
 	std::cout << " ERROR" << std::endl;;
 	std::cout << "      " << _file << ":" << _line << " ";

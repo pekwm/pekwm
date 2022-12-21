@@ -66,7 +66,7 @@ TestStringUtil::testShellSplit(void)
 
 void
 TestStringUtil::assertShellSplit(std::string msg, std::string str,
-                             std::vector<std::string> &expected)
+				 std::vector<std::string> &expected)
 {
 	std::vector<std::string> res = StringUtil::shell_split(str);
 	ASSERT_EQUAL(msg + " size", expected.size(), res.size());
@@ -155,7 +155,8 @@ public:
 
 	static void testSplitString(void);
 	static void assertSplitString(std::string msg,
-				      uint e_ret, std::vector<std::string> e_toks,
+				      uint e_ret,
+				      std::vector<std::string> e_toks,
 				      const std::string str, const char *sep,
 				      uint max = 0,
 				      bool include_empty = false,
@@ -184,9 +185,9 @@ TestUtil::testSplitString(void)
 
 void
 TestUtil::assertSplitString(std::string msg,
-                            uint e_ret, std::vector<std::string> e_toks,
-                            const std::string str, const char *sep,
-                            uint max, bool include_empty, char escape)
+			    uint e_ret, std::vector<std::string> e_toks,
+			    const std::string str, const char *sep,
+			    uint max, bool include_empty, char escape)
 {
 	std::vector<std::string> toks;
 	uint ret = Util::splitString(str, toks, sep, max,

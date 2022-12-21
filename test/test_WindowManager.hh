@@ -1,3 +1,11 @@
+//
+// test_WindowManager.hh for pekwm
+// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
+//
+// This program is licensed under the GNU GPL.
+// See the LICENSE file for more information.
+//
+
 #include "test.hh"
 #include "WindowManager.hh"
 
@@ -13,7 +21,7 @@ namespace pekwm_ctrl {
 }
 
 class TestWindowManager : public TestSuite,
-                          public WindowManager {
+			  public WindowManager {
 public:
 	TestWindowManager(void);
 	virtual ~TestWindowManager(void);
@@ -62,7 +70,7 @@ addEv(std::vector<XClientMessageEvent> *evs,
 }
 
 static bool send_message(Window, AtomName, int,
-                         const void *data, size_t size, void *opaque)
+			 const void *data, size_t size, void *opaque)
 {
 	std::vector<XClientMessageEvent> *evs =
 		reinterpret_cast<std::vector<XClientMessageEvent>* >(opaque);
@@ -71,8 +79,8 @@ static bool send_message(Window, AtomName, int,
 
 void
 TestWindowManager::assertSendRecvCommand(const std::string& msg,
-                                         size_t expected_size,
-                                         const std::string& cmd)
+					 size_t expected_size,
+					 const std::string& cmd)
 {
 	std::vector<XClientMessageEvent> evs;
 	pekwm_ctrl::sendCommand(cmd, None, send_message,
@@ -81,7 +89,8 @@ TestWindowManager::assertSendRecvCommand(const std::string& msg,
 	std::vector<XClientMessageEvent>::iterator it = evs.begin();
 	for (; it != evs.end(); ++it) {
 		bool expected = (it + 1) == evs.end() ? true : false;
-		ASSERT_EQUAL(msg + " recvPekwmCmd", expected, recvPekwmCmd(&(*it)));
+		ASSERT_EQUAL(msg + " recvPekwmCmd",
+			     expected, recvPekwmCmd(&(*it)));
 	}
 	ASSERT_EQUAL(msg, cmd, _pekwm_cmd_buf);
 }

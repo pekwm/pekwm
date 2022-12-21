@@ -1,6 +1,6 @@
 //
 // test_Action.cc for pekwm
-// Copyright (C) 2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2020-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -12,7 +12,7 @@
 #include "Action.hh"
 
 class TestAction : public Action,
-                   public TestSuite {
+		   public TestSuite {
 public:
 	TestAction(void);
 	virtual ~TestAction(void);
@@ -186,8 +186,8 @@ TestActionConfig::testParseActionSetGeometry(void)
 
 void
 TestActionConfig::assertAction(std::string msg, const Action& action,
-                               std::vector<int> e_int,
-                               std::vector<std::string> e_str) {
+			       std::vector<int> e_int,
+			       std::vector<std::string> e_str) {
 	for (uint i = 0; i < e_int.size(); i++) {
 		std::string is = std::to_string(i);
 		ASSERT_EQUAL(msg + " I " + is,

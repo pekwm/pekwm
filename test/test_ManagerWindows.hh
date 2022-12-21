@@ -11,7 +11,7 @@
 #include "ManagerWindows.hh"
 
 class TestRootWO : public TestSuite,
-                   public RootWO {
+		   public RootWO {
 public:
 	TestRootWO(HintWO *hint_wo, Config *cfg);
 	virtual ~TestRootWO(void);

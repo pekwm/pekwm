@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2020 Claes Nästénn <pekdon@gmail.com>
+// Copyright (C) 2005-2022 Claes Nästénn <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -150,9 +150,9 @@ public:
 
 protected:
     bool parseVarName(const std::string& line,
-                      std::string::size_type &begin,
-                      std::string::size_type &end,
-                      std::string& var);
+		      std::string::size_type &begin,
+		      std::string::size_type &end,
+		      std::string& var);
 
 private:
 	bool parse(void);
@@ -175,10 +175,10 @@ private:
 
 	void variableDefine(const std::string &name, const std::string &value);
 	void variableExpand(std::string& line);
-    bool variableExpandName(std::string& line,
-                            const std::string::size_type begin,
-                            std::string::size_type &end,
-                            const std::string& var);
+	bool variableExpandName(std::string& line,
+				const std::string::size_type begin,
+				std::string::size_type &end,
+				const std::string& var);
 
 private:
 

@@ -1,5 +1,6 @@
 #include <algorithm>
 #include <cstdlib>
+#include <cstring>
 #include <fstream>
 #include <iostream>
 #include <vector>
@@ -311,6 +312,7 @@ public:
 	const_iterator begin() const { return _errors.begin(); }
 	const_iterator end() const { return _errors.end(); }
 
+	bool isOk();
 	void addError(int lineNum, const char* code,
 		      const std::string &errMessage);
 
@@ -320,6 +322,12 @@ private:
 
 CheckResult::CheckResult()
 {
+}
+
+bool
+CheckResult::isOk()
+{
+	return _errors.size() == 0;
 }
 
 void
@@ -398,14 +406,14 @@ logWarning(const std::string& msg)
 	std::cerr << "WARNING: " << msg << std::endl;
 }
 
-bool
+static bool
 strEndsWith(const std::string& str, const std::string& suffix)
 {
 	size_t pos = str.rfind(suffix);
 	return pos != std::string::npos && pos == (str.size() - suffix.size());
 }
 
-void
+static int
 checkFile(const Check& check, const Path& path)
 {
 	logDebug("checking " + path.getString());
@@ -414,7 +422,7 @@ checkFile(const Check& check, const Path& path)
 	ifs.open(path.getString().c_str());
 	if (! ifs.is_open()) {
 		logWarning("failed to open "  + path.getString());
-		return;
+		return 1;
 	}
 
 	CheckResult res = check.check(ifs);
@@ -424,31 +432,36 @@ checkFile(const Check& check, const Path& path)
 			  << " [" << it->code() << "] "
 			  << it->msg() << std::endl;
 	}
+	return res.isOk() ? 0 : 1;
 }
 
-static void checkDir(const Check& check, const Path& path, const char* ext[])
+static int
+checkDir(const Check& check, const Path& path, const char* ext[])
 {
+	int ret = 0;
 	Dir dir(path);
 	Dir::iterator it(dir.begin());
 	for (; it != dir.end(); ++it) {
 		for (int i = 0; ext[i] != 0; ++i) {
 			if (strEndsWith(*it, ext[i])) {
-				checkFile(check, *it);
+				ret = checkFile(check, *it) || ret;
 			}
 		}
 	}
-
+	return ret;
 }
 
-static void usage(const char* name, int code)
+static
+void usage(const char* name, int code)
 {
-	std::cout << "usage: " << name << " path" << std::endl;
+	std::cout << "usage: " << name << " path [path1...]" << std::endl;
 	exit(code);
 }
 
-int main(int argc, char** argv)
+int
+main(int argc, char** argv)
 {
-	if (argc != 2) {
+	if (argc < 2) {
 		usage(argv[0], 1);
 	}
 
@@ -458,13 +471,16 @@ int main(int argc, char** argv)
 		0
 	};
 
+	int res = 0;
 	Check check;
-	Path path(argv[1]);
-	if (path.isDir()) {
-		checkDir(check, path, ext);
-	} else {
-		checkFile(check, path);
+	for (int i = 1; i < argc; i++) {
+		Path path(argv[i]);
+		if (path.isDir()) {
+			res = checkDir(check, path, ext) || res;
+		} else {
+			res = checkFile(check, path) || res;
+		}
 	}
 
-	return 0;
+	return res;
 }

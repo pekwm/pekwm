@@ -1,6 +1,6 @@
 //
 // test_Frame.cc for pekwm
-// Copyright (C) 2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2020-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -12,7 +12,7 @@
 #include "Frame.hh"
 
 class TestFrame : public Frame,
-                  public TestSuite {
+		  public TestSuite {
 public:
 	TestFrame(void);
 	~TestFrame(void);
@@ -81,10 +81,10 @@ TestFrame::testApplyGeometry(void)
 
 void
 TestFrame::assertApplyGeometry(std::string msg,
-                               Geometry gm,
-                               const Geometry &apply_gm, int mask,
-                               const Geometry &screen_gm,
-                               const Geometry &e_gm)
+			       Geometry gm,
+			       const Geometry &apply_gm, int mask,
+			       const Geometry &screen_gm,
+			       const Geometry &e_gm)
 {
 	applyGeometry(gm, apply_gm, mask, screen_gm);
 	ASSERT_EQUAL(msg + " x", e_gm.x, gm.x);

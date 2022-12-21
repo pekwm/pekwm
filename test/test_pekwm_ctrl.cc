@@ -1,3 +1,11 @@
+//
+// test_pekwm_ctrl.hh for pekwm
+// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
+//
+// This program is licensed under the GNU GPL.
+// See the LICENSE file for more information.
+//
+
 #include "Compat.hh"
 
 #include "test.hh"
@@ -33,16 +41,18 @@ TestPekwmCtrl::run_test(TestSpec spec, bool status)
 	return status;
 }
 
+typedef std::pair<std::string, int> string_int_pair;
+
 static bool send_message(Window, AtomName, int,
-                         const void *data, size_t size, void *opaque)
+			 const void *data, size_t size, void *opaque)
 {
 	std::vector<std::pair<std::string, int> > *bufs =
-		reinterpret_cast<std::vector<std::pair<std::string, int> >* >(opaque);
+		reinterpret_cast<std::vector<string_int_pair>* >(opaque);
 	char *buf = new char[size];
 	memcpy(buf, data, size);
 	int op = buf[size - 1];
 	buf[size - 1] = 0;
-	bufs->push_back(std::pair<std::string, int>(buf, op));
+	bufs->push_back(string_int_pair(buf, op));
 	delete [] buf;
 	return true;
 }
@@ -50,7 +60,7 @@ static bool send_message(Window, AtomName, int,
 void
 TestPekwmCtrl::testSendCmd(void)
 {
-	std::vector<std::pair<std::string, int> > bufs;
+	std::vector<string_int_pair> bufs;
 	void *vbufs = reinterpret_cast<void*>(&bufs);
 
 	// single message

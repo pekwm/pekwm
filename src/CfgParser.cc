@@ -834,12 +834,12 @@ CfgParser::variableExpand(std::string& line)
 	do {
 		did_expand = false;
 
-        std::string var;
+		std::string var;
 		std::string::size_type begin = 0, end = 0;
-        for (; parseVarName(line, begin, end, var); var = "") {
+		for (; parseVarName(line, begin, end, var); var = "") {
 			did_expand = variableExpandName(line, begin, end, var)
 				|| did_expand;
-            begin = end;
+			begin = end;
 		}
 	} while (did_expand);
 }
@@ -900,9 +900,9 @@ CfgParser::parseVarName(const std::string& line,
 
 bool
 CfgParser::variableExpandName(std::string& line,
-                              const std::string::size_type begin,
-                              std::string::size_type &end,
-                              const std::string& var)
+			      const std::string::size_type begin,
+			      std::string::size_type &end,
+			      const std::string& var)
 {
 	bool did_expand = false;
 
@@ -911,7 +911,7 @@ CfgParser::variableExpandName(std::string& line,
 		std::string value;
 		if ((did_expand = (*it)->lookup(var, value))) {
 			line.replace(begin, end - begin, value);
-            end = begin + value.size();
+			end = begin + value.size();
 		}
 	}
 

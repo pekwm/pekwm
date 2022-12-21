@@ -1,9 +1,17 @@
+//
+// test_Config.cc for pekwm
+// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
+//
+// This program is licensed under the GNU GPL.
+// See the LICENSE file for more information.
+//
+
 #include "test.hh"
 #include "Config.hh"
 #include "Action.hh"
 
 class TestConfig : public TestSuite,
-                   public Config {
+		   public Config {
 public:
 	TestConfig(void);
 	virtual ~TestConfig(void);

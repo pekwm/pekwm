@@ -53,7 +53,7 @@ TestGeometry::testCenter(void)
 }
 
 class TestX11 : public X11,
-                public TestSuite {
+		public TestSuite {
 public:
 	TestX11(void);
 	virtual ~TestX11(void);
@@ -115,7 +115,7 @@ TestX11::testParseGeometry(void)
 
 void
 TestX11::assertParseGeometry(std::string msg, std::string str,
-                             Geometry e_gm, int e_mask)
+			     Geometry e_gm, int e_mask)
 {
 	Geometry gm;
 	int mask = parseGeometry(str, gm);
@@ -136,7 +136,7 @@ TestX11::testParseGeometryVal(void)
 
 void
 TestX11::assertParseGeometryVal(std::string msg, std::string str,
-                                int e_ret, int e_val)
+				int e_ret, int e_val)
 {
 	int ret, val;
 	ret = parseGeometryVal(str.c_str(), str.c_str() + str.size(), val);

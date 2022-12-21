@@ -18,7 +18,17 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DTESTS=ON
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DTESTS=ON -DDEV=ON
+
+    - name: Build code style check tool
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: cmake --build ./dev --config $BUILD_TYPE
+
+    - name: Check code style
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: ./dev/check $GITHUB_WORKSPACE/dev $GITHUB_WORKSPACE/src $GITHUB_WORKSPACE/test
 
     - name: Build
       working-directory: ${{runner.workspace}}/build
@@ -28,4 +38,4 @@ jobs:
     - name: Test
       working-directory: ${{runner.workspace}}/build
       shell: bash
-      run: ctest -C $BUILD_TYPE
+      run: ctest -C $BUILD_TYPE --output-on-failure
