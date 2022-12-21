@@ -35,7 +35,7 @@ if (PEKWM_HAVE_LOCALE)
   check_cxx_source_compiles("
 #include <locale>
 int main() {
-  std::locale num_locale1(\"\");
+  std::locale num_locale(\"\");
   std::locale locale = std::locale().combine<std::numpunct<char> >(num_locale);
 }
 " PEKWM_HAVE_LOCALE_COMBINE)
