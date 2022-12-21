@@ -418,18 +418,29 @@ RootWO::updateGeometry(uint width, uint height)
 	updateStrut();
 }
 
-//! @brief Adds a strut to the strut list, updating max strut sizes
+/**
+ * Adds a strut to the strut list, updating _NET_WORKAREA
+ */
 void
 RootWO::addStrut(Strut *strut)
 {
+	P_TRACE("adding strut "
+		<< " l: " << strut->left << " r: " << strut->right
+		<< " t: " << strut->top << " b: " << strut->bottom);
 	_struts.push_back(strut);
 	updateStrut();
 }
 
-//! @brief Removes a strut from the strut list
+/**
+ * Removes a strut from the strut list, updating _NET_WORKAREA
+ */
 void
 RootWO::removeStrut(Strut *strut)
 {
+	P_TRACE("removing strut "
+		<< " l: " << strut->left << " r: " << strut->right
+		<< " t: " << strut->top << " b: " << strut->bottom);
+
 	std::vector<Strut*>::iterator it =
 		std::find(_struts.begin(), _struts.end(), strut);
 	if (it != _struts.end()) {
@@ -438,7 +449,9 @@ RootWO::removeStrut(Strut *strut)
 	updateStrut();
 }
 
-//! @brief Updates strut max size.
+/**
+ * Updating _NET_WORKAREA using the list of registered struts.
+ */
 void
 RootWO::updateStrut(void)
 {
@@ -456,29 +469,13 @@ RootWO::updateStrut(void)
 		hit->bottom = 0;
 	}
 
-	Strut *strut;
 	std::vector<Strut*>::iterator it = _struts.begin();
 	for (; it != _struts.end(); ++it) {
-		if ((*it)->head < 0) {
-			strut = &_strut;
-		} else if (static_cast<uint>((*it)->head)
-			   < _strut_head.size()) {
-			strut = &(_strut_head[(*it)->head]);
-		} else {
-			continue;
-		}
+		updateMaxStrut(&_strut, *it);
 
-		if (strut->left < (*it)->left) {
-			strut->left = (*it)->left;
-		}
-		if (strut->right < (*it)->right) {
-			strut->right = (*it)->right;
-		}
-		if (strut->top < (*it)->top) {
-			strut->top = (*it)->top;
-		}
-		if (strut->bottom < (*it)->bottom) {
-			strut->bottom = (*it)->bottom;
+		uint head = static_cast<uint>((*it)->head);
+		if (head < _strut_head.size()) {
+			updateMaxStrut(&_strut_head[head], *it);
 		}
 	}
 
@@ -488,6 +485,23 @@ RootWO::updateStrut(void)
 			  _gm.height - _strut.top - _strut.bottom);
 
 	setEwmhWorkarea(workarea);
+}
+
+void
+RootWO::updateMaxStrut(Strut *max_strut, const Strut *strut)
+{
+	if (max_strut->left < strut->left) {
+		max_strut->left = strut->left;
+	}
+	if (max_strut->right < strut->right) {
+		max_strut->right = strut->right;
+	}
+	if (max_strut->top < strut->top) {
+		max_strut->top = strut->top;
+	}
+	if (max_strut->bottom < strut->bottom) {
+		max_strut->bottom = strut->bottom;
+	}
 }
 
 /**
@@ -516,6 +530,11 @@ RootWO::setEwmhWorkarea(const Geometry &workarea)
 	workarea_array[1] = static_cast<Cardinal>(workarea.y);
 	workarea_array[2] = static_cast<Cardinal>(workarea.width);
 	workarea_array[3] = static_cast<Cardinal>(workarea.height);
+
+	P_TRACE("update _NET_WORKAREA "
+		<< " x: " << workarea.x << " y: " << workarea.y
+		<< " w: " << workarea.width << " h: " << workarea.height);
+
 	X11::setCardinals(_window, NET_WORKAREA, workarea_array, 4);
 }
 
