@@ -414,6 +414,9 @@ public:
 		void check(void);
 
 	private:
+		void clear();
+
+	private:
 		FontHandler* _fh;
 		TextureHandler* _th;
 		bool _loaded;

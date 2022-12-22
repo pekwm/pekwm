@@ -984,10 +984,7 @@ Theme::DialogData::DialogData(FontHandler* fh, TextureHandler* th)
 	  _text_font(nullptr),
 	  _text_color(nullptr)
 {
-	for (int i = 0; i < PAD_NO; i++) {
-		_pad[i] = 2;
-	}
-	memset(_button, 0, sizeof(_button));
+	clear();
 }
 
 Theme::DialogData::~DialogData(void)
@@ -1068,6 +1065,8 @@ Theme::DialogData::unload(void)
 	_fh->returnColor(_button_color);
 	_fh->returnFont(_button_font);
 	_th->returnTexture(_background);
+
+	clear();
 }
 
 void
@@ -1107,6 +1106,22 @@ Theme::DialogData::check(void)
 	}
 
 	_loaded = true;
+}
+
+void
+Theme::DialogData::clear()
+{
+	_background = nullptr;
+	_button_font = nullptr;
+	_button_color = nullptr;
+	memset(_button, 0, sizeof(_button));
+	_title_font = nullptr;
+	_title_color = nullptr;
+	_text_font = nullptr;
+	_text_color = nullptr;
+	for (int i = 0; i < PAD_NO; i++) {
+		_pad[i] = 2;
+	}
 }
 
 /**
