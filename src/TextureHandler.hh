@@ -63,7 +63,7 @@ public:
 	TextureHandler(void);
 	~TextureHandler(void);
 
-	int getLengthMin(void) { return _length_min; }
+	size_t getLengthMin(void) { return _length_min; }
 	PTexture *getTexture(const std::string &texture);
 	PTexture *referenceTexture(PTexture *texture);
 	void returnTexture(PTexture *texture);
@@ -82,7 +82,7 @@ private:
 
 private:
 	/** Minimum texture name length. */
-	const int _length_min;
+	const size_t _length_min;
 
 	entry_vector _textures;
 	std::map<std::string, std::map<int,int>*> _color_maps;
