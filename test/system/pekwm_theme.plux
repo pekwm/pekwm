@@ -6,58 +6,58 @@ Verify basic pekwm_theme functionality
 [global TEST_DIR=../../build/test/system]
 
 [function clear_cache]
-    [log clear .pekwm and .cache]
-    !rm -rf .pekwm .cache
-    ?SH-PROMPT:
+	[log clear .pekwm and .cache]
+	!rm -rf .pekwm .cache
+	?SH-PROMPT:
 [endfunction]
 
 [function test_search_themes]
-    [log test search for all themes]
-    !$SCRIPTS_DIR/pekwm_theme search
-    ?available themes:
-    ?4dwm_based
-    ?Detour
-    ?LightOne
-    ?NeoMotif
-    ?benu
-    ?default
-    ?default-plain
-    ?ion-p
-    ?lila
-    ?m0nst4
-    ?mavon-t
-    ?mikachuflat
-    ?minimal4dwm
-    ?pwm-p
-    ?semitif
-    ?spiff-p
-    ?windowmakerbased_4lba
-    ?SH-PROMPT:
-    [log test search for themes matching (with match)]
-    !$SCRIPTS_DIR/pekwm_theme search '-p$$'
-    ???themes matching -p$:
-    ?ion-p
-    ?pwm-p
-    ?spiff-p
-    ?SH-PROMPT:
-    [log test search for themes matching (without match)]
-    !$SCRIPTS_DIR/pekwm_theme search missing
-    ?themes matching missing:
-    -missing
-    ?SH-PROMPT:
-    -[Ee][Rr][Rr][Oo][Rr]
+	[log test search for all themes]
+	!$SCRIPTS_DIR/pekwm_theme search
+	?available themes:
+	?4dwm_based
+	?Detour
+	?LightOne
+	?NeoMotif
+	?benu
+	?default
+	?default-plain
+	?ion-p
+	?lila
+	?m0nst4
+	?mavon-t
+	?mikachuflat
+	?minimal4dwm
+	?pwm-p
+	?semitif
+	?spiff-p
+	?windowmakerbased_4lba
+	?SH-PROMPT:
+	[log test search for themes matching (with match)]
+	!$SCRIPTS_DIR/pekwm_theme search '-p$$'
+	???themes matching -p$:
+	?ion-p
+	?pwm-p
+	?spiff-p
+	?SH-PROMPT:
+	[log test search for themes matching (without match)]
+	!$SCRIPTS_DIR/pekwm_theme search missing
+	?themes matching missing:
+	-missing
+	?SH-PROMPT:
+	-[Ee][Rr][Rr][Oo][Rr]
 [endfunction]
 
 [shell test]
-    -[Ee][Rr][Rr][Oo][Rr]
-    # fake home directory to get test local .pekwm and .cache
-    # directories
-    !export HOME=$PWD
-    ?SH-PROMPT:
-    !chmod +x $SCRIPTS_DIR/pekwm_theme
-    ?SH-PROMPT:
-    [call clear_cache]
-    [call test_search_themes]
+	-[Ee][Rr][Rr][Oo][Rr]
+	# fake home directory to get test local .pekwm and .cache
+	# directories
+	!export HOME=$PWD
+	?SH-PROMPT:
+	!chmod +x $SCRIPTS_DIR/pekwm_theme
+	?SH-PROMPT:
+	[call clear_cache]
+	[call test_search_themes]
 
 [cleanup]
-    [call clear_cache]
+	[call clear_cache]

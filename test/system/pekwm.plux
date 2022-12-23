@@ -10,490 +10,490 @@ in one go.
 [global DISPLAY=:1]
 
 [function init-shell]
-    ?SH-PROMPT:
-    !export DISPLAY=$DISPLAY
-    ?SH-PROMPT:
-    !VALGRIND=`which valgrind 2>/dev/null`
-    ?SH-PROMPT:
+	?SH-PROMPT:
+	!export DISPLAY=$DISPLAY
+	?SH-PROMPT:
+	!VALGRIND=`which valgrind 2>/dev/null`
+	?SH-PROMPT:
 [endfunction]
 
 # test possible ways of setting the configuration file used by pekwm
 [function test_config_path]
-    [log test_config_path (--config)]
-    !$$VALGRIND $BIN_DIR/pekwm --config ./pekwm.config.missing --log-level trace
-    ?using configuration at ./pekwm.config.missing
-    ?failed to open file ./pekwm.config.missing
-    !$_CTRL_C_
-    ?SH-PROMPT:
+	[log test_config_path (--config)]
+	!$$VALGRIND $BIN_DIR/pekwm --config ./pekwm.config.missing --log-level trace
+	?using configuration at ./pekwm.config.missing
+	?failed to open file ./pekwm.config.missing
+	!$_CTRL_C_
+	?SH-PROMPT:
 
-    [log test_config_path (env PEKWM_CONFIG_FILE)]
-    !env PEKWM_CONFIG_FILE=./pekwm.env.config.missing $$VALGRIND $BIN_DIR/pekwm --log-level trace
-    ?using configuration at ./pekwm.env.config.missing
-    ?failed to open file ./pekwm.env.config.missing
-    !$_CTRL_C_
-    ?SH-PROMPT:
+	[log test_config_path (env PEKWM_CONFIG_FILE)]
+	!env PEKWM_CONFIG_FILE=./pekwm.env.config.missing $$VALGRIND $BIN_DIR/pekwm --log-level trace
+	?using configuration at ./pekwm.env.config.missing
+	?failed to open file ./pekwm.env.config.missing
+	!$_CTRL_C_
+	?SH-PROMPT:
 
-    [log test_config_path (env -i)]
-    # test without home set, supposed to fail
-    !env -i $$VALGRIND $BIN_DIR/pekwm --log-level trace
-    ???failed to get configuration file path, none of $HOME and $PEKWM_CONFIG_PATH  is set.
-    ?SH-PROMPT:
+	[log test_config_path (env -i)]
+	# test without home set, supposed to fail
+	!env -i $$VALGRIND $BIN_DIR/pekwm --log-level trace
+	???failed to get configuration file path, none of $HOME and $PEKWM_CONFIG_PATH is set.
+	?SH-PROMPT:
 [endfunction]
 
 [function test_pekwm_replace]
-    [log test pekwm --replace]
+	[log test pekwm --replace]
 
-    [shell pekwm-1]
-        [call init-shell]
-        -(window manager already running|Invalid read of size)
-        [log starting pekwm to be replaced]
-        !$$VALGRIND $BIN_DIR/pekwm --log-level trace
-        ?Enter event loop.
+	[shell pekwm-1]
+		[call init-shell]
+		-(window manager already running|Invalid read of size)
+		[log starting pekwm to be replaced]
+		!$$VALGRIND $BIN_DIR/pekwm --log-level trace
+		?Enter event loop.
 
-    [shell pekwm-2]
-        [call init-shell]
-        -Invalid read of size
-        [log starting pekwm without --replace, should fail]
-        !$$VALGRIND $BIN_DIR/pekwm --log-level trace
-        ?window manager already running
-        ?SH-PROMPT:
+	[shell pekwm-2]
+		[call init-shell]
+		-Invalid read of size
+		[log starting pekwm without --replace, should fail]
+		!$$VALGRIND $BIN_DIR/pekwm --log-level trace
+		?window manager already running
+		?SH-PROMPT:
 
-        [log starting pekwm with --replace, replace first]
-        -Invalid read of size
-        !$$VALGRIND $BIN_DIR/pekwm --replace --log-level trace
-        ?waiting for previous window manager to exit
-        ?Enter event loop.
+		[log starting pekwm with --replace, replace first]
+		-Invalid read of size
+		!$$VALGRIND $BIN_DIR/pekwm --replace --log-level trace
+		?waiting for previous window manager to exit
+		?Enter event loop.
 
-    [shell pekwm-1]
-        ?being replaced by another WM
-        ?SH-PROMPT:
+	[shell pekwm-1]
+		?being replaced by another WM
+		?SH-PROMPT:
 
-    [shell pekwm-2]
-        !$_CTRL_C_
-        ?SH-PROMPT:
+	[shell pekwm-2]
+		!$_CTRL_C_
+		?SH-PROMPT:
 [endfunction]
 
 [function test_update_client_list_report_all]
-    [log test_update_client_list_report_all]
+	[log test_update_client_list_report_all]
 
-    [shell test_update_client_list_report_all]
-        [call init-shell]
-        !$TEST_DIR/test_update_client_list
-        ?BEGIN WINDOWS
-        ?END WINDOWS
-        ?PROGRESS: wait for PropertyNotify
+	[shell test_update_client_list_report_all]
+		[call init-shell]
+		!$TEST_DIR/test_update_client_list
+		?BEGIN WINDOWS
+		?END WINDOWS
+		?PROGRESS: wait for PropertyNotify
 
-    [shell test_client-1]
-        [call init-shell]
-        !$TEST_DIR/test_client
-        ?Window ([0-9]+)
-        [global window1=$1]
-        [log started test client 1 $window1]
+	[shell test_client-1]
+		[call init-shell]
+		!$TEST_DIR/test_client
+		?Window ([0-9]+)
+		[global window1=$1]
+		[log started test client 1 $window1]
 
-    [shell test_update_client_list_report_all]
-        ?BEGIN WINDOWS
-        ?Window $window1
-        ?END WINDOWS
-        -Window $window1
+	[shell test_update_client_list_report_all]
+		?BEGIN WINDOWS
+		?Window $window1
+		?END WINDOWS
+		-Window $window1
 
-    [shell test_client-1]
-        !
-        ?SH-PROMPT:
-        [log stopped test client 1 $window1]
+	[shell test_client-1]
+		!
+		?SH-PROMPT:
+		[log stopped test client 1 $window1]
 
-    [shell test_update_client_list_report_all]
-        ?BEGIN WINDOWS
-        ?END WINDOWS
-        -
+	[shell test_update_client_list_report_all]
+		?BEGIN WINDOWS
+		?END WINDOWS
+		-
 
-    [shell test_client-1]
-        !$TEST_DIR/test_client
-        ?Window ([0-9]+)
-        [global window1=$1]
-        [log re-started test client 1 $window1]
+	[shell test_client-1]
+		!$TEST_DIR/test_client
+		?Window ([0-9]+)
+		[global window1=$1]
+		[log re-started test client 1 $window1]
 
-    [shell test_update_client_list_report_all]
-        ?BEGIN WINDOWS
-        ?Window $window1
-        ?END WINDOWS
+	[shell test_update_client_list_report_all]
+		?BEGIN WINDOWS
+		?Window $window1
+		?END WINDOWS
 
-    [shell test_client-2]
-        [call init-shell]
-        !env DISPLAY=$DISPLAY $TEST_DIR/test_client
-        ?Window ([0-9]+)
-        [global window2=$1]
-        [log started test client 2 $window2]
+	[shell test_client-2]
+		[call init-shell]
+		!env DISPLAY=$DISPLAY $TEST_DIR/test_client
+		?Window ([0-9]+)
+		[global window2=$1]
+		[log started test client 2 $window2]
 
-    [shell test_update_client_list_report_all]
-        ?BEGIN WINDOWS
-        ?Window $window1
-        ?Window $window2
-        ?END WINDOWS
-        !
-        ?SH-PROMPT:
+	[shell test_update_client_list_report_all]
+		?BEGIN WINDOWS
+		?Window $window1
+		?Window $window2
+		?END WINDOWS
+		!
+		?SH-PROMPT:
 [endfunction]
 
 [function test_update_client_list]
-    [log test_update_client_list]
+	[log test_update_client_list]
 
-    [shell test_update_client_list]
-        [call init-shell]
-        -Window $window1
-        !env DISPLAY=$DISPLAY $TEST_DIR/test_update_client_list
-        ?BEGIN WINDOWS
-        ?Window $window2
-        ?END WINDOWS
-        !
-        ?SH-PROMPT:
+	[shell test_update_client_list]
+		[call init-shell]
+		-Window $window1
+		!env DISPLAY=$DISPLAY $TEST_DIR/test_update_client_list
+		?BEGIN WINDOWS
+		?Window $window2
+		?END WINDOWS
+		!
+		?SH-PROMPT:
 [endfunction]
 
 [function test_warp_pointer]
-    [shell test]
-        [log test_warp_pointer]
-        !$BIN_DIR/pekwm_ctrl WarpPointer 100 100
-        ?SH-PROMPT:
+	[shell test]
+		[log test_warp_pointer]
+		!$BIN_DIR/pekwm_ctrl WarpPointer 100 100
+		?SH-PROMPT:
 
-    [shell pekwm]
-        ?start action 62 wo 0
-        ?end action 62 wo 0
+	[shell pekwm]
+		?start action 62 wo 0
+		?end action 62 wo 0
 
-    [shell test]
-        !$TEST_DIR/test_client query_pointer
-        ?root x 100 y 100
-        ?SH-PROMPT:
-        !$BIN_DIR/pekwm_ctrl WarpPointer 300 300
-        ?SH-PROMPT:
+	[shell test]
+		!$TEST_DIR/test_client query_pointer
+		?root x 100 y 100
+		?SH-PROMPT:
+		!$BIN_DIR/pekwm_ctrl WarpPointer 300 300
+		?SH-PROMPT:
 
-    [shell pekwm]
-        ?start action 62 wo 0
-        ?end action 62 wo 0
+	[shell pekwm]
+		?start action 62 wo 0
+		?end action 62 wo 0
 
-    [shell test]
-        !$TEST_DIR/test_client query_pointer
-        ?root x 300 y 300
-        ?SH-PROMPT:
+	[shell test]
+		!$TEST_DIR/test_client query_pointer
+		?root x 300 y 300
+		?SH-PROMPT:
 [endfunction]
 
 [function test_cfg_deny_resize_inc]
-    [log test_cfg_deny_resize_inc]
+	[log test_cfg_deny_resize_inc]
 
-    [shell xterm]
-        !xterm -name no-resize-inc +sb /bin/sh
+	[shell xterm]
+		!xterm -name no-resize-inc +sb /bin/sh
 
-    [shell pekwm]
-        ?client constructed
+	[shell pekwm]
+		?client constructed
 
-    [shell pekwm_ctrl]
-        [call init-shell]
-        -(no client match|Invalid read of size)
-        !$$VALGRIND $BIN_DIR/pekwm_ctrl -c no-resize-inc Set Maximized
-        ?_PEKWM_CMD ([0-9]+) Set Maximized OK
-        [global window=$1]
-        ?SH-PROMPT:
+	[shell pekwm_ctrl]
+		[call init-shell]
+		-(no client match|Invalid read of size)
+		!$$VALGRIND $BIN_DIR/pekwm_ctrl -c no-resize-inc Set Maximized
+		?_PEKWM_CMD ([0-9]+) Set Maximized OK
+		[global window=$1]
+		?SH-PROMPT:
 
-    [shell xprop]
-        [log verify size of term]
-        !xwininfo -id $window
-        ?Width: 1024
-        ?Height: 768
-        ?SH-PROMPT:
+	[shell xprop]
+		[log verify size of term]
+		!xwininfo -id $window
+		?Width: 1024
+		?Height: 768
+		?SH-PROMPT:
 
-    [shell xterm]
-        !$_CTRL_C_
-        ?SH-PROMPT:
+	[shell xterm]
+		!$_CTRL_C_
+		?SH-PROMPT:
 [endfunction]
 
 [function test_net_request_frame_extents]
-    [shell test_net_request_frame_extents]
-        -ERROR
-        [call init-shell]
-        [log test_net_request_frame_extents]
-        !$TEST_DIR/test_net_request_frame_extents
-        ?PROGRESS: send _NET_REQUEST_FRAME_EXTENTS
-        ?PROGRESS: wait for PropertyNotify
-        ?PROGRESS: read _NET_FRAME_EXTENTS
-        ?PROGRESS: type_ret 6 format_ret 32 items_ret 4 after_ret 0
-        ?OK: extents left [1-9][0-9]* right [1-9][0-9]* top [1-9][0-9]* bottom [1-9][0-9]*
-        ?SH-PROMPT:
-        !$TEST_DIR/test_net_request_frame_extents on off
-        ?PROGRESS: send _NET_REQUEST_FRAME_EXTENTS
-        ?PROGRESS: wait for PropertyNotify
-        ?PROGRESS: read _NET_FRAME_EXTENTS
-        ?PROGRESS: type_ret 6 format_ret 32 items_ret 4 after_ret 0
-        ?OK: extents left 0 right 0 top [1-9][0-9]* bottom 0
-        ?SH-PROMPT:
-        !$TEST_DIR/test_net_request_frame_extents off on
-        ?PROGRESS: send _NET_REQUEST_FRAME_EXTENTS
-        ?PROGRESS: wait for PropertyNotify
-        ?PROGRESS: read _NET_FRAME_EXTENTS
-        ?PROGRESS: type_ret 6 format_ret 32 items_ret 4 after_ret 0
-        ?OK: extents left [1-9][0-9]* right [1-9][0-9]* top [1-9][0-9]* bottom [1-9][0-9]*
-        ?SH-PROMPT:
-        !$TEST_DIR/test_net_request_frame_extents off off
-        ?PROGRESS: send _NET_REQUEST_FRAME_EXTENTS
-        ?PROGRESS: wait for PropertyNotify
-        ?PROGRESS: read _NET_FRAME_EXTENTS
-        ?PROGRESS: type_ret 6 format_ret 32 items_ret 4 after_ret 0
-        ?OK: extents left 0 right 0 top 0 bottom 0
-        ?SH-PROMPT:
+	[shell test_net_request_frame_extents]
+		-ERROR
+		[call init-shell]
+		[log test_net_request_frame_extents]
+		!$TEST_DIR/test_net_request_frame_extents
+		?PROGRESS: send _NET_REQUEST_FRAME_EXTENTS
+		?PROGRESS: wait for PropertyNotify
+		?PROGRESS: read _NET_FRAME_EXTENTS
+		?PROGRESS: type_ret 6 format_ret 32 items_ret 4 after_ret 0
+		?OK: extents left [1-9][0-9]* right [1-9][0-9]* top [1-9][0-9]* bottom [1-9][0-9]*
+		?SH-PROMPT:
+		!$TEST_DIR/test_net_request_frame_extents on off
+		?PROGRESS: send _NET_REQUEST_FRAME_EXTENTS
+		?PROGRESS: wait for PropertyNotify
+		?PROGRESS: read _NET_FRAME_EXTENTS
+		?PROGRESS: type_ret 6 format_ret 32 items_ret 4 after_ret 0
+		?OK: extents left 0 right 0 top [1-9][0-9]* bottom 0
+		?SH-PROMPT:
+		!$TEST_DIR/test_net_request_frame_extents off on
+		?PROGRESS: send _NET_REQUEST_FRAME_EXTENTS
+		?PROGRESS: wait for PropertyNotify
+		?PROGRESS: read _NET_FRAME_EXTENTS
+		?PROGRESS: type_ret 6 format_ret 32 items_ret 4 after_ret 0
+		?OK: extents left [1-9][0-9]* right [1-9][0-9]* top [1-9][0-9]* bottom [1-9][0-9]*
+		?SH-PROMPT:
+		!$TEST_DIR/test_net_request_frame_extents off off
+		?PROGRESS: send _NET_REQUEST_FRAME_EXTENTS
+		?PROGRESS: wait for PropertyNotify
+		?PROGRESS: read _NET_FRAME_EXTENTS
+		?PROGRESS: type_ret 6 format_ret 32 items_ret 4 after_ret 0
+		?OK: extents left 0 right 0 top 0 bottom 0
+		?SH-PROMPT:
 [endfunction]
 
 [function test_transient_for]
-    [shell test_transient_for]
-        -ERROR
-        [call init-shell]
-        [log test_transient_for (normal)]
-        !$TEST_DIR/test_transient_for
-        ?transient [0-9]+ set to [0-9]+
+	[shell test_transient_for]
+		-ERROR
+		[call init-shell]
+		[log test_transient_for (normal)]
+		!$TEST_DIR/test_transient_for
+		?transient [0-9]+ set to [0-9]+
 
-    [shell pekwm]
-        ?client constructed
-        ?transient for changed from (0x)?0 to (0x[0-9a-f]+)
-        [local client=$2]
-        ?client constructed
+	[shell pekwm]
+		?client constructed
+		?transient for changed from (0x)?0 to (0x[0-9a-f]+)
+		[local client=$2]
+		?client constructed
 
-    [shell test_transient_for]
-        !
-        ?PROGRESS: destroy transient window 1
+	[shell test_transient_for]
+		!
+		?PROGRESS: destroy transient window 1
 
-    [shell pekwm]
-        [log waiting for _transient_for $client to be set to 0]
-        ?transient for changed from $client to (0x)?0
-        ?client for window .* destructed
+	[shell pekwm]
+		[log waiting for _transient_for $client to be set to 0]
+		?transient for changed from $client to (0x)?0
+		?client for window .* destructed
 
-    [shell test_transient_for]
-        !
-        ?PROGRESS: destroy main window
+	[shell test_transient_for]
+		!
+		?PROGRESS: destroy main window
 
-    [shell pekwm]
-        ?client for window .* destructed
+	[shell pekwm]
+		?client for window .* destructed
 
-    [shell test_transient_for]
-        !
-        ?PROGRESS: done
-        ?SH-PROMPT:
+	[shell test_transient_for]
+		!
+		?PROGRESS: done
+		?SH-PROMPT:
 
-    [shell test_transient_for]
-        [log test_transient_for (transient on self)]
-        !$TEST_DIR/test_transient_for transient-on-self
-        ?transient [0-9]+ set to self
+	[shell test_transient_for]
+		[log test_transient_for (transient on self)]
+		!$TEST_DIR/test_transient_for transient-on-self
+		?transient [0-9]+ set to self
 
-    [shell pekwm]
-        [log verify pekwm error message]
-        ?client set transient hint for itself
+	[shell pekwm]
+		[log verify pekwm error message]
+		?client set transient hint for itself
 
-    [shell test_transient_for]
-        !
-        ?PROGRESS: destroy transient window 1
-        !
-        ?PROGRESS: destroy main window
-        !
-        ?PROGRESS: done
-        ?SH-PROMPT:
+	[shell test_transient_for]
+		!
+		?PROGRESS: destroy transient window 1
+		!
+		?PROGRESS: destroy main window
+		!
+		?PROGRESS: done
+		?SH-PROMPT:
 
-        [log test_transient_for (destroy main before transient)]
-        !$TEST_DIR/test_transient_for destroy-main-first
-        ?transient [0-9]+ set to [0-9]+
+		[log test_transient_for (destroy main before transient)]
+		!$TEST_DIR/test_transient_for destroy-main-first
+		?transient [0-9]+ set to [0-9]+
 
-    [shell pekwm]
-        ?transient for changed from (0x)?0 to (0x[0-9a-f]+)
-        [local client=$2]
+	[shell pekwm]
+		?transient for changed from (0x)?0 to (0x[0-9a-f]+)
+		[local client=$2]
 
-    [shell test_transient_for]
-        !
-        ?PROGRESS: destroy main window
+	[shell test_transient_for]
+		!
+		?PROGRESS: destroy main window
 
-    [shell pekwm]
-        [log waiting for _transient_for $client to be set to 0]
-        ?transient for changed from $client to (0x)?0
-        ?client for window .* destructed
+	[shell pekwm]
+		[log waiting for _transient_for $client to be set to 0]
+		?transient for changed from $client to (0x)?0
+		?client for window .* destructed
 
-    [shell test_transient_for]
-        !
-        ?PROGRESS: destroy transient window 1
+	[shell test_transient_for]
+		!
+		?PROGRESS: destroy transient window 1
 
-    [shell pekwm]
-        ?client for window .* destructed
+	[shell pekwm]
+		?client for window .* destructed
 
-    [shell test_transient_for]
-        !
-        ?PROGRESS: done
-        ?SH-PROMPT:
+	[shell test_transient_for]
+		!
+		?PROGRESS: done
+		?SH-PROMPT:
 
-        [log test_transient_for (loop)]
-        !$TEST_DIR/test_transient_for transient-loop
-        ?transient [0-9]+ set to [0-9]+
+		[log test_transient_for (loop)]
+		!$TEST_DIR/test_transient_for transient-loop
+		?transient [0-9]+ set to [0-9]+
 
-    [shell pekwm]
-        ?transient for changed from (0x)?0 to (0x[0-9a-f]+)
-        [local client1=$2]
+	[shell pekwm]
+		?transient for changed from (0x)?0 to (0x[0-9a-f]+)
+		[local client1=$2]
 
-    [shell test_transient_for]
-        !
-        ?transient [0-9]+ set to [0-9]+
-        ?transient [0-9]+ set to [0-9]+
+	[shell test_transient_for]
+		!
+		?transient [0-9]+ set to [0-9]+
+		?transient [0-9]+ set to [0-9]+
 
-    [shell pekwm]
-        ?transient for changed from (0x)?0 to (0x[0-9a-f]+)
-        [local client2=$2]
-        ?transient for changed from (0x)?0 to (0x[0-9a-f]+)
-        [local client3=$2]
+	[shell pekwm]
+		?transient for changed from (0x)?0 to (0x[0-9a-f]+)
+		[local client2=$2]
+		?transient for changed from (0x)?0 to (0x[0-9a-f]+)
+		[local client3=$2]
 
-    [shell test_transient_for]
-        !
-        ?PROGRESS: destroy transient window 1
+	[shell test_transient_for]
+		!
+		?PROGRESS: destroy transient window 1
 
-    [shell pekwm]
-        ?transient for changed from .* to (0x)?0
-        ?client for window .* destructed
+	[shell pekwm]
+		?transient for changed from .* to (0x)?0
+		?client for window .* destructed
 
-    [shell test_transient_for]
-        !
-        ?PROGRESS: destroy transient window 2
+	[shell test_transient_for]
+		!
+		?PROGRESS: destroy transient window 2
 
-    [shell pekwm]
-        ?transient for changed from .* to (0x)?0
-        ?client for window .* destructed
+	[shell pekwm]
+		?transient for changed from .* to (0x)?0
+		?client for window .* destructed
 
-    [shell test_transient_for]
-        !
-        ?PROGRESS: destroy main window
+	[shell test_transient_for]
+		!
+		?PROGRESS: destroy main window
 
-    [shell pekwm]
-        ?client for window .* destructed
+	[shell pekwm]
+		?client for window .* destructed
 
-    [shell test_transient_for]
-        !
-        ?PROGRESS: done
-        ?SH-PROMPT:
+	[shell test_transient_for]
+		!
+		?PROGRESS: done
+		?SH-PROMPT:
 [endfunction]
 
 [function test_icon_property]
-    [log test_icon_property]
+	[log test_icon_property]
 
-    [shell xterm]
-        !xterm -name icon +sb /bin/sh
+	[shell xterm]
+		!xterm -name icon +sb /bin/sh
 
-    [shell pekwm]
-        ?set _NET_WM_ICON on
-        ?client constructed for window (0x[0-9a-f]+)
-        [global window=$1]
+	[shell pekwm]
+		?set _NET_WM_ICON on
+		?client constructed for window (0x[0-9a-f]+)
+		[global window=$1]
 
-    [shell xprop]
-        [log verify _NET_WM_ICON is set]
-        -not found
-        !xprop -id $window _NET_WM_ICON
-        ?_NET_WM_ICON.*32 x 32
-        ?SH-PROMPT:
-        -
+	[shell xprop]
+		[log verify _NET_WM_ICON is set]
+		-not found
+		!xprop -id $window _NET_WM_ICON
+		?_NET_WM_ICON.*32 x 32
+		?SH-PROMPT:
+		-
 
-    [shell xterm]
-        !$_CTRL_C_
-        ?SH-PROMPT:
+	[shell xterm]
+		!$_CTRL_C_
+		?SH-PROMPT:
 [endfunction]
 
 [function test_client_frame_geometry_property]
-    [log test_client_frame_geometry_property]
+	[log test_client_frame_geometry_property]
 
-    [shell xterm]
-        !xterm -name client-geometry +sb /bin/sh
+	[shell xterm]
+		!xterm -name client-geometry +sb /bin/sh
 
-    [shell pekwm]
-        ???applied ClientGeometry property Geometry x:10 y: 10 width: 100 height: 100 -> Geometry x:914 y: 658 width: 100 height: 100
-        ?client constructed for window (0x[0-9a-f]+)
-        [global window=$1]
+	[shell pekwm]
+		???applied ClientGeometry property Geometry x:10 y: 10 width: 100 height: 100 -> Geometry x:914 y: 658 width: 100 height: 100
+		?client constructed for window (0x[0-9a-f]+)
+		[global window=$1]
 
-    [shell xprop]
-        [log verify Client geometry]
-        -not found
-        !xwininfo -id $window
-        ?Width: 100
-        ?Height: 100
-        ?-geometry .*-10-10
-        ?SH-PROMPT:
-        -
+	[shell xprop]
+		[log verify Client geometry]
+		-not found
+		!xwininfo -id $window
+		?Width: 100
+		?Height: 100
+		?-geometry .*-10-10
+		?SH-PROMPT:
+		-
 
-    [shell xterm]
-        !$_CTRL_C_
-        ?SH-PROMPT:
+	[shell xterm]
+		!$_CTRL_C_
+		?SH-PROMPT:
 
-    [shell xterm]
-        !xterm -name frame-geometry +sb /bin/sh
+	[shell xterm]
+		!xterm -name frame-geometry +sb /bin/sh
 
-    [shell pekwm]
-        ???applied FrameGeometry property Geometry x:10 y: 10 width: 100 height: 100 -> Geometry x:10 y: 10 width: 100 height: 100
-        ?client constructed for window (0x[0-9a-f]+)
-        [global window=$1]
+	[shell pekwm]
+		???applied FrameGeometry property Geometry x:10 y: 10 width: 100 height: 100 -> Geometry x:10 y: 10 width: 100 height: 100
+		?client constructed for window (0x[0-9a-f]+)
+		[global window=$1]
 
-    [shell xprop]
-        [log verify Frame geometry]
-        # height should be less than 100 due to titlebar
-        -(not found|Height: 100)
-        !xwininfo -id $window
-        ?Width: 100
-        # not checking height due to variable title height
-        ?-geometry .*\+10\+10
-        ?SH-PROMPT:
-        -
+	[shell xprop]
+		[log verify Frame geometry]
+		# height should be less than 100 due to titlebar
+		-(not found|Height: 100)
+		!xwininfo -id $window
+		?Width: 100
+		# not checking height due to variable title height
+		?-geometry .*\+10\+10
+		?SH-PROMPT:
+		-
 
-    [shell xterm]
-        !$_CTRL_C_
-        ?SH-PROMPT:
+	[shell xterm]
+		!$_CTRL_C_
+		?SH-PROMPT:
 
 [endfunction]
 
 [shell Xvfb]
-    [call init-shell]
-    [log starting Xvfb]
-    -Fatal server error
-    !Xvfb -screen 0 1024x768x24 -dpi 96 -displayfd 1 $DISPLAY
-    ?^1
+	[call init-shell]
+	[log starting Xvfb]
+	-Fatal server error
+	!Xvfb -screen 0 1024x768x24 -dpi 96 -displayfd 1 $DISPLAY
+	?^1
 
 [shell pekwm]
-    [call init-shell]
-    -Invalid read of size
-    [log starting pekwm (pekwm.config.report_all)]
-    !$$VALGRIND $BIN_DIR/pekwm --config pekwm.config.report_all --log-level trace
-    ?Enter event loop.
+	[call init-shell]
+	-Invalid read of size
+	[log starting pekwm (pekwm.config.report_all)]
+	!$$VALGRIND $BIN_DIR/pekwm --config pekwm.config.report_all --log-level trace
+	?Enter event loop.
 
 [shell xev]
-    [call init-shell]
+	[call init-shell]
 
 [shell xprop]
-    [call init-shell]
+	[call init-shell]
 
 [shell xterm]
-    [call init-shell]
+	[call init-shell]
 
 [shell test]
-    [call init-shell]
-    [call test_client_frame_geometry_property]
-    [call test_icon_property]
-    [call test_transient_for]
-    [call test_cfg_deny_resize_inc]
-    [call test_warp_pointer]
-    [call test_net_request_frame_extents]
-    [call test_update_client_list_report_all]
+	[call init-shell]
+	[call test_client_frame_geometry_property]
+	[call test_icon_property]
+	[call test_transient_for]
+	[call test_cfg_deny_resize_inc]
+	[call test_warp_pointer]
+	[call test_net_request_frame_extents]
+	[call test_update_client_list_report_all]
 
 [shell pekwm]
-    !$_CTRL_C_
-    ?SH-PROMPT:
+	!$_CTRL_C_
+	?SH-PROMPT:
 
-    [log starting pekwm (pekwm.config)]
-    !$$VALGRIND $BIN_DIR/pekwm --config pekwm.config --log-level trace
-    ?Enter event loop.
+	[log starting pekwm (pekwm.config)]
+	!$$VALGRIND $BIN_DIR/pekwm --config pekwm.config --log-level trace
+	?Enter event loop.
 
 [shell test]
-    [call test_update_client_list]
+	[call test_update_client_list]
 
 [shell pekwm]
-    !$_CTRL_C_
-    ?SH-PROMPT:
-    [call test_config_path]
+	!$_CTRL_C_
+	?SH-PROMPT:
+	[call test_config_path]
 
 [shell test]
-    [call test_pekwm_replace]
+	[call test_pekwm_replace]
 
 [shell Xvfb]
-    !$_CTRL_C_
-    ?SH-PROMPT:
+	!$_CTRL_C_
+	?SH-PROMPT:

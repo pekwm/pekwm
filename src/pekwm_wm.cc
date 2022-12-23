@@ -161,7 +161,7 @@ main(int argc, char **argv)
 		if (cfg_dir.size() == 0) {
 			std::cerr << "failed to get configuration file path, "
 				  << "none of $HOME and $PEKWM_CONFIG_PATH "
-				  << " is set." << std::endl;
+				  << "is set." << std::endl;
 			stop(write_fd, "error", nullptr);
 		}
 		config_file = cfg_dir + "/config";

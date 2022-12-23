@@ -6,7 +6,8 @@ project(pekwm)
 set(pekwm_VERSION_MAJOR 0)
 set(pekwm_VERSION_MINOR 3)
 set(pekwm_VERSION_PATCH 0)
-set(pekwm_VERSION "${pekwm_VERSION_MAJOR}.${pekwm_VERSION_MINOR}.${pekwm_VERSION_PATCH}")
+set(pekwm_VERSION
+    "${pekwm_VERSION_MAJOR}.${pekwm_VERSION_MINOR}.${pekwm_VERSION_PATCH}")
 set(PEKWM_THEMES "https://www.pekwm.se/themes" CACHE STRING
     "base url where theme index resides, without ending /")
 
@@ -32,7 +33,7 @@ check_include_file(stdint.h PEKWM_HAVE_STDINT_H)
 
 check_include_file_cxx(locale PEKWM_HAVE_LOCALE)
 if (PEKWM_HAVE_LOCALE)
-  check_cxx_source_compiles("
+	check_cxx_source_compiles("
 #include <locale>
 int main() {
   std::locale num_locale(\"\");
@@ -41,7 +42,7 @@ int main() {
 " PEKWM_HAVE_LOCALE_COMBINE)
 
 else()
-  check_include_file(locale.h PEKWM_HAVE_LOCALE_H REQUIRED)
+	check_include_file(locale.h PEKWM_HAVE_LOCALE_H REQUIRED)
 endif (PEKWM_HAVE_LOCALE)
 
 check_function_exists(localtime_r PEKWM_HAVE_LOCALTIME_R REQUIRED)
@@ -134,72 +135,73 @@ option(TESTS "include tests" OFF)
 option(DEV "include development tools" OFF)
 
 if (ENABLE_XFT)
-  find_package(Freetype)
+	find_package(Freetype)
 endif (ENABLE_XFT)
 
 if (ENABLE_IMAGE_JPEG)
-  find_package(JPEG)
+	find_package(JPEG)
 endif (ENABLE_IMAGE_JPEG)
 
 if (ENABLE_IMAGE_PNG)
-  find_package(PNG)
+	find_package(PNG)
 endif (ENABLE_IMAGE_PNG)
 
 # Compilation
 if (ENABLE_SHAPE AND X11_Xshape_FOUND)
-  set(pekwm_FEATURES "${pekwm_FEATURES} XShape")
-  set(PEKWM_HAVE_SHAPE 1)
+	set(pekwm_FEATURES "${pekwm_FEATURES} XShape")
+	set(PEKWM_HAVE_SHAPE 1)
 endif (ENABLE_SHAPE AND X11_Xshape_FOUND)
 
 if (ENABLE_XINERAMA AND X11_Xinerama_FOUND)
-  set(pekwm_FEATURES "${pekwm_FEATURES} Xinerama")
-  set(PEKWM_HAVE_XINERAMA 1)
+	set(pekwm_FEATURES "${pekwm_FEATURES} Xinerama")
+	set(PEKWM_HAVE_XINERAMA 1)
 endif (ENABLE_XINERAMA AND X11_Xinerama_FOUND)
 
 if (ENABLE_XFT AND X11_Xft_FOUND AND FREETYPE_FOUND)
-  set(pekwm_FEATURES "${pekwm_FEATURES} Xft")
-  set(PEKWM_HAVE_XFT 1)
+	set(pekwm_FEATURES "${pekwm_FEATURES} Xft")
+	set(PEKWM_HAVE_XFT 1)
 endif (ENABLE_XFT AND X11_Xft_FOUND AND FREETYPE_FOUND)
 
 if (ENABLE_IMAGE_JPEG AND JPEG_FOUND)
-  set(pekwm_FEATURES "${pekwm_FEATURES} image-jpeg")
-  set(PEKWM_HAVE_IMAGE_JPEG 1)
+	set(pekwm_FEATURES "${pekwm_FEATURES} image-jpeg")
+	set(PEKWM_HAVE_IMAGE_JPEG 1)
 endif (ENABLE_IMAGE_JPEG AND JPEG_FOUND)
 
 if (ENABLE_IMAGE_PNG AND PNG_FOUND)
-  set(pekwm_FEATURES "${pekwm_FEATURES} image-png")
-  set(PEKWM_HAVE_IMAGE_PNG 1)
+	set(pekwm_FEATURES "${pekwm_FEATURES} image-png")
+	set(PEKWM_HAVE_IMAGE_PNG 1)
 endif (ENABLE_IMAGE_PNG AND PNG_FOUND)
 
 if (ENABLE_IMAGE_XPM AND X11_Xpm_FOUND)
-  set(pekwm_FEATURES "${pekwm_FEATURES} image-xpm")
-  set(PEKWM_HAVE_IMAGE_XPM 1)
+	set(pekwm_FEATURES "${pekwm_FEATURES} image-xpm")
+	set(PEKWM_HAVE_IMAGE_XPM 1)
 endif (ENABLE_IMAGE_XPM AND X11_Xpm_FOUND)
 
 if (ENABLE_RANDR AND X11_Xrandr_FOUND)
-  set(pekwm_FEATURES "${pekwm_FEATURES} Xrandr")
-  set(PEKWM_HAVE_XRANDR 1)
+	set(pekwm_FEATURES "${pekwm_FEATURES} Xrandr")
+	set(PEKWM_HAVE_XRANDR 1)
 endif (ENABLE_RANDR AND X11_Xrandr_FOUND)
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
-  set(pekwm_FEATURES "${pekwm_FEATURES} debug")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+	set(pekwm_FEATURES "${pekwm_FEATURES} debug")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
 endif (CMAKE_BUILD_TYPE MATCHES Debug)
 
 if (PEDANTIC)
-  set(pekwm_FEATURES "${pekwm_FEATURES} pedantic")
-  # -Werror cause the compiler fail with:
-  #  Error: original is defined but not used.
-  # when throwing some exceptions
-  if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic")
-  else ()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -pedantic")
-  endif ()
-  check_cxx_compiler_flag("-Wno-variadic-macros" NO_VARIADIC_MACROS)
-  if (NO_VARIADIC_MACROS)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-variadic-macros")
-  endif (NO_VARIADIC_MACROS)
+	set(pekwm_FEATURES "${pekwm_FEATURES} pedantic")
+	# -Werror cause the compiler fail with:
+	#  Error: original is defined but not used.
+	# when throwing some exceptions
+	if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic")
+	else ()
+		set(CMAKE_CXX_FLAGS
+		    "${CMAKE_CXX_FLAGS} -Wall -Werror -pedantic")
+	endif ()
+	check_cxx_compiler_flag("-Wno-variadic-macros" NO_VARIADIC_MACROS)
+	if (NO_VARIADIC_MACROS)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-variadic-macros")
+	endif (NO_VARIADIC_MACROS)
 endif (PEDANTIC)
 
 # check after pedantic check, -Wall -Werror -pedantic will cause this
@@ -211,10 +213,10 @@ int main() { return 0; }
 " PEKWM_HAVE_GCC_DIAGNOSTICS_PUSH)
 
 add_definitions(-DVERSION="${pekwm_VERSION}"
-  -DFEATURES="${pekwm_FEATURES}"
-  -DBINDIR="${CMAKE_INSTALL_PREFIX}/bin"
-  -DDATADIR="${CMAKE_INSTALL_PREFIX}/share"
-  -DSYSCONFDIR="${CMAKE_INSTALL_FULL_SYSCONFDIR}/pekwm")
+		-DFEATURES="${pekwm_FEATURES}"
+		-DBINDIR="${CMAKE_INSTALL_PREFIX}/bin"
+		-DDATADIR="${CMAKE_INSTALL_PREFIX}/share"
+		-DSYSCONFDIR="${CMAKE_INSTALL_FULL_SYSCONFDIR}/pekwm")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH True)
 
 # Subdirectories
@@ -224,10 +226,10 @@ add_subdirectory(doc)
 add_subdirectory(src)
 
 if (DEV)
-   add_subdirectory(dev)
+	add_subdirectory(dev)
 endif (DEV)
 
 if (TESTS)
-   enable_testing()
-   add_subdirectory(test)
+	enable_testing()
+	add_subdirectory(test)
 endif (TESTS)

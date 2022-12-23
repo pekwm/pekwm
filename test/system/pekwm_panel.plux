@@ -7,73 +7,73 @@ Basic pekwm_panel tests
 [global DISPLAY=:1]
 
 [function init-shell]
-    ?SH-PROMPT:
-    !export DISPLAY=$DISPLAY
-    ?SH-PROMPT:
-    !VALGRIND=`which valgrind 2>/dev/null`
-    ?SH-PROMPT:
+	?SH-PROMPT:
+	!export DISPLAY=$DISPLAY
+	?SH-PROMPT:
+	!VALGRIND=`which valgrind 2>/dev/null`
+	?SH-PROMPT:
 [endfunction]
 
 [shell Xvfb]
-    [call init-shell]
-    [log starting Xvfb]
-    -Fatal server error
-    !Xvfb -screen 0 640x480x24 -dpi 96 -displayfd 1 $DISPLAY
-    ?^1
+	[call init-shell]
+	[log starting Xvfb]
+	-Fatal server error
+	!Xvfb -screen 0 640x480x24 -dpi 96 -displayfd 1 $DISPLAY
+	?^1
 
 [shell pekwm]
-    [call init-shell]
-    !$$VALGRIND $BIN_DIR/pekwm --config pekwm.config --log-level trace
-    ?Enter event loop.
+	[call init-shell]
+	!$$VALGRIND $BIN_DIR/pekwm --config pekwm.config --log-level trace
+	?Enter event loop.
 
 [shell pekwm_panel]
-    [call init-shell]
-    [log run panel at the top]
-    !$BIN_DIR/pekwm_panel -c pekwm_panel.config.top  -C pekwm.config --log-level trace
-    ?entering main loop
+	[call init-shell]
+	[log run panel at the top]
+	!$BIN_DIR/pekwm_panel -c pekwm_panel.config.top -C pekwm.config --log-level trace
+	?entering main loop
 
 [shell pekwm]
-    [log waiting for window to be mapped]
-    ?client constructed for window (0x[0-9a-f]+)
-    [global panel_window=$1]
+	[log waiting for window to be mapped]
+	?client constructed for window (0x[0-9a-f]+)
+	[global panel_window=$1]
 
 [shell xwininfo]
-    [call init-shell]
-    [log verfiy panel size]
-    !xwininfo -id $panel_window
-    ?Absolute upper-left X:  0
-    ?Absolute upper-left Y:  0
-    ?Width: 640
-    ?Height: 24
-    ???-geometry 640x24+0+0
-    ?SH-PROMPT:
+	[call init-shell]
+	[log verfiy panel size]
+	!xwininfo -id $panel_window
+	?Absolute upper-left X:  0
+	?Absolute upper-left Y:  0
+	?Width: 640
+	?Height: 24
+	???-geometry 640x24+0+0
+	?SH-PROMPT:
 
 [shell pekwm_panel]
-    !$_CTRL_C_
-    ?SH-PROMPT:
-    [log run panel at the bottom]
-    !$BIN_DIR/pekwm_panel -c pekwm_panel.config.bottom -C pekwm.config --log-level trace
-    ?entering main loop
+	!$_CTRL_C_
+	?SH-PROMPT:
+	[log run panel at the bottom]
+	!$BIN_DIR/pekwm_panel -c pekwm_panel.config.bottom -C pekwm.config --log-level trace
+	?entering main loop
 
 [shell pekwm]
-    [log waiting for window to be mapped]
-    ?client constructed for window (0x[0-9a-f]+)
-    [global panel_window=$1]
+	[log waiting for window to be mapped]
+	?client constructed for window (0x[0-9a-f]+)
+	[global panel_window=$1]
 
 [shell xwininfo]
-    [log verfiy panel size]
-    !xwininfo -id $panel_window
-    ?Absolute upper-left X:  0
-    ?Absolute upper-left Y:  456
-    ?Width: 640
-    ?Height: 24
-    ???-geometry 640x24+0-0
-    ?SH-PROMPT:
+	[log verfiy panel size]
+	!xwininfo -id $panel_window
+	?Absolute upper-left X:  0
+	?Absolute upper-left Y:  456
+	?Width: 640
+	?Height: 24
+	???-geometry 640x24+0-0
+	?SH-PROMPT:
 
 [shell pekwm_panel]
-    !$_CTRL_C_
-    ?SH-PROMPT:
+	!$_CTRL_C_
+	?SH-PROMPT:
 
 [shell Xvfb]
-    !$_CTRL_C_
-    ?SH-PROMPT:
+	!$_CTRL_C_
+	?SH-PROMPT:

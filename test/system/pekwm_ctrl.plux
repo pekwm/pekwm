@@ -9,62 +9,62 @@ Start a single Xvfb pekwm_ctrl system tests in one go.
 [global DISPLAY=:1]
 
 [function set_title msg title]
-    [shell pekwm_ctrl]
-        [log test pekwm_ctrl ($msg)]
-        !$BIN_DIR/pekwm_ctrl -c xterm Set Title $title
-        ?_PEKWM_CMD ([0-9]+) Set Title
-        [global window=$1]
-        ?SH-PROMPT:
+	[shell pekwm_ctrl]
+		[log test pekwm_ctrl ($msg)]
+		!$BIN_DIR/pekwm_ctrl -c xterm Set Title $title
+		?_PEKWM_CMD ([0-9]+) Set Title
+		[global window=$1]
+		?SH-PROMPT:
 
-    [shell pekwm]
-        ?start action 1 wo
-        ?end action 1 wo
+	[shell pekwm]
+		?start action 1 wo
+		?end action 1 wo
 
-    [shell pekwm_ctrl]
-        [log verify xterm title]
-        !$BIN_DIR/pekwm_ctrl -a list
-        # ... is to match a byte order mark that is output on NetBSD
-        # at the time of writing.
-        ?$window xterm \((...)?$title\)
-        ?SH-PROMPT:
+	[shell pekwm_ctrl]
+		[log verify xterm title]
+		!$BIN_DIR/pekwm_ctrl -a list
+		# ... is to match a byte order mark that is output on NetBSD
+		# at the time of writing.
+		?$window xterm \((...)?$title\)
+		?SH-PROMPT:
 [endfunction]
 
 [shell Xvfb]
-    ?SH-PROMPT:
-    [log starting Xvfb]
-    -Fatal server error
-    !Xvfb -displayfd 1 $DISPLAY
-    ?^1
+	?SH-PROMPT:
+	[log starting Xvfb]
+	-Fatal server error
+	!Xvfb -displayfd 1 $DISPLAY
+	?^1
 
 [shell pekwm]
-    [log starting pekwm]
-    ?SH-PROMPT:
-    !$BIN_DIR/pekwm --display :1 --log-level trace
-    ?Enter event loop.
+	[log starting pekwm]
+	?SH-PROMPT:
+	!$BIN_DIR/pekwm --display :1 --log-level trace
+	?Enter event loop.
 
 [shell xterm]
-    [log starting xterm]
-    ?SH-PROMPT:
-    !xterm -T xterm -display :1 /bin/sh
+	[log starting xterm]
+	?SH-PROMPT:
+	!xterm -T xterm -display :1 /bin/sh
 
 [shell pekwm]
-    ?client constructed
+	?client constructed
 
 [shell pekwm_ctrl]
-    ?SH-PROMPT:
-    !export DISPLAY=$DISPLAY
-    ?SH-PROMPT:
+	?SH-PROMPT:
+	!export DISPLAY=$DISPLAY
+	?SH-PROMPT:
 
-    # list clients for debugging purposes
-    -ERROR
-    !$BIN_DIR/pekwm_ctrl -a list
-    ?SH-PROMPT:
+	# list clients for debugging purposes
+	-ERROR
+	!$BIN_DIR/pekwm_ctrl -a list
+	?SH-PROMPT:
 
-    -(ERROR|no client match)
-    [call set_title short short]
-    [call set_title medium message_spans_multiple]
-    [call set_title long really_long_message_that_spans_many_messages]
+	-(ERROR|no client match)
+	[call set_title short short]
+	[call set_title medium message_spans_multiple]
+	[call set_title long really_long_message_that_spans_many_messages]
 
 [shell Xvfb]
-    !$_CTRL_C_
-    ?SH-PROMPT:
+	!$_CTRL_C_
+	?SH-PROMPT:
