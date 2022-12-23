@@ -14,6 +14,9 @@ set(PEKWM_THEMES "https://www.pekwm.se/themes" CACHE STRING
 # Check for C++98
 set(CMAKE_CXX_STANDARD 98)
 
+# Export compile commands, LSP integrations
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 include(CheckSymbolExists)
 include(CheckTypeSize)
 include(CheckCXXCompilerFlag)

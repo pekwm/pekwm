@@ -1,7 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
 
-set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
 configure_file(${CMAKE_SOURCE_DIR}/CMake/config.h.in
 	       ${CMAKE_CURRENT_BINARY_DIR}/config.h)
 

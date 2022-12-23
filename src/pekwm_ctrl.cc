@@ -1,6 +1,6 @@
 //
 // pekwm_ctrl.cc for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -14,6 +14,9 @@
 #include "Util.hh"
 #include "X11.hh"
 
+#include <algorithm>
+#include <string>
+
 extern "C" {
 #include <getopt.h>
 #include <time.h>
@@ -24,11 +27,11 @@ typedef bool(*send_message_fun)(Window, AtomName, int, const void*, size_t,
 				void *opaque);
 
 enum CtrlAction {
-	ACTION_RUN,
-	ACTION_FOCUS,
-	ACTION_LIST,
-	ACTION_UTIL,
-	ACTION_NO
+	PEKWM_CTRL_ACTION_RUN,
+	PEKWM_CTRL_ACTION_FOCUS,
+	PEKWM_CTRL_ACTION_LIST,
+	PEKWM_CTRL_ACTION_UTIL,
+	PEKWM_CTRL_ACTION_NO
 };
 
 #ifndef UNITTEST
@@ -48,15 +51,15 @@ static void usage(const char* name, int ret)
 static CtrlAction getAction(const std::string& name)
 {
 	if (name == "focus") {
-		return ACTION_FOCUS;
+		return PEKWM_CTRL_ACTION_FOCUS;
 	} else if (name == "list") {
-		return ACTION_LIST;
+		return PEKWM_CTRL_ACTION_LIST;
 	} else if (name == "run") {
-		return ACTION_RUN;
+		return PEKWM_CTRL_ACTION_RUN;
 	} else if (name == "util") {
-		return ACTION_UTIL;
+		return PEKWM_CTRL_ACTION_UTIL;
 	} else {
-		return ACTION_NO;
+		return PEKWM_CTRL_ACTION_NO;
 	}
 }
 
@@ -221,7 +224,7 @@ int main(int argc, char* argv[])
 	Charset::init();
 
 	int ch;
-	CtrlAction action = ACTION_RUN;
+	CtrlAction action = PEKWM_CTRL_ACTION_RUN;
 	Window client = None;
 	RegexString client_re;
 	while ((ch = getopt_long(argc, argv, "a:c:d:hw:", opts, nullptr))
@@ -229,7 +232,7 @@ int main(int argc, char* argv[])
 		switch (ch) {
 		case 'a':
 			action = getAction(optarg);
-			if (action == ACTION_NO) {
+			if (action == PEKWM_CTRL_ACTION_NO) {
 				usage(argv[0], 1);
 			}
 			break;
@@ -267,7 +270,7 @@ int main(int argc, char* argv[])
 		}
 	}
 
-	if (action == ACTION_UTIL) {
+	if (action == PEKWM_CTRL_ACTION_UTIL) {
 		return actionUtil(argc - optind, argv + optind);
 	}
 
@@ -303,7 +306,7 @@ int main(int argc, char* argv[])
 
 	bool res;
 	switch (action) {
-	case ACTION_RUN:
+	case PEKWM_CTRL_ACTION_RUN:
 		if (client == None) {
 			client = X11::getRoot();
 		}
@@ -314,16 +317,16 @@ int main(int argc, char* argv[])
 		std::cout << "_PEKWM_CMD " << client << " " << cmd;
 		res = sendCommand(cmd, client, sendClientMessage, nullptr);
 		break;
-	case ACTION_FOCUS:
+	case PEKWM_CTRL_ACTION_FOCUS:
 		std::cout << "_NET_ACTIVE_WINDOW " << client;
 		res = focusClient(client);
 		break;
-	case ACTION_LIST:
+	case PEKWM_CTRL_ACTION_LIST:
 		std::cout << "_NET_CLIENT_LIST" << std::endl;
 		res = listClients();
 		break;
-	case ACTION_NO:
-	case ACTION_UTIL:
+	case PEKWM_CTRL_ACTION_NO:
+	case PEKWM_CTRL_ACTION_UTIL:
 		res = false;
 		break;
 	}

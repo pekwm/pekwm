@@ -15,10 +15,8 @@ extern "C" {
 #include <X11/Xlib.h>
 }
 
-namespace pekwm_ctrl {
 #define UNITTEST
 #include "pekwm_ctrl.cc"
-}
 
 class TestWindowManager : public TestSuite,
 			  public WindowManager {
@@ -83,8 +81,7 @@ TestWindowManager::assertSendRecvCommand(const std::string& msg,
 					 const std::string& cmd)
 {
 	std::vector<XClientMessageEvent> evs;
-	pekwm_ctrl::sendCommand(cmd, None, send_message,
-				reinterpret_cast<void*>(&evs));
+	sendCommand(cmd, None, send_message, reinterpret_cast<void*>(&evs));
 	ASSERT_EQUAL(msg + " sendCommand", expected_size, evs.size());
 	std::vector<XClientMessageEvent>::iterator it = evs.begin();
 	for (; it != evs.end(); ++it) {
