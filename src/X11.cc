@@ -1577,6 +1577,17 @@ X11::destroyImage(XImage *ximage)
 }
 
 void
+X11::copyArea(Drawable src, Drawable dst, int src_x, int src_y,
+	      unsigned int width, unsigned int height,
+	      int dest_x, int dest_y)
+{
+	if (_dpy && width > 0 && height > 0) {
+		XCopyArea(_dpy, src, dst, getGC(),
+			  src_x, src_y, width, height, dest_x, dest_y);
+	}
+}
+
+void
 X11::setWindowBackground(Window window, ulong pixel)
 {
 	if (_dpy) {

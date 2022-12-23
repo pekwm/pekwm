@@ -1,5 +1,6 @@
 //
 // PMenu.cc for pekwm
+// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2004-2020 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -28,8 +29,6 @@
 
 PMenu::Item::Item(const std::string &name, PWinObj *wo_ref, PTexture *icon)
 	: PWinObjReference(wo_ref),
-	  _x(0),
-	  _y(0),
 	  _name(name),
 	  _type(MENU_ITEM_NORMAL),
 	  _icon(icon),
@@ -62,8 +61,11 @@ PMenu::PMenu(const std::string &title,
 	  _menu_bg_un(None),
 	  _menu_bg_se(None),
 	  _menu_width(0),
-	  _item_height(0), _item_width_max(0), _item_width_max_avail(0),
-	  _icon_width(0), _icon_height(0),
+	  _item_height(0),
+	  _item_width_max(0),
+	  _item_pad_horz(0),
+	  _icon_width(0),
+	  _icon_height(0),
 	  _separator_height(0),
 	  _rows(0),
 	  _cols(0),
@@ -415,31 +417,21 @@ PMenu::buildMenuCalculate(void)
 		_item_width_max = title_width;
 	}
 
-	// This is the available width for drawing text on, the rest is reserved
-	// for submenu indicator, padding etc.
-	_item_width_max_avail = _item_width_max;
-
 	// Continue add padding etc.
 	Theme::PMenuData *md = pekwm::theme()->getMenuData();
-	_item_width_max += md->getPad(PAD_LEFT)
-		+ md->getPad(PAD_RIGHT);
+	_item_pad_horz = md->getPad(PAD_LEFT) + md->getPad(PAD_RIGHT);
 	if (pekwm::config()->isDisplayMenuIcons()) {
-		_item_width_max += _icon_width;
+		_item_pad_horz += _icon_width;
 	}
 
 	// If we have any submenus, increase the maximum width with arrow width
 	// + right pad as we are going to pad the arrow from the text too.
 	if (_has_submenu) {
-		_item_width_max += md->getPad(PAD_RIGHT)
+		_item_pad_horz += md->getPad(PAD_RIGHT)
 			+ md->getTextureArrow(OBJECT_STATE_FOCUSED)->getWidth();
 	}
 
-	// Remove padding etc from avail and item width.
-	if (_menu_width) {
-		uint padding = _item_width_max - _item_width_max_avail;
-		_item_width_max -= padding;
-		_item_width_max_avail -= padding;
-	}
+	_item_width_max += _item_pad_horz;
 
 	// Calculate item height
 	_item_height =
@@ -596,13 +588,16 @@ PMenu::buildMenuPlace(void)
 			}
 			(*it)->setX(x);
 			(*it)->setY(y);
+			(*it)->setWidth(_item_width_max);
 			if ((*it)->getType()
 			    == PMenu::Item::MENU_ITEM_NORMAL) {
 				y += _item_height;
 				++j; // only count real menu items
+				(*it)->setHeight(_item_height);
 			} else if ((*it)->getType()
 				   == PMenu::Item::MENU_ITEM_SEPARATOR) {
 				y += _separator_height;
+				(*it)->setHeight(_separator_height);
 			}
 		}
 		x += _item_width_max;
@@ -663,8 +658,9 @@ PMenu::buildMenuRenderItemNormal(Pixmap pix, ObjectState state,
 	Config *cfg = pekwm::config();
 
 	PTexture *tex = md->getTextureItem(state);
-	tex->render(pix, item->getX(), item->getY(),
-		    _item_width_max, _item_height);
+	tex->render(pix,
+		    item->getX(), item->getY(),
+		    item->getWidth(), item->getHeight());
 
 	uint start_x, start_y, icon_width, icon_height;
 	// If entry has an icon, draw it
@@ -703,7 +699,7 @@ PMenu::buildMenuRenderItemNormal(Pixmap pix, ObjectState state,
 			static_cast<uint>((_item_height / 2)
 					  - (arrow_height / 2));
 
-		start_x = item->getX() + _item_width_max
+		start_x = item->getX() + item->getWidth()
 			- arrow_width - md->getPad(PAD_RIGHT);
 		start_y = item->getY() + arrow_y;
 		tex->render(pix, start_x, start_y,
@@ -724,7 +720,7 @@ PMenu::buildMenuRenderItemNormal(Pixmap pix, ObjectState state,
 
 	// Render item text.
 	font->draw(pix, start_x, start_y, item->getName().c_str(),
-		   0, _item_width_max_avail);
+		   0, item->getWidth() - _item_pad_horz);
 }
 
 void
@@ -733,15 +729,16 @@ PMenu::buildMenuRenderItemSeparator(Pixmap pix, ObjectState state,
 {
 	Theme::PMenuData *md = pekwm::theme()->getMenuData();
 	PTexture *tex = md->getTextureSeparator(state);
-	tex->render(pix, item->getX(), item->getY(),
-		    _item_width_max, _separator_height);
+	tex->render(pix,
+		    item->getX(), item->getY(),
+		    item->getWidth(), item->getHeight());
 }
 
-#define COPY_ITEM_AREA(ITEM, PIX)					\
-	XCopyArea(X11::getDpy(), PIX, _menu_wo->getWindow(), X11::getGC(), \
-		  (ITEM)->getX(), (ITEM)->getY(), \
-		  _item_width_max, _item_height, \
-		  (ITEM)->getX(), (ITEM)->getY());
+#define COPY_ITEM_AREA(ITEM, PIX)		  \
+	X11::copyArea(PIX, _menu_wo->getWindow(), \
+		      (ITEM)->getX(), (ITEM)->getY(), \
+		      (ITEM)->getWidth(), (ITEM)->getHeight(), \
+		      (ITEM)->getX(), (ITEM)->getY());
 
 //! @brief Renders item as selected
 //! @param item Item to select
@@ -764,11 +761,12 @@ PMenu::selectItem(std::vector<PMenu::Item*>::const_iterator item,
 void
 PMenu::renderSelectedItem(void)
 {
-	if (_mapped && _item_curr < _items.size()) {
-		PMenu::Item *item = _items[_item_curr];
-		if (item->getType() != PMenu::Item::MENU_ITEM_HIDDEN) {
-			COPY_ITEM_AREA(item, _menu_bg_se);
-		}
+	if (! _mapped || _item_curr >= _items.size()) {
+		return;
+	}
+	PMenu::Item *item = _items[_item_curr];
+	if (item->getType() != PMenu::Item::MENU_ITEM_HIDDEN) {
+		COPY_ITEM_AREA(item, _menu_bg_se);
 	}
 }
 
@@ -1145,9 +1143,9 @@ PMenu::findItem(int x, int y)
 	for (; it != _items.end(); ++it) {
 		if (((*it)->getType() == PMenu::Item::MENU_ITEM_NORMAL) &&
 		    (x >= (*it)->getX())
-		    && (x <= signed((*it)->getX() + _item_width_max)) &&
+		    && (x <= signed((*it)->getX() + (*it)->getWidth())) &&
 		    (y >= (*it)->getY())
-		    && (y <= signed((*it)->getY() + _item_height))) {
+		    && (y <= signed((*it)->getY() + (*it)->getHeight()))) {
 			return *it;
 		}
 	}

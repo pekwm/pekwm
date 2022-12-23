@@ -1,6 +1,6 @@
 //
 // PMenu.hh for pekwm
-// Copyright (C) 2004-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2004-2022 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -29,21 +29,27 @@ public:
 	class Item : public PWinObjReference {
 	public:
 		enum Type {
-			MENU_ITEM_NORMAL, MENU_ITEM_SEPARATOR, MENU_ITEM_HIDDEN
+			MENU_ITEM_NORMAL,
+			MENU_ITEM_SEPARATOR,
+			MENU_ITEM_HIDDEN
 		};
 		Item(const std::string& name, PWinObj* wo_ref = nullptr,
 		     PTexture* icon = nullptr);
 		virtual ~Item(void);
 
-		inline int getX(void) const { return _x; }
-		inline int getY(void) const { return _y; }
+		inline int getX(void) const { return _gm.x; }
+		inline int getY(void) const { return _gm.y; }
+		inline int getWidth(void) const { return _gm.width; }
+		inline int getHeight(void) const { return _gm.height; }
 		inline const std::string &getName(void) const { return _name; }
 		inline const ActionEvent &getAE(void) const { return _ae; }
 		inline PTexture *getIcon(void) { return _icon; }
 		inline PMenu::Item::Type getType(void) const { return _type; }
 
-		inline void setX(int x) { _x = x; }
-		inline void setY(int y) { _y = y; }
+		inline void setX(int x) { _gm.x = x; }
+		inline void setY(int y) { _gm.y = y; }
+		inline void setWidth(int width) { _gm.width = width; }
+		inline void setHeight(int height) { _gm.height = height; }
 		inline void setName(const std::string &name) { _name = name; }
 		inline void setAE(const ActionEvent &ae) { _ae = ae; }
 		inline void setType(PMenu::Item::Type type) { _type = type; }
@@ -52,7 +58,7 @@ public:
 		inline PMenu::Item *getCreator(void) const { return _creator; }
 
 	private:
-		int _x, _y;
+		Geometry _gm;
 		std::string _name;
 
 		ActionEvent _ae; // used for specifying action of the entry
@@ -192,7 +198,9 @@ private:
 
 	// menu disp data
 	uint _menu_width; /**< Static set menu width. */
-	uint _item_height, _item_width_max, _item_width_max_avail;
+	uint _item_height;
+	uint _item_width_max;
+	uint _item_pad_horz;
 	uint _icon_width;
 	uint _icon_height;
 	uint _separator_height;

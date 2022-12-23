@@ -613,9 +613,8 @@ PImage::drawFixed(Render &rend, int x, int y, size_t width, size_t height)
 	} else {
 		// Plain copy of the pixmap onto Drawable.
 		bool need_free;
-		XCopyArea(X11::getDpy(), getPixmap(need_free),
-			  rend.getDrawable(), X11::getGC(),
-			  0, 0, width, height, x, y);
+		X11::copyArea(getPixmap(need_free), rend.getDrawable(),
+			      0, 0, width, height, x, y);
 	}
 }
 

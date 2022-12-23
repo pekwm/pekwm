@@ -515,6 +515,9 @@ public:
 			     int src_x, int src_y, int dest_x, int dest_y,
 			     uint width, uint height);
 	static void destroyImage(XImage *ximage);
+	static void copyArea(Drawable src, Drawable dst, int src_x, int src_y,
+			     unsigned int width, unsigned int height,
+			     int dest_x, int dest_y);
 
 	static void setWindowBackground(Window window, ulong pixel);
 	static void setWindowBackgroundPixmap(Window window, Pixmap pixmap);
