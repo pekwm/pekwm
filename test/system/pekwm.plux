@@ -40,6 +40,28 @@ in one go.
 	?SH-PROMPT:
 [endfunction]
 
+# verify that --log-file outputs to log file when specified on the command
+# line
+[function test_log_file_output]
+       [log test_log_file_output (--log-file)]
+       [shell test]
+               !cp /dev/null pekwm.log
+               ?SH-PROMPT:
+
+       [shell pekwm-log]
+               !tail -f pekwm.log
+
+       [shell pekwm]
+               !$$VALGRIND $BIN_DIR/pekwm --log-file pekwm.log --log-level trace
+
+       [shell pekwm-log]
+               ???Enter event loop.
+
+       [shell pekwm]
+               !$_CTRL_C_
+               ?SH-PROMPT:
+[endfunction]
+
 [function test_pekwm_replace]
 	[log test pekwm --replace]
 
@@ -490,6 +512,7 @@ in one go.
 	!$_CTRL_C_
 	?SH-PROMPT:
 	[call test_config_path]
+	[call test_log_file_output]
 
 [shell test]
 	[call test_pekwm_replace]

@@ -1,6 +1,6 @@
 //
 // Debug.cc for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2012 Andreas Schlick <ioerror@lavabit.com>
 //
 // This program is licensed under the GNU GPL.
@@ -115,6 +115,7 @@ namespace Debug
 	{
 		_log.close();
 		_log.open(path.c_str());
+		_use_cerr = ! _log.good();
 		return _log.good();
 	}
 
@@ -138,7 +139,7 @@ namespace Debug
 				_log.close();
 				_use_cerr = true;
 			} else {
-				_use_cerr = ! setLogFile(args[1]);
+				setLogFile(args[1]);
 			}
 		} else if (args[0] == "level") {
 			_level = getLevel(args[1]);
