@@ -4,7 +4,7 @@ MK       = ../mk
 
 include $(MK)/config.mk
 
-PROGS = pekwm pekwm_bg pekwm_cfg pekwm_ctrl pekwm_dialog pekwm_panel \
+PROGS = pekwm pekwm_bg pekwm_cfg pekwm_ctrl pekwm_dialog \
 	pekwm_screenshot pekwm_wm
 
 BASE_OBJS = Compat.o Charset.o Debug.o
@@ -39,9 +39,6 @@ PEKWM_CTRL_OBJS = pekwm_ctrl.o $(BASE_OBJS) $(CFG_PARSER_OBJS) \
 PEKWM_DIALOG_OBJS = pekwm_dialog.o $(BASE_OBJS) $(UTIL_OBJS) \
 		    X11.o X11Util.o X11App.o PWinObj.o \
 		    $(TEXTURE_OBJS) $(IMAGE_LOADER_OBJS)
-PEKWM_PANEL_OBJS = pekwm_panel.o $(BASE_OBJS)  $(UTIL_OBJS) \
-		    X11.o X11App.o X11Util.o PWinObj.o \
-		    $(TEXTURE_OBJS) $(IMAGE_LOADER_OBJS)
 PEKWM_SCREENSHOT_OBJS = pekwm_screenshot.o $(BASE_OBJS) String.o Util.o \
 			$(CFG_PARSER_OBJS) \
 			PImage.o Render.o $(IMAGE_LOADER_OBJS) X11.o ImageHandler.o
@@ -49,6 +46,7 @@ PEKWM_WM_OBJS = pekwm_wm.o $(BASE_OBJS) $(UTIL_OBJS) $(IMAGE_LOADER_OBJS) \
 		$(TEXTURE_OBJS) $(X11_OBJS) $(WM_OBJS)
 
 all: $(PROGS)
+	( cd panel; $(MAKE) all )
 
 install: $(PROGS)
 	mkdir -p $(DESTDIR)$(PREFIX)/bin
@@ -68,9 +66,6 @@ pekwm_ctrl: $(PEKWM_CTRL_OBJS)
 
 pekwm_dialog: $(PEKWM_DIALOG_OBJS)
 	$(LD) -o pekwm_dialog $(PEKWM_DIALOG_OBJS) $(LDFLAGS)
-
-pekwm_panel: $(PEKWM_PANEL_OBJS)
-	$(LD) -o pekwm_panel $(PEKWM_PANEL_OBJS) $(LDFLAGS)
 
 pekwm_screenshot: $(PEKWM_SCREENSHOT_OBJS)
 	$(LD) -o pekwm_screenshot $(PEKWM_SCREENSHOT_OBJS) $(LDFLAGS)

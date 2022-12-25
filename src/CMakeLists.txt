@@ -123,11 +123,6 @@ target_include_directories(pekwm_ctrl PUBLIC ${common_INCLUDE_DIRS})
 target_link_libraries(pekwm_ctrl x11 util ${common_LIBRARIES})
 install(TARGETS pekwm_ctrl DESTINATION bin)
 
-add_executable(pekwm_panel pekwm_panel.cc)
-target_include_directories(pekwm_panel PUBLIC ${common_INCLUDE_DIRS})
-target_link_libraries(pekwm_panel texture x11 util ${common_LIBRARIES})
-install(TARGETS pekwm_panel DESTINATION bin)
-
 if (ENABLE_IMAGE_PNG AND PNG_FOUND)
 	add_executable(pekwm_screenshot pekwm_screenshot.cc)
 	target_include_directories(pekwm_screenshot
@@ -141,3 +136,6 @@ add_executable(pekwm_wm pekwm_wm.cc)
 target_include_directories(pekwm_wm PUBLIC ${common_INCLUDE_DIRS})
 target_link_libraries(pekwm_wm wm texture x11 util ${common_LIBRARIES})
 install(TARGETS pekwm_wm DESTINATION bin)
+
+# Subdirectories
+add_subdirectory(panel)

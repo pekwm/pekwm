@@ -11,11 +11,11 @@ data/scripts/pekwm_ws_menu.sh
 dev/check
 mk/config.h
 mk/config.mk
+src/panel/pekwm_panel
 src/pekwm
 src/pekwm_bg
 src/pekwm_cfg
 src/pekwm_ctrl
 src/pekwm_dialog
-src/pekwm_panel
 src/pekwm_screenshot
 src/pekwm_wm
