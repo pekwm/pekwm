@@ -1,6 +1,6 @@
 //
 // Observable.hh for pekwm
-// Copyright (C) 2009-2021 Claes Nästen <pekdon@gmail.com>
+// Copyright (C) 2009-2022 Claes Nästen <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -9,6 +9,7 @@
 #ifndef _PEKWM_OBSERVABLE_HH_
 #define _PEKWM_OBSERVABLE_HH_
 
+#include <cstdlib>
 #include <map>
 #include <vector>
 
