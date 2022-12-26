@@ -12,6 +12,10 @@ Basic pekwm_panel tests
 	?SH-PROMPT:
 	!VALGRIND=`which valgrind 2>/dev/null`
 	?SH-PROMPT:
+	!if test $$? -ne 0; then
+	!	VALGRIND=""
+	!fi
+	?SH-PROMPT:
 [endfunction]
 
 [shell Xvfb]

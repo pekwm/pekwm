@@ -15,6 +15,10 @@ in one go.
 	?SH-PROMPT:
 	!VALGRIND=`which valgrind 2>/dev/null`
 	?SH-PROMPT:
+	!if test $$? -ne 0; then
+	!	VALGRIND=""
+	!fi
+	?SH-PROMPT:
 [endfunction]
 
 # test possible ways of setting the configuration file used by pekwm
