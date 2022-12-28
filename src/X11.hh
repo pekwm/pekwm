@@ -312,6 +312,10 @@ public:
 	static Time getLastEventTime(void) { return _last_event_time; }
 	static void setLastEventTime(Time t) { _last_event_time = t; }
 
+	static Window getSelectionOwner(Atom atom);
+	static void setSelectionOwner(Atom atom, Window win,
+				      Time timestamp = -1);
+
 	static Window getLastClickID(void) { return _last_click_id; }
 	static void setLastClickID(Window id) { _last_click_id = id; }
 	static Time getLastClickTime(uint button) {

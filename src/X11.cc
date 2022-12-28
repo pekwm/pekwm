@@ -499,6 +499,35 @@ X11::destruct(void) {
 	_dpy = 0;
 }
 
+/**
+ * Wrapper for XGetSelectionOwner.
+ */
+Window
+X11::getSelectionOwner(Atom atom)
+{
+	if (_dpy) {
+		return XGetSelectionOwner(_dpy, atom);
+	}
+	return None;
+}
+
+/**
+ * Wrapper for XSetSelectionOwner with default display and default timestamp
+ * from last registered timestamp.
+ *
+ * @param timestamp Use -1 for last event time (default)
+ */
+void
+X11::setSelectionOwner(Atom atom, Window owner, Time timestamp)
+{
+	if (_dpy) {
+		if (timestamp == static_cast<Time>(-1)) {
+			timestamp = _last_event_time;
+		}
+		XSetSelectionOwner(_dpy, atom, owner, timestamp);
+	}
+}
+
 XColor *
 X11::getColor(const std::string &color)
 {

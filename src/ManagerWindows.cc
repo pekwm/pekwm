@@ -92,8 +92,7 @@ HintWO::claimDisplay(bool replace)
 	std::string default_str = std::to_string(DefaultScreen(X11::getDpy()));
 	std::string session_name("WM_S" + default_str);
 	Atom session_atom = X11::getAtomId(session_name);
-	Window session_owner =
-		XGetSelectionOwner(X11::getDpy(), session_atom);
+	Window session_owner = X11::getSelectionOwner(session_atom);
 
 	if (session_owner && session_owner != _window) {
 		if (! replace) {
@@ -116,9 +115,8 @@ HintWO::claimDisplay(bool replace)
 	}
 
 	Time timestamp = getTime();
-
-	XSetSelectionOwner(X11::getDpy(), session_atom, _window, timestamp);
-	if (XGetSelectionOwner(X11::getDpy(), session_atom) == _window) {
+	X11::setSelectionOwner(session_atom, _window, timestamp);
+	if (X11::getSelectionOwner(session_atom) == _window) {
 		if (session_owner) {
 			// Wait for the previous window manager to go away and
 			// update owner.
