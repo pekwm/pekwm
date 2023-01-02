@@ -2,8 +2,7 @@
 Verify basic pekwm_theme functionality
 [enddoc]
 
-[global SCRIPTS_DIR=../../build/data/scripts]
-[global TEST_DIR=../../build/test/system]
+[include test.pluxinc]
 
 [function clear_cache]
 	[log clear .pekwm and .cache]

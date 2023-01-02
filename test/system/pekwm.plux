@@ -5,21 +5,7 @@ Start a single Xvfb and pekwm session and run all pekwm system tests
 in one go.
 [enddoc]
 
-[global BIN_DIR=../../build/src]
-[global TEST_DIR=../../build/test/system]
-[global DISPLAY=:1]
-
-[function init-shell]
-	?SH-PROMPT:
-	!export DISPLAY=$DISPLAY
-	?SH-PROMPT:
-	!VALGRIND=`which valgrind 2>/dev/null`
-	?SH-PROMPT:
-	!if test $$? -ne 0; then
-	!	VALGRIND=""
-	!fi
-	?SH-PROMPT:
-[endfunction]
+[include test.pluxinc]
 
 # test possible ways of setting the configuration file used by pekwm
 [function test_config_path]

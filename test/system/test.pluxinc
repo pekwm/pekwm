@@ -1,0 +1,15 @@
+[doc]
+Common functions and variables for pekwm tests
+[enddoc]
+
+[global BIN_DIR=../../build/src]
+[global TEST_DIR=../../build/test/system]
+[global SCRIPTS_DIR=../../build/data/scripts]
+
+[global DISPLAY=:1]
+
+[function init-shell]
+	?SH-PROMPT:
+	[call sh-eval "export DISPLAY=$DISPLAY"]
+	[call sh-which valgrind VALGRIND]
+[endfunction]

@@ -4,9 +4,7 @@ Run pekwm_ctrl tests using Xvfb
 Start a single Xvfb pekwm_ctrl system tests in one go.
 [enddoc]
 
-[global BIN_DIR=../../build/src]
-[global TEST_DIR=../../build/test/system]
-[global DISPLAY=:1]
+[include test.pluxinc]
 
 [function set_title msg title]
 	[shell pekwm_ctrl]

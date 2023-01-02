@@ -4,9 +4,7 @@ Run pekwm_screenshot tests using Xvfb
 Start a single Xvfb pekwm_screenshot system tests in one go.
 [enddoc]
 
-[global BIN_DIR=../../build/src]
-[global TEST_DIR=../../build/test/system]
-[global DISPLAY=:1]
+[include test.pluxinc]
 
 [shell Xvfb]
 	?SH-PROMPT:

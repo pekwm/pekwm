@@ -2,21 +2,7 @@
 Basic pekwm_panel tests
 [enddoc]
 
-[global BIN_DIR=../../build/src]
-[global TEST_DIR=../../build/test/system]
-[global DISPLAY=:1]
-
-[function init-shell]
-	?SH-PROMPT:
-	!export DISPLAY=$DISPLAY
-	?SH-PROMPT:
-	!VALGRIND=`which valgrind 2>/dev/null`
-	?SH-PROMPT:
-	!if test $$? -ne 0; then
-	!	VALGRIND=""
-	!fi
-	?SH-PROMPT:
-[endfunction]
+[include test.pluxinc]
 
 [shell Xvfb]
 	[call init-shell]
