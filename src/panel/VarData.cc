@@ -1,6 +1,6 @@
 //
 // VarData.cc for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -11,7 +11,7 @@
 /** empty string, used as default return value. */
 static std::string _empty_string;
 
-FieldObservation::FieldObservation(const std::string field)
+FieldObservation::FieldObservation(const std::string& field)
 	: _field(field)
 {
 }

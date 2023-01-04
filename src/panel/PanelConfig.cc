@@ -1,6 +1,6 @@
 //
 // PanelConfig.cc for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -21,8 +21,9 @@ static Util::StringTo<PanelPlacement> panel_placement_map[] =
 // WidgetConfig
 
 WidgetConfig::WidgetConfig(const std::string& name,
-			   std::vector<std::string> args,
-			   const SizeReq& size_req, uint interval_s,
+			   const std::vector<std::string>& args,
+			   const SizeReq& size_req,
+			   uint interval_s,
 			   const CfgParser::Entry* section)
 	: _name(name),
 	  _args(args),
@@ -36,11 +37,11 @@ WidgetConfig::WidgetConfig(const std::string& name,
 }
 
 WidgetConfig::WidgetConfig(const WidgetConfig& cfg)
-	: _size_req(cfg._size_req)
+	: _name(cfg._name),
+	  _args(cfg._args),
+	  _size_req(cfg._size_req),
+	  _interval_s(cfg._interval_s)
 {
-	_name = cfg._name;
-	_args = cfg._args;
-	_interval_s = cfg._interval_s;
 	if (cfg._section) {
 		_section = new CfgParser::Entry(*cfg._section);
 	} else {
@@ -228,5 +229,3 @@ PanelConfig::calculateRefreshIntervalS(void) const
 	}
 	return min;
 }
-
-

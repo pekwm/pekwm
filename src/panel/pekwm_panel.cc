@@ -22,7 +22,6 @@
 #include "X11.hh"
 
 #include "pekwm_panel.hh"
-#include "ClientInfo.hh"
 #include "ExternalCommandData.hh"
 #include "PanelConfig.hh"
 #include "PanelTheme.hh"
@@ -34,11 +33,8 @@
 extern "C" {
 #include <assert.h>
 #include <getopt.h>
-#include <string.h>
 #include <time.h>
 }
-
-#include "Compat.hh"
 
 /** pekwm configuration file. */
 static std::string _pekwm_config_file;
@@ -81,7 +77,6 @@ loadTheme(PanelTheme& theme, const std::string& pekwm_config_file)
 	CfgParser cfg;
 	cfg.parse(pekwm_config_file, CfgParserSource::SOURCE_FILE, true);
 
-	std::string config_file;
 	std::string theme_dir, theme_variant, theme_path;
 	bool font_default_x11;
 	std::string font_charset_override;
@@ -140,8 +135,6 @@ public:
 	PekwmPanel(const PanelConfig &cfg, PanelTheme &theme, XSizeHints *sh);
 	virtual ~PekwmPanel(void);
 
-	const PanelConfig& getCfg(void) const { return _cfg; }
-
 	void configure(void);
 	void setStrut(void);
 	void place(void);
@@ -153,8 +146,9 @@ public:
 
 private:
 
-	virtual ActionEvent *handleButtonPress(XButtonEvent *ev)
+	virtual ActionEvent *handleButtonPress(XButtonEvent* ev)
 	{
+		X11::setLastEventTime(ev->time);
 		PanelWidget *widget = findWidget(ev->x);
 		if (widget != nullptr) {
 			widget->click(ev->x - widget->getX(), ev->y - _gm.y);
@@ -162,8 +156,9 @@ private:
 		return nullptr;
 	}
 
-	virtual ActionEvent *handleButtonRelease(XButtonEvent*)
+	virtual ActionEvent *handleButtonRelease(XButtonEvent* ev)
 	{
+		X11::setLastEventTime(ev->time);
 		return nullptr;
 	}
 
@@ -174,6 +169,7 @@ private:
 
 	void handlePropertyNotify(XPropertyEvent *ev)
 	{
+		X11::setLastEventTime(ev->time);
 		if (_wm_state.handlePropertyNotify(ev)) {
 			render();
 		}
@@ -208,9 +204,21 @@ private:
 		return nullptr;
 	}
 
+	PanelWidget* findWidget(Window win)
+	{
+		std::vector<PanelWidget*>::iterator it = _widgets.begin();
+		for (; it != _widgets.end(); ++it) {
+			if (*(*it) == win) {
+				return *it;
+			}
+		}
+		return nullptr;
+	}
+
 	void addWidgets(void)
 	{
-		WidgetFactory factory(_theme, _var_data, _wm_state);
+		WidgetFactory factory(this, this, _theme,
+				      _var_data, _wm_state);
 
 		std::vector<WidgetConfig>::const_iterator it =
 			_cfg.widgetsBegin();
@@ -266,7 +274,7 @@ PekwmPanel::PekwmPanel(const PanelConfig &cfg, PanelTheme &theme,
 	X11::selectInput(_window,
 			 ButtonPressMask|ButtonReleaseMask|
 			 ExposureMask|
-			 PropertyChangeMask);
+			 PropertyChangeMask|SubstructureNotifyMask);
 
 	renderBackground();
 	X11::setWindowBackgroundPixmap(_window, _pixmap);
@@ -360,6 +368,10 @@ PekwmPanel::notify(Observable*, Observation *observation)
 		renderBackground();
 		renderPred(renderPredAlways, nullptr);
 	} else {
+		if (dynamic_cast<RequiredSizeChanged*>(observation)) {
+			P_TRACE("RequiredSizeChanged notification");
+			resizeWidgets();
+		}
 		render();
 	}
 }
@@ -374,8 +386,15 @@ PekwmPanel::refresh(bool timed_out)
 }
 
 void
-PekwmPanel::handleEvent(XEvent *ev)
+PekwmPanel::handleEvent(XEvent* ev)
 {
+	PanelWidget *widget = findWidget(ev->xany.window);
+	if (widget != nullptr) {
+		if (widget->handleXEvent(ev)) {
+			return;
+		}
+	}
+
 	switch (ev->type) {
 	case ButtonPress:
 		P_TRACE("ButtonPress");
@@ -388,8 +407,12 @@ PekwmPanel::handleEvent(XEvent *ev)
 	case ConfigureNotify:
 		P_TRACE("ConfigureNotify");
 		break;
+	case DestroyNotify:
+		P_TRACE("DestroyNotify");
+		break;
 	case EnterNotify:
 		P_TRACE("EnterNotify");
+		X11::setLastEventTime(ev->xcrossing.time);
 		break;
 	case Expose:
 		P_TRACE("Expose");
@@ -397,9 +420,20 @@ PekwmPanel::handleEvent(XEvent *ev)
 		break;
 	case LeaveNotify:
 		P_TRACE("LeaveNotify");
+		X11::setLastEventTime(ev->xcrossing.time);
+		break;
+	case KeyPress:
+	case KeyRelease:
+		X11::setLastEventTime(ev->xkey.time);
 		break;
 	case MapNotify:
 		P_TRACE("MapNotify");
+		break;
+	case MappingNotify:
+		P_TRACE("MappingNotify");
+		break;
+	case MotionNotify:
+		X11::setLastEventTime(ev->xkey.time);
 		break;
 	case ReparentNotify:
 		P_TRACE("ReparentNotify");
@@ -411,8 +445,14 @@ PekwmPanel::handleEvent(XEvent *ev)
 		P_TRACE("PropertyNotify");
 		handlePropertyNotify(&ev->xproperty);
 		break;
-	case MappingNotify:
-		P_TRACE("MappingNotify");
+	case SelectionClear:
+		X11::setLastEventTime(ev->xselectionclear.time);
+		break;
+	case SelectionRequest:
+		X11::setLastEventTime(ev->xselectionrequest.time);
+		break;
+	case SelectionNotify:
+		X11::setLastEventTime(ev->xselection.time);
 		break;
 	default:
 		P_DBG("UNKNOWN EVENT " << ev->type);

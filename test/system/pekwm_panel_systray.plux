@@ -1,0 +1,109 @@
+[doc]
+pekwm_panel tests for SystrayWidget
+
+Tests verifying the systray functionality in pekwm. Tests include:
+
+  * Session ownership.
+  * Adding and removing clients from the tray.
+  * Message handling in global vars.
+  * Area resizing.
+[enddoc]
+
+[include test.pluxinc]
+
+[shell Xvfb]
+	[call init-shell]
+	[log starting Xvfb]
+	-Fatal server error
+	!Xvfb -screen 0 640x480x24 -dpi 96 -displayfd 1 $DISPLAY
+	?^1
+
+[shell pekwm_panel]
+	[call init-shell]
+	[log run panel with systray config]
+	!$BIN_DIR/panel/pekwm_panel -c pekwm_panel.config.systray \
+	!	-C pekwm.config --log-level trace
+	?systray: owner window ([0-9]+)
+	[global owner_window=$1]
+	[log owner window $owner_window]
+	?entering main loop
+
+[shell systray_client_1]
+	[call init-shell]
+	[log start systray_client_1]
+	!$TEST_DIR/test_systray
+	?send dock request for ([0-9]+) to $owner_window
+	[global systray_client_1_window=$1]
+	[log dock request sent for $systray_client_1_window]
+	?waiting for event
+
+[shell pekwm_panel]
+	?systray: SYSTEM_TRAY_REQUEST_DOCK $systray_client_1_window
+	[log dock request received for $systray_client_1_window]
+	?systray: add tray icon $systray_client_1_window
+	?systray: client $systray_client_1_window xembed version 0 xembed flags 1
+	?RequiredSizeChanged notification
+	[log required size changed, resize panel]
+	?systray: required size 24
+
+[shell systray_client_2]
+	[call init-shell]
+	[log start systray_client_2 (unmapped)]
+	!$TEST_DIR/test_systray unmapped
+	?send dock request for ([0-9]+) to $owner_window
+	[global systray_client_2_window=$1]
+	[log dock request sent for $systray_client_2_window]
+	?waiting for event
+
+[shell pekwm_panel]
+	?systray: SYSTEM_TRAY_REQUEST_DOCK $systray_client_2_window
+	[log dock request received for $systray_client_2_window]
+	?systray: add tray icon $systray_client_2_window
+	?systray: client $systray_client_2_window xembed version 0 xembed flags 0
+	?RequiredSizeChanged notification
+	[log required size changed, keep panel size (not mapped)]
+	?systray: required size 24
+
+[shell systray_client_2]
+	[log map systray client 2]
+	!map
+	?set _XEMBED_INFO 1
+
+[shell pekwm_panel]
+	?systray: client $systray_client_2_window xembed version 0 xembed flags 1
+	[log _XEMBED_INFO updated on $systray_client_2_window]
+	?RequiredSizeChanged notification
+	[log required size changed, update panel size (mapped)]
+	?systray: required size 48
+
+[shell systray_client_1]
+	[log stop systray client 1]
+	!$_CTRL_C_
+	?SH-PROMPT:
+
+[shell pekwm_panel]
+	?systray: remove tray icon $systray_client_1_window
+	[log tray icon removed]
+	?RequiredSizeChanged notification
+	[log required size changed, resize panel]
+	?systray: required size 24
+
+[shell systray_client_2]
+	[log unmap systray client 2]
+	!unmap
+	?set _XEMBED_INFO 0
+
+[shell pekwm_panel]
+	?systray: client $systray_client_2_window xembed version 0 xembed flags 0
+	[log _XEMBED_INFO updated on $systray_client_2_window]
+	?RequiredSizeChanged notification
+	[log required size changed, update panel size (unmapped)]
+	?systray: required size 0
+
+[shell pekwm_panel]
+	!$_CTRL_C_
+	?SH-PROMPT:
+
+[shell Xvfb]
+	!$_CTRL_C_
+	?SH-PROMPT:

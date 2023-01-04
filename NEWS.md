@@ -37,6 +37,14 @@ New
 
 * **Icon widget now can Exec** command on click, configure by setting
   _Exec_ to the command to be executed in the Icon configuration.
+* **Systray widget** added with support for housing systray icons.
+  Example configuration:
+
+```
+    Systray {
+      Size = "Required"
+    }
+```
 
 Updated
 -------

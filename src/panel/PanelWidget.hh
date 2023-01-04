@@ -8,8 +8,11 @@
 #ifndef _PEKWM_PANEL_PANEL_WIDGET_HH_
 #define _PEKWM_PANEL_PANEL_WIDGET_HH_
 
+#include <string>
+
 #include "pekwm_panel.hh"
 #include "PanelTheme.hh"
+#include "X11.hh"
 
 /**
  * Base class for all widgets displayed on the panel.
@@ -22,10 +25,7 @@ public:
 	bool isDirty(void) const { return _dirty; }
 	int getX(void) const { return _x; }
 	int getRX(void) const { return _rx; }
-	void move(int x) {
-		_x = x;
-		_rx = x + _width;
-	}
+	virtual void move(int x);
 
 	uint getWidth(void) const { return _width; }
 	void setWidth(uint width) {
@@ -43,6 +43,17 @@ public:
 		render.clear(_x, 0, _width, _theme.getHeight());
 		_dirty = false;
 	}
+
+	/**
+	 * Return true if win is one of PanelWidget windows (if any are used)
+	 */
+	virtual bool operator==(Window win) const { return false; }
+
+	/**
+	 * Handle X11 event, return true if the event was processed by
+	 * this widget.
+	 */
+	virtual bool handleXEvent(XEvent* ev) { return false; }
 
 protected:
 	int renderText(Render &rend, PFont *font,

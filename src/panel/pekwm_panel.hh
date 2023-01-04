@@ -1,6 +1,6 @@
 //
 // pekwm_panel.hh for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -11,6 +11,7 @@
 #include <string>
 
 #include "pekwm.hh"
+#include "Observable.hh"
 
 #define DEFAULT_PLACEMENT PANEL_TOP
 
@@ -60,9 +61,9 @@ public:
 
 	SizeReq(const SizeReq& size_req)
 		: _unit(size_req._unit),
-		  _size(size_req._size)
+		  _size(size_req._size),
+		  _text(size_req._text)
 	{
-		_text = size_req._text;
 	}
 
 	SizeReq(WidgetUnit unit, uint size)
@@ -79,6 +80,12 @@ private:
 	WidgetUnit _unit;
 	uint _size;
 	std::string _text;
+};
+
+/**
+ * Notification sent when the required size of a widget is changed.
+ */
+class RequiredSizeChanged : public Observation {
 };
 
 #endif // _PEKWM_PANEL_HH_

@@ -1,6 +1,6 @@
 //
 // WidgetFactory.cc for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -14,6 +14,7 @@
 #include "Debug.hh"
 #include "IconWidget.hh"
 #include "TextWidget.hh"
+#include "SystrayWidget.hh"
 #include "WidgetFactory.hh"
 
 PanelWidget*
@@ -42,6 +43,11 @@ WidgetFactory::construct(const WidgetConfig& cfg)
 		return new IconWidget(_theme, cfg.getSizeReq(),
 				      _var_data, _wm_state,
 				      field, cfg.getCfgSection());
+	} else if (name == "SYSTRAY") {
+		return new SystrayWidget(_parent, _observer, _theme,
+					 cfg.getSizeReq(),
+					 cfg.getCfgSection());
+
 	} else if (name == "TEXT") {
 		const std::string &format = cfg.getArg(0);
 		if (format.empty()) {

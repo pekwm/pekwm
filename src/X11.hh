@@ -1,6 +1,6 @@
 //
 // X11.hh for pekwm
-// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2003-2020 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -142,6 +142,12 @@ enum AtomName {
 	XROOTPMAP_ID,
 	XSETROOT_ID,
 
+	// xembed, systray
+	XEMBED,
+	XEMBED_INFO,
+	NET_SYSTEM_TRAY_OPCODE,
+	NET_SYSTEM_TRAY_MESSAGE_DATA,
+
 	MAX_NR_ATOMS
 };
 
@@ -180,6 +186,18 @@ enum CursorType {
 	CURSOR_MOVE,
 	CURSOR_RESIZE,
 	CURSOR_NONE
+};
+
+/**
+ * Max XEMBED_VERSION supported.
+ */
+extern const long XEMBED_VERSION;
+
+/**
+ * Flags set on _XEMBED_INFO property (1).
+ */
+enum XEmbedFlags {
+	XEMBED_FLAG_MAPPED = 1 << 0
 };
 
 /**

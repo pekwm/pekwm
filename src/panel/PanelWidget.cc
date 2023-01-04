@@ -23,6 +23,13 @@ PanelWidget::~PanelWidget(void)
 {
 }
 
+void
+PanelWidget::move(int x)
+{
+	_x = x;
+	_rx = x + _width;
+}
+
 int
 PanelWidget::renderText(Render &rend, PFont *font,
 			int x, const std::string& text, uint max_width)

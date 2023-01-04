@@ -1,6 +1,6 @@
 //
 // PanelConfig.hh for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -27,8 +27,10 @@ extern "C" {
  */
 class WidgetConfig {
 public:
-	WidgetConfig(const std::string& name, std::vector<std::string> args,
-		     const SizeReq& size_req, uint interval_s = UINT_MAX,
+	WidgetConfig(const std::string& name,
+		     const std::vector<std::string>& args,
+		     const SizeReq& size_req,
+		     uint interval_s = UINT_MAX,
 		     const CfgParser::Entry* section = nullptr);
 	WidgetConfig(const WidgetConfig& cfg);
 	~WidgetConfig(void);
@@ -39,6 +41,9 @@ public:
 	uint getIntervalS(void) const { return _interval_s; }
 
 	const CfgParser::Entry* getCfgSection(void) const { return _section; }
+
+private:
+	WidgetConfig& operator=(const WidgetConfig&);
 
 private:
 	/** Widget type name. */

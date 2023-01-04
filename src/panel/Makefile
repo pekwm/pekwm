@@ -23,8 +23,9 @@ X11_OBJS = ../PWinObj.o ../X11.o ../X11Util.o ../X11App.o
 PEKWM_PANEL_OBJS = pekwm_panel.o \
 		   BarWidget.o ClientInfo.o ClientListWidget.o \
 		   ExternalCommandData.o IconWidget.o PanelConfig.o \
-		   PanelTheme.o PanelWidget.o TextFormatter.o \
-		   TextWidget.o VarData.o WidgetFactory.o WmState.o \
+		   PanelTheme.o PanelWidget.o SystrayWidget.o \
+		   TextFormatter.o TextWidget.o VarData.o WidgetFactory.o \
+		   WmState.o \
 		   $(BASE_OBJS) $(UTIL_OBJS) \
 		   $(X11_OBJS) $(TEXTURE_OBJS) $(IMAGE_LOADER_OBJS)
 

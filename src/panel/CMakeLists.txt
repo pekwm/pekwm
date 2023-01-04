@@ -10,6 +10,7 @@ add_executable(pekwm_panel
 	       PanelConfig.cc
 	       PanelTheme.cc
 	       PanelWidget.cc
+	       SystrayWidget.cc
 	       TextFormatter.cc
 	       TextWidget.cc
 	       VarData.cc

@@ -1,0 +1,9 @@
+Panel {
+  Placement = "Top"
+}
+
+Widgets {
+  Systray {
+    Size = "Required"
+  }
+}

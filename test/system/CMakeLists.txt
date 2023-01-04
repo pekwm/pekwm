@@ -15,3 +15,9 @@ add_executable(test_net_request_frame_extents
 target_include_directories(test_net_request_frame_extents
 			   PUBLIC ${X11_INCLUDE_DIR})
 target_link_libraries(test_net_request_frame_extents ${X11_LIBRARIES})
+
+add_executable(test_systray
+	       test_systray.cc)
+target_include_directories(test_systray
+			   PUBLIC ${X11_INCLUDE_DIR})
+target_link_libraries(test_systray ${X11_LIBRARIES})

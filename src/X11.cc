@@ -1,6 +1,6 @@
 //
 // X11.cc for pekwm
-// Copyright (C) 2022 Claes Nästén
+// Copyright (C) 2022-2023 Claes Nästén
 // Copyright (C) 2009-2021 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -178,6 +178,12 @@ static const char *atomnames[] = {
 
 	"_XROOTPMAP_ID",
 	"_XSETROOT_ID",
+
+	// xembed, systray
+	"_XEMBED",
+	"_XEMBED_INFO",
+	"_NET_SYSTEM_TRAY_OPCODE",
+	"_NET_SYSTEM_TRAY_MESSAGE_DATA",
 
 	nullptr
 };
@@ -2221,6 +2227,8 @@ X11::getXrmString(const std::string& name, std::string& val)
 	}
 	return false;
 }
+
+const long XEMBED_VERSION = 0;
 
 Display *X11::_dpy;
 bool X11::_honour_randr = false;

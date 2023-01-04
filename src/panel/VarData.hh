@@ -1,6 +1,6 @@
 //
 // VarData.hh for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -16,7 +16,7 @@
 class FieldObservation : public Observation
 {
 public:
-	FieldObservation(const std::string field);
+	FieldObservation(const std::string& field);
 	virtual ~FieldObservation(void);
 
 	const std::string& getField(void) const { return _field; }
