@@ -1,6 +1,6 @@
 //
 // ImageHandler.cc for pekwm
-// Copyright (C) 2003-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -274,7 +274,7 @@ ImageHandler::clearColorMaps(void)
 
 void
 ImageHandler::addColorMap(const std::string& name,
-			  std::map<int,int> color_map)
+			  const std::map<int,int>& color_map)
 {
 	std::string u_name(name);
 	Util::to_upper(u_name);

@@ -1,6 +1,6 @@
 //
 // TextureHandler.hh for pekwm
-// Copyright (C) 2005-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2005-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -73,7 +73,7 @@ public:
 private:
 	PTexture *parse(const std::string &texture);
 	PTexture *parseSolid(std::vector<std::string> &tok);
-	PTexture *parseSolidRaised(std::vector<std::string> &tok);
+	PTexture *parseSolidRaised(const std::vector<std::string> &tok);
 	PTexture *parseLines(bool horz, std::vector<std::string> &tok);
 	PTexture *parseImage(const std::string& texture);
 	PTexture *parseImageMapped(const std::string& texture);

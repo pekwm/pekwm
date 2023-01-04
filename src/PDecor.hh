@@ -1,6 +1,6 @@
 //
 // PDecor.hh for pekwm
-// Copyright (C) 2004-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2004-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -169,7 +169,7 @@ public:
 
 	virtual void getDecorInfo(char *buf, uint size, const Geometry& gm);
 
-	virtual void setShaded(StateAction sa);
+	virtual bool setShaded(StateAction sa);
 	virtual void setSkip(uint skip);
 
 	virtual std::string getDecorName(void);
@@ -249,8 +249,8 @@ public:
 	virtual bool hasTitlebar(void) const { return _titlebar; }
 	/** @brief Returns wheter we are shaded or not. */
 	virtual bool isShaded(void) const { return _shaded; }
-	void setBorder(StateAction sa);
-	void setTitlebar(StateAction sa);
+	bool setBorder(StateAction sa);
+	bool setTitlebar(StateAction sa);
 
 	bool demandAttention(void) const { return _attention; }
 	void incrAttention(void) { ++_attention; }
@@ -291,9 +291,6 @@ protected:
 	// border state etc)
 	virtual void decorUpdated(void) { }
 
-	virtual int resizeHorzStep(int diff) const { return diff; }
-	virtual int resizeVertStep(int diff) const { return diff; }
-
 	virtual void clearMaximizedStatesAfterResize() { }
 	// END - PDecor interface.
 
@@ -308,7 +305,7 @@ protected:
 
 	void resizeTitle(void);
 
-	static void checkWOSnap(PWinObj *skip_wo, Geometry &gm);
+	static void checkWOSnap(const PWinObj *skip_wo, Geometry &gm);
 	static void checkEdgeSnap(Geometry &gm);
 
 	void alignChild(PWinObj *child);

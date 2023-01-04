@@ -1,6 +1,6 @@
 //
 // ManagerWindows.cc for pekwm
-// Copyright (C) 2009-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2009-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -170,7 +170,6 @@ void
 HintWO::claimDisplayOwner(Window session_atom, Time timestamp)
 {
 	XEvent event;
-	// FIXME: One should use _root_wo here?
 	Window root = X11::getRoot();
 
 	event.xclient.type = ClientMessage;
@@ -381,7 +380,7 @@ RootWO::getHeadInfoWithEdge(uint num, Geometry &head)
 	}
 
 	int strut_val;
-	Strut &strut = _strut_head[num];
+	const Strut &strut = _strut_head[num];
 
 	// Remove the strut area from the head info
 	strut_val = (head.x == 0)
@@ -607,10 +606,10 @@ RootWO::setEwmhDesktopLayout(void)
  * Edge window constructor, create window, setup strut and register
  * window.
  */
-EdgeWO::EdgeWO(RootWO* root_wo, EdgeType edge, bool set_strut,
+EdgeWO::EdgeWO(RootWO* root, EdgeType edge, bool set_strut,
 	       Config* cfg)
 	: PWinObj(false),
-	  _root_wo(root_wo),
+	  _root(root),
 	  _edge(edge),
 	  _cfg(cfg)
 {
@@ -620,13 +619,13 @@ EdgeWO::EdgeWO(RootWO* root_wo, EdgeType edge, bool set_strut,
 	_iconified = true; // hack, to be ignored when placing
 	_focusable = false; // focusing input only windows crashes X
 
-	_window = X11::createWmWindow(root_wo->getWindow(), 0, 0, 1, 1,
+	_window = X11::createWmWindow(root->getWindow(), 0, 0, 1, 1,
 				      InputOnly,
 				      EnterWindowMask|LeaveWindowMask|
 				      ButtonPressMask|ButtonReleaseMask);
 
 	configureStrut(set_strut);
-	_root_wo->addStrut(&_strut);
+	_root->addStrut(&_strut);
 
 	woListAdd(this);
 	_wo_map[_window] = this;
@@ -637,7 +636,7 @@ EdgeWO::EdgeWO(RootWO* root_wo, EdgeType edge, bool set_strut,
  */
 EdgeWO::~EdgeWO(void)
 {
-	_root_wo->removeStrut(&_strut);
+	_root->removeStrut(&_strut);
 	_wo_map.erase(_window);
 	woListRemove(this);
 

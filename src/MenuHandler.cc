@@ -157,14 +157,11 @@ void
 MenuHandler::reloadStandaloneMenus(ActionHandler *act,
 				   CfgParser::Entry *section)
 {
-	// Temporary name, as names are stored uppercase
-	std::string menu_name_upper;
-
 	// Go through all but reserved section names and create menus
 	CfgParser::Entry::entry_cit it(section->begin());
 	for (; it != section->end(); ++it) {
 		// Uppercase name
-		menu_name_upper = (*it)->getName();
+		std::string menu_name_upper = (*it)->getName();
 		Util::to_upper(menu_name_upper);
 
 		// Create new menu if the name is not used

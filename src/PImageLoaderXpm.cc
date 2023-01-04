@@ -1,6 +1,6 @@
 //
 // PImageLoaderXpm.cc for pekwm
-// Copyright (C) 2005-2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2005-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -114,7 +114,7 @@ namespace PImageLoaderXpm
 		// Read XPM to XpmImage format.
 		XpmImage xpm_image = {0};
 		XpmInfo xpm_info = {0};
-		if (XpmReadFileToXpmImage((char*) file.c_str(),
+		if (XpmReadFileToXpmImage(const_cast<char*>(file.c_str()),
 					  &xpm_image, &xpm_info) != Success) {
 			return 0;
 		}

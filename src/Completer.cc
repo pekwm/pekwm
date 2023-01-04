@@ -1,6 +1,6 @@
 //
 // Completer.cc for pekwm
-// Copyright (C) 2009-2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2009-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -87,8 +87,10 @@ completions_list_from_name_list(T name_list, completions_list &completions_list)
 		Util::to_lower(name_lower);
 		completions_list.push_back(CompPair(name_lower, name));
 	}
-	std::unique(completions_list.begin(), completions_list.end(),
-		    CompPair_equal);
+	completions_list::iterator last =
+		std::unique(completions_list.begin(), completions_list.end(),
+			    CompPair_equal);
+	completions_list.erase(last, completions_list.end());
 	std::sort(completions_list.begin(), completions_list.end(),
 		  CompPair_lt);
 }
@@ -146,7 +148,11 @@ class PathCompleterMethod : public CompleterMethod
 {
 public:
 	/** Constructor for PathCompleter method. */
-	PathCompleterMethod(void) : CompleterMethod() { refresh(); }
+	PathCompleterMethod(void)
+		: CompleterMethod()
+	{
+		PathCompleterMethod::refresh();
+	}
 	/** Destructor for PathCompleterMethod */
 	virtual ~PathCompleterMethod(void) { }
 
@@ -174,7 +180,9 @@ public:
 			}
 		}
 
-		std::unique(_path_list.begin(), _path_list.end());
+		completions_list::iterator last =
+			std::unique(_path_list.begin(), _path_list.end());
+		_path_list.erase(last, _path_list.end());
 		std::sort(_path_list.begin(), _path_list.end());
 	}
 
@@ -286,7 +294,7 @@ public:
 	void clear(void) { }
 
 private:
-	State find_state(CompletionState &completion_state);
+	State find_state(const CompletionState &completion_state);
 	size_t find_state_word_start(const std::string &str);
 
 	/** List of all available actions. */
@@ -302,7 +310,7 @@ private:
 ActionCompleterMethod::ActionCompleterMethod(void)
 	: CompleterMethod()
 {
-	refresh();
+	ActionCompleterMethod::refresh();
 }
 
 ActionCompleterMethod::~ActionCompleterMethod(void)
@@ -331,7 +339,7 @@ ActionCompleterMethod::StateMatch ActionCompleterMethod::STATE_MATCHES[] = {
  * Detect state being completed
  */
 ActionCompleterMethod::State
-ActionCompleterMethod::find_state(CompletionState &completion_state)
+ActionCompleterMethod::find_state(const CompletionState &completion_state)
 {
 	if (completion_state.word_begin != 0) {
 		for (unsigned i = 0;
@@ -432,7 +440,7 @@ Completer::do_complete(const std::string &str, unsigned int &pos,
 
 	// Get current word, this is the one being replaced
 	size_t word_begin, word_end;
-	std::string word(get_word_at_position(str, pos, word_begin, word_end));
+	get_word_at_position(str, pos, word_begin, word_end);
 
 	// Replace the current word
 	std::string completed(str);

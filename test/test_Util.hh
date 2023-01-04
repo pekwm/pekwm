@@ -1,6 +1,6 @@
 //
 // test_Util.hh for pekwm
-// Copyright (C) 2020-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2020-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -9,6 +9,7 @@
 #include <iostream>
 
 #include "test.hh"
+#include "Compat.hh"
 #include "Util.hh"
 
 class TestStringUtil : public TestSuite {
@@ -24,8 +25,9 @@ public:
 	virtual bool run_test(TestSpec spec, bool status);
 
 	static void testShellSplit(void);
-	static void assertShellSplit(std::string msg, std::string str,
-				     std::vector<std::string> &expected);
+	static void assertShellSplit(const std::string &msg,
+				     const std::string &str,
+				     const std::vector<std::string> &expected);
 };
 
 bool
@@ -65,8 +67,9 @@ TestStringUtil::testShellSplit(void)
 }
 
 void
-TestStringUtil::assertShellSplit(std::string msg, std::string str,
-				 std::vector<std::string> &expected)
+TestStringUtil::assertShellSplit(const std::string &msg,
+				 const std::string &str,
+				 const std::vector<std::string> &expected)
 {
 	std::vector<std::string> res = StringUtil::shell_split(str);
 	ASSERT_EQUAL(msg + " size", expected.size(), res.size());
@@ -91,7 +94,7 @@ private:
 	static void testRangeWrap(void);
 	static void assertRangeWrap(const std::string &name,
 				    Generator::RangeWrap<int> &r,
-				    int *expected, int num_expected);
+				    const int *expected, int num_expected);
 };
 
 bool
@@ -133,7 +136,7 @@ TestGenerator::testRangeWrap(void)
 void
 TestGenerator::assertRangeWrap(const std::string &name,
 			       Generator::RangeWrap<int> &r,
-			       int *expected, int num_expected)
+			       const int *expected, int num_expected)
 {
 	for (int i = 0; i < num_expected; i++, ++r) {
 		std::string i_name = name + " " + std::to_string(i);
@@ -154,10 +157,10 @@ public:
 	virtual bool run_test(TestSpec spec, bool status);
 
 	static void testSplitString(void);
-	static void assertSplitString(std::string msg,
+	static void assertSplitString(const std::string& msg,
 				      uint e_ret,
 				      std::vector<std::string> e_toks,
-				      const std::string str, const char *sep,
+				      const std::string& str, const char *sep,
 				      uint max = 0,
 				      bool include_empty = false,
 				      char escape = '\\');
@@ -184,9 +187,9 @@ TestUtil::testSplitString(void)
 }
 
 void
-TestUtil::assertSplitString(std::string msg,
+TestUtil::assertSplitString(const std::string& msg,
 			    uint e_ret, std::vector<std::string> e_toks,
-			    const std::string str, const char *sep,
+			    const std::string& str, const char *sep,
 			    uint max, bool include_empty, char escape)
 {
 	std::vector<std::string> toks;

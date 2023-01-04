@@ -1,6 +1,6 @@
 //
 // PFont.cc for pekwm
-// Copyright (C) 2003-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -52,7 +52,7 @@ PFont::PFont(void) :
 //! @brief PFont destructor
 PFont::~PFont(void)
 {
-	unload();
+	PFont::unload();
 }
 
 /**
@@ -133,7 +133,7 @@ PFont::trimEnd(std::string &text, uint max_width)
 	--it;
 	for (; ! it.begin(); --it) {
 		if (getWidth(text, it.pos()) <= max_width) {
-			text = text.substr(0, it.pos());
+			text.resize(it.pos());
 			return;
 		}
 	}
@@ -241,7 +241,7 @@ PFontX11::PFontX11(void)
 //! @brief PFontX11 destructor
 PFontX11::~PFontX11(void)
 {
-	unload();
+	PFontX11::unload();
 }
 
 //! @brief Loads the X11 font font_name
@@ -367,7 +367,7 @@ PFontXmb::PFontXmb(void)
 //! @brief PFontXmb destructor
 PFontXmb::~PFontXmb(void)
 {
-	unload();
+	PFontXmb::unload();
 }
 
 //! @brief Loads Xmb font font_name
@@ -522,7 +522,7 @@ PFontXft::PFontXft(void)
 //! @brief PFontXft destructor
 PFontXft::~PFontXft(void)
 {
-	unload();
+	PFontXft::unload();
 
 	XftDrawDestroy(_draw);
 

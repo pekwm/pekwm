@@ -1,6 +1,6 @@
 //
 // FrameListMenu.cc for pekwm
-// Copyright (C) 2002-2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2002-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -137,7 +137,7 @@ FrameListMenu::updateFrameListMenu(void)
 	std::vector<Frame*>::const_iterator it;
 	for (uint i = 0; i < Workspaces::size(); ++i) {
 		if (Workspaces::size() > 1) {
-			snprintf(buf, sizeof(buf), "<%d> ", i + 1);
+			snprintf(buf, sizeof(buf), "<%u> ", i + 1);
 		}
 
 		for (it = Frame::frame_begin();
@@ -199,10 +199,10 @@ FrameListMenu::buildName(Frame* frame, std::string &name)
 
 //! @brief Builds names for all the clients in a frame.
 void
-FrameListMenu::buildFrameNames(Frame *frame, std::string &pre_name,
+FrameListMenu::buildFrameNames(Frame *frame, const std::string &pre_name,
 			       bool insert_separator)
 {
-	std::string name, status_name;
+	std::string status_name;
 
 	// need to add an action, otherwise it looks as if we don't have
 	// anything to exec and thus it doesn't get handled.
@@ -214,7 +214,7 @@ FrameListMenu::buildFrameNames(Frame *frame, std::string &pre_name,
 
 	std::vector<PWinObj*>::const_iterator it = frame->begin();
 	for (; it != frame->end(); ++it) {
-		name = pre_name;
+		std::string name = pre_name;
 		name.append(status_name);
 		if (frame->getActiveChild() == *it) {
 			name.append("A");

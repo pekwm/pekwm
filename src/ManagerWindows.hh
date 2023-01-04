@@ -1,6 +1,6 @@
 //
 // ManagerWindows.hh for pekwm
-// Copyright (C) 2009-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2009-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -130,7 +130,7 @@ public:
 	inline EdgeType getEdge(void) const { return _edge; }
 
 private:
-	RootWO* _root_wo;
+	RootWO* _root;
 	EdgeType _edge; /**< Edge position. */
 	Config *_cfg;
 	Strut _strut; /*< Strut for reserving screen edge space. */
@@ -138,7 +138,6 @@ private:
 
 namespace pekwm
 {
-	HintWO* hintWo();
 	RootWO* rootWo();
 }
 

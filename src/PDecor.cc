@@ -1,6 +1,6 @@
 //
 // PDecor.cc for pekwm
-// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2004-2020 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -334,7 +334,7 @@ PDecor::~PDecor(void)
 		       _pdecors.end());
 
 	while (! _children.empty()) {
-		removeChild(_children.back(), false); // Don't call delete this.
+		PDecor::removeChild(_children.back(), false);
 	}
 
 	// Make things look smoother, buttons will be noticed as deleted
@@ -1080,11 +1080,11 @@ PDecor::resizeChild(uint width, uint height)
 }
 
 //! @brief Sets border state of the decor
-void
+bool
 PDecor::setBorder(StateAction sa)
 {
 	if (! ActionUtil::needToggle(sa, _border)) {
-		return;
+		return _border;
 	}
 
 	// If we are going to remove the border, we need to check carefully
@@ -1103,14 +1103,17 @@ PDecor::setBorder(StateAction sa)
 		resizeChild(_child->getWidth(), _child->getHeight());
 	}
 	decorUpdated();
+
+	return _border;
 }
 
 //! @brief Sets titlebar state of the decor
-void
+bool
 PDecor::setTitlebar(StateAction sa)
 {
-	if (! ActionUtil::needToggle(sa, _titlebar))
-		return;
+	if (! ActionUtil::needToggle(sa, _titlebar)) {
+		return _titlebar;
+	}
 
 	// If we are going to remove the titlebar, we need to check carefully
 	// that we don't try to make the window disappear.
@@ -1130,6 +1133,8 @@ PDecor::setTitlebar(StateAction sa)
 		resizeChild(_child->getWidth(), _child->getHeight());
 	}
 	decorUpdated();
+
+	return _titlebar;
 }
 
 //! @brief Adds a child to the decor, reparenting the window
@@ -1213,7 +1218,7 @@ PDecor::activateChild(PWinObj *child)
 void
 PDecor::getDecorInfo(char *buf, uint size, const Geometry& gm)
 {
-	snprintf(buf, size, "%dx%d+%d+%d", gm.width, gm.height, gm.x, gm.y);
+	snprintf(buf, size, "%ux%u+%d+%d", gm.width, gm.height, gm.x, gm.y);
 }
 
 void
@@ -1231,21 +1236,21 @@ PDecor::activateChildNum(uint num)
 void
 PDecor::activateChildRel(int off)
 {
-	std::vector<PWinObj*>::size_type cur=0, size = _children.size();
-	for (; cur < size; ++cur) {
+	std::vector<PWinObj*>::size_type cur=0, num_children = _children.size();
+	for (; cur < num_children; ++cur) {
 		if (_child == _children[cur]) {
 			break;
 		}
 	}
 
-	if (cur == size) {
+	if (cur == num_children) {
 		_child = _children.front();
 		cur = 0;
 	}
 
-	off = (off+signed(cur))%signed(size);
+	off = (off+signed(cur))%signed(num_children);
 	if (off < 0) {
-		off += size;
+		off += num_children;
 	}
 	activateChild(_children[off]);
 }
@@ -1255,14 +1260,14 @@ PDecor::activateChildRel(int off)
 void
 PDecor::moveChildRel(int off)
 {
-	std::vector<PWinObj*>::size_type idx=0, size = _children.size();
-	for (; idx < size; ++idx) {
+	std::vector<PWinObj*>::size_type idx=0, num_children = _children.size();
+	for (; idx < num_children; ++idx) {
 		if (_child == _children[idx]) {
 			break;
 		}
 	}
 
-	if (idx == size) {
+	if (idx == num_children) {
 		if (_children.empty()) {
 			P_ERR("_children is empty! off == " << off
 			      << " Please report.");
@@ -1272,9 +1277,9 @@ PDecor::moveChildRel(int off)
 		idx = 0;
 	}
 
-	off = (off+idx)%size;
+	off = (off+idx)%num_children;
 	if (off < 0) {
-		off += size;
+		off += num_children;
 	}
 
 	_children.erase(std::remove(_children.begin(), _children.end(),
@@ -1285,11 +1290,12 @@ PDecor::moveChildRel(int off)
 }
 
 //! @brief Sets shaded state
-void
+bool
 PDecor::setShaded(StateAction sa)
 {
-	if (! ActionUtil::needToggle(sa, _shaded))
-		return;
+	if (! ActionUtil::needToggle(sa, _shaded)) {
+		return _shaded;
+	}
 
 	// If we are going to shade the window, we need to check carefully
 	// that we don't try to make the window disappear.
@@ -1312,6 +1318,8 @@ PDecor::setShaded(StateAction sa)
 	placeBorder();
 	restackBorder();
 	PWinObj::resize(_gm.width, _gm.height);
+
+	return _shaded;
 }
 
 //! @brief Sets skip state.
@@ -1372,22 +1380,21 @@ PDecor::renderTitle(void)
 	t_main->render(title_bg, 0, 0,
 		       _title_wo.getWidth(), _title_wo.getHeight());
 
-	PFont *font;
-	bool sel; // Current tab selected flag
 	uint x = _titles_left; // Position
 	// Amount of horizontal padding
 	uint pad_horiz =  _data->getPad(PAD_LEFT) + _data->getPad(PAD_RIGHT);
 
-	uint size = _titles.size();
-	for (uint i = 0; i < size; ++i) {
-		sel = (_title_active == i);
+	uint num_titles = _titles.size();
+	for (uint i = 0; i < num_titles; ++i) {
+		// Current tab selected flag
+		bool sel = (_title_active == i);
 
 		// render tab
 		PTexture *tab = _data->getTextureTab(getFocusedState(sel));
 		tab->render(title_bg, x, 0,
 			    _titles[i]->getWidth(), _title_wo.getHeight());
 
-		font = getFont(getFocusedState(sel));
+		PFont *font = getFont(getFocusedState(sel));
 		font->setColor(_data->getFontColor(getFocusedState(sel)));
 
 		PFont::TrimType trim = PFont::FONT_TRIM_MIDDLE;
@@ -1406,7 +1413,7 @@ PDecor::renderTitle(void)
 		x += _titles[i]->getWidth();
 
 		// draw separator
-		if (size > 1 && i < size - 1) {
+		if (num_titles > 1 && i < (num_titles - 1)) {
 			t_sep->render(title_bg, x, 0, 0, 0);
 			x += t_sep->getWidth();
 		}
@@ -1510,7 +1517,7 @@ isBetween(int x1, int x2, int t1, int t2)
 
 //! @todo PDecor/PWinObj doesn't have _skip property
 void
-PDecor::checkWOSnap(PWinObj *skip_wo, Geometry &gm)
+PDecor::checkWOSnap(const PWinObj *skip_wo, Geometry &gm)
 {
 	PDecor *decor;
 	Geometry orig_gm = gm;
@@ -1992,14 +1999,13 @@ PDecor::calcTitleWidthDynamic(void)
 {
 	FocusedState fs = getFocusedState(false);
 	uint width = 0;
-	uint width_max = 0;
-	// FIXME: what about selected tabs?
 	PFont *font = getFont(fs);
 
 	if (_data->isTitleWidthSymetric()) {
 		// Symetric mode, get max tab width, multiply with number
 		// of tabs
 		std::vector<PDecor::TitleItem*>::iterator it = _titles.begin();
+		uint width_max = 0;
 		for (; it != _titles.end(); ++it) {
 			width = font->getWidth((*it)->getVisible());
 			if (width > width_max) {
@@ -2114,7 +2120,7 @@ void
 PDecor::calcTabsWidthAsymetric(void)
 {
 	int off;
-	uint width, width_avail, tab_width;
+	uint width_avail, tab_width;
 	calcTabsGetAvailAndTabWidth(width_avail, tab_width, off);
 
 	// Convenience
@@ -2125,7 +2131,7 @@ PDecor::calcTabsWidthAsymetric(void)
 	std::vector<PDecor::TitleItem*>::iterator it = _titles.begin();
 	for (; it != _titles.end(); ++it) {
 		// This should set the tab width to be only the size needed
-		width = font->getWidth((*it)->getVisible().c_str())
+		uint width = font->getWidth((*it)->getVisible().c_str())
 			+ _data->getPad(PAD_LEFT)
 			+ _data->getPad(PAD_RIGHT)
 			+ ((off-- > 0) ? 1 : 0);

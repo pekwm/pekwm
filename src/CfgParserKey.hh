@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2013-2022 Claes Nästén
+// Copyright (C) 2013-2023 Claes Nästén
 // Copyright (C) 2005-2013 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -129,7 +129,8 @@ private:
 class CfgParserKeyString : public CfgParserKey {
 public:
 	CfgParserKeyString(const char *name,
-			   std::string &set, const std::string default_val = "",
+			   std::string &set,
+			   const std::string& default_val = "",
 			   const std::string::size_type length_min = 0);
 	virtual ~CfgParserKeyString(void);
 
@@ -145,7 +146,8 @@ class CfgParserKeyPath : public CfgParserKey {
 public:
 	//! @brief CfgParserKeyPath constructor.
 	CfgParserKeyPath(const char *name,
-			 std::string &set, const std::string default_val = "");
+			 std::string &set,
+			 const std::string &default_val = "");
 	virtual ~CfgParserKeyPath(void);
 
 	virtual void parseValue(const std::string &value);
@@ -165,7 +167,7 @@ public:
 	CfgParserKeys(void) { }
 	virtual ~CfgParserKeys(void)
 	{
-		clear();
+		std::for_each(begin(), end(), Util::Free<CfgParserKey*>());
 	}
 
 	void add_bool(const char *key, bool &value,
@@ -184,13 +186,13 @@ public:
 	}
 
 	void add_path(const char *key, std::string &value,
-		      const std::string default_val = "")
+		      const std::string& default_val = "")
 	{
 		push_back(new CfgParserKeyPath(key, value, default_val));
 	}
 
 	void add_string(const char *key, std::string &value,
-			const std::string default_val = "",
+			const std::string& default_val = "",
 			const std::string::size_type length_min = 0)
 	{
 		push_back(new CfgParserKeyString(key, value, default_val,

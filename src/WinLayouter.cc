@@ -102,7 +102,7 @@ private:
 		int offset_y = (cfg->getPlacementTtB())
 			? cfg->getPlacementOffsetY()
 			: -cfg->getPlacementOffsetY();
-		int start_x, start_y, test_x = 0, test_y = 0;
+		int start_x, start_y, test_x, test_y;
 
 		// Wrap these up, to get proper checking of space.
 		uint wo_width = wo->getWidth() + cfg->getPlacementOffsetX();

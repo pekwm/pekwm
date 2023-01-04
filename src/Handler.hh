@@ -1,6 +1,6 @@
 //
 // Handler.hh for pekwm
-// Copyright (C) 2004-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2004-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -11,6 +11,7 @@
 
 #include "config.h"
 
+#include "Compat.hh"
 #include "Types.hh"
 #include "String.hh"
 
@@ -20,7 +21,12 @@
 template<class T>
 class HandlerEntry {
 public:
-	HandlerEntry(const std::string &name) : _name(name), _ref(0) { }
+	HandlerEntry(const std::string &name)
+		: _name(name),
+		  _ref(0),
+		  _data(nullptr)
+	{
+	}
 	virtual ~HandlerEntry(void) { }
 
 	const std::string &getName(void) { return _name; }

@@ -1,6 +1,6 @@
 //
 // pekwm.cc for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -75,7 +75,7 @@ promptForRestart(const std::string& pekwm_dialog)
 }
 
 static int
-handleOkResult(char *argv[], int read_fd)
+handleOkResult(char *path, char **argv, int read_fd)
 {
 	char buf[1024] = {0};
 	if (read(read_fd, buf, sizeof(buf) - 1) == -1) {
@@ -94,7 +94,7 @@ handleOkResult(char *argv[], int read_fd)
 		std::string command = std::string(buf + 8);
 
 		if (command.empty()) {
-			execvp(argv[0], argv);
+			execvp(path, argv);
 		} else {
 			command = "exec " + command;
 			execl("/bin/sh", "sh" , "-c", command.c_str(),
@@ -110,14 +110,14 @@ handleOkResult(char *argv[], int read_fd)
 
 
 static int
-handleUnexpectedResult(char *argv[], int read_fd)
+handleUnexpectedResult(char *path, char **argv, int read_fd)
 {
 	close(read_fd);
 
 	// run pekwm_dialog and wait for answer on to restart or not
-	std::string pekwm_dialog = std::string(argv[0]) + "_dialog";
+	std::string pekwm_dialog = std::string(path) + "_dialog";
 	if (promptForRestart(pekwm_dialog)) {
-		execvp(argv[0], argv);
+		execvp(path, argv);
 		std::cerr << "failed to restart pekwm" << std::endl;
 		exit(1);
 	}
@@ -131,7 +131,7 @@ handleUnexpectedResult(char *argv[], int read_fd)
  * Main function of pekwm
  */
 int
-main(int argc, char *argv[])
+main(int argc, char **argv)
 {
 	setenv("PEKWM_ETC_PATH", SYSCONFDIR, 1);
 	setenv("PEKWM_SCRIPT_PATH", DATADIR "/pekwm/scripts", 1);
@@ -212,9 +212,9 @@ main(int argc, char *argv[])
 
 		ret = waitPid(pid);
 		if (ret == 0) {
-			ret = handleOkResult(argv, fd[0]);
+			ret = handleOkResult(argv[0], argv, fd[0]);
 		} else {
-			ret = handleUnexpectedResult(argv, fd[0]);
+			ret = handleUnexpectedResult(argv[0], argv, fd[0]);
 		}
 	}
 

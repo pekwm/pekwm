@@ -1,6 +1,6 @@
 //
 // StatusWindow.cc for pekwm
-// Copyright (C) 2017-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2017-2023 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2004-2016 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -29,7 +29,7 @@ StatusWindow::StatusWindow(Theme* theme)
 	// PWinObj attributes
 	_type = PWinObj::WO_STATUS;
 	setLayer(LAYER_NONE); // hack, goes over LAYER_MENU
-	_hidden = true; // don't care about it when changing worskpace etc
+	_hidden = true;
 
 	Window win =
 		X11::createWmWindow(_window, 0, 0, 1, 1, CopyFromParent, None);
@@ -71,7 +71,7 @@ StatusWindow::draw(const std::string &text, bool do_center, Geometry *gm)
 	Theme::TextDialogData *sd = _theme->getStatusData();
 	PFont *font = sd->getFont();
 
-	width = font->getWidth(text.c_str()) + 10;
+	width = font->getWidth(text) + 10;
 	width = width - (width % 10);
 	height = font->getHeight()
 		+ sd->getPad(PAD_UP)
@@ -98,7 +98,7 @@ StatusWindow::draw(const std::string &text, bool do_center, Geometry *gm)
 	font->setColor(sd->getColor());
 	X11::clearWindow(_status_wo->getWindow());
 	font->draw(_status_wo->getWindow(),
-		   (width - font->getWidth(text.c_str())) / 2,
+		   (width - font->getWidth(text)) / 2,
 		   sd->getPad(PAD_UP),
 		   text.c_str());
 }

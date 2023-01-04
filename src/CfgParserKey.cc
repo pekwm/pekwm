@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2005-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -46,7 +46,7 @@ CfgParserKeyBool::parseValue(const std::string &value)
 }
 
 CfgParserKeyString::CfgParserKeyString(const char *name, std::string &set,
-				       const std::string default_val,
+				       const std::string& default_val,
 				       const std::string::size_type length_min)
 	: CfgParserKey(name),
 	  _set(set),
@@ -76,7 +76,7 @@ CfgParserKeyString::parseValue(const std::string &value)
 }
 
 CfgParserKeyPath::CfgParserKeyPath(const char *name, std::string &set,
-				   const std::string default_val)
+				   const std::string& default_val)
 	: CfgParserKey(name),
 	  _set(set),
 	  _default(default_val)

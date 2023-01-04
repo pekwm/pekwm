@@ -1,6 +1,6 @@
 //
 // Frame.cc for pekwm
-// Copyright (C) 2002-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2002-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -149,7 +149,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
 
 	// needs to be done before the workspace insert and after the client
 	// has been inserted, in order for layer settings to be propagated
-	setLayer(client->getLayer());
+	Frame::setLayer(client->getLayer());
 
 	// I add these to the list before I insert the client into the frame to
 	// be able to skip an extra updateClientList
@@ -472,10 +472,9 @@ Frame::addChild(PWinObj *child, std::vector<PWinObj*>::iterator *it)
 void
 Frame::addChildOrdered(Client *child)
 {
-	Client *client;
 	std::vector<PWinObj*>::iterator it(_children.begin());
 	for (; it != _children.end(); ++it) {
-		client = static_cast<Client*>(*it);
+		Client *client = static_cast<Client*>(*it);
 		if (child->getInitialFrameOrder()
 		    < client->getInitialFrameOrder()) {
 			break;
@@ -548,10 +547,9 @@ Frame::updatedChildOrder(void)
 {
 	titleClear();
 
-	Client *client;
 	std::vector<PWinObj*>::iterator it(_children.begin());
 	for (long num = 0; it != _children.end(); ++num, ++it) {
-		client = static_cast<Client*>(*it);
+		Client *client = static_cast<Client*>(*it);
 		client->setPekwmFrameOrder(num);
 		titleAdd(client->getTitle());
 	}
@@ -567,10 +565,9 @@ Frame::updatedActiveChild(void)
 {
 	titleSetActive(0);
 
-	Client *client;
 	uint size = _children.size();
 	for (uint i = 0; i < size; ++i) {
-		client = static_cast<Client*>(_children[i]);
+		Client *client = static_cast<Client*>(_children[i]);
 		client->setPekwmFrameActive(_child == client);
 		if (_child == client) {
 			titleSetActive(i);
@@ -585,7 +582,7 @@ Frame::getDecorInfo(char *buf, uint size, const Geometry& gm)
 {
 	uint width, height;
 	calcSizeInCells(width, height, gm);
-	snprintf(buf, size, "%d+%d+%d+%d", width, height, gm.x, gm.y);
+	snprintf(buf, size, "%u+%u+%d+%d", width, height, gm.x, gm.y);
 }
 
 void
@@ -598,21 +595,20 @@ Frame::giveInputFocus(void)
 	PDecor::giveInputFocus();
 }
 
-void
+bool
 Frame::setShaded(StateAction sa)
 {
-	bool shaded = isShaded();
-
 	// Check for DisallowedActions="Shade"
 	if (! _client->allowShade()) {
 		sa = STATE_UNSET;
 	}
 
-	PDecor::setShaded(sa);
-	if (shaded != isShaded()) {
+	bool shaded = isShaded();
+	if (shaded != PDecor::setShaded(sa)) {
 		_client->setShade(isShaded());
 		_client->updateEwmhStates();
 	}
+	return isShaded();
 }
 
 /**
@@ -625,76 +621,6 @@ Frame::decorUpdated(void)
 	if (_client) {
 		setFrameExtents(_client);
 	}
-}
-
-int
-Frame::resizeHorzStep(int diff) const
-{
-	int diff_ret = 0;
-	uint min = _gm.width - getChildWidth();
-	if (min == 0) { // borderless windows, we don't want X errors
-		min = 1;
-	}
-	XSizeHints hints = _client->getActiveSizeHints();
-
-	// if we have ResizeInc hint set we use it instead of pixel diff
-	if (hints.flags&PResizeInc) {
-		if (diff > 0) {
-			diff_ret = hints.width_inc;
-		} else if ((_gm.width - hints.width_inc) >= min) {
-			diff_ret = -hints.width_inc;
-		}
-	} else if ((_gm.width + diff) >= min) {
-		diff_ret = diff;
-	}
-
-	// check max/min size hints
-	if (diff > 0) {
-		if ((hints.flags&PMaxSize) &&
-		    ((getChildWidth() + diff) > unsigned(hints.max_width))) {
-			diff_ret = _gm.width - hints.max_width + min;
-		}
-	} else if ((hints.flags&PMinSize) &&
-		   ((getChildWidth() + diff) < unsigned(hints.min_width))) {
-		diff_ret = _gm.width - hints.min_width + min;
-	}
-
-	return diff_ret;
-}
-
-int
-Frame::resizeVertStep(int diff) const
-{
-	int diff_ret = 0;
-	uint min = _gm.height - getChildHeight();
-	if (min == 0) { // borderless windows, we don't want X errors
-		min = 1;
-	}
-	XSizeHints hints = _client->getActiveSizeHints();
-
-	// if we have ResizeInc hint set we use it instead of pixel diff
-	if (hints.flags&PResizeInc) {
-		if (diff > 0) {
-			diff_ret = hints.height_inc;
-		} else if ((_gm.height - hints.height_inc) >= min) {
-			diff_ret = -hints.height_inc;
-		}
-	} else {
-		diff_ret = diff;
-	}
-
-	// check max/min size hints
-	if (diff > 0) {
-		if ((hints.flags&PMaxSize) &&
-		    ((getChildHeight() + diff) > unsigned(hints.max_height))) {
-			diff_ret = _gm.height - hints.max_height + min;
-		}
-	} else if ((hints.flags&PMinSize) &&
-		   ((getChildHeight() + diff) < unsigned(hints.min_height))) {
-		diff_ret = _gm.height - hints.min_width + min;
-	}
-
-	return diff_ret;
 }
 
 /**
@@ -818,27 +744,6 @@ Frame::setSkip(uint skip)
 {
 	PDecor::setSkip(skip);
 	_client->setSkip(skip);
-}
-
-//! @brief Find Frame with Window
-//! @param win Window to search for.
-//! @return Frame if found, else 0.
-Frame*
-Frame::findFrameFromWindow(Window win)
-{
-	// Validate input window.
-	if ((win == None) || (win == X11::getRoot())) {
-		return 0;
-	}
-
-	frame_cit it = _frames.begin();
-	for (; it != _frames.end(); ++it) {
-		// operator == does more than that
-		if (win == (*it)->getWindow()) {
-			return *it;
-		}
-	}
-	return nullptr;
 }
 
 //! @brief Find Frame with id.
@@ -1359,12 +1264,16 @@ Frame::setStateFullscreen(StateAction sa)
 	bool lock = _client->setConfigureRequestLock(true);
 
 	if (_fullscreen) {
-		if ((_non_fullscreen_decor_state&DECOR_BORDER)
-		    != hasBorder()) {
+		bool state_has_border =
+			(_non_fullscreen_decor_state&DECOR_BORDER)
+			== DECOR_BORDER;
+		if (state_has_border != hasBorder()) {
 			setBorder(STATE_TOGGLE);
 		}
-		if ((_non_fullscreen_decor_state&DECOR_TITLEBAR)
-		    != hasTitlebar()) {
+		bool state_has_titlebar =
+			(_non_fullscreen_decor_state&DECOR_TITLEBAR)
+			== DECOR_TITLEBAR;
+		if (state_has_titlebar != hasTitlebar()) {
 			setTitlebar(STATE_TOGGLE);
 		}
 		_gm = _old_gm;
@@ -1456,10 +1365,8 @@ Frame::setStateDecorBorder(StateAction sa)
 {
 	bool border = hasBorder();
 
-	setBorder(sa);
-
 	// state changed, update client and atom state
-	if (border != hasBorder()) {
+	if (border != setBorder(sa)) {
 		_client->setBorder(hasBorder());
 
 		// update the _PEKWM_FRAME_DECOR hint
@@ -1475,10 +1382,8 @@ Frame::setStateDecorTitlebar(StateAction sa)
 {
 	bool titlebar = hasTitlebar();
 
-	setTitlebar(sa);
-
 	// state changed, update client and atom state
-	if (titlebar != hasTitlebar()) {
+	if (titlebar != setTitlebar(sa)) {
 		_client->setTitlebar(hasTitlebar());
 
 		X11::setCardinal(_client->getWindow(), PEKWM_FRAME_DECOR,
@@ -1631,10 +1536,10 @@ Frame::getMaxBounds(int &max_x,int &max_r, int &max_y, int &max_b)
 }
 
 void
-Frame::setGeometry(const std::string geometry, int head, bool honour_strut)
+Frame::setGeometry(const std::string& geometry, int head, bool honour_strut)
 {
 	Geometry gm;
-	int mask = X11::parseGeometry(geometry.c_str(), gm);
+	int mask = X11::parseGeometry(geometry, gm);
 	if (! mask) {
 		return;
 	}

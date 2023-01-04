@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2005-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -188,10 +188,9 @@ CfgParser::Entry*
 CfgParser::Entry::findEntry(const std::string &name, bool include_sections,
 			    const char *value) const
 {
-	CfgParser::Entry *value_check;
-	entry_cit it = begin();
-	for (; it != end(); ++it) {
-		value_check = include_sections ? (*it)->getSection() : *it;
+	for (entry_cit it = begin(); it != end(); ++it) {
+		CfgParser::Entry *value_check =
+			include_sections ? (*it)->getSection() : *it;
 
 		if (*(*it) == name.c_str()
 		    && (! (*it)->getSection() || include_sections)
@@ -228,10 +227,8 @@ CfgParser::Entry::parseKeyValues(std::vector<CfgParserKey*>::const_iterator it,
 				     end)
 	const
 {
-	CfgParser::Entry *value;
-
 	for (; it != end; ++it) {
-		value = findEntry((*it)->getName());
+		CfgParser::Entry *value = findEntry((*it)->getName());
 		if (value) {
 			try {
 				(*it)->parseValue(value->getValue());
@@ -395,7 +392,7 @@ CfgParser::parse(const std::string &src, CfgParserSource::Type type,
 	_overwrite = overwrite;
 
 	// Init parse buffer and reserve memory.
-	std::string buf, value;
+	std::string buf;
 	buf.reserve(PARSE_BUF_SIZE);
 
 	// Open initial source.
@@ -433,26 +430,27 @@ CfgParser::parse()
 	std::string buf, value;
 	buf.reserve(PARSE_BUF_SIZE);
 
-	int c, next;
 	while (_sources.size()) {
 		_source = _sources.back();
 		if (_source->isDynamic()) {
 			_is_dynamic_content = true;
 		}
 
+		int c;
 		while ((c = _source->get_char()) != EOF) {
 			switch (c) {
-			case '\n':
+			case '\n': {
 				// To be able to handle entry ends AND { after
 				// \n a check to see what comes after the
 				// newline is done. If { appears we continue as
 				// nothing happened else we finish the entry.
-				next = parseSkipBlank(_source);
+				int next = parseSkipBlank(_source);
 				if (next != '{') {
 					parseEntryFinish(buf, value,
 							 have_value);
 				}
 				break;
+			}
 			case ';':
 				parseEntryFinish(buf, value, have_value);
 				break;
@@ -490,8 +488,8 @@ CfgParser::parse()
 			case '#':
 				parseCommentLine(_source);
 				break;
-			case '/':
-				next = _source->get_char();
+			case '/': {
+				int next = _source->get_char();
 				if (next == '/') {
 					parseCommentLine(_source);
 				} else if (next == '*') {
@@ -501,6 +499,7 @@ CfgParser::parse()
 					_source->unget_char(next);
 				}
 				break;
+			}
 			default:
 				buf += c;
 				break;
@@ -538,15 +537,17 @@ CfgParser::parseSourceNew(const std::string &name_orig,
 
 	do {
 		CfgParserSource *source = sourceNew(name, type);
-		P_ERR_IF(!source, "source == 0");
+		if (! source) {
+			P_ERR("source == 0: " << name);
+			return;
+		}
 
 		// Open and set as active, delete if fails.
 		try {
 			source->open();
-			time_t time;
 			// Add source to file list if file
 			if (type == CfgParserSource::SOURCE_FILE) {
-				time = Util::getMtime(name);
+				time_t time = Util::getMtime(name);
 				_cfg_files.files.push_back(name);
 				if (_cfg_files.mtime < time) {
 					_cfg_files.mtime = time;
@@ -714,7 +715,7 @@ CfgParser::parseEntryFinishTemplate(std::string &name)
 
 //! @brief Creates new Section on {
 void
-CfgParser::parseSectionFinish(std::string &buf, std::string &value)
+CfgParser::parseSectionFinish(const std::string &buf, std::string &value)
 {
 	// Create Entry representing Section
 	Entry *section = 0;
@@ -850,10 +851,9 @@ CfgParser::parseVarName(const std::string& line,
 			std::string::size_type& end,
 			std::string& name)
 {
-	char c;
 	bool in_escape = false, in_var = false, in_curly = false;
 	for (std::string::size_type pos = begin; pos < line.size(); pos++) {
-		c = line[pos];
+		char c = line[pos];
 		if (in_escape) {
 			if (in_var) {
 				name += c;

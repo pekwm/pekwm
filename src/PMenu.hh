@@ -1,6 +1,6 @@
 //
 // PMenu.hh for pekwm
-// Copyright (C) 2004-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2004-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -75,7 +75,7 @@ public:
 	typedef item_vec::const_iterator item_cit;
 
 	PMenu(const std::string &title,
-	      const std::string &name, const std::string decor_name = "MENU",
+	      const std::string &name, const std::string& decor_name = "MENU",
 	      bool init = true);
 	virtual ~PMenu(void);
 
@@ -155,6 +155,9 @@ protected:
 	void checkItemWORef(PMenu::Item *item);
 
 private:
+	PMenu(const PMenu&);
+	PMenu& operator=(const PMenu&);
+
 	void renderSelectedItem(void);
 
 	void handleItemEvent(MouseEventType type, int x, int y);

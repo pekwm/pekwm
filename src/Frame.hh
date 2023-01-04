@@ -1,6 +1,6 @@
 //
 // Frame.hh for pekwm
-// Copyright (C) 2003-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -67,7 +67,7 @@ public:
 				  const Geometry& gm);
 
 	virtual void giveInputFocus(void);
-	virtual void setShaded(StateAction sa);
+	virtual bool setShaded(StateAction sa);
 	virtual void setSkip(uint skip);
 	// END - PDecor interface.
 
@@ -75,7 +75,6 @@ public:
 
 	void addChildOrdered(Client *child);
 
-	static Frame *findFrameFromWindow(Window win);
 	static Frame *findFrameFromID(uint id);
 
 	// START - Iterators
@@ -112,7 +111,7 @@ public:
 
 	inline const ClassHint* getClassHint(void) const { return _class_hint; }
 
-	void setGeometry(const std::string geometry, int head=-1,
+	void setGeometry(const std::string& geometry, int head=-1,
 			 bool honour_strut=false);
 
 	void growDirection(uint direction);
@@ -163,8 +162,6 @@ protected:
 
 	// BEGIN - PDecor interface
 	virtual void decorUpdated(void);
-	virtual int resizeHorzStep(int diff) const;
-	virtual int resizeVertStep(int diff) const;
 
 	virtual std::string getDecorName(void);
 	virtual void clearMaximizedStatesAfterResize();
@@ -176,6 +173,9 @@ protected:
 				  int mask, const Geometry &screen_gm);
 
 private:
+	Frame(const Frame&);
+	Frame& operator=(const Frame&);
+
 	void grabButtons(void);
 
 	void handleClientStateMessage(XClientMessageEvent *ev, Client *client);

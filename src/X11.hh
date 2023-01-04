@@ -229,7 +229,6 @@ public:
 	Strut(long l=0, long r=0, long t=0, long b=0, int nhead=-1);
 	~Strut(void);
 
-	bool isSet(void) const;
 	void clear(void);
 
 public: // member variables
@@ -387,7 +386,6 @@ public:
 
 	static Atom getAtom(AtomName name) { return _atoms[name]; }
 	static AtomName getAtomName(const std::string& str);
-	static const char *getAtomString(AtomName name);
 	static Atom getAtomId(const std::string& str);
 	static std::string getAtomIdString(Atom id);
 	static AtomName getAtomName(Atom id);
@@ -522,8 +520,6 @@ public:
 	static void setWindowBackground(Window window, ulong pixel);
 	static void setWindowBackgroundPixmap(Window window, Pixmap pixmap);
 	static void  clearWindow(Window window);
-	static void clearArea(Window window, int x, int y,
-			      uint width, uint height);
 
 	static void shapeSelectInput(Window window, ulong mask);
 	static void shapeQuery(Window dst, int *bshaped);
@@ -532,7 +528,6 @@ public:
 	static void shapeSetRect(Window dst, XRectangle *rect);
 	static void shapeIntersectRect(Window dst, XRectangle *rect);
 	static void shapeSetMask(Window dst, int kind, Pixmap pix);
-	static XRectangle* shapeGetRects(Window win, int kind, int *num);
 
 	static void loadXrmResources(void);
 	static bool getXrmString(const std::string& name, std::string& val);
@@ -589,7 +584,7 @@ private:
 	static Time _last_event_time;
 	// information for dobule clicks
 	static Window _last_click_id;
-	static Time _last_click_time[BUTTON_NO - 1];
+	static Time _last_click_time[BUTTON_NO];
 
 	static Cursor _cursor_map[CURSOR_NONE];
 

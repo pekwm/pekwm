@@ -1,6 +1,6 @@
 //
 // Charset.cc for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -100,6 +100,7 @@ utf8_to_wchar(const char *utf8, wchar_t &wc)
 class NoGroupingNumpunct : public std::numpunct<char>
 {
 protected:
+	// cppcheck-suppress unusedFunction
 	virtual std::string do_grouping(void) const { return ""; }
 };
 #endif // PEKWM_HAVE_LOCALE_COMBINE
@@ -124,6 +125,7 @@ namespace Charset
 		if (_pos > str.size()) {
 			_pos = str.size();
 		}
+		memset(_deref_buf, '\0', sizeof(_deref_buf));
 	}
 
 	bool
@@ -287,12 +289,12 @@ namespace Charset
 		std::string str_sys;
 
 		// reset state of wctomb before starting
-		int len = wctomb(nullptr, 0);
+		wctomb(nullptr, 0);
 
 		Utf8Iterator it(str, 0);
 		for (; ! it.end(); ++it) {
 			utf8_to_wchar(*it, wc);
-			len = wctomb(mb, wc);
+			int len = wctomb(mb, wc);
 			if (len > 0) {
 				mb[len] = '\0';
 				str_sys += mb;

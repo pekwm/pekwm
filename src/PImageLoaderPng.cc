@@ -1,6 +1,6 @@
 //
 // PImageLoaderPng.cc for pekwm
-// Copyright (C) 2005-2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2005-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -42,7 +42,7 @@ convertRgbaToArgb(uchar* data, size_t width, size_t height, bool& use_alpha)
 }
 
 static uchar*
-convertRgbToArgb(uchar* data_rgb, size_t width, size_t height)
+convertRgbToArgb(const uchar* data_rgb, size_t width, size_t height)
 {
 	uchar *data_argb = new uchar[width * height * 4];
 	int src = 0, dst = 0;
@@ -58,7 +58,7 @@ convertRgbToArgb(uchar* data_rgb, size_t width, size_t height)
 }
 
 static uchar*
-convertArgbToRgb(uchar* data_argb, size_t width, size_t height)
+convertArgbToRgb(const uchar* data_argb, size_t width, size_t height)
 {
 	uchar *data_rgb = new uchar[width * height * 4];
 	int src = 0, dst = 0;

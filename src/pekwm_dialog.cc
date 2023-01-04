@@ -1,6 +1,6 @@
 //
 // pekwm_dialog.cc for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -416,7 +416,7 @@ private:
 				} else {
 					size_t len =
 						line.size() - word->size() - 1;
-					line = line.substr(0, len);
+					line.resize(len);
 					lines.push_back(line);
 					line = *word;
 				}
@@ -476,7 +476,7 @@ public:
 		    const Geometry &gm,
 		    bool raise, const std::string& title, PImage* image,
 		    const std::string& message,
-		    std::vector<std::string> options);
+		    const std::vector<std::string>& options);
 	virtual ~PekwmDialog(void);
 
 	static PekwmDialog *instance(void) { return _instance; }
@@ -583,7 +583,7 @@ public:
 protected:
 	void initWidgets(const std::string& title, PImage* image,
 			 const std::string& message,
-			 std::vector<std::string> options);
+			 const std::vector<std::string>& options);
 
 	void placeWidgets(void)
 	{
@@ -629,7 +629,7 @@ PekwmDialog::PekwmDialog(Theme::DialogData* data,
 			 const Geometry &gm,
 			 bool raise, const std::string& title, PImage* image,
 			 const std::string& message,
-			 std::vector<std::string> options)
+			 const std::vector<std::string>& options)
 	: X11App(gm, title.empty() ? "pekwm_dialog" : title,
 		 "dialog", "pekwm_dialog", WINDOW_TYPE_NORMAL),
 	  _data(data),
@@ -656,7 +656,7 @@ PekwmDialog::~PekwmDialog(void)
 void
 PekwmDialog::initWidgets(const std::string& title, PImage* image,
 			 const std::string& message,
-			 std::vector<std::string> options)
+			 const std::vector<std::string>& options)
 {
 	if (title.size()) {
 		_widgets.push_back(new Text(_data, *this, title, true));
@@ -680,7 +680,8 @@ PekwmDialog::stopDialog(int retcode)
 PekwmDialog* PekwmDialog::_instance = nullptr;
 
 static void init(Display* dpy,
-		 bool font_default_x11, std::string &font_charset_override)
+		 bool font_default_x11,
+		 const std::string &font_charset_override)
 {
 	_observer_mapping = new ObserverMapping();
 	_font_handler =
@@ -816,12 +817,13 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	std::string theme_dir, theme_variant, theme_path;
+	std::string theme_dir, theme_variant;
 	bool font_default_x11;
 	std::string font_charset_override;
 	{
 		CfgParser cfg;
 		cfg.parse(config_file, CfgParserSource::SOURCE_FILE, true);
+		std::string theme_path;
 		CfgUtil::getThemeDir(cfg.getEntryRoot(),
 				     theme_dir, theme_variant, theme_path);
 		CfgUtil::getFontSettings(cfg.getEntryRoot(),

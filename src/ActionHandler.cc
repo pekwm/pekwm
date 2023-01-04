@@ -1,6 +1,6 @@
 //
 // ActionHandler.cc for pekwm
-// Copyright (C) 2002-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2002-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -79,9 +79,6 @@ ActionHandler::handleAction(const ActionPerformed* ap, ActionEvent::it it)
 	Frame *frame = nullptr;
 	PMenu *menu = nullptr;
 	PDecor *decor = nullptr;
-	bool matched = false;
-
-
 
 	// Determine what type if any of the window object that is focused
 	// and check if it is still alive.
@@ -89,8 +86,11 @@ ActionHandler::handleAction(const ActionPerformed* ap, ActionEvent::it it)
 	P_TRACE("start action " << it->getAction() << " wo " << wo);
 
 	// actions valid for all PWinObjs
-	if (! matched && wo) {
+	bool matched;
+	if (wo) {
 		matched = handleWoAction(ap, it);
+	} else {
+		matched = false;
 	}
 
 	// actions valid for Clients and Frames
@@ -109,7 +109,7 @@ ActionHandler::handleAction(const ActionPerformed* ap, ActionEvent::it it)
 
 	// Actions valid from everywhere
 	if (! matched) {
-		matched = handleAnyAction(ap, it, client, frame);
+		handleAnyAction(ap, it, client, frame);
 	}
 
 	P_TRACE("end action " << it->getAction() << " wo " << wo);
@@ -482,7 +482,7 @@ ActionHandler::handleStateAction(const Action &action, PWinObj *wo,
 	bool matched = false;
 
 	// check for frame actions
-	if (! matched && frame) {
+	if (frame) {
 		matched = true;
 		switch (action.getParamI(0)) {
 		case ACTION_STATE_MAXIMIZED:
@@ -555,7 +555,6 @@ ActionHandler::handleStateAction(const Action &action, PWinObj *wo,
 	}
 
 	if (! matched) {
-		matched = true;
 		switch (action.getParamI(0)) {
 		case ACTION_STATE_HARBOUR_HIDDEN:
 			pekwm::harbour()->setStateHidden(sa);
@@ -564,7 +563,6 @@ ActionHandler::handleStateAction(const Action &action, PWinObj *wo,
 			ClientMgr::setStateGlobalGrouping(sa);
 			break;
 		default:
-			matched = false;
 			break;
 		}
 	}

@@ -1,6 +1,6 @@
 //
 // PTexturePlain.cc for pekwm
-// Copyright (C) 2004-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2004-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -432,7 +432,8 @@ PTextureImage::setImage(const std::string &image, const std::string &colormap)
 	}
 
 	if (_image) {
-		assert(_image->getData());
+		uchar* data = _image->getData();
+		assert(data);
 		_colormap = colormap;
 		_width = _image->getWidth();
 		_height = _image->getHeight();

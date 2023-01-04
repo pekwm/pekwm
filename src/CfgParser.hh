@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2022 Claes Nästénn <pekdon@gmail.com>
+// Copyright (C) 2005-2023 Claes Nästénn <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -155,6 +155,9 @@ protected:
 		      std::string& var);
 
 private:
+	CfgParser(const CfgParser&);
+	CfgParser& operator=(const CfgParser&);
+
 	bool parse(void);
 	void parseSourceNew(const std::string &name,
 			    CfgParserSource::Type type);
@@ -165,7 +168,7 @@ private:
 	void parseEntryFinishStandard(std::string &buf, std::string &value,
 				      bool &have_value);
 	void parseEntryFinishTemplate(std::string &name);
-	void parseSectionFinish(std::string &buf, std::string &value);
+	void parseSectionFinish(const std::string &buf, std::string &value);
 	void parseCommentLine(CfgParserSource *source);
 	void parseCommentC(CfgParserSource *source);
 	char parseSkipBlank(CfgParserSource *source);

@@ -1,6 +1,6 @@
 //
 // StatusWindow.hh for pekwm
-// Copyright (C) 2004-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2004-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -26,6 +26,9 @@ public:
 		  Geometry *gm = 0);
 
 private:
+	StatusWindow(const StatusWindow&);
+	StatusWindow& operator=(const StatusWindow&);
+
 	// BEGIN - PDecor interface
 	virtual void loadTheme(void);
 	// END - PDecor interface

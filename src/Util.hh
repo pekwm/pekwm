@@ -1,6 +1,6 @@
 //
 // Util.hh for pekwm
-// Copyright (C) 2002-2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2002-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -142,7 +142,7 @@ namespace Util {
 	void setEnv(const std::string& key, const std::string &value);
 	std::string getConfigDir(void);
 
-	void forkExec(std::string command);
+	void forkExec(const std::string& command);
 	pid_t forkExec(const std::vector<std::string>& args);
 	std::string getHostname(void);
 	bool setNonBlock(int fd);
@@ -152,8 +152,6 @@ namespace Util {
 	time_t getMtime(const std::string &file);
 
 	bool copyTextFile(const std::string &from, const std::string &to);
-
-	std::string getUserName(void);
 
 	std::string getFileExt(const std::string &file);
 	std::string getDir(const std::string &file);

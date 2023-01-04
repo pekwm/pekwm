@@ -291,12 +291,6 @@ Strut::~Strut(void)
 {
 }
 
-bool
-Strut::isSet(void) const
-{
-	return left != 0 || right != 0 || top != 0 || bottom != 0;
-}
-
 void
 Strut::clear(void)
 {
@@ -450,7 +444,7 @@ X11::init(Display *dpy, bool synchronous, bool honour_randr)
 	initHeads();
 
 	// initialize array values
-	for (uint i = 0; i < (BUTTON_NO - 1); ++i) {
+	for (uint i = 0; i < BUTTON_NO; ++i) {
 		_last_click_time[i] = 0;
 	}
 
@@ -1091,12 +1085,6 @@ X11::getAtomName(const std::string& name)
 	return MAX_NR_ATOMS;
 }
 
-const char*
-X11::getAtomString(AtomName name)
-{
-	return atomnames[name];
-}
-
 /**
  * Return Atom from provided string.
  */
@@ -1145,15 +1133,16 @@ X11::setAtom(Window win, AtomName aname, AtomName value)
 void
 X11::setAtoms(Window win, AtomName aname, Atom *values, int size)
 {
-	changeProperty(win, _atoms[aname], XA_ATOM, 32,
-		       PropModeReplace, (uchar *) values, size);
+	changeProperty(win, _atoms[aname], XA_ATOM, 32, PropModeReplace,
+		       reinterpret_cast<uchar*>(values), size);
 }
 
 void
 X11::setEwmhAtomsSupport(Window win)
 {
 	changeProperty(win, _atoms[NET_SUPPORTED], XA_ATOM, 32,
-		       PropModeReplace, (uchar *) _atoms, UTF8_STRING+1);
+		       PropModeReplace,
+		       reinterpret_cast<uchar*>(_atoms), UTF8_STRING+1);
 }
 
 bool
@@ -1171,15 +1160,15 @@ X11::getWindow(Window win, AtomName aname, Window& value)
 void
 X11::setWindow(Window win, AtomName aname, Window value)
 {
-	changeProperty(win, _atoms[aname], XA_WINDOW, 32,
-		       PropModeReplace, (uchar *) &value, 1);
+	changeProperty(win, _atoms[aname], XA_WINDOW, 32, PropModeReplace,
+		       reinterpret_cast<uchar*>(&value), 1);
 }
 
 void
 X11::setWindows(Window win, AtomName aname, Window *values, int size)
 {
-	changeProperty(win, _atoms[aname], XA_WINDOW, 32,
-		       PropModeReplace, (uchar *) values, size);
+	changeProperty(win, _atoms[aname], XA_WINDOW, 32, PropModeReplace,
+		       reinterpret_cast<uchar*>(values), size);
 }
 
 bool
@@ -1250,10 +1239,11 @@ X11::getStringId(Window win, Atom id, std::string &value)
 	uchar *data = 0;
 	long uint actual;
 	if (getProperty(win, id, XA_STRING, 0, &data, &actual)) {
-		value = std::string((const char*) data);
+		value = std::string(reinterpret_cast<const char*>(data));
 		while (value.size() < actual) {
 			value += ',';
-			value += ((const char*) data) + value.size();
+			value += reinterpret_cast<const char*>(data)
+				+ value.size();
 		}
 		X11::free(data);
 		return true;
@@ -1265,7 +1255,8 @@ void
 X11::setString(Window win, AtomName aname, const std::string &value)
 {
 	changeProperty(win, _atoms[aname], XA_STRING, 8, PropModeReplace,
-		       (uchar*)value.c_str(), value.size());
+		       reinterpret_cast<const uchar*>(value.c_str()),
+		       value.size());
 }
 
 bool
@@ -1290,6 +1281,10 @@ bool
 X11::getProperty(Window win, Atom atom, Atom type,
 		 ulong expected, uchar **data_ret, ulong *actual)
 {
+	if (! _dpy) {
+		return false;
+	}
+
 	if (expected == 0) {
 		expected = 1024;
 	}
@@ -1611,14 +1606,6 @@ X11::clearWindow(Window window)
 	}
 }
 
-void
-X11::clearArea(Window window, int x, int y, uint width, uint height)
-{
-	if (_dpy) {
-		XClearArea(_dpy, window, x, y, width, height, False);
-	}
-}
-
 #ifdef PEKWM_HAVE_SHAPE
 void
 X11::shapeSelectInput(Window window, ulong mask)
@@ -1662,13 +1649,6 @@ X11::shapeSetMask(Window dst, int kind, Pixmap pix)
 {
 	XShapeCombineMask(_dpy, dst, kind, 0, 0, pix, ShapeSet);
 }
-
-XRectangle*
-X11::shapeGetRects(Window win, int kind, int *num)
-{
-	int ordering;
-	return XShapeGetRectangles(_dpy, win, kind, num, &ordering);
-}
 #else // ! PEKWM_HAVE_SHAPE
 void
 X11::shapeSelectInput(Window window, ulong mask)
@@ -1700,13 +1680,6 @@ X11::shapeIntersectRect(Window dst, XRectangle *rect)
 void
 X11::shapeSetMask(Window dst, int kind, Pixmap pix)
 {
-}
-
-XRectangle*
-X11::shapeGetRects(Window win, int kind, int *num)
-{
-	num = 0;
-	return nullptr;
 }
 #endif // PEKWM_HAVE_SHAPE
 
@@ -2243,7 +2216,7 @@ std::vector<Head> X11::_heads;
 uint X11::_server_grabs;
 Time X11::_last_event_time;
 Window X11::_last_click_id = None;
-Time X11::_last_click_time[BUTTON_NO - 1];
+Time X11::_last_click_time[BUTTON_NO];
 std::vector<X11::ColorEntry*> X11::_colors;
 XColor X11::_xc_default;
 Cursor X11::_cursor_map[CURSOR_NONE];

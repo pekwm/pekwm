@@ -33,7 +33,7 @@ print_net_client_list(Display *dpy, Window root, Atom net_client_list)
 	unsigned char *data;
 	unsigned long nread, nleft;
 
-	data = get_propery(dpy, root, net_client_list, 0L, &nread, &nleft);
+	get_propery(dpy, root, net_client_list, 0L, &nread, &nleft);
 	nleft /= 4;
 
 	data = get_propery(dpy, root, net_client_list, nleft, &nread, &nleft);

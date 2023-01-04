@@ -1,6 +1,6 @@
 //
 // RegexString.cc for pekwm
-// Copyright (C) 2003-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -105,14 +105,13 @@ RegexString::parse_match(const std::string &match, bool full)
 
 	int flags = REG_EXTENDED;
 	std::string expression;
-	std::string expression_str;
 
 	// Full regular expression syntax, parse out flags etc
 	std::string::size_type pos;
 	if (match[0] == SEPARATOR
 	    && (pos = match.find_last_of(SEPARATOR)) != std::string::npos) {
 		// Main expression
-		expression_str = match.substr(1, pos - 1);
+		std::string expression_str = match.substr(1, pos - 1);
 
 		// Expression flags
 		for (std::string::size_type i = pos + 1;

@@ -1,6 +1,6 @@
 //
 // WindowManager.cc for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2002-2021 the pekwm development team
 //
 // windowmanager.cc for aewm++
@@ -432,9 +432,8 @@ WindowManager::screenEdgeResize(void)
 void
 WindowManager::screenEdgeMapUnmap(void)
 {
-	EdgeWO* edge;
 	for (int i=0; i<4; ++i) {
-		edge = _screen_edges[i];
+		EdgeWO *edge = _screen_edges[i];
 		Config *cfg = pekwm::config();
 		if (cfg->getScreenEdgeSize(edge->getEdge()) > 0
 		    && cfg->getEdgeListFromPosition(edge->getEdge())->size()
@@ -474,10 +473,10 @@ WindowManager::doReloadConfig(void)
 	Config *cfg = pekwm::config();
 	// If any of these changes, re-fetch of all names is required
 	bool old_client_unique_name = cfg->getClientUniqueName();
-	const std::string &old_client_unique_name_pre =
-		cfg->getClientUniqueNamePre();
-	const std::string &old_client_unique_name_post =
-		cfg->getClientUniqueNamePost();
+	std::string
+		old_client_unique_name_pre(cfg->getClientUniqueNamePre());
+	std::string
+		old_client_unique_name_post(cfg->getClientUniqueNamePost());
 
 	// Reload configuration
 	if (! cfg->load(cfg->getConfigFile())) {
@@ -1101,13 +1100,13 @@ WindowManager::handleConfigureRequestEvent(XConfigureRequestEvent *ev)
 void
 WindowManager::handleMotionEvent(XMotionEvent *ev)
 {
-	ActionEvent *ae = 0;
 	PWinObj *wo = PWinObj::findPWinObj(ev->window);
 	if (wo == pekwm::rootWo() && ev->subwindow != None) {
 		wo = PWinObj::findPWinObj(ev->subwindow);
 	}
 
 	if (wo) {
+		ActionEvent *ae = nullptr;
 		if (wo->getType() == PWinObj::WO_CLIENT) {
 			ae = wo->getParent()->handleMotionEvent(ev);
 
@@ -1122,7 +1121,6 @@ WindowManager::handleMotionEvent(XMotionEvent *ev)
 			} else {
 				wo = frame->getChildFromPos(ev->x);
 			}
-
 		} else {
 			ae = wo->handleMotionEvent(ev);
 		}
@@ -1229,7 +1227,8 @@ WindowManager::handleEnterNotify(XCrossingEvent *ev)
 	}
 
 	// Clear event queue
-	while (X11::checkTypedEvent(EnterNotify, (XEvent *) ev)) {
+	while (X11::checkTypedEvent(EnterNotify,
+				    reinterpret_cast<XEvent*>(ev))) {
 		if (! ev->send_event) {
 			X11::setLastEventTime(ev->time);
 		}
@@ -1264,7 +1263,8 @@ void
 WindowManager::handleLeaveNotify(XCrossingEvent *ev)
 {
 	// Clear event queue
-	while (X11::checkTypedEvent(LeaveNotify, (XEvent *) ev)) {
+	while (X11::checkTypedEvent(LeaveNotify,
+				    reinterpret_cast<XEvent*>(ev))) {
 		if (! ev->send_event) {
 			X11::setLastEventTime(ev->time);
 		}
@@ -1410,7 +1410,7 @@ WindowManager::handleNetRequestFrameExtents(Window win)
 	MwmThemeState mwm_state;
 	Client *client = Client::findClientFromWindow(win);
 	if (client == nullptr) {
-		MwmHints hints = {0};
+		MwmHints hints;
 		X11Util::readMwmHints(win, hints);
 		mwm_state.setHints(hints);
 		state = &mwm_state;

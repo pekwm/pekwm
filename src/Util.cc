@@ -1,6 +1,6 @@
 //
 // Util.cc for pekwm
-// Copyright (C) 2002-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2002-2023 Claes Nästén <pekdon@gmail.com>
 //
 // misc.cc for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
@@ -175,7 +175,7 @@ namespace Util {
 	 * Fork and execute command with /bin/sh and execlp
 	 */
 	void
-	forkExec(std::string command)
+	forkExec(const std::string& command)
 	{
 		if (command.length() == 0) {
 			P_ERR("command length == 0");
@@ -362,27 +362,6 @@ namespace Util {
 		return true;
 	}
 
-	/**
-	 * Get name of the current user.
-	 */
-	std::string
-	getUserName(void)
-	{
-		// Try to lookup current user with
-		struct passwd *entry = getpwuid(geteuid());
-
-		if (entry && entry->pw_name) {
-			return entry->pw_name;
-		} else {
-			if (getenv("USER")) {
-				return getenv("USER");
-			} else {
-				return "UNKNOWN";
-			}
-		}
-	}
-
-
 	//! @brief Returns .extension of file
 	std::string
 	getFileExt(const std::string &file)
@@ -528,7 +507,7 @@ namespace Util {
 	void to_upper(std::string &str)
 	{
 		std::transform(str.begin(), str.end(), str.begin(),
-			       (int(*)(int)) std::toupper);
+			       static_cast<int(*)(int)>(std::toupper));
 	}
 
 	/**
@@ -539,7 +518,7 @@ namespace Util {
 	void to_lower(std::string &str)
 	{
 		std::transform(str.begin(), str.end(), str.begin(),
-			       (int(*)(int)) std::tolower);
+			       static_cast<int(*)(int)>(std::tolower));
 	}
 
 } // end namespace Util.

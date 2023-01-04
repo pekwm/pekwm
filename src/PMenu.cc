@@ -1,6 +1,6 @@
 //
 // PMenu.cc for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2004-2020 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -50,7 +50,7 @@ std::map<Window,PMenu*> PMenu::_menu_map = std::map<Window,PMenu*>();
 
 //! @brief Constructor for PMenu class
 PMenu::PMenu(const std::string &title,
-	     const std::string &name, const std::string decor_name,
+	     const std::string &name, const std::string& decor_name,
 	     bool init)
 	: PDecor(decor_name, None, init),
 	  _name(name),
@@ -75,7 +75,7 @@ PMenu::PMenu(const std::string &title,
 	// PWinObj attributes
 	_type = PWinObj::WO_MENU;
 	setLayer(LAYER_MENU);
-	_hidden = true; // don't care about it when changing worskpace etc
+	_hidden = true;
 
 	// create menu content child
 	_menu_wo = new PWinObj(false);
@@ -539,12 +539,12 @@ PMenu::buildMenuCalculateColumns(unsigned int &width, unsigned int &height)
 	width = _cols * _item_width_max;
 	// need to calculate max height, the one with most separators if any
 	if (_cols > 1) {
-		uint i, j, row_height;
+		uint i, j;
 		height = 0;
 
 		item_it it(_items.begin());
 		for (i = 0, it = _items.begin(); i < _cols; ++i) {
-			row_height = 0;
+			uint row_height = 0;
 			for (j = 0;
 			     j < _rows && it != _items.end();
 			     ++it, ++j) {
@@ -572,14 +572,14 @@ PMenu::buildMenuCalculateColumns(unsigned int &width, unsigned int &height)
 void
 PMenu::buildMenuPlace(void)
 {
-	uint x, y;
+	uint x;
 	std::vector<PMenu::Item*>::const_iterator it;
 
 	x = 0;
 	it = _items.begin();
 	// cols
 	for (uint i = 0; i < _cols; ++i) {
-		y = 0;
+		uint y = 0;
 		// rows
 		for (uint j = 0; j < _rows && it != _items.end(); ++it) {
 			if ((*it)->getType()
@@ -647,6 +647,7 @@ PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
 		buildMenuRenderItemNormal(pix, state, item);
 	} else if (item->getType() == PMenu::Item::MENU_ITEM_SEPARATOR
 		   && state < OBJECT_STATE_SELECTED) {
+		buildMenuRenderItemSeparator(pix, state, item);
 	}
 }
 
@@ -662,19 +663,19 @@ PMenu::buildMenuRenderItemNormal(Pixmap pix, ObjectState state,
 		    item->getX(), item->getY(),
 		    item->getWidth(), item->getHeight());
 
-	uint start_x, start_y, icon_width, icon_height;
+	uint start_x, start_y;
 	// If entry has an icon, draw it
 	if (item->getIcon() && cfg->isDisplayMenuIcons()) {
 		uint lmin, lmax;
 		lmin = cfg->getMenuIconLimit(_icon_width, WIDTH_MIN, _name);
 		lmax = cfg->getMenuIconLimit(_icon_width, WIDTH_MAX, _name);
-		icon_width =
+		uint icon_width =
 			Util::between<uint>(item->getIcon()->getWidth(),
 					    lmin, lmax);
 
 		lmin = cfg->getMenuIconLimit(_icon_height, HEIGHT_MIN, _name);
 		lmax = cfg->getMenuIconLimit(_icon_height, HEIGHT_MAX, _name);
-		icon_height =
+		uint icon_height =
 			Util::between<uint>(item->getIcon()->getHeight(),
 					    lmin, lmax);
 
@@ -684,9 +685,6 @@ PMenu::buildMenuRenderItemNormal(Pixmap pix, ObjectState state,
 			+ (_item_height - icon_height) / 2;
 		item->getIcon()->render(pix, start_x, start_y,
 					icon_width, icon_height);
-	} else {
-		icon_width = 0;
-		icon_height = 0;
 	}
 
 	// If entry has a submenu, lets draw our submenu "arrow"

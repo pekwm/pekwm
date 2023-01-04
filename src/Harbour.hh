@@ -1,6 +1,6 @@
 //
 // Harbour.hh for pekwm
-// Copyright (C) 2003-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -45,17 +45,18 @@ public:
 
 	void setStateHidden(StateAction sa);
 
-	void handleButtonEvent(XButtonEvent* ev, DockApp* da);
+	void handleButtonEvent(XButtonEvent* ev, const DockApp* da);
 	void handleMotionNotifyEvent(XMotionEvent* ev, DockApp* da);
 	void handleConfigureRequestEvent(XConfigureRequestEvent* ev,
 					 DockApp* da);
 
 private:
+	Harbour(const Harbour&);
+	Harbour& operator=(const Harbour&);
+
 	void placeDockApp(DockApp *da);
 	void placeDockAppX(DockApp *da, const Geometry& head,
 			   int& x, const int y);
-	void placeDockAppY(DockApp *da, const Geometry& head,
-			   const int x, int &y);
 	void placeDockAppsSorted(void);
 	void placeDockAppInsideScreen(DockApp *da);
 

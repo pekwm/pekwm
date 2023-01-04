@@ -1,6 +1,6 @@
 //
 // Client.cc for pekwm
-// Copyright (C) 2002-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2002-2023 Claes Nästén <pekdon@gmail.com>
 //
 // client.cc for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
@@ -245,10 +245,10 @@ Client::findOrCreateFrame(AutoProperty *autoproperty)
 	bool parent_is_new = false;
 
 	if (! _parent) {
-		findTaggedFrame();
-	}
-	if (! _parent) {
-		findPreviousFrame();
+		_parent = findTaggedFrame();
+		if (! _parent) {
+			_parent = findPreviousFrame();
+		}
 	}
 
 	// Apply Autoproperties again to override EWMH state. It's done twice as
@@ -272,17 +272,16 @@ Client::findOrCreateFrame(AutoProperty *autoproperty)
 /**
  * Find from client from for the currently tagged client.
  */
-bool
+PWinObj*
 Client::findTaggedFrame(void)
 {
 	if (pekwm::isStarting()) {
-		return false;
+		return nullptr;
 	}
 
 	// Check for tagged frame
 	Frame *frame = Frame::getTagFrame();
 	if (frame && frame->isMapped()) {
-		_parent = frame;
 		frame->addChild(this);
 
 		if (! Frame::getTagBehind()) {
@@ -290,32 +289,32 @@ Client::findTaggedFrame(void)
 		}
 	}
 
-	return _parent != 0;
+	return frame;
 }
 
 /**
  * Find frame for client on PEKWM_FRAME_ID hint.
  */
-bool
+PWinObj*
 Client::findPreviousFrame(void)
 {
 	if (! pekwm::isStarting()) {
-		return false;
+		return nullptr;
 	}
 
 	Cardinal id;
 	if (X11::getCardinal(_window, PEKWM_FRAME_ID, id)) {
-		_parent = Frame::findFrameFromID(id);
-		if (_parent) {
-			Frame *frame = static_cast<Frame*>(_parent);
+		Frame *frame = Frame::findFrameFromID(id);
+		if (frame) {
 			frame->addChildOrdered(this);
 			if (getPekwmFrameActive()) {
 				frame->activateChild(this);
 			}
 		}
+		return frame;
 	}
 
-	return _parent != 0;
+	return nullptr;
 }
 
 /**
@@ -675,22 +674,6 @@ Client::findClientFromWindow(Window win)
 	client_it it = _clients.begin();
 	for (; it != _clients.end(); ++it) {
 		if (win == (*it)->getWindow()) {
-			return *it;
-		}
-	}
-
-	return nullptr;
-}
-
-//! @brief Finds Client with equal ClassHint.
-//! @param class_hint ClassHint to search for.
-//! @return Client if found, else 0.
-Client*
-Client::findClientFromHint(const ClassHint *class_hint)
-{
-	client_it it = _clients.begin();
-	for (; it != _clients.end(); ++it) {
-		if (*class_hint == *(*it)->getClassHint()) {
 			return *it;
 		}
 	}
@@ -1239,7 +1222,7 @@ Client::titleApplyRule(std::string &title)
 //! @param title Title of client to find ID for.
 //! @return Number of clients with that id.
 uint
-Client::titleFindID(std::string &title)
+Client::titleFindID(const std::string &title)
 {
 	// Do not search for unique IDs if it is not enabled.
 	if (! pekwm::config()->getClientUniqueName()) {
@@ -1292,7 +1275,8 @@ Client::setWmState(ulong state)
 	X11::changeProperty(_window,
 			    X11::getAtom(WM_STATE),
 			    X11::getAtom(WM_STATE),
-			    32, PropModeReplace, (uchar*) data, 2);
+			    32, PropModeReplace,
+			    reinterpret_cast<uchar*>(data), 2);
 }
 
 // If we can't find a wm_state we're going to have to assume
@@ -1305,7 +1289,7 @@ Client::getWmState(void)
 {
 	Atom real_type;
 	int real_format;
-	long *data, state = WithdrawnState;
+	long state = WithdrawnState;
 	ulong items_read, items_left;
 	uchar *udata;
 
@@ -1317,7 +1301,7 @@ Client::getWmState(void)
 				   &items_read, &items_left,
 				   &udata);
 	if ((status  == Success) && items_read) {
-		data = reinterpret_cast<long*>(udata);
+		long *data = reinterpret_cast<long*>(udata);
 		state = *data;
 		X11::free(udata);
 	}
@@ -1525,14 +1509,12 @@ bool
 Client::getIncSize(const XSizeHints& size,
 		   uint *r_w, uint *r_h, uint w, uint h, bool incr)
 {
-	uint basex, basey;
-
 	if (size.flags&PResizeInc) {
-		basex = (size.flags&PBaseSize)
+		uint basex = (size.flags&PBaseSize)
 			? size.base_width
 			: (size.flags&PMinSize) ? size.min_width : 0;
 
-		basey = (size.flags&PBaseSize)
+		uint basey = (size.flags&PBaseSize)
 			? size.base_height
 			: (size.flags&PMinSize) ? size.min_height : 0;
 
@@ -1637,7 +1619,7 @@ Client::updateWinType(bool set)
 }
 
 AtomName
-Client::findWinType(Atom* atoms, int items)
+Client::findWinType(const Atom* atoms, int items)
 {
 	for (int i = 0; i < items; ++i) {
 		if (atoms[i] == X11::getAtom(WINDOW_TYPE_DESKTOP)) {

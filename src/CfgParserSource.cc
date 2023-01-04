@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2005-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -184,5 +184,6 @@ CfgParserSourceCommand::close(void)
 	if (status == -1) {
 		std::string msg =
 			"failed to wait for pid " + std::to_string(_pid);
+		throw(msg);
 	}
 }

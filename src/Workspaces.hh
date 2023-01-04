@@ -1,6 +1,6 @@
 //
 // Workspaces.hh for pekwm
-// Copyright (C) 2002-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2002-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -70,9 +70,10 @@ public:
 		return _per_row ? (getRowMin() + _per_row - 1) : size() - 1;
 	}
 	static uint getRows(void) {
-		return _per_row
-			? (size() / _per_row + (size() % _per_row ? 1 : 0))
-			: 1;
+		if (! _per_row) {
+			return 1;
+		}
+		return size() / _per_row + ((size() % _per_row) ? 1 : 0);
 	}
 	static uint getPerRow(void) { return _per_row ? _per_row : size(); }
 
@@ -91,7 +92,7 @@ public:
 
 	static void layout(Frame *frame, Window parent=None);
 	static void insert(PWinObj* wo, bool raise = true);
-	static void remove(PWinObj* wo);
+	static void remove(const PWinObj* wo);
 
 	static void hideAll(uint workspace);
 	static void unhideAll(uint workspace, bool focus);

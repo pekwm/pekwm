@@ -1,6 +1,6 @@
 //
 // pekwm.hh for pekwm
-// Copyright (C) 2003-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2023 Claes Nästén <pekdon@gmail.com>
 //
 // aewm.hh for aewm++
 // Copyright (C) 2002 Frank Hale <frankhale@yahoo.com>
@@ -15,6 +15,7 @@
 
 #include "config.h"
 
+#include <climits>
 #include <string>
 #include <vector>
 
@@ -169,11 +170,20 @@ enum DirectionType {
 	DIRECTION_NO, DIRECTION_IGNORED
 };
 enum WorkspaceChangeType {
-	WORKSPACE_NO = (uint) ~0, WORKSPACE_LEFT = WORKSPACE_NO - 13,
-	WORKSPACE_PREV, WORKSPACE_NEXT, WORKSPACE_RIGHT,
-	WORKSPACE_PREV_V, WORKSPACE_UP, WORKSPACE_NEXT_V, WORKSPACE_DOWN,
-	WORKSPACE_LAST,
-	WORKSPACE_PREV_N, WORKSPACE_NEXT_N, WORKSPACE_LEFT_N, WORKSPACE_RIGHT_N
+	WORKSPACE_NO = UINT_MAX,
+	WORKSPACE_LEFT = UINT_MAX - 1,
+	WORKSPACE_PREV = UINT_MAX - 2,
+	WORKSPACE_NEXT = UINT_MAX - 3,
+	WORKSPACE_RIGHT = UINT_MAX - 4,
+	WORKSPACE_PREV_V = UINT_MAX - 5,
+	WORKSPACE_UP = UINT_MAX - 6,
+	WORKSPACE_NEXT_V = UINT_MAX - 7,
+	WORKSPACE_DOWN = UINT_MAX - 8,
+	WORKSPACE_LAST = UINT_MAX - 9,
+	WORKSPACE_PREV_N = UINT_MAX - 10,
+	WORKSPACE_NEXT_N = UINT_MAX - 11,
+	WORKSPACE_LEFT_N = UINT_MAX - 12,
+	WORKSPACE_RIGHT_N = UINT_MAX - 13
 };
 enum OrientationType {
 	TOP_LEFT, TOP_EDGE, TOP_CENTER_EDGE, TOP_RIGHT,

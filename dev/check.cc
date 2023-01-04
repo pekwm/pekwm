@@ -24,7 +24,6 @@ public:
 
 	const std::string& getString() const;
 
-	bool isFile()  const;
 	bool isDir() const;
 
 private:
@@ -45,12 +44,6 @@ const std::string&
 Path::getString() const
 {
 	return _path;
-}
-
-bool
-Path::isFile() const
-{
-	return (_sb.st_mode & S_IFMT) == S_IFREG;
 }
 
 bool

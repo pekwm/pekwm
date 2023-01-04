@@ -1,6 +1,6 @@
 //
 // FontHandler.hh for pekwm
-// Copyright (C) 2004-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2004-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -32,10 +32,10 @@ public:
 	}
 
 	PFont *getFont(const std::string &font);
-	void returnFont(PFont *font);
+	void returnFont(const PFont *font);
 
 	PFont::Color *getColor(const std::string &color);
-	void returnColor(PFont::Color *color);
+	void returnColor(const PFont::Color *color);
 
 protected:
 	bool parseFontOffset(PFont *pfont, const std::string &str);

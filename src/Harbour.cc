@@ -1,6 +1,6 @@
 //
 // Harbour.cc for pekwm
-// Copyright (C) 2003-2020 Claes Nästen <pekdon@gmail.com>
+// Copyright (C) 2003-2023 Claes Nästen <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -289,7 +289,7 @@ Harbour::updateStrutSize(void)
 
 //! @brief Handles XButtonEvents made on the DockApp's frames.
 void
-Harbour::handleButtonEvent(XButtonEvent* ev, DockApp* da)
+Harbour::handleButtonEvent(XButtonEvent* ev, const DockApp* da)
 {
 	if (! da) {
 		return;
@@ -405,7 +405,7 @@ void
 Harbour::placeDockAppX(DockApp* da, const Geometry& head, int& x, const int y)
 {
 	int test;
-	bool placed = false, increase = false;
+	bool placed = false;
 	bool right = (_cfg->getHarbourOrientation() == BOTTOM_TO_TOP);
 	x = test = right ? head.x + head.width - da->getWidth() : head.x;
 
@@ -413,7 +413,8 @@ Harbour::placeDockAppX(DockApp* da, const Geometry& head, int& x, const int y)
 	       && (right
 		   ? (test >= 0)
 		   : ((test + da->getWidth()) < (head.x + head.width)))) {
-		placed = increase = true;
+		placed = true;
+		bool increase = true;
 
 		std::vector<DockApp*>::const_iterator it = _dapps.begin();
 		for (; placed && it != _dapps.end(); ++it) {
@@ -437,44 +438,6 @@ Harbour::placeDockAppX(DockApp* da, const Geometry& head, int& x, const int y)
 		}
 	}
 }
-
-void
-Harbour::placeDockAppY(DockApp *da, const Geometry& head, const int x, int &y)
-{
-	int test;
-	bool placed = false, increase = false;
-	bool bottom = (_cfg->getHarbourOrientation() == BOTTOM_TO_TOP);
-	y = test = bottom ? head.y + head.height - da->getHeight() : head.y;
-
-	while (! placed
-	       && (bottom
-		   ? (test >= 0)
-		   : ((test + da->getHeight()) < (head.y + head.height)))) {
-		placed = increase = true;
-
-		std::vector<DockApp*>::const_iterator it = _dapps.begin();
-		for (; placed && it != _dapps.end(); ++it) {
-			if ((*it) == da) {
-				continue; // exclude ourselves
-			}
-
-			int ty = static_cast<signed>(test + da->getHeight());
-			if (((*it)->getY() < ty) && ((*it)->getBY() > test)) {
-				placed = increase = false;
-				test = bottom
-					? (*it)->getY() - da->getHeight()
-					: (*it)->getBY();
-			}
-		}
-
-		if (placed) {
-			y = test;
-		} else if (increase) {
-			test += bottom ? -1 : 1;
-		}
-	}
-}
-
 
 //! @brief Inserts DockApp and places all dockapps in sorted order
 //! @todo Screen boundary checking

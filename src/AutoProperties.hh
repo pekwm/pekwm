@@ -1,6 +1,6 @@
 //
 // AutoProperties.hh for pekwm
-// Copyright (C) 2003-2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -240,12 +240,12 @@ private:
 			       std::vector<Property*>* prop_list,
 			       int ws, ApplyOn type);
 
-	void loadRequire(CfgParser &a_cfg, std::string &file);
+	void loadRequire(CfgParser &a_cfg, const std::string &file);
 
 	bool parsePropertyMatch(const std::string &str, Property *prop);
 	void parsePropertyApplyOn(const std::string &apply_on, Property *prop);
 	bool parseRegexpOrWarning(RegexString &regex,
-				  const std::string regex_str,
+				  const std::string &regex_str,
 				  const std::string &name);
 	bool parseProperty(CfgParser::Entry *section, Property *prop);
 	void parseAutoProperty(CfgParser::Entry *section,

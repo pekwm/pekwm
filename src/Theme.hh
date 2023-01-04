@@ -1,6 +1,6 @@
 //
 // Theme.hh for pekwm
-// Copyright (C) 2003-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -447,8 +447,6 @@ public:
 	const std::string& getThemeDir(void) const { return _theme_dir; }
 	const std::string& getBackground(void) const { return _background; }
 
-	ColorMap* getColorMap(const std::string& name);
-
 	Util::StringMap<PDecorData*>::const_iterator
 	decor_begin(void) {
 		return _decors.begin();
@@ -476,7 +474,13 @@ public:
 
 protected:
 	Theme(void)
-		: _dialog_data(nullptr, nullptr),
+		: _fh(nullptr),
+		  _ih(nullptr),
+		  _th(nullptr),
+		  _version(0),
+		  _loaded(false),
+		  _invert_gc(None),
+		  _dialog_data(nullptr, nullptr),
 		  _menu_data(nullptr, nullptr),
 		  _harbour_data(nullptr),
 		  _status_data(nullptr, nullptr),
@@ -486,7 +490,7 @@ protected:
 	}
 
 private:
-	void loadThemeRequire(CfgParser &theme_cfg, std::string &file);
+	void loadThemeRequire(CfgParser &theme_cfg, const std::string &file);
 	void loadVersion(CfgParser::Entry *root);
 	void loadBackground(CfgParser::Entry *section);
 	void loadColorMaps(CfgParser::Entry *section);

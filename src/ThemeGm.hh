@@ -1,6 +1,6 @@
 //
 // ThemeGm.hh for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -26,6 +26,12 @@ public:
  */
 class MwmThemeState : public ThemeState {
 public:
+	MwmThemeState()
+		: ThemeState(),
+		  _hints(0, 0, 0)
+	{
+	}
+
 	void setHints(const MwmHints &hints) { _hints = hints; }
 
 	virtual bool hasBorder(void) const {

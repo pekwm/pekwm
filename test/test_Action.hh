@@ -1,6 +1,6 @@
 //
 // test_Action.cc for pekwm
-// Copyright (C) 2020-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2020-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -112,7 +112,7 @@ public:
 	virtual bool run_test(TestSpec spec, bool status);
 
 	static void testParseActionSetGeometry(void);
-	static void assertAction(std::string msg, const Action& action,
+	static void assertAction(const std::string& msg, const Action& action,
 				 std::vector<int> e_int,
 				 std::vector<std::string> e_str);
 };
@@ -185,7 +185,7 @@ TestActionConfig::testParseActionSetGeometry(void)
 }
 
 void
-TestActionConfig::assertAction(std::string msg, const Action& action,
+TestActionConfig::assertAction(const std::string& msg, const Action& action,
 			       std::vector<int> e_int,
 			       std::vector<std::string> e_str) {
 	for (uint i = 0; i < e_int.size(); i++) {

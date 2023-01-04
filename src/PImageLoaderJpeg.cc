@@ -1,6 +1,6 @@
 //
 // PImageLoaderJpeg.cc for pekwm
-// Copyright (C) 2005-2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2005-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -56,9 +56,7 @@ namespace PImageLoaderJpeg
 		jpeg_read_header(&cinfo, TRUE);
 
 		// Make sure we get data in 24bit RGB.
-		if (cinfo.out_color_space != JCS_RGB) {
-			cinfo.out_color_space = JCS_RGB;
-		}
+		cinfo.out_color_space = JCS_RGB;
 
 		jpeg_start_decompress(&cinfo);
 

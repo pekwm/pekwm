@@ -1,6 +1,6 @@
 //
 // PTexture.cc for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -123,7 +123,7 @@ PTexture::renderOnBackground(XImage *ximage,
 		return false;
 	}
 
-	PImage image = PImage(ximage, _opacity);
+	PImage image(ximage, _opacity);
 	PImage::drawAlphaFixed(root_ximage, ximage, x, y, width, height,
 			       image.getData());
 	X11::destroyImage(root_ximage);

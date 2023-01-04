@@ -1,6 +1,6 @@
 //
 // Workspaces.cc for pekwm
-// Copyright (C) 2002-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2002-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -153,8 +153,9 @@ Workspaces::setSize(uint number)
 void
 Workspaces::setNames(void)
 {
-	std::vector<Workspace>::size_type i=0, size=_workspaces.size();
-	for (; i<size; ++i) {
+	std::vector<Workspace>::size_type i = 0;
+	std::vector<Workspace>::size_type num_workspaces=_workspaces.size();
+	for (; i < num_workspaces; ++i) {
 		_workspaces[i].setName(pekwm::config()->getWorkspaceName(i));
 	}
 }
@@ -371,11 +372,12 @@ Workspaces::warpToWorkspace(uint num, int dir)
 		return false;
 	}
 
-	int x, y, edge_size;
+	int x, y;
 	X11::getMousePosition(x, y);
 	Config* cfg = pekwm::config();
 
 	if (dir != 0) {
+		int edge_size;
 		switch(dir) {
 		case 1:
 			edge_size = cfg->getScreenEdgeSize(SCREEN_EDGE_LEFT);
@@ -439,8 +441,8 @@ Workspaces::layout(Frame *frame, Window parent)
 	// for example.
 	std::vector<bool> fsHead(X11::getNumHeads(), false);
 	Workspaces::const_iterator it(Workspaces::begin()),
-		end(Workspaces::end());
-	for (; it != end; ++it) {
+		w_end(Workspaces::end());
+	for (; it != w_end; ++it) {
 		if ((*it)->isMapped()
 		    && (*it)->getType() == PWinObj::WO_FRAME) {
 			Client *client =
@@ -507,7 +509,7 @@ void
 Workspaces::insert(PWinObj *wo, bool raise)
 {
 	PWinObj *top_obj = 0;
-	Frame *frame, *wo_frame = dynamic_cast<Frame*>(wo);
+	Frame *wo_frame = dynamic_cast<Frame*>(wo);
 	iterator it;
 
 	if (! raise
@@ -546,7 +548,8 @@ Workspaces::insert(PWinObj *wo, bool raise)
 	if (wo_frame && wo_frame->hasTrans()) {
 		std::vector<Client*>::const_iterator t_it;
 		for (it = _wobjs.begin(); *it != wo;) {
-			if ((frame = dynamic_cast<Frame*>(*it))) {
+			Frame *frame = dynamic_cast<Frame*>(*it);
+			if (frame) {
 				t_it = std::find(wo_frame->getTransBegin(),
 						 wo_frame->getTransEnd(),
 						 frame->getActiveClient());
@@ -570,19 +573,19 @@ Workspaces::insert(PWinObj *wo, bool raise)
 		X11::raiseWindow(winstack.back()->getWindow());
 	}
 
-	const unsigned size = winstack.size();
-	Window *wins = new Window[size];
+	const unsigned num_win = winstack.size();
+	Window *wins = new Window[num_win];
 	std::vector<PWinObj*>::iterator wit(winstack.end());
-	for (unsigned i=0; i<size; ++i) {
+	for (unsigned i = 0; i < num_win; ++i) {
 		wins[i] = (*--wit)->getWindow();
 	}
-	X11::stackWindows(wins, size);
+	X11::stackWindows(wins, num_win);
 	delete [] wins;
 }
 
 //! @brief Removes a PWinObj from the stacking list.
 void
-Workspaces::remove(PWinObj* wo)
+Workspaces::remove(const PWinObj* wo)
 {
 	iterator it_wo(_wobjs.begin());
 	for (;it_wo != _wobjs.end();) {
@@ -608,8 +611,9 @@ Workspaces::hideAll(uint workspace)
 {
 	const_iterator it(_wobjs.begin());
 	for (; it != _wobjs.end(); ++it) {
-		if (! ((*it)->isSticky()) && ! ((*it)->isHidden()) &&
-		    ((*it)->getWorkspace() == workspace)) {
+		if (! ((*it)->isSticky())
+		    && ! (*it)->isHidden()
+		    && ((*it)->getWorkspace() == workspace)) {
 			(*it)->unmapWindow();
 		}
 	}

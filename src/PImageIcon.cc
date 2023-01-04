@@ -1,6 +1,6 @@
 //
 // PImageIcon.cc for pekwm
-// Copyright (C) 2007-2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2007-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -136,9 +136,8 @@ PImageIcon::fromCardinals(size_t pixels, Cardinal *from_data, uchar *to_data)
 {
 	Cardinal *src = from_data;
 	uchar *dst = to_data;
-	int pixel;
 	for (size_t i = 0; i < pixels; i += 1) {
-		pixel = *src++;
+		int pixel = *src++;
 		*dst++ = pixel >> 24 & 0xff;
 		*dst++ = pixel >> 16 & 0xff;
 		*dst++ = pixel >> 8 & 0xff;
@@ -151,9 +150,8 @@ PImageIcon::toCardinals(size_t pixels, uchar *from_data, Cardinal *to_data)
 {
 	uchar *src = from_data;
 	Cardinal *dst = to_data;
-	int pixel;
 	for (size_t i = 0; i < pixels; i += 1) {
-		pixel = (src[0] << 24)
+		int pixel = (src[0] << 24)
 			| (src[1] << 16)
 			| (src[2] << 8)
 			| src[3];

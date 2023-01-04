@@ -1,7 +1,7 @@
 //
 // PImage.cc for pekwm
 //
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2005-2021 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -35,51 +35,50 @@ destroyXImage(XImage *ximage)
 
 typedef ulong (*rgbToPixel)(uchar, uchar, uchar);
 
-static ulong
-rgbToPixel15bitLSB(uchar r, uchar g, uchar b)
+// cppcheck-suppress unusedFunction
+static ulong rgbToPixel15bitLSB(uchar r, uchar g, uchar b)
 {
 	return ((r << 7) & 0x7c00)
 		| ((g << 2) & 0x03e0) | ((b >> 3) & 0x001f);
 }
 
-static ulong
-rgbToPixel16bitLSB(uchar r, uchar g, uchar b)
+// cppcheck-suppress unusedFunction
+static ulong rgbToPixel16bitLSB(uchar r, uchar g, uchar b)
 {
 	return ((r << 8) &  0xf800)
 		| ((g << 3) & 0x07e0) | ((b >> 3) & 0x001f);
 }
 
-static ulong
-rgbToPixel24bitLSB(uchar r, uchar g, uchar b)
+// cppcheck-suppress unusedFunction
+static ulong rgbToPixel24bitLSB(uchar r, uchar g, uchar b)
 {
 	return ((r << 16) & 0xff0000)
 		| ((g << 8) & 0x00ff00) | (b & 0x0000ff);
 }
 
-static ulong
-rgbToPixel15bitMSB(uchar r, uchar g, uchar b)
+// cppcheck-suppress unusedFunction
+static ulong rgbToPixel15bitMSB(uchar r, uchar g, uchar b)
 {
 	return ((b << 7) & 0x7c00)
 		| ((g << 2) & 0x03e0) | ((r >> 3) & 0x001f);
 }
 
-static ulong
-rgbToPixel16bitMSB(uchar r, uchar g, uchar b)
+// cppcheck-suppress unusedFunction
+static ulong rgbToPixel16bitMSB(uchar r, uchar g, uchar b)
 {
 	return ((b << 8) &  0xf800)
 		| ((g << 3) & 0x07e0) | ((r >> 3) & 0x001f);
 }
 
-
-static ulong
-rgbToPixel24bitMSB(uchar r, uchar g, uchar b)
+// cppcheck-suppress unusedFunction
+static ulong rgbToPixel24bitMSB(uchar r, uchar g, uchar b)
 {
 	return ((b << 16) & 0xff0000)
 		| ((g << 8) & 0x00ff00) | (r & 0x0000ff);
 }
 
-static ulong
-rgbToPixelUnknown(uchar r, uchar g, uchar b)
+// cppcheck-suppress unusedFunction
+static ulong rgbToPixelUnknown(uchar r, uchar g, uchar b)
 {
 	return 0;
 }
@@ -121,57 +120,56 @@ getRgbToPixelFun(XImage* ximage)
 
 typedef void (*pixelToRgb)(ulong, uchar&, uchar&, uchar&);
 
-static void
-pixelToRgb15bitLSB(ulong pixel, uchar &r, uchar &g, uchar &b)
+// cppcheck-suppress unusedFunction
+static void pixelToRgb15bitLSB(ulong pixel, uchar &r, uchar &g, uchar &b)
 {
 	r = (pixel >> 7) & 0x7c;
 	g = (pixel >> 2) & 0x3e;
 	b = (pixel << 3) & 0x1f;
 }
 
-static void
-pixelToRgb16bitLSB(ulong pixel, uchar &r, uchar &g, uchar &b)
+// cppcheck-suppress unusedFunction
+static void pixelToRgb16bitLSB(ulong pixel, uchar &r, uchar &g, uchar &b)
 {
 	r = (pixel >> 8) & 0xf8;
 	g = (pixel >> 3) & 0x7e;
 	b = (pixel << 3) & 0x1f;
 }
 
-static void
-pixelToRgb24bitLSB(ulong pixel, uchar &r, uchar &g, uchar &b)
+// cppcheck-suppress unusedFunction
+static void pixelToRgb24bitLSB(ulong pixel, uchar &r, uchar &g, uchar &b)
 {
 	r = (pixel >> 16) & 0xff;
 	g = (pixel >> 8) & 0xff;
 	b = pixel & 0xff;
 }
 
-static void
-pixelToRgb15bitMSB(ulong pixel, uchar &r, uchar &g, uchar &b)
+// cppcheck-suppress unusedFunction
+static void pixelToRgb15bitMSB(ulong pixel, uchar &r, uchar &g, uchar &b)
 {
 	r = (pixel << 3) & 0x1f;
 	g = (pixel >> 2) & 0x3e;
 	b = (pixel >> 7) & 0x7c;
 }
 
-static void
-pixelToRgb16bitMSB(ulong pixel, uchar &r, uchar &g, uchar &b)
+// cppcheck-suppress unusedFunction
+static void pixelToRgb16bitMSB(ulong pixel, uchar &r, uchar &g, uchar &b)
 {
 	r = (pixel << 3) & 0x1f;
 	g = (pixel >> 3) & 0x7e;
 	b = (pixel >> 8) & 0xf8;
 }
 
-
-static void
-pixelToRgb24bitMSB(ulong pixel, uchar &r, uchar &g, uchar &b)
+// cppcheck-suppress unusedFunction
+static void pixelToRgb24bitMSB(ulong pixel, uchar &r, uchar &g, uchar &b)
 {
 	r = pixel & 0xff;
 	g = (pixel >> 8) & 0xff;
 	b = (pixel >> 16) & 0xff;
 }
 
-static void
-pixelToRgbUnknown(ulong pixel, uchar &r, uchar &g, uchar &b)
+// cppcheck-suppress unusedFunction
+static void pixelToRgbUnknown(ulong pixel, uchar &r, uchar &g, uchar &b)
 {
 	r = 0;
 	g = 0;
@@ -239,7 +237,7 @@ PImage::PImage(const std::string &path)
 	  _use_alpha(false)
 {
 	if (! path.size() || ! load(path)) {
-		throw LoadException(path.c_str());
+		throw LoadException(path);
 	}
 }
 
@@ -267,16 +265,16 @@ PImage::PImage(XImage *image, uchar opacity)
 	  _data(new uchar[image->width * image->height * 4]),
 	  _use_alpha(false)
 {
-	pixelToRgb pixelToRgb = getPixelToRgbFun(image);
+	pixelToRgb toRgb = getPixelToRgbFun(image);
 
 	uint dst = 0;
 	for (uint y = 0; y < _height; ++y) {
 		for (uint x = 0; x < _width; ++x) {
 			_data[dst] = opacity; // A
-			pixelToRgb(XGetPixel(image, x, y),
-				   _data[dst + 1],
-				   _data[dst + 2],
-				   _data[dst + 3]);
+			toRgb(XGetPixel(image, x, y),
+			      _data[dst + 1],
+			      _data[dst + 2],
+			      _data[dst + 3]);
 			dst += 4;
 		}
 	}
@@ -559,8 +557,8 @@ PImage::drawAlphaFixed(XImage *src_image, XImage *dest_image,
 	dest_image->green_mask = visual->green_mask;
 	dest_image->blue_mask = visual->blue_mask;
 
-	pixelToRgb pixelToRgb = getPixelToRgbFun(src_image);
-	rgbToPixel rgbToPixel = getRgbToPixelFun(dest_image);
+	pixelToRgb toRgb = getPixelToRgbFun(src_image);
+	rgbToPixel toPixel = getRgbToPixelFun(dest_image);
 
 	uchar *src = data;
 	for (size_t i_y = 0; i_y < height; ++i_y) {
@@ -576,8 +574,8 @@ PImage::drawAlphaFixed(XImage *src_image, XImage *dest_image,
 			if (a != 255) {
 				// Get RGB values from pixel.
 				uchar d_r = 0, d_g = 0, d_b = 0;
-				pixelToRgb(XGetPixel(src_image, i_x, i_y),
-					   d_r, d_g, d_b);
+				toRgb(XGetPixel(src_image, i_x, i_y),
+				      d_r, d_g, d_b);
 
 				float a_percent = static_cast<float>(a) / 255;
 				float a_percent_inv = 1 - a_percent;
@@ -589,7 +587,7 @@ PImage::drawAlphaFixed(XImage *src_image, XImage *dest_image,
 						       + (a_percent * b));
 			}
 
-			XPutPixel(dest_image, i_x, i_y, rgbToPixel(r, g, b));
+			XPutPixel(dest_image, i_x, i_y, toPixel(r, g, b));
 		}
 	}
 }
@@ -834,7 +832,7 @@ PImage::createXImage(uchar* data, size_t width, size_t height)
 
 	uchar *src = data;
 
-	rgbToPixel rgbToPixel = getRgbToPixelFun(ximage);
+	rgbToPixel toPixel = getRgbToPixelFun(ximage);
 
 	// Put data into XImage.
 	for (size_t y = 0; y < height; ++y) {
@@ -844,7 +842,7 @@ PImage::createXImage(uchar* data, size_t width, size_t height)
 			uchar r = *src++;
 			uchar g = *src++;
 			uchar b = *src++;
-			XPutPixel(ximage, x, y, rgbToPixel(r, g, b));
+			XPutPixel(ximage, x, y, toPixel(r, g, b));
 		}
 	}
 
@@ -852,7 +850,7 @@ PImage::createXImage(uchar* data, size_t width, size_t height)
 }
 
 static inline uchar
-scalePixel(uchar* data, int pos, int width, float x_diff, float y_diff)
+scalePixel(const uchar* data, int pos, int width, float x_diff, float y_diff)
 {
 	float p0 = data[pos];
 	float p1 = data[pos + 4];

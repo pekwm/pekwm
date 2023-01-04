@@ -1,6 +1,6 @@
 //
 // InputDialog.cc for pekwm
-// Copyright (C) 2009-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2009-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -116,7 +116,7 @@ InputDialog::InputDialog(const std::string &title)
 {
 	// PWinObj attributes
 	setLayer(LAYER_NONE); // hack, goes over LAYER_MENU
-	_hidden = true; // don't care about it when changing worskpace etc
+	_hidden = true;
 
 	if (! _keysym_map.size()) {
 		reloadKeysymMap();
@@ -145,7 +145,7 @@ InputDialog::InputDialog(const std::string &title)
 	_text_wo->mapWindow();
 
 	// setup texture, size etc
-	loadTheme();
+	InputDialog::loadTheme();
 
 	Workspaces::insert(this);
 	woListAdd(this);
@@ -171,7 +171,7 @@ InputDialog::~InputDialog(void)
 		delete _text_wo;
 	}
 
-	unloadTheme();
+	InputDialog::unloadTheme();
 }
 
 void
@@ -236,7 +236,8 @@ ActionEvent*
 InputDialog::handleKeyPress(XKeyEvent *ev)
 {
 	bool matched;
-	ActionEvent *c_ae, *ae = 0;
+	ActionEvent *c_ae;
+	ActionEvent *r_ae = nullptr;
 
 	if ((c_ae = pekwm::keyGrabber()->findAction(ev, _type, matched))) {
 		ActionEvent::it it(c_ae->action_list.begin());
@@ -257,10 +258,10 @@ InputDialog::handleKeyPress(XKeyEvent *ev)
 				completeReset();
 				break;
 			case INPUT_EXEC:
-				ae = exec();
+				r_ae = exec();
 				break;
 			case INPUT_CLOSE:
-				ae = close();
+				r_ae = close();
 				break;
 			case INPUT_COMPLETE:
 				complete();
@@ -300,13 +301,13 @@ InputDialog::handleKeyPress(XKeyEvent *ev)
 		}
 
 		// something ( most likely ) changed, redraw the window
-		if (! ae) {
+		if (! r_ae) {
 			bufChanged();
 			render();
 		}
 	}
 
-	return ae;
+	return r_ae;
 }
 
 /**
@@ -445,16 +446,16 @@ InputDialog::render(void)
 	X11::clearWindow(_text_wo->getWindow());
 
 	uint pos = _data->getPad(PAD_LEFT);
-	const char *buf = str().c_str() + _buf_off;
+	const char *c_buf = str().c_str() + _buf_off;
 
 	// draw buf content
 	_data->getFont()->setColor(_data->getColor());
 	_data->getFont()->draw(_text_wo->getWindow(),
-			       pos, _data->getPad(PAD_UP), buf, _buf_chars);
+			       pos, _data->getPad(PAD_UP), c_buf, _buf_chars);
 
 	// draw cursor
 	if (_buf.pos() > 0) {
-		pos += _data->getFont()->getWidth(buf, _buf.pos() - _buf_off)
+		pos += _data->getFont()->getWidth(c_buf, _buf.pos() - _buf_off)
 			+ 1;
 	}
 	_data->getFont()->draw(_text_wo->getWindow(),

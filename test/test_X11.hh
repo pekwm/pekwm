@@ -1,6 +1,6 @@
 //
 // test_X11.cc for pekwm
-// Copyright (C) 2020-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2020-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -61,10 +61,12 @@ public:
 	virtual bool run_test(TestSpec spec, bool status);
 
 	static void testParseGeometry(void);
-	static void assertParseGeometry(std::string msg, std::string str,
-					Geometry e_gm, int e_mask);
+	static void assertParseGeometry(const std::string &msg,
+					const std::string &str,
+					const Geometry &e_gm, int e_mask);
 	static void testParseGeometryVal(void);
-	static void assertParseGeometryVal(std::string msg, std::string str,
+	static void assertParseGeometryVal(const std::string &msg,
+					   const std::string &str,
 					   int e_ret, int e_val);
 };
 
@@ -114,8 +116,8 @@ TestX11::testParseGeometry(void)
 }
 
 void
-TestX11::assertParseGeometry(std::string msg, std::string str,
-			     Geometry e_gm, int e_mask)
+TestX11::assertParseGeometry(const std::string& msg, const std::string& str,
+			     const Geometry& e_gm, int e_mask)
 {
 	Geometry gm;
 	int mask = parseGeometry(str, gm);
@@ -135,7 +137,8 @@ TestX11::testParseGeometryVal(void)
 }
 
 void
-TestX11::assertParseGeometryVal(std::string msg, std::string str,
+TestX11::assertParseGeometryVal(const std::string &msg,
+				const std::string &str,
 				int e_ret, int e_val)
 {
 	int ret, val;

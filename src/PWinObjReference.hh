@@ -1,6 +1,6 @@
 //
 // PWinObjReference.hh for pekwm
-// Copyright (C) 2009-2021 Claes Nästen <pekdon@gmail.com>
+// Copyright (C) 2009-2023 Claes Nästen <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -20,13 +20,13 @@
 class PWinObjReference : public Observer {
 public:
 	PWinObjReference(PWinObj *wo_ref=nullptr)
-		: _wo_ref(nullptr)
+		: _wo_ref(wo_ref)
 	{
-		setWORef(wo_ref);
+		updateObserver(nullptr, wo_ref);
 	}
 	virtual ~PWinObjReference(void)
 	{
-		setWORef(nullptr);
+		updateObserver(_wo_ref, nullptr);
 	}
 
 	/** Notify about reference update, unset the reference. */
@@ -42,17 +42,20 @@ public:
 
 	/** Sets the PWinObj reference and add this as an observer. */
 	virtual void setWORef(PWinObj *wo_ref) {
-		if (_wo_ref == wo_ref) {
-			return;
+		if (_wo_ref != wo_ref) {
+			updateObserver(_wo_ref, wo_ref);
+			_wo_ref = wo_ref;
 		}
+	}
 
+	void updateObserver(PWinObj* old_ref, PWinObj* new_ref)
+	{
 		ObserverMapping* om = pekwm::observerMapping();
-		if (_wo_ref != nullptr) {
-			om->removeObserver(_wo_ref, this);
+		if (old_ref != nullptr) {
+			om->removeObserver(old_ref, this);
 		}
-		_wo_ref = wo_ref;
-		if (_wo_ref != nullptr) {
-			om->addObserver(_wo_ref, this);
+		if (new_ref != nullptr) {
+			om->addObserver(new_ref, this);
 		}
 	}
 

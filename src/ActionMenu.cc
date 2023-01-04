@@ -1,6 +1,6 @@
 //
 // ActionMenu.cc for pekwm
-// Copyright (C) 2002-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2002-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -54,7 +54,7 @@ ActionMenu::ActionMenu(MenuType type, ActionHandler *act,
 //! @brief ActionMenu destructor
 ActionMenu::~ActionMenu(void)
 {
-	removeAll();
+	ActionMenu::removeAll();
 }
 
 // START - PWinObj interface.
@@ -66,8 +66,7 @@ ActionMenu::mapWindow(void)
 	// find and rebuild the dynamic entries
 	if (! isMapped() && _has_dynamic) {
 		uint size_before = size();
-		rebuildDynamic();
-		if (size_before != size()) {
+		if (size_before != rebuildDynamic()) {
 			buildMenu();
 		}
 	}
@@ -314,7 +313,7 @@ ActionMenu::getIcon(CfgParser::Entry *value)
 /**
  * Executes all Dynamic entries in the menu.
  */
-void
+uint
 ActionMenu::rebuildDynamic(void)
 {
 	PWinObj *wo_ref = getWORef();
@@ -329,13 +328,12 @@ ActionMenu::rebuildDynamic(void)
 	// Setup icon path before parsing.
 	WithIconPath with_icon_path(pekwm::config(), pekwm::imageHandler());
 
-	PMenu::Item* item = nullptr;
 	std::vector<PMenu::Item*>::const_iterator it = m_begin();
 	for (; it != m_end(); ++it) {
 		if ((*it)->getAE().isOnlyAction(ACTION_MENU_DYN)) {
 			_insert_at = it - m_begin();
 
-			item = *it;
+			PMenu::Item* item = *it;
 
 			CfgParser dynamic;
 			std::string cmd =
@@ -350,6 +348,7 @@ ActionMenu::rebuildDynamic(void)
 		}
 	}
 	_insert_at = size();
+	return _insert_at;
 }
 
 CfgParser::Entry*

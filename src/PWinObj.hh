@@ -1,6 +1,6 @@
 //
 // PWinObj.hh for pekwm
-// Copyright (C) 2003-2020 Claes Nästen <pekdon@gmail.com>
+// Copyright (C) 2003-2023 Claes Nästen <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -194,7 +194,6 @@ public:
 
 	/** Set focusable flag. */
 	virtual void setFocusable(bool focusable) { _focusable = focusable; }
-	virtual void setHidden(bool hidden);
 
 	virtual void giveInputFocus(void);
 	virtual void reparent(PWinObj *parent, int x, int y);

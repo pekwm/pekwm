@@ -1,6 +1,6 @@
 //
 // Theme.cc for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2003-2021 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -1001,8 +1001,7 @@ Theme::DialogData::load(CfgParser::Entry *section)
 	}
 	_loaded = true;
 
-	std::string val_bg, val_bfont, val_btext, val_font, val_text,
-		val_tfont, val_ttext, val_pad;
+	std::string val_bg, val_font, val_text, val_tfont, val_ttext, val_pad;
 	CfgParserKeys keys;
 	keys.add_string("BACKGROUND", val_bg, "Solid #ffffff");
 	keys.add_string("FONT", val_font, DEFAULT_FONT);
@@ -1205,7 +1204,6 @@ Theme::Theme(FontHandler *fh, ImageHandler *ih, TextureHandler *th,
 	  _th(th),
 	  _version(0),
 	  _loaded(false),
-	  _invert_gc(None),
 	  _dialog_data(fh, th),
 	  _menu_data(fh, th),
 	  _harbour_data(th),
@@ -1215,13 +1213,13 @@ Theme::Theme(FontHandler *fh, ImageHandler *ih, TextureHandler *th,
 {
 	_decors[""] = nullptr;
 
-	// window gc's
 	XGCValues gv;
 	gv.function = GXinvert;
 	gv.subwindow_mode = IncludeInferiors;
 	gv.line_width = 1;
-	_invert_gc = X11::createGC(X11::getRoot(),
-				   GCFunction|GCSubwindowMode|GCLineWidth, &gv);
+	ulong gv_mask = GCFunction|GCSubwindowMode|GCLineWidth;
+	// cppcheck-suppress useInitializationList
+	_invert_gc = X11::createGC(X11::getRoot(), gv_mask, &gv);
 
 	load(theme_file, theme_variant);
 }
@@ -1335,7 +1333,7 @@ Theme::load(const std::string &dir, const std::string &variant, bool force)
  * Load template quirks.
  */
 void
-Theme::loadThemeRequire(CfgParser &theme_cfg, std::string &file)
+Theme::loadThemeRequire(CfgParser &theme_cfg, const std::string &file)
 {
 	CfgParser::Entry *section;
 
@@ -1468,14 +1466,4 @@ Theme::unload(void)
 	pekwm::clearColorResources();
 
 	_th->logTextures("theme unloaded");
-}
-
-Theme::ColorMap*
-Theme::getColorMap(const std::string& name)
-{
-	std::string u_name;
-	Util::to_upper(u_name);
-	std::map<std::string, ColorMap>::iterator it =
-		_color_maps.find(u_name);
-	return it == _color_maps.end() ? nullptr : &it->second;
 }

@@ -1,6 +1,6 @@
 //
 // Config.hh for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2002-2021 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -284,7 +284,7 @@ public:
 	bool parseMenuActions(const std::string& actions, ActionEvent& ae);
 	bool parseMenuEvent(CfgParser::Entry *section, ActionEvent& ae);
 
-	static bool parseOpacity(const std::string value, uint &focused,
+	static bool parseOpacity(const std::string& value, uint &focused,
 				 uint &unfocused);
 
 private:

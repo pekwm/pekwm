@@ -9,7 +9,8 @@
 
 class AssertFailed {
 public:
-	AssertFailed(std::string file, int line, std::string msg)
+	AssertFailed(const std::string& file, int line,
+		     const std::string& msg)
 		: _file(file), _line(line), _msg(msg) {
 	}
 
@@ -81,14 +82,16 @@ public:
 
 	static int main(int, char **)
 	{
-		bool status = true;
+		int status = 0;
 
 		std::vector<TestSuite*>::iterator it(_suites.begin());
 		for (; it != _suites.end(); ++it ) {
-			status = (*it)->test() && status;
+			if (! (*it)->test()) {
+				status = 1;
+			}
 		}
 
-		return status ? 0 : 1;
+		return status;
 	}
 
 	const std::string& name() const { return _name; }

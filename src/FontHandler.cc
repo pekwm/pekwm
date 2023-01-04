@@ -1,6 +1,6 @@
 //
 // FontHandler.cc for pekwm
-// Copyright (C) 2004-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2004-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -196,7 +196,7 @@ FontHandler::replaceFontCharset(std::string &font)
 
 //! @brief Returns a font
 void
-FontHandler::returnFont(PFont *font)
+FontHandler::returnFont(const PFont *font)
 {
 	std::vector<HandlerEntry<PFont*> >::iterator it = _fonts.begin();
 	for (; it != _fonts.end(); ++it) {
@@ -248,7 +248,7 @@ FontHandler::getColor(const std::string &color)
 
 //! @brief Returns a color
 void
-FontHandler::returnColor(PFont::Color *color)
+FontHandler::returnColor(const PFont::Color *color)
 {
 	std::vector<HandlerEntry<PFont::Color*> >::iterator it =
 		_colors.begin();

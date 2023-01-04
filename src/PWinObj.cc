@@ -1,6 +1,6 @@
 //
 // PWinObj.cc for pekwm
-// Copyright (C) 2003-2020 Claes Nästen <pekdon@gmail.com>
+// Copyright (C) 2003-2023 Claes Nästen <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -26,10 +26,17 @@ std::map<Window, PWinObj*> PWinObj::_wo_map = std::map<Window, PWinObj*>();
 //! @brief PWinObj constructor.
 PWinObj::PWinObj(bool keyboard_input)
 	: _window(None),
-	  _parent(0), _type(WO_NO_TYPE), _lastActivity(X11::getLastEventTime()),
-	  _opaque(true), _workspace(0), _layer(LAYER_NORMAL),
-	  _mapped(false), _iconified(false),
-	  _hidden(false), _focused(false), _sticky(false),
+	  _parent(0),
+	  _type(WO_NO_TYPE),
+	  _lastActivity(X11::getLastEventTime()),
+	  _opaque(true),
+	  _workspace(0),
+	  _layer(LAYER_NORMAL),
+	  _mapped(false),
+	  _iconified(false),
+	  _hidden(false),
+	  _focused(false),
+	  _sticky(false),
 	  _focusable(true),
 	  _shape_bounding(false),
 	  _keyboard_input(keyboard_input)
@@ -230,13 +237,6 @@ PWinObj::setOpaque(bool opaque)
 {
 	_opaque = opaque;
 	updateOpacity();
-}
-
-//! @brief Only sets _hidden to hidden.
-void
-PWinObj::setHidden(bool hidden)
-{
-	_hidden = hidden;
 }
 
 //! @brief Executes XSetInputFocus on the appropriate window.

@@ -1,6 +1,6 @@
 //
 // TextureHandler.cc for pekwm
-// Copyright (C) 2004-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2004-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -239,7 +239,7 @@ TextureHandler::parseSolid(std::vector<std::string> &tok)
  * Parse and create PTextureSolidRaised
  */
 PTexture*
-TextureHandler::parseSolidRaised(std::vector<std::string> &tok)
+TextureHandler::parseSolidRaised(const std::vector<std::string> &tok)
 {
 	if (tok.size() < 3) {
 		USER_WARN("not enough parameters to texture SolidRaised "
@@ -247,26 +247,29 @@ TextureHandler::parseSolidRaised(std::vector<std::string> &tok)
 		return 0;
 	}
 
+	size_t i = 0;
 	PTextureSolidRaised *tex =
-		new PTextureSolidRaised(tok[0], tok[1], tok[2]);
-	tok.erase(tok.begin(), tok.begin() + 3);
+		new PTextureSolidRaised(tok[i], tok[i + 1], tok[i + 2]);
+	i += 3;
 
 	// Check if we have line width and offset.
-	if (tok.size() > 2) {
-		tex->setLineWidth(strtol(tok[0].c_str(), 0, 10));
-		tex->setLineOff(strtol(tok[1].c_str(), 0, 10));
-		tok.erase(tok.begin(), tok.begin() + 2);
+	if (tok.size() > (i + 2)) {
+		tex->setLineWidth(strtol(tok[i].c_str(), 0, 10));
+		tex->setLineOff(strtol(tok[i + 1].c_str(), 0, 10));
+		i += 2;
 	}
 	// Check if have side draw specified.
-	if (tok.size() > 4) {
-		tex->setDraw(Util::isTrue(tok[0]), Util::isTrue(tok[1]),
-			     Util::isTrue(tok[2]), Util::isTrue(tok[3]));
-		tok.erase(tok.begin(), tok.begin() + 4);
+	if (tok.size() > (i + 4)) {
+		tex->setDraw(Util::isTrue(tok[i]),
+			     Util::isTrue(tok[i + 1]),
+			     Util::isTrue(tok[i + 2]),
+			     Util::isTrue(tok[i + 3]));
+		i += 4;
 	}
 
 	// Check if we have size
-	if (tok.size() == 1) {
-		parseSize(tex, tok[0]);
+	if (tok.size() > i) {
+		parseSize(tex, tok[i]);
 	}
 
 	return tex;

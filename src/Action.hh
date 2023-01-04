@@ -1,6 +1,6 @@
 //
 // Action.hh for pekwm
-// Copyright (C) 2003-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -214,10 +214,10 @@ public:
 		}
 		_i[n] = param;
 	}
-	inline void setParamS(const std::string param) {
+	inline void setParamS(const std::string& param) {
 		setParamS(0, param);
 	}
-	inline void setParamS(uint n, const std::string param) {
+	inline void setParamS(uint n, const std::string& param) {
 		while (n >= _s.size()) {
 			_s.push_back("");
 		}

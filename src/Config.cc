@@ -1,5 +1,6 @@
 //
 // Config.cc for pekwm
+// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2002-2021 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -143,6 +144,7 @@ Config::Config(void) :
 	_moveresize_edgeattract(0), _moveresize_edgeresist(0),
 	_moveresize_woattract(0), _moveresize_woresist(0),
 	_moveresize_opaquemove(0), _moveresize_opaqueresize(0),
+	_screen_theme_background(true),
 	_screen_workspaces(4),
 	_screen_workspaces_per_row(0),
 	_screen_workspace_name_default("Workspace"),
@@ -288,8 +290,6 @@ Config::load(const std::string &config_file)
 		Util::setEnv("PEKWM_CONFIG_FILE", _config_file);
 		Util::setEnv("PEKWM_CONFIG_PATH", cfg_dir);
 	}
-
-	std::string o_file_mouse; // temporary filepath for mouseconfig
 
 	CfgParser::Entry *section;
 
@@ -739,14 +739,14 @@ Config::parseMoveResizeActions(const std::string &action_string,
 bool
 Config::parseMoveResizeEvent(CfgParser::Entry *section, ActionEvent& ae)
 {
-	CfgParser::Entry *value;
 
 	if (! section->getValue().size ()) {
 		return false;
 	}
 
 	if (ActionConfig::parseKey(section->getValue(), ae.mod, ae.sym)) {
-		value = section->getSection()->findEntry("ACTIONS");
+		CfgParser::Entry *value =
+			section->getSection()->findEntry("ACTIONS");
 		if (value) {
 			return parseMoveResizeActions(value->getValue(), ae);
 		}
@@ -798,14 +798,14 @@ Config::parseInputDialogActions(const std::string &actions, ActionEvent &ae)
 bool
 Config::parseInputDialogEvent(CfgParser::Entry *section, ActionEvent &ae)
 {
-	CfgParser::Entry *value;
 
 	if (! section->getValue().size()) {
 		return false;
 	}
 
 	if (ActionConfig::parseKey(section->getValue(), ae.mod, ae.sym)) {
-		value = section->getSection()->findEntry("ACTIONS");
+		CfgParser::Entry *value =
+			section->getSection()->findEntry("ACTIONS");
 		if (value) {
 			return parseInputDialogActions(value->getValue(), ae);
 		}
@@ -820,13 +820,13 @@ Config::parseInputDialogEvent(CfgParser::Entry *section, ActionEvent &ae)
 uint
 Config::getMenuMask(const std::string &mask)
 {
-	uint mask_return = 0, val;
+	uint mask_return = 0;
 
 	std::vector<std::string> tok;
 	Util::splitString(mask, tok, " \t");
 	std::vector<std::string>::iterator it = tok.begin();
 	for (; it != tok.end(); ++it) {
-		val = Util::StringToGet(mouse_event_map, *it);
+		uint val = Util::StringToGet(mouse_event_map, *it);
 		if (val != MOUSE_EVENT_NO) {
 			mask_return |= val;
 		}
@@ -899,14 +899,14 @@ Config::parseMenuActions(const std::string &actions, ActionEvent &ae)
 bool
 Config::parseMenuEvent(CfgParser::Entry *section, ActionEvent& ae)
 {
-	CfgParser::Entry *value;
 
 	if (! section->getValue().size()) {
 		return false;
 	}
 
 	if (ActionConfig::parseKey(section->getValue(), ae.mod, ae.sym)) {
-		value = section->getSection()->findEntry("ACTIONS");
+		CfgParser::Entry *value =
+			section->getSection()->findEntry("ACTIONS");
 		if (value) {
 			return parseMenuActions(value->getValue(), ae);
 		}
@@ -1267,9 +1267,11 @@ Config::getEdgeListFromPosition(uint pos)
 	return ret;
 }
 
-//! @brief Parses a string which contains two opacity values
+/**
+ * Parses a string which contains two opacity values
+ */
 bool
-Config::parseOpacity(const std::string value, uint &focused, uint &unfocused)
+Config::parseOpacity(const std::string& value, uint &focused, uint &unfocused)
 {
 	std::vector<std::string> tokens;
 	switch ((Util::splitString(value, tokens, " ,", 2))) {

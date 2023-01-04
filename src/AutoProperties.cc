@@ -1,6 +1,6 @@
 //
 // AutoProperties.cc for pekwm
-// Copyright (C) 2003-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -143,8 +143,27 @@ Property::~Property(void)
 }
 
 AutoProperty::AutoProperty(void)
-	: skip(SKIP_NONE),
+	: frame_gm_mask(0),
+	  client_gm_mask(0),
+	  sticky(false),
+	  shaded(false),
+	  iconified(false),
+	  maximized_vertical(false),
+	  maximized_horizontal(false),
+	  fullscreen(false),
+	  border(true),
+	  titlebar(true),
+	  focusable(true),
+	  place_new(true),
+	  focus_new(true),
+	  workspace(0),
+	  skip(SKIP_NONE),
 	  cfg_deny(0),
+	  layer(LAYER_NORMAL),
+	  focus_opacity(255),
+	  unfocus_opacity(255),
+	  allowed_actions(0),
+	  disallowed_actions(0),
 	  icon(nullptr),
 	  group_size(-1),
 	  group_behind(false),
@@ -214,8 +233,6 @@ AutoProperties::load(void)
 	// set load path for icons while loading auto-properties
 	WithIconPath with_icon_path(pekwm::config(), _image_handler);
 
-	std::vector<std::string> tokens;
-	std::vector<std::string>::iterator token_it;
 	CfgParser::Entry::entry_cit it(a_cfg.getEntryRoot()->begin());
 	for (; it != a_cfg.getEntryRoot()->end(); ++it) {
 		if (*(*it) == "PROPERTY") {
@@ -243,7 +260,7 @@ AutoProperties::load(void)
  * Load autoproperties quirks.
  */
 void
-AutoProperties::loadRequire(CfgParser &a_cfg, std::string &file)
+AutoProperties::loadRequire(CfgParser &a_cfg, const std::string &file)
 {
 	// Look for requires section,
 	CfgParser::Entry *section =
@@ -342,7 +359,7 @@ AutoProperties::findProperty(const ClassHint* class_hint,
  */
 bool
 AutoProperties::parseRegexpOrWarning(RegexString &regex,
-				     const std::string regex_str,
+				     const std::string &regex_str,
 				     const std::string &name)
 {
 	if (! regex_str.size() || regex.parse_match(regex_str)) {
@@ -361,13 +378,12 @@ AutoProperties::parseRegexpOrWarning(RegexString &regex,
 bool
 AutoProperties::parsePropertyMatch(const std::string &str, Property *prop)
 {
-	bool status = false;
-
 	// Format of property matches are regexp,regexp . Split up in class
 	// and role regexps.
 	std::vector<std::string> tokens;
 	Util::splitString(str, tokens, ",", _extended ? 5 : 2, true);
 
+	bool status = false;
 	if (tokens.size() >= 2) {
 		// Make sure one of the two regexps compiles
 		status = parseRegexpOrWarning(prop->getHintName(),
@@ -379,7 +395,7 @@ AutoProperties::parsePropertyMatch(const std::string &str, Property *prop)
 
 	// Parse extended part of regexp, role, title and apply on
 	if (status && _extended) {
-		if (status && tokens.size() > 2) {
+		if (tokens.size() > 2) {
 			status = parseRegexpOrWarning(prop->getRole(),
 						      tokens[2], "role");
 		}
@@ -472,12 +488,11 @@ AutoProperties::parseAutoGroup(CfgParser::Entry *section,
 		property->group_name = section->getValue();
 	}
 
-	PropertyType property_type;
-
 	CfgParser::Entry::entry_cit it(section->begin());
 	for (; it != section->end(); ++it) {
-		property_type = Util::StringToGet(group_property_map,
-						  (*it)->getName());
+		PropertyType property_type =
+			Util::StringToGet(group_property_map,
+					  (*it)->getName());
 
 		switch (property_type) {
 		case AP_GROUP_SIZE:
@@ -528,9 +543,8 @@ AutoProperties::parseTitleProperty(CfgParser::Entry *section)
 		if (parseProperty(title_section, title_property)) {
 			CfgParser::Entry *value =
 				title_section->findEntry("RULE");
-			const std::string& wstr = value->getValue();
 			if (value && title_property->getTitleRule()
-					.parse_ed_s(wstr)) {
+					.parse_ed_s(value->getValue())) {
 				_title_prop_list.push_back(title_property);
 				title_property = 0;
 			}
@@ -651,13 +665,12 @@ AutoProperties::parseTypeProperty(CfgParser::Entry *section)
 
 	AtomName atom;
 	AutoProperty *type_property;
-	CfgParser::Entry *type_section;
 	std::map<AtomName, AutoProperty*>::iterator atom_it;
 
 	// Look for all type properties
 	CfgParser::Entry::entry_cit it(section->begin());
 	for (; it != section->end(); ++it) {
-		type_section = (*it)->getSection();
+		CfgParser::Entry *type_section = (*it)->getSection();
 		if (! type_section) {
 			continue;
 		}
@@ -885,7 +898,6 @@ AutoProperties::parseAutoPropertyValue(CfgParser::Entry *section,
 void
 AutoProperties::parseAutoPropertyType(CfgParser::Entry* it, AutoProperty* prop)
 {
-	std::string name, value;
 	std::vector<std::string> tokens;
 	std::vector<std::string>::iterator token_it;
 	PropertyType property_type =

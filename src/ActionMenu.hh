@@ -1,6 +1,6 @@
 //
 // ActionMenu.hh for pekwm
-// Copyright (C) 2002-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2002-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -49,7 +49,7 @@ public:
 	virtual void removeAll(void);
 
 protected:
-	void rebuildDynamic(void);
+	uint rebuildDynamic(void);
 	void removeDynamic(void);
 
 	virtual CfgParser::Entry* runDynamic(CfgParser& parser,

@@ -1,6 +1,6 @@
 //
 // FrameListMenu.hh for pekwm
-// Copyright (C) 2003-2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -41,7 +41,7 @@ private:
 
 private:
 	void buildName(Frame *frame, std::string &name);
-	void buildFrameNames(Frame *frame, std::string &pre_name,
+	void buildFrameNames(Frame *frame, const std::string &pre_name,
 			     bool insert_separator);
 
 	void handleGotomenu(Client *client);

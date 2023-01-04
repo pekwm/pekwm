@@ -1,6 +1,6 @@
 //
 // Client.hh for pekwm
-// Copyright (C) 2003-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2023 Claes Nästén <pekdon@gmail.com>
 //
 // client.hh for aewm++
 // Copyright (C) 2002 Frank Hale <frankhale@yahoo.com>
@@ -104,7 +104,6 @@ public: // Public Member Functions
 
 	static Client *findClient(Window win);
 	static Client *findClientFromWindow(Window win);
-	static Client *findClientFromHint(const ClassHint *class_hint);
 	static Client *findClientFromID(uint id);
 	static void findFamilyFromWindow(client_vec &client_list,
 					 Window win);
@@ -275,7 +274,7 @@ public: // Public Member Functions
 
 	inline AtomName getWinType(void) const { return _window_type; }
 	void updateWinType(bool set);
-	AtomName findWinType(Atom* atoms, int items);
+	AtomName findWinType(const Atom* atoms, int items);
 
 	ulong getWMHints(void);
 	void getWMNormalHints(void);
@@ -295,11 +294,14 @@ public: // Public Member Functions
 	AutoProperty* readAutoprops(ApplyOn type = APPLY_ON_ALWAYS);
 
 private:
+	Client(const Client&);
+	Client& operator=(const Client&);
+
 	bool getAndUpdateWindowAttributes(void);
 
 	bool findOrCreateFrame(AutoProperty *autoproperty);
-	bool findTaggedFrame(void);
-	bool findPreviousFrame(void);
+	PWinObj *findTaggedFrame(void);
+	PWinObj *findPreviousFrame(void);
 	bool findAutoGroupFrame(AutoProperty *autoproperty);
 
 	void setInitialState(void);
@@ -307,7 +309,7 @@ private:
 				 AutoProperty *autoproperty);
 
 	bool titleApplyRule(std::string &wtitle);
-	uint titleFindID(std::string &wtitle);
+	uint titleFindID(const std::string &wtitle);
 
 	void setWmState(ulong state);
 	long getWmState(void);

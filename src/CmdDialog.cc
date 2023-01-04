@@ -1,5 +1,6 @@
 //
 // CmdDialog.cc for pekwm
+// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2004-2015 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -28,7 +29,9 @@ extern "C" {
  * @todo Make size configurable.
  */
 CmdDialog::CmdDialog()
-	: InputDialog("Enter command"), _exec_count(0)
+	: InputDialog("Enter command"),
+	  _pos_on_complete(0),
+	  _exec_count(0)
 {
 	_type = PWinObj::WO_CMD_DIALOG;
 
