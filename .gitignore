@@ -1,4 +1,5 @@
 build
+.cache
 test/system/plux
 *.o
 *~
