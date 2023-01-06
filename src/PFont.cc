@@ -57,7 +57,7 @@ PFont::~PFont(void)
 /**
  * Draws the text on the drawable.
  *
- * @param dest destination Drawable
+ * @param dest destination PSurface
  * @param x x start position
  * @param y y start position
  * @param text text to draw
@@ -67,7 +67,7 @@ PFont::~PFont(void)
  *        to FONT_TRIM_END
  */
 int
-PFont::draw(Drawable dest, int x, int y, const std::string &text,
+PFont::draw(PSurface *dest, int x, int y, const std::string &text,
 	    uint max_chars, uint max_width, PFont::TrimType trim_type)
 {
 	if (! text.size()) {

@@ -1,5 +1,6 @@
 //
 // WorkspaceIndicator.hh for pekwm
+// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2009-2020 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -15,6 +16,7 @@
 
 #include "PWinObj.hh"
 #include "PDecor.hh"
+#include "PPixmapSurface.hh"
 
 /**
  * Workspace indicator rendering a simple window with workspace layout
@@ -40,7 +42,7 @@ public:
 		uint getPaddingHorizontal(void);
 		uint getPaddingVertical(void);
 
-		Pixmap _pixmap; //!< Pixmap holding rendered workspace view
+		PPixmapSurface _surface;
 	};
 
 	WorkspaceIndicator();

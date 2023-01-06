@@ -1,6 +1,6 @@
 //
 // TextWidget.hh for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -26,7 +26,8 @@
 class TextWidget : public PanelWidget,
 		   public Observer {
 public:
-	TextWidget(const PanelTheme& theme, const SizeReq& size_req,
+	TextWidget(const PWinObj* parent,
+		   const PanelTheme& theme, const SizeReq& size_req,
 		   VarData& _var_data, WmState& _wm_state,
 		   const std::string& format,
 		   const CfgParser::Entry *section);

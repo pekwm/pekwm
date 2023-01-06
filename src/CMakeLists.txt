@@ -44,9 +44,17 @@ if (PEKWM_HAVE_XFT)
 	set(texture_SOURCES ${texture_SOURCES} PFontXft.cc)
 endif (PEKWM_HAVE_XFT)
 
-if (PEKWM_HAVE_PANGO)
+if (PEKWM_HAVE_PANGO_CAIRO OR PEKWM_HAVE_PANGO_XFT)
 	set(texture_SOURCES ${texture_SOURCES} PFontPango.cc)
-endif (PEKWM_HAVE_PANGO)
+endif (PEKWM_HAVE_PANGO_CAIRO OR PEKWM_HAVE_PANGO_XFT)
+
+if (PEKWM_HAVE_PANGO_CAIRO)
+	set(texture_SOURCES ${texture_SOURCES} PFontPangoCairo.cc)
+endif (PEKWM_HAVE_PANGO_CAIRO)
+
+if (PEKWM_HAVE_PANGO_XFT)
+	set(texture_SOURCES ${texture_SOURCES} PFontPangoXft.cc)
+endif (PEKWM_HAVE_PANGO_XFT)
 
 if (ENABLE_IMAGE_JPEG AND JPEG_FOUND)
 	set(texture_SOURCES ${texture_SOURCES} PImageLoaderJpeg.cc)

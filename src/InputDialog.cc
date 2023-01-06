@@ -450,7 +450,7 @@ InputDialog::render(void)
 
 	// draw buf content
 	_data->getFont()->setColor(_data->getColor());
-	_data->getFont()->draw(_text_wo->getWindow(),
+	_data->getFont()->draw(_text_wo,
 			       pos, _data->getPad(PAD_UP), c_buf, _buf_chars);
 
 	// draw cursor
@@ -458,7 +458,7 @@ InputDialog::render(void)
 		pos += _data->getFont()->getWidth(c_buf, _buf.pos() - _buf_off)
 			+ 1;
 	}
-	_data->getFont()->draw(_text_wo->getWindow(),
+	_data->getFont()->draw(_text_wo,
 			       pos, _data->getPad(PAD_UP), "|");
 }
 

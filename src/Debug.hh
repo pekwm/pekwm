@@ -1,6 +1,6 @@
 //
 // Debug.hh for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2012-2013 Andreas Schlick <ioerror@lavabit.com>
 //
 // This program is licensed under the GNU GPL.
@@ -48,6 +48,12 @@ namespace Debug
 
 #define P_TRACE(M)							\
 	if (Debug::isLevel(Debug::LEVEL_TRACE)) {			\
+		Debug::getStream(__PRETTY_FUNCTION__, __LINE__, "TRACE:   ") \
+			<< M << std::endl;				\
+	}
+
+#define P_TRACE_IF(C, M)						\
+	if ((C) && Debug::isLevel(Debug::LEVEL_ERR)) {			\
 		Debug::getStream(__PRETTY_FUNCTION__, __LINE__, "TRACE:   ") \
 			<< M << std::endl;				\
 	}

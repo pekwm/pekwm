@@ -11,24 +11,35 @@
 
 #include "PFont.hh"
 
+extern "C" {
+#include <pango/pango.h>
+};
+
 class PFontPango : public PFont {
 public:
-	PFontPango(void);
-	virtual ~PFontPango(void);
+	PFontPango();
+	virtual ~PFontPango();
 
 	// virtual interface
 	virtual bool load(const std::string& font_name);
 	virtual void unload(void);
 
-	virtual uint getWidth(const std::string& text, uint max_chars = 0);
+	virtual uint getWidth(const std::string& text, uint chars = 0) = 0;
+	virtual void setColor(PFont::Color* color) = 0;
 
-	virtual void setColor(PFont::Color* color);
+protected:
+	int charsToLen(uint chars);
 
 private:
-	virtual void drawText(Drawable dest, int x, int y,
+	virtual void drawText(PSurface* dest, int x, int y,
 			      const std::string& text, uint chars,
-			      bool fg);
+			      bool fg) = 0;
 
+protected:
+	PangoContext* _context;
+	PangoFontMap* _font_map;
+	PangoFont* _font;
+	PangoFontDescription* _font_description;
 };
 
 #endif // _PEKWM_PFONT_PANGO_HH_

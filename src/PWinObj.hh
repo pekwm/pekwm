@@ -18,9 +18,11 @@
 #include "X11.hh"
 #include "Action.hh"
 #include "Observable.hh"
+#include "PSurface.hh"
 
 //! @brief X11 Window wrapper class.
-class PWinObj : public Observable
+class PWinObj : public Observable,
+		public PSurface
 {
 public:
 	/**
@@ -47,6 +49,9 @@ public:
 
 	PWinObj(bool keyboard_input);
 	virtual ~PWinObj(void);
+
+	// PSurface
+	virtual Drawable getDrawable(void) const { return _window; }
 
 	//! @brief Returns the focused PWinObj.
 	static inline PWinObj *getFocusedPWinObj(void) { return _focused_wo; }

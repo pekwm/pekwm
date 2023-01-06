@@ -25,7 +25,7 @@ public:
 	virtual void setColor(PFont::Color *color);
 
 private:
-	virtual void drawText(Drawable dest, int x, int y,
+	virtual void drawText(PSurface *dest, int x, int y,
 			      const std::string &text, uint chars, bool fg);
 
 private:

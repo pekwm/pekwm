@@ -18,6 +18,7 @@
 #include "AutoProperties.hh"
 #include "CfgParser.hh"
 #include "PDecor.hh"
+#include "PPixmapSurface.hh"
 #include "PWinObjReference.hh"
 
 class PTexture;
@@ -168,12 +169,12 @@ private:
 	void buildMenuCalculateColumns(uint &width, uint &height);
 	void buildMenuPlace(void);
 	void buildMenuRender(void);
-	void buildMenuRenderState(Pixmap &pix, ObjectState state);
-	void buildMenuRenderItem(Pixmap pix, ObjectState state,
+	void buildMenuRenderState(PSurface *surf, ObjectState state);
+	void buildMenuRenderItem(PSurface *surf, ObjectState state,
 				 PMenu::Item* item);
-	void buildMenuRenderItemNormal(Pixmap pix, ObjectState state,
+	void buildMenuRenderItemNormal(PSurface *surf, ObjectState state,
 				       PMenu::Item* item);
-	void buildMenuRenderItemSeparator(Pixmap pix, ObjectState state,
+	void buildMenuRenderItemSeparator(PSurface *surf, ObjectState state,
 					  PMenu::Item* item);
 
 	PMenu::Item *findItem(int x, int y);
@@ -197,7 +198,9 @@ private:
 	PDecor::TitleItem _title;
 
 	// menu render data
-	Pixmap _menu_bg_fo, _menu_bg_un, _menu_bg_se;
+	PPixmapSurface _menu_bg_fo;
+	PPixmapSurface _menu_bg_un;
+	PPixmapSurface _menu_bg_se;
 
 	// menu disp data
 	uint _menu_width; /**< Static set menu width. */

@@ -109,7 +109,7 @@ PFontX11::getWidth(const std::string &text, uint max_chars)
  * @param fg Bool, to use foreground or background colors
  */
 void
-PFontX11::drawText(Drawable dest, int x, int y,
+PFontX11::drawText(PSurface *dest, int x, int y,
 		   const std::string &text, uint chars, bool fg)
 {
 	GC gc = fg ? _gc_fg : _gc_bg;
@@ -122,7 +122,7 @@ PFontX11::drawText(Drawable dest, int x, int y,
 			mb_text = Charset::toSystem(text);
 		}
 
-		XDrawString(X11::getDpy(), dest, gc, x, y,
+		XDrawString(X11::getDpy(), dest->getDrawable(), gc, x, y,
 			    mb_text.c_str(), mb_text.size());
 	}
 }

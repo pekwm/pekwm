@@ -13,29 +13,14 @@ PFontXft::PFontXft(void)
 	: PFont(),
 	  _draw(XftDrawCreate(X11::getDpy(), X11::getRoot(),
 			      X11::getVisual(), X11::getColormap())),
-	  _font(0),
-	  _cl_fg(0),
-	  _cl_bg(0)
+	  _font(0)
 {
 }
 
 PFontXft::~PFontXft(void)
 {
 	PFontXft::unload();
-
 	XftDrawDestroy(_draw);
-
-	if (_cl_fg) {
-		XftColorFree(X11::getDpy(), X11::getVisual(),
-			     X11::getColormap(), _cl_fg);
-		delete _cl_fg;
-	}
-
-	if (_cl_bg) {
-		XftColorFree(X11::getDpy(), X11::getVisual(),
-			     X11::getColormap(), _cl_bg);
-		delete _cl_bg;
-	}
 }
 
 /**
@@ -114,12 +99,11 @@ PFontXft::getWidth(const std::string &text, uint max_chars)
  * @param fg Bool, to use foreground or background colors
  */
 void
-PFontXft::drawText(Drawable dest, int x, int y,
+PFontXft::drawText(PSurface *dest, int x, int y,
 		   const std::string &text, uint chars, bool fg)
 {
-	XftColor *cl = fg ? _cl_fg : _cl_bg;
-
-	if (_font && cl) {
+	PXftColor& color = fg ? _color_fg : _color_bg;
+	if (_font && color.isSet()) {
 		std::string sub_text;
 		if (chars != 0) {
 			sub_text = text.substr(0, chars);
@@ -127,8 +111,8 @@ PFontXft::drawText(Drawable dest, int x, int y,
 			sub_text = text;
 		}
 
-		XftDrawChange(_draw, dest);
-		XftDrawStringUtf8(_draw, cl, _font, x, y,
+		XftDrawChange(_draw, dest->getDrawable());
+		XftDrawStringUtf8(_draw, *color, _font, x, y,
 				  reinterpret_cast<const XftChar8*>(
 					  sub_text.c_str()),
 				  sub_text.size());
@@ -141,44 +125,16 @@ PFontXft::drawText(Drawable dest, int x, int y,
 void
 PFontXft::setColor(PFont::Color *color)
 {
-	if (_cl_fg) {
-		XftColorFree(X11::getDpy(), X11::getVisual(),
-			     X11::getColormap(), _cl_fg);
-		delete _cl_fg;
-		_cl_fg = 0;
-	}
-	if (_cl_bg) {
-		XftColorFree(X11::getDpy(), X11::getVisual(),
-			     X11::getColormap(), _cl_bg);
-		delete _cl_bg;
-		_cl_bg = 0;
-	}
+	_color_fg.unset();
+	_color_bg.unset();
 
 	if (color->hasFg()) {
-		_xrender_color.red = color->getFg()->red;
-		_xrender_color.green = color->getFg()->green;
-		_xrender_color.blue = color->getFg()->blue;
-		_xrender_color.alpha = color->getFgAlpha();
-
-		_cl_fg = new XftColor;
-
-		XftColorAllocValue(X11::getDpy(), X11::getVisual(),
-				   X11::getColormap(), &_xrender_color,
-				   _cl_fg);
+		_color_fg.set(color->getFg()->red, color->getFg()->green,
+			      color->getFg()->blue, color->getFgAlpha());
 	}
 
 	if (color->hasBg()) {
-		_xrender_color.red = color->getBg()->red;
-		_xrender_color.green = color->getBg()->green;
-		_xrender_color.blue = color->getBg()->blue;
-		_xrender_color.alpha = color->getBgAlpha();
-
-		_cl_bg = new XftColor;
-
-		XftColorAllocValue(X11::getDpy(), X11::getVisual(),
-				   X11::getColormap(), &_xrender_color,
-				   _cl_bg);
+		_color_bg.set(color->getBg()->red, color->getBg()->green,
+			      color->getBg()->blue, color->getBgAlpha());
 	}
 }
-
-

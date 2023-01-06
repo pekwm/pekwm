@@ -16,6 +16,7 @@ extern "C" {
 }
 
 #include "PFont.hh"
+#include "X11Util.hh"
 
 class PFontXft : public PFont {
 public:
@@ -31,14 +32,13 @@ public:
 	virtual void setColor(PFont::Color *color);
 
 private:
-	virtual void drawText(Drawable dest, int x, int y,
+	virtual void drawText(PSurface *dest, int x, int y,
 			      const std::string &text, uint chars, bool fg);
 
 	XftDraw *_draw;
 	XftFont *_font;
-	XftColor *_cl_fg, *_cl_bg;
-
-	XRenderColor _xrender_color;
+	PXftColor _color_fg;
+	PXftColor _color_bg;
 };
 
 #endif // _PEKWM_PFONT_XFT_HH_

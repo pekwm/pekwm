@@ -57,9 +57,6 @@ PMenu::PMenu(const std::string &title,
 	  _menu_parent(0), _class_hint("pekwm", "Menu", "", "", ""),
 	  _item_curr(0),
 	  _menu_wo(0),
-	  _menu_bg_fo(None),
-	  _menu_bg_un(None),
-	  _menu_bg_se(None),
 	  _menu_width(0),
 	  _item_height(0),
 	  _item_width_max(0),
@@ -127,10 +124,6 @@ PMenu::~PMenu(void)
 	for (; it != _items.end(); ++it) {
 		delete *it;
 	}
-
-	X11::freePixmap(_menu_bg_fo);
-	X11::freePixmap(_menu_bg_un);
-	X11::freePixmap(_menu_bg_se);
 }
 
 // START - PWinObj interface.
@@ -151,10 +144,11 @@ PMenu::setFocused(bool focused)
 	if (_focused != focused) {
 		PDecor::setFocused(focused);
 
-		X11::setWindowBackgroundPixmap(_menu_wo->getWindow(),
-					       _focused
-						   ? _menu_bg_fo
-						   : _menu_bg_un);
+		X11::setWindowBackgroundPixmap(
+				_menu_wo->getWindow(),
+				_focused
+				   ? _menu_bg_fo.getDrawable()
+				   : _menu_bg_un.getDrawable());
 		X11::clearWindow(_menu_wo->getWindow());
 		if (_item_curr < _items.size()) {
 			item_it item(_items.begin() + _item_curr);
@@ -608,58 +602,58 @@ PMenu::buildMenuPlace(void)
 void
 PMenu::buildMenuRender(void)
 {
-	buildMenuRenderState(_menu_bg_fo, OBJECT_STATE_FOCUSED);
-	buildMenuRenderState(_menu_bg_un, OBJECT_STATE_UNFOCUSED);
-	buildMenuRenderState(_menu_bg_se, OBJECT_STATE_SELECTED);
+	_menu_bg_fo.resize(getChildWidth(), getChildHeight());
+	buildMenuRenderState(&_menu_bg_fo, OBJECT_STATE_FOCUSED);
+	_menu_bg_un.resize(getChildWidth(), getChildHeight());
+	buildMenuRenderState(&_menu_bg_un, OBJECT_STATE_UNFOCUSED);
+	_menu_bg_se.resize(getChildWidth(), getChildHeight());
+	buildMenuRenderState(&_menu_bg_se, OBJECT_STATE_SELECTED);
 
 	X11::setWindowBackgroundPixmap(_menu_wo->getWindow(),
-				       _focused ? _menu_bg_fo : _menu_bg_un);
+				       _focused ? _menu_bg_fo.getDrawable()
+						: _menu_bg_un.getDrawable());
 	X11::clearWindow(_menu_wo->getWindow());
 }
 
 //! @brief Renders menu content on pix, with state state
 void
-PMenu::buildMenuRenderState(Pixmap &pix, ObjectState state)
+PMenu::buildMenuRenderState(PSurface *surf, ObjectState state)
 {
-	// get a fresh pixmap for the menu
-	X11::freePixmap(pix);
-	pix = X11::createPixmap(getChildWidth(), getChildHeight());
-
 	Theme::PMenuData *md = pekwm::theme()->getMenuData();
 	PTexture *tex = md->getTextureMenu(state);
-	tex->render(pix, 0, 0, getChildWidth(), getChildHeight());
+	tex->render(surf, 0, 0, getChildWidth(), getChildHeight());
 	PFont *font = md->getFont(state);
 	font->setColor(md->getColor(state));
 
 	item_it it = _items.begin();
 	for (; it != _items.end(); ++it) {
 		if ((*it)->getType() != PMenu::Item::MENU_ITEM_HIDDEN) {
-			buildMenuRenderItem(pix, state, *it);
+			buildMenuRenderItem(surf, state, *it);
 		}
 	}
 }
 
 //! @brief Renders item on pix, with state state
 void
-PMenu::buildMenuRenderItem(Pixmap pix, ObjectState state, PMenu::Item *item)
+PMenu::buildMenuRenderItem(PSurface *surf, ObjectState state, PMenu::Item *item)
 {
 	if (item->getType() == PMenu::Item::MENU_ITEM_NORMAL) {
-		buildMenuRenderItemNormal(pix, state, item);
+		buildMenuRenderItemNormal(surf, state, item);
 	} else if (item->getType() == PMenu::Item::MENU_ITEM_SEPARATOR
 		   && state < OBJECT_STATE_SELECTED) {
-		buildMenuRenderItemSeparator(pix, state, item);
+		buildMenuRenderItemSeparator(surf, state, item);
 	}
 }
 
 void
-PMenu::buildMenuRenderItemNormal(Pixmap pix, ObjectState state,
+PMenu::buildMenuRenderItemNormal(PSurface *surf, ObjectState state,
 				 PMenu::Item* item)
 {
 	Theme::PMenuData *md = pekwm::theme()->getMenuData();
 	Config *cfg = pekwm::config();
 
 	PTexture *tex = md->getTextureItem(state);
-	tex->render(pix,
+	tex->render(surf,
 		    item->getX(), item->getY(),
 		    item->getWidth(), item->getHeight());
 
@@ -683,7 +677,7 @@ PMenu::buildMenuRenderItemNormal(Pixmap pix, ObjectState state,
 			+ (_icon_width - icon_width) / 2;
 		start_y = item->getY()
 			+ (_item_height - icon_height) / 2;
-		item->getIcon()->render(pix, start_x, start_y,
+		item->getIcon()->render(surf, start_x, start_y,
 					icon_width, icon_height);
 	}
 
@@ -700,7 +694,7 @@ PMenu::buildMenuRenderItemNormal(Pixmap pix, ObjectState state,
 		start_x = item->getX() + item->getWidth()
 			- arrow_width - md->getPad(PAD_RIGHT);
 		start_y = item->getY() + arrow_y;
-		tex->render(pix, start_x, start_y,
+		tex->render(surf, start_x, start_y,
 			    arrow_width, arrow_height);
 	}
 
@@ -717,17 +711,17 @@ PMenu::buildMenuRenderItemNormal(Pixmap pix, ObjectState state,
 		   - md->getPad(PAD_UP) - md->getPad(PAD_DOWN)) / 2;
 
 	// Render item text.
-	font->draw(pix, start_x, start_y, item->getName().c_str(),
+	font->draw(surf, start_x, start_y, item->getName().c_str(),
 		   0, item->getWidth() - _item_pad_horz);
 }
 
 void
-PMenu::buildMenuRenderItemSeparator(Pixmap pix, ObjectState state,
+PMenu::buildMenuRenderItemSeparator(PSurface *surf, ObjectState state,
 				    PMenu::Item* item)
 {
 	Theme::PMenuData *md = pekwm::theme()->getMenuData();
 	PTexture *tex = md->getTextureSeparator(state);
-	tex->render(pix,
+	tex->render(surf,
 		    item->getX(), item->getY(),
 		    item->getWidth(), item->getHeight());
 }
@@ -764,7 +758,7 @@ PMenu::renderSelectedItem(void)
 	}
 	PMenu::Item *item = _items[_item_curr];
 	if (item->getType() != PMenu::Item::MENU_ITEM_HIDDEN) {
-		COPY_ITEM_AREA(item, _menu_bg_se);
+		COPY_ITEM_AREA(item, _menu_bg_se.getDrawable());
 	}
 }
 
@@ -785,7 +779,8 @@ PMenu::deselectItem(bool unmap_submenu)
 
 	if (_mapped) {
 		COPY_ITEM_AREA(_items[_item_curr],
-			       (_focused ? _menu_bg_fo : _menu_bg_un));
+			       (_focused ? _menu_bg_fo.getDrawable()
+					 : _menu_bg_un.getDrawable()));
 	}
 
 	PWinObj* wo_ref = item->getWORef();
@@ -979,8 +974,8 @@ PMenu::mapUnderMouse(void)
 	X11::getMousePosition(x, y);
 
 	// this might seem a bit silly but the menu won't get updated before
-	// it has been mapped (if dynamic) so we're doing it twice to reduce the
-	// "flickering" risk but it's not 100% so it's done twice.
+	// it has been mapped (if dynamic) so we're doing it twice to reduce
+	// the "flickering" risk but it's not 100% so it's done twice.
 	makeInsideScreen(x, y);
 	mapWindowRaised();
 	makeInsideScreen(x, y);
@@ -1002,8 +997,8 @@ PMenu::mapSubmenu(PMenu *menu, bool focus)
 	}
 
 	// this might seem a bit silly but the menu won't get updated before
-	// it has been mapped (if dynamic) so we're doing it twice to reduce the
-	// "flickering" risk but it's not 100% so it's done twice.
+	// it has been mapped (if dynamic) so we're doing it twice to reduce
+	// the "flickering" risk but it's not 100% so it's done twice.
 	menu->makeInsideScreen(x, y);
 	menu->mapWindowRaised();
 	menu->makeInsideScreen(x, y);

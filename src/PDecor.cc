@@ -28,6 +28,7 @@ extern "C" {
 #include "PTexturePlain.hh" // PTextureSolid
 #include "ActionHandler.hh"
 #include "ManagerWindows.hh"
+#include "PPixmapSurface.hh"
 #include "StatusWindow.hh"
 #include "KeyGrabber.hh"
 #include "Theme.hh"
@@ -1373,11 +1374,11 @@ PDecor::renderTitle(void)
 	}
 
 	PTexture *t_sep = _data->getTextureSeparator(getFocusedState(false));
-	Pixmap title_bg = X11::createPixmap(_title_wo.getWidth(),
-					    _title_wo.getHeight());
+	PPixmapSurface title_bg(_title_wo.getWidth(), _title_wo.getHeight());
+
 	// Render main background on pixmap
 	PTexture *t_main = _data->getTextureMain(getFocusedState(false));
-	t_main->render(title_bg, 0, 0,
+	t_main->render(&title_bg, 0, 0,
 		       _title_wo.getWidth(), _title_wo.getHeight());
 
 	uint x = _titles_left; // Position
@@ -1391,7 +1392,7 @@ PDecor::renderTitle(void)
 
 		// render tab
 		PTexture *tab = _data->getTextureTab(getFocusedState(sel));
-		tab->render(title_bg, x, 0,
+		tab->render(&title_bg, x, 0,
 			    _titles[i]->getWidth(), _title_wo.getHeight());
 
 		PFont *font = getFont(getFocusedState(sel));
@@ -1402,7 +1403,7 @@ PDecor::renderTitle(void)
 			trim = PFont::FONT_TRIM_END;
 		}
 
-		font->draw(title_bg,
+		font->draw(&title_bg,
 			   x + _data->getPad(PAD_LEFT), // X position
 			   _data->getPad(PAD_UP), // Y position
 			   _titles[i]->getVisible(), 0, // Text and max chars
@@ -1414,14 +1415,14 @@ PDecor::renderTitle(void)
 
 		// draw separator
 		if (num_titles > 1 && i < (num_titles - 1)) {
-			t_sep->render(title_bg, x, 0, 0, 0);
+			t_sep->render(&title_bg, x, 0, 0, 0);
 			x += t_sep->getWidth();
 		}
 	}
 
-	X11::setWindowBackgroundPixmap(_title_wo.getWindow(), title_bg);
+	X11::setWindowBackgroundPixmap(_title_wo.getWindow(),
+				       title_bg.getDrawable());
 	X11::clearWindow(_title_wo.getWindow());
-	X11::freePixmap(title_bg);
 }
 
 void

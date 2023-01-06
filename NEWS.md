@@ -14,6 +14,7 @@ Closed issues
 New
 ---
 
+* Pango font support, Cairo and Xft backend support.
 * ${NAME} style variables now supported in the configuration, convenient
   when using resource names.
 * $@ and $& variables available in configuration files. $@ATOM_NAME

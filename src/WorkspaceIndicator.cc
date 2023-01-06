@@ -21,8 +21,7 @@
  * Display constructor
  */
 WorkspaceIndicator::Display::Display(PWinObj *parent)
-	: PWinObj(false),
-	  _pixmap(None)
+	: PWinObj(false)
 {
 	_parent = parent;
 	// Do not give the indicator focus, it doesn't handle input
@@ -40,7 +39,6 @@ WorkspaceIndicator::Display::Display(PWinObj *parent)
 WorkspaceIndicator::Display::~Display(void)
 {
 	X11::destroyWindow(_window);
-	X11::freePixmap(_pixmap);
 }
 
 /**
@@ -71,12 +69,12 @@ WorkspaceIndicator::Display::render(void)
 	Theme::WorkspaceIndicatorData *data =
 		pekwm::theme()->getWorkspaceIndicatorData();
 
-	// Make sure pixmap has correct size
-	X11::freePixmap(_pixmap);
-	_pixmap = X11::createPixmap(_gm.width, _gm.height);
+	// Make sure surface has correct size
+	_surface.resize(_gm.width, _gm.height);
 
 	// Render background
-	data->texture_background->render(_pixmap, 0, 0, _gm.width, _gm.height);
+	data->texture_background->render(&_surface,
+					 0, 0, _gm.width, _gm.height);
 
 	// Render workspace grid, then active workspace fill and end with
 	// rendering active workspace number and name
@@ -85,7 +83,7 @@ WorkspaceIndicator::Display::render(void)
 			 _gm.height - getPaddingVertical());
 
 	data->font->setColor(data->font_color);
-	data->font->draw(_pixmap,
+	data->font->draw(&_surface,
 			 data->edge_padding,
 			 _gm.height
 			     - data->edge_padding
@@ -95,7 +93,7 @@ WorkspaceIndicator::Display::render(void)
 			 _gm.width - data->edge_padding * 2 /* max_width */);
 
 	// Refresh
-	X11::setWindowBackgroundPixmap(_window, _pixmap);
+	X11::setWindowBackgroundPixmap(_window, _surface.getDrawable());
 	X11::clearWindow(_window);
 }
 
@@ -136,7 +134,7 @@ WorkspaceIndicator::Display::renderWorkspaces(int x, int y,
 
 		PTexture *tex = i == Workspaces::getActive()
 			? data->texture_workspace_act : data->texture_workspace;
-		tex->render(_pixmap, x_pos, y_pos, ws_width, ws_height);
+		tex->render(&_surface, x_pos, y_pos, ws_width, ws_height);
 
 		x_pos += ws_width + data->workspace_padding;
 	}

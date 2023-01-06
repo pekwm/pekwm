@@ -28,19 +28,20 @@ WidgetFactory::construct(const WidgetConfig& cfg)
 		if (field.empty()) {
 			USER_WARN("missing required argument to Bar widget");
 		} else {
-			return new BarWidget(_theme, cfg.getSizeReq(),
+			return new BarWidget(_parent, _theme, cfg.getSizeReq(),
 					     _var_data, field,
 					     cfg.getCfgSection());
 		}
 	} else if (name == "CLIENTLIST") {
-		return new ClientListWidget(_theme, cfg.getSizeReq(),
+		return new ClientListWidget(_parent, _theme, cfg.getSizeReq(),
 					    _wm_state);
 	} else if (name == "DATETIME") {
 		const std::string &format = cfg.getArg(0);
-		return new DateTimeWidget(_theme, cfg.getSizeReq(), format);
+		return new DateTimeWidget(_parent, _theme, cfg.getSizeReq(),
+					  format);
 	} else if (name == "ICON") {
 		const std::string &field = cfg.getArg(0);
-		return new IconWidget(_theme, cfg.getSizeReq(),
+		return new IconWidget(_parent, _theme, cfg.getSizeReq(),
 				      _var_data, _wm_state,
 				      field, cfg.getCfgSection());
 	} else if (name == "SYSTRAY") {
@@ -53,8 +54,9 @@ WidgetFactory::construct(const WidgetConfig& cfg)
 		if (format.empty()) {
 			USER_WARN("missing required argument to Text widget");
 		} else {
-			return new TextWidget(_theme, cfg.getSizeReq(),
-					      _var_data, _wm_state, format,
+			return new TextWidget(_parent, _theme,
+					      cfg.getSizeReq(), _var_data,
+					      _wm_state, format,
 					      cfg.getCfgSection());
 		}
 	} else {

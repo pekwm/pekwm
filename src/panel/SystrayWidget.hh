@@ -41,7 +41,7 @@ public:
 	typedef client_vector::iterator client_it;
 	typedef client_vector::const_iterator client_cit;
 
-	SystrayWidget(PWinObj* parent,
+	SystrayWidget(const PWinObj* parent,
 		      Observer* observer,
 		      const PanelTheme& theme,
 		      const SizeReq& size_req,
@@ -82,8 +82,6 @@ private:
 	void sendRequiredSizeChanged();
 
 private:
-	/** Parent (panel) window, clients will be reparented here */
-	PWinObj* _parent;
 	/** Observer for requrired size notifications */
 	Observer* _observer;
 	/** Owner window for _NET_SYSTEM_TRAY_Sn */

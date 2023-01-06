@@ -12,12 +12,13 @@
 #include "ImageHandler.hh"
 #include "TextFormatter.hh"
 
-IconWidget::IconWidget(const PanelTheme& theme,
+IconWidget::IconWidget(const PWinObj* parent,
+		       const PanelTheme& theme,
 		       const SizeReq& size_req,
 		       VarData& var_data, WmState& wm_state,
 		       const std::string& field,
 		       const CfgParser::Entry *section)
-	: PanelWidget(theme, size_req),
+	: PanelWidget(parent, theme, size_req),
 	  _var_data(var_data),
 	  _wm_state(wm_state),
 	  _field(field),

@@ -1,6 +1,6 @@
 //
 // Render.hh for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -10,6 +10,7 @@
 #define _PEKWM_RENDER_HH_
 
 #include "config.h"
+#include "PSurface.hh"
 #include "X11.hh"
 #include "pekwm.hh"
 
@@ -42,6 +43,34 @@ public:
 	virtual void fill(int x, int y, uint width, uint height) = 0;
 	virtual void putImage(XImage *image, int dest_x, int dest_y,
 			      uint width, uint height) = 0;
+};
+
+/**
+ * Render backed surface.
+ */
+class RenderSurface : public PSurface {
+public:
+	RenderSurface(Render& render, const Geometry& gm)
+		: PSurface(),
+		  _render(render),
+		  _gm(gm)
+	{
+	}
+
+	virtual ~RenderSurface()
+	{
+	}
+
+	virtual Drawable getDrawable() const { return _render.getDrawable(); }
+
+	virtual int getX() const { return _gm.x; }
+	virtual int getY() const { return _gm.y; }
+	virtual uint getWidth() const { return _gm.width; }
+	virtual uint getHeight() const { return _gm.height; }
+
+private:
+	Render& _render;
+	Geometry _gm;
 };
 
 /**

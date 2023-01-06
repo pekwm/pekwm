@@ -1,6 +1,6 @@
 //
 // PanelWidget.hh for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -12,6 +12,7 @@
 
 #include "pekwm_panel.hh"
 #include "PanelTheme.hh"
+#include "PWinObj.hh"
 #include "X11.hh"
 
 /**
@@ -19,7 +20,8 @@
  */
 class PanelWidget {
 public:
-	PanelWidget(const PanelTheme &theme, const SizeReq& size_req);
+	PanelWidget(const PWinObj* parent, const PanelTheme& theme,
+		    const SizeReq& size_req);
 	virtual ~PanelWidget(void);
 
 	bool isDirty(void) const { return _dirty; }
@@ -60,6 +62,7 @@ protected:
 		       int x, const std::string& text, uint max_width);
 
 protected:
+	const PWinObj* _parent;
 	const PanelTheme& _theme;
 	bool _dirty;
 

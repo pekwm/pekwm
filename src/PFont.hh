@@ -14,6 +14,7 @@
 #include <string>
 
 #include "pekwm.hh"
+#include "PSurface.hh"
 
 class PFont
 {
@@ -24,9 +25,15 @@ public:
 		FONT_TYPE_XFT,
 #endif // PEKWM_HAVE_XFT
 		FONT_TYPE_XMB,
-#ifdef PEKWM_HAVE_PANGO
+#if defined(PEKWM_HAVE_PANGO_CAIRO) || defined(PEKWM_HAVE_PANGO_XFT)
 		FONT_TYPE_PANGO,
-#endif // PEKWM_HAVE_PANGO
+#endif // defined(PEKWM_HAVE_PANGO_CAIRO) || defined(PEKWM_HAVE_PANGO_XFT)
+#ifdef PEKWM_HAVE_PANGO_CAIRO
+		FONT_TYPE_PANGO_CAIRO,
+#endif // PEKWM_HAVE_PANGO_CAIRO
+#ifdef PEKWM_HAVE_PANGO_XFT
+		FONT_TYPE_PANGO_XFT,
+#endif // PEKWM_HAVE_PANGO_XFT
 		FONT_TYPE_NO
 	};
 	enum TrimType {
@@ -66,7 +73,7 @@ public:
 	inline void setJustify(uint j) { _justify = j; }
 	inline void setOffset(uint x, uint y) { _offset_x = x; _offset_y = y; }
 
-	int draw(Drawable dest, int x, int y, const std::string &text,
+	int draw(PSurface *dest, int x, int y, const std::string &text,
 		 uint max_chars = 0, uint max_width = 0,
 		 PFont::TrimType trim_type = FONT_TRIM_END);
 
@@ -89,7 +96,7 @@ public:
 	virtual void setColor(PFont::Color* color) = 0;
 
 private:
-	virtual void drawText(Drawable dest, int x, int y,
+	virtual void drawText(PSurface *dest, int x, int y,
 			      const std::string &text, uint chars,
 			      bool fg) = 0;
 

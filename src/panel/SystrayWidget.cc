@@ -54,13 +54,12 @@ SystrayWidget::Client::isMapped() const
 
 // SystrayWidget
 
-SystrayWidget::SystrayWidget(PWinObj* parent,
+SystrayWidget::SystrayWidget(const PWinObj* parent,
 			     Observer* observer,
 			     const PanelTheme& theme,
 			     const SizeReq& size_req,
 			     const CfgParser::Entry* section)
-	: PanelWidget(theme, size_req),
-	  _parent(parent),
+	: PanelWidget(parent, theme, size_req),
 	  _observer(observer),
 	  _owner(None),
 	  _owner_atom(0)

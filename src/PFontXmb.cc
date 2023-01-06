@@ -147,13 +147,13 @@ PFontXmb::getWidth(const std::string &text, uint max_chars)
  * @param fg Bool, to use foreground or background colors
  */
 void
-PFontXmb::drawText(Drawable dest, int x, int y,
+PFontXmb::drawText(PSurface *dest, int x, int y,
 		   const std::string &text, uint chars, bool fg)
 {
 	GC gc = fg ? _gc_fg : _gc_bg;
 
 	if (_fontset && (gc != None)) {
-		XmbDrawString(X11::getDpy(), dest, _fontset, gc,
+		XmbDrawString(X11::getDpy(), dest->getDrawable(), _fontset, gc,
 			      x, y, text.c_str(), chars ? chars : text.size());
 	}
 }

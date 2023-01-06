@@ -21,9 +21,12 @@
 #ifdef PEKWM_HAVE_XFT
 #include "PFontXft.hh"
 #endif // PEKWM_HAVE_XFT
-#ifdef PEKWM_HAVE_PANGO
-#include "PFontPango.hh"
-#endif // PEKWM_HAVE_PANGO
+#ifdef PEKWM_HAVE_PANGO_CAIRO
+#include "PFontPangoCairo.hh"
+#endif // PEKWM_HAVE_PANGO_CAIRO
+#ifdef PEKWM_HAVE_PANGO_XFT
+#include "PFontPangoXft.hh"
+#endif // PEKWM_HAVE_PANGO_XFT
 
 static Util::StringTo<PFont::Type> map_type[] =
 	{{"X11", PFont::FONT_TYPE_X11},
@@ -31,9 +34,15 @@ static Util::StringTo<PFont::Type> map_type[] =
 	 {"XFT", PFont::FONT_TYPE_XFT},
 #endif // PEKWM_HAVE_XFT
 	 {"XMB", PFont::FONT_TYPE_XMB},
-#ifdef PEKWM_HAVE_PANGO
+#if defined(PEKWM_HAVE_PANGO_CAIRO) || defined(PEKWM_HAVE_PANGO_XFT)
 	 {"PANGO", PFont::FONT_TYPE_PANGO},
-#endif // PEKWM_HAVE_PANGO
+#endif // defined(PEKWM_HAVE_PANGO_CAIRO) || defined(PEKWM_HAVE_PANGO_XFT)
+#ifdef PEKWM_HAVE_PANGO_CAIRO
+	 {"PANGOCAIRO", PFont::FONT_TYPE_PANGO_CAIRO},
+#endif // PEKWM_HAVE_PANGO_XFT
+#ifdef PEKWM_HAVE_PANGO_XFT
+	 {"PANGOXFT", PFont::FONT_TYPE_PANGO_XFT},
+#endif // PEKWM_HAVE_PANGO_XFT
 	 {nullptr, PFont::FONT_TYPE_NO}};
 
 static Util::StringTo<FontJustify> map_justify[] =
@@ -138,10 +147,20 @@ FontHandler::newFont(const std::string &font,
 		return new PFontX11;
 	case PFont::FONT_TYPE_XMB:
 		return new PFontXmb;
-#ifdef PEKWM_HAVE_PANGO
+#ifdef PEKWM_HAVE_PANGO_CAIRO
 	case PFont::FONT_TYPE_PANGO:
-		return new PFontPango;
-#endif // PEKWM_HAVE_PANGO
+		return new PFontPangoCairo;
+	case PFont::FONT_TYPE_PANGO_CAIRO:
+		return new PFontPangoCairo;
+#endif // PEKWM_HAVE_PANGO_CAIRO
+#ifdef PEKWM_HAVE_PANGO_XFT
+#ifndef PEKWM_HAVE_PANGO_CAIRO
+	case PFont::FONT_TYPE_PANGO:
+		return new PFontPangoCairo;
+#endif // ! PEKWM_HAVE_PANGO_CAIRO
+	case PFont::FONT_TYPE_PANGO_XFT:
+		return new PFontPangoXft;
+#endif // PEKWM_HAVE_PANGO_XFT
 	default:
 		if (_default_font_x11) {
 			return new PFontX11;

@@ -1,6 +1,6 @@
 //
 // BarWidget.hh for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -23,7 +23,8 @@
 class BarWidget : public PanelWidget,
 		  public Observer {
 public:
-	BarWidget(const PanelTheme& theme,
+	BarWidget(const PWinObj* parent,
+		  const PanelTheme& theme,
 		  const SizeReq& size_req,
 		  VarData& var_data,
 		  const std::string& field,

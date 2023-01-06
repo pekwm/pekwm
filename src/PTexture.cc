@@ -36,6 +36,18 @@ PTexture::render(Drawable draw,
 }
 
 /**
+ * Render texture onto PSurface
+ */
+void
+PTexture::render(PSurface *surface,
+		 int x, int y, size_t width, size_t height,
+		 int root_x, int root_y)
+{
+	X11Render rend(surface->getDrawable());
+	render(rend, x, y, width, height, root_x, root_y);
+}
+
+/**
  * Render texture using render.
  */
 void

@@ -1,6 +1,6 @@
 //
 // TextWidget.cc for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -9,11 +9,12 @@
 #include "TextFormatter.hh"
 #include "TextWidget.hh"
 
-TextWidget::TextWidget(const PanelTheme& theme, const SizeReq& size_req,
+TextWidget::TextWidget(const PWinObj* parent,
+		       const PanelTheme& theme, const SizeReq& size_req,
 		       VarData& var_data, WmState& wm_state,
 		       const std::string& format,
 		       const CfgParser::Entry *section)
-	: PanelWidget(theme, size_req),
+	: PanelWidget(parent, theme, size_req),
 	  _var_data(var_data),
 	  _wm_state(wm_state),
 	  _check_wm_state(false)

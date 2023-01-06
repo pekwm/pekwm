@@ -1,6 +1,6 @@
 //
 // PTexture.hh for pekwm
-// Copyright (C) 2004-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2004-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -12,6 +12,7 @@
 #include "config.h"
 
 #include "pekwm.hh"
+#include "PSurface.hh"
 #include "Render.hh"
 #include "X11.hh"
 
@@ -34,6 +35,10 @@ public:
 	void render(Drawable draw,
 		    int x, int y, size_t width, size_t height,
 		    int root_x=0, int root_y=0);
+	void render(PSurface *surface,
+		    int x, int y, size_t width, size_t height,
+		    int root_x=0, int root_y=0);
+
 	void render(Render &rend,
 		    int x, int y, size_t width, size_t height,
 		    int root_x=0, int root_y=0);

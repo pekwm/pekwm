@@ -1,6 +1,6 @@
 //
 // ClientListWidget.cc for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -9,10 +9,11 @@
 #include "Debug.hh"
 #include "ClientListWidget.hh"
 
-ClientListWidget::ClientListWidget(const PanelTheme& theme,
+ClientListWidget::ClientListWidget(const PWinObj* parent,
+				   const PanelTheme& theme,
 				   const SizeReq& size_req,
 				   WmState& wm_state)
-	: PanelWidget(theme, size_req),
+	: PanelWidget(parent, theme, size_req),
 	  _wm_state(wm_state)
 {
 	pekwm::observerMapping()->addObserver(&_wm_state, this);

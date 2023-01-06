@@ -18,10 +18,11 @@
  */
 class DateTimeWidget : public PanelWidget {
 public:
-	DateTimeWidget(const PanelTheme &theme,
+	DateTimeWidget(const PWinObj* parent,
+		       const PanelTheme &theme,
 		       const SizeReq& size_req,
 		       const std::string &format)
-		: PanelWidget(theme, size_req),
+		: PanelWidget(parent, theme, size_req),
 		  _format(format)
 	{
 		if (_format.empty()) {
@@ -31,20 +32,21 @@ public:
 
 	virtual uint getRequiredSize(void) const
 	{
-		std::string wtime;
-		formatNow(wtime);
+		std::string stime;
+		formatNow(stime);
 		PFont *font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
-		return font->getWidth(" " + wtime + " ");
+		return font->getWidth(" " + stime + " ");
 	}
 
 	virtual void render(Render &rend)
 	{
 		PanelWidget::render(rend);
 
-		std::string wtime;
-		formatNow(wtime);
+		std::string stime;
+		formatNow(stime);
+		stime.insert(stime.begin(), ' ');
 		PFont *font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
-		renderText(rend, font, getX(), wtime, getWidth());
+		renderText(rend, font, getX(), stime, getWidth());
 
 		// always treat date time as dirty, requires redraw up to
 		// every second.

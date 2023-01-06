@@ -16,6 +16,7 @@
 #include "ImageHandler.hh"
 #include "TextureHandler.hh"
 #include "Theme.hh"
+#include "PPixmapSurface.hh"
 #include "PWinObj.hh"
 #include "Render.hh"
 #include "Util.hh"
@@ -162,10 +163,10 @@ public:
 	}
 
 	virtual void render(Render&) {
-		_data->getButton(_state)->render(_background, 0, 0,
+		_data->getButton(_state)->render(&_background, 0, 0,
 						 _gm.width, _gm.height);
 		_font->setColor(_data->getButtonColor());
-		_font->draw(_background,
+		_font->draw(&_background,
 			    _data->getPad(PAD_LEFT), _data->getPad(PAD_UP),
 			    _text);
 
@@ -178,7 +179,7 @@ private:
 	std::string _text;
 	PFont *_font;
 
-	Pixmap _background;
+	PPixmapSurface _background;
 	ButtonState _state;
 };
 
@@ -189,15 +190,14 @@ Button::Button(Theme::DialogData* data, PWinObj& parent,
 	  _retcode(retcode),
 	  _text(text),
 	  _font(data->getButtonFont()),
-	  _background(None),
 	  _state(BUTTON_STATE_FOCUSED)
 {
 	_gm.width = widthReq();
 	_gm.height = heightReq(_gm.width);
-	_background = X11::createPixmap(_gm.width, _gm.height);
+	_background.resize(_gm.width, _gm.height);
 
 	XSetWindowAttributes attr;
-	attr.background_pixmap = _background;
+	attr.background_pixmap = _background.getDrawable();
 	attr.override_redirect = True;
 	attr.event_mask =
 		ButtonPressMask|ButtonReleaseMask|
@@ -214,7 +214,6 @@ Button::Button(Theme::DialogData* data, PWinObj& parent,
 
 Button::~Button(void)
 {
-	X11::freePixmap(_background);
 }
 
 class ButtonsRow : public DialogWidget
@@ -389,8 +388,9 @@ public:
 
 		uint y = _gm.y + _data->getPad(PAD_UP);
 		std::vector<std::string>::iterator line = _lines.begin();
+		RenderSurface surface(rend, _gm);
 		for (; line != _lines.end(); ++line) {
-			_font->draw(rend.getDrawable(),
+			_font->draw(&surface,
 				    _gm.x + _data->getPad(PAD_LEFT), y, *line);
 			y += _font->getHeight();
 		}
@@ -530,7 +530,6 @@ public:
 			y += (*it)->heightReq(width);
 		}
 
-		X11::freePixmap(_background);
 		render();
 	}
 
@@ -546,11 +545,11 @@ public:
 
 	void render(void)
 	{
-		if (_background == None) {
-			_background = X11::createPixmap(_gm.width, _gm.height);
-			X11::setWindowBackgroundPixmap(_window, _background);
+		if (_background.resize(_gm.width, _gm.height)) {
+			X11::setWindowBackgroundPixmap(
+					_window, _background.getDrawable());
 		}
-		X11Render rend(_background);
+		X11Render rend(_background.getDrawable());
 		_data->getBackground()->render(rend,
 					       0, 0, _gm.width, _gm.height);
 		std::vector<DialogWidget*>::iterator it = _widgets.begin();
@@ -619,7 +618,7 @@ private:
 	Theme::DialogData* _data;
 	bool _raise;
 
-	Pixmap _background;
+	PPixmapSurface _background;
 	std::vector<DialogWidget*> _widgets;
 
 	static PekwmDialog *_instance;
@@ -633,8 +632,7 @@ PekwmDialog::PekwmDialog(Theme::DialogData* data,
 	: X11App(gm, title.empty() ? "pekwm_dialog" : title,
 		 "dialog", "pekwm_dialog", WINDOW_TYPE_NORMAL),
 	  _data(data),
-	  _raise(raise),
-	  _background(None)
+	  _raise(raise)
 {
 	assert(_instance == nullptr);
 	_instance = this;
@@ -649,7 +647,6 @@ PekwmDialog::~PekwmDialog(void)
 	for (; it != _widgets.end(); ++it) {
 		delete *it;
 	}
-	X11::freePixmap(_background);
 	_instance = nullptr;
 }
 
