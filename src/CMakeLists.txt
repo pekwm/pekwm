@@ -29,6 +29,8 @@ set(texture_SOURCES
     FontHandler.cc
     ImageHandler.cc
     PFont.cc
+    PFontX11.cc
+    PFontXmb.cc
     PImage.cc
     PImageIcon.cc
     PTexture.cc
@@ -37,6 +39,14 @@ set(texture_SOURCES
     TextureHandler.cc
     Theme.cc
     ThemeGm.cc)
+
+if (PEKWM_HAVE_XFT)
+	set(texture_SOURCES ${texture_SOURCES} PFontXft.cc)
+endif (PEKWM_HAVE_XFT)
+
+if (PEKWM_HAVE_PANGO)
+	set(texture_SOURCES ${texture_SOURCES} PFontPango.cc)
+endif (PEKWM_HAVE_PANGO)
 
 if (ENABLE_IMAGE_JPEG AND JPEG_FOUND)
 	set(texture_SOURCES ${texture_SOURCES} PImageLoaderJpeg.cc)

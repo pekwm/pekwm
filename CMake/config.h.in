@@ -28,6 +28,7 @@
 #cmakedefine PEKWM_HAVE_SHAPE
 #cmakedefine PEKWM_HAVE_XINERAMA
 #cmakedefine PEKWM_HAVE_XFT
+#cmakedefine PEKWM_HAVE_PANGO
 #cmakedefine PEKWM_HAVE_XRANDR
 
 #cmakedefine PEKWM_HAVE_IMAGE_PNG

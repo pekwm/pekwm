@@ -1,6 +1,6 @@
 //
 // PFont.hh for pekwm
-// Copyright (C) 2003-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -15,12 +15,6 @@
 
 #include "pekwm.hh"
 
-extern "C" {
-#ifdef PEKWM_HAVE_XFT
-#include <X11/Xft/Xft.h>
-#endif // PEKWM_HAVE_XFT
-}
-
 class PFont
 {
 public:
@@ -30,6 +24,9 @@ public:
 		FONT_TYPE_XFT,
 #endif // PEKWM_HAVE_XFT
 		FONT_TYPE_XMB,
+#ifdef PEKWM_HAVE_PANGO
+		FONT_TYPE_PANGO,
+#endif // PEKWM_HAVE_PANGO
 		FONT_TYPE_NO
 	};
 	enum TrimType {
@@ -102,75 +99,5 @@ protected:
 
 	static std::string _trim_string;
 };
-
-class PFontX11 : public PFont {
-public:
-	PFontX11(void);
-	virtual ~PFontX11(void);
-
-	// virtual interface
-	virtual bool load(const std::string &name);
-	virtual void unload(void);
-
-	virtual uint getWidth(const std::string &text, uint max_chars = 0);
-
-	virtual void setColor(PFont::Color *color);
-
-private:
-	virtual void drawText(Drawable dest, int x, int y,
-			      const std::string &text, uint chars, bool fg);
-
-private:
-	XFontStruct *_font;
-	GC _gc_fg, _gc_bg;
-};
-
-class PFontXmb : public PFont {
-public:
-	PFontXmb(void);
-	virtual ~PFontXmb(void);
-
-	// virtual interface
-	virtual bool load(const std::string &name);
-	virtual void unload(void);
-
-	virtual uint getWidth(const std::string &text, uint max_chars = 0);
-
-	virtual void setColor(PFont::Color *color);
-
-private:
-	virtual void drawText(Drawable dest, int x, int y,
-			      const std::string &text, uint chars, bool fg);
-
-	XFontSet _fontset;
-	GC _gc_fg, _gc_bg;
-	static const char *DEFAULT_FONTSET; /**< Default fallback fontset. */
-};
-
-#ifdef PEKWM_HAVE_XFT
-class PFontXft : public PFont {
-public:
-	PFontXft(void);
-	virtual ~PFontXft(void);
-
-	// virtual interface
-	virtual bool load(const std::string &font_name);
-	virtual void unload(void);
-
-	virtual uint getWidth(const std::string &text, uint max_chars = 0);
-
-	virtual void setColor(PFont::Color *color);
-
-private:
-	virtual void drawText(Drawable dest, int x, int y,
-			      const std::string &text, uint chars, bool fg);
-
-	XftDraw *_draw;
-	XftFont *_font;
-	XftColor *_cl_fg, *_cl_bg;
-
-	XRenderColor _xrender_color;
-};
-#endif // PEKWM_HAVE_XFT
 
 #endif // _PEKWM_PFONT_HH_

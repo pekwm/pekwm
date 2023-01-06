@@ -16,12 +16,24 @@
 #include "Util.hh"
 #include "X11.hh"
 
+#include "PFontX11.hh"
+#include "PFontXmb.hh"
+#ifdef PEKWM_HAVE_XFT
+#include "PFontXft.hh"
+#endif // PEKWM_HAVE_XFT
+#ifdef PEKWM_HAVE_PANGO
+#include "PFontPango.hh"
+#endif // PEKWM_HAVE_PANGO
+
 static Util::StringTo<PFont::Type> map_type[] =
 	{{"X11", PFont::FONT_TYPE_X11},
 #ifdef PEKWM_HAVE_XFT
 	 {"XFT", PFont::FONT_TYPE_XFT},
 #endif // PEKWM_HAVE_XFT
 	 {"XMB", PFont::FONT_TYPE_XMB},
+#ifdef PEKWM_HAVE_PANGO
+	 {"PANGO", PFont::FONT_TYPE_PANGO},
+#endif // PEKWM_HAVE_PANGO
 	 {nullptr, PFont::FONT_TYPE_NO}};
 
 static Util::StringTo<FontJustify> map_justify[] =
@@ -126,6 +138,10 @@ FontHandler::newFont(const std::string &font,
 		return new PFontX11;
 	case PFont::FONT_TYPE_XMB:
 		return new PFontXmb;
+#ifdef PEKWM_HAVE_PANGO
+	case PFont::FONT_TYPE_PANGO:
+		return new PFontPango;
+#endif // PEKWM_HAVE_PANGO
 	default:
 		if (_default_font_x11) {
 			return new PFontX11;

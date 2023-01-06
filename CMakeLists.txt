@@ -24,6 +24,7 @@ include(CheckCXXSourceCompiles)
 include(CheckIncludeFile)
 include(CheckIncludeFileCXX)
 include(GNUInstallDirs)
+include(FindPkgConfig)
 
 # Look for dependencies
 find_package(X11 REQUIRED)
@@ -128,7 +129,8 @@ message(STATUS "Looking for program sh - ${SH}")
 option(ENABLE_SHAPE "include support for Xshape" ON)
 option(ENABLE_XINERAMA "include support for Xinerama" ON)
 option(ENABLE_RANDR "include support for Xrandr" ON)
-option(ENABLE_XFT "include support for Xft fonts" ON)
+option(ENABLE_XFT "include support for Xft font rendering" ON)
+option(ENABLE_PANGO "include support for Pango font rendering" ON)
 option(ENABLE_IMAGE_JPEG "include support for JPEG images" ON)
 option(ENABLE_IMAGE_PNG "include support for PNG images" ON)
 option(ENABLE_IMAGE_XPM "include support for XPM images" ON)
@@ -140,6 +142,11 @@ option(DEV "include development tools" OFF)
 if (ENABLE_XFT)
 	find_package(Freetype)
 endif (ENABLE_XFT)
+
+if (ENABLE_PANGO)
+	pkg_check_modules(PANGO pango)
+	pkg_check_modules(PANGOXFT pangoxft)
+endif (ENABLE_PANGO)
 
 if (ENABLE_IMAGE_JPEG)
 	find_package(JPEG)
@@ -179,6 +186,15 @@ if (ENABLE_XFT AND X11_Xft_FOUND AND FREETYPE_FOUND)
 	set(common_LIBRARIES ${common_LIBRARIES} ${X11_Xft_LIB}
 	    ${FREETYPE_LIBRARIES})
 endif (ENABLE_XFT AND X11_Xft_FOUND AND FREETYPE_FOUND)
+
+if (ENABLE_PANGO AND PANGO_FOUND AND PANGOXFT_FOUND)
+	set(pekwm_FEATURES "${pekwm_FEATURES} Pango")
+	set(PEKWM_HAVE_PANGO 1)
+	set(common_INCLUDE_DIRS ${common_INCLUDE_DIRS} ${PANGO_INCLUDE_DIRS}
+		${PANGOXFT_INCLUDE_DIRS})
+	set(common_LIBRARIES ${common_LIBRARIES} ${PANGO_LIBRARIES}
+		${PANGOXFT_LIBRARIES})
+endif (ENABLE_PANGO AND PANGO_FOUND AND PANGOXFT_FOUND)
 
 if (ENABLE_IMAGE_JPEG AND JPEG_FOUND)
 	set(pekwm_FEATURES "${pekwm_FEATURES} image-jpeg")
