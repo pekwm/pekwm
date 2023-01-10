@@ -542,9 +542,11 @@ PekwmPanel::renderPred(renderPredFun pred, void *opaque)
 		}
 		x += (*it)->getWidth();
 
-		if (do_render && *it != last_widget) {
-			sep->render(rend, x, 0,
-				    sep->getWidth(), sep->getHeight());
+		if (*it != last_widget) {
+			if (do_render) {
+				sep->render(rend, x, 0,
+					    sep->getWidth(), sep->getHeight());
+			}
 			x += sep->getWidth();
 		}
 	}

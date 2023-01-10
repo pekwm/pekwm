@@ -128,6 +128,7 @@ SystrayWidget::click(int, int)
 void
 SystrayWidget::render(Render& rend)
 {
+	rend.clear(getX(), 0, getWidth(), _theme.getHeight());
 }
 
 /**
@@ -400,6 +401,7 @@ SystrayWidget::readXEmbedInfo(Client* client)
 void
 SystrayWidget::sendRequiredSizeChanged()
 {
+	_dirty = true;
 	pekwm::observerMapping()->notifyObservers(this,
 						  &_required_size_changed);
 }
