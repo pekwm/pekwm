@@ -144,7 +144,7 @@ if (ENABLE_XFT)
 endif (ENABLE_XFT)
 
 if (ENABLE_PANGO)
-	pkg_check_modules(PANGO pango)
+	pkg_check_modules(PANGO pango>=1.44)
 	pkg_check_modules(PANGOCAIRO pangocairo)
 	pkg_check_modules(PANGOXFT pangoxft)
 endif (ENABLE_PANGO)

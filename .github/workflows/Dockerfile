@@ -12,7 +12,8 @@ RUN apt-get update
 ARG JPEG
 RUN apt-get --no-install-recommends -y install cmake build-essential \
     libx11-dev libfreetype6-dev $JPEG-dev curl ca-certificates fakeroot \
-    libxft2-dev
+    libpango1.0-dev libxext-dev libxft2-dev libxinerama-dev libxpm-dev \
+    libxrandr-dev
 
 WORKDIR /workspace/
 COPY ./ /workspace/

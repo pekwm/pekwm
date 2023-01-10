@@ -27,6 +27,9 @@ depends:
   - libc6 (>= 2.15)
   - libgcc-s1 (>= 3.0)
   - libjpeg62-turbo
+  - libpango-1.0-0
+  - libpangocairo-1.0-0
+  - libpangoxft-1.0-0
   - libpng16-16 (>= 1.6.2-1)
   - libstdc++6 (>= 5.2)
   - libx11-6

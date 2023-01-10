@@ -56,9 +56,10 @@ PFontPango::load(const std::string& font_name)
 	if (_font) {
 		PangoFontMetrics* metrics =
 			pango_font_get_metrics(_font, nullptr);
-		_ascent = metrics->ascent / PANGO_SCALE;
-		_descent = metrics->descent / PANGO_SCALE;
-		_height = metrics->height / PANGO_SCALE;
+		_ascent = pango_font_metrics_get_ascent(metrics) / PANGO_SCALE;
+		_descent = pango_font_metrics_get_descent(metrics)
+			/ PANGO_SCALE;
+		_height = pango_font_metrics_get_height(metrics) / PANGO_SCALE;
 		pango_font_metrics_unref(metrics);
 
 		P_TRACE("loaded Pango font "
