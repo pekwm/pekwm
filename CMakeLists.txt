@@ -141,9 +141,6 @@ option(DEV "include development tools" OFF)
 
 if (ENABLE_XFT)
   find_package(Freetype)
-  if (NOT X11_Xft_FOUND)
-    message(FATAL_ERROR "Xft enabled but CMake says Xft not found")
-  endif()
 endif (ENABLE_XFT)
 
 if (ENABLE_PANGO)
