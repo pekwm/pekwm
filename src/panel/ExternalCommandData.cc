@@ -63,7 +63,7 @@ ExternalCommandData::CommandProcess::start(void)
 		close(fd[1]);
 
 		char *argv[4];
-		argv[0] = strdup("/bin/sh");
+		argv[0] = strdup(PEKWM_SH);
 		argv[1] = strdup("-c");
 		argv[2] = strdup(_command.c_str());
 		argv[3] = NULL;

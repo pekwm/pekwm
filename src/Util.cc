@@ -172,7 +172,7 @@ namespace Util {
 	}
 
 	/**
-	 * Fork and execute command with /bin/sh and execlp
+	 * Fork and execute command with PEKWM_SH and execlp
 	 */
 	void
 	forkExec(const std::string& command)
@@ -186,7 +186,7 @@ namespace Util {
 		switch (pid) {
 		case 0:
 			setsid();
-			execlp("/bin/sh", "sh", "-c", command.c_str(),
+			execlp(PEKWM_SH, PEKWM_SH, "-c", command.c_str(),
 			       static_cast<char*>(0));
 			P_ERR("execlp failed: " << strerror(errno));
 			exit(1);

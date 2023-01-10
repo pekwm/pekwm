@@ -104,6 +104,7 @@ set(wm_SOURCES
 
 add_library(util STATIC ${util_SOURCES})
 target_include_directories(util PUBLIC ${common_INCLUDE_DIRS})
+target_compile_definitions(util PUBLIC PEKWM_SH="${SH}")
 
 add_library(x11 STATIC ${x11_SOURCES})
 target_include_directories(x11 PUBLIC ${common_INCLUDE_DIRS})
@@ -115,6 +116,7 @@ add_library(wm STATIC ${wm_SOURCES})
 target_include_directories(wm PUBLIC ${common_INCLUDE_DIRS})
 
 add_executable(pekwm pekwm.cc)
+target_compile_definitions(util PUBLIC PEKWM_SH="${SH}")
 target_include_directories(pekwm PUBLIC ${PROJECT_BINARY_DIR}/src)
 target_link_libraries(pekwm util)
 install(TARGETS pekwm DESTINATION bin)

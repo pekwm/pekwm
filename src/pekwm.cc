@@ -97,7 +97,7 @@ handleOkResult(char *path, char **argv, int read_fd)
 			execvp(path, argv);
 		} else {
 			command = "exec " + command;
-			execl("/bin/sh", "sh" , "-c", command.c_str(),
+			execl(PEKWM_SH, PEKWM_SH , "-c", command.c_str(),
 			      static_cast<char*>(0));
 		}
 

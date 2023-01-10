@@ -140,7 +140,7 @@ CfgParserSourceCommand::open(void)
 		::close(fd[0]);
 		::close(fd[1]);
 
-		execlp("/bin/sh", "sh", "-c", _name.c_str(), (char *) 0);
+		execlp(PEKWM_SH, PEKWM_SH, "-c", _name.c_str(), (char *) 0);
 
 		::close (STDOUT_FILENO);
 
