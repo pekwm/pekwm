@@ -522,3 +522,114 @@ namespace Util {
 	}
 
 } // end namespace Util.
+
+// OsENv
+
+OsEnv::OsEnv()
+	: _dirty(false),
+	  _c_env(nullptr)
+{
+}
+
+OsEnv::~OsEnv()
+{
+	freeCEnv();
+}
+
+/**
+ * Set override value in environment, will replace environment variable
+ * with the provided value.
+ */
+void
+OsEnv::override(const std::string& key, const std::string& value)
+
+{
+	_dirty = true;
+	_env_override[key] = value;
+}
+
+/**
+ * Get merged environment as a map, overrides are in effect.
+ */
+const std::map<std::string, std::string>&
+OsEnv::getEnv()
+{
+	if (_env.empty()) {
+		getCEnv();
+	}
+	return _env;
+}
+
+/**
+ * Get merged environment as a nullptr terminated C array, memory will
+ * be freed when the OsEnv goes out of scope or new overrides have been
+ * set and a getCEnv is called.
+ */
+char**
+OsEnv::getCEnv()
+{
+	if (! _dirty && _c_env) {
+		return _c_env;
+	}
+
+	_env.clear();
+	delete [] _c_env;
+
+	// build environment from process environment
+	for (char **p = environ; *p; p++) {
+		setEnvVar(_env, *p);
+	}
+
+	// override environment variables
+	std::map<std::string, std::string>::const_iterator
+		it(_env_override.begin());
+	for (; it != _env_override.end(); ++it) {
+		_env[it->first] = it->second;
+	}
+
+	_c_env = toCEnv(_env);
+	return _c_env;
+}
+
+char**
+OsEnv::toCEnv(const std::map<std::string, std::string> &env)
+{
+	size_t i = 0;
+	char **c_env = new char*[env.size() + 1];
+
+	std::map<std::string, std::string>::const_iterator it(env.begin());
+	for (; it != env.end(); ++it) {
+		std::string val = it->first + "=" + it->second;
+		c_env[i++] = strdup(val.c_str());
+	}
+	c_env[env.size()] = nullptr;
+
+	return c_env;
+}
+
+void
+OsEnv::freeCEnv()
+{
+	if (! _c_env) {
+		return;
+	}
+
+	for (size_t i = 0; _c_env[i] != nullptr; i++) {
+		free(_c_env[i]);
+	}
+	delete _c_env;
+	_c_env = nullptr;
+}
+
+void
+OsEnv::setEnvVar(std::map<std::string, std::string> &env, const char *envp)
+{
+	const char *start = strchr(envp, '=');
+	if (start == nullptr) {
+		env[envp] = "";
+	} else {
+		std::string key(envp, start - envp);
+		std::string value(start + 1);
+		env[key] = value;
+	}
+}

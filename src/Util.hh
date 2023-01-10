@@ -11,6 +11,7 @@
 
 #include "config.h"
 
+#include "Compat.hh"
 #include "Types.hh"
 #include "String.hh"
 
@@ -216,5 +217,36 @@ namespace Util {
 	}
 
 }
+
+/**
+ * OS environment wrapper, supports getting environments and providing
+ * environment arrays with overriden values.
+ */
+class OsEnv {
+public:
+	OsEnv();
+	~OsEnv();
+
+	void override(const std::string& key, const std::string& value);
+
+	const std::map<std::string, std::string>& getEnv();
+	char** getCEnv();
+
+private:
+	OsEnv(const OsEnv&);
+	OsEnv& operator=(const OsEnv&);
+
+	char** toCEnv(const std::map<std::string, std::string> &env);
+	void freeCEnv();
+
+	void setEnvVar(std::map<std::string, std::string> &env,
+		       const char *envp);
+
+private:
+	bool _dirty;
+	std::map<std::string, std::string> _env;
+	std::map<std::string, std::string> _env_override;
+	char **_c_env;
+};
 
 #endif // _PEKWM_UTIL_HH_

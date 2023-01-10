@@ -36,6 +36,7 @@ main(int argc, char *argv[])
 	// Util
 	TestGenerator testGenerator;
 	TestUtil testUtil;
+	TestOsEnv testOsEnv;
 
 	return TestSuite::main(argc, argv);
 }
