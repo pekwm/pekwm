@@ -208,7 +208,7 @@ AutoProperties::load(void)
 	// dealloc memory
 	unload();
 
-	CfgParser a_cfg;
+	CfgParser a_cfg(pekwm::configScriptPath());
 	if (! a_cfg.parse(cfg_file, CfgParserSource::SOURCE_FILE, false)) {
 		cfg_file = SYSCONFDIR "/autoproperties";
 		if (! a_cfg.parse(cfg_file, CfgParserSource::SOURCE_FILE,

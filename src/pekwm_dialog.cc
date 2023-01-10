@@ -42,6 +42,7 @@ typedef void(*stop_fun)(int);
 static const uint WIDTH_DEFAULT = 250;
 static const uint HEIGHT_DEFAULT = 50;
 
+static std::string _config_script_path;
 static ObserverMapping *_observer_mapping = nullptr;
 static FontHandler* _font_handler = nullptr;
 static ImageHandler* _image_handler = nullptr;
@@ -49,7 +50,12 @@ static TextureHandler* _texture_handler = nullptr;
 
 namespace pekwm
 {
-	ObserverMapping* observerMapping(void)
+	const std::string& configScriptPath()
+	{
+		return _config_script_path;
+	}
+
+	ObserverMapping* observerMapping()
 	{
 		return _observer_mapping;
 	}
@@ -818,7 +824,7 @@ int main(int argc, char* argv[])
 	bool font_default_x11;
 	std::string font_charset_override;
 	{
-		CfgParser cfg;
+		CfgParser cfg("");
 		cfg.parse(config_file, CfgParserSource::SOURCE_FILE, true);
 		std::string theme_path;
 		CfgUtil::getThemeDir(cfg.getEntryRoot(),

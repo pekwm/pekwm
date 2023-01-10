@@ -122,7 +122,7 @@ public:
 	typedef section_map::iterator section_map_it;
 	typedef section_map::const_iterator section_map_cit;
 
-	CfgParser(void);
+	CfgParser(const std::string& command_path);
 	~CfgParser(void);
 
 	TimeFiles getCfgFiles(void) const { return _cfg_files; }
@@ -184,8 +184,8 @@ private:
 				const std::string& var);
 
 private:
-
 	CfgParserSource *_source;
+	std::string _command_path;
 	std::vector<CfgParserVarExpander*> _var_expanders;
 	CfgParserVarExpander* _var_expander_mem;
 

@@ -304,8 +304,9 @@ operator<<(std::ostream &stream, const CfgParser::Entry &entry)
 }
 
 //! @brief CfgParser constructor.
-CfgParser::CfgParser(void)
+CfgParser::CfgParser(const std::string& command_path)
 	: _source(nullptr),
+	  _command_path(command_path),
 	  _root_entry(nullptr),
 	  _is_dynamic_content(false),
 	  _section(_root_entry),
@@ -811,7 +812,8 @@ CfgParser::sourceNew(const std::string &name, CfgParserSource::Type type)
 		break;
 	case CfgParserSource::SOURCE_COMMAND:
 		source = new CfgParserSourceCommand(
-				*_source_name_set.find(name));
+				*_source_name_set.find(name),
+				_command_path);
 		break;
 	default:
 		break;

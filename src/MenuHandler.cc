@@ -1,6 +1,6 @@
 //
 // MenuHandler.cc for pekwm
-// Copyright (C) 2009-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2009-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -70,7 +70,7 @@ void
 MenuHandler::createMenusLoadConfiguration(ActionHandler *act)
 {
 	// Load configuration, pass specific section to loading
-	CfgParser menu_cfg;
+	CfgParser menu_cfg(pekwm::configScriptPath());
 	if (menu_cfg.parse(pekwm::config()->getMenuFile())
 	    || menu_cfg.parse(std::string(SYSCONFDIR "/menu"))) {
 		_cfg_files = menu_cfg.getCfgFiles();
@@ -101,7 +101,7 @@ MenuHandler::reloadMenus(ActionHandler *act)
 		return;
 	}
 
-	CfgParser cfg;
+	CfgParser cfg(pekwm::configScriptPath());
 	bool cfg_ok = loadMenuConfig(menu_file, cfg);
 	CfgParser::Entry *root = cfg.getEntryRoot();
 

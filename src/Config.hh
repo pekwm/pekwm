@@ -408,6 +408,8 @@ private:
 namespace pekwm
 {
 	Config* config();
+	const std::string& configScriptPath();
+	void setConfigScriptPath(const std::string& config_script_path);
 }
 
 #endif // _PEKWM_CONFIG_HH_

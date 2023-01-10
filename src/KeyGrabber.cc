@@ -1,6 +1,6 @@
 //
 // KeyGrabber.cc for pekwm
-// Copyright (C) 2003-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -103,7 +103,7 @@ KeyGrabber::load(const std::string &file, bool force)
 		return false;
 	}
 
-	CfgParser key_cfg;
+	CfgParser key_cfg(pekwm::configScriptPath());
 	if (! key_cfg.parse(file, CfgParserSource::SOURCE_FILE)) {
 		_cfg_files.clear();
 		if (! key_cfg.parse(SYSCONFDIR "/keys",

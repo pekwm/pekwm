@@ -69,6 +69,21 @@ namespace CfgUtil
 		}
 	}
 
+	void
+	getScriptsDir(const CfgParser::Entry* root, std::string &dir)
+	{
+		dir = Util::getConfigDir() + "/scripts/";
+		Util::expandFileName(dir);
+
+		CfgParser::Entry *files = root->findSection("FILES");
+		if (files != nullptr) {
+			CfgParserKeys keys;
+			keys.add_path("SCRIPTS", dir);
+			files->parseKeyValues(keys.begin(), keys.end());
+			keys.clear();
+		}
+	}
+
 	/**
 	 * Return options used to initialize FontHandler
 	 */

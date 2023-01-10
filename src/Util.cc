@@ -35,6 +35,10 @@ extern "C" {
 #include "Debug.hh"
 #include "Util.hh"
 
+#ifndef PEKWM_HAVE_ENVIRON
+extern char **environ;
+#endif // PEKWM_HAVE_ENVIRON
+
 namespace StringUtil
 {
 	Key::Key(const char *key)

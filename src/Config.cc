@@ -139,6 +139,14 @@ SizeLimits::parseLimit(const std::string &limit, uint &min, uint &max)
 	return status;
 }
 
+static std::string
+getDefaultScriptsPath()
+{
+	std::string dir = Util::getConfigDir() + "/scripts";
+	Util::expandFileName(dir);
+	return dir;
+}
+
 //! @brief Constructor for Config class
 Config::Config(void) :
 	_moveresize_edgeattract(0), _moveresize_edgeresist(0),
@@ -264,7 +272,7 @@ Config::load(const std::string &config_file)
 		return false;
 	}
 
-	CfgParser cfg;
+	CfgParser cfg("");
 
 	std::string cfg_dir;
 	_config_file = config_file;
@@ -348,6 +356,10 @@ Config::loadFiles(CfgParser::Entry *section)
 	keys.add_path("THEME", _files_theme, DATADIR "/pekwm/themes/default");
 	keys.add_string("THEMEVARIANT", _files_theme_variant);
 	keys.add_path("ICONS", _files_icon_path, DATADIR "/pekwm/icons");
+
+	std::string config_script_path;
+	keys.add_path("SCRIPTS", config_script_path, getDefaultScriptsPath());
+	pekwm::setConfigScriptPath(config_script_path);
 
 	section->parseKeyValues(keys.begin(), keys.end());
 	keys.clear();
@@ -1044,7 +1056,7 @@ Config::loadMouseConfig(const std::string &mouse_file)
 		return false;
 	}
 
-	CfgParser mouse_cfg;
+	CfgParser mouse_cfg(pekwm::configScriptPath());
 	if (! mouse_cfg.parse(mouse_file, CfgParserSource::SOURCE_FILE, true)
 	    && ! mouse_cfg.parse(SYSCONFDIR "/mouse",
 				 CfgParserSource::SOURCE_FILE, true)) {

@@ -33,6 +33,8 @@ New
 * **Setenv** action added, making it possible to update the environment pekwm
   use when executing applications without restarting pekwm.
 * **CenteredOnParent** placement model replacing TransientOnParent re-added.
+* Scripts setting in the Files section can now be used to add a path to
+  the PATH when searching for COMMANDs in configuration files.
 
 ### pekwm_panel
 

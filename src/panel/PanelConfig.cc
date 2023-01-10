@@ -6,6 +6,7 @@
 // See the LICENSE file for more information.
 //
 
+#include "Config.hh"
 #include "Debug.hh"
 #include "PanelConfig.hh"
 
@@ -89,7 +90,7 @@ PanelConfig::~PanelConfig(void)
 bool
 PanelConfig::load(const std::string &panel_file)
 {
-	CfgParser cfg;
+	CfgParser cfg(pekwm::configScriptPath());
 	if (! cfg.parse(panel_file, CfgParserSource::SOURCE_FILE, true)) {
 		return false;
 	}

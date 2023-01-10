@@ -23,6 +23,7 @@
 #cmakedefine PEKWM_HAVE_UNSETENV
 #cmakedefine PEKWM_HAVE_DAEMON
 #cmakedefine PEKWM_HAVE_TIMERSUB
+#cmakedefine PEKWM_HAVE_ENVIRON
 #cmakedefine PEKWM_HAVE_CLOCK_GETTIME
 
 #cmakedefine PEKWM_HAVE_SHAPE

@@ -1,11 +1,12 @@
 //
 // PanelTheme.cc for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
+#include "Config.hh"
 #include "FontHandler.hh"
 #include "ImageHandler.hh"
 #include "PanelTheme.hh"
@@ -47,7 +48,7 @@ PanelTheme::load(const std::string &theme_dir, const std::string& theme_path)
 {
 	unload();
 
-	CfgParser theme;
+	CfgParser theme(pekwm::configScriptPath());
 	theme.setVar("THEME_DIR", theme_dir);
 	if (! theme.parse(theme_path, CfgParserSource::SOURCE_FILE, true)) {
 		check();

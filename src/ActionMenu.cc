@@ -335,7 +335,7 @@ ActionMenu::rebuildDynamic(void)
 
 			PMenu::Item* item = *it;
 
-			CfgParser dynamic;
+			CfgParser dynamic(pekwm::configScriptPath());
 			std::string cmd =
 				(*it)->getAE().action_list.front().getParamS();
 			CfgParser::Entry *section = runDynamic(dynamic, cmd);

@@ -17,10 +17,10 @@ set(CMAKE_CXX_STANDARD 98)
 # Export compile commands, LSP integrations
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-include(CheckSymbolExists)
 include(CheckTypeSize)
 include(CheckCXXCompilerFlag)
 include(CheckCXXSourceCompiles)
+include(CheckCXXSymbolExists)
 include(CheckIncludeFile)
 include(CheckIncludeFileCXX)
 include(GNUInstallDirs)
@@ -85,7 +85,8 @@ check_function_exists(setenv PEKWM_HAVE_SETENV)
 check_function_exists(unsetenv PEKWM_HAVE_UNSETENV)
 check_function_exists(daemon PEKWM_HAVE_DAEMON)
 check_function_exists(clock_gettime PEKWM_HAVE_CLOCK_GETTIME)
-check_symbol_exists(timersub sys/time.h PEKWM_HAVE_TIMERSUB)
+check_cxx_symbol_exists(timersub sys/time.h PEKWM_HAVE_TIMERSUB)
+check_cxx_symbol_exists(environ unistd.h PEKWM_HAVE_ENVIRON)
 
 # Look for modern X11 functions
 set(CMAKE_REQUIRED_INCLUDES ${X11_INCLUDE_DIR})
@@ -94,7 +95,7 @@ check_type_size(Cardinal CARDINAL)
 set(CMAKE_EXTRA_INCLUDE_FILES "")
 
 set(CMAKE_REQUIRED_LIBRARIES ${X11_LIBRARIES})
-check_symbol_exists(Xutf8SetWMProperties X11/Xutil.h PEKWM_HAVE_XUTF8)
+check_cxx_symbol_exists(Xutf8SetWMProperties X11/Xutil.h PEKWM_HAVE_XUTF8)
 
 # Look for platform specific tools
 message(STATUS "Looking for program awk")

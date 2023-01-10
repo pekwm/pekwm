@@ -43,6 +43,7 @@ static std::string _pekwm_config_file;
 static std::string _empty_string;
 
 /** static pekwm resources, accessed via the pekwm namespace. */
+static std::string _config_script_path;
 static ObserverMapping* _observer_mapping = nullptr;
 static FontHandler* _font_handler = nullptr;
 static ImageHandler* _image_handler = nullptr;
@@ -50,7 +51,12 @@ static TextureHandler* _texture_handler = nullptr;
 
 namespace pekwm
 {
-	ObserverMapping* observerMapping(void)
+	const std::string& configScriptPath()
+	{
+		return _config_script_path;
+	}
+
+	ObserverMapping* observerMapping()
 	{
 		return _observer_mapping;
 	}
@@ -72,11 +78,8 @@ namespace pekwm
 }
 
 static void
-loadTheme(PanelTheme& theme, const std::string& pekwm_config_file)
+loadTheme(PanelTheme& theme, CfgParser& cfg)
 {
-	CfgParser cfg;
-	cfg.parse(pekwm_config_file, CfgParserSource::SOURCE_FILE, true);
-
 	std::string theme_dir, theme_variant, theme_path;
 	bool font_default_x11;
 	std::string font_charset_override;
@@ -93,6 +96,14 @@ loadTheme(PanelTheme& theme, const std::string& pekwm_config_file)
 	std::string icon_path;
 	CfgUtil::getIconDir(cfg.getEntryRoot(), icon_path);
 	theme.setIconPath(icon_path, theme_dir + "/icons/");
+}
+
+static void
+loadTheme(PanelTheme& theme, const std::string& pekwm_config_file)
+{
+	CfgParser cfg("");
+	cfg.parse(pekwm_config_file, CfgParserSource::SOURCE_FILE, true);
+	loadTheme(theme, cfg);
 }
 
 typedef bool(*renderPredFun)(PanelWidget *w, void *opaque);
@@ -689,12 +700,19 @@ int main(int argc, char *argv[])
 	init(dpy);
 
 	{
+		// FIXME: reduce scope
+		CfgParser pekwm_cfg("");
+		pekwm_cfg.parse(_pekwm_config_file,
+				CfgParserSource::SOURCE_FILE, true);
+		CfgUtil::getScriptsDir(pekwm_cfg.getEntryRoot(),
+				       _config_script_path);
+
 		// run in separate scope to get resources cleaned up before
 		// X11 cleanup
 		PanelConfig cfg;
 		if (loadConfig(cfg, config_file)) {
 			PanelTheme theme;
-			loadTheme(theme, _pekwm_config_file);
+			loadTheme(theme, pekwm_cfg);
 
 			Geometry head =
 				X11Util::getHeadGeometry(cfg.getHead());

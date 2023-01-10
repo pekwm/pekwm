@@ -27,6 +27,7 @@ static ObserverMapping* _observer_mapping = nullptr;
 static ActionHandler* _action_handler = nullptr;
 static AutoProperties* _auto_properties = nullptr;
 static Config* _config = nullptr;
+static std::string _config_script_path;
 static FontHandler* _font_handler = nullptr;
 static Harbour* _harbour = nullptr;
 static HintWO* _hint_wo = nullptr;
@@ -140,6 +141,16 @@ namespace pekwm
 	Config* config(void)
 	{
 		return _config;
+	}
+
+	const std::string& configScriptPath(void)
+	{
+		return _config_script_path;
+	}
+
+	void setConfigScriptPath(const std::string& config_script_path)
+	{
+		_config_script_path = config_script_path;
 	}
 
 	FontHandler* fontHandler(void)

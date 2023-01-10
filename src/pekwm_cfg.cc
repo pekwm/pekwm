@@ -1,6 +1,6 @@
 //
 // pekwm_cfg.cc for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -68,7 +68,7 @@ static void
 jsonDump(const std::string& path,
 	 const std::map<std::string, std::string> &cfg_env)
 {
-	CfgParser cfg;
+	CfgParser cfg("");
 	std::map<std::string, std::string>::const_iterator it =
 		cfg_env.begin();
 	for (; it != cfg_env.end(); ++it) {

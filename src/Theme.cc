@@ -10,6 +10,7 @@
 #include "config.h"
 
 #include "Color.hh"
+#include "Config.hh"
 #include "Debug.hh"
 #include "X11.hh"
 #include "PFont.hh"
@@ -1269,7 +1270,7 @@ Theme::load(const std::string &dir, const std::string &variant, bool force)
 	}
 
 	bool theme_ok = true;
-	CfgParser theme;
+	CfgParser theme(pekwm::configScriptPath());
 	theme.setVar("THEME_DIR", _theme_dir);
 	if (! theme.parse(theme_file)) {
 		_theme_dir = DATADIR "/pekwm/themes/default";

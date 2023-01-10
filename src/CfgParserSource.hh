@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2020 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2005-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -146,8 +146,11 @@ private:
 class CfgParserSourceCommand : public CfgParserSourceFp
 {
 public:
-	CfgParserSourceCommand(const std::string &source)
-		: CfgParserSourceFp(source)
+	CfgParserSourceCommand(const std::string &source,
+			       const std::string &command_path)
+		: CfgParserSourceFp(source),
+		  _command_path(command_path),
+		  _pid(0)
 	{
 		_type = SOURCE_COMMAND;
 		_is_dynamic = true;
@@ -158,6 +161,7 @@ public:
 	virtual void close(void);
 
 private:
+	std::string _command_path; /**< PATH override for command. */
 	pid_t _pid; /**< Process id of command generating output. */
 	struct sigaction _sigaction; /**< sigaction for restore. */
 	static unsigned int _sigaction_counter; /**< Counts open. */
