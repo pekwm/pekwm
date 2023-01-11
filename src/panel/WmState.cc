@@ -155,8 +155,8 @@ WmState::readClientList(void)
 			     reinterpret_cast<uchar**>(&windows), &actual)) {
 		P_TRACE("read _NET_CLIENT_LIST, " << actual << " windows");
 		for (uint i = 0; i < actual; i++) {
-			ClientInfo *client_info =
-			  popClientInfo(windows[i], old_clients);
+			ClientInfo *client_info = popClientInfo(windows[i],
+								old_clients);
 			if (client_info == nullptr) {
 				_clients.push_back(new ClientInfo(windows[i]));
 			} else {

@@ -57,29 +57,14 @@ public:
 			 WmState& wm_state);
 	virtual ~ClientListWidget(void);
 
-	virtual void notify(Observable*, Observation*)
-	{
-		_dirty = true;
-		update();
-	}
-
+	virtual void notify(Observable*, Observation*);
 	virtual void click(int x, int);
 	virtual void render(Render &rend);
 
 private:
-	Window findClientAt(int x)
-	{
-		std::vector<Entry>::iterator it = _entries.begin();
-		for (; it != _entries.end(); ++it) {
-			if (x >= it->getX()
-			    && x <= (it->getX() + _entry_width)) {
-				return it->getWindow();
-			}
-		}
-		return None;
-	}
-
+	Window findClientAt(int x);
 	void update(void);
+	void createEntries(void);
 
 private:
 	WmState& _wm_state;

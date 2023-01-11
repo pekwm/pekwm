@@ -372,18 +372,21 @@ PekwmPanel::notify(Observable*, Observation *observation)
 		loadTheme(_theme, _pekwm_config_file);
 		setStrut();
 		place();
+		// resize widgets after loading, separator size and handles
+		// can alter available amount of space.
+		resizeWidgets();
 	}
 
 	if (dynamic_cast<WmState::XROOTPMAP_ID_Changed*>(observation)
 	    || dynamic_cast<WmState::PEKWM_THEME_Changed*>(observation)) {
 		renderBackground();
 		renderPred(renderPredAlways, nullptr);
-	} else {
-		if (dynamic_cast<RequiredSizeChanged*>(observation)) {
-			P_TRACE("RequiredSizeChanged notification");
-			resizeWidgets();
-		}
+	} else if (dynamic_cast<RequiredSizeChanged*>(observation)) {
+		P_TRACE("RequiredSizeChanged notification");
+		resizeWidgets();
 		renderPred(renderPredAlways, nullptr);
+	} else {
+		renderPred(renderPredDirty, nullptr);
 	}
 }
 

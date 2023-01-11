@@ -1,6 +1,6 @@
 //
 // ClientInfo.cc for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -14,15 +14,15 @@
 static std::string _empty_string;
 
 ClientInfo::ClientInfo(Window window)
-	: _window(window)
+	: _window(window),
+	  _name(readName()),
+	  _gm(readGeometry()),
+	  _workspace(readWorkspace()),
+	  _icon(PImageIcon::newFromWindow(window))
+
 {
 	X11::selectInput(_window, PropertyChangeMask);
-
-	_name = readName();
-	_gm = readGeometry();
-	_workspace = readWorkspace();
 	X11Util::readEwmhStates(_window, *this);
-	_icon = PImageIcon::newFromWindow(_window);
 }
 
 ClientInfo::~ClientInfo(void)

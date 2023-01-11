@@ -116,7 +116,12 @@ PImageIcon::setImageFromData(uchar *udata, ulong actual)
 	size_t width = from_data[0];
 	size_t height = from_data[1];
 	size_t pixels = width * height;
-	if (actual < (pixels + 2)) {
+
+	// Some sort of sanity check on the values given, icons larger than
+	// the screen size will be disregarded.
+	if (width > X11::getWidth()
+	    || height > X11::getHeight()
+	    || actual < (pixels + 2)) {
 		return false;
 	}
 

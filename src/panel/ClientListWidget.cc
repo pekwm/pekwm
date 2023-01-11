@@ -25,6 +25,13 @@ ClientListWidget::~ClientListWidget(void)
 }
 
 void
+ClientListWidget::notify(Observable*, Observation*)
+{
+	_dirty = true;
+	update();
+}
+
+void
 ClientListWidget::click(int x, int)
 {
 	Window window = findClientAt(x);
@@ -80,33 +87,24 @@ ClientListWidget::render(Render &rend)
 	}
 }
 
+Window
+ClientListWidget::findClientAt(int x)
+{
+	std::vector<Entry>::iterator it = _entries.begin();
+	for (; it != _entries.end(); ++it) {
+		if (x >= it->getX()
+		    && x <= (it->getX() + _entry_width)) {
+			return it->getWindow();
+		}
+	}
+	return None;
+}
+
 void
 ClientListWidget::update(void)
 {
 	_entries.clear();
-
-	uint workspace = _wm_state.getActiveWorkspace();
-
-	{
-		WmState::client_info_it it = _wm_state.clientsBegin();
-		for (; it != _wm_state.clientsEnd(); ++it) {
-			if ((*it)->displayOn(workspace)) {
-				ClientState state;
-				if ((*it)->getWindow()
-				    == _wm_state.getActiveWindow()) {
-					state = CLIENT_STATE_FOCUSED;
-				} else if ((*it)->hidden) {
-					state = CLIENT_STATE_ICONIFIED;
-				} else {
-					state = CLIENT_STATE_UNFOCUSED;
-				}
-				_entries.push_back(Entry((*it)->getName(),
-							 state, 0,
-							 (*it)->getWindow(),
-							 (*it)->getIcon()));
-			}
-		}
-	}
+	createEntries();
 
 	// no clients on active workspace, skip rendering and avoid
 	// division by zero.
@@ -123,5 +121,31 @@ ClientListWidget::update(void)
 			it->setX(x);
 			x += _entry_width;
 		}
+	}
+}
+
+void
+ClientListWidget::createEntries()
+{
+	uint workspace = _wm_state.getActiveWorkspace();
+
+	WmState::client_info_it it = _wm_state.clientsBegin();
+	for (; it != _wm_state.clientsEnd(); ++it) {
+		if (! (*it)->displayOn(workspace)) {
+			continue;
+		}
+		ClientState state;
+		if ((*it)->getWindow()
+		    == _wm_state.getActiveWindow()) {
+			state = CLIENT_STATE_FOCUSED;
+		} else if ((*it)->hidden) {
+			state = CLIENT_STATE_ICONIFIED;
+		} else {
+			state = CLIENT_STATE_UNFOCUSED;
+		}
+		_entries.push_back(Entry((*it)->getName(),
+					 state, 0,
+					 (*it)->getWindow(),
+					 (*it)->getIcon()));
 	}
 }
