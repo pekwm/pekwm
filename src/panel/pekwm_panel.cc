@@ -383,7 +383,7 @@ PekwmPanel::notify(Observable*, Observation *observation)
 			P_TRACE("RequiredSizeChanged notification");
 			resizeWidgets();
 		}
-		render();
+		renderPred(renderPredAlways, nullptr);
 	}
 }
 
