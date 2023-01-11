@@ -12,6 +12,10 @@ install:
 	mkdir -p $(DESTDIR)$(PREFIX)/share/pekwm/themes/default-plain
 	cp default-plain/theme \
 	   $(DESTDIR)$(PREFIX)/share/pekwm/themes/default-plain
+	mkdir -p $(DESTDIR)$(PREFIX)/share/pekwm/themes/winter
+	cp -R winter/theme winter/*.png winter/backgrounds \
+	   $(DESTDIR)$(PREFIX)/share/pekwm/themes/winter
 
 clean:
-	rm -f themes/default/*~ themes/default-plain/*~ || true
+	rm -f themes/default/*~ themes/default-plain/*~ \
+		themes/winter/*~ || true
