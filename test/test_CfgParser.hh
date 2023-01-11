@@ -19,6 +19,11 @@ public:
 
 	void testEmptyVal(void);
 	void testIncludeWithoutNewline(void);
+
+	// command
+	void testCommandOk();
+	void testCommandMissing();
+
 	// variable parsing
 	void testParseVarEol();
 	void testParseEscapeAtEndVar();
@@ -31,7 +36,7 @@ public:
 
 TestCfgParser::TestCfgParser(void)
 	: TestSuite("CfgParser"),
-	  CfgParser("")
+	  CfgParser("../test/data")
 {
 }
 
@@ -60,13 +65,40 @@ TestCfgParser::testIncludeWithoutNewline(void)
 {
 	const char *cfg =
 		"INCLUDE = \"../test/data/cfg_parser_include.cfg\"";
-	CfgParserSourceString *source =
+	CfgParserSource *source =
 		new CfgParserSourceString(":memory:", cfg);
 
 	clear();
 	ASSERT_EQUAL("parse ok", true, parse(source));
 	std::string var = getVar("VAR");
 	ASSERT_EQUAL("var in include", "value", var);
+}
+
+void
+TestCfgParser::testCommandOk()
+{
+	const char *cfg = "COMMAND = \"cfg_parser_command.sh\"";
+	CfgParserSource *source =
+		new CfgParserSourceString(":memory:", cfg);
+
+	clear();
+	ASSERT_EQUAL("parse ok", true, parse(source));
+	CfgParser::Entry *entry = getEntryRoot()->findEntry("KEY");
+	ASSERT_EQUAL("entry", true, entry != nullptr);
+	ASSERT_EQUAL("value", "value", entry->getValue());
+
+}
+
+void
+TestCfgParser::testCommandMissing()
+{
+	const char *cfg = "COMMAND = \"cfg_parser_missing.sh\"";
+	CfgParserSource *source =
+		new CfgParserSourceString(":memory:", cfg);
+
+	clear();
+	// parse succeeds even if COMMAND fails to execute (legacy behavior)
+	ASSERT_EQUAL("parse ok", true, parse(source));
 }
 
 void
@@ -158,6 +190,12 @@ TestCfgParser::run_test(TestSpec spec, bool status)
 {
 	TEST_FN(spec, "empty val", testEmptyVal());
 	TEST_FN(spec, "INCLUDE without newline", testIncludeWithoutNewline());
+
+	// command
+	TEST_FN(spec, "COMMAND found", testCommandOk());
+	TEST_FN(spec, "COMMAND missing", testCommandMissing());
+
+	// variable parsing
 	TEST_FN(spec, "$ var, to end of line", testParseVarEol());
 	TEST_FN(spec, "$ var, escape at end", testParseEscapeAtEndVar());
 	TEST_FN(spec, "$_ variable", testParseUnderscoreVar());
