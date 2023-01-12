@@ -90,7 +90,7 @@ Bar = "field" {
 
 #### Widget: ClientList
 
-Dispay a list of clients on the current workspace together with the
+Display a list of clients on the current workspace together with the
 client icon if _NET_WM_ICON is set.
 
 Widget configuration:
@@ -100,6 +100,20 @@ ClientList {
   Size = "*"
 }
 ```
+
+#### Widget: Systray
+
+Display system tray icons provided by programs like NetworkManager, VLC, etc.
+
+Widget configuration:
+
+```
+Systray {
+  Size = "Required"
+}
+```
+
+The size of the widget will adapt to the number of icons in the tray.
 
 #### Widget: DateTime
 
@@ -116,7 +130,7 @@ DateTime = "%Y-%m-%d %H:%M" {
 
 #### Widget: Icon
 
-Widget displaying icon. The icon can be configured to update whenever
+Widget displaying an icon. The icon can be configured to update whenever
 a given external data field is updated.
 
 ```
@@ -128,10 +142,10 @@ Icon = "battery-icon-status" {
 }
 ```
 
-NOTE: The widget expect all icons set by the external data field to
+NOTE: The widget expects all icons set by the external data field to
 have the same size.
 
-The Icon widget support executing a command when it is clicked. To enable
+The Icon widget supports executing a command when it is clicked. To enable
 command execution add an Exec statement, the format of the command will be
 expanded the same way as the _Text_ widget before being executed.
 
@@ -177,7 +191,7 @@ of the field the widget is using. For the **Text** widget the
 formatted string is transformed.
 
 The transformation can be used if the value of pre-defined fields,
-such as X11 atoms, require some change before it can be used.
+such as X11 atoms, requires some change before it can be used.
 
 Transform takes the same form as TitleRules do in pekwm, and is
 configured using the **Transform** keyword.
