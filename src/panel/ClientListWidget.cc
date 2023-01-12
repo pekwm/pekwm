@@ -6,15 +6,20 @@
 // See the LICENSE file for more information.
 //
 
-#include "Debug.hh"
 #include "ClientListWidget.hh"
+#include "Debug.hh"
+#include "String.hh"
 
 ClientListWidget::ClientListWidget(const PWinObj* parent,
 				   const PanelTheme& theme,
 				   const SizeReq& size_req,
-				   WmState& wm_state)
+				   WmState& wm_state,
+				   const std::string& draw_separator)
 	: PanelWidget(parent, theme, size_req),
-	  _wm_state(wm_state)
+	  _wm_state(wm_state),
+	  _entry_width(0),
+	  _draw_separator(pekwm::ascii_ncase_equal("separator",
+						   draw_separator))
 {
 	pekwm::observerMapping()->addObserver(&_wm_state, this);
 }
@@ -71,6 +76,12 @@ ClientListWidget::render(Render &rend)
 		int icon_width = icon ? height + 1 : 0;
 		int x = getX() + it->getX() + icon_width;
 		int entry_width = _entry_width - icon_width;
+		if (_draw_separator && (it + 1) != _entries.end()) {
+			PTexture* sep = _theme.getSep();
+			entry_width -= sep->getWidth();
+			sep->render(rend, x + entry_width, 0,
+				    sep->getWidth(), sep->getHeight());
+		}
 
 		PFont *font = _theme.getFont(it->getState());
 		int icon_x = renderText(rend, font, x,

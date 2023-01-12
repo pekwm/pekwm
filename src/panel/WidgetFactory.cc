@@ -33,8 +33,9 @@ WidgetFactory::construct(const WidgetConfig& cfg)
 					     cfg.getCfgSection());
 		}
 	} else if (name == "CLIENTLIST") {
+		const std::string &separator = cfg.getArg(0);
 		return new ClientListWidget(_parent, _theme, cfg.getSizeReq(),
-					    _wm_state);
+					    _wm_state, separator);
 	} else if (name == "DATETIME") {
 		const std::string &format = cfg.getArg(0);
 		return new DateTimeWidget(_parent, _theme, cfg.getSizeReq(),

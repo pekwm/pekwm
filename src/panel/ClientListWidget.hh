@@ -20,6 +20,8 @@
 
 /**
  * List of Frames/Clients on the current workspace.
+ *
+ * ClientList [separator]
  */
 class ClientListWidget : public PanelWidget,
 			 public Observer {
@@ -54,7 +56,8 @@ public:
 	ClientListWidget(const PWinObj* parent,
 			 const PanelTheme& theme,
 			 const SizeReq& size_req,
-			 WmState& wm_state);
+			 WmState& wm_state,
+			 const std::string& draw_separator);
 	virtual ~ClientListWidget(void);
 
 	virtual void notify(Observable*, Observation*);
@@ -70,6 +73,7 @@ private:
 	WmState& _wm_state;
 	int _entry_width;
 	std::vector<Entry> _entries;
+	bool _draw_separator;
 };
 
 #endif // _PEKWM_PANEL_CLIENT_LIST_WIDGET_HH_
