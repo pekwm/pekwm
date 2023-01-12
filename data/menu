@@ -1,7 +1,7 @@
 # Variables
 INCLUDE = "vars"
 
-RootMenu = "Pekwm" {
+RootMenu = "pekwm" {
   Entry = "Terminal" { Actions = "Exec $TERM" }
   Entry = "Run.." { Actions = "ShowCmdDialog" }
 
