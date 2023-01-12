@@ -25,6 +25,8 @@ public:
 	virtual ~PanelWidget(void);
 
 	bool isDirty(void) const { return _dirty; }
+	bool isVisible(void) const { return _width != 0; }
+
 	int getX(void) const { return _x; }
 	int getRX(void) const { return _rx; }
 	virtual void move(int x);

@@ -156,7 +156,6 @@ public:
 	virtual void handleEvent(XEvent *ev);
 
 private:
-
 	virtual ActionEvent *handleButtonPress(XButtonEvent* ev)
 	{
 		X11::setLastEventTime(ev->time);
@@ -208,7 +207,9 @@ private:
 	{
 		std::vector<PanelWidget*>::iterator it = _widgets.begin();
 		for (; it != _widgets.end(); ++it) {
-			if (x >= (*it)->getX() && x <= (*it)->getRX()) {
+			if ((*it)->isVisible()
+			    && x >= (*it)->getX()
+			    && x <= (*it)->getRX()) {
 				return *it;
 			}
 		}
@@ -226,23 +227,7 @@ private:
 		return nullptr;
 	}
 
-	void addWidgets(void)
-	{
-		WidgetFactory factory(this, this, _theme,
-				      _var_data, _wm_state);
-
-		std::vector<WidgetConfig>::const_iterator it =
-			_cfg.widgetsBegin();
-		for (; it != _cfg.widgetsEnd(); ++it) {
-			PanelWidget *widget = factory.construct(*it);
-			if (widget == nullptr) {
-				USER_WARN("failed to construct widget");
-			} else {
-				_widgets.push_back(widget);
-			}
-		}
-	}
-
+	void addWidgets(void);
 	void resizeWidgets(void);
 	void renderPred(renderPredFun pred, void *opaque);
 	void renderBackground(void);
@@ -266,6 +251,8 @@ private:
 	ExternalCommandData _ext_data;
 	WmState _wm_state;
 	std::vector<PanelWidget*> _widgets;
+	uint _widgets_visible;
+
 	Pixmap _pixmap;
 };
 
@@ -280,6 +267,7 @@ PekwmPanel::PekwmPanel(const PanelConfig &cfg, PanelTheme &theme,
 	  _theme(theme),
 	  _ext_data(cfg, _var_data),
 	  _wm_state(_var_data),
+	  _widgets_visible(0),
 	  _pixmap(X11::createPixmap(sh->width, sh->height))
 {
 	X11::selectInput(_window,
@@ -475,6 +463,23 @@ PekwmPanel::handleEvent(XEvent* ev)
 }
 
 void
+PekwmPanel::addWidgets(void)
+{
+	WidgetFactory factory(this, this, _theme, _var_data, _wm_state);
+
+	std::vector<WidgetConfig>::const_iterator it = _cfg.widgetsBegin();
+	for (; it != _cfg.widgetsEnd(); ++it) {
+		PanelWidget *widget = factory.construct(*it);
+		if (widget == nullptr) {
+			USER_WARN("failed to construct widget");
+			continue;
+		}
+
+		_widgets.push_back(widget);
+	}
+}
+
+void
 PekwmPanel::resizeWidgets(void)
 {
 	if (_widgets.empty()) {
@@ -483,13 +488,13 @@ PekwmPanel::resizeWidgets(void)
 
 	PTexture *sep = _theme.getSep();
 	uint num_rest = 0;
-	uint width_left = _gm.width - sep->getWidth() * (_widgets.size() - 1);
-
+	uint width_left = _gm.width;
 	PTexture *handle = _theme.getHandle();
 	if (handle) {
 		width_left -= handle->getWidth() * 2;
 	}
 
+	_widgets_visible = 0;
 	std::vector<PanelWidget*>::iterator it = _widgets.begin();
 	for (; it != _widgets.end(); ++it) {
 		switch ((*it)->getSizeReq().getUnit()) {
@@ -521,8 +526,18 @@ PekwmPanel::resizeWidgets(void)
 			break;
 		}
 		}
+
+		if ((*it)->isVisible()) {
+			_widgets_visible++;
+		}
 	}
 
+	// remove size for separators before calculating rest widget sizes,
+	// this is done after the main calculation to get the correct number
+	// of visible widgets
+	if (_widgets_visible != 0) {
+		width_left -=  sep->getWidth() * (_widgets_visible - 1);
+	}
 	uint x = handle ? handle->getWidth() : 0;
 	uint rest = static_cast<uint>(width_left
 				      / static_cast<float>(num_rest));
@@ -538,7 +553,8 @@ PekwmPanel::resizeWidgets(void)
 void
 PekwmPanel::renderPred(renderPredFun pred, void *opaque)
 {
-	if (_widgets.empty()) {
+	if (_widgets_visible == 0) {
+		P_TRACE("no visible widgets to render");
 		return;
 	}
 
@@ -550,6 +566,10 @@ PekwmPanel::renderPred(renderPredFun pred, void *opaque)
 	X11Render rend(_window);
 	std::vector<PanelWidget*>::iterator it = _widgets.begin();
 	for (; it != _widgets.end(); ++it) {
+		if (! (*it)->isVisible()) {
+			continue;
+		}
+
 		bool do_render = pred(*it, opaque);
 		if (do_render) {
 			(*it)->render(rend);

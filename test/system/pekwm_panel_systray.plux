@@ -28,6 +28,9 @@ Tests verifying the systray functionality in pekwm. Tests include:
 	[log owner window $owner_window]
 	?entering main loop
 
+	[log verify widget is not rendered]
+	?no visible widgets to render
+
 [shell systray_client_1]
 	[call init-shell]
 	[log start systray_client_1]

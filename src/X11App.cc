@@ -1,6 +1,6 @@
 //
 // X11App.cc for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -255,8 +255,9 @@ X11App::waitForData(int timeout_s)
 		FD_SET(*it, &rfds);
 	}
 
-	struct timeval timeout = { timeout_s, 0 };
-	int ret = select(_max_fd + 1, &rfds, nullptr, nullptr, &timeout);
+	struct timeval timeout_val = { timeout_s, 0 };
+	struct timeval *timeout = timeout_s > 0 ? &timeout_val : nullptr;
+	int ret = select(_max_fd + 1, &rfds, nullptr, nullptr, timeout);
 	if (ret > 0) {
 		for (it = _fds.begin(); it != _fds.end(); ++it) {
 			if (! FD_ISSET(*it, &rfds)) {
