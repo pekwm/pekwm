@@ -41,5 +41,3 @@ PanelWidget::renderText(Render &rend, PFont *font,
 	RenderSurface surface(rend, gm);
 	return font->draw(&surface, x, y, text, 0, max_width);
 }
-
-

@@ -32,7 +32,7 @@ public:
 
 	uint getHeight(void) const { return _height; }
 
-	PFont *getFont(ClientState state) const { return _fonts[state]; }
+	PFont *getFont(ClientState state) const;
 	PTexture *getBackground(void) const { return _background; }
 	PTexture *getSep(void) const { return _sep; }
 	PTexture *getHandle(void) const { return _handle; }

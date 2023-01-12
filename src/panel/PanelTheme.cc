@@ -7,6 +7,7 @@
 //
 
 #include "Config.hh"
+#include "Debug.hh"
 #include "FontHandler.hh"
 #include "ImageHandler.hh"
 #include "PanelTheme.hh"
@@ -144,6 +145,9 @@ PanelTheme::loadState(CfgParser::Entry *section, ClientState state)
 	_colors[state] = pekwm::fontHandler()->getColor(color);
 }
 
+/**
+ * Add configured path to image load path for looking up icons.
+ */
 void
 PanelTheme::setIconPath(const std::string& config_path,
 			const std::string& theme_path)
@@ -154,15 +158,28 @@ PanelTheme::setIconPath(const std::string& config_path,
 	ih->path_push_back(theme_path);
 }
 
+/**
+ * Get font and update color (same font will be shared)
+ */
+PFont*
+PanelTheme::getFont(ClientState state) const
+{
+	PFont* font = _fonts[state];
+	font->setColor(_colors[state]);
+	return font;
+}
+
 void
 PanelTheme::check(void)
 {
 	FontHandler *fh = pekwm::fontHandler();
 	for (int i = 0; i < CLIENT_STATE_NO; i++) {
 		if (_fonts[i] == nullptr) {
+			P_TRACE("setting default font[" << i << "]");
 			_fonts[i] = fh->getFont(DEFAULT_FONT "#Center");
 		}
 		if (_colors[i] == nullptr) {
+			P_TRACE("setting default color[" << i << "]");
 			_colors[i] = fh->getColor(DEFAULT_COLOR);
 		}
 	}
@@ -176,10 +193,6 @@ PanelTheme::check(void)
 	}
 
 	_background->setOpacity(_background_opacity);
-	for (int i = 0; i < CLIENT_STATE_NO; i++) {
-		_fonts[i]->setColor(_colors[i]);
-	}
-
 	if (_bar_border == nullptr) {
 		_bar_border = X11::getColor(DEFAULT_BAR_BORDER);
 	}
