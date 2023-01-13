@@ -9,15 +9,15 @@
 #ifndef _PEKWM_PFONT_X11_HH_
 #define _PEKWM_PFONT_X11_HH_
 
-#include "PFont.hh"
+#include "PFontX.hh"
 
-class PFontX11 : public PFont {
+class PFontX11 : public PFontX {
 public:
 	PFontX11(void);
 	virtual ~PFontX11(void);
 
 	// virtual interface
-	virtual bool load(const std::string &name);
+	virtual bool load(const PFont::Descr& descr);
 	virtual void unload(void);
 
 	virtual uint getWidth(const std::string &text, uint max_chars = 0);

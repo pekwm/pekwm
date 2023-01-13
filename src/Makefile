@@ -14,8 +14,8 @@ CFG_PARSER_OBJS = CfgParser.o CfgParserKey.o CfgParserSource.o \
 UTIL_OBJS = $(CFG_PARSER_OBJS) CfgUtil.o Observable.o RegexString.o String.o \
 	    Util.o
 IMAGE_LOADER_OBJS = PImageLoaderJpeg.o PImageLoaderPng.o PImageLoaderXpm.o
-TEXTURE_OBJS = Action.o Color.o FontHandler.o ImageHandler.o PFont.o \
-	       PFontX11.o PFontXmb.o PFontXft.o \
+TEXTURE_OBJS = Action.o Color.o FontHandler.o ImageHandler.o \
+	       PFont.o PFontX.o PFontX11.o PFontXmb.o PFontXft.o \
 	       PImage.o PImageIcon.o PTexture.o PTexturePlain.o Render.o \
 	       TextureHandler.o Theme.o ThemeGm.o
 X11_OBJS = PWinObj.o X11.o X11Util.o X11App.o

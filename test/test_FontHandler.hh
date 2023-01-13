@@ -20,14 +20,28 @@ public:
 
 	virtual bool run_test(TestSpec spec, bool status);
 
+	void testDetectX11FontName();
 	void testReplaceFontCharset(void);
 };
 
 bool
 TestFontHandler::run_test(TestSpec spec, bool status)
 {
+	TEST_FN(spec, "detectX11FontName", testDetectX11FontName());
 	TEST_FN(spec, "replaceFontCharset", testReplaceFontCharset());
 	return status;
+}
+
+void
+TestFontHandler::testDetectX11FontName(void)
+{
+	std::string font =
+		"-misc-fixed-medium-r-normal-*-12-*-75-75-*-*-jisx0201.1976-0";
+	std::vector<std::string> tok;
+	PFont::Type type;
+	PFont* pfont = newFont(font, tok, type);
+	delete pfont;
+	ASSERT_EQUAL("Xmb font", PFont::FONT_TYPE_XMB, type);
 }
 
 void

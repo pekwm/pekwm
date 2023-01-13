@@ -13,8 +13,10 @@
 const char *FALLBACK_FONT = "fixed";
 
 PFontX11::PFontX11(void)
-	: PFont(),
-	  _font(0), _gc_fg(None), _gc_bg(None)
+	: PFontX(),
+	  _font(0),
+	  _gc_fg(None),
+	  _gc_bg(None)
 {
 }
 
@@ -27,11 +29,12 @@ PFontX11::~PFontX11(void)
  * @brief Loads the X11 font font_name
  */
 bool
-PFontX11::load(const std::string &font_name)
+PFontX11::load(const PFont::Descr& descr)
 {
 	unload();
 
-	_font = XLoadQueryFont(X11::getDpy(), font_name.c_str());
+	std::string spec = descr.useStr() ? descr.str() : toNativeDescr(descr);
+	_font = XLoadQueryFont(X11::getDpy(), spec.c_str());
 	if (! _font) {
 		_font = XLoadQueryFont(X11::getDpy(), FALLBACK_FONT);
 		if (! _font) {

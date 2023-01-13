@@ -5,9 +5,9 @@
 # Email: adriano.src@gmail.com
 # Homepage: http://adrinux.wordpress.com
 
-$FONT_NAME = "XFT#Sans:size=9"
+$FONT_NAME = "Sans:size=9"
 $FONT = "$FONT_NAME#Left"
-$FONT_TITLE = "XFT#Sans:size=9:weight=bold#Center#1 1"
+$FONT_TITLE = "Sans:size=9:weight=bold#Center#1 1"
 
 Require {
   Templates = "True"

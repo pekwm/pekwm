@@ -28,21 +28,23 @@
 #include "PFontPangoXft.hh"
 #endif // PEKWM_HAVE_PANGO_XFT
 
+/**
+ * Font pattern used to detect X11 font names when no font type is
+ * specified.
+ */
+#define X11_FONT_NAME_PATTERN  \
+	"-[^-]+-[^-]+-[^-]+-[^-]+-[^-]+-[^-]+" \
+	"-[*0-9]+-[*0-9]+-[*0-9]+-[*0-9]+" \
+	"-[^-]+-[*0-9]+-[^-]+-[^-]+"
+
 static Util::StringTo<PFont::Type> map_type[] =
-	{{"X11", PFont::FONT_TYPE_X11},
-#ifdef PEKWM_HAVE_XFT
-	 {"XFT", PFont::FONT_TYPE_XFT},
-#endif // PEKWM_HAVE_XFT
+	{{"", PFont::FONT_TYPE_AUTO},
+	 {"X11", PFont::FONT_TYPE_X11},
 	 {"XMB", PFont::FONT_TYPE_XMB},
-#if defined(PEKWM_HAVE_PANGO_CAIRO) || defined(PEKWM_HAVE_PANGO_XFT)
+	 {"XFT", PFont::FONT_TYPE_XFT},
 	 {"PANGO", PFont::FONT_TYPE_PANGO},
-#endif // defined(PEKWM_HAVE_PANGO_CAIRO) || defined(PEKWM_HAVE_PANGO_XFT)
-#ifdef PEKWM_HAVE_PANGO_CAIRO
 	 {"PANGOCAIRO", PFont::FONT_TYPE_PANGO_CAIRO},
-#endif // PEKWM_HAVE_PANGO_XFT
-#ifdef PEKWM_HAVE_PANGO_XFT
 	 {"PANGOXFT", PFont::FONT_TYPE_PANGO_XFT},
-#endif // PEKWM_HAVE_PANGO_XFT
 	 {nullptr, PFont::FONT_TYPE_NO}};
 
 static Util::StringTo<FontJustify> map_justify[] =
@@ -53,7 +55,8 @@ static Util::StringTo<FontJustify> map_justify[] =
 
 FontHandler::FontHandler(bool default_font_x11,
 			 const std::string &charset_override)
-	: _default_font_x11(default_font_x11),
+	: _x11_font_name(X11_FONT_NAME_PATTERN),
+	  _default_font_x11(default_font_x11),
 	  _charset_override(charset_override)
 {
 }
@@ -101,7 +104,8 @@ FontHandler::getFont(const std::string &font)
 	if (type == PFont::FONT_TYPE_X11 || type == PFont::FONT_TYPE_XMB) {
 		replaceFontCharset(font_str);
 	}
-	pfont->load(font_str);
+	PFont::Descr descr(font_str, type != PFont::FONT_TYPE_AUTO);
+	pfont->load(descr);
 
 	// fields left for justify and offset
 	parseFontOptions(pfont, tok);
@@ -120,25 +124,27 @@ PFont*
 FontHandler::newFont(const std::string &font,
 		     std::vector<std::string> &tok, PFont::Type &type)
 {
+	if (_x11_font_name == font) {
+		tok.push_back(font);
+		return newFontX11(type);
+	}
+
 	std::vector<std::string>::iterator tok_it;
 	if (Util::splitString(font, tok, "#", 0, true) > 1) {
-		// Try getting the font type from the first paramter,
-		// if that doesn't work fall back to the last. This is to
-		// backwards compatible.
 		tok_it = tok.begin();
 		type = Util::StringToGet(map_type, *tok_it);
 		if (type == PFont::FONT_TYPE_NO) {
-			tok_it = tok.end() - 1;
-			type = Util::StringToGet(map_type, *tok_it);
-		}
-		if (type != PFont::FONT_TYPE_NO) {
+			type = PFont::FONT_TYPE_AUTO;
+		} else {
 			tok.erase(tok_it);
 		}
 	} else {
-		type = PFont::FONT_TYPE_NO;
+		type = PFont::FONT_TYPE_AUTO;
 	}
 
 	switch (type) {
+	case PFont::FONT_TYPE_AUTO:
+		return newFontAuto();
 #ifdef PEKWM_HAVE_XFT
 	case PFont::FONT_TYPE_XFT:
 		return new PFontXft;
@@ -162,11 +168,48 @@ FontHandler::newFont(const std::string &font,
 		return new PFontPangoXft;
 #endif // PEKWM_HAVE_PANGO_XFT
 	default:
-		if (_default_font_x11) {
-			return new PFontX11;
-		}
-		return new PFontXmb;
+		return newFontX11(type);
 	};
+}
+
+PFont*
+FontHandler::newFontX11(PFont::Type &type) const
+{
+	if (_default_font_x11) {
+		type = PFont::FONT_TYPE_X11;
+		return new PFontX11;
+	}
+	type = PFont::FONT_TYPE_XMB;
+	return new PFontXmb;
+}
+
+/**
+ * Create font type, based on compiled in features. Priority list goes as
+ * follows:
+ *
+ * # PangoCairo
+ * # PangoXft
+ * # Xft
+ * # Xmb/X11 depending on _default_font_x11
+ *
+ */
+PFont*
+FontHandler::newFontAuto() const
+{
+#ifdef PEKWM_HAVE_PANGO_CAIRO
+	return new PFontPangoCairo;
+#else // ! PEKWM_HAVE_PANGO_CAIRO
+#ifdef PEKWM_HAVE_PANGO_XFT
+	return new PFontPangoXft;
+#else // ! PEKWM_HAVE_PANGO_XFT
+#ifdef PEKWM_HAVE_XFT
+	return new PFontXft;
+#else // ! PEKWM_HAVE_XFT
+	PFont::Type type;
+	return newFontX11(type);
+#endif // PEKWM_HAVE_XFT
+#endif // PEKWM_HAVE_PANGO_XFT
+#endif // PEKWM_HAVE_PANGO_CAIRO
 }
 
 void

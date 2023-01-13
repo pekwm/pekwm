@@ -20,24 +20,18 @@ class PFont
 {
 public:
 	enum Type {
+		FONT_TYPE_AUTO,
 		FONT_TYPE_X11,
-#ifdef PEKWM_HAVE_XFT
-		FONT_TYPE_XFT,
-#endif // PEKWM_HAVE_XFT
 		FONT_TYPE_XMB,
-#if defined(PEKWM_HAVE_PANGO_CAIRO) || defined(PEKWM_HAVE_PANGO_XFT)
+		FONT_TYPE_XFT,
 		FONT_TYPE_PANGO,
-#endif // defined(PEKWM_HAVE_PANGO_CAIRO) || defined(PEKWM_HAVE_PANGO_XFT)
-#ifdef PEKWM_HAVE_PANGO_CAIRO
 		FONT_TYPE_PANGO_CAIRO,
-#endif // PEKWM_HAVE_PANGO_CAIRO
-#ifdef PEKWM_HAVE_PANGO_XFT
 		FONT_TYPE_PANGO_XFT,
-#endif // PEKWM_HAVE_PANGO_XFT
 		FONT_TYPE_NO
 	};
 	enum TrimType {
-		FONT_TRIM_END, FONT_TRIM_MIDDLE
+		FONT_TRIM_END,
+		FONT_TRIM_MIDDLE
 	};
 
 	class Color {
@@ -65,6 +59,77 @@ public:
 		uint _bg_alpha;
 	};
 
+	/**
+	 * Font family and size specification, part of Descr.
+	 */
+	class DescrFamily {
+	public:
+		DescrFamily(const std::string& family, uint size)
+			: _familiy(family),
+			  _size(size) { }
+		~DescrFamily() { }
+
+		const std::string& getFamily() const { return _familiy; }
+		uint getSize() const { return _size; }
+		void setSize(uint size) { _size = size; }
+
+	private:
+		std::string _familiy;
+		uint _size;
+	};
+
+	/**
+	 * Font property, part of Descr.
+	 */
+	class DescrProp {
+	public:
+		DescrProp(const std::string& prop, const std::string& value)
+			: _prop(prop),
+			  _value(value) { }
+		~DescrProp() { }
+
+		const std::string& getProp() const { return _prop; }
+		const std::string& getValue() const { return _value; }
+
+	private:
+		std::string _prop;
+		std::string _value;
+	};
+
+	/**
+	 * Font description, used to specify fonts in the same format between
+	 * the different supported backends.
+	 */
+	class Descr {
+	public:
+		Descr(const std::string& str, bool use_str);
+		~Descr();
+
+		const std::string& str() const;
+		bool useStr() const;
+
+		const std::vector<DescrFamily>& getFamilies() const;
+		const std::vector<DescrProp>& getProperties() const;
+
+		const DescrProp* getProperty(const std::string& prop) const;
+
+		uint getSize(uint def) const;
+
+	private:
+		bool parse(const std::string& str);
+		bool parseFamilySize(const std::string& str);
+		bool parseProp(const std::string& str);
+
+		void setSizeFromProp();
+
+	private:
+		std::string _str;
+		bool _use_str;
+
+		std::vector<DescrFamily> _families;
+		std::vector<DescrProp> _properties;
+	};
+
 	PFont(void);
 	virtual ~PFont(void);
 
@@ -87,13 +152,16 @@ public:
 		     uint padding, uint chars);
 
 	// virtual interface
-	virtual bool load(const std::string& font_name) = 0;
-	virtual void unload(void) { }
+	virtual bool load(const PFont::Descr &descr) = 0;
+	virtual void unload(void) = 0;
 
 	virtual uint getWidth(const std::string& text, uint max_chars = 0) = 0;
 	virtual uint getHeight(void) { return _height; }
 
 	virtual void setColor(PFont::Color* color) = 0;
+
+protected:
+	virtual std::string toNativeDescr(const PFont::Descr &descr) const = 0;
 
 private:
 	virtual void drawText(PSurface *dest, int x, int y,

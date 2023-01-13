@@ -8,9 +8,53 @@
 
 #include "Debug.hh"
 #include "PFontPango.hh"
+#include "Util.hh"
 
 static const char* FALLBACK_FONT_FAMILY = "Sans";
 static const int FALLBACK_FONT_SIZE = 12 * PANGO_SCALE;
+
+static Util::StringTo<const char*> weight_map[] =
+	{{"THIN", "Thin"},
+	 {"EXTRALIGHT", "Extra-Light"},
+	 {"ULTRALIGHT", "Ultra-Light"},
+	 {"LIGHT", "Light"},
+	 {"DEMILIGHT", "Demi-Light"},
+	 {"SEMILIGHT", "Semi-Light"},
+	 {"BOOK", "Book"},
+	 {"REGULAR", "Regular"},
+	 {"NORMAL", ""},
+	 {"MEDIUM", "Medium"},
+	 {"DEMIBOLD", "Demi-Bold"},
+	 {"SEMIBOLD", "Semi-Bold"},
+	 {"BOLD", "Bold"},
+	 {"EXTRABOLD", "Extra-Bold"},
+	 {"BLACK", "Black"},
+	 {"HEAVY", "Heavy"},
+	 {nullptr, ""}};
+
+static Util::StringTo<const char*> width_map[] =
+	{{"ULTRACONDENSED", "Ultra-Condensed"},
+	 {"EXTRACONDENSED", "Extra-Condensed"},
+	 {"CONDENSED", "Condensed"},
+	 {"SEMICONDENSED", "Semi-Condensed"},
+	 {"NORMAL", ""},
+	 {"SEMIEXPANDED", "Semi-Expanded"},
+	 {"EXPANDED", "Expanded"},
+	 {"EXTRAEXPANDED", "Extra-Expanded"},
+	 {"ULTRAEXPANDED", "Ultra-Expanded"},
+	 {nullptr, ""}};
+
+static void
+ossAppend(std::ostringstream& oss, const std::string& str)
+{
+	if (str.empty()) {
+		return;
+	}
+	if (oss.tellp() != 0) {
+		oss << " ";
+	}
+	oss << str;
+}
 
 PFontPango::PFontPango()
 	: PFont(),
@@ -29,12 +73,12 @@ PFontPango::~PFontPango()
 }
 
 bool
-PFontPango::load(const std::string& font_name)
+PFontPango::load(const PFont::Descr& descr)
 {
 	unload();
 
-	_font_description =
-		pango_font_description_from_string(font_name.c_str());
+	std::string spec = descr.useStr() ? descr.str() : toNativeDescr(descr);
+	_font_description = pango_font_description_from_string(spec.c_str());
 
 	// set fallback values to get a "sane" font description
 	if (! pango_font_description_get_family(_font_description)) {
@@ -68,7 +112,7 @@ PFontPango::load(const std::string& font_name)
 			   / PANGO_SCALE
 			<< " height " << _height);
 	} else {
-		P_TRACE("failed to load Pango font " << font_name);
+		P_TRACE("failed to load Pango font " << descr.str());
 		pango_font_description_free(_font_description);
 		_font_description = nullptr;
 		return false;
@@ -89,6 +133,76 @@ PFontPango::unload()
 		g_object_unref(_font);
 		_font = nullptr;
 	}
+}
+
+std::string
+PFontPango::toNativeDescr(const PFont::Descr &descr) const
+{
+	std::ostringstream native;
+
+	uint size = 0;
+
+	const std::vector<PFont::DescrFamily>& families = descr.getFamilies();
+	std::vector<PFont::DescrFamily>::const_iterator fit(families.begin());
+	for (; fit != families.end(); ++fit) {
+		if (fit != families.begin()) {
+			native << ',';
+		}
+		native << fit->getFamily();
+
+		if (fit->getSize() > size) {
+			size = fit->getSize();
+		}
+	}
+
+	toNativeDescrAddStyle(descr, native);
+	toNativeDescrAddWeight(descr, native);
+	toNativeDescrAddStretch(descr, native);
+
+	// override size with size property
+	size = descr.getSize(size);
+	if (size != 0) {
+		ossAppend(native, std::to_string(size));
+	}
+
+	return native.str();
+}
+
+void
+PFontPango::toNativeDescrAddStyle(const PFont::Descr& descr,
+				  std::ostringstream& native) const
+{
+	const PFont::DescrProp* prop = descr.getProperty("slant");
+	if (prop == nullptr) {
+		return;
+	}
+	ossAppend(native, prop->getValue());
+}
+
+void
+PFontPango::toNativeDescrAddWeight(const PFont::Descr& descr,
+				   std::ostringstream& native) const
+{
+	const PFont::DescrProp* prop = descr.getProperty("weight");
+	if (prop == nullptr) {
+		return;
+	}
+
+	std::string weight = Util::StringToGet(weight_map, prop->getValue());
+	ossAppend(native, weight);
+}
+
+void
+PFontPango::toNativeDescrAddStretch(const PFont::Descr& descr,
+				    std::ostringstream& native) const
+{
+	const PFont::DescrProp* width = descr.getProperty("width");
+	if (width == nullptr) {
+		return;
+	}
+
+	std::string stretch = Util::StringToGet(width_map, width->getValue());
+	ossAppend(native, stretch);
 }
 
 /**

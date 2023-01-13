@@ -14,7 +14,13 @@ Closed issues
 New
 ---
 
-* Pango font support, Cairo and Xft backend support.
+* Font type detection. If a font type is missing, X11 will be used if the name
+  is in the form -misc-fixed-*-*-*-*-12-*-*-*-*-*-*-*. Else, depending on what
+  fonts pekwm supports, Pango, Xft or Xmb/X11 font will be used matching the
+  provided font name and properties. Font information is provided in
+  Xft/fontconfig format.
+* Pango font support, types PangoCairo and PangoXft using Cairo and Xft
+  backends respectively.
 * ${NAME} style variables now supported in the configuration, convenient
   when using resource names.
 * $@ and $& variables available in configuration files. $@ATOM_NAME
@@ -63,6 +69,8 @@ Removed
   to setlocale()
 * Remove TransientOnParent option, replaced by CenteredOnParent placement
   model.
+* Font specifications no longer support specifying the type of the font at
+  the end. (XFT#... works, ...#XFT no longer does)
 
 ### pekwm_bg
 

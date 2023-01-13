@@ -11,8 +11,9 @@
 
 #include "config.h"
 
-#include "PFont.hh"
 #include "Handler.hh"
+#include "PFont.hh"
+#include "RegexString.hh"
 
 #include <map>
 #include <string>
@@ -42,15 +43,20 @@ protected:
 	bool parseFontJustify(PFont *pfont, const std::string &str);
 	bool replaceFontCharset(std::string &font);
 
-private:
 	PFont *newFont(const std::string &font,
 		       std::vector<std::string> &tok, PFont::Type &type);
+
+private:
+	PFont *newFontX11(PFont::Type &type) const;
+	PFont *newFontAuto() const;
 	void parseFontOptions(PFont *pfont,
 			      std::vector<std::string> &tok);
 	void loadColor(const std::string &color, PFont::Color *font_color,
 		       bool fg);
 
 private:
+	/** Pattern matching X11/Xmb style font specifications. */
+	RegexString _x11_font_name;
 	/** If true, unspecified font type is X11 and not XMB. */
 	bool _default_font_x11;
 	/** If non empty, override charset in X11/XMB font strings. */

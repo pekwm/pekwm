@@ -1,13 +1,15 @@
 //
 // test_pekwm.cc for pekwm
-// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-#include "Compat.hh"
+#include "config.h"
 #include "test.hh"
+
+#include "Compat.hh"
 #include "Debug.hh"
 
 #include "test_Action.hh"
@@ -18,6 +20,10 @@
 #include "test_ManagerWindows.hh"
 #include "test_Observable.hh"
 #include "test_PFont.hh"
+#ifdef PEKWM_HAVE_PANGO
+#include "test_PFontPango.hh"
+#endif // PEKWM_HAVE_PANGO
+#include "test_PFontXmb.hh"
 #include "test_Theme.hh"
 #include "test_WindowManager.hh"
 #include "test_X11.hh"
@@ -55,6 +61,10 @@ main_tests(int argc, char *argv[])
 
 	// PFont
 	TestPFont testPFont;
+#ifdef PEKWM_HAVE_PANGO
+	TestPFontPango testPFontPango;
+#endif // PEKWM_HAVE_PANGO
+	TestPFontXmb testPFontXmb;
 
 	// Theme
 	TestTheme testTheme;

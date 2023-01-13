@@ -1,15 +1,23 @@
+//
+// PFontXmb.hh for pekwm
+// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
+//
+// This program is licensed under the GNU GPL.
+// See the LICENSE file for more information.
+//
+
 #ifndef _PEKWM_PFONT_XMB_HH_
 #define _PEKWM_PFONT_XMB_HH_
 
-#include "PFont.hh"
+#include "PFontX.hh"
 
-class PFontXmb : public PFont {
+class PFontXmb : public PFontX {
 public:
 	PFontXmb(void);
 	virtual ~PFontXmb(void);
 
 	// virtual interface
-	virtual bool load(const std::string &name);
+	virtual bool load(const PFont::Descr& descr);
 	virtual void unload(void);
 
 	virtual uint getWidth(const std::string &text, uint max_chars = 0);

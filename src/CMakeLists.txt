@@ -29,6 +29,7 @@ set(texture_SOURCES
     FontHandler.cc
     ImageHandler.cc
     PFont.cc
+    PFontX.cc
     PFontX11.cc
     PFontXmb.cc
     PImage.cc

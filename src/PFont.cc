@@ -39,19 +39,191 @@ PFont::Color::~Color(void)
 	}
 }
 
-// PFont
+// PFont::Descr
 
-//! @brief PFont constructor
-PFont::PFont(void) :
-	_height(0), _ascent(0), _descent(0),
-	_offset_x(0), _offset_y(0), _justify(FONT_JUSTIFY_LEFT)
+PFont::Descr::Descr(const std::string& str, bool use_str)
+	: _str(str),
+	  _use_str(use_str)
+{
+	parse(str);
+}
+
+PFont::Descr::~Descr()
 {
 }
 
-//! @brief PFont destructor
+const std::string&
+PFont::Descr::str() const
+{
+	return _str;
+}
+
+bool
+PFont::Descr::useStr() const
+{
+	return _use_str;
+}
+
+
+const std::vector<PFont::DescrFamily>&
+PFont::Descr::getFamilies() const
+{
+	return _families;
+}
+
+const std::vector<PFont::DescrProp>&
+PFont::Descr::getProperties() const
+{
+	return _properties;
+}
+
+const PFont::DescrProp*
+PFont::Descr::getProperty(const std::string& prop) const
+{
+	std::vector<PFont::DescrProp>::const_iterator it = _properties.begin();
+	for (; it != _properties.end(); ++it) {
+		if (pekwm::ascii_ncase_equal(it->getProp(), prop)) {
+			return &(*it);
+		}
+	}
+	return nullptr;
+}
+
+/**
+ * Get size from description, falling back to size if missing or invalid.
+ */
+uint
+PFont::Descr::getSize(uint size) const
+{
+	const PFont::DescrProp* prop = getProperty("size");
+	if (prop != nullptr) {
+		try {
+			size = std::stoi(prop->getValue());
+		} catch (std::invalid_argument&) { }
+	}
+	return size;
+}
+
+/**
+ * Parse font description, uses fontconfig style:
+ *
+ * <familiy>-<point size>[,<family>-<point-size>]:<p1>=<v1>:<p2>=<v2>
+ *
+ * All is optional, family, size and properties. Family Size pairs can
+ * repeat and are separated by ,.
+ *
+ */
+bool
+PFont::Descr::parse(const std::string& str)
+{
+	std::string families_str, props_str;
+	std::string::size_type props_start = str.find_first_of(':');
+	if (props_start == std::string::npos) {
+		families_str = str;
+	} else {
+		families_str = str.substr(0, props_start);
+		props_str = str.substr(props_start + 1);
+	}
+
+	bool ok = true;
+	std::vector<std::string>::iterator it;
+
+	std::vector<std::string> families;
+	Util::splitString(families_str, families, ",", 0, false, '\\');
+	for (it = families.begin(); it != families.end(); ++it) {
+		if (! parseFamilySize(*it)) {
+			ok = false;
+		}
+	}
+
+	std::vector<std::string> props;
+	Util::splitString(props_str, props, ":", 0, false, '\\');
+	for (it = props.begin(); it != props.end(); ++it) {
+		if (! parseProp(*it)) {
+			ok = false;
+		}
+	}
+
+	// Size can be specified both using -size and :size= property, set the
+	// property size on the families without a size set.
+	setSizeFromProp();
+
+	return ok;
+}
+
+bool
+PFont::Descr::parseFamilySize(const std::string& str)
+{
+	std::string family;
+	uint size = 0;
+
+	std::string::size_type pos = str.find_first_of('-');
+	if (pos == std::string::npos) {
+		family = str;
+	} else {
+		family = str.substr(0, pos);
+		try {
+			size = std::stoi(str.substr(pos + 1));
+		} catch (std::invalid_argument&) {
+			return false;
+		}
+	}
+
+	_families.push_back(PFont::DescrFamily(family, size));
+	return true;
+}
+
+bool
+PFont::Descr::parseProp(const std::string& str)
+{
+	std::string::size_type pos = str.find_first_of('=');
+	if (pos == std::string::npos) {
+		return false;
+	}
+
+	_properties.push_back(PFont::DescrProp(str.substr(0, pos),
+					       str.substr(pos + 1)));
+
+	return true;
+}
+
+void
+PFont::Descr::setSizeFromProp()
+{
+	const PFont::DescrProp *prop = getProperty("size");
+	if (prop == nullptr) {
+		return;
+	}
+
+	uint size;
+	try {
+		size = std::stoi(prop->getValue());
+	} catch (std::invalid_argument&) {
+		return;
+	}
+
+	std::vector<PFont::DescrFamily>::iterator it(_families.begin());
+	for (; it != _families.end(); ++it) {
+		if (it->getSize() == 0) {
+			it->setSize(size);
+		}
+	}
+}
+
+// PFont
+
+PFont::PFont(void) :
+	_height(0),
+	_ascent(0),
+	_descent(0),
+	_offset_x(0),
+	_offset_y(0),
+	_justify(FONT_JUSTIFY_LEFT)
+{
+}
+
 PFont::~PFont(void)
 {
-	PFont::unload();
 }
 
 /**

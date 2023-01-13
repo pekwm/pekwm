@@ -11,10 +11,10 @@
 #include "PFontXmb.hh"
 #include "X11.hh"
 
-const char* PFontXmb::DEFAULT_FONTSET = "fixed*";
+const char* PFontXmb::DEFAULT_FONTSET = "fixed";
 
 PFontXmb::PFontXmb(void)
-	: PFont(),
+	: PFontX(),
 	  _fontset(nullptr),
 	  _gc_fg(None),
 	  _gc_bg(None)
@@ -30,13 +30,14 @@ PFontXmb::~PFontXmb(void)
  * Loads Xmb font font_name
  */
 bool
-PFontXmb::load(const std::string &font_name)
+PFontXmb::load(const PFont::Descr& descr)
 {
 	unload();
 
-	std::string basename(font_name);
-	size_t pos = font_name.rfind(",*");
-	if (pos == std::string::npos || pos != (font_name.size() - 2)) {
+	std::string basename =
+		descr.useStr() ? descr.str() : toNativeDescr(descr);
+	size_t pos = basename.rfind(",*");
+	if (pos == std::string::npos || pos != (basename.size() - 2)) {
 		basename.append(",*");
 	}
 
@@ -56,7 +57,7 @@ PFontXmb::load(const std::string &font_name)
 	_fontset = XCreateFontSet(X11::getDpy(), basename.c_str(),
 				  &missing_list, &missing_count, &def_string);
 	if (! _fontset) {
-		USER_WARN("failed to create fontset for " << font_name);
+		USER_WARN("failed to create fontset for " << basename);
 		_fontset = XCreateFontSet(X11::getDpy(), DEFAULT_FONTSET,
 					  &missing_list, &missing_count,
 					  &def_string);
@@ -64,7 +65,7 @@ PFontXmb::load(const std::string &font_name)
 
 	if (_fontset) {
 		for (int i = 0; i < missing_count; ++i) {
-			USER_WARN(font_name << " missing charset "
+			USER_WARN(basename << " missing charset "
 				  <<  missing_list[i]);
 		}
 		XFreeStringList(missing_list);

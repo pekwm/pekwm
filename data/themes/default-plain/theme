@@ -29,7 +29,7 @@ Define = "BaseDecor" {
     Unfocused = "Empty"
   }
   Font {
-    Focused = "Sans:size=12#CENTER#XFT"
+    Focused = "Sans:size=12#CENTER"
   }
   FontColor {
     Focused = "#000000"
@@ -155,7 +155,7 @@ Harbour {
 Menu {
   Pad = "2 2 2 2"
   Focused {
-    Font = "Sans:size=12#XFT"
+    Font = "Sans:size=12"
     Background = "Empty"
     Item = "Solid #ffffff 1 0"
     Separator = "Solid #aaaaaa 0x1"
@@ -163,7 +163,7 @@ Menu {
     Text = "#000000"
   }
   Unfocused {
-    Font = "Sans:size=12#XFT"
+    Font = "Sans:size=12"
     Background = "Empty"
     Item = "Solid #cccccc 1 0"
     Separator = "Solid #999999 0x2"
@@ -171,7 +171,7 @@ Menu {
     Text = "#000000"
   }
   Selected {
-    Font = "Sans:size=12#XFT"
+    Font = "Sans:size=12"
     Background = "Empty"
     Item = "Solid #eeeeee"
     Arrow = "Solid #ff790c 4x4"
@@ -180,19 +180,19 @@ Menu {
 }
 
 CmdDialog {
-  Font = "Sans:size=12#CENTER#XFT"
+  Font = "Sans:size=12#CENTER"
   Texture = "Solid #ffffff"
   Text = "#000000"
 }
 
 Status {
-  Font = "Sans:size=12#CENTER#XFT"
+  Font = "Sans:size=12#CENTER"
   Texture = "Solid #ffffff"
   Text = "#000000"
 }
 
 WorkspaceIndicator {
-  Font = "Sans:size=12#XFT"
+  Font = "Sans:size=12"
   Background = "Solid #ffffff"
   Workspace = "Solid #cccccc"
   WorkspaceActive = "Solid #aaaaaa"

@@ -24,12 +24,15 @@ public:
 	virtual ~PFontXft(void);
 
 	// virtual interface
-	virtual bool load(const std::string &font_name);
+	virtual bool load(const PFont::Descr& descr);
 	virtual void unload(void);
 
 	virtual uint getWidth(const std::string &text, uint max_chars = 0);
 
 	virtual void setColor(PFont::Color *color);
+
+protected:
+	virtual std::string toNativeDescr(const PFont::Descr &descr) const;
 
 private:
 	virtual void drawText(PSurface *dest, int x, int y,

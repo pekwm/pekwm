@@ -1,6 +1,6 @@
 # winter pekwm theme, default for pekwm 0.3.X
 
-$FONT_NAME = "XFT#Sans:size=12"
+$FONT_NAME = "Sans:size=12"
 $FONT = "$FONT_NAME"
 $FONT_TITLE = "$FONT_NAME#Center#1 1"
 

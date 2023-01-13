@@ -27,15 +27,16 @@ PFontXft::~PFontXft(void)
  * Loads the Xft font font_name
  */
 bool
-PFontXft::load(const std::string &font_name)
+PFontXft::load(const PFont::Descr& descr)
 {
 	unload();
 
+	std::string spec = descr.useStr() ? descr.str() : toNativeDescr(descr);
 	_font = XftFontOpenName(X11::getDpy(), X11::getScreenNum(),
-				font_name.c_str());
+				spec.c_str());
 	if (! _font) {
 		_font = XftFontOpenXlfd(X11::getDpy(), X11::getScreenNum(),
-					font_name.c_str());
+					spec.c_str());
 	}
 
 	if (_font) {
@@ -90,6 +91,14 @@ PFontXft::getWidth(const std::string &text, uint max_chars)
 	}
 
 	return (width + _offset_x);
+}
+
+std::string
+PFontXft::toNativeDescr(const PFont::Descr& descr) const
+{
+	// using the raw string for Xft fonts as the format used is (should
+	// be) compatible with Xft specifications.
+	return descr.str();
 }
 
 /**

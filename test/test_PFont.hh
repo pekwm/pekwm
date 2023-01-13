@@ -21,11 +21,15 @@ public:
 	MockPFont(WMP *width_map);
 	virtual ~MockPFont(void);
 
-	virtual bool load(const std::string&) { return true; }
+	virtual bool load(const PFont::Descr&) { return true; }
+	virtual void unload() { }
 	virtual uint getWidth(const std::string& text, uint max_chars = 0);
 	virtual void setColor(PFont::Color*) { }
 
 private:
+	virtual std::string toNativeDescr(const PFont::Descr& descr) const {
+		return descr.str();
+	}
 	virtual void drawText(PSurface*, int, int, const std::string&,
 			      uint, bool) { }
 
@@ -66,6 +70,13 @@ public:
 	bool run_test(TestSpec spec, bool status);
 
 private:
+	// parse
+	static void testParseFamily();
+	static void testParseSize();
+	static void testParseProp();
+	static void testParseFull();
+
+	// trim
 	static void testTrimEndNoTrim(void);
 	static void testTrimEndTrim(void);
 	static void testTrimEndNoSpace(void);
@@ -85,12 +96,63 @@ TestPFont::~TestPFont(void)
 bool
 TestPFont::run_test(TestSpec spec, bool status)
 {
+	TEST_FN(spec, "parseFamily", testParseFamily());
+	TEST_FN(spec, "parseSize", testParseSize());
+	TEST_FN(spec, "parseProp", testParseProp());
+	TEST_FN(spec, "parseFull", testParseFull());
+
 	TEST_FN(spec, "trimEndNoTrim", testTrimEndNoTrim());
 	TEST_FN(spec, "trimEndTrim", testTrimEndTrim());
 	TEST_FN(spec, "trimEndNoSpace", testTrimEndNoSpace());
 	TEST_FN(spec, "trimEndUTF8", testTrimEndUTF8());
 	TEST_FN(spec, "trimMiddle", testTrimMiddle());
 	return status;
+}
+
+void
+TestPFont::testParseFamily()
+{
+	PFont::Descr descr("Sans", false);
+	ASSERT_EQUAL("family count", 1, descr.getFamilies().size());
+	ASSERT_EQUAL("family", "Sans", descr.getFamilies()[0].getFamily());
+	ASSERT_EQUAL("size", 0, descr.getFamilies()[0].getSize());
+	ASSERT_EQUAL("prop count", 0, descr.getProperties().size());
+}
+
+void
+TestPFont::testParseSize()
+{
+	PFont::Descr descr("-12", false);
+	ASSERT_EQUAL("family count", 1, descr.getFamilies().size());
+	ASSERT_EQUAL("family", "", descr.getFamilies()[0].getFamily());
+	ASSERT_EQUAL("size", 12, descr.getFamilies()[0].getSize());
+	ASSERT_EQUAL("prop count", 0, descr.getProperties().size());
+}
+
+void
+TestPFont::testParseProp()
+{
+	PFont::Descr descr(":weight=bold", false);
+	ASSERT_EQUAL("family count", 0, descr.getFamilies().size());
+	ASSERT_EQUAL("prop count", 1, descr.getProperties().size());
+	ASSERT_EQUAL("prop weight", "bold",
+		     descr.getProperty("weight")->getValue());
+}
+
+void
+TestPFont::testParseFull()
+{
+	PFont::Descr descr("Sans-10,Serif-20:weight=bold:slant=normal", false);
+	ASSERT_EQUAL("family count", 2, descr.getFamilies().size());
+	ASSERT_EQUAL("family", "Sans", descr.getFamilies()[0].getFamily());
+	ASSERT_EQUAL("size", 10, descr.getFamilies()[0].getSize());
+	ASSERT_EQUAL("family", "Serif", descr.getFamilies()[1].getFamily());
+	ASSERT_EQUAL("size", 20, descr.getFamilies()[1].getSize());
+	ASSERT_EQUAL("prop count", 2, descr.getProperties().size());
+	ASSERT_EQUAL("prop weight", "bold",
+		     descr.getProperty("weight")->getValue());
+	ASSERT_EQUAL("prop slant", "normal",
+		     descr.getProperty("slant")->getValue());
 }
 
 void
