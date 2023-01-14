@@ -7,7 +7,7 @@
 Development
 ===========
 
-Interested in pekwm? Want to keep up with the development? Good, we
+Interested in pekwm? Want to keep up with the development? Great, we
 can tell you how.
 
 **Table of Contents**
@@ -33,15 +33,15 @@ problem, you need other help than what we at IRC can provide.
 
 If you have a question, ask it. It doesn't help to go around shouting
 "can anyone help me". Help you with what? This will help the right
-people to take initial contact with you, saving your time and adding
+people to make initial contact with you, saving your time and adding
 less clutter to the channel.
 
-For same reasons, don't ask if we are alive or other meaningless
+For the same reasons, don't ask if we are alive or other meaningless
 questions leading to the real question. Don't ask if someone specific
 is around either. This is not the pager channel for you and your
 friends.
 
-Do not ask from one person. The fact is, even how much you think he or
+Do not ask for help from one person only. The fact is, even if you think he or
 she must be the only one who knows the answer, you are wrong. There's
 at least a handful of people lurking on the channel who could help
 you.
@@ -52,7 +52,7 @@ reading at least the FAQ will be considered rude.
 
 When asking a question, the answer more than often depends on the
 version of pekwm you use. Showing us the information the command
-**pekwm --info** gives will help us help you.
+**pekwm --info** gives, will help us help you.
 
 Do not expect people to answer your questions during the two minutes
 you stay in the channel. We can't sit there all the time waiting for
@@ -65,7 +65,7 @@ time. Repeating easily gets you ignored completely so it eats its own
 purpose. It's also considered rude, much like cutting in line.
 
 If people tell you to read the documentation, they have a good reason
-to do so. If they include an URL that helps you find the info quicker,
+to do so. If they include a URL that helps you find the info quicker,
 offer them your firstborn as a payback.
 
 Don't offend anyone. They will offend you back two times.
@@ -134,7 +134,7 @@ information.
 
 ### Gathering information about a pekwm crash
 
-If pekwm crash please provide a stack trace from the core dump, if no
+If pekwm crashes, please provide a stack trace from the core dump, if no
 core (or pekwm_wm.core). To ensure a core file is generated enable core
 dumps before starting pekwm:
 
@@ -160,7 +160,7 @@ report.
 pekwm, starting from 0.2.0 consists of the two programs pekwm and pekwm_wm.
 pekwm is a small application only responsible for starting pekwm_wm and
 ensuring it is restarted in case of a crash avoiding the X11 session to end.
-pekwm_wm, does all the heavy lifting and is the likely location for bugs.
+pekwm_wm does all the heavy lifting and is the likely location for bugs.
 
 When debugging, it can be helpful to start pekwm_wm in standalone mode. To
 do so use the **--standalone** option, which must be the first argument to
@@ -187,7 +187,7 @@ Claes Nästén (aka pekdon) <pekdon@gmail.com>
 
 Main developer- Writes code. Has a serious screenshot fetish.
 
-### Past devekopers
+### Past developers
 
 Andreas Schlick (aka ioerror)
 

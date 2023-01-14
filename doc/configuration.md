@@ -13,7 +13,7 @@ directory.
 
 **Table of Contents**
 
-1. [The Pekwm Common Syntax for Config Files](#basic-syntax)
+1. [The pekwm Common Syntax for Config Files](#basic-syntax)
 1. [The main config file](#the-main-config-file)
 1. [Configuring the menus](#configuring-the-menus)
 1. [Keyboard and Mouse Configuration](#keyboard-and-mouse-configuration)
@@ -50,7 +50,7 @@ Section = "Name" {
 Section = "Name" { Event = "Param" { Actions = "action parameters; action parameters; $VAR $_VARIABLE" } }
 ```
 
-You can usually modify the spacing and line breaks, but this is the
+One can usually modify the spacing and line breaks, but this is the
 "Correct" format, so the documentation will try to stick to it.
 
 Events can be combined into the same line by issuing a semicolon
@@ -71,7 +71,7 @@ The pekwm configuration parser supports the use of templates to reduce
 typing. Template support is currently available in autoproperties and
 theme configuration files. Template configuration is not fully
 compatible with the non-template syntax and thus requires activation
-to not break backwards compatibility. To enable template parsing start
+to not break backwards compatibility. To enable template parsing, start
 the configuration file with the following:
 
 ```
@@ -80,7 +80,7 @@ Require {
 }
 ```
 
-Defining templates is just like creating an ordinary section, but uses
+Defining templates is just like creating an ordinary section; however it uses
 the special name Define. Below is an example defining a template named
 NAME:
 
@@ -125,9 +125,9 @@ Section = "Name" {
 }
 ```
 
-### Variables In Pekwm Config Files
+### Variables In pekwm Config Files
 
-Pekwm config enables you to use both internal to pekwm variables, as
+pekwm config enables you to use both internal to pekwm variables, as
 well as global system variables. Internal variables are prefixed with
 a **$**, global variables with **$\_**.
 
@@ -319,7 +319,7 @@ all values should be placed inside quotes.
 | PlaceNew                       | boolean         | Toggles if new windows should be placed using the rules found in the Placement subsection, or just opened on the top left corner of your screen.                          |
 | ReportAllClients               | boolean         | Toggles if all clients in a frame or only the active one should be reported and thus displayed in pager applications etc.                                                 |
 | TrimTitle                      | string          | This string contains what pekwm uses to trim down overlong window titles. If it's empty, no trimming down is performed at all.                                            |
-| FullscreenAbove                | boolean         | Toggles restacking of windows when going to and from fullscreen mode. Windows are restacked to the top of all windows when going to fullscreen and to the top of their layer when being restored from fullscreen. However, if another window is raised it will move fullscreen windows back to its layer. Next time a fullscreen window is raised, it's back to be on top of all windows again. |
+| FullscreenAbove                | boolean         | Toggles re-stacking of windows when going to and from fullscreen mode. Windows are re-stacked to the top of all windows when going to fullscreen and to the top of their layer when being restored from fullscreen. However, if another window is raised it will move fullscreen windows back to its layer. Next time a fullscreen window is raised, it's back to be on top of all windows again. |
 | FullscreenDetect               | boolean         | Toggles detection of broken fullscreen requests setting clients to fullscreen mode when requesting to be the size of the screen. Default true.                            |
 | HonourRandr                    | boolean         | Toggles reading of XRANDR information, this can be disabled if the display driver gives both Xinerama and Randr information and only of the two is correct. Default true. |
 | HonourAspectRatio              | boolean         | Toggles if pekwm respects the aspect ratio of clients (XSizeHints). Default true.                                                                                         |
@@ -379,7 +379,7 @@ Placement Models:
 
 | Keyword        | Type    | Description                                                                                                                         |
 |----------------|---------|-------------------------------------------------------------------------------------------------------------------------------------|
-| DisplayIcons   | boolean | Defines wheter menus should render their icons. Default true.                                                                       |
+| DisplayIcons   | boolean | Defines whether menus should render their icons. Default true.                                                                       |
 | FocusOpacity   | int     | Sets the opacity/transparency for focused Menus. A value of 100 means completely opaque, while 0 stands for completely transparent. |
 | UnfocusOpacity | int     | Sets the opacity/transparency for unfocused Menus.                                                                                  |
 
@@ -415,8 +415,8 @@ Placement Models:
 ### Screen Subsections
 
 There are two subsections in the screen section - Placement and
-UniqueNames. Placement can optionally have its own subsection. Sounds
-hard? It's not! It's really quite simple.
+UniqueNames. Placement can optionally have its own subsection. Sound
+hard? It's really not! It's actually quite simple.
 
 We'll start off with Placement. Placement has two options: Model, and
 a 'Smart' subsection. Model is very simple, it's simply a list of
@@ -425,7 +425,7 @@ MouseCentered". Secondly, there's a Smart section, which describes how
 pekwm computes where to place a new window in smart mode.
 
 The second subsection, UniqueNames, lets you configure how pekwm
-should handle similar client names. Pekwm can add unique number
+should handle similar client names. pekwm can add unique number
 identifiers to clients that have the same title so that instead of
 "terminal" and "terminal", you would end up with something like
 "terminal" and "terminal \[2\]".
@@ -445,7 +445,7 @@ defined in [Common Syntax](#common-syntax). There aren't many possible
 options, and they're all either within the main menu, or within a
 submenu. This is all handled by a single file.
 
-As addition to the default menu types, RootMenu and WindowMenu, user
+As an addition to the default menu types, RootMenu and WindowMenu, a user
 can define any number of new menus following the same syntax.
 
 Here's an example ~/.pekwm/menu file, where we have the usual RootMenu
@@ -458,7 +458,7 @@ MyOwnMenuName:
 # Variables
 $TERM = "xterm -fn fixed +sb -bg black -fg white"
 
-RootMenu = "Pekwm" {
+RootMenu = "pekwm" {
     Entry = "Term" { Actions = "Exec $TERM" }
     Entry = "Emacs" { Icon = "emacs.png"; Actions = "Exec $TERM -title emacs -e emacs -nw" }
     Entry = "Vim" { Actions = "Exec $TERM -title vim -e vi" }
@@ -472,7 +472,7 @@ RootMenu = "Pekwm" {
 
     Separator {}
 
-    Submenu = "Pekwm" {
+    Submenu = "pekwm" {
         Entry = "Reload" { Actions = "Reload" }
         Entry = "Restart" { Actions = "Restart" }
         Entry = "Exit" { Actions = "Exit" }
@@ -543,7 +543,7 @@ Adds a separator to the menu.
 
 Exec
 
-Exec makes pekwm to execute the command that follows it.
+Exec makes pekwm execute the command that follows it.
 
 Reload
 
@@ -583,7 +583,7 @@ means you can't have one menu called 'MyMostUsedApps' and one called
 Lets see that example again, simplified:
 
 ```
-RootMenu = "Pekwm" { ... }
+RootMenu = "pekwm" { ... }
 WindowMenu = "Window Menu" { ... }
 MyOwnMenuName = "Most used apps" {
 	Entry = "Term" { Actions = "Exec $TERM" }
@@ -755,7 +755,7 @@ Other {
 }
 ```
 
-Below are defined the different fields. The actions themselves can be
+Below you will find, the different fields defined. The actions themselves can be
 found in the [Keys/mouse actions](actions.md#actions) section.
 
 **'Where' fields:**
@@ -790,7 +790,7 @@ On the various menus excluding their titlebars.
 
 Other
 
-On everything else that doesn't have it's own section.
+On everything else that doesn't have its own section.
 
 **'Event' fields:**
 
@@ -839,7 +839,7 @@ Definitions work like this:
 > 
 > Modifiers and mouse buttons can be defined as "Any" which is useful
 > for Enter and Leave events. Any also applies as none. Motion events
-> have a threshold argument. This is the number of pixels you must
+> have a threshold argument; this is the number of pixels you must
 > drag your mouse before they begin to work. Multiple actions can be
 > defined for a single user action. Example:
 
@@ -900,7 +900,7 @@ KeyPress = "optional modifiers like mod1, ctrl, etc and the key" {
 }
 ```
 
-Multiple actions can be given for one keypress. The actions are
+Multiple actions can be drawn from one keypress. The actions are
 separated from each other with a semicolon:
 
 ```
@@ -1047,7 +1047,7 @@ files. It's a simple shell script that's run on pekwm
 startup. Therefore, to run, it needs to be set executable with **chmod
 +x ~/.pekwm/start**.
 
-Why anyone would use start rather than just use their ~/.xinitrc file?
+Why would anyone use start rather than just use their ~/.xinitrc file?
 Well, the answer is, the start file is executed during the pekwm
 initialization phase - therefore, it gets re-executed when you issue a
 pekwm 'restart'.

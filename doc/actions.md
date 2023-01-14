@@ -18,7 +18,7 @@ Actions
 Keys and Mouse
 --------------
 
-Here is the list of all possible actions and attributes. First table
+The following is a list of all possible actions and attributes. First table
 shows all toggleable attributes. Toggleable attributes are controlled
 using the _Set_, _Unset_ and _Toggle_ actions. Examples below.
 
@@ -33,8 +33,8 @@ using the _Set_, _Unset_ and _Toggle_ actions. Examples below.
 
 **Maximized (bool bool)**
 
-If a frame is maximized. Two parameters, first one decides if the
-frame is maximized horizontally, the second if it is maximized
+If a frame is maximized. Two parameters are involved; the first one decides if
+the frame is maximized horizontally, the second if it is maximized
 vertically.
 
 **Fullscreen**
@@ -53,7 +53,7 @@ If a frame should be sticky so it appears on every workspace.
 
 **AlwaysOnTop**
 
-If frame should always be on top of other frames.
+If a frame should always be on top of other frames.
 
 **AlwaysBelow**
 
@@ -67,11 +67,11 @@ decorname that is set/toggled. Unset just removes the last
 
 **DecorBorder**
 
-If frame should have borders.
+If a frame should have borders.
 
 **DecorTitlebar**
 
-If frame should have a titlebar.
+If a frame should have a titlebar.
 
 **Iconified**
 
@@ -79,7 +79,7 @@ If a frame should be iconified.
 
 **Opaque**
 
-If the frame should be fully opaque (ie: disable the opacity setting).
+If a frame should be fully opaque (ie: disable the opacity setting).
 
 **Tagged (bool)**
 
@@ -156,7 +156,7 @@ Toggles toggleable attributes.
 **MaxFill (bool bool)**
 
 Acts much like Maximize, but considers other frames while doing
-it. Instead of filling the whole screen, it only fills to the borders
+so. Instead of filling the whole screen, it only fills to the borders
 of neighboring frames. Takes two parameters, first one decides if the
 frame is maxfilled horizontally, the second if it should be maxfilled
 vertically.
@@ -204,20 +204,20 @@ available space.
 
 **Raise (bool)**
 
-Raises a frame above other frames. If bool is true raises a frame and
+Raises a frame above other frames. If bool is true, it raises a frame and
 all of the currently active clients child/parent windows above other
 frames.
 
 **Lower (bool)**
 
-Lowers a frame under other frames. If bool is true lowers a frame and
+Lowers a frame under other frames. If bool is true, it lowers a frame and
 all of the currently active clients child/parent windows under other
 frames.
 
 **ActivateOrRaise**
 
-If the frame this action is used on is not focused, focuses it. If the
-frame is focused, raises it. If used on a groups titlebar, activates
+If the frame this action is used on, is not focused, this will focus it. If the
+frame is focused, it will raise it. If used on a groups titlebar, it activates
 the selected client of the group.
 
 **ActivateClientRel (int)**
@@ -272,21 +272,21 @@ Activates the keyboard move and resize.
 
 **GroupingDrag (bool)**
 
-Drags windows in and out of frames, if parameter is true dragged
+Drags windows in and out of frames, if parameter is true, dragged
 windows go in the background of a frame.
 
 > Mouse-specific
 
 **WarpToWorkspace (string)**
 
-Makes a dragged window warp to specified workspace when a it's moved
+Makes a dragged window warp to specified workspace when it's moved
 over a screen edge. String is one:
 
 * _next_, send to the next workspace, if on last workspace, wrap to the first one.
 * _prev_, send to the previous workspace, if on first workspace, wrap to the last one.
 * _left_, send to the previous workspace
 * _right_, send to the next workspace
-* _int_, integer is a workspace number to send to to
+* _int_, integer is a workspace number to send to
 
 > ScreenEdge specific mouse binding
 
@@ -294,11 +294,11 @@ over a screen edge. String is one:
 
 Moves the frame to the same relative position on another head. The
 window is shrunk to fit if it is larger than the new head, or resized
-if it's fullscreen or maximized.
+if it is fullscreen or maximized.
 
 If head is not a number, it must be the name of the head (only if
 Randr is supported, and special name "primary" is also accepted) or
-the following keywords to select the head relative to the current
+the following keywords should be used to select the head relative to the current
 head: _left_, _right_, _up_ and _down_.
 
 **MoveToEdge (string)**
@@ -331,7 +331,7 @@ Focuses the next frame. String is one of:
 * _neverraise_, do not raise the selected client (unless it's iconified)
 * _tempraise_, raise the selected client but keep the order of the other windows
 
-If boolean is true, also goes thru iconified windows. Defaults to
+If boolean is true, also goes through iconified windows. Defaults to
 false.
 
 **PrevFrame (string boolean)**
@@ -343,12 +343,12 @@ Focuses the previous frame. String is:
 * _neverraise_, do not raise the selected client (unless it's iconified)
 * _tempraise_, raise the selected client but keep the order of the other windows
 
-If boolean is true, also goes thru iconified windows. Defaults to
+If boolean is true, this also goes through iconified windows. Defaults to
 false.
 
 **NextFrameMRU (string boolean)**
 
-Focuses the next frame so that the last focused windows will get
+Focuses the next frame such that the last focused windows will get
 switched to first. String is:
 
 * _alwaysraise_, raise windows while toggling them
@@ -356,7 +356,7 @@ switched to first. String is:
 * _neverraise_, do not raise the selected client (unless it's iconified)
 * _tempraise_, raise the selected client but keep the order of the other windows
 
-If boolean is true, also goes thru iconified windows. Defaults to
+If boolean is true, also goes through iconified windows. Defaults to
 false.
 
 **PrevFrameMRU (string boolean)**
@@ -369,14 +369,14 @@ switched to first. String is:
 * _neverraise_, do not raise the selected client (unless it's iconified)
 * _tempraise_, raise the selected client but keep the order of the other windows
     
-If boolean is true, also goes thru iconified windows. Defaults to
+If boolean is true, also goes through iconified windows. Defaults to
 false.
 
 **FocusWithSelector string (string...)**
 
 Focus window based on the provided selectors, if a selector does not find
-a window the next will be used until a window is found or all selectors have
-been tried.
+a window the next selector will be used until a window is found or all
+selectors have been tried.
 
 String is:
 
@@ -399,15 +399,15 @@ defaults to True. String is one of:
 
 **AttachMarked**
 
-Attachs all marked clients to the current frame.
+Attaches all marked clients to the current frame.
 
 **AttachClientInNextFrame**
 
-Attachs client to the next frame.
+Attaches client to the next frame.
 
 **AttachClientInPrevFrame**
 
-Attachs client to the previous frame.
+Attaches client to the previous frame.
 
 **FindClient (string)**
 
@@ -421,7 +421,7 @@ parameter.
 
 **Detach**
 
-Detach the current client from its frame.
+Detaches the current client from its frame.
 
 **SendToWorkspace (string) [keepfocus]**
 
@@ -433,13 +433,13 @@ Sends a frame to the specified workspace. String is one of:
 * _right_, send to the next workspace
 * _prevv_ send to the previous (vertical) workspace, if on last workspace, wrap to the first one.
 * _up_, send to the previous (vertical) workspace.
-* _nextv_, sed to the next (vertical) workspace, if on last workspace, wrap to the first one.
+* _nextv_, send to the next (vertical) workspace, if on last workspace, wrap to the first one.
 * _down_
 * _last_, send to workspace you last used before the current
-* _int_, integer is a workspace number to send to to
+* _int_, integer is a workspace number to send to
 
 If the second argument is "keepfocus", the window remains focused in
-the new workspace. Default no keepfocus.
+the new workspace. Default is no keepfocus.
 
 **GotoWorkspace (string) [bool]**
 
@@ -507,8 +507,8 @@ the initial value of the dialog.
 **ShowSearchDialog (string)**
 
 Shows the search dialog that can be used to search for clients and
-when selected the client will be activated. Takes an optional string
-as a parameter. This string will then be pre-filled as the initial
+when selected, the client will be activated. Takes an optional string
+as a parameter which will then be pre-filled as the initial
 value of the dialog.
 
 **ShowMenu (string bool)**
@@ -672,7 +672,7 @@ Erases all characters after the current cursor position.
 
 **Exec**
 
-Finishes input and executes the the data
+Finishes input and executes the data
 
 **Close**
 
@@ -682,13 +682,13 @@ Closes an InputDialog.
 
 **CursNext**
 
-Moves InputDialog cursor one characer space to right.
+Moves InputDialog cursor one character space to right.
 
 >InputDialog-specific keybinding
 
 **CursPrev**
 
-Moves InputDialog cursor one characer space to left.
+Moves InputDialog cursor one character space to left.
 
 >InputDialog-specific keybinding
 

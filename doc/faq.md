@@ -51,7 +51,7 @@ might know as a dock or a wharf. The harbour is not a KDE/GNOME
 systray for notification icons. If you want notification icons in the
 harbour, you need to find a dockapp that does this for you.
 
-If a dockapp doesn't go into the harbour even you have it enabled at
+If a dockapp doesn't go into the harbour even if you have it enabled at
 compile time, you should see if the application has an option to start
 it "withdrawn".
 
@@ -69,7 +69,7 @@ The idea is to unpack/uncompress the theme file you downloaded into
 some directory. In this case, we will unpack it to _~/.pekwm/themes_,
 which is the standard location for user installed themes.
 
-In simple, first make sure the themes directory exist, and if not,
+For simplicity, first ensure the themes directory exist, and if not,
 make it by issuing the command:
 
 ```
@@ -92,16 +92,16 @@ non-standard location, you'll have to manually edit
 _~/.pekwm/config_.
 
 In the top of this file there is a section named _"Files {}"_. In this
-section, there is a line that says something like:
+section, there is a line that says something along the lines of:
 
 ```
 Theme = "/usr/local/share/pekwm/themes/minimal"
 ```
 
 Edit this line to point to the directory you installed the
-theme. Restart pekwm and you're set.
+theme. Restart pekwm and you're all set.
 
-### I upgraded pekwm and now ......... won't work!
+### I upgraded pekwm and now ......... it won't work!
 
 pekwm has not yet achieved a freeze on it's configuration file
 syntax. And as pekwm is an actively developed application, there
@@ -121,7 +121,7 @@ This will result in new fresh configuration files being copied in. If
 this helps, your configuration files weren't compatible with the new
 version of pekwm.
 
-_Check NEWS.md_ - If something configurable wise has been changed, it
+_Check NEWS.md_ - If something configuration wise has been changed, it
 has been documented in the NEWS.md for the release.This is a helpful
 resource when you want to convert your old configuration files to a
 newer configuration format.
@@ -147,11 +147,11 @@ If you see many pekwm executables laying around, maybe one in
 _/usr/bin_ and one in _/usr/local/bin_, you might be starting a wrong
 version pekwm. This might happen when you for example, install a
 premade pekwm package for your distribution and later install pekwm
-from source yourself. The safe way is to remove all these pekwm
+from source yourself. For safety purposes, remove all these pekwm
 instances and either re-apply the package or do **make install** again
-in the source. You can also, of course, go thru every pekwm binary
+in the source. You can also, of course, go through every pekwm binary
 with the --version parameter to find the right executable to
-keep. Note to give the full path to the executable when querying for
+keep. Remember to give the full path to the executable when querying for
 the version (**/usr/local/bin/pekwm --version**).
 
 ### Can I turn off sloppy focus option?
@@ -202,7 +202,7 @@ never have to see this question in IRC anymore.
 
 pekwm now comes with a background setting tool, _pekwm_bg_ which is
 integrated with the themes and will set the background on theme load
-if the theme has a backgorund specified.
+if the theme has a backgrund specified.
 
 pekwm_bg can be run independent of pekwm to set the background, see
 the [pekwm_bg manual page](pekwm_bg.1.md) for more details.
@@ -210,10 +210,10 @@ the [pekwm_bg manual page](pekwm_bg.1.md) for more details.
 ### A theme I tested doesn't work!
 
 pekwm is an ongoing process. This means the theme file format has gone
-thru considerable amounts of changes. Some of these changes are
-backwards compatible, some are not. You have hit a theme with too old
-or too new theme syntax for your copy of pekwm. Nothing can be done
-unless someone who knows the differences between theme formats owns
+thrpugh considerable amounts of changes. Some of these changes are
+backwards compatible, some are not. Chances are, you may have hit a theme with
+too old or too new theme syntax for your copy of pekwm. Nothing can be done
+unless someone who knows the differences between theme formats owes
 you a favour and agrees to edit it out for you.
 
 pekwm shouldn't refuse to start again after a faulting theme test, but
@@ -230,12 +230,12 @@ Files {
 ```
 
 Now, all you need to do is make the path point to any theme you know
-is working. The default theme is usually a safe bet. After edited and
-saved, (re)start pekwm.
+is working. The default theme is usually a safe bet. After it has been edited
+and saved, (re)start pekwm.
 
 ### What desktop pagers work with pekwm?
 
-For general use any NETWM compliant pager should
+For general use, any NETWM compliant pager should
 do. [IPager](http://www.useperl.ru/ipager/index.en.html),
 [screenpager](http://zelea.com/project/screenpager/introduction.html),
 rox-pager, fbpanel's pager, obpager, gai-pager, gnome's pager, kde's
@@ -287,8 +287,8 @@ semiautomatic pekwm menus!
 The default requires you to click because of dynamic menus. While
 reasonably fast, they can sometimes take a second or two to be
 generated depending on the script behind it. Browsing the menu tree
-can at such times become more annoying, specially on a slower machine,
-than having to do that extra click. There you have it, our reasoning
+can become more annoying at such times, specially on a slower machine,
+than having to perform that extra click. There you have it, our reasoning
 and the solution for if you don't like it.
 
 ### My keyboard doesn't have the window keys, the default key bindings suck!
@@ -311,7 +311,7 @@ Remember to:
 chmod +x ~/.pekwm/start
 ```
 
-Then restart pekwm. Your caps lock key should now act as Mod4. Oh joy.
+Then restart pekwm. Your caps lock key should now act as Mod4. Oh joy!
 
 ### Where's my Unicode support?
 
@@ -370,7 +370,7 @@ Xinerama and RANDR form. The RANDR information given by the driver is
 in the form of one large screen, the Xinerama is divided up into
 multiple heads. To work around this the HonourRandr option has been
 introduced in the Screen section of the main configuration file. Set
-it to False making pekwm only listen on the Xinerama information.
+it to False, making pekwm only listen on the Xinerama information.
 
 ```
 Screen {
@@ -394,7 +394,7 @@ pekwm
 
 pekwm 0.2.0 and later scrolling should work with the default
 configuration, however if there are **Client** bindings in the mouse
-file for buttons 4 and 5 without any modifiers set the above trick
+file for buttons 4 and 5 without any modifiers, setting the above trick
 with GDK_CORE_DEVICE_EVENTS might still be required.
 
 ### Cannot switch back to fullscreen windows with NextFrame or similar commands
@@ -415,17 +415,18 @@ argument to true to include iconified windows as well, e.g.
 
 ### What if I must change system-wide configuration files location?
 
-By default pekwm installs its configuration files in /usr/etc/pekwm. However this
-can be overridden if your distro defaults its system-wide configuration files in
-a different location using the option -DCMAKE_INSTALL_SYSCONFDIR=/foo. See
-[overview.md](overview.md#compiling-pekwm) for configure options, building and installing.
+By default pekwm installs its configuration files in /usr/etc/pekwm. However
+this can be overridden if your distro defaults its system-wide configuration
+files in a different location using the option -DCMAKE_INSTALL_SYSCONFDIR=/foo.
+See [overview.md](overview.md#compiling-pekwm) for configure options, building
+and installing.
 
 ### Clicking on the screen edges does not work!?
 
 By default pekwm has the screen edges configured to react to mouse clicks and
 dragging windows warps them to a new workspace.
 
-If configuring pekwm with a single workspace the edges seemingly does nothing.
+If configuring pekwm with a single workspace the edges seemingly do nothing.
 
 They can be disabled by setting _EdgeSize_ to _0_ in ~/.pekwm/config
 under the Screen section.

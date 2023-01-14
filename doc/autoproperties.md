@@ -36,7 +36,7 @@ Syntax](#common-syntax). This file can become rather complicated, but
 it's also the most powerful of any of pekwm's config files.
 
 The one important thing to remember is the Property tag. This
-identifier tells us where to apply properties. It means which windows
+identifier tells us where to apply properties; meaning which windows
 to apply it on. To find out the two terms, use **xprop WM\_CLASS** and
 click on your window. Below you'll find a bash/zsh function which will
 give you the correct string for this file. You can also specify a
@@ -51,7 +51,7 @@ propstring () {
 }
 ```
 
-Autoproperties have an both an old and new style matching clients. The
+Autoproperties have both an old and new style matching clients. The
 new style was introduced to support using configuration template
 overwriting.
 
@@ -91,11 +91,11 @@ Property = "^gaim,^Gaim" {
 ```
 
 pekwm can rewrite window titles. This is done in a separate TitleRules
-section, where one defines properties on which clients to use the
-rewriting and then a regexp rule of what to do to that clients
+section, where one defines properties regarding which clients to use the
+rewriting on and then a regexp rule of what to do to that clients
 title. These rules do not affect the actual WM\_NAME string. You can
-use Role and Title keywords to narrow down the clients the titlerule
-applies to. A simple rule that would change "Title: this is the title"
+use Role and Title keywords to narrow down the clients to whom the titlerule
+applies. A simple rule that would change "Title: this is the title"
 to "this is the title" looks like this:
 
 ```
@@ -123,13 +123,13 @@ It's also possible to decide the order of applications that start in
 the harbour. As with TitleRules and DecorRules, there is it's own
 separate section for this purpose called Harbour. Position is a signed
 int and order goes: "1 2 3 0 0 0 -3 -2 -1", and so on. That looked
-cryptic. Worry not. Basically, a Position number of 0 means the
+cryptic. Not to worry. Basically, a Position number of 0 means the
 application will be placed in the middle. If the number is positive,
 the application will be placed before the zero-positioned
 applications. If the number is negative, the applications will be
 placed after the zero-position ones. So the positive numbered show up
 first in your harbour, then the zero numbered, and after the zeros
-come the negatively numbered applications. I hope that is clear, the
+come the negatively numbered applications. I hope this is clear, as the
 next part is tricky.
 
 The larger the value of the base number the
@@ -151,7 +151,7 @@ Harbour {
 }
 ```
 
-If you want certain autoproperties to be only applied when you are on
+If you want certain autoproperties to be applied only when you are on
 a specific workspace, you can add a workspace section. The following
 example sets an autoproperty that removes the border and titlebar from
 xterm on the second and third workspace. Please keep in mind that we
@@ -222,7 +222,7 @@ Harbour {
 > with no experience with them. A good rule of thumb is: "Anywhere
 > you'd think to use '\*', use '.\*'". Also, '^' matches the beginning
 > of a string, '$' matches the end, and '.' is any single
-> character. Pekwm has some special flags to that modifies regular
+> character. Pekwm has some special flags that modify regular
 > expression matching. Specifying regular expressions in the form
 > /pattern/flags allow flags to be set. The supported flags are ! for
 > inverting the match and i for case insensitive matches. Explaining
@@ -266,12 +266,12 @@ A list of actions to allow/deny performing on a client:
     
 **ApplyOn (string)**
 
-A list of conditions of when to apply this autoprop (so be sure to
-include this in your property), consisting of:
+A list of conditions outlining when to apply this autoprop (so be sure to
+include this in your property):
 
 * _New_, applies when the application first starts)
 * _Reload_, apply when pekwm's config files are reloaded)
-* _Start_, apply if window already exists before pekwm starts/restarts. Note when using grouping Start will not take workspaces in account)
+* _Start_, apply if window already exists before pekwm starts/restarts. Note: when using grouping Start will not take workspaces in account)
 * _Transient_, apply to Transient windows as well as normal windows. Dialog boxes are commonly transient windows
 * _TransientOnly_, apply to Transient windows only. Dialog boxes are commonly transient windows
 * _Workspace_, apply when the window is sent to another workspace
@@ -283,7 +283,7 @@ Window starts with a border
 **CfgDeny (string)**
 
 A list of conditions of when to deny things requested by the client
-program, consisting of
+program:
 
 * _Above_, ignore client request to always place window above other windows)
 * _ActiveWindow_, ignore client requests for showing and giving input focus)
@@ -331,13 +331,13 @@ Window starts in fullscreen mode
 
 **Group (string)**
 
-Defines the name of the group. Also the section that contains all the
+Defines the name of the group, in addition to containing all the
 grouping options. They are:
 
-* _Behind (bool)_, if true makes new clients of a group not to become the active one in the group.
-* _FocusedFirst (bool)_, if true and there are more than one frame where the window could be autogrouped into, the currently focused frame is considered the first option.
-* _Global (bool)_, if true makes new clients start in a group even if the group is on another workspace or iconified.
-* _Raise (bool)_, if true makes new clients raise the frame they open in.
+* _Behind (bool)_, if true, makes new clients of a group not become the active one in the group.
+* _FocusedFirst (bool)_, if true, and there is more than one frame where the window could be autogrouped into, the currently focused frame is considered the first option.
+* _Global (bool)_, if true, makes new clients start in a group even if the group is on another workspace or iconified.
+* _Raise (bool)_, if true, makes new clients raise the frame they open in.
 * _Size (integer), how many clients should be grouped in one group.
 
 **Icon (string)**
@@ -352,7 +352,7 @@ Window starts Iconified
 
 Windows layer. Makes the window stay under or above other
 windows. Default layer is "Normal". Possible parameters are (listed
-from the bottommost to the uppermost):
+from the bottommost to the topmost):
 
 * _Desktop_
 * _Below_
@@ -395,7 +395,7 @@ Window starts Shaded
 **Skip (string)**
 
 A list of situations when to ignore the defined application and let
-the user action skip over it, consisting of
+the user action skip over it, consisting of:
 
 * _Snap_, do not snap to this window while moving windows)
 * _Menus_, do not show this window in pekwm menus other than the icon menu)
@@ -452,7 +452,7 @@ dialog windows", and "For any window matching '.\*,^Sylpheed', group
 in the 'netwin' group. Apply on pekwm start/reload and when new
 windows matching this property are opened, also include possible
 dialog windows to the group. Open the window to the group but do not
-bring it upmost automatically".
+raise it automatically".
 
 To group unlimited windows together, use size 0.
 

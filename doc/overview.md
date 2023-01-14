@@ -19,28 +19,26 @@ be usable, even without a mouse.
 An Introduction to pekwm
 ------------------------
 
-pekwm, a window manager written by Claes Nästén that was once based on
+pekwm, a window manager written by Claes Nästén, was once based on
 the aewm++ window manager, but has since evolved enough that it no
-longer resembles aewm++ at all. It also has an expanded feature-set,
+longer resembles aewm++ at all. pekwm also has an expanded feature-set,
 including window grouping (similar to ion, pwm, or fluxbox), auto
 properties, Xinerama support and keygrabber that supports keychains,
 and much more.
 
 ### Why pekwm?
 
-"Why make another window manager?", some ask. This may confuse some
-people, but the best answer is "Why not?". There are arguments out
-there that it's better to have a single standard desktop environment,
-so that our mothers can find their way around, but in all honestly, if
-most of us wanted the same environment as our mothers, we probably
-wouldn't be reading this anyway. The same can also be applied to Your
-sister, your roommate, your wife, even your cat.
+"Why make another window manager?", some ask. I say,"Why not?". Some of you may
+argue that it's better to have a single standard desktop environment, so that
+our mothers can find their way around, but in all honesty, if most of us wanted
+the same environment as our mothers, we probably wouldn't be reading this
+anyway. The same can also be applied to your sister, your roommate, your wife,
+even your cat...
 
-"Why should I use pekwm?", others ask. Nobody ever said you
-should. However, we use it. And you're welcome to as well. You should
-use the environment most suited to you. For a better answer to this
-question, Check out the [pekwm Features](#pekwm-features)
-section below.
+"Why should I use pekwm?", others may ask. Well, you don't have to! However, we
+use it, and you're welcome to try it out as well. As always,you should use the
+environment most suited to you. For a more comprehensive answer to this
+question, check out the [pekwm Features](#pekwm-features) section below.
 
 ### pekwm Features
 
@@ -60,9 +58,9 @@ Here's a short list of some of the features included in pekwm:
 Getting pekwm
 -------------
 
-Now that you've decided to try it out, you need to get it. You're left
-with two options. The first is to download and compile the source, and
-the second is finding a pre-compiled package.
+Now that you've decided to try it out, you need to know how to get it, for which
+there are two options. The first is to download and compile the source, and the
+second is finding a pre-compiled package.
 
 ### Getting the pekwm source
 
@@ -70,25 +68,25 @@ The source code is available from Github at https://github.com/pekdon/pekwm.
 
 Release tabralls are named pekwm-0.2.0.tar.gz and
 pekwm-0.2.0.tar.bz2. Although it doesn't matter which you get, keep in
-mind that the .bz2 is smaller.
+mind that the .bz2 is smaller in comparison.
 
-Generally pekwm from GIT is stable enough for everyday use and should
-in most cases be a safe bet to get all the latest functionality.
+Generally speaking, pekwm from GIT is stable enough for everyday use and should,
+in most cases, be a safe bet to get all the latest functionality.
 
 ### Getting prebuilt pekwm packages
 
 pekwm is available as a package on many Linux and BSD distributions,
-see your distribution for details.
+for further details, refer to your distribution.
 
 Compiling pekwm
 ---------------
 
-This chapter will help you get pekwm compiled.
+This chapter will help you compile pekwm.
 
 ### Unpacking the Archive
 
 The first step to compiling pekwm is to unpack the archive. Unpacking
-it depends on which version you downloaded:
+depends on which version you downloaded:
 
 ```
 tar -zxvf pekwm-0.2.0.tar.gz
@@ -103,8 +101,8 @@ tar -zjvf pekwm-0.2.0.tar.bz2
 > also works for the .tar.gz version using **gzip -dc** or **gzip
 > -d**.
 
-The 'v' options are optional, they show you the filenames as they're
-being extracted. at this point, you should have a pekwm-0.2.0
+The 'v' options are elective, they show you the filenames as they're
+being extracted. At this point, you should have a pekwm-0.2.0
 directory. Use **cd pekwm-0.2.0** to get there.
 
 ### Installing build dependencies
@@ -113,7 +111,7 @@ Before building pekwm a C++ compiler with support for C++11 needs to
 be available on the system, the CMake build system and a set of X11
 and image libraries.
 
-The below sections details how to install the required packages for
+The sections below describe how to install the required packages for
 different OSes and Linux distributions.
 
 #### Alpine
@@ -169,8 +167,8 @@ required packages run:
 
 #### OS X (homebrew)
 
-OS X does not come with a X11 installation by default so first
-[XQuartz](https://www.xquartz.org/) needs to be installed.
+OS X does not come with a X11 installation by default, so
+[XQuartz](https://www.xquartz.org/) needs to be installed first.
 
 The development tools are not installed by default but can be
 installed using the following command:
@@ -220,6 +218,7 @@ the cmake command line as:
 |-------------------|---------|----------------------------------------------------------------------|
 | ENABLE_SHAPE      | ON      | Enables the use of the Xshape extension for non-rectangular windows. |
 | ENABLE_XINERAMA   | ON      | Enables Xinerama multi screen support                                |
+| ENABLE_PANGO      | ON      | Enable Pango font support in pekwm (themes).
 | ENABLE_RANDR      | ON      | Enables RandR multi screen support                                   |
 | ENABLE_XFT        | ON      | Enables Xft font support in pekwm (themes).                          |
 | ENABLE_IMAGE_XPM  | ON      | XPM image support using libXpm.                                      |
