@@ -20,6 +20,7 @@
 #include "X11App.hh"
 #include "X11Util.hh"
 #include "X11.hh"
+#include "pekwm_env.hh"
 
 #include "pekwm_panel.hh"
 #include "ExternalCommandData.hh"
@@ -668,6 +669,7 @@ int main(int argc, char *argv[])
 	};
 
 	Charset::init();
+	initEnv(false);
 
 	int ch;
 	while ((ch = getopt_long(argc, argv, "c:C:d:f:hl:", opts, nullptr))

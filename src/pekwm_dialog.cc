@@ -6,8 +6,6 @@
 // See the LICENSE file for more information.
 //
 
-#include "pekwm.hh"
-
 #include "CfgParser.hh"
 #include "CfgUtil.hh"
 #include "Charset.hh"
@@ -22,6 +20,8 @@
 #include "Util.hh"
 #include "X11App.hh"
 #include "X11.hh"
+#include "pekwm.hh"
+#include "pekwm_env.hh"
 
 #include <algorithm>
 #include <iostream>
@@ -748,6 +748,7 @@ int main(int argc, char* argv[])
 	};
 
 	Charset::init();
+	initEnv(false);
 
 	int ch;
 	while ((ch = getopt_long(argc, argv, "c:d:g:hi:o:rt:",

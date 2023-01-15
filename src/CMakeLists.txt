@@ -8,6 +8,7 @@ set(util_SOURCES
     CfgParserKey.cc
     CfgParserSource.cc
     CfgParserVarExpander.cc
+    CfgParserVarExpanderX11.cc
     CfgUtil.cc
     Charset.cc
     Compat.cc
@@ -116,10 +117,9 @@ target_include_directories(texture PUBLIC ${common_INCLUDE_DIRS})
 add_library(wm STATIC ${wm_SOURCES})
 target_include_directories(wm PUBLIC ${common_INCLUDE_DIRS})
 
-add_executable(pekwm pekwm.cc)
-target_compile_definitions(util PUBLIC PEKWM_SH="${SH}")
+add_executable(pekwm pekwm.cc Compat.cc)
+target_compile_definitions(pekwm PUBLIC PEKWM_SH="${SH}")
 target_include_directories(pekwm PUBLIC ${PROJECT_BINARY_DIR}/src)
-target_link_libraries(pekwm util)
 install(TARGETS pekwm DESTINATION bin)
 
 add_executable(pekwm_bg pekwm_bg.cc)

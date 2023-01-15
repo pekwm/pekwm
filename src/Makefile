@@ -9,7 +9,7 @@ PROGS = pekwm pekwm_bg pekwm_cfg pekwm_ctrl pekwm_dialog \
 
 BASE_OBJS = Compat.o Charset.o Debug.o
 CFG_PARSER_OBJS = CfgParser.o CfgParserKey.o CfgParserSource.o \
-	CfgParserVarExpander.o
+	CfgParserVarExpander.o CfgParserVarExpanderX11.o
 
 UTIL_OBJS = $(CFG_PARSER_OBJS) CfgUtil.o Observable.o RegexString.o String.o \
 	    Util.o

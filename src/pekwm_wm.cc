@@ -1,6 +1,6 @@
 //
 // pekwm_wm.cc for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -13,6 +13,7 @@
 #include "Debug.hh"
 #include "WindowManager.hh"
 #include "Util.hh"
+#include "pekwm_env.hh"
 
 #include <iostream>
 #include <string>
@@ -98,6 +99,7 @@ int
 main(int argc, char **argv)
 {
 	Charset::init();
+	initEnv(false);
 
 	// get the args and test for different options
 	bool synchronous = false;

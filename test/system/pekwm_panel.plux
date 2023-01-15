@@ -66,6 +66,25 @@ Basic pekwm_panel tests
 	!$_CTRL_C_
 	?SH-PROMPT:
 
+	[log clear pekwm environment]
+	!unset PEKWM_ETC_PATH
+	?SH-PROMPT:
+	!unset PEKWM_SCRIPT_PATH
+	?SH-PROMPT:
+	!unset PEKWM_THEME_PATH
+	?SH-PROMPT:
+	!export PEKWM_ETC_PATH PEKWM_SCRIPT_PATH PEKWM_THEME_PATH
+	?SH-PROMPT:
+
+	[log verify pekwm variables defined]
+	-Trying to use undefined environment variable
+	!$BIN_DIR/panel/pekwm_panel -c pekwm_panel.config.pekwm_env \
+	!	-C pekwm.config --log-level trace
+	?entering main loop
+	-
+	!$_CTRL_C_
+	?SH-PROMPT:
+
 [shell Xvfb]
 	!$_CTRL_C_
 	?SH-PROMPT:

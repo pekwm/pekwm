@@ -8,6 +8,8 @@
 
 #include "config.h"
 #include "Compat.hh"
+#include "CfgUtil.hh"
+#include "pekwm_env.hh"
 
 #include <iostream>
 #include <vector>
@@ -133,9 +135,7 @@ handleUnexpectedResult(char *path, char **argv, int read_fd)
 int
 main(int argc, char **argv)
 {
-	setenv("PEKWM_ETC_PATH", SYSCONFDIR, 1);
-	setenv("PEKWM_SCRIPT_PATH", DATADIR "/pekwm/scripts", 1);
-	setenv("PEKWM_THEME_PATH", DATADIR "/pekwm/themes", 1);
+	initEnv(true);
 
 	if (argc > 1 && strcmp("--standalone", argv[1]) == 0) {
 		std::cerr << "--standalone only supported using pekwm_wm"

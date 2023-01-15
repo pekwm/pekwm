@@ -1,0 +1,8 @@
+Widgets {
+  Text = "$_PEKWM_ETC_PATH" {
+  }
+  Text = "$_PEKWM_SCRIPT_PATH" {
+  }
+  Text = "$_PEKWM_THEME_PATH" {
+  }
+}

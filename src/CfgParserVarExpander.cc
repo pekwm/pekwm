@@ -1,6 +1,6 @@
 //
 // CfgParserVarExpander.cc for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -13,9 +13,9 @@ extern "C" {
 #include <map>
 
 #include "CfgParserVarExpander.hh"
+#include "CfgParserVarExpanderX11.hh"
 #include "Debug.hh"
 #include "Util.hh"
-#include "X11.hh"
 
 class CfgParserVarExpanderMem : public CfgParserVarExpander {
 public:
@@ -78,43 +78,6 @@ public:
 	}
 };
 
-class CfgParserVarExpanderX11Atom : public CfgParserVarExpander {
-public:
-	virtual ~CfgParserVarExpanderX11Atom() { }
-
-	virtual bool lookup(const std::string& name, std::string& val)
-	{
-		if (name.size() < 2 || name[0] != '@') {
-			return false;
-		}
-
-		std::string atom_name(name.substr(1));
-
-		Atom id;
-		AtomName aname = X11::getAtomName(atom_name);
-		if (aname == MAX_NR_ATOMS) {
-			id = X11::getAtomId(atom_name);
-		} else {
-			id = X11::getAtom(aname);
-		}
-
-		return X11::getStringId(X11::getRoot(), id, val);
-	}
-};
-
-class CfgParserVarExpanderX11Res : public CfgParserVarExpander {
-public:
-	virtual ~CfgParserVarExpanderX11Res() { }
-
-	virtual bool lookup(const std::string& name, std::string& val)
-	{
-		if (name.size() < 2 || name[0] != '&') {
-			return false;
-		}
-		return X11::getXrmString(name.substr(1), val);
-	}
-};
-
 /**
  * Construct a CfgParserVarExpander of the given type.
  */
@@ -126,10 +89,12 @@ mkCfgParserVarExpander(CfgParserVarExpanderType type)
 		return new CfgParserVarExpanderMem();
 	case CFG_PARSER_VAR_EXPANDER_OS_ENV:
 		return new CfgParserVarExpanderOsEnv();
+#ifndef PEKWM_DISABLE_X11_CFG_PARSER_VAR_EXPANDER
 	case CFG_PARSER_VAR_EXPANDER_X11_ATOM:
 		return new CfgParserVarExpanderX11Atom();
 	case CFG_PARSER_VAR_EXPANDER_X11_RES:
 		return new CfgParserVarExpanderX11Res();
+#endif // PEKWM_DISABLE_X11_CFG_PARSER_VAR_EXPANDER
 	default:
 		assert(0);
 	}
