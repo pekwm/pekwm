@@ -732,6 +732,9 @@ CfgParser::parseSectionFinish(const std::string &buf, std::string &value)
 				    buf, value);
 		_section_map[value] = section;
 	} else {
+		// Expand value in Section = "$VAR" { }
+		variableExpand(value);
+
 		// Create Entry for sub-section.
 		section = new Entry(_source->getName(), _source->getLine(),
 				    buf, value);
