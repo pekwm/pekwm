@@ -725,19 +725,22 @@ int main(int argc, char *argv[])
 	init(dpy);
 
 	{
-		// FIXME: reduce scope
-		CfgParser pekwm_cfg("");
-		pekwm_cfg.parse(_pekwm_config_file,
-				CfgParserSource::SOURCE_FILE, true);
-		CfgUtil::getScriptsDir(pekwm_cfg.getEntryRoot(),
-				       _config_script_path);
+		PanelTheme theme;
+		// separate scope to get pekwm_cfg cleaned up after loading
+		// theme
+		{
+			CfgParser pekwm_cfg("");
+			pekwm_cfg.parse(_pekwm_config_file,
+					CfgParserSource::SOURCE_FILE, true);
+			CfgUtil::getScriptsDir(pekwm_cfg.getEntryRoot(),
+					       _config_script_path);
+			loadTheme(theme, pekwm_cfg);
+		}
 
 		// run in separate scope to get resources cleaned up before
 		// X11 cleanup
 		PanelConfig cfg;
 		if (loadConfig(cfg, config_file)) {
-			PanelTheme theme;
-			loadTheme(theme, pekwm_cfg);
 
 			Geometry head =
 				X11Util::getHeadGeometry(cfg.getHead());
