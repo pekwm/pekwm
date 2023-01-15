@@ -46,4 +46,4 @@ clean:
 
 .SUFFIXES: .cc .o
 .cc.o:
-	$(CXX) -I../ $(CXXFLAGS) -c $<
+	$(CXX) -I../ $(CXXFLAGS) -DPEKWM_SH="\"$(SH)\"" -c $<
