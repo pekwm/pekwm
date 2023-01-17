@@ -2228,6 +2228,33 @@ X11::getXrmString(const std::string& name, std::string& val)
 	return false;
 }
 
+/**
+ * Clear referenced resources from previous lookups.
+ */
+void
+X11::clearRefResources(void)
+{
+	_ref_resources.clear();
+}
+
+/**
+ * Get map of referenced resources and their values.
+ */
+const std::map<std::string, std::string>&
+X11::getRefResources(void)
+{
+	return _ref_resources;
+}
+
+/**
+ * Add resource -> value to registered color resources.
+ */
+void
+X11::registerRefResource(const std::string& res, const std::string& value)
+{
+	_ref_resources[res] = value;
+}
+
 const long XEMBED_VERSION = 0;
 
 Display *X11::_dpy;
@@ -2258,3 +2285,5 @@ std::vector<X11::ColorEntry*> X11::_colors;
 XColor X11::_xc_default;
 Cursor X11::_cursor_map[CURSOR_NONE];
 XrmDatabase X11::_xrm_db = 0;
+std::map<std::string, std::string> X11::_ref_resources =
+	std::map<std::string, std::string>();

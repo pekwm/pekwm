@@ -19,8 +19,12 @@ public:
 
 class CfgParserVarExpanderX11Res : public CfgParserVarExpander {
 public:
+	CfgParserVarExpanderX11Res(bool register_x_resource);
 	virtual ~CfgParserVarExpanderX11Res();
 	virtual bool lookup(const std::string& name, std::string& val);
+
+private:
+	bool _register_x_resource;
 };
 
 #endif // _PEKWM_CFG_PARSER_VAR_EXPANDER_HH_

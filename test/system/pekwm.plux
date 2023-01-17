@@ -91,13 +91,13 @@ in one go.
 	[shell pekwm]
 		[log setup Xresources and PEKWM_THEME atom]
 		[call sh-eval "xrdb pekwm.xresources"]
-		[call sh-eval "xprop -root -f PEKWM_THEME 8s -set PEKWM_THEME missing"]
+		[call sh-eval "xprop -root -f PEKWM_THEME 8s -set PEKWM_THEME atom"]
 
 		-Trying to use undefined variable: (&pekwm.autoproperties|@PEKWM_THEME)
 	        !$$VALGRIND $BIN_DIR/pekwm --log-level trace \
 		!  --config pekwm.config.vars
 		[log verify theme from Xresources used]
-		?Parsed theme: missing/theme
+		?failed to open file atom/theme
 	        ?Enter event loop
 		-
 

@@ -1270,7 +1270,9 @@ Theme::load(const std::string &dir, const std::string &variant, bool force)
 	}
 
 	bool theme_ok = true;
-	CfgParser theme(pekwm::configScriptPath());
+	CfgParserOpt opt(pekwm::configScriptPath());
+	opt.setRegisterXResource(true);
+	CfgParser theme(opt);
 	theme.setVar("THEME_DIR", _theme_dir);
 	if (! theme.parse(theme_file)) {
 		_theme_dir = DATADIR "/pekwm/themes/default";
@@ -1468,7 +1470,7 @@ Theme::unload(void)
 	_ws_indicator_data.unload();
 
 	// Clear referenced colors
-	pekwm::clearColorResources();
+	X11::clearRefResources();
 
 	_th->logTextures("theme unloaded");
 }

@@ -655,10 +655,11 @@ bool
 WindowManager::isResourcesChanged(void)
 {
 	const std::map<std::string, std::string> &resources =
-		pekwm::getColorResources();
+		X11::getRefResources();
 	std::map<std::string, std::string>::const_iterator it =
 		resources.begin();
 	for (; it != resources.end(); ++it) {
+		P_TRACE("check referenced resource " << it->first);
 		std::string val;
 		X11::getXrmString(it->first, val);
 		if (val != it->second) {

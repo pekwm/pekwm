@@ -17,6 +17,7 @@
 #include "pekwm.hh"
 
 #include <iostream>
+#include <map>
 #include <string>
 #include <vector>
 
@@ -554,6 +555,11 @@ public:
 	static void loadXrmResources(void);
 	static bool getXrmString(const std::string& name, std::string& val);
 
+	static void clearRefResources(void);
+	static const std::map<std::string, std::string>& getRefResources(void);
+	static void registerRefResource(const std::string& res,
+					const std::string& value);
+
 protected:
 	static int parseGeometryVal(const char *c_str, const char *e_end,
 				    int &val_ret);
@@ -614,6 +620,7 @@ private:
 	static std::vector<ColorEntry*> _colors;
 	static XColor _xc_default; // when allocating fails
 	static XrmDatabase _xrm_db;
+	static std::map<std::string, std::string> _ref_resources;
 
 	static Atom _atoms[MAX_NR_ATOMS];
 };

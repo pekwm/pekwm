@@ -303,10 +303,9 @@ operator<<(std::ostream &stream, const CfgParser::Entry &entry)
 	return stream;
 }
 
-//! @brief CfgParser constructor.
-CfgParser::CfgParser(const std::string& command_path)
+CfgParser::CfgParser(const CfgParserOpt &opt)
 	: _source(nullptr),
-	  _command_path(command_path),
+	  _opt(opt),
 	  _root_entry(nullptr),
 	  _is_dynamic_content(false),
 	  _section(_root_entry),
@@ -318,7 +317,9 @@ CfgParser::CfgParser(const std::string& command_path)
 		CFG_PARSER_VAR_EXPANDER_X11_RES
 	};
 	for (int i = 0; i < sizeof(types)/sizeof(types[0]); i++) {
-		CfgParserVarExpander* exp = mkCfgParserVarExpander(types[i]);
+		CfgParserVarExpander* exp =
+			mkCfgParserVarExpander(types[i],
+					       _opt.registerXResource());
 		if (exp != nullptr) {
 			_var_expanders.push_back(exp);
 		}
@@ -327,7 +328,8 @@ CfgParser::CfgParser(const std::string& command_path)
 	// memory expander is put last as it does not require a
 	// specific prefix to lookup and would lookup all vars if
 	// placed first.
-	_var_expander_mem = mkCfgParserVarExpander(CFG_PARSER_VAR_EXPANDER_MEM);
+	_var_expander_mem = mkCfgParserVarExpander(CFG_PARSER_VAR_EXPANDER_MEM,
+						   _opt.registerXResource());
 	_var_expanders.push_back(_var_expander_mem);
 
 	_root_entry = new CfgParser::Entry(_root_source_name, 0, "ROOT", "");
@@ -824,7 +826,7 @@ CfgParser::sourceNew(const std::string &name, CfgParserSource::Type type)
 	case CfgParserSource::SOURCE_COMMAND:
 		source = new CfgParserSourceCommand(
 				*_source_name_set.find(name),
-				_command_path);
+				_opt.commandPath());
 		break;
 	default:
 		break;

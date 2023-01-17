@@ -68,7 +68,7 @@ static void
 jsonDump(const std::string& path,
 	 const std::map<std::string, std::string> &cfg_env)
 {
-	CfgParser cfg("");
+	CfgParser cfg(CfgParserOpt(""));
 	std::map<std::string, std::string>::const_iterator it =
 		cfg_env.begin();
 	for (; it != cfg_env.end(); ++it) {

@@ -1,6 +1,6 @@
 //
 // Color.cc for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -10,11 +10,9 @@
 #include "Debug.hh"
 #include "String.hh"
 #include "Util.hh"
+#include "X11.hh"
 
 #include <set>
-
-static std::map<std::string, std::string> _resources =
-	std::map<std::string, std::string>();
 
 static std::string stripResPrefix(const std::string& desc)
 {
@@ -27,7 +25,7 @@ lookupResource(const std::string& desc)
 	std::string res = stripResPrefix(desc);
 	std::string val;
 	X11::getXrmString(res, val);
-	_resources[res] = val;
+	X11::registerRefResource(res, val);
 	return val;
 }
 
@@ -49,24 +47,6 @@ logResourceLoop(const std::set<std::string> &visisted)
 	}
 
 	P_WARN(oss.str());
-}
-
-/**
- * Clear registered color resources from previous lookups.
- */
-void
-pekwm::clearColorResources(void)
-{
-	_resources.clear();
-}
-
-/**
- * Get map of registered color resources and their values.
- */
-const std::map<std::string, std::string>&
-pekwm::getColorResources(void)
-{
-	return _resources;
 }
 
 /**

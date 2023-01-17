@@ -1,6 +1,6 @@
 //
 // Color.hh for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -21,9 +21,6 @@
 
 namespace pekwm
 {
-	void clearColorResources(void);
-	const std::map<std::string, std::string>& getColorResources(void);
-
 	std::string getColorResource(std::string desc);
 	XColor* getColor(const std::string& color);
 }

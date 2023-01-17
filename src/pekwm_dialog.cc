@@ -825,7 +825,7 @@ int main(int argc, char* argv[])
 	bool font_default_x11;
 	std::string font_charset_override;
 	{
-		CfgParser cfg("");
+		CfgParser cfg(CfgParserOpt(""));
 		cfg.parse(config_file, CfgParserSource::SOURCE_FILE, true);
 		std::string theme_path;
 		CfgUtil::getThemeDir(cfg.getEntryRoot(),

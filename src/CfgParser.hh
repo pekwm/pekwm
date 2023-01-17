@@ -52,6 +52,29 @@ public:
 	void clear() { files.clear(); mtime = 0; }
 };
 
+/**
+ * CfgParser options.
+ */
+class CfgParserOpt {
+public:
+	CfgParserOpt(const std::string& command_path)
+		: _command_path(command_path),
+		  _register_x_resource(false)
+	{
+	}
+
+	const std::string& commandPath() const { return _command_path; }
+
+	bool registerXResource() const { return _register_x_resource; }
+	void setRegisterXResource(bool register_x_resource) {
+		_register_x_resource = register_x_resource;
+	}
+
+private:
+	std::string _command_path;
+	bool _register_x_resource;
+};
+
 //! @brief Configuration file parser.
 class CfgParser {
 public:
@@ -122,7 +145,7 @@ public:
 	typedef section_map::iterator section_map_it;
 	typedef section_map::const_iterator section_map_cit;
 
-	CfgParser(const std::string& command_path);
+	CfgParser(const CfgParserOpt& opt);
 	~CfgParser(void);
 
 	TimeFiles getCfgFiles(void) const { return _cfg_files; }
@@ -184,8 +207,8 @@ private:
 				const std::string& var);
 
 private:
+	CfgParserOpt _opt;
 	CfgParserSource *_source;
-	std::string _command_path;
 	std::vector<CfgParserVarExpander*> _var_expanders;
 	CfgParserVarExpander* _var_expander_mem;
 

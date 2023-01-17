@@ -102,7 +102,7 @@ loadTheme(PanelTheme& theme, CfgParser& cfg)
 static void
 loadTheme(PanelTheme& theme, const std::string& pekwm_config_file)
 {
-	CfgParser cfg("");
+	CfgParser cfg(CfgParserOpt(""));
 	cfg.parse(pekwm_config_file, CfgParserSource::SOURCE_FILE, true);
 	loadTheme(theme, cfg);
 }
@@ -729,7 +729,7 @@ int main(int argc, char *argv[])
 		// separate scope to get pekwm_cfg cleaned up after loading
 		// theme
 		{
-			CfgParser pekwm_cfg("");
+			CfgParser pekwm_cfg(CfgParserOpt(""));
 			pekwm_cfg.parse(_pekwm_config_file,
 					CfgParserSource::SOURCE_FILE, true);
 			CfgUtil::getScriptsDir(pekwm_cfg.getEntryRoot(),

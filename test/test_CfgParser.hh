@@ -39,7 +39,7 @@ public:
 
 TestCfgParser::TestCfgParser(void)
 	: TestSuite("CfgParser"),
-	  CfgParser("../test/data")
+	  CfgParser(CfgParserOpt("../test/data"))
 {
 }
 

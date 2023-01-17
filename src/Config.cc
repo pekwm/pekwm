@@ -272,7 +272,7 @@ Config::load(const std::string &config_file)
 		return false;
 	}
 
-	CfgParser cfg("");
+	CfgParser cfg(CfgParserOpt(""));
 
 	std::string cfg_dir;
 	_config_file = config_file;

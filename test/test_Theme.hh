@@ -73,7 +73,7 @@ TestTheme::loadColorMap(const char *cfg, std::map<int, int> &color_map)
 	CfgParserSourceString *source =
 		new CfgParserSourceString(":memory:", cfg);
 
-	CfgParser parser("");
+	CfgParser parser(CfgParserOpt(""));
 	parser.parse(source);
 	CfgParser::Entry *section =
 		parser.getEntryRoot()->findSection("COLORMAPS");

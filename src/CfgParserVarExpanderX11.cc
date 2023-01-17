@@ -33,6 +33,12 @@ CfgParserVarExpanderX11Atom::lookup(const std::string& name, std::string& val)
 	return X11::getStringId(X11::getRoot(), id, val);
 }
 
+CfgParserVarExpanderX11Res::CfgParserVarExpanderX11Res(
+		bool register_x_resource)
+	: _register_x_resource(register_x_resource)
+{
+}
+
 CfgParserVarExpanderX11Res::~CfgParserVarExpanderX11Res()
 {
 }
@@ -43,5 +49,10 @@ CfgParserVarExpanderX11Res::lookup(const std::string& name, std::string& val)
 	if (name.size() < 2 || name[0] != '&') {
 		return false;
 	}
-	return X11::getXrmString(name.substr(1), val);
+	std::string res_name = name.substr(1);
+	bool found = X11::getXrmString(res_name, val);
+	if (_register_x_resource) {
+		X11::registerRefResource(res_name, val);
+	}
+	return found;
 }

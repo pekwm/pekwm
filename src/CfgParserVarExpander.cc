@@ -82,7 +82,8 @@ public:
  * Construct a CfgParserVarExpander of the given type.
  */
 CfgParserVarExpander*
-mkCfgParserVarExpander(CfgParserVarExpanderType type)
+mkCfgParserVarExpander(CfgParserVarExpanderType type,
+		       bool register_x_resource)
 {
 	switch (type) {
 	case CFG_PARSER_VAR_EXPANDER_MEM:
@@ -93,7 +94,7 @@ mkCfgParserVarExpander(CfgParserVarExpanderType type)
 	case CFG_PARSER_VAR_EXPANDER_X11_ATOM:
 		return new CfgParserVarExpanderX11Atom();
 	case CFG_PARSER_VAR_EXPANDER_X11_RES:
-		return new CfgParserVarExpanderX11Res();
+		return new CfgParserVarExpanderX11Res(register_x_resource);
 #endif // PEKWM_DISABLE_X11_CFG_PARSER_VAR_EXPANDER
 	default:
 		return nullptr;
