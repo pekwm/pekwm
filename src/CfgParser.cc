@@ -517,17 +517,20 @@ CfgParser::parse()
 		} catch (std::string &ex) {
 			P_LOG("Exception: " << ex);
 		}
-		delete _source;
+
+		// source might change in parseEntryFinish
+		CfgParserSource* source = _source;
 		_sources.pop_back();
 		_source_names.pop_back();
 
 		// done inside of the loop to ensure COMMAND and INCLUDE
 		// statements without a new line at the end of the file will
-		// be used.
+		// be used before deleting the source.
 		if (buf.size()) {
 			parseEntryFinish(buf, value, have_value);
 		}
 
+		delete source;
 	}
 
 	return true;
@@ -876,7 +879,7 @@ CfgParser::parseVarName(const std::string& line,
 				in_curly = true;
 			} else if (in_curly) {
 				if (c == '}') {
-					end = pos;
+					end = pos + 1;
 					return true;
 				}
 				name += c;

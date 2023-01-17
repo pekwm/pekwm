@@ -85,6 +85,27 @@ in one go.
 		?SH-PROMPT:
 [endfunction]
 
+# verify that $@ and $& resources get expanded
+[function test_x11_var_expansion]
+	[log test_x11_var_expansion]
+	[shell pekwm]
+		[log setup Xresources and PEKWM_THEME atom]
+		[call sh-eval "xrdb pekwm.xresources"]
+		[call sh-eval "xprop -root -f PEKWM_THEME 8s -set PEKWM_THEME missing"]
+
+		-Trying to use undefined variable: (&pekwm.autoproperties|@PEKWM_THEME)
+	        !$$VALGRIND $BIN_DIR/pekwm --log-level trace \
+		!  --config pekwm.config.vars
+		[log verify theme from Xresources used]
+		?Parsed theme: missing/theme
+	        ?Enter event loop
+		-
+
+	[shell pekwm]
+	        !$_CTRL_C_
+	        ?SH-PROMPT:
+[endfunction]
+
 [function test_update_client_list_report_all]
 	[log test_update_client_list_report_all]
 
@@ -503,6 +524,7 @@ in one go.
 	?SH-PROMPT:
 	[call test_config_path]
 	[call test_log_file_output]
+	[call test_x11_var_expansion]
 
 [shell test]
 	[call test_pekwm_replace]

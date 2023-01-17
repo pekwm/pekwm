@@ -621,7 +621,7 @@ OsEnv::freeCEnv()
 	for (size_t i = 0; _c_env[i] != nullptr; i++) {
 		free(_c_env[i]);
 	}
-	delete _c_env;
+	delete[] _c_env;
 	_c_env = nullptr;
 }
 

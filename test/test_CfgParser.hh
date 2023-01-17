@@ -19,6 +19,8 @@ public:
 
 	void testEmptyVal(void);
 	void testIncludeWithoutNewline(void);
+	void testExpandVar();
+	void testExpandCurlyVar();
 	void testExpandSectionValue();
 
 	// command
@@ -73,6 +75,34 @@ TestCfgParser::testIncludeWithoutNewline(void)
 	ASSERT_EQUAL("parse ok", true, parse(source));
 	std::string var = getVar("VAR");
 	ASSERT_EQUAL("var in include", "value", var);
+}
+
+void
+TestCfgParser::testExpandVar()
+{
+	const char *cfg = "$VALUE = \"World\"\nKey = \"Hello $VALUE!\"";
+	CfgParserSourceString *source =
+		new CfgParserSourceString(":memory:", cfg);
+
+	clear();
+	ASSERT_EQUAL("parse ok", true, parse(source));
+	CfgParser::Entry *entry = getEntryRoot()->findEntry("KEY");
+	ASSERT_EQUAL("entry", true, entry != nullptr);
+	ASSERT_EQUAL("value", "Hello World!", entry->getValue());
+}
+
+void
+TestCfgParser::testExpandCurlyVar()
+{
+	const char *cfg = "$VALUE = \"World\"\nKey = \"Hello ${VALUE}!\"";
+	CfgParserSourceString *source =
+		new CfgParserSourceString(":memory:", cfg);
+
+	clear();
+	ASSERT_EQUAL("parse ok", true, parse(source));
+	CfgParser::Entry *entry = getEntryRoot()->findEntry("KEY");
+	ASSERT_EQUAL("entry", true, entry != nullptr);
+	ASSERT_EQUAL("value", "Hello World!", entry->getValue());
 }
 
 void
@@ -184,7 +214,7 @@ TestCfgParser::testParseCurlyVar()
 	bool res = parseVarName(line, begin, end, var);
 	ASSERT_EQUAL("should succeeed", true, res);
 	ASSERT_EQUAL("begin", 3, begin);
-	ASSERT_EQUAL("end", 24, end);
+	ASSERT_EQUAL("end", 25, end);
 	ASSERT_EQUAL("var", "variable with space", var);
 }
 
@@ -205,6 +235,8 @@ TestCfgParser::run_test(TestSpec spec, bool status)
 {
 	TEST_FN(spec, "empty val", testEmptyVal());
 	TEST_FN(spec, "INCLUDE without newline", testIncludeWithoutNewline());
+	TEST_FN(spec, "expand var", testExpandVar());
+	TEST_FN(spec, "expand curly var", testExpandCurlyVar());
 	TEST_FN(spec, "expand section value", testExpandSectionValue());
 
 	// command

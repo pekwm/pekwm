@@ -61,7 +61,8 @@ AssertFailed::format(const std::string &suite_name,
 #define TEST_FN(spec, test_name, F)					\
 	do {								\
 		try {							\
-			std::cout << "  * " << test_name << "...";	\
+			std::cout << "  * " << test_name << "..."	\
+				  << std::flush;			\
 			F;						\
 			std::cout << " OK" << std::endl;		\
 		} catch (const AssertFailed& ex) {			\
