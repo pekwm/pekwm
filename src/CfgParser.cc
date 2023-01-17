@@ -312,12 +312,17 @@ CfgParser::CfgParser(const std::string& command_path)
 	  _section(_root_entry),
 	  _overwrite(false)
 {
-	_var_expanders.push_back
-		(mkCfgParserVarExpander(CFG_PARSER_VAR_EXPANDER_OS_ENV));
-	_var_expanders.push_back
-		(mkCfgParserVarExpander(CFG_PARSER_VAR_EXPANDER_X11_ATOM));
-	_var_expanders.push_back
-		(mkCfgParserVarExpander(CFG_PARSER_VAR_EXPANDER_X11_RES));
+	CfgParserVarExpanderType types[] = {
+		CFG_PARSER_VAR_EXPANDER_OS_ENV,
+		CFG_PARSER_VAR_EXPANDER_X11_ATOM,
+		CFG_PARSER_VAR_EXPANDER_X11_RES
+	};
+	for (int i = 0; i < sizeof(types)/sizeof(types[0]); i++) {
+		CfgParserVarExpander* exp = mkCfgParserVarExpander(types[i]);
+		if (exp != nullptr) {
+			_var_expanders.push_back(exp);
+		}
+	}
 
 	// memory expander is put last as it does not require a
 	// specific prefix to lookup and would lookup all vars if

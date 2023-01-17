@@ -96,7 +96,6 @@ mkCfgParserVarExpander(CfgParserVarExpanderType type)
 		return new CfgParserVarExpanderX11Res();
 #endif // PEKWM_DISABLE_X11_CFG_PARSER_VAR_EXPANDER
 	default:
-		assert(0);
+		return nullptr;
 	}
-	return nullptr;
 }
