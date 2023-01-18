@@ -58,7 +58,7 @@ RegexString::ed_s(std::string &str)
 
 	// Match
 	if (regexec(&_regex, mb_str.c_str(), _ref_max, matches, 0)) {
-		delete [] matches;
+		delete[] matches;
 		return false;
 	}
 
@@ -82,6 +82,7 @@ RegexString::ed_s(std::string &str)
 	// Replace area regexp matched.
 	size = matches[0].rm_eo - matches[0].rm_so;
 	mb_str.replace(matches[0].rm_so, size, result);
+	delete[] matches;
 
 	str = Charset::fromSystem(mb_str);
 
