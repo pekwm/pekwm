@@ -1,4 +1,6 @@
-[< Previous (Configuration)](configuration.md) - [(Actions) Next >](actions.md)
+[< Previous (Configuration)](configuration.md)
+\- [Up](README.md)
+\- [(Actions) Next >](actions.md)
 
 ***
 
@@ -512,4 +514,6 @@ DOCUMENTATION".
 
 ***
 
-[< Previous (Configuration)](configuration.md) - [(Actions) Next >](actions.md)
+[< Previous (Configuration)](configuration.md)
+\- [Up](README.md)
+\- [(Actions) Next >](actions.md)

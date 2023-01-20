@@ -1,4 +1,6 @@
 [< Previous (FAQ)](faq.md)
+\- [Up](README.md)
+\- Next >
 
 ***
 
@@ -198,3 +200,5 @@ Writes documentation. Acts ill-tempered. You have been warned.
 ***
 
 [< Previous (FAQ)](faq.md)
+\- [Up](README.md)
+\- Next >

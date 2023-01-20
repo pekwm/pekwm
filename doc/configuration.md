@@ -1,4 +1,6 @@
-[< Previous (Basic Usage)](basic-usage.md) - [(Autoproperties) Next >](autoproperties.md)
+[< Previous (Basic Usage)](basic-usage.md)
+\- [Up](README.md)
+\- [(Autoproperties) Next >](autoproperties.md)
 
 ***
 
@@ -1063,4 +1065,6 @@ some_command &
 
 ***
 
-[< Previous (Basic Usage)](basic-usage.md) - [(Autoproperties) Next >](autoproperties.md)
+[< Previous (Basic Usage)](basic-usage.md)
+\- [Up](README.md)
+\- [(Autoproperties) Next >](autoproperties.md)

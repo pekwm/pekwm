@@ -1,4 +1,6 @@
-[< Previous (Themes)](themes.md) - [(Development) Next >](development.md)
+[< Previous (Themes)](themes.md)
+\- [Up](README.md)
+\- [(Development) Next >](development.md)
 
 ***
 
@@ -440,4 +442,6 @@ Screen {
 
 ***
 
-[< Previous (Themes)](themes.md) - [(Development) Next >](development.md)
+[< Previous (Themes)](themes.md)
+\- [Up](README.md)
+\- [(Development) Next >](development.md)

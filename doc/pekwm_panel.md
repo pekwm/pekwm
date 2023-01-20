@@ -1,3 +1,7 @@
+< Prev
+\- [Up](README.md)
+\- Next >
+
 # pekwm_panel overview
 
 pekwm_panel is a simple panel application bundled with pekwm that aims

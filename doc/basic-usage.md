@@ -1,4 +1,6 @@
-[< Previous (Overview)](overview.md) - [(Configuration) Next >](configuration.md)
+[< Previous (Overview)](overview.md)
+\- [Up](README.md)
+\- [(Configuration) Next >](configuration.md)
 
 ***
 
@@ -347,4 +349,6 @@ also changes your workspace.
 
 ***
 
-[< Previous (Overview)](overview.md) - [(Configuration) Next >](configuration.md)
+[< Previous (Overview)](overview.md)
+\- [Up](README.md)
+\- [(Configuration) Next >](configuration.md)

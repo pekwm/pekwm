@@ -10,6 +10,6 @@ pekwm
 * [FAQ](faq.md)
 * [Development](development.md)
 
-## applications
+## Applications
 
 * [pekwm_panel](pekwm_panel.md)

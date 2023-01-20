@@ -1,4 +1,6 @@
-[< Previous (Actions)](actions.md) - [(FAQ) Next >](faq.md)
+[< Previous (Actions)](actions.md)
+\- [Up](README.md)
+\- [(FAQ) Next >](faq.md)
 
 ***
 
@@ -284,4 +286,6 @@ Themes the workspace indicator which shows up when switching workspace.
 
 ***
 
-[< Previous (Actions)](actions.md) - [(FAQ) Next >](faq.md)
+[< Previous (Actions)](actions.md)
+\- [Up](README.md)
+\- [(FAQ) Next >](faq.md)

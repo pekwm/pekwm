@@ -1,4 +1,6 @@
-[(Basic Usage) Next >](basic-usage.md)
+< Prev
+\- [Up](README.md)
+\- [(Basic Usage) Next >](basic-usage.md)
 
 ***
 
@@ -240,4 +242,6 @@ read the [Getting Started](basic-usage.md#getting-started) chapter.
 
 ***
 
+< Prev
+\- [Up](README.md)
 [(Basic Usage) Next >](basic-usage.md)

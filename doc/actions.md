@@ -1,4 +1,6 @@
-[< Previous (Autoproperties)](autoproperties.md) - [(Themes) Next >](themes.md)
+[< Previous (Autoproperties)](autoproperties.md)
+\- [Up](README.md)
+\- [(Themes) Next >](themes.md)
 
 ***
 
@@ -716,4 +718,6 @@ Get previous history item previously used in InputDialog.
 
 ***
 
-[< Previous (Autoproperties)](autoproperties.md) - [(Themes) Next >](themes.md)
+[< Previous (Autoproperties)](autoproperties.md)
+\- [Up](README.md)
+\- [(Themes) Next >](themes.md)
