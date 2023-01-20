@@ -18,9 +18,9 @@
 #define DEFAULT_SEPARATOR "Solid #aaaaaa 1x24"
 
 #define DEFAULT_COLOR "#000000"
-#define DEFAULT_FONT "-misc-fixed-medium-r-*-*-13-*-*-*-*-*-iso10646-*"
-#define DEFAULT_FONT_FOC "-misc-fixed-bold-r-*-*-13-*-*-*-*-*-iso10646-*"
-#define DEFAULT_FONT_ICO "-misc-fixed-medium-o-*-*-13-*-*-*-*-*-iso10646-*"
+#define DEFAULT_FONT "Sans-12"
+#define DEFAULT_FONT_FOC DEFAULT_FONT ":weight=bold"
+#define DEFAULT_FONT_ICO DEFAULT_FONT ":slant=talic"
 
 #define DEFAULT_BAR_BORDER "black"
 #define DEFAULT_BAR_FILL "grey50"

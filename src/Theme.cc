@@ -26,8 +26,8 @@
 #include <iostream>
 #include <string>
 
-#define DEFAULT_FONT "Sans:size=12#XFT"
-#define DEFAULT_LARGE_FONT "Sans:size=14:weight=bold#XFT"
+#define DEFAULT_FONT "Sans-12"
+#define DEFAULT_LARGE_FONT "Sans-14:weight=bold"
 #define DEFAULT_HEIGHT 17
 #define DEFAULT_HEIGHT_STR "17"
 

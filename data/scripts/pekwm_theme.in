@@ -321,8 +321,8 @@ theme_new()
           || die "failed to create $theme_name/backgrounds"
 
     cat > $theme_name/theme <<EOF
-\$FONT = "-*-fixed-*-r-*-*-*-*-*-*-*-*-iso10646-*"
-\$MENU_FONT = "-*-fixed-*-r-*-*-*-*-*-*-*-*-iso10646-*"
+\$FONT = "Sans-12"
+\$MENU_FONT = "Sans-12"
 
 \$BG_TEX = "Solid #ffffff"
 

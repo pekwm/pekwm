@@ -79,7 +79,7 @@ FontHandler::~FontHandler(void)
  * @brief Gets or allocs a font
  *
  * Syntax of font specification goes as follows:
- *   "Font Name#Justify#Offset#Type" ex "Vera#Center#1 1#XFT"
+ *   "XFT#Font Name#Justify#Offset#Type" ex "XFT#Vera#Center#1 1"
  * where only the first field is obligatory and type needs to be the last
  */
 PFont*
