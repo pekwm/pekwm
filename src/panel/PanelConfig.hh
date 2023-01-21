@@ -35,15 +35,14 @@ public:
 	WidgetConfig(const WidgetConfig& cfg);
 	~WidgetConfig(void);
 
+	WidgetConfig& operator=(const WidgetConfig&);
+
 	const std::string& getName(void) const { return _name; }
 	const std::string& getArg(uint arg) const;
 	const SizeReq& getSizeReq(void) const { return _size_req; }
 	uint getIntervalS(void) const { return _interval_s; }
 
 	const CfgParser::Entry* getCfgSection(void) const { return _section; }
-
-private:
-	WidgetConfig& operator=(const WidgetConfig&);
 
 private:
 	/** Widget type name. */

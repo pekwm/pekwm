@@ -55,6 +55,25 @@ WidgetConfig::~WidgetConfig(void)
 	delete _section;
 }
 
+WidgetConfig&
+WidgetConfig::operator=(const WidgetConfig& rhs)
+{
+	delete _section;
+
+	_name = rhs._name;
+	_args = rhs._args;
+	_size_req = rhs._size_req;
+	_interval_s = rhs._interval_s;
+
+	if (rhs._section) {
+		_section = new CfgParser::Entry(*rhs._section);
+	} else {
+		_section = nullptr;
+	}
+
+	return *this;
+}
+
 const std::string&
 WidgetConfig::getArg(uint arg) const
 {
