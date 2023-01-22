@@ -45,6 +45,7 @@ static Util::StringTo<PFont::Type> map_type[] =
 	 {"PANGO", PFont::FONT_TYPE_PANGO},
 	 {"PANGOCAIRO", PFont::FONT_TYPE_PANGO_CAIRO},
 	 {"PANGOXFT", PFont::FONT_TYPE_PANGO_XFT},
+	 {"EMPTY", PFont::FONT_TYPE_EMPTY},
 	 {nullptr, PFont::FONT_TYPE_NO}};
 
 static Util::StringTo<FontJustify> map_justify[] =
@@ -127,6 +128,9 @@ FontHandler::newFont(const std::string &font,
 	if (_x11_font_name == font) {
 		tok.push_back(font);
 		return newFontX11(type);
+	} else if (pekwm::ascii_ncase_equal("EMPTY", font)) {
+		tok.push_back(font);
+		return new PFontEmpty;
 	}
 
 	std::vector<std::string>::iterator tok_it;
@@ -167,6 +171,8 @@ FontHandler::newFont(const std::string &font,
 	case PFont::FONT_TYPE_PANGO_XFT:
 		return new PFontPangoXft;
 #endif // PEKWM_HAVE_PANGO_XFT
+	case PFont::FONT_TYPE_EMPTY:
+		return new PFontEmpty;
 	default:
 		return newFontX11(type);
 	};

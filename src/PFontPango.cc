@@ -108,6 +108,7 @@ PFontPango::load(const PFont::Descr& descr)
 
 		P_TRACE("loaded Pango font "
 			<< pango_font_description_get_family(_font_description)
+			<< " "
 			<< pango_font_description_get_size(_font_description)
 			   / PANGO_SCALE
 			<< " height " << _height);

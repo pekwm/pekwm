@@ -27,6 +27,7 @@ public:
 		FONT_TYPE_PANGO,
 		FONT_TYPE_PANGO_CAIRO,
 		FONT_TYPE_PANGO_XFT,
+		FONT_TYPE_EMPTY,
 		FONT_TYPE_NO
 	};
 	enum TrimType {
@@ -173,6 +174,34 @@ protected:
 	uint _offset_x, _offset_y, _justify;
 
 	static std::string _trim_string;
+};
+
+/**
+ * Empty font provididing no drawing or size.
+ */
+class PFontEmpty : public PFont {
+public:
+	PFontEmpty(void) : PFont() { }
+	virtual ~PFontEmpty(void) { }
+
+	// virtual interface
+	virtual bool load(const PFont::Descr&) { return true; }
+	virtual void unload(void) { }
+
+	virtual uint getWidth(const std::string&, uint max_chars = 0) {
+		return 0;
+	}
+
+	virtual void setColor(PFont::Color *color) { }
+
+protected:
+	virtual std::string toNativeDescr(const PFont::Descr&) const {
+		return "EMPTY";
+	}
+
+private:
+	virtual void drawText(PSurface*, int, int, const std::string&, uint,
+			      bool) { }
 };
 
 #endif // _PEKWM_PFONT_HH_

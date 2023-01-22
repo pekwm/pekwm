@@ -58,6 +58,10 @@ WidgetConfig::~WidgetConfig(void)
 WidgetConfig&
 WidgetConfig::operator=(const WidgetConfig& rhs)
 {
+	if (this == &rhs) {
+		return *this;
+	}
+
 	delete _section;
 
 	_name = rhs._name;
