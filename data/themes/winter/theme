@@ -1,8 +1,8 @@
 # winter pekwm theme, default for pekwm 0.3.X
 
-$FONT_NAME = "Sans:size=12"
-$FONT = "$FONT_NAME"
-$FONT_TITLE = "$FONT_NAME#Center#1 1"
+$FONT_NAME = "Sans"
+$FONT = "$FONT_NAME:size=12"
+$FONT_TITLE = "$FONT_NAME:size=12#Center#1 1"
 
 Require {
   Templates = "True"
@@ -218,6 +218,25 @@ CmdDialog {
   Pad = "3 0 1 10"
 }
 
+Dialog {
+  Background = "Solid #d4c9c3"
+  TitleFont = "$FONT_NAME:size=14:weight=bold#Center#1 1"
+  TitleColor = "#efefef #000000,70"
+  Font = "$FONT"
+  Text = "#000000"
+  Pad = "4 4 4 4"
+
+  Button {
+    Font = "$FONT"
+    Text = "#ffffff"
+
+    Focused = "Solid #8a888b"
+    Unfocused = "Solid #8a888b"
+    Hoover = "Solid #e7d6cc"
+    Pressed = "Solid #f4e7df"
+  }
+}
+
 Panel {
   Background = "Image panel.png"
   BackgroundOpacity = "100"
@@ -231,15 +250,15 @@ Panel {
   }
 
   Focused {
-    Font = "$FONT_NAME#Center#1 1""
-    COlor = "#efefef #000000,70"
+    Font = "$FONT#Center#1 1""
+    Color = "#efefef #000000,70"
   }
   Unfocused {
-    Font = "$FONT_NAME#Center#1 1""
+    Font = "$FONT#Center#1 1""
     Color = "#bbbbbb #000000,50"
   }
   Iconified {
-    Font = "$FONT_NAME:slant=italic#Center#1 1""
+    Font = "$FONT:slant=italic#Center#1 1""
     Color = "#bbbbbb #000000,50"
   }
 }
