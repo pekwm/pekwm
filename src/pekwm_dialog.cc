@@ -87,12 +87,14 @@ public:
 
 	int getX(void) const { return _gm.x; }
 	int getY(void) const { return _gm.y; }
+	uint getHeight(void) const { return _gm.height; }
+	void setHeight(uint height) { _gm.height = height; }
 
 	virtual bool setState(Window, ButtonState) {
 		return false;
 	}
 	virtual bool click(Window) { return false; }
-	virtual void render(Render &rend) = 0;
+	virtual void render(Render &rend, PSurface &surface) = 0;
 
 	virtual void place(int x, int y, uint width, uint)
 	{
@@ -125,6 +127,7 @@ protected:
 	Theme::DialogData *_data;
 	Window _window;
 	PWinObj &_parent;
+	/** Widget geometry relative to dialog window */
 	Geometry _gm;
 };
 
@@ -139,8 +142,7 @@ public:
 			return false;
 		}
 		_state = state;
-		X11Render rend(None);
-		render(rend);
+		render();
 		return true;
 	}
 
@@ -168,7 +170,12 @@ public:
 		return _font->getHeight() + _data->padHorz();
 	}
 
-	virtual void render(Render&) {
+	virtual void render(Render&, PSurface&) {
+		render();
+	}
+
+private:
+	void render(void) {
 		_data->getButton(_state)->render(&_background, 0, 0,
 						 _gm.width, _gm.height);
 		_font->setColor(_data->getButtonColor());
@@ -288,10 +295,10 @@ public:
 		return height + _data->padVert();
 	}
 
-	virtual void render(Render &rend) {
+	virtual void render(Render &rend, PSurface &surface) {
 		std::vector<Button*>::iterator it = _buttons.begin();
 		for (; it != _buttons.end(); ++it) {
-			(*it)->render(rend);
+			(*it)->render(rend, surface);
 		}
 	}
 
@@ -342,7 +349,7 @@ public:
 		return _image->getHeight();
 	}
 
-	virtual void render(Render &rend)
+	virtual void render(Render &rend, PSurface&)
 	{
 		if (_image->getWidth() > _gm.width) {
 			float aspect = float(_image->getWidth())
@@ -383,7 +390,7 @@ public:
 		return _font->getHeight() * num_lines + _data->padVert();
 	}
 
-	virtual void render(Render &rend)
+	virtual void render(Render &rend, PSurface &surface)
 	{
 		if (_lines.empty()) {
 			getLines(_gm.width, _lines);
@@ -394,7 +401,6 @@ public:
 
 		uint y = _gm.y + _data->getPad(PAD_UP);
 		std::vector<std::string>::iterator line = _lines.begin();
-		RenderSurface surface(rend, _gm);
 		for (; line != _lines.end(); ++line) {
 			_font->draw(&surface,
 				    _gm.x + _data->getPad(PAD_LEFT), y, *line);
@@ -533,7 +539,8 @@ public:
 		std::vector<DialogWidget*>::iterator it = _widgets.begin();
 		for (; it != _widgets.end(); ++it) {
 			(*it)->place((*it)->getX(), y, width, height);
-			y += (*it)->heightReq(width);
+			(*it)->setHeight((*it)->heightReq(width));
+			y += (*it)->getHeight();
 		}
 
 		render();
@@ -556,11 +563,12 @@ public:
 					_window, _background.getDrawable());
 		}
 		X11Render rend(_background.getDrawable());
+		RenderSurface surface(rend, _gm);
 		_data->getBackground()->render(rend,
 					       0, 0, _gm.width, _gm.height);
 		std::vector<DialogWidget*>::iterator it = _widgets.begin();
 		for (; it != _widgets.end(); ++it) {
-			(*it)->render(rend);
+			(*it)->render(rend, surface);
 		}
 		X11::clearWindow(_window);
 	}
@@ -610,7 +618,8 @@ protected:
 		it = _widgets.begin();
 		for (; it != _widgets.end(); ++it) {
 			(*it)->place(0, y, width, 0);
-			y += (*it)->heightReq(width);
+			(*it)->setHeight((*it)->heightReq(width));
+			y += (*it)->getHeight();
 		}
 
 		PWinObj::resize(std::max(width, _gm.width),

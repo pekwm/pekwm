@@ -61,12 +61,14 @@ X11App::X11App(Geometry gm, const std::string &title,
 	initSignalHandler();
 
 	_gm = gm;
+	XSetWindowAttributes attr;
+	attr.background_pixel = X11::getWhitePixel();
+	attr.event_mask = StructureNotifyMask;
 	_window =
-		X11::createSimpleWindow(X11::getRoot(),
-					_gm.x, _gm.y, _gm.width, _gm.height, 0,
-					X11::getBlackPixel(),
-					X11::getWhitePixel());
-	X11::selectInput(_window, StructureNotifyMask);
+		X11::createWindow(X11::getRoot(),
+				  _gm.x, _gm.y, _gm.width, _gm.height, 0,
+				  CopyFromParent, InputOutput, CopyFromParent,
+				  CWEventMask|CWBackPixel, &attr);
 	X11::selectXRandrInput();
 
 	XSizeHints default_normal_hints = {0};

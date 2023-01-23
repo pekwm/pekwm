@@ -473,10 +473,6 @@ public:
 				   uint border_width, uint depth, uint _class,
 				   Visual* visual, ulong valuemask,
 				   XSetWindowAttributes* attrs);
-	static Window createSimpleWindow(Window parent,
-					 int x, int y, uint width, uint height,
-					 uint border_width,
-					 ulong border, ulong background);
 	static Window createWmWindow(Window parent,
 				     int x, int y, uint width, uint height,
 				     uint _class, ulong event_mask);

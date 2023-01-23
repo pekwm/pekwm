@@ -31,6 +31,40 @@ query_pointer(Display *dpy, int screen, Window root)
 }
 
 void
+visual_info(Display *dpy, int screen)
+{
+	Visual *visual = DefaultVisual(dpy, screen);
+	std::cout << "DefaultVisual" << std::endl;
+	std::cout << std::endl;
+	std::cout << "id " << visual->visualid << std::endl;
+	std::cout << "class " << visual->c_class << std::endl;
+	std::cout << "red_mask " << visual->red_mask << std::endl;
+	std::cout << "green_mask " << visual->green_mask << std::endl;
+	std::cout << "blue_mask " << visual->blue_mask << std::endl;
+	std::cout << "bits_per_rgb " << visual->bits_per_rgb << std::endl;
+	std::cout << "map_entries " << visual->map_entries << std::endl;
+}
+
+void
+pixmap_formats(Display *dpy)
+{
+	int num = 0;
+	XPixmapFormatValues *xpfv = XListPixmapFormats(dpy, &num);
+	if (xpfv) {
+		for (int i = 0; i < num; i++) {
+			std::cout << "Format " << i << std::endl;
+			std::cout << "depth: " << xpfv[i].depth << std::endl;
+			std::cout << "bits_per_pixel: "
+				  << xpfv[i].bits_per_pixel << std::endl;
+			std::cout << "scanline_pad: "
+				  << xpfv[i].scanline_pad << std::endl;
+			std::cout << std::endl;
+		}
+		XFree(xpfv);
+	}
+}
+
+void
 window(Display *dpy, int screen, Window root)
 {
 	XSetWindowAttributes attrs = {0};
@@ -70,8 +104,13 @@ main(int argc, char *argv[])
 	int screen = DefaultScreen(dpy);
 	Window root = RootWindow(dpy, screen);
 
+
 	if (argc == 2 && std::string(argv[1]) == "query_pointer") {
 		query_pointer(dpy, screen, root);
+	} else if (argc == 2 && std::string(argv[1]) == "visual_info") {
+		visual_info(dpy, screen);
+	} else if (argc == 2 && std::string(argv[1]) == "pixmap_formats") {
+		pixmap_formats(dpy);
 	} else {
 		window(dpy, screen, root);
 	}

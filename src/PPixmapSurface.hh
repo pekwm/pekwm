@@ -1,3 +1,11 @@
+//
+// PPixmapSurface.hh for pekwm
+// Copyright (C) 2023 Claes Nästen <pekdon@gmail.com>
+//
+// This program is licensed under the GNU GPL.
+// See the LICENSE file for more information.
+//
+
 #ifndef _PEKWM_PPIXMAP_SURFACE_HH_
 #define _PEKWM_PPIXMAP_SURFACE_HH_
 

@@ -2034,19 +2034,6 @@ X11::createWindow(Window parent,
 	return None;
 }
 
-Window
-X11::createSimpleWindow(Window parent,
-			int x, int y, uint width, uint height,
-			uint border_width,
-			ulong border, ulong background)
-{
-	if (_dpy) {
-		return XCreateSimpleWindow(_dpy, parent, x, y, width, height,
-					   border_width, border, background);
-	}
-	return None;
-}
-
 /**
  * Create window to be used by the window manager, having override redirect
  * set to true.
