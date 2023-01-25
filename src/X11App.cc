@@ -48,10 +48,13 @@ static void sigHandler(int signal)
  */
 X11App::X11App(Geometry gm, const std::string &title,
 	       const char *wm_name, const char *wm_class,
-	       AtomName window_type, XSizeHints *normal_hints)
+	       AtomName window_type, XSizeHints *normal_hints,
+	       bool double_buffer)
 	: PWinObj(true),
 	  _wm_name(wm_name),
 	  _wm_class(wm_class),
+	  _buffer(None),
+	  _background(None),
 	  _stop(-1),
 	  _max_fd(-1)
 {
@@ -70,6 +73,9 @@ X11App::X11App(Geometry gm, const std::string &title,
 				  CopyFromParent, InputOutput, CopyFromParent,
 				  CWEventMask|CWBackPixel, &attr);
 	X11::selectXRandrInput();
+	if (double_buffer && X11::hasExtensionXdbe()) {
+		_buffer = X11::xdbeAllocBackBuffer(_window);
+	}
 
 	XSizeHints default_normal_hints = {0};
 	if (normal_hints == nullptr) {
@@ -96,6 +102,9 @@ X11App::X11App(Geometry gm, const std::string &title,
 
 X11App::~X11App(void)
 {
+	if (_buffer != None) {
+		X11::xdbeFreeBackBuffer(_buffer);
+	}
 	X11::destroyWindow(_window);
 }
 
@@ -157,6 +166,52 @@ X11App::main(uint timeout_s)
 }
 
 /**
+ * Return true if XDBE is available and enabled for this window.
+ */
+bool
+X11App::hasBuffer(void) const
+{
+	return _buffer != None;
+}
+
+/**
+ * Set window background, and update background Pixmap reference for use
+ * with getRenderBackground.
+ */
+void
+X11App::setBackground(Pixmap background)
+{
+	_background = background;
+	X11::setWindowBackgroundPixmap(_window, _background);
+}
+
+/**
+ * Return drawable to use for rendering, independent of XDBE being used
+ * or not.
+ */
+Drawable
+X11App::getRenderDrawable(void) const
+{
+	if (_buffer == None) {
+		return _window;
+	}
+	return _buffer;
+}
+
+/**
+ * Return background to use for rendering, independent of XDBE being used
+ * or not.
+ */
+Pixmap
+X11App::getRenderBackground(void) const
+{
+	if (_buffer == None) {
+		return None;
+	}
+	return _background;
+}
+
+/**
  * X11 event callback.
  */
 void
@@ -178,6 +233,18 @@ X11App::handleFd(int)
 void
 X11App::refresh(bool)
 {
+}
+
+/**
+ * Swap out the window back buffer (if one is allocated), must be called
+ * after drawing to refresh the screen.
+ */
+void
+X11App::swapBuffer(void)
+{
+	if (_buffer != None) {
+		X11::xdbeSwapBackBuffer(_window);
+	}
 }
 
 /**

@@ -128,6 +128,7 @@ message(STATUS "Looking for program sh - ${SH}")
 
 # Optons
 option(ENABLE_SHAPE "include support for Xshape" ON)
+option(ENABLE_XDBE "include support for XDBE" ON)
 option(ENABLE_XINERAMA "include support for Xinerama" ON)
 option(ENABLE_RANDR "include support for Xrandr" ON)
 option(ENABLE_XFT "include support for Xft font rendering" ON)
@@ -171,6 +172,12 @@ if (ENABLE_SHAPE AND X11_Xshape_FOUND)
 	    ${X11_Xshape_INCLUDE_PATH})
 	set(common_LIBRARIES ${common_LIBRARIES} ${X11_Xshape_LIB})
 endif (ENABLE_SHAPE AND X11_Xshape_FOUND)
+
+if (ENABLE_XDBE AND X11_Xext_FOUND)
+	set(pekwm_FEATURES "${pekwm_FEATURES} XDBE")
+	set(PEKWM_HAVE_XDBE 1)
+	set(common_LIBRARIES ${common_LIBRARIES} ${X11_Xext_LIB})
+endif (ENABLE_XDBE AND X11_Xext_FOUND)
 
 if (ENABLE_XINERAMA AND X11_Xinerama_FOUND)
 	set(pekwm_FEATURES "${pekwm_FEATURES} Xinerama")

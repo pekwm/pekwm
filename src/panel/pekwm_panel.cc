@@ -263,7 +263,7 @@ PekwmPanel::PekwmPanel(const PanelConfig &cfg, PanelTheme &theme,
 			  static_cast<uint>(sh->width),
 			  static_cast<uint>(sh->height)),
 		 "", "panel", "pekwm_panel",
-		 WINDOW_TYPE_DOCK, sh),
+		 WINDOW_TYPE_DOCK, sh, true),
 	  _cfg(cfg),
 	  _theme(theme),
 	  _ext_data(cfg, _var_data),
@@ -277,7 +277,7 @@ PekwmPanel::PekwmPanel(const PanelConfig &cfg, PanelTheme &theme,
 			 PropertyChangeMask|SubstructureNotifyMask);
 
 	renderBackground();
-	X11::setWindowBackgroundPixmap(_window, _pixmap);
+	setBackground(_pixmap);
 
 	Atom state[] = {
 		X11::getAtom(STATE_STICKY),
@@ -564,7 +564,7 @@ PekwmPanel::renderPred(renderPredFun pred, void *opaque)
 
 	int x = handle ? handle->getWidth() : 0;
 	PanelWidget *last_widget = _widgets.back();
-	X11Render rend(_window);
+	X11Render rend(getRenderDrawable(), getRenderBackground());
 	std::vector<PanelWidget*>::iterator it = _widgets.begin();
 	for (; it != _widgets.end(); ++it) {
 		if (! (*it)->isVisible()) {
@@ -585,6 +585,8 @@ PekwmPanel::renderPred(renderPredFun pred, void *opaque)
 			x += sep->getWidth();
 		}
 	}
+
+	swapBuffer();
 }
 
 void

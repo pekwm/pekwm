@@ -42,6 +42,11 @@ extern "C" {
 
 #define ShapeNotifyMask 1
 #endif // PEKWM_HAVE_SHAPE
+#ifdef PEKWM_HAVE_XDBE
+#include <X11/extensions/Xdbe.h>
+#else // ! PEKWM_HAVE_XDBE
+typedef int XdbeBackBuffer;
+#endif // PEKWM_HAVE_XDBE
 
 	extern bool xerrors_ignore; /**< If true, ignore X errors. */
 	extern unsigned int xerrors_count; /**< Number of X errors occured. */
@@ -325,6 +330,11 @@ public:
 	static uint getScrollLock(void) { return _scroll_lock; }
 	static bool hasExtensionShape(void) { return _has_extension_shape; }
 	static int getEventShape(void) { return _event_shape; }
+	static bool hasExtensionXdbe(void) {return _has_extension_xdbe; }
+	static XdbeBackBuffer xdbeAllocBackBuffer(Window win);
+	static void xdbeFreeBackBuffer(XdbeBackBuffer buf);
+	static void xdbeSwapBackBuffer(Window win);
+
 	static bool updateGeometry(uint width, uint height);
 	static Cursor getCursor(CursorType type) { return _cursor_map[type]; }
 
@@ -592,11 +602,9 @@ private:
 
 	static bool _has_extension_shape;
 	static int _event_shape;
-
+	static bool _has_extension_xdbe;
 	static bool _has_extension_xkb;
-
 	static bool _has_extension_xinerama;
-
 	static bool _has_extension_xrandr;
 	static int _event_xrandr;
 

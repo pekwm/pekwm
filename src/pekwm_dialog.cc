@@ -558,11 +558,17 @@ public:
 
 	void render(void)
 	{
-		if (_background.resize(_gm.width, _gm.height)) {
-			X11::setWindowBackgroundPixmap(
-					_window, _background.getDrawable());
+		Drawable draw;
+		if (hasBuffer()) {
+			draw = getRenderDrawable();
+		} else {
+			if (_background.resize(_gm.width, _gm.height)) {
+				setBackground(_background.getDrawable());
+			}
+			draw = _background.getDrawable();
 		}
-		X11Render rend(_background.getDrawable());
+
+		X11Render rend(draw, None);
 		RenderSurface surface(rend, _gm);
 		_data->getBackground()->render(rend,
 					       0, 0, _gm.width, _gm.height);
@@ -570,7 +576,12 @@ public:
 		for (; it != _widgets.end(); ++it) {
 			(*it)->render(rend, surface);
 		}
-		X11::clearWindow(_window);
+
+		if (hasBuffer()) {
+			swapBuffer();
+		} else {
+			X11::clearWindow(_window);
+		}
 	}
 
 	void setState(Window window, ButtonState state)
@@ -645,7 +656,8 @@ PekwmDialog::PekwmDialog(Theme::DialogData* data,
 			 const std::string& message,
 			 const std::vector<std::string>& options)
 	: X11App(gm, title.empty() ? "pekwm_dialog" : title,
-		 "dialog", "pekwm_dialog", WINDOW_TYPE_NORMAL),
+		 "dialog", "pekwm_dialog", WINDOW_TYPE_NORMAL,
+		 nullptr, true),
 	  _data(data),
 	  _raise(raise)
 {

@@ -27,6 +27,7 @@
 #cmakedefine PEKWM_HAVE_CLOCK_GETTIME
 
 #cmakedefine PEKWM_HAVE_SHAPE
+#cmakedefine PEKWM_HAVE_XDBE
 #cmakedefine PEKWM_HAVE_XINERAMA
 #cmakedefine PEKWM_HAVE_XFT
 #cmakedefine PEKWM_HAVE_PANGO

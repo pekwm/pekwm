@@ -78,7 +78,7 @@ private:
  */
 class X11Render : public Render {
 public:
-	X11Render(Drawable draw);
+	X11Render(Drawable draw, Pixmap background=None);
 	virtual ~X11Render(void);
 
 	virtual Drawable getDrawable(void) const;
@@ -97,6 +97,7 @@ public:
 
 private:
 	Drawable _draw;
+	Pixmap _background;
 	GC _gc;
 };
 
