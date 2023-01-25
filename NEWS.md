@@ -1,3 +1,13 @@
+pekwm-0.3.1
+===========
+
+Closed issues
+-------------
+
+  * Use X double buffer extension in pekwm_panel and pekwm_dialog to avoid
+    flickering on redraws.
+
+
 pekwm-0.3.0
 ===========
 

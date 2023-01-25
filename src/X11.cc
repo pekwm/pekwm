@@ -37,7 +37,6 @@ extern "C" {
 #include <X11/XKBlib.h>
 #endif
 	bool xerrors_ignore = false;
-
 	unsigned int xerrors_count = 0;
 }
 
@@ -425,6 +424,14 @@ X11::init(Display *dpy, bool synchronous, bool honour_randr)
 			XShapeQueryExtension(_dpy, &_event_shape, &dummy_error);
 	}
 #endif // PEKWM_HAVE_SHAPE
+
+#ifdef PEKWM_HAVE_XDBE
+	{
+		int major, minor;
+		_has_extension_xdbe =
+			XdbeQueryExtension(_dpy, &major, &minor);
+	}
+#endif // PEKWM_HAVE_XDBE
 
 #ifdef PEKWM_HAVE_XRANDR
 	{
@@ -828,6 +835,41 @@ X11::translateRootCoordinates(int x, int y, int *ret_x, int *ret_y)
 	XTranslateCoordinates(_dpy, _root, _root, x, y, ret_x, ret_y,
 			      &win);
 	return win;
+}
+
+XdbeBackBuffer
+X11::xdbeAllocBackBuffer(Window win)
+{
+#ifdef PEKWM_HAVE_XDBE
+	if (_has_extension_xdbe) {
+		return XdbeAllocateBackBufferName(_dpy, win, XdbeCopied);
+	}
+#endif // PEKWM_HAVE_XDBE
+	return None;
+}
+
+void
+X11::xdbeFreeBackBuffer(XdbeBackBuffer buf)
+{
+#ifdef PEKWM_HAVE_XDBE
+	if (buf != None) {
+		XdbeDeallocateBackBufferName(_dpy, buf);
+	}
+#endif // PEKWM_HAVE_XDBE
+}
+
+void
+X11::xdbeSwapBackBuffer(Window win)
+{
+#ifdef PEKWM_HAVE_XDBE
+	if (_has_extension_xdbe) {
+		XdbeSwapInfo swap_info = {
+			.swap_window = win,
+			.swap_action = XdbeCopied
+		};
+		XdbeSwapBuffers(_dpy, &swap_info, 1);
+	}
+#endif // PEKWM_HAVE_XDBE
 }
 
 /**
@@ -2257,6 +2299,7 @@ Colormap X11::_colormap = None;
 XModifierKeymap *X11::_modifier_map;
 bool X11::_has_extension_shape = false;
 int X11::_event_shape = -1;
+bool X11::_has_extension_xdbe = false;
 bool X11::_has_extension_xkb = false;
 bool X11::_has_extension_xinerama = false;
 bool X11::_has_extension_xrandr = false;

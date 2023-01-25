@@ -1,6 +1,6 @@
 //
 // X11App.hh for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -19,7 +19,9 @@ class X11App : public PWinObj {
 public:
 	X11App(Geometry gm, const std::string &title,
 	       const char *wm_name, const char *wm_class,
-	       AtomName window_type, XSizeHints *normal_hints = nullptr);
+	       AtomName window_type,
+	       XSizeHints *normal_hints = nullptr,
+	       bool double_buffer = false);
 	virtual ~X11App(void);
 	void stop(uint code);
 	void addFd(int fd);
@@ -28,9 +30,16 @@ public:
 	virtual int main(uint timeout_s);
 
 protected:
+	bool hasBuffer(void) const;
+	void setBackground(Pixmap pixmap);
+
+	Drawable getRenderDrawable(void) const;
+	Drawable getRenderBackground(void) const;
+
 	virtual void handleEvent(XEvent*);
 	virtual void handleFd(int);
 	virtual void refresh(bool);
+	virtual void swapBuffer(void);
 	virtual void handleChildDone(pid_t, int);
 
 	virtual void screenChanged(const ScreenChangeNotification &scn);
@@ -45,6 +54,8 @@ private:
 private:
 	std::string _wm_name;
 	std::string _wm_class;
+	XdbeBackBuffer _buffer;
+	Pixmap _background;
 
 	int _stop;
 	std::vector<int> _fds;

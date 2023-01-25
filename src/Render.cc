@@ -63,8 +63,9 @@ Render::~Render(void)
 
 // X11Render
 
-X11Render::X11Render(Drawable draw)
+X11Render::X11Render(Drawable draw, Pixmap background)
 	: _draw(draw),
+	  _background(background),
 	  _gc(X11::getGC())
 {
 }
@@ -114,7 +115,11 @@ X11Render::rectangle(int x, int y, uint width, uint height)
 void
 X11Render::clear(int x, int y, uint width, uint height)
 {
-	XClearArea(X11::getDpy(), _draw, x, y, width, height, False);
+	if (_background == None) {
+		XClearArea(X11::getDpy(), _draw, x, y, width, height, False);
+	} else {
+		X11::copyArea(_background, _draw, x, y, width, height, x, y);
+	}
 }
 
 void
