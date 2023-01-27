@@ -21,6 +21,7 @@ public:
 	virtual bool run_test(TestSpec spec, bool status);
 
 	void testDetectX11FontName();
+	void testDetectX11FontNameWithJustify();
 	void testReplaceFontCharset(void);
 };
 
@@ -28,6 +29,8 @@ bool
 TestFontHandler::run_test(TestSpec spec, bool status)
 {
 	TEST_FN(spec, "detectX11FontName", testDetectX11FontName());
+	TEST_FN(spec, "detectX11FontNameWithJustify",
+		testDetectX11FontNameWithJustify());
 	TEST_FN(spec, "replaceFontCharset", testReplaceFontCharset());
 	return status;
 }
@@ -41,7 +44,23 @@ TestFontHandler::testDetectX11FontName(void)
 	PFont::Type type;
 	PFont* pfont = newFont(font, tok, type);
 	delete pfont;
+	ASSERT_EQUAL("Tokens", 1, tok.size());
 	ASSERT_EQUAL("Xmb font", PFont::FONT_TYPE_XMB, type);
+}
+
+void
+TestFontHandler::testDetectX11FontNameWithJustify(void)
+{
+	std::string font =
+		"-misc-fixed-medium-r-normal-*-12-*-75-75-*-*-jisx0201.1976-0";
+	std::vector<std::string> tok;
+	PFont::Type type;
+	PFont* pfont = newFont(font + "#Right", tok, type);
+	delete pfont;
+	ASSERT_EQUAL("Tokens", 2, tok.size());
+	ASSERT_EQUAL("Font String", font, tok.front());
+	ASSERT_EQUAL("Xmb font", PFont::FONT_TYPE_XMB, type);
+	ASSERT_EQUAL("Align", "Right", tok.back());
 }
 
 void

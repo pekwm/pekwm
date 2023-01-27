@@ -125,10 +125,7 @@ PFont*
 FontHandler::newFont(const std::string &font,
 		     std::vector<std::string> &tok, PFont::Type &type)
 {
-	if (_x11_font_name == font) {
-		tok.push_back(font);
-		return newFontX11(type);
-	} else if (pekwm::ascii_ncase_equal("EMPTY", font)) {
+	if (pekwm::ascii_ncase_equal("EMPTY", font)) {
 		tok.push_back(font);
 		return new PFontEmpty;
 	}
@@ -148,6 +145,9 @@ FontHandler::newFont(const std::string &font,
 
 	switch (type) {
 	case PFont::FONT_TYPE_AUTO:
+		if (_x11_font_name == tok.front()) {
+			return newFontX11(type);
+		}
 		return newFontAuto();
 #ifdef PEKWM_HAVE_XFT
 	case PFont::FONT_TYPE_XFT:
