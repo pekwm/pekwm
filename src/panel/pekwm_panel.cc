@@ -319,6 +319,8 @@ PekwmPanel::configure(void)
 		pekwm::observerMapping()->addObserver(&_var_data, this);
 	}
 	resizeWidgets();
+
+	_wm_state.read();
 }
 
 void

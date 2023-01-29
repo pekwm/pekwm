@@ -125,13 +125,11 @@ ClientListWidget::update(void)
 		_entry_width = getWidth() / _entries.size();
 	}
 
-	{
-		int x = 0;
-		std::vector<Entry>::iterator it = _entries.begin();
-		for (; it != _entries.end(); ++it) {
-			it->setX(x);
-			x += _entry_width;
-		}
+	int x = 0;
+	std::vector<Entry>::iterator it = _entries.begin();
+	for (; it != _entries.end(); ++it) {
+		it->setX(x);
+		x += _entry_width;
 	}
 }
 
