@@ -712,6 +712,7 @@ int main(int argc, char *argv[])
 	}
 	Util::expandFileName(config_file);
 	Util::expandFileName(_pekwm_config_file);
+	initEnvConfig(Util::getDir(_pekwm_config_file), _pekwm_config_file);
 
 	Display *dpy = XOpenDisplay(display);
 	if (! dpy) {

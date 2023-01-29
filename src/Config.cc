@@ -17,6 +17,7 @@
 #include "Util.hh"
 #include "Workspaces.hh"
 #include "X11.hh" // for DPY in keyconfig code
+#include "pekwm_env.hh"
 
 #include <fstream>
 
@@ -295,8 +296,7 @@ Config::load(const std::string &config_file)
 	// file)
 	std::string cfg_env = Util::getEnv("PEKWM_CONFIG_FILE");
 	if (cfg_env.size() == 0 || _config_file.compare(cfg_env) != 0) {
-		Util::setEnv("PEKWM_CONFIG_FILE", _config_file);
-		Util::setEnv("PEKWM_CONFIG_PATH", cfg_dir);
+		initEnvConfig(cfg_dir, _config_file);
 	}
 
 	CfgParser::Entry *section;
