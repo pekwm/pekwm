@@ -8,7 +8,9 @@ Closed issues
     flickering on redraws.
   * X11 font name detection would fail if any font options was specified,
     such as alignment.
-
+  * Setup PEKWM_CONFIG_PATH and PEKWM_CONFIG_FILE in the environment of
+    pekwm_panel as it is used for icon loading, fixes icon loading issues
+    when pekwm_panel started before pekwm.
 
 pekwm-0.3.0
 ===========

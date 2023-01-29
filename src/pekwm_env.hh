@@ -34,4 +34,14 @@ initEnv(bool override)
 	initEnvSingle(override, "PEKWM_THEME_PATH", DATADIR "/pekwm/themes");
 }
 
+/**
+ * Setup environment variables pointing to pekwm configuration file.
+ */
+static void
+initEnvConfig(const std::string& cfg_path, const std::string& cfg_file)
+{
+	initEnvSingle(true, "PEKWM_CONFIG_PATH", cfg_path.c_str());
+	initEnvSingle(true, "PEKWM_CONFIG_FILE", cfg_file.c_str());
+}
+
 #endif // _PEKWM_ENV_HH_
