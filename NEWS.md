@@ -16,6 +16,8 @@ Closed issues
     when pekwm_panel started before pekwm.
   * Update ClientList on panel start, fixes blank client list until window
     focus is changed.
+  * Fix text rendering after receiving XRANDR events when using Pango Cairo
+    fonts.
 
 pekwm-0.3.0
 ===========
