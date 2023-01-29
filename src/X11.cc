@@ -888,9 +888,11 @@ X11::updateGeometry(uint width, uint height)
 	// and strut information is updated.
 	initHeads();
 
+	bool updated =
+		_screen_gm.width != width || _screen_gm.height != height;
 	_screen_gm.width = width;
 	_screen_gm.height = height;
-	return true;
+	return updated;
 #else // ! PEKWM_HAVE_XRANDR
 	return false;
 #endif // PEKWM_HAVE_XRANDR

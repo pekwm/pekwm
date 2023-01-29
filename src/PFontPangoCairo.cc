@@ -132,8 +132,12 @@ PFontPangoCairo::drawText(PSurface* dest, int x, int y,
 		return;
 	}
 
-	ensureCairoSurface(dest);
-	PFontPangoCairoLayout layout(_cairo_surface, _font_description,
+	cairo_surface_t *cairo_surface =
+		cairo_xlib_surface_create(X11::getDpy(), dest->getDrawable(),
+					  X11::getVisual(),
+					  dest->getWidth(), dest->getHeight());
+
+	PFontPangoCairoLayout layout(cairo_surface, _font_description,
 				     text, charsToLen(chars));
 	cairo_set_source_rgba(layout.getCairo(), c.r, c.g, c.b, c.a);
 	double dx = x, dy = y;
@@ -143,23 +147,6 @@ PFontPangoCairo::drawText(PSurface* dest, int x, int y,
 	PangoLayoutLine* line = pango_layout_get_line_readonly(*layout, 0);
 	pango_cairo_show_layout_line(layout.getCairo(), line);
 
-	cairo_surface_flush(_cairo_surface);
-}
-
-void
-PFontPangoCairo::ensureCairoSurface(PSurface* dest)
-{
-	if (dest->getDrawable() == _surface_drawable
-	    && dest->getWidth() == _surface_width
-	    && dest->getHeight() == _surface_height) {
-		return;
-	}
-
-	cairo_xlib_surface_set_drawable(_cairo_surface,
-					dest->getDrawable(),
-					dest->getWidth(),
-					dest->getHeight());
-	_surface_width = dest->getWidth();
-	_surface_height = dest->getHeight();
-	_surface_drawable = dest->getDrawable();
+	cairo_surface_flush(cairo_surface);
+	cairo_surface_destroy(cairo_surface);
 }

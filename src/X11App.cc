@@ -352,8 +352,9 @@ X11App::processEvent(void)
 	XEvent ev;
 	if (X11::getNextEvent(ev)) {
 		if (X11::getScreenChangeNotification(&ev, scn)) {
-			X11::updateGeometry(scn.width, scn.height);
-			screenChanged(scn);
+			if (X11::updateGeometry(scn.width, scn.height)) {
+				screenChanged(scn);
+			}
 		} else {
 			handleEvent(&ev);
 		}
