@@ -1,6 +1,6 @@
 //
 // WmState.cc for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -17,7 +17,6 @@ WmState::WmState(VarData& var_data)
 	  _active_window(None),
 	  _workspace(0)
 {
-	read();
 }
 
 WmState::~WmState(void)
@@ -36,6 +35,8 @@ WmState::read(void)
 	readClientList();
 	readDesktopNames();
 	readRootProperties();
+
+	pekwm::observerMapping()->notifyObservers(this, nullptr);
 }
 
 const std::string&
@@ -143,12 +144,12 @@ WmState::readActiveWindow(void)
 bool
 WmState::readClientList(void)
 {
-	ulong actual;
-	Window *windows;
-
-	client_info_vector old_clients = _clients;
+	client_info_vector old_clients(_clients);
 	_clients.clear();
 
+	ulong actual;
+	Window *windows;
+	bool updated = false;
 	if (X11::getProperty(X11::getRoot(),
 			     X11::getAtom(NET_CLIENT_LIST),
 			     XA_WINDOW, 0,
@@ -158,6 +159,7 @@ WmState::readClientList(void)
 			ClientInfo *client_info = popClientInfo(windows[i],
 								old_clients);
 			if (client_info == nullptr) {
+				updated = true;
 				_clients.push_back(new ClientInfo(windows[i]));
 			} else {
 				_clients.push_back(client_info);
@@ -168,10 +170,11 @@ WmState::readClientList(void)
 
 	client_info_it it = old_clients.begin();
 	for (; it != old_clients.end(); ++it) {
+		updated = true;
 		delete *it;
 	}
 
-	return old_clients.size() > 0;
+	return updated;
 }
 
 bool
