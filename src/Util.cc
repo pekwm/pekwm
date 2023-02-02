@@ -191,7 +191,7 @@ namespace Util {
 		case 0:
 			setsid();
 			execlp(PEKWM_SH, PEKWM_SH, "-c", command.c_str(),
-			       static_cast<char*>(0));
+			       NULL);
 			P_ERR("execlp failed: " << strerror(errno));
 			exit(1);
 		case -1:
