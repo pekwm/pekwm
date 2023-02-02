@@ -157,7 +157,12 @@ public:
 	virtual void unload(void) = 0;
 
 	virtual uint getWidth(const std::string& text, uint max_chars = 0) = 0;
-	virtual uint getHeight(void) { return _height; }
+	virtual bool useAscentDescent(void) const {
+		return _ascent > 0 && _descent > 0;
+	}
+	virtual uint getAscent(void) const { return _ascent; }
+	virtual uint getDescent(void) const { return _descent; }
+	virtual uint getHeight(void) const { return _height; }
 
 	virtual void setColor(PFont::Color* color) = 0;
 

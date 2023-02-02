@@ -54,7 +54,6 @@ Here is the explanation of Attributes names of themes
 | size          | Pixels vertically times pixels horizontally.                                                                                                                                   | example: "2x2"                          |
 | percent       | Any percent value from 1 to 100.                                                                                                                                               | example: "87"                           |
 | toggle        | Sets a value as true (1) or false (0).                                                                                                                                         | example: "true"                         |
-| padding       | Free pixels from top, free pixels under, free pixels from left, free pixels from right.                                                                                        | example: "2 2 2 2"                      |
 | decorname     | Name for decoration                                                                                                                                                            | example: "Default"                      |
 | colour        | A colour value in RGB format.                                                                                                                                                  | example: "#FFFFFF"                      |
 | imagename     | Name of the imagefile with an option after the #                                                                                                                               | example: "image.png"                    |
@@ -113,7 +112,8 @@ Theming of the frame.
 
 * _Height (pixels)_, Amount of pixels the titlebar should height.
 * _HeightAdapt (boolean)_, If true, Height is adapted to fit the Title font.
-* _Pad (pixels t,l,r,b)_, How many pixels are left around a title text.
+* _Pad (pixels t,d,l,r)_, How many pixels are left around a title text.
+* _PadAdapt (boolean), Set true to adjust vertical padding so that the font gets centered vertically, requires _HeightAdapt_ to be false.
 * _Focused (texture)_, Background texture for a focused titlebar.
 * _UnFocused (texture)_, Background texture for an unfocused titlebar.
 * _WidthMin (pixels)_, Minimum width of title in pixels, will also place the titlebar outside of the window borders. Use 0 to place titlebar inside borders.
@@ -204,7 +204,8 @@ Enables theming of the harbour.
 
 Themes the inside of a menu window.
 
-* _Pad (padding)_, How many pixels of space around an entry are reserved.
+* _Pad (pixels t,d,l,r)_, How many pixels of space around an entry are reserved.
+* _PadAdapt (boolean)_, Set true to adjust vertical padding so that the font gets centered vertically.
 
 #### State
 
@@ -226,7 +227,8 @@ Themes outlining the inside of a command dialog window.
 * _Font (fontstring)_, Which font to use.
 * _Texture (texture)_, Texture to use as the background.
 * _Text (colour)_, Colour of text.
-* _Pad (padding)_, Amount of pixels of space around font to reserve.
+* _Pad (pixels t,d,l,r)_, Amount of pixels of space around font to reserve.
+* _PadAdapt (boolean)_, Set true to adjust vertical padding so that the font gets centered vertically.
 
 ### Dialog
 
@@ -250,7 +252,7 @@ pekwm_theme command and the crash dialog.
 * _TitleColor (colour)_, color of the title text.
 * _Font (fontstring)_, font used for the message.
 * _Text (colour)_, color of the message text.
-* _Pad (padding)_, padding used for all elements.
+* _Pad (pixels t,d,l,r)_, padding used for all elements.
 
 #### Button
 
@@ -270,7 +272,8 @@ and resizing windows.
 * _Font (fontstring)_, Which font to use.
 * _Texture (texture)_, Texture to use as the background.
 * _Text (colour)_, Colour of text.
-* _Pad (padding)_, Amount of pixels of space around font to reserve.
+* _Pad (pixels t,d,l,r)_, Amount of pixels of space around font to reserve.
+* _PadAdapt (boolean)_, Set true to adjust vertical padding so that the font gets centered vertically.
 
 ### WorkspaceIndicator
 
@@ -281,8 +284,8 @@ Themes the workspace indicator which shows up when switching workspace.
 * _Workspace (texture)_, Texture to use when rendering a workspace.
 * _WorkspaceActive (texture)_, Texture to use when rendering the active workspace.
 * _Text (colour)_ Colour of text.
-* _EdgePadding (padding)_, Amount of pixels of space around window edges and workspaces.
-* _WorkspacePadding (padding)_, Amount of pixels of space between workspaces.
+* _EdgePadding (pixels t,d,l,r)_, Amount of pixels of space around window edges and workspaces.
+* _WorkspacePadding (pixels t,d,l,r)_, Amount of pixels of space between workspaces.
 
 ***
 

@@ -93,6 +93,12 @@ PFontXft::getWidth(const std::string &text, uint max_chars)
 	return (width + _offset_x);
 }
 
+bool
+PFontXft::useAscentDescent(void) const
+{
+	return false;
+}
+
 std::string
 PFontXft::toNativeDescr(const PFont::Descr& descr) const
 {

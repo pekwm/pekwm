@@ -105,6 +105,12 @@ PFontX11::getWidth(const std::string &text, uint max_chars)
 	return (width + _offset_x);
 }
 
+bool
+PFontX11::useAscentDescent(void) const
+{
+	return false;
+}
+
 /**
  * Draws the text on dest
  * @param dest Drawable to draw on

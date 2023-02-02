@@ -21,6 +21,7 @@ public:
 	virtual void unload(void);
 
 	virtual uint getWidth(const std::string &text, uint max_chars = 0);
+	virtual bool useAscentDescent(void) const;
 
 	virtual void setColor(PFont::Color *color);
 

@@ -97,7 +97,7 @@ public:
 	class PDecorData {
 	public:
 		PDecorData(FontHandler* fh, TextureHandler* th,
-			   const char *name=0);
+			   int version, const char *name=0);
 		~PDecorData(void);
 
 		//! @brief Returns decor name.
@@ -119,7 +119,7 @@ public:
 			return _title_width_max;
 		}
 		//! @brief Returns title text pad for dir.
-		uint getPad(PadType pad) const;
+		int getPad(PadType pad) const;
 
 		//! @brief Returns wheter all items in the title have same
 		//width.
@@ -210,6 +210,7 @@ public:
 	private:
 		FontHandler* _fh;
 		TextureHandler* _th;
+		int _version;
 
 		bool _loaded;
 		std::string _name;
@@ -217,7 +218,7 @@ public:
 		// size, padding etc
 		int _title_height;
 		int _title_width_min, _title_width_max;
-		uint _pad[PAD_NO];
+		int _pad[PAD_NO];
 		bool _title_width_symetric;
 		bool _title_height_adapt;
 
@@ -238,8 +239,11 @@ public:
 	//! @brief PMenu theme data container and parser.
 	class PMenuData {
 	public:
-		PMenuData(FontHandler* fh, TextureHandler* th);
+		PMenuData(FontHandler* fh, TextureHandler* th,
+			  int version);
 		~PMenuData(void);
+
+		void setVersion(int version) { _version = version; }
 
 		//! @brief Returns PFont used in ObjectState state.
 		inline PFont *getFont(ObjectState state) {
@@ -267,7 +271,7 @@ public:
 					? state : OBJECT_STATE_FOCUSED];
 		}
 		//! @brief Returns text pad in PadType dir.
-		inline uint getPad(PadType dir) const {
+		inline int getPad(PadType dir) const {
 			return _pad[(dir != PAD_NO) ? dir : 0];
 		}
 
@@ -281,6 +285,7 @@ public:
 	private:
 		FontHandler* _fh;
 		TextureHandler* _th;
+		int _version;
 		bool _loaded;
 
 		PFont *_font[OBJECT_STATE_NO + 1];
@@ -290,14 +295,17 @@ public:
 		PTexture *_tex_arrow[OBJECT_STATE_NO + 1];
 		PTexture *_tex_sep[OBJECT_STATE_NO];
 
-		uint _pad[PAD_NO];
+		int _pad[PAD_NO];
 	};
 
 	//! @brief CmdDialog/StatusWindow theme data container and parser.
 	class TextDialogData {
 	public:
-		TextDialogData(FontHandler* fh, TextureHandler* th);
+		TextDialogData(FontHandler* fh, TextureHandler* th,
+			       int version);
 		~TextDialogData(void);
+
+		void setVersion(int version) { _version = version; }
 
 		//! @brief Returns PFont.
 		inline PFont *getFont(void) { return _font; }
@@ -306,7 +314,7 @@ public:
 		//! @brief Returns background texture.
 		inline PTexture *getTexture(void) { return _tex; }
 		//! @brief Returns text pad in PadType dir.
-		inline uint getPad(PadType dir) const {
+		inline int getPad(PadType dir) const {
 			return _pad[(dir != PAD_NO) ? dir : 0];
 		}
 
@@ -317,13 +325,14 @@ public:
 	private:
 		FontHandler* _fh;
 		TextureHandler* _th;
+		int _version;
 		bool _loaded;
 
 		PFont *_font;
 		PFont::Color *_color;
 		PTexture *_tex;
 
-		uint _pad[PAD_NO];
+		int _pad[PAD_NO];
 	};
 
 	/**
@@ -399,13 +408,13 @@ public:
 		PFont* getTextFont(void) const { return _text_font; }
 		PFont::Color* getTextColor(void) const { return _text_color; }
 
-		uint getPad(PadType dir) const {
+		int getPad(PadType dir) const {
 			return _pad[dir < PAD_NO ? dir : 0];
 		}
-		uint padHorz(void) const {
+		int padHorz(void) const {
 			return getPad(PAD_LEFT) + getPad(PAD_RIGHT);
 		}
-		uint padVert(void) const {
+		int padVert(void) const {
 			return getPad(PAD_UP) + getPad(PAD_DOWN);
 		}
 
@@ -431,7 +440,7 @@ public:
 		PFont *_text_font;
 		PFont::Color *_text_color;
 
-		uint _pad[PAD_NO];
+		int _pad[PAD_NO];
 	};
 
 	Theme(FontHandler *fh, ImageHandler *ih, TextureHandler *th,
@@ -481,10 +490,10 @@ protected:
 		  _loaded(false),
 		  _invert_gc(None),
 		  _dialog_data(nullptr, nullptr),
-		  _menu_data(nullptr, nullptr),
+		  _menu_data(nullptr, nullptr, 0),
 		  _harbour_data(nullptr),
-		  _status_data(nullptr, nullptr),
-		  _cmd_d_data(nullptr, nullptr),
+		  _status_data(nullptr, nullptr, 0),
+		  _cmd_d_data(nullptr, nullptr, 0),
 		  _ws_indicator_data(nullptr, nullptr)
 	{
 	}

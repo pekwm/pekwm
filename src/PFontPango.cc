@@ -136,6 +136,12 @@ PFontPango::unload()
 	}
 }
 
+bool
+PFontPango::useAscentDescent(void) const
+{
+	return false;
+}
+
 std::string
 PFontPango::toNativeDescr(const PFont::Descr &descr) const
 {

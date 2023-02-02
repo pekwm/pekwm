@@ -1,5 +1,7 @@
 # default non pixmap theme for pekwm
 
+Version = "3"
+
 Require {
   Templates = "True"
 }
@@ -12,8 +14,7 @@ Define = "BaseDecor" {
   Height = "17"
   HeightAdapt = "True"
 
-  # increase first number to bring title text downwards
-  Pad = "2 0 2 0"
+  Pad = "2"
 
   Focused = "Empty"
   Unfocused = "Empty"
@@ -153,7 +154,7 @@ Harbour {
 }
 
 Menu {
-  Pad = "2 2 2 2"
+  Pad = "0 0 2 2"
   Focused {
     Font = "Sans:size=12"
     Background = "Empty"

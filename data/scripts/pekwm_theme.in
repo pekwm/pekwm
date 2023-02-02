@@ -360,7 +360,7 @@ EOF
 \$TEX_SEP_UN = "Solid \$COLOR_UN_HI 2x20"
 
 # Theme format version
-Version = "2"
+Version = "3"
 
 Require {
   Templates = "True"

@@ -141,6 +141,12 @@ PFontXmb::getWidth(const std::string &text, uint max_chars)
 	return (width + _offset_x);
 }
 
+bool
+PFontXmb::useAscentDescent(void) const
+{
+	return PFont::useAscentDescent();
+}
+
 /**
  * Draws the text on dest
  * @param dest Drawable to draw on

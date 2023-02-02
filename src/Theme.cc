@@ -31,7 +31,7 @@
 #define DEFAULT_HEIGHT 17
 #define DEFAULT_HEIGHT_STR "17"
 
-static void parse_pad(const std::string& str, uint *pad)
+static void parse_pad(const std::string& str, int *pad)
 {
 	std::vector<std::string> tok;
 	if (Util::splitString(str, tok, " \t", 4) == 4) {
@@ -41,6 +41,29 @@ static void parse_pad(const std::string& str, uint *pad)
 			} catch (const ValueException&) {
 				pad[i] = 0;
 			}
+		}
+	}
+}
+
+/**
+ * Calculate pad_up and pad_down to make Font vertically centered on the
+ * available height.
+ */
+static void calculate_pad_adapt(const int height_available, PFont* font,
+				int& pad_up, int& pad_down)
+{
+	if (height_available == 0) {
+		pad_up = 0;
+		pad_down = 0;
+	} else {
+		float height = font->getHeight();
+		float pad = height_available - height;
+		if (font->useAscentDescent()) {
+			pad_up = pad / (height / font->getAscent());
+			pad_down = pad / (height / font->getDescent());
+		} else {
+			pad_up = pad / 2;
+			pad_down = pad / 2;
 		}
 	}
 }
@@ -247,9 +270,10 @@ static const char *border_to_string[BORDER_NO_POS] =
 
 //! @brief Theme::PDecorData constructor.
 Theme::PDecorData::PDecorData(FontHandler* fh, TextureHandler* th,
-			      const char *name)
+			      int version, const char *name)
 	: _fh(fh),
 	  _th(th),
+	  _version(version),
 	  _loaded(false),
 	  _title_height(DEFAULT_HEIGHT),
 	  _title_width_min(0),
@@ -286,7 +310,7 @@ Theme::PDecorData::~PDecorData(void)
 	unload();
 }
 
-uint
+int
 Theme::PDecorData::getPad(PadType pad) const
 {
 	return _pad[(pad != PAD_NO) ? pad : 0];
@@ -322,6 +346,7 @@ Theme::PDecorData::load(CfgParser::Entry *section)
 
 	std::vector<std::string> tok;
 	CfgParserKeys keys;
+	bool title_pad_adapt = _version > 2;
 	std::string value_pad, value_focused, value_unfocused;
 
 	keys.add_numeric<int>("HEIGHT", _title_height, 10, 0);
@@ -330,6 +355,7 @@ Theme::PDecorData::load(CfgParser::Entry *section)
 	keys.add_bool("WIDTHSYMETRIC", _title_width_symetric);
 	keys.add_bool("HEIGHTADAPT", _title_height_adapt);
 	keys.add_string("PAD", value_pad, "0 0 0 0", 7);
+	keys.add_bool("PADADAPT", title_pad_adapt, title_pad_adapt);
 	keys.add_string("FOCUSED", value_focused, "Empty",
 			_th->getLengthMin());
 	keys.add_string("UNFOCUSED", value_unfocused, "Empty",
@@ -409,6 +435,14 @@ Theme::PDecorData::load(CfgParser::Entry *section)
 	loadBorder(title_section->findSection("BORDER"));
 
 	check();
+
+	if (title_pad_adapt && ! _title_height_adapt) {
+		// this is the only required state and the one that always
+		// have a font available so use it for calculations
+		PFont* font = _font[FOCUSED_STATE_FOCUSED];
+		calculate_pad_adapt(_title_height, font,
+				    _pad[PAD_UP], _pad[PAD_DOWN]);
+	}
 
 	return true;
 }
@@ -610,9 +644,11 @@ Theme::PDecorData::checkColors(void)
 // Theme::PMenuData
 
 //! @brief PMenuData constructor
-Theme::PMenuData::PMenuData(FontHandler* fh, TextureHandler* th)
+Theme::PMenuData::PMenuData(FontHandler* fh, TextureHandler* th,
+			    int version)
 	: _fh(fh),
 	  _th(th),
+	  _version(version),
 	  _loaded(false)
 {
 	for (uint i = 0; i <= OBJECT_STATE_NO; ++i) {
@@ -645,28 +681,29 @@ Theme::PMenuData::load(CfgParser::Entry *section)
 	}
 	_loaded = true;
 
-	CfgParser::Entry *value;
-	value = section->findEntry("PAD");
-	if (value) {
-		parse_pad(value->getValue(), _pad);
-	}
+	CfgParserKeys keys;
+	std::string value_pad;
+	bool pad_adapt = _version > 2;
+	keys.add_string("PAD", value_pad, "0 0 0 0", 7);
+	keys.add_bool("PADADAPT", pad_adapt, pad_adapt);
 
-	value = section->findSection("FOCUSED");
-	if (value) {
-		loadState(value, OBJECT_STATE_FOCUSED);
-	}
+	parse_pad(value_pad, _pad);
 
-	value = section->findSection("UNFOCUSED");
-	if (value) {
-		loadState(value, OBJECT_STATE_UNFOCUSED);
-	}
-
-	value = section->findSection("SELECTED");
-	if (value) {
-		loadState(value, OBJECT_STATE_SELECTED);
+	const char *states[] = {"FOCUSED", "UNFOCUSED", "SELECTED", nullptr};
+	for (int i = 0; states[i] != nullptr; i++) {
+		CfgParser::Entry *value = section->findSection(states[i]);
+		if (value) {
+			loadState(value, static_cast<ObjectState>(i));
+		}
 	}
 
 	check();
+
+	if (pad_adapt) {
+		PFont* font = _font[OBJECT_STATE_FOCUSED];
+		calculate_pad_adapt(font->getHeight(), font,
+				    _pad[PAD_UP], _pad[PAD_DOWN]);
+	}
 
 	return true;
 }
@@ -768,9 +805,11 @@ Theme::PMenuData::loadState(CfgParser::Entry *section, ObjectState state)
 // Theme::TextDialogData
 
 //! @brief TextDialogData constructor.
-Theme::TextDialogData::TextDialogData(FontHandler* fh, TextureHandler* th)
+Theme::TextDialogData::TextDialogData(FontHandler* fh, TextureHandler* th,
+				      int version)
 	: _fh(fh),
 	  _th(th),
+	  _version(version),
 	  _loaded(false),
 	  _font(0),
 	  _color(0),
@@ -798,11 +837,13 @@ Theme::TextDialogData::load(CfgParser::Entry *section)
 
 	CfgParserKeys keys;
 	std::string value_font, value_text, value_texture, value_pad;
+	bool pad_adapt = _version > 2;
 
 	keys.add_string("FONT", value_font);
 	keys.add_string("TEXT", value_text, "#000000");
 	keys.add_string("TEXTURE", value_texture, "Solid #ffffff");
 	keys.add_string("PAD", value_pad, "0 0 0 0", 7);
+	keys.add_bool("PADADAPT", pad_adapt, pad_adapt);
 
 	section->parseKeyValues(keys.begin(), keys.end());
 	keys.clear();
@@ -815,6 +856,11 @@ Theme::TextDialogData::load(CfgParser::Entry *section)
 	parse_pad(value_pad, _pad);
 
 	check();
+
+	if (pad_adapt) {
+		calculate_pad_adapt(_font->getHeight(), _font,
+				    _pad[PAD_UP], _pad[PAD_DOWN]);
+	}
 
 	return true;
 }
@@ -1206,10 +1252,10 @@ Theme::Theme(FontHandler *fh, ImageHandler *ih, TextureHandler *th,
 	  _version(0),
 	  _loaded(false),
 	  _dialog_data(fh, th),
-	  _menu_data(fh, th),
+	  _menu_data(fh, th, 0),
 	  _harbour_data(th),
-	  _status_data(fh, th),
-	  _cmd_d_data(fh, th),
+	  _status_data(fh, th, 0),
+	  _cmd_d_data(fh, th, 0),
 	  _ws_indicator_data(fh, th)
 {
 	_decors[""] = nullptr;
@@ -1368,9 +1414,13 @@ void
 Theme::loadVersion(CfgParser::Entry* root)
 {
 	CfgParserKeys keys;
-	keys.add_numeric<int>("VERSION", _version);
+	keys.add_numeric<int>("VERSION", _version, 0);
 	root->parseKeyValues(keys.begin(), keys.end());
 	keys.clear();
+
+	_menu_data.setVersion(_version);
+	_cmd_d_data.setVersion(_version);
+	_status_data.setVersion(_version);
 }
 
 void
@@ -1423,7 +1473,7 @@ Theme::loadDecors(CfgParser::Entry *root)
 			continue;
 		}
 
-		Theme::PDecorData *data = new Theme::PDecorData(_fh, _th);
+		PDecorData *data = new PDecorData(_fh, _th, _version);
 		if (data->load((*it)->getSection())) {
 			_decors[data->getName()] = data;
 		} else {
@@ -1435,8 +1485,8 @@ Theme::loadDecors(CfgParser::Entry *root)
 		// Create DEFAULT decor, let check fill it up with empty but
 		// non-null data.
 		P_WARN("Theme doesn't contain any DEFAULT decor.");
-		Theme::PDecorData *decor_data =
-			new Theme::PDecorData(_fh, _th, "DEFAULT");
+		PDecorData *decor_data =
+			new PDecorData(_fh, _th, _version, "DEFAULT");
 		decor_data->check();
 		_decors["DEFAULT"] = decor_data;
 	}

@@ -9,6 +9,8 @@ $FONT_NAME = "Sans:size=9"
 $FONT = "$FONT_NAME#Left"
 $FONT_TITLE = "Sans:size=9:weight=bold#Center#1 1"
 
+Version = "3"
+
 Require {
   Templates = "True"
 }
@@ -43,8 +45,7 @@ Define = "Border" {
 Define = "BaseDecor" {
   Height = "20"
 
-  # Increase first number to bring title text downwards
-  Pad = "2 5 5 0"
+  Pad = "0 0 5 0"
 
   Focused = "Image title.png"
   Unfocused = "Image title_unfocus.png"
@@ -230,7 +231,7 @@ CmdDialog {
   Font = "$FONT"
   Texture = "Solid #ffffff"
   Text = "#000000"
-  Pad = "3 0 1 10"
+  Pad = "0 0 1 10"
 }
 
 Panel {
@@ -263,7 +264,7 @@ Status {
   Font = "$FONT"
   Texture = "Solid #ffffff"
   Text = "#8b8b89"
-  Pad = "2 2 10 10"
+  Pad = "0 0 10 10"
 }
 
 WorkspaceIndicator {
