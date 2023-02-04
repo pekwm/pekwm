@@ -160,8 +160,15 @@ PFontXmb::drawText(PSurface *dest, int x, int y,
 	GC gc = fg ? _gc_fg : _gc_bg;
 
 	if (_fontset && (gc != None)) {
-		XmbDrawString(X11::getDpy(), dest->getDrawable(), _fontset, gc,
-			      x, y, text.c_str(), chars ? chars : text.size());
+#ifdef X_HAVE_UTF8_STRING
+		Xutf8DrawString(X11::getDpy(), dest->getDrawable(),
+				_fontset, gc, x, y,
+				text.c_str(), chars ? chars : text.size());
+#else // ! X_HAVE_UTF8_STRING
+		XmbDrawString(X11::getDpy(), dest->getDrawable(),
+			      _fontset, gc, x, y,
+			      text.c_str(), chars ? chars : text.size());
+#endif // X_HAVE_UTF8_STRING
 	}
 }
 
