@@ -10,8 +10,8 @@
 
 #include <string>
 
-#include "pekwm.hh"
 #include "Observable.hh"
+#include "Types.hh"
 
 #define DEFAULT_PLACEMENT PANEL_TOP
 

@@ -19,5 +19,5 @@ add_executable(pekwm_panel
 	       WmState.cc)
 target_compile_definitions(pekwm_panel PUBLIC PEKWM_SH="${SH}")
 target_include_directories(pekwm_panel PUBLIC ${common_INCLUDE_DIRS})
-target_link_libraries(pekwm_panel texture x11 util ${common_LIBRARIES})
+target_link_libraries(pekwm_panel lib tk ${common_LIBRARIES})
 install(TARGETS pekwm_panel DESTINATION bin)

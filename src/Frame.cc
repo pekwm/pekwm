@@ -18,7 +18,6 @@ extern "C" {
 }
 
 #include "Debug.hh"
-#include "PWinObj.hh"
 #include "PDecor.hh"
 #include "Frame.hh"
 
@@ -34,8 +33,10 @@ extern "C" {
 #include "StatusWindow.hh"
 #include "Workspaces.hh"
 #include "KeyGrabber.hh"
-#include "Theme.hh"
-#include "X11Util.hh"
+
+#include "tk/PWinObj.hh"
+#include "tk/Theme.hh"
+#include "tk/X11Util.hh"
 
 std::vector<Frame*> Frame::_frames;
 std::vector<uint> Frame::_frameid_list;

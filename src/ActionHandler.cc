@@ -12,7 +12,6 @@
 
 #include "Charset.hh"
 #include "Debug.hh"
-#include "PWinObj.hh"
 #include "PDecor.hh"
 #include "PMenu.hh"
 #include "Frame.hh"
@@ -33,7 +32,6 @@
 #include "ActionMenu.hh"
 #include "FrameListMenu.hh"
 #include "ManagerWindows.hh"
-#include "X11Util.hh"
 #include "X11.hh"
 
 #include "FocusToggleEventHandler.hh"
@@ -41,6 +39,9 @@
 #include "MoveEventHandler.hh"
 #include "KeyboardMoveResizeEventHandler.hh"
 #include "ResizeEventHandler.hh"
+
+#include "tk/PWinObj.hh"
+#include "tk/X11Util.hh"
 
 #include <memory>
 

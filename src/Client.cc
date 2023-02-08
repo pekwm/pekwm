@@ -26,7 +26,6 @@ extern "C" {
 #include "Charset.hh"
 #include "Compat.hh"
 #include "Debug.hh"
-#include "PWinObj.hh"
 #include "PDecor.hh" // PDecor::TitleItem
 #include "Client.hh"
 #include "ClientMgr.hh"
@@ -35,12 +34,14 @@ extern "C" {
 #include "AutoProperties.hh"
 #include "Frame.hh"
 #include "Workspaces.hh"
-#include "PImageIcon.hh"
-#include "ImageHandler.hh"
-#include "TextureHandler.hh"
 #include "ManagerWindows.hh"
-#include "X11Util.hh"
 #include "X11.hh"
+
+#include "tk/TextureHandler.hh"
+#include "tk/ImageHandler.hh"
+#include "tk/PWinObj.hh"
+#include "tk/PImageIcon.hh"
+#include "tk/X11Util.hh"
 
 const long Client::_clientEventMask = \
 	PropertyChangeMask|StructureNotifyMask|FocusChangeMask|KeyPressMask;

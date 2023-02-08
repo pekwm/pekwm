@@ -17,8 +17,8 @@
 
 #include "pekwm.hh"
 #include "Observable.hh"
-#include "PWinObj.hh"
-#include "PTexturePlain.hh"
+#include "tk/PWinObj.hh"
+#include "tk/PTexturePlain.hh"
 #include "PDecor.hh"
 
 class PScreen;

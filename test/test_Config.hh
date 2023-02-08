@@ -8,7 +8,7 @@
 
 #include "test.hh"
 #include "Config.hh"
-#include "Action.hh"
+#include "tk/Action.hh"
 
 class TestConfig : public TestSuite,
 		   public Config {

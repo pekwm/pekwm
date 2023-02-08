@@ -12,9 +12,10 @@
 #include "config.h"
 
 #include "pekwm.hh"
-#include "Action.hh" // For ActionOk
 #include "CfgParser.hh"
 #include "WORefMenu.hh"
+
+#include "tk/Action.hh" // For ActionOk
 
 #include <string>
 

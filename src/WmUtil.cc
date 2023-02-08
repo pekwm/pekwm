@@ -7,8 +7,9 @@
 //
 
 #include "Config.hh"
-#include "ImageHandler.hh"
 #include "WmUtil.hh"
+
+#include "tk/ImageHandler.hh"
 
 WithIconPath::WithIconPath(const Config *cfg, ImageHandler *image_handler)
 	: _image_handler(image_handler)

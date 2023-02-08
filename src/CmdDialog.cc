@@ -19,9 +19,10 @@ extern "C" {
 }
 
 #include "Charset.hh"
-#include "PWinObj.hh"
 #include "CmdDialog.hh"
 #include "Config.hh"
+
+#include "tk/PWinObj.hh"
 
 /**
  * CmdDialog constructor, init and load history file.

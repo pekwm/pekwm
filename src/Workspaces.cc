@@ -12,7 +12,6 @@
 #include "Debug.hh"
 #include "Workspaces.hh"
 #include "Config.hh"
-#include "PWinObj.hh"
 #include "PDecor.hh"
 #include "Frame.hh"
 #include "Client.hh" // For isSkip()
@@ -20,6 +19,8 @@
 #include "WinLayouter.hh"
 #include "WorkspaceIndicator.hh"
 #include "X11.hh"
+
+#include "tk/PWinObj.hh"
 
 #include <iostream>
 #include <sstream>

@@ -15,8 +15,9 @@
 #include "Observable.hh"
 #include "PanelTheme.hh"
 #include "PanelWidget.hh"
-#include "PImage.hh"
 #include "WmState.hh"
+
+#include "../tk/PImage.hh"
 
 /**
  * List of Frames/Clients on the current workspace.

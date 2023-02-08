@@ -13,7 +13,8 @@
 #include "pekwm_panel.hh"
 #include "CfgParser.hh"
 #include "PanelWidget.hh"
-#include "PWinObj.hh"
+
+#include "../tk/PWinObj.hh"
 
 /**
  * Widget providing a systray area, only one widget is allowed in the panel

@@ -6,12 +6,12 @@
 // See the LICENSE file for more information.
 //
 
-#include "Config.hh"
 #include "Debug.hh"
-#include "FontHandler.hh"
-#include "ImageHandler.hh"
 #include "PanelTheme.hh"
-#include "TextureHandler.hh"
+
+#include "../tk/FontHandler.hh"
+#include "../tk/ImageHandler.hh"
+#include "../tk/TextureHandler.hh"
 
 #define DEFAULT_BACKGROUND "SolidRaised #ffffff #eeeeee #cccccc"
 #define DEFAULT_HEIGHT 24
@@ -49,7 +49,7 @@ PanelTheme::load(const std::string &theme_dir, const std::string& theme_path)
 {
 	unload();
 
-	CfgParser theme(pekwm::configScriptPath());
+	CfgParser theme(CfgParserOpt("")); // FIXME: pekwm::configScriptPath());
 	theme.setVar("THEME_DIR", theme_dir);
 	if (! theme.parse(theme_path, CfgParserSource::SOURCE_FILE, true)) {
 		check();

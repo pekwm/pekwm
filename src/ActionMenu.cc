@@ -13,13 +13,10 @@
 
 #include "Charset.hh"
 #include "Debug.hh"
-#include "PWinObj.hh"
 #include "PDecor.hh"
 #include "PMenu.hh"
 #include "WORefMenu.hh"
 #include "ActionMenu.hh"
-#include "TextureHandler.hh"
-#include "ImageHandler.hh"
 
 #include "Config.hh"
 #include "ActionHandler.hh"
@@ -27,6 +24,10 @@
 #include "Frame.hh"
 #include "Util.hh"
 #include "WmUtil.hh"
+
+#include "tk/ImageHandler.hh"
+#include "tk/PWinObj.hh"
+#include "tk/TextureHandler.hh"
 
 //! @brief ActionMenu constructor
 //! @param type Type of menu

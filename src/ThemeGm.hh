@@ -9,9 +9,9 @@
 #ifndef _PEKWM_THEMEGM_HH_
 #define _PEKWM_THEMEGM_HH_
 
-#include "Theme.hh"
-#include "PTexturePlain.hh"
-#include "X11Util.hh"
+#include "tk/PTexturePlain.hh"
+#include "tk/Theme.hh"
+#include "tk/X11Util.hh"
 
 class ThemeState {
 public:

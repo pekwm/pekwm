@@ -11,10 +11,11 @@
 #include "pekwm_panel.hh"
 #include "PanelTheme.hh"
 #include "PanelWidget.hh"
-#include "PImage.hh"
 #include "RegexString.hh"
 #include "VarData.hh"
 #include "WmState.hh"
+
+#include "../tk/PImage.hh"
 
 /**
  * Display icon based on value from external command.

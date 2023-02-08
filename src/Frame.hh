@@ -12,9 +12,10 @@
 #include "config.h"
 
 #include "pekwm.hh"
-#include "Action.hh"
 #include "PDecor.hh"
 #include "Client.hh"
+
+#include "tk/Action.hh"
 
 class PWinObj;
 class Strut;

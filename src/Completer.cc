@@ -24,8 +24,9 @@ extern "C" {
 #include "Completer.hh"
 #include "Config.hh"
 #include "Util.hh"
-#include "PWinObj.hh"
 #include "MenuHandler.hh"
+
+#include "tk/PWinObj.hh"
 
 static bool starts_with(const std::string &str, size_t off,
 			const std::string &prefix, size_t prefix_len)

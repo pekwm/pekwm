@@ -1,6 +1,6 @@
 //
 // test_pekwm_ctrl.hh for pekwm
-// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -11,7 +11,7 @@
 #include "test.hh"
 
 #define UNITTEST
-#include "pekwm_ctrl.cc"
+#include "ctrl/pekwm_ctrl.cc"
 
 #include <utility>
 

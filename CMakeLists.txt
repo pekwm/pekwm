@@ -161,7 +161,9 @@ endif (ENABLE_IMAGE_PNG)
 
 # setup compile/link flags, one location for sharing between the different
 # compile directories
-set(common_INCLUDE_DIRS ${PROJECT_SOURCE_DIR}/src ${PROJECT_BINARY_DIR}/src
+set(common_INCLUDE_DIRS
+    ${PROJECT_BINARY_DIR}/src
+    ${PROJECT_SOURCE_DIR}/src/lib
     ${X11_INCLUDE_DIR})
 set(common_LIBRARIES ${X11_LIBRARIES})
 

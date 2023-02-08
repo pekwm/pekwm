@@ -9,7 +9,8 @@
 #include <iostream>
 
 #include "test.hh"
-#include "Action.hh"
+
+#include "tk/Action.hh"
 
 class TestAction : public Action,
 		   public TestSuite {

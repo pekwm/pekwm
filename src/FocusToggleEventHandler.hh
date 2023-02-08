@@ -1,6 +1,6 @@
 //
 // FocusToggleEventHandler.hh for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -9,12 +9,13 @@
 #ifndef _PEKWM_FOCUSTOGGLEEVENTHANDLER_HH_
 #define _PEKWM_FOCUSTOGGLEEVENTHANDLER_HH_
 
-#include "Action.hh"
 #include "Config.hh"
 #include "EventHandler.hh"
 #include "Frame.hh"
 #include "Observable.hh"
 #include "PMenu.hh"
+
+#include "tk/Action.hh"
 
 class FocusToggleEventHandler : public EventHandler,
 				public Observer

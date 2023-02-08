@@ -12,8 +12,9 @@
 
 #include "pekwm_panel.hh"
 #include "PanelTheme.hh"
-#include "PWinObj.hh"
 #include "X11.hh"
+
+#include "../tk/PWinObj.hh"
 
 /**
  * Base class for all widgets displayed on the panel.

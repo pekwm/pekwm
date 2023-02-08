@@ -19,7 +19,7 @@ class DockApp;
 class RootWO;
 class Strut;
 
-#include "Action.hh"
+#include "tk/Action.hh"
 
 class Harbour
 {

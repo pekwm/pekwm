@@ -16,7 +16,7 @@ extern "C" {
 }
 
 #define UNITTEST
-#include "pekwm_ctrl.cc"
+#include "ctrl/pekwm_ctrl.cc"
 
 class TestWindowManager : public TestSuite,
 			  public WindowManager {

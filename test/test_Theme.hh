@@ -7,7 +7,7 @@
 //
 
 #include "test.hh"
-#include "Theme.hh"
+#include "tk/Theme.hh"
 
 class TestTheme : public TestSuite {
 public:

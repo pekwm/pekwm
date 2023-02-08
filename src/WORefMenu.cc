@@ -1,6 +1,6 @@
 //
 // WORefMenu.hh for pekwm
-// Copyright (C) 2004-2020 Claes Nästen <pekdon@gmail.com>
+// Copyright (C) 2004-2023 Claes Nästen <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -8,28 +8,31 @@
 
 #include "config.h"
 
-#include "PWinObj.hh"
 #include "PDecor.hh"
 #include "PMenu.hh"
 #include "WORefMenu.hh"
 
 #include "Client.hh"
 
-//! @brief WORefMenu constructor
-//! @param theme Pointer to Theme
-//! @param title Title of menu
-//! @param name Name of menu
-//! @param decor_name Name of decor, defaults to MENU
+#include "tk/PWinObj.hh"
+
+/**
+ * WORefMenu constructor
+ * @param theme Pointer to Theme
+ * @param title Title of menu
+ * @param name Name of menu
+ * @param decor_name Name of decor, defaults to MENU
+ */
 WORefMenu::WORefMenu(const std::string &title,
 		     const std::string &name, const std::string &decor_name)
 	: PMenu(title, name, decor_name),
 	  PWinObjReference(nullptr),
 	  _title_base(title),
-	  _title_pre(" ["), _title_post("]")
+	  _title_pre(" ["),
+	  _title_post("]")
 {
 }
 
-//! @brief WORefMenu destructor
 WORefMenu::~WORefMenu(void)
 {
 }
@@ -45,7 +48,9 @@ WORefMenu::notify(Observable *observable, Observation *observation)
 	unmapAll();
 }
 
-//! @brief Sets the reference and updates the title
+/**
+ * Sets the reference and updates the title
+ */
 void
 WORefMenu::setWORef(PWinObj *wo_ref)
 {

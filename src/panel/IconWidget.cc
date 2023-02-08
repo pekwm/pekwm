@@ -9,8 +9,9 @@
 #include "Charset.hh"
 #include "Debug.hh"
 #include "IconWidget.hh"
-#include "ImageHandler.hh"
 #include "TextFormatter.hh"
+
+#include "../tk/ImageHandler.hh"
 
 IconWidget::IconWidget(const PWinObj* parent,
 		       const PanelTheme& theme,

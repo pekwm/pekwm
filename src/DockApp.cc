@@ -9,16 +9,17 @@
 
 #include "config.h"
 
-#include "PWinObj.hh"
 #include "DockApp.hh"
 
 #include "Charset.hh"
 #include "Config.hh"
 #include "X11.hh"
-#include "PTexture.hh"
 #include "PDecor.hh"
-#include "Theme.hh"
 #include "AutoProperties.hh"
+
+#include "tk/PTexture.hh"
+#include "tk/PWinObj.hh"
+#include "tk/Theme.hh"
 
 extern "C" {
 #include <X11/Xutil.h>

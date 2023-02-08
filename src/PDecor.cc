@@ -21,20 +21,21 @@ extern "C" {
 #include "Compat.hh"
 #include "Config.hh"
 #include "Debug.hh"
-#include "PWinObj.hh"
-#include "PFont.hh"
 #include "PDecor.hh"
-#include "PTexture.hh"
-#include "PTexturePlain.hh" // PTextureSolid
 #include "ActionHandler.hh"
 #include "ManagerWindows.hh"
-#include "PPixmapSurface.hh"
 #include "StatusWindow.hh"
 #include "KeyGrabber.hh"
-#include "Theme.hh"
 #include "Workspaces.hh"
 #include "X11.hh"
-#include "X11Util.hh"
+
+#include "tk/PFont.hh"
+#include "tk/PPixmapSurface.hh"
+#include "tk/PTexture.hh"
+#include "tk/PTexturePlain.hh"
+#include "tk/PWinObj.hh"
+#include "tk/Theme.hh"
+#include "tk/X11Util.hh"
 
 // PDecor::Button
 

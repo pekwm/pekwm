@@ -11,9 +11,10 @@
 
 #include "config.h"
 
-#include "Action.hh"
 #include "Completer.hh"
 #include "InputDialog.hh"
+
+#include "tk/Action.hh"
 
 #include <list>
 #include <string>

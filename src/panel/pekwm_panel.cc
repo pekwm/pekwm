@@ -6,21 +6,14 @@
 // See the LICENSE file for more information.
 //
 
-#include "pekwm.hh"
-#include "CfgUtil.hh"
 #include "Charset.hh"
 #include "Compat.hh"
 #include "Debug.hh"
-#include "FontHandler.hh"
-#include "ImageHandler.hh"
 #include "Observable.hh"
-#include "TextureHandler.hh"
 #include "Util.hh"
 #include "String.hh"
-#include "X11App.hh"
-#include "X11Util.hh"
 #include "X11.hh"
-#include "pekwm_env.hh"
+#include "../pekwm_env.hh"
 
 #include "pekwm_panel.hh"
 #include "ExternalCommandData.hh"
@@ -30,6 +23,13 @@
 #include "VarData.hh"
 #include "WidgetFactory.hh"
 #include "WmState.hh"
+
+#include "../tk/CfgUtil.hh"
+#include "../tk/FontHandler.hh"
+#include "../tk/ImageHandler.hh"
+#include "../tk/TextureHandler.hh"
+#include "../tk/X11App.hh"
+#include "../tk/X11Util.hh"
 
 extern "C" {
 #include <assert.h>

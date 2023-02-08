@@ -12,7 +12,6 @@
 
 #include "X11.hh"
 #include "Config.hh"
-#include "PWinObj.hh"
 #include "DockApp.hh"
 #include "ManagerWindows.hh"
 #include "Workspaces.hh"
@@ -23,6 +22,8 @@
 #include <algorithm>
 #include <functional>
 #include <iostream>
+
+#include "tk/PWinObj.hh"
 
 //! @brief Harbour constructor
 Harbour::Harbour(Config* cfg, AutoProperties* ap, RootWO* root_wo)

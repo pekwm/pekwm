@@ -9,7 +9,7 @@
 #include <iostream>
 
 #include "test.hh"
-#include "PFontXmb.hh"
+#include "tk/PFontXmb.hh"
 
 class MockPFontXmb : public PFontXmb {
 public:

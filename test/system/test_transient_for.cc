@@ -2,8 +2,8 @@
  * Test application for (bad) transient for usage.
  */
 
-#include "../../src/X11App.hh"
-#include "../../src/Charset.hh"
+#include "Charset.hh"
+#include "tk/X11App.hh"
 
 #include <iostream>
 

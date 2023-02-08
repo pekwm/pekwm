@@ -1,13 +1,13 @@
 //
 // test_FontHandler.hh for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
 #include "test.hh"
-#include "FontHandler.hh"
+#include "tk/FontHandler.hh"
 
 class TestFontHandler : public TestSuite,
 			public FontHandler {

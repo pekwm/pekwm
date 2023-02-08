@@ -13,9 +13,10 @@
 
 #include "pekwm.hh"
 
-#include "Action.hh"
 #include "CfgParser.hh"
-#include "PWinObj.hh"
+
+#include "tk/Action.hh"
+#include "tk/PWinObj.hh"
 
 #include <string>
 

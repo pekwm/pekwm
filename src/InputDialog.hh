@@ -17,9 +17,10 @@ extern "C" {
 #include <X11/Xlib.h>
 }
 
-#include "PWinObj.hh"
 #include "PWinObjReference.hh"
 #include "PDecor.hh"
+
+#include "tk/PWinObj.hh"
 
 class InputBuffer {
 public:

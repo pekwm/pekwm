@@ -14,9 +14,9 @@
 
 #include "pekwm.hh"
 
-#include "PWinObj.hh"
 #include "PDecor.hh"
-#include "PPixmapSurface.hh"
+#include "tk/PWinObj.hh"
+#include "tk/PPixmapSurface.hh"
 
 /**
  * Workspace indicator rendering a simple window with workspace layout

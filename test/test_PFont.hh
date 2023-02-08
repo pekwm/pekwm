@@ -9,7 +9,7 @@
 #include <iostream>
 
 #include "test.hh"
-#include "PFont.hh"
+#include "tk/PFont.hh"
 
 struct WMP {
 	const char *str;

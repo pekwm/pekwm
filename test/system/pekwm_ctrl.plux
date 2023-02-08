@@ -9,7 +9,7 @@ Start a single Xvfb pekwm_ctrl system tests in one go.
 [function set_title msg title]
 	[shell pekwm_ctrl]
 		[log test pekwm_ctrl ($msg)]
-		!$BIN_DIR/pekwm_ctrl -c xterm Set Title $title
+		!$BIN_DIR/ctrl/pekwm_ctrl -c xterm Set Title $title
 		?_PEKWM_CMD ([0-9]+) Set Title
 		[global window=$1]
 		?SH-PROMPT:
@@ -20,7 +20,7 @@ Start a single Xvfb pekwm_ctrl system tests in one go.
 
 	[shell pekwm_ctrl]
 		[log verify xterm title]
-		!$BIN_DIR/pekwm_ctrl -a list
+		!$BIN_DIR/ctrl/pekwm_ctrl -a list
 		# ... is to match a byte order mark that is output on NetBSD
 		# at the time of writing.
 		?$window xterm \((...)?$title\)
@@ -55,7 +55,7 @@ Start a single Xvfb pekwm_ctrl system tests in one go.
 
 	# list clients for debugging purposes
 	-ERROR
-	!$BIN_DIR/pekwm_ctrl -a list
+	!$BIN_DIR/ctrl/pekwm_ctrl -a list
 	?SH-PROMPT:
 
 	-(ERROR|no client match)

@@ -11,8 +11,9 @@
 
 #include "config.h"
 
-#include "PWinObj.hh"
 #include "Observable.hh"
+
+#include "tk/PWinObj.hh"
 
 /**
  * Observer with a reference to a PWinObj.

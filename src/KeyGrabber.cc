@@ -82,10 +82,10 @@ KeyGrabber::Chain::findAction(XKeyEvent *ev, bool &matched)
 KeyGrabber::KeyGrabber(void)
 	: _menu_chain(0, 0),
 	  _global_chain(0, 0), _moveresize_chain(0, 0),
-	  _input_dialog_chain(0, 0)
+	  _input_dialog_chain(0, 0),
+	  _num_lock(X11::getNumLock()),
+	  _scroll_lock(X11::getScrollLock())
 {
-	_num_lock = X11::getNumLock();
-	_scroll_lock = X11::getScrollLock();
 }
 
 //! @brief Destructor for KeyGrabber class

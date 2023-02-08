@@ -16,13 +16,14 @@
 #include "config.h"
 
 #include "pekwm.hh"
-#include "Action.hh"
 #include "AppCtrl.hh"
 #include "Client.hh"
 #include "EventHandler.hh"
 #include "EventLoop.hh"
 #include "ManagerWindows.hh"
-#include "PWinObj.hh"
+
+#include "tk/Action.hh"
+#include "tk/PWinObj.hh"
 
 #include <algorithm>
 #include <map>

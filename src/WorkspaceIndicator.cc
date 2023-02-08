@@ -1,6 +1,6 @@
 //
 // WorkspaceIndicator.cc for pekwm
-// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2009-2020 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -14,8 +14,9 @@
 #include "Config.hh"
 #include "Workspaces.hh"
 #include "WorkspaceIndicator.hh"
-#include "X11Util.hh"
 #include "X11.hh"
+
+#include "tk/X11Util.hh"
 
 /**
  * Display constructor

@@ -10,7 +10,7 @@
 #define _PEKWM_MANAGERWINDOWS_HH_
 
 #include "config.h"
-#include "PWinObj.hh"
+#include "tk/PWinObj.hh"
 #include "pekwm.hh"
 
 #include <string>

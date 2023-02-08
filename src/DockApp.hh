@@ -13,9 +13,9 @@
 
 #include "pekwm.hh"
 #include "AutoProperties.hh"
+#include "tk/PWinObj.hh"
 
 class Theme;
-class PWinObj;
 
 //! @brief DockApp handling class.
 class DockApp : public PWinObj

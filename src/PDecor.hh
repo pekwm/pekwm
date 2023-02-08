@@ -12,7 +12,7 @@
 #include "config.h"
 
 #include "Config.hh"
-#include "PWinObj.hh"
+#include "tk/PWinObj.hh"
 #include "ThemeGm.hh"
 
 class ActionEvent;

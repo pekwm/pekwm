@@ -12,11 +12,12 @@
 #include "config.h"
 
 #include "pekwm.hh"
-#include "Action.hh"
 #include "AppCtrl.hh"
 #include "CmdDialog.hh"
 #include "EventLoop.hh"
 #include "SearchDialog.hh"
+
+#include "tk/Action.hh"
 
 #include <string>
 #include <map>

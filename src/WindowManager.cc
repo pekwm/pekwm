@@ -13,9 +13,7 @@
 
 #include "config.h"
 
-#include "Color.hh"
 #include "Debug.hh"
-#include "PWinObj.hh"
 #include "PDecor.hh"
 #include "Frame.hh"
 #include "Client.hh"
@@ -24,14 +22,8 @@
 #include "ActionHandler.hh"
 #include "AutoProperties.hh"
 #include "Config.hh"
-#include "Theme.hh"
-#include "PFont.hh"
-#include "PTexture.hh"
-#include "FontHandler.hh"
-#include "TextureHandler.hh"
 #include "Workspaces.hh"
 #include "Util.hh"
-#include "X11Util.hh"
 #include "X11.hh"
 
 #include "RegexString.hh"
@@ -44,6 +36,15 @@
 #include "SearchDialog.hh"
 #include "StatusWindow.hh"
 #include "WorkspaceIndicator.hh"
+
+#include "tk/Color.hh"
+#include "tk/FontHandler.hh"
+#include "tk/PFont.hh"
+#include "tk/PTexture.hh"
+#include "tk/PWinObj.hh"
+#include "tk/TextureHandler.hh"
+#include "tk/Theme.hh"
+#include "tk/X11Util.hh"
 
 #include <cstring>
 #include <iostream>

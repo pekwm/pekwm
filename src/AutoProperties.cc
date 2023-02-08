@@ -14,9 +14,10 @@
 #include "Charset.hh"
 #include "Config.hh"
 #include "Debug.hh"
-#include "ImageHandler.hh"
 #include "Util.hh"
 #include "WmUtil.hh"
+
+#include "tk/ImageHandler.hh"
 
 static Util::StringTo<ApplyOn> apply_on_map[] =
 	{{"START", APPLY_ON_START},

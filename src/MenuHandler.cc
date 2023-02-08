@@ -12,7 +12,6 @@
 #include <map>
 #include <string>
 
-#include "PWinObj.hh"
 #include "PMenu.hh"
 #include "MenuHandler.hh"
 #include "ActionHandler.hh"
@@ -20,6 +19,8 @@
 #include "WORefMenu.hh"
 #include "ActionMenu.hh"
 #include "FrameListMenu.hh"
+
+#include "tk/PWinObj.hh"
 
 TimeFiles MenuHandler::_cfg_files;
 std::map<std::string, PMenu*> MenuHandler::_menu_map;

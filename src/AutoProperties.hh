@@ -13,8 +13,8 @@
 
 #include "pekwm.hh"
 #include "CfgParser.hh"
-#include "ImageHandler.hh"
-#include "PImageIcon.hh"
+#include "tk/ImageHandler.hh"
+#include "tk/PImageIcon.hh"
 #include "RegexString.hh"
 #include "X11.hh"
 

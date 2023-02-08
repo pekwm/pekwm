@@ -18,8 +18,9 @@
 #include "AutoProperties.hh"
 #include "CfgParser.hh"
 #include "PDecor.hh"
-#include "PPixmapSurface.hh"
 #include "PWinObjReference.hh"
+
+#include "tk/PPixmapSurface.hh"
 
 class PTexture;
 class ActionEvent;

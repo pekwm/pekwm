@@ -11,14 +11,15 @@
 #include "ActionHandler.hh"
 #include "AutoProperties.hh"
 #include "Config.hh"
-#include "FontHandler.hh"
 #include "Harbour.hh"
-#include "ImageHandler.hh"
 #include "ManagerWindows.hh"
 #include "KeyGrabber.hh"
 #include "StatusWindow.hh"
-#include "TextureHandler.hh"
-#include "Theme.hh"
+
+#include "tk/FontHandler.hh"
+#include "tk/ImageHandler.hh"
+#include "tk/TextureHandler.hh"
+#include "tk/Theme.hh"
 
 static bool s_is_starting = true;
 

@@ -1,6 +1,6 @@
 //
 // GroupingDragEvenHandler.hh for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -9,12 +9,13 @@
 #ifndef _PEKWM_GROUPINGDRAGEVENTHANDLER_HH_
 #define _PEKWM_GROUPINGDRAGEVENTHANDLER_HH_
 
-#include "Action.hh"
 #include "Client.hh"
 #include "EventHandler.hh"
 #include "Frame.hh"
 #include "Observable.hh"
 #include "StatusWindow.hh"
+
+#include "tk/Action.hh"
 
 class GroupingDragEventHandler : public EventHandler,
 				 public Observer

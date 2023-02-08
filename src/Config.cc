@@ -13,11 +13,12 @@
 #include "Config.hh"
 #include "Compat.hh"
 #include "Debug.hh"
-#include "PFont.hh"
 #include "Util.hh"
 #include "Workspaces.hh"
 #include "X11.hh" // for DPY in keyconfig code
 #include "pekwm_env.hh"
+
+#include "tk/PFont.hh"
 
 #include <fstream>
 

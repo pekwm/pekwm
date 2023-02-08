@@ -9,7 +9,7 @@
 #include <iostream>
 
 #include "test.hh"
-#include "PFontPango.hh"
+#include "tk/PFontPango.hh"
 
 class MockPFontPango : public PFontPango {
 public:

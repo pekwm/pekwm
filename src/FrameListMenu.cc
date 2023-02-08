@@ -13,7 +13,6 @@
 #include <iostream>
 
 #include "Compat.hh"
-#include "PWinObj.hh"
 #include "PDecor.hh"
 #include "PMenu.hh"
 #include "WORefMenu.hh"
@@ -23,6 +22,8 @@
 #include "Client.hh"
 #include "Frame.hh"
 #include "Workspaces.hh"
+
+#include "tk/PWinObj.hh"
 
 //! @brief FrameListMenu constructor.
 //! @param theme Pointer to Theme

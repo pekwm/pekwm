@@ -1,6 +1,6 @@
 //
 // ClientInfo.hh for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -8,9 +8,9 @@
 #ifndef _PEKWM_PANEL_CLIENT_INFO_HH
 #define _PEKWM_PANEL_CLIENT_INFO_HH
 
-#include "PImage.hh"
-#include "PImageIcon.hh"
-#include "X11Util.hh"
+#include "../tk/PImage.hh"
+#include "../tk/PImageIcon.hh"
+#include "../tk/X11Util.hh"
 
 class ClientInfo : public NetWMStates {
 public:

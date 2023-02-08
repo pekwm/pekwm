@@ -1,6 +1,6 @@
 //
 // WinLayouter.cc for pekwm
-// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
 // Copyright © 2012-2013 Andreas Schlick <ioerror{@}lavabit{.}com>
 //
 // This program is licensed under the GNU GPL.
@@ -16,8 +16,9 @@
 #include "ManagerWindows.hh"
 #include "WinLayouter.hh"
 #include "Workspaces.hh"
-#include "X11Util.hh"
 #include "X11.hh"
+
+#include "tk/X11Util.hh"
 
 static void
 populateWvec(const PWinObj *wo, std::vector<PWinObj*> &wvec)

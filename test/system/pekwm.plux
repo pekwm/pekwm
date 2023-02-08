@@ -183,7 +183,7 @@ in one go.
 [function test_warp_pointer]
 	[shell test]
 		[log test_warp_pointer]
-		!$BIN_DIR/pekwm_ctrl WarpPointer 100 100
+		!$BIN_DIR/ctrl/pekwm_ctrl WarpPointer 100 100
 		?SH-PROMPT:
 
 	[shell pekwm]
@@ -194,7 +194,7 @@ in one go.
 		!$TEST_DIR/test_client query_pointer
 		?root x 100 y 100
 		?SH-PROMPT:
-		!$BIN_DIR/pekwm_ctrl WarpPointer 300 300
+		!$BIN_DIR/ctrl/pekwm_ctrl WarpPointer 300 300
 		?SH-PROMPT:
 
 	[shell pekwm]
@@ -219,7 +219,7 @@ in one go.
 	[shell pekwm_ctrl]
 		[call init-shell]
 		-(no client match|Invalid read of size)
-		!$$VALGRIND $BIN_DIR/pekwm_ctrl -c no-resize-inc Set Maximized
+		!$$VALGRIND $BIN_DIR/ctrl/pekwm_ctrl -c no-resize-inc Set Maximized
 		?_PEKWM_CMD ([0-9]+) Set Maximized OK
 		[global window=$1]
 		?SH-PROMPT:

@@ -1,6 +1,6 @@
 //
 // PanelTheme.hh for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -12,9 +12,10 @@
 
 #include "pekwm_panel.hh"
 #include "CfgParser.hh"
-#include "PFont.hh"
-#include "PTexture.hh"
 #include "X11.hh"
+
+#include "../tk/PFont.hh"
+#include "../tk/PTexture.hh"
 
 /**
  * Theme for the panel and its widgets.
