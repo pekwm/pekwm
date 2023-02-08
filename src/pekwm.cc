@@ -142,6 +142,10 @@ main(int argc, char **argv)
 		return 1;
 	}
 
+	// Limit (on OpenBSD) to standard input, file system reads and
+	// fork-exec to spawn actual pekwm_wm.
+	pledge_x("stdio rpath proc exec", NULL);
+
 	// Get the pekwm_wm command by appending _wm to the path to ensure
 	// the correct pekwm_wm is used when running from a non-installed
 	// location.

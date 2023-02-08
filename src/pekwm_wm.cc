@@ -98,6 +98,12 @@ stop(int write_fd, const std::string &msg, WindowManager *wm)
 int
 main(int argc, char **argv)
 {
+	// Initial pass of limited access (on OpenBSD), includes prot_exec
+	// and networking to support initializing the X11 connection.
+	//
+	// It will be further limited after the connection has been made.
+	pledge_x11_required("fattr chown");
+
 	Charset::init();
 	initEnv(false);
 
@@ -179,6 +185,11 @@ main(int argc, char **argv)
 
 	WindowManager *wm =
 		WindowManager::start(config_file, replace, synchronous);
+
+	// Further limit access (on OpenBSD) after the X11 connection has
+	// been setup.
+	pledge_x("stdio rpath wpath cpath proc exec", NULL);
+
 	if (wm) {
 		try {
 			P_TRACE("Enter event loop.");

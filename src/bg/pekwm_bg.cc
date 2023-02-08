@@ -147,6 +147,9 @@ void modeStop()
 
 int main(int argc, char* argv[])
 {
+	// Limit access, limit further after X11 connection is setup.
+	pledge_x11_required("");
+
 	const char* display = NULL;
 	bool do_daemon = false;
 	bool stop = false;
@@ -219,6 +222,10 @@ int main(int argc, char* argv[])
 	signal(SIGINT, &sighandler);
 
 	X11::init(dpy, true);
+
+	// X11 connection has been setup, limit access further
+	pledge_x("stdio rpath", "");
+
 	init(dpy);
 
 	_image_handler->path_push_back(load_dir);

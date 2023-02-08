@@ -293,6 +293,8 @@ static bool actionXrmSet(const char* argv0, int argc, char** argv)
 
 int main(int argc, char* argv[])
 {
+	pledge_x11_required("");
+
 	const char* display = NULL;
 
 	static struct option opts[] = {
@@ -378,6 +380,9 @@ int main(int argc, char* argv[])
 	}
 
 	X11::init(dpy, true);
+
+	// X11 connection has been setup, limit access further
+	pledge_x("stdio", "");
 
 	if (client_re.is_match_ok()) {
 		client = findClient(client_re);
