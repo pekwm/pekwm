@@ -6,7 +6,7 @@ include $(MK)/config.mk
 
 PROGS = pekwm_panel
 
-BASE_OBJS = ../Compat.o ../Charset.o ../Debug.o
+BASE_OBJS = ../pekwm_env.o ../Compat.o ../Charset.o ../Debug.o
 CFG_PARSER_OBJS = ../CfgParser.o ../CfgParserKey.o ../CfgParserSource.o \
 	../CfgParserVarExpander.o ../CfgParserVarExpanderX11.o
 

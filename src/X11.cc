@@ -863,10 +863,9 @@ X11::xdbeSwapBackBuffer(Window win)
 {
 #ifdef PEKWM_HAVE_XDBE
 	if (_has_extension_xdbe) {
-		XdbeSwapInfo swap_info = {
-			.swap_window = win,
-			.swap_action = XdbeCopied
-		};
+		XdbeSwapInfo swap_info;
+		swap_info.swap_window = win;
+		swap_info.swap_action = XdbeCopied;
 		XdbeSwapBuffers(_dpy, &swap_info, 1);
 	}
 #endif // PEKWM_HAVE_XDBE

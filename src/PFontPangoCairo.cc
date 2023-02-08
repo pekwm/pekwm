@@ -82,9 +82,9 @@ PFontPangoCairo::Color::set(XColor* xcolor, uint alpha)
 
 PFontPangoCairo::PFontPangoCairo(void)
 	: PFontPango(),
+	  _surface_drawable(X11::getRoot()),
 	  _surface_width(X11::getWidth()),
 	  _surface_height(X11::getHeight()),
-	  _surface_drawable(X11::getRoot()),
 	  _cairo_surface(cairo_xlib_surface_create(X11::getDpy(),
 						   _surface_drawable,
 						   X11::getVisual(),

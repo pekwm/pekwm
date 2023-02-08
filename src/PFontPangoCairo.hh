@@ -13,7 +13,7 @@
 
 extern "C" {
 #include <pango/pangocairo.h>
-};
+}
 
 class PFontPangoCairo : public PFontPango {
 public:
