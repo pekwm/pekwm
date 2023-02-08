@@ -1,5 +1,6 @@
 add_executable(test_pekwm
-	test_pekwm.cc)
+	test_pekwm.cc
+	../src/pekwm_env.cc)
 add_test(NAME pekwm
 	COMMAND test_pekwm
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test/)
@@ -14,7 +15,8 @@ target_include_directories(test_pekwm_ctrl PUBLIC ${common_INCLUDE_DIRS})
 target_link_libraries(test_pekwm_ctrl x11 util ${common_LIBRARIES})
 
 add_executable(test_pekwm_panel
-	test_pekwm_panel.cc)
+	test_pekwm_panel.cc
+	../src/pekwm_env.cc)
 add_test(NAME pekwm_panel
 	COMMAND test_pekwm_panel
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test/)

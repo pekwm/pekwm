@@ -10,9 +10,6 @@
 #include "PFontPangoXft.hh"
 #include "X11.hh"
 
-static const char* FALLBACK_FONT_FAMILY = "Sans";
-static const int FALLBACK_FONT_SIZE = 12 * PANGO_SCALE;
-
 // PFontPangoXftLayout
 
 /**

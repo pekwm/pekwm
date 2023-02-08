@@ -7,7 +7,7 @@ include $(MK)/config.mk
 PROGS = pekwm pekwm_bg pekwm_cfg pekwm_ctrl pekwm_dialog \
 	pekwm_screenshot pekwm_wm
 
-BASE_OBJS = Compat.o Charset.o Debug.o
+BASE_OBJS = pekwm_env.o Compat.o Charset.o Debug.o
 CFG_PARSER_OBJS = CfgParser.o CfgParserKey.o CfgParserSource.o \
 	CfgParserVarExpander.o CfgParserVarExpanderX11.o
 
@@ -28,7 +28,7 @@ WM_OBJS = ActionHandler.o ActionMenu.o AutoProperties.o Completer.o \
 	  StatusWindow.o SearchDialog.o WORefMenu.o WindowManager.o \
 	  WinLayouter.o Workspaces.o WorkspaceIndicator.o WmUtil.o
 
-PEKWM_OBJS = pekwm.o Compat.o
+PEKWM_OBJS = pekwm.o pekwm_env.o Compat.o
 PEKWM_BG_OBJS = pekwm_bg.o $(BASE_OBJS) $(CFG_PARSER_OBJS)  \
 		String.o Util.o X11.o Color.o \
 		ImageHandler.o TextureHandler.o PTexture.o PTexturePlain.o \

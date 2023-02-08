@@ -249,28 +249,22 @@ endif (ENABLE_RANDR AND X11_Xrandr_FOUND)
 
 if (CMAKE_BUILD_TYPE MATCHES Debug)
 	set(pekwm_FEATURES "${pekwm_FEATURES} debug")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g -O0 -Wall")
 endif (CMAKE_BUILD_TYPE MATCHES Debug)
 
 if (PEDANTIC)
 	set(pekwm_FEATURES "${pekwm_FEATURES} pedantic")
-	# -Werror cause the compiler fail with:
-	#  Error: original is defined but not used.
-	# when throwing some exceptions
-	if (CMAKE_CXX_COMPILER_ID STREQUAL "SunPro")
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic")
-	else ()
-		set(CMAKE_CXX_FLAGS
-		    "${CMAKE_CXX_FLAGS} -Wall -Werror -pedantic")
-	endif ()
+	# Using C++98 with modern headers cause -pedantic to error out,
+	# no longer use -Werror for that reason. (long long is C++11)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -pedantic")
 	check_cxx_compiler_flag("-Wno-variadic-macros" NO_VARIADIC_MACROS)
 	if (NO_VARIADIC_MACROS)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-variadic-macros")
 	endif (NO_VARIADIC_MACROS)
 endif (PEDANTIC)
 
-# check after pedantic check, -Wall -Werror -pedantic will cause this
-# to fail if missing/ignored
+# check after pedantic check, -Wall -pedantic will cause this to fail if
+# missing/ignored
 check_cxx_source_compiles("
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored \"-Wdeprecated-declarations\"

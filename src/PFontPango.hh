@@ -15,7 +15,7 @@
 
 extern "C" {
 #include <pango/pango.h>
-};
+}
 
 class PFontPango : public PFont {
 public:

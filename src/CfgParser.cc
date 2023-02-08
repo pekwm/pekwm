@@ -304,8 +304,8 @@ operator<<(std::ostream &stream, const CfgParser::Entry &entry)
 }
 
 CfgParser::CfgParser(const CfgParserOpt &opt)
-	: _source(nullptr),
-	  _opt(opt),
+	: _opt(opt),
+	  _source(nullptr),
 	  _root_entry(nullptr),
 	  _is_dynamic_content(false),
 	  _section(_root_entry),

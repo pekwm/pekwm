@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.5)
 
 add_executable(pekwm_panel
 	       pekwm_panel.cc
+	       ../pekwm_env.cc
 	       BarWidget.cc
 	       ClientInfo.cc
 	       ClientListWidget.cc
