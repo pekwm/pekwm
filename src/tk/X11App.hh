@@ -63,4 +63,74 @@ private:
 	int _max_fd;
 };
 
+#ifdef PEKWM_X11_APP_MAIN
+
+#include "Observable.hh"
+
+#include "FontHandler.hh"
+#include "ImageHandler.hh"
+#include "TextureHandler.hh"
+
+#include <cassert>
+
+static std::string _config_script_path;
+static ObserverMapping *_observer_mapping = nullptr;
+static FontHandler* _font_handler = nullptr;
+static ImageHandler* _image_handler = nullptr;
+static TextureHandler* _texture_handler = nullptr;
+
+namespace pekwm
+{
+	const std::string& configScriptPath()
+	{
+		return _config_script_path;
+	}
+
+	ObserverMapping* observerMapping()
+	{
+		assert(_observer_mapping);
+		return _observer_mapping;
+	}
+
+	FontHandler* fontHandler()
+	{
+		assert(_font_handler);
+		return _font_handler;
+	}
+
+	ImageHandler* imageHandler()
+	{
+		assert(_image_handler);
+		return _image_handler;
+	}
+
+	TextureHandler* textureHandler()
+	{
+		assert(_texture_handler);
+		return _texture_handler;
+	}
+}
+
+static void
+initX11App(Display* dpy, bool font_default_x11,
+     const std::string &font_charset_override)
+{
+	_observer_mapping = new ObserverMapping();
+	_font_handler =
+		new FontHandler(font_default_x11, font_charset_override);
+	_image_handler = new ImageHandler();
+	_texture_handler = new TextureHandler();
+}
+
+static void
+cleanupX11App()
+{
+	delete _texture_handler;
+	delete _image_handler;
+	delete _font_handler;
+	delete _observer_mapping;
+}
+
+#endif // PEKWM_X11_APP_MAIN
+
 #endif // _PEKWM_X11APP_HH_
