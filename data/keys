@@ -6,6 +6,10 @@ Global {
 #
 # Adding your own frequently used actions is easy -
 # just copy it over from CHAINS and edit the keypress!
+
+	# Environment
+	KeyPress = "Ctrl Mod1 Space" { Actions = "Exec $_PEKWM_SCRIPT_PATH/pekwm_toggle_kbd_layout.sh" }
+
         # Moving in frames
         KeyPress = "Mod1 Tab" { Actions = "NextFrameMRU TempRaise" }
         KeyPress = "Mod1 Shift Tab" { Actions = "PrevFrameMRU TempRaise" }

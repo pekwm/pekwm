@@ -1,0 +1,64 @@
+#!@SH@
+#
+# Script for toggling the keyboard layout.
+#
+# Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
+#
+
+usage() {
+	cat <<EOF
+usage: $0 [-hq] (first)
+EOF
+	exit $1
+}
+
+opt_quiet="no"
+opt_first="no"
+while `test "x$1" != "x"`; do
+	case $1 in
+		"-h")
+			usage 0
+			shift
+			;;
+		"-q")
+			opt_quiet="yes"
+			shift
+			;;
+		"first")
+			opt_first="yes"
+			shift
+			;;
+		*)
+			echo "unknown argument $1"
+			usage 1
+			;;
+	esac
+done
+
+# list of keyboard layuouts to toggle between
+LAYOUTS=`xrdb -get pekwm*keyboardLayouts`
+
+if test "x$LAYOUTS" = "x"; then
+	# no layouts available to toggle between, do nothing
+	if test "x$opt_quiet" = "xno"; then
+		pekwm_dialog -D no-titlebar -t pekwm_toggle_kbd_layout.sh \
+			"ERROR: pekwm*keyboardLayouts not set or" \
+			"empty.\n\nSet to a space separated list of keyboard" \
+			"layouts to toggle between.\n\nExample:" \
+			"pekwm*keyboard: us se"
+	fi
+	exit 0
+fi
+
+# output from xprop:
+# _XKB_RULES_NAMES(STRING) = "evdev", "pc105", "us", "", ""
+if test "x$1" != "xfirst"; then
+    layout=`xprop -root _XKB_RULES_NAMES | @SED@ 's/[,"]//g' | cut -d ' ' -f 5`
+    next_layout=`echo $LAYOUTS | @SED@ "s/.*$layout \{0,1\}//" | cut -d ' ' -f 1`
+fi
+
+if test "x$next_layout" = "x"; then
+	next_layout=`echo $LAYOUTS | cut -d ' ' -f 1`
+fi
+
+setxkbmap $next_layout
