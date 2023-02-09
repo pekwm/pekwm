@@ -18,6 +18,9 @@ set(tk_SOURCES
     Render.cc
     TextureHandler.cc
     Theme.cc
+    TkButton.cc
+    TkButtonRow.cc
+    TkText.cc
     X11App.cc
     X11Util.cc)
 

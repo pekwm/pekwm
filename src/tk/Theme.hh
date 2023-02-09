@@ -17,8 +17,8 @@
 #include "Action.hh" // ActionEvent
 #include "PFont.hh" // PFont::Color
 #include "Util.hh"
+#include "PTexture.hh"
 
-class PTexture;
 class FontHandler;
 class ImageHandler;
 class TextureHandler;
