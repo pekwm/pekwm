@@ -20,6 +20,7 @@ set(tk_SOURCES
     Theme.cc
     TkButton.cc
     TkButtonRow.cc
+    TkLayout.cc
     TkText.cc
     X11App.cc
     X11Util.cc)
