@@ -240,7 +240,7 @@ Global {
         # External commands
         Chain = "Ctrl Mod4 E" {
                 KeyPress = "E" { Actions = "Exec $TERM" }
-                KeyPress = "L" { Actions = "Exec xlock -mode blank" }
+		KeyPress = "L" { Actions = "Exec $_PEKWM_SCRIPT_PATH/pekwm_lock.sh" }
                 KeyPress = "S" { Actions = "Exec pekwm_screenshot" }
                 KeyPress = "C" { Actions = "ShowCmdDialog" }
         }

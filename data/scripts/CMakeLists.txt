@@ -1,15 +1,17 @@
 cmake_minimum_required(VERSION 3.5)
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/pekwm_lock.sh.in
+	       ${CMAKE_CURRENT_BINARY_DIR}/pekwm_lock.sh @ONLY)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/pekwm_themeset.sh.in
 	       ${CMAKE_CURRENT_BINARY_DIR}/pekwm_themeset.sh @ONLY)
-
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/pekwm_ws_menu.sh.in
 	       ${CMAKE_CURRENT_BINARY_DIR}/pekwm_ws_menu.sh @ONLY)
-
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/pekwm_toggle_kbd_layout.sh.in
 	       ${CMAKE_CURRENT_BINARY_DIR}/pekwm_toggle_kbd_layout.sh @ONLY)
 
+
 install(FILES
+	${CMAKE_CURRENT_BINARY_DIR}/pekwm_lock.sh
 	${CMAKE_CURRENT_BINARY_DIR}/pekwm_ws_menu.sh
 	${CMAKE_CURRENT_BINARY_DIR}/pekwm_themeset.sh
 	${CMAKE_CURRENT_BINARY_DIR}/pekwm_toggle_kbd_layout.sh

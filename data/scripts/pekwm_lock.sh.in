@@ -1,0 +1,19 @@
+#!@SH@
+#
+# Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
+#
+# Wrapper script for various screensaver commands, resetting the keyboard
+# layout and then locking the screen.
+#
+
+# reset keyboard layout (for less password input confusion), quiet mode to not
+# pop a dialog if no layouts have been configured.
+pekwm_toggle_kbd_layout.sh -q first
+
+xlock=`which xlock 2>&1 | sed 's/no xlock in.*//'`
+if test $? -eq 0 && test "x$xlock" != "x"; then
+	xlock
+else
+	xscreensaver-command --lock
+fi
+
