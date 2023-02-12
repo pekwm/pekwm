@@ -17,7 +17,7 @@
  */
 class X11App : public PWinObj {
 public:
-	X11App(Geometry gm, const std::string &title,
+	X11App(Geometry gm, int gm_mask, const std::string &title,
 	       const char *wm_name, const char *wm_class,
 	       AtomName window_type,
 	       XSizeHints *normal_hints = nullptr,

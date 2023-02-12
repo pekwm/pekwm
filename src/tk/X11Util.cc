@@ -202,7 +202,7 @@ namespace X11Util {
 		Atom atom = X11::getAtom(MOTIF_WM_HINTS);
 		uchar *data;
 		ulong items_read;
-		if (! X11::getProperty(win, atom, atom, 20L,
+		if (! X11::getProperty(win, atom, atom, 32L,
 				       &data, &items_read)) {
 			return false;
 		}
@@ -213,6 +213,17 @@ namespace X11Util {
 
 		X11::free(data);
 		return items_read >= MWM_HINTS_NUM;
+	}
+
+	/**
+	 * Set MWM hints on window
+	 */
+	void
+	setMwmHints(Window win, const MwmHints& hints)
+	{
+		Atom atom = X11::getAtom(MOTIF_WM_HINTS);
+		X11::changeProperty(win, atom, atom, 32L, PropModeReplace,
+				    reinterpret_cast<const uchar*>(&hints), 3);
 	}
 
 	/**

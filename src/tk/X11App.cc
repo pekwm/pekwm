@@ -46,7 +46,7 @@ static void sigHandler(int signal)
 /**
  * Base for X11 applications
  */
-X11App::X11App(Geometry gm, const std::string &title,
+X11App::X11App(Geometry gm, int gm_mask, const std::string &title,
 	       const char *wm_name, const char *wm_class,
 	       AtomName window_type, XSizeHints *normal_hints,
 	       bool double_buffer)

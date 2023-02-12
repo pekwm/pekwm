@@ -117,6 +117,7 @@ namespace X11Util {
 	void grabButton(int button, int mod, int mask, Window win, int mode);
 
 	bool readMwmHints(Window win, MwmHints &hints);
+	void setMwmHints(Window win, const MwmHints& hints);
 	bool readEwmhStates(Window win, NetWMStates &win_states);
 }
 

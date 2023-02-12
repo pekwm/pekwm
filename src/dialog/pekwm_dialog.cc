@@ -12,6 +12,7 @@
 #include "Util.hh"
 #include "X11.hh"
 #include "../pekwm_env.hh"
+#include "pekwm_dialog.hh"
 
 #include <algorithm>
 #include <iostream>
@@ -27,7 +28,7 @@
 #include "../tk/Render.hh"
 #include "../tk/TextureHandler.hh"
 #include "../tk/Theme.hh"
-#include "../tk/X11App.hh"
+#include "../tk/X11Util.hh"
 
 #include "../tk/TkWidget.hh"
 #include "../tk/TkButtonRow.hh"
@@ -50,6 +51,8 @@ static ObserverMapping *_observer_mapping = nullptr;
 static FontHandler* _font_handler = nullptr;
 static ImageHandler* _image_handler = nullptr;
 static TextureHandler* _texture_handler = nullptr;
+
+PekwmDialog* PekwmDialog::_instance = nullptr;
 
 namespace pekwm
 {
@@ -79,207 +82,25 @@ namespace pekwm
 	}
 }
 
-/**
- * Dialog
- *
- * --------------------------------------------
- * | TITLE                                    |
- * --------------------------------------------
- * | Image if any is displayed here           |
- * |                                          |
- * |                                          |
- * |                                          |
- * --------------------------------------------
- * | Message text goes here                   |
- * |                                          |
- * --------------------------------------------
- * |           [Option1] [Option2]            |
- * --------------------------------------------
- *
- */
-class PekwmDialog : public X11App {
-public:
-	PekwmDialog(Theme::DialogData* data,
-		    const Geometry &gm,
-		    bool raise, const std::string& title, PImage* image,
-		    const std::string& message,
-		    const std::vector<std::string>& options);
-	virtual ~PekwmDialog(void);
-
-	static PekwmDialog *instance(void) { return _instance; }
-
-	virtual void handleEvent(XEvent *ev)
-	{
-		switch (ev->type) {
-		case ButtonPress:
-			setState(ev->xbutton.window, BUTTON_STATE_PRESSED);
-			break;
-		case ButtonRelease:
-			click(ev->xbutton.window);
-			break;
-		case ConfigureNotify:
-			resize(ev->xconfigure.width, ev->xconfigure.height);
-			break;
-		case EnterNotify:
-			setState(ev->xbutton.window, BUTTON_STATE_HOVER);
-			break;
-		case LeaveNotify:
-			setState(ev->xbutton.window, BUTTON_STATE_FOCUSED);
-			break;
-		case MapNotify:
-			break;
-		case ReparentNotify:
-			break;
-		case UnmapNotify:
-			break;
-		default:
-			P_DBG("UNKNOWN EVENT " << ev->type);
-			break;
-		}
-	}
-
-	virtual void resize(uint width, uint height)
-	{
-		if (_gm.width == width && _gm.height == height) {
-			return;
-		}
-
-		_gm.width = width;
-		_gm.height = height;
-
-		// FIXME: first pass calculating "important" height req, then
-		// assign size left to image
-
-		int y = 0;
-		std::vector<TkWidget*>::iterator it = _widgets.begin();
-		for (; it != _widgets.end(); ++it) {
-			(*it)->place((*it)->getX(), y, width, height);
-			(*it)->setHeight((*it)->heightReq(width));
-			y += (*it)->getHeight();
-		}
-
-		render();
-	}
-
-	void show(void)
-	{
-		render();
-		if (_raise) {
-			X11::mapRaised(_window);
-		} else {
-			X11::mapWindow(_window);
-		}
-	}
-
-	void render(void)
-	{
-		Drawable draw;
-		if (hasBuffer()) {
-			draw = getRenderDrawable();
-		} else {
-			if (_background.resize(_gm.width, _gm.height)) {
-				setBackground(_background.getDrawable());
-			}
-			draw = _background.getDrawable();
-		}
-
-		X11Render rend(draw, None);
-		RenderSurface surface(rend, _gm);
-		_data->getBackground()->render(rend,
-					       0, 0, _gm.width, _gm.height);
-		std::vector<TkWidget*>::iterator it = _widgets.begin();
-		for (; it != _widgets.end(); ++it) {
-			(*it)->render(rend, surface);
-		}
-
-		if (hasBuffer()) {
-			swapBuffer();
-		} else {
-			X11::clearWindow(_window);
-		}
-	}
-
-	void setState(Window window, ButtonState state)
-	{
-		std::vector<TkWidget*>::iterator it = _widgets.begin();
-		for (; it != _widgets.end(); ++it) {
-			if ((*it)->setState(window, state)) {
-				break;
-			}
-		}
-	}
-
-	void click(Window window)
-	{
-		std::vector<TkWidget*>::iterator it = _widgets.begin();
-		for (; it != _widgets.end(); ++it) {
-			if ((*it)->click(window)) {
-				break;
-			}
-		}
-	}
-
-protected:
-	void initWidgets(const std::string& title, PImage* image,
-			 const std::string& message,
-			 const std::vector<std::string>& options);
-
-	void placeWidgets(void)
-	{
-		// height is dependent on the available width, get requested
-		// width first.
-		uint width = _gm.width;
-		std::vector<TkWidget*>::iterator it = _widgets.begin();
-		for (; it != _widgets.end(); ++it) {
-			uint width_req = (*it)->widthReq();
-			if (width_req && width_req > width) {
-				width = width_req;
-			}
-		}
-		if (width == 0) {
-			width = WIDTH_DEFAULT;
-		}
-
-		uint y = 0;
-		it = _widgets.begin();
-		for (; it != _widgets.end(); ++it) {
-			(*it)->place(0, y, width, 0);
-			(*it)->setHeight((*it)->heightReq(width));
-			y += (*it)->getHeight();
-		}
-
-		PWinObj::resize(std::max(width, _gm.width),
-				std::max(y, _gm.height));
-	}
-
-private:
-	static void stopDialog(int retcode);
-
-private:
-	Theme::DialogData* _data;
-	bool _raise;
-
-	PPixmapSurface _background;
-	std::vector<TkWidget*> _widgets;
-
-	static PekwmDialog *_instance;
-};
-
 PekwmDialog::PekwmDialog(Theme::DialogData* data,
-			 const Geometry &gm,
-			 bool raise, const std::string& title, PImage* image,
-			 const std::string& message,
-			 const std::vector<std::string>& options)
-	: X11App(gm, title.empty() ? "pekwm_dialog" : title,
-		 "dialog", "pekwm_dialog", WINDOW_TYPE_NORMAL,
+			 const Geometry &gm, int gm_mask, int decorations,
+			 bool raise, const PekwmDialogConfig& config)
+	: X11App(gm, gm_mask, config.getTitle(),
+		 "dialog", "pekwm_dialog", WINDOW_TYPE_DIALOG,
 		 nullptr, true),
 	  _data(data),
 	  _raise(raise)
 {
 	assert(_instance == nullptr);
 	_instance = this;
+
+	if (decorations) {
+		MwmHints mwm_hints(MWM_HINTS_DECORATIONS, 0, decorations);
+		X11Util::setMwmHints(_window, mwm_hints);
+	}
+
 	// TODO: setup size minimum based on image
-	initWidgets(title, image, message, options);
+	initWidgets(config);
 	placeWidgets();
 }
 
@@ -293,21 +114,172 @@ PekwmDialog::~PekwmDialog(void)
 }
 
 void
-PekwmDialog::initWidgets(const std::string& title, PImage* image,
-			 const std::string& message,
-			 const std::vector<std::string>& options)
+PekwmDialog::handleEvent(XEvent *ev)
 {
-	if (title.size()) {
-		_widgets.push_back(new TkText(_data, *this, title, true));
+	switch (ev->type) {
+	case ButtonPress:
+		setState(ev->xbutton.window, BUTTON_STATE_PRESSED);
+		break;
+	case ButtonRelease:
+		click(ev->xbutton.window);
+		break;
+	case ConfigureNotify:
+		resize(ev->xconfigure.width, ev->xconfigure.height);
+		break;
+	case EnterNotify:
+		setState(ev->xbutton.window, BUTTON_STATE_HOVER);
+		break;
+	case LeaveNotify:
+		setState(ev->xbutton.window, BUTTON_STATE_FOCUSED);
+		break;
+	case MapNotify:
+		break;
+	case ReparentNotify:
+		break;
+	case UnmapNotify:
+		break;
+	default:
+		P_DBG("UNKNOWN EVENT " << ev->type);
+		break;
 	}
-	if (image) {
-		_widgets.push_back(new TkImage(_data, *this, image));
+}
+
+void
+PekwmDialog::resize(uint width, uint height)
+{
+	if (_gm.width == width && _gm.height == height) {
+		return;
 	}
-	if (message.size()) {
-		_widgets.push_back(new TkText(_data, *this, message, false));
+
+	_gm.width = width;
+	_gm.height = height;
+
+	// FIXME: first pass calculating "important" height req, then
+	// assign size left to image
+
+	int y = 0;
+	std::vector<TkWidget*>::iterator it = _widgets.begin();
+	for (; it != _widgets.end(); ++it) {
+		(*it)->place((*it)->getX(), y, width, height);
+		(*it)->setHeight((*it)->heightReq(width));
+		y += (*it)->getHeight();
+	}
+
+	render();
+}
+
+void
+PekwmDialog::show(void)
+{
+	render();
+	if (_raise) {
+		X11::mapRaised(_window);
+	} else {
+		X11::mapWindow(_window);
+	}
+}
+
+void
+PekwmDialog::render(void)
+{
+	Drawable draw;
+	if (hasBuffer()) {
+		draw = getRenderDrawable();
+	} else {
+		if (_background.resize(_gm.width, _gm.height)) {
+			setBackground(_background.getDrawable());
+		}
+		draw = _background.getDrawable();
+	}
+
+	X11Render rend(draw, None);
+	RenderSurface surface(rend, _gm);
+	_data->getBackground()->render(rend,
+				       0, 0, _gm.width, _gm.height);
+	std::vector<TkWidget*>::iterator it = _widgets.begin();
+	for (; it != _widgets.end(); ++it) {
+		(*it)->render(rend, surface);
+	}
+
+	if (hasBuffer()) {
+		swapBuffer();
+	} else {
+		X11::clearWindow(_window);
+	}
+}
+
+void
+PekwmDialog::setState(Window window, ButtonState state)
+{
+	std::vector<TkWidget*>::iterator it = _widgets.begin();
+	for (; it != _widgets.end(); ++it) {
+		if ((*it)->setState(window, state)) {
+			break;
+		}
+	}
+}
+
+void
+PekwmDialog::click(Window window)
+{
+	std::vector<TkWidget*>::iterator it = _widgets.begin();
+	for (; it != _widgets.end(); ++it) {
+		if ((*it)->click(window)) {
+			break;
+		}
+	}
+}
+
+void
+PekwmDialog::initWidgets(const PekwmDialogConfig& config)
+{
+	if (! config.getTitle().empty()) {
+		TkWidget* widget = 
+			new TkText(_data, *this, config.getTitle(), true);
+		_widgets.push_back(widget);
+	}
+	if (config.getImage() != nullptr) {
+		TkWidget* widget =
+			new TkImage(_data, *this, config.getImage());
+		_widgets.push_back(widget);
+	}
+	if (! config.getMessage().empty()) {
+		TkWidget* widget =
+			new TkText(_data, *this, config.getMessage(), false);
+		_widgets.push_back(widget);
 	}
 	_widgets.push_back(new TkButtonRow(_data, *this,
-					   PekwmDialog::stopDialog, options));
+					   PekwmDialog::stopDialog,
+					   config.getOptions()));
+}
+
+void
+PekwmDialog::placeWidgets(void)
+{
+	// height is dependent on the available width, get requested
+	// width first.
+	uint width = _gm.width;
+	std::vector<TkWidget*>::iterator it = _widgets.begin();
+	for (; it != _widgets.end(); ++it) {
+		uint width_req = (*it)->widthReq();
+		if (width_req && width_req > width) {
+			width = width_req;
+		}
+	}
+	if (width == 0) {
+		width = WIDTH_DEFAULT;
+	}
+
+	uint y = 0;
+	it = _widgets.begin();
+	for (; it != _widgets.end(); ++it) {
+		(*it)->place(0, y, width, 0);
+		(*it)->setHeight((*it)->heightReq(width));
+		y += (*it)->getHeight();
+	}
+
+	PWinObj::resize(std::max(width, _gm.width),
+			std::max(y, _gm.height));
 }
 
 void
@@ -315,8 +287,6 @@ PekwmDialog::stopDialog(int retcode)
 {
 	PekwmDialog::instance()->stop(retcode);
 }
-
-PekwmDialog* PekwmDialog::_instance = nullptr;
 
 static void init(Display* dpy,
 		 bool font_default_x11,
@@ -340,18 +310,44 @@ static void cleanup()
 static void usage(const char* name, int ret)
 {
 	std::cout << "usage: " << name;
-	std::cout << " [-dhitfl] [-o option|-o option...] message"
+	std::cout << " [-dDhitfl] [-o option|-o option...] message"
 		  << std::endl;
-	std::cout << "  -d --display dpy    Display" << std::endl;
-	std::cout << "  -h --help           Display this information"
+	std::cout << "  -d --display dpy     Display" << std::endl;
+	std::cout << "  -D --decorations str [all|no-border|no-titlebar]"
 		  << std::endl;
-	std::cout << "  -i --image          Image under title" << std::endl;
-	std::cout << "  -o --option         Option (many allowed)"
+	std::cout << "  -h --help            Display this information"
 		  << std::endl;
-	std::cout << "  -t --title          Dialog title" << std::endl;
-	std::cout << "  -f --log-file        Set log file." << std::endl;
-	std::cout << "  -l --log-level       Set log level." << std::endl;
+	std::cout << "  -i --image           Image under title" << std::endl;
+	std::cout << "  -o --option          Option (many allowed)"
+		  << std::endl;
+	std::cout << "  -t --title           Dialog title" << std::endl;
+	std::cout << "  -f --log-file        Set log file" << std::endl;
+	std::cout << "  -l --log-level       Set log level" << std::endl;
 	exit(ret);
+}
+
+static int
+parse_decorations(const std::string& decorations)
+{
+	if (decorations.empty() || decorations == "all") {
+		return MWM_DECOR_ALL;
+	}
+
+	int mask = MWM_DECOR_BORDER | MWM_DECOR_TITLE;
+	std::vector<std::string> toks;
+	Util::splitString(decorations, toks, ",");
+	std::vector<std::string>::iterator it(toks.begin());
+	for (; it != toks.end(); ++it) {
+		if (*it == "no-border") {
+			mask &= ~MWM_DECOR_BORDER;
+		} else if (*it == "no-titlebar") {
+			mask &= ~MWM_DECOR_TITLE;
+		} else {
+			std::cerr << "unknown decor: " << *it << std::endl;
+		}
+	}
+
+	return mask;
 }
 
 int main(int argc, char* argv[])
@@ -364,11 +360,14 @@ int main(int argc, char* argv[])
 	std::string config_file = Util::getEnv("PEKWM_CONFIG_FILE");
 	std::string image_name;
 	std::vector<std::string> options;
+	int decorations = 0;
 
-	static struct option opts[] = {
+	const struct option opts[] = {
 		{const_cast<char*>("config"), required_argument, nullptr, 'c'},
 		{const_cast<char*>("display"), required_argument, nullptr,
 		 'd'},
+		{const_cast<char*>("decoration"), required_argument, nullptr,
+		 'D'},
 		{const_cast<char*>("geometry"), required_argument, nullptr,
 		 'g'},
 		{const_cast<char*>("help"), no_argument, nullptr, 'h'},
@@ -387,7 +386,7 @@ int main(int argc, char* argv[])
 	initEnv(false);
 
 	int ch;
-	while ((ch = getopt_long(argc, argv, "c:d:g:hi:o:rt:",
+	while ((ch = getopt_long(argc, argv, "c:d:D:g:hi:o:rt:",
 				 opts, nullptr)) != -1) {
 		switch (ch) {
 		case 'c':
@@ -395,6 +394,9 @@ int main(int argc, char* argv[])
 			break;
 		case 'd':
 			display = optarg;
+			break;
+		case 'D':
+			decorations = parse_decorations(optarg);
 			break;
 		case 'g':
 			gm_mask |= X11::parseGeometry(optarg, gm);
@@ -434,10 +436,6 @@ int main(int argc, char* argv[])
 		config_file = Util::getConfigDir() + "/config";
 	}
 	Util::expandFileName(config_file);
-
-	if (options.empty()) {
-		options.push_back("Ok");
-	}
 
 	std::string message;
 	for (int i = optind; i < argc; i++) {
@@ -488,8 +486,9 @@ int main(int argc, char* argv[])
 		// run in separate scope to get Theme destructed before cleanup
 		Theme theme(_font_handler, _image_handler, _texture_handler,
 			    theme_dir, theme_variant);
+		PekwmDialogConfig config(title, image, message, options);
 		PekwmDialog dialog(theme.getDialogData(),
-				   gm, raise, title, image, message, options);
+				   gm, gm_mask, decorations, raise, config);
 		dialog.show();
 		ret = dialog.main(60);
 	}

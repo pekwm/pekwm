@@ -1,3 +1,11 @@
+//
+// TkButton.cc for pekwm
+// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
+//
+// This program is licensed under the GNU GPL.
+// See the LICENSE file for more information.
+//
+
 #include "TkButton.hh"
 
 TkButton::TkButton(Theme::DialogData* data, PWinObj& parent,
@@ -31,4 +39,66 @@ TkButton::TkButton(Theme::DialogData* data, PWinObj& parent,
 
 TkButton::~TkButton(void)
 {
+}
+
+bool
+TkButton::setState(Window window, ButtonState state)
+{
+	if (window != _window) {
+		return false;
+	}
+	_state = state;
+	render();
+	return true;
+}
+
+bool
+TkButton::click(Window window)
+{
+	if (window != _window) {
+		return false;
+	}
+	if (_state == BUTTON_STATE_HOVER
+	    || _state == BUTTON_STATE_PRESSED) {
+		_stop(_retcode);
+	}
+	return true;
+}
+
+void
+TkButton::place(int x, int y, uint, uint tot_height)
+{
+	TkWidget::place(x, y, _gm.width, tot_height);
+	X11::moveWindow(_window, _gm.x, _gm.y);
+}
+
+uint
+TkButton::widthReq(void) const
+{
+	return _font->getWidth(_text) + _data->padVert();
+}
+
+uint
+TkButton::heightReq(uint) const
+{
+	return _font->getHeight() + _data->padHorz();
+}
+
+void
+TkButton::render(Render&, PSurface&) {
+	render();
+}
+
+
+void
+TkButton::render(void)
+{
+	_data->getButton(_state)->render(&_background, 0, 0,
+					 _gm.width, _gm.height);
+	_font->setColor(_data->getButtonColor());
+	_font->draw(&_background,
+		    _data->getPad(PAD_LEFT), _data->getPad(PAD_UP),
+		    _text);
+
+	X11::clearWindow(_window);
 }

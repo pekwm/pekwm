@@ -44,6 +44,8 @@ The illustration below depicts the layout of dialog elements:
 
 **--display** _DISPLAY_ Connect to DISPLAY instead of DISPLAY set in environment.
 
+**--decorations** Set requested decorations. all, no-border and no-titlebar supported.
+
 **--geometry** _GEOMETRY_ Geometry of window, default is 200x50 expanding for image size.
 
 **--image** _IMAGE_ Path to image to display.
