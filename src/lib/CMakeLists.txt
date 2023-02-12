@@ -13,6 +13,7 @@ set(lib_SOURCES
     Observable.cc
     RegexString.cc
     String.cc
+    Tokenizer.cc
     Util.cc
     X11.cc)
 
