@@ -8,6 +8,8 @@
 
 #include "String.hh"
 
+#include <cstring>
+
 /**
  * Return true if str starts with start, else false.
  */

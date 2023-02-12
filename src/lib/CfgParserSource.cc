@@ -144,7 +144,7 @@ CfgParserSourceCommand::open(void)
 		std::string path(Util::getEnv("PATH"));
 		path = _command_path + ":" + path;
 		env.override("PATH", path);
-		execle(PEKWM_SH, PEKWM_SH, "-c", _name.c_str(), NULL,
+		execle(PEKWM_SH, PEKWM_SH, "-c", _name.c_str(), (void*) 0,
 		       env.getCEnv());
 
 		::close (STDOUT_FILENO);

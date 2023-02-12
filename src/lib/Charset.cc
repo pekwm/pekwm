@@ -289,7 +289,8 @@ namespace Charset
 		std::string str_sys;
 
 		// reset state of wctomb before starting
-		wctomb(nullptr, 0);
+		int tmp = wctomb(nullptr, 0);
+		(void)tmp;
 
 		Utf8Iterator it(str, 0);
 		for (; ! it.end(); ++it) {

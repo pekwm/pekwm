@@ -9,8 +9,8 @@ TkButton::TkButton(Theme::DialogData* data, PWinObj& parent,
 	  _font(data->getButtonFont()),
 	  _state(BUTTON_STATE_FOCUSED)
 {
-	_gm.width = widthReq();
-	_gm.height = heightReq(_gm.width);
+	_gm.width = TkButton::widthReq();
+	_gm.height = TkButton::heightReq(_gm.width);
 	_background.resize(_gm.width, _gm.height);
 
 	XSetWindowAttributes attr;

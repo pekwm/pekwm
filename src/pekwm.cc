@@ -99,7 +99,7 @@ handleOkResult(char *path, char **argv, int read_fd)
 		} else {
 			command = "exec " + command;
 			execl(PEKWM_SH, PEKWM_SH , "-c", command.c_str(),
-			      NULL);
+			      (void*) 0);
 		}
 
 		std::cerr << "failed to run restart command: "
