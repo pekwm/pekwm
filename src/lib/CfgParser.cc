@@ -316,7 +316,7 @@ CfgParser::CfgParser(const CfgParserOpt &opt)
 		CFG_PARSER_VAR_EXPANDER_X11_ATOM,
 		CFG_PARSER_VAR_EXPANDER_X11_RES
 	};
-	for (int i = 0; i < sizeof(types)/sizeof(types[0]); i++) {
+	for (size_t i = 0; i < sizeof(types)/sizeof(types[0]); i++) {
 		CfgParserVarExpander* exp =
 			mkCfgParserVarExpander(types[i],
 					       _opt.registerXResource());
