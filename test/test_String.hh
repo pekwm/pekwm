@@ -1,6 +1,6 @@
 //
 // test_String.hh for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -23,6 +23,8 @@ public:
 
 	virtual bool run_test(TestSpec spec, bool status);
 
+	static void testStrStartsWith(void);
+	static void testStrEndsWith(void);
 	static void testAsciiTolower(void);
 	static void testAsciiNCaseCmp(void);
 	static void testAsciiNCaseEqual(void);
@@ -31,10 +33,40 @@ public:
 bool
 TestString::run_test(TestSpec spec, bool status)
 {
+	TEST_FN(spec, "str_starts_with", testStrStartsWith());
+	TEST_FN(spec, "str_ends_with", testStrEndsWith());
 	TEST_FN(spec, "ascii_tolower", testAsciiTolower());
 	TEST_FN(spec, "ascii_ncase_cmp", testAsciiNCaseCmp());
 	TEST_FN(spec, "ascii_ncase_equal", testAsciiNCaseEqual());
 	return status;
+}
+
+void
+TestString::testStrStartsWith(void)
+{
+	ASSERT_EQUAL("empty", false, pekwm::str_starts_with("", '\n'));
+	ASSERT_EQUAL("not match", false, pekwm::str_starts_with("text", '\n'));
+	ASSERT_EQUAL("match", true, pekwm::str_starts_with("\ntext", '\n'));
+
+	ASSERT_EQUAL("empty", false, pekwm::str_starts_with("", "\\n"));
+	ASSERT_EQUAL("not match", false,
+		     pekwm::str_starts_with("text", "\\n"));
+	ASSERT_EQUAL("match", true,
+		     pekwm::str_starts_with("\\ntext", "\\n"));
+}
+
+void
+TestString::testStrEndsWith(void)
+{
+	ASSERT_EQUAL("empty", false, pekwm::str_ends_with("", '\n'));
+	ASSERT_EQUAL("not match", false, pekwm::str_ends_with("text", '\n'));
+	ASSERT_EQUAL("match", true, pekwm::str_ends_with("text\n", '\n'));
+
+	ASSERT_EQUAL("empty", false, pekwm::str_ends_with("", "\\n"));
+	ASSERT_EQUAL("not match", false,
+		     pekwm::str_ends_with("text", "\\n"));
+	ASSERT_EQUAL("match", true,
+		     pekwm::str_ends_with("text\\n", "\\n"));
 }
 
 void

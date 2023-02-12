@@ -9,6 +9,62 @@
 #include "String.hh"
 
 /**
+ * Return true if str starts with start, else false.
+ */
+bool
+pekwm::str_starts_with(const std::string& str, char start,
+		       std::string::size_type pos)
+{
+	if (pos < str.size()) {
+		return str[pos] == start;
+	}
+	return false;
+}
+
+/**
+ * Return true if str contains with start at pos, else false.
+ */
+bool
+pekwm::str_starts_with(const std::string& str, const std::string& start,
+		       std::string::size_type pos)
+{
+	if (str.empty()
+	    || start.empty()
+	    || str.size() < (pos + start.size())) {
+		return false;
+	}
+	return memcmp(str.c_str() + pos, start.c_str(), start.size()) == 0;
+}
+
+/**
+ * Return true if str ends with end, else false.
+ */
+bool
+pekwm::str_ends_with(const std::string& str, char end)
+{
+	if (str.empty()) {
+		return false;
+	}
+	return str[str.size()-1] == end;
+}
+
+/**
+ * Return true if str ends with end, else false.
+ */
+bool
+pekwm::str_ends_with(const std::string& str, const std::string& end)
+{
+	if (str.empty() || end.empty() || str.size() < end.size()) {
+		return false;
+	}
+	if (end.size() == str.size()) {
+		return true;
+	}
+	return memcmp(str.c_str() + str.size() - end.size(),
+		      end.c_str(), end.size()) == 0;
+}
+
+/**
  * Return lowercase version of chr, ASCII only.
  */
 int
