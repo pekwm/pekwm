@@ -225,7 +225,7 @@ Dialog {
   TitleColor = "#efefef #000000,70"
   Font = "$FONT"
   Text = "#000000"
-  Pad = "0 0 4 4"
+  Pad = "2 2 4 4"
 
   Button {
     Font = "$FONT"
