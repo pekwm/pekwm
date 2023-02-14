@@ -2259,6 +2259,20 @@ X11::getXrmString(const std::string& name, std::string& val)
 }
 
 /**
+ * Set String resource in REOURCE_MANAGER (not updating the X11 shared
+ * resource)
+ */
+bool
+X11::setXrmString(const std::string& name, const std::string& val)
+{
+	if (_xrm_db) {
+		XrmPutStringResource(&_xrm_db, name.c_str(), val.c_str());
+		return true;
+	}
+	return false;
+}
+
+/**
  * Clear referenced resources from previous lookups.
  */
 void

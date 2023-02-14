@@ -572,6 +572,8 @@ public:
 
 	static void loadXrmResources(void);
 	static bool getXrmString(const std::string& name, std::string& val);
+	static bool setXrmString(const std::string& name,
+				 const std::string& val);
 
 	static void clearRefResources(void);
 	static const std::map<std::string, std::string>& getRefResources(void);

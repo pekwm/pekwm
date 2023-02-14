@@ -23,13 +23,14 @@ extern "C" {
 }
 
 typedef bool(*send_message_fun)(Window, AtomName, int, const void*, size_t,
-				void *opaque);
+                                void *opaque);
 
 enum CtrlAction {
 	PEKWM_CTRL_ACTION_RUN,
 	PEKWM_CTRL_ACTION_FOCUS,
 	PEKWM_CTRL_ACTION_LIST,
 	PEKWM_CTRL_ACTION_UTIL,
+	PEKWM_CTRL_ACTION_XRM_GET,
 	PEKWM_CTRL_ACTION_NO
 };
 
@@ -42,6 +43,8 @@ static void usage(const char* name, int ret)
 	std::cout << "  -c --client pattern Client pattern" << std::endl;
 	std::cout << "  -d --display dpy    Display" << std::endl;
 	std::cout << "  -h --help           Display this information"
+		  << std::endl;
+	std::cout << "  -g --xrm-get        Get resource (as string)"
 		  << std::endl;
 	std::cout << "  -w --window window  Client window" << std::endl;
 	exit(ret);
@@ -194,6 +197,7 @@ static bool listClients(void)
 int actionUtil(int argc, char* argv[])
 {
 	if (argc == 0) {
+        std::cerr << "no util command given" << std::endl;
 		return 1;
 	}
 
@@ -203,7 +207,17 @@ int actionUtil(int argc, char* argv[])
 		std::cout << std::to_string(ts) << std::endl;
 		return 0;
 	} else {
+		std::cerr << "unknown util command: " << argv[0] << std::endl;
 		return 1;
+	}
+}
+
+static void printRes(bool res)
+{
+	if (res) {
+		std::cout << " OK" << std::endl;
+	} else if (res == 0) {
+		std::cout << " ERROR" << std::endl;
 	}
 }
 
@@ -216,6 +230,7 @@ int main(int argc, char* argv[])
 		{const_cast<char*>("client"), required_argument, nullptr, 'c'},
 		{const_cast<char*>("display"), required_argument, nullptr, 'd'},
 		{const_cast<char*>("help"), no_argument, nullptr, 'h'},
+		{const_cast<char*>("xrm-get"), required_argument, nullptr, 'g'},
 		{const_cast<char*>("window"), required_argument, nullptr, 'w'},
 		{nullptr, 0, nullptr, 0}
 	};
@@ -224,9 +239,10 @@ int main(int argc, char* argv[])
 
 	int ch;
 	CtrlAction action = PEKWM_CTRL_ACTION_RUN;
+	std::string val;
 	Window client = None;
 	RegexString client_re;
-	while ((ch = getopt_long(argc, argv, "a:c:d:hw:", opts, nullptr))
+	while ((ch = getopt_long(argc, argv, "a:c:d:g:hw:", opts, nullptr))
 	       != -1) {
 		switch (ch) {
 		case 'a':
@@ -245,6 +261,10 @@ int main(int argc, char* argv[])
 			break;
 		case 'd':
 			display = optarg;
+			break;
+		case 'g':
+			action = PEKWM_CTRL_ACTION_XRM_GET;
+			val = optarg;
 			break;
 		case 'h':
 			usage(argv[0], 0);
@@ -273,14 +293,6 @@ int main(int argc, char* argv[])
 		return actionUtil(argc - optind, argv + optind);
 	}
 
-	std::string cmd;
-	for (int i = optind; i < argc; i++) {
-		if (i != optind) {
-			cmd += " ";
-		}
-		cmd += argv[i];
-	}
-
 	Display *dpy = XOpenDisplay(display);
 	if (! dpy) {
 		std::string actual_display =
@@ -298,48 +310,66 @@ int main(int argc, char* argv[])
 		if (client == None) {
 			std::cerr << "no client match ";
 			std::cerr << Charset::toSystem(client_re.getPattern())
-				  << std::endl;
+                      << std::endl;
 			return 1;
 		}
 	}
 
 	bool res;
 	switch (action) {
-	case PEKWM_CTRL_ACTION_RUN:
+	case PEKWM_CTRL_ACTION_RUN: {
 		if (client == None) {
 			client = X11::getRoot();
 		}
+
+		std::string cmd;
+		for (int i = optind; i < argc; i++) {
+			if (i != optind) {
+				cmd += " ";
+			}
+			cmd += argv[i];
+		}
+
 		if (cmd.empty()) {
 			std::cerr << "empty command string" << std::endl;
 			usage(argv[0], 1);
 		}
 		std::cout << "_PEKWM_CMD " << client << " " << cmd;
 		res = sendCommand(cmd, client, sendClientMessage, nullptr);
+		printRes(res);
 		break;
+	}
 	case PEKWM_CTRL_ACTION_FOCUS:
 		std::cout << "_NET_ACTIVE_WINDOW " << client;
 		res = focusClient(client);
+		printRes(res);
 		break;
 	case PEKWM_CTRL_ACTION_LIST:
 		std::cout << "_NET_CLIENT_LIST" << std::endl;
 		res = listClients();
+		printRes(res);
 		break;
+	case PEKWM_CTRL_ACTION_XRM_GET: {
+		if (val.empty()) {
+			std::cerr << "no resource given" << std::endl;
+			usage(argv[0], 1);
+		}
+		std::string res_val;
+		if ((res = X11::getXrmString(val, res_val))) {
+			std::cout << res_val << std::endl;
+		}
+		break;
+	}
 	case PEKWM_CTRL_ACTION_NO:
 	case PEKWM_CTRL_ACTION_UTIL:
 		res = false;
 		break;
 	}
 
-	if (res) {
-		std::cout << " OK" << std::endl;
-	} else {
-		std::cout << " ERROR" << std::endl;
-	}
-
 	X11::destruct();
 	Charset::destruct();
 
-	return 0;
+	return res ? 0 : 1;
 }
 
 #endif // ! UNITTEST
