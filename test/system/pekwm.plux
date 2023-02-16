@@ -35,8 +35,7 @@ in one go.
 [function test_log_file_output]
        [log test_log_file_output (--log-file)]
        [shell test]
-               !cp /dev/null pekwm.log
-               ?SH-PROMPT:
+               [call sh-eval "cp /dev/null pekwm.log"]
 
        [shell pekwm-log]
                !tail -f pekwm.log
@@ -56,14 +55,12 @@ in one go.
 	[log test pekwm --replace]
 
 	[shell pekwm-1]
-		[call init-shell]
 		-(window manager already running|Invalid read of size)
 		[log starting pekwm to be replaced]
 		!$$VALGRIND $BIN_DIR/pekwm --log-level trace
 		?Enter event loop.
 
 	[shell pekwm-2]
-		[call init-shell]
 		-Invalid read of size
 		[log starting pekwm without --replace, should fail]
 		!$$VALGRIND $BIN_DIR/pekwm --log-level trace
@@ -110,14 +107,12 @@ in one go.
 	[log test_update_client_list_report_all]
 
 	[shell test_update_client_list_report_all]
-		[call init-shell]
 		!$TEST_DIR/test_update_client_list
 		?BEGIN WINDOWS
 		?END WINDOWS
 		?PROGRESS: wait for PropertyNotify
 
 	[shell test_client-1]
-		[call init-shell]
 		!$TEST_DIR/test_client
 		?Window ([0-9]+)
 		[global window1=$1]
@@ -151,8 +146,7 @@ in one go.
 		?END WINDOWS
 
 	[shell test_client-2]
-		[call init-shell]
-		!env DISPLAY=$DISPLAY $TEST_DIR/test_client
+		!$TEST_DIR/test_client
 		?Window ([0-9]+)
 		[global window2=$1]
 		[log started test client 2 $window2]
@@ -170,9 +164,8 @@ in one go.
 	[log test_update_client_list]
 
 	[shell test_update_client_list]
-		[call init-shell]
 		-Window $window1
-		!env DISPLAY=$DISPLAY $TEST_DIR/test_update_client_list
+		!$TEST_DIR/test_update_client_list
 		?BEGIN WINDOWS
 		?Window $window2
 		?END WINDOWS
@@ -183,8 +176,7 @@ in one go.
 [function test_warp_pointer]
 	[shell test]
 		[log test_warp_pointer]
-		!$BIN_DIR/ctrl/pekwm_ctrl WarpPointer 100 100
-		?SH-PROMPT:
+		[call sh-eval "$BIN_DIR/ctrl/pekwm_ctrl WarpPointer 100 100"]
 
 	[shell pekwm]
 		?start action 62 wo 0
@@ -194,8 +186,7 @@ in one go.
 		!$TEST_DIR/test_client query_pointer
 		?root x 100 y 100
 		?SH-PROMPT:
-		!$BIN_DIR/ctrl/pekwm_ctrl WarpPointer 300 300
-		?SH-PROMPT:
+		[call sh-eval "$BIN_DIR/ctrl/pekwm_ctrl WarpPointer 300 300"]
 
 	[shell pekwm]
 		?start action 62 wo 0
@@ -217,7 +208,6 @@ in one go.
 		?client constructed
 
 	[shell pekwm_ctrl]
-		[call init-shell]
 		-(no client match|Invalid read of size)
 		!$$VALGRIND $BIN_DIR/ctrl/pekwm_ctrl -c no-resize-inc Set Maximized
 		?_PEKWM_CMD ([0-9]+) Set Maximized OK
@@ -239,7 +229,6 @@ in one go.
 [function test_net_request_frame_extents]
 	[shell test_net_request_frame_extents]
 		-ERROR
-		[call init-shell]
 		[log test_net_request_frame_extents]
 		!$TEST_DIR/test_net_request_frame_extents
 		?PROGRESS: send _NET_REQUEST_FRAME_EXTENTS
@@ -274,7 +263,6 @@ in one go.
 [function test_transient_for]
 	[shell test_transient_for]
 		-ERROR
-		[call init-shell]
 		[log test_transient_for (normal)]
 		!$TEST_DIR/test_transient_for
 		?transient [0-9]+ set to [0-9]+
@@ -476,30 +464,18 @@ in one go.
 [endfunction]
 
 [shell Xvfb]
-	[call init-shell]
 	[log starting Xvfb]
 	-Fatal server error
 	!Xvfb -screen 0 1024x768x24 -dpi 96 -displayfd 1 $DISPLAY
 	?^1
 
 [shell pekwm]
-	[call init-shell]
 	-Invalid read of size
 	[log starting pekwm (pekwm.config.report_all)]
 	!$$VALGRIND $BIN_DIR/pekwm --config pekwm.config.report_all --log-level trace
 	?Enter event loop.
 
-[shell xev]
-	[call init-shell]
-
-[shell xprop]
-	[call init-shell]
-
-[shell xterm]
-	[call init-shell]
-
 [shell test]
-	[call init-shell]
 	[call test_client_frame_geometry_property]
 	[call test_icon_property]
 	[call test_transient_for]

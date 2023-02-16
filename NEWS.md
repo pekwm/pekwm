@@ -13,3 +13,7 @@ Updated
 Removed
 -------
 
+## pekwm_ctrl
+
+* -g (--xrm-get) and -s (--xrm-set) commands for reading and writing
+  the Xresources.

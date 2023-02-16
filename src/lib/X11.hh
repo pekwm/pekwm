@@ -305,6 +305,13 @@ public:
 	uint height;
 };
 
+class XrmResourceCb {
+public:
+	virtual ~XrmResourceCb() { }
+	virtual bool visit(const std::string& key,
+			   const std::string& value) = 0;
+};
+
 /**
  * Wrapper for XRRScreenChangeNotifyEvent.
  */
@@ -571,6 +578,8 @@ public:
 	static void shapeSetMask(Window dst, int kind, Pixmap pix);
 
 	static void loadXrmResources(void);
+	static void enumerateXrmResources(XrmResourceCb* cb);
+
 	static bool getXrmString(const std::string& name, std::string& val);
 	static bool setXrmString(const std::string& name,
 				 const std::string& val);

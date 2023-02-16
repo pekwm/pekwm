@@ -2,6 +2,8 @@
 Common functions and variables for pekwm tests
 [enddoc]
 
+[config set shell_hook_init=init-shell]
+
 [global BIN_DIR=../../build/src]
 [global TEST_DIR=../../build/test/system]
 [global SCRIPTS_DIR=../../build/data/scripts]
@@ -10,6 +12,6 @@ Common functions and variables for pekwm tests
 
 [function init-shell]
 	?SH-PROMPT:
-	[call sh-eval "export DISPLAY=$DISPLAY"]
+	[call sh-eval "export DISPLAY=$DISPLAY LANG=C LC_CTYPE=C"]
 	[call sh-which valgrind VALGRIND]
 [endfunction]

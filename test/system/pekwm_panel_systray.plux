@@ -12,14 +12,12 @@ Tests verifying the systray functionality in pekwm. Tests include:
 [include test.pluxinc]
 
 [shell Xvfb]
-	[call init-shell]
 	[log starting Xvfb]
 	-Fatal server error
 	!Xvfb -screen 0 640x480x24 -dpi 96 -displayfd 1 $DISPLAY
 	?^1
 
 [shell pekwm_panel]
-	[call init-shell]
 	[log run panel with systray config]
 	!$BIN_DIR/panel/pekwm_panel -c pekwm_panel.config.systray \
 	!	-C pekwm.config --log-level trace
@@ -32,7 +30,6 @@ Tests verifying the systray functionality in pekwm. Tests include:
 	?no visible widgets to render
 
 [shell systray_client_1]
-	[call init-shell]
 	[log start systray_client_1]
 	!$TEST_DIR/test_systray
 	?send dock request for ([0-9]+) to $owner_window
@@ -50,7 +47,6 @@ Tests verifying the systray functionality in pekwm. Tests include:
 	?systray: required size 24
 
 [shell systray_client_2]
-	[call init-shell]
 	[log start systray_client_2 (unmapped)]
 	!$TEST_DIR/test_systray unmapped
 	?send dock request for ([0-9]+) to $owner_window

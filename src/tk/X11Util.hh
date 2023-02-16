@@ -119,6 +119,8 @@ namespace X11Util {
 	bool readMwmHints(Window win, MwmHints &hints);
 	void setMwmHints(Window win, const MwmHints& hints);
 	bool readEwmhStates(Window win, NetWMStates &win_states);
+
+	void updateXrmResources(void);
 }
 
 #ifndef PEKWM_HAVE_XUTF8

@@ -5,19 +5,16 @@ Basic pekwm_panel tests
 [include test.pluxinc]
 
 [shell Xvfb]
-	[call init-shell]
 	[log starting Xvfb]
 	-Fatal server error
 	!Xvfb -screen 0 640x480x24 -dpi 96 -displayfd 1 $DISPLAY
 	?^1
 
 [shell pekwm]
-	[call init-shell]
 	!$$VALGRIND $BIN_DIR/pekwm --config pekwm.config --log-level trace
 	?Enter event loop.
 
 [shell pekwm_panel]
-	[call init-shell]
 	[log run panel at the top]
 	!$BIN_DIR/panel/pekwm_panel -c pekwm_panel.config.top \
 	!	-C pekwm.config --log-level trace
@@ -29,7 +26,6 @@ Basic pekwm_panel tests
 	[global panel_window=$1]
 
 [shell xwininfo]
-	[call init-shell]
 	[log verfiy panel size]
 	!xwininfo -id $panel_window
 	?Absolute upper-left X:  0
@@ -67,14 +63,10 @@ Basic pekwm_panel tests
 	?SH-PROMPT:
 
 	[log clear pekwm environment]
-	!unset PEKWM_ETC_PATH
-	?SH-PROMPT:
-	!unset PEKWM_SCRIPT_PATH
-	?SH-PROMPT:
-	!unset PEKWM_THEME_PATH
-	?SH-PROMPT:
-	!export PEKWM_ETC_PATH PEKWM_SCRIPT_PATH PEKWM_THEME_PATH
-	?SH-PROMPT:
+	[call sh-eval "unset PEKWM_ETC_PATH"]
+	[call sh-eval "unset PEKWM_SCRIPT_PATH"]
+	[call sh-eval "unset PEKWM_THEME_PATH"]
+	[call sh-eval "export PEKWM_ETC_PATH PEKWM_SCRIPT_PATH PEKWM_THEME_PATH"]
 
 	[log verify pekwm variables defined]
 	-Trying to use undefined environment variable

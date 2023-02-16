@@ -6,8 +6,7 @@ Verify basic pekwm_theme functionality
 
 [function clear_cache]
 	[log clear .pekwm and .cache]
-	!rm -rf .pekwm .cache
-	?SH-PROMPT:
+	[call sh-eval "rm -rf .pekwm .cache"]
 [endfunction]
 
 [function test_search_themes]
@@ -51,10 +50,8 @@ Verify basic pekwm_theme functionality
 	-[Ee][Rr][Rr][Oo][Rr]
 	# fake home directory to get test local .pekwm and .cache
 	# directories
-	!export HOME=$PWD
-	?SH-PROMPT:
-	!chmod +x $SCRIPTS_DIR/pekwm_theme
-	?SH-PROMPT:
+	[call sh-eval "export HOME=$PWD"]
+	[call sh-eval "chmod +x $SCRIPTS_DIR/pekwm_theme"]
 	[call clear_cache]
 	[call test_search_themes]
 

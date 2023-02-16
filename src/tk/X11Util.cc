@@ -11,6 +11,8 @@
 
 #include "PWinObj.hh"
 
+#include <X11/Xresource.h>
+
 #if defined(PEKWM_HAVE_XFT) || defined(PEKWM_HAVE_PANGO_XFT)
 
 PXftColor::PXftColor()
@@ -244,6 +246,33 @@ namespace X11Util {
 		}
 		return false;
 	}
+}
+
+class StringXrmResourceCb : public XrmResourceCb {
+public:
+	StringXrmResourceCb(const std::string& line_break)
+		: _line_break(line_break) { }
+	virtual ~StringXrmResourceCb() { }
+
+	virtual bool visit(const std::string& key, const std::string& value)
+	{
+		_buf << key << ":\t" << value << _line_break;
+		return true;
+	}
+
+	const std::string str() { return _buf.str(); }
+
+private:
+	std::string _line_break;
+	std::ostringstream _buf;
+};
+
+void
+X11Util::updateXrmResources(void)
+{
+	StringXrmResourceCb cb("\n");
+	X11::enumerateXrmResources(&cb);
+	X11::setString(X11::getRoot(), RESOURCE_MANAGER, cb.str());
 }
 
 #ifndef PEKWM_HAVE_XUTF8

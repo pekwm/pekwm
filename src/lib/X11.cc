@@ -2238,6 +2238,57 @@ X11::loadXrmResources()
 	}
 }
 
+static const char*
+buildXrmKeyBinding(int n, XrmBindingList bindings)
+{
+	if (n == 0) {
+		return "";
+	} else if (bindings[n] == XrmBindTightly) {
+		return ".";
+	} else {
+		return "*";
+	}
+}
+
+static std::string
+buildXrmKey(XrmBindingList bindings, XrmQuarkList quarks)
+{
+	std::string key;
+	for (int i = 0; quarks[i]; i++) {
+		key += buildXrmKeyBinding(i, bindings);
+		key += XrmQuarkToString(quarks[i]);
+	}
+	return key;
+}
+
+static Bool
+enumerateXrmResourcesFun(XrmDatabase*,
+			 XrmBindingList bindings, XrmQuarkList quarks,
+			 XrmRepresentation*, XrmValue* xrm_value,
+			 XPointer obj)
+{
+	XrmResourceCb *cb = reinterpret_cast<XrmResourceCb*>(obj);
+
+	std::string key = buildXrmKey(bindings, quarks);
+	std::string value;
+	if (xrm_value->size > 1) {
+		value.assign(xrm_value->addr, xrm_value->size - 1);
+	}
+	return !cb->visit(key, value);
+}
+
+void
+X11::enumerateXrmResources(XrmResourceCb* cb)
+{
+	if (_xrm_db) {
+		XrmName names[1] = {0};
+		XrmClass classes[1] = {0};
+		XrmEnumerateDatabase(_xrm_db, names, classes, XrmEnumAllLevels,
+				     enumerateXrmResourcesFun,
+				     reinterpret_cast<XPointer>(cb));
+	}
+}
+
 /**
  * Lookup String resource from REOURCE_MANAGER.
  */

@@ -13,6 +13,8 @@
 #include "Util.hh"
 #include "X11.hh"
 
+#include "../tk/X11Util.hh"
+
 #include <algorithm>
 #include <string>
 
@@ -31,10 +33,25 @@ enum CtrlAction {
 	PEKWM_CTRL_ACTION_LIST,
 	PEKWM_CTRL_ACTION_UTIL,
 	PEKWM_CTRL_ACTION_XRM_GET,
+	PEKWM_CTRL_ACTION_XRM_SET,
 	PEKWM_CTRL_ACTION_NO
 };
 
 #ifndef UNITTEST
+
+static ObserverMapping* _observer_mapping = nullptr;
+
+namespace pekwm
+{
+	ObserverMapping* observerMapping()
+	{
+		if (_observer_mapping == nullptr) {
+			_observer_mapping = new ObserverMapping();
+		}
+		return _observer_mapping;
+	}
+}
+
 static void usage(const char* name, int ret)
 {
 	std::cout << "usage: " << name << " [-acdhs] [command]" << std::endl;
@@ -44,8 +61,8 @@ static void usage(const char* name, int ret)
 	std::cout << "  -d --display dpy    Display" << std::endl;
 	std::cout << "  -h --help           Display this information"
 		  << std::endl;
-	std::cout << "  -g --xrm-get        Get resource (as string)"
-		  << std::endl;
+	std::cout << "  -g --xrm-get        Get string resource" << std::endl;
+	std::cout << "  -s --xrm-set        Set string resource" << std::endl;
 	std::cout << "  -w --window window  Client window" << std::endl;
 	exit(ret);
 }
@@ -194,10 +211,43 @@ static bool listClients(void)
 	return true;
 }
 
-int actionUtil(int argc, char* argv[])
+static void printRes(bool res)
+{
+	if (res) {
+		std::cout << " OK" << std::endl;
+	} else {
+		std::cout << " ERROR" << std::endl;
+	}
+}
+
+static bool actionRun(const char *argv0, int argc, char** argv, Window client)
+{
+	if (client == None) {
+		client = X11::getRoot();
+	}
+
+	std::string cmd;
+	for (int i = 0; i < argc; i++) {
+		if (i != 0) {
+			cmd += " ";
+		}
+		cmd += argv[i];
+	}
+
+	if (cmd.empty()) {
+		std::cerr << "empty command string" << std::endl;
+		usage(argv[0], 1);
+	}
+	std::cout << "_PEKWM_CMD " << client << " " << cmd;
+	bool res = sendCommand(cmd, client, sendClientMessage, nullptr);
+	printRes(res);
+	return res;
+}
+
+static int actionUtil(int argc, char* argv[])
 {
 	if (argc == 0) {
-        std::cerr << "no util command given" << std::endl;
+	        std::cerr << "no util command given" << std::endl;
 		return 1;
 	}
 
@@ -212,13 +262,33 @@ int actionUtil(int argc, char* argv[])
 	}
 }
 
-static void printRes(bool res)
+static bool actionXrmGet(const char* argv0, const std::string& key)
 {
-	if (res) {
-		std::cout << " OK" << std::endl;
-	} else if (res == 0) {
-		std::cout << " ERROR" << std::endl;
+	if (key.empty()) {
+		std::cerr << "no resource given" << std::endl;
+		usage(argv0, 1);
 	}
+
+	std::string val;
+	if (X11::getXrmString(key, val)) {
+		std::cout << val << std::endl;
+		return true;
+	}
+	return false;
+}
+
+static bool actionXrmSet(const char* argv0, int argc, char** argv)
+{
+	for (int i = 0; i < argc; i++) {
+		std::vector<std::string> key_value;
+		if (Util::splitString(argv[i], key_value, "=", 2) == 2) {
+			X11::setXrmString(key_value[0], key_value[1]);
+		}
+	}
+
+	X11Util::updateXrmResources();
+	return true;
+
 }
 
 int main(int argc, char* argv[])
@@ -231,6 +301,7 @@ int main(int argc, char* argv[])
 		{const_cast<char*>("display"), required_argument, nullptr, 'd'},
 		{const_cast<char*>("help"), no_argument, nullptr, 'h'},
 		{const_cast<char*>("xrm-get"), required_argument, nullptr, 'g'},
+		{const_cast<char*>("xrm-set"), no_argument, nullptr, 's'},
 		{const_cast<char*>("window"), required_argument, nullptr, 'w'},
 		{nullptr, 0, nullptr, 0}
 	};
@@ -242,7 +313,7 @@ int main(int argc, char* argv[])
 	std::string val;
 	Window client = None;
 	RegexString client_re;
-	while ((ch = getopt_long(argc, argv, "a:c:d:g:hw:", opts, nullptr))
+	while ((ch = getopt_long(argc, argv, "a:c:d:g:hsw:", opts, nullptr))
 	       != -1) {
 		switch (ch) {
 		case 'a':
@@ -265,6 +336,9 @@ int main(int argc, char* argv[])
 		case 'g':
 			action = PEKWM_CTRL_ACTION_XRM_GET;
 			val = optarg;
+			break;
+		case 's':
+			action = PEKWM_CTRL_ACTION_XRM_SET;
 			break;
 		case 'h':
 			usage(argv[0], 0);
@@ -317,28 +391,9 @@ int main(int argc, char* argv[])
 
 	bool res;
 	switch (action) {
-	case PEKWM_CTRL_ACTION_RUN: {
-		if (client == None) {
-			client = X11::getRoot();
-		}
-
-		std::string cmd;
-		for (int i = optind; i < argc; i++) {
-			if (i != optind) {
-				cmd += " ";
-			}
-			cmd += argv[i];
-		}
-
-		if (cmd.empty()) {
-			std::cerr << "empty command string" << std::endl;
-			usage(argv[0], 1);
-		}
-		std::cout << "_PEKWM_CMD " << client << " " << cmd;
-		res = sendCommand(cmd, client, sendClientMessage, nullptr);
-		printRes(res);
+	case PEKWM_CTRL_ACTION_RUN:
+		res = actionRun(argv[0], argc - optind, argv + optind, client);
 		break;
-	}
 	case PEKWM_CTRL_ACTION_FOCUS:
 		std::cout << "_NET_ACTIVE_WINDOW " << client;
 		res = focusClient(client);
@@ -350,16 +405,12 @@ int main(int argc, char* argv[])
 		printRes(res);
 		break;
 	case PEKWM_CTRL_ACTION_XRM_GET: {
-		if (val.empty()) {
-			std::cerr << "no resource given" << std::endl;
-			usage(argv[0], 1);
-		}
-		std::string res_val;
-		if ((res = X11::getXrmString(val, res_val))) {
-			std::cout << res_val << std::endl;
-		}
+		res = actionXrmGet(argv[0], val);
 		break;
 	}
+	case PEKWM_CTRL_ACTION_XRM_SET:
+		res = actionXrmSet(argv[0], argc - optind, argv + optind);
+		break;
 	case PEKWM_CTRL_ACTION_NO:
 	case PEKWM_CTRL_ACTION_UTIL:
 		res = false;
@@ -368,6 +419,7 @@ int main(int argc, char* argv[])
 
 	X11::destruct();
 	Charset::destruct();
+	delete _observer_mapping;
 
 	return res ? 0 : 1;
 }

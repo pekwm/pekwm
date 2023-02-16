@@ -27,8 +27,49 @@ Start a single Xvfb pekwm_ctrl system tests in one go.
 		?SH-PROMPT:
 [endfunction]
 
+[function test-xrm-get]
+	[shell xrdb]
+		[log reset Xresources]
+		[call sh-eval "xrdb pekwm_ctrl.xresources"]
+		!xrdb -q | sort
+		?test\*resource2:\s+initial-value2
+		?test\.resource1:\s+initial-value1
+		[call sh-ok]
+
+	[shell pekwm_ctrl]
+		[log test existing resource get]
+		!$BIN_DIR/ctrl/pekwm_ctrl -g test.resource1
+		?initial-value
+		[call sh-ok]
+
+		[log test missing resource get]
+		!$BIN_DIR/ctrl/pekwm_ctrl -g test.missing
+		[call sh-nok]
+[endfunction]
+
+[function test-xrm-set]
+	[shell xrdb]
+		[log reset Xresources]
+		[call sh-eval "xrdb pekwm_ctrl.xresources"]
+
+	[shell pekwm_ctrl]
+		[log verify initial value]
+		!$BIN_DIR/ctrl/pekwm_ctrl -g test.resource1
+		?initial-value1
+		[call sh-ok]
+
+		[log test overwrite existing resource]
+		[call sh-eval "$BIN_DIR/ctrl/pekwm_ctrl -s test.resource1=updated"]
+
+	[shell xrdb]
+		[log verify Xresources using xrdb]
+		!xrdb -q | sort
+		?test\*resource2:\s+initial-value2
+		?test\.resource1:\s+updated
+		[call sh-ok]
+[endfunction]
+
 [shell Xvfb]
-	?SH-PROMPT:
 	[log starting Xvfb]
 	-Fatal server error
 	!Xvfb -displayfd 1 $DISPLAY
@@ -36,32 +77,33 @@ Start a single Xvfb pekwm_ctrl system tests in one go.
 
 [shell pekwm]
 	[log starting pekwm]
-	?SH-PROMPT:
 	!$BIN_DIR/pekwm --display :1 --log-level trace
 	?Enter event loop.
 
 [shell xterm]
 	[log starting xterm]
-	?SH-PROMPT:
 	!xterm -T xterm -display :1 /bin/sh
 
 [shell pekwm]
 	?client constructed
 
+[shell xrdb]
+	[call sh-eval "export DISPLAY=$DISPLAY"]
+
 [shell pekwm_ctrl]
-	?SH-PROMPT:
-	!export DISPLAY=$DISPLAY
-	?SH-PROMPT:
+	[call sh-eval "export DISPLAY=$DISPLAY"]
 
 	# list clients for debugging purposes
 	-ERROR
-	!$BIN_DIR/ctrl/pekwm_ctrl -a list
-	?SH-PROMPT:
+	[call sh-eval "$BIN_DIR/ctrl/pekwm_ctrl -a list"]
 
 	-(ERROR|no client match)
 	[call set_title short short]
 	[call set_title medium message_spans_multiple]
 	[call set_title long really_long_message_that_spans_many_messages]
+
+	[call test-xrm-get]
+	[call test-xrm-set]
 
 [shell Xvfb]
 	!$_CTRL_C_
