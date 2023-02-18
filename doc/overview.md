@@ -153,8 +153,10 @@ Development tools using the GCC C++ compiler:
 Build dependencies:
 
 ```
-# xbps-install fontconfig-devel libjpeg-turbo-devel libXext-devel libpng-devel libXft-devel libXpm-devel libXrandr-devel libXinerama-devel
+# xbps-install fontconfig-devel libjpeg-turbo-devel libXext-devel libpng-devel libXft-devel libXpm-devel libXrandr-devel libXinerama-devel pango-devel
 ```
+
+Its preferable to use xbps-src and build from template, see the [quick-start](https://github.com/void-linux/void-packages#quick-start) for details.
 
 #### OpenBSD
 
