@@ -174,9 +174,20 @@ namespace std
 	}
 }
 
-
 #endif
 
+/**
+ * Variant of stoi where default value is returned on parse error.
+ */
+int
+stoi_safe(const std::string& str, int def)
+{
+	try {
+		return std::stoi(str);
+	} catch (std::invalid_argument&) {
+		return def;
+	}
+}
 
 #ifndef PEKWM_HAVE_STOF
 

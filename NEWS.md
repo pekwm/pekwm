@@ -4,6 +4,7 @@ pekwm-0.3.1
 Closed issues
 -------------
 
+  * #161, GotoItem N regression caused it to behave as NextItem.
   * Use X double buffer extension in pekwm_panel and pekwm_dialog to avoid
     flickering on redraws.
   * X11 font name detection would fail if any font options was specified,
