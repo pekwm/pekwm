@@ -18,6 +18,8 @@ public:
 
 	virtual bool run_test(TestSpec spec, bool status);
 
+	void testParseMenuActionGotoItem(void);
+	void testParseMenuActionInvalid(void);
 	void testParseMoveResizeAction(void);
 };
 
@@ -34,8 +36,34 @@ TestConfig::~TestConfig(void)
 bool
 TestConfig::run_test(TestSpec spec, bool status)
 {
+	TEST_FN(spec, "parseMenuActionGotoItem", testParseMenuActionGotoItem());
+	TEST_FN(spec, "parseMenuActionInvalid", testParseMenuActionInvalid());
 	TEST_FN(spec, "parseMoveResizeAction", testParseMoveResizeAction());
 	return status;
+}
+
+void
+TestConfig::testParseMenuActionGotoItem(void)
+{
+	Action action;
+	ASSERT_EQUAL("parse", true,
+		     parseMenuAction("GotoItem 4", action));
+	ASSERT_EQUAL("action set", ACTION_MENU_GOTO, action.getAction());
+	// menu items start from 0, first item is adressed as 1
+	ASSERT_EQUAL("action param", 3, action.getParamI(0));
+
+	// not a number, result in no action
+	ASSERT_EQUAL("parse", false,
+		     parseMenuAction("GotoItem NaN", action));
+	ASSERT_EQUAL("action set", ACTION_NO, action.getAction());
+}
+
+void
+TestConfig::testParseMenuActionInvalid(void)
+{
+	Action action;
+	ASSERT_EQUAL("parse", false, parseMenuAction("Unknown", action));
+	ASSERT_EQUAL("action not set", ACTION_NO, action.getAction());
 }
 
 void

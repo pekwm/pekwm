@@ -84,11 +84,12 @@ static Util::StringTo<MouseEventType> mouse_event_map[] =
 static Util::StringTo<ActionType> menu_action_map[] =
 	{{"NEXTITEM", ACTION_MENU_NEXT},
 	 {"PREVITEM", ACTION_MENU_PREV},
+	 {"GOTOITEM", ACTION_MENU_GOTO},
 	 {"SELECT", ACTION_MENU_SELECT},
 	 {"ENTERSUBMENU", ACTION_MENU_ENTER_SUBMENU},
 	 {"LEAVESUBMENU", ACTION_MENU_LEAVE_SUBMENU},
 	 {"CLOSE", ACTION_CLOSE},
-	 {nullptr, ACTION_MENU_NEXT}};
+	 {nullptr, ACTION_NO}};
 
 static Util::StringTo<HarbourPlacement> harbour_placement_map[] =
 	{{"TOP", TOP},
@@ -875,12 +876,17 @@ Config::parseMenuAction(const std::string &action_string, Action &action)
 	// chop the string up separating the actions
 	if (Util::splitString(action_string, tok, " \t", 2)) {
 		action.setAction(Util::StringToGet(menu_action_map, tok[0]));
-		if (action.getAction() != ACTION_NO) {
-			return true;
+		if (action.getAction() == ACTION_MENU_GOTO) {
+			int idx = stoi_safe(tok[1], -1);
+			if (idx > 0) {
+				action.setParamI(0, idx - 1);
+			} else {
+				action.setAction(ACTION_NO);
+			}
 		}
 	}
 
-	return false;
+	return action.getAction() != ACTION_NO;
 }
 
 bool
