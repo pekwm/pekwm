@@ -778,7 +778,7 @@ Client::grabButtons(void)
 		cfg->getMouseActionList(MOUSE_ACTION_LIST_CHILD_FRAME);
 	std::vector<ActionEvent>::iterator it = actions->begin();
 
-	const uint mask = ButtonPressMask;
+	const uint mask = ButtonPressMask|ButtonReleaseMask;
 	for (; it != actions->end(); ++it) {
 		if (it->isButtonEvent()) {
 			// not grabbing actions without modifier, will be
