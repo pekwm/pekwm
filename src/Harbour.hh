@@ -57,6 +57,8 @@ private:
 	void placeDockApp(DockApp *da);
 	void placeDockAppX(DockApp *da, const Geometry& head,
 			   int& x, const int y);
+	void placeDockAppY(DockApp *da, const Geometry& head,
+			   const int x, int &y);
 	void placeDockAppsSorted(void);
 	void placeDockAppInsideScreen(DockApp *da);
 
