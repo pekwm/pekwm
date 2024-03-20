@@ -974,6 +974,7 @@ Workspaces::findWOAndFocus(PWinObj *search)
 
 	if (focus) {
 		focus->giveInputFocus();
+		focus->raise();
 	}  else if (! PWinObj::getFocusedPWinObj()) {
 		pekwm::rootWo()->giveInputFocus();
 		pekwm::rootWo()->setEwmhActiveWindow(None);
