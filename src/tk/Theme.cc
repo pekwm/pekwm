@@ -53,19 +53,19 @@ static void parse_pad(const std::string& str, int *pad)
 static void calculate_pad_adapt(const int height_available, PFont* font,
 				int& pad_up, int& pad_down)
 {
-	if (height_available == 0) {
-		pad_up = 0;
-		pad_down = 0;
+	float height = font->getHeight();
+	if (height_available < font->getHeight()) {
+		// Keep user settings if we can't adjust height
+		return;
+	}
+
+	float pad = height_available - height;
+	if (font->useAscentDescent()) {
+		pad_up = pad / (height / font->getAscent());
+		pad_down = pad / (height / font->getDescent());
 	} else {
-		float height = font->getHeight();
-		float pad = height_available - height;
-		if (font->useAscentDescent()) {
-			pad_up = pad / (height / font->getAscent());
-			pad_down = pad / (height / font->getDescent());
-		} else {
-			pad_up = pad / 2;
-			pad_down = pad / 2;
-		}
+		pad_up = pad / 2;
+		pad_down = pad / 2;
 	}
 }
 
@@ -701,7 +701,7 @@ Theme::PMenuData::load(CfgParser::Entry *section)
 
 	if (pad_adapt) {
 		PFont* font = _font[OBJECT_STATE_FOCUSED];
-		calculate_pad_adapt(font->getHeight(), font,
+		calculate_pad_adapt(font->getHeight() + _pad[PAD_UP] + _pad[PAD_DOWN], font,
 				    _pad[PAD_UP], _pad[PAD_DOWN]);
 	}
 
@@ -858,7 +858,7 @@ Theme::TextDialogData::load(CfgParser::Entry *section)
 	check();
 
 	if (pad_adapt) {
-		calculate_pad_adapt(_font->getHeight(), _font,
+		calculate_pad_adapt(_font->getHeight() + _pad[PAD_UP] + _pad[PAD_DOWN], _font,
 				    _pad[PAD_UP], _pad[PAD_DOWN]);
 	}
 

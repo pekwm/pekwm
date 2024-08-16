@@ -72,7 +72,9 @@ StatusWindow::draw(const std::string &text, bool do_center, Geometry *gm)
 	Theme::TextDialogData *sd = _theme->getStatusData();
 	PFont *font = sd->getFont();
 
-	width = font->getWidth(text) + 10;
+	width = font->getWidth(text)
+		+ sd->getPad(PAD_LEFT)
+		+ sd->getPad(PAD_RIGHT);
 	width = width - (width % 10);
 	height = font->getHeight()
 		+ sd->getPad(PAD_UP)
@@ -99,7 +101,7 @@ StatusWindow::draw(const std::string &text, bool do_center, Geometry *gm)
 	font->setColor(sd->getColor());
 	X11::clearWindow(_status_wo->getWindow());
 	font->draw(_status_wo,
-		   (width - font->getWidth(text)) / 2,
+		   sd->getPad(PAD_LEFT),
 		   sd->getPad(PAD_UP),
 		   text.c_str());
 }
