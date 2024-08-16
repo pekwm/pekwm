@@ -112,7 +112,7 @@ Theming of the frame.
 
 * _Height (pixels)_, Amount of pixels the titlebar should height.
 * _HeightAdapt (boolean)_, If true, Height is adapted to fit the Title font.
-* _Pad (pixels t,d,l,r)_, How many pixels are left around a title text.
+* _Pad (pixels t,b,l,r)_, How many pixels are left around a title text.
 * _PadAdapt (boolean), Set true to adjust vertical padding so that the font gets centered vertically, requires _HeightAdapt_ to be false.
 * _Focused (texture)_, Background texture for a focused titlebar.
 * _UnFocused (texture)_, Background texture for an unfocused titlebar.
