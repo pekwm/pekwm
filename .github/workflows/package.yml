@@ -90,7 +90,7 @@ jobs:
         echo "semver=$SEMVER" >> "$GITHUB_ENV"
 
     - name: get package from archive
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4.1.7
       with:
         name: pekwm_${{ env.semver }}~${{ matrix.name }}_amd64.deb
 
