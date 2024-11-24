@@ -149,7 +149,7 @@ public:
 	void selectItem(std::vector<PMenu::Item*>::const_iterator item,
 			bool unmap_submenu = true);
 	void deselectItem(bool unmap_submenu = true);
-	void selectItemNum(uint num);
+	bool selectItemNum(uint num);
 	void selectItemRel(int off);
 	void exec(PMenu::Item *item);
 

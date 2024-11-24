@@ -47,7 +47,17 @@ AssertFailed::format(const std::string &suite_name,
 		__test_oss << " expected true";         \
 		__test_oss << " got " << (actual);      \
 		ASSERT_FAILED(__test_oss.str())         \
-			}
+	}
+
+#define ASSERT_FALSE(msg, actual)			\
+	if ((actual)) {					\
+		std::ostringstream __test_oss;          \
+		__test_oss << (msg);                    \
+		__test_oss << " expected false";        \
+		__test_oss << " got " << (actual);      \
+		ASSERT_FAILED(__test_oss.str())         \
+	}
+
 
 #define ASSERT_EQUAL(msg, expected, actual)			\
 	if ((expected) != (actual)) {				\
