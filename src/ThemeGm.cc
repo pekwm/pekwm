@@ -39,7 +39,7 @@ ThemeGm::titleWidth(const ThemeState *state, const std::string& str) const {
 /** Calculate title height, 0 if titlebar is disabled. */
 uint
 ThemeGm::titleHeight(const ThemeState *state) const {
-	if (! state->hasTitlebar()) {
+	if (! _data || ! state->hasTitlebar()) {
 		return 0;
 	}
 

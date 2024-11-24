@@ -1725,7 +1725,9 @@ X11::shapeIntersectRect(Window dst, XRectangle *rect)
 void
 X11::shapeSetMask(Window dst, int kind, Pixmap pix)
 {
-	XShapeCombineMask(_dpy, dst, kind, 0, 0, pix, ShapeSet);
+	if (_dpy) {
+		XShapeCombineMask(_dpy, dst, kind, 0, 0, pix, ShapeSet);
+	}
 }
 #else // ! PEKWM_HAVE_SHAPE
 void
@@ -2178,7 +2180,7 @@ X11::ungrabButton(uint button, uint modifiers, Window win)
 void
 X11::stackWindows(Window *wins, unsigned len)
 {
-	if (len > 1) {
+	if (_dpy && len > 1) {
 		XRestackWindows(_dpy, wins, len);
 	}
 }

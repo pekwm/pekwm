@@ -1,6 +1,6 @@
 //
 // PMenu.cc for pekwm
-// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2024 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2004-2020 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -20,6 +20,7 @@
 #include "Config.hh"
 #include "TextureHandler.hh"
 #include "Theme.hh"
+#include "Iter.hh"
 #include "Workspaces.hh"
 #include "X11Util.hh"
 #include "X11.hh"
@@ -98,8 +99,10 @@ PMenu::PMenu(const std::string &title,
 	_menu_map[_window] = this; // add to menu map
 	woListAdd(this);
 	_wo_map[_window] = this;
-	setOpacity(pekwm::config()->getMenuFocusOpacity(),
-		   pekwm::config()->getMenuUnfocusOpacity());
+	if (pekwm::config()) {
+		setOpacity(pekwm::config()->getMenuFocusOpacity(),
+			   pekwm::config()->getMenuUnfocusOpacity());
+	}
 }
 
 //! @brief Destructor for PMenu class
@@ -870,9 +873,9 @@ void
 PMenu::applyTitleRules(const std::string &title)
 {
 	_class_hint.title = title;
-	TitleProperty *data =
-		pekwm::autoProperties()->findTitleProperty(&_class_hint);
-
+	AutoProperties *auto_properties = pekwm::autoProperties();
+	TitleProperty *data = auto_properties
+		? auto_properties->findTitleProperty(&_class_hint) : 0;
 	if (data) {
 		std::string new_title(title);
 		if (data->getTitleRule().ed_s(new_title)) {
@@ -1059,15 +1062,30 @@ PMenu::select(PMenu::Item *item, bool unmap_submenu)
 		   unmap_submenu);
 }
 
-//! @brief Selects item number num in menu
-void
+static bool
+_filter_reg(PMenu::Item *item)
+{
+	return item->getType() == PMenu::Item::MENU_ITEM_NORMAL;
+}
+
+/**
+ * @brief Selects item number num in menu skipping separators and other
+ * special items.
+ */
+bool
 PMenu::selectItemNum(uint num)
 {
-	if (num >= _items.size()) {
-		return;
+	FilterIt<item_it, PMenu::Item*> it(_items.begin(), _items.end(),
+					   _filter_reg);
+	for (uint i = 0; it.isValid() && i < num; i++) {
+		it.next();
 	}
 
-	selectItem(_items.begin() + num);
+	if (it.isValid()) {
+		selectItem(*it);
+		return true;
+	}
+	return false;
 }
 
 //! @brief Selects item relative to the selected

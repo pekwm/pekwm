@@ -1439,7 +1439,7 @@ PDecor::renderButtons(void)
 void
 PDecor::renderBorder(void)
 {
-	if (! _border) {
+	if (! _data || ! _border) {
 		return;
 	}
 
@@ -1459,6 +1459,9 @@ PDecor::renderBorder(void)
 void
 PDecor::setBorderShape(void)
 {
+	if (! _data) {
+		return;
+	}
 #ifdef PEKWM_HAVE_SHAPE
 	Pixmap pix;
 	bool do_free;
@@ -1904,7 +1907,7 @@ PDecor::restackBorder(void)
 
 	// Raise the top window so actual restacking is done.
 	X11::raiseWindow(windows[0]);
-	XRestackWindows(X11::getDpy(), windows, BORDER_NO_POS + extra);
+	X11::stackWindows(windows, BORDER_NO_POS + extra);
 }
 
 /**
