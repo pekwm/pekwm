@@ -1,6 +1,12 @@
 pekwm-0.3.2
 ===========
 
+Closed issues
+-------------
+
+  * Disable SA_RESTART for SIGALRM, fixes WorkspaceIndicator getting stuck
+    on OpenBSD.
+
 ### pekwm_panel
 
   * Fix crash on client list updates, triggered by XRandr updates

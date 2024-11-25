@@ -174,6 +174,12 @@ WindowManager::WindowManager(void)
 	sigaction(SIGHUP, &act, 0);
 	sigaction(SIGCHLD, &act, 0);
 	sigaction(SIGALRM, &act, 0);
+	/* disable re-start of system calls (select, which main loop is blocked
+	 * on) in case og SIGALRM. default on, on OpenBSD causing the workspace
+	 * indicator to stick */
+#ifndef __linux__
+	siginterrupt(SIGALRM, 1);
+#endif /* !__linux__ */
 }
 
 //! @brief WindowManager destructor
