@@ -54,7 +54,7 @@ static void calculate_pad_adapt(const int height_available, PFont* font,
 				int& pad_up, int& pad_down)
 {
 	float height = font->getHeight();
-	if (height_available < font->getHeight()) {
+	if (height_available < static_cast<int>(font->getHeight())) {
 		// Keep user settings if we can't adjust height
 		return;
 	}
