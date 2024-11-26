@@ -37,12 +37,12 @@ createXpmToArgbTable(XpmImage *xpm_image, bool &use_alpha)
 
 	uint c_tmp; // Temporary color value.
 	char c_buf[3] = { '\0', '\0', '\0' }; // Temporary hex color string.
-	const char *color;
 	XColor xcolor_exact;
 
 	uchar *xpm_to_argb = new uchar[xpm_image->ncolors * 4];
 	uchar *dest = xpm_to_argb;
 	for (uint i = 0; i < xpm_image->ncolors; ++i) {
+		const char *color = COLOR_DEFAULT;
 		if (xpm_image->colorTable[i].c_color) {
 			color = xpm_image->colorTable[i].c_color;
 		} else if (xpm_image->colorTable[i].g_color) {
@@ -51,8 +51,6 @@ createXpmToArgbTable(XpmImage *xpm_image, bool &use_alpha)
 			color = xpm_image->colorTable[i].g4_color;
 		} else if (xpm_image->colorTable[i].m_color) {
 			color = xpm_image->colorTable[i].m_color;
-		} else {
-			color = COLOR_DEFAULT;
 		}
 
 		if (color && color[0] == '#' && strlen(color) == 7) {

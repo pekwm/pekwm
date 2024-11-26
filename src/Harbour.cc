@@ -444,7 +444,7 @@ void
 Harbour::placeDockAppY(DockApp *da, const Geometry& head, const int x, int &y)
 {
 	int test;
-	bool placed = false, increase = false;
+	bool placed = false;
 	bool bottom = (_cfg->getHarbourOrientation() == BOTTOM_TO_TOP);
 	y = test = bottom ? head.y + head.height - da->getHeight() : head.y;
 
@@ -452,7 +452,8 @@ Harbour::placeDockAppY(DockApp *da, const Geometry& head, const int x, int &y)
 	       && (bottom
 		   ? (test >= 0)
 		   : ((test + da->getHeight()) < (head.y + head.height)))) {
-		placed = increase = true;
+		placed = true;
+		bool increase = true;
 
 		std::vector<DockApp*>::const_iterator it = _dapps.begin();
 		for (; placed && it != _dapps.end(); ++it) {
