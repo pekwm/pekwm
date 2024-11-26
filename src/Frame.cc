@@ -139,6 +139,12 @@ Frame::Frame(Client *client, AutoProperty *ap)
 		}
 	}
 
+	// still need a position?
+	if (place) {
+		Workspaces::layout(this, client->getTransientForClientWindow());
+	}
+
+	_old_gm = _gm;
 	_non_fullscreen_decor_state = client->getDecorState();
 	_non_fullscreen_layer = client->getLayer();
 
@@ -175,13 +181,6 @@ Frame::Frame(Client *client, AutoProperty *ap)
 
 	woListAdd(this);
 	_wo_map[_window] = this;
-
-	// still need a position?
-	if (place) {
-		Workspaces::layout(this, client->getTransientForClientWindow());
-	}
-
-	_old_gm = _gm;
 }
 
 Frame::~Frame(void)
