@@ -4,6 +4,9 @@ pekwm-0.3.1
 Closed issues
 -------------
 
+  * #170, Reduce flickering when placing new windows.
+  * #175, GotoItem N now skips separators and non-visible items.
+  * #163, ButtonRelase actions on the Client working again.
   * #161, GotoItem N regression caused it to behave as NextItem.
   * Use X double buffer extension in pekwm_panel and pekwm_dialog to avoid
     flickering on redraws.
