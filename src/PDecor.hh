@@ -1,6 +1,6 @@
 //
 // PDecor.hh for pekwm
-// Copyright (C) 2004-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2004-2024 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -23,6 +23,12 @@ class PFont;
  */
 class CreateWindowParams {
 public:
+	CreateWindowParams(bool override_redirect)
+	{
+		attr.override_redirect = override_redirect;
+	}
+
+	bool override_redirect;
 	int depth;
 	long mask;
 	XSetWindowAttributes attr;
@@ -123,9 +129,8 @@ public:
 		uint _width;
 	};
 
-	PDecor(const std::string &decor_name = DEFAULT_DECOR_NAME,
-	       const Window child_window = None,
-	       bool init = true);
+	PDecor(const Window child_window, bool override_redirect, bool init,
+	       const std::string &decor_name = DEFAULT_DECOR_NAME);
 	virtual ~PDecor(void);
 
 	// START - PWinObj interface.
@@ -322,7 +327,7 @@ protected:
 	}
 
 private:
-	void init(Window child_window);
+	void init(Window child_window, bool override_redirect);
 
 	void createParentWindow(CreateWindowParams &params,
 				Window child_window);

@@ -1,6 +1,6 @@
 //
 // InputDialog.cc for pekwm
-// Copyright (C) 2009-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2009-2024 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -109,7 +109,7 @@ InputBuffer::changePos(int off)
  * InputDialog constructor.
  */
 InputDialog::InputDialog(const std::string &title)
-	: PDecor("INPUTDIALOG"), PWinObjReference(0),
+	: PDecor(None, true, true, "INPUTDIALOG"), PWinObjReference(0),
 	  _data(pekwm::theme()->getCmdDialogData()),
 	  _buf_off(0),
 	  _buf_chars(0)

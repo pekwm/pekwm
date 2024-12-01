@@ -1,6 +1,6 @@
 //
-// WORefMenu.hh for pekwm
-// Copyright (C) 2004-2023 Claes Nästen <pekdon@gmail.com>
+// WORefMenu.cc for pekwm
+// Copyright (C) 2004-2024 Claes Nästen <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.

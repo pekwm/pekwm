@@ -1,6 +1,6 @@
 //
 // Frame.cc for pekwm
-// Copyright (C) 2002-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2002-2024 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -50,7 +50,7 @@ bool Frame::_tag_behind = false;
 
 
 Frame::Frame()
-	: PDecor(DEFAULT_DECOR_NAME, None, false),
+	: PDecor(None, true, false),
 	  _id(0),
 	  _client(nullptr),
 	  _class_hint(nullptr),
@@ -60,7 +60,7 @@ Frame::Frame()
 }
 
 Frame::Frame(Client *client, AutoProperty *ap)
-	: PDecor(client->getAPDecorName(), client->getWindow(), true),
+	: PDecor(client->getWindow(), false, true, client->getAPDecorName()),
 	  _id(0),
 	  _client(client),
 	  _class_hint(nullptr),

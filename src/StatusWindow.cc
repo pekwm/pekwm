@@ -1,6 +1,6 @@
 //
 // StatusWindow.cc for pekwm
-// Copyright (C) 2017-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2017-2024 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2004-2016 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -23,7 +23,7 @@
 
 //! @brief StatusWindow constructor
 StatusWindow::StatusWindow(Theme* theme)
-	: PDecor("STATUSWINDOW"),
+	: PDecor(None, true, true, "STATUSWINDOW"),
 	  _theme(theme),
 	  _status_wo(new PWinObj(false))
 {
