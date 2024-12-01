@@ -190,8 +190,8 @@ std::vector<PDecor*> PDecor::_pdecors;
 //! @brief PDecor constructor
 //! @param dpy Display
 //! @param decor_name String, if not DEFAULT_DECOR_NAME sets _decor_name_saved
-PDecor::PDecor(const std::string &decor_name, const Window child_window,
-	       bool init)
+PDecor::PDecor(const Window child_window, bool override_redirect, bool init,
+	       const std::string &decor_name)
 	: PWinObj(true),
 	  ThemeGm(nullptr),
 	  _decor_name(decor_name),
@@ -219,13 +219,13 @@ PDecor::PDecor(const std::string &decor_name, const Window child_window,
 	  _titles_right(1)
 {
 	if (init) {
-		this->init(child_window);
+		this->init(child_window, override_redirect);
 	}
 	_pdecors.push_back(this);
 }
 
 void
-PDecor::init(Window child_window)
+PDecor::init(Window child_window, bool override_redirect)
 {
 	if (_decor_name.empty()) {
 		_decor_name = getDecorName();
@@ -236,7 +236,7 @@ PDecor::init(Window child_window)
 
 	setDataFromDecorName(_decor_name);
 
-	CreateWindowParams window_params;
+	CreateWindowParams window_params(override_redirect);
 	createParentWindow(window_params, child_window);
 	createTitle(window_params);
 	createBorder(window_params);
@@ -257,7 +257,6 @@ PDecor::createParentWindow(CreateWindowParams &params, Window child_window)
 	params.mask = CWOverrideRedirect|CWEventMask|CWBorderPixel|CWBackPixel;
 	params.depth = CopyFromParent;
 	params.visual = CopyFromParent;
-	params.attr.override_redirect = True;
 	params.attr.border_pixel = X11::getBlackPixel();
 	params.attr.background_pixel = X11::getBlackPixel();
 

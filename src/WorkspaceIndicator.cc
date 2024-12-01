@@ -1,6 +1,6 @@
 //
 // WorkspaceIndicator.cc for pekwm
-// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2024 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2009-2020 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -169,7 +169,7 @@ WorkspaceIndicator::Display::getPaddingVertical(void)
  * WorkspaceIndicator constructor
  */
 WorkspaceIndicator::WorkspaceIndicator()
-	: PDecor("WORKSPACEINDICATOR"),
+	: PDecor(None, true, true, "WORKSPACEINDICATOR"),
 	  _display_wo(this)
 {
 	_type = PWinObj::WO_WORKSPACE_INDICATOR;
