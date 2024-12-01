@@ -15,13 +15,11 @@ jobs:
         include:
           - os: debian:11
             jpeg: libjpeg62-turbo
-          - os: debian:sid
+          - os: debian:12
             jpeg: libjpeg62-turbo
-          - os: ubuntu:18.04
-            jpeg: libjpeg62
-          - os: ubuntu:20.04
-            jpeg: libjpeg62
           - os: ubuntu:22.04
+            jpeg: libjpeg62
+          - os: ubuntu:24.04
             jpeg: libjpeg62
     steps:
     - name: checkout
