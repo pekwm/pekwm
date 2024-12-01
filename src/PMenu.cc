@@ -54,7 +54,7 @@ std::map<Window,PMenu*> PMenu::_menu_map = std::map<Window,PMenu*>();
 PMenu::PMenu(const std::string &title,
 	     const std::string &name, const std::string& decor_name,
 	     bool init)
-	: PDecor(decor_name, None, init),
+	: PDecor(None, true, init, decor_name),
 	  _name(name),
 	  _menu_parent(0), _class_hint("pekwm", "Menu", "", "", ""),
 	  _item_curr(0),
