@@ -388,6 +388,7 @@ void
 PDecor::unmapWindow(void)
 {
 	if (_mapped) {
+		PWinObj::unmapWindow();
 		std::vector<PWinObj*>::iterator it = _children.begin();
 		for (; it != _children.end(); ++it) {
 			if (_iconified) {
@@ -396,7 +397,6 @@ PDecor::unmapWindow(void)
 				(*it)->unmapWindow();
 			}
 		}
-		PWinObj::unmapWindow();
 	}
 }
 
