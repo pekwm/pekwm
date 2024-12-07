@@ -1,6 +1,6 @@
 //
 // X11.cc for pekwm
-// Copyright (C) 2022-2023 Claes Nästén
+// Copyright (C) 2022-2024 Claes Nästén
 // Copyright (C) 2009-2021 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -285,6 +285,15 @@ _is_between(int val, int min, int max)
 	return val >= min && val <= max;
 }
 
+static inline bool
+_is_overlap(const Geometry &g1, const Geometry g2)
+{
+	return (_is_between(g2.x, g1.x, g1.x + g1.width)
+		|| _is_between(g2.x + g2.width, g1.x, g1.x + g1.width))
+		&& (_is_between(g2.y, g1.y, g1.y + g1.height)
+		    || _is_between(g2.y + g2.height, g1.y, g1.y + g1.height));
+}
+
 /**
  * Return true if other geometry is within the size and position of
  * this geometry.
@@ -292,10 +301,7 @@ _is_between(int val, int min, int max)
 bool
 Geometry::isOverlap(const Geometry &other) const
 {
-	return (_is_between(other.x, x, x + width)
-		|| _is_between(other.x + other.width, x, x + width))
-		&& (_is_between(other.y, y, y + height)
-		    || _is_between(other.y + other.height, y, y + height));
+	return _is_overlap(*this, other) || _is_overlap(other, *this);
 }
 
 Strut::Strut(const long* s)
