@@ -1,6 +1,6 @@
 //
 // WindowManager.hh for pekwm
-// Copyright (C) 2003-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2024 Claes Nästén <pekdon@gmail.com>
 //
 // windowmanager.hh for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
@@ -108,6 +108,7 @@ private:
 
 	void handleConfigureRequestEvent(XConfigureRequestEvent *ev);
 	void handleClientMessageEvent(XClientMessageEvent *ev);
+	void handleNetRestackWindow(XClientMessageEvent *ev);
 	void handleNetRequestFrameExtents(Window win);
 
 	void handleColormapEvent(XColormapEvent *ev);
