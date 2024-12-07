@@ -1,6 +1,6 @@
 //
 // X11.cc for pekwm
-// Copyright (C) 2022-2023 Claes Nästén
+// Copyright (C) 2022-2024 Claes Nästén
 // Copyright (C) 2009-2021 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -100,6 +100,7 @@ static const char *atomnames[] = {
 	"_NET_DESKTOP_LAYOUT", "_NET_SUPPORTING_WM_CHECK",
 	"_NET_CLOSE_WINDOW",
 	"_NET_WM_MOVERESIZE",
+	"_NET_RESTACK_WINDOW",
 	"_NET_REQUEST_FRAME_EXTENTS",
 	"_NET_WM_NAME", "_NET_WM_VISIBLE_NAME",
 	"_NET_WM_ICON_NAME", "_NET_WM_VISIBLE_ICON_NAME",
@@ -276,6 +277,31 @@ Geometry::diffMask(const Geometry &old_gm)
 		mask |= HEIGHT_VALUE;
 	}
 	return mask;
+}
+
+static inline bool
+_is_between(int val, int min, int max)
+{
+	return val >= min && val <= max;
+}
+
+static inline bool
+_is_overlap(const Geometry &g1, const Geometry g2)
+{
+	return (_is_between(g2.x, g1.x, g1.x + g1.width)
+		|| _is_between(g2.x + g2.width, g1.x, g1.x + g1.width))
+		&& (_is_between(g2.y, g1.y, g1.y + g1.height)
+		    || _is_between(g2.y + g2.height, g1.y, g1.y + g1.height));
+}
+
+/**
+ * Return true if other geometry is within the size and position of
+ * this geometry.
+ */
+bool
+Geometry::isOverlap(const Geometry &other) const
+{
+	return _is_overlap(*this, other) || _is_overlap(other, *this);
 }
 
 Strut::Strut(const long* s)
@@ -869,6 +895,26 @@ X11::xdbeSwapBackBuffer(Window win)
 		XdbeSwapBuffers(_dpy, &swap_info, 1);
 	}
 #endif // PEKWM_HAVE_XDBE
+}
+
+/**
+ * Query root, parent and children of the given window.
+ */
+bool
+X11::queryTree(Window win, Window &root, Window &parent,
+	       std::vector<Window> &children)
+{
+	uint num_wins;
+	Window *wins;
+	if (!_dpy
+	    || !XQueryTree(_dpy, win, &root, &parent, &wins, &num_wins)) {
+		return false;
+	}
+
+	children.reserve(num_wins);
+	std::copy(wins, wins + num_wins, std::back_inserter(children));
+	X11::free(wins);
+	return true;
 }
 
 /**
@@ -2178,10 +2224,11 @@ X11::ungrabButton(uint button, uint modifiers, Window win)
  * Wrapper for XRestackWindows, windows go in top-to-bottom order.
  */
 void
-X11::stackWindows(Window *wins, unsigned len)
+X11::stackWindows(const std::vector<Window> &windows)
 {
-	if (_dpy && len > 1) {
-		XRestackWindows(_dpy, wins, len);
+	if (_dpy && ! windows.empty()) {
+		XRestackWindows(_dpy, const_cast<Window*>(windows.data()),
+				windows.size());
 	}
 }
 

@@ -1,6 +1,6 @@
 //
 // FocusToggleEventHandler.cc for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -201,9 +201,10 @@ FocusToggleEventHandler::setFocusedWo(PWinObj *fo_wo)
 			}
 			_fo_wo->raise();
 		} else if (_raise == TEMP_RAISE) {
-			Window winlist[] = { _menu->getWindow(),
-					     _fo_wo->getWindow() };
-			X11::stackWindows(winlist, 2);
+			std::vector<Window> winlist;
+			winlist.push_back(_menu->getWindow());
+			winlist.push_back(_fo_wo->getWindow());
+			X11::stackWindows(winlist);
 		}
 	}
 }

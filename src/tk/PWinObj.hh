@@ -1,6 +1,6 @@
 //
 // PWinObj.hh for pekwm
-// Copyright (C) 2003-2023 Claes Nästen <pekdon@gmail.com>
+// Copyright (C) 2003-2024 Claes Nästen <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -46,7 +46,7 @@ public:
 		WO_NO_TYPE = 0 //!< No type.
 	};
 
-	PWinObj(bool keyboard_input);
+	PWinObj(bool keyboard_input = false);
 	virtual ~PWinObj(void);
 
 	// PSurface

@@ -118,6 +118,9 @@ in one go.
 		[global window1=$1]
 		[log started test client 1 $window1]
 
+	[shell pekwm]
+		?client .* constructed
+
 	[shell test_update_client_list_report_all]
 		?BEGIN WINDOWS
 		?Window $window1
@@ -140,6 +143,9 @@ in one go.
 		[global window1=$1]
 		[log re-started test client 1 $window1]
 
+	[shell pekwm]
+		?client .* constructed
+
 	[shell test_update_client_list_report_all]
 		?BEGIN WINDOWS
 		?Window $window1
@@ -150,6 +156,9 @@ in one go.
 		?Window ([0-9]+)
 		[global window2=$1]
 		[log started test client 2 $window2]
+
+	[shell pekwm]
+		?client .* constructed
 
 	[shell test_update_client_list_report_all]
 		?BEGIN WINDOWS
@@ -170,6 +179,40 @@ in one go.
 		?Window $window2
 		?END WINDOWS
 		!
+		?SH-PROMPT:
+[endfunction]
+
+[function test_restack_window]
+	[log test_restack_window]
+
+	[shell xterm]
+		!xterm -name term1 -geometry 80x24+0x0 +sb /bin/sh
+
+	[shell xterm2]
+		!xterm -name term2 -geometry 80x24+0x0 +sb /bin/sh
+
+	[shell pekwm]
+		?client term1 constructed
+		?client term2 constructed
+
+	[shell pekwm_ctrl]
+		!$$VALGRIND $BIN_DIR/ctrl/pekwm_ctrl -a restack -c term1 -C term2 above
+		?_NET_RESTACK_WINDOW ([0-9]+) ([0-9]+) OK
+		[global client=$1]
+		[global sibling=$2]
+		[log _NET_RESTACK_WINDOW client=$client sibling=$sibling]
+		?SH-PROMPT:
+
+	[shell pekwm]
+		?_NET_RESTACK_WINDOW client=$client sibling=$sibling detail=0
+		?updating _NET_CLIENT_LIST_STACKING with [0-9]+ window
+
+	[shell xterm1]
+		!$_CTRL_C_
+		?SH-PROMPT:
+
+	[shell xterm2]
+		!$_CTRL_C_
 		?SH-PROMPT:
 [endfunction]
 
@@ -205,7 +248,7 @@ in one go.
 		!xterm -name no-resize-inc +sb /bin/sh
 
 	[shell pekwm]
-		?client constructed
+		?client .* constructed
 
 	[shell pekwm_ctrl]
 		-(no client match|Invalid read of size)
@@ -268,10 +311,10 @@ in one go.
 		?transient [0-9]+ set to [0-9]+
 
 	[shell pekwm]
-		?client constructed
+		?client .* constructed
 		?transient for changed from (0x)?0 to (0x[0-9a-f]+)
-		[local client=$2]
-		?client constructed
+		[global client=$2]
+		?client .* constructed
 
 	[shell test_transient_for]
 		!
@@ -301,6 +344,7 @@ in one go.
 
 	[shell pekwm]
 		[log verify pekwm error message]
+		?client .* constructed
 		?client set transient hint for itself
 
 	[shell test_transient_for]
@@ -317,8 +361,9 @@ in one go.
 		?transient [0-9]+ set to [0-9]+
 
 	[shell pekwm]
+		?client .* constructed
 		?transient for changed from (0x)?0 to (0x[0-9a-f]+)
-		[local client=$2]
+		[global client=$2]
 
 	[shell test_transient_for]
 		!
@@ -347,7 +392,8 @@ in one go.
 
 	[shell pekwm]
 		?transient for changed from (0x)?0 to (0x[0-9a-f]+)
-		[local client1=$2]
+		[global client1=$2]
+		?client .* constructed
 
 	[shell test_transient_for]
 		!
@@ -356,9 +402,9 @@ in one go.
 
 	[shell pekwm]
 		?transient for changed from (0x)?0 to (0x[0-9a-f]+)
-		[local client2=$2]
+		[global client2=$2]
 		?transient for changed from (0x)?0 to (0x[0-9a-f]+)
-		[local client3=$2]
+		[global client3=$2]
 
 	[shell test_transient_for]
 		!
@@ -397,7 +443,7 @@ in one go.
 
 	[shell pekwm]
 		?set _NET_WM_ICON on
-		?client constructed for window (0x[0-9a-f]+)
+		?client .* constructed for window (0x[0-9a-f]+)
 		[global window=$1]
 
 	[shell xprop]
@@ -421,7 +467,7 @@ in one go.
 
 	[shell pekwm]
 		???applied ClientGeometry property Geometry x:10 y: 10 width: 100 height: 100 -> Geometry x:914 y: 658 width: 100 height: 100
-		?client constructed for window (0x[0-9a-f]+)
+		?client .* constructed for window (0x[0-9a-f]+)
 		[global window=$1]
 
 	[shell xprop]
@@ -443,7 +489,7 @@ in one go.
 
 	[shell pekwm]
 		???applied FrameGeometry property Geometry x:10 y: 10 width: 100 height: 100 -> Geometry x:10 y: 10 width: 100 height: 100
-		?client constructed for window (0x[0-9a-f]+)
+		?client .* constructed for window (0x[0-9a-f]+)
 		[global window=$1]
 
 	[shell xprop]
@@ -483,6 +529,7 @@ in one go.
 	[call test_warp_pointer]
 	[call test_net_request_frame_extents]
 	[call test_update_client_list_report_all]
+	[call test_restack_window]
 
 [shell pekwm]
 	!$_CTRL_C_

@@ -5,6 +5,7 @@ Closed issues
 -------------
 
 * #147, picom fade out visual artifacts.
+* #21, support `_NET_RESTACK_WINDOW`.
 
 New
 ---

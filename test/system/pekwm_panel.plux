@@ -24,7 +24,7 @@ Basic pekwm_panel tests
 
 [shell pekwm]
 	[log waiting for window to be mapped]
-	?client constructed for window (0x[0-9a-f]+)
+	?client .* constructed for window (0x[0-9a-f]+)
 	[global panel_window=$1]
 
 [shell xwininfo]
@@ -50,7 +50,7 @@ Basic pekwm_panel tests
 
 [shell pekwm]
 	[log waiting for window to be mapped]
-	?client constructed for window (0x[0-9a-f]+)
+	?client .* constructed for window (0x[0-9a-f]+)
 	[global panel_window=$1]
 
 [shell xwininfo]
