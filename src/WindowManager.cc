@@ -1,6 +1,6 @@
 //
 // WindowManager.cc for pekwm
-// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2023-2024 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2002-2021 the pekwm development team
 //
 // windowmanager.cc for aewm++
@@ -1392,6 +1392,9 @@ WindowManager::handleClientMessageEvent(XClientMessageEvent *ev)
 			}
 		}
 	} else if (ev->message_type
+		   == X11::getAtom(NET_RESTACK_WINDOW)) {
+		handleNetRestackWindow(ev);
+	} else if (ev->message_type
 		   == X11::getAtom(NET_REQUEST_FRAME_EXTENTS)) {
 		handleNetRequestFrameExtents(ev->window);
 	} else {
@@ -1409,6 +1412,44 @@ WindowManager::handleClientMessageEvent(XClientMessageEvent *ev)
 			}
 		}
 	}
+}
+
+/**
+ * Handle _NET_RESTACK_WINDOW request:
+ *
+ *  window = window to restack
+ *  format = 32
+ *  data.l[0] = source indication
+ *  data.l[1] = sibling window
+ *  data.l[2] = detail
+ *
+ * Used by pagers to re-stack windows instead of using a ConfigureRequest
+ * with CWSibling and CWStackMode as they can be ignored by the window
+ * manager.
+ */
+void
+WindowManager::handleNetRestackWindow(XClientMessageEvent *ev)
+{
+	if (ev->format != 32) {
+		P_TRACE("invalid _NET_RESTACK_WINDOW request, expected format "
+			"32, got " << ev->format);
+		return;
+	}
+
+	Window sibling_win = ev->data.l[1];
+	long detail = ev->data.l[2];
+
+	P_TRACE("_NET_RESTACK_WINDOW client=" << ev->window << " sibling="
+		<< sibling_win << " detail=" << detail);
+
+	Client *client = Client::findClientFromWindow(ev->window);
+	Client *sibling = sibling_win == None
+		? nullptr : Client::findClientFromWindow(sibling_win);
+	if (client == nullptr || (sibling_win != None && sibling == nullptr)) {
+		return;
+	}
+
+	Workspaces::restack(client->getParent(), sibling->getParent(), detail);
 }
 
 void

@@ -136,7 +136,8 @@ Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
 	_wo_map[_window] = this;
 	_clients.push_back(this);
 
-	P_TRACE(this << " client constructed for window " << FMT_HEX(_window));
+	P_TRACE(this << " client " << _title.getReal() << " constructed for "
+		<< "window " << FMT_HEX(_window));
 }
 
 //! @brief Client destructor

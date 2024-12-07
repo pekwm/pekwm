@@ -1,6 +1,6 @@
 //
 // test_pekwm.cc for pekwm
-// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2024 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -27,6 +27,7 @@
 #include "test_PMenu.hh"
 #include "test_Theme.hh"
 #include "test_WindowManager.hh"
+#include "test_Workspaces.hh"
 #include "test_X11.hh"
 
 static int
@@ -75,6 +76,7 @@ main_tests(int argc, char *argv[])
 
 	// WindowManager
 	TestWindowManager testWindowManager;
+	TestWorkspaces testWorkspaces;
 
 	// x11
 	TestGeometry testGeometry;

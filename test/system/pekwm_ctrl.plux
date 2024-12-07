@@ -85,7 +85,7 @@ Start a single Xvfb pekwm_ctrl system tests in one go.
 	!xterm -T xterm -display :1 /bin/sh
 
 [shell pekwm]
-	?client constructed
+	?client .* constructed
 
 [shell xrdb]
 	[call sh-eval "export DISPLAY=$DISPLAY"]
