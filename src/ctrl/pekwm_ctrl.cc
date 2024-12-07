@@ -1,6 +1,6 @@
 //
 // pekwm_ctrl.cc for pekwm
-// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2024 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -30,6 +30,7 @@ typedef bool(*send_message_fun)(Window, AtomName, int, const void*, size_t,
 enum CtrlAction {
 	PEKWM_CTRL_ACTION_RUN,
 	PEKWM_CTRL_ACTION_FOCUS,
+	PEKWM_CTRL_ACTION_RESTACK,
 	PEKWM_CTRL_ACTION_LIST,
 	PEKWM_CTRL_ACTION_UTIL,
 	PEKWM_CTRL_ACTION_XRM_GET,
@@ -39,6 +40,7 @@ enum CtrlAction {
 
 #ifndef UNITTEST
 
+static const char *progname = nullptr;
 static ObserverMapping* _observer_mapping = nullptr;
 
 namespace pekwm
@@ -52,18 +54,21 @@ namespace pekwm
 	}
 }
 
-static void usage(const char* name, int ret)
+static void usage(int ret)
 {
-	std::cout << "usage: " << name << " [-acdhs] [command]" << std::endl;
-	std::cout << "  -a --action [run|focus|list|util] Control action"
+	std::cout << "usage: " << progname << " [-acdhs] [command]"
 		  << std::endl;
+	std::cout << "  -a --action [run|focus|restack|list|util] Control "
+		  << "action" << std::endl;
 	std::cout << "  -c --client pattern Client pattern" << std::endl;
+	std::cout << "  -C pattern          Other client pattern" << std::endl;
 	std::cout << "  -d --display dpy    Display" << std::endl;
 	std::cout << "  -h --help           Display this information"
 		  << std::endl;
 	std::cout << "  -g --xrm-get        Get string resource" << std::endl;
 	std::cout << "  -s --xrm-set        Set string resource" << std::endl;
 	std::cout << "  -w --window window  Client window" << std::endl;
+	std::cout << "  -W window           Other client window" << std::endl;
 	exit(ret);
 }
 
@@ -71,6 +76,8 @@ static CtrlAction getAction(const std::string& name)
 {
 	if (name == "focus") {
 		return PEKWM_CTRL_ACTION_FOCUS;
+	} else if (name == "restack") {
+		return PEKWM_CTRL_ACTION_RESTACK;
 	} else if (name == "list") {
 		return PEKWM_CTRL_ACTION_LIST;
 	} else if (name == "run") {
@@ -153,6 +160,54 @@ static bool focusClient(Window win)
 				 nullptr, 0, nullptr);
 }
 
+static bool restackWindow(int argc, char *argv[], Window win, Window sibling)
+{
+	if (win == None) {
+		std::cerr << "client window is required" << std::endl;
+		usage(1);
+	} else if (win == sibling) {
+		std::cerr << "client and other window must be different"
+			  << std::endl;
+		usage(1);
+	} else if (argc != 1) {
+		std::cerr << "must specify stacking detail" << std::endl;
+		usage(1);
+	}
+
+	std::string detail_str(argv[0]);
+	long detail = 0;
+	if (detail_str == "above") {
+		detail = Above;
+	} else if (detail_str == "below") {
+		detail = Below;
+	} else if (detail_str == "topif") {
+		detail = TopIf;
+	} else if (detail_str == "bottomif") {
+		detail = BottomIf;
+	} else if (detail_str == "opposite") {
+		detail = Opposite;
+	} else {
+		std::cerr << "unsupported detail " << detail_str << ", "
+			  << "must be one of above, below, topif, bottomif "
+			  << "or opposite" << std::endl;
+		usage(1);
+	}
+
+	XEvent ev;
+	ev.xclient.type = ClientMessage;
+	ev.xclient.serial = 0;
+	ev.xclient.send_event = True;
+	ev.xclient.message_type = X11::getAtom(NET_RESTACK_WINDOW);
+	ev.xclient.window = win;
+	ev.xclient.format = 32;
+	ev.xclient.data.l[0] = 0;
+	ev.xclient.data.l[1] = sibling;
+	ev.xclient.data.l[2] = detail;
+	X11::sendEvent(X11::getRoot(), False,
+		       SubstructureRedirectMask | SubstructureNotifyMask, &ev);
+	return true;
+}
+
 #endif // ! UNITTEST
 
 static bool sendCommand(const std::string& cmd, Window win,
@@ -220,7 +275,7 @@ static void printRes(bool res)
 	}
 }
 
-static bool actionRun(const char *argv0, int argc, char** argv, Window client)
+static bool actionRun(int argc, char** argv, Window client)
 {
 	if (client == None) {
 		client = X11::getRoot();
@@ -236,7 +291,7 @@ static bool actionRun(const char *argv0, int argc, char** argv, Window client)
 
 	if (cmd.empty()) {
 		std::cerr << "empty command string" << std::endl;
-		usage(argv[0], 1);
+		usage(1);
 	}
 	std::cout << "_PEKWM_CMD " << client << " " << cmd;
 	bool res = sendCommand(cmd, client, sendClientMessage, nullptr);
@@ -262,11 +317,11 @@ static int actionUtil(int argc, char* argv[])
 	}
 }
 
-static bool actionXrmGet(const char* argv0, const std::string& key)
+static bool actionXrmGet(const std::string& key)
 {
 	if (key.empty()) {
 		std::cerr << "no resource given" << std::endl;
-		usage(argv0, 1);
+		usage(1);
 	}
 
 	std::string val;
@@ -277,7 +332,7 @@ static bool actionXrmGet(const char* argv0, const std::string& key)
 	return false;
 }
 
-static bool actionXrmSet(const char* argv0, int argc, char** argv)
+static bool actionXrmSet(int argc, char** argv)
 {
 	for (int i = 0; i < argc; i++) {
 		std::vector<std::string> key_value;
@@ -291,8 +346,40 @@ static bool actionXrmSet(const char* argv0, int argc, char** argv)
 
 }
 
+static void parseWinId(Window &win, RegexString &re, const char *arg,
+		       char c, char w)
+{
+	if (re.is_match_ok()) {
+		std::cerr << "-" << c << " and -" << w << " are mutually "
+			  << "exclusive" << std::endl;
+		usage(1);
+	}
+	try {
+		win = std::stoi(optarg);
+	} catch (std::invalid_argument&) {
+		std::cerr << "invalid client id " << optarg << " given, "
+			  << "expect a number" << std::endl;
+	}
+}
+
+static bool findClientRe(Window &win, RegexString &re)
+{
+	if (!re.is_match_ok()) {
+		return true;
+	}
+	win = findClient(re);
+	if (win == None) {
+		std::cerr << "no client match "
+			  << Charset::toSystem(re.getPattern()) << std::endl;
+		return false;
+	}
+	return true;
+}
+
 int main(int argc, char* argv[])
 {
+	progname = argv[0];
+
 	const char* display = NULL;
 
 	static struct option opts[] = {
@@ -312,23 +399,33 @@ int main(int argc, char* argv[])
 	CtrlAction action = PEKWM_CTRL_ACTION_RUN;
 	std::string val;
 	Window client = None;
+	Window sibling = None;
 	RegexString client_re;
-	while ((ch = getopt_long(argc, argv, "a:c:d:g:hsw:", opts, nullptr))
+	RegexString sibling_re;
+	while ((ch = getopt_long(argc, argv, "a:c:C:d:g:hsw:W:", opts, nullptr))
 	       != -1) {
 		switch (ch) {
 		case 'a':
 			action = getAction(optarg);
 			if (action == PEKWM_CTRL_ACTION_NO) {
-				usage(argv[0], 1);
+				usage(1);
 			}
 			break;
 		case 'c':
 			if (client != None) {
 				std::cerr << "-c and -w are mutually "
 					  << "exclusive" << std::endl;
-				usage(argv[0], 1);
+				usage(1);
 			}
 			client_re.parse_match(optarg);
+			break;
+		case 'C':
+			if (sibling != None) {
+				std::cerr << "-C and -W are mutually "
+					  << "exclusive" << std::endl;
+				usage(1);
+			}
+			sibling_re.parse_match(optarg);
 			break;
 		case 'd':
 			display = optarg;
@@ -341,24 +438,17 @@ int main(int argc, char* argv[])
 			action = PEKWM_CTRL_ACTION_XRM_SET;
 			break;
 		case 'h':
-			usage(argv[0], 0);
+			usage(0);
 			break;
 		case 'w':
-			if (client_re.is_match_ok()) {
-				std::cerr << "-c and -w are mutually "
-					  << "exclusive" << std::endl;
-				usage(argv[0], 1);
-			}
-			try {
-				client = std::stoi(optarg);
-			} catch (std::invalid_argument&) {
-				std::cerr << "invalid client id " << optarg
-					  << " given, expect a number"
-					  << std::endl;
-			}
+			parseWinId(client, client_re, optarg, 'c', 'w');
 			break;
+		case 'W':
+			parseWinId(sibling, sibling_re, optarg, 'C', 'W');
+			break;
+
 		default:
-			usage(argv[0], 1);
+			usage(1);
 			break;
 		}
 	}
@@ -379,24 +469,26 @@ int main(int argc, char* argv[])
 
 	X11::init(dpy, true);
 
-	if (client_re.is_match_ok()) {
-		client = findClient(client_re);
-		if (client == None) {
-			std::cerr << "no client match ";
-			std::cerr << Charset::toSystem(client_re.getPattern())
-                      << std::endl;
-			return 1;
-		}
+	if (!findClientRe(client, client_re)
+	    || !findClientRe(sibling, sibling_re)) {
+		return 1;
 	}
 
 	bool res;
 	switch (action) {
 	case PEKWM_CTRL_ACTION_RUN:
-		res = actionRun(argv[0], argc - optind, argv + optind, client);
+		res = actionRun(argc - optind, argv + optind, client);
 		break;
 	case PEKWM_CTRL_ACTION_FOCUS:
 		std::cout << "_NET_ACTIVE_WINDOW " << client;
 		res = focusClient(client);
+		printRes(res);
+		break;
+	case PEKWM_CTRL_ACTION_RESTACK:
+		std::cout << "_NET_RESTACK_WINDOW " << client << " "
+			  << sibling;
+		res = restackWindow(argc - optind, argv + optind, client,
+				    sibling);
 		printRes(res);
 		break;
 	case PEKWM_CTRL_ACTION_LIST:
@@ -405,11 +497,11 @@ int main(int argc, char* argv[])
 		printRes(res);
 		break;
 	case PEKWM_CTRL_ACTION_XRM_GET: {
-		res = actionXrmGet(argv[0], val);
+		res = actionXrmGet(val);
 		break;
 	}
 	case PEKWM_CTRL_ACTION_XRM_SET:
-		res = actionXrmSet(argv[0], argc - optind, argv + optind);
+		res = actionXrmSet(argc - optind, argv + optind);
 		break;
 	case PEKWM_CTRL_ACTION_NO:
 	case PEKWM_CTRL_ACTION_UTIL:

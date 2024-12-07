@@ -1,6 +1,6 @@
 //
 // Workspaces.hh for pekwm
-// Copyright (C) 2002-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2002-2024 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -102,7 +102,9 @@ public:
 
 	static void raise(PWinObj* wo);
 	static void lower(PWinObj* wo);
+	static void restack(PWinObj* wo, PWinObj* sibling, long detail);
 	static bool handleFullscreenBeforeRaise(PWinObj* wo);
+	static bool isOccluding(const PWinObj* wo, const PWinObj* sibling);
 
 	static PWinObj* getTopFocusableWO(uint type_mask);
 	static void updateClientList(void);
@@ -149,7 +151,15 @@ public:
 			   _mru.end());
 	}
 
+protected:
+	static bool swapInStack(PWinObj* wo_under, PWinObj* wo_over);
+	static bool stackAbove(PWinObj* wo_under, PWinObj* wo_over);
+
+	static std::vector<PWinObj*> _wobjs;
+
 private:
+	static void stackAt(iterator it, PWinObj *wo);
+
 	static void clearLayoutModels(void);
 	static bool layoutOnHead(PWinObj *wo, Window parent,
 				 const Geometry &gm, int ptr_x, int ptr_y);
@@ -170,7 +180,6 @@ private:
 	/** Window popping up when switching workspace */
 	static WorkspaceIndicator *_workspace_indicator;
 
-	static std::vector<PWinObj*> _wobjs;
 	/** The most recently used frame is kept at the front. */
 	static std::vector<Frame*> _mru;
 	static std::vector<Workspace> _workspaces;

@@ -100,6 +100,7 @@ static const char *atomnames[] = {
 	"_NET_DESKTOP_LAYOUT", "_NET_SUPPORTING_WM_CHECK",
 	"_NET_CLOSE_WINDOW",
 	"_NET_WM_MOVERESIZE",
+	"_NET_RESTACK_WINDOW",
 	"_NET_REQUEST_FRAME_EXTENTS",
 	"_NET_WM_NAME", "_NET_WM_VISIBLE_NAME",
 	"_NET_WM_ICON_NAME", "_NET_WM_VISIBLE_ICON_NAME",
@@ -276,6 +277,25 @@ Geometry::diffMask(const Geometry &old_gm)
 		mask |= HEIGHT_VALUE;
 	}
 	return mask;
+}
+
+static inline bool
+_is_between(int val, int min, int max)
+{
+	return val >= min && val <= max;
+}
+
+/**
+ * Return true if other geometry is within the size and position of
+ * this geometry.
+ */
+bool
+Geometry::isOverlap(const Geometry &other) const
+{
+	return (_is_between(other.x, x, x + width)
+		|| _is_between(other.x + other.width, x, x + width))
+		&& (_is_between(other.y, y, y + height)
+		    || _is_between(other.y + other.height, y, y + height));
 }
 
 Strut::Strut(const long* s)
