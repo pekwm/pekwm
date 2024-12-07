@@ -1,6 +1,6 @@
 //
 // X11.hh for pekwm
-// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2025 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2003-2020 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -70,6 +70,7 @@ enum AtomName {
 	NET_DESKTOP_LAYOUT, NET_SUPPORTING_WM_CHECK,
 	NET_CLOSE_WINDOW,
 	NET_WM_MOVERESIZE,
+	NET_RESTACK_WINDOW,
 	NET_REQUEST_FRAME_EXTENTS,
 	NET_WM_NAME, NET_WM_VISIBLE_NAME,
 	NET_WM_ICON_NAME, NET_WM_VISIBLE_ICON_NAME,
@@ -253,6 +254,8 @@ public:
 	bool operator != (const Geometry& gm);
 	int diffMask(const Geometry &old_gm);
 
+	bool isOverlap(const Geometry &other) const;
+
 	friend std::ostream& operator<<(std::ostream& os, const Geometry& gm);
 };
 
@@ -353,6 +356,9 @@ public:
 	static XdbeBackBuffer xdbeAllocBackBuffer(Window win);
 	static void xdbeFreeBackBuffer(XdbeBackBuffer buf);
 	static void xdbeSwapBackBuffer(Window win);
+
+	static bool queryTree(Window win, Window &root, Window &parent,
+			      std::vector<Window> &children);
 
 	static bool updateGeometry(uint width, uint height);
 	static Cursor getCursor(CursorType type) { return _cursor_map[type]; }
@@ -521,7 +527,7 @@ public:
 
 	static void ungrabButton(uint button, uint modifiers, Window win);
 
-	static void stackWindows(Window *wins, unsigned len);
+	static void stackWindows(const std::vector<Window> &windows);
 	static bool maskEvent(long event_mask, XEvent *ev);
 	static bool checkTypedEvent(int type, XEvent *ev);
 	static bool checkTypedWindowEvent(Window win, int type, XEvent *ev);

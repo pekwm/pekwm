@@ -1,6 +1,6 @@
 //
 // PDecor.cc for pekwm
-// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2025 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2004-2020 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -1886,28 +1886,25 @@ PDecor::applyBorderShapeBorder(int kind, Window shape)
 void
 PDecor::restackBorder(void)
 {
-	// List of windows, adding two possible for title and child window
-	int extra = 0;
-	Window windows[BORDER_NO_POS + 2];
-
+	std::vector<Window> windows;
 
 	// Only put the Child over if not shaded.
 	if (_child && ! _shaded) {
-		windows[extra++] = _child->getWindow();
+		windows.push_back(_child->getWindow());
 	}
 	// Add title if any
 	if (_titlebar) {
-		windows[extra++] = _title_wo.getWindow();
+		windows.push_back(_title_wo.getWindow());
 	}
 
 	// Add border windows
 	for (int i = 0; i < BORDER_NO_POS; ++i) {
-		windows[i + extra] = _border_win[i];
+		windows.push_back(_border_win[i]);
 	}
 
 	// Raise the top window so actual restacking is done.
 	X11::raiseWindow(windows[0]);
-	X11::stackWindows(windows, BORDER_NO_POS + extra);
+	X11::stackWindows(windows);
 }
 
 /**

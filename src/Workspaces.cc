@@ -1,6 +1,6 @@
 //
 // Workspaces.cc for pekwm
-// Copyright (C) 2002-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2002-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -29,6 +29,7 @@
 #endif // PEKWM_HAVE_LIMITS
 
 extern "C" {
+#include <assert.h>
 #include <signal.h>
 #include <sys/time.h>
 
@@ -411,7 +412,7 @@ Workspaces::warpToWorkspace(uint num, int dir)
 void
 Workspaces::fixStacking(PWinObj *pwo)
 {
-	const_iterator it = std::find(_wobjs.begin(), _wobjs.end(), pwo);
+	const_iterator it = find(pwo);
 	if (it == _wobjs.end()) {
 		return;
 	}
@@ -419,8 +420,10 @@ Workspaces::fixStacking(PWinObj *pwo)
 	if (++it == _wobjs.end()) {
 		X11::raiseWindow(pwo->getWindow());
 	} else {
-		Window winlist[] = { (*it)->getWindow(), pwo->getWindow() };
-		X11::stackWindows(winlist, 2);
+		std::vector<Window> winlist;
+		winlist.push_back((*it)->getWindow());
+		winlist.push_back(pwo->getWindow());
+		X11::stackWindows(winlist);
 	}
 }
 
@@ -517,8 +520,7 @@ Workspaces::insert(PWinObj *wo, bool raise)
 	    && wo_frame && wo_frame->getTransFor()
 	    && wo_frame->getTransFor()->getLayer() == wo_frame->getLayer()) {
 		// Lower only to the top of the transient_for window.
-		it = std::find(_wobjs.begin(), _wobjs.end(),
-			       wo_frame->getTransFor()->getParent());
+		it = find(wo_frame->getTransFor()->getParent());
 		++it;
 		top_obj = it!=_wobjs.end() ? *it : nullptr;
 	} else {
@@ -563,7 +565,7 @@ Workspaces::insert(PWinObj *wo, bool raise)
 			++it;
 		}
 
-		it = std::find(_wobjs.begin(), _wobjs.end(), wo);
+		it = find(wo);
 		++it;
 		_wobjs.insert(it, winstack.begin()+1, winstack.end());
 	}
@@ -574,14 +576,12 @@ Workspaces::insert(PWinObj *wo, bool raise)
 		X11::raiseWindow(winstack.back()->getWindow());
 	}
 
-	const unsigned num_win = winstack.size();
-	Window *wins = new Window[num_win];
-	std::vector<PWinObj*>::iterator wit(winstack.end());
-	for (unsigned i = 0; i < num_win; ++i) {
-		wins[i] = (*--wit)->getWindow();
+	std::vector<Window> wins;
+	std::vector<PWinObj*>::reverse_iterator wit(winstack.rbegin());
+	for (; wit != winstack.rend(); ++wit) {
+		wins.push_back((*wit)->getWindow());
 	}
-	X11::stackWindows(wins, num_win);
-	delete [] wins;
+	X11::stackWindows(wins);
 }
 
 //! @brief Removes a PWinObj from the stacking list.
@@ -680,21 +680,95 @@ Workspaces::unhideAll(uint workspace, bool focus)
 	}
 }
 
-//! @brief Raises a PWinObj and restacks windows.
-void
+/**
+ * Raises a PWinObj and restacks windows.
+ *
+ * @return true if windows were restacked, else false.
+ */
+bool
 Workspaces::raise(PWinObj* wo)
 {
-	iterator it(std::find(_wobjs.begin(), _wobjs.end(), wo));
-
-	if (it == _wobjs.end()) { // no Frame to raise.
-		return;
+	iterator it = find(wo);
+	if (it == _wobjs.end()) {
+		return false;
 	}
 	if (handleFullscreenBeforeRaise(wo)) {
-		it = std::find(_wobjs.begin(), _wobjs.end(), wo);
+		it = find(wo);
 	}
 	_wobjs.erase(it);
 
-	insert(wo, true); // reposition and restack
+	insert(wo, true /* raise */);
+	return true;
+}
+
+/**
+ * Swap position of wo_under and wo_over in the stacking order making wo_over
+ * placed above wo_under.
+ *
+ * @return true if stacking was changed, false if objects belong to different
+ *         layers.
+ */
+bool
+Workspaces::swapInStack(PWinObj* wo_under, PWinObj* wo_over)
+{
+	if (wo_under->getLayer() != wo_under->getLayer()) {
+		P_TRACE("not swapping in stack, not on the same layer");
+		return false;
+	}
+
+	iterator it_under = find(wo_under);
+	assert(it_under != _wobjs.end());
+	iterator it_over = find(wo_over);
+	assert(it_over != _wobjs.end());
+	*it_under = wo_over;
+	*it_over = wo_under;
+	stackAt(it_over);
+	stackAt(it_under);
+	return true;
+}
+
+/**
+ * Move wo_under in the stack and place it above wo.
+ */
+bool
+Workspaces::stackAbove(PWinObj* wo_under, PWinObj* wo)
+{
+	if (wo_under->getLayer() != wo->getLayer()) {
+		P_TRACE("not stacking above, not on the same layer");
+		return false;
+	}
+
+	iterator it_under = find(wo_under);
+	assert(it_under != _wobjs.end());
+	_wobjs.erase(it_under);
+	iterator it = find(wo);
+	assert(it != _wobjs.end());
+	it_under = _wobjs.insert(it + 1, wo_under);
+	stackAt(it_under);
+	return true;
+}
+
+/**
+ * Get iterator for PWinObj from _wobjs.
+ */
+Workspaces::iterator
+Workspaces::find(const PWinObj *wo)
+{
+	return std::find(_wobjs.begin(), _wobjs.end(), wo);
+}
+
+void
+Workspaces::stackAt(iterator it)
+{
+	iterator it_above = it + 1;
+	if (it_above == _wobjs.end()) {
+		X11::raiseWindow((*it)->getWindow());
+	} else {
+		std::vector<Window> wins;
+		wins.push_back((*it_above)->getWindow());
+		wins.push_back((*it)->getWindow());
+		X11::stackWindows(wins);
+	}
 }
 
 /**
@@ -769,8 +843,7 @@ Workspaces::lowerFullscreenWindows(Layer new_layer)
 		// _wobjs, so that they can be the (top_obj) anchor point for
 		// restacking. And since that anchor is most likely fullscreen
 		// and hides everything else, no flickering.
-		iterator it(std::find(_wobjs.begin(), _wobjs.end(), *wo));
-
+		iterator it = find(*wo);
 		if (it != _wobjs.end()) {
 			_wobjs.erase(it);
 			insert(*wo, true);
@@ -779,17 +852,151 @@ Workspaces::lowerFullscreenWindows(Layer new_layer)
 	return !fs_wobjs.empty();
 }
 
-//! @brief Lower a PWinObj and restacks windows.
-void
+/**
+ * Lower a PWinObj and restacks windows.
+ *
+ * @return true if lowered, else false.
+ */
+bool
 Workspaces::lower(PWinObj* wo)
 {
-	iterator it(std::find(_wobjs.begin(), _wobjs.end(), wo));
+	iterator it = find(wo);
+	if (it == _wobjs.end()) {
+		return false;
+	}
 
-	if (it == _wobjs.end()) // no Frame to raise.
-		return;
 	_wobjs.erase(it);
+	insert(wo, false /* lower, raise is false */);
+	return true;
+}
 
-	insert(wo, false); // reposition and restack
+/**
+ * Restack wo relative to sibling using detail as position.
+ */
+void
+Workspaces::restack(PWinObj* wo, PWinObj* sibling, long detail)
+{
+	bool restacked;
+	if (sibling) {
+		restacked = restackSibling(wo, sibling, detail);
+	} else {
+		restacked = restack(wo, detail);
+	}
+
+	if (restacked) {
+		updateClientStackingList();
+	}
+}
+
+bool
+Workspaces::restack(PWinObj *wo, long detail)
+{
+	switch (detail) {
+	case Above:
+		return raise(wo);
+	case Below:
+		return lower(wo);
+	case TopIf:
+		return restackTopIf(wo);
+	case BottomIf:
+		return restackBottomIf(wo);
+	case Opposite:
+		if (restackTopIf(wo)) {
+			return true;
+		}
+		return restackBottomIf(wo);
+	default:
+		P_TRACE("unsupported detail " << detail << " in "
+			"_NET_RESTACK_WINDOW request");
+		return false;
+	}
+}
+
+/**
+ * If any sibling occludes the window, the window is placed at
+ * the top of the stack (for that layer).
+ */
+bool
+Workspaces::restackTopIf(PWinObj *wo)
+{
+	for (iterator it = find(wo) + 1; it < _wobjs.end(); ++it) {
+		if ((*it)->getLayer() != wo->getLayer()) {
+			break;
+		} else if (isOccluding((*it), wo)) {
+			raise(wo);
+			return true;
+		}
+	}
+	return false;
+}
+
+/**
+ * If the window occludes any sibling, the window is placed at the bottom of the
+ * stack (for that layer).
+ */
+bool
+Workspaces::restackBottomIf(PWinObj *wo)
+{
+	for (iterator it = find(wo) - 1; it >= _wobjs.begin(); --it) {
+		if ((*it)->getLayer() != wo->getLayer()) {
+			break;
+		} else if (isOccluding(wo, (*it))) {
+			lower(wo);
+			return true;
+		}
+	}
+	return false;
+}
+
+bool
+Workspaces::restackSibling(PWinObj *wo, PWinObj *sibling, long detail)
+{
+	switch (detail) {
+	case Above:
+		return stackAbove(wo, sibling);
+	case Below:
+		return stackAbove(sibling, wo);
+	case TopIf:
+		if (isOccluding(sibling, wo)) {
+			return raise(wo);
+		}
+		return false;
+	case BottomIf:
+		if (isOccluding(wo, sibling)) {
+			return lower(wo);
+		}
+		return false;
+	case Opposite:
+		if (isOccluding(wo, sibling)) {
+			return swapInStack(wo, sibling);
+		} else if (isOccluding(sibling, wo)) {
+			return swapInStack(sibling, wo);
+		}
+		return false;
+	default:
+		P_TRACE("unsupported detail " << detail << " in "
+			"_NET_RESTACK_WINDOW request");
+		return false;
+	}
+}
+
+/**
+ * Check if wo is above in the stacking order and has any part of
+ * it's geometry in the area of sibling.
+ */
+bool
+Workspaces::isOccluding(const PWinObj* wo, const PWinObj* sibling)
+{
+	iterator it_wo = find(wo);
+	iterator it_sibling = find(sibling);
+	if (it_wo == _wobjs.end() || it_sibling == _wobjs.end()) {
+		return false;
+	} else if (!wo->isMapped()) {
+		// can't occlude if it is not mapped
+		return false;
+	}
+	return it_wo > it_sibling
+		&& sibling->getGeometry().isOverlap(wo->getGeometry());
 }
 
 PWinObj*
@@ -912,6 +1119,8 @@ Workspaces::updateClientStackingList(void)
 {
 	uint num;
 	Window *windows = buildClientList(num);
+	P_TRACE("updating _NET_CLIENT_LIST_STACKING with " << num
+		<< " window(s)");
 	X11::setWindows(X11::getRoot(), NET_CLIENT_LIST_STACKING, windows, num);
 	delete [] windows;
 }
