@@ -118,6 +118,9 @@ in one go.
 		[global window1=$1]
 		[log started test client 1 $window1]
 
+	[shell pekwm]
+		?client constructed
+
 	[shell test_update_client_list_report_all]
 		?BEGIN WINDOWS
 		?Window $window1
@@ -140,6 +143,9 @@ in one go.
 		[global window1=$1]
 		[log re-started test client 1 $window1]
 
+	[shell pekwm]
+		?client constructed
+
 	[shell test_update_client_list_report_all]
 		?BEGIN WINDOWS
 		?Window $window1
@@ -150,6 +156,9 @@ in one go.
 		?Window ([0-9]+)
 		[global window2=$1]
 		[log started test client 2 $window2]
+
+	[shell pekwm]
+		?client constructed
 
 	[shell test_update_client_list_report_all]
 		?BEGIN WINDOWS
@@ -170,6 +179,41 @@ in one go.
 		?Window $window2
 		?END WINDOWS
 		!
+		?SH-PROMPT:
+[endfunction]
+
+[function test_restack_window]
+	[log test_restack_window]
+
+	[shell xterm]
+		!xterm -name term1 -geometry 80x24+0x0 +sb /bin/sh
+
+	[shell xterm2]
+		!xterm -name term2 -geometry 80x24+0x0 +sb /bin/sh
+
+	[shell pekwm]
+		# FIXME: match all client constructed messages
+		?client constructed
+		?client constructed
+
+	[shell pekwm_ctrl]
+		!$$VALGRIND $BIN_DIR/ctrl/pekwm_ctrl -a restack -c term1 -C term2 above
+		?_NET_RESTACK_WINDOW ([0-9]+) ([0-9]+) OK
+		[global client=$1]
+		[global sibling=$2]
+		[log _NET_RESTACK_WINDOW client=$client sibling=$sibling]
+		?SH-PROMPT:
+
+	[shell pekwm]
+		?_NET_RESTACK_WINDOW $client $sibling 0
+		?updating _NET_CLIENT_LIST_STACKING with [0-9]+ window
+
+	[shell xterm]
+		!$_CTRL_C_
+		?SH-PROMPT:
+
+	[shell xterm2]
+		!$_CTRL_C_
 		?SH-PROMPT:
 [endfunction]
 
@@ -483,6 +527,7 @@ in one go.
 	[call test_warp_pointer]
 	[call test_net_request_frame_extents]
 	[call test_update_client_list_report_all]
+	[call test_restack_window]
 
 [shell pekwm]
 	!$_CTRL_C_

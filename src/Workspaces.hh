@@ -100,8 +100,8 @@ public:
 	static PWinObj* getLastFocused(uint workspace);
 	static void setLastFocused(uint workspace, PWinObj* wo);
 
-	static void raise(PWinObj* wo);
-	static void lower(PWinObj* wo);
+	static bool raise(PWinObj* wo);
+	static bool lower(PWinObj* wo);
 	static void restack(PWinObj* wo, PWinObj* sibling, long detail);
 	static bool handleFullscreenBeforeRaise(PWinObj* wo);
 	static bool isOccluding(const PWinObj* wo, const PWinObj* sibling);
@@ -152,12 +152,18 @@ public:
 	}
 
 protected:
+	static bool restackTopIf(PWinObj* wo);
+	static bool restackBottomIf(PWinObj* wo);
 	static bool swapInStack(PWinObj* wo_under, PWinObj* wo_over);
 	static bool stackAbove(PWinObj* wo_under, PWinObj* wo_over);
+
+	static iterator find(const PWinObj *wo);
 
 	static std::vector<PWinObj*> _wobjs;
 
 private:
+	static bool restack(PWinObj *wo, long detail);
+	static bool restackSibling(PWinObj *wo, PWinObj *sibling, long detail);
 	static void stackAt(iterator it, PWinObj *wo);
 
 	static void clearLayoutModels(void);
