@@ -18,6 +18,8 @@ Basic pekwm_panel tests
 	[log run panel at the top]
 	!$BIN_DIR/panel/pekwm_panel -c pekwm_panel.config.top \
 	!	-C pekwm.config --log-level trace
+	?pekwm_panel PID ([0-9]+)
+	[global pekwm_panel_pid=$1]
 	?entering main loop
 
 [shell pekwm]
@@ -36,11 +38,14 @@ Basic pekwm_panel tests
 	?SH-PROMPT:
 
 [shell pekwm_panel]
+	[log stopping pekwm_panel ($pekwm_panel_pid)]
 	!$_CTRL_C_
 	?SH-PROMPT:
 	[log run panel at the bottom]
 	!$BIN_DIR/panel/pekwm_panel -c pekwm_panel.config.bottom \
 	!	-C pekwm.config --log-level trace
+	?pekwm_panel PID ([0-9]+)
+	[global pekwm_panel_pid=$1]
 	?entering main loop
 
 [shell pekwm]
@@ -59,6 +64,7 @@ Basic pekwm_panel tests
 	?SH-PROMPT:
 
 [shell pekwm_panel]
+	[log stopping pekwm_panel ($pekwm_panel_pid)]
 	!$_CTRL_C_
 	?SH-PROMPT:
 
@@ -72,8 +78,13 @@ Basic pekwm_panel tests
 	-Trying to use undefined environment variable
 	!$BIN_DIR/panel/pekwm_panel -c pekwm_panel.config.pekwm_env \
 	!	-C pekwm.config --log-level trace
+	?pekwm_panel PID ([0-9]+)
+	[global pekwm_panel_pid=$1]
 	?entering main loop
 	-
+
+[shell pekwm_panel]
+	[log stopping pekwm_panel ($pekwm_panel_pid)]
 	!$_CTRL_C_
 	?SH-PROMPT:
 

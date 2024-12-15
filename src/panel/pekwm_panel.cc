@@ -35,6 +35,7 @@ extern "C" {
 #include <assert.h>
 #include <getopt.h>
 #include <time.h>
+#include <unistd.h>
 }
 
 /** pekwm configuration file. */
@@ -730,6 +731,7 @@ int main(int argc, char *argv[])
 	X11::init(dpy, true);
 	init(dpy);
 
+	P_TRACE("pekwm_panel PID " << getpid());
 	{
 		PanelTheme theme;
 		// separate scope to get pekwm_cfg cleaned up after loading

@@ -278,6 +278,12 @@ X11App::initSignalHandler(void)
 	sigaction(SIGHUP, &act, 0);
 	sigaction(SIGCHLD, &act, 0);
 	sigaction(SIGALRM, &act, 0);
+
+	/* disable re-start of system calls in case of SIGINT to allow Ctrl-C to
+	 * be used to close applications */
+#ifndef __linux__
+	siginterrupt(SIGINT, 1);
+#endif /* !__linux__ */
 }
 
 void
