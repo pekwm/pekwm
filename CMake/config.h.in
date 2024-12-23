@@ -25,6 +25,7 @@
 #cmakedefine PEKWM_HAVE_TIMERSUB
 #cmakedefine PEKWM_HAVE_ENVIRON
 #cmakedefine PEKWM_HAVE_CLOCK_GETTIME
+#cmakedefine PEKWM_HAVE_PLEDGE
 
 #cmakedefine PEKWM_HAVE_SHAPE
 #cmakedefine PEKWM_HAVE_XDBE

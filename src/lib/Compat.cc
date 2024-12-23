@@ -1,6 +1,6 @@
 //
 // Compat.cc for pekwm
-// Copyright (C) 2009-2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2009-2024 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -208,3 +208,38 @@ namespace std
 }
 
 #endif
+
+#ifndef PEKWM_HAVE_PLEDGE
+int
+pledge(const char*, const char*)
+{
+	return 0;
+}
+#endif // PEKWM_HAVE_PLEDGE
+
+void
+pledge_x(const char* promises, const char *execpromises)
+{
+	if (pledge(promises, execpromises) == -1) {
+		std::cerr << "ERROR: pledge(" << promises << ", "
+			  << execpromises << ") failed: "
+			  << errno << std::endl;
+		exit(1);
+	}
+}
+
+/**
+ * Pledge, limiting access to what Xlib requires to setup connection.
+ */
+void
+pledge_x11_required(const std::string& extra)
+{
+	std::string promises("stdio rpath wpath cpath inet unix dns "
+			     "proc exec prot_exec");
+	if (! extra.empty()) {
+		promises += " ";
+		promises += extra;
+	}
+
+	pledge_x(promises.c_str(), NULL);
+}

@@ -656,6 +656,8 @@ static void usage(const char* name, int ret)
 
 int main(int argc, char *argv[])
 {
+	pledge_x11_required("");
+
 	std::string config_file;
 	const char* display = NULL;
 

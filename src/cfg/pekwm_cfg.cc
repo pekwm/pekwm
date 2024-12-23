@@ -83,6 +83,10 @@ jsonDump(const std::string& path,
 
 int main(int argc, char* argv[])
 {
+	// Limit access, this will not allow execution of commands in
+	// configuration files.
+	pledge_x("stdio rpath", "");
+
 	std::string cfg_path;
 	std::map<std::string, std::string> cfg_env;
 

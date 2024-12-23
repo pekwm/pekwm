@@ -91,6 +91,9 @@ static int take_screenshot(const std::string& output)
 
 int main(int argc, char* argv[])
 {
+	// Limit access, limit further after X11 connection is setup.
+	pledge_x11_required("");
+
 	const char* display = NULL;
 
 	static struct option opts[] = {
@@ -126,6 +129,10 @@ int main(int argc, char* argv[])
 	}
 
 	X11::init(dpy, true);
+
+	// X11 connection has been setup, limit access further
+	pledge_x("stdio rpath wpath cpath", "");
+
 	init(dpy);
 
 	std::string output;

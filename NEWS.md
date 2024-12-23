@@ -9,6 +9,8 @@ Closed issues
 New
 ---
 
+* Use pledge on pekwm_* commands on systems where it is available (OpenBSD)
+
 Updated
 -------
 

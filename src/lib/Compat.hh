@@ -1,6 +1,6 @@
 //
 // Compat.hh for pekwm
-// Copyright (C) 2009-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2009-2024 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -138,5 +138,13 @@ namespace std
 }
 
 #endif
+
+#ifdef PEKWM_HAVE_PLEDGE
+#include <unistd.h>
+#else // ! PEKWM_HAVE_PLEDGE
+int pledge(const char *promises, const char *execpromises);
+#endif // PEKWM_HAVE_PLEDGE
+void pledge_x(const char *promises, const char *execpromises);
+void pledge_x11_required(const std::string& extra);
 
 #endif // _PEKWM_COMPAT_HH_

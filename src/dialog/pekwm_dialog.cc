@@ -352,6 +352,8 @@ parse_decorations(const std::string& decorations)
 
 int main(int argc, char* argv[])
 {
+	pledge_x11_required("");
+
 	const char* display = NULL;
 	Geometry gm(0, 0, WIDTH_DEFAULT, HEIGHT_DEFAULT);
 	int gm_mask = WIDTH_VALUE | HEIGHT_VALUE;
