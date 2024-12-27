@@ -1376,6 +1376,10 @@ WindowManager::handleFocusInEvent(XFocusChangeEvent *ev)
 void
 WindowManager::handleClientMessageEvent(XClientMessageEvent *ev)
 {
+	P_DBG("XClientMessageEvent window: " << ev->window << " (root: "
+	      << (ev->window == X11::getRoot()) << ") message format: "
+	      << ev->format << " type: " << ev->message_type << " data.l[0] "
+	      << ev->data.l[0]);
 	if (ev->message_type == X11::getAtom(PEKWM_CMD)) {
 		// _PEKWM_CMD is handled independent of client
 		handlePekwmCmd(ev);

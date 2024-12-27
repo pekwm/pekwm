@@ -60,6 +60,9 @@ WmState::handlePropertyNotify(XPropertyEvent *ev)
 	bool updated = false;
 	Observation *observation = nullptr;
 
+	P_DBG("XPropertyEvent window: " << ev->window << " (root: "
+	      << (ev->window == X11::getRoot()) << ") atom: " << ev->atom);
+
 	if (ev->window == X11::getRoot()) {
 		if (ev->atom == X11::getAtom(NET_CURRENT_DESKTOP)) {
 			updated = readActiveWorkspace();
