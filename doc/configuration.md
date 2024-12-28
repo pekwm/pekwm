@@ -430,6 +430,13 @@ identifiers to clients that have the same title so that instead of
 "terminal" and "terminal", you would end up with something like
 "terminal" and "terminal \[2\]".
 
+**Config File Elements under the Debug-section:**
+
+| Keyword   | Type   | Description                                                            |
+|-----------|--------|------------------------------------------------------------------------|
+| File      | string | The location of the debug log file, such as ~/.pekwm/log               |
+| Level     | string | The debug log level (err|warn|info|debug|trace)                        |
+
 Configuring the menus
 ---------------------
 

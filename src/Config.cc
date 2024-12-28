@@ -1,6 +1,6 @@
 //
 // Config.cc for pekwm
-// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2023-2024 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2002-2021 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -110,6 +110,14 @@ static Util::StringTo<CurrHeadSelector> curr_head_selector_map[] =
 	 {"FOCUSEDWINDOW", CURR_HEAD_SELECTOR_FOCUSED_WINDOW},
 	 {nullptr, CURR_HEAD_SELECTOR_NO}};
 
+static Util::StringTo<Debug::Level> debug_level_map[] =
+	{{"ERR", Debug::LEVEL_ERR},
+	 {"WARN", Debug::LEVEL_WARN},
+	 {"INFO", Debug::LEVEL_INFO},
+	 {"DEBUG", Debug::LEVEL_DEBUG},
+	 {"TRACE", Debug::LEVEL_TRACE},
+	 {nullptr, Debug::LEVEL_WARN}};
+
 /**
  * Parse width and height limits.
  */
@@ -152,6 +160,7 @@ getDefaultScriptsPath()
 
 //! @brief Constructor for Config class
 Config::Config(void) :
+	_debug_file("/dev/null"), _debug_level(Debug::LEVEL_WARN),
 	_moveresize_edgeattract(0), _moveresize_edgeresist(0),
 	_moveresize_woattract(0), _moveresize_woresist(0),
 	_moveresize_opaquemove(0), _moveresize_opaqueresize(0),
@@ -334,6 +343,11 @@ Config::load(const std::string &config_file)
 	section = cfg.getEntryRoot()->findSection("HARBOUR");
 	if (section) {
 		loadHarbour(section);
+	}
+
+	section = cfg.getEntryRoot()->findSection("DEBUG");
+	if (section) {
+		loadDebug(section);
 	}
 
 	return true;
@@ -658,6 +672,29 @@ Config::loadHarbour(CfgParser::Entry *section)
 		sub->parseKeyValues(keys.begin(), keys.end());
 		keys.clear();
 	}
+}
+
+/**
+ * Load the Debug section of pekwm configuration.
+ */
+bool
+Config::loadDebug(CfgParser::Entry *section)
+{
+	if (! section) {
+		return false;
+	}
+
+	CfgParserKeys keys;
+	std::string debug_level_str;
+	keys.add_path("FILE", _debug_file, "/dev/null");
+	keys.add_string("LEVEL", debug_level_str);
+	section->parseKeyValues(keys.begin(), keys.end());
+
+	_debug_level = Util::StringToGet(debug_level_map, debug_level_str);
+
+	Debug::setLevel(_debug_level);
+	Debug::setLogFile(_debug_file);
+	return true;
 }
 
 ActionAccessMask

@@ -1,6 +1,6 @@
 //
 // Debug.cc for pekwm
-// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2024 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2012 Andreas Schlick <ioerror@lavabit.com>
 //
 // This program is licensed under the GNU GPL.
@@ -113,7 +113,7 @@ namespace Debug
 	setLogFile(const std::string& path)
 	{
 		_log.close();
-		_log.open(path.c_str());
+		_log.open(path.c_str(), std::ios_base::out|std::ios_base::app);
 		_use_cerr = ! _log.good();
 		return _log.good();
 	}

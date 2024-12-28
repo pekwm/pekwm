@@ -1,6 +1,6 @@
 //
 // test_Config.cc for pekwm
-// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2024 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -9,27 +9,33 @@
 #include "test.hh"
 #include "Config.hh"
 #include "tk/Action.hh"
+#include <sstream>
+
+extern "C" {
+#include <unistd.h>
+}
 
 class TestConfig : public TestSuite,
 		   public Config {
 public:
-	TestConfig(void);
-	virtual ~TestConfig(void);
+	TestConfig();
+	virtual ~TestConfig();
 
 	virtual bool run_test(TestSpec spec, bool status);
 
-	void testParseMenuActionGotoItem(void);
-	void testParseMenuActionInvalid(void);
-	void testParseMoveResizeAction(void);
+	void testParseMenuActionGotoItem();
+	void testParseMenuActionInvalid();
+	void testParseMoveResizeAction();
+	void testLoadDebug();
 };
 
-TestConfig::TestConfig(void)
+TestConfig::TestConfig()
 	: TestSuite("Config"),
 	  Config()
 {
 }
 
-TestConfig::~TestConfig(void)
+TestConfig::~TestConfig()
 {
 }
 
@@ -39,11 +45,12 @@ TestConfig::run_test(TestSpec spec, bool status)
 	TEST_FN(spec, "parseMenuActionGotoItem", testParseMenuActionGotoItem());
 	TEST_FN(spec, "parseMenuActionInvalid", testParseMenuActionInvalid());
 	TEST_FN(spec, "parseMoveResizeAction", testParseMoveResizeAction());
+	TEST_FN(spec, "loadDebug", testLoadDebug());
 	return status;
 }
 
 void
-TestConfig::testParseMenuActionGotoItem(void)
+TestConfig::testParseMenuActionGotoItem()
 {
 	Action action;
 	ASSERT_EQUAL("parse", true,
@@ -59,7 +66,7 @@ TestConfig::testParseMenuActionGotoItem(void)
 }
 
 void
-TestConfig::testParseMenuActionInvalid(void)
+TestConfig::testParseMenuActionInvalid()
 {
 	Action action;
 	ASSERT_EQUAL("parse", false, parseMenuAction("Unknown", action));
@@ -67,7 +74,7 @@ TestConfig::testParseMenuActionInvalid(void)
 }
 
 void
-TestConfig::testParseMoveResizeAction(void)
+TestConfig::testParseMoveResizeAction()
 {
 	Action action;
 	ASSERT_EQUAL("parse 1 ok", true,
@@ -79,4 +86,28 @@ TestConfig::testParseMoveResizeAction(void)
 		     parseMoveResizeAction("Movehorizontal -3%", action));
 	ASSERT_EQUAL("parsed value", -3, action.getParamI(0));
 	ASSERT_EQUAL("parsed unit", UNIT_PERCENT, action.getParamI(1));
+}
+
+void
+TestConfig::testLoadDebug()
+{
+	// load of nullptr section, do nothing
+	ASSERT_EQUAL("no section", false, loadDebug(nullptr));
+
+	// load of empty section, setup defaults
+	CfgParser::Entry empty("memory", 0, "", "");
+	ASSERT_EQUAL("empty section", true, loadDebug(&empty));
+	ASSERT_EQUAL("default log", getDebugFile(), "/dev/null");
+	ASSERT_EQUAL("default level", getDebugLevel(), Debug::LEVEL_WARN);
+
+	// load of section, use values
+	std::ostringstream buf;
+	buf << "/tmp/test_Config." << getpid() << ".log";
+	CfgParser::Entry cfg("memory", 0, "", "");
+	cfg.addEntry("memory", 1, "FILE", buf.str());
+	cfg.addEntry("memory", 2, "LEVEL", "Debug");
+
+	ASSERT_EQUAL("empty section", true, loadDebug(&cfg));
+	ASSERT_EQUAL("default log", getDebugFile(), buf.str());
+	ASSERT_EQUAL("default level", getDebugLevel(), Debug::LEVEL_DEBUG);
 }

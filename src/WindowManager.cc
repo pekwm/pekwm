@@ -128,6 +128,8 @@ WindowManager::start(const std::string &config_file,
 		wm = nullptr;
 
 	} else {
+		P_DBG("pekwm_wm " << getpid() << " starting")
+
 		wm->setupDisplay(dpy);
 		wm->scanWindows();
 		Frame::resetFrameIDs();
