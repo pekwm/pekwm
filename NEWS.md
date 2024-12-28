@@ -23,3 +23,9 @@ Removed
 
 * -g (--xrm-get) and -s (--xrm-set) commands for reading and writing
   the Xresources.
+
+## pekwm_panel
+
+* Added pekwm_panel_battery.sh script for retreiving battery charge level in a
+  platform independent manner. Sets battery (0-100) and battery_status
+  (ac|battery) variables.

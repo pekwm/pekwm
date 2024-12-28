@@ -1,0 +1,54 @@
+#!@SH@
+#
+# Copyright (C) 2024 Claes Nästén <pekdon@gmail.com>
+#
+
+battery="100"
+battery_state="ac"
+
+read_bsd_apm()
+{
+	apm_status=`apm`
+	battery=`echo "$apm_status" | sed 's/%//' \
+		| awk 'BEGIN { p=0 } END { print p } /Battery state: / { p=$4 }'`
+	battery_state=`echo "$apm_status" | grep 'AC adapter state: ' \
+		| sed 's/.*: //' | tr ' ' '_'`
+	if test "x${battery_state}" = "xnot_connected"; then
+		battery_state="battery"
+	else
+		battery_state="ac"
+	fi
+}
+
+read_sysfs()
+{
+	bat0="/sys/class/power_supply/BAT0"
+	if ! test -e "$bat0"; then
+		return
+	fi
+
+	battery=`cat "$bat0/capacity"`
+	battery_state=`cat "$bat0/status"`
+	if test "x${battery_state}" = "xdischarging"; then
+		battery_state="battery"
+	else
+		battery_state="ac"
+	fi
+}
+
+case `uname -s` in
+	OpenBSD)
+		read_bsd_apm
+		;;
+	NetBSD)
+		read_bsd_apm
+		;;
+	Linux)
+		read_sysfs
+		;;
+	*)
+		;;
+esac
+
+echo "battery $battery"
+echo "battery_state $battery_state"

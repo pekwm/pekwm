@@ -8,8 +8,7 @@ Commands {
   Command = "uptime | sed 's/.*:/load/'" {
     Interval = "15"
   }
-  # battery percent (works on OpenBSD)
-  # Command = "apm | head -1 | awk '{print \"battery \" $4}'" {
+  # Command = "$_PEKWM_SCRIPT_PATH/pekwm_panel_battery.sh" {
   #   Interval = "60"
   # }
 }
