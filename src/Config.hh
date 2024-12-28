@@ -1,6 +1,6 @@
 //
 // Config.hh for pekwm
-// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2024 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2002-2021 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -14,6 +14,7 @@
 
 #include "pekwm.hh"
 #include "CfgParser.hh"
+#include "Debug.hh"
 
 #include "tk/Action.hh"
 
@@ -114,6 +115,10 @@ public:
 	const char *getSystemIconPath(void) const {
 		return DATADIR "/pekwm/icons/";
 	}
+
+	// Debug
+	const std::string &getDebugFile() const { return _debug_file; }
+	Debug::Level getDebugLevel() const { return _debug_level; }
 
 	// Moveresize
 	inline int getEdgeAttract(void) const {
@@ -288,6 +293,9 @@ public:
 	static bool parseOpacity(const std::string& value, uint &focused,
 				 uint &unfocused);
 
+protected:
+	bool loadDebug(CfgParser::Entry *section);
+
 private:
 	bool tryHardLoadConfig(CfgParser &cfg, std::string &file,
 			       std::string &cfg_dir);
@@ -321,6 +329,10 @@ private:
 	std::string _files_theme_variant;
 	std::string _files_mouse;
 	std::string _files_icon_path; /**< Path to user icon directory. */
+
+	// debug
+	std::string _debug_file;
+	Debug::Level _debug_level;
 
 	// moveresize
 	int _moveresize_edgeattract, _moveresize_edgeresist;
