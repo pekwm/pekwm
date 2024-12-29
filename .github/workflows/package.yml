@@ -75,10 +75,9 @@ jobs:
       matrix:
         name:
           - debian11
-          - debiansid
-          - ubuntu1804
-          - ubuntu2004
+          - debian12
           - ubuntu2204
+          - ubuntu2404
 
     steps:
     - name: Compute Version
