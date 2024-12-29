@@ -1,6 +1,6 @@
 //
 // WmState.cc for pekwm
-// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2024 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -67,6 +67,9 @@ WmState::handlePropertyNotify(XPropertyEvent *ev)
 			updated = readActiveWindow();
 		} else if (ev->atom == X11::getAtom(NET_CLIENT_LIST)) {
 			updated = readClientList();
+			if (updated) {
+				observation = &_client_list_changed;
+			}
 		} else if (ev->atom == X11::getAtom(XROOTPMAP_ID)) {
 			observation = &_xrootpmap_id_changed;
 		} else if (ev->atom == X11::getAtom(PEKWM_THEME)) {
@@ -78,6 +81,9 @@ WmState::handlePropertyNotify(XPropertyEvent *ev)
 		ClientInfo *client_info = findClientInfo(ev->window, _clients);
 		if (client_info != nullptr) {
 			updated = client_info->handlePropertyNotify(ev);
+			if (updated ) {
+				observation = &_client_state_changed;
+			}
 		}
 	}
 

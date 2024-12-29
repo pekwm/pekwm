@@ -26,8 +26,8 @@ ResizeEventHandler::ResizeEventHandler(Config *cfg,
 	frame->getGeometry(_old_gm);
 	_frame_shaded = frame->isShaded() ? _gm.height : 0;
 
-	pekwm::observerMapping()->addObserver(frame, this);
-	pekwm::observerMapping()->addObserver(client, this);
+	pekwm::observerMapping()->addObserver(frame, this, 100);
+	pekwm::observerMapping()->addObserver(client, this, 100);
 }
 ResizeEventHandler::~ResizeEventHandler(void)
 {

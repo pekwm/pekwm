@@ -24,6 +24,36 @@ Observer::~Observer(void)
 {
 }
 
+ObserverPriority::ObserverPriority(Observer *observer, int priority)
+	: _observer(observer),
+	  _priority(priority)
+{
+}
+
+ObserverPriority::~ObserverPriority()
+{
+}
+
+bool operator<(const ObserverPriority &lhs, const ObserverPriority &rhs)
+{
+	return lhs.getPriority() < rhs.getPriority();
+}
+
+bool operator<(const ObserverPriority &lhs, int priority)
+{
+	return lhs.getPriority() < priority;
+}
+
+bool operator<(int priority, const ObserverPriority &rhs)
+{
+	return priority < rhs.getPriority();
+}
+
+bool operator==(const ObserverPriority &lhs, Observer *observer)
+{
+	return lhs.getObserver() == observer;
+}
+
 ObserverMapping::ObserverMapping(void)
 {
 }
@@ -41,26 +71,32 @@ ObserverMapping::notifyObservers(Observable *observable,
 {
 	observable_map_it oit = _observable_map.find(observable);
 	if (oit != _observable_map.end()) {
-		std::vector<Observer*>::iterator it = oit->second.begin();
+		observer_vector::iterator it = oit->second.begin();
 		for (; it != oit->second.end(); ++it) {
-			(*it)->notify(observable, observation);
+			it->getObserver()->notify(observable, observation);
 		}
 	}
 }
 
 /**
- * Add observer.
+ * Add observer in priority order.
  */
 void
-ObserverMapping::addObserver(Observable *observable, Observer *observer)
+ObserverMapping::addObserver(Observable *observable, Observer *observer,
+			     int priority)
 {
 	observable_map_it it = _observable_map.find(observable);
+	observer_vector *observers;
 	if (it == _observable_map.end()) {
-		_observable_map[observable] = std::vector<Observer*>();
-		_observable_map[observable].push_back(observer);
+		_observable_map[observable] = std::vector<ObserverPriority>();
+		observers = &_observable_map[observable];
 	} else {
-		it->second.push_back(observer);
+		observers = &it->second;
 	}
+	observer_vector::iterator oit =
+		std::lower_bound(observers->begin(), observers->end(),
+				 priority);
+	observers->insert(oit, ObserverPriority(observer, priority));
 }
 
 /**

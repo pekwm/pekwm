@@ -1,3 +1,10 @@
+pekwm-0.3.2
+===========
+
+### pekwm_panel
+
+  * Fix crash on client list updates, triggered by XRandr updates
+
 pekwm-0.3.1
 ===========
 

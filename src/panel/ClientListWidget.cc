@@ -21,7 +21,9 @@ ClientListWidget::ClientListWidget(const PWinObj* parent,
 	  _draw_separator(pekwm::ascii_ncase_equal("separator",
 						   draw_separator))
 {
-	pekwm::observerMapping()->addObserver(&_wm_state, this);
+	// high priority, need to update client list _before_ rendering the
+	// widget to avoid stale icon references
+	pekwm::observerMapping()->addObserver(&_wm_state, this, 50);
 }
 
 ClientListWidget::~ClientListWidget(void)

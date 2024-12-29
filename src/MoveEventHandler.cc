@@ -26,7 +26,7 @@ MoveEventHandler::MoveEventHandler(Config* cfg, PDecor* decor,
 	_y = y_root - _gm.y;
 	_decor_shaded = decor->isShaded() ? _gm.height : 0;
 
-	pekwm::observerMapping()->addObserver(decor, this);
+	pekwm::observerMapping()->addObserver(decor, this, 100);
 }
 MoveEventHandler::~MoveEventHandler(void)
 {

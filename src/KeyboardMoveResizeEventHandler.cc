@@ -23,7 +23,7 @@ KeyboardMoveResizeEventHandler::KeyboardMoveResizeEventHandler(Config* cfg,
 	decor->getGeometry(_gm);
 	decor->getGeometry(_old_gm);
 	_decor_shaded = decor->isShaded() ? _gm.height : 0;
-	pekwm::observerMapping()->addObserver(decor, this);
+	pekwm::observerMapping()->addObserver(decor, this, 100);
 }
 
 KeyboardMoveResizeEventHandler::~KeyboardMoveResizeEventHandler(void)
