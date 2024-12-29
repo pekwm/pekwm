@@ -23,8 +23,8 @@ GroupingDragEventHandler::GroupingDragEventHandler(Frame* frame,
 	  _client(client),
 	  _behind(behind)
 {
-	pekwm::observerMapping()->addObserver(frame, this);
-	pekwm::observerMapping()->addObserver(client, this);
+	pekwm::observerMapping()->addObserver(frame, this, 100);
+	pekwm::observerMapping()->addObserver(client, this, 100);
 }
 GroupingDragEventHandler::~GroupingDragEventHandler(void)
 {

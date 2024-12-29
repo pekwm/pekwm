@@ -28,7 +28,7 @@ IconWidget::IconWidget(const PWinObj* parent,
 {
 	parseIcon(section);
 
-	pekwm::observerMapping()->addObserver(&_var_data, this);
+	pekwm::observerMapping()->addObserver(&_var_data, this, 100);
 	load();
 }
 

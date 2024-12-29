@@ -38,9 +38,34 @@ public:
 	virtual void notify(Observable*, Observation*) = 0;
 };
 
+/**
+ * Observer with priority.
+ */
+class ObserverPriority {
+public:
+	ObserverPriority(Observer *observer, int priority);
+	~ObserverPriority();
+
+	Observer *getObserver() const { return _observer; }
+	int getPriority() const { return _priority; }
+
+private:
+	Observer *_observer;
+	int _priority;
+};
+
+bool operator<(const ObserverPriority &lhs, const ObserverPriority &rhs);
+bool operator<(const ObserverPriority &lhs, int priority);
+bool operator<(int priority, const ObserverPriority &rhs);
+bool operator==(const ObserverPriority &lhs, Observer *observer);
+
+/**
+ * Mapping from Observable to Observers, sorted in priority order.
+ */
 class ObserverMapping {
 public:
-	typedef std::map<Observable*, std::vector<Observer*> > observable_map;
+	typedef std::vector<ObserverPriority> observer_vector;
+	typedef std::map<Observable*, observer_vector> observable_map;
 	typedef observable_map::iterator observable_map_it;
 
 	ObserverMapping(void);
@@ -49,7 +74,8 @@ public:
 	size_t size(void) const { return _observable_map.size(); }
 
 	void notifyObservers(Observable *observable, Observation *observation);
-	void addObserver(Observable *observable, Observer *observer);
+	void addObserver(Observable *observable, Observer *observer,
+			 int priority);
 	void removeObserver(Observable *observable, Observer *observer);
 
 	void removeObservable(Observable *observable);

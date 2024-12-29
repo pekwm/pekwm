@@ -1,6 +1,6 @@
 //
 // WmState.hh for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2024 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -24,6 +24,20 @@ public:
 	};
 
 	class PEKWM_THEME_Changed : public Observation {
+	};
+
+	/**
+	 * Observation sent whenever the client list of the WM state has been
+	 * updated.
+	 */
+	class ClientList_Changed : public Observation {
+	};
+
+	/**
+	 * Observation sent whenever a single client state from the client list
+	 * has been updated.
+	 */
+	class ClientState_Changed : public Observation {
 	};
 
 	typedef std::vector<ClientInfo*> client_info_vector;
@@ -71,6 +85,8 @@ private:
 
 	XROOTPMAP_ID_Changed _xrootpmap_id_changed;
 	PEKWM_THEME_Changed _pekwm_theme_changed;
+	ClientList_Changed _client_list_changed;
+	ClientState_Changed _client_state_changed;
 };
 
 #endif // _PEKWM_PANEL_WM_STATE_HH_

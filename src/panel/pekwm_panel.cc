@@ -294,7 +294,7 @@ PekwmPanel::PekwmPanel(const PanelConfig &cfg, PanelTheme &theme,
 	// ensuring state is up-to-date at all times.
 	X11::selectInput(X11::getRoot(), PropertyChangeMask);
 
-	pekwm::observerMapping()->addObserver(&_wm_state, this);
+	pekwm::observerMapping()->addObserver(&_wm_state, this, 100);
 }
 
 PekwmPanel::~PekwmPanel(void)
@@ -318,7 +318,7 @@ PekwmPanel::configure(void)
 	}
 	addWidgets();
 	if (! _widgets.empty()) {
-		pekwm::observerMapping()->addObserver(&_var_data, this);
+		pekwm::observerMapping()->addObserver(&_var_data, this, 100);
 	}
 	resizeWidgets();
 

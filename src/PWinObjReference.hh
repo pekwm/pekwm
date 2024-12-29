@@ -56,7 +56,7 @@ public:
 			om->removeObserver(old_ref, this);
 		}
 		if (new_ref != nullptr) {
-			om->addObserver(new_ref, this);
+			om->addObserver(new_ref, this, 100);
 		}
 	}
 

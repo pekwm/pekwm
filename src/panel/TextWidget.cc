@@ -27,10 +27,10 @@ TextWidget::TextWidget(const PWinObj* parent,
 	_fields = tf.getFields();
 
 	if (! _fields.empty()) {
-		pekwm::observerMapping()->addObserver(&_var_data, this);
+		pekwm::observerMapping()->addObserver(&_var_data, this, 100);
 	}
 	if (_check_wm_state) {
-		pekwm::observerMapping()->addObserver(&_wm_state, this);
+		pekwm::observerMapping()->addObserver(&_wm_state, this, 100);
 	}
 }
 

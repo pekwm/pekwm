@@ -64,7 +64,7 @@ SystrayWidget::SystrayWidget(const PWinObj* parent,
 	  _owner(None),
 	  _owner_atom(0)
 {
-	pekwm::observerMapping()->addObserver(this, _observer);
+	pekwm::observerMapping()->addObserver(this, _observer, 100);
 
 	// owner window
 	XSetWindowAttributes attrs = {0};

@@ -19,7 +19,7 @@ BarWidget::BarWidget(const PWinObj* parent,
 	  _field(field)
 {
 	parseColors(section);
-	pekwm::observerMapping()->addObserver(&_var_data, this);
+	pekwm::observerMapping()->addObserver(&_var_data, this, 100);
 }
 
 BarWidget::~BarWidget(void)

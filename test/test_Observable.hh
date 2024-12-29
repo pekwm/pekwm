@@ -1,6 +1,6 @@
 //
 // test_Observable.cc for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2024 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -22,10 +22,12 @@ public:
 
 class TestObserver : public Observer {
 public:
-	virtual ~TestObserver(void);
+	TestObserver();
+	virtual ~TestObserver();
 	virtual void notify(Observable* observable, Observation* observation);
 
 	std::vector<TestObservation*> observations;
+	int last_seq;
 };
 
 class TestObserverMapping : public TestSuite {
@@ -49,6 +51,12 @@ TestObservation::~TestObservation(void)
 {
 }
 
+TestObserver::TestObserver()
+	: Observer(),
+	  last_seq(0)
+{
+}
+
 TestObserver::~TestObserver(void)
 {
 }
@@ -56,9 +64,12 @@ TestObserver::~TestObserver(void)
 void
 TestObserver::notify(Observable* observable, Observation* observation)
 {
+	static int seq = 1;
+
 	TestObservation *test_observation =
 		dynamic_cast<TestObservation*>(observation);
 	observations.push_back(test_observation);
+	last_seq = seq++;
 }
 
 TestObserverMapping::TestObserverMapping(void)
@@ -86,6 +97,7 @@ TestObserverMapping::testNotify(void)
 	TestObservable observable;
 	TestObserver observer1;
 	TestObserver observer2;
+	TestObserver observer3;
 	TestObservation observation;
 
 	// notify no observers
@@ -95,25 +107,35 @@ TestObserverMapping::testNotify(void)
 	ASSERT_EQUAL("no observer", 0, observer2.observations.size());
 
 	// notify one observer
-	om.addObserver(&observable, &observer1);
+	om.addObserver(&observable, &observer1, 50);
 	ASSERT_EQUAL("one observer", 1, om.size());
 	om.notifyObservers(&observable, &observation);
 	ASSERT_EQUAL("one observer", 1, observer1.observations.size());
+	ASSERT_EQUAL("observer seq", 1, observer1.last_seq);
 	ASSERT_EQUAL("one observer", 0, observer2.observations.size());
+	ASSERT_EQUAL("observer seq", 0, observer2.last_seq);
 
 	// notify multiple observers
-	om.addObserver(&observable, &observer2);
-	ASSERT_EQUAL("two observers", 1, om.size());
+	om.addObserver(&observable, &observer2, 100);
+	om.addObserver(&observable, &observer3, 25);
+	ASSERT_EQUAL("three observers", 1, om.size());
 	om.notifyObservers(&observable, &observation);
-	ASSERT_EQUAL("two observers", 2, observer1.observations.size());
-	ASSERT_EQUAL("two observers", 1, observer2.observations.size());
+	ASSERT_EQUAL("three observers", 2, observer1.observations.size());
+	ASSERT_EQUAL("observer seq", 3, observer1.last_seq);
+	ASSERT_EQUAL("three observers", 1, observer2.observations.size());
+	// notified after observer1 due to higher priority
+	ASSERT_EQUAL("observer seq", 4, observer2.last_seq);
+	// notified first due to lower priority
+	ASSERT_EQUAL("observer seq", 2, observer3.last_seq);
 
-	// remove observer
+	// remove observers
 	om.removeObserver(&observable, &observer1);
+	om.removeObserver(&observable, &observer3);
 	ASSERT_EQUAL("remove observers", 1, om.size());
 	om.notifyObservers(&observable, &observation);
 	ASSERT_EQUAL("remove observers", 2, observer1.observations.size());
 	ASSERT_EQUAL("remove observers", 2, observer2.observations.size());
+	ASSERT_EQUAL("observer seq", 5, observer2.last_seq);
 
 	// no observers
 	om.removeObserver(&observable, &observer2);
@@ -132,8 +154,8 @@ TestObserverMapping::testRemoveObservable(void)
 	TestObserver observer2;
 	TestObservation observation;
 
-	om.addObserver(&observable, &observer1);
-	om.addObserver(&observable, &observer2);
+	om.addObserver(&observable, &observer1, 100);
+	om.addObserver(&observable, &observer2, 100);
 	// removing the observable should remove the observers from its
 	// list as well.
 	om.removeObservable(&observable);
@@ -151,7 +173,7 @@ TestObserverMapping::testDestructObservable(void)
 	ObserverMapping *om = pekwm::observerMapping();
 	{
 		TestObservable observable;
-		om->addObserver(&observable, &observer);
+		om->addObserver(&observable, &observer, 100);
 		ASSERT_EQUAL("destruct observable", 1, om->size());
 	}
 
