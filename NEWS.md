@@ -16,6 +16,9 @@ New
 Updated
 -------
 
+* keys updated to use $MOVERESIZE_INCREMENT (set in default vars file) for
+  actions in the MoveResize section. Default bumped from 10 to 15.
+
 Removed
 -------
 

@@ -263,22 +263,22 @@ Global {
 
 # Keys when MoveResize is active
 MoveResize {
-        KeyPress = "Left" { Actions = "MoveHorizontal -10" }
-        KeyPress = "Right" { Actions = "MoveHorizontal 10" }
-        KeyPress = "Up" { Actions = "MoveVertical -10" }
-        KeyPress = "Down" { Actions = "MoveVertical 10" }
+        KeyPress = "Left" { Actions = "MoveHorizontal -${MOVERESIZE_INCREMENT}" }
+        KeyPress = "Right" { Actions = "MoveHorizontal ${MOVERESIZE_INCREMENT}" }
+        KeyPress = "Up" { Actions = "MoveVertical -${MOVERESIZE_INCREMENT}" }
+        KeyPress = "Down" { Actions = "MoveVertical ${MOVERESIZE_INCREMENT}" }
         Keypress = "Shift Left" { Actions = "MoveHorizontal -1" }
         Keypress = "Shift Right" { Actions = "MoveHorizontal 1" }
         Keypress = "Shift Up" { Actions = "MoveVertical -1" }
         Keypress = "Shift Down" { Actions = "MoveVertical 1" }
-        Keypress = "Mod4 Left" { Actions = "ResizeHorizontal -10" }
-        Keypress = "Mod4 Right" { Actions = "ResizeHorizontal 10" }
-        Keypress = "Mod4 Up" { Actions = "ResizeVertical -10" }
-        Keypress = "Mod4 Down" { Actions = "ResizeVertical 10" }
-        Keypress = "Mod1 Left" { Actions = "ResizeHorizontal -10" }
-        Keypress = "Mod1 Right" { Actions = "ResizeHorizontal 10" }
-        Keypress = "Mod1 Up" { Actions = "ResizeVertical -10" }
-        Keypress = "Mod1 Down" { Actions = "ResizeVertical 10" }
+        Keypress = "Mod4 Left" { Actions = "ResizeHorizontal -${MOVERESIZE_INCREMENT}" }
+        Keypress = "Mod4 Right" { Actions = "ResizeHorizontal ${MOVERESIZE_INCREMENT}" }
+        Keypress = "Mod4 Up" { Actions = "ResizeVertical -${MOVERESIZE_INCREMENT}" }
+        Keypress = "Mod4 Down" { Actions = "ResizeVertical ${MOVERESIZE_INCREMENT}" }
+        Keypress = "Mod1 Left" { Actions = "ResizeHorizontal -${MOVERESIZE_INCREMENT}" }
+        Keypress = "Mod1 Right" { Actions = "ResizeHorizontal ${MOVERESIZE_INCREMENT}" }
+        Keypress = "Mod1 Up" { Actions = "ResizeVertical -${MOVERESIZE_INCREMENT}" }
+        Keypress = "Mod1 Down" { Actions = "ResizeVertical ${MOVERESIZE_INCREMENT}" }
         Keypress = "Shift Mod4 Left" { Actions = "ResizeHorizontal -1" }
         Keypress = "Shift Mod4 Right" { Actions = "ResizeHorizontal 1" }
         Keypress = "Shift Mod4 Up" { Actions = "ResizeVertical -1" }

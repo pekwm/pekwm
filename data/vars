@@ -2,3 +2,7 @@ $BROWSER="firefox"
 $EDITOR="xedit"
 $FILEMANAGER="worker"
 $TERM="xterm -fn fixed +sb -bg white -fg black"
+
+# Used in MoveResize section of keys, change to make keyboard driven move and
+# resize increments change.
+$MOVERESIZE_INCREMENT="10"
