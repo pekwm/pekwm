@@ -1,6 +1,6 @@
 //
 // ActionHandler.cc for pekwm
-// Copyright (C) 2002-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2002-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -45,9 +45,11 @@
 
 #include <memory>
 
-ActionHandler::ActionHandler(AppCtrl* app_ctrl, EventLoop* event_loop)
+ActionHandler::ActionHandler(AppCtrl* app_ctrl, EventLoop* event_loop,
+			     Os* os)
 	: _app_ctrl(app_ctrl),
-	  _event_loop(event_loop)
+	  _event_loop(event_loop),
+	  _os(os)
 {
 	// Initialize state_to_keycode map
 	for (uint i = 0; i < X11::MODIFIER_TO_MASK_NUM; ++i) {
@@ -622,7 +624,7 @@ ActionHandler::actionExec(Client *client, const std::string &command,
 	} else {
 		std::vector<std::string> args =
 			StringUtil::shell_split(command);
-		Util::forkExec(args);
+		_os->processExec(args);
 	}
 }
 

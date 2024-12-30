@@ -1,6 +1,6 @@
 //
 // Util.cc for pekwm
-// Copyright (C) 2002-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2002-2024 Claes Nästén <pekdon@gmail.com>
 //
 // misc.cc for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
@@ -26,6 +26,7 @@ extern "C" {
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <sys/wait.h>
 #include <pwd.h>
 #include <errno.h>
 }
@@ -200,35 +201,6 @@ namespace Util {
 		default:
 			P_TRACE("started child " << pid);
 			break;
-		}
-	}
-
-	pid_t
-	forkExec(const std::vector<std::string>& args)
-	{
-		assert(! args.empty());
-
-		pid_t pid = fork();
-		switch (pid) {
-		case 0: {
-			int i = 0;
-			char **argv = new char*[args.size() + 1];
-			std::vector<std::string>::const_iterator it =
-				args.begin();
-			for (; it != args.end(); ++it) {
-				argv[i++] = const_cast<char*>(it->c_str());
-			}
-			argv[i] = nullptr;
-
-			setsid();
-			execvp(argv[0], argv);
-			exit(1);
-		}
-		case -1:
-			P_ERR("fork failed: " << strerror(errno));
-		default:
-			P_TRACE("started child " << pid);
-			return pid;
 		}
 	}
 

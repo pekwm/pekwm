@@ -437,6 +437,12 @@ identifiers to clients that have the same title so that instead of
 | File      | string | The location of the debug log file, such as ~/.pekwm/log               |
 | Level     | string | The debug log level (err|warn|info|debug|trace)                        |
 
+**Config File Elements under the Theme-section:**
+
+| Keyword            | Type    | Description                                                  |
+|--------------------|---------|--------------------------------------------------------------|
+| BackgroundOverride | texture | Texture, that if set, overrides the theme background texture |
+
 Configuring the menus
 ---------------------
 

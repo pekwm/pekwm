@@ -86,6 +86,7 @@ void TestPMenu::testSelectItemNumSkipAll()
 	menu.insert(sep);
 	sep = new PMenu::Item("");
 	sep->setType(PMenu::Item::MENU_ITEM_SEPARATOR);
+	menu.insert(sep);
 
 	ASSERT_FALSE("select none", menu.selectItemNum(0));
 }

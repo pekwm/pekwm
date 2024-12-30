@@ -1,6 +1,6 @@
 //
 // Util.hh for pekwm
-// Copyright (C) 2002-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2002-2024 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -144,7 +144,6 @@ namespace Util {
 	std::string getConfigDir(void);
 
 	void forkExec(const std::string& command);
-	pid_t forkExec(const std::vector<std::string>& args);
 	std::string getHostname(void);
 	bool setNonBlock(int fd);
 

@@ -1,6 +1,6 @@
 //
 // WidgetFactory.cc for pekwm
-// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -42,7 +42,7 @@ WidgetFactory::construct(const WidgetConfig& cfg)
 					  format);
 	} else if (name == "ICON") {
 		const std::string &field = cfg.getArg(0);
-		return new IconWidget(_parent, _theme, cfg.getSizeReq(),
+		return new IconWidget(_os, _parent, _theme, cfg.getSizeReq(),
 				      _var_data, _wm_state,
 				      field, cfg.getCfgSection());
 	} else if (name == "SYSTRAY") {

@@ -11,6 +11,7 @@ set(lib_SOURCES
     Compat.cc
     Debug.cc
     Observable.cc
+    Os.cc
     RegexString.cc
     String.cc
     Tokenizer.cc

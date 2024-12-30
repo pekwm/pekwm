@@ -1,6 +1,6 @@
 //
 // WindowManager.cc for pekwm
-// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2023-2024 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2002-2021 the pekwm development team
 //
 // windowmanager.cc for aewm++
@@ -26,6 +26,7 @@
 #include "Util.hh"
 #include "X11.hh"
 
+#include "Os.hh"
 #include "RegexString.hh"
 
 #include "KeyGrabber.hh"
@@ -122,8 +123,10 @@ WindowManager::start(const std::string &config_file,
 	}
 
 	// Setup window manager
-	WindowManager *wm = new WindowManager();
-	if (! pekwm::init(wm, wm, dpy, config_file, replace, synchronous)) {
+	Os *os = mkOs();
+	WindowManager *wm = new WindowManager(os);
+	if (! pekwm::init(wm, wm, os, dpy, config_file, replace,
+			  synchronous)) {
 		delete wm;
 		wm = nullptr;
 
@@ -152,8 +155,9 @@ WindowManager::start(const std::string &config_file,
 	return wm;
 }
 
-WindowManager::WindowManager(void)
-	: _shutdown(false),
+WindowManager::WindowManager(Os *os)
+	: _os(os),
+	  _shutdown(false),
 	  _reload(false),
 	  _restart(false),
 	  _bg_pid(-1),
@@ -192,6 +196,8 @@ WindowManager::~WindowManager(void)
 
 	MenuHandler::deleteMenus();
 	Workspaces::cleanup();
+
+	delete _os;
 }
 
 //! @brief Checks if the start file is executable then execs it.
@@ -520,18 +526,21 @@ WindowManager::doReloadConfig(void)
 void
 WindowManager::doReloadTheme(bool force)
 {
-	// Reload the theme
-	if (! pekwm::theme()->load(pekwm::config()->getThemeFile(),
-				   pekwm::config()->getThemeVariant(),
-				   force)) {
-		P_TRACE("not reloading decors, theme not changed");
-		return;
-	}
+	// reload the theme, reloading the decors only if the theme changed.
+	bool loaded = pekwm::theme()->load(pekwm::config()->getThemeFile(),
+					   pekwm::config()->getThemeVariant(),
+					   force);
 
+	// always start the background as the override texture can change
+	// without the theme changing
 	startBackground(pekwm::theme()->getThemeDir(),
 			pekwm::theme()->getBackground());
 
-	doReloadThemeDecors();
+	if (loaded) {
+		doReloadThemeDecors();
+	} else {
+		P_TRACE("not reloading decors, theme not changed");
+	}
 }
 
 void
@@ -546,16 +555,33 @@ WindowManager::doReloadThemeDecors()
 
 void
 WindowManager::startBackground(const std::string& theme_dir,
-			       const std::string& texture)
+			       const std::string& theme_texture)
 {
-	stopBackground();
+	const std::string &override_texture =
+		pekwm::config()->getThemeBackgroundOverride();
+	const std::string &texture =
+		override_texture.empty() ? theme_texture : override_texture;
+
 	if (pekwm::config()->getThemeBackground() && ! texture.empty()) {
-		std::vector<std::string> args;
-		args.push_back(BINDIR "/pekwm_bg");
-		args.push_back("--load-dir");
-		args.push_back(theme_dir + "/backgrounds");
-		args.push_back(texture);
-		_bg_pid = Util::forkExec(args);
+		std::string bg_args = theme_dir + texture;
+		if (bg_args != _bg_args || ! _os->isProcessAlive(_bg_pid)) {
+			stopBackground();
+
+			std::vector<std::string> args;
+			args.push_back(BINDIR "/pekwm_bg");
+			args.push_back("--load-dir");
+			args.push_back(theme_dir + "/backgrounds");
+			args.push_back(texture);
+			_bg_pid = _os->processExec(args);
+			_bg_args = bg_args;
+
+			P_LOG("started " BINDIR "/pekwm_bg --load-dir "
+			      << theme_dir + "/backgrounds " << texture
+			      << " -> pid " << _bg_pid);
+
+		}
+	} else {
+		stopBackground();
 	}
 }
 
@@ -564,11 +590,12 @@ WindowManager::stopBackground(void)
 {
 	if (_bg_pid != -1) {
 		// SIGCHILD will take care of waiting for the child
-		kill(_bg_pid, SIGKILL);
+		P_LOG("stopping pekwm_bg pid " << _bg_pid);
+		_os->processSignal(_bg_pid, SIGKILL);
 	}
 	_bg_pid = -1;
+	_bg_args = "";
 }
-
 
 /**
  * Reload mouse configuration and re-grab buttons on all windows.

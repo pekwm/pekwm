@@ -1,6 +1,6 @@
 //
 // Globals.cc for pekwm
-// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -51,7 +51,7 @@ namespace pekwm
 		delete _observer_mapping;
 	}
 
-	bool init(AppCtrl* app_ctrl, EventLoop* event_loop,
+	bool init(AppCtrl* app_ctrl, EventLoop* event_loop, Os *os,
 		  Display* dpy, const std::string& config_file,
 		  bool replace, bool synchronous)
 	{
@@ -101,7 +101,7 @@ namespace pekwm
 		_harbour = new Harbour(_config, _auto_properties, _root_wo);
 		_status_window = new StatusWindow(_theme);
 
-		_action_handler = new ActionHandler(app_ctrl, event_loop);
+		_action_handler = new ActionHandler(app_ctrl, event_loop, os);
 
 		return true;
 	}
@@ -142,6 +142,12 @@ namespace pekwm
 	Config* config(void)
 	{
 		return _config;
+	}
+
+	void setConfig(Config* config)
+	{
+		delete _config;
+		_config = config;
 	}
 
 	const std::string& configScriptPath(void)

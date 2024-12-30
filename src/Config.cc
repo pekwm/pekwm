@@ -330,6 +330,13 @@ Config::load(const std::string &config_file)
 		loadScreen(section);
 	}
 
+	// Load after Screen, as it overrides _screen_theme_background if a
+	// custom background is set.
+	section = cfg.getEntryRoot()->findSection("THEME");
+	if (section) {
+		loadTheme(section);
+	}
+
 	section = cfg.getEntryRoot()->findSection("MENU");
 	if (section) {
 		loadMenu(section);
@@ -401,13 +408,14 @@ Config::loadMoveResize(CfgParser::Entry *section)
 	keys.clear();
 }
 
-//! @brief Loads SCREEN section of main configuration
-//! @param section Pointer to SCREEN section.
-void
+/**
+ * Loads SCREEN section of main configuration.
+ */
+bool
 Config::loadScreen(CfgParser::Entry *section)
 {
 	if (! section) {
-		return;
+		return false;
 	}
 
 	// Parse data
@@ -504,6 +512,8 @@ Config::loadScreen(CfgParser::Entry *section)
 		sub->parseKeyValues(keys.begin(), keys.end());
 		keys.clear();
 	}
+
+	return true;
 }
 
 /**
@@ -694,6 +704,28 @@ Config::loadDebug(CfgParser::Entry *section)
 
 	Debug::setLevel(_debug_level);
 	Debug::setLogFile(_debug_file);
+	return true;
+}
+
+/**
+ * Load the Theme section of pekwm configuration, overrides and other styling
+ * options.
+ */
+bool
+Config::loadTheme(CfgParser::Entry *section)
+{
+	if (! section) {
+		return false;
+	}
+
+	CfgParserKeys keys;
+	keys.add_string("BACKGROUNDOVERRIDE", _theme_background_override);
+	section->parseKeyValues(keys.begin(), keys.end());
+	if (! _theme_background_override.empty()) {
+		// ensure background is set when using override
+		_screen_theme_background = true;
+	}
+
 	return true;
 }
 

@@ -97,7 +97,8 @@ Theme structure
 
 Theme support for the root background. This option may not be honoured
 by pekwm if _ThemeBackground_ is set to false in the _Screen_ section
-of the configuration file.
+of the configuration file **or** if the _Theme_ section has _BackgroundOverride_
+set.
 
 * _Texture (texture)_, Texture used to set the background. Each head is treated individually for scaled backgrounds.
 

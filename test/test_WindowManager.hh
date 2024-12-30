@@ -1,12 +1,13 @@
 //
 // test_WindowManager.hh for pekwm
-// Copyright (C) 2021-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
 #include "test.hh"
+#include "Config.hh"
 #include "WindowManager.hh"
 
 #include <utility>
@@ -17,6 +18,46 @@ extern "C" {
 
 #define UNITTEST
 #include "ctrl/pekwm_ctrl.cc"
+
+class TestOs : public Os {
+public:
+	TestOs() :
+		_pid(0),
+		_signal_count(0)
+	{
+	}
+	virtual ~TestOs() { }
+
+	pid_t processExec(const std::vector<std::string> &args)
+	{
+		std::string exec;
+		std::vector<std::string>::const_iterator it(args.begin());
+		for (; it != args.end(); ++it) {
+			if (it != args.begin()) {
+				exec += " ";
+			}
+			exec += *it;
+		}
+		_exec.push_back(exec);
+		return ++_pid;
+	}
+
+	bool processSignal(pid_t pid, int signal)
+	{
+		_signal_count++;
+		return true;
+	}
+
+	bool isProcessAlive(pid_t pid) { return !_exec.empty(); }
+
+	int getSignalCount() const { return _signal_count; }
+	std::vector<std::string>& getExec() { return _exec; }
+
+private:
+	pid_t _pid;
+	int _signal_count;
+	std::vector<std::string> _exec;
+};
 
 class TestWindowManager : public TestSuite,
 			  public WindowManager {
@@ -29,11 +70,12 @@ public:
 	void testRecvPekwmCmd(void);
 	void assertSendRecvCommand(const std::string& msg, size_t expected_size,
 				   const std::string& cmd);
+	void testStartBackground();
 };
 
-TestWindowManager::TestWindowManager(void)
+TestWindowManager::TestWindowManager()
 	: TestSuite("WindowManager"),
-	  WindowManager()
+	  WindowManager(new TestOs())
 {
 }
 
@@ -45,6 +87,7 @@ bool
 TestWindowManager::run_test(TestSpec spec, bool status)
 {
 	TEST_FN(spec, "recvPekwmCmd", testRecvPekwmCmd());
+	TEST_FN(spec, "startBackground", testStartBackground());
 	return status;
 }
 
@@ -90,4 +133,41 @@ TestWindowManager::assertSendRecvCommand(const std::string& msg,
 			     expected, recvPekwmCmd(&(*it)));
 	}
 	ASSERT_EQUAL(msg, cmd, _pekwm_cmd_buf);
+}
+
+void
+TestWindowManager::testStartBackground()
+{
+	Config cfg;
+	pekwm::setConfig(&cfg);
+	TestOs *os = static_cast<TestOs*>(_os);
+
+	// no running process, ensure started
+	startBackground("./test", "Plain #cccccc");
+	ASSERT_EQUAL("exec count", 1, os->getExec().size());
+	ASSERT_EQUAL("exec cmd", BINDIR "/pekwm_bg"
+		     " --load-dir ./test/backgrounds Plain #cccccc",
+		     os->getExec().at(0));
+
+	// same texture, do not start again
+	startBackground("./test", "Plain #cccccc");
+	ASSERT_EQUAL("exec count", 1, os->getExec().size());
+
+	// same texture, process gone, restart
+	os->getExec().clear();
+	startBackground("./test", "Plain #cccccc");
+	ASSERT_EQUAL("exec count", 1, os->getExec().size());
+
+	// new texture, start
+	startBackground("./test", "Plain #dddddd");
+	ASSERT_EQUAL("exec count", 2, os->getExec().size());
+	ASSERT_EQUAL("exec cmd", BINDIR "/pekwm_bg"
+		     " --load-dir ./test/backgrounds Plain #dddddd",
+		     os->getExec().at(1));
+
+	// background disabled, stop
+	int count = os->getSignalCount();
+	startBackground("./test", "");
+	ASSERT_EQUAL("exec count", 2, os->getExec().size());
+	ASSERT_EQUAL("signal count", count + 1, os->getSignalCount());
 }

@@ -27,6 +27,7 @@ public:
 	void testParseMenuActionInvalid();
 	void testParseMoveResizeAction();
 	void testLoadDebug();
+	void testLoadTheme();
 };
 
 TestConfig::TestConfig()
@@ -46,6 +47,7 @@ TestConfig::run_test(TestSpec spec, bool status)
 	TEST_FN(spec, "parseMenuActionInvalid", testParseMenuActionInvalid());
 	TEST_FN(spec, "parseMoveResizeAction", testParseMoveResizeAction());
 	TEST_FN(spec, "loadDebug", testLoadDebug());
+	TEST_FN(spec, "loadTheme", testLoadTheme());
 	return status;
 }
 
@@ -110,4 +112,32 @@ TestConfig::testLoadDebug()
 	ASSERT_EQUAL("empty section", true, loadDebug(&cfg));
 	ASSERT_EQUAL("default log", getDebugFile(), buf.str());
 	ASSERT_EQUAL("default level", getDebugLevel(), Debug::LEVEL_DEBUG);
+}
+
+void
+TestConfig::testLoadTheme()
+{
+	// load of nullptr section, do nothing
+	ASSERT_EQUAL("no section", false, loadTheme(nullptr));
+
+	// load
+	{
+		CfgParser::Entry screen("memory", 0, "", "");
+		screen.addEntry("memory", 1, "THEMEBACKGROUND", "false");
+		loadScreen(&screen);
+	}
+
+	// load of empty section, setup defaults
+	CfgParser::Entry empty("memory", 0, "", "");
+	ASSERT_EQUAL("empty section", true, loadTheme(&empty));
+	ASSERT_EQUAL("default override", getThemeBackgroundOverride(), "");
+	ASSERT_EQUAL("screen background disabled", getThemeBackground(), false);
+
+	// load of section, use values
+	CfgParser::Entry cfg("memory", 0, "", "");
+	cfg.addEntry("memory", 1, "BACKGROUNDOVERRIDE", "Solid #aabbcc");
+
+	ASSERT_EQUAL("empty section", true, loadTheme(&cfg));
+	ASSERT_EQUAL("override", getThemeBackgroundOverride(), "Solid #aabbcc");
+	ASSERT_EQUAL("screen background enabled", getThemeBackground(), true);
 }

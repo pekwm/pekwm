@@ -1,6 +1,6 @@
 //
 // IconWidget.hh for pekwm
-// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -15,6 +15,7 @@
 #include "VarData.hh"
 #include "WmState.hh"
 
+#include "../lib/Os.hh"
 #include "../tk/PImage.hh"
 
 /**
@@ -23,7 +24,8 @@
 class IconWidget : public PanelWidget,
 		   public Observer {
 public:
-	IconWidget(const PWinObj* parent,
+	IconWidget(Os *os,
+		   const PWinObj* parent,
 		   const PanelTheme& theme,
 		   const SizeReq& size_req,
 		   VarData &var_data,
@@ -46,6 +48,8 @@ private:
 	void parseIcon(const CfgParser::Entry* section);
 
 private:
+	Os* _os;
+
 	VarData& _var_data;
 	WmState& _wm_state;
 	std::string _field;

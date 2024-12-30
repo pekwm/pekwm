@@ -221,6 +221,12 @@ public:
 		return _screen_report_all_clients;
 	}
 
+	// Theme
+	const std::string &getThemeBackgroundOverride() const {
+		return _theme_background_override;
+	}
+
+	// Menu
 	bool isMenuSelectOn(uint val) const { return (_menu_select_mask&val); }
 	bool isMenuEnterOn(uint val) const { return (_menu_enter_mask&val); }
 	bool isMenuExecOn(uint val) const { return (_menu_exec_mask&val); }
@@ -295,6 +301,8 @@ public:
 
 protected:
 	bool loadDebug(CfgParser::Entry *section);
+	bool loadScreen(CfgParser::Entry *section);
+	bool loadTheme(CfgParser::Entry *section);
 
 private:
 	bool tryHardLoadConfig(CfgParser &cfg, std::string &file,
@@ -304,7 +312,6 @@ private:
 
 	void loadFiles(CfgParser::Entry *section);
 	void loadMoveResize(CfgParser::Entry *section);
-	void loadScreen(CfgParser::Entry *section);
 	void loadScreenPlacement(CfgParser::Entry *section);
 	void loadMenu(CfgParser::Entry *section);
 	void loadMenuIcons(CfgParser::Entry *section);
@@ -385,6 +392,9 @@ private:
 	std::string _screen_client_unique_name_pre;
 	std::string _screen_client_unique_name_post;
 	bool _screen_report_all_clients;
+
+	/** Background override, use instead of theme defined background. */
+	std::string _theme_background_override;
 
 	uint _menu_select_mask, _menu_enter_mask, _menu_exec_mask;
 	/** Boolean flag, when true display icons in menus. */

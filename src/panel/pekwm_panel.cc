@@ -1,6 +1,6 @@
 //
 // pekwm_panel.cc for pekwm
-// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -9,6 +9,7 @@
 #include "Charset.hh"
 #include "Compat.hh"
 #include "Debug.hh"
+#include "Os.hh"
 #include "Observable.hh"
 #include "Util.hh"
 #include "String.hh"
@@ -247,6 +248,7 @@ private:
 	}
 
 private:
+	Os* _os;
 	const PanelConfig& _cfg;
 	PanelTheme& _theme;
 	VarData _var_data;
@@ -266,6 +268,7 @@ PekwmPanel::PekwmPanel(const PanelConfig &cfg, PanelTheme &theme,
 		 X_VALUE|Y_VALUE|WIDTH_VALUE|HEIGHT_VALUE,
 		 "", "panel", "pekwm_panel",
 		 WINDOW_TYPE_DOCK, sh, true),
+	  _os(mkOs()),
 	  _cfg(cfg),
 	  _theme(theme),
 	  _ext_data(cfg, _var_data),
@@ -308,6 +311,8 @@ PekwmPanel::~PekwmPanel(void)
 		delete *it;
 	}
 	X11::freePixmap(_pixmap);
+
+	delete _os;
 }
 
 void
@@ -470,7 +475,7 @@ PekwmPanel::handleEvent(XEvent* ev)
 void
 PekwmPanel::addWidgets(void)
 {
-	WidgetFactory factory(this, this, _theme, _var_data, _wm_state);
+	WidgetFactory factory(_os, this, this, _theme, _var_data, _wm_state);
 
 	std::vector<WidgetConfig>::const_iterator it = _cfg.widgetsBegin();
 	for (; it != _cfg.widgetsEnd(); ++it) {

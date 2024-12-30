@@ -1,6 +1,6 @@
 //
 // IconWidget.cc for pekwm
-// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -13,7 +13,8 @@
 
 #include "../tk/ImageHandler.hh"
 
-IconWidget::IconWidget(const PWinObj* parent,
+IconWidget::IconWidget(Os* os,
+		       const PWinObj* parent,
 		       const PanelTheme& theme,
 		       const SizeReq& size_req,
 		       VarData& var_data, WmState& wm_state,
@@ -72,7 +73,7 @@ IconWidget::click(int, int)
 	if (command.size() > 0) {
 		std::vector<std::string> args =
 			StringUtil::shell_split(command);
-		Util::forkExec(args);
+		_os->processExec(args);
 	}
 }
 

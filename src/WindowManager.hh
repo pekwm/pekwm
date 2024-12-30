@@ -1,6 +1,6 @@
 //
 // WindowManager.hh for pekwm
-// Copyright (C) 2003-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2025 Claes Nästén <pekdon@gmail.com>
 //
 // windowmanager.hh for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
@@ -22,6 +22,7 @@
 #include "EventLoop.hh"
 #include "ManagerWindows.hh"
 
+#include "Os.hh"
 #include "tk/Action.hh"
 #include "tk/PWinObj.hh"
 
@@ -63,10 +64,14 @@ public:
 	void handleButtonReleaseEvent(XButtonEvent *ev);
 
 protected:
-	WindowManager(void);
+	WindowManager(Os *os);
 
 	void handlePekwmCmd(XClientMessageEvent *ev);
 	bool recvPekwmCmd(XClientMessageEvent *ev);
+
+	void startBackground(const std::string& theme_dir,
+			     const std::string& texture);
+	void stopBackground(void);
 
 private:
 	void setupDisplay(Display* dpy);
@@ -85,10 +90,6 @@ private:
 	void doReloadHarbour(void);
 	void doReloadResources(void);
 	bool isResourcesChanged(void);
-
-	void startBackground(const std::string& theme_dir,
-			     const std::string& texture);
-	void stopBackground(void);
 
 	void cleanup(void);
 
@@ -132,6 +133,8 @@ private:
 	Client *createClient(Window window, bool is_new);
 
 protected:
+	/** OS interface for process handling etc. */
+	Os *_os;
 	/** pekwm_cmd buffer for commands that do not fit in 20 bytes. */
 	std::string _pekwm_cmd_buf;
 
@@ -140,6 +143,7 @@ private:
 	bool _reload; //!< Set to wheter we want to reload.
 	bool _restart;
 	std::string _restart_command;
+	std::string _bg_args;
 	pid_t _bg_pid;
 
 	EventHandler *_event_handler;

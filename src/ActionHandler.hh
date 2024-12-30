@@ -1,6 +1,6 @@
 //
 // ActionHandler.hh for pekwm
-// Copyright (C) 2003-2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -17,6 +17,7 @@
 #include "EventLoop.hh"
 #include "SearchDialog.hh"
 
+#include "Os.hh"
 #include "tk/Action.hh"
 
 #include <string>
@@ -29,7 +30,8 @@ class PMenu;
 class ActionHandler
 {
 public:
-	ActionHandler(AppCtrl* app_ctrl, EventLoop* event_loop);
+	ActionHandler(AppCtrl* app_ctrl, EventLoop* event_loop,
+		      Os *os);
 	~ActionHandler(void);
 
 	void handleAction(const ActionPerformed *ap);
@@ -98,6 +100,7 @@ private:
 private:
 	AppCtrl* _app_ctrl;
 	EventLoop* _event_loop;
+	Os* _os;
 	CmdDialog _cmd_dialog;
 	SearchDialog _search_dialog;
 
