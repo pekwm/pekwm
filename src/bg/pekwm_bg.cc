@@ -1,6 +1,6 @@
 //
 // pekwm_bg.cc for pekwm
-// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2024 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -224,13 +224,17 @@ int main(int argc, char* argv[])
 	X11::init(dpy, true);
 
 	// X11 connection has been setup, limit access further
-	pledge_x("stdio rpath", "");
+	pledge_x("stdio rpath proc", "");
 
 	init(dpy);
 
 	_image_handler->path_push_back(load_dir);
 
 	modeStop();
+
+	// old process has been killed, limit access further
+	pledge_x("stdio rpath", "");
+
 	if (! stop) {
 		if (do_daemon && daemon(0, 0) == -1) {
 			std::cerr << "Failed to daemonize: " << strerror(errno)
