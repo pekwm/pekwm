@@ -1,4 +1,9 @@
 #!/bin/sh
+#
+# This file is in the public domain. Anyone is free to copy, modify, publish
+# use, sell or distribute for any purpose, commercial or non-commercial, and by
+# any means.
+#
 # PekWM start file
 # This file is a simple shell script; It gets run on pekwm startup, after 
 # the theme and all config has loaded if it is set executable

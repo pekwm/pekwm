@@ -1,0 +1,23 @@
+# This file is in the public domain. Anyone is free to copy, modify, publish
+# use, sell or distribute for any purpose, commercial or non-commercial, and by
+# any means.
+
+InputDialog {
+	KeyPress = "Left" { Actions = "CursPrev" }
+	KeyPress = "Right" { Actions = "CursNext" }
+	KeyPress = "Ctrl A" { Actions = "CursBegin" }
+	KeyPress = "Ctrl E" { Actions = "CursEnd" }
+	KeyPress = "BackSpace" { Actions = "Erase;CompleteAbort" }
+	KeyPress = "Ctrl K" { Actions = "ClearFromCursor" }
+	KeyPress = "Ctrl C" { Actions = "Clear" }
+	KeyPress = "Return" { Actions = "Exec" }
+	KeyPress = "Escape" { Actions = "Close" }
+	KeyPress = "Up" { Actions = "HistPrev" }
+	KeyPress = "Down" { Actions = "HistNext" }
+	KeyPress = "Ctrl P" { Actions = "HistPrev" }
+	KeyPress = "Ctrl N" { Actions = "HistNext" }
+	KeyPress = "Ctrl B" { Actions = "CursPrev" }
+	KeyPress = "Ctrl F" { Actions = "CursNext" }
+	KeyPress = "Tab" { Actions = "Complete" }
+	KeyPress = "Any Any" { Actions = "Insert" }
+}

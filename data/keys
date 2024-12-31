@@ -1,4 +1,12 @@
+# This file is in the public domain. Anyone is free to copy, modify, publish
+# use, sell or distribute for any purpose, commercial or non-commercial, and by
+# any means.
+
 INCLUDE = "vars"
+
+INCLUDE = "$_PEKWM_ETC_PATH/keys_inputdialog"
+INCLUDE = "$_PEKWM_ETC_PATH/keys_menu"
+INCLUDE = "$_PEKWM_ETC_PATH/keys_moveresize"
 
 Global {
 # - - ----------------------------------------------- - -
@@ -260,82 +268,3 @@ Global {
                 Keypress = "S" { Actions = "Toggle Skip Snap" }
         }
 }
-
-# Keys when MoveResize is active
-MoveResize {
-        KeyPress = "Left" { Actions = "MoveHorizontal -${MOVERESIZE_INCREMENT}" }
-        KeyPress = "Right" { Actions = "MoveHorizontal ${MOVERESIZE_INCREMENT}" }
-        KeyPress = "Up" { Actions = "MoveVertical -${MOVERESIZE_INCREMENT}" }
-        KeyPress = "Down" { Actions = "MoveVertical ${MOVERESIZE_INCREMENT}" }
-        Keypress = "Shift Left" { Actions = "MoveHorizontal -1" }
-        Keypress = "Shift Right" { Actions = "MoveHorizontal 1" }
-        Keypress = "Shift Up" { Actions = "MoveVertical -1" }
-        Keypress = "Shift Down" { Actions = "MoveVertical 1" }
-        Keypress = "Mod4 Left" { Actions = "ResizeHorizontal -${MOVERESIZE_INCREMENT}" }
-        Keypress = "Mod4 Right" { Actions = "ResizeHorizontal ${MOVERESIZE_INCREMENT}" }
-        Keypress = "Mod4 Up" { Actions = "ResizeVertical -${MOVERESIZE_INCREMENT}" }
-        Keypress = "Mod4 Down" { Actions = "ResizeVertical ${MOVERESIZE_INCREMENT}" }
-        Keypress = "Mod1 Left" { Actions = "ResizeHorizontal -${MOVERESIZE_INCREMENT}" }
-        Keypress = "Mod1 Right" { Actions = "ResizeHorizontal ${MOVERESIZE_INCREMENT}" }
-        Keypress = "Mod1 Up" { Actions = "ResizeVertical -${MOVERESIZE_INCREMENT}" }
-        Keypress = "Mod1 Down" { Actions = "ResizeVertical ${MOVERESIZE_INCREMENT}" }
-        Keypress = "Shift Mod4 Left" { Actions = "ResizeHorizontal -1" }
-        Keypress = "Shift Mod4 Right" { Actions = "ResizeHorizontal 1" }
-        Keypress = "Shift Mod4 Up" { Actions = "ResizeVertical -1" }
-        Keypress = "Shift Mod4 Down" { Actions = "ResizeVertical 1" }
-        Keypress = "Shift Mod1 Left" { Actions = "ResizeHorizontal -1" }
-        Keypress = "Shift Mod1 Right" { Actions = "ResizeHorizontal 1" }
-        Keypress = "Shift Mod1 Up" { Actions = "ResizeVertical -1" }
-        Keypress = "Shift Mod1 Down" { Actions = "ResizeVertical 1" }
-        Keypress = "s" { Actions = "MoveSnap" }
-        Keypress = "Escape" { Actions = "Cancel" }
-        Keypress = "q" { Actions = "Cancel" }
-        Keypress = "Return" { Actions = "End" }
-}
-
-# Keys for CmdDialog editing
-InputDialog {
-        KeyPress = "Left" { Actions = "CursPrev" }
-        KeyPress = "Right" { Actions = "CursNext" }
-        KeyPress = "Ctrl A" { Actions = "CursBegin" }
-        KeyPress = "Ctrl E" { Actions = "CursEnd" }
-        KeyPress = "BackSpace" { Actions = "Erase;CompleteAbort" }
-        KeyPress = "Ctrl K" { Actions = "ClearFromCursor" }
-        KeyPress = "Ctrl C" { Actions = "Clear" }
-        KeyPress = "Return" { Actions = "Exec" }
-        KeyPress = "Escape" { Actions = "Close" }
-        KeyPress = "Up" { Actions = "HistPrev" }
-        KeyPress = "Down" { Actions = "HistNext" }
-        KeyPress = "Ctrl P" { Actions = "HistPrev" }
-        KeyPress = "Ctrl N" { Actions = "HistNext" }
-        KeyPress = "Ctrl B" { Actions = "CursPrev" }
-        KeyPress = "Ctrl F" { Actions = "CursNext" }
-        KeyPress = "Tab" { Actions = "Complete" }
-        KeyPress = "Any Any" { Actions = "Insert" }
-}
-
-# Keys working in menus
-Menu {
-        KeyPress = "Down" { Actions = "NextItem" }
-        KeyPress = "Up" { Actions = "PrevItem" }
-        KeyPress = "Ctrl N" { Actions = "NextItem" }
-        KeyPress = "Ctrl P" { Actions = "PrevItem" }
-
-        KeyPress = "1" { Actions = "GotoItem 1" }
-        KeyPress = "2" { Actions = "GotoItem 2" }
-        KeyPress = "3" { Actions = "GotoItem 3" }
-        KeyPress = "4" { Actions = "GotoItem 4" }
-        KeyPress = "5" { Actions = "GotoItem 5" }
-        KeyPress = "6" { Actions = "GotoItem 6" }
-        KeyPress = "7" { Actions = "GotoItem 7" }
-        KeyPress = "8" { Actions = "GotoItem 8" }
-        KeyPress = "9" { Actions = "GotoItem 9" }
-
-        KeyPress = "Left" { Actions = "LeaveSubmenu" }
-        KeyPress = "Right" { Actions = "EnterSubmenu" }
-        KeyPress = "Return" { Actions = "Select" }
-        KeyPress = "space" { Actions = "Select" }
-        KeyPress = "Escape" { Actions = "Close" }
-        KeyPress = "Q" { Actions = "Close" }
-}
-

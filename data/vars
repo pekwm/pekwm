@@ -1,3 +1,7 @@
+# This file is in the public domain. Anyone is free to copy, modify, publish
+# use, sell or distribute for any purpose, commercial or non-commercial, and by
+# any means.
+
 $BROWSER="firefox"
 $EDITOR="xedit"
 $FILEMANAGER="worker"

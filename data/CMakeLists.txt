@@ -9,7 +9,11 @@ install(FILES
 	config
 	config_system
 	keys
+	keys_inputdialog
+	keys_menu
+	keys_moveresize
 	menu
+	menu_windowmenu
 	mouse
 	mouse_system
 	mouse_click

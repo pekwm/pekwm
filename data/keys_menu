@@ -1,0 +1,28 @@
+# This file is in the public domain. Anyone is free to copy, modify, publish
+# use, sell or distribute for any purpose, commercial or non-commercial, and by
+# any means.
+
+Menu {
+	KeyPress = "Down" { Actions = "NextItem" }
+	KeyPress = "Up" { Actions = "PrevItem" }
+	KeyPress = "Ctrl N" { Actions = "NextItem" }
+	KeyPress = "Ctrl P" { Actions = "PrevItem" }
+
+	KeyPress = "1" { Actions = "GotoItem 1" }
+	KeyPress = "2" { Actions = "GotoItem 2" }
+	KeyPress = "3" { Actions = "GotoItem 3" }
+	KeyPress = "4" { Actions = "GotoItem 4" }
+	KeyPress = "5" { Actions = "GotoItem 5" }
+	KeyPress = "6" { Actions = "GotoItem 6" }
+	KeyPress = "7" { Actions = "GotoItem 7" }
+	KeyPress = "8" { Actions = "GotoItem 8" }
+	KeyPress = "9" { Actions = "GotoItem 9" }
+
+	KeyPress = "Left" { Actions = "LeaveSubmenu" }
+	KeyPress = "Right" { Actions = "EnterSubmenu" }
+	KeyPress = "Return" { Actions = "Select" }
+	KeyPress = "space" { Actions = "Select" }
+	KeyPress = "Escape" { Actions = "Close" }
+	KeyPress = "Q" { Actions = "Close" }
+}
+

@@ -1,3 +1,7 @@
+# This file is in the public domain. Anyone is free to copy, modify, publish
+# use, sell or distribute for any purpose, commercial or non-commercial, and by
+# any means.
+
 /*
  Desktop windows such as nautilus window in gnome. These should
  cover the root window and be below all other windows. Also they
