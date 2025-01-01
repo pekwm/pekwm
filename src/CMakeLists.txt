@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
 configure_file(${CMAKE_SOURCE_DIR}/CMake/config.h.in
 	       ${CMAKE_CURRENT_BINARY_DIR}/config.h)

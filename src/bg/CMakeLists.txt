@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
 add_executable(pekwm_bg pekwm_bg.cc)
 target_include_directories(pekwm_bg PUBLIC ${common_INCLUDE_DIRS})

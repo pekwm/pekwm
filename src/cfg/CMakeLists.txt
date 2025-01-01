@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
 add_executable(pekwm_cfg pekwm_cfg.cc)
 target_include_directories(pekwm_cfg PUBLIC ${PROJECT_BINARY_DIR}/src)

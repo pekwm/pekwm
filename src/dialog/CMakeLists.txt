@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
 add_executable(pekwm_dialog pekwm_dialog.cc ../pekwm_env.cc)
 target_include_directories(pekwm_dialog PUBLIC ${common_INCLUDE_DIRS})

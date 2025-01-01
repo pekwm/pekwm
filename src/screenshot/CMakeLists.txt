@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
 add_executable(pekwm_screenshot pekwm_screenshot.cc)
 target_include_directories(pekwm_screenshot
