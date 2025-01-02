@@ -233,6 +233,16 @@ Frame::grabButtons(void)
 
 // START - PWinObj interface.
 
+/**
+ * Return the active clients window type, defaults to WINDOW_TYPE_NORMAL.
+ */
+AtomName
+Frame::getWinType() const
+{
+	Client *client = getActiveClient();
+	return client ? client->getWinType() : WINDOW_TYPE_NORMAL;
+}
+
 //! @brief Iconifies the Frame.
 void
 Frame::iconify(void)
@@ -443,13 +453,12 @@ Frame::allowMove(void) const
  * Return active client, or 0 if no clients or active child is not a Client.
  */
 Client*
-Frame::getActiveClient(void)
+Frame::getActiveClient() const
 {
 	if (getActiveChild() && getActiveChild()->getType() == WO_CLIENT) {
 		return static_cast<Client*>(getActiveChild());
-	} else {
-		return 0;
 	}
+	return nullptr;
 }
 
 //! @brief Adds child to the frame.

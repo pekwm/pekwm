@@ -10,6 +10,7 @@ set(lib_SOURCES
     CMakeLists.txt
     Compat.cc
     Debug.cc
+    Geometry.cc
     Observable.cc
     Os.cc
     RegexString.cc

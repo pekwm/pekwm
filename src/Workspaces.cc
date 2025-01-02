@@ -36,6 +36,12 @@ extern "C" {
 #include <X11/Xatom.h> // for XA_WINDOW
 }
 
+static inline bool
+isFocusable(PWinObj *wo)
+{
+	return wo && wo->isMapped() && wo->isFocusable();
+}
+
 // Workspace
 
 Workspace::Workspace(void)
@@ -72,8 +78,7 @@ Workspace::getLastFocused(bool verify) const
 	}
 
 	if (PWinObj::windowObjectExists(_last_focused)
-	    && _last_focused->isMapped()
-	    && _last_focused->isFocusable()) {
+	    && isFocusable(_last_focused)) {
 		return _last_focused;
 	}
 	return nullptr;
@@ -1038,9 +1043,7 @@ Workspaces::getTopFocusableWO(uint type_mask)
 {
 	reverse_iterator r_it = _wobjs.rbegin();
 	for (; r_it != _wobjs.rend(); ++r_it) {
-		if ((*r_it)->isMapped()
-		    && (*r_it)->isFocusable()
-		    && ((*r_it)->getType()&type_mask)) {
+		if (isFocusable(*r_it) && ((*r_it)->getType()&type_mask)) {
 			return *r_it;
 		}
 	}
@@ -1164,21 +1167,12 @@ void
 Workspaces::findWOAndFocus(PWinObj *search)
 {
 	PWinObj *focus = nullptr;
-	if (PWinObj::windowObjectExists(search)
-	    && search->isMapped()
-	    && search->isFocusable())  {
+	if (PWinObj::windowObjectExists(search) && isFocusable(search)) {
 		focus = search;
-	}
-
-	// search window object didn't exist, go through the MRU list
-	if (! focus) {
-		std::vector<Frame*>::iterator it = _mru.begin();
-		for (; it != _mru.end(); ++it) {
-			if ((*it)->isMapped() && (*it)->isFocusable()) {
-				focus = *it;
-				break;
-			}
-		}
+	} else {
+		// search window object didn't exist, find candidate
+		bool stacking = pekwm::config()->isOnCloseFocusStacking();
+		focus = findWOAndFocusFind(stacking);
 	}
 
 	if (focus) {
@@ -1188,6 +1182,54 @@ Workspaces::findWOAndFocus(PWinObj *search)
 		pekwm::rootWo()->giveInputFocus();
 		pekwm::rootWo()->setEwmhActiveWindow(None);
 	}
+}
+
+PWinObj*
+Workspaces::findWOAndFocusFind(bool stacking)
+{
+	if (!stacking) {
+		PWinObj *wo = findWOAndFocusMRU();
+		if (wo != nullptr) {
+			return wo;
+		}
+	}
+	return findWOAndFocusStacking();
+}
+
+PWinObj*
+Workspaces::findWOAndFocusStacking()
+{
+	std::vector<PWinObj*>::reverse_iterator it(_wobjs.rbegin());
+	for (; it != _wobjs.rend(); ++it) {
+		if (! isFocusable(*it)
+		    || (*it)->getType() != PWinObj::WO_FRAME) {
+			continue;
+		}
+
+		switch ((*it)->getWinType()) {
+		case WINDOW_TYPE_DESKTOP:
+		case WINDOW_TYPE_UTILITY:
+		case WINDOW_TYPE_DIALOG:
+		case WINDOW_TYPE_NORMAL:
+			return *it;
+		default:
+			/* do nothing */
+			break;
+		}
+	}
+	return nullptr;
+}
+
+PWinObj*
+Workspaces::findWOAndFocusMRU()
+{
+	std::vector<Frame*>::iterator it(_mru.begin());
+	for (; it != _mru.end(); ++it) {
+		if (isFocusable(*it)) {
+			return *it;
+		}
+	}
+	return nullptr;
 }
 
 /**
@@ -1202,9 +1244,7 @@ Workspaces::findUnderPointer(void)
 
 	reverse_iterator it;
 	for (it = _wobjs.rbegin(); it != _wobjs.rend(); ++it) {
-		if ((*it)->isMapped()
-		    && (*it)->isFocusable()
-		    && (*it)->isUnder(x, y)) {
+		if (isFocusable(*it) && (*it)->isUnder(x, y)) {
 			return *it;
 		}
 	}

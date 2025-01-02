@@ -1,6 +1,6 @@
 //
 // test_Workspaces.hh for pekwm
-// Copyright (C) 2024 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2024-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -18,22 +18,23 @@ extern "C" {
 class TestWorkspaces : public TestSuite,
 		       public Workspaces {
 public:
-	TestWorkspaces(void);
-	virtual ~TestWorkspaces(void);
+	TestWorkspaces();
+	virtual ~TestWorkspaces();
 
 	bool run_test(TestSpec spec, bool status);
 
-	void testSwapInStack(void);
-	void testStackAbove(void);
+	void testSwapInStack();
+	void testStackAbove();
+	void testFindWOAndFocusFind();
 };
 
-TestWorkspaces::TestWorkspaces(void)
+TestWorkspaces::TestWorkspaces()
 	: TestSuite("Workspaces"),
 	  Workspaces()
 {
 }
 
-TestWorkspaces::~TestWorkspaces(void)
+TestWorkspaces::~TestWorkspaces()
 {
 }
 
@@ -42,11 +43,12 @@ TestWorkspaces::run_test(TestSpec spec, bool status)
 {
 	TEST_FN(spec, "swapInStack", testSwapInStack());
 	TEST_FN(spec, "stackAbove", testStackAbove());
+	TEST_FN(spec, "findWOAndFocusFind", testFindWOAndFocusFind());
 	return status;
 }
 
 void
-TestWorkspaces::testSwapInStack(void)
+TestWorkspaces::testSwapInStack()
 {
 	_wobjs.clear();
 
@@ -78,7 +80,7 @@ TestWorkspaces::testSwapInStack(void)
 }
 
 void
-TestWorkspaces::testStackAbove(void)
+TestWorkspaces::testStackAbove()
 {
 	_wobjs.clear();
 	PWinObj wobjs[5];
@@ -93,4 +95,51 @@ TestWorkspaces::testStackAbove(void)
 	ASSERT_EQUAL("stack order", _wobjs[2], &wobjs[3]);
 	ASSERT_EQUAL("stack order", _wobjs[3], &wobjs[1]);
 	ASSERT_EQUAL("stack order", _wobjs[4], &wobjs[4]);
+}
+
+class TestPWinObj : public PWinObj {
+public:
+	TestPWinObj(PWinObj::Type type, bool focusable, bool mapped)
+		: PWinObj()
+	{
+		_type = type;
+		_focusable = focusable;
+		_mapped = mapped;
+	}
+	virtual ~TestPWinObj()
+	{
+	}
+};
+
+void
+TestWorkspaces::testFindWOAndFocusFind()
+{
+	// empty
+	PWinObj *null_wo = nullptr;
+	ASSERT_EQUAL("empty", null_wo, findWOAndFocusFind(true));
+	ASSERT_EQUAL("empty", null_wo, findWOAndFocusFind(false));
+
+	// no focusable objects
+	TestPWinObj wo_nf(PWinObj::WO_FRAME, false, true);
+	_wobjs.push_back(&wo_nf);
+	_mru.push_back((Frame*) &wo_nf);
+	ASSERT_EQUAL("no focusable", null_wo, findWOAndFocusFind(true));
+	ASSERT_EQUAL("no focusable", null_wo, findWOAndFocusFind(false));
+
+	// no mru, fallback to stacking
+	TestPWinObj wo1(PWinObj::WO_FRAME, true, true);
+	_wobjs.push_back(&wo1);
+	ASSERT_EQUAL("no mru", &wo1, findWOAndFocusFind(true));
+	ASSERT_EQUAL("no mru", &wo1, findWOAndFocusFind(false));
+
+	// mru and stacking differ
+	TestPWinObj wo2(PWinObj::WO_FRAME, true, true);
+	_wobjs.push_back(&wo2);
+	_mru.push_back((Frame*) &wo1);
+	_mru.push_back((Frame*) &wo2);
+	ASSERT_EQUAL("mru and stacking", &wo2, findWOAndFocusFind(true));
+	ASSERT_EQUAL("mru and stacking", &wo1, findWOAndFocusFind(false));
+
+	_wobjs.clear();
+	_mru.clear();
 }

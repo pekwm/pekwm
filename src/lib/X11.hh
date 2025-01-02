@@ -13,6 +13,7 @@
 #include "config.h"
 
 #include "Compat.hh"
+#include "Geometry.hh"
 #include "Types.hh"
 
 #include <iostream>
@@ -217,46 +218,6 @@ extern const long XEMBED_VERSION;
  */
 enum XEmbedFlags {
 	XEMBED_FLAG_MAPPED = 1 << 0
-};
-
-/**
- * Bitmask values for parseGeometry result.
- */
-enum XGeometryMask {
-	NO_VALUE = 0,
-	X_VALUE = 1 << 0,
-	Y_VALUE = 1 << 1,
-	WIDTH_VALUE = 1 << 2,
-	HEIGHT_VALUE = 1 << 3,
-	ALL_VALUES = 1 << 4,
-	X_NEGATIVE = 1 << 5,
-	Y_NEGATIVE = 1 << 6,
-	X_PERCENT = 1 << 7,
-	Y_PERCENT = 1 << 8,
-	WIDTH_PERCENT = 1 << 9,
-	HEIGHT_PERCENT = 1 << 10
-};
-
-class Geometry {
-public:
-	Geometry(void);
-	Geometry(int _x, int _y, unsigned int _width, unsigned int _height);
-	Geometry(const Geometry &gm);
-	~Geometry(void);
-
-	Geometry center(Geometry gm) const;
-
-	int x, y;
-	unsigned int width, height;
-
-	Geometry& operator=(const Geometry& gm);
-	bool operator==(const Geometry& gm);
-	bool operator != (const Geometry& gm);
-	int diffMask(const Geometry &old_gm);
-
-	bool isOverlap(const Geometry &other) const;
-
-	friend std::ostream& operator<<(std::ostream& os, const Geometry& gm);
 };
 
 /**

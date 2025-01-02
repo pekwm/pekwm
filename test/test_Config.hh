@@ -1,6 +1,6 @@
 //
-// test_Config.cc for pekwm
-// Copyright (C) 2021-2024 Claes Nästén <pekdon@gmail.com>
+// test_Config.hh for pekwm
+// Copyright (C) 2021-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -28,6 +28,7 @@ public:
 	void testParseMoveResizeAction();
 	void testLoadDebug();
 	void testLoadTheme();
+	void testLoadScreen();
 };
 
 TestConfig::TestConfig()
@@ -48,6 +49,7 @@ TestConfig::run_test(TestSpec spec, bool status)
 	TEST_FN(spec, "parseMoveResizeAction", testParseMoveResizeAction());
 	TEST_FN(spec, "loadDebug", testLoadDebug());
 	TEST_FN(spec, "loadTheme", testLoadTheme());
+	TEST_FN(spec, "loadScreen", testLoadScreen());
 	return status;
 }
 
@@ -140,4 +142,32 @@ TestConfig::testLoadTheme()
 	ASSERT_EQUAL("empty section", true, loadTheme(&cfg));
 	ASSERT_EQUAL("override", getThemeBackgroundOverride(), "Solid #aabbcc");
 	ASSERT_EQUAL("screen background enabled", getThemeBackground(), true);
+}
+
+void
+TestConfig::testLoadScreen()
+{
+	// load nullptr section, do nothing
+	ASSERT_EQUAL("no section", false, loadScreen(nullptr));
+
+	// focus settings (default)
+	CfgParser::Entry focus("memory", 0, "", "");
+	ASSERT_EQUAL("defaults", true, loadScreen(&focus));
+	ASSERT_EQUAL("defaults", false, isFocusNew());
+	ASSERT_EQUAL("defaults", true, isFocusNewChild());
+	ASSERT_EQUAL("defaults", false, isOnCloseFocusStacking());
+	ASSERT_EQUAL("defaults", ON_CLOSE_FOCUS_RAISE_ALWAYS,
+		     getOnCloseFocusRaise());
+
+	// focus settings
+	focus.addEntry("memory", 1, "FocusNew", "true");
+	focus.addEntry("memory", 2, "FocusNewChild", "false");
+	focus.addEntry("memory", 3, "OnCloseFocusStacking", "true");
+	focus.addEntry("memory", 4, "OnCloseFocusRaise", "IfCovered");
+	ASSERT_EQUAL("focus", true, loadScreen(&focus));
+	ASSERT_EQUAL("focus", true, isFocusNew());
+	ASSERT_EQUAL("focus", false, isFocusNewChild());
+	ASSERT_EQUAL("focus", true, isOnCloseFocusStacking());
+	ASSERT_EQUAL("focus", ON_CLOSE_FOCUS_RAISE_IF_COVERED,
+		     getOnCloseFocusRaise());
 }

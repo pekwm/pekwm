@@ -1,6 +1,6 @@
 //
 // pekwm_types.hh for pekwm
-// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2023-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -313,6 +313,12 @@ enum FocusSelector {
 	FOCUS_SELECTOR_ROOT,
 	/** not a valid focus selector */
 	FOCUS_SELECTOR_NO
+};
+
+enum OnCloseFocusRaise {
+	ON_CLOSE_FOCUS_RAISE_NEVER,
+	ON_CLOSE_FOCUS_RAISE_ALWAYS,
+	ON_CLOSE_FOCUS_RAISE_IF_COVERED
 };
 
 #endif // _PEKWM_PEKWM_TYPES_HH_

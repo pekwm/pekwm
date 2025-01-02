@@ -1,6 +1,6 @@
 //
 // Config.cc for pekwm
-// Copyright (C) 2023-2024 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2023-2025 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2002-2021 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -110,6 +110,12 @@ static Util::StringTo<CurrHeadSelector> curr_head_selector_map[] =
 	 {"FOCUSEDWINDOW", CURR_HEAD_SELECTOR_FOCUSED_WINDOW},
 	 {nullptr, CURR_HEAD_SELECTOR_NO}};
 
+static Util::StringTo<OnCloseFocusRaise> on_close_focus_raise_map[] =
+	{{"NEVER", ON_CLOSE_FOCUS_RAISE_NEVER},
+	 {"ALWAYS", ON_CLOSE_FOCUS_RAISE_ALWAYS},
+	 {"IFCOVERED", ON_CLOSE_FOCUS_RAISE_IF_COVERED},
+	 {nullptr, ON_CLOSE_FOCUS_RAISE_ALWAYS}};
+
 static Util::StringTo<Debug::Level> debug_level_map[] =
 	{{"ERR", Debug::LEVEL_ERR},
 	 {"WARN", Debug::LEVEL_WARN},
@@ -178,8 +184,12 @@ Config::Config(void) :
 	_screen_show_workspace_indicator(500),
 	_screen_workspace_indicator_scale(16),
 	_screen_workspace_indicator_opacity(EWMH_OPAQUE_WINDOW),
-	_screen_place_new(true), _screen_focus_new(false),
-	_screen_focus_new_child(true), _screen_focus_steal_protect(0),
+	_screen_place_new(true),
+	_screen_focus_new(false),
+	_screen_focus_new_child(true),
+	_screen_on_close_focus_stacking(false),
+	_screen_on_close_focus_raise(ON_CLOSE_FOCUS_RAISE_ALWAYS),
+	_screen_focus_steal_protect(0),
 	_screen_honour_randr(true),
 	_screen_honour_aspectratio(true),
 	_screen_curr_head_selector(CURR_HEAD_SELECTOR_CURSOR),
@@ -449,6 +459,10 @@ Config::loadScreen(CfgParser::Entry *section)
 	keys.add_bool("PLACENEW", _screen_place_new);
 	keys.add_bool("FOCUSNEW", _screen_focus_new);
 	keys.add_bool("FOCUSNEWCHILD", _screen_focus_new_child, true);
+	keys.add_bool("ONCLOSEFOCUSSTACKING", _screen_on_close_focus_stacking,
+		      false);
+	std::string on_close_focus_raise;
+	keys.add_string("ONCLOSEFOCUSRAISE", on_close_focus_raise, "ALWAYS");
 	keys.add_numeric<uint>("FOCUSSTEALPROTECT",
 			       _screen_focus_steal_protect, 0);
 	keys.add_bool("HONOURRANDR", _screen_honour_randr, true);
@@ -499,6 +513,9 @@ Config::loadScreen(CfgParser::Entry *section)
 
 	_screen_curr_head_selector =
 		Util::StringToGet(curr_head_selector_map, curr_head_selector);
+	_screen_on_close_focus_raise =
+		Util::StringToGet(on_close_focus_raise_map,
+				  on_close_focus_raise);
 
 	CfgParser::Entry *sub = section->findSection("PLACEMENT");
 	loadScreenPlacement(sub);

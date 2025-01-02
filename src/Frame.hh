@@ -1,6 +1,6 @@
 //
 // Frame.hh for pekwm
-// Copyright (C) 2003-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -35,6 +35,8 @@ public:
 	virtual ~Frame(void);
 
 	// START - PWinObj interface.
+	virtual AtomName getWinType() const;
+
 	virtual void iconify(void);
 	virtual void stick(void);
 
@@ -72,7 +74,7 @@ public:
 	virtual void setSkip(uint skip);
 	// END - PDecor interface.
 
-	Client *getActiveClient(void);
+	Client *getActiveClient() const;
 
 	void addChildOrdered(Client *child);
 
