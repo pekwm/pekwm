@@ -1,6 +1,6 @@
 //
 // PWinObj.hh for pekwm
-// Copyright (C) 2003-2024 Claes Nästen <pekdon@gmail.com>
+// Copyright (C) 2003-2025 Claes Nästen <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -77,12 +77,11 @@ public:
 	//! @param wo PWinObj to search for.
 	//! @return true if found, else false.
 	static inline bool windowObjectExists(PWinObj *wo) {
-		std::vector<PWinObj*>::iterator it =
-			std::find(_wo_list.begin(), _wo_list.end(), wo);
-		if (it != _wo_list.end()) {
-			return true;
+		std::vector<PWinObj*>::iterator it(_wo_list.end());
+		if (wo != nullptr) {
+			it = std::find(_wo_list.begin(), _wo_list.end(), wo);
 		}
-		return false;
+		return it != _wo_list.end();
 	}
 
 	static bool isSkipEnterAfter(Window win) {
@@ -106,6 +105,10 @@ public:
 	inline void setParent(PWinObj *wo) { _parent = wo; }
 	//! @brief Returns type of PWinObj.
 	inline Type getType(void) const { return _type; }
+	/** Return true if PWinObj is of the specified type. */
+	inline bool isType(Type type) const { return _type == type; }
+	/** Returns the EWMH Window Type of PWinObj */
+	virtual AtomName getWinType() const { return WINDOW_TYPE_NORMAL; }
 	//! @brief Returns the last activity time for this window
 	inline Time getLastActivity(void) const { return _lastActivity; }
 	//! @brief Sets the last activity time for this window.

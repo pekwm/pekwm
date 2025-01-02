@@ -1,6 +1,6 @@
 //
-// test_X11.cc for pekwm
-// Copyright (C) 2020-2024 Claes Nästén <pekdon@gmail.com>
+// test_X11.hh for pekwm
+// Copyright (C) 2020-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -10,70 +10,6 @@
 
 #include "test.hh"
 #include "X11.hh"
-
-class TestGeometry : public TestSuite {
-public:
-	TestGeometry(void);
-	virtual ~TestGeometry(void);
-
-	virtual bool run_test(TestSpec, bool status);
-
-private:
-	static void testCenter(void);
-	static void testIsOverlap(void);
-};
-
-TestGeometry::TestGeometry(void)
-	: TestSuite("Geometry")
-{
-}
-
-TestGeometry::~TestGeometry(void)
-{
-}
-
-bool
-TestGeometry::run_test(TestSpec spec, bool status)
-{
-	TEST_FN(spec, "center", testCenter());
-	TEST_FN(spec, "isOverlap", testIsOverlap());
-	return status;
-}
-
-void
-TestGeometry::testCenter(void)
-{
-	Geometry head(100, 200, 1000, 2000);
-
-	ASSERT_EQUAL("center same size", head, head.center(head));
-	ASSERT_EQUAL("center smaller",
-		     Geometry(550, 1100, 100, 200),
-		     head.center(Geometry(0, 0, 100, 200)));
-	ASSERT_EQUAL("center larger",
-		     Geometry(-400, -800, 2000, 4000),
-		     head.center(Geometry(0, 0, 2000, 4000)));
-}
-
-void
-TestGeometry::testIsOverlap(void)
-{
-	Geometry g1(100, 100, 100, 100);
-	Geometry g2(0, 0, 50, 50);
-	ASSERT_FALSE("no overlap", g1.isOverlap(g2));
-	ASSERT_FALSE("no overlap", g2.isOverlap(g1));
-
-	Geometry g3(50, 0, 100, 50);
-	ASSERT_FALSE("no overlap, x only ", g1.isOverlap(g3));
-	ASSERT_FALSE("no overlap, x only", g3.isOverlap(g1));
-
-	Geometry g4(0, 50, 50, 100);
-	ASSERT_FALSE("no overlap, y only ", g1.isOverlap(g4));
-	ASSERT_FALSE("no overlap, y only", g4.isOverlap(g1));
-
-	Geometry g5(140, 140, 20, 20);
-	ASSERT_TRUE("overlap ", g1.isOverlap(g5));
-	ASSERT_TRUE("overlap", g5.isOverlap(g1));
-}
 
 class TestX11 : public X11,
 		public TestSuite {

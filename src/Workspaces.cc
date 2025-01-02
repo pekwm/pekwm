@@ -36,6 +36,12 @@ extern "C" {
 #include <X11/Xatom.h> // for XA_WINDOW
 }
 
+static inline bool
+isFocusable(PWinObj *wo)
+{
+	return wo && wo->isMapped() && wo->isFocusable();
+}
+
 // Workspace
 
 Workspace::Workspace(void)
@@ -72,8 +78,7 @@ Workspace::getLastFocused(bool verify) const
 	}
 
 	if (PWinObj::windowObjectExists(_last_focused)
-	    && _last_focused->isMapped()
-	    && _last_focused->isFocusable()) {
+	    && isFocusable(_last_focused)) {
 		return _last_focused;
 	}
 	return nullptr;
@@ -205,7 +210,7 @@ Workspaces::setWorkspace(uint num, bool focus)
 	// Make sure that sticky windows gets unfocused on workspace change,
 	// it will be set back after switch is done.
 	if (wo) {
-		if (wo->getType() == PWinObj::WO_CLIENT) {
+		if (wo->isType(PWinObj::WO_CLIENT)) {
 			wo->getParent()->setFocused(false);
 		} else {
 			wo->setFocused(false);
@@ -447,8 +452,7 @@ Workspaces::layout(Frame *frame, Window parent)
 	Workspaces::const_iterator it(Workspaces::begin()),
 		w_end(Workspaces::end());
 	for (; it != w_end; ++it) {
-		if ((*it)->isMapped()
-		    && (*it)->getType() == PWinObj::WO_FRAME) {
+		if ((*it)->isMapped() && (*it)->isType(PWinObj::WO_FRAME)) {
 			Client *client =
 				static_cast<Frame*>(*it)->getActiveClient();
 			if (client && client->isFullscreen()
@@ -631,7 +635,7 @@ Workspaces::unhideAll(uint workspace, bool focus)
 		    && ! (*it)->isHidden()
 		    && ((*it)->getWorkspace() == workspace)) {
 			(*it)->mapWindow(); // don't restack ontop windows
-			if ((*it)->getType() == PWinObj::WO_FRAME) {
+			if ((*it)->isType(PWinObj::WO_FRAME)) {
 				static_cast<Frame*>(*it)->updateDecor();
 			}
 		}
@@ -648,7 +652,7 @@ Workspaces::unhideAll(uint workspace, bool focus)
 
 		if (wo) {
 			// Render as focused
-			if (wo->getType() == PWinObj::WO_CLIENT) {
+			if (wo->isType(PWinObj::WO_CLIENT)) {
 				wo->getParent()->setFocused(true);
 			} else {
 				wo->setFocused(true);
@@ -656,7 +660,7 @@ Workspaces::unhideAll(uint workspace, bool focus)
 
 			// Get the active child if a frame, to get
 			// correct focus behavior
-			if (wo->getType() == PWinObj::WO_FRAME) {
+			if (wo->isType(PWinObj::WO_FRAME)) {
 				wo = static_cast<Frame*>(wo)->getActiveChild();
 			}
 
@@ -665,7 +669,7 @@ Workspaces::unhideAll(uint workspace, bool focus)
 			PWinObj::setFocusedPWinObj(wo);
 
 			// update the MRU list
-			if (wo->getType() == PWinObj::WO_CLIENT) {
+			if (wo->isType(PWinObj::WO_CLIENT)) {
 				Frame *frame =
 					static_cast<Frame*>(wo->getParent());
 				addToMRUFront(frame);
@@ -1038,9 +1042,7 @@ Workspaces::getTopFocusableWO(uint type_mask)
 {
 	reverse_iterator r_it = _wobjs.rbegin();
 	for (; r_it != _wobjs.rend(); ++r_it) {
-		if ((*r_it)->isMapped()
-		    && (*r_it)->isFocusable()
-		    && ((*r_it)->getType()&type_mask)) {
+		if (isFocusable(*r_it) && ((*r_it)->getType()&type_mask)) {
 			return *r_it;
 		}
 	}
@@ -1061,7 +1063,7 @@ Workspaces::buildClientList(unsigned int &num_windows)
 	iterator it_f;
 	const_iterator it_c;
 	for (it_f = _wobjs.begin(); it_f != _wobjs.end(); ++it_f) {
-		if ((*it_f)->getType() != PWinObj::WO_FRAME) {
+		if (! (*it_f)->isType(PWinObj::WO_FRAME)) {
 			continue;
 		}
 
@@ -1140,7 +1142,7 @@ Workspaces::placeWoInsideScreen(PWinObj *wo)
 	Strut *strut = 0;
 	bool maximized_virt = false;
 	bool maximized_horz = false;
-	if (wo->getType() == PWinObj::WO_FRAME) {
+	if (wo->isType(PWinObj::WO_FRAME)) {
 		Client *client = static_cast<Frame*>(wo)->getActiveClient();
 		if (client) {
 			strut = client->getStrut();
@@ -1164,30 +1166,112 @@ void
 Workspaces::findWOAndFocus(PWinObj *search)
 {
 	PWinObj *focus = nullptr;
-	if (PWinObj::windowObjectExists(search)
-	    && search->isMapped()
-	    && search->isFocusable())  {
+	if (PWinObj::windowObjectExists(search) && isFocusable(search)) {
 		focus = search;
-	}
-
-	// search window object didn't exist, go through the MRU list
-	if (! focus) {
-		std::vector<Frame*>::iterator it = _mru.begin();
-		for (; it != _mru.end(); ++it) {
-			if ((*it)->isMapped() && (*it)->isFocusable()) {
-				focus = *it;
-				break;
-			}
-		}
+	} else {
+		// search window object didn't exist, find candidate
+		bool stacking = pekwm::config()->isOnCloseFocusStacking();
+		focus = findWOAndFocusFind(stacking);
 	}
 
 	if (focus) {
 		focus->giveInputFocus();
-		focus->raise();
+		findWOAndFocusRaise(focus);
 	}  else if (! PWinObj::getFocusedPWinObj()) {
 		pekwm::rootWo()->giveInputFocus();
 		pekwm::rootWo()->setEwmhActiveWindow(None);
 	}
+}
+
+void
+Workspaces::findWOAndFocusRaise(PWinObj *wo)
+{
+	switch (pekwm::config()->getOnCloseFocusRaise()) {
+	case ON_CLOSE_FOCUS_RAISE_ALWAYS:
+		wo->raise();
+		break;
+	case ON_CLOSE_FOCUS_RAISE_IF_COVERED: {
+		uint percent = overlapPercent(wo);
+		if (percent > 50) {
+			P_TRACE("raising " << wo << " " << percent
+				 << "% overlap");
+			wo->raise();
+		} else {
+			P_TRACE("NOT raising " << wo << " " << percent
+				<< "% overlap");
+		}
+		break;
+	}
+	default:
+		// do nothing
+		break;
+	};
+}
+
+PWinObj*
+Workspaces::findWOAndFocusFind(bool stacking)
+{
+	if (!stacking) {
+		PWinObj *wo = findWOAndFocusMRU();
+		if (wo != nullptr) {
+			return wo;
+		}
+	}
+	return findWOAndFocusStacking();
+}
+
+PWinObj*
+Workspaces::findWOAndFocusStacking()
+{
+	std::vector<PWinObj*>::reverse_iterator it(_wobjs.rbegin());
+	for (; it != _wobjs.rend(); ++it) {
+		if (! isFocusable(*it)
+		    || ! (*it)->isType(PWinObj::WO_FRAME)) {
+			continue;
+		}
+
+		switch ((*it)->getWinType()) {
+		case WINDOW_TYPE_DESKTOP:
+		case WINDOW_TYPE_UTILITY:
+		case WINDOW_TYPE_DIALOG:
+		case WINDOW_TYPE_NORMAL:
+			return *it;
+		default:
+			/* do nothing */
+			break;
+		}
+	}
+	return nullptr;
+}
+
+PWinObj*
+Workspaces::findWOAndFocusMRU()
+{
+	std::vector<Frame*>::iterator it(_mru.begin());
+	for (; it != _mru.end(); ++it) {
+		if (isFocusable(*it)) {
+			return *it;
+		}
+	}
+	return nullptr;
+}
+
+/**
+ * Calculate how many percentage of PWinObj is covered by windows above it.
+ */
+uint
+Workspaces::overlapPercent(PWinObj *wo)
+{
+	iterator it = find(wo);
+	assert(it != _wobjs.end());
+
+	GeometryOverlap overlap(wo->getGeometry());
+	for (++it; it != _wobjs.end(); ++it) {
+		if ((*it)->isMapped() && (*it)->isType(PWinObj::WO_FRAME)) {
+			overlap.addOverlap((*it)->getGeometry());
+		}
+	}
+	return overlap.getOverlapPercent();
 }
 
 /**
@@ -1202,9 +1286,7 @@ Workspaces::findUnderPointer(void)
 
 	reverse_iterator it;
 	for (it = _wobjs.rbegin(); it != _wobjs.rend(); ++it) {
-		if ((*it)->isMapped()
-		    && (*it)->isFocusable()
-		    && (*it)->isUnder(x, y)) {
+		if (isFocusable(*it) && (*it)->isUnder(x, y)) {
 			return *it;
 		}
 	}
@@ -1221,7 +1303,7 @@ PWinObj*
 Workspaces::findDirectional(PWinObj *wo, DirectionType dir, uint skip)
 {
 	// search from the frame not client, if client
-	if (wo->getType() == PWinObj::WO_CLIENT) {
+	if (wo->isType(PWinObj::WO_CLIENT)) {
 		wo = static_cast<Client*>(wo)->getParent();
 	}
 
@@ -1247,7 +1329,7 @@ Workspaces::findDirectional(PWinObj *wo, DirectionType dir, uint skip)
 		if ((wo == (*it)) || ! ((*it)->isMapped())) {
 			continue; // skip ourselves and unmapped wo's
 		}
-		if (((*it)->getType() != PWinObj::WO_FRAME) ||
+		if (! (*it)->isType(PWinObj::WO_FRAME) ||
 		    static_cast<Frame*>(*it)->isSkip(skip)) {
 			continue; // only include frames and not having skip set
 		}

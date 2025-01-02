@@ -224,7 +224,7 @@ public:
 	}
 
 	//! @brief Returns pointer to active PWinObj.
-	inline PWinObj *getActiveChild(void) { return _child; }
+	inline PWinObj *getActiveChild() const { return _child; }
 	PWinObj *getChildFromPos(int x);
 
 	void activateChildNum(uint num);

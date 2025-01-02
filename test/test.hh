@@ -91,13 +91,18 @@ public:
 	TestSuite(const std::string& name);
 	virtual ~TestSuite(void);
 
-	static int main(int, char **)
+	static int main(int argc, char **argv)
 	{
 		int status = 0;
+		std::vector<std::string> suite_names;
+		for (int i = 1; i < argc; i++) {
+			suite_names.push_back(argv[i]);
+		}
 
 		std::vector<TestSuite*>::iterator it(_suites.begin());
 		for (; it != _suites.end(); ++it ) {
-			if (! (*it)->test()) {
+			if (is_suite_active(suite_names, (*it)->name())
+			    && ! (*it)->test()) {
 				status = 1;
 			}
 		}
@@ -113,6 +118,22 @@ protected:
 	virtual bool run_test(TestSpec spec, bool status) = 0;
 
 private:
+	static bool is_suite_active(const std::vector<std::string> suite_names,
+			     const std::string &name)
+	{
+		if (suite_names.empty()) {
+			return true;
+		}
+		std::vector<std::string>::const_iterator
+			it(suite_names.begin());
+		for (; it != suite_names.end(); ++it) {
+			if (*it == name) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	std::string _name;
 	static std::vector<TestSuite*> _suites;
 };

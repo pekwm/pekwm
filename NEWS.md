@@ -15,6 +15,13 @@ New
   at startup. Log file is no longer truncated when it is opened.
 * Add Theme section to config. Currently has a single element,
   BackgroundOverride for overriding the background set in the theme file.
+* Add `OnCloseFocusStacking` (boolean, default false) and
+  `OnCloseFocusRaise` (Always|Never|IfCovered, default Always) settings under
+  the Screen section.
+  `OnCloseFocusStacking`, if set to false, use the stacking order instead of
+  the MRU list to find a client when the focused object is closed.
+  `OnCloseFocusRaise`, controls wheter the window focused is raised. IfCovered
+  will raise the window if it is mostly covered by other windows.
 
 Updated
 -------

@@ -152,6 +152,8 @@ public:
 	}
 
 protected:
+	static PWinObj *findWOAndFocusFind(bool stacking);
+
 	static bool restackTopIf(PWinObj* wo);
 	static bool restackBottomIf(PWinObj* wo);
 	static bool swapInStack(PWinObj* wo_under, PWinObj* wo_over);
@@ -159,9 +161,18 @@ protected:
 
 	static iterator find(const PWinObj *wo);
 
+	/** All PWinObjs, the highest stacked PWinObj is kept at the back. */
 	static std::vector<PWinObj*> _wobjs;
+	/** The most recently used frame is kept at the front. */
+	static std::vector<Frame*> _mru;
 
 private:
+	static PWinObj *findWOAndFocusStacking();
+	static PWinObj *findWOAndFocusMRU();
+	static void findWOAndFocusRaise(PWinObj *wo);
+
+	static uint overlapPercent(PWinObj *wo);
+
 	static bool restack(PWinObj *wo, long detail);
 	static bool restackSibling(PWinObj *wo, PWinObj *sibling, long detail);
 	static void stackAt(iterator it);
@@ -186,8 +197,6 @@ private:
 	/** Window popping up when switching workspace */
 	static WorkspaceIndicator *_workspace_indicator;
 
-	/** The most recently used frame is kept at the front. */
-	static std::vector<Frame*> _mru;
 	static std::vector<Workspace> _workspaces;
 };
 

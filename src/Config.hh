@@ -1,6 +1,6 @@
 //
 // Config.hh for pekwm
-// Copyright (C) 2022-2024 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2002-2021 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -181,6 +181,12 @@ public:
 	bool isPlaceNew(void) const { return _screen_place_new; }
 	bool isFocusNew(void) const { return _screen_focus_new; }
 	bool isFocusNewChild(void) const { return _screen_focus_new_child; }
+	bool isOnCloseFocusStacking() const {
+		return _screen_on_close_focus_stacking;
+	}
+	enum OnCloseFocusRaise getOnCloseFocusRaise() const {
+		return _screen_on_close_focus_raise;
+	}
 	uint getFocusStealProtect(void) const {
 		return _screen_focus_steal_protect;
 	}
@@ -369,7 +375,15 @@ private:
 	/** Scale of the workspace indicator head */
 	int _screen_workspace_indicator_scale;
 	uint _screen_workspace_indicator_opacity;
-	bool _screen_place_new, _screen_focus_new, _screen_focus_new_child;
+	bool _screen_place_new;
+	bool _screen_focus_new;
+	bool _screen_focus_new_child;
+	/** If set to true, use stacking and not MRU order to find window to
+	    focus */
+	bool _screen_on_close_focus_stacking;
+	/** If set to true, raise window being focused after closing a window.
+	    */
+	enum OnCloseFocusRaise _screen_on_close_focus_raise;
 	/** Number of seconds to protect against focus stealing. */
 	uint _screen_focus_steal_protect;
 	/** Boolean flag if randr information should be honoured. */

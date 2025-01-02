@@ -316,6 +316,8 @@ all values should be placed inside quotes.
 | WorkspaceIndicatorOpacity      | int             | Sets the opacity/transparency of the WorkspaceIndicator. A value of 100 means completely opaque, while 0 stands for completely transparent.                               |
 | FocusNew                       | boolean         | Toggles if new windows should be focused when they pop up.                                                                                                                |
 | FocusNewChild                  | boolean         | Toggles if new transient windows should be focused when they pop up if the window they are transient for is focused.                                                      |
+| OnCloseFocusStacking           | boolean         | Toggles if window focused due to another window being closed is selected based on stacking (true) or most recently used (false). Default false.
+| OnCloseFocusRaise              | string          | Sets raise behaviour of window focused due to another window being closed. Always, Never, IfCovered. Default Always.
 | PlaceNew                       | boolean         | Toggles if new windows should be placed using the rules found in the Placement subsection, or just opened on the top left corner of your screen.                          |
 | ReportAllClients               | boolean         | Toggles if all clients in a frame or only the active one should be reported and thus displayed in pager applications etc.                                                 |
 | TrimTitle                      | string          | This string contains what pekwm uses to trim down overlong window titles. If it's empty, no trimming down is performed at all.                                            |
