@@ -1,6 +1,6 @@
 //
 // pekwm_ctrl.cc for pekwm
-// Copyright (C) 2021-2024 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -541,7 +541,7 @@ int main(int argc, char* argv[])
 		break;
 	case PEKWM_CTRL_ACTION_RESTACK:
 		std::cout << "_NET_RESTACK_WINDOW " << client << " "
-			  << sibling << " ";
+			  << sibling;
 		res = restackWindow(argc - optind, argv + optind, client,
 				    sibling);
 		printRes(res);
