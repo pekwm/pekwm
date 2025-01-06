@@ -427,8 +427,12 @@ PekwmPanel::handleEvent(XEvent* ev)
 		X11::setLastEventTime(ev->xcrossing.time);
 		break;
 	case Expose:
-		P_TRACE("Expose");
+		P_TRACE("Expose " << ev->xexpose.x << "x"
+			<< ev->xexpose.y << "x" << ev->xexpose.width << "x"
+			<< ev->xexpose.height);
 		handleExpose(&ev->xexpose);
+		break;
+	case NoExpose:
 		break;
 	case LeaveNotify:
 		P_TRACE("LeaveNotify");

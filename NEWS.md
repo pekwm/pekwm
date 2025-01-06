@@ -42,3 +42,5 @@ Removed
 * Added pekwm_panel_battery.sh script for retreiving battery charge level in a
   platform independent manner. Sets battery (0-100) and battery_status
   (ac|battery) variables.
+* Fix icon rendering as garbage + cache of scaled icons for improved
+  performance.

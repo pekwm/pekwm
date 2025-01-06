@@ -46,6 +46,7 @@ private:
 	void load(void);
 	bool loadImage(const std::string& icon_name);
 	void parseIcon(const CfgParser::Entry* section);
+	void scaleImage(uint width, uint height);
 
 private:
 	Os* _os;
@@ -68,7 +69,10 @@ private:
 
 	/** current loaded icon, matching _icon_name. */
 	PImage* _icon;
+	/** current loaded icon name. */
 	std::string _icon_name;
+	/** loaded icon, scaled to fit panel theme size. */
+	PImage* _icon_scaled;
 };
 
 #endif // _PEKWM_PANEL_ICON_WIDGET_HH_

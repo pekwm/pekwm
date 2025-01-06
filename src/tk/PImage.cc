@@ -250,8 +250,8 @@ PImage::PImage(PImage *image)
 	  _height(image->getHeight()),
 	  _use_alpha(image->_use_alpha)
 {
-	_data = new uchar[_width * _height];
-	memcpy(_data, image->getData(), _width * _height);
+	_data = new uchar[_width * _height * 4];
+	memcpy(_data, image->getData(), _width * _height * 4);
 }
 
 /**

@@ -25,7 +25,8 @@ IconWidget::IconWidget(Os* os,
 	  _wm_state(wm_state),
 	  _field(field),
 	  _scale(false),
-	  _icon(nullptr)
+	  _icon(nullptr),
+	  _icon_scaled(nullptr)
 {
 	parseIcon(section);
 
@@ -35,10 +36,11 @@ IconWidget::IconWidget(Os* os,
 
 IconWidget::~IconWidget(void)
 {
+	pekwm::observerMapping()->removeObserver(&_var_data, this);
 	if (_icon) {
 		pekwm::imageHandler()->returnImage(_icon);
 	}
-	pekwm::observerMapping()->removeObserver(&_var_data, this);
+	delete _icon_scaled;
 }
 
 void
@@ -83,6 +85,8 @@ IconWidget::render(Render& rend)
 	PanelWidget::render(rend);
 	if (_icon == nullptr) {
 		// do nothing, no icon to render
+		P_TRACE("IconWidget render " << _name << _ext
+			<< ", no icon loaded");
 	} else if (_scale) {
 		renderScaled(rend);
 	} else {
@@ -103,14 +107,20 @@ IconWidget::renderFixed(Render& rend)
 		height = _icon->getHeight();
 		width = _icon->getWidth();
 	}
-	_icon->draw(rend, getX() + 1, 1, width, height);
+	P_TRACE("IconWidget render " << _icon_name << " " << width << "x"
+		<< height << " (fixed)");
+	scaleImage(width, height);
+	_icon_scaled->draw(rend, getX() + 1, 1, width, height);
 }
 
 void
 IconWidget::renderScaled(Render& rend)
 {
 	uint side = _theme.getHeight() - 2;
-	_icon->draw(rend, getX() + 1, 1, side, side);
+	P_TRACE("IconWidget render " << _icon_name << " " << side << "x"
+		<< side << " (scaled)");
+	scaleImage(side, side);
+	_icon_scaled->draw(rend, getX() + 1, 1, side, side);
 }
 
 void
@@ -143,9 +153,16 @@ IconWidget::loadImage(const std::string& icon_name)
 	_icon = ih->getImage(icon_name);
 	if (_icon) {
 		_icon_name = icon_name;
+		P_TRACE("IconWidget loaded " << _icon_name << " "
+			<< _icon->getWidth() << "x" << _icon->getHeight());
 	} else {
 		_icon_name = "";
 	}
+
+	// delete cache whenever a new image is loaded (or fails to do so)
+	delete _icon_scaled;
+	_icon_scaled = nullptr;
+
 	return _icon != nullptr;
 }
 
@@ -177,4 +194,16 @@ IconWidget::parseIcon(const CfgParser::Entry* section)
 
 	// inital load of image to get size request right
 	load();
+}
+
+void
+IconWidget::scaleImage(uint width, uint height)
+{
+	if (_icon_scaled == nullptr
+	    || _icon_scaled->getWidth() != width
+	    || _icon_scaled->getHeight() != height) {
+		delete _icon_scaled;
+		_icon_scaled = new PImage(_icon);
+		_icon_scaled->scale(width, height);
+	}
 }

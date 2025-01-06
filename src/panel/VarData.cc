@@ -1,6 +1,6 @@
 //
 // VarData.cc for pekwm
-// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -33,8 +33,11 @@ VarData::set(const std::string& field, const std::string& value)
 {
 	// update the value in the map before notifying in case the
 	// value is read by the obvserver
-	_vars[field] = value;
+	std::map<std::string, std::string>::iterator it = _vars.find(field);
+	if (it == _vars.end() || it->second != value) {
+		_vars[field] = value;
 
-	FieldObservation field_obs(field);
-	pekwm::observerMapping()->notifyObservers(this, &field_obs);
+		FieldObservation field_obs(field);
+		pekwm::observerMapping()->notifyObservers(this, &field_obs);
+	}
 }
