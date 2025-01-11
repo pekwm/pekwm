@@ -1,6 +1,6 @@
 //
 // ExternalCommandData.cc for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -18,9 +18,11 @@ extern "C" {
 // ExternalCommandData::CommandProcess
 
 ExternalCommandData::CommandProcess::CommandProcess(const std::string& command,
-						    uint interval_s)
+						    uint interval_s,
+						    const std::string& assign)
 	: _command(command),
 	  _interval_s(interval_s),
+	  _assign(assign),
 	  _pid(-1),
 	  _fd(-1)
 {
@@ -31,13 +33,13 @@ ExternalCommandData::CommandProcess::CommandProcess(const std::string& command,
 	_next_interval.tv_sec--;
 }
 
-ExternalCommandData::CommandProcess::~CommandProcess(void)
+ExternalCommandData::CommandProcess::~CommandProcess()
 {
 	reset();
 }
 
 bool
-ExternalCommandData::CommandProcess::start(void)
+ExternalCommandData::CommandProcess::start()
 {
 	int fd[2];
 	int ret = pipe(fd);
@@ -80,10 +82,8 @@ ExternalCommandData::CommandProcess::start(void)
 	close(fd[1]);
 	Util::setNonBlock(_fd);
 	if (Debug::isLevel(Debug::LEVEL_TRACE)) {
-		std::ostringstream msg;
-		msg << "pid " << _pid << " started with fd "
-		    << _fd << " for command " << _command;
-		P_TRACE(msg.str());
+		P_TRACE("pid " << _pid << " started with fd "
+			<< _fd << " for command " << _command);
 	}
 	return true;
 }
@@ -115,8 +115,8 @@ ExternalCommandData::ExternalCommandData(const PanelConfig& cfg,
 	PanelConfig::command_config_it it = _cfg.commandsBegin();
 	for (; it != _cfg.commandsEnd(); ++it) {
 		_command_processes.push_back(
-				CommandProcess(it->getCommand(),
-					       it->getIntervalS()));
+			CommandProcess(it->getCommand(), it->getIntervalS(),
+				       it->getAssign()));
 	}
 }
 
@@ -159,7 +159,7 @@ ExternalCommandData::input(int fd)
 		_command_processes.begin();
 	for (; it != _command_processes.end(); ++it) {
 		if (it->getFd() == fd) {
-			append(it->getBuf(), buf, nread);
+			append(it->getBuf(), buf, nread, it->getAssign());
 			break;
 		}
 	}
@@ -189,13 +189,18 @@ ExternalCommandData::done(pid_t pid, fdFun removeFd, void *opaque)
 }
 
 void
-ExternalCommandData::append(std::string &buf, char *data, size_t size)
+ExternalCommandData::append(std::string &buf, const char *data, size_t size,
+			    const std::string &assign)
 {
 	buf.append(data, data + size);
 	size_t pos = buf.find('\n');
 	while (pos != std::string::npos) {
 		std::string line = buf.substr(0, pos);
-		parseLine(line);
+		if (assign.empty()) {
+			parseLine(line);
+		} else if (! line.empty()) {
+			_var_data.set(assign, line);
+		}
 		buf.erase(0, pos + 1);
 		pos = buf.find('\n');
 	}

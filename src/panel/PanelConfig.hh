@@ -1,6 +1,6 @@
 //
 // PanelConfig.hh for pekwm
-// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -66,17 +66,20 @@ private:
 class CommandConfig {
 public:
 	CommandConfig(const std::string& command,
-		      uint interval_s);
-	~CommandConfig(void);
+		      uint interval_s, const std::string& assign);
+	~CommandConfig();
 
-	const std::string& getCommand(void) const { return _command; }
-	uint getIntervalS(void) const { return _interval_s; }
+	const std::string& getCommand() const { return _command; }
+	uint getIntervalS() const { return _interval_s; }
+	const std::string& getAssign() const { return _assign; }
 
 private:
 	/** Command to run (using the shell) */
 	std::string _command;
 	/** Interval between runs, not including run time. */
 	uint _interval_s;
+	/** If non-empty, assign all line output to variable. */
+	std::string _assign;
 };
 
 /**

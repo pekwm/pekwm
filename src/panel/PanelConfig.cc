@@ -88,9 +88,10 @@ WidgetConfig::getArg(uint arg) const
 // CommandConfig
 
 CommandConfig::CommandConfig(const std::string& command,
-			     uint interval_s)
+			     uint interval_s, const std::string &assign)
 	: _command(command),
-	  _interval_s(interval_s)
+	  _interval_s(interval_s),
+	  _assign(assign)
 {
 }
 
@@ -154,15 +155,18 @@ PanelConfig::loadCommands(CfgParser::Entry *section)
 	CfgParser::Entry::entry_cit it = section->begin();
 	for (; it != section->end(); ++it) {
 		uint interval = UINT_MAX;
+		std::string assign;
 
 		if ((*it)->getSection()) {
 			CfgParserKeys keys;
 			keys.add_numeric<uint>("INTERVAL", interval, UINT_MAX);
+			keys.add_string("ASSIGN", assign);
 			(*it)->getSection()->parseKeyValues(keys.begin(),
 							    keys.end());
 			keys.clear();
 		}
-		_commands.push_back(CommandConfig((*it)->getValue(), interval));
+		_commands.push_back(CommandConfig((*it)->getValue(), interval,
+						  assign));
 	}
 }
 

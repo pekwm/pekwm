@@ -44,3 +44,5 @@ Removed
   (ac|battery) variables.
 * Fix icon rendering as garbage + cache of scaled icons for improved
   performance.
+* Add Assign option to Command section, if set, assign complete lines of output
+  to the variable name set in Assign instead of parsing the output.
