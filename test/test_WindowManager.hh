@@ -28,7 +28,18 @@ public:
 	}
 	virtual ~TestOs() { }
 
-	pid_t processExec(const std::vector<std::string> &args)
+	virtual bool getEnv(const std::string &, std::string &val,
+			    const std::string &val_default = "")
+	{
+		val = val_default;
+		return false;
+	}
+	virtual bool setEnv(const std::string &, const std::string &)
+	{
+		return false;
+	}
+
+	virtual pid_t processExec(const std::vector<std::string> &args)
 	{
 		std::string exec;
 		std::vector<std::string>::const_iterator it(args.begin());
@@ -42,7 +53,13 @@ public:
 		return ++_pid;
 	}
 
-	bool processSignal(pid_t pid, int signal)
+	virtual ChildProcess *childExec(const std::vector<std::string>&,
+					int flags, OsEnv *env)
+	{
+		return nullptr;
+	}
+
+	virtual bool processSignal(pid_t pid, int signal)
 	{
 		_signal_count++;
 		return true;

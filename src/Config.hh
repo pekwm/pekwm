@@ -276,6 +276,8 @@ public:
 	std::vector<ActionEvent> *getBorderListFromPosition(uint pos);
 	std::vector<ActionEvent> *getEdgeListFromPosition(uint pos);
 
+	bool isSysEnabled() const { return _sys_enabled; }
+
 	// map parsing
 	ActionAccessMask getActionAccessMask(const std::string &name);
 
@@ -323,6 +325,7 @@ private:
 	void loadMenuIcons(CfgParser::Entry *section);
 	void loadCmdDialog(CfgParser::Entry *section);
 	void loadHarbour(CfgParser::Entry *section);
+	bool loadSys(CfgParser::Entry *section);
 
 	void parseButtons(CfgParser::Entry *section,
 			  std::vector<ActionEvent>* mouse_list,
@@ -440,6 +443,9 @@ private:
 
 	mouse_action_map _mouse_action_map;
 	std::vector<BoundButton> _client_mouse_action_buttons;
+
+	// sys
+	bool _sys_enabled;
 };
 
 namespace pekwm

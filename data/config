@@ -23,3 +23,21 @@ Screen {
 //     File = "~/.pekwm/log"
 //     Level = "debug"
 // }
+
+// Sys {
+//     LocationLookup = "False"
+//     Latitude = "0.0"
+//     Longitude = "0.0"
+//     XSettings = "True"
+//     NetTheme = ""
+//     XResources {
+//         Day {
+//             "XTerm*background" = "#ffffff"
+//             "XTerm*foreground" = "#31363b"
+//         }
+//         Night {
+//             "XTerm*background" = "#22272e"
+//             "XTerm*foreground" = "#a5b1be"
+//         }
+//     }
+// }

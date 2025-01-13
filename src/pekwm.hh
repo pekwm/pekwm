@@ -16,6 +16,7 @@
 #include "AppCtrl.hh"
 #include "EventLoop.hh"
 #include "Os.hh"
+#include "Timeouts.hh"
 
 class Config;
 class RootWO;
@@ -32,6 +33,8 @@ namespace pekwm
 
 	bool isStarting(void);
 	void setStarted(void);
+
+	Timeouts *timeouts();
 
 	void setConfig(Config* cfg);
 	void setRootWO(RootWO* root_wo);

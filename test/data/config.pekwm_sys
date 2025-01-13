@@ -1,0 +1,7 @@
+Sys {
+	XSettings = "True"
+	LocationLookup = "False"
+	Latitude = "32.01"
+	Longitude = "16.01"
+	NetTheme = "Raleigh"
+}

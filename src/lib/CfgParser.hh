@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2023 Claes Nästénn <pekdon@gmail.com>
+// Copyright (C) 2005-2025 Claes Nästénn <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -59,7 +59,8 @@ class CfgParserOpt {
 public:
 	CfgParserOpt(const std::string& command_path)
 		: _command_path(command_path),
-		  _register_x_resource(false)
+		  _register_x_resource(false),
+		  _os(nullptr)
 	{
 	}
 
@@ -70,9 +71,13 @@ public:
 		_register_x_resource = register_x_resource;
 	}
 
+	Os *getOs() const { return _os; }
+	void setOs(Os *os) { _os = os; }
+
 private:
 	std::string _command_path;
 	bool _register_x_resource;
+	Os *_os;
 };
 
 //! @brief Configuration file parser.
@@ -95,6 +100,7 @@ public:
 
 		entry_cit begin(void) const { return _entries.begin(); }
 		entry_cit end(void) const { return _entries.end(); }
+		size_t size() const { return _entries.size(); }
 
 		const std::string &getName(void) const;
 		const std::string &getValue(void) const;
@@ -208,6 +214,7 @@ private:
 
 private:
 	CfgParserOpt _opt;
+	Os *_os;
 	CfgParserSource *_source;
 	std::vector<CfgParserVarExpander*> _var_expanders;
 	CfgParserVarExpander* _var_expander_mem;

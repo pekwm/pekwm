@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2005-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -7,6 +7,7 @@
 
 #include "Compat.hh"
 #include "CfgParserSource.hh"
+#include "Os.hh"
 #include "Util.hh"
 
 #include <iostream>
@@ -110,14 +111,6 @@ CfgParserSourceString::unget_char(int c)
 bool
 CfgParserSourceCommand::open(void)
 {
-	int fd[2];
-	int status;
-
-	status = pipe(fd);
-	if (status == -1) {
-		return false;
-	}
-
 	// Remove signal handler while parsing as otherwise reading from the
 	// pipe will break sometimes.
 	if (_sigaction_counter++ == 0) {
@@ -130,33 +123,21 @@ CfgParserSourceCommand::open(void)
 		sigaction(SIGCHLD, &action, &_sigaction);
 	}
 
-	_pid = fork();
-	if (_pid == -1) { // Error
+	// Run with command path in the PATH
+	OsEnv env;
+	std::string path(Util::getEnv("PATH"));
+	path = _command_path + ":" + path;
+	env.override("PATH", path);
+
+	std::vector<std::string> args;
+	args.push_back(PEKWM_SH);
+	args.push_back("-c");
+	args.push_back(_name);
+	_process = _os->childExec(args, ChildProcess::CHILD_IO_STDOUT, &env);
+	if (! _process) {
 		return false;
-
-	} else if (_pid == 0) { // Child
-		dup2(fd[1], STDOUT_FILENO);
-
-		::close(fd[0]);
-		::close(fd[1]);
-
-		OsEnv env;
-		std::string path(Util::getEnv("PATH"));
-		path = _command_path + ":" + path;
-		env.override("PATH", path);
-		execle(PEKWM_SH, PEKWM_SH, "-c", _name.c_str(), (void*) 0,
-		       env.getCEnv());
-
-		::close (STDOUT_FILENO);
-
-		exit (1);
-
-	} else { // Parent
-
-		::close (fd[1]);
-
-		_file = ::fdopen(fd[0], "r");
 	}
+	_file = ::fdopen(_process->getReadFd(), "r");
 	return true;
 }
 
@@ -171,14 +152,12 @@ CfgParserSourceCommand::close(void)
 	}
 	_sigaction_counter--;
 
-	// Close source.
 	fclose(_file);
-
-	// Wait for process.
-	int status;
-	int pid_status;
-
-	status = waitpid(_pid, &pid_status, 0);
+	pid_t pid = _process->getPid();
+	int exitcode;
+	bool status = _process->wait(exitcode);
+	delete _process;
+	_process = nullptr;
 
 	// If no other open CfgParserSourceCommand open, restore sigaction.
 	if (_sigaction_counter == 0) {
@@ -186,9 +165,9 @@ CfgParserSourceCommand::close(void)
 	}
 
 	// Wait failed, throw error
-	if (status == -1) {
+	if (! status) {
 		std::string msg =
-			"failed to wait for pid " + std::to_string(_pid);
+			"failed to wait for pid " + std::to_string(pid);
 		throw(msg);
 	}
 }

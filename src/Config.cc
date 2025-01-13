@@ -164,8 +164,7 @@ getDefaultScriptsPath()
 	return dir;
 }
 
-//! @brief Constructor for Config class
-Config::Config(void) :
+Config::Config() :
 	_debug_file("/dev/null"), _debug_level(Debug::LEVEL_WARN),
 	_moveresize_edgeattract(0), _moveresize_edgeresist(0),
 	_moveresize_woattract(0), _moveresize_woresist(0),
@@ -212,7 +211,8 @@ Config::Config(void) :
 	_harbour_placement(TOP),
 	_harbour_orientation(TOP_TO_BOTTOM),
 	_harbour_head_nr(0),
-	_harbour_opacity(EWMH_OPAQUE_WINDOW)
+	_harbour_opacity(EWMH_OPAQUE_WINDOW),
+	_sys_enabled(true)
 {
 	for (uint i = 0; i <= SCREEN_EDGE_NO; ++i) {
 		_screen_edge_sizes.push_back(0);
@@ -360,6 +360,11 @@ Config::load(const std::string &config_file)
 	section = cfg.getEntryRoot()->findSection("HARBOUR");
 	if (section) {
 		loadHarbour(section);
+	}
+
+	section = cfg.getEntryRoot()->findSection("SYS");
+	if (section) {
+		loadSys(section);
 	}
 
 	section = cfg.getEntryRoot()->findSection("DEBUG");
@@ -699,6 +704,19 @@ Config::loadHarbour(CfgParser::Entry *section)
 		sub->parseKeyValues(keys.begin(), keys.end());
 		keys.clear();
 	}
+}
+
+bool
+Config::loadSys(CfgParser::Entry *section)
+{
+	if (! section) {
+		return false;
+	}
+
+	CfgParserKeys keys;
+	keys.add_bool("ENABLE", _sys_enabled, true);
+	section->parseKeyValues(keys.begin(), keys.end());
+	return true;
 }
 
 /**

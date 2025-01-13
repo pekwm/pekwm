@@ -1284,13 +1284,9 @@ Theme::~Theme(void)
 bool
 Theme::load(const std::string &dir, const std::string &variant, bool force)
 {
-	std::string norm_dir(dir);
-	if (dir.size() && dir.at(dir.size() - 1) == '/') {
-		norm_dir.erase(norm_dir.end() - 1);
-	}
-	std::string theme_file(norm_dir + "/theme");
+	std::string norm_dir, theme_file, theme_file_variant;
+	getThemePaths(dir, variant, norm_dir, theme_file, theme_file_variant);
 	if (! variant.empty()) {
-		std::string theme_file_variant = theme_file + "-" + variant;
 		if (Util::isFile(theme_file_variant)) {
 			theme_file = theme_file_variant;
 		} else {
@@ -1523,4 +1519,28 @@ Theme::unload(void)
 	X11::clearRefResources();
 
 	_th->logTextures("theme unloaded");
+}
+
+/**
+ * Return true if the theme at dir has a theme variant named variant.
+ */
+bool
+Theme::variantExists(const std::string &dir, const std::string &variant)
+{
+	std::string norm_dir, file, variant_file;
+	getThemePaths(dir, variant, norm_dir, file, variant_file);
+	return Util::isFile(variant_file);
+}
+
+void
+Theme::getThemePaths(const std::string &dir, const std::string &variant,
+		     std::string &norm_dir, std::string &file,
+		     std::string &variant_file)
+{
+	norm_dir = dir;
+	if (dir.size() && dir.at(dir.size() - 1) == '/') {
+		norm_dir.erase(norm_dir.end() - 1);
+	}
+	file = norm_dir + "/theme";
+	variant_file = file + "-" + variant;
 }

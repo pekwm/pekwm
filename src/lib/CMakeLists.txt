@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 set(lib_SOURCES
+    Calendar.cc
     CfgParser.cc
     CfgParserKey.cc
     CfgParserSource.cc
@@ -9,6 +10,7 @@ set(lib_SOURCES
     Charset.cc
     CMakeLists.txt
     Compat.cc
+    Daytime.cc
     Debug.cc
     Geometry.cc
     HttpClient.cc
@@ -18,6 +20,7 @@ set(lib_SOURCES
     Os.cc
     RegexString.cc
     String.cc
+    Timeouts.cc
     Tokenizer.cc
     Util.cc
     X11.cc)

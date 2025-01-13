@@ -197,7 +197,8 @@ private:
 
 	static void clearLayoutModels(void);
 
-	static Window *buildClientList(unsigned int &num_windows);
+	static void buildClientList(std::vector<Window> &windows,
+				    bool report_all);
 	static bool warpToWorkspace(uint num, int dir);
 
 	static bool lowerFullscreenWindows(Layer new_layer);

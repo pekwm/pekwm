@@ -7,6 +7,7 @@
 //
 
 #include "Daytime.hh"
+#include "String.hh"
 
 extern "C" {
 #include <math.h>
@@ -70,9 +71,41 @@ time_of_day_to_string(enum TimeOfDay tod)
 	}
 }
 
+/**
+ * Get TimeOfDay from string.
+ */
+enum TimeOfDay
+time_of_day_from_string(const std::string &str)
+{
+	if (pekwm::ascii_ncase_equal(str, "DAWN")) {
+		return TIME_OF_DAY_DAWN;
+	} else if (pekwm::ascii_ncase_equal(str, "DAY")) {
+		return TIME_OF_DAY_DAY;
+	} else if (pekwm::ascii_ncase_equal(str, "DUSK")) {
+		return TIME_OF_DAY_DUSK;
+	} else {
+		return TIME_OF_DAY_NIGHT;
+	}
+}
+
+/**
+ * Default constructor, inits 0 daytime object
+ */
+Daytime::Daytime()
+	: _now(0),
+	  _sun_rise(0),
+	  _sun_set(0),
+	  _day_length_s(0)
+{
+}
+
+/**
+ * Create daytime object for the provided day, location and elevation.
+ */
 Daytime::Daytime(time_t ts, double latitude, double longitude,
 		 double elevation)
-	: _sun_rise(0),
+	: _now(ts),
+	  _sun_rise(0),
 	  _sun_set(0),
 	  _day_length_s(0)
 {
@@ -122,6 +155,16 @@ Daytime::~Daytime()
 {
 }
 
+Daytime&
+Daytime::operator=(const Daytime &rhs)
+{
+	_now = rhs._now;
+	_sun_rise = rhs.getSunRise();
+	_sun_set = rhs.getSunSet();
+	_day_length_s = rhs.getDayLengthS();
+	return *this;
+}
+
 /**
  * Get time of day for the given timestamp, if ts is outside of the range of
  * the given day Daytime was created for, TIME_OF_DAY_NIGHT is returned.
@@ -129,8 +172,30 @@ Daytime::~Daytime()
 enum TimeOfDay
 Daytime::getTimeOfDay(time_t ts)
 {
+	if (ts == 0) {
+		ts = _now;
+	}
 	if (ts < _sun_rise || ts > _sun_set) {
 		return TIME_OF_DAY_NIGHT;
 	}
 	return TIME_OF_DAY_DAY;
+}
+
+/**
+ * Get time of day when the current time of day state ends.
+ */
+time_t
+Daytime::getTimeOfDayEnd(time_t ts)
+{
+	if (ts == 0) {
+		ts = _now;
+	}
+	if (ts > _sun_set) {
+		// next day (without change in calculation)
+		return _sun_rise + int(seconds_per_day);
+	}
+	if (ts > _sun_rise) {
+		return _sun_set;
+	}
+	return _sun_rise;
 }

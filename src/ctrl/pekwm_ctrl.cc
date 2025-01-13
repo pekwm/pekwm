@@ -8,7 +8,9 @@
 
 #include "Compat.hh"
 #include "Charset.hh"
+#include "Daytime.hh"
 #include "Debug.hh"
+#include "Location.hh"
 #include "RegexString.hh"
 #include "Util.hh"
 #include "X11.hh"
@@ -72,6 +74,15 @@ static void usage(int ret)
 	std::cout << "  -w --window window  Client window" << std::endl;
 	std::cout << "  -W window           Other client window" << std::endl;
 	exit(ret);
+}
+
+static std::string formatTime(time_t ts)
+{
+	struct tm tm;
+	localtime_r(&ts, &tm);
+	char buf[32];
+	strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &tm);
+	return buf;
 }
 
 static CtrlAction getAction(const std::string& name)
@@ -362,6 +373,37 @@ static int actionUtil(int argc, char* argv[])
 		time_t ts = time(nullptr);
 		std::cout << std::to_string(ts) << std::endl;
 		return 0;
+	} else if (cmd == "location") {
+		Location location(mkHttpClient());
+		double latitude, longitude;
+		if (! location.get(latitude, longitude)) {
+			std::cerr << "failed to lookup location" << std::endl;
+			return 1;
+		}
+		std::cout << "latitude: " << latitude << " longitude: "
+			  << longitude << std::endl;
+		return 0;
+	} else if (cmd == "daytime") {
+		Location location(mkHttpClient());
+		double latitude, longitude;
+		if (argc == 3) {
+			try {
+				latitude = std::stod(argv[1]);
+				longitude = std::stod(argv[2]);
+			} catch (std::invalid_argument &ex) {
+				std::cerr << "invalid coordinates: "
+					  << ex.what() << std::endl;
+				return 1;
+			}
+		} else if (! location.get(latitude, longitude)) {
+			std::cerr << "failed to lookup location" << std::endl;
+			return 1;
+		}
+		Daytime daytime(time(NULL), latitude, longitude);
+		std::cout << "sun rise: " << formatTime(daytime.getSunRise())
+			  << " sun set: " << formatTime(daytime.getSunSet())
+			  << std::endl;
+		return 0;
 	} else {
 		std::cerr << "unknown util command: " << argv[0] << std::endl;
 		return 1;
@@ -509,17 +551,9 @@ int main(int argc, char* argv[])
 		return actionUtil(argc - optind, argv + optind);
 	}
 
-	Display *dpy = XOpenDisplay(display);
-	if (! dpy) {
-		std::string actual_display =
-			display ? display : Util::getEnv("DISPLAY");
-		std::cerr << "Can not open display!" << std::endl
-			  << "Your DISPLAY variable currently is set to: "
-			  << actual_display << std::endl;
+	if (! X11::init(display, std::cerr)) {
 		return 1;
 	}
-
-	X11::init(dpy, true);
 
 	// X11 connection has been setup, limit access further
 	pledge_x("stdio", "");

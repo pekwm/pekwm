@@ -56,7 +56,7 @@ X11App::X11App(Geometry gm, int gm_mask, const std::string &title,
 	  _buffer(None),
 	  _background(None),
 	  _stop(-1),
-	  _max_fd(-1)
+	  _select(mkOsSelect())
 {
 	_dpy_fd = ConnectionNumber(X11::getDpy());
 	addFd(_dpy_fd);
@@ -106,6 +106,7 @@ X11App::~X11App(void)
 		X11::xdbeFreeBackBuffer(_buffer);
 	}
 	X11::destroyWindow(_window);
+	delete _select;
 }
 
 /**
@@ -118,27 +119,13 @@ X11App::stop(uint code) { _stop = code; }
 void
 X11App::addFd(int fd)
 {
-	if (fd > _max_fd) {
-		_max_fd = fd;
-	}
-	_fds.push_back(fd);
+	_select->add(fd, OsSelect::OS_SELECT_READ);
 }
 
 void
 X11App::removeFd(int fd)
 {
-	_max_fd = 0;
-	std::vector<int>::iterator it = _fds.begin();
-	for (; it != _fds.end(); ) {
-		if (*it == fd) {
-			it = _fds.erase(it);
-		} else {
-			if (*it > _max_fd) {
-				_max_fd = *it;
-			}
-			++it;
-		}
-	}
+	_select->remove(fd);
 }
 
 int
@@ -157,7 +144,7 @@ X11App::main(uint timeout_s)
 				processEvent();
 				timed_out = false;
 			} else {
-				timed_out = waitForData(timeout_s);
+				timed_out = ! waitForData(timeout_s);
 			}
 		}
 	}
@@ -323,31 +310,21 @@ X11App::waitForData(int timeout_s)
 	// output is sent before waiting on a reply.
 	X11::flush();
 
-	fd_set rfds;
-	FD_ZERO(&rfds);
-	std::vector<int>::iterator it;
-	for (it = _fds.begin(); it != _fds.end(); ++it) {
-		FD_SET(*it, &rfds);
-	}
-
 	struct timeval timeout_val = { timeout_s, 0 };
 	struct timeval *timeout = timeout_s > 0 ? &timeout_val : nullptr;
-	int ret = select(_max_fd + 1, &rfds, nullptr, nullptr, timeout);
-	if (ret > 0) {
-		for (it = _fds.begin(); it != _fds.end(); ++it) {
-			if (! FD_ISSET(*it, &rfds)) {
-				continue;
-			}
-
-			if (*it == _dpy_fd) {
-				processEvent();
-			} else {
-				handleFd(*it);
-			}
-		}
+	if (! _select->wait(timeout)) {
+		return false;
 	}
 
-	return ret < 1;
+	int fd, mask;
+	while (_select->next(fd, mask)) {
+		if (fd == _dpy_fd) {
+			processEvent();
+		} else {
+			handleFd(fd);
+		}
+	}
+	return true;
 }
 
 void

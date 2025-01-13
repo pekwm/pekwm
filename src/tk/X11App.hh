@@ -1,6 +1,6 @@
 //
 // X11App.hh for pekwm
-// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -9,6 +9,7 @@
 #ifndef _PEKWM_X11APP_HH_
 #define _PEKWM_X11APP_HH_
 
+#include "Os.hh"
 #include "PWinObj.hh"
 #include "X11.hh"
 
@@ -58,9 +59,8 @@ private:
 	Pixmap _background;
 
 	int _stop;
-	std::vector<int> _fds;
 	int _dpy_fd;
-	int _max_fd;
+	OsSelect *_select;
 };
 
 #endif // _PEKWM_X11APP_HH_

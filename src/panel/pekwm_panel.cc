@@ -729,18 +729,11 @@ int main(int argc, char *argv[])
 	Util::expandFileName(_pekwm_config_file);
 	initEnvConfig(Util::getDir(_pekwm_config_file), _pekwm_config_file);
 
-	Display *dpy = XOpenDisplay(display);
-	if (! dpy) {
-		std::string actual_display =
-			display ? display : Util::getEnv("DISPLAY");
-		std::cerr << "Can not open display!" << std::endl
-			  << "Your DISPLAY variable currently is set to: "
-			  << actual_display << std::endl;
+	if (! X11::init(display, std::cerr)) {
 		return 1;
 	}
 
-	X11::init(dpy, true);
-	init(dpy);
+	init(X11::getDpy());
 
 	P_TRACE("pekwm_panel PID " << getpid());
 	{

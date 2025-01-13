@@ -22,6 +22,7 @@
 #include <vector>
 
 extern "C" {
+#include <string.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
 #include <X11/Xatom.h>
@@ -131,6 +132,8 @@ enum AtomName {
 	PEKWM_BG_PID,
 	PEKWM_CMD,
 	PEKWM_THEME,
+	PEKWM_THEME_VARIANT,
+	PEKWM_CLIENT_LIST,
 
 	// ICCCM Atom Names
 	WM_NAME,
@@ -151,6 +154,9 @@ enum AtomName {
 
 	XROOTPMAP_ID,
 	XSETROOT_ID,
+
+	// xsettings
+	XSETTINGS_SETTINGS,
 
 	// xembed, systray
 	XEMBED,
@@ -206,7 +212,6 @@ enum DirectionType {
 	DIRECTION_NO,
 	DIRECTION_IGNORED
 };
-
 
 /**
  * Max XEMBED_VERSION supported.
@@ -277,6 +282,27 @@ public:
 };
 
 /**
+ * XrmResrouceCb that collects all key/value pairs.
+ */
+class XrmResourceCbCollect : public XrmResourceCb {
+public:
+	typedef std::pair<std::string, std::string> string_pair;
+	typedef std::vector<string_pair> vector;
+
+	virtual ~XrmResourceCbCollect() { }
+
+	virtual bool visit(const std::string& key,
+			   const std::string& value);
+	virtual void sort();
+
+	vector::const_iterator begin() const { return _items.begin(); }
+	vector::const_iterator end() const { return _items.end(); }
+
+private:
+	vector _items;
+};
+
+/**
  * Wrapper for XRRScreenChangeNotifyEvent.
  */
 struct ScreenChangeNotification
@@ -294,12 +320,67 @@ class X11
 	static const unsigned KbdLayoutMask2 = 1<<14;
 
 public:
+	class ClassHint {
+	public:
+		ClassHint()
+		{
+			memset(&_xclass_hint, '\0', sizeof(_xclass_hint));
+		}
+
+		~ClassHint()
+		{
+			freeXClassHint();
+		}
+
+		ClassHint &operator=(XClassHint &xclass_hint)
+		{
+			freeXClassHint();
+			_xclass_hint = xclass_hint;
+			return *this;
+		}
+
+		/**
+		 * Get name of the class hint, or empty if unset.
+		 */
+		const char *getName() const
+		{
+			return _xclass_hint.res_name
+				? _xclass_hint.res_name : "";
+		}
+
+		/**
+		 * Get name of the class hint, or empty if unset.
+		 */
+		const char *getClass() const
+		{
+			return _xclass_hint.res_class
+				? _xclass_hint.res_class : "";
+		}
+
+	private:
+		void freeXClassHint()
+		{
+			if (_xclass_hint.res_name) {
+				X11::free(_xclass_hint.res_name);
+				_xclass_hint.res_name = nullptr;
+			}
+			if (_xclass_hint.res_class) {
+				X11::free(_xclass_hint.res_class);
+				_xclass_hint.res_class = nullptr;
+			}
+		}
+
+		XClassHint _xclass_hint;
+	};
+
+	static bool init(const char *display, std::ostream &os);
 	static void init(Display *dpy,
 			 bool synchronous = false,
 			 bool honour_randr = true);
 	static void destruct(void);
 
 	static Display* getDpy(void) { return _dpy; }
+	static int getFd() { return _fd; }
 	static int getScreenNum(void) { return _screen; }
 	static Window getRoot(void) { return _root; }
 	static const Geometry &getScreenGeometry(void) { return _screen_gm; }
@@ -379,7 +460,8 @@ public:
 	static void flush(void);
 	static int pending(void);
 
-	static bool getNextEvent(XEvent &ev, struct timeval *timeout = nullptr);
+	static bool getNextEvent(XEvent &ev);
+	static bool getWindowEvent(Window win, long event_mask, XEvent &ev);
 	static void allowEvents(int event_mode, Time time);
 	static bool grabServer(void);
 	static bool ungrabServer(bool sync);
@@ -407,6 +489,7 @@ public:
 	static AtomName getAtomName(const std::string& str);
 	static Atom getAtomId(const std::string& str);
 	static std::string getAtomIdString(Atom id);
+	static const char *getEventTypeString(int type);
 	static AtomName getAtomName(Atom id);
 	static void setAtom(Window win, AtomName aname, AtomName value);
 	static void setAtoms(Window win, AtomName aname, Atom *values,
@@ -414,8 +497,8 @@ public:
 	static void setEwmhAtomsSupport(Window win);
 	static bool getWindow(Window win, AtomName aname, Window& value);
 	static void setWindow(Window win, AtomName aname, Window value);
-	static void setWindows(Window win, AtomName aname, Window *values,
-			       int size);
+	static void setWindows(Window win, AtomName aname,
+			       const std::vector<Window> &windows);
 	static bool getCardinal(Window win, AtomName aname, Cardinal &value,
 				long format=XA_CARDINAL);
 	static void setCardinal(Window win, AtomName aname, Cardinal value,
@@ -431,7 +514,7 @@ public:
 				       unsigned char *values, uint length);
 	static bool getString(Window win, AtomName aname, std::string &value);
 	static bool getStringId(Window win, Atom id, std::string &value);
-	static void setString(Window win, AtomName aname,
+	static bool setString(Window win, AtomName aname,
 			      const std::string &value);
 
 	static bool listProperties(Window win, std::vector<Atom>& atoms);
@@ -441,6 +524,7 @@ public:
 	static bool getTextProperty(Window win, Atom atom, std::string &value);
 	static void *getEwmhPropData(Window win, AtomName prop,
 				     Atom type, int &num);
+	static bool getClassHint(Window win, ClassHint &class_hint);
 	static void unsetProperty(Window win, AtomName aname);
 
 	static void getMousePosition(int &x, int &y);
@@ -504,9 +588,10 @@ public:
 	static int sendEvent(Window dest, Bool propagate, long mask,
 			     XEvent *ev);
 
-	static int changeProperty(Window win, Atom prop, Atom type, int format,
-				  int mode, const unsigned char *data,
-				  int num_e);
+	static bool changeProperty(Window win, Atom prop, Atom type, int format,
+				   int mode, const unsigned char *data,
+				   int num_e);
+	static int deleteProperty(Window win, Atom prop);
 
 	static int getGeometry(Window win, unsigned *w, unsigned *h,
 			       unsigned *bw);
@@ -544,7 +629,8 @@ public:
 	static void shapeIntersectRect(Window dst, XRectangle *rect);
 	static void shapeSetMask(Window dst, int kind, Pixmap pix);
 
-	static void loadXrmResources(void);
+	static void loadXrmResources();
+	static void saveXrmResources();
 	static void enumerateXrmResources(XrmResourceCb* cb);
 
 	static bool getXrmString(const std::string& name, std::string& val);
@@ -577,7 +663,9 @@ private:
 	static bool _honour_randr; /**< If true, honor randr. */
 	static int _fd;
 
-	static int _screen, _depth;
+	static int _screen;
+	static int _depth;
+	static size_t _max_request_size;
 
 	static Geometry _screen_gm; /**< Full screen geometry (not head). */
 

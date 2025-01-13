@@ -128,6 +128,10 @@ Workspaces::cleanup()
 		delete it->second;
 	}
 	_win_layouters.clear();
+
+	X11::deleteProperty(X11::getRoot(), NET_CLIENT_LIST);
+	X11::deleteProperty(X11::getRoot(), NET_CLIENT_LIST_STACKING);
+	X11::deleteProperty(X11::getRoot(), PEKWM_CLIENT_LIST);
 }
 
 //! @brief Sets total amount of workspaces to number
@@ -249,19 +253,17 @@ void
 Workspaces::showWorkspaceIndicator(void)
 {
 	int timeout = pekwm::config()->getShowWorkspaceIndicator();
-	if (timeout > 0) {
-		WorkspaceIndicator *wsi = getWorkspaceIndicator();
-		wsi->render();
-		wsi->mapWindowRaised();
-		PWinObj::setSkipEnterAfter(wsi);
-
-		struct itimerval value;
-		timerclear(&value.it_value);
-		timerclear(&value.it_interval);
-		value.it_value.tv_sec += timeout / 1000;
-		value.it_value.tv_usec += (timeout % 1000) * 1000;
-		setitimer(ITIMER_REAL, &value, 0);
+	if (timeout < 1) {
+		return;
 	}
+
+	WorkspaceIndicator *wsi = getWorkspaceIndicator();
+	wsi->render();
+	wsi->mapWindowRaised();
+	PWinObj::setSkipEnterAfter(wsi);
+
+	TimeoutAction action(ACTION_HIDE_WORKSPACE_INDICATOR, timeout);
+	pekwm::timeouts()->replace(action);
 }
 
 void
@@ -1092,13 +1094,12 @@ Workspaces::getTopFocusableWO(uint type_mask)
  * Builds a list of all clients in stacking order, clients in the same
  * frame come after each other.
  */
-Window*
-Workspaces::buildClientList(unsigned int &num_windows)
+void
+Workspaces::buildClientList(std::vector<Window> &windows, bool report_all)
 {
 	Frame *frame;
 	Client *client, *client_active;
 
-	std::vector<Window> windows;
 	iterator it_f;
 	const_iterator it_c;
 	for (it_f = _wobjs.begin(); it_f != _wobjs.end(); ++it_f) {
@@ -1109,7 +1110,7 @@ Workspaces::buildClientList(unsigned int &num_windows)
 		frame = static_cast<Frame*>(*it_f);
 		client_active = frame->getActiveClient();
 
-		if (pekwm::config()->isReportAllClients()) {
+		if (report_all) {
 			for (it_c = frame->begin();
 			     it_c != frame->end();
 			     ++it_c) {
@@ -1126,30 +1127,27 @@ Workspaces::buildClientList(unsigned int &num_windows)
 			windows.push_back(client_active->getWindow());
 		}
 	}
-
-	num_windows = windows.size();
-	Window *wins = new Window[num_windows ? num_windows : 1];
-	if (num_windows > 0) {
-		std::copy(windows.begin(), windows.end(), wins);
-	}
-
-	return wins;
 }
 
 /**
- * Updates the Ewmh Client list hint.
+ * Updates EWMH and pekwm client list hints.
  */
 void
 Workspaces::updateClientList(void)
 {
-	uint num;
-	Window *windows = buildClientList(num);
+	bool report_all = pekwm::config()->isReportAllClients();
+	std::vector<Window> windows;
+	buildClientList(windows, report_all);
 	// previously, the lists where unset when they ended up empty
 	// however some applications does not support this, one
 	// example being tint2 on Debian Stretch
-	X11::setWindows(X11::getRoot(), NET_CLIENT_LIST, windows, num);
-	X11::setWindows(X11::getRoot(), NET_CLIENT_LIST_STACKING, windows, num);
-	delete [] windows;
+	X11::setWindows(X11::getRoot(), NET_CLIENT_LIST, windows);
+	X11::setWindows(X11::getRoot(), NET_CLIENT_LIST_STACKING, windows);
+	if (! report_all) {
+		windows.clear();
+		buildClientList(windows, true);
+	}
+	X11::setWindows(X11::getRoot(), PEKWM_CLIENT_LIST, windows);
 }
 
 /**
@@ -1158,12 +1156,12 @@ Workspaces::updateClientList(void)
 void
 Workspaces::updateClientStackingList(void)
 {
-	uint num;
-	Window *windows = buildClientList(num);
-	P_TRACE("updating _NET_CLIENT_LIST_STACKING with " << num
+	bool report_all = pekwm::config()->isReportAllClients();
+	std::vector<Window> windows;
+	buildClientList(windows, report_all);
+	P_TRACE("updating _NET_CLIENT_LIST_STACKING with " << windows.size()
 		<< " window(s)");
-	X11::setWindows(X11::getRoot(), NET_CLIENT_LIST_STACKING, windows, num);
-	delete [] windows;
+	X11::setWindows(X11::getRoot(), NET_CLIENT_LIST_STACKING, windows);
 }
 
 /**

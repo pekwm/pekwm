@@ -42,4 +42,17 @@ target_include_directories(test_util PUBLIC
 			   ${common_INCLUDE_DIRS})
 target_link_libraries(test_util lib ${common_LIBRARIES})
 
+add_executable(test_pekwm_sys
+	test_pekwm_sys.cc
+	../src/pekwm_env.cc
+	../src/sys/SysConfig.cc
+	../src/sys/XSettings.cc)
+add_test(NAME pekwm_sys
+	COMMAND test_pekwm_sys
+	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test/)
+target_include_directories(test_pekwm_sys PUBLIC
+			   ${PROJECT_SOURCE_DIR}/src
+			   ${common_INCLUDE_DIRS})
+target_link_libraries(test_pekwm_sys lib ${common_LIBRARIES})
+
 add_subdirectory(system)

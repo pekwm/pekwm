@@ -41,6 +41,11 @@ public:
 					    MouseEventType type,
 					    std::vector<ActionEvent> *actions);
 
+	void setSysProcess(ChildProcess *sys_process)
+	{
+		_sys_process = sys_process;
+	}
+
 private:
 	void handleAction(const ActionPerformed* ap, ActionEvent::it it);
 	bool handleWoAction(const ActionPerformed* ap, ActionEvent::it it);
@@ -83,6 +88,7 @@ private:
 				   const std::string &initial,
 				   Frame *frame, PWinObj *wo);
 	bool actionWarpPointer(int x, int y);
+	void actionSys(const std::string &cmd);
 
 	// action helpers
 	Client *findClientFromTitle(const std::string &title);
@@ -103,6 +109,7 @@ private:
 	Os* _os;
 	CmdDialog _cmd_dialog;
 	SearchDialog _search_dialog;
+	ChildProcess *_sys_process;
 
 	/** Map translating state modifiers to keycode. */
 	std::map<uint, uint> _state_to_keycode;

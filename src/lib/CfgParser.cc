@@ -305,6 +305,7 @@ operator<<(std::ostream &stream, const CfgParser::Entry &entry)
 
 CfgParser::CfgParser(const CfgParserOpt &opt)
 	: _opt(opt),
+	  _os(opt.getOs() == nullptr ? mkOs() : opt.getOs()),
 	  _source(nullptr),
 	  _root_entry(nullptr),
 	  _is_dynamic_content(false),
@@ -344,6 +345,10 @@ CfgParser::~CfgParser(void)
 	std::vector<CfgParserVarExpander*>::iterator it(_var_expanders.begin());
 	for (; it != _var_expanders.end(); ++it) {
 		delete *it;
+	}
+
+	if (! _opt.getOs()) {
+		delete _os;
 	}
 }
 
@@ -823,22 +828,30 @@ CfgParser::parseSkipBlank(CfgParserSource *source)
 CfgParserSource*
 CfgParser::sourceNew(const std::string &name, CfgParserSource::Type type)
 {
-	CfgParserSource *source = 0;
-
-	// Create CfgParserSource.
-	_source_names.push_back(name);
-	_source_name_set.insert(name);
+	CfgParserSource *source;
 	switch (type) {
 	case CfgParserSource::SOURCE_FILE:
+		_source_name_set.insert(name);
+		_source_names.push_back(name);
 		source = new CfgParserSourceFile(
 				*_source_name_set.find(name));
 		break;
 	case CfgParserSource::SOURCE_COMMAND:
+		_source_name_set.insert(name);
+		_source_names.push_back(name);
 		source = new CfgParserSourceCommand(
-				*_source_name_set.find(name),
+				*_source_name_set.find(name), _os,
 				_opt.commandPath());
 		break;
+	case CfgParserSource::SOURCE_STRING:
+		_source_name_set.insert("string");
+		_source_names.push_back("string");
+		source = new CfgParserSourceString(
+				*_source_name_set.find("string"),
+				name);
+		break;
 	default:
+		source = nullptr;
 		break;
 	}
 

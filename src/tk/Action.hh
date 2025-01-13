@@ -1,6 +1,6 @@
 //
 // Action.hh for pekwm
-// Copyright (C) 2003-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -108,6 +108,9 @@ enum ActionType {
 	ACTION_SET_OPACITY,
 
 	ACTION_DEBUG,
+	ACTION_SYS,
+	ACTION_HIDE_WORKSPACE_INDICATOR,
+
 	ACTION_NO
 };
 

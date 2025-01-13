@@ -15,6 +15,7 @@
 #include "ManagerWindows.hh"
 #include "KeyGrabber.hh"
 #include "StatusWindow.hh"
+#include "Timeouts.hh"
 
 #include "tk/FontHandler.hh"
 #include "tk/ImageHandler.hh"
@@ -38,6 +39,7 @@ static RootWO* _root_wo = nullptr;
 static StatusWindow* _status_window = nullptr;
 static TextureHandler* _texture_handler = nullptr;
 static Theme* _theme = nullptr;
+static Timeouts _timeouts;
 
 namespace pekwm
 {
@@ -219,5 +221,10 @@ namespace pekwm
 	void setStarted(void)
 	{
 		s_is_starting = false;
+	}
+
+	Timeouts *timeouts()
+	{
+		return &_timeouts;
 	}
 }

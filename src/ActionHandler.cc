@@ -10,7 +10,6 @@
 
 #include "ActionHandler.hh"
 
-#include "Charset.hh"
 #include "Debug.hh"
 #include "PDecor.hh"
 #include "PMenu.hh"
@@ -18,12 +17,9 @@
 #include "Client.hh"
 #include "ClientMgr.hh"
 #include "Config.hh"
-#include "CmdDialog.hh"
-#include "SearchDialog.hh"
 #include "Workspaces.hh"
 #include "Util.hh"
 #include "RegexString.hh"
-#include "WorkspaceIndicator.hh"
 #include "Harbour.hh"
 #include "MenuHandler.hh"
 #include "PDecor.hh"
@@ -43,13 +39,12 @@
 #include "tk/PWinObj.hh"
 #include "tk/X11Util.hh"
 
-#include <memory>
-
 ActionHandler::ActionHandler(AppCtrl* app_ctrl, EventLoop* event_loop,
 			     Os* os)
 	: _app_ctrl(app_ctrl),
 	  _event_loop(event_loop),
-	  _os(os)
+	  _os(os),
+	  _sys_process(nullptr)
 {
 	// Initialize state_to_keycode map
 	for (uint i = 0; i < X11::MODIFIER_TO_MASK_NUM; ++i) {
@@ -434,9 +429,15 @@ ActionHandler::handleAnyAction(const ActionPerformed* ap, ActionEvent::it it,
 	case ACTION_DEBUG:
 		Debug::doAction(it->getParamS());
 		break;
+	case ACTION_SYS:
+		actionSys(it->getParamS());
+		break;
 	case ACTION_WARP_POINTER:
 		actionWarpPointer(it->getParamI(0),
 				  it->getParamI(1));
+		break;
+	case ACTION_HIDE_WORKSPACE_INDICATOR:
+		Workspaces::hideWorkspaceIndicator();
 		break;
 	default:
 		return false;
@@ -851,6 +852,22 @@ ActionHandler::actionWarpToWorkspace(const ActionPerformed *ap, PDecor *decor,
 		decor->move(x + ap_o->offset_x, y + ap_o->offset_y);
 		decor->setWorkspace(Workspaces::getActive());
 	}
+}
+
+/**
+ * Forward command to the pekwm_sys process if it is running.
+ */
+void
+ActionHandler::actionSys(const std::string &cmd)
+{
+	if (! _sys_process || cmd.empty()) {
+		return;
+	}
+
+	uint32_t len = cmd.size();
+	_sys_process->write(reinterpret_cast<char*>(&len), sizeof(len));
+	_sys_process->write(cmd);
+	P_TRACE("sent " << cmd << " to pekwm_sys");
 }
 
 /**

@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2005-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -18,6 +18,7 @@ extern "C" {
 }
 
 #include "Compat.hh"
+#include "Os.hh"
 
 /**
  * Base class for configuration sources defining the interface and
@@ -146,11 +147,12 @@ private:
 class CfgParserSourceCommand : public CfgParserSourceFp
 {
 public:
-	CfgParserSourceCommand(const std::string &source,
+	CfgParserSourceCommand(const std::string &source, Os *os, 
 			       const std::string &command_path)
 		: CfgParserSourceFp(source),
+		  _os(os),
 		  _command_path(command_path),
-		  _pid(0)
+		  _process(nullptr)
 	{
 		_type = SOURCE_COMMAND;
 		_is_dynamic = true;
@@ -161,8 +163,9 @@ public:
 	virtual void close(void);
 
 private:
+	Os *_os;
 	std::string _command_path; /**< PATH override for command. */
-	pid_t _pid; /**< Process id of command generating output. */
+	ChildProcess *_process; /**< Process generating output. */
 	struct sigaction _sigaction; /**< sigaction for restore. */
 	static unsigned int _sigaction_counter; /**< Counts open. */
 };

@@ -1,6 +1,6 @@
 //
 // WindowManager.cc for pekwm
-// Copyright (C) 2023-2024 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2023-2025 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2002-2021 the pekwm development team
 //
 // windowmanager.cc for aewm++
@@ -74,7 +74,6 @@ extern "C" {
 	static bool is_signal = false;
 	static bool is_signal_hup = false;
 	static bool is_signal_int_term = false;
-	static bool is_signal_alrm = false;
 	static bool is_signal_chld = false;
 
 	/**
@@ -95,10 +94,6 @@ extern "C" {
 			break;
 		case SIGCHLD:
 			is_signal_chld = true;
-			break;
-		case SIGALRM:
-			// Do nothing, just used to break out of waiting
-			is_signal_alrm = true;
 			break;
 		}
 	}
@@ -135,7 +130,7 @@ WindowManager::start(const std::string &config_file,
 	} else {
 		P_DBG("pekwm_wm " << getpid() << " starting")
 
-		wm->setupDisplay(dpy);
+		wm->setupDisplay();
 		wm->scanWindows();
 		Frame::resetFrameIDs();
 
@@ -149,6 +144,7 @@ WindowManager::start(const std::string &config_file,
 			Workspaces::addToMRUBack(*it);
 		}
 
+		wm->startSys();
 		wm->startBackground(pekwm::theme()->getThemeDir(),
 				    pekwm::theme()->getBackground());
 		wm->execStartFile();
@@ -162,7 +158,9 @@ WindowManager::WindowManager(Os *os)
 	  _shutdown(false),
 	  _reload(false),
 	  _restart(false),
+	  _select(mkOsSelect()),
 	  _bg_pid(-1),
+	  _sys_process(nullptr),
 	  _event_handler(nullptr),
 	  _skip_enter(false)
 {
@@ -182,13 +180,6 @@ WindowManager::WindowManager(Os *os)
 	sigaction(SIGINT, &act, 0);
 	sigaction(SIGHUP, &act, 0);
 	sigaction(SIGCHLD, &act, 0);
-	sigaction(SIGALRM, &act, 0);
-	/* disable re-start of system calls (select, which main loop is blocked
-	 * on) in case og SIGALRM. default on, on OpenBSD causing the workspace
-	 * indicator to stick */
-#ifndef __linux__
-	siginterrupt(SIGALRM, 1);
-#endif /* !__linux__ */
 }
 
 //! @brief WindowManager destructor
@@ -199,6 +190,8 @@ WindowManager::~WindowManager(void)
 	MenuHandler::deleteMenus();
 	Workspaces::cleanup();
 
+	delete _sys_process;
+	delete _select;
 	delete _os;
 }
 
@@ -227,6 +220,7 @@ void
 WindowManager::cleanup(void)
 {
 	stopBackground();
+	stopSys();
 
 	// update all nonactive clients properties
 	Frame::frame_cit it_f(Frame::frame_begin());
@@ -280,8 +274,10 @@ WindowManager::cleanup(void)
  * Setup display and claim resources.
  */
 void
-WindowManager::setupDisplay(Display* dpy)
+WindowManager::setupDisplay()
 {
+	_select->add(X11::getFd(), OsSelect::OS_SELECT_READ);
+
 	pekwm::autoProperties()->load();
 
 	Workspaces::setSize(pekwm::config()->getWorkspaces());
@@ -289,7 +285,8 @@ WindowManager::setupDisplay(Display* dpy)
 
 	MenuHandler::createMenus(pekwm::actionHandler());
 
-	XDefineCursor(dpy, X11::getRoot(), X11::getCursor(CURSOR_ARROW));
+	XDefineCursor(X11::getDpy(), X11::getRoot(),
+		      X11::getCursor(CURSOR_ARROW));
 
 	X11::selectXRandrInput();
 
@@ -471,6 +468,14 @@ WindowManager::doReload(void)
 	pekwm::rootWo()->setEwmhDesktopNames();
 	pekwm::rootWo()->setEwmhDesktopLayout();
 
+	// (re)start pekwm_sys if it is enabled and not running, either because
+	// a crash or it was not previously enabled.
+	if (pekwm::config()->isSysEnabled()) {
+		startSys();
+	} else {
+		stopSys();
+	}
+
 	_reload = false;
 }
 
@@ -577,7 +582,6 @@ WindowManager::startBackground(const std::string& theme_dir,
 			P_LOG("started " BINDIR "/pekwm_bg --load-dir "
 			      << theme_dir + "/backgrounds " << texture
 			      << " -> pid " << _bg_pid);
-
 		}
 	} else {
 		stopBackground();
@@ -594,6 +598,35 @@ WindowManager::stopBackground(void)
 	}
 	_bg_pid = -1;
 	_bg_args = "";
+}
+
+/**
+ * Start pekwm_sys process if it is enabled in the configuration.
+ */
+void
+WindowManager::startSys()
+{
+	if (! pekwm::config()->isSysEnabled() || _sys_process) {
+		return;
+	}
+	std::vector<std::string> args;
+	args.push_back(BINDIR "/pekwm_sys");
+	_sys_process = _os->childExec(args, ChildProcess::CHILD_IO_ALL);
+	if (_sys_process) {
+		P_LOG("started " BINDIR "/pekwm_sys -> pid "
+		      << _sys_process->getPid());
+		pekwm::actionHandler()->setSysProcess(_sys_process);
+	}
+}
+
+void
+WindowManager::stopSys()
+{
+	if (_sys_process) {
+		// SIGCHILD will take care of waiting for the child
+		P_LOG("stopping pekwm_sys pid " << _sys_process->getPid());
+		_os->processSignal(_sys_process->getPid(), SIGKILL);
+	}
 }
 
 /**
@@ -722,13 +755,6 @@ WindowManager::restart(std::string command)
 void
 WindowManager::handleSignals(void)
 {
-	// SIGALRM used to timeout workspace indicator
-	if (is_signal_alrm) {
-		P_TRACE("handle SIGALRM");
-		is_signal_alrm = false;
-		Workspaces::hideWorkspaceIndicator();
-	}
-
 	// SIGHUP
 	if (is_signal_hup || _reload) {
 		P_TRACE("handle SIGHUP or reload");
@@ -738,7 +764,7 @@ WindowManager::handleSignals(void)
 
 	// Wait for children if a SIGCHLD was received
 	if (is_signal_chld) {
-		P_TRACE("handle SIGHUP");
+		P_TRACE("handle SIGCHLD");
 		pid_t pid;
 		do {
 			pid = waitpid(WAIT_ANY, nullptr, WNOHANG);
@@ -749,6 +775,19 @@ WindowManager::handleSignals(void)
 				}
 			} else if (pid == 0) {
 				P_TRACE("no more finished child processes");
+			} else if (pid == _bg_pid) {
+				P_WARN("pekwm_bg stopped unexpectedly");
+				showDialog("pekwm: warning",
+					   "pekwm_bg stopped unexpectedly");
+				_bg_pid = -1;
+			} else if (_sys_process
+				   && pid == _sys_process->getPid()) {
+				P_WARN("pekwm_sys stopped unexpectedly");
+				showDialog("pekwm: warning",
+					   "pekwm_sys stopped unexpectedly");
+				delete _sys_process;
+				_sys_process = nullptr;
+				pekwm::actionHandler()->setSysProcess(nullptr);
 			} else {
 				P_TRACE("child process " << pid
 					<< " finished");
@@ -762,8 +801,6 @@ WindowManager::handleSignals(void)
 void
 WindowManager::doEventLoop(void)
 {
-	XEvent ev;
-
 	while (! _shutdown && ! is_signal_int_term) {
 		if (is_signal) {
 			handleSignals();
@@ -773,18 +810,49 @@ WindowManager::doEventLoop(void)
 			doReload();
 		}
 
-		// Get next event, drop event handling if none was given
-		if (X11::getNextEvent(ev)) {
-			if (! _event_handler || ! handleEventHandlerEvent(ev)) {
-				handleEvent(ev);
-			}
+		XEvent ev;
+		if (getEvent(ev) && ! handleEventHandlerEvent(ev)) {
+			handleEvent(ev);
 		}
 	}
+}
+
+/**
+ * Get next X11 event, handling timeout actions if any.
+ */
+bool
+WindowManager::getEvent(XEvent &ev)
+{
+	if (X11::pending() > 0) {
+		X11::getNextEvent(ev);
+		return true;
+	}
+
+	TimeoutAction ta;
+	struct timeval *tv;
+	if (pekwm::timeouts()->getNextTimeout(&tv, ta)) {
+		ActionHandler *action_handler = pekwm::actionHandler();
+
+		Action action(static_cast<enum ActionType>(ta.getKey()));
+		ActionEvent ae(action);
+		ActionPerformed ap(nullptr, ae);
+		action_handler->handleAction(&ap);
+	} else if (_select->wait(tv)) {
+		if (_select->isSet(X11::getFd(),
+				   OsSelect::OS_SELECT_READ)) {
+			return X11::getNextEvent(ev);
+		}
+	}
+	return false;
 }
 
 bool
 WindowManager::handleEventHandlerEvent(XEvent &ev)
 {
+	if (_event_handler == nullptr) {
+		return false;
+	}
+
 	EventHandler::Result res;
 	switch (ev.type) {
 	case ButtonPress:
@@ -1723,4 +1791,16 @@ WindowManager::recvPekwmCmd(XClientMessageEvent *ev)
 		_pekwm_cmd_buf = "";
 		return false;
 	}
+}
+
+/**
+ * Show dialog with the set title and message using pekwm_dialog.
+ */
+void
+WindowManager::showDialog(const std::string &title, const std::string &msg)
+{
+	std::vector<std::string> args;
+	args.push_back(BINDIR "/pekwm_dialog");
+	args.push_back(msg);
+	_os->processExec(args);
 }

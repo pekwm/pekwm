@@ -1,6 +1,6 @@
 //
 // X11.cc for pekwm
-// Copyright (C) 2022-2024 Claes Nästén
+// Copyright (C) 2022-2025 Claes Nästén
 // Copyright (C) 2009-2021 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -8,6 +8,7 @@
 //
 
 #include "config.h"
+#include "Util.hh"
 
 #include <string>
 #include <iostream>
@@ -158,6 +159,8 @@ static const char *atomnames[] = {
 	"_PEKWM_BG_PID",
 	"_PEKWM_CMD",
 	"_PEKWM_THEME",
+	"_PEKWM_THEME_VARIANT",
+	"_PEKWM_CLIENT_LIST",
 
 	// ICCCM atoms
 	"WM_NAME",
@@ -178,6 +181,9 @@ static const char *atomnames[] = {
 
 	"_XROOTPMAP_ID",
 	"_XSETROOT_ID",
+
+	// xsettings
+	"_XSETTINGS_SETTINGS",
 
 	// xembed, systray
 	"_XEMBED",
@@ -248,6 +254,27 @@ std::ostream& operator<<(std::ostream &stream, const Strut &strut)
 	return stream;
 }
 
+typedef std::pair<std::string, std::string> string_pair;
+
+static bool
+_string_pair_key_comp(const string_pair &lhs, const string_pair &rhs)
+{
+	return lhs.first < rhs.first;
+}
+
+bool
+XrmResourceCbCollect::visit(const std::string& key, const std::string& value)
+{
+	_items.push_back(string_pair(key, value));
+	return true;
+}
+
+void
+XrmResourceCbCollect::sort()
+{
+	std::sort(_items.begin(), _items.end(), _string_pair_key_comp);
+}
+
 /**
  * Helper class for XColor.
  */
@@ -271,6 +298,27 @@ private:
 	XColor _xc;
 	uint _ref;
 };
+
+/**
+ * Open X11 connection and init X11, if open fails output error on the provided
+ * output stream and return false.
+ */
+bool
+X11::init(const char *display, std::ostream &os)
+{
+	Display *dpy = XOpenDisplay(display);
+	if (! dpy) {
+		std::string actual_display =
+			display ? display : Util::getEnv("DISPLAY");
+		os << "Can not open display!" << std::endl
+		   << "Your DISPLAY variable currently is set to: "
+		   << actual_display << std::endl;
+		return false;
+	}
+
+	X11::init(dpy);
+	return true;
+}
 
 /**
  * Init X11 connection, must be called before any X11:: call is made.
@@ -298,6 +346,7 @@ X11::init(Display *dpy, bool synchronous, bool honour_randr)
 	_root = RootWindow(_dpy, _screen);
 
 	_depth = DefaultDepth(_dpy, _screen);
+	_max_request_size = XMaxRequestSize(_dpy) << 2;
 	_visual = DefaultVisual(_dpy, _screen);
 	_gc = DefaultGC(_dpy, _screen);
 	XGCValues gv;
@@ -617,31 +666,25 @@ X11::pending(void)
  * @return true if event was fetched, else false.
  */
 bool
-X11::getNextEvent(XEvent &ev, struct timeval *timeout)
+X11::getNextEvent(XEvent &ev)
 {
-	// A call to flush was previously used when no pending events was
-	// found, however accoarding to the XFlush man page XPending does
-	// flush by itself.
-	//
-	// This reportedly fixes lockups and the change was suggested
-	// by Christian Zander
-	if (pending()) {
+	if (_dpy) {
 		XNextEvent(_dpy, &ev);
 		return true;
 	}
+	return false;
+}
 
-	int ret;
-	fd_set rfds;
-
-	FD_ZERO(&rfds);
-	FD_SET(_fd, &rfds);
-
-	ret = select(_fd + 1, &rfds, nullptr, nullptr, timeout);
-	if (ret > 0) {
-		XNextEvent(_dpy, &ev);
+/**
+ * Wrapper for XWindowEvent
+ */
+bool
+X11::getWindowEvent(Window win, long event_mask, XEvent &ev)
+{
+	if (_dpy) {
+		return XWindowEvent(_dpy, win, event_mask, &ev) == Success;
 	}
-
-	return ret > 0;
+	return false;
 }
 
 void
@@ -1120,6 +1163,85 @@ X11::getAtomIdString(Atom id)
 	return name;
 }
 
+const char*
+X11::getEventTypeString(int type)
+{
+	switch (type) {
+	case KeyPress:
+		return "KeyPress";
+	case KeyRelease:
+		return "KeyRelease";
+	case ButtonPress:
+		return "ButtonPress";
+	case ButtonRelease:
+		return "ButtonRelease";
+	case MotionNotify:
+		return "MotionNotify";
+	case EnterNotify:
+		return "EnterNotify";
+	case LeaveNotify:
+		return "LeaveNotify";
+	case FocusIn:
+		return "FocusIn";
+	case FocusOut:
+		return "KeymapNotify";
+	case KeymapNotify:
+		return "KeymapNotify";
+	case Expose:
+		return "Expose";
+	case GraphicsExpose:
+		return "GraphicsExpose";
+	case NoExpose:
+		return "NoExpose";
+	case VisibilityNotify:
+		return "VisibilityNotify";
+	case CreateNotify:
+		return "CreateNotify";
+	case DestroyNotify:
+		return "DestroyNotify";
+	case UnmapNotify:
+		return "UnmapNotify";
+	case MapNotify:
+		return "MapNotify";
+	case MapRequest:
+		return "MapRequest";
+	case ReparentNotify:
+		return "ReparentNotify";
+	case ConfigureNotify:
+		return "ConfigureNotify";
+	case ConfigureRequest:
+		return "ConfigureRequest";
+	case GravityNotify:
+		return "GravityNotify";
+	case ResizeRequest:
+		return "ResizeRequest";
+	case CirculateNotify:
+		return "CirculateNotify";
+	case CirculateRequest:
+		return "CirculateRequest";
+	case PropertyNotify:
+		return "PropertyNotify";
+	case SelectionClear:
+		return "SelectionClear";
+	case SelectionRequest:
+		return "SelectionRequest";
+	case SelectionNotify:
+		return "SelectionNotify";
+	case ColormapNotify:
+		return "ColormapNotify";
+	case ClientMessage:
+		return "ClientMessage";
+	case MappingNotify:
+		return "MappingNotify";
+#ifdef GenericEvent
+	case GenericEvent:
+		return "GenericEvent";
+#endif // GenericEvent
+	default:
+		return "UNKNOWN";
+	}
+}
+
 AtomName
 X11::getAtomName(Atom atom)
 {
@@ -1173,10 +1295,12 @@ X11::setWindow(Window win, AtomName aname, Window value)
 }
 
 void
-X11::setWindows(Window win, AtomName aname, Window *values, int size)
+X11::setWindows(Window win, AtomName aname, const std::vector<Window> &windows)
 {
 	changeProperty(win, _atoms[aname], XA_WINDOW, 32, PropModeReplace,
-		       reinterpret_cast<uchar*>(values), size);
+		       // not using .data(), not available on all C++98 variants
+		       reinterpret_cast<const uchar*>(&windows.front()),
+						      windows.size());
 }
 
 bool
@@ -1259,12 +1383,12 @@ X11::getStringId(Window win, Atom id, std::string &value)
 	return false;
 }
 
-void
+bool
 X11::setString(Window win, AtomName aname, const std::string &value)
 {
-	changeProperty(win, _atoms[aname], XA_STRING, 8, PropModeReplace,
-		       reinterpret_cast<const uchar*>(value.c_str()),
-		       value.size());
+	return changeProperty(win, _atoms[aname], XA_STRING, 8, PropModeReplace,
+			      reinterpret_cast<const uchar*>(value.c_str()),
+			      value.size());
 }
 
 bool
@@ -1373,6 +1497,20 @@ X11::getEwmhPropData(Window win, AtomName prop, Atom type, int &num)
 	return prop_data;
 }
 
+/**
+ * Get XClassHint for the given window.
+ */
+bool
+X11::getClassHint(Window win, X11::ClassHint &class_hint)
+{
+	XClassHint xclass_hint;
+	if (_dpy && XGetClassHint(_dpy, win, &xclass_hint)) {
+		class_hint = xclass_hint;
+		return true;
+	}
+	return false;
+}
+
 void
 X11::unsetProperty(Window win, AtomName aname)
 {
@@ -1448,13 +1586,48 @@ X11::setCardinal(Window win, AtomName aname, Cardinal value, long format)
 		       PropModeReplace, reinterpret_cast<uchar*>(&value), 1);
 }
 
-int
+/**
+ * Set property on window, split up request if larger than max request size.
+ */
+bool
 X11::changeProperty(Window win, Atom prop, Atom type, int format,
 		    int mode, const unsigned char *data, int num_e)
 {
-	if (_dpy) {
+	if (! _dpy) {
+		return false;
+	}
+
+	size_t e_size = format / 8;
+	size_t req_size = e_size * num_e;
+	if (req_size < _max_request_size) {
+		// simple path, fits within single request
 		return XChangeProperty(_dpy, win, prop, type, format, mode,
-				       data, num_e);
+				       data, num_e) == Success;
+	}
+
+	grabServer();
+	size_t e_per_req = _max_request_size / e_size;
+	size_t e_left = req_size / e_per_req;
+	do {
+		XChangeProperty(_dpy, win, prop, type, format, mode, data,
+				std::min(e_left, e_per_req));
+		data += std::min(e_left, e_per_req) * e_size;
+		e_left -= std::min(e_left, e_per_req);
+		mode = PropModeAppend;
+	} while (e_left > 0);
+	ungrabServer(false);
+
+	return true;
+}
+
+/**
+ * Remove property from window.
+ */
+int
+X11::deleteProperty(Window win, Atom prop)
+{
+	if (_dpy) {
+		return XDeleteProperty(_dpy, win, prop);
 	}
 	return BadImplementation;
 }
@@ -2111,7 +2284,8 @@ void
 X11::stackWindows(const std::vector<Window> &windows)
 {
 	if (_dpy && ! windows.empty()) {
-		XRestackWindows(_dpy, const_cast<Window*>(windows.data()),
+		// not using .data(), not available on all C++98 variants
+		XRestackWindows(_dpy, const_cast<Window*>(&windows.front()),
 				windows.size());
 	}
 }
@@ -2166,8 +2340,36 @@ X11::loadXrmResources()
 	// not using XResourceManagerString as the result is cached
 	// even if the resources on the display gets updated
 	std::string xrm;
-	if (getString(_root, RESOURCE_MANAGER, xrm)) {
-		_xrm_db = XrmGetStringDatabase(xrm.c_str());
+	// ignoring the result here, initialize an empty database if the
+	// resource is missing
+	getString(_root, RESOURCE_MANAGER, xrm);
+	_xrm_db = XrmGetStringDatabase(xrm.c_str());
+}
+
+/**
+ * Merge the currently set Xrm resources with the ones set on the display.
+ */
+void
+X11::saveXrmResources()
+{
+	if (! _xrm_db) {
+		return;
+	}
+
+	XrmResourceCbCollect resources;
+	enumerateXrmResources(&resources);
+	resources.sort();
+
+	std::stringstream buf;
+	XrmResourceCbCollect::vector::const_iterator it(resources.begin());
+	for (; it != resources.end(); ++it) {
+		buf << it->first << ":\t" << it->second << "\n";
+	}
+	const std::string &resources_str = buf.str();
+	if (resources_str.empty()) {
+		deleteProperty(_root, RESOURCE_MANAGER);
+	} else {
+		setString(_root, RESOURCE_MANAGER, buf.str());
 	}
 }
 
@@ -2249,7 +2451,7 @@ X11::getXrmString(const std::string& name, std::string& val)
 bool
 X11::setXrmString(const std::string& name, const std::string& val)
 {
-	if (_xrm_db) {
+	if (_dpy) {
 		XrmPutStringResource(&_xrm_db, name.c_str(), val.c_str());
 		return true;
 	}
@@ -2290,6 +2492,7 @@ bool X11::_honour_randr = false;
 int X11::_fd = -1;
 int X11::_screen = -1;
 int X11::_depth = -1;
+size_t X11::_max_request_size = 4096; // protocol minimum
 Geometry X11::_screen_gm;
 Window X11::_root = None;
 Visual *X11::_visual = 0;

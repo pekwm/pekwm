@@ -71,10 +71,13 @@ protected:
 
 	void startBackground(const std::string& theme_dir,
 			     const std::string& texture);
-	void stopBackground(void);
+	void stopBackground();
+
+	void startSys();
+	void stopSys();
 
 private:
-	void setupDisplay(Display* dpy);
+	void setupDisplay();
 	void scanWindows(void);
 	void execStartFile(void);
 
@@ -98,6 +101,7 @@ private:
 	void screenEdgeResize(void);
 	void screenEdgeMapUnmap(void);
 
+	bool getEvent(XEvent &ev);
 	void handleEvent(XEvent &ev);
 	bool handleEventHandlerEvent(XEvent &ev);
 
@@ -132,6 +136,7 @@ private:
 	void initHints(void);
 
 	Client *createClient(Window window, bool is_new);
+	void showDialog(const std::string &title, const std::string &msg);
 
 protected:
 	/** OS interface for process handling etc. */
@@ -145,7 +150,11 @@ private:
 	bool _restart;
 	std::string _restart_command;
 	std::string _bg_args;
+	OsSelect *_select;
+	/** PID of the pekwm_bg helper */
 	pid_t _bg_pid;
+	/** ChildProcess for the pekwm_sys helper */
+	ChildProcess *_sys_process;
 
 	EventHandler *_event_handler;
 

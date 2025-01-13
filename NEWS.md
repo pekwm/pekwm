@@ -63,3 +63,9 @@ Removed
   performance.
 * Add Assign option to Command section, if set, assign complete lines of output
   to the variable name set in Assign instead of parsing the output.
+
+## pekwm_sys
+
+* New process acting as an XSETTINGS daemon, tracks daytime changes and updates
+  X resources/XSETTINGS on daytime change in order to support automatic
+  light/dark mode changing.

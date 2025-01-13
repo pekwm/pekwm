@@ -9,7 +9,10 @@
 #ifndef _PEKWM_DAYTIME_HH_
 #define _PEKWM_DAYTIME_HH_
 
+#include <string>
+extern "C" {
 #include <time.h>
+}
 
 enum TimeOfDay {
 	TIME_OF_DAY_NIGHT,
@@ -19,6 +22,7 @@ enum TimeOfDay {
 };
 
 const char *time_of_day_to_string(enum TimeOfDay tod);
+enum TimeOfDay time_of_day_from_string(const std::string &str);
 
 /**
  * Class used to calculate sun rise and set times based on the given
@@ -28,17 +32,22 @@ const char *time_of_day_to_string(enum TimeOfDay tod);
  */
 class Daytime {
 public:
+	Daytime();
 	Daytime(time_t now, double latitude, double longitude,
 		double elevation=0.0);
 	~Daytime();
+
+	Daytime &operator=(const Daytime &rhs);
 
 	time_t getSunRise() const { return _sun_rise; }
 	time_t getSunSet() const { return _sun_set; }
 	int getDayLengthS() const { return _day_length_s; }
 
-	enum TimeOfDay getTimeOfDay(time_t ts);
+	enum TimeOfDay getTimeOfDay(time_t ts = 0);
+	time_t getTimeOfDayEnd(time_t ts = 0);
 
 private:
+	time_t _now;
 	time_t _sun_rise;
 	time_t _sun_set;
 	int _day_length_s;

@@ -837,12 +837,10 @@ void
 Client::readClassRoleHints(void)
 {
 	// class hint
-	XClassHint class_hint;
-	if (XGetClassHint(X11::getDpy(), _window, &class_hint)) {
-		_class_hint->h_name = class_hint.res_name;
-		_class_hint->h_class = class_hint.res_class;
-		X11::free(class_hint.res_name);
-		X11::free(class_hint.res_class);
+	X11::ClassHint class_hint;
+	if (X11::getClassHint(_window, class_hint)) {
+		_class_hint->h_name = class_hint.getName();
+		_class_hint->h_class = class_hint.getClass();
 	}
 
 	// wm window role

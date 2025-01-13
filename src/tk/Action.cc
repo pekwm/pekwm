@@ -119,6 +119,7 @@ static Util::StringTo<std::pair<ActionType, uint> > action_map[] =
 	 {"WarpPointer", action_pair(ACTION_WARP_POINTER, ANY_MASK)},
 	 {"SetOpacity", action_pair(ACTION_SET_OPACITY, FRAME_MASK|CMD_OK)},
 	 {"Debug", action_pair(ACTION_DEBUG, ANY_MASK)},
+	 {"Sys", action_pair(ACTION_SYS, ANY_MASK)},
 	 {nullptr, action_pair(ACTION_NO, 0)}};
 
 static Util::StringTo<ActionStateType> action_state_map[] =
@@ -411,6 +412,7 @@ parseActionArg(Action &action, const std::string& arg)
 	case ACTION_SHELL_EXEC:
 	case ACTION_SHOW_CMD_DIALOG:
 	case ACTION_SHOW_SEARCH_DIALOG:
+	case ACTION_SYS:
 		action.setParamS(arg);
 		break;
 	case ACTION_SETENV:
