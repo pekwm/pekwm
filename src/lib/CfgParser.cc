@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2005-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2005-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -607,18 +607,28 @@ CfgParser::parseName(std::string &buf)
 	if (begin == std::string::npos) {
 		return false;
 	}
-	size_t end = buf.find_first_of(CP_PARSE_BLANKS, begin);
 
-	// Check if there is any garbage after the value.
-	if (end != std::string::npos) {
-		if (buf.find_first_not_of(CP_PARSE_BLANKS, end)
-		    != std::string::npos) {
-			// Pass, do notihng
+	if (buf[begin] == '"') {
+		// quoted name
+		std::string name;
+		bool in_escape = false;
+		for (size_t i = begin + 1; i < buf.size(); i++) {
+			if (in_escape) {
+				name += buf[i];
+				in_escape = false;
+			} else if (buf[i] == '\\') {
+				in_escape = true;
+			} else if (buf[i] == '"') {
+				break;
+			} else {
+				name += buf[i];
+			}
 		}
+		buf = name;
+	} else {
+		size_t end = buf.find_first_of(CP_PARSE_BLANKS, begin);
+		buf = buf.substr(begin, end - begin);
 	}
-
-	// Set name.
-	buf = buf.substr(begin, end - begin);
 
 	return true;
 }

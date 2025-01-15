@@ -28,6 +28,14 @@ Updated
 
 * keys updated to use $MOVERESIZE_INCREMENT (set in default vars file) for
   actions in the MoveResize section. Default bumped from 10 to 15.
+* Configuration file keys have been updated to support quoted syntax, allowing
+  newlines and other special characters.
+
+```
+Section {
+    "Special Key" = "Value"
+}
+```
 
 Removed
 -------

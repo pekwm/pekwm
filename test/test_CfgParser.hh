@@ -1,6 +1,6 @@
 //
 // test_CfgParser.hh for pekwm
-// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -16,6 +16,9 @@ public:
 	virtual ~TestCfgParser(void);
 
 	virtual bool run_test(TestSpec spec, bool status);
+
+	void testName();
+	void testQuotedName();
 
 	void testEmptyVal(void);
 	void testIncludeWithoutNewline(void);
@@ -45,6 +48,36 @@ TestCfgParser::TestCfgParser(void)
 
 TestCfgParser::~TestCfgParser(void)
 {
+}
+
+void
+TestCfgParser::testName()
+{
+	const char *cfg = "Section {\n    Name = \"\"\n}";
+	CfgParserSourceString *source =
+		new CfgParserSourceString(":memory:", cfg);
+
+	clear();
+	ASSERT_EQUAL("parse ok", true, parse(source));
+	CfgParser::Entry *section = getEntryRoot()->findSection("SECTION");
+	ASSERT_EQUAL("section", true, section != nullptr);
+	CfgParser::Entry *entry = section->findEntry("NAME");
+	ASSERT_EQUAL("entry", true, entry != nullptr);
+}
+
+void
+TestCfgParser::testQuotedName()
+{
+	const char *cfg = "Section {\n    \"Space \\\" / In Name\" = \"\"\n}";
+	CfgParserSourceString *source =
+		new CfgParserSourceString(":memory:", cfg);
+
+	clear();
+	ASSERT_EQUAL("parse ok", true, parse(source));
+	CfgParser::Entry *section = getEntryRoot()->findSection("SECTION");
+	ASSERT_EQUAL("section", true, section != nullptr);
+	CfgParser::Entry *entry = section->findEntry("SPACE \" / IN NAME");
+	ASSERT_EQUAL("entry", true, entry != nullptr);
 }
 
 void
@@ -233,6 +266,9 @@ TestCfgParser::testParseCurlyNotClosedVar()
 bool
 TestCfgParser::run_test(TestSpec spec, bool status)
 {
+	TEST_FN(spec, "name", testName());
+	TEST_FN(spec, "quoted name", testQuotedName());
+
 	TEST_FN(spec, "empty val", testEmptyVal());
 	TEST_FN(spec, "INCLUDE without newline", testIncludeWithoutNewline());
 	TEST_FN(spec, "expand var", testExpandVar());
