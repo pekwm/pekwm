@@ -13,6 +13,7 @@
 #include "test_CfgParser.hh"
 #include "test_Charset.hh"
 #include "test_Geometry.hh"
+#include "test_Json.hh"
 #include "test_RegexString.hh"
 #include "test_String.hh"
 #include "test_Tokenizer.hh"
@@ -27,9 +28,11 @@ main(int argc, char *argv[])
 	TestCharset testCharset;
 	TestGeometry testGeometry;
 	TestGeometryOverlap testGeometryOverlap;
+	TestJson testJson;
 	TestRegexString testRegexString;
 	TestString testString;
 	TestTokenizer testTokenizer;
+	TestUtf8Iterator testUtf8Iterator;
 
 	// Util
 	TestGenerator testGenerator;

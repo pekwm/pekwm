@@ -1,6 +1,6 @@
 //
 // Charset.cc for pekwm
-// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -42,8 +42,9 @@ static const uint8_t UTF8_MAX_BYTES = 4;
 
 static int _is_utf8_locale = -1;
 
+template<typename T>
 static uint8_t
-wchar_to_utf8(wchar_t wc, char *utf8)
+char_to_utf8(T wc, char *utf8)
 {
 	if (wc < 0x80) {
 		utf8[0] = wc;
@@ -71,8 +72,9 @@ wchar_to_utf8(wchar_t wc, char *utf8)
 	return 0;
 }
 
+template<typename T>
 static uint8_t
-utf8_to_wchar(const char *utf8, wchar_t &wc)
+utf8_to_char(const char *utf8, T &wc)
 {
 	uint8_t len = UTF8_BYTES[static_cast<uint8_t>(utf8[0])];
 	if (len == 1) {
@@ -120,58 +122,77 @@ namespace Charset
 	Utf8Iterator::Utf8Iterator(const std::string& str, size_t pos)
 		: _begin(false),
 		  _str(str),
-		  _pos(pos)
+		  _pos(pos > str.size() ? str.size() : pos)
 	{
-		if (_pos > str.size()) {
-			_pos = str.size();
-		}
-		memset(_deref_buf, '\0', sizeof(_deref_buf));
+		_deref_buf[0] = '\0';
+	}
+
+	Utf8Iterator::~Utf8Iterator()
+	{
 	}
 
 	bool
-	Utf8Iterator::operator==(char chr) const
+	Utf8Iterator::operator==(char chr)
 	{
-		return ok() && len(_pos) == 1 && _str[_pos] == chr;
+		const char *c = *(*this);
+		return c[0] == chr;
 	}
 
 	bool
-	Utf8Iterator::operator==(const char* chr) const
+	Utf8Iterator::operator==(const char* chr)
 	{
-		return ok()
-			&& strncmp(_str.c_str() + _pos, chr, len(_pos)) == 0;
+		const char *c = *(*this);
+		size_t len = std::min(sizeof(_deref_buf), strlen(chr));
+		return strncmp(c, chr, len) == 0;
 	}
 
 	bool
-	Utf8Iterator::operator==(const std::string& chr) const
+	Utf8Iterator::operator==(const std::string& chr)
 	{
-		return ok() && strncmp(_str.c_str() + _pos,
-				       chr.c_str(), len(_pos)) == 0;
+		const char *c = *(*this);
+		return chr == c;
 	}
 
+	/**
+	 * Get current UTF-8 character, first byte is NIL if string has been
+	 * iterated.
+	 */
 	const char*
-	Utf8Iterator::operator*(void)
+	Utf8Iterator::operator*()
 	{
-		if (! ok()) {
-			return "";
+		if (ok()) {
+			if (_deref_buf[0] == '\0') {
+				size_t size = len(_pos);
+				memcpy(_deref_buf, _str.c_str() + _pos, size);
+				_deref_buf[size] = '\0';
+			}
+		} else {
+			_deref_buf[0] = '\0';
 		}
-		size_t size = len(_pos);
-		memcpy(_deref_buf, _str.c_str() + _pos, size);
-		_deref_buf[size] = '\0';
 		return _deref_buf;
 	}
 
 	Utf8Iterator&
-	Utf8Iterator::operator--(void)
+	Utf8Iterator::operator++()
+	{
+		incPos();
+		return *this;
+	}
+
+	Utf8Iterator&
+	Utf8Iterator::operator--()
 	{
 		decPos();
 		return *this;
 	}
 
-	Utf8Iterator&
-	Utf8Iterator::operator++(void)
+	/**
+	 * Return length in bytes of the current character, 0 on eof.
+	 */
+	size_t
+	Utf8Iterator::charLen() const
 	{
-		incPos();
-		return *this;
+		return ok() ? len(_pos) : 0;
 	}
 
 	size_t
@@ -183,6 +204,9 @@ namespace Charset
 		return UTF8_BYTES[static_cast<uint8_t>(_str[pos])];
 	}
 
+	/**
+	 * Increment position, return true if position was incremented.
+	 */
 	bool
 	Utf8Iterator::incPos(void)
 	{
@@ -193,10 +217,14 @@ namespace Charset
 				return false;
 			}
 			_begin = false;
+			_deref_buf[0] = '\0';
 		}
 		return true;
 	}
 
+	/**
+	 * Decrement position, return true if position was decremented.
+	 */
 	bool
 	Utf8Iterator::decPos(void)
 	{
@@ -216,6 +244,7 @@ namespace Charset
 			_begin = true;
 			return false;
 		}
+		_deref_buf[0] = '\0';
 		return true;
 	}
 
@@ -294,7 +323,7 @@ namespace Charset
 
 		Utf8Iterator it(str, 0);
 		for (; ! it.end(); ++it) {
-			utf8_to_wchar(*it, wc);
+			utf8_to_char<wchar_t>(*it, wc);
 			int len = wctomb(mb, wc);
 			if (len > 0) {
 				mb[len] = '\0';
@@ -324,11 +353,19 @@ namespace Charset
 		for (int len;
 		     (len = mbtowc(&wc, mb, mb_end - mb)) > 0;
 		     mb += len) {
-			int utf8_len = wchar_to_utf8(wc, utf8);
+			int utf8_len = char_to_utf8<wchar_t>(wc, utf8);
 			utf8[utf8_len] = '\0';
 			str_utf8 += utf8;
 		}
 
 		return str_utf8;
+	}
+
+	void toUtf8(uint32_t chr, std::string &str)
+	{
+		char utf8[UTF8_MAX_BYTES + 1];
+		int utf8_len = char_to_utf8<uint32_t>(chr, utf8);
+		utf8[utf8_len] = '\0';
+		str += utf8;
 	}
 }

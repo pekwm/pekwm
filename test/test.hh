@@ -7,6 +7,19 @@
 #include <string>
 #include <sstream>
 
+extern "C" {
+#include <stdio.h>
+#include <locale.h>
+}
+
+static inline std::string
+_double_to_string(double val)
+{
+	char buf[64];
+	snprintf(buf, sizeof(buf), "%0.2f", val);
+	return buf;
+}
+
 class AssertFailed {
 public:
 	AssertFailed(const std::string& file, int line,
@@ -66,7 +79,19 @@ AssertFailed::format(const std::string &suite_name,
 		__test_oss << " expected " << (expected);	\
 		__test_oss << " got " << (actual);		\
 		ASSERT_FAILED(__test_oss.str())			\
-			}
+	}
+
+#define ASSERT_DOUBLE_EQUAL(msg, expected, actual)		\
+	if (_double_to_string((expected))			\
+	    != _double_to_string((actual))) {			\
+		std::ostringstream __test_oss;			\
+		__test_oss << (msg);				\
+		__test_oss << " expected "			\
+			   << _double_to_string(expected);	\
+		__test_oss << " got "				\
+			   << _double_to_string(actual);	\
+		ASSERT_FAILED(__test_oss.str())			\
+	}
 
 #define TEST_FN(spec, test_name, F)					\
 	do {								\
