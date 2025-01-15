@@ -11,7 +11,9 @@ set(lib_SOURCES
     Compat.cc
     Debug.cc
     Geometry.cc
+    HttpClient.cc
     Json.cc
+    Location.cc
     Observable.cc
     Os.cc
     RegexString.cc

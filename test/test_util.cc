@@ -14,6 +14,7 @@
 #include "test_Charset.hh"
 #include "test_Geometry.hh"
 #include "test_Json.hh"
+#include "test_Location.hh"
 #include "test_RegexString.hh"
 #include "test_String.hh"
 #include "test_Tokenizer.hh"
@@ -29,6 +30,7 @@ main(int argc, char *argv[])
 	TestGeometry testGeometry;
 	TestGeometryOverlap testGeometryOverlap;
 	TestJson testJson;
+	TestLocation testLocation;
 	TestRegexString testRegexString;
 	TestString testString;
 	TestTokenizer testTokenizer;
