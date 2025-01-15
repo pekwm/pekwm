@@ -1,6 +1,6 @@
 //
 // CfgUtil.cc for pekwm
-// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -11,6 +11,7 @@
 #include "CfgUtil.hh"
 #include "Debug.hh"
 #include "Util.hh"
+#include "X11.hh"
 
 #define THEME_DEFAULT DATADIR "/pekwm/themes/default/theme"
 
@@ -43,6 +44,7 @@ namespace CfgUtil
 
 		theme_file = norm_dir + "/theme";
 		if (! variant.empty()) {
+			lookupThemeVariant(theme_file, variant);
 			std::string theme_file_variant =
 				theme_file + "-" + variant;
 			if (Util::isFile(theme_file_variant)) {
@@ -52,6 +54,26 @@ namespace CfgUtil
 				      << " does not exist");
 			}
 		}
+	}
+
+	bool
+	lookupThemeVariant(const std::string &theme_file, std::string &variant)
+	{
+		if (variant != "auto") {
+			return false;
+		}
+
+		if (! X11::getString(X11::getRoot(), PEKWM_THEME_VARIANT,
+				     variant)) {
+			variant = "light";
+		}
+
+		std::string theme_file_variant = theme_file + "-" + variant;
+		if (! Util::isFile(theme_file_variant)
+		    && (variant == "dusk" || variant == "dawn")) {
+			variant = "dark";
+		}
+		return true;
 	}
 
 	void

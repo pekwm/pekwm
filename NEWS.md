@@ -28,6 +28,9 @@ New
   client specific rules to help improve compatibility with pekwm. Created as a
   separate file to avoid users having to update their configuration file on
   upgrades when rules get added or removed.
+* Auto theme variant mode, reads the _PEKWM_THEME_VARIANT property on the root
+  window and selects the theme variant using that value. The theme will
+  automatically reload whenever the property changes.
 
 Updated
 -------

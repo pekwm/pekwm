@@ -39,6 +39,7 @@
 #include "WorkspaceIndicator.hh"
 
 #include "tk/Color.hh"
+#include "tk/CfgUtil.hh"
 #include "tk/FontHandler.hh"
 #include "tk/PFont.hh"
 #include "tk/PTexture.hh"
@@ -520,15 +521,19 @@ WindowManager::doReloadConfig(void)
 void
 WindowManager::doReloadTheme(bool force)
 {
+	Config *cfg = pekwm::config();
+	Theme *theme = pekwm::theme();
+
+	// auto theme variant handling
+	std::string variant = cfg->getThemeVariant();
+	CfgUtil::lookupThemeVariant(cfg->getThemeFile(), variant);
+
 	// reload the theme, reloading the decors only if the theme changed.
-	bool loaded = pekwm::theme()->load(pekwm::config()->getThemeFile(),
-					   pekwm::config()->getThemeVariant(),
-					   force);
+	bool loaded = theme->load(cfg->getThemeFile(), variant, force);
 
 	// always start the background as the override texture can change
 	// without the theme changing
-	startBackground(pekwm::theme()->getThemeDir(),
-			pekwm::theme()->getBackground());
+	startBackground(theme->getThemeDir(), theme->getBackground());
 
 	if (loaded) {
 		doReloadThemeDecors();
@@ -1538,6 +1543,8 @@ WindowManager::handlePropertyEvent(XPropertyEvent *ev)
 	if (ev->window == X11::getRoot()) {
 		if (ev->atom == X11::getAtom(RESOURCE_MANAGER)) {
 			doReloadResources();
+		} else if (ev->atom == X11::getAtom(PEKWM_THEME_VARIANT)) {
+			doReloadTheme(false);
 		} else {
 			return pekwm::rootWo()->handlePropertyChange(ev);
 		}
