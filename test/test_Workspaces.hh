@@ -114,6 +114,8 @@ public:
 void
 TestWorkspaces::testFindWOAndFocusFind()
 {
+	_wobjs.clear();
+
 	// empty
 	PWinObj *null_wo = nullptr;
 	ASSERT_EQUAL("empty", null_wo, findWOAndFocusFind(true));
