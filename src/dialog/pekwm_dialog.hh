@@ -1,6 +1,6 @@
 //
 // pekwm_dialog.hh for pekwm
-// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2023-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -74,7 +74,7 @@ public:
 	virtual void handleEvent(XEvent *ev);
 	virtual void resize(uint width, uint height);
 	void show(void);
-	void render(void);
+	void render();
 	void setState(Window window, ButtonState state);
 	void click(Window window);
 

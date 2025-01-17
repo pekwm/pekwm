@@ -1,6 +1,6 @@
 //
 // pekwm_dialog.cc for pekwm
-// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -91,6 +91,8 @@ PekwmDialog::PekwmDialog(Theme::DialogData* data,
 	  _data(data),
 	  _raise(raise)
 {
+	X11::selectInput(_window, ExposureMask|StructureNotifyMask);
+
 	assert(_instance == nullptr);
 	_instance = this;
 
@@ -128,6 +130,9 @@ PekwmDialog::handleEvent(XEvent *ev)
 		break;
 	case EnterNotify:
 		setState(ev->xbutton.window, BUTTON_STATE_HOVER);
+		break;
+	case Expose:
+		render();
 		break;
 	case LeaveNotify:
 		setState(ev->xbutton.window, BUTTON_STATE_FOCUSED);
@@ -180,7 +185,7 @@ PekwmDialog::show(void)
 }
 
 void
-PekwmDialog::render(void)
+PekwmDialog::render()
 {
 	Drawable draw;
 	if (hasBuffer()) {
