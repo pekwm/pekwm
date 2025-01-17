@@ -1,5 +1,6 @@
 #!@SH@
 #
+# Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 # Copyright (C) 2003-2021 the pekwm development team
 #
 # Add this to your menu to use this script:
@@ -57,6 +58,11 @@ else
 
     theme=`echo "${2}" | @SED@ -e "s@^${HOME}@~@" | @SED@ -e 's@\/@\\\/@g'`
     variant="${3}"
+    # Use auto variant if no variant is specified to follow time of day
+    # changes
+    if test "x${variant}" = "x"; then
+	    variant="auto"
+    fi
 
     # Get temporary file, not all platforms have mktemp though
     if test -x "/bin/mktemp"; then
