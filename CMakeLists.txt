@@ -71,6 +71,11 @@ int main() { std::to_string(42); }
 
 check_cxx_source_compiles("
 #include <string>
+int main() { std::stod(\"42.2\"); }
+" PEKWM_HAVE_STOD)
+
+check_cxx_source_compiles("
+#include <string>
 int main() { std::stoi(\"42\"); }
 " PEKWM_HAVE_STOI)
 

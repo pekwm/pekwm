@@ -94,6 +94,13 @@ namespace std
 }
 #endif
 
+#ifndef PEKWM_HAVE_STOD
+namespace std
+{
+	double stod(const std::string& str);
+}
+#endif
+
 #ifndef PEKWM_HAVE_STOI
 namespace std
 {

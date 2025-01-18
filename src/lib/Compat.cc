@@ -1,6 +1,6 @@
 //
 // Compat.cc for pekwm
-// Copyright (C) 2009-2024 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2009-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -189,6 +189,37 @@ stoi_safe(const std::string& str, int def)
 	}
 }
 
+#if !defined(PEKWM_HAVE_STOD) || !defined(PEKWM_HAVE_STOF)
+
+template<typename T>
+static T
+_stod(const std::string& str, const std::string &name)
+{
+	char *endptr;
+	double val = strtod(str.c_str(), &endptr);
+	if (*endptr != 0) {
+		std::string msg("not a valid ");
+		msg += name + ": " + str;
+		throw std::invalid_argument(msg);
+	}
+	return static_cast<T>(val);
+}
+
+#endif
+
+#ifndef PEKWM_HAVE_STOD
+
+namespace std
+{
+	double
+	stod(const std::string &str)
+	{
+		return _stod<double>(str, "double");
+	}
+}
+
+#endif
+
 #ifndef PEKWM_HAVE_STOF
 
 namespace std
@@ -196,14 +227,7 @@ namespace std
 	float
 	stof(const std::string& str)
 	{
-		char *endptr;
-		double val = strtod(str.c_str(), &endptr);
-		if (*endptr != 0) {
-			std::string msg("not a valid float: ");
-			msg += str;
-			throw std::invalid_argument(msg);
-		}
-		return static_cast<float>(val);
+		return _stod<float>(str, "float");
 	}
 }
 

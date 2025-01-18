@@ -16,6 +16,7 @@
 
 #cmakedefine PEKWM_HAVE_PUT_TIME
 #cmakedefine PEKWM_HAVE_TO_STRING
+#cmakedefine PEKWM_HAVE_STOD
 #cmakedefine PEKWM_HAVE_STOI
 #cmakedefine PEKWM_HAVE_STOF
 
