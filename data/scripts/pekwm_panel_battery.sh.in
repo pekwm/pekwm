@@ -28,7 +28,7 @@ read_sysfs()
 	fi
 
 	battery=`cat "$bat0/capacity"`
-	battery_state=`cat "$bat0/status"`
+	battery_state=`cat "$bat0/status" | tr A-Z a-z`
 	if test "x${battery_state}" = "xdischarging"; then
 		battery_state="battery"
 	else
