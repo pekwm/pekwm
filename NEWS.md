@@ -1,3 +1,10 @@
+pekwm-0.3.3
+===========
+
+### pekwm_dialog
+
+  * Fix dialog redraw issue making text in dialog not visible.
+
 pekwm-0.3.2
 ===========
 

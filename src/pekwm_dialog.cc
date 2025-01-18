@@ -508,6 +508,9 @@ public:
 		case EnterNotify:
 			setState(ev->xbutton.window, BUTTON_STATE_HOVER);
 			break;
+		case Expose:
+			render();
+			break;
 		case LeaveNotify:
 			setState(ev->xbutton.window, BUTTON_STATE_FOCUSED);
 			break;
@@ -661,6 +664,8 @@ PekwmDialog::PekwmDialog(Theme::DialogData* data,
 	  _data(data),
 	  _raise(raise)
 {
+	X11::selectInput(_window, ExposureMask|StructureNotifyMask);
+
 	assert(_instance == nullptr);
 	_instance = this;
 	// TODO: setup size minimum based on image
@@ -743,7 +748,6 @@ int main(int argc, char* argv[])
 {
 	const char* display = NULL;
 	Geometry gm(0, 0, WIDTH_DEFAULT, HEIGHT_DEFAULT);
-	int gm_mask = WIDTH_VALUE | HEIGHT_VALUE;
 	bool raise;
 	std::string title;
 	std::string config_file = Util::getEnv("PEKWM_CONFIG_FILE");
@@ -782,7 +786,7 @@ int main(int argc, char* argv[])
 			display = optarg;
 			break;
 		case 'g':
-			gm_mask |= X11::parseGeometry(optarg, gm);
+			X11::parseGeometry(optarg, gm);
 			break;
 		case 'h':
 			usage(argv[0], 0);
