@@ -12,7 +12,6 @@
 #include "Debug.hh"
 #include "Workspaces.hh"
 #include "Config.hh"
-#include "PDecor.hh"
 #include "Frame.hh"
 #include "Client.hh" // For isSkip()
 #include "ManagerWindows.hh"
@@ -30,7 +29,6 @@
 
 extern "C" {
 #include <assert.h>
-#include <signal.h>
 #include <sys/time.h>
 
 #include <X11/Xatom.h> // for XA_WINDOW
@@ -103,11 +101,19 @@ std::vector<PWinObj*> Workspaces::_wobjs;
 std::vector<Workspace> Workspaces::_workspaces;
 std::vector<Frame*> Workspaces::_mru;
 WorkspaceIndicator* Workspaces::_workspace_indicator = nullptr;
+Workspaces::win_layouter_map Workspaces::_win_layouters;
 
 void
-Workspaces::init(void)
+Workspaces::init()
 {
-	_workspace_indicator = new WorkspaceIndicator();
+	int type_i = 1;
+	while (type_i != static_cast<int>(WIN_LAYOUTER_NO)) {
+		enum WinLayouterType type =
+			static_cast<enum WinLayouterType>(type_i);
+		_win_layouters[type] = mkWinLayouter(type);
+		assert(_win_layouters[type]);
+		type_i <<= 1;
+	}
 }
 
 void
@@ -115,6 +121,13 @@ Workspaces::cleanup()
 {
 	clearLayoutModels();
 	delete _workspace_indicator;
+
+	std::map<enum WinLayouterType, WinLayouter*>::iterator
+		it(_win_layouters.begin());
+	for (; it != _win_layouters.end(); ++it) {
+		delete it->second;
+	}
+	_win_layouters.clear();
 }
 
 //! @brief Sets total amount of workspaces to number
@@ -176,9 +189,10 @@ Workspaces::setLayoutModels(const std::vector<std::string> &models)
 	clearLayoutModels();
 	std::vector<std::string>::const_iterator it(models.begin());
 	for (; it != models.end(); ++it) {
-		WinLayouter *lm = WinLayouterFactory(*it);
-		if (lm != nullptr) {
-			_layout_models.push_back(lm);
+		enum WinLayouterType type = win_layouter_type_from_string(*it);
+		if (type != WIN_LAYOUTER_NO) {
+			_layout_models.push_back(_win_layouters[type]);
+			assert(_layout_models.back());
 		}
 	}
 }
@@ -186,12 +200,7 @@ Workspaces::setLayoutModels(const std::vector<std::string> &models)
 void
 Workspaces::clearLayoutModels(void)
 {
-	std::vector<WinLayouter*>::iterator it(_layout_models.begin());
-	for (; it != _layout_models.end(); ++it) {
-		delete *it;
-	}
 	_layout_models.clear();
-
 }
 
 //! @brief Activates Workspace workspace and sets the right hints
@@ -436,7 +445,7 @@ Workspaces::fixStacking(PWinObj *pwo)
  * Place window based on the current placement model.
  */
 void
-Workspaces::layout(Frame *frame, Window parent)
+Workspaces::layout(Frame *frame, Window parent, int win_layouter_types)
 {
 	if (frame == nullptr) {
 		return;
@@ -475,7 +484,8 @@ Workspaces::layout(Frame *frame, Window parent)
 	for (; ! range.is_end(); ++range) {
 		if (! fsHead[*range]) {
 			pekwm::rootWo()->getHeadInfoWithEdge(*range, gm);
-			if (layoutOnHead(frame, parent, gm, ptr_x, ptr_y)) {
+			if (layoutOnHead(frame, win_layouter_types, parent,
+					 gm, ptr_x, ptr_y)) {
 				return;
 			}
 		}
@@ -494,15 +504,43 @@ Workspaces::layout(Frame *frame, Window parent)
 }
 
 bool
-Workspaces::layoutOnHead(PWinObj *wo, Window parent, const Geometry &gm,
-			 int ptr_x, int ptr_y)
+Workspaces::layoutOnHead(PWinObj *wo, int win_layouter_types, Window parent,
+			 const Geometry &gm, int ptr_x, int ptr_y)
 {
+	if (win_layouter_types) {
+		return layoutOnHeadTypes(wo, win_layouter_types, parent, gm,
+					 ptr_x, ptr_y);
+	}
 	std::vector<WinLayouter*>::iterator it(_layout_models.begin());
 	for (; it != _layout_models.end(); ++it) {
 		if ((*it)->layout(wo, parent, gm, ptr_x, ptr_y)) {
 			return true;
 		}
 	}
+	return false;
+}
+
+/**
+ * Place PWinObj on the given head using win_layouter_types instead of the
+ * globally configured types.
+ */
+bool
+Workspaces::layoutOnHeadTypes(PWinObj *wo, int win_layouter_types,
+			      Window parent, const Geometry &gm,
+			      int ptr_x, int ptr_y)
+{
+	enum WinLayouterType type;
+	do {
+		type =  static_cast<enum WinLayouterType>(
+				win_layouter_types & WIN_LAYOUTER_MASK);
+		win_layouter_map::iterator it(_win_layouters.find(type));
+		if (it != _win_layouters.end()
+		    && it->second->layout(wo, parent, gm, ptr_x, ptr_y)) {
+			return true;
+
+		}
+		win_layouter_types >>= WIN_LAYOUTER_SHIFT;
+	} while (win_layouter_types);
 	return false;
 }
 

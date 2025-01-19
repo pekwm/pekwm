@@ -46,8 +46,10 @@ public:
 	typedef std::vector<PWinObj*>::const_reverse_iterator
 	const_reverse_iterator;
 
-	static void init(void);
-	static void cleanup(void);
+	typedef std::map<enum WinLayouterType, WinLayouter*> win_layouter_map;
+
+	static void init();
+	static void cleanup();
 
 	static inline iterator begin(void) { return _wobjs.begin(); }
 	static inline iterator end(void) { return _wobjs.end(); }
@@ -90,7 +92,8 @@ public:
 		return _workspaces[_active];
 	}
 
-	static void layout(Frame *frame, Window parent=None);
+	static void layout(Frame *frame, Window parent=None,
+			   int win_layouter_types=0);
 	static void insert(PWinObj* wo, bool raise = true);
 	static void remove(const PWinObj* wo);
 
@@ -161,12 +164,27 @@ protected:
 
 	static iterator find(const PWinObj *wo);
 
+	static bool layoutOnHead(PWinObj *wo, int win_layouter_types,
+				 Window parent, const Geometry &gm,
+				 int ptr_x, int ptr_y);
+	static bool layoutOnHeadTypes(PWinObj *wo, int win_layouter_types,
+				      Window parent, const Geometry &gm,
+				      int ptr_x, int ptr_y);
+
 	/** All PWinObjs, the highest stacked PWinObj is kept at the back. */
 	static std::vector<PWinObj*> _wobjs;
 	/** The most recently used frame is kept at the front. */
 	static std::vector<Frame*> _mru;
 
 private:
+	static WorkspaceIndicator *getWorkspaceIndicator()
+	{
+		if (_workspace_indicator == nullptr) {
+			_workspace_indicator = new WorkspaceIndicator();
+		}
+		return _workspace_indicator;
+	}
+
 	static PWinObj *findWOAndFocusStacking();
 	static PWinObj *findWOAndFocusMRU();
 	static void findWOAndFocusRaise(PWinObj *wo);
@@ -178,8 +196,6 @@ private:
 	static void stackAt(iterator it);
 
 	static void clearLayoutModels(void);
-	static bool layoutOnHead(PWinObj *wo, Window parent,
-				 const Geometry &gm, int ptr_x, int ptr_y);
 
 	static Window *buildClientList(unsigned int &num_windows);
 	static bool warpToWorkspace(uint num, int dir);
@@ -198,6 +214,7 @@ private:
 	static WorkspaceIndicator *_workspace_indicator;
 
 	static std::vector<Workspace> _workspaces;
+	static win_layouter_map _win_layouters;
 };
 
 #endif // _PEKWM_WORKSPACES_HH_

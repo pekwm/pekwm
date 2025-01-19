@@ -11,6 +11,7 @@
 #include "Charset.hh"
 #include "Compat.hh"
 #include "Debug.hh"
+#include "Exception.hh"
 #include "WindowManager.hh"
 #include "Util.hh"
 #include "pekwm_env.hh"

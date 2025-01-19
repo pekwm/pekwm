@@ -1,6 +1,6 @@
 //
 // AutoProperties.hh for pekwm
-// Copyright (C) 2003-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -11,7 +11,6 @@
 
 #include "config.h"
 
-#include "pekwm.hh"
 #include "CfgParser.hh"
 #include "tk/ImageHandler.hh"
 #include "tk/PImageIcon.hh"
@@ -47,6 +46,7 @@ enum PropertyType {
 	AP_OPACITY = (1L << 20),
 	AP_DECOR = (1L << 21),
 	AP_ICON = (1L << 22),
+	AP_PLACEMENT = (1L << 23),
 
 	AP_GROUP_SIZE,
 	AP_GROUP_BEHIND,
@@ -159,6 +159,7 @@ public:
 
 	std::string frame_decor;
 	PImageIcon *icon;
+	int win_layouter_types;
 
 	// grouping variables
 	int group_size;
@@ -234,6 +235,9 @@ public:
 	void removeApplyOnStart(void);
 
 	static bool matchAutoClass(const ClassHint &hint, Property *prop);
+
+protected:
+	int parsePlacement(const std::string &value);
 
 private:
 	Property* findProperty(const ClassHint* class_hint,

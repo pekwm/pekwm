@@ -22,6 +22,8 @@ New
   the MRU list to find a client when the focused object is closed.
   `OnCloseFocusRaise`, controls wheter the window focused is raised. IfCovered
   will raise the window if it is mostly covered by other windows.
+* Add auto property `Placement` for overriding the placement model for specific
+  clients.
 
 Updated
 -------

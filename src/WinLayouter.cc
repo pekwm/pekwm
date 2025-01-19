@@ -18,7 +18,14 @@
 #include "Workspaces.hh"
 #include "X11.hh"
 
-#include "tk/X11Util.hh"
+static Util::StringTo<WinLayouterType> win_layouter_type_map[] =
+	{{"SMART", WIN_LAYOUTER_SMART},
+	 {"CENTERED", WIN_LAYOUTER_CENTERED},
+	 {"CENTEREDONPARENT", WIN_LAYOUTER_CENTEREDONPARENT},
+	 {"MOUSENOTUNDER", WIN_LAYOUTER_MOUSENOTUNDER},
+	 {"MOUSECENTERED", WIN_LAYOUTER_MOUSECENTERED},
+	 {"MOUSETOPLEFT", WIN_LAYOUTER_MOUSECTOPLEFT},
+	 {nullptr, WIN_LAYOUTER_NO}};
 
 static void
 populateWvec(const PWinObj *wo, std::vector<PWinObj*> &wvec)
@@ -40,7 +47,7 @@ populateWvec(const PWinObj *wo, std::vector<PWinObj*> &wvec)
 
 		// Skip windows tagged as Maximized as they cause no space
 		// to be found.
-		if ((*it)->getType() == PWinObj::WO_FRAME) {
+		if ((*it)->isType(PWinObj::WO_FRAME)) {
 			Frame *frame = static_cast<Frame*>(*it);
 			Client *client = frame->getActiveClient();
 			if (client &&
@@ -79,11 +86,13 @@ isEmptySpace(int x, int y, const PWinObj* wo, std::vector<PWinObj*> &wvec)
 	return nullptr;
 }
 
-//! @brief Tries to find empty space to place the client in
-//! @return true if client got placed, else false
+/**
+ * Window layouter that tries to find empty space to place the client in
+ * @return true if client got placed, else false
+ */
 class LayouterSmart : public WinLayouter {
 public:
-	LayouterSmart() : WinLayouter() {}
+	LayouterSmart() : WinLayouter(WIN_LAYOUTER_SMART) {}
 	virtual ~LayouterSmart() {}
 
 private:
@@ -186,7 +195,7 @@ private:
  */
 class LayouterCentered : public WinLayouter {
 public:
-	LayouterCentered(void) : WinLayouter() {}
+	LayouterCentered(void) : WinLayouter(WIN_LAYOUTER_CENTERED) {}
 	virtual ~LayouterCentered(void) { };
 
 	virtual bool layout(PWinObj *wo, Window parent,
@@ -204,7 +213,10 @@ public:
  */
 class LayouterCenteredOnParent : public WinLayouter {
 public:
-	LayouterCenteredOnParent(void) : WinLayouter() {}
+	LayouterCenteredOnParent(void)
+		: WinLayouter(WIN_LAYOUTER_CENTEREDONPARENT)
+	{
+	}
 	virtual ~LayouterCenteredOnParent(void) { };
 
 	virtual bool layout(PWinObj *wo, Window parent,
@@ -226,10 +238,13 @@ public:
 	}
 };
 
-//! @brief Places the wo in a corner of the screen not under the pointer
+/**
+ * Place the window in one of the screen corners where it does not end up under
+ * the pointer.
+ */
 class LayouterMouseNotUnder : public WinLayouter {
 public:
-	LayouterMouseNotUnder() : WinLayouter() {}
+	LayouterMouseNotUnder() : WinLayouter(WIN_LAYOUTER_MOUSENOTUNDER) {}
 	virtual ~LayouterMouseNotUnder() {}
 
 	virtual bool layout(PWinObj *wo, Window parent,
@@ -271,10 +286,12 @@ public:
 	}
 };
 
-//! @brief Places the client centered under the mouse
+/**
+ * Places the window centered under the mouse
+ */
 class LayouterMouseCentred : public WinLayouter {
 public:
-	LayouterMouseCentred() : WinLayouter() {}
+	LayouterMouseCentred() : WinLayouter(WIN_LAYOUTER_MOUSECENTERED) {}
 	~LayouterMouseCentred() {}
 
 private:
@@ -291,10 +308,13 @@ private:
 	}
 };
 
-//! @brief Places the client like the menu gets placed
+/**
+ * Places the window like the menu gets placed, top left corner under the
+ * pointer.
+ */
 class LayouterMouseTopLeft : public WinLayouter {
 public:
-	LayouterMouseTopLeft() : WinLayouter() {}
+	LayouterMouseTopLeft() : WinLayouter(WIN_LAYOUTER_MOUSECTOPLEFT) {}
 
 private:
 	virtual bool layout(PWinObj *wo, Window parent,
@@ -307,30 +327,47 @@ private:
 	}
 };
 
-WinLayouter*
-WinLayouterFactory(std::string name)
+enum WinLayouterType
+win_layouter_type_from_string(const std::string &name)
 {
-	std::string name_upper(name);
-	Util::to_upper(name_upper);
+	enum WinLayouterType type =
+		Util::StringToGet(win_layouter_type_map, name);
+	if (type == WIN_LAYOUTER_NO) {
+		USER_WARN("Unknown placement model: " << name);
+	}
+	return type;
+}
 
-	if (! name_upper.compare("SMART")) {
-		return new LayouterSmart;
+/**
+ * Construct a WinLayouter of the provided name.
+ */
+WinLayouter*
+mkWinLayouter(const std::string &name)
+{
+	return mkWinLayouter(win_layouter_type_from_string(name));
+}
+
+/**
+ * Construct a WinLayouter of the provided type, caller is responsible for
+ * freeing the returned layouter.
+ */
+WinLayouter*
+mkWinLayouter(enum WinLayouterType type)
+{
+	switch (type) {
+	case WIN_LAYOUTER_SMART:
+		return new LayouterSmart();
+	case WIN_LAYOUTER_CENTERED:
+		return new LayouterCentered();
+	case WIN_LAYOUTER_CENTEREDONPARENT:
+		return new LayouterCenteredOnParent();
+	case WIN_LAYOUTER_MOUSENOTUNDER:
+		return new LayouterMouseNotUnder();
+	case WIN_LAYOUTER_MOUSECENTERED:
+		return new LayouterMouseCentred();
+	case WIN_LAYOUTER_MOUSECTOPLEFT:
+		return new LayouterMouseTopLeft();
+	default:
+		return nullptr;
 	}
-	if (! name_upper.compare("CENTERED")) {
-		return new LayouterCentered;
-	}
-	if (! name_upper.compare("CENTEREDONPARENT")) {
-		return new LayouterCenteredOnParent;
-	}
-	if (! name_upper.compare("MOUSENOTUNDER")) {
-		return new LayouterMouseNotUnder;
-	}
-	if (! name_upper.compare("MOUSECENTERED")) {
-		return new LayouterMouseCentred;
-	}
-	if (! name_upper.compare("MOUSETOPLEFT")) {
-		return new LayouterMouseTopLeft;
-	}
-	USER_WARN("Unknown placement model: " << name);
-	return nullptr;
 }

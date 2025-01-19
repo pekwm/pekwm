@@ -175,6 +175,12 @@ namespace pekwm
 		return _root_wo;
 	}
 
+	void setRootWO(RootWO* root_wo)
+	{
+		delete _root_wo;
+		_root_wo = root_wo;
+	}
+
 	ImageHandler* imageHandler(void)
 	{
 		return _image_handler;

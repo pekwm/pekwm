@@ -125,6 +125,7 @@ WindowManager::start(const std::string &config_file,
 	// Setup window manager
 	Os *os = mkOs();
 	WindowManager *wm = new WindowManager(os);
+	Workspaces::init();
 	if (! pekwm::init(wm, wm, os, dpy, config_file, replace,
 			  synchronous)) {
 		delete wm;
@@ -282,7 +283,6 @@ WindowManager::setupDisplay(Display* dpy)
 {
 	pekwm::autoProperties()->load();
 
-	Workspaces::init();
 	Workspaces::setSize(pekwm::config()->getWorkspaces());
 	Workspaces::setPerRow(pekwm::config()->getWorkspacesPerRow());
 

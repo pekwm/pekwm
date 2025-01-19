@@ -15,11 +15,10 @@
 
 #include "AppCtrl.hh"
 #include "EventLoop.hh"
-#include "Types.hh"
-#include "Exception.hh"
 #include "Os.hh"
 
 class Config;
+class RootWO;
 
 namespace pekwm
 {
@@ -35,6 +34,7 @@ namespace pekwm
 	void setStarted(void);
 
 	void setConfig(Config* cfg);
+	void setRootWO(RootWO* root_wo);
 }
 
 #endif // _PEKWM_PEKWM_HH_

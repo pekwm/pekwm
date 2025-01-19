@@ -10,6 +10,7 @@
 
 #include "Config.hh"
 #include "Debug.hh"
+#include "Exception.hh"
 #include "ActionHandler.hh"
 #include "ManagerWindows.hh"
 #include "Workspaces.hh"

@@ -383,6 +383,12 @@ take effect.
 
 Toggles the use of placing rules for this client.
 
+**Placement (string)**
+
+Sets the placement model for the given client overriding the default placement
+model set in the configuration. String is a space separated list of placement
+models to try.
+
 **Role (string)**
 
 Apply this autoproperty on clients that have a WM\_WINDOW\_ROLE hint

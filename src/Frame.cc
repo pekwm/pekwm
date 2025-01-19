@@ -1,6 +1,6 @@
 //
 // Frame.cc for pekwm
-// Copyright (C) 2002-2024 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2002-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -10,8 +10,6 @@
 
 #include <algorithm>
 #include <cstdio>
-#include <functional>
-#include <iostream>
 
 extern "C" {
 #include <X11/Xatom.h>
@@ -21,7 +19,6 @@ extern "C" {
 #include "PDecor.hh"
 #include "Frame.hh"
 
-#include "Charset.hh"
 #include "Compat.hh"
 #include "X11.hh"
 #include "Config.hh"
@@ -30,12 +27,9 @@ extern "C" {
 #include "Client.hh"
 #include "ClientMgr.hh"
 #include "ManagerWindows.hh"
-#include "StatusWindow.hh"
 #include "Workspaces.hh"
-#include "KeyGrabber.hh"
 
 #include "tk/PWinObj.hh"
-#include "tk/Theme.hh"
 #include "tk/X11Util.hh"
 
 std::vector<Frame*> Frame::_frames;
@@ -142,7 +136,8 @@ Frame::Frame(Client *client, AutoProperty *ap)
 
 	// still need a position?
 	if (place) {
-		Workspaces::layout(this, client->getTransientForClientWindow());
+		Workspaces::layout(this, client->getTransientForClientWindow(),
+				   ap ? ap->win_layouter_types : 0);
 	}
 
 	_old_gm = _gm;

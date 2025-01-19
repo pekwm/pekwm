@@ -7,9 +7,8 @@
 //
 
 #include "test.hh"
+#include "ManagerWindows.hh"
 #include "Workspaces.hh"
-
-#include <utility>
 
 extern "C" {
 #include <X11/Xlib.h>
@@ -26,6 +25,7 @@ public:
 	void testSwapInStack();
 	void testStackAbove();
 	void testFindWOAndFocusFind();
+	void testLayoutOnHeadTypes();
 };
 
 TestWorkspaces::TestWorkspaces()
@@ -44,6 +44,7 @@ TestWorkspaces::run_test(TestSpec spec, bool status)
 	TEST_FN(spec, "swapInStack", testSwapInStack());
 	TEST_FN(spec, "stackAbove", testStackAbove());
 	TEST_FN(spec, "findWOAndFocusFind", testFindWOAndFocusFind());
+	TEST_FN(spec, "layoutOnHeadTypes", testLayoutOnHeadTypes());
 	return status;
 }
 
@@ -144,4 +145,29 @@ TestWorkspaces::testFindWOAndFocusFind()
 
 	_wobjs.clear();
 	_mru.clear();
+}
+
+void
+TestWorkspaces::testLayoutOnHeadTypes()
+{
+	Workspaces::init();
+	HintWO hint_wo(None);
+	Config cfg;
+	pekwm::setRootWO(new RootWO(None, &hint_wo, &cfg));
+
+	// not using MouseTopCenter will result in being placed at 0x0
+	std::vector<std::string> models;
+	models.push_back("SMART");
+
+	int win_layouter_types = WIN_LAYOUTER_MOUSECTOPLEFT;
+	PWinObj wo;
+	Geometry gm;
+	ASSERT_EQUAL("layout", true,
+		     layoutOnHeadTypes(&wo, win_layouter_types, None, gm,
+				       100, 200));
+	ASSERT_EQUAL("layout", 100, wo.getX());
+	ASSERT_EQUAL("layout", 200, wo.getY());
+
+	pekwm::setRootWO(nullptr);
+	Workspaces::cleanup();
 }

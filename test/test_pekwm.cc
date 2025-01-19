@@ -1,6 +1,6 @@
 //
 // test_pekwm.cc for pekwm
-// Copyright (C) 2021-2024 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -13,6 +13,7 @@
 #include "Debug.hh"
 
 #include "test_Action.hh"
+#include "test_AutoProperties.hh"
 #include "test_Config.hh"
 #include "test_FontHandler.hh"
 #include "test_Frame.hh"
@@ -39,6 +40,7 @@ main_tests(int argc, char *argv[])
 	Debug::setLogFile("/dev/null");
 	X11::addHead(Head(0, 0, 800, 600));
 
+	TestAutoProperties testAutoProperties;
 	// Action
 	TestAction testAction;
 	TestActionConfig testActionConfig;

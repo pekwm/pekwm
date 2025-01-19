@@ -1,6 +1,6 @@
 //
 // AutoProperties.cc for pekwm
-// Copyright (C) 2003-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -8,13 +8,12 @@
 
 #include "config.h"
 
-#include <algorithm>
-
 #include "AutoProperties.hh"
 #include "Charset.hh"
 #include "Config.hh"
 #include "Debug.hh"
 #include "Util.hh"
+#include "WinLayouter.hh"
 #include "WmUtil.hh"
 
 #include "tk/ImageHandler.hh"
@@ -52,6 +51,7 @@ static Util::StringTo<PropertyType> property_map[] =
 	 {"OPACITY", AP_OPACITY},
 	 {"DECOR", AP_DECOR},
 	 {"ICON", AP_ICON},
+	 {"PLACEMENT", AP_PLACEMENT},
 	 {nullptr, AP_NO_PROPERTY}};
 
 static Util::StringTo<PropertyType> group_property_map[] =
@@ -166,6 +166,7 @@ AutoProperty::AutoProperty(void)
 	  allowed_actions(0),
 	  disallowed_actions(0),
 	  icon(nullptr),
+	  win_layouter_types(0),
 	  group_size(-1),
 	  group_behind(false),
 	  group_focused_first(false),
@@ -1030,6 +1031,10 @@ AutoProperties::parseAutoPropertyType(CfgParser::Entry* it, AutoProperty* prop)
 		}
 		break;
 	}
+	case AP_PLACEMENT:
+		prop->maskAdd(AP_PLACEMENT);
+		prop->win_layouter_types = parsePlacement(it->getValue());
+	      break;
 	default:
 		// do nothing
 		break;
@@ -1124,4 +1129,24 @@ AutoProperties::matchAutoClass(const ClassHint &hint, Property *prop)
 		}
 
 	return ok;
+}
+
+/**
+ * Parse list of placement types separated by string.
+ */
+int
+AutoProperties::parsePlacement(const std::string &value)
+{
+	int placement = 0;
+	std::vector<std::string> toks;
+	Util::splitString(value, toks, " \t");
+	if (toks.size() > WIN_LAYOUTER_MASK_NUM) {
+		toks.resize(WIN_LAYOUTER_MASK_NUM);
+	}
+
+	std::vector<std::string>::iterator it(toks.begin());
+	for (int s = 0; it != toks.end(); ++it, s += WIN_LAYOUTER_SHIFT) {
+		placement |= win_layouter_type_from_string(*it) << s;
+	}
+	return placement;
 }
