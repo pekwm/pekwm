@@ -250,9 +250,10 @@ Workspaces::showWorkspaceIndicator(void)
 {
 	int timeout = pekwm::config()->getShowWorkspaceIndicator();
 	if (timeout > 0) {
-		_workspace_indicator->render();
-		_workspace_indicator->mapWindowRaised();
-		PWinObj::setSkipEnterAfter(_workspace_indicator);
+		WorkspaceIndicator *wsi = getWorkspaceIndicator();
+		wsi->render();
+		wsi->mapWindowRaised();
+		PWinObj::setSkipEnterAfter(wsi);
 
 		struct itimerval value;
 		timerclear(&value.it_value);
@@ -266,7 +267,7 @@ Workspaces::showWorkspaceIndicator(void)
 void
 Workspaces::hideWorkspaceIndicator(void)
 {
-	_workspace_indicator->unmapWindow();
+	getWorkspaceIndicator()->unmapWindow();
 }
 
 bool
