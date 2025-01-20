@@ -1,0 +1,19 @@
+# This file is in the public domain. Anyone is free to copy, modify, publish
+# use, sell or distribute for any purpose, commercial or non-commercial, and by
+# any means.
+
+/*
+ Autoproperties for specific clients to help with behaving properly in pekwm.
+ Not part of the main autoproperties file to allow for update of client rules
+ without having to update files under ~/.pekwm
+ */
+
+/*
+ * Mate Desktop drawers does not seem to come with any placement information,
+ * the cursor will most likely be at the drawer position however as the mouse
+ * is used to open it.
+ */
+Property = "^mate-panel\$,^Mate-panel\$,,^Drawer\$" {
+	ApplyOn = "New"
+	Placement = "MouseTopLeft"
+}

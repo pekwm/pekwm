@@ -24,6 +24,10 @@ New
   will raise the window if it is mostly covered by other windows.
 * Add auto property `Placement` for overriding the placement model for specific
   clients.
+* Add autoproperties_clientrules file, not installed in ~/.pekwm, that contain
+  client specific rules to help improve compatibility with pekwm. Created as a
+  separate file to avoid users having to update their configuration file on
+  upgrades when rules get added or removed.
 
 Updated
 -------

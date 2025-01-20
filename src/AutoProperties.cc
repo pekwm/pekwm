@@ -198,7 +198,14 @@ AutoProperties::~AutoProperties(void)
 	unload();
 }
 
-//! @brief Loads the autoprop config file.
+/**
+ * Load the user autoproperties file and then the system client autoproperties
+ * file allowing the user autoproperties file to override properties from the
+ * client one.
+ *
+ * Loading falls back to the system autoproperties file if no user file is
+ * found.
+ */
 bool
 AutoProperties::load(void)
 {
@@ -207,26 +214,44 @@ AutoProperties::load(void)
 		return false;
 	}
 
-	// dealloc memory
 	unload();
 
-	CfgParser a_cfg(pekwm::configScriptPath());
-	if (! a_cfg.parse(cfg_file, CfgParserSource::SOURCE_FILE, false)) {
+	bool status = true;
+	CfgParser cfg(pekwm::configScriptPath());
+	if (! cfg.parse(cfg_file, CfgParserSource::SOURCE_FILE, false)) {
 		cfg_file = SYSCONFDIR "/autoproperties";
-		if (! a_cfg.parse(cfg_file, CfgParserSource::SOURCE_FILE,
-				  false)) {
-			setDefaultTypeProperties();
-			return false;
+		if (! cfg.parse(cfg_file, CfgParserSource::SOURCE_FILE,
+				false)) {
+			status = false;
 		}
 	}
 
-	// Setup template parsing if requested
-	loadRequire(a_cfg, cfg_file);
+	loadRequire(cfg, cfg_file);
+	load(cfg);
 
-	if (a_cfg.isDynamicContent()) {
+	// system client rules, loaded with templates always on
+	cfg.clear();
+	if (cfg.parse(SYSCONFDIR "/autoproperties_clientrules",
+		      CfgParserSource::SOURCE_FILE, true)) {
+		load(cfg);
+	}
+
+	// pekwm is dependent on type rules being defined, install default ones
+	// if they have been removed from the configuration
+	setDefaultTypeProperties();
+
+	return status;
+}
+
+void
+AutoProperties::load(CfgParser &cfg)
+{
+	// Setup template parsing if requested
+
+	if (cfg.isDynamicContent()) {
 		_cfg_files.clear();
 	} else {
-		_cfg_files = a_cfg.getCfgFiles();
+		_cfg_files = cfg.getCfgFiles();
 	}
 
 	// reset values
@@ -235,8 +260,8 @@ AutoProperties::load(void)
 	// set load path for icons while loading auto-properties
 	WithIconPath with_icon_path(pekwm::config(), _image_handler);
 
-	CfgParser::Entry::entry_cit it(a_cfg.getEntryRoot()->begin());
-	for (; it != a_cfg.getEntryRoot()->end(); ++it) {
+	CfgParser::Entry::entry_cit it(cfg.getEntryRoot()->begin());
+	for (; it != cfg.getEntryRoot()->end(); ++it) {
 		if (*(*it) == "PROPERTY") {
 			parseAutoProperty(*it, 0);
 		} else if (*(*it) == "TITLERULES") {
@@ -251,22 +276,16 @@ AutoProperties::load(void)
 			parseWorkspace(*it);
 		}
 	}
-
-	// Validate date
-	setDefaultTypeProperties();
-
-	return true;
 }
 
 /**
  * Load autoproperties quirks.
  */
 void
-AutoProperties::loadRequire(CfgParser &a_cfg, const std::string &file)
+AutoProperties::loadRequire(CfgParser &cfg, const std::string &file)
 {
 	// Look for requires section,
-	CfgParser::Entry *section =
-		a_cfg.getEntryRoot()->findSection("REQUIRE");
+	CfgParser::Entry *section = cfg.getEntryRoot()->findSection("REQUIRE");
 	if (section) {
 		CfgParserKeys keys;
 
@@ -276,8 +295,8 @@ AutoProperties::loadRequire(CfgParser &a_cfg, const std::string &file)
 
 		// Re-load configuration with templates enabled.
 		if (_extended) {
-			a_cfg.clear(true);
-			a_cfg.parse(file, CfgParserSource::SOURCE_FILE, true);
+			cfg.clear(true);
+			cfg.parse(file, CfgParserSource::SOURCE_FILE, true);
 		}
 	} else {
 		_extended = false;
@@ -455,7 +474,6 @@ AutoProperties::parsePropertyApplyOn(const std::string &apply_on,
 	}
 }
 
-//! @brief Parses AutopProperty
 void
 AutoProperties::parseAutoProperty(CfgParser::Entry *section,
 				  std::vector<uint> *ws)
@@ -477,7 +495,9 @@ AutoProperties::parseAutoProperty(CfgParser::Entry *section,
 	}
 }
 
-//! @brief Parses a Group section of the AutoProps
+/**
+ * Parse the Group section of an auto property.
+ */
 void
 AutoProperties::parseAutoGroup(CfgParser::Entry *section,
 			       AutoProperty* property)

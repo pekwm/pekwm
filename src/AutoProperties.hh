@@ -217,7 +217,7 @@ private:
 class AutoProperties {
 public:
 	AutoProperties(ImageHandler *image_handler);
-	~AutoProperties(void);
+	~AutoProperties();
 
 	AutoProperty* findAutoProperty(const ClassHint* class_hintbb,
 				       int ws = -1,
@@ -229,10 +229,10 @@ public:
 
 	AutoProperty *findWindowTypeProperty(AtomName atom);
 
-	bool load(void);
-	void unload(void);
+	bool load();
+	void unload();
 
-	void removeApplyOnStart(void);
+	void removeApplyOnStart();
 
 	static bool matchAutoClass(const ClassHint &hint, Property *prop);
 
@@ -240,6 +240,7 @@ protected:
 	int parsePlacement(const std::string &value);
 
 private:
+	void load(CfgParser &cfg);
 	Property* findProperty(const ClassHint* class_hint,
 			       std::vector<Property*>* prop_list,
 			       int ws, ApplyOn type);

@@ -5,6 +5,7 @@ add_subdirectory(scripts)
 
 install(FILES
 	autoproperties
+	autoproperties_clientrules
 	autoproperties_typerules
 	config
 	config_system
