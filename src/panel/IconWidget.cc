@@ -21,6 +21,7 @@ IconWidget::IconWidget(Os* os,
 		       const std::string& field,
 		       const CfgParser::Entry *section)
 	: PanelWidget(parent, theme, size_req),
+	  _os(os),
 	  _var_data(var_data),
 	  _wm_state(wm_state),
 	  _field(field),
