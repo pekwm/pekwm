@@ -1,0 +1,46 @@
+[doc]
+[enddoc]
+
+[include test.pluxinc]
+
+[global PEKWM_THEMESET=$SCRIPTS_DIR/pekwm_themeset.sh]
+
+[shell pekwm_themeset]
+	[log usage]
+	!$PEKWM_THEMESET
+	?usage: .* \/path\/to\/themedir \(theme\)
+	[call sh-nok]
+
+	[log list themes, missing directory]
+	!$PEKWM_THEMESET ./missing
+	??Entry = "No such directory ./missing" { Actions = "None" }
+	[call sh-ok]
+
+	[log list themes]
+	# NOTE: script should be updated to handle space in the path
+	!$PEKWM_THEMESET ./themes
+	???Dynamic {
+	??Entry = "with space" { Actions = "Exec $PEKWM_THEMESET ./themes ./themes/with space" }
+	??Entry = "with-dash" { Actions = "Exec $PEKWM_THEMESET ./themes ./themes/with-dash" }
+	???}
+	[call sh-ok]
+
+	[log update theme]
+	[timeout 1]
+	[call sh-eval "cp pekwm_themeset.config pekwm_themeset.config.test"]
+	!export PEKWM_CONFIG_FILE=pekwm_themeset.config.test
+	[call sh-ok]
+	!$PEKWM_THEMESET ./themes ./themes/with-dash
+	[call sh-ok]
+	!cat $$PEKWM_CONFIG_FILE
+	???Files {
+	???Theme = "./themes/with-dash"
+	???    Theme = "./themes/with-dash"
+	???    ThemeVariant = "auto"
+	???# Theme = "~/.pekwm/themes/keep"
+	???}
+	???Sys {
+	???    NetTheme = "Raleigh"
+	???}
+	[call sh-ok]
+	[call sh-eval "rm -f $$PEKWM_CONFIG_FILE"]

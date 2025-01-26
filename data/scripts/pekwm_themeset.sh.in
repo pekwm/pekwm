@@ -18,8 +18,8 @@ fi
 
 # pekwm configuration directory, setup by pekwm but use this to ensure
 # that the script will run properly without running from pekwm.
-if test -z "$PEKWM_CONFIG_PATH"; then
-    PEKWM_CONFIG_PATH="$HOME/.pekwm"
+if test -z "$PEKWM_CONFIG_FILE"; then
+    PEKWM_CONFIG_FILE="$HOME/.pekwm/config"
 fi
 
 if test -z "${2}"; then
@@ -80,7 +80,7 @@ else
     text='[Tt][Hh][Ee][Mm][Ee]'
 
     @SED@ -e "/^\([^#]*\)ThemeVariant/d" \
-     -e "s/^\([^#]*\)$text$wspc=$wspc$qq[^$qq]*$qq/\1Theme\2=\3$qq${theme}$qq@    ThemeVariant = $qq${variant}$qq/" \
+     -e "s/^\([^#]*\)\b$text$wspc=$wspc$qq[^$qq]*$qq/\1Theme\2=\3$qq${theme}$qq@    ThemeVariant = $qq${variant}$qq/" \
      "${PEKWM_CONFIG_FILE}" \
      | tr '@' '\n' > "${tmp_file}"
     mv "${tmp_file}" "${PEKWM_CONFIG_FILE}"
