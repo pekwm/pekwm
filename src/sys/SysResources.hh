@@ -35,8 +35,10 @@ private:
 	void setXAtoms(const char *theme_variant);
 	void setXResources(const Daytime &daytime, TimeOfDay tod,
 			   const char *daylight, const char *theme_variant);
+	void notifyXTerms();
+	void notifyXTerm(Window win);
+	bool readClientList(std::vector<Window> &windowsv);
 
-private:
 	const SysConfig &_cfg;
 	std::string _location_country;
 	std::string _location_city;

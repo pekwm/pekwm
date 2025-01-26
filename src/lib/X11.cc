@@ -191,6 +191,9 @@ static const char *atomnames[] = {
 	"_NET_SYSTEM_TRAY_OPCODE",
 	"_NET_SYSTEM_TRAY_MESSAGE_DATA",
 
+	// misc
+	"XTERM_CONTROL",
+
 	nullptr
 };
 
