@@ -77,7 +77,9 @@ namespace pekwm
 		_hint_wo = new HintWO(X11::getRoot());
 		if (! _hint_wo->claimDisplay(replace)) {
 			delete _config;
+			_config = nullptr;
 			delete _hint_wo;
+			_hint_wo = nullptr;
 			X11::destruct();
 			return false;
 		}
@@ -128,8 +130,6 @@ namespace pekwm
 		delete _hint_wo;
 
 		X11::destruct();
-
-		delete _config;
 
 		cleanupNoDisplay();
 	}

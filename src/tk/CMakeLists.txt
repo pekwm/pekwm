@@ -4,6 +4,7 @@ set(tk_SOURCES
     Action.cc
     CfgUtil.cc
     Color.cc
+    ColorPalette.cc
     FontHandler.cc
     ImageHandler.cc
     PFont.cc
@@ -18,6 +19,7 @@ set(tk_SOURCES
     Render.cc
     TextureHandler.cc
     Theme.cc
+    ThemeUtil.cc
     TkButton.cc
     TkButtonRow.cc
     TkText.cc

@@ -12,9 +12,7 @@
 #include "config.h"
 
 #include "Compat.hh"
-#include "Types.hh"
 
-#include <map>
 #include <string>
 
 #include "X11.hh"

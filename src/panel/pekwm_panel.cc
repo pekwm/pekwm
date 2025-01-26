@@ -29,6 +29,7 @@
 #include "../tk/FontHandler.hh"
 #include "../tk/ImageHandler.hh"
 #include "../tk/TextureHandler.hh"
+#include "../tk/ThemeUtil.hh"
 #include "../tk/X11App.hh"
 #include "../tk/X11Util.hh"
 
@@ -94,6 +95,7 @@ loadTheme(PanelTheme& theme, CfgParser& cfg)
 
 	pekwm::fontHandler()->setDefaultFontX11(font_default_x11);
 	pekwm::fontHandler()->setCharsetOverride(font_charset_override);
+	ThemeUtil::loadRequire(cfg, theme_dir, theme_path);
 	theme.load(theme_dir, theme_path);
 
 	std::string icon_path;

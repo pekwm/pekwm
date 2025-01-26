@@ -8,8 +8,6 @@
 
 #include "Color.hh"
 #include "Debug.hh"
-#include "String.hh"
-#include "Util.hh"
 #include "X11.hh"
 
 #include <set>

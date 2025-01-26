@@ -1,6 +1,6 @@
 //
 // PanelTheme.cc for pekwm
-// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -12,6 +12,7 @@
 #include "../tk/FontHandler.hh"
 #include "../tk/ImageHandler.hh"
 #include "../tk/TextureHandler.hh"
+#include "../tk/ThemeUtil.hh"
 
 #define DEFAULT_BACKGROUND "SolidRaised #ffffff #eeeeee #cccccc"
 #define DEFAULT_HEIGHT 24
@@ -49,9 +50,8 @@ PanelTheme::load(const std::string &theme_dir, const std::string& theme_path)
 {
 	unload();
 
-	CfgParser theme(CfgParserOpt("")); // FIXME: pekwm::configScriptPath());
-	theme.setVar("THEME_DIR", theme_dir);
-	if (! theme.parse(theme_path, CfgParserSource::SOURCE_FILE, true)) {
+	CfgParser theme(CfgParserOpt(""));
+	if (! ThemeUtil::load(theme, theme_dir, theme_path, true)) {
 		check();
 		return;
 	}
@@ -65,7 +65,7 @@ PanelTheme::load(const std::string &theme_dir, const std::string& theme_path)
 	uint opacity;
 	CfgParserKeys keys;
 	keys.add_string("BACKGROUND", background, DEFAULT_BACKGROUND);
-	keys.add_numeric<uint>("BACKGROUNDOPACITY", opacity, 100);
+	keys.add_numeric<uint>("BACKGROUNDOPACITY", opacity, 100, 0, 100);
 	keys.add_numeric<uint>("HEIGHT", _height, DEFAULT_HEIGHT);
 	keys.add_string("SEPARATOR", separator, DEFAULT_SEPARATOR);
 	keys.add_string("HANDLE", handle, "");
@@ -80,7 +80,13 @@ PanelTheme::load(const std::string &theme_dir, const std::string& theme_path)
 
 	TextureHandler *th = pekwm::textureHandler();
 	_background = th->getTexture(background);
-	_background_opacity = static_cast<uchar>(255.0 * opacity / 100.0);
+	if (opacity == 100) {
+		_background_opacity = 255;
+	} else {
+		_background_opacity =
+			static_cast<uchar>(255.0 * static_cast<float>(opacity)
+					   / 100.0);
+	}
 	_sep = th->getTexture(separator);
 	if (! handle.empty()) {
 		_handle = th->getTexture(handle);
