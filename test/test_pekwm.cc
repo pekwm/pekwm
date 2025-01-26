@@ -15,6 +15,7 @@
 #include "test_Action.hh"
 #include "test_AutoProperties.hh"
 #include "test_Config.hh"
+#include "test_ColorPalette.hh"
 #include "test_FontHandler.hh"
 #include "test_Frame.hh"
 #include "test_InputDialog.hh"
@@ -47,6 +48,8 @@ main_tests(int argc, char *argv[])
 
 	// Config
 	TestConfig testConfig;
+
+	TestColorPalette testColorPalette;
 
 	// Frame
 	TestFrame testFrame;

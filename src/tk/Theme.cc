@@ -1,6 +1,6 @@
 //
 // Theme.cc for pekwm
-// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2003-2021 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -13,19 +13,25 @@
 #include "Exception.hh"
 #include "X11.hh"
 #include "Theme.hh"
+#include "ThemeUtil.hh"
 #include "Util.hh"
 #include "String.hh"
 
 #include "Color.hh"
+#include "ColorPalette.hh"
 #include "FontHandler.hh"
 #include "ImageHandler.hh"
 #include "PFont.hh"
 #include "PTexture.hh"
 #include "TextureHandler.hh"
 
-#include <cstdlib>
 #include <iostream>
 #include <string>
+
+extern "C" {
+#include <assert.h>
+#include <stdlib.h>
+}
 
 #define DEFAULT_FONT "Sans-12"
 #define DEFAULT_LARGE_FONT "Sans-14:weight=bold"
@@ -1314,6 +1320,7 @@ Theme::load(const std::string &dir, const std::string &variant, bool force)
 	bool theme_ok = true;
 	CfgParserOpt opt(""); // FIXME: (pekwm::configScriptPath());
 	opt.setRegisterXResource(true);
+	opt.setEndEarlyKey("REQUIRE");
 	CfgParser theme(opt);
 	theme.setVar("THEME_DIR", _theme_dir);
 	if (! theme.parse(theme_file)) {
@@ -1340,7 +1347,7 @@ Theme::load(const std::string &dir, const std::string &variant, bool force)
 		} else {
 			_cfg_files = theme.getCfgFiles();
 		}
-		loadThemeRequire(theme, theme_file);
+		ThemeUtil::loadRequire(theme, _theme_dir, theme_file);
 	}
 	CfgParser::Entry *root = theme.getEntryRoot();
 
@@ -1376,34 +1383,6 @@ Theme::load(const std::string &dir, const std::string &variant, bool force)
 	_th->logTextures("theme loaded");
 
 	return true;
-}
-
-/**
- * Load template quirks.
- */
-void
-Theme::loadThemeRequire(CfgParser &theme_cfg, const std::string &file)
-{
-	CfgParser::Entry *section;
-
-	// Look for requires section,
-	section = theme_cfg.getEntryRoot()->findSection("REQUIRE");
-	if (section) {
-		CfgParserKeys keys;
-		bool value_templates;
-
-		keys.add_bool("TEMPLATES", value_templates, false);
-		section->parseKeyValues(keys.begin(), keys.end());
-		keys.clear();
-
-		// Re-load configuration with templates enabled.
-		if (value_templates) {
-			theme_cfg.clear(true);
-			theme_cfg.setVar("THEME_DIR", _theme_dir);
-			theme_cfg.parse(file, CfgParserSource::SOURCE_FILE,
-					true);
-		}
-	}
 }
 
 void
