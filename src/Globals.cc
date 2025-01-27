@@ -46,11 +46,14 @@ namespace pekwm
 	void initNoDisplay(void)
 	{
 		_observer_mapping = new ObserverMapping();
+		_config = new Config();
 	}
 
 	void cleanupNoDisplay(void)
 	{
 		delete _observer_mapping;
+		delete _config;
+		_config = nullptr;
 	}
 
 	bool init(AppCtrl* app_ctrl, EventLoop* event_loop, Os *os,

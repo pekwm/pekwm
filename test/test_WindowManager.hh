@@ -155,8 +155,6 @@ TestWindowManager::assertSendRecvCommand(const std::string& msg,
 void
 TestWindowManager::testStartBackground()
 {
-	Config cfg;
-	pekwm::setConfig(&cfg);
 	TestOs *os = static_cast<TestOs*>(_os);
 
 	// no running process, ensure started
