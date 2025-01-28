@@ -52,6 +52,28 @@ public:
 	void clear() { files.clear(); mtime = 0; }
 };
 
+
+const size_t PARSE_BUF_SIZE = 1024;
+
+struct CfgParserState {
+	CfgParserState()
+	{
+		have_value = false;
+		buf.reserve(PARSE_BUF_SIZE);
+	}
+
+	void reset()
+	{
+		buf = "";
+		value = "";
+		have_value = false;
+	}
+
+	bool have_value;
+	std::string buf;
+	std::string value;
+};
+
 /**
  * CfgParser options.
  */
@@ -70,12 +92,15 @@ public:
 	void setRegisterXResource(bool register_x_resource) {
 		_register_x_resource = register_x_resource;
 	}
+	const std::string &getEndEarlyKey() const { return _end_early_key; }
+	void setEndEarlyKey(const std::string &key) { _end_early_key = key; }
 
 	Os *getOs() const { return _os; }
 	void setOs(Os *os) { _os = os; }
 
 private:
 	std::string _command_path;
+	std::string _end_early_key;
 	bool _register_x_resource;
 	Os *_os;
 };
@@ -155,12 +180,16 @@ public:
 	~CfgParser(void);
 
 	TimeFiles getCfgFiles(void) const { return _cfg_files; }
+	CfgParserOpt &getOpt() { return _opt; }
 
 	/** Returns the root Entry node. */
 	Entry *getEntryRoot(void) { return _root_entry; }
 	/** Return true if data parsed included dynamic content such as
 	    from COMMAND. */
-	bool isDynamicContent(void) { return _is_dynamic_content; }
+	bool isDynamicContent() const { return _is_dynamic_content; }
+	/** Return true if data parsing ended early due to end-early seciton
+	    being found */
+	bool isEndEarly() const { return _is_end_early; }
 
 	void clear(bool realloc = true);
 	bool parse(const std::string &src,
@@ -178,26 +207,26 @@ public:
 	}
 
 protected:
-    bool parseVarName(const std::string& line,
-		      std::string::size_type &begin,
-		      std::string::size_type &end,
-		      std::string& var);
+	bool parseVarName(const std::string& line,
+			  std::string::size_type &begin,
+			  std::string::size_type &end,
+			  std::string& var);
 
 private:
 	CfgParser(const CfgParser&);
 	CfgParser& operator=(const CfgParser&);
 
-	bool parse(void);
+	bool parse();
 	void parseSourceNew(const std::string &name,
 			    CfgParserSource::Type type);
+	void parseSource(CfgParserSource *source, CfgParserState &ps);
 	bool parseName(std::string &buf);
 	bool parseValue(std::string &value);
-	void parseEntryFinish(std::string &buf, std::string &value,
-			      bool &have_value);
-	void parseEntryFinishStandard(std::string &buf, std::string &value,
-				      bool &have_value);
+	void parseEntryFinish(CfgParserState &ps);
+	void parseEntryFinishStandard(CfgParserState &ps);
 	void parseEntryFinishTemplate(std::string &name);
-	void parseSectionFinish(const std::string &buf, std::string &value);
+	void parseCloseCurlyBracket(CfgParserState &ps);
+	void parseSectionFinish(CfgParserState &ps);
 	void parseCommentLine(CfgParserSource *source);
 	void parseCommentC(CfgParserSource *source);
 	char parseSkipBlank(CfgParserSource *source);
@@ -212,7 +241,6 @@ private:
 				std::string::size_type &end,
 				const std::string& var);
 
-private:
 	CfgParserOpt _opt;
 	Os *_os;
 	CfgParserSource *_source;
@@ -236,6 +264,8 @@ private:
 	Entry *_root_entry; /**< Root Entry. */
 	/** If true, parsed data included command or similar. */
 	bool _is_dynamic_content;
+	/** If true, data parsing ended early due to end early key found. */
+	bool _is_end_early;
 	Entry *_section; /**< Current section. */
 	bool _overwrite; /**< Overwrite elements when appending. */
 

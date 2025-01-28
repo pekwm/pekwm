@@ -32,12 +32,13 @@ CfgParserKeyBool::~CfgParserKeyBool(void)
  * @return true on success, else false and _br_set set to _b_default.
  */
 void
-CfgParserKeyBool::parseValue(const std::string &value)
+CfgParserKeyBool::parseValue(const std::string &value, bool is_default)
 {
-	if ((value == "1") || pekwm::ascii_ncase_equal(value, "TRUE")) {
+	if (is_default) {
+		_set = _default;
+	} else if ((value == "1") || pekwm::ascii_ncase_equal(value, "TRUE")) {
 		_set = true;
-	} else if ((value == "0")
-		   || pekwm::ascii_ncase_equal(value, "FALSE")) {
+	} else if ((value == "0") || pekwm::ascii_ncase_equal(value, "FALSE")) {
 		_set = false;
 	} else  {
 		_set = _default;
@@ -50,6 +51,7 @@ CfgParserKeyString::CfgParserKeyString(const char *name, std::string &set,
 				       const std::string::size_type length_min)
 	: CfgParserKey(name),
 	  _set(set),
+	  _default(default_val),
 	  _length_min(length_min)
 {
 	_set = default_val;
@@ -65,14 +67,18 @@ CfgParserKeyString::~CfgParserKeyString(void)
  * @return true on success, else false and _set set to _default.
  */
 void
-CfgParserKeyString::parseValue(const std::string &value)
+CfgParserKeyString::parseValue(const std::string &value, bool is_default)
 {
-	if (value.size() < _length_min) {
+	if (is_default) {
+		_set = _default;
+	} else if (value.size() < _length_min) {
 		std::string msg = "string too short, min length "
 			+ std::to_string(_length_min);
+		_set = _default;
 		throw msg;
+	} else {
+		_set = value;
 	}
-	_set = value;
 }
 
 CfgParserKeyPath::CfgParserKeyPath(const char *name, std::string &set,
@@ -95,9 +101,11 @@ CfgParserKeyPath::~CfgParserKeyPath(void)
  * @return true on success, else false and _set set to _default.
  */
 void
-CfgParserKeyPath::parseValue(const std::string &value)
+CfgParserKeyPath::parseValue(const std::string &value, bool is_default)
 {
-	if (value.size()) {
+	if (is_default) {
+		_set = _default;
+	} else if (value.size()) {
 		_set = value;
 		Util::expandFileName(_set);
 	} else {

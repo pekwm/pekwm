@@ -1,5 +1,5 @@
 //
-// Copyright (C) 2013-2023 Claes Nästén
+// Copyright (C) 2013-2025 Claes Nästén
 // Copyright (C) 2005-2013 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -32,7 +32,7 @@ public:
 	const char *getName(void) const { return _name; }
 
 	//! @brief Parses value and sets Key value.
-	virtual void parseValue(const std::string &) { }
+	virtual void parseValue(const std::string &, bool is_default) = 0;
 
 protected:
 	const char *_name; //!< Key name.
@@ -74,8 +74,13 @@ public:
 	 * @param value Reference to string representing integer value.
 	 */
 	virtual void
-	parseValue(const std::string &value_str)
+	parseValue(const std::string &value_str, bool is_default)
 	{
+		if (is_default) {
+			_set = _default;
+			return;
+		}
+
 		double value;
 		char *endptr;
 
@@ -118,7 +123,7 @@ public:
 			 bool &set, const bool default_val = false);
 	virtual ~CfgParserKeyBool(void);
 
-	virtual void parseValue(const std::string &value);
+	virtual void parseValue(const std::string &value, bool is_default);
 
 private:
 	bool &_set; //! Reference to stored parsed value in.
@@ -134,10 +139,11 @@ public:
 			   const std::string::size_type length_min = 0);
 	virtual ~CfgParserKeyString(void);
 
-	virtual void parseValue(const std::string &value);
+	virtual void parseValue(const std::string &value, bool is_default);
 
 private:
 	std::string &_set; //!< Reference to store parsed value in.
+	std::string _default;
 	const std::string::size_type _length_min; //!< Minimum length of string.
 };
 
@@ -150,7 +156,7 @@ public:
 			 const std::string &default_val = "");
 	virtual ~CfgParserKeyPath(void);
 
-	virtual void parseValue(const std::string &value);
+	virtual void parseValue(const std::string &value, bool is_default);
 
 private:
 	std::string &_set; //!< Reference to store parsed value in.

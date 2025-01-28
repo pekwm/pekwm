@@ -26,6 +26,10 @@ public:
 	void testExpandCurlyVar();
 	void testExpandSectionValue();
 
+	// end-early
+	void testEndOn();
+	void testEndOnNotFound();
+
 	// command
 	void testCommandOk();
 	void testCommandMissing();
@@ -38,6 +42,9 @@ public:
 	void testParseAmpVar();
 	void testParseCurlyVar();
 	void testParseCurlyNotClosedVar();
+
+	// keys
+	void testKeyDefaults();
 };
 
 TestCfgParser::TestCfgParser(void)
@@ -153,6 +160,45 @@ TestCfgParser::testExpandSectionValue()
 }
 
 void
+TestCfgParser::testEndOn()
+{
+	const char *cfg = "Section { Value = \"One\" }\n"
+			  "ExtraSection { Value = \"Two\" }\n";
+	CfgParserSource *source =
+		new CfgParserSourceString(":memory:", cfg);
+	getOpt().setEndEarlyKey("SECTION");
+
+	clear();
+	ASSERT_EQUAL("parse ok", true, parse(source));
+	ASSERT_EQUAL("size limited", 1, getEntryRoot()->size());
+	ASSERT_TRUE("end early", isEndEarly());
+	CfgParser::Entry *entry = getEntryRoot()->findSection("SECTION");
+	ASSERT_FALSE("section", entry == nullptr);
+	entry = getEntryRoot()->findSection("EXTRASECTION");
+	ASSERT_TRUE("no extra section", entry == nullptr);
+
+	getOpt().setEndEarlyKey("");
+}
+
+void
+TestCfgParser::testEndOnNotFound()
+{
+	const char *cfg = "ExtraSection { Value = \"Two\" }\n";
+	CfgParserSource *source =
+		new CfgParserSourceString(":memory:", cfg);
+	getOpt().setEndEarlyKey("SECTION");
+
+	clear();
+	ASSERT_EQUAL("parse ok", true, parse(source));
+	ASSERT_EQUAL("size", 1, getEntryRoot()->size());
+	ASSERT_FALSE("not end early", isEndEarly());
+	CfgParser::Entry *entry = getEntryRoot()->findSection("EXTRASECTION");
+	ASSERT_FALSE("section", entry == nullptr);
+
+	getOpt().setEndEarlyKey("");
+}
+
+void
 TestCfgParser::testCommandOk()
 {
 	const char *cfg = "COMMAND = \"cfg_parser_command.sh\"";
@@ -263,6 +309,25 @@ TestCfgParser::testParseCurlyNotClosedVar()
 	ASSERT_EQUAL("var", "", var);
 }
 
+void
+TestCfgParser::testKeyDefaults()
+{
+	std::string sval;
+	int ival = 0;
+	double dval = 0.0;
+	bool bval = false;
+	CfgParserKeys keys;
+	keys.add_string("SKEY", sval, "default");
+	keys.add_numeric<int>("IKEY", ival, 10);
+	keys.add_numeric<double>("DKEY", dval, 20.5);
+	keys.add_bool("BKEY", bval, true);
+	getEntryRoot()->parseKeyValues(keys.begin(), keys.end());
+	ASSERT_EQUAL("string default", "default", sval);
+	ASSERT_EQUAL("int default", 10, ival);
+	ASSERT_DOUBLE_EQUAL("double default", 20.5, dval);
+	ASSERT_EQUAL("bool default", true, bval);
+}
+
 bool
 TestCfgParser::run_test(TestSpec spec, bool status)
 {
@@ -274,6 +339,10 @@ TestCfgParser::run_test(TestSpec spec, bool status)
 	TEST_FN(spec, "expand var", testExpandVar());
 	TEST_FN(spec, "expand curly var", testExpandCurlyVar());
 	TEST_FN(spec, "expand section value", testExpandSectionValue());
+
+	// end-early
+	TEST_FN(spec, "end early", testEndOn());
+	TEST_FN(spec, "end early", testEndOnNotFound());
 
 	// command
 	TEST_FN(spec, "COMMAND found", testCommandOk());
@@ -287,5 +356,9 @@ TestCfgParser::run_test(TestSpec spec, bool status)
 	TEST_FN(spec, "$& variable", testParseAmpVar());
 	TEST_FN(spec, "${} variable", testParseCurlyVar());
 	TEST_FN(spec, "${ variable", testParseCurlyNotClosedVar());
+
+	// keys
+	TEST_FN(spec, "key defaults", testKeyDefaults());
+
 	return status;
 }

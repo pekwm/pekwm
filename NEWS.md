@@ -6,6 +6,8 @@ Closed issues
 
 * #147, picom fade out visual artifacts.
 * #21, support `_NET_RESTACK_WINDOW`.
+* Configuration default values was not picked up properly if the node was
+  missing from the configuration.
 
 New
 ---
