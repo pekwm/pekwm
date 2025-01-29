@@ -410,7 +410,7 @@ public:
 
 	static Window getSelectionOwner(Atom atom);
 	static void setSelectionOwner(Atom atom, Window win,
-				      Time timestamp = -1);
+				      Time timestamp = static_cast<Time>(-1));
 
 	static Window getLastClickID(void) { return _last_click_id; }
 	static void setLastClickID(Window id) { _last_click_id = id; }

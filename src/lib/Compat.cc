@@ -19,6 +19,9 @@
 #include <cstring>
 
 extern "C" {
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #include <assert.h>
 #include <errno.h>
 #include <stdarg.h>
@@ -27,6 +30,32 @@ extern "C" {
 #endif // PEKWM_HAVE_PUT_TIME
 #include <unistd.h>
 }
+
+#ifndef PEKWM_HAVE_EXECVPE
+int execvpe(const char *file, char *const argv[], char *const envp[])
+{
+	const char *c_path = getenv("PATH");
+	if (! c_path) {
+		c_path = "/bin:/usr/bin";
+	}
+	const char *begin = c_path;
+	const char *end = strchr(begin, ':');
+	do {
+		if (end == NULL) {
+			end = begin + strlen(begin);
+		}
+		std::string cmd_path(begin, end - begin);
+		struct stat sb;
+		if (! stat(cmd_path.c_str(), &sb) && S_ISREG(sb.st_mode)) {
+			execve(cmd_path.c_str(), argv, envp);
+			exit(1);
+		}
+		begin = end + 1;
+	} while (*begin);
+
+	exit(127);
+}
+#endif // PEKWM_HAVE_EXECVPE
 
 #ifndef PEKWM_HAVE_SETENV
 /**
@@ -127,6 +156,38 @@ int clock_gettime(clockid_t clk_id, struct timespec *tp)
 }
 
 #endif // ! PEKWM_HAVE_CLOCK_GETTIME
+
+#ifndef PEKWM_HAVE_TIMEGM
+
+static int _is_leap_year(int year)
+{
+	return (year % 400 == 0)
+		|| (year % 4 == 0 && year % 100 != 0);
+}
+
+time_t timegm(struct tm* tm)
+{
+	int i, year;
+	time_t val;
+
+	val = tm->tm_sec
+		+ tm->tm_min * 60
+		+ tm->tm_hour * 3600
+		+ tm->tm_yday * 86400;
+
+	year = 1900 + tm->tm_year;
+	for (i = 1970; i < year; i++) {
+		if (_is_leap_year(i)) {
+			val += 366 * 86400;
+		} else {
+			val += 365 * 86400;
+		}
+	}
+
+	return val;
+}
+
+#endif // PEKWM_HAVE_TIMEGM
 
 #ifndef PEKWM_HAVE_PUT_TIME
 

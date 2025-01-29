@@ -103,7 +103,7 @@ IconWidget::renderFixed(Render& rend)
 	if (_icon->getHeight() > height_avail) {
 		float aspect = (float) height_avail / _icon->getHeight();
 		height = height_avail;
-		width = _icon->getWidth() * aspect;
+		width = static_cast<int>(_icon->getWidth() * aspect);
 	} else {
 		height = _icon->getHeight();
 		width = _icon->getWidth();

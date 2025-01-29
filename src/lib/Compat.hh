@@ -33,6 +33,10 @@ extern "C" {
 #define WAIT_ANY -1
 #endif // WAIT_ANY
 
+#ifndef PEKWM_HAVE_EXECVPE
+int execvpe(const char *file, char *const argv[], char *const envp[]);
+#endif // PEKWM_HAVE_EXECVPE
+
 #ifdef PEKWM_HAVE_SETENV
 extern "C" {
 #include <stdlib.h>
@@ -53,11 +57,14 @@ int unsetenv(const char *name);
 int daemon(int nochdir, int noclose);
 #endif // PEKWM_HAVE_DAEMON
 
-#ifndef PEKWM_HAVE_CLOCK_GETTIME
+#if !defined(PEKWM_HAVE_CLOCK_GETTIME) || !defined(PEKWM_HAVE_TIMEGM)
 extern "C" {
 #include <sys/time.h>
 #include <time.h>
 }
+#endif
+
+#ifndef PEKWM_HAVE_CLOCK_GETTIME
 #ifndef CLOCK_MONOTONIC
 #define CLOCK_MONOTONIC 0
 #endif // !CLOCK_MONOTONIC
@@ -65,6 +72,10 @@ typedef int clockid_t;
 
 int clock_gettime(clockid_t clk_id, struct timespec *tp);
 #endif // PEKWM_HAVE_CLOCK_GETTIME
+
+#ifndef PEKWM_HAVE_TIMEGM
+time_t timegm(struct tm *tm);
+#endif // PEKWM_HAVE_TIMEGM
 
 #ifndef PEKWM_HAVE_TIMERSUB
 #define timersub(a, b, result)						\

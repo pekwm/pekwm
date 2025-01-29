@@ -87,11 +87,13 @@ int main() { std::stof(\"42.0\"); }
 set(CMAKE_CXX_FLAGS ${orig_CMAKE_CXX_FLAGS})
 
 # Look for platform specific methods
+check_function_exists(execvpe PEKWM_HAVE_EXECVPE)
 check_function_exists(setenv PEKWM_HAVE_SETENV)
 check_function_exists(unsetenv PEKWM_HAVE_UNSETENV)
 check_function_exists(daemon PEKWM_HAVE_DAEMON)
 check_function_exists(clock_gettime PEKWM_HAVE_CLOCK_GETTIME)
 check_function_exists(pledge PEKWM_HAVE_PLEDGE)
+check_function_exists(timegm PEKWM_HAVE_TIMEGM)
 check_cxx_symbol_exists(timersub sys/time.h PEKWM_HAVE_TIMERSUB)
 check_cxx_symbol_exists(environ unistd.h PEKWM_HAVE_ENVIRON)
 

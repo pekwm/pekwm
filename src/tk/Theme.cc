@@ -61,11 +61,11 @@ static void calculate_pad_adapt(const int height_available, PFont* font,
 
 	float pad = height_available - height;
 	if (font->useAscentDescent()) {
-		pad_up = pad / (height / font->getAscent());
-		pad_down = pad / (height / font->getDescent());
+		pad_up = static_cast<int>(pad / (height / font->getAscent()));
+		pad_down = static_cast<int>(pad / (height / font->getDescent()));
 	} else {
-		pad_up = pad / 2;
-		pad_down = pad / 2;
+		pad_up = static_cast<int>(pad / 2);
+		pad_down = static_cast<int>(pad / 2);
 	}
 }
 

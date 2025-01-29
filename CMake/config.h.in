@@ -20,6 +20,7 @@
 #cmakedefine PEKWM_HAVE_STOI
 #cmakedefine PEKWM_HAVE_STOF
 
+#cmakedefine PEKWM_HAVE_EXECVPE
 #cmakedefine PEKWM_HAVE_SETENV
 #cmakedefine PEKWM_HAVE_UNSETENV
 #cmakedefine PEKWM_HAVE_DAEMON
@@ -27,6 +28,7 @@
 #cmakedefine PEKWM_HAVE_ENVIRON
 #cmakedefine PEKWM_HAVE_CLOCK_GETTIME
 #cmakedefine PEKWM_HAVE_PLEDGE
+#cmakedefine PEKWM_HAVE_TIMEGM
 
 #cmakedefine PEKWM_HAVE_SHAPE
 #cmakedefine PEKWM_HAVE_XDBE
