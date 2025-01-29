@@ -80,7 +80,9 @@ else
     text='[Tt][Hh][Ee][Mm][Ee]'
 
     @SED@ -e "/^\([^#]*\)ThemeVariant/d" \
-     -e "s/^\([^#]*\)\b$text$wspc=$wspc$qq[^$qq]*$qq/\1Theme\2=\3$qq${theme}$qq@    ThemeVariant = $qq${variant}$qq/" \
+     -e "s/^$text$wspc=$wspc$qq[^$qq]*$qq/Theme\1=\2$qq${theme}$qq/" \
+     -e "s/^\([^#]*[ $tab]\)$text$wspc=$wspc$qq[^$qq]*$qq/\1Theme\2=\3$qq${theme}$qq/" \
+     -e "s/Files {/Files {@    ThemeVariant = $qq${variant}$qq/" \
      "${PEKWM_CONFIG_FILE}" \
      | tr '@' '\n' > "${tmp_file}"
     mv "${tmp_file}" "${PEKWM_CONFIG_FILE}"

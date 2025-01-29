@@ -34,9 +34,9 @@
 	[call sh-ok]
 	!cat $$PEKWM_CONFIG_FILE
 	???Files {
+	???    ThemeVariant = "auto"
 	???Theme = "./themes/with-dash"
 	???    Theme = "./themes/with-dash"
-	???    ThemeVariant = "auto"
 	???# Theme = "~/.pekwm/themes/keep"
 	???}
 	???Sys {
