@@ -70,10 +70,7 @@ Start a single Xvfb pekwm_ctrl system tests in one go.
 [endfunction]
 
 [shell Xvfb]
-	[log starting Xvfb]
-	-Fatal server error
-	!Xvfb -displayfd 1 $DISPLAY
-	?^1
+	[call start-xvfb]
 
 [shell pekwm]
 	[log starting pekwm]
@@ -106,5 +103,4 @@ Start a single Xvfb pekwm_ctrl system tests in one go.
 	[call test-xrm-set]
 
 [shell Xvfb]
-	!$_CTRL_C_
-	?SH-PROMPT:
+	[call stop-xvfb]

@@ -5,10 +5,7 @@ Basic pekwm_panel tests
 [include test.pluxinc]
 
 [shell Xvfb]
-	[log starting Xvfb]
-	-Fatal server error
-	!Xvfb -screen 0 640x480x24 -dpi 96 -displayfd 1 $DISPLAY
-	?^1
+	[call start-xvfb]
 
 [shell pekwm]
 	!$$VALGRIND $BIN_DIR/pekwm --config pekwm.config --log-level trace
@@ -32,9 +29,9 @@ Basic pekwm_panel tests
 	!xwininfo -id $panel_window
 	?Absolute upper-left X:  0
 	?Absolute upper-left Y:  0
-	?Width: 640
+	?Width: 1024
 	?Height: 24
-	???-geometry 640x24+0+0
+	???-geometry 1024x24+0+0
 	?SH-PROMPT:
 
 [shell pekwm_panel]
@@ -57,10 +54,10 @@ Basic pekwm_panel tests
 	[log verfiy panel size]
 	!xwininfo -id $panel_window
 	?Absolute upper-left X:  0
-	?Absolute upper-left Y:  456
-	?Width: 640
+	?Absolute upper-left Y:  744
+	?Width: 1024
 	?Height: 24
-	???-geometry 640x24+0-0
+	???-geometry 1024x24+0-0
 	?SH-PROMPT:
 
 [shell pekwm_panel]
@@ -89,5 +86,4 @@ Basic pekwm_panel tests
 	?SH-PROMPT:
 
 [shell Xvfb]
-	!$_CTRL_C_
-	?SH-PROMPT:
+	[call stop-xvfb]

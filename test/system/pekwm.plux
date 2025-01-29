@@ -510,10 +510,7 @@ in one go.
 [endfunction]
 
 [shell Xvfb]
-	[log starting Xvfb]
-	-Fatal server error
-	!Xvfb -screen 0 1024x768x24 -dpi 96 -displayfd 1 $DISPLAY
-	?^1
+	[call start-xvfb]
 
 [shell pekwm]
 	-Invalid read of size
@@ -553,5 +550,4 @@ in one go.
 	[call test_pekwm_replace]
 
 [shell Xvfb]
-	!$_CTRL_C_
-	?SH-PROMPT:
+	[call stop-xvfb]

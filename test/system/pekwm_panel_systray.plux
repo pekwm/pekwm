@@ -12,10 +12,7 @@ Tests verifying the systray functionality in pekwm. Tests include:
 [include test.pluxinc]
 
 [shell Xvfb]
-	[log starting Xvfb]
-	-Fatal server error
-	!Xvfb -screen 0 640x480x24 -dpi 96 -displayfd 1 $DISPLAY
-	?^1
+	[call start-xvfb]
 
 [shell pekwm_panel]
 	[log run panel with systray config]
@@ -104,5 +101,4 @@ Tests verifying the systray functionality in pekwm. Tests include:
 	?SH-PROMPT:
 
 [shell Xvfb]
-	!$_CTRL_C_
-	?SH-PROMPT:
+	[call stop-xvfb]

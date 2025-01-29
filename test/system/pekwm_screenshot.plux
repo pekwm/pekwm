@@ -7,10 +7,7 @@ Start a single Xvfb pekwm_screenshot system tests in one go.
 [include test.pluxinc]
 
 [shell Xvfb]
-	[log starting Xvfb]
-	-Fatal server error
-	!Xvfb -displayfd 1 $DISPLAY
-	?^1
+	[call start-xvfb]
 
 [shell pekwm_screenshot]
 	[log test pekwm_screenshot (help)]
@@ -32,5 +29,4 @@ Start a single Xvfb pekwm_screenshot system tests in one go.
 	[call sh-eval "rm -f screenshot.png"]
 
 [shell Xvfb]
-	!$_CTRL_C_
-	?SH-PROMPT:
+	[call stop-xvfb]

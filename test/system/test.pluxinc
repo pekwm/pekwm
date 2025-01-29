@@ -15,3 +15,23 @@ Common functions and variables for pekwm tests
 	[call sh-eval "export DISPLAY=$DISPLAY LANG=C LC_CTYPE=C"]
 	[call sh-which valgrind VALGRIND]
 [endfunction]
+
+[function start-xvfb]
+	[call sh-if "-z $$TEST_USE_DISPLAY" do-start-xvfb]
+[endfunction]
+
+[function do-start-xvfb]
+	[log starting Xvfb]
+	-Fatal server error
+	!Xvfb -screen 0 1024x768x24 -dpi 96 -displayfd 1 $DISPLAY
+	?^1
+[endfunction]
+
+[function stop-xvfb]
+	[call sh-if "-z $$TEST_USE_DISPLAY" do-stop-xvfb]
+[endfunction]
+
+[function do-stop-xvfb]
+	!$_CTRL_C_
+	?SH-PROMPT:
+[endfunction]
