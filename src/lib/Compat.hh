@@ -17,16 +17,14 @@
 #define nullptr 0
 #endif // !nullptr
 
-#include <stdexcept>
-#include <string>
-#include <sstream>
-
 #endif
 
-#include <cstddef>
+#include <string>
+
 extern "C" {
 #include <sys/wait.h>
 #include <time.h>
+#include <stddef.h>
 }
 
 #ifndef WAIT_ANY

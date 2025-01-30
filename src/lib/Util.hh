@@ -192,11 +192,6 @@ namespace Util {
 
 	bool isTrue(const std::string &value);
 
-	//! @brief for_each delete utility.
-	template<class T> struct Free : public std::unary_function<T, void> {
-		void operator ()(T t) { delete t; }
-	};
-
 	template<typename T>
 	struct StringTo {
 		const char *name;

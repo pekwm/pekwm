@@ -14,9 +14,8 @@
 
 #include <iostream>
 #include <string>
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
+#include <sstream>
+#include <stdexcept>
 
 extern "C" {
 #include <fcntl.h>
@@ -29,6 +28,9 @@ extern "C" {
 #include <time.h>
 #endif // PEKWM_HAVE_PUT_TIME
 #include <unistd.h>
+#include <string.h>
+#include <stdlib.h>
+#include <stdio.h>
 }
 
 #ifndef PEKWM_HAVE_EXECVPE

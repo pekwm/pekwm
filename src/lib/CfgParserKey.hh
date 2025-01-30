@@ -173,7 +173,7 @@ public:
 	CfgParserKeys(void) { }
 	virtual ~CfgParserKeys(void)
 	{
-		std::for_each(begin(), end(), Util::Free<CfgParserKey*>());
+		clear();
 	}
 
 	void add_bool(const char *key, bool &value,
@@ -207,7 +207,9 @@ public:
 
 	virtual void clear(void)
 	{
-		std::for_each(begin(), end(), Util::Free<CfgParserKey*>());
+		for (iterator it(begin()); it != end(); ++it) {
+			delete *it;
+		}
 		std::vector<CfgParserKey*>::clear();
 	}
 };

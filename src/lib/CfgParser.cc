@@ -80,8 +80,9 @@ CfgParser::Entry::Entry(const CfgParser::Entry &entry)
 
 CfgParser::Entry::~Entry(void)
 {
-	std::for_each(_entries.begin(), _entries.end(),
-		      Util::Free<CfgParser::Entry*>());
+	for (entry_it it = _entries.begin(); it != _entries.end(); ++it) {
+		delete *it;
+	}
 	delete _section;
 }
 
