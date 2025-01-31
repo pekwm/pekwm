@@ -7,7 +7,7 @@
 //
 
 #include "config.h"
-#include "lib/Compat.hh"
+#include "Compat.hh"
 #include "pekwm_env.hh"
 
 #include <iostream>

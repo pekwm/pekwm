@@ -26,5 +26,7 @@ set(lib_SOURCES
     X11.cc)
 
 add_library(lib STATIC ${lib_SOURCES})
-target_include_directories(lib PUBLIC ${common_INCLUDE_DIRS})
+target_include_directories(lib PUBLIC
+			   ${PROJECT_BINARY_DIR}/src
+			   ${common_INCLUDE_DIRS})
 target_compile_definitions(lib PUBLIC PEKWM_SH="${SH}")

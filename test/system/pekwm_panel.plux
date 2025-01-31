@@ -8,7 +8,7 @@ Basic pekwm_panel tests
 	[call start-xvfb]
 
 [shell pekwm]
-	!$$VALGRIND $BIN_DIR/pekwm --config pekwm.config --log-level trace
+	!$$VALGRIND $BIN_DIR/wm/pekwm --config pekwm.config --log-level trace
 	?Enter event loop.
 
 [shell pekwm_panel]

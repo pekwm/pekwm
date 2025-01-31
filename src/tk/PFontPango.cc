@@ -1,6 +1,6 @@
 //
 // PFontPango.cc for pekwm
-// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2023-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -9,6 +9,8 @@
 #include "Debug.hh"
 #include "PFontPango.hh"
 #include "Util.hh"
+
+#ifdef PEKWM_HAVE_PANGO
 
 static const char* FALLBACK_FONT_FAMILY = "Sans";
 static const int FALLBACK_FONT_SIZE = 12 * PANGO_SCALE;
@@ -220,3 +222,5 @@ PFontPango::charsToLen(uint chars)
 {
 	return chars ? static_cast<int>(chars) : -1;
 }
+
+#endif // PEKWM_HAVE_PANGO

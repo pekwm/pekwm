@@ -7,8 +7,8 @@
 //
 
 #include "test.hh"
-#include "ManagerWindows.hh"
-#include "Workspaces.hh"
+#include "wm/ManagerWindows.hh"
+#include "wm/Workspaces.hh"
 
 extern "C" {
 #include <X11/Xlib.h>

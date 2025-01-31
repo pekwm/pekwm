@@ -10,14 +10,14 @@ in one go.
 # test possible ways of setting the configuration file used by pekwm
 [function test_config_path]
 	[log test_config_path (--config)]
-	!$$VALGRIND $BIN_DIR/pekwm --config ./pekwm.config.missing --log-level trace
+	!$$VALGRIND $BIN_DIR/wm/pekwm --config ./pekwm.config.missing --log-level trace
 	?using configuration at ./pekwm.config.missing
 	?failed to open file ./pekwm.config.missing
 	!$_CTRL_C_
 	?SH-PROMPT:
 
 	[log test_config_path (env PEKWM_CONFIG_FILE)]
-	!env PEKWM_CONFIG_FILE=./pekwm.env.config.missing $$VALGRIND $BIN_DIR/pekwm --log-level trace
+	!env PEKWM_CONFIG_FILE=./pekwm.env.config.missing $$VALGRIND $BIN_DIR/wm/pekwm --log-level trace
 	?using configuration at ./pekwm.env.config.missing
 	?failed to open file ./pekwm.env.config.missing
 	!$_CTRL_C_
@@ -25,7 +25,7 @@ in one go.
 
 	[log test_config_path (env -i)]
 	# test without home set, supposed to fail
-	!env -i $$VALGRIND $BIN_DIR/pekwm --log-level trace
+	!env -i $$VALGRIND $BIN_DIR/wm/pekwm --log-level trace
 	???failed to get configuration file path, none of $HOME and $PEKWM_CONFIG_PATH is set.
 	?SH-PROMPT:
 [endfunction]
@@ -41,7 +41,7 @@ in one go.
                !tail -f pekwm.log
 
        [shell pekwm]
-               !$$VALGRIND $BIN_DIR/pekwm --log-file pekwm.log --log-level trace
+               !$$VALGRIND $BIN_DIR/wm/pekwm --log-file pekwm.log --log-level trace
 
        [shell pekwm-log]
                ???Enter event loop.
@@ -57,19 +57,19 @@ in one go.
 	[shell pekwm-1]
 		-(window manager already running|Invalid read of size)
 		[log starting pekwm to be replaced]
-		!$$VALGRIND $BIN_DIR/pekwm --log-level trace
+		!$$VALGRIND $BIN_DIR/wm/pekwm --log-level trace
 		?Enter event loop.
 
 	[shell pekwm-2]
 		-Invalid read of size
 		[log starting pekwm without --replace, should fail]
-		!$$VALGRIND $BIN_DIR/pekwm --log-level trace
+		!$$VALGRIND $BIN_DIR/wm/pekwm --log-level trace
 		?window manager already running
 		?SH-PROMPT:
 
 		[log starting pekwm with --replace, replace first]
 		-Invalid read of size
-		!$$VALGRIND $BIN_DIR/pekwm --replace --log-level trace
+		!$$VALGRIND $BIN_DIR/wm/pekwm --replace --log-level trace
 		?waiting for previous window manager to exit
 		?Enter event loop.
 
@@ -91,7 +91,7 @@ in one go.
 		[call sh-eval "xprop -root -f PEKWM_THEME 8s -set PEKWM_THEME atom"]
 
 		-Trying to use undefined variable: (&pekwm.autoproperties|@PEKWM_THEME)
-	        !$$VALGRIND $BIN_DIR/pekwm --log-level trace \
+	        !$$VALGRIND $BIN_DIR/wm/pekwm --log-level trace \
 		!  --config pekwm.config.vars
 		[log verify theme from Xresources used]
 		?failed to open file atom/theme
@@ -515,7 +515,7 @@ in one go.
 [shell pekwm]
 	-Invalid read of size
 	[log starting pekwm (pekwm.config.report_all)]
-	!$$VALGRIND $BIN_DIR/pekwm --config pekwm.config.report_all --log-level trace
+	!$$VALGRIND $BIN_DIR/wm/pekwm --config pekwm.config.report_all --log-level trace
 	?Enter event loop.
 
 [shell test]
@@ -533,7 +533,7 @@ in one go.
 	?SH-PROMPT:
 
 	[log starting pekwm (pekwm.config)]
-	!$$VALGRIND $BIN_DIR/pekwm --config pekwm.config --log-level trace
+	!$$VALGRIND $BIN_DIR/wm/pekwm --config pekwm.config --log-level trace
 	?Enter event loop.
 
 [shell test]

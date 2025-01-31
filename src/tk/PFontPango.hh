@@ -1,6 +1,6 @@
 //
 // PFontPango.hh for pekwm
-// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2023-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -8,6 +8,10 @@
 
 #ifndef _PEKWM_PFONT_PANGO_HH_
 #define _PEKWM_PFONT_PANGO_HH_
+
+#include "config.h"
+
+#ifdef PEKWM_HAVE_PANGO
 
 #include <sstream>
 
@@ -52,5 +56,7 @@ protected:
 	PangoFont* _font;
 	PangoFontDescription* _font_description;
 };
+
+#endif // PEKWM_HAVE_PANGO
 
 #endif // _PEKWM_PFONT_PANGO_HH_

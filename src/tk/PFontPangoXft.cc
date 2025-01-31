@@ -1,6 +1,6 @@
 //
 // PFontPangoXft.cc for pekwm
-// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2023-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -9,6 +9,8 @@
 #include "Debug.hh"
 #include "PFontPangoXft.hh"
 #include "X11.hh"
+
+#ifdef PEKWM_HAVE_PANGO_XFT
 
 // PFontPangoXftLayout
 
@@ -125,3 +127,5 @@ PFontPangoXft::drawPangoLine(int x, int y,
 		x += width / PANGO_SCALE;
 	}
 }
+
+#endif // PEKWM_HAVE_PANGO_XFT

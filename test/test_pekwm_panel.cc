@@ -10,7 +10,7 @@
 
 #include "test_ExternalCommandData.hh"
 
-#include "pekwm.hh"
+#include "wm/pekwm.hh"
 #include "Debug.hh"
 #include "X11.hh"
 

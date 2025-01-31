@@ -16,6 +16,7 @@ set(tk_SOURCES
     PTexture.cc
     PTexturePlain.cc
     PWinObj.cc
+    PXftColor.cc
     Render.cc
     TextureHandler.cc
     Theme.cc

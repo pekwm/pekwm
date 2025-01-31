@@ -7,7 +7,7 @@
 //
 
 #include "test.hh"
-#include "Config.hh"
+#include "wm/Config.hh"
 #include "tk/Action.hh"
 #include <sstream>
 

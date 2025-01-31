@@ -13,37 +13,6 @@
 
 #include "PWinObj.hh"
 
-#if defined(PEKWM_HAVE_XFT) || defined(PEKWM_HAVE_PANGO_XFT)
-
-extern "C" {
-#include <X11/Xft/Xft.h>
-}
-
-/**
- * XftColor wrapper.
- */
-class PXftColor {
-public:
-	PXftColor();
-	~PXftColor();
-
-	XftColor* operator*() { return &_color; }
-
-	void set(ushort r, ushort g, ushort b, uint alpha);
-	void unset();
-	bool isSet() const { return _is_set; }
-
-private:
-	PXftColor(const PXftColor&);
-	PXftColor& operator=(const PXftColor&);
-
-private:
-	XftColor _color;
-	bool _is_set;
-};
-
-#endif // defined(PEKWM_HAVE_XFT) || defined(PEKWM_HAVE_PANGO_XFT)
-
 class MwmHints {
 public:
 	MwmHints()

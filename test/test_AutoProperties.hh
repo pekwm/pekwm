@@ -7,8 +7,8 @@
 //
 
 #include "test.hh"
-#include "AutoProperties.hh"
-#include "WinLayouter.hh"
+#include "wm/AutoProperties.hh"
+#include "wm/WinLayouter.hh"
 
 class AutoPropertiesTest : public AutoProperties {
 public:

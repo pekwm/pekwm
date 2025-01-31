@@ -7,8 +7,8 @@
 //
 
 #include "test.hh"
-#include "Config.hh"
-#include "ManagerWindows.hh"
+#include "wm/Config.hh"
+#include "wm/ManagerWindows.hh"
 
 class TestRootWO : public TestSuite,
 		   public RootWO {

@@ -9,7 +9,7 @@
 #include <iostream>
 
 #include "test.hh"
-#include "Frame.hh"
+#include "wm/Frame.hh"
 
 class TestFrame : public Frame,
 		  public TestSuite {

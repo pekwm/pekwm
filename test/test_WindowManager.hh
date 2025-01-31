@@ -7,8 +7,8 @@
 //
 
 #include "test.hh"
-#include "Config.hh"
-#include "WindowManager.hh"
+#include "wm/Config.hh"
+#include "wm/WindowManager.hh"
 
 #include <utility>
 

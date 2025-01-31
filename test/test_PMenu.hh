@@ -7,7 +7,7 @@
 //
 
 #include "test.hh"
-#include "PMenu.hh"
+#include "wm/PMenu.hh"
 
 class TestPMenu : public TestSuite {
 public:

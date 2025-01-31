@@ -9,7 +9,7 @@
 #include <iostream>
 
 #include "test.hh"
-#include "InputDialog.hh"
+#include "wm/InputDialog.hh"
 
 class TestInputBuffer : public TestSuite {
 public:

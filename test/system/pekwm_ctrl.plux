@@ -74,7 +74,7 @@ Start a single Xvfb pekwm_ctrl system tests in one go.
 
 [shell pekwm]
 	[log starting pekwm]
-	!$BIN_DIR/pekwm --display :1 --log-level trace
+	!$BIN_DIR/wm/pekwm --display :1 --log-level trace
 	?Enter event loop.
 
 [shell xterm]
