@@ -1,36 +1,41 @@
 lib_LIBRARIES = libpekwm_tk.a
-libpekwm_tk_a_SOURCES = Action.cc \
-    CfgUtil.cc \
-    Color.cc \
-    ColorPalette.cc \
-    FontHandler.cc \
-    ImageHandler.cc \
-    PFont.cc \
-    PFontPango.cc \
-    PFontPangoCairo.cc \
-    PFontPangoXft.cc \
-    PFontX.cc \
-    PFontX11.cc \
-    PFontXft.cc \
-    PFontXmb.cc \
-    PImage.cc \
-    PImageIcon.cc \
-    PImageLoaderJpeg.cc \
-    PImageLoaderPng.cc \
-    PImageLoaderXpm.cc \
-    PTexture.cc \
-    PTexturePlain.cc \
-    PWinObj.cc \
-    PXftColor.cc \
-    Render.cc \
-    TextureHandler.cc \
-    Theme.cc \
-    ThemeUtil.cc \
-    TkButton.cc \
-    TkButtonRow.cc \
-    TkText.cc \
-    X11App.cc \
-    X11Util.cc
-libpekwm_tk_a_CXXFLAGS = -I../lib $(xext_CFLAGS)  $(libjpeg_CFLAGS) \
-	$(libpng_CFLAGS) $(xpm_CFLAGS) $(xft_LIBS) \
-	$(xft_CFLAGS) $(pango_CFLAGS) $(pangocairo_CFLAGS) $(pangoxft_CFLAGS)
+libpekwm_tk_a_SOURCES = Action.cc Action.hh \
+			CfgUtil.cc CfgUtil.hh \
+			Color.cc Color.hh \
+			ColorPalette.cc ColorPalette.hh \
+			FontHandler.cc FontHandler.hh \
+			Handler.hh \
+			ImageHandler.cc ImageHandler.hh \
+			PFont.cc PFont.hh \
+			PFontPango.cc PFontPango.hh \
+			PFontPangoCairo.cc PFontPangoCairo.hh \
+			PFontPangoXft.cc PFontPangoXft.hh \
+			PFontX.cc PFontX.hh \
+			PFontX11.cc PFontX11.hh \
+			PFontXft.cc PFontXft.hh \
+			PFontXmb.cc PFontXmb.hh \
+			PImage.cc PImage.hh \
+			PImageIcon.cc PImageIcon.hh \
+			PImageLoaderJpeg.cc PImageLoaderJpeg.hh \
+			PImageLoaderPng.cc PImageLoaderPng.hh \
+			PImageLoaderXpm.cc PImageLoaderXpm.hh \
+			PPixmapSurface.hh \
+			PSurface.hh \
+			PTexture.cc PTexture.hh \
+			PTexturePlain.cc PTexturePlain.hh \
+			PWinObj.cc PWinObj.hh \
+			PXftColor.cc PXftColor.hh \
+			Render.cc Render.hh \
+			TextureHandler.cc TextureHandler.hh \
+			Theme.cc Theme.hh \
+			ThemeUtil.cc ThemeUtil.hh \
+			TkButton.cc TkButton.hh \
+			TkButtonRow.cc TkButtonRow.hh \
+			TkImage.hh \
+			TkText.cc TkText.hh \
+			TkWidget.hh \
+			X11App.cc X11App.hh \
+			X11Util.cc X11Util.hh
+libpekwm_tk_a_CXXFLAGS = -I../lib $(LIB_CFLAGS) $(TK_CFLAGS)
+
+EXTRA_DIST = CMakeLists.txt

@@ -1,0 +1,46 @@
+SUBDIRS = system
+
+EXTRA_DIST = CMakeLists.txt \
+	     data/cfg_parser_command.sh \
+	     data/cfg_parser_include.cfg \
+	     data/config.pekwm_sys \
+	     test.hh \
+	     test_Action.hh \
+	     test_AutoProperties.hh \
+	     test_Calendar.hh \
+	     test_CfgParser.hh \
+	     test_Charset.hh \
+	     test_ColorPalette.hh \
+	     test_Config.hh \
+	     test_Daytime.hh \
+	     test_ExternalCommandData.hh \
+	     test_FontHandler.hh \
+	     test_Frame.hh \
+	     test_Geometry.hh \
+	     test_InputDialog.hh \
+	     test_Json.hh \
+	     test_Location.hh \
+	     test_ManagerWindows.hh \
+	     test_Mem.hh \
+	     test_Observable.hh \
+	     test_Os.hh \
+	     test_PFont.hh \
+	     test_PFontPango.hh \
+	     test_PFontXmb.hh \
+	     test_PMenu.hh \
+	     test_RegexString.hh \
+	     test_String.hh \
+	     test_SysConfig.hh \
+	     test_Theme.hh \
+	     test_Timeouts.hh \
+	     test_Tokenizer.hh \
+	     test_Util.hh \
+	     test_WindowManager.hh \
+	     test_Workspaces.hh \
+	     test_X11.hh \
+	     test_XSettings.hh \
+	     test_pekwm.cc \
+	     test_pekwm_ctrl.cc \
+	     test_pekwm_panel.cc \
+	     test_pekwm_sys.cc \
+	     test_util.cc

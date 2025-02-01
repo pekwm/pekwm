@@ -257,6 +257,9 @@ if (ENABLE_RANDR AND X11_Xrandr_FOUND)
 	set(common_INCLUDE_DIRS ${common_INCLUDE_DIRS}
 	    ${X11_Xrandr_INCLUDE_PATH})
 	set(common_LIBRARIES ${common_LIBRARIES} ${X11_Xrandr_LIB})
+	set(CMAKE_REQUIRED_LIBRARIES ${X11_LIBRARIES} ${X11_Xrandr_LIB})
+	check_symbol_exists(XRRGetOutputPrimary X11/extensions/Xrandr.h
+			    PEKWM_HAVE_XRRGETOUTPUTPRIMARY)
 endif (ENABLE_RANDR AND X11_Xrandr_FOUND)
 
 if (ENABLE_CURL AND CURL_FOUND)

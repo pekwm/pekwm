@@ -13,7 +13,9 @@
 #include <string>
 
 extern "C" {
+#ifdef PEKWM_HAVE_STDINT_H
 #include <stdint.h>
+#endif // PEKWM_HAVE_STDINT_H
 }
 
 namespace Charset

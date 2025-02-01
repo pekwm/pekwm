@@ -1,6 +1,6 @@
 //
 // Compat.hh for pekwm
-// Copyright (C) 2009-2024 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2009-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -19,6 +19,7 @@
 
 #endif
 
+#include <stdexcept>
 #include <string>
 
 extern "C" {
@@ -99,7 +100,14 @@ namespace std
 
 namespace std
 {
+	std::string to_string(double val);
+	std::string to_string(float val);
+	std::string to_string(long long val);
+	std::string to_string(unsigned long long val);
 	std::string to_string(long val);
+	std::string to_string(unsigned long val);
+	std::string to_string(int val);
+	std::string to_string(unsigned int val);
 }
 #endif
 

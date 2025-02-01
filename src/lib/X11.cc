@@ -376,9 +376,9 @@ X11::init(Display *dpy, bool synchronous, bool honour_randr)
 	_cursor_map[CURSOR_MOVE]  = XCreateFontCursor(_dpy, XC_fleur);
 	_cursor_map[CURSOR_RESIZE] = XCreateFontCursor(_dpy, XC_plus);
 
+	int major, minor, dummy_error;
 #ifdef PEKWM_HAVE_SHAPE
 	{
-		int dummy_error;
 		_has_extension_shape =
 			XShapeQueryExtension(_dpy, &_event_shape, &dummy_error);
 	}
@@ -386,17 +386,15 @@ X11::init(Display *dpy, bool synchronous, bool honour_randr)
 
 #ifdef PEKWM_HAVE_XDBE
 	{
-		int major, minor;
 		_has_extension_xdbe =
 			XdbeQueryExtension(_dpy, &major, &minor);
 	}
 #endif // PEKWM_HAVE_XDBE
 
 #ifdef PEKWM_HAVE_XRANDR
-	{
-		int dummy_error;
-		_has_extension_xrandr =
-			XRRQueryExtension(_dpy, &_event_xrandr, &dummy_error);
+	if (XRRQueryExtension(_dpy, &_event_xrandr, &dummy_error)
+	    && XRRQueryVersion(_dpy, &major, &minor)) {
+		_xrandr_extension = major * 10 + minor;
 	}
 #endif // PEKWM_HAVE_XRANDR
 
@@ -851,7 +849,7 @@ bool
 X11::updateGeometry(uint width, uint height)
 {
 #ifdef PEKWM_HAVE_XRANDR
-	if (! _honour_randr || ! _has_extension_xrandr) {
+	if (! _honour_randr || ! _xrandr_extension) {
 		return false;
 	}
 
@@ -874,7 +872,7 @@ bool
 X11::selectXRandrInput(void)
 {
 #ifdef PEKWM_HAVE_XRANDR
-	if (_honour_randr && _has_extension_xrandr) {
+	if (_honour_randr && _xrandr_extension) {
 		XRRSelectInput(_dpy, _root, RRScreenChangeNotifyMask);
 		return true;
 	}
@@ -887,7 +885,7 @@ X11::getScreenChangeNotification(XEvent *ev, ScreenChangeNotification &scn)
 {
 #ifdef PEKWM_HAVE_XRANDR
 	if (_honour_randr
-	    && _has_extension_xrandr
+	    && _xrandr_extension
 	    && ev->type == _event_xrandr + RRScreenChangeNotify) {
 		XRRScreenChangeNotifyEvent* scr_ev =
 			reinterpret_cast<XRRScreenChangeNotifyEvent*>(ev);
@@ -1925,7 +1923,7 @@ void
 X11::initHeadsRandr(void)
 {
 #ifdef PEKWM_HAVE_XRANDR
-	if (! _honour_randr || ! _has_extension_xrandr) {
+	if (! _honour_randr || ! _xrandr_extension) {
 		return;
 	}
 
@@ -1934,7 +1932,12 @@ X11::initHeadsRandr(void)
 		return;
 	}
 
-	RROutput primary_output = XRRGetOutputPrimary(_dpy, _root);
+	RROutput primary_output = 0;
+#ifdef PEKWM_HAVE_XRRGETOUTPUTPRIMARY
+	if (_xrandr_extension > 12) {
+		primary_output = XRRGetOutputPrimary(_dpy, _root);
+	}
+#endif // PEKWM_HAVE_XRRGETOUTPUTPRIMARY
 
 	for (int i = 0; i < resources->noutput; ++i) {
 		XRROutputInfo* output =
@@ -2504,7 +2507,7 @@ int X11::_event_shape = -1;
 bool X11::_has_extension_xdbe = false;
 bool X11::_has_extension_xkb = false;
 bool X11::_has_extension_xinerama = false;
-bool X11::_has_extension_xrandr = false;
+int X11::_xrandr_extension = 0;
 int X11::_event_xrandr = -1;
 uint X11::_num_lock;
 uint X11::_scroll_lock;

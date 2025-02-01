@@ -146,7 +146,7 @@ daemon(int nochdir, int noclose)
 
 int clock_gettime(clockid_t clk_id, struct timespec *tp)
 {
-	assert(clk_id == CLOCK_MONOTONIC);
+	assert(clk_id == CLOCK_MONOTONIC || clk_id == CLOCK_REALTIME);
 
 	struct timeval tv = {0};
 	int ret = gettimeofday(&tv, nullptr);
@@ -210,11 +210,52 @@ namespace std
 
 namespace std
 {
+	template<typename T>
+	std::string to_string(T val)
+	{
+		std::stringstream buf;
+		buf << val;
+		return buf.str();
+	}
+
+	std::string to_string(double val)
+	{
+		return to_string<double>(val);
+	}
+
+	std::string to_string(float val)
+	{
+		return to_string<float>(val);
+	}
+
+	std::string to_string(long long val)
+	{
+		return to_string<long long>(val);
+	}
+
+	std::string to_string(unsigned long long val)
+	{
+		return to_string<unsigned long long>(val);
+	}
+
 	std::string to_string(long val)
 	{
-		char buf[32];
-		snprintf(buf, sizeof(buf), "%ld", val);
-		return buf;
+		return to_string<long>(val);
+	}
+
+	std::string to_string(unsigned long val)
+	{
+		return to_string<unsigned long>(val);
+	}
+
+	std::string to_string(int val)
+	{
+		return to_string<int>(val);
+	}
+
+	std::string to_string(unsigned int val)
+	{
+		return to_string<unsigned int>(val);
 	}
 }
 #endif

@@ -13,7 +13,7 @@
 #include "Types.hh"
 
 #include <vector>
-#include <ostream>
+#include <iostream>
 
 /**
  * Bitmask values for parseGeometry result.

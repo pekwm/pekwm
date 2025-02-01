@@ -683,7 +683,7 @@ private:
 	static bool _has_extension_xdbe;
 	static bool _has_extension_xkb;
 	static bool _has_extension_xinerama;
-	static bool _has_extension_xrandr;
+	static int _xrandr_extension;
 	static int _event_xrandr;
 
 	static std::vector<Head> _heads; //! Array of head information

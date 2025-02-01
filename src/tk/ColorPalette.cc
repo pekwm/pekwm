@@ -44,15 +44,23 @@ static Util::StringTo<Mode> mode_map[] =
 	 {"SQUARE", PALETTE_SQUARE},
 	 {nullptr, PALETTE_NO}};
 
+static int mode_steps_single[] = { 0 };
+static int mode_steps_complementary[] = { 6, 0 };
+static int mode_steps_triad[] = { 4, 4, 0 };
+static int mode_steps_analogous[] = { 1, 1, 0 };
+static int mode_steps_split[] = { 5, 2, 0 };
+static int mode_steps_tetrad[] = { 4, 2, 4, 0 };
+static int mode_steps_square[] = { 3, 3, 3, 0 };
+static int mode_steps_no[] = { 0 };
 static int *mode_steps[] =
-	{(int[]){0}, // PALETTE_SINGLE
-	 (int[]){6, 0}, // PALETTE_COMPLEMENTARY
-	 (int[]){4, 4, 0}, // PALETTE_TRIAD
-	 (int[]){1, 1, 0}, // PALETTE_ANALOGOUS
-	 (int[]){5, 2, 0}, // PALETTE_SPLIT
-	 (int[]){4, 2, 4, 0}, // PALETTE_TETRAD
-	 (int[]){3, 3, 3, 0}, // PALETTE_SQUARE
-	 (int[]){0}}; // PALETTE_NO
+	{mode_steps_single,
+	 mode_steps_complementary,
+	 mode_steps_triad,
+	 mode_steps_analogous,
+	 mode_steps_split,
+	 mode_steps_tetrad,
+	 mode_steps_square,
+	 mode_steps_no};
 
 static Util::StringTo<BaseColor> base_color_map[] = 
 	{{"RED", BASE_COLOR_RED},

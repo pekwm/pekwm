@@ -45,5 +45,6 @@
 #cmakedefine PEKWM_HAVE_IMAGE_XPM
 
 #cmakedefine PEKWM_HAVE_XUTF8
+#cmakedefine PEKWM_HAVE_XRRGETOUTPUTPRIMARY
 
 #endif // _PEKWM_CONFIG_H_

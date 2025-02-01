@@ -1,14 +1,12 @@
 //
 // FontHandler.cc for pekwm
-// Copyright (C) 2004-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2004-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
 #include "config.h"
-
-#include <cctype>
 
 #include "Color.hh"
 #include "Debug.hh"
@@ -19,15 +17,13 @@
 
 #include "PFontX11.hh"
 #include "PFontXmb.hh"
-#ifdef PEKWM_HAVE_XFT
 #include "PFontXft.hh"
-#endif // PEKWM_HAVE_XFT
-#ifdef PEKWM_HAVE_PANGO_CAIRO
 #include "PFontPangoCairo.hh"
-#endif // PEKWM_HAVE_PANGO_CAIRO
-#ifdef PEKWM_HAVE_PANGO_XFT
 #include "PFontPangoXft.hh"
-#endif // PEKWM_HAVE_PANGO_XFT
+
+extern "C" {
+#include <ctype.h>
+}
 
 /**
  * Font pattern used to detect X11 font names when no font type is

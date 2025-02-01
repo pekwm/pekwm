@@ -2,4 +2,6 @@ bin_PROGRAMS = pekwm_ctrl
 pekwm_ctrl_SOURCES = pekwm_ctrl.cc
 pekwm_ctrl_CXXFLAGS = -I../lib
 pekwm_ctrl_LDADD = ../lib/libpekwm_lib.a ../tk/libpekwm_tk.a
-pekwm_ctrl_LDFLAGS = $(X_LIBS) -lX11 $(xext_LIBS) $(libcurl_LIBS)
+pekwm_ctrl_LDFLAGS = $(LIB_LIBS) $(libcurl_LIBS)
+
+EXTRA_DIST = CMakeLists.txt

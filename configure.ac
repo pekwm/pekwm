@@ -6,6 +6,7 @@ AC_PROG_GREP
 AC_PROG_INSTALL
 AC_PROG_RANLIB
 AC_PROG_SED
+PKG_PROG_PKG_CONFIG
 
 dnl Check for /usr/xpg4/bin/sh and use if available to make shipped scripts
 dnl work as expected under Solaris
@@ -13,6 +14,7 @@ AC_CHECK_PROG([PEKWM_SH], [sh], [/usr/xpg4/bin/sh], [/bin/sh], [/usr/xpg4/bin])
 
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile
+		 contrib/Makefile
 		 data/Makefile
 		 data/scripts/Makefile
 		 data/themes/Makefile
@@ -21,6 +23,8 @@ AC_CONFIG_FILES([Makefile
 		 data/themes/default-plain/Makefile
 		 data/themes/winter/Makefile
 		 data/themes/winter/backgrounds/Makefile
+		 dev/Makefile
+		 doc/Makefile
 		 src/Makefile
 		 src/bg/Makefile
 		 src/cfg/Makefile
@@ -31,7 +35,9 @@ AC_CONFIG_FILES([Makefile
 		 src/screenshot/Makefile
 		 src/sys/Makefile
 		 src/tk/Makefile
-		 src/wm/Makefile])
+		 src/wm/Makefile
+		 test/Makefile
+		 test/system/Makefile])
 
 AC_PATH_X
 AC_PATH_XTRA
@@ -51,7 +57,15 @@ AC_CHECK_HEADER([stdint.h],
 
 AC_CHECK_FUNC(clock_gettime,
 	      [AC_DEFINE(PEKWM_HAVE_CLOCK_GETTIME, [1],
-			 [Define to 1 if clock_gettime is available])])
+			 [Define to 1 if clock_gettime is available])
+	       CLOCK_GETTIME_FOUND=yes],
+	      [CLOCK_GETTIME_FOUND=no])
+if test "x$CLOCK_GETTIME_FOUND" = "xno"; then
+	AC_CHECK_LIB([rt], [clock_gettime],
+		     [AC_DEFINE([PEKWM_HAVE_CLOCK_GETTIME], [1],
+			 [Define to 1 if clock_gettime is available])
+		      rt_LIB="-lrt"])
+fi
 AC_CHECK_FUNC(daemon, [AC_DEFINE([PEKWM_HAVE_DAEMON], [1],
 				 [Define to 1 if daemon is available])])
 AC_CHECK_FUNC(execvpe, [AC_DEFINE(PEKWM_HAVE_EXECVPE, [1],
@@ -68,6 +82,10 @@ AC_CHECK_FUNC(timegm, [AC_DEFINE([PEKWM_HAVE_TIMEGM], [1],
 				 [Define to 1 if timegm is available])])
 AC_CHECK_FUNC(unsetenv, [AC_DEFINE([PEKWM_HAVE_UNSETENV], [1],
 				   [Define to 1 if unsetenv is available])])
+
+AC_CHECK_LIB([X11], [Xutf8SetWMProperties],
+	      [AC_DEFINE([PEKWM_HAVE_XUTF8], [1],
+			 [Define to 1 if Xutf8SetWMProperties is available])])
 
 AC_MSG_CHECKING([for environ in unistd.h])
 AC_LINK_IFELSE(
@@ -88,64 +106,99 @@ AC_LINK_IFELSE(
 	[AC_MSG_RESULT(no)])
 
 dnl library dependencies
-PKG_CHECK_MODULES([libcurl], [libcurl >= 1.0.0],
-		  [AC_DEFINE([PEKWM_HAVE_CURL], [1],
-			     [Define to 1 if libcurl is available])]
-		  [])
+PKG_CHECK_EXISTS([libcurl >= 1.0.0], [LIBCURL_FOUND=yes], [LIBCURL_FOUND=no])
+if test "x$LIBCURL_FOUND" = "xyes"; then
+	PKG_CHECK_MODULES([libcurl], [libcurl >= 1.0.0],
+			  [AC_DEFINE([PEKWM_HAVE_CURL], [1],
+				     [Define to 1 if libcurl is available])]
+			  [])
+fi
 
 PKG_CHECK_MODULES([libjpeg], [libjpeg >= 1.0.0],
 		  [AC_DEFINE([PEKWM_HAVE_IMAGE_JPEG], [1],
 			     [Define to 1 if libjpeg is available])
 		   LIBJPEG_FOUND=yes],
-		  [])
+		  [LIBJPEG_FOUND=no])
+if test "x$LIBJPEG_FOUND" = "xno"; then
+        AC_CHECK_LIB([jpeg], [jpeg_read_header],
+		     [AC_MSG_CHECKING([for jpeglib.h])
+		      AC_PREPROC_IFELSE(AC_LANG_PROGRAM([#include <jpeglib.h>],
+							[]),
+					[LIBJPEG_FOUND=yes], [])])
+                AC_MSG_RESULT($LIBJPEG_FOUND)
+                if test "$LIBJPEG_FOUND" = yes; then
+			AC_DEFINE(PEKWM_HAVE_IMAGE_JPEG, [1],
+				  [Define to 1 if libjpeg is available])
+			AC_SUBST([libjpeg_LIBS], ["-ljpeg"])
+		fi
+fi
+
 AM_CONDITIONAL([PEKWM_HAVE_IMAGE_JPEG], [test "x$LIBJPEG_FOUND" = "xyes"])
 
 PKG_CHECK_MODULES([libpng], [libpng >= 1.0.0],
 		  [AC_DEFINE([PEKWM_HAVE_IMAGE_PNG], [1],
 			     [Define to 1 if libpng is available])
 		   LIBPNG_FOUND=yes],
-		  [])
+		  [LIBPNG_FOUND=no])
 AM_CONDITIONAL([PEKWM_HAVE_IMAGE_PNG], [test "x$LIBPNG_FOUND" = "xyes"])
 
 PKG_CHECK_MODULES([pango], [pango >= 1.44.0],
 		  [AC_DEFINE([PEKWM_HAVE_PANGO], [1],
 			     [Define to 1 if pango is available])
 		   PANGO_FOUND=yes],
-		  [])
+		  [PANGO_FOUND=no])
 AM_CONDITIONAL([PEKWM_HAVE_PANGO], [test "x$PANGO_FOUND" = "xyes"])
 
 PKG_CHECK_MODULES([pangocairo], [pangocairo >= 1.44.0],
 		  [AC_DEFINE([PEKWM_HAVE_PANGO_CAIRO], [1],
 			     [Define to 1 if pangocairo is available])
 		   PANGO_CAIRO_FOUND=yes],
-		  [])
+		  [PANGO_CAIRO_FOUND=no])
 AM_CONDITIONAL([PEKWM_HAVE_PANGO_CAIRO], [test "x$PANGO_CAIRO_FOUND" = "xyes"])
 
 PKG_CHECK_MODULES([pangoxft], [pangoxft >= 1.44.0],
 		  [AC_DEFINE([PEKWM_HAVE_PANGO_XFT], [1],
 			     [Define to 1 if pangoxft is available])
 		   PANGO_XFT_FOUND=yes],
-		  [])
+		  [PANGO_XFT_FOUND=no])
 AM_CONDITIONAL([PEKWM_HAVE_PANGO_XFT], [test "x$PANGO_XFT_FOUND" = "xyes"])
 
 PKG_CHECK_MODULES([xext], [xext >= 1.0.0],
 		  [AC_DEFINE([PEKWM_HAVE_XDBE], [1],
-			     [Define to 1 if XDBE is available])],
-		  [])
+			     [Define to 1 if XDBE is available])
+		   AC_DEFINE([PEKWM_HAVE_XSHAPE], [1],
+			     [Define to 1 if XShape is available])],
+		  [XEXT_FOUND=no])
 
 PKG_CHECK_MODULES([xft], [xft >= 1.0.0],
 		  [AC_DEFINE([PEKWM_HAVE_XFT], [1],
 			     [Define to 1 if xft is available])
 		   XFT_FOUND=yes],
-		  [])
+		  [XFT_FOUND=no])
 AM_CONDITIONAL([PEKWM_HAVE_XFT], [test "x$XFT_FOUND" = "xyes"])
 
 PKG_CHECK_MODULES([xpm], [xpm >= 1.0.0],
 		  [AC_DEFINE([PEKWM_HAVE_IMAGE_XPM], [1],
 			     [Define to 1 if xpm is available])
 		   XPM_FOUND=yes],
-		  [])
+		  [XPM_FOUND=no])
 AM_CONDITIONAL([PEKWM_HAVE_IMAGE_XPM], [test "x$XPM_FOUND" = "xyes"])
+
+PKG_CHECK_MODULES([xinerama], [xinerama >= 1.0.0],
+		  [AC_DEFINE([PEKWM_HAVE_XRANDR], [1],
+			     [Define to 1 if xrandr is available])],
+		  [XINERAMA_FOUND=no])
+
+PKG_CHECK_MODULES([xrandr], [xrandr >= 1.0.0],
+		  [AC_DEFINE([PEKWM_HAVE_XRANDR], [1],
+			     [Define to 1 if xrandr is available])
+		   XRANDR_FOUND=yes],
+		  [XRANDR_FOUND=no])
+if test "x$XRANDR_FOUND" = "xyes"; then
+	AC_CHECK_LIB([Xrandr], [XRRGetOutputPrimary],
+		     [AC_DEFINE([PEKWM_HAVE_XRRGETOUTPUTPRIMARY], [1],
+			 [Define to 1 if XRRGetOutputPrimary is available])])
+fi
 
 AC_LANG_PUSH([C++])
 
@@ -213,6 +266,17 @@ AC_COMPILE_IFELSE(
 	[AC_MSG_RESULT([no])])
 
 AC_LANG_POP([C++])
+
+AC_SUBST(LIB_CFLAGS,
+	 "$X_CFLAGS $xext_CFLAGS $xinerama_CFLAGS $xrandr_CFLAGS")
+AC_SUBST(LIB_LIBS,
+	 "$rt_LIB $X_LIBS -lX11 $xext_LIBS $xinerama_LIBS $xrandr_LIBS")
+TK_CFLAGS="$libjpeg_CFLAGS $libpng_CFLAGS $xpm_CFLAGS $xft_CFLAGS"
+TK_CFLAGS="$TK_CFLAGS $pango_CFLAGS $pangocairo_CFLAGS $pangoxft_CFLAGS"
+AC_SUBST(TK_CFLAGS, "$TK_CFLAGS")
+TK_LIBS="$libjpeg_LIBS $libpng_LIBS $xpm_LIBS $xft_LIBS"
+TK_LIBS="$TK_LIBS $pango_LIBS $pangocairo_LIBS $pangoxft_LIBS"
+AC_SUBST(TK_LIBS, "$TK_LIBS")
 
 CXXFLAGS="$CXXFLAGS -DBINDIR=\\\"$bindir\\\""
 CXXFLAGS="$CXXFLAGS -DSYSCONFDIR=\\\"$sysconfdir/pekwm\\\""

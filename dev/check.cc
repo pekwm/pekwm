@@ -256,13 +256,13 @@ public:
 	~LineError();
 
 	int line() const;
-	const char* code() const;
+	const std::string& code() const;
 	const std::string& msg() const;
 
 private:
-	const int _line;
-	const char* _code;
-	const std::string _msg;
+	int _line;
+	std::string _code;
+	std::string _msg;
 };
 
 LineError::LineError(int line, const char* code, const std::string& msg)
@@ -282,7 +282,7 @@ LineError::line() const
 	return _line;
 }
 
-const char*
+const std::string&
 LineError::code() const
 {
 	return _code;

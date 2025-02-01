@@ -19,7 +19,7 @@ config_files = autoproperties \
 	start \
 	vars
 
-EXTRA_DIST = $(config_files)
+EXTRA_DIST = CMakeLists.txt $(config_files)
 
 cfgdatadir = $(sysconfdir)/pekwm
 cfgdata_DATA = $(config_files)

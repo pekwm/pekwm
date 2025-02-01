@@ -11,20 +11,22 @@ scripts_SCRIPTS = pekwm_lock.sh \
 
 CLEANFILES = $(commands_SCRIPTS) $(scripts_SCRIPTS)
 
+# not using < $< > $@ due to Solaris /usr/ccs/bin/make compatability
 pekwm_theme: pekwm_theme.in
 	$(SED) -e 's:\@AWK\@:$(AWK):g' -e 's:\@GREP\@:$(GREP):g' \
 		-e 's:\@SED\@:$(SED):g' -e 's:\@SH\@:$(PEKWM_SH):g' \
 		-e 's|\@PEKWM_THEMES\@|$(PEKWM_THEMES)|g' \
 		-e 's:\@CMAKE_INSTALL_PREFIX\@:$(prefix):g' \
-		< $< > $@
+		< pekwm_theme.in > pekwm_theme
 
 %.sh: %.sh.in
 	$(SED) -e 's:\@AWK\@:$(AWK):g' -e 's:\@GREP\@:$(GREP):g' \
 		-e 's:\@SED\@:$(SED):g' -e 's:\@SH\@:$(PEKWM_SH):g' < $< > $@
 
-EXTRA_DIST = pekwm_lock.sh.in \
-	pekwm_panel_battery.sh.in \
-	pekwm_theme.in \
-	pekwm_themeset.sh.in \
-	pekwm_toggle_kbd_layout.sh.in \
-	pekwm_ws_menu.sh.in
+EXTRA_DIST = CMakeLists.txt \
+	     pekwm_lock.sh.in \
+	     pekwm_panel_battery.sh.in \
+	     pekwm_theme.in \
+	     pekwm_themeset.sh.in \
+	     pekwm_toggle_kbd_layout.sh.in \
+	     pekwm_ws_menu.sh.in

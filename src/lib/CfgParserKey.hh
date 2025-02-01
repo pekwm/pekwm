@@ -136,7 +136,7 @@ public:
 	CfgParserKeyString(const char *name,
 			   std::string &set,
 			   const std::string& default_val = "",
-			   const std::string::size_type length_min = 0);
+			   const size_t length_min = 0);
 	virtual ~CfgParserKeyString(void);
 
 	virtual void parseValue(const std::string &value, bool is_default);
@@ -144,7 +144,7 @@ public:
 private:
 	std::string &_set; //!< Reference to store parsed value in.
 	std::string _default;
-	const std::string::size_type _length_min; //!< Minimum length of string.
+	const size_t _length_min; //!< Minimum length of string.
 };
 
 //! @brief CfgParser Key path parser.
@@ -199,7 +199,7 @@ public:
 
 	void add_string(const char *key, std::string &value,
 			const std::string& default_val = "",
-			const std::string::size_type length_min = 0)
+			const size_t length_min = 0)
 	{
 		push_back(new CfgParserKeyString(key, value, default_val,
 						 length_min));

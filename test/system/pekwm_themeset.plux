@@ -18,6 +18,7 @@
 
 	[log list themes]
 	# NOTE: script should be updated to handle space in the path
+	[call sh-eval "mkdir -p ./themes/with\\ space"]
 	!$PEKWM_THEMESET ./themes
 	???Dynamic {
 	??Entry = "with space" { Actions = "Exec $PEKWM_THEMESET ./themes ./themes/with space" }

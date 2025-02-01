@@ -9,7 +9,7 @@
 #ifndef _PEKWM_JSON_HH_
 #define _PEKWM_JSON_HH_
 
-#include <istream>
+#include <iostream>
 #include <map>
 #include <sstream>
 #include <string>

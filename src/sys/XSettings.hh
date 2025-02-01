@@ -10,11 +10,14 @@
 #define _PEKWM_XSETTINGS_HH_
 
 #include "CfgParserSource.hh"
+#include "Types.hh"
 #include "X11.hh"
 
 #include <string>
 extern "C" {
+#ifdef PEKWM_HAVE_STDINT_H
 #include <stdint.h>
+#endif // PEKWM_HAVE_STDINT_H
 }
 
 enum XSettingType {

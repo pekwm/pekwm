@@ -1,5 +1,3 @@
-SUBDIRS = lib tk bg cfg ctrl dialog panel sys wm
+SUBDIRS = lib tk bg cfg ctrl dialog panel screenshot sys wm
 
-if PEKWM_HAVE_IMAGE_PNG
-	SUBDIRS += screenshot
-endif
+EXTRA_DIST = CMakeLists.txt pekwm_env.cc pekwm_env.hh
