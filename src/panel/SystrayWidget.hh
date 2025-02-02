@@ -49,6 +49,8 @@ public:
 		      const CfgParser::Entry* section);
 	virtual ~SystrayWidget();
 
+	virtual const char *getName() const { return "Systray"; }
+
 	virtual uint getRequiredSize(void) const;
 	virtual void move(int x);
 	virtual void click(int, int);

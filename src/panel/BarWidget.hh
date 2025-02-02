@@ -31,6 +31,8 @@ public:
 		  const CfgParser::Entry *section);
 	virtual ~BarWidget(void);
 
+	const char *getName() const { return "Bar"; }
+
 	virtual void notify(Observable*, Observation *observation)
 	{
 		FieldObservation *efo =

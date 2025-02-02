@@ -78,13 +78,13 @@ WmState::handlePropertyNotify(XPropertyEvent *ev)
 		} else if (ev->atom == X11::getAtom(PEKWM_THEME)) {
 			observation = &_pekwm_theme_changed;
 		} else {
-			readRootProperty(ev->atom);
+			updated = readRootProperty(ev->atom);
 		}
 	} else {
 		ClientInfo *client_info = findClientInfo(ev->window, _clients);
 		if (client_info != nullptr) {
 			updated = client_info->handlePropertyNotify(ev);
-			if (updated ) {
+			if (updated) {
 				observation = &_client_state_changed;
 			}
 		}

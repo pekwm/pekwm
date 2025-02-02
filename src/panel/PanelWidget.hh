@@ -25,6 +25,8 @@ public:
 		    const SizeReq& size_req);
 	virtual ~PanelWidget(void);
 
+	virtual const char *getName() const = 0;
+
 	bool isDirty(void) const { return _dirty; }
 	bool isVisible(void) const { return _width != 0; }
 

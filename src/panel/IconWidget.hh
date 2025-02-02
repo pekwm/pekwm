@@ -34,6 +34,8 @@ public:
 		   const CfgParser::Entry *section);
 	virtual ~IconWidget(void);
 
+	virtual const char *getName() const { return "Icon"; }
+
 	virtual void notify(Observable *, Observation *observation);
 	virtual uint getRequiredSize(void) const;
 	virtual void click(int, int);

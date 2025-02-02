@@ -33,6 +33,8 @@ public:
 		   const CfgParser::Entry *section);
 	virtual ~TextWidget(void);
 
+	virtual const char *getName() const { return "Text"; }
+
 	virtual void notify(Observable *, Observation *observation);
 	virtual uint getRequiredSize(void) const;
 	virtual void render(Render &rend);

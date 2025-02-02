@@ -61,6 +61,8 @@ public:
 			 const std::string& draw_separator);
 	virtual ~ClientListWidget(void);
 
+	virtual const char *getName() const { return "ClientList"; }
+
 	virtual void notify(Observable*, Observation*);
 	virtual void click(int x, int);
 	virtual void render(Render &rend);

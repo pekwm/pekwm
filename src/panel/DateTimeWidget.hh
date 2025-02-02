@@ -30,6 +30,8 @@ public:
 		}
 	}
 
+	virtual const char *getName() const { return "DateTime"; }
+
 	virtual uint getRequiredSize(void) const
 	{
 		std::string stime;
