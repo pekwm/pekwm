@@ -355,11 +355,11 @@ Theme::PDecorData::load(CfgParser::Entry *section)
 	bool title_pad_adapt = _version > 2;
 	std::string value_pad, value_focused, value_unfocused;
 
-	keys.add_numeric<int>("HEIGHT", _title_height, 10, 0);
+	keys.add_numeric<int>("HEIGHT", _title_height, DEFAULT_HEIGHT, 0);
 	keys.add_numeric<int>("WIDTHMIN", _title_width_min, 0);
 	keys.add_numeric<int>("WIDTHMAX", _title_width_max, 100, 0, 100);
-	keys.add_bool("WIDTHSYMETRIC", _title_width_symetric);
-	keys.add_bool("HEIGHTADAPT", _title_height_adapt);
+	keys.add_bool("WIDTHSYMETRIC", _title_width_symetric, true);
+	keys.add_bool("HEIGHTADAPT", _title_height_adapt, false);
 	keys.add_string("PAD", value_pad, "0 0 0 0", 7);
 	keys.add_bool("PADADAPT", title_pad_adapt, title_pad_adapt);
 	keys.add_string("FOCUSED", value_focused, "Empty",
