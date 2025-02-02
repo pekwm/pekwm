@@ -65,7 +65,7 @@ OsEnv::getCEnv()
 	}
 
 	_env.clear();
-	delete [] _c_env;
+	freeCEnv();
 
 	// build environment from process environment
 	for (char **p = environ; *p; p++) {

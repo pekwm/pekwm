@@ -36,23 +36,34 @@ extern "C" {
 #ifndef PEKWM_HAVE_EXECVPE
 int execvpe(const char *file, char *const argv[], char *const envp[])
 {
+	// absolute path, do not search PATH
+	if (file[0] == '/') {
+		execve(file, argv, envp);
+		exit(1);
+	}
+
 	const char *c_path = getenv("PATH");
 	if (! c_path) {
 		c_path = "/bin:/usr/bin";
 	}
 	const char *begin = c_path;
-	const char *end = strchr(begin, ':');
 	do {
+		const char *end = strchr(begin, ':');
 		if (end == NULL) {
 			end = begin + strlen(begin);
 		}
-		std::string cmd_path(begin, end - begin);
-		struct stat sb;
-		if (! stat(cmd_path.c_str(), &sb) && S_ISREG(sb.st_mode)) {
-			execve(cmd_path.c_str(), argv, envp);
-			exit(1);
+		size_t len = end - begin;
+		if (len > 0) {
+			std::string cmd_path(begin, len);
+			cmd_path += '/';
+			cmd_path += file;
+			struct stat sb;
+			if (! stat(cmd_path.c_str(), &sb) && S_ISREG(sb.st_mode)) {
+				execve(cmd_path.c_str(), argv, envp);
+				exit(1);
+			}
 		}
-		begin = end + 1;
+		begin = *end ? end + 1 : end;
 	} while (*begin);
 
 	exit(127);
