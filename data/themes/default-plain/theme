@@ -14,10 +14,10 @@ Define = "BaseDecor" {
   Height = "17"
   HeightAdapt = "True"
 
-  Pad = "2"
+  Pad = "2 2 2 2"
 
-  Focused = "Empty"
-  Unfocused = "Empty"
+  Focused = "Solid #ffffff"
+  Unfocused = "Solid #aaaaaa"
 
   Tab {
     Focused = "Solid #dddddd"
@@ -157,7 +157,7 @@ Menu {
   Pad = "0 0 2 2"
   Focused {
     Font = "Sans:size=12"
-    Background = "Empty"
+    Background = "Solid #ffffff"
     Item = "Solid #ffffff 1 0"
     Separator = "Solid #aaaaaa 0x1"
     Arrow = "Solid #ff790c 4x4"
@@ -165,7 +165,7 @@ Menu {
   }
   Unfocused {
     Font = "Sans:size=12"
-    Background = "Empty"
+    Background = "Solid #cccccc"
     Item = "Solid #cccccc 1 0"
     Separator = "Solid #999999 0x2"
     Arrow = "Solid #999999 4x4"
@@ -173,8 +173,9 @@ Menu {
   }
   Selected {
     Font = "Sans:size=12"
-    Background = "Empty"
-    Item = "Solid #eeeeee"
+    Background = "Solid #cccccc"
+    Item = "Solid #cccccc 1 0"
+    Separator = "Solid #aaaaaa 0x1"
     Arrow = "Solid #ff790c 4x4"
     Text = "#000000"
   }
