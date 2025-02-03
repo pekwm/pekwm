@@ -48,6 +48,9 @@ Section {
 }
 ```
 
+* Variable expansion failures in the configuration are now logged with
+  source:line:pos context information.
+
 Removed
 -------
 

@@ -1,6 +1,6 @@
 //
 // CfgParserVarExpanderX11.cc for pekwm
-// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2023-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -14,7 +14,8 @@ CfgParserVarExpanderX11Atom::~CfgParserVarExpanderX11Atom()
 }
 
 bool
-CfgParserVarExpanderX11Atom::lookup(const std::string& name, std::string& val)
+CfgParserVarExpanderX11Atom::lookup(const std::string& name, std::string& val,
+				    std::string& error)
 {
 	if (name.size() < 2 || name[0] != '@') {
 		return false;
@@ -44,7 +45,8 @@ CfgParserVarExpanderX11Res::~CfgParserVarExpanderX11Res()
 }
 
 bool
-CfgParserVarExpanderX11Res::lookup(const std::string& name, std::string& val)
+CfgParserVarExpanderX11Res::lookup(const std::string& name, std::string& val,
+				   std::string& error)
 {
 	if (name.size() < 2 || name[0] != '&') {
 		return false;

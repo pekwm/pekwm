@@ -1,6 +1,6 @@
 //
 // CfgParserVarExpander.hh for pekwm
-// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -25,7 +25,8 @@ public:
 	virtual void clear() { }
 	virtual void define(const std::string& name,
 			    const std::string& val) { }
-	virtual bool lookup(const std::string& name, std::string& val) = 0;
+	virtual bool lookup(const std::string& name, std::string& val,
+			    std::string &error) = 0;
 };
 
 CfgParserVarExpander* mkCfgParserVarExpander(CfgParserVarExpanderType type,

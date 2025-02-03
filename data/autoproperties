@@ -42,7 +42,7 @@ Require {
 /*
  Remove decor of customize toolbar window of mozilla firefox.
  */
-Property = "^(gecko|Gecko|firefox-bin),^Firefox-bin,,^Customize Toolbar\$" {
+Property = "^(gecko|Gecko|firefox-bin),^Firefox-bin,,^Customize Toolbar\\$" {
         ApplyOn = "Start New TransientOnly"
         Border = "False"
         Titlebar = "False"

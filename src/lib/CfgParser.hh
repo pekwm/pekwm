@@ -198,8 +198,8 @@ public:
 	bool parse(CfgParserSource* source, bool overwrite = false);
 
 	std::string getVar(const std::string& key) const {
-		std::string val;
-		_var_expander_mem->lookup(key, val);
+		std::string val, error;
+		_var_expander_mem->lookup(key, val, error);
 		return val;
 	}
 	void setVar(const std::string& key, const std::string& val) {
@@ -236,10 +236,11 @@ private:
 
 	void variableDefine(const std::string &name, const std::string &value);
 	void variableExpand(std::string& line);
-	bool variableExpandName(std::string& line,
-				const std::string::size_type begin,
-				std::string::size_type &end,
-				const std::string& var);
+	bool variableExpandName(std::string& line, const size_t begin,
+				size_t &end, const std::string &var);
+	bool variableExpandName(std::string& line, const size_t begin,
+				size_t &end, const std::string &var,
+				CfgParserVarExpander *exp);
 
 	CfgParserOpt _opt;
 	Os *_os;

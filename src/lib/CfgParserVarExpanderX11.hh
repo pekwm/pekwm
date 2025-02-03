@@ -1,6 +1,6 @@
 //
 // CfgParserVarExpanderX11.hh for pekwm
-// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2023-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -14,14 +14,16 @@
 class CfgParserVarExpanderX11Atom : public CfgParserVarExpander {
 public:
 	virtual ~CfgParserVarExpanderX11Atom();
-	virtual bool lookup(const std::string& name, std::string& val);
+	virtual bool lookup(const std::string& name, std::string& val,
+			    std::string &error);
 };
 
 class CfgParserVarExpanderX11Res : public CfgParserVarExpander {
 public:
 	CfgParserVarExpanderX11Res(bool register_x_resource);
 	virtual ~CfgParserVarExpanderX11Res();
-	virtual bool lookup(const std::string& name, std::string& val);
+	virtual bool lookup(const std::string& name, std::string& val,
+			    std::string &error);
 
 private:
 	bool _register_x_resource;

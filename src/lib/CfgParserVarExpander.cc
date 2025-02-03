@@ -1,6 +1,6 @@
 //
 // CfgParserVarExpander.cc for pekwm
-// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -42,13 +42,14 @@ public:
 		}
 	}
 
-	virtual bool lookup(const std::string& name, std::string& val)
+	virtual bool lookup(const std::string& name, std::string& val,
+			    std::string &error)
 	{
 		var_map_it it = _var_map.find(name);
 		if (it != _var_map.end()) {
 			val = it->second;
 		} else  {
-			USER_WARN("Trying to use undefined variable: " << name);
+			error = "\"" + name + "\" not set";
 		}
 		return it != _var_map.end();
 	}
@@ -61,7 +62,8 @@ class CfgParserVarExpanderOsEnv : public CfgParserVarExpander {
 public:
 	virtual ~CfgParserVarExpanderOsEnv() { }
 
-	virtual bool lookup(const std::string& name, std::string& val)
+	virtual bool lookup(const std::string& name, std::string& val,
+			    std::string &error)
 	{
 		if (name.size() < 2 || name[0] != '_') {
 			return false;
@@ -71,8 +73,7 @@ public:
 		if (c_val) {
 			val = c_val;
 		} else {
-			USER_WARN("Trying to use undefined environment "
-				  "variable: " << name);
+			error = "\"" + name + "\" not set in environment";
 		}
 		return c_val != nullptr;
 	}

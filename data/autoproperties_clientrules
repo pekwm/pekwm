@@ -13,7 +13,7 @@
  * the cursor will most likely be at the drawer position however as the mouse
  * is used to open it.
  */
-Property = "^mate-panel\$,^Mate-panel\$,,^Drawer\$" {
+Property = "^mate-panel\\$,^Mate-panel\\$,,^Drawer\\$" {
 	ApplyOn = "New"
 	Placement = "MouseTopLeft"
 }

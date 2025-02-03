@@ -879,7 +879,10 @@ CfgParser::variableDefine(const std::string &name, const std::string &value)
 	_var_expander_mem->define(name, value);
 }
 
-//! @brief Expands all $ variables in a string.
+/**
+ * Expand all variables in string, recursively, updating the original string
+ * until there is no more variables to expand.
+ */
 void
 CfgParser::variableExpand(std::string& line)
 {
@@ -951,21 +954,36 @@ CfgParser::parseVarName(const std::string& line,
 }
 
 bool
-CfgParser::variableExpandName(std::string& line,
-			      const std::string::size_type begin,
-			      std::string::size_type &end,
-			      const std::string& var)
+CfgParser::variableExpandName(std::string &line, const size_t begin,
+			      size_t &end, const std::string &var)
 {
 	bool did_expand = false;
 
 	std::vector<CfgParserVarExpander*>::iterator it(_var_expanders.begin());
 	for (; ! did_expand && it != _var_expanders.end(); ++it) {
-		std::string value;
-		if ((did_expand = (*it)->lookup(var, value))) {
-			line.replace(begin, end - begin, value);
-			end = begin + value.size();
-		}
+		did_expand = variableExpandName(line, begin, end, var, *it);
 	}
 
 	return did_expand;
+}
+
+bool
+CfgParser::variableExpandName(std::string& line, const size_t begin,
+			      size_t &end, const std::string &var,
+			      CfgParserVarExpander *exp)
+{
+
+	std::string value, error;
+	if (exp->lookup(var, value, error)) {
+		line.replace(begin, end - begin, value);
+		end = begin + value.size();
+		return true;
+	}
+
+	if (! error.empty()) {
+		USER_WARN("failed to expand variable at "
+			  << _source->getName() << ":" << _source->getLine()
+			  << ":" << begin << " error: " << error);
+	}
+	return false;
 }
