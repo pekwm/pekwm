@@ -29,12 +29,12 @@ public:
 		_location_city = location_city;
 	}
 
-	void update(TimeOfDay tod);
+	void update(const Daytime &daytime, TimeOfDay tod);
 
 private:
 	void setXAtoms(const char *theme_variant);
-	void setXResources(TimeOfDay tod, const char *daylight,
-			   const char *theme_variant);
+	void setXResources(const Daytime &daytime, TimeOfDay tod,
+			   const char *daylight, const char *theme_variant);
 
 private:
 	const SysConfig &_cfg;

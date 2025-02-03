@@ -40,9 +40,9 @@ SysConfig::parseConfig()
 	if (section) {
 		CfgParserKeys keys;
 		keys.add_bool("XSETTINGS", _enable_xsettings, true);
-		keys.add_bool("LOCATIONLOOKUP", _location_lookup);
-		keys.add_numeric<double>("LATITUDE", _latitude);
-		keys.add_numeric<double>("LONGITUDE", _longitude);
+		keys.add_bool("LOCATIONLOOKUP", _location_lookup, false);
+		keys.add_numeric<double>("LATITUDE", _latitude, 0.0);
+		keys.add_numeric<double>("LONGITUDE", _longitude, 0.0);
 		keys.add_string("TIMEOFDAY", _tod, "AUTO");
 		keys.add_string("NETTHEME", _net_theme, "");
 		section->parseKeyValues(keys.begin(), keys.end());

@@ -44,7 +44,7 @@ TestCalendar::testNextDay()
 	Calendar c1(1737011287);
 	ASSERT_EQUAL("nextDay", 16, c1.getMDay());
 	Calendar c2 = c1.nextDay();
-	ASSERT_EQUAL("nextDay", "2025-01-17 00:00:00", c2.toString());
+	ASSERT_EQUAL("nextDay", "2025-01-17T00:00:00Z", c2.toString());
 	ASSERT_EQUAL("nextDay", 17, c2.getMDay());
 }
 
@@ -52,5 +52,5 @@ void
 TestCalendar::testToString()
 {
 	Calendar c1(1737011287);
-	ASSERT_EQUAL("toString", "2025-01-16 07:08:07", c1.toString());
+	ASSERT_EQUAL("toString", "2025-01-16T07:08:07Z", c1.toString());
 }

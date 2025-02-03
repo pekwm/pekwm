@@ -62,7 +62,7 @@ std::string
 Calendar::toString(const char *format) const
 {
 	if (! format) {
-		format = "%Y-%m-%d %H:%M:%S";
+		format = "%Y-%m-%dT%H:%M:%SZ";
 	} else if (format[0] == '\0') {
 		return std::string("");
 	}

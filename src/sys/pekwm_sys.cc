@@ -239,7 +239,7 @@ enum TimeOfDay
 PekwmSys::timeOfDayChanged(enum TimeOfDay tod)
 {
 	P_LOG("time of day changed to " << time_of_day_to_string(tod));
-	_resources.update(tod);
+	_resources.update(_daytime, tod);
 
 	// automatic XSETTINGS theme switch
 	if (! _cfg.getNetTheme().empty()) {

@@ -6,6 +6,7 @@
 // See the LICENSE file for more information.
 //
 
+#include "Calendar.hh"
 #include "Debug.hh"
 #include "SysResources.hh"
 #include "X11.hh"
@@ -20,7 +21,7 @@ SysResources::~SysResources()
 }
 
 void
-SysResources::update(TimeOfDay tod)
+SysResources::update(const Daytime &daytime, TimeOfDay tod)
 {
 	const char *daylight;
 	const char *theme_variant;
@@ -45,7 +46,7 @@ SysResources::update(TimeOfDay tod)
 	};
 
 	setXAtoms(theme_variant);
-	setXResources(tod, daylight, theme_variant);
+	setXResources(daytime, tod, daylight, theme_variant);
 	X11::flush();
 }
 
@@ -56,8 +57,8 @@ SysResources::setXAtoms(const char *theme_variant)
 }
 
 void
-SysResources::setXResources(TimeOfDay tod, const char *daylight,
-			    const char *theme_variant)
+SysResources::setXResources(const Daytime &daytime, TimeOfDay tod,
+			    const char *daylight, const char *theme_variant)
 {
 	X11::loadXrmResources();
 	X11::setXrmString("pekwm.daylight", daylight);
@@ -66,6 +67,10 @@ SysResources::setXResources(TimeOfDay tod, const char *daylight,
 			  std::to_string(_cfg.getLatitude()));
 	X11::setXrmString("pekwm.location.longitude",
 			  std::to_string(_cfg.getLongitude()));
+	X11::setXrmString("pekwm.location.sunrise",
+			  Calendar(daytime.getSunRise()).toString());
+	X11::setXrmString("pekwm.location.sunset",
+			  Calendar(daytime.getSunSet()).toString());
 	X11::setXrmString("pekwm.location.country", _location_country);
 	X11::setXrmString("pekwm.location.city", _location_city);
 
