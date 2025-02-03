@@ -69,6 +69,10 @@ Removed
 * Add Assign option to Command section, if set, assign complete lines of output
   to the variable name set in Assign instead of parsing the output.
 
+## pekwm_screenshot
+
+* Add --wait option to screenshot for delaying the screenshot capture.
+
 ## pekwm_sys
 
 * New process acting as an XSETTINGS daemon, tracks daytime changes and updates

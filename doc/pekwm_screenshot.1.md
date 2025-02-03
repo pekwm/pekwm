@@ -22,3 +22,5 @@ supported.
 **--help** Show help information.
 
 **--display** _DISPLAY_ Connect to DISPLAY instead of DISPLAY set in environment.
+
+**--wait** _seconds_ to wait before taking screenshot.

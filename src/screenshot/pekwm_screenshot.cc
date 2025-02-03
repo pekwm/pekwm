@@ -1,6 +1,6 @@
 //
 // pekwm_screenshot.cc for pekwm
-// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -47,11 +47,13 @@ static void cleanup()
 
 static void usage(const char* name, int ret)
 {
-	std::cout << "usage: " << name << " [-dh] [screenshot.png]"
+	std::cout << "usage: " << name << " [-dhw] [screenshot.png]"
 		  << std::endl;
 	std::cout << "  -d --display dpy    Display" << std::endl;
 	std::cout << "  -h --help           Display this information"
 		  << std::endl;
+	std::cout << "  -w --wait seconds   Wait seconds before taking "
+		     "screenshot" << std::endl;
 	exit(ret);
 }
 
@@ -95,16 +97,18 @@ int main(int argc, char* argv[])
 	pledge_x11_required("");
 
 	const char* display = NULL;
+	int wait_seconds = 0;
 
 	static struct option opts[] = {
 		{const_cast<char*>("display"), required_argument, nullptr,
 		 'd'},
 		{const_cast<char*>("help"), no_argument, nullptr, 'h'},
+		{const_cast<char*>("wait"), required_argument, nullptr, 'w'},
 		{nullptr, 0, nullptr, 0}
 	};
 
 	int ch;
-	while ((ch = getopt_long(argc, argv, "d:h", opts, nullptr)) != -1) {
+	while ((ch = getopt_long(argc, argv, "d:hw:", opts, nullptr)) != -1) {
 		switch (ch) {
 		case 'd':
 			display = optarg;
@@ -112,34 +116,45 @@ int main(int argc, char* argv[])
 		case 'h':
 			usage(argv[0], 0);
 			break;
+		case 'w':
+			try {
+				wait_seconds = std::stoi(optarg);
+			} catch (std::invalid_argument&) {
+				usage(argv[0], 1);
+			}
+			break;
 		default:
 			usage(argv[0], 1);
 			break;
 		}
 	}
 
-	Display *dpy = XOpenDisplay(display);
-	if (! dpy) {
-		std::string actual_display =
-			display ? display : Util::getEnv("DISPLAY");
-		std::cerr << "Can not open display!" << std::endl
-			  << "Your DISPLAY variable currently is set to: "
-			  << actual_display << std::endl;
+	if (! X11::init(display, std::cerr)) {
 		return 1;
 	}
-
-	X11::init(dpy, true);
 
 	// X11 connection has been setup, limit access further
 	pledge_x("stdio rpath wpath cpath", "");
 
-	init(dpy);
+	init(X11::getDpy());
 
 	std::string output;
 	if (optind < argc) {
 		output = argv[optind];
 	} else {
 		output = get_screenhot_name(X11::getScreenGeometry());
+	}
+
+	if (wait_seconds > 0) {
+		if (wait_seconds > 3) {
+			sleep(wait_seconds - 3);
+			wait_seconds = 3;
+		}
+		for (int i = wait_seconds; i > 0; i--) {
+			std::cout << i << "..." << std::flush;
+			sleep(1);
+		}
+		std::cout << std::endl;
 	}
 
 	int ret = take_screenshot(output);
