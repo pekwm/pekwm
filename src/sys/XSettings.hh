@@ -142,9 +142,13 @@ public:
 	XSettings();
 	~XSettings();
 
-	bool setOwner();
 	bool isOwner() const { return _owner; }
+	void setOwner(bool owner) { _owner = owner; }
+	Atom getAtom() const { return _session_atom; }
+
+	bool setServerOwner();
 	void updateServer();
+	void selectOwnerDestroyInput();
 
 	bool load(const std::string &source,
 		  CfgParserSource::Type type = CfgParserSource::SOURCE_FILE);

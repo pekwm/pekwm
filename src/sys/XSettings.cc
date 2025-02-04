@@ -203,34 +203,36 @@ XSettings::~XSettings()
 }
 
 bool
-XSettings::setOwner()
+XSettings::setServerOwner()
 {
 	_owner = false;
 
 	std::string screen_num = std::to_string(X11::getScreenNum());
 	std::string session_name("_XSETTINGS_S" + screen_num);
-	Atom session_atom = X11::getAtomId(session_name);
+	_session_atom = X11::getAtomId(session_name);
 	X11::grabServer();
-	Window session_owner = X11::getSelectionOwner(session_atom);
+	Window session_owner = X11::getSelectionOwner(_session_atom);
 	if (session_owner != None) {
 		P_LOG(session_name << " already owned by "
 		      << session_owner << ", not claiming ownership");
+		X11::selectInput(session_owner, StructureNotifyMask);
 		X11::ungrabServer(false);
 		return false;
 	}
 
 	Time timestamp;
 	getTime(timestamp);
-	X11::setSelectionOwner(session_atom, _window, timestamp);
+	X11::setSelectionOwner(_session_atom, _window, timestamp);
 	X11::ungrabServer(false);
 
-	session_owner = X11::getSelectionOwner(session_atom);
+	session_owner = X11::getSelectionOwner(_session_atom);
 	if (session_owner != _window) {
 		P_LOG("failed to set ownership on " << session_name);
 		return false;
 	}
 	_owner = true;
-	P_TRACE("selection owner of " << session_name << " is " << _window);
+	P_LOG("updated xsettings owner " << session_name << " to "
+	      << _window);
 	sendOwnerMessage(timestamp);
 
 	return true;
@@ -258,6 +260,17 @@ XSettings::updateServer()
 			    val_c, val.size());
 	P_TRACE("set _XSETTINGS_SETTINGS on " << std::hex << _window
 		<< std::dec << ", wrote " << val.size() << " bytes");
+}
+
+void
+XSettings::selectOwnerDestroyInput()
+{
+	X11::grabServer();
+	Window session_owner = X11::getSelectionOwner(_session_atom);
+	if (session_owner != None) {
+		X11::selectInput(session_owner, StructureNotifyMask);
+	}
+	X11::ungrabServer(false);
 }
 
 bool

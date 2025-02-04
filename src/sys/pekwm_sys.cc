@@ -97,7 +97,7 @@ PekwmSys::main()
 	// run after first time of day change to get properties initial values
 	// set.
 	if (_cfg.isXSettingsEnabled()) {
-		_xsettings.setOwner();
+		_xsettings.setServerOwner();
 	}
 
 	_select->add(STDIN_FILENO, OsSelect::OS_SELECT_READ);
@@ -134,9 +134,22 @@ PekwmSys::main()
 void
 PekwmSys::handleXEvent(XEvent &ev)
 {
+	P_TRACE("got X11 event " << X11::getEventTypeString(ev.type));
 	switch (ev.type) {
+	case DestroyNotify:
+		if (_cfg.isXSettingsEnabled() && _xsettings.setServerOwner()) {
+			_xsettings.updateServer();
+		}
+		break;
+	case SelectionClear:
+		if (ev.xselectionclear.selection == _xsettings.getAtom()) {
+			_xsettings.setOwner(false);
+			_xsettings.selectOwnerDestroyInput();
+			P_LOG("no longer owner of xsettings");
+		}
+		break;
 	default:
-		P_TRACE("got X11 event " << X11::getEventTypeString(ev.type));
+		break;
 	};
 }
 
