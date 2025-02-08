@@ -249,7 +249,8 @@ PFont::draw(PSurface *dest, int x, int y, const std::string &text,
 		return 0;
 	}
 
-	uint offset = x, chars = max_chars;
+	uint offset = x;
+	uint chars = max_chars;
 	std::string real_text(text);
 
 	if (max_width > 0) {

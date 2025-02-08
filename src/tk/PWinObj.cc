@@ -137,9 +137,11 @@ PWinObj::iconify(void)
 	_iconified = true;
 }
 
-//! @brief Toggles _sticky
+/**
+ * Toggle sticky state.
+ */
 void
-PWinObj::stick(void)
+PWinObj::toggleSticky()
 {
 	_sticky = !_sticky;
 }

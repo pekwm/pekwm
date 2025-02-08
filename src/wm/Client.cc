@@ -1,6 +1,6 @@
 //
 // Client.cc for pekwm
-// Copyright (C) 2002-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2002-2025 Claes Nästén <pekdon@gmail.com>
 //
 // client.cc for aewm++
 // Copyright (C) 2000 Frank Hale <frankhale@yahoo.com>
@@ -60,8 +60,7 @@ Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
 	  _alive(false), _marked(false),
 	  _send_focus_message(false), _send_close_message(false),
 	  _wm_hints_input(true), _cfg_request_lock(false),
-	  _extended_net_name(false),
-	  _demands_attention(false)
+	  _extended_net_name(false)
 {
 	// PWinObj attributes, required by validate etc.
 	_window = new_client;
@@ -471,12 +470,13 @@ Client::iconify(void)
 	unmapWindow();
 }
 
-//! @brief Toggle client sticky state
+/**
+ * Toggle sticky state.
+ */
 void
-Client::stick(void)
+Client::toggleSticky()
 {
-	PWinObj::stick();
-
+	PWinObj::toggleSticky();
 	updateEwmhStates();
 }
 
@@ -904,7 +904,7 @@ Client::readEwmhHints(void)
 		    && ! isCfgDeny(CFG_DENY_STATE_FULLSCREEN)) {
 			_state.fullscreen = true;
 		}
-		_demands_attention = win_states.demands_attention;
+		_state.demands_attention = win_states.demands_attention;
 	}
 
 	// check if we have a strut
@@ -1382,7 +1382,7 @@ Client::setSkip(uint skip)
 }
 
 std::string
-Client::getAPDecorName(void)
+Client::getAPDecorName()
 {
 	AutoProperties *props = pekwm::autoProperties();
 	AutoProperty *ap = props->findAutoProperty(getClassHint());

@@ -250,13 +250,15 @@ Frame::iconify(void)
 	unmapWindow();
 }
 
-//! @brief Toggles the Frame's sticky state
+/**
+ * Toggles the Frame's sticky state
+ */
 void
-Frame::stick(void)
+Frame::toggleSticky()
 {
-	_client->setSticky(_sticky); // FIXME: FRAME
-	_client->stick();
-
+	if (isSticky() == _client->isSticky()) {
+		_client->toggleSticky();
+	}
 	_sticky = ! _sticky;
 
 	// make sure it's visible/hidden
@@ -505,9 +507,6 @@ Frame::removeChild(PWinObj *child, bool do_delete)
 void
 Frame::activateChild(PWinObj *child)
 {
-	// FIXME: Update default decoration for this child, can change
-	// decoration from DEFAULT to REMOTE or WARNING
-
 	Client *new_client = static_cast<Client*>(child);
 	bool client_changed = _client != new_client;
 	if (client_changed) {
@@ -534,7 +533,7 @@ Frame::activateChild(PWinObj *child)
 		child->giveInputFocus();
 	}
 
-	// Reload decor rules if needed.
+	// Reload the title and update the decoration if needed.
 	handleTitleChange(_client, false);
 
 	if (client_changed && ! pekwm::isStarting()) {
@@ -609,7 +608,7 @@ Frame::setShaded(StateAction sa)
 
 	bool shaded = isShaded();
 	if (shaded != PDecor::setShaded(sa)) {
-		_client->setShade(isShaded());
+		_client->getState().shaded = isShaded();
 		_client->updateEwmhStates();
 	}
 	return isShaded();
@@ -632,10 +631,10 @@ Frame::decorUpdated(void)
  * Frame has client which demands attention.
  */
 std::string
-Frame::getDecorName(void)
+Frame::getDecorName()
 {
 	if (! demandAttention()) {
-		const std::string& name = _client->getAPDecorName();
+		std::string name = _client->getAPDecorName();
 		if (! name.empty()) {
 			return name;
 		}
@@ -701,7 +700,9 @@ Frame::getState(Client *cl)
 	}
 }
 
-//! @brief Applies the frame's state on the Client
+/**
+ * Applies the frame's state on the Client
+ */
 void
 Frame::applyState(Client *cl)
 {
@@ -710,9 +711,9 @@ Frame::applyState(Client *cl)
 	}
 
 	cl->setSticky(_sticky);
-	cl->setMaximizedHorz(_maximized_horz);
-	cl->setMaximizedVert(_maximized_vert);
-	cl->setShade(isShaded());
+	cl->getState().maximized_horz = _maximized_horz;
+	cl->getState().maximized_vert = _maximized_vert;
+	cl->getState().shaded = isShaded();
 	cl->setWorkspace(_workspace);
 	cl->setLayer(getLayer());
 
@@ -772,7 +773,7 @@ Frame::setupAPGeometry(Client *client, AutoProperty *ap)
 
 	// get client geometry
 	if (ap->isMask(AP_CLIENT_GEOMETRY)) {
-		Geometry gm(client->_gm);
+		Geometry gm(client->getGeometry());
 		applyGeometry(gm, ap->client_gm, ap->client_gm_mask);
 
 		if (ap->client_gm_mask&(X_VALUE|Y_VALUE)) {
@@ -974,8 +975,8 @@ Frame::clearMaximizedStatesAfterResize(void)
 	if (_maximized_horz || _maximized_vert) {
 		_maximized_horz = false;
 		_maximized_vert = false;
-		_client->setMaximizedHorz(false);
-		_client->setMaximizedVert(false);
+		_client->getState().maximized_horz = false;
+		_client->getState().maximized_vert = false;
 		_client->updateEwmhStates();
 	}
 }
@@ -1209,7 +1210,7 @@ Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
 
 		// we unset the maximized state if we use maxfill
 		_maximized_horz = fill ? false : ! _maximized_horz;
-		_client->setMaximizedHorz(_maximized_horz);
+		_client->getState().maximized_horz = _maximized_horz;
 	}
 
 	if (vert && (fill || _client->allowMaximizeVert())) {
@@ -1239,7 +1240,7 @@ Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
 
 		// we unset the maximized state if we use maxfill
 		_maximized_vert = fill ? false : ! _maximized_vert;
-		_client->setMaximizedVert(_maximized_vert);
+		_client->getState().maximized_vert = _maximized_vert;
 	}
 
 	// harbour already considered
@@ -1298,7 +1299,7 @@ Frame::setStateFullscreen(StateAction sa)
 	}
 
 	_fullscreen = !_fullscreen;
-	_client->setFullscreen(_fullscreen);
+	_client->getState().fullscreen = _fullscreen;
 
 	moveResize(_gm.x, _gm.y, _gm.width, _gm.height);
 
@@ -1332,7 +1333,7 @@ Frame::setStateSticky(StateAction sa)
 	}
 
 	if (ActionUtil::needToggle(sa, _sticky)) {
-		stick();
+		toggleSticky();
 	}
 }
 
@@ -1640,7 +1641,7 @@ Frame::readAutoprops(ApplyOn type)
 	}
 
 	if (data->isMask(AP_STICKY) && _sticky != data->sticky) {
-		stick();
+		toggleSticky();
 	}
 	if (data->isMask(AP_SHADED) && (isShaded() != data->shaded)) {
 		setShaded(STATE_UNSET);
@@ -1734,43 +1735,43 @@ Frame::calcSizeInCells(uint &width, uint &height, const Geometry& gm)
 }
 
 void
-Frame::setGravityPosition(int gravity, int &x, int &y, int w, int h)
+Frame::setGravityPosition(int gravity, int &x, int &y, int diff_w, int diff_h)
 {
 	switch (gravity) {
 	case NorthWestGravity:
 		break;
 	case NorthGravity:
-		x = x - w/2;
+		x = x - diff_w / 2;
 		break;
 	case NorthEastGravity:
-		x = x - w;
+		x = x - diff_w;
 		break;
 	case WestGravity:
-		y = y - h/2;
+		y = y - diff_h /2;
 		break;
 	case CenterGravity:
-		x = x - w/2;
-		y = y - h/2;
+		x = x - diff_w / 2;
+		y = y - diff_h /2;
 		break;
 	case EastGravity:
-		x = x - w;
-		y = y - h/2;
+		x = x - diff_w;
+		y = y - diff_h /2;
 		break;
 	case SouthWestGravity:
-		y = y - h;
+		y = y - diff_h;
 		break;
 	case SouthGravity:
-		x = x - w/2;
-		y = y - h;
+		x = x - diff_w / 2;
+		y = y - diff_h;
 		break;
 	case SouthEastGravity:
-		x = x - w;
-		y = y - h;
+		x = x - diff_w;
+		y = y - diff_h;
 		break;
 	case StaticGravity:
-		// FIXME: What should we do here?
-		break;
+	case ForgetGravity:
 	default:
+		// keep position
 		break;
 	}
 }

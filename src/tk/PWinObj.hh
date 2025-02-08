@@ -183,7 +183,7 @@ public:
 	virtual void mapWindowRaised(void);
 	virtual void unmapWindow(void);
 	virtual void iconify(void);
-	virtual void stick(void);
+	virtual void toggleSticky();
 
 	virtual void move(int x, int y);
 	virtual void resize(uint width, uint height);

@@ -1,6 +1,6 @@
 //
 // Client.hh for pekwm
-// Copyright (C) 2003-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2025 Claes Nästén <pekdon@gmail.com>
 //
 // client.hh for aewm++
 // Copyright (C) 2002 Frank Hale <frankhale@yahoo.com>
@@ -49,13 +49,38 @@ public:
 	bool parent_is_new;
 };
 
+class ClientState {
+public:
+	ClientState()
+		: maximized_vert(false),
+		  maximized_horz(false),
+		  shaded(false),
+		  fullscreen(false),
+		  demands_attention(false),
+		  placed(false),
+		  initial_frame_order(0),
+		  skip(0),
+		  decor(DECOR_TITLEBAR|DECOR_BORDER),
+		  cfg_deny(CFG_DENY_NO)
+	{
+	}
+
+	bool maximized_vert;
+	bool maximized_horz;
+	bool shaded;
+	bool fullscreen;
+	/** If true, the client requires attention from the user. */
+	bool demands_attention;
+
+	// pekwm states
+	bool placed;
+	uint initial_frame_order; /**< Initial frame position */
+	uint skip, decor, cfg_deny;
+};
+
 class Client : public PWinObj,
 	       public Observer
 {
-	// FIXME: This relationship should end as soon as possible, but I need
-	// to figure out a good way of sharing. :)
-	friend class Frame;
-
 public: // Public Member Functions
 	typedef std::vector<Client*> client_vec;
 	typedef client_vec::iterator client_it;
@@ -69,7 +94,7 @@ public: // Public Member Functions
 	virtual void mapWindow(void);
 	virtual void unmapWindow(void);
 	virtual void iconify(void);
-	virtual void stick(void);
+	virtual void toggleSticky();
 
 	virtual void move(int x, int y);
 	virtual void resize(uint width, uint height);
@@ -135,6 +160,9 @@ public: // Public Member Functions
 	inline uint getClientID(void) { return _id; }
 	/**< Return title item for client name. */
 	inline PDecor::TitleItem *getTitle(void) { return &_title; }
+	ClientState &getState() { return _state; }
+	void readEwmhHints();
+	void readMwmHints();
 
 	inline const ClassHint* getClassHint(void) const { return _class_hint; }
 
@@ -162,7 +190,7 @@ public: // Public Member Functions
 	bool hasBorder(void) const { return (_state.decor&DECOR_BORDER); }
 	bool hasStrut(void) const { return (_strut); }
 	Strut *getStrut(void) const { return _strut; }
-	bool demandsAttention(void) const { return _demands_attention; }
+	bool demandsAttention() const { return _state.demands_attention; }
 
 	PTexture *getIcon(void) const { return _icon; }
 
@@ -247,10 +275,10 @@ public: // Public Member Functions
 	}
 
 	inline void setDemandsAttention(bool attention) {
-		_demands_attention = attention;
+		_state.demands_attention = attention;
 	}
 
-	std::string getAPDecorName(void);
+	std::string getAPDecorName();
 
 	void close(void);
 	void kill(void);
@@ -314,16 +342,8 @@ private:
 	void setWmState(ulong state);
 	long getWmState(void);
 
-	// these are used by frame
-	inline void setMaximizedVert(bool m) { _state.maximized_vert = m; }
-	inline void setMaximizedHorz(bool m) { _state.maximized_horz = m; }
-	inline void setShade(bool s) { _state.shaded = s; }
-	inline void setFullscreen(bool f) { _state.fullscreen = f; }
-
 	void readHints(void);
 	void readClassRoleHints(void);
-	void readEwmhHints(void);
-	void readMwmHints(void);
 	void readPekwmHints(void);
 	void readIcon(void);
 	void applyAutoprops(AutoProperty *ap);
@@ -365,34 +385,8 @@ private: // Private Member Variables
 	bool _send_focus_message, _send_close_message, _wm_hints_input;
 	bool _cfg_request_lock;
 	bool _extended_net_name;
-	/** If true, the client requires attention from the user. */
-	bool _demands_attention;
 
-	class State {
-	public:
-		State(void)
-			: maximized_vert(false),
-			  maximized_horz(false),
-			  shaded(false),
-			  fullscreen(false),
-			  placed(false),
-			  initial_frame_order(0),
-			  skip(0),
-			  decor(DECOR_TITLEBAR|DECOR_BORDER),
-			  cfg_deny(CFG_DENY_NO)
-		{
-		}
-		~State(void) { }
-
-		bool maximized_vert, maximized_horz;
-		bool shaded;
-		bool fullscreen;
-
-		// pekwm states
-		bool placed;
-		uint initial_frame_order; /**< Initial frame position */
-		uint skip, decor, cfg_deny;
-	} _state;
+	ClientState _state;
 
 	class Actions {
 	public:

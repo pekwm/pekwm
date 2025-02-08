@@ -38,7 +38,7 @@ public:
 	virtual AtomName getWinType() const;
 
 	virtual void iconify(void);
-	virtual void stick(void);
+	virtual void toggleSticky();
 
 	virtual void setWorkspace(unsigned int workspace);
 	virtual void setLayer(Layer layer);
@@ -215,8 +215,8 @@ private:
 	ClassHint *_class_hint;
 
 	// frame information used when maximizing / going fullscreen
-	Geometry _old_gm; // FIXME: move to PDecor?
-	uint _non_fullscreen_decor_state; // FIXME: move to PDecor?
+	Geometry _old_gm;
+	uint _non_fullscreen_decor_state;
 	Layer _non_fullscreen_layer;
 
 	static frame_vec _frames; //!< Vector of all Frames.

@@ -550,7 +550,7 @@ ActionHandler::handleStateAction(const Action &action, PWinObj *wo,
 		matched = true;
 		switch (action.getParamI(0)) {
 		case ACTION_STATE_STICKY:
-			wo->stick();
+			wo->toggleSticky();
 			break;
 		default:
 			matched = false;

@@ -2016,7 +2016,6 @@ X11::getKeycodeFromMask(uint mask)
 	const int mkpm = _modifier_map->max_keypermod;
 	for (int i = 0; i < 8; ++i) {
 		if (MODIFIER_TO_MASK[i] == mask) {
-			// FIXME: Is iteration over the range required?
 			return _modifier_map->modifiermap[i * mkpm];
 		}
 	}
