@@ -132,36 +132,35 @@ if test "x$LIBJPEG_FOUND" = "xno"; then
 			AC_SUBST([libjpeg_LIBS], ["-ljpeg"])
 		fi
 fi
-
-AM_CONDITIONAL([PEKWM_HAVE_IMAGE_JPEG], [test "x$LIBJPEG_FOUND" = "xyes"])
+AM_CONDITIONAL([PEKWM_WITH_IMAGE_JPEG], [test "x$LIBJPEG_FOUND" = "xyes"])
 
 PKG_CHECK_MODULES([libpng], [libpng >= 1.0.0],
 		  [AC_DEFINE([PEKWM_HAVE_IMAGE_PNG], [1],
 			     [Define to 1 if libpng is available])
 		   LIBPNG_FOUND=yes],
 		  [LIBPNG_FOUND=no])
-AM_CONDITIONAL([PEKWM_HAVE_IMAGE_PNG], [test "x$LIBPNG_FOUND" = "xyes"])
+AM_CONDITIONAL([PEKWM_WITH_IMAGE_PNG], [test "x$LIBPNG_FOUND" = "xyes"])
 
 PKG_CHECK_MODULES([pango], [pango >= 1.44.0],
 		  [AC_DEFINE([PEKWM_HAVE_PANGO], [1],
 			     [Define to 1 if pango is available])
 		   PANGO_FOUND=yes],
 		  [PANGO_FOUND=no])
-AM_CONDITIONAL([PEKWM_HAVE_PANGO], [test "x$PANGO_FOUND" = "xyes"])
+AM_CONDITIONAL([PEKWM_WITH_PANGO], [test "x$PANGO_FOUND" = "xyes"])
 
 PKG_CHECK_MODULES([pangocairo], [pangocairo >= 1.44.0],
 		  [AC_DEFINE([PEKWM_HAVE_PANGO_CAIRO], [1],
 			     [Define to 1 if pangocairo is available])
 		   PANGO_CAIRO_FOUND=yes],
 		  [PANGO_CAIRO_FOUND=no])
-AM_CONDITIONAL([PEKWM_HAVE_PANGO_CAIRO], [test "x$PANGO_CAIRO_FOUND" = "xyes"])
+AM_CONDITIONAL([PEKWM_WITH_PANGO_CAIRO], [test "x$PANGO_CAIRO_FOUND" = "xyes"])
 
 PKG_CHECK_MODULES([pangoxft], [pangoxft >= 1.44.0],
 		  [AC_DEFINE([PEKWM_HAVE_PANGO_XFT], [1],
 			     [Define to 1 if pangoxft is available])
 		   PANGO_XFT_FOUND=yes],
 		  [PANGO_XFT_FOUND=no])
-AM_CONDITIONAL([PEKWM_HAVE_PANGO_XFT], [test "x$PANGO_XFT_FOUND" = "xyes"])
+AM_CONDITIONAL([PEKWM_WITH_PANGO_XFT], [test "x$PANGO_XFT_FOUND" = "xyes"])
 
 PKG_CHECK_MODULES([xext], [xext >= 1.0.0],
 		  [AC_DEFINE([PEKWM_HAVE_XDBE], [1],
@@ -175,14 +174,14 @@ PKG_CHECK_MODULES([xft], [xft >= 1.0.0],
 			     [Define to 1 if xft is available])
 		   XFT_FOUND=yes],
 		  [XFT_FOUND=no])
-AM_CONDITIONAL([PEKWM_HAVE_XFT], [test "x$XFT_FOUND" = "xyes"])
+AM_CONDITIONAL([PEKWM_WITH_XFT], [test "x$XFT_FOUND" = "xyes"])
 
 PKG_CHECK_MODULES([xpm], [xpm >= 1.0.0],
 		  [AC_DEFINE([PEKWM_HAVE_IMAGE_XPM], [1],
 			     [Define to 1 if xpm is available])
 		   XPM_FOUND=yes],
 		  [XPM_FOUND=no])
-AM_CONDITIONAL([PEKWM_HAVE_IMAGE_XPM], [test "x$XPM_FOUND" = "xyes"])
+AM_CONDITIONAL([PEKWM_WITH_IMAGE_XPM], [test "x$XPM_FOUND" = "xyes"])
 
 PKG_CHECK_MODULES([xinerama], [xinerama >= 1.0.0],
 		  [AC_DEFINE([PEKWM_HAVE_XRANDR], [1],
@@ -199,6 +198,7 @@ if test "x$XRANDR_FOUND" = "xyes"; then
 		     [AC_DEFINE([PEKWM_HAVE_XRRGETOUTPUTPRIMARY], [1],
 			 [Define to 1 if XRRGetOutputPrimary is available])])
 fi
+AM_CONDITIONAL([PEKWM_WITH_XRANDR], [test "x$XRANDR_FOUND" = "xyes"])
 
 AC_LANG_PUSH([C++])
 
