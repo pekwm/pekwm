@@ -9,7 +9,6 @@
 
 #include "config.h"
 
-#include "Charset.hh"
 #include "Config.hh"
 #include "Compat.hh"
 #include "Debug.hh"
@@ -18,9 +17,9 @@
 #include "X11.hh" // for DPY in keyconfig code
 #include "pekwm_env.hh"
 
+#include "tk/CfgUtil.hh"
 #include "tk/PFont.hh"
-
-#include <fstream>
+#include "tk/TkGlobals.hh"
 
 #include <cstdlib>
 
@@ -154,14 +153,6 @@ SizeLimits::parseLimit(const std::string &limit, uint &min, uint &max)
 	}
 
 	return status;
-}
-
-static std::string
-getDefaultScriptsPath()
-{
-	std::string dir = Util::getConfigDir() + "/scripts";
-	Util::expandFileName(dir);
-	return dir;
 }
 
 Config::Config() :
@@ -396,10 +387,12 @@ Config::loadFiles(CfgParser::Entry *section)
 	keys.add_path("ICONS", _files_icon_path, DATADIR "/pekwm/icons");
 
 	std::string config_script_path;
-	keys.add_path("SCRIPTS", config_script_path, getDefaultScriptsPath());
-	pekwm::setConfigScriptPath(config_script_path);
+	keys.add_path("SCRIPTS", config_script_path,
+		      CfgUtil::getDefaultScriptsDir());
 
 	section->parseKeyValues(keys.begin(), keys.end());
+	pekwm::setConfigScriptPath(config_script_path);
+
 	keys.clear();
 }
 

@@ -15,7 +15,8 @@
 
 namespace CfgUtil {
 
-	void getThemeDir(const CfgParser::Entry* root,
+
+	void getThemeDir(const CfgParser::Entry *root,
 			 std::string &theme_dir, std::string &theme_variant,
 			 std::string &theme_path);
 	bool lookupThemeVariant(const std::string &theme_file,
@@ -23,6 +24,7 @@ namespace CfgUtil {
 	void getIconDir(const CfgParser::Entry* root, std::string &icon_dir);
 	void getScriptsDir(const CfgParser::Entry* root,
 			   std::string &scripts_dir);
+	std::string getDefaultScriptsDir();
 
 	void getFontSettings(const CfgParser::Entry* root,
 			     bool &default_is_x11,

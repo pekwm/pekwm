@@ -17,6 +17,7 @@
 
 namespace CfgUtil
 {
+
 	/**
 	 * Get theme directory details from CfgParser::Entry
 	 */
@@ -91,10 +92,13 @@ namespace CfgUtil
 		}
 	}
 
+	/**
+	 * Get script path from CfgParser::Entry (root of ~/.pekwm/config)
+	 */
 	void
 	getScriptsDir(const CfgParser::Entry* root, std::string &dir)
 	{
-		dir = Util::getConfigDir() + "/scripts/";
+		dir = getDefaultScriptsDir();
 		Util::expandFileName(dir);
 
 		CfgParser::Entry *files = root->findSection("FILES");
@@ -106,6 +110,13 @@ namespace CfgUtil
 		}
 	}
 
+	std::string
+	getDefaultScriptsDir()
+	{
+		std::string dir = Util::getConfigDir() + "/scripts";
+		Util::expandFileName(dir);
+		return dir;
+	}
 	/**
 	 * Return options used to initialize FontHandler
 	 */

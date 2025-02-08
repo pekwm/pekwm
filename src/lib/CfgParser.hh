@@ -87,6 +87,9 @@ public:
 	}
 
 	const std::string& commandPath() const { return _command_path; }
+	void setCommandPath(const std::string& command_path) {
+		_command_path = command_path;
+	}
 
 	bool registerXResource() const { return _register_x_resource; }
 	void setRegisterXResource(bool register_x_resource) {

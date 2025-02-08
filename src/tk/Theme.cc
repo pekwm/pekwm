@@ -24,6 +24,7 @@
 #include "PFont.hh"
 #include "PTexture.hh"
 #include "TextureHandler.hh"
+#include "TkGlobals.hh"
 
 #include <iostream>
 #include <string>
@@ -1318,7 +1319,7 @@ Theme::load(const std::string &dir, const std::string &variant, bool force)
 	}
 
 	bool theme_ok = true;
-	CfgParserOpt opt(""); // FIXME: (pekwm::configScriptPath());
+	CfgParserOpt opt(pekwm::configScriptPath());
 	opt.setRegisterXResource(true);
 	opt.setEndEarlyKey("REQUIRE");
 	CfgParser theme(opt);

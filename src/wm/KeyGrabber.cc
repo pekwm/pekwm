@@ -14,6 +14,7 @@
 #include "KeyGrabber.hh"
 #include "Util.hh"
 #include "X11.hh"
+#include "tk/TkGlobals.hh"
 
 extern "C" {
 #include <X11/Xutil.h>

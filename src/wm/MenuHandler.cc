@@ -21,6 +21,7 @@
 #include "FrameListMenu.hh"
 
 #include "tk/PWinObj.hh"
+#include "tk/TkGlobals.hh"
 
 TimeFiles MenuHandler::_cfg_files;
 std::map<std::string, PMenu*> MenuHandler::_menu_map;

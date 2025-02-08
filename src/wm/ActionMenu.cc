@@ -28,6 +28,7 @@
 #include "tk/ImageHandler.hh"
 #include "tk/PWinObj.hh"
 #include "tk/TextureHandler.hh"
+#include "tk/TkGlobals.hh"
 
 //! @brief ActionMenu constructor
 //! @param type Type of menu

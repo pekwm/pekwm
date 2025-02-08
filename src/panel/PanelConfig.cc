@@ -1,14 +1,14 @@
 //
 // PanelConfig.cc for pekwm
-// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
-//#include "Config.hh"
 #include "Debug.hh"
 #include "PanelConfig.hh"
+#include "../tk/TkGlobals.hh"
 
 /** empty string, used as default return value. */
 static std::string _empty_string;
@@ -17,7 +17,6 @@ static Util::StringTo<PanelPlacement> panel_placement_map[] =
 	{{"TOP", PANEL_TOP},
 	 {"BOTTOM", PANEL_BOTTOM},
 	 {nullptr, PANEL_TOP}};
-
 
 // WidgetConfig
 
@@ -101,7 +100,7 @@ CommandConfig::~CommandConfig(void)
 
 // PanelConfig
 
-PanelConfig::PanelConfig(void)
+PanelConfig::PanelConfig()
 	: _placement(DEFAULT_PLACEMENT),
 	  _head(-1)
 {
@@ -114,7 +113,7 @@ PanelConfig::~PanelConfig(void)
 bool
 PanelConfig::load(const std::string &panel_file)
 {
-	CfgParser cfg(CfgParserOpt("")); // FIXME: pekwm::configScriptPath());
+	CfgParser cfg(CfgParserOpt(pekwm::configScriptPath()));
 	if (! cfg.parse(panel_file, CfgParserSource::SOURCE_FILE, true)) {
 		return false;
 	}

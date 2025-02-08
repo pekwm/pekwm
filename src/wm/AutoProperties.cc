@@ -17,6 +17,7 @@
 #include "WmUtil.hh"
 
 #include "tk/ImageHandler.hh"
+#include "tk/TkGlobals.hh"
 
 static Util::StringTo<ApplyOn> apply_on_map[] =
 	{{"START", APPLY_ON_START},

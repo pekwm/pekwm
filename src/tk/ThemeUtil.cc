@@ -9,6 +9,7 @@
 #include "Debug.hh"
 #include "ColorPalette.hh"
 #include "ThemeUtil.hh"
+#include "TkGlobals.hh"
 
 #include <map>
 
@@ -21,7 +22,7 @@ namespace ThemeUtil {
 static void
 setCfgParserOptions(CfgParser &cfg, const std::string &dir, bool end_early)
 {
-	// FIXME: cfg.getOpt().setConfigScriptPath());
+	cfg.getOpt().setCommandPath(pekwm::configScriptPath());
 	cfg.getOpt().setEndEarlyKey(end_early ? "REQUIRE" : "");
 	cfg.getOpt().setRegisterXResource(true);
 	cfg.setVar("THEME_DIR", dir);
