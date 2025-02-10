@@ -53,6 +53,7 @@ Section {
 * Command/Search dialog now react to mouse clicks for repositioning the cursor.
 * ClearToCursor (Mod1 + Backspace) new InputDialog keybinding for removing all
   input up until the current cursor position.
+* Asymetric tabs now grow up until minimum width.
 
 Removed
 -------

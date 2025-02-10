@@ -361,7 +361,8 @@ private:
 					 int &off);
 	void calcTabsWidthSymetric(void);
 	void calcTabsWidthAsymetric(void);
-	void calcTabsWidthAsymetricGrow(uint width_avail, uint tab_width);
+	void calcTabsWidthAsymetricGrow(uint width_avail, uint width_total,
+					uint tab_width);
 	void calcTabsWidthAsymetricShrink(uint width_avail, uint tab_width);
 
 protected:

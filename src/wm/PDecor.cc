@@ -2143,7 +2143,8 @@ PDecor::calcTabsWidthAsymetric(void)
 	if (width_total > width_avail) {
 		calcTabsWidthAsymetricShrink(width_avail, tab_width);
 	} else if (width_total < static_cast<uint>(_data->getTitleWidthMin())) {
-		calcTabsWidthAsymetricGrow(width_avail, tab_width);
+		calcTabsWidthAsymetricGrow(width_avail, width_total,
+					   tab_width);
 	}
 }
 
@@ -2158,21 +2159,23 @@ PDecor::calcTabsWidthAsymetricShrink(uint width_avail, uint tab_width)
 	uint tabs_left = _titles.size();
 	std::vector<PDecor::TitleItem*>::iterator it = _titles.begin();
 	for (; it != _titles.end(); ++it) {
-		if ((*it)->getWidth() < tab_width) {
-			// 3. Add width of tabs requiring less space than the
-			//    the average
-			tabs_left--;
-			width_avail -= (*it)->getWidth();
+		if ((*it)->getWidth() >= tab_width) {
+			continue;
 		}
+		// 3. Add width of tabs requiring less space than the
+		//    the average
+		tabs_left--;
+		width_avail -= (*it)->getWidth();
 	}
 
 	// 4. Re-assign width equally to tabs using more than average
 	tab_width = width_avail / tabs_left;
 	uint off = width_avail % tabs_left;
 	for (it = _titles.begin(); it != _titles.end(); ++it) {
-		if ((*it)->getWidth() >= tab_width) {
-			(*it)->setWidth(tab_width + ((off-- > 0) ? 1 : 0));
+		if ((*it)->getWidth() < tab_width) {
+			continue;
 		}
+		(*it)->setWidth(tab_width + ((off-- > 0) ? 1 : 0));
 	}
 }
 
@@ -2181,7 +2184,31 @@ PDecor::calcTabsWidthAsymetricShrink(uint width_avail, uint tab_width)
  * width min, grow tabs that are smaller than the average.
  */
 void
-PDecor::calcTabsWidthAsymetricGrow(uint width_avail, uint tab_width)
+PDecor::calcTabsWidthAsymetricGrow(uint width_avail, uint width_total,
+				   uint tab_width)
 {
-	// FIXME: Implement growing of asymetric tabs.
+	// 2. Tabs did fit with extra space left over
+	uint tabs = 0;
+	std::vector<PDecor::TitleItem*>::iterator it = _titles.begin();
+	for (; it != _titles.end(); ++it) {
+		if ((*it)->getWidth() >= tab_width) {
+			continue;
+		}
+		// 3. Sum width of tabs requiring less space than the the
+		//    average
+		tabs++;
+		width_total -= (*it)->getWidth();
+	}
+
+	// 4. Re-assign width equally to tabs using less than average
+	if (tabs) {
+		uint grow_tab_width = (width_avail - width_total) / tabs;
+		uint off = grow_tab_width % tabs;
+		for (it = _titles.begin(); it != _titles.end(); ++it) {
+			if ((*it)->getWidth() >= tab_width) {
+				continue;
+			}
+			(*it)->setWidth(grow_tab_width + ((off-- > 0) ? 1 : 0));
+		}
+	}
 }
