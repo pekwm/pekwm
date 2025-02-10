@@ -1,6 +1,6 @@
 //
 // test_InputDialog.cc for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -23,7 +23,7 @@ private:
 	static void testAdd(void);
 	static void testRemove(void);
 	static void testClear(void);
-	static void testKill(void);
+	static void testKillFrom();
 	static void testChangePos(void);
 };
 
@@ -43,7 +43,7 @@ TestInputBuffer::run_test(TestSpec spec, bool status)
 	TEST_FN(spec, "add", testAdd());
 	TEST_FN(spec, "remove", testRemove());
 	TEST_FN(spec, "clear", testClear());
-	TEST_FN(spec, "kill", testKill());
+	TEST_FN(spec, "killFrom", testKillFrom());
 	TEST_FN(spec, "changePos", testChangePos());
 	return status;
 }
@@ -107,17 +107,17 @@ TestInputBuffer::testClear(void)
 }
 
 void
-TestInputBuffer::testKill(void)
+TestInputBuffer::testKillFrom(void)
 {
 	InputBuffer buf("content", 4);
 
-	buf.kill();
-	ASSERT_EQUAL("kill", "cont", buf.str());
-	ASSERT_EQUAL("kill", 4, buf.pos());
+	buf.killFrom();
+	ASSERT_EQUAL("killFrom", "cont", buf.str());
+	ASSERT_EQUAL("killFrom", 4, buf.pos());
 
-	buf.kill();
-	ASSERT_EQUAL("kill", "cont", buf.str());
-	ASSERT_EQUAL("kill", 4, buf.pos());
+	buf.killFrom();
+	ASSERT_EQUAL("killFrom", "cont", buf.str());
+	ASSERT_EQUAL("killFrom", 4, buf.pos());
 }
 
 void
@@ -126,7 +126,7 @@ TestInputBuffer::testChangePos(void)
 	InputBuffer buf("räksmörgås", -1);
 
 	buf.changePos(-3);
-	buf.kill();
+	buf.killFrom();
 	ASSERT_EQUAL("changePos", "räksmör", buf.str());
 
 	size_t pos = buf.pos();

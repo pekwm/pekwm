@@ -50,6 +50,9 @@ Section {
 
 * Variable expansion failures in the configuration are now logged with
   source:line:pos context information.
+* Command/Search dialog now react to mouse clicks for repositioning the cursor.
+* ClearToCursor (Mod1 + Backspace) new InputDialog keybinding for removing all
+  input up until the current cursor position.
 
 Removed
 -------

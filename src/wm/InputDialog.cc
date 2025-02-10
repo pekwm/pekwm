@@ -1,6 +1,6 @@
 //
 // InputDialog.cc for pekwm
-// Copyright (C) 2009-2024 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2009-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -77,10 +77,20 @@ InputBuffer::clear(void)
 }
 
 /**
+ * Removes buffer content up until position
+ */
+void
+InputBuffer::killTo()
+{
+	_buf = _buf.substr(_pos);
+	_pos = 0;
+}
+
+/**
  * Removes buffer content after position
  */
 void
-InputBuffer::kill(void)
+InputBuffer::killFrom()
 {
 	_buf.resize(_pos);
 }
@@ -112,7 +122,10 @@ InputDialog::InputDialog(const std::string &title)
 	: PDecor(None, true, true, "INPUTDIALOG"), PWinObjReference(0),
 	  _data(pekwm::theme()->getCmdDialogData()),
 	  _buf_off(0),
-	  _buf_chars(0)
+	  _buf_chars(0),
+	  _text_end(0),
+	  _cursor_begin(0),
+	  _cursor_end(0)
 {
 	// PWinObj attributes
 	setLayer(LAYER_NONE); // hack, goes over LAYER_MENU
@@ -221,12 +234,47 @@ InputDialog::addKeysymToKeysymMap(KeySym keysym, const std::string& chr)
 ActionEvent*
 InputDialog::handleButtonPress(XButtonEvent *ev)
 {
-	if (*_text_wo == ev->window) {
-		// FIXME: move cursor
-		return 0;
-	} else {
+	if (*_text_wo != ev->window || ev->x < 0) {
 		return PDecor::handleButtonPress(ev);
 	}
+
+	const uint x = static_cast<uint>(ev->x);
+	if (x > _text_end) {
+		_buf.setPos(_buf_chars);
+	} else if (x < static_cast<uint>(_data->getPad(PAD_LEFT))) {
+		_buf.setPos(_buf_off);
+	} else if (x >= _cursor_begin && x <= _cursor_end) {
+		// do nothing, position unchanged
+	} else {
+		uint off;
+		size_t buf_off = _buf_off;
+		const char *c_buf = str().c_str() + buf_off;
+		if (x > _cursor_end) {
+			c_buf += _buf.pos();
+			buf_off += _buf.pos();
+			off = _cursor_end;
+		}  else {
+			off = _data->getPad(PAD_LEFT);
+		}
+
+		uint last_pos = off;
+		Charset::Utf8Iterator it(c_buf, 0);
+		for (++it; it.ok(); ++it) {
+			uint pos = off
+				+ _data->getFont()->getWidth(c_buf, it.pos());
+			if (x < pos) {
+				uint half_width = (pos - last_pos) / 2;
+				if (x < (last_pos + half_width)) {
+					--it;
+				}
+				break;
+			}
+			last_pos = pos;
+		}
+		_buf.setPos(it.pos() + buf_off);
+	}
+	render();
+	return nullptr;
 }
 
 /**
@@ -238,69 +286,16 @@ InputDialog::handleKeyPress(XKeyEvent *ev)
 	bool matched;
 	ActionEvent *c_ae;
 	ActionEvent *r_ae = nullptr;
-
 	if ((c_ae = pekwm::keyGrabber()->findAction(ev, _type, matched))) {
 		ActionEvent::it it(c_ae->action_list.begin());
 		for (; it != c_ae->action_list.end(); ++it) {
-			switch (it->getAction()) {
-			case INPUT_INSERT:
-				bufAdd(ev);
-				completeReset();
-				break;
-			case INPUT_REMOVE:
-				_buf.remove();
-				break;
-			case INPUT_CLEAR:
-				bufClear();
-				break;
-			case INPUT_CLEARFROMCURSOR:
-				_buf.kill();
-				completeReset();
-				break;
-			case INPUT_EXEC:
-				r_ae = exec();
-				break;
-			case INPUT_CLOSE:
-				r_ae = close();
-				break;
-			case INPUT_COMPLETE:
-				complete();
-				break;
-			case INPUT_COMPLETE_ABORT:
-				completeAbort();
-				break;
-			case INPUT_CURS_NEXT:
-				_buf.changePos(1);
-				completeReset();
-				break;
-			case INPUT_CURS_PREV:
-				_buf.changePos(-1);
-				completeReset();
-				break;
-			case INPUT_CURS_BEGIN:
-				_buf.setPos(0);
-				completeReset();
-				break;
-			case INPUT_CURS_END:
-				_buf.setPos(_buf.size());
-				completeReset();
-				break;
-			case INPUT_HIST_NEXT:
-				histNext();
-				completeReset();
-				break;
-			case INPUT_HIST_PREV:
-				histPrev();
-				completeReset();
-				break;
-			case INPUT_NO_ACTION:
-			default:
-				// do nothing, shouldn't happen
-				break;
-			};
+			ActionEvent *ae = handleAction(ev, *it);
+			if (ae) {
+				r_ae = ae;
+			}
 		}
 
-		// something ( most likely ) changed, redraw the window
+		// something (most likely) changed, redraw the window
 		if (! r_ae) {
 			bufChanged();
 			render();
@@ -308,6 +303,69 @@ InputDialog::handleKeyPress(XKeyEvent *ev)
 	}
 
 	return r_ae;
+}
+
+ActionEvent*
+InputDialog::handleAction(XKeyEvent *ev, const Action &action)
+{
+	switch (action.getAction()) {
+	case INPUT_INSERT:
+		bufAdd(ev);
+		completeReset();
+		return nullptr;
+	case INPUT_REMOVE:
+		_buf.remove();
+		return nullptr;
+	case INPUT_CLEAR:
+		bufClear();
+		return nullptr;
+	case INPUT_CLEARFROMCURSOR:
+		_buf.killFrom();
+		completeReset();
+		return nullptr;
+	case INPUT_CLEARTOCURSOR:
+		_buf.killTo();
+		completeReset();
+		return nullptr;
+	case INPUT_EXEC:
+		return exec();
+	case INPUT_CLOSE:
+		return close();
+	case INPUT_COMPLETE:
+		complete();
+		return nullptr;
+	case INPUT_COMPLETE_ABORT:
+		completeAbort();
+		return nullptr;
+	case INPUT_CURS_NEXT:
+		_buf.changePos(1);
+		completeReset();
+		return nullptr;
+	case INPUT_CURS_PREV:
+		_buf.changePos(-1);
+		completeReset();
+		return nullptr;
+	case INPUT_CURS_BEGIN:
+		_buf.setPos(0);
+		completeReset();
+		return nullptr;
+	case INPUT_CURS_END:
+		_buf.setPos(_buf.size());
+		completeReset();
+		return nullptr;
+	case INPUT_HIST_NEXT:
+		histNext();
+		completeReset();
+		return nullptr;
+	case INPUT_HIST_PREV:
+		histPrev();
+		completeReset();
+		return nullptr;
+	case INPUT_NO_ACTION:
+	default:
+		// do nothing, shouldn't happen
+		return nullptr;
+	};
 }
 
 /**
@@ -445,21 +503,44 @@ InputDialog::render(void)
 {
 	X11::clearWindow(_text_wo->getWindow());
 
+	// NOTE: this could be optmized by returning the actual width consumed
+	//       by the rendering instead of the starting offset avoiding the
+	//       extra calls to getWidth.
+	PFont *font = _data->getFont();
+	font->setColor(_data->getColor());
+
 	uint pos = _data->getPad(PAD_LEFT);
 	const char *c_buf = str().c_str() + _buf_off;
 
-	// draw buf content
-	_data->getFont()->setColor(_data->getColor());
-	_data->getFont()->draw(_text_wo,
-			       pos, _data->getPad(PAD_UP), c_buf, _buf_chars);
-
-	// draw cursor
-	if (_buf.pos() > 0) {
-		pos += _data->getFont()->getWidth(c_buf, _buf.pos() - _buf_off)
-			+ 1;
+	// cursor at the beginning, render before the text
+	if (_buf.pos() == 0) {
+		pos += renderCursor(pos);
 	}
-	_data->getFont()->draw(_text_wo,
-			       pos, _data->getPad(PAD_UP), "|");
+	font->draw(_text_wo, pos, _data->getPad(PAD_UP), c_buf, _buf.pos());
+
+	// cursor in or at the end of the text, render after first part
+	if (_buf.pos() != 0) {
+		pos += font->getWidth(c_buf, _buf.pos());
+		pos += renderCursor(pos);
+		if (_buf_chars > _buf.pos()) {
+			c_buf += _buf.pos();
+			size_t buf_chars = _buf_chars - _buf.pos();
+			font->draw(_text_wo, pos, _data->getPad(PAD_UP),
+				   c_buf, buf_chars);
+			pos += font->getWidth(c_buf, buf_chars);
+		}
+	}
+	_text_end = pos;
+}
+
+uint
+InputDialog::renderCursor(uint pos)
+{
+	_data->getFont()->draw(_text_wo, pos, _data->getPad(PAD_UP), "|");
+	_cursor_begin = pos;
+	uint width = _data->getFont()->getWidth("|", 1);
+	_cursor_end = pos + width;
+	return width;
 }
 
 /**

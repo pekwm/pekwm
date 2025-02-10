@@ -1,6 +1,6 @@
 //
 // InputDialog.hh for pekwm
-// Copyright (C) 2009-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2009-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -38,7 +38,8 @@ public:
 	void add(const std::string& str);
 	void remove(void);
 	void clear(void);
-	void kill(void);
+	void killTo();
+	void killFrom();
 	void changePos(int off);
 
 private:
@@ -77,6 +78,7 @@ public:
 	virtual void moveCentered(const Geometry &head, const Geometry &gm);
 
 protected:
+	ActionEvent *handleAction(XKeyEvent *ev, const Action &ae);
 	virtual ActionEvent *close(void);
 	virtual ActionEvent *exec(void) { return 0; }
 	virtual void complete(void);
@@ -104,16 +106,15 @@ protected:
 	void loadHistory(const std::string &file);
 	void saveHistory(const std::string &file);
 
+	PWinObj *_text_wo;
+
 private:
 	InputDialog(const InputDialog&);
 	InputDialog& operator=(const InputDialog&);
 
 	void bufAdd(XKeyEvent* ev);
+	uint renderCursor(uint pos);
 
-protected:
-	PWinObj *_text_wo;
-
-private:
 	Theme::TextDialogData *_data;
 
 	PDecor::TitleItem _title;
@@ -122,6 +123,12 @@ private:
 	InputBuffer _buf;
 	uint _buf_off;
 	uint _buf_chars; // position, start and num display
+	/** width of text and cursor */
+	uint _text_end;
+	/** x position at where the cursor rendering started. */
+	uint _cursor_begin;
+	/** x position at where the cursor rendering ended. */
+	uint _cursor_end;
 
 	// history
 	std::string _hist_new; // the one we started editing on

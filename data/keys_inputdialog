@@ -7,7 +7,8 @@ InputDialog {
 	KeyPress = "Right" { Actions = "CursNext" }
 	KeyPress = "Ctrl A" { Actions = "CursBegin" }
 	KeyPress = "Ctrl E" { Actions = "CursEnd" }
-	KeyPress = "BackSpace" { Actions = "Erase;CompleteAbort" }
+	KeyPress = "BackSpace" { Actions = "Erase; CompleteAbort" }
+	KeyPress = "Mod1 BackSpace" { Actions = "ClearToCursor" }
 	KeyPress = "Ctrl K" { Actions = "ClearFromCursor" }
 	KeyPress = "Ctrl C" { Actions = "Clear" }
 	KeyPress = "Return" { Actions = "Exec" }
