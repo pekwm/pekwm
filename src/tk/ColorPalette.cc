@@ -10,8 +10,11 @@
 #include "ColorPalette.hh"
 #include "Util.hh"
 
+#include <algorithm>
+
 extern "C" {
 #include <assert.h>
+#include <stdio.h>
 }
 
 namespace ColorPalette {
@@ -99,16 +102,52 @@ getSteps(Mode mode, std::vector<int> &steps)
 	}
 }
 
+static uint
+fromHex(const char *c_hex)
+{
+	char *endptr;
+	char buf[3] = { c_hex[0], c_hex[1], '\0' };
+	return strtol(buf, &endptr, 16);
+}
+
+static uint
+toColorVal(float fval)
+{
+	uint val = static_cast<int>(fval);
+	return std::min(val, 255U);
+}
+
+/**
+ * Get single color from color map, optionally adjusting its brightess
+ */
+static std::string
+getColor(uint idx, float brightness)
+{
+	assert(idx < sizeof(COLORS)/sizeof(COLORS[0]));
+	if (brightness == 1.0) {
+		return COLORS[idx];
+	}
+
+	const char *c_color = COLORS[idx];
+	float r = fromHex(c_color + 1) * brightness;
+	float g = fromHex(c_color + 3) * brightness;
+	float b = fromHex(c_color + 5) * brightness;
+	char buf[8];
+	snprintf(buf, sizeof(buf), "#%02x%02x%02x",
+		 toColorVal(r), toColorVal(g), toColorVal(b));
+	return buf;
+}
+
 /**
  * Get colors as XColor for the given mode and base color. Caller is responsible
  * for calling X11::returnColor on the returned colors.
  */
 bool
-getColors(Mode mode, BaseColor base, uint intensity,
+getColors(Mode mode, BaseColor base, uint intensity, float brightness,
 	  std::vector<XColor*> colors)
 {
 	std::vector<std::string> str_colors;
-	if (! getColors(mode, base, intensity, str_colors)) {
+	if (! getColors(mode, base, intensity, brightness, str_colors)) {
 		return false;
 	}
 
@@ -123,7 +162,7 @@ getColors(Mode mode, BaseColor base, uint intensity,
  * Get colors as strings in format #rrggbb for the given mode and base color.
  */
 bool
-getColors(Mode mode, BaseColor base, uint intensity,
+getColors(Mode mode, BaseColor base, uint intensity, float brightness,
 	  std::vector<std::string> &colors)
 {
 	if (mode >= PALETTE_NO || base >= BASE_COLOR_NO
@@ -133,12 +172,12 @@ getColors(Mode mode, BaseColor base, uint intensity,
 
 	std::vector<int> steps;
 	uint idx = static_cast<uint>(base) * COLORS_PER_BASE + intensity;
-	colors.push_back(COLORS[idx]);
+	colors.push_back(getColor(idx, brightness));
 	getSteps(mode, steps);
 	std::vector<int>::iterator it(steps.begin());
 	for (; it != steps.end(); ++it) {
 		idx = (idx + *it * COLORS_PER_BASE) % COLORS_SIZE;
-		colors.push_back(COLORS[idx]);
+		colors.push_back(getColor(idx, brightness));
 	}
 	return true;
 }

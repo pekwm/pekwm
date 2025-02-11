@@ -49,8 +49,8 @@ Mode modeFromString(const std::string &mode_str);
 BaseColor baseColorFromString(const std::string &base_str);
 
 bool getColors(Mode mode, BaseColor base, uint intensity,
-	       std::vector<XColor*> &colors);
+	       float brightness, std::vector<XColor*> &colors);
 bool getColors(Mode mode, BaseColor base, uint intensity,
-	       std::vector<std::string> &colors);
+	       float brightness, std::vector<std::string> &colors);
 
 };

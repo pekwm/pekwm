@@ -49,7 +49,8 @@ TestColorPalette::testGetColorsAsStrings()
 	bool res;
 	std::vector<std::string> strs;
 	res = ColorPalette::getColors(ColorPalette::PALETTE_COMPLEMENTARY,
-			       ColorPalette::BASE_COLOR_RED, 0, strs);
+				      ColorPalette::BASE_COLOR_RED, 0, 1.0,
+				      strs);
 	ASSERT_TRUE("complementary", res);
 	ASSERT_EQUAL("complementary", 2, strs.size());
 	ASSERT_EQUAL("complementary", "#fbd3d0", strs[0]);
@@ -57,7 +58,8 @@ TestColorPalette::testGetColorsAsStrings()
 
 	strs.clear();
 	res = ColorPalette::getColors(ColorPalette::PALETTE_TETRAD,
-			       ColorPalette::BASE_COLOR_ORANGE, 4, strs);
+				      ColorPalette::BASE_COLOR_ORANGE, 4,
+				      1.0, strs);
 	ASSERT_TRUE("tetrad wrap", res);
 	ASSERT_EQUAL("tetrad wrap", 4, strs.size());
 	ASSERT_EQUAL("tetrad wrap", "#9a4f06", strs[0]);
@@ -67,10 +69,21 @@ TestColorPalette::testGetColorsAsStrings()
 
 	strs.clear();
 	res = ColorPalette::getColors(ColorPalette::PALETTE_SINGLE,
-			       ColorPalette::BASE_COLOR_PURPLE, 0, strs);
+				      ColorPalette::BASE_COLOR_PURPLE, 0,
+				      1.0, strs);
 	ASSERT_TRUE("single", res);
 	ASSERT_EQUAL("single", 1, strs.size());
 	ASSERT_EQUAL("single", "#b8add5", strs[0]);
+
+	// brightness
+	strs.clear();
+	res = ColorPalette::getColors(ColorPalette::PALETTE_SINGLE,
+				      ColorPalette::BASE_COLOR_PURPLE, 0,
+				      0.5, strs);
+	ASSERT_TRUE("single", res);
+	ASSERT_EQUAL("single", 1, strs.size());
+	ASSERT_EQUAL("single", "#5c566a", strs[0]);
+
 }
 
 void
@@ -79,17 +92,20 @@ TestColorPalette::testGetColorsInputValidation()
 	bool res;
 	std::vector<std::string> strs;
 	res = ColorPalette::getColors(ColorPalette::PALETTE_NO,
-				      ColorPalette::BASE_COLOR_RED, 0, strs);
+				      ColorPalette::BASE_COLOR_RED, 0, 1.0,
+				      strs);
 	ASSERT_FALSE("invalid mode", res);
 	ASSERT_EQUAL("invalid mode", 0, strs.size());
 
 	res = ColorPalette::getColors(ColorPalette::PALETTE_TRIAD,
-				      ColorPalette::BASE_COLOR_NO, 0, strs);
+				      ColorPalette::BASE_COLOR_NO, 0, 1.0,
+				      strs);
 	ASSERT_FALSE("invalid base color", res);
 	ASSERT_EQUAL("invalid mode", 0, strs.size());
 
 	res = ColorPalette::getColors(ColorPalette::PALETTE_TRIAD,
-				      ColorPalette::BASE_COLOR_RED, 10, strs);
+				      ColorPalette::BASE_COLOR_RED, 10, 1.0,
+				      strs);
 	ASSERT_FALSE("invalid intensity", res);
 	ASSERT_EQUAL("invalid mode", 0, strs.size());
 }

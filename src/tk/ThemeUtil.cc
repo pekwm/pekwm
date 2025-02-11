@@ -31,11 +31,11 @@ setCfgParserOptions(CfgParser &cfg, const std::string &dir, bool end_early)
 
 static bool
 loadPalette(ColorPalette::Mode mode, ColorPalette::BaseColor base_color,
-	    uint intensity, const std::string &name,
+	    uint intensity, float brightness, const std::string &name,
 	    std::map<std::string, std::string> &vars)
 {
 	std::vector<std::string> colors;
-	if (! getColors(mode, base_color, intensity, colors)) {
+	if (! getColors(mode, base_color, intensity, brightness, colors)) {
 		return false;
 	}
 
@@ -57,19 +57,22 @@ loadPalette(CfgParser::Entry *section,
 	}
 
 	std::string mode_str, base_str;
+	float brightness;
 
 	CfgParserKeys keys;
 	keys.add_string("MODE", mode_str);
 	keys.add_string("BASE", base_str);
+	keys.add_numeric<float>("BRIGHTNESS", brightness, 100.0, 0.0);
 	section->parseKeyValues(keys.begin(), keys.end());
+	brightness /= 100.0;
 
 	bool err = false;
 	ColorPalette::Mode mode = ColorPalette::modeFromString(mode_str);
 	ColorPalette::BaseColor base_color =
 		ColorPalette::baseColorFromString(base_str);
 	for (uint i = 0; i <= ColorPalette::MAX_INTENSITY; i++) {
-		if (! loadPalette(mode, base_color, i, section->getValue(),
-				  vars)) {
+		if (! loadPalette(mode, base_color, i, brightness,
+				  section->getValue(), vars)) {
 			err = true;
 		}
 	}
