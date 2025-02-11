@@ -253,13 +253,13 @@ TextureHandler::parseSolidRaised(const std::vector<std::string> &tok)
 	i += 3;
 
 	// Check if we have line width and offset.
-	if (tok.size() > (i + 2)) {
+	if (tok.size() > (i + 1)) {
 		tex->setLineWidth(strtol(tok[i].c_str(), 0, 10));
 		tex->setLineOff(strtol(tok[i + 1].c_str(), 0, 10));
 		i += 2;
 	}
 	// Check if have side draw specified.
-	if (tok.size() > (i + 4)) {
+	if (tok.size() > (i + 3)) {
 		tex->setDraw(Util::isTrue(tok[i]),
 			     Util::isTrue(tok[i + 1]),
 			     Util::isTrue(tok[i + 2]),

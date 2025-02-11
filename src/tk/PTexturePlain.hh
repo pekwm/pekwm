@@ -81,7 +81,7 @@ public:
 	virtual void renderArea(Render &rend, int x, int y,
 				size_t width, size_t height);
 
-	inline void setLineOff(size_t loff) { _loff = loff; _loff2 = loff * 2; }
+	inline void setLineOff(size_t loff) { _loff = loff; }
 	inline void setDraw(bool top, bool bottom, bool left, bool right) {
 		_draw_top = top;
 		_draw_bottom = bottom;
@@ -99,7 +99,7 @@ private:
 	XColor *_xc_hi;
 	XColor *_xc_lo;
 
-	uint _lw, _loff, _loff2;
+	uint _lw, _loff;
 	bool _draw_top;
 	bool _draw_bottom;
 	bool _draw_left;
