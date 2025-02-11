@@ -538,9 +538,12 @@ Client::setWorkspace(uint workspace)
 	}
 }
 
-//! @brief Gives the Client input focus.
+/**
+ * Give input focus to client (if _wm_hints_input is true) and clears demands
+ * attention if set.
+ */
 void
-Client::giveInputFocus(void)
+Client::giveInputFocus()
 {
 	Frame *frame;
 	if (demandsAttention() && (frame = static_cast<Frame *>(_parent))) {
@@ -600,7 +603,6 @@ Client::handleUnmapEvent(XUnmapEvent *ev)
 	// window)
 	X11::unsetProperty(_window, NET_WM_DESKTOP);
 
-	// FIXME: Listen mask should change as this doesn't work?
 	_alive = false;
 	delete this;
 
@@ -1666,7 +1668,7 @@ Client::getWMHints(void)
 	XWMHints hints;
 	if (X11::getWMHints(_window, hints)) {
 		// get the input focus mode
-		if (hints.flags&InputHint) { // FIXME: More logic needed
+		if (hints.flags&InputHint) {
 			_wm_hints_input = hints.input;
 		}
 
