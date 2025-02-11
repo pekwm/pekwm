@@ -72,6 +72,7 @@ Removed
   performance.
 * Add Assign option to Command section, if set, assign complete lines of output
   to the variable name set in Assign instead of parsing the output.
+* Add Text to Bar widget, allows to render text inside the bar area.
 
 ## pekwm_screenshot
 

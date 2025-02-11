@@ -1,6 +1,6 @@
 //
 // BarWidget.cc for pekwm
-// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -18,7 +18,7 @@ BarWidget::BarWidget(const PWinObj* parent,
 	  _var_data(var_data),
 	  _field(field)
 {
-	parseColors(section);
+	parseConfig(section);
 	pekwm::observerMapping()->addObserver(&_var_data, this, 100);
 }
 
@@ -38,9 +38,14 @@ BarWidget::render(Render &rend)
 	rend.rectangle(getX() + 1, 1, width, height);
 
 	float fill_p = getPercent(_var_data.get(_field));
-	int fill = static_cast<int>(fill_p * (height - 2));
+	int fill = static_cast<int>(fill_p * (height - 1));
 	rend.setColor(getBarFill(fill_p));
 	rend.fill(getX() + 2, 1 + height - fill, width - 1, fill);
+
+	if (! _text.empty()) {
+		PFont *font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
+		renderText(rend, font, getX() + 2, _text, width - 1);
+	}
 }
 
 int
@@ -70,10 +75,19 @@ BarWidget::getPercent(const std::string& str) const
 		} else if (percent > 100.0) {
 			percent = 100.0;
 		}
-		return percent / 100;
+		return percent / 100.0;
 	} catch (std::invalid_argument&) {
 		return 0.0;
 	}
+}
+
+void
+BarWidget::parseConfig(const CfgParser::Entry* section)
+{
+	CfgParserKeys keys;
+	keys.add_string("TEXT", _text, "");
+	section->parseKeyValues(keys.begin(), keys.end());
+	parseColors(section);
 }
 
 void

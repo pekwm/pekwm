@@ -1,10 +1,42 @@
 //
 // BarWidget.hh for pekwm
-// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
+
+// DOC
+//
+// Renders a filled rectangle, with an optional text string in it, that is
+// changing color depending on the fill level.
+//
+// The field should be a value between 0 and 100.
+//
+// Color is selected based on the value, first color with a value below the
+// current value is choosen. Given the configuration below and a value of 80
+// #cccc00 will be selected.
+//
+// ```
+// Bar = "field" {
+//   Size = "Pixels 24"
+//   Text = "F"
+//   Colors {
+//    Percent = "0" {
+//      Color = "#00cc00"
+//    }
+//    Percent = "75" {
+//      Color = "#cccc00"
+//    }
+//    Percent = "90" {
+//      Color = "#cc0000"
+//    }
+//   }
+// }
+// ```
+// ENDDOC
+
+
 #ifndef _PEKWM_PANEL_BAR_WIDGET_HH_
 #define _PEKWM_PANEL_BAR_WIDGET_HH_
 
@@ -47,12 +79,14 @@ public:
 private:
 	int getBarFill(float percent) const;
 	float getPercent(const std::string& str) const;
+	void parseConfig(const CfgParser::Entry* section);
 	void parseColors(const CfgParser::Entry* section);
 	void addColor(float percent, XColor* color);
 
 private:
 	VarData& _var_data;
 	std::string _field;
+	std::string _text;
 	std::vector<std::pair<float, XColor*> > _colors;
 };
 
