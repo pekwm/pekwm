@@ -215,14 +215,14 @@ XImageRender::line(int x1, int y1, int x2, int y2)
 {
 	if (x1 == x2) {
 		for (; y1 <= y2; y1++) {
-			for (int lw = 0; lw < _lw; lw++) {
-				XPutPixel(_image, x1, y1 + lw, _color);
+			for (int i = 0; i < _lw; i++) {
+				XPutPixel(_image, x1 + i, y1, _color);
 			}
 		}
 	} else if (y1 == y2) {
 		for (; x1 <= x2; x1++) {
-			for (int lw = 0; lw < _lw; lw++) {
-				XPutPixel(_image, x1 + lw, y1, _color);
+			for (int i = 0; i < _lw; i++) {
+				XPutPixel(_image, x1, y1 + i, _color);
 			}
 		}
 	} else {
