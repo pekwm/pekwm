@@ -1,10 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 
-file(GLOB default_png_files "${CMAKE_CURRENT_SOURCE_DIR}/*.png")
-
 install(FILES
+	template
 	theme
-	${default_png_files}
+	theme-dark
+	theme-dawn
+	theme-dusk
+	theme-light
 	DESTINATION share/pekwm/themes/default)
-
-add_subdirectory(backgrounds)

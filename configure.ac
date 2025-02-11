@@ -19,10 +19,6 @@ AC_CONFIG_FILES([Makefile
 		 data/scripts/Makefile
 		 data/themes/Makefile
 		 data/themes/default/Makefile
-		 data/themes/default/backgrounds/Makefile
-		 data/themes/default-plain/Makefile
-		 data/themes/winter/Makefile
-		 data/themes/winter/backgrounds/Makefile
 		 dev/Makefile
 		 doc/Makefile
 		 src/Makefile

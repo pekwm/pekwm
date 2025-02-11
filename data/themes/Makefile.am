@@ -1,3 +1,3 @@
-SUBDIRS = default default-plain winter
+SUBDIRS = default
 
 EXTRA_DIST = CMakeLists.txt

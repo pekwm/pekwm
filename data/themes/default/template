@@ -1,0 +1,191 @@
+# default theme for pekwm-0.4.0
+
+Background {
+	Texture = "LinesVert 12.5% $T2_0 $TD2_0 $T2_1 $TD2_1 $T2_2 $TD2_2 $T2_3 $TD2_3"
+}
+
+Define = "Border" {
+	Focused {
+		TopLeft = "$BRD_F"
+		Top = "$BRD_F"
+		TopRight = "$BRD_F"
+		Left = "$BRD_F"
+		Right = "$BRD_F"
+		BottomLeft = "$BRD_F"
+		Bottom = "$BRD_F"
+		BottomRight = "$BRD_F"
+	}
+	Unfocused {
+		TopLeft = "$BRD_U"
+		Top = "$BRD_U"
+		TopRight = "$BRD_U"
+		Left = "$BRD_U"
+		Right = "$BRD_U"
+		BottomLeft = "$BRD_U"
+		Bottom = "$BRD_U"
+		BottomRight = "$BRD_U"
+	}
+}
+
+Define = "BaseDecor" {
+	Height = "24"
+	HeightAdapt = "True"
+
+	Pad = "3 3 3 3"
+
+	WidthMin = "150"
+	WidthMax = "95"
+	WidthSymetric = "true"
+
+	Focused = "Solid #ffffff"
+	Unfocused = "Solid #aaaaaa"
+
+	Tab {
+		Focused = "$TEX_F"
+		FocusedSelected = "$TEX_FS"
+		Unfocused = "$TEX_U"
+		UnfocusedSelected = "$TEX_US"
+	}
+	Separator {
+		Focused = "Empty"
+		Unfocused = "Empty"
+	}
+	Font {
+		Focused = "$FONT#Center"
+	}
+	FontColor {
+		Focused = "#000000"
+		FocusedSelected = "#000000"
+		Unfocused = "#333333"
+		UnfocusedSelected = "#333333"
+	}
+	Border {
+		@Border
+	}
+}
+
+Define = "EmptyDecor" {
+  Height = "0"
+  Pad = "0 0 0 0"
+  Focused = "Empty"
+  Unfocused = "Empty"
+  Tab {
+    Focused = "Empty"
+    FocusedSelected = "Empty"
+    Unfocused = "Empty"
+    UnfocusedSelected = "Empty"
+  }
+  Separator {
+    Focused = "Empty"
+    Unfocused = "Empty"
+  }
+  Font {
+    Focused = "Empty"
+  }
+  FontColor {
+    Focused = "Empty"
+    FocusedSelected = "Empty"
+    Unfocused = "Empty"
+    UnfocusedSelected = "Empty"
+  }
+}
+
+Define = "NoTitlebarDecor" {
+	@EmptyDecor
+	Border {
+		@Border
+	}
+}
+
+Decor = "DEFAULT" {
+	@BaseDecor
+}
+
+Decor = "REMOTE" {
+	@BaseDecor
+
+	Tab {
+		Focused = "Solid #fffcec"
+		FocusedSelected = "Solid #fff9d6"
+	}
+}
+
+Decor = "WARNING" {
+	@BaseDecor
+
+	Tab {
+		Focused = "Solid #ee5454"
+		FocusedSelected = "Solid #ff7474"
+	}
+}
+
+Decor = "MENU" {
+	@BaseDecor
+}
+
+Decor = "INPUTDIALOG" {
+	@NoTitlebarDecor
+}
+
+Decor = "WORKSPACEINDICATOR" {
+	@NoTitlebarDecor
+}
+
+Harbour {
+	Texture = "SolidRaised #ffffff #000000 #000000 1 0"
+}
+
+Menu {
+	Pad = "0 0 2 2"
+	Focused {
+		Font = "$FONT"
+		Background = "Solid #ffffff"
+		Item = "Solid #ffffff 1 0"
+		Separator = "Solid #aaaaaa 0x1"
+		Arrow = "Solid $T0_2 4x4"
+		Text = "#000000"
+	}
+	Unfocused {
+		Font = "$FONT"
+		Background = "Solid #cccccc"
+		Item = "Solid #cccccc 1 0"
+		Separator = "Solid #999999 0x2"
+		Arrow = "Solid $T0_2 4x4"
+		Text = "#000000"
+	}
+	Selected {
+		Font = "$FONT"
+		Background = "Solid #cccccc"
+		Item = "Solid #cccccc 1 0"
+		Separator = "Solid #aaaaaa 0x1"
+		Arrow = "Solid $T0_2 4x4"
+		Text = "#000000"
+	}
+}
+
+CmdDialog {
+	Font = "$FONT"
+	Texture = "Solid #ffffff"
+	Text = "#000000"
+}
+
+Panel {
+	Background = "$TEX_PANEL"
+	BackgroundOpacity = "80"
+}
+
+Status {
+	Font = "$FONT#Center"
+	Texture = "Solid #ffffff"
+	Text = "#000000"
+}
+
+WorkspaceIndicator {
+	Font = "$FONT#Center"
+	Background = "Solid #ffffff"
+	Workspace = "Solid #cccccc"
+	WorkspaceActive = "Solid $T0_2"
+	Text = "#000000"
+	EdgePadding = "5"
+	WorkspacePadding = "2"
+}

@@ -1,0 +1,22 @@
+
+Version = "3"
+
+Require {
+	Templates = "True"
+	Palette = "T" { Mode = "Triad"; Base = "Green" }
+	Palette = "TD" { Mode = "Triad"; Base = "Green"; Brightness="90" }
+}
+
+$FONT="Monospace:size=11"
+
+$BRD_F="Solid #666666 2x2"
+$BRD_U="Solid #333333 2x2"
+
+$TEX_F="SolidRaised $T0_0 $T0_1 $T0_3"
+$TEX_FS="SolidRaised $T0_1 $T0_1 $T0_3"
+$TEX_U="SolidRaised #cccccc #aaaaaa #888888"
+$TEX_US="SolidRaised #cccccc #aaaaaa #888888"
+
+$TEX_PANEL="Solid $T2_0"
+
+INCLUDE = "$THEME_DIR/template"
