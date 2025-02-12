@@ -16,7 +16,7 @@ pekwm_panel_SOURCES = pekwm_panel.cc pekwm_panel.hh \
 		      VarData.cc VarData.hh \
 		      WidgetFactory.cc WidgetFactory.hh \
 		      WmState.cc WmState.hh
-pekwm_panel_CXXFLAGS = -I../lib
+pekwm_panel_CXXFLAGS = $(LIB_CFLAGS) $(TK_CFLAGS) -I../lib
 pekwm_panel_LDADD = ../lib/libpekwm_lib.a ../tk/libpekwm_tk.a
 pekwm_panel_LDFLAGS = $(LIB_LIBS) $(TK_LIBS)
 

@@ -36,6 +36,6 @@ libpekwm_tk_a_SOURCES = Action.cc Action.hh \
 			TkWidget.hh \
 			X11App.cc X11App.hh \
 			X11Util.cc X11Util.hh
-libpekwm_tk_a_CXXFLAGS = -I../lib $(LIB_CFLAGS) $(TK_CFLAGS)
+libpekwm_tk_a_CXXFLAGS = $(LIB_CFLAGS) $(TK_CFLAGS) -I../lib
 
 EXTRA_DIST = CMakeLists.txt

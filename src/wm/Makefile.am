@@ -42,7 +42,8 @@ pekwm_wm_SOURCES = pekwm_wm.cc \
 	WmUtil.cc WmUtil.hh \
 	WorkspaceIndicator.cc WorkspaceIndicator.hh \
 	Workspaces.cc Workspaces.hh
-pekwm_wm_CXXFLAGS = -I../lib -I.. -DFEATURES=\"@PEKWM_FEATURES@\"
+pekwm_wm_CXXFLAGS = $(LIB_CFLAGS) $(TK_CFLAGS) -I../lib -I.. \
+	-DFEATURES="\"@PEKWM_FEATURES@\""
 pekwm_wm_LDADD = ../lib/libpekwm_lib.a ../tk/libpekwm_tk.a
 pekwm_wm_LDFLAGS = $(LIB_LIBS) $(TK_LIBS)
 
