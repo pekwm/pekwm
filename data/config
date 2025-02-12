@@ -5,7 +5,7 @@
 INCLUDE = "$_PEKWM_ETC_PATH/config_system"
 
 Files {
-    Theme = "$_PEKWM_THEME_PATH/winter"
+    Theme = "$_PEKWM_THEME_PATH/default"
     ThemeVariant = ""
 }
 
