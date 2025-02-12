@@ -30,7 +30,7 @@ jobs:
     - name: Check code style
       working-directory: ${{runner.workspace}}/build
       shell: bash
-      run: ./dev/check $GITHUB_WORKSPACE/dev $GITHUB_WORKSPACE/src $GITHUB_WORKSPACE/test
+      run: ./dev/code_check $GITHUB_WORKSPACE/dev $GITHUB_WORKSPACE/src $GITHUB_WORKSPACE/test
 
     - name: Build
       working-directory: ${{runner.workspace}}/build

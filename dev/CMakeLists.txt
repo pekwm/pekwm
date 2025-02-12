@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 
-set(check_SOURCES check.cc)
+set(code_check_SOURCES code_check.cc)
 
-add_executable(check ${check_SOURCES})
+add_executable(code_check ${code_check_SOURCES})
