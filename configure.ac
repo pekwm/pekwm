@@ -1,4 +1,5 @@
 AC_INIT([pekwm], [0.4.0], [pekdon@gmail.com])
+AC_CANONICAL_TARGET
 AM_INIT_AUTOMAKE([foreign subdir-objects])
 
 AC_PROG_CXX
@@ -11,6 +12,22 @@ PKG_PROG_PKG_CONFIG
 dnl Check for /usr/xpg4/bin/sh and use if available to make shipped scripts
 dnl work as expected under Solaris
 AC_CHECK_PROG([PEKWM_SH], [sh], [/usr/xpg4/bin/sh], [/bin/sh], [/usr/xpg4/bin])
+
+dnl Host type conditionals
+AC_MSG_CHECKING([target operating system])
+case $target_os in
+	solaris*)
+		PEKWM_HOST="SunOS"
+		;;
+	linux*)
+		PEKWM_HOST="Linux"
+		;;
+	*)
+		PEKWM_HOST="Other"
+		;;
+esac
+AC_MSG_RESULT([$PEKWM_HOST])
+AM_CONDITIONAL([PEKWM_HOST_SUNOS], [test "x$PEKWM_HOST" = "xSunOS"])
 
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile

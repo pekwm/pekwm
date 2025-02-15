@@ -21,4 +21,11 @@ pekwm_panel_CXXFLAGS = $(LIB_CFLAGS) $(TK_CFLAGS) -I../lib
 pekwm_panel_LDADD = ../lib/libpekwm_lib.a ../tk/libpekwm_tk.a
 pekwm_panel_LDFLAGS = $(LIB_LIBS) $(TK_LIBS)
 
+scriptsdir = $(pkgdatadir)/scripts
+scripts_PROGRAMS =  pekwm_panel_sysinfo
+pekwm_panel_sysinfo_SOURCES = pekwm_panel_sysinfo.c
+if PEKWM_HOST_SUNOS
+pekwm_panel_sysinfo_LDFLAGS = -lkstat
+endif
+
 EXTRA_DIST = CMakeLists.txt

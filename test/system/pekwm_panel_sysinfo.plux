@@ -1,0 +1,24 @@
+[doc]
+Smoke test for pekwm_panel_sysinfo
+
+Verify it starts and data is being produced, not verifying the validity
+of the data as it depends on system state.
+[enddoc]
+
+[include test.pluxinc]
+
+[shell pekwm_panel_sysinfo]
+	!$BIN_DIR/panel/pekwm_panel_sysinfo
+	?^sysinfo_uptime \d+$
+	?^sysinfo_uptime_hr (\dy)?(\d{1,3}d)?(\d{1,2}h)?(\d{1,2}m)?\d{1,2}s$
+	?^sysinfo_load1 \d+\.\d+$
+	?^sysinfo_load5 \d+\.\d+$
+	?^sysinfo_load15 \d+\.\d+$
+	?^sysinfo_mem_total \d+$
+	?^sysinfo_mem_free \d+$
+	?^sysinfo_mem_percent \d+$
+	?^sysinfo_swap_total \d+$
+	?^sysinfo_swap_free \d+$
+	?^sysinfo_swap_percent \d+$
+	?^sysinfo_numproc \d+$
+	[call sh-ok]
