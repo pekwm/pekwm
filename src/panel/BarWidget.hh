@@ -55,10 +55,8 @@
 class BarWidget : public PanelWidget,
 		  public Observer {
 public:
-	BarWidget(const PWinObj* parent,
-		  const PanelTheme& theme,
+	BarWidget(const PanelWidgetData &data, const PWinObj* parent,
 		  const SizeReq& size_req,
-		  VarData& var_data,
 		  const std::string& field,
 		  const CfgParser::Entry *section);
 	virtual ~BarWidget(void);
@@ -83,8 +81,6 @@ private:
 	void parseColors(const CfgParser::Entry* section);
 	void addColor(float percent, XColor* color);
 
-private:
-	VarData& _var_data;
 	std::string _field;
 	std::string _text;
 	std::vector<std::pair<float, XColor*> > _colors;

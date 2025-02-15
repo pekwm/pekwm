@@ -11,11 +11,8 @@
 #include <string>
 
 #include "Observable.hh"
-#include "PanelTheme.hh"
 #include "PanelWidget.hh"
 #include "RegexString.hh"
-#include "VarData.hh"
-#include "WmState.hh"
 
 /**
  * Text widget with format string that is able to reference command
@@ -26,10 +23,8 @@
 class TextWidget : public PanelWidget,
 		   public Observer {
 public:
-	TextWidget(const PWinObj* parent,
-		   const PanelTheme& theme, const SizeReq& size_req,
-		   VarData& _var_data, WmState& _wm_state,
-		   const std::string& format,
+	TextWidget(const PanelWidgetData &data, const PWinObj* parent,
+		   const SizeReq& size_req, const std::string& format,
 		   const CfgParser::Entry *section);
 	virtual ~TextWidget(void);
 
@@ -43,8 +38,6 @@ private:
 	void parseText(const CfgParser::Entry* section);
 
 private:
-	VarData& _var_data;
-	WmState& _wm_state;
 	std::string _pp_format;
 	/** Regex transform of formatted output */
 	RegexString _transform;

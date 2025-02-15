@@ -166,7 +166,8 @@ private:
 		X11::setLastEventTime(ev->time);
 		PanelWidget *widget = findWidget(ev->x);
 		if (widget != nullptr) {
-			widget->click(ev->x - widget->getX(), ev->y - _gm.y);
+			widget->click(ev->button,
+				      ev->x - widget->getX(), ev->y - _gm.y);
 		}
 		return nullptr;
 	}

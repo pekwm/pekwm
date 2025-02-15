@@ -13,6 +13,7 @@
 
 #include "pekwm_panel.hh"
 #include "CfgParser.hh"
+#include "PanelAction.hh"
 
 extern "C" {
 #ifdef PEKWM_HAVE_SYS_LIMITS_H
@@ -22,6 +23,26 @@ extern "C" {
 #endif // PEKWM_HAVE_SYS_LIMITS_H
 }
 
+class WidgetConfigClick {
+public:
+	WidgetConfigClick(int button, PanelActionType type,
+			  const std::string &param)
+		: _button(button),
+		  _type(type),
+		  _param(param)
+	{
+	}
+
+	int getButton() const { return _button; }
+	PanelActionType getType() const { return _type; }
+	const std::string &getParam() const { return _param; }
+
+private:
+	int _button;
+	PanelActionType _type;
+	std::string _param;
+};
+
 /**
  * Widgets to display.
  */
@@ -30,7 +51,8 @@ public:
 	WidgetConfig(const std::string& name,
 		     const std::vector<std::string>& args,
 		     const SizeReq& size_req,
-		     uint interval_s = UINT_MAX,
+		     uint interval_s,
+		     const std::vector<WidgetConfigClick> &clicks,
 		     const CfgParser::Entry* section = nullptr);
 	WidgetConfig(const WidgetConfig& cfg);
 	~WidgetConfig(void);
@@ -41,6 +63,10 @@ public:
 	const std::string& getArg(uint arg) const;
 	const SizeReq& getSizeReq(void) const { return _size_req; }
 	uint getIntervalS(void) const { return _interval_s; }
+	const std::vector<WidgetConfigClick> &getClicks() const
+	{
+		return _clicks;
+	}
 
 	const CfgParser::Entry* getCfgSection(void) const { return _section; }
 
@@ -54,6 +80,8 @@ private:
 	/** Refresh interval of widgets, set to UINT_MAX for non time
 	    based widgets. */
 	uint _interval_s;
+	/** Button click -> action map. */
+	std::vector<WidgetConfigClick> _clicks;
 	/** Configuration section, accessible for widget-specific
 	    configuration. */
 	CfgParser::Entry* _section;
@@ -115,9 +143,12 @@ private:
 	void loadPanel(CfgParser::Entry *section);
 	void loadCommands(CfgParser::Entry *section);
 	void loadWidgets(CfgParser::Entry *section);
+	void loadWidgetClicks(CfgParser::Entry *section,
+			      std::vector<WidgetConfigClick> &clicks);
 	void addWidget(const std::string& name,
 		       const SizeReq& size_req, uint interval,
 		       const std::string& args_str,
+		       const std::vector<WidgetConfigClick> &clicks,
 		       const CfgParser::Entry* section);
 	SizeReq parseSize(const std::string& size);
 	uint calculateRefreshIntervalS(void) const;

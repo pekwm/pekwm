@@ -9,13 +9,9 @@
 #define _PEKWM_PANEL_ICON_WIDGET_HH_
 
 #include "pekwm_panel.hh"
-#include "PanelTheme.hh"
 #include "PanelWidget.hh"
 #include "RegexString.hh"
-#include "VarData.hh"
-#include "WmState.hh"
 
-#include "../lib/Os.hh"
 #include "../tk/PImage.hh"
 
 /**
@@ -24,12 +20,8 @@
 class IconWidget : public PanelWidget,
 		   public Observer {
 public:
-	IconWidget(Os *os,
-		   const PWinObj* parent,
-		   const PanelTheme& theme,
+	IconWidget(const PanelWidgetData &data, const PWinObj* parent,
 		   const SizeReq& size_req,
-		   VarData &var_data,
-		   WmState &wm_state,
 		   const std::string& field,
 		   const CfgParser::Entry *section);
 	virtual ~IconWidget(void);
@@ -38,7 +30,6 @@ public:
 
 	virtual void notify(Observable *, Observation *observation);
 	virtual uint getRequiredSize(void) const;
-	virtual void click(int, int);
 	virtual void render(Render& rend);
 
 private:
@@ -51,10 +42,6 @@ private:
 	void scaleImage(uint width, uint height);
 
 private:
-	Os* _os;
-
-	VarData& _var_data;
-	WmState& _wm_state;
 	std::string _field;
 	/** icon name, no file extension. */
 	std::string _name;
@@ -64,10 +51,6 @@ private:
 	RegexString _transform;
 	/** If true, scale icon square to fit panel height */
 	bool _scale;
-	/** If non empty, command to execute on click (release) */
-	std::string _exec;
-	/** Preprocessed version of exec string using TextFormatter. */
-	std::string _pp_exec;
 
 	/** current loaded icon, matching _icon_name. */
 	PImage* _icon;

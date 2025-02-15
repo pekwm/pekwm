@@ -1,6 +1,6 @@
 //
 // PanelWidget.hh for pekwm
-// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -11,17 +11,36 @@
 #include <string>
 
 #include "pekwm_panel.hh"
+#include "PanelAction.hh"
 #include "PanelTheme.hh"
-#include "X11.hh"
+#include "VarData.hh"
+#include "WmState.hh"
 
 #include "../tk/PWinObj.hh"
+
+class PanelWidgetData {
+public:
+	PanelWidgetData(Os *os_, const PanelTheme &theme_,
+			VarData &var_data_, WmState &wm_state_)
+		: os(os_),
+		  theme(theme_),
+		  var_data(var_data_),
+		  wm_state(wm_state_)
+	{
+	}
+
+	Os *os;
+	const PanelTheme &theme;
+	VarData &var_data;
+	WmState &wm_state;
+};
 
 /**
  * Base class for all widgets displayed on the panel.
  */
 class PanelWidget {
 public:
-	PanelWidget(const PWinObj* parent, const PanelTheme& theme,
+	PanelWidget(const PanelWidgetData &data, const PWinObj* parent,
 		    const SizeReq& size_req);
 	virtual ~PanelWidget(void);
 
@@ -32,6 +51,8 @@ public:
 
 	int getX(void) const { return _x; }
 	int getRX(void) const { return _rx; }
+
+	void setButtonAction(int button, const PanelAction &action);
 	virtual void move(int x);
 
 	uint getWidth(void) const { return _width; }
@@ -43,8 +64,7 @@ public:
 	const SizeReq& getSizeReq(void) const { return _size_req; }
 	virtual uint getRequiredSize(void) const { return 0; }
 
-	virtual void click(int, int) { }
-
+	virtual void click(int button, int x, int y);
 	virtual void render(Render& render)
 	{
 		render.clear(_x, 0, _width, _theme.getHeight());
@@ -66,10 +86,21 @@ protected:
 	int renderText(Render &rend, PFont *font,
 		       int x, const std::string& text, uint max_width);
 
-protected:
+	void runAction(const PanelAction &action);
+	void runActionExec(const std::string &param,
+			   const std::string &command);
+	void runActionPekwm(const std::string &param,
+			    const std::string &command);
+
+	Os *_os;
+	const PanelTheme &_theme;
+	VarData &_var_data;
+	WmState &_wm_state;
 	const PWinObj* _parent;
-	const PanelTheme& _theme;
+
 	bool _dirty;
+	std::string _condition;
+	std::map<int, PanelAction> _button_actions;
 
 private:
 	int _x;

@@ -54,17 +54,15 @@ public:
 		PImage *_icon;
 	};
 
-	ClientListWidget(const PWinObj* parent,
-			 const PanelTheme& theme,
+	ClientListWidget(const PanelWidgetData &data, const PWinObj* parent,
 			 const SizeReq& size_req,
-			 WmState& wm_state,
 			 const std::string& draw_separator);
 	virtual ~ClientListWidget(void);
 
 	virtual const char *getName() const { return "ClientList"; }
 
 	virtual void notify(Observable*, Observation*);
-	virtual void click(int x, int);
+	virtual void click(int button, int x, int);
 	virtual void render(Render &rend);
 
 private:
@@ -72,8 +70,6 @@ private:
 	void update(void);
 	void createEntries(void);
 
-private:
-	WmState& _wm_state;
 	int _entry_width;
 	std::vector<Entry> _entries;
 	bool _draw_separator;

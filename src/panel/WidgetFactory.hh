@@ -24,24 +24,21 @@ public:
 	WidgetFactory(Os *os, PWinObj* parent, Observer* observer,
 		      const PanelTheme& theme,
 		      VarData& var_data, WmState& wm_state)
-		: _os(os),
+		: _data(os, theme, var_data, wm_state),
 		  _parent(parent),
-		  _observer(observer),
-		  _theme(theme),
-		  _var_data(var_data),
-		  _wm_state(wm_state)
+		  _observer(observer)
 	{
 	}
 
 	PanelWidget* construct(const WidgetConfig& cfg);
 
 private:
-	Os* _os;
+	PanelWidget* mk(const WidgetConfig& cfg);
+	void addClicks(const WidgetConfig& cfg, PanelWidget *widget);
+
+	PanelWidgetData _data;
 	PWinObj* _parent;
 	Observer* _observer;
-	const PanelTheme& _theme;
-	VarData& _var_data;
-	WmState& _wm_state;
 };
 
 #endif // _PEKWM_PANEL_WIDGET_FACTORY_HH_

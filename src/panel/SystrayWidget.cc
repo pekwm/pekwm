@@ -54,12 +54,11 @@ SystrayWidget::Client::isMapped() const
 
 // SystrayWidget
 
-SystrayWidget::SystrayWidget(const PWinObj* parent,
-			     Observer* observer,
-			     const PanelTheme& theme,
+SystrayWidget::SystrayWidget(const PanelWidgetData &data,
+			     const PWinObj* parent, Observer* observer,
 			     const SizeReq& size_req,
 			     const CfgParser::Entry* section)
-	: PanelWidget(parent, theme, size_req),
+	: PanelWidget(data, parent, size_req),
 	  _observer(observer),
 	  _owner(None),
 	  _owner_atom(0)
@@ -118,11 +117,6 @@ SystrayWidget::move(int x)
 				<< (*it)->getWindow());
 		}
 	}
-}
-
-void
-SystrayWidget::click(int, int)
-{
 }
 
 void

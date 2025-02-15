@@ -13,17 +13,12 @@
 
 #include "../tk/ImageHandler.hh"
 
-IconWidget::IconWidget(Os* os,
+IconWidget::IconWidget(const PanelWidgetData &data,
 		       const PWinObj* parent,
-		       const PanelTheme& theme,
 		       const SizeReq& size_req,
-		       VarData& var_data, WmState& wm_state,
 		       const std::string& field,
 		       const CfgParser::Entry *section)
-	: PanelWidget(parent, theme, size_req),
-	  _os(os),
-	  _var_data(var_data),
-	  _wm_state(wm_state),
+	: PanelWidget(data, parent, size_req),
 	  _field(field),
 	  _scale(false),
 	  _icon(nullptr),
@@ -61,23 +56,6 @@ IconWidget::getRequiredSize(void) const
 		return _theme.getHeight();
 	}
 	return _icon->getWidth() + 2;
-}
-
-void
-IconWidget::click(int, int)
-{
-	if (_pp_exec.size() == 0) {
-		return;
-	}
-
-	TextFormatter tf(_var_data, _wm_state);
-	std::string command = tf.format(_pp_exec);
-	P_TRACE("IconWidget exec " << _exec << " command " << command);
-	if (command.size() > 0) {
-		std::vector<std::string> args =
-			StringUtil::shell_split(command);
-		_os->processExec(args);
-	}
 }
 
 void
@@ -170,12 +148,12 @@ IconWidget::loadImage(const std::string& icon_name)
 void
 IconWidget::parseIcon(const CfgParser::Entry* section)
 {
-	std::string name, transform;
+	std::string name, transform, exec;
 	CfgParserKeys keys;
 	keys.add_string("ICON", name);
 	keys.add_string("TRANSFORM", transform);
 	keys.add_bool("SCALE", _scale);
-	keys.add_string("EXEC", _exec);
+	keys.add_string("EXEC", exec);
 	section->parseKeyValues(keys.begin(), keys.end());
 	keys.clear();
 
@@ -190,8 +168,13 @@ IconWidget::parseIcon(const CfgParser::Entry* section)
 		_transform.parse_ed_s(transform);
 	}
 
-	TextFormatter tf(_var_data, _wm_state);
-	_pp_exec = tf.preprocess(_exec);
+	// legacy Exec configuration, now equal to Click = "1" { Exec = "..." }
+	if (! exec.empty()) {
+		TextFormatter tf(_var_data, _wm_state);
+		std::string pp_exec = tf.preprocess(exec);
+		PanelAction action(PANEL_ACTION_EXEC, exec, pp_exec);
+		setButtonAction(1, action);
+	}
 
 	// inital load of image to get size request right
 	load();

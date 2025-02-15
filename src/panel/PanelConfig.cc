@@ -24,11 +24,13 @@ WidgetConfig::WidgetConfig(const std::string& name,
 			   const std::vector<std::string>& args,
 			   const SizeReq& size_req,
 			   uint interval_s,
+			   const std::vector<WidgetConfigClick> &clicks,
 			   const CfgParser::Entry* section)
 	: _name(name),
 	  _args(args),
 	  _size_req(size_req),
 	  _interval_s(interval_s),
+	  _clicks(clicks),
 	  _section(nullptr)
 {
 	if (section) {
@@ -40,7 +42,8 @@ WidgetConfig::WidgetConfig(const WidgetConfig& cfg)
 	: _name(cfg._name),
 	  _args(cfg._args),
 	  _size_req(cfg._size_req),
-	  _interval_s(cfg._interval_s)
+	  _interval_s(cfg._interval_s),
+	  _clicks(cfg._clicks)
 {
 	if (cfg._section) {
 		_section = new CfgParser::Entry(*cfg._section);
@@ -67,6 +70,7 @@ WidgetConfig::operator=(const WidgetConfig& rhs)
 	_args = rhs._args;
 	_size_req = rhs._size_req;
 	_interval_s = rhs._interval_s;
+	_clicks = rhs._clicks;
 
 	if (rhs._section) {
 		_section = new CfgParser::Entry(*rhs._section);
@@ -113,7 +117,8 @@ PanelConfig::~PanelConfig(void)
 bool
 PanelConfig::load(const std::string &panel_file)
 {
-	CfgParser cfg(CfgParserOpt(pekwm::configScriptPath()));
+	CfgParserOpt opt(pekwm::configScriptPath());
+	CfgParser cfg(opt);
 	if (! cfg.parse(panel_file, CfgParserSource::SOURCE_FILE, true)) {
 		return false;
 	}
@@ -181,6 +186,7 @@ PanelConfig::loadWidgets(CfgParser::Entry *section)
 	for (; it != section->end(); ++it) {
 		uint interval = UINT_MAX;
 		std::string size = "REQUIRED";
+		std::vector<WidgetConfigClick> clicks;
 
 		CfgParser::Entry *w_section = (*it)->getSection();
 		if (w_section) {
@@ -189,11 +195,43 @@ PanelConfig::loadWidgets(CfgParser::Entry *section)
 			keys.add_string("SIZE", size, "REQUIRED");
 			w_section->parseKeyValues(keys.begin(), keys.end());
 			keys.clear();
+
+			loadWidgetClicks(w_section, clicks);
 		}
 
 		SizeReq size_req = parseSize(size);
 		addWidget((*it)->getName(), size_req, interval,
-			  (*it)->getValue(), w_section);
+			  (*it)->getValue(), clicks, w_section);
+	}
+}
+
+void
+PanelConfig::loadWidgetClicks(CfgParser::Entry *section,
+			      std::vector<WidgetConfigClick> &clicks)
+{
+	std::string exec, pekwm_action;
+	CfgParserKeys keys;
+	keys.add_string("EXEC", exec, "");
+	keys.add_string("PEKWMACTION", pekwm_action, "");
+
+	CfgParser::Entry::entry_cit it = section->begin();
+	for (; it != section->end(); ++it) {
+		if (! (*it)->getSection() || ! (*(*it) == "CLICK")) {
+			continue;
+		}
+
+		int button = std::atoi((*it)->getValue().c_str());
+		CfgParser::Entry *section = (*it)->getSection();
+		section->parseKeyValues(keys.begin(), keys.end());
+		if (! exec.empty() && pekwm_action.empty()) {
+			clicks.push_back(
+				WidgetConfigClick(button, PANEL_ACTION_EXEC,
+						  exec));
+		} else if (! pekwm_action.empty() && exec.empty()) {
+			clicks.push_back(
+				WidgetConfigClick(button, PANEL_ACTION_PEKWM,
+						  pekwm_action));
+		}
 	}
 }
 
@@ -201,6 +239,7 @@ void
 PanelConfig::addWidget(const std::string& name,
 		       const SizeReq& size_req, uint interval,
 		       const std::string& args_str,
+		       const std::vector<WidgetConfigClick> &clicks,
 		       const CfgParser::Entry* section)
 {
 	std::vector<std::string> args;
@@ -208,7 +247,7 @@ PanelConfig::addWidget(const std::string& name,
 		args.push_back(args_str);
 	}
 	_widgets.push_back(WidgetConfig(name, args, size_req, interval,
-					section));
+					clicks, section));
 }
 
 SizeReq

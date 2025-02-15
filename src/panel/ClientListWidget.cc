@@ -10,13 +10,11 @@
 #include "Debug.hh"
 #include "String.hh"
 
-ClientListWidget::ClientListWidget(const PWinObj* parent,
-				   const PanelTheme& theme,
+ClientListWidget::ClientListWidget(const PanelWidgetData &data,
+				   const PWinObj* parent,
 				   const SizeReq& size_req,
-				   WmState& wm_state,
 				   const std::string& draw_separator)
-	: PanelWidget(parent, theme, size_req),
-	  _wm_state(wm_state),
+	: PanelWidget(data, parent, size_req),
 	  _entry_width(0),
 	  _draw_separator(pekwm::ascii_ncase_equal("separator",
 						   draw_separator))
@@ -39,8 +37,11 @@ ClientListWidget::notify(Observable*, Observation*)
 }
 
 void
-ClientListWidget::click(int x, int)
+ClientListWidget::click(int button, int x, int)
 {
+	if (button != BUTTON1) {
+		return;
+	}
 	Window window = findClientAt(x);
 	if (window == None) {
 		return;
@@ -146,8 +147,7 @@ ClientListWidget::createEntries()
 			continue;
 		}
 		ClientState state;
-		if ((*it)->getWindow()
-		    == _wm_state.getActiveWindow()) {
+		if ((*it)->getWindow() == _wm_state.getActiveWindow()) {
 			state = CLIENT_STATE_FOCUSED;
 		} else if ((*it)->hidden) {
 			state = CLIENT_STATE_ICONIFIED;

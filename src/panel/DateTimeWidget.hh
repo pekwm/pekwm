@@ -18,11 +18,10 @@
  */
 class DateTimeWidget : public PanelWidget {
 public:
-	DateTimeWidget(const PWinObj* parent,
-		       const PanelTheme &theme,
+	DateTimeWidget(const PanelWidgetData &data, const PWinObj* parent,
 		       const SizeReq& size_req,
 		       const std::string &format)
-		: PanelWidget(parent, theme, size_req),
+		: PanelWidget(data, parent, size_req),
 		  _format(format)
 	{
 		if (_format.empty()) {

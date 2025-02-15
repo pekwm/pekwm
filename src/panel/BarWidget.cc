@@ -8,14 +8,11 @@
 
 #include "BarWidget.hh"
 
-BarWidget::BarWidget(const PWinObj* parent,
-		     const PanelTheme& theme,
+BarWidget::BarWidget(const PanelWidgetData &data, const PWinObj* parent,
 		     const SizeReq& size_req,
-		     VarData& var_data,
 		     const std::string& field,
 		     const CfgParser::Entry *section)
-	: PanelWidget(parent, theme, size_req),
-	  _var_data(var_data),
+	: PanelWidget(data, parent, size_req),
 	  _field(field)
 {
 	parseConfig(section);

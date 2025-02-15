@@ -9,14 +9,10 @@
 #include "TextFormatter.hh"
 #include "TextWidget.hh"
 
-TextWidget::TextWidget(const PWinObj* parent,
-		       const PanelTheme& theme, const SizeReq& size_req,
-		       VarData& var_data, WmState& wm_state,
-		       const std::string& format,
+TextWidget::TextWidget(const PanelWidgetData &data, const PWinObj* parent,
+		       const SizeReq& size_req, const std::string& format,
 		       const CfgParser::Entry *section)
-	: PanelWidget(parent, theme, size_req),
-	  _var_data(var_data),
-	  _wm_state(wm_state),
+	: PanelWidget(data, parent, size_req),
 	  _check_wm_state(false)
 {
 	parseText(section);
@@ -27,10 +23,12 @@ TextWidget::TextWidget(const PWinObj* parent,
 	_fields = tf.getFields();
 
 	if (! _fields.empty()) {
-		pekwm::observerMapping()->addObserver(&_var_data, this, 100);
+		pekwm::observerMapping()->addObserver(&_var_data, this,
+						      100);
 	}
 	if (_check_wm_state) {
-		pekwm::observerMapping()->addObserver(&_wm_state, this, 100);
+		pekwm::observerMapping()->addObserver(&_wm_state, this,
+						      100);
 	}
 }
 

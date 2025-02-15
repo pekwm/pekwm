@@ -14,11 +14,22 @@
 #include "Debug.hh"
 #include "IconWidget.hh"
 #include "TextWidget.hh"
+#include "TextFormatter.hh"
 #include "SystrayWidget.hh"
 #include "WidgetFactory.hh"
 
 PanelWidget*
 WidgetFactory::construct(const WidgetConfig& cfg)
+{
+	PanelWidget *widget = mk(cfg);
+	if (widget && ! cfg.getClicks().empty()) {
+		addClicks(cfg, widget);
+	}
+	return widget;
+}
+
+PanelWidget*
+WidgetFactory::mk(const WidgetConfig& cfg)
 {
 	std::string name = cfg.getName();
 	Util::to_upper(name);
@@ -28,25 +39,23 @@ WidgetFactory::construct(const WidgetConfig& cfg)
 		if (field.empty()) {
 			USER_WARN("missing required argument to Bar widget");
 		} else {
-			return new BarWidget(_parent, _theme, cfg.getSizeReq(),
-					     _var_data, field,
-					     cfg.getCfgSection());
+			return new BarWidget(_data, _parent, cfg.getSizeReq(),
+					     field, cfg.getCfgSection());
 		}
 	} else if (name == "CLIENTLIST") {
 		const std::string &separator = cfg.getArg(0);
-		return new ClientListWidget(_parent, _theme, cfg.getSizeReq(),
-					    _wm_state, separator);
+		return new ClientListWidget(_data, _parent, cfg.getSizeReq(),
+					    separator);
 	} else if (name == "DATETIME") {
 		const std::string &format = cfg.getArg(0);
-		return new DateTimeWidget(_parent, _theme, cfg.getSizeReq(),
+		return new DateTimeWidget(_data, _parent, cfg.getSizeReq(),
 					  format);
 	} else if (name == "ICON") {
 		const std::string &field = cfg.getArg(0);
-		return new IconWidget(_os, _parent, _theme, cfg.getSizeReq(),
-				      _var_data, _wm_state,
+		return new IconWidget(_data, _parent, cfg.getSizeReq(),
 				      field, cfg.getCfgSection());
 	} else if (name == "SYSTRAY") {
-		return new SystrayWidget(_parent, _observer, _theme,
+		return new SystrayWidget(_data, _parent, _observer,
 					 cfg.getSizeReq(),
 					 cfg.getCfgSection());
 
@@ -55,9 +64,8 @@ WidgetFactory::construct(const WidgetConfig& cfg)
 		if (format.empty()) {
 			USER_WARN("missing required argument to Text widget");
 		} else {
-			return new TextWidget(_parent, _theme,
-					      cfg.getSizeReq(), _var_data,
-					      _wm_state, format,
+			return new TextWidget(_data, _parent,
+					      cfg.getSizeReq(), format,
 					      cfg.getCfgSection());
 		}
 	} else {
@@ -65,4 +73,18 @@ WidgetFactory::construct(const WidgetConfig& cfg)
 	}
 
 	return nullptr;
+}
+
+void
+WidgetFactory::addClicks(const WidgetConfig& cfg, PanelWidget* widget)
+{
+	TextFormatter tf(_data.var_data, _data.wm_state);
+
+	const std::vector<WidgetConfigClick> &clicks = cfg.getClicks();
+	std::vector<WidgetConfigClick>::const_iterator it(clicks.begin());
+	for (; it != clicks.end(); ++it) {
+		std::string pp_param = tf.preprocess(it->getParam());
+		PanelAction action(it->getType(), it->getParam(), pp_param);
+		widget->setButtonAction(it->getButton(), action);
+	}
 }

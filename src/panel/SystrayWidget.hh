@@ -42,10 +42,8 @@ public:
 	typedef client_vector::iterator client_it;
 	typedef client_vector::const_iterator client_cit;
 
-	SystrayWidget(const PWinObj* parent,
-		      Observer* observer,
-		      const PanelTheme& theme,
-		      const SizeReq& size_req,
+	SystrayWidget(const PanelWidgetData &data, const PWinObj* parent,
+		      Observer* observer, const SizeReq& size_req,
 		      const CfgParser::Entry* section);
 	virtual ~SystrayWidget();
 
@@ -53,7 +51,6 @@ public:
 
 	virtual uint getRequiredSize(void) const;
 	virtual void move(int x);
-	virtual void click(int, int);
 	virtual void render(Render& rend);
 
 	virtual bool operator==(Window win) const {
