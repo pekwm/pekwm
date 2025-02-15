@@ -21,9 +21,12 @@ target_link_libraries(test_pekwm_ctrl lib ${common_LIBRARIES})
 add_executable(test_pekwm_panel
 	test_pekwm_panel.cc
 	../src/pekwm_env.cc
+	../src/panel/ClientInfo.cc
 	../src/panel/ExternalCommandData.cc
+	../src/panel/TextFormatter.cc
 	../src/panel/PanelConfig.cc
-	../src/panel/VarData.cc)
+	../src/panel/VarData.cc
+	../src/panel/WmState.cc)
 add_test(NAME pekwm_panel
 	COMMAND test_pekwm_panel
 	WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test/)

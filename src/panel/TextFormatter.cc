@@ -1,12 +1,15 @@
 //
 // TextFormatter.cc for pekwm
-// Copyright (C) 2022 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
+#include "Charset.hh"
 #include "TextFormatter.hh"
+
+#include <set>
 
 /** empty string, used as default return value. */
 static std::string _empty_string;
@@ -45,30 +48,37 @@ TextFormatter::format(const std::string& pp_format)
 std::string
 TextFormatter::format(const std::string& pp_format, formatFun exp)
 {
+	static std::set<char> var_end_chars;
+	if (var_end_chars.empty()) {
+		var_end_chars.insert('\'');
+		var_end_chars.insert('"');
+	}
 	std::string formatted;
 
 	bool in_escape = false, in_var = false;
+	Charset::Utf8Iterator it(pp_format, 0);
 	std::string buf;
-	size_t size = pp_format.size();
-	for (size_t i = 0; i < size; i++) {
-		char chr = pp_format[i];
+	for (; it.ok(); ++it) {
 		if (in_escape) {
-			buf += chr;
+			buf += *it;
 			in_escape = false;
-		} else if (chr == '\\') {
+		} else if (it == '\\') {
 			in_escape = true;
-		} else if (in_var && isspace(chr)) {
+		} else if (in_var
+			   && it.charLen() == 1
+			   && (isspace((*it)[0])
+			       || var_end_chars.count((*it)[0]) != 0)) {
 			formatted += exp(this, buf);
-			buf = chr;
+			buf = *it;
 			in_var = false;
-		} else if (! in_var && chr == '%') {
+		} else if (! in_var && it == '%') {
 			if (! buf.empty()) {
 				formatted += buf;
 				buf = _empty_string;
 			}
 			in_var = true;
 		} else {
-			buf += chr;
+			buf += *it;
 		}
 	}
 	if (! buf.empty()) {

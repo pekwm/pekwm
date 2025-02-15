@@ -9,6 +9,7 @@
 #include "test.hh"
 
 #include "test_ExternalCommandData.hh"
+#include "test_TextFormatter.hh"
 
 #include "wm/pekwm.hh"
 #include "Debug.hh"
@@ -22,6 +23,7 @@ main_tests(int argc, char *argv[])
 	X11::addHead(Head(0, 0, 800, 600));
 
 	TestExternalCommandData externalCommandData;
+	TestTextFormatter textFormatter;
 
 	return TestSuite::main(argc, argv);
 }
