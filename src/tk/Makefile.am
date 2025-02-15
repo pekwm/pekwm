@@ -1,4 +1,4 @@
-lib_LIBRARIES = libpekwm_tk.a
+noinst_LIBRARIES = libpekwm_tk.a
 libpekwm_tk_a_SOURCES = Action.cc Action.hh \
 			CfgUtil.cc CfgUtil.hh \
 			Color.cc Color.hh \

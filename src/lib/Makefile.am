@@ -1,4 +1,4 @@
-lib_LIBRARIES = libpekwm_lib.a
+noinst_LIBRARIES = libpekwm_lib.a
 libpekwm_lib_a_SOURCES = pekwm_types.hh \
 			 Calendar.cc Calendar.hh \
 			 CfgParser.cc CfgParser.hh \
