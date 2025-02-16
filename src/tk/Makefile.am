@@ -31,7 +31,7 @@ libpekwm_tk_a_SOURCES = Action.cc Action.hh \
 			ThemeUtil.cc ThemeUtil.hh \
 			TkButton.cc TkButton.hh \
 			TkButtonRow.cc TkButtonRow.hh \
-			TkImage.hh \
+			TkGlobals.hh TkImage.hh \
 			TkText.cc TkText.hh \
 			TkWidget.hh \
 			X11App.cc X11App.hh \
