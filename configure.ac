@@ -119,16 +119,16 @@ PKG_CHECK_MODULES([libjpeg], [libjpeg >= 1.0.0],
 if test "x$LIBJPEG_FOUND" = "xno"; then
         AC_CHECK_LIB([jpeg], [jpeg_read_header],
 		     [AC_MSG_CHECKING([for jpeglib.h])
-		      AC_PREPROC_IFELSE(AC_LANG_PROGRAM([#include <jpeglib.h>],
-							[]),
-					[LIBJPEG_FOUND=yes], [])])
-                AC_MSG_RESULT($LIBJPEG_FOUND)
-                if test "$LIBJPEG_FOUND" = yes; then
-			AC_DEFINE(PEKWM_HAVE_IMAGE_JPEG, [1],
-				  [Define to 1 if libjpeg is available])
-			AC_SUBST([libjpeg_LIBS], ["-ljpeg"])
-			FEATURES="$FEATURES image-jpeg"
-		fi
+		      AC_PREPROC_IFELSE(
+			[AC_LANG_PROGRAM([[#include <jpeglib.h>]], [])],
+			[LIBJPEG_FOUND=yes], [])])
+        AC_MSG_RESULT($LIBJPEG_FOUND)
+        if test "$LIBJPEG_FOUND" = yes; then
+		AC_DEFINE(PEKWM_HAVE_IMAGE_JPEG, [1],
+			  [Define to 1 if libjpeg is available])
+		AC_SUBST([libjpeg_LIBS], ["-ljpeg"])
+		FEATURES="$FEATURES image-jpeg"
+	fi
 fi
 AM_CONDITIONAL([PEKWM_WITH_IMAGE_JPEG], [test "x$LIBJPEG_FOUND" = "xyes"])
 
