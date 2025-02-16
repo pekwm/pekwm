@@ -7,6 +7,7 @@ pekwm_panel_SOURCES = pekwm_panel.cc pekwm_panel.hh \
 		      DateTimeWidget.hh \
 		      ExternalCommandData.cc ExternalCommandData.hh \
 		      IconWidget.cc IconWidget.hh \
+		      PanelAction.hh \
 		      PanelConfig.cc PanelConfig.hh \
 		      PanelTheme.cc PanelTheme.hh \
 		      PanelWidget.cc PanelWidget.hh \
