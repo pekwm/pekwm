@@ -1,4 +1,4 @@
-SUBDIRS = themes scripts
+SUBDIRS = icons themes scripts
 
 config_files = autoproperties \
 	autoproperties_clientrules \

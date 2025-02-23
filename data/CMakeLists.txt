@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
+add_subdirectory(icons)
 add_subdirectory(themes)
 add_subdirectory(scripts)
 

@@ -42,6 +42,7 @@ AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_FILES([Makefile
 		 contrib/Makefile
 		 data/Makefile
+		 data/icons/Makefile
 		 data/scripts/Makefile
 		 data/themes/Makefile
 		 data/themes/default/Makefile
