@@ -39,7 +39,8 @@ public:
 		return false;
 	}
 
-	virtual pid_t processExec(const std::vector<std::string> &args)
+	virtual pid_t processExec(const std::vector<std::string> &args,
+				  OsEnv *env)
 	{
 		std::string exec;
 		std::vector<std::string>::const_iterator it(args.begin());

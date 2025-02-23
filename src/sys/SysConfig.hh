@@ -44,8 +44,15 @@ public:
 	const string_map &getXResources(TimeOfDay tod) const {
 		if (tod == TIME_OF_DAY_DAY) {
 			return _x_resources_day;
+		} else if (tod == TIME_OF_DAY_DAWN
+			   && !_x_resources_dawn.empty()) {
+			return _x_resources_dawn;
+		} else if (tod == TIME_OF_DAY_DUSK
+			   && !_x_resources_dawn.empty()) {
+			return _x_resources_dusk;
+		} else {
+			return _x_resources_night;
 		}
-		return _x_resources_night;
 	}
 
 private:
@@ -72,9 +79,13 @@ private:
 	 * depending on time of day */
 	std::string _net_theme;
 
+	/* X resources set on dawn */
+	string_map _x_resources_dawn;
 	/* X resources set on day */
 	string_map _x_resources_day;
-	/* X resources set on night (dawn, dusk) mode */
+	/* X resources set on dusk */
+	string_map _x_resources_dusk;
+	/* X resources set on night */
 	string_map _x_resources_night;
 };
 

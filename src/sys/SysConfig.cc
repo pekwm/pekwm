@@ -9,6 +9,7 @@
 #include "CfgParser.hh"
 #include "Debug.hh"
 #include "SysConfig.hh"
+#include "Util.hh"
 
 SysConfig::SysConfig(Os *os)
 	: _os(os),
@@ -55,8 +56,12 @@ SysConfig::parseConfig()
 		CfgParser::Entry *xresources =
 			section->findSection("XRESOURCES");
 		if (xresources) {
+			parseConfigXResources(xresources, _x_resources_dawn,
+					      "DAWN");
 			parseConfigXResources(xresources, _x_resources_day,
 					      "DAY");
+			parseConfigXResources(xresources, _x_resources_dusk,
+					      "DUSK");
 			parseConfigXResources(xresources, _x_resources_night,
 					      "NIGHT");
 		}
@@ -74,7 +79,9 @@ SysConfig::parseCommands(CfgParser::Entry *section, string_vector &commands)
 
 	CfgParser::Entry::entry_cit it(section->begin());
 	for (; it != section->end(); ++it) {
-		commands.push_back((*it)->getValue());
+		std::string command = (*it)->getValue();
+		Util::expandFileName(command);
+		commands.push_back(command);
 	}
 }
 

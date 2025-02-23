@@ -379,7 +379,8 @@ public:
 	/**
 	 * Fork and exec, return pid if successful, log on error.
 	 */
-	virtual pid_t processExec(const std::vector<std::string> &args)
+	virtual pid_t processExec(const std::vector<std::string> &args,
+				  OsEnv *env)
 	{
 		assert(! args.empty());
 
@@ -387,7 +388,7 @@ public:
 		switch (pid) {
 		case 0:
 			setsid();
-			_exec_args(args, nullptr);
+			_exec_args(args, env);
 		case -1:
 			P_ERR("fork failed: " << strerror(errno));
 		default:

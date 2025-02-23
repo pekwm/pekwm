@@ -1,0 +1,69 @@
+[doc]
+pekwm_sys tests
+
+Verify resource changes on daytime changes.
+[enddoc]
+
+[include test.pluxinc]
+
+[function verify-resources-day]
+	[log verify day xresources]
+	!xrdb -query
+	?XTerm\*background:\s+#ffffff
+	?XTerm\*foreground:\s+#000000
+	?pekwm\.daylight:\s+day
+	?pekwm\.theme\.variant:\s+light
+	?SH-PROMPT:
+[endfunction]
+
+[function verify-resources-night]
+	[log verify night xresources]
+	!xrdb -query
+	?XTerm\*background:\s+#000000
+	?XTerm\*foreground:\s+#ffffff
+	?pekwm\.daylight:\s+night
+	?pekwm\.theme\.variant:\s+dark
+	?SH-PROMPT:
+[endfunction]
+
+[function set-tod-day]
+	[global tod=day]
+[endfunction]
+
+[function set-tod-night]
+	[global tod=night]
+[endfunction]
+
+[function toggle-tod]
+	[call sh-if-else "'$tod' = 'day'" set-tod-night set-tod-day]
+	[log updated tod variable to $tod]
+[endfunction]
+
+[shell Xvfb]
+	[call start-xvfb]
+
+[process pekwm_sys ./pekwm_sys.sh]
+	?time of day changed to (.*)$
+	[global tod=$1]
+	[log time of day at startup: $tod]
+	?Enter event loop.
+
+[shell resources]
+	[call verify-resources-$tod]
+
+[shell test]
+	[call toggle-tod]
+
+[shell pekwm_sys]
+	%%u32[len(0)]%s[0] -- "TimeOfDay $tod"
+	?time of day changed to $tod
+
+[shell resources]
+	[call verify-resources-$tod]
+
+[shell pekwm_sys]
+	%%u32[len(0)]%s[0] -- "Exit"
+	?PROCESS-EXIT: 0
+
+[shell Xvfb]
+	[call stop-xvfb]

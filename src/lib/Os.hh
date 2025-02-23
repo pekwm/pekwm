@@ -120,7 +120,8 @@ public:
 			    const std::string &val_default = "") = 0;
 	virtual bool setEnv(const std::string &key, const std::string &val) = 0;
 
-	virtual pid_t processExec(const std::vector<std::string> &args) = 0;
+	virtual pid_t processExec(const std::vector<std::string> &args,
+				  OsEnv *env = nullptr) = 0;
 	virtual ChildProcess *childExec(const std::vector<std::string> &args,
 					int flags, OsEnv *env = nullptr) = 0;
 	virtual bool processSignal(pid_t pid, int signum) = 0;

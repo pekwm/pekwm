@@ -4,4 +4,26 @@ Sys {
 	Latitude = "32.01"
 	Longitude = "16.01"
 	NetTheme = "Raleigh"
+	DaytimeCommands {
+		Daytime1 = "daytime1"
+		Daytime2 = "daytime2"
+	}
+	LocationCommands {
+		Location1 = "location1"
+		Location2 = "location2"
+	}
+	XResources {
+		Dawn {
+			"XTerm*background" = "#999999"
+		}
+		Day {
+			"XTerm*background" = "#ffffff"
+		}
+		Dusk {
+			"XTerm*background" = "#666666"
+		}
+		Night {
+			"XTerm*background" = "#333333"
+		}
+	}
 }

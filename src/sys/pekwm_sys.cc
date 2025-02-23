@@ -55,7 +55,9 @@ private:
 		return tod == TIME_OF_DAY_DAY ? "" : "-Dark";
 	}
 
+	bool _stop;
 	Timeouts _timeouts;
+	Os *_os;
 	OsSelect *_select;
 	SysConfig _cfg;
 	SysResources _resources;
@@ -66,7 +68,9 @@ private:
 };
 
 PekwmSys::PekwmSys(Os *os)
-	: _select(mkOsSelect()),
+	: _stop(false),
+	  _os(os),
+	  _select(mkOsSelect()),
 	  _cfg(os),
 	  _resources(_cfg),
 	  _tod_override(static_cast<TimeOfDay>(-1))
@@ -103,7 +107,7 @@ PekwmSys::main()
 	_select->add(STDIN_FILENO, OsSelect::OS_SELECT_READ);
 	_select->add(X11::getFd(), OsSelect::OS_SELECT_READ);
 
-	bool stop = false;
+	P_TRACE("Enter event loop.");
 	do {
 		XEvent ev;
 		struct timeval *tv;
@@ -126,7 +130,7 @@ PekwmSys::main()
 				handleStdin();
 			}
 		}
-	} while (! stop);
+	} while (! _stop);
 
 	return 0;
 }
@@ -171,6 +175,8 @@ PekwmSys::handleStdin()
 		handleSetTimeOfDay(args);
 	} else if (pekwm::ascii_ncase_equal(command, "XSET")) {
 		handleSetXSETTING(args);
+	} else if (pekwm::ascii_ncase_equal(command, "EXIT")) {
+		_stop = true;
 	} else {
 		// unknown command
 		P_DBG("unknown command: " << command);
@@ -180,10 +186,10 @@ PekwmSys::handleStdin()
 void
 PekwmSys::handleSetXSETTING(const std::vector<std::string> &args)
 {
-	if (args.size() != 3) {
+	if (args.size() != 2) {
 		return;
 	}
-	_xsettings.setString(args[1], args[2]);
+	_xsettings.setString(args[0], args[1]);
 	_xsettings.updateServer();
 }
 
@@ -262,10 +268,15 @@ PekwmSys::timeOfDayChanged(enum TimeOfDay tod)
 	}
 
 	// daytime switch commands
+	OsEnv daytime_command_env;
+	std::string tod_str = time_of_day_to_string(tod);
+	Util::to_lower(tod_str);
+	daytime_command_env.override("PEKWM_SYS_TIMEOFDAY", tod_str);
 	const SysConfig::string_vector &commands = _cfg.getDaytimeCommands();
 	SysConfig::string_vector::const_iterator it(commands.begin());
 	for (; it != commands.end(); ++it) {
-		Util::forkExec(*it);
+		std::vector<std::string> args = StringUtil::shell_split(*it);
+		_os->processExec(args, &daytime_command_env);
 	}
 
 	return tod;
