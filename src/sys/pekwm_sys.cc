@@ -21,6 +21,7 @@
 
 extern "C" {
 #include <getopt.h>
+#include <signal.h>
 }
 
 enum PekwmSysAction {
@@ -28,6 +29,23 @@ enum PekwmSysAction {
 };
 
 static const char *progname = nullptr;
+
+extern "C" {
+
+static bool _is_sigchld = false;
+
+static void sigHandler(int signal)
+{
+	switch (signal) {
+	case SIGCHLD:
+		_is_sigchld = true;
+		break;
+	default:
+		// do nothing
+		break;
+	}
+}
+}
 
 class PekwmSys {
 public:
@@ -37,6 +55,7 @@ public:
 	int main();
 
 private:
+	void handleSigchld();
 	void handleXEvent(XEvent &ev);
 	void handleStdin();
 	void handleSetXSETTING(const std::vector<std::string> &args);
@@ -109,6 +128,11 @@ PekwmSys::main()
 
 	P_TRACE("Enter event loop.");
 	do {
+		if (_is_sigchld) {
+			handleSigchld();
+			_is_sigchld = false;
+		}
+
 		XEvent ev;
 		struct timeval *tv;
 		TimeoutAction action;
@@ -133,6 +157,14 @@ PekwmSys::main()
 	} while (! _stop);
 
 	return 0;
+}
+
+void
+PekwmSys::handleSigchld()
+{
+	int status;
+	while (waitpid(-1, &status, WNOHANG) > 0) {
+	}
 }
 
 void
@@ -337,6 +369,13 @@ main(int argc, char *argv[])
 	if (! X11::init(display, std::cerr)) {
 		return 1;
 	}
+
+
+	struct sigaction act;
+	act.sa_handler = sigHandler;
+	act.sa_mask = sigset_t();
+	act.sa_flags = SA_NOCLDSTOP | SA_NODEFER;
+	sigaction(SIGCHLD, &act, 0);
 
 	Destruct<Os> os(mkOs());
 	PekwmSys sys(*os);
