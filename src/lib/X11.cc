@@ -2065,6 +2065,26 @@ X11::removeMotionEvents(void)
 }
 
 /**
+ * Parse string widthxheight
+ */
+bool
+X11::parseSize(const std::string &str, uint &width, uint &height)
+{
+	std::vector<std::string> tok;
+	if ((Util::splitString(str, tok, "x", 2, true)) != 2) {
+		return false;
+	}
+
+	try {
+		width = std::stoi(tok[0]);
+		height = std::stoi(tok[1]);
+	} catch (std::invalid_argument&) {
+		return false;
+	}
+	return true;
+}
+
+/**
  * Parse string and set on geometry, same format as XParseGeometry
  * however both size and position can be given in percent.
  *

@@ -111,7 +111,8 @@ private:
 class PTextureLines : public PTextureAreaRender {
 public:
 	PTextureLines(float line_size, bool size_percent, bool horz,
-		      const std::vector<std::string> &colors);
+		      std::vector<std::string>::const_iterator cbegin,
+		      std::vector<std::string>::const_iterator cend);
 	virtual ~PTextureLines();
 
 	// START - PTexture interface.
@@ -129,7 +130,8 @@ private:
 	void renderVert(Render &rend,
 			int x, int y, size_t width, size_t height);
 
-	void setColors(const std::vector<std::string> &colors);
+	void setColors(std::vector<std::string>::const_iterator cbegin,
+		       std::vector<std::string>::const_iterator cend);
 	void unsetColors();
 
 private:

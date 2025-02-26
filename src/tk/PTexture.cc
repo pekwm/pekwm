@@ -14,7 +14,6 @@ PTexture::PTexture(void)
 	: _ok(false),
 	  _width(0),
 	  _height(0),
-	  _type(PTexture::TYPE_NO),
 	  _opacity(255)
 {
 }

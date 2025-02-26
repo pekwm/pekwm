@@ -1,6 +1,6 @@
 //
 // Render.cc for pekwm
-// Copyright (C) 2021 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -101,6 +101,21 @@ X11Render::setLineWidth(int lw)
 }
 
 void
+X11Render::setClip(short x, short y, ushort width, ushort height)
+{
+	XRectangle rect = { x, y, width, height };
+	XSetClipRectangles(X11::getDpy(), X11::getGC(), 0, 0, &rect, 1,
+			   Unsorted);
+}
+
+void
+X11Render::clearClip()
+{
+	XSetClipRectangles(X11::getDpy(), X11::getGC(), 0, 0, nullptr, 0,
+			   Unsorted);
+}
+
+void
 X11Render::line(int x1, int y1, int x2, int y2)
 {
 	XDrawLine(X11::getDpy(), _draw, _gc, x1, y1, x2, y2);
@@ -126,6 +141,19 @@ void
 X11Render::fill(int x, int y, uint width, uint height)
 {
 	XFillRectangle(X11::getDpy(), _draw, _gc, x, y, width, height);
+}
+
+void
+X11Render::poly(const std::vector<XPoint> &points, bool fill)
+{
+	XPoint *cpoints = const_cast<XPoint*>(&points.front());
+	if (fill) {
+		XFillPolygon(X11::getDpy(), _draw, _gc, cpoints,
+			     points.size(), Convex, CoordModeOrigin);
+	} else {
+		XDrawLines(X11::getDpy(), _draw, _gc, cpoints,
+			   points.size(), CoordModeOrigin);
+	}
 }
 
 void
@@ -211,6 +239,16 @@ XImageRender::setColor(int pixel)
 }
 
 void
+XImageRender::setClip(short x, short y, ushort width, ushort height)
+{
+}
+
+void
+XImageRender::clearClip()
+{
+}
+
+void
 XImageRender::line(int x1, int y1, int x2, int y2)
 {
 	if (x1 == x2) {
@@ -262,6 +300,11 @@ XImageRender::fill(int x0, int y0, uint width, uint height)
 			XPutPixel(_image, x, y, _color);
 		}
 	}
+}
+
+void
+XImageRender::poly(const std::vector<XPoint> &points, bool fill)
+{
 }
 
 void

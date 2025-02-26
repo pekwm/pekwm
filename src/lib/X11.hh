@@ -546,6 +546,8 @@ public:
 
 	// helper functions
 
+	static bool parseSize(const std::string &str,
+			      uint &width, uint &height);
 	static int parseGeometry(const std::string& str, Geometry& gm);
 	static void keepVisible(Geometry &gm);
 
