@@ -1,7 +1,7 @@
 # default theme for pekwm-0.4.0
 
 Background {
-	Texture = "LinesVert 12.5% $T2_0 $TD2_0 $T2_1 $TD2_1 $T2_2 $TD2_2 $T2_3 $TD2_3"
+	Texture = "LinesAngle 31% 123 $T2_1 $TD2_1 $T2_2 $TD2_2 $T2_3 $TD2_3"
 }
 
 Define = "Border" {
