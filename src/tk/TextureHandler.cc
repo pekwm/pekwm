@@ -1,6 +1,6 @@
 //
 // TextureHandler.cc for pekwm
-// Copyright (C) 2004-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2004-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -12,45 +12,45 @@
 #include "PTexture.hh"
 #include "PTexturePlain.hh"
 #include "TextureHandler.hh"
-#include "Util.hh"
 #include "X11.hh"
 
 #include <iostream>
 
-static Util::StringTo<PTexture::Type> parse_map[] =
-	{{"SOLID", PTexture::TYPE_SOLID},
-	 {"SOLIDRAISED", PTexture::TYPE_SOLID_RAISED},
-	 {"LINESHORZ", PTexture::TYPE_LINES_HORZ},
-	 {"LINESVERT", PTexture::TYPE_LINES_VERT},
-	 {"IMAGE", PTexture::TYPE_IMAGE},
-	 {"IMAGEMAPPED", PTexture::TYPE_IMAGE_MAPPED},
-	 {"EMPTY", PTexture::TYPE_EMPTY},
-	 {nullptr, PTexture::TYPE_NO}};
-
-static bool
-parseSize(const std::string &str, uint &width, uint &height)
-{
-	std::vector<std::string> tok;
-	if ((Util::splitString(str, tok, "x", 2, true)) != 2) {
-		return false;
-	}
-
-	try {
-		width = std::stoi(tok[0]);
-		height = std::stoi(tok[1]);
-	} catch (std::invalid_argument&) {
-		return false;
-	}
-	return true;
-}
-
 TextureHandler::TextureHandler(void)
-	: _length_min(5)
+	: _length_min(0)
 {
+	registerTexture("SOLID", parseSolid);
+	registerTexture("SOLIDRAISED", parseSolidRaised);
+	registerTexture("LINESHORZ", parseLinesHorz);
+	registerTexture("LINESVERT", parseLinesVert);
+	registerTexture("IMAGE", parseImage);
+	registerTexture("IMAGEMAPPED", parseImageMapped);
+	registerTexture("EMPTY", parseEmpty);
+	registerTexture(nullptr, nullptr);
 }
 
 TextureHandler::~TextureHandler(void)
 {
+}
+
+/**
+ * Add mapping from the given name to a texture parsing fun.
+ */
+void
+TextureHandler::registerTexture(const char *name, parse_fun fun)
+{
+	size_t name_len = name ? strlen(name) : 0;
+	if (_length_min == 0 || (name_len > 0 && name_len < _length_min)) {
+		_length_min = name_len;
+	}
+
+	Util::StringTo<parse_fun> st = { name, fun };
+	if (_texture_types.empty() || _texture_types.back().name != nullptr) {
+		_texture_types.push_back(st);
+	} else {
+		_texture_types.insert(_texture_types.end() - 1, st);
+	}
+
 }
 
 /**
@@ -162,54 +162,26 @@ TextureHandler::logTextures(const std::string& msg) const
 PTexture*
 TextureHandler::parse(const std::string &texture)
 {
-	PTexture *ptexture = 0;
+	parse_fun fun = nullptr;
 	std::vector<std::string> tok;
-
-	PTexture::Type type;
 	if (Util::splitString(texture, tok, " \t")) {
-		type = Util::StringToGet(parse_map, tok[0]);
+		fun = Util::StringToGet(&_texture_types.front(), tok[0]);
 	} else {
-		type = Util::StringToGet(parse_map, texture);
+		fun = Util::StringToGet(&_texture_types.front(), texture);
 	}
 
-	// need at least type and parameter, except for EMPTY type
-	if (tok.size() > 1) {
-		tok.erase(tok.begin());
-
-		switch (type) {
-		case PTexture::TYPE_SOLID:
-			ptexture = parseSolid(tok);
-			break;
-		case PTexture::TYPE_SOLID_RAISED:
-			ptexture = parseSolidRaised(tok);
-			break;
-		case PTexture::TYPE_LINES_HORZ:
-			ptexture = parseLines(true, tok);
-			break;
-		case PTexture::TYPE_LINES_VERT:
-			ptexture = parseLines(false, tok);
-			break;
-		case PTexture::TYPE_IMAGE:
-			ptexture = parseImage(texture);
-			break;
-		case PTexture::TYPE_IMAGE_MAPPED:
-			ptexture = parseImageMapped(texture);
-			break;
-		case PTexture::TYPE_NO:
-		default:
-			break;
+	PTexture *ptexture = nullptr;
+	if (fun) {
+		if (tok.size() > 1) {
+			tok.erase(tok.begin());
 		}
-
-		// If it fails to load, set clean resources and set it to 0.
-		if (ptexture && ! ptexture->isOk()) {
-			delete ptexture;
-			ptexture = nullptr;
-		}
-
-	} else if (type == PTexture::TYPE_EMPTY) {
-		ptexture = new PTextureEmpty();
+		ptexture = fun(texture, tok);
 	}
 
+	if (ptexture && ! ptexture->isOk()) {
+		delete ptexture;
+		ptexture = nullptr;
+	}
 	return ptexture;
 }
 
@@ -217,7 +189,8 @@ TextureHandler::parse(const std::string &texture)
  * Parse and create PTextureSolid
  */
 PTexture*
-TextureHandler::parseSolid(std::vector<std::string> &tok)
+TextureHandler::parseSolid(const std::string &texture,
+			   const std::vector<std::string> &tok)
 {
 	if (tok.size() < 1) {
 		USER_WARN("missing parameter to texture Solid");
@@ -225,11 +198,8 @@ TextureHandler::parseSolid(std::vector<std::string> &tok)
 	}
 
 	PTextureSolid *tex = new PTextureSolid(tok[0]);
-	tok.erase(tok.begin());
-
-	// check if we have size
-	if (tok.size() == 1) {
-		parseSize(tex, tok[0]);
+	if (tok.size() == 2) {
+		parseSize(tex, tok[1]);
 	}
 
 	return tex;
@@ -239,7 +209,8 @@ TextureHandler::parseSolid(std::vector<std::string> &tok)
  * Parse and create PTextureSolidRaised
  */
 PTexture*
-TextureHandler::parseSolidRaised(const std::vector<std::string> &tok)
+TextureHandler::parseSolidRaised(const std::string &texture,
+				 const std::vector<std::string> &tok)
 {
 	if (tok.size() < 3) {
 		USER_WARN("not enough parameters to texture SolidRaised "
@@ -275,11 +246,26 @@ TextureHandler::parseSolidRaised(const std::vector<std::string> &tok)
 	return tex;
 }
 
+
+PTexture*
+TextureHandler::parseLinesHorz(const std::string &,
+			       const std::vector<std::string> &tok)
+{
+	return parseLines(true, tok);
+}
+
+PTexture*
+TextureHandler::parseLinesVert(const std::string &,
+			       const std::vector<std::string> &tok)
+{
+	return parseLines(false, tok);
+}
+
 /**
  * Parse and create PTextureLines
  */
 PTexture*
-TextureHandler::parseLines(bool horz, std::vector<std::string> &tok)
+TextureHandler::parseLines(bool horz, const std::vector<std::string> &tok)
 {
 	if (tok.size() < 2) {
 		USER_WARN("not enough parameters to texture Lines"
@@ -292,8 +278,8 @@ TextureHandler::parseLines(bool horz, std::vector<std::string> &tok)
 	try {
 		if (tok[0][tok[0].size()-1] == '%') {
 			size_percent = true;
-			tok[0].erase(tok[0].end() - 1);
-			line_size = std::stof(tok[0]) / 100;
+			std::string size = tok[0].substr(0, tok[0].size() - 1);
+			line_size = std::stof(size) / 100;
 		} else {
 			size_percent = false;
 			line_size = std::stoi(tok[0]);
@@ -302,28 +288,26 @@ TextureHandler::parseLines(bool horz, std::vector<std::string> &tok)
 		return nullptr;
 	}
 
-	tok.erase(tok.begin());
-
-	uint width, height;
-	if (::parseSize(tok.back(), width, height)) {
-		tok.pop_back();
-	} else {
-		width = 0;
-		height = 0;
+	std::vector<std::string>::const_iterator cend(tok.end());
+	uint width = 0;
+	uint height = 0;
+	if (X11::parseSize(tok.back(), width, height)) {
+		--cend;
 	}
 
-	PTextureLines *tex =
-		new PTextureLines(line_size, size_percent, horz, tok);
+	PTexture *tex = new PTextureLines(line_size, size_percent, horz,
+					  tok.begin() + 1, cend);
 	tex->setWidth(width);
 	tex->setHeight(height);
 	return tex;
 }
 
 /**
- * Parse Image texture, w
+ * Parse Image texture.
  */
 PTexture*
-TextureHandler::parseImage(const std::string& texture)
+TextureHandler::parseImage(const std::string& texture,
+			   const std::vector<std::string> &tok)
 {
 	// 6==strlen("IMAGE ")
 	PTextureImage *image = new PTextureImage(texture.substr(6), "");
@@ -338,7 +322,8 @@ TextureHandler::parseImage(const std::string& texture)
  * Parse Image texture with colormap.
  */
 PTexture*
-TextureHandler::parseImageMapped(const std::string& texture)
+TextureHandler::parseImageMapped(const std::string& texture,
+				 const std::vector<std::string> &tok)
 {
 	// 12==strlen("IMAGEMAPPED ")
 	size_t map_start = texture.find_first_not_of(" \t", 12);
@@ -358,6 +343,13 @@ TextureHandler::parseImageMapped(const std::string& texture)
 	return new PTextureImage(texture.substr(image_start), colormap);
 }
 
+PTexture*
+TextureHandler::parseEmpty(const std::string& texture,
+			   const std::vector<std::string> &tok)
+{
+	return new PTextureEmpty();
+}
+
 /**
  * Parses size parameter, i.e. 10x20
  */
@@ -365,7 +357,7 @@ bool
 TextureHandler::parseSize(PTexture *tex, const std::string &size)
 {
 	uint width, height;
-	if (::parseSize(size, width, height)) {
+	if (X11::parseSize(size, width, height)) {
 		tex->setWidth(width);
 		tex->setHeight(height);
 		return true;

@@ -17,17 +17,6 @@
 
 class PTexture {
 public:
-	enum Type {
-		TYPE_SOLID,
-		TYPE_SOLID_RAISED,
-		TYPE_LINES_HORZ,
-		TYPE_LINES_VERT,
-		TYPE_IMAGE,
-		TYPE_IMAGE_MAPPED,
-		TYPE_EMPTY,
-		TYPE_NO
-	};
-
 	PTexture(void);
 	virtual ~PTexture(void);
 
@@ -52,7 +41,6 @@ public:
 	bool isOk(void) const { return _ok; }
 	size_t getWidth(void) const;
 	size_t getHeight(void) const;
-	PTexture::Type getType(void) const { return _type; }
 
 	void setWidth(size_t width) { _width = width; }
 	void setHeight(size_t height) { _height = height; }
@@ -69,7 +57,6 @@ protected:
 	bool _ok; // Texture successfully loaded
 	size_t _width;
 	size_t _height;
-	PTexture::Type _type; // Type of texture
 	uchar _opacity; // Texture opacity, blended onto background pixmap
 };
 

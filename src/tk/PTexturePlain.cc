@@ -43,8 +43,6 @@ PTextureSolid::PTextureSolid(const std::string &color)
 	: PTexture(),
 	  _xc(0)
 {
-	// PTexture attributes
-	_type = PTexture::TYPE_SOLID;
 	setColor(color);
 }
 
@@ -111,8 +109,6 @@ PTextureSolidRaised::PTextureSolidRaised(const std::string &base,
 	  _draw_left(true),
 	  _draw_right(true)
 {
-	// PTexture attributes
-	_type = PTexture::TYPE_SOLID_RAISED;
 	setColor(base, hi, lo);
 }
 
@@ -246,13 +242,13 @@ PTextureSolidRaised::unsetColor(void)
 // PTextureLines
 
 PTextureLines::PTextureLines(float line_size, bool size_percent, bool horz,
-			     const std::vector<std::string> &colors)
+			     std::vector<std::string>::const_iterator cbegin,
+			     std::vector<std::string>::const_iterator cend)
 	: _line_size(line_size),
 	  _size_percent(size_percent),
 	  _horz(horz)
 {
-	_type = horz ? PTexture::TYPE_LINES_HORZ : PTexture::TYPE_LINES_VERT;
-	setColors(colors);
+	setColors(cbegin, cend);
 }
 
 PTextureLines::~PTextureLines()
@@ -339,12 +335,13 @@ PTextureLines::renderVert(Render &rend, int x, int y,
 }
 
 void
-PTextureLines::setColors(const std::vector<std::string> &colors)
+PTextureLines::setColors(std::vector<std::string>::const_iterator cbegin,
+			 std::vector<std::string>::const_iterator cend)
 {
 	unsetColors();
 
-	std::vector<std::string>::const_iterator it = colors.begin();
-	for (; it != colors.end(); ++it) {
+	std::vector<std::string>::const_iterator it(cbegin);
+	for (; it != cend; ++it) {
 		_colors.push_back(pekwm::getColor(*it));
 	}
 	_ok = ! _colors.empty();
@@ -365,8 +362,6 @@ PTextureLines::unsetColors()
 PTextureImage::PTextureImage(PImage *image)
 	: _image(nullptr)
 {
-	// PTexture attributes
-	_type = PTexture::TYPE_IMAGE;
 	setImage(image);
 }
 
@@ -375,9 +370,6 @@ PTextureImage::PTextureImage(const std::string &image,
 	: _image(nullptr),
 	  _colormap(colormap)
 {
-	// PTexture attributes
-	_type = colormap.empty()
-		? PTexture::TYPE_IMAGE : PTexture::TYPE_IMAGE_MAPPED;
 	setImage(image, colormap);
 }
 

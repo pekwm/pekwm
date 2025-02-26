@@ -1,6 +1,6 @@
 //
 // TextureHandler.hh for pekwm
-// Copyright (C) 2005-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2005-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -14,6 +14,7 @@
 #include "Compat.hh"
 #include "PTexture.hh"
 #include "String.hh"
+#include "Util.hh"
 
 #include <map>
 #include <string>
@@ -27,6 +28,9 @@ class PTexture;
 
 class TextureHandler {
 public:
+	typedef PTexture*(*parse_fun)(const std::string &texture,
+				      const std::vector<std::string> &tok);
+
 	class Entry {
 	public:
 		Entry(const std::string &name, PTexture *texture)
@@ -60,10 +64,12 @@ public:
 
 	typedef std::vector<TextureHandler::Entry*> entry_vector;
 
-	TextureHandler(void);
-	~TextureHandler(void);
+	TextureHandler();
+	~TextureHandler();
 
-	size_t getLengthMin(void) { return _length_min; }
+	void registerTexture(const char *name, parse_fun fun);
+
+	size_t getLengthMin() { return _length_min; }
 	PTexture *getTexture(const std::string &texture);
 	PTexture *referenceTexture(PTexture *texture);
 	void returnTexture(PTexture *texture);
@@ -72,17 +78,29 @@ public:
 
 private:
 	PTexture *parse(const std::string &texture);
-	PTexture *parseSolid(std::vector<std::string> &tok);
-	PTexture *parseSolidRaised(const std::vector<std::string> &tok);
-	PTexture *parseLines(bool horz, std::vector<std::string> &tok);
-	PTexture *parseImage(const std::string& texture);
-	PTexture *parseImageMapped(const std::string& texture);
+	static PTexture *parseSolid(const std::string &texture,
+				    const std::vector<std::string> &tok);
+	static PTexture *parseSolidRaised(const std::string &texture,
+					  const std::vector<std::string> &tok);
+	static PTexture *parseLinesHorz(const std::string &texture,
+					const std::vector<std::string> &tok);
+	static PTexture *parseLinesVert(const std::string &texture,
+					const std::vector<std::string> &tok);
+	static PTexture *parseLines(bool horz,
+				    const std::vector<std::string> &tok);
+	static PTexture *parseImage(const std::string &texture,
+				    const std::vector<std::string> &tok);
+	static PTexture *parseImageMapped(const std::string& texture,
+					  const std::vector<std::string> &tok);
+	static PTexture *parseEmpty(const std::string& texture,
+				    const std::vector<std::string> &tok);
 
-	bool parseSize(PTexture *tex, const std::string &size);
+	static bool parseSize(PTexture *tex, const std::string &size);
 
-private:
 	/** Minimum texture name length. */
-	const size_t _length_min;
+	size_t _length_min;
+
+	std::vector<Util::StringTo<parse_fun> > _texture_types;
 
 	entry_vector _textures;
 	std::map<std::string, std::map<int,int>*> _color_maps;
