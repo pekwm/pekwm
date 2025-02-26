@@ -1,6 +1,6 @@
 //
 // pekwm_bg.cc for pekwm
-// Copyright (C) 2021-2024 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -12,6 +12,7 @@
 
 #include "../tk/ImageHandler.hh"
 #include "../tk/TextureHandler.hh"
+#include "TextureLinesAngle.hh"
 
 extern "C" {
 #include <errno.h>
@@ -48,6 +49,7 @@ static void init(Display* dpy)
 {
 	_image_handler = new ImageHandler();
 	_texture_handler = new TextureHandler();
+	_texture_handler->registerTexture("LINESANGLE", parseLinesAngle);
 }
 
 static void cleanup()

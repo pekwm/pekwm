@@ -1,7 +1,7 @@
 # default theme for pekwm-0.4.0
 
 Background {
-	Texture = "LinesVert 12.5% $T2_0 $TD2_0 $T2_1 $TD2_1 $T2_2 $TD2_2 $T2_3 $TD2_3"
+	Texture = "LinesAngle 31% 123 $T2_1 $TD2_1 $T2_2 $TD2_2 $T2_3 $TD2_3"
 }
 
 Define = "Border" {
@@ -35,10 +35,10 @@ Define = "BaseDecor" {
 
 	WidthMin = "150"
 	WidthMax = "95"
-	WidthSymetric = "true"
+	WidthSymetric = "True"
 
-	Focused = "Solid #ffffff"
-	Unfocused = "Solid #aaaaaa"
+	Focused = "Empty"
+	Unfocused = "Empty"
 
 	Tab {
 		Focused = "$TEX_F"
@@ -65,29 +65,29 @@ Define = "BaseDecor" {
 }
 
 Define = "EmptyDecor" {
-  Height = "0"
-  Pad = "0 0 0 0"
-  Focused = "Empty"
-  Unfocused = "Empty"
-  Tab {
-    Focused = "Empty"
-    FocusedSelected = "Empty"
-    Unfocused = "Empty"
-    UnfocusedSelected = "Empty"
-  }
-  Separator {
-    Focused = "Empty"
-    Unfocused = "Empty"
-  }
-  Font {
-    Focused = "Empty"
-  }
-  FontColor {
-    Focused = "Empty"
-    FocusedSelected = "Empty"
-    Unfocused = "Empty"
-    UnfocusedSelected = "Empty"
-  }
+	Height = "0"
+	Pad = "0 0 0 0"
+	Focused = "Empty"
+	Unfocused = "Empty"
+	Tab {
+		Focused = "Empty"
+		FocusedSelected = "Empty"
+		Unfocused = "Empty"
+		UnfocusedSelected = "Empty"
+	}
+	Separator {
+		Focused = "Empty"
+		Unfocused = "Empty"
+	}
+	Font {
+		Focused = "Empty"
+	}
+	FontColor {
+		Focused = "Empty"
+		FocusedSelected = "Empty"
+		Unfocused = "Empty"
+		UnfocusedSelected = "Empty"
+	}
 }
 
 Define = "NoTitlebarDecor" {
