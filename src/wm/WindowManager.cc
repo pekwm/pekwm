@@ -357,7 +357,11 @@ WindowManager::scanWindows(void)
 		}
 	}
 
-	// We won't be needing these anymore until next restart
+	// Update client list _once_ after creating all clients
+	Workspaces::updateClientList();
+
+	// Discard on start autoproperties, will not be used until next start
+	// of pekwm.
 	pekwm::autoProperties()->removeApplyOnStart();
 
 	pekwm::setStarted();
@@ -1688,7 +1692,11 @@ WindowManager::createClient(Window window, bool is_new)
 		Workspaces::handleFullscreenBeforeRaise(wo);
 		Workspaces::insert(wo, true);
 	}
-	Workspaces::updateClientList();
+	if (! pekwm::isStarting()) {
+		// Skip updating client list while starting, it will be done
+		// once after all windows hae been scanned
+		Workspaces::updateClientList();
+	}
 
 	// Make sure the window is mapped, this is done after it has been
 	// added to the decor/frame as otherwise IsViewable state won't
