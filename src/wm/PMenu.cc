@@ -876,7 +876,7 @@ PMenu::applyTitleRules(const std::string &title)
 	_class_hint.title = title;
 	AutoProperties *auto_properties = pekwm::autoProperties();
 	TitleProperty *data = auto_properties
-		? auto_properties->findTitleProperty(&_class_hint) : 0;
+		? auto_properties->findTitleProperty(_class_hint) : nullptr;
 	if (data) {
 		std::string new_title(title);
 		if (data->getTitleRule().ed_s(new_title)) {

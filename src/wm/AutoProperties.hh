@@ -12,6 +12,7 @@
 #include "config.h"
 
 #include "CfgParser.hh"
+#include "Client.hh"
 #include "tk/ImageHandler.hh"
 #include "tk/PImageIcon.hh"
 #include "RegexString.hh"
@@ -56,30 +57,6 @@ enum PropertyType {
 
 	AP_PROPERTY,
 	AP_NO_PROPERTY
-};
-
-/**
- * ClassHint holds information from a window required to identify it.
- */
-class ClassHint {
-public:
-	ClassHint(void);
-	ClassHint(const std::string &n_h_name, const std::string &n_h_class,
-		  const std::string &n_h_role, const std::string &n_title,
-		  const std::string &n_group);
-	~ClassHint(void);
-
-	ClassHint& operator=(const ClassHint& rhs);
-	bool operator==(const ClassHint& rhs) const;
-
-	friend std::ostream& operator<<(std::ostream& os, const ClassHint &ch);
-
-public:
-	std::string h_name; /**< name part of WM_CLASS hint. */
-	std::string h_class; /**< class part of WM_CLASS hint. */
-	std::string h_role; /**< WM_ROLE hint value. */
-	std::string title; /**< Title of window. */
-	std::string group; /**< Group window belongs to. */
 };
 
 /**
@@ -219,12 +196,12 @@ public:
 	AutoProperties(ImageHandler *image_handler);
 	~AutoProperties();
 
-	AutoProperty* findAutoProperty(const ClassHint* class_hintbb,
+	AutoProperty* findAutoProperty(const ClassHint &class_hintbb,
 				       int ws = -1,
 				       ApplyOn type = APPLY_ON_ALWAYS);
-	TitleProperty* findTitleProperty(const ClassHint* class_hint);
-	DecorProperty* findDecorProperty(const ClassHint* class_hint);
-	DockAppProperty* findDockAppProperty(const ClassHint *class_hint);
+	TitleProperty* findTitleProperty(const ClassHint& class_hint);
+	DecorProperty* findDecorProperty(const ClassHint& class_hint);
+	DockAppProperty* findDockAppProperty(const ClassHint& class_hint);
 	inline bool isHarbourSort(void) const { return _harbour_sort; }
 
 	AutoProperty *findWindowTypeProperty(AtomName atom);
@@ -234,14 +211,14 @@ public:
 
 	void removeApplyOnStart();
 
-	static bool matchAutoClass(const ClassHint &hint, Property *prop);
+	static bool matchAutoClass(const ClassHint& hint, Property *prop);
 
 protected:
 	int parsePlacement(const std::string &value);
 
 private:
 	void load(CfgParser &cfg);
-	Property* findProperty(const ClassHint* class_hint,
+	Property* findProperty(const ClassHint& class_hint,
 			       std::vector<Property*>* prop_list,
 			       int ws, ApplyOn type);
 

@@ -43,10 +43,67 @@ extern "C" {
 #include "tk/PImageIcon.hh"
 #include "tk/X11Util.hh"
 
+std::ostream&
+operator<<(std::ostream& os, const ClassHint &ch)
+{
+	os << "ClassHint "
+	   << Charset::toSystem(ch.h_name) << ","
+	   << Charset::toSystem(ch.h_class);
+	return os;
+}
+
+ClassHint::ClassHint(void)
+{
+}
+
+ClassHint::ClassHint(const std::string &n_h_name,
+		     const std::string &n_h_class,
+		     const std::string &n_h_role,
+		     const std::string &n_title,
+		     const std::string &n_group)
+	: h_name(n_h_name),
+	  h_class(n_h_class),
+	  h_role(n_h_role),
+	  title(n_title),
+	  group(n_group)
+{
+}
+
+ClassHint::~ClassHint(void)
+{
+}
+
+ClassHint&
+ClassHint::operator=(const ClassHint& rhs)
+{
+	h_name = rhs.h_name;
+	h_class = rhs.h_class;
+	h_role = rhs.h_role;
+	title = rhs.title;
+	group = rhs.group;
+	return *this;
+}
+
+bool
+ClassHint::operator==(const ClassHint& rhs) const
+{
+	if (group.size() > 0) {
+		if (group == rhs.group) {
+			return true;
+		}
+	} else if ((h_name == rhs.h_name) && (h_class == rhs.h_class) &&
+		   (h_role == rhs.h_role)) {
+		return true;
+	}
+	return false;
+}
+
 const long Client::_clientEventMask = \
 	PropertyChangeMask|StructureNotifyMask|FocusChangeMask|KeyPressMask;
 std::vector<Client*> Client::_clients;
 std::vector<uint> Client::_clientids;
+
+
 
 Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
 	: PWinObj(true),
@@ -55,7 +112,7 @@ Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
 	  _transient_for(nullptr),
 	  _strut(nullptr),
 	  _icon(nullptr),
-	  _pid(0), _is_remote(false), _class_hint(0),
+	  _pid(0), _is_remote(false),
 	  _window_type(WINDOW_TYPE_NORMAL),
 	  _alive(false), _marked(false),
 	  _send_focus_message(false), _send_close_message(false),
@@ -91,14 +148,13 @@ Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
 
 	// Load the Class hint before loading the autoprops and
 	// getting client title as we search for TitleRule in the autoprops
-	_class_hint = new ClassHint();
 	readClassRoleHints();
 
 	getWMNormalHints();
 	readName();
 
 	// cyclic dependency, getting the name requires quiering autoprops
-	_class_hint->title = _title.getReal();
+	_class_hint.title = _title.getReal();
 
 	// Get Autoproperties before EWMH as we need the cfg_deny
 	// property, however the _transient hint needs to be setup to
@@ -186,10 +242,6 @@ Client::~Client(void)
 	}
 
 	removeStrutHint();
-
-	if (_class_hint) {
-		delete _class_hint;
-	}
 
 	if (_icon) {
 		pekwm::textureHandler()->returnTexture(_icon);
@@ -841,15 +893,15 @@ Client::readClassRoleHints(void)
 	// class hint
 	X11::ClassHint class_hint;
 	if (X11::getClassHint(_window, class_hint)) {
-		_class_hint->h_name = class_hint.getName();
-		_class_hint->h_class = class_hint.getClass();
+		_class_hint.h_name = class_hint.getName();
+		_class_hint.h_class = class_hint.getClass();
 	}
 
 	// wm window role
 	std::string role;
 	X11::getString(_window, WM_WINDOW_ROLE, role);
 
-	_class_hint->h_role = role;
+	_class_hint.h_role = role;
 }
 
 //! @brief Loads the Clients state from EWMH atoms.
@@ -1039,7 +1091,7 @@ void
 Client::applyAutoprops(AutoProperty *ap)
 {
 	// Set the correct group of the window
-	_class_hint->group = ap->group_name;
+	_class_hint.group = ap->group_name;
 
 	// We only apply grouping if it's a new client or if we are restarting
 	// and have APPLY_ON_START set
@@ -1210,7 +1262,7 @@ Client::readName(void)
 bool
 Client::titleApplyRule(std::string &title)
 {
-	_class_hint->title = title;
+	_class_hint.title = title;
 	TitleProperty *data =
 		pekwm::autoProperties()->findTitleProperty(_class_hint);
 	if (data) {

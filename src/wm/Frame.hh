@@ -19,7 +19,6 @@
 
 class PWinObj;
 class Strut;
-class ClassHint;
 class AutoProperty;
 
 #include <string>
@@ -112,7 +111,7 @@ public:
 
 	Frame *detachClient(Client *client, int x, int y);
 
-	inline const ClassHint* getClassHint(void) const { return _class_hint; }
+	const ClassHint& getClassHint() const { return _class_hint; }
 
 	void setGeometry(const std::string& geometry, int head=-1,
 			 bool honour_strut=false);
@@ -212,7 +211,7 @@ private:
 	uint _id; // unique id of the frame
 
 	Client *_client; // to skip all the casts from PWinObj
-	ClassHint *_class_hint;
+	ClassHint _class_hint;
 
 	// frame information used when maximizing / going fullscreen
 	Geometry _old_gm;

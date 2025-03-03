@@ -80,61 +80,6 @@ static Util::StringTo<AtomName> window_type_map[] =
 	 {"NORMAL", WINDOW_TYPE_NORMAL},
 	 {nullptr, WINDOW_TYPE}};
 
-std::ostream&
-operator<<(std::ostream& os, const ClassHint &ch)
-{
-	os << "ClassHint "
-	   << Charset::toSystem(ch.h_name) << ","
-	   << Charset::toSystem(ch.h_class);
-	return os;
-}
-
-ClassHint::ClassHint(void)
-{
-}
-
-ClassHint::ClassHint(const std::string &n_h_name,
-		     const std::string &n_h_class,
-		     const std::string &n_h_role,
-		     const std::string &n_title,
-		     const std::string &n_group)
-	: h_name(n_h_name),
-	  h_class(n_h_class),
-	  h_role(n_h_role),
-	  title(n_title),
-	  group(n_group)
-{
-}
-
-ClassHint::~ClassHint(void)
-{
-}
-
-ClassHint&
-ClassHint::operator=(const ClassHint& rhs)
-{
-	h_name = rhs.h_name;
-	h_class = rhs.h_class;
-	h_role = rhs.h_role;
-	title = rhs.title;
-	group = rhs.group;
-	return *this;
-}
-
-bool
-ClassHint::operator==(const ClassHint& rhs) const
-{
-	if (group.size() > 0) {
-		if (group == rhs.group) {
-			return true;
-		}
-	} else if ((h_name == rhs.h_name) && (h_class == rhs.h_class) &&
-		   (h_role == rhs.h_role)) {
-		return true;
-	}
-	return false;
-}
-
 Property::Property(void)
 	: _apply_mask(0)
 {
@@ -352,7 +297,7 @@ AutoProperties::unload(void)
 
 //! @brief Finds a property from the prop_list
 Property*
-AutoProperties::findProperty(const ClassHint* class_hint,
+AutoProperties::findProperty(const ClassHint& class_hint,
 			     std::vector<Property*>* prop_list,
 			     int ws, ApplyOn type)
 {
@@ -367,7 +312,7 @@ AutoProperties::findProperty(const ClassHint* class_hint,
 		if ((type != APPLY_ON_ALWAYS) && ! (*it)->isApplyOn(type))
 			continue;
 
-		if (matchAutoClass(*class_hint, *it)) {
+		if (matchAutoClass(class_hint, *it)) {
 			return (*it)->applyOnWs(ws) ? *it : nullptr;
 		}
 	}
@@ -1064,7 +1009,7 @@ AutoProperties::parseAutoPropertyType(CfgParser::Entry* it, AutoProperty* prop)
 
 //! @brief Searches the _prop_list for a property
 AutoProperty*
-AutoProperties::findAutoProperty(const ClassHint* class_hint, int ws,
+AutoProperties::findAutoProperty(const ClassHint& class_hint, int ws,
 				 ApplyOn type)
 {
 	return static_cast<AutoProperty*>(
@@ -1073,7 +1018,7 @@ AutoProperties::findAutoProperty(const ClassHint* class_hint, int ws,
 
 //! @brief Searches the _title_prop_list for a property
 TitleProperty*
-AutoProperties::findTitleProperty(const ClassHint* class_hint)
+AutoProperties::findTitleProperty(const ClassHint& class_hint)
 {
 	return static_cast<TitleProperty*>(
 			findProperty(class_hint, &_title_prop_list, -1,
@@ -1081,7 +1026,7 @@ AutoProperties::findTitleProperty(const ClassHint* class_hint)
 }
 
 DecorProperty*
-AutoProperties::findDecorProperty(const ClassHint* class_hint)
+AutoProperties::findDecorProperty(const ClassHint& class_hint)
 {
 	return static_cast<DecorProperty*>(
 			findProperty(class_hint, &_decor_prop_list, -1,
@@ -1089,7 +1034,7 @@ AutoProperties::findDecorProperty(const ClassHint* class_hint)
 }
 
 DockAppProperty*
-AutoProperties::findDockAppProperty(const ClassHint *class_hint)
+AutoProperties::findDockAppProperty(const ClassHint& class_hint)
 {
 	return static_cast<DockAppProperty*>(
 			findProperty(class_hint, &_dock_app_prop_list, -1,
@@ -1133,7 +1078,7 @@ AutoProperties::removeApplyOnStart(void)
 
 //! @brief Tries to match a class hint against an autoproperty data entry
 bool
-AutoProperties::matchAutoClass(const ClassHint &hint, Property *prop)
+AutoProperties::matchAutoClass(const ClassHint& hint, Property *prop)
 {
 	bool ok = false;
 

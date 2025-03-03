@@ -281,7 +281,7 @@ void
 DockApp::readAutoProperties(void)
 {
 	DockAppProperty *prop =
-		pekwm::autoProperties()->findDockAppProperty(&_class_hint);
+		pekwm::autoProperties()->findDockAppProperty(_class_hint);
 	if (prop) {
 		_position = prop->getPosition();
 	}

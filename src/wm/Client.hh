@@ -23,7 +23,6 @@
 
 class PScreen;
 class Strut;
-class ClassHint;
 class AutoProperty;
 class Frame;
 
@@ -47,6 +46,30 @@ public:
 	bool focus_parent;
 	bool map;
 	bool parent_is_new;
+};
+
+/**
+ * ClassHint holds information from a window required to identify it.
+ */
+class ClassHint {
+public:
+	ClassHint();
+	ClassHint(const std::string &n_h_name, const std::string &n_h_class,
+		  const std::string &n_h_role, const std::string &n_title,
+		  const std::string &n_group);
+	~ClassHint();
+
+	ClassHint& operator=(const ClassHint& rhs);
+	bool operator==(const ClassHint& rhs) const;
+
+	friend std::ostream& operator<<(std::ostream& os, const ClassHint &ch);
+
+public:
+	std::string h_name; /**< name part of WM_CLASS hint. */
+	std::string h_class; /**< class part of WM_CLASS hint. */
+	std::string h_role; /**< WM_ROLE hint value. */
+	std::string title; /**< Title of window. */
+	std::string group; /**< Group window belongs to. */
 };
 
 class ClientState {
@@ -164,7 +187,7 @@ public: // Public Member Functions
 	void readEwmhHints();
 	void readMwmHints();
 
-	inline const ClassHint* getClassHint(void) const { return _class_hint; }
+	const ClassHint &getClassHint(void) const { return _class_hint; }
 
 	bool isTransient(void) const { return _transient_for_window != None; }
 	Client *getTransientForClient(void) const { return _transient_for; }
@@ -378,7 +401,7 @@ private: // Private Member Variables
 	Cardinal _pid;
 	bool _is_remote;
 
-	ClassHint *_class_hint;
+	ClassHint _class_hint;
 	AtomName _window_type; /**< _NET_WM_WINDOW_TYPE */
 
 	bool _alive, _marked;

@@ -47,7 +47,6 @@ Frame::Frame()
 	: PDecor(None, true, false),
 	  _id(0),
 	  _client(nullptr),
-	  _class_hint(nullptr),
 	  _non_fullscreen_decor_state(0),
 	  _non_fullscreen_layer(LAYER_NORMAL)
 {
@@ -57,7 +56,6 @@ Frame::Frame(Client *client, AutoProperty *ap)
 	: PDecor(client->getWindow(), false, true, client->getAPDecorName()),
 	  _id(0),
 	  _client(client),
-	  _class_hint(nullptr),
 	  _non_fullscreen_decor_state(0),
 	  _non_fullscreen_layer(LAYER_NORMAL)
 {
@@ -83,8 +81,7 @@ Frame::Frame(Client *client, AutoProperty *ap)
 	}
 
 	// get the clients class_hint
-	_class_hint = new ClassHint();
-	*_class_hint = *client->getClassHint();
+	_class_hint = client->getClassHint();
 
 	X11::grabServer();
 
@@ -192,10 +189,6 @@ Frame::~Frame(void)
 	}
 
 	returnFrameID(_id);
-
-	if (_class_hint) {
-		delete _class_hint;
-	}
 
 	workspacesRemove();
 }
@@ -1621,18 +1614,18 @@ Frame::readAutoprops(ApplyOn type)
 		return;
 	}
 
-	_class_hint->title = _client->getTitle()->getReal();
+	_class_hint.title = _client->getTitle()->getReal();
 	AutoProperty *data =
 		pekwm::autoProperties()->findAutoProperty(_class_hint,
 							  _workspace, type);
-	_class_hint->title = "";
+	_class_hint.title = "";
 
 	if (! data) {
 		return;
 	}
 
 	// Set the correct group of the window
-	_class_hint->group = data->group_name;
+	_class_hint.group = data->group_name;
 
 	if (_class_hint == _client->getClassHint()
 	    && (_client->isTransient()

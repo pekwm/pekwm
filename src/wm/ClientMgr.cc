@@ -53,10 +53,10 @@ ClientMgr::findGroupMatchProperty(Frame *frame, AutoProperty *property)
 		 : frame->isMapped()))
 	    && (property->group_size == 0
 		|| signed(frame->size()) < property->group_size)
-	    && (((frame->getClassHint()->group.size() > 0)
-		 ? (frame->getClassHint()->group == property->group_name)
+	    && (((frame->getClassHint().group.size() > 0)
+		 ? (frame->getClassHint().group == property->group_name)
 		 : false)
-		|| AutoProperties::matchAutoClass(*frame->getClassHint(),
+		|| AutoProperties::matchAutoClass(frame->getClassHint(),
 						  property))) {
 		return true;
 	}
