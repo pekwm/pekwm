@@ -170,7 +170,8 @@ private:
 };
 
 PTexture*
-parseLinesAngle(const std::string &texture, const std::vector<std::string> &tok)
+parseLinesAngle(float scale, const std::string &,
+		const std::vector<std::string> &tok)
 {
 	if (tok.size() < 3) {
 		return nullptr;

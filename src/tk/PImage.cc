@@ -1,7 +1,7 @@
 //
 // PImage.cc for pekwm
 //
-// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2005-2021 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -19,10 +19,11 @@
 #include "String.hh"
 #include "Util.hh"
 
-#include <cstring>
 #include <memory>
 
 extern "C" {
+#include <math.h>
+#include <string.h>
 #include <X11/Xutil.h>
 }
 
@@ -434,7 +435,7 @@ PImage::getPixmap(bool &need_free, size_t width, size_t height)
 		}
 		pix = _pixmap;
 	} else {
-		uchar *scaled_data = getScaledData(width, height);
+		uchar *scaled_data = getScaledData(width, height, SCALE_SMOOTH);
 		if (scaled_data) {
 			need_free = true;
 			pix = createPixmap(scaled_data, width, height);
@@ -480,7 +481,7 @@ PImage::getMask(bool &need_free, size_t width, size_t height)
 		}
 		pix = _mask;
 	} else {
-		uchar *scaled_data = getScaledData(width, height);
+		uchar *scaled_data = getScaledData(width, height, SCALE_SMOOTH);
 		if (scaled_data) {
 			need_free = true;
 			pix = createMask(scaled_data, width, height);
@@ -494,20 +495,31 @@ PImage::getMask(bool &need_free, size_t width, size_t height)
 }
 
 /**
+ * Scales image by the given factor.
+ */
+void
+PImage::scale(float factor, ScaleType type)
+{
+	size_t width = static_cast<size_t>(factor * _width);
+	size_t height = static_cast<size_t>(factor * _height);
+	scale(width, height, type);
+}
+
+/**
  * Scales image to size.
  *
  * @param width Width to scale image to.
  * @param height Height to scale image to.
  */
 void
-PImage::scale(size_t width, size_t height)
+PImage::scale(size_t width, size_t height, ScaleType type)
 {
 	// Invalid width or height or no need to scale.
 	if (! width || ! height || ((width == _width) && (height == _height))) {
 		return;
 	}
 
-	uchar *scaled_data = getScaledData(width, height);
+	uchar *scaled_data = getScaledData(width, height, type);
 	if (scaled_data) {
 		// Free old resources.
 		unload();
@@ -624,7 +636,7 @@ void
 PImage::drawScaled(Render &rend, int x, int y, size_t width, size_t height)
 {
 	// Create scaled representation of image.
-	uchar *scaled_data = getScaledData(width, height);
+	uchar *scaled_data = getScaledData(width, height, SCALE_SMOOTH);
 	if (scaled_data) {
 		XImage *ximage = createXImage(scaled_data, width, height);
 		delete [] scaled_data;
@@ -696,7 +708,7 @@ PImage::drawTiled(Render &rend, int x, int y, size_t width, size_t height)
 void
 PImage::drawAlphaScaled(Render &rend, int x, int y, size_t width, size_t height)
 {
-	uchar *scaled_data = getScaledData(width, height);
+	uchar *scaled_data = getScaledData(width, height, SCALE_SMOOTH);
 	if (scaled_data) {
 		drawAlphaFixed(rend, x, y, width, height, scaled_data);
 		delete [] scaled_data;
@@ -873,7 +885,20 @@ scalePixel(const uchar* data, int pos, int width, float x_diff, float y_diff)
  * @return Pointer to image data on success, else nullptr.
  */
 uchar*
-PImage::getScaledData(size_t dwidth, size_t dheight)
+PImage::getScaledData(size_t dwidth, size_t dheight, ScaleType type)
+{
+	if (type == SCALE_SQUARE) {
+		float wfactor = static_cast<float>(dwidth) / _width;
+		float hfactor = static_cast<float>(dheight) / _height;
+		if (wfactor == hfactor && fmod(wfactor, 1.0) == 0.0) {
+			return getScaledDataSquare(static_cast<uint>(wfactor));
+		}
+	}
+	return getScaledDataSmooth(dwidth, dheight);
+}
+
+uchar*
+PImage::getScaledDataSmooth(size_t dwidth, size_t dheight)
 {
 	if (dwidth < 1 || dheight < 1) {
 		return nullptr;
@@ -909,4 +934,41 @@ PImage::getScaledData(size_t dwidth, size_t dheight)
 	}
 
 	return scaled_data;
+}
+
+uchar*
+PImage::getScaledDataSquare(uint factor)
+{
+	if (factor < 2) {
+		return nullptr;
+	}
+
+	size_t dwidth = _width * factor;
+	size_t dheight = _height * factor;
+	uchar *scaled_data = new uchar[dwidth * dheight * 4] ;
+	for (size_t y = 0; y < _height; y++) {
+		uchar *src = _data + (y * _width * 4);
+		uchar *dst = scaled_data + (y * dwidth * factor * 4);
+		for (size_t x = 0; x < _width; x++) {
+			setScaledDataSquare(factor, src, dst);
+			src += 4;
+			dst += factor * 4;
+		}
+	}
+	return scaled_data;
+}
+
+void
+PImage::setScaledDataSquare(uint factor, const uchar *src, uchar *dst)
+{
+	for (uint y = 0; y < factor; y++) {
+		uchar *p = dst;
+		for (uint x = 0; x < factor; x++) {
+			*p++ = src[0];
+			*p++ = src[1];
+			*p++ = src[2];
+			*p++ = src[3];
+		}
+		dst += _width * factor * 4;
+	}
 }

@@ -1,6 +1,6 @@
 //
 // ImageHandler.hh for pekwm
-// Copyright (C) 2003-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -47,8 +47,11 @@ private:
  */
 class ImageHandler {
 public:
-	ImageHandler(void);
-	~ImageHandler(void);
+	ImageHandler(float scale);
+	~ImageHandler();
+
+	void setDefaultType(ImageType type) { _default_type = type; }
+	void setScale(float scale) { _scale = scale; }
 
 	/** Add path entry to the search path. */
 	void path_push_back(const std::string &path) {
@@ -89,6 +92,10 @@ private:
 	static void returnImage(PImage *image,
 				std::vector<ImageRefEntry> &images);
 private:
+	/** Default image type if none is specified */
+	ImageType _default_type;
+	/** != 1.0, images are scaled after loading by the given factor. */
+	float _scale;
 
 	/** List of directories to search. */
 	std::vector<std::string> _search_path;

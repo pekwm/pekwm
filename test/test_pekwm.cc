@@ -26,6 +26,7 @@
 #include "test_PFontPango.hh"
 #endif // PEKWM_HAVE_PANGO
 #include "test_PFontXmb.hh"
+#include "test_PImage.hh"
 #include "test_PMenu.hh"
 #include "test_Theme.hh"
 #include "test_WindowManager.hh"

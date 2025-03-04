@@ -93,10 +93,12 @@ namespace pekwm
 		_key_grabber->grabKeys(X11::getRoot());
 
 		_font_handler =
-			new FontHandler(_config->isDefaultFontX11(),
+			new FontHandler(_config->getScreenScale(),
+					_config->isDefaultFontX11(),
 					_config->getFontCharsetOverride());
-		_image_handler = new ImageHandler();
-		_texture_handler = new TextureHandler();
+		_image_handler = new ImageHandler(_config->getScreenScale());
+		_texture_handler =
+			new TextureHandler(_config->getScreenScale());
 		_theme = new Theme(_font_handler, _image_handler,
 				   _texture_handler,
 				   _config->getThemeFile(),

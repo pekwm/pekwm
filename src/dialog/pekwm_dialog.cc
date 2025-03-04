@@ -293,15 +293,14 @@ PekwmDialog::stopDialog(int retcode)
 	PekwmDialog::instance()->stop(retcode);
 }
 
-static void init(Display* dpy,
-		 bool font_default_x11,
+static void init(Display* dpy, float scale, bool font_default_x11,
 		 const std::string &font_charset_override)
 {
 	_observer_mapping = new ObserverMapping();
-	_font_handler =
-		new FontHandler(font_default_x11, font_charset_override);
-	_image_handler = new ImageHandler();
-	_texture_handler = new TextureHandler();
+	_font_handler = new FontHandler(scale, font_default_x11,
+					font_charset_override);
+	_image_handler = new ImageHandler(scale);
+	_texture_handler = new TextureHandler(scale);
 }
 
 static void cleanup()
@@ -477,7 +476,7 @@ int main(int argc, char* argv[])
 	}
 
 	X11::init(dpy, true);
-	init(dpy, font_default_x11, font_charset_override);
+	init(dpy, 1.0, font_default_x11, font_charset_override);
 
 	_image_handler->path_push_back("./");
 	PImage *image = nullptr;

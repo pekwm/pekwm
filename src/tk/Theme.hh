@@ -105,10 +105,7 @@ public:
 		//! @brief Sets decor name.
 		inline void setName(const std::string &name) { _name = name; }
 
-		//! @brief Returns title height.
-		inline int getTitleHeight(void) const {
-			return _title_height;
-		}
+		uint getTitleHeight() const { return _title_height; }
 		//! @brief Returns title minimum width (0 for full width
 		//title).
 		inline int getTitleWidthMin(void) const {
@@ -216,8 +213,9 @@ public:
 		std::string _name;
 
 		// size, padding etc
-		int _title_height;
-		int _title_width_min, _title_width_max;
+		uint _title_height;
+		uint _title_width_min;
+		uint _title_width_max;
 		int _pad[PAD_NO];
 		bool _title_width_symetric;
 		bool _title_height_adapt;
@@ -359,8 +357,8 @@ public:
 		PTexture *texture_workspace;
 		PTexture *texture_workspace_act;
 
-		int edge_padding;
-		int workspace_padding;
+		uint edge_padding;
+		uint workspace_padding;
 	};
 
 	/**
@@ -483,7 +481,7 @@ public:
 	}
 
 protected:
-	Theme(void)
+	Theme()
 		: _fh(nullptr),
 		  _ih(nullptr),
 		  _th(nullptr),

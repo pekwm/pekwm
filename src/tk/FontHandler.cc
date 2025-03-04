@@ -11,6 +11,7 @@
 #include "Color.hh"
 #include "Debug.hh"
 #include "FontHandler.hh"
+#include "ThemeUtil.hh"
 #include "Util.hh"
 #include "X11.hh"
 #include "pekwm_types.hh"
@@ -51,9 +52,10 @@ static Util::StringTo<FontJustify> map_justify[] =
 	 {"RIGHT", FONT_JUSTIFY_RIGHT},
 	 {nullptr, FONT_JUSTIFY_NO}};
 
-FontHandler::FontHandler(bool default_font_x11,
+FontHandler::FontHandler(float scale, bool default_font_x11,
 			 const std::string &charset_override)
 	: _x11_font_name(X11_FONT_NAME_PATTERN),
+	  _scale(scale),
 	  _default_font_x11(default_font_x11),
 	  _charset_override(charset_override)
 {
@@ -236,10 +238,8 @@ FontHandler::parseFontOffset(PFont *pfont, const std::string &str)
 
 	std::vector<std::string> tok;
 	if (Util::splitString(str, tok, " \t", 2) == 2) {
-		try {
-			pfont->setOffset(std::stoi(tok[0]),
-					 std::stoi(tok[1]));
-		} catch (std::invalid_argument&) { }
+		pfont->setOffset(ThemeUtil::parsePixel(_scale, tok[0], 0),
+				 ThemeUtil::parsePixel(_scale, tok[1], 0));
 	}
 	return true;
 }
@@ -275,13 +275,15 @@ FontHandler::replaceFontCharset(std::string &font)
 	return true;
 }
 
-//! @brief Returns a font
+/**
+ * Return font and sets font pointer to nullptr.
+ */
 void
-FontHandler::returnFont(const PFont *font)
+FontHandler::returnFont(PFont **font)
 {
 	std::vector<HandlerEntry<PFont*> >::iterator it = _fonts.begin();
 	for (; it != _fonts.end(); ++it) {
-		if (it->getData() == font) {
+		if (it->getData() == *font) {
 			it->decRef();
 			if (! it->getRef()) {
 				delete it->getData();
@@ -290,6 +292,7 @@ FontHandler::returnFont(const PFont *font)
 			break;
 		}
 	}
+	*font = nullptr;
 }
 
 //! @brief Gets or allocs a color
@@ -327,14 +330,16 @@ FontHandler::getColor(const std::string &color)
 	return font_color;
 }
 
-//! @brief Returns a color
+/**
+ * Returns color and sets color pointer to nullptr.
+ */
 void
-FontHandler::returnColor(const PFont::Color *color)
+FontHandler::returnColor(PFont::Color **color)
 {
 	std::vector<HandlerEntry<PFont::Color*> >::iterator it =
 		_colors.begin();
 	for (; it != _colors.end(); ++it) {
-		if (it->getData() == color) {
+		if (it->getData() == *color) {
 			it->decRef();
 			if (! it->getRef()) {
 				delete it->getData();
@@ -343,6 +348,7 @@ FontHandler::returnColor(const PFont::Color *color)
 			break;
 		}
 	}
+	*color = nullptr;
 }
 
 //! @brief Helper loader of font colors ( main and offset color )

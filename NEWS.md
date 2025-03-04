@@ -35,6 +35,9 @@ New
 * Auto theme variant mode, reads the _PEKWM_THEME_VARIANT property on the root
   window and selects the theme variant using that value. The theme will
   automatically reload whenever the property changes.
+* New Screen option `Scale`, affects how themes and other dimensions given in
+  the configuration is processed. Default is 1.0, treated as is, for high
+  resolution displays set to 2.0 for 2x scaled images, padding etc.
 
 Updated
 -------

@@ -135,6 +135,7 @@ public:
 	}
 
 	// Screen
+	float getScreenScale() const { return _screen_scale; }
 	bool getThemeBackground(void) const {
 		return _screen_theme_background;
 	}
@@ -356,6 +357,7 @@ private:
 	bool _moveresize_opaquemove, _moveresize_opaqueresize;
 
 	// screen
+	float _screen_scale;
 	bool _screen_theme_background;
 	uint _screen_workspaces;
 	uint _screen_workspaces_per_row;

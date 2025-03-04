@@ -29,7 +29,7 @@ class PTexture;
 
 class TextureHandler {
 public:
-	typedef PTexture*(*parse_fun)(const std::string &texture,
+	typedef PTexture*(*parse_fun)(float scale, const std::string &texture,
 				      const std::vector<std::string> &tok);
 	typedef Util::StringTo<parse_fun> string_to_parse_fun;
 
@@ -66,8 +66,11 @@ public:
 
 	typedef std::vector<TextureHandler::Entry*> entry_vector;
 
-	TextureHandler();
+	TextureHandler(float scale);
 	~TextureHandler();
+
+	float getScale() const { return _scale; }
+	void setScale(float scale) { _scale = scale; }
 
 	void registerTexture(const char *name, parse_fun fun);
 
@@ -86,25 +89,29 @@ private:
 	}
 
 	PTexture *parse(const std::string &texture);
-	static PTexture *parseSolid(const std::string &texture,
+	static PTexture *parseSolid(float scale, const std::string &str,
 				    const std::vector<std::string> &tok);
-	static PTexture *parseSolidRaised(const std::string &texture,
+	static PTexture *parseSolidRaised(float scale, const std::string &str,
 					  const std::vector<std::string> &tok);
-	static PTexture *parseLinesHorz(const std::string &texture,
+	static PTexture *parseLinesHorz(float scale, const std::string &str,
 					const std::vector<std::string> &tok);
-	static PTexture *parseLinesVert(const std::string &texture,
+	static PTexture *parseLinesVert(float scale, const std::string &str,
 					const std::vector<std::string> &tok);
-	static PTexture *parseLines(bool horz,
+	static PTexture *parseLines(float scale, bool horz,
 				    const std::vector<std::string> &tok);
-	static PTexture *parseImage(const std::string &texture,
+	static PTexture *parseImage(float scale, const std::string &str,
 				    const std::vector<std::string> &tok);
-	static PTexture *parseImageMapped(const std::string& texture,
+	static PTexture *parseImageMapped(float scale, const std::string& str,
 					  const std::vector<std::string> &tok);
-	static PTexture *parseEmpty(const std::string& texture,
+	static PTexture *parseEmpty(float scale, const std::string& str,
 				    const std::vector<std::string> &tok);
 
-	static bool parseSize(PTexture *tex, const std::string &size);
+	static bool parseSize(PTexture *tex, float scale,
+			      const std::string &size);
+	static uint parsePixels(float scale, const std::string &str);
 
+	/** Size scaling for texture values. */
+	float _scale;
 	/** Minimum texture name length. */
 	size_t _length_min;
 

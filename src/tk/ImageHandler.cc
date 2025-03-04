@@ -1,6 +1,6 @@
 //
 // ImageHandler.cc for pekwm
-// Copyright (C) 2003-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -52,12 +52,14 @@ ImageRefEntry::decRef(void)
 	return _ref;
 }
 
-ImageHandler::ImageHandler(void)
+ImageHandler::ImageHandler(float scale)
+	: _default_type(IMAGE_TYPE_TILED),
+	  _scale(scale)
 {
 	clearColorMaps();
 }
 
-ImageHandler::~ImageHandler(void)
+ImageHandler::~ImageHandler()
 {
 	if (! _images.empty()) {
 		P_ERR("ImageHandler not empty on destruct, " << _images.size()
@@ -95,7 +97,7 @@ ImageHandler::getImage(const std::string &file, uint &ref,
 	}
 
 	std::string real_file(file);
-	ImageType image_type = IMAGE_TYPE_TILED;
+	ImageType image_type = _default_type;
 
 	// Split image in path # type parts.
 	size_t pos = file.rfind('#');
@@ -129,6 +131,9 @@ ImageHandler::getImage(const std::string &file, uint &ref,
 
 	// Image was found, set correct type.
 	if (image) {
+		if (_scale != 1.0 && image_type != IMAGE_TYPE_SCALED) {
+			image->scale(_scale, PImage::SCALE_SQUARE);
+		}
 		image->setType(image_type);
 	}
 

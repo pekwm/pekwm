@@ -37,7 +37,7 @@ namespace pekwm
 
 static void init(Display* dpy)
 {
-	_image_handler = new ImageHandler();
+	_image_handler = new ImageHandler(1.0);
 }
 
 static void cleanup()

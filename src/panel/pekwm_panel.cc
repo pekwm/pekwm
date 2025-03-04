@@ -637,13 +637,13 @@ static bool loadConfig(PanelConfig& cfg, const std::string& file)
 	return cfg.load(SYSCONFDIR "/panel");
 }
 
-static void init(Display* dpy)
+static void init(Display* dpy, float scale)
 {
 	_observer_mapping = new ObserverMapping();
 	// options setup in loadTheme later on
-	_font_handler = new FontHandler(false, "");
-	_image_handler = new ImageHandler();
-	_texture_handler = new TextureHandler();
+	_font_handler = new FontHandler(scale, false, "");
+	_image_handler = new ImageHandler(scale);
+	_texture_handler = new TextureHandler(scale);
 }
 
 static void cleanup()
@@ -736,7 +736,7 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	init(X11::getDpy());
+	init(X11::getDpy(), 1.0);
 
 	P_TRACE("pekwm_panel PID " << getpid());
 	{

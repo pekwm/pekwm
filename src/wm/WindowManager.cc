@@ -499,6 +499,8 @@ WindowManager::doReloadConfig(void)
 	if (! cfg->load(cfg->getConfigFile())) {
 		return;
 	}
+	pekwm::imageHandler()->setScale(cfg->getScreenScale());
+	pekwm::textureHandler()->setScale(cfg->getScreenScale());
 
 	// Update what might have changed in the cfg touching the hints
 	Workspaces::setSize(cfg->getWorkspaces());
@@ -758,10 +760,10 @@ void
 WindowManager::handleSignals(void)
 {
 	// SIGHUP
-	if (is_signal_hup || _reload) {
+	if (is_signal_hup) {
 		P_TRACE("handle SIGHUP or reload");
 		is_signal_hup = false;
-		doReload();
+		_reload = true;
 	}
 
 	// Wait for children if a SIGCHLD was received

@@ -14,7 +14,7 @@ class TestFontHandler : public TestSuite,
 public:
 	TestFontHandler()
 		: TestSuite("FontHandler"),
-		  FontHandler(false, "")
+		  FontHandler(1.0, false, "")
 	{
 	}
 

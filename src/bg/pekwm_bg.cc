@@ -22,11 +22,17 @@ extern "C" {
 }
 
 static bool _stop = false;
+static std::string _config_script_path;
 static ImageHandler* _image_handler = nullptr;
 static TextureHandler* _texture_handler = nullptr;
 
 namespace pekwm
 {
+	const std::string& configScriptPath()
+	{
+		return _config_script_path;
+	}
+
 	ImageHandler* imageHandler()
 	{
 		return _image_handler;
@@ -47,8 +53,8 @@ static void sighandler(int signal)
 
 static void init(Display* dpy)
 {
-	_image_handler = new ImageHandler();
-	_texture_handler = new TextureHandler();
+	_image_handler = new ImageHandler(1.0);
+	_texture_handler = new TextureHandler(1.0);
 	_texture_handler->registerTexture("LINESANGLE", parseLinesAngle);
 }
 

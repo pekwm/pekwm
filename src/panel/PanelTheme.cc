@@ -125,10 +125,8 @@ PanelTheme::unload(void)
 
 	FontHandler *fh = pekwm::fontHandler();
 	for (int i = 0; i < CLIENT_STATE_NO; i++) {
-		fh->returnFont(_fonts[i]);
-		_fonts[i] = nullptr;
-		fh->returnColor(_colors[i]);
-		_colors[i] = nullptr;
+		fh->returnFont(&_fonts[i]);
+		fh->returnColor(&_colors[i]);
 	}
 	_loaded = false;
 }

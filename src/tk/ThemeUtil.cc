@@ -19,6 +19,64 @@ extern "C" {
 
 namespace ThemeUtil {
 
+uint
+scaledPixelValue(float scale, uint value)
+{
+	if (scale == 1.0) {
+		return value;
+	}
+	return static_cast<uint>(scale * value);
+}
+
+uint
+parsePixel(float scale, const std::string &str, uint default_val)
+{
+	uint value;
+	try {
+		value = std::stoi(str);
+	} catch (std::invalid_argument&) {
+		value = default_val;
+	}
+	return scaledPixelValue(scale, value);
+}
+
+class CfgParserKeyPixels : public CfgParserKey {
+public:
+	CfgParserKeyPixels(float scale, const char *name, uint &value,
+			   const uint default_val)
+		: CfgParserKey(name),
+		  _scale(scale),
+		  _value(value),
+		  _default_val(default_val)
+	{
+	}
+	virtual ~CfgParserKeyPixels()
+	{
+	}
+
+	virtual void
+	parseValue(const std::string &value_str, bool is_default)
+	{
+		if (is_default) {
+			_value = scaledPixelValue(_scale, _default_val);
+		} else {
+			_value = parsePixel(_scale, value_str, _default_val);
+		}
+	}
+
+private:
+	float _scale;
+	uint &_value;
+	const uint _default_val;
+};
+
+void
+CfgParserKeys::add_pixels(const char *name, uint &value,
+			  const uint default_val)
+{
+	push_back(new CfgParserKeyPixels(_scale, name, value, default_val));
+}
+
 static void
 setCfgParserOptions(CfgParser &cfg, const std::string &dir, bool end_early)
 {
@@ -59,7 +117,7 @@ loadPalette(CfgParser::Entry *section,
 	std::string mode_str, base_str;
 	float brightness;
 
-	CfgParserKeys keys;
+	::CfgParserKeys keys;
 	keys.add_string("MODE", mode_str);
 	keys.add_string("BASE", base_str);
 	keys.add_numeric<float>("BRIGHTNESS", brightness, 100.0, 0.0);
@@ -110,7 +168,7 @@ loadRequire(CfgParser &cfg, const std::string &dir, const std::string &file)
 	assert(section); // was ended early, section must be present
 
 	// Check if Templates are enabled and setup palette colors
-	CfgParserKeys keys;
+	::CfgParserKeys keys;
 	bool value_templates;
 	keys.add_bool("TEMPLATES", value_templates, false);
 	section->parseKeyValues(keys.begin(), keys.end());
