@@ -697,32 +697,32 @@ Frame::getState(Client *cl)
  * Applies the frame's state on the Client
  */
 void
-Frame::applyState(Client *cl)
+Frame::applyState(Client *client)
 {
-	if (! cl) {
+	if (! client) {
 		return;
 	}
 
-	cl->setSticky(_sticky);
-	cl->getState().maximized_horz = _maximized_horz;
-	cl->getState().maximized_vert = _maximized_vert;
-	cl->getState().shaded = isShaded();
-	cl->setWorkspace(_workspace);
-	cl->setLayer(getLayer());
+	client->setSticky(_sticky);
+	client->getState().maximized_horz = _maximized_horz;
+	client->getState().maximized_vert = _maximized_vert;
+	client->getState().shaded = isShaded();
+	client->setWorkspace(_workspace);
+	client->setLayer(getLayer());
 
 	// fix border / titlebar state
-	cl->setBorder(hasBorder());
-	cl->setTitlebar(hasTitlebar());
+	client->setBorder(hasBorder());
+	client->setTitlebar(hasTitlebar());
 	// make sure the window has the correct mapped state
-	if (_mapped != cl->isMapped()) {
+	if (_mapped != client->isMapped()) {
 		if (! _mapped) {
-			cl->unmapWindow();
+			client->unmapWindow();
 		} else {
-			cl->mapWindow();
+			client->mapWindow();
 		}
 	}
 
-	cl->updateEwmhStates();
+	client->updateEwmhStates();
 }
 
 void
