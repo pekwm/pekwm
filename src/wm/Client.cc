@@ -125,11 +125,7 @@ Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
 
 	// Construct the client
 	X11::grabServer();
-	if (! validate()
-	    || ! getAndUpdateWindowAttributes()
-	    // Start of pekwm with already existing clients in WithdrawnState,
-	    // ignore these windows until they map
-	    || (pekwm::isStarting() && getWmState() == WithdrawnState)) {
+	if (! validate() || ! getAndUpdateWindowAttributes()) {
 		X11::ungrabServer(true);
 		return;
 	}
@@ -1361,7 +1357,6 @@ Client::getWmState(void)
 	ulong items_read, items_left;
 	uchar *udata;
 
-	// 32bit state + 32bit icon window id
 	int status =
 		XGetWindowProperty(X11::getDpy(), _window,
 				   X11::getAtom(WM_STATE), 0L, 2L, False,
