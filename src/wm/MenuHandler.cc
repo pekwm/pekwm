@@ -1,6 +1,6 @@
 //
 // MenuHandler.cc for pekwm
-// Copyright (C) 2009-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2009-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -24,45 +24,86 @@
 #include "tk/TkGlobals.hh"
 
 TimeFiles MenuHandler::_cfg_files;
+bool MenuHandler::_config_loaded = false;
 std::map<std::string, PMenu*> MenuHandler::_menu_map;
 
-/**
- * Creates reserved menus and populates _menu_map
- */
-void
-MenuHandler::createMenus(ActionHandler *act)
+PMenu*
+MenuHandler::getMenu(const std::string &name)
 {
-	PMenu *menu = 0;
+	menu_map_cit it = _menu_map.find(name);
+	if (it != _menu_map.end()) {
+		return it->second;
+	}
+	PMenu *menu = createMenu(pekwm::actionHandler(), name);
+	if (menu == nullptr && ! _config_loaded) {
+		_config_loaded = true;
+		createMenusLoadConfiguration(pekwm::actionHandler());
+		menu = getMenu(name);
+	}
+	return menu;
+}
 
-	menu = new FrameListMenu(ATTACH_CLIENT_IN_FRAME_TYPE,
-				 "Attach Client In Frame",
-				 "AttachClientInFrame");
-	_menu_map["ATTACHCLIENTINFRAME"] = menu;
-	menu = new FrameListMenu(ATTACH_CLIENT_TYPE,
-				 "Attach Client", "AttachClient");
-	_menu_map["ATTACHCLIENT"] = menu;
-	menu = new FrameListMenu(ATTACH_FRAME_IN_FRAME_TYPE,
-				 "Attach Frame In Frame",
-				 "AttachFrameInFrame");
-	_menu_map["ATTACHFRAMEINFRAME"] = menu;
-	menu = new FrameListMenu(ATTACH_FRAME_TYPE,
-				 "Attach Frame", "AttachFrame");
-	_menu_map["ATTACHFRAME"] = menu;
-	menu = new FrameListMenu(GOTOCLIENTMENU_TYPE,
-				 "Focus Client", "GotoClient");
-	_menu_map["GOTOCLIENT"] = menu;
-	menu = new FrameListMenu(GOTOMENU_TYPE,
-				 "Focus Frame", "Goto");
-	_menu_map["GOTO"] = menu;
-	menu = new FrameListMenu(ICONMENU_TYPE,
-				 "Focus Iconified Frame", "Icon");
-	_menu_map["ICON"] = menu;
-	menu =  new ActionMenu(ROOTMENU_TYPE, act, "", "RootMenu");
-	_menu_map["ROOT"] = menu;
-	menu = new ActionMenu(WINDOWMENU_TYPE, act, "", "WindowMenu");
-	_menu_map["WINDOW"] = menu;
+/**
+ * Create reserved menu and populates _menu_map
+ */
+PMenu*
+MenuHandler::createMenu(ActionHandler *act, const std::string &name)
+{
+	PMenu *menu = nullptr;
+	if (pekwm::ascii_ncase_equal("ATTACHCLIENTINFRAME", name)) {
+		menu = new FrameListMenu(ATTACH_CLIENT_IN_FRAME_TYPE,
+					 "Attach Client In Frame",
+					 "AttachClientInFrame");
+		_menu_map["ATTACHCLIENTINFRAME"] = menu;
+		return menu;
+	}
+	if (pekwm::ascii_ncase_equal("ATTACHCLIENT", name)) {
+		menu = new FrameListMenu(ATTACH_CLIENT_TYPE,
+					 "Attach Client", "AttachClient");
+		_menu_map["ATTACHCLIENT"] = menu;
+		return menu;
+	}
+	if (pekwm::ascii_ncase_equal("ATTACHFRAMEINFRAME", name)) {
+		menu = new FrameListMenu(ATTACH_FRAME_IN_FRAME_TYPE,
+					 "Attach Frame In Frame",
+					 "AttachFrameInFrame");
+		_menu_map["ATTACHFRAMEINFRAME"] = menu;
+	}
+	if (pekwm::ascii_ncase_equal("ATTACHFRAME", name)) {
+		menu = new FrameListMenu(ATTACH_FRAME_TYPE,
+					 "Attach Frame", "AttachFrame");
+		_menu_map["ATTACHFRAME"] = menu;
+	}
+	if (pekwm::ascii_ncase_equal("GOTOCLIENT", name)) {
+		menu = new FrameListMenu(GOTOCLIENTMENU_TYPE,
+					 "Focus Client", "GotoClient");
+		_menu_map["GOTOCLIENT"] = menu;
+		return menu;
+	}
+	if (pekwm::ascii_ncase_equal("GOTO", name)) {
+		menu = new FrameListMenu(GOTOMENU_TYPE,
+					"Focus Frame", "Goto");
+		_menu_map["GOTO"] = menu;
+		return menu;
+	}
+	if (pekwm::ascii_ncase_equal("ICON", name)) {
+		menu = new FrameListMenu(ICONMENU_TYPE,
+					 "Focus Iconified Frame", "Icon");
+		_menu_map["ICON"] = menu;
+		return menu;
+	}
 
-	createMenusLoadConfiguration(act);
+	// create menu but do not return it, will cause configuration
+	// to be loaded (same as for non-standard menus) and fetch of meny
+	// retried
+	if (pekwm::ascii_ncase_equal("ROOT", name)
+	    || pekwm::ascii_ncase_equal("WINDOW", name)) {
+		_menu_map["ROOT"] =
+			new ActionMenu(ROOTMENU_TYPE, act, "", "RootMenu");
+		_menu_map["WINDOW"] =
+			new ActionMenu(WINDOWMENU_TYPE, act, "", "WindowMenu");
+	}
+	return nullptr;
 }
 
 /**

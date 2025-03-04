@@ -283,8 +283,6 @@ WindowManager::setupDisplay()
 	Workspaces::setSize(pekwm::config()->getWorkspaces());
 	Workspaces::setPerRow(pekwm::config()->getWorkspacesPerRow());
 
-	MenuHandler::createMenus(pekwm::actionHandler());
-
 	XDefineCursor(X11::getDpy(), X11::getRoot(),
 		      X11::getCursor(CURSOR_ARROW));
 

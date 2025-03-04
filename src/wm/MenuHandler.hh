@@ -28,11 +28,7 @@ public:
 	typedef menu_map::iterator menu_map_it;
 	typedef menu_map::const_iterator menu_map_cit;
 
-	static PMenu *getMenu(const std::string &name) {
-		menu_map_cit it = _menu_map.find(name);
-		return (it != _menu_map.end()) ? it->second : 0;
-	}
-
+	static PMenu *getMenu(const std::string &name);
 	/**
 	 * Return list with names of loaded menus.
 	 */
@@ -45,7 +41,6 @@ public:
 		return menu_names;
 	}
 
-	static void createMenus(ActionHandler *act);
 	static void hideAllMenus(void) {
 		menu_map_it it = _menu_map.begin();
 		for (; it != _menu_map.end(); ++it) {
@@ -56,6 +51,7 @@ public:
 	static void deleteMenus(void);
 
 private:
+	static PMenu *createMenu(ActionHandler *act, const std::string &name);
 	static bool loadMenuConfig(const std::string &menu_file,
 				   CfgParser &menu_cfg);
 	static void createMenusLoadConfiguration(ActionHandler *act);
@@ -63,6 +59,8 @@ private:
 					  CfgParser::Entry *section);
 
 	static TimeFiles _cfg_files;
+	/** Set to true when menus have been loaded from the configuration. */
+	static bool _config_loaded;
 	/** Map from menu name to menu */
 	static std::map<std::string, PMenu*> _menu_map;
 };
