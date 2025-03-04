@@ -36,19 +36,16 @@ extern "C" {
 
 #define DEFAULT_FONT "Sans-12"
 #define DEFAULT_LARGE_FONT "Sans-14:weight=bold"
-#define DEFAULT_HEIGHT 17
+#define DEFAULT_HEIGHT 17U
 #define DEFAULT_HEIGHT_STR "17"
 
-static void parse_pad(const std::string& str, int *pad)
+static void
+parsePad(float scale, const std::string& str, int *pad)
 {
 	std::vector<std::string> tok;
 	if (Util::splitString(str, tok, " \t", 4) == 4) {
 		for (uint i = 0; i < PAD_NO; ++i) {
-			try {
-				pad[i] = std::stoi(tok[i]);
-			} catch (const ValueException&) {
-				pad[i] = 0;
-			}
+			pad[i] = ThemeUtil::parsePixel(scale, tok[i], 0);
 		}
 	}
 }
@@ -57,8 +54,9 @@ static void parse_pad(const std::string& str, int *pad)
  * Calculate pad_up and pad_down to make Font vertically centered on the
  * available height.
  */
-static void calculate_pad_adapt(const int height_available, PFont* font,
-				int& pad_up, int& pad_down)
+static void
+calculatePadAdapt(const int height_available, PFont* font, int& pad_up,
+		  int& pad_down)
 {
 	float height = font->getHeight();
 	if (height_available < static_cast<int>(font->getHeight())) {
@@ -146,7 +144,6 @@ Theme::ColorMap::parseHex(const char *p)
 
 // Theme::PDecorButtonData
 
-//! @brief Theme::PDecorButtonData constructor.
 Theme::PDecorButtonData::PDecorButtonData(TextureHandler *th)
 	: _th(th),
 	  _loaded(false),
@@ -155,12 +152,9 @@ Theme::PDecorButtonData::PDecorButtonData(TextureHandler *th)
 	  _width(1),
 	  _height(1)
 {
-	for (uint i = 0; i < BUTTON_STATE_NO; ++i) {
-		_texture[i] = 0;
-	}
+	memset(_texture, 0, sizeof(_texture));
 }
 
-//! @brief Theme::PDecorButtonData destructor.
 Theme::PDecorButtonData::~PDecorButtonData(void)
 {
 	unload();
@@ -245,8 +239,7 @@ Theme::PDecorButtonData::unload(void)
 	_loaded = false;
 
 	for (uint i = 0; i < BUTTON_STATE_NO; ++i) {
-		_th->returnTexture(_texture[i]);
-		_texture[i] = 0;
+		_th->returnTexture(&_texture[i]);
 	}
 }
 
@@ -276,14 +269,14 @@ static const char *border_to_string[BORDER_NO_POS] =
 	 "BOTTOMLEFT", "BOTTOMRIGHT",
 	 "TOP", "LEFT", "RIGHT", "BOTTOM"};
 
-//! @brief Theme::PDecorData constructor.
 Theme::PDecorData::PDecorData(FontHandler* fh, TextureHandler* th,
 			      int version, const char *name)
 	: _fh(fh),
 	  _th(th),
 	  _version(version),
 	  _loaded(false),
-	  _title_height(DEFAULT_HEIGHT),
+	  _title_height(ThemeUtil::scaledPixelValue(th->getScale(),
+						    DEFAULT_HEIGHT)),
 	  _title_width_min(0),
 	  _title_width_max(100),
 	  _title_width_symetric(true),
@@ -295,24 +288,14 @@ Theme::PDecorData::PDecorData(FontHandler* fh, TextureHandler* th,
 
 	// init arrays
 	memset(_pad, 0, sizeof(_pad));
-	for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
-		_texture_tab[i] = 0;
-		_font[i] = 0;
-		_font_color[i] = 0;
-	}
-	for (uint i = 0; i < FOCUSED_STATE_FOCUSED_SELECTED; ++i) {
-		_texture_main[i] = 0;
-		_texture_separator[i] = 0;
-	}
-
-	for (uint i = 0; i < FOCUSED_STATE_FOCUSED_SELECTED; ++i) {
-		for (uint j = 0; j < BORDER_NO_POS; ++j) {
-			_texture_border[i][j] = 0;
-		}
-	}
+	memset(_texture_tab, 0, sizeof(_texture_tab));
+	memset(_font, 0, sizeof(_font));
+	memset(_font_color, 0, sizeof(_font_color));
+	memset(_texture_main, 0, sizeof(_texture_main));
+	memset(_texture_separator, 0, sizeof(_texture_separator));
+	memset(_texture_border, 0, sizeof(_texture_border));
 }
 
-//! @brief Theme::PDecorData destructor.
 Theme::PDecorData::~PDecorData(void)
 {
 	unload();
@@ -352,13 +335,13 @@ Theme::PDecorData::load(CfgParser::Entry *section)
 	}
 	_loaded = true;
 
-	CfgParserKeys keys;
+	ThemeUtil::CfgParserKeys keys(_th->getScale());
 	bool title_pad_adapt = _version > 2;
 	std::string value_pad, value_focused, value_unfocused;
 
-	keys.add_numeric<int>("HEIGHT", _title_height, DEFAULT_HEIGHT, 0);
-	keys.add_numeric<int>("WIDTHMIN", _title_width_min, 0);
-	keys.add_numeric<int>("WIDTHMAX", _title_width_max, 100, 0, 100);
+	keys.add_pixels("HEIGHT", _title_height, DEFAULT_HEIGHT);
+	keys.add_numeric<uint>("WIDTHMIN", _title_width_min, 0);
+	keys.add_numeric<uint>("WIDTHMAX", _title_width_max, 100, 0, 100);
 	keys.add_bool("WIDTHSYMETRIC", _title_width_symetric, true);
 	keys.add_bool("HEIGHTADAPT", _title_height_adapt, false);
 	keys.add_string("PAD", value_pad, "0 0 0 0", 7);
@@ -376,7 +359,7 @@ Theme::PDecorData::load(CfgParser::Entry *section)
 		_th->getTexture(value_focused);
 	_texture_main[FOCUSED_STATE_UNFOCUSED] =
 		_th->getTexture(value_unfocused);
-	parse_pad(value_pad, _pad);
+	parsePad(_th->getScale(), value_pad, _pad);
 
 	CfgParser::Entry *tab_section = title_section->findSection("TAB");
 	if (tab_section) {
@@ -447,14 +430,13 @@ Theme::PDecorData::load(CfgParser::Entry *section)
 		// this is the only required state and the one that always
 		// have a font available so use it for calculations
 		PFont* font = _font[FOCUSED_STATE_FOCUSED];
-		calculate_pad_adapt(_title_height, font,
-				    _pad[PAD_UP], _pad[PAD_DOWN]);
+		calculatePadAdapt(_title_height, font, _pad[PAD_UP],
+				  _pad[PAD_DOWN]);
 	}
 
 	return true;
 }
 
-//! @brief Unloads data.
 void
 Theme::PDecorData::unload(void)
 {
@@ -464,23 +446,17 @@ Theme::PDecorData::unload(void)
 	_loaded = false;
 
 	for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
-		_th->returnTexture(_texture_tab[i]);
-		_fh->returnFont(_font[i]);
-		_fh->returnColor(_font_color[i]);
-		_texture_tab[i] = nullptr;
-		_font[i] = nullptr;
-		_font_color[i] = nullptr;
+		_th->returnTexture(&_texture_tab[i]);
+		_fh->returnFont(&_font[i]);
+		_fh->returnColor(&_font_color[i]);
 	}
 
 	for (uint i = 0; i < FOCUSED_STATE_FOCUSED_SELECTED; ++i) {
-		_th->returnTexture(_texture_main[i]);
-		_th->returnTexture(_texture_separator[i]);
-		_texture_main[i] = nullptr;
-		_texture_separator[i] = nullptr;
+		_th->returnTexture(&_texture_main[i]);
+		_th->returnTexture(&_texture_separator[i]);
 
 		for (uint j = 0; j < BORDER_NO_POS; ++j) {
-			_th->returnTexture(_texture_border[i][j]);
-			_texture_border[i][j] = nullptr;
+			_th->returnTexture(&_texture_border[i][j]);
 		}
 	}
 
@@ -491,9 +467,8 @@ Theme::PDecorData::unload(void)
 	_buttons.clear();
 }
 
-//! @brief Checks data properties, prints warning and tries to fix.
 void
-Theme::PDecorData::check(void)
+Theme::PDecorData::check()
 {
 	// check values
 	if (_title_width_max > 100) {
@@ -650,7 +625,6 @@ Theme::PDecorData::checkColors(void)
 
 // Theme::PMenuData
 
-//! @brief PMenuData constructor
 Theme::PMenuData::PMenuData(FontHandler* fh, TextureHandler* th,
 			    int version)
 	: _fh(fh),
@@ -658,20 +632,15 @@ Theme::PMenuData::PMenuData(FontHandler* fh, TextureHandler* th,
 	  _version(version),
 	  _loaded(false)
 {
-	for (uint i = 0; i <= OBJECT_STATE_NO; ++i) {
-		_font[i] = 0;
-		_color[i] = 0;
-		_tex_menu[i] = 0;
-		_tex_item[i] = 0;
-		_tex_arrow[i] = 0;
-	}
-	for (uint i = 0; i < OBJECT_STATE_NO; ++i) {
-		_tex_sep[i] = 0;
-	}
+	memset(_font, 0, sizeof(_font));
+	memset(_color, 0, sizeof(_color));
+	memset(_tex_menu, 0, sizeof(_tex_menu));
+	memset(_tex_item, 0, sizeof(_tex_item));
+	memset(_tex_arrow, 0, sizeof(_tex_arrow));
+	memset(_tex_sep, 0, sizeof(_tex_sep));
 	memset(_pad, 0, sizeof(_pad));
 }
 
-//! @brief PMenuData destructor
 Theme::PMenuData::~PMenuData(void)
 {
 	unload();
@@ -694,7 +663,7 @@ Theme::PMenuData::load(CfgParser::Entry *section)
 	keys.add_string("PAD", value_pad, "0 0 0 0", 7);
 	keys.add_bool("PADADAPT", pad_adapt, pad_adapt);
 
-	parse_pad(value_pad, _pad);
+	parsePad(_th->getScale(), value_pad, _pad);
 
 	const char *states[] = {"FOCUSED", "UNFOCUSED", "SELECTED", nullptr};
 	for (int i = 0; states[i] != nullptr; i++) {
@@ -708,14 +677,14 @@ Theme::PMenuData::load(CfgParser::Entry *section)
 
 	if (pad_adapt) {
 		PFont* font = _font[OBJECT_STATE_FOCUSED];
-		calculate_pad_adapt(font->getHeight() + _pad[PAD_UP] + _pad[PAD_DOWN], font,
-				    _pad[PAD_UP], _pad[PAD_DOWN]);
+		calculatePadAdapt(
+			font->getHeight() + _pad[PAD_UP] + _pad[PAD_DOWN],
+			font, _pad[PAD_UP], _pad[PAD_DOWN]);
 	}
 
 	return true;
 }
 
-//! @brief Unloads data.
 void
 Theme::PMenuData::unload(void)
 {
@@ -725,31 +694,21 @@ Theme::PMenuData::unload(void)
 	_loaded = false;
 
 	for (uint i = 0; i <= OBJECT_STATE_NO; ++i) {
-		_fh->returnFont(_font[i]);
-		_font[i] = 0;
+		_fh->returnFont(&_font[i]);
+		_fh->returnColor(&_color[i]);
 
-		_fh->returnColor(_color[i]);
-		_color[i] = 0;
-
-		_th->returnTexture(_tex_menu[i]);
-		_tex_menu[i] = 0;
-
-		_th->returnTexture(_tex_item[i]);
-		_tex_item[i] = 0;
-
-		_th->returnTexture(_tex_arrow[i]);
-		_tex_arrow[i] = 0;
+		_th->returnTexture(&_tex_menu[i]);
+		_th->returnTexture(&_tex_item[i]);
+		_th->returnTexture(&_tex_arrow[i]);
 	}
 
 	for (uint i = 0; i < OBJECT_STATE_NO; ++i) {
-		_th->returnTexture(_tex_sep[i]);
-		_tex_sep[i] = 0;
+		_th->returnTexture(&_tex_sep[i]);
 	}
 }
 
-//! @brief Check data properties, prints warning and tries to fix.
 void
-Theme::PMenuData::check(void)
+Theme::PMenuData::check()
 {
 	for (uint i = 0; i <= OBJECT_STATE_NO; ++i) {
 		if (! _font[i]) {
@@ -811,7 +770,6 @@ Theme::PMenuData::loadState(CfgParser::Entry *section, ObjectState state)
 
 // Theme::TextDialogData
 
-//! @brief TextDialogData constructor.
 Theme::TextDialogData::TextDialogData(FontHandler* fh, TextureHandler* th,
 				      int version)
 	: _fh(fh),
@@ -825,7 +783,6 @@ Theme::TextDialogData::TextDialogData(FontHandler* fh, TextureHandler* th,
 	memset(_pad, 0, sizeof(_pad));
 }
 
-//! @brief TextDialogData destructor.
 Theme::TextDialogData::~TextDialogData(void)
 {
 	unload();
@@ -860,19 +817,19 @@ Theme::TextDialogData::load(CfgParser::Entry *section)
 	_color = _fh->getColor(value_text);
 	_tex = _th->getTexture(value_texture);
 
-	parse_pad(value_pad, _pad);
+	parsePad(_th->getScale(), value_pad, _pad);
 
 	check();
 
 	if (pad_adapt) {
-		calculate_pad_adapt(_font->getHeight() + _pad[PAD_UP] + _pad[PAD_DOWN], _font,
-				    _pad[PAD_UP], _pad[PAD_DOWN]);
+		calculatePadAdapt(
+			_font->getHeight() + _pad[PAD_UP] + _pad[PAD_DOWN],
+			_font, _pad[PAD_UP], _pad[PAD_DOWN]);
 	}
 
 	return true;
 }
 
-//! @brief Unloads data.
 void
 Theme::TextDialogData::unload(void)
 {
@@ -881,13 +838,9 @@ Theme::TextDialogData::unload(void)
 	}
 	_loaded = false;
 
-	_fh->returnFont(_font);
-	_fh->returnColor(_color);
-	_th->returnTexture(_tex);
-
-	_font = 0;
-	_tex = 0;
-	_color = 0;
+	_fh->returnFont(&_font);
+	_fh->returnColor(&_color);
+	_th->returnTexture(&_tex);
 }
 
 //! @brief Check data properties, prints warning and tries to fix.
@@ -918,11 +871,11 @@ Theme::WorkspaceIndicatorData::WorkspaceIndicatorData(FontHandler* fh,
 	: _fh(fh),
 	  _th(th),
 	  _loaded(false),
-	  font(0),
-	  font_color(0),
-	  texture_background(0),
-	  texture_workspace(0),
-	  texture_workspace_act(0),
+	  font(nullptr),
+	  font_color(nullptr),
+	  texture_background(nullptr),
+	  texture_workspace(nullptr),
+	  texture_workspace_act(nullptr),
 	  edge_padding(0),
 	  workspace_padding(0)
 {
@@ -948,7 +901,7 @@ Theme::WorkspaceIndicatorData::load(CfgParser::Entry *section)
 	}
 	_loaded = true;
 
-	CfgParserKeys keys;
+	ThemeUtil::CfgParserKeys keys(_th->getScale());
 
 	std::string value_font, value_color, value_tex_bg;
 	std::string value_tex_ws, value_tex_ws_act;
@@ -958,8 +911,8 @@ Theme::WorkspaceIndicatorData::load(CfgParser::Entry *section)
 	keys.add_string("BACKGROUND", value_tex_bg);
 	keys.add_string("WORKSPACE", value_tex_ws);
 	keys.add_string("WORKSPACEACTIVE", value_tex_ws_act);
-	keys.add_numeric<int>("EDGEPADDING", edge_padding, 5, 0);
-	keys.add_numeric<int>("WORKSPACEPADDING", workspace_padding, 2, 0);
+	keys.add_pixels("EDGEPADDING", edge_padding, 5);
+	keys.add_pixels("WORKSPACEPADDING", workspace_padding, 2);
 
 	section->parseKeyValues(keys.begin(), keys.end());
 	keys.clear();
@@ -986,17 +939,12 @@ Theme::WorkspaceIndicatorData::unload(void)
 	}
 	_loaded = false;
 
-	_fh->returnFont(font);
-	_fh->returnColor(font_color);
-	_th->returnTexture(texture_background);
-	_th->returnTexture(texture_workspace);
-	_th->returnTexture(texture_workspace_act);
+	_fh->returnFont(&font);
+	_fh->returnColor(&font_color);
+	_th->returnTexture(&texture_background);
+	_th->returnTexture(&texture_workspace);
+	_th->returnTexture(&texture_workspace_act);
 
-	font = 0;
-	font_color = 0;
-	texture_background = 0;
-	texture_workspace = 0;
-	texture_workspace_act = 0;
 	edge_padding = 0;
 	workspace_padding = 0;
 }
@@ -1038,6 +986,7 @@ Theme::DialogData::DialogData(FontHandler* fh, TextureHandler* th)
 	  _text_font(nullptr),
 	  _text_color(nullptr)
 {
+	memset(_button, 0, sizeof(_button));
 	clear();
 }
 
@@ -1072,7 +1021,7 @@ Theme::DialogData::load(CfgParser::Entry *section)
 	_text_color = _fh->getColor(val_text);
 	_title_font = _fh->getFont(val_tfont);
 	_title_color = _fh->getColor(val_ttext);
-	parse_pad(val_pad, _pad);
+	parsePad(_th->getScale(), val_pad, _pad);
 
 	CfgParser::Entry *button = section->findSection("BUTTON");
 	if (button != nullptr) {
@@ -1108,16 +1057,16 @@ Theme::DialogData::unload(void)
 	}
 	_loaded = false;
 
-	_fh->returnColor(_text_color);
-	_fh->returnFont(_text_font);
-	_fh->returnColor(_button_color);
-	_fh->returnFont(_title_font);
+	_fh->returnColor(&_text_color);
+	_fh->returnFont(&_text_font);
+	_fh->returnColor(&_button_color);
+	_fh->returnFont(&_title_font);
 	for (int i = 0; i < BUTTON_STATE_NO; i++) {
-		_th->returnTexture(_button[i]);
+		_th->returnTexture(&_button[i]);
 	}
-	_fh->returnColor(_button_color);
-	_fh->returnFont(_button_font);
-	_th->returnTexture(_background);
+	_fh->returnColor(&_button_color);
+	_fh->returnFont(&_button_font);
+	_th->returnTexture(&_background);
 
 	clear();
 }
@@ -1164,14 +1113,6 @@ Theme::DialogData::check(void)
 void
 Theme::DialogData::clear()
 {
-	_background = nullptr;
-	_button_font = nullptr;
-	_button_color = nullptr;
-	memset(_button, 0, sizeof(_button));
-	_title_font = nullptr;
-	_title_color = nullptr;
-	_text_font = nullptr;
-	_text_color = nullptr;
 	for (int i = 0; i < PAD_NO; i++) {
 		_pad[i] = 2;
 	}
@@ -1218,7 +1159,6 @@ Theme::HarbourData::load(CfgParser::Entry *section)
 	return true;
 }
 
-
 /**
  * Unload harbour data.
  */
@@ -1228,12 +1168,9 @@ Theme::HarbourData::unload(void)
 	if (! _loaded) {
 		return;
 	}
+	_th->returnTexture(&_texture);
 	_loaded = false;
-
-	_th->returnTexture(_texture);
-	_texture = 0;
 }
-
 
 /**
  * Check state of harbour data.
@@ -1252,10 +1189,12 @@ Theme::HarbourData::check(void)
 
 //! @brief Theme constructor
 Theme::Theme(FontHandler *fh, ImageHandler *ih, TextureHandler *th,
-	     const std::string& theme_file, const std::string &theme_variant)
+	     const std::string& theme_file, const std::string &theme_variant,
+	     bool is_owner)
 	: _fh(fh),
 	  _ih(ih),
 	  _th(th),
+	  _is_owner(is_owner),
 	  _version(0),
 	  _loaded(false),
 	  _dialog_data(fh, th),
@@ -1339,7 +1278,9 @@ Theme::load(const std::string &dir, const std::string &variant, bool force)
 		P_TRACE("Parsed theme: " << _theme_file);
 	}
 
-	X11::setString(X11::getRoot(), PEKWM_THEME, theme_file);
+	if (_is_owner) {
+		X11::setString(X11::getRoot(), PEKWM_THEME, theme_file);
+	}
 
 	// Setup quirks and requirements before parsing.
 	if (theme_ok) {

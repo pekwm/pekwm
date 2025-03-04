@@ -1,6 +1,6 @@
 //
 // PFontX11.hh for pekwm
-// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2023-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -13,25 +13,25 @@
 
 class PFontX11 : public PFontX {
 public:
-	PFontX11(void);
-	virtual ~PFontX11(void);
-
-	// virtual interface
-	virtual bool load(const PFont::Descr& descr);
-	virtual void unload(void);
+	PFontX11(float scale, PPixmapSurface &surface);
+	virtual ~PFontX11();
 
 	virtual uint getWidth(const std::string &text, uint max_chars = 0);
-	virtual bool useAscentDescent(void) const;
-
-	virtual void setColor(PFont::Color *color);
+	virtual bool useAscentDescent() const;
 
 private:
+	virtual bool doLoadFont(const std::string &spec);
+	virtual void doUnloadFont();
+
 	virtual void drawText(PSurface *dest, int x, int y,
 			      const std::string &text, uint chars, bool fg);
+	virtual void doDrawText(Drawable draw, int x, int y,
+				const std::string &text, int size, GC gc);
+	virtual int doGetWidth(const std::string &text, int size) const;
+	virtual int doGetHeight() const;
 
 private:
 	XFontStruct *_font;
-	GC _gc_fg, _gc_bg;
 };
 
 #endif // _PEKWM_PFONT_X11_HH_

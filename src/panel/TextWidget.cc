@@ -79,9 +79,9 @@ TextWidget::getRequiredSize(void) const
 }
 
 void
-TextWidget::render(Render &rend)
+TextWidget::render(Render &rend, PSurface *surface)
 {
-	PanelWidget::render(rend);
+	PanelWidget::render(rend, surface);
 
 	TextFormatter tf(_var_data, _wm_state);
 	PFont *font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
@@ -89,7 +89,7 @@ TextWidget::render(Render &rend)
 	if (_transform.is_match_ok()) {
 		_transform.ed_s(text);
 	}
-	renderText(rend, font, getX(), text, getWidth());
+	renderText(rend, surface, font, getX(), text, getWidth());
 }
 
 void

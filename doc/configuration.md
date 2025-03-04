@@ -330,6 +330,7 @@ all values should be placed inside quotes.
 | CurrHeadSelector               | string          | Controls how operations relative to the current head, such as placement, select the active head. Cursor selects the head the cursor is on, FocusedWindow considers the focused window if any and then fall backs to the cursor position. Affected operations include placement and position of CmdDialog, SearchDialog, StatusWindow and focus toggle list. |
 | FontDefaultX11                 | boolean         | If true, default font type is X11 else XMB if no font type is specified in font string.                                                                                   |
 | FontCharsetOverride            | string          | If set, overrides the charset of X11/XMB fonts with the specified string. Should be in format iso8859-1                                                                   |
+| Scale                          | float           | If set, UI elements will be scaled by the given factor. If the factor is 2.0, 3.0 etc the resulting pixels will be square and without any visible artifacts.              |
 
 >  NOTE: A Composite Manager needs to be running for opacity options to take effect.
 

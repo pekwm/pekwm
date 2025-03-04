@@ -9,6 +9,8 @@
 #ifndef _PEKWM_MEM_HH_
 #define _PEKWM_MEM_HH_
 
+#include "Compat.hh"
+
 extern "C" {
 #include <stddef.h>
 #include <string.h>
@@ -25,11 +27,20 @@ public:
 
 	~Destruct()
 	{
+		destruct();
+	}
+
+	void destruct()
+	{
+		if (_ptr == nullptr) {
+			return;
+		}
 		if (_array) {
 			delete[] _ptr;
 		} else {
 			delete _ptr;
 		}
+		_ptr = nullptr;
 	}
 
 	T *operator*() const { return _ptr; }

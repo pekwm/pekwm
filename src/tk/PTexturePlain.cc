@@ -384,7 +384,9 @@ PTextureImage::~PTextureImage(void)
 void
 PTextureImage::doRender(Render &rend, int x, int y, size_t width, size_t height)
 {
-	_image->draw(rend, x, y, width, height);
+	Geometry gm(0, 0, x + width, y + height);
+	RenderSurface surface(rend, gm);
+	_image->draw(rend, &surface, x, y, width, height);
 }
 
 Pixmap

@@ -1,6 +1,6 @@
 //
 // ImageHandler.cc for pekwm
-// Copyright (C) 2003-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -24,8 +24,10 @@ static Util::StringTo<ImageType> image_type_map[] =
 	 {"FIXED", IMAGE_TYPE_FIXED},
 	 {nullptr, IMAGE_TYPE_NO}};
 
-ImageRefEntry::ImageRefEntry(const std::string& u_name, PImage* data)
-	: _u_name(u_name),
+ImageRefEntry::ImageRefEntry(float scale, const std::string& u_name,
+			     PImage* data)
+	: _scale(scale),
+	  _u_name(u_name),
 	  _data(data),
 	  _ref(1)
 {
@@ -52,12 +54,14 @@ ImageRefEntry::decRef(void)
 	return _ref;
 }
 
-ImageHandler::ImageHandler(void)
+ImageHandler::ImageHandler(float scale)
+	: _default_type(IMAGE_TYPE_TILED),
+	  _scale(scale)
 {
 	clearColorMaps();
 }
 
-ImageHandler::~ImageHandler(void)
+ImageHandler::~ImageHandler()
 {
 	if (! _images.empty()) {
 		P_ERR("ImageHandler not empty on destruct, " << _images.size()
@@ -95,7 +99,7 @@ ImageHandler::getImage(const std::string &file, uint &ref,
 	}
 
 	std::string real_file(file);
-	ImageType image_type = IMAGE_TYPE_TILED;
+	ImageType image_type = _default_type;
 
 	// Split image in path # type parts.
 	size_t pos = file.rfind('#');
@@ -129,6 +133,9 @@ ImageHandler::getImage(const std::string &file, uint &ref,
 
 	// Image was found, set correct type.
 	if (image) {
+		if (_scale != 1.0 && image_type != IMAGE_TYPE_SCALED) {
+			image->scale(_scale, PImage::SCALE_SQUARE);
+		}
 		image->setType(image_type);
 	}
 
@@ -150,7 +157,7 @@ ImageHandler::getImageFromPath(const std::string &file,
 	// Check cache for entry.
 	std::vector<ImageRefEntry>::iterator it = images.begin();
 	for (; it != images.end(); ++it) {
-		if (it->getUName() == u_file) {
+		if (it->getScale() == _scale && it->getUName() == u_file) {
 			ref = it->incRef();
 			return it->get();
 		}
@@ -160,7 +167,7 @@ ImageHandler::getImageFromPath(const std::string &file,
 	PImage *image;
 	try {
 		image = new PImage(file);
-		images.push_back(ImageRefEntry(u_file, image));
+		images.push_back(ImageRefEntry(_scale, u_file, image));
 		ref = 1;
 	} catch (LoadException&) {
 		image = nullptr;
@@ -187,7 +194,7 @@ ImageHandler::takeOwnership(PImage *image)
 {
 	std::string key = Util::to_string(static_cast<void*>(image));
 	Util::to_upper(key);
-	_images.push_back(ImageRefEntry(key, image));
+	_images.push_back(ImageRefEntry(_scale, key, image));
 }
 
 PImage*

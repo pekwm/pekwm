@@ -1,6 +1,6 @@
 //
 // PFont.hh for pekwm
-// Copyright (C) 2003-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -130,10 +130,11 @@ public:
 		std::vector<DescrProp> _properties;
 	};
 
-	PFont(void);
-	virtual ~PFont(void);
+	PFont(float scale);
+	virtual ~PFont();
 
-	inline uint getJustify(void) const { return _justify; }
+	float getScale() const { return _scale; }
+	uint getJustify() const { return _justify; }
 
 	inline void setJustify(uint j) { _justify = j; }
 	inline void setOffset(uint x, uint y) { _offset_x = x; _offset_y = y; }
@@ -148,8 +149,7 @@ public:
 
 	static void setTrimString(const std::string &trim);
 
-	uint justify(const std::string &text, uint max_width,
-		     uint padding, uint chars);
+	uint justify(const std::string &text, int max_width, int padding);
 
 	// virtual interface
 	virtual bool load(const PFont::Descr &descr) = 0;
@@ -166,18 +166,23 @@ public:
 	virtual void setColor(PFont::Color* color) = 0;
 
 protected:
+	bool isScaled() const { return _scale != 1.0; }
 	virtual std::string toNativeDescr(const PFont::Descr &descr) const = 0;
+
+	float _scale;
+	uint _height;
+	uint _ascent;
+	uint _descent;
+	uint _offset_x;
+	uint _offset_y;
+	uint _justify;
+
+	static std::string _trim_string;
 
 private:
 	virtual void drawText(PSurface *dest, int x, int y,
 			      const std::string &text, uint chars,
 			      bool fg) = 0;
-
-protected:
-	uint _height, _ascent, _descent;
-	uint _offset_x, _offset_y, _justify;
-
-	static std::string _trim_string;
 };
 
 /**
@@ -185,7 +190,7 @@ protected:
  */
 class PFontEmpty : public PFont {
 public:
-	PFontEmpty(void) : PFont() { }
+	PFontEmpty() : PFont(1.0) { }
 	virtual ~PFontEmpty(void) { }
 
 	// virtual interface

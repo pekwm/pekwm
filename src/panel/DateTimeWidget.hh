@@ -39,15 +39,15 @@ public:
 		return font->getWidth(" " + stime + " ");
 	}
 
-	virtual void render(Render &rend)
+	virtual void render(Render &rend, PSurface *surface)
 	{
-		PanelWidget::render(rend);
+		PanelWidget::render(rend, surface);
 
 		std::string stime;
 		formatNow(stime);
 		stime.insert(stime.begin(), ' ');
 		PFont *font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
-		renderText(rend, font, getX(), stime, getWidth());
+		renderText(rend, surface, font, getX(), stime, getWidth());
 
 		// always treat date time as dirty, requires redraw up to
 		// every second.

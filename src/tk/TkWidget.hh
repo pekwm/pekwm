@@ -1,3 +1,11 @@
+//
+// TkWidget.hh for pekwm
+// Copyright (C) 2023-2025 Claes Nästén <pekdon@gmail.com>
+//
+// This program is licensed under the GNU GPL.
+// See the LICENSE file for more information.
+//
+
 #ifndef _PEKWM_TK_WIDGET_HH_
 #define _PEKWM_TK_WIDGET_HH_
 
@@ -14,17 +22,17 @@ typedef void(*stop_fun)(int);
 
 class TkWidget {
 public:
-	virtual ~TkWidget(void)
+	virtual ~TkWidget()
 	{
 		if (_window != None) {
 			X11::destroyWindow(_window);
 		}
 	}
 
-	int getX(void) const { return _gm.x; }
-	int getY(void) const { return _gm.y; }
+	int getX() const { return _gm.x; }
+	int getY() const { return _gm.y; }
 	uint getHeight(void) const { return _gm.height; }
-	void setHeight(uint height) { _gm.height = height; }
+	virtual void setHeight(uint height) { _gm.height = height; }
 
 	virtual bool setState(Window, ButtonState) {
 		return false;
@@ -37,12 +45,13 @@ public:
 		_gm.x = x;
 		_gm.y = y;
 		_gm.width = width;
+		_gm.height = heightReq(width);
 	}
 
 	/**
 	 * Get requested width, 0 means adapt to given width.
 	 */
-	virtual uint widthReq(void) const { return 0; }
+	virtual uint widthReq() const { return 0; }
 
 	/**
 	 * Get requested height, given the provided width.

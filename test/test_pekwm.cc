@@ -26,7 +26,9 @@
 #include "test_PFontPango.hh"
 #endif // PEKWM_HAVE_PANGO
 #include "test_PFontXmb.hh"
+#include "test_PImage.hh"
 #include "test_PMenu.hh"
+#include "test_PSurface.hh"
 #include "test_Theme.hh"
 #include "test_WindowManager.hh"
 #include "test_Workspaces.hh"
@@ -75,6 +77,7 @@ main_tests(int argc, char *argv[])
 
 	// PMenu
 	TestPMenu testPMenu;
+	TestPSurface testPSurface;
 
 	// Theme
 	TestTheme testTheme;

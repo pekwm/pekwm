@@ -20,14 +20,14 @@ extern "C" {
 const int PNG_SIG_BYTES = 8;
 
 static void
-convertRgbaToArgb(uchar* data, size_t width, size_t height, bool& use_alpha)
+convertRgbaToArgb(uchar* data, uint width, uint height, bool& use_alpha)
 {
 	// alpha channel, no need to add alpha channel, check if an
 	// any alpha is < 100%
 	int pos = 0;
 	uchar alpha;
-	for (size_t y = 0; y < height; ++y) {
-		for (size_t x = 0; x < width; ++x) {
+	for (uint y = 0; y < height; ++y) {
+		for (uint x = 0; x < width; ++x) {
 			alpha = data[pos + 3];
 			data[pos + 3] = data[pos + 2];
 			data[pos + 2] = data[pos + 1];
@@ -42,12 +42,12 @@ convertRgbaToArgb(uchar* data, size_t width, size_t height, bool& use_alpha)
 }
 
 static uchar*
-convertRgbToArgb(const uchar* data_rgb, size_t width, size_t height)
+convertRgbToArgb(const uchar* data_rgb, uint width, uint height)
 {
 	uchar *data_argb = new uchar[width * height * 4];
 	int src = 0, dst = 0;
-	for (size_t y = 0; y < height; ++y) {
-		for (size_t x = 0; x < width; ++x) {
+	for (uint y = 0; y < height; ++y) {
+		for (uint x = 0; x < width; ++x) {
 			data_argb[dst++] = 0xff; // A
 			data_argb[dst++] = data_rgb[src++]; // R
 			data_argb[dst++] = data_rgb[src++]; // G
@@ -58,12 +58,12 @@ convertRgbToArgb(const uchar* data_rgb, size_t width, size_t height)
 }
 
 static uchar*
-convertArgbToRgb(const uchar* data_argb, size_t width, size_t height)
+convertArgbToRgb(const uchar* data_argb, uint width, uint height)
 {
 	uchar *data_rgb = new uchar[width * height * 4];
 	int src = 0, dst = 0;
-	for (size_t y = 0; y < height; ++y) {
-		for (size_t x = 0; x < width; ++x) {
+	for (uint y = 0; y < height; ++y) {
+		for (uint x = 0; x < width; ++x) {
 			src++; // A
 			data_rgb[dst++] = data_argb[src++]; // R
 			data_rgb[dst++] = data_argb[src++]; // G
@@ -111,7 +111,7 @@ namespace PImageLoaderPng
 	 * @return Pointer to data on success, else 0.
 	 */
 	uchar*
-	load(const std::string &file, size_t &width, size_t &height,
+	load(const std::string &file, uint &width, uint &height,
 	     bool &use_alpha)
 	{
 		FILE *fp = fopen(file.c_str(), "rb");
@@ -192,7 +192,7 @@ namespace PImageLoaderPng
 		png_uint_32 rowbytes = png_get_rowbytes(png_ptr, info_ptr);
 		png_byte channels = png_get_channels(png_ptr, info_ptr);
 
-		size_t data_size = rowbytes * height;
+		uint data_size = rowbytes * height;
 		uchar* data = new uchar[data_size];
 		png_bytepp row_pointers = new png_bytep[height];
 
@@ -225,7 +225,7 @@ namespace PImageLoaderPng
 	}
 
 	bool
-	save(const std::string& file, uchar *data, size_t width, size_t height)
+	save(const std::string& file, uchar *data, uint width, uint height)
 	{
 		png_structp png_ptr =
 			png_create_write_struct(PNG_LIBPNG_VER_STRING,
@@ -267,7 +267,7 @@ namespace PImageLoaderPng
 		uchar *rgb_data = convertArgbToRgb(data, width, height);
 		png_write_info(png_ptr, info_ptr);
 		png_bytep row = rgb_data;
-		for (size_t y = 0; y < height; y++) {
+		for (uint y = 0; y < height; y++) {
 			png_write_row(png_ptr, row);
 			row += width * 3;
 		}

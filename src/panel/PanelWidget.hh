@@ -62,10 +62,11 @@ public:
 	}
 
 	const SizeReq& getSizeReq(void) const { return _size_req; }
+	virtual void scaleChanged() { };
 	virtual uint getRequiredSize(void) const { return 0; }
 
 	virtual void click(int button, int x, int y);
-	virtual void render(Render& render)
+	virtual void render(Render& render, PSurface*)
 	{
 		render.clear(_x, 0, _width, _theme.getHeight());
 		_dirty = false;
@@ -83,7 +84,7 @@ public:
 	virtual bool handleXEvent(XEvent* ev) { return false; }
 
 protected:
-	int renderText(Render &rend, PFont *font,
+	int renderText(Render &rend, PSurface *surface, PFont *font,
 		       int x, const std::string& text, uint max_width);
 
 	void runAction(const PanelAction &action);

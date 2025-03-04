@@ -25,9 +25,9 @@ BarWidget::~BarWidget(void)
 }
 
 void
-BarWidget::render(Render &rend)
+BarWidget::render(Render &rend, PSurface *surface)
 {
-	PanelWidget::render(rend);
+	PanelWidget::render(rend, surface);
 
 	int width = getWidth() - 3;
 	int height = _theme.getHeight() - 4;
@@ -41,7 +41,7 @@ BarWidget::render(Render &rend)
 
 	if (! _text.empty()) {
 		PFont *font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
-		renderText(rend, font, getX() + 2, _text, width - 1);
+		renderText(rend, surface, font, getX() + 2, _text, width - 1);
 	}
 }
 

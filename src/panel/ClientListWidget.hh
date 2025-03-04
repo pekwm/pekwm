@@ -63,7 +63,7 @@ public:
 
 	virtual void notify(Observable*, Observation*);
 	virtual void click(int button, int x, int);
-	virtual void render(Render &rend);
+	virtual void render(Render &rend, PSurface* surface);
 
 private:
 	Window findClientAt(int x);

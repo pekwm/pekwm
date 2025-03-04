@@ -14,7 +14,7 @@
 class MockPFontPango : public PFontPango {
 public:
 	MockPFontPango(const PFont::Descr& descr)
-		: PFontPango(),
+		: PFontPango(1.0),
 		  _native(PFontPango::toNativeDescr(descr))
 	{
 	}

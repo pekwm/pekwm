@@ -36,19 +36,20 @@ public:
 		return _image->getHeight();
 	}
 
-	virtual void render(Render &rend, PSurface&)
+	virtual void render(Render &rend, PSurface &surface)
 	{
 		if (_image->getWidth() > _gm.width) {
 			float aspect = float(_image->getWidth())
 					     / _image->getHeight();
-			_image->draw(rend, _gm.x, _gm.y, _gm.width,
+			_image->draw(rend, &surface, _gm.x, _gm.y,
+				     _gm.width,
 				     static_cast<uint>(_gm.width / aspect));
 		} else {
 			// render image centered on available width
 			uint x = (_gm.width - _image->getWidth()) / 2;
-			_image->draw(rend,
-				     x, _gm.y,
-				     _image->getWidth(), _image->getHeight());
+			_image->draw(rend, &surface, x, _gm.y,
+				     _image->getWidth(),
+				     _image->getHeight());
 		}
 	}
 

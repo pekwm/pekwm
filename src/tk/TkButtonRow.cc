@@ -21,11 +21,20 @@ TkButtonRow::TkButtonRow(Theme::DialogData* data, PWinObj& parent,
 	}
 }
 
-TkButtonRow::~TkButtonRow(void)
+TkButtonRow::~TkButtonRow()
 {
 	std::vector<TkButton*>::iterator it = _buttons.begin();
 	for (; it != _buttons.end(); ++it) {
 		delete *it;
+	}
+}
+
+void
+TkButtonRow::setHeight(uint height)
+{
+	std::vector<TkButton*>::iterator it = _buttons.begin();
+	for (; it != _buttons.end(); ++it) {
+		(*it)->setHeight(height - _data->padVert());
 	}
 }
 

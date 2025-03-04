@@ -11,15 +11,15 @@
 
 #ifdef PEKWM_HAVE_XFT
 
-PFontXft::PFontXft(void)
-	: PFont(),
+PFontXft::PFontXft(float scale)
+	: PFont(scale),
 	  _draw(XftDrawCreate(X11::getDpy(), X11::getRoot(),
 			      X11::getVisual(), X11::getColormap())),
 	  _font(0)
 {
 }
 
-PFontXft::~PFontXft(void)
+PFontXft::~PFontXft()
 {
 	PFontXft::unload();
 	XftDrawDestroy(_draw);
@@ -129,7 +129,7 @@ PFontXft::drawText(PSurface *dest, int x, int y,
 		}
 
 		XftDrawChange(_draw, dest->getDrawable());
-		XftDrawStringUtf8(_draw, *color, _font, x, y,
+		XftDrawStringUtf8(_draw, *color, _font, x, y + _ascent,
 				  reinterpret_cast<const XftChar8*>(
 					  sub_text.c_str()),
 				  sub_text.size());

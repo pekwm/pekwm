@@ -1,6 +1,6 @@
 //
 // ImageHandler.hh for pekwm
-// Copyright (C) 2003-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2003-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -24,19 +24,22 @@ class PImage;
  */
 class ImageRefEntry {
 public:
-	ImageRefEntry(const std::string& u_name, PImage* data = nullptr);
+	ImageRefEntry(float scale, const std::string& u_name,
+		      PImage* data = nullptr);
 	~ImageRefEntry(void);
 
-	PImage* get(void) { return _data; }
+	PImage* get() { return _data; }
 	void set(PImage* data) { _data = data; }
 
-	const std::string& getUName(void) { return _u_name; }
+	float getScale() const { return _scale; }
+	const std::string& getUName() const { return _u_name; }
 
 	uint getRef(void) const { return _ref; }
 	uint incRef(void);
 	uint decRef(void);
 
 private:
+	float _scale;
 	std::string _u_name;
 	PImage* _data;
 	uint _ref;
@@ -47,8 +50,11 @@ private:
  */
 class ImageHandler {
 public:
-	ImageHandler(void);
-	~ImageHandler(void);
+	ImageHandler(float scale);
+	~ImageHandler();
+
+	void setDefaultType(ImageType type) { _default_type = type; }
+	void setScale(float scale) { _scale = scale; }
 
 	/** Add path entry to the search path. */
 	void path_push_back(const std::string &path) {
@@ -89,6 +95,10 @@ private:
 	static void returnImage(PImage *image,
 				std::vector<ImageRefEntry> &images);
 private:
+	/** Default image type if none is specified */
+	ImageType _default_type;
+	/** != 1.0, images are scaled after loading by the given factor. */
+	float _scale;
 
 	/** List of directories to search. */
 	std::vector<std::string> _search_path;

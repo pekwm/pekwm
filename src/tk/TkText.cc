@@ -12,13 +12,12 @@
 TkText::TkText(Theme::DialogData* data, PWinObj& parent,
 	   const std::string& text, bool is_title)
 	: TkWidget(data, parent),
-	  _font(is_title ? data->getTitleFont() : data->getTextFont()),
 	  _text(text),
 	  _is_title(is_title)
 {
 }
 
-TkText::~TkText(void)
+TkText::~TkText()
 {
 }
 
@@ -40,7 +39,7 @@ TkText::widthReq(void) const
 		return 0;
 	}
 
-	return _font->getWidth(_text) + _data->padHorz();
+	return font()->getWidth(_text) + _data->padHorz();
 }
 
 uint
@@ -48,7 +47,7 @@ TkText::heightReq(uint width) const
 {
 	std::vector<std::string> lines;
 	uint num_lines = getLines(width, lines);
-	uint height = _font->getHeight() * num_lines + _data->padVert();
+	uint height = font()->getHeight() * num_lines + _data->padVert();
 	if (_is_title) {
 		height += _data->padVert();
 	}
@@ -62,8 +61,7 @@ TkText::render(Render &rend, PSurface &surface)
 		getLines(_gm.width, _lines);
 	}
 
-	_font->setColor(_is_title ? _data->getTitleColor()
-				  : _data->getTextColor());
+	font()->setColor(fontColor());
 
 	uint y = _gm.y;
 	if (_is_title) {
@@ -73,9 +71,9 @@ TkText::render(Render &rend, PSurface &surface)
 	}
 	std::vector<std::string>::iterator line = _lines.begin();
 	for (; line != _lines.end(); ++line) {
-		_font->draw(&surface,
-			    _gm.x + _data->getPad(PAD_LEFT), y, *line);
-		y += _font->getHeight();
+		font()->draw(&surface,
+			     _gm.x + _data->getPad(PAD_LEFT), y, *line);
+		y += font()->getHeight();
 	}
 }
 
@@ -94,7 +92,7 @@ TkText::getLines(uint width, std::vector<std::string> &lines) const
 		}
 
 		line += *tok;
-		uint l_width = _font->getWidth(line);
+		uint l_width = font()->getWidth(line);
 		if (l_width > width) {
 			if (line == *tok) {
 				// single token, full line, keep as is.

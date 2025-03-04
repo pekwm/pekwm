@@ -30,13 +30,14 @@ public:
 
 	virtual void notify(Observable *, Observation *observation);
 	virtual uint getRequiredSize(void) const;
-	virtual void render(Render& rend);
+	virtual void scaleChanged();
+	virtual void render(Render& rend, PSurface* surface);
 
 private:
-	void renderFixed(Render& rend);
-	void renderScaled(Render& rend);
+	void renderFixed(Render& rend, PSurface* surface);
+	void renderScaled(Render& rend, PSurface* surface);
 
-	void load(void);
+	void load();
 	bool loadImage(const std::string& icon_name);
 	void parseIcon(const CfgParser::Entry* section);
 	void scaleImage(uint width, uint height);
@@ -54,6 +55,9 @@ private:
 
 	/** current loaded icon, matching _icon_name. */
 	PImage* _icon;
+	/** scale at which icon was loaded in, used to invalidate in case scale
+	 * changes. */
+	float _icon_scale;
 	/** current loaded icon name. */
 	std::string _icon_name;
 	/** loaded icon, scaled to fit panel theme size. */

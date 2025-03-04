@@ -37,6 +37,9 @@ New
   automatically reload whenever the property changes.
 * pekwm_audio_ctrl.sh script for controlling playback/volume with default
   keybindings for XF86Audio* keys.
+* New Screen option `Scale`, affects how themes and other dimensions given in
+  the configuration is processed. Default is 1.0, treated as is, for high
+  resolution displays set to 2.0 for 2x scaled images, padding etc.
 
 Updated
 -------

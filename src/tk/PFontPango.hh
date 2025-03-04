@@ -23,7 +23,7 @@ extern "C" {
 
 class PFontPango : public PFont {
 public:
-	PFontPango();
+	PFontPango(float scale);
 	virtual ~PFontPango();
 
 	// virtual interface
@@ -38,6 +38,11 @@ protected:
 	virtual std::string toNativeDescr(const PFont::Descr &descr) const;
 	int charsToLen(uint chars);
 
+	PangoContext* _context;
+	PangoFontMap* _font_map;
+	PangoFont* _font;
+	PangoFontDescription* _font_description;
+
 private:
 	void toNativeDescrAddStyle(const PFont::Descr& descr,
 				   std::ostringstream& native) const;
@@ -49,12 +54,6 @@ private:
 	virtual void drawText(PSurface* dest, int x, int y,
 			      const std::string& text, uint chars,
 			      bool fg) = 0;
-
-protected:
-	PangoContext* _context;
-	PangoFontMap* _font_map;
-	PangoFont* _font;
-	PangoFontDescription* _font_description;
 };
 
 #endif // PEKWM_HAVE_PANGO

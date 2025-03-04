@@ -68,9 +68,9 @@ ClientListWidget::click(int button, int x, int)
 }
 
 void
-ClientListWidget::render(Render &rend)
+ClientListWidget::render(Render &rend, PSurface* surface)
 {
-	PanelWidget::render(rend);
+	PanelWidget::render(rend, surface);
 
 	uint height = _theme.getHeight() - 2;
 	std::vector<Entry>::iterator it = _entries.begin();
@@ -87,7 +87,7 @@ ClientListWidget::render(Render &rend)
 		}
 
 		PFont *font = _theme.getFont(it->getState());
-		int icon_x = renderText(rend, font, x,
+		int icon_x = renderText(rend, surface, font, x,
 					it->getName(), entry_width);
 		icon_x -= icon_width;
 
@@ -96,7 +96,7 @@ ClientListWidget::render(Render &rend)
 				icon->scale(height, height);
 			}
 			int icon_y = (height - icon->getHeight()) / 2;
-			icon->draw(rend, icon_x, icon_y);
+			icon->draw(rend, surface, icon_x, icon_y);
 		}
 	}
 }

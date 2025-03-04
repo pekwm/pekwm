@@ -75,8 +75,6 @@ WmState::handlePropertyNotify(XPropertyEvent *ev)
 			}
 		} else if (ev->atom == X11::getAtom(XROOTPMAP_ID)) {
 			observation = &_xrootpmap_id_changed;
-		} else if (ev->atom == X11::getAtom(PEKWM_THEME)) {
-			observation = &_pekwm_theme_changed;
 		} else {
 			updated = readRootProperty(ev->atom);
 		}

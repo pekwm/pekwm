@@ -1,6 +1,6 @@
 //
 // X11App.cc for pekwm
-// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2021-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -98,6 +98,13 @@ X11App::X11App(Geometry gm, int gm_mask, const std::string &title,
 	// setting of the WM properties ensure that the
 	// WM_CLIENT_MACHINE is set which is a requirement for NET_WM_PID
 	X11::setCardinal(_window, NET_WM_PID, static_cast<long>(getpid()));
+
+	_theme_atoms.insert(X11::getAtom(PEKWM_THEME));
+	_theme_atoms.insert(X11::getAtom(PEKWM_THEME_VARIANT));
+	_theme_atoms.insert(X11::getAtom(PEKWM_THEME_SCALE));
+	// select root window for atom changes to be able to react on
+	// theme changes.
+	X11::selectInput(X11::getRoot(), PropertyChangeMask);
 }
 
 X11App::~X11App(void)
@@ -328,12 +335,16 @@ X11App::waitForData(int timeout_s)
 }
 
 void
-X11App::processEvent(void)
+X11App::processEvent()
 {
 	static ScreenChangeNotification scn;
-
 	XEvent ev;
 	if (X11::getNextEvent(ev)) {
+		if (ev.type == PropertyNotify
+		    && _theme_atoms.count(ev.xproperty.atom)) {
+			themeChanged();
+		}
+
 		if (X11::getScreenChangeNotification(&ev, scn)) {
 			if (X11::updateGeometry(scn.width, scn.height)) {
 				screenChanged(scn);
@@ -342,4 +353,31 @@ X11App::processEvent(void)
 			handleEvent(&ev);
 		}
 	}
+}
+
+void
+X11App::themeChanged()
+{
+	std::string theme, variant, scale_str;
+	X11::getString(X11::getRoot(), PEKWM_THEME, theme);
+	X11::getString(X11::getRoot(), PEKWM_THEME_VARIANT, variant);
+	X11::getString(X11::getRoot(), PEKWM_THEME_SCALE, scale_str);
+
+	// strip theme-variant from name, Theme::load takes the directory
+	// as argument.
+	theme = Util::getDir(theme);
+
+	float scale;
+	try {
+		scale = std::stof(scale_str);
+	} catch (std::invalid_argument&) {
+		scale = 1.0;
+	}
+	if (scale < 0.1) {
+		scale = 1.0;
+	}
+
+	P_DBG("theme changed to: " << theme << " variant: " << variant
+	      << " scale: " << scale);
+	themeChanged(theme, variant, scale);
 }

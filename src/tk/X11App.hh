@@ -13,6 +13,8 @@
 #include "PWinObj.hh"
 #include "X11.hh"
 
+#include <set>
+
 /**
  * Base for X11 applications
  */
@@ -43,16 +45,18 @@ protected:
 	virtual void swapBuffer(void);
 	virtual void handleChildDone(pid_t, int);
 
-	virtual void screenChanged(const ScreenChangeNotification &scn);
-
 private:
+	virtual void screenChanged(const ScreenChangeNotification &scn);
+	virtual void themeChanged(const std::string& name,
+				  const std::string& variant, float scale) = 0;
+
+	void themeChanged();
 	void initSignalHandler(void);
 	void handleSignal(void);
 	bool waitForData(int timeout_s);
 
 	void processEvent(void);
 
-private:
 	std::string _wm_name;
 	std::string _wm_class;
 	XdbeBackBuffer _buffer;
@@ -61,6 +65,7 @@ private:
 	int _stop;
 	int _dpy_fd;
 	OsSelect *_select;
+	std::set<Atom> _theme_atoms;
 };
 
 #endif // _PEKWM_X11APP_HH_

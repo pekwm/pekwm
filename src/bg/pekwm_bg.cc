@@ -7,9 +7,11 @@
 //
 
 #include "Compat.hh"
+#include "CfgParser.hh"
 #include "Util.hh"
 #include "X11.hh"
 
+#include "../tk/CfgUtil.hh"
 #include "../tk/ImageHandler.hh"
 #include "../tk/TextureHandler.hh"
 #include "TextureLinesAngle.hh"
@@ -22,11 +24,17 @@ extern "C" {
 }
 
 static bool _stop = false;
+static std::string _config_script_path;
 static ImageHandler* _image_handler = nullptr;
 static TextureHandler* _texture_handler = nullptr;
 
 namespace pekwm
 {
+	const std::string& configScriptPath()
+	{
+		return _config_script_path;
+	}
+
 	ImageHandler* imageHandler()
 	{
 		return _image_handler;
@@ -45,10 +53,10 @@ static void sighandler(int signal)
 	}
 }
 
-static void init(Display* dpy)
+static void init(Display* dpy, float scale)
 {
-	_image_handler = new ImageHandler();
-	_texture_handler = new TextureHandler();
+	_image_handler = new ImageHandler(scale);
+	_texture_handler = new TextureHandler(scale);
 	_texture_handler->registerTexture("LINESANGLE", parseLinesAngle);
 }
 
@@ -60,15 +68,17 @@ static void cleanup()
 
 static void usage(const char* name, int ret)
 {
-	std::cout << "usage: " << name << " [-hl] texture" << std::endl;
-	std::cout << "  -d --display dpy    Display" << std::endl;
-	std::cout << "  -D --daemon         Run in the background"
+	std::cout << "usage: " << name << " [-CdDhls] texture" << std::endl;
+	std::cout << "  -C --pekwm-config path (pekwm) Configuration file"
 		  << std::endl;
-	std::cout << "  -h --help           Display this information"
+	std::cout << "  -d --display dpy       Display" << std::endl;
+	std::cout << "  -D --daemon            Run in the background"
 		  << std::endl;
-	std::cout << "  -l --load-dir path  Search path for images"
+	std::cout << "  -h --help              Display this information"
 		  << std::endl;
-	std::cout << "  -s --stop           Stop running pekwm_bg"
+	std::cout << "  -l --load-dir path     Search path for images"
+		  << std::endl;
+	std::cout << "  -s --stop              Stop running pekwm_bg"
 		  << std::endl;
 	exit(ret);
 }
@@ -102,7 +112,7 @@ static Pixmap loadAndSetBackground(const std::string& tex_str)
 
 	std::cout << "Setting background " << tex_str << std::endl;
 	Pixmap pix = setBackground(tex);
-	pekwm::textureHandler()->returnTexture(tex);
+	pekwm::textureHandler()->returnTexture(&tex);
 	return pix;
 }
 
@@ -153,11 +163,14 @@ int main(int argc, char* argv[])
 	pledge_x11_required("");
 
 	const char* display = NULL;
+	std::string pekwm_config_file = Util::getConfigDir() + "/config";
 	bool do_daemon = false;
 	bool stop = false;
 	std::string load_dir("./");
 
 	static struct option opts[] = {
+		{const_cast<char*>("pekwm-config"), required_argument, nullptr,
+		 'C'},
 		{const_cast<char*>("display"), required_argument, nullptr,
 		 'd'},
 		{const_cast<char*>("daemon"), no_argument, nullptr, 'D'},
@@ -169,8 +182,13 @@ int main(int argc, char* argv[])
 	};
 
 	int ch;
-	while ((ch = getopt_long(argc, argv, "d:Dhl:s", opts, nullptr)) != -1) {
+	while ((ch = getopt_long(argc, argv, "C:d:Dhl:s", opts, nullptr))
+	       != -1) {
 		switch (ch) {
+		case 'C':
+			pekwm_config_file = optarg;
+			Util::expandFileName(pekwm_config_file);
+			break;
 		case 'd':
 			display = optarg;
 			break;
@@ -210,25 +228,25 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
-	Display *dpy = XOpenDisplay(display);
-	if (! dpy) {
-		std::string actual_display =
-			display ? display : Util::getEnv("DISPLAY");
-		std::cerr << "Can not open display!" << std::endl
-			  << "Your DISPLAY variable currently is set to: "
-			  << actual_display << std::endl;
+	if (! X11::init(display, std::cerr, true)) {
 		return 1;
 	}
 
 	// setup signal handler after connecting to the display
 	signal(SIGINT, &sighandler);
 
-	X11::init(dpy, true);
-
 	// X11 connection has been setup, limit access further
 	pledge_x("stdio rpath proc", "");
 
-	init(dpy);
+	float scale;
+	{
+		CfgParser pekwm_cfg(CfgParserOpt(""));
+		pekwm_cfg.parse(pekwm_config_file,
+				CfgParserSource::SOURCE_FILE, true);
+		CfgUtil::getScreenScale(pekwm_cfg.getEntryRoot(), scale);
+	}
+
+	init(X11::getDpy(), scale);
 
 	_image_handler->path_push_back(load_dir);
 

@@ -35,8 +35,8 @@ public:
 		double a;
 	};
 
-	PFontPangoCairo(void);
-	virtual ~PFontPangoCairo(void);
+	PFontPangoCairo(float scale);
+	virtual ~PFontPangoCairo();
 
 	virtual uint getWidth(const std::string& text, uint chars = 0);
 	virtual void setColor(PFont::Color* color);

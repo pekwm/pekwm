@@ -161,6 +161,7 @@ Config::Config() :
 	_moveresize_edgeattract(0), _moveresize_edgeresist(0),
 	_moveresize_woattract(0), _moveresize_woresist(0),
 	_moveresize_opaquemove(0), _moveresize_opaqueresize(0),
+	_screen_scale(1.0),
 	_screen_theme_background(true),
 	_screen_workspaces(4),
 	_screen_workspaces_per_row(0),
@@ -431,6 +432,7 @@ Config::loadScreen(CfgParser::Entry *section)
 	std::string edge_size, workspace_names, trim_title, curr_head_selector;
 
 	CfgParserKeys keys;
+	keys.add_numeric<float>("SCALE", _screen_scale, 1.0);
 	keys.add_bool("THEMEBACKGROUND", _screen_theme_background, true);
 	keys.add_numeric<uint>("WORKSPACES", _screen_workspaces, 4, 1);
 	keys.add_numeric<uint>("WORKSPACESPERROW", _screen_workspaces_per_row,

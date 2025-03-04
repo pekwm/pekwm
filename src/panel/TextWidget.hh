@@ -32,7 +32,7 @@ public:
 
 	virtual void notify(Observable *, Observation *observation);
 	virtual uint getRequiredSize(void) const;
-	virtual void render(Render &rend);
+	virtual void render(Render &rend, PSurface* surface);
 
 private:
 	void parseText(const CfgParser::Entry* section);

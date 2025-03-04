@@ -22,8 +22,8 @@ extern "C" {
 
 class PFontPangoXft : public PFontPango {
 public:
-	PFontPangoXft(void);
-	virtual ~PFontPangoXft(void);
+	PFontPangoXft(float scale);
+	virtual ~PFontPangoXft();
 
 	// virtual interface
 	virtual uint getWidth(const std::string& text, uint chars = 0);

@@ -64,12 +64,13 @@ private:
  */
 class PekwmDialog : public X11App {
 public:
-	PekwmDialog(Theme::DialogData* data,
+	PekwmDialog(const std::string &theme_dir,
+		    const std::string &theme_variant,
 		    const Geometry &gm, int gm_mask, int decorations,
 		    bool raise, const PekwmDialogConfig& config);
-	virtual ~PekwmDialog(void);
+	virtual ~PekwmDialog();
 
-	static PekwmDialog *instance(void) { return _instance; }
+	static PekwmDialog *instance() { return _instance; }
 
 	virtual void handleEvent(XEvent *ev);
 	virtual void resize(uint width, uint height);
@@ -83,9 +84,12 @@ protected:
 	void placeWidgets(void);
 
 private:
+	virtual void themeChanged(const std::string& name,
+				  const std::string& variant, float scale);
 	static void stopDialog(int retcode);
 
-private:
+	Geometry _initial_gm;
+	Theme _theme;
 	Theme::DialogData* _data;
 	bool _raise;
 

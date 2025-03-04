@@ -24,10 +24,10 @@ namespace PImageLoaderPng
 {
 	const char *getExt(void);
 
-	uchar* load(const std::string &file, size_t &width, size_t &height,
+	uchar* load(const std::string &file, uint &width, uint &height,
 		    bool &use_alpha);
 	bool save(const std::string &file,
-		  uchar *data, size_t width, size_t height);
+		  uchar *data, uint width, uint height);
 }
 
 #endif // PEKWM_HAVE_IMAGE_PNG

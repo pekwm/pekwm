@@ -173,7 +173,8 @@ ActionMenu::remove(PMenu::Item *item)
 	}
 
 	if (item->getIcon()) {
-		pekwm::textureHandler()->returnTexture(item->getIcon());
+		PTexture *icon = item->getIcon();
+		pekwm::textureHandler()->returnTexture(&icon);
 	}
 
 	if (item->getWORef() && (item->getWORef()->getType() == WO_MENU)) {

@@ -1,6 +1,6 @@
 //
-// test_PFontXmb.cc for pekwm
-// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
+// test_PFontXmb.hh for pekwm
+// Copyright (C) 2023-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -13,8 +13,8 @@
 
 class MockPFontXmb : public PFontXmb {
 public:
-	MockPFontXmb(const PFont::Descr& descr)
-		: PFontXmb(),
+	MockPFontXmb(const PFont::Descr& descr, PPixmapSurface &surface)
+		: PFontXmb(1.0, surface),
 		  _native(PFontXmb::toNativeDescr(descr))
 	{
 	}
@@ -26,8 +26,16 @@ public:
 	virtual void setColor(PFont::Color*) { }
 
 private:
+	virtual bool doLoadFont(const std::string& spec) { return true; }
+	virtual void doUnloadFont() { }
+
 	virtual void drawText(PSurface*, int, int, const std::string&,
 			      uint, bool) { }
+	virtual int doGetWidth(const std::string &text, int size) const
+	{
+		return 0;
+	}
+	virtual int doGetHeight() const { return 0; }
 
 private:
 	std::string _native;
@@ -74,7 +82,8 @@ TestPFontXmb::run_test(TestSpec spec, bool status)
 void
 TestPFontXmb::testToNativeDescrFamily()
 {
-	MockPFontXmb font(PFont::Descr("Sans", false));
+	PPixmapSurface surface;
+	MockPFontXmb font(PFont::Descr("Sans", false), surface);
 	ASSERT_EQUAL("family", "-*-helvetica-medium-r-*-*-12-*-*-*-*-*-*-*",
 		     font.getNative());
 }
@@ -82,7 +91,8 @@ TestPFontXmb::testToNativeDescrFamily()
 void
 TestPFontXmb::testToNativeDescrStyle()
 {
-	MockPFontXmb font(PFont::Descr(":slant=italic", false));
+	PPixmapSurface surface;
+	MockPFontXmb font(PFont::Descr(":slant=italic", false), surface);
 	ASSERT_EQUAL("style", "-*-helvetica-medium-i-*-*-12-*-*-*-*-*-*-*",
 		     font.getNative());
 }
@@ -90,7 +100,8 @@ TestPFontXmb::testToNativeDescrStyle()
 void
 TestPFontXmb::testToNativeDescrWeight()
 {
-	MockPFontXmb font(PFont::Descr(":weight=extrabold", false));
+	PPixmapSurface surface;
+	MockPFontXmb font(PFont::Descr(":weight=extrabold", false), surface);
 	ASSERT_EQUAL("weight", "-*-helvetica-bold-r-*-*-12-*-*-*-*-*-*-*",
 		     font.getNative());
 }
@@ -98,7 +109,8 @@ TestPFontXmb::testToNativeDescrWeight()
 void
 TestPFontXmb::testToNativeDescrStretch()
 {
-	MockPFontXmb font(PFont::Descr(":width=semicondensed", false));
+	PPixmapSurface surface;
+	MockPFontXmb font(PFont::Descr(":width=semicondensed", false), surface);
 	ASSERT_EQUAL("stretch",
 		     "-*-helvetica-medium-r-semicondensed-*-12-*-*-*-*-*-*-*",
 		     font.getNative());
@@ -107,7 +119,8 @@ TestPFontXmb::testToNativeDescrStretch()
 void
 TestPFontXmb::testToNativeDescrSize()
 {
-	MockPFontXmb font(PFont::Descr(":size=22", false));
+	PPixmapSurface surface;
+	MockPFontXmb font(PFont::Descr(":size=22", false), surface);
 	ASSERT_EQUAL("size", "-*-helvetica-medium-r-*-*-22-*-*-*-*-*-*-*",
 		     font.getNative());
 }
@@ -115,8 +128,9 @@ TestPFontXmb::testToNativeDescrSize()
 void
 TestPFontXmb::testToNativeDescrFull()
 {
+	PPixmapSurface surface;
 	PFont::Descr descr("Arial-10:weight=light:width=condensed", false);
-	MockPFontXmb font(descr);
+	MockPFontXmb font(descr, surface);
 	ASSERT_EQUAL("full",
 		     "-*-arial-light-r-condensed-*-10-*-*-*-*-*-*-*",
 		     font.getNative());

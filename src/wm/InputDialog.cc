@@ -120,6 +120,7 @@ InputBuffer::changePos(int off)
  */
 InputDialog::InputDialog(const std::string &title)
 	: PDecor(None, true, true, "INPUTDIALOG"), PWinObjReference(0),
+	  _text_wo(true),
 	  _data(pekwm::theme()->getCmdDialogData()),
 	  _buf_off(0),
 	  _buf_chars(0),
@@ -143,19 +144,17 @@ InputDialog::InputDialog(const std::string &title)
 	titleSetActive(0);
 	setTitle(title);
 
-	_text_wo = new PWinObj(true);
-
 	Window window =
 		X11::createWmWindow(_window, 0, 0, 1, 1, InputOutput,
 				    ButtonPressMask|ButtonReleaseMask|
 				    ButtonMotionMask|FocusChangeMask|
 				    KeyPressMask|KeyReleaseMask);
-	_text_wo->setWindow(window);
+	_text_wo.setWindow(window);
 
-	addChild(_text_wo);
-	addChildWindow(_text_wo->getWindow());
-	activateChild(_text_wo);
-	_text_wo->mapWindow();
+	addChild(&_text_wo);
+	addChildWindow(_text_wo.getWindow());
+	activateChild(&_text_wo);
+	_text_wo.mapWindow();
 
 	// setup texture, size etc
 	InputDialog::loadTheme();
@@ -175,14 +174,11 @@ InputDialog::~InputDialog(void)
 	woListRemove(this);
 
 	// Free resources
-	if (_text_wo) {
-		_children.erase(std::remove(_children.begin(), _children.end(),
-					    _text_wo),
-				_children.end());
-		removeChildWindow(_text_wo->getWindow());
-		X11::destroyWindow(_text_wo->getWindow());
-		delete _text_wo;
-	}
+	_children.erase(std::remove(_children.begin(), _children.end(),
+				    &_text_wo),
+			_children.end());
+	removeChildWindow(_text_wo.getWindow());
+	X11::destroyWindow(_text_wo.getWindow());
 
 	InputDialog::unloadTheme();
 }
@@ -234,7 +230,7 @@ InputDialog::addKeysymToKeysymMap(KeySym keysym, const std::string& chr)
 ActionEvent*
 InputDialog::handleButtonPress(XButtonEvent *ev)
 {
-	if (*_text_wo != ev->window || ev->x < 0) {
+	if (_text_wo != ev->window || ev->x < 0) {
 		return PDecor::handleButtonPress(ev);
 	}
 
@@ -499,9 +495,9 @@ InputDialog::unloadTheme(void)
  * Renders _buf onto _text_wo
  */
 void
-InputDialog::render(void)
+InputDialog::render()
 {
-	X11::clearWindow(_text_wo->getWindow());
+	X11::clearWindow(_text_wo.getWindow());
 
 	// NOTE: this could be optmized by returning the actual width consumed
 	//       by the rendering instead of the starting offset avoiding the
@@ -516,7 +512,7 @@ InputDialog::render(void)
 	if (_buf.pos() == 0) {
 		pos += renderCursor(pos);
 	}
-	font->draw(_text_wo, pos, _data->getPad(PAD_UP), c_buf, _buf.pos());
+	font->draw(&_text_wo, pos, _data->getPad(PAD_UP), c_buf, _buf.pos());
 
 	// cursor in or at the end of the text, render after first part
 	if (_buf.pos() != 0) {
@@ -525,7 +521,7 @@ InputDialog::render(void)
 		if (_buf_chars > _buf.pos()) {
 			c_buf += _buf.pos();
 			size_t buf_chars = _buf_chars - _buf.pos();
-			font->draw(_text_wo, pos, _data->getPad(PAD_UP),
+			font->draw(&_text_wo, pos, _data->getPad(PAD_UP),
 				   c_buf, buf_chars);
 			pos += font->getWidth(c_buf, buf_chars);
 		}
@@ -536,7 +532,7 @@ InputDialog::render(void)
 uint
 InputDialog::renderCursor(uint pos)
 {
-	_data->getFont()->draw(_text_wo, pos, _data->getPad(PAD_UP), "|");
+	_data->getFont()->draw(&_text_wo, pos, _data->getPad(PAD_UP), "|");
 	_cursor_begin = pos;
 	uint width = _data->getFont()->getWidth("|", 1);
 	_cursor_end = pos + width;
@@ -611,15 +607,15 @@ InputDialog::bufChanged(void)
 	// complete string does not fit in the window OR the first set
 	// does not fit
 	if (_buf.pos() > 0
-	    && (font->getWidth(str()) > _text_wo->getWidth())
-	    && (font->getWidth(str(), _buf.pos()) > _text_wo->getWidth())) {
+	    && (font->getWidth(str()) > _text_wo.getWidth())
+	    && (font->getWidth(str(), _buf.pos()) > _text_wo.getWidth())) {
 
 		// increase position until it all fits
 		Charset::Utf8Iterator it(_buf.str(), 0);
 		for (; it.pos() < _buf.pos(); ++it) {
 			if (font->getWidth(_buf.str().c_str() + it.pos(),
 					   _buf.size() - it.pos())
-			    < _text_wo->getWidth()) {
+			    < _text_wo.getWidth()) {
 				break;
 			}
 		}
@@ -703,9 +699,9 @@ void
 InputDialog::updatePixmapSize(void)
 {
 	PTexture *tex = _data->getTexture();
-	tex->setBackground(_text_wo->getWindow(),
-			   0, 0, _text_wo->getWidth(), _text_wo->getHeight());
-	X11::clearWindow(_text_wo->getWindow());
+	tex->setBackground(_text_wo.getWindow(),
+			   0, 0, _text_wo.getWidth(), _text_wo.getHeight());
+	X11::clearWindow(_text_wo.getWindow());
 }
 
 /**

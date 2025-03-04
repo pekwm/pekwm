@@ -133,6 +133,7 @@ enum AtomName {
 	PEKWM_CMD,
 	PEKWM_THEME,
 	PEKWM_THEME_VARIANT,
+	PEKWM_THEME_SCALE,
 	PEKWM_CLIENT_LIST,
 
 	// ICCCM Atom Names
@@ -376,7 +377,9 @@ public:
 		XClassHint _xclass_hint;
 	};
 
-	static bool init(const char *display, std::ostream &os);
+	static bool init(const char *display, std::ostream &os,
+			 bool synchronous = false,
+			 bool honour_randr = true);
 	static void init(Display *dpy,
 			 bool synchronous = false,
 			 bool honour_randr = true);
@@ -390,7 +393,8 @@ public:
 	static uint getWidth(void)  { return _screen_gm.width; }
 	static uint getHeight(void) { return _screen_gm.height; }
 	static int getDepth(void) { return _depth; }
-	static Visual *getVisual(void) { return _visual; }
+	static Visual *getVisual() { return _visual; }
+	static bool getVisualInfo(XVisualInfo &info);
 	static GC getGC(void) { return _gc; }
 	static Colormap getColormap(void) { return _colormap; }
 	static uint getNumLock(void) { return _num_lock; }

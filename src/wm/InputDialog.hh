@@ -106,7 +106,7 @@ protected:
 	void loadHistory(const std::string &file);
 	void saveHistory(const std::string &file);
 
-	PWinObj *_text_wo;
+	PWinObj _text_wo;
 
 private:
 	InputDialog(const InputDialog&);

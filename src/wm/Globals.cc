@@ -92,15 +92,22 @@ namespace pekwm
 		_key_grabber->load(_config->getKeyFile());
 		_key_grabber->grabKeys(X11::getRoot());
 
+
+		X11::setString(X11::getRoot(), PEKWM_THEME_SCALE,
+			       std::to_string(_config->getScreenScale()));
+
 		_font_handler =
-			new FontHandler(_config->isDefaultFontX11(),
+			new FontHandler(_config->getScreenScale(),
+					_config->isDefaultFontX11(),
 					_config->getFontCharsetOverride());
-		_image_handler = new ImageHandler();
-		_texture_handler = new TextureHandler();
+		_image_handler = new ImageHandler(_config->getScreenScale());
+		_texture_handler =
+			new TextureHandler(_config->getScreenScale());
 		_theme = new Theme(_font_handler, _image_handler,
 				   _texture_handler,
 				   _config->getThemeFile(),
-				   _config->getThemeVariant());
+				   _config->getThemeVariant(),
+				   true);
 
 		_auto_properties = new AutoProperties(_image_handler);
 		_auto_properties->load();

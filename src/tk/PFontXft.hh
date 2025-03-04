@@ -20,8 +20,8 @@
 
 class PFontXft : public PFont {
 public:
-	PFontXft(void);
-	virtual ~PFontXft(void);
+	PFontXft(float scale);
+	virtual ~PFontXft();
 
 	// virtual interface
 	virtual bool load(const PFont::Descr& descr);

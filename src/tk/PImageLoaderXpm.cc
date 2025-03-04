@@ -106,7 +106,7 @@ namespace PImageLoaderXpm
 	 * @return Pointer to data on success, else 0.
 	 */
 	uchar*
-	load(const std::string &file, size_t &width, size_t &height,
+	load(const std::string &file, uint &width, uint &height,
 	     bool &use_alpha)
 	{
 		// Read XPM to XpmImage format.
@@ -147,8 +147,8 @@ namespace PImageLoaderXpm
 
 		// Fill data.
 		uint color;
-		for (size_t y = 0; y < height; ++y) {
-			for (size_t x = 0; x < width; ++x) {
+		for (uint y = 0; y < height; ++y) {
+			for (uint x = 0; x < width; ++x) {
 				color = *src++;
 				if (color < xpm_image.ncolors) {
 					*dest++ = xpm_to_argb[color];

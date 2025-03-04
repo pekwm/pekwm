@@ -458,8 +458,9 @@ WindowManager::screenEdgeMapUnmap(void)
 void
 WindowManager::doReload(void)
 {
-	doReloadConfig();
-	doReloadTheme();
+	bool scale_changed = false;
+	doReloadConfig(scale_changed);
+	doReloadTheme(scale_changed /* force if scale changed */);
 	doReloadMouse();
 	doReloadKeygrabber();
 	doReloadAutoproperties();
@@ -485,10 +486,13 @@ WindowManager::doReload(void)
  * Reload main config file.
  */
 void
-WindowManager::doReloadConfig(void)
+WindowManager::doReloadConfig(bool &scale_changed)
 {
+	scale_changed = false;
+
 	Config *cfg = pekwm::config();
 	// If any of these changes, re-fetch of all names is required
+	float old_screen_scale = cfg->getScreenScale();
 	bool old_client_unique_name = cfg->getClientUniqueName();
 	std::string
 		old_client_unique_name_pre(cfg->getClientUniqueNamePre());
@@ -498,6 +502,15 @@ WindowManager::doReloadConfig(void)
 	// Reload configuration
 	if (! cfg->load(cfg->getConfigFile())) {
 		return;
+	}
+
+	scale_changed = old_screen_scale != cfg->getScreenScale();
+	if (scale_changed) {
+		X11::setString(X11::getRoot(), PEKWM_THEME_SCALE,
+			       std::to_string(cfg->getScreenScale()));
+		pekwm::fontHandler()->setScale(cfg->getScreenScale());
+		pekwm::imageHandler()->setScale(cfg->getScreenScale());
+		pekwm::textureHandler()->setScale(cfg->getScreenScale());
 	}
 
 	// Update what might have changed in the cfg touching the hints
@@ -758,10 +771,10 @@ void
 WindowManager::handleSignals(void)
 {
 	// SIGHUP
-	if (is_signal_hup || _reload) {
+	if (is_signal_hup) {
 		P_TRACE("handle SIGHUP or reload");
 		is_signal_hup = false;
-		doReload();
+		_reload = true;
 	}
 
 	// Wait for children if a SIGCHLD was received

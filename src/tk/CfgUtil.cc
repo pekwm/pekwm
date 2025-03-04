@@ -117,6 +117,22 @@ namespace CfgUtil
 		Util::expandFileName(dir);
 		return dir;
 	}
+
+	/**
+	 * Return Screen { Scale } option.
+	 */
+	void
+	getScreenScale(const CfgParser::Entry* root, float &scale)
+	{
+		scale = 1.0;
+		CfgParser::Entry *screen = root->findSection("SCREEN");
+		if (screen != nullptr) {
+			CfgParserKeys keys;
+			keys.add_numeric<float>("SCALE", scale, 1.0);
+			screen->parseKeyValues(keys.begin(), keys.end());
+		}
+	}
+
 	/**
 	 * Return options used to initialize FontHandler
 	 */
@@ -133,7 +149,6 @@ namespace CfgUtil
 			keys.add_string("FONTCHARSETOVERRIDE",
 					charset_override);
 			screen->parseKeyValues(keys.begin(), keys.end());
-			keys.clear();
 		}
 	}
 

@@ -82,8 +82,8 @@ PFontPangoCairo::Color::set(XColor* xcolor, uint alpha)
 
 // PFontPangoCairo
 
-PFontPangoCairo::PFontPangoCairo(void)
-	: PFontPango(),
+PFontPangoCairo::PFontPangoCairo(float scale)
+	: PFontPango(scale),
 	  _surface_drawable(X11::getRoot()),
 	  _surface_width(X11::getWidth()),
 	  _surface_height(X11::getHeight()),
@@ -98,7 +98,7 @@ PFontPangoCairo::PFontPangoCairo(void)
 	  _font_map = pango_context_get_font_map(_context);
 }
 
-PFontPangoCairo::~PFontPangoCairo(void)
+PFontPangoCairo::~PFontPangoCairo()
 {
 	PFontPango::unload();
 	cairo_surface_destroy(_cairo_surface);
@@ -142,7 +142,8 @@ PFontPangoCairo::drawText(PSurface* dest, int x, int y,
 	PFontPangoCairoLayout layout(cairo_surface, _font_description,
 				     text, charsToLen(chars));
 	cairo_set_source_rgba(layout.getCairo(), c.r, c.g, c.b, c.a);
-	double dx = x, dy = y;
+	double dx = x;
+	double dy = y + _ascent;
 	cairo_device_to_user(layout.getCairo(), &dx, &dy);
 	cairo_move_to(layout.getCairo(), dx, dy);
 

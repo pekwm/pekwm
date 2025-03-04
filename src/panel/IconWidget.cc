@@ -12,6 +12,7 @@
 #include "TextFormatter.hh"
 
 #include "../tk/ImageHandler.hh"
+#include "../tk/TextureHandler.hh"
 
 IconWidget::IconWidget(const PanelWidgetData &data,
 		       const PWinObj* parent,
@@ -30,7 +31,7 @@ IconWidget::IconWidget(const PanelWidgetData &data,
 	load();
 }
 
-IconWidget::~IconWidget(void)
+IconWidget::~IconWidget()
 {
 	pekwm::observerMapping()->removeObserver(&_var_data, this);
 	if (_icon) {
@@ -50,7 +51,7 @@ IconWidget::notify(Observable *, Observation *observation)
 }
 
 uint
-IconWidget::getRequiredSize(void) const
+IconWidget::getRequiredSize() const
 {
 	if (_scale || _icon == nullptr) {
 		return _theme.getHeight();
@@ -59,22 +60,30 @@ IconWidget::getRequiredSize(void) const
 }
 
 void
-IconWidget::render(Render& rend)
+IconWidget::scaleChanged()
 {
-	PanelWidget::render(rend);
+	// reload icon as the scaling is applied when the icon is loaded and
+	// will affect the required size
+	load();
+}
+
+void
+IconWidget::render(Render& rend, PSurface* surface)
+{
+	PanelWidget::render(rend, surface);
 	if (_icon == nullptr) {
 		// do nothing, no icon to render
 		P_TRACE("IconWidget render " << _name << _ext
 			<< ", no icon loaded");
 	} else if (_scale) {
-		renderScaled(rend);
+		renderScaled(rend, surface);
 	} else {
-		renderFixed(rend);
+		renderFixed(rend, surface);
 	}
 }
 
 void
-IconWidget::renderFixed(Render& rend)
+IconWidget::renderFixed(Render& rend, PSurface* surface)
 {
 	uint height, width;
 	uint height_avail = _theme.getHeight() - 2;
@@ -89,21 +98,21 @@ IconWidget::renderFixed(Render& rend)
 	P_TRACE("IconWidget render " << _icon_name << " " << width << "x"
 		<< height << " (fixed)");
 	scaleImage(width, height);
-	_icon_scaled->draw(rend, getX() + 1, 1, width, height);
+	_icon_scaled->draw(rend, surface, getX() + 1, 1, width, height);
 }
 
 void
-IconWidget::renderScaled(Render& rend)
+IconWidget::renderScaled(Render& rend, PSurface* surface)
 {
 	uint side = _theme.getHeight() - 2;
 	P_TRACE("IconWidget render " << _icon_name << " " << side << "x"
 		<< side << " (scaled)");
 	scaleImage(side, side);
-	_icon_scaled->draw(rend, getX() + 1, 1, side, side);
+	_icon_scaled->draw(rend, surface, getX() + 1, 1, side, side);
 }
 
 void
-IconWidget::load(void)
+IconWidget::load()
 {
 	std::string value;
 	if (! _field.empty()) {
@@ -121,7 +130,8 @@ IconWidget::load(void)
 bool
 IconWidget::loadImage(const std::string& icon_name)
 {
-	if (_icon_name == icon_name) {
+	float scale = pekwm::textureHandler()->getScale();
+	if (_icon_name == icon_name && _icon_scale == scale) {
 		return true;
 	}
 
@@ -141,7 +151,7 @@ IconWidget::loadImage(const std::string& icon_name)
 	// delete cache whenever a new image is loaded (or fails to do so)
 	delete _icon_scaled;
 	_icon_scaled = nullptr;
-
+	_icon_scale = scale;
 	return _icon != nullptr;
 }
 

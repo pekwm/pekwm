@@ -215,17 +215,18 @@ PFont::Descr::setSizeFromProp()
 
 // PFont
 
-PFont::PFont(void) :
-	_height(0),
-	_ascent(0),
-	_descent(0),
-	_offset_x(0),
-	_offset_y(0),
-	_justify(FONT_JUSTIFY_LEFT)
+PFont::PFont(float scale)
+	: _scale(scale),
+	  _height(0),
+	  _ascent(0),
+	  _descent(0),
+	  _offset_x(0),
+	  _offset_y(0),
+	  _justify(FONT_JUSTIFY_LEFT)
 {
 }
 
-PFont::~PFont(void)
+PFont::~PFont()
 {
 }
 
@@ -245,33 +246,32 @@ int
 PFont::draw(PSurface *dest, int x, int y, const std::string &text,
 	    uint max_chars, uint max_width, PFont::TrimType trim_type)
 {
-	if (! text.size()) {
+	if (! text.size()
+	    || x > (dest->getX() + static_cast<int>(dest->getWidth()))) {
 		return 0;
 	}
 
 	uint offset = x;
-	uint chars = max_chars;
-	std::string real_text(text);
-
-	if (max_width > 0) {
-		// If max width set, make sure text fits in max_width pixels.
-		trim(real_text, trim_type, max_width);
-
-		offset += justify(real_text, max_width, 0,
-				  (chars == 0) ? real_text.size() : chars);
-	} else if (chars == 0) {
-		// Just set to complete string.
-		chars = real_text.size();
+	if (max_chars == 0 || max_chars > text.size()) {
+		max_chars = text.size();
 	}
+	std::string real_text(text, 0, max_chars);
+	if (max_width == 0) {
+		max_width = dest->getWidth() - x;
+	}
+	// Make sure text fits in the available space
+	trim(real_text, trim_type, max_width);
+	offset += justify(real_text, max_width, 0);
 
 	// Draw shadowed font if x or y offset is specified
 	if (_offset_x || _offset_y) {
-		drawText(dest, offset + _offset_x, y + _ascent + _offset_y,
-			 real_text, chars, false /* bg */);
+		drawText(dest, offset + _offset_x, y + _offset_y,
+			 real_text, real_text.size(), false /* bg */);
 	}
 
 	// Draw main font
-	drawText(dest, offset, y + _ascent, real_text, chars, true /* fg */);
+	drawText(dest, offset, y, real_text, real_text.size(),
+		 true /* fg */);
 
 	return offset;
 }
@@ -377,17 +377,19 @@ PFont::trimMiddle(std::string &text, uint max_width)
 }
 
 void
-PFont::setTrimString(const std::string &text) {
+PFont::setTrimString(const std::string &text)
+{
 	_trim_string = text;
 }
 
-//! @brief Justifies the string based on _justify property of the Font
+/**
+ * Justifies the string based on _justify property of the Font
+ */
 uint
-PFont::justify(const std::string &text, uint max_width,
-	       uint padding, uint chars)
+PFont::justify(const std::string &text, int max_width, int padding)
 {
 	uint x;
-	uint width = getWidth(text, chars);
+	int width = static_cast<int>(getWidth(text));
 
 	switch(_justify) {
 	case FONT_JUSTIFY_CENTER:

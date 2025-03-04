@@ -28,6 +28,7 @@
 #include "../tk/Render.hh"
 #include "../tk/TextureHandler.hh"
 #include "../tk/Theme.hh"
+#include "../tk/ThemeUtil.hh"
 #include "../tk/X11Util.hh"
 
 #include "../tk/TkWidget.hh"
@@ -82,13 +83,17 @@ namespace pekwm
 	}
 }
 
-PekwmDialog::PekwmDialog(Theme::DialogData* data,
+PekwmDialog::PekwmDialog(const std::string &theme_dir,
+			 const std::string &theme_variant,
 			 const Geometry &gm, int gm_mask, int decorations,
 			 bool raise, const PekwmDialogConfig& config)
 	: X11App(gm, gm_mask, config.getTitle(),
 		 "dialog", "pekwm_dialog", WINDOW_TYPE_DIALOG,
 		 nullptr, true),
-	  _data(data),
+	  _initial_gm(gm),
+	  _theme(_font_handler, _image_handler, _texture_handler,
+		 theme_dir, theme_variant),
+	  _data(_theme.getDialogData()),
 	  _raise(raise)
 {
 	X11::selectInput(_window, ExposureMask|StructureNotifyMask);
@@ -199,8 +204,7 @@ PekwmDialog::render()
 
 	X11Render rend(draw, None);
 	RenderSurface surface(rend, _gm);
-	_data->getBackground()->render(rend,
-				       0, 0, _gm.width, _gm.height);
+	_data->getBackground()->render(rend, 0, 0, _gm.width, _gm.height);
 	std::vector<TkWidget*>::iterator it = _widgets.begin();
 	for (; it != _widgets.end(); ++it) {
 		(*it)->render(rend, surface);
@@ -263,7 +267,7 @@ PekwmDialog::placeWidgets(void)
 {
 	// height is dependent on the available width, get requested
 	// width first.
-	uint width = _gm.width;
+	uint width = _initial_gm.width;
 	std::vector<TkWidget*>::iterator it = _widgets.begin();
 	for (; it != _widgets.end(); ++it) {
 		uint width_req = (*it)->widthReq();
@@ -272,7 +276,8 @@ PekwmDialog::placeWidgets(void)
 		}
 	}
 	if (width == 0) {
-		width = WIDTH_DEFAULT;
+		float scale = pekwm::textureHandler()->getScale();
+		width = ThemeUtil::scaledPixelValue(scale, WIDTH_DEFAULT);
 	}
 
 	uint y = 0;
@@ -283,8 +288,24 @@ PekwmDialog::placeWidgets(void)
 		y += (*it)->getHeight();
 	}
 
-	PWinObj::resize(std::max(width, _gm.width),
-			std::max(y, _gm.height));
+	PWinObj::resize(std::max(width, _initial_gm.width),
+			std::max(y, _initial_gm.height));
+}
+
+void
+PekwmDialog::themeChanged(const std::string& name, const std::string& variant,
+			  float scale)
+{
+	bool scale_changed = scale != _texture_handler->getScale();
+	if (scale_changed) {
+		_font_handler->setScale(scale);
+		_image_handler->setScale(scale);
+		_texture_handler->setScale(scale);
+	}
+	_theme.load(name, variant, scale_changed /* force */);
+
+	placeWidgets();
+	render();
 }
 
 void
@@ -293,15 +314,14 @@ PekwmDialog::stopDialog(int retcode)
 	PekwmDialog::instance()->stop(retcode);
 }
 
-static void init(Display* dpy,
-		 bool font_default_x11,
+static void init(Display* dpy, float scale, bool font_default_x11,
 		 const std::string &font_charset_override)
 {
 	_observer_mapping = new ObserverMapping();
-	_font_handler =
-		new FontHandler(font_default_x11, font_charset_override);
-	_image_handler = new ImageHandler();
-	_texture_handler = new TextureHandler();
+	_font_handler = new FontHandler(scale, font_default_x11,
+					font_charset_override);
+	_image_handler = new ImageHandler(scale);
+	_texture_handler = new TextureHandler(scale);
 }
 
 static void cleanup()
@@ -360,7 +380,7 @@ int main(int argc, char* argv[])
 	pledge_x11_required("");
 
 	const char* display = NULL;
-	Geometry gm(0, 0, WIDTH_DEFAULT, HEIGHT_DEFAULT);
+	Geometry gm(0, 0, 0, 0);
 	int gm_mask = WIDTH_VALUE | HEIGHT_VALUE;
 	bool raise;
 	std::string title;
@@ -462,6 +482,7 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
+	float scale;
 	std::string theme_dir, theme_variant;
 	bool font_default_x11;
 	std::string font_charset_override;
@@ -469,6 +490,7 @@ int main(int argc, char* argv[])
 		CfgParser cfg(CfgParserOpt(""));
 		cfg.parse(config_file, CfgParserSource::SOURCE_FILE, true);
 		std::string theme_path;
+		CfgUtil::getScreenScale(cfg.getEntryRoot(), scale);
 		CfgUtil::getThemeDir(cfg.getEntryRoot(),
 				     theme_dir, theme_variant, theme_path);
 		CfgUtil::getFontSettings(cfg.getEntryRoot(),
@@ -477,7 +499,14 @@ int main(int argc, char* argv[])
 	}
 
 	X11::init(dpy, true);
-	init(dpy, font_default_x11, font_charset_override);
+	init(dpy, scale, font_default_x11, font_charset_override);
+
+	if (gm.width == 0) {
+		gm.width = ThemeUtil::scaledPixelValue(scale, WIDTH_DEFAULT);
+	}
+	if (gm.height == 0) {
+		gm.height = ThemeUtil::scaledPixelValue(scale, HEIGHT_DEFAULT);
+	}
 
 	_image_handler->path_push_back("./");
 	PImage *image = nullptr;
@@ -491,10 +520,8 @@ int main(int argc, char* argv[])
 	int ret;
 	{
 		// run in separate scope to get Theme destructed before cleanup
-		Theme theme(_font_handler, _image_handler, _texture_handler,
-			    theme_dir, theme_variant);
 		PekwmDialogConfig config(title, image, message, options);
-		PekwmDialog dialog(theme.getDialogData(),
+		PekwmDialog dialog(theme_dir, theme_variant,
 				   gm, gm_mask, decorations, raise, config);
 		dialog.show();
 		ret = dialog.main(60);

@@ -244,7 +244,8 @@ Client::~Client(void)
 	removeStrutHint();
 
 	if (_icon) {
-		pekwm::textureHandler()->returnTexture(_icon);
+		PTexture *icon = _icon;
+		pekwm::textureHandler()->returnTexture(&icon);
 	}
 
 	X11::ungrabServer(true);
@@ -1050,8 +1051,8 @@ Client::readIcon(void)
 	} else {
 		delete image;
 		if (_icon) {
-			pekwm::textureHandler()->returnTexture(_icon);
-			_icon = nullptr;
+			PTexture *icon = _icon;
+			pekwm::textureHandler()->returnTexture(&icon);
 		}
 	}
 }

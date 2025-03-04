@@ -8,6 +8,7 @@
 
 #include "Debug.hh"
 #include "PanelConfig.hh"
+#include "../tk/ThemeUtil.hh"
 #include "../tk/TkGlobals.hh"
 
 /** empty string, used as default return value. */
@@ -104,8 +105,9 @@ CommandConfig::~CommandConfig(void)
 
 // PanelConfig
 
-PanelConfig::PanelConfig()
-	: _placement(DEFAULT_PLACEMENT),
+PanelConfig::PanelConfig(float scale)
+	: _scale(scale),
+	  _placement(DEFAULT_PLACEMENT),
 	  _head(-1)
 {
 }
@@ -264,7 +266,7 @@ PanelConfig::parseSize(const std::string& size)
 	} else if (toks.size() == 2) {
 		if (pekwm::ascii_ncase_equal("PIXELS", toks[0])) {
 			return SizeReq(WIDGET_UNIT_PIXELS,
-				       std::stoi(toks[1]));
+				       ThemeUtil::parsePixel(1.0, toks[1], 0));
 		} else if (pekwm::ascii_ncase_equal("PERCENT", toks[0])) {
 			return SizeReq(WIDGET_UNIT_PERCENT,
 				       std::stoi(toks[1]));

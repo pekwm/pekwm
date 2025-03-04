@@ -1,6 +1,6 @@
 //
 // PFontXmb.cc for pekwm
-// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2023-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -9,46 +9,33 @@
 #include "Compat.hh"
 #include "Debug.hh"
 #include "PFontXmb.hh"
+#include "ThemeUtil.hh"
 #include "X11.hh"
 
 const char* PFontXmb::DEFAULT_FONTSET = "fixed";
 
-PFontXmb::PFontXmb(void)
-	: PFontX(),
+PFontXmb::PFontXmb(float scale, PPixmapSurface &surface)
+	: PFontX(scale, surface),
 	  _fontset(nullptr),
-	  _gc_fg(None),
-	  _gc_bg(None)
+	  _oascent(0),
+	  _odescent(0)
 {
 }
 
-PFontXmb::~PFontXmb(void)
+PFontXmb::~PFontXmb()
 {
 	PFontXmb::unload();
 }
 
-/**
- * Loads Xmb font font_name
- */
 bool
-PFontXmb::load(const PFont::Descr& descr)
+PFontXmb::doLoadFont(const std::string &spec)
 {
-	unload();
-
-	std::string basename =
-		descr.useStr() ? descr.str() : toNativeDescr(descr);
+	std::string basename(spec);
 	size_t pos = basename.rfind(",*");
 	if (pos == std::string::npos || pos != (basename.size() - 2)) {
+		
 		basename.append(",*");
 	}
-
-	// Create GC
-	XGCValues gv;
-
-	uint mask = GCFunction;
-	gv.function = GXcopy;
-	_gc_fg = XCreateGC(X11::getDpy(), X11::getRoot(), mask, &gv);
-	_gc_bg = XCreateGC(X11::getDpy(), X11::getRoot(), mask, &gv);
-
 	// Try to load font
 	char *def_string;
 	char **missing_list, **font_names;
@@ -63,53 +50,41 @@ PFontXmb::load(const PFont::Descr& descr)
 					  &def_string);
 	}
 
-	if (_fontset) {
-		for (int i = 0; i < missing_count; ++i) {
-			USER_WARN(basename << " missing charset "
-				  <<  missing_list[i]);
-		}
-		XFreeStringList(missing_list);
-
-		_ascent = _descent = 0;
-
-		XFontStruct **fonts;
-		int fnum = XFontsOfFontSet (_fontset, &fonts, &font_names);
-		for (int i = 0; i < fnum; ++i) {
-			if (signed(_ascent) < fonts[i]->ascent) {
-				_ascent = fonts[i]->ascent;
-			}
-			if (signed(_descent) < fonts[i]->descent) {
-				_descent = fonts[i]->descent;
-			}
-		}
-
-		_height = _ascent + _descent;
-
-	} else {
+	if (! _fontset) {
 		return false;
 	}
 
+
+	for (int i = 0; i < missing_count; ++i) {
+		USER_WARN(basename << " missing charset " <<  missing_list[i]);
+	}
+	XFreeStringList(missing_list);
+
+	_oascent = 0;
+	_odescent = 0;
+
+	XFontStruct **fonts;
+	int fnum = XFontsOfFontSet (_fontset, &fonts, &font_names);
+	for (int i = 0; i < fnum; ++i) {
+		if (fonts[i]->ascent > static_cast<int>(_oascent)) {
+			_oascent = fonts[i]->ascent;
+		}
+		if (fonts[i]->descent > static_cast<int>(_odescent)) {
+			_odescent = fonts[i]->descent;
+		}
+	}
+	_ascent = ThemeUtil::scaledPixelValue(_scale, _oascent);
+	_descent = ThemeUtil::scaledPixelValue(_scale, _odescent);
+	_height = _ascent + _descent;
 	return true;
 }
 
-/**
- * Unloads font resources
- */
 void
-PFontXmb::unload(void)
+PFontXmb::doUnloadFont()
 {
 	if (_fontset) {
 		XFreeFontSet(X11::getDpy(), _fontset);
 		_fontset = 0;
-	}
-
-	if (_gc_fg != None) {
-		XFreeGC(X11::getDpy(), _gc_fg);
-		_gc_fg = None;
-	}
-	if (_gc_bg != None) {
-		XFreeGC(X11::getDpy(), _gc_bg);
-		_gc_bg = None;
 	}
 }
 
@@ -123,22 +98,11 @@ PFontXmb::getWidth(const std::string &text, uint max_chars)
 		return 0;
 	}
 
-	// Make sure the max_chars has a decent value, if it's less than
-	// 1 which it defaults to set it to the numbers of chars in the
-	// string text
 	if (! max_chars || (max_chars > text.size())) {
 		max_chars = text.size();
 	}
-
-	uint width = 0;
-	if (_fontset) {
-		XRectangle ink, logical;
-		XmbTextExtents(_fontset, text.c_str(), max_chars,
-			       &ink, &logical);
-		width = logical.width;
-	}
-
-	return (width + _offset_x);
+	uint width = doGetWidth(text, max_chars);
+	return ThemeUtil::scaledPixelValue(_scale, width + _offset_x);
 }
 
 bool
@@ -158,31 +122,48 @@ PFontXmb::drawText(PSurface *dest, int x, int y,
 		   const std::string &text, uint chars, bool fg)
 {
 	GC gc = fg ? _gc_fg : _gc_bg;
+	if (! _fontset || gc == None) {
+		return;
+	}
 
-	if (_fontset && (gc != None)) {
-#ifdef X_HAVE_UTF8_STRING
-		Xutf8DrawString(X11::getDpy(), dest->getDrawable(),
-				_fontset, gc, x, y,
-				text.c_str(), chars ? chars : text.size());
-#else // ! X_HAVE_UTF8_STRING
-		XmbDrawString(X11::getDpy(), dest->getDrawable(),
-			      _fontset, gc, x, y,
-			      text.c_str(), chars ? chars : text.size());
-#endif // X_HAVE_UTF8_STRING
+	if (chars == 0 || chars > text.size()) {
+		chars = text.size();
+	}
+	if (isScaled()) {
+		drawScaled(dest, x, y, text, chars, gc,
+			   fg ? _pixel_fg : _pixel_bg);
+	} else {
+		doDrawText(dest->getDrawable(), x, y, text, chars, gc);
 	}
 }
 
-/**
- * Sets the color that should be used when drawing
- */
 void
-PFontXmb::setColor(PFont::Color *color)
+PFontXmb::doDrawText(Drawable draw, int x, int y, const std::string &text,
+		     int size, GC gc)
 {
-	if (color->hasFg()) {
-		XSetForeground(X11::getDpy(), _gc_fg, color->getFg()->pixel);
-	}
+#ifdef X_HAVE_UTF8_STRING
+	Xutf8DrawString(X11::getDpy(), draw, _fontset, gc, x, y + _oascent,
+			text.c_str(), size);
+#else // ! X_HAVE_UTF8_STRING
+	XmbDrawString(X11::getDpy(), draw, _fontset, gc, x, y + _oascent,
+		      text.c_str(), size);
+#endif // X_HAVE_UTF8_STRING
+}
 
-	if (color->hasBg()) {
-		XSetForeground(X11::getDpy(), _gc_bg, color->getBg()->pixel);
+int
+PFontXmb::doGetWidth(const std::string &text, int size) const
+{
+	uint width = 0;
+	if (_fontset) {
+		XRectangle ink, logical;
+		XmbTextExtents(_fontset, text.c_str(), size, &ink, &logical);
+		width = logical.width;
 	}
+	return width;
+}
+
+int
+PFontXmb::doGetHeight() const
+{
+	return _oascent + _odescent;
 }

@@ -34,7 +34,7 @@ SearchDialog::SearchDialog()
 			       bdLeft(this),
 			       bdTop(this)
 				   + titleHeight(this)
-				   + _text_wo->getHeight());
+				   + _text_wo.getHeight());
 	_result_menu->setLayer(LAYER_DESKTOP); // Ignore when placing
 	_result_menu->setSticky(STATE_SET);
 	_result_menu->setBorder(STATE_UNSET);
@@ -105,7 +105,7 @@ void
 SearchDialog::updateSize(const Geometry &head)
 {
 	InputDialog::updateSize(head);
-	_result_menu->setMenuWidth(_text_wo->getWidth());
+	_result_menu->setMenuWidth(_text_wo.getWidth());
 }
 
 /**
@@ -156,14 +156,14 @@ SearchDialog::findClients(const std::string &search)
 	getInputSize(head, width, height);
 
 	if (_result_menu->size()) {
-		resizeChild(_text_wo->getWidth(),
+		resizeChild(_text_wo.getWidth(),
 			    height + _result_menu->getHeight());
 		X11::raiseWindow(_result_menu->getWindow());
 		// Render first item as selected, needs to be done after
 		// map/raise.
 		_result_menu->selectItemNum(0);
 	} else {
-		resizeChild(_text_wo->getWidth(), height);
+		resizeChild(_text_wo.getWidth(), height);
 		X11::lowerWindow(_result_menu->getWindow());
 	}
 

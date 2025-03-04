@@ -10,6 +10,8 @@ Files {
 }
 
 Screen {
+	Scale = "1.0"
+
 	Workspaces = "4"
 	WorkspacesPerRow = "2"
 	WorkspaceNames = "01;02;03;04"

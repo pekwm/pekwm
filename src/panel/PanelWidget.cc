@@ -56,13 +56,11 @@ PanelWidget::click(int button, int, int)
 }
 
 int
-PanelWidget::renderText(Render &rend, PFont *font,
+PanelWidget::renderText(Render &rend, PSurface *surface, PFont *font,
 			int x, const std::string& text, uint max_width)
 {
 	int y = (_theme.getHeight() - font->getHeight()) / 2;
-	Geometry gm(0, 0, _parent->getWidth(), _parent->getHeight());
-	RenderSurface surface(rend, gm);
-	return font->draw(&surface, x, y, text, 0, max_width);
+	return font->draw(surface, x, y, text, 0, max_width);
 }
 
 void

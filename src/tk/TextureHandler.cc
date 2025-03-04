@@ -12,12 +12,14 @@
 #include "PTexture.hh"
 #include "PTexturePlain.hh"
 #include "TextureHandler.hh"
+#include "ThemeUtil.hh"
 #include "X11.hh"
 
 #include <iostream>
 
-TextureHandler::TextureHandler(void)
-	: _length_min(0)
+TextureHandler::TextureHandler(float scale)
+	: _scale(scale),
+	  _length_min(0)
 {
 	registerTexture("SOLID", parseSolid);
 	registerTexture("SOLIDRAISED", parseSolidRaised);
@@ -68,7 +70,7 @@ TextureHandler::getTexture(const std::string &texture)
 	// check for already existing entry
 	entry_vector::iterator it(_textures.begin());
 	for (; it != _textures.end(); ++it) {
-		if (*(*it) == texture) {
+		if ((*it)->getScale() == _scale && *(*it) == texture) {
 			(*it)->incRef();
 			return (*it)->getTexture();
 		}
@@ -79,7 +81,7 @@ TextureHandler::getTexture(const std::string &texture)
 	if (ptexture) {
 		// create new entry
 		TextureHandler::Entry *entry =
-			new TextureHandler::Entry(texture, ptexture);
+			new TextureHandler::Entry(_scale, texture, ptexture);
 		entry->incRef();
 		_textures.push_back(entry);
 	}
@@ -105,7 +107,8 @@ TextureHandler::referenceTexture(PTexture *texture)
 	}
 
 	// Create new entry
-	TextureHandler::Entry *entry = new TextureHandler::Entry("@", texture);
+	TextureHandler::Entry *entry =
+		new TextureHandler::Entry(_scale, "@", texture);
 	entry->incRef();
 	_textures.push_back(entry);
 
@@ -116,13 +119,13 @@ TextureHandler::referenceTexture(PTexture *texture)
  * Return/free a texture.
  */
 void
-TextureHandler::returnTexture(PTexture *texture)
+TextureHandler::returnTexture(PTexture **texture)
 {
 	bool found = false;
 
 	entry_vector::iterator it(_textures.begin());
 	for (; it != _textures.end(); ++it) {
-		if ((*it)->getTexture() == texture) {
+		if ((*it)->getTexture() == *texture) {
 			found = true;
 
 			(*it)->decRef();
@@ -135,8 +138,9 @@ TextureHandler::returnTexture(PTexture *texture)
 	}
 
 	if (! found) {
-		delete texture;
+		delete *texture;
 	}
+	*texture = nullptr;
 }
 
 /**
@@ -175,7 +179,7 @@ TextureHandler::parse(const std::string &texture)
 		if (tok.size() > 1) {
 			tok.erase(tok.begin());
 		}
-		ptexture = fun(texture, tok);
+		ptexture = fun(_scale, texture, tok);
 	}
 
 	if (ptexture && ! ptexture->isOk()) {
@@ -189,7 +193,7 @@ TextureHandler::parse(const std::string &texture)
  * Parse and create PTextureSolid
  */
 PTexture*
-TextureHandler::parseSolid(const std::string &texture,
+TextureHandler::parseSolid(float scale, const std::string &str,
 			   const std::vector<std::string> &tok)
 {
 	if (tok.size() < 1) {
@@ -199,7 +203,7 @@ TextureHandler::parseSolid(const std::string &texture,
 
 	PTextureSolid *tex = new PTextureSolid(tok[0]);
 	if (tok.size() == 2) {
-		parseSize(tex, tok[1]);
+		parseSize(tex, scale, tok[1]);
 	}
 
 	return tex;
@@ -209,7 +213,7 @@ TextureHandler::parseSolid(const std::string &texture,
  * Parse and create PTextureSolidRaised
  */
 PTexture*
-TextureHandler::parseSolidRaised(const std::string &texture,
+TextureHandler::parseSolidRaised(float scale, const std::string &str,
 				 const std::vector<std::string> &tok)
 {
 	if (tok.size() < 3) {
@@ -225,8 +229,8 @@ TextureHandler::parseSolidRaised(const std::string &texture,
 
 	// Check if we have line width and offset.
 	if (tok.size() > (i + 1)) {
-		tex->setLineWidth(strtol(tok[i].c_str(), 0, 10));
-		tex->setLineOff(strtol(tok[i + 1].c_str(), 0, 10));
+		tex->setLineWidth(parsePixels(scale, tok[i]));
+		tex->setLineOff(parsePixels(scale, tok[i + 1]));
 		i += 2;
 	}
 	// Check if have side draw specified.
@@ -240,7 +244,7 @@ TextureHandler::parseSolidRaised(const std::string &texture,
 
 	// Check if we have size
 	if (tok.size() > i) {
-		parseSize(tex, tok[i]);
+		parseSize(tex, scale, tok[i]);
 	}
 
 	return tex;
@@ -248,24 +252,25 @@ TextureHandler::parseSolidRaised(const std::string &texture,
 
 
 PTexture*
-TextureHandler::parseLinesHorz(const std::string &,
+TextureHandler::parseLinesHorz(float scale, const std::string &,
 			       const std::vector<std::string> &tok)
 {
-	return parseLines(true, tok);
+	return parseLines(scale, true, tok);
 }
 
 PTexture*
-TextureHandler::parseLinesVert(const std::string &,
+TextureHandler::parseLinesVert(float scale, const std::string &,
 			       const std::vector<std::string> &tok)
 {
-	return parseLines(false, tok);
+	return parseLines(scale, false, tok);
 }
 
 /**
  * Parse and create PTextureLines
  */
 PTexture*
-TextureHandler::parseLines(bool horz, const std::vector<std::string> &tok)
+TextureHandler::parseLines(float scale, bool horz,
+			   const std::vector<std::string> &tok)
 {
 	if (tok.size() < 2) {
 		USER_WARN("not enough parameters to texture Lines"
@@ -282,9 +287,13 @@ TextureHandler::parseLines(bool horz, const std::vector<std::string> &tok)
 			line_size = std::stof(size) / 100;
 		} else {
 			size_percent = false;
-			line_size = std::stoi(tok[0]);
+			line_size = parsePixels(scale, tok[0]);
 		}
 	} catch (const std::invalid_argument&) {
+		return nullptr;
+	}
+
+	if (line_size == 0.0) {
 		return nullptr;
 	}
 
@@ -297,8 +306,8 @@ TextureHandler::parseLines(bool horz, const std::vector<std::string> &tok)
 
 	PTexture *tex = new PTextureLines(line_size, size_percent, horz,
 					  tok.begin() + 1, cend);
-	tex->setWidth(width);
-	tex->setHeight(height);
+	tex->setWidth(ThemeUtil::scaledPixelValue(scale, width));
+	tex->setHeight(ThemeUtil::scaledPixelValue(scale, height));
 	return tex;
 }
 
@@ -306,14 +315,14 @@ TextureHandler::parseLines(bool horz, const std::vector<std::string> &tok)
  * Parse Image texture.
  */
 PTexture*
-TextureHandler::parseImage(const std::string& texture,
+TextureHandler::parseImage(float scale, const std::string& str,
 			   const std::vector<std::string> &tok)
 {
 	// 6==strlen("IMAGE ")
-	PTextureImage *image = new PTextureImage(texture.substr(6), "");
+	PTextureImage *image = new PTextureImage(str.substr(6), "");
 	if (! image->isOk()) {
-		size_t pos = texture.find_first_not_of(" \t", 6);
-		image->setImage(texture.substr(pos), "");
+		size_t pos = str.find_first_not_of(" \t", 6);
+		image->setImage(str.substr(pos), "");
 	}
 	return image;
 }
@@ -322,29 +331,29 @@ TextureHandler::parseImage(const std::string& texture,
  * Parse Image texture with colormap.
  */
 PTexture*
-TextureHandler::parseImageMapped(const std::string& texture,
+TextureHandler::parseImageMapped(float scale, const std::string& str,
 				 const std::vector<std::string> &tok)
 {
 	// 12==strlen("IMAGEMAPPED ")
-	size_t map_start = texture.find_first_not_of(" \t", 12);
-	size_t map_end = texture.find_first_of(" \t", map_start);
+	size_t map_start = str.find_first_not_of(" \t", 12);
+	size_t map_end = str.find_first_of(" \t", map_start);
 	if (map_end == std::string::npos) {
 		USER_WARN("not enough parameters to texture ImageMapped "
 			  "(2 required)");
 		return nullptr;
 	}
-	size_t image_start = texture.find_first_not_of(" \t", map_end + 1);
+	size_t image_start = str.find_first_not_of(" \t", map_end + 1);
 	if (image_start == std::string::npos) {
 		USER_WARN("not enough parameters to texture ImageMapped "
 			  "(2 required)");
 		return nullptr;
 	}
-	std::string colormap = texture.substr(map_start, map_end - map_start);
-	return new PTextureImage(texture.substr(image_start), colormap);
+	std::string colormap = str.substr(map_start, map_end - map_start);
+	return new PTextureImage(str.substr(image_start), colormap);
 }
 
 PTexture*
-TextureHandler::parseEmpty(const std::string& texture,
+TextureHandler::parseEmpty(float, const std::string& str,
 			   const std::vector<std::string> &tok)
 {
 	return new PTextureEmpty();
@@ -354,13 +363,24 @@ TextureHandler::parseEmpty(const std::string& texture,
  * Parses size parameter, i.e. 10x20
  */
 bool
-TextureHandler::parseSize(PTexture *tex, const std::string &size)
+TextureHandler::parseSize(PTexture *tex, float scale, const std::string &size)
 {
 	uint width, height;
 	if (X11::parseSize(size, width, height)) {
-		tex->setWidth(width);
-		tex->setHeight(height);
+		tex->setWidth(ThemeUtil::scaledPixelValue(scale, width));
+		tex->setHeight(ThemeUtil::scaledPixelValue(scale, height));
 		return true;
 	}
 	return false;
+}
+
+
+uint
+TextureHandler::parsePixels(float scale, const std::string &str)
+{
+	try {
+		return ThemeUtil::scaledPixelValue(scale, std::stoi(str));
+	} catch (std::invalid_argument&) {
+		return 0;
+	}
 }

@@ -72,7 +72,7 @@ public:
 		}
 	}
 
-	virtual void render(Render &rend);
+	virtual void render(Render &rend, PSurface *surface);
 
 private:
 	int getBarFill(float percent) const;

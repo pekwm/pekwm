@@ -154,7 +154,7 @@ public:
 	void configure(void);
 	void setStrut(void);
 	void place(void);
-	void render(void);
+	void render();
 
 	virtual void notify(Observable*, Observation *observation);
 	virtual void refresh(bool timed_out);
@@ -209,6 +209,30 @@ private:
 		resizeWidgets();
 	}
 
+	virtual void themeChanged(const std::string& name,
+				  const std::string& variant, float scale)
+	{
+		// scale changed, update before re-loadint the theme
+		bool scale_changed =
+			scale != pekwm::textureHandler()->getScale();
+		if (scale_changed) {
+			pekwm::fontHandler()->setScale(scale);
+			pekwm::imageHandler()->setScale(scale);
+			pekwm::textureHandler()->setScale(scale);
+		}
+
+		loadTheme(_theme, _pekwm_config_file);
+		setStrut();
+		place();
+		// resize widgets after loading, separator size, handles and
+		// scale can alter available amount of space.
+		resizeWidgets(scale_changed);
+
+		// re-render
+		renderBackground();
+		renderPred(renderPredAlways, nullptr);
+	}
+
 	PanelWidget* findWidget(int x)
 	{
 		std::vector<PanelWidget*>::iterator it = _widgets.begin();
@@ -233,10 +257,10 @@ private:
 		return nullptr;
 	}
 
-	void addWidgets(void);
-	void resizeWidgets(void);
+	void addWidgets();
+	void resizeWidgets(bool scale_changed=false);
 	void renderPred(renderPredFun pred, void *opaque);
-	void renderBackground(void);
+	void renderBackground();
 
 	static void ppAddFd(int fd, void *opaque)
 	{
@@ -260,7 +284,7 @@ private:
 	std::vector<PanelWidget*> _widgets;
 	uint _widgets_visible;
 
-	Pixmap _pixmap;
+	PPixmapSurface _background;
 };
 
 PekwmPanel::PekwmPanel(const PanelConfig &cfg, PanelTheme &theme,
@@ -277,7 +301,7 @@ PekwmPanel::PekwmPanel(const PanelConfig &cfg, PanelTheme &theme,
 	  _ext_data(cfg, _var_data),
 	  _wm_state(_var_data),
 	  _widgets_visible(0),
-	  _pixmap(X11::createPixmap(sh->width, sh->height))
+	  _background(sh->width, sh->height)
 {
 	X11::selectInput(_window,
 			 ButtonPressMask|ButtonReleaseMask|
@@ -285,7 +309,7 @@ PekwmPanel::PekwmPanel(const PanelConfig &cfg, PanelTheme &theme,
 			 PropertyChangeMask|SubstructureNotifyMask);
 
 	renderBackground();
-	setBackground(_pixmap);
+	setBackground(_background.getDrawable());
 
 	Atom state[] = {
 		X11::getAtom(STATE_STICKY),
@@ -295,10 +319,6 @@ PekwmPanel::PekwmPanel(const PanelConfig &cfg, PanelTheme &theme,
 	};
 	X11::setAtoms(_window, STATE, state, sizeof(state)/sizeof(state[0]));
 	setStrut();
-
-	// select root window for atom changes _before_ reading state
-	// ensuring state is up-to-date at all times.
-	X11::selectInput(X11::getRoot(), PropertyChangeMask);
 
 	pekwm::observerMapping()->addObserver(&_wm_state, this, 100);
 }
@@ -313,7 +333,6 @@ PekwmPanel::~PekwmPanel(void)
 	for (; it != _widgets.end(); ++it) {
 		delete *it;
 	}
-	X11::freePixmap(_pixmap);
 
 	delete _os;
 }
@@ -368,18 +387,7 @@ PekwmPanel::render(void)
 void
 PekwmPanel::notify(Observable*, Observation *observation)
 {
-	if (dynamic_cast<WmState::PEKWM_THEME_Changed*>(observation)) {
-		P_DBG("reloading theme, _PEKWM_THEME changed");
-		loadTheme(_theme, _pekwm_config_file);
-		setStrut();
-		place();
-		// resize widgets after loading, separator size and handles
-		// can alter available amount of space.
-		resizeWidgets();
-	}
-
-	if (dynamic_cast<WmState::XROOTPMAP_ID_Changed*>(observation)
-	    || dynamic_cast<WmState::PEKWM_THEME_Changed*>(observation)) {
+	if (dynamic_cast<WmState::XROOTPMAP_ID_Changed*>(observation)) {
 		renderBackground();
 		renderPred(renderPredAlways, nullptr);
 	} else if (dynamic_cast<RequiredSizeChanged*>(observation)) {
@@ -497,7 +505,7 @@ PekwmPanel::addWidgets(void)
 }
 
 void
-PekwmPanel::resizeWidgets(void)
+PekwmPanel::resizeWidgets(bool scale_changed)
 {
 	if (_widgets.empty()) {
 		return;
@@ -511,22 +519,31 @@ PekwmPanel::resizeWidgets(void)
 		width_left -= handle->getWidth() * 2;
 	}
 
+	uint width;
+	PFont *font;
+	float scale = pekwm::textureHandler()->getScale();
+
 	_widgets_visible = 0;
 	std::vector<PanelWidget*>::iterator it = _widgets.begin();
 	for (; it != _widgets.end(); ++it) {
+		if (scale_changed) {
+			(*it)->scaleChanged();
+		}
+
 		switch ((*it)->getSizeReq().getUnit()) {
 		case WIDGET_UNIT_PIXELS:
-			width_left -= (*it)->getSizeReq().getSize();
-			(*it)->setWidth((*it)->getSizeReq().getSize());
+			width = ThemeUtil::scaledPixelValue(
+				scale, (*it)->getSizeReq().getSize());
+			width_left -= width;
+			(*it)->setWidth(width);
 			break;
-		case WIDGET_UNIT_PERCENT: {
-			uint width = static_cast<uint>(_gm.width
+		case WIDGET_UNIT_PERCENT:
+			width = static_cast<uint>(_gm.width
 				  * (static_cast<float>(
 					(*it)->getSizeReq().getSize()) / 100));
 			width_left -= width;
 			(*it)->setWidth(width);
 			break;
-		}
 		case WIDGET_UNIT_REQUIRED:
 			width_left -= (*it)->getRequiredSize();
 			(*it)->setWidth((*it)->getRequiredSize());
@@ -534,14 +551,12 @@ PekwmPanel::resizeWidgets(void)
 		case WIDGET_UNIT_REST:
 			num_rest++;
 			break;
-		case WIDGET_UNIT_TEXT_WIDTH: {
-			PFont *font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
-			uint width = font->getWidth(
-					(*it)->getSizeReq().getText());
+		case WIDGET_UNIT_TEXT_WIDTH:
+			font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
+			width = font->getWidth((*it)->getSizeReq().getText());
 			width_left -= width;
 			(*it)->setWidth(width);
 			break;
-		}
 		}
 
 		if ((*it)->isVisible()) {
@@ -581,6 +596,7 @@ PekwmPanel::renderPred(renderPredFun pred, void *opaque)
 	int x = handle ? handle->getWidth() : 0;
 	PanelWidget *last_widget = _widgets.back();
 	X11Render rend(getRenderDrawable(), getRenderBackground());
+	RenderSurface surface(rend, _gm);
 	std::vector<PanelWidget*>::iterator it = _widgets.begin();
 	for (; it != _widgets.end(); ++it) {
 		if (! (*it)->isVisible()) {
@@ -589,7 +605,7 @@ PekwmPanel::renderPred(renderPredFun pred, void *opaque)
 
 		bool do_render = pred(*it, opaque);
 		if (do_render) {
-			(*it)->render(rend);
+			(*it)->render(rend, &surface);
 		}
 		x += (*it)->getWidth();
 
@@ -606,17 +622,20 @@ PekwmPanel::renderPred(renderPredFun pred, void *opaque)
 }
 
 void
-PekwmPanel::renderBackground(void)
+PekwmPanel::renderBackground()
 {
-	_theme.getBackground()->render(_pixmap, 0, 0, _gm.width, _gm.height,
-				       _gm.x, _gm.y);
+	if (_background.resize(_gm.width, _gm.height)) {
+		setBackground(_background.getDrawable());
+	}
+	_theme.getBackground()->render(_background.getDrawable(), 0, 0,
+				       _gm.width, _gm.height, _gm.x, _gm.y);
 	PTexture *handle = _theme.getHandle();
 	if (handle) {
-		handle->render(_pixmap,
+		handle->render(_background.getDrawable(),
 			       0, 0,
 			       handle->getWidth(), handle->getHeight(),
 			       0, 0); // root coordinates
-		handle->render(_pixmap,
+		handle->render(_background.getDrawable(),
 			       _gm.width - handle->getWidth(), 0,
 			       handle->getWidth(), handle->getHeight(),
 			       0, 0); // root coordinates
@@ -637,13 +656,13 @@ static bool loadConfig(PanelConfig& cfg, const std::string& file)
 	return cfg.load(SYSCONFDIR "/panel");
 }
 
-static void init(Display* dpy)
+static void init(Display* dpy, float scale)
 {
 	_observer_mapping = new ObserverMapping();
 	// options setup in loadTheme later on
-	_font_handler = new FontHandler(false, "");
-	_image_handler = new ImageHandler();
-	_texture_handler = new TextureHandler();
+	_font_handler = new FontHandler(scale, false, "");
+	_image_handler = new ImageHandler(scale);
+	_texture_handler = new TextureHandler(scale);
 }
 
 static void cleanup()
@@ -658,6 +677,8 @@ static void usage(const char* name, int ret)
 {
 	std::cout << "usage: " << name << " [-dh]" << std::endl;
 	std::cout << " -c --config path    Configuration file" << std::endl;
+	std::cout << " -C --pekwm-config path pekwm Configuration file"
+		  << std::endl;
 	std::cout << " -d --display dpy    Display" << std::endl;
 	std::cout << " -h --help           Display this information"
 		  << std::endl;
@@ -736,25 +757,27 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	init(X11::getDpy());
+	Destruct<CfgParser> pekwm_cfg(new CfgParser(CfgParserOpt("")));
+	(*pekwm_cfg)->parse(_pekwm_config_file, CfgParserSource::SOURCE_FILE,
+			    true);
+	float scale;
+	CfgUtil::getScreenScale((*pekwm_cfg)->getEntryRoot(), scale);
+
+	init(X11::getDpy(), scale);
 
 	P_TRACE("pekwm_panel PID " << getpid());
 	{
 		PanelTheme theme;
-		// separate scope to get pekwm_cfg cleaned up after loading
-		// theme
-		{
-			CfgParser pekwm_cfg(CfgParserOpt(""));
-			pekwm_cfg.parse(_pekwm_config_file,
-					CfgParserSource::SOURCE_FILE, true);
-			CfgUtil::getScriptsDir(pekwm_cfg.getEntryRoot(),
-					       _config_script_path);
-			loadTheme(theme, pekwm_cfg);
-		}
+		CfgUtil::getScriptsDir((*pekwm_cfg)->getEntryRoot(),
+				       _config_script_path);
+		loadTheme(theme, *(*pekwm_cfg));
+
+		// free up resources, pekwm_cfg will not be used after this.
+		pekwm_cfg.destruct();
 
 		// run in separate scope to get resources cleaned up before
 		// X11 cleanup
-		PanelConfig cfg;
+		PanelConfig cfg(scale);
 		if (loadConfig(cfg, config_file)) {
 
 			Geometry head =

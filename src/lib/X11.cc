@@ -161,6 +161,7 @@ static const char *atomnames[] = {
 	"_PEKWM_CMD",
 	"_PEKWM_THEME",
 	"_PEKWM_THEME_VARIANT",
+	"_PEKWM_THEME_SCALE",
 	"_PEKWM_CLIENT_LIST",
 
 	// ICCCM atoms
@@ -308,7 +309,8 @@ private:
  * output stream and return false.
  */
 bool
-X11::init(const char *display, std::ostream &os)
+X11::init(const char *display, std::ostream &os, bool synchronous,
+	  bool honour_randr)
 {
 	Display *dpy = XOpenDisplay(display);
 	if (! dpy) {
@@ -790,6 +792,26 @@ X11::translateRootCoordinates(int x, int y, int *ret_x, int *ret_y)
 	XTranslateCoordinates(_dpy, _root, _root, x, y, ret_x, ret_y,
 			      &win);
 	return win;
+}
+
+/**
+ * Fill in XVisualInfo for the Screen default Visual.
+ */
+bool
+X11::getVisualInfo(XVisualInfo &info)
+{
+	if (_dpy) {
+		info.visualid = XVisualIDFromVisual(_visual);
+		int nitems;
+		XVisualInfo *info_ret =
+			XGetVisualInfo(_dpy, VisualIDMask, &info, &nitems);
+		if (info_ret) {
+			info = *info_ret;
+			XFree(info_ret);
+			return true;
+		}
+	}
+	return false;
 }
 
 XdbeBackBuffer

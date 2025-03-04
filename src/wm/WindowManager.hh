@@ -84,7 +84,7 @@ private:
 	void handleSignals(void);
 
 	void doReload(void);
-	void doReloadConfig(void);
+	void doReloadConfig(bool &scale_changed);
 	void doReloadTheme(bool force=false);
 	void doReloadThemeDecors(void);
 	void doReloadMouse(void);
