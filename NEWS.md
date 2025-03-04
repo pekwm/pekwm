@@ -10,6 +10,8 @@ Closed issues
   missing from the configuration.
 * Do not create clients for WithdrawnState windows when (re)starting pekwm
   with pre-existing windows/clients.
+* `_NET_WM_STATE` ClientMessage with action unset should no longer cause the
+  property to be set.
 
 New
 ---

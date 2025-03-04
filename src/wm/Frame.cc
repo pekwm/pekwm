@@ -1146,6 +1146,14 @@ Frame::updateInactiveChildInfo(void)
 void
 Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
 {
+	if (sa != STATE_TOGGLE
+	    && ! fill
+	    && (! horz || _maximized_horz == sa)
+	    && (! vert || _maximized_vert == sa)) {
+		// already set as requested, do nothing
+		return;
+	}
+
 	setShaded(STATE_UNSET);
 	setStateFullscreen(STATE_UNSET);
 
