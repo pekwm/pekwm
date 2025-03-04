@@ -1,7 +1,7 @@
 //
 // PImage.cc for pekwm
 //
-// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 // Copyright (C) 2005-2021 the pekwm development team
 //
 // This program is licensed under the GNU GPL.
@@ -491,6 +491,17 @@ PImage::getMask(bool &need_free, size_t width, size_t height)
 	}
 
 	return pix;
+}
+
+/**
+ * Scales image by the given factor.
+ */
+void
+PImage::scale(float factor)
+{
+	size_t width = factor * _width;
+	size_t height = factor * _width;
+	scale(width, height);
 }
 
 /**
