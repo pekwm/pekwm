@@ -8,6 +8,8 @@ Closed issues
 * #21, support `_NET_RESTACK_WINDOW`.
 * Configuration default values was not picked up properly if the node was
   missing from the configuration.
+* Do not create clients for WithdrawnState windows when (re)starting pekwm
+  with pre-existing windows/clients.
 
 New
 ---
