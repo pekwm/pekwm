@@ -648,37 +648,47 @@ Frame::setId(uint id)
 	}
 }
 
-//! @brief Gets the state from the Client
+/**
+ * Sync Frame state with the state from the Client
+ */
 void
-Frame::getState(Client *cl)
+Frame::getState(Client *client)
 {
-	if (! cl)
+	if (! client) {
 		return;
-
-	bool b_client_iconified = cl->isIconified ();
-
-	if (_sticky != cl->isSticky())
-		_sticky = ! _sticky;
-	if (_maximized_horz != cl->isMaximizedHorz())
-		setStateMaximized(STATE_TOGGLE, true, false, false);
-	if (_maximized_vert != cl->isMaximizedVert())
-		setStateMaximized(STATE_TOGGLE, false, true, false);
-	if (isShaded() != cl->isShaded())
-		setShaded(STATE_TOGGLE);
-	if (getLayer() != cl->getLayer()) {
-		setLayer(cl->getLayer());
 	}
-	if (_workspace != cl->getWorkspace())
-		PDecor::setWorkspace(cl->getWorkspace());
+
+	bool b_client_iconified = client->isIconified ();
+	if (_sticky != client->isSticky()) {
+		_sticky = ! _sticky;
+	}
+	if (_maximized_horz != client->isMaximizedHorz()) {
+		setStateMaximized(STATE_TOGGLE, true, false, false);
+	}
+	if (_maximized_vert != client->isMaximizedVert()) {
+		setStateMaximized(STATE_TOGGLE, false, true, false);
+	}
+	if (isShaded() != client->isShaded()) {
+		setShaded(STATE_TOGGLE);
+	}
+	if (getLayer() != client->getLayer()) {
+		setLayer(client->getLayer());
+	}
+	if (_workspace != client->getWorkspace()) {
+		PDecor::setWorkspace(client->getWorkspace());
+	}
 
 	// We need to set border and titlebar before setting fullscreen, as
 	// fullscreen will unset border and titlebar if needed.
-	if (hasBorder() != _client->hasBorder())
+	if (hasBorder() != _client->hasBorder()) {
 		setBorder(STATE_TOGGLE);
-	if (hasTitlebar() != _client->hasTitlebar())
+	}
+	if (hasTitlebar() != _client->hasTitlebar()) {
 		setTitlebar(STATE_TOGGLE);
-	if (_fullscreen != cl->isFullscreen())
+	}
+	if (_fullscreen != client->isFullscreen()) {
 		setStateFullscreen(STATE_TOGGLE);
+	}
 
 	if (_iconified != b_client_iconified) {
 		if (_iconified) {
@@ -688,8 +698,8 @@ Frame::getState(Client *cl)
 		}
 	}
 
-	if (_skip != cl->getSkip()) {
-		setSkip(cl->getSkip());
+	if (_skip != client->getSkip()) {
+		setSkip(client->getSkip());
 	}
 }
 
@@ -1185,9 +1195,9 @@ Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
 	}
 
 	if (horz && (fill || _client->allowMaximizeHorz())) {
-		// maximize
 		if ((sa == STATE_SET) ||
 		    ((sa == STATE_TOGGLE) && ! _maximized_horz)) {
+			// maximize
 			uint h_decor = _gm.width - getChildWidth();
 
 			if (! fill) {
@@ -1202,22 +1212,21 @@ Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
 			    && (_gm.width > (hints.max_width + h_decor))) {
 				_gm.width = hints.max_width + h_decor;
 			}
-			// demaximize
+			_maximized_horz = ! fill;
 		} else if ((sa == STATE_UNSET) ||
 			   ((sa == STATE_TOGGLE) && _maximized_horz)) {
+			// demaximize
 			_gm.x = _old_gm.x;
 			_gm.width = _old_gm.width;
+			_maximized_horz = false;
 		}
-
-		// we unset the maximized state if we use maxfill
-		_maximized_horz = fill ? false : ! _maximized_horz;
 		_client->getState().maximized_horz = _maximized_horz;
 	}
 
 	if (vert && (fill || _client->allowMaximizeVert())) {
-		// maximize
 		if ((sa == STATE_SET) ||
 		    ((sa == STATE_TOGGLE) && ! _maximized_vert)) {
+			// maximize
 			uint v_decor = _gm.height - getChildHeight();
 
 			if (! fill) {
@@ -1232,15 +1241,14 @@ Frame::setStateMaximized(StateAction sa, bool horz, bool vert, bool fill)
 			    (_gm.height > (hints.max_height + v_decor))) {
 				_gm.height = hints.max_height + v_decor;
 			}
-			// demaximize
+			_maximized_vert = ! fill;
 		} else if ((sa == STATE_UNSET) ||
 			   ((sa == STATE_TOGGLE) && _maximized_vert)) {
+			// demaximize
 			_gm.y = _old_gm.y;
 			_gm.height = _old_gm.height;
+			_maximized_vert = false;
 		}
-
-		// we unset the maximized state if we use maxfill
-		_maximized_vert = fill ? false : ! _maximized_vert;
 		_client->getState().maximized_vert = _maximized_vert;
 	}
 
@@ -2013,29 +2021,33 @@ Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
 void
 Frame::handleClientStateMessage(XClientMessageEvent *ev, Client *client)
 {
-	StateAction sa = getStateActionFromMessage(ev);
-	handleStateAtom(sa, ev->data.l[1], client);
-	if (ev->data.l[2] != 0) {
-		handleStateAtom(sa, ev->data.l[2], client);
+	StateAction sa;
+	if (getStateActionFromMessage(ev, sa)) {
+		handleStateAtom(sa, ev->data.l[1], client);
+		if (ev->data.l[2] != 0) {
+			handleStateAtom(sa, ev->data.l[2], client);
+		}
+		client->updateEwmhStates();
 	}
-	client->updateEwmhStates();
 }
 
 /**
  * Get StateAction from NET_WM atom.
  */
-StateAction
-Frame::getStateActionFromMessage(XClientMessageEvent *ev)
+bool
+Frame::getStateActionFromMessage(XClientMessageEvent *ev, StateAction &sa)
 {
-	StateAction sa = STATE_SET;
-	if (ev->data.l[0]== NET_WM_STATE_REMOVE) {
+	if (ev->data.l[0] == NET_WM_STATE_REMOVE) {
 		sa = STATE_UNSET;
-	} else if (ev->data.l[0]== NET_WM_STATE_ADD) {
+	} else if (ev->data.l[0] == NET_WM_STATE_ADD) {
 		sa = STATE_SET;
-	} else if (ev->data.l[0]== NET_WM_STATE_TOGGLE) {
+	} else if (ev->data.l[0] == NET_WM_STATE_TOGGLE) {
 		sa = STATE_TOGGLE;
+	} else {
+		P_DBG("unknown _NET_WM_STATE client message " << ev->data.l[0]);
+		return false;
 	}
-	return sa;
+	return true;
 }
 
 /**

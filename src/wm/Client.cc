@@ -179,7 +179,6 @@ Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
 	pekwm::keyGrabber()->grabKeys(_window);
 	grabButtons();
 
-	// Tell the world about our state
 	updateEwmhStates();
 
 	X11::ungrabServer(true);
@@ -466,7 +465,9 @@ Client::findAndRaiseIfTransient(void)
 
 // START - PWinObj interface.
 
-//! @brief Maps the window.
+/**
+ * Map client window and update window manager hints.
+ */
 void
 Client::mapWindow(void)
 {
@@ -481,7 +482,6 @@ Client::mapWindow(void)
 	}
 
 	if(! _transient_for) {
-		// Unmap our transient windows if we have any
 		mapOrUnmapTransients(_window, false);
 	}
 
@@ -490,17 +490,17 @@ Client::mapWindow(void)
 	X11::selectInput(_window, _clientEventMask);
 }
 
-
-//! @brief Sets the client to WithdrawnState and unmaps it.
+/**
+ * Unmap client window and update window manager hints.
+ */
 void
-Client::unmapWindow(void)
+Client::unmapWindow()
 {
 	if (! _mapped) {
 		return;
 	}
 
 	if (_iconified) {
-		// Set the state of the window
 		setWmState(IconicState);
 		updateEwmhStates();
 	}
@@ -1099,29 +1099,39 @@ Client::applyAutoprops(AutoProperty *ap)
 
 	// We only apply grouping if it's a new client or if we are restarting
 	// and have APPLY_ON_START set
-	if (ap->isMask(AP_STICKY))
+	if (ap->isMask(AP_STICKY)) {
 		_sticky = ap->sticky;
-	if (ap->isMask(AP_SHADED))
+	}
+	if (ap->isMask(AP_SHADED)) {
 		_state.shaded = ap->shaded;
-	if (ap->isMask(AP_MAXIMIZED_VERTICAL))
+	}
+	if (ap->isMask(AP_MAXIMIZED_VERTICAL)) {
 		_state.maximized_vert = ap->maximized_vertical;
-	if (ap->isMask(AP_MAXIMIZED_HORIZONTAL))
+	}
+	if (ap->isMask(AP_MAXIMIZED_HORIZONTAL)) {
 		_state.maximized_horz = ap->maximized_horizontal;
-	if (ap->isMask(AP_FULLSCREEN))
+	}
+	if (ap->isMask(AP_FULLSCREEN)) {
 		_state.fullscreen = ap->fullscreen;
-	if (ap->isMask(AP_ICONIFIED))
+	}
+	if (ap->isMask(AP_ICONIFIED)) {
 		_iconified = ap->iconified;
-	if (ap->isMask(AP_TITLEBAR))
+	}
+	if (ap->isMask(AP_TITLEBAR)) {
 		setTitlebar(ap->titlebar);
-	if (ap->isMask(AP_BORDER))
+	}
+	if (ap->isMask(AP_BORDER)) {
 		setBorder(ap->border);
+	}
 	if (ap->isMask(AP_LAYER) && (ap->layer <= LAYER_MENU)) {
 		setLayer(ap->layer);
 	}
-	if (ap->isMask(AP_SKIP))
+	if (ap->isMask(AP_SKIP)) {
 		_state.skip = ap->skip;
-	if (ap->isMask(AP_FOCUSABLE))
+	}
+	if (ap->isMask(AP_FOCUSABLE)) {
 		_focusable = ap->focusable;
+	}
 	if (ap->isMask(AP_WORKSPACE)) {
 		_workspace = ap->workspace;
 	}
@@ -1613,43 +1623,51 @@ Client::handleColormapChange(XColormapEvent *e)
 	}
 }
 
-//! @brief Tells the world about our states, such as shaded etc.
+/**
+ * Set _NET_WM_STATE based on the current state.
+ */
 void
-Client::updateEwmhStates(void)
+Client::updateEwmhStates()
 {
 	std::vector<Atom> states;
 
-	if (false) // we don't yet support modal state
+#if 0
+	// modal state not supported
+	if (false) {
 		states.push_back(X11::getAtom(STATE_MODAL));
-	if (_sticky)
+	}
+#endif
+	if (_sticky) {
 		states.push_back(X11::getAtom(STATE_STICKY));
-	if (_state.maximized_vert)
+	}
+	if (_state.maximized_vert) {
 		states.push_back(X11::getAtom(STATE_MAXIMIZED_VERT));
-	if (_state.maximized_horz)
+	}
+	if (_state.maximized_horz) {
 		states.push_back(X11::getAtom(STATE_MAXIMIZED_HORZ));
-	if (_state.shaded)
+	}
+	if (_state.shaded) {
 		states.push_back(X11::getAtom(STATE_SHADED));
-	if (isSkip(SKIP_TASKBAR))
+	}
+	if (isSkip(SKIP_TASKBAR)) {
 		states.push_back(X11::getAtom(STATE_SKIP_TASKBAR));
-	if (isSkip(SKIP_PAGER))
+	}
+	if (isSkip(SKIP_PAGER)) {
 		states.push_back(X11::getAtom(STATE_SKIP_PAGER));
-	if (_iconified)
+	}
+	if (_iconified) {
 		states.push_back(X11::getAtom(STATE_HIDDEN));
-	if (_state.fullscreen)
+	}
+	if (_state.fullscreen) {
 		states.push_back(X11::getAtom(STATE_FULLSCREEN));
+	}
 	if (getLayer() == LAYER_ABOVE_DOCK) {
 		states.push_back(X11::getAtom(STATE_ABOVE));
 	}
 	if (getLayer() == LAYER_BELOW) {
 		states.push_back(X11::getAtom(STATE_BELOW));
 	}
-
-	Atom *atoms = new Atom[(states.size() > 0) ? states.size() : 1];
-	if (states.size() > 0) {
-		std::copy(states.begin(), states.end(), atoms);
-	}
-	X11::setAtoms(_window, STATE, atoms, states.size());
-	delete [] atoms;
+	X11::setAtoms(_window, STATE, &states.front(), states.size());
 }
 
 void

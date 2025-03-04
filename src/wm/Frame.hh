@@ -181,7 +181,8 @@ private:
 	void grabButtons(void);
 
 	void handleClientStateMessage(XClientMessageEvent *ev, Client *client);
-	static StateAction getStateActionFromMessage(XClientMessageEvent *ev);
+	static bool getStateActionFromMessage(XClientMessageEvent *ev,
+					      StateAction &sa);
 	void handleStateAtom(StateAction sa, Atom atom, Client *client);
 	void handleCurrentClientStateAtom(StateAction sa, Atom atom,
 					  Client *client);
