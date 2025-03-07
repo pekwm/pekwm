@@ -16,11 +16,20 @@ AC_CHECK_PROG([PEKWM_SH], [sh], [/usr/xpg4/bin/sh], [/bin/sh], [/usr/xpg4/bin])
 dnl Host type conditionals
 AC_MSG_CHECKING([target operating system])
 case $target_os in
-	solaris*)
-		PEKWM_HOST="SunOS"
+	freebsd*)
+		PEKWM_HOST="FreeBSD"
 		;;
 	linux*)
 		PEKWM_HOST="Linux"
+		;;
+	netbsd*)
+		PEKWM_HOST="NetBSD"
+		;;
+	openbsd*)
+		PEKWM_HOST="OpenBSD"
+		;;
+	solaris*)
+		PEKWM_HOST="SunOS"
 		;;
 	*)
 		PEKWM_HOST="Other"

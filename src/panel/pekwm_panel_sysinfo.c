@@ -180,7 +180,7 @@ _read_sysinfo(struct pekwm_panel_sysinfo *info)
 	return 0;
 }
 
-#else /* __sun__ */
+#else /* !__sun__ */
 #ifdef __NetBSD__
 
 #include <sys/types.h>
@@ -252,7 +252,139 @@ _read_sysinfo(struct pekwm_panel_sysinfo *info)
 	return 0;
 }
 
-#else /* __NetBSD__ */
+#else /* !__NetBSD__ */
+#ifdef __FreeBSD__
+
+#include <sys/sysctl.h>
+#include <sys/user.h>
+#include <sys/vmmeter.h>
+#include <fcntl.h>
+#include <time.h>
+#include <unistd.h>
+
+static int _pagesize_kb = 0;
+
+static int
+_read_sysinfo(struct pekwm_panel_sysinfo *info)
+{
+	if (_pagesize_kb == 0) {
+		_pagesize_kb = sysconf(_SC_PAGESIZE) / 1024;
+	}
+
+	double loadavg[3];
+	if (getloadavg(loadavg, 3) == 3) {
+		info->load1 = loadavg[0];
+		info->load5 = loadavg[1];
+		info->load15 = loadavg[2];
+	}
+
+	int mib[6];
+	size_t len;
+
+	mib[0] = CTL_KERN;
+	mib[1] = KERN_BOOTTIME;
+	struct timeval boottime = {0};
+	len = sizeof(boottime);
+	if (! sysctl(mib, 2, &boottime, &len, NULL, 0)) {
+		info->uptime = time(NULL) - boottime.tv_sec;
+	}
+
+	mib[1] = KERN_PROC;
+	mib[2] = KERN_PROC_ALL;
+	len = 0;
+	if (sysctl(mib, 3, NULL, &len, NULL, 0) >= 0) {
+		info->num_procs = len / sizeof(struct kinfo_proc);
+	}
+
+	info->ram_kb = sysconf(_SC_PHYS_PAGES) * _pagesize_kb;
+
+	mib[0] = CTL_VM;
+	mib[1] = VM_TOTAL;
+	struct vmtotal vmt;
+	len = sizeof(vmt);
+	if (! sysctl(mib, 2, &vmt, &len, NULL, 0)) {
+		info->free_ram_kb = vmt.t_free * _pagesize_kb;
+	}
+
+	// info->swap_kb  = 0;
+	// info->free_swap_kb  = 0;
+
+	return 0;
+}
+
+#else /* !__FreeBSD__ */
+#ifdef __OpenBSD__
+
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#include <sys/vmmeter.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <time.h>
+
+static int
+_read_sysinfo(struct pekwm_panel_sysinfo *info)
+{
+	size_t size;
+	int mib[6];
+	int pagesize_kb = sysconf(_SC_PAGESIZE) / 1024;
+
+	double loadavg[3];
+	if (getloadavg(loadavg, 3) == 3) {
+		info->load1 = loadavg[0];
+		info->load5 = loadavg[1];
+		info->load15 = loadavg[2];
+	}
+
+	mib[0] = CTL_KERN;
+	mib[1] = KERN_BOOTTIME;
+	struct timespec boottime = {0};
+	size = sizeof(boottime);
+	if (! sysctl(mib, 2, &boottime, &size, NULL, 0)) {
+		info->uptime = time(NULL) - boottime.tv_sec;
+	}
+
+	mib[1] = KERN_PROC;
+	mib[2] = KERN_PROC_ALL;
+	mib[3] = 0; /* process selector, unused */
+	mib[4] = sizeof(struct kinfo_proc);
+	mib[5] = 0; /* number of kinfo_proc to return */
+	size = 0;
+	if (! sysctl(mib, 6, NULL, &size, NULL, 0)) {
+		info->num_procs = size / sizeof(struct kinfo_proc);
+	}
+
+	mib[0] = CTL_HW;
+	mib[1] = HW_PHYSMEM64;
+	uint64_t physmem = 0;
+	size = sizeof(physmem);
+	if (! sysctl(mib, 2, &physmem, &size, NULL, 0)) {
+		info->ram_kb = physmem / 1024;
+	}
+
+	struct uvmexp uvmexp;
+	mib[0] = CTL_VM;
+	mib[1] = VM_UVMEXP;
+	size = sizeof(uvmexp);
+	if (! sysctl(mib, 2, &uvmexp, &size, NULL, 0)) {
+		int pagesize_kb = uvmexp.pagesize / 1024;
+		info->swap_kb = uvmexp.swpages * pagesize_kb;
+		info->free_swap_kb =
+			info->swap_kb - (uvmexp.swpgonly * pagesize_kb);
+
+		mib[0] = CTL_VM;
+		mib[1] = VM_METER;
+
+		struct vmtotal vmtotal;
+		size = sizeof(vmtotal);
+		if (! sysctl(mib, 2, &vmtotal, &size, NULL, 0)) {
+			info->free_ram_kb = vmtotal.t_free * pagesize_kb;
+		}
+	}
+	return 0;
+}
+
+#else /* ! __OpenBSD__ */
 
 static int
 _read_sysinfo(struct pekwm_panel_sysinfo *info)
@@ -261,6 +393,8 @@ _read_sysinfo(struct pekwm_panel_sysinfo *info)
 	return 1;
 }
 
+#endif /* __OpenBSD__ */
+#endif /* __FreeBSD__ */
 #endif /* __NetBSD__ */
 #endif /* __sun__ */
 #endif /* __linux__ */
