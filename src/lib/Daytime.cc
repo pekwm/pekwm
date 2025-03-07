@@ -30,7 +30,8 @@ _ts_to_j(double ts)
 static time_t
 _j_to_ts(double julian)
 {
-	return (julian - julian_date_epoch) * seconds_per_day;
+	return static_cast<time_t>(
+		(julian - julian_date_epoch) * seconds_per_day);
 }
 
 static double

@@ -8,6 +8,7 @@ libpekwm_lib_a_SOURCES = pekwm_types.hh \
 			 CfgParserVarExpanderX11.cc CfgParserVarExpanderX11.hh \
 			 Charset.cc Charset.hh \
 			 Compat.cc Compat.hh \
+			 Container.hh \
 			 Daytime.cc Daytime.hh \
 			 Debug.cc Debug.hh \
 			 Exception.hh \
