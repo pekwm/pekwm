@@ -6,6 +6,7 @@
 // See the LICENSE file for more information.
 //
 
+#include "Container.hh"
 #include "Render.hh"
 
 extern "C" {
@@ -146,13 +147,16 @@ X11Render::fill(int x, int y, uint width, uint height)
 void
 X11Render::poly(const std::vector<XPoint> &points, bool fill)
 {
-	XPoint *cpoints = const_cast<XPoint*>(&points.front());
+	const XPoint *cpoints =
+		Container::type_data<XPoint, const XPoint*>(points);
 	if (fill) {
-		XFillPolygon(X11::getDpy(), _draw, _gc, cpoints,
-			     points.size(), Convex, CoordModeOrigin);
+		XFillPolygon(X11::getDpy(), _draw, _gc,
+			     const_cast<XPoint*>(cpoints), points.size(),
+			     Convex, CoordModeOrigin);
 	} else {
-		XDrawLines(X11::getDpy(), _draw, _gc, cpoints,
-			   points.size(), CoordModeOrigin);
+		XDrawLines(X11::getDpy(), _draw, _gc,
+			   const_cast<XPoint*>(cpoints), points.size(),
+			   CoordModeOrigin);
 	}
 }
 

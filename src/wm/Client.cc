@@ -25,6 +25,7 @@ extern "C" {
 
 #include "Charset.hh"
 #include "Compat.hh"
+#include "Container.hh"
 #include "Debug.hh"
 #include "PDecor.hh" // PDecor::TitleItem
 #include "Client.hh"
@@ -1662,7 +1663,9 @@ Client::updateEwmhStates()
 	if (getLayer() == LAYER_BELOW) {
 		states.push_back(X11::getAtom(STATE_BELOW));
 	}
-	X11::setAtoms(_window, STATE, &states.front(), states.size());
+	X11::setAtoms(_window, STATE,
+		      Container::type_data<Atom, Atom*>(states),
+		      states.size());
 }
 
 void

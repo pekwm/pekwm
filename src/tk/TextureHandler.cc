@@ -165,9 +165,9 @@ TextureHandler::parse(const std::string &texture)
 	parse_fun fun = nullptr;
 	std::vector<std::string> tok;
 	if (Util::splitString(texture, tok, " \t")) {
-		fun = Util::StringToGet(&_texture_types.front(), tok[0]);
+		fun = Util::StringToGet(getTextureTypes(), tok[0]);
 	} else {
-		fun = Util::StringToGet(&_texture_types.front(), texture);
+		fun = Util::StringToGet(getTextureTypes(), texture);
 	}
 
 	PTexture *ptexture = nullptr;

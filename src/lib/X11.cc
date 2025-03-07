@@ -42,6 +42,7 @@ extern "C" {
 }
 
 #include "X11.hh"
+#include "Container.hh"
 #include "Debug.hh"
 #include "String.hh"
 #include "pekwm_types.hh"
@@ -1299,9 +1300,8 @@ void
 X11::setWindows(Window win, AtomName aname, const std::vector<Window> &windows)
 {
 	changeProperty(win, _atoms[aname], XA_WINDOW, 32, PropModeReplace,
-		       // not using .data(), not available on all C++98 variants
-		       reinterpret_cast<const uchar*>(&windows.front()),
-						      windows.size());
+		       Container::type_data<Window, const uchar*>(windows),
+		       windows.size());
 }
 
 bool
@@ -2309,8 +2309,9 @@ void
 X11::stackWindows(const std::vector<Window> &windows)
 {
 	if (_dpy && ! windows.empty()) {
-		// not using .data(), not available on all C++98 variants
-		XRestackWindows(_dpy, const_cast<Window*>(&windows.front()),
+		const Window *cwindows =
+			Container::type_data<Window, const Window*>(windows);
+		XRestackWindows(_dpy, const_cast<Window*>(cwindows),
 				windows.size());
 	}
 }

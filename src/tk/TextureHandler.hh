@@ -12,6 +12,7 @@
 #include "config.h"
 
 #include "Compat.hh"
+#include "Container.hh"
 #include "PTexture.hh"
 #include "String.hh"
 #include "Util.hh"
@@ -30,6 +31,7 @@ class TextureHandler {
 public:
 	typedef PTexture*(*parse_fun)(const std::string &texture,
 				      const std::vector<std::string> &tok);
+	typedef Util::StringTo<parse_fun> string_to_parse_fun;
 
 	class Entry {
 	public:
@@ -77,6 +79,12 @@ public:
 	void logTextures(const std::string& msg) const;
 
 private:
+	const string_to_parse_fun *getTextureTypes() const
+	{
+		return Container::type_data<string_to_parse_fun,
+		       const string_to_parse_fun*>(_texture_types);
+	}
+
 	PTexture *parse(const std::string &texture);
 	static PTexture *parseSolid(const std::string &texture,
 				    const std::vector<std::string> &tok);
