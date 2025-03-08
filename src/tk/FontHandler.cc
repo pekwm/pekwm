@@ -158,17 +158,17 @@ FontHandler::newFont(const std::string &font,
 		return new PFontXmb;
 #ifdef PEKWM_HAVE_PANGO_CAIRO
 	case PFont::FONT_TYPE_PANGO:
-		return new PFontPangoCairo;
+		return new PFontPangoCairo(_scale);
 	case PFont::FONT_TYPE_PANGO_CAIRO:
-		return new PFontPangoCairo;
+		return new PFontPangoCairo(_scale);
 #endif // PEKWM_HAVE_PANGO_CAIRO
 #ifdef PEKWM_HAVE_PANGO_XFT
 #ifndef PEKWM_HAVE_PANGO_CAIRO
 	case PFont::FONT_TYPE_PANGO:
-		return new PFontPangoCairo;
+		return new PFontPangoCairo(_scale);
 #endif // ! PEKWM_HAVE_PANGO_CAIRO
 	case PFont::FONT_TYPE_PANGO_XFT:
-		return new PFontPangoXft;
+		return new PFontPangoXft(_scale);
 #endif // PEKWM_HAVE_PANGO_XFT
 	case PFont::FONT_TYPE_EMPTY:
 		return new PFontEmpty;
@@ -202,10 +202,10 @@ PFont*
 FontHandler::newFontAuto() const
 {
 #ifdef PEKWM_HAVE_PANGO_CAIRO
-	return new PFontPangoCairo;
+	return new PFontPangoCairo(_scale);
 #else // ! PEKWM_HAVE_PANGO_CAIRO
 #ifdef PEKWM_HAVE_PANGO_XFT
-	return new PFontPangoXft;
+	return new PFontPangoXft(_scale);
 #else // ! PEKWM_HAVE_PANGO_XFT
 #ifdef PEKWM_HAVE_XFT
 	return new PFontXft;

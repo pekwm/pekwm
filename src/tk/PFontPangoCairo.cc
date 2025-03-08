@@ -82,8 +82,8 @@ PFontPangoCairo::Color::set(XColor* xcolor, uint alpha)
 
 // PFontPangoCairo
 
-PFontPangoCairo::PFontPangoCairo(void)
-	: PFontPango(),
+PFontPangoCairo::PFontPangoCairo(float scale)
+	: PFontPango(scale),
 	  _surface_drawable(X11::getRoot()),
 	  _surface_width(X11::getWidth()),
 	  _surface_height(X11::getHeight()),
@@ -98,7 +98,7 @@ PFontPangoCairo::PFontPangoCairo(void)
 	  _font_map = pango_context_get_font_map(_context);
 }
 
-PFontPangoCairo::~PFontPangoCairo(void)
+PFontPangoCairo::~PFontPangoCairo()
 {
 	PFontPango::unload();
 	cairo_surface_destroy(_cairo_surface);

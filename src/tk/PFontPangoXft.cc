@@ -45,8 +45,8 @@ private:
 
 // PFontPangoXft
 
-PFontPangoXft::PFontPangoXft(void)
-	: PFontPango(),
+PFontPangoXft::PFontPangoXft(float scale)
+	: PFontPango(scale),
 	  _draw(XftDrawCreate(X11::getDpy(), X11::getRoot(),
 			      X11::getVisual(), X11::getColormap()))
 {
@@ -55,7 +55,7 @@ PFontPangoXft::PFontPangoXft(void)
 	  _context = pango_font_map_create_context(_font_map);
 }
 
-PFontPangoXft::~PFontPangoXft(void)
+PFontPangoXft::~PFontPangoXft()
 {
 	PFontPango::unload();
 	XftDrawDestroy(_draw);

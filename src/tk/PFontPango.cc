@@ -58,8 +58,9 @@ ossAppend(std::ostringstream& oss, const std::string& str)
 	oss << str;
 }
 
-PFontPango::PFontPango()
+PFontPango::PFontPango(float scale)
 	: PFont(),
+	  _scale(scale),
 	  _context(nullptr),
 	  _font_map(nullptr),
 	  _font(nullptr),
@@ -89,11 +90,15 @@ PFontPango::load(const PFont::Descr& descr)
 		pango_font_description_set_family(_font_description,
 						  FALLBACK_FONT_FAMILY);
 	}
-	if (pango_font_description_get_size(_font_description) <= 0) {
+	int size = pango_font_description_get_size(_font_description);
+	if (size <= 0) {
 		USER_INFO("Pango font size fallback to "
-			  << FALLBACK_FONT_SIZE / PANGO_SCALE);
+			  << FALLBACK_FONT_SIZE / PANGO_SCALE * _scale);
 		pango_font_description_set_size(_font_description,
-						FALLBACK_FONT_SIZE);
+						FALLBACK_FONT_SIZE * _scale);
+	} else if (_scale != 1.0) {
+		size = static_cast<int>(_scale * size);
+		pango_font_description_set_size(_font_description, size);
 	}
 
 	pango_context_set_font_description(_context, _font_description);
