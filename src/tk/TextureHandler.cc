@@ -118,13 +118,13 @@ TextureHandler::referenceTexture(PTexture *texture)
  * Return/free a texture.
  */
 void
-TextureHandler::returnTexture(PTexture *texture)
+TextureHandler::returnTexture(PTexture **texture)
 {
 	bool found = false;
 
 	entry_vector::iterator it(_textures.begin());
 	for (; it != _textures.end(); ++it) {
-		if ((*it)->getTexture() == texture) {
+		if ((*it)->getTexture() == *texture) {
 			found = true;
 
 			(*it)->decRef();
@@ -137,8 +137,9 @@ TextureHandler::returnTexture(PTexture *texture)
 	}
 
 	if (! found) {
-		delete texture;
+		delete *texture;
 	}
+	*texture = nullptr;
 }
 
 /**

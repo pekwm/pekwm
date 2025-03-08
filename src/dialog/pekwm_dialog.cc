@@ -28,6 +28,7 @@
 #include "../tk/Render.hh"
 #include "../tk/TextureHandler.hh"
 #include "../tk/Theme.hh"
+#include "../tk/ThemeUtil.hh"
 #include "../tk/X11Util.hh"
 
 #include "../tk/TkWidget.hh"
@@ -272,7 +273,8 @@ PekwmDialog::placeWidgets(void)
 		}
 	}
 	if (width == 0) {
-		width = WIDTH_DEFAULT;
+		float scale = pekwm::textureHandler()->getScale();
+		width = ThemeUtil::scaledPixelValue(scale, WIDTH_DEFAULT);
 	}
 
 	uint y = 0;
@@ -359,7 +361,7 @@ int main(int argc, char* argv[])
 	pledge_x11_required("");
 
 	const char* display = NULL;
-	Geometry gm(0, 0, WIDTH_DEFAULT, HEIGHT_DEFAULT);
+	Geometry gm(0, 0, 0, 0);
 	int gm_mask = WIDTH_VALUE | HEIGHT_VALUE;
 	bool raise;
 	std::string title;
@@ -461,6 +463,7 @@ int main(int argc, char* argv[])
 		return 1;
 	}
 
+	float scale;
 	std::string theme_dir, theme_variant;
 	bool font_default_x11;
 	std::string font_charset_override;
@@ -468,6 +471,7 @@ int main(int argc, char* argv[])
 		CfgParser cfg(CfgParserOpt(""));
 		cfg.parse(config_file, CfgParserSource::SOURCE_FILE, true);
 		std::string theme_path;
+		CfgUtil::getScreenScale(cfg.getEntryRoot(), scale);
 		CfgUtil::getThemeDir(cfg.getEntryRoot(),
 				     theme_dir, theme_variant, theme_path);
 		CfgUtil::getFontSettings(cfg.getEntryRoot(),
@@ -476,7 +480,14 @@ int main(int argc, char* argv[])
 	}
 
 	X11::init(dpy, true);
-	init(dpy, 1.0, font_default_x11, font_charset_override);
+	init(dpy, scale, font_default_x11, font_charset_override);
+
+	if (gm.width == 0) {
+		gm.width = ThemeUtil::scaledPixelValue(scale, WIDTH_DEFAULT);
+	}
+	if (gm.height == 0) {
+		gm.height = ThemeUtil::scaledPixelValue(scale, HEIGHT_DEFAULT);
+	}
 
 	_image_handler->path_push_back("./");
 	PImage *image = nullptr;

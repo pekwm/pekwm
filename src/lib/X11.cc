@@ -308,7 +308,8 @@ private:
  * output stream and return false.
  */
 bool
-X11::init(const char *display, std::ostream &os)
+X11::init(const char *display, std::ostream &os, bool synchronous,
+	  bool honour_randr)
 {
 	Display *dpy = XOpenDisplay(display);
 	if (! dpy) {

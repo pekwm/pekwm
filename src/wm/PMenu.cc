@@ -44,7 +44,7 @@ PMenu::Item::Item(const std::string &name, PWinObj *wo_ref, PTexture *icon)
 PMenu::Item::~Item(void)
 {
 	if (_icon) {
-		pekwm::textureHandler()->returnTexture(_icon);
+		pekwm::textureHandler()->returnTexture(&_icon);
 	}
 }
 

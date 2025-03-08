@@ -26,8 +26,9 @@
 #define DEFAULT_BAR_BORDER "black"
 #define DEFAULT_BAR_FILL "grey50"
 
-PanelTheme::PanelTheme(void)
-	: _height(DEFAULT_HEIGHT),
+PanelTheme::PanelTheme(float scale)
+	: _scale(scale),
+	  _height(ThemeUtil::scaledPixelValue(scale, DEFAULT_HEIGHT)),
 	  _loaded(false),
 	  _background(nullptr),
 	  _background_opacity(255),
@@ -40,7 +41,7 @@ PanelTheme::PanelTheme(void)
 	memset(_colors, 0, sizeof(_colors));
 }
 
-PanelTheme::~PanelTheme(void)
+PanelTheme::~PanelTheme()
 {
 	unload();
 }
@@ -63,10 +64,10 @@ PanelTheme::load(const std::string &theme_dir, const std::string& theme_path)
 
 	std::string background, separator, handle, bar_border, bar_fill;
 	uint opacity;
-	CfgParserKeys keys;
+	ThemeUtil::CfgParserKeys keys(_scale);
 	keys.add_string("BACKGROUND", background, DEFAULT_BACKGROUND);
 	keys.add_numeric<uint>("BACKGROUNDOPACITY", opacity, 100, 0, 100);
-	keys.add_numeric<uint>("HEIGHT", _height, DEFAULT_HEIGHT);
+	keys.add_pixels("HEIGHT", _height, DEFAULT_HEIGHT);
 	keys.add_string("SEPARATOR", separator, DEFAULT_SEPARATOR);
 	keys.add_string("HANDLE", handle, "");
 	keys.add_string("BARBORDER", bar_border, DEFAULT_BAR_BORDER);
@@ -102,26 +103,23 @@ PanelTheme::load(const std::string &theme_dir, const std::string& theme_path)
 }
 
 void
-PanelTheme::unload(void)
+PanelTheme::unload()
 {
 	if (! _loaded) {
 		return;
 	}
 
-	_height = DEFAULT_HEIGHT;
+	_height = ThemeUtil::scaledPixelValue(_scale, DEFAULT_HEIGHT);
 	X11::returnColor(_bar_border);
 	_bar_border = nullptr;
 	X11::returnColor(_bar_fill);
 	_bar_fill = nullptr;
 	TextureHandler *th = pekwm::textureHandler();
 	if (_handle) {
-		th->returnTexture(_handle);
-		_handle = nullptr;
+		th->returnTexture(&_handle);
 	}
-	th->returnTexture(_sep);
-	_sep = nullptr;
-	th->returnTexture(_background);
-	_background = nullptr;
+	th->returnTexture(&_sep);
+	th->returnTexture(&_background);
 
 	FontHandler *fh = pekwm::fontHandler();
 	for (int i = 0; i < CLIENT_STATE_NO; i++) {

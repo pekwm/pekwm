@@ -376,7 +376,9 @@ public:
 		XClassHint _xclass_hint;
 	};
 
-	static bool init(const char *display, std::ostream &os);
+	static bool init(const char *display, std::ostream &os,
+			 bool synchronous = false,
+			 bool honour_randr = true);
 	static void init(Display *dpy,
 			 bool synchronous = false,
 			 bool honour_randr = true);

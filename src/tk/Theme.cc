@@ -239,8 +239,7 @@ Theme::PDecorButtonData::unload(void)
 	_loaded = false;
 
 	for (uint i = 0; i < BUTTON_STATE_NO; ++i) {
-		_th->returnTexture(_texture[i]);
-		_texture[i] = 0;
+		_th->returnTexture(&_texture[i]);
 	}
 }
 
@@ -276,7 +275,8 @@ Theme::PDecorData::PDecorData(FontHandler* fh, TextureHandler* th,
 	  _th(th),
 	  _version(version),
 	  _loaded(false),
-	  _title_height(DEFAULT_HEIGHT),
+	  _title_height(ThemeUtil::scaledPixelValue(th->getScale(),
+						    DEFAULT_HEIGHT)),
 	  _title_width_min(0),
 	  _title_width_max(100),
 	  _title_width_symetric(true),
@@ -446,21 +446,17 @@ Theme::PDecorData::unload(void)
 	_loaded = false;
 
 	for (uint i = 0; i < FOCUSED_STATE_NO; ++i) {
-		_th->returnTexture(_texture_tab[i]);
+		_th->returnTexture(&_texture_tab[i]);
 		_fh->returnFont(&_font[i]);
 		_fh->returnColor(&_font_color[i]);
-		_texture_tab[i] = nullptr;
 	}
 
 	for (uint i = 0; i < FOCUSED_STATE_FOCUSED_SELECTED; ++i) {
-		_th->returnTexture(_texture_main[i]);
-		_th->returnTexture(_texture_separator[i]);
-		_texture_main[i] = nullptr;
-		_texture_separator[i] = nullptr;
+		_th->returnTexture(&_texture_main[i]);
+		_th->returnTexture(&_texture_separator[i]);
 
 		for (uint j = 0; j < BORDER_NO_POS; ++j) {
-			_th->returnTexture(_texture_border[i][j]);
-			_texture_border[i][j] = nullptr;
+			_th->returnTexture(&_texture_border[i][j]);
 		}
 	}
 
@@ -701,19 +697,13 @@ Theme::PMenuData::unload(void)
 		_fh->returnFont(&_font[i]);
 		_fh->returnColor(&_color[i]);
 
-		_th->returnTexture(_tex_menu[i]);
-		_tex_menu[i] = nullptr;
-
-		_th->returnTexture(_tex_item[i]);
-		_tex_item[i] = nullptr;
-
-		_th->returnTexture(_tex_arrow[i]);
-		_tex_arrow[i] = nullptr;
+		_th->returnTexture(&_tex_menu[i]);
+		_th->returnTexture(&_tex_item[i]);
+		_th->returnTexture(&_tex_arrow[i]);
 	}
 
 	for (uint i = 0; i < OBJECT_STATE_NO; ++i) {
-		_th->returnTexture(_tex_sep[i]);
-		_tex_sep[i] = nullptr;
+		_th->returnTexture(&_tex_sep[i]);
 	}
 }
 
@@ -850,8 +840,7 @@ Theme::TextDialogData::unload(void)
 
 	_fh->returnFont(&_font);
 	_fh->returnColor(&_color);
-	_th->returnTexture(_tex);
-	_tex = nullptr;
+	_th->returnTexture(&_tex);
 }
 
 //! @brief Check data properties, prints warning and tries to fix.
@@ -952,13 +941,10 @@ Theme::WorkspaceIndicatorData::unload(void)
 
 	_fh->returnFont(&font);
 	_fh->returnColor(&font_color);
-	_th->returnTexture(texture_background);
-	_th->returnTexture(texture_workspace);
-	_th->returnTexture(texture_workspace_act);
+	_th->returnTexture(&texture_background);
+	_th->returnTexture(&texture_workspace);
+	_th->returnTexture(&texture_workspace_act);
 
-	texture_background = nullptr;
-	texture_workspace = nullptr;
-	texture_workspace_act = nullptr;
 	edge_padding = 0;
 	workspace_padding = 0;
 }
@@ -1000,6 +986,7 @@ Theme::DialogData::DialogData(FontHandler* fh, TextureHandler* th)
 	  _text_font(nullptr),
 	  _text_color(nullptr)
 {
+	memset(_button, 0, sizeof(_button));
 	clear();
 }
 
@@ -1075,11 +1062,11 @@ Theme::DialogData::unload(void)
 	_fh->returnColor(&_button_color);
 	_fh->returnFont(&_title_font);
 	for (int i = 0; i < BUTTON_STATE_NO; i++) {
-		_th->returnTexture(_button[i]);
+		_th->returnTexture(&_button[i]);
 	}
 	_fh->returnColor(&_button_color);
 	_fh->returnFont(&_button_font);
-	_th->returnTexture(_background);
+	_th->returnTexture(&_background);
 
 	clear();
 }
@@ -1126,8 +1113,6 @@ Theme::DialogData::check(void)
 void
 Theme::DialogData::clear()
 {
-	_background = nullptr;
-	memset(_button, 0, sizeof(_button));
 	for (int i = 0; i < PAD_NO; i++) {
 		_pad[i] = 2;
 	}
@@ -1174,7 +1159,6 @@ Theme::HarbourData::load(CfgParser::Entry *section)
 	return true;
 }
 
-
 /**
  * Unload harbour data.
  */
@@ -1184,12 +1168,9 @@ Theme::HarbourData::unload(void)
 	if (! _loaded) {
 		return;
 	}
+	_th->returnTexture(&_texture);
 	_loaded = false;
-
-	_th->returnTexture(_texture);
-	_texture = 0;
 }
-
 
 /**
  * Check state of harbour data.

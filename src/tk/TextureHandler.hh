@@ -77,7 +77,7 @@ public:
 	size_t getLengthMin() { return _length_min; }
 	PTexture *getTexture(const std::string &texture);
 	PTexture *referenceTexture(PTexture *texture);
-	void returnTexture(PTexture *texture);
+	void returnTexture(PTexture **texture);
 
 	void logTextures(const std::string& msg) const;
 

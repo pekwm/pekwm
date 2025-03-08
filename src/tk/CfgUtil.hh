@@ -26,6 +26,7 @@ namespace CfgUtil {
 			   std::string &scripts_dir);
 	std::string getDefaultScriptsDir();
 
+	void getScreenScale(const CfgParser::Entry* root, float &scale);
 	void getFontSettings(const CfgParser::Entry* root,
 			     bool &default_is_x11,
 			     std::string &charset_override);

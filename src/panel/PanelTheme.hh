@@ -1,6 +1,6 @@
 //
 // PanelTheme.hh for pekwm
-// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -22,11 +22,11 @@
  */
 class PanelTheme {
 public:
-	PanelTheme(void);
-	~PanelTheme(void);
+	PanelTheme(float scale);
+	~PanelTheme();
 
 	void load(const std::string &theme_dir, const std::string& theme_path);
-	void unload(void);
+	void unload();
 
 	void setIconPath(const std::string& config_path,
 			 const std::string& theme_path);
@@ -47,6 +47,8 @@ private:
 	void check(void);
 
 private:
+	/** Screen scale value. */
+	float _scale;
 	/** Panel height, can be fixed or calculated from font size */
 	uint _height;
 	/** Set to true after load has been called. */

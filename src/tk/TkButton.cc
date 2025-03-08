@@ -89,9 +89,8 @@ TkButton::render(Render&, PSurface&) {
 	render();
 }
 
-
 void
-TkButton::render(void)
+TkButton::render()
 {
 	_data->getButton(_state)->render(&_background, 0, 0,
 					 _gm.width, _gm.height);

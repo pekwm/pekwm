@@ -658,6 +658,8 @@ static void usage(const char* name, int ret)
 {
 	std::cout << "usage: " << name << " [-dh]" << std::endl;
 	std::cout << " -c --config path    Configuration file" << std::endl;
+	std::cout << " -C --pekwm-config path pekwm Configuration file"
+		  << std::endl;
 	std::cout << " -d --display dpy    Display" << std::endl;
 	std::cout << " -h --help           Display this information"
 		  << std::endl;
@@ -736,25 +738,27 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	init(X11::getDpy(), 1.0);
+	Destruct<CfgParser> pekwm_cfg(new CfgParser(CfgParserOpt("")));
+	(*pekwm_cfg)->parse(_pekwm_config_file, CfgParserSource::SOURCE_FILE,
+			    true);
+	float scale;
+	CfgUtil::getScreenScale((*pekwm_cfg)->getEntryRoot(), scale);
+
+	init(X11::getDpy(), scale);
 
 	P_TRACE("pekwm_panel PID " << getpid());
 	{
-		PanelTheme theme;
-		// separate scope to get pekwm_cfg cleaned up after loading
-		// theme
-		{
-			CfgParser pekwm_cfg(CfgParserOpt(""));
-			pekwm_cfg.parse(_pekwm_config_file,
-					CfgParserSource::SOURCE_FILE, true);
-			CfgUtil::getScriptsDir(pekwm_cfg.getEntryRoot(),
-					       _config_script_path);
-			loadTheme(theme, pekwm_cfg);
-		}
+		PanelTheme theme(scale);
+		CfgUtil::getScriptsDir((*pekwm_cfg)->getEntryRoot(),
+				       _config_script_path);
+		loadTheme(theme, *(*pekwm_cfg));
+
+		// free up resources, pekwm_cfg will not be used after this.
+		pekwm_cfg.destruct();
 
 		// run in separate scope to get resources cleaned up before
 		// X11 cleanup
-		PanelConfig cfg;
+		PanelConfig cfg(scale);
 		if (loadConfig(cfg, config_file)) {
 
 			Geometry head =
