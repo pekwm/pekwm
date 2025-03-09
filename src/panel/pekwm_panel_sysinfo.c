@@ -313,6 +313,57 @@ _read_sysinfo(struct pekwm_panel_sysinfo *info)
 }
 
 #else /* !__FreeBSD__ */
+#ifdef __OpenBSD__
+
+#include <sys/types.h>
+#include <sys/sysctl.h>
+#include <sys/vmmeter.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <time.h>
+
+static int
+_read_sysinfo(struct pekwm_panel_sysinfo *info)
+{
+	size_t size;
+	int mib[3];
+	int pagesize_kb = sysconf(_SC_PAGESIZE) / 1024;
+
+	double loadavg[3];
+	if (getloadavg(loadavg, 3) == 3) {
+		info->load1 = loadavg[0];
+		info->load5 = loadavg[1];
+		info->load15 = loadavg[2];
+	}
+
+	mib[0] = CTL_KERN;
+	mib[1] = KERN_BOOTTIME;
+	struct timespec boottime = {0};
+	size = sizeof(boottime);
+	if (! sysctl(mib, 2, &boottime, &size, NULL, 0)) {
+		info->uptime = time(NULL) - boottime.tv_sec;
+	}
+
+	mib[0] = CTL_HW;
+	mib[1] = HW_PHYSMEM64;
+	uint64_t physmem = 0;
+	size = sizeof(physmem);
+	if (! sysctl(mib, 2, &physmem, &size, NULL, 0)) {
+		info->ram_kb = physmem / 1024;
+	}
+
+	mib[0] = CTL_VM;
+	mib[1] = VM_METER;
+
+	struct vmtotal vmtotal;
+	size = sizeof(vmtotal);
+	if (! sysctl(mib, 2, &vmtotal, &size, NULL, 0)) {
+		info->free_ram_kb = vmtotal.t_free * pagesize_kb;
+	}
+	return 0;
+}
+
+#else /* ! __OpenBSD__ */
 
 static int
 _read_sysinfo(struct pekwm_panel_sysinfo *info)
@@ -321,6 +372,7 @@ _read_sysinfo(struct pekwm_panel_sysinfo *info)
 	return 1;
 }
 
+#endif /* __OpenBSD__ */
 #endif /* __FreeBSD__ */
 #endif /* __NetBSD__ */
 #endif /* __sun__ */
