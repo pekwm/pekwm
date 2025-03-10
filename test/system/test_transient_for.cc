@@ -75,6 +75,11 @@ public:
 	}
 
 private:
+	virtual void  themeChanged(const std::string& name,
+				   const std::string& variant, float scale)
+	{
+	}
+
 	Window _t_win1;
 	Window _t_win2;
 	bool _main_first;

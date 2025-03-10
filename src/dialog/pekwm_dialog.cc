@@ -83,13 +83,16 @@ namespace pekwm
 	}
 }
 
-PekwmDialog::PekwmDialog(Theme::DialogData* data,
+PekwmDialog::PekwmDialog(const std::string &theme_dir,
+			 const std::string &theme_variant,
 			 const Geometry &gm, int gm_mask, int decorations,
 			 bool raise, const PekwmDialogConfig& config)
 	: X11App(gm, gm_mask, config.getTitle(),
 		 "dialog", "pekwm_dialog", WINDOW_TYPE_DIALOG,
 		 nullptr, true),
-	  _data(data),
+	  _theme(_font_handler, _image_handler, _texture_handler,
+		 theme_dir, theme_variant),
+	  _data(_theme.getDialogData()),
 	  _raise(raise)
 {
 	X11::selectInput(_window, ExposureMask|StructureNotifyMask);
@@ -287,6 +290,21 @@ PekwmDialog::placeWidgets(void)
 
 	PWinObj::resize(std::max(width, _gm.width),
 			std::max(y, _gm.height));
+}
+
+void
+PekwmDialog::themeChanged(const std::string& name, const std::string& variant,
+			  float scale)
+{
+	if (scale != _texture_handler->getScale()) {
+		_font_handler->setScale(scale);
+		_image_handler->setScale(scale);
+		_texture_handler->setScale(scale);
+	}
+	_theme.load(name, variant);
+
+	placeWidgets();
+	render();
 }
 
 void
@@ -501,10 +519,8 @@ int main(int argc, char* argv[])
 	int ret;
 	{
 		// run in separate scope to get Theme destructed before cleanup
-		Theme theme(_font_handler, _image_handler, _texture_handler,
-			    theme_dir, theme_variant);
 		PekwmDialogConfig config(title, image, message, options);
-		PekwmDialog dialog(theme.getDialogData(),
+		PekwmDialog dialog(theme_dir, theme_variant,
 				   gm, gm_mask, decorations, raise, config);
 		dialog.show();
 		ret = dialog.main(60);

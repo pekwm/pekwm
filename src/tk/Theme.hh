@@ -204,7 +204,6 @@ public:
 		void checkBorder(void);
 		void checkColors(void);
 
-	private:
 		FontHandler* _fh;
 		TextureHandler* _th;
 		int _version;
@@ -442,8 +441,9 @@ public:
 	};
 
 	Theme(FontHandler *fh, ImageHandler *ih, TextureHandler *th,
-	      const std::string& theme_file, const std::string &theme_variant);
-	~Theme(void);
+	      const std::string& theme_file, const std::string &theme_variant,
+	      bool is_owner = false);
+	~Theme();
 
 	bool load(const std::string &dir, const std::string &variant,
 		  bool force=false);
@@ -485,6 +485,7 @@ protected:
 		: _fh(nullptr),
 		  _ih(nullptr),
 		  _th(nullptr),
+		  _is_owner(false),
 		  _version(0),
 		  _loaded(false),
 		  _invert_gc(None),
@@ -513,6 +514,7 @@ private:
 
 	std::string _theme_dir; /**< Path to theme directory. */
 	std::string _theme_file;
+	bool _is_owner;
 	int _version;
 	std::string _background;
 	std::map<std::string, ColorMap> _color_maps;

@@ -1189,10 +1189,12 @@ Theme::HarbourData::check(void)
 
 //! @brief Theme constructor
 Theme::Theme(FontHandler *fh, ImageHandler *ih, TextureHandler *th,
-	     const std::string& theme_file, const std::string &theme_variant)
+	     const std::string& theme_file, const std::string &theme_variant,
+	     bool is_owner)
 	: _fh(fh),
 	  _ih(ih),
 	  _th(th),
+	  _is_owner(is_owner),
 	  _version(0),
 	  _loaded(false),
 	  _dialog_data(fh, th),
@@ -1276,7 +1278,9 @@ Theme::load(const std::string &dir, const std::string &variant, bool force)
 		P_TRACE("Parsed theme: " << _theme_file);
 	}
 
-	X11::setString(X11::getRoot(), PEKWM_THEME, theme_file);
+	if (_is_owner) {
+		X11::setString(X11::getRoot(), PEKWM_THEME, theme_file);
+	}
 
 	// Setup quirks and requirements before parsing.
 	if (theme_ok) {

@@ -23,9 +23,6 @@ public:
 	class XROOTPMAP_ID_Changed : public Observation {
 	};
 
-	class PEKWM_THEME_Changed : public Observation {
-	};
-
 	/**
 	 * Observation sent whenever the client list of the WM state has been
 	 * updated.
@@ -84,7 +81,6 @@ private:
 	std::map<Atom, std::string> _atom_names;
 
 	XROOTPMAP_ID_Changed _xrootpmap_id_changed;
-	PEKWM_THEME_Changed _pekwm_theme_changed;
 	ClientList_Changed _client_list_changed;
 	ClientState_Changed _client_state_changed;
 };

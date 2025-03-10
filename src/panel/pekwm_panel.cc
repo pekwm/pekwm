@@ -209,6 +209,22 @@ private:
 		resizeWidgets();
 	}
 
+	virtual void themeChanged(const std::string& name,
+				  const std::string& variant, float scale)
+	{
+		P_DBG("reloading theme, _PEKWM_THEME changed");
+		loadTheme(_theme, _pekwm_config_file);
+		setStrut();
+		place();
+		// resize widgets after loading, separator size and handles
+		// can alter available amount of space.
+		resizeWidgets();
+
+		// re-render
+		renderBackground();
+		renderPred(renderPredAlways, nullptr);
+	}
+
 	PanelWidget* findWidget(int x)
 	{
 		std::vector<PanelWidget*>::iterator it = _widgets.begin();
@@ -296,10 +312,6 @@ PekwmPanel::PekwmPanel(const PanelConfig &cfg, PanelTheme &theme,
 	X11::setAtoms(_window, STATE, state, sizeof(state)/sizeof(state[0]));
 	setStrut();
 
-	// select root window for atom changes _before_ reading state
-	// ensuring state is up-to-date at all times.
-	X11::selectInput(X11::getRoot(), PropertyChangeMask);
-
 	pekwm::observerMapping()->addObserver(&_wm_state, this, 100);
 }
 
@@ -368,18 +380,7 @@ PekwmPanel::render(void)
 void
 PekwmPanel::notify(Observable*, Observation *observation)
 {
-	if (dynamic_cast<WmState::PEKWM_THEME_Changed*>(observation)) {
-		P_DBG("reloading theme, _PEKWM_THEME changed");
-		loadTheme(_theme, _pekwm_config_file);
-		setStrut();
-		place();
-		// resize widgets after loading, separator size and handles
-		// can alter available amount of space.
-		resizeWidgets();
-	}
-
-	if (dynamic_cast<WmState::XROOTPMAP_ID_Changed*>(observation)
-	    || dynamic_cast<WmState::PEKWM_THEME_Changed*>(observation)) {
+	if (dynamic_cast<WmState::XROOTPMAP_ID_Changed*>(observation)) {
 		renderBackground();
 		renderPred(renderPredAlways, nullptr);
 	} else if (dynamic_cast<RequiredSizeChanged*>(observation)) {

@@ -106,7 +106,8 @@ namespace pekwm
 		_theme = new Theme(_font_handler, _image_handler,
 				   _texture_handler,
 				   _config->getThemeFile(),
-				   _config->getThemeVariant());
+				   _config->getThemeVariant(),
+				   true);
 
 		_auto_properties = new AutoProperties(_image_handler);
 		_auto_properties->load();

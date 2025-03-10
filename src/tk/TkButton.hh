@@ -28,13 +28,12 @@ public:
 	virtual void render(Render&, PSurface&);
 
 private:
-	void render(void);
+	void render();
+	PFont* font() const { return _data->getButtonFont(); }
 
-private:
 	stop_fun _stop;
 	int _retcode;
 	std::string _text;
-	PFont *_font;
 
 	PPixmapSurface _background;
 	ButtonState _state;

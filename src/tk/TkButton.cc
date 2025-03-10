@@ -1,6 +1,6 @@
 //
 // TkButton.cc for pekwm
-// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2023-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -14,7 +14,6 @@ TkButton::TkButton(Theme::DialogData* data, PWinObj& parent,
 	  _stop(stop),
 	  _retcode(retcode),
 	  _text(text),
-	  _font(data->getButtonFont()),
 	  _state(BUTTON_STATE_FOCUSED)
 {
 	_gm.width = TkButton::widthReq();
@@ -75,13 +74,13 @@ TkButton::place(int x, int y, uint, uint tot_height)
 uint
 TkButton::widthReq(void) const
 {
-	return _font->getWidth(_text) + _data->padVert();
+	return font()->getWidth(_text) + _data->padVert();
 }
 
 uint
 TkButton::heightReq(uint) const
 {
-	return _font->getHeight() + _data->padHorz();
+	return font()->getHeight() + _data->padHorz();
 }
 
 void
@@ -94,8 +93,8 @@ TkButton::render()
 {
 	_data->getButton(_state)->render(&_background, 0, 0,
 					 _gm.width, _gm.height);
-	_font->setColor(_data->getButtonColor());
-	_font->draw(&_background,
+	font()->setColor(_data->getButtonColor());
+	font()->draw(&_background,
 		    _data->getPad(PAD_LEFT), _data->getPad(PAD_UP),
 		    _text);
 
