@@ -92,6 +92,10 @@ namespace pekwm
 		_key_grabber->load(_config->getKeyFile());
 		_key_grabber->grabKeys(X11::getRoot());
 
+
+		X11::setString(X11::getRoot(), PEKWM_THEME_SCALE,
+			       std::to_string(_config->getScreenScale()));
+
 		_font_handler =
 			new FontHandler(_config->getScreenScale(),
 					_config->isDefaultFontX11(),

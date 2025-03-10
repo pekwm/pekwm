@@ -489,6 +489,7 @@ WindowManager::doReloadConfig(void)
 {
 	Config *cfg = pekwm::config();
 	// If any of these changes, re-fetch of all names is required
+	float old_screen_scale = cfg->getScreenScale();
 	bool old_client_unique_name = cfg->getClientUniqueName();
 	std::string
 		old_client_unique_name_pre(cfg->getClientUniqueNamePre());
@@ -499,8 +500,13 @@ WindowManager::doReloadConfig(void)
 	if (! cfg->load(cfg->getConfigFile())) {
 		return;
 	}
-	pekwm::imageHandler()->setScale(cfg->getScreenScale());
-	pekwm::textureHandler()->setScale(cfg->getScreenScale());
+
+	if (old_screen_scale != cfg->getScreenScale()) {
+		X11::setString(X11::getRoot(), PEKWM_THEME_SCALE,
+			       std::to_string(cfg->getScreenScale()));
+		pekwm::imageHandler()->setScale(cfg->getScreenScale());
+		pekwm::textureHandler()->setScale(cfg->getScreenScale());
+	}
 
 	// Update what might have changed in the cfg touching the hints
 	Workspaces::setSize(cfg->getWorkspaces());

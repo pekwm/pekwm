@@ -161,6 +161,7 @@ static const char *atomnames[] = {
 	"_PEKWM_CMD",
 	"_PEKWM_THEME",
 	"_PEKWM_THEME_VARIANT",
+	"_PEKWM_THEME_SCALE",
 	"_PEKWM_CLIENT_LIST",
 
 	// ICCCM atoms
