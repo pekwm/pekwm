@@ -1,6 +1,6 @@
 //
-// test_PFontXmb.cc for pekwm
-// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
+// test_PFontXmb.hh for pekwm
+// Copyright (C) 2023-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -14,7 +14,7 @@
 class MockPFontXmb : public PFontXmb {
 public:
 	MockPFontXmb(const PFont::Descr& descr)
-		: PFontXmb(),
+		: PFontXmb(1.0),
 		  _native(PFontXmb::toNativeDescr(descr))
 	{
 	}

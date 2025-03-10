@@ -35,19 +35,21 @@ public:
 
 	class Entry {
 	public:
-		Entry(const std::string &name, PTexture *texture)
-			: _name(name),
+		Entry(float scale, const std::string &name, PTexture *texture)
+			: _scale(scale),
+			  _name(name),
 			  _texture(texture),
 			  _ref(0)
 		{
 		}
-		~Entry(void)
+		~Entry()
 		{
 			delete _texture;
 		}
 
-		PTexture *getTexture(void) { return _texture; }
-		const std::string& getName(void) const { return _name; }
+		float getScale() const { return _scale; }
+		const std::string& getName() const { return _name; }
+		PTexture *getTexture() { return _texture; }
 
 		inline uint getRef(void) const { return _ref; }
 		inline void incRef(void) { ++_ref; }
@@ -58,6 +60,7 @@ public:
 		}
 
 	private:
+		float _scale;
 		std::string _name;
 		PTexture *_texture;
 

@@ -1,6 +1,6 @@
 //
 // PFontX11.cc for pekwm
-// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2023-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -12,15 +12,15 @@
 
 const char *FALLBACK_FONT = "fixed";
 
-PFontX11::PFontX11(void)
-	: PFontX(),
+PFontX11::PFontX11(float scale)
+	: PFontX(scale),
 	  _font(0),
 	  _gc_fg(None),
 	  _gc_bg(None)
 {
 }
 
-PFontX11::~PFontX11(void)
+PFontX11::~PFontX11()
 {
 	PFontX11::unload();
 }

@@ -1,5 +1,5 @@
 //
-// test_PFont.cc for pekwm
+// test_PFont.hh for pekwm
 // Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
@@ -19,7 +19,7 @@ struct WMP {
 class MockPFont : public PFont {
 public:
 	MockPFont(WMP *width_map);
-	virtual ~MockPFont(void);
+	virtual ~MockPFont();
 
 	virtual bool load(const PFont::Descr&) { return true; }
 	virtual void unload() { }
@@ -38,6 +38,7 @@ private:
 };
 
 MockPFont::MockPFont(WMP *width_map)
+	: PFont(1.0)
 {
 	for (int i = 0; width_map[i].str != nullptr; ++i) {
 		_width_map[width_map[i].str] = width_map[i].w;

@@ -1,6 +1,6 @@
 //
-// PFontX.hh for pekwm
-// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
+// PFontX.cc for pekwm
+// Copyright (C) 2023-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -51,12 +51,12 @@ static Util::StringTo<const char*> width_map[] =
 
 
 
-PFontX::PFontX(void)
-	: PFont()
+PFontX::PFontX(float scale)
+	: PFont(scale)
 {
 }
 
-PFontX::~PFontX(void)
+PFontX::~PFontX()
 {
 }
 

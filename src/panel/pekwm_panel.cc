@@ -212,7 +212,13 @@ private:
 	virtual void themeChanged(const std::string& name,
 				  const std::string& variant, float scale)
 	{
-		P_DBG("reloading theme, _PEKWM_THEME changed");
+		// scale changed, update before re-loadint the theme
+		if (scale != pekwm::textureHandler()->getScale()) {
+			pekwm::fontHandler()->setScale(scale);
+			pekwm::imageHandler()->setScale(scale);
+			pekwm::textureHandler()->setScale(scale);
+		}
+
 		loadTheme(_theme, _pekwm_config_file);
 		setStrut();
 		place();

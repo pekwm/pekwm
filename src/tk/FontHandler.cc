@@ -88,7 +88,7 @@ FontHandler::getFont(const std::string &font)
 	// Check cache
 	std::vector<HandlerEntry<PFont*> >::iterator it = _fonts.begin();
 	for (; it != _fonts.end(); ++it) {
-		if (*it == font) {
+		if (it->getData()->getScale() == _scale && *it == font) {
 			it->incRef();
 			return it->getData();
 		}
@@ -150,12 +150,12 @@ FontHandler::newFont(const std::string &font,
 		return newFontAuto();
 #ifdef PEKWM_HAVE_XFT
 	case PFont::FONT_TYPE_XFT:
-		return new PFontXft;
+		return new PFontXft(_scale);
 #endif // PEKWM_HAVE_XFT
 	case PFont::FONT_TYPE_X11:
-		return new PFontX11;
+		return new PFontX11(_scale);
 	case PFont::FONT_TYPE_XMB:
-		return new PFontXmb;
+		return new PFontXmb(_scale);
 #ifdef PEKWM_HAVE_PANGO_CAIRO
 	case PFont::FONT_TYPE_PANGO:
 		return new PFontPangoCairo(_scale);
@@ -182,10 +182,10 @@ FontHandler::newFontX11(PFont::Type &type) const
 {
 	if (_default_font_x11) {
 		type = PFont::FONT_TYPE_X11;
-		return new PFontX11;
+		return new PFontX11(_scale);
 	}
 	type = PFont::FONT_TYPE_XMB;
-	return new PFontXmb;
+	return new PFontXmb(_scale);
 }
 
 /**

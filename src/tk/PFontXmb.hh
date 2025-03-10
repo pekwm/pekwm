@@ -1,6 +1,6 @@
 //
 // PFontXmb.hh for pekwm
-// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2023-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -13,8 +13,8 @@
 
 class PFontXmb : public PFontX {
 public:
-	PFontXmb(void);
-	virtual ~PFontXmb(void);
+	PFontXmb(float scale);
+	virtual ~PFontXmb();
 
 	// virtual interface
 	virtual bool load(const PFont::Descr& descr);

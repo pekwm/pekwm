@@ -70,7 +70,7 @@ TextureHandler::getTexture(const std::string &texture)
 	// check for already existing entry
 	entry_vector::iterator it(_textures.begin());
 	for (; it != _textures.end(); ++it) {
-		if (*(*it) == texture) {
+		if ((*it)->getScale() == _scale && *(*it) == texture) {
 			(*it)->incRef();
 			return (*it)->getTexture();
 		}
@@ -81,7 +81,7 @@ TextureHandler::getTexture(const std::string &texture)
 	if (ptexture) {
 		// create new entry
 		TextureHandler::Entry *entry =
-			new TextureHandler::Entry(texture, ptexture);
+			new TextureHandler::Entry(_scale, texture, ptexture);
 		entry->incRef();
 		_textures.push_back(entry);
 	}
@@ -107,7 +107,8 @@ TextureHandler::referenceTexture(PTexture *texture)
 	}
 
 	// Create new entry
-	TextureHandler::Entry *entry = new TextureHandler::Entry("@", texture);
+	TextureHandler::Entry *entry =
+		new TextureHandler::Entry(_scale, "@", texture);
 	entry->incRef();
 	_textures.push_back(entry);
 

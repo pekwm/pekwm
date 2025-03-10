@@ -1,6 +1,6 @@
 //
 // PFontXmb.cc for pekwm
-// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2023-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -13,15 +13,15 @@
 
 const char* PFontXmb::DEFAULT_FONTSET = "fixed";
 
-PFontXmb::PFontXmb(void)
-	: PFontX(),
+PFontXmb::PFontXmb(float scale)
+	: PFontX(scale),
 	  _fontset(nullptr),
 	  _gc_fg(None),
 	  _gc_bg(None)
 {
 }
 
-PFontXmb::~PFontXmb(void)
+PFontXmb::~PFontXmb()
 {
 	PFontXmb::unload();
 }

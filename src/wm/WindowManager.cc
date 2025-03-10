@@ -458,8 +458,9 @@ WindowManager::screenEdgeMapUnmap(void)
 void
 WindowManager::doReload(void)
 {
-	doReloadConfig();
-	doReloadTheme();
+	bool scale_changed = false;
+	doReloadConfig(scale_changed);
+	doReloadTheme(scale_changed /* force if scale changed */);
 	doReloadMouse();
 	doReloadKeygrabber();
 	doReloadAutoproperties();
@@ -485,8 +486,10 @@ WindowManager::doReload(void)
  * Reload main config file.
  */
 void
-WindowManager::doReloadConfig(void)
+WindowManager::doReloadConfig(bool &scale_changed)
 {
+	scale_changed = false;
+
 	Config *cfg = pekwm::config();
 	// If any of these changes, re-fetch of all names is required
 	float old_screen_scale = cfg->getScreenScale();
@@ -501,9 +504,11 @@ WindowManager::doReloadConfig(void)
 		return;
 	}
 
-	if (old_screen_scale != cfg->getScreenScale()) {
+	scale_changed = old_screen_scale != cfg->getScreenScale();
+	if (scale_changed) {
 		X11::setString(X11::getRoot(), PEKWM_THEME_SCALE,
 			       std::to_string(cfg->getScreenScale()));
+		pekwm::fontHandler()->setScale(cfg->getScreenScale());
 		pekwm::imageHandler()->setScale(cfg->getScreenScale());
 		pekwm::textureHandler()->setScale(cfg->getScreenScale());
 	}

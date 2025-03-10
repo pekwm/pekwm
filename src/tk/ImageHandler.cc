@@ -24,8 +24,10 @@ static Util::StringTo<ImageType> image_type_map[] =
 	 {"FIXED", IMAGE_TYPE_FIXED},
 	 {nullptr, IMAGE_TYPE_NO}};
 
-ImageRefEntry::ImageRefEntry(const std::string& u_name, PImage* data)
-	: _u_name(u_name),
+ImageRefEntry::ImageRefEntry(float scale, const std::string& u_name,
+			     PImage* data)
+	: _scale(scale),
+	  _u_name(u_name),
 	  _data(data),
 	  _ref(1)
 {
@@ -155,7 +157,7 @@ ImageHandler::getImageFromPath(const std::string &file,
 	// Check cache for entry.
 	std::vector<ImageRefEntry>::iterator it = images.begin();
 	for (; it != images.end(); ++it) {
-		if (it->getUName() == u_file) {
+		if (it->getScale() == _scale && it->getUName() == u_file) {
 			ref = it->incRef();
 			return it->get();
 		}
@@ -165,7 +167,7 @@ ImageHandler::getImageFromPath(const std::string &file,
 	PImage *image;
 	try {
 		image = new PImage(file);
-		images.push_back(ImageRefEntry(u_file, image));
+		images.push_back(ImageRefEntry(_scale, u_file, image));
 		ref = 1;
 	} catch (LoadException&) {
 		image = nullptr;
@@ -192,7 +194,7 @@ ImageHandler::takeOwnership(PImage *image)
 {
 	std::string key = Util::to_string(static_cast<void*>(image));
 	Util::to_upper(key);
-	_images.push_back(ImageRefEntry(key, image));
+	_images.push_back(ImageRefEntry(_scale, key, image));
 }
 
 PImage*

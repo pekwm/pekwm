@@ -38,7 +38,6 @@ protected:
 	virtual std::string toNativeDescr(const PFont::Descr &descr) const;
 	int charsToLen(uint chars);
 
-	float _scale;
 	PangoContext* _context;
 	PangoFontMap* _font_map;
 	PangoFont* _font;

@@ -1,6 +1,6 @@
 //
 // PFontX11.hh for pekwm
-// Copyright (C) 2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2023-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -13,8 +13,8 @@
 
 class PFontX11 : public PFontX {
 public:
-	PFontX11(void);
-	virtual ~PFontX11(void);
+	PFontX11(float scale);
+	virtual ~PFontX11();
 
 	// virtual interface
 	virtual bool load(const PFont::Descr& descr);

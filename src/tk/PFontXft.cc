@@ -11,15 +11,15 @@
 
 #ifdef PEKWM_HAVE_XFT
 
-PFontXft::PFontXft(void)
-	: PFont(),
+PFontXft::PFontXft(float scale)
+	: PFont(scale),
 	  _draw(XftDrawCreate(X11::getDpy(), X11::getRoot(),
 			      X11::getVisual(), X11::getColormap())),
 	  _font(0)
 {
 }
 
-PFontXft::~PFontXft(void)
+PFontXft::~PFontXft()
 {
 	PFontXft::unload();
 	XftDrawDestroy(_draw);

@@ -215,17 +215,18 @@ PFont::Descr::setSizeFromProp()
 
 // PFont
 
-PFont::PFont(void) :
-	_height(0),
-	_ascent(0),
-	_descent(0),
-	_offset_x(0),
-	_offset_y(0),
-	_justify(FONT_JUSTIFY_LEFT)
+PFont::PFont(float scale)
+	: _scale(scale),
+	  _height(0),
+	  _ascent(0),
+	  _descent(0),
+	  _offset_x(0),
+	  _offset_y(0),
+	  _justify(FONT_JUSTIFY_LEFT)
 {
 }
 
-PFont::~PFont(void)
+PFont::~PFont()
 {
 }
 
