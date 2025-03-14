@@ -17,13 +17,10 @@
 /**
  * Display icon based on value from external command.
  */
-class IconWidget : public PanelWidget,
-		   public Observer {
+class IconWidget : public PanelWidget {
 public:
 	IconWidget(const PanelWidgetData &data, const PWinObj* parent,
-		   const SizeReq& size_req,
-		   const std::string& field,
-		   const CfgParser::Entry *section);
+		   const WidgetConfig& cfg, const std::string& field);
 	virtual ~IconWidget(void);
 
 	virtual const char *getName() const { return "Icon"; }

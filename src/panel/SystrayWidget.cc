@@ -26,8 +26,6 @@ enum SystrayOpcode {
 	SYSTEM_TRAY_CANCEL_MESSAGE = 2
 };
 
-static RequiredSizeChanged _required_size_changed;
-
 // SystrayWidget::Client
 
 SystrayWidget::Client::Client(Window win)
@@ -55,15 +53,15 @@ SystrayWidget::Client::isMapped() const
 // SystrayWidget
 
 SystrayWidget::SystrayWidget(const PanelWidgetData &data,
-			     const PWinObj* parent, Observer* observer,
-			     const SizeReq& size_req,
-			     const CfgParser::Entry* section)
-	: PanelWidget(data, parent, size_req),
-	  _observer(observer),
+			     const PWinObj* parent, const WidgetConfig& cfg)
+	: PanelWidget(data, parent, cfg.getSizeReq(), cfg.getIf()),
 	  _owner(None),
 	  _owner_atom(0)
 {
-	pekwm::observerMapping()->addObserver(this, _observer, 100);
+	// avoid duplicate mappings, only add if base PanelWidget has not
+	if (_if_tfo.isFixed()) {
+		pekwm::observerMapping()->addObserver(this, _observer, 100);
+	}
 
 	// owner window
 	XSetWindowAttributes attrs = {0};
@@ -90,7 +88,9 @@ SystrayWidget::~SystrayWidget()
 	}
 	X11::destroyWindow(_owner);
 
-	pekwm::observerMapping()->removeObserver(this, _observer);
+	if (_if_tfo.isFixed()) {
+		pekwm::observerMapping()->removeObserver(this, _observer);
+	}
 }
 
 uint
@@ -384,12 +384,4 @@ SystrayWidget::readXEmbedInfo(Client* client)
 	}
 
 	X11::free(data);
-}
-
-void
-SystrayWidget::sendRequiredSizeChanged()
-{
-	_dirty = true;
-	pekwm::observerMapping()->notifyObservers(this,
-						  &_required_size_changed);
 }

@@ -60,7 +60,29 @@ For simplicity space for the separators is excluded.
   100px       250px                           450px
 ```
 
-**Interval** update interval in seconds
+**Interval**
+
+Update interval in seconds
+
+**If**
+
+Condition controlling whether the widget should be displayed or not. The
+condition can reference variable values and will be re-evaluated in case the
+value is changed.
+
+The operators: `=`, `!=`, `<` and `>` are supported. `<` and `>` require
+numeric values for the comparison to be true.
+
+The empty string and `true` always evaluate to true.
+
+Example:
+
+```
+Bar = "battery" {
+    If = "%battery_count > 0"
+	...
+}
+```
 
 #### Widget: Bar
 

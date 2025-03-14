@@ -142,3 +142,54 @@ TextFormatter::expandVar(const std::string& buf)
 	return _var_data.get(buf);
 }
 
+TextFormatObserver::TextFormatObserver(VarData& var_data, WmState& wm_state,
+				       Observer *observer,
+				       const std::string& format)
+	: _tf(var_data, wm_state),
+	  _observer(observer),
+	  _pp_format(_tf.preprocess(format))
+{
+	if (! _tf.getFields().empty()) {
+		pekwm::observerMapping()->addObserver(
+			_tf.getVarData(), _observer, 100);
+	}
+	if (_tf.referenceWmState()) {
+		pekwm::observerMapping()->addObserver(
+			_tf.getWmState(), _observer, 100);
+	}
+}
+
+TextFormatObserver::~TextFormatObserver()
+{
+	if (_tf.referenceWmState()) {
+		pekwm::observerMapping()->removeObserver(
+			_tf.getWmState(), _observer);
+	}
+	if (! _tf.getFields().empty()) {
+		pekwm::observerMapping()->removeObserver(
+			_tf.getVarData(), _observer);
+	}
+}
+
+/**
+ * Check if the observation matches any of the observed fields.
+ */
+bool
+TextFormatObserver::match(Observation *observation)
+{
+	if (isFixed()) {
+		return false;
+	}
+
+	FieldObservation *fo = dynamic_cast<FieldObservation*>(observation);
+	if (fo != nullptr) {
+		const std::vector<std::string> &fields = _tf.getFields();
+		std::vector<std::string>::const_iterator it(fields.begin());
+		for (; it != fields.end(); ++it) {
+			if (*it == fo->getField()) {
+				return true;
+			}
+		}
+	}
+	return false;
+}

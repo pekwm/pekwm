@@ -23,12 +23,14 @@ static Util::StringTo<PanelPlacement> panel_placement_map[] =
 
 WidgetConfig::WidgetConfig(const std::string& name,
 			   const std::vector<std::string>& args,
+			   const std::string& if_,
 			   const SizeReq& size_req,
 			   uint interval_s,
 			   const std::vector<WidgetConfigClick> &clicks,
 			   const CfgParser::Entry* section)
 	: _name(name),
 	  _args(args),
+	  _if(if_),
 	  _size_req(size_req),
 	  _interval_s(interval_s),
 	  _clicks(clicks),
@@ -42,6 +44,7 @@ WidgetConfig::WidgetConfig(const std::string& name,
 WidgetConfig::WidgetConfig(const WidgetConfig& cfg)
 	: _name(cfg._name),
 	  _args(cfg._args),
+	  _if(cfg._if),
 	  _size_req(cfg._size_req),
 	  _interval_s(cfg._interval_s),
 	  _clicks(cfg._clicks)
@@ -53,7 +56,7 @@ WidgetConfig::WidgetConfig(const WidgetConfig& cfg)
 	}
 }
 
-WidgetConfig::~WidgetConfig(void)
+WidgetConfig::~WidgetConfig()
 {
 	delete _section;
 }
@@ -69,6 +72,7 @@ WidgetConfig::operator=(const WidgetConfig& rhs)
 
 	_name = rhs._name;
 	_args = rhs._args;
+	_if = rhs._if;
 	_size_req = rhs._size_req;
 	_interval_s = rhs._interval_s;
 	_clicks = rhs._clicks;
@@ -186,6 +190,7 @@ PanelConfig::loadWidgets(CfgParser::Entry *section)
 	CfgParser::Entry::entry_cit it = section->begin();
 	for (; it != section->end(); ++it) {
 		uint interval = UINT_MAX;
+		std::string if_;
 		std::string size = "REQUIRED";
 		std::vector<WidgetConfigClick> clicks;
 
@@ -194,6 +199,7 @@ PanelConfig::loadWidgets(CfgParser::Entry *section)
 			CfgParserKeys keys;
 			keys.add_numeric<uint>("INTERVAL", interval, UINT_MAX);
 			keys.add_string("SIZE", size, "REQUIRED");
+			keys.add_string("IF", if_, "");
 			w_section->parseKeyValues(keys.begin(), keys.end());
 			keys.clear();
 
@@ -201,7 +207,7 @@ PanelConfig::loadWidgets(CfgParser::Entry *section)
 		}
 
 		SizeReq size_req = parseSize(size);
-		addWidget((*it)->getName(), size_req, interval,
+		addWidget((*it)->getName(), if_, size_req, interval,
 			  (*it)->getValue(), clicks, w_section);
 	}
 }
@@ -237,7 +243,7 @@ PanelConfig::loadWidgetClicks(CfgParser::Entry *section,
 }
 
 void
-PanelConfig::addWidget(const std::string& name,
+PanelConfig::addWidget(const std::string& name, const std::string& if_,
 		       const SizeReq& size_req, uint interval,
 		       const std::string& args_str,
 		       const std::vector<WidgetConfigClick> &clicks,
@@ -247,7 +253,7 @@ PanelConfig::addWidget(const std::string& name,
 	if (! args_str.empty()) {
 		args.push_back(args_str);
 	}
-	_widgets.push_back(WidgetConfig(name, args, size_req, interval,
+	_widgets.push_back(WidgetConfig(name, args, if_, size_req, interval,
 					clicks, section));
 }
 

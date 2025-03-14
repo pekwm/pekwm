@@ -631,7 +631,7 @@ public:
 
 	static void setWindowBackground(Window window, ulong pixel);
 	static void setWindowBackgroundPixmap(Window window, Pixmap pixmap);
-	static void  clearWindow(Window window);
+	static void clearWindow(Window window);
 
 	static void shapeSelectInput(Window window, ulong mask);
 	static void shapeQuery(Window dst, int *bshaped);

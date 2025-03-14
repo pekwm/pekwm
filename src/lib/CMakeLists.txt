@@ -10,6 +10,7 @@ set(lib_SOURCES
     Charset.cc
     CMakeLists.txt
     Compat.cc
+    Cond.cc
     Daytime.cc
     Debug.cc
     Geometry.cc

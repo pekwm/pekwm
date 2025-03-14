@@ -8,6 +8,7 @@
 
 #include "Charset.hh"
 #include "Compat.hh"
+#include "Cond.hh"
 #include "Debug.hh"
 #include "Os.hh"
 #include "Observable.hh"
@@ -385,14 +386,15 @@ PekwmPanel::render(void)
 }
 
 void
-PekwmPanel::notify(Observable*, Observation *observation)
+PekwmPanel::notify(Observable* o, Observation *observation)
 {
 	if (dynamic_cast<WmState::XROOTPMAP_ID_Changed*>(observation)) {
 		renderBackground();
 		renderPred(renderPredAlways, nullptr);
 	} else if (dynamic_cast<RequiredSizeChanged*>(observation)) {
-		P_TRACE("RequiredSizeChanged notification");
+		P_LOG("RequiredSizeChanged notification");
 		resizeWidgets();
+		renderBackground();
 		renderPred(renderPredAlways, nullptr);
 	} else {
 		renderPred(renderPredDirty, nullptr);
@@ -526,6 +528,9 @@ PekwmPanel::resizeWidgets(bool scale_changed)
 	_widgets_visible = 0;
 	std::vector<PanelWidget*>::iterator it = _widgets.begin();
 	for (; it != _widgets.end(); ++it) {
+		if (! Cond::eval((*it)->getIf())) {
+			continue;
+		}
 		if (scale_changed) {
 			(*it)->scaleChanged();
 		}
@@ -576,6 +581,9 @@ PekwmPanel::resizeWidgets(bool scale_changed)
 	for (it = _widgets.begin(); it != _widgets.end(); ++it) {
 		if ((*it)->getSizeReq().getUnit() == WIDGET_UNIT_REST) {
 			(*it)->setWidth(rest);
+		}
+		if (! (*it)->isVisible()) {
+			continue;
 		}
 		(*it)->move(x);
 		x += (*it)->getWidth() + sep->getWidth();

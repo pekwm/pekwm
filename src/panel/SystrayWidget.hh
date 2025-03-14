@@ -20,8 +20,7 @@
  * Widget providing a systray area, only one widget is allowed in the panel
  * configuration.
  */
-class SystrayWidget : public PanelWidget,
-		      public Observable {
+class SystrayWidget : public PanelWidget {
 public:
 	class Client : public PWinObj {
 	public:
@@ -43,8 +42,7 @@ public:
 	typedef client_vector::const_iterator client_cit;
 
 	SystrayWidget(const PanelWidgetData &data, const PWinObj* parent,
-		      Observer* observer, const SizeReq& size_req,
-		      const CfgParser::Entry* section);
+		      const WidgetConfig& cfg);
 	virtual ~SystrayWidget();
 
 	virtual const char *getName() const { return "Systray"; }
@@ -78,11 +76,7 @@ private:
 	bool handleSystemTrayOpcode(long opcode, long win);
 	void readXEmbedInfo(Client* client);
 
-	void sendRequiredSizeChanged();
-
 private:
-	/** Observer for requrired size notifications */
-	Observer* _observer;
 	/** Owner window for _NET_SYSTEM_TRAY_Sn */
 	Window _owner;
 	/** _NET_SYSTEM_TRAY_Sn atom */

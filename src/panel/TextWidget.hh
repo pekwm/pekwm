@@ -13,6 +13,7 @@
 #include "Observable.hh"
 #include "PanelWidget.hh"
 #include "RegexString.hh"
+#include "TextFormatter.hh"
 
 /**
  * Text widget with format string that is able to reference command
@@ -20,13 +21,11 @@
  *
  * Format $external, $:wm, $_env
  */
-class TextWidget : public PanelWidget,
-		   public Observer {
+class TextWidget : public PanelWidget {
 public:
 	TextWidget(const PanelWidgetData &data, const PWinObj* parent,
-		   const SizeReq& size_req, const std::string& format,
-		   const CfgParser::Entry *section);
-	virtual ~TextWidget(void);
+		   const WidgetConfig& cfg, const std::string& format);
+	virtual ~TextWidget();
 
 	virtual const char *getName() const { return "Text"; }
 
@@ -37,13 +36,9 @@ public:
 private:
 	void parseText(const CfgParser::Entry* section);
 
-private:
-	std::string _pp_format;
+	TextFormatObserver _tfo;
 	/** Regex transform of formatted output */
 	RegexString _transform;
-
-	bool _check_wm_state;
-	std::vector<std::string> _fields;
 };
 
 #endif // _PEKWM_PANEL_TEXT_WIDGET_HH_

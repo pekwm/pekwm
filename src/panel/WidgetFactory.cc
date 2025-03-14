@@ -39,34 +39,26 @@ WidgetFactory::mk(const WidgetConfig& cfg)
 		if (field.empty()) {
 			USER_WARN("missing required argument to Bar widget");
 		} else {
-			return new BarWidget(_data, _parent, cfg.getSizeReq(),
-					     field, cfg.getCfgSection());
+			return new BarWidget(_data, _parent, cfg, field);
 		}
 	} else if (name == "CLIENTLIST") {
 		const std::string &separator = cfg.getArg(0);
-		return new ClientListWidget(_data, _parent, cfg.getSizeReq(),
-					    separator);
+		return new ClientListWidget(_data, _parent, cfg, separator);
 	} else if (name == "DATETIME") {
 		const std::string &format = cfg.getArg(0);
-		return new DateTimeWidget(_data, _parent, cfg.getSizeReq(),
-					  format);
+		return new DateTimeWidget(_data, _parent, cfg, format);
 	} else if (name == "ICON") {
 		const std::string &field = cfg.getArg(0);
-		return new IconWidget(_data, _parent, cfg.getSizeReq(),
-				      field, cfg.getCfgSection());
+		return new IconWidget(_data, _parent, cfg, field);
 	} else if (name == "SYSTRAY") {
-		return new SystrayWidget(_data, _parent, _observer,
-					 cfg.getSizeReq(),
-					 cfg.getCfgSection());
+		return new SystrayWidget(_data, _parent, cfg);
 
 	} else if (name == "TEXT") {
 		const std::string &format = cfg.getArg(0);
 		if (format.empty()) {
 			USER_WARN("missing required argument to Text widget");
 		} else {
-			return new TextWidget(_data, _parent,
-					      cfg.getSizeReq(), format,
-					      cfg.getCfgSection());
+			return new TextWidget(_data, _parent, cfg, format);
 		}
 	} else {
 		USER_WARN("unknown widget " << cfg.getName());

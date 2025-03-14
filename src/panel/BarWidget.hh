@@ -52,24 +52,22 @@
  * Widget display a bar filled from 0-100% getting fill percentage
  * from external command data.
  */
-class BarWidget : public PanelWidget,
-		  public Observer {
+class BarWidget : public PanelWidget {
 public:
 	BarWidget(const PanelWidgetData &data, const PWinObj* parent,
-		  const SizeReq& size_req,
-		  const std::string& field,
-		  const CfgParser::Entry *section);
+		  const WidgetConfig& cfg, const std::string& field);
 	virtual ~BarWidget(void);
 
 	const char *getName() const { return "Bar"; }
 
-	virtual void notify(Observable*, Observation *observation)
+	virtual void notify(Observable* observable, Observation *observation)
 	{
 		FieldObservation *efo =
 			dynamic_cast<FieldObservation*>(observation);
 		if (efo != nullptr && efo->getField() == _field) {
 			_dirty = true;
 		}
+		PanelWidget::notify(observable, observation);
 	}
 
 	virtual void render(Render &rend, PSurface *surface);
