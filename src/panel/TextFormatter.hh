@@ -22,10 +22,13 @@ public:
 			    const std::string& buf);
 
 	TextFormatter(VarData& var_data, WmState& wm_state);
-	~TextFormatter(void);
+	~TextFormatter();
 
-	bool referenceWmState(void) const { return _check_wm_state; }
-	std::vector<std::string> getFields(void) { return _fields; }
+	VarData *getVarData() { return &_var_data; }
+	WmState *getWmState() { return &_wm_state; }
+
+	bool referenceWmState() const { return _check_wm_state; }
+	const std::vector<std::string> &getFields() const { return _fields; }
 
 	std::string preprocess(const std::string& raw_format);
 	std::string format(const std::string& pp_format);
@@ -54,6 +57,29 @@ private:
 
 	bool _check_wm_state;
 	std::vector<std::string> _fields;
+};
+
+class TextFormatObserver {
+public:
+	TextFormatObserver(VarData& var_data, WmState& wm_state,
+			   Observer* observer, const std::string& format);
+	~TextFormatObserver();
+
+	bool isFixed() const
+	{
+		return _tf.getFields().empty() && ! _tf.referenceWmState();
+	}
+	std::string format() { return _tf.format(_pp_format); }
+	const std::string& getPpFormat() const { return _pp_format; }
+	bool match(Observation* observation);
+
+private:
+	TextFormatObserver(const TextFormatObserver&);
+	TextFormatObserver& operator=(const TextFormatObserver&);
+
+	TextFormatter _tf;
+	Observer* _observer;
+	std::string _pp_format;
 };
 
 #endif // _PEKWM_PANEL_TEXT_FORMATTER_HH_

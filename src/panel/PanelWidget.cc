@@ -6,28 +6,54 @@
 // See the LICENSE file for more information.
 //
 
+#include "Cond.hh"
 #include "Debug.hh"
 #include "PanelWidget.hh"
 #include "TextFormatter.hh"
 
+static RequiredSizeChanged _required_size_changed;
+
 PanelWidget::PanelWidget(const PanelWidgetData &data,
 			 const PWinObj* parent,
-			 const SizeReq& size_req)
+			 const SizeReq& size_req,
+			 const std::string& if_)
 	: _os(data.os),
+	  _observer(data.observer),
 	  _theme(data.theme),
 	  _var_data(data.var_data),
 	  _wm_state(data.wm_state),
 	  _parent(parent),
 	  _dirty(true),
+	  _if_tfo(_var_data, _wm_state, this, if_),
 	  _x(0),
 	  _rx(0),
 	  _width(0),
-	  _size_req(size_req)
+	  _size_req(size_req),
+	  _cond_true(Cond::eval(_if_tfo.format()))
 {
+	if (! _if_tfo.isFixed()) {
+		pekwm::observerMapping()->addObserver(this, _observer, 100);
+	}
 }
 
-PanelWidget::~PanelWidget(void)
+PanelWidget::~PanelWidget()
 {
+	if (! _if_tfo.isFixed()) {
+		pekwm::observerMapping()->removeObserver(this, _observer);
+	}
+}
+
+void
+PanelWidget::notify(Observable *, Observation *observation)
+{
+	if (_if_tfo.match(observation)) {
+		bool cond_true = Cond::eval(_if_tfo.format());
+		if (_cond_true != cond_true) {
+			_dirty = true;
+			_cond_true = cond_true;
+			sendRequiredSizeChanged();
+		}
+	}
 }
 
 /**
@@ -61,6 +87,14 @@ PanelWidget::renderText(Render &rend, PSurface *surface, PFont *font,
 {
 	int y = (_theme.getHeight() - font->getHeight()) / 2;
 	return font->draw(surface, x, y, text, 0, max_width);
+}
+
+void
+PanelWidget::sendRequiredSizeChanged()
+{
+	_dirty = true;
+	pekwm::observerMapping()->notifyObservers(this,
+						  &_required_size_changed);
 }
 
 void

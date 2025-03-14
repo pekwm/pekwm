@@ -71,7 +71,7 @@ ObserverMapping::notifyObservers(Observable *observable,
 {
 	observable_map_it oit = _observable_map.find(observable);
 	if (oit != _observable_map.end()) {
-		observer_vector::iterator it = oit->second.begin();
+		observer_vector::iterator it(oit->second.begin());
 		for (; it != oit->second.end(); ++it) {
 			it->getObserver()->notify(observable, observation);
 		}

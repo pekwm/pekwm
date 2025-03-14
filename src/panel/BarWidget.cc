@@ -9,13 +9,11 @@
 #include "BarWidget.hh"
 
 BarWidget::BarWidget(const PanelWidgetData &data, const PWinObj* parent,
-		     const SizeReq& size_req,
-		     const std::string& field,
-		     const CfgParser::Entry *section)
-	: PanelWidget(data, parent, size_req),
+		     const WidgetConfig& cfg, const std::string& field)
+	: PanelWidget(data, parent, cfg.getSizeReq(), cfg.getIf()),
 	  _field(field)
 {
-	parseConfig(section);
+	parseConfig(cfg.getCfgSection());
 	pekwm::observerMapping()->addObserver(&_var_data, this, 100);
 }
 

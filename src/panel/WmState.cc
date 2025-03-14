@@ -1,6 +1,6 @@
 //
 // WmState.cc for pekwm
-// Copyright (C) 2022-2024 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -19,7 +19,7 @@ WmState::WmState(VarData& var_data)
 {
 }
 
-WmState::~WmState(void)
+WmState::~WmState()
 {
 	std::vector<ClientInfo*>::iterator it = _clients.begin();
 	for (; it != _clients.end(); ++it) {
@@ -66,8 +66,14 @@ WmState::handlePropertyNotify(XPropertyEvent *ev)
 	if (ev->window == X11::getRoot()) {
 		if (ev->atom == X11::getAtom(NET_CURRENT_DESKTOP)) {
 			updated = readActiveWorkspace();
+			if (updated) {
+				observation = &_active_workspace_changed;
+			}
 		} else if (ev->atom == X11::getAtom(NET_ACTIVE_WINDOW)) {
 			updated = readActiveWindow();
+			if (updated) {
+				observation = &_active_window_changed;
+			}
 		} else if (ev->atom == X11::getAtom(NET_CLIENT_LIST)) {
 			updated = readClientList();
 			if (updated) {
@@ -77,6 +83,9 @@ WmState::handlePropertyNotify(XPropertyEvent *ev)
 			observation = &_xrootpmap_id_changed;
 		} else {
 			updated = readRootProperty(ev->atom);
+			if (updated) {
+				observation = &_wm_state_observation;
+			}
 		}
 	} else {
 		ClientInfo *client_info = findClientInfo(ev->window, _clients);

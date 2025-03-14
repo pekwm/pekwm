@@ -1,6 +1,6 @@
 //
 // ClientListWidget.cc for pekwm
-// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -12,9 +12,9 @@
 
 ClientListWidget::ClientListWidget(const PanelWidgetData &data,
 				   const PWinObj* parent,
-				   const SizeReq& size_req,
+				   const WidgetConfig& cfg,
 				   const std::string& draw_separator)
-	: PanelWidget(data, parent, size_req),
+	: PanelWidget(data, parent, cfg.getSizeReq(), cfg.getIf()),
 	  _entry_width(0),
 	  _draw_separator(pekwm::ascii_ncase_equal("separator",
 						   draw_separator))
@@ -30,10 +30,16 @@ ClientListWidget::~ClientListWidget(void)
 }
 
 void
-ClientListWidget::notify(Observable*, Observation*)
+ClientListWidget::notify(Observable* observable, Observation* observation)
 {
-	_dirty = true;
-	update();
+	if (dynamic_cast<WmState::ActiveWorkspace_Changed*>(observation)
+	    || dynamic_cast<WmState::ActiveWindow_Changed*>(observation)
+	    || dynamic_cast<WmState::ClientList_Changed*>(observation)
+	    || dynamic_cast<WmState::ClientState_Changed*>(observation)) {
+		_dirty = true;
+		update();
+	}
+	PanelWidget::notify(observable, observation);
 }
 
 void

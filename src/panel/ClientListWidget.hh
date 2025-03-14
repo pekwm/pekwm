@@ -24,8 +24,7 @@
  *
  * ClientList [separator]
  */
-class ClientListWidget : public PanelWidget,
-			 public Observer {
+class ClientListWidget : public PanelWidget {
 public:
 	class Entry {
 	public:
@@ -55,7 +54,7 @@ public:
 	};
 
 	ClientListWidget(const PanelWidgetData &data, const PWinObj* parent,
-			 const SizeReq& size_req,
+			 const WidgetConfig& cfg,
 			 const std::string& draw_separator);
 	virtual ~ClientListWidget(void);
 

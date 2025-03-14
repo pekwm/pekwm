@@ -16,16 +16,15 @@
 
 IconWidget::IconWidget(const PanelWidgetData &data,
 		       const PWinObj* parent,
-		       const SizeReq& size_req,
-		       const std::string& field,
-		       const CfgParser::Entry *section)
-	: PanelWidget(data, parent, size_req),
+		       const WidgetConfig& cfg,
+		       const std::string& field)
+	: PanelWidget(data, parent, cfg.getSizeReq(), cfg.getIf()),
 	  _field(field),
 	  _scale(false),
 	  _icon(nullptr),
 	  _icon_scaled(nullptr)
 {
-	parseIcon(section);
+	parseIcon(cfg.getCfgSection());
 
 	pekwm::observerMapping()->addObserver(&_var_data, this, 100);
 	load();
@@ -41,13 +40,14 @@ IconWidget::~IconWidget()
 }
 
 void
-IconWidget::notify(Observable *, Observation *observation)
+IconWidget::notify(Observable *observable, Observation *observation)
 {
 	FieldObservation *fo = dynamic_cast<FieldObservation*>(observation);
 	if (fo != nullptr && fo->getField() == _field) {
 		_dirty = true;
 		load();
 	}
+	PanelWidget::notify(observable, observation);
 }
 
 uint

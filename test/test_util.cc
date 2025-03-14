@@ -13,6 +13,7 @@
 #include "test_Calendar.hh"
 #include "test_CfgParser.hh"
 #include "test_Charset.hh"
+#include "test_Cond.hh"
 #include "test_Daytime.hh"
 #include "test_Geometry.hh"
 #include "test_Json.hh"
@@ -33,6 +34,7 @@ main(int argc, char *argv[])
 	TestCalendar testCalendar;
 	TestCfgParser testCfgParser;
 	TestCharset testCharset;
+	TestCond testCond;
 	TestDaytime testDaytime;
 	TestGeometry testGeometry;
 	TestGeometryOverlap testGeometryOverlap;

@@ -24,9 +24,8 @@ public:
 	WidgetFactory(Os *os, PWinObj* parent, Observer* observer,
 		      const PanelTheme& theme,
 		      VarData& var_data, WmState& wm_state)
-		: _data(os, theme, var_data, wm_state),
-		  _parent(parent),
-		  _observer(observer)
+		: _data(os, observer, theme, var_data, wm_state),
+		  _parent(parent)
 	{
 	}
 
@@ -38,7 +37,6 @@ private:
 
 	PanelWidgetData _data;
 	PWinObj* _parent;
-	Observer* _observer;
 };
 
 #endif // _PEKWM_PANEL_WIDGET_FACTORY_HH_

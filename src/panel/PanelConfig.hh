@@ -50,17 +50,19 @@ class WidgetConfig {
 public:
 	WidgetConfig(const std::string& name,
 		     const std::vector<std::string>& args,
+		     const std::string& if_,
 		     const SizeReq& size_req,
 		     uint interval_s,
 		     const std::vector<WidgetConfigClick> &clicks,
 		     const CfgParser::Entry* section = nullptr);
 	WidgetConfig(const WidgetConfig& cfg);
-	~WidgetConfig(void);
+	~WidgetConfig();
 
 	WidgetConfig& operator=(const WidgetConfig&);
 
 	const std::string& getName(void) const { return _name; }
 	const std::string& getArg(uint arg) const;
+	const std::string& getIf() const { return _if; }
 	const SizeReq& getSizeReq(void) const { return _size_req; }
 	uint getIntervalS(void) const { return _interval_s; }
 	const std::vector<WidgetConfigClick> &getClicks() const
@@ -75,6 +77,8 @@ private:
 	std::string _name;
 	/** Widget arguments (if any). */
 	std::vector<std::string> _args;
+	/** Condition that needs to evaluate to true to display the widget. */
+	std::string _if;
 	/** Requested size of widget. */
 	SizeReq _size_req;
 	/** Refresh interval of widgets, set to UINT_MAX for non time
@@ -145,7 +149,7 @@ private:
 	void loadWidgets(CfgParser::Entry *section);
 	void loadWidgetClicks(CfgParser::Entry *section,
 			      std::vector<WidgetConfigClick> &clicks);
-	void addWidget(const std::string& name,
+	void addWidget(const std::string& name, const std::string& if_,
 		       const SizeReq& size_req, uint interval,
 		       const std::string& args_str,
 		       const std::vector<WidgetConfigClick> &clicks,

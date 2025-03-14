@@ -1,6 +1,6 @@
 //
 // TextWidget.cc for pekwm
-// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -10,67 +10,37 @@
 #include "TextWidget.hh"
 
 TextWidget::TextWidget(const PanelWidgetData &data, const PWinObj* parent,
-		       const SizeReq& size_req, const std::string& format,
-		       const CfgParser::Entry *section)
-	: PanelWidget(data, parent, size_req),
-	  _check_wm_state(false)
+		       const WidgetConfig& cfg, const std::string& format)
+	: PanelWidget(data, parent, cfg.getSizeReq(), cfg.getIf()),
+	  _tfo(_var_data, _wm_state, this, format)
 {
-	parseText(section);
-
-	TextFormatter tf(_var_data, _wm_state);
-	_pp_format = tf.preprocess(format);
-	_check_wm_state = tf.referenceWmState();
-	_fields = tf.getFields();
-
-	if (! _fields.empty()) {
-		pekwm::observerMapping()->addObserver(&_var_data, this,
-						      100);
-	}
-	if (_check_wm_state) {
-		pekwm::observerMapping()->addObserver(&_wm_state, this,
-						      100);
-	}
+	parseText(cfg.getCfgSection());
 }
 
-TextWidget::~TextWidget(void)
+TextWidget::~TextWidget()
 {
-	if (_check_wm_state) {
-		pekwm::observerMapping()->removeObserver(&_wm_state, this);
-	}
-	if (! _fields.empty()) {
-		pekwm::observerMapping()->removeObserver(&_var_data, this);
-	}
 }
 
 void
-TextWidget::notify(Observable *, Observation *observation)
+TextWidget::notify(Observable *observable, Observation *observation)
 {
 	if (_dirty) {
 		return;
 	}
 
 	FieldObservation *fo = dynamic_cast<FieldObservation*>(observation);
-	if (fo != nullptr) {
-		std::vector<std::string>::iterator it = _fields.begin();
-		for (; it != _fields.end(); ++it) {
-			if (*it == fo->getField()) {
-				_dirty = true;
-				break;
-			}
-		}
-	} else {
-		_dirty = true;
-	}
+	_dirty = fo == nullptr || _tfo.match(observation);
+	PanelWidget::notify(observable, observation);
 }
 
 uint
 TextWidget::getRequiredSize(void) const
 {
-	if (_fields.empty() && ! _check_wm_state) {
+	if (_tfo.isFixed()) {
 		// no variables that will be expanded after the widget has
 		// been created, use width of _pp_format.
 		PFont *font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
-		return font->getWidth(" " + _pp_format + " ");
+		return font->getWidth(" " + _tfo.getPpFormat() + " ");
 	}
 
 	// variables will be expanded, no way to know how much space will
@@ -83,9 +53,8 @@ TextWidget::render(Render &rend, PSurface *surface)
 {
 	PanelWidget::render(rend, surface);
 
-	TextFormatter tf(_var_data, _wm_state);
 	PFont *font = _theme.getFont(CLIENT_STATE_UNFOCUSED);
-	std::string text = tf.format(_pp_format);
+	std::string text(_tfo.format());
 	if (_transform.is_match_ok()) {
 		_transform.ed_s(text);
 	}

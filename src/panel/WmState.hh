@@ -20,21 +20,39 @@
 class WmState : public Observable
 {
 public:
-	class XROOTPMAP_ID_Changed : public Observation {
+	/**
+	 * Base for all WmState observations.
+	 */
+	class WmStateObservation : public Observation {
+	};
+
+	class XROOTPMAP_ID_Changed : public WmStateObservation {
+	};
+
+	/**
+	 * Observation sent whenever _NET_CURRENT_DESKTOP is changed.
+	 */
+	class ActiveWorkspace_Changed : public WmStateObservation {
+	};
+
+	/**
+	 * Observation sent whenever _NET_ACTIVE_WINDOW is changed.
+	 */
+	class ActiveWindow_Changed : public WmStateObservation {
 	};
 
 	/**
 	 * Observation sent whenever the client list of the WM state has been
 	 * updated.
 	 */
-	class ClientList_Changed : public Observation {
+	class ClientList_Changed : public WmStateObservation {
 	};
 
 	/**
 	 * Observation sent whenever a single client state from the client list
 	 * has been updated.
 	 */
-	class ClientState_Changed : public Observation {
+	class ClientState_Changed : public WmStateObservation {
 	};
 
 	typedef std::vector<ClientInfo*> client_info_vector;
@@ -80,7 +98,10 @@ private:
 	std::vector<std::string> _desktop_names;
 	std::map<Atom, std::string> _atom_names;
 
+	WmStateObservation _wm_state_observation;
 	XROOTPMAP_ID_Changed _xrootpmap_id_changed;
+	ActiveWorkspace_Changed _active_workspace_changed;
+	ActiveWindow_Changed _active_window_changed;
 	ClientList_Changed _client_list_changed;
 	ClientState_Changed _client_state_changed;
 };

@@ -19,9 +19,8 @@
 class DateTimeWidget : public PanelWidget {
 public:
 	DateTimeWidget(const PanelWidgetData &data, const PWinObj* parent,
-		       const SizeReq& size_req,
-		       const std::string &format)
-		: PanelWidget(data, parent, size_req),
+		       const WidgetConfig& cfg, const std::string &format)
+		: PanelWidget(data, parent, cfg.getSizeReq(), cfg.getIf()),
 		  _format(format)
 	{
 		if (_format.empty()) {
