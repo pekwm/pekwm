@@ -8,7 +8,7 @@
 
 # reset keyboard layout (for less password input confusion), quiet mode to not
 # pop a dialog if no layouts have been configured.
-pekwm_toggle_kbd_layout.sh -q first
+"$PEKWM_SCRIPT_PATH/pekwm_toggle_kbd_layout.sh" -q first
 
 xlock=`which xlock 2>&1 | sed 's/no xlock in.*//'`
 if test $? -eq 0 && test "x$xlock" != "x"; then
