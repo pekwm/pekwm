@@ -267,4 +267,12 @@ Global {
                 Keypress = "F" { Actions = "Toggle Skip FocusToggle" }
                 Keypress = "S" { Actions = "Toggle Skip Snap" }
         }
+	# Audio/Playback control
+	Keypress = "XF86AudioPrev" { Actions = "Exec $_PEKWM_SCRIPT_PATH/pekwm_audio_ctrl.sh prev" }
+	Keypress = "XF86AudioPrev" { Actions = "Exec $_PEKWM_SCRIPT_PATH/pekwm_audio_ctrl.sh prev" }
+	Keypress = "XF86AudioNext" { Actions = "Exec $_PEKWM_SCRIPT_PATH/pekwm_audio_ctrl.sh next" }
+	Keypress = "XF86AudioPlay" { Actions = "Exec $_PEKWM_SCRIPT_PATH/pekwm_audio_ctrl.sh playpause" }
+	Keypress = "XF86AudioMute" { Actions = "Exec $_PEKWM_SCRIPT_PATH/pekwm_audio_ctrl.sh vmute" }
+	Keypress = "XF86AudioLowerVolume" { Actions = "Exec $_PEKWM_SCRIPT_PATH/pekwm_audio_ctrl.sh vdown" }
+	Keypress = "XF86AudioRaiseVolume" { Actions = "Exec $_PEKWM_SCRIPT_PATH/pekwm_audio_ctrl.sh vup" }
 }

@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/pekwm_audio_ctrl.sh.in
+	       ${CMAKE_CURRENT_BINARY_DIR}/pekwm_audio_ctrl.sh @ONLY)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/pekwm_lock.sh.in
 	       ${CMAKE_CURRENT_BINARY_DIR}/pekwm_lock.sh @ONLY)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/pekwm_themeset.sh.in
@@ -13,6 +15,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/pekwm_panel_battery.sh.in
 
 
 install(FILES
+	${CMAKE_CURRENT_BINARY_DIR}/pekwm_audio_ctrl.sh
 	${CMAKE_CURRENT_BINARY_DIR}/pekwm_lock.sh
 	${CMAKE_CURRENT_BINARY_DIR}/pekwm_ws_menu.sh
 	${CMAKE_CURRENT_BINARY_DIR}/pekwm_themeset.sh

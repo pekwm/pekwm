@@ -35,6 +35,8 @@ New
 * Auto theme variant mode, reads the _PEKWM_THEME_VARIANT property on the root
   window and selects the theme variant using that value. The theme will
   automatically reload whenever the property changes.
+* pekwm_audio_ctrl.sh script for controlling playback/volume with default
+  keybindings for XF86Audio* keys.
 
 Updated
 -------
