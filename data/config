@@ -5,39 +5,39 @@
 INCLUDE = "$_PEKWM_ETC_PATH/config_system"
 
 Files {
-    Theme = "$_PEKWM_THEME_PATH/default"
-    ThemeVariant = ""
+	Theme = "$_PEKWM_THEME_PATH/default"
+	ThemeVariant = ""
 }
 
 Screen {
-    Workspaces = "4"
-    WorkspacesPerRow = "2"
-    WorkspaceNames = "01;02;03;04"
+	Workspaces = "4"
+	WorkspacesPerRow = "2"
+	WorkspaceNames = "01;02;03;04"
 
-    Placement {
-        Model = "CenteredOnParent Smart MouseNotUnder"
-    }
+	Placement {
+		Model = "CenteredOnParent Smart MouseNotUnder"
+	}
 }
 
-// Debug {
-//     File = "~/.pekwm/log"
-//     Level = "debug"
-// }
+//Debug {
+//	File = "~/.pekwm/log"
+//	Level = "debug"
+//}
 
-// Sys {
-//     LocationLookup = "False"
-//     Latitude = "0.0"
-//     Longitude = "0.0"
-//     XSettings = "True"
-//     NetTheme = ""
-//     XResources {
-//         Day {
-//             "XTerm*background" = "#ffffff"
-//             "XTerm*foreground" = "#31363b"
-//         }
-//         Night {
-//             "XTerm*background" = "#22272e"
-//             "XTerm*foreground" = "#a5b1be"
-//         }
-//     }
-// }
+//Sys {
+//	LocationLookup = "False"
+//	Latitude = "0.0"
+//	Longitude = "0.0"
+//	XSettings = "True"
+//	NetTheme = ""
+//	XResources {
+//		Day {
+//			"XTerm*background" = "#ffffff"
+//			"XTerm*foreground" = "#31363b"
+//		}
+//		Night {
+//			"XTerm*background" = "#22272e"
+//			"XTerm*foreground" = "#a5b1be"
+//		}
+//	}
+//}
