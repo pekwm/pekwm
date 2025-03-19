@@ -162,7 +162,7 @@ ResizeEventHandler::stopResize(void)
 		if (_frame) {
 			// Make sure the state isn't set to maximized after
 			// the Frame has been resized.
-			_frame->clearMaximizedStates();
+			_frame->clearFillStateAfterResize();
 			if (_outline) {
 				_frame->moveResize(_gm.x, _gm.y,
 						   _gm.width, _gm.height);

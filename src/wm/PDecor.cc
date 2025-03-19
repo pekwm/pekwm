@@ -202,11 +202,10 @@ PDecor::PDecor(const Window child_window, bool override_redirect, bool init,
 	  _decor_cfg_bpr_replay_pointer(false),
 	  _decor_cfg_bpr_al_child(MOUSE_ACTION_LIST_CHILD_OTHER),
 	  _decor_cfg_bpr_al_title(MOUSE_ACTION_LIST_TITLE_OTHER),
-	  _maximized_vert(false),
-	  _maximized_horz(false),
-	  _fullscreen(false),
-	  _skip(0),
 	  _data(nullptr),
+	  _fill_state(0),
+	  _edge_filled(NO_EDGE),
+	  _skip(0),
 	  _border(true),
 	  _titlebar(true),
 	  _shaded(false),
@@ -469,7 +468,7 @@ PDecor::moveResize(const Geometry &gm, int gm_mask)
 		if (gm_mask & HEIGHT_VALUE) {
 			_gm.height = gm.height;
 		}
-		clearMaximizedStatesAfterResize();
+		clearFillStateAfterResize();
 		resize(_gm.width, _gm.height);
 	}
 }
@@ -1321,13 +1320,6 @@ PDecor::setShaded(StateAction sa)
 	PWinObj::resize(_gm.width, _gm.height);
 
 	return _shaded;
-}
-
-//! @brief Sets skip state.
-void
-PDecor::setSkip(uint skip)
-{
-	_skip = skip;
 }
 
 /**

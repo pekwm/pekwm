@@ -1,6 +1,6 @@
 //
 // PDecor.hh for pekwm
-// Copyright (C) 2004-2024 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2004-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -175,10 +175,13 @@ public:
 	virtual void getDecorInfo(char *buf, uint size, const Geometry& gm);
 
 	virtual bool setShaded(StateAction sa);
-	virtual void setSkip(uint skip);
+	virtual void setSkip(uint skip) { _skip = skip; }
 
 	virtual std::string getDecorName(void);
 	// END - PDecor interface.
+
+	uint getSkip() const { return _skip; }
+	bool isSkip(uint skip) const { return _skip & skip; }
 
 	static std::vector<PDecor*>::const_iterator pdecor_begin(void) {
 		return _pdecors.begin();
@@ -187,7 +190,44 @@ public:
 		return _pdecors.end();
 	}
 
-	inline bool isSkip(uint skip) const { return (_skip&skip); }
+	bool isAnyFill() const { return _fill_state; }
+	void clearFill() { _fill_state = 0; }
+	virtual void clearFillStateAfterResize() { }
+
+	bool isMaximizedVert() const
+	{
+		return _fill_state & FILL_STATE_MAXIMIZED_VERT;
+	}
+	bool isMaximizedHorz() const
+	{
+		return _fill_state & FILL_STATE_MAXIMIZED_HORZ;
+	}
+	void setMaximized(bool horz, bool vert)
+	{
+		_fill_state =
+			(horz ? FILL_STATE_MAXIMIZED_HORZ : 0)
+			| (vert ? FILL_STATE_MAXIMIZED_VERT : 0);
+	}
+	void setFullscreen(bool fullscreen)
+	{
+		_fill_state = FILL_STATE_FULLSCREEN;
+	}
+	bool isFullscreen() const
+	{
+		return _fill_state & FILL_STATE_FULLSCREEN;
+	}
+	OrientationType getEdgeFilled() const
+	{
+		if (_fill_state & FILL_STATE_EDGE) {
+			return _edge_filled;
+		}
+		return NO_EDGE;
+	}
+	void setEdgeFilled(OrientationType edge)
+	{
+		_fill_state = (edge != NO_EDGE ? FILL_STATE_EDGE : 0);
+		_edge_filled = edge;
+	}
 
 	void addDecor(PDecor *decor);
 
@@ -248,11 +288,11 @@ public:
 
 	// decor state
 
-	/** Returns wheter we have a border or not. */
+	/** Returns whether we have a border or not. */
 	virtual bool hasBorder(void) const { return _border; }
-	/** @brief Returns wheter we have a titlebar or not. */
+	/** @brief Returns whether we have a title bar or not. */
 	virtual bool hasTitlebar(void) const { return _titlebar; }
-	/** @brief Returns wheter we are shaded or not. */
+	/** @brief Returns whether we are shaded or not. */
 	virtual bool isShaded(void) const { return _shaded; }
 	bool setBorder(StateAction sa);
 	bool setTitlebar(StateAction sa);
@@ -264,8 +304,6 @@ public:
 			updateDecor();
 		}
 	}
-
-	bool isFullscreen(void) const { return _fullscreen; }
 
 	//! @brief Returns border position Window win is at.
 	inline BorderPosition getBorderPosition(Window win) const {
@@ -295,8 +333,6 @@ protected:
 	// called after decor change (theme change, decor type change,
 	// border state etc)
 	virtual void decorUpdated(void) { }
-
-	virtual void clearMaximizedStatesAfterResize() { }
 	// END - PDecor interface.
 
 #ifdef PEKWM_HAVE_SHAPE
@@ -402,19 +438,26 @@ protected:
 	/** Default decor name for demands attention state. */
 	static const std::string DEFAULT_DECOR_NAME_ATTENTION;
 
-	// state switches, commonly not used by all decors
-	bool _maximized_vert;
-	bool _maximized_horz;
-	bool _fullscreen;
-	uint _skip;
-
 	Window _border_win[BORDER_NO_POS]; /** Array of border windows. */
 
 private:
 	Theme::PDecorData *_data;
 
+	enum fill_state {
+		FILL_STATE_MAXIMIZED_VERT = 1 << 0,
+		FILL_STATE_MAXIMIZED_HORZ = 1 << 1,
+		FILL_STATE_FULLSCREEN = 1 << 2,
+		FILL_STATE_EDGE = 1 << 3
+	};
+	// state
+	int _fill_state;
+	OrientationType _edge_filled;
+	uint _skip;
+
 	// decor state
-	bool _border, _titlebar, _shaded;
+	bool _border;
+	bool _titlebar;
+	bool _shaded;
 	uint _attention; // Number of children that demand attention
 	bool _need_shape;
 	uint _real_height;

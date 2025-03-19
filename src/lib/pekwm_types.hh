@@ -167,21 +167,25 @@ enum WorkspaceChangeType {
 	WORKSPACE_RIGHT_N = 0xffffffff - 13
 };
 
+/**
+ * Values arranged such that abs(edge1 - edge2) == 10 in case the edges are
+ * opposites.
+ */
 enum OrientationType {
-	TOP_LEFT,
-	TOP_EDGE,
-	TOP_CENTER_EDGE,
-	TOP_RIGHT,
-	BOTTOM_RIGHT,
-	BOTTOM_EDGE,
-	BOTTOM_CENTER_EDGE,
-	BOTTOM_LEFT,
-	LEFT_EDGE,
-	LEFT_CENTER_EDGE,
-	RIGHT_EDGE,
-	RIGHT_CENTER_EDGE,
-	CENTER,
-	NO_EDGE
+	TOP_LEFT = 1,
+	TOP_EDGE = 2,
+	TOP_CENTER_EDGE = 3,
+	TOP_RIGHT = 4,
+	BOTTOM_RIGHT = 11,
+	BOTTOM_EDGE = 12,
+	BOTTOM_CENTER_EDGE = 13,
+	BOTTOM_LEFT = 14,
+	LEFT_EDGE = 5,
+	LEFT_CENTER_EDGE = 6,
+	RIGHT_EDGE = 15,
+	RIGHT_CENTER_EDGE = 16,
+	CENTER = 7,
+	NO_EDGE = 17
 };
 
 enum Raise {

@@ -66,6 +66,10 @@ private:
 	void actionExec(Client *client, const std::string &command,
 			bool use_shell);
 	void actionSetenv(const std::string &name, const std::string &value);
+	bool actionMoveToEdge(PWinObj *wo, OrientationType edge);
+	bool actionFillEdge(Frame *frame, OrientationType edge,
+			    int percent);
+	bool isOrientationOpposites(OrientationType lhs, OrientationType rhs);
 	void actionFindClient(const std::string &title);
 	void actionGotoClientID(uint id);
 	void actionGotoWorkspace(const Action &action, int type);

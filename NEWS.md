@@ -40,6 +40,11 @@ New
 * New Screen option `Scale`, affects how themes and other dimensions given in
   the configuration is processed. Default is 1.0, treated as is, for high
   resolution displays set to 2.0 for 2x scaled images, padding etc.
+* Add action `FillEdge` making a window fill given edge occupying N% of the
+  "other" direction of the screen. `FillEdge LeftEdge 40` will make the window
+  use the full left edge being 40% of the screen width wide.
+  `FillEdge` on the opposite edge will make the window return to the size it
+  had before the initial `FillEdge`.
 
 Updated
 -------

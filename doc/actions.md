@@ -322,6 +322,28 @@ of:
 
 > Keygrabber-specific
 
+**FillEdge (int) (string)**
+
+Moves and resizes the frame to the specified edge of the screen occupying N%
+of the opposite direction. LeftEdge will occupy N% of the X-axis. TopEdge will
+occupy N% of the Y-axis.
+
+String is one of:
+
+* _TopLeft_
+* _TopEdge_
+* _TopRight_
+* _RightEdge_
+* _BottomRight_
+* _BottomEdge_
+* _BottomLeft_
+* _LeftEdge_
+* _Center_
+* _TopCenterEdge_
+* _BottomCenterEdge_
+* _LeftCenterEdge_
+* _RightCenterEdge_
+
 **NextFrame (string boolean)**
 
 Focuses the next frame. String is one of:

@@ -60,6 +60,7 @@ static Util::StringTo<std::pair<ActionType, uint> > action_map[] =
 	  action_pair(ACTION_WARP_TO_WORKSPACE, SCREEN_EDGE_OK)},
 	 {"MoveToHead", action_pair(ACTION_MOVE_TO_HEAD, FRAME_MASK|CMD_OK)},
 	 {"MoveToEdge", action_pair(ACTION_MOVE_TO_EDGE, KEYGRABBER_OK|CMD_OK)},
+	 {"FillEdge", action_pair(ACTION_FILL_EDGE, KEYGRABBER_OK|CMD_OK)},
 	 {"NextFrame",
 	  action_pair(ACTION_NEXT_FRAME,
 		      KEYGRABBER_OK|ROOTCLICK_OK|SCREEN_EDGE_OK)},
@@ -469,6 +470,15 @@ parseActionArg(Action &action, const std::string& arg)
 		break;
 	case ACTION_MOVE_TO_EDGE:
 		action.setParamI(0, Util::StringToGet(edge_map, arg));
+		break;
+	case ACTION_FILL_EDGE:
+		if ((Util::splitString(arg, tok, " \t", 2)) == 2) {
+			action.setParamI(0, Util::StringToGet(edge_map, tok[0]));
+			action.setParamI(1, strtol(tok[1].c_str(), 0, 10));
+		} else {
+			action.setParamI(0, Util::StringToGet(edge_map, arg));
+			action.setParamI(1, 33);
+		}
 		break;
 	case ACTION_NEXT_FRAME:
 	case ACTION_NEXT_FRAME_MRU:

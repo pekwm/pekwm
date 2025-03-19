@@ -71,6 +71,7 @@ public:
 	virtual void giveInputFocus(void);
 	virtual bool setShaded(StateAction sa);
 	virtual void setSkip(uint skip);
+	virtual void clearFillStateAfterResize();
 	// END - PDecor interface.
 
 	Client *getActiveClient() const;
@@ -115,18 +116,18 @@ public:
 
 	void setGeometry(const std::string& geometry, int head=-1,
 			 bool honour_strut=false);
+	const Geometry &getOldGeometry() const { return _old_gm; }
+	void setOldGeometry(const Geometry &gm) { _old_gm = gm; }
 
 	void growDirection(uint direction);
 	void moveToHead(const std::string& arg);
 	void moveToHead(int head_nr);
-	void moveToEdge(OrientationType ori);
 
 	void updateInactiveChildInfo(void);
 
 	// state actions
 	void setStateMaximized(StateAction sa, bool horz, bool vert, bool fill);
 	void setStateFullscreen(StateAction sa);
-	void clearMaximizedStates(void);
 	void setStateSticky(StateAction sa);
 	void setStateAlwaysOnTop(StateAction sa);
 	void setStateAlwaysBelow(StateAction sa);
@@ -166,7 +167,6 @@ protected:
 	virtual void decorUpdated(void);
 
 	virtual std::string getDecorName(void);
-	virtual void clearMaximizedStatesAfterResize();
 	// END - PDecor interface
 
 	static void applyGeometry(Geometry &gm, const Geometry &ap_gm,

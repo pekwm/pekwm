@@ -11,7 +11,6 @@
 #include "ActionHandler.hh"
 
 #include "Debug.hh"
-#include "PDecor.hh"
 #include "PMenu.hh"
 #include "Frame.hh"
 #include "Client.hh"
@@ -218,7 +217,11 @@ ActionHandler::handleFrameAction(const ActionPerformed* ap, ActionEvent::it it,
 		frame->moveToHead(it->getParamS(0));
 		break;
 	case ACTION_MOVE_TO_EDGE:
-		frame->moveToEdge(OrientationType(it->getParamI(0)));
+		actionMoveToEdge(frame, OrientationType(it->getParamI(0)));
+		break;
+	case ACTION_FILL_EDGE:
+		actionFillEdge(frame, OrientationType(it->getParamI(0)),
+			       it->getParamI(1));
 		break;
 	case ACTION_ACTIVATE_CLIENT_REL:
 		frame->activateChildRel(it->getParamI(0));
@@ -636,6 +639,194 @@ void
 ActionHandler::actionSetenv(const std::string &name, const std::string &value)
 {
 	Util::setEnv(name, value);
+}
+
+/**
+ * Move the Frame to the screen edge orientation with the struts taken into
+ * account.
+ */
+bool
+ActionHandler::actionMoveToEdge(PWinObj *wo, OrientationType edge)
+{
+	uint head_nr = X11Util::getNearestHead(wo);
+	Geometry real_head;
+	X11::getHeadInfo(head_nr, real_head);
+	Geometry head;
+	pekwm::rootWo()->getHeadInfoWithEdge(head_nr, head);
+
+	int x, y;
+	switch (edge) {
+	case TOP_LEFT:
+		x = head.x;
+		y = head.y;
+		break;
+	case TOP_EDGE:
+		y = head.y;
+		break;
+	case TOP_CENTER_EDGE:
+		x = real_head.x + ((real_head.width - wo->getWidth()) / 2);
+		y = head.y;
+		break;
+	case TOP_RIGHT:
+		x = head.x + head.width - wo->getWidth();
+		y = head.y;
+		break;
+	case BOTTOM_RIGHT:
+		x = head.x + head.width - wo->getWidth();
+		y = head.y + head.height - wo->getHeight();
+		break;
+	case BOTTOM_EDGE:
+		y = head.y + head.height - wo->getHeight();
+		break;
+	case BOTTOM_CENTER_EDGE:
+		x = real_head.x + ((real_head.width - wo->getWidth()) / 2);
+		y = head.y + head.height - wo->getHeight();
+		break;
+	case BOTTOM_LEFT:
+		x = head.x;
+		y = head.y + head.height - wo->getHeight();
+		break;
+	case LEFT_EDGE:
+		x = head.x;
+		break;
+	case LEFT_CENTER_EDGE:
+		x = head.x;
+		y = real_head.y + ((real_head.height - wo->getHeight()) / 2);
+		break;
+	case RIGHT_EDGE:
+		x = head.x + head.width - wo->getWidth();
+		break;
+	case RIGHT_CENTER_EDGE:
+		x = head.x + head.width - wo->getWidth();
+		y = real_head.y + ((real_head.height - wo->getHeight()) / 2);
+		break;
+	case CENTER:
+		x = real_head.x + ((real_head.width - wo->getWidth()) / 2);
+		y = real_head.y + ((real_head.height - wo->getHeight()) / 2);
+		break;
+	default:
+		return false;
+	}
+
+	wo->move(x, y);
+	return true;
+}
+
+/**
+ * Make the window object fill select parts of the current head.
+ *
+ *  ----------------------
+ *  |   1   |  2   |  3  |
+ *  ----------------------
+ *  |   4   |  5   |  6  |
+ *  ----------------------
+ *  |   7   |  8   |  9  |
+ *  ----------------------
+ *
+ *  TL: 1 T: 1,2,3 TR: 3
+ *  L: 1,4,7 R: 3,6,9
+ *  BL: 7 B: 7,8,9 BR: 9
+ *  C: 5
+ *
+ *  Default size of each part of the grid is 33% of width x 33% of the height,
+ *  this is comes as the percent argument.
+ */
+bool
+ActionHandler::actionFillEdge(Frame *frame, OrientationType edge, int percent)
+{
+	// doing fill edge, on the opposite edge of the current edge will
+	// reset the fill and move the frame back to its pre-fill position.
+	OrientationType old_edge = frame->getEdgeFilled();
+	if (old_edge != NO_EDGE && isOrientationOpposites(old_edge, edge)) {
+		Geometry gm(frame->getOldGeometry());
+		frame->moveResize(gm.x, gm.y, gm.width, gm.height);
+		frame->clearFillStateAfterResize();
+		return true;
+	}
+
+	if (percent < 1) {
+		percent = 1;
+	} else if (percent > 100) {
+		percent = 100;
+	}
+	float fpercent = static_cast<float>(percent) / 100.0;
+
+	uint head_nr = X11Util::getNearestHead(frame);
+	Geometry head;
+	pekwm::rootWo()->getHeadInfoWithEdge(head_nr, head);
+	Geometry gm(head);
+	switch (edge) {
+	case TOP_EDGE:
+	case BOTTOM_EDGE:
+		gm.height *= fpercent;
+		break;
+	case LEFT_EDGE:
+	case RIGHT_EDGE:
+		gm.width *= fpercent;
+		break;
+	default:
+		gm.width *= fpercent;
+		gm.height *= fpercent;
+		break;
+	}
+
+	switch (edge) {
+	case TOP_CENTER_EDGE:
+		gm.x = head.x + gm.width;
+		break;
+	case TOP_RIGHT:
+		gm.x = head.rx() - gm.width;
+		break;
+	case BOTTOM_RIGHT:
+		gm.x = head.rx() - gm.width;
+		gm.y = head.by() - gm.height;
+		break;
+	case BOTTOM_EDGE:
+		gm.y = head.by() - gm.height;
+		break;
+	case BOTTOM_CENTER_EDGE:
+		gm.x = head.x + gm.width;
+		gm.y = head.by() - gm.height;
+		break;
+	case BOTTOM_LEFT:
+		gm.y = head.by() - gm.height;
+		break;
+	case LEFT_CENTER_EDGE:
+		gm.y = head.y + gm.height;
+		break;
+	case RIGHT_EDGE:
+		gm.x = head.rx() - gm.width;
+		break;
+	case RIGHT_CENTER_EDGE:
+		gm.x = head.rx() - gm.width;
+		gm.y = head.y + gm.height;
+		break;
+	case CENTER:
+		gm.x = head.x + gm.width;
+		gm.y = head.y + gm.height;
+		break;
+	case NO_EDGE:
+		return false;
+	case TOP_LEFT:
+	case TOP_EDGE:
+	case LEFT_EDGE:
+		// do nothing
+		break;
+	}
+
+	P_TRACE("FillEdge " << edge << " " << gm);
+	if (! frame->isAnyFill()) {
+		frame->setOldGeometry(frame->getGeometry());
+	}
+	frame->moveResize(gm.x, gm.y, gm.width, gm.height);
+	frame->setEdgeFilled(edge);
+	return true;
+}
+
+bool
+ActionHandler::isOrientationOpposites(OrientationType lhs, OrientationType rhs)
+{
+	return abs(static_cast<int>(lhs) - static_cast<int>(rhs)) == 10;
 }
 
 //! @brief Searches for a client matching titles and makes it visible

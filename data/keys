@@ -69,10 +69,10 @@ Global {
         KeyPress = "Mod4 G" { Actions = "Maxfill True True" }
         KeyPress = "Mod4 F" { Actions = "Toggle FullScreen" }
         KeyPress = "Mod4 Return" { Actions = "MoveResize" }
-        KeyPress = "Mod4 Shift Left" { Actions = "MoveToEdge LeftEdge" }
-        KeyPress = "Mod4 Shift Right" { Actions = "MoveToEdge RightEdge" }
-        KeyPress = "Mod4 Shift Up" { Actions = "MoveToEdge TopEdge" }
-        KeyPress = "Mod4 Shift Down" { Actions = "MoveToEdge BottomEdge" }
+        KeyPress = "Mod4 Shift Left" { Actions = "FillEdge LeftEdge 40" }
+        KeyPress = "Mod4 Shift Right" { Actions = "FillEdge RightEdge 40" }
+        KeyPress = "Mod4 Shift Up" { Actions = "FillEdge TopEdge 50" }
+        KeyPress = "Mod4 Shift Down" { Actions = "FillEdge BottomEdge 50" }
         KeyPress = "Mod4 Q" { Actions = "Close" }
         KeyPress = "Mod4 S" { Actions = "Toggle Shaded" }
         KeyPress = "Mod4 I" { Actions = "Toggle Iconified" }
