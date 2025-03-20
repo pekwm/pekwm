@@ -98,7 +98,9 @@ IconWidget::renderFixed(Render& rend, PSurface* surface)
 	P_TRACE("IconWidget render " << _icon_name << " " << width << "x"
 		<< height << " (fixed)");
 	scaleImage(width, height);
-	_icon_scaled->draw(rend, surface, getX() + 1, 1, width, height);
+	_icon_scaled->draw(rend, surface,
+			   getX() + 1, (height_avail - height) / 2,
+			   width, height);
 }
 
 void
