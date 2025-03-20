@@ -119,7 +119,7 @@ GroupingDragEventHandler::handleButtonReleaseEvent(XButtonEvent*)
 		frame->addChild(_client);
 		if (! _behind) {
 			frame->activateChild(_client);
-			frame->giveInputFocus();
+			Workspaces::giveInputFocus(frame);
 		}
 
 		if (focus) {
@@ -129,7 +129,7 @@ GroupingDragEventHandler::handleButtonReleaseEvent(XButtonEvent*)
 	}  else {
 		Frame *frame = _frame->detachClient(_client, _x, _y);
 		if (frame) {
-			frame->giveInputFocus();
+			Workspaces::giveInputFocus(frame);
 		}
 	}
 

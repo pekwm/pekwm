@@ -114,6 +114,7 @@ public:
 	static void updateClientStackingList(void);
 	static void placeWoInsideScreen(PWinObj *wo);
 
+	static void giveInputFocus(PWinObj *wo, bool force = false);
 	static void findWOAndFocus(PWinObj *search);
 	static PWinObj *findUnderPointer(void);
 	static PWinObj *findDirectional(PWinObj *wo,

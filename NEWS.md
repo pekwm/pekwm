@@ -47,6 +47,9 @@ New
   use the full left edge being 40% of the screen width wide.
   `FillEdge` on the opposite edge will make the window return to the size it
   had before the initial `FillEdge`.
+* New Screen option `WarpPointerOn`, if set the pointer will be warped to the
+  `New` clients or when a client is focused using `FocusChange`. Empty string
+  to disable. (Close #186)
 
 Updated
 -------

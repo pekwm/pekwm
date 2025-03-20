@@ -325,4 +325,10 @@ enum OnCloseFocusRaise {
 	ON_CLOSE_FOCUS_RAISE_IF_COVERED
 };
 
+enum WarpOn {
+	WARP_ON_FOCUS_CHANGE = 1 << 0,
+	WARP_ON_NEW = 1 << 2,
+	WARP_ON_NO = 0
+};
+
 #endif // _PEKWM_PEKWM_TYPES_HH_

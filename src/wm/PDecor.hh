@@ -149,7 +149,8 @@ public:
 	virtual void setFocused(bool focused);
 	virtual void setWorkspace(uint workspace);
 
-	virtual void giveInputFocus(void);
+	virtual void giveInputFocus();
+	virtual void warpPointer();
 
 	virtual ActionEvent *handleButtonPress(XButtonEvent *ev);
 	virtual ActionEvent *handleButtonRelease(XButtonEvent *ev);

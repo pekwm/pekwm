@@ -343,7 +343,7 @@ WindowManager::scanWindows(void)
 	// Try to focus the ontop window, if no window we give root focus
 	PWinObj *wo = Workspaces::getTopFocusableWO(PWinObj::WO_FRAME);
 	if (wo) {
-		wo->giveInputFocus();
+		Workspaces::giveInputFocus(wo);
 	} else {
 		pekwm::rootWo()->giveInputFocus();
 	}
@@ -1737,7 +1737,7 @@ WindowManager::createClient(Window window, bool is_new)
 			// WO exists, is mapped, and time protect is
 			// active and within it's limits.
 		} else {
-			client->getParent()->giveInputFocus();
+			Workspaces::giveInputFocus(client->getParent());
 		}
 	}
 

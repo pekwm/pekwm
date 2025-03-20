@@ -125,7 +125,8 @@ public: // Public Member Functions
 
 	virtual void setWorkspace(uint workspace);
 
-	virtual void giveInputFocus(void);
+	virtual void giveInputFocus();
+	virtual void warpPointer();
 	virtual void reparent(PWinObj *parent, int x, int y);
 
 	virtual ActionEvent *handleButtonPress(XButtonEvent *ev)  {

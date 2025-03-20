@@ -116,6 +116,11 @@ static Util::StringTo<OnCloseFocusRaise> on_close_focus_raise_map[] =
 	 {"IFCOVERED", ON_CLOSE_FOCUS_RAISE_IF_COVERED},
 	 {nullptr, ON_CLOSE_FOCUS_RAISE_ALWAYS}};
 
+static Util::StringTo<WarpOn> warp_on_map[] =
+	{{"FOCUSCHANGE", WARP_ON_FOCUS_CHANGE},
+	 {"NEW", WARP_ON_NEW},
+	 {nullptr, WARP_ON_NO}};
+
 static Util::StringTo<Debug::Level> debug_level_map[] =
 	{{"ERR", Debug::LEVEL_ERR},
 	 {"WARN", Debug::LEVEL_WARN},
@@ -193,6 +198,7 @@ Config::Config() :
 	_screen_client_unique_name_pre(" #"),
 	_screen_client_unique_name_post(""),
 	_screen_report_all_clients(false),
+	_screen_warp_pointer_on(0),
 	_menu_select_mask(0), _menu_enter_mask(0), _menu_exec_mask(0),
 	_menu_display_icons(true),
 	_menu_focus_opacity(EWMH_OPAQUE_WINDOW),
@@ -472,6 +478,8 @@ Config::loadScreen(CfgParser::Entry *section)
 	keys.add_bool("FONTDEFAULTX11", _screen_default_font_x11, false);
 	keys.add_string("FONTCHARSETOVERRIDE", _screen_font_charset_override);
 	keys.add_bool("REPORTALLCLIENTS", _screen_report_all_clients, false);
+	std::string warp_pointer_on;
+	keys.add_string("WARPPOINTERON", warp_pointer_on, "");
 
 	section->parseKeyValues(keys.begin(), keys.end());
 	keys.clear();
@@ -517,6 +525,16 @@ Config::loadScreen(CfgParser::Entry *section)
 	_screen_on_close_focus_raise =
 		Util::StringToGet(on_close_focus_raise_map,
 				  on_close_focus_raise);
+
+	_screen_warp_pointer_on = 0;
+	vs.clear();
+	if (Util::splitString(warp_pointer_on, vs, " \t", 0)) {
+		std::vector<std::string>::iterator vs_it = vs.begin();
+		for (; vs_it != vs.end(); ++vs_it) {
+			_screen_warp_pointer_on |=
+				Util::StringToGet(warp_on_map, *vs_it);
+		}
+	}
 
 	CfgParser::Entry *sub = section->findSection("PLACEMENT");
 	loadScreenPlacement(sub);

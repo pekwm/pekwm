@@ -1881,7 +1881,7 @@ Frame::handleClientMessage(XClientMessageEvent *ev, Client *client)
 			// Seems as if raising the window is implied in
 			// activating it
 			raise();
-			giveInputFocus();
+			Workspaces::giveInputFocus(this);
 		}
 	} else if (ev->message_type == X11::getAtom(NET_CLOSE_WINDOW)) {
 		client->close();

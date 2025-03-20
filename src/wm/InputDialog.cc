@@ -407,7 +407,7 @@ InputDialog::mapCentered(const std::string &buf, const Geometry &gm,
 	PDecor::mapWindowRaised();
 	render();
 
-	giveInputFocus();
+	Workspaces::giveInputFocus(this);
 }
 
 /**

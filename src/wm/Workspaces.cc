@@ -706,7 +706,7 @@ Workspaces::unhideAll(uint workspace, bool focus)
 			}
 
 			// Focus
-			wo->giveInputFocus();
+			giveInputFocus(wo);
 			PWinObj::setFocusedPWinObj(wo);
 
 			// update the MRU list
@@ -1196,6 +1196,21 @@ Workspaces::placeWoInsideScreen(PWinObj *wo)
 	}
 }
 
+void
+Workspaces::giveInputFocus(PWinObj *wo, bool force)
+{
+	if (wo->isFocusable()) {
+		// check for current focused window object, warping to an
+		// already focused window is confusing.
+		if ((force || ! wo->isFocused())
+		    && pekwm::config()->isWarpPointerOn(WARP_ON_FOCUS_CHANGE)
+		    && wo != pekwm::rootWo()) {
+			wo->warpPointer();
+		}
+		wo->giveInputFocus();
+	}
+}
+
 /**
  * Searches for a PWinObj to focus, and then gives it input focus
  */
@@ -1212,7 +1227,7 @@ Workspaces::findWOAndFocus(PWinObj *search)
 	}
 
 	if (focus) {
-		focus->giveInputFocus();
+		giveInputFocus(focus);
 		findWOAndFocusRaise(focus);
 	}  else if (! PWinObj::getFocusedPWinObj()) {
 		pekwm::rootWo()->giveInputFocus();

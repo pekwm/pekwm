@@ -594,15 +594,32 @@ PDecor::setWorkspace(uint workspace)
 	}
 }
 
-//! @brief Gives decor input focus, fails if not mapped or not visible
+/**
+ * Gives decor input focus, fails if not mapped or not visible
+ */
 void
-PDecor::giveInputFocus(void)
+PDecor::giveInputFocus()
 {
 	if (_mapped && _child) {
 		_child->giveInputFocus();
 	} else {
 		P_LOG("this == " << this << " - reverting to root");
 		PWinObj::getRootPWinObj()->giveInputFocus();
+	}
+}
+
+void
+PDecor::warpPointer()
+{
+	int warp_x = _gm.x + bdLeft(this) + 1;
+	int warp_y = _gm.y + bdTop(this) + titleHeight(this) + 1;
+
+	int x, y;
+	X11::queryRootPointer(x, y);
+	if (x > warp_x && x < _gm.rx() && y > warp_y && y < _gm.by()) {
+		// cursor already inside, skip warping
+	} else {
+		X11::warpPointer(warp_x, warp_y);
 	}
 }
 

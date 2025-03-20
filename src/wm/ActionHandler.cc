@@ -117,6 +117,10 @@ ActionHandler::handleWoAction(const ActionPerformed *ap, ActionEvent::it it)
 {
 	switch (it->getAction()) {
 	case ACTION_FOCUS:
+		// not using Workspaces::giveInputFocus here as warping the
+		// pointer on sloppy focus makes for a very confusing user
+		// experience when the pointer enters a frame and then is
+		// warped.
 		if (ap->wo->isFocusable()) {
 			ap->wo->giveInputFocus();
 		}
@@ -210,7 +214,7 @@ ActionHandler::handleFrameAction(const ActionPerformed* ap, ActionEvent::it it,
 		if (frame->isFocused()) {
 			frame->raise();
 		} else {
-			ap->wo->giveInputFocus();
+			Workspaces::giveInputFocus(ap->wo);
 		}
 		break;
 	case ACTION_MOVE_TO_HEAD:
@@ -1115,7 +1119,7 @@ ActionHandler::actionFocusWithSelector(const Action& action)
 	}
 
 	if (wo_focus != nullptr) {
-		wo_focus->giveInputFocus();
+		Workspaces::giveInputFocus(wo_focus);
 	}
 }
 
@@ -1126,12 +1130,11 @@ ActionHandler::actionFocusDirectional(PWinObj *wo, DirectionType dir,
 {
 	PWinObj *wo_focus =
 		Workspaces::findDirectional(wo, dir, SKIP_FOCUS_TOGGLE);
-
 	if (wo_focus) {
 		if (raise) {
 			wo_focus->raise();
 		}
-		wo_focus->giveInputFocus();
+		Workspaces::giveInputFocus(wo_focus);
 	}
 }
 
@@ -1235,7 +1238,7 @@ ActionHandler::actionShowMenu(const std::string &name, bool stick,
 		// check
 		menu->mapUnderMouse();
 		if (menu->isMapped()) {
-			menu->giveInputFocus();
+			Workspaces::giveInputFocus(menu);
 			if (stick) {
 				menu->setSticky(true);
 			}
@@ -1333,7 +1336,7 @@ ActionHandler::gotoClient(Client *client)
 	// Activate it within the Frame.
 	frame->activateChild(client);
 	frame->raise();
-	frame->giveInputFocus();
+	Workspaces::giveInputFocus(frame);
 }
 
 /**
@@ -1407,7 +1410,7 @@ ActionHandler::attachInNextPrevFrame(Client *client, bool frame, bool next)
 			parent->removeChild(client);
 			new_frame->addChild(client);
 			new_frame->activateChild(client);
-			new_frame->giveInputFocus();
+			Workspaces::giveInputFocus(new_frame);
 		}
 	}
 }

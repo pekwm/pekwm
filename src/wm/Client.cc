@@ -223,6 +223,9 @@ Client::~Client(void)
 		Frame *trans_frame =
 			static_cast<Frame*>(_transient_for->getParent());
 		if (trans_frame->getActiveChild() == _transient_for) {
+			// Do not use Workspaces::giveInputFocus here to avoid
+			// pointer warping when returning the focus to the
+			// parent window
 			trans_frame->giveInputFocus();
 		}
 	}
@@ -610,6 +613,17 @@ Client::giveInputFocus()
 	}
 
 	sendTakeFocusMessage();
+}
+
+void
+Client::warpPointer()
+{
+	Frame *frame = static_cast<Frame *>(_parent);
+	if (frame) {
+		frame->warpPointer();
+	} else {
+		PWinObj::warpPointer();
+	}
 }
 
 //! @brief Reparents and sets _parent member, filtering unmap events

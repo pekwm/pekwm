@@ -227,6 +227,10 @@ public:
 	bool isReportAllClients(void) const {
 		return _screen_report_all_clients;
 	}
+	bool isWarpPointerOn(enum WarpOn warp_on) const
+	{
+		return (_screen_warp_pointer_on & warp_on) == warp_on;
+	}
 
 	// Theme
 	const std::string &getThemeBackgroundOverride() const {
@@ -411,6 +415,7 @@ private:
 	std::string _screen_client_unique_name_pre;
 	std::string _screen_client_unique_name_post;
 	bool _screen_report_all_clients;
+	int _screen_warp_pointer_on;
 
 	/** Background override, use instead of theme defined background. */
 	std::string _theme_background_override;

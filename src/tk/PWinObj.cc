@@ -254,6 +254,15 @@ PWinObj::giveInputFocus(void)
 	X11::setInputFocus(_window);
 }
 
+/**
+ * Warp the pointer to the center of the PWinObj
+ */
+void
+PWinObj::warpPointer()
+{
+	X11::warpPointer(_gm.x + (_gm.width / 2), _gm.y + (_gm.height / 2));
+}
+
 //! @brief Reparents and sets _parent member
 void
 PWinObj::reparent(PWinObj *wo, int x, int y)

@@ -479,6 +479,7 @@ public:
 
 	static void free(void* data);
 
+	static void queryRootPointer(int &x, int &y);
 	static void warpPointer(int x, int y);
 
 	static void moveWindow(Window win, int x, int y);

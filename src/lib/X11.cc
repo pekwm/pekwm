@@ -620,6 +620,21 @@ X11::free(void* data)
 }
 
 void
+X11::queryRootPointer(int &x, int &y)
+{
+	if (_dpy) {
+		Window root, child;
+		int child_x, child_y;
+		uint mask;
+		XQueryPointer(_dpy, _root, &root, &child, &x, &y,
+			      &child_x, &child_y, &mask);
+	} else {
+		x = 0;
+		y = 0;
+	}
+}
+
+void
 X11::warpPointer(int x, int y)
 {
 	if (_dpy) {

@@ -16,6 +16,10 @@ Screen {
 	WorkspacesPerRow = "2"
 	WorkspaceNames = "01;02;03;04"
 
+	# Remove below comment if you want the pointer to move whenever focus
+	# changes by the means of focus toggle or new clients.
+	# WarpPointerOn = "New FocusChange"
+
 	Placement {
 		Model = "CenteredOnParent Smart MouseNotUnder"
 	}
