@@ -176,7 +176,7 @@ FocusToggleEventHandler::stop(void)
 		}
 
 		// Give focus
-		_fo_wo->giveInputFocus();
+		Workspaces::giveInputFocus(_fo_wo);
 	}
 
 	return EventHandler::EVENT_STOP_PROCESSED;

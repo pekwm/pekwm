@@ -256,7 +256,7 @@ FrameListMenu::handleGotomenu(Client *client)
 
 	frame->activateChild(client);
 	frame->raise();
-	frame->giveInputFocus();
+	Workspaces::giveInputFocus(frame);
 }
 
 //! @brief Handles iconmenu presses
@@ -275,7 +275,7 @@ FrameListMenu::handleIconmenu(Client *client)
 
 	frame->raise();
 	frame->mapWindow();
-	frame->giveInputFocus();
+	Workspaces::giveInputFocus(frame);
 }
 
 //! @brief Handles attach*menu presses
@@ -298,6 +298,6 @@ FrameListMenu::handleAttach(Client *client_to, Client *client_from, bool frame)
 		client_from->setWorkspace(frame_to->getWorkspace());
 		frame_to->addChild(client_from);
 		frame_to->activateChild(client_from);
-		frame_to->giveInputFocus();
+		Workspaces::giveInputFocus(frame_to);
 	}
 }

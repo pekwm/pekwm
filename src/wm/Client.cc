@@ -223,7 +223,7 @@ Client::~Client(void)
 		Frame *trans_frame =
 			static_cast<Frame*>(_transient_for->getParent());
 		if (trans_frame->getActiveChild() == _transient_for) {
-			trans_frame->giveInputFocus();
+			Workspaces::giveInputFocus(trans_frame);
 		}
 	}
 

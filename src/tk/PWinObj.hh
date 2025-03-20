@@ -203,6 +203,7 @@ public:
 	virtual void setFocusable(bool focusable) { _focusable = focusable; }
 
 	virtual void giveInputFocus(void);
+	void warpPointer();
 	virtual void reparent(PWinObj *parent, int x, int y);
 
 	virtual bool getSizeRequest(Geometry &request);
