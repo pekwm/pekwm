@@ -1197,12 +1197,12 @@ Workspaces::placeWoInsideScreen(PWinObj *wo)
 }
 
 void
-Workspaces::giveInputFocus(PWinObj *wo)
+Workspaces::giveInputFocus(PWinObj *wo, bool force)
 {
 	if (wo->isFocusable()) {
 		// check for current focused window object, warping to an
 		// already focused window is confusing.
-		if (wo != PWinObj::getFocusedPWinObj()
+		if ((force || ! wo->isFocused())
 		    && pekwm::config()->isWarpPointerOn(WARP_ON_FOCUS_CHANGE)
 		    && wo != pekwm::rootWo()) {
 			wo->warpPointer();

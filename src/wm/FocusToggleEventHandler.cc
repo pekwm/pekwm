@@ -176,7 +176,7 @@ FocusToggleEventHandler::stop(void)
 		}
 
 		// Give focus
-		Workspaces::giveInputFocus(_fo_wo);
+		Workspaces::giveInputFocus(_fo_wo, true);
 	}
 
 	return EventHandler::EVENT_STOP_PROCESSED;
