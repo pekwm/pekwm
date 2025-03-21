@@ -408,6 +408,8 @@ public:
 
 	static bool queryTree(Window win, Window &root, Window &parent,
 			      std::vector<Window> &children);
+	static void saveSetAdd(Window win);
+	static void saveSetRemove(Window win);
 
 	static bool updateGeometry(uint width, uint height);
 	static Cursor getCursor(CursorType type) { return _cursor_map[type]; }
@@ -573,6 +575,7 @@ public:
 
 	static void mapWindow(Window w);
 	static void mapRaised(Window w);
+	static void mapSubwindows(Window w);
 	static void unmapWindow(Window w);
 	static void reparentWindow(Window w, Window parent, int x, int y);
 

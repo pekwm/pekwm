@@ -144,7 +144,7 @@ Client::Client(Window new_client, ClientInitConfig &initConfig, bool is_new)
 		_shape_bounding = isShaped;
 	}
 
-	XAddToSaveSet(X11::getDpy(), _window);
+	X11::saveSetAdd(_window);
 	XSetWindowBorderWidth(X11::getDpy(), _window, 0);
 
 	// Load the Class hint before loading the autoprops and
@@ -232,9 +232,9 @@ Client::~Client(void)
 	if (_alive) {
 		X11::ungrabButton(AnyButton, AnyModifier, _window);
 		pekwm::keyGrabber()->ungrabKeys(_window);
-		XRemoveFromSaveSet(X11::getDpy(), _window);
 		PWinObj::mapWindow();
 	}
+	X11::saveSetRemove(_window);
 
 	// free names and size hint
 	if (_size) {

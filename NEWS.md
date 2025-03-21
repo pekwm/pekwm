@@ -10,6 +10,8 @@ Closed issues
   missing from the configuration.
 * `_NET_WM_STATE` ClientMessage with action unset should no longer cause the
   property to be set.
+* Always remove Window from the save set when deleting a Client. Fix issues
+  with client modals ending up as empty black windows on restart.
 
 New
 ---

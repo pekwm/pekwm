@@ -107,7 +107,7 @@ PWinObj::mapWindowRaised(void)
 	_mapped = true;
 	_iconified = false;
 
-	XMapRaised(X11::getDpy(), _window);
+	X11::mapRaised(_window);
 }
 
 //! @brief Unmaps the window and sets _mapped to false.

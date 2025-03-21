@@ -868,6 +868,22 @@ X11::queryTree(Window win, Window &root, Window &parent,
 	return true;
 }
 
+void
+X11::saveSetAdd(Window win)
+{
+	if (_dpy) {
+		XAddToSaveSet(_dpy, win);
+	}
+}
+
+void
+X11::saveSetRemove(Window win)
+{
+	if (_dpy) {
+		XRemoveFromSaveSet(_dpy, win);
+	}
+}
+
 /**
  * Refetches the root-window size.
  */
@@ -2283,6 +2299,14 @@ X11::mapRaised(Window w)
 {
 	if (_dpy) {
 		XMapRaised(_dpy, w);
+	}
+}
+
+void
+X11::mapSubwindows(Window w)
+{
+	if (_dpy) {
+		XMapSubwindows(_dpy, w);
 	}
 }
 

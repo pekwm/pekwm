@@ -244,7 +244,7 @@ PDecor::init(Window child_window, bool override_redirect)
 	loadDecor();
 
 	// map title and border windows
-	XMapSubwindows(X11::getDpy(), _window);
+	X11::mapSubwindows(_window);
 }
 
 /**
