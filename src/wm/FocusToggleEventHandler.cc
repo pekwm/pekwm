@@ -192,6 +192,9 @@ FocusToggleEventHandler::setFocusedWo(PWinObj *fo_wo)
 	if (_fo_wo) {
 		pekwm::observerMapping()->addObserver(_fo_wo, this, 100);
 
+		if (pekwm::config()->isWarpPointerOn(WARP_ON_FOCUS_CHANGE)) {
+			_fo_wo->warpPointer();
+		}
 		_fo_wo->setFocused(true);
 		if (_raise == ALWAYS_RAISE) {
 			// Make sure it's not iconified if raise is on.
