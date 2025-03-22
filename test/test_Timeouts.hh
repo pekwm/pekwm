@@ -91,7 +91,7 @@ TestTimeouts::testGetNextTimeout()
 	TimeoutAction action;
 	ASSERT_EQUAL("no actions", false,
 		     timeouts.getNextTimeout(&tv, action));
-	ASSERT_EQUAL("no action", nullptr, tv);
+	ASSERT_EQUAL("no action", static_cast<struct timeval*>(nullptr), tv);
 	ASSERT_EQUAL("no action", -1, action.getKey());
 
 	timeouts.add(TimeoutAction(1, 5));

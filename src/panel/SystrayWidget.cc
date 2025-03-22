@@ -119,12 +119,6 @@ SystrayWidget::move(int x)
 	}
 }
 
-void
-SystrayWidget::render(Render& rend)
-{
-	rend.clear(getX(), 0, getWidth(), _theme.getHeight());
-}
-
 /**
  * Custom X event handling for systray to support interaction with systray
  * clients.

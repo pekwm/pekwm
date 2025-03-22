@@ -121,7 +121,7 @@ public:
 	typedef std::vector<WidgetConfig> widget_config_vector;
 	typedef widget_config_vector::const_iterator widget_config_it;
 
-	PanelConfig(float scale);
+	PanelConfig();
 	~PanelConfig();
 
 	bool load(const std::string &panel_file);
@@ -154,7 +154,6 @@ private:
 	uint calculateRefreshIntervalS(void) const;
 
 private:
-	float _scale;
 	/** Position of panel. */
 	PanelPlacement _placement;
 	/** Panel head, -1 for stretch all heads which is default. */

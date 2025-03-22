@@ -55,7 +55,7 @@ TestExternalCommandData::run_test(TestSpec spec, bool status)
 void
 TestExternalCommandData::testAppend()
 {
-	PanelConfig cfg(1.0);
+	PanelConfig cfg;
 	VarData var_data;
 	ExternalCommandDataTest ecd(cfg, var_data);
 
@@ -74,7 +74,7 @@ TestExternalCommandData::testAppend()
 void
 TestExternalCommandData::testAppendAssign()
 {
-	PanelConfig cfg(1.0);
+	PanelConfig cfg;
 	VarData var_data;
 	ExternalCommandDataTest ecd(cfg, var_data);
 

@@ -777,7 +777,7 @@ int main(int argc, char *argv[])
 
 		// run in separate scope to get resources cleaned up before
 		// X11 cleanup
-		PanelConfig cfg(scale);
+		PanelConfig cfg;
 		if (loadConfig(cfg, config_file)) {
 
 			Geometry head =

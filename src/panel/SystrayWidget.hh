@@ -51,7 +51,6 @@ public:
 
 	virtual uint getRequiredSize(void) const;
 	virtual void move(int x);
-	virtual void render(Render& rend);
 
 	virtual bool operator==(Window win) const {
 		if (win == _owner || win == _parent->getWindow()) {

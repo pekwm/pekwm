@@ -105,14 +105,13 @@ CommandConfig::~CommandConfig(void)
 
 // PanelConfig
 
-PanelConfig::PanelConfig(float scale)
-	: _scale(scale),
-	  _placement(DEFAULT_PLACEMENT),
+PanelConfig::PanelConfig()
+	: _placement(DEFAULT_PLACEMENT),
 	  _head(-1)
 {
 }
 
-PanelConfig::~PanelConfig(void)
+PanelConfig::~PanelConfig()
 {
 }
 

@@ -661,6 +661,7 @@ ActionHandler::actionMoveToEdge(PWinObj *wo, OrientationType edge)
 		y = head.y;
 		break;
 	case TOP_EDGE:
+		x = wo->getX();
 		y = head.y;
 		break;
 	case TOP_CENTER_EDGE:
@@ -676,6 +677,7 @@ ActionHandler::actionMoveToEdge(PWinObj *wo, OrientationType edge)
 		y = head.y + head.height - wo->getHeight();
 		break;
 	case BOTTOM_EDGE:
+		x = wo->getX();
 		y = head.y + head.height - wo->getHeight();
 		break;
 	case BOTTOM_CENTER_EDGE:
@@ -688,6 +690,7 @@ ActionHandler::actionMoveToEdge(PWinObj *wo, OrientationType edge)
 		break;
 	case LEFT_EDGE:
 		x = head.x;
+		y = wo->getY();
 		break;
 	case LEFT_CENTER_EDGE:
 		x = head.x;
@@ -695,6 +698,7 @@ ActionHandler::actionMoveToEdge(PWinObj *wo, OrientationType edge)
 		break;
 	case RIGHT_EDGE:
 		x = head.x + head.width - wo->getWidth();
+		y = wo->getY();
 		break;
 	case RIGHT_CENTER_EDGE:
 		x = head.x + head.width - wo->getWidth();
