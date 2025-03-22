@@ -172,6 +172,18 @@ CmdDialog {
 Panel {
 	Background = "$TEX_PANEL"
 	BackgroundOpacity = "80"
+	Focused {
+		Font = "$FONT#Center"
+		Color = "#000000"
+	}
+	Unfocused {
+		Font = "$FONT#Center"
+		Color = "#222222"
+	}
+	Iconified {
+		Font = "$FONT#Center"
+		Color = "#444444"
+	}
 }
 
 Status {
