@@ -1,10 +1,11 @@
 #!@SH@
 #
-# Copyright (C) 2024 Claes Nästén <pekdon@gmail.com>
+# Copyright (C) 2024-2025 Claes Nästén <pekdon@gmail.com>
 #
 
 battery="100"
 battery_state="ac"
+battery_count="0"
 
 read_bsd_apm()
 {
@@ -34,6 +35,7 @@ read_sysfs()
 	else
 		battery_state="ac"
 	fi
+	battery_count=`ls /sys/class/power_supply/BAT* | wc -l`
 }
 
 case `uname -s` in
@@ -51,4 +53,5 @@ case `uname -s` in
 esac
 
 echo "battery $battery"
+echo "battery_count $battery_count"
 echo "battery_state $battery_state"
