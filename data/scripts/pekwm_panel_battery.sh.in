@@ -1,22 +1,29 @@
 #!@SH@
 #
-# Copyright (C) 2024 Claes Nästén <pekdon@gmail.com>
+# Copyright (C) 2024-2025 Claes Nästén <pekdon@gmail.com>
 #
 
 battery="100"
 battery_state="ac"
+battery_count="0"
 
 read_bsd_apm()
 {
-	apm_status=`apm`
-	battery=`echo "$apm_status" | sed 's/%//' \
-		| awk 'BEGIN { p=0 } END { print p } /Battery state: / { p=$4 }'`
-	battery_state=`echo "$apm_status" | grep 'AC adapter state: ' \
-		| sed 's/.*: //' | tr ' ' '_'`
-	if test "x${battery_state}" = "xnot_connected"; then
-		battery_state="battery"
+	apm_status=`apm | sed 's/,//' | sed 's/%//'`
+	battery_info=`echo "$apm_status" | awk '/Battery state: / { print $3 }'`
+	if test "x${battery_info}" = "xabsent"; then
+		battery_count="0"
 	else
-		battery_state="ac"
+		battery_count="1"
+		battery=`echo "$apm_status" \
+			| awk 'BEGIN { p=0 } END { print p } /Battery state: / { p=$4 }'`
+		battery_state=`echo "$apm_status" | grep 'AC adapter state: ' \
+			| sed 's/.*: //' | tr ' ' '_'`
+		if test "x${battery_state}" = "xnot_connected"; then
+			battery_state="battery"
+		else
+			battery_state="ac"
+		fi
 	fi
 }
 
@@ -34,9 +41,15 @@ read_sysfs()
 	else
 		battery_state="ac"
 	fi
+	battery_count=`ls /sys/class/power_supply/BAT* | wc -l`
 }
 
-case `uname -s` in
+UNAME_S="$1"
+if test "x${UNAME_S}" = "x"; then
+	UNAME_S=`uname -s`
+fi
+
+case $UNAME_S in
 	OpenBSD)
 		read_bsd_apm
 		;;
@@ -51,4 +64,5 @@ case `uname -s` in
 esac
 
 echo "battery $battery"
+echo "battery_count $battery_count"
 echo "battery_state $battery_state"

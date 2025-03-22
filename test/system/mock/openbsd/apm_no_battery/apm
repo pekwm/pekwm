@@ -1,0 +1,7 @@
+#!/bin/sh
+
+cat <<EOF
+Battery state: absent, 0% remaining, unknown life estimate
+AC adapter state: not known
+Performance adjustment mode: auto (3400 MHz)
+EOF

@@ -1,0 +1,7 @@
+#!/bin/sh
+
+cat <<EOF
+Battery state: high, 79% remaining, 153 minutes life estimate
+AC adapter state: not connected
+Performance adjustment mode: auto (400 MHz)
+EOF
