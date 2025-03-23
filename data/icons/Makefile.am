@@ -1,4 +1,8 @@
-icon_files = flag-de.png \
+icon_files = battery.png \
+	     battery-ac.png \
+	     battery-battery.png \
+	     flag.png \
+	     flag-de.png \
 	     flag-dk.png \
 	     flag-fi.png \
 	     flag-fr.png \

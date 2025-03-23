@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.10)
 
 install(FILES
+	battery.png
+	battery-ac.png
+	battery-battery.png
+	flag.png
 	flag-de.png
 	flag-dk.png
 	flag-fi.png
