@@ -37,8 +37,8 @@ _j_to_ts(double julian)
 static double
 _j_to_julian_day(double julian)
 {
-	return ceil(julian - (julian_day_20010101 + 0.0009)
-		    + 69.184 / seconds_per_day);
+	return round(julian - (julian_day_20010101 + 0.0009)
+		     + 69.184 / seconds_per_day);
 }
 
 static double
