@@ -7,7 +7,22 @@
 #
 
 KNOWN_PLAYERS="cmus"
-KNOWN_VOL="pulse"
+KNOWN_VOL="pulse, sndio"
+
+music_init()
+{
+	MUSIC_CTRL=`xrdb -get pekwm.audio.player`
+	if test "x$MUSIC_CTRL" = "x"; then
+		if test "x$1" = "xno"; then
+			pekwm_dialog -D no-titlebar -t pekwm_audio_ctrl.sh \
+				"ERROR: pekwm.audio.player not set or empty\n\n"
+				"Set pekwm.audio.player to one of: $KNOWN_PLAYERS\n"
+		fi
+		exit 1
+	fi
+}
+
+# C* Music Player
 
 music_cmus_play()
 {
@@ -44,6 +59,27 @@ music_cmus_prev()
 	cmus-remote -p
 }
 
+vol_init()
+{
+	VOL_CTRL=`xrdb -get pekwm.audio.control`
+	if test "x$VOL_CTRL" = "x"; then
+		# volume control not configured, try to guess
+		if test "`uname -s`" -eq "OpenBSD"; then
+			VOL_CTRL="sndio"
+		fi
+	fi
+	if test "x$VOL_CTRL" = "x"; then
+		if test "x$1" = "xno"; then
+			pekwm_dialog -D no-titlebar -t pekwm_audio_ctrl.sh \
+				"ERROR: pekwm.audio.control not set or empty\n\n" \
+				"Set pekwm.audio.control to one of: $KNOWN_VOL"
+		fi
+		exit 1
+	fi
+}
+
+# Pulse Audio
+
 vol_pulse_set_sink()
 {
 	if test "x$VOL_SINK" = "x"; then
@@ -72,6 +108,23 @@ vol_pulse_mute()
 	pactl -- set-sink-mute "$VOL_SINK" toggle
 }
 
+# OpenBSD sndioctl
+
+vol_sndio_up()
+{
+	sndioctl output.level=+0.1 >/dev/null
+}
+
+vol_sndio_down()
+{
+	sndioctl output.level=-0.1 >/dev/null
+}
+
+vol_sndio_mute()
+{
+	sndioctl output.mute=! >/dev/null
+}
+
 usage()
 {
 	cat <<EOF
@@ -96,45 +149,41 @@ while `test "x$1" != "x"`; do
 	esac
 done
 
-MUSIC_CTRL=`xrdb -get pekwm.audio.player`
-VOL_CTRL=`xrdb -get pekwm.audio.control`
-if test "x$MUSIC_CTRL" = "x" -o "x$VOL_CTRL" = "x"; then
-	if test "x$opt_quiet" = "xno"; then
-		pekwm_dialog -D no-titlebar -t pekwm_audio_ctrl.sh \
-			"ERROR: pekwm.audio.player and pekwm.audio.control" \
-			"not set or empty\n\nSet pekwm.audio.player to one" \
-			"of: $KNOWN_PLAYERS\nSet pekwm.audio.control to one" \
-			"of: $KNOWN_VOL"
-	fi
-	exit 0
-fi
-
 case $1 in
 	play)
+		music_init
 		cmd="music_${MUSIC_CTRL}_play"
 		;;
 	pause)
+		music_init
 		cmd="music_${MUSIC_CTRL}_pause"
 		;;
 	playpause)
+		music_init
 		cmd="music_${MUSIC_CTRL}_play_pause"
 		;;
 	stop)
+		music_init
 		cmd="music_${MUSIC_CTRL}_stop"
 		;;
 	next)
+		music_init
 		cmd="music_${MUSIC_CTRL}_next"
 		;;
 	prev)
+		music_init
 		cmd="music_${MUSIC_CTRL}_prev"
 		;;
 	vup)
+		vol_init
 		cmd="vol_${VOL_CTRL}_up"
 		;;
 	vdown)
+		vol_init
 		cmd="vol_${VOL_CTRL}_down"
 		;;
 	vmute)
+		vol_init
 		cmd="vol_${VOL_CTRL}_mute"
 		;;
 	*)
