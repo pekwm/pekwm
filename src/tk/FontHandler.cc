@@ -199,7 +199,7 @@ FontHandler::newFontX11(PFont::Type &type)
  *
  */
 PFont*
-FontHandler::newFontAuto() const
+FontHandler::newFontAuto()
 {
 #ifdef PEKWM_HAVE_PANGO_CAIRO
 	return new PFontPangoCairo(_scale);

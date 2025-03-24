@@ -53,7 +53,7 @@ protected:
 
 private:
 	PFont *newFontX11(PFont::Type &type);
-	PFont *newFontAuto() const;
+	PFont *newFontAuto();
 	void parseFontOptions(PFont *pfont,
 			      std::vector<std::string> &tok);
 	void loadColor(const std::string &color, PFont::Color *font_color,

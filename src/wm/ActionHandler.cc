@@ -762,15 +762,15 @@ ActionHandler::actionFillEdge(Frame *frame, OrientationType edge, int percent)
 	switch (edge) {
 	case TOP_EDGE:
 	case BOTTOM_EDGE:
-		gm.height *= fpercent;
+		gm.height = static_cast<uint>(fpercent * gm.height);
 		break;
 	case LEFT_EDGE:
 	case RIGHT_EDGE:
-		gm.width *= fpercent;
+		gm.width = static_cast<uint>(fpercent * gm.height);
 		break;
 	default:
-		gm.width *= fpercent;
-		gm.height *= fpercent;
+		gm.width = static_cast<uint>(fpercent * gm.width);
+		gm.height = static_cast<uint>(fpercent * gm.height);
 		break;
 	}
 

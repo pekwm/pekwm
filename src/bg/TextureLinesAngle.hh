@@ -49,16 +49,17 @@ public:
 	{
 		int step;
 		if (_size_percent) {
-			step = width * _line_size;
+			step = static_cast<int>(width * _line_size);
 		} else {
-			step = _line_size;
+			step = static_cast<int>(_line_size);
 		}
 
 		rend.setClip(x, y, width, height);
 
 		double angle = _angle > 90.0 ? _angle - 90.0 : _angle;
 		double radians = angle * (M_PI / 180.0);
-		ushort side = static_cast<double>(height) / tan(radians);
+		ushort side = static_cast<ushort>(
+			static_cast<double>(height) / tan(radians));
 
 		if (_angle > 90.0) {
 			doRenderLtoR(rend, x, y, width, height, step, side);
