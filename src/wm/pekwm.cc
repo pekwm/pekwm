@@ -53,19 +53,53 @@ waitPid(pid_t pid)
 	return ret;
 }
 
+static char**
+mkArgv(const std::vector<std::string>& argv_in)
+{
+	char **argv = new char*[argv_in.size() + 1];
+	if (argv == nullptr) {
+		exit(1);
+	}
+
+	int i = 0;
+	std::vector<std::string>::const_iterator it(argv_in.begin());
+	for (; it != argv_in.end(); ++it) {
+		argv[i] = new char[it->size() + 1];
+		memcpy(argv[i++], it->c_str(), it->size() + 1);
+	}
+	argv[i] = nullptr;
+	return argv;
+}
+
+static char**
+mkRestartArgv(char **argv)
+{
+	std::vector<std::string> restart_argv;
+	for (int i = 0; argv[i] != nullptr; i++) {
+		restart_argv.push_back(argv[i]);
+	}
+	restart_argv.push_back("--skip-start");
+	return mkArgv(restart_argv);
+}
+
 static bool
 promptForRestart(const std::string& pekwm_dialog)
 {
 	pid_t pid = fork();
 	if (pid == 0) {
-		char *argv[] = {strdup(pekwm_dialog.c_str()),
-			strdup("-o"), strdup("Restart"),
-			strdup("-o"), strdup("Exit"),
-			strdup("-t"), strdup("pekwm crashed!"),
-			strdup("-r"),
-			strdup("pekwm quit unexpectedly, restart?"),
-			NULL};
+		std::vector<std::string> argv_in;
+		argv_in.push_back(pekwm_dialog);
+		argv_in.push_back("-o");
+		argv_in.push_back("Restart");
+		argv_in.push_back("-o");
+		argv_in.push_back("Exit");
+		argv_in.push_back("-t");
+		argv_in.push_back("pekwm crashed!");
+		argv_in.push_back("-r");
+		argv_in.push_back("pekwm quit unexpectedly, restart?");
+		char **argv = mkArgv(argv_in);
 		execvp(argv[0], argv);
+		delete[] argv;
 
 		exit(1);
 	} else if (pid == -1) {
@@ -95,7 +129,9 @@ handleOkResult(char *path, char **argv, int read_fd)
 		std::string command = std::string(buf + 8);
 
 		if (command.empty()) {
-			execvp(path, argv);
+			char **restart_argv = mkRestartArgv(argv);
+			execvp(path, restart_argv);
+			delete[] restart_argv;
 		} else {
 			command = "exec " + command;
 			execl(PEKWM_SH, PEKWM_SH , "-c", command.c_str(),
@@ -118,7 +154,10 @@ handleUnexpectedResult(char *path, char **argv, int read_fd)
 	// run pekwm_dialog and wait for answer on to restart or not
 	std::string pekwm_dialog = std::string(path) + "_dialog";
 	if (promptForRestart(pekwm_dialog)) {
-		execvp(path, argv);
+		char **restart_argv = mkRestartArgv(argv);
+		execvp(path, restart_argv);
+		delete[] restart_argv;
+
 		std::cerr << "failed to restart pekwm" << std::endl;
 		exit(1);
 	}
@@ -186,16 +225,9 @@ main(int argc, char **argv)
 
 		wm_argv.insert(wm_argv.begin() + 1, "--fd");
 		wm_argv.insert(wm_argv.begin() + 2, std::to_string(fd[1]));
-
-		int c_wm_argc = 0;
-		char **c_wm_argv = new char*[wm_argv.size() + 1];
-		std::vector<std::string>::iterator it = wm_argv.begin();
-		for (; it != wm_argv.end(); ++it) {
-			c_wm_argv[c_wm_argc++] = strdup(it->c_str());
-		}
-		c_wm_argv[c_wm_argc++] = NULL;
-
+		char **c_wm_argv = mkArgv(wm_argv);
 		execvp(c_wm_argv[0], c_wm_argv);
+		delete[] c_wm_argv;
 
 		std::cerr << "Failed to execute: " << pekwm_wm << std::endl;
 		exit(1);

@@ -34,7 +34,8 @@ class WindowManager : public AppCtrl,
 {
 public:
 	static WindowManager *start(const std::string &config_file,
-				    bool replace, bool synchronous);
+				    bool replace, bool skip_start,
+				    bool synchronous);
 	virtual ~WindowManager();
 
 	void doEventLoop(void);
@@ -79,7 +80,7 @@ protected:
 private:
 	void setupDisplay();
 	void scanWindows(void);
-	void execStartFile(void);
+	void execStartFile(bool skip_start);
 
 	void handleSignals(void);
 

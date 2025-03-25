@@ -51,6 +51,7 @@ printUsage(void)
 	std::cout << " --log-level  set log level." << std::endl;
 	std::cout << " --replace    replace running window manager"
 		  << std::endl;
+	std::cout << " --skip-start do not run the start file" << std::endl;
 	std::cout << " --sync       run Xlib in synchronous mode" << std::endl;
 	std::cout << " --standalone run pekwm_wm in standalone mode"
 		  << std::endl;
@@ -109,6 +110,7 @@ main(int argc, char **argv)
 	initEnv(false);
 
 	// get the args and test for different options
+	bool skip_start = false;
 	bool synchronous = false;
 	bool replace = false;
 
@@ -142,6 +144,8 @@ main(int argc, char **argv)
 			}
 		} else if (strcmp("--replace", argv[i]) == 0) {
 			replace = true;
+		} else if (strcmp("--skip-start", argv[i]) == 0) {
+			skip_start = true;
 		} else if (strcmp("--sync", argv[i]) == 0) {
 			synchronous = true;
 		} else if (strcmp("--version", argv[i]) == 0) {
@@ -185,7 +189,8 @@ main(int argc, char **argv)
 		  << "using configuration at " << config_file);
 
 	WindowManager *wm =
-		WindowManager::start(config_file, replace, synchronous);
+		WindowManager::start(config_file, replace, skip_start,
+				     synchronous);
 
 	// Further limit access (on OpenBSD) after the X11 connection has
 	// been setup.

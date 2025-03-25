@@ -108,7 +108,7 @@ extern "C" {
  */
 WindowManager*
 WindowManager::start(const std::string &config_file,
-		     bool replace, bool synchronous)
+		     bool replace, bool skip_start, bool synchronous)
 {
 	Display *dpy = XOpenDisplay(0);
 	if (! dpy) {
@@ -147,7 +147,7 @@ WindowManager::start(const std::string &config_file,
 		wm->startSys();
 		wm->startBackground(pekwm::theme()->getThemeDir(),
 				    pekwm::theme()->getBackground());
-		wm->execStartFile();
+		wm->execStartFile(skip_start);
 	}
 
 	return wm;
@@ -195,12 +195,15 @@ WindowManager::~WindowManager(void)
 	delete _os;
 }
 
-//! @brief Checks if the start file is executable then execs it.
+/**
+ * Checks if the start file is executable then runs it if skip_start is not
+ * set to true.
+ */
 void
-WindowManager::execStartFile(void)
+WindowManager::execStartFile(bool skip_start)
 {
 	std::string start_file(pekwm::config()->getStartFile());
-	if (start_file.empty()) {
+	if (skip_start || start_file.empty()) {
 		return;
 	}
 
