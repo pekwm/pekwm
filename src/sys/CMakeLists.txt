@@ -6,5 +6,5 @@ add_executable(pekwm_sys
 	       SysResources.cc
 	       XSettings.cc)
 target_include_directories(pekwm_sys PUBLIC ${common_INCLUDE_DIRS})
-target_link_libraries(pekwm_sys lib ${common_LIBRARIES})
+target_link_libraries(pekwm_sys tk lib ${common_LIBRARIES})
 install(TARGETS pekwm_sys DESTINATION bin)

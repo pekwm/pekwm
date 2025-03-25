@@ -49,6 +49,7 @@ add_executable(test_pekwm_sys
 	test_pekwm_sys.cc
 	../src/pekwm_env.cc
 	../src/sys/SysConfig.cc
+	../src/sys/SysResources.cc
 	../src/sys/XSettings.cc)
 add_test(NAME pekwm_sys
 	COMMAND test_pekwm_sys

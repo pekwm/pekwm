@@ -299,6 +299,7 @@ public:
 			   const std::string& value);
 	virtual void sort();
 
+	size_t size() const { return _items.size(); }
 	vector::const_iterator begin() const { return _items.begin(); }
 	vector::const_iterator end() const { return _items.end(); }
 
@@ -671,13 +672,14 @@ public:
 	static void shapeIntersectRect(Window dst, XRectangle *rect);
 	static void shapeSetMask(Window dst, int kind, Pixmap pix);
 
-	static void loadXrmResources();
+	static void loadXrmResources(const char *xrm_c = nullptr);
 	static void saveXrmResources();
 	static void enumerateXrmResources(XrmResourceCb* cb);
 
 	static bool getXrmString(const std::string& name, std::string& val);
 	static bool setXrmString(const std::string& name,
 				 const std::string& val);
+	static bool xrmDeleteResources(const std::vector<std::string> &names);
 
 	static void clearRefResources(void);
 	static const std::map<std::string, std::string>& getRefResources(void);

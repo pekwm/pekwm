@@ -2498,18 +2498,20 @@ X11::setInputFocus(Window w)
 }
 
 void
-X11::loadXrmResources()
+X11::loadXrmResources(const char *xrm_c)
 {
 	XrmDestroyDatabase(_xrm_db);
-	_xrm_db = nullptr;
 
-	// not using XResourceManagerString as the result is cached
-	// even if the resources on the display gets updated
 	std::string xrm;
-	// ignoring the result here, initialize an empty database if the
-	// resource is missing
-	getString(_root, RESOURCE_MANAGER, xrm);
-	_xrm_db = XrmGetStringDatabase(xrm.c_str());
+	if (xrm_c == nullptr) {
+		// not using XResourceManagerString as the result is cached
+		// even if the resources on the display gets updated
+		// ignoring the result here, initialize an empty database if the
+		// resource is missing
+		getString(_root, RESOURCE_MANAGER, xrm);
+		xrm_c = xrm.c_str();
+	}
+	_xrm_db = XrmGetStringDatabase(xrm_c);
 }
 
 /**
@@ -2597,12 +2599,12 @@ bool
 X11::getXrmString(const std::string& name, std::string& val)
 {
 	if (_xrm_db) {
-		char *type;
+		char *type = nullptr;
 		XrmValue value;
 		if (XrmGetResource(_xrm_db, name.c_str(), "String",
 				   &type, &value)
 		    && value.size > 0
-		    && strcmp(type, "String") == 0) {
+		    && (type == nullptr || strcmp(type, "String") == 0)) {
 			val = std::string(value.addr, value.size - 1);
 			return true;
 		}
@@ -2617,8 +2619,35 @@ X11::getXrmString(const std::string& name, std::string& val)
 bool
 X11::setXrmString(const std::string& name, const std::string& val)
 {
-	if (_dpy) {
+	if (_xrm_db) {
 		XrmPutStringResource(&_xrm_db, name.c_str(), val.c_str());
+		return true;
+	}
+	return false;
+}
+
+/**
+ * Replace current _xrm_db with the current content - resources in names.
+ */
+bool
+X11::xrmDeleteResources(const std::vector<std::string> &names)
+{
+	if (_xrm_db && !names.empty()) {
+		XrmResourceCbCollect collect;
+		enumerateXrmResources(&collect);
+		XrmDestroyDatabase(_xrm_db);
+		_xrm_db = XrmGetStringDatabase("");
+
+		XrmResourceCbCollect::vector::const_iterator
+			c_it(collect.begin());
+		for (; c_it != collect.end(); ++c_it) {
+			if (std::find(names.begin(), names.end(), c_it->first)
+			    != names.end()) {
+				continue;
+			}
+			XrmPutStringResource(&_xrm_db, c_it->first.c_str(),
+					     c_it->second.c_str());
+		}
 		return true;
 	}
 	return false;

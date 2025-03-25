@@ -40,7 +40,8 @@ static struct osc_xresource _osc_to_resource[] = {
 };
 
 SysResources::SysResources(const SysConfig &cfg)
-	: _cfg(cfg)
+	: _cfg(cfg),
+	  _xterm_hash(0)
 {
 }
 
@@ -107,20 +108,64 @@ SysResources::setXResources(const Daytime &daytime, TimeOfDay tod,
 	X11::setXrmString("pekwm.location.country", _location_country);
 	X11::setXrmString("pekwm.location.city", _location_city);
 
-	const SysConfig::string_map &x_resources = _cfg.getXResources(tod);
-	SysConfig::string_map::const_iterator it(x_resources.begin());
-	for (; it != x_resources.end(); ++it) {
-		X11::setXrmString(it->first, it->second);
-	}
-	P_TRACE("set " << x_resources.size()
-		<< " X resources from configuration");
+	setConfiguredXResources(tod);
 
 	X11::saveXrmResources();
 }
 
 void
+SysResources::setConfiguredXResources(TimeOfDay tod)
+{
+	removeStaleThemeXresources();
+	setXResourcesMap(_cfg.getXResources(tod), "configuration");
+	setXResourcesMap(_cfg.getThemeXResources(), "theme");
+	_theme_x_resources = _cfg.getThemeXResources();
+}
+
+void
+SysResources::setXResourcesMap(const SysConfig::string_map &x_resources,
+			       const char *ctx)
+{
+	SysConfig::string_map::const_iterator it(x_resources.begin());
+	for (; it != x_resources.end(); ++it) {
+		X11::setXrmString(it->first, it->second);
+	}
+	P_TRACE("set " << x_resources.size() << " X resources from " << ctx);
+}
+
+void
+SysResources::removeStaleThemeXresources()
+{
+	const SysConfig::string_map &theme_x_resources =
+		_cfg.getThemeXResources();
+
+	std::string val;
+	SysConfig::string_map::iterator old_it(_theme_x_resources.begin());
+	std::vector<std::string> del_names;
+	for (; old_it != _theme_x_resources.end(); ++old_it) {
+		SysConfig::string_map::const_iterator new_it =
+			theme_x_resources.find(old_it->first);
+		// If the resource no longer exists and still has its original
+		// value, remove it from the resources.
+		if (new_it == theme_x_resources.end()
+		    && X11::getXrmString(old_it->first, val)
+		    && val == old_it->second) {
+			del_names.push_back(old_it->first);
+		}
+	}
+	X11::xrmDeleteResources(del_names);
+}
+
+void
 SysResources::notifyXTerms()
 {
+	// Avoid sending messages to all clients if no relevant Xrm resource
+	// has changed since last run.
+	uint xterm_hash = calcXTermHash();
+	if (xterm_hash == _xterm_hash) {
+		return;
+	}
+
 	std::vector<Window> windows;
 	readClientList(windows);
 	P_TRACE("checking " << windows.size() << " windows for XTerm clients");
@@ -183,4 +228,19 @@ SysResources::readClientList(std::vector<Window> &windowsv)
 	}
 	X11::free(windows);
 	return true;
+}
+
+uint
+SysResources::calcXTermHash()
+{
+	std::string buf;
+	for (int i = 0; _osc_to_resource[i].name; i++) {
+		buf += std::to_string(i);
+		std::string value;
+		if (! X11::getXrmString(_osc_to_resource[i].name, value)) {
+			continue;
+		}
+		buf += value;
+	}
+	return pekwm::str_hash(buf);
 }

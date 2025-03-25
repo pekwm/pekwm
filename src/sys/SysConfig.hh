@@ -56,11 +56,32 @@ public:
 		}
 	}
 
+	void setXResources(TimeOfDay tod, const string_map &x_resources) {
+		if (tod == TIME_OF_DAY_DAY) {
+			_x_resources_day = x_resources;
+		} else if (tod == TIME_OF_DAY_DAWN) {
+			_x_resources_dawn = x_resources;
+		} else if (tod == TIME_OF_DAY_DUSK) {
+			_x_resources_dusk = x_resources;
+		} else {
+			_x_resources_night = x_resources;
+		}
+	}
+
+	const string_map &getThemeXResources() const {
+		return _theme_x_resources;
+	}
+	void setThemeXResources(const string_map &theme_x_resources) {
+		_theme_x_resources = theme_x_resources;
+	}
+
+	static void parseConfigXResources(CfgParser::Entry *section,
+					  string_map &resources,
+					  const std::string &key);
+
+
 private:
 	void parseCommands(CfgParser::Entry *section, string_vector &commands);
-	void parseConfigXResources(CfgParser::Entry *section,
-				   string_map &resources,
-				   const std::string &key);
 
 	Os *_os;
 
@@ -90,6 +111,8 @@ private:
 	string_map _x_resources_dusk;
 	/* X resources set on night */
 	string_map _x_resources_night;
+	/* X resources set by current theme */
+	string_map _theme_x_resources;
 };
 
 #endif // _PEKWM_SYS_CONFIG_HH_

@@ -76,6 +76,7 @@ protected:
 
 	void startSys();
 	void stopSys();
+	void writeSysCommand(const std::string &cmd);
 
 private:
 	void setupDisplay();
