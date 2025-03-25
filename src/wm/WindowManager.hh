@@ -76,6 +76,7 @@ protected:
 
 	void startSys();
 	void stopSys();
+	void writeSysCommand(const std::string &cmd);
 
 private:
 	void setupDisplay();
@@ -88,6 +89,7 @@ private:
 	void doReloadConfig(bool &scale_changed);
 	void doReloadTheme(bool force=false);
 	void doReloadThemeDecors(void);
+	void mergeThemeXResources();
 	void doReloadMouse(void);
 	void doReloadKeygrabber(bool force=false);
 	void doReloadAutoproperties(void);

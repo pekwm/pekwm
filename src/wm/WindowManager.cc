@@ -144,6 +144,7 @@ WindowManager::start(const std::string &config_file,
 			Workspaces::addToMRUBack(*it);
 		}
 
+		wm->mergeThemeXResources();
 		wm->startSys();
 		wm->startBackground(pekwm::theme()->getThemeDir(),
 				    pekwm::theme()->getBackground());
@@ -560,6 +561,7 @@ WindowManager::doReloadTheme(bool force)
 
 	if (loaded) {
 		doReloadThemeDecors();
+		mergeThemeXResources();
 	} else {
 		P_TRACE("not reloading decors, theme not changed");
 	}
@@ -573,6 +575,20 @@ WindowManager::doReloadThemeDecors()
 	for (; it != PDecor::pdecor_end(); ++it) {
 		(*it)->loadDecor();
 	}
+}
+
+void
+WindowManager::mergeThemeXResources()
+{
+	const std::map<std::string, std::string> &xresources =
+		pekwm::theme()->getXResources();
+	std::map<std::string, std::string>::const_iterator
+		it(xresources.begin());
+	for (; it != xresources.end(); ++it) {
+		X11::setXrmString(it->first, it->second);
+	}
+	X11::saveXrmResources();
+	writeSysCommand("XTERMNOTIFY");
 }
 
 void
@@ -644,6 +660,17 @@ WindowManager::stopSys()
 		// SIGCHILD will take care of waiting for the child
 		P_LOG("stopping pekwm_sys pid " << _sys_process->getPid());
 		_os->processSignal(_sys_process->getPid(), SIGKILL);
+	}
+}
+
+void
+WindowManager::writeSysCommand(const std::string &cmd)
+{
+	if (_sys_process) {
+		uint32_t len = cmd.size();
+		_sys_process->write(reinterpret_cast<char*>(&len), sizeof(len));
+		_sys_process->write(cmd);
+		P_TRACE("sent " << cmd << " to pekwm_sys");
 	}
 }
 

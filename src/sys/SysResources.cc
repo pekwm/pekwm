@@ -40,7 +40,8 @@ static struct osc_xresource _osc_to_resource[] = {
 };
 
 SysResources::SysResources(const SysConfig &cfg)
-	: _cfg(cfg)
+	: _cfg(cfg),
+	  _xterm_hash(0)
 {
 }
 
@@ -117,6 +118,13 @@ SysResources::setXResources(const Daytime &daytime, TimeOfDay tod,
 void
 SysResources::notifyXTerms()
 {
+	// Avoid sending messages to all clients if no relevant Xrm resource
+	// has changed since last run.
+	uint xterm_hash = calcXTermHash();
+	if (xterm_hash == _xterm_hash) {
+		return;
+	}
+
 	std::vector<Window> windows;
 	readClientList(windows);
 	P_TRACE("checking " << windows.size() << " windows for XTerm clients");
@@ -179,4 +187,19 @@ SysResources::readClientList(std::vector<Window> &windowsv)
 	}
 	X11::free(windows);
 	return true;
+}
+
+uint
+SysResources::calcXTermHash()
+{
+	std::string buf;
+	for (int i = 0; _osc_to_resource[i].name; i++) {
+		buf += std::to_string(i);
+		std::string value;
+		if (! X11::getXrmString(_osc_to_resource[i].name, value)) {
+			continue;
+		}
+		buf += value;
+	}
+	return pekwm::str_hash(buf);
 }

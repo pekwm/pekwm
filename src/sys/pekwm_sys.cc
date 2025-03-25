@@ -60,6 +60,7 @@ private:
 	void handleStdin();
 	void handleSetXSETTING(const std::vector<std::string> &args);
 	void handleSetTimeOfDay(const std::vector<std::string> &args);
+	void handleXTermNotify();
 
 	bool isTimeOfDayOverride() const
 	{
@@ -207,6 +208,8 @@ PekwmSys::handleStdin()
 		handleSetTimeOfDay(args);
 	} else if (pekwm::ascii_ncase_equal(command, "XSET")) {
 		handleSetXSETTING(args);
+	} else if (pekwm::ascii_ncase_equal(command, "XTERMNOTIFY")) {
+		handleXTermNotify();
 	} else if (pekwm::ascii_ncase_equal(command, "EXIT")) {
 		_stop = true;
 	} else {
@@ -253,6 +256,13 @@ PekwmSys::handleSetTimeOfDay(const std::vector<std::string> &args)
 
 	_tod = timeOfDayChanged(isTimeOfDayOverride()
 				? _tod_override : _daytime.getTimeOfDay());
+}
+
+void
+PekwmSys::handleXTermNotify()
+{
+	X11::loadXrmResources();
+	_resources.notifyXTerms();
 }
 
 void

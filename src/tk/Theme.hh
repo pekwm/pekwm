@@ -471,6 +471,11 @@ public:
 		return _decors.get(name);
 	}
 
+	const std::map<std::string, std::string>& getXResources()
+	{
+		return _xresources;
+	}
+
 	Theme::DialogData *getDialogData(void) { return &_dialog_data; }
 	Theme::HarbourData *getHarbourData(void) { return &_harbour_data; }
 	Theme::PMenuData *getMenuData(void) { return &_menu_data; }
@@ -498,6 +503,9 @@ protected:
 	{
 	}
 
+	static bool loadXResources(CfgParser::Entry *section,
+			    std::map<std::string, std::string> &xresources);
+
 private:
 	void loadThemeRequire(CfgParser &theme_cfg, const std::string &file);
 	void loadVersion(CfgParser::Entry *root);
@@ -518,6 +526,7 @@ private:
 	int _version;
 	std::string _background;
 	std::map<std::string, ColorMap> _color_maps;
+	std::map<std::string, std::string> _xresources;
 	TimeFiles _cfg_files;
 
 	bool _loaded;

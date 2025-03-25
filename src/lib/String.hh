@@ -20,6 +20,9 @@ namespace pekwm {
 	bool str_ends_with(const std::string& str, char end);
 	bool str_ends_with(const std::string& str, const std::string& end);
 
+	uint str_hash(const std::string& str);
+	uint str_hash(const char* str);
+
 	int ascii_tolower(int chr);
 	int ascii_ncase_cmp(const std::string &lhs, const std::string &rhs);
 	int ascii_ncase_cmp(const std::string &lhs, const char *rhs);

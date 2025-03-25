@@ -31,17 +31,20 @@ public:
 
 	void update(const Daytime &daytime, TimeOfDay tod);
 
+	void notifyXTerms();
+
 private:
 	void setXAtoms(const char *theme_variant);
 	void setXResources(const Daytime &daytime, TimeOfDay tod,
 			   const char *daylight, const char *theme_variant);
-	void notifyXTerms();
 	void notifyXTerm(Window win);
 	bool readClientList(std::vector<Window> &windowsv);
+	uint calcXTermHash();
 
 	const SysConfig &_cfg;
 	std::string _location_country;
 	std::string _location_city;
+	uint _xterm_hash;
 };
 
 #endif // _PEKWM_SYS_RESOURCES_HH_

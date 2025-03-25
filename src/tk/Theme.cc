@@ -1300,6 +1300,7 @@ Theme::load(const std::string &dir, const std::string &variant, bool force)
 	loadVersion(root);
 	loadBackground(root->findSection("BACKGROUND"));
 	loadColorMaps(root->findSection("COLORMAPS"));
+	loadXResources(root->findSection("XRESOURCES"), _xresources);
 
 	_dialog_data.load(root->findSection("DIALOG"));
 	loadDecors(root);
@@ -1409,6 +1410,20 @@ Theme::loadDecors(CfgParser::Entry *root)
 	}
 }
 
+bool
+Theme::loadXResources(CfgParser::Entry *section,
+		      std::map<std::string, std::string> &xresources)
+{
+	if (section) {
+		CfgParser::Entry::entry_cit it(section->begin());
+		for (; it != section->end(); ++it) {
+			xresources[(*it)->getName()] = (*it)->getValue();
+		}
+		return true;
+	}
+	return false;
+}
+
 /**
  * Unload theme data.
  */
@@ -1427,6 +1442,7 @@ Theme::unload(void)
 	}
 	_decors.clear();
 	_decors[""] = nullptr;
+	_xresources.clear();
 
 	// Unload theme data
 	_dialog_data.unload();
