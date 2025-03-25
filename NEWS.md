@@ -50,6 +50,8 @@ New
 * New Screen option `WarpPointerOn`, if set the pointer will be warped to the
   `New` clients or when a client is focused using `FocusChange`. Empty string
   to disable. (Close #186)
+* Themes can now have an `XResources` section specifying per theme X11
+  resources.
 
 Updated
 -------

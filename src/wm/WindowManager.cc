@@ -560,6 +560,7 @@ WindowManager::doReloadTheme(bool force)
 
 	if (loaded) {
 		doReloadThemeDecors();
+		writeSysCommand("THEME " + theme->getThemeFile());
 	} else {
 		P_TRACE("not reloading decors, theme not changed");
 	}
@@ -629,6 +630,8 @@ WindowManager::startSys()
 	}
 	std::vector<std::string> args;
 	args.push_back(BINDIR "/pekwm_sys");
+	args.push_back("--theme");
+	args.push_back(pekwm::theme()->getThemeFile());
 	_sys_process = _os->childExec(args, ChildProcess::CHILD_IO_ALL);
 	if (_sys_process) {
 		P_LOG("started " BINDIR "/pekwm_sys -> pid "
@@ -644,6 +647,17 @@ WindowManager::stopSys()
 		// SIGCHILD will take care of waiting for the child
 		P_LOG("stopping pekwm_sys pid " << _sys_process->getPid());
 		_os->processSignal(_sys_process->getPid(), SIGKILL);
+	}
+}
+
+void
+WindowManager::writeSysCommand(const std::string &cmd)
+{
+	if (_sys_process) {
+		uint32_t len = cmd.size();
+		_sys_process->write(reinterpret_cast<char*>(&len), sizeof(len));
+		_sys_process->write(cmd);
+		P_TRACE("sent " << cmd << " to pekwm_sys");
 	}
 }
 

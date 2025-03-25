@@ -1,14 +1,17 @@
 //
 // String.cc for pekwm
-// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
 //
 
 #include "String.hh"
+#include "Types.hh"
 
-#include <cstring>
+extern "C" {
+#include <string.h>
+}
 
 /**
  * Return true if str starts with start, else false.
@@ -64,6 +67,29 @@ pekwm::str_ends_with(const std::string& str, const std::string& end)
 	}
 	return memcmp(str.c_str() + str.size() - end.size(),
 		      end.c_str(), end.size()) == 0;
+}
+
+/**
+ * Compute hash for string.
+ */
+uint
+pekwm::str_hash(const std::string& str)
+{
+	return str_hash(str.c_str());
+}
+
+/**
+ * Compute hash for C string.
+ */
+uint
+pekwm::str_hash(const char* str)
+{
+	uint hash = 0;
+	const uchar *p = reinterpret_cast<const uchar*>(str);
+	for (; *p != '\0'; p++) {
+	    hash = 31 * hash + *p;
+	}
+	return hash;
 }
 
 /**

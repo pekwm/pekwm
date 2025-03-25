@@ -11,6 +11,7 @@
 #include "test.hh"
 
 #include "test_SysConfig.hh"
+#include "test_SysResources.hh"
 #include "test_XSettings.hh"
 
 int
@@ -19,6 +20,7 @@ main(int argc, char *argv[])
 	Charset::WithCharset charset;
 
 	TestSysConfig testSysConfig;
+	TestSysResources testSysResources;
 	TestXSettings testXSettings;
 
 	return TestSuite::main(argc, argv);

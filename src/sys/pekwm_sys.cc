@@ -8,6 +8,7 @@
 
 #include "Calendar.hh"
 #include "Compat.hh"
+#include "CfgParser.hh"
 #include "Daytime.hh"
 #include "Debug.hh"
 #include "String.hh"
@@ -18,6 +19,8 @@
 #include "Mem.hh"
 #include "X11.hh"
 #include "XSettings.hh"
+
+#include "../tk/ThemeUtil.hh"
 
 extern "C" {
 #include <getopt.h>
@@ -47,12 +50,23 @@ static void sigHandler(int signal)
 }
 }
 
+/** static pekwm resources, accessed via the pekwm namespace. */
+static std::string _config_script_path;
+
+namespace pekwm
+{
+	const std::string& configScriptPath()
+	{
+		return _config_script_path;
+	}
+}
+
 class PekwmSys {
 public:
 	PekwmSys(Os *os);
 	~PekwmSys();
 
-	int main();
+	int main(const std::string &theme);
 
 private:
 	void handleSigchld();
@@ -60,6 +74,7 @@ private:
 	void handleStdin();
 	void handleSetXSETTING(const std::vector<std::string> &args);
 	void handleSetTimeOfDay(const std::vector<std::string> &args);
+	void handleTheme(const StringView &theme);
 
 	bool isTimeOfDayOverride() const
 	{
@@ -102,12 +117,16 @@ PekwmSys::~PekwmSys()
 }
 
 int
-PekwmSys::main()
+PekwmSys::main(const std::string &theme)
 {
 	if (! _cfg.parseConfig()) {
 		std::cerr << "failed to parse configuration" << std::endl;
 		return 1;
 	}
+
+	// load theme before time of day detection, to get the right resources
+	// set the first time around
+	handleTheme(theme);
 
 	// get location in order to have correct theme and X resources setup.
 	updateLocation();
@@ -212,6 +231,9 @@ PekwmSys::handleStdin()
 		handleSetTimeOfDay(args);
 	} else if (pekwm::ascii_ncase_equal(command, "XSET")) {
 		handleSetXSETTING(args);
+	} else if (pekwm::ascii_ncase_equal(command, "THEME")) {
+		handleTheme(StringView(*buf, 0, 6));
+		_resources.notifyXTerms();
 	} else if (pekwm::ascii_ncase_equal(command, "EXIT")) {
 		_stop = true;
 	} else {
@@ -258,6 +280,25 @@ PekwmSys::handleSetTimeOfDay(const std::vector<std::string> &args)
 
 	_tod = timeOfDayChanged(isTimeOfDayOverride()
 				? _tod_override : _daytime.getTimeOfDay());
+}
+
+void
+PekwmSys::handleTheme(const StringView &theme)
+{
+	std::map<std::string, std::string> x_resources;
+	std::string theme_dir = Util::getDir(theme.str());
+
+	CfgParser cfg(CfgParserOpt(""));
+	if (! theme.empty()
+	    && ThemeUtil::load(cfg, theme_dir, theme.str(), true)) {
+		SysConfig::parseConfigXResources(cfg.getEntryRoot(),
+						 x_resources, "XRESOURCES");
+	}
+	_cfg.setThemeXResources(x_resources);
+
+	X11::loadXrmResources();
+	_resources.setConfiguredXResources(_tod);
+	X11::saveXrmResources();
 }
 
 void
@@ -335,6 +376,7 @@ main(int argc, char *argv[])
 
 	progname = argv[0];
 	const char *display = NULL;
+	std::string theme;
 
 	static struct option opts[] = {
 		{const_cast<char*>("display"), required_argument, nullptr, 'd'},
@@ -343,11 +385,13 @@ main(int argc, char *argv[])
 		 'l'},
 		{const_cast<char*>("log-file"), required_argument, nullptr,
 		 'f'},
+		{const_cast<char*>("theme"), required_argument, nullptr,
+		 't'},
 		{nullptr, 0, nullptr, 0}
 	};
 
 	int ch;
-	while ((ch = getopt_long(argc, argv, "d:h:l:f:", opts, nullptr))
+	while ((ch = getopt_long(argc, argv, "d:h:l:f:t:", opts, nullptr))
 	       != -1) {
 		switch (ch) {
 		case 'd':
@@ -364,6 +408,9 @@ main(int argc, char *argv[])
 			break;
 		case 'l':
 			Debug::setLevel(Debug::getLevel(optarg));
+			break;
+		case 't':
+			theme = optarg;
 			break;
 		default:
 			usage(1);
@@ -384,5 +431,5 @@ main(int argc, char *argv[])
 
 	Destruct<Os> os(mkOs());
 	PekwmSys sys(*os);
-	return sys.main();
+	return sys.main(theme);
 }

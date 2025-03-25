@@ -31,6 +31,15 @@ public:
 	{
 	}
 
+	StringView(const char *data, size_t size, size_t off)
+	{
+		if (data == nullptr) {
+			data = "";
+		}
+		init(data, strlen(data), size, off);
+	}
+
+
 	StringView(const std::string &str)
 		: _data(str.c_str()),
 		  _size(str.size())
@@ -105,6 +114,9 @@ namespace pekwm {
 			     std::string::size_type pos=0);
 	bool str_ends_with(const std::string& str, char end);
 	bool str_ends_with(const std::string& str, const std::string& end);
+
+	uint str_hash(const std::string& str);
+	uint str_hash(const char* str);
 
 	int ascii_tolower(int chr);
 	int ascii_ncase_cmp(const std::string &lhs, const std::string &rhs);

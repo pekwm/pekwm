@@ -455,8 +455,9 @@ public:
 
 	inline const GC &getInvertGC(void) const { return _invert_gc; }
 
-	const std::string& getThemeDir(void) const { return _theme_dir; }
-	const std::string& getBackground(void) const { return _background; }
+	const std::string& getThemeDir() const { return _theme_dir; }
+	const std::string& getThemeFile() const { return _theme_file; }
+	const std::string& getBackground() const { return _background; }
 
 	Util::StringMap<PDecorData*>::const_iterator
 	decor_begin(void) {

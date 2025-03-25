@@ -1,6 +1,6 @@
 //
 // test_String.hh for pekwm
-// Copyright (C) 2022-2023 Claes Nästén <pekdon@gmail.com>
+// Copyright (C) 2022-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -23,11 +23,12 @@ public:
 
 	virtual bool run_test(TestSpec spec, bool status);
 
-	static void testStrStartsWith(void);
-	static void testStrEndsWith(void);
-	static void testAsciiTolower(void);
-	static void testAsciiNCaseCmp(void);
-	static void testAsciiNCaseEqual(void);
+	static void testStrStartsWith();
+	static void testStrEndsWith();
+	static void testStrHash();
+	static void testAsciiTolower();
+	static void testAsciiNCaseCmp();
+	static void testAsciiNCaseEqual();
 };
 
 bool
@@ -35,6 +36,7 @@ TestString::run_test(TestSpec spec, bool status)
 {
 	TEST_FN(spec, "str_starts_with", testStrStartsWith());
 	TEST_FN(spec, "str_ends_with", testStrEndsWith());
+	TEST_FN(spec, "str_hash", testStrHash());
 	TEST_FN(spec, "ascii_tolower", testAsciiTolower());
 	TEST_FN(spec, "ascii_ncase_cmp", testAsciiNCaseCmp());
 	TEST_FN(spec, "ascii_ncase_equal", testAsciiNCaseEqual());
@@ -42,7 +44,7 @@ TestString::run_test(TestSpec spec, bool status)
 }
 
 void
-TestString::testStrStartsWith(void)
+TestString::testStrStartsWith()
 {
 	ASSERT_EQUAL("empty", false, pekwm::str_starts_with("", '\n'));
 	ASSERT_EQUAL("not match", false, pekwm::str_starts_with("text", '\n'));
@@ -56,7 +58,7 @@ TestString::testStrStartsWith(void)
 }
 
 void
-TestString::testStrEndsWith(void)
+TestString::testStrEndsWith()
 {
 	ASSERT_EQUAL("empty", false, pekwm::str_ends_with("", '\n'));
 	ASSERT_EQUAL("not match", false, pekwm::str_ends_with("text", '\n'));
@@ -70,7 +72,17 @@ TestString::testStrEndsWith(void)
 }
 
 void
-TestString::testAsciiTolower(void)
+TestString::testStrHash()
+{
+	uint cpp_hash = pekwm::str_hash(std::string("C++ string"));
+	ASSERT_TRUE("std::string hash", cpp_hash != 0);
+	uint c_hash = pekwm::str_hash("C string");
+	ASSERT_TRUE("C string hash", c_hash != 0);
+	ASSERT_TRUE("hash not equal", cpp_hash != c_hash);
+}
+
+void
+TestString::testAsciiTolower()
 {
 	ASSERT_EQUAL("a", static_cast<int>('a'),
 		     pekwm::ascii_tolower('a'));
@@ -87,7 +99,7 @@ TestString::testAsciiTolower(void)
 }
 
 void
-TestString::testAsciiNCaseCmp(void)
+TestString::testAsciiNCaseCmp()
 {
 	ASSERT_EQUAL("lower", -1,
 		     pekwm::ascii_ncase_cmp("abc", "bcd"));
@@ -100,7 +112,7 @@ TestString::testAsciiNCaseCmp(void)
 }
 
 void
-TestString::testAsciiNCaseEqual(void)
+TestString::testAsciiNCaseEqual()
 {
 	ASSERT_EQUAL("lower", true,
 		     pekwm::ascii_ncase_equal("hello", "hello"));

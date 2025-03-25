@@ -1,6 +1,6 @@
 //
-// test_Theme.cc for pekwm
-// Copyright (C) 2021-2023 Claes Nästén <pekdon@gmail.com>
+// test_Theme.hh for pekwm
+// Copyright (C) 2021-2025 Claes Nästén <pekdon@gmail.com>
 //
 // This program is licensed under the GNU GPL.
 // See the LICENSE file for more information.
@@ -9,7 +9,8 @@
 #include "test.hh"
 #include "tk/Theme.hh"
 
-class TestTheme : public TestSuite {
+class TestTheme : public TestSuite,
+		  public Theme {
 public:
 	TestTheme()
 		: TestSuite("Theme")
@@ -18,12 +19,13 @@ public:
 
 	virtual bool run_test(TestSpec spec, bool status);
 
-	static void testColorMapLoad(void);
-	static void testColorMapLoadInvalid(void);
+	static void testColorMapLoad();
+	static void testColorMapLoadInvalid();
 
 private:
 	static bool loadColorMap(const char *cfg,
 				 std::map<int, int> &color_map);
+
 };
 
 bool
