@@ -57,6 +57,22 @@ TestDaytime::testDaytime()
 	ASSERT_TRUE("sunset after time", 1742734420 < dt2.getSunSet());
 	ASSERT_EQUAL("daytime (64.5191, 18.8572)", 0,
 		     1742749779 - dt2.getSunSet());
+
+	// 2024-12-31T00:00:00 (rise 09:04:09 set 12:31:27)
+	for (time_t t = 1735603200; t < 1735516800; t += 10800) {
+		Daytime dt3(t, 65.5191, 18.8572);
+		ASSERT_EQUAL("daytime (64.5191, 18.8572)", 0,
+			     1735635849 - dt3.getSunRise());
+		ASSERT_EQUAL("daytime (64.5191, 18.8572)", 0,
+			     1735648407 - dt3.getSunSet());
+	}
+
+	// 1993-01-01
+	Daytime dt4(725846400, 65.5191, 18.8572);
+	ASSERT_EQUAL("daytime 1993-01-01 (65.5191, 18.8572)", 0,
+		     725878939 - dt4.getSunRise());
+	ASSERT_EQUAL("daytime 1993-01-01 (65.5191, 18.8572)", 0,
+		     725891789 - dt4.getSunSet());
 }
 
 void

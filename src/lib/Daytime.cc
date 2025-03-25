@@ -6,6 +6,7 @@
 // See the LICENSE file for more information.
 //
 
+#include "Calendar.hh"
 #include "Daytime.hh"
 #include "String.hh"
 
@@ -112,7 +113,29 @@ Daytime::Daytime(time_t ts, double latitude, double longitude,
 {
 	double julian = _ts_to_j(ts);
 	double julian_day = _j_to_julian_day(julian);
+	calculate(julian_day, latitude, longitude, elevation);
 
+	// NOTE: this is just for working around failed Julian day conversions
+	//       issues, rounding errors.
+	Calendar cal_ts(ts);
+	Calendar cal_sun_rise(_sun_rise);
+	Calendar cal_sun_set(_sun_set);
+	if (cal_ts.getYDay() != cal_sun_rise.getYDay()) {
+		if (cal_ts.getYear() > cal_sun_rise.getYear()) {
+			julian_day += cal_sun_rise.getYearDays();
+		} else if (cal_ts.getYear() < cal_sun_rise.getYear()) {
+			julian_day -= cal_ts.getYearDays();
+		}
+		julian_day += static_cast<double>(
+			cal_ts.getYDay() - cal_sun_rise.getYDay());
+		calculate(julian_day, latitude, longitude, elevation);
+	}
+}
+
+void
+Daytime::calculate(double julian_day, double latitude, double longitude,
+		   double elevation)
+{
 	double mean_solar_time = julian_day + 0.0009 - longitude / 360.0;
 
 	double solar_mean_anomaly_deg =

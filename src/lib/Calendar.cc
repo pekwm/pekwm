@@ -28,8 +28,11 @@ Calendar::Calendar()
 /**
  * Create a new calendar object representing the given UTC time.
  */
-Calendar::Calendar(time_t ts)
+Calendar::Calendar(time_t ts, int ts_off)
 {
+	if (ts_off) {
+		ts += ts_off * SECONDS_PER_DAY;
+	}
 	gmtime_r(&ts, &_tm);
 }
 

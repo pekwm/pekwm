@@ -47,6 +47,9 @@ public:
 	time_t getTimeOfDayEnd(time_t ts = 0);
 
 private:
+	void calculate(double julian_day, double latitude, double longitude,
+		       double elevation);
+
 	time_t _now;
 	time_t _sun_rise;
 	time_t _sun_set;
