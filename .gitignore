@@ -2,6 +2,7 @@ build
 .cache
 test/system/plux
 *.a
+*.log
 *.o
 *~
 .#*
@@ -27,7 +28,7 @@ Makefile
 Makefile.in
 /data/scripts/pekwm_theme
 /data/scripts/*.sh
-/dev/check
+/dev/code_check
 /src/panel/pekwm_panel
 /src/panel/pekwm_panel_sysinfo
 /src/bg/pekwm_bg
@@ -38,3 +39,8 @@ Makefile.in
 /src/sys/pekwm_sys
 /src/wm/pekwm
 /src/wm/pekwm_wm
+/test/system/test_client
+/test/system/test_net_request_frame_extents
+/test/system/test_systray
+/test/system/test_transient_for
+/test/system/test_update_client_list

@@ -3,9 +3,10 @@
 
 [include test.pluxinc]
 
-[global PEKWM_THEMESET=$SCRIPTS_DIR/pekwm_themeset.sh]
-
 [shell pekwm_themeset]
+	# from a shell, SCRIPTS_DIR set in shell init
+	[global PEKWM_THEMESET=$SCRIPTS_DIR/pekwm_themeset.sh]
+
 	[log usage]
 	!$PEKWM_THEMESET
 	?usage: .* \/path\/to\/themedir \(theme\)

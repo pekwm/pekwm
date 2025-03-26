@@ -4,16 +4,29 @@ Common functions and variables for pekwm tests
 
 [config set shell_hook_init=init-shell]
 
-[global BIN_DIR=../../build/src]
-[global TEST_DIR=../../build/test/system]
-[global SCRIPTS_DIR=../../build/data/scripts]
-
 [global DISPLAY=:1]
+[function init-shell-cmake]
+	[global BIN_DIR=../../build/src]
+	[global TEST_DIR=../../build/test/system]
+	[global SCRIPTS_DIR=../../build/data/scripts]
+[endfunction]
+
+[function init-shell-autoconf]
+	[global BIN_DIR=../../src]
+	[global TEST_DIR=.]
+	[global SCRIPTS_DIR=../../data/scripts]
+[endfunction]
+
+[function init-test-display]
+	[call sh-eval "export DISPLAY=$$TEST_USE_DISPLAY"]
+[endfunction]
 
 [function init-shell]
 	?SH-PROMPT:
 	[call sh-eval "export DISPLAY=$DISPLAY LANG=C LC_CTYPE=C"]
 	[call sh-which valgrind VALGRIND]
+	[call sh-if "x$$TEST_USE_DISPLAY != x" init-test-display]
+	[call sh-if-else "-d ../../build" init-shell-cmake init-shell-autoconf]
 [endfunction]
 
 [function start-xvfb]
