@@ -52,6 +52,7 @@ pekwm_ws_menu.sh: pekwm_ws_menu.sh.in
 		< pekwm_ws_menu.sh.in > pekwm_ws_menu.sh
 
 EXTRA_DIST = CMakeLists.txt \
+	     pekwm_audio_ctrl.sh.in \
 	     pekwm_lock.sh.in \
 	     pekwm_panel_battery.sh.in \
 	     pekwm_theme.in \
